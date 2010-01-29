@@ -9,11 +9,11 @@
 
 Pad_Preamble="0x00,0x01"
 
-SHA1_Suffix="0x30,0x21,0x30,0x09,0x06,0x05,0x2b,0x0e,0x03,0x02,0x1a,0x05"\
+SHA1_digestinfo="0x30,0x21,0x30,0x09,0x06,0x05,0x2b,0x0e,0x03,0x02,0x1a,0x05"\
 ",0x00,0x04,0x14"
-SHA256_Suffix="0x30,0x31,0x30,0x0d,0x06,0x09,0x60,0x86,0x48,0x01,0x65,0x03"\
+SHA256_digestinfo="0x30,0x31,0x30,0x0d,0x06,0x09,0x60,0x86,0x48,0x01,0x65,0x03"\
 ",0x04,0x02,0x01,0x05,0x00,0x04,0x20"
-SHA512_Suffix="0x30,0x51,0x30,0x0d,0x06,0x09,0x60,0x86,0x48,0x01,0x65,0x03"\
+SHA512_digestinfo="0x30,0x51,0x30,0x0d,0x06,0x09,0x60,0x86,0x48,0x01,0x65,0x03"\
 ",0x04,0x02,0x03,0x05,0x00,0x04,0x40"
 
 RSA1024_Len=128
@@ -95,8 +95,8 @@ do
     echo -n $Pad_Preamble,
     genFFOctets $nums
     echo -n "0x00,"
-    eval suffix=\$${hashalgo}_Suffix
-    echo $suffix
+    eval digestinfo=\$${hashalgo}_digestinfo
+    echo $digestinfo
     echo "};"
     echo
   done
@@ -106,7 +106,37 @@ echo "const int kNumAlgorithms = $algorithmcounter;";
 echo "#define NUMALGORITHMS $algorithmcounter"
 echo
 
-# Generate algorithm signature length map
+# Output DigestInfo field lengths.
+cat <<EOF
+#define SHA1_DIGESTINFO_LEN 15
+#define SHA256_DIGESTINFO_LEN 19
+#define SHA512_DIGESTINFO_LEN 19
+EOF
+
+
+# Generate DigestInfo arrays.
+for hashalgo in ${HashAlgos[@]}
+do
+  echo "const uint8_t ${hashalgo}_digestinfo[] = {"
+  eval digestinfo=\$${hashalgo}_digestinfo
+  echo $digestinfo
+  echo "};"
+  echo
+done
+
+# Generate DigestInfo to size map.
+echo "const int digestinfo_size_map[] = {"
+for rsaalgo in ${RSAAlgos[@]}
+do
+  for hashalgo in ${HashAlgos[@]}
+  do
+    echo ${hashalgo}_DIGESTINFO_LEN,
+  done
+done
+echo "};"
+echo
+
+# Generate algorithm signature length map.
 echo "const int siglen_map[NUMALGORITHMS] = {"
 for rsaalgo in ${RSAAlgos[@]}
 do
@@ -118,7 +148,7 @@ done
 echo "};"
 echo
 
-# Generate algorithm padding array map
+# Generate algorithm padding array map.
 echo "const uint8_t* padding_map[NUMALGORITHMS] = {"
 for rsaalgo in ${RSAAlgos[@]}
 do
@@ -130,7 +160,7 @@ done
 echo "};"
 echo
 
-# Generate algorithm padding size map
+# Generate algorithm padding size map.
 echo "const int padding_size_map[NUMALGORITHMS] = {"
 for rsaalgo in ${RSAAlgos[@]}
 do
@@ -142,7 +172,19 @@ done
 echo "};"
 echo
 
-# Generate algorithm message digest's input block size.
+# Generate algorithm to message digest's output size map.
+echo "const int hash_size_map[NUMALGORITHMS] = {"
+for rsaalgo in ${RSAAlgos[@]}
+do
+  for hashalgo in ${HashAlgos[@]}
+  do
+    echo ${hashalgo}_DIGEST_SIZE,
+  done
+done
+echo "};"
+echo
+
+# Generate algorithm to message digest's input block size map.
 echo "const int hash_blocksize_map[NUMALGORITHMS] = {"
 for rsaalgo in ${RSAAlgos[@]}
 do
@@ -153,6 +195,19 @@ do
 done
 echo "};"
 echo
+
+# Generate algorithm to message's digest ASN.1 DigestInfo map.
+echo "const uint8_t* hash_digestinfo_map[NUMALGORITHMS] = {"
+for rsaalgo in ${RSAAlgos[@]}
+do
+  for hashalgo in ${HashAlgos[@]}
+  do
+    echo ${hashalgo}_digestinfo,
+  done
+done
+echo "};"
+echo
+
 
 # Generate algorithm description strings.
 echo "const char* algo_strings[NUMALGORITHMS] = {"

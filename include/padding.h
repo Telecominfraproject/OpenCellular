@@ -18,10 +18,13 @@ extern const uint8_t paddingRSA8192_SHA512[];
 
 extern const int kNumAlgorithms;
 
+extern const int digestinfo_size_map[];
 extern const int siglen_map[];
 extern const uint8_t* padding_map[];
 extern const int padding_size_map[];
+extern const int hash_size_map[];
 extern const int hash_blocksize_map[];
+extern const uint8_t* hash_digestinfo_map[];
 extern const char* algo_strings[];
 
 #endif  /* VBOOT_REFERENCE_PADDING_H_ */

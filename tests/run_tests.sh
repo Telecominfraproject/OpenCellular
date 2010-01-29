@@ -28,31 +28,31 @@ function generate_keys {
 # Generate public key signatures on an input file for various combinations
 # of message digest algorithms and RSA key sizes.
 function generate_signatures {
-  for i in ${hash_algos[@]}
+  algorithmcounter=0
+  for keylen in ${key_lengths[@]}
   do
-    for j in ${key_lengths[@]}
+    for hashalgo in ${hash_algos[@]}
     do
-      openssl dgst -binary -$i $1 >$1.digest.$i
-      openssl pkeyutl -in $1.digest.$i -inkey key_rsa$j.pem \
-        -pkeyopt digest:$i > $1.rsa$j\_$i.sig
+      ./signature_digest $algorithmcounter $1 | openssl rsautl -sign -pkcs \
+        -inkey key_rsa${keylen}.pem > $1.rsa${keylen}\_${hashalgo}.sig
+      let algorithmcounter=algorithmcounter+1
     done
   done
 }
 
 function test_signatures {
   algorithmcounter=0
-  for rsaalgo in ${key_lengths[@]}
+  for keylen in ${key_lengths[@]}
   do
     for hashalgo in ${hash_algos[@]}
     do
-      echo "For RSA-$rsaalgo and $hashalgo:"
-      ./verify_data $algorithmcounter key_rsa${rsaalgo}.keyb \
-        ${TEST_FILE}.rsa${rsaalgo}_${hashalgo}.sig ${TEST_FILE}
+      echo "For RSA-$keylen and $hashalgo:"
+      ./verify_data $algorithmcounter key_rsa${keylen}.keyb \
+        ${TEST_FILE}.rsa${keylen}\_${hashalgo}.sig ${TEST_FILE}
       let algorithmcounter=algorithmcounter+1
     done
   done
 }
-
 
 function pre_work {
   # Generate a file with random bytes for signature tests.
@@ -65,7 +65,7 @@ function pre_work {
 }
 
 function cleanup {
-  rm ${TEST_FILE} ${TEST_FILE}.digest.* ${TEST_FILE}.*.sig key_rsa*.*
+  rm ${TEST_FILE} ${TEST_FILE}.*.sig key_rsa*.*
 }
 
 echo "Testing message digests..."
