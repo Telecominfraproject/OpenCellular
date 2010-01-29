@@ -53,20 +53,31 @@ typedef struct {
 void SHA1_init(SHA1_CTX* ctx);
 void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, int len);
 uint8_t* SHA1_final(SHA1_CTX* ctx);
+
+void SHA256_init(SHA256_CTX* ctx);
+void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, int len);
+uint8_t* SHA256_final(SHA256_CTX* ctx);
+
+void SHA512_init(SHA512_CTX* ctx);
+void SHA512_update(SHA512_CTX* ctx, const uint8_t* data, int len);
+uint8_t* SHA512_final(SHA512_CTX* ctx);
+
 /* Convenience function for SHA-1.  Computes hash on [data] of length [len].
  * and stores it into [digest]. [digest] should be pre-allocated to
  * SHA1_DIGEST_SIZE bytes.
  */
 uint8_t* SHA1(const void* data, int len, uint8_t* digest);
 
-void SHA256_init(SHA256_CTX* ctx);
-void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, int len);
-uint8_t* SHA256_final(SHA256_CTX* ctx);
+/* Convenience function for SHA-256.  Computes hash on [data] of length [len].
+ * and stores it into [digest]. [digest] should be pre-allocated to
+ * SHA256_DIGEST_SIZE bytes.
+ */
 uint8_t* SHA256(const uint8_t* data, int len, uint8_t* digest);
 
-void SHA512_init(SHA512_CTX* ctx);
-void SHA512_update(SHA512_CTX* ctx, const uint8_t* data, int len);
-uint8_t* SHA512_final(SHA512_CTX* ctx);
+/* Convenience function for SHA-512.  Computes hash on [data] of length [len].
+ * and stores it into [digest]. [digest] should be pre-allocated to
+ * SHA512_DIGEST_SIZE bytes.
+ */
 uint8_t* SHA512(const uint8_t* data, int len, uint8_t* digest);
 
 
