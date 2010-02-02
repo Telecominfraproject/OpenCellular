@@ -20,4 +20,4 @@ signature_digest:	signature_digest.c digest_utility.o
 digest_utility.o:	digest_utility.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
 clean:
-	rm -f $(OBJS) sha_tests verify_data
+	rm -f $(OBJS) sha_tests verify_data signature_digest
