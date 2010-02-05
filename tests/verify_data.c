@@ -21,9 +21,11 @@
 #include "rsa_utility.h"
 #include "verify_data.h"
 
-RSAPublicKey* read_RSAkey(char* input_file, int len) {
+RSAPublicKey* read_RSAkey(char* input_file) {
   int key_fd;
-  RSAPublicKey* key = NULL;
+  int buf_len;
+  struct stat stat_fd;
+  uint8_t* buf = NULL;
 
   if ((key_fd = open(input_file, O_RDONLY)) == -1) {
     fprintf(stderr, "Couldn't open pre-processed key file\n");
@@ -99,7 +101,7 @@ int main(int argc, char* argv[]) {
   /* Length of the RSA Signature/RSA Key */
   sig_len = siglen_map[algorithm] * sizeof(uint32_t);
 
-  if (!(key = read_RSAkey(argv[2], sig_len)))
+  if (!(key = read_RSAkey(argv[2])))
     goto failure;
   if (!(signature = read_signature(argv[3], sig_len)))
     goto failure;
