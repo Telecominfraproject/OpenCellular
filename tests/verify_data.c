@@ -18,60 +18,43 @@
 #include "digest_utility.h"
 #include "padding.h"
 #include "rsa.h"
+#include "rsa_utility.h"
 #include "verify_data.h"
 
-RSAPublicKey* read_RSAkey(char *input_file, int len) {
+RSAPublicKey* read_RSAkey(char* input_file, int len) {
   int key_fd;
-  RSAPublicKey *key = NULL;
+  int buf_len;
+  struct stat stat_fd;
+  uint8_t* buf = NULL;
 
   if ((key_fd = open(input_file, O_RDONLY)) == -1) {
     fprintf(stderr, "Couldn't open pre-processed key file\n");
     return NULL;
   }
 
-  key = (RSAPublicKey *) malloc(sizeof(RSAPublicKey));
-  if (!key)
+  if (-1 == fstat(key_fd, &stat_fd)) {
+    fprintf(stderr, "Couldn't stat key file\n");
+    return NULL;
+  }
+  buf_len = stat_fd.st_size;
+
+  /* Read entire key binary blob into a buffer. */
+  buf = (uint8_t*) malloc(buf_len);
+  if (!buf)
     return NULL;
 
-  /* Read the pre-processed RSA key into a RSAPublicKey structure */
-  /* TODO(gauravsh): Add error checking here? */
-
-  read(key_fd, &key->len, sizeof(key->len));
-  read(key_fd, &key->n0inv, sizeof(key->n0inv));
-
-#ifndef NDEBUG
-  fprintf(stderr, "%d\n", key->len);
-  fprintf(stderr, "%d\n", key->n0inv);
-#endif
-
-  key->n = (uint32_t *) malloc(len);
-  read(key_fd, key->n, len);
-
-  key->rr = (uint32_t *) malloc(len);
-  read(key_fd, key->rr, len);
-
-#ifndef NDEBUG
-  {
-    int i;
-    for(i=0; i<key->len; i++) {
-      fprintf(stderr, "%d,", key->n[i]);
-    }
-    fprintf(stderr, "\n");
-
-    for(i=0; i<key->len; i++) {
-      fprintf(stderr, "%d,", key->rr[i]);
-    }
-    fprintf(stderr, "\n");
+  if (buf_len != read(key_fd, buf, buf_len)) {
+    fprintf(stderr, "Couldn't read key into a buffer.\n");
+    return NULL;
   }
-#endif
 
   close(key_fd);
-  return key;
+  return RSAPublicKeyFromBuf(buf, buf_len);
 }
 
-uint8_t* read_signature(char *input_file, int len) {
+uint8_t* read_signature(char* input_file, int len) {
   int i, sigfd;
-  uint8_t *signature = NULL;
+  uint8_t* signature = NULL;
   if ((sigfd = open(input_file, O_RDONLY)) == -1) {
     fprintf(stderr, "Couldn't open signature file\n");
     return NULL;
@@ -96,7 +79,8 @@ uint8_t* read_signature(char *input_file, int len) {
 
 int main(int argc, char* argv[]) {
   int i, algorithm, sig_len;
-  uint8_t *digest = NULL, *signature = NULL;
+  uint8_t* digest = NULL;
+  uint8_t* signature = NULL;
   RSAPublicKey* key = NULL;
 
   if (argc!=5) {

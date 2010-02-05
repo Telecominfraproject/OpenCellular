@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-SRCS=rsa.c sha1.c sha2.c padding.c
+SRCS=rsa.c sha1.c sha2.c padding.c rsa_utility.c
 OBJS=$(SRCS:.c=.o)
 
 all:	libcrypto.a
