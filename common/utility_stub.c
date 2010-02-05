@@ -10,7 +10,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 void* Malloc(size_t size) {
   void* p = malloc(size);
@@ -29,6 +28,13 @@ void* Memcpy(void* dest, const void* src, size_t n) {
   return memcpy(dest, src, n);
 }
 
+void* Memset(void* dest, const uint8_t c, size_t n) {
+  while (n--) {
+    *((uint8_t*)dest) = c;
+  }
+  return dest;
+}
+
 int SafeMemcmp(const void* s1, const void* s2, size_t n) {
   int match = 1;
   const unsigned char* us1 = s1;
@@ -41,4 +47,17 @@ int SafeMemcmp(const void* s1, const void* s2, size_t n) {
   }
 
   return match;
+}
+
+void* StatefulMemcpy(MemcpyState* state, void* dst, int len) {
+  void* saved_ptr;
+  if (len > state->remaining_len) {
+    state->remaining_len = -1;
+    return NULL;
+  }
+  saved_ptr = state->remaining_buf;
+  Memcpy(dst, saved_ptr, len);
+  state->remaining_buf += len;
+  state->remaining_len -= len;
+  return dst;
 }

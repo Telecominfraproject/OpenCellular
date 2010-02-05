@@ -8,6 +8,5 @@ all:	dumpRSAPublicKey
 
 dumpRSAPublicKey:	dumpRSAPublicKey.c
 		$(CC) $(CFLAGS) $(LIBS) $< -o $@
-
 clean:
 	rm -f dumpRSAPublicKey
