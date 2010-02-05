@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-SRCS=sha_tests.c verify_data.c digest_utility.c signature_digest.c
+SRCS=sha_tests.c verify_data.c signature_digest.c
 OBJS=$(SRCS:.c=.o)
 LIBS=$(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
 
@@ -12,12 +12,9 @@ sha_tests:	sha_tests.c
 	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $< -o $@ $(LIBS)
 
 verify_data:	verify_data.c digest_utility.o
-	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $< -o $@ digest_utility.o $(LIBS)
+	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $< -o $@ $(LIBS)
 
-signature_digest:	signature_digest.c digest_utility.o
-	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $< -o $@ digest_utility.o $(LIBS)
-
-digest_utility.o:	digest_utility.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
+signature_digest:	signature_digest.c
+	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $< -o $@ $(LIBS)
 clean:
 	rm -f $(OBJS) sha_tests verify_data signature_digest

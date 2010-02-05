@@ -15,7 +15,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "digest_utility.h"
+#include "sha_utility.h"
 #include "padding.h"
 #include "rsa.h"
 #include "rsa_utility.h"
@@ -23,9 +23,7 @@
 
 RSAPublicKey* read_RSAkey(char* input_file, int len) {
   int key_fd;
-  int buf_len;
-  struct stat stat_fd;
-  uint8_t* buf = NULL;
+  RSAPublicKey* key = NULL;
 
   if ((key_fd = open(input_file, O_RDONLY)) == -1) {
     fprintf(stderr, "Couldn't open pre-processed key file\n");
@@ -105,7 +103,7 @@ int main(int argc, char* argv[]) {
     goto failure;
   if (!(signature = read_signature(argv[3], sig_len)))
     goto failure;
-  if (!(digest = calculate_digest(argv[4], algorithm)))
+  if (!(digest = DigestFile(argv[4], algorithm)))
     goto failure;
   if(RSA_verify(key, signature, sig_len, algorithm, digest))
     fprintf(stderr, "Signature Verification SUCCEEDED.\n");

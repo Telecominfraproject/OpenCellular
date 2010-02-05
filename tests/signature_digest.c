@@ -17,9 +17,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "digest_utility.h"
 #include "padding.h"
 #include "sha.h"
+#include "sha_utility.h"
 
 uint8_t* prepend_digestinfo(int algorithm, uint8_t* digest) {
   const int digest_size = hash_size_map[algorithm];
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     goto failure;
   }
 
-  if (!(digest = calculate_digest(argv[2], algorithm)))
+  if (!(digest = DigestFile(argv[2], algorithm)))
     goto failure;
 
   info_digest = prepend_digestinfo(algorithm, digest);
