@@ -11,7 +11,7 @@ hash_algos=( sha1 sha256 sha512 )
 key_lengths=( 1024 2048 4096 8192 ) 
 TEST_FILE=test_file 
 TEST_FILE_SIZE=1000000
-UTILDIR=../utils/
+UTIL_DIR=../utils/
 
 # Generate RSA test keys of various lengths. 
 function generate_keys {
@@ -21,7 +21,7 @@ function generate_keys {
     # Generate self-signed certificate from key.
     openssl req -batch -new -x509 -key key_rsa$i.pem -out key_rsa$i.crt
     # Generate pre-processed key for use by RSA signature verification code.
-    ${UTILDIR}/dumpRSAPublicKey key_rsa$i.crt > key_rsa$i.keyb
+    ${UTIL_DIR}/dumpRSAPublicKey key_rsa$i.crt > key_rsa$i.keyb
   done
 }
 
@@ -33,8 +33,8 @@ function generate_signatures {
   do
     for hashalgo in ${hash_algos[@]}
     do
-      ./signature_digest $algorithmcounter $1 | openssl rsautl -sign -pkcs \
-        -inkey key_rsa${keylen}.pem > $1.rsa${keylen}\_${hashalgo}.sig
+      ${UTIL_DIR}/signature_digest $algorithmcounter $1 | openssl rsautl -sign \
+      -pkcs -inkey key_rsa${keylen}.pem > $1.rsa${keylen}\_${hashalgo}.sig
       let algorithmcounter=algorithmcounter+1
     done
   done
@@ -47,7 +47,7 @@ function test_signatures {
     for hashalgo in ${hash_algos[@]}
     do
       echo "For RSA-$keylen and $hashalgo:"
-      ./verify_data $algorithmcounter key_rsa${keylen}.keyb \
+      ${UTIL_DIR}/verify_data $algorithmcounter key_rsa${keylen}.keyb \
         ${TEST_FILE}.rsa${keylen}\_${hashalgo}.sig ${TEST_FILE}
       let algorithmcounter=algorithmcounter+1
     done
