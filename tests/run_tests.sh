@@ -12,18 +12,7 @@ key_lengths=( 1024 2048 4096 8192 )
 TEST_FILE=test_file 
 TEST_FILE_SIZE=1000000
 UTIL_DIR=../utils/
-
-# Generate RSA test keys of various lengths. 
-function generate_keys {
-  for i in ${key_lengths[@]}
-  do
-    openssl genrsa -F4 -out key_rsa$i.pem $i
-    # Generate self-signed certificate from key.
-    openssl req -batch -new -x509 -key key_rsa$i.pem -out key_rsa$i.crt
-    # Generate pre-processed key for use by RSA signature verification code.
-    ${UTIL_DIR}/dumpRSAPublicKey key_rsa$i.crt > key_rsa$i.keyb
-  done
-}
+KEY_DIR=testkeys
 
 # Generate public key signatures on an input file for various combinations
 # of message digest algorithms and RSA key sizes.
@@ -34,7 +23,8 @@ function generate_signatures {
     for hashalgo in ${hash_algos[@]}
     do
       ${UTIL_DIR}/signature_digest $algorithmcounter $1 | openssl rsautl -sign \
-      -pkcs -inkey key_rsa${keylen}.pem > $1.rsa${keylen}\_${hashalgo}.sig
+        -pkcs -inkey ${KEY_DIR}/key_rsa${keylen}.pem \
+        > $1.rsa${keylen}\_${hashalgo}.sig
       let algorithmcounter=algorithmcounter+1
     done
   done
@@ -47,8 +37,9 @@ function test_signatures {
     for hashalgo in ${hash_algos[@]}
     do
       echo "For RSA-$keylen and $hashalgo:"
-      ${UTIL_DIR}/verify_data $algorithmcounter key_rsa${keylen}.keyb \
-        ${TEST_FILE}.rsa${keylen}\_${hashalgo}.sig ${TEST_FILE}
+      ${UTIL_DIR}/verify_data $algorithmcounter \
+        ${KEY_DIR}/key_rsa${keylen}.keyb \
+        ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig ${TEST_FILE}
       let algorithmcounter=algorithmcounter+1
     done
   done
@@ -58,14 +49,12 @@ function pre_work {
   # Generate a file with random bytes for signature tests.
   echo "Generating test file..."
   dd if=/dev/urandom of=${TEST_FILE} bs=${TEST_FILE_SIZE} count=1
-  echo "Generating test keys..."
-  generate_keys
   echo "Generating signatures..."
   generate_signatures $TEST_FILE
 }
 
 function cleanup {
-  rm ${TEST_FILE} ${TEST_FILE}.*.sig key_rsa*.*
+  rm ${TEST_FILE} ${TEST_FILE}.*.sig
 }
 
 echo "Testing message digests..."
