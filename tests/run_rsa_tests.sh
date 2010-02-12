@@ -48,6 +48,21 @@ function test_signatures {
   done
 }
 
+function test_verification {
+  algorithmcounter=0
+  for keylen in ${key_lengths[@]}
+  do
+    for hashalgo in ${hash_algos[@]}
+    do
+      echo -e "For ${COL_YELLOW}RSA-$keylen and $hashalgo${COL_STOP}:"
+      cd ${UTIL_DIR} && ${TEST_DIR}/firmware_image_tests $algorithmcounter testkeys/key_rsa8192.pem \
+        testkeys/key_rsa8192.keyb testkeys/key_rsa${keylen}.pem \
+        testkeys/key_rsa${keylen}.keyb
+      let algorithmcounter=algorithmcounter+1
+    done
+  done
+}
+
 function pre_work {
   # Generate a file with random bytes for signature tests.
   echo "Generating test file..."
@@ -81,8 +96,12 @@ echo "Testing signature verification..."
 test_signatures
 
 echo
+echo "Testing high-level image verification..."
+test_verification
+
+echo
 echo "Cleaning up..."
-cleanup
+#cleanup
 
 exit $return_code
 

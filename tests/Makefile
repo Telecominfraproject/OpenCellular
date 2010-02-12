@@ -7,15 +7,19 @@ CFLAGS = -Wall
 INCLUDES ?= -I../include/
 TOP ?= ../
 
-LIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a -lrt
+LIBS = $(TOP)/utils/firmware_image.o $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a  \
+	$(TOP)/utils/file_keys.o -lrt
 
-tests: sha_tests sha_benchmark
+tests: firmware_image_tests sha_tests sha_benchmark
 
 sha_tests: sha_tests.c
-	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+
+firmware_image_tests: firmware_image_tests.c
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
 
 sha_benchmark:	sha_benchmark.c timer_utils.c
 	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $^ -o $@ $(LIBS)
 
 clean:
-	rm -f sha_tests sha_benchmark
+	rm -f sha_tests sha_benchmark firmware_image_tests

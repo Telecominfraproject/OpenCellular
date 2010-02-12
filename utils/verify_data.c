@@ -15,42 +15,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "file_keys.h"
 #include "sha_utility.h"
 #include "padding.h"
 #include "rsa.h"
 #include "rsa_utility.h"
 #include "verify_data.h"
-
-RSAPublicKey* read_RSAkey(char* input_file) {
-  int key_fd;
-  int buf_len;
-  struct stat stat_fd;
-  uint8_t* buf = NULL;
-
-  if ((key_fd = open(input_file, O_RDONLY)) == -1) {
-    fprintf(stderr, "Couldn't open pre-processed key file\n");
-    return NULL;
-  }
-
-  if (-1 == fstat(key_fd, &stat_fd)) {
-    fprintf(stderr, "Couldn't stat key file\n");
-    return NULL;
-  }
-  buf_len = stat_fd.st_size;
-
-  /* Read entire key binary blob into a buffer. */
-  buf = (uint8_t*) malloc(buf_len);
-  if (!buf)
-    return NULL;
-
-  if (buf_len != read(key_fd, buf, buf_len)) {
-    fprintf(stderr, "Couldn't read key into a buffer.\n");
-    return NULL;
-  }
-
-  close(key_fd);
-  return RSAPublicKeyFromBuf(buf, buf_len);
-}
 
 uint8_t* read_signature(char* input_file, int len) {
   int i, sigfd;
@@ -102,7 +72,7 @@ int main(int argc, char* argv[]) {
   /* Length of the RSA Signature/RSA Key */
   sig_len = siglen_map[algorithm] * sizeof(uint32_t);
 
-  if (!(key = read_RSAkey(argv[2])))
+  if (!(key = RSAPublicKeyFromFile(argv[2])))
     goto failure;
   if (!(signature = read_signature(argv[3], sig_len)))
     goto failure;
