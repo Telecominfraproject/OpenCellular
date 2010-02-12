@@ -79,6 +79,7 @@ uint8_t* read_signature(char* input_file, int len) {
 
 int main(int argc, char* argv[]) {
   int i, algorithm, sig_len;
+  int return_code = 1;  /* Default to error. */
   uint8_t* digest = NULL;
   uint8_t* signature = NULL;
   RSAPublicKey* key = NULL;
@@ -107,15 +108,18 @@ int main(int argc, char* argv[]) {
     goto failure;
   if (!(digest = DigestFile(argv[4], algorithm)))
     goto failure;
-  if(RSA_verify(key, signature, sig_len, algorithm, digest))
+  if(RSA_verify(key, signature, sig_len, algorithm, digest)) {
+    return_code = 0;
     fprintf(stderr, "Signature Verification SUCCEEDED.\n");
-  else
+  }
+  else {
     fprintf(stderr, "Signature Verification FAILED!\n");
+  }
 
 failure:
   free(key);
   free(signature);
   free(digest);
 
-  return 0;
+  return return_code;
 }
