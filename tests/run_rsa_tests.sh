@@ -7,12 +7,11 @@
 # Run tests for cryptographic routine implementations - Message digests 
 # and RSA Signature verification.
 
+return_code=0
 hash_algos=( sha1 sha256 sha512 )
 key_lengths=( 1024 2048 4096 8192 ) 
 TEST_FILE=test_file 
 TEST_FILE_SIZE=1000000
-UTIL_DIR=../utils/
-KEY_DIR=testkeys
 
 # Generate public key signatures on an input file for various combinations
 # of message digest algorithms and RSA key sizes.
@@ -40,6 +39,10 @@ function test_signatures {
       ${UTIL_DIR}/verify_data $algorithmcounter \
         ${KEY_DIR}/key_rsa${keylen}.keyb \
         ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig ${TEST_FILE}
+      if [ $? -ne 0 ]
+      then  
+        return_code=255
+      fi
       let algorithmcounter=algorithmcounter+1
     done
   done
@@ -57,16 +60,29 @@ function cleanup {
   rm ${TEST_FILE} ${TEST_FILE}.*.sig
 }
 
-echo "Testing message digests..."
-./sha_tests
+# Determine script directory.
+if [[ $0 == '/'* ]]; 
+then
+  SCRIPT_DIR="`dirname $0`"
+elif [[ $0 == './'* ]];
+then
+  SCRIPT_DIR="`pwd`"
+else
+  SCRIPT_DIR="`pwd`"/"`dirname $0`"
+fi
+UTIL_DIR=`dirname ${SCRIPT_DIR}`/utils
+KEY_DIR=${SCRIPT_DIR}/testkeys
+
+echo "Generating test cases..."
+pre_work
 
 echo
 echo "Testing signature verification..."
-pre_work
 test_signatures
 
 echo
 echo "Cleaning up..."
 cleanup
 
+exit $return_code
 
