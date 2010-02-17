@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 CC ?= gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -DNDEBUG
 INCLUDES ?= -I../include/
 TOP ?= ../
 
@@ -19,7 +19,7 @@ firmware_image_tests: firmware_image_tests.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
 
 sha_benchmark:	sha_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) -DNDEBUG $(INCLUDES) $^ -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 clean:
 	rm -f sha_tests sha_benchmark firmware_image_tests

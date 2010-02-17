@@ -2,8 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-SRCS=utility_stub.c
-OBJS=$(SRCS:.c=.o)
+SRCS = utility_stub.c
+OBJS = $(SRCS:.c=.o)
 
 all:	libcommon.a
 

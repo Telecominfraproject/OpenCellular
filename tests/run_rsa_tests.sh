@@ -72,7 +72,7 @@ function pre_work {
 }
 
 function cleanup {
-  rm ${TEST_FILE} ${TEST_FILE}.*.sig
+  rm ${SCRIPT_DIR}/${TEST_FILE} ${SCRIPT_DIR}/${TEST_FILE}.*.sig
 }
 
 # Determine script directory.
@@ -87,6 +87,7 @@ else
 fi
 UTIL_DIR=`dirname ${SCRIPT_DIR}`/utils
 KEY_DIR=${SCRIPT_DIR}/testkeys
+TEST_DIR=${SCRIPT_DIR}/
 
 echo "Generating test cases..."
 pre_work
@@ -101,7 +102,7 @@ test_verification
 
 echo
 echo "Cleaning up..."
-#cleanup
+cleanup
 
 exit $return_code
 
