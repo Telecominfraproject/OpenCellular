@@ -136,10 +136,10 @@ int VerifyFirmwareTamperTest(FirmwareImage* image, RSAPublicKey* root_key) {
 
 int main(int argc, char* argv[]) {
   int len;
-  uint8_t* sign_key_buf;
-  FirmwareImage* image;
-  RSAPublicKey* root_key;
-  int success = 1;
+  uint8_t* sign_key_buf = NULL;
+  FirmwareImage* image = NULL;
+  RSAPublicKey* root_key = NULL;
+  int error_code = 1;
 
   if(argc != 6) {
     fprintf(stderr, "Usage: %s <algorithm> <root key> <processed root pubkey>"
@@ -153,26 +153,33 @@ int main(int argc, char* argv[]) {
   image = GenerateTestFirmwareImage(atoi(argv[1]), sign_key_buf, 1,
                                     1, 1000);
 
+  if (!root_key || !sign_key_buf || !image) {
+    error_code = 1;
+    goto failure;
+  }
+
   /* Generate and populate signatures. */
   if (!AddKeySignature(image, argv[2])) {
     fprintf(stderr, "Couldn't create key signature.\n");
-    return -1;
+    error_code = 1;
+    goto failure;
   }
 
   if (!AddFirmwareSignature(image, argv[4], image->sign_algorithm)) {
     fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
-    return -1;
+    error_code = 1;
+    goto failure;
   }
 
   if (!VerifyFirmwareTest(image, root_key))
-    success = 0;
+    error_code = 255;
   if (!VerifyFirmwareTamperTest(image, root_key))
-    success = 0;
+    error_code = 255;
 
-  /* Clean up. */
+failure:
   Free(root_key);
   Free(sign_key_buf);
   Free(image);
 
-  return !success;
+  return error_code;
 }
