@@ -55,9 +55,11 @@ function test_verification {
     for hashalgo in ${hash_algos[@]}
     do
       echo -e "For ${COL_YELLOW}RSA-$keylen and $hashalgo${COL_STOP}:"
-      cd ${UTIL_DIR} && ${TEST_DIR}/firmware_image_tests $algorithmcounter testkeys/key_rsa8192.pem \
-        testkeys/key_rsa8192.keyb testkeys/key_rsa${keylen}.pem \
-        testkeys/key_rsa${keylen}.keyb
+      cd ${UTIL_DIR} && ${TEST_DIR}/firmware_image_tests $algorithmcounter \
+        ${TEST_DIR}/testkeys/key_rsa8192.pem \
+        ${TEST_DIR}/testkeys/key_rsa8192.keyb \
+        ${TEST_DIR}/testkeys/key_rsa${keylen}.pem \
+        ${TEST_DIR}/testkeys/key_rsa${keylen}.keyb
       let algorithmcounter=algorithmcounter+1
     done
   done
