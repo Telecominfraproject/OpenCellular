@@ -27,8 +27,8 @@ void* Memcpy(void* dest, const void* src, size_t n);
 /* Set [n] bytes starting at [s] to [c]. */
 void* Memset(void *dest, const uint8_t c, size_t n);
 
-/* Compare [n] bytes starting at [s1] with [s2] and return 1 if they match,
- * 0 if they don't. Time taken to perform the comparison is only dependent on
+/* Compare [n] bytes starting at [s1] with [s2] and return 0 if they match,
+ * 1 if they don't. Time taken to perform the comparison is only dependent on
  * [n] and not on the relationship of the match between [s1] and [s2].
  */
 int SafeMemcmp(const void* s1, const void* s2, size_t n);

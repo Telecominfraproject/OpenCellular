@@ -13,6 +13,12 @@ key_lengths=( 1024 2048 4096 8192 )
 TEST_FILE=test_file 
 TEST_FILE_SIZE=1000000
 
+COL_RED='\E[31;1m'
+COL_GREEN='\E[32;1m'
+COL_YELLOW='\E[33;1m'
+COL_BLUE='\E[34;1m'
+COL_STOP='\E[0;m'
+
 # Generate public key signatures on an input file for various combinations
 # of message digest algorithms and RSA key sizes.
 function generate_signatures {
@@ -35,7 +41,7 @@ function test_signatures {
   do
     for hashalgo in ${hash_algos[@]}
     do
-      echo "For RSA-$keylen and $hashalgo:"
+      echo -e "For ${COL_YELLOW}RSA-$keylen and $hashalgo${COL_STOP}:"
       ${UTIL_DIR}/verify_data $algorithmcounter \
         ${KEY_DIR}/key_rsa${keylen}.keyb \
         ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig ${TEST_FILE}

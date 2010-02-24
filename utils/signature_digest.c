@@ -21,7 +21,7 @@
 #include "sha.h"
 #include "sha_utility.h"
 
-uint8_t* prepend_digestinfo(int algorithm, uint8_t* digest) {
+uint8_t* PrependDigestInfo(int algorithm, uint8_t* digest) {
   const int digest_size = hash_size_map[algorithm];
   const int digestinfo_size = digestinfo_size_map[algorithm];
   const uint8_t* digestinfo = hash_digestinfo_map[algorithm];
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
   if (!(digest = DigestFile(argv[2], algorithm)))
     goto failure;
 
-  info_digest = prepend_digestinfo(algorithm, digest);
+  info_digest = PrependDigestInfo(algorithm, digest);
   write(1, info_digest, hash_size_map[algorithm] +
         digestinfo_size_map[algorithm]);
 

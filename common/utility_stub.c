@@ -30,19 +30,17 @@ void* Memcpy(void* dest, const void* src, size_t n) {
 
 void* Memset(void* dest, const uint8_t c, size_t n) {
   while (n--) {
-    *((uint8_t*)dest) = c;
+    *((uint8_t*)dest++) = c;
   }
   return dest;
 }
 
 int SafeMemcmp(const void* s1, const void* s2, size_t n) {
-  int match = 1;
+  int match = 0;
   const unsigned char* us1 = s1;
   const unsigned char* us2 = s2;
   while (n--) {
     if (*us1++ != *us2++)
-      match = 0;
-    else
       match = 1;
   }
 

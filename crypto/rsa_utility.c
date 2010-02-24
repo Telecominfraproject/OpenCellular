@@ -7,6 +7,7 @@
 
 #include "padding.h"
 #include "rsa_utility.h"
+#include "sha_utility.h"
 #include "utility.h"
 
 int RSAProcessedKeySize(int algorithm) {
@@ -19,12 +20,20 @@ int RSAProcessedKeySize(int algorithm) {
   return (2 * key_len + sizeof(int) + sizeof(uint32_t));
 }
 
-RSAPublicKey* RSAPublicKeyFromBuf(uint8_t* buf, int len) {
+void RSAPublicKeyFree(RSAPublicKey* key) {
+  if (key) {
+    Free(key->n);
+    Free(key->rr);
+    Free(key);
+  }
+}
+
+RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
   RSAPublicKey* key = (RSAPublicKey*) Malloc(sizeof(RSAPublicKey));
   MemcpyState st;
   int key_len;
 
-  st.remaining_buf = buf;
+  st.remaining_buf = (uint8_t*) buf;
   st.remaining_len = len;
 
   StatefulMemcpy(&st, &key->len, sizeof(key->len));
@@ -43,4 +52,37 @@ RSAPublicKey* RSAPublicKeyFromBuf(uint8_t* buf, int len) {
   }
 
   return key;
+}
+
+int RSAVerifyBinary_f(const uint8_t* key_blob,
+                      const RSAPublicKey* key,
+                      const uint8_t* buf,
+                      int len,
+                      const uint8_t* sig,
+                      int algorithm) {
+  RSAPublicKey* verification_key = NULL;
+  uint8_t* digest = NULL;
+  int key_size;
+  int sig_size;
+  int success;
+
+  if (algorithm >= kNumAlgorithms)
+    return 0;  /* Invalid algorithm. */
+  key_size = RSAProcessedKeySize(algorithm);
+  sig_size = siglen_map[algorithm] * sizeof(uint32_t);
+
+  if (key_blob && !key)
+    verification_key = RSAPublicKeyFromBuf(key_blob, key_size);
+  else if (!key_blob && key)
+    verification_key = (RSAPublicKey*) key;  /* Supress const warning. */
+  else
+    return 0; /* Both can't be NULL or non-NULL. */
+
+  digest = DigestBuf(buf, len, algorithm);
+  success = RSA_verify(verification_key, sig, sig_size, algorithm, digest);
+
+  Free(digest);
+  if (!key)
+    RSAPublicKeyFree(verification_key);  /* Only free if we allocated it. */
+  return success;
 }

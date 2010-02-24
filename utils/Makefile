@@ -3,33 +3,36 @@
 # found in the LICENSE file.
 
 CC ?= gcc
-CFLAGS = -Wall -ggdb -DNDEBUG
+CFLAGS = -Wall -DNDEBUG
 INCLUDES ?= -I../include/
 TOP ?= ../
 
 LIBS = -lcrypto
 FIRMWARELIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
 
-all: dumpRSAPublicKey verify_data signature_digest firmware_utility
+all: dumpRSAPublicKey verify_data signature_digest firmware_utility \
+	file_keys.o firmware_image.o
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(LIBS) $< -o $@
 
-verify_data: verify_data.c file_keys.o
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ file_keys.o $(FIRMWARELIBS)
+verify_data: verify_data.c file_keys.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FIRMWARELIBS)
 
 signature_digest: signature_digest.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(FIRMWARELIBS)
 
-firmware_utility: firmware_utility.c firmware_image.o file_keys.o
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@  firmware_image.o $(FIRMWARELIBS)
+firmware_utility: firmware_utility.c firmware_image.o file_keys.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FIRMWARELIBS)
 
+# Used by tests.
 file_keys.o: file_keys.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 firmware_image.o: firmware_image.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -f dumpRSAPublicKey verify_data signature_digest firmware_image.o file_keys.o
+	rm -f dumpRSAPublicKey verify_data signature_digest firmware_image.o \
+	file_keys.o
 

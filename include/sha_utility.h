@@ -48,6 +48,6 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm);
  * [len] based on the signature [algorithm].
  * Caller owns the returned digest and must free it.
  */
-uint8_t* DigestBuf(uint8_t* buf, int len, int sig_algorithm);
+uint8_t* DigestBuf(const uint8_t* buf, int len, int sig_algorithm);
 
 #endif  /* VBOOT_REFERENCE_SHA_UTILITY_H_ */

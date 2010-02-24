@@ -108,7 +108,7 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm) {
   return digest;
 }
 
-uint8_t* DigestBuf(uint8_t* buf, int len, int sig_algorithm) {
+uint8_t* DigestBuf(const uint8_t* buf, int len, int sig_algorithm) {
   uint8_t* digest = (uint8_t*) Malloc(SHA512_DIGEST_SIZE); /* Use the max. */
   /* Define an array mapping [sig_algorithm] to function pointers to the
    * SHA{1|256|512} functions.

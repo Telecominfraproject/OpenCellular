@@ -22,6 +22,11 @@
 #include "rsa_utility.h"
 #include "verify_data.h"
 
+/* ANSI Color coding sequences. */
+#define COL_GREEN "\e[1;32m"
+#define COL_RED "\e[0;31m]"
+#define COL_STOP "\e[m"
+
 uint8_t* read_signature(char* input_file, int len) {
   int i, sigfd;
   uint8_t* signature = NULL;
@@ -45,7 +50,6 @@ uint8_t* read_signature(char* input_file, int len) {
   close(sigfd);
   return signature;
 }
-
 
 int main(int argc, char* argv[]) {
   int i, algorithm, sig_len;
@@ -80,10 +84,11 @@ int main(int argc, char* argv[]) {
     goto failure;
   if(RSA_verify(key, signature, sig_len, algorithm, digest)) {
     return_code = 0;
-    fprintf(stderr, "Signature Verification SUCCEEDED.\n");
-  }
-  else {
-    fprintf(stderr, "Signature Verification FAILED!\n");
+    fprintf(stderr, "Signature Verification "
+            COL_GREEN "SUCCEEDED" COL_STOP "\n");
+  } else {
+    fprintf(stderr, "Signature Verification "
+            COL_RED "FAILED" COL_STOP "\n");
   }
 
 failure:

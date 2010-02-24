@@ -25,4 +25,12 @@ uint8_t* BufferFromFile(char* input_file, int* len);
  */
 RSAPublicKey* RSAPublicKeyFromFile(char* input_file);
 
+/* Helper function to invoke external program to calculate signature on
+ * [input_file] using private key [key_file] and signature algorithm
+ * [algorithm].
+ *
+ * Returns the signature. Caller owns the buffer and must Free() it.
+ */
+uint8_t* SignatureFile(char* input_fie, char* key_file, int algorithm);
+
 #endif  /* VBOOT_REFERENCE_FILE_KEYS_H_ */
