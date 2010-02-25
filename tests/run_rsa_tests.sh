@@ -69,6 +69,8 @@ function test_verification {
       let algorithmcounter=algorithmcounter+1
     done
   done
+  echo -e "Peforming ${COL_YELLOW}PKCS #1 v1.5 Padding Tests${COL_STOP}..."
+  ${TEST_DIR}/rsa_padding_test ${TEST_DIR}/testkeys/rsa_padding_test_pubkey.keyb
 }
 
 function pre_work {
