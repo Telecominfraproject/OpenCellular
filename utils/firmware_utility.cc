@@ -9,8 +9,9 @@
 
 #include <errno.h>
 #include <getopt.h>
-#include <unistd.h>
+#include <stdint.h>  // Needed for UINT16_MAX.
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -252,7 +253,7 @@ bool FirmwareUtility::CheckOptions(void) {
       cerr << "No root key file specified." << "\n";
       return false;
     }
-    if (firmware_version_ <= 0 || firmware_version_ > 0xFFFF) {
+    if (firmware_version_ <= 0 || firmware_version_ > UINT16_MAX) {
       cerr << "Invalid or no firmware version specified." << "\n";
       return false;
     }
@@ -264,7 +265,7 @@ bool FirmwareUtility::CheckOptions(void) {
       cerr << "No pre-processed public signing key file specified." << "\n";
       return false;
     }
-    if (key_version_ <= 0 || key_version_ > 0xFFFF) {
+    if (key_version_ <= 0 || key_version_ > UINT16_MAX) {
       cerr << "Invalid or no key version specified." << "\n";
       return false;
     }

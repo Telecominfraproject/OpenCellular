@@ -24,7 +24,8 @@ signature_digest: signature_digest.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(FIRMWARELIBS)
 
 firmware_utility: firmware_utility.cc firmware_image.o file_keys.o
-	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb $^ -o $@ $(FIRMWARELIBS)
+	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $^ \
+	-o $@ $(FIRMWARELIBS)
 
 # Used by tests.
 file_keys.o: file_keys.c
