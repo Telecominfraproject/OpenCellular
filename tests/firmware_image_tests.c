@@ -154,7 +154,7 @@ int VerifyFirmwareImageTamperTest(FirmwareImage* image,
 }
 
 int main(int argc, char* argv[]) {
-  int len;
+  uint32_t len;
   uint8_t* sign_key_buf = NULL;
   uint8_t* root_key_blob = NULL;
   uint8_t* firmware_blob = NULL;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
   }
 
   /* Generate and populate signatures. */
-  if (!AddKeySignature(image, argv[2])) {
+  if (!AddFirmwareKeySignature(image, argv[2])) {
     fprintf(stderr, "Couldn't create key signature.\n");
     error_code = 1;
     goto failure;

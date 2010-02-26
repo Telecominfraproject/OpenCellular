@@ -19,7 +19,7 @@
 #include "rsa_utility.h"
 #include "utility.h"
 
-uint8_t* BufferFromFile(char* input_file, int* len) {
+uint8_t* BufferFromFile(const char* input_file, uint32_t* len) {
   int fd;
   struct stat stat_fd;
   uint8_t* buf = NULL;
@@ -49,15 +49,18 @@ uint8_t* BufferFromFile(char* input_file, int* len) {
   return buf;
 }
 
-RSAPublicKey* RSAPublicKeyFromFile(char* input_file) {
-  int len;
+RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
+  uint32_t len;
+  RSAPublicKey* key;
   uint8_t* buf = BufferFromFile(input_file, &len);
-  RSAPublicKey* key = RSAPublicKeyFromBuf(buf, len);
+  if (buf)
+    key = RSAPublicKeyFromBuf(buf, len);
   Free(buf);
   return key;
 }
 
-uint8_t* SignatureFile(char* input_file, char* key_file, int algorithm) {
+uint8_t* SignatureFile(const char* input_file, const char* key_file,
+                       int algorithm) {
   char* sign_utility = "./sign_data.sh";
   char* cmd;  /* Command line to invoke. */
   int cmd_len;

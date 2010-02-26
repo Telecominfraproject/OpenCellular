@@ -16,14 +16,14 @@
  * Returns a pointer to the buffer. Caller owns the returned pointer and
  * must free it.
  */
-uint8_t* BufferFromFile(char* input_file, int* len);
+uint8_t* BufferFromFile(const char* input_file, uint32_t* len);
 
 /* Read a pre-processed RSA Public Key from file [input_file].
  *
  * Returns a pointer to the read key. Caller owns the returned pointer and
  * must free it.
  */
-RSAPublicKey* RSAPublicKeyFromFile(char* input_file);
+RSAPublicKey* RSAPublicKeyFromFile(const char* input_file);
 
 /* Helper function to invoke external program to calculate signature on
  * [input_file] using private key [key_file] and signature algorithm
@@ -31,6 +31,7 @@ RSAPublicKey* RSAPublicKeyFromFile(char* input_file);
  *
  * Returns the signature. Caller owns the buffer and must Free() it.
  */
-uint8_t* SignatureFile(char* input_fie, char* key_file, int algorithm);
+uint8_t* SignatureFile(const char* input_fie, const char* key_file,
+                       int algorithm);
 
 #endif  /* VBOOT_REFERENCE_FILE_KEYS_H_ */

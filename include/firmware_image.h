@@ -53,12 +53,11 @@ FirmwareImage* FirmwareImageNew(void);
 /* Deep free the contents of [fw]. */
 void FirmwareImageFree(FirmwareImage* fw);
 
-/* Read firmware data from file named [input_file] into [image].
+/* Read firmware data from file named [input_file]..
  *
- * Returns a filled up FirmwareImage on success, NULL on error.
+ * Returns a filled up FirmwareImage structure on success, NULL on error.
  */
-FirmwareImage* ReadFirmwareImage(const char* input_file,
-                                 FirmwareImage* image);
+FirmwareImage* ReadFirmwareImage(const char* input_file);
 
 /* Write firmware header from [image] to an open file pointed by the
  * file descriptor [fd].
@@ -93,7 +92,7 @@ void PrintFirmwareImage(const FirmwareImage* image);
 #define VERIFY_FIRMWARE_WRONG_MAGIC 6
 #define VERIFY_FIRMWARE_MAX 7  /* Generic catch-all. */
 
-char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
+extern char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
 
 /* Checks for the sanity of the firmware header pointed by [header_blob].
  * If [dev_mode] is enabled, also checks the root key signature using the
@@ -160,21 +159,21 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
                         const int dev_mode);
 
 /* Maps error codes from VerifyFirmware() to error description. */
-char* VerifyErrorString(int error);
+const char* VerifyFirmwareErrorString(int error);
 
 /* Add a root key signature to the key header to a firmware image [image]
  * using the private root key in file [root_key_file].
  *
  * Return 1 on success, 0 on failure.
  */
-int AddKeySignature(FirmwareImage* image, char* root_key_file);
+int AddFirmwareKeySignature(FirmwareImage* image, const char* root_key_file);
 
 /* Add firmware and preamble signature to a firmware image [image]
  * using the private signing key in file [signing_key_file].
  *
  * Return 1 on success, 0 on failure.
  */
-int AddFirmwareSignature(FirmwareImage* image, char* signing_key_file,
+int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file,
                          int algorithm);
 
 #endif  /* VBOOT_REFERENCE_FIRMWARE_IMAGE_H_ */

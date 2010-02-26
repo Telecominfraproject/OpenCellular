@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 CC ?= gcc
+CXX ?= g++
 CFLAGS = -Wall -DNDEBUG
 INCLUDES ?= -I../include/
 TOP ?= ../
@@ -22,8 +23,8 @@ verify_data: verify_data.c file_keys.c
 signature_digest: signature_digest.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(FIRMWARELIBS)
 
-firmware_utility: firmware_utility.c firmware_image.o file_keys.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FIRMWARELIBS)
+firmware_utility: firmware_utility.cc firmware_image.o file_keys.o
+	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb $^ -o $@ $(FIRMWARELIBS)
 
 # Used by tests.
 file_keys.o: file_keys.c
@@ -34,5 +35,5 @@ firmware_image.o: firmware_image.c
 
 clean:
 	rm -f dumpRSAPublicKey verify_data signature_digest firmware_image.o \
-	file_keys.o
+	file_keys.o firmware_utility
 
