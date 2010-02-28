@@ -45,8 +45,10 @@ int main(int argc, char* argv[]) {
     speed = ((TEST_BUFFER_SIZE / 10e6)
              / (msecs / 10e3)); /* Mbytes/sec */
 
-    fprintf(stderr, "%s Time taken = %u ms, Speed = %f Mbytes/sec\n",
+    fprintf(stderr, "# %s Time taken = %u ms, Speed = %f Mbytes/sec\n",
             hash_functions[i].description, msecs, speed);
+    fprintf(stdout, "%s:%f\n",
+            hash_functions[i].description, speed);
   }
 
   Free(digest);

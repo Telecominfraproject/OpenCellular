@@ -15,8 +15,9 @@
 #define FILE_NAME_SIZE 128
 #define NUM_OPERATIONS 100 /* Number of signature operations to time. */
 
-void SpeedTestAlgorithm(int algorithm) {
+int SpeedTestAlgorithm(int algorithm) {
   int i, key_size;
+  int error_code = 0;
   double speed, msecs;
   char file_name[FILE_NAME_SIZE];
   uint8_t* digest = NULL;
@@ -37,6 +38,7 @@ void SpeedTestAlgorithm(int algorithm) {
   key = RSAPublicKeyFromFile(file_name);
   if (!key) {
     fprintf(stderr, "Couldn't read key from file.\n");
+    error_code = 1;
     goto failure;
   }
 
@@ -46,6 +48,7 @@ void SpeedTestAlgorithm(int algorithm) {
   digest = BufferFromFile(file_name, &digest_len);
   if (!digest) {
     fprintf(stderr, "Couldn't read digest file.\n");
+    error_code = 1;
     goto failure;
   }
 
@@ -55,6 +58,7 @@ void SpeedTestAlgorithm(int algorithm) {
   signature = BufferFromFile(file_name, &sig_len);
   if (!signature) {
     fprintf(stderr, "Couldn't read signature file.\n");
+    error_code = 1;
     goto failure;
   }
 
@@ -67,20 +71,24 @@ void SpeedTestAlgorithm(int algorithm) {
 
   msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;
   speed = 1000.0 / msecs ;
-  fprintf(stderr, "rsa%d/%s bits:\tTime taken per verification = %.02f ms,"
+  fprintf(stderr, "# rsa%d/%s:\tTime taken per verification = %.02f ms,"
           " Speed = %.02f verifications/s\n", key_size, sha_strings[algorithm],
           msecs, speed);
+  fprintf(stdout, "rsa%d/%s:%.02f\n", key_size, sha_strings[algorithm], msecs);
 
 failure:
   Free(signature);
   Free(digest);
   Free(key);
+  return error_code;
 }
 
 int main(int argc, char* argv[]) {
   int i;
+  int error_code = 0;
   for (i = 0; i < kNumAlgorithms; ++i) {
-    SpeedTestAlgorithm(i);
+    if(SpeedTestAlgorithm(i))
+      error_code = 1;
   }
-  return 0;
+  return error_code;
 }
