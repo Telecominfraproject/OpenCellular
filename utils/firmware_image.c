@@ -81,7 +81,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
 
   /* Compute size of pre-processed RSA public key and signature. */
   sign_key_len = RSAProcessedKeySize(image->sign_algorithm);
-  signature_len = siglen_map[image->sign_algorithm] * sizeof(uint32_t);
+  signature_len = siglen_map[image->sign_algorithm];
 
 
   /* Check whether the header length is correct. */
@@ -166,7 +166,7 @@ FirmwareImage* WriteFirmwareImage(const char* input_file,
   write(fd, image->magic, FIELD_LEN(magic));
   WriteFirmwareHeader(fd, image);
   write(fd, image->key_signature, FIELD_LEN(key_signature));
-  signature_len = siglen_map[image->sign_algorithm] * sizeof(uint32_t);
+  signature_len = siglen_map[image->sign_algorithm];
   WriteFirmwarePreamble(fd, image);
   write(fd, image->preamble_signature, signature_len);
   write(fd, image->firmware_signature, signature_len);
@@ -293,7 +293,7 @@ int VerifyFirmwareData(RSAPublicKey* sign_key,
                        const uint8_t* firmware_data_start,
                        int firmware_len,
                        int algorithm) {
-  int signature_len = siglen_map[algorithm] * sizeof(uint32_t);
+  int signature_len = siglen_map[algorithm];
   if (!RSAVerifyBinary_f(NULL, sign_key,  /* Key to use. */
                          firmware_data_start + signature_len,  /* Data to
                                                                 * verify */
@@ -335,7 +335,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   sign_key_ptr = header_ptr + (FIELD_LEN(header_len) +
                                FIELD_LEN(sign_algorithm));
   sign_key = RSAPublicKeyFromBuf(sign_key_ptr, sign_key_len);
-  signature_len = siglen_map[algorithm] * sizeof(uint32_t);
+  signature_len = siglen_map[algorithm];
 
   /* Only continue if preamble verification succeeds. */
   preamble_ptr = (header_ptr + header_len +
@@ -406,7 +406,7 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   sign_key_size = RSAProcessedKeySize(image->sign_algorithm);
   sign_key = RSAPublicKeyFromBuf(image->sign_key,
                                  sign_key_size);
-  signature_size = siglen_map[image->sign_algorithm] * sizeof(uint32_t);
+  signature_size = siglen_map[image->sign_algorithm];
 
   if (image->sign_algorithm >= kNumAlgorithms)
     return VERIFY_FIRMWARE_INVALID_ALGORITHM;
@@ -477,7 +477,7 @@ int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file,
   char* tmp_firmware_file = ".tmpFirmwareFile";
   uint8_t* preamble_signature;
   uint8_t* firmware_signature;
-  int signature_len = siglen_map[algorithm] * sizeof(uint32_t);
+  int signature_len = siglen_map[algorithm];
 
   /* Write preamble to a file. */
   if(-1 == (tmp_preamble_fd = creat(tmp_preamble_file, S_IRWXU))) {

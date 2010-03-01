@@ -89,14 +89,6 @@ echo "Testing signature verification..."
 test_signatures
 
 echo
-echo "Testing high-level firmware image verification..."
-test_firmware_verification
-
-echo
-echo "Testing high-level kernel image verification..."
-test_kernel_verification
-
-echo
 echo "Cleaning up..."
 cleanup
 

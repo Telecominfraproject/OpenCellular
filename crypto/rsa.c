@@ -147,7 +147,7 @@ int RSA_verify(const RSAPublicKey *key,
     return 0;
   }
 
-  if (key->len != siglen_map[sig_type]) {
+  if (key->len != siglen_map[sig_type] / sizeof(uint32_t)) {
     fprintf(stderr, "Wrong key passed in!\n");
     return 0;
   }

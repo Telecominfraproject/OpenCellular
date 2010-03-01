@@ -32,7 +32,7 @@ int SpeedTestAlgorithm(int algorithm) {
     "sha1", "sha256", "sha512",  /* RSA-8192 */
   };
 
-  key_size = siglen_map[algorithm] * sizeof(uint32_t) * 8;  /* in bits. */
+  key_size = siglen_map[algorithm] * 8;  /* in bits. */
   /* Get key. */
   snprintf(file_name, FILE_NAME_SIZE, "testkeys/key_rsa%d.keyb", key_size);
   key = RSAPublicKeyFromFile(file_name);

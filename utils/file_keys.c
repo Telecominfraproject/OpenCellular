@@ -66,7 +66,7 @@ uint8_t* SignatureFile(const char* input_file, const char* key_file,
   int cmd_len;
   FILE* cmd_out;  /* File descriptor to command output. */
   uint8_t* signature = NULL;
-  int signature_size = siglen_map[algorithm] * sizeof(uint32_t);
+  int signature_size = siglen_map[algorithm];
 
   /* Build command line:
    * sign_data.sh <algorithm> <key file> <input file>

@@ -142,7 +142,7 @@ for rsaalgo in ${RSAAlgos[@]}
 do
   for hashalgo in ${HashAlgos[@]}
   do
-    echo ${rsaalgo}NUMWORDS,
+    echo ${rsaalgo}NUMBYTES,
   done
 done
 echo "};"

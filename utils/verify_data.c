@@ -74,8 +74,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   /* Length of the RSA Signature/RSA Key */
-  sig_len = siglen_map[algorithm] * sizeof(uint32_t);
-
+  sig_len = siglen_map[algorithm]; 
   if (!(key = RSAPublicKeyFromFile(argv[2])))
     goto failure;
   if (!(signature = read_signature(argv[3], sig_len)))

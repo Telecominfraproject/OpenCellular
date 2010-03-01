@@ -11,8 +11,8 @@
 #include "utility.h"
 
 int RSAProcessedKeySize(int algorithm) {
-  int key_len = siglen_map[algorithm] * sizeof(uint32_t);  /* Key length in
-                                                            * bytes. */
+  int key_len = siglen_map[algorithm];  /* Key length in
+                                         * bytes. */
   /* Total size needed by a RSAPublicKey structure is =
    *  2 * key_len bytes for the  n and rr arrays
    *  + sizeof len + sizeof n0inv.
@@ -69,7 +69,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
   if (algorithm >= kNumAlgorithms)
     return 0;  /* Invalid algorithm. */
   key_size = RSAProcessedKeySize(algorithm);
-  sig_size = siglen_map[algorithm] * sizeof(uint32_t);
+  sig_size = siglen_map[algorithm];
 
   if (key_blob && !key)
     verification_key = RSAPublicKeyFromBuf(key_blob, key_size);

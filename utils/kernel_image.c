@@ -92,13 +92,9 @@ KernelImage* ReadKernelImage(const char* input_file) {
 
   /* Compute size of pre-processed RSA public keys and signatures. */
   firmware_sign_key_len = RSAProcessedKeySize(image->firmware_sign_algorithm);
-  /* TODO(gauravsh): Make siglen_map track the signature length in number
-   * of bytes rather than 32-bit words. */
-  kernel_key_signature_len  = (siglen_map[image->firmware_sign_algorithm] *
-                               sizeof(uint32_t));
+  kernel_key_signature_len  = siglen_map[image->firmware_sign_algorithm];
   kernel_sign_key_len = RSAProcessedKeySize(image->kernel_sign_algorithm);
-  kernel_signature_len = (siglen_map[image->kernel_sign_algorithm] *
-                          sizeof(uint32_t));
+  kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
 
   /* Check whether key header length is correct. */
   header_len = (FIELD_LEN(header_version) +
@@ -200,10 +196,8 @@ KernelImage* WriteKernelImage(const char* input_file,
     return NULL;
   }
 
-  kernel_key_signature_len = (siglen_map[image->firmware_sign_algorithm] *
-                              sizeof(uint32_t));
-  kernel_signature_len = (siglen_map[image->kernel_sign_algorithm] *
-                          sizeof(uint32_t));
+  kernel_key_signature_len = siglen_map[image->firmware_sign_algorithm];
+  kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
 
   write(fd, image->magic, FIELD_LEN(magic));
   WriteKernelHeader(fd, image);
@@ -365,7 +359,7 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
                      const uint8_t* kernel_data_start,
                      int kernel_len,
                      int algorithm) {
-  int signature_len = siglen_map[algorithm] * sizeof(uint32_t);
+  int signature_len = siglen_map[algorithm];
   if (!RSAVerifyBinary_f(NULL, kernel_sign_key,  /* Key to use. */
                          kernel_data_start + signature_len,  /* Data to
                                                               * verify */
@@ -415,9 +409,8 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
                                       FIELD_LEN(kernel_key_version));
   kernel_sign_key = RSAPublicKeyFromBuf(kernel_sign_key_ptr,
                                         kernel_sign_key_len);
-  kernel_signature_len = siglen_map[kernel_sign_algorithm] * sizeof(uint32_t);
-  kernel_key_signature_len = siglen_map[firmware_sign_algorithm] *
-      sizeof(uint32_t);
+  kernel_signature_len = siglen_map[kernel_sign_algorithm];
+  kernel_key_signature_len = siglen_map[firmware_sign_algorithm];
 
   /* Only continue if config verification succeeds. */
   config_ptr = (header_ptr + header_len + kernel_key_signature_len);
@@ -486,8 +479,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
                  FIELD_LEN(header_checksum));
     header_digest = DigestFinal(&ctx);
     if (!RSA_verify(firmware_key, image->kernel_key_signature,
-                    siglen_map[image->firmware_sign_algorithm] *
-                    sizeof(uint32_t),
+                    siglen_map[image->firmware_sign_algorithm],
                     image->firmware_sign_algorithm,
                     header_digest)) {
       fprintf(stderr, "VerifyKernelImage(): Key signature check failed.\n");
@@ -500,8 +492,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   kernel_sign_key_size = RSAProcessedKeySize(image->kernel_sign_algorithm);
   kernel_sign_key = RSAPublicKeyFromBuf(image->kernel_sign_key,
                                         kernel_sign_key_size);
-  kernel_signature_size = siglen_map[image->kernel_sign_algorithm] *
-      sizeof(uint32_t);
+  kernel_signature_size = siglen_map[image->kernel_sign_algorithm];
 
   /* Verify kernel config signature. */
   DigestInit(&ctx, image->kernel_sign_algorithm);
@@ -549,8 +540,7 @@ int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file) {
   int tmp_hdr_fd;
   char* tmp_hdr_file = ".tmpKernelHdrFile";
   uint8_t* signature;
-  int signature_len = siglen_map[image->firmware_sign_algorithm] *
-      sizeof(uint32_t);
+  int signature_len = siglen_map[image->firmware_sign_algorithm];
 
   if(-1 == (tmp_hdr_fd = creat(tmp_hdr_file, S_IRWXU))) {
     fprintf(stderr, "Could not open temporary file for writing "
@@ -575,7 +565,7 @@ int AddKernelSignature(KernelImage* image, const char* kernel_signing_key_file,
   char* tmp_kernel_file = ".tmpKernelFile";
   uint8_t* config_signature;
   uint8_t* kernel_signature;
-  int signature_len = siglen_map[algorithm] * sizeof(uint32_t);
+  int signature_len = siglen_map[algorithm];
 
   /* Write config to a file. */
   if(-1 == (tmp_config_fd = creat(tmp_config_file, S_IRWXU))) {
