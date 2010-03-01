@@ -12,7 +12,7 @@ LIBS = -lcrypto
 FIRMWARELIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
 
 all: dumpRSAPublicKey verify_data signature_digest firmware_utility \
-	file_keys.o firmware_image.o
+	file_keys.o firmware_image.o kernel_image.o
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(LIBS) $< -o $@
@@ -34,7 +34,9 @@ file_keys.o: file_keys.c
 firmware_image.o: firmware_image.c
 	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 
+kernel_image.o: kernel_image.c
+	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 clean:
 	rm -f dumpRSAPublicKey verify_data signature_digest firmware_image.o \
-	file_keys.o firmware_utility
+	kernel_image.o file_keys.o firmware_utility
 

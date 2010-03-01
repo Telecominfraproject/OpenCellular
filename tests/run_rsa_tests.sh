@@ -4,8 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Run tests for cryptographic routine implementations - Message digests 
-# and RSA Signature verification.
+# Run tests for RSA Signature verification.
 
 return_code=0
 hash_algos=( sha1 sha256 sha512 )
@@ -52,23 +51,6 @@ function test_signatures {
       let algorithmcounter=algorithmcounter+1
     done
   done
-}
-
-function test_verification {
-  algorithmcounter=0
-  for keylen in ${key_lengths[@]}
-  do
-    for hashalgo in ${hash_algos[@]}
-    do
-      echo -e "For ${COL_YELLOW}RSA-$keylen and $hashalgo${COL_STOP}:"
-      cd ${UTIL_DIR} && ${TEST_DIR}/firmware_image_tests $algorithmcounter \
-        ${TEST_DIR}/testkeys/key_rsa8192.pem \
-        ${TEST_DIR}/testkeys/key_rsa8192.keyb \
-        ${TEST_DIR}/testkeys/key_rsa${keylen}.pem \
-        ${TEST_DIR}/testkeys/key_rsa${keylen}.keyb
-      let algorithmcounter=algorithmcounter+1
-    done
-  done
   echo -e "Peforming ${COL_YELLOW}PKCS #1 v1.5 Padding Tests${COL_STOP}..."
   ${TEST_DIR}/rsa_padding_test ${TEST_DIR}/testkeys/rsa_padding_test_pubkey.keyb
 }
@@ -107,8 +89,12 @@ echo "Testing signature verification..."
 test_signatures
 
 echo
-echo "Testing high-level image verification..."
-test_verification
+echo "Testing high-level firmware image verification..."
+test_firmware_verification
+
+echo
+echo "Testing high-level kernel image verification..."
+test_kernel_verification
 
 echo
 echo "Cleaning up..."
