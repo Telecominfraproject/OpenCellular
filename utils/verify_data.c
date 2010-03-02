@@ -74,23 +74,22 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   /* Length of the RSA Signature/RSA Key */
-  sig_len = siglen_map[algorithm]; 
-  if (!(key = RSAPublicKeyFromFile(argv[2])))
-    goto failure;
-  if (!(signature = read_signature(argv[3], sig_len)))
-    goto failure;
-  if (!(digest = DigestFile(argv[4], algorithm)))
-    goto failure;
-  if(RSA_verify(key, signature, sig_len, algorithm, digest)) {
-    return_code = 0;
-    fprintf(stderr, "Signature Verification "
-            COL_GREEN "SUCCEEDED" COL_STOP "\n");
-  } else {
-    fprintf(stderr, "Signature Verification "
-            COL_RED "FAILED" COL_STOP "\n");
+  sig_len = siglen_map[algorithm];
+  if ((key = RSAPublicKeyFromFile(argv[2])) &&
+      (signature = read_signature(argv[3], sig_len)) &&
+      (digest = DigestFile(argv[4], algorithm))) {
+    if (RSAVerify(key, signature, sig_len, algorithm, digest)) {
+      return_code = 0;
+      fprintf(stderr, "Signature Verification "
+              COL_GREEN "SUCCEEDED" COL_STOP "\n");
+    } else {
+      fprintf(stderr, "Signature Verification "
+              COL_RED "FAILED" COL_STOP "\n");
+    }
   }
+  else
+    return_code = -1;
 
-failure:
   free(key);
   free(signature);
   free(digest);

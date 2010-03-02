@@ -17,6 +17,7 @@
 #include "padding.h"
 #include "rsa_utility.h"
 #include "sha_utility.h"
+#include "signature_digest.h"
 #include "utility.h"
 
 /* Macro to determine the size of a field structure in the KernelImage
@@ -68,12 +69,12 @@ KernelImage* ReadKernelImage(const char* input_file) {
   st.remaining_buf = kernel_buf;
 
   /* Read and compare magic bytes. */
-  if (!StatefulMemcpy(&st, &image->magic, KERNEL_MAGIC_SIZE))
-    goto parse_failure;
+  StatefulMemcpy(&st, &image->magic, KERNEL_MAGIC_SIZE);
 
   if (SafeMemcmp(image->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE)) {
     fprintf(stderr, "Wrong Kernel Magic.\n");
-    goto parse_failure;
+    Free(kernel_buf);
+    return NULL;
   }
   StatefulMemcpy(&st, &image->header_version, FIELD_LEN(header_version));
   StatefulMemcpy(&st, &image->header_len, FIELD_LEN(header_len));
@@ -83,12 +84,16 @@ KernelImage* ReadKernelImage(const char* input_file) {
                  FIELD_LEN(kernel_sign_algorithm));
 
   /* Valid Kernel Key signing algorithm. */
-  if (image->firmware_sign_algorithm >= kNumAlgorithms)
-    goto parse_failure;
+  if (image->firmware_sign_algorithm >= kNumAlgorithms) {
+    Free(kernel_buf);
+    return NULL;
+  }
 
   /* Valid Kernel Signing Algorithm? */
-  if (image->kernel_sign_algorithm >= kNumAlgorithms)
-    goto parse_failure;
+  if (image->kernel_sign_algorithm >= kNumAlgorithms) {
+    Free(kernel_buf);
+    return NULL;
+  }
 
   /* Compute size of pre-processed RSA public keys and signatures. */
   firmware_sign_key_len = RSAProcessedKeySize(image->firmware_sign_algorithm);
@@ -108,7 +113,8 @@ KernelImage* ReadKernelImage(const char* input_file) {
   if (header_len != image->header_len) {
     fprintf(stderr, "Header length mismatch. Got: %d, Expected: %d\n",
             image->header_len, header_len);
-    goto parse_failure;
+    Free(kernel_buf);
+    return NULL;
   }
 
   /* Read pre-processed public half of the kernel signing key. */
@@ -142,73 +148,150 @@ KernelImage* ReadKernelImage(const char* input_file) {
   image->kernel_data = (uint8_t*) Malloc(image->options.kernel_len);
   StatefulMemcpy(&st, image->kernel_data, image->options.kernel_len);
 
-  if(st.remaining_len != 0) /* Overrun or underrun. */
-    goto parse_failure;
-
-  Free(kernel_buf);
-  return image;
-
-parse_failure:
-  Free(kernel_buf);
-  return NULL;
-}
-
-void WriteKernelHeader(int fd, KernelImage* image) {
-  int kernel_sign_key_len;
-  write(fd, &image->header_version, FIELD_LEN(header_version));
-  write(fd, &image->header_len, FIELD_LEN(header_len));
-  write(fd, &image->firmware_sign_algorithm,
-        FIELD_LEN(firmware_sign_algorithm));
-  write(fd, &image->kernel_sign_algorithm,
-        FIELD_LEN(kernel_sign_algorithm));
-  write(fd, &image->kernel_key_version, FIELD_LEN(kernel_key_version));
-  kernel_sign_key_len = (image->header_len -
-                         FIELD_LEN(header_version) -
-                         FIELD_LEN(header_len) -
-                         FIELD_LEN(firmware_sign_algorithm) -
-                         FIELD_LEN(kernel_sign_algorithm) -
-                         FIELD_LEN(kernel_key_version) -
-                         FIELD_LEN(header_checksum));
-  write(fd, image->kernel_sign_key, kernel_sign_key_len);
-  write(fd, &image->header_checksum, FIELD_LEN(header_checksum));
-}
-
-void WriteKernelConfig(int fd, KernelImage* image) {
-  write(fd, &image->kernel_version, FIELD_LEN(kernel_version));
-  write(fd, image->options.version, FIELD_LEN(options.version));
-  write(fd, &image->options.kernel_len, FIELD_LEN(options.kernel_len));
-  write(fd, &image->options.kernel_load_addr,
-        FIELD_LEN(options.kernel_load_addr));
-  write(fd, &image->options.kernel_entry_addr,
-        FIELD_LEN(options.kernel_entry_addr));
-}
-
-KernelImage* WriteKernelImage(const char* input_file,
-                              KernelImage* image) {
-  int fd;
-  int kernel_key_signature_len;
-  int kernel_signature_len;
-  if (!image)
-    return NULL;
-  if (-1 == (fd = creat(input_file,
-                        S_IRUSR | S_IWUSR))) {  /* Owner has R/W permissions. */
-    fprintf(stderr, "Couldn't open file for writing.\n");
+  if(st.remaining_len != 0) {  /* Overrun or underrun. */
+    Free(kernel_buf);
     return NULL;
   }
+  Free(kernel_buf);
+  return image;
+}
 
+int GetKernelHeaderLen(const KernelImage* image) {
+  return (FIELD_LEN(header_version) + FIELD_LEN(header_len) +
+          FIELD_LEN(firmware_sign_algorithm) +
+          FIELD_LEN(kernel_sign_algorithm) + FIELD_LEN(kernel_key_version) +
+          RSAProcessedKeySize(image->kernel_sign_algorithm) +
+          FIELD_LEN(header_checksum));
+}
+
+uint8_t* GetKernelHeaderBlob(const KernelImage* image) {
+  uint8_t* header_blob = NULL;
+  MemcpyState st;
+
+  header_blob = (uint8_t*) Malloc(GetKernelHeaderLen(image));
+  st.remaining_len = GetKernelHeaderLen(image);
+  st.remaining_buf = header_blob;
+
+  StatefulMemcpy_r(&st, &image->header_version, FIELD_LEN(header_version));
+  StatefulMemcpy_r(&st, &image->header_len, FIELD_LEN(header_len));
+  StatefulMemcpy_r(&st, &image->firmware_sign_algorithm,
+                   FIELD_LEN(firmware_sign_algorithm));
+  StatefulMemcpy_r(&st, &image->kernel_sign_algorithm,
+                   FIELD_LEN(kernel_sign_algorithm));
+  StatefulMemcpy_r(&st, &image->kernel_key_version,
+                   FIELD_LEN(kernel_key_version));
+  StatefulMemcpy_r(&st, image->kernel_sign_key,
+                   RSAProcessedKeySize(image->kernel_sign_algorithm));
+  StatefulMemcpy_r(&st, &image->header_checksum, FIELD_LEN(header_checksum));
+
+  if (st.remaining_len != 0) {  /* Underrun or Overrun. */
+    Free(header_blob);
+    return NULL;
+  }
+  return header_blob;
+}
+
+int GetKernelConfigLen(const KernelImage* image) {
+  return (FIELD_LEN(kernel_version) + FIELD_LEN(options.version) +
+          FIELD_LEN(options.kernel_len) + FIELD_LEN(options.kernel_load_addr) +
+          FIELD_LEN(options.kernel_entry_addr));
+}
+
+uint8_t* GetKernelConfigBlob(const KernelImage* image) {
+  uint8_t* config_blob = NULL;
+  MemcpyState st;
+
+  config_blob = (uint8_t*) Malloc(GetKernelConfigLen(image));
+  st.remaining_len = GetKernelConfigLen(image);
+  st.remaining_buf = config_blob;
+
+  StatefulMemcpy_r(&st, &image->kernel_version, FIELD_LEN(kernel_version));
+  StatefulMemcpy_r(&st, image->options.version, FIELD_LEN(options.version));
+  StatefulMemcpy_r(&st, &image->options.kernel_len,
+                   FIELD_LEN(options.kernel_len));
+  StatefulMemcpy_r(&st, &image->options.kernel_load_addr,
+        FIELD_LEN(options.kernel_load_addr));
+  StatefulMemcpy_r(&st, &image->options.kernel_entry_addr,
+        FIELD_LEN(options.kernel_entry_addr));
+  if (st.remaining_len != 0) {  /* Overrun or Underrun. */
+    Free(config_blob);
+    return NULL;
+  }
+  return config_blob;
+}
+
+uint8_t* GetKernelBlob(const KernelImage* image, int* blob_len) {
+  int kernel_key_signature_len;
+  int kernel_signature_len;
+  uint8_t* kernel_blob = NULL;
+  uint8_t* header_blob = NULL;
+  uint8_t* config_blob = NULL;
+  MemcpyState st;
+
+  if (!image)
+    return NULL;
   kernel_key_signature_len = siglen_map[image->firmware_sign_algorithm];
   kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
+  *blob_len = (FIELD_LEN(magic) +
+               GetKernelHeaderLen(image) +
+               kernel_key_signature_len +
+               GetKernelConfigLen(image) +
+               2 * kernel_signature_len +
+               image->options.kernel_len);
+  kernel_blob = (uint8_t*) Malloc(*blob_len);
+  st.remaining_len = *blob_len;
+  st.remaining_buf = kernel_blob;
 
-  write(fd, image->magic, FIELD_LEN(magic));
-  WriteKernelHeader(fd, image);
-  write(fd, image->kernel_key_signature, kernel_key_signature_len);
-  WriteKernelConfig(fd, image);
-  write(fd, image->config_signature, kernel_signature_len);
-  write(fd, image->kernel_signature, kernel_signature_len);
-  write(fd, image->kernel_data, image->options.kernel_len);
+  header_blob = GetKernelHeaderBlob(image);
+  config_blob = GetKernelConfigBlob(image);
 
+  StatefulMemcpy_r(&st, image->magic, FIELD_LEN(magic));
+  StatefulMemcpy_r(&st, header_blob, GetKernelHeaderLen(image));
+  StatefulMemcpy_r(&st, image->kernel_key_signature, kernel_key_signature_len);
+  StatefulMemcpy_r(&st, config_blob, GetKernelConfigLen(image));
+  StatefulMemcpy_r(&st, image->config_signature, kernel_signature_len);
+  StatefulMemcpy_r(&st, image->kernel_signature, kernel_signature_len);
+  StatefulMemcpy_r(&st, image->kernel_data, image->options.kernel_len);
+
+  Free(config_blob);
+  Free(header_blob);
+
+  if (st.remaining_len != 0) {  /* Underrun or Overrun. */
+    Free(kernel_blob);
+    return NULL;
+  }
+  return kernel_blob;
+}
+
+int WriteKernelImage(const char* input_file,
+                     const KernelImage* image) {
+  int fd;
+  uint8_t* kernel_blob;
+  int blob_len;
+
+  if (!image)
+    return 0;
+  if (-1 == (fd = creat(input_file, S_IRWXU))) {
+    fprintf(stderr, "Couldn't open file for writing kernel image: %s\n",
+            input_file);
+    return 0;
+  }
+  kernel_blob = GetKernelBlob(image, &blob_len);
+  if (!kernel_blob) {
+    fprintf(stderr, "Couldn't create kernel blob from KernelImage.\n");
+    return 0;
+  }
+  if (blob_len != write(fd, kernel_blob, blob_len)) {
+    fprintf(stderr, "Couldn't write Kernel Image to file: %s\n",
+            input_file);
+
+    Free(kernel_blob);
+    close(fd);
+    return 0;
+  }
+  Free(kernel_blob);
   close(fd);
-  return image;
+  return 1;
 }
 
 void PrintKernelImage(const KernelImage* image) {
@@ -478,7 +561,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
     DigestUpdate(&ctx, image->header_checksum,
                  FIELD_LEN(header_checksum));
     header_digest = DigestFinal(&ctx);
-    if (!RSA_verify(firmware_key, image->kernel_key_signature,
+    if (!RSAVerify(firmware_key, image->kernel_key_signature,
                     siglen_map[image->firmware_sign_algorithm],
                     image->firmware_sign_algorithm,
                     header_digest)) {
@@ -507,9 +590,9 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   DigestUpdate(&ctx, (uint8_t*) &image->options.kernel_entry_addr,
                FIELD_LEN(options.kernel_entry_addr));
   config_digest = DigestFinal(&ctx);
-  if (!RSA_verify(kernel_sign_key, image->config_signature,
-                  kernel_signature_size, image->kernel_sign_algorithm,
-                  config_digest)) {
+  if (!RSAVerify(kernel_sign_key, image->config_signature,
+                 kernel_signature_size, image->kernel_sign_algorithm,
+                 config_digest)) {
     error_code = VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED;
     goto verify_failure;
   }
@@ -518,7 +601,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   kernel_digest = DigestBuf(image->kernel_data,
                             image->options.kernel_len,
                             image->kernel_sign_algorithm);
-  if(!RSA_verify(kernel_sign_key, image->kernel_signature,
+  if (!RSAVerify(kernel_sign_key, image->kernel_signature,
                  kernel_signature_size, image->kernel_sign_algorithm,
                  kernel_digest)) {
     error_code = VERIFY_KERNEL_SIGNATURE_FAILED;
@@ -537,63 +620,53 @@ const char* VerifyKernelErrorString(int error) {
 }
 
 int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file) {
-  int tmp_hdr_fd;
-  char* tmp_hdr_file = ".tmpKernelHdrFile";
+  uint8_t* header_blob = NULL;
   uint8_t* signature;
   int signature_len = siglen_map[image->firmware_sign_algorithm];
-
-  if(-1 == (tmp_hdr_fd = creat(tmp_hdr_file, S_IRWXU))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "kernel header.\n");
+  if (!image || !firmware_key_file)
+    return 0;
+  header_blob = GetKernelHeaderBlob(image);
+  if (!header_blob)
+    return 0;
+  if (!(signature = SignatureBuf(header_blob,
+                                 GetKernelHeaderLen(image),
+                                 firmware_key_file,
+                                 image->firmware_sign_algorithm))) {
+    Free(header_blob);
     return 0;
   }
-  WriteKernelHeader(tmp_hdr_fd, image);
-  close(tmp_hdr_fd);
-  if (!(signature = SignatureFile(tmp_hdr_file, firmware_key_file,
-                                  image->firmware_sign_algorithm)))
-    return 0;
   image->kernel_key_signature = Malloc(signature_len);
   Memcpy(image->kernel_key_signature, signature, signature_len);
+  Free(signature);
+  Free(header_blob);
   return 1;
 }
 
-int AddKernelSignature(KernelImage* image, const char* kernel_signing_key_file,
-                       int algorithm) {
-  int tmp_config_fd;
-  char* tmp_config_file = ".tmpConfigFile";
-  int tmp_kernel_fd;
-  char* tmp_kernel_file = ".tmpKernelFile";
+int AddKernelSignature(KernelImage* image,
+                       const char* kernel_signing_key_file) {
+  uint8_t* config_blob;
   uint8_t* config_signature;
   uint8_t* kernel_signature;
-  int signature_len = siglen_map[algorithm];
+  int signature_len = siglen_map[image->kernel_sign_algorithm];
 
-  /* Write config to a file. */
-  if(-1 == (tmp_config_fd = creat(tmp_config_file, S_IRWXU))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "kernel config.\n");
+  config_blob = GetKernelConfigBlob(image);
+  if (!(config_signature = SignatureBuf(config_blob,
+                                        GetKernelConfigLen(image),
+                                        kernel_signing_key_file,
+                                        image->kernel_sign_algorithm))) {
+    fprintf(stderr, "Could not compute signature on the kernel config.\n");
+    Free(config_blob);
     return 0;
   }
-  WriteKernelConfig(tmp_config_fd, image);
-  close(tmp_config_fd);
-  if (!(config_signature = SignatureFile(tmp_config_file,
-                                         kernel_signing_key_file,
-                                         algorithm)))
-    return 0;
+
   image->config_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->config_signature, config_signature, signature_len);
   Free(config_signature);
 
-  if (-1 == (tmp_kernel_fd = creat(tmp_kernel_file, S_IRWXU))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "kernel.\n");
-    return 0;
-  }
-  write(tmp_kernel_fd, image->kernel_data, image->options.kernel_len);
-  close(tmp_kernel_fd);
-
-  if (!(kernel_signature = SignatureFile(tmp_kernel_file,
-                                         kernel_signing_key_file,
-                                         algorithm))) {
+  if (!(kernel_signature = SignatureBuf(image->kernel_data,
+                                        image->options.kernel_len,
+                                        kernel_signing_key_file,
+                                        image->kernel_sign_algorithm))) {
     fprintf(stderr, "Could not compute signature on the kernel.\n");
     return 0;
   }

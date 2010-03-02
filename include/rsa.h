@@ -28,7 +28,7 @@ typedef struct RSAPublicKey {
 /* Verify a RSA PKCS1.5 signature [sig] of [sig_type] and length [sig_len]
  * against an expected [hash] using [key]. Returns 0 on failure, 1 on success.
  */
-int RSA_verify(const RSAPublicKey *key,
+int RSAVerify(const RSAPublicKey *key,
                const uint8_t* sig,
                const int sig_len,
                const uint8_t sig_type,

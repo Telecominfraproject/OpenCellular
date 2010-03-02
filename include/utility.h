@@ -41,7 +41,7 @@ typedef struct MemcpyState {
 
 /* Copy [len] bytes into [dst] only if there's enough data to read according
  * to [state].
- * On success, return [dst] and update [state]..
+ * On success, return [dst] and update [state].
  * On failure, return NULL, set remaining len in state to -1.
  *
  * Useful for iterating through a binary blob to populate a struct. After the
@@ -49,5 +49,14 @@ typedef struct MemcpyState {
  */
 void* StatefulMemcpy(MemcpyState* state, void* dst, int len);
 
+/* Like StatefulMemcpy() but copies in the opposite direction, populating
+ * data from [src] into the buffer encapsulated in state [state].
+ * On success, return [src] and update [state].
+ * On failure, return NULL, set remaining_len in state to -1.
+ *
+ * Useful for iterating through a structure to populate a binary blob. After the
+ * first failure (buffer overrun), successive calls will always fail.
+ */
+const void* StatefulMemcpy_r(MemcpyState* state, const void* src, int len);
 
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */

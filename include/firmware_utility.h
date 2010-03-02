@@ -51,10 +51,10 @@ class FirmwareUtility {
   std::string root_key_file_;
   std::string root_key_pub_file_;
   int firmware_version_;
-  std::string sign_key_file_;
-  std::string sign_key_pub_file_;
-  int key_version_;
-  int sign_algorithm_;
+  std::string firmware_sign_key_file_;
+  std::string firmware_sign_key_pub_file_;
+  int firmware_key_version_;
+  int firmware_sign_algorithm_;
   std::string in_file_;
   std::string out_file_;
   bool is_generate_;  // Are we generating a new image?

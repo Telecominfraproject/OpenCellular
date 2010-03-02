@@ -74,22 +74,31 @@ void KernelImageFree(KernelImage* image);
  */
 KernelImage* ReadKernelImage(const char* input_file);
 
-/* Write kernel key header from [image] to an open file pointed by the
- * file descriptor [fd].
+/* Get kernel header binary blob from an [image].
+ *
+ * Caller owns the returned pointer and must Free() it.
  */
-void WriteKernelHeader(int fd, KernelImage* image);
+uint8_t* GetKernelHeaderBlob(const KernelImage* image);
 
-/* Write kernel config from [image] to an open file pointed by the
- * file descriptor [fd].
+/* Get kernel config binary blob from an [image].
+ *
+ * Caller owns the returned pointer and must Free() it.
  */
-void WriteKernelConfig(int fd, KernelImage* image);
+uint8_t* GetKernelConfigBlob(const KernelImage* image);
+
+/* Get a verified kernel binary blob from an [image] and fill
+ * its length into blob_len.
+ *
+ * Caller owns the returned pointer and must Free() it.
+ */
+uint8_t* GetKernelBlob(const KernelImage* image, int* blob_len);
 
 /* Write kernel data from [image] to a file named [input_file].
  *
- * Return [image] on success, NULL on error.
+ * Return 1 on success, 0 on error.
  */
-KernelImage* WriteKernelImage(const char* input_file,
-                              KernelImage* image);
+int WriteKernelImage(const char* input_file,
+                     const KernelImage* image);
 
 /* Pretty print the contents of [image]. Only headers and metadata information
  * is printed.
@@ -194,7 +203,7 @@ int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file);
  *
  * Return 1 on success, 0 on failure.
  */
-int AddKernelSignature(KernelImage* image, const char* kernel_sigining_key_file,
-                       int algorithm);
+int AddKernelSignature(KernelImage* image,
+                       const char* kernel_sigining_key_file);
 
 #endif  /* VBOOT_REFERENCE_KERNEL_IMAGE_H_ */

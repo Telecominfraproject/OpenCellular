@@ -17,6 +17,7 @@
 
 #include "padding.h"
 #include "rsa_utility.h"
+#include "signature_digest.h"
 #include "utility.h"
 
 uint8_t* BufferFromFile(const char* input_file, uint32_t* len) {

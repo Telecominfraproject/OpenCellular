@@ -25,12 +25,14 @@ typedef struct FirmwareImage {
   uint8_t magic[FIRMWARE_MAGIC_SIZE];
   /* Key Header */
   uint16_t header_len;  /* Length of the header. */
-  uint16_t sign_algorithm;  /* Signature algorithm used by the signing key. */
-  uint8_t* sign_key;  /* Pre-processed public half of signing key. */
-  uint16_t key_version;  /* Key Version# for preventing rollbacks. */
+  uint16_t firmware_sign_algorithm;  /* Signature algorithm used by the signing
+                                      * key. */
+  uint8_t* firmware_sign_key;  /* Pre-processed public half of signing key. */
+  uint16_t firmware_key_version;  /* Key Version# for preventing rollbacks. */
   uint8_t header_checksum[SHA512_DIGEST_SIZE];  /* SHA-512 hash of the header.*/
 
-  uint8_t key_signature[RSA8192NUMBYTES];   /* Signature of the header above. */
+  uint8_t firmware_key_signature[RSA8192NUMBYTES];  /* Signature of the header
+                                                     * above. */
 
   /* Firmware Preamble. */
   uint16_t firmware_version;  /* Firmware Version# for preventing rollbacks.*/
@@ -53,29 +55,38 @@ FirmwareImage* FirmwareImageNew(void);
 /* Deep free the contents of [fw]. */
 void FirmwareImageFree(FirmwareImage* fw);
 
-/* Read firmware data from file named [input_file]..
+/* Read firmware data from file named [input_file].
  *
  * Returns a filled up FirmwareImage structure on success, NULL on error.
  */
 FirmwareImage* ReadFirmwareImage(const char* input_file);
 
-/* Write firmware header from [image] to an open file pointed by the
- * file descriptor [fd].
+/* Get firmware header binary blob from an [image].
+ *
+ * Caller owns the returned pointer and must Free() it.
  */
-void WriteFirmwareHeader(int fd, FirmwareImage* image);
+uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image);
 
-/* Write firmware preamble from [image] to an open file pointed by the
- * file descriptor [fd].
+/* Get firmware preamble binary blob from an [image].
+ *
+ * Caller owns the returned pointer and must Free() it.
  */
-void WriteFirmwarePreamble(int fd, FirmwareImage* image);
+uint8_t* GetFirmwarePreambleBlob(const FirmwareImage* image);
 
+/* Get a verified firmware binary blob from an [image] and fill its
+ * length into blob_len.
+ *
+ * Caller owns the returned pointer and must Free() it.
+ */
+uint8_t* GetFirmwareBlob(const FirmwareImage* image, int* blob_len);
 
 /* Write firmware data from [image] into a file named [input_file].
  *
- * Return [image] on success, NULL on error.
+ * Return 1 on success, 0 on failure.
  */
-FirmwareImage* WriteFirmwareImage(const char* input_file,
-                                  FirmwareImage* image);
+int WriteFirmwareImage(const char* input_file,
+                       const FirmwareImage* image);
+
 
 /* Pretty print the contents of [image]. Only headers and metadata information
  * is printed.
@@ -173,7 +184,6 @@ int AddFirmwareKeySignature(FirmwareImage* image, const char* root_key_file);
  *
  * Return 1 on success, 0 on failure.
  */
-int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file,
-                         int algorithm);
+int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file);
 
 #endif  /* VBOOT_REFERENCE_FIRMWARE_IMAGE_H_ */

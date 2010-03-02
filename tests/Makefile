@@ -7,30 +7,30 @@ CFLAGS = -Wall -DNDEBUG
 INCLUDES ?= -I../include/
 TOP ?= ../
 
+FIRMWARE_LIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
 LIBS = $(TOP)/utils/kernel_image.o $(TOP)/utils/firmware_image.o \
-	$(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a \
-	$(TOP)/utils/file_keys.o -lrt
+	$(TOP)/utils/file_keys.o $(TOP)/utils/signature_digest.o -lcrypto
 
 tests: firmware_image_tests kernel_image_tests sha_tests sha_benchmark \
 	rsa_verify_benchmark rsa_padding_test
 
 sha_tests: sha_tests.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FIRMWARE_LIBS)
 
-firmware_image_tests: firmware_image_tests.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+firmware_image_tests: firmware_image_tests.c
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
 
-kernel_image_tests: kernel_image_tests.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+kernel_image_tests: kernel_image_tests.c
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
 
-sha_benchmark:	sha_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+sha_benchmark:	sha_benchmark.c timer_utils.c $(FIRMWARE_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt
 
 rsa_padding_test: rsa_padding_test.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS) $(FIRMWARE_LIBS)
 
 rsa_verify_benchmark: rsa_verify_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS) $(FIRMWARE_LIBS)
 
 clean:
 	rm -f sha_tests sha_benchmark rsa_verify_benchmark \

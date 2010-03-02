@@ -13,4 +13,23 @@
  */
 uint8_t* prepend_digestinfo(int algorithm, uint8_t* digest);
 
+/* Function that outputs the message digest of the contents of a buffer in a
+ * format that can be used as input to OpenSSL for an RSA signature.
+ * Needed until the stable OpenSSL release supports SHA-256/512 digests for
+ * RSA signatures.
+ *
+ * Returns DigestInfo || Digest where DigestInfo is the OID depending on the
+ * choice of the hash algorithm (see padding.c). Caller owns the returned
+ * pointer and must Free() it.
+ */
+uint8_t* SignatureDigest(const uint8_t* buf, int len, int algorithm);
+
+/* Calculates the signature on a buffer [buf] of length [len] using
+ * the private RSA key file from [key_file] and signature algorithm
+ * [algorithm].
+ *
+ * Returns the signature. Caller owns the buffer and must Free() it.
+ */
+uint8_t* SignatureBuf(const uint8_t* buf, int len, const char* key_file,
+                      int algorithm);
 #endif  /* VBOOT_REFERENCE_SIGNATURE_DIGEST_H_ */

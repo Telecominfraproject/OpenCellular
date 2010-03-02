@@ -18,6 +18,7 @@
 #include "padding.h"
 #include "rsa_utility.h"
 #include "sha_utility.h"
+#include "signature_digest.h"
 #include "utility.h"
 
 /* Macro to determine the size of a field structure in the FirmwareImage
@@ -27,7 +28,7 @@
 FirmwareImage* FirmwareImageNew(void) {
   FirmwareImage* image = (FirmwareImage*) Malloc(sizeof(FirmwareImage));
   if (image) {
-    image->sign_key = NULL;
+    image->firmware_sign_key = NULL;
     image->preamble_signature = NULL;
     image->firmware_signature = NULL;
     image->firmware_data = NULL;
@@ -37,10 +38,11 @@ FirmwareImage* FirmwareImageNew(void) {
 
 void FirmwareImageFree(FirmwareImage* image) {
   if (image) {
-    Free(image->sign_key);
+    Free(image->firmware_sign_key);
     Free(image->preamble_signature);
     Free(image->firmware_signature);
     Free(image->firmware_data);
+    Free(image);
   }
 }
 
@@ -48,7 +50,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   uint32_t file_size;
   int image_len = 0;  /* Total size of the firmware image. */
   int header_len = 0;
-  int sign_key_len;
+  int firmware_sign_key_len;
   int signature_len;
   uint8_t* firmware_buf;
   MemcpyState st;
@@ -64,46 +66,49 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   st.remaining_buf = firmware_buf;
 
   /* Read and compare magic bytes. */
-  if (!StatefulMemcpy(&st, &image->magic, FIRMWARE_MAGIC_SIZE))
-    goto parse_failure;
-
+  StatefulMemcpy(&st, &image->magic, FIRMWARE_MAGIC_SIZE);
   if (SafeMemcmp(image->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE)) {
     fprintf(stderr, "Wrong Firmware Magic.\n");
-    goto parse_failure;
+    Free(firmware_buf);
+    return NULL;
   }
-
   StatefulMemcpy(&st, &image->header_len, FIELD_LEN(header_len));
-  StatefulMemcpy(&st, &image->sign_algorithm, FIELD_LEN(sign_algorithm));
+  StatefulMemcpy(&st, &image->firmware_sign_algorithm,
+                 FIELD_LEN(firmware_sign_algorithm));
 
   /* Valid Algorithm? */
-  if (image->sign_algorithm >= kNumAlgorithms)
-    goto parse_failure;
+  if (image->firmware_sign_algorithm >= kNumAlgorithms) {
+    Free(firmware_buf);
+    return NULL;
+  }
 
   /* Compute size of pre-processed RSA public key and signature. */
-  sign_key_len = RSAProcessedKeySize(image->sign_algorithm);
-  signature_len = siglen_map[image->sign_algorithm];
-
+  firmware_sign_key_len = RSAProcessedKeySize(image->firmware_sign_algorithm);
+  signature_len = siglen_map[image->firmware_sign_algorithm];
 
   /* Check whether the header length is correct. */
   header_len = (FIELD_LEN(header_len) +
-                FIELD_LEN(sign_algorithm) +
-                sign_key_len +
-                FIELD_LEN(key_version) +
+                FIELD_LEN(firmware_sign_algorithm) +
+                firmware_sign_key_len +
+                FIELD_LEN(firmware_key_version) +
                 FIELD_LEN(header_checksum));
   if (header_len != image->header_len) {
     fprintf(stderr, "Header length mismatch. Got: %d Expected: %d\n",
             image->header_len, header_len);
-    goto parse_failure;
+    Free(firmware_buf);
+    return NULL;
   }
 
   /* Read pre-processed public half of the sign key. */
-  image->sign_key = (uint8_t*) Malloc(sign_key_len);
-  StatefulMemcpy(&st, image->sign_key, sign_key_len);
-  StatefulMemcpy(&st, &image->key_version, FIELD_LEN(key_version));
+  image->firmware_sign_key = (uint8_t*) Malloc(firmware_sign_key_len);
+  StatefulMemcpy(&st, image->firmware_sign_key, firmware_sign_key_len);
+  StatefulMemcpy(&st, &image->firmware_key_version,
+                 FIELD_LEN(firmware_key_version));
   StatefulMemcpy(&st, image->header_checksum, FIELD_LEN(header_checksum));
 
   /* Read key signature. */
-  StatefulMemcpy(&st, image->key_signature, FIELD_LEN(key_signature));
+  StatefulMemcpy(&st, image->firmware_key_signature,
+                 FIELD_LEN(firmware_key_signature));
 
   /* Read the firmware preamble. */
   StatefulMemcpy(&st,&image->firmware_version, FIELD_LEN(firmware_version));
@@ -120,60 +125,139 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   image->firmware_data = (uint8_t*) Malloc(image->firmware_len);
   StatefulMemcpy(&st, image->firmware_data, image->firmware_len);
 
-  if(st.remaining_len != 0) /* Overrun or underrun. */
-    goto parse_failure;
-
-  Free(firmware_buf);
-  return image;
-
-parse_failure:
-  Free(firmware_buf);
-  return NULL;
-}
-
-void WriteFirmwareHeader(int fd, FirmwareImage* image) {
-  int sign_key_len;
-  write(fd, &image->header_len, FIELD_LEN(header_len));
-  write(fd, &image->sign_algorithm, FIELD_LEN(header_len));
-  sign_key_len = (image->header_len - FIELD_LEN(header_len) -
-                  FIELD_LEN(sign_algorithm) -
-                  FIELD_LEN(key_version) -
-                  FIELD_LEN(header_checksum));
-  write(fd, image->sign_key, sign_key_len);
-  write(fd, &image->key_version, FIELD_LEN(key_version));
-  write(fd, &image->header_checksum, FIELD_LEN(header_checksum));
-}
-
-void WriteFirmwarePreamble(int fd, FirmwareImage* image) {
-  write(fd, &image->firmware_version,
-        FIELD_LEN(firmware_version));
-  write(fd, &image->firmware_len, FIELD_LEN(firmware_len));
-  write(fd, image->preamble, FIELD_LEN(preamble));
-}
-
-FirmwareImage* WriteFirmwareImage(const char* input_file,
-                                  FirmwareImage* image) {
-  int fd;
-  int signature_len;
-
-  if (!image)
-    return NULL;
-  if (-1 == (fd = creat(input_file, S_IRWXU))) {
-    fprintf(stderr, "Couldn't open file for writing.\n");
+  if(st.remaining_len != 0) {  /* Overrun or underrun. */
+    Free(firmware_buf);
     return NULL;
   }
 
-  write(fd, image->magic, FIELD_LEN(magic));
-  WriteFirmwareHeader(fd, image);
-  write(fd, image->key_signature, FIELD_LEN(key_signature));
-  signature_len = siglen_map[image->sign_algorithm];
-  WriteFirmwarePreamble(fd, image);
-  write(fd, image->preamble_signature, signature_len);
-  write(fd, image->firmware_signature, signature_len);
-  write(fd, image->firmware_data, image->firmware_len);
-
-  close(fd);
+  Free(firmware_buf);
   return image;
+}
+
+int GetFirmwareHeaderLen(const FirmwareImage* image) {
+  return (FIELD_LEN(header_len) + FIELD_LEN(header_len) +
+          RSAProcessedKeySize(image->firmware_sign_algorithm) +
+          FIELD_LEN(firmware_key_version) + FIELD_LEN(header_checksum));
+}
+
+uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image) {
+  uint8_t* header_blob = NULL;
+  MemcpyState st;
+
+  header_blob = (uint8_t*) Malloc(GetFirmwareHeaderLen(image));
+  st.remaining_len = GetFirmwareHeaderLen(image);
+  st.remaining_buf = header_blob;
+
+  StatefulMemcpy_r(&st, &image->header_len, FIELD_LEN(header_len));
+  StatefulMemcpy_r(&st, &image->firmware_sign_algorithm, FIELD_LEN(header_len));
+  StatefulMemcpy_r(&st, image->firmware_sign_key,
+                 RSAProcessedKeySize(image->firmware_sign_algorithm));
+  StatefulMemcpy_r(&st, &image->firmware_key_version,
+                 FIELD_LEN(firmware_key_version));
+  StatefulMemcpy_r(&st, &image->header_checksum, FIELD_LEN(header_checksum));
+
+  if (st.remaining_len != 0) {  /* Underrun or Overrun. */
+    Free(header_blob);
+    return NULL;
+  }
+  return header_blob;
+}
+
+int GetFirmwarePreambleLen(const FirmwareImage* image) {
+  return (FIELD_LEN(firmware_version) + FIELD_LEN(firmware_len) +
+          FIELD_LEN(preamble));
+}
+
+uint8_t* GetFirmwarePreambleBlob(const FirmwareImage* image) {
+  uint8_t* preamble_blob = NULL;
+  MemcpyState st;
+
+  preamble_blob = (uint8_t*) Malloc(GetFirmwarePreambleLen(image));
+  st.remaining_len = GetFirmwarePreambleLen(image);
+  st.remaining_buf = preamble_blob;
+
+  StatefulMemcpy_r(&st, &image->firmware_version, FIELD_LEN(firmware_version));
+  StatefulMemcpy_r(&st, &image->firmware_len, FIELD_LEN(firmware_len));
+  StatefulMemcpy_r(&st, image->preamble, FIELD_LEN(preamble));
+
+  if (st.remaining_len != 0 ) {  /* Underrun or Overrun. */
+    Free(preamble_blob);
+    return NULL;
+  }
+  return preamble_blob;
+}
+
+
+uint8_t* GetFirmwareBlob(const FirmwareImage* image, int* blob_len) {
+  int firmware_signature_len;
+  uint8_t* firmware_blob = NULL;
+  uint8_t* header_blob = NULL;
+  uint8_t* preamble_blob = NULL;
+  MemcpyState st;
+
+  if (!image)
+    return NULL;
+
+  firmware_signature_len = siglen_map[image->firmware_sign_algorithm];
+  *blob_len = (FIELD_LEN(magic) +
+               GetFirmwareHeaderLen(image) +
+               FIELD_LEN(firmware_key_signature) +
+               GetFirmwarePreambleLen(image) +
+               2 * firmware_signature_len +
+               image->firmware_len);
+  firmware_blob = (uint8_t*) Malloc(*blob_len);
+  st.remaining_len = *blob_len;
+  st.remaining_buf = firmware_blob;
+
+  header_blob = GetFirmwareHeaderBlob(image);
+  preamble_blob = GetFirmwarePreambleBlob(image);
+
+  StatefulMemcpy_r(&st, image->magic, FIELD_LEN(magic));
+  StatefulMemcpy_r(&st, header_blob, GetFirmwareHeaderLen(image));
+  StatefulMemcpy_r(&st, image->firmware_key_signature,
+                 FIELD_LEN(firmware_key_signature));
+  StatefulMemcpy_r(&st, preamble_blob, GetFirmwarePreambleLen(image));
+  StatefulMemcpy_r(&st, image->preamble_signature, firmware_signature_len);
+  StatefulMemcpy_r(&st, image->firmware_signature, firmware_signature_len);
+  StatefulMemcpy_r(&st, image->firmware_data, image->firmware_len);
+
+  Free(preamble_blob);
+  Free(header_blob);
+
+  if (st.remaining_len != 0) { /* Underrun or Overrun. */
+    Free(firmware_blob);
+    return NULL;
+  }
+  return firmware_blob;
+}
+
+int WriteFirmwareImage(const char* input_file,
+                       const FirmwareImage* image) {
+  int fd;
+  uint8_t* firmware_blob;
+  int blob_len;
+
+  if (!image)
+    return 0;
+  if (-1 == (fd = creat(input_file, S_IRWXU))) {
+    fprintf(stderr, "Couldn't open file for writing.\n");
+    return 0;
+  }
+
+  firmware_blob = GetFirmwareBlob(image, &blob_len);
+  if (!firmware_blob) {
+    fprintf(stderr, "Couldn't create firmware blob from FirmwareImage.\n");
+    return 0;
+  }
+  if (blob_len != write(fd, firmware_blob, blob_len)) {
+    fprintf(stderr, "Couldn't write Firmware Image to file: %s\n", input_file);
+    Free(firmware_blob);
+    close(fd);
+    return 0;
+  }
+  Free(firmware_blob);
+  close(fd);
+  return 1;
 }
 
 void PrintFirmwareImage(const FirmwareImage* image) {
@@ -186,9 +270,9 @@ void PrintFirmwareImage(const FirmwareImage* image) {
          "Signature Algorithm = %s\n"
          "Key Version = %d\n\n",
          image->header_len,
-         image->sign_algorithm,
-         algo_strings[image->sign_algorithm],
-         image->key_version);
+         image->firmware_sign_algorithm,
+         algo_strings[image->firmware_sign_algorithm],
+         image->firmware_key_version);
   /* TODO(gauravsh): Output hash and key signature here? */
   /* Print preamble. */
   printf("Firmware Version = %d\n"
@@ -213,31 +297,31 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
                          const int dev_mode,
                          int* algorithm,
                          int* header_len) {
-  int sign_key_len;
+  int firmware_sign_key_len;
   int root_key_len;
   uint16_t hlen, algo;
   uint8_t* header_checksum = NULL;
 
   /* Base Offset for the header_checksum field. Actual offset is
-   * this + sign_key_len. */
+   * this + firmware_sign_key_len. */
   int base_header_checksum_offset = (FIELD_LEN(header_len) +
-                                     FIELD_LEN(sign_algorithm) +
-                                     FIELD_LEN(key_version));
+                                     FIELD_LEN(firmware_sign_algorithm) +
+                                     FIELD_LEN(firmware_key_version));
 
 
   root_key_len = RSAProcessedKeySize(ROOT_SIGNATURE_ALGORITHM);
   Memcpy(&hlen, header_blob, sizeof(hlen));
   Memcpy(&algo,
-         header_blob + FIELD_LEN(sign_algorithm),
+         header_blob + FIELD_LEN(firmware_sign_algorithm),
          sizeof(algo));
   if (algo >= kNumAlgorithms)
     return VERIFY_FIRMWARE_INVALID_ALGORITHM;
   *algorithm = (int) algo;
-  sign_key_len = RSAProcessedKeySize(*algorithm);
+  firmware_sign_key_len = RSAProcessedKeySize(*algorithm);
 
   /* Verify if header len is correct? */
   if (hlen != (base_header_checksum_offset +
-               sign_key_len +
+               firmware_sign_key_len +
                FIELD_LEN(header_checksum)))
     return VERIFY_FIRMWARE_INVALID_IMAGE;
 
@@ -248,7 +332,8 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
                               *header_len - FIELD_LEN(header_checksum),
                               SHA512_DIGEST_ALGORITHM);
   if (SafeMemcmp(header_checksum,
-                  header_blob + (base_header_checksum_offset + sign_key_len),
+                  header_blob + (base_header_checksum_offset +
+                                 firmware_sign_key_len),
                   FIELD_LEN(header_checksum))) {
     Free(header_checksum);
     return VERIFY_FIRMWARE_INVALID_IMAGE;
@@ -267,7 +352,7 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
   return 0;
 }
 
-int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
+int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
                            const uint8_t* preamble_blob,
                            int algorithm,
                            int* firmware_len) {
@@ -276,7 +361,7 @@ int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
   preamble_len = (FIELD_LEN(firmware_version) +
                   FIELD_LEN(firmware_len) +
                   FIELD_LEN(preamble));
-  if (!RSAVerifyBinary_f(NULL, sign_key,  /* Key to use */
+  if (!RSAVerifyBinary_f(NULL, firmware_sign_key,  /* Key to use */
                          preamble_blob,  /* Data to verify */
                          preamble_len,  /* Length of data */
                          preamble_blob + preamble_len,  /* Expected Signature */
@@ -289,12 +374,12 @@ int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
   return 0;
 }
 
-int VerifyFirmwareData(RSAPublicKey* sign_key,
+int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
                        const uint8_t* firmware_data_start,
                        int firmware_len,
                        int algorithm) {
   int signature_len = siglen_map[algorithm];
-  if (!RSAVerifyBinary_f(NULL, sign_key,  /* Key to use. */
+  if (!RSAVerifyBinary_f(NULL, firmware_sign_key,  /* Key to use. */
                          firmware_data_start + signature_len,  /* Data to
                                                                 * verify */
                          firmware_len,  /* Length of data. */
@@ -309,10 +394,10 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                    const int dev_mode) {
   int error_code;
   int algorithm;  /* Signing key algorithm. */
-  RSAPublicKey* sign_key;
-  int sign_key_len, signature_len, header_len, firmware_len;
+  RSAPublicKey* firmware_sign_key;
+  int firmware_sign_key_len, signature_len, header_len, firmware_len;
   const uint8_t* header_ptr;  /* Pointer to header. */
-  const uint8_t* sign_key_ptr;  /* Pointer to signing key. */
+  const uint8_t* firmware_sign_key_ptr;  /* Pointer to signing key. */
   const uint8_t* preamble_ptr;  /* Pointer to preamble block. */
   const uint8_t* firmware_ptr;  /* Pointer to firmware signature/data. */
 
@@ -331,16 +416,18 @@ int VerifyFirmware(const uint8_t* root_key_blob,
 
   /* Parse signing key into RSAPublicKey structure since it is required multiple
    * times. */
-  sign_key_len = RSAProcessedKeySize(algorithm);
-  sign_key_ptr = header_ptr + (FIELD_LEN(header_len) +
-                               FIELD_LEN(sign_algorithm));
-  sign_key = RSAPublicKeyFromBuf(sign_key_ptr, sign_key_len);
+  firmware_sign_key_len = RSAProcessedKeySize(algorithm);
+  firmware_sign_key_ptr = header_ptr + (FIELD_LEN(header_len) +
+                               FIELD_LEN(firmware_sign_algorithm));
+  firmware_sign_key = RSAPublicKeyFromBuf(firmware_sign_key_ptr,
+                                          firmware_sign_key_len);
   signature_len = siglen_map[algorithm];
 
   /* Only continue if preamble verification succeeds. */
   preamble_ptr = (header_ptr + header_len +
-                  FIELD_LEN(key_signature));
-  if ((error_code = VerifyFirmwarePreamble(sign_key, preamble_ptr, algorithm,
+                  FIELD_LEN(firmware_key_signature));
+  if ((error_code = VerifyFirmwarePreamble(firmware_sign_key, preamble_ptr,
+                                           algorithm,
                                            &firmware_len)))
     return error_code;  /* AKA jump to recovery. */
 
@@ -351,7 +438,8 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                   FIELD_LEN(preamble) +
                   signature_len);
 
-  if ((error_code = VerifyFirmwareData(sign_key, firmware_ptr, firmware_len,
+  if ((error_code = VerifyFirmwareData(firmware_sign_key, firmware_ptr,
+                                       firmware_len,
                                        algorithm)))
     return error_code;  /* AKA jump to recovery. */
 
@@ -361,11 +449,11 @@ int VerifyFirmware(const uint8_t* root_key_blob,
 int VerifyFirmwareImage(const RSAPublicKey* root_key,
                         const FirmwareImage* image,
                         const int dev_mode) {
-  RSAPublicKey* sign_key;
+  RSAPublicKey* firmware_sign_key;
   uint8_t* header_digest = NULL;
   uint8_t* preamble_digest = NULL;
   uint8_t* firmware_digest = NULL;
-  int sign_key_size;
+  int firmware_sign_key_size;
   int signature_size;
   int error_code = 0;
   DigestContext ctx;
@@ -384,17 +472,17 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
     DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
     DigestUpdate(&ctx, (uint8_t*) &image->header_len,
                  FIELD_LEN(header_len));
-    DigestUpdate(&ctx, (uint8_t*) &image->sign_algorithm,
-                 FIELD_LEN(sign_algorithm));
-    DigestUpdate(&ctx, image->sign_key,
-                 RSAProcessedKeySize(image->sign_algorithm));
-    DigestUpdate(&ctx, (uint8_t*) &image->key_version,
-                 FIELD_LEN(key_version));
+    DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
+                 FIELD_LEN(firmware_sign_algorithm));
+    DigestUpdate(&ctx, image->firmware_sign_key,
+                 RSAProcessedKeySize(image->firmware_sign_algorithm));
+    DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
+                 FIELD_LEN(firmware_key_version));
     DigestUpdate(&ctx, image->header_checksum,
                  FIELD_LEN(header_checksum));
     header_digest = DigestFinal(&ctx);
-    if (!RSA_verify(root_key, image->key_signature,
-                    FIELD_LEN(key_signature),
+    if (!RSAVerify(root_key, image->firmware_key_signature,
+                    FIELD_LEN(firmware_key_signature),
                     ROOT_SIGNATURE_ALGORITHM,
                     header_digest)) {
       error_code =  VERIFY_FIRMWARE_ROOT_SIGNATURE_FAILED;
@@ -403,16 +491,16 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   }
 
   /* Get sign key to verify the rest of the firmware. */
-  sign_key_size = RSAProcessedKeySize(image->sign_algorithm);
-  sign_key = RSAPublicKeyFromBuf(image->sign_key,
-                                 sign_key_size);
-  signature_size = siglen_map[image->sign_algorithm];
+  firmware_sign_key_size = RSAProcessedKeySize(image->firmware_sign_algorithm);
+  firmware_sign_key = RSAPublicKeyFromBuf(image->firmware_sign_key,
+                                 firmware_sign_key_size);
+  signature_size = siglen_map[image->firmware_sign_algorithm];
 
-  if (image->sign_algorithm >= kNumAlgorithms)
+  if (image->firmware_sign_algorithm >= kNumAlgorithms)
     return VERIFY_FIRMWARE_INVALID_ALGORITHM;
 
   /* Verify firmware preamble signature. */
-  DigestInit(&ctx, image->sign_algorithm);
+  DigestInit(&ctx, image->firmware_sign_algorithm);
   DigestUpdate(&ctx, (uint8_t*) &image->firmware_version,
                FIELD_LEN(firmware_version));
   DigestUpdate(&ctx, (uint8_t*) &image->firmware_len,
@@ -420,8 +508,8 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   DigestUpdate(&ctx, (uint8_t*) &image->preamble,
                FIELD_LEN(preamble));
   preamble_digest = DigestFinal(&ctx);
-  if (!RSA_verify(sign_key, image->preamble_signature,
-                  signature_size, image->sign_algorithm,
+  if (!RSAVerify(firmware_sign_key, image->preamble_signature,
+                  signature_size, image->firmware_sign_algorithm,
                   preamble_digest)) {
     error_code = VERIFY_FIRMWARE_PREAMBLE_SIGNATURE_FAILED;
     goto verify_failure;
@@ -430,9 +518,9 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   /* Verify firmware signature. */
   firmware_digest = DigestBuf(image->firmware_data,
                               image->firmware_len,
-                              image->sign_algorithm);
-  if(!RSA_verify(sign_key, image->firmware_signature,
-                 signature_size, image->sign_algorithm,
+                              image->firmware_sign_algorithm);
+  if (!RSAVerify(firmware_sign_key, image->firmware_signature,
+                 signature_size, image->firmware_sign_algorithm,
                  firmware_digest)) {
     error_code = VERIFY_FIRMWARE_SIGNATURE_FAILED;
     goto verify_failure;
@@ -450,64 +538,49 @@ const char* VerifyFirmwareErrorString(int error) {
 }
 
 int AddFirmwareKeySignature(FirmwareImage* image, const char* root_key_file) {
-  int tmp_hdr_fd;
-  char* tmp_hdr_file = ".tmpHdrFile";
+  uint8_t* header_blob = NULL;
   uint8_t* signature;
-
-  if(-1 == (tmp_hdr_fd = creat(tmp_hdr_file, S_IRWXU))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "firmware header.\n");
+  if (!image || !root_key_file)
+    return 0;
+  header_blob = GetFirmwareHeaderBlob(image);
+  if (!header_blob)
+    return 0;
+  if (!(signature = SignatureBuf(header_blob,
+                                 GetFirmwareHeaderLen(image),
+                                 root_key_file,
+                                 ROOT_SIGNATURE_ALGORITHM))) {
+    Free(header_blob);
     return 0;
   }
-  WriteFirmwareHeader(tmp_hdr_fd, image);
-  close(tmp_hdr_fd);
-
-  if (!(signature = SignatureFile(tmp_hdr_file, root_key_file,
-                                  ROOT_SIGNATURE_ALGORITHM)))
-    return 0;
-  Memcpy(image->key_signature, signature, RSA8192NUMBYTES);
+  Memcpy(image->firmware_key_signature, signature, RSA8192NUMBYTES);
+  Free(header_blob);
+  Free(signature);
   return 1;
 }
 
-int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file,
-                         int algorithm) {
-  int tmp_preamble_fd;
-  char* tmp_preamble_file = ".tmpPreambleFile";
-  int tmp_firmware_fd;
-  char* tmp_firmware_file = ".tmpFirmwareFile";
+int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file) {
+  uint8_t* preamble_blob;
   uint8_t* preamble_signature;
   uint8_t* firmware_signature;
-  int signature_len = siglen_map[algorithm];
+  int signature_len = siglen_map[image->firmware_sign_algorithm];
 
-  /* Write preamble to a file. */
-  if(-1 == (tmp_preamble_fd = creat(tmp_preamble_file, S_IRWXU))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "firmware preamble.\n");
+  preamble_blob = GetFirmwarePreambleBlob(image);
+  if (!(preamble_signature = SignatureBuf(preamble_blob,
+                                          GetFirmwarePreambleLen(image),
+                                          signing_key_file,
+                                          image->firmware_sign_algorithm))) {
+    Free(preamble_blob);
     return 0;
   }
-  WriteFirmwarePreamble(tmp_preamble_fd, image);
-  close(tmp_preamble_fd);
-  if (!(preamble_signature = SignatureFile(tmp_preamble_file, signing_key_file,
-                                           algorithm)))
-    return 0;
   image->preamble_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->preamble_signature, preamble_signature, signature_len);
   Free(preamble_signature);
 
-  if (-1 == (tmp_firmware_fd = creat(tmp_firmware_file, S_IRWXU))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "firmware.\n");
+  if (!(firmware_signature = SignatureBuf(image->firmware_data,
+                                          image->firmware_len,
+                                          signing_key_file,
+                                          image->firmware_sign_algorithm)))
     return 0;
-  }
-  write(tmp_firmware_fd, image->firmware_data, image->firmware_len);
-  close(tmp_firmware_fd);
-
-  if (!(firmware_signature = SignatureFile(tmp_firmware_file, signing_key_file,
-                                           algorithm))) {
-    fprintf(stderr, "Could not open temporary file for writing "
-            "firmware.\n");
-    return 0;
-  }
   image->firmware_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->firmware_signature, firmware_signature, signature_len);
   Free(firmware_signature);

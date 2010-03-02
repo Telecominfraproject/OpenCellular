@@ -33,8 +33,8 @@ FirmwareUtility::FirmwareUtility():
     image_(NULL),
     root_key_pub_(NULL),
     firmware_version_(-1),
-    key_version_(-1),
-    sign_algorithm_(-1),
+    firmware_key_version_(-1),
+    firmware_sign_algorithm_(-1),
     is_generate_(false),
     is_verify_(false) {
 }
@@ -54,11 +54,11 @@ void FirmwareUtility::PrintUsage(void) {
       "to use for verification.\n\n"
       "For \"--generate\", required OPTIONS are:\n"
       "--root_key <privkeyfile>\tPrivate root key file\n"
-      "--sign_key <privkeyfile>\tPrivate signing key file\n"
-      "--sign_key_pub <pubkeyfile>\tPre-processed public signing"
+      "--firmware_sign_key <privkeyfile>\tPrivate signing key file\n"
+      "--firmware_sign_key_pub <pubkeyfile>\tPre-processed public signing"
       " key\n"
-      "--sign_algorithm <algoid>\tSigning algorithm to use\n"
-      "--key_version <version#>\tSigning Key Version#\n"
+      "--firmware_sign_algorithm <algoid>\tSigning algorithm to use\n"
+      "--firmware_key_version <version#>\tSigning Key Version#\n"
       "--firmware_version <version#>\tFirmware Version#\n"
       "--in <infile>\t\t\tFirmware Image to sign\n"
       "--out <outfile>\t\t\tOutput file for verified boot firmware image\n\n"
@@ -74,10 +74,10 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
   static struct option long_options[] = {
     {"root_key", 1, 0, 0},
     {"root_key_pub", 1, 0, 0},
-    {"sign_key", 1, 0, 0},
-    {"sign_key_pub", 1, 0, 0},
-    {"sign_algorithm", 1, 0, 0},
-    {"key_version", 1, 0, 0},
+    {"firmware_sign_key", 1, 0, 0},
+    {"firmware_sign_key_pub", 1, 0, 0},
+    {"firmware_sign_algorithm", 1, 0, 0},
+    {"firmware_key_version", 1, 0, 0},
     {"firmware_version", 1, 0, 0},
     {"in", 1, 0, 0},
     {"out", 1, 0, 0},
@@ -100,21 +100,21 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         case 1:  // root_key_pub
           root_key_pub_file_ = optarg;
           break;
-        case 2:  // sign_key
-          sign_key_file_ = optarg;
+        case 2:  // firmware_sign_key
+          firmware_sign_key_file_ = optarg;
           break;
-        case 3:  // sign_key_pub
-          sign_key_pub_file_ = optarg;
+        case 3:  // firmware_sign_key_pub
+          firmware_sign_key_pub_file_ = optarg;
           break;
-        case 4:  // sign_algorithm
+        case 4:  // firmware_sign_algorithm
           errno = 0;  // strtol() returns an error via errno
-          sign_algorithm_ = strtol(optarg, (char**) NULL, 10);
+          firmware_sign_algorithm_ = strtol(optarg, (char**) NULL, 10);
           if (errno)
             return false;
           break;
-        case 5:  // key_version
+        case 5:  // firmware_key_version
           errno = 0;
-          key_version_ = strtol(optarg, (char**) NULL, 10);
+          firmware_key_version_ = strtol(optarg, (char**) NULL, 10);
           if (errno)
             return false;
           break;
@@ -153,7 +153,7 @@ void FirmwareUtility::OutputSignedImage(void) {
 }
 
 bool FirmwareUtility::GenerateSignedImage(void) {
-  uint32_t sign_key_pub_len;
+  uint32_t firmware_sign_key_pub_len;
   uint8_t* header_checksum;
   DigestContext ctx;
   image_ = FirmwareImageNew();
@@ -161,30 +161,31 @@ bool FirmwareUtility::GenerateSignedImage(void) {
   Memcpy(image_->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
 
   // Copy pre-processed public signing key.
-  image_->sign_algorithm = (uint16_t) sign_algorithm_;
-  image_->sign_key = BufferFromFile(sign_key_pub_file_.c_str(),
-                                    &sign_key_pub_len);
-  if (!image_->sign_key)
+  image_->firmware_sign_algorithm = (uint16_t) firmware_sign_algorithm_;
+  image_->firmware_sign_key = BufferFromFile(
+      firmware_sign_key_pub_file_.c_str(),
+      &firmware_sign_key_pub_len);
+  if (!image_->firmware_sign_key)
     return false;
-  image_->key_version = key_version_;
+  image_->firmware_key_version = firmware_key_version_;
 
   // Update header length.
   image_->header_len = (sizeof(image_->header_len) +
-                        sizeof(image_->sign_algorithm) +
-                        sign_key_pub_len +
-                        sizeof(image_->key_version) +
+                        sizeof(image_->firmware_sign_algorithm) +
+                        firmware_sign_key_pub_len +
+                        sizeof(image_->firmware_key_version) +
                         sizeof(image_->header_checksum));
 
   // Calculate header checksum.
   DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
   DigestUpdate(&ctx, (uint8_t*) &image_->header_len,
                sizeof(image_->header_len));
-  DigestUpdate(&ctx, (uint8_t*) &image_->sign_algorithm,
-               sizeof(image_->sign_algorithm));
-  DigestUpdate(&ctx, image_->sign_key,
-               RSAProcessedKeySize(image_->sign_algorithm));
-  DigestUpdate(&ctx, (uint8_t*) &image_->key_version,
-               sizeof(image_->key_version));
+  DigestUpdate(&ctx, (uint8_t*) &image_->firmware_sign_algorithm,
+               sizeof(image_->firmware_sign_algorithm));
+  DigestUpdate(&ctx, image_->firmware_sign_key,
+               RSAProcessedKeySize(image_->firmware_sign_algorithm));
+  DigestUpdate(&ctx, (uint8_t*) &image_->firmware_key_version,
+               sizeof(image_->firmware_key_version));
   header_checksum = DigestFinal(&ctx);
   Memcpy(image_->header_checksum, header_checksum, SHA512_DIGEST_SIZE);
   Free(header_checksum);
@@ -199,13 +200,12 @@ bool FirmwareUtility::GenerateSignedImage(void) {
   if (!image_)
     return false;
   // Generate and add the signatures.
-  if(!AddFirmwareKeySignature(image_, root_key_file_.c_str())) {
+  if (!AddFirmwareKeySignature(image_, root_key_file_.c_str())) {
     cerr << "Couldn't write key signature to verified boot image.\n";
     return false;
   }
 
-  if(!AddFirmwareSignature(image_, sign_key_file_.c_str(),
-                           image_->sign_algorithm)) {
+  if (!AddFirmwareSignature(image_, firmware_sign_key_file_.c_str())) {
     cerr << "Couldn't write firmware signature to verified boot image.\n";
     return false;
   }
@@ -257,19 +257,20 @@ bool FirmwareUtility::CheckOptions(void) {
       cerr << "Invalid or no firmware version specified." << "\n";
       return false;
     }
-    if (sign_key_file_.empty()) {
+    if (firmware_sign_key_file_.empty()) {
       cerr << "No signing key file specified." << "\n";
       return false;
     }
-    if (sign_key_pub_file_.empty()) {
+    if (firmware_sign_key_pub_file_.empty()) {
       cerr << "No pre-processed public signing key file specified." << "\n";
       return false;
     }
-    if (key_version_ <= 0 || key_version_ > UINT16_MAX) {
+    if (firmware_key_version_ <= 0 || firmware_key_version_ > UINT16_MAX) {
       cerr << "Invalid or no key version specified." << "\n";
       return false;
     }
-    if (sign_algorithm_ < 0 || sign_algorithm_ >= kNumAlgorithms) {
+    if (firmware_sign_algorithm_ < 0 ||
+        firmware_sign_algorithm_ >= kNumAlgorithms) {
       cerr << "Invalid or no signing key algorithm specified." << "\n";
       return false;
     }

@@ -1,17 +1,13 @@
 /* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- *
- * Utility that outputs the message digest of the contents of a file in a
- * format that can be used as input to OpenSSL for an RSA signature.
- * Needed until the stable OpenSSL release supports SHA-256/512 digests for
- * RSA signatures.
- * Outputs DigestInfo || Digest where DigestInfo is the OID depending on the
- * choice of the hash algorithm (see padding.c).
- *
  */
 
 #include "signature_digest.h"
+#define OPENSSL_NO_SHA
+#include <openssl/engine.h>
+#include <openssl/pem.h>
+#include <openssl/rsa.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,49 +16,59 @@
 #include "padding.h"
 #include "sha.h"
 #include "sha_utility.h"
+#include "utility.h"
 
 uint8_t* PrependDigestInfo(int algorithm, uint8_t* digest) {
   const int digest_size = hash_size_map[algorithm];
   const int digestinfo_size = digestinfo_size_map[algorithm];
   const uint8_t* digestinfo = hash_digestinfo_map[algorithm];
-  uint8_t* p = malloc(digestinfo_size + digest_size);
-  memcpy(p, digestinfo, digestinfo_size);
-  memcpy(p + digestinfo_size, digest, digest_size);
+  uint8_t* p = Malloc(digestinfo_size + digest_size);
+  Memcpy(p, digestinfo, digestinfo_size);
+  Memcpy(p + digestinfo_size, digest, digest_size);
   return p;
 }
 
-int main(int argc, char* argv[]) {
-  int i, algorithm;
-  uint8_t* digest = NULL;
-  uint8_t* signature = NULL;
+uint8_t* SignatureDigest(const uint8_t* buf, int len, int algorithm) {
   uint8_t* info_digest  = NULL;
+  uint8_t* digest = NULL;
 
-  if (argc != 3) {
-    fprintf(stderr, "Usage: %s <algorithm> <input file>\n\n",
-            argv[0]);
-    fprintf(stderr, "where <algorithm> is the signature algorithm to use:\n");
-    for(i = 0; i<kNumAlgorithms; i++)
-      fprintf(stderr, "\t%d for %s\n", i, algo_strings[i]);
-    return -1;
-  }
-
-  algorithm = atoi(argv[1]);
   if (algorithm >= kNumAlgorithms) {
-    fprintf(stderr, "Invalid Algorithm!\n");
-    goto failure;
+    fprintf(stderr, "SignatureDigest() called with invalid algorithm!\n");
+  } else if ((digest = DigestBuf(buf, len, algorithm))) {
+    info_digest = PrependDigestInfo(algorithm, digest);
   }
+  Free(digest);
+  return info_digest;
+}
 
-  if (!(digest = DigestFile(argv[2], algorithm)))
-    goto failure;
-
-  info_digest = PrependDigestInfo(algorithm, digest);
-  write(1, info_digest, hash_size_map[algorithm] +
-        digestinfo_size_map[algorithm]);
-
-failure:
-  free(digest);
-  free(info_digest);
-  free(signature);
-
-  return 0;
+uint8_t* SignatureBuf(const uint8_t* buf, int len, const char* key_file,
+                      int algorithm) {
+  FILE* key_fp = NULL;
+  RSA* key = NULL;
+  uint8_t* signature = NULL;
+  uint8_t* signature_digest = SignatureDigest(buf, len, algorithm);
+  int signature_digest_len = (hash_size_map[algorithm] +
+                              digestinfo_size_map[algorithm]);
+  key_fp  = fopen(key_file, "r");
+  if (!key_fp) {
+    fprintf(stderr, "SignatureBuf(): Couldn't open key file: %s\n", key_file);
+    return NULL;
+  }
+  if ((key = PEM_read_RSAPrivateKey(key_fp, NULL, NULL, NULL)))
+    signature = (uint8_t*) Malloc(siglen_map[algorithm]);
+  else
+    fprintf(stderr, "SignatureBuf(): Couldn't read private key from file: %s\n",
+            key_file);
+  if (signature) {
+    if (-1 == RSA_private_encrypt(signature_digest_len,  /* Input length. */
+                                  signature_digest,  /* Input data. */
+                                  signature,  /* Output signature. */
+                                  key,  /* Key to use. */
+                                  RSA_PKCS1_PADDING))  /* Padding to use. */
+      fprintf(stderr, "SignatureBuf(): RSA_private_encrypt() failed.\n");
+  }
+  if (key)
+    RSA_free(key);
+  Free(signature_digest);
+  return signature;
 }

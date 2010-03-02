@@ -79,7 +79,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
     return 0; /* Both can't be NULL or non-NULL. */
 
   digest = DigestBuf(buf, len, algorithm);
-  success = RSA_verify(verification_key, sig, sig_size, algorithm, digest);
+  success = RSAVerify(verification_key, sig, sig_size, algorithm, digest);
 
   Free(digest);
   if (!key)

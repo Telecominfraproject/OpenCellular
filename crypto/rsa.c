@@ -127,11 +127,11 @@ static void modpowF4(const RSAPublicKey *key,
 /* Verify a RSA PKCS1.5 signature against an expected hash.
  * Returns 0 on failure, 1 on success.
  */
-int RSA_verify(const RSAPublicKey *key,
-               const uint8_t *sig,
-               const int sig_len,
-               const uint8_t sig_type,
-               const uint8_t *hash) {
+int RSAVerify(const RSAPublicKey *key,
+              const uint8_t *sig,
+              const int sig_len,
+              const uint8_t sig_type,
+              const uint8_t *hash) {
   int i;
   uint8_t* buf;
   const uint8_t* padding;

@@ -64,7 +64,7 @@ int SpeedTestAlgorithm(int algorithm) {
 
   StartTimer(&ct);
   for (i = 0; i < NUM_OPERATIONS; i++) {
-    if (!RSA_verify(key, signature, sig_len, algorithm, digest))
+    if (!RSAVerify(key, signature, sig_len, algorithm, digest))
       fprintf(stderr, "Warning: Signature Check Failed.\n");
   }
   StopTimer(&ct);

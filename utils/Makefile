@@ -8,26 +8,25 @@ CFLAGS = -Wall -DNDEBUG
 INCLUDES ?= -I../include/
 TOP ?= ../
 
-LIBS = -lcrypto
+LIBS =  firmware_image.o kernel_image.o signature_digest.o file_keys.o
 FIRMWARELIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
 
-all: dumpRSAPublicKey verify_data signature_digest firmware_utility \
-	file_keys.o firmware_image.o kernel_image.o
+all: dumpRSAPublicKey verify_data file_keys.o signature_digest.o firmware_image.o \
+	kernel_image.o signature_digest.o firmware_utility
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
-	$(CC) $(CFLAGS) $(LIBS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@ -lcrypto
 
-verify_data: verify_data.c file_keys.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FIRMWARELIBS)
+verify_data: verify_data.c $(LIBS) $(FIRMWARELIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARELIBS) -lcrypto
 
-signature_digest: signature_digest.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(FIRMWARELIBS)
+firmware_utility: firmware_utility.cc $(LIBS) $(FIRMWARELIBS)
+	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
+	-o $@ $(FIRMWARELIBS) $(LIBS) -lcrypto
 
-firmware_utility: firmware_utility.cc firmware_image.o file_keys.o
-	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $^ \
-	-o $@ $(FIRMWARELIBS)
+signature_digest.o: signature_digest.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Used by tests.
 file_keys.o: file_keys.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
@@ -37,6 +36,5 @@ firmware_image.o: firmware_image.c
 kernel_image.o: kernel_image.c
 	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 clean:
-	rm -f dumpRSAPublicKey verify_data signature_digest firmware_image.o \
-	kernel_image.o file_keys.o firmware_utility
-
+	rm -f dumpRSAPublicKey verify_data signature_digest firmware_utility \
+	$(LIBS)

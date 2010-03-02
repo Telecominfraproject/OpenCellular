@@ -25,14 +25,14 @@ int main(int argc, char* argv[]) {
   }
 
   /* The first test signature is valid. */
-  if (!RSA_verify(key, signatures[0], RSA1024NUMBYTES, 0,
+  if (!RSAVerify(key, signatures[0], RSA1024NUMBYTES, 0,
                   test_message_sha1_hash)) {
     fprintf(stderr, "RSA Padding Test vector 0 FAILED!\n");
     error = 255;  /* Test failure. */
   }
   /* All other signatures should fail verification. */
   for (i = 1; i < sizeof(signatures) / sizeof(signatures[0]); i++) {
-    if (RSA_verify(key, signatures[i], RSA1024NUMBYTES, 0,
+    if (RSAVerify(key, signatures[i], RSA1024NUMBYTES, 0,
                   test_message_sha1_hash)) {
       fprintf(stderr, "RSA Padding Test vector %d FAILED!\n", i);
       error = 255;  /* Test failure. */

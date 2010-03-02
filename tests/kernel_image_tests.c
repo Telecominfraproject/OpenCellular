@@ -174,10 +174,10 @@ int main(int argc, char* argv[]) {
   uint8_t* kernel_sign_key_buf = NULL;
   uint8_t* firmware_key_blob = NULL;
   uint8_t* kernel_blob = NULL;
+  int kernel_blob_len = 0;
   KernelImage* image = NULL;
   RSAPublicKey* firmware_key = NULL;
   int error_code = 1;
-  char* tmp_kernelblob_file = ".tmpKernelBlob";
 
   if(argc != 7) {
     fprintf(stderr, "Usage: %s <firmware signing algorithm> "  /* argv[1] */
@@ -217,24 +217,13 @@ int main(int argc, char* argv[]) {
     goto failure;
   }
 
-  if (!AddKernelSignature(image, argv[5], image->kernel_sign_algorithm)) {
+  if (!AddKernelSignature(image, argv[5])) {
     fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
     error_code = 1;
     goto failure;
   }
 
-  /* Generate a firmware binary blob from image.
-   *
-   * TODO(gauravsh): Add a function to directly generate a binary
-   * blob buffer from a KernelImage instead of indirectly writing to a file
-   * and reading it into a buffer.
-   */
-  if (!WriteKernelImage(tmp_kernelblob_file, image)) {
-    fprintf(stderr, "Couldn't create a temporary kernel blob file.\n");
-    error_code = 1;
-    goto failure;
-  }
-  kernel_blob = BufferFromFile(tmp_kernelblob_file, &len);
+  kernel_blob = GetKernelBlob(image, &kernel_blob_len);
 
   /* Test Kernel blob verify operations. */
   if (!VerifyKernelTest(kernel_blob, firmware_key_blob))

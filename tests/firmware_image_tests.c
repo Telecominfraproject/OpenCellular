@@ -31,8 +31,8 @@ int TEST_EQ(int result, int expected_result, char* testname) {
 }
 
 FirmwareImage* GenerateTestFirmwareImage(int algorithm,
-                                         uint8_t* sign_key,
-                                         int key_version,
+                                         uint8_t* firmware_sign_key,
+                                         int firmware_key_version,
                                          int firmware_version,
                                          int firmware_len) {
   FirmwareImage* image = FirmwareImageNew();
@@ -40,29 +40,30 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   DigestContext ctx;
 
   Memcpy(image->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
-  image->sign_algorithm = algorithm;
-  image->sign_key = (uint8_t*) Malloc(
-      RSAProcessedKeySize(image->sign_algorithm));
-  Memcpy(image->sign_key, sign_key, RSAProcessedKeySize(image->sign_algorithm));
-  image->key_version = key_version;
+  image->firmware_sign_algorithm = algorithm;
+  image->firmware_sign_key = (uint8_t*) Malloc(
+      RSAProcessedKeySize(image->firmware_sign_algorithm));
+  Memcpy(image->firmware_sign_key, firmware_sign_key,
+         RSAProcessedKeySize(image->firmware_sign_algorithm));
+  image->firmware_key_version = firmware_key_version;
 
   /* Update correct header length. */
   image->header_len = (sizeof(image->header_len) +
-                       sizeof(image->sign_algorithm) +
-                       RSAProcessedKeySize(image->sign_algorithm) +
-                       sizeof(image->key_version) +
+                       sizeof(image->firmware_sign_algorithm) +
+                       RSAProcessedKeySize(image->firmware_sign_algorithm) +
+                       sizeof(image->firmware_key_version) +
                        sizeof(image->header_checksum));
 
   /* Calculate SHA-512 digest on header and populate header_checksum. */
   DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
   DigestUpdate(&ctx, (uint8_t*) &image->header_len,
                sizeof(image->header_len));
-  DigestUpdate(&ctx, (uint8_t*) &image->sign_algorithm,
-               sizeof(image->sign_algorithm));
-  DigestUpdate(&ctx, image->sign_key,
-               RSAProcessedKeySize(image->sign_algorithm));
-  DigestUpdate(&ctx, (uint8_t*) &image->key_version,
-               sizeof(image->key_version));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
+               sizeof(image->firmware_sign_algorithm));
+  DigestUpdate(&ctx, image->firmware_sign_key,
+               RSAProcessedKeySize(image->firmware_sign_algorithm));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
+               sizeof(image->firmware_key_version));
   header_checksum = DigestFinal(&ctx);
   Memcpy(image->header_checksum, header_checksum, SHA512_DIGEST_SIZE);
   Free(header_checksum);
@@ -144,8 +145,8 @@ int VerifyFirmwareImageTamperTest(FirmwareImage* image,
 
 
   fprintf(stderr, "[[Tampering with root key signature...]]\n");
-  image->key_signature[0] = 0xFF;
-  image->key_signature[1] = 0x00;
+  image->firmware_key_signature[0] = 0xFF;
+  image->firmware_key_signature[1] = 0x00;
   if (!TEST_EQ(VerifyFirmwareImage(root_key, image, DEV_MODE_ENABLED),
                VERIFY_FIRMWARE_SUCCESS,
                "FirmwareImage Root Signature Tamper Verification (Dev Mode)"))
@@ -160,13 +161,13 @@ int VerifyFirmwareImageTamperTest(FirmwareImage* image,
 
 int main(int argc, char* argv[]) {
   uint32_t len;
-  uint8_t* sign_key_buf = NULL;
+  uint8_t* firmware_sign_key_buf = NULL;
   uint8_t* root_key_blob = NULL;
   uint8_t* firmware_blob = NULL;
+  int firmware_blob_len = 0;
   FirmwareImage* image = NULL;
   RSAPublicKey* root_key = NULL;
   int error_code = 1;
-  char* tmp_firmwareblob_file = ".tmpFirmwareBlob";
 
   if(argc != 6) {
     fprintf(stderr, "Usage: %s <algorithm> <root key> <processed root pubkey>"
@@ -177,11 +178,11 @@ int main(int argc, char* argv[]) {
   /* Read verification keys and create a test image. */
   root_key = RSAPublicKeyFromFile(argv[3]);
   root_key_blob = BufferFromFile(argv[3], &len);
-  sign_key_buf = BufferFromFile(argv[5], &len);
-  image = GenerateTestFirmwareImage(atoi(argv[1]), sign_key_buf, 1,
+  firmware_sign_key_buf = BufferFromFile(argv[5], &len);
+  image = GenerateTestFirmwareImage(atoi(argv[1]), firmware_sign_key_buf, 1,
                                     1, 1000);
 
-  if (!root_key || !sign_key_buf || !image) {
+  if (!root_key || !firmware_sign_key_buf || !image) {
     error_code = 1;
     goto failure;
   }
@@ -193,25 +194,13 @@ int main(int argc, char* argv[]) {
     goto failure;
   }
 
-  if (!AddFirmwareSignature(image, argv[4], image->sign_algorithm)) {
+  if (!AddFirmwareSignature(image, argv[4])) {
     fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
     error_code = 1;
     goto failure;
   }
 
-
-  /* Generate a firmware binary blob from image.
-   *
-   * TODO(gauravsh): There should be a function to directly generate a binary
-   * blob buffer from a FirmwareImage instead of indirectly writing to a file
-   * and reading it into a buffer.
-   */
-  if (!WriteFirmwareImage(tmp_firmwareblob_file, image)) {
-    fprintf(stderr, "Couldn't create a temporary firmware blob file.\n");
-    error_code = 1;
-    goto failure;
-  }
-  firmware_blob = BufferFromFile(tmp_firmwareblob_file, &len);
+  firmware_blob = GetFirmwareBlob(image, &firmware_blob_len);
 
   /* Test Firmware blob verify operations. */
   if (!VerifyFirmwareTest(firmware_blob, root_key_blob))
@@ -226,7 +215,7 @@ int main(int argc, char* argv[]) {
 failure:
   Free(firmware_blob);
   Free(image);
-  Free(sign_key_buf);
+  Free(firmware_sign_key_buf);
   Free(root_key_blob);
   Free(root_key);
 
