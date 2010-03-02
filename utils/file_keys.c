@@ -51,7 +51,7 @@ uint8_t* BufferFromFile(const char* input_file, uint32_t* len) {
 
 RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
   uint32_t len;
-  RSAPublicKey* key;
+  RSAPublicKey* key = NULL;
   uint8_t* buf = BufferFromFile(input_file, &len);
   if (buf)
     key = RSAPublicKeyFromBuf(buf, len);

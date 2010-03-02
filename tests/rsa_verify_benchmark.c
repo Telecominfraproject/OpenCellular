@@ -26,7 +26,7 @@ int SpeedTestAlgorithm(int algorithm) {
   RSAPublicKey* key = NULL;
   ClockTimerState ct;
   char* sha_strings[] = {  /* Maps algorithm->SHA algorithm. */
-    "sha1", "sha256", "psha512",  /* RSA-1024 */
+    "sha1", "sha256", "sha512",  /* RSA-1024 */
     "sha1", "sha256", "sha512",  /* RSA-2048 */
     "sha1", "sha256", "sha512",  /* RSA-4096 */
     "sha1", "sha256", "sha512",  /* RSA-8192 */
@@ -37,7 +37,7 @@ int SpeedTestAlgorithm(int algorithm) {
   snprintf(file_name, FILE_NAME_SIZE, "testkeys/key_rsa%d.keyb", key_size);
   key = RSAPublicKeyFromFile(file_name);
   if (!key) {
-    fprintf(stderr, "Couldn't read key from file.\n");
+    fprintf(stderr, "Couldn't read RSA Public key from file: %s\n", file_name);
     error_code = 1;
     goto failure;
   }
@@ -74,7 +74,8 @@ int SpeedTestAlgorithm(int algorithm) {
   fprintf(stderr, "# rsa%d/%s:\tTime taken per verification = %.02f ms,"
           " Speed = %.02f verifications/s\n", key_size, sha_strings[algorithm],
           msecs, speed);
-  fprintf(stdout, "rsa%d/%s:%.02f\n", key_size, sha_strings[algorithm], msecs);
+  fprintf(stdout, "ms_rsa%d_%s:%.02f\n", key_size, sha_strings[algorithm],
+          msecs);
 
 failure:
   Free(signature);
