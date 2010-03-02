@@ -21,9 +21,9 @@ typedef struct HashFxTable {
 } HashFxTable;
 
 HashFxTable hash_functions[NUM_HASH_ALGORITHMS] = {
-  {SHA1, "SHA1"},
-  {SHA256, "SHA256"},
-  {SHA512, "SHA512"}
+  {SHA1, "sha1"},
+  {SHA256, "sha256"},
+  {SHA512, "sha512"}
 };
 
 int main(int argc, char* argv[]) {
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 
     fprintf(stderr, "# %s Time taken = %u ms, Speed = %f Mbytes/sec\n",
             hash_functions[i].description, msecs, speed);
-    fprintf(stdout, "%s:%f\n",
+    fprintf(stdout, "mbytes_per_sec_%s:%f\n",
             hash_functions[i].description, speed);
   }
 
