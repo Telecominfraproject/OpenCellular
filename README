@@ -1,0 +1,58 @@
+This directory contains a reference implementation for Chrome OS
+verified boot in firmware.
+
+---------- 
+Directory Structure 
+----------
+
+include/ - Contains all the code headers. firmware_image.h and
+kernel_image.h contains the structures that represent a verified boot
+firmware and kernel image. Note that the
+
+crypto/ - Contains the implementation for the crypto library. This
+includes implementations for SHA1, SHA256, SHA512, and RSA signature
+verification (for PKCS #1 v1.5 signatures).
+
+common/ - Contains some utility functions and stub implementations for
+certain wrapper functions used in the verification code. Some of these
+(for example Free(), Malloc()) will need to be replaced with
+appropriate firmware-land equivalent.
+
+utils/ - This contains the implementation of kernel and firmware image
+verification (see firmware_image.c and kernel_image.c) and some
+utilities (e.g. firmware_utility - for generating verified boot
+firmware images).
+
+tests/ - User-land tests and benchmarks that test the reference
+implementation. Please have a look at these if you'd like to
+understand how to use the reference implementation.
+
+
+---------- 
+Some useful utilities: 
+----------
+
+firmware_utility.c To generate verified boot firmware images.
+
+dumpRSAPublicKey.c Dump RSA Public key (from a DER-encoded X509
+                   certificate) in a format suitable for
+		   use by RSAVerify* functions in
+                   crypto/.
+
+verify_data.c Verify a given signature on a given file.
+				 
+
+---------- 
+Here's what is required for a minimal verified boot implementation
+----------
+
+1) Crypto implementation from crypto/. The verified boot code should
+use the wrappers from rsa_utility.h and sha_utility.h - RSAVerify_f()
+and Digest*() functions.
+
+2) Verified Firmware and Kernel image verification functions - only
+functions that work on binary blobs (VerifyFirmware() and
+VerifyKernel()) are required. The functions that work on Firmware and
+Kernel images (e.g. VerifyFirmwareImage()) are only useful for
+user-land utilities that manipulate signed firmware and kernel images.
+
