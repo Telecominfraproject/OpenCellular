@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 CC ?= gcc
-CFLAGS = -Wall -DNDEBUG
+CFLAGS = -Wall -DNDEBUG -O3
 INCLUDES ?= -I../include/
 TOP ?= ../
 

@@ -26,8 +26,8 @@ function generate_signatures {
   do
     for hashalgo in ${hash_algos[@]}
     do
-      ${UTIL_DIR}/signature_digest $algorithmcounter $1 | openssl rsautl -sign \
-        -pkcs -inkey ${KEY_DIR}/key_rsa${keylen}.pem \
+      ${UTIL_DIR}/signature_digest_utility $algorithmcounter $1 | openssl \
+        rsautl -sign -pkcs -inkey ${KEY_DIR}/key_rsa${keylen}.pem \
         > $1.rsa${keylen}\_${hashalgo}.sig
       let algorithmcounter=algorithmcounter+1
     done
