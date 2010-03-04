@@ -125,8 +125,9 @@ KernelImage* ReadKernelImage(const char* input_file) {
   StatefulMemcpy(&st, image->header_checksum, FIELD_LEN(header_checksum));
 
   /* Read key signature. */
+  image->kernel_key_signature = (uint8_t*) Malloc(kernel_key_signature_len);
   StatefulMemcpy(&st, image->kernel_key_signature,
-                 FIELD_LEN(kernel_key_signature));
+                 kernel_key_signature_len);
 
   /* Read the kernel config. */
   StatefulMemcpy(&st, &image->kernel_version, FIELD_LEN(kernel_version));

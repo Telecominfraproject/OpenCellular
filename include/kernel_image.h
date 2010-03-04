@@ -74,6 +74,9 @@ void KernelImageFree(KernelImage* image);
  */
 KernelImage* ReadKernelImage(const char* input_file);
 
+/* Get the length of the header for kernel image [image]. */
+int GetKernelHeaderLen(const KernelImage* image);
+
 /* Get kernel header binary blob from an [image].
  *
  * Caller owns the returned pointer and must Free() it.
@@ -115,7 +118,7 @@ void PrintKernelImage(const KernelImage* image);
 #define VERIFY_KERNEL_WRONG_MAGIC 6
 #define VERIFY_KERNEL_MAX 7  /* Generic catch-all. */
 
-char* kVerifyKernelErrors[VERIFY_KERNEL_MAX];
+extern char* kVerifyKernelErrors[VERIFY_KERNEL_MAX];
 
 /* Checks for the sanity of the kernel header pointed by [kernel_header_blob].
  * If [dev_mode] is enabled, also checks the firmware key signature using the

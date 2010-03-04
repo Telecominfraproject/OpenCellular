@@ -61,6 +61,9 @@ void FirmwareImageFree(FirmwareImage* fw);
  */
 FirmwareImage* ReadFirmwareImage(const char* input_file);
 
+/* Get the length of the header for image [image]. */
+int GetFirmwareHeaderLen(const FirmwareImage* image);
+
 /* Get firmware header binary blob from an [image].
  *
  * Caller owns the returned pointer and must Free() it.

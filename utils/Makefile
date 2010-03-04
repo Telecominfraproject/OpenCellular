@@ -12,7 +12,7 @@ LIBS =  firmware_image.o kernel_image.o signature_digest.o file_keys.o
 FIRMWARELIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
 
 all: dumpRSAPublicKey verify_data file_keys.o signature_digest.o firmware_image.o \
-	kernel_image.o signature_digest.o firmware_utility
+	kernel_image.o signature_digest.o firmware_utility kernel_utility
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $< -o $@ -lcrypto
@@ -21,6 +21,10 @@ verify_data: verify_data.c $(LIBS) $(FIRMWARELIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARELIBS) -lcrypto
 
 firmware_utility: firmware_utility.cc $(LIBS) $(FIRMWARELIBS)
+	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
+	-o $@ $(FIRMWARELIBS) $(LIBS) -lcrypto
+
+kernel_utility: kernel_utility.cc $(LIBS) $(FIRMWARELIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(FIRMWARELIBS) $(LIBS) -lcrypto
 
@@ -37,4 +41,4 @@ kernel_image.o: kernel_image.c
 	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 clean:
 	rm -f dumpRSAPublicKey verify_data signature_digest firmware_utility \
-	$(LIBS)
+	kernel_utility $(LIBS)

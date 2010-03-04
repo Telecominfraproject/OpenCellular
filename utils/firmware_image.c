@@ -135,7 +135,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
 }
 
 int GetFirmwareHeaderLen(const FirmwareImage* image) {
-  return (FIELD_LEN(header_len) + FIELD_LEN(header_len) +
+  return (FIELD_LEN(header_len) + FIELD_LEN(firmware_sign_algorithm) +
           RSAProcessedKeySize(image->firmware_sign_algorithm) +
           FIELD_LEN(firmware_key_version) + FIELD_LEN(header_checksum));
 }

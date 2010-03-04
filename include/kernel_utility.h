@@ -2,21 +2,24 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#ifndef VBOOT_REFERENCE_FIRMWARE_UTILITY_H_
-#define VBOOT_REFERENCE_FIRMWARE_UTILITY_H_
+#ifndef VBOOT_REFERENCE_KERNEL_UTILITY_H_
+#define VBOOT_REFERENCE_KERNEL_UTILITY_H_
 
 #include <string>
 
-class FirmwareImage;
+extern "C" {
+#include  "kernel_image.h"
+}
+
 struct RSAPublicKey;
 
 namespace vboot_reference {
 
-// A class for handling verified boot firmware images.
-class FirmwareUtility {
+// A class for handling verified boot kernel images.
+class KernelUtility {
  public:
-  FirmwareUtility();
-  ~FirmwareUtility();
+  KernelUtility();
+  ~KernelUtility();
 
   // Print usage to stderr.
   void PrintUsage(void);
@@ -25,17 +28,16 @@ class FirmwareUtility {
   // Return true on success, false on failure.
   bool ParseCmdLineOptions(int argc, char* argv[]);
 
-  // Generate a verified boot image by reading firmware data from in_file_.
+  // Generate a verified boot image by reading kernel data from in_file_.
   // Return true on success, false on failure.
   bool GenerateSignedImage();
 
-  // Verify a previously generated signed firmware image using the root key read
-  // from [root_key_pub_file_].
+  // Verify a previously generated signed firmware image using the key read
+  // from [firmware_key_pub_file_].
   bool VerifySignedImage();
 
-  // Output the verified boot image to out_file_.
+  // Output the verified boot kernel image to out_file_.
   void OutputSignedImage();
-
 
   bool is_generate() { return is_generate_; }
   bool is_verify() { return is_verify_; }
@@ -46,15 +48,21 @@ class FirmwareUtility {
   // Return true on success, false on failure.
   bool CheckOptions();
 
-  FirmwareImage* image_;
-  RSAPublicKey* root_key_pub_;
-  std::string root_key_file_;
-  std::string root_key_pub_file_;
-  int firmware_version_;
-  std::string firmware_key_file_;
+  KernelImage* image_;
+  RSAPublicKey* firmware_key_pub_;  // Root key used for verification.
+  std::string firmware_key_file_;  // Private key for signing the kernel key.
   std::string firmware_key_pub_file_;
-  int firmware_key_version_;
+  std::string kernel_key_file_;  // Private key for signing the kernel.
+  std::string kernel_key_pub_file_;
+
+  // Fields of a KernelImage. (read from the command line).
+  int header_version_;
   int firmware_sign_algorithm_;
+  int kernel_sign_algorithm_;
+  int kernel_key_version_;
+  int kernel_version_;
+  kconfig_options options_;
+
   std::string in_file_;
   std::string out_file_;
   bool is_generate_;  // Are we generating a new image?
