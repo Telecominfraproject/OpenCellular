@@ -9,6 +9,7 @@
 
 #include <errno.h>
 #include <getopt.h>
+#include <stdio.h>
 #include <stdint.h>  // Needed for UINT16_MAX.
 #include <stdlib.h>
 #include <unistd.h>
