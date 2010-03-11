@@ -53,7 +53,9 @@ void output(RSA* key) {
   N = key->n;
   /* Output size of RSA key in 32-bit words */
   nwords = BN_num_bits(N) / 32;
-  write(1, &nwords, sizeof(nwords));
+  if (-1 == write(1, &nwords, sizeof(nwords)))
+    goto failure;
+
 
   /* Initialize BIGNUMs */
   Big1 = BN_new();
@@ -81,7 +83,8 @@ void output(RSA* key) {
   BN_mod_inverse(N0inv, N, B, bn_ctx);
   BN_sub(N0inv, B, N0inv);
   n0invout = BN_get_word(N0inv);
-  write(1, &n0invout, sizeof(n0invout));
+  if (-1 == write(1, &n0invout, sizeof(n0invout)))
+    goto failure;
 
   /* Calculate R = 2^(# of key bits) */
   BN_set_word(NnumBits, BN_num_bits(N));
@@ -99,7 +102,8 @@ void output(RSA* key) {
 
     BN_mod(n, N, B, bn_ctx); /* n = N mod B */
     nout = BN_get_word(n);
-    write(1, &nout, sizeof(nout));
+    if (-1 == write(1, &nout, sizeof(nout)))
+      goto failure;
 
     BN_rshift(N, N, 32); /*  N = N/B */
   }
@@ -110,11 +114,13 @@ void output(RSA* key) {
 
     BN_mod(rr, RR, B, bn_ctx); /* rr = RR mod B */
     rrout = BN_get_word(rr);
-    write(1, &rrout, sizeof(rrout));
+    if (-1 == write(1, &rrout, sizeof(rrout)))
+      goto failure;
 
     BN_rshift(RR, RR, 32); /* RR = RR/B */
   }
 
+failure:
   /* Free BIGNUMs. */
   BN_free(Big1);
   BN_free(Big2);
