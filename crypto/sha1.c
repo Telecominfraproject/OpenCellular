@@ -21,17 +21,17 @@
 /* This version is about 28% faster than the generic version below,
  * but assumes little-endianness.
  */
-static inline uint32_t ror27(uint32_t val) {
+static uint32_t ror27(uint32_t val) {
   return (val >> 27) | (val << 5);
 }
-static inline uint32_t ror2(uint32_t val) {
+static uint32_t ror2(uint32_t val) {
   return (val >> 2) | (val << 30);
 }
-static inline uint32_t ror31(uint32_t val) {
+static uint32_t ror31(uint32_t val) {
   return (val >> 31) | (val << 1);
 }
 
-static void SHA1_Transform(SHA_CTX* ctx) {
+static void SHA1_Transform(SHA1_CTX* ctx) {
   uint32_t W[80];
   register uint32_t A, B, C, D, E;
   int t;
