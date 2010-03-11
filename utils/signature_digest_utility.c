@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   int error_code = 0;
   uint8_t* buf = NULL;
   uint8_t* signature_digest = NULL;
-  uint32_t len;
+  uint64_t len;
   uint32_t signature_digest_len;
 
   if (argc != 3) {

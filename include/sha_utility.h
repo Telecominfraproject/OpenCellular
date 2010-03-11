@@ -33,7 +33,7 @@ typedef struct DigestContext {
 
 /* Initialize a digest context for use with signature algorithm [algorithm]. */
 void DigestInit(DigestContext* ctx, int sig_algorithm);
-void DigestUpdate(DigestContext* ctx, const uint8_t* data, int len);
+void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint64_t len);
 
 /* Caller owns the returned digest and must free it. */
 uint8_t* DigestFinal(DigestContext* ctx);
@@ -48,6 +48,6 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm);
  * [len] based on the signature [algorithm].
  * Caller owns the returned digest and must free it.
  */
-uint8_t* DigestBuf(const uint8_t* buf, int len, int sig_algorithm);
+uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm);
 
 #endif  /* VBOOT_REFERENCE_SHA_UTILITY_H_ */

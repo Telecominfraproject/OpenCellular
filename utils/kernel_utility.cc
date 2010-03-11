@@ -200,7 +200,7 @@ void KernelUtility::OutputSignedImage(void) {
 }
 
 bool KernelUtility::GenerateSignedImage(void) {
-  uint32_t kernel_key_pub_len;
+  uint64_t kernel_key_pub_len;
   uint8_t* header_checksum;
   DigestContext ctx;
   image_ = KernelImageNew();

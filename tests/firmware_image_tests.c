@@ -160,11 +160,11 @@ int VerifyFirmwareImageTamperTest(FirmwareImage* image,
 }
 
 int main(int argc, char* argv[]) {
-  uint32_t len;
+  uint64_t len;
   uint8_t* firmware_sign_key_buf = NULL;
   uint8_t* root_key_blob = NULL;
   uint8_t* firmware_blob = NULL;
-  int firmware_blob_len = 0;
+  uint64_t firmware_blob_len = 0;
   FirmwareImage* image = NULL;
   RSAPublicKey* root_key = NULL;
   int error_code = 1;

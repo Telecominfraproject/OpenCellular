@@ -332,7 +332,7 @@ static void SHA256_transform(SHA256_CTX* ctx, const uint8_t* message,
 
 
 
-void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, int len) {
+void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint64_t len) {
     unsigned int block_nb;
     unsigned int new_len, rem_len, tmp_len;
     const uint8_t *shifted_data;
@@ -520,7 +520,7 @@ static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
 
 
 void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
-                   int len) {
+                   uint64_t len) {
     unsigned int block_nb;
     unsigned int new_len, rem_len, tmp_len;
     const uint8_t* shifted_data;
@@ -595,7 +595,7 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
 
 
 /* Convenient functions. */
-uint8_t* SHA256(const uint8_t* data, int len, uint8_t* digest) {
+uint8_t* SHA256(const uint8_t* data, uint64_t len, uint8_t* digest) {
   const uint8_t* p;
   int i;
   SHA256_CTX ctx;
@@ -609,7 +609,7 @@ uint8_t* SHA256(const uint8_t* data, int len, uint8_t* digest) {
 }
 
 
-uint8_t* SHA512(const uint8_t* data, int len, uint8_t* digest) {
+uint8_t* SHA512(const uint8_t* data, uint64_t len, uint8_t* digest) {
   const uint8_t* p;
   int i;
   SHA512_CTX ctx;

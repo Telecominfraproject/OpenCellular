@@ -36,7 +36,7 @@ int SafeMemcmp(const void* s1, const void* s2, size_t n);
 /* Track remaining data to be read in a buffer. */
 typedef struct MemcpyState {
   void* remaining_buf;
-  int remaining_len;
+  uint64_t remaining_len;
 } MemcpyState;
 
 /* Copy [len] bytes into [dst] only if there's enough data to read according

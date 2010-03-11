@@ -20,7 +20,7 @@
 #include "signature_digest.h"
 #include "utility.h"
 
-uint8_t* BufferFromFile(const char* input_file, uint32_t* len) {
+uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   int fd;
   struct stat stat_fd;
   uint8_t* buf = NULL;
@@ -51,7 +51,7 @@ uint8_t* BufferFromFile(const char* input_file, uint32_t* len) {
 }
 
 RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
-  uint32_t len;
+  uint64_t len;
   RSAPublicKey* key = NULL;
   uint8_t* buf = BufferFromFile(input_file, &len);
   if (buf)

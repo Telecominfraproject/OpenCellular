@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 export CC ?= gcc
-export CFLAGS = -Wall -ansi -DNDEBUG -O3
+export CFLAGS = -Wall -DNDEBUG -O3 -Werror
 export TOP = $(shell pwd)
 export INCLUDEDIR = $(TOP)/include
 export INCLUDES = -I$(INCLUDEDIR)

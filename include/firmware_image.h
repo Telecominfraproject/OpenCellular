@@ -36,7 +36,7 @@ typedef struct FirmwareImage {
 
   /* Firmware Preamble. */
   uint16_t firmware_version;  /* Firmware Version# for preventing rollbacks.*/
-  uint32_t firmware_len;  /* Length of the rest of the R/W firmware data. */
+  uint64_t firmware_len;  /* Length of the rest of the R/W firmware data. */
   uint8_t preamble[FIRMWARE_PREAMBLE_SIZE];  /* Remaining preamble data.*/
 
   uint8_t* preamble_signature;  /* Signature over the preamble. */
@@ -81,7 +81,7 @@ uint8_t* GetFirmwarePreambleBlob(const FirmwareImage* image);
  *
  * Caller owns the returned pointer and must Free() it.
  */
-uint8_t* GetFirmwareBlob(const FirmwareImage* image, int* blob_len);
+uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len);
 
 /* Write firmware data from [image] into a file named [input_file].
  *

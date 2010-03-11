@@ -157,7 +157,7 @@ void FirmwareUtility::OutputSignedImage(void) {
 }
 
 bool FirmwareUtility::GenerateSignedImage(void) {
-  uint32_t firmware_sign_key_pub_len;
+  uint64_t firmware_sign_key_pub_len;
   uint8_t* header_checksum;
   DigestContext ctx;
   image_ = FirmwareImageNew();

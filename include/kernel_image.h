@@ -19,7 +19,7 @@
 /* Kernel config file options according to the Chrome OS drive map design. */
 typedef struct kconfig_options {
   uint32_t version[2];  /* Configuration file version. */
-  uint32_t kernel_len;  /* Size of the kernel. */
+  uint64_t kernel_len;  /* Size of the kernel. */
   uint64_t kernel_load_addr;  /* Load address in memory for the kernel image */
   uint64_t kernel_entry_addr;  /* Address to jump to after kernel is loaded. */
 } kconfig_options;

@@ -22,7 +22,7 @@ int SpeedTestAlgorithm(int algorithm) {
   char file_name[FILE_NAME_SIZE];
   uint8_t* digest = NULL;
   uint8_t* signature = NULL;
-  uint32_t digest_len, sig_len;
+  uint64_t digest_len, sig_len;
   RSAPublicKey* key = NULL;
   ClockTimerState ct;
   char* sha_strings[] = {  /* Maps algorithm->SHA algorithm. */

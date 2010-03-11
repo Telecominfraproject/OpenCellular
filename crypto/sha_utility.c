@@ -51,7 +51,7 @@ void DigestInit(DigestContext* ctx, int sig_algorithm) {
   };
 }
 
-void DigestUpdate(DigestContext* ctx, const uint8_t* data, int len) {
+void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint64_t len) {
   switch(ctx->algorithm) {
     case SHA1_DIGEST_ALGORITHM:
       SHA1_update(ctx->sha1_ctx, data, len);
@@ -108,12 +108,12 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm) {
   return digest;
 }
 
-uint8_t* DigestBuf(const uint8_t* buf, int len, int sig_algorithm) {
+uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm) {
   uint8_t* digest = (uint8_t*) Malloc(SHA512_DIGEST_SIZE); /* Use the max. */
   /* Define an array mapping [sig_algorithm] to function pointers to the
    * SHA{1|256|512} functions.
    */
-  typedef uint8_t* (*Hash_ptr) (const uint8_t*, int, uint8_t*);
+  typedef uint8_t* (*Hash_ptr) (const uint8_t*, uint64_t, uint8_t*);
   Hash_ptr hash[] = {
     SHA1,  /* RSA 1024 */
     SHA256,

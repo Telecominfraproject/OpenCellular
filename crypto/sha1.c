@@ -127,7 +127,7 @@ static void SHA1_Transform(SHA_CTX* ctx) {
   ctx->state[4] += E;
 }
 
-void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, size_t len) {
+void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, uint64_t len) {
   int i = ctx->count % sizeof(ctx->buf);
   const uint8_t* p = (const uint8_t*)data;
 
@@ -151,7 +151,7 @@ void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, size_t len) {
 }
 
 
-uint8_t* SHA1_final(SHA_CTX* ctx) {
+uint8_t* SHA1_final(SHA1_CTX* ctx) {
   uint64_t cnt = ctx->count * 8;
   int i;
 
@@ -225,7 +225,7 @@ static void SHA1_transform(SHA1_CTX *ctx) {
   ctx->state[4] += E;
 }
 
-void SHA1_update(SHA1_CTX *ctx, const uint8_t *data, int len) {
+void SHA1_update(SHA1_CTX *ctx, const uint8_t *data, uint64_t len) {
   int i = ctx->count % sizeof(ctx->buf);
   const uint8_t* p = (const uint8_t*) data;
 
@@ -275,7 +275,7 @@ void SHA1_init(SHA1_CTX* ctx) {
   ctx->count = 0;
 }
 
-uint8_t* SHA1(const uint8_t *data, int len, uint8_t *digest) {
+uint8_t* SHA1(const uint8_t *data, uint64_t len, uint8_t *digest) {
   const uint8_t *p;
   int i;
   SHA1_CTX ctx;

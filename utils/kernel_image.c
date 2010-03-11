@@ -48,7 +48,7 @@ void KernelImageFree(KernelImage* image) {
 }
 
 KernelImage* ReadKernelImage(const char* input_file) {
-  uint32_t file_size;
+  uint64_t file_size;
   int image_len = 0;  /* Total size of the kernel image. */
   int header_len = 0;
   int firmware_sign_key_len;
@@ -314,7 +314,7 @@ void PrintKernelImage(const KernelImage* image) {
   /* Print preamble. */
   printf("Kernel Version = %d\n"
          "Kernel Config Version = %d.%d\n"
-         "kernel Length = %d\n"
+         "kernel Length = %" PRId64 "\n"
          "Kernel Load Address = %" PRId64 "\n"
          "Kernel Entry Address = %" PRId64 "\n\n",
          image->kernel_version,

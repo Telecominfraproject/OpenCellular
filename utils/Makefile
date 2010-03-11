@@ -4,7 +4,7 @@
 
 CC ?= gcc
 CXX ?= g++
-CFLAGS = -Wall -DNDEBUG -O3
+CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 INCLUDES ?= -I../include/
 TOP ?= ../
 
@@ -39,10 +39,10 @@ file_keys.o: file_keys.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 firmware_image.o: firmware_image.c
-	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
+	$(CC) -ansi $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 kernel_image.o: kernel_image.c
-	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
+	$(CC) -ansi $(CFLAGS) $(INCLUDES) -c $< -o $@
 clean:
 	rm -f dumpRSAPublicKey verify_data signature_digest firmware_utility \
 	kernel_utility signature_digest_utility $(LIBS)

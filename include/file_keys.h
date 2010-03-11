@@ -16,7 +16,7 @@
  * Returns a pointer to the buffer. Caller owns the returned pointer and
  * must free it.
  */
-uint8_t* BufferFromFile(const char* input_file, uint32_t* len);
+uint8_t* BufferFromFile(const char* input_file, uint64_t* len);
 
 /* Read a pre-processed RSA Public Key from file [input_file].
  *

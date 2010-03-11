@@ -28,7 +28,7 @@ uint8_t* PrependDigestInfo(int algorithm, uint8_t* digest) {
   return p;
 }
 
-uint8_t* SignatureDigest(const uint8_t* buf, int len, int algorithm) {
+uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len, int algorithm) {
   uint8_t* info_digest  = NULL;
   uint8_t* digest = NULL;
 
@@ -41,7 +41,7 @@ uint8_t* SignatureDigest(const uint8_t* buf, int len, int algorithm) {
   return info_digest;
 }
 
-uint8_t* SignatureBuf(const uint8_t* buf, int len, const char* key_file,
+uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
                       int algorithm) {
   FILE* key_fp = NULL;
   RSA* key = NULL;

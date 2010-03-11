@@ -170,7 +170,7 @@ int VerifyKernelImageTamperTest(KernelImage* image,
 }
 
 int main(int argc, char* argv[]) {
-  uint32_t len;
+  uint64_t len;
   uint8_t* kernel_sign_key_buf = NULL;
   uint8_t* firmware_key_blob = NULL;
   uint8_t* kernel_blob = NULL;

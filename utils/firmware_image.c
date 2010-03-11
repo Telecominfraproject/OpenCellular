@@ -47,7 +47,7 @@ void FirmwareImageFree(FirmwareImage* image) {
 }
 
 FirmwareImage* ReadFirmwareImage(const char* input_file) {
-  uint32_t file_size;
+  uint64_t file_size;
   int image_len = 0;  /* Total size of the firmware image. */
   int header_len = 0;
   int firmware_sign_key_len;
@@ -188,7 +188,7 @@ uint8_t* GetFirmwarePreambleBlob(const FirmwareImage* image) {
 }
 
 
-uint8_t* GetFirmwareBlob(const FirmwareImage* image, int* blob_len) {
+uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
   int firmware_signature_len;
   uint8_t* firmware_blob = NULL;
   uint8_t* header_blob = NULL;
@@ -235,7 +235,7 @@ int WriteFirmwareImage(const char* input_file,
                        const FirmwareImage* image) {
   int fd;
   uint8_t* firmware_blob;
-  int blob_len;
+  uint64_t blob_len;
 
   if (!image)
     return 0;
@@ -276,7 +276,7 @@ void PrintFirmwareImage(const FirmwareImage* image) {
   /* TODO(gauravsh): Output hash and key signature here? */
   /* Print preamble. */
   printf("Firmware Version = %d\n"
-         "Firmware Length = %d\n\n",
+         "Firmware Length = %" PRIu64 "\n\n",
          image->firmware_version,
          image->firmware_len);
   /* Output key signature here? */

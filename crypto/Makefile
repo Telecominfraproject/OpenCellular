@@ -14,7 +14,7 @@ padding.c: genpadding.sh
 	./genpadding.sh >$@
 
 .c.o: $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 
 clean: 
 	rm -f $(OBJS) libcrypto.a

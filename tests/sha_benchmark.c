@@ -14,7 +14,7 @@
 #define TEST_BUFFER_SIZE 4000000
 
 /* Table of hash function pointers and their description. */
-typedef uint8_t* (*Hashptr) (const uint8_t*, int, uint8_t*);
+typedef uint8_t* (*Hashptr) (const uint8_t*, uint64_t, uint8_t*);
 typedef struct HashFxTable {
   Hashptr hash;
   char* description;
