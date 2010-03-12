@@ -43,10 +43,10 @@ int check(RSA* key) {
 void output(RSA* key) {
   int i, nwords;
   BIGNUM *N = key->n;
-  BIGNUM *Big1, *Big2, *Big32, *BigMinus1;
-  BIGNUM *B;
-  BIGNUM *N0inv, *R, *RR, *RRTemp, *NnumBits;
-  BIGNUM *n, *rr;
+  BIGNUM *Big1 = NULL, *Big2 = NULL, *Big32 = NULL, *BigMinus1 = NULL;
+  BIGNUM *B = NULL;
+  BIGNUM *N0inv= NULL, *R = NULL, *RR = NULL, *RRTemp = NULL, *NnumBits = NULL;
+  BIGNUM *n = NULL, *rr = NULL;
   BN_CTX *bn_ctx = BN_CTX_new();
   uint32_t n0invout;
 
