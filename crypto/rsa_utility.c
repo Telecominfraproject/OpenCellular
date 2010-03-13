@@ -20,6 +20,13 @@ int RSAProcessedKeySize(int algorithm) {
   return (2 * key_len + sizeof(int) + sizeof(uint32_t));
 }
 
+RSAPublicKey* RSAPublicKeyNew(void) {
+  RSAPublicKey* key = (RSAPublicKey*) Malloc(sizeof(RSAPublicKey));
+  key->n = NULL;
+  key->rr = NULL;
+  return key;
+}
+
 void RSAPublicKeyFree(RSAPublicKey* key) {
   if (key) {
     Free(key->n);
@@ -29,15 +36,24 @@ void RSAPublicKeyFree(RSAPublicKey* key) {
 }
 
 RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
-  RSAPublicKey* key = (RSAPublicKey*) Malloc(sizeof(RSAPublicKey));
+  RSAPublicKey* key = RSAPublicKeyNew();
   MemcpyState st;
   int key_len;
 
   st.remaining_buf = (uint8_t*) buf;
   st.remaining_len = len;
-
   StatefulMemcpy(&st, &key->len, sizeof(key->len));
   key_len = key->len * sizeof(uint32_t);  /* key length in bytes. */
+
+  /* Sanity Check the key length. */
+  if (RSA1024NUMBYTES != key_len &&
+      RSA2048NUMBYTES != key_len &&
+      RSA4096NUMBYTES != key_len &&
+      RSA8192NUMBYTES != key_len) {
+    RSAPublicKeyFree(key);
+    return NULL;
+  }
+
   key->n = (uint32_t*) Malloc(key_len);
   key->rr = (uint32_t*) Malloc(key_len);
 
@@ -45,9 +61,7 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
   StatefulMemcpy(&st, key->n, key_len);
   StatefulMemcpy(&st, key->rr, key_len);
   if (st.remaining_len != 0) {  /* Underrun or overrun. */
-    Free(key->n);
-    Free(key->rr);
-    Free(key);
+    RSAPublicKeyFree(key);
     return NULL;
   }
 

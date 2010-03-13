@@ -9,6 +9,7 @@
 #include "file_keys.h"
 #include "padding.h"
 #include "rsa.h"
+#include "rsa_utility.h"
 #include "timer_utils.h"
 #include "utility.h"
 
@@ -80,7 +81,7 @@ int SpeedTestAlgorithm(int algorithm) {
 failure:
   Free(signature);
   Free(digest);
-  Free(key);
+  RSAPublicKeyFree(key);
   return error_code;
 }
 

@@ -52,6 +52,7 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
   key_fp  = fopen(key_file, "r");
   if (!key_fp) {
     fprintf(stderr, "SignatureBuf(): Couldn't open key file: %s\n", key_file);
+    Free(signature_digest);
     return NULL;
   }
   if ((key = PEM_read_RSAPrivateKey(key_fp, NULL, NULL, NULL)))
@@ -67,6 +68,7 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
                                   RSA_PKCS1_PADDING))  /* Padding to use. */
       fprintf(stderr, "SignatureBuf(): RSA_private_encrypt() failed.\n");
   }
+  fclose(key_fp);
   if (key)
     RSA_free(key);
   Free(signature_digest);

@@ -500,8 +500,10 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
   config_ptr = (header_ptr + header_len + kernel_key_signature_len);
   if ((error_code = VerifyKernelConfig(kernel_sign_key, config_ptr,
                                        kernel_sign_algorithm,
-                                       &kernel_len)))
+                                       &kernel_len))) {
+    RSAPublicKeyFree(kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */
+  }
   /* Only continue if kernel data verification succeeds. */
   kernel_ptr = (config_ptr +
                 FIELD_LEN(kernel_version) +
@@ -512,15 +514,18 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
                 kernel_signature_len);
 
   if ((error_code = VerifyKernelData(kernel_sign_key, kernel_ptr, kernel_len,
-                                     kernel_sign_algorithm)))
+                                     kernel_sign_algorithm))) {
+    RSAPublicKeyFree(kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */
+  }
+  RSAPublicKeyFree(kernel_sign_key);
   return 0;  /* Success! */
 }
 
 int VerifyKernelImage(const RSAPublicKey* firmware_key,
                       const KernelImage* image,
                       const int dev_mode) {
-  RSAPublicKey* kernel_sign_key;
+  RSAPublicKey* kernel_sign_key = NULL;
   uint8_t* header_digest = NULL;
   uint8_t* config_digest = NULL;
   uint8_t* kernel_digest = NULL;
@@ -610,6 +615,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   }
 
 verify_failure:
+  RSAPublicKeyFree(kernel_sign_key);
   Free(kernel_digest);
   Free(config_digest);
   Free(header_digest);
@@ -622,7 +628,7 @@ const char* VerifyKernelErrorString(int error) {
 
 int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file) {
   uint8_t* header_blob = NULL;
-  uint8_t* signature;
+  uint8_t* signature = NULL;
   int signature_len = siglen_map[image->firmware_sign_algorithm];
   if (!image || !firmware_key_file)
     return 0;
@@ -645,9 +651,9 @@ int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file) {
 
 int AddKernelSignature(KernelImage* image,
                        const char* kernel_signing_key_file) {
-  uint8_t* config_blob;
-  uint8_t* config_signature;
-  uint8_t* kernel_signature;
+  uint8_t* config_blob = NULL;
+  uint8_t* config_signature = NULL;
+  uint8_t* kernel_signature = NULL;
   int signature_len = siglen_map[image->kernel_sign_algorithm];
 
   config_blob = GetKernelConfigBlob(image);
@@ -659,6 +665,7 @@ int AddKernelSignature(KernelImage* image,
     Free(config_blob);
     return 0;
   }
+  Free(config_blob);
 
   image->config_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->config_signature, config_signature, signature_len);

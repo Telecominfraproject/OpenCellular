@@ -394,12 +394,12 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                    const int dev_mode) {
   int error_code;
   int algorithm;  /* Signing key algorithm. */
-  RSAPublicKey* firmware_sign_key;
+  RSAPublicKey* firmware_sign_key = NULL;
   int firmware_sign_key_len, signature_len, header_len, firmware_len;
-  const uint8_t* header_ptr;  /* Pointer to header. */
-  const uint8_t* firmware_sign_key_ptr;  /* Pointer to signing key. */
-  const uint8_t* preamble_ptr;  /* Pointer to preamble block. */
-  const uint8_t* firmware_ptr;  /* Pointer to firmware signature/data. */
+  const uint8_t* header_ptr = NULL;  /* Pointer to header. */
+  const uint8_t* firmware_sign_key_ptr = NULL;  /* Pointer to signing key. */
+  const uint8_t* preamble_ptr = NULL;  /* Pointer to preamble block. */
+  const uint8_t* firmware_ptr = NULL;  /* Pointer to firmware signature/data. */
 
   /* Note: All the offset calculations are based on struct FirmwareImage which
    * is defined in include/firmware_image.h. */
@@ -428,9 +428,10 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                   FIELD_LEN(firmware_key_signature));
   if ((error_code = VerifyFirmwarePreamble(firmware_sign_key, preamble_ptr,
                                            algorithm,
-                                           &firmware_len)))
+                                           &firmware_len))) {
+    RSAPublicKeyFree(firmware_sign_key);
     return error_code;  /* AKA jump to recovery. */
-
+  }
   /* Only continue if firmware data verification succeeds. */
   firmware_ptr = (preamble_ptr +
                   FIELD_LEN(firmware_version) +
@@ -440,16 +441,19 @@ int VerifyFirmware(const uint8_t* root_key_blob,
 
   if ((error_code = VerifyFirmwareData(firmware_sign_key, firmware_ptr,
                                        firmware_len,
-                                       algorithm)))
+                                       algorithm))) {
+    RSAPublicKeyFree(firmware_sign_key);
     return error_code;  /* AKA jump to recovery. */
+  }
 
+  RSAPublicKeyFree(firmware_sign_key);
   return 0;  /* Success! */
 }
 
 int VerifyFirmwareImage(const RSAPublicKey* root_key,
                         const FirmwareImage* image,
                         const int dev_mode) {
-  RSAPublicKey* firmware_sign_key;
+  RSAPublicKey* firmware_sign_key = NULL;
   uint8_t* header_digest = NULL;
   uint8_t* preamble_digest = NULL;
   uint8_t* firmware_digest = NULL;
@@ -527,6 +531,7 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   }
 
 verify_failure:
+  RSAPublicKeyFree(firmware_sign_key);
   Free(firmware_digest);
   Free(preamble_digest);
   Free(header_digest);

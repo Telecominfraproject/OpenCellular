@@ -14,6 +14,10 @@
  * [algorithm]. */
 int RSAProcessedKeySize(int algorithm);
 
+/* Allocate a new RSAPublicKey structure and initialize its pointer fields to
+ * NULL */
+RSAPublicKey* RSAPublicKeyNew(void);
+
 /* Deep free the contents of [key]. */
 void RSAPublicKeyFree(RSAPublicKey* key);
 

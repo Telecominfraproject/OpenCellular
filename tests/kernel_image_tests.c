@@ -240,7 +240,7 @@ failure:
   KernelImageFree(image);
   Free(kernel_sign_key_buf);
   Free(firmware_key_blob);
-  Free(firmware_key);
+  RSAPublicKeyFree(firmware_key);
 
   return error_code;
 }

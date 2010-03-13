@@ -214,10 +214,10 @@ int main(int argc, char* argv[]) {
 
 failure:
   Free(firmware_blob);
-  Free(image);
+  FirmwareImageFree(image);
   Free(firmware_sign_key_buf);
   Free(root_key_blob);
-  Free(root_key);
+  RSAPublicKeyFree(root_key);
 
   return error_code;
 }

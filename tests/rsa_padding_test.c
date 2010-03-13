@@ -41,5 +41,6 @@ int main(int argc, char* argv[]) {
   if (!error)
     fprintf(stderr, "RSA Padding Test PASSED for all test vectors.");
 
+  RSAPublicKeyFree(key);
   return error;
 }
