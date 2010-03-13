@@ -132,6 +132,7 @@ KernelImage* ReadKernelImage(const char* input_file) {
   /* Read the kernel config. */
   StatefulMemcpy(&st, &image->kernel_version, FIELD_LEN(kernel_version));
   StatefulMemcpy(&st, &image->options.version, FIELD_LEN(options.version));
+  StatefulMemcpy(&st, &image->options.cmd_line, FIELD_LEN(options.cmd_line));
   StatefulMemcpy(&st, &image->options.kernel_len,
                  FIELD_LEN(options.kernel_len));
   StatefulMemcpy(&st, &image->options.kernel_load_addr,
@@ -193,7 +194,8 @@ uint8_t* GetKernelHeaderBlob(const KernelImage* image) {
 }
 
 int GetKernelConfigLen(const KernelImage* image) {
-  return (FIELD_LEN(kernel_version) + FIELD_LEN(options.version) +
+  return (FIELD_LEN(kernel_version) +
+          FIELD_LEN(options.version) + FIELD_LEN(options.cmd_line) +
           FIELD_LEN(options.kernel_len) + FIELD_LEN(options.kernel_load_addr) +
           FIELD_LEN(options.kernel_entry_addr));
 }
@@ -208,6 +210,7 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image) {
 
   StatefulMemcpy_r(&st, &image->kernel_version, FIELD_LEN(kernel_version));
   StatefulMemcpy_r(&st, image->options.version, FIELD_LEN(options.version));
+  StatefulMemcpy_r(&st, image->options.cmd_line, FIELD_LEN(options.cmd_line));
   StatefulMemcpy_r(&st, &image->options.kernel_len,
                    FIELD_LEN(options.kernel_len));
   StatefulMemcpy_r(&st, &image->options.kernel_load_addr,
@@ -314,11 +317,13 @@ void PrintKernelImage(const KernelImage* image) {
   /* Print preamble. */
   printf("Kernel Version = %d\n"
          "Kernel Config Version = %d.%d\n"
+         "Kernel Config command line = %s\n"
          "kernel Length = %" PRId64 "\n"
          "Kernel Load Address = %" PRId64 "\n"
          "Kernel Entry Address = %" PRId64 "\n\n",
          image->kernel_version,
          image->options.version[0], image->options.version[1],
+         image->options.cmd_line,
          image->options.kernel_len,
          image->options.kernel_load_addr,
          image->options.kernel_entry_addr);
@@ -420,11 +425,7 @@ int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
                        int algorithm,
                        int* kernel_len) {
   uint32_t len, config_len;
-  config_len = (FIELD_LEN(kernel_version) +
-                FIELD_LEN(options.version)+
-                FIELD_LEN(options.kernel_len) +
-                FIELD_LEN(options.kernel_load_addr) +
-                FIELD_LEN(options.kernel_entry_addr));
+  config_len = GetKernelConfigLen(NULL);
   if (!RSAVerifyBinary_f(NULL, kernel_sign_key,  /* Key to use */
                          config_blob,  /* Data to verify */
                          config_len,  /* Length of data */
@@ -432,8 +433,9 @@ int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
                          algorithm))
     return VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED;
 
-  Memcpy(&len, config_blob + (FIELD_LEN(kernel_version)+
-                              FIELD_LEN(options.version)),
+  Memcpy(&len,
+         config_blob + (FIELD_LEN(kernel_version) + FIELD_LEN(options.version) +
+                              FIELD_LEN(options.cmd_line)),
          sizeof(len));
   *kernel_len = (int) len;
   return 0;
@@ -506,11 +508,7 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
   }
   /* Only continue if kernel data verification succeeds. */
   kernel_ptr = (config_ptr +
-                FIELD_LEN(kernel_version) +
-                FIELD_LEN(options.version) +
-                FIELD_LEN(options.kernel_len) +
-                FIELD_LEN(options.kernel_entry_addr) +
-                FIELD_LEN(options.kernel_load_addr) +
+                GetKernelConfigLen(NULL) +  /* Skip config block/signature. */
                 kernel_signature_len);
 
   if ((error_code = VerifyKernelData(kernel_sign_key, kernel_ptr, kernel_len,
@@ -587,8 +585,10 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   DigestInit(&ctx, image->kernel_sign_algorithm);
   DigestUpdate(&ctx, (uint8_t*) &image->kernel_version,
                FIELD_LEN(kernel_version));
-  DigestUpdate(&ctx, (uint8_t*) &image->options.version,
+  DigestUpdate(&ctx, (uint8_t*) image->options.version,
                FIELD_LEN(options.version));
+  DigestUpdate(&ctx, (uint8_t*) image->options.cmd_line,
+               FIELD_LEN(options.cmd_line));
   DigestUpdate(&ctx, (uint8_t*) &image->options.kernel_len,
                FIELD_LEN(options.kernel_len));
   DigestUpdate(&ctx, (uint8_t*) &image->options.kernel_load_addr,

@@ -51,13 +51,7 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
          RSAProcessedKeySize(image->kernel_sign_algorithm));
 
   /* Update correct header length. */
-  image->header_len = (sizeof(image->header_version) +
-                       sizeof(image->header_len) +
-                       sizeof(image->firmware_sign_algorithm) +
-                       sizeof(image->kernel_sign_algorithm) +
-                       RSAProcessedKeySize(image->kernel_sign_algorithm) +
-                       sizeof(image->kernel_key_version) +
-                       sizeof(image->header_checksum));
+  image->header_len = GetKernelHeaderLen(image);
 
   /* Calculate SHA-512 digest on header and populate header_checksum. */
   DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
@@ -80,7 +74,8 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
   /* Populate kernel options and data with dummy data. */
   image->kernel_version = kernel_version;
   image->options.version[0] = 1;
-  image->options.version[1] = 1;
+  image->options.version[1] = 0;
+  Memset(image->options.cmd_line, 0, sizeof(image->options.cmd_line));
   image->options.kernel_len = kernel_len;
   image->options.kernel_load_addr = 0;
   image->options.kernel_entry_addr = 0;

@@ -15,10 +15,13 @@
 
 #define KERNEL_MAGIC "CHROMEOS"
 #define KERNEL_MAGIC_SIZE 8
+#define KERNEL_CMD_LINE_SIZE 4096
 
 /* Kernel config file options according to the Chrome OS drive map design. */
 typedef struct kconfig_options {
   uint32_t version[2];  /* Configuration file version. */
+  uint8_t cmd_line[KERNEL_CMD_LINE_SIZE];  /* Kernel command line option string
+                                            * terminated by a NULL character. */
   uint64_t kernel_len;  /* Size of the kernel. */
   uint64_t kernel_load_addr;  /* Load address in memory for the kernel image */
   uint64_t kernel_entry_addr;  /* Address to jump to after kernel is loaded. */

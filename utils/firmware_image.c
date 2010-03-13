@@ -87,11 +87,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   signature_len = siglen_map[image->firmware_sign_algorithm];
 
   /* Check whether the header length is correct. */
-  header_len = (FIELD_LEN(header_len) +
-                FIELD_LEN(firmware_sign_algorithm) +
-                firmware_sign_key_len +
-                FIELD_LEN(firmware_key_version) +
-                FIELD_LEN(header_checksum));
+  header_len = GetFirmwareHeaderLen(image);
   if (header_len != image->header_len) {
     fprintf(stderr, "Header length mismatch. Got: %d Expected: %d\n",
             image->header_len, header_len);
@@ -215,7 +211,7 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
   StatefulMemcpy_r(&st, image->magic, FIELD_LEN(magic));
   StatefulMemcpy_r(&st, header_blob, GetFirmwareHeaderLen(image));
   StatefulMemcpy_r(&st, image->firmware_key_signature,
-                 FIELD_LEN(firmware_key_signature));
+                   FIELD_LEN(firmware_key_signature));
   StatefulMemcpy_r(&st, preamble_blob, GetFirmwarePreambleLen(image));
   StatefulMemcpy_r(&st, image->preamble_signature, firmware_signature_len);
   StatefulMemcpy_r(&st, image->firmware_signature, firmware_signature_len);
@@ -434,9 +430,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   }
   /* Only continue if firmware data verification succeeds. */
   firmware_ptr = (preamble_ptr +
-                  FIELD_LEN(firmware_version) +
-                  FIELD_LEN(firmware_len) +
-                  FIELD_LEN(preamble) +
+                  GetFirmwarePreambleLen(NULL) + 
                   signature_len);
 
   if ((error_code = VerifyFirmwareData(firmware_sign_key, firmware_ptr,

@@ -48,11 +48,7 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   image->firmware_key_version = firmware_key_version;
 
   /* Update correct header length. */
-  image->header_len = (sizeof(image->header_len) +
-                       sizeof(image->firmware_sign_algorithm) +
-                       RSAProcessedKeySize(image->firmware_sign_algorithm) +
-                       sizeof(image->firmware_key_version) +
-                       sizeof(image->header_checksum));
+  image->header_len = GetFirmwareHeaderLen(image);
 
   /* Calculate SHA-512 digest on header and populate header_checksum. */
   DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
