@@ -38,7 +38,8 @@ KernelUtility::KernelUtility(): image_(NULL),
                                 kernel_key_version_(-1),
                                 kernel_version_(-1),
                                 is_generate_(false),
-                                is_verify_(false) {
+                                is_verify_(false),
+                                is_describe_(false){
   // Populate kernel config options with defaults.
   options_.version[0] = 1;
   options_.version[1] = 0;
@@ -54,8 +55,8 @@ KernelUtility::~KernelUtility() {
 
 void KernelUtility::PrintUsage(void) {
   cerr <<
-      "Utility to generate/verify a verified boot kernel image\n\n"
-      "Usage: kernel_utility <--generate|--verify> [OPTIONS]\n\n"
+      "Utility to generate/verify/describe a verified boot kernel image\n\n"
+      "Usage: kernel_utility <--generate|--verify|--describe> [OPTIONS]\n\n"
       "For \"--verify\",  required OPTIONS are:\n"
       "--in <infile>\t\t\tVerified boot kernel image to verify.\n"
       "--firmware_key_pub <pubkeyfile>\tPre-processed public firmware key "
@@ -101,6 +102,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"config_version", 1, 0, 0},
     {"kernel_load_addr", 1, 0, 0},
     {"kernel_entry_addr", 1, 0, 0},
+    {"describe", 0, 0, 0},
     {NULL, 0, 0, 0}
   };
   while (1) {
@@ -180,9 +182,11 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
           errno = 0;
           options_.kernel_entry_addr =
               strtol(optarg, reinterpret_cast<char**>(NULL), 10);
-
           if (errno)
             return false;
+          break;
+        case 15:  // describe
+          is_describe_ = true;
           break;
       }
     }
@@ -199,10 +203,17 @@ void KernelUtility::OutputSignedImage(void) {
   }
 }
 
+void KernelUtility::DescribeSignedImage(void) {
+  image_ = ReadKernelImage(in_file_.c_str());
+  if (!image_) {
+    cerr << "Couldn't read kernel image or malformed image.\n";
+    return;
+  }
+  PrintKernelImage(image_);
+}
+
 bool KernelUtility::GenerateSignedImage(void) {
   uint64_t kernel_key_pub_len;
-  uint8_t* header_checksum;
-  DigestContext ctx;
   image_ = KernelImageNew();
 
   Memcpy(image_->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE);
@@ -222,28 +233,13 @@ bool KernelUtility::GenerateSignedImage(void) {
   image_->header_len = GetKernelHeaderLen(image_);
 
   // Calculate header checksum.
-  DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
-  DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->header_version),
-               sizeof(image_->header_version));
-  DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->header_len),
-               sizeof(image_->header_len));
-  DigestUpdate(&ctx,
-               reinterpret_cast<uint8_t*>(&image_->firmware_sign_algorithm),
-               sizeof(image_->firmware_sign_algorithm));
-  DigestUpdate(&ctx,
-               reinterpret_cast<uint8_t*>(&image_->kernel_sign_algorithm),
-               sizeof(image_->kernel_sign_algorithm));
-  DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->kernel_key_version),
-               sizeof(image_->kernel_key_version));
-  DigestUpdate(&ctx, image_->kernel_sign_key,
-               RSAProcessedKeySize(image_->kernel_sign_algorithm));
-  header_checksum = DigestFinal(&ctx);
-  Memcpy(image_->header_checksum, header_checksum, SHA512_DIGEST_SIZE);
-  Free(header_checksum);
+  CalculateKernelHeaderChecksum(image_, image_->header_checksum);
 
   image_->kernel_version = kernel_version_;
   image_->options.version[0] = options_.version[0];
   image_->options.version[1] = options_.version[1];
+  // TODO(gauravsh): Add a command line option for this.
+  Memset(image_->options.cmd_line, 0, sizeof(image_->options.cmd_line));
   image_->options.kernel_load_addr = options_.kernel_load_addr;
   image_->options.kernel_entry_addr = options_.kernel_entry_addr;
   image_->kernel_data = BufferFromFile(in_file_.c_str(),
@@ -284,8 +280,12 @@ bool KernelUtility::VerifySignedImage(void) {
 }
 
 bool KernelUtility::CheckOptions(void) {
-  if (is_generate_ == is_verify_) {
-    cerr << "One of --generate or --verify must be specified.\n";
+  // Ensure that only one of --{describe|generate|verify} is set.
+  if (!((is_describe_ && !is_generate_ && !is_verify_) ||
+        (!is_describe_ && is_generate_ && !is_verify_) ||
+        (!is_describe_ && !is_generate_ && is_verify_))) {
+    cerr << "One (and only one) of --describe, --generate or --verify "
+         << "must be specified.\n";
     return false;
   }
   // Common required options.
@@ -341,19 +341,22 @@ bool KernelUtility::CheckOptions(void) {
 }  // namespace vboot_reference
 
 int main(int argc, char* argv[]) {
-  vboot_reference::KernelUtility fu;
-  if (!fu.ParseCmdLineOptions(argc, argv)) {
-    fu.PrintUsage();
+  vboot_reference::KernelUtility ku;
+  if (!ku.ParseCmdLineOptions(argc, argv)) {
+    ku.PrintUsage();
     return -1;
   }
-  if (fu.is_generate()) {
-    if (!fu.GenerateSignedImage())
-      return -1;
-    fu.OutputSignedImage();
+  if (ku.is_describe()) {
+    ku.DescribeSignedImage();
   }
-  if (fu.is_verify()) {
+  else if (ku.is_generate()) {
+    if (!ku.GenerateSignedImage())
+      return -1;
+    ku.OutputSignedImage();
+  }
+  else if (ku.is_verify()) {
     cerr << "Verification ";
-    if (fu.VerifySignedImage())
+    if (ku.VerifySignedImage())
       cerr << "SUCCESS.\n";
     else
       cerr << "FAILURE.\n";

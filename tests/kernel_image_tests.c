@@ -11,7 +11,6 @@
 #include "file_keys.h"
 #include "kernel_image.h"
 #include "rsa_utility.h"
-#include "sha_utility.h"
 #include "utility.h"
 
 /* ANSI Color coding sequences. */
@@ -37,8 +36,6 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
                                      int kernel_version,
                                      int kernel_len) {
   KernelImage* image = KernelImageNew();
-  uint8_t* header_checksum;
-  DigestContext ctx;
 
   Memcpy(image->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE);
   image->header_version = 1;
@@ -54,22 +51,7 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
   image->header_len = GetKernelHeaderLen(image);
 
   /* Calculate SHA-512 digest on header and populate header_checksum. */
-  DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
-  DigestUpdate(&ctx, (uint8_t*) &image->header_version,
-               sizeof(image->header_version));
-  DigestUpdate(&ctx, (uint8_t*) &image->header_len,
-               sizeof(image->header_len));
-  DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
-               sizeof(image->firmware_sign_algorithm));
-  DigestUpdate(&ctx, (uint8_t*) &image->kernel_sign_algorithm,
-               sizeof(image->kernel_sign_algorithm));
-  DigestUpdate(&ctx, (uint8_t*) &image->kernel_key_version,
-               sizeof(image->kernel_key_version));
-  DigestUpdate(&ctx, image->kernel_sign_key,
-               RSAProcessedKeySize(image->kernel_sign_algorithm));
-  header_checksum = DigestFinal(&ctx);
-  Memcpy(image->header_checksum, header_checksum, SHA512_DIGEST_SIZE);
-  Free(header_checksum);
+  CalculateKernelHeaderChecksum(image, image->header_checksum);
 
   /* Populate kernel options and data with dummy data. */
   image->kernel_version = kernel_version;

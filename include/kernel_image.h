@@ -80,6 +80,15 @@ KernelImage* ReadKernelImage(const char* input_file);
 /* Get the length of the header for kernel image [image]. */
 int GetKernelHeaderLen(const KernelImage* image);
 
+/* Calculate and store the kernel header checksum of [image]
+ * in [header_checksum].
+ *
+ * [header_checksum] must be a valid pointer to a buffer of
+ * SHA512_DIGEST_SIZE.
+ */
+void CalculateKernelHeaderChecksum(const KernelImage* image,
+                                   uint8_t* header_checksum);
+
 /* Get kernel header binary blob from an [image].
  *
  * Caller owns the returned pointer and must Free() it.

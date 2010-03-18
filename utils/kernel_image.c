@@ -56,6 +56,7 @@ KernelImage* ReadKernelImage(const char* input_file) {
   int kernel_sign_key_len;
   int kernel_signature_len;
   uint8_t* kernel_buf;
+  uint8_t header_checksum[FIELD_LEN(header_checksum)];
   MemcpyState st;
   KernelImage* image = KernelImageNew();
 
@@ -102,14 +103,7 @@ KernelImage* ReadKernelImage(const char* input_file) {
   kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
 
   /* Check whether key header length is correct. */
-  header_len = (FIELD_LEN(header_version) +
-                FIELD_LEN(header_len) +
-                FIELD_LEN(firmware_sign_algorithm) +
-                FIELD_LEN(kernel_sign_algorithm) +
-                FIELD_LEN(kernel_key_version) +
-                kernel_sign_key_len +
-                FIELD_LEN(header_checksum));
-
+  header_len = GetKernelHeaderLen(image);
   if (header_len != image->header_len) {
     fprintf(stderr, "Header length mismatch. Got: %d, Expected: %d\n",
             image->header_len, header_len);
@@ -123,6 +117,15 @@ KernelImage* ReadKernelImage(const char* input_file) {
   image->kernel_sign_key = (uint8_t*) Malloc(kernel_sign_key_len);
   StatefulMemcpy(&st, image->kernel_sign_key, kernel_sign_key_len);
   StatefulMemcpy(&st, image->header_checksum, FIELD_LEN(header_checksum));
+
+  /* Check whether the header checksum matches. */
+  CalculateKernelHeaderChecksum(image, header_checksum);
+  if (SafeMemcmp(header_checksum, image->header_checksum,
+                 FIELD_LEN(header_checksum))) {
+    fprintf(stderr, "Invalid kernel header checksum!\n");
+    Free(kernel_buf);
+    return NULL;
+  }
 
   /* Read key signature. */
   image->kernel_key_signature = (uint8_t*) Malloc(kernel_key_signature_len);
@@ -164,6 +167,29 @@ int GetKernelHeaderLen(const KernelImage* image) {
           FIELD_LEN(kernel_sign_algorithm) + FIELD_LEN(kernel_key_version) +
           RSAProcessedKeySize(image->kernel_sign_algorithm) +
           FIELD_LEN(header_checksum));
+}
+
+void CalculateKernelHeaderChecksum(const KernelImage* image,
+                                   uint8_t* header_checksum) {
+  uint8_t* checksum;
+  DigestContext ctx;
+  DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
+  DigestUpdate(&ctx, (uint8_t*) &image->header_version,
+               sizeof(image->header_version));
+  DigestUpdate(&ctx, (uint8_t*) &image->header_len,
+               sizeof(image->header_len));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
+               sizeof(image->firmware_sign_algorithm));
+  DigestUpdate(&ctx, (uint8_t*) &image->kernel_sign_algorithm,
+               sizeof(image->kernel_sign_algorithm));
+  DigestUpdate(&ctx, (uint8_t*) &image->kernel_key_version,
+               sizeof(image->kernel_key_version));
+  DigestUpdate(&ctx, image->kernel_sign_key,
+               RSAProcessedKeySize(image->kernel_sign_algorithm));
+  checksum = DigestFinal(&ctx);
+  Memcpy(header_checksum, checksum, FIELD_LEN(header_checksum));
+  Free(checksum);
+  return;
 }
 
 uint8_t* GetKernelHeaderBlob(const KernelImage* image) {
@@ -303,21 +329,21 @@ void PrintKernelImage(const KernelImage* image) {
     return;
 
   /* Print header. */
-  printf("Header Length = %d\n"
-         "Firmware Signing key algorithm id = %d\n"
-         "Kernel Signing key algorithm id = %d\n"
+  printf("Header Version = %d\n"
+         "Header Length = %d\n"
+         "Kernel Key Signature Algorithm = %s\n"
          "Kernel Signature Algorithm = %s\n"
          "Kernel Key Version = %d\n\n",
+         image->header_version,
          image->header_len,
-         image->firmware_sign_algorithm,
-         image->kernel_sign_algorithm,
+         algo_strings[image->firmware_sign_algorithm],
          algo_strings[image->kernel_sign_algorithm],
          image->kernel_key_version);
   /* TODO(gauravsh): Output hash and key signature here? */
   /* Print preamble. */
   printf("Kernel Version = %d\n"
          "Kernel Config Version = %d.%d\n"
-         "Kernel Config command line = %s\n"
+         "Kernel Config command line = \"%s\"\n"
          "kernel Length = %" PRId64 "\n"
          "Kernel Load Address = %" PRId64 "\n"
          "Kernel Entry Address = %" PRId64 "\n\n",

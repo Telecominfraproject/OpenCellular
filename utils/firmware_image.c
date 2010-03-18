@@ -53,6 +53,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   int firmware_sign_key_len;
   int signature_len;
   uint8_t* firmware_buf;
+  uint8_t header_checksum[FIELD_LEN(header_checksum)];
   MemcpyState st;
   FirmwareImage* image = FirmwareImageNew();
 
@@ -102,6 +103,15 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
                  FIELD_LEN(firmware_key_version));
   StatefulMemcpy(&st, image->header_checksum, FIELD_LEN(header_checksum));
 
+  /* Check whether the header checksum matches. */
+  CalculateFirmwareHeaderChecksum(image, header_checksum);
+  if (SafeMemcmp(header_checksum, image->header_checksum,
+                 FIELD_LEN(header_checksum))) {
+    fprintf(stderr, "Invalid firmware header checksum!\n");
+    Free(firmware_buf);
+    return NULL;
+  }
+
   /* Read key signature. */
   StatefulMemcpy(&st, image->firmware_key_signature,
                  FIELD_LEN(firmware_key_signature));
@@ -135,6 +145,26 @@ int GetFirmwareHeaderLen(const FirmwareImage* image) {
           RSAProcessedKeySize(image->firmware_sign_algorithm) +
           FIELD_LEN(firmware_key_version) + FIELD_LEN(header_checksum));
 }
+
+void CalculateFirmwareHeaderChecksum(const FirmwareImage* image,
+                                     uint8_t* header_checksum) {
+  uint8_t* checksum;
+  DigestContext ctx;
+  DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
+  DigestUpdate(&ctx, (uint8_t*) &image->header_len,
+               sizeof(image->header_len));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
+               sizeof(image->firmware_sign_algorithm));
+  DigestUpdate(&ctx, image->firmware_sign_key,
+               RSAProcessedKeySize(image->firmware_sign_algorithm));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
+               sizeof(image->firmware_key_version));
+  checksum = DigestFinal(&ctx);
+  Memcpy(header_checksum, checksum, FIELD_LEN(header_checksum));
+  Free(checksum);
+  return;
+}
+
 
 uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image) {
   uint8_t* header_blob = NULL;
@@ -262,11 +292,9 @@ void PrintFirmwareImage(const FirmwareImage* image) {
 
   /* Print header. */
   printf("Header Length = %d\n"
-         "Algorithm Id = %d\n"
-         "Signature Algorithm = %s\n"
-         "Key Version = %d\n\n",
+         "Firmware Signature Algorithm = %s\n"
+         "Firmware Key Version = %d\n\n",
          image->header_len,
-         image->firmware_sign_algorithm,
          algo_strings[image->firmware_sign_algorithm],
          image->firmware_key_version);
   /* TODO(gauravsh): Output hash and key signature here? */

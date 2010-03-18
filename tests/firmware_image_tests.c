@@ -11,7 +11,6 @@
 #include "file_keys.h"
 #include "firmware_image.h"
 #include "rsa_utility.h"
-#include "sha_utility.h"
 #include "utility.h"
 
 /* ANSI Color coding sequences. */
@@ -36,8 +35,6 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
                                          int firmware_version,
                                          int firmware_len) {
   FirmwareImage* image = FirmwareImageNew();
-  uint8_t* header_checksum;
-  DigestContext ctx;
 
   Memcpy(image->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
   image->firmware_sign_algorithm = algorithm;
@@ -51,19 +48,7 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   image->header_len = GetFirmwareHeaderLen(image);
 
   /* Calculate SHA-512 digest on header and populate header_checksum. */
-  DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
-  DigestUpdate(&ctx, (uint8_t*) &image->header_len,
-               sizeof(image->header_len));
-  DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
-               sizeof(image->firmware_sign_algorithm));
-  DigestUpdate(&ctx, image->firmware_sign_key,
-               RSAProcessedKeySize(image->firmware_sign_algorithm));
-  DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
-               sizeof(image->firmware_key_version));
-  header_checksum = DigestFinal(&ctx);
-  Memcpy(image->header_checksum, header_checksum, SHA512_DIGEST_SIZE);
-  Free(header_checksum);
-
+  CalculateFirmwareHeaderChecksum(image, image->header_checksum);
 
   /* Populate firmware and preamble with dummy data. */
   image->firmware_version = firmware_version;

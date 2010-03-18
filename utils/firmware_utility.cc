@@ -37,7 +37,8 @@ FirmwareUtility::FirmwareUtility():
     firmware_key_version_(-1),
     firmware_sign_algorithm_(-1),
     is_generate_(false),
-    is_verify_(false) {
+    is_verify_(false),
+    is_describe_(false) {
 }
 
 FirmwareUtility::~FirmwareUtility() {
@@ -84,6 +85,7 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"out", 1, 0, 0},
     {"generate", 0, 0, 0},
     {"verify", 0, 0, 0},
+    {"describe", 0, 0, 0},
     {NULL, 0, 0, 0}
   };
   while (1) {
@@ -137,8 +139,11 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         case 9:  // generate
           is_generate_ = true;
           break;
-        case 10: // verify
+        case 10:  // verify
           is_verify_ = true;
+          break;
+        case 11:  // describe
+          is_describe_ = true;
           break;
       }
     }
@@ -156,10 +161,16 @@ void FirmwareUtility::OutputSignedImage(void) {
   }
 }
 
+void FirmwareUtility::DescribeSignedImage(void) {
+  image_ = ReadFirmwareImage(in_file_.c_str());
+  if (!image_) {
+    cerr << "Couldn't read firmware image or malformed image.\n";
+  }
+  PrintFirmwareImage(image_);
+}
+
 bool FirmwareUtility::GenerateSignedImage(void) {
   uint64_t firmware_sign_key_pub_len;
-  uint8_t* header_checksum;
-  DigestContext ctx;
   image_ = FirmwareImageNew();
 
   Memcpy(image_->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
@@ -177,19 +188,7 @@ bool FirmwareUtility::GenerateSignedImage(void) {
   image_->header_len = GetFirmwareHeaderLen(image_);
 
   // Calculate header checksum.
-  DigestInit(&ctx, SHA512_DIGEST_ALGORITHM);
-  DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->header_len),
-               sizeof(image_->header_len));
-  DigestUpdate(&ctx,
-               reinterpret_cast<uint8_t*>(&image_->firmware_sign_algorithm),
-               sizeof(image_->firmware_sign_algorithm));
-  DigestUpdate(&ctx, image_->firmware_sign_key,
-               RSAProcessedKeySize(image_->firmware_sign_algorithm));
-  DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->firmware_key_version),
-               sizeof(image_->firmware_key_version));
-  header_checksum = DigestFinal(&ctx);
-  Memcpy(image_->header_checksum, header_checksum, SHA512_DIGEST_SIZE);
-  Free(header_checksum);
+  CalculateFirmwareHeaderChecksum(image_, image_->header_checksum);
 
   image_->firmware_version = firmware_version_;
   image_->firmware_len = 0;
@@ -235,8 +234,12 @@ bool FirmwareUtility::VerifySignedImage(void) {
 }
 
 bool FirmwareUtility::CheckOptions(void) {
-  if (is_generate_ == is_verify_) {
-    cerr << "One of --generate or --verify must be specified.\n";
+  // Ensure that only one of --{describe|generate|verify} is set.
+  if (!((is_describe_ && !is_generate_ && !is_verify_) ||
+        (!is_describe_ && is_generate_ && !is_verify_) ||
+        (!is_describe_ && !is_generate_ && is_verify_))) {
+    cerr << "One (and only one) of --describe, --generate or --verify "
+         << "must be specified.\n";
     return false;
   }
   // Common required options.
@@ -292,6 +295,9 @@ int main(int argc, char* argv[]) {
   if (!fu.ParseCmdLineOptions(argc, argv)) {
     fu.PrintUsage();
     return -1;
+  }
+  if (fu.is_describe()) {
+    fu.DescribeSignedImage();
   }
   if (fu.is_generate()) {
     if (!fu.GenerateSignedImage())

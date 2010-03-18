@@ -64,6 +64,15 @@ FirmwareImage* ReadFirmwareImage(const char* input_file);
 /* Get the length of the header for image [image]. */
 int GetFirmwareHeaderLen(const FirmwareImage* image);
 
+/* Calculate and store the firmware header checksum of [image]
+ * in [header_checksum].
+ *
+ * [header_checksum] must be a valid pointer to a buffer of
+ * SHA512_DIGEST_SIZE.
+ */
+void CalculateFirmwareHeaderChecksum(const FirmwareImage *image,
+                                     uint8_t* header_checksum);
+
 /* Get firmware header binary blob from an [image].
  *
  * Caller owns the returned pointer and must Free() it.

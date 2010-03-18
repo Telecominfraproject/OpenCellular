@@ -25,6 +25,9 @@ class FirmwareUtility {
   // Return true on success, false on failure.
   bool ParseCmdLineOptions(int argc, char* argv[]);
 
+  // Print descriptio of verified boot firmware image.
+  void DescribeSignedImage();
+
   // Generate a verified boot image by reading firmware data from in_file_.
   // Return true on success, false on failure.
   bool GenerateSignedImage();
@@ -39,6 +42,7 @@ class FirmwareUtility {
 
   bool is_generate() { return is_generate_; }
   bool is_verify() { return is_verify_; }
+  bool is_describe() { return is_describe_; }
 
  private:
 
@@ -59,6 +63,7 @@ class FirmwareUtility {
   std::string out_file_;
   bool is_generate_;  // Are we generating a new image?
   bool is_verify_;  // Are we just verifying an already signed image?
+  bool is_describe_; // Should we print out description of the image?
 };
 
 }  // namespace vboot_reference
