@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
-// Utility for manipulating verified boot firmware images.
+// Utility for manipulating verified boot kernel images.
 //
 
 #include "kernel_utility.h"
@@ -55,7 +55,7 @@ KernelUtility::~KernelUtility() {
 void KernelUtility::PrintUsage(void) {
   cerr <<
       "Utility to generate/verify a verified boot kernel image\n\n"
-      "Usage: firmware_utility <--generate|--verify> [OPTIONS]\n\n"
+      "Usage: kernel_utility <--generate|--verify> [OPTIONS]\n\n"
       "For \"--verify\",  required OPTIONS are:\n"
       "--in <infile>\t\t\tVerified boot kernel image to verify.\n"
       "--firmware_key_pub <pubkeyfile>\tPre-processed public firmware key "
@@ -227,7 +227,11 @@ bool KernelUtility::GenerateSignedImage(void) {
                sizeof(image_->header_version));
   DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->header_len),
                sizeof(image_->header_len));
-  DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->kernel_sign_algorithm),
+  DigestUpdate(&ctx,
+               reinterpret_cast<uint8_t*>(&image_->firmware_sign_algorithm),
+               sizeof(image_->firmware_sign_algorithm));
+  DigestUpdate(&ctx,
+               reinterpret_cast<uint8_t*>(&image_->kernel_sign_algorithm),
                sizeof(image_->kernel_sign_algorithm));
   DigestUpdate(&ctx, reinterpret_cast<uint8_t*>(&image_->kernel_key_version),
                sizeof(image_->kernel_key_version));
@@ -248,12 +252,12 @@ bool KernelUtility::GenerateSignedImage(void) {
     return false;
   // Generate and add the signatures.
   if (!AddKernelKeySignature(image_, firmware_key_file_.c_str())) {
-    cerr << "Couldn't write key signature to verified boot image.\n";
+    cerr << "Couldn't write key signature to verified boot kernel image.\n";
     return false;
   }
 
   if (!AddKernelSignature(image_, kernel_key_file_.c_str())) {
-    cerr << "Couldn't write firmware signature to verified boot image.\n";
+    cerr << "Couldn't write firmware signature to verified boot kernel image.\n";
     return false;
   }
   return true;
@@ -270,7 +274,7 @@ bool KernelUtility::VerifySignedImage(void) {
   }
 
   if (!image_) {
-    cerr << "Couldn't read firmware image or malformed image.\n";
+    cerr << "Couldn't read kernel image or malformed image.\n";
     return false;
   }
   if (!(error = VerifyKernelImage(firmware_key_pub_, image_, 0)))

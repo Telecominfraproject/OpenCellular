@@ -404,6 +404,7 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                                 kernel_sign_key_len),
                  FIELD_LEN(header_checksum))) {
     Free(header_checksum);
+    fprintf(stderr, "VerifyKernelHeader: Invalid header hash\n");
     return VERIFY_KERNEL_INVALID_IMAGE;
   }
   Free(header_checksum);
