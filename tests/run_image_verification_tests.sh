@@ -6,17 +6,10 @@
 
 # Run verified boot firmware and kernel verification tests. 
 
-return_code=0
-hash_algos=( sha1 sha256 sha512 )
-key_lengths=( 1024 2048 4096 8192 ) 
-TEST_FILE=test_file 
-TEST_FILE_SIZE=1000000
+# Load common constants and variables.
+. "$(dirname "$0")/common.sh"
 
-COL_RED='\E[31;1m'
-COL_GREEN='\E[32;1m'
-COL_YELLOW='\E[33;1m'
-COL_BLUE='\E[34;1m'
-COL_STOP='\E[0;m'
+return_code=0
 
 function test_firmware_verification {
   algorithmcounter=0
@@ -26,10 +19,10 @@ function test_firmware_verification {
     do
       echo -e "For Root key ${COL_YELLOW}RSA-$keylen/$hashalgo${COL_STOP}:"
       cd ${UTIL_DIR} && ${TEST_DIR}/firmware_image_tests $algorithmcounter \
-        ${TEST_DIR}/testkeys/key_rsa8192.pem \
-        ${TEST_DIR}/testkeys/key_rsa8192.keyb \
-        ${TEST_DIR}/testkeys/key_rsa${keylen}.pem \
-        ${TEST_DIR}/testkeys/key_rsa${keylen}.keyb
+        ${TESTKEY_DIR}/key_rsa8192.pem \
+        ${TESTKEY_DIR}/key_rsa8192.keyb \
+        ${TESTKEY_DIR}/key_rsa${keylen}.pem \
+        ${TESTKEY_DIR}/key_rsa${keylen}.keyb
       if [ $? -ne 0 ]
       then
         return_code=255
@@ -59,10 +52,10 @@ and ${COL_YELLOW}Kernel signing algorithm RSA-${kernel_keylen}/\
 ${kernel_hashalgo}${COL_STOP}"
           cd ${UTIL_DIR} && ${TEST_DIR}/kernel_image_tests \
             $firmware_algorithmcounter $kernel_algorithmcounter \
-            ${TEST_DIR}/testkeys/key_rsa${firmware_keylen}.pem \
-            ${TEST_DIR}/testkeys/key_rsa${firmware_keylen}.keyb \
-            ${TEST_DIR}/testkeys/key_rsa${kernel_keylen}.pem \
-            ${TEST_DIR}/testkeys/key_rsa${kernel_keylen}.keyb
+            ${TESTKEY_DIR}/key_rsa${firmware_keylen}.pem \
+            ${TESTKEY_DIR}/key_rsa${firmware_keylen}.keyb \
+            ${TESTKEY_DIR}/key_rsa${kernel_keylen}.pem \
+            ${TESTKEY_DIR}/key_rsa${kernel_keylen}.keyb
           if [ $? -ne 0 ]
           then
             return_code=255
@@ -75,20 +68,7 @@ ${kernel_hashalgo}${COL_STOP}"
   done
 }
 
-# Determine script directory.
-if [[ $0 == '/'* ]]; 
-then
-  SCRIPT_DIR="`dirname $0`"
-elif [[ $0 == './'* ]];
-then
-  SCRIPT_DIR="`pwd`"
-else
-  SCRIPT_DIR="`pwd`"/"`dirname $0`"
-fi
-UTIL_DIR=`dirname ${SCRIPT_DIR}`/utils
-KEY_DIR=${SCRIPT_DIR}/testkeys
-TEST_DIR=${SCRIPT_DIR}/
-
+check_test_keys
 echo
 echo "Testing high-level firmware image verification..."
 test_firmware_verification

@@ -6,14 +6,13 @@
 
 # Generate test cases for use for the RSA verify benchmark.
 
-TESTCASE_DIR=fuzz_testcases
-TESTKEY_DIR=testkeys
-UTIL_DIR=../utils/
-TEST_FILE=test_file 
-TEST_FILE_SIZE=1000000
+# Load common constants and variables.
+. "$(dirname "$0")/common.sh"
 
-hash_algos=( sha1 sha256 sha512 )
-key_lengths=( 1024 2048 4096 8192 ) 
+# Use a different directory for fuzzing test cases.
+TESTCASE_DIR=${SCRIPT_DIR}/fuzz_testcases
+TEST_FILE=${TESTCASE_DIR}/testfile
+TEST_FILE_SIZE=500000
 
 # Generate public key signatures and digest on an input file for 
 # various combinations of message digest algorithms and RSA key sizes.
@@ -47,22 +46,11 @@ function generate_fuzzing_images {
 }
 
 function pre_work {
-  # Generate a file with random bytes for signature tests.
+  # Generate a file to serve as random bytes for firmware/kernel contents.
   echo "Generating test file..."
-  dd if=/dev/urandom of=${TESTCASE_DIR}/${TEST_FILE} bs=${TEST_FILE_SIZE} \
-    count=1
+  dd if=/dev/urandom of=${TEST_FILE} bs=${TEST_FILE_SIZE} count=1
 }
-
-if [ ! -d ${TESTKEY_DIR} ]
-then
-  echo "You must run gen_test_keys.sh to generate test keys first."
-  exit 1
-fi
-
-if [ ! -d ${TESTCASE_DIR} ]
-then
-  mkdir ${TESTCASE_DIR}
-fi
-
+mkdir -p ${TESTCASE_DIR}
 pre_work
-generate_fuzzing_images ${TESTCASE_DIR}/$TEST_FILE
+check_test_keys
+generate_fuzzing_images ${TEST_FILE}

@@ -3,36 +3,14 @@
 # Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-
+#
 # Run tests for RSA Signature verification.
 
+# Load common constants and variables.
+. "$(dirname "$0")/common.sh"
+
 return_code=0
-hash_algos=( sha1 sha256 sha512 )
-key_lengths=( 1024 2048 4096 8192 ) 
-TEST_FILE=test_file 
-TEST_FILE_SIZE=1000000
-
-COL_RED='\E[31;1m'
-COL_GREEN='\E[32;1m'
-COL_YELLOW='\E[33;1m'
-COL_BLUE='\E[34;1m'
-COL_STOP='\E[0;m'
-
-# Generate public key signatures on an input file for various combinations
-# of message digest algorithms and RSA key sizes.
-function generate_signatures {
-  algorithmcounter=0
-  for keylen in ${key_lengths[@]}
-  do
-    for hashalgo in ${hash_algos[@]}
-    do
-      ${UTIL_DIR}/signature_digest_utility $algorithmcounter $1 | openssl \
-        rsautl -sign -pkcs -inkey ${KEY_DIR}/key_rsa${keylen}.pem \
-        > $1.rsa${keylen}\_${hashalgo}.sig
-      let algorithmcounter=algorithmcounter+1
-    done
-  done
-}
+TEST_FILE=${TESTCASE_DIR}/test_file
 
 function test_signatures {
   algorithmcounter=0
@@ -42,8 +20,9 @@ function test_signatures {
     do
       echo -e "For ${COL_YELLOW}RSA-$keylen and $hashalgo${COL_STOP}:"
       ${UTIL_DIR}/verify_data $algorithmcounter \
-        ${KEY_DIR}/key_rsa${keylen}.keyb \
-        ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig ${TEST_FILE}
+        ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
+        ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig \
+        ${TEST_FILE}
       if [ $? -ne 0 ]
       then  
         return_code=255
@@ -52,45 +31,12 @@ function test_signatures {
     done
   done
   echo -e "Peforming ${COL_YELLOW}PKCS #1 v1.5 Padding Tests${COL_STOP}..."
-  ${TEST_DIR}/rsa_padding_test ${TEST_DIR}/testkeys/rsa_padding_test_pubkey.keyb
+  ${TEST_DIR}/rsa_padding_test ${TESTKEY_DIR}/rsa_padding_test_pubkey.keyb
 }
 
-function pre_work {
-  # Generate a file with random bytes for signature tests.
-  echo "Generating test file..."
-  dd if=/dev/urandom of=${TEST_FILE} bs=${TEST_FILE_SIZE} count=1
-  echo "Generating signatures..."
-  generate_signatures $TEST_FILE
-}
-
-function cleanup {
-  rm ${SCRIPT_DIR}/${TEST_FILE} ${SCRIPT_DIR}/${TEST_FILE}.*.sig
-}
-
-# Determine script directory.
-if [[ $0 == '/'* ]]; 
-then
-  SCRIPT_DIR="`dirname $0`"
-elif [[ $0 == './'* ]];
-then
-  SCRIPT_DIR="`pwd`"
-else
-  SCRIPT_DIR="`pwd`"/"`dirname $0`"
-fi
-UTIL_DIR=`dirname ${SCRIPT_DIR}`/utils
-KEY_DIR=${SCRIPT_DIR}/testkeys
-TEST_DIR=${SCRIPT_DIR}/
-
-echo "Generating test cases..."
-pre_work
-
-echo
+check_test_keys
 echo "Testing signature verification..."
 test_signatures
-
-echo
-echo "Cleaning up..."
-cleanup
 
 exit $return_code
 
