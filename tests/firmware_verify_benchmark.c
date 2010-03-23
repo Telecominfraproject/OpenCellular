@@ -17,9 +17,22 @@
 
 #define FILE_NAME_SIZE 128
 #define NUM_OPERATIONS 100  /* Number of verify operations to time. */
+
 #define FIRMWARE_SIZE_SMALL 512000
 #define FIRMWARE_SIZE_MEDIUM 1024000
 #define FIRMWARE_SIZE_LARGE 4096000
+const uint64_t g_firmware_sizes_to_test[] = {
+  FIRMWARE_SIZE_SMALL,
+  FIRMWARE_SIZE_MEDIUM,
+  FIRMWARE_SIZE_LARGE
+};
+const char* g_firmware_size_labels[] = {
+  "small",
+  "medium",
+  "large"
+};
+#define NUM_SIZES_TO_TEST (sizeof(g_firmware_sizes_to_test) / \
+                           sizeof(g_firmware_sizes_to_test[0]))
 
 uint8_t* GenerateTestFirmwareBlob(int algorithm,
                                   int firmware_len,
@@ -69,7 +82,7 @@ uint8_t* GenerateTestFirmwareBlob(int algorithm,
 }
 
 int SpeedTestAlgorithm(int algorithm) {
-  int i, key_size, error_code = 0;
+  int i, j, key_size, error_code = 0;
   ClockTimerState ct;
   double msecs;
   uint64_t len;
@@ -83,10 +96,9 @@ int SpeedTestAlgorithm(int algorithm) {
     "sha1", "sha256", "sha512",  /* RSA-4096 */
     "sha1", "sha256", "sha512",  /* RSA-8192 */
   };
-  /* Test for three different firmware sizes. */
-  uint8_t* firmware_blob_small = NULL;
-  uint8_t* firmware_blob_medium = NULL;
-  uint8_t* firmware_blob_large = NULL;
+  uint8_t* firmware_blobs[NUM_SIZES_TO_TEST];
+  for (i = 0; i < NUM_SIZES_TO_TEST; ++i)
+    firmware_blobs[i] = NULL;
 
   key_size = siglen_map[algorithm] * 8;  /* in bits. */
   snprintf(firmware_sign_key_file, FILE_NAME_SIZE, "testkeys/key_rsa%d.pem",
@@ -101,27 +113,20 @@ int SpeedTestAlgorithm(int algorithm) {
   }
 
   /* Generate test images. */
-  firmware_blob_small = GenerateTestFirmwareBlob(algorithm,
-                                                 FIRMWARE_SIZE_SMALL,
+  for (i = 0; i < NUM_SIZES_TO_TEST; ++i) {
+    firmware_blobs[i] = GenerateTestFirmwareBlob(algorithm,
+                                                 g_firmware_sizes_to_test[i],
                                                  firmware_sign_key,
                                                  "testkeys/key_rsa8192.pem",
                                                  firmware_sign_key_file);
-  firmware_blob_medium = GenerateTestFirmwareBlob(algorithm,
-                                                  FIRMWARE_SIZE_MEDIUM,
-                                                  firmware_sign_key,
-                                                  "testkeys/key_rsa8192.pem",
-                                                  firmware_sign_key_file);
-  firmware_blob_large = GenerateTestFirmwareBlob(algorithm,
-                                                 FIRMWARE_SIZE_LARGE,
-                                                 firmware_sign_key,
-                                                 "testkeys/key_rsa8192.pem",
-                                                 firmware_sign_key_file);
-  if (!firmware_blob_small || !firmware_blob_medium || !firmware_blob_large) {
-    fprintf(stderr, "Couldn't generate test firmware images.\n");
-    error_code = 1;
-    goto cleanup;
+    if (!firmware_blobs[i]) {
+      fprintf(stderr, "Couldn't generate test firmware images.\n");
+      error_code = 1;
+      goto cleanup;
+    }
   }
 
+  /* Get pre-processed key used for verification. */
   root_key_blob = BufferFromFile("testkeys/key_rsa8192.keyb", &len);
   if (!root_key_blob) {
     fprintf(stderr, "Couldn't read pre-processed rootkey.\n");
@@ -129,66 +134,33 @@ int SpeedTestAlgorithm(int algorithm) {
     goto cleanup;
   }
 
-  /* Small.*/
-  StartTimer(&ct);
-  for (i = 0; i < NUM_OPERATIONS; ++i) {
-    if (VERIFY_FIRMWARE_SUCCESS !=
-        VerifyFirmware(root_key_blob, firmware_blob_small, 0))
-      fprintf(stderr, "Warning: Firmware Verification Failed.\n");
+  /* Now run the timing tests. */
+  for (i = 0; i < NUM_SIZES_TO_TEST; ++i) {
+    StartTimer(&ct);
+    for (j = 0; j < NUM_OPERATIONS; ++j) {
+      if (VERIFY_FIRMWARE_SUCCESS !=
+          VerifyFirmware(root_key_blob, firmware_blobs[i], 0))
+        fprintf(stderr, "Warning: Firmware Verification Failed.\n");
+    }
+    StopTimer(&ct);
+    msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;
+    fprintf(stderr,
+            "# Firmware (%s, Algo = %s):"
+            "\t%.02f ms/verification\n",
+            g_firmware_size_labels[i],
+            algo_strings[algorithm],
+            msecs);
+    fprintf(stdout, "ms_firmware_%s_rsa%d_%s:%.02f\n",
+            g_firmware_size_labels[i],
+            key_size,
+            sha_strings[algorithm],
+            msecs);
   }
-  StopTimer(&ct);
-  msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;
-  fprintf(stderr,
-          "# Firmware (Small, Algo = %s):"
-          "\t%.02f ms/verification\n",
-          algo_strings[algorithm], msecs);
-  fprintf(stdout, "ms_firmware_sm_rsa%d_%s:%.02f\n",
-          key_size,
-          sha_strings[algorithm],
-          msecs);
-
-  /* Medium. */
-  StartTimer(&ct);
-  for (i = 0; i < NUM_OPERATIONS; ++i) {
-    if (VERIFY_FIRMWARE_SUCCESS !=
-        VerifyFirmware(root_key_blob, firmware_blob_medium, 0))
-      fprintf(stderr, "Warning: Firmware Verification Failed.\n");
-  }
-  StopTimer(&ct);
-  msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;
-  fprintf(stderr,
-          "# Firmware (Medium, Algo = %s):"
-          "\t%.02f ms/verification\n",
-          algo_strings[algorithm], msecs);
-  fprintf(stdout, "ms_firmware_med_rsa%d_%s:%.02f\n",
-          key_size,
-          sha_strings[algorithm],
-          msecs);
-
-
-  /* Large */
-  StartTimer(&ct);
-  for (i = 0; i < NUM_OPERATIONS; ++i) {
-    if (VERIFY_FIRMWARE_SUCCESS !=
-        VerifyFirmware(root_key_blob, firmware_blob_large, 0))
-      fprintf(stderr, "Warning: Firmware Verification Failed.\n");
-  }
-  StopTimer(&ct);
-  msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;
-  fprintf(stderr,
-          "# Firmware (Large, Algorithm = %s):"
-          "\t%.02f ms/verification\n",
-          algo_strings[algorithm], msecs);
-  fprintf(stdout, "ms_firmware_large_rsa%d_%s:%.02f\n",
-          key_size,
-          sha_strings[algorithm],
-          msecs);
 
  cleanup:
+  for (i = 0; i < NUM_SIZES_TO_TEST; i++)
+    Free(firmware_blobs[i]);
   Free(root_key_blob);
-  Free(firmware_blob_large);
-  Free(firmware_blob_medium);
-  Free(firmware_blob_small);
   return error_code;
 }
 

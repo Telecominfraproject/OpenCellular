@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
   uint8_t* kernel_sign_key_buf = NULL;
   uint8_t* firmware_key_blob = NULL;
   uint8_t* kernel_blob = NULL;
-  int kernel_blob_len = 0;
+  uint64_t kernel_blob_len = 0;
   KernelImage* image = NULL;
   RSAPublicKey* firmware_key = NULL;
   int error_code = 1;
@@ -195,7 +195,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (!AddKernelSignature(image, argv[5])) {
-    fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
+    fprintf(stderr, "Couldn't create kernel option and kernel signature.\n");
     error_code = 1;
     goto failure;
   }

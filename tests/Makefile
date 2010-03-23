@@ -14,6 +14,7 @@ LIBS = $(TOP)/utils/kernel_image.o $(TOP)/utils/firmware_image.o \
 tests: firmware_image_tests \
 	firmware_verify_benchmark \
 	kernel_image_tests \
+	kernel_verify_benchmark \
 	rsa_padding_test \
 	rsa_verify_benchmark \
 	sha_benchmark \
@@ -29,6 +30,9 @@ firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c
 
 kernel_image_tests: kernel_image_tests.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
+
+kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS) $(FIRMWARE_LIBS)
 
 rsa_padding_test: rsa_padding_test.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS) $(FIRMWARE_LIBS)
@@ -52,6 +56,7 @@ clean:
 	rm -f firmware_image_tests \
 		firmware_verify_benchmark \
 		kernel_image_tests \
+		kernel_verify_benchmark \
 		rsa_padding_test \
 		rsa_verify_benchmark \
 		sha_benchmark \

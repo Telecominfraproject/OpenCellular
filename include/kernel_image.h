@@ -106,7 +106,7 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image);
  *
  * Caller owns the returned pointer and must Free() it.
  */
-uint8_t* GetKernelBlob(const KernelImage* image, int* blob_len);
+uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len);
 
 /* Write kernel data from [image] to a file named [input_file].
  *

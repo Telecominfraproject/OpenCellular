@@ -250,7 +250,7 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image) {
   return config_blob;
 }
 
-uint8_t* GetKernelBlob(const KernelImage* image, int* blob_len) {
+uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   int kernel_key_signature_len;
   int kernel_signature_len;
   uint8_t* kernel_blob = NULL;
@@ -297,7 +297,7 @@ int WriteKernelImage(const char* input_file,
                      const KernelImage* image) {
   int fd;
   uint8_t* kernel_blob;
-  int blob_len;
+  uint64_t blob_len;
 
   if (!image)
     return 0;
