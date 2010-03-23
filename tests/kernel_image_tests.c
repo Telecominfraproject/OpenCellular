@@ -154,7 +154,7 @@ int main(int argc, char* argv[]) {
   uint64_t kernel_blob_len = 0;
   KernelImage* image = NULL;
   RSAPublicKey* firmware_key = NULL;
-  int error_code = 1;
+  int error_code = 0;
 
   if(argc != 7) {
     fprintf(stderr, "Usage: %s <firmware signing algorithm> "  /* argv[1] */

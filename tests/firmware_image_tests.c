@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
   uint64_t firmware_blob_len = 0;
   FirmwareImage* image = NULL;
   RSAPublicKey* root_key = NULL;
-  int error_code = 1;
+  int error_code = 0;
 
   if(argc != 6) {
     fprintf(stderr, "Usage: %s <algorithm> <root key> <processed root pubkey>"
