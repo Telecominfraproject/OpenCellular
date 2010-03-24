@@ -27,8 +27,8 @@ typedef struct FirmwareImage {
   uint16_t header_len;  /* Length of the header. */
   uint16_t firmware_sign_algorithm;  /* Signature algorithm used by the signing
                                       * key. */
-  uint8_t* firmware_sign_key;  /* Pre-processed public half of signing key. */
   uint16_t firmware_key_version;  /* Key Version# for preventing rollbacks. */
+  uint8_t* firmware_sign_key;  /* Pre-processed public half of signing key. */
   uint8_t header_checksum[SHA512_DIGEST_SIZE];  /* SHA-512 hash of the header.*/
 
   uint8_t firmware_key_signature[RSA8192NUMBYTES];  /* Signature of the header
@@ -113,7 +113,10 @@ void PrintFirmwareImage(const FirmwareImage* image);
 #define VERIFY_FIRMWARE_PREAMBLE_SIGNATURE_FAILED 4
 #define VERIFY_FIRMWARE_SIGNATURE_FAILED 5
 #define VERIFY_FIRMWARE_WRONG_MAGIC 6
-#define VERIFY_FIRMWARE_MAX 7  /* Generic catch-all. */
+#define VERIFY_FIRMWARE_WRONG_HEADER_CHECKSUM 7
+#define VERIFY_FIRMWARE_KEY_ROLLBACK 8
+#define VERIFY_FIRMWARE_VERSION_ROLLBACK 9
+#define VERIFY_FIRMWARE_MAX 10  /* Total number of error codes. */
 
 extern char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
 
@@ -197,5 +200,27 @@ int AddFirmwareKeySignature(FirmwareImage* image, const char* root_key_file);
  * Return 1 on success, 0 on failure.
  */
 int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file);
+
+/* Returns the logical version of a firmware blob which is calculated as
+ * (firmware_key_version << 16 | firmware_version). */
+uint32_t GetLogicalFirmwareVersion(uint8_t* firmware_blob);
+
+#define  BOOT_FIRMWARE_A_CONTINUE 1
+#define  BOOT_FIRMWARE_B_CONTINUE 2
+#define  BOOT_FIRMWARE_RECOVERY_CONTINUE 3
+
+/* This function is the driver used by the RO firmware to
+ * determine which copy of the firmware to boot from. It performs
+ * the requisite rollback index checking, including updating them,
+ * if required.
+ *
+ * Returns the code path to follow. It is one of:
+ * BOOT_FIRMWARE_A_CONTINUE          Boot from Firmware A
+ * BOOT_FIRMWARE_B_CONTINUE          Boot from Firmware B
+ * BOOT_FIRMWARE_RECOVERY_CONTINUE   Jump to recovery mode
+ */
+int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
+                           uint8_t* firmwareA,
+                           uint8_t* firmwareB);
 
 #endif  /* VBOOT_REFERENCE_FIRMWARE_IMAGE_H_ */

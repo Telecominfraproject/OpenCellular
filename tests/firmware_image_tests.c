@@ -12,18 +12,18 @@
 #include "firmware_image.h"
 #include "rsa_utility.h"
 #include "utility.h"
+#include "rollback_index.h"
 
 /* ANSI Color coding sequences. */
 #define COL_GREEN "\e[1;32m"
-#define COL_RED "\e[0;31m]"
+#define COL_RED "\e[0;31m"
 #define COL_STOP "\e[m"
 
 int TEST_EQ(int result, int expected_result, char* testname) {
   if (result == expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN " PASSED\n" COL_STOP, testname);
     return 1;
-  }
-  else {
+  } else {
     fprintf(stderr, "%s Test " COL_RED " FAILED\n" COL_STOP, testname);
     return 0;
   }
@@ -33,7 +33,9 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
                                          uint8_t* firmware_sign_key,
                                          int firmware_key_version,
                                          int firmware_version,
-                                         int firmware_len) {
+                                         int firmware_len,
+                                         const char* root_key_file,
+                                         const char* firmware_key_file) {
   FirmwareImage* image = FirmwareImageNew();
 
   Memcpy(image->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
@@ -58,6 +60,18 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   image->firmware_data = Malloc(image->firmware_len);
   Memset(image->firmware_data, 'F', image->firmware_len);
 
+  /* Generate and populate signatures. */
+  if (!AddFirmwareKeySignature(image, root_key_file)) {
+    fprintf(stderr, "Couldn't create key signature.\n");
+    FirmwareImageFree(image);
+    return NULL;
+  }
+
+  if (!AddFirmwareSignature(image, firmware_key_file)) {
+    fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
+    FirmwareImageFree(image);
+    return NULL;
+  }
   return image;
 }
 
@@ -78,7 +92,6 @@ int VerifyFirmwareTest(uint8_t* firmware_blob, uint8_t* root_key_blob) {
     success = 0;
   return success;
 }
-
 
 /* Normal FirmwareImage Verification Tests. */
 int VerifyFirmwareImageTest(FirmwareImage* image,
@@ -142,14 +155,17 @@ int VerifyFirmwareImageTamperTest(FirmwareImage* image,
 
 int main(int argc, char* argv[]) {
   uint64_t len;
+  const char* root_key_file = NULL;
+  const char* firmware_key_file = NULL;
   uint8_t* firmware_sign_key_buf = NULL;
   uint8_t* root_key_blob = NULL;
   uint8_t* firmware_blob = NULL;
   uint64_t firmware_blob_len = 0;
   FirmwareImage* image = NULL;
-  RSAPublicKey* root_key = NULL;
+  RSAPublicKey* root_key_pub = NULL;
   int error_code = 0;
-
+  int algorithm;
+  SetupTPM();
   if(argc != 6) {
     fprintf(stderr, "Usage: %s <algorithm> <root key> <processed root pubkey>"
             " <signing key> <processed signing key>\n", argv[0]);
@@ -157,30 +173,24 @@ int main(int argc, char* argv[]) {
   }
 
   /* Read verification keys and create a test image. */
-  root_key = RSAPublicKeyFromFile(argv[3]);
+  algorithm = atoi(argv[1]);
+  root_key_pub = RSAPublicKeyFromFile(argv[3]);
   root_key_blob = BufferFromFile(argv[3], &len);
   firmware_sign_key_buf = BufferFromFile(argv[5], &len);
-  image = GenerateTestFirmwareImage(atoi(argv[1]), firmware_sign_key_buf, 1,
-                                    1, 1000);
+  root_key_file = argv[2];
+  firmware_key_file = argv[4];
+  image = GenerateTestFirmwareImage(algorithm,
+                                    firmware_sign_key_buf,
+                                    1,  /* Firmware Key Version. */
+                                    1,  /* Firmware Version. */
+                                    1000,  /* Firmware length. */
+                                    root_key_file,
+                                    firmware_key_file);
 
-  if (!root_key || !firmware_sign_key_buf || !image) {
+  if (!root_key_pub || !firmware_sign_key_buf || !image) {
     error_code = 1;
     goto failure;
   }
-
-  /* Generate and populate signatures. */
-  if (!AddFirmwareKeySignature(image, argv[2])) {
-    fprintf(stderr, "Couldn't create key signature.\n");
-    error_code = 1;
-    goto failure;
-  }
-
-  if (!AddFirmwareSignature(image, argv[4])) {
-    fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
-    error_code = 1;
-    goto failure;
-  }
-
   firmware_blob = GetFirmwareBlob(image, &firmware_blob_len);
 
   /* Test Firmware blob verify operations. */
@@ -188,9 +198,9 @@ int main(int argc, char* argv[]) {
     error_code = 255;
 
   /* Test FirmwareImage verify operations. */
-  if (!VerifyFirmwareImageTest(image, root_key))
+  if (!VerifyFirmwareImageTest(image, root_key_pub))
     error_code = 255;
-  if (!VerifyFirmwareImageTamperTest(image, root_key))
+  if (!VerifyFirmwareImageTamperTest(image, root_key_pub))
     error_code = 255;
 
 failure:
@@ -198,7 +208,7 @@ failure:
   FirmwareImageFree(image);
   Free(firmware_sign_key_buf);
   Free(root_key_blob);
-  RSAPublicKeyFree(root_key);
+  RSAPublicKeyFree(root_key_pub);
 
   return error_code;
 }

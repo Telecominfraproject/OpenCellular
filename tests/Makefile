@@ -7,11 +7,13 @@ CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 INCLUDES ?= -I../include/
 TOP ?= ../
 
-FIRMWARE_LIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
-LIBS = $(TOP)/utils/kernel_image.o $(TOP)/utils/firmware_image.o \
-	$(TOP)/utils/file_keys.o $(TOP)/utils/signature_digest.o -lcrypto
+BASE_LIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
+IMAGE_LIBS = $(TOP)/utils/firmware_image.o $(TOP)/utils/kernel_image.o
+UTIL_LIBS = $(TOP)/utils/file_keys.o $(TOP)/utils/signature_digest.o
+LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) -lcrypto $(BASE_LIBS)
 
 tests: firmware_image_tests \
+	firmware_rollback_tests \
 	firmware_verify_benchmark \
 	kernel_image_tests \
 	kernel_verify_benchmark \
@@ -22,38 +24,47 @@ tests: firmware_image_tests \
 	verify_firmware_fuzz_driver \
 	verify_kernel_fuzz_driver
 
-firmware_image_tests: firmware_image_tests.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
+firmware_image_tests: firmware_image_tests.c rollback_index_mock.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS) $(FIRMWARE_LIBS)
+firmware_rollback_tests: firmware_rollback_tests.c rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-kernel_image_tests: kernel_image_tests.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
+firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c \
+	rollback_index_mock.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
-kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS) $(FIRMWARE_LIBS)
+kernel_image_tests: kernel_image_tests.c rollback_index_mock.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c \
+	rollback_index_mock.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
 rsa_padding_test: rsa_padding_test.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS) $(FIRMWARE_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(UTIL_LIBS) $(BASE_LIBS) \
+	-lcrypto
 
 rsa_verify_benchmark: rsa_verify_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS) $(FIRMWARE_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(UTIL_LIBS) $(BASE_LIBS) \
+	-lcrypto
 
-sha_benchmark:	sha_benchmark.c timer_utils.c $(FIRMWARE_LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt
+sha_benchmark:	sha_benchmark.c timer_utils.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(BASE_LIBS)
 
 sha_tests: sha_tests.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FIRMWARE_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(BASE_LIBS)
 
-verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
+verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c \
+	rollback_index_mock.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARE_LIBS)
+verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c rollback_index_mock.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 clean:
 	rm -f firmware_image_tests \
+		firmware_rollback_tests \
 		firmware_verify_benchmark \
 		kernel_image_tests \
 		kernel_verify_benchmark \

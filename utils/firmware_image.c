@@ -16,6 +16,7 @@
 
 #include "file_keys.h"
 #include "padding.h"
+#include "rollback_index.h"
 #include "rsa_utility.h"
 #include "sha_utility.h"
 #include "signature_digest.h"
@@ -97,10 +98,10 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   }
 
   /* Read pre-processed public half of the sign key. */
-  image->firmware_sign_key = (uint8_t*) Malloc(firmware_sign_key_len);
-  StatefulMemcpy(&st, image->firmware_sign_key, firmware_sign_key_len);
   StatefulMemcpy(&st, &image->firmware_key_version,
                  FIELD_LEN(firmware_key_version));
+  image->firmware_sign_key = (uint8_t*) Malloc(firmware_sign_key_len);
+  StatefulMemcpy(&st, image->firmware_sign_key, firmware_sign_key_len);
   StatefulMemcpy(&st, image->header_checksum, FIELD_LEN(header_checksum));
 
   /* Check whether the header checksum matches. */
@@ -155,10 +156,10 @@ void CalculateFirmwareHeaderChecksum(const FirmwareImage* image,
                sizeof(image->header_len));
   DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
                sizeof(image->firmware_sign_algorithm));
-  DigestUpdate(&ctx, image->firmware_sign_key,
-               RSAProcessedKeySize(image->firmware_sign_algorithm));
   DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
                sizeof(image->firmware_key_version));
+  DigestUpdate(&ctx, image->firmware_sign_key,
+               RSAProcessedKeySize(image->firmware_sign_algorithm));
   checksum = DigestFinal(&ctx);
   Memcpy(header_checksum, checksum, FIELD_LEN(header_checksum));
   Free(checksum);
@@ -176,10 +177,10 @@ uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image) {
 
   StatefulMemcpy_r(&st, &image->header_len, FIELD_LEN(header_len));
   StatefulMemcpy_r(&st, &image->firmware_sign_algorithm, FIELD_LEN(header_len));
-  StatefulMemcpy_r(&st, image->firmware_sign_key,
-                 RSAProcessedKeySize(image->firmware_sign_algorithm));
   StatefulMemcpy_r(&st, &image->firmware_key_version,
                  FIELD_LEN(firmware_key_version));
+  StatefulMemcpy_r(&st, image->firmware_sign_key,
+                 RSAProcessedKeySize(image->firmware_sign_algorithm));
   StatefulMemcpy_r(&st, &image->header_checksum, FIELD_LEN(header_checksum));
 
   if (st.remaining_len != 0) {  /* Underrun or Overrun. */
@@ -314,6 +315,9 @@ char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX] = {
   "Preamble Signature Failed.",
   "Firmware Signature Failed.",
   "Wrong Firmware Magic.",
+  "Invalid Firmware Header Checksum.",
+  "Firmware Signing Key Rollback.",
+  "Firmware Version Rollback."
 };
 
 int VerifyFirmwareHeader(const uint8_t* root_key_blob,
@@ -343,7 +347,7 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
   *algorithm = (int) algo;
   firmware_sign_key_len = RSAProcessedKeySize(*algorithm);
 
-  /* Verify if header len is correct? */
+  /* Verify that header len is correct. */
   if (hlen != (base_header_checksum_offset +
                firmware_sign_key_len +
                FIELD_LEN(header_checksum)))
@@ -360,19 +364,18 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
                                  firmware_sign_key_len),
                   FIELD_LEN(header_checksum))) {
     Free(header_checksum);
-    return VERIFY_FIRMWARE_INVALID_IMAGE;
+    return VERIFY_FIRMWARE_WRONG_HEADER_CHECKSUM;
   }
   Free(header_checksum);
 
-  /* Verify root key signature unless we are in dev mode. */
-  if (!dev_mode) {
-    if (!RSAVerifyBinary_f(root_key_blob, NULL,  /* Key to use */
-                           header_blob,  /* Data to verify */
-                           *header_len, /* Length of data */
-                           header_blob + *header_len,  /* Expected Signature */
-                           ROOT_SIGNATURE_ALGORITHM))
-      return VERIFY_FIRMWARE_ROOT_SIGNATURE_FAILED;
-  }
+  /* Root key signature on the firmware signing key is always checked
+   * irrespective of dev mode. */
+  if (!RSAVerifyBinary_f(root_key_blob, NULL,  /* Key to use */
+                         header_blob,  /* Data to verify */
+                         *header_len, /* Length of data */
+                         header_blob + *header_len,  /* Expected Signature */
+                         ROOT_SIGNATURE_ALGORITHM))
+    return VERIFY_FIRMWARE_ROOT_SIGNATURE_FAILED;
   return 0;
 }
 
@@ -382,6 +385,10 @@ int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
                            int* firmware_len) {
   uint32_t len;
   int preamble_len;
+  uint16_t firmware_version;
+
+  Memcpy(&firmware_version, preamble_blob, sizeof(firmware_version));
+
   preamble_len = (FIELD_LEN(firmware_version) +
                   FIELD_LEN(firmware_len) +
                   FIELD_LEN(preamble));
@@ -442,7 +449,8 @@ int VerifyFirmware(const uint8_t* root_key_blob,
    * times. */
   firmware_sign_key_len = RSAProcessedKeySize(algorithm);
   firmware_sign_key_ptr = header_ptr + (FIELD_LEN(header_len) +
-                               FIELD_LEN(firmware_sign_algorithm));
+                                        FIELD_LEN(firmware_sign_algorithm) +
+                                        FIELD_LEN(firmware_key_version));
   firmware_sign_key = RSAPublicKeyFromBuf(firmware_sign_key_ptr,
                                           firmware_sign_key_len);
   signature_len = siglen_map[algorithm];
@@ -458,7 +466,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   }
   /* Only continue if firmware data verification succeeds. */
   firmware_ptr = (preamble_ptr +
-                  GetFirmwarePreambleLen(NULL) + 
+                  GetFirmwarePreambleLen(NULL) +
                   signature_len);
 
   if ((error_code = VerifyFirmwareData(firmware_sign_key, firmware_ptr,
@@ -494,16 +502,21 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
    *  1) verifying the header length is correct.
    *  2) header_checksum is correct.
    */
+  /* TODO(gauravsh): The [dev_mode] switch is actually irrelevant
+   * for the firmware verification.
+   * Change this to always verify the root key signature and change
+   * test expectations appropriately.
+   */
   if (!dev_mode) {
     DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
     DigestUpdate(&ctx, (uint8_t*) &image->header_len,
                  FIELD_LEN(header_len));
     DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
                  FIELD_LEN(firmware_sign_algorithm));
-    DigestUpdate(&ctx, image->firmware_sign_key,
-                 RSAProcessedKeySize(image->firmware_sign_algorithm));
     DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
                  FIELD_LEN(firmware_key_version));
+    DigestUpdate(&ctx, image->firmware_sign_key,
+                 RSAProcessedKeySize(image->firmware_sign_algorithm));
     DigestUpdate(&ctx, image->header_checksum,
                  FIELD_LEN(header_checksum));
     header_digest = DigestFinal(&ctx);
@@ -612,4 +625,118 @@ int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file) {
   Memcpy(image->firmware_signature, firmware_signature, signature_len);
   Free(firmware_signature);
   return 1;
+}
+
+uint32_t GetLogicalFirmwareVersion(uint8_t* firmware_blob) {
+  uint16_t firmware_key_version;
+  uint16_t firmware_version;
+  uint16_t firmware_sign_algorithm;
+  int firmware_sign_key_len;
+  Memcpy(&firmware_sign_algorithm,
+         firmware_blob + (FIELD_LEN(magic) +  /* Offset to field. */
+                          FIELD_LEN(header_len)),
+         sizeof(firmware_sign_algorithm));
+  Memcpy(&firmware_key_version,
+         firmware_blob + (FIELD_LEN(magic) +  /* Offset to field. */
+                          FIELD_LEN(header_len) +
+                          FIELD_LEN(firmware_sign_algorithm)),
+         sizeof(firmware_key_version));
+  if (firmware_sign_algorithm >= kNumAlgorithms)
+    return 0;
+  firmware_sign_key_len = RSAProcessedKeySize(firmware_sign_algorithm);
+  Memcpy(&firmware_version,
+         firmware_blob +  (FIELD_LEN(magic) +  /* Offset to field. */
+                           FIELD_LEN(header_len) +
+                           FIELD_LEN(firmware_key_version) +
+                           firmware_sign_key_len +
+                           FIELD_LEN(header_checksum) +
+                           FIELD_LEN(firmware_key_signature)),
+         sizeof(firmware_version));
+  return CombineUint16Pair(firmware_key_version, firmware_version);
+}
+
+int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
+                           uint8_t* firmwareA,
+                           uint8_t* firmwareB) {
+  /* Contains the logical firmware version (32-bit) which is calculated as
+   * (firmware_key_version << 16 | firmware_version) where
+   * [firmware_key_version] [firmware_version] are both 16-bit.
+   */
+  uint32_t firmwareA_lversion, firmwareB_lversion;
+  uint8_t firmwareA_is_verified = 0;  /* Whether firmwareA verify succeeded. */
+  uint32_t min_lversion;  /* Minimum of firmware A and firmware lversion. */
+  uint32_t stored_lversion;  /* Stored logical version in the TPM. */
+
+  /* Initialize the TPM since we'll be reading the rollback indices. */
+  SetupTPM();
+
+  /* We get the key versions by reading directly from the image blobs without
+   * any additional (expensive) sanity checking on the blob since it's faster to
+   * outright reject a firmware with an older firmware key version. A malformed
+   * or corrupted firmware blob will still fail when VerifyFirmware() is called
+   * on it.
+   */
+  firmwareA_lversion = GetLogicalFirmwareVersion(firmwareA);
+  firmwareB_lversion = GetLogicalFirmwareVersion(firmwareB);
+  min_lversion  = Min(firmwareA_lversion, firmwareB_lversion);
+  stored_lversion = CombineUint16Pair(GetStoredVersion(FIRMWARE_KEY_VERSION),
+                                      GetStoredVersion(FIRMWARE_VERSION));
+  /* Always try FirmwareA first. */
+  if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareA,
+                                                0))
+    firmwareA_is_verified = 1;
+  if (firmwareA_is_verified && (stored_lversion < firmwareA_lversion)) {
+    /* Stored version may need to be updated but only if FirmwareB
+     * is successfully verified and has a logical version greater than
+     * the stored logical version. */
+    if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB,
+                                                    0)) {
+        if (stored_lversion < firmwareB_lversion) {
+          WriteStoredVersion(FIRMWARE_KEY_VERSION,
+                             (uint16_t) (min_lversion >> 16));
+          WriteStoredVersion(FIRMWARE_VERSION,
+                             (uint16_t) (min_lversion & 0x00FFFF));
+          stored_lversion = min_lversion;  /* Update stored version as it's used
+                                            * later. */
+        }
+    }
+  }
+  /* Lock Firmware TPM rollback indices from further writes. */
+  /* TODO(gauravsh): Figure out if these can be combined into one
+   * 32-bit location since we seem to always use them together. This can help
+   * us minimize the number of NVRAM writes/locks (which are limited over flash
+   * memory lifetimes.
+   */
+  LockStoredVersion(FIRMWARE_KEY_VERSION);
+  LockStoredVersion(FIRMWARE_VERSION);
+
+  /* Determine which firmware (if any) to jump to.
+   *
+   * We always attempt to jump to FirmwareA first. If verification of FirmwareA
+   * fails, we try FirmwareB. In all cases, if the firmware successfully
+   * verified but is a rollback, we jump to recovery.
+   *
+   * Note: This means that if FirmwareA verified successfully and is a
+   * rollback, then no attempt is made to check FirmwareB. We still jump to
+   * recovery. FirmwareB is only used as a backup in case FirmwareA gets
+   * corrupted. Since newer firmware updates are always written to A,
+   * the case where firmware A is verified but a rollback should not occur in
+   * normal operation.
+   */
+  if (firmwareA_is_verified) {
+    if (stored_lversion <= firmwareA_lversion)
+      return BOOT_FIRMWARE_A_CONTINUE;
+  } else {
+    /* If FirmwareA was not valid, then we skipped over the
+     * check to update the rollback indices and a Verify of FirmwareB wasn't
+     * attempted.
+     * If FirmwareB is not a rollback, then we attempt to do the verification.
+     */
+    if (stored_lversion <= firmwareB_lversion &&
+        (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB,
+                                                   0)))
+      return BOOT_FIRMWARE_B_CONTINUE;
+  }
+  /* D'oh: No bootable firmware. */
+  return BOOT_FIRMWARE_RECOVERY_CONTINUE;
 }
