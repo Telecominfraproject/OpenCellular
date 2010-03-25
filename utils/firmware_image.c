@@ -322,7 +322,6 @@ char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX] = {
 
 int VerifyFirmwareHeader(const uint8_t* root_key_blob,
                          const uint8_t* header_blob,
-                         const int dev_mode,
                          int* algorithm,
                          int* header_len) {
   int firmware_sign_key_len;
@@ -421,8 +420,7 @@ int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
 }
 
 int VerifyFirmware(const uint8_t* root_key_blob,
-                   const uint8_t* firmware_blob,
-                   const int dev_mode) {
+                   const uint8_t* firmware_blob) {
   int error_code;
   int algorithm;  /* Signing key algorithm. */
   RSAPublicKey* firmware_sign_key = NULL;
@@ -441,7 +439,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   header_ptr = firmware_blob + FIRMWARE_MAGIC_SIZE;
 
   /* Only continue if header verification succeeds. */
-  if ((error_code = VerifyFirmwareHeader(root_key_blob, header_ptr, dev_mode,
+  if ((error_code = VerifyFirmwareHeader(root_key_blob, header_ptr,
                                          &algorithm, &header_len)))
     return error_code;  /* AKA jump to revovery. */
 
@@ -481,8 +479,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
 }
 
 int VerifyFirmwareImage(const RSAPublicKey* root_key,
-                        const FirmwareImage* image,
-                        const int dev_mode) {
+                        const FirmwareImage* image) {
   RSAPublicKey* firmware_sign_key = NULL;
   uint8_t* header_digest = NULL;
   uint8_t* preamble_digest = NULL;
@@ -502,31 +499,26 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
    *  1) verifying the header length is correct.
    *  2) header_checksum is correct.
    */
-  /* TODO(gauravsh): The [dev_mode] switch is actually irrelevant
-   * for the firmware verification.
-   * Change this to always verify the root key signature and change
-   * test expectations appropriately.
-   */
-  if (!dev_mode) {
-    DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
-    DigestUpdate(&ctx, (uint8_t*) &image->header_len,
-                 FIELD_LEN(header_len));
-    DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
-                 FIELD_LEN(firmware_sign_algorithm));
-    DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
-                 FIELD_LEN(firmware_key_version));
-    DigestUpdate(&ctx, image->firmware_sign_key,
-                 RSAProcessedKeySize(image->firmware_sign_algorithm));
-    DigestUpdate(&ctx, image->header_checksum,
-                 FIELD_LEN(header_checksum));
-    header_digest = DigestFinal(&ctx);
-    if (!RSAVerify(root_key, image->firmware_key_signature,
-                    FIELD_LEN(firmware_key_signature),
-                    ROOT_SIGNATURE_ALGORITHM,
-                    header_digest)) {
-      error_code =  VERIFY_FIRMWARE_ROOT_SIGNATURE_FAILED;
-      goto verify_failure;
-    }
+
+  /* Check key signature. */
+  DigestInit(&ctx, ROOT_SIGNATURE_ALGORITHM);
+  DigestUpdate(&ctx, (uint8_t*) &image->header_len,
+               FIELD_LEN(header_len));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_sign_algorithm,
+               FIELD_LEN(firmware_sign_algorithm));
+  DigestUpdate(&ctx, (uint8_t*) &image->firmware_key_version,
+               FIELD_LEN(firmware_key_version));
+  DigestUpdate(&ctx, image->firmware_sign_key,
+               RSAProcessedKeySize(image->firmware_sign_algorithm));
+  DigestUpdate(&ctx, image->header_checksum,
+               FIELD_LEN(header_checksum));
+  header_digest = DigestFinal(&ctx);
+  if (!RSAVerify(root_key, image->firmware_key_signature,
+                 FIELD_LEN(firmware_key_signature),
+                 ROOT_SIGNATURE_ALGORITHM,
+                 header_digest)) {
+    error_code =  VERIFY_FIRMWARE_ROOT_SIGNATURE_FAILED;
+    goto verify_failure;
   }
 
   /* Get sign key to verify the rest of the firmware. */
@@ -682,15 +674,13 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
   stored_lversion = CombineUint16Pair(GetStoredVersion(FIRMWARE_KEY_VERSION),
                                       GetStoredVersion(FIRMWARE_VERSION));
   /* Always try FirmwareA first. */
-  if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareA,
-                                                0))
+  if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareA))
     firmwareA_is_verified = 1;
   if (firmwareA_is_verified && (stored_lversion < firmwareA_lversion)) {
     /* Stored version may need to be updated but only if FirmwareB
      * is successfully verified and has a logical version greater than
      * the stored logical version. */
-    if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB,
-                                                    0)) {
+    if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB)) {
         if (stored_lversion < firmwareB_lversion) {
           WriteStoredVersion(FIRMWARE_KEY_VERSION,
                              (uint16_t) (min_lversion >> 16));
@@ -733,8 +723,7 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
      * If FirmwareB is not a rollback, then we attempt to do the verification.
      */
     if (stored_lversion <= firmwareB_lversion &&
-        (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB,
-                                                   0)))
+        (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB)))
       return BOOT_FIRMWARE_B_CONTINUE;
   }
   /* D'oh: No bootable firmware. */

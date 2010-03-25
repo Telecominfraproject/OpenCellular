@@ -226,8 +226,8 @@ bool FirmwareUtility::VerifySignedImage(void) {
     cerr << "Couldn't read firmware image or malformed image.\n";
     return false;
   }
-  if (!(error = VerifyFirmwareImage(root_key_pub_, image_,
-                                    0)))  // Trusted Mode.
+  if (VERIFY_FIRMWARE_SUCCESS ==
+      (error = VerifyFirmwareImage(root_key_pub_, image_)))
     return true;
   cerr << VerifyFirmwareErrorString(error) << "\n";
   return false;;

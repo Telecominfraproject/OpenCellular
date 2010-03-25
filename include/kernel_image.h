@@ -141,12 +141,12 @@ extern char* kVerifyKernelErrors[VERIFY_KERNEL_MAX];
  * length in [header_len], and return 0.
  * Else, return error code on failure.
  */
-int VerifyFirmwareHeader(const uint8_t* firmware_sign_key_blob,
-                         const uint8_t* kernel_header_blob,
-                         const int dev_mode,
-                         int* firmware_algorithm,
-                         int* kernel_algorithm,
-                         int* header_len);
+int VerifyKernelHeader(const uint8_t* firmware_sign_key_blob,
+                       const uint8_t* kernel_header_blob,
+                       const int dev_mode,
+                       int* firmware_algorithm,
+                       int* kernel_algorithm,
+                       int* header_len);
 
 /* Checks the kernel config (analogous to preamble for firmware) signature on
  * kernel config pointed by [kernel_config_blob] using the signing key

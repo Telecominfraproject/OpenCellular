@@ -12,6 +12,7 @@
 #include "kernel_image.h"
 #include "padding.h"
 #include "rsa_utility.h"
+#include "test_common.h"
 #include "timer_utils.h"
 #include "utility.h"
 
@@ -39,63 +40,6 @@ const char* g_kernel_size_labels[] = {
 };
 #define NUM_SIZES_TO_TEST (sizeof(g_kernel_sizes_to_test) / \
                            sizeof(g_kernel_sizes_to_test[0]))
-
-uint8_t* GenerateTestKernelBlob(int firmware_sign_algorithm,
-                                int kernel_sign_algorithm,
-                                int kernel_len,
-                                const uint8_t* kernel_sign_key,
-                                const char* firmware_key_file,
-                                const char* kernel_key_file) {
-  KernelImage* image = KernelImageNew();
-  uint8_t* kernel_blob = NULL;
-  uint64_t kernel_blob_len = 0;
-
-  Memcpy(image->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE);
-  image->header_version = 1;
-  image->firmware_sign_algorithm = firmware_sign_algorithm;
-  image->kernel_sign_algorithm = kernel_sign_algorithm;
-  image->kernel_key_version = 1;
-  image->kernel_sign_key = (uint8_t*) Malloc(
-      RSAProcessedKeySize(image->kernel_sign_algorithm));
-  Memcpy(image->kernel_sign_key, kernel_sign_key,
-         RSAProcessedKeySize(image->kernel_sign_algorithm));
-
-  /* Update correct header length. */
-  image->header_len = GetKernelHeaderLen(image);
-
-  /* Calculate SHA-512 digest on header and populate header_checksum. */
-  CalculateKernelHeaderChecksum(image, image->header_checksum);
-
-  /* Populate kernel options and data with dummy data. */
-  image->kernel_version = 1;
-  image->options.version[0] = 1;
-  image->options.version[1] = 0;
-  Memset(image->options.cmd_line, 0, sizeof(image->options.cmd_line));
-  image->options.kernel_len = kernel_len;
-  image->options.kernel_load_addr = 0;
-  image->options.kernel_entry_addr = 0;
-  image->kernel_key_signature = image->kernel_signature = NULL;
-  image->kernel_data = Malloc(kernel_len);
-  /* TODO(gauravsh): Populate this with random data, to remove data-dependent
-   * timing artificats. */
-  Memset(image->kernel_data, 'K', kernel_len);
-
-  if (!AddKernelKeySignature(image, firmware_key_file)) {
-    fprintf(stderr, "Couldn't create key signature.\n");
-    KernelImageFree(image);
-    return NULL;
-  }
-
-  if (!AddKernelSignature(image, kernel_key_file)) {
-    fprintf(stderr, "Couldn't create kernel option and kernel  signature.\n");
-    KernelImageFree(image);
-    return NULL;
-  }
-
-  kernel_blob = GetKernelBlob(image, &kernel_blob_len);
-  KernelImageFree(image);
-  return kernel_blob;
-}
 
 int SpeedTestAlgorithm(int firmware_sign_algorithm,
                        int kernel_sign_algorithm) {
@@ -139,8 +83,10 @@ int SpeedTestAlgorithm(int firmware_sign_algorithm,
   for (i = 0; i < NUM_SIZES_TO_TEST; ++i) {
     kernel_blobs[i] = GenerateTestKernelBlob(firmware_sign_algorithm,
                                              kernel_sign_algorithm,
-                                             g_kernel_sizes_to_test[i],
                                              kernel_sign_key,
+                                             1,  /* kernel key version. */
+                                             1,  /* kernel version. */
+                                             g_kernel_sizes_to_test[i],
                                              firmware_sign_key_file,
                                              kernel_sign_key_file);
     if (!kernel_blobs[i]) {

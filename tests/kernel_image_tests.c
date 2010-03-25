@@ -11,143 +11,70 @@
 #include "file_keys.h"
 #include "kernel_image.h"
 #include "rsa_utility.h"
+#include "test_common.h"
 #include "utility.h"
-
-/* ANSI Color coding sequences. */
-#define COL_GREEN "\e[1;32m"
-#define COL_RED "\e[0;31m"
-#define COL_STOP "\e[m"
-
-int TEST_EQ(int result, int expected_result, char* testname) {
-  if (result == expected_result) {
-    fprintf(stderr, "%s Test " COL_GREEN " PASSED\n" COL_STOP, testname);
-    return 1;
-  }
-  else {
-    fprintf(stderr, "%s Test " COL_RED " FAILED\n" COL_STOP, testname);
-    return 0;
-  }
-}
-
-KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
-                                     int kernel_sign_algorithm,
-                                     uint8_t* kernel_sign_key,
-                                     int kernel_key_version,
-                                     int kernel_version,
-                                     int kernel_len) {
-  KernelImage* image = KernelImageNew();
-
-  Memcpy(image->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE);
-  image->header_version = 1;
-  image->firmware_sign_algorithm = firmware_sign_algorithm;
-  image->kernel_sign_algorithm = kernel_sign_algorithm;
-  image->kernel_key_version = kernel_key_version;
-  image->kernel_sign_key = (uint8_t*) Malloc(
-      RSAProcessedKeySize(image->kernel_sign_algorithm));
-  Memcpy(image->kernel_sign_key, kernel_sign_key,
-         RSAProcessedKeySize(image->kernel_sign_algorithm));
-
-  /* Update correct header length. */
-  image->header_len = GetKernelHeaderLen(image);
-
-  /* Calculate SHA-512 digest on header and populate header_checksum. */
-  CalculateKernelHeaderChecksum(image, image->header_checksum);
-
-  /* Populate kernel options and data with dummy data. */
-  image->kernel_version = kernel_version;
-  image->options.version[0] = 1;
-  image->options.version[1] = 0;
-  Memset(image->options.cmd_line, 0, sizeof(image->options.cmd_line));
-  image->options.kernel_len = kernel_len;
-  image->options.kernel_load_addr = 0;
-  image->options.kernel_entry_addr = 0;
-  image->kernel_key_signature = image->kernel_signature = NULL;
-  image->kernel_data = Malloc(kernel_len);
-  Memset(image->kernel_data, 'F', kernel_len);
-
-  return image;
-}
 
 #define DEV_MODE_ENABLED 1
 #define DEV_MODE_DISABLED 0
 
 /* Normal Kernel Blob Verification Tests. */
-int VerifyKernelTest(uint8_t* kernel_blob, uint8_t* firmware_key_blob) {
-  int success = 1;
-  if (!TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, DEV_MODE_ENABLED),
-               VERIFY_KERNEL_SUCCESS,
-               "Normal Kernel Blob Verification (Dev Mode)"))
-    success = 0;
+void VerifyKernelTest(uint8_t* kernel_blob, uint8_t* firmware_key_blob) {
+  TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, DEV_MODE_ENABLED),
+          VERIFY_KERNEL_SUCCESS,
+          "Normal Kernel Blob Verification (Dev Mode)");
 
-  if (!TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, DEV_MODE_DISABLED),
-               VERIFY_KERNEL_SUCCESS,
-               "Normal Kernel Blob Verification (Trusted)"))
-    success = 0;
-  return success;
+  TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, DEV_MODE_DISABLED),
+          VERIFY_KERNEL_SUCCESS,
+          "Normal Kernel Blob Verification (Trusted)");
 }
 
 
 /* Normal KernelImage Verification Tests. */
-int VerifyKernelImageTest(KernelImage* image,
+void VerifyKernelImageTest(KernelImage* image,
                           RSAPublicKey* firmware_key) {
-  int success = 1;
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
-               VERIFY_KERNEL_SUCCESS,
-               "Normal KernelImage Verification (Dev Mode)"))
-    success = 0;
-
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
-               VERIFY_KERNEL_SUCCESS,
-               "Normal KernelImage Verification (Trusted)"))
-    success = 0;
-  return success;
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
+          VERIFY_KERNEL_SUCCESS,
+          "Normal KernelImage Verification (Dev Mode)");
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
+          VERIFY_KERNEL_SUCCESS,
+          "Normal KernelImage Verification (Trusted)");
 }
 
 /* Tampered KernelImage Verification Tests. */
-int VerifyKernelImageTamperTest(KernelImage* image,
-                                RSAPublicKey* firmware_key) {
-  int success = 1;
-  fprintf(stderr, "[[Tampering with kernel config....]]\n");
+void VerifyKernelImageTamperTest(KernelImage* image,
+                                 RSAPublicKey* firmware_key) {
   image->options.kernel_load_addr = 0xFFFF;
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
-               VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED,
-               "KernelImage Config Tamper Verification (Dev Mode)"))
-    success = 0;
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
-               VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED,
-               "KernelImage Config Tamper Verification (Trusted)"))
-    success = 0;
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
+          VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED,
+          "KernelImage Config Tamper Verification (Dev Mode)");
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
+          VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED,
+          "KernelImage Config Tamper Verification (Trusted)");
   image->options.kernel_load_addr = 0;
 
   image->kernel_data[0] = 'T';
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
-               VERIFY_KERNEL_SIGNATURE_FAILED,
-               "KernelImage Tamper Verification (Dev Mode)"))
-    success = 0;
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
-               VERIFY_KERNEL_SIGNATURE_FAILED,
-               "KernelImage Tamper Verification (Trusted)"))
-    success = 0;
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
+          VERIFY_KERNEL_SIGNATURE_FAILED,
+          "KernelImage Tamper Verification (Dev Mode)");
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
+          VERIFY_KERNEL_SIGNATURE_FAILED,
+          "KernelImage Tamper Verification (Trusted)");
   image->kernel_data[0] = 'F';
 
-
-  fprintf(stderr, "[[Tampering with kernel key signature...]]\n");
   image->kernel_key_signature[0] = 0xFF;
   image->kernel_key_signature[1] = 0x00;
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
-               VERIFY_KERNEL_SUCCESS,
-               "KernelImage Key Signature Tamper Verification (Dev Mode)"))
-    success = 0;
-  if (!TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
-               VERIFY_KERNEL_KEY_SIGNATURE_FAILED,
-               "KernelImage Key Signature Tamper Verification (Trusted)"))
-    success = 0;
-
-  return success;
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
+          VERIFY_KERNEL_SUCCESS,
+          "KernelImage Key Signature Tamper Verification (Dev Mode)");
+  TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
+          VERIFY_KERNEL_KEY_SIGNATURE_FAILED,
+          "KernelImage Key Signature Tamper Verification (Trusted)");
 }
 
 int main(int argc, char* argv[]) {
   uint64_t len;
+  const char* firmware_key_file = NULL;
+  const char* kernel_key_file = NULL;
   uint8_t* kernel_sign_key_buf = NULL;
   uint8_t* firmware_key_blob = NULL;
   uint8_t* kernel_blob = NULL;
@@ -171,6 +98,9 @@ int main(int argc, char* argv[]) {
   firmware_key = RSAPublicKeyFromFile(argv[4]);
   firmware_key_blob = BufferFromFile(argv[4], &len);
   kernel_sign_key_buf = BufferFromFile(argv[6], &len);
+  firmware_key_file = argv[3];
+  kernel_key_file = argv[5];
+
   if (!firmware_key || !kernel_sign_key_buf || !kernel_sign_key_buf) {
     error_code = 1;
     goto failure;
@@ -181,21 +111,10 @@ int main(int argc, char* argv[]) {
                                   kernel_sign_key_buf,
                                   1,  /* Kernel Key Version */
                                   1,  /* Kernel Version */
-                                  1000);  /* Kernel Size */
+                                  1000,  /* Kernel Size */
+                                  firmware_key_file,
+                                  kernel_key_file);
   if (!image) {
-    error_code = 1;
-    goto failure;
-  }
-
-  /* Generate and populate signatures. */
-  if (!AddKernelKeySignature(image, argv[3])) {
-    fprintf(stderr, "Couldn't create key signature.\n");
-    error_code = 1;
-    goto failure;
-  }
-
-  if (!AddKernelSignature(image, argv[5])) {
-    fprintf(stderr, "Couldn't create kernel option and kernel signature.\n");
     error_code = 1;
     goto failure;
   }
@@ -203,13 +122,13 @@ int main(int argc, char* argv[]) {
   kernel_blob = GetKernelBlob(image, &kernel_blob_len);
 
   /* Test Kernel blob verify operations. */
-  if (!VerifyKernelTest(kernel_blob, firmware_key_blob))
-    error_code = 255;
+  VerifyKernelTest(kernel_blob, firmware_key_blob);
 
   /* Test KernelImage verify operations. */
-  if (!VerifyKernelImageTest(image, firmware_key))
-    error_code = 255;
-  if (!VerifyKernelImageTamperTest(image, firmware_key))
+  VerifyKernelImageTest(image, firmware_key);
+  VerifyKernelImageTamperTest(image, firmware_key);
+
+  if (!gTestSuccess)
     error_code = 255;
 
 failure:

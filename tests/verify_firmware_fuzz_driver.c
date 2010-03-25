@@ -28,8 +28,7 @@ int VerifySignedFirmware(const char* image_file,
     error_code = 1;
   }
 
-  if (!error_code && (error = VerifyFirmware(root_key_blob, firmware_blob,
-                                             0))) { /* Trusted Mode. */
+  if (!error_code && (error = VerifyFirmware(root_key_blob, firmware_blob))) {
     fprintf(stderr, "%s\n", VerifyFirmwareErrorString(error));
     error_code = 1;
   }

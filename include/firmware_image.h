@@ -121,8 +121,6 @@ void PrintFirmwareImage(const FirmwareImage* image);
 extern char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
 
 /* Checks for the sanity of the firmware header pointed by [header_blob].
- * If [dev_mode] is enabled, also checks the root key signature using the
- * pre-processed public root key [root_key_blob].
  *
  * On success, put signature algorithm in [algorithm], header length
  * in [header_len], and return 0.
@@ -130,7 +128,6 @@ extern char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
  */
 int VerifyFirmwareHeader(const uint8_t* root_key_blob,
                          const uint8_t* header_blob,
-                         const int dev_mode,
                          int* algorithm,
                          int* header_len);
 
@@ -157,10 +154,7 @@ int VerifyFirmwareData(RSAPublicKey* sign_key,
                        int firmware_len,
                        int algorithm);
 
-/* Performs a chained verify of the firmware blob [firmware_blob]. If
- * [dev_mode] is 0 [inactive], then the pre-processed public root key
- * [root_key_blob] is used the verify the signature of the signing key,
- * else the check is skipped.
+/* Performs a chained verify of the firmware blob [firmware_blob].
  *
  * Returns 0 on success, error code on failure.
  *
@@ -171,18 +165,14 @@ int VerifyFirmwareData(RSAPublicKey* sign_key,
  * length itself is checked early in the verification process for extra safety.
  */
 int VerifyFirmware(const uint8_t* root_key_blob,
-                   const uint8_t* firmware_blob,
-                   const int dev_mode);
+                   const uint8_t* firmware_blob);
 
-/* Performs a chained verify of the firmware [image]. If [dev_mode] is
- * 0 (inactive), then the [root_key] is used to verify the signature of
- * the signing key, else the check is skipped.
+/* Performs a chained verify of the firmware [image].
  *
  * Returns 0 on success, error code on failure.
  */
 int VerifyFirmwareImage(const RSAPublicKey* root_key,
-                        const FirmwareImage* image,
-                        const int dev_mode);
+                        const FirmwareImage* image);
 
 /* Maps error codes from VerifyFirmware() to error description. */
 const char* VerifyFirmwareErrorString(int error);

@@ -24,21 +24,22 @@ tests: firmware_image_tests \
 	verify_firmware_fuzz_driver \
 	verify_kernel_fuzz_driver
 
-firmware_image_tests: firmware_image_tests.c rollback_index_mock.c
+firmware_image_tests: firmware_image_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-firmware_rollback_tests: firmware_rollback_tests.c rollback_index_mock.c test_common.c
+firmware_rollback_tests: firmware_rollback_tests.c rollback_index_mock.c \
+	test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c \
-	rollback_index_mock.c
+	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
-kernel_image_tests: kernel_image_tests.c rollback_index_mock.c
+kernel_image_tests: kernel_image_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c \
-	rollback_index_mock.c
+	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
 rsa_padding_test: rsa_padding_test.c

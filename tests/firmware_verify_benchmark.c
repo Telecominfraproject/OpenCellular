@@ -12,6 +12,7 @@
 #include "firmware_image.h"
 #include "padding.h"
 #include "rsa_utility.h"
+#include "test_common.h"
 #include "timer_utils.h"
 #include "utility.h"
 
@@ -33,53 +34,6 @@ const char* g_firmware_size_labels[] = {
 };
 #define NUM_SIZES_TO_TEST (sizeof(g_firmware_sizes_to_test) / \
                            sizeof(g_firmware_sizes_to_test[0]))
-
-uint8_t* GenerateTestFirmwareBlob(int algorithm,
-                                  int firmware_len,
-                                  const uint8_t* firmware_sign_key,
-                                  const char* root_key_file,
-                                  const char* firmware_sign_key_file) {
-  FirmwareImage* image = FirmwareImageNew();
-  uint8_t* firmware_blob = NULL;
-  uint64_t firmware_blob_len = 0;
-
-  Memcpy(image->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
-  image->firmware_sign_algorithm = algorithm;
-  image->firmware_sign_key = (uint8_t*) Malloc(
-      RSAProcessedKeySize(image->firmware_sign_algorithm));
-  Memcpy(image->firmware_sign_key, firmware_sign_key,
-         RSAProcessedKeySize(image->firmware_sign_algorithm));
-  image->firmware_key_version = 1;
-
-  /* Update correct header length. */
-  image->header_len = GetFirmwareHeaderLen(image);
-
-  /* Calculate SHA-512 digest on header and populate header_checksum. */
-  CalculateFirmwareHeaderChecksum(image, image->header_checksum);
-
-  /* Populate firmware and preamble with dummy data. */
-  image->firmware_version = 1;
-  image->firmware_len = firmware_len;
-  image->preamble_signature = image->firmware_signature = NULL;
-  Memset(image->preamble, 'P', FIRMWARE_PREAMBLE_SIZE);
-  image->firmware_data = Malloc(image->firmware_len);
-  Memset(image->firmware_data, 'F', image->firmware_len);
-
-  if (!AddFirmwareKeySignature(image, root_key_file)) {
-    fprintf(stderr, "Couldn't create key signature.\n");
-    FirmwareImageFree(image);
-    return NULL;
-  }
-
-  if (!AddFirmwareSignature(image, firmware_sign_key_file)) {
-    fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
-    FirmwareImageFree(image);
-    return NULL;
-  }
-  firmware_blob = GetFirmwareBlob(image, &firmware_blob_len);
-  FirmwareImageFree(image);
-  return firmware_blob;
-}
 
 int SpeedTestAlgorithm(int algorithm) {
   int i, j, key_size, error_code = 0;
@@ -115,8 +69,10 @@ int SpeedTestAlgorithm(int algorithm) {
   /* Generate test images. */
   for (i = 0; i < NUM_SIZES_TO_TEST; ++i) {
     firmware_blobs[i] = GenerateTestFirmwareBlob(algorithm,
-                                                 g_firmware_sizes_to_test[i],
                                                  firmware_sign_key,
+                                                 1,  /* firmware key version. */
+                                                 1,  /* firmware version. */
+                                                 g_firmware_sizes_to_test[i],
                                                  "testkeys/key_rsa8192.pem",
                                                  firmware_sign_key_file);
     if (!firmware_blobs[i]) {
@@ -139,7 +95,7 @@ int SpeedTestAlgorithm(int algorithm) {
     StartTimer(&ct);
     for (j = 0; j < NUM_OPERATIONS; ++j) {
       if (VERIFY_FIRMWARE_SUCCESS !=
-          VerifyFirmware(root_key_blob, firmware_blobs[i], 0))
+          VerifyFirmware(root_key_blob, firmware_blobs[i]))
         fprintf(stderr, "Warning: Firmware Verification Failed.\n");
     }
     StopTimer(&ct);
