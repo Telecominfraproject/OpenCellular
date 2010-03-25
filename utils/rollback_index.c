@@ -9,6 +9,7 @@
 #include "rollback_index.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <tss/tcs.h>
 
 #include "tlcl.h"
@@ -22,7 +23,7 @@ static void InitializeSpaces(void) {
   uint16_t zero = 0;
   uint32_t perm = TPM_NV_PER_WRITE_STCLEAR | TPM_NV_PER_PPWRITE;
 
-  printf("Initializing spaces\n");
+  fprintf(stderr, "Initializing spaces\n");
   TlclSetNvLocked();  /* useful only the first time */
 
   TlclDefineSpace(FIRMWARE_KEY_VERSION_NV_INDEX, perm, sizeof(uint16_t));
