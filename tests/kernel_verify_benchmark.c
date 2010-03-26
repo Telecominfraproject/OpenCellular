@@ -123,7 +123,7 @@ int SpeedTestAlgorithm(int firmware_sign_algorithm,
             algo_strings[firmware_sign_algorithm],
             algo_strings[kernel_sign_algorithm],
             msecs);
-    fprintf(stdout, "ms_firmware_%s_rsa%d_%s_rsa%d_%s:%.02f\n",
+    fprintf(stdout, "ms_kernel_%s_rsa%d_%s_rsa%d_%s:%.02f\n",
             g_kernel_size_labels[i],
             firmware_key_size,
             sha_strings[firmware_sign_algorithm],
