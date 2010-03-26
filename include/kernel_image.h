@@ -17,6 +17,9 @@
 #define KERNEL_MAGIC_SIZE 8
 #define KERNEL_CMD_LINE_SIZE 4096
 
+#define DEV_MODE_ENABLED 1
+#define DEV_MODE_DISABLED 0
+
 /* Kernel config file options according to the Chrome OS drive map design. */
 typedef struct kconfig_options {
   uint32_t version[2];  /* Configuration file version. */
@@ -220,5 +223,45 @@ int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file);
  */
 int AddKernelSignature(KernelImage* image,
                        const char* kernel_sigining_key_file);
+
+/* Returns the logical version of a kernel blob which is calculated as
+ * (kernel_key_version << 16 | kernel_version). */
+uint32_t GetLogicalKernelVersion(uint8_t* kernel_blob);
+
+#define  BOOT_KERNEL_A_CONTINUE 1
+#define  BOOT_KERNEL_B_CONTINUE 2
+#define  BOOT_KERNEL_RECOVERY_CONTINUE 3
+
+/* Contains information about the kernel paritition
+ * gleaned from the GPT partition table.
+ *
+ * Based on the Chromium OS Drive Map design document by
+ * rspangler@chromium.org.
+ *
+*/
+typedef struct kernel_entry {
+  uint8_t* kernel_blob;  /* Pointer to actual kernel. */
+  uint8_t boot_priority;  /* 15 = highest, 1 = lowest, 0 = not bootable. */
+  uint8_t boot_tries_remaining;  /* Used when boot_priority = 0. */
+  uint8_t boot_success_flag;  /* Set to 1 on successful boot by AU. */
+} kernel_entry;
+
+void PrintKernelEntry(kernel_entry* entry);
+
+/* This function is the driver used by the RW firmware to
+ * determine which copy of the kernel to boot from. It performs
+ * the requisite priority and remaining tries checking for a specific
+ * kernel partition, does rollback index checking, including updating
+ * if required.
+ *
+ * Returns the code path to follow. It is one of:
+ * BOOT_KERNEL_A_CONTINUE          Boot from Kenrel A
+ * BOOT_KERNEL_B_CONTINUE          Boot from Kernel B
+ * BOOT_KERNEL_RECOVERY_CONTINUE   Jump to recovery mode
+ */
+int VerifyKernelDriver_f(uint8_t* firmware_key_blob,
+                         kernel_entry* kernelA,
+                         kernel_entry* kernelB,
+                         int dev_mode);
 
 #endif  /* VBOOT_REFERENCE_KERNEL_IMAGE_H_ */

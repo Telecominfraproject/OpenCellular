@@ -14,9 +14,6 @@
 #include "test_common.h"
 #include "utility.h"
 
-#define DEV_MODE_ENABLED 1
-#define DEV_MODE_DISABLED 0
-
 /* Normal Kernel Blob Verification Tests. */
 void VerifyKernelTest(uint8_t* kernel_blob, uint8_t* firmware_key_blob) {
   TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, DEV_MODE_ENABLED),

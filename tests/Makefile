@@ -16,6 +16,7 @@ tests: firmware_image_tests \
 	firmware_rollback_tests \
 	firmware_verify_benchmark \
 	kernel_image_tests \
+	kernel_rollback_tests \
 	kernel_verify_benchmark \
 	rsa_padding_test \
 	rsa_verify_benchmark \
@@ -36,6 +37,10 @@ firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c \
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
 kernel_image_tests: kernel_image_tests.c rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+kernel_rollback_tests: kernel_rollback_tests.c rollback_index_mock.c \
+	test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c \
@@ -68,6 +73,7 @@ clean:
 		firmware_rollback_tests \
 		firmware_verify_benchmark \
 		kernel_image_tests \
+		kernel_rollback_tests \
 		kernel_verify_benchmark \
 		rsa_padding_test \
 		rsa_verify_benchmark \

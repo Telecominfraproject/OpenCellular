@@ -680,15 +680,15 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
     /* Stored version may need to be updated but only if FirmwareB
      * is successfully verified and has a logical version greater than
      * the stored logical version. */
-    if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB)) {
-        if (stored_lversion < firmwareB_lversion) {
-          WriteStoredVersion(FIRMWARE_KEY_VERSION,
-                             (uint16_t) (min_lversion >> 16));
-          WriteStoredVersion(FIRMWARE_VERSION,
-                             (uint16_t) (min_lversion & 0x00FFFF));
-          stored_lversion = min_lversion;  /* Update stored version as it's used
-                                            * later. */
-        }
+    if (stored_lversion < firmwareB_lversion) {
+      if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB)) {
+        WriteStoredVersion(FIRMWARE_KEY_VERSION,
+                           (uint16_t) (min_lversion >> 16));
+        WriteStoredVersion(FIRMWARE_VERSION,
+                           (uint16_t) (min_lversion & 0x00FFFF));
+        stored_lversion = min_lversion;  /* Update stored version as it's used
+                                          * later. */
+      }
     }
   }
   /* Lock Firmware TPM rollback indices from further writes. */
@@ -724,7 +724,7 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
      */
     if (stored_lversion <= firmwareB_lversion &&
         (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob, firmwareB)))
-      return BOOT_FIRMWARE_B_CONTINUE;
+        return BOOT_FIRMWARE_B_CONTINUE;
   }
   /* D'oh: No bootable firmware. */
   return BOOT_FIRMWARE_RECOVERY_CONTINUE;

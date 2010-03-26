@@ -23,11 +23,11 @@ int gTestSuccess = 1;
 
 int TEST_EQ(int result, int expected_result, char* testname) {
   if (result == expected_result) {
-    fprintf(stderr, "%s Test " COL_GREEN " PASSED\n" COL_STOP, testname);
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
   }
   else {
-    fprintf(stderr, "%s Test " COL_RED " FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
     gTestSuccess = 0;
     return 0;
   }
@@ -102,9 +102,9 @@ uint8_t* GenerateTestFirmwareBlob(int algorithm,
   return firmware_blob;
 }
 
-uint8_t* GenerateRollbackTestImage(int firmware_key_version,
-                                   int firmware_version,
-                                   int is_corrupt) {
+uint8_t* GenerateRollbackTestFirmwareBlob(int firmware_key_version,
+                                          int firmware_version,
+                                          int is_corrupt) {
   FirmwareImage* image = NULL;
   uint64_t len;
   uint8_t* firmware_blob = NULL;
@@ -212,4 +212,34 @@ uint8_t* GenerateTestKernelBlob(int firmware_sign_algorithm,
   kernel_blob = GetKernelBlob(image, &kernel_blob_len);
   KernelImageFree(image);
   return kernel_blob;
+}
+
+uint8_t* GenerateRollbackTestKernelBlob(int kernel_key_version,
+                                        int kernel_version,
+                                        int is_corrupt) {
+ KernelImage* image = NULL;
+ uint64_t len;
+ uint8_t* kernel_blob = NULL;
+ uint8_t* kernel_sign_key = NULL;
+ kernel_sign_key = BufferFromFile("testkeys/key_rsa1024.keyb",
+                                  &len);
+ if (!kernel_sign_key)
+   return NULL;
+ image = GenerateTestKernelImage(0,  /* Firmware algo: RSA1024/SHA1 */
+                                 0,  /* Kernel algo: RSA1024/SHA1 */
+                                 kernel_sign_key,
+                                 kernel_key_version,
+                                 kernel_version,
+                                 1,  /* kernel length. */
+                                 "testkeys/key_rsa1024.pem",
+                                 "testkeys/key_rsa1024.pem");
+ if (!image)
+   return NULL;
+ if (is_corrupt) {
+   /* Invalidate image. */
+   Memset(image->kernel_data, 'X', image->options.kernel_len);
+ }
+ kernel_blob = GetKernelBlob(image, &len);
+ KernelImageFree(image);
+ return kernel_blob;
 }

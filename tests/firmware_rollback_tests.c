@@ -30,10 +30,10 @@ void VerifyFirmwareDriverTest(void) {
   g_firmware_key_version = 1;
   g_firmware_version = 1;
 
-  valid_firmwareA = GenerateRollbackTestImage(1, 1, 0);
-  valid_firmwareB = GenerateRollbackTestImage(1, 1, 0);
-  corrupt_firmwareA = GenerateRollbackTestImage(1, 1, 1);
-  corrupt_firmwareB = GenerateRollbackTestImage(1, 1, 1);
+  valid_firmwareA = GenerateRollbackTestFirmwareBlob(1, 1, 0);
+  valid_firmwareB = GenerateRollbackTestFirmwareBlob(1, 1, 0);
+  corrupt_firmwareA = GenerateRollbackTestFirmwareBlob(1, 1, 1);
+  corrupt_firmwareB = GenerateRollbackTestFirmwareBlob(1, 1, 1);
 
   TEST_EQ(VerifyFirmwareDriver_f(root_key_pub,
                                  valid_firmwareA, valid_firmwareB),

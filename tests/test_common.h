@@ -50,11 +50,18 @@ uint8_t* GenerateTestKernelBlob(int firmware_sign_algorithm,
                                 int kernel_len,
                                 const char* firmware_key_file,
                                 const char* kernel_key_file);
+
 /* Generates a test firmware image for rollback tests with a given
  * [firmware_key_version] and [firmware_version]. If [is_corrupt] is 1,
  * then the image has invalid signatures and will fail verification. */
-uint8_t* GenerateRollbackTestImage(int firmware_key_version,
-                                   int firmware_version,
-                                   int is_corrupt);
+uint8_t* GenerateRollbackTestFirmwareBlob(int firmware_key_version,
+                                          int firmware_version,
+                                          int is_corrupt);
 
+/* Generates a test kernel iamge for rollback tests with a given
+ * [kernel_key_version} and [kernel_version]. If [is_corrupt] is 1,
+ * then the image has invalid signatures and will fail verification. */
+uint8_t* GenerateRollbackTestKernelBlob(int kernel_key_version,
+                                        int kernel_version,
+                                        int is_corrupt);
 #endif  /* VBOOT_REFERENCE_TEST_COMMON_H_ */
