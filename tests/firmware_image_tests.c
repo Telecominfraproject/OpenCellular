@@ -82,7 +82,8 @@ int main(int argc, char* argv[]) {
                                     1,  /* Firmware Version. */
                                     1000,  /* Firmware length. */
                                     root_key_file,
-                                    firmware_key_file);
+                                    firmware_key_file,
+                                    'F');
 
   if (!root_key_pub || !firmware_sign_key_buf || !image) {
     error_code = 1;

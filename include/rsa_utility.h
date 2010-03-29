@@ -48,4 +48,11 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
                       const uint8_t* sig,
                       int algorithm);
 
+/* Version of RSAVerifyBinary_f() where instead of the raw binary blob
+ * of data, its digest is passed as the argument. */
+int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
+                                const RSAPublicKey* key,
+                                const uint8_t* digest,
+                                const uint8_t* sig,
+                                int algorithm);
 #endif  /* VBOOT_REFERENCE_RSA_UTILITY_H_ */

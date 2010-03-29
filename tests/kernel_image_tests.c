@@ -56,7 +56,7 @@ void VerifyKernelImageTamperTest(KernelImage* image,
   TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
           VERIFY_KERNEL_SIGNATURE_FAILED,
           "KernelImage Tamper Verification (Trusted)");
-  image->kernel_data[0] = 'F';
+  image->kernel_data[0] = 'K';
 
   image->kernel_key_signature[0] = 0xFF;
   image->kernel_key_signature[1] = 0x00;
@@ -110,7 +110,8 @@ int main(int argc, char* argv[]) {
                                   1,  /* Kernel Version */
                                   1000,  /* Kernel Size */
                                   firmware_key_file,
-                                  kernel_key_file);
+                                  kernel_key_file,
+                                  'K');
   if (!image) {
     error_code = 1;
     goto failure;

@@ -63,7 +63,9 @@ typedef struct KernelImage {
   /* The kernel signature comes first as it may allow us to parallelize
    * the kernel data fetch and RSA public key operation.
    */
-  uint8_t* kernel_signature;  /* Signature on [kernel_data]. */
+  uint8_t* kernel_signature;  /* Signature on the concatenation of
+                               * [kernel_version], [options] and
+                               * [kernel_data]. */
   uint8_t* kernel_data;  /* Actual kernel data. */
 
 } KernelImage;
@@ -171,6 +173,7 @@ int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
  * Return 0 on success, error code on failure.
  */
 int VerifyKernelData(RSAPublicKey* kernel_sign_key,
+                     const uint8_t* kernel_config_start,
                      const uint8_t* kernel_data_start,
                      int kernel_len,
                      int algorithm);

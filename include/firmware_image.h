@@ -44,7 +44,8 @@ typedef struct FirmwareImage {
   /* The firmware signature comes first as it may allow us to parallelize
    * the firmware data fetch and RSA public operation.
    */
-  uint8_t* firmware_signature;  /* Signature on [firmware_data]. */
+  uint8_t* firmware_signature;  /* Signature on the Preamble +
+                                   [firmware_data]. */
   uint8_t* firmware_data;  /* Rest of firmware data */
 
 } FirmwareImage;
@@ -142,14 +143,17 @@ int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
                            int algorithm,
                            int* firmware_len);
 
-/* Checks the signature on the firmware data at location [firmware_data_start].
+/* Checks the signature on the preamble + firmware data at
+ * [preamble_start] and [firmware_data_start].
  * The length of the actual firmware data is firmware_len and it is assumed to
  * be prepended with the signature whose size depends on the signature_algorithm
- * [algorithm].
+ * [algorithm]. This signature also covers the preamble data (but not the
+ * preamble signature itself).
  *
  * Return 0 on success, error code on failure.
  */
 int VerifyFirmwareData(RSAPublicKey* sign_key,
+                       const uint8_t* preamble_start,
                        const uint8_t* firmware_data_start,
                        int firmware_len,
                        int algorithm);

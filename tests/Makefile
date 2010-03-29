@@ -14,9 +14,11 @@ LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) -lcrypto $(BASE_LIBS)
 
 tests: firmware_image_tests \
 	firmware_rollback_tests \
+	firmware_splicing_tests \
 	firmware_verify_benchmark \
 	kernel_image_tests \
 	kernel_rollback_tests \
+	kernel_splicing_tests \
 	kernel_verify_benchmark \
 	rsa_padding_test \
 	rsa_verify_benchmark \
@@ -32,6 +34,10 @@ firmware_rollback_tests: firmware_rollback_tests.c rollback_index_mock.c \
 	test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
+firmware_splicing_tests: firmware_splicing_tests.c rollback_index_mock.c \
+	test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
 firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c \
 	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
@@ -40,6 +46,10 @@ kernel_image_tests: kernel_image_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 kernel_rollback_tests: kernel_rollback_tests.c rollback_index_mock.c \
+	test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+kernel_splicing_tests: kernel_splicing_tests.c rollback_index_mock.c \
 	test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
@@ -71,9 +81,11 @@ verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c rollback_index_mock.c
 clean:
 	rm -f firmware_image_tests \
 		firmware_rollback_tests \
+		firmware_splicing_tests \
 		firmware_verify_benchmark \
 		kernel_image_tests \
 		kernel_rollback_tests \
+		kernel_splicing_tests \
 		kernel_verify_benchmark \
 		rsa_padding_test \
 		rsa_verify_benchmark \

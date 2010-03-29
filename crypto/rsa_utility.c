@@ -100,3 +100,34 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
     RSAPublicKeyFree(verification_key);  /* Only free if we allocated it. */
   return success;
 }
+
+/* Version of RSAVerifyBinary_f() where instead of the raw binary blob
+ * of data, its digest is passed as the argument. */
+int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
+                                const RSAPublicKey* key,
+                                const uint8_t* digest,
+                                const uint8_t* sig,
+                                int algorithm) {
+  RSAPublicKey* verification_key = NULL;
+  int key_size;
+  int sig_size;
+  int success;
+
+  if (algorithm >= kNumAlgorithms)
+    return 0;  /* Invalid algorithm. */
+  key_size = RSAProcessedKeySize(algorithm);
+  sig_size = siglen_map[algorithm];
+
+  if (key_blob && !key)
+    verification_key = RSAPublicKeyFromBuf(key_blob, key_size);
+  else if (!key_blob && key)
+    verification_key = (RSAPublicKey*) key;  /* Supress const warning. */
+  else
+    return 0; /* Both can't be NULL or non-NULL. */
+
+  success = RSAVerify(verification_key, sig, sig_size, algorithm, digest);
+
+  if (!key)
+    RSAPublicKeyFree(verification_key);  /* Only free if we allocated it. */
+  return success;
+}

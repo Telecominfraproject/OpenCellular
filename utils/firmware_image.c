@@ -190,7 +190,7 @@ uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image) {
   return header_blob;
 }
 
-int GetFirmwarePreambleLen(const FirmwareImage* image) {
+int GetFirmwarePreambleLen(void) {
   return (FIELD_LEN(firmware_version) + FIELD_LEN(firmware_len) +
           FIELD_LEN(preamble));
 }
@@ -199,8 +199,8 @@ uint8_t* GetFirmwarePreambleBlob(const FirmwareImage* image) {
   uint8_t* preamble_blob = NULL;
   MemcpyState st;
 
-  preamble_blob = (uint8_t*) Malloc(GetFirmwarePreambleLen(image));
-  st.remaining_len = GetFirmwarePreambleLen(image);
+  preamble_blob = (uint8_t*) Malloc(GetFirmwarePreambleLen());
+  st.remaining_len = GetFirmwarePreambleLen();
   st.remaining_buf = preamble_blob;
 
   StatefulMemcpy_r(&st, &image->firmware_version, FIELD_LEN(firmware_version));
@@ -229,7 +229,7 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
   *blob_len = (FIELD_LEN(magic) +
                GetFirmwareHeaderLen(image) +
                FIELD_LEN(firmware_key_signature) +
-               GetFirmwarePreambleLen(image) +
+               GetFirmwarePreambleLen() +
                2 * firmware_signature_len +
                image->firmware_len);
   firmware_blob = (uint8_t*) Malloc(*blob_len);
@@ -243,7 +243,7 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
   StatefulMemcpy_r(&st, header_blob, GetFirmwareHeaderLen(image));
   StatefulMemcpy_r(&st, image->firmware_key_signature,
                    FIELD_LEN(firmware_key_signature));
-  StatefulMemcpy_r(&st, preamble_blob, GetFirmwarePreambleLen(image));
+  StatefulMemcpy_r(&st, preamble_blob, GetFirmwarePreambleLen());
   StatefulMemcpy_r(&st, image->preamble_signature, firmware_signature_len);
   StatefulMemcpy_r(&st, image->firmware_signature, firmware_signature_len);
   StatefulMemcpy_r(&st, image->firmware_data, image->firmware_len);
@@ -405,23 +405,36 @@ int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
 }
 
 int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
+                       const uint8_t* preamble_start,
                        const uint8_t* firmware_data_start,
                        int firmware_len,
                        int algorithm) {
   int signature_len = siglen_map[algorithm];
-  if (!RSAVerifyBinary_f(NULL, firmware_sign_key,  /* Key to use. */
-                         firmware_data_start + signature_len,  /* Data to
-                                                                * verify */
-                         firmware_len,  /* Length of data. */
-                         firmware_data_start,  /* Expected Signature */
-                         algorithm))
+  uint8_t* digest;
+  DigestContext ctx;
+
+  /* Since the firmware signature is over the preamble and the firmware data,
+   * which does not form a contiguous region of memory, we calculate the
+   * message digest ourselves. */
+  DigestInit(&ctx, algorithm);
+  DigestUpdate(&ctx, preamble_start, GetFirmwarePreambleLen());
+  DigestUpdate(&ctx, firmware_data_start + signature_len, firmware_len);
+  digest = DigestFinal(&ctx);
+  if (!RSAVerifyBinaryWithDigest_f(
+          NULL, firmware_sign_key,  /* Key to use. */
+          digest,  /* Digest of the data to verify. */
+          firmware_data_start,  /* Expected Signature */
+          algorithm)) {
+    Free(digest);
     return VERIFY_FIRMWARE_SIGNATURE_FAILED;
+  }
+  Free(digest);
   return 0;
 }
 
 int VerifyFirmware(const uint8_t* root_key_blob,
                    const uint8_t* firmware_blob) {
-  int error_code;
+  int error_code = 0;
   int algorithm;  /* Signing key algorithm. */
   RSAPublicKey* firmware_sign_key = NULL;
   int firmware_sign_key_len, signature_len, header_len, firmware_len;
@@ -464,10 +477,11 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   }
   /* Only continue if firmware data verification succeeds. */
   firmware_ptr = (preamble_ptr +
-                  GetFirmwarePreambleLen(NULL) +
+                  GetFirmwarePreambleLen() +
                   signature_len);
 
-  if ((error_code = VerifyFirmwareData(firmware_sign_key, firmware_ptr,
+  if ((error_code = VerifyFirmwareData(firmware_sign_key, preamble_ptr,
+                                       firmware_ptr,
                                        firmware_len,
                                        algorithm))) {
     RSAPublicKeyFree(firmware_sign_key);
@@ -488,6 +502,7 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   int signature_size;
   int error_code = 0;
   DigestContext ctx;
+  DigestContext firmware_ctx;
 
   if (!image)
     return VERIFY_FIRMWARE_INVALID_IMAGE;
@@ -546,10 +561,17 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
     goto verify_failure;
   }
 
-  /* Verify firmware signature. */
-  firmware_digest = DigestBuf(image->firmware_data,
-                              image->firmware_len,
-                              image->firmware_sign_algorithm);
+  /* Verify firmware signature - firmware signature is on the contents
+   of firmware preamble + firmware_data. */
+  DigestInit(&firmware_ctx, image->firmware_sign_algorithm);
+  DigestUpdate(&firmware_ctx, (uint8_t*) &image->firmware_version,
+               FIELD_LEN(firmware_version));
+  DigestUpdate(&firmware_ctx, (uint8_t*) &image->firmware_len,
+               FIELD_LEN(firmware_len));
+  DigestUpdate(&firmware_ctx, (uint8_t*) &image->preamble,
+               FIELD_LEN(preamble));
+  DigestUpdate(&firmware_ctx, image->firmware_data, image->firmware_len);
+  firmware_digest = DigestFinal(&firmware_ctx);
   if (!RSAVerify(firmware_sign_key, image->firmware_signature,
                  signature_size, image->firmware_sign_algorithm,
                  firmware_digest)) {
@@ -591,14 +613,17 @@ int AddFirmwareKeySignature(FirmwareImage* image, const char* root_key_file) {
 }
 
 int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file) {
-  uint8_t* preamble_blob;
-  uint8_t* preamble_signature;
-  uint8_t* firmware_signature;
+  uint8_t* preamble_blob = NULL;
+  uint8_t* preamble_signature = NULL;
+  uint8_t* firmware_signature = NULL;
+  uint8_t* firmware_buf = NULL;
   int signature_len = siglen_map[image->firmware_sign_algorithm];
 
   preamble_blob = GetFirmwarePreambleBlob(image);
+  if (!preamble_blob)
+    return 0;
   if (!(preamble_signature = SignatureBuf(preamble_blob,
-                                          GetFirmwarePreambleLen(image),
+                                          GetFirmwarePreambleLen(),
                                           signing_key_file,
                                           image->firmware_sign_algorithm))) {
     Free(preamble_blob);
@@ -607,15 +632,27 @@ int AddFirmwareSignature(FirmwareImage* image, const char* signing_key_file) {
   image->preamble_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->preamble_signature, preamble_signature, signature_len);
   Free(preamble_signature);
-
-  if (!(firmware_signature = SignatureBuf(image->firmware_data,
+  /* Firmware signature must be calculated on preamble + firmware_data
+   * to avoid splicing attacks. */
+  firmware_buf = (uint8_t*) Malloc(GetFirmwarePreambleLen() +
+                                   image->firmware_len);
+  Memcpy(firmware_buf, preamble_blob, GetFirmwarePreambleLen());
+  Memcpy(firmware_buf + GetFirmwarePreambleLen(), image->firmware_data,
+         image->firmware_len);
+  if (!(firmware_signature = SignatureBuf(firmware_buf,
+                                          GetFirmwarePreambleLen() +
                                           image->firmware_len,
                                           signing_key_file,
-                                          image->firmware_sign_algorithm)))
+                                          image->firmware_sign_algorithm))) {
+    Free(preamble_blob);
+    Free(firmware_buf);
     return 0;
+  }
   image->firmware_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->firmware_signature, firmware_signature, signature_len);
   Free(firmware_signature);
+  Free(firmware_buf);
+  Free(preamble_blob);
   return 1;
 }
 

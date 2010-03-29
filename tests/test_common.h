@@ -24,7 +24,8 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
                                          int firmware_version,
                                          int firmware_len,
                                          const char* root_key_file,
-                                         const char* firmware_key_file);
+                                         const char* firmware_key_file,
+                                         uint8_t firmware_data_fill_char);
 uint8_t* GenerateTestFirmwareBlob(int algorithm,
                                   const uint8_t* firmware_sign_key,
                                   int firmware_key_version,
@@ -41,7 +42,9 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
                                      int kernel_version,
                                      int kernel_len,
                                      const char* firmware_key_file,
-                                     const char* kernel_key_file);
+                                     const char* kernel_key_file,
+                                     uint8_t kernel_data_fill_char);
+;
 uint8_t* GenerateTestKernelBlob(int firmware_sign_algorithm,
                                 int kernel_sign_algorithm,
                                 const uint8_t* kernel_sign_key,

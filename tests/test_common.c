@@ -39,7 +39,8 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
                                          int firmware_version,
                                          int firmware_len,
                                          const char* root_key_file,
-                                         const char* firmware_key_file) {
+                                         const char* firmware_key_file,
+                                         uint8_t firmware_data_fill_char) {
   FirmwareImage* image = FirmwareImageNew();
 
   Memcpy(image->magic, FIRMWARE_MAGIC, FIRMWARE_MAGIC_SIZE);
@@ -62,7 +63,7 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   image->preamble_signature = image->firmware_signature = NULL;
   Memset(image->preamble, 'P', FIRMWARE_PREAMBLE_SIZE);
   image->firmware_data = Malloc(image->firmware_len);
-  Memset(image->firmware_data, 'F', image->firmware_len);
+  Memset(image->firmware_data, firmware_data_fill_char, image->firmware_len);
 
   /* Generate and populate signatures. */
   if (!AddFirmwareKeySignature(image, root_key_file)) {
@@ -96,7 +97,8 @@ uint8_t* GenerateTestFirmwareBlob(int algorithm,
                                     firmware_version,
                                     firmware_len,
                                     root_key_file,
-                                    firmware_key_file);
+                                    firmware_key_file,
+                                    'F');
   firmware_blob = GetFirmwareBlob(image, &firmware_blob_len);
   FirmwareImageFree(image);
   return firmware_blob;
@@ -120,7 +122,8 @@ uint8_t* GenerateRollbackTestFirmwareBlob(int firmware_key_version,
                                     firmware_version,
                                     1,  /* Firmware length. */
                                     "testkeys/key_rsa8192.pem",
-                                    "testkeys/key_rsa1024.pem");
+                                    "testkeys/key_rsa1024.pem",
+                                    'F');
   if (!image)
     return NULL;
   if (is_corrupt) {
@@ -141,7 +144,8 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
                                      int kernel_version,
                                      int kernel_len,
                                      const char* firmware_key_file,
-                                     const char* kernel_key_file) {
+                                     const char* kernel_key_file,
+                                     uint8_t kernel_data_fill_char) {
   KernelImage* image = KernelImageNew();
 
   Memcpy(image->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE);
@@ -170,7 +174,7 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
   image->options.kernel_entry_addr = 0;
   image->kernel_key_signature = image->kernel_signature = NULL;
   image->kernel_data = Malloc(kernel_len);
-  Memset(image->kernel_data, 'F', kernel_len);
+  Memset(image->kernel_data, kernel_data_fill_char, kernel_len);
 
   /* Generate and populate signatures. */
   if (!AddKernelKeySignature(image, firmware_key_file)) {
@@ -207,7 +211,8 @@ uint8_t* GenerateTestKernelBlob(int firmware_sign_algorithm,
                                   kernel_version,
                                   kernel_len,
                                   firmware_key_file,
-                                  kernel_key_file);
+                                  kernel_key_file,
+                                  'K');
 
   kernel_blob = GetKernelBlob(image, &kernel_blob_len);
   KernelImageFree(image);
@@ -232,7 +237,8 @@ uint8_t* GenerateRollbackTestKernelBlob(int kernel_key_version,
                                  kernel_version,
                                  1,  /* kernel length. */
                                  "testkeys/key_rsa1024.pem",
-                                 "testkeys/key_rsa1024.pem");
+                                 "testkeys/key_rsa1024.pem",
+                                 'K');
  if (!image)
    return NULL;
  if (is_corrupt) {
