@@ -18,7 +18,7 @@ function test_firmware_verification {
     for hashalgo in ${hash_algos[@]}
     do
       echo -e "For Root key ${COL_YELLOW}RSA-$keylen/$hashalgo${COL_STOP}:"
-      cd ${UTIL_DIR} && ${TEST_DIR}/firmware_image_tests $algorithmcounter \
+      ${TEST_DIR}/firmware_image_tests $algorithmcounter \
         ${TESTKEY_DIR}/key_rsa8192.pem \
         ${TESTKEY_DIR}/key_rsa8192.keyb \
         ${TESTKEY_DIR}/key_rsa${keylen}.pem \
@@ -30,6 +30,11 @@ function test_firmware_verification {
       let algorithmcounter=algorithmcounter+1
     done
   done
+  cd ${TEST_DIR} && ${TEST_DIR}/big_firmware_tests
+  if [ $? -ne 0 ]
+  then
+    return_code=255
+  fi
 }
 
 function test_kernel_verification {
@@ -50,7 +55,7 @@ function test_kernel_verification {
 RSA-${firmware_keylen}/${firmware_hashalgo}${COL_STOP} \
 and ${COL_YELLOW}Kernel signing algorithm RSA-${kernel_keylen}/\
 ${kernel_hashalgo}${COL_STOP}"
-          cd ${UTIL_DIR} && ${TEST_DIR}/kernel_image_tests \
+          ${TEST_DIR}/kernel_image_tests \
             $firmware_algorithmcounter $kernel_algorithmcounter \
             ${TESTKEY_DIR}/key_rsa${firmware_keylen}.pem \
             ${TESTKEY_DIR}/key_rsa${firmware_keylen}.keyb \
@@ -66,6 +71,11 @@ ${kernel_hashalgo}${COL_STOP}"
       let firmware_algorithmcounter=firmware_algorithmcounter+1
     done
   done
+  cd ${TEST_DIR} && ${TEST_DIR}/big_kernel_tests
+  if [ $? -ne 0 ]
+  then
+    return_code=255
+  fi
 }
 
 check_test_keys
