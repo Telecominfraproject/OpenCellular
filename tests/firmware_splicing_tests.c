@@ -15,6 +15,14 @@
 #include "test_common.h"
 #include "utility.h"
 
+#define ROOT_KEY_BASE_NAME "testkeys/key_rsa8192"
+#define FIRMWARE_KEY_BASE_NAME "testkeys/key_rsa1024"
+
+const char* kRootKeyPublicFile = ROOT_KEY_BASE_NAME ".keyb";
+const char* kRootKeyFile = ROOT_KEY_BASE_NAME ".pem";
+const char* kFirmwareKeyPublicFile = FIRMWARE_KEY_BASE_NAME ".keyb";
+const char* kFirmwareKeyFile = FIRMWARE_KEY_BASE_NAME ".pem";
+
 void VerifyFirmwareSplicingTest()
 {
   uint64_t len;
@@ -22,26 +30,25 @@ void VerifyFirmwareSplicingTest()
   FirmwareImage* image2 = NULL;
   uint8_t* firmware_blob = NULL;
   uint8_t* firmware_sign_key_buf = NULL;
-  RSAPublicKey* root_key = RSAPublicKeyFromFile("testkeys/key_rsa8192.keyb");
-  uint8_t* root_key_blob = BufferFromFile("testkeys/key_rsa8192.keyb",
-                                          &len);
-  firmware_sign_key_buf= BufferFromFile("testkeys/key_rsa1024.keyb", &len);
+  RSAPublicKey* root_key = RSAPublicKeyFromFile(kRootKeyPublicFile);
+  uint8_t* root_key_blob = BufferFromFile(kRootKeyPublicFile, &len);
+  firmware_sign_key_buf= BufferFromFile(kFirmwareKeyPublicFile, &len);
   image1 = GenerateTestFirmwareImage(0, /* RSA1024/SHA1 */
                                      firmware_sign_key_buf,
                                      1,  /* Firmware Key Version. */
                                      1,  /* Firmware Version */
                                      1000,
-                                     "testkeys/key_rsa8192.pem",
-                                     "testkeys/key_rsa1024.pem",
-                                     (uint8_t) 'F');  /* Firmware data fill. */
+                                     kRootKeyFile,
+                                     kFirmwareKeyFile,
+                                     'F');  /* Firmware data fill. */
   image2 = GenerateTestFirmwareImage(0, /* RSA1024/SHA1 */
                                      firmware_sign_key_buf,
                                      1,  /* Firmware Key Version. */
                                      2,  /* Firmware Version */
                                      1000,
-                                     "testkeys/key_rsa8192.pem",
-                                     "testkeys/key_rsa1024.pem",
-                                     (uint8_t) 'G');  /* Firmware data fill. */
+                                     kRootKeyFile,
+                                     kFirmwareKeyFile,
+                                     'G');  /* Different Firmware data fill. */
   /* Verify that the originals verify. */
   TEST_EQ(VerifyFirmwareImage(root_key, image1),
           VERIFY_FIRMWARE_SUCCESS,

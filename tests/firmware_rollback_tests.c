@@ -15,6 +15,8 @@
 #include "rollback_index.h"
 #include "test_common.h"
 
+const char* kRootKeyPublicFile = "testkeys/key_rsa8192.keyb";
+
 /* Tests that check for correctness of the VerifyFirmwareDriver_f() logic
  * and rollback prevention. */
 void VerifyFirmwareDriverTest(void) {
@@ -23,8 +25,7 @@ void VerifyFirmwareDriverTest(void) {
   uint8_t* corrupt_firmwareA = NULL;
   uint8_t* corrupt_firmwareB = NULL;
   uint64_t len;
-  uint8_t* root_key_pub = BufferFromFile("testkeys/key_rsa8192.keyb",
-                                         &len);
+  uint8_t* root_key_pub = BufferFromFile(kRootKeyPublicFile, &len);
 
   /* Initialize rollback index state. */
   g_firmware_key_version = 1;

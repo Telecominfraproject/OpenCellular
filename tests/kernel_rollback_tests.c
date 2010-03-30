@@ -15,12 +15,14 @@
 #include "test_common.h"
 #include "utility.h"
 
+const char* kFirmwareKeyPublicFile = "testkeys/key_rsa1024.keyb";
+
 /* Tests that check for correctness of the VerifyFirmwareDriver_f() logic
  * and rollback prevention. */
 void VerifyKernelDriverTest(void) {
   uint64_t len;
-  uint8_t* firmware_key_pub = BufferFromFile("testkeys/key_rsa1024.keyb",
-                                             &len);
+  uint8_t* firmware_key_pub = BufferFromFile(kFirmwareKeyPublicFile, &len);
+
   /* Initialize kernel blobs, including their associated parition
    * table attributed. */
   kernel_entry valid_kernelA =  {

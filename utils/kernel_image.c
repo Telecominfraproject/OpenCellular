@@ -69,6 +69,7 @@ KernelImage* ReadKernelImage(const char* input_file) {
 
   st.remaining_len = image_len;
   st.remaining_buf = kernel_buf;
+  st.overrun = 0;
 
   /* Read and compare magic bytes. */
   StatefulMemcpy(&st, &image->magic, KERNEL_MAGIC_SIZE);
@@ -154,7 +155,7 @@ KernelImage* ReadKernelImage(const char* input_file) {
   image->kernel_data = (uint8_t*) Malloc(image->options.kernel_len);
   StatefulMemcpy(&st, image->kernel_data, image->options.kernel_len);
 
-  if(st.remaining_len != 0) {  /* Overrun or underrun. */
+  if(st.overrun || st.remaining_len != 0) {  /* Overrun or underrun. */
     Free(kernel_buf);
     return NULL;
   }
@@ -200,6 +201,7 @@ uint8_t* GetKernelHeaderBlob(const KernelImage* image) {
   header_blob = (uint8_t*) Malloc(GetKernelHeaderLen(image));
   st.remaining_len = GetKernelHeaderLen(image);
   st.remaining_buf = header_blob;
+  st.overrun = 0;
 
   StatefulMemcpy_r(&st, &image->header_version, FIELD_LEN(header_version));
   StatefulMemcpy_r(&st, &image->header_len, FIELD_LEN(header_len));
@@ -213,7 +215,7 @@ uint8_t* GetKernelHeaderBlob(const KernelImage* image) {
                    RSAProcessedKeySize(image->kernel_sign_algorithm));
   StatefulMemcpy_r(&st, &image->header_checksum, FIELD_LEN(header_checksum));
 
-  if (st.remaining_len != 0) {  /* Underrun or Overrun. */
+  if (st.overrun || st.remaining_len != 0) {  /* Underrun or Overrun. */
     Free(header_blob);
     return NULL;
   }
@@ -234,6 +236,7 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image) {
   config_blob = (uint8_t*) Malloc(GetKernelConfigLen());
   st.remaining_len = GetKernelConfigLen();
   st.remaining_buf = config_blob;
+  st.overrun = 0;
 
   StatefulMemcpy_r(&st, &image->kernel_version, FIELD_LEN(kernel_version));
   StatefulMemcpy_r(&st, image->options.version, FIELD_LEN(options.version));
@@ -244,7 +247,7 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image) {
         FIELD_LEN(options.kernel_load_addr));
   StatefulMemcpy_r(&st, &image->options.kernel_entry_addr,
         FIELD_LEN(options.kernel_entry_addr));
-  if (st.remaining_len != 0) {  /* Overrun or Underrun. */
+  if (st.overrun || st.remaining_len != 0) {  /* Overrun or Underrun. */
     Free(config_blob);
     return NULL;
   }
@@ -272,6 +275,7 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   kernel_blob = (uint8_t*) Malloc(*blob_len);
   st.remaining_len = *blob_len;
   st.remaining_buf = kernel_blob;
+  st.overrun = 0;
 
   header_blob = GetKernelHeaderBlob(image);
   config_blob = GetKernelConfigBlob(image);
@@ -287,7 +291,7 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   Free(config_blob);
   Free(header_blob);
 
-  if (st.remaining_len != 0) {  /* Underrun or Overrun. */
+  if (st.overrun || st.remaining_len != 0) {  /* Underrun or Overrun. */
     Free(kernel_blob);
     return NULL;
   }
@@ -451,9 +455,10 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
 int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
                        const uint8_t* config_blob,
                        int algorithm,
-                       int* kernel_len) {
-  uint32_t len, config_len;
-  config_len = GetKernelConfigLen();
+                       uint64_t* kernel_len) {
+  uint64_t len;
+  int config_len;
+  config_len = GetKernelConfigLen(NULL);
   if (!RSAVerifyBinary_f(NULL, kernel_sign_key,  /* Key to use */
                          config_blob,  /* Data to verify */
                          config_len,  /* Length of data */
@@ -465,14 +470,14 @@ int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
          config_blob + (FIELD_LEN(kernel_version) + FIELD_LEN(options.version) +
                               FIELD_LEN(options.cmd_line)),
          sizeof(len));
-  *kernel_len = (int) len;
+  *kernel_len = len;
   return 0;
 }
 
 int VerifyKernelData(RSAPublicKey* kernel_sign_key,
                      const uint8_t* kernel_config_start,
                      const uint8_t* kernel_data_start,
-                     int kernel_len,
+                     uint64_t kernel_len,
                      int algorithm) {
   int signature_len = siglen_map[algorithm];
   uint8_t* digest;
@@ -505,7 +510,8 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
   int kernel_sign_algorithm;  /* Kernel Signing key algorithm. */
   RSAPublicKey* kernel_sign_key;
   int kernel_sign_key_len, kernel_key_signature_len, kernel_signature_len,
-      header_len, kernel_len;
+      header_len;
+  uint64_t kernel_len;
   const uint8_t* header_ptr;  /* Pointer to header. */
   const uint8_t* kernel_sign_key_ptr;  /* Pointer to signing key. */
   const uint8_t* config_ptr;  /* Pointer to kernel config block. */

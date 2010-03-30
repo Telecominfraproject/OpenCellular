@@ -15,6 +15,14 @@
 #include "test_common.h"
 #include "utility.h"
 
+#define FIRMWARE_KEY_BASE_NAME "testkeys/key_rsa2048"
+#define KERNEL_KEY_BASE_NAME "testkeys/key_rsa1024"
+
+const char* kFirmwareKeyPublicFile = FIRMWARE_KEY_BASE_NAME ".keyb";
+const char* kFirmwareKeyFile = FIRMWARE_KEY_BASE_NAME ".pem";
+const char* kKernelKeyPublicFile = KERNEL_KEY_BASE_NAME ".keyb";
+const char* kKernelKeyFile = KERNEL_KEY_BASE_NAME ".pem";
+
 void VerifyKernelSplicingTest()
 {
   uint64_t len;
@@ -22,29 +30,27 @@ void VerifyKernelSplicingTest()
   KernelImage* image2 = NULL;
   uint8_t* kernel_blob = NULL;
   uint8_t* kernel_sign_key_buf = NULL;
-  RSAPublicKey* firmware_key =
-      RSAPublicKeyFromFile("testkeys/key_rsa2048.keyb");
-  uint8_t* firmware_key_blob = BufferFromFile("testkeys/key_rsa2048.keyb",
-                                              &len);
-  kernel_sign_key_buf= BufferFromFile("testkeys/key_rsa1024.keyb", &len);
+  RSAPublicKey* firmware_key = RSAPublicKeyFromFile(kFirmwareKeyPublicFile);
+  uint8_t* firmware_key_blob = BufferFromFile(kFirmwareKeyPublicFile, &len);
+  kernel_sign_key_buf= BufferFromFile(kKernelKeyPublicFile, &len);
   image1 = GenerateTestKernelImage(3, /* RSA2048/SHA1 */
                                    0, /* RSA1024/SHA1 */
                                    kernel_sign_key_buf,
                                    1,  /* Kernel Key Version. */
                                    1,  /* Kernel Version */
                                    1000,  /* Kernel Size. */
-                                   "testkeys/key_rsa2048.pem",
-                                   "testkeys/key_rsa1024.pem",
-                                   (uint8_t) 'K');  /* Kernel data fill. */
+                                   kFirmwareKeyFile,
+                                   kKernelKeyFile,
+                                   'K');  /* Kernel data fill. */
   image2 = GenerateTestKernelImage(3,  /* RSA2058/SHA1 */
                                    0, /* RSA1024/SHA1 */
                                    kernel_sign_key_buf,
                                    1,  /* Kernel Key Version. */
                                    2,  /* Kernel Version */
                                    1000,  /* Kernel Size */
-                                   "testkeys/key_rsa2048.pem",
-                                   "testkeys/key_rsa1024.pem",
-                                   (uint8_t) 'K');  /* Kernel data fill. */
+                                   kFirmwareKeyFile,
+                                   kKernelKeyFile,
+                                   'L');  /* Different Kernel data fill. */
   /* Make sure the originals verify. */
   TEST_EQ(VerifyKernelImage(firmware_key, image1, 0),
           VERIFY_KERNEL_SUCCESS,

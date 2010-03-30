@@ -47,9 +47,12 @@ int SafeMemcmp(const void* s1, const void* s2, size_t n) {
   return match;
 }
 
-void* StatefulMemcpy(MemcpyState* state, void* dst, int len) {
+void* StatefulMemcpy(MemcpyState* state, void* dst,
+                     uint64_t len) {
+  if (state->overrun)
+    return NULL;
   if (len > state->remaining_len) {
-    state->remaining_len = -1;
+    state->overrun = 1;
     return NULL;
   }
   Memcpy(dst, state->remaining_buf, len);
@@ -58,9 +61,12 @@ void* StatefulMemcpy(MemcpyState* state, void* dst, int len) {
   return dst;
 }
 
-const void* StatefulMemcpy_r(MemcpyState* state, const void* src, int len) {
+const void* StatefulMemcpy_r(MemcpyState* state, const void* src,
+                             uint64_t len) {
+  if (state->overrun)
+    return NULL;
   if (len > state->remaining_len) {
-    state->remaining_len = -1;
+    state->overrun = 1;
     return NULL;
   }
   Memcpy(state->remaining_buf, src, len);

@@ -12,7 +12,9 @@ IMAGE_LIBS = $(TOP)/utils/firmware_image.o $(TOP)/utils/kernel_image.o
 UTIL_LIBS = $(TOP)/utils/file_keys.o $(TOP)/utils/signature_digest.o
 LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) -lcrypto $(BASE_LIBS)
 
-tests: firmware_image_tests \
+tests: big_firmware_tests \
+	big_kernel_tests \
+	firmware_image_tests \
 	firmware_rollback_tests \
 	firmware_splicing_tests \
 	firmware_verify_benchmark \
@@ -26,6 +28,12 @@ tests: firmware_image_tests \
 	sha_tests \
 	verify_firmware_fuzz_driver \
 	verify_kernel_fuzz_driver
+
+big_firmware_tests: big_firmware_tests.c rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+big_kernel_tests: big_kernel_tests.c rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 firmware_image_tests: firmware_image_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
@@ -79,7 +87,9 @@ verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c rollback_index_mock.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 clean:
-	rm -f firmware_image_tests \
+	rm -f big_firmware_tests \
+		big_kernel_tests \
+		firmware_image_tests \
 		firmware_rollback_tests \
 		firmware_splicing_tests \
 		firmware_verify_benchmark \

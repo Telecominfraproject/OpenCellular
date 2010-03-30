@@ -42,6 +42,8 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
 
   st.remaining_buf = (uint8_t*) buf;
   st.remaining_len = len;
+  st.overrun = 0;
+
   StatefulMemcpy(&st, &key->len, sizeof(key->len));
   key_len = key->len * sizeof(uint32_t);  /* key length in bytes. */
 
@@ -60,7 +62,7 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
   StatefulMemcpy(&st, &key->n0inv, sizeof(key->n0inv));
   StatefulMemcpy(&st, key->n, key_len);
   StatefulMemcpy(&st, key->rr, key_len);
-  if (st.remaining_len != 0) {  /* Underrun or overrun. */
+  if (st.overrun || st.remaining_len != 0) {  /* Underrun or overrun. */
     RSAPublicKeyFree(key);
     return NULL;
   }
@@ -71,7 +73,7 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
 int RSAVerifyBinary_f(const uint8_t* key_blob,
                       const RSAPublicKey* key,
                       const uint8_t* buf,
-                      int len,
+                      uint64_t len,
                       const uint8_t* sig,
                       int algorithm) {
   RSAPublicKey* verification_key = NULL;

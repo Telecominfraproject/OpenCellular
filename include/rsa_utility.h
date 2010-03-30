@@ -44,7 +44,7 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len);
 int RSAVerifyBinary_f(const uint8_t* key_blob,
                       const RSAPublicKey* key,
                       const uint8_t* buf,
-                      int len,
+                      uint64_t len,
                       const uint8_t* sig,
                       int algorithm);
 

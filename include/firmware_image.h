@@ -141,7 +141,7 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
 int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
                            const uint8_t* preamble_blob,
                            int algorithm,
-                           int* firmware_len);
+                           uint64_t* firmware_len);
 
 /* Checks the signature on the preamble + firmware data at
  * [preamble_start] and [firmware_data_start].
@@ -155,7 +155,7 @@ int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
 int VerifyFirmwareData(RSAPublicKey* sign_key,
                        const uint8_t* preamble_start,
                        const uint8_t* firmware_data_start,
-                       int firmware_len,
+                       uint64_t firmware_len,
                        int algorithm);
 
 /* Performs a chained verify of the firmware blob [firmware_blob].

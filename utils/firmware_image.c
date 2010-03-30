@@ -66,6 +66,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
 
   st.remaining_len = image_len;
   st.remaining_buf = firmware_buf;
+  st.overrun = 0;
 
   /* Read and compare magic bytes. */
   StatefulMemcpy(&st, &image->magic, FIRMWARE_MAGIC_SIZE);
@@ -132,7 +133,7 @@ FirmwareImage* ReadFirmwareImage(const char* input_file) {
   image->firmware_data = (uint8_t*) Malloc(image->firmware_len);
   StatefulMemcpy(&st, image->firmware_data, image->firmware_len);
 
-  if(st.remaining_len != 0) {  /* Overrun or underrun. */
+  if(st.overrun || st.remaining_len != 0) {  /* Overrun or underrun. */
     Free(firmware_buf);
     return NULL;
   }
@@ -174,6 +175,7 @@ uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image) {
   header_blob = (uint8_t*) Malloc(GetFirmwareHeaderLen(image));
   st.remaining_len = GetFirmwareHeaderLen(image);
   st.remaining_buf = header_blob;
+  st.overrun = 0;
 
   StatefulMemcpy_r(&st, &image->header_len, FIELD_LEN(header_len));
   StatefulMemcpy_r(&st, &image->firmware_sign_algorithm, FIELD_LEN(header_len));
@@ -183,7 +185,7 @@ uint8_t* GetFirmwareHeaderBlob(const FirmwareImage* image) {
                  RSAProcessedKeySize(image->firmware_sign_algorithm));
   StatefulMemcpy_r(&st, &image->header_checksum, FIELD_LEN(header_checksum));
 
-  if (st.remaining_len != 0) {  /* Underrun or Overrun. */
+  if (st.overrun || st.remaining_len != 0) {  /* Underrun or Overrun. */
     Free(header_blob);
     return NULL;
   }
@@ -202,12 +204,13 @@ uint8_t* GetFirmwarePreambleBlob(const FirmwareImage* image) {
   preamble_blob = (uint8_t*) Malloc(GetFirmwarePreambleLen());
   st.remaining_len = GetFirmwarePreambleLen();
   st.remaining_buf = preamble_blob;
+  st.overrun = 0;
 
   StatefulMemcpy_r(&st, &image->firmware_version, FIELD_LEN(firmware_version));
   StatefulMemcpy_r(&st, &image->firmware_len, FIELD_LEN(firmware_len));
   StatefulMemcpy_r(&st, image->preamble, FIELD_LEN(preamble));
 
-  if (st.remaining_len != 0 ) {  /* Underrun or Overrun. */
+  if (st.overrun || st.remaining_len != 0 ) {  /* Underrun or Overrun. */
     Free(preamble_blob);
     return NULL;
   }
@@ -235,6 +238,7 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
   firmware_blob = (uint8_t*) Malloc(*blob_len);
   st.remaining_len = *blob_len;
   st.remaining_buf = firmware_blob;
+  st.overrun = 0;
 
   header_blob = GetFirmwareHeaderBlob(image);
   preamble_blob = GetFirmwarePreambleBlob(image);
@@ -251,7 +255,7 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
   Free(preamble_blob);
   Free(header_blob);
 
-  if (st.remaining_len != 0) { /* Underrun or Overrun. */
+  if (st.overrun || st.remaining_len != 0) { /* Underrun or Overrun. */
     Free(firmware_blob);
     return NULL;
   }
@@ -381,8 +385,8 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
 int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
                            const uint8_t* preamble_blob,
                            int algorithm,
-                           int* firmware_len) {
-  uint32_t len;
+                           uint64_t* firmware_len) {
+  uint64_t len;
   int preamble_len;
   uint16_t firmware_version;
 
@@ -400,14 +404,14 @@ int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
 
   Memcpy(&len, preamble_blob + FIELD_LEN(firmware_version),
          sizeof(len));
-  *firmware_len = (int) len;
+  *firmware_len = len;
   return 0;
 }
 
 int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
                        const uint8_t* preamble_start,
                        const uint8_t* firmware_data_start,
-                       int firmware_len,
+                       uint64_t firmware_len,
                        int algorithm) {
   int signature_len = siglen_map[algorithm];
   uint8_t* digest;
@@ -437,7 +441,8 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   int error_code = 0;
   int algorithm;  /* Signing key algorithm. */
   RSAPublicKey* firmware_sign_key = NULL;
-  int firmware_sign_key_len, signature_len, header_len, firmware_len;
+  int firmware_sign_key_len, signature_len, header_len;
+  uint64_t firmware_len;
   const uint8_t* header_ptr = NULL;  /* Pointer to header. */
   const uint8_t* firmware_sign_key_ptr = NULL;  /* Pointer to signing key. */
   const uint8_t* preamble_ptr = NULL;  /* Pointer to preamble block. */
@@ -473,6 +478,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                                            algorithm,
                                            &firmware_len))) {
     RSAPublicKeyFree(firmware_sign_key);
+    fprintf(stderr, "Couldn't verify Firmware preamble.\n");
     return error_code;  /* AKA jump to recovery. */
   }
   /* Only continue if firmware data verification succeeds. */
@@ -485,6 +491,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                                        firmware_len,
                                        algorithm))) {
     RSAPublicKeyFree(firmware_sign_key);
+    fprintf(stderr, "Couldn't verify Firmware data.\n");
     return error_code;  /* AKA jump to recovery. */
   }
 
@@ -539,7 +546,7 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
   /* Get sign key to verify the rest of the firmware. */
   firmware_sign_key_size = RSAProcessedKeySize(image->firmware_sign_algorithm);
   firmware_sign_key = RSAPublicKeyFromBuf(image->firmware_sign_key,
-                                 firmware_sign_key_size);
+                                          firmware_sign_key_size);
   signature_size = siglen_map[image->firmware_sign_algorithm];
 
   if (image->firmware_sign_algorithm >= kNumAlgorithms)
@@ -555,8 +562,8 @@ int VerifyFirmwareImage(const RSAPublicKey* root_key,
                FIELD_LEN(preamble));
   preamble_digest = DigestFinal(&ctx);
   if (!RSAVerify(firmware_sign_key, image->preamble_signature,
-                  signature_size, image->firmware_sign_algorithm,
-                  preamble_digest)) {
+                 signature_size, image->firmware_sign_algorithm,
+                 preamble_digest)) {
     error_code = VERIFY_FIRMWARE_PREAMBLE_SIGNATURE_FAILED;
     goto verify_failure;
   }

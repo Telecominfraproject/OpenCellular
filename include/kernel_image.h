@@ -163,7 +163,7 @@ int VerifyKernelHeader(const uint8_t* firmware_sign_key_blob,
 int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
                        const uint8_t* kernel_config_blob,
                        int algorithm,
-                       int* kernel_len);
+                       uint64_t* kernel_len);
 
 /* Checks the signature on the kernel data at location [kernel_data_start].
  * The length of the actual kernel data is kernel _len and it is assumed to
@@ -175,7 +175,7 @@ int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
 int VerifyKernelData(RSAPublicKey* kernel_sign_key,
                      const uint8_t* kernel_config_start,
                      const uint8_t* kernel_data_start,
-                     int kernel_len,
+                     uint64_t kernel_len,
                      int algorithm);
 
 /* Performs a chained verify of the kernel blob [kernel_blob]. If
