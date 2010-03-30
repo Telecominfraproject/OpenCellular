@@ -16,7 +16,7 @@
 #include "utility.h"
 
 /* Choose a firmware size greater than the range of 32-bits unsigned. */
-#define BIG_FIRMWARE_SIZE ((uint64_t) 0x100000000ULL)
+#define BIG_FIRMWARE_SIZE UINT64_C(0x100000000)
 
 #define ROOT_KEY_BASE_NAME "testkeys/key_rsa8192"
 #define FIRMWARE_KEY_BASE_NAME "testkeys/key_rsa1024"

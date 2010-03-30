@@ -16,7 +16,7 @@
 #include "utility.h"
 
 /* Choose a kernel size greater than the range of 32-bits unsigned. */
-#define BIG_KERNEL_SIZE ((uint64_t) 0x100000000ULL)
+#define BIG_KERNEL_SIZE UINT64_C(0x100000000)
 
 #define FIRMWARE_KEY_BASE_NAME "testkeys/key_rsa2048"
 #define KERNEL_KEY_BASE_NAME "testkeys/key_rsa1024"
