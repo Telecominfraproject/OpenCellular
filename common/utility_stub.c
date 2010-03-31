@@ -8,8 +8,26 @@
 
 #include "utility.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+void error(const char *format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  fprintf(stderr, "ERROR: ");
+  vfprintf(stderr, format, ap);
+  va_end(ap);
+  exit(1);
+}
+
+void debug(const char *format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  fprintf(stderr, "WARNING: ");
+  vfprintf(stderr, format, ap);
+  va_end(ap);
+}
 
 void* Malloc(size_t size) {
   void* p = malloc(size);

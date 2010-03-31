@@ -16,41 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define POSSIBLY_UNUSED __attribute__((unused))
-
-#ifdef __STRICT_ANSI__
-#define INLINE
-#else
-#define INLINE inline
-#endif
-
-/* Outputs an error message and quits the program.
- */
-POSSIBLY_UNUSED
-static void error(const char *format, ...) {
-  va_list ap;
-  va_start(ap, format);
-  fprintf(stderr, "ERROR: ");
-  vfprintf(stderr, format, ap);
-  va_end(ap);
-  exit(1);
-}
-
-/* Outputs a warning and continues.
- */
-POSSIBLY_UNUSED
-static void warning(const char *format, ...) {
-  va_list ap;
-  va_start(ap, format);
-  fprintf(stderr, "WARNING: ");
-  vfprintf(stderr, format, ap);
-  va_end(ap);
-}
-
-#define assert(expr) do { if (!(expr)) { \
-      error("assert fail: %s at %s:%d\n", \
-            #expr, __FILE__, __LINE__); }} while(0)
-
 /* Call this first.
  */
 void TlclLibinit(void);

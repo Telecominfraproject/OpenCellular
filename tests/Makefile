@@ -8,26 +8,31 @@ INCLUDES ?= -I../include/
 TOP ?= ../
 
 BASE_LIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
-IMAGE_LIBS = $(TOP)/utils/firmware_image.o $(TOP)/utils/kernel_image.o
+IMAGE_LIBS = $(TOP)/utils/firmware_image.o \
+		$(TOP)/utils/firmware_image_fw.o \
+		$(TOP)/utils/kernel_image.o \
+		$(TOP)/utils/kernel_image_fw.o
 UTIL_LIBS = $(TOP)/utils/file_keys.o $(TOP)/utils/signature_digest.o
 LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) -lcrypto $(BASE_LIBS)
 
-tests: big_firmware_tests \
-	big_kernel_tests \
-	firmware_image_tests \
-	firmware_rollback_tests \
-	firmware_splicing_tests \
-	firmware_verify_benchmark \
-	kernel_image_tests \
-	kernel_rollback_tests \
-	kernel_splicing_tests \
-	kernel_verify_benchmark \
-	rsa_padding_test \
-	rsa_verify_benchmark \
-	sha_benchmark \
-	sha_tests \
-	verify_firmware_fuzz_driver \
-	verify_kernel_fuzz_driver
+TEST_BINS = big_firmware_tests \
+		big_kernel_tests \
+		firmware_image_tests \
+		firmware_rollback_tests \
+		firmware_splicing_tests \
+		firmware_verify_benchmark \
+		kernel_image_tests \
+		kernel_rollback_tests \
+		kernel_splicing_tests \
+		kernel_verify_benchmark \
+		rsa_padding_test \
+		rsa_verify_benchmark \
+		sha_benchmark \
+		sha_tests \
+		verify_firmware_fuzz_driver \
+		verify_kernel_fuzz_driver
+
+all: $(TEST_BINS)
 
 big_firmware_tests: big_firmware_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
@@ -87,19 +92,4 @@ verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c rollback_index_mock.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 clean:
-	rm -f big_firmware_tests \
-		big_kernel_tests \
-		firmware_image_tests \
-		firmware_rollback_tests \
-		firmware_splicing_tests \
-		firmware_verify_benchmark \
-		kernel_image_tests \
-		kernel_rollback_tests \
-		kernel_splicing_tests \
-		kernel_verify_benchmark \
-		rsa_padding_test \
-		rsa_verify_benchmark \
-		sha_benchmark \
-		sha_tests \
-		verify_firmware_fuzz_driver \
-		verify_kernel_fuzz_driver
+	rm -f $(TEST_BINS)

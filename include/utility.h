@@ -10,8 +10,19 @@
 #ifndef VBOOT_REFERENCE_UTILITY_H_
 #define VBOOT_REFERENCE_UTILITY_H_
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
+
+/* Outputs an error message and quits. */
+void error(const char *format, ...);
+
+/* Outputs debug/warning messages. */
+void debug(const char *format, ...);
+
+
+#define assert(expr) do { if (!(expr)) { \
+      error("assert fail: %s at %s:%d\n", \
+            #expr, __FILE__, __LINE__); }} while(0)
 
 /* Combine [msw] and [lsw] uint16s to a uint32_t with its [msw] and
  * [lsw] forming the most and least signficant 16-bit words.
