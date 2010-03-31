@@ -9,8 +9,8 @@
 
 #include <stdio.h>
 
-#include "cryptolib.h"
 #include "file_keys.h"
+#include "rsa_utility.h"
 #include "utility.h"
 
 /* ANSI Color coding sequences. */

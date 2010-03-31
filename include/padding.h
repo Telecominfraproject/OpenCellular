@@ -6,11 +6,7 @@
 #ifndef VBOOT_REFERENCE_PADDING_H_
 #define VBOOT_REFERENCE_PADDING_H_
 
-#ifndef VBOOT_REFERENCE_CRYPTOLIB_H_
-#error "Do not include this file directly. Use cryptolib.h instead."
-#endif
-
-#include <stdint.h>
+#include <inttypes.h>
 
 extern const uint8_t paddingRSA1024_SHA1[];
 extern const uint8_t paddingRSA1024_SHA256[];
@@ -31,7 +27,6 @@ extern const int digestinfo_size_map[];
 extern const int siglen_map[];
 extern const uint8_t* padding_map[];
 extern const int padding_size_map[];
-extern const int hash_type_map[];
 extern const int hash_size_map[];
 extern const int hash_blocksize_map[];
 extern const uint8_t* hash_digestinfo_map[];

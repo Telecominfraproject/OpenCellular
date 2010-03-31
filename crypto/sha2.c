@@ -35,8 +35,8 @@
  * SUCH DAMAGE.
  */
 
-#include "cryptolib.h"
-#include "utility.h"
+#include "sha.h"
+#include <string.h>
 
 #define SHFR(x, n)    (x >> n)
 #define ROTR(x, n)   ((x >> n) | (x << ((sizeof(x) << 3) - n)))
@@ -340,7 +340,7 @@ void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint64_t len) {
     tmp_len = SHA256_BLOCK_SIZE - ctx->len;
     rem_len = len < tmp_len ? len : tmp_len;
 
-    Memcpy(&ctx->block[ctx->len], data, rem_len);
+    memcpy(&ctx->block[ctx->len], data, rem_len);
 
     if (ctx->len + len < SHA256_BLOCK_SIZE) {
         ctx->len += len;
@@ -357,7 +357,7 @@ void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint64_t len) {
 
     rem_len = new_len % SHA256_BLOCK_SIZE;
 
-    Memcpy(ctx->block, &shifted_data[block_nb << 6],
+    memcpy(ctx->block, &shifted_data[block_nb << 6],
            rem_len);
 
     ctx->len = rem_len;
@@ -528,7 +528,7 @@ void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
     tmp_len = SHA512_BLOCK_SIZE - ctx->len;
     rem_len = len < tmp_len ? len : tmp_len;
 
-    Memcpy(&ctx->block[ctx->len], data, rem_len);
+    memcpy(&ctx->block[ctx->len], data, rem_len);
 
     if (ctx->len + len < SHA512_BLOCK_SIZE) {
         ctx->len += len;
@@ -545,7 +545,7 @@ void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
 
     rem_len = new_len % SHA512_BLOCK_SIZE;
 
-    Memcpy(ctx->block, &shifted_data[block_nb << 7],
+    memcpy(ctx->block, &shifted_data[block_nb << 7],
            rem_len);
 
     ctx->len = rem_len;

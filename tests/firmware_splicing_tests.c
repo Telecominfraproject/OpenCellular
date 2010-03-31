@@ -8,9 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cryptolib.h"
 #include "file_keys.h"
 #include "firmware_image.h"
+#include "padding.h"
+#include "rsa_utility.h"
 #include "test_common.h"
 #include "utility.h"
 

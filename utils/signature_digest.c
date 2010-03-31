@@ -13,7 +13,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "cryptolib.h"
+#include "padding.h"
+#include "sha.h"
+#include "sha_utility.h"
 #include "utility.h"
 
 uint8_t* PrependDigestInfo(int algorithm, uint8_t* digest) {

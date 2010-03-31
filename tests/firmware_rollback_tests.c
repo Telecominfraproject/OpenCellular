@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cryptolib.h"
 #include "file_keys.h"
 #include "firmware_image.h"
+#include "rsa_utility.h"
 #include "utility.h"
 #include "rollback_index.h"
 #include "test_common.h"

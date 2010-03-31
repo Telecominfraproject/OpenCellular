@@ -2,10 +2,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Implementation of RSA utility functions.
+ * Utility functions for message digest functions.
  */
 
-#include "cryptolib.h"
+#include "padding.h"
+#include "rsa_utility.h"
+#include "sha_utility.h"
 #include "utility.h"
 
 int RSAProcessedKeySize(int algorithm) {

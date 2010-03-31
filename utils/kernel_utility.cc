@@ -17,9 +17,11 @@
 #include <iostream>
 
 extern "C" {
-#include "cryptolib.h"
 #include "file_keys.h"
 #include "kernel_image.h"
+#include "padding.h"
+#include "rsa_utility.h"
+#include "sha_utility.h"
 #include "utility.h"
 }
 

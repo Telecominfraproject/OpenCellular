@@ -5,11 +5,36 @@
  * Utility functions for message digest functions.
  */
 
-#include "cryptolib.h"
+#include "sha_utility.h"
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#include "sha.h"
 #include "utility.h"
 
+int digest_type_map[] = {
+  SHA1_DIGEST_ALGORITHM,  /* RSA 1024 */
+  SHA256_DIGEST_ALGORITHM,
+  SHA512_DIGEST_ALGORITHM,
+  SHA1_DIGEST_ALGORITHM,  /* RSA 2048 */
+  SHA256_DIGEST_ALGORITHM,
+  SHA512_DIGEST_ALGORITHM,
+  SHA1_DIGEST_ALGORITHM,  /* RSA 4096 */
+  SHA256_DIGEST_ALGORITHM,
+  SHA512_DIGEST_ALGORITHM,
+  SHA1_DIGEST_ALGORITHM,  /* RSA 8192 */
+  SHA256_DIGEST_ALGORITHM,
+  SHA512_DIGEST_ALGORITHM,
+};
+
 void DigestInit(DigestContext* ctx, int sig_algorithm) {
-  ctx->algorithm = hash_type_map[sig_algorithm];
+  ctx->algorithm = digest_type_map[sig_algorithm];
   switch(ctx->algorithm) {
     case SHA1_DIGEST_ALGORITHM:
       ctx->sha1_ctx = (SHA1_CTX*) Malloc(sizeof(SHA1_CTX));
@@ -59,6 +84,27 @@ uint8_t* DigestFinal(DigestContext* ctx) {
       Free(ctx->sha512_ctx);
       break;
   };
+  return digest;
+}
+
+uint8_t* DigestFile(char* input_file, int sig_algorithm) {
+  int input_fd, len;
+  uint8_t data[SHA1_BLOCK_SIZE];
+  uint8_t* digest = NULL;
+  DigestContext ctx;
+
+  if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
+    fprintf(stderr, "Couldn't open input file.\n");
+    return NULL;
+  }
+  DigestInit(&ctx, sig_algorithm);
+  while ( (len = read(input_fd, data, SHA1_BLOCK_SIZE)) ==
+          SHA1_BLOCK_SIZE)
+    DigestUpdate(&ctx, data, len);
+  if (len != -1)
+    DigestUpdate(&ctx, data, len);
+  digest = DigestFinal(&ctx);
+  close(input_fd);
   return digest;
 }
 

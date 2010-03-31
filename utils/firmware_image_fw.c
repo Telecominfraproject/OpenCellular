@@ -8,8 +8,10 @@
 
 #include "firmware_image_fw.h"
 
-#include "cryptolib.h"
+#include "padding.h"
 #include "rollback_index.h"
+#include "rsa_utility.h"
+#include "sha_utility.h"
 #include "utility.h"
 
 /* Macro to determine the size of a field structure in the FirmwareImage

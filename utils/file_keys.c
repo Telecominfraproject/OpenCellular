@@ -15,7 +15,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "cryptolib.h"
+#include "padding.h"
+#include "rsa_utility.h"
 #include "signature_digest.h"
 #include "utility.h"
 
@@ -57,27 +58,6 @@ RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
     key = RSAPublicKeyFromBuf(buf, len);
   Free(buf);
   return key;
-}
-
-uint8_t* DigestFile(char* input_file, int sig_algorithm) {
-  int input_fd, len;
-  uint8_t data[SHA1_BLOCK_SIZE];
-  uint8_t* digest = NULL;
-  DigestContext ctx;
-
-  if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
-    debug("Couldn't open input file.\n");
-    return NULL;
-  }
-  DigestInit(&ctx, sig_algorithm);
-  while ( (len = read(input_fd, data, SHA1_BLOCK_SIZE)) ==
-          SHA1_BLOCK_SIZE)
-    DigestUpdate(&ctx, data, len);
-  if (len != -1)
-    DigestUpdate(&ctx, data, len);
-  digest = DigestFinal(&ctx);
-  close(input_fd);
-  return digest;
 }
 
 uint8_t* SignatureFile(const char* input_file, const char* key_file,

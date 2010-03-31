@@ -12,7 +12,9 @@
 #ifndef VBOOT_REFERENCE_RSA_PADDING_TEST_H_
 #define VBOOT_REFERENCE_RSA_PADDING_TEST_H_
 
-#include "cryptolib.h"
+#include <inttypes.h>
+
+#include "rsa.h"
 
 /* The modulus of the public key (RSA-1024). */
 static const uint8_t pubkey_n[] = {
