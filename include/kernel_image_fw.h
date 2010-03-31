@@ -10,8 +10,8 @@
 #define VBOOT_REFERENCE_KERNEL_IMAGE_FW_H_
 
 #include <stdint.h>
-#include "rsa.h"
-#include "sha.h"
+
+#include "cryptolib.h"
 
 #define KERNEL_MAGIC "CHROMEOS"
 #define KERNEL_MAGIC_SIZE 8

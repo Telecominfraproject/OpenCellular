@@ -5,9 +5,7 @@
  * arrays corresponding to various combinations of algorithms for RSA signatures.
  */
 
-#include "rsa.h"
-#include "sha.h"
-
+#include "cryptolib.h"
 
 /*
  * PKCS 1.5 padding (from the RSA PKCS#1 v2.1 standard)
@@ -170,6 +168,21 @@ RSA8192NUMBYTES - SHA256_DIGEST_SIZE,
 RSA8192NUMBYTES - SHA512_DIGEST_SIZE,
 };
 
+const int hash_type_map[] = {
+SHA1_DIGEST_ALGORITHM,
+SHA256_DIGEST_ALGORITHM,
+SHA512_DIGEST_ALGORITHM,
+SHA1_DIGEST_ALGORITHM,
+SHA256_DIGEST_ALGORITHM,
+SHA512_DIGEST_ALGORITHM,
+SHA1_DIGEST_ALGORITHM,
+SHA256_DIGEST_ALGORITHM,
+SHA512_DIGEST_ALGORITHM,
+SHA1_DIGEST_ALGORITHM,
+SHA256_DIGEST_ALGORITHM,
+SHA512_DIGEST_ALGORITHM,
+};
+
 const int hash_size_map[NUMALGORITHMS] = {
 SHA1_DIGEST_SIZE,
 SHA256_DIGEST_SIZE,
@@ -229,4 +242,3 @@ const char* algo_strings[NUMALGORITHMS] = {
 "RSA8192 SHA256",
 "RSA8192 SHA512",
 };
-

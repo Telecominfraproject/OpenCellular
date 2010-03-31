@@ -8,8 +8,11 @@
 #ifndef VBOOT_REFERENCE_SHA_H_
 #define VBOOT_REFERENCE_SHA_H_
 
-#include <inttypes.h>
-#include <string.h>
+#ifndef VBOOT_REFERENCE_CRYPTOLIB_H_
+#error "Do not include this file directly. Use cryptolib.h instead."
+#endif
+
+#include <stdint.h>
 
 #define SHA1_DIGEST_SIZE 20
 #define SHA1_BLOCK_SIZE 64
@@ -79,6 +82,47 @@ uint8_t* SHA256(const uint8_t* data, uint64_t len, uint8_t* digest);
  * SHA512_DIGEST_SIZE bytes.
  */
 uint8_t* SHA512(const uint8_t* data, uint64_t len, uint8_t* digest);
+
+
+/*---- Utility functions/wrappers for message digests. */
+
+#define SHA1_DIGEST_ALGORITHM 0
+#define SHA256_DIGEST_ALGORITHM 1
+#define SHA512_DIGEST_ALGORITHM 2
+
+/* A generic digest context structure which can be used to represent
+ * the SHA*_CTX for multiple digest algorithms.
+ */
+typedef struct DigestContext {
+  SHA1_CTX* sha1_ctx;
+  SHA256_CTX* sha256_ctx;
+  SHA512_CTX* sha512_ctx;
+  int algorithm;  /* Hashing algorithm to use. */
+} DigestContext;
+
+/* Wrappers for message digest algorithms. These are useful when the hashing
+ * operation is being done in parallel with something else. DigestContext tracks
+ * and stores the state of any digest algorithm (one at any given time).
+ */
+
+/* Initialize a digest context for use with signature algorithm [algorithm]. */
+void DigestInit(DigestContext* ctx, int sig_algorithm);
+void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint64_t len);
+
+/* Caller owns the returned digest and must free it. */
+uint8_t* DigestFinal(DigestContext* ctx);
+
+/* Returns the appropriate digest for the data in [input_file]
+ * based on the signature [algorithm].
+ * Caller owns the returned digest and must free it.
+ */
+uint8_t* DigestFile(char* input_file, int sig_algorithm);
+
+/* Returns the appropriate digest of [buf] of length
+ * [len] based on the signature [algorithm].
+ * Caller owns the returned digest and must free it.
+ */
+uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm);
 
 
 #endif  /* VBOOT_REFERENCE_SHA_H_ */
