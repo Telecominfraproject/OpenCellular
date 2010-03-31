@@ -7,8 +7,8 @@
 
 #include "rollback_index.h"
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 uint16_t g_firmware_key_version = 0;
 uint16_t g_firmware_version = 0;

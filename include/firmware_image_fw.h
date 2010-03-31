@@ -10,8 +10,7 @@
 #define VBOOT_REFERENCE_FIRMWARE_IMAGE_FW_H_
 
 #include <stdint.h>
-#include "rsa.h"
-#include "sha.h"
+#include "cryptolib.h"
 
 #define FIRMWARE_MAGIC "CHROMEOS"
 #define FIRMWARE_MAGIC_SIZE 8

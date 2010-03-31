@@ -15,11 +15,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cryptolib.h"
 #include "file_keys.h"
-#include "sha_utility.h"
-#include "padding.h"
-#include "rsa.h"
-#include "rsa_utility.h"
 #include "verify_data.h"
 
 /* ANSI Color coding sequences. */

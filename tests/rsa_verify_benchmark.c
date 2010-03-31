@@ -6,10 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cryptolib.h"
 #include "file_keys.h"
-#include "padding.h"
-#include "rsa.h"
-#include "rsa_utility.h"
 #include "timer_utils.h"
 #include "utility.h"
 

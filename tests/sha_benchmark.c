@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "sha.h"
+#include "cryptolib.h"
 #include "timer_utils.h"
 #include "utility.h"
 

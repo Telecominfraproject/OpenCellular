@@ -8,15 +8,15 @@
 #ifndef VBOOT_REFERENCE_SHA_TEST_VECTORS_H_
 #define VBOOT_REFERENCE_SHA_TEST_VECTORS_H_
 
-#include "sha.h"
+#include "cryptolib.h"
 
-char *oneblock_msg = "abc";
-char *multiblock_msg1 = "abcdbcdecdefdefgefghfghighijhijkijkl"
+char* oneblock_msg = "abc";
+char* multiblock_msg1 = "abcdbcdecdefdefgefghfghighijhijkijkl"
     "jklmklmnlmnomnopnopq";
-char *multiblock_msg2= "abcdefghbcdefghicdefghijdefghijkefghi"
+char* multiblock_msg2= "abcdefghbcdefghicdefghijdefghijkefghi"
     "jklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnop"
     "qrsmnopqrstnopqrstu";
-char *long_msg;
+char* long_msg;
 
 uint8_t sha1_results[][SHA1_DIGEST_SIZE] = {
   {

@@ -48,8 +48,7 @@ cat <<EOF
 EOF
 
 
-echo '#include "rsa.h"'
-echo '#include "sha.h"'
+echo '#include "cryptolib.h"'
 echo
 echo
 cat <<EOF 
@@ -167,6 +166,18 @@ do
   for hashalgo in ${HashAlgos[@]}
   do
     echo ${rsaalgo}NUMBYTES - ${hashalgo}_DIGEST_SIZE,
+  done
+done
+echo "};"
+echo
+
+# Generate signature algorithm to messge digest algorithm map.
+echo "const int hash_type_map[] = {"
+for rsaalgo in ${RSAAlgos[@]}
+do
+  for hashalgo in ${HashAlgos[@]}
+  do
+    echo ${hashalgo}_DIGEST_ALGORITHM,
   done
 done
 echo "};"

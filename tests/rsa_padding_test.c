@@ -7,8 +7,8 @@
 
 #include <stdio.h>
 
+#include "cryptolib.h"
 #include "file_keys.h"
-#include "rsa_utility.h"
 
 int main(int argc, char* argv[]) {
   int i;

@@ -1,13 +1,14 @@
 /* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- */
-
-/* SHA-1 implementation largely based on libmincrypt in the the Android
+ *
+ * SHA-1 implementation largely based on libmincrypt in the the Android
  * Open Source Project (platorm/system/core.git/libmincrypt/sha.c
  */
 
-#include "sha.h"
+#include "cryptolib.h"
+#include "utility.h"
+
 
 /* Some machines lack byteswap.h and endian.h. These have to use the
  * slower code, even if they're little-endian.
@@ -134,7 +135,7 @@ void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, uint64_t len) {
   ctx->count += len;
 
   while (len > sizeof(ctx->buf) - i) {
-    memcpy(&ctx->buf.b[i], p, sizeof(ctx->buf) - i);
+    Memcpy(&ctx->buf.b[i], p, sizeof(ctx->buf) - i);
     len -= sizeof(ctx->buf) - i;
     p += sizeof(ctx->buf) - i;
     SHA1_Transform(ctx);

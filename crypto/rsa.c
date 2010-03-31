@@ -8,10 +8,7 @@
  * support multiple RSA key lengths and hash digest algorithms.
  */
 
-#include <stdio.h>
-
-#include "padding.h"
-#include "rsa.h"
+#include "cryptolib.h"
 #include "utility.h"
 
 /* a[] -= mod */
@@ -138,17 +135,17 @@ int RSAVerify(const RSAPublicKey *key,
   int success = 1;
 
   if (sig_len != (key->len * sizeof(uint32_t))) {
-    fprintf(stderr, "Signature is of incorrect length!\n");
+    debug("Signature is of incorrect length!\n");
     return 0;
   }
 
   if (sig_type >= kNumAlgorithms) {
-    fprintf(stderr, "Invalid signature type!\n");
+    debug("Invalid signature type!\n");
     return 0;
   }
 
   if (key->len != siglen_map[sig_type] / sizeof(uint32_t)) {
-    fprintf(stderr, "Wrong key passed in!\n");
+    debug("Wrong key passed in!\n");
     return 0;
   }
 
@@ -165,7 +162,7 @@ int RSAVerify(const RSAPublicKey *key,
     if (buf[i] != padding[i]) {
 #ifndef NDEBUG
 /* TODO(gauravsh): Replace with a macro call for logging. */
-      fprintf(stderr, "Padding: Expecting = %02x Got = %02x\n", padding[i],
+      debug("Padding: Expecting = %02x Got = %02x\n", padding[i],
               buf[i]);
 #endif
       success = 0;
@@ -177,7 +174,7 @@ int RSAVerify(const RSAPublicKey *key,
     if (buf[i] != *hash++) {
 #ifndef NDEBUG
 /* TODO(gauravsh): Replace with a macro call for logging. */
-      fprintf(stderr, "Digest: Expecting = %02x Got = %02x\n", padding[i],
+      debug("Digest: Expecting = %02x Got = %02x\n", padding[i],
               buf[i]);
 #endif
       success = 0;
