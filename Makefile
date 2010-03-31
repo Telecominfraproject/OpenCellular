@@ -5,10 +5,12 @@
 export CC ?= gcc
 export CFLAGS = -Wall -DNDEBUG -O3 -Werror
 export TOP = $(shell pwd)
-export INCLUDEDIR = $(TOP)/include
-export INCLUDES = -I$(INCLUDEDIR)
+export INCLUDES = \
+	-I$(TOP)/common/include \
+	-I$(TOP)/cryptolib/include \
+	-I$(TOP)/misclibs/include
 
-SUBDIRS=common crypto utils tests
+SUBDIRS=common cryptolib misclibs vfirmware vkernel utility tests
 
 all:
 	for i in $(SUBDIRS); do \

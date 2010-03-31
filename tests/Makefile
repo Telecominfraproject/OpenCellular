@@ -4,15 +4,18 @@
 
 CC ?= gcc
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
-INCLUDES ?= -I../include/
-TOP ?= ../
-
-BASE_LIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
-IMAGE_LIBS = $(TOP)/utils/firmware_image.o \
-		$(TOP)/utils/firmware_image_fw.o \
-		$(TOP)/utils/kernel_image.o \
-		$(TOP)/utils/kernel_image_fw.o
-UTIL_LIBS = $(TOP)/utils/file_keys.o $(TOP)/utils/signature_digest.o
+INCLUDES += -I./include \
+		-I../cryptolib/include \
+		-I../common/include \
+		-I../misclibs/include \
+		-I../vfirmware/include\
+		-I../vkernel/include
+BASE_LIBS = $(TOP)/cryptolib/libcrypto.a $(TOP)/common/libcommon.a
+IMAGE_LIBS = $(TOP)/vfirmware/firmware_image.o \
+		$(TOP)/vfirmware/firmware_image_fw.o \
+		$(TOP)/vkernel/kernel_image.o \
+		$(TOP)/vkernel/kernel_image_fw.o
+UTIL_LIBS = $(TOP)/misclibs/file_keys.o $(TOP)/misclibs/signature_digest.o
 LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) -lcrypto $(BASE_LIBS)
 
 TEST_BINS = big_firmware_tests \

@@ -15,7 +15,7 @@ else
   SCRIPT_DIR="`pwd`"/"`dirname $0`"
 fi
 
-UTIL_DIR=`dirname ${SCRIPT_DIR}`/utils
+UTIL_DIR=`dirname ${SCRIPT_DIR}`/utility
 TEST_DIR=${SCRIPT_DIR}
 TESTKEY_DIR=${SCRIPT_DIR}/testkeys
 TESTCASE_DIR=${SCRIPT_DIR}/testcases

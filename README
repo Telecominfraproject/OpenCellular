@@ -9,7 +9,7 @@ include/ - Contains all the code headers. firmware_image.h and
 kernel_image.h contains the structures that represent a verified boot
 firmware and kernel image. Note that the
 
-crypto/ - Contains the implementation for the crypto library. This
+cryptolib/ - Contains the implementation for the crypto library. This
 includes implementations for SHA1, SHA256, SHA512, and RSA signature
 verification (for PKCS #1 v1.5 signatures).
 

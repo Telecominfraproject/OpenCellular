@@ -2,8 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-SRCS = utility_stub.c tlcl_stub.c
+SRCS = rollback_index.c tlcl_stub.c utility_stub.c
 OBJS = $(SRCS:.c=.o)
+INCLUDES += -I./include/
 
 all:	libcommon.a
 

@@ -2,24 +2,25 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+TOP ?= ../
 CC ?= gcc
 CXX ?= g++
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
-INCLUDES ?= -I../include/
-TOP ?= ../
+INCLUDES += -I./include \
+		-I../cryptolib/include \
+		-I../common/include \
+		-I../misclibs/include \
+		-I../vfirmware/include\
+		-I../vkernel/include
+CFLAGS ?= -Wall -DNDEBUG -O3 -Werror $(INCLUDES)
+LIBS = $(TOP)/misclibs/file_keys.o \
+	$(TOP)/misclibs/signature_digest.o \
+	$(TOP)/vfirmware/firmware_image.o \
+	$(TOP)/vfirmware/firmware_image_fw.o \
+	$(TOP)/vkernel/kernel_image.o \
+	$(TOP)/vkernel/kernel_image_fw.o
+FIRMWARELIBS = $(TOP)/cryptolib/libcrypto.a $(TOP)/common/libcommon.a
 
-LIBS = file_keys.o \
-	firmware_image.o \
-	firmware_image_fw.o \
-	kernel_image.o \
-	kernel_image_fw.o \
-	rollback_index.o \
-	signature_digest.o 
-
-FIRMWARELIBS = $(TOP)/crypto/libcrypto.a $(TOP)/common/libcommon.a
-
-TARGET_BINS = $(LIBS) \
-		dumpRSAPublicKey \
+TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
 		kernel_utility \
 		signature_digest_utility \
@@ -27,22 +28,13 @@ TARGET_BINS = $(LIBS) \
 
 all: $(TARGET_BINS)
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
 dumpRSAPublicKey: dumpRSAPublicKey.c
-	$(CC) $(CFLAGS) $< -o $@ -lcrypto
-
-firmware_image_fw.o: firmware_image_fw.c
-	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $^ -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
 
 firmware_utility: firmware_utility.cc $(LIBS) $(FIRMWARELIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(FIRMWARELIBS) $(LIBS) $(TOP)/common/libcommon.a \
 	-lcrypto
-
-kernel_image_fw.o: kernel_image_fw.c
-	$(CC) $(CFLAGS) -ansi $(INCLUDES) -c $< -o $@
 
 kernel_utility: kernel_utility.cc $(LIBS) $(FIRMWARELIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
@@ -56,5 +48,5 @@ verify_data: verify_data.c $(LIBS) $(FIRMWARELIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARELIBS) -lcrypto
 
 clean:
-	rm -f $(TARGET_BINS) $(LIBS)
+	rm -f $(TARGET_BINS)
 
