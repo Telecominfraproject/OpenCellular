@@ -73,7 +73,7 @@ int SpeedTestAlgorithm(int firmware_sign_algorithm,
            kernel_key_size);
   kernel_sign_key = BufferFromFile(file_name, &len);
   if (!kernel_sign_key) {
-    fprintf(stderr, "Couldn't read pre-processed public kernel signing key.\n");
+    debug("Couldn't read pre-processed public kernel signing key.\n");
     error_code = 1;
     goto cleanup;
   }
@@ -89,7 +89,7 @@ int SpeedTestAlgorithm(int firmware_sign_algorithm,
                                              firmware_sign_key_file,
                                              kernel_sign_key_file);
     if (!kernel_blobs[i]) {
-      fprintf(stderr, "Couldn't generate test firmware images.\n");
+      debug("Couldn't generate test firmware images.\n");
       error_code = 1;
       goto cleanup;
     }
@@ -100,7 +100,7 @@ int SpeedTestAlgorithm(int firmware_sign_algorithm,
            firmware_key_size);
   firmware_key_blob = BufferFromFile(file_name, &len);
   if (!firmware_key_blob) {
-    fprintf(stderr, "Couldn't read pre-processed firmware public key.\n");
+    debug("Couldn't read pre-processed firmware public key.\n");
     error_code = 1;
     goto cleanup;
   }
@@ -111,7 +111,7 @@ int SpeedTestAlgorithm(int firmware_sign_algorithm,
     for (j = 0; j < NUM_OPERATIONS; ++j) {
       if (VERIFY_KERNEL_SUCCESS !=
           VerifyKernel(firmware_key_blob, kernel_blobs[i], 0))
-        fprintf(stderr, "Warning: Kernel Verification Failed.\n");
+        debug("Warning: Kernel Verification Failed.\n");
     }
     StopTimer(&ct);
     msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;

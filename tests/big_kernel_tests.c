@@ -33,7 +33,7 @@ int BigKernelTest() {
   RSAPublicKey* firmware_key = RSAPublicKeyFromFile(kFirmwareKeyPublicFile);
   uint8_t* firmware_key_blob = BufferFromFile(kFirmwareKeyPublicFile, &len);
   uint8_t* kernel_sign_key_buf = BufferFromFile(kKernelKeyPublicFile, &len);
-  fprintf(stderr, "Generating Big KernelImage...");
+  debug("Generating Big KernelImage...");
   KernelImage* image =
       GenerateTestKernelImage(3,  /* RSA2048/SHA1 */
                               0,  /* RSA1024/SHA1 */
@@ -48,7 +48,7 @@ int BigKernelTest() {
     error_code = 1;
     goto cleanup;
   }
-  fprintf(stderr, "Done.\n");
+  debug("Done.\n");
   TEST_EQ(VerifyKernelImage(firmware_key, image, 0),
           VERIFY_FIRMWARE_SUCCESS,
           "Big KernelImage Verification");

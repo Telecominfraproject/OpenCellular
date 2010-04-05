@@ -33,7 +33,7 @@ int BigFirmwareTest(void) {
   RSAPublicKey* root_key = RSAPublicKeyFromFile(kRootKeyPublicFile);
   uint8_t* root_key_blob = BufferFromFile(kRootKeyPublicFile, &len);
   uint8_t* firmware_sign_key_buf= BufferFromFile(kFirmwareKeyPublicFile, &len);
-  fprintf(stderr, "Generating Big FirmwareImage...");
+  debug("Generating Big FirmwareImage...");
   FirmwareImage* image =
       GenerateTestFirmwareImage(0, /* RSA1024/SHA1 */
                                 firmware_sign_key_buf,
@@ -47,7 +47,7 @@ int BigFirmwareTest(void) {
     error_code = 1;
     goto cleanup;
   }
-  fprintf(stderr, "Done.\n");
+  debug("Done.\n");
   TEST_EQ(VerifyFirmwareImage(root_key, image),
           VERIFY_FIRMWARE_SUCCESS,
           "Big FirmwareImage Verification");

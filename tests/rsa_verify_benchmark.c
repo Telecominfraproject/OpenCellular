@@ -36,7 +36,7 @@ int SpeedTestAlgorithm(int algorithm) {
   snprintf(file_name, FILE_NAME_SIZE, "testkeys/key_rsa%d.keyb", key_size);
   key = RSAPublicKeyFromFile(file_name);
   if (!key) {
-    fprintf(stderr, "Couldn't read RSA Public key from file: %s\n", file_name);
+    debug("Couldn't read RSA Public key from file: %s\n", file_name);
     error_code = 1;
     goto failure;
   }
@@ -46,7 +46,7 @@ int SpeedTestAlgorithm(int algorithm) {
            sha_strings[algorithm]);
   digest = BufferFromFile(file_name, &digest_len);
   if (!digest) {
-    fprintf(stderr, "Couldn't read digest file.\n");
+    debug("Couldn't read digest file.\n");
     error_code = 1;
     goto failure;
   }
@@ -56,7 +56,7 @@ int SpeedTestAlgorithm(int algorithm) {
            key_size, sha_strings[algorithm]);
   signature = BufferFromFile(file_name, &sig_len);
   if (!signature) {
-    fprintf(stderr, "Couldn't read signature file.\n");
+    debug("Couldn't read signature file.\n");
     error_code = 1;
     goto failure;
   }
@@ -64,7 +64,7 @@ int SpeedTestAlgorithm(int algorithm) {
   StartTimer(&ct);
   for (i = 0; i < NUM_OPERATIONS; i++) {
     if (!RSAVerify(key, signature, sig_len, algorithm, digest))
-      fprintf(stderr, "Warning: Signature Check Failed.\n");
+      debug("Warning: Signature Check Failed.\n");
   }
   StopTimer(&ct);
 

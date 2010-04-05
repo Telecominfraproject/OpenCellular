@@ -25,12 +25,12 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   uint8_t* buf = NULL;
 
   if ((fd = open(input_file, O_RDONLY)) == -1) {
-    fprintf(stderr, "Couldn't open file.\n");
+    debug("Couldn't open file.\n");
     return NULL;
   }
 
   if (-1 == fstat(fd, &stat_fd)) {
-    fprintf(stderr, "Couldn't stat key file\n");
+    debug("Couldn't stat key file\n");
     return NULL;
   }
   *len = stat_fd.st_size;
@@ -41,7 +41,7 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
     return NULL;
 
   if (*len != read(fd, buf, *len)) {
-    fprintf(stderr, "Couldn't read key into a buffer.\n");
+    debug("Couldn't read key into a buffer.\n");
     return NULL;
   }
 
@@ -103,13 +103,13 @@ uint8_t* SignatureFile(const char* input_file, const char* key_file,
   cmd_out = popen(cmd, "r");
   Free(cmd);
   if (!cmd_out) {
-    fprintf(stderr, "Couldn't execute: %s\n", cmd);
+    debug("Couldn't execute: %s\n", cmd);
     return NULL;
   }
 
   signature = (uint8_t*) Malloc(signature_size);
   if (fread(signature, signature_size, 1, cmd_out) != 1) {
-    fprintf(stderr, "Couldn't read signature.\n");
+    debug("Couldn't read signature.\n");
     pclose(cmd_out);
     Free(signature);
     return NULL;

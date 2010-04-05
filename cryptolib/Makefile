@@ -5,7 +5,7 @@
 TOP ?= ../
 SRCS = rsa.c sha1.c sha2.c padding.c rsa_utility.c sha_utility.c
 OBJS = $(SRCS:.c=.o)
-CFLAGS += -DUNROLL_LOOPS -DHAVE_ENDIAN_H -DHAVE_LITTLE_ENDIAN
+CFLAGS += -DUNROLL_LOOPS -DHAVE_ENDIAN_H -DHAVE_LITTLE_ENDIAN -DNDEBUG
 INCLUDES += -I./include/ -I$(TOP)/common/include/
 
 all: libcrypto.a

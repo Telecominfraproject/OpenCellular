@@ -67,13 +67,13 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
 
   /* Generate and populate signatures. */
   if (!AddFirmwareKeySignature(image, root_key_file)) {
-    fprintf(stderr, "Couldn't create key signature.\n");
+    debug("Couldn't create key signature.\n");
     FirmwareImageFree(image);
     return NULL;
   }
 
   if (!AddFirmwareSignature(image, firmware_key_file)) {
-    fprintf(stderr, "Couldn't create firmware and preamble signature.\n");
+    debug("Couldn't create firmware and preamble signature.\n");
     FirmwareImageFree(image);
     return NULL;
   }
@@ -178,13 +178,13 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
 
   /* Generate and populate signatures. */
   if (!AddKernelKeySignature(image, firmware_key_file)) {
-    fprintf(stderr, "Couldn't create key signature.\n");
+    debug("Couldn't create key signature.\n");
     KernelImageFree(image);
     return NULL;
   }
 
   if (!AddKernelSignature(image, kernel_key_file)) {
-    fprintf(stderr, "Couldn't create kernel option and kernel signature.\n");
+    debug("Couldn't create kernel option and kernel signature.\n");
     KernelImageFree(image);
     return NULL;
   }

@@ -58,7 +58,7 @@ void VerifyKernelDriverTest(void) {
    * the full blown kernel boot logic. Updates to the kernel attributes
    * in the paritition table are not tested.
    */
-  fprintf(stderr, "Kernel A boot priority(15) > Kernel B boot priority(1)\n");
+  debug("Kernel A boot priority(15) > Kernel B boot priority(1)\n");
   TEST_EQ(VerifyKernelDriver_f(firmware_key_pub,
                                &valid_kernelA, &valid_kernelB,
                                DEV_MODE_DISABLED),
@@ -84,7 +84,7 @@ void VerifyKernelDriverTest(void) {
           "(Corrupt Kernel A (current version)\n"
           " Corrupt Kernel B (current version) runs Recovery):");
 
-  fprintf(stderr, "\nSwapping boot priorities...\n"
+  debug("\nSwapping boot priorities...\n"
          "Kernel B boot priority(15) > Kernel A boot priority(1)\n");
   valid_kernelA.boot_priority = corrupt_kernelA.boot_priority = 1;
   valid_kernelB.boot_priority = corrupt_kernelB.boot_priority = 15;
@@ -113,7 +113,7 @@ void VerifyKernelDriverTest(void) {
           "(Corrupt Kernel A (current version)\n"
           " Corrupt Kernel B (current version) runs Recovery):");
 
-  fprintf(stderr, "\nUpdating stored version information. Obsoleting "
+  debug("\nUpdating stored version information. Obsoleting "
           "exiting kernel images.\n");
   g_kernel_key_version = 2;
   g_kernel_version = 2;
@@ -124,7 +124,7 @@ void VerifyKernelDriverTest(void) {
           "(Valid Kernel A (old version)\n"
           " Valid Kernel B (old version) runs Recovery):");
 
-  fprintf(stderr, "\nGenerating updated Kernel A blob with "
+  debug("\nGenerating updated Kernel A blob with "
           "new version.\n");
   Free(valid_kernelA.kernel_blob);
   valid_kernelA.kernel_blob = GenerateRollbackTestKernelBlob(3, 3, 0);

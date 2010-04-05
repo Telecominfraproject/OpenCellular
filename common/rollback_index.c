@@ -9,9 +9,9 @@
 #include "rollback_index.h"
 
 #include <stdint.h>
-#include <stdio.h>
 #include <tss/tcs.h>
 
+#include "utility.h"
 #include "tlcl.h"
 
 uint16_t g_firmware_key_version = 0;
@@ -23,7 +23,7 @@ static void InitializeSpaces(void) {
   uint16_t zero = 0;
   uint32_t perm = TPM_NV_PER_WRITE_STCLEAR | TPM_NV_PER_PPWRITE;
 
-  fprintf(stderr, "Initializing spaces\n");
+  debug("Initializing spaces\n");
   TlclSetNvLocked();  /* useful only the first time */
 
   TlclDefineSpace(FIRMWARE_KEY_VERSION_NV_INDEX, perm, sizeof(uint16_t));
@@ -78,7 +78,7 @@ void SetupTPM(void) {
   TlclSelftestfull();
   TlclAssertPhysicalPresence();
   if (!GetTPMRollbackIndices()) {
-    fprintf(stderr, "Ho Ho Ho! We must jump to recovery.");
+    debug("Ho Ho Ho! We must jump to recovery.");
     EnterRecovery();
   }
 }

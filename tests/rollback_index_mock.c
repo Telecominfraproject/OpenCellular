@@ -17,7 +17,7 @@ uint16_t g_kernel_version = 0;
 
 void SetupTPM(void) {
 #ifndef NDEBUG
-  fprintf(stderr, "Rollback Index Library Mock: TPM initialized.\n");
+  debug("Rollback Index Library Mock: TPM initialized.\n");
 #endif
 }
 
@@ -55,13 +55,13 @@ int WriteStoredVersion(int type, uint16_t version) {
       break;
   }
 #ifndef NDEBUG
-  fprintf(stderr, "Rollback Index Library Mock: Stored Version written.\n");
+  debug("Rollback Index Library Mock: Stored Version written.\n");
 #endif
   return 1;
 }
 
 void LockStoredVersion(int type) {
 #ifndef NDEBUG
-  fprintf(stderr, "Rollback Index Library Mock: Version Locked.\n");
+  debug("Rollback Index Library Mock: Version Locked.\n");
 #endif
 }

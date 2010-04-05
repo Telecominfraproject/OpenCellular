@@ -31,7 +31,7 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len, int algorithm) {
   uint8_t* digest = NULL;
 
   if (algorithm >= kNumAlgorithms) {
-    fprintf(stderr, "SignatureDigest() called with invalid algorithm!\n");
+    debug("SignatureDigest() called with invalid algorithm!\n");
   } else if ((digest = DigestBuf(buf, len, algorithm))) {
     info_digest = PrependDigestInfo(algorithm, digest);
   }
@@ -49,14 +49,14 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
                               digestinfo_size_map[algorithm]);
   key_fp  = fopen(key_file, "r");
   if (!key_fp) {
-    fprintf(stderr, "SignatureBuf(): Couldn't open key file: %s\n", key_file);
+    debug("SignatureBuf(): Couldn't open key file: %s\n", key_file);
     Free(signature_digest);
     return NULL;
   }
   if ((key = PEM_read_RSAPrivateKey(key_fp, NULL, NULL, NULL)))
     signature = (uint8_t*) Malloc(siglen_map[algorithm]);
   else
-    fprintf(stderr, "SignatureBuf(): Couldn't read private key from file: %s\n",
+    debug("SignatureBuf(): Couldn't read private key from file: %s\n",
             key_file);
   if (signature) {
     if (-1 == RSA_private_encrypt(signature_digest_len,  /* Input length. */
@@ -64,7 +64,7 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
                                   signature,  /* Output signature. */
                                   key,  /* Key to use. */
                                   RSA_PKCS1_PADDING))  /* Padding to use. */
-      fprintf(stderr, "SignatureBuf(): RSA_private_encrypt() failed.\n");
+      debug("SignatureBuf(): RSA_private_encrypt() failed.\n");
   }
   fclose(key_fp);
   if (key)

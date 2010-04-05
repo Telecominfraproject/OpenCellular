@@ -60,7 +60,7 @@ int SpeedTestAlgorithm(int algorithm) {
   snprintf(file_name, FILE_NAME_SIZE, "testkeys/key_rsa%d.keyb", key_size);
   firmware_sign_key = BufferFromFile(file_name, &len);
   if (!firmware_sign_key) {
-    fprintf(stderr, "Couldn't read pre-processed firmware signing key.\n");
+    debug("Couldn't read pre-processed firmware signing key.\n");
     error_code = 1;
     goto cleanup;
   }
@@ -75,7 +75,7 @@ int SpeedTestAlgorithm(int algorithm) {
                                                  "testkeys/key_rsa8192.pem",
                                                  firmware_sign_key_file);
     if (!firmware_blobs[i]) {
-      fprintf(stderr, "Couldn't generate test firmware images.\n");
+      debug("Couldn't generate test firmware images.\n");
       error_code = 1;
       goto cleanup;
     }
@@ -84,7 +84,7 @@ int SpeedTestAlgorithm(int algorithm) {
   /* Get pre-processed key used for verification. */
   root_key_blob = BufferFromFile("testkeys/key_rsa8192.keyb", &len);
   if (!root_key_blob) {
-    fprintf(stderr, "Couldn't read pre-processed rootkey.\n");
+    debug("Couldn't read pre-processed rootkey.\n");
     error_code = 1;
     goto cleanup;
   }
@@ -95,7 +95,7 @@ int SpeedTestAlgorithm(int algorithm) {
     for (j = 0; j < NUM_OPERATIONS; ++j) {
       if (VERIFY_FIRMWARE_SUCCESS !=
           VerifyFirmware(root_key_blob, firmware_blobs[i]))
-        fprintf(stderr, "Warning: Firmware Verification Failed.\n");
+        debug("Warning: Firmware Verification Failed.\n");
     }
     StopTimer(&ct);
     msecs = (float) GetDurationMsecs(&ct) / NUM_OPERATIONS;
