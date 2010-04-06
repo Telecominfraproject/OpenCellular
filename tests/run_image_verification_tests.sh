@@ -30,11 +30,6 @@ function test_firmware_verification {
       let algorithmcounter=algorithmcounter+1
     done
   done
-  cd ${TEST_DIR} && ${TEST_DIR}/big_firmware_tests
-  if [ $? -ne 0 ]
-  then
-    return_code=255
-  fi
 }
 
 function test_kernel_verification {
@@ -71,11 +66,6 @@ ${kernel_hashalgo}${COL_STOP}"
       let firmware_algorithmcounter=firmware_algorithmcounter+1
     done
   done
-  cd ${TEST_DIR} && ${TEST_DIR}/big_kernel_tests
-  if [ $? -ne 0 ]
-  then
-    return_code=255
-  fi
 }
 
 check_test_keys
