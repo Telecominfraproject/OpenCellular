@@ -62,7 +62,10 @@ void FirmwareUtility::PrintUsage(void) {
       "--firmware_version <version#>\tFirmware Version#\n"
       "--in <infile>\t\t\tFirmware Image to sign\n"
       "--out <outfile>\t\t\tOutput file for verified boot firmware image\n\n"
+      "Optional:\n"
+      " --vblock\t\t\tJust output the verification block\n\n"
       "<algoid> (for --sign-algorithm) is one of the following:\n";
+
   for (int i = 0; i < kNumAlgorithms; i++) {
     cerr << i << " for " << algo_strings[i] << "\n";
   }
@@ -84,6 +87,7 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"generate", 0, 0, 0},
     {"verify", 0, 0, 0},
     {"describe", 0, 0, 0},
+    {"vblock", 0, 0, 0},
     {NULL, 0, 0, 0}
   };
   while (1) {
@@ -143,6 +147,9 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         case 11:  // describe
           is_describe_ = true;
           break;
+        case 12: // vblock
+          is_only_vblock_ = true;
+          break;
       }
     }
   }
@@ -152,7 +159,7 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
 
 void FirmwareUtility::OutputSignedImage(void) {
   if (image_) {
-    if (!WriteFirmwareImage(out_file_.c_str(), image_)) {
+    if (!WriteFirmwareImage(out_file_.c_str(), image_, is_only_vblock_)) {
         cerr << "Couldn't write verified boot image to file "
                   << out_file_ <<".\n";
     }

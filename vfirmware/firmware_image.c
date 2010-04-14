@@ -258,8 +258,10 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
 }
 
 int WriteFirmwareImage(const char* input_file,
-                       const FirmwareImage* image) {
+                       const FirmwareImage* image,
+                       int is_only_vblock) {
   int fd;
+  int success = 1;
   uint8_t* firmware_blob;
   uint64_t blob_len;
 
@@ -275,15 +277,23 @@ int WriteFirmwareImage(const char* input_file,
     debug("Couldn't create firmware blob from FirmwareImage.\n");
     return 0;
   }
-  if (blob_len != write(fd, firmware_blob, blob_len)) {
-    debug("Couldn't write Firmware Image to file: %s\n", input_file);
-    Free(firmware_blob);
-    close(fd);
-    return 0;
+  if (!is_only_vblock) {
+    if (blob_len != write(fd, firmware_blob, blob_len)) {
+      debug("Couldn't write Firmware Image to file: %s\n", input_file);
+      success = 0;
+    }
+  } else {
+    /* Exclude the firmware_data. */
+    int vblock_len = blob_len - image->firmware_len;
+    if (vblock_len != write(fd, firmware_blob, vblock_len)) {
+      debug("Couldn't write Firmware Image verifcation block to file: %s\n",
+            input_file);
+      success = 0;
+    }
   }
   Free(firmware_blob);
   close(fd);
-  return 1;
+  return success;
 }
 
 void PrintFirmwareImage(const FirmwareImage* image) {
