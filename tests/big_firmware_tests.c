@@ -52,7 +52,7 @@ int BigFirmwareTest(void) {
           VERIFY_FIRMWARE_SUCCESS,
           "Big FirmwareImage Verification");
   firmware_blob = GetFirmwareBlob(image, &len);
-  TEST_EQ(VerifyFirmware(root_key_blob, firmware_blob),
+  TEST_EQ(VerifyFirmware(root_key_blob, image->firmware_data, firmware_blob),
           VERIFY_FIRMWARE_SUCCESS,
           "Big Firmware Blob Verification");
 

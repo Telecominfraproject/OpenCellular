@@ -30,18 +30,17 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   }
 
   if (-1 == fstat(fd, &stat_fd)) {
-    debug("Couldn't stat key file\n");
+    debug("Couldn't stat file\n");
     return NULL;
   }
   *len = stat_fd.st_size;
 
-  /* Read entire key binary blob into a buffer. */
   buf = (uint8_t*) Malloc(*len);
   if (!buf)
     return NULL;
 
   if (*len != read(fd, buf, *len)) {
-    debug("Couldn't read key into a buffer.\n");
+    debug("Couldn't read file into a buffer.\n");
     return NULL;
   }
 

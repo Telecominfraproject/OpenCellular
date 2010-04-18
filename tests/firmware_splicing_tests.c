@@ -67,7 +67,7 @@ void VerifyFirmwareSplicingTest()
           VERIFY_FIRMWARE_SIGNATURE_FAILED,
           "FirmwareImage firmware_data Splicing");
   firmware_blob = GetFirmwareBlob(image2, &len);
-  TEST_EQ(VerifyFirmware(root_key_blob, firmware_blob),
+  TEST_EQ(VerifyFirmware(root_key_blob, firmware_blob, image2->firmware_data),
           VERIFY_FIRMWARE_SIGNATURE_FAILED,
           "Firmware Blob firmware_data Splicing");
 }

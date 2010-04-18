@@ -88,7 +88,7 @@ int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
                            uint64_t* firmware_len);
 
 /* Checks the signature on the preamble + firmware data at
- * [preamble_start] and [firmware_data_start].
+ * [preamble_start] and [firmware_data].
  * The length of the actual firmware data is firmware_len and it is assumed to
  * be prepended with the signature whose size depends on the signature_algorithm
  * [algorithm]. This signature also covers the preamble data (but not the
@@ -98,21 +98,24 @@ int VerifyFirmwarePreamble(RSAPublicKey* sign_key,
  */
 int VerifyFirmwareData(RSAPublicKey* sign_key,
                        const uint8_t* preamble_start,
-                       const uint8_t* firmware_data_start,
+                       const uint8_t* firmware_data,
                        uint64_t firmware_len,
                        int algorithm);
 
-/* Performs a chained verify of the firmware blob [firmware_blob].
+/* Performs a chained verify of the firmware blob [firmware_blob], using root
+ * key [root_key] and verification header [verification_header_blob].
  *
  * Returns 0 on success, error code on failure.
  *
  * NOTE: The length of the firmware blob is derived from reading the fields
- * in the first few bytes of the buffer. This might look risky but in firmware
- * land, the start address of the firmware_blob will always be fixed depending
- * on the memory map on the particular platform. In addition, the signature on
- * length itself is checked early in the verification process for extra safety.
+ * in the first few bytes of the verification header. This might look risky but
+ * in firmware land, the start address of the firmware_blob will always be fixed
+ * depending on the memory map on the particular platform. In addition, the
+ * signature on length itself is checked early in the verification process for
+ * extra safety.
  */
 int VerifyFirmware(const uint8_t* root_key_blob,
+                   const uint8_t* verification_header_blob,
                    const uint8_t* firmware_blob);
 
 /* Returns the logical version of a firmware blob which is calculated as
@@ -134,8 +137,9 @@ uint32_t GetLogicalFirmwareVersion(uint8_t* firmware_blob);
  * BOOT_FIRMWARE_RECOVERY_CONTINUE   Jump to recovery mode
  */
 int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
+                           uint8_t* verification_headerA,
                            uint8_t* firmwareA,
+                           uint8_t* verification_headerB,
                            uint8_t* firmwareB);
-
 
 #endif  /* VBOOT_REFERENCE_FIRMWARE_IMAGE_FW_H_ */

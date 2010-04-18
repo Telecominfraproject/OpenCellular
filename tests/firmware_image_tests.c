@@ -15,8 +15,12 @@
 #include "utility.h"
 
 /* Normal Firmware Blob Verification Tests. */
-void VerifyFirmwareTest(uint8_t* firmware_blob, uint8_t* root_key_blob) {
-  TEST_EQ(VerifyFirmware(root_key_blob, firmware_blob),
+void VerifyFirmwareTest(uint8_t* verification_header,
+                        uint8_t* firmware_data,
+                        uint8_t* root_key_blob) {
+  TEST_EQ(VerifyFirmware(root_key_blob,
+                         verification_header,
+                         firmware_data),
           VERIFY_FIRMWARE_SUCCESS,
           "Normal Firmware Blob Verification");
 }
@@ -92,7 +96,9 @@ int main(int argc, char* argv[]) {
   firmware_blob = GetFirmwareBlob(image, &firmware_blob_len);
 
   /* Test Firmware blob verify operations. */
-  VerifyFirmwareTest(firmware_blob, root_key_blob);
+  VerifyFirmwareTest(firmware_blob,
+                     image->firmware_data,
+                     root_key_blob);
 
   /* Test FirmwareImage verify operations. */
   VerifyFirmwareImageTest(image, root_key_pub);

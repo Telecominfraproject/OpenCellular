@@ -49,6 +49,7 @@ int SpeedTestAlgorithm(int algorithm) {
     "sha1", "sha256", "sha512",  /* RSA-4096 */
     "sha1", "sha256", "sha512",  /* RSA-8192 */
   };
+  uint8_t* verification_blobs[NUM_SIZES_TO_TEST];
   uint8_t* firmware_blobs[NUM_SIZES_TO_TEST];
   for (i = 0; i < NUM_SIZES_TO_TEST; ++i)
     firmware_blobs[i] = NULL;
@@ -67,13 +68,16 @@ int SpeedTestAlgorithm(int algorithm) {
 
   /* Generate test images. */
   for (i = 0; i < NUM_SIZES_TO_TEST; ++i) {
-    firmware_blobs[i] = GenerateTestFirmwareBlob(algorithm,
-                                                 firmware_sign_key,
-                                                 1,  /* firmware key version. */
-                                                 1,  /* firmware version. */
-                                                 g_firmware_sizes_to_test[i],
-                                                 "testkeys/key_rsa8192.pem",
-                                                 firmware_sign_key_file);
+    firmware_blobs[i] = (uint8_t*) Malloc(g_firmware_sizes_to_test[i]);
+    Memset(firmware_blobs[i], 'F', g_firmware_sizes_to_test[i]);
+    verification_blobs[i] = GenerateTestVerificationBlob(
+        algorithm,
+        firmware_sign_key,
+        1,  /* firmware key version. */
+        1,  /* firmware version. */
+        g_firmware_sizes_to_test[i],
+        "testkeys/key_rsa8192.pem",
+        firmware_sign_key_file);
     if (!firmware_blobs[i]) {
       debug("Couldn't generate test firmware images.\n");
       error_code = 1;
@@ -94,7 +98,9 @@ int SpeedTestAlgorithm(int algorithm) {
     StartTimer(&ct);
     for (j = 0; j < NUM_OPERATIONS; ++j) {
       if (VERIFY_FIRMWARE_SUCCESS !=
-          VerifyFirmware(root_key_blob, firmware_blobs[i]))
+          VerifyFirmware(root_key_blob,
+                         verification_blobs[i],
+                         firmware_blobs[i]))
         debug("Warning: Firmware Verification Failed.\n");
     }
     StopTimer(&ct);
@@ -113,8 +119,10 @@ int SpeedTestAlgorithm(int algorithm) {
   }
 
  cleanup:
-  for (i = 0; i < NUM_SIZES_TO_TEST; i++)
+  for (i = 0; i < NUM_SIZES_TO_TEST; i++) {
     Free(firmware_blobs[i]);
+    Free(verification_blobs[i]);
+  }
   Free(root_key_blob);
   return error_code;
 }

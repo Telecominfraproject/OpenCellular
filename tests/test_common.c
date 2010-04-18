@@ -80,13 +80,13 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   return image;
 }
 
-uint8_t* GenerateTestFirmwareBlob(int algorithm,
-                                  const uint8_t* firmware_sign_key,
-                                  int firmware_key_version,
-                                  int firmware_version,
-                                  uint64_t firmware_len,
-                                  const char* root_key_file,
-                                  const char* firmware_key_file) {
+uint8_t* GenerateTestVerificationBlob(int algorithm,
+                                      const uint8_t* firmware_sign_key,
+                                      int firmware_key_version,
+                                      int firmware_version,
+                                      uint64_t firmware_len,
+                                      const char* root_key_file,
+                                      const char* firmware_key_file) {
   FirmwareImage* image = NULL;
   uint8_t* firmware_blob = NULL;
   uint64_t firmware_blob_len = 0;
@@ -104,12 +104,11 @@ uint8_t* GenerateTestFirmwareBlob(int algorithm,
   return firmware_blob;
 }
 
-uint8_t* GenerateRollbackTestFirmwareBlob(int firmware_key_version,
-                                          int firmware_version,
-                                          int is_corrupt) {
+uint8_t* GenerateRollbackTestVerificationBlob(int firmware_key_version,
+                                              int firmware_version) {
   FirmwareImage* image = NULL;
   uint64_t len;
-  uint8_t* firmware_blob = NULL;
+  uint8_t* verification_blob = NULL;
   uint8_t* firmware_sign_key = NULL;
 
   firmware_sign_key = BufferFromFile("testkeys/key_rsa1024.keyb",
@@ -126,14 +125,9 @@ uint8_t* GenerateRollbackTestFirmwareBlob(int firmware_key_version,
                                     'F');
   if (!image)
     return NULL;
-  if (is_corrupt) {
-    /* Invalidate image. */
-    Memset(image->firmware_data, 'X', image->firmware_len);
-  }
-
-  firmware_blob = GetFirmwareBlob(image, &len);
+  verification_blob = GetFirmwareBlob(image, &len);
   FirmwareImageFree(image);
-  return firmware_blob;
+  return verification_blob;
 }
 
 
