@@ -230,6 +230,7 @@ uint32_t GetLogicalFirmwareVersion(uint8_t* verification_header_blob) {
   Memcpy(&firmware_version,
          verification_header_blob +  (FIELD_LEN(magic) +  /* Offset to field. */
                                       FIELD_LEN(header_len) +
+                                      FIELD_LEN(firmware_sign_algorithm) +
                                       FIELD_LEN(firmware_key_version) +
                                       firmware_sign_key_len +
                                       FIELD_LEN(header_checksum) +
