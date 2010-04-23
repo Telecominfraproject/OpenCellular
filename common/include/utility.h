@@ -40,6 +40,12 @@ void* Malloc(size_t size);
 /* Free memory pointed by [ptr] previously allocated by Malloc(). */
 void Free(void* ptr);
 
+/* Compare [n] bytes in [src1] and [src2]
+ * Returns an integer less than, equal to, or greater than zero if the first [n]
+ * bytes of [src1] is found, respectively, to be less than, to match, or be
+ * greater than the first n bytes of [src2]. */
+int Memcmp(const void* src1, const void* src2, size_t n);
+
 /* Copy [n] bytes from [src] to [dest]. */
 void* Memcpy(void* dest, const void* src, size_t n);
 

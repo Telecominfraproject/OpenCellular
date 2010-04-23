@@ -9,7 +9,8 @@
 #include <stdint.h>
 
 enum {
-  GPT_ERROR_NO_VALID_KERNEL = 1,
+  GPT_SUCCESS = 0,
+  GPT_ERROR_NO_VALID_KERNEL,
   GPT_ERROR_INVALID_HEADERS,
   GPT_ERROR_INVALID_ENTRIES,
   GPT_ERROR_INVALID_SECTOR_SIZE,
@@ -28,32 +29,32 @@ enum {
   /* The currently selected kernel partition failed validation.  Mark entry as
    * invalid. */
 
-struct GPTData {
-  /* Fill in the following fields before calling GPTInit() */
-  uint8_t *header1;       /* GPT primary header, from sector 1 of disk
-                           *   (size: 512 bytes) */
-  uint8_t *header2;       /* GPT secondary header, from last sector of
-                           *   disk (size: 512 bytes) */
-  uint8_t *entries1;      /* primary GPT table, follows primary header
-                           *   (size: 16 KB) */
-  uint8_t *entries2;      /* secondary GPT table, precedes secondary
-                           *   header (size: 16 KB) */
-  uint32_t sector_bytes;  /* Size of a LBA sector, in bytes */
-  uint64_t drive_sectors; /* Size of drive in LBA sectors, in sectors */
+struct GptData {
+  /* Fill in the following fields before calling GptInit() */
+  uint8_t *primary_header;       /* GPT primary header, from sector 1 of disk
+                                  *   (size: 512 bytes) */
+  uint8_t *secondary_header;     /* GPT secondary header, from last sector of
+                                  *   disk (size: 512 bytes) */
+  uint8_t *primary_entries;      /* primary GPT table, follows primary header
+                                  *   (size: 16 KB) */
+  uint8_t *secondary_entries;    /* secondary GPT table, precedes secondary
+                                  *   header (size: 16 KB) */
+  uint32_t sector_bytes;         /* Size of a LBA sector, in bytes */
+  uint64_t drive_sectors;        /* Size of drive in LBA sectors, in sectors */
 
   /* Outputs */
-  uint8_t modified;       /* Which inputs have been modified?
-                           * 0x01 = header1
-                           * 0x02 = header2
-                           * 0x04 = table1
-                           * 0x08 = table2  */
+  uint8_t modified;              /* Which inputs have been modified?
+                                  * 0x01 = header1
+                                  * 0x02 = header2
+                                  * 0x04 = table1
+                                  * 0x08 = table2  */
 
   /* Internal state */
-  uint8_t current_kernel; // the current kernel index
+  uint8_t current_kernel; /* the current kernel index */
 };
-typedef struct GPTData GPTData_t;
+typedef struct GptData GptData_t;
 
-int GPTInit(GPTData_t *gpt);
+int GptInit(GptData_t *gpt);
 /* Initializes the GPT data structure's internal state.  The header1, header2,
  * table1, table2, and drive_size fields should be filled in first.
  *
@@ -69,7 +70,7 @@ int GPTInit(GPTData_t *gpt);
  *   GPT_ERROR_INVALID_SECTOR_NUMBER, number of sectors in drive is invalid (too
  *                                    small) */
 
-int GPTNextKernelEntry(GPTData_t *gpt, uint64_t *start_sector, uint64_t *size);
+int GptNextKernelEntry(GptData_t *gpt, uint64_t *start_sector, uint64_t *size);
 /* Provides the location of the next kernel partition, in order of decreasing
  * priority.  On return the start_sector parameter contains the LBA sector
  * for the start of the kernel partition, and the size parameter contains the
@@ -78,7 +79,7 @@ int GPTNextKernelEntry(GPTData_t *gpt, uint64_t *start_sector, uint64_t *size);
  * Returns 0 if successful, else
  *   GPT_ERROR_NO_VALID_KERNEL, no avaliable kernel, enters recovery mode */
 
-int GPTUpdateKernelEntry(GPTData_t *gpt, uint32_t update_type);
+int GptUpdateKernelEntry(GptData_t *gpt, uint32_t update_type);
 /* Updates the kernel entry with the specified index, using the specified type
  * of update (GPT_UPDATE_ENTRY_*).
  *

@@ -7,7 +7,10 @@
 
 #include <stdio.h>
 
-#define TEST_FAIL -1
+enum {
+  TEST_FAIL = -1,
+  TEST_OK = 0,
+};
 
 /* ANSI Color coding sequences. */
 #define COL_GREEN "\e[1;32m"
