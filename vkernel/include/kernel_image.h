@@ -55,11 +55,13 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image);
 uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len);
 
 /* Write kernel data from [image] to a file named [input_file].
+ * If [is_only_vblock] is non-zero, only the verification block is output.
  *
  * Return 1 on success, 0 on error.
  */
 int WriteKernelImage(const char* input_file,
-                     const KernelImage* image);
+                     const KernelImage* image,
+                     int is_only_vblock);
 
 /* Pretty print the contents of [image]. Only headers and metadata information
  * is printed.

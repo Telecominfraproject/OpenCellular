@@ -29,6 +29,7 @@ KernelImage* KernelImageNew(void) {
   if (image) {
     image->kernel_sign_key = NULL;
     image->kernel_key_signature = NULL;
+    Memset(image->options.cmd_line, 0, sizeof(image->options.cmd_line));
     image->config_signature = NULL;
     image->kernel_signature = NULL;
     image->kernel_data = NULL;
@@ -298,8 +299,10 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
 }
 
 int WriteKernelImage(const char* input_file,
-                     const KernelImage* image) {
+                     const KernelImage* image,
+                     int is_only_vblock) {
   int fd;
+  int success = 1;
   uint8_t* kernel_blob;
   uint64_t blob_len;
 
@@ -315,17 +318,24 @@ int WriteKernelImage(const char* input_file,
     debug("Couldn't create kernel blob from KernelImage.\n");
     return 0;
   }
-  if (blob_len != write(fd, kernel_blob, blob_len)) {
-    debug("Couldn't write Kernel Image to file: %s\n",
+  if (!is_only_vblock) {
+    if (blob_len != write(fd, kernel_blob, blob_len)) {
+      debug("Couldn't write Kernel Image to file: %s\n",
             input_file);
-
-    Free(kernel_blob);
-    close(fd);
-    return 0;
+      success = 0;
+    }
+  } else {
+    /* Exclude the kernel_data. */
+    int vblock_len = blob_len - image->options.kernel_len;
+    if (vblock_len != write(fd, kernel_blob, vblock_len)) {
+      debug("Couldn't write Kernel Image Verification block to file: %s\n",
+            input_file);
+      success = 0;
+    }
   }
   Free(kernel_blob);
   close(fd);
-  return 1;
+  return success;
 }
 
 void PrintKernelImage(const KernelImage* image) {

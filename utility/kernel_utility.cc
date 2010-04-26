@@ -35,9 +35,11 @@ KernelUtility::KernelUtility(): image_(NULL),
                                 kernel_sign_algorithm_(-1),
                                 kernel_key_version_(-1),
                                 kernel_version_(-1),
+                                cmd_line_(NULL),
                                 is_generate_(false),
                                 is_verify_(false),
-                                is_describe_(false){
+                                is_describe_(false),
+                                is_only_vblock_(false) {
   // Populate kernel config options with defaults.
   options_.version[0] = 1;
   options_.version[1] = 0;
@@ -47,6 +49,7 @@ KernelUtility::KernelUtility(): image_(NULL),
 }
 
 KernelUtility::~KernelUtility() {
+  Free(cmd_line_);
   RSAPublicKeyFree(firmware_key_pub_);
   KernelImageFree(image_);
 }
@@ -72,9 +75,11 @@ void KernelUtility::PrintUsage(void) {
       "--in <infile>\t\tKernel Image to sign\n"
       "--out <outfile>\t\tOutput file for verified boot Kernel image\n\n"
       "Optional arguments for \"--generate\" include:\n"
+      "--config <file>\t\t\tPopulate contents of kernel config from a file\n"
       "--config_version <version>\n"
       "--kernel_load_addr <addr>\n"
-      "--kernel_entry_addr <addr>\n\n"
+      "--kernel_entry_addr <addr>\n"
+      "--vblock\t\t\tJust output the verification block\n\n"
       "<algoid> (for --*_sign_algorithm) is one of the following:\n";
   for (int i = 0; i < kNumAlgorithms; i++) {
     cerr << i << " for " << algo_strings[i] << "\n";
@@ -101,6 +106,8 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"kernel_load_addr", 1, 0, 0},
     {"kernel_entry_addr", 1, 0, 0},
     {"describe", 0, 0, 0},
+    {"config", 1, 0, 0},
+    {"vblock", 0, 0, 0},
     {NULL, 0, 0, 0}
   };
   while (1) {
@@ -186,6 +193,12 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         case 15:  // describe
           is_describe_ = true;
           break;
+        case 16:  // config
+          config_file_ = optarg;
+          break;
+        case 17:  // vblock
+          is_only_vblock_ = true;
+          break;
       }
     }
   }
@@ -194,7 +207,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
 
 void KernelUtility::OutputSignedImage(void) {
   if (image_) {
-    if (!WriteKernelImage(out_file_.c_str(), image_)) {
+    if (!WriteKernelImage(out_file_.c_str(), image_, is_only_vblock_)) {
       cerr << "Couldn't write verified boot kernel image to file "
            << out_file_ <<".\n";
     }
@@ -211,6 +224,7 @@ void KernelUtility::DescribeSignedImage(void) {
 }
 
 bool KernelUtility::GenerateSignedImage(void) {
+  uint64_t len;
   uint64_t kernel_key_pub_len;
   image_ = KernelImageNew();
 
@@ -236,8 +250,16 @@ bool KernelUtility::GenerateSignedImage(void) {
   image_->kernel_version = kernel_version_;
   image_->options.version[0] = options_.version[0];
   image_->options.version[1] = options_.version[1];
-  // TODO(gauravsh): Add a command line option for this.
-  Memset(image_->options.cmd_line, 0, sizeof(image_->options.cmd_line));
+  if (!config_file_.empty()) {
+    cmd_line_ = BufferFromFile(config_file_.c_str(), &len);
+    if (len >= sizeof(image_->options.cmd_line)) {
+      cerr << "Input kernel config file is too big!";
+      return false;
+    }
+    Memcpy(image_->options.cmd_line, cmd_line_, len);
+  } else {
+    Memset(image_->options.cmd_line, 0, sizeof(image_->options.cmd_line));
+  }
   image_->options.kernel_load_addr = options_.kernel_load_addr;
   image_->options.kernel_entry_addr = options_.kernel_entry_addr;
   image_->kernel_data = BufferFromFile(in_file_.c_str(),

@@ -58,6 +58,11 @@ class KernelUtility {
   std::string firmware_key_pub_file_;
   std::string kernel_key_file_;  // Private key for signing the kernel.
   std::string kernel_key_pub_file_;
+  std::string config_file_;  // File containing kernel config options.
+  // TODO(gauravsh): Currently this just fills in options.cmd_line in struct
+  // KernelImage (from vkernel/kernel_image_fw.h). Ideally we'd like to have
+  // a well defined config file format which is also backwards compatible with
+  // Legacy BIOS boot loaders.
 
   // Fields of a KernelImage. (read from the command line).
   int header_version_;
@@ -66,12 +71,14 @@ class KernelUtility {
   int kernel_key_version_;
   int kernel_version_;
   kconfig_options options_;
+  uint8_t* cmd_line_;
 
   std::string in_file_;
   std::string out_file_;
   bool is_generate_;  // Are we generating a new image?
   bool is_verify_;  // Are we just verifying an already signed image?
   bool is_describe_;  // Should we print out description of the image?
+  bool is_only_vblock_;  // Show we just output the verification block?
 };
 
 }  // namespace vboot_reference

@@ -64,7 +64,7 @@ class FirmwareUtility {
   bool is_generate_;  // Are we generating a new image?
   bool is_verify_;  // Are we just verifying an already signed image?
   bool is_describe_; // Should we print out description of the image?
-  bool is_only_vblock_;  // Should we just out the verification block?
+  bool is_only_vblock_;  // Should we just output the verification block?
 };
 
 }  // namespace vboot_reference

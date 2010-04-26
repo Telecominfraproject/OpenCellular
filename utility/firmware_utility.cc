@@ -36,7 +36,8 @@ FirmwareUtility::FirmwareUtility():
     firmware_sign_algorithm_(-1),
     is_generate_(false),
     is_verify_(false),
-    is_describe_(false) {
+    is_describe_(false),
+    is_only_vblock_(false) {
 }
 
 FirmwareUtility::~FirmwareUtility() {
