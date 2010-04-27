@@ -8,6 +8,15 @@
  * A low-level library for interfacing to TPM hardware or an emulator.
  */
 
+/* FIXME(gauravsh):
+ * NOTE: This file is copied over from
+ *       src/platform/tpm_lite/src/tlcl/tlcl.h
+ * Ideally, we want to directly include it without having two maintain
+ * duplicate copies in sync. But in the current model, this is hard
+ * to do without breaking standalone compilation.
+ * Eventually tpm_lite should be moved into vboot_reference.
+ */
+
 #ifndef TPM_LITE_TLCL_H_
 #define TPM_LITE_TLCL_H_
 

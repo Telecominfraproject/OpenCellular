@@ -5,7 +5,7 @@
  * Stub implementations of TPM Lite Library.
  */
 
-#include <tss/tcs.h>
+#include "tss_constants.h"
 
 void TlclLibinit(void) { return; }
 void TlclStartup(void) { return; }
