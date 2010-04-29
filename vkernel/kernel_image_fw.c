@@ -15,11 +15,6 @@
 /* Macro to determine the size of a field structure in the KernelImage
  * structure. */
 #define FIELD_LEN(field) (sizeof(((KernelImage*)0)->field))
-#define KERNEL_CONFIG_FIELD_LEN (FIELD_LEN(kernel_version) + FIELD_LEN(options.version) + \
-                                 FIELD_LEN(options.cmd_line) + \
-                                 FIELD_LEN(options.kernel_len) + \
-                                 FIELD_LEN(options.kernel_load_addr) + \
-                                 FIELD_LEN(options.kernel_entry_addr))
 
 char* kVerifyKernelErrors[VERIFY_KERNEL_MAX] = {
   "Success.",
@@ -30,6 +25,45 @@ char* kVerifyKernelErrors[VERIFY_KERNEL_MAX] = {
   "Kernel Signature Failed.",
   "Wrong Kernel Magic.",
 };
+
+uint64_t GetVblockHeaderSize(const uint8_t* vkernel_blob) {
+  uint64_t len = 0;
+  uint16_t firmware_sign_algorithm;
+  uint16_t kernel_sign_algorithm;
+  int algorithms_offset = (FIELD_LEN(magic) +
+                           FIELD_LEN(header_version) +
+                           FIELD_LEN(header_len));
+  if (SafeMemcmp(vkernel_blob, KERNEL_MAGIC, KERNEL_MAGIC_SIZE)) {
+    debug("Not a valid verified boot kernel blob.\n");
+    return 0;
+  }
+  Memcpy(&firmware_sign_algorithm,
+         vkernel_blob + algorithms_offset,
+         sizeof(firmware_sign_algorithm));
+  Memcpy(&kernel_sign_algorithm,
+         vkernel_blob + algorithms_offset + FIELD_LEN(kernel_sign_algorithm),
+         sizeof(kernel_sign_algorithm));
+  if (firmware_sign_algorithm >= kNumAlgorithms) {
+    debug("Invalid firmware signing algorithm.\n");
+    return 0;
+  }
+  if (kernel_sign_algorithm >= kNumAlgorithms) {
+    debug("Invalid kernel signing algorithm.\n");
+    return 0;
+  }
+  len = algorithms_offset;  /* magic, header length and version. */
+  len += (FIELD_LEN(firmware_sign_algorithm) +
+          FIELD_LEN(kernel_sign_algorithm) +
+          FIELD_LEN(kernel_key_version) +
+          RSAProcessedKeySize(kernel_sign_algorithm) +  /* kernel_sign_key */
+          FIELD_LEN(header_checksum) +
+          siglen_map[firmware_sign_algorithm] +  /* kernel_key_signature */
+          FIELD_LEN(kernel_version) +
+          FIELD_LEN(kernel_len) +
+          siglen_map[kernel_sign_algorithm] +  /* config_signature */
+          siglen_map[kernel_sign_algorithm]);  /* kernel_signature */
+  return len;
+}
 
 int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* header_blob,
@@ -116,43 +150,73 @@ int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
                        const uint8_t* config_blob,
                        int algorithm,
                        uint64_t* kernel_len) {
-  uint64_t len;
-  if (!RSAVerifyBinary_f(NULL, kernel_sign_key,  /* Key to use */
-                         config_blob,  /* Data to verify */
-                         KERNEL_CONFIG_FIELD_LEN,  /* Length of data */
-                         config_blob + KERNEL_CONFIG_FIELD_LEN,  /* Expected
-                                                                  * Signature */
-                         algorithm))
-    return VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED;
+  int signature_len = siglen_map[algorithm];
+  const uint8_t* config_signature = NULL;
+  const uint8_t* kernel_config = NULL;
+  uint8_t* digest = NULL;
+  DigestContext ctx;
 
-  Memcpy(&len,
-         config_blob + (FIELD_LEN(kernel_version) + FIELD_LEN(options.version) +
-                              FIELD_LEN(options.cmd_line)),
-         sizeof(len));
-  *kernel_len = len;
+  config_signature = config_blob + (FIELD_LEN(kernel_version) +
+                                    FIELD_LEN(kernel_len));
+  kernel_config = config_signature + 2 * signature_len;  /* kernel and config
+                                                          * signature. */
+  /* Since the kernel config signature is computed over the kernel version,
+   * kernel length and config, which does not form a contiguous region memory,
+   * we calculate the message digest ourselves. */
+  DigestInit(&ctx, algorithm);
+  DigestUpdate(&ctx,
+               config_blob,
+               FIELD_LEN(kernel_version) + FIELD_LEN(kernel_len));
+  DigestUpdate(&ctx,
+               kernel_config,
+               FIELD_LEN(kernel_config));
+  digest = DigestFinal(&ctx);
+  if (!RSAVerifyBinaryWithDigest_f(
+          NULL, kernel_sign_key,  /* Key to use. */
+          digest,  /* Digest of the Data to verify. */
+          config_signature,  /* Expected signature. */
+          algorithm)) {
+    Free(digest);
+    return VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED;
+  }
+  Free(digest);
+  Memcpy(kernel_len,
+         config_blob + FIELD_LEN(kernel_version),
+         FIELD_LEN(kernel_len));
   return 0;
 }
 
 int VerifyKernelData(RSAPublicKey* kernel_sign_key,
-                     const uint8_t* kernel_config_start,
-                     const uint8_t* kernel_data_start,
+                     const uint8_t* config_blob,
+                     const uint8_t* kernel_data,
                      uint64_t kernel_len,
                      int algorithm) {
   int signature_len = siglen_map[algorithm];
-  uint8_t* digest;
+  const uint8_t* kernel_signature = NULL;
+  const uint8_t* kernel_config = NULL;
+  uint8_t* digest = NULL;
   DigestContext ctx;
 
-  /* Since the kernel signature is computed over the kernel version, options
-   * and data, which does not form a contiguous region of memory, we calculate
-   * the message digest ourselves. */
+  kernel_signature = config_blob + (FIELD_LEN(kernel_version) +
+                                    FIELD_LEN(kernel_len) +
+                                    signature_len);
+  kernel_config = kernel_signature + signature_len;
+
+  /* Since the kernel signature is computed over the kernel version, length,
+   * config cmd line, and kernel image data, which does not form a contiguous
+   * region of memory, we calculate the message digest ourselves. */
   DigestInit(&ctx, algorithm);
-  DigestUpdate(&ctx, kernel_config_start, KERNEL_CONFIG_FIELD_LEN);
-  DigestUpdate(&ctx, kernel_data_start + signature_len, kernel_len);
+  DigestUpdate(&ctx,
+               config_blob,
+               FIELD_LEN(kernel_version) + FIELD_LEN(kernel_len));
+  DigestUpdate(&ctx, kernel_config,
+               FIELD_LEN(kernel_config));
+  DigestUpdate(&ctx, kernel_data, kernel_len);
   digest = DigestFinal(&ctx);
   if (!RSAVerifyBinaryWithDigest_f(
           NULL, kernel_sign_key,  /* Key to use. */
           digest, /* Digest of the data to verify. */
-          kernel_data_start,  /* Expected Signature */
+          kernel_signature,  /* Expected Signature */
           algorithm)) {
     Free(digest);
     return VERIFY_KERNEL_SIGNATURE_FAILED;
@@ -214,11 +278,15 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
   }
   /* Only continue if kernel data verification succeeds. */
   kernel_ptr = (config_ptr +
-                KERNEL_CONFIG_FIELD_LEN +  /* Skip config block/signature. */
-                kernel_signature_len);
+                FIELD_LEN(kernel_version) +
+                FIELD_LEN(kernel_len) +
+                2 * kernel_signature_len +  /* config and kernel signature. */
+                FIELD_LEN(kernel_config));
 
-  if ((error_code = VerifyKernelData(kernel_sign_key, config_ptr, kernel_ptr,
-                                     kernel_len,
+  if ((error_code = VerifyKernelData(kernel_sign_key,  /* Verification key */
+                                     config_ptr,  /* Start of config block */
+                                     kernel_ptr,  /* Start of kernel image */
+                                     kernel_len,  /* Length of kernel image. */
                                      kernel_sign_algorithm))) {
     RSAPublicKeyFree(kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */
@@ -248,6 +316,7 @@ uint32_t GetLogicalKernelVersion(uint8_t* kernel_blob) {
     return 0;
   if (kernel_sign_algorithm >= kNumAlgorithms)
     return 0;
+
   kernel_key_signature_len = siglen_map[firmware_sign_algorithm];
   kernel_sign_key_len = RSAProcessedKeySize(kernel_sign_algorithm);
   kernel_ptr += (FIELD_LEN(kernel_key_version) +

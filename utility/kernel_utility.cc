@@ -35,21 +35,16 @@ KernelUtility::KernelUtility(): image_(NULL),
                                 kernel_sign_algorithm_(-1),
                                 kernel_key_version_(-1),
                                 kernel_version_(-1),
-                                cmd_line_(NULL),
+                                kernel_len_(0),
+                                kernel_config_(NULL),
                                 is_generate_(false),
                                 is_verify_(false),
                                 is_describe_(false),
                                 is_only_vblock_(false) {
-  // Populate kernel config options with defaults.
-  options_.version[0] = 1;
-  options_.version[1] = 0;
-  options_.kernel_len = 0;
-  options_.kernel_load_addr = 0;
-  options_.kernel_entry_addr = 0;
 }
 
 KernelUtility::~KernelUtility() {
-  Free(cmd_line_);
+  Free(kernel_config_);
   RSAPublicKeyFree(firmware_key_pub_);
   KernelImageFree(image_);
 }
@@ -76,9 +71,6 @@ void KernelUtility::PrintUsage(void) {
       "--out <outfile>\t\tOutput file for verified boot Kernel image\n\n"
       "Optional arguments for \"--generate\" include:\n"
       "--config <file>\t\t\tPopulate contents of kernel config from a file\n"
-      "--config_version <version>\n"
-      "--kernel_load_addr <addr>\n"
-      "--kernel_entry_addr <addr>\n"
       "--vblock\t\t\tJust output the verification block\n\n"
       "<algoid> (for --*_sign_algorithm) is one of the following:\n";
   for (int i = 0; i < kNumAlgorithms; i++) {
@@ -102,9 +94,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"out", 1, 0, 0},
     {"generate", 0, 0, 0},
     {"verify", 0, 0, 0},
-    {"config_version", 1, 0, 0},
-    {"kernel_load_addr", 1, 0, 0},
-    {"kernel_entry_addr", 1, 0, 0},
     {"describe", 0, 0, 0},
     {"config", 1, 0, 0},
     {"vblock", 0, 0, 0},
@@ -171,32 +160,13 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         case 11:  // verify
           is_verify_ = true;
           break;
-        case 12:  // config_version
-          if (2 != sscanf(optarg, "%d.%d", &options_.version[0],
-                          &options_.version[1]))
-            return false;
-          break;
-        case 13:  // kernel_load_addr
-          errno = 0;
-          options_.kernel_load_addr =
-              strtol(optarg, reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 14:  // kernel_entry_addr
-          errno = 0;
-          options_.kernel_entry_addr =
-              strtol(optarg, reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 15:  // describe
+        case 12:  // describe
           is_describe_ = true;
           break;
-        case 16:  // config
+        case 13:  // config
           config_file_ = optarg;
           break;
-        case 17:  // vblock
+        case 14:  // vblock
           is_only_vblock_ = true;
           break;
       }
@@ -248,22 +218,20 @@ bool KernelUtility::GenerateSignedImage(void) {
   CalculateKernelHeaderChecksum(image_, image_->header_checksum);
 
   image_->kernel_version = kernel_version_;
-  image_->options.version[0] = options_.version[0];
-  image_->options.version[1] = options_.version[1];
   if (!config_file_.empty()) {
-    cmd_line_ = BufferFromFile(config_file_.c_str(), &len);
-    if (len >= sizeof(image_->options.cmd_line)) {
+    kernel_config_ = BufferFromFile(config_file_.c_str(), &len);
+    if (len >= sizeof(image_->kernel_config)) {
       cerr << "Input kernel config file is too big!";
       return false;
     }
-    Memcpy(image_->options.cmd_line, cmd_line_, len);
+    Memcpy(image_->kernel_config,
+           kernel_config_, len);
   } else {
-    Memset(image_->options.cmd_line, 0, sizeof(image_->options.cmd_line));
+    Memset(image_->kernel_config, 0,
+           sizeof(image_->kernel_config));
   }
-  image_->options.kernel_load_addr = options_.kernel_load_addr;
-  image_->options.kernel_entry_addr = options_.kernel_entry_addr;
   image_->kernel_data = BufferFromFile(in_file_.c_str(),
-                                       &image_->options.kernel_len);
+                                       &image_->kernel_len);
   if (!image_)
     return false;
   // Generate and add the signatures.

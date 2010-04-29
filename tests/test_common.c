@@ -160,12 +160,8 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
 
   /* Populate kernel options and data with dummy data. */
   image->kernel_version = kernel_version;
-  image->options.version[0] = 1;
-  image->options.version[1] = 0;
-  Memset(image->options.cmd_line, 0, sizeof(image->options.cmd_line));
-  image->options.kernel_len = kernel_len;
-  image->options.kernel_load_addr = 0;
-  image->options.kernel_entry_addr = 0;
+  Memset(image->kernel_config, 0, sizeof(image->kernel_config));
+  image->kernel_len = kernel_len;
   image->kernel_key_signature = image->kernel_signature = NULL;
   image->kernel_data = Malloc(kernel_len);
   Memset(image->kernel_data, kernel_data_fill_char, kernel_len);
@@ -237,7 +233,7 @@ uint8_t* GenerateRollbackTestKernelBlob(int kernel_key_version,
    return NULL;
  if (is_corrupt) {
    /* Invalidate image. */
-   Memset(image->kernel_data, 'X', image->options.kernel_len);
+   Memset(image->kernel_data, 'X', image->kernel_len);
  }
  kernel_blob = GetKernelBlob(image, &len);
  KernelImageFree(image);

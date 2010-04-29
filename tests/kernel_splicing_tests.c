@@ -63,7 +63,7 @@ void VerifyKernelSplicingTest()
   Memcpy(image2->kernel_signature, image1->kernel_signature,
          siglen_map[0]);
   Memcpy(image2->kernel_data, image1->kernel_data,
-         image2->options.kernel_len);
+         image2->kernel_len);
 
   TEST_EQ(VerifyKernelImage(firmware_key, image2, 0),
           VERIFY_KERNEL_SIGNATURE_FAILED,

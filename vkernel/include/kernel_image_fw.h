@@ -15,20 +15,10 @@
 
 #define KERNEL_MAGIC "CHROMEOS"
 #define KERNEL_MAGIC_SIZE 8
-#define KERNEL_CMD_LINE_SIZE 4096
+#define KERNEL_CONFIG_SIZE 4096
 
 #define DEV_MODE_ENABLED 1
 #define DEV_MODE_DISABLED 0
-
-/* Kernel config file options according to the Chrome OS drive map design. */
-typedef struct kconfig_options {
-  uint32_t version[2];  /* Configuration file version. */
-  uint8_t cmd_line[KERNEL_CMD_LINE_SIZE];  /* Kernel command line option string
-                                            * terminated by a NULL character. */
-  uint64_t kernel_len;  /* Size of the kernel. */
-  uint64_t kernel_load_addr;  /* Load address in memory for the kernel image */
-  uint64_t kernel_entry_addr;  /* Address to jump to after kernel is loaded. */
-} kconfig_options;
 
 typedef struct KernelImage {
   uint8_t magic[KERNEL_MAGIC_SIZE];
@@ -55,16 +45,19 @@ typedef struct KernelImage {
   uint8_t* kernel_key_signature;   /* Signature of the header above. */
 
   uint16_t kernel_version;  /* Kernel Version# for preventing rollbacks. */
-  kconfig_options options;  /* Other kernel/bootloader options. */
-
-  uint8_t* config_signature;  /* Signature of the kernel config file. */
-
+  uint64_t kernel_len;  /* Length of the actual kernel image. */
+  uint8_t* config_signature;  /* Signature on the concatenation of
+                               * [kernel_version], [kernel_len] and
+                               * [kernel_config]. */
   /* The kernel signature comes first as it may allow us to parallelize
    * the kernel data fetch and RSA public key operation.
    */
   uint8_t* kernel_signature;  /* Signature on the concatenation of
-                               * [kernel_version], [options] and
-                               * [kernel_data]. */
+                               * [kernel_version], [kernel_len], [kernel_config]
+                               * and [kernel_data]. */
+  /* The kernel config string is stored right before the kernel image data for
+   * easy mapping while loading into the memory. */
+  uint8_t kernel_config[KERNEL_CONFIG_SIZE];  /* Kernel Config command line. */
   uint8_t* kernel_data;  /* Actual kernel data. */
 
 } KernelImage;
@@ -80,6 +73,13 @@ typedef struct KernelImage {
 #define VERIFY_KERNEL_MAX 7  /* Generic catch-all. */
 
 extern char* kVerifyKernelErrors[VERIFY_KERNEL_MAX];
+
+/* Returns the length of the Kernel Verified Boot header excluding
+ * [kernel_config] and [kernel_data].
+ *
+ * This is always non-zero, so a return value of 0 signifies an error.
+ */
+uint64_t GetVBlockHeaderSize(const uint8_t* vkernel_blob);
 
 /* Checks for the sanity of the kernel header pointed by [kernel_header_blob].
  * If [dev_mode] is enabled, also checks the firmware key signature using the

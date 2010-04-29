@@ -70,8 +70,8 @@ class KernelUtility {
   int kernel_sign_algorithm_;
   int kernel_key_version_;
   int kernel_version_;
-  kconfig_options options_;
-  uint8_t* cmd_line_;
+  uint64_t kernel_len_;
+  uint8_t* kernel_config_;
 
   std::string in_file_;
   std::string out_file_;

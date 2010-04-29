@@ -40,14 +40,14 @@ void VerifyKernelImageTest(KernelImage* image,
 /* Tampered KernelImage Verification Tests. */
 void VerifyKernelImageTamperTest(KernelImage* image,
                                  RSAPublicKey* firmware_key) {
-  image->options.kernel_load_addr = 0xFFFF;
+  image->kernel_config[0] ^= 0xFF;
   TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
           VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED,
           "KernelImage Config Tamper Verification (Dev Mode)");
   TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_DISABLED),
           VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED,
           "KernelImage Config Tamper Verification (Trusted)");
-  image->options.kernel_load_addr = 0;
+  image->kernel_config[0] ^= 0xFF;
 
   image->kernel_data[0] = 'T';
   TEST_EQ(VerifyKernelImage(firmware_key, image, DEV_MODE_ENABLED),
