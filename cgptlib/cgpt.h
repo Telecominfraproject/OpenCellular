@@ -6,6 +6,7 @@
 #ifndef VBOOT_REFERENCE_CGPT_H_
 #define VBOOT_REFERENCE_CGPT_H_
 
+#include "gpt.h"
 #include <stdint.h>
 
 enum {
@@ -17,6 +18,7 @@ enum {
   GPT_ERROR_INVALID_SECTOR_NUMBER,
 };
 
+/* Bit masks for GptData.modified field. */
 #define GPT_MODIFIED_HEADER1 0x01
 #define GPT_MODIFIED_HEADER2 0x02
 #define GPT_MODIFIED_ENTRIES1 0x04
@@ -29,7 +31,34 @@ enum {
   /* The currently selected kernel partition failed validation.  Mark entry as
    * invalid. */
 
-struct GptData {
+/* Defines ChromeOS-specific limitation on GPT */
+#define MIN_SIZE_OF_HEADER 92
+#define MAX_SIZE_OF_HEADER 512
+#define MIN_SIZE_OF_ENTRY 128
+#define MAX_SIZE_OF_ENTRY 512
+#define SIZE_OF_ENTRY_MULTIPLE 8
+#define MIN_NUMBER_OF_ENTRIES 32
+#define MAX_NUMBER_OF_ENTRIES 512
+#define TOTAL_ENTRIES_SIZE 16384  /* usual case is 128 bytes * 128 entries */
+
+/* Defines GPT sizes */
+#define GPT_PMBR_SECTOR 1  /* size (in sectors) of PMBR */
+#define GPT_HEADER_SECTOR 1
+#define GPT_ENTRIES_SECTORS 32  /* assume sector size if 512 bytes, then
+                                 *  (TOTAL_ENTRIES_SIZE / 512) = 32 */
+
+/* alias name of index in internal array for primary and secondary header and
+ * entries. */
+enum {
+  PRIMARY = 0,
+  SECONDARY = 1,
+  MASK_NONE = 0,
+  MASK_PRIMARY = 1,
+  MASK_SECONDARY = 2,
+  MASK_BOTH = 3,
+};
+
+typedef struct {
   /* Fill in the following fields before calling GptInit() */
   uint8_t *primary_header;       /* GPT primary header, from sector 1 of disk
                                   *   (size: 512 bytes) */
@@ -51,10 +80,9 @@ struct GptData {
 
   /* Internal state */
   uint8_t current_kernel; /* the current kernel index */
-};
-typedef struct GptData GptData_t;
+} GptData;
 
-int GptInit(GptData_t *gpt);
+int GptInit(GptData *gpt);
 /* Initializes the GPT data structure's internal state.  The header1, header2,
  * table1, table2, and drive_size fields should be filled in first.
  *
@@ -70,7 +98,7 @@ int GptInit(GptData_t *gpt);
  *   GPT_ERROR_INVALID_SECTOR_NUMBER, number of sectors in drive is invalid (too
  *                                    small) */
 
-int GptNextKernelEntry(GptData_t *gpt, uint64_t *start_sector, uint64_t *size);
+int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size);
 /* Provides the location of the next kernel partition, in order of decreasing
  * priority.  On return the start_sector parameter contains the LBA sector
  * for the start of the kernel partition, and the size parameter contains the
@@ -79,7 +107,7 @@ int GptNextKernelEntry(GptData_t *gpt, uint64_t *start_sector, uint64_t *size);
  * Returns 0 if successful, else
  *   GPT_ERROR_NO_VALID_KERNEL, no avaliable kernel, enters recovery mode */
 
-int GptUpdateKernelEntry(GptData_t *gpt, uint32_t update_type);
+int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type);
 /* Updates the kernel entry with the specified index, using the specified type
  * of update (GPT_UPDATE_ENTRY_*).
  *
