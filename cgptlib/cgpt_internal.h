@@ -9,8 +9,6 @@
 #include <stdint.h>
 #include "cgpt.h"
 
-/* Internal use only.
- * Don't use them unless you know what you are doing. */
 int CheckParameters(GptData *gpt);
 uint32_t CheckHeaderSignature(GptData *gpt);
 uint32_t CheckRevision(GptData *gpt);
@@ -32,5 +30,53 @@ typedef struct {
   uint64_t starting;
   uint64_t ending;
 } pair_t;
+
+GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index);
+void SetPriority(GptData *gpt, int secondary, int entry_index, int priority);
+int GetPriority(GptData *gpt, int secondary, int entry_index);
+void SetBad(GptData *gpt, int secondary, int entry_index, int bad);
+int GetBad(GptData *gpt, int secondary, int entry_index);
+void SetTries(GptData *gpt, int secondary, int entry_index, int tries);
+int GetTries(GptData *gpt, int secondary, int entry_index);
+void SetSuccess(GptData *gpt, int secondary, int entry_index, int success);
+int GetSuccess(GptData *gpt, int secondary, int entry_index);
+
+/* If gpt->current_kernel is this value, means either:
+ *   1. an initial value before scanning GPT entries,
+ *   2. after scanning, no any valid kernel is found.
+ */
+#define CGPT_KERNEL_ENTRY_NOT_FOUND (-1)
+
+/* Bit definitions and masks for GPT attributes.
+ *
+ *     63  -- do not automounting
+ *     62  -- hidden
+ *     60  -- read-only
+ *      :
+ *     57  -- bad kernel entry
+ *     56  -- success
+ *  55,52  -- tries
+ *  51,48  -- priority
+ *      0  -- system partition
+ */
+#define CGPT_ATTRIBUTE_BAD_OFFSET 57
+#define CGPT_ATTRIBUTE_MAX_BAD (1ULL)
+#define CGPT_ATTRIBUTE_BAD_MASK (CGPT_ATTRIBUTE_MAX_BAD << \
+                                 CGPT_ATTRIBUTE_BAD_OFFSET)
+
+#define CGPT_ATTRIBUTE_SUCCESS_OFFSET 56
+#define CGPT_ATTRIBUTE_MAX_SUCCESS (1ULL)
+#define CGPT_ATTRIBUTE_SUCCESS_MASK (CGPT_ATTRIBUTE_MAX_SUCCESS << \
+                                     CGPT_ATTRIBUTE_SUCCESS_OFFSET)
+
+#define CGPT_ATTRIBUTE_TRIES_OFFSET 52
+#define CGPT_ATTRIBUTE_MAX_TRIES (15ULL)
+#define CGPT_ATTRIBUTE_TRIES_MASK (CGPT_ATTRIBUTE_MAX_TRIES << \
+                                   CGPT_ATTRIBUTE_TRIES_OFFSET)
+
+#define CGPT_ATTRIBUTE_PRIORITY_OFFSET 48
+#define CGPT_ATTRIBUTE_MAX_PRIORITY (15ULL)
+#define CGPT_ATTRIBUTE_PRIORITY_MASK (CGPT_ATTRIBUTE_MAX_PRIORITY << \
+                                      CGPT_ATTRIBUTE_PRIORITY_OFFSET)
 
 #endif /* VBOOT_REFERENCE_CGPT_INTERNAL_H_ */

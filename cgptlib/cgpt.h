@@ -16,6 +16,7 @@ enum {
   GPT_ERROR_INVALID_ENTRIES,
   GPT_ERROR_INVALID_SECTOR_SIZE,
   GPT_ERROR_INVALID_SECTOR_NUMBER,
+  GPT_ERROR_INVALID_UPDATE_TYPE,
 };
 
 /* Bit masks for GptData.modified field. */
@@ -24,12 +25,18 @@ enum {
 #define GPT_MODIFIED_ENTRIES1 0x04
 #define GPT_MODIFIED_ENTRIES2 0x08
 
-#define GPT_UPDATE_ENTRY_TRY 1
+/* The 'update_type' of GptUpdateKernelEntry()
+ * We expose TRY and BAD only because those are what verified boot needs.
+ * For more precise control on GPT attribute bits, please refer to
+ * gpt_internal.h */
+enum {
+  GPT_UPDATE_ENTRY_TRY = 1,
   /* System will be trying to boot the currently selected kernel partition.
    * Update its try count if necessary. */
-#define GPT_UPDATE_ENTRY_BAD 2
+  GPT_UPDATE_ENTRY_BAD = 2,
   /* The currently selected kernel partition failed validation.  Mark entry as
    * invalid. */
+};
 
 /* Defines ChromeOS-specific limitation on GPT */
 #define MIN_SIZE_OF_HEADER 92
@@ -79,17 +86,25 @@ typedef struct {
                                   * 0x08 = table2  */
 
   /* Internal state */
-  uint8_t current_kernel; /* the current kernel index */
+  int current_kernel; /* the current chromeos kernel index in partition table.
+                       * -1 means not found on drive. */
 } GptData;
 
 int GptInit(GptData *gpt);
-/* Initializes the GPT data structure's internal state.  The header1, header2,
- * table1, table2, and drive_size fields should be filled in first.
+/* Initializes the GPT data structure's internal state.  The following fields
+ * must be filled before calling this function:
+ *
+ *   primary_header
+ *   secondary_header
+ *   primary_entries
+ *   secondary_entries
+ *   sector_bytes
+ *   drive_sectors
  *
  * On return the modified field may be set, if the GPT data has been modified
  * and should be written to disk.
  *
- * Returns 0 if successful, non-zero if error:
+ * Returns GPT_SUCCESS if successful, non-zero if error:
  *   GPT_ERROR_INVALID_HEADERS, both partition table headers are invalid, enters
  *                              recovery mode,
  *   GPT_ERROR_INVALID_ENTRIES, both partition table entries are invalid, enters
@@ -104,7 +119,7 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size);
  * for the start of the kernel partition, and the size parameter contains the
  * size of the kernel partition in LBA sectors.
  *
- * Returns 0 if successful, else
+ * Returns GPT_SUCCESS if successful, else
  *   GPT_ERROR_NO_VALID_KERNEL, no avaliable kernel, enters recovery mode */
 
 int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type);
@@ -114,6 +129,8 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type);
  * On return the modified field may be set, if the GPT data has been modified
  * and should be written to disk.
  *
- * Returns 0 if successful, 1 if error. */
+ * Returns GPT_SUCCESS if successful, else
+ *   GPT_ERROR_INVALID_UPDATE_TYPE, invalid 'update_type' is given.
+ */
 
 #endif  /* VBOOT_REFERENCE_CGPT_H_ */

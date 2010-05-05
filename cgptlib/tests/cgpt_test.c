@@ -15,17 +15,23 @@
 /* Testing partition layout (sector_bytes=512)
  *
  *     LBA   Size  Usage
+ * ---------------------------------------------------------
  *       0      1  PMBR
  *       1      1  primary partition header
  *       2     32  primary partition entries (128B * 128)
- *      34    100  kernel A
- *     134    100  kernel B
- *     234    100  root A
- *     334    100  root B
+ *      34    100  kernel A (index: 0)
+ *     134    100  root A (index: 1)
+ *     234    100  root B (index: 2)
+ *     334    100  kernel B (index: 3)
  *     434     32  secondary partition entries
  *     466      1  secondary partition header
  *     467
  */
+#define KERNEL_A 0
+#define ROOTFS_A 1
+#define ROOTFS_B 2
+#define KERNEL_B 3
+
 #define DEFAULT_SECTOR_SIZE 512
 #define MAX_SECTOR_SIZE 4096
 #define DEFAULT_DRIVE_SECTORS 467
@@ -87,6 +93,9 @@ GptData* GetEmptyGptData() {
   gpt.secondary_entries = secondary_entries;
   ZeroHeadersEntries(&gpt);
 
+  /* Initialize GptData internal states. */
+  gpt.current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+
   return &gpt;
 }
 
@@ -99,9 +108,11 @@ void BuildTestGptData(GptData *gpt) {
   GptHeader *header, *header2;
   GptEntry *entries, *entries2;
   Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
+  Guid chromeos_rootfs = GPT_ENT_TYPE_CHROMEOS_ROOTFS;
 
   gpt->sector_bytes = DEFAULT_SECTOR_SIZE;
   gpt->drive_sectors = DEFAULT_DRIVE_SECTORS;
+  gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
 
   /* build primary */
   header = (GptHeader*)gpt->primary_header;
@@ -119,10 +130,10 @@ void BuildTestGptData(GptData *gpt) {
   Memcpy(&entries[0].type, &chromeos_kernel, sizeof(chromeos_kernel));
   entries[0].starting_lba = 34;
   entries[0].ending_lba = 133;
-  Memcpy(&entries[1].type, &chromeos_kernel, sizeof(chromeos_kernel));
+  Memcpy(&entries[1].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
   entries[1].starting_lba = 134;
   entries[1].ending_lba = 233;
-  Memcpy(&entries[2].type, &chromeos_kernel, sizeof(chromeos_kernel));
+  Memcpy(&entries[2].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
   entries[2].starting_lba = 234;
   entries[2].ending_lba = 333;
   Memcpy(&entries[3].type, &chromeos_kernel, sizeof(chromeos_kernel));
@@ -888,6 +899,223 @@ int CorruptCombinationTest() {
   return TEST_OK;
 }
 
+/* Invalidate all kernel entries and expect GptNextKernelEntry() cannot find
+ * any usable kernel entry.
+ */
+int NoValidKernelEntryTest() {
+  GptData *gpt;
+  GptEntry *entries, *entries2;
+
+  gpt = GetEmptyGptData();
+  entries = (GptEntry*)gpt->primary_entries;
+  entries2 = (GptEntry*)gpt->secondary_entries;
+
+  BuildTestGptData(gpt);
+  entries[KERNEL_A].attributes |= CGPT_ATTRIBUTE_BAD_MASK;
+  Memset(&entries[KERNEL_B].type, 0, sizeof(Guid));
+  RefreshCrc32(gpt);
+
+  EXPECT(GPT_ERROR_NO_VALID_KERNEL == GptNextKernelEntry(gpt, NULL, NULL));
+
+  return TEST_OK;
+}
+
+/* This is the combination test. Both kernel A and B could be either inactive
+ * or invalid. We expect GptNextKetnelEntry() returns good kernel or
+ * GPT_ERROR_NO_VALID_KERNEL if no kernel is available. */
+enum FAILURE_MASK {
+  MASK_INACTIVE = 1,
+  MASK_BAD_ENTRY = 2,
+  MASK_FAILURE_BOTH = 3,
+};
+void BreakAnEntry(GptEntry *entry, enum FAILURE_MASK failure) {
+  if (failure & MASK_INACTIVE)
+    Memset(&entry->type, 0, sizeof(Guid));
+  if (failure & MASK_BAD_ENTRY)
+    entry->attributes |= CGPT_ATTRIBUTE_BAD_MASK;
+}
+
+int CombinationalNextKernelEntryTest() {
+  GptData *gpt;
+  enum {
+    MASK_KERNEL_A = 1,
+    MASK_KERNEL_B = 2,
+    MASK_KERNEL_BOTH = 3,
+  } kernel;
+  enum FAILURE_MASK failure;
+  uint64_t start_sector, size;
+  int retval;
+
+  for (kernel = MASK_KERNEL_A; kernel <= MASK_KERNEL_BOTH; ++kernel) {
+    for (failure = MASK_INACTIVE; failure < MASK_FAILURE_BOTH; ++failure) {
+      gpt = GetEmptyGptData();
+      BuildTestGptData(gpt);
+
+      if (kernel & MASK_KERNEL_A)
+        BreakAnEntry(GetEntry(gpt, PRIMARY, KERNEL_A), failure);
+      if (kernel & MASK_KERNEL_B)
+        BreakAnEntry(GetEntry(gpt, PRIMARY, KERNEL_B), failure);
+
+      retval = GptNextKernelEntry(gpt, &start_sector, &size);
+
+      if (kernel == MASK_KERNEL_A) {
+        EXPECT(retval == GPT_SUCCESS);
+        EXPECT(start_sector == 334);
+      } else if (kernel == MASK_KERNEL_B) {
+        EXPECT(retval == GPT_SUCCESS);
+        EXPECT(start_sector == 34);
+      } else {  /* MASK_KERNEL_BOTH */
+        EXPECT(retval == GPT_ERROR_NO_VALID_KERNEL);
+      }
+    }
+  }
+  return TEST_OK;
+}
+
+/* Increase tries value from zero, expect it won't explode/overflow after
+ * CGPT_ATTRIBUTE_TRIES_MASK.
+ */
+/* Tries would not count up after CGPT_ATTRIBUTE_MAX_TRIES. */
+#define EXPECTED_TRIES(tries) \
+    ((tries >= CGPT_ATTRIBUTE_MAX_TRIES) ? CGPT_ATTRIBUTE_MAX_TRIES \
+                                         : tries)
+int IncreaseTriesTest() {
+  GptData *gpt;
+  int kernel_index[] = {
+    KERNEL_B,
+    KERNEL_A,
+  };
+  int i, tries, j;
+
+  gpt = GetEmptyGptData();
+  for (i = 0; i < ARRAY_SIZE(kernel_index); ++i) {
+    GptEntry *entries[2] = {
+      (GptEntry*)gpt->primary_entries,
+      (GptEntry*)gpt->secondary_entries,
+    };
+    int current;
+
+    BuildTestGptData(gpt);
+    current = gpt->current_kernel = kernel_index[i];
+
+    for (tries = 0; tries < 2 * CGPT_ATTRIBUTE_MAX_TRIES; ++tries) {
+      for (j = 0; j < ARRAY_SIZE(entries); ++j) {
+        EXPECT(EXPECTED_TRIES(tries) ==
+               ((entries[j][current].attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
+                CGPT_ATTRIBUTE_TRIES_OFFSET));
+      }
+
+      EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
+      /* The expected tries value will be checked in next iteration. */
+
+      if (tries < CGPT_ATTRIBUTE_MAX_TRIES)
+        EXPECT((GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
+                GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
+      gpt->modified = 0;  /* reset before next test */
+      EXPECT(0 ==
+             Memcmp(entries[PRIMARY], entries[SECONDARY], TOTAL_ENTRIES_SIZE));
+    }
+  }
+  return TEST_OK;
+}
+
+/* Mark a kernel as bad. Expect:
+ *   1. the both bad bits of kernel A in primary and secondary entries are set.
+ *   2. headers and entries are marked as modified.
+ *   3. primary and secondary entries are identical.
+ */
+int MarkBadKernelEntryTest() {
+  GptData *gpt;
+  GptEntry *entries, *entries2;
+
+  gpt = GetEmptyGptData();
+  entries = (GptEntry*)gpt->primary_entries;
+  entries2 = (GptEntry*)gpt->secondary_entries;
+
+  BuildTestGptData(gpt);
+  gpt->current_kernel = KERNEL_A;
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
+  EXPECT((GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
+          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
+  EXPECT(entries[KERNEL_A].attributes & CGPT_ATTRIBUTE_BAD_MASK);
+  EXPECT(entries2[KERNEL_A].attributes & CGPT_ATTRIBUTE_BAD_MASK);
+  EXPECT(0 == Memcmp(entries, entries2, TOTAL_ENTRIES_SIZE));
+
+  return TEST_OK;
+}
+
+/* Given an invalid kernel type, and expect GptUpdateKernelEntry() returns
+ * GPT_ERROR_INVALID_UPDATE_TYPE. */
+int UpdateInvalidKernelTypeTest() {
+  GptData *gpt;
+
+  gpt = GetEmptyGptData();
+  BuildTestGptData(gpt);
+  gpt->current_kernel = 0;  /* anything, but not CGPT_KERNEL_ENTRY_NOT_FOUND */
+  EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
+         GptUpdateKernelEntry(gpt, 99));  /* any invalid update_type value */
+
+  return TEST_OK;
+}
+
+/* A normal boot case:
+ *   GptInit()
+ *   GptNextKernelEntry()
+ *   GptUpdateKernelEntry()
+ */
+int NormalBootCase() {
+  GptData *gpt;
+  GptEntry *entries;
+  uint64_t start_sector, size;
+
+  gpt = GetEmptyGptData();
+  entries = (GptEntry*)gpt->primary_entries;
+  BuildTestGptData(gpt);
+
+  EXPECT(GPT_SUCCESS == GptInit(gpt));
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start_sector, &size));
+  EXPECT(start_sector == 34);  /* Kernel A, see top of this file. */
+  EXPECT(size == 100);
+
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
+  EXPECT(((entries[KERNEL_A].attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
+           CGPT_ATTRIBUTE_TRIES_OFFSET) == 1);
+
+  return TEST_OK;
+}
+
+/* Higher priority kernel should boot first.
+ *   KERNEL_A is low priority
+ *   KERNEL_B is high priority.
+ * We expect KERNEL_B is selected in first run, and then KERNEL_A.
+ * We also expect the GptNextKernelEntry() wraps back to KERNEL_B if it's called
+ * after twice.
+ */
+int HigherPriorityTest() {
+  GptData *gpt;
+  GptEntry *entries;
+
+  gpt = GetEmptyGptData();
+  entries = (GptEntry*)gpt->primary_entries;
+  BuildTestGptData(gpt);
+
+  SetPriority(gpt, PRIMARY, KERNEL_A, 0);
+  SetPriority(gpt, PRIMARY, KERNEL_B, 1);
+  RefreshCrc32(gpt);
+
+  EXPECT(GPT_SUCCESS == GptInit(gpt));
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, NULL, NULL));
+  EXPECT(KERNEL_B == gpt->current_kernel);
+
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, NULL, NULL));
+  EXPECT(KERNEL_A == gpt->current_kernel);
+
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, NULL, NULL));
+  EXPECT(KERNEL_B == gpt->current_kernel);
+
+  return TEST_OK;
+}
+
 int main(int argc, char *argv[]) {
   int i;
   int error_count = 0;
@@ -916,6 +1144,13 @@ int main(int argc, char *argv[]) {
     { TEST_CASE(CorruptCombinationTest), },
     { TEST_CASE(TestQuickSortFixed), },
     { TEST_CASE(TestQuickSortRandom), },
+    { TEST_CASE(NoValidKernelEntryTest), },
+    { TEST_CASE(CombinationalNextKernelEntryTest), },
+    { TEST_CASE(IncreaseTriesTest), },
+    { TEST_CASE(MarkBadKernelEntryTest), },
+    { TEST_CASE(UpdateInvalidKernelTypeTest), },
+    { TEST_CASE(NormalBootCase), },
+    { TEST_CASE(HigherPriorityTest), },
   };
 
   for (i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); ++i) {

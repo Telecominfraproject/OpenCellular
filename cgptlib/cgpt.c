@@ -465,6 +465,14 @@ void UpdateCrc(GptData *gpt) {
   primary_header = (GptHeader*)gpt->primary_header;
   secondary_header = (GptHeader*)gpt->secondary_header;
 
+  if (gpt->modified & GPT_MODIFIED_ENTRIES1) {
+    primary_header->entries_crc32 =
+        Crc32(gpt->primary_entries, TOTAL_ENTRIES_SIZE);
+  }
+  if (gpt->modified & GPT_MODIFIED_ENTRIES2) {
+    secondary_header->entries_crc32 =
+        Crc32(gpt->secondary_entries, TOTAL_ENTRIES_SIZE);
+  }
   if (gpt->modified & GPT_MODIFIED_HEADER1) {
     primary_header->header_crc32 = 0;
     primary_header->header_crc32 = Crc32(
@@ -474,14 +482,6 @@ void UpdateCrc(GptData *gpt) {
     secondary_header->header_crc32 = 0;
     secondary_header->header_crc32 = Crc32(
         (const uint8_t *)secondary_header, secondary_header->size);
-  }
-  if (gpt->modified & GPT_MODIFIED_ENTRIES1) {
-    primary_header->entries_crc32 =
-        Crc32(gpt->primary_entries, TOTAL_ENTRIES_SIZE);
-  }
-  if (gpt->modified & GPT_MODIFIED_ENTRIES2) {
-    secondary_header->entries_crc32 =
-        Crc32(gpt->secondary_entries, TOTAL_ENTRIES_SIZE);
   }
 }
 
@@ -528,25 +528,219 @@ int GptInit(GptData *gpt) {
 
   UpdateCrc(gpt);
 
-  /* FIXME: will remove the next line soon. */
-  gpt->current_kernel = 1;
+  gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+
   return GPT_SUCCESS;
 }
 
-/* stub code */
-static int start[] = { 34, 10034 };
+/* Helper function to get a pointer to the partition entry.
+ *   'secondary' is either PRIMARY or SECONDARY.
+ *   'entry_index' is the partition index: [0, number_of_entries).
+ */
+GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index) {
+  GptHeader *header;
+  uint8_t *entries;
 
+  if (secondary == PRIMARY) {
+    header = (GptHeader*)gpt->primary_header;
+    entries = gpt->primary_entries;
+  } else {
+    header = (GptHeader*)gpt->secondary_header;
+    entries = gpt->secondary_entries;
+  }
+
+  return (GptEntry*)(&entries[header->size_of_entry * entry_index]);
+}
+
+/* The following functions are helpers to access attributes bit more easily.
+ *   'secondary' is either PRIMARY or SECONDARY.
+ *   'entry_index' is the partition index: [0, number_of_entries).
+ *
+ * Get*() return the exact value (shifted and masked).
+ */
+void SetPriority(GptData *gpt, int secondary, int entry_index, int priority) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+
+  assert(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
+  entry->attributes &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
+  entry->attributes |= (uint64_t)priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+}
+
+int GetPriority(GptData *gpt, int secondary, int entry_index) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+  return (entry->attributes & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
+         CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+}
+
+void SetBad(GptData *gpt, int secondary, int entry_index, int bad) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+
+  assert(bad >= 0 && bad <= CGPT_ATTRIBUTE_MAX_BAD);
+  entry->attributes &= ~CGPT_ATTRIBUTE_BAD_MASK;
+  entry->attributes |= (uint64_t)bad << CGPT_ATTRIBUTE_BAD_OFFSET;
+}
+
+int GetBad(GptData *gpt, int secondary, int entry_index) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+  return (entry->attributes & CGPT_ATTRIBUTE_BAD_MASK) >>
+         CGPT_ATTRIBUTE_BAD_OFFSET;
+}
+
+void SetTries(GptData *gpt, int secondary, int entry_index, int tries) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+
+  assert(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
+  entry->attributes &= ~CGPT_ATTRIBUTE_TRIES_MASK;
+  entry->attributes |= (uint64_t)tries << CGPT_ATTRIBUTE_TRIES_OFFSET;
+}
+
+int GetTries(GptData *gpt, int secondary, int entry_index) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+  return (entry->attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
+         CGPT_ATTRIBUTE_TRIES_OFFSET;
+}
+
+void SetSuccess(GptData *gpt, int secondary, int entry_index, int success) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+
+  assert(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESS);
+  entry->attributes &= ~CGPT_ATTRIBUTE_SUCCESS_MASK;
+  entry->attributes |= (uint64_t)success << CGPT_ATTRIBUTE_SUCCESS_OFFSET;
+}
+
+int GetSuccess(GptData *gpt, int secondary, int entry_index) {
+  GptEntry *entry;
+  entry = GetEntry(gpt, secondary, entry_index);
+  return (entry->attributes & CGPT_ATTRIBUTE_SUCCESS_MASK) >>
+         CGPT_ATTRIBUTE_SUCCESS_OFFSET;
+}
+
+/* Compare two priority values. Actually it is a circular priority, which is:
+ * 3 > 2 > 1 > 0, but 0 > 3.  (-1 means very low, and anyone is higher than -1)
+ *
+ * Return 1 if 'a' has higher priority than 'b'.
+ */
+int IsHigherPriority(int a, int b) {
+  if ((a == 0) && (b == CGPT_ATTRIBUTE_MAX_PRIORITY))
+    return 1;
+  else if ((a == CGPT_ATTRIBUTE_MAX_PRIORITY) && (b == 0))
+    return 0;
+  else
+    return (a > b) ? 1 : 0;
+}
+
+/* This function walks through the whole partition table (see note below),
+ * and pick up the active and valid (not marked as bad) kernel entry with
+ * *highest* priority (except gpt->current_kernel itself).
+ *
+ * Returns start_sector and its size if a candidate kernel is found.
+ *
+ * Note: in the first walk (gpt->current_kernel==CGPT_KERNEL_ENTRY_NOT_FOUND),
+ *       the scan range is whole table. But in later scans, we only scan
+ *       (header->number_of_entries - 1) entries because we are looking for
+ *       next kernel with lower priority (consider the case that highest
+ *       priority kernel is still active and valid).
+ */
 int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size) {
-  /* FIXME: the following code is not really code, just returns anything */
-  gpt->current_kernel ^= 1;
-  if (start_sector) *start_sector = start[gpt->current_kernel];
-  if (size) *size = 10000;
+  GptHeader *header;
+  GptEntry *entry;
+  int scan, current_priority;
+  int begin, end;  /* [begin, end], which end is included. */
+  Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
+
+  header = (GptHeader*)gpt->primary_header;
+  current_priority = -1;  /* pretty low priority */
+  if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND) {
+    begin = 0;
+    end = header->number_of_entries - 1;
+  } else {
+    begin = (gpt->current_kernel + 1) % header->number_of_entries;
+    end = (gpt->current_kernel - 1 + header->number_of_entries) %
+          header->number_of_entries;
+  }
+
+  scan = begin;
+  do {
+    entry = GetEntry(gpt, PRIMARY, scan);
+    if (!Memcmp(&entry->type, &chromeos_kernel, sizeof(Guid)) &&
+        !GetBad(gpt, PRIMARY, scan) &&
+        ((gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND) ||
+         (IsHigherPriority(GetPriority(gpt, PRIMARY, scan),
+                           current_priority)))) {
+      gpt->current_kernel = scan;
+      current_priority = GetPriority(gpt, PRIMARY, gpt->current_kernel);
+    }
+
+    if (scan == end) break;
+    scan = (scan + 1) % header->number_of_entries;
+  } while (1);
+
+  if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND)
+    return GPT_ERROR_NO_VALID_KERNEL;
+
+  entry = GetEntry(gpt, PRIMARY, gpt->current_kernel);
+  assert(entry->starting_lba <= entry->ending_lba);
+
+  if (start_sector) *start_sector = entry->starting_lba;
+  if (size) *size = entry->ending_lba - entry->starting_lba + 1;
+
   return GPT_SUCCESS;
 }
 
+/* Given a update_type, this function updates the corresponding bits in GptData.
+ *
+ * Returns GPT_SUCCESS if no error. gpt->modified is set if any header and
+ *                     entries needs to be updated to hard drive.
+ *         GPT_ERROR_INVALID_UPDATE_TYPE if given an invalid update_type.
+ */
 int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type) {
-  /* FIXME: the following code is not really code, just return anything */
-  gpt->modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1) <<
-                   gpt->current_kernel;
+  Guid chromeos_type = GPT_ENT_TYPE_CHROMEOS_KERNEL;
+  int primary_is_modified = 0;
+
+  assert(gpt->current_kernel != CGPT_KERNEL_ENTRY_NOT_FOUND);
+  assert(!Memcmp(&(GetEntry(gpt, PRIMARY, gpt->current_kernel)->type),
+                 &chromeos_type, sizeof(Guid)));
+
+  /* Modify primary entries first, then copy to secondary later. */
+  switch (update_type) {
+    case GPT_UPDATE_ENTRY_TRY: {
+        /* Increase tries value until CGPT_ATTRIBUTE_MAX_TRIES. */
+        int tries;
+        tries = GetTries(gpt, PRIMARY, gpt->current_kernel);
+        if (tries < CGPT_ATTRIBUTE_MAX_TRIES) {
+          ++tries;
+          SetTries(gpt, PRIMARY, gpt->current_kernel, tries);
+          primary_is_modified = 1;
+        }
+      break;
+    }
+    case GPT_UPDATE_ENTRY_BAD: {
+      GetEntry(gpt, PRIMARY, gpt->current_kernel)->attributes |=
+          CGPT_ATTRIBUTE_BAD_MASK;
+      primary_is_modified = 1;
+      break;
+    }
+    default: {
+      return GPT_ERROR_INVALID_UPDATE_TYPE;
+    }
+  }
+
+  if (primary_is_modified) {
+    /* Claim only primary is valid so that secondary is overwritten. */
+    RepairEntries(gpt, MASK_PRIMARY);
+    /* Actually two entries are dirty now.
+    * Also two headers are dirty because entries_crc32 has been updated. */
+    gpt->modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
+                      GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
+    UpdateCrc(gpt);
+  }
+
   return GPT_SUCCESS;
 }
