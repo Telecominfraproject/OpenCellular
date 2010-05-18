@@ -3,10 +3,10 @@
  * found in the LICENSE file.
  */
 
-#include "cgpt_test.h"
+#include "cgptlib_test.h"
 #include <string.h>
-#include "cgpt.h"
-#include "cgpt_internal.h"
+#include "cgptlib.h"
+#include "cgptlib_internal.h"
 #include "crc32.h"
 #include "gpt.h"
 #include "quick_sort_test.h"

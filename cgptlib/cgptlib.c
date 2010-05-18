@@ -3,9 +3,9 @@
  * found in the LICENSE file.
  */
 
-#include "cgpt.h"
+#include "cgptlib.h"
 #include <string.h>
-#include "cgpt_internal.h"
+#include "cgptlib_internal.h"
 #include "crc32.h"
 #include "gpt.h"
 #include "quick_sort.h"

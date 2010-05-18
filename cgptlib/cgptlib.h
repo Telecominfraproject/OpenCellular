@@ -3,8 +3,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef VBOOT_REFERENCE_CGPT_H_
-#define VBOOT_REFERENCE_CGPT_H_
+#ifndef VBOOT_REFERENCE_CGPTLIB_H_
+#define VBOOT_REFERENCE_CGPTLIB_H_
 
 #include "gpt.h"
 #include <stdint.h>
@@ -133,4 +133,4 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type);
  *   GPT_ERROR_INVALID_UPDATE_TYPE, invalid 'update_type' is given.
  */
 
-#endif  /* VBOOT_REFERENCE_CGPT_H_ */
+#endif  /* VBOOT_REFERENCE_CGPTLIB_H_ */

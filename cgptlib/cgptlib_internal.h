@@ -3,11 +3,11 @@
  * found in the LICENSE file.
  */
 
-#ifndef VBOOT_REFERENCE_CGPT_INTERNAL_H_
-#define VBOOT_REFERENCE_CGPT_INTERNAL_H_
+#ifndef VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_
+#define VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_
 
 #include <stdint.h>
-#include "cgpt.h"
+#include "cgptlib.h"
 
 int CheckParameters(GptData *gpt);
 uint32_t CheckHeaderSignature(GptData *gpt);
@@ -79,4 +79,4 @@ int GetSuccess(GptData *gpt, int secondary, int entry_index);
 #define CGPT_ATTRIBUTE_PRIORITY_MASK (CGPT_ATTRIBUTE_MAX_PRIORITY << \
                                       CGPT_ATTRIBUTE_PRIORITY_OFFSET)
 
-#endif /* VBOOT_REFERENCE_CGPT_INTERNAL_H_ */
+#endif /* VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_ */

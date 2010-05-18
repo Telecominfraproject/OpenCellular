@@ -8,9 +8,10 @@ export TOP = $(shell pwd)
 export INCLUDES = \
 	-I$(TOP)/common/include \
 	-I$(TOP)/cryptolib/include \
-	-I$(TOP)/misclibs/include
+	-I$(TOP)/misclibs/include \
+	-I$(TOP)/cgptlib
 
-SUBDIRS=common cryptolib misclibs vfirmware vkernel utility tests
+SUBDIRS=common cgptlib cryptolib misclibs vfirmware vkernel utility tests
 
 all:
 	for i in $(SUBDIRS); do \

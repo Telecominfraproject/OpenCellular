@@ -4,7 +4,7 @@
  */
 
 #include "quick_sort_test.h"
-#include "cgpt_test.h"
+#include "cgptlib_test.h"
 #include "quick_sort.h"
 #include "utility.h"
 

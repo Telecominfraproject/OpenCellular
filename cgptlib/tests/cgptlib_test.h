@@ -2,8 +2,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef VBOOT_REFERENCE_CGPT_TEST_H_
-#define VBOOT_REFERENCE_CGPT_TEST_H_
+#ifndef VBOOT_REFERENCE_CGPTLIB_TEST_H_
+#define VBOOT_REFERENCE_CGPTLIB_TEST_H_
 
 #include <stdio.h>
 
@@ -31,4 +31,4 @@ typedef int (*test_func)(void);
     } \
   } while (0)
 
-#endif  /* VBOOT_REFERENCE_CGPT_TEST_H_ */
+#endif  /* VBOOT_REFERENCE_CGPTLIB_TEST_H_ */

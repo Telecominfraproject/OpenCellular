@@ -2,11 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-CC ?= cc
-CFLAGS ?= -Wall -DNDEBUG -Werror -ansi
+CFLAGS += -Wall -DNDEBUG -Werror -ansi
 LIBS = ../cgpt.a ../../common/libcommon.a
-OBJS = cgpt_test.o
-OUT = cgpt_test
+OBJS = cgptlib_test.o quick_sort_test.o
+OUT = cgptlib_test
 
 all: $(OUT)
 
