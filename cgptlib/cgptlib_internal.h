@@ -31,6 +31,7 @@ typedef struct {
   uint64_t ending;
 } pair_t;
 
+void UpdateCrc(GptData *gpt);
 GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index);
 void SetPriority(GptData *gpt, int secondary, int entry_index, int priority);
 int GetPriority(GptData *gpt, int secondary, int entry_index);
@@ -38,8 +39,11 @@ void SetBad(GptData *gpt, int secondary, int entry_index, int bad);
 int GetBad(GptData *gpt, int secondary, int entry_index);
 void SetTries(GptData *gpt, int secondary, int entry_index, int tries);
 int GetTries(GptData *gpt, int secondary, int entry_index);
-void SetSuccess(GptData *gpt, int secondary, int entry_index, int success);
-int GetSuccess(GptData *gpt, int secondary, int entry_index);
+void SetSuccessful(GptData *gpt, int secondary, int entry_index, int success);
+int GetSuccessful(GptData *gpt, int secondary, int entry_index);
+
+/* Get number of entries value in primary header */
+uint32_t GetNumberOfEntries(const GptData *gpt);
 
 /* If gpt->current_kernel is this value, means either:
  *   1. an initial value before scanning GPT entries,
@@ -64,10 +68,10 @@ int GetSuccess(GptData *gpt, int secondary, int entry_index);
 #define CGPT_ATTRIBUTE_BAD_MASK (CGPT_ATTRIBUTE_MAX_BAD << \
                                  CGPT_ATTRIBUTE_BAD_OFFSET)
 
-#define CGPT_ATTRIBUTE_SUCCESS_OFFSET 56
-#define CGPT_ATTRIBUTE_MAX_SUCCESS (1ULL)
-#define CGPT_ATTRIBUTE_SUCCESS_MASK (CGPT_ATTRIBUTE_MAX_SUCCESS << \
-                                     CGPT_ATTRIBUTE_SUCCESS_OFFSET)
+#define CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET 56
+#define CGPT_ATTRIBUTE_MAX_SUCCESSFUL (1ULL)
+#define CGPT_ATTRIBUTE_SUCCESSFUL_MASK (CGPT_ATTRIBUTE_MAX_SUCCESSFUL << \
+                                     CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET)
 
 #define CGPT_ATTRIBUTE_TRIES_OFFSET 52
 #define CGPT_ATTRIBUTE_MAX_TRIES (15ULL)

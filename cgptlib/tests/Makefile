@@ -2,15 +2,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+TOP ?= ../../
 CFLAGS += -Wall -DNDEBUG -Werror -ansi
-LIBS = ../cgpt.a ../../common/libcommon.a
-OBJS = cgptlib_test.o quick_sort_test.o
+LIBS = $(TOP)/cgptlib/libcgpt.a $(TOP)/common/libcommon.a
+OBJS = cgptlib_test.o quick_sort_test.o crc32_test.o
 OUT = cgptlib_test
 
 all: $(OUT)
 
 $(OUT): $(OBJS) $(LIBS)
-	$(CC) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@

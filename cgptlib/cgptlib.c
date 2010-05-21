@@ -14,12 +14,27 @@
 /* Macro to invalidate a GPT header/entries */
 #define INVALIDATE_HEADER(valid_headers, index) \
   do { \
+    debug("- INVALIDATE_HEADER() at %s():%d\n", __FUNCTION__, __LINE__); \
     valid_headers &= ~(1<<index); \
   } while (0)
 #define INVALIDATE_ENTRIES(valid_entries, index) \
   do { \
+    debug("- INVALIDATE_ENTRIES() at %s():%d\n", __FUNCTION__, __LINE__); \
     valid_entries &= ~(1<<index); \
   } while (0)
+
+const char *GptError(int errno) {
+  const char *error_string[] = {
+    /* GPT_SUCCESS */ "Success",
+    /* GPT_ERROR_NO_VALID_KERNEL */ "No valid kernel entry",
+    /* GPT_ERROR_INVALID_HEADERS */ "Invalid headers",
+    /* GPT_ERROR_INVALID_ENTRIES */ "Invalid entries",
+    /* GPT_ERROR_INVALID_SECTOR_SIZE */ "Invalid sector size",
+    /* GPT_ERROR_INVALID_SECTOR_NUMBER */ "Invalid sector number",
+    /* GPT_ERROR_INVALID_UPDATE_TYPE */ "Invalid update type",
+  };
+  return error_string[errno];
+}
 
 /* Checks if sector_bytes and drive_sectors are valid values. */
 int CheckParameters(GptData *gpt) {
@@ -606,21 +621,28 @@ int GetTries(GptData *gpt, int secondary, int entry_index) {
          CGPT_ATTRIBUTE_TRIES_OFFSET;
 }
 
-void SetSuccess(GptData *gpt, int secondary, int entry_index, int success) {
+void SetSuccessful(GptData *gpt, int secondary, int entry_index, int success) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
 
-  assert(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESS);
-  entry->attributes &= ~CGPT_ATTRIBUTE_SUCCESS_MASK;
-  entry->attributes |= (uint64_t)success << CGPT_ATTRIBUTE_SUCCESS_OFFSET;
+  assert(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
+  entry->attributes &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
+  entry->attributes |= (uint64_t)success << CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
 }
 
-int GetSuccess(GptData *gpt, int secondary, int entry_index) {
+int GetSuccessful(GptData *gpt, int secondary, int entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attributes & CGPT_ATTRIBUTE_SUCCESS_MASK) >>
-         CGPT_ATTRIBUTE_SUCCESS_OFFSET;
+  return (entry->attributes & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
+         CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
 }
+
+uint32_t GetNumberOfEntries(const GptData *gpt) {
+  GptHeader *header;
+  header = (GptHeader*)gpt->primary_header;
+  return header->number_of_entries;
+}
+
 
 /* Compare two priority values. Actually it is a circular priority, which is:
  * 3 > 2 > 1 > 0, but 0 > 3.  (-1 means very low, and anyone is higher than -1)

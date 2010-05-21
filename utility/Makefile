@@ -19,6 +19,7 @@ LIBS = $(TOP)/misclibs/file_keys.o \
 	$(TOP)/vkernel/kernel_image.o \
 	$(TOP)/vkernel/kernel_image_fw.o
 FIRMWARELIBS = $(TOP)/cryptolib/libcrypto.a $(TOP)/common/libcommon.a
+SUBDIRS = cgpt
 
 TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
@@ -26,7 +27,14 @@ TARGET_BINS = dumpRSAPublicKey \
 		signature_digest_utility \
 		verify_data
 
-all: $(TARGET_BINS)
+all: $(TARGET_BINS) subdirs
+
+.PHONY: subdirs
+subdirs:
+	set -e; \
+	for i in $(SUBDIRS); do \
+		$(MAKE) -C $$i; \
+	done
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
@@ -48,5 +56,8 @@ verify_data: verify_data.c $(LIBS) $(FIRMWARELIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FIRMWARELIBS) -lcrypto
 
 clean:
+	set -e; \
+	for i in $(SUBDIRS); do \
+		$(MAKE) -C $$i clean; \
+	done
 	rm -f $(TARGET_BINS)
-

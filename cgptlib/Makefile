@@ -6,19 +6,21 @@ CFLAGS += -Wall -Werror -ansi
 INCLUDES += -Itests
 SUBDIRS = tests
 
-all: cgpt.a
+all: libcgpt.a
+	set -e; \
 	for i in $(SUBDIRS); do \
-	( cd $$i ; $(MAKE)) ; \
+		$(MAKE) -C $$i; \
 	done
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-cgpt.a: cgptlib.o quick_sort.o crc32.o
+libcgpt.a: cgptlib.o quick_sort.o crc32.o
 	$(AR) rs $@ $^
 
 clean:
+	set -e; \
 	for i in $(SUBDIRS); do \
-	( $(MAKE) -C $$i clean ) ; \
+		$(MAKE) -C $$i clean; \
 	done
 	rm -f *.o *~ *.a

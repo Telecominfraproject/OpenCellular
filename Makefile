@@ -14,11 +14,13 @@ export INCLUDES = \
 SUBDIRS=common cgptlib cryptolib misclibs vfirmware vkernel utility tests
 
 all:
+	set -e; \
 	for i in $(SUBDIRS); do \
-	( cd $$i ; $(MAKE)) ; \
+		make -C $$i; \
 	done
 
 clean:
+	set -e; \
 	for i in $(SUBDIRS); do \
-	( cd $$i ; make clean) ; \
+		make -C $$i clean; \
 	done

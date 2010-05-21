@@ -19,6 +19,8 @@ enum {
   GPT_ERROR_INVALID_UPDATE_TYPE,
 };
 
+const char *GptError(int errno);
+
 /* Bit masks for GptData.modified field. */
 #define GPT_MODIFIED_HEADER1 0x01
 #define GPT_MODIFIED_HEADER2 0x02

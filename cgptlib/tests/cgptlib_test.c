@@ -8,6 +8,7 @@
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
+#include "crc32_test.h"
 #include "gpt.h"
 #include "quick_sort_test.h"
 #include "utility.h"
@@ -1151,6 +1152,7 @@ int main(int argc, char *argv[]) {
     { TEST_CASE(UpdateInvalidKernelTypeTest), },
     { TEST_CASE(NormalBootCase), },
     { TEST_CASE(HigherPriorityTest), },
+    { TEST_CASE(TestCrc32TestVectors), },
   };
 
   for (i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); ++i) {
