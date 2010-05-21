@@ -116,6 +116,7 @@ int DriveClose(struct drive *drive);
 /* Function declarations for commands.
  * The return value of these functions is passed to main()'s exit value. */
 int CgptAttribute(int argc, char *argv[]);
+int CgptRepair(int argc, char *argv[]);
 int CgptShow(int argc, char *argv[]);
 
 #endif  /* VBOOT_REFERENCE_UTILITY_CGPT_CGPT_H_ */

@@ -11,7 +11,7 @@ LIBS += $(TOP)/common/libcommon.a \
 
 all: cgpt
 
-cgpt: cgpt.o cgpt_options.o cgpt_show.o cgpt_attribute.o $(LIBS)
+cgpt: cgpt.o cgpt_attribute.o cgpt_options.o cgpt_repair.o cgpt_show.o $(LIBS)
 	$(CC) -o cgpt $(CFLAGS) $^
 
 .c.o: $(INCLUDES)

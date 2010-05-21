@@ -31,6 +31,7 @@ struct {
 } cmds[] = {
   {"attribute", CgptAttribute, "Update GPT attribute bits "
                                "(for ChromeOS kernel entry only)"},
+  {"repair", CgptRepair, "Repair primary and secondary headers and tables"},
   {"show", CgptShow, "Show partition details"},
 };
 

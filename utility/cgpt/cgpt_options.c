@@ -107,8 +107,17 @@ int OpenDriveInLastArgument(const int argc,
                             struct drive *drive) {
   /* Then, we need a non-option argument. */
   if (optind == (argc - 1)) {
-    char *drive_path;
-    drive_path = argv[optind];
+    char *path, drive_path[256];
+    path = argv[optind];
+    switch (path[0]) {
+      case '.':
+      case '/':
+        snprintf(drive_path, sizeof(drive_path), "%s", path);
+        break;
+      default:
+        snprintf(drive_path, sizeof(drive_path), "/dev/%s", path);
+        break;
+    }
     if (CGPT_OK != DriveOpen(drive_path, drive)) {
       printf("[ERROR] DriveOpen(%s) error!\n", drive_path);
       return CGPT_FAILED;

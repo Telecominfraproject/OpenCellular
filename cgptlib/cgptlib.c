@@ -27,8 +27,10 @@ const char *GptError(int errno) {
   const char *error_string[] = {
     /* GPT_SUCCESS */ "Success",
     /* GPT_ERROR_NO_VALID_KERNEL */ "No valid kernel entry",
-    /* GPT_ERROR_INVALID_HEADERS */ "Invalid headers",
-    /* GPT_ERROR_INVALID_ENTRIES */ "Invalid entries",
+    /* GPT_ERROR_INVALID_HEADERS */ "Both primary and secondary headers are "
+                                    "invalid.",
+    /* GPT_ERROR_INVALID_ENTRIES */ "Both primary and secondary entries are "
+                                    "invalid.",
     /* GPT_ERROR_INVALID_SECTOR_SIZE */ "Invalid sector size",
     /* GPT_ERROR_INVALID_SECTOR_NUMBER */ "Invalid sector number",
     /* GPT_ERROR_INVALID_UPDATE_TYPE */ "Invalid update type",
