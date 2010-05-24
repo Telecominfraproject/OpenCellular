@@ -44,8 +44,11 @@ typedef struct KernelImage {
 
   uint8_t* kernel_key_signature;   /* Signature of the header above. */
 
+  /* Kernel preamble */
   uint16_t kernel_version;  /* Kernel Version# for preventing rollbacks. */
   uint64_t kernel_len;  /* Length of the actual kernel image. */
+  uint64_t bootloader_offset;  /* Offset of bootloader in kernel_data. */
+  uint64_t bootloader_size;  /* Size of bootloader in bytes. */
   uint8_t* config_signature;  /* Signature on the concatenation of
                                * [kernel_version], [kernel_len] and
                                * [kernel_config]. */
