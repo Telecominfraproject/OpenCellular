@@ -80,96 +80,108 @@ void KernelUtility::PrintUsage(void) {
 }
 
 bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
-  int option_index;
+  int option_index, i;
+  enum {
+    OPT_FIRMWARE_KEY = 1000,
+    OPT_FIRMWARE_KEY_PUB,
+    OPT_KERNEL_KEY,
+    OPT_KERNEL_KEY_PUB,
+    OPT_FIRMWARE_SIGN_ALGORITHM,
+    OPT_KERNEL_SIGN_ALGORITHM,
+    OPT_KERNEL_KEY_VERSION,
+    OPT_KERNEL_VERSION,
+    OPT_IN,
+    OPT_OUT,
+    OPT_GENERATE,
+    OPT_VERIFY,
+    OPT_DESCRIBE,
+    OPT_CONFIG,
+    OPT_VBLOCK,
+  };
   static struct option long_options[] = {
-    {"firmware_key", 1, 0, 0},
-    {"firmware_key_pub", 1, 0, 0},
-    {"kernel_key", 1, 0, 0},
-    {"kernel_key_pub", 1, 0, 0},
-    {"firmware_sign_algorithm", 1, 0, 0},
-    {"kernel_sign_algorithm", 1, 0, 0},
-    {"kernel_key_version", 1, 0, 0},
-    {"kernel_version", 1, 0, 0},
-    {"in", 1, 0, 0},
-    {"out", 1, 0, 0},
-    {"generate", 0, 0, 0},
-    {"verify", 0, 0, 0},
-    {"describe", 0, 0, 0},
-    {"config", 1, 0, 0},
-    {"vblock", 0, 0, 0},
+    {"firmware_key", 1, 0,              OPT_FIRMWARE_KEY            },
+    {"firmware_key_pub", 1, 0,          OPT_FIRMWARE_KEY_PUB        },
+    {"kernel_key", 1, 0,                OPT_KERNEL_KEY              },
+    {"kernel_key_pub", 1, 0,            OPT_KERNEL_KEY_PUB          },
+    {"firmware_sign_algorithm", 1, 0,   OPT_FIRMWARE_SIGN_ALGORITHM },
+    {"kernel_sign_algorithm", 1, 0,     OPT_KERNEL_SIGN_ALGORITHM   },
+    {"kernel_key_version", 1, 0,        OPT_KERNEL_KEY_VERSION      },
+    {"kernel_version", 1, 0,            OPT_KERNEL_VERSION          },
+    {"in", 1, 0,                        OPT_IN                      },
+    {"out", 1, 0,                       OPT_OUT                     },
+    {"generate", 0, 0,                  OPT_GENERATE                },
+    {"verify", 0, 0,                    OPT_VERIFY                  },
+    {"describe", 0, 0,                  OPT_DESCRIBE                },
+    {"config", 1, 0,                    OPT_CONFIG                  },
+    {"vblock", 0, 0,                    OPT_VBLOCK                  },
     {NULL, 0, 0, 0}
   };
-  while (1) {
-    int i = getopt_long(argc, argv, "", long_options, &option_index);
-    if (-1 == i)  // Done with option processing.
-      break;
-    if ('?' == i)  // Invalid option found.
+  while ((i = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
+    switch (i) {
+    case '?':
       return false;
-
-    if (0 == i) {
-      switch (option_index) {
-        case 0:  // firmware_key
-          firmware_key_file_ = optarg;
-          break;
-        case 1:  // firmware_key_pub
-          firmware_key_pub_file_ = optarg;
-          break;
-        case 2:  // kernel_key
-          kernel_key_file_ = optarg;
-          break;
-        case 3:  // kernel_key_pub
-          kernel_key_pub_file_ = optarg;
-          break;
-        case 4:  // firmware_sign_algorithm
-          errno = 0;  // strtol() returns an error via errno
-          firmware_sign_algorithm_ = strtol(optarg,
-                                            reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 5:  // kernel_sign_algorithm
-          errno = 0;
-          kernel_sign_algorithm_ = strtol(optarg,
-                                          reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 6:  // kernel_key_version
-          errno = 0;
-          kernel_key_version_ = strtol(optarg,
-                                       reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 7:  // kernel_version
-          errno = 0;
-          kernel_version_ = strtol(optarg,
+      break;
+    case OPT_FIRMWARE_KEY:
+      firmware_key_file_ = optarg;
+      break;
+    case OPT_FIRMWARE_KEY_PUB:
+      firmware_key_pub_file_ = optarg;
+      break;
+    case OPT_KERNEL_KEY:
+      kernel_key_file_ = optarg;
+      break;
+    case OPT_KERNEL_KEY_PUB:
+      kernel_key_pub_file_ = optarg;
+      break;
+    case OPT_FIRMWARE_SIGN_ALGORITHM:
+      errno = 0;  // strtol() returns an error via errno
+      firmware_sign_algorithm_ = strtol(optarg,
+                                        reinterpret_cast<char**>(NULL), 10);
+      if (errno)
+        return false;
+      break;
+    case OPT_KERNEL_SIGN_ALGORITHM:
+      errno = 0;
+      kernel_sign_algorithm_ = strtol(optarg,
+                                      reinterpret_cast<char**>(NULL), 10);
+      if (errno)
+        return false;
+      break;
+    case OPT_KERNEL_KEY_VERSION:
+      errno = 0;
+      kernel_key_version_ = strtol(optarg,
                                    reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 8:  // in
-          in_file_ = optarg;
-          break;
-        case 9:  // out
-          out_file_ = optarg;
-          break;
-        case 10:  // generate
-          is_generate_ = true;
-          break;
-        case 11:  // verify
-          is_verify_ = true;
-          break;
-        case 12:  // describe
-          is_describe_ = true;
-          break;
-        case 13:  // config
-          config_file_ = optarg;
-          break;
-        case 14:  // vblock
-          is_only_vblock_ = true;
-          break;
-      }
+      if (errno)
+        return false;
+        break;
+    case OPT_KERNEL_VERSION:
+      errno = 0;
+      kernel_version_ = strtol(optarg,
+                                 reinterpret_cast<char**>(NULL), 10);
+      if (errno)
+        return false;
+      break;
+    case OPT_IN:
+      in_file_ = optarg;
+      break;
+    case OPT_OUT:
+      out_file_ = optarg;
+      break;
+    case OPT_GENERATE:
+      is_generate_ = true;
+      break;
+    case OPT_VERIFY:
+      is_verify_ = true;
+      break;
+    case OPT_DESCRIBE:
+      is_describe_ = true;
+      break;
+    case OPT_CONFIG:
+      config_file_ = optarg;
+      break;
+    case OPT_VBLOCK:
+      is_only_vblock_ = true;
+      break;
     }
   }
   return CheckOptions();
@@ -232,7 +244,7 @@ bool KernelUtility::GenerateSignedImage(void) {
   }
   image_->kernel_data = BufferFromFile(in_file_.c_str(),
                                        &image_->kernel_len);
-  if (!image_)
+  if (!image_->kernel_data)
     return false;
   // Generate and add the signatures.
   if (!AddKernelKeySignature(image_, firmware_key_file_.c_str())) {
