@@ -86,8 +86,6 @@ typedef struct {
                                   * 0x02 = header2
                                   * 0x04 = table1
                                   * 0x08 = table2  */
-
-  /* Internal state */
   int current_kernel; /* the current chromeos kernel index in partition table.
                        * -1 means not found on drive. */
 } GptData;
@@ -119,7 +117,8 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size);
 /* Provides the location of the next kernel partition, in order of decreasing
  * priority.  On return the start_sector parameter contains the LBA sector
  * for the start of the kernel partition, and the size parameter contains the
- * size of the kernel partition in LBA sectors.
+ * size of the kernel partition in LBA sectors.  gpt.current_kernel contains
+ * the partition index of the current chromeos kernel partition.
  *
  * Returns GPT_SUCCESS if successful, else
  *   GPT_ERROR_NO_VALID_KERNEL, no avaliable kernel, enters recovery mode */
