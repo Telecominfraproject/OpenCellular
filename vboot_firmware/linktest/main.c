@@ -18,9 +18,10 @@ int main(void)
   VerifyFirmwareDriver_f(0, 0, 0, 0, 0);
 
   // kernel_image_fw.h
-  VerifyKernelHeader(0, 0, 0, 0, 0, 0);
-  VerifyKernelConfig(0, 0, 0, 0);
+  VerifyKernelKeyHeader(0, 0, 0, 0, 0, 0);
+  VerifyKernelPreamble(0, 0, 0, 0);
   VerifyKernelData(0, 0, 0, 0, 0);
+  VerifyKernelHeader(0, 0, 0, 0, 0, 0, 0, 0);
   VerifyKernel(0, 0, 0);
   GetLogicalKernelVersion(0);
   VerifyKernelDriver_f(0, 0, 0, 0);
