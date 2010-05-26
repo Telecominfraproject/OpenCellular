@@ -7,26 +7,21 @@ Directory Structure
 
 The source is organized into distinct modules -
 
-cryptolib/ - Contains the implementation for the crypto library. This
-includes implementations for SHA1, SHA256, SHA512, and RSA signature
-verification (for PKCS #1 v1.5 signatures).
+vboot_firmware/ - Contains ONLY the code required by the BIOS to validate
+the secure boot components. There shouldn't be any code in here that signs
+or generates images. BIOS should require ONLY this directory to implement
+secure boot. Refer to vboot_firmware/README for futher details.
 
-common/ - Utility functions and stub implementations for wrapper
-functions used in the verification code. These stub implementations
-will need to be replaced with appropriate firmware equivalents.
+cgptlib/ - Work in progress for handling GPT headers. Parts of this will no
+doubt be migrated into vboot_firmware/
 
 misclibs/ - Miscellaneous functions used by userland utilities.
 
 utility/ - Utilities for generating and verifying signed
 firmware and kernel images, as well as arbitrary blobs.
 
-vfirmware/ and vkernel/ - The main firmware and kernel image
-verification modules. It has functions for verifying and manipulating
-signed firmware and kernel images. The main files of interest are:
-       vfirmware/firmware_image_fw.c (verification Functions used in Firmware)
-       vfirmware/firmware_image.c (functions for userland tools)
-       vkernel/kernel_image_fw.c (verification functions used in Firmware)
-       vkernel/kernel_image.c (functions for userland tools)
+vfirmware/ and vkernel/ - Functions for generating, verifying, and
+manipulating signed firmware and kernel images.
 
 tests/ - User-land tests and benchmarks that test the reference
 implementation. Please have a look at these if you'd like to
@@ -49,29 +44,6 @@ dumpRSAPublicKey.c Dump RSA Public key (from a DER-encoded X509
 verify_data.c Verify a given signature on a given file.
 				 
 
----------- 
-What is required for a minimal verified boot implementation
-----------
-
-1) cryptolib/ - as a separate module since it will be used by others
-parts of the verified boot process.
-
-2) common/ - this contains the interface for dealing with memory allocation
-and interacting with the TPM. The stubs will need to be replaced with their
-firmware-level equivalents.
-
-3) Verified Firmware and Kernel image verification - This is the core
-of the verified boot implementation. They are implemented under vfirmware
-and vkernel (for firmware and kernel image verification respectively). 
-
-firmware_image_fw.c and kernel_image_fw.c : Contain verification logic
-		    			    used in the firmware. Needed.
-
-firmware_image.c and kernel_image.c : High level functions used by userland
-		     		      tools. NOT needed in the firmware.
-
-cryptolib/, common/, vfirmware/firmware_image_fw.c are part of the RO firmware.
-vkernel/kernel_image_fw.c is part of the RW firmware (it verifies the OS kernel).
  
 ---------- 
 Generating a signed firmware image: 

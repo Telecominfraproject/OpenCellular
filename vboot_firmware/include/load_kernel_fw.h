@@ -38,7 +38,7 @@ typedef struct LoadKernelParams {
   uint64_t bootloader_size;     /* Size of bootloader image in bytes */
 } LoadKernelParams;
 
-uintn_t LoadKernel(LoadKernelParams* params);
+uint64_t LoadKernel(LoadKernelParams* params);
 /* Attempts to load the kernel from the current device.
  *
  * Returns LOAD_KERNEL_SUCCESS if successful, error code on failure. */

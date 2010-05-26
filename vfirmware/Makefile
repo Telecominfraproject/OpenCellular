@@ -4,11 +4,11 @@
 
 CC ?= gcc
 INCLUDES += -I./include \
-		-I../cryptolib/include \
+		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
 		-I../misclibs/include
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
-FIRMWARE_OUT = firmware_image_fw.o firmware_image.o
+FIRMWARE_OUT = firmware_image.o
 
 all: $(FIRMWARE_OUT)
 

@@ -4,7 +4,7 @@
 
 TOP ?= ../../
 CFLAGS += -Wall -DNDEBUG -Werror -ansi
-LIBS = $(TOP)/cgptlib/libcgpt.a $(TOP)/common/libcommon.a
+LIBS = $(TOP)/cgptlib/libcgpt.a $(FWLIB)
 OBJS = cgptlib_test.o quick_sort_test.o crc32_test.o
 OUT = cgptlib_test
 

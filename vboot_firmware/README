@@ -1,0 +1,6 @@
+
+lib/ is stuff that the BIOS needs to link with.
+
+stub/ is stuff to be implemented by the BIOS.
+
+include/ describes the interfaces between the two parts.

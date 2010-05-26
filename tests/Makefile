@@ -6,18 +6,14 @@ TOP ?= ../
 CC ?= gcc
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 INCLUDES += -I./include \
-		-I../cryptolib/include \
-		-I../common/include \
+		-I$(FWDIR)/lib/cryptolib/include \
 		-I../misclibs/include \
 		-I../vfirmware/include\
 		-I../vkernel/include
-BASE_LIBS = $(TOP)/cryptolib/libcrypto.a $(TOP)/common/libcommon.a
 IMAGE_LIBS = $(TOP)/vfirmware/firmware_image.o \
-		$(TOP)/vfirmware/firmware_image_fw.o \
-		$(TOP)/vkernel/kernel_image.o \
-		$(TOP)/vkernel/kernel_image_fw.o
+		$(TOP)/vkernel/kernel_image.o
 UTIL_LIBS = $(TOP)/misclibs/file_keys.o $(TOP)/misclibs/signature_digest.o
-LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) -lcrypto $(BASE_LIBS)
+LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(FWLIB) -lcrypto
 
 TEST_BINS = big_firmware_tests \
 		big_kernel_tests \
@@ -75,18 +71,18 @@ kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c \
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
 rsa_padding_test: rsa_padding_test.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(UTIL_LIBS) $(BASE_LIBS) \
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(UTIL_LIBS) $(FWLIB) \
 	-lcrypto
 
 rsa_verify_benchmark: rsa_verify_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(UTIL_LIBS) $(BASE_LIBS) \
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(UTIL_LIBS) $(FWLIB) \
 	-lcrypto
 
 sha_benchmark:	sha_benchmark.c timer_utils.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(BASE_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(FWLIB)
 
 sha_tests: sha_tests.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(BASE_LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FWLIB)
 
 verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c \
 	rollback_index_mock.c

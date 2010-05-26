@@ -6,7 +6,7 @@ TOP ?= ../
 CC ?= gcc
 INCLUDES += -I./include \
 		-I$(TOP)/common/include \
-		-I$(TOP)/cryptolib/include \
+		-I$(TOP)/vboot_firmware/lib/cryptolib/include \
 		-I$(TOP)/vfirmware/include \
 		-I$(TOP)/vkernel/include
 

@@ -6,8 +6,7 @@ TOP ?= ../../
 CC ?= cc
 INCLUDES += -I$(TOP)/common/include
 CFLAGS += -Wall -Werror -ggdb
-LIBS += $(TOP)/common/libcommon.a \
-        $(TOP)/cgptlib/libcgpt.a
+LIBS += $(TOP)/cgptlib/libcgpt.a $(FWLIB)
 
 all: cgpt
 

@@ -4,11 +4,11 @@
 
 CC ?= gcc
 INCLUDES += -I./include \
-		-I../cryptolib/include \
+		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
 		-I../misclibs/include
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
-KERNEL_OUT = kernel_image_fw.o kernel_image.o
+KERNEL_OUT = kernel_image.o
 
 all: $(KERNEL_OUT)
 

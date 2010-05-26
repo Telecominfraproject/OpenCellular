@@ -5,13 +5,15 @@
 export CC ?= gcc
 export CFLAGS = -Wall -DNDEBUG -O3 -Werror
 export TOP = $(shell pwd)
+export FWDIR=$(TOP)/vboot_firmware
 export INCLUDES = \
-	-I$(TOP)/common/include \
-	-I$(TOP)/cryptolib/include \
+	-I$(FWDIR)/include \
 	-I$(TOP)/misclibs/include \
 	-I$(TOP)/cgptlib
 
-SUBDIRS=common cgptlib cryptolib misclibs vfirmware vkernel utility tests
+export FWLIB=$(FWDIR)/vboot_fw.a
+
+SUBDIRS=vboot_firmware cgptlib misclibs vfirmware vkernel utility tests
 
 all:
 	set -e; \
