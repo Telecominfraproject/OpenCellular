@@ -33,6 +33,18 @@ int TEST_EQ(int result, int expected_result, char* testname) {
   }
 }
 
+int TEST_NEQ(int result, int not_expected_result, char* testname) {
+  if (result != not_expected_result) {
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    return 1;
+  }
+  else {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    gTestSuccess = 0;
+    return 0;
+  }
+}
+
 FirmwareImage* GenerateTestFirmwareImage(int algorithm,
                                          const uint8_t* firmware_sign_key,
                                          int firmware_key_version,

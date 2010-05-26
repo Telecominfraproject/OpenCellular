@@ -65,12 +65,12 @@ void VerifyKernelSplicingTest()
   Memcpy(image2->kernel_data, image1->kernel_data,
          image2->kernel_len);
 
-  TEST_EQ(VerifyKernelImage(firmware_key, image2, 0),
-          VERIFY_KERNEL_SIGNATURE_FAILED,
-          "KernelImage kernel_data Splicing");
+  TEST_NEQ(VerifyKernelImage(firmware_key, image2, 0),
+           VERIFY_KERNEL_SUCCESS,
+           "KernelImage kernel_data Splicing");
   kernel_blob = GetKernelBlob(image2, &len);
-  TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, 0),
-          VERIFY_KERNEL_SIGNATURE_FAILED,
+  TEST_NEQ(VerifyKernel(firmware_key_blob, kernel_blob, 0),
+          VERIFY_KERNEL_SUCCESS,
           "Kernel Blob kernel_data Splicing");
 }
 

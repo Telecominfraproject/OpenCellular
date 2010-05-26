@@ -222,8 +222,9 @@ uint8_t* GetKernelPreambleBlob(const KernelImage* image) {
   uint8_t* preamble_blob = NULL;
   MemcpyState st;
 
-  preamble_blob = (uint8_t*) Malloc(GetKernelPreambleLen());
-  st.remaining_len = GetKernelPreambleLen();
+  preamble_blob = (uint8_t*) Malloc(
+      GetKernelPreambleLen(image->kernel_sign_algorithm));
+  st.remaining_len = GetKernelPreambleLen(image->kernel_sign_algorithm);
   st.remaining_buf = preamble_blob;
   st.overrun = 0;
 
@@ -233,6 +234,8 @@ uint8_t* GetKernelPreambleBlob(const KernelImage* image) {
   StatefulMemcpy_r(&st, &image->bootloader_size, FIELD_LEN(bootloader_size));
   StatefulMemcpy_r(&st, &image->padded_header_size,
                    FIELD_LEN(padded_header_size));
+  StatefulMemcpy_r(&st, image->kernel_signature,
+                   siglen_map[image->kernel_sign_algorithm]);
 
   if (st.overrun || st.remaining_len != 0) {  /* Overrun or Underrun. */
     Free(preamble_blob);
@@ -255,8 +258,8 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   *blob_len = (FIELD_LEN(magic) +
                GetKernelHeaderLen(image) +
                kernel_key_signature_len +
-               GetKernelPreambleLen() +
-               2 * kernel_signature_len +
+               GetKernelPreambleLen(image->kernel_sign_algorithm) +
+               kernel_signature_len +
                image->kernel_len);
   kernel_blob = (uint8_t*) Malloc(*blob_len);
   st.remaining_len = *blob_len;
@@ -276,13 +279,14 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   StatefulMemcpy_r(&st, &image->bootloader_size, FIELD_LEN(bootloader_size));
   StatefulMemcpy_r(&st, &image->padded_header_size,
                    FIELD_LEN(padded_header_size));
-  StatefulMemcpy_r(&st, image->preamble_signature, kernel_signature_len);
   StatefulMemcpy_r(&st, image->kernel_signature, kernel_signature_len);
+  StatefulMemcpy_r(&st, image->preamble_signature, kernel_signature_len);
   StatefulMemcpy_r(&st, image->kernel_data, image->kernel_len);
 
   Free(header_blob);
 
   if (st.overrun || st.remaining_len != 0) {  /* Underrun or Overrun. */
+    debug("GetKernelBlob() failed.\n");
     Free(kernel_blob);
     return NULL;
   }
@@ -371,7 +375,6 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   int kernel_signature_size;
   int error_code = 0;
   DigestContext ctx;
-  DigestContext kernel_ctx;
   if (!image)
     return VERIFY_KERNEL_INVALID_IMAGE;
 
@@ -433,6 +436,8 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
                FIELD_LEN(bootloader_size));
   DigestUpdate(&ctx, (uint8_t*) &image->padded_header_size,
                FIELD_LEN(padded_header_size));
+  DigestUpdate(&ctx, (uint8_t*) image->kernel_signature,
+               kernel_signature_size);
   preamble_digest = DigestFinal(&ctx);
   if (!RSAVerify(kernel_sign_key, image->preamble_signature,
                  kernel_signature_size, image->kernel_sign_algorithm,
@@ -442,21 +447,14 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
   }
 
   /* Verify kernel signature - kernel signature is computed on the contents
-     of kernel version + kernel options + kernel_data. */
-  DigestInit(&kernel_ctx, image->kernel_sign_algorithm);
-  DigestUpdate(&kernel_ctx, (uint8_t*) &image->kernel_version,
-               FIELD_LEN(kernel_version));
-  DigestUpdate(&kernel_ctx, (uint8_t*) &image->kernel_len,
-               FIELD_LEN(kernel_len));
-  DigestUpdate(&kernel_ctx, (uint8_t*) &image->bootloader_offset,
-               FIELD_LEN(bootloader_offset));
-  DigestUpdate(&kernel_ctx, (uint8_t*) &image->bootloader_size,
-               FIELD_LEN(bootloader_size));
-  DigestUpdate(&kernel_ctx, (uint8_t*) &image->padded_header_size,
-               FIELD_LEN(padded_header_size));
-  DigestUpdate(&kernel_ctx, (uint8_t*) image->kernel_data,
-               image->kernel_len);
-  kernel_digest = DigestFinal(&kernel_ctx);
+   * of kernel_data.
+   * Association between the kernel_data and preamble is maintained by making
+   * the kernel signature a part of the preamble and verifying it as part
+   * of preamble signature checking. */
+
+  kernel_digest = DigestBuf(image->kernel_data,
+                            image->kernel_len,
+                            image->kernel_sign_algorithm);
   if (!RSAVerify(kernel_sign_key, image->kernel_signature,
                  kernel_signature_size, image->kernel_sign_algorithm,
                  kernel_digest)) {
@@ -505,33 +503,17 @@ int AddKernelSignature(KernelImage* image,
   uint8_t* preamble_signature = NULL;
   uint8_t* kernel_signature = NULL;
   uint8_t* kernel_buf;
-  int signature_len = siglen_map[image->kernel_sign_algorithm];
+  int algorithm = image->kernel_sign_algorithm;
+  int signature_len = siglen_map[algorithm];
 
-  preamble_blob = GetKernelPreambleBlob(image);
-  if (!(preamble_signature = SignatureBuf(preamble_blob,
-                                          GetKernelPreambleLen(),
-                                          kernel_signing_key_file,
-                                          image->kernel_sign_algorithm))) {
-    debug("Could not compute signature on the kernel preamble.\n");
-    Free(preamble_blob);
-    return 0;
-  }
-
-  image->preamble_signature = (uint8_t*) Malloc(signature_len);
-  Memcpy(image->preamble_signature, preamble_signature, signature_len);
-  Free(preamble_signature);
-  /* Kernel signature muse be calculated on the kernel version, options and
-   * kernel data to avoid splicing attacks. */
-  kernel_buf = (uint8_t*) Malloc(GetKernelPreambleLen() +
-                                 image->kernel_len);
-  Memcpy(kernel_buf, preamble_blob, GetKernelPreambleLen());
-  Memcpy(kernel_buf + GetKernelPreambleLen(), image->kernel_data,
-         image->kernel_len);
+  /* Kernel signature must be calculated first as its used for computing the
+   * preamble signature. */
+  kernel_buf = (uint8_t*) Malloc(image->kernel_len);
+  Memcpy(kernel_buf, image->kernel_data, image->kernel_len);
   if (!(kernel_signature = SignatureBuf(kernel_buf,
-                                        GetKernelPreambleLen() +
                                         image->kernel_len,
                                         kernel_signing_key_file,
-                                        image->kernel_sign_algorithm))) {
+                                        algorithm))) {
     Free(preamble_blob);
     Free(kernel_buf);
     debug("Could not compute signature on the kernel.\n");
@@ -539,9 +521,24 @@ int AddKernelSignature(KernelImage* image,
   }
   image->kernel_signature = (uint8_t*) Malloc(signature_len);
   Memcpy(image->kernel_signature, kernel_signature, signature_len);
+
+
+  preamble_blob = GetKernelPreambleBlob(image);
+  if (!(preamble_signature = SignatureBuf(preamble_blob,
+                                          GetKernelPreambleLen(algorithm),
+                                          kernel_signing_key_file,
+                                          algorithm))) {
+    debug("Could not compute signature on the kernel preamble.\n");
+    Free(preamble_blob);
+    return 0;
+  }
+  image->preamble_signature = (uint8_t*) Malloc(signature_len);
+  Memcpy(image->preamble_signature, preamble_signature, signature_len);
+
+  Free(preamble_signature);
+  Free(preamble_blob);
   Free(kernel_signature);
   Free(kernel_buf);
-  Free(preamble_blob);
   return 1;
 }
 

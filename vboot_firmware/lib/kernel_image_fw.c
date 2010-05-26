@@ -26,12 +26,13 @@ char* kVerifyKernelErrors[VERIFY_KERNEL_MAX] = {
   "Wrong Kernel Magic.",
 };
 
-inline uint64_t GetKernelPreambleLen(void) {
+inline uint64_t GetKernelPreambleLen(int algorithm) {
   return (FIELD_LEN(kernel_version) +
           FIELD_LEN(kernel_len) +
           FIELD_LEN(bootloader_offset) +
           FIELD_LEN(bootloader_size) +
-          FIELD_LEN(padded_header_size));
+          FIELD_LEN(padded_header_size) +
+          siglen_map[algorithm]);
 }
 
 uint64_t GetVblockHeaderSize(const uint8_t* vkernel_blob) {
@@ -66,9 +67,8 @@ uint64_t GetVblockHeaderSize(const uint8_t* vkernel_blob) {
           RSAProcessedKeySize(kernel_sign_algorithm) +  /* kernel_sign_key */
           FIELD_LEN(header_checksum) +
           siglen_map[firmware_sign_algorithm] +  /* kernel_key_signature */
-          GetKernelPreambleLen() +
-          siglen_map[kernel_sign_algorithm] +  /* preamble_signature */
-          siglen_map[kernel_sign_algorithm]);  /* kernel_signature */
+          GetKernelPreambleLen(kernel_sign_algorithm) +
+          siglen_map[kernel_sign_algorithm]);  /* preamble_signature */
   return len;
 }
 
@@ -157,7 +157,7 @@ int VerifyKernelPreamble(RSAPublicKey* kernel_sign_key,
                          const uint8_t* preamble_blob,
                          int algorithm,
                          uint64_t* kernel_len) {
-  int preamble_len = GetKernelPreambleLen();
+  int preamble_len = GetKernelPreambleLen(algorithm);
   if (!RSAVerifyBinary_f(NULL, kernel_sign_key, /* Key to use */
                          preamble_blob,  /* Data to verify */
                          preamble_len, /* Length of data */
@@ -171,43 +171,23 @@ int VerifyKernelPreamble(RSAPublicKey* kernel_sign_key,
 }
 
 int VerifyKernelData(RSAPublicKey* kernel_sign_key,
-                     const uint8_t* preamble_blob,
+                     const uint8_t* kernel_signature,
                      const uint8_t* kernel_data,
                      uint64_t kernel_len,
                      int algorithm) {
-  int signature_len = siglen_map[algorithm];
-  const uint8_t* kernel_signature = NULL;
-  uint8_t* digest = NULL;
-  DigestContext ctx;
 
-  kernel_signature = preamble_blob + (GetKernelPreambleLen() +
-                                      signature_len);
-
-  /* Since the kernel signature is computed over the kernel preamble
-   * and kernel image data, which does not form a contiguous
-   * region of memory, we calculate the message digest ourselves. */
-  DigestInit(&ctx, algorithm);
-  DigestUpdate(&ctx,
-               preamble_blob,
-               GetKernelPreambleLen());
-  DigestUpdate(&ctx, kernel_data, kernel_len);
-  digest = DigestFinal(&ctx);
-  if (!RSAVerifyBinaryWithDigest_f(
-          NULL, kernel_sign_key,  /* Key to use. */
-          digest, /* Digest of the data to verify. */
-          kernel_signature,  /* Expected Signature */
-          algorithm)) {
-    Free(digest);
+  if (!RSAVerifyBinary_f(NULL, kernel_sign_key, /* Key to use */
+                         kernel_data,  /* Data to verify */
+                         kernel_len, /* Length of data */
+                         kernel_signature,  /* Expected Signature */
+                         algorithm))
     return VERIFY_KERNEL_SIGNATURE_FAILED;
-  }
-  Free(digest);
   return 0;
 }
 
 int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* kernel_header_blob,
                        const int dev_mode,
-                       const uint8_t** preamble_blob,
                        const uint8_t** expected_kernel_signature,
                        RSAPublicKey** kernel_sign_key,
                        int* kernel_sign_algorithm,
@@ -216,8 +196,9 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
   int firmware_sign_algorithm;  /* Firmware signing key algorithm. */
   int kernel_sign_key_len, kernel_key_signature_len, kernel_signature_len,
       header_len;
-  const uint8_t* header_ptr;  /* Pointer to header. */
-  const uint8_t* kernel_sign_key_ptr;  /* Pointer to signing key. */
+  const uint8_t* header_ptr = NULL;  /* Pointer to key header. */
+  const uint8_t* preamble_ptr = NULL;  /* Pointer to start of preamble. */
+  const uint8_t* kernel_sign_key_ptr = NULL;  /* Pointer to signing key. */
 
   /* Note: All the offset calculations are based on struct FirmwareImage which
    * is defined in include/firmware_image.h. */
@@ -250,16 +231,17 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
   kernel_key_signature_len = siglen_map[firmware_sign_algorithm];
 
   /* Only continue if preamble verification succeeds. */
-  *preamble_blob = (header_ptr + header_len + kernel_key_signature_len);
-  if ((error_code = VerifyKernelPreamble(*kernel_sign_key, *preamble_blob,
+  preamble_ptr = (header_ptr + header_len + kernel_key_signature_len);
+  if ((error_code = VerifyKernelPreamble(*kernel_sign_key, preamble_ptr,
                                          *kernel_sign_algorithm,
                                          kernel_len))) {
     RSAPublicKeyFree(*kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */
   }
-  *expected_kernel_signature = (*preamble_blob +
-                                GetKernelPreambleLen() +
-                                kernel_signature_len);  /* Skip preamble. */
+  *expected_kernel_signature = (preamble_ptr +
+                                GetKernelPreambleLen(*kernel_sign_algorithm) -
+                                kernel_signature_len);  /* Skip beginning of
+                                                         * preamble. */
   return 0;
 }
 
@@ -277,13 +259,16 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
   const uint8_t* kernel_sign_key_ptr;  /* Pointer to signing key. */
   const uint8_t* preamble_ptr;  /* Pointer to kernel preamble block. */
   const uint8_t* kernel_ptr;  /* Pointer to kernel signature/data. */
+  const uint8_t* kernel_signature;
 
   /* Note: All the offset calculations are based on struct FirmwareImage which
    * is defined in include/firmware_image.h. */
 
   /* Compare magic bytes. */
-  if (SafeMemcmp(kernel_blob, KERNEL_MAGIC, KERNEL_MAGIC_SIZE))
+  if (SafeMemcmp(kernel_blob, KERNEL_MAGIC, KERNEL_MAGIC_SIZE)) {
+    debug("VerifyKernel: Kernel magic bytes not found.\n");
     return VERIFY_KERNEL_WRONG_MAGIC;
+  }
   header_ptr = kernel_blob + KERNEL_MAGIC_SIZE;
 
   /* Only continue if header verification succeeds. */
@@ -311,18 +296,21 @@ int VerifyKernel(const uint8_t* firmware_key_blob,
   if ((error_code = VerifyKernelPreamble(kernel_sign_key, preamble_ptr,
                                          kernel_sign_algorithm,
                                          &kernel_len))) {
+    debug("VerifyKernel: Kernel preamble verification failed.\n");
     RSAPublicKeyFree(kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */
   }
   /* Only continue if kernel data verification succeeds. */
   kernel_ptr = (preamble_ptr +
-                GetKernelPreambleLen() +
-                2 * kernel_signature_len);  /* preamble and kernel signature. */
+                GetKernelPreambleLen(kernel_sign_algorithm) +
+                kernel_signature_len);  /* preamble signature. */
+  kernel_signature = kernel_ptr - 2 * kernel_signature_len; /* end of kernel
+                                                             * preamble. */
 
   if ((error_code = VerifyKernelData(kernel_sign_key,  /* Verification key */
-                                     preamble_ptr,  /* Start of preamble */
-                                     kernel_ptr,  /* Start of kernel image */
-                                     kernel_len,  /* Length of kernel image. */
+                                     kernel_signature,  /* kernel signature */
+                                     kernel_ptr,  /* Start of kernel data */
+                                     kernel_len,  /* Length of kernel data. */
                                      kernel_sign_algorithm))) {
     RSAPublicKeyFree(kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */

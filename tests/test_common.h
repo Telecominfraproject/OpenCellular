@@ -13,9 +13,13 @@
 #include "kernel_image.h"
 
 extern int gTestSuccess;
+
 /* Return 1 if result is equal to expected_result, else return 0.
  * Also update the global gTestSuccess flag if test fails. */
 int TEST_EQ(int result, int expected_result, char* testname);
+/* Return 0 if result is equal to not_expected_result, else return 1.
+ * Also update the global gTestSuccess flag if test fails. */
+int TEST_NEQ(int result, int not_expected_result, char* testname);
 
 /* Test firmware image generation functions. */
 FirmwareImage* GenerateTestFirmwareImage(int algorithm,

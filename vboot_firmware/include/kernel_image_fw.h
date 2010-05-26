@@ -49,15 +49,12 @@ typedef struct KernelImage {
   uint64_t bootloader_offset;  /* Offset of bootloader in kernel_data. */
   uint64_t bootloader_size;  /* Size of bootloader in bytes. */
   uint64_t padded_header_size;  /* start of kernel_data in disk partition */
+  uint8_t* kernel_signature;  /* Signature on [kernel_data] below.
+                               * NOTE: This is only considered valid
+                               * if preamble_signature successfully verifies. */
   /* end of preamble */
-
-  uint8_t* preamble_signature;  /* Signature on the kernel preamble. */
-
-  /* The kernel signature comes first as it may allow us to parallelize
-   * the kernel data fetch and RSA public key operation.
-   */
-  uint8_t* kernel_signature;  /* Signature on the concatenation of
-                               * the kernel preamble and [kernel_data]. */
+  uint8_t* preamble_signature;  /* signature on preamble, (includes
+                                   [kernel_signature]) */
   uint8_t* kernel_data;  /* Actual kernel data. */
 
 } KernelImage;
@@ -74,8 +71,9 @@ typedef struct KernelImage {
 
 extern char* kVerifyKernelErrors[VERIFY_KERNEL_MAX];
 
-/* Returns the length of the verified boot kernel preamble. */
-uint64_t GetKernelPreambleLen(void);
+/* Returns the length of the verified boot kernel preamble based on
+ * kernel signing algorithm [algorithm]. */
+uint64_t GetKernelPreambleLen(int algorithm);
 
 /* Returns the length of the Kernel Verified Boot header excluding
  * [kernel_data].
@@ -111,16 +109,15 @@ int VerifyKernelPreamble(RSAPublicKey* kernel_sign_key,
                          int algorithm,
                          uint64_t* kernel_len);
 
-/* Checks the signature on the kernel data at location [kernel_data_start].
- * The length of the actual kernel data is kernel_len and it is assumed to
- * be prepended with the signature whose size depends on the signature_algorithm
- * [algorithm].
+/* Checks [kernel_signature] on the kernel data at location [kernel_data]. The
+ * signature is assumed to be generated using algorithm [algorithm].
+ * The length of the kernel data is [kernel_len].
  *
  * Return 0 on success, error code on failure.
  */
 int VerifyKernelData(RSAPublicKey* kernel_sign_key,
-                     const uint8_t* kernel_config_start,
-                     const uint8_t* kernel_data_start,
+                     const uint8_t* kernel_signature,
+                     const uint8_t* kernel_data,
                      uint64_t kernel_len,
                      int algorithm);
 
@@ -128,8 +125,7 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
  * using the firmware public key [firmware_key_blob]. If [dev_mode] is 1
  * (active), then key header verification is skipped.
  *
- * Fills in a pointer to preamble blob within [kernel_header_blob] in
- * [preamble_blob], pointer to expected kernel data signature
+ * Fills in a pointer to expected kernel data signature
  * within [kernel_header_blob] in [expected_kernel_signature].
  *
  * The signing key to use for kernel data verification is returned in
@@ -142,7 +138,6 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
 int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* kernel_header_blob,
                        const int dev_mode,
-                       const uint8_t** preamble_blob,
                        const uint8_t** expected_kernel_signature,
                        RSAPublicKey** kernel_sign_key,
                        int* kernel_sign_algorithm,
