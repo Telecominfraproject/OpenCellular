@@ -160,7 +160,9 @@ KernelImage* GenerateTestKernelImage(int firmware_sign_algorithm,
 
   /* Populate kernel options and data with dummy data. */
   image->kernel_version = kernel_version;
-  Memset(image->kernel_config, 0, sizeof(image->kernel_config));
+  image->bootloader_offset = 0;
+  image->bootloader_size = 512;
+  image->padded_header_size = 100;
   image->kernel_len = kernel_len;
   image->kernel_key_signature = image->kernel_signature = NULL;
   image->kernel_data = Malloc(kernel_len);

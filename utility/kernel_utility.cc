@@ -36,7 +36,6 @@ KernelUtility::KernelUtility(): image_(NULL),
                                 kernel_key_version_(-1),
                                 kernel_version_(-1),
                                 kernel_len_(0),
-                                kernel_config_(NULL),
                                 is_generate_(false),
                                 is_verify_(false),
                                 is_describe_(false),
@@ -44,7 +43,6 @@ KernelUtility::KernelUtility(): image_(NULL),
 }
 
 KernelUtility::~KernelUtility() {
-  Free(kernel_config_);
   RSAPublicKeyFree(firmware_key_pub_);
   KernelImageFree(image_);
 }
@@ -70,7 +68,6 @@ void KernelUtility::PrintUsage(void) {
       "--in <infile>\t\tKernel Image to sign\n"
       "--out <outfile>\t\tOutput file for verified boot Kernel image\n\n"
       "Optional arguments for \"--generate\" include:\n"
-      "--config <file>\t\t\tPopulate contents of kernel config from a file\n"
       "--vblock\t\t\tJust output the verification block\n\n"
       "<algoid> (for --*_sign_algorithm) is one of the following:\n";
   for (int i = 0; i < kNumAlgorithms; i++) {
@@ -95,7 +92,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     OPT_GENERATE,
     OPT_VERIFY,
     OPT_DESCRIBE,
-    OPT_CONFIG,
     OPT_VBLOCK,
   };
   static struct option long_options[] = {
@@ -112,7 +108,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"generate", 0, 0,                  OPT_GENERATE                },
     {"verify", 0, 0,                    OPT_VERIFY                  },
     {"describe", 0, 0,                  OPT_DESCRIBE                },
-    {"config", 1, 0,                    OPT_CONFIG                  },
     {"vblock", 0, 0,                    OPT_VBLOCK                  },
     {NULL, 0, 0, 0}
   };
@@ -176,9 +171,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     case OPT_DESCRIBE:
       is_describe_ = true;
       break;
-    case OPT_CONFIG:
-      config_file_ = optarg;
-      break;
     case OPT_VBLOCK:
       is_only_vblock_ = true;
       break;
@@ -206,7 +198,6 @@ void KernelUtility::DescribeSignedImage(void) {
 }
 
 bool KernelUtility::GenerateSignedImage(void) {
-  uint64_t len;
   uint64_t kernel_key_pub_len;
   image_ = KernelImageNew();
 
@@ -230,18 +221,6 @@ bool KernelUtility::GenerateSignedImage(void) {
   CalculateKernelHeaderChecksum(image_, image_->header_checksum);
 
   image_->kernel_version = kernel_version_;
-  if (!config_file_.empty()) {
-    kernel_config_ = BufferFromFile(config_file_.c_str(), &len);
-    if (len >= sizeof(image_->kernel_config)) {
-      cerr << "Input kernel config file is too big!";
-      return false;
-    }
-    Memcpy(image_->kernel_config,
-           kernel_config_, len);
-  } else {
-    Memset(image_->kernel_config, 0,
-           sizeof(image_->kernel_config));
-  }
   image_->kernel_data = BufferFromFile(in_file_.c_str(),
                                        &image_->kernel_len);
   if (!image_->kernel_data)

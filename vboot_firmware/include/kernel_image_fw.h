@@ -15,7 +15,6 @@
 
 #define KERNEL_MAGIC "CHROMEOS"
 #define KERNEL_MAGIC_SIZE 8
-#define KERNEL_CONFIG_SIZE 4096
 
 #define DEV_MODE_ENABLED 1
 #define DEV_MODE_DISABLED 0
@@ -41,7 +40,7 @@ typedef struct KernelImage {
                                                  * firmware_sign_algorithm,
                                                  * sign_algorithm, sign_key,
                                                  * key_version] */
-
+  /* End of kernel key header. */
   uint8_t* kernel_key_signature;   /* Signature of the header above. */
 
   /* Kernel preamble */
@@ -49,18 +48,16 @@ typedef struct KernelImage {
   uint64_t kernel_len;  /* Length of the actual kernel image. */
   uint64_t bootloader_offset;  /* Offset of bootloader in kernel_data. */
   uint64_t bootloader_size;  /* Size of bootloader in bytes. */
-  uint8_t* config_signature;  /* Signature on the concatenation of
-                               * [kernel_version], [kernel_len] and
-                               * [kernel_config]. */
+  uint64_t padded_header_size;  /* start of kernel_data in disk partition */
+  /* end of preamble */
+
+  uint8_t* preamble_signature;  /* Signature on the kernel preamble. */
+
   /* The kernel signature comes first as it may allow us to parallelize
    * the kernel data fetch and RSA public key operation.
    */
   uint8_t* kernel_signature;  /* Signature on the concatenation of
-                               * [kernel_version], [kernel_len], [kernel_config]
-                               * and [kernel_data]. */
-  /* The kernel config string is stored right before the kernel image data for
-   * easy mapping while loading into the memory. */
-  uint8_t kernel_config[KERNEL_CONFIG_SIZE];  /* Kernel Config command line. */
+                               * the kernel preamble and [kernel_data]. */
   uint8_t* kernel_data;  /* Actual kernel data. */
 
 } KernelImage;
@@ -70,50 +67,52 @@ typedef struct KernelImage {
 #define VERIFY_KERNEL_INVALID_IMAGE 1
 #define VERIFY_KERNEL_KEY_SIGNATURE_FAILED 2
 #define VERIFY_KERNEL_INVALID_ALGORITHM 3
-#define VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED 4
+#define VERIFY_KERNEL_PREAMBLE_SIGNATURE_FAILED 4
 #define VERIFY_KERNEL_SIGNATURE_FAILED 5
 #define VERIFY_KERNEL_WRONG_MAGIC 6
 #define VERIFY_KERNEL_MAX 7  /* Generic catch-all. */
 
 extern char* kVerifyKernelErrors[VERIFY_KERNEL_MAX];
 
+/* Returns the length of the verified boot kernel preamble. */
+uint64_t GetKernelPreambleLen(void);
+
 /* Returns the length of the Kernel Verified Boot header excluding
- * [kernel_config] and [kernel_data].
+ * [kernel_data].
  *
  * This is always non-zero, so a return value of 0 signifies an error.
  */
 uint64_t GetVBlockHeaderSize(const uint8_t* vkernel_blob);
 
-/* Checks for the sanity of the kernel header pointed by [kernel_header_blob].
- * If [dev_mode] is enabled, also checks the firmware key signature using the
+/* Checks for the sanity of the kernel key header at [kernel_header_blob].
+ * If [dev_mode] is enabled, also checks the kernel key signature using the
  * pre-processed public firmware signing  key [firmware_sign_key_blob].
  *
- * On success, put firmware signature algorithm in [firmware_algorithm],
+ * On success, puts firmware signature algorithm in [firmware_algorithm],
  * kernel signature algorithm in [kernel_algorithm], kernel header
  * length in [header_len], and return 0.
  * Else, return error code on failure.
  */
-int VerifyKernelHeader(const uint8_t* firmware_sign_key_blob,
-                       const uint8_t* kernel_header_blob,
-                       const int dev_mode,
-                       int* firmware_algorithm,
-                       int* kernel_algorithm,
-                       int* header_len);
+int VerifyKernelKeyHeader(const uint8_t* firmware_sign_key_blob,
+                          const uint8_t* kernel_header_blob,
+                          const int dev_mode,
+                          int* firmware_algorithm,
+                          int* kernel_algorithm,
+                          int* header_len);
 
-/* Checks the kernel config (analogous to preamble for firmware) signature on
- * kernel config pointed by [kernel_config_blob] using the signing key
- * [kernel_sign_key].
+/* Checks the kernel preamble signature at [kernel_preamble_blob]
+ * using the signing key [kernel_sign_key].
  *
  * On success, put kernel length into [kernel_len], and return 0.
  * Else, return error code on failure.
  */
-int VerifyKernelConfig(RSAPublicKey* kernel_sign_key,
-                       const uint8_t* kernel_config_blob,
-                       int algorithm,
-                       uint64_t* kernel_len);
+int VerifyKernelPreamble(RSAPublicKey* kernel_sign_key,
+                         const uint8_t* kernel_preamble_blob,
+                         int algorithm,
+                         uint64_t* kernel_len);
 
 /* Checks the signature on the kernel data at location [kernel_data_start].
- * The length of the actual kernel data is kernel _len and it is assumed to
+ * The length of the actual kernel data is kernel_len and it is assumed to
  * be prepended with the signature whose size depends on the signature_algorithm
  * [algorithm].
  *
@@ -125,13 +124,35 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
                      uint64_t kernel_len,
                      int algorithm);
 
+/* Verifies the kernel key header and preamble at [kernel_header_blob]
+ * using the firmware public key [firmware_key_blob]. If [dev_mode] is 1
+ * (active), then key header verification is skipped.
+ *
+ * Fills in a pointer to preamble blob within [kernel_header_blob] in
+ * [preamble_blob], pointer to expected kernel data signature
+ * within [kernel_header_blob] in [expected_kernel_signature].
+ *
+ * The signing key to use for kernel data verification is returned in
+ * [kernel_sign_key], This must be free-d explicitly by the caller after use.
+ * The kernel signing algorithm is returned in [kernel_sign_algorithm] and its
+ * length in [kernel_len].
+ *
+ * Returns 0 on success, error code on failure.
+ */
+int VerifyKernelHeader(const uint8_t* firmware_key_blob,
+                       const uint8_t* kernel_header_blob,
+                       const int dev_mode,
+                       const uint8_t** preamble_blob,
+                       const uint8_t** expected_kernel_signature,
+                       RSAPublicKey** kernel_sign_key,
+                       int* kernel_sign_algorithm,
+                       uint64_t* kernel_len);
+
 /* Performs a chained verify of the kernel blob [kernel_blob]. If
  * [dev_mode] is 0 [inactive], then the pre-processed public signing key
  * [root_key_blob] is used to verify the signature of the signing key,
  * else the check is skipped.
  *
- * TODO(gauravsh): Does the dev mode only effect the R/W firmware verification,
- * or kernel verification, or both?
  *
  * Returns 0 on success, error code on failure.
  *

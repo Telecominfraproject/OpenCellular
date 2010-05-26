@@ -29,10 +29,7 @@ KernelImage* KernelImageNew(void) {
   if (image) {
     image->kernel_sign_key = NULL;
     image->kernel_key_signature = NULL;
-    Memset(image->kernel_config,
-           0,
-           sizeof(image->kernel_config));
-    image->config_signature = NULL;
+    image->preamble_signature = NULL;
     image->kernel_signature = NULL;
     image->kernel_data = NULL;
   }
@@ -43,7 +40,7 @@ void KernelImageFree(KernelImage* image) {
   if (image) {
     Free(image->kernel_sign_key);
     Free(image->kernel_key_signature);
-    Free(image->config_signature);
+    Free(image->preamble_signature);
     Free(image->kernel_signature);
     Free(image->kernel_data);
     Free(image);
@@ -136,18 +133,21 @@ KernelImage* ReadKernelImage(const char* input_file) {
   StatefulMemcpy(&st, image->kernel_key_signature,
                  kernel_key_signature_len);
 
-  /* Read the kernel config. */
+  /* Read the kernel preamble. */
   StatefulMemcpy(&st, &image->kernel_version, FIELD_LEN(kernel_version));
   StatefulMemcpy(&st, &image->kernel_len, FIELD_LEN(kernel_len));
+  StatefulMemcpy(&st, &image->bootloader_offset, FIELD_LEN(bootloader_offset));
+  StatefulMemcpy(&st, &image->bootloader_size, FIELD_LEN(bootloader_size));
+  StatefulMemcpy(&st, &image->padded_header_size,
+                 FIELD_LEN(padded_header_size));
 
   /* Read config and kernel signatures. */
-  image->config_signature = (uint8_t*) Malloc(kernel_signature_len);
-  StatefulMemcpy(&st, image->config_signature, kernel_signature_len);
+  image->preamble_signature = (uint8_t*) Malloc(kernel_signature_len);
+  StatefulMemcpy(&st, image->preamble_signature, kernel_signature_len);
   image->kernel_signature = (uint8_t*) Malloc(kernel_signature_len);
   StatefulMemcpy(&st, image->kernel_signature, kernel_signature_len);
 
-  /* Read kernel config command line and kernel image data. */
-  StatefulMemcpy(&st, image->kernel_config, FIELD_LEN(kernel_config));
+  /* Read kernel image data. */
   image->kernel_data = (uint8_t*) Malloc(image->kernel_len);
   StatefulMemcpy(&st, image->kernel_data, image->kernel_len);
 
@@ -218,30 +218,27 @@ uint8_t* GetKernelHeaderBlob(const KernelImage* image) {
   return header_blob;
 }
 
-int GetKernelConfigLen(const KernelImage* image) {
-  return (FIELD_LEN(kernel_version) +
-          FIELD_LEN(kernel_len) +
-          FIELD_LEN(kernel_config));
-}
-
-uint8_t* GetKernelConfigBlob(const KernelImage* image) {
-  uint8_t* config_blob = NULL;
+uint8_t* GetKernelPreambleBlob(const KernelImage* image) {
+  uint8_t* preamble_blob = NULL;
   MemcpyState st;
 
-  config_blob = (uint8_t*) Malloc(GetKernelConfigLen(image));
-  st.remaining_len = GetKernelConfigLen(image);
-  st.remaining_buf = config_blob;
+  preamble_blob = (uint8_t*) Malloc(GetKernelPreambleLen());
+  st.remaining_len = GetKernelPreambleLen();
+  st.remaining_buf = preamble_blob;
   st.overrun = 0;
 
   StatefulMemcpy_r(&st, &image->kernel_version, FIELD_LEN(kernel_version));
   StatefulMemcpy_r(&st, &image->kernel_len, FIELD_LEN(kernel_len));
-  StatefulMemcpy_r(&st, image->kernel_config, FIELD_LEN(kernel_config));
+  StatefulMemcpy_r(&st, &image->bootloader_offset, FIELD_LEN(bootloader_offset));
+  StatefulMemcpy_r(&st, &image->bootloader_size, FIELD_LEN(bootloader_size));
+  StatefulMemcpy_r(&st, &image->padded_header_size,
+                   FIELD_LEN(padded_header_size));
 
   if (st.overrun || st.remaining_len != 0) {  /* Overrun or Underrun. */
-    Free(config_blob);
+    Free(preamble_blob);
     return NULL;
   }
-  return config_blob;
+  return preamble_blob;
 }
 
 uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
@@ -258,7 +255,7 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   *blob_len = (FIELD_LEN(magic) +
                GetKernelHeaderLen(image) +
                kernel_key_signature_len +
-               GetKernelConfigLen(image) +
+               GetKernelPreambleLen() +
                2 * kernel_signature_len +
                image->kernel_len);
   kernel_blob = (uint8_t*) Malloc(*blob_len);
@@ -271,12 +268,16 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   StatefulMemcpy_r(&st, image->magic, FIELD_LEN(magic));
   StatefulMemcpy_r(&st, header_blob, GetKernelHeaderLen(image));
   StatefulMemcpy_r(&st, image->kernel_key_signature, kernel_key_signature_len);
-  /* Copy over kernel config blob (including signatures.) */
+  /* Copy over kernel preamble blob (including signatures.) */
   StatefulMemcpy_r(&st, &image->kernel_version, FIELD_LEN(kernel_version));
   StatefulMemcpy_r(&st, &image->kernel_len, FIELD_LEN(kernel_len));
-  StatefulMemcpy_r(&st, image->config_signature, kernel_signature_len);
+  StatefulMemcpy_r(&st, &image->bootloader_offset,
+                   FIELD_LEN(bootloader_offset));
+  StatefulMemcpy_r(&st, &image->bootloader_size, FIELD_LEN(bootloader_size));
+  StatefulMemcpy_r(&st, &image->padded_header_size,
+                   FIELD_LEN(padded_header_size));
+  StatefulMemcpy_r(&st, image->preamble_signature, kernel_signature_len);
   StatefulMemcpy_r(&st, image->kernel_signature, kernel_signature_len);
-  StatefulMemcpy_r(&st, image->kernel_config, FIELD_LEN(kernel_config));
   StatefulMemcpy_r(&st, image->kernel_data, image->kernel_len);
 
   Free(header_blob);
@@ -315,9 +316,8 @@ int WriteKernelImage(const char* input_file,
       success = 0;
     }
   } else {
-    /* Exclude kernel_config and kernel_data. */
-    int vblock_len = blob_len - (image->kernel_len +
-                                 sizeof(image->kernel_config));
+    /* Exclude kernel_data. */
+    int vblock_len = blob_len - (image->kernel_len);
     if (vblock_len != write(fd, kernel_blob, vblock_len)) {
       debug("Couldn't write Kernel Image Verification block to file: %s\n",
             input_file);
@@ -347,11 +347,15 @@ void PrintKernelImage(const KernelImage* image) {
   /* TODO(gauravsh): Output hash and key signature here? */
   /* Print preamble. */
   printf("Kernel Version = %d\n"
-         "Kernel Config command line = \"%s\"\n"
-         "kernel Length = %" PRId64 "\n",
+         "kernel Length = %" PRId64 "\n"
+         "Bootloader Offset = %" PRId64 "\n"
+         "Bootloader Size = %" PRId64 "\n"
+         "Padded Header Size = %" PRId64 "\n",
          image->kernel_version,
-         image->kernel_config,
-         image->kernel_len);
+         image->kernel_len,
+         image->bootloader_offset,
+         image->bootloader_size,
+         image->padded_header_size);
   /* TODO(gauravsh): Output kernel signature here? */
 }
 
@@ -361,7 +365,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
                       const int dev_mode) {
   RSAPublicKey* kernel_sign_key = NULL;
   uint8_t* header_digest = NULL;
-  uint8_t* config_digest = NULL;
+  uint8_t* preamble_digest = NULL;
   uint8_t* kernel_digest = NULL;
   int kernel_sign_key_size;
   int kernel_signature_size;
@@ -417,19 +421,23 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
                                         kernel_sign_key_size);
   kernel_signature_size = siglen_map[image->kernel_sign_algorithm];
 
-  /* Verify kernel config signature. */
+  /* Verify kernel preamble signature. */
   DigestInit(&ctx, image->kernel_sign_algorithm);
   DigestUpdate(&ctx, (uint8_t*) &image->kernel_version,
                FIELD_LEN(kernel_version));
   DigestUpdate(&ctx, (uint8_t*) &image->kernel_len,
                FIELD_LEN(kernel_len));
-  DigestUpdate(&ctx, (uint8_t*) image->kernel_config,
-               FIELD_LEN(kernel_config));
-  config_digest = DigestFinal(&ctx);
-  if (!RSAVerify(kernel_sign_key, image->config_signature,
+  DigestUpdate(&ctx, (uint8_t*) &image->bootloader_offset,
+               FIELD_LEN(bootloader_offset));
+  DigestUpdate(&ctx, (uint8_t*) &image->bootloader_size,
+               FIELD_LEN(bootloader_size));
+  DigestUpdate(&ctx, (uint8_t*) &image->padded_header_size,
+               FIELD_LEN(padded_header_size));
+  preamble_digest = DigestFinal(&ctx);
+  if (!RSAVerify(kernel_sign_key, image->preamble_signature,
                  kernel_signature_size, image->kernel_sign_algorithm,
-                 config_digest)) {
-    error_code = VERIFY_KERNEL_CONFIG_SIGNATURE_FAILED;
+                 preamble_digest)) {
+    error_code = VERIFY_KERNEL_PREAMBLE_SIGNATURE_FAILED;
     goto verify_failure;
   }
 
@@ -440,9 +448,14 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
                FIELD_LEN(kernel_version));
   DigestUpdate(&kernel_ctx, (uint8_t*) &image->kernel_len,
                FIELD_LEN(kernel_len));
-  DigestUpdate(&kernel_ctx, (uint8_t*) image->kernel_config,
-               FIELD_LEN(kernel_config));
-  DigestUpdate(&kernel_ctx, image->kernel_data, image->kernel_len);
+  DigestUpdate(&kernel_ctx, (uint8_t*) &image->bootloader_offset,
+               FIELD_LEN(bootloader_offset));
+  DigestUpdate(&kernel_ctx, (uint8_t*) &image->bootloader_size,
+               FIELD_LEN(bootloader_size));
+  DigestUpdate(&kernel_ctx, (uint8_t*) &image->padded_header_size,
+               FIELD_LEN(padded_header_size));
+  DigestUpdate(&kernel_ctx, (uint8_t*) image->kernel_data,
+               image->kernel_len);
   kernel_digest = DigestFinal(&kernel_ctx);
   if (!RSAVerify(kernel_sign_key, image->kernel_signature,
                  kernel_signature_size, image->kernel_sign_algorithm,
@@ -454,7 +467,7 @@ int VerifyKernelImage(const RSAPublicKey* firmware_key,
 verify_failure:
   RSAPublicKeyFree(kernel_sign_key);
   Free(kernel_digest);
-  Free(config_digest);
+  Free(preamble_digest);
   Free(header_digest);
   return error_code;
 }
@@ -488,38 +501,38 @@ int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file) {
 
 int AddKernelSignature(KernelImage* image,
                        const char* kernel_signing_key_file) {
-  uint8_t* config_blob = NULL;
-  uint8_t* config_signature = NULL;
+  uint8_t* preamble_blob = NULL;
+  uint8_t* preamble_signature = NULL;
   uint8_t* kernel_signature = NULL;
   uint8_t* kernel_buf;
   int signature_len = siglen_map[image->kernel_sign_algorithm];
 
-  config_blob = GetKernelConfigBlob(image);
-  if (!(config_signature = SignatureBuf(config_blob,
-                                        GetKernelConfigLen(image),
-                                        kernel_signing_key_file,
-                                        image->kernel_sign_algorithm))) {
-    debug("Could not compute signature on the kernel config.\n");
-    Free(config_blob);
+  preamble_blob = GetKernelPreambleBlob(image);
+  if (!(preamble_signature = SignatureBuf(preamble_blob,
+                                          GetKernelPreambleLen(),
+                                          kernel_signing_key_file,
+                                          image->kernel_sign_algorithm))) {
+    debug("Could not compute signature on the kernel preamble.\n");
+    Free(preamble_blob);
     return 0;
   }
 
-  image->config_signature = (uint8_t*) Malloc(signature_len);
-  Memcpy(image->config_signature, config_signature, signature_len);
-  Free(config_signature);
+  image->preamble_signature = (uint8_t*) Malloc(signature_len);
+  Memcpy(image->preamble_signature, preamble_signature, signature_len);
+  Free(preamble_signature);
   /* Kernel signature muse be calculated on the kernel version, options and
    * kernel data to avoid splicing attacks. */
-  kernel_buf = (uint8_t*) Malloc(GetKernelConfigLen(image) +
+  kernel_buf = (uint8_t*) Malloc(GetKernelPreambleLen() +
                                  image->kernel_len);
-  Memcpy(kernel_buf, config_blob, GetKernelConfigLen(image));
-  Memcpy(kernel_buf + GetKernelConfigLen(image), image->kernel_data,
+  Memcpy(kernel_buf, preamble_blob, GetKernelPreambleLen());
+  Memcpy(kernel_buf + GetKernelPreambleLen(), image->kernel_data,
          image->kernel_len);
   if (!(kernel_signature = SignatureBuf(kernel_buf,
-                                        GetKernelConfigLen(image) +
+                                        GetKernelPreambleLen() +
                                         image->kernel_len,
                                         kernel_signing_key_file,
                                         image->kernel_sign_algorithm))) {
-    Free(config_blob);
+    Free(preamble_blob);
     Free(kernel_buf);
     debug("Could not compute signature on the kernel.\n");
     return 0;
@@ -528,7 +541,7 @@ int AddKernelSignature(KernelImage* image,
   Memcpy(image->kernel_signature, kernel_signature, signature_len);
   Free(kernel_signature);
   Free(kernel_buf);
-  Free(config_blob);
+  Free(preamble_blob);
   return 1;
 }
 
