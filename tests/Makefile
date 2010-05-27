@@ -6,6 +6,7 @@ TOP ?= ../
 CC ?= gcc
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 INCLUDES += -I./include \
+		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../misclibs/include \
 		-I../vfirmware/include\
@@ -17,6 +18,7 @@ LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(FWLIB) -lcrypto
 
 TEST_BINS = big_firmware_tests \
 		big_kernel_tests \
+		cgptlib_test \
 		firmware_image_tests \
 		firmware_rollback_tests \
 		firmware_splicing_tests \
@@ -39,6 +41,9 @@ big_firmware_tests: big_firmware_tests.c rollback_index_mock.c test_common.c
 
 big_kernel_tests: big_kernel_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+cgptlib_test: cgptlib_test.c quick_sort_test.c crc32_test.c
+	$(CC) $(CFLAGS) -ansi $(INCLUDES) $^ -o $@ $(LIBS)
 
 firmware_image_tests: firmware_image_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)

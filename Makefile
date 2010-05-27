@@ -8,12 +8,11 @@ export TOP = $(shell pwd)
 export FWDIR=$(TOP)/vboot_firmware
 export INCLUDES = \
 	-I$(FWDIR)/include \
-	-I$(TOP)/misclibs/include \
-	-I$(TOP)/cgptlib
+	-I$(TOP)/misclibs/include
 
 export FWLIB=$(FWDIR)/vboot_fw.a
 
-SUBDIRS=vboot_firmware cgptlib misclibs vfirmware vkernel utility tests
+SUBDIRS=vboot_firmware misclibs vfirmware vkernel utility tests
 
 all:
 	set -e; \

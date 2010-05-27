@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "cgptlib.h"
 #include "firmware_image_fw.h"
 #include "kernel_image_fw.h"
 #include "load_kernel_fw.h"
@@ -8,6 +9,10 @@
 
 int main(void)
 {
+  // cgptlib.h
+  GptInit(0);
+  GptNextKernelEntry(0, 0, 0);
+  GptUpdateKernelEntry(0, 0);
 
   // firmware_image_fw.h
   VerifyFirmwareHeader(0, 0, 0, 0);

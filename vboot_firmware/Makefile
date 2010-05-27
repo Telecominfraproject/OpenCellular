@@ -15,6 +15,7 @@ TESTDIR = $(FWTOP)/linktest
 INC = \
 	-I$(FWTOP)/include \
 	-I$(LIBDIR)/include \
+	-I$(LIBDIR)/cgptlib/include \
 	-I$(LIBDIR)/cryptolib/include
 
 

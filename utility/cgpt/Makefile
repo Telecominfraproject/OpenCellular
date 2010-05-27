@@ -6,7 +6,7 @@ TOP ?= ../../
 CC ?= cc
 INCLUDES += -I$(TOP)/common/include -I$(TOP)/../../../chroot/usr/include/
 CFLAGS += -Wall -Werror -ggdb
-LIBS += $(TOP)/cgptlib/libcgpt.a $(FWLIB)
+LIBS += $(FWLIB)
 
 all: cgpt
 
