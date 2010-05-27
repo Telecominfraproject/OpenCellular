@@ -76,8 +76,9 @@ void KernelUtility::PrintUsage(void) {
       "  --out <outfile>\t\t\tOutput file for verified boot image\n"
       "\n"
       "Optional arguments for \"--generate\" are:\n"
+      "  --padding <size>\t\t\tPad the header to this size\n"
+      "  --subkey_out\t\t\t\tJust output the subkey (key verification) header\n"
       "  --vblock\t\t\t\tJust output the verification block\n"
-      "  --padding\t\t\t\tPad the header to this size\n"
       "\n"
       "<algoid> (for --*_sign_algorithm) is one of the following:\n";
   for (int i = 0; i < kNumAlgorithms; i++) {
@@ -108,6 +109,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     OPT_VMLINUZ,
     OPT_CONFIG,
     OPT_PADDING,
+    OPT_SUBKEY,
   };
   static struct option long_options[] = {
     {"firmware_key", 1, 0,              OPT_FIRMWARE_KEY            },
@@ -128,6 +130,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"vmlinuz", 1, 0,                   OPT_VMLINUZ                 },
     {"config", 1, 0,                    OPT_CONFIG                  },
     {"padding", 1, 0,                   OPT_PADDING                 },
+    {"subkey_out", 0, 0,                OPT_SUBKEY                  },
     {NULL, 0, 0, 0}
   };
   while ((i = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
@@ -222,6 +225,9 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         return false;
       }
       break;
+    case OPT_SUBKEY:
+      is_subkey_out_ = true;
+      break;
     }
   }
   return CheckOptions();
@@ -229,7 +235,9 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
 
 void KernelUtility::OutputSignedImage(void) {
   if (image_) {
-    if (!WriteKernelImage(out_file_.c_str(), image_, is_only_vblock_)) {
+    if (!WriteKernelImage(out_file_.c_str(), image_,
+                          is_only_vblock_,
+                          is_subkey_out_)) {
       cerr << "Couldn't write verified boot kernel image to file "
            << out_file_ <<".\n";
     }
@@ -389,6 +397,7 @@ bool KernelUtility::CheckOptions(void) {
       cerr << "No vmlinuz file specified.\n";
       return false;
     }
+    // TODO(gauravsh): Enforce only one of --vblock or --subkey_out is specified
   }
   return true;
 }

@@ -54,6 +54,7 @@ uint8_t* GetKernelConfigBlob(const KernelImage* image);
  */
 uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len);
 
+
 /* Write kernel data from [image] to a file named [input_file].
  * If [is_only_vblock] is non-zero, only the verification block is output.
  *
@@ -61,7 +62,8 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len);
  */
 int WriteKernelImage(const char* input_file,
                      const KernelImage* image,
-                     int is_only_vblock);
+                     int is_only_vblock,
+                     int is_subkey_out);
 
 /* Create a kernel_data blob from its components and fill
  * its length into blob_len, plus some information about the bootloader.

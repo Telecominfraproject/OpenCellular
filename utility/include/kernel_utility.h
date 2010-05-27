@@ -77,7 +77,8 @@ class KernelUtility {
   bool is_generate_;  // Are we generating a new image?
   bool is_verify_;  // Are we just verifying an already signed image?
   bool is_describe_;  // Should we print out description of the image?
-  bool is_only_vblock_;  // Show we just output the verification block?
+  bool is_only_vblock_;  // Should we just output the verification block?
+  bool is_subkey_out_;  // Should we just output the subkey header?
 };
 
 }  // namespace vboot_reference

@@ -322,10 +322,13 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
 
 int WriteKernelImage(const char* output_file,
                      const KernelImage* image,
-                     int is_only_vblock) {
+                     int is_only_vblock,
+                     int is_subkey_out) {
   int fd;
   int success = 1;
-  uint8_t* kernel_blob;
+  uint8_t* kernel_blob = NULL;
+  uint8_t* subkey_out_buf = NULL;
+  uint8_t* subkey_header = NULL;
   uint64_t blob_len;
 
   if (!image)
@@ -335,6 +338,26 @@ int WriteKernelImage(const char* output_file,
             output_file);
     return 0;
   }
+  if (is_subkey_out) {
+    blob_len = GetKernelHeaderLen(image) +
+        siglen_map[image->firmware_sign_algorithm];
+    subkey_out_buf = (uint8_t*) Malloc(blob_len);
+    subkey_header = GetKernelHeaderBlob(image);
+    Memcpy(subkey_out_buf, subkey_header, GetKernelHeaderLen(image));
+    Memcpy(subkey_out_buf + GetKernelHeaderLen(image),
+           image->kernel_key_signature,
+           siglen_map[image->firmware_sign_algorithm]);
+    if (blob_len != write(fd, subkey_out_buf, blob_len)) {
+      debug("Couldn't write Kernel Subkey header to file: %s\n",
+            output_file);
+      success = 0;
+    }
+    Free(subkey_header);
+    Free(subkey_out_buf);
+    close(fd);
+    return success;
+  }
+
   kernel_blob = GetKernelBlob(image, &blob_len);
   if (!kernel_blob) {
     debug("Couldn't create kernel blob from KernelImage.\n");
