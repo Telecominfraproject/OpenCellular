@@ -89,6 +89,30 @@ int OpenDriveInLastArgument(const int argc,
                             char *const *argv,
                             struct drive *drive);
 
+/* GUID conversion functions. Accepted format:
+ *
+ *   "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+ *
+ * At least GUID_STRLEN bytes should be reserved in 'str' (included the tailing
+ * '\0').
+ */
+#define GUID_STRLEN 37
+void StrToGuid(const char *str, Guid *guid);
+void GuidToStr(const Guid *guid, char *str);
+
+/* Convert UTF16 string to UTF8. Rewritten from gpt utility.
+ * Caller must prepare enough space for UTF8. The rough estimation is:
+ *
+ *   utf8 length = bytecount(utf16) * 1.5
+ */
+void UTF16ToUTF8(const uint16_t *utf16, uint8_t *utf8);
+/* Convert UTF8 string to UTF16. Rewritten from gpt utility.
+ * Caller must prepare enough space for UTF16. The conservative estimation is:
+ *
+ *   utf16 bytecount = bytecount(utf8) / 3 * 4
+ */
+void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16);
+
 /* Describes the drive storing the GPT. */
 struct drive {
   int inited;       /* indicated if this structure is valid */
@@ -112,6 +136,7 @@ extern const char* progname;
  */
 int DriveOpen(const char *drive_path, struct drive *drive);
 int DriveClose(struct drive *drive);
+int CheckValid(const struct drive *drive);
 
 /* Function declarations for commands.
  * The return value of these functions is passed to main()'s exit value. */

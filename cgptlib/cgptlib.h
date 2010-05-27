@@ -88,6 +88,9 @@ typedef struct {
                                   * 0x08 = table2  */
   int current_kernel; /* the current chromeos kernel index in partition table.
                        * -1 means not found on drive. */
+
+  /* Internal variables */
+  uint32_t valid_headers, valid_entries;
 } GptData;
 
 int GptInit(GptData *gpt);

@@ -243,7 +243,6 @@ uint32_t CheckValidUsableLbas(GptData *gpt) {
 /* Checks header CRC */
 uint32_t CheckHeaderCrc(GptData *gpt) {
   uint32_t crc32, original_crc32;
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -251,20 +250,20 @@ uint32_t CheckHeaderCrc(GptData *gpt) {
   int i;
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
+    if (!(gpt->valid_headers & (1 << i))) continue;
     original_crc32 = headers[i]->header_crc32;
     headers[i]->header_crc32 = 0;
     crc32 = Crc32((const uint8_t *)headers[i], headers[i]->size);
     headers[i]->header_crc32 = original_crc32;
     if (crc32 != original_crc32)
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* Checks entries CRC */
 uint32_t CheckEntriesCrc(GptData *gpt) {
   uint32_t crc32;
-  uint32_t valid_entries = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -273,14 +272,20 @@ uint32_t CheckEntriesCrc(GptData *gpt) {
     (GptEntry*)gpt->primary_entries,
     (GptEntry*)gpt->secondary_entries,
   };
+  uint32_t entries_crc32;
   int i;
+
+  if (gpt->valid_headers & MASK_PRIMARY)
+    entries_crc32 = headers[PRIMARY]->entries_crc32;
+  else
+    entries_crc32 = headers[SECONDARY]->entries_crc32;
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
     crc32 = Crc32((const uint8_t *)entries[i], TOTAL_ENTRIES_SIZE);
-    if (crc32 != headers[i]->entries_crc32)
-      INVALIDATE_HEADER(valid_entries, i);
+    if (crc32 != entries_crc32)
+      INVALIDATE_ENTRIES(gpt->valid_entries, i);
   }
-  return valid_entries;
+  return gpt->valid_entries;
 }
 
 /* Returns non-zero if the given GUID is non-zero. */
@@ -305,20 +310,31 @@ uint32_t CheckValidEntries(GptData *gpt) {
     (GptEntry*)gpt->primary_entries,
     (GptEntry*)gpt->secondary_entries,
   };
+  uint32_t number_of_entries, size_of_entry;
+  uint64_t first_usable_lba, last_usable_lba;
   int copy, entry_index;
   GptEntry *entry;
 
+  if (gpt->valid_headers & MASK_PRIMARY)
+    copy = PRIMARY;
+  else
+    copy = SECONDARY;
+  number_of_entries = headers[copy]->number_of_entries;
+  size_of_entry = headers[copy]->size_of_entry;
+  first_usable_lba = headers[copy]->first_usable_lba;
+  last_usable_lba = headers[copy]->last_usable_lba;
+
   for (copy = PRIMARY; copy <= SECONDARY; ++copy) {
     for (entry_index = 0;
-         entry_index < headers[copy]->number_of_entries;
+         entry_index < number_of_entries;
          ++entry_index) {
       entry = (GptEntry*)&(((uint8_t*)entries[copy])
-          [entry_index * headers[copy]->size_of_entry]);
+          [entry_index * size_of_entry]);
       if (NonZeroGuid(&entry->type)) {
-        if ((entry->starting_lba < headers[copy]->first_usable_lba) ||
-            (entry->ending_lba > headers[copy]->last_usable_lba) ||
+        if ((entry->starting_lba < first_usable_lba) ||
+            (entry->ending_lba > last_usable_lba) ||
             (entry->ending_lba < entry->starting_lba))
-          INVALIDATE_HEADER(valid_entries, copy);
+          INVALIDATE_ENTRIES(valid_entries, copy);
       }
     }
   }
@@ -370,9 +386,15 @@ uint32_t CheckOverlappedPartition(GptData *gpt) {
     (GptEntry*)gpt->secondary_entries,
   };
   int i;
+  uint32_t number_of_entries;
+
+  if (gpt->valid_headers & MASK_PRIMARY)
+    number_of_entries = headers[PRIMARY]->number_of_entries;
+  else
+    number_of_entries = headers[SECONDARY]->number_of_entries;
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
-    if (OverlappedEntries(entries[i], headers[i]->number_of_entries))
+    if (OverlappedEntries(entries[i], number_of_entries))
       INVALIDATE_ENTRIES(valid_entries, i);
   }
   return valid_entries;
@@ -384,7 +406,9 @@ uint32_t CheckOverlappedPartition(GptData *gpt) {
  * and marks secondary as modified.
  * If only one is valid, overwrites invalid one.
  * If all are invalid, does nothing.
- * This function returns bit masks for GptData.modified field. */
+ * This function returns bit masks for GptData.modified field.
+ * Note that CRC is NOT re-computed in this function.
+ */
 uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries) {
   if (valid_entries == MASK_BOTH) {
     if (Memcmp(gpt->primary_entries, gpt->secondary_entries,
@@ -445,7 +469,7 @@ void CopySynonymousParts(GptHeader* target, const GptHeader* source) {
  * If primary is invalid (CRC32 is wrong), then we repair it from secondary.
  * If secondary is invalid (CRC32 is wrong), then we repair it from primary.
  * This function returns the bitmasks for modified header.
- * Note that CRC value is not re-computed in this function. UpdateCrc() will
+ * Note that CRC value is NOT re-computed in this function. UpdateCrc() will
  * do it later.
  */
 uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
@@ -502,48 +526,71 @@ void UpdateCrc(GptData *gpt) {
   }
 }
 
-/* Does every sanity check, and returns if any header/entries needs to be
- * written back. */
-int GptInit(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
-  uint32_t valid_entries = MASK_BOTH;
+/* This function only checks GptData.
+ * valid_headers and valid_entries are used to store the checking results.
+ *
+ * Returns:
+ *   GPT_ERROR_INVALID_HEADERS -- both headers are invalid.
+ *   GPT_ERROR_INVALID_ENTRIES -- both entries are invalid.
+ *   GPT_SUCCESS -- everything looks fine.
+ */
+int GptSanityCheck(GptData *gpt) {
   int retval;
+
+  assert(gpt);
 
   retval = CheckParameters(gpt);
   if (retval != GPT_SUCCESS)
     return retval;
 
   /* Initialize values */
-  gpt->modified = 0;
+  gpt->valid_headers = MASK_BOTH;
+  gpt->valid_entries = MASK_BOTH;
 
   /* Start checking if header parameters are valid. */
-  valid_headers &= CheckHeaderSignature(gpt);
-  valid_headers &= CheckRevision(gpt);
-  valid_headers &= CheckSize(gpt);
-  valid_headers &= CheckReservedFields(gpt);
-  valid_headers &= CheckMyLba(gpt);
-  valid_headers &= CheckSizeOfPartitionEntry(gpt);
-  valid_headers &= CheckNumberOfEntries(gpt);
-  valid_headers &= CheckEntriesLba(gpt);
-  valid_headers &= CheckValidUsableLbas(gpt);
+  CheckHeaderSignature(gpt);
+  CheckRevision(gpt);
+  CheckSize(gpt);
+  CheckReservedFields(gpt);
+  CheckMyLba(gpt);
+  CheckSizeOfPartitionEntry(gpt);
+  CheckNumberOfEntries(gpt);
+  CheckEntriesLba(gpt);
+  CheckValidUsableLbas(gpt);
+  CheckHeaderCrc(gpt);
 
-  /* Checks if headers are valid. */
-  valid_headers &= CheckHeaderCrc(gpt);
-  gpt->modified |= RepairHeader(gpt, valid_headers);
+  /* Returns error if we don't have any valid header to use. */
+  if (!gpt->valid_headers)
+    return GPT_ERROR_INVALID_HEADERS;
 
   /* Checks if entries are valid. */
-  valid_entries &= CheckEntriesCrc(gpt);
-  valid_entries &= CheckValidEntries(gpt);
-  valid_entries &= CheckOverlappedPartition(gpt);
-  gpt->modified |= RepairEntries(gpt, valid_entries);
+  CheckEntriesCrc(gpt);
+  CheckValidEntries(gpt);
+  CheckOverlappedPartition(gpt);
 
-  /* Returns error if we don't have any valid header/entries to use. */
-  if (!valid_headers)
-    return GPT_ERROR_INVALID_HEADERS;
-  if (!valid_entries)
+  /* Returns error if we don't have any valid entries to use. */
+  if (!gpt->valid_entries)
     return GPT_ERROR_INVALID_ENTRIES;
 
+  return GPT_SUCCESS;
+}
+
+void GptRepair(GptData *gpt) {
+  gpt->modified |= RepairHeader(gpt, gpt->valid_headers);
+  gpt->modified |= RepairEntries(gpt, gpt->valid_entries);
   UpdateCrc(gpt);
+}
+
+/* Does every sanity check, and returns if any header/entries needs to be
+ * written back. */
+int GptInit(GptData *gpt) {
+  int retval;
+
+  retval = GptSanityCheck(gpt);
+  if (GPT_SUCCESS != retval) return retval;
+
+  gpt->modified = 0;
+  GptRepair(gpt);
 
   gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
 
@@ -555,18 +602,15 @@ int GptInit(GptData *gpt) {
  *   'entry_index' is the partition index: [0, number_of_entries).
  */
 GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index) {
-  GptHeader *header;
   uint8_t *entries;
 
   if (secondary == PRIMARY) {
-    header = (GptHeader*)gpt->primary_header;
     entries = gpt->primary_entries;
   } else {
-    header = (GptHeader*)gpt->secondary_header;
     entries = gpt->secondary_entries;
   }
 
-  return (GptEntry*)(&entries[header->size_of_entry * entry_index]);
+  return (GptEntry*)(&entries[GetNumberOfEntries(gpt) * entry_index]);
 }
 
 /* The following functions are helpers to access attributes bit more easily.
@@ -640,8 +684,13 @@ int GetSuccessful(GptData *gpt, int secondary, int entry_index) {
 }
 
 uint32_t GetNumberOfEntries(const GptData *gpt) {
-  GptHeader *header;
-  header = (GptHeader*)gpt->primary_header;
+  GptHeader *header = 0;
+  if (gpt->valid_headers & MASK_PRIMARY)
+    header = (GptHeader*)gpt->primary_header;
+  else if (gpt->valid_headers & MASK_SECONDARY)
+    header = (GptHeader*)gpt->secondary_header;
+  else
+    assert(0);
   return header->number_of_entries;
 }
 

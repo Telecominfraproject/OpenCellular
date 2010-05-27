@@ -66,6 +66,16 @@ int CgptRepair(int argc, char *argv[]) {
   if (CGPT_OK != OpenDriveInLastArgument(argc, argv, &drive))
     return CGPT_FAILED;
 
+  GptRepair(&drive.gpt);
+  if (drive.gpt.modified & GPT_MODIFIED_HEADER1)
+    printf("* Pri Header is updated.\n");
+  if (drive.gpt.modified & GPT_MODIFIED_ENTRIES1)
+    printf("* Pri Table Entries is updated.\n");
+  if (drive.gpt.modified & GPT_MODIFIED_ENTRIES2)
+    printf("* Sec Table Entries is updated.\n");
+  if (drive.gpt.modified & GPT_MODIFIED_HEADER2)
+    printf("* Sec Header is updated.\n");
+
   DriveClose(&drive);
 
   return CGPT_OK;

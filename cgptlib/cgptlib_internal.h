@@ -22,16 +22,19 @@ uint32_t CheckValidUsableLbas(GptData *gpt);
 uint32_t CheckHeaderCrc(GptData *gpt);
 uint32_t CheckEntriesCrc(GptData *gpt);
 uint32_t CheckValidEntries(GptData *gpt);
-int OverlappedEntries(GptEntry *entries, uint32_t number_of_entries);
-uint32_t CheckOverlappedPartition(GptData *gpt);
-uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries);
-uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers);
 typedef struct {
   uint64_t starting;
   uint64_t ending;
 } pair_t;
-
+int OverlappedEntries(GptEntry *entries, uint32_t number_of_entries);
+uint32_t CheckOverlappedPartition(GptData *gpt);
+int IsSynonymous(const GptHeader* a, const GptHeader* b);
+uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries);
+uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers);
 void UpdateCrc(GptData *gpt);
+int GptSanityCheck(GptData *gpt);
+void GptRepair(GptData *gpt);
+
 GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index);
 void SetPriority(GptData *gpt, int secondary, int entry_index, int priority);
 int GetPriority(GptData *gpt, int secondary, int entry_index);

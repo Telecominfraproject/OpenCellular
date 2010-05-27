@@ -114,6 +114,8 @@ void BuildTestGptData(GptData *gpt) {
   gpt->sector_bytes = DEFAULT_SECTOR_SIZE;
   gpt->drive_sectors = DEFAULT_DRIVE_SECTORS;
   gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+  gpt->valid_headers = MASK_BOTH;
+  gpt->valid_entries = MASK_BOTH;
 
   /* build primary */
   header = (GptHeader*)gpt->primary_header;
@@ -600,6 +602,12 @@ int HeaderCrcTest() {
   gpt->primary_header[primary_header->size] ^= 0x87;
   EXPECT(MASK_BOTH == CheckHeaderCrc(gpt));
 
+  /* Very long header (actually invalid header). Expect will be ignored. */
+  primary_header->size = 0x12345678;
+  secondary_header->size = 0x87654321;
+  gpt->valid_headers = MASK_NONE;
+  EXPECT(MASK_NONE == CheckHeaderCrc(gpt));
+
   return TEST_OK;
 }
 
@@ -719,7 +727,8 @@ int SynonymousHeaderTest() {
   ++secondary_header->first_usable_lba;
   RefreshCrc32(gpt);
   EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(GPT_MODIFIED_HEADER2 == gpt->modified);
+  EXPECT((gpt->modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_HEADER2)) ==
+         GPT_MODIFIED_HEADER2);
   EXPECT(primary_header->first_usable_lba ==
          secondary_header->first_usable_lba);
 
@@ -892,7 +901,8 @@ int CorruptCombinationTest() {
   primary_header->entries_crc32 ^= 0x73;
   EXPECT(GPT_SUCCESS == GptInit(gpt));
   /* After header is repaired, the entries are valid actually. */
-  EXPECT((GPT_MODIFIED_HEADER1) == gpt->modified);
+  EXPECT((gpt->modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_HEADER2)) ==
+         GPT_MODIFIED_HEADER1);
   /* We expect the modified header/entries can pass GptInit(). */
   EXPECT(GPT_SUCCESS == GptInit(gpt));
   EXPECT(0 == gpt->modified);

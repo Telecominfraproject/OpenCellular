@@ -5,6 +5,14 @@
  * Utility for ChromeOS-specific GPT partitions, Please see corresponding .c
  * files for more details.
  */
+/* To compile on host without compatility to BSD, we include
+ * endian.h under chroot. */
+#define _BSD_SOURCE
+#include "endian.h"
+
+#define __USE_LARGEFILE64
+#define __USE_FILE_OFFSET64
+#define _LARGEFILE64_SOURCE
 #include "cgpt.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -18,6 +26,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "cgptlib_internal.h"
 #include "utility.h"
 
 /* For usage print */
@@ -50,6 +59,141 @@ void Usage(const char *message) {
   printf("\nFor more detailed usage, use %s COMMAND --help.\n\n", progname);
 }
 
+/* GUID conversion functions. Accepted format:
+ *
+ *   "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+ */
+void StrToGuid(const char *str, Guid *guid) {
+  uint32_t time_low, time_mid, time_high_and_version;
+
+  sscanf(str, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+         &time_low,
+         (unsigned int *)&time_mid,
+         (unsigned int *)&time_high_and_version,
+         (unsigned int *)&guid->u.Uuid.clock_seq_high_and_reserved,
+         (unsigned int *)&guid->u.Uuid.clock_seq_low,
+         (unsigned int *)&guid->u.Uuid.node[0],
+         (unsigned int *)&guid->u.Uuid.node[1],
+         (unsigned int *)&guid->u.Uuid.node[2],
+         (unsigned int *)&guid->u.Uuid.node[3],
+         (unsigned int *)&guid->u.Uuid.node[4],
+         (unsigned int *)&guid->u.Uuid.node[5]);
+
+  guid->u.Uuid.time_low = htole32(time_low);
+  guid->u.Uuid.time_mid = htole16(time_mid);
+  guid->u.Uuid.time_high_and_version = htole16(time_high_and_version);
+}
+
+void GuidToStr(const Guid *guid, char *str) {
+  sprintf(str, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+          le32toh(guid->u.Uuid.time_low), le16toh(guid->u.Uuid.time_mid),
+          le16toh(guid->u.Uuid.time_high_and_version),
+          guid->u.Uuid.clock_seq_high_and_reserved, guid->u.Uuid.clock_seq_low,
+          guid->u.Uuid.node[0], guid->u.Uuid.node[1], guid->u.Uuid.node[2],
+          guid->u.Uuid.node[3], guid->u.Uuid.node[4], guid->u.Uuid.node[5]);
+}
+
+/* Convert UTF16 string to UTF8. Rewritten from gpt utility.
+ * Caller must prepare enough space for UTF8. The rough estimation is:
+ *
+ *   utf8 length = bytecount(utf16) * 1.5
+ */
+#define SIZEOF_GPTENTRY_NAME 36  /* sizeof(GptEntry.name[]) */
+void UTF16ToUTF8(const uint16_t *utf16, uint8_t *utf8)
+{
+  size_t s8idx, s16idx, s16len;
+  uint32_t utfchar;
+  unsigned int next_utf16;
+
+  for (s16len = 0; s16len < SIZEOF_GPTENTRY_NAME && utf16[s16len]; ++s16len);
+
+  *utf8 = s8idx = s16idx = 0;
+  while (s16idx < s16len) {
+    utfchar = le16toh(utf16[s16idx++]);
+    if ((utfchar & 0xf800) == 0xd800) {
+      next_utf16 = le16toh(utf16[s16idx]);
+      if ((utfchar & 0x400) != 0 || (next_utf16 & 0xfc00) != 0xdc00)
+        utfchar = 0xfffd;
+      else
+        s16idx++;
+    }
+    if (utfchar < 0x80) {
+      utf8[s8idx++] = utfchar;
+    } else if (utfchar < 0x800) {
+      utf8[s8idx++] = 0xc0 | (utfchar >> 6);
+      utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
+    } else if (utfchar < 0x10000) {
+      utf8[s8idx++] = 0xe0 | (utfchar >> 12);
+      utf8[s8idx++] = 0x80 | ((utfchar >> 6) & 0x3f);
+      utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
+    } else if (utfchar < 0x200000) {
+      utf8[s8idx++] = 0xf0 | (utfchar >> 18);
+      utf8[s8idx++] = 0x80 | ((utfchar >> 12) & 0x3f);
+      utf8[s8idx++] = 0x80 | ((utfchar >> 6) & 0x3f);
+      utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
+    }
+  }
+}
+
+/* Convert UTF8 string to UTF16. Rewritten from gpt utility.
+ * Caller must prepare enough space for UTF16. The conservative estimation is:
+ *
+ *   utf16 bytecount = bytecount(utf8) / 3 * 4
+ */
+void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16)
+{
+  size_t s16idx, s8idx, s8len;
+  uint32_t utfchar;
+  unsigned int c, utfbytes;
+
+  for (s8len = 0; utf8[s8len]; ++s8len);
+
+  s8idx = s16idx = 0;
+  utfbytes = 0;
+  do {
+    c = utf8[s8idx++];
+    if ((c & 0xc0) != 0x80) {
+      /* Initial characters. */
+      if (utfbytes != 0) {
+        /* Incomplete encoding. */
+        utf16[s16idx++] = 0xfffd;
+      }
+      if ((c & 0xf8) == 0xf0) {
+        utfchar = c & 0x07;
+        utfbytes = 3;
+      } else if ((c & 0xf0) == 0xe0) {
+        utfchar = c & 0x0f;
+        utfbytes = 2;
+      } else if ((c & 0xe0) == 0xc0) {
+        utfchar = c & 0x1f;
+        utfbytes = 1;
+      } else {
+        utfchar = c & 0x7f;
+        utfbytes = 0;
+      }
+    } else {
+      /* Followup characters. */
+      if (utfbytes > 0) {
+        utfchar = (utfchar << 6) + (c & 0x3f);
+        utfbytes--;
+      } else if (utfbytes == 0)
+        utfbytes = -1;
+        utfchar = 0xfffd;
+    }
+    if (utfbytes == 0) {
+      if (utfchar >= 0x10000) {
+        utf16[s16idx++] = htole16(0xd800 | ((utfchar>>10)-0x40));
+        if (s16idx >= SIZEOF_GPTENTRY_NAME) break;
+        utf16[s16idx++] = htole16(0xdc00 | (utfchar & 0x3ff));
+      } else {
+        utf16[s16idx++] = htole16(utfchar);
+      }
+    }
+  } while (c != 0 && s16idx < SIZEOF_GPTENTRY_NAME);
+  if (s16idx < SIZEOF_GPTENTRY_NAME)
+    utf16[s16idx++] = 0;
+}
+
 /* Loads sectors from 'fd'.
  * *buf is pointed to an allocated memory when returned, and should be
  * freed by cgpt_close().
@@ -74,7 +218,7 @@ int Load(const int fd, uint8_t **buf,
   *buf = Malloc(count);
   assert(*buf);
 
-  if (-1 == lseek(fd, sector * sector_bytes, SEEK_SET))
+  if (-1 == lseek64(fd, sector * sector_bytes, SEEK_SET))
     goto error_free;
 
   nread = read(fd, *buf, count);
@@ -109,13 +253,23 @@ int Save(const int fd, const uint8_t *buf,
   assert(buf);
   count = sector_bytes * sector_count;
 
-  if (-1 == lseek(fd, sector * sector_bytes, SEEK_SET))
+  if (-1 == lseek64(fd, sector * sector_bytes, SEEK_SET))
     return CGPT_FAILED;
 
   nwrote = write(fd, buf, count);
   if (nwrote < count)
     return CGPT_FAILED;
 
+  return CGPT_OK;
+}
+
+int CheckValid(const struct drive *drive) {
+  if ((drive->gpt.valid_headers != MASK_BOTH) ||
+      (drive->gpt.valid_entries != MASK_BOTH)) {
+    printf("\n[ERROR] any of GPT header/entries is invalid, "
+           "please run --repair first\n");
+    return CGPT_FAILED;
+  }
   return CGPT_OK;
 }
 
@@ -131,7 +285,7 @@ int DriveOpen(const char *drive_path, struct drive *drive) {
   assert(drive);
 
   Memset(drive, 0, sizeof(struct drive));
-  drive->fd = open(drive_path, O_RDWR);
+  drive->fd = open(drive_path, O_RDWR | O_LARGEFILE);
   if (drive->fd == -1) {
     printf("[ERROR] Cannot open drive file [%s]: %s\n",
            drive_path, strerror(errno));
@@ -178,8 +332,8 @@ int DriveOpen(const char *drive_path, struct drive *drive) {
        drive->gpt.drive_sectors - GPT_HEADER_SECTOR - GPT_ENTRIES_SECTORS,
        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS);
 
-  if (GPT_SUCCESS != (gpt_retval = GptInit(&drive->gpt))) {
-    printf("[ERROR] GptInit(): %s\n", GptError(gpt_retval));
+  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive->gpt))) {
+    printf("[ERROR] GptSanityCheck(): %s\n", GptError(gpt_retval));
     goto error_close;
   }
 

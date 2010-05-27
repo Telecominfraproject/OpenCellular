@@ -99,6 +99,8 @@ int CgptAttribute(int argc, char *argv[]) {
   if (CGPT_OK != OpenDriveInLastArgument(argc, argv, &drive))
     return CGPT_FAILED;
 
+  if (CheckValid(&drive) != CGPT_OK) return CGPT_FAILED;
+
   debug("[OPTION] i:%d b:%d s:%d t:%d p:%d\n", partition, bad, successful, tries, priority);  /* FIXME */
 
   /* partition is not specified, search for the first Chromeos kernel. */
