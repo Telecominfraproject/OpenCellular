@@ -31,6 +31,7 @@ extern uint16_t g_kernel_version;
 void SetupTPM(void);
 uint16_t GetStoredVersion(int type);
 int WriteStoredVersion(int type, uint16_t version);
-void LockStoredVersion(int type);
+void LockFirmwareVersions();
+void LockKernelVersionsByLockingPP();
 
 #endif  /* VBOOT_REFERENCE_ROLLBACK_INDEX_H_ */

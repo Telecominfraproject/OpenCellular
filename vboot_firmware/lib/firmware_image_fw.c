@@ -289,14 +289,11 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
       }
     }
   }
-  /* Lock Firmware TPM rollback indices from further writes. */
-  /* TODO(gauravsh): Figure out if these can be combined into one
-   * 32-bit location since we seem to always use them together. This can help
-   * us minimize the number of NVRAM writes/locks (which are limited over flash
-   * memory lifetimes.
+  /* Lock Firmware TPM rollback indices from further writes.  In this design,
+   * this is done by setting the globalLock bit, which is cleared only by
+   * TPM_Init at reboot.
    */
-  LockStoredVersion(FIRMWARE_KEY_VERSION);
-  LockStoredVersion(FIRMWARE_VERSION);
+  LockFirmwareVersions();
 
   /* Determine which firmware (if any) to jump to.
    *

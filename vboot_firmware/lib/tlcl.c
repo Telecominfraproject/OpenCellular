@@ -20,9 +20,11 @@ uint32_t TlclRead(uint32_t index, uint8_t *data, uint32_t length) {
 void TlclWriteLock(uint32_t index) { return; }
 void TlclReadLock(uint32_t index) { return; }
 void TlclAssertPhysicalPresence(void) { return; }
+uint32_t TlclLockPhysicalPresence(void) { return TPM_SUCCESS; }
 void TlclSetNvLocked(void) { return; }
 int TlclIsOwned(void) { return 0; }
 void TlclForceClear(void) { return; }
-void TlclPhysicalEnable(void) { return; }
-int TlclPhysicalSetDeactivated(uint8_t flag) { return TPM_SUCCESS; }
+uint32_t TlclSetEnable(void) { return TPM_SUCCESS; }
+uint32_t TlclSetDeactivated(int deactivated) { return TPM_SUCCESS; }
+uint32_t TlclSetGlobalLock(void) { return TPM_SUCCESS; }
 int TlclGetFlags(uint8_t* disable, uint8_t* deactivated) { return TPM_SUCCESS; }

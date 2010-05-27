@@ -447,13 +447,12 @@ int VerifyKernelDriver_f(uint8_t* firmware_key_blob,
     try_kernel[i]->boot_priority = 0;
     }  /* for loop. */
 
-  /* Lock Kernel TPM rollback indices from further writes.
-   * TODO(gauravsh): Figure out if these can be combined into one
-   * 32-bit location since we seem to always use them together. This can help
-   * us minimize the number of NVRAM writes/locks (which are limited over flash
-   * memory lifetimes.
+  /* Lock Kernel TPM rollback indices from further writes.  In this design,
+   * this is tied to locking physical presence---so (software) physical
+   * presence cannot be asserted after this point.  This is a big side effect,
+   * so we want to make it clear in the function name.
+   * TODO(gauravsh): figure out better abstractions.
    */
-  LockStoredVersion(KERNEL_KEY_VERSION);
-  LockStoredVersion(KERNEL_VERSION);
+  LockKernelVersionsByLockingPP();
   return kernel_to_boot;
 }

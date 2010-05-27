@@ -21,21 +21,23 @@ uint16_t g_kernel_version = 0;
 
 static void InitializeSpaces(void) {
   uint16_t zero = 0;
-  uint32_t perm = TPM_NV_PER_WRITE_STCLEAR | TPM_NV_PER_PPWRITE;
+  uint32_t firmware_perm = TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE;
+  uint32_t kernel_perm = TPM_NV_PER_PPWRITE;
 
   debug("Initializing spaces\n");
   TlclSetNvLocked();  /* useful only the first time */
 
-  TlclDefineSpace(FIRMWARE_KEY_VERSION_NV_INDEX, perm, sizeof(uint16_t));
+  TlclDefineSpace(FIRMWARE_KEY_VERSION_NV_INDEX,
+                  firmware_perm, sizeof(uint16_t));
   TlclWrite(FIRMWARE_KEY_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
 
-  TlclDefineSpace(FIRMWARE_VERSION_NV_INDEX, perm, sizeof(uint16_t));
+  TlclDefineSpace(FIRMWARE_VERSION_NV_INDEX, firmware_perm, sizeof(uint16_t));
   TlclWrite(FIRMWARE_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
 
-  TlclDefineSpace(KERNEL_KEY_VERSION_NV_INDEX, perm, sizeof(uint16_t));
+  TlclDefineSpace(KERNEL_KEY_VERSION_NV_INDEX, kernel_perm, sizeof(uint16_t));
   TlclWrite(KERNEL_KEY_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
 
-  TlclDefineSpace(KERNEL_VERSION_NV_INDEX, perm, sizeof(uint16_t));
+  TlclDefineSpace(KERNEL_VERSION_NV_INDEX, kernel_perm, sizeof(uint16_t));
   TlclWrite(KERNEL_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
 }
 
@@ -55,8 +57,8 @@ static int GetTPMRollbackIndices(void) {
                               (uint8_t*) &g_firmware_key_version,
                               sizeof(g_firmware_key_version)) ||
       TPM_SUCCESS != TlclRead(FIRMWARE_KEY_VERSION_NV_INDEX,
-                               (uint8_t*) &g_firmware_key_version,
-                               sizeof(g_firmware_key_version))  ||
+                              (uint8_t*) &g_firmware_key_version,
+                              sizeof(g_firmware_key_version))  ||
       TPM_SUCCESS != TlclRead(FIRMWARE_KEY_VERSION_NV_INDEX,
                               (uint8_t*) &g_firmware_key_version,
                               sizeof(g_firmware_key_version)))
@@ -66,6 +68,8 @@ static int GetTPMRollbackIndices(void) {
 
 
 void SetupTPM(void) {
+  uint8_t disable;
+  uint8_t deactivated;
   TlclLibinit();
   TlclStartup();
   /* TODO(gauravsh): The call to self test  should probably be deferred.
@@ -77,8 +81,20 @@ void SetupTPM(void) {
    * before the selftest completes. */
   TlclSelftestfull();
   TlclAssertPhysicalPresence();
+  /* Check that the TPM is enabled and activated. */
+  if(TlclGetFlags(&disable, &deactivated) != TPM_SUCCESS) {
+    debug("failed to get TPM flags");
+    EnterRecovery();
+  }
+  if (disable || deactivated) {
+    TlclSetEnable();
+    if (TlclSetDeactivated(0) != TPM_SUCCESS) {
+      debug("failed to activate TPM");
+      EnterRecovery();
+    }
+  }
   if (!GetTPMRollbackIndices()) {
-    debug("Ho Ho Ho! We must jump to recovery.");
+    debug("failed to get rollback indices");
     EnterRecovery();
   }
 }
@@ -128,22 +144,16 @@ int WriteStoredVersion(int type, uint16_t version) {
   return 0;
 }
 
-void LockStoredVersion(int type) {
-  /* TODO(gauravsh): Add error checking here to make sure TlclWriteLock
-   * did not fail. We must jump to recovery in that case.
-   */
-  switch (type) {
-    case FIRMWARE_KEY_VERSION:
-      TlclWriteLock(FIRMWARE_KEY_VERSION_NV_INDEX);
-      break;
-    case FIRMWARE_VERSION:
-      TlclWriteLock(FIRMWARE_VERSION_NV_INDEX);
-      break;
-    case KERNEL_KEY_VERSION:
-      TlclWriteLock(KERNEL_KEY_VERSION_NV_INDEX);
-      break;
-    case KERNEL_VERSION:
-      TlclWriteLock(KERNEL_VERSION_NV_INDEX);
-      break;
+void LockFirmwareVersions() {
+  if (TlclSetGlobalLock() != TPM_SUCCESS) {
+    debug("failed to set global lock");
+    EnterRecovery();
+  }
+}
+
+void LockKernelVersionsByLockingPP() {
+  if (TlclLockPhysicalPresence() != TPM_SUCCESS) {
+    debug("failed to turn off PP");
+    EnterRecovery();
   }
 }

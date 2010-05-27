@@ -60,8 +60,13 @@ int WriteStoredVersion(int type, uint16_t version) {
   return 1;
 }
 
-void LockStoredVersion(int type) {
+void LockFirmwareVersions() {
 #ifndef NDEBUG
-  debug("Rollback Index Library Mock: Version Locked.\n");
+  debug("Rollback Index Library Mock: Firmware Versions Locked.\n");
+#endif
+}
+void LockKernelVersionsByLockingPP() {
+#ifndef NDEBUG
+  debug("Rollback Index Library Mock: Kernel Versions Locked.\n");
 #endif
 }
