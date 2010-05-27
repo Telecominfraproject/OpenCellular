@@ -38,7 +38,8 @@ int main(void)
   SetupTPM();
   GetStoredVersion(0);
   WriteStoredVersion(0, 0);
-  LockStoredVersion(0);
+  LockFirmwareVersions();
+  LockKernelVersionsByLockingPP();
 
   // tlcl.h
   TlclLibinit();
@@ -53,8 +54,8 @@ int main(void)
   TlclSetNvLocked();
   TlclIsOwned();
   TlclForceClear();
-  TlclPhysicalEnable();
-  TlclPhysicalSetDeactivated(0);
+  TlclSetEnable();
+  TlclSetDeactivated(0);
   TlclGetFlags(0, 0);
 
   return 0;

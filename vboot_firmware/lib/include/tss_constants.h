@@ -28,6 +28,7 @@
 #define TPM_NV_INDEX_LOCK ((uint32_t)0xffffffff)
 #define TPM_NV_PER_WRITE_STCLEAR (((uint32_t)1)<<14)
 #define TPM_NV_PER_PPWRITE (((uint32_t)1)<<0)
+#define TPM_NV_PER_GLOBALLOCK (((uint32_t)1)<<15)
 
 typedef uint8_t TSS_BOOL;
 typedef uint16_t TPM_STRUCTURE_TAG;
