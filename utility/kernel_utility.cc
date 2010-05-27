@@ -35,6 +35,7 @@ KernelUtility::KernelUtility(): image_(NULL),
                                 kernel_sign_algorithm_(-1),
                                 kernel_key_version_(-1),
                                 kernel_version_(-1),
+                                padding_(0),
                                 kernel_len_(0),
                                 is_generate_(false),
                                 is_verify_(false),
@@ -48,36 +49,46 @@ KernelUtility::~KernelUtility() {
 }
 
 void KernelUtility::PrintUsage(void) {
-  cerr <<
-      "Utility to generate/verify/describe a verified boot kernel image\n\n"
-      "Usage: kernel_utility <--generate|--verify|--describe> [OPTIONS]\n\n"
+  cerr << "\n"
+      "Utility to generate/verify/describe a verified boot kernel image\n"
+      "\n"
+      "Usage: kernel_utility <--generate|--verify|--describe> [OPTIONS]\n"
+      "\n"
+      "For \"--describe\", the required OPTIONS are:\n"
+      "  --in <infile>\t\t\t\tSigned boot image to describe.\n"
+      "\n"
       "For \"--verify\",  required OPTIONS are:\n"
-      "--in <infile>\t\t\tVerified boot kernel image to verify.\n"
-      "--firmware_key_pub <pubkeyfile>\tPre-processed public firmware key "
-      "to use for verification.\n\n"
+      "  --in <infile>\t\t\t\tSigned boot image to verify.\n"
+      "  --firmware_key_pub <pubkeyfile>\tPre-processed public firmware key\n"
+      "\n"
       "For \"--generate\", required OPTIONS are:\n"
-      "--firmware_key <privkeyfile>\tPrivate firmware signing key file\n"
-      "--kernel_key <privkeyfile>\tPrivate kernel signing key file\n"
-      "--kernel_key_pub <pubkeyfile>\tPre-processed public kernel signing"
+      "  --firmware_key <privkeyfile>\t\tPrivate firmware signing key file\n"
+      "  --kernel_key <privkeyfile>\t\tPrivate kernel signing key file\n"
+      "  --kernel_key_pub <pubkeyfile>\t\tPre-processed public kernel signing"
       " key\n"
-      "--firmware_sign_algorithm <algoid>\tSigning algorithm used by "
-      "the firmware\n"
-      "--kernel_sign_algorithm <algoid>\tSigning algorithm to use for kernel\n"
-      "--kernel_key_version <version#>\tKernel signing Key Version#\n"
-      "--kernel_version <version#>\tKernel Version#\n"
-      "--in <infile>\t\tKernel Image to sign\n"
-      "--out <outfile>\t\tOutput file for verified boot Kernel image\n\n"
-      "Optional arguments for \"--generate\" include:\n"
-      "--vblock\t\t\tJust output the verification block\n\n"
+      "  --firmware_sign_algorithm <algoid>\tSigning algorithm for firmware\n"
+      "  --kernel_sign_algorithm <algoid>\tSigning algorithm for kernel\n"
+      "  --kernel_key_version <number>\t\tKernel signing key version number\n"
+      "  --kernel_version <number>\t\tKernel Version number\n"
+      "  --config <file>\t\t\tEmbedded kernel command-line parameters\n"
+      "  --bootloader <file>\t\t\tEmbedded bootloader stub\n"
+      "  --vmlinuz <file>\t\t\tEmbedded kernel image\n"
+      "  --out <outfile>\t\t\tOutput file for verified boot image\n"
+      "\n"
+      "Optional arguments for \"--generate\" are:\n"
+      "  --vblock\t\t\t\tJust output the verification block\n"
+      "  --padding\t\t\t\tPad the header to this size\n"
+      "\n"
       "<algoid> (for --*_sign_algorithm) is one of the following:\n";
   for (int i = 0; i < kNumAlgorithms; i++) {
-    cerr << i << " for " << algo_strings[i] << "\n";
+    cerr << "  " << i << " for " << algo_strings[i] << "\n";
   }
   cerr << "\n\n";
 }
 
 bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
   int option_index, i;
+  char *e = 0;
   enum {
     OPT_FIRMWARE_KEY = 1000,
     OPT_FIRMWARE_KEY_PUB,
@@ -93,6 +104,10 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     OPT_VERIFY,
     OPT_DESCRIBE,
     OPT_VBLOCK,
+    OPT_BOOTLOADER,
+    OPT_VMLINUZ,
+    OPT_CONFIG,
+    OPT_PADDING,
   };
   static struct option long_options[] = {
     {"firmware_key", 1, 0,              OPT_FIRMWARE_KEY            },
@@ -109,6 +124,10 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"verify", 0, 0,                    OPT_VERIFY                  },
     {"describe", 0, 0,                  OPT_DESCRIBE                },
     {"vblock", 0, 0,                    OPT_VBLOCK                  },
+    {"bootloader", 1, 0,                OPT_BOOTLOADER              },
+    {"vmlinuz", 1, 0,                   OPT_VMLINUZ                 },
+    {"config", 1, 0,                    OPT_CONFIG                  },
+    {"padding", 1, 0,                   OPT_PADDING                 },
     {NULL, 0, 0, 0}
   };
   while ((i = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
@@ -129,32 +148,43 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       kernel_key_pub_file_ = optarg;
       break;
     case OPT_FIRMWARE_SIGN_ALGORITHM:
-      errno = 0;  // strtol() returns an error via errno
-      firmware_sign_algorithm_ = strtol(optarg,
-                                        reinterpret_cast<char**>(NULL), 10);
-      if (errno)
+      firmware_sign_algorithm_ = strtol(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        cerr << "Invalid argument to --"
+             << long_options[option_index].name
+             << ": " << optarg << "\n";
         return false;
+      }
       break;
     case OPT_KERNEL_SIGN_ALGORITHM:
       errno = 0;
-      kernel_sign_algorithm_ = strtol(optarg,
-                                      reinterpret_cast<char**>(NULL), 10);
-      if (errno)
+      kernel_sign_algorithm_ = strtol(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        cerr << "Invalid argument to --"
+             << long_options[option_index].name
+             << ": " << optarg << "\n";
         return false;
+      }
       break;
     case OPT_KERNEL_KEY_VERSION:
       errno = 0;
-      kernel_key_version_ = strtol(optarg,
-                                   reinterpret_cast<char**>(NULL), 10);
-      if (errno)
+      kernel_key_version_ = strtol(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        cerr << "Invalid argument to --"
+             << long_options[option_index].name
+             << ": " << optarg << "\n";
         return false;
-        break;
+      }
+      break;
     case OPT_KERNEL_VERSION:
       errno = 0;
-      kernel_version_ = strtol(optarg,
-                                 reinterpret_cast<char**>(NULL), 10);
-      if (errno)
+      kernel_version_ = strtol(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        cerr << "Invalid argument to --"
+             << long_options[option_index].name
+             << ": " << optarg << "\n";
         return false;
+      }
       break;
     case OPT_IN:
       in_file_ = optarg;
@@ -173,6 +203,24 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       break;
     case OPT_VBLOCK:
       is_only_vblock_ = true;
+      break;
+    case OPT_BOOTLOADER:
+      bootloader_file_ = optarg;
+      break;
+    case OPT_VMLINUZ:
+      vmlinuz_file_ = optarg;
+      break;
+    case OPT_CONFIG:
+      config_file_ = optarg;
+      break;
+    case OPT_PADDING:
+      padding_ = strtol(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        cerr << "Invalid argument to --"
+             << long_options[option_index].name
+             << ": " << optarg << "\n";
+        return false;
+      }
       break;
     }
   }
@@ -205,6 +253,8 @@ bool KernelUtility::GenerateSignedImage(void) {
 
   // TODO(gauravsh): make this a command line option.
   image_->header_version = 1;
+  if (padding_)
+    image_->padded_header_size = padding_;
   image_->firmware_sign_algorithm = (uint16_t) firmware_sign_algorithm_;
   // Copy pre-processed public signing key.
   image_->kernel_sign_algorithm = (uint16_t) kernel_sign_algorithm_;
@@ -221,8 +271,13 @@ bool KernelUtility::GenerateSignedImage(void) {
   CalculateKernelHeaderChecksum(image_, image_->header_checksum);
 
   image_->kernel_version = kernel_version_;
-  image_->kernel_data = BufferFromFile(in_file_.c_str(),
-                                       &image_->kernel_len);
+
+  image_->kernel_data = GenerateKernelBlob(vmlinuz_file_.c_str(),
+                                           config_file_.c_str(),
+                                           bootloader_file_.c_str(),
+                                           &image_->kernel_len,
+                                           &image_->bootloader_offset,
+                                           &image_->bootloader_size);
   if (!image_->kernel_data)
     return false;
   // Generate and add the signatures.
@@ -268,14 +323,23 @@ bool KernelUtility::CheckOptions(void) {
     return false;
   }
   // Common required options.
-  if (in_file_.empty()) {
-    cerr << "No input file specified.\n";
-    return false;
+  // Required options for --describe.
+  if (is_describe_) {
+    if (in_file_.empty()) {
+      cerr << "No input file specified.\n";
+      return false;
+    }
   }
   // Required options for --verify.
-  if (is_verify_ && firmware_key_pub_file_.empty()) {
-    cerr << "No pre-processed public firmware key file specified.\n";
-    return false;
+  if (is_verify_) {
+    if (firmware_key_pub_file_.empty()) {
+      cerr << "No pre-processed public firmware key file specified.\n";
+      return false;
+    }
+    if (in_file_.empty()) {
+      cerr << "No input file specified.\n";
+      return false;
+    }
   }
   // Required options for --generate.
   if (is_generate_) {
@@ -311,6 +375,18 @@ bool KernelUtility::CheckOptions(void) {
     }
     if (out_file_.empty()) {
       cerr <<"No output file specified.\n";
+      return false;
+    }
+    if (config_file_.empty()) {
+      cerr << "No config file specified.\n";
+      return false;
+    }
+    if (bootloader_file_.empty()) {
+      cerr << "No bootloader file specified.\n";
+      return false;
+    }
+    if (vmlinuz_file_.empty()) {
+      cerr << "No vmlinuz file specified.\n";
       return false;
     }
   }

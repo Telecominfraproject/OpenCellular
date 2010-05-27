@@ -85,4 +85,15 @@ void* StatefulMemcpy(MemcpyState* state, void* dst, uint64_t len);
  */
 const void* StatefulMemcpy_r(MemcpyState* state, const void* src, uint64_t len);
 
+/* Like StatefulMemcpy_r() but fills a portion of the encapsulated buffer with
+ * a constant value.
+ * On success, return a meaningless but non-NULL pointer and updates [state].
+ * On failure, return NULL, set remaining_len in state to -1.
+ *
+ * After the first failure (buffer overrun), successive calls will always fail.
+ */
+const void* StatefulMemset_r(MemcpyState* state, const uint8_t val,
+                             uint64_t len);
+
+
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */

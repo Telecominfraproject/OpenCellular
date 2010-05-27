@@ -58,6 +58,9 @@ class KernelUtility {
   std::string firmware_key_pub_file_;
   std::string kernel_key_file_;  // Private key for signing the kernel.
   std::string kernel_key_pub_file_;
+  std::string config_file_;  // File containing kernel commandline parameters
+  std::string bootloader_file_;  // Embedded bootloader code
+  std::string vmlinuz_file_;  // Input vmlinuz to be embedded in signed blob.
 
   // Fields of a KernelImage. (read from the command line).
   int header_version_;
@@ -65,6 +68,7 @@ class KernelUtility {
   int kernel_sign_algorithm_;
   int kernel_key_version_;
   int kernel_version_;
+  int padding_;
   uint64_t kernel_len_;
   uint8_t* kernel_config_;
 

@@ -63,6 +63,18 @@ int WriteKernelImage(const char* input_file,
                      const KernelImage* image,
                      int is_only_vblock);
 
+/* Create a kernel_data blob from its components and fill
+ * its length into blob_len, plus some information about the bootloader.
+ *
+ * Caller owns the returned pointer and must Free() it.
+ */
+uint8_t* GenerateKernelBlob(const char* vmlinuz_file,
+                            const char* config_file,
+                            const char* bootloader_file,
+                            uint64_t* blob_len,
+                            uint64_t* bootloader_offset,
+                            uint64_t* bootloader_size);
+
 /* Pretty print the contents of [image]. Only headers and metadata information
  * is printed.
  */

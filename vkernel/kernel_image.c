@@ -5,10 +5,10 @@
  * Functions for generating and manipulating a verified boot kernel image.
  * (Userland portion)
  */
-
 #include "kernel_image.h"
 
 #include <fcntl.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -16,6 +16,7 @@
 
 #include "cryptolib.h"
 #include "file_keys.h"
+#include "kernel_blob.h"
 #include "rollback_index.h"
 #include "signature_digest.h"
 #include "utility.h"
@@ -32,6 +33,7 @@ KernelImage* KernelImageNew(void) {
     image->preamble_signature = NULL;
     image->kernel_signature = NULL;
     image->kernel_data = NULL;
+    image->padded_header_size = 0x4000;
   }
   return image;
 }
@@ -47,9 +49,23 @@ void KernelImageFree(KernelImage* image) {
   }
 }
 
+uint64_t GetHeaderSizeOnDisk(const KernelImage* image) {
+  uint64_t kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
+  uint64_t kernel_key_signature_len  =
+    siglen_map[image->firmware_sign_algorithm];
+
+  return FIELD_LEN(magic) +
+    GetKernelHeaderLen(image) +
+    kernel_key_signature_len +
+    GetKernelPreambleLen(image->kernel_sign_algorithm) +
+    kernel_signature_len;
+}
+
+
 KernelImage* ReadKernelImage(const char* input_file) {
   uint64_t file_size;
-  int image_len = 0;  /* Total size of the kernel image. */
+  uint64_t on_disk_header_size;
+  uint64_t on_disk_padding;
   int header_len = 0;
   int firmware_sign_key_len;
   int kernel_key_signature_len;
@@ -64,9 +80,8 @@ KernelImage* ReadKernelImage(const char* input_file) {
     return NULL;
 
   kernel_buf = BufferFromFile(input_file, &file_size);
-  image_len = file_size;
 
-  st.remaining_len = image_len;
+  st.remaining_len = file_size;
   st.remaining_buf = kernel_buf;
   st.overrun = 0;
 
@@ -141,11 +156,21 @@ KernelImage* ReadKernelImage(const char* input_file) {
   StatefulMemcpy(&st, &image->padded_header_size,
                  FIELD_LEN(padded_header_size));
 
-  /* Read config and kernel signatures. */
-  image->preamble_signature = (uint8_t*) Malloc(kernel_signature_len);
-  StatefulMemcpy(&st, image->preamble_signature, kernel_signature_len);
+  /* Read preamble and kernel signatures. */
   image->kernel_signature = (uint8_t*) Malloc(kernel_signature_len);
   StatefulMemcpy(&st, image->kernel_signature, kernel_signature_len);
+  image->preamble_signature = (uint8_t*) Malloc(kernel_signature_len);
+  StatefulMemcpy(&st, image->preamble_signature, kernel_signature_len);
+
+  /* Skip over the rest of the padded header, unless we're already past it. */
+  on_disk_header_size = file_size - st.remaining_len;
+  if (image->padded_header_size > on_disk_header_size) {
+    on_disk_padding = image->padded_header_size - on_disk_header_size;
+    if (st.remaining_len < on_disk_padding)
+      st.overrun = -1;
+    st.remaining_buf += on_disk_padding;
+    st.remaining_len -= on_disk_padding;
+  }
 
   /* Read kernel image data. */
   image->kernel_data = (uint8_t*) Malloc(image->kernel_len);
@@ -250,22 +275,21 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   uint8_t* kernel_blob = NULL;
   uint8_t* header_blob = NULL;
   MemcpyState st;
+  uint64_t on_disk_header_size;
+  uint64_t on_disk_padding = 0;
 
   if (!image)
     return NULL;
   kernel_key_signature_len = siglen_map[image->firmware_sign_algorithm];
   kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
-  *blob_len = (FIELD_LEN(magic) +
-               GetKernelHeaderLen(image) +
-               kernel_key_signature_len +
-               GetKernelPreambleLen(image->kernel_sign_algorithm) +
-               kernel_signature_len +
-               image->kernel_len);
+  on_disk_header_size = GetHeaderSizeOnDisk(image);
+  if (image->padded_header_size > on_disk_header_size)
+    on_disk_padding = image->padded_header_size - on_disk_header_size;
+  *blob_len = on_disk_header_size + on_disk_padding + image->kernel_len;
   kernel_blob = (uint8_t*) Malloc(*blob_len);
   st.remaining_len = *blob_len;
   st.remaining_buf = kernel_blob;
   st.overrun = 0;
-
   header_blob = GetKernelHeaderBlob(image);
 
   StatefulMemcpy_r(&st, image->magic, FIELD_LEN(magic));
@@ -281,6 +305,9 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
                    FIELD_LEN(padded_header_size));
   StatefulMemcpy_r(&st, image->kernel_signature, kernel_signature_len);
   StatefulMemcpy_r(&st, image->preamble_signature, kernel_signature_len);
+  /* Copy a bunch of zeros to pad out the header */
+  if (on_disk_padding)
+    StatefulMemset_r(&st, 0, on_disk_padding);
   StatefulMemcpy_r(&st, image->kernel_data, image->kernel_len);
 
   Free(header_blob);
@@ -293,7 +320,7 @@ uint8_t* GetKernelBlob(const KernelImage* image, uint64_t* blob_len) {
   return kernel_blob;
 }
 
-int WriteKernelImage(const char* input_file,
+int WriteKernelImage(const char* output_file,
                      const KernelImage* image,
                      int is_only_vblock) {
   int fd;
@@ -303,9 +330,9 @@ int WriteKernelImage(const char* input_file,
 
   if (!image)
     return 0;
-  if (-1 == (fd = creat(input_file, S_IRWXU))) {
+  if (-1 == (fd = creat(output_file, S_IRWXU))) {
     debug("Couldn't open file for writing kernel image: %s\n",
-            input_file);
+            output_file);
     return 0;
   }
   kernel_blob = GetKernelBlob(image, &blob_len);
@@ -316,7 +343,7 @@ int WriteKernelImage(const char* input_file,
   if (!is_only_vblock) {
     if (blob_len != write(fd, kernel_blob, blob_len)) {
       debug("Couldn't write Kernel Image to file: %s\n",
-            input_file);
+            output_file);
       success = 0;
     }
   } else {
@@ -324,7 +351,7 @@ int WriteKernelImage(const char* input_file,
     int vblock_len = blob_len - (image->kernel_len);
     if (vblock_len != write(fd, kernel_blob, vblock_len)) {
       debug("Couldn't write Kernel Image Verification block to file: %s\n",
-            input_file);
+            output_file);
       success = 0;
     }
   }
@@ -334,8 +361,15 @@ int WriteKernelImage(const char* input_file,
 }
 
 void PrintKernelImage(const KernelImage* image) {
+  uint64_t header_size;
+
   if (!image)
     return;
+
+  header_size = GetHeaderSizeOnDisk(image);
+  if (image->padded_header_size > header_size)
+    header_size = image->padded_header_size;
+
 
   /* Print header. */
   printf("Header Version = %d\n"
@@ -351,15 +385,17 @@ void PrintKernelImage(const KernelImage* image) {
   /* TODO(gauravsh): Output hash and key signature here? */
   /* Print preamble. */
   printf("Kernel Version = %d\n"
-         "kernel Length = %" PRId64 "\n"
-         "Bootloader Offset = %" PRId64 "\n"
-         "Bootloader Size = %" PRId64 "\n"
-         "Padded Header Size = %" PRId64 "\n",
+         "kernel Length = %" PRId64 " (0x%" PRIx64 ")\n"
+         "Bootloader Offset = %" PRId64 " (0x%" PRIx64 ")\n"
+         "Bootloader Size = %" PRId64 " (0x%" PRIx64 ")\n"
+         "Padded Header Size = %" PRId64 " (0x%" PRIx64 ")\n\n"
+         "Actual Header Size on disk = %" PRIu64 " (0x%" PRIx64 ")\n",
          image->kernel_version,
-         image->kernel_len,
-         image->bootloader_offset,
-         image->bootloader_size,
-         image->padded_header_size);
+         image->kernel_len, image->kernel_len,
+         image->bootloader_offset, image->bootloader_offset,
+         image->bootloader_size, image->bootloader_size,
+         image->padded_header_size, image->padded_header_size,
+         header_size, header_size);
   /* TODO(gauravsh): Output kernel signature here? */
 }
 
@@ -546,4 +582,151 @@ void PrintKernelEntry(kernel_entry* entry) {
   debug("Boot Priority = %d\n", entry->boot_priority);
   debug("Boot Tries Remaining = %d\n", entry->boot_tries_remaining);
   debug("Boot Success Flag = %d\n", entry->boot_success_flag);
+}
+
+// Return the smallest integral multiple of [alignment] that is equal to or
+// greater than [val]. Used to determine the number of
+// pages/sectors/blocks/whatever needed to contain [val] items/bytes/etc.
+static uint64_t roundup(uint64_t val, uint64_t alignment) {
+  uint64_t rem = val % alignment;
+  if ( rem )
+    return val + (alignment - rem);
+  return val;
+}
+
+// Match regexp /\b--\b/ to delimit the start of the kernel commandline. If we
+// don't find one, we'll use the whole thing.
+static unsigned int find_cmdline_start(char *input, unsigned int max_len) {
+  int start = 0;
+  int i;
+  for(i = 0; i < max_len-1 && input[i]; i++) {
+    if (input[i] == '-' && input[i+1] == '-') { // found a "--"
+      if ((i == 0 || input[i-1] == ' ') && // nothing before it
+          (i+2 >= max_len || input[i+2] == ' ')) { // nothing after it
+        start = i+2;          // note: hope there's a trailing '\0'
+        break;
+      }
+    }
+  }
+  while(input[start] == ' ')                    // skip leading spaces
+    start++;
+
+  return start;
+}
+
+uint8_t* GenerateKernelBlob(const char* kernel_file,
+                            const char* config_file,
+                            const char* bootloader_file,
+                            uint64_t* ret_blob_len,
+                            uint64_t* ret_bootloader_offset,
+                            uint64_t* ret_bootloader_size) {
+  uint8_t* kernel_buf;
+  uint8_t* config_buf;
+  uint8_t* bootloader_buf;
+  uint8_t* blob = 0;
+  uint64_t kernel_size;
+  uint64_t config_size;
+  uint64_t bootloader_size;
+  uint64_t blob_size;
+  uint64_t kernel32_start = 0;
+  uint64_t kernel32_size = 0;
+  uint64_t bootloader_mem_start;
+  uint64_t bootloader_mem_size;
+  uint64_t now;
+  struct linux_kernel_header *lh = 0;
+  struct linux_kernel_params *params = 0;
+  uint32_t cmdline_addr;
+  uint64_t i;
+
+  // Read the input files.
+  kernel_buf = BufferFromFile(kernel_file, &kernel_size);
+  if (!kernel_buf)
+    goto done0;
+
+  config_buf = BufferFromFile(config_file, &config_size);
+  if (!config_buf)
+    goto done1;
+  if (config_size < CROS_CONFIG_SIZE) // need room for trailing '\0'
+    goto done1;
+
+  // Replace any newlines with spaces in the config file.
+  for (i=0; i < config_size; i++)
+    if (config_buf[i] == '\n')
+      config_buf[i] = ' ';
+
+  bootloader_buf = BufferFromFile(bootloader_file, &bootloader_size);
+  if (!bootloader_buf)
+    goto done2;
+
+  // The first part of vmlinuz is a header, followed by a real-mode boot stub.
+  // We only want the 32-bit part.
+  if (kernel_size) {
+    lh = (struct linux_kernel_header *)kernel_buf;
+    kernel32_start = (lh->setup_sects+1) << 9;
+    kernel32_size = kernel_size - kernel32_start;
+  }
+
+  // Allocate and zero the blob we need.
+  blob_size = roundup(kernel32_size, CROS_ALIGN) +
+    CROS_CONFIG_SIZE +
+    CROS_PARAMS_SIZE +
+    roundup(bootloader_size, CROS_ALIGN);
+  blob = (uint8_t *)Malloc(blob_size);
+  if (!blob)
+    goto done3;
+  Memset(blob, 0, blob_size);
+  now = 0;
+    
+  // Copy the 32-bit kernel.
+  if (kernel32_size)
+    Memcpy(blob + now, kernel_buf + kernel32_start, kernel32_size);
+  now += roundup(now + kernel32_size, CROS_ALIGN);
+  
+  // Find the load address of the commandline. We'll need it later.
+  cmdline_addr = CROS_32BIT_ENTRY_ADDR + now
+    + find_cmdline_start((char *)config_buf, config_size);
+
+  // Copy the config.
+  if (config_size)
+    Memcpy(blob + now, config_buf, config_size);
+  now += CROS_CONFIG_SIZE;
+  
+  // The zeropage data is next. Overlay the linux_kernel_header onto it, and
+  // tweak a few fields.
+  params = (struct linux_kernel_params *)(blob + now);
+
+  if (kernel_size)
+    Memcpy(&(params->setup_sects), &(lh->setup_sects),
+           sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
+  params->boot_flag = 0;
+  params->ramdisk_image = 0;             // we don't support initrd
+  params->ramdisk_size = 0;
+  params->type_of_loader = 0xff;
+  params->cmd_line_ptr = cmdline_addr;
+  now += CROS_PARAMS_SIZE;
+         
+  // Finally, append the bootloader. Remember where it will load in memory, too.
+  bootloader_mem_start = CROS_32BIT_ENTRY_ADDR + now;
+  bootloader_mem_size = roundup(bootloader_size, CROS_ALIGN);
+  if (bootloader_size)
+    Memcpy(blob + now, bootloader_buf, bootloader_size);
+  now += bootloader_mem_size;
+
+  // Pass back some info.
+  if (ret_blob_len)
+    *ret_blob_len = blob_size;
+  if (ret_bootloader_offset)
+    *ret_bootloader_offset = bootloader_mem_start;
+  if (ret_bootloader_size)
+    *ret_bootloader_size = bootloader_mem_size;
+
+  // Clean up and return the blob.
+done3:
+  Free(bootloader_buf);
+done2:
+  Free(config_buf);
+done1:
+  Free(kernel_buf);
+done0:
+  return blob;
 }

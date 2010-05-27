@@ -33,7 +33,6 @@ function generate_fuzzing_images {
   echo "Generating signed kernel test image..."
   # Generate a test verified boot kernel image and copy firmware public key.
   ${UTIL_DIR}/kernel_utility --generate \
-    --in $1 \
     --firmware_key ${TESTKEY_DIR}/key_rsa4096.pem \
     --kernel_key ${TESTKEY_DIR}/key_rsa1024.pem \
     --kernel_key_pub ${TESTKEY_DIR}/key_rsa1024.keyb \
@@ -41,12 +40,17 @@ function generate_fuzzing_images {
     --kernel_sign_algorithm 2 \
     --kernel_key_version 1 \
     --kernel_version 1 \
+    --vmlinuz /dev/null \
+    --config /dev/null \
+    --bootloader ${TEST_FILE} \
     --out ${TESTCASE_DIR}/kernel.signed 
   cp ${TESTKEY_DIR}/key_rsa4096.keyb ${TESTCASE_DIR}/firmware_key.keyb
 }
 
 function pre_work {
   # Generate a file to serve as random bytes for firmware/kernel contents.
+  # NOTE: The kernel and config file can't really be random, but the bootloader
+  # can. That's probably close enough.
   echo "Generating test file..."
   dd if=/dev/urandom of=${TEST_FILE} bs=${TEST_FILE_SIZE} count=1
 }
