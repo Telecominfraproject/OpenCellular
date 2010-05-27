@@ -15,7 +15,7 @@
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "signature_digest.h"
-#include "utility.h"
+#include "stateful_util.h"
 
 /* Macro to determine the size of a field structure in the FirmwareImage
  * structure. */

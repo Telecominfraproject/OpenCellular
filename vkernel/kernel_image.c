@@ -19,7 +19,7 @@
 #include "kernel_blob.h"
 #include "rollback_index.h"
 #include "signature_digest.h"
-#include "utility.h"
+#include "stateful_util.h"
 
 /* Macro to determine the size of a field structure in the KernelImage
  * structure. */

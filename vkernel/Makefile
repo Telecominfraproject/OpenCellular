@@ -4,6 +4,7 @@
 
 CC ?= gcc
 INCLUDES += -I./include \
+		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
 		-I../misclibs/include

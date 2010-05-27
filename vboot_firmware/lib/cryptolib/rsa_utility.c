@@ -6,7 +6,7 @@
  */
 
 #include "cryptolib.h"
-#include "utility.h"
+#include "stateful_util.h"
 
 int RSAProcessedKeySize(int algorithm) {
   int key_len = siglen_map[algorithm];  /* Key length in

@@ -378,7 +378,7 @@ uint8_t* SHA256_final(SHA256_CTX* ctx) {
     len_b = (ctx->tot_len + ctx->len) << 3;
     pm_len = block_nb << 6;
 
-    memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
+    Memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
     ctx->block[ctx->len] = 0x80;
     UNPACK32(len_b, ctx->block + pm_len - 4);
 
@@ -568,7 +568,7 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
     len_b = (ctx->tot_len + ctx->len) << 3;
     pm_len = block_nb << 7;
 
-    memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
+    Memset(ctx->block + ctx->len, 0, pm_len - ctx->len);
     ctx->block[ctx->len] = 0x80;
     UNPACK32(len_b, ctx->block + pm_len - 4);
 

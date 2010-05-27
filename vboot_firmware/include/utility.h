@@ -19,7 +19,6 @@ void error(const char *format, ...);
 /* Outputs debug/warning messages. */
 void debug(const char *format, ...);
 
-
 #define assert(expr) do { if (!(expr)) { \
       error("assert fail: %s at %s:%d\n", \
             #expr, __FILE__, __LINE__); }} while(0)
@@ -58,42 +57,14 @@ void* Memset(void *dest, const uint8_t c, size_t n);
  */
 int SafeMemcmp(const void* s1, const void* s2, size_t n);
 
-/* Track remaining data to be read in a buffer. */
-typedef struct MemcpyState {
-  void* remaining_buf;
-  uint64_t remaining_len;  /* Remaining length of the buffer. */
-  uint8_t overrun;  /* Flag set to 1 when an overrun occurs. */
-} MemcpyState;
-
-/* Copy [len] bytes into [dst] only if there's enough data to read according
- * to [state].
- * On success, return [dst] and update [state].
- * On failure, return NULL, set remaining len in state to -1.
- *
- * Useful for iterating through a binary blob to populate a struct. After the
- * first failure (buffer overrun), successive calls will always fail.
- */
-void* StatefulMemcpy(MemcpyState* state, void* dst, uint64_t len);
-
-/* Like StatefulMemcpy() but copies in the opposite direction, populating
- * data from [src] into the buffer encapsulated in state [state].
- * On success, return [src] and update [state].
- * On failure, return NULL, set remaining_len in state to -1.
- *
- * Useful for iterating through a structure to populate a binary blob. After the
- * first failure (buffer overrun), successive calls will always fail.
- */
-const void* StatefulMemcpy_r(MemcpyState* state, const void* src, uint64_t len);
-
-/* Like StatefulMemcpy_r() but fills a portion of the encapsulated buffer with
- * a constant value.
- * On success, return a meaningless but non-NULL pointer and updates [state].
- * On failure, return NULL, set remaining_len in state to -1.
- *
- * After the first failure (buffer overrun), successive calls will always fail.
- */
-const void* StatefulMemset_r(MemcpyState* state, const uint8_t val,
-                             uint64_t len);
+/* Ensure that only our stub implementations are used, not standard C */
+#ifndef _STUB_IMPLEMENTATION_
+#define malloc _do_not_use_standard_malloc
+#define free _do_not_use_standard_free
+#define memcmp _do_not_use_standard_memcmp
+#define memcpy _do_not_use_standard_memcpy
+#define memset _do_not_use_standard_memset
+#endif
 
 
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */
