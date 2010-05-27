@@ -25,3 +25,6 @@ clean:
 	for i in $(SUBDIRS); do \
 		make -C $$i clean; \
 	done
+
+install:
+	$(MAKE) -C utility install

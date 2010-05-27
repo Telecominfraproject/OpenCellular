@@ -42,7 +42,7 @@ firmware_utility: firmware_utility.cc $(LIBS) $(FWLIB)
 
 kernel_utility: kernel_utility.cc $(LIBS) $(FWLIB)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
-	-o $@ $(LIBS) $(FWLIB) -lcrypto  
+	-o $@ $(LIBS) $(FWLIB) -lcrypto
 
 signature_digest_utility: signature_digest_utility.c $(LIBS) $(FWLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FWLIB) -lcrypto
@@ -56,3 +56,7 @@ clean:
 		$(MAKE) -C $$i clean; \
 	done
 	rm -f $(TARGET_BINS)
+
+install: $(TARGET_BINS)
+	mkdir -p $(DESTDIR)
+	cp -f $^ $(DESTDIR)
