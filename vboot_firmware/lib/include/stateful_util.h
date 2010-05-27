@@ -22,6 +22,16 @@ typedef struct MemcpyState {
   uint8_t overrun;  /* Flag set to 1 when an overrun occurs. */
 } MemcpyState;
 
+/* Skip [len] bytes only if there's enough data to skip according
+ * to [state].
+ * On success, return a meaningless but non-NULL pointer and updates [state].
+ * On failure, return NULL, set remaining_len in state to -1.
+ *
+ * Useful for iterating through a binary blob to populate a struct. After the
+ * first failure (buffer overrun), successive calls will always fail.
+ */
+void* StatefulSkip(MemcpyState* state, uint64_t len);
+
 /* Copy [len] bytes into [dst] only if there's enough data to read according
  * to [state].
  * On success, return [dst] and update [state].

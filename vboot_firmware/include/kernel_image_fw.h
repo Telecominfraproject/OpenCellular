@@ -125,30 +125,29 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
  * using the firmware public key [firmware_key_blob]. If [dev_mode] is 1
  * (active), then key header verification is skipped.
  *
- * Fills in a pointer to expected kernel data signature
- * within [kernel_header_blob] in [expected_kernel_signature].
+ * On success, fills in the fields of image with the kernel header and
+ * preamble fields.
+ *
+ * Note that pointers in the image point directly into the input
+ * kernel_header_blob.  image->kernel_data is set to NULL, since it's not
+ * part of the header and preamble data itself.
  *
  * The signing key to use for kernel data verification is returned in
  * [kernel_sign_key], This must be free-d explicitly by the caller after use.
- * The kernel signing algorithm is returned in [kernel_sign_algorithm] and its
- * length in [kernel_len].
  *
  * Returns 0 on success, error code on failure.
  */
 int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* kernel_header_blob,
+                       uint64_t kernel_header_blob_len,
                        const int dev_mode,
-                       const uint8_t** expected_kernel_signature,
-                       RSAPublicKey** kernel_sign_key,
-                       int* kernel_sign_algorithm,
-                       uint64_t* kernel_len);
+                       KernelImage *image,
+                       RSAPublicKey** kernel_sign_key);
 
 /* Performs a chained verify of the kernel blob [kernel_blob]. If
  * [dev_mode] is 0 [inactive], then the pre-processed public signing key
  * [root_key_blob] is used to verify the signature of the signing key,
  * else the check is skipped.
- *
- *
  * Returns 0 on success, error code on failure.
  *
  * NOTE: The length of the kernel blob is derived from reading the fields

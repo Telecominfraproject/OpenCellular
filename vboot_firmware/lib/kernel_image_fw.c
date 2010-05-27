@@ -10,6 +10,7 @@
 
 #include "cryptolib.h"
 #include "rollback_index.h"
+#include "stateful_util.h"
 #include "utility.h"
 
 /* Macro to determine the size of a field structure in the KernelImage
@@ -187,61 +188,91 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
 
 int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* kernel_header_blob,
+                       uint64_t kernel_header_blob_len,
                        const int dev_mode,
-                       const uint8_t** expected_kernel_signature,
-                       RSAPublicKey** kernel_sign_key,
-                       int* kernel_sign_algorithm,
-                       uint64_t* kernel_len) {
+                       KernelImage *image,
+                       RSAPublicKey** kernel_sign_key) {
   int error_code;
   int firmware_sign_algorithm;  /* Firmware signing key algorithm. */
+  int kernel_sign_algorithm;  /* Kernel signing key algorithm. */
   int kernel_sign_key_len, kernel_key_signature_len, kernel_signature_len,
       header_len;
+  uint64_t kernel_len;
   const uint8_t* header_ptr = NULL;  /* Pointer to key header. */
   const uint8_t* preamble_ptr = NULL;  /* Pointer to start of preamble. */
-  const uint8_t* kernel_sign_key_ptr = NULL;  /* Pointer to signing key. */
+  MemcpyState st;
 
-  /* Note: All the offset calculations are based on struct FirmwareImage which
-   * is defined in include/firmware_image.h. */
+  /* Note: All the offset calculations are based on struct KernelImage which
+   * is defined in include/kernel_image_fw.h. */
+  st.remaining_buf = (void *)kernel_header_blob;
+  st.remaining_len = kernel_header_blob_len;
+  st.overrun = 0;
 
-  /* Compare magic bytes. */
-  if (SafeMemcmp(kernel_header_blob, KERNEL_MAGIC, KERNEL_MAGIC_SIZE))
+  /* Clear destination image struct */
+  Memset(image, 0, sizeof(KernelImage));
+
+  /* Read and compare magic bytes. */
+  StatefulMemcpy(&st, &image->magic, KERNEL_MAGIC_SIZE);
+  if (SafeMemcmp(image->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE)) {
     return VERIFY_KERNEL_WRONG_MAGIC;
+  }
+  StatefulMemcpy(&st, &image->header_version, FIELD_LEN(header_version));
+  StatefulMemcpy(&st, &image->header_len, FIELD_LEN(header_len));
+  StatefulMemcpy(&st, &image->firmware_sign_algorithm,
+                 FIELD_LEN(firmware_sign_algorithm));
+  StatefulMemcpy(&st, &image->kernel_sign_algorithm,
+                 FIELD_LEN(kernel_sign_algorithm));
+
   header_ptr = kernel_header_blob + KERNEL_MAGIC_SIZE;
 
   /* Only continue if header verification succeeds. */
   if ((error_code = VerifyKernelKeyHeader(firmware_key_blob, header_ptr,
                                           dev_mode,
                                           &firmware_sign_algorithm,
-                                          kernel_sign_algorithm,
+                                          &kernel_sign_algorithm,
                                           &header_len))) {
     debug("VerifyKernelHeader: Kernel Key Header verification failed.\n");
     return error_code;  /* AKA jump to recovery. */
   }
-  /* Parse signing key into RSAPublicKey structure since it is required multiple
-   * times. */
-  kernel_sign_key_len = RSAProcessedKeySize(*kernel_sign_algorithm);
-  kernel_sign_key_ptr = header_ptr + (FIELD_LEN(header_version) +
-                                      FIELD_LEN(header_len) +
-                                      FIELD_LEN(firmware_sign_algorithm) +
-                                      FIELD_LEN(kernel_sign_algorithm) +
-                                      FIELD_LEN(kernel_key_version));
-  *kernel_sign_key = RSAPublicKeyFromBuf(kernel_sign_key_ptr,
+
+  /* Read pre-processed public half of the kernel signing key. */
+  kernel_sign_key_len = RSAProcessedKeySize(kernel_sign_algorithm);
+  StatefulMemcpy(&st, &image->kernel_key_version,
+                 FIELD_LEN(kernel_key_version));
+  image->kernel_sign_key = (uint8_t*)st.remaining_buf;
+  StatefulSkip(&st, kernel_sign_key_len);
+  StatefulMemcpy(&st, image->header_checksum, FIELD_LEN(header_checksum));
+
+  /* Parse signing key into RSAPublicKey structure since it is
+   * required multiple times. */
+  *kernel_sign_key = RSAPublicKeyFromBuf(image->kernel_sign_key,
                                         kernel_sign_key_len);
-  kernel_signature_len = siglen_map[*kernel_sign_algorithm];
+  kernel_signature_len = siglen_map[kernel_sign_algorithm];
   kernel_key_signature_len = siglen_map[firmware_sign_algorithm];
+  image->kernel_key_signature = (uint8_t*)st.remaining_buf;
+  StatefulSkip(&st, kernel_signature_len);
 
   /* Only continue if preamble verification succeeds. */
-  preamble_ptr = (header_ptr + header_len + kernel_key_signature_len);
+  /* TODO: should pass the remaining len into VerifyKernelPreamble() */
+  preamble_ptr = (const uint8_t*)st.remaining_buf;
   if ((error_code = VerifyKernelPreamble(*kernel_sign_key, preamble_ptr,
-                                         *kernel_sign_algorithm,
-                                         kernel_len))) {
+                                         kernel_sign_algorithm,
+                                         &kernel_len))) {
     RSAPublicKeyFree(*kernel_sign_key);
     return error_code;  /* AKA jump to recovery. */
   }
-  *expected_kernel_signature = (preamble_ptr +
-                                GetKernelPreambleLen(*kernel_sign_algorithm) -
-                                kernel_signature_len);  /* Skip beginning of
-                                                         * preamble. */
+
+  /* Copy preamble fields */
+  StatefulMemcpy(&st, &image->kernel_version, FIELD_LEN(kernel_version));
+  StatefulMemcpy(&st, &image->kernel_len, FIELD_LEN(kernel_len));
+  StatefulMemcpy(&st, &image->bootloader_offset, FIELD_LEN(bootloader_offset));
+  StatefulMemcpy(&st, &image->bootloader_size, FIELD_LEN(bootloader_size));
+  StatefulMemcpy(&st, &image->padded_header_size,
+                 FIELD_LEN(padded_header_size));
+  image->kernel_signature = (uint8_t*)st.remaining_buf;
+  StatefulSkip(&st, kernel_signature_len);
+  image->preamble_signature = (uint8_t*)st.remaining_buf;
+
   return 0;
 }
 

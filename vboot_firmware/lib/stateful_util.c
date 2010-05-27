@@ -12,6 +12,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void* StatefulSkip(MemcpyState* state, uint64_t len) {
+  if (state->overrun)
+    return NULL;
+  if (len > state->remaining_len) {
+    state->overrun = 1;
+    return NULL;
+  }
+  state->remaining_buf += len;
+  state->remaining_len -= len;
+  return state;                         // have to return something non-NULL
+}
+
 void* StatefulMemcpy(MemcpyState* state, void* dst,
                      uint64_t len) {
   if (state->overrun)
