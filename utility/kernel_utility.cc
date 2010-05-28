@@ -19,10 +19,14 @@ extern "C" {
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "kernel_image.h"
-#include "utility.h"
+#include "stateful_util.h"
 }
 
 using std::cerr;
+
+// Macro to determine the size of a field structure in the KernelImage
+// structure.
+#define FIELD_LEN(field) (sizeof(((KernelImage*)0)->field))
 
 namespace vboot_reference {
 
@@ -38,8 +42,7 @@ KernelUtility::KernelUtility(): image_(NULL),
                                 is_generate_(false),
                                 is_verify_(false),
                                 is_describe_(false),
-                                is_only_vblock_(false) {
-}
+                                is_only_vblock_(false) {}
 
 KernelUtility::~KernelUtility() {
   RSAPublicKeyFree(firmware_key_pub_);
@@ -61,12 +64,15 @@ void KernelUtility::PrintUsage(void) {
       "\n"
       "For \"--generate\", required OPTIONS are:\n"
       "  --firmware_key <privkeyfile>\t\tPrivate firmware signing key file\n"
-      "  --kernel_key <privkeyfile>\t\tPrivate kernel signing key file\n"
       "  --kernel_key_pub <pubkeyfile>\t\tPre-processed public kernel signing"
       " key\n"
       "  --firmware_sign_algorithm <algoid>\tSigning algorithm for firmware\n"
       "  --kernel_sign_algorithm <algoid>\tSigning algorithm for kernel\n"
       "  --kernel_key_version <number>\t\tKernel signing key version number\n"
+      "OR\n"
+      "  --subkey_in <subkeyfile>\t\tExisting key signature header\n"
+      "\n"
+      "  --kernel_key <privkeyfile>\t\tPrivate kernel signing key file\n"
       "  --kernel_version <number>\t\tKernel Version number\n"
       "  --config <file>\t\t\tEmbedded kernel command-line parameters\n"
       "  --bootloader <file>\t\t\tEmbedded bootloader stub\n"
@@ -93,6 +99,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     OPT_FIRMWARE_KEY_PUB,
     OPT_KERNEL_KEY,
     OPT_KERNEL_KEY_PUB,
+    OPT_SUBKEY_IN,
     OPT_FIRMWARE_SIGN_ALGORITHM,
     OPT_KERNEL_SIGN_ALGORITHM,
     OPT_KERNEL_KEY_VERSION,
@@ -114,6 +121,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"firmware_key_pub", 1, 0,          OPT_FIRMWARE_KEY_PUB        },
     {"kernel_key", 1, 0,                OPT_KERNEL_KEY              },
     {"kernel_key_pub", 1, 0,            OPT_KERNEL_KEY_PUB          },
+    {"subkey_in", 1, 0,                 OPT_SUBKEY_IN               },
     {"firmware_sign_algorithm", 1, 0,   OPT_FIRMWARE_SIGN_ALGORITHM },
     {"kernel_sign_algorithm", 1, 0,     OPT_KERNEL_SIGN_ALGORITHM   },
     {"kernel_key_version", 1, 0,        OPT_KERNEL_KEY_VERSION      },
@@ -147,6 +155,9 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       break;
     case OPT_KERNEL_KEY_PUB:
       kernel_key_pub_file_ = optarg;
+      break;
+    case OPT_SUBKEY_IN:
+      subkey_in_file_ = optarg;
       break;
     case OPT_FIRMWARE_SIGN_ALGORITHM:
       firmware_sign_algorithm_ = strtol(optarg, &e, 0);
@@ -250,31 +261,118 @@ void KernelUtility::DescribeSignedImage(void) {
 
 bool KernelUtility::GenerateSignedImage(void) {
   uint64_t kernel_key_pub_len;
-  image_ = KernelImageNew();
 
+  image_ = KernelImageNew();
   Memcpy(image_->magic, KERNEL_MAGIC, KERNEL_MAGIC_SIZE);
 
-  // TODO(gauravsh): make this a command line option.
-  image_->header_version = 1;
+  if (subkey_in_file_.empty()) {
+    // We must generate the kernel key signature header (subkey header)
+    // ourselves.
+    image_->header_version = 1;
+    image_->firmware_sign_algorithm = (uint16_t) firmware_sign_algorithm_;
+    // Copy pre-processed public signing key.
+    image_->kernel_sign_algorithm = (uint16_t) kernel_sign_algorithm_;
+    image_->kernel_sign_key = BufferFromFile(kernel_key_pub_file_.c_str(),
+                                             &kernel_key_pub_len);
+    if (!image_->kernel_sign_key)
+      return false;
+    image_->kernel_key_version = kernel_key_version_;
+
+    // Update header length.
+    image_->header_len = GetKernelHeaderLen(image_);
+    // Calculate header checksum.
+    CalculateKernelHeaderChecksum(image_, image_->header_checksum);
+
+    // Generate and add the signatures.
+    if (!AddKernelKeySignature(image_, firmware_key_file_.c_str())) {
+      cerr << "Couldn't write key signature to verified boot kernel image.\n";
+      return false;
+    }
+  } else {
+    // Use existing subkey header.
+    MemcpyState st;
+    uint8_t* subkey_header_buf = NULL;
+    uint64_t subkey_len;
+    int header_len;
+    int kernel_key_signature_len;
+    int kernel_sign_key_len;
+    uint8_t header_checksum[FIELD_LEN(header_checksum)];
+
+    subkey_header_buf = BufferFromFile(subkey_in_file_.c_str(), &subkey_len);
+    if (!subkey_header_buf) {
+      cerr << "Couldn't read subkey header from file %s\n"
+           << subkey_in_file_.c_str();
+      return false;
+    }
+    st.remaining_len = subkey_len;
+    st.remaining_buf = subkey_header_buf;
+    st.overrun = 0;
+
+    // TODO(gauravsh): This is basically the same code as the first half of
+    // of ReadKernelImage(). Refactor to eliminate code duplication.
+
+    StatefulMemcpy(&st, &image_->header_version, FIELD_LEN(header_version));
+    StatefulMemcpy(&st, &image_->header_len, FIELD_LEN(header_len));
+    StatefulMemcpy(&st, &image_->firmware_sign_algorithm,
+                   FIELD_LEN(firmware_sign_algorithm));
+    StatefulMemcpy(&st, &image_->kernel_sign_algorithm,
+                   FIELD_LEN(kernel_sign_algorithm));
+
+    /* Valid Kernel Key signing algorithm. */
+    if (image_->firmware_sign_algorithm >= kNumAlgorithms) {
+      Free(subkey_header_buf);
+      return NULL;
+    }
+
+    /* Valid Kernel Signing Algorithm? */
+    if (image_->kernel_sign_algorithm >= kNumAlgorithms) {
+      Free(subkey_header_buf);
+      return NULL;
+    }
+
+    /* Compute size of pre-processed RSA public keys and signatures. */
+    kernel_key_signature_len  = siglen_map[image_->firmware_sign_algorithm];
+    kernel_sign_key_len = RSAProcessedKeySize(image_->kernel_sign_algorithm);
+
+    /* Check whether key header length is correct. */
+    header_len = GetKernelHeaderLen(image_);
+    if (header_len != image_->header_len) {
+      debug("Header length mismatch. Got: %d, Expected: %d\n",
+            image_->header_len, header_len);
+      Free(subkey_header_buf);
+      return NULL;
+    }
+
+    /* Read pre-processed public half of the kernel signing key. */
+    StatefulMemcpy(&st, &image_->kernel_key_version,
+                   FIELD_LEN(kernel_key_version));
+    image_->kernel_sign_key = (uint8_t*) Malloc(kernel_sign_key_len);
+    StatefulMemcpy(&st, image_->kernel_sign_key, kernel_sign_key_len);
+    StatefulMemcpy(&st, image_->header_checksum, FIELD_LEN(header_checksum));
+
+    /* Check whether the header checksum matches. */
+    CalculateKernelHeaderChecksum(image_, header_checksum);
+    if (SafeMemcmp(header_checksum, image_->header_checksum,
+                   FIELD_LEN(header_checksum))) {
+      debug("Invalid kernel header checksum!\n");
+      Free(subkey_header_buf);
+      return NULL;
+    }
+
+    /* Read key signature. */
+    image_->kernel_key_signature = (uint8_t*) Malloc(kernel_key_signature_len);
+    StatefulMemcpy(&st, image_->kernel_key_signature,
+                   kernel_key_signature_len);
+    Free(subkey_header_buf);
+    if (st.overrun || st.remaining_len != 0)  /* Overrun or underrun. */
+      return false;
+    return true;
+  }
+
+  // Fill up kernel preamble and kernel data.
+  image_->kernel_version = kernel_version_;
   if (padding_)
     image_->padded_header_size = padding_;
-  image_->firmware_sign_algorithm = (uint16_t) firmware_sign_algorithm_;
-  // Copy pre-processed public signing key.
-  image_->kernel_sign_algorithm = (uint16_t) kernel_sign_algorithm_;
-  image_->kernel_sign_key = BufferFromFile(kernel_key_pub_file_.c_str(),
-                                           &kernel_key_pub_len);
-  if (!image_->kernel_sign_key)
-    return false;
-  image_->kernel_key_version = kernel_key_version_;
-
-  // Update header length.
-  image_->header_len = GetKernelHeaderLen(image_);
-
-  // Calculate header checksum.
-  CalculateKernelHeaderChecksum(image_, image_->header_checksum);
-
-  image_->kernel_version = kernel_version_;
-
   image_->kernel_data = GenerateKernelBlob(vmlinuz_file_.c_str(),
                                            config_file_.c_str(),
                                            bootloader_file_.c_str(),
@@ -283,11 +381,6 @@ bool KernelUtility::GenerateSignedImage(void) {
                                            &image_->bootloader_size);
   if (!image_->kernel_data)
     return false;
-  // Generate and add the signatures.
-  if (!AddKernelKeySignature(image_, firmware_key_file_.c_str())) {
-    cerr << "Couldn't write key signature to verified boot kernel image.\n";
-    return false;
-  }
 
   if (!AddKernelSignature(image_, kernel_key_file_.c_str())) {
     cerr << "Couldn't write firmware signature to verified boot kernel image.\n";
@@ -346,30 +439,35 @@ bool KernelUtility::CheckOptions(void) {
   }
   // Required options for --generate.
   if (is_generate_) {
-    if (firmware_key_file_.empty()) {
-      cerr << "No firmware key file specified.\n";
-      return false;
+    if (subkey_in_file_.empty()) {
+      // Firmware private key (root key), kernel signing public
+      // key, and signing algorithms are required to generate the  key signature
+      // header.
+      if (firmware_key_file_.empty()) {
+        cerr << "No firmware key file specified.\n";
+        return false;
+      }
+      if (kernel_key_pub_file_.empty()) {
+        cerr << "No pre-processed public kernel key file specified\n";
+        return false;
+      }
+      if (kernel_key_version_ <= 0 || kernel_key_version_ > UINT16_MAX) {
+        cerr << "Invalid or no kernel key version specified.\n";
+        return false;
+      }
+      if (firmware_sign_algorithm_ < 0 ||
+          firmware_sign_algorithm_ >= kNumAlgorithms) {
+        cerr << "Invalid or no firmware signing key algorithm specified.\n";
+        return false;
+      }
+      if (kernel_sign_algorithm_ < 0 ||
+          kernel_sign_algorithm_ >= kNumAlgorithms) {
+        cerr << "Invalid or no kernel signing key algorithm specified.\n";
+        return false;
+      }
     }
     if (kernel_key_file_.empty()) {
       cerr << "No kernel key file specified.\n";
-      return false;
-    }
-    if (kernel_key_pub_file_.empty()) {
-      cerr << "No pre-processed public kernel key file specified\n";
-      return false;
-    }
-    if (kernel_key_version_ <= 0 || kernel_key_version_ > UINT16_MAX) {
-      cerr << "Invalid or no kernel key version specified.\n";
-      return false;
-    }
-    if (firmware_sign_algorithm_ < 0 ||
-        firmware_sign_algorithm_ >= kNumAlgorithms) {
-      cerr << "Invalid or no firmware signing key algorithm specified.\n";
-      return false;
-    }
-    if (kernel_sign_algorithm_ < 0 ||
-        kernel_sign_algorithm_ >= kNumAlgorithms) {
-      cerr << "Invalid or no kernel signing key algorithm specified.\n";
       return false;
     }
     if (kernel_version_ <=0 || kernel_version_ > UINT16_MAX) {

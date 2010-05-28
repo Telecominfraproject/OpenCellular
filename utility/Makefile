@@ -6,6 +6,7 @@ TOP ?= ../
 CC ?= gcc
 CXX ?= g++
 INCLUDES += -I./include \
+		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../misclibs/include \

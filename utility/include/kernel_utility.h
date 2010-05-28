@@ -8,7 +8,7 @@
 #include <string>
 
 extern "C" {
-#include  "kernel_image.h"
+#include "kernel_image.h"
 }
 
 struct RSAPublicKey;
@@ -58,6 +58,7 @@ class KernelUtility {
   std::string firmware_key_pub_file_;
   std::string kernel_key_file_;  // Private key for signing the kernel.
   std::string kernel_key_pub_file_;
+  std::string subkey_in_file_;  // Existing key signature header.
   std::string config_file_;  // File containing kernel commandline parameters
   std::string bootloader_file_;  // Embedded bootloader code
   std::string vmlinuz_file_;  // Input vmlinuz to be embedded in signed blob.

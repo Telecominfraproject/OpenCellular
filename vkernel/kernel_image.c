@@ -67,7 +67,6 @@ KernelImage* ReadKernelImage(const char* input_file) {
   uint64_t on_disk_header_size;
   uint64_t on_disk_padding;
   int header_len = 0;
-  int firmware_sign_key_len;
   int kernel_key_signature_len;
   int kernel_sign_key_len;
   int kernel_signature_len;
@@ -113,7 +112,6 @@ KernelImage* ReadKernelImage(const char* input_file) {
   }
 
   /* Compute size of pre-processed RSA public keys and signatures. */
-  firmware_sign_key_len = RSAProcessedKeySize(image->firmware_sign_algorithm);
   kernel_key_signature_len  = siglen_map[image->firmware_sign_algorithm];
   kernel_sign_key_len = RSAProcessedKeySize(image->kernel_sign_algorithm);
   kernel_signature_len = siglen_map[image->kernel_sign_algorithm];
