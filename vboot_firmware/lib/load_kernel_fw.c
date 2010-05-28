@@ -109,9 +109,9 @@ int LoadKernel(LoadKernelParams* params) {
    * when the RW firmware is verified.  Is it harmful to call SetupTPM()
    * again if it's already initialized?  It'd be easier if we could just do
    * that. */
-  tpm_kernel_key_version = GetStoredVersion(KERNEL_KEY_VERSION);
-  tpm_kernel_version = GetStoredVersion(KERNEL_VERSION);
-
+  GetStoredVersions(KERNEL_VERSIONS,
+                    &tpm_kernel_key_version,
+                    &tpm_kernel_version);
   do {
     /* Read GPT data */
     gpt.sector_bytes = blba;
@@ -241,13 +241,12 @@ int LoadKernel(LoadKernelParams* params) {
   if (good_partition >= 0) {
 
     /* See if we need to update the TPM */
-    if (lowest_kernel_key_version > tpm_kernel_key_version) {
-      WriteStoredVersion(KERNEL_KEY_VERSION, lowest_kernel_key_version);
-      WriteStoredVersion(KERNEL_VERSION, lowest_kernel_version);
-    }
-    else if (lowest_kernel_key_version == tpm_kernel_key_version &&
-             lowest_kernel_version > tpm_kernel_version) {
-      WriteStoredVersion(KERNEL_VERSION, lowest_kernel_version);
+    if ((lowest_kernel_key_version > tpm_kernel_key_version) ||
+        (lowest_kernel_key_version == tpm_kernel_key_version &&
+         lowest_kernel_version > tpm_kernel_version)) {
+      WriteStoredVersions(KERNEL_VERSIONS,
+                          lowest_kernel_key_version,
+                          lowest_kernel_version);
     }
 
     if (BOOT_MODE_RECOVERY != params->boot_mode) {
