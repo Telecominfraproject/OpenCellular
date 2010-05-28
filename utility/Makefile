@@ -60,3 +60,4 @@ clean:
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
 	cp -f $^ $(DESTDIR)
+	chmod a+rx $(patsubst %,$(DESTDIR)/%,$^)
