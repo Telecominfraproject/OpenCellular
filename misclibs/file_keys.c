@@ -25,24 +25,24 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   uint8_t* buf = NULL;
 
   if ((fd = open(input_file, O_RDONLY)) == -1) {
-    debug("Couldn't open file.\n");
+    debug("Couldn't open file %s\n", input_file);
     return NULL;
   }
 
   if (-1 == fstat(fd, &stat_fd)) {
-    debug("Couldn't stat file.\n");
+    debug("Couldn't stat file %s\n", input_file);
     return NULL;
   }
   *len = stat_fd.st_size;
 
   buf = (uint8_t*) Malloc(*len);
   if (!buf) {
-    error("Couldn't allocate %ld bytes.\n", *len);
+    error("Couldn't allocate %ld bytes for file %s\n", *len, input_file);
     return NULL;
   }
 
   if (*len != read(fd, buf, *len)) {
-    debug("Couldn't read file into a buffer.\n");
+    debug("Couldn't read file %s into a buffer\n", input_file);
     return NULL;
   }
 
@@ -67,7 +67,7 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm) {
   DigestContext ctx;
 
   if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
-    debug("Couldn't open input file.\n");
+    debug("Couldn't open %s\n", input_file);
     return NULL;
   }
   DigestInit(&ctx, sig_algorithm);

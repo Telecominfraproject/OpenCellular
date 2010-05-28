@@ -176,7 +176,7 @@ KernelImage* ReadKernelImage(const char* input_file) {
   image->kernel_data = (uint8_t*) Malloc(image->kernel_len);
   StatefulMemcpy(&st, image->kernel_data, image->kernel_len);
 
-  if(st.overrun || st.remaining_len != 0) {  /* Overrun or underrun. */
+  if(st.overrun) {
     Free(kernel_buf);
     return NULL;
   }
