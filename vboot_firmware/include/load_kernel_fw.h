@@ -18,17 +18,21 @@
 #define LOAD_KERNEL_NOT_FOUND 1
 #define LOAD_KERNEL_INVALID 2
 
+/* Boot modes for LoadKernel() */
+#define BOOT_MODE_NORMAL 0
+#define BOOT_MODE_DEVELOPER 1
+#define BOOT_MODE_RECOVERY 2
+
 typedef struct LoadKernelParams {
   /* Inputs to LoadKernel() */
+  void *header_sign_key_blob;   /* Key blob used to sign the kernel header */
   uint64_t bytes_per_lba;       /* Bytes per lba sector on current device */
   uint64_t ending_lba;          /* Last addressable lba sector on current
                                  * device */
   void *kernel_buffer;          /* Destination buffer for kernel
                                  * (normally at 0x100000) */
   uint64_t kernel_buffer_size;  /* Size of kernel buffer in bytes */
-  uint8_t in_developer_mode;    /* Did device boot in developer mode?
-                                 * 0 = normal or recovery mode
-                                 * 1 = developer mode */
+  uint8_t boot_mode;            /* Boot mode */
 
   /* Outputs from LoadKernel(); valid only if LoadKernel() returns
    * LOAD_KERNEL_SUCCESS */
@@ -38,7 +42,7 @@ typedef struct LoadKernelParams {
   uint64_t bootloader_size;     /* Size of bootloader image in bytes */
 } LoadKernelParams;
 
-uint64_t LoadKernel(LoadKernelParams* params);
+int LoadKernel(LoadKernelParams* params);
 /* Attempts to load the kernel from the current device.
  *
  * Returns LOAD_KERNEL_SUCCESS if successful, error code on failure. */

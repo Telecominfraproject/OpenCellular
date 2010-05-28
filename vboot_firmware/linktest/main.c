@@ -32,7 +32,7 @@ int main(void)
   VerifyKernelDriver_f(0, 0, 0, 0);
 
   // load_kernel_fw.h
-  // FIXME: LoadKernel(0);
+  LoadKernel(0);
 
   // rollback_index.h
   SetupTPM();

@@ -190,7 +190,7 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* kernel_header_blob,
                        uint64_t kernel_header_blob_len,
                        const int dev_mode,
-                       KernelImage *image,
+                       KernelImage* image,
                        RSAPublicKey** kernel_sign_key) {
   int error_code;
   int firmware_sign_algorithm;  /* Firmware signing key algorithm. */

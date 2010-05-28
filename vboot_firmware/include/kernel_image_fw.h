@@ -141,7 +141,7 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
                        const uint8_t* kernel_header_blob,
                        uint64_t kernel_header_blob_len,
                        const int dev_mode,
-                       KernelImage *image,
+                       KernelImage* image,
                        RSAPublicKey** kernel_sign_key);
 
 /* Performs a chained verify of the kernel blob [kernel_blob]. If
