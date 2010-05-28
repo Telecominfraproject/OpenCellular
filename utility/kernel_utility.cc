@@ -7,7 +7,6 @@
 
 #include "kernel_utility.h"
 
-#include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdint.h>  // Needed for UINT16_MAX.
@@ -23,7 +22,6 @@ extern "C" {
 #include "utility.h"
 }
 
-extern int errno;
 using std::cerr;
 
 namespace vboot_reference {
@@ -160,7 +158,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       }
       break;
     case OPT_KERNEL_SIGN_ALGORITHM:
-      errno = 0;
       kernel_sign_algorithm_ = strtol(optarg, &e, 0);
       if (!*optarg || (e && *e)) {
         cerr << "Invalid argument to --"
@@ -170,7 +167,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       }
       break;
     case OPT_KERNEL_KEY_VERSION:
-      errno = 0;
       kernel_key_version_ = strtol(optarg, &e, 0);
       if (!*optarg || (e && *e)) {
         cerr << "Invalid argument to --"
@@ -180,7 +176,6 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       }
       break;
     case OPT_KERNEL_VERSION:
-      errno = 0;
       kernel_version_ = strtol(optarg, &e, 0);
       if (!*optarg || (e && *e)) {
         cerr << "Invalid argument to --"

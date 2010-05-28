@@ -7,7 +7,6 @@
 
 #include "firmware_utility.h"
 
-#include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdint.h>  // Needed for UINT16_MAX.
@@ -23,7 +22,6 @@ extern "C" {
 #include "utility.h"
 }
 
-extern int errno;
 using std::cerr;
 
 namespace vboot_reference {
@@ -47,12 +45,15 @@ FirmwareUtility::~FirmwareUtility() {
 
 void FirmwareUtility::PrintUsage(void) {
   cerr <<
-      "Utility to generate/verify a verified boot firmware image\n\n"
-      "Usage: firmware_utility <--generate|--verify> [OPTIONS]\n\n"
+      "Utility to generate/verify a verified boot firmware image\n"
+      "\n"
+      "Usage: firmware_utility <--generate|--verify> [OPTIONS]\n"
+      "\n"
       "For \"--verify\",  required OPTIONS are:\n"
       "--in <infile>\t\t\tVerified boot firmware image to verify.\n"
       "--root_key_pub <pubkeyfile>\tPre-processed public root key "
-      "to use for verification.\n\n"
+      "to use for verification.\n"
+      "\n"
       "For \"--generate\", required OPTIONS are:\n"
       "--root_key <privkeyfile>\tPrivate root key file\n"
       "--firmware_sign_key <privkeyfile>\tPrivate signing key file\n"
@@ -62,11 +63,12 @@ void FirmwareUtility::PrintUsage(void) {
       "--firmware_key_version <version#>\tSigning Key Version#\n"
       "--firmware_version <version#>\tFirmware Version#\n"
       "--in <infile>\t\t\tFirmware Image to sign\n"
-      "--out <outfile>\t\t\tOutput file for verified boot firmware image\n\n"
+      "--out <outfile>\t\t\tOutput file for verified boot firmware image\n"
+      "\n"
       "Optional:\n"
-      " --vblock\t\t\tJust output the verification block\n\n"
+      " --vblock\t\t\tJust output the verification block\n"
+      "\n"
       "<algoid> (for --sign-algorithm) is one of the following:\n";
-
   for (int i = 0; i < kNumAlgorithms; i++) {
     cerr << i << " for " << algo_strings[i] << "\n";
   }
@@ -74,84 +76,101 @@ void FirmwareUtility::PrintUsage(void) {
 }
 
 bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
-  int option_index;
+  int option_index, i;
+  char *e = 0;
+  enum {
+    OPT_ROOT_KEY = 1000,
+    OPT_ROOT_KEY_PUB,
+    OPT_FIRMWARE_KEY,
+    OPT_FIRMWARE_KEY_PUB,
+    OPT_FIRMWARE_SIGN_ALGORITHM,
+    OPT_FIRMWARE_KEY_VERSION,
+    OPT_FIRMWARE_VERSION,
+    OPT_IN,
+    OPT_OUT,
+    OPT_GENERATE,
+    OPT_VERIFY,
+    OPT_DESCRIBE,
+    OPT_VBLOCK,
+  };
   static struct option long_options[] = {
-    {"root_key", 1, 0, 0},
-    {"root_key_pub", 1, 0, 0},
-    {"firmware_sign_key", 1, 0, 0},
-    {"firmware_sign_key_pub", 1, 0, 0},
-    {"firmware_sign_algorithm", 1, 0, 0},
-    {"firmware_key_version", 1, 0, 0},
-    {"firmware_version", 1, 0, 0},
-    {"in", 1, 0, 0},
-    {"out", 1, 0, 0},
-    {"generate", 0, 0, 0},
-    {"verify", 0, 0, 0},
-    {"describe", 0, 0, 0},
-    {"vblock", 0, 0, 0},
+    {"root_key", 1, 0,                  OPT_ROOT_KEY                },
+    {"root_key_pub", 1, 0,              OPT_ROOT_KEY_PUB            },
+    {"firmware_key", 1, 0,              OPT_FIRMWARE_KEY            },
+    {"firmware_key_pub", 1, 0,          OPT_FIRMWARE_KEY_PUB        },
+    {"firmware_sign_algorithm", 1, 0,   OPT_FIRMWARE_SIGN_ALGORITHM },
+    {"firmware_key_version", 1, 0,      OPT_FIRMWARE_KEY_VERSION    },
+    {"firmware_version", 1, 0,          OPT_FIRMWARE_VERSION        },
+    {"in", 1, 0,                        OPT_IN                      },
+    {"out", 1, 0,                       OPT_OUT                     },
+    {"generate", 0, 0,                  OPT_GENERATE                },
+    {"verify", 0, 0,                    OPT_VERIFY                  },
+    {"describe", 0, 0,                  OPT_DESCRIBE                },
+    {"vblock", 0, 0,                    OPT_VBLOCK                  },
     {NULL, 0, 0, 0}
   };
-  while (1) {
-    int i = getopt_long(argc, argv, "", long_options, &option_index);
-    if (-1 == i)  // Done with option processing.
-      break;
-    if ('?' == i)  // Invalid option found.
-      return false;
-
-    if (0 == i) {
-      switch (option_index) {
-        case 0:  // root_key
-          root_key_file_ = optarg;
-          break;
-        case 1:  // root_key_pub
-          root_key_pub_file_ = optarg;
-          break;
-        case 2:  // firmware_sign_key
-          firmware_key_file_ = optarg;
-          break;
-        case 3:  // firmware_sign_key_pub
-          firmware_key_pub_file_ = optarg;
-          break;
-        case 4:  // firmware_sign_algorithm
-          errno = 0;  // strtol() returns an error via errno
-          firmware_sign_algorithm_ = strtol(optarg,
-                                            reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 5:  // firmware_key_version
-          errno = 0;
-          firmware_key_version_ = strtol(optarg,
-                                         reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 6:  // firmware_version
-          errno = 0;
-          firmware_version_ = strtol(optarg,
-                                     reinterpret_cast<char**>(NULL), 10);
-          if (errno)
-            return false;
-          break;
-        case 7:  // in
-          in_file_ = optarg;
-          break;
-        case 8:  // out
-          out_file_ = optarg;
-          break;
-        case 9:  // generate
-          is_generate_ = true;
-          break;
-        case 10:  // verify
+  while ((i = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
+    switch (i) {
+      case '?':
+        return false;
+        break;
+      case OPT_ROOT_KEY:
+        root_key_file_ = optarg;
+        break;
+      case OPT_ROOT_KEY_PUB:
+        root_key_pub_file_ = optarg;
+        break;
+      case OPT_FIRMWARE_KEY:
+        firmware_key_file_ = optarg;
+        break;
+      case OPT_FIRMWARE_KEY_PUB:
+        firmware_key_pub_file_ = optarg;
+        break;
+      case OPT_FIRMWARE_SIGN_ALGORITHM:
+        firmware_sign_algorithm_ = strtol(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          cerr << "Invalid argument to --"
+               << long_options[option_index].name
+               << ": " << optarg << "\n";
+          return false;
+        }
+        break;
+      case OPT_FIRMWARE_KEY_VERSION:
+        firmware_key_version_ = strtol(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          cerr << "Invalid argument to --"
+               << long_options[option_index].name
+               << ": " << optarg << "\n";
+          return false;
+        }
+        break;
+      case OPT_FIRMWARE_VERSION:
+        firmware_version_ = strtol(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          cerr << "Invalid argument to --"
+               << long_options[option_index].name
+               << ": " << optarg << "\n";
+          return false;
+        }
+        break;
+      case OPT_IN:
+        in_file_ = optarg;
+        break;
+      case OPT_OUT:
+        out_file_ = optarg;
+        break;
+      case OPT_GENERATE:
+        is_generate_ = true;
+        break;
+      case OPT_VERIFY:
           is_verify_ = true;
           break;
-        case 11:  // describe
-          is_describe_ = true;
-          break;
-        case 12: // vblock
-          is_only_vblock_ = true;
-          break;
-      }
+      case OPT_DESCRIBE:
+        is_describe_ = true;
+        break;
+      case OPT_VBLOCK:
+        is_only_vblock_ = true;
+        break;
     }
   }
   return CheckOptions();
