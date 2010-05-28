@@ -203,7 +203,7 @@ bool FirmwareUtility::GenerateSignedImage(void) {
   Memset(image_->preamble, 'P', FIRMWARE_PREAMBLE_SIZE);
   image_->firmware_data = BufferFromFile(in_file_.c_str(),
                                          &image_->firmware_len);
-  if (!image_)
+  if (!image_->firmware_data)
     return false;
   // Generate and add the signatures.
   if (!AddFirmwareKeySignature(image_, root_key_file_.c_str())) {

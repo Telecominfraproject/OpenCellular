@@ -333,7 +333,7 @@ int WriteKernelImage(const char* output_file,
 
   if (!image)
     return 0;
-  if (-1 == (fd = creat(output_file, S_IRWXU))) {
+  if (-1 == (fd = creat(output_file, 0666))) {
     debug("Couldn't open file for writing kernel image: %s\n",
             output_file);
     return 0;
@@ -669,8 +669,11 @@ uint8_t* GenerateKernelBlob(const char* kernel_file,
   config_buf = BufferFromFile(config_file, &config_size);
   if (!config_buf)
     goto done1;
-  if (config_size < CROS_CONFIG_SIZE) // need room for trailing '\0'
+  if (config_size >= CROS_CONFIG_SIZE) { // need room for trailing '\0'
+    error("config file %s is too large (>= %d bytes)\n",
+          config_file, CROS_CONFIG_SIZE);
     goto done1;
+  }
 
   // Replace any newlines with spaces in the config file.
   for (i=0; i < config_size; i++)
@@ -695,16 +698,18 @@ uint8_t* GenerateKernelBlob(const char* kernel_file,
     CROS_PARAMS_SIZE +
     roundup(bootloader_size, CROS_ALIGN);
   blob = (uint8_t *)Malloc(blob_size);
-  if (!blob)
+  if (!blob) {
+    error("Couldn't allocate %ld bytes.\n", blob_size);
     goto done3;
+  }
   Memset(blob, 0, blob_size);
   now = 0;
-    
+
   // Copy the 32-bit kernel.
   if (kernel32_size)
     Memcpy(blob + now, kernel_buf + kernel32_start, kernel32_size);
   now += roundup(now + kernel32_size, CROS_ALIGN);
-  
+
   // Find the load address of the commandline. We'll need it later.
   cmdline_addr = CROS_32BIT_ENTRY_ADDR + now
     + find_cmdline_start((char *)config_buf, config_size);
@@ -713,7 +718,7 @@ uint8_t* GenerateKernelBlob(const char* kernel_file,
   if (config_size)
     Memcpy(blob + now, config_buf, config_size);
   now += CROS_CONFIG_SIZE;
-  
+
   // The zeropage data is next. Overlay the linux_kernel_header onto it, and
   // tweak a few fields.
   params = (struct linux_kernel_params *)(blob + now);
@@ -727,7 +732,7 @@ uint8_t* GenerateKernelBlob(const char* kernel_file,
   params->type_of_loader = 0xff;
   params->cmd_line_ptr = cmdline_addr;
   now += CROS_PARAMS_SIZE;
-         
+
   // Finally, append the bootloader. Remember where it will load in memory, too.
   bootloader_mem_start = CROS_32BIT_ENTRY_ADDR + now;
   bootloader_mem_size = roundup(bootloader_size, CROS_ALIGN);
