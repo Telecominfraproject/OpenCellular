@@ -10,6 +10,7 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../misclibs/include \
 		-I../vfirmware/include\
+		-I../vboot_firmware/include\
 		-I../vkernel/include
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror $(INCLUDES)
 LIBS = $(TOP)/misclibs/file_keys.o \
@@ -20,6 +21,7 @@ SUBDIRS = cgpt
 
 TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
+		gbb_utility \
 		kernel_utility \
 		signature_digest_utility \
 		verify_data
@@ -39,6 +41,9 @@ dumpRSAPublicKey: dumpRSAPublicKey.c
 firmware_utility: firmware_utility.cc $(LIBS) $(FWLIB)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(LIBS) $(FWLIB) -lcrypto
+
+gbb_utility: gbb_utility.cc 
+	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $(INCLUDES) $< -o $@
 
 kernel_utility: kernel_utility.cc $(LIBS) $(FWLIB)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \

@@ -1,0 +1,78 @@
+// Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+
+#ifndef VBOOT_REFERENCE_GBB_UTILITY_H_
+#define VBOOT_REFERENCE_GBB_UTILITY_H_
+
+#include <string>
+#include "gbb_header.h"
+
+namespace vboot_reference {
+
+class GoogleBinaryBlockUtil {
+ public:
+  GoogleBinaryBlockUtil();
+  ~GoogleBinaryBlockUtil();
+
+  // load GBB from a BIOS image file.
+  // return true if a valid GBB was retrieved.
+  bool load_from_file(const char *filename);
+
+  // save loaded (and modified) GBB with BIOS image to new file
+  // return true on success.
+  bool save_to_file(const char *filename);
+
+  // getters and setters of properties in GBB
+  bool set_hwid(const char *hwid);      // hwid is NUL-terminated.
+  bool set_rootkey(const std::string &value);
+  bool set_bmpfv(const std::string &value);
+  std::string get_hwid() const    { return get_property(PROP_HWID); }
+  std::string get_rootkey() const { return get_property(PROP_ROOTKEY); }
+  std::string get_bmpfv() const   { return get_property(PROP_BMPFV); }
+
+ private:
+  // enumerate of available data fields
+  enum PROPINDEX {
+    PROP_HWID,          // hardware id
+    PROP_ROOTKEY,       // root key
+    PROP_BMPFV,         // bitmap FV
+  };
+
+  // clear all cached data and initialize to original state
+  void initialize();
+
+  // search and count for GBB signatures in loaded image.
+  // return the number of signatures found.
+  int search_header_signatures(const std::string &image, long *poffset) const;
+
+  // load and check header structure from image by given offset.
+  // return true if a valid GBB header is loaded into *phdr.
+  bool load_gbb_header(const std::string &image, long offset,
+                       GoogleBinaryBlockHeader *phdr) const;
+
+  // retrieve a property from GBB data.
+  // return the property value.
+  std::string get_property(PROPINDEX i) const;
+
+  // overwrite a property in GBB data.
+  // return true on success.
+  bool set_property(PROPINDEX i, const std::string &value);
+
+  // find the size and offset information for given property
+  // return true if the offset and size are assign to *poffset and *psize.
+  bool find_property(PROPINDEX i, uint32_t *poffset, uint32_t *psize) const;
+
+  GoogleBinaryBlockHeader header_;      // copy of GBB header from image
+  std::string file_content_;            // complete image file content
+  long header_offset_;                  // offset to GBB header in file_content_
+  bool is_valid_gbb;                    // if we are holding a valid GBB
+
+  bool verbose;                         // provide verbose messages
+};
+
+}  // namespace vboot_reference
+
+#endif  // VBOOT_REFERENCE_GBB_UTILITY_H_
+
