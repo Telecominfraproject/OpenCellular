@@ -397,6 +397,7 @@ int VerifyKernelDriver_f(uint8_t* firmware_key_blob,
   kernel_entry* try_kernel[2];  /* Kernel in try order. */
   int try_kernel_which[2];  /* Which corresponding kernel in the try order */
   uint32_t try_kernel_lversion[2];  /* Their logical versions. */
+  uint16_t kernel_version, kernel_key_version;  /* Temporary variables */
 
   /* [kernel_to_boot] will eventually contain the boot path to follow
    * and is returned to the caller. Initially, we set it to recovery. If
@@ -415,8 +416,8 @@ int VerifyKernelDriver_f(uint8_t* firmware_key_blob,
   kernelA_lversion = GetLogicalKernelVersion(kernelA->kernel_blob);
   kernelB_lversion = GetLogicalKernelVersion(kernelB->kernel_blob);
   min_lversion  = Min(kernelA_lversion, kernelB_lversion);
-  stored_lversion = CombineUint16Pair(GetStoredVersion(KERNEL_KEY_VERSION),
-                                      GetStoredVersion(KERNEL_VERSION));
+  GetStoredVersions(KERNEL_VERSIONS, &kernel_key_version, &kernel_version);
+  stored_lversion = CombineUint16Pair(kernel_key_version, kernel_version);
 
   /* TODO(gauravsh): The kernel entries kernelA and kernelB come from the
    * partition table - verify its signature/checksum before proceeding
@@ -464,10 +465,9 @@ int VerifyKernelDriver_f(uint8_t* firmware_key_blob,
         if (VERIFY_KERNEL_SUCCESS == VerifyKernel(firmware_key_blob,
                                                   try_kernel[1]->kernel_blob,
                                                   dev_mode)) {
-          WriteStoredVersion(KERNEL_KEY_VERSION,
-                             (uint16_t) (min_lversion >> 16));
-          WriteStoredVersion(KERNEL_VERSION,
-                             (uint16_t) (min_lversion & 0xFFFF));
+          WriteStoredVersions(KERNEL_VERSIONS,
+                              (uint16_t) (min_lversion >> 16),
+                                (uint16_t) (min_lversion & 0xFFFF));
           stored_lversion = min_lversion;  /* Update stored version as it's
                                             * used later. */
         }

@@ -17,20 +17,20 @@ extern uint16_t g_kernel_key_version;
 extern uint16_t g_kernel_version;
 
 /* Rollback version types. */
-#define FIRMWARE_KEY_VERSION 0
-#define FIRMWARE_VERSION 1
-#define KERNEL_KEY_VERSION 2
-#define KERNEL_VERSION 3
+#define FIRMWARE_VERSIONS 0
+#define KERNEL_VERSIONS   1
 
 /* TPM NVRAM location indices. */
-#define FIRMWARE_KEY_VERSION_NV_INDEX  0x1001
-#define FIRMWARE_VERSION_NV_INDEX 0x1002
-#define KERNEL_KEY_VERSION_NV_INDEX 0x1003
-#define KERNEL_VERSION_NV_INDEX 0x1004
+#define FIRMWARE_VERSIONS_NV_INDEX      0x1001
+#define KERNEL_VERSIONS_NV_INDEX        0x1002
+#define TPM_IS_INITIALIZED_NV_INDEX     0x1003
+#define KERNEL_VERSIONS_BACKUP_NV_INDEX 0x1004
+#define KERNEL_BACKUP_IS_VALID_NV_INDEX 0x1005
+
 
 void SetupTPM(void);
-uint16_t GetStoredVersion(int type);
-int WriteStoredVersion(int type, uint16_t version);
+void GetStoredVersions(int type, uint16_t* key_version, uint16_t* version);
+int WriteStoredVersions(int type, uint16_t key_version, uint16_t version);
 void LockFirmwareVersions();
 void LockKernelVersionsByLockingPP();
 

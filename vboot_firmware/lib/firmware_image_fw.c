@@ -252,6 +252,7 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
   uint8_t firmwareA_is_verified = 0;  /* Whether firmwareA verify succeeded. */
   uint32_t min_lversion;  /* Minimum of firmware A and firmware lversion. */
   uint32_t stored_lversion;  /* Stored logical version in the TPM. */
+  uint16_t version, key_version;  /* Temporary variables */
 
   /* Initialize the TPM since we'll be reading the rollback indices. */
   SetupTPM();
@@ -265,8 +266,8 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
   firmwareA_lversion = GetLogicalFirmwareVersion(verification_headerA);
   firmwareB_lversion = GetLogicalFirmwareVersion(verification_headerB);
   min_lversion  = Min(firmwareA_lversion, firmwareB_lversion);
-  stored_lversion = CombineUint16Pair(GetStoredVersion(FIRMWARE_KEY_VERSION),
-                                      GetStoredVersion(FIRMWARE_VERSION));
+  GetStoredVersions(FIRMWARE_VERSIONS, &key_version, &version);
+  stored_lversion = CombineUint16Pair(key_version, version);
   /* Always try FirmwareA first. */
   if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob,
                                                 verification_headerA,
@@ -280,10 +281,9 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
       if (VERIFY_FIRMWARE_SUCCESS == VerifyFirmware(root_key_blob,
                                                     verification_headerB,
                                                     firmwareB)) {
-        WriteStoredVersion(FIRMWARE_KEY_VERSION,
-                           (uint16_t) (min_lversion >> 16));
-        WriteStoredVersion(FIRMWARE_VERSION,
-                           (uint16_t) (min_lversion & 0x00FFFF));
+        WriteStoredVersions(FIRMWARE_VERSIONS,
+                            (uint16_t) (min_lversion >> 16),
+                            (uint16_t) (min_lversion & 0xFFFF));
         stored_lversion = min_lversion;  /* Update stored version as it's used
                                           * later. */
       }

@@ -19,50 +19,138 @@ uint16_t g_firmware_version = 0;
 uint16_t g_kernel_key_version = 0;
 uint16_t g_kernel_version = 0;
 
-static void InitializeSpaces(void) {
-  uint16_t zero = 0;
+static int InitializeSpaces(void) {
+  uint32_t zero = 0;
+  uint32_t space_holder;
   uint32_t firmware_perm = TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE;
   uint32_t kernel_perm = TPM_NV_PER_PPWRITE;
 
   debug("Initializing spaces\n");
-  TlclSetNvLocked();  /* useful only the first time */
 
-  TlclDefineSpace(FIRMWARE_KEY_VERSION_NV_INDEX,
-                  firmware_perm, sizeof(uint16_t));
-  TlclWrite(FIRMWARE_KEY_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
+  if (TlclRead(TPM_IS_INITIALIZED_NV_INDEX,
+               (uint8_t*) &space_holder, sizeof(space_holder)) == TPM_SUCCESS) {
+    /* Spaces are already initialized, so this is an error */
+    return 0;
+  }
+  
+  TlclSetNvLocked();
 
-  TlclDefineSpace(FIRMWARE_VERSION_NV_INDEX, firmware_perm, sizeof(uint16_t));
-  TlclWrite(FIRMWARE_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
+  TlclDefineSpace(FIRMWARE_VERSIONS_NV_INDEX, firmware_perm, sizeof(uint32_t));
+  TlclWrite(FIRMWARE_VERSIONS_NV_INDEX, (uint8_t*) &zero, sizeof(uint32_t));
 
-  TlclDefineSpace(KERNEL_KEY_VERSION_NV_INDEX, kernel_perm, sizeof(uint16_t));
-  TlclWrite(KERNEL_KEY_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
+  TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX, kernel_perm, sizeof(uint32_t));
+  TlclWrite(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &zero, sizeof(uint32_t));
 
-  TlclDefineSpace(KERNEL_VERSION_NV_INDEX, kernel_perm, sizeof(uint16_t));
-  TlclWrite(KERNEL_VERSION_NV_INDEX, (uint8_t*) &zero, sizeof(uint16_t));
+  /* The space KERNEL_VERSIONS_BACKUP_NV_INDEX is used to protect the kernel
+   * versions when entering recovery mode.  The content of space
+   * KERNEL_BACKUP_IS_VALID determines whether the backup value (1) or the
+   * regular value (0) should be trusted.
+   */
+  TlclDefineSpace(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+                  firmware_perm, sizeof(uint32_t));
+  TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+            (uint8_t*) &zero, sizeof(uint32_t));
+  TlclDefineSpace(KERNEL_BACKUP_IS_VALID_NV_INDEX,
+                  firmware_perm, sizeof(uint32_t));
+  TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX,
+            (uint8_t*) &zero, sizeof(uint32_t));
+
+  /* The space TPM_IS_INITIALIZED_NV_INDEX is used to indicate that the TPM
+   * initialization has completed.  Without it we cannot be sure that the last
+   * space to be created was also initialized (power could have been lost right
+   * after its creation).
+   */
+  TlclDefineSpace(TPM_IS_INITIALIZED_NV_INDEX, firmware_perm, sizeof(uint32_t));
+  return 1;
 }
 
-static void EnterRecovery(void) {
-  /* Temporary recovery stub. Currently just initalizes spaces. */
-  InitializeSpaces();
+/* Enters the recovery mode.  If |unlocked| is true, there is some problem with
+ * the TPM, so do not attempt to do any more TPM operations, and particularly
+ * do not set bGlobalLock.
+ */
+static void EnterRecovery(int unlocked) {
+  uint32_t combined_versions;
+  uint32_t one = 1;
+
+  if (!unlocked) {
+    /* Saves the kernel versions and indicates that we should trust the saved
+     * ones.
+     */ 
+    TlclRead(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &combined_versions,
+             sizeof(uint32_t));
+    TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX, (uint8_t*) &combined_versions,
+              sizeof(uint32_t));
+    TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &one,
+              sizeof(uint32_t));
+    /* Protects the firmware and backup kernel versions. */
+    LockFirmwareVersions();
+  }
+  debug("entering recovery mode");
+  
+  /* and then what? */
 }
 
 static int GetTPMRollbackIndices(void) {
-  /* We just perform the reads, making sure they succeed. A failure means that
-   * the rollback index locations are some how messed up and we must jump to
-   * recovery */
-  if (TPM_SUCCESS != TlclRead(FIRMWARE_KEY_VERSION_NV_INDEX,
-                              (uint8_t*) &g_firmware_key_version,
-                              sizeof(g_firmware_key_version)) ||
-      TPM_SUCCESS != TlclRead(FIRMWARE_KEY_VERSION_NV_INDEX,
-                              (uint8_t*) &g_firmware_key_version,
-                              sizeof(g_firmware_key_version)) ||
-      TPM_SUCCESS != TlclRead(FIRMWARE_KEY_VERSION_NV_INDEX,
-                              (uint8_t*) &g_firmware_key_version,
-                              sizeof(g_firmware_key_version))  ||
-      TPM_SUCCESS != TlclRead(FIRMWARE_KEY_VERSION_NV_INDEX,
-                              (uint8_t*) &g_firmware_key_version,
-                              sizeof(g_firmware_key_version)))
+  uint32_t backup_is_valid;
+  uint32_t firmware_versions;
+  uint32_t kernel_versions;
+
+  if (TlclRead(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &backup_is_valid,
+               sizeof(uint32_t)) != TPM_SUCCESS) {
+    EnterRecovery(1);
+  }
+  if (backup_is_valid) {
+    /* We reach this path if the previous boot went into recovery mode and we
+     * made a copy of the kernel versions to protect them.
+     */
+    uint32_t protected_combined_versions;
+    uint32_t unsafe_combined_versions;
+    uint32_t result;
+    uint32_t zero = 0;
+    if (TlclRead(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+                 (uint8_t*) &protected_combined_versions,
+                 sizeof(uint32_t)) != TPM_SUCCESS) {
+      EnterRecovery(1);
+    }
+    result = TlclRead(KERNEL_VERSIONS_NV_INDEX,
+                      (uint8_t*) &unsafe_combined_versions, sizeof(uint32_t));
+    if (result == TPM_E_BADINDEX) {
+      /* Jeez, someone removed the space.  This is either hostile or extremely
+       * incompetent.  Foo to them.  Politeness and lack of an adequate
+       * character set prevent me from expressing my true feelings.
+       */
+      TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX, TPM_NV_PER_PPWRITE,
+                      sizeof(uint32_t));
+    } else if (result != TPM_SUCCESS) {
+      EnterRecovery(1);
+    }
+    if (result == TPM_E_BADINDEX ||
+        protected_combined_versions != unsafe_combined_versions) {
+      TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+                (uint8_t*) &protected_combined_versions, sizeof(uint32_t));
+    }
+    /* We recovered and now we can reset the BACKUP_IS_VALID flag.
+     */
+    TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &zero, 0);
+  }
+      
+  /* We perform the reads, making sure they succeed. A failure means that the
+   * rollback index locations are missing or somehow messed up.  We let the
+   * caller deal with that.
+   */
+  if (TPM_SUCCESS != TlclRead(FIRMWARE_VERSIONS_NV_INDEX,
+                              (uint8_t*) &firmware_versions,
+                              sizeof(firmware_versions)) ||
+      TPM_SUCCESS != TlclRead(KERNEL_VERSIONS_NV_INDEX,
+                              (uint8_t*) &kernel_versions,
+                              sizeof(kernel_versions)))
     return 0;
+
+  g_firmware_key_version = firmware_versions >> 16;
+  g_firmware_version = firmware_versions && 0xffff;
+  g_kernel_key_version = kernel_versions >> 16;
+  g_kernel_version = kernel_versions && 0xffff;
+  
   return 1;
 }
 
@@ -84,61 +172,52 @@ void SetupTPM(void) {
   /* Check that the TPM is enabled and activated. */
   if(TlclGetFlags(&disable, &deactivated) != TPM_SUCCESS) {
     debug("failed to get TPM flags");
-    EnterRecovery();
+    EnterRecovery(1);
   }
   if (disable || deactivated) {
     TlclSetEnable();
     if (TlclSetDeactivated(0) != TPM_SUCCESS) {
       debug("failed to activate TPM");
-      EnterRecovery();
+      EnterRecovery(1);
     }
   }
+  /* We expect this to fail the first time we run on a device, indicating that
+   * the TPM has not been initialized yet. */
   if (!GetTPMRollbackIndices()) {
     debug("failed to get rollback indices");
-    EnterRecovery();
+    if (!InitializeSpaces()) {
+      /* If InitializeSpaces() fails (possibly because it had been executed
+       * already), something is wrong. */
+      EnterRecovery(1);
+    }
   }
 }
 
-
-uint16_t GetStoredVersion(int type) {
+void GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
   switch (type) {
-    case FIRMWARE_KEY_VERSION:
-      return g_firmware_key_version;
+    case FIRMWARE_VERSIONS:
+      *key_version = g_firmware_key_version;
+      *version = g_firmware_version;
       break;
-    case FIRMWARE_VERSION:
-      return g_firmware_version;
-      break;
-    case KERNEL_KEY_VERSION:
-      return g_kernel_key_version;
-      break;
-    case KERNEL_VERSION:
-      return g_kernel_version;
+    case KERNEL_VERSIONS:
+      *key_version = g_kernel_key_version;
+      *version = g_kernel_version;
       break;
   }
-  return 0;
 }
 
-int WriteStoredVersion(int type, uint16_t version) {
+int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
+  uint32_t combined_version = (key_version << 16) & version;
   switch (type) {
-    case FIRMWARE_KEY_VERSION:
-      return (TPM_SUCCESS == TlclWrite(FIRMWARE_KEY_VERSION_NV_INDEX,
-                                       (uint8_t*) &version,
-                                       sizeof(uint16_t)));
+    case FIRMWARE_VERSIONS:
+      return (TPM_SUCCESS == TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
+                                       (uint8_t*) &combined_version,
+                                       sizeof(uint32_t)));
       break;
-    case FIRMWARE_VERSION:
-      return (TPM_SUCCESS == TlclWrite(FIRMWARE_VERSION_NV_INDEX,
-                                       (uint8_t*) &version,
-                                       sizeof(uint16_t)));
-      break;
-    case KERNEL_KEY_VERSION:
-      return (TPM_SUCCESS == TlclWrite(KERNEL_KEY_VERSION_NV_INDEX,
-                                       (uint8_t*) &version,
-                                       sizeof(uint16_t)));
-      break;
-    case KERNEL_VERSION:
-      return (TPM_SUCCESS == TlclWrite(KERNEL_VERSION_NV_INDEX,
-                                       (uint8_t*) &version,
-                                       sizeof(uint16_t)));
+    case KERNEL_VERSIONS:
+      return (TPM_SUCCESS == TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+                                       (uint8_t*) &combined_version,
+                                       sizeof(uint32_t)));
       break;
   }
   return 0;
@@ -147,13 +226,13 @@ int WriteStoredVersion(int type, uint16_t version) {
 void LockFirmwareVersions() {
   if (TlclSetGlobalLock() != TPM_SUCCESS) {
     debug("failed to set global lock");
-    EnterRecovery();
+    EnterRecovery(1);
   }
 }
 
 void LockKernelVersionsByLockingPP() {
   if (TlclLockPhysicalPresence() != TPM_SUCCESS) {
     debug("failed to turn off PP");
-    EnterRecovery();
+    EnterRecovery(1);
   }
 }

@@ -21,41 +21,32 @@ void SetupTPM(void) {
 #endif
 }
 
-uint16_t GetStoredVersion(int type) {
+void GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
   switch (type) {
-    case FIRMWARE_KEY_VERSION:
-      return g_firmware_key_version;
+    case FIRMWARE_VERSIONS:
+      *key_version = g_firmware_key_version;
+      *version = g_firmware_version;
       break;
-    case FIRMWARE_VERSION:
-      return g_firmware_version;
-      break;
-    case KERNEL_KEY_VERSION:
-      return g_kernel_key_version;
-      break;
-    case KERNEL_VERSION:
-      return g_kernel_version;
+    case KERNEL_VERSIONS:
+      *key_version = g_kernel_key_version;
+      *version = g_kernel_version;
       break;
   }
-  return 0;
 }
 
-int WriteStoredVersion(int type, uint16_t version) {
+int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
   switch (type) {
-    case FIRMWARE_KEY_VERSION:
-      g_firmware_key_version = version;
-      break;
-    case FIRMWARE_VERSION:
+    case FIRMWARE_VERSIONS:
+      g_firmware_key_version = key_version;
       g_firmware_version = version;
       break;
-    case KERNEL_KEY_VERSION:
-      g_kernel_key_version = version;
-      break;
-    case KERNEL_VERSION:
+    case KERNEL_VERSIONS:
+      g_kernel_key_version = key_version;
       g_kernel_version = version;
       break;
   }
 #ifndef NDEBUG
-  debug("Rollback Index Library Mock: Stored Version written.\n");
+  debug("Rollback Index Library Mock: Stored Versions written.\n");
 #endif
   return 1;
 }

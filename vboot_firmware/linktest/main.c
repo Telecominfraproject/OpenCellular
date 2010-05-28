@@ -9,6 +9,8 @@
 
 int main(void)
 {
+  uint16_t x, y;
+
   // cgptlib.h
   GptInit(0);
   GptNextKernelEntry(0, 0, 0);
@@ -36,8 +38,8 @@ int main(void)
 
   // rollback_index.h
   SetupTPM();
-  GetStoredVersion(0);
-  WriteStoredVersion(0, 0);
+  GetStoredVersions(0, &x, &y);
+  WriteStoredVersions(0, 0, 0);
   LockFirmwareVersions();
   LockKernelVersionsByLockingPP();
 

@@ -24,6 +24,8 @@
 #define TPM_LARGE_ENOUGH_COMMAND_SIZE 256  /* saves space in the firmware */
 
 #define TPM_SUCCESS ((uint32_t)0x00000000)
+#define TPM_E_BADINDEX ((uint32_t)0x00000002)
+
 #define TPM_NV_INDEX0 ((uint32_t)0x00000000)
 #define TPM_NV_INDEX_LOCK ((uint32_t)0xffffffff)
 #define TPM_NV_PER_WRITE_STCLEAR (((uint32_t)1)<<14)
