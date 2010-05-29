@@ -54,17 +54,19 @@ class FirmwareUtility {
   RSAPublicKey* root_key_pub_;
   std::string root_key_file_;
   std::string root_key_pub_file_;
-  int firmware_version_;
   std::string firmware_key_file_;
   std::string firmware_key_pub_file_;
-  int firmware_key_version_;
-  int firmware_sign_algorithm_;
+  std::string subkey_in_file_;  // Existing key signature header.
   std::string in_file_;
   std::string out_file_;
+  int firmware_key_version_;
+  int firmware_sign_algorithm_;
+  int firmware_version_;
   bool is_generate_;  // Are we generating a new image?
   bool is_verify_;  // Are we just verifying an already signed image?
   bool is_describe_; // Should we print out description of the image?
   bool is_only_vblock_;  // Should we just output the verification block?
+  bool is_subkey_out_;  // Should we just output the subkey header?
 };
 
 }  // namespace vboot_reference

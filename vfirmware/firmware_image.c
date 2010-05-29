@@ -259,10 +259,13 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len) {
 
 int WriteFirmwareImage(const char* output_file,
                        const FirmwareImage* image,
-                       int is_only_vblock) {
+                       int is_only_vblock,
+                       int is_subkey_out) {
   int fd;
   int success = 1;
   uint8_t* firmware_blob;
+  uint8_t* subkey_out_buf = NULL;
+  uint8_t* subkey_header = NULL;
   uint64_t blob_len;
 
   if (!image)
@@ -270,6 +273,25 @@ int WriteFirmwareImage(const char* output_file,
   if (-1 == (fd = creat(output_file, 0666))) {
     debug("Couldn't open file for writing.\n");
     return 0;
+  }
+  if (is_subkey_out) {
+    blob_len = GetFirmwareHeaderLen(image) +
+        siglen_map[ROOT_SIGNATURE_ALGORITHM];
+    subkey_out_buf = (uint8_t*) Malloc(blob_len);
+    subkey_header = GetFirmwareHeaderBlob(image);
+    Memcpy(subkey_out_buf, subkey_header, GetFirmwareHeaderLen(image));
+    Memcpy(subkey_out_buf + GetFirmwareHeaderLen(image),
+           image->firmware_key_signature,
+           siglen_map[ROOT_SIGNATURE_ALGORITHM]);
+    if (blob_len != write(fd, subkey_out_buf, blob_len)) {
+      debug("Couldn't write kernel subkey header to file: %s\n",
+            output_file);
+      success = 0;
+    }
+    Free(subkey_header);
+    Free(subkey_out_buf);
+    close(fd);
+    return success;
   }
 
   firmware_blob = GetFirmwareBlob(image, &blob_len);

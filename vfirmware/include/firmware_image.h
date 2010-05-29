@@ -56,13 +56,17 @@ uint8_t* GetFirmwareBlob(const FirmwareImage* image, uint64_t* blob_len);
 
 /* Write firmware data from [image] into a file named [input_file].
  *
- * If [is_just_vblock] is 1, only the verification block (excluding the
- * actual firmware_data) is written.
+ * If [is_just_vblock] is non-zero, only the verification block (excluding the
+ * actual firmware_data) is output.
+ * if [is_subkey_out] is non-zero, only the firmware key verification (subkey)
+ * header is output.
+ *
  * Return 1 on success, 0 on failure.
  */
 int WriteFirmwareImage(const char* input_file,
                        const FirmwareImage* image,
-                       int is_only_vblock);
+                       int is_only_vblock,
+                       int is_subkey_out);
 
 /* Pretty print the contents of [image]. Only headers and metadata information
  * is printed.

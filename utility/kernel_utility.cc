@@ -114,7 +114,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     OPT_VMLINUZ,
     OPT_CONFIG,
     OPT_PADDING,
-    OPT_SUBKEY,
+    OPT_SUBKEY_OUT,
   };
   static struct option long_options[] = {
     {"firmware_key", 1, 0,              OPT_FIRMWARE_KEY            },
@@ -136,7 +136,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"vmlinuz", 1, 0,                   OPT_VMLINUZ                 },
     {"config", 1, 0,                    OPT_CONFIG                  },
     {"padding", 1, 0,                   OPT_PADDING                 },
-    {"subkey_out", 0, 0,                OPT_SUBKEY                  },
+    {"subkey_out", 0, 0,                OPT_SUBKEY_OUT              },
     {NULL, 0, 0, 0}
   };
   while ((i = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
@@ -231,7 +231,7 @@ bool KernelUtility::ParseCmdLineOptions(int argc, char* argv[]) {
         return false;
       }
       break;
-    case OPT_SUBKEY:
+    case OPT_SUBKEY_OUT:
       is_subkey_out_ = true;
       break;
     }
@@ -283,7 +283,7 @@ bool KernelUtility::GenerateSignedImage(void) {
     // Calculate header checksum.
     CalculateKernelHeaderChecksum(image_, image_->header_checksum);
 
-    // Generate and add the signatures.
+    // Generate and add the key signatures.
     if (!AddKernelKeySignature(image_, firmware_key_file_.c_str())) {
       cerr << "Couldn't write key signature to verified boot kernel image.\n";
       return false;
@@ -318,23 +318,23 @@ bool KernelUtility::GenerateSignedImage(void) {
     StatefulMemcpy(&st, &image_->kernel_sign_algorithm,
                    FIELD_LEN(kernel_sign_algorithm));
 
-    /* Valid Kernel Key signing algorithm. */
+    // Valid Kernel Key signing algorithm.
     if (image_->firmware_sign_algorithm >= kNumAlgorithms) {
       Free(subkey_header_buf);
       return NULL;
     }
 
-    /* Valid Kernel Signing Algorithm? */
+    // Valid Kernel Signing Algorithm?
     if (image_->kernel_sign_algorithm >= kNumAlgorithms) {
       Free(subkey_header_buf);
       return NULL;
     }
 
-    /* Compute size of pre-processed RSA public keys and signatures. */
+    // Compute size of pre-processed RSA public keys and signatures.
     kernel_key_signature_len  = siglen_map[image_->firmware_sign_algorithm];
     kernel_sign_key_len = RSAProcessedKeySize(image_->kernel_sign_algorithm);
 
-    /* Check whether key header length is correct. */
+    // Check whether key header length is correct.
     header_len = GetKernelHeaderLen(image_);
     if (header_len != image_->header_len) {
       debug("Header length mismatch. Got: %d, Expected: %d\n",
@@ -343,14 +343,14 @@ bool KernelUtility::GenerateSignedImage(void) {
       return NULL;
     }
 
-    /* Read pre-processed public half of the kernel signing key. */
+    // Read pre-processed public half of the kernel signing key.
     StatefulMemcpy(&st, &image_->kernel_key_version,
                    FIELD_LEN(kernel_key_version));
     image_->kernel_sign_key = (uint8_t*) Malloc(kernel_sign_key_len);
     StatefulMemcpy(&st, image_->kernel_sign_key, kernel_sign_key_len);
     StatefulMemcpy(&st, image_->header_checksum, FIELD_LEN(header_checksum));
 
-    /* Check whether the header checksum matches. */
+    // Check whether the header checksum matches.
     CalculateKernelHeaderChecksum(image_, header_checksum);
     if (SafeMemcmp(header_checksum, image_->header_checksum,
                    FIELD_LEN(header_checksum))) {
@@ -359,10 +359,11 @@ bool KernelUtility::GenerateSignedImage(void) {
       return NULL;
     }
 
-    /* Read key signature. */
+    // Read key signature.
     image_->kernel_key_signature = (uint8_t*) Malloc(kernel_key_signature_len);
     StatefulMemcpy(&st, image_->kernel_key_signature,
                    kernel_key_signature_len);
+
     Free(subkey_header_buf);
     if (st.overrun || st.remaining_len != 0)  /* Overrun or underrun. */
       return false;
@@ -382,6 +383,7 @@ bool KernelUtility::GenerateSignedImage(void) {
   if (!image_->kernel_data)
     return false;
 
+  // Generate and add the preamble and data signatures.
   if (!AddKernelSignature(image_, kernel_key_file_.c_str())) {
     cerr << "Couldn't write firmware signature to verified boot kernel image.\n";
     return false;
