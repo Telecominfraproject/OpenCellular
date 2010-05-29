@@ -58,7 +58,6 @@ int CheckParameters(GptData *gpt) {
 
 /* Expects header signature should be GPT_HEADER_SIGNATURE. */
 uint32_t CheckHeaderSignature(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -69,15 +68,14 @@ uint32_t CheckHeaderSignature(GptData *gpt) {
     if (Memcmp(headers[i]->signature,
                GPT_HEADER_SIGNATURE,
                GPT_HEADER_SIGNATURE_SIZE)) {
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
     }
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* The header revision should be GPT_HEADER_REVISION. */
 uint32_t CheckRevision(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -86,15 +84,14 @@ uint32_t CheckRevision(GptData *gpt) {
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
     if (headers[i]->revision != GPT_HEADER_REVISION)
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* A valid header size should be between MIN_SIZE_OF_HEADER and
  * MAX_SIZE_OF_HEADER. */
 uint32_t CheckSize(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -104,14 +101,13 @@ uint32_t CheckSize(GptData *gpt) {
   for (i = PRIMARY; i <= SECONDARY; ++i) {
     if ((headers[i]->size < MIN_SIZE_OF_HEADER) ||
         (headers[i]->size > MAX_SIZE_OF_HEADER))
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* Reserved and padding fields should be zero. */
 uint32_t CheckReservedFields(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -120,32 +116,30 @@ uint32_t CheckReservedFields(GptData *gpt) {
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
     if (headers[i]->reserved || headers[i]->padding)
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* my_lba field points to the header itself.
  * So that the my_lba of primary header should be 1 (right after PMBR).
  * The my_lba of secondary header should be the last secotr on drive. */
 uint32_t CheckMyLba(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *primary_header, *secondary_header;
 
   primary_header = (GptHeader*)gpt->primary_header;
   secondary_header = (GptHeader*)gpt->secondary_header;
 
   if (primary_header->my_lba != GPT_PMBR_SECTOR)  /* 2nd sector on drive */
-    INVALIDATE_HEADER(valid_headers, PRIMARY);
+    INVALIDATE_HEADER(gpt->valid_headers, PRIMARY);
   if (secondary_header->my_lba != (gpt->drive_sectors - 1))  /* last sector */
-    INVALIDATE_HEADER(valid_headers, SECONDARY);
-  return valid_headers;
+    INVALIDATE_HEADER(gpt->valid_headers, SECONDARY);
+  return gpt->valid_headers;
 }
 
 /* SizeOfPartitionEntry must be between MIN_SIZE_OF_ENTRY and
  * MAX_SIZE_OF_ENTRY, and a multiple of SIZE_OF_ENTRY_MULTIPLE. */
 uint32_t CheckSizeOfPartitionEntry(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -157,16 +151,15 @@ uint32_t CheckSizeOfPartitionEntry(GptData *gpt) {
     if ((size_of_entry < MIN_SIZE_OF_ENTRY) ||
         (size_of_entry > MAX_SIZE_OF_ENTRY) ||
         (size_of_entry & (SIZE_OF_ENTRY_MULTIPLE - 1)))
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* number_of_entries must be between MIN_NUMBER_OF_ENTRIES and
  * MAX_NUMBER_OF_ENTRIES, and size_of_entry * number_of_entries must be
  * equal to TOTAL_ENTRIES_SIZE. */
 uint32_t CheckNumberOfEntries(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -178,16 +171,15 @@ uint32_t CheckNumberOfEntries(GptData *gpt) {
     if ((number_of_entries < MIN_NUMBER_OF_ENTRIES) ||
         (number_of_entries > MAX_NUMBER_OF_ENTRIES) ||
         (number_of_entries * headers[i]->size_of_entry != TOTAL_ENTRIES_SIZE))
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* Make sure entries_lba is correct.
  *   2 for primary entries
  *   drive_sectors-1-GPT_ENTRIES_SECTORS for secondary entries. */
 uint32_t CheckEntriesLba(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   GptHeader *primary_header, *secondary_header;
 
   primary_header = (GptHeader*)gpt->primary_header;
@@ -196,20 +188,19 @@ uint32_t CheckEntriesLba(GptData *gpt) {
   /* We assume the primary partition entry table is located at the sector
    * right after primary partition header. */
   if (primary_header->entries_lba != (GPT_PMBR_SECTOR + GPT_HEADER_SECTOR))
-    INVALIDATE_HEADER(valid_headers, PRIMARY);
+    INVALIDATE_HEADER(gpt->valid_headers, PRIMARY);
   /* We assume the secondary partition entry table is the 32 sectors
    * right before the secondary partition header. */
   if (secondary_header->entries_lba !=
       (gpt->drive_sectors - 1 - GPT_ENTRIES_SECTORS))
-    INVALIDATE_HEADER(valid_headers, SECONDARY);
-  return valid_headers;
+    INVALIDATE_HEADER(gpt->valid_headers, SECONDARY);
+  return gpt->valid_headers;
 }
 
 /* FirstUsableLBA must be after the end of the primary GPT table array.
  * LastUsableLBA must be before the start of the secondary GPT table array.
  * FirstUsableLBA <= LastUsableLBA. */
 uint32_t CheckValidUsableLbas(GptData *gpt) {
-  uint32_t valid_headers = MASK_BOTH;
   uint64_t end_of_primary_entries;
   uint64_t start_of_secondary_entries;
   GptHeader *headers[] = {
@@ -224,20 +215,20 @@ uint32_t CheckValidUsableLbas(GptData *gpt) {
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
     if (headers[i]->first_usable_lba < end_of_primary_entries)
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
     if (headers[i]->last_usable_lba >= start_of_secondary_entries)
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
     if (headers[i]->first_usable_lba > headers[i]->last_usable_lba)
-      INVALIDATE_HEADER(valid_headers, i);
+      INVALIDATE_HEADER(gpt->valid_headers, i);
   }
 
   if (headers[PRIMARY]->first_usable_lba - headers[PRIMARY]->entries_lba <
       GPT_ENTRIES_SECTORS)
-    INVALIDATE_HEADER(valid_headers, PRIMARY);
+    INVALIDATE_HEADER(gpt->valid_headers, PRIMARY);
   if (headers[SECONDARY]->last_usable_lba >= headers[SECONDARY]->entries_lba)
-    INVALIDATE_HEADER(valid_headers, SECONDARY);
+    INVALIDATE_HEADER(gpt->valid_headers, SECONDARY);
 
-  return valid_headers;
+  return gpt->valid_headers;
 }
 
 /* Checks header CRC */
@@ -289,7 +280,7 @@ uint32_t CheckEntriesCrc(GptData *gpt) {
 }
 
 /* Returns non-zero if the given GUID is non-zero. */
-static int NonZeroGuid(const Guid *guid) {
+int NonZeroGuid(const Guid *guid) {
   static Guid zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
   return Memcmp(&zero, guid, sizeof(zero));
 }
@@ -376,7 +367,6 @@ int OverlappedEntries(GptEntry *entries, uint32_t number_of_entries) {
 /* Checks if any two partitions are overlapped in primary and secondary entries.
  */
 uint32_t CheckOverlappedPartition(GptData *gpt) {
-  uint32_t valid_entries = MASK_BOTH;
   GptHeader *headers[] = {
     (GptHeader*)gpt->primary_header,
     (GptHeader*)gpt->secondary_header,
@@ -395,9 +385,9 @@ uint32_t CheckOverlappedPartition(GptData *gpt) {
 
   for (i = PRIMARY; i <= SECONDARY; ++i) {
     if (OverlappedEntries(entries[i], number_of_entries))
-      INVALIDATE_ENTRIES(valid_entries, i);
+      INVALIDATE_ENTRIES(gpt->valid_entries, i);
   }
-  return valid_entries;
+  return gpt->valid_entries;
 }
 
 /* Primary entries and secondary entries should be bitwise identical.

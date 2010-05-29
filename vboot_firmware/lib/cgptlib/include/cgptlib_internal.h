@@ -21,6 +21,7 @@ uint32_t CheckEntriesLba(GptData *gpt);
 uint32_t CheckValidUsableLbas(GptData *gpt);
 uint32_t CheckHeaderCrc(GptData *gpt);
 uint32_t CheckEntriesCrc(GptData *gpt);
+int NonZeroGuid(const Guid *guid);
 uint32_t CheckValidEntries(GptData *gpt);
 typedef struct {
   uint64_t starting;

@@ -38,8 +38,12 @@ struct {
   int (*fp)(int argc, char *argv[]);
   const char *comment;
 } cmds[] = {
+  {"add", CgptAdm, "Add a partition to drive"},
+  {"delete", CgptAdm, "Delete a partition on drive"},
+  {"modify", CgptAdm, "Modify the partition on drive"},
   {"attribute", CgptAttribute, "Update GPT attribute bits "
                                "(for ChromeOS kernel entry only)"},
+  {"dev", CgptDev, "Developper mode"},
   {"repair", CgptRepair, "Repair primary and secondary headers and tables"},
   {"show", CgptShow, "Show partition details"},
 };
@@ -51,7 +55,7 @@ void Usage(const char *message) {
 
   if (message) printf("%s\n", message);
   printf("Usage: %s COMMAND [OPTIONS]\n\n"
-         "Supported commands:\n\n",
+         "Supported COMMANDs:\n\n",
          progname);
   for (i = 0; i < sizeof(cmds)/sizeof(cmds[0]); ++i) {
     printf("    %-10s  %s\n", cmds[i].name, cmds[i].comment);
@@ -62,26 +66,30 @@ void Usage(const char *message) {
 /* GUID conversion functions. Accepted format:
  *
  *   "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+ *
+ * Returns CGPT_OK if parsing is successful; otherwise CGPT_FAILED.
  */
-void StrToGuid(const char *str, Guid *guid) {
+int StrToGuid(const char *str, Guid *guid) {
   uint32_t time_low, time_mid, time_high_and_version;
 
-  sscanf(str, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-         &time_low,
-         (unsigned int *)&time_mid,
-         (unsigned int *)&time_high_and_version,
-         (unsigned int *)&guid->u.Uuid.clock_seq_high_and_reserved,
-         (unsigned int *)&guid->u.Uuid.clock_seq_low,
-         (unsigned int *)&guid->u.Uuid.node[0],
-         (unsigned int *)&guid->u.Uuid.node[1],
-         (unsigned int *)&guid->u.Uuid.node[2],
-         (unsigned int *)&guid->u.Uuid.node[3],
-         (unsigned int *)&guid->u.Uuid.node[4],
-         (unsigned int *)&guid->u.Uuid.node[5]);
+  if (11 > sscanf(str, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+                  &time_low,
+                  (unsigned int *)&time_mid,
+                  (unsigned int *)&time_high_and_version,
+                  (unsigned int *)&guid->u.Uuid.clock_seq_high_and_reserved,
+                  (unsigned int *)&guid->u.Uuid.clock_seq_low,
+                  (unsigned int *)&guid->u.Uuid.node[0],
+                  (unsigned int *)&guid->u.Uuid.node[1],
+                  (unsigned int *)&guid->u.Uuid.node[2],
+                  (unsigned int *)&guid->u.Uuid.node[3],
+                  (unsigned int *)&guid->u.Uuid.node[4],
+                  (unsigned int *)&guid->u.Uuid.node[5])) return CGPT_FAILED;
 
   guid->u.Uuid.time_low = htole32(time_low);
   guid->u.Uuid.time_mid = htole16(time_mid);
   guid->u.Uuid.time_high_and_version = htole16(time_high_and_version);
+
+  return CGPT_OK;
 }
 
 void GuidToStr(const Guid *guid, char *str) {
@@ -194,6 +202,54 @@ void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16)
     utf16[s16idx++] = 0;
 }
 
+struct {
+  Guid type;
+  char *name;
+  char *description;
+} supported_types[] = {
+ {GPT_ENT_TYPE_UNUSED, "unused", "Unused partition"},
+ {GPT_ENT_TYPE_EFI, "efi", "EFI partition"},
+ {GPT_ENT_TYPE_CHROMEOS_KERNEL, "croskern", "ChromeOS kernel"},
+ {GPT_ENT_TYPE_CHROMEOS_ROOTFS, "crosroot", "ChromeOS rootfs"},
+ {GPT_ENT_TYPE_CHROMEOS_RESERVED, "crosresv", "ChromeOS reserved"},
+};
+
+/* Resolves human-readable GPT type.
+ * Returns CGPT_OK if found.
+ * Returns CGPT_FAILED if no known type found. */
+int ResolveType(const Guid *type, char *buf) {
+  int i;
+  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
+    if (!Memcmp(type, &supported_types[i].type, sizeof(Guid))) {
+      strcpy(buf, supported_types[i].description);
+      return CGPT_OK;
+    }
+  }
+  return CGPT_FAILED;
+}
+
+int SupportedType(const char *name, Guid *type) {
+  int i;
+  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
+    if (!strcmp(name, supported_types[i].name)) {
+      Memcpy(type, &supported_types[i].type, sizeof(Guid));
+      return CGPT_OK;
+    }
+  }
+  return CGPT_FAILED;
+}
+
+void PrintTypes(void) {
+  int i;
+  printf("\n* For --type option, you can use the following alias, "
+         "instead of hex values:\n");
+  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
+    printf("  %-10s %s\n", supported_types[i].name,
+                          supported_types[i].description);
+  }
+  printf("\n");
+}
+
 /* Loads sectors from 'fd'.
  * *buf is pointed to an allocated memory when returned, and should be
  * freed by cgpt_close().
@@ -267,7 +323,7 @@ int CheckValid(const struct drive *drive) {
   if ((drive->gpt.valid_headers != MASK_BOTH) ||
       (drive->gpt.valid_entries != MASK_BOTH)) {
     printf("\n[ERROR] any of GPT header/entries is invalid, "
-           "please run --repair first\n");
+           "please run '%s repair' first\n", progname);
     return CGPT_FAILED;
   }
   return CGPT_OK;
@@ -316,9 +372,6 @@ int DriveOpen(const char *drive_path, struct drive *drive) {
     goto error_close;
   }
   drive->gpt.drive_sectors = drive->size / drive->gpt.sector_bytes;
-  debug("drive: size:%llu sector_size:%d num_sector:%llu\n",
-        (long long unsigned int)drive->size, drive->gpt.sector_bytes,
-        (long long unsigned int)drive->gpt.drive_sectors);
 
   Load(drive->fd, &drive->gpt.primary_header, GPT_PMBR_SECTOR,
        drive->gpt.sector_bytes, GPT_HEADER_SECTOR);
@@ -390,6 +443,7 @@ int main(int argc, char *argv[]) {
   int i;
 
   progname = argv[0];
+  printf("Copyright (c) 2010 The Chromium OS Authors. All rights reserved.\n");
   cmd = argv[optind++];
   for (i = 0; i < sizeof(cmds)/sizeof(cmds[0]); ++i) {
     if (cmd && !strcmp(cmds[i].name, cmd))

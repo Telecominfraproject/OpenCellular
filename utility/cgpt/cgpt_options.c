@@ -5,6 +5,7 @@
  * Update GPT attribute bits.
  */
 #include <getopt.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "cgpt.h"
@@ -16,6 +17,12 @@ int AssignTrue(const char *argument, void *pointer, void *integer) {
   return CGPT_OK;
 }
 
+/* Special validator. Copy string to 'parsed' with max 'valid_range' bytes. */
+int CopyString(const char *argument, void *max_len, void *dst) {
+  Memcpy(dst, argument, (intptr_t)max_len);
+  return CGPT_OK;
+}
+
 /* Validator function. Returns 1 if 'argument' is between 'max' and 'min'
  * in 'valid_range'. */
 int InNumberRange(const char *argument, void *valid_range, void *parsed) {
@@ -23,23 +30,27 @@ int InNumberRange(const char *argument, void *valid_range, void *parsed) {
   char *endptr;
   int number;
 
-  assert(valid_range);
-
   number = strtol(argument, &endptr, 10);
   if (*endptr) {
     printf("[ERROR] argument '%s' is not a number.\n", argument);
     return CGPT_FAILED;
   }
 
-  if (number < range->min) {
-    printf("[ERROR] argument is too small (min is %d, but you gave: %d).\n",
-           range->min, number);
-    return CGPT_FAILED;
-  } else if (number > range->max) {
-    printf("[ERROR] argument is too large (max is %d, but you gave: %d).\n",
-           range->max, number);
-    return CGPT_FAILED;
+  if (range) {
+    if (number < range->min) {
+      printf("[ERROR] argument is too small (min is %d, but you gave: %d).\n",
+             range->min, number);
+      return CGPT_FAILED;
+    } else if (number > range->max) {
+      printf("[ERROR] argument is too large (max is %d, but you gave: %d).\n",
+             range->max, number);
+      return CGPT_FAILED;
+    } else {
+      if (parsed) *(int*)parsed = number;
+      return CGPT_OK;
+    }
   } else {
+    /* no range to check, assign integer. */
     if (parsed) *(int*)parsed = number;
     return CGPT_OK;
   }
@@ -51,6 +62,7 @@ void ShowOptions(const struct option *opts,
   int i;
   for (i = 0; i < num; ++i) {
     char buf[32];
+    if (!opts[i].name) break;
     snprintf(buf, sizeof(buf), "--%s %s", opts[i].name,
                                           opts[i].has_arg ? "ARG" : "");
     printf("  %-20s (-%c)  %s\n", buf, opts[i].val, details[i].comment);
@@ -76,6 +88,14 @@ int HandleOptions(const int argc,
       break;
     } else if (option == 0) {
       /* option 'val' has been saved in 'flag'. We do nothing here. */
+    } else if (option == ':') {
+      printf("[ERROR] Missing parameter for option.\n");
+      ShowOptions(options, details, option_count);
+      return CGPT_FAILED;
+    } else if (option == '?') {
+      printf("[ERROR] unknown option name: %s\n", argv[optind - 1]);
+      ShowOptions(options, details, option_count);
+      return CGPT_FAILED;
     } else {
       /* Short option doesn't update 'index'. We search whole array to find out
        * the corresponding long option. */

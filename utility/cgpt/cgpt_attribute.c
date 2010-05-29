@@ -27,6 +27,7 @@ static struct option attribute_options[] = {
   {.name = "successful", .has_arg = required_argument, .flag = 0, .val = 's'},
   {.name = "tries", .has_arg = required_argument, .flag = 0, .val = 't'},
   {.name = "priority", .has_arg = required_argument, .flag = 0, .val = 'p'},
+  { /* last element, which should be zero. */ }
 };
 
 /* Extra information than struct option, please update this structure if you
@@ -63,6 +64,7 @@ static struct option_details attribute_options_details[] = {
     .validator = InNumberRange,
     .valid_range = &range_15_0,
     .parsed = &priority},
+  { /* last element, which should be zero. */ }
 };
 
 void AttributeHelp() {
@@ -100,8 +102,6 @@ int CgptAttribute(int argc, char *argv[]) {
     return CGPT_FAILED;
 
   if (CheckValid(&drive) != CGPT_OK) return CGPT_FAILED;
-
-  debug("[OPTION] i:%d b:%d s:%d t:%d p:%d\n", partition, bad, successful, tries, priority);  /* FIXME */
 
   /* partition is not specified, search for the first Chromeos kernel. */
   if (partition == NOT_INITED) {

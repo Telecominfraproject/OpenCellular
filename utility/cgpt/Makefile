@@ -10,7 +10,8 @@ LIBS += $(FWLIB)
 
 all: cgpt
 
-cgpt: cgpt.o cgpt_attribute.o cgpt_options.o cgpt_repair.o cgpt_show.o $(LIBS)
+cgpt: cgpt.o cgpt_add_modify_delete.o cgpt_attribute.o cgpt_dev.o \
+      cgpt_options.o cgpt_repair.o cgpt_show.o $(LIBS)
 	$(CC) -o cgpt $(CFLAGS) $^
 
 .c.o: $(INCLUDES)

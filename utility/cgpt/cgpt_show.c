@@ -2,7 +2,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Update GPT attribute bits.
+ * Show GPT details.
  */
 #include <getopt.h>
 #include <stdio.h>
@@ -20,6 +20,7 @@ static struct option show_options[] = {
   {.name = "help", .has_arg = no_argument, .flag = 0, .val = 'h'},
   {.name = "number", .has_arg = no_argument, .flag = 0, .val = 'n'},
   {.name = "verbose", .has_arg = no_argument, .flag = 0, .val = 'v'},
+  { /* last element, which should be zero. */ }
 };
 
 /* Extra information than struct option, please update this structure if you
@@ -40,6 +41,7 @@ static struct option_details show_options_details[] = {
     .validator = AssignTrue,
     .valid_range = 0,
     .parsed = &verbose},
+  { /* last element, which should be zero. */ }
 };
 
 void ShowHelp() {
@@ -119,31 +121,6 @@ static void HeaderDetails(GptHeader *header, const char *indent) {
   printf("%sNumber of entries: %d\n", indent, header->number_of_entries);
   printf("%sSize of entry: %d\n", indent, header->size_of_entry);
   printf("%sEntries CRC: 0x%08x\n", indent, header->entries_crc32);
-}
-
-/* Resolves human-readable GPT type.
- * Returns CGPT_OK if found.
- * Returns CGPT_FAILED if no known type found. */
-int ResolveType(const Guid *type, char *buf) {
-  struct {
-    Guid type;
-    char *description;
-  } known[] = {
-   {GPT_ENT_TYPE_UNUSED, "Unused partition"},
-   {GPT_ENT_TYPE_EFI, "EFI partition"},
-   {GPT_ENT_TYPE_CHROMEOS_KERNEL, "ChromeOS kernel"},
-   {GPT_ENT_TYPE_CHROMEOS_ROOTFS, "ChromeOS rootfs"},
-   {GPT_ENT_TYPE_CHROMEOS_RESERVED, "ChromeOS reserved"},
-  };
-  int i;
-
-  for (i = 0; i < ARRAY_COUNT(known); ++i) {
-    if (!Memcmp(type, &known[i].type, sizeof(Guid))) {
-      strcpy(buf, known[i].description);
-      return CGPT_OK;
-    }
-  }
-  return CGPT_FAILED;
 }
 
 void EntriesDetails(GptData *gpt, const int secondary) {
@@ -236,6 +213,7 @@ int CgptShow(int argc, char *argv[]) {
     return CGPT_FAILED;
   }
 
+  OpenDriveInLastArgument(argc, argv, &drive);
   if (CGPT_OK != OpenDriveInLastArgument(argc, argv, &drive))
     return CGPT_FAILED;
 

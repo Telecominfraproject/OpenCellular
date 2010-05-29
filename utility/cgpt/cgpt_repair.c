@@ -20,6 +20,7 @@ static int help;
  * attribute_comments[] and third parameter of getopt_long() too.  */
 static struct option repair_options[] = {
   {.name = "help", .has_arg = no_argument, .flag = 0, .val = 'h'},
+  { /* last element, which should be zero. */ }
 };
 
 /* Extra information than struct option, please update this structure if you
@@ -30,6 +31,7 @@ static struct option_details repair_options_details[] = {
     .validator = AssignTrue,
     .valid_range = 0,
     .parsed = &help},
+  { /* last element, which should be zero. */ }
 };
 
 void RepairHelp() {

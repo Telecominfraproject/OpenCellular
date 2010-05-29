@@ -51,13 +51,15 @@ struct option_details {
  * i.e. help, to indicate the option is present. */
 int AssignTrue(const char *argument, void *pointer, void *integer);
 
+/* Special validator. Copy string to 'parsed' with max 'valid_range' bytes. */
+int CopyString(const char *argument, void *max_len, void *dst);
+
+/* Validator function. Returns 1 if 'argument' is between 'max' and 'min'
+ * in 'valid_range'. */
 struct number_range {
   int max;
   int min;
 };
-
-/* Validator function. Returns 1 if 'argument' is between 'max' and 'min'
- * in 'valid_range'. */
 int InNumberRange(const char *argument, void *valid_range, void *parsed);
 
 void ShowOptions(const struct option *opts,
@@ -97,7 +99,7 @@ int OpenDriveInLastArgument(const int argc,
  * '\0').
  */
 #define GUID_STRLEN 37
-void StrToGuid(const char *str, Guid *guid);
+int StrToGuid(const char *str, Guid *guid);
 void GuidToStr(const Guid *guid, char *str);
 
 /* Convert UTF16 string to UTF8. Rewritten from gpt utility.
@@ -112,6 +114,11 @@ void UTF16ToUTF8(const uint16_t *utf16, uint8_t *utf8);
  *   utf16 bytecount = bytecount(utf8) / 3 * 4
  */
 void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16);
+
+/* Helper functions for supported GPT types. */
+int ResolveType(const Guid *type, char *buf);
+int SupportedType(const char *name, Guid *type);
+void PrintTypes(void);
 
 /* Describes the drive storing the GPT. */
 struct drive {
@@ -140,7 +147,9 @@ int CheckValid(const struct drive *drive);
 
 /* Function declarations for commands.
  * The return value of these functions is passed to main()'s exit value. */
+int CgptAdm(int argc, char *argv[]);
 int CgptAttribute(int argc, char *argv[]);
+int CgptDev(int argc, char *argv[]);
 int CgptRepair(int argc, char *argv[]);
 int CgptShow(int argc, char *argv[]);
 
