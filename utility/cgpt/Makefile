@@ -8,6 +8,8 @@ INCLUDES += -I$(TOP)/common/include -I$(TOP)/../../../chroot/usr/include/
 CFLAGS += -Wall -Werror -ggdb
 LIBS += $(FWLIB)
 
+DESTDIR ?= /opt/bin
+
 all: cgpt
 
 cgpt: cgpt.o cgpt_add_modify_delete.o cgpt_attribute.o cgpt_dev.o \
@@ -18,3 +20,8 @@ cgpt: cgpt.o cgpt_add_modify_delete.o cgpt_attribute.o cgpt_dev.o \
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 clean:
 	rm -f cgpt *.o *~
+
+install: cgpt
+	mkdir -p $(DESTDIR)
+	cp -f $^ $(DESTDIR)
+	chmod a+rx $(patsubst %,$(DESTDIR)/%,$^)

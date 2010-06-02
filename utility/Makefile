@@ -20,6 +20,8 @@ LIBS = $(TOP)/misclibs/file_keys.o \
 	$(TOP)/vkernel/kernel_image.o
 SUBDIRS = cgpt
 
+DESTDIR ?= /opt/bin
+
 TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
 		gbb_utility \
@@ -33,7 +35,7 @@ all: $(TARGET_BINS) subdirs
 subdirs:
 	set -e; \
 	for i in $(SUBDIRS); do \
-		$(MAKE) -C $$i; \
+		$(MAKE) -C $$i $(MAKECMDGOALS); \
 	done
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
@@ -63,7 +65,7 @@ clean:
 	done
 	rm -f $(TARGET_BINS)
 
-install: $(TARGET_BINS)
+install: $(TARGET_BINS) subdirs
 	mkdir -p $(DESTDIR)
-	cp -f $^ $(DESTDIR)
-	chmod a+rx $(patsubst %,$(DESTDIR)/%,$^)
+	cp -f $(TARGET_BINS) $(DESTDIR)
+	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_BINS))
