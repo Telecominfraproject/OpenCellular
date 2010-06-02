@@ -14,6 +14,46 @@
 #include "rollback_index.h"
 #include "utility.h"
 
+#define GPT_ENTRIES_SIZE 16384 /* Bytes to read for GPT entries */
+
+// TODO: for testing
+#include <stdio.h>
+#include "cgptlib_internal.h"
+
+/* TODO: Remove this terrible hack which fakes partition attributes
+ * for the kernel partitions so that GptNextKernelEntry() won't
+ * choke. */
+void FakePartitionAttributes(GptData* gpt) {
+  GptEntry* entries = (GptEntry*)gpt->primary_entries;
+  GptEntry* e;
+  int i;
+  printf("Hacking partition attributes...\n");
+  printf("Note that GUIDs below have first 3 fields endian-swapped\n");
+
+  for (i = 0, e = entries; i < 12; i++, e++) {
+
+    printf("%2d %08x %04x %04x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+           i,
+           e->type.u.Uuid.time_low,
+           e->type.u.Uuid.time_mid,
+           e->type.u.Uuid.time_high_and_version,
+           e->type.u.Uuid.clock_seq_high_and_reserved,
+           e->type.u.Uuid.clock_seq_low,
+           e->type.u.Uuid.node[0],
+           e->type.u.Uuid.node[1],
+           e->type.u.Uuid.node[2],
+           e->type.u.Uuid.node[3],
+           e->type.u.Uuid.node[4],
+           e->type.u.Uuid.node[5]
+           );
+    if (!IsKernelEntry(e))
+      continue;
+    printf("Hacking attributes for kernel partition %d\n", i);
+    SetEntryPriority(e, 2);
+    SetEntrySuccessful(e, 1);
+  }
+}
+
 
 int AllocAndReadGptData(GptData *gptdata) {
   /* Allocates and reads GPT data from the drive.  The sector_bytes and
@@ -22,7 +62,7 @@ int AllocAndReadGptData(GptData *gptdata) {
    *
    * Returns 0 if successful, 1 if error. */
 
-  uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+  uint64_t entries_sectors = GPT_ENTRIES_SIZE / gptdata->sector_bytes;
 
   /* No data to be written yet */
   gptdata->modified = 0;
@@ -30,22 +70,22 @@ int AllocAndReadGptData(GptData *gptdata) {
   /* Allocate all buffers */
   gptdata->primary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
   gptdata->secondary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
-  gptdata->primary_entries = (uint8_t*)Malloc(TOTAL_ENTRIES_SIZE);
-  gptdata->secondary_entries = (uint8_t*)Malloc(TOTAL_ENTRIES_SIZE);
+  gptdata->primary_entries = (uint8_t*)Malloc(GPT_ENTRIES_SIZE);
+  gptdata->secondary_entries = (uint8_t*)Malloc(GPT_ENTRIES_SIZE);
 
   if (gptdata->primary_header == NULL || gptdata->secondary_header == NULL ||
       gptdata->primary_entries == NULL || gptdata->secondary_entries == NULL)
     return 1;
 
-  /* Read data from the drive */
-  if (0 != BootDeviceReadLBA(0, 1, gptdata->primary_header))
+  /* Read data from the drive, skipping the protective MBR */
+  if (0 != BootDeviceReadLBA(1, 1, gptdata->primary_header))
     return 1;
-  if (0 != BootDeviceReadLBA(1, entries_sectors, gptdata->primary_entries))
+  if (0 != BootDeviceReadLBA(2, entries_sectors, gptdata->primary_entries))
     return 1;
   if (0 != BootDeviceReadLBA(gptdata->drive_sectors - entries_sectors - 1,
                              entries_sectors, gptdata->secondary_entries))
     return 1;
-  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - entries_sectors - 1,
+  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - 1,
                              1, gptdata->secondary_header))
     return 1;
 
@@ -56,17 +96,17 @@ void WriteAndFreeGptData(GptData *gptdata) {
   /* Writes any changes for the GPT data back to the drive, then frees the
    * buffers. */
 
-  uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+  uint64_t entries_sectors = GPT_ENTRIES_SIZE / gptdata->sector_bytes;
 
   if (gptdata->primary_header) {
     if (gptdata->modified & GPT_MODIFIED_HEADER1)
-      BootDeviceWriteLBA(0, 1, gptdata->primary_header);
+      BootDeviceWriteLBA(1, 1, gptdata->primary_header);
     Free(gptdata->primary_header);
   }
 
   if (gptdata->primary_entries) {
     if (gptdata->modified & GPT_MODIFIED_ENTRIES1)
-      BootDeviceWriteLBA(1, entries_sectors, gptdata->primary_entries);
+      BootDeviceWriteLBA(2, entries_sectors, gptdata->primary_entries);
     Free(gptdata->primary_entries);
   }
 
@@ -81,8 +121,9 @@ void WriteAndFreeGptData(GptData *gptdata) {
     if (gptdata->modified & GPT_MODIFIED_HEADER2)
       BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
                          1, gptdata->secondary_header);
-      BootDeviceWriteLBA(0, 1, gptdata->primary_header);
-    Free(gptdata->primary_header);
+      BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
+                         gptdata->secondary_header);
+    Free(gptdata->secondary_header);
   }
   /* TODO: What to do with return codes from the writes? */
 }
@@ -112,6 +153,7 @@ int LoadKernel(LoadKernelParams* params) {
   GetStoredVersions(KERNEL_VERSIONS,
                     &tpm_kernel_key_version,
                     &tpm_kernel_version);
+
   do {
     /* Read GPT data */
     gpt.sector_bytes = blba;
@@ -119,23 +161,33 @@ int LoadKernel(LoadKernelParams* params) {
     if (0 != AllocAndReadGptData(&gpt))
       break;
 
+    fprintf(stderr, "RRS1\n");
+
     /* Initialize GPT library */
     if (GPT_SUCCESS != GptInit(&gpt))
       break;
+
+    /* TODO: TERRIBLE KLUDGE - fake partition attributes */
+    FakePartitionAttributes(&gpt);
 
     /* Allocate kernel header and image work buffers */
     kbuf = (uint8_t*)Malloc(KBUF_SIZE);
     if (!kbuf)
       break;
+
     kbuf_sectors = KBUF_SIZE / blba;
     kim = (KernelImage*)Malloc(sizeof(KernelImage));
     if (!kim)
       break;
 
+    fprintf(stderr, "RRS2\n");
+
     /* Loop over candidate kernel partitions */
     while (GPT_SUCCESS == GptNextKernelEntry(&gpt, &part_start, &part_size)) {
       RSAPublicKey *kernel_sign_key = NULL;
       int kernel_start, kernel_sectors;
+
+      fprintf(stderr, "RRS3\n");
 
       /* Found at least one kernel partition. */
       found_partition = 1;
@@ -143,8 +195,10 @@ int LoadKernel(LoadKernelParams* params) {
       /* Read the first part of the kernel partition  */
       if (part_size < kbuf_sectors)
         continue;
-      if (1 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf))
+      if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf))
         continue;
+
+      fprintf(stderr, "RRS4\n");
 
       /* Verify the kernel header and preamble */
       if (VERIFY_KERNEL_SUCCESS != VerifyKernelHeader(
@@ -156,6 +210,8 @@ int LoadKernel(LoadKernelParams* params) {
               &kernel_sign_key)) {
         continue;
       }
+
+      fprintf(stderr, "RRS5\n");
 
       /* Check for rollback of key version */
       if (kim->kernel_key_version < tpm_kernel_key_version) {

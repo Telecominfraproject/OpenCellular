@@ -42,7 +42,7 @@ big_firmware_tests: big_firmware_tests.c rollback_index_mock.c test_common.c
 big_kernel_tests: big_kernel_tests.c rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-cgptlib_test: cgptlib_test.c quick_sort_test.c crc32_test.c
+cgptlib_test: cgptlib_test.c crc32_test.c
 	$(CC) $(CFLAGS) -ansi $(INCLUDES) $^ -o $@ $(LIBS)
 
 firmware_image_tests: firmware_image_tests.c rollback_index_mock.c test_common.c

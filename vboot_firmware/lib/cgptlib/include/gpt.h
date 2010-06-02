@@ -16,16 +16,33 @@
 #define GPT_HEADER_SIGNATURE_SIZE sizeof(GPT_HEADER_SIGNATURE)
 #define GPT_HEADER_REVISION 0x00010000
 
-#define GPT_ENT_TYPE_EFI \
-  {{{0xc12a7328,0xf81f,0x11d2,0xba,0x4b,{0x00,0xa0,0xc9,0x3e,0xc9,0x3b}}}}
+/* The first 3 numbers should be stored in network-endian format
+ * according to the GUID RFC.  The UEFI spec appendix A claims they
+ * should be stored in little-endian format.  But they need to be
+ * _displayed_ in network-endian format, which is also how they're
+ * documented in the specs.
+ *
+ * Since what we have here are little-endian constants, they're
+ * byte-swapped from the normal display order. */
 #define GPT_ENT_TYPE_UNUSED \
   {{{0x00000000,0x0000,0x0000,0x00,0x00,{0x00,0x00,0x00,0x00,0x00,0x00}}}}
+/* Hey, that one's right regardless of endianness... */
+
+#define GPT_ENT_TYPE_EFI \
+  {{{0x28732ac1,0x1ff8,0xd211,0xba,0x4b,{0x00,0xa0,0xc9,0x3e,0xc9,0x3b}}}}
+/* c12a7328-f81f-11d2-ba4b-00a0c93ec93b */
+
 #define GPT_ENT_TYPE_CHROMEOS_KERNEL \
-  {{{0xfe3a2a5d,0x4f32,0x41a7,0xb7,0x25,{0xac,0xcc,0x32,0x85,0xa3,0x09}}}}
+  {{{0x5d2a3afe,0x324f,0xa741,0xb7,0x25,{0xac,0xcc,0x32,0x85,0xa3,0x09}}}}
+/* FE3A2A5D-4F32-41A7-B725-ACCC3285A309 */
+
 #define GPT_ENT_TYPE_CHROMEOS_ROOTFS \
-  {{{0x3cb8e202,0x3b7e,0x47dd,0x8a,0x3c,{0x7f,0xf2,0xa1,0x3c,0xfc,0xec}}}}
+  {{{0x02e2b83c,0x7e3b,0xdd47,0x8a,0x3c,{0x7f,0xf2,0xa1,0x3c,0xfc,0xec}}}}
+/* 3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC */
+
 #define GPT_ENT_TYPE_CHROMEOS_RESERVED \
-  {{{0x2e0a753d,0x9e48,0x43b0,0x83,0x37,{0xb1,0x51,0x92,0xcb,0x1b,0x5e}}}}
+  {{{0x3d750a2e,0x489e,0xb043,0x83,0x37,{0xb1,0x51,0x92,0xcb,0x1b,0x5e}}}}
+/* 2e0a753d-9e48-43b0-8337-b15192cb1b5e */
 
 #define UUID_NODE_LEN 6
 #define GUID_SIZE 16
@@ -69,7 +86,7 @@ typedef struct {
   uint32_t number_of_entries;
   uint32_t size_of_entry;
   uint32_t entries_crc32;
-  uint32_t padding;  /* since header size must be a multiple of 8, pad here. */
+  uint8_t padding[512 - 92]; /* Pad to end of sector */
 } GptHeader;
 
 /* GPT partition entry defines the starting and ending LBAs of a partition.

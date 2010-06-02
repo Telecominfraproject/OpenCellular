@@ -3,14 +3,14 @@
  * found in the LICENSE file.
  */
 
-#include "cgptlib_test.h"
 #include <string.h>
+
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
+#include "cgptlib_test.h"
 #include "crc32.h"
 #include "crc32_test.h"
 #include "gpt.h"
-#include "quick_sort_test.h"
 #include "utility.h"
 
 /* Testing partition layout (sector_bytes=512)
@@ -29,19 +29,26 @@
  *     467
  */
 #define KERNEL_A 0
-#define ROOTFS_A 1
-#define ROOTFS_B 2
-#define KERNEL_B 3
+#define KERNEL_B 1
+#define ROOTFS_A 2
+#define ROOTFS_B 3
+#define KERNEL_X 2 /* Overload ROOTFS_A, for some GetNext tests */
+#define KERNEL_Y 3 /* Overload ROOTFS_B, for some GetNext tests */
 
 #define DEFAULT_SECTOR_SIZE 512
 #define MAX_SECTOR_SIZE 4096
 #define DEFAULT_DRIVE_SECTORS 467
 #define PARTITION_ENTRIES_SIZE TOTAL_ENTRIES_SIZE /* 16384 */
 
+static const Guid guid_zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
+static const Guid guid_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
+static const Guid guid_rootfs = GPT_ENT_TYPE_CHROMEOS_ROOTFS;
+
+
 /* Given a GptData pointer, first re-calculate entries CRC32 value,
  * then reset header CRC32 value to 0, and calculate header CRC32 value.
  * Both primary and secondary are updated. */
-void RefreshCrc32(GptData *gpt) {
+static void RefreshCrc32(GptData* gpt) {
   GptHeader *header, *header2;
   GptEntry *entries, *entries2;
 
@@ -62,25 +69,29 @@ void RefreshCrc32(GptData *gpt) {
   header2->header_crc32 = Crc32((uint8_t*)header2, header2->size);
 }
 
-void ZeroHeaders(GptData* gpt) {
+
+static void ZeroHeaders(GptData* gpt) {
   Memset(gpt->primary_header, 0, MAX_SECTOR_SIZE);
   Memset(gpt->secondary_header, 0, MAX_SECTOR_SIZE);
 }
 
-void ZeroEntries(GptData* gpt) {
+
+static void ZeroEntries(GptData* gpt) {
   Memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
   Memset(gpt->secondary_entries, 0, PARTITION_ENTRIES_SIZE);
 }
 
-void ZeroHeadersEntries(GptData* gpt) {
+
+static void ZeroHeadersEntries(GptData* gpt) {
   ZeroHeaders(gpt);
   ZeroEntries(gpt);
 }
 
+
 /* Returns a pointer to a static GptData instance (no free is required).
  * All fields are zero except 4 pointers linking to header and entries.
  * All content of headers and entries are zero. */
-GptData* GetEmptyGptData() {
+static GptData* GetEmptyGptData() {
   static GptData gpt;
   static uint8_t primary_header[MAX_SECTOR_SIZE];
   static uint8_t primary_entries[PARTITION_ENTRIES_SIZE];
@@ -100,12 +111,13 @@ GptData* GetEmptyGptData() {
   return &gpt;
 }
 
+
 /* Fills in most of fields and creates the layout described in the top of this
  * file. Before calling this function, primary/secondary header/entries must
  * have been pointed to the buffer, say, a gpt returned from GetEmptyGptData().
  * This function returns a good (valid) copy of GPT layout described in top of
  * this file. */
-void BuildTestGptData(GptData *gpt) {
+static void BuildTestGptData(GptData* gpt) {
   GptHeader *header, *header2;
   GptEntry *entries, *entries2;
   Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
@@ -116,15 +128,18 @@ void BuildTestGptData(GptData *gpt) {
   gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
   gpt->valid_headers = MASK_BOTH;
   gpt->valid_entries = MASK_BOTH;
+  gpt->modified = 0;
 
   /* build primary */
   header = (GptHeader*)gpt->primary_header;
   entries = (GptEntry*)gpt->primary_entries;
-  Memcpy(header->signature, GPT_HEADER_SIGNATURE, sizeof(GPT_HEADER_SIGNATURE));
+  Memcpy(header->signature, GPT_HEADER_SIGNATURE,
+         sizeof(GPT_HEADER_SIGNATURE));
   header->revision = GPT_HEADER_REVISION;
   header->size = sizeof(GptHeader) - sizeof(header->padding);
   header->reserved = 0;
   header->my_lba = 1;
+  header->alternate_lba = DEFAULT_DRIVE_SECTORS - 1;
   header->first_usable_lba = 34;
   header->last_usable_lba = DEFAULT_DRIVE_SECTORS - 1 - 32 - 1;  /* 433 */
   header->entries_lba = 2;
@@ -135,14 +150,14 @@ void BuildTestGptData(GptData *gpt) {
   entries[0].ending_lba = 133;
   Memcpy(&entries[1].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
   entries[1].starting_lba = 134;
-  entries[1].ending_lba = 233;
+  entries[1].ending_lba = 232;
   Memcpy(&entries[2].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
   entries[2].starting_lba = 234;
-  entries[2].ending_lba = 333;
+  entries[2].ending_lba = 331;
   Memcpy(&entries[3].type, &chromeos_kernel, sizeof(chromeos_kernel));
   entries[3].starting_lba = 334;
-  entries[3].ending_lba = 433;
-  header->padding = 0;
+  entries[3].ending_lba = 430;
+  Memset(header->padding, 0, sizeof(header->padding));
 
   /* build secondary */
   header2 = (GptHeader*)gpt->secondary_header;
@@ -150,56 +165,30 @@ void BuildTestGptData(GptData *gpt) {
   Memcpy(header2, header, sizeof(GptHeader));
   Memcpy(entries2, entries, PARTITION_ENTRIES_SIZE);
   header2->my_lba = DEFAULT_DRIVE_SECTORS - 1;  /* 466 */
+  header2->alternate_lba = 1;
   header2->entries_lba = DEFAULT_DRIVE_SECTORS - 1 - 32;  /* 434 */
 
   RefreshCrc32(gpt);
 }
 
-/* Dumps memory starting from [vp] with [len] bytes.
- * Prints [memo] if not NULL. Example output:
- *
- *  00 01 02 03 04 05 06 07 - 08 09 0a 0b 0c 0d 0e 0f
- *  10 11 12 13 14 15 16 17 - 18 19 1a 1b 1c 1d 1e 1f
- *  ...
- */
-static void Dump(void *vp, int len, char* memo) {
-  uint8_t *start = vp;
-  int i;
-  if (memo) printf("--[%s]----------\n", memo);
-  for (i = 0; i < len; ++i) {
-    printf("%02x%s", start[i],
-                     (!(~i & 15) ? "\n" :
-                      !(~i & 7) ? " - ": " "));
-  }
-  if (i&15) printf("\n");
-}
-
-/* More formatted dump with GptData. */
-void DumpGptData(GptData *gpt) {
-  printf("DumpGptData(%p)...\n", gpt);
-  Dump(gpt, sizeof(gpt), NULL);
-  Dump(gpt->primary_header, sizeof(GptHeader), "Primary header");
-  Dump(gpt->primary_entries, sizeof(GptEntry) * 8, "Primary entries");
-  Dump(gpt->secondary_header, sizeof(GptHeader), "Secondary header");
-  Dump(gpt->secondary_entries, sizeof(GptEntry) * 8,
-       "Secondary entries");
-}
 
 /* Tests if the default structure returned by BuildTestGptData() is good. */
-int TestBuildTestGptData() {
-  GptData *gpt;
+static int TestBuildTestGptData() {
+  GptData* gpt;
+
   gpt = GetEmptyGptData();
   BuildTestGptData(gpt);
   EXPECT(GPT_SUCCESS == GptInit(gpt));
   return TEST_OK;
 }
 
+
 /* Tests if wrong sector_bytes or drive_sectors is detected by GptInit().
  * Currently we only support 512 bytes per sector.
  * In the future, we may support other sizes.
  * A too small drive_sectors should be rejected by GptInit(). */
-int ParameterTests() {
-  GptData *gpt;
+static int ParameterTests() {
+  GptData* gpt;
   struct {
     uint32_t sector_bytes;
     uint64_t drive_sectors;
@@ -226,316 +215,287 @@ int ParameterTests() {
   return TEST_OK;
 }
 
+
+/* Tests if header CRC in two copies are calculated. */
+static int HeaderCrcTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+
+  BuildTestGptData(gpt);
+  EXPECT(HeaderCrc(h1) == h1->header_crc32);
+
+  /* CRC covers first byte of header */
+  BuildTestGptData(gpt);
+  gpt->primary_header[0] ^= 0xa5;
+  EXPECT(HeaderCrc(h1) != h1->header_crc32);
+
+  /* CRC covers last byte of header */
+  BuildTestGptData(gpt);
+  gpt->primary_header[h1->size - 1] ^= 0x5a;
+  EXPECT(HeaderCrc(h1) != h1->header_crc32);
+
+  /* CRC only covers header */
+  BuildTestGptData(gpt);
+  gpt->primary_header[h1->size] ^= 0x5a;
+  EXPECT(HeaderCrc(h1) == h1->header_crc32);
+
+  return TEST_OK;
+}
+
+
 /* Tests if signature ("EFI PART") is checked. */
-int SignatureTest() {
+static int SignatureTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
   int i;
-  GptData *gpt;
-  int test_mask;
-  GptHeader *headers[2];
 
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
-
-  for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-    for (i = 0; i < 8; ++i) {
-      BuildTestGptData(gpt);
-      if (test_mask & MASK_PRIMARY)
-        headers[PRIMARY]->signature[i] ^= 0xff;
-      if (test_mask & MASK_SECONDARY)
-        headers[SECONDARY]->signature[i] ^= 0xff;
-      EXPECT((MASK_BOTH ^ test_mask) == CheckHeaderSignature(gpt));
-    }
+  for (i = 0; i < 8; ++i) {
+    BuildTestGptData(gpt);
+    h1->signature[i] ^= 0xff;
+    h2->signature[i] ^= 0xff;
+    RefreshCrc32(gpt);
+    EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+    EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
   }
 
   return TEST_OK;
 }
+
 
 /* The revision we currently support is GPT_HEADER_REVISION.
  * If the revision in header is not that, we expect the header is invalid. */
-int RevisionTest() {
-  GptData *gpt;
+static int RevisionTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
+  int i;
+
   struct {
     uint32_t value_to_test;
-    int is_valid_value;
+    int expect_rv;
   } cases[] = {
-    {0x01000000, 0},
-    {0x00010000, 1},  /* GPT_HEADER_REVISION */
-    {0x00000100, 0},
-    {0x00000001, 0},
-    {0x23010456, 0},
+    {0x01000000, 1},
+    {0x00010000, 0},  /* GPT_HEADER_REVISION */
+    {0x00000100, 1},
+    {0x00000001, 1},
+    {0x23010456, 1},
   };
-  int i;
-  int test_mask;
-  GptHeader *headers[2];
-  uint32_t valid_headers;
-
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
 
   for (i = 0; i < ARRAY_SIZE(cases); ++i) {
-    for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-      BuildTestGptData(gpt);
-      if (test_mask & MASK_PRIMARY)
-        headers[PRIMARY]->revision = cases[i].value_to_test;
-      if (test_mask & MASK_SECONDARY)
-        headers[SECONDARY]->revision = cases[i].value_to_test;
-      valid_headers = CheckRevision(gpt);
-      if (cases[i].is_valid_value)
-        EXPECT(MASK_BOTH == valid_headers);
-      else
-        EXPECT((MASK_BOTH ^ test_mask) == valid_headers);
-    }
+    BuildTestGptData(gpt);
+    h1->revision = cases[i].value_to_test;
+    h2->revision = cases[i].value_to_test;
+    RefreshCrc32(gpt);
+
+    EXPECT(CheckHeader(h1, 0, gpt->drive_sectors) == cases[i].expect_rv);
+    EXPECT(CheckHeader(h2, 1, gpt->drive_sectors) == cases[i].expect_rv);
   }
   return TEST_OK;
 }
 
-int SizeTest() {
-  GptData *gpt;
+
+static int SizeTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
+  int i;
+
   struct {
     uint32_t value_to_test;
-    int is_valid_value;
+    int expect_rv;
   } cases[] = {
-    {91, 0},
-    {92, 1},
-    {93, 1},
-    {511, 1},
-    {512, 1},
-    {513, 0},
+    {91, 1},
+    {92, 0},
+    {93, 0},
+    {511, 0},
+    {512, 0},
+    {513, 1},
   };
-  int i;
-  int test_mask;
-  GptHeader *headers[2];
-  uint32_t valid_headers;
-
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
 
   for (i = 0; i < ARRAY_SIZE(cases); ++i) {
-    for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-      BuildTestGptData(gpt);
-      if (test_mask & MASK_PRIMARY)
-        headers[PRIMARY]->size = cases[i].value_to_test;
-      if (test_mask & MASK_SECONDARY)
-        headers[SECONDARY]->size = cases[i].value_to_test;
-      valid_headers = CheckSize(gpt);
-      if (cases[i].is_valid_value)
-        EXPECT(MASK_BOTH == valid_headers);
-      else
-        EXPECT((MASK_BOTH ^ test_mask) == valid_headers);
-    }
+    BuildTestGptData(gpt);
+    h1->size = cases[i].value_to_test;
+    h2->size = cases[i].value_to_test;
+    RefreshCrc32(gpt);
+
+    EXPECT(CheckHeader(h1, 0, gpt->drive_sectors) == cases[i].expect_rv);
+    EXPECT(CheckHeader(h2, 1, gpt->drive_sectors) == cases[i].expect_rv);
   }
   return TEST_OK;
 }
+
+
+/* Tests if CRC is checked. */
+static int CrcFieldTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
+
+  BuildTestGptData(gpt);
+  /* Modify a field that the header verification doesn't care about */
+  h1->entries_crc32++;
+  h2->entries_crc32++;
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+  /* Refresh the CRC; should pass now */
+  RefreshCrc32(gpt);
+  EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  return TEST_OK;
+}
+
 
 /* Tests if reserved fields are checked.
  * We'll try non-zero values to test. */
-int ReservedFieldsTest() {
-  GptData *gpt;
-  GptHeader *primary_header, *secondary_header;
+static int ReservedFieldsTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
 
-  gpt = GetEmptyGptData();
-  primary_header = (GptHeader*)gpt->primary_header;
-  secondary_header = (GptHeader*)gpt->secondary_header;
-
-  /* expect secondary is still valid. */
   BuildTestGptData(gpt);
-  primary_header->reserved ^= 0x12345678;  /* whatever random */
-  EXPECT(MASK_SECONDARY == CheckReservedFields(gpt));
+  h1->reserved ^= 0x12345678;  /* whatever random */
+  h2->reserved ^= 0x12345678;  /* whatever random */
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
 
-  /* expect secondary is still valid. */
+#ifdef PADDING_CHECKED
+  /* TODO: padding check is currently disabled */
   BuildTestGptData(gpt);
-  primary_header->padding ^= 0x12345678;  /* whatever random */
-  EXPECT(MASK_SECONDARY == CheckReservedFields(gpt));
-
-  /* expect primary is still valid. */
-  BuildTestGptData(gpt);
-  secondary_header->reserved ^= 0x12345678;  /* whatever random */
-  EXPECT(MASK_PRIMARY == CheckReservedFields(gpt));
-
-  /* expect primary is still valid. */
-  BuildTestGptData(gpt);
-  secondary_header->padding ^= 0x12345678;  /* whatever random */
-  EXPECT(MASK_PRIMARY == CheckReservedFields(gpt));
+  h1->padding[12] ^= 0x34;  /* whatever random */
+  h2->padding[56] ^= 0x78;  /* whatever random */
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+#endif
 
   return TEST_OK;
 }
 
-/* Tests if myLBA field is checked (1 for primary, last for secondary). */
-int MyLbaTest() {
-  GptData *gpt;
-  int test_mask;
-  GptHeader *headers[2];
-  uint32_t valid_headers;
 
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
+/* Technically, any size which is 2^N where N > 6 should work, but our
+ * library only supports one size. */
+static int SizeOfPartitionEntryTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
+  int i;
 
-  for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-    BuildTestGptData(gpt);
-    if (test_mask & MASK_PRIMARY)
-      ++headers[PRIMARY]->my_lba;
-    if (test_mask & MASK_SECONDARY)
-      --headers[SECONDARY]->my_lba;
-    valid_headers = CheckMyLba(gpt);
-    EXPECT((MASK_BOTH ^ test_mask) == valid_headers);
-  }
-  return TEST_OK;
-}
-
-/* Tests if SizeOfPartitionEntry is checked. SizeOfPartitionEntry must be
- * between 128 and 512, and a multiple of 8. */
-int SizeOfPartitionEntryTest() {
-  GptData *gpt;
   struct {
     uint32_t value_to_test;
-    int is_valid_value;
+    int expect_rv;
   } cases[] = {
-    {127, 0},
-    {128, 1},
-    {129, 0},
-    {130, 0},
-    {131, 0},
-    {132, 0},
-    {133, 0},
-    {134, 0},
-    {135, 0},
-    {136, 1},
-    {144, 1},
-    {160, 1},
-    {192, 1},
+    {127, 1},
+    {128, 0},
+    {129, 1},
     {256, 1},
-    {384, 1},
-    {504, 1},
     {512, 1},
-    {513, 0},
-    {520, 0},
   };
-  int i;
-  int test_mask;
-  GptHeader *headers[2];
-  uint32_t valid_headers;
 
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
-
+  /* Check size of entryes */
   for (i = 0; i < ARRAY_SIZE(cases); ++i) {
-    for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-      BuildTestGptData(gpt);
-      if (test_mask & MASK_PRIMARY) {
-        headers[PRIMARY]->size_of_entry = cases[i].value_to_test;
-        headers[PRIMARY]->number_of_entries =
-            TOTAL_ENTRIES_SIZE / cases[i].value_to_test;
-      }
-      if (test_mask & MASK_SECONDARY) {
-        headers[SECONDARY]->size_of_entry = cases[i].value_to_test;
-        headers[SECONDARY]->number_of_entries =
-            TOTAL_ENTRIES_SIZE / cases[i].value_to_test;
-      }
-      valid_headers = CheckSizeOfPartitionEntry(gpt);
-      if (cases[i].is_valid_value)
-        EXPECT(MASK_BOTH == valid_headers);
-      else
-        EXPECT((MASK_BOTH ^ test_mask) == valid_headers);
-    }
-  }
-  return TEST_OK;
-}
-
-/* Tests if NumberOfPartitionEntries is checes. NumberOfPartitionEntries must
- * be between 32 and 512, and SizeOfPartitionEntry * NumberOfPartitionEntries
- * must be 16384. */
-int NumberOfPartitionEntriesTest() {
-  GptData *gpt;
-  struct {
-    uint32_t size_of_entry;
-    uint32_t number_of_entries;
-    int is_valid_value;
-  } cases[] = {
-    {111, 147, 0},
-    {111, 149, 0},
-    {128, 32, 0},
-    {128, 64, 0},
-    {128, 127, 0},
-    {128, 128, 1},
-    {128, 129, 0},
-    {128, 256, 0},
-    {256, 32, 0},
-    {256, 64, 1},
-    {256, 128, 0},
-    {256, 256, 0},
-    {512, 32, 1},
-    {512, 64, 0},
-    {512, 128, 0},
-    {512, 256, 0},
-    {1024, 128, 0},
-  };
-  int i;
-  int test_mask;
-  GptHeader *headers[2];
-  uint32_t valid_headers;
-
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
-
-  for (i = 0; i < ARRAY_SIZE(cases); ++i) {
-    for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-      BuildTestGptData(gpt);
-      if (test_mask & MASK_PRIMARY) {
-        headers[PRIMARY]->size_of_entry = cases[i].size_of_entry;
-        headers[PRIMARY]->number_of_entries = cases[i].number_of_entries;
-      }
-      if (test_mask & MASK_SECONDARY) {
-        headers[SECONDARY]->size_of_entry = cases[i].size_of_entry;
-        headers[SECONDARY]->number_of_entries = cases[i].number_of_entries;
-      }
-      valid_headers = CheckNumberOfEntries(gpt);
-      if (cases[i].is_valid_value)
-        EXPECT(MASK_BOTH == valid_headers);
-      else
-        EXPECT((MASK_BOTH ^ test_mask) == valid_headers);
-    }
-  }
-  return TEST_OK;
-}
-
-/* Tests if PartitionEntryLBA in primary/secondary headers is checked. */
-int PartitionEntryLbaTest() {
-  GptData *gpt;
-  int test_mask;
-  GptHeader *headers[2];
-  uint32_t valid_headers;
-
-  gpt = GetEmptyGptData();
-  headers[PRIMARY] = (GptHeader*)gpt->primary_header;
-  headers[SECONDARY] = (GptHeader*)gpt->secondary_header;
-
-  for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
     BuildTestGptData(gpt);
-    if (test_mask & MASK_PRIMARY)
-      headers[PRIMARY]->entries_lba = 0;
-    if (test_mask & MASK_SECONDARY)
-      headers[SECONDARY]->entries_lba = DEFAULT_DRIVE_SECTORS - 31 - 1;
-    valid_headers = CheckEntriesLba(gpt);
-    EXPECT((MASK_BOTH ^ test_mask) == valid_headers);
+    h1->size_of_entry = cases[i].value_to_test;
+    h2->size_of_entry = cases[i].value_to_test;
+    h1->number_of_entries = TOTAL_ENTRIES_SIZE / cases[i].value_to_test;
+    h2->number_of_entries = TOTAL_ENTRIES_SIZE / cases[i].value_to_test;
+    RefreshCrc32(gpt);
+
+    EXPECT(CheckHeader(h1, 0, gpt->drive_sectors) == cases[i].expect_rv);
+    EXPECT(CheckHeader(h2, 1, gpt->drive_sectors) == cases[i].expect_rv);
   }
+
   return TEST_OK;
 }
+
+
+/* Technically, any size which is 2^N where N > 6 should work, but our
+ * library only supports one size. */
+static int NumberOfPartitionEntriesTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
+
+  BuildTestGptData(gpt);
+  h1->number_of_entries--;
+  h2->number_of_entries /= 2;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  return TEST_OK;
+}
+
+
+/* Tests if myLBA field is checked (1 for primary, last for secondary). */
+static int MyLbaTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
+
+  /* myLBA depends on primary vs secondary flag */
+  BuildTestGptData(gpt);
+  EXPECT(1 == CheckHeader(h1, 1, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 0, gpt->drive_sectors));
+
+  BuildTestGptData(gpt);
+  h1->my_lba--;
+  h2->my_lba--;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  BuildTestGptData(gpt);
+  h1->my_lba = 2;
+  h2->my_lba--;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  BuildTestGptData(gpt);
+  h1->alternate_lba++;
+  h2->alternate_lba++;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  BuildTestGptData(gpt);
+  h1->alternate_lba--;
+  h2->alternate_lba--;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  BuildTestGptData(gpt);
+  h1->entries_lba++;
+  h2->entries_lba++;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  BuildTestGptData(gpt);
+  h1->entries_lba--;
+  h2->entries_lba--;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+
+  return TEST_OK;
+}
+
 
 /* Tests if FirstUsableLBA and LastUsableLBA are checked.
  * FirstUsableLBA must be after the end of the primary GPT table array.
  * LastUsableLBA must be before the start of the secondary GPT table array.
  * FirstUsableLBA <= LastUsableLBA. */
-int FirstUsableLbaAndLastUsableLbaTest() {
-  GptData *gpt;
-  GptHeader *primary_header, *secondary_header;
-  uint32_t valid_headers;
+static int FirstUsableLbaAndLastUsableLbaTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptHeader* h2 = (GptHeader*)gpt->secondary_header;
   int i;
+
   struct {
     uint64_t primary_entries_lba;
     uint64_t primary_first_usable_lba;
@@ -543,197 +503,61 @@ int FirstUsableLbaAndLastUsableLbaTest() {
     uint64_t secondary_first_usable_lba;
     uint64_t secondary_last_usable_lba;
     uint64_t secondary_entries_lba;
-    int expected_masks;
+    int primary_rv;
+    int secondary_rv;
   } cases[] = {
-    {2, 34, 433, 34, 433, 434, MASK_BOTH},
-    {2, 34, 432, 34, 430, 434, MASK_BOTH},
-    {2, 33, 433, 33, 433, 434, MASK_NONE},
-    {3, 34, 433, 35, 433, 434, MASK_SECONDARY},
-    {3, 35, 433, 33, 433, 434, MASK_PRIMARY},
-    {2, 34, 434, 34, 433, 434, MASK_SECONDARY},
-    {2, 34, 433, 34, 434, 434, MASK_PRIMARY},
-    {2, 35, 433, 35, 433, 434, MASK_BOTH},
-    {2, 433, 433, 433, 433, 434, MASK_BOTH},
-    {2, 434, 433, 434, 434, 434, MASK_NONE},
-    {2, 433, 34, 34, 433, 434, MASK_SECONDARY},
-    {2, 34, 433, 433, 34, 434, MASK_PRIMARY},
+    {2,  34, 433,   34, 433, 434,  0, 0},
+    {2,  34, 432,   34, 430, 434,  0, 0},
+    {2,  33, 433,   33, 433, 434,  1, 1},
+    {2,  34, 434,   34, 433, 434,  1, 0},
+    {2,  34, 433,   34, 434, 434,  0, 1},
+    {2,  35, 433,   35, 433, 434,  0, 0},
+    {2, 433, 433,  433, 433, 434,  0, 0},
+    {2, 434, 433,  434, 434, 434,  1, 1},
+    {2, 433,  34,   34, 433, 434,  1, 0},
+    {2,  34, 433,  433,  34, 434,  0, 1},
   };
-
-  gpt = GetEmptyGptData();
-  primary_header = (GptHeader*)gpt->primary_header;
-  secondary_header = (GptHeader*)gpt->secondary_header;
 
   for (i = 0; i < ARRAY_SIZE(cases); ++i) {
     BuildTestGptData(gpt);
-    primary_header->entries_lba = cases[i].primary_entries_lba;
-    primary_header->first_usable_lba = cases[i].primary_first_usable_lba;
-    primary_header->last_usable_lba = cases[i].primary_last_usable_lba;
-    secondary_header->entries_lba = cases[i].secondary_entries_lba;
-    secondary_header->first_usable_lba = cases[i].secondary_first_usable_lba;
-    secondary_header->last_usable_lba = cases[i].secondary_last_usable_lba;
-    valid_headers = CheckValidUsableLbas(gpt);
-    EXPECT(cases[i].expected_masks == valid_headers);
+    h1->entries_lba = cases[i].primary_entries_lba;
+    h1->first_usable_lba = cases[i].primary_first_usable_lba;
+    h1->last_usable_lba = cases[i].primary_last_usable_lba;
+    h2->entries_lba = cases[i].secondary_entries_lba;
+    h2->first_usable_lba = cases[i].secondary_first_usable_lba;
+    h2->last_usable_lba = cases[i].secondary_last_usable_lba;
+    RefreshCrc32(gpt);
+
+    EXPECT(CheckHeader(h1, 0, gpt->drive_sectors) == cases[i].primary_rv);
+    EXPECT(CheckHeader(h2, 1, gpt->drive_sectors) == cases[i].secondary_rv);
   }
 
   return TEST_OK;
 }
 
-/* Tests if header CRC in two copies are calculated. */
-int HeaderCrcTest() {
-  GptData *gpt;
-  GptHeader *primary_header, *secondary_header;
-
-  gpt = GetEmptyGptData();
-  primary_header = (GptHeader*)gpt->primary_header;
-  secondary_header = (GptHeader*)gpt->secondary_header;
-
-  /* Modify the first byte of primary header, and expect the CRC is wrong. */
-  BuildTestGptData(gpt);
-  gpt->primary_header[0] ^= 0xa5;  /* just XOR a non-zero value */
-  EXPECT(MASK_SECONDARY == CheckHeaderCrc(gpt));
-
-  /* Modify the last byte of secondary header, and expect the CRC is wrong. */
-  BuildTestGptData(gpt);
-  gpt->secondary_header[secondary_header->size-1] ^= 0x5a;
-  EXPECT(MASK_PRIMARY == CheckHeaderCrc(gpt));
-
-  /* Modify out of CRC range, expect CRC is still right. */
-  BuildTestGptData(gpt);
-  gpt->primary_header[primary_header->size] ^= 0x87;
-  EXPECT(MASK_BOTH == CheckHeaderCrc(gpt));
-
-  /* Very long header (actually invalid header). Expect will be ignored. */
-  primary_header->size = 0x12345678;
-  secondary_header->size = 0x87654321;
-  gpt->valid_headers = MASK_NONE;
-  EXPECT(MASK_NONE == CheckHeaderCrc(gpt));
-
-  return TEST_OK;
-}
 
 /* Tests if PartitionEntryArrayCRC32 is checked.
  * PartitionEntryArrayCRC32 must be calculated over SizeOfPartitionEntry *
  * NumberOfPartitionEntries bytes.
  */
-int EntriesCrcTest() {
-  GptData *gpt;
-
-  gpt = GetEmptyGptData();
+static int EntriesCrcTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptEntry* e1 = (GptEntry*)(gpt->primary_entries);
+  GptEntry* e2 = (GptEntry*)(gpt->secondary_entries);
 
   /* Modify the first byte of primary entries, and expect the CRC is wrong. */
   BuildTestGptData(gpt);
+  EXPECT(0 == CheckEntries(e1, h1, gpt->drive_sectors));
+  EXPECT(0 == CheckEntries(e2, h1, gpt->drive_sectors));
   gpt->primary_entries[0] ^= 0xa5;  /* just XOR a non-zero value */
-  EXPECT(MASK_SECONDARY == CheckEntriesCrc(gpt));
-
-  /* Modify the last byte of secondary entries, and expect the CRC is wrong. */
-  BuildTestGptData(gpt);
   gpt->secondary_entries[TOTAL_ENTRIES_SIZE-1] ^= 0x5a;
-  EXPECT(MASK_PRIMARY == CheckEntriesCrc(gpt));
+  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
+  EXPECT(1 == CheckEntries(e2, h1, gpt->drive_sectors));
 
   return TEST_OK;
 }
 
-/* Tests if GptInit() handles non-identical partition entries well.
- * Two copies of partition table entries must be identical. If not, we trust the
- * primary table entries, and mark secondary as modified. */
-int IdenticalEntriesTest() {
-  GptData *gpt;
-
-  gpt = GetEmptyGptData();
-
-  /* Tests RepairEntries() first. */
-  BuildTestGptData(gpt);
-  EXPECT(0 == RepairEntries(gpt, MASK_BOTH));
-  gpt->secondary_entries[0] ^= 0xa5;  /* XOR any number */
-  EXPECT(GPT_MODIFIED_ENTRIES2 == RepairEntries(gpt, MASK_BOTH));
-  EXPECT(GPT_MODIFIED_ENTRIES2 == RepairEntries(gpt, MASK_PRIMARY));
-  EXPECT(GPT_MODIFIED_ENTRIES1 == RepairEntries(gpt, MASK_SECONDARY));
-  EXPECT(0 == RepairEntries(gpt, MASK_NONE));
-
-  /* The first byte is different. We expect secondary entries is marked as
-   * modified. */
-  BuildTestGptData(gpt);
-  gpt->primary_entries[0] ^= 0xff;
-  RefreshCrc32(gpt);
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(GPT_MODIFIED_ENTRIES2 == gpt->modified);
-  EXPECT(0 ==  Memcmp(gpt->primary_entries, gpt->secondary_entries,
-                      TOTAL_ENTRIES_SIZE));
-
-  /* The last byte is different, but the primary entries CRC is bad.
-   * We expect primary entries is marked as modified. */
-  BuildTestGptData(gpt);
-  gpt->primary_entries[TOTAL_ENTRIES_SIZE-1] ^= 0xff;
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(GPT_MODIFIED_ENTRIES1 == gpt->modified);
-  EXPECT(0 == Memcmp(gpt->primary_entries, gpt->secondary_entries,
-                     TOTAL_ENTRIES_SIZE));
-
-  return TEST_OK;
-}
-
-/* Tests if GptInit() handles synonymous headers well.
- * Note that two partition headers are NOT bit-swise identical.
- * For exmaple, my_lba must be different (pointing to respective self).
- * So in normal case, they are synonymous, not identical.
- * If not synonymous, we trust the primary partition header, and
- * overwrite secondary, then mark secondary as modified.*/
-int SynonymousHeaderTest() {
-  GptData *gpt;
-  GptHeader *primary_header, *secondary_header;
-
-  gpt = GetEmptyGptData();
-  primary_header = (GptHeader*)gpt->primary_header;
-  secondary_header = (GptHeader*)gpt->secondary_header;
-
-  /* Tests RepairHeader() for synonymous cases first. */
-  BuildTestGptData(gpt);
-  EXPECT(0 == RepairHeader(gpt, MASK_BOTH));
-  EXPECT(GPT_MODIFIED_HEADER2 == RepairHeader(gpt, MASK_PRIMARY));
-  EXPECT(GPT_MODIFIED_HEADER1 == RepairHeader(gpt, MASK_SECONDARY));
-  EXPECT(0 == RepairHeader(gpt, MASK_NONE));
-  /* Then tests non-synonymous cases. */
-  BuildTestGptData(gpt);
-  ++secondary_header->first_usable_lba;  /* chnage any bit */
-  EXPECT(GPT_MODIFIED_HEADER2 == RepairHeader(gpt, MASK_BOTH));
-  EXPECT(primary_header->first_usable_lba ==
-         secondary_header->first_usable_lba);
-  /* ---- */
-  BuildTestGptData(gpt);
-  --secondary_header->last_usable_lba;
-  EXPECT(GPT_MODIFIED_HEADER2 == RepairHeader(gpt, MASK_BOTH));
-  EXPECT(primary_header->last_usable_lba == secondary_header->last_usable_lba);
-  /* ---- */
-  BuildTestGptData(gpt);
-  ++secondary_header->number_of_entries;
-  EXPECT(GPT_MODIFIED_HEADER2 == RepairHeader(gpt, MASK_BOTH));
-  EXPECT(primary_header->number_of_entries ==
-         secondary_header->number_of_entries);
-  /* ---- */
-  BuildTestGptData(gpt);
-  --secondary_header->size_of_entry;
-  EXPECT(GPT_MODIFIED_HEADER2 == RepairHeader(gpt, MASK_BOTH));
-  EXPECT(primary_header->size_of_entry ==
-         secondary_header->size_of_entry);
-  /* ---- */
-  BuildTestGptData(gpt);
-  secondary_header->disk_uuid.u.raw[0] ^= 0x56;
-  EXPECT(GPT_MODIFIED_HEADER2 == RepairHeader(gpt, MASK_BOTH));
-  EXPECT(0 == Memcmp(&primary_header->disk_uuid,
-                     &secondary_header->disk_uuid, sizeof(Guid)));
-
-  /* Consider header repairing in GptInit(). */
-  BuildTestGptData(gpt);
-  ++secondary_header->first_usable_lba;
-  RefreshCrc32(gpt);
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT((gpt->modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_HEADER2)) ==
-         GPT_MODIFIED_HEADER2);
-  EXPECT(primary_header->first_usable_lba ==
-         secondary_header->first_usable_lba);
-
-  return TEST_OK;
-}
 
 /* Tests if partition geometry is checked.
  * All active (non-zero PartitionTypeGUID) partition entries should have:
@@ -741,53 +565,47 @@ int SynonymousHeaderTest() {
  *   entry.EndingLBA <= header.LastUsableLBA
  *   entry.StartingLBA <= entry.EndingLBA
  */
-int ValidEntryTest() {
-  GptData *gpt;
-  GptHeader *primary_header, *secondary_header;
-  GptEntry *primary_entries, *secondary_entries;
-
-  gpt = GetEmptyGptData();
-  primary_header = (GptHeader*)gpt->primary_header;
-  secondary_header = (GptHeader*)gpt->secondary_header;
-  primary_entries = (GptEntry*)gpt->primary_entries;
-  secondary_entries = (GptEntry*)gpt->secondary_entries;
+static int ValidEntryTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
+  GptEntry* e1 = (GptEntry*)(gpt->primary_entries);
 
   /* error case: entry.StartingLBA < header.FirstUsableLBA */
   BuildTestGptData(gpt);
-  primary_entries[0].starting_lba = primary_header->first_usable_lba - 1;
-  EXPECT(MASK_SECONDARY == CheckValidEntries(gpt));
-  secondary_entries[1].starting_lba = secondary_header->first_usable_lba - 1;
-  EXPECT(MASK_NONE == CheckValidEntries(gpt));
+  e1[0].starting_lba = h1->first_usable_lba - 1;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
 
   /* error case: entry.EndingLBA > header.LastUsableLBA */
   BuildTestGptData(gpt);
-  primary_entries[2].ending_lba = primary_header->last_usable_lba + 1;
-  EXPECT(MASK_SECONDARY == CheckValidEntries(gpt));
-  secondary_entries[3].ending_lba = secondary_header->last_usable_lba + 1;
-  EXPECT(MASK_NONE == CheckValidEntries(gpt));
+  e1[2].ending_lba = h1->last_usable_lba + 1;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
 
   /* error case: entry.StartingLBA > entry.EndingLBA */
   BuildTestGptData(gpt);
-  primary_entries[3].starting_lba = primary_entries[3].ending_lba + 1;
-  EXPECT(MASK_SECONDARY == CheckValidEntries(gpt));
-  secondary_entries[1].starting_lba = secondary_entries[1].ending_lba + 1;
-  EXPECT(MASK_NONE == CheckValidEntries(gpt));
+  e1[3].starting_lba = e1[3].ending_lba + 1;
+  RefreshCrc32(gpt);
+  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
 
   /* case: non active entry should be ignored. */
   BuildTestGptData(gpt);
-  Memset(&primary_entries[1].type, 0, sizeof(primary_entries[1].type));
-  primary_entries[1].starting_lba = primary_entries[1].ending_lba + 1;
-  EXPECT(MASK_BOTH == CheckValidEntries(gpt));
-  Memset(&secondary_entries[2].type, 0, sizeof(secondary_entries[2].type));
-  secondary_entries[2].starting_lba = secondary_entries[2].ending_lba + 1;
-  EXPECT(MASK_BOTH == CheckValidEntries(gpt));
+  Memset(&e1[1].type, 0, sizeof(e1[1].type));
+  e1[1].starting_lba = e1[1].ending_lba + 1;
+  RefreshCrc32(gpt);
+  EXPECT(0 == CheckEntries(e1, h1, gpt->drive_sectors));
 
   return TEST_OK;
 }
 
+
 /* Tests if overlapped partition tables can be detected. */
-int OverlappedPartitionTest() {
-  GptData *gpt;
+static int OverlappedPartitionTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h = (GptHeader*)gpt->primary_header;
+  GptEntry* e = (GptEntry*)gpt->primary_entries;
+  int i, j;
+
   struct {
     int overlapped;
     struct {
@@ -796,271 +614,463 @@ int OverlappedPartitionTest() {
       uint64_t ending_lba;
     } entries[16];  /* enough for testing. */
   } cases[] = {
-    {0, {{0, 100, 199}, {0, 0, 0}}},
-    {0, {{1, 100, 199}, {0, 0, 0}}},
-    {0, {{1, 100, 150}, {1, 200, 250}, {1, 300, 350}, {0, 0, 0}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 100, 100}, {0, 0, 0}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 299, 299}, {0, 0, 0}}},
-    {0, {{1, 300, 399}, {1, 200, 299}, {1, 100, 199}, {0, 0, 0}}},
-    {1, {{1, 100, 199}, {1, 199, 299}, {1, 299, 399}, {0, 0, 0}}},
-    {1, {{1, 100, 199}, {1, 200, 299}, {1, 75, 399}, {0, 0, 0}}},
-    {1, {{1, 100, 199}, {1, 75, 250}, {1, 200, 299}, {0, 0, 0}}},
-    {1, {{1, 75, 150}, {1, 100, 199}, {1, 200, 299}, {0, 0, 0}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {1, 100, 399},
-         {0, 0, 0}}},
-    {0, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {0, 100, 399},
-         {0, 0, 0}}},
-    {1, {{1, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400},
-         {0, 0, 0}}},
-    {1, {{0, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400},
-         {0, 0, 0}}},
-    {0, {{1, 200, 300}, {1, 100, 199}, {0, 100, 400}, {0, 300, 400},
-         {0, 0, 0}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 199, 199}, {0, 0, 0}}},
-    {0, {{1, 200, 299}, {0, 100, 199}, {1, 199, 199}, {0, 0, 0}}},
-    {0, {{1, 200, 299}, {1, 100, 199}, {0, 199, 199}, {0, 0, 0}}},
+    {0, {{0, 100, 199}}},
+    {0, {{1, 100, 199}}},
+    {0, {{1, 100, 150}, {1, 200, 250}, {1, 300, 350}}},
+    {1, {{1, 200, 299}, {1, 100, 199}, {1, 100, 100}}},
+    {1, {{1, 200, 299}, {1, 100, 199}, {1, 299, 299}}},
+    {0, {{1, 300, 399}, {1, 200, 299}, {1, 100, 199}}},
+    {1, {{1, 100, 199}, {1, 199, 299}, {1, 299, 399}}},
+    {1, {{1, 100, 199}, {1, 200, 299}, {1, 75, 399}}},
+    {1, {{1, 100, 199}, {1, 75, 250}, {1, 200, 299}}},
+    {1, {{1, 75, 150}, {1, 100, 199}, {1, 200, 299}}},
+    {1, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {1, 100, 399}}},
+    {0, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {0, 100, 399}}},
+    {1, {{1, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400}}},
+    {1, {{0, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400}}},
+    {0, {{1, 200, 300}, {1, 100, 199}, {0, 100, 400}, {0, 300, 400}}},
+    {1, {{1, 200, 299}, {1, 100, 199}, {1, 199, 199}}},
+    {0, {{1, 200, 299}, {0, 100, 199}, {1, 199, 199}}},
+    {0, {{1, 200, 299}, {1, 100, 199}, {0, 199, 199}}},
     {1, {{1, 199, 199}, {1, 200, 200}, {1, 201, 201}, {1, 202, 202},
          {1, 203, 203}, {1, 204, 204}, {1, 205, 205}, {1, 206, 206},
-         {1, 207, 207}, {1, 208, 208}, {1, 199, 199}, {0, 0, 0}}},
+         {1, 207, 207}, {1, 208, 208}, {1, 199, 199}}},
     {0, {{1, 199, 199}, {1, 200, 200}, {1, 201, 201}, {1, 202, 202},
          {1, 203, 203}, {1, 204, 204}, {1, 205, 205}, {1, 206, 206},
-         {1, 207, 207}, {1, 208, 208}, {0, 199, 199}, {0, 0, 0}}},
+         {1, 207, 207}, {1, 208, 208}, {0, 199, 199}}},
   };
-  Guid any_type = GPT_ENT_TYPE_CHROMEOS_KERNEL;
-  int i, j;
-  int test_mask;
-  GptEntry *entries[2];
 
-  gpt = GetEmptyGptData();
-  entries[PRIMARY] = (GptEntry*)gpt->primary_entries;
-  entries[SECONDARY] = (GptEntry*)gpt->secondary_entries;
 
   for (i = 0; i < ARRAY_SIZE(cases); ++i) {
-    for (test_mask = MASK_PRIMARY; test_mask <= MASK_BOTH; ++test_mask) {
-      BuildTestGptData(gpt);
-      ZeroEntries(gpt);
-      for(j = 0; j < ARRAY_SIZE(cases[0].entries); ++j) {
-        if (!cases[i].entries[j].starting_lba) break;
-        if (test_mask & MASK_PRIMARY) {
-          if (cases[i].entries[j].active)
-            Memcpy(&entries[PRIMARY][j].type, &any_type, sizeof(any_type));
-          entries[PRIMARY][j].starting_lba = cases[i].entries[j].starting_lba;
-          entries[PRIMARY][j].ending_lba = cases[i].entries[j].ending_lba;
-        }
-        if (test_mask & MASK_SECONDARY) {
-          if (cases[i].entries[j].active)
-            Memcpy(&entries[SECONDARY][j].type, &any_type, sizeof(any_type));
-          entries[SECONDARY][j].starting_lba = cases[i].entries[j].starting_lba;
-          entries[SECONDARY][j].ending_lba = cases[i].entries[j].ending_lba;
-        }
-      }
-      EXPECT((cases[i].overlapped * test_mask) ==
-             (OverlappedEntries(entries[PRIMARY], j) |
-              (OverlappedEntries(entries[SECONDARY], j) << SECONDARY))
-      );
+    BuildTestGptData(gpt);
+    ZeroEntries(gpt);
+    for(j = 0; j < ARRAY_SIZE(cases[0].entries); ++j) {
+      if (!cases[i].entries[j].starting_lba)
+        break;
 
-      EXPECT((MASK_BOTH ^ (cases[i].overlapped * test_mask)) ==
-             CheckOverlappedPartition(gpt));
+      if (cases[i].entries[j].active)
+        Memcpy(&e[j].type, &guid_kernel, sizeof(Guid));
+      e[j].starting_lba = cases[i].entries[j].starting_lba;
+      e[j].ending_lba = cases[i].entries[j].ending_lba;
     }
+    RefreshCrc32(gpt);
+
+    EXPECT(cases[i].overlapped == CheckEntries(e, h, gpt->drive_sectors));
   }
   return TEST_OK;
 }
 
-/* Tests if GptInit() can survive in different corrupt header/entries
- * combinations, like:
- *   primary GPT header         - valid
- *   primary partition table    - invalid
- *   secondary GPT header       - invalid
- *   secondary partition table  - valid
- */
-int CorruptCombinationTest() {
-  GptData *gpt;
-  GptHeader *primary_header, *secondary_header;
-  GptEntry *primary_entries, *secondary_entries;
 
-  gpt = GetEmptyGptData();
-  primary_header = (GptHeader*)gpt->primary_header;
-  secondary_header = (GptHeader*)gpt->secondary_header;
-  primary_entries = (GptEntry*)gpt->primary_entries;
-  secondary_entries = (GptEntry*)gpt->secondary_entries;
+/* Test both sanity checking and repair. */
+static int SanityCheckTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h1 = (GptHeader*)gpt->primary_header;
 
-  /* Make primary entries and secondary header invalid, we expect GptInit()
-   * can recover them (returns GPT_SUCCESS and MODIFIED flasgs). */
+  /* Unmodified test data is completely sane */
   BuildTestGptData(gpt);
-  primary_entries[0].type.u.raw[0] ^= 0x33;
-  secondary_header->header_crc32 ^= 0x55;
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  /* Repair doesn't damage it */
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT(0 == gpt->modified);
+
+  /* Modify headers */
+  BuildTestGptData(gpt);
+  gpt->primary_header[0]++;
+  gpt->secondary_header[0]++;
+  EXPECT(GPT_ERROR_INVALID_HEADERS == GptSanityCheck(gpt));
+  EXPECT(0 == gpt->valid_headers);
+  EXPECT(0 == gpt->valid_entries);
+  /* Repair can't fix completely busted headers */
+  GptRepair(gpt);
+  EXPECT(GPT_ERROR_INVALID_HEADERS == GptSanityCheck(gpt));
+  EXPECT(0 == gpt->valid_headers);
+  EXPECT(0 == gpt->valid_entries);
+  EXPECT(0 == gpt->modified);
+
+  BuildTestGptData(gpt);
+  gpt->primary_header[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_SECONDARY == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT(GPT_MODIFIED_HEADER1 == gpt->modified);
+
+  BuildTestGptData(gpt);
+  gpt->secondary_header[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_PRIMARY == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT(GPT_MODIFIED_HEADER2 == gpt->modified);
+
+  /* Modify header1 and update its CRC.  Since header2 is now different than
+   * header1, it'll be the one considered invalid. */
+  BuildTestGptData(gpt);
+  h1->size++;
+  RefreshCrc32(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_PRIMARY == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT(GPT_MODIFIED_HEADER2 == gpt->modified);
+
+  /* Modify entries */
+  BuildTestGptData(gpt);
+  gpt->primary_entries[0]++;
+  gpt->secondary_entries[0]++;
+  EXPECT(GPT_ERROR_INVALID_ENTRIES == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_NONE == gpt->valid_entries);
+  /* Repair can't fix both copies of entries being bad, either. */
+  GptRepair(gpt);
+  EXPECT(GPT_ERROR_INVALID_ENTRIES == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_NONE == gpt->valid_entries);
+  EXPECT(0 == gpt->modified);
+
+  BuildTestGptData(gpt);
+  gpt->primary_entries[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_SECONDARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT(GPT_MODIFIED_ENTRIES1 == gpt->modified);
+
+  BuildTestGptData(gpt);
+  gpt->secondary_entries[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_PRIMARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT(GPT_MODIFIED_ENTRIES2 == gpt->modified);
+
+  /* Test cross-correction (h1+e2, h2+e1) */
+  BuildTestGptData(gpt);
+  gpt->primary_header[0]++;
+  gpt->secondary_entries[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_SECONDARY == gpt->valid_headers);
+  EXPECT(MASK_PRIMARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT((GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
+
+  BuildTestGptData(gpt);
+  gpt->secondary_header[0]++;
+  gpt->primary_entries[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_PRIMARY == gpt->valid_headers);
+  EXPECT(MASK_SECONDARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
   EXPECT((GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES1) == gpt->modified);
-  EXPECT(0 == Memcmp(primary_entries, secondary_entries, TOTAL_ENTRIES_SIZE));
-  /* We expect the modified header/entries can pass GptInit(). */
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(0 == gpt->modified);
 
-  /* Make primary header invalid (the entries is not damaged actually). */
+  /* Test mismatched pairs (h1+e1 valid, h2+e2 valid but different.
+   * This simulates a partial update of the drive. */
   BuildTestGptData(gpt);
-  primary_header->entries_crc32 ^= 0x73;
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  /* After header is repaired, the entries are valid actually. */
-  EXPECT((gpt->modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_HEADER2)) ==
-         GPT_MODIFIED_HEADER1);
-  /* We expect the modified header/entries can pass GptInit(). */
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(0 == gpt->modified);
+  gpt->secondary_entries[0]++;
+  RefreshCrc32(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_PRIMARY == gpt->valid_headers);
+  EXPECT(MASK_PRIMARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT((GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
 
   return TEST_OK;
 }
 
+
+static int EntryAttributeGetSetTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e = (GptEntry*)(gpt->primary_entries);
+
+  e->attributes = 0x0000000000000000;
+  SetEntrySuccessful(e, 1);
+  EXPECT(0x0100000000000000 == e->attributes);
+  EXPECT(1 == GetEntrySuccessful(e));
+  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  SetEntrySuccessful(e, 0);
+  EXPECT(0xFEFFFFFFFFFFFFFF == e->attributes);
+  EXPECT(0 == GetEntrySuccessful(e));
+
+  e->attributes = 0x0000000000000000;
+  SetEntryTries(e, 15);
+  EXPECT(15 == GetEntryTries(e));
+  EXPECT(0x00F0000000000000 == e->attributes);
+  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  SetEntryTries(e, 0);
+  EXPECT(0xFF0FFFFFFFFFFFFF == e->attributes);
+  EXPECT(0 == GetEntryTries(e));
+
+  e->attributes = 0x0000000000000000;
+  SetEntryPriority(e, 15);
+  EXPECT(0x000F000000000000 == e->attributes);
+  EXPECT(15 == GetEntryPriority(e));
+  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  SetEntryPriority(e, 0);
+  EXPECT(0xFFF0FFFFFFFFFFFF == e->attributes);
+  EXPECT(0 == GetEntryPriority(e));
+
+  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  EXPECT(1 == GetEntrySuccessful(e));
+  EXPECT(15 == GetEntryPriority(e));
+  EXPECT(15 == GetEntryTries(e));
+
+  e->attributes = 0x0123000000000000;
+  EXPECT(1 == GetEntrySuccessful(e));
+  EXPECT(2 == GetEntryTries(e));
+  EXPECT(3 == GetEntryPriority(e));
+
+  return TEST_OK;
+}
+
+
+static int EntryTypeTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e = (GptEntry*)(gpt->primary_entries);
+
+  Memcpy(&e->type, &guid_zero, sizeof(Guid));
+  EXPECT(1 == IsUnusedEntry(e));
+  EXPECT(0 == IsKernelEntry(e));
+
+  Memcpy(&e->type, &guid_kernel, sizeof(Guid));
+  EXPECT(0 == IsUnusedEntry(e));
+  EXPECT(1 == IsKernelEntry(e));
+
+  Memcpy(&e->type, &guid_rootfs, sizeof(Guid));
+  EXPECT(0 == IsUnusedEntry(e));
+  EXPECT(0 == IsKernelEntry(e));
+
+  return TEST_OK;
+}
+
+
+/* Make an entry unused by clearing its type. */
+static void FreeEntry(GptEntry* e) {
+  Memset(&e->type, 0, sizeof(Guid));
+}
+
+
+/* Set up an entry. */
+static void FillEntry(GptEntry* e, int is_kernel,
+                      int priority, int successful, int tries) {
+  Memcpy(&e->type, (is_kernel ? &guid_kernel : &guid_zero), sizeof(Guid));
+  SetEntryPriority(e, priority);
+  SetEntrySuccessful(e, successful);
+  SetEntryTries(e, tries);
+}
+
+
 /* Invalidate all kernel entries and expect GptNextKernelEntry() cannot find
  * any usable kernel entry.
  */
-int NoValidKernelEntryTest() {
-  GptData *gpt;
-  GptEntry *entries, *entries2;
-
-  gpt = GetEmptyGptData();
-  entries = (GptEntry*)gpt->primary_entries;
-  entries2 = (GptEntry*)gpt->secondary_entries;
+static int NoValidKernelEntryTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e1 = (GptEntry*)(gpt->primary_entries);
 
   BuildTestGptData(gpt);
-  entries[KERNEL_A].attributes |= CGPT_ATTRIBUTE_BAD_MASK;
-  Memset(&entries[KERNEL_B].type, 0, sizeof(Guid));
+  SetEntryPriority(e1 + KERNEL_A, 0);
+  FreeEntry(e1 + KERNEL_B);
   RefreshCrc32(gpt);
-
   EXPECT(GPT_ERROR_NO_VALID_KERNEL == GptNextKernelEntry(gpt, NULL, NULL));
 
   return TEST_OK;
 }
 
-/* This is the combination test. Both kernel A and B could be either inactive
- * or invalid. We expect GptNextKetnelEntry() returns good kernel or
- * GPT_ERROR_NO_VALID_KERNEL if no kernel is available. */
-enum FAILURE_MASK {
-  MASK_INACTIVE = 1,
-  MASK_BAD_ENTRY = 2,
-  MASK_FAILURE_BOTH = 3,
-};
-void BreakAnEntry(GptEntry *entry, enum FAILURE_MASK failure) {
-  if (failure & MASK_INACTIVE)
-    Memset(&entry->type, 0, sizeof(Guid));
-  if (failure & MASK_BAD_ENTRY)
-    entry->attributes |= CGPT_ATTRIBUTE_BAD_MASK;
-}
 
-int CombinationalNextKernelEntryTest() {
-  GptData *gpt;
-  enum {
-    MASK_KERNEL_A = 1,
-    MASK_KERNEL_B = 2,
-    MASK_KERNEL_BOTH = 3,
-  } kernel;
-  enum FAILURE_MASK failure;
-  uint64_t start_sector, size;
-  int retval;
+static int GetNextNormalTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e1 = (GptEntry*)(gpt->primary_entries);
+  uint64_t start, size;
 
-  for (kernel = MASK_KERNEL_A; kernel <= MASK_KERNEL_BOTH; ++kernel) {
-    for (failure = MASK_INACTIVE; failure < MASK_FAILURE_BOTH; ++failure) {
-      gpt = GetEmptyGptData();
-      BuildTestGptData(gpt);
-
-      if (kernel & MASK_KERNEL_A)
-        BreakAnEntry(GetEntry(gpt, PRIMARY, KERNEL_A), failure);
-      if (kernel & MASK_KERNEL_B)
-        BreakAnEntry(GetEntry(gpt, PRIMARY, KERNEL_B), failure);
-
-      retval = GptNextKernelEntry(gpt, &start_sector, &size);
-
-      if (kernel == MASK_KERNEL_A) {
-        EXPECT(retval == GPT_SUCCESS);
-        EXPECT(start_sector == 334);
-      } else if (kernel == MASK_KERNEL_B) {
-        EXPECT(retval == GPT_SUCCESS);
-        EXPECT(start_sector == 34);
-      } else {  /* MASK_KERNEL_BOTH */
-        EXPECT(retval == GPT_ERROR_NO_VALID_KERNEL);
-      }
-    }
-  }
-  return TEST_OK;
-}
-
-/* Increase tries value from zero, expect it won't explode/overflow after
- * CGPT_ATTRIBUTE_TRIES_MASK.
- */
-/* Tries would not count up after CGPT_ATTRIBUTE_MAX_TRIES. */
-#define EXPECTED_TRIES(tries) \
-    ((tries >= CGPT_ATTRIBUTE_MAX_TRIES) ? CGPT_ATTRIBUTE_MAX_TRIES \
-                                         : tries)
-int IncreaseTriesTest() {
-  GptData *gpt;
-  int kernel_index[] = {
-    KERNEL_B,
-    KERNEL_A,
-  };
-  int i, tries, j;
-
-  gpt = GetEmptyGptData();
-  for (i = 0; i < ARRAY_SIZE(kernel_index); ++i) {
-    GptEntry *entries[2] = {
-      (GptEntry*)gpt->primary_entries,
-      (GptEntry*)gpt->secondary_entries,
-    };
-    int current;
-
-    BuildTestGptData(gpt);
-    current = gpt->current_kernel = kernel_index[i];
-
-    for (tries = 0; tries < 2 * CGPT_ATTRIBUTE_MAX_TRIES; ++tries) {
-      for (j = 0; j < ARRAY_SIZE(entries); ++j) {
-        EXPECT(EXPECTED_TRIES(tries) ==
-               ((entries[j][current].attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
-                CGPT_ATTRIBUTE_TRIES_OFFSET));
-      }
-
-      EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
-      /* The expected tries value will be checked in next iteration. */
-
-      if (tries < CGPT_ATTRIBUTE_MAX_TRIES)
-        EXPECT((GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
-                GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
-      gpt->modified = 0;  /* reset before next test */
-      EXPECT(0 ==
-             Memcmp(entries[PRIMARY], entries[SECONDARY], TOTAL_ENTRIES_SIZE));
-    }
-  }
-  return TEST_OK;
-}
-
-/* Mark a kernel as bad. Expect:
- *   1. the both bad bits of kernel A in primary and secondary entries are set.
- *   2. headers and entries are marked as modified.
- *   3. primary and secondary entries are identical.
- */
-int MarkBadKernelEntryTest() {
-  GptData *gpt;
-  GptEntry *entries, *entries2;
-
-  gpt = GetEmptyGptData();
-  entries = (GptEntry*)gpt->primary_entries;
-  entries2 = (GptEntry*)gpt->secondary_entries;
-
+  /* Normal case - both kernels successful */
   BuildTestGptData(gpt);
-  gpt->current_kernel = KERNEL_A;
-  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
-  EXPECT((GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
-          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
-  EXPECT(entries[KERNEL_A].attributes & CGPT_ATTRIBUTE_BAD_MASK);
-  EXPECT(entries2[KERNEL_A].attributes & CGPT_ATTRIBUTE_BAD_MASK);
-  EXPECT(0 == Memcmp(entries, entries2, TOTAL_ENTRIES_SIZE));
+  FillEntry(e1 + KERNEL_A, 1, 2, 1, 0);
+  FillEntry(e1 + KERNEL_B, 1, 2, 1, 0);
+  RefreshCrc32(gpt);
+  GptInit(gpt);
+
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_A == gpt->current_kernel);
+  EXPECT(34 == start);
+  EXPECT(100 == size);
+
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_B == gpt->current_kernel);
+  EXPECT(134 == start);
+  EXPECT(99 == size);
+
+  EXPECT(GPT_ERROR_NO_VALID_KERNEL == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(-1 == gpt->current_kernel);
+
+  /* Call as many times as you want; you won't get another kernel... */
+  EXPECT(GPT_ERROR_NO_VALID_KERNEL == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(-1 == gpt->current_kernel);
 
   return TEST_OK;
 }
+
+
+static int GetNextPrioTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e1 = (GptEntry*)(gpt->primary_entries);
+  uint64_t start, size;
+
+  /* Priority 3, 4, 0, 4 - should boot order B, Y, A */
+  BuildTestGptData(gpt);
+  FillEntry(e1 + KERNEL_A, 1, 3, 1, 0);
+  FillEntry(e1 + KERNEL_B, 1, 4, 1, 0);
+  FillEntry(e1 + KERNEL_X, 1, 0, 1, 0);
+  FillEntry(e1 + KERNEL_Y, 1, 4, 1, 0);
+  RefreshCrc32(gpt);
+  GptInit(gpt);
+
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_B == gpt->current_kernel);
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_Y == gpt->current_kernel);
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_A == gpt->current_kernel);
+  EXPECT(GPT_ERROR_NO_VALID_KERNEL == GptNextKernelEntry(gpt, &start, &size));
+
+  return TEST_OK;
+}
+
+
+static int GetNextTriesTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e1 = (GptEntry*)(gpt->primary_entries);
+  uint64_t start, size;
+
+  /* Tries=nonzero is attempted just like success, but tries=0 isn't */
+  BuildTestGptData(gpt);
+  FillEntry(e1 + KERNEL_A, 1, 2, 1, 0);
+  FillEntry(e1 + KERNEL_B, 1, 3, 0, 0);
+  FillEntry(e1 + KERNEL_X, 1, 4, 0, 1);
+  FillEntry(e1 + KERNEL_Y, 1, 0, 0, 5);
+  RefreshCrc32(gpt);
+  GptInit(gpt);
+
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_X == gpt->current_kernel);
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_A == gpt->current_kernel);
+  EXPECT(GPT_ERROR_NO_VALID_KERNEL == GptNextKernelEntry(gpt, &start, &size));
+
+  return TEST_OK;
+}
+
+
+static int GptUpdateTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptEntry* e = (GptEntry*)(gpt->primary_entries);
+  GptEntry* e2 = (GptEntry*)(gpt->secondary_entries);
+  uint64_t start, size;
+
+  /* Tries=nonzero is attempted just like success, but tries=0 isn't */
+  BuildTestGptData(gpt);
+  FillEntry(e + KERNEL_A, 1, 4, 1, 0);
+  FillEntry(e + KERNEL_B, 1, 3, 0, 2);
+  FillEntry(e + KERNEL_X, 1, 2, 0, 2);
+  RefreshCrc32(gpt);
+  GptInit(gpt);
+  gpt->modified = 0;  /* Nothing modified yet */
+
+  /* Successful kernel */
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_A == gpt->current_kernel);
+  EXPECT(1 == GetEntrySuccessful(e + KERNEL_A));
+  EXPECT(4 == GetEntryPriority(e + KERNEL_A));
+  EXPECT(0 == GetEntryTries(e + KERNEL_A));
+  EXPECT(1 == GetEntrySuccessful(e2 + KERNEL_A));
+  EXPECT(4 == GetEntryPriority(e2 + KERNEL_A));
+  EXPECT(0 == GetEntryTries(e2 + KERNEL_A));
+  /* Trying successful kernel changes nothing */
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
+  EXPECT(1 == GetEntrySuccessful(e + KERNEL_A));
+  EXPECT(4 == GetEntryPriority(e + KERNEL_A));
+  EXPECT(0 == GetEntryTries(e + KERNEL_A));
+  EXPECT(0 == gpt->modified);
+  /* Marking it bad does, though */
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
+  EXPECT(0 == GetEntrySuccessful(e + KERNEL_A));
+  EXPECT(0 == GetEntryPriority(e + KERNEL_A));
+  EXPECT(0 == GetEntryTries(e + KERNEL_A));
+  /* Which affects both copies of the partition entries */
+  EXPECT(0 == GetEntrySuccessful(e2 + KERNEL_A));
+  EXPECT(0 == GetEntryPriority(e2 + KERNEL_A));
+  EXPECT(0 == GetEntryTries(e2 + KERNEL_A));
+  /* And that's caused the GPT to need updating */
+  EXPECT(0x0F == gpt->modified);
+
+  /* Kernel with tries */
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_B == gpt->current_kernel);
+  EXPECT(0 == GetEntrySuccessful(e + KERNEL_B));
+  EXPECT(3 == GetEntryPriority(e + KERNEL_B));
+  EXPECT(2 == GetEntryTries(e + KERNEL_B));
+  /* Marking it bad clears it */
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
+  EXPECT(0 == GetEntrySuccessful(e + KERNEL_B));
+  EXPECT(0 == GetEntryPriority(e + KERNEL_B));
+  EXPECT(0 == GetEntryTries(e + KERNEL_B));
+
+  /* Another kernel with tries */
+  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+  EXPECT(KERNEL_X == gpt->current_kernel);
+  EXPECT(0 == GetEntrySuccessful(e + KERNEL_X));
+  EXPECT(2 == GetEntryPriority(e + KERNEL_X));
+  EXPECT(2 == GetEntryTries(e + KERNEL_X));
+  /* Trying it uses up a try */
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
+  EXPECT(0 == GetEntrySuccessful(e + KERNEL_X));
+  EXPECT(2 == GetEntryPriority(e + KERNEL_X));
+  EXPECT(1 == GetEntryTries(e + KERNEL_X));
+  EXPECT(0 == GetEntrySuccessful(e2 + KERNEL_X));
+  EXPECT(2 == GetEntryPriority(e2 + KERNEL_X));
+  EXPECT(1 == GetEntryTries(e2 + KERNEL_X));
+  /* Trying it again marks it inactive */
+  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
+  EXPECT(0 == GetEntrySuccessful(e + KERNEL_X));
+  EXPECT(0 == GetEntryPriority(e + KERNEL_X));
+  EXPECT(0 == GetEntryTries(e + KERNEL_X));
+
+  return TEST_OK;
+}
+
 
 /* Given an invalid kernel type, and expect GptUpdateKernelEntry() returns
  * GPT_ERROR_INVALID_UPDATE_TYPE. */
-int UpdateInvalidKernelTypeTest() {
-  GptData *gpt;
+static int UpdateInvalidKernelTypeTest() {
+  GptData* gpt = GetEmptyGptData();
 
-  gpt = GetEmptyGptData();
   BuildTestGptData(gpt);
   gpt->current_kernel = 0;  /* anything, but not CGPT_KERNEL_ENTRY_NOT_FOUND */
   EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
@@ -1069,63 +1079,6 @@ int UpdateInvalidKernelTypeTest() {
   return TEST_OK;
 }
 
-/* A normal boot case:
- *   GptInit()
- *   GptNextKernelEntry()
- *   GptUpdateKernelEntry()
- */
-int NormalBootCase() {
-  GptData *gpt;
-  GptEntry *entries;
-  uint64_t start_sector, size;
-
-  gpt = GetEmptyGptData();
-  entries = (GptEntry*)gpt->primary_entries;
-  BuildTestGptData(gpt);
-
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start_sector, &size));
-  EXPECT(start_sector == 34);  /* Kernel A, see top of this file. */
-  EXPECT(size == 100);
-
-  EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_TRY));
-  EXPECT(((entries[KERNEL_A].attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
-           CGPT_ATTRIBUTE_TRIES_OFFSET) == 1);
-
-  return TEST_OK;
-}
-
-/* Higher priority kernel should boot first.
- *   KERNEL_A is low priority
- *   KERNEL_B is high priority.
- * We expect KERNEL_B is selected in first run, and then KERNEL_A.
- * We also expect the GptNextKernelEntry() wraps back to KERNEL_B if it's called
- * after twice.
- */
-int HigherPriorityTest() {
-  GptData *gpt;
-  GptEntry *entries;
-
-  gpt = GetEmptyGptData();
-  entries = (GptEntry*)gpt->primary_entries;
-  BuildTestGptData(gpt);
-
-  SetPriority(gpt, PRIMARY, KERNEL_A, 0);
-  SetPriority(gpt, PRIMARY, KERNEL_B, 1);
-  RefreshCrc32(gpt);
-
-  EXPECT(GPT_SUCCESS == GptInit(gpt));
-  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, NULL, NULL));
-  EXPECT(KERNEL_B == gpt->current_kernel);
-
-  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, NULL, NULL));
-  EXPECT(KERNEL_A == gpt->current_kernel);
-
-  EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, NULL, NULL));
-  EXPECT(KERNEL_B == gpt->current_kernel);
-
-  return TEST_OK;
-}
 
 int main(int argc, char *argv[]) {
   int i;
@@ -1137,31 +1090,28 @@ int main(int argc, char *argv[]) {
   } test_cases[] = {
     { TEST_CASE(TestBuildTestGptData), },
     { TEST_CASE(ParameterTests), },
+    { TEST_CASE(HeaderCrcTest), },
     { TEST_CASE(SignatureTest), },
     { TEST_CASE(RevisionTest), },
     { TEST_CASE(SizeTest), },
+    { TEST_CASE(CrcFieldTest), },
     { TEST_CASE(ReservedFieldsTest), },
-    { TEST_CASE(MyLbaTest), },
     { TEST_CASE(SizeOfPartitionEntryTest), },
     { TEST_CASE(NumberOfPartitionEntriesTest), },
-    { TEST_CASE(PartitionEntryLbaTest), },
+    { TEST_CASE(MyLbaTest), },
     { TEST_CASE(FirstUsableLbaAndLastUsableLbaTest), },
-    { TEST_CASE(HeaderCrcTest), },
     { TEST_CASE(EntriesCrcTest), },
-    { TEST_CASE(IdenticalEntriesTest), },
-    { TEST_CASE(SynonymousHeaderTest), },
     { TEST_CASE(ValidEntryTest), },
     { TEST_CASE(OverlappedPartitionTest), },
-    { TEST_CASE(CorruptCombinationTest), },
-    { TEST_CASE(TestQuickSortFixed), },
-    { TEST_CASE(TestQuickSortRandom), },
+    { TEST_CASE(SanityCheckTest), },
     { TEST_CASE(NoValidKernelEntryTest), },
-    { TEST_CASE(CombinationalNextKernelEntryTest), },
-    { TEST_CASE(IncreaseTriesTest), },
-    { TEST_CASE(MarkBadKernelEntryTest), },
+    { TEST_CASE(EntryAttributeGetSetTest), },
+    { TEST_CASE(EntryTypeTest), },
+    { TEST_CASE(GetNextNormalTest), },
+    { TEST_CASE(GetNextPrioTest), },
+    { TEST_CASE(GetNextTriesTest), },
+    { TEST_CASE(GptUpdateTest), },
     { TEST_CASE(UpdateInvalidKernelTypeTest), },
-    { TEST_CASE(NormalBootCase), },
-    { TEST_CASE(HigherPriorityTest), },
     { TEST_CASE(TestCrc32TestVectors), },
   };
 

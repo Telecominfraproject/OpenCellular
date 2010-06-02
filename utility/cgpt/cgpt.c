@@ -14,6 +14,7 @@
 #define __USE_FILE_OFFSET64
 #define _LARGEFILE64_SOURCE
 #include "cgpt.h"
+#include "cgpt_tofix.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>

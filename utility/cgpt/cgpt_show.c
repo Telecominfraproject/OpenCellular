@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "cgpt.h"
 #include "cgptlib_internal.h"
+#include "cgpt_tofix.h"
 #include "utility.h"
 
 /* Integers to store parsed argument. */

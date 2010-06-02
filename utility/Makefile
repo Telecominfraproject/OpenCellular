@@ -26,6 +26,7 @@ TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
 		gbb_utility \
 		kernel_utility \
+		load_kernel_test \
 		signature_digest_utility \
 		verify_data
 
@@ -51,6 +52,9 @@ gbb_utility: gbb_utility.cc
 kernel_utility: kernel_utility.cc $(LIBS) $(FWLIB)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(LIBS) $(FWLIB) -lcrypto
+
+load_kernel_test: load_kernel_test.c $(LIBS) $(FWLIB)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FWLIB) -lcrypto
 
 signature_digest_utility: signature_digest_utility.c $(LIBS) $(FWLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FWLIB) -lcrypto

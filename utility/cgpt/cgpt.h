@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <stdint.h>
 #include "cgptlib.h"
+#include "gpt.h"
 
 enum {
   CGPT_OK = 0,

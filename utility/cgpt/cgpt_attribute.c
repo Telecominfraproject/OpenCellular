@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "cgpt.h"
 #include "cgptlib_internal.h"
+#include "cgpt_tofix.h"
 #include "utility.h"
 
 static struct number_range
@@ -126,8 +127,6 @@ int CgptAttribute(int argc, char *argv[]) {
     }
   }
 
-  if (bad != NOT_INITED)
-    SetBad(&drive.gpt, PRIMARY, partition, bad);
   if (successful != NOT_INITED)
     SetSuccessful(&drive.gpt, PRIMARY, partition, successful);
   if (tries != NOT_INITED)
@@ -136,8 +135,11 @@ int CgptAttribute(int argc, char *argv[]) {
     SetPriority(&drive.gpt, PRIMARY, partition, priority);
 
   /* Claims primary is good, then secondary will be overwritten. */
+  /* TODO: rspangler broke this during cgptlib refactoring; need to
+   * update this to match new internal APIs. */
   RepairEntries(&drive.gpt, MASK_PRIMARY);
   RepairHeader(&drive.gpt, MASK_PRIMARY);
+
   /* Forces headers and entries are modified so that CRC32 will be re-calculated
    * and headers and entries will be updated to drive. */
   drive.gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
