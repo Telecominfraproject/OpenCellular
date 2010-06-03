@@ -19,11 +19,32 @@ INC = \
 	-I$(LIBDIR)/cryptolib/include
 
 
-LIB_SRCS := $(shell find $(LIBDIR) -iname '*.c')
-LIB_OBJS := $(LIB_SRCS:%.c=%.o)
+# find ./lib -iname '*.c' | sort
+LIB_SRCS = \
+	./lib/cgptlib/cgptlib.c \
+	./lib/cgptlib/cgptlib_internal.c \
+	./lib/cgptlib/crc32.c \
+	./lib/cryptolib/padding.c \
+	./lib/cryptolib/rsa.c \
+	./lib/cryptolib/rsa_utility.c \
+	./lib/cryptolib/sha1.c \
+	./lib/cryptolib/sha2.c \
+	./lib/cryptolib/sha_utility.c \
+	./lib/firmware_image_fw.c \
+	./lib/kernel_image_fw.c \
+	./lib/load_kernel_fw.c \
+	./lib/rollback_index.c \
+	./lib/stateful_util.c \
+	./lib/tlcl.c
 
-STUB_SRCS := $(shell find $(STUBDIR) -iname '*.c')
-STUB_OBJS := $(STUB_SRCS:%.c=%.o)
+LIB_OBJS = $(LIB_SRCS:%.c=%.o)
+
+# find ./stub -iname '*.c' | sort
+STUB_SRCS = \
+	./stub/boot_device_stub.c \
+	./stub/utility_stub.c
+
+STUB_OBJS = $(STUB_SRCS:%.c=%.o)
 
 
 test : $(LIBNAME)
