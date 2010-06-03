@@ -28,3 +28,6 @@ clean:
 
 install:
 	$(MAKE) -C utility install
+
+runtests:
+	$(MAKE) -C tests runtests

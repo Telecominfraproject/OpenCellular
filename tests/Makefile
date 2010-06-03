@@ -96,5 +96,19 @@ verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c \
 verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c rollback_index_mock.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
+runtests:
+	# Crypto tests
+	./run_rsa_tests.sh
+	./sha_tests
+	./run_image_verification_tests.sh
+	# Splicing tests
+	./firmware_splicing_tests
+	./kernel_splicing_tests	
+	# Rollback Tests
+	./firmware_rollback_tests
+	./kernel_rollback_tests
+	# Helper Library Tests
+	./cgptlib_test
+
 clean:
 	rm -f $(TEST_BINS)
