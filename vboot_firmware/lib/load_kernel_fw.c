@@ -16,21 +16,27 @@
 
 #define GPT_ENTRIES_SIZE 16384 /* Bytes to read for GPT entries */
 
+#ifdef PRINT_DEBUG_INFO
 // TODO: for testing
 #include <stdio.h>
 #include <inttypes.h>  /* For PRIu64 macro */
-#include "cgptlib_internal.h"
+#endif
 
 /* TODO: Remove this terrible hack which fakes partition attributes
  * for the kernel partitions so that GptNextKernelEntry() won't
  * choke. */
+#include "cgptlib_internal.h"
 void FakePartitionAttributes(GptData* gpt) {
+  GptHeader* h = (GptHeader*)gpt->primary_header;
   GptEntry* entries = (GptEntry*)gpt->primary_entries;
   GptEntry* e;
   int i;
-  printf("Hacking partition attributes...\n");
 
-  for (i = 0, e = entries; i < 12; i++, e++) {
+  for (i = 0, e = entries; i < h->number_of_entries; i++, e++) {
+    if (!IsKernelEntry(e))
+      continue;
+
+#ifdef PRINT_DEBUG_INFO
 
     printf("%2d %08x %04x %04x %02x %02x %02x %02x %02x %02x %02x %02x",
            i,
@@ -48,9 +54,9 @@ void FakePartitionAttributes(GptData* gpt) {
            );
     printf(" %8" PRIu64 " %8" PRIu64"\n", e->starting_lba,
            e->ending_lba - e->starting_lba + 1);
-    if (!IsKernelEntry(e))
-      continue;
     printf("Hacking attributes for kernel partition %d\n", i);
+#endif
+
     SetEntryPriority(e, 2);
     SetEntrySuccessful(e, 1);
   }
@@ -210,6 +216,7 @@ int LoadKernel(LoadKernelParams* params) {
         continue;
       }
 
+#ifdef PRINT_DEBUG_INFO
       printf("Kernel header:\n");
       printf("header version:     %d\n", kim->header_version);
       printf("header len:         %d\n", kim->header_len);
@@ -221,6 +228,7 @@ int LoadKernel(LoadKernelParams* params) {
       printf("bootloader addr:    %" PRIu64 "\n", kim->bootloader_offset);
       printf("bootloader size:    %" PRIu64 "\n", kim->bootloader_size);
       printf("padded header size: %" PRIu64 "\n", kim->padded_header_size);
+#endif
 
       /* Check for rollback of key version */
       if (kim->kernel_key_version < tpm_kernel_key_version) {
