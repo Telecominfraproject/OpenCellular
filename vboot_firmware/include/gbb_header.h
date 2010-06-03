@@ -35,8 +35,10 @@ typedef struct GoogleBinaryBlockHeader {
   uint32_t rootkey_size;    // Root Key size in bytes
   uint32_t bmpfv_offset;    // BMP FV offset from header
   uint32_t bmpfv_size;      // BMP FV size in bytes
+  uint32_t recovery_key_offset;  // Recovery Key offset from header
+  uint32_t recovery_key_size;    // Recovery Key size in bytes
 
-  uint8_t  pad[88];         // to match GBB_HEADER_SIZE
+  uint8_t  pad[80];         // to match GBB_HEADER_SIZE
 } GoogleBinaryBlockHeader;
 
 #ifdef __cplusplus
@@ -44,4 +46,3 @@ typedef struct GoogleBinaryBlockHeader {
 #endif  // __cplusplus
 
 #endif  /* VBOOT_REFERENCE_GBB_HEADER_H_ */
-

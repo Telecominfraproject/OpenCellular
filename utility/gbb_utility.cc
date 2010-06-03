@@ -257,7 +257,18 @@ bool GoogleBinaryBlockUtil::find_property(PROPINDEX i,
         *pname = "bmp_fv";
       break;
 
+    case PROP_RCVKEY:
+      *poffset = header_.recovery_key_offset;;
+      *psize = header_.recovery_key_size;
+      if (pname)
+        *pname = "recovery_key";
+      break;
+
     default:
+      if (verbose) {
+        fprintf(stderr, " internal error: unknown property (%d).\n",
+            static_cast<int>(i));
+      }
       assert(!"invalid property index.");
       return false;
   }
@@ -272,12 +283,8 @@ bool GoogleBinaryBlockUtil::set_property(PROPINDEX i, const string &value) {
 
   assert(is_valid_gbb);
 
-  if (!find_property(i, &prop_offset, &prop_size, &prop_name)) {
-    if (verbose)
-      fprintf(stderr, " internal error: unknown property (%d).\n",
-              static_cast<int>(i));
+  if (!find_property(i, &prop_offset, &prop_size, &prop_name))
     return false;
-  }
 
   if (prop_size < value.size()) {
     if (verbose)
@@ -308,12 +315,8 @@ string GoogleBinaryBlockUtil::get_property(PROPINDEX i) const {
 
   assert(is_valid_gbb);
 
-  if (!find_property(i, &prop_offset, &prop_size, &prop_name)) {
-    if (verbose)
-      fprintf(stderr, " internal error: unknown property (%d).\n",
-              static_cast<int>(i));
+  if (!find_property(i, &prop_offset, &prop_size, &prop_name))
     return "";
-  }
 
   // check range again to allow empty value (for compatbility)
   if (prop_offset == 0 && prop_size == 0) {
@@ -333,9 +336,6 @@ string GoogleBinaryBlockUtil::get_property_name(PROPINDEX i) const {
   const char *prop_name;
 
   if (!find_property(i, &unused_off, &unused_size, &prop_name)) {
-    if (verbose)
-      fprintf(stderr, " internal error: unknown property (%d).\n",
-          static_cast<int>(i));
     assert(!"invalid property index.");
     return "";
   }
@@ -353,6 +353,10 @@ bool GoogleBinaryBlockUtil::set_rootkey(const std::string &value) {
 
 bool GoogleBinaryBlockUtil::set_bmpfv(const string &value) {
   return set_property(PROP_BMPFV, value);
+}
+
+bool GoogleBinaryBlockUtil::set_recovery_key(const string &value) {
+  return set_property(PROP_RCVKEY, value);
 }
 
 }  // namespace vboot_reference
@@ -378,6 +382,7 @@ static void usagehelp_exit(const char *prog_name) {
     "     --hwid          \tReport hardware id (default).\n"
     " -k, --rootkey=FILE  \tFile name to export Root Key.\n"
     " -b, --bmpfv=FILE    \tFile name to export Bitmap FV.\n"
+    "     --recoverykey=FILE\tFile name to export Recovery Key.\n"
     "\n"
     "SET MODE:\n"
     "-s, --set            \tSet (write) to bios_file, "
@@ -386,6 +391,7 @@ static void usagehelp_exit(const char *prog_name) {
     " -i, --hwid=HWID     \tThe new hardware id to be changed.\n"
     " -k, --rootkey=FILE  \tFile name of new Root Key.\n"
     " -b, --bmpfv=FILE    \tFile name of new Bitmap FV.\n"
+    "     --recoverykey=FILE\tFile name of new Recovery Key.\n"
     "\n"
     "SAMPLE:\n"
     "  %s -g bios.bin\n"
@@ -490,6 +496,7 @@ int main(int argc, char *argv[]) {
     {"hwid", 2, NULL, 'i' },
     {"rootkey", 1, NULL, 'k' },
     {"bmpfv", 1, NULL, 'b' },
+    {"recoverykey", 1, NULL, 'R' },
     { NULL, 0, NULL, 0 },
   };
 
@@ -524,6 +531,12 @@ int main(int argc, char *argv[]) {
       case 'b':
         if (!opt_props.set_new_value(
               GoogleBinaryBlockUtil::PROP_BMPFV, optarg))
+          usagehelp_exit(myname);
+        break;
+
+      case 'R':
+        if (!opt_props.set_new_value(
+              GoogleBinaryBlockUtil::PROP_RCVKEY, optarg))
           usagehelp_exit(myname);
         break;
 

@@ -18,6 +18,7 @@ class GoogleBinaryBlockUtil {
     PROP_HWID,      // hardware id
     PROP_ROOTKEY,   // root key
     PROP_BMPFV,     // bitmap FV
+    PROP_RCVKEY,    // recovery key
     PROP_RANGE,     // indicator of valid property range
   };
 
@@ -48,9 +49,11 @@ class GoogleBinaryBlockUtil {
   bool set_hwid(const char *hwid);      // NOTE: hwid is NUL-terminated.
   bool set_rootkey(const std::string &value);
   bool set_bmpfv(const std::string &value);
+  bool set_recovery_key(const std::string &value);
   std::string get_hwid() const { return get_property(PROP_HWID); }
   std::string get_rootkey() const { return get_property(PROP_ROOTKEY); }
   std::string get_bmpfv() const { return get_property(PROP_BMPFV); }
+  std::string get_recovery_key() const { return get_property(PROP_RCVKEY); }
 
  private:
   // clear all cached data and initialize to original state
