@@ -454,19 +454,20 @@ static int MyLbaTest() {
   EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
   EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
 
+  /* We should ignore the alternate_lba field entirely */
   BuildTestGptData(gpt);
   h1->alternate_lba++;
   h2->alternate_lba++;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
-  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+  EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors));
 
   BuildTestGptData(gpt);
   h1->alternate_lba--;
   h2->alternate_lba--;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
-  EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
+  EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors));
+  EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors));
 
   BuildTestGptData(gpt);
   h1->entries_lba++;

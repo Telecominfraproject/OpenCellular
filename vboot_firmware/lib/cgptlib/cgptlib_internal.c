@@ -76,12 +76,12 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors) {
    * The secondary is at the end of the drive, preceded by its
    * entries. */
   if (is_secondary) {
-    if ((h->my_lba != drive_sectors - 1) || (h->alternate_lba != 1))
+    if (h->my_lba != drive_sectors - 1)
       return 1;
     if (h->entries_lba != h->my_lba - GPT_ENTRIES_SECTORS)
       return 1;
   } else {
-    if ((h->my_lba != 1) || (h->alternate_lba != drive_sectors - 1))
+    if (h->my_lba != 1)
       return 1;
     if (h->entries_lba != h->my_lba + 1)
       return 1;
