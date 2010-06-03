@@ -33,11 +33,11 @@ static FILE *image_file = NULL;
 
 /* Boot device stub implementations to read from the image file */
 int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
-  printf("Read(%ld, %ld)\n", lba_start, lba_count);
+  printf("Read(%llu, %llu)\n", lba_start, lba_count);
 
   if (lba_start > lkp.ending_lba ||
       lba_start + lba_count - 1 > lkp.ending_lba) {
-    fprintf(stderr, "Read overrun: %ld + %ld > %ld\n",
+    fprintf(stderr, "Read overrun: %llu + %llu > %llu\n",
             lba_start, lba_count, lkp.ending_lba);
     return 1;
   }
@@ -53,11 +53,11 @@ int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
 
 int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
                        const void *buffer) {
-  printf("Write(%ld, %ld)\n", lba_start, lba_count);
+  printf("Write(%llu, %llu)\n", lba_start, lba_count);
 
   if (lba_start > lkp.ending_lba ||
       lba_start + lba_count - 1 > lkp.ending_lba) {
-    fprintf(stderr, "Read overrun: %ld + %ld > %ld\n",
+    fprintf(stderr, "Read overrun: %llu + %llu > %llu\n",
             lba_start, lba_count, lkp.ending_lba);
     return 1;
   }
@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
   fseek(image_file, 0, SEEK_END);
   lkp.ending_lba = (ftell(image_file) / LBA_BYTES) - 1;
   rewind(image_file);
-  printf("Ending LBA: %ld\n", lkp.ending_lba);
+  printf("Ending LBA: %llu\n", lkp.ending_lba);
 
   /* Allocate a buffer for the kernel */
   lkp.kernel_buffer = Malloc(KERNEL_BUFFER_SIZE);

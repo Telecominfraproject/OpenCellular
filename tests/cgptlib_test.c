@@ -811,39 +811,39 @@ static int EntryAttributeGetSetTest() {
   GptData* gpt = GetEmptyGptData();
   GptEntry* e = (GptEntry*)(gpt->primary_entries);
 
-  e->attributes = 0x0000000000000000;
+  e->attributes = 0x0000000000000000LLU;
   SetEntrySuccessful(e, 1);
-  EXPECT(0x0100000000000000 == e->attributes);
+  EXPECT(0x0100000000000000LLU == e->attributes);
   EXPECT(1 == GetEntrySuccessful(e));
-  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  e->attributes = 0xFFFFFFFFFFFFFFFFLLU;
   SetEntrySuccessful(e, 0);
-  EXPECT(0xFEFFFFFFFFFFFFFF == e->attributes);
+  EXPECT(0xFEFFFFFFFFFFFFFFLLU == e->attributes);
   EXPECT(0 == GetEntrySuccessful(e));
 
-  e->attributes = 0x0000000000000000;
+  e->attributes = 0x0000000000000000LLU;
   SetEntryTries(e, 15);
   EXPECT(15 == GetEntryTries(e));
-  EXPECT(0x00F0000000000000 == e->attributes);
-  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  EXPECT(0x00F0000000000000LLU == e->attributes);
+  e->attributes = 0xFFFFFFFFFFFFFFFFLLU;
   SetEntryTries(e, 0);
-  EXPECT(0xFF0FFFFFFFFFFFFF == e->attributes);
+  EXPECT(0xFF0FFFFFFFFFFFFFLLU == e->attributes);
   EXPECT(0 == GetEntryTries(e));
 
-  e->attributes = 0x0000000000000000;
+  e->attributes = 0x0000000000000000LLU;
   SetEntryPriority(e, 15);
-  EXPECT(0x000F000000000000 == e->attributes);
+  EXPECT(0x000F000000000000LLU == e->attributes);
   EXPECT(15 == GetEntryPriority(e));
-  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  e->attributes = 0xFFFFFFFFFFFFFFFFLLU;
   SetEntryPriority(e, 0);
-  EXPECT(0xFFF0FFFFFFFFFFFF == e->attributes);
+  EXPECT(0xFFF0FFFFFFFFFFFFLLU == e->attributes);
   EXPECT(0 == GetEntryPriority(e));
 
-  e->attributes = 0xFFFFFFFFFFFFFFFF;
+  e->attributes = 0xFFFFFFFFFFFFFFFFLLU;
   EXPECT(1 == GetEntrySuccessful(e));
   EXPECT(15 == GetEntryPriority(e));
   EXPECT(15 == GetEntryTries(e));
 
-  e->attributes = 0x0123000000000000;
+  e->attributes = 0x0123000000000000LLU;
   EXPECT(1 == GetEntrySuccessful(e));
   EXPECT(2 == GetEntryTries(e));
   EXPECT(3 == GetEntryPriority(e));
