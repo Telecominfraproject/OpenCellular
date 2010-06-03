@@ -31,7 +31,6 @@ int main(void)
   VerifyKernelHeader(0, 0, 0, 0, 0, 0);
   VerifyKernel(0, 0, 0);
   GetLogicalKernelVersion(0);
-  VerifyKernelDriver_f(0, 0, 0, 0);
 
   // load_kernel_fw.h
   LoadKernel(0);

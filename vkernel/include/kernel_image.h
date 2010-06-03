@@ -115,6 +115,4 @@ int AddKernelKeySignature(KernelImage* image, const char* firmware_key_file);
 int AddKernelSignature(KernelImage* image,
                        const char* kernel_sigining_key_file);
 
-void PrintKernelEntry(kernel_entry* entry);
-
 #endif  /* VBOOT_REFERENCE_KERNEL_IMAGE_H_ */
