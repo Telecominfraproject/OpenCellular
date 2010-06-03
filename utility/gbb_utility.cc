@@ -155,6 +155,13 @@ int GoogleBinaryBlockUtil::search_header_signatures(const string &image,
 static bool check_property_range(uint32_t off, uint32_t sz,
                                  uint32_t hdr_sz, uint32_t max_sz,
                                  const char *prop_name, bool verbose) {
+  // for backward compatibility, we allow zero entry here.
+  if (off == 0 && sz == 0) {
+    if (verbose)
+      fprintf(stderr, " warning: property %s is EMPTY.\n", prop_name);
+    return true;
+  }
+
   if (off + sz > max_sz) {
     if (verbose)
       fprintf(stderr, " error: property %s exceed GBB.\n", prop_name);
@@ -205,14 +212,20 @@ bool GoogleBinaryBlockUtil::load_gbb_header(const string &image, long offset,
     return false;
   }
 
-  // verify location of properties
-  if (!check_property_range(h.hwid_offset, h.hwid_size,
-                            h.header_size, block_size, "hwid", verbose) ||
-      !check_property_range(h.rootkey_offset, h.rootkey_size,
-                            h.header_size, block_size, "rootkey", verbose) ||
-      !check_property_range(h.bmpfv_offset, h.bmpfv_size,
-                            h.header_size, block_size, "bmpfv", verbose)) {
-    return false;
+  // verify properties
+  for (int i = 0; i < PROP_RANGE; i++) {
+    uint32_t off, size;
+    const char *name;
+
+    if (!find_property(static_cast<PROPINDEX>(i),
+          &off, &size, &name)) {
+      assert(!"invalid property.");
+      return false;
+    }
+
+    if (!check_property_range(off, size,
+          h.header_size, block_size, name, verbose))
+      return false;
   }
 
   return true;
@@ -220,21 +233,28 @@ bool GoogleBinaryBlockUtil::load_gbb_header(const string &image, long offset,
 
 bool GoogleBinaryBlockUtil::find_property(PROPINDEX i,
                                           uint32_t *poffset,
-                                          uint32_t *psize) const {
+                                          uint32_t *psize,
+                                          const char** pname) const {
   switch (i) {
     case PROP_HWID:
       *poffset = header_.hwid_offset;
       *psize = header_.hwid_size;
+      if (pname)
+        *pname = "hardware_id";
       break;
 
     case PROP_ROOTKEY:
       *poffset = header_.rootkey_offset;
       *psize = header_.rootkey_size;
+      if (pname)
+        *pname = "root_key";
       break;
 
     case PROP_BMPFV:
       *poffset = header_.bmpfv_offset;
       *psize = header_.bmpfv_size;
+      if (pname)
+        *pname = "bmp_fv";
       break;
 
     default:
@@ -248,10 +268,11 @@ bool GoogleBinaryBlockUtil::find_property(PROPINDEX i,
 bool GoogleBinaryBlockUtil::set_property(PROPINDEX i, const string &value) {
   uint32_t prop_size;
   uint32_t prop_offset;
+  const char *prop_name;
 
   assert(is_valid_gbb);
 
-  if (!find_property(i, &prop_offset, &prop_size)) {
+  if (!find_property(i, &prop_offset, &prop_size, &prop_name)) {
     if (verbose)
       fprintf(stderr, " internal error: unknown property (%d).\n",
               static_cast<int>(i));
@@ -260,16 +281,16 @@ bool GoogleBinaryBlockUtil::set_property(PROPINDEX i, const string &value) {
 
   if (prop_size < value.size()) {
     if (verbose)
-      fprintf(stderr, " error: value size (%zu) exceed capacity (%u).\n",
-          value.size(), prop_size);
+      fprintf(stderr, " error: value size (%zu) exceed property capacity "
+              "(%u): %s\n", value.size(), prop_size, prop_name);
     return false;
   }
 
   if (i == PROP_HWID && prop_size == value.size()) {
     // special case: this is NUL-terminated so it's better to keep one more \0
     if (verbose)
-      fprintf(stderr, "error: NUL-terminated string exceed capacity (%d)\n",
-          prop_size);
+      fprintf(stderr, "error: NUL-terminated string exceed capacity (%d): %s\n",
+          prop_size, prop_name);
     return false;
   }
 
@@ -283,19 +304,43 @@ bool GoogleBinaryBlockUtil::set_property(PROPINDEX i, const string &value) {
 string GoogleBinaryBlockUtil::get_property(PROPINDEX i) const {
   uint32_t prop_size;
   uint32_t prop_offset;
+  const char *prop_name;
 
   assert(is_valid_gbb);
 
-  if (!find_property(i, &prop_offset, &prop_size)) {
+  if (!find_property(i, &prop_offset, &prop_size, &prop_name)) {
     if (verbose)
       fprintf(stderr, " internal error: unknown property (%d).\n",
               static_cast<int>(i));
     return "";
   }
 
+  // check range again to allow empty value (for compatbility)
+  if (prop_offset == 0 && prop_size == 0) {
+    if (verbose)
+      fprintf(stderr, " warning: empty property (%d): %s.\n",
+              static_cast<int>(i), prop_name);
+    return "";
+  }
+
   string::const_iterator dest = file_content_.begin() +
                                 header_offset_ + prop_offset;
   return string(dest, dest + prop_size);
+}
+
+string GoogleBinaryBlockUtil::get_property_name(PROPINDEX i) const {
+  uint32_t unused_off, unused_size;
+  const char *prop_name;
+
+  if (!find_property(i, &unused_off, &unused_size, &prop_name)) {
+    if (verbose)
+      fprintf(stderr, " internal error: unknown property (%d).\n",
+          static_cast<int>(i));
+    assert(!"invalid property index.");
+    return "";
+  }
+
+  return prop_name;
 }
 
 bool GoogleBinaryBlockUtil::set_hwid(const char *hwid) {
@@ -310,31 +355,39 @@ bool GoogleBinaryBlockUtil::set_bmpfv(const string &value) {
   return set_property(PROP_BMPFV, value);
 }
 
-} // namespace vboot_reference
+}  // namespace vboot_reference
 
 #ifdef WITH_UTIL_MAIN
 
 ///////////////////////////////////////////////////////////////////////
 // command line utilities
 
+#include <map>
+
+using vboot_reference::GoogleBinaryBlockUtil;
+
 // utility function: provide usage of this utility and exit.
 static void usagehelp_exit(const char *prog_name) {
   printf(
     "Utility to manage Google Binary Block (GBB)\n"
-    "Usage: %s [-g|-s] [OPTIONS] bios_file [output_file]\n\n"
-    "-g, --get            \tGet (read) from bios_file, "
+    "Usage: %s [-g|-s] [OPTIONS] bios_file [output_file]\n"
+    "\n"
+    "GET MODE:\n"
+    "-g, --get   (default)\tGet (read) from bios_file, "
                             "with following options:\n"
     "     --hwid          \tReport hardware id (default).\n"
     " -k, --rootkey=FILE  \tFile name to export Root Key.\n"
     " -b, --bmpfv=FILE    \tFile name to export Bitmap FV.\n"
     "\n"
+    "SET MODE:\n"
     "-s, --set            \tSet (write) to bios_file, "
                             "with following options:\n"
+    " -o, --output=FILE   \tNew file name for ouptput.\n"
     " -i, --hwid=HWID     \tThe new hardware id to be changed.\n"
     " -k, --rootkey=FILE  \tFile name of new Root Key.\n"
-    " -b, --bmpfv=FILE    \tFile name of new Bitmap FV\n"
+    " -b, --bmpfv=FILE    \tFile name of new Bitmap FV.\n"
     "\n"
-    " SAMPLE:\n"
+    "SAMPLE:\n"
     "  %s -g bios.bin\n"
     "  %s --set --hwid='New Model' -k key.bin bios.bin newbios.bin\n"
     , prog_name, prog_name, prog_name);
@@ -342,43 +395,63 @@ static void usagehelp_exit(const char *prog_name) {
 }
 
 // utility function: export a property from GBB to given file.
+// if filename was empty, export to console (screen).
 // return true on success, otherwise false.
-static bool export_property_to_file(const string &filename,
-                                    const char *name, const string &value) {
-  assert(!filename.empty());
-  const char *fn = filename.c_str();
+static bool export_property(GoogleBinaryBlockUtil::PROPINDEX idx,
+                            const string &filename,
+                            const GoogleBinaryBlockUtil &util) {
+  string prop_name = util.get_property_name(idx),
+         value = util.get_property(idx);
+  const char *name = prop_name.c_str();
 
-  if (!write_nonempty_file(fn, value)) {
-    fprintf(stderr, "error: failed to export %s to file: %s\n", name, fn);
-    return false;
+  if (filename.empty()) {
+    // write to console
+    printf("%s: %s\n", name, value.c_str());
+  } else {
+    const char *fn = filename.c_str();
+
+    if (!write_nonempty_file(fn, value)) {
+      fprintf(stderr, "error: failed to export %s to file: %s\n", name, fn);
+      return false;
+    }
+    printf(" - exported %s to file: %s\n", name, fn);
   }
 
-  printf(" - exported %s to file: %s\n", name, fn);
   return true;
 }
 
-// utility function: import a property to GBB by given file.
+// utility function: import a property to GBB by given source (file or string).
 // return true on success, otherwise false.
 // is succesfully imported into GBB.
-static bool import_property_from_file(
-    const string &filename, const char *name,
-    bool (vboot_reference::GoogleBinaryBlockUtil::*setter)(const string &value),
-    vboot_reference::GoogleBinaryBlockUtil *putil) {
-  assert(!filename.empty());
+static bool import_property(
+    GoogleBinaryBlockUtil::PROPINDEX idx, const string &source,
+    bool source_as_file, GoogleBinaryBlockUtil *putil) {
+  assert(!source.empty());
+  string prop_name = putil->get_property_name(idx);
 
-  printf(" - import %s from %s: ", name, filename.c_str());
-  string v = read_nonempty_file(filename.c_str());
-  if (v.empty()) {
-    printf("invalid file.\n");
-    return false;
+  if (source_as_file) {
+    printf(" - import %s from %s: ", prop_name.c_str(), source.c_str());
+    string v = read_nonempty_file(source.c_str());
+    if (v.empty()) {
+      printf("invalid file.\n");
+      return false;
+    }
+    if (!putil->set_property(idx, v)) {
+      printf("invalid content.\n");
+      return false;
+    }
+    printf("success.\n");
+  } else {
+    // source as string
+    string old_value = putil->get_property(idx);
+    bool result = putil->set_property(idx, source);
+    printf(" - %s changed from '%s' to '%s': %s\n",
+        prop_name.c_str(), old_value.c_str(), source.c_str(),
+        result ? "success" : "failed");
+    if (!result)
+      return false;
   }
 
-  if (!(putil->*setter)(v)) {
-    printf("invalid content.\n");
-    return false;
-  }
-
-  printf("success.\n");
   return true;
 }
 
@@ -389,29 +462,39 @@ int main(int argc, char *argv[]) {
   const char *myname = argv[0];
   int err_stage = 0;    // an indicator for error exits
 
+  // small parameter helper class
+  class OptPropertyMap: public
+                        std::map<GoogleBinaryBlockUtil::PROPINDEX, string> {
+    public:
+      bool set_new_value(GoogleBinaryBlockUtil::PROPINDEX id, const string &v) {
+        if (find(id) != end())
+          return false;
+        (*this)[id] = v;
+        return true;
+      }
+  };
+  OptPropertyMap opt_props;
+
   struct GBBUtilOptions {
     bool get_mode, set_mode;
-    bool use_hwid, use_rootkey, use_bmpfv;
-    string hwid, rootkey_fn, bmpfv_fn;
+    string input_fn, output_fn;
   } myopts;
-
   myopts.get_mode = myopts.set_mode = false;
-  myopts.use_hwid = myopts.use_rootkey = myopts.use_bmpfv = false;
 
   // snippets for getopt_long
   int option_index, opt;
   static struct option long_options[] = {
-    {"get",     0, NULL, 'g' },
-    {"set",     0, NULL, 's' },
-    {"hwid",    2, NULL, 'i' },
+    {"get", 0, NULL, 'g' },
+    {"set", 0, NULL, 's' },
+    {"output", 1, NULL, 'o' },
+    {"hwid", 2, NULL, 'i' },
     {"rootkey", 1, NULL, 'k' },
-    {"bmpfv",   1, NULL, 'b' },
-    { NULL,     0, NULL, 0           },
+    {"bmpfv", 1, NULL, 'b' },
+    { NULL, 0, NULL, 0 },
   };
-  int opt_props = 0; // number of assigned properties.
 
   // parse command line options
-  while ((opt = getopt_long(argc, argv, "gsi:k:b:",
+  while ((opt = getopt_long(argc, argv, "gso:i:k:b:",
                             long_options, &option_index)) >= 0) {
     switch (opt) {
       case 'g':
@@ -422,23 +505,26 @@ int main(int argc, char *argv[]) {
         myopts.set_mode = true;
         break;
 
+      case 'o':
+        myopts.output_fn = optarg;
+        break;
+
       case 'i':
-        opt_props++;
-        myopts.use_hwid = true;
-        if (optarg)
-          myopts.hwid = optarg;
+        if (!opt_props.set_new_value(
+              GoogleBinaryBlockUtil::PROP_HWID, optarg ? optarg : ""))
+          usagehelp_exit(myname);
         break;
 
       case 'k':
-        opt_props++;
-        myopts.use_rootkey = true;
-        myopts.rootkey_fn = optarg;
+        if (!opt_props.set_new_value(
+              GoogleBinaryBlockUtil::PROP_ROOTKEY, optarg))
+          usagehelp_exit(myname);
         break;
 
       case 'b':
-        opt_props++;
-        myopts.use_bmpfv = true;
-        myopts.bmpfv_fn = optarg;
+        if (!opt_props.set_new_value(
+              GoogleBinaryBlockUtil::PROP_BMPFV, optarg))
+          usagehelp_exit(myname);
         break;
 
       default:
@@ -450,25 +536,42 @@ int main(int argc, char *argv[]) {
   argc -= optind;
   argv += optind;
 
-  // check parameters configuration
-  if (!(argc == 1 || (myopts.set_mode && argc == 2)))
-    usagehelp_exit(myname);
+  // adjust non-dashed parameters
+  if (myopts.output_fn.empty() && argc == 2) {
+    myopts.output_fn = argv[1];
+    argc--;
+  }
 
-  // stage: parameter parsing
+  // currently, the only parameter is 'input file'.
+  if (argc == 1) {
+    myopts.input_fn = argv[0];
+  } else {
+    usagehelp_exit(myname);
+  }
+
+  // stage: complete parameter parsing and checking
   err_stage++;
   if (myopts.get_mode == myopts.set_mode) {
-    printf("error: please assign either get or set mode.\n");
+    if (myopts.get_mode) {
+      printf("error: please assign either get or set mode.\n");
+      return err_stage;
+    } else {
+      // enter 'get' mode by default, if not assigned.
+      myopts.get_mode = true;
+    }
+  }
+  if (myopts.get_mode && !myopts.output_fn.empty()) {
+    printf("error: get-mode does not create output files.\n");
     return err_stage;
   }
 
   // stage: load image files
   err_stage++;
-  vboot_reference::GoogleBinaryBlockUtil util;
-  const char *input_filename = argv[0],
-             *output_filename= (argc > 1) ? argv[1] : argv[0];
+  GoogleBinaryBlockUtil util;
 
-  if (!util.load_from_file(input_filename)) {
-    printf("error: cannot load valid BIOS file: %s\n", input_filename);
+  assert(!myopts.input_fn.empty());
+  if (!util.load_from_file(myopts.input_fn.c_str())) {
+    printf("error: cannot load valid BIOS file: %s\n", myopts.input_fn.c_str());
     return err_stage;
   }
 
@@ -476,53 +579,52 @@ int main(int argc, char *argv[]) {
   err_stage++;
   if (myopts.get_mode) {
     // get mode
-    if (opt_props < 1)  // enable hwid by default
-      myopts.use_hwid = true;
+    if (opt_props.empty())  // enable hwid by default
+      opt_props.set_new_value(GoogleBinaryBlockUtil::PROP_HWID, "");
 
-    if (myopts.use_hwid)
-      printf("Hardware ID: %s\n", util.get_hwid().c_str());
-    if (myopts.use_rootkey)
-      export_property_to_file(myopts.rootkey_fn, "rootkey", util.get_rootkey());
-    if (myopts.use_bmpfv)
-      export_property_to_file(myopts.bmpfv_fn,   "bmpfv",   util.get_bmpfv());
+    for (OptPropertyMap::const_iterator i = opt_props.begin();
+         i != opt_props.end();
+         i++) {
+      export_property(i->first, i->second, util);
+    }
+
   } else {
     // set mode
     assert(myopts.set_mode);
-    if (opt_props < 1) {
+
+    if (opt_props.empty()) {
       printf("nothing to change. abort.\n");
       return err_stage;
     }
 
-    // HWID does not come from file, so update it direcly here.
-    if (myopts.use_hwid) {
-      string old_hwid = util.get_hwid();
-      if (!util.set_hwid(myopts.hwid.c_str())) {
-        printf("error: inproper hardware id: %s\n",
-            myopts.hwid.c_str());
+    for (OptPropertyMap::const_iterator i = opt_props.begin();
+         i != opt_props.end();
+         i++) {
+      bool source_as_file = true;
+
+      // the hwid command line parameter was a simple string.
+      if (i->first == GoogleBinaryBlockUtil::PROP_HWID)
+        source_as_file = false;
+
+      if (!import_property(i->first, i->second, source_as_file, &util)) {
+        printf("error: cannot set properties. abort.\n");
         return err_stage;
       }
-      printf(" - Hardware id changed: %s -> %s.\n",
-          old_hwid.c_str(), util.get_hwid().c_str());
-    }
-
-    // import other properties from file
-    if ((myopts.use_rootkey &&
-         !import_property_from_file(myopts.rootkey_fn, "rootkey",
-          &vboot_reference::GoogleBinaryBlockUtil::set_rootkey, &util)) ||
-        (myopts.use_bmpfv &&
-         !import_property_from_file(myopts.bmpfv_fn, "bmpfv",
-          &vboot_reference::GoogleBinaryBlockUtil::set_bmpfv, &util))) {
-      printf("error: cannot set new properties. abort.\n");
-      return err_stage;
     }
 
     // stage: write output
     err_stage++;
-    if (!util.save_to_file(output_filename)) {
-      printf("error: cannot save to file: %s\n", output_filename);
+
+    // use input filename (overwrite) by default
+    if (myopts.output_fn.empty())
+      myopts.output_fn = myopts.input_fn;
+
+    assert(!myopts.output_fn.empty());
+    if (!util.save_to_file(myopts.output_fn.c_str())) {
+      printf("error: cannot save to file: %s\n", myopts.output_fn.c_str());
       return err_stage;
     } else {
-      printf("successfully saved new image to: %s\n", output_filename);
+      printf("successfully saved new image to: %s\n", myopts.output_fn.c_str());
     }
   }
 
