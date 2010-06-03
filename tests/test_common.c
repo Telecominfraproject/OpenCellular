@@ -72,6 +72,12 @@ FirmwareImage* GenerateTestFirmwareImage(int algorithm,
   /* Populate firmware and preamble with dummy data. */
   image->firmware_version = firmware_version;
   image->firmware_len = firmware_len;
+  /* Make the kernel subkey the same as the firmware signing key. */
+  image->kernel_subkey_sign_algorithm = algorithm;
+  image->kernel_subkey_sign_key = (uint8_t*) Malloc(
+      RSAProcessedKeySize(image->kernel_subkey_sign_algorithm));
+  Memcpy(image->kernel_subkey_sign_key, firmware_sign_key,
+         RSAProcessedKeySize(image->kernel_subkey_sign_algorithm));
   image->preamble_signature = image->firmware_signature = NULL;
   Memset(image->preamble, 'P', FIRMWARE_PREAMBLE_SIZE);
   image->firmware_data = Malloc(image->firmware_len);

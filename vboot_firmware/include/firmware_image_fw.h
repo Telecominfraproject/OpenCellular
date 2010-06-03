@@ -36,6 +36,10 @@ typedef struct FirmwareImage {
   /* Firmware Preamble. */
   uint16_t firmware_version;  /* Firmware Version# for preventing rollbacks.*/
   uint64_t firmware_len;  /* Length of the rest of the R/W firmware data. */
+  uint16_t kernel_subkey_sign_algorithm;  /* Signature algorithm used for
+                                           * signing the kernel subkey. */
+  uint8_t* kernel_subkey_sign_key;  /* Pre-processed public half of the kernel
+                                     * subkey signing key. */
   uint8_t preamble[FIRMWARE_PREAMBLE_SIZE];  /* Remaining preamble data.*/
 
   uint8_t* preamble_signature;  /* Signature over the preamble. */
@@ -64,6 +68,10 @@ typedef struct FirmwareImage {
 #define VERIFY_FIRMWARE_MAX 10  /* Total number of error codes. */
 
 extern char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
+
+/* Returns the length of the verified boot firmware preamble based on
+ * kernel subkey signing algorithm [algorithm]. */
+uint64_t GetFirmwarePreambleLen(int algorithm);
 
 /* Checks for the sanity of the firmware header pointed by [header_blob].
  *

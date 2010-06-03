@@ -29,6 +29,15 @@ char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX] = {
   "Firmware Version Rollback."
 };
 
+uint64_t GetFirmwarePreambleLen(int algorithm) {
+  return (FIELD_LEN(firmware_version) +
+          FIELD_LEN(firmware_len) +
+          FIELD_LEN(kernel_subkey_sign_algorithm) +
+          RSAProcessedKeySize(algorithm) +
+          FIELD_LEN(preamble));
+}
+
+
 int VerifyFirmwareHeader(const uint8_t* root_key_blob,
                          const uint8_t* header_blob,
                          int* algorithm,
@@ -89,22 +98,24 @@ int VerifyFirmwareHeader(const uint8_t* root_key_blob,
 
 int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
                            const uint8_t* preamble_blob,
-                           int algorithm,
+                           int firmware_sign_algorithm,
                            uint64_t* firmware_len) {
   uint64_t len;
   int preamble_len;
   uint16_t firmware_version;
+  uint16_t kernel_subkey_sign_algorithm;
 
   Memcpy(&firmware_version, preamble_blob, sizeof(firmware_version));
-
-  preamble_len = (FIELD_LEN(firmware_version) +
-                  FIELD_LEN(firmware_len) +
-                  FIELD_LEN(preamble));
+  Memcpy(&kernel_subkey_sign_algorithm,
+         preamble_blob + (FIELD_LEN(firmware_version) +
+                          FIELD_LEN(firmware_len)),
+         FIELD_LEN(kernel_subkey_sign_algorithm));
+  preamble_len = GetFirmwarePreambleLen(kernel_subkey_sign_algorithm);
   if (!RSAVerifyBinary_f(NULL, firmware_sign_key,  /* Key to use */
                          preamble_blob,  /* Data to verify */
                          preamble_len,  /* Length of data */
                          preamble_blob + preamble_len,  /* Expected Signature */
-                         algorithm))
+                         firmware_sign_algorithm))
     return VERIFY_FIRMWARE_PREAMBLE_SIGNATURE_FAILED;
 
   Memcpy(&len, preamble_blob + FIELD_LEN(firmware_version),
@@ -117,19 +128,24 @@ int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
                        const uint8_t* preamble_start,
                        const uint8_t* firmware_data,
                        uint64_t firmware_len,
-                       int algorithm) {
-  int signature_len = siglen_map[algorithm];
-  int preamble_len = (FIELD_LEN(firmware_version) +
-                      FIELD_LEN(firmware_len) +
-                      FIELD_LEN(preamble));;
+                       int firmware_sign_algorithm) {
+  int signature_len = siglen_map[firmware_sign_algorithm];
+  int preamble_len;
+  uint16_t kernel_subkey_sign_algorithm;
   uint8_t* digest = NULL;
   const uint8_t* firmware_signature = NULL;
   DigestContext ctx;
+  Memcpy(&kernel_subkey_sign_algorithm,
+         preamble_start + (FIELD_LEN(firmware_version) +
+                          FIELD_LEN(firmware_len)),
+         FIELD_LEN(kernel_subkey_sign_algorithm));
+  preamble_len = GetFirmwarePreambleLen(kernel_subkey_sign_algorithm);
+
 
   /* Since the firmware signature is over the preamble and the firmware data,
    * which does not form a contiguous region of memory, we calculate the
    * message digest ourselves. */
-  DigestInit(&ctx, algorithm);
+  DigestInit(&ctx, firmware_sign_algorithm);
   DigestUpdate(&ctx, preamble_start, preamble_len);
   DigestUpdate(&ctx, firmware_data, firmware_len);
   digest = DigestFinal(&ctx);
@@ -139,7 +155,7 @@ int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
           NULL, firmware_sign_key,  /* Key to use. */
           digest,  /* Digest of the data to verify. */
           firmware_signature,  /* Expected Signature */
-          algorithm)) {
+          firmware_sign_algorithm)) {
     Free(digest);
     return VERIFY_FIRMWARE_SIGNATURE_FAILED;
   }
@@ -151,7 +167,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
                    const uint8_t* verification_header_blob,
                    const uint8_t* firmware_blob) {
   int error_code = 0;
-  int algorithm;  /* Signing key algorithm. */
+  int firmware_sign_algorithm;  /* Signing key algorithm. */
   RSAPublicKey* firmware_sign_key = NULL;
   int firmware_sign_key_len, signature_len, header_len;
   uint64_t firmware_len;
@@ -172,25 +188,26 @@ int VerifyFirmware(const uint8_t* root_key_blob,
 
   /* Only continue if header verification succeeds. */
   if ((error_code = VerifyFirmwareHeader(root_key_blob, header_ptr,
-                                         &algorithm, &header_len))) {
+                                         &firmware_sign_algorithm,
+                                         &header_len))) {
     debug("Couldn't verify Firmware header.\n");
     return error_code;  /* AKA jump to revovery. */
   }
   /* Parse signing key into RSAPublicKey structure since it is required multiple
    * times. */
-  firmware_sign_key_len = RSAProcessedKeySize(algorithm);
+  firmware_sign_key_len = RSAProcessedKeySize(firmware_sign_algorithm);
   firmware_sign_key_ptr = header_ptr + (FIELD_LEN(header_len) +
                                         FIELD_LEN(firmware_sign_algorithm) +
                                         FIELD_LEN(firmware_key_version));
   firmware_sign_key = RSAPublicKeyFromBuf(firmware_sign_key_ptr,
                                           firmware_sign_key_len);
-  signature_len = siglen_map[algorithm];
+  signature_len = siglen_map[firmware_sign_algorithm];
 
   /* Only continue if preamble verification succeeds. */
   preamble_ptr = (header_ptr + header_len +
                   FIELD_LEN(firmware_key_signature));
   if ((error_code = VerifyFirmwarePreamble(firmware_sign_key, preamble_ptr,
-                                           algorithm,
+                                           firmware_sign_algorithm,
                                            &firmware_len))) {
     RSAPublicKeyFree(firmware_sign_key);
     debug("Couldn't verify Firmware preamble.\n");
@@ -200,7 +217,7 @@ int VerifyFirmware(const uint8_t* root_key_blob,
   if ((error_code = VerifyFirmwareData(firmware_sign_key, preamble_ptr,
                                        firmware_blob,
                                        firmware_len,
-                                       algorithm))) {
+                                       firmware_sign_algorithm))) {
     RSAPublicKeyFree(firmware_sign_key);
     debug("Couldn't verify Firmware data.\n");
     return error_code;  /* AKA jump to recovery. */
