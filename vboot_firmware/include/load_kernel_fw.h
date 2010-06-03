@@ -38,7 +38,7 @@ typedef struct LoadKernelParams {
    * LOAD_KERNEL_SUCCESS */
   uint64_t partition_number;    /* Partition number to boot on current device
                                  * (1...M) */
-  void *bootloader_start;       /* Start of bootloader image */
+  uint64_t bootloader_address;  /* Address of bootloader image in RAM */
   uint64_t bootloader_size;     /* Size of bootloader image in bytes */
 } LoadKernelParams;
 

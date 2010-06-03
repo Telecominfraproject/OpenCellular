@@ -26,10 +26,9 @@ TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
 		gbb_utility \
 		kernel_utility \
+		load_kernel_test \
 		signature_digest_utility \
 		verify_data
-# Note: load_kernel_test is not part of TARGET_BINS, since it's a
-# temporary test.
 
 all: $(TARGET_BINS) subdirs
 

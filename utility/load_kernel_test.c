@@ -7,6 +7,7 @@
  * RSA verification implementation.
  */
 
+#include <inttypes.h>  /* For PRIu64 macro */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,11 +34,11 @@ static FILE *image_file = NULL;
 
 /* Boot device stub implementations to read from the image file */
 int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
-  printf("Read(%llu, %llu)\n", lba_start, lba_count);
+  printf("Read(%" PRIu64 ", %" PRIu64 ")\n", lba_start, lba_count);
 
   if (lba_start > lkp.ending_lba ||
       lba_start + lba_count - 1 > lkp.ending_lba) {
-    fprintf(stderr, "Read overrun: %llu + %llu > %llu\n",
+    fprintf(stderr, "Read overrun: %" PRIu64 " + %" PRIu64 " > %" PRIu64 "\n",
             lba_start, lba_count, lkp.ending_lba);
     return 1;
   }
@@ -53,11 +54,11 @@ int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
 
 int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
                        const void *buffer) {
-  printf("Write(%llu, %llu)\n", lba_start, lba_count);
+  printf("Write(%" PRIu64 ", %" PRIu64 ")\n", lba_start, lba_count);
 
   if (lba_start > lkp.ending_lba ||
       lba_start + lba_count - 1 > lkp.ending_lba) {
-    fprintf(stderr, "Read overrun: %llu + %llu > %llu\n",
+    fprintf(stderr, "Read overrun: %" PRIu64 " + %" PRIu64 " > %" PRIu64 "\n",
             lba_start, lba_count, lkp.ending_lba);
     return 1;
   }
@@ -77,24 +78,45 @@ int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
 /* Main routine */
 int main(int argc, char* argv[]) {
 
-  const char *image_name;
+  const char* image_name;
+  const char* keyfile_name;
   int rv;
 
   Memset(&lkp, 0, sizeof(LoadKernelParams));
   lkp.bytes_per_lba = LBA_BYTES;
 
   /* Read command line parameters */
-  if (2 > argc) {
-    fprintf(stderr, "usage: %s <drive_image>\n", argv[0]);
+  if (3 > argc) {
+    fprintf(stderr, "usage: %s <drive_image> <sign_key>\n", argv[0]);
     return 1;
   }
   image_name = argv[1];
-  printf("Reading from image: %s\n", image_name);
+  keyfile_name = argv[2];
 
-  /* TODO: Read header signing key blob */
-  lkp.header_sign_key_blob = NULL;
+  /* Read header signing key blob */
+  {
+    FILE* f;
+    int key_size;
+    printf("Reading key from: %s\n", keyfile_name);
+    f = fopen(keyfile_name, "rb");
+    if (!f) {
+      fprintf(stderr, "Unable to open key file %s\n", keyfile_name);
+      return 1;
+    }
+    fseek(f, 0, SEEK_END);
+    key_size = ftell(f);
+    rewind(f);
+    lkp.header_sign_key_blob = Malloc(key_size);
+    printf("Reading %d bytes of key\n", key_size);
+    if (fread(lkp.header_sign_key_blob, key_size, 1, f) != 1) {
+      fprintf(stderr, "Unable to read key data\n");
+      return 1;
+    }
+    fclose(f);
+  }
 
   /* Get image size */
+  printf("Reading from image: %s\n", image_name);
   image_file = fopen(image_name, "rb");
   if (!image_file) {
     fprintf(stderr, "Unable to open image file %s\n", image_name);
@@ -103,7 +125,7 @@ int main(int argc, char* argv[]) {
   fseek(image_file, 0, SEEK_END);
   lkp.ending_lba = (ftell(image_file) / LBA_BYTES) - 1;
   rewind(image_file);
-  printf("Ending LBA: %llu\n", lkp.ending_lba);
+  printf("Ending LBA: %" PRIu64 "\n", lkp.ending_lba);
 
   /* Allocate a buffer for the kernel */
   lkp.kernel_buffer = Malloc(KERNEL_BUFFER_SIZE);
@@ -118,6 +140,12 @@ int main(int argc, char* argv[]) {
   /* Call LoadKernel() */
   rv = LoadKernel(&lkp);
   printf("LoadKernel() returned %d\n", rv);
+
+  if (LOAD_KERNEL_SUCCESS == rv) {
+    printf("Partition number:   %" PRIu64 "\n", lkp.partition_number);
+    printf("Bootloader address: %" PRIu64 "\n", lkp.bootloader_address);
+    printf("Bootloader size:    %" PRIu64 "\n", lkp.bootloader_size);
+  }
 
   fclose(image_file);
   Free(lkp.kernel_buffer);

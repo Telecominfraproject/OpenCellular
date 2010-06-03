@@ -18,6 +18,7 @@
 
 // TODO: for testing
 #include <stdio.h>
+#include <inttypes.h>  /* For PRIu64 macro */
 #include "cgptlib_internal.h"
 
 /* TODO: Remove this terrible hack which fakes partition attributes
@@ -28,11 +29,10 @@ void FakePartitionAttributes(GptData* gpt) {
   GptEntry* e;
   int i;
   printf("Hacking partition attributes...\n");
-  printf("Note that GUIDs below have first 3 fields endian-swapped\n");
 
   for (i = 0, e = entries; i < 12; i++, e++) {
 
-    printf("%2d %08x %04x %04x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+    printf("%2d %08x %04x %04x %02x %02x %02x %02x %02x %02x %02x %02x",
            i,
            e->type.u.Uuid.time_low,
            e->type.u.Uuid.time_mid,
@@ -46,6 +46,8 @@ void FakePartitionAttributes(GptData* gpt) {
            e->type.u.Uuid.node[4],
            e->type.u.Uuid.node[5]
            );
+    printf(" %8" PRIu64 " %8" PRIu64"\n", e->starting_lba,
+           e->ending_lba - e->starting_lba + 1);
     if (!IsKernelEntry(e))
       continue;
     printf("Hacking attributes for kernel partition %d\n", i);
@@ -144,6 +146,11 @@ int LoadKernel(LoadKernelParams* params) {
   uint16_t lowest_kernel_version = 0xFFFF;
   KernelImage *kim = NULL;
 
+  /* Clear output params in case we fail */
+  params->partition_number = 0;
+  params->bootloader_address = 0;
+  params->bootloader_size = 0;
+
   /* Read current kernel key index from TPM.  Assumes TPM is already
    * initialized. */
   /* TODO: Is that a safe assumption?  Normally, SetupTPM() would be called
@@ -160,8 +167,6 @@ int LoadKernel(LoadKernelParams* params) {
     gpt.drive_sectors = params->ending_lba + 1;
     if (0 != AllocAndReadGptData(&gpt))
       break;
-
-    fprintf(stderr, "RRS1\n");
 
     /* Initialize GPT library */
     if (GPT_SUCCESS != GptInit(&gpt))
@@ -180,14 +185,10 @@ int LoadKernel(LoadKernelParams* params) {
     if (!kim)
       break;
 
-    fprintf(stderr, "RRS2\n");
-
     /* Loop over candidate kernel partitions */
     while (GPT_SUCCESS == GptNextKernelEntry(&gpt, &part_start, &part_size)) {
       RSAPublicKey *kernel_sign_key = NULL;
       int kernel_start, kernel_sectors;
-
-      fprintf(stderr, "RRS3\n");
 
       /* Found at least one kernel partition. */
       found_partition = 1;
@@ -197,8 +198,6 @@ int LoadKernel(LoadKernelParams* params) {
         continue;
       if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf))
         continue;
-
-      fprintf(stderr, "RRS4\n");
 
       /* Verify the kernel header and preamble */
       if (VERIFY_KERNEL_SUCCESS != VerifyKernelHeader(
@@ -211,7 +210,17 @@ int LoadKernel(LoadKernelParams* params) {
         continue;
       }
 
-      fprintf(stderr, "RRS5\n");
+      printf("Kernel header:\n");
+      printf("header version:     %d\n", kim->header_version);
+      printf("header len:         %d\n", kim->header_len);
+      printf("firmware sign alg:  %d\n", kim->firmware_sign_algorithm);
+      printf("kernel sign alg:    %d\n", kim->kernel_sign_algorithm);
+      printf("kernel key version: %d\n", kim->kernel_key_version);
+      printf("kernel version:     %d\n", kim->kernel_version);
+      printf("kernel len:         %" PRIu64 "\n", kim->kernel_len);
+      printf("bootloader addr:    %" PRIu64 "\n", kim->bootloader_offset);
+      printf("bootloader size:    %" PRIu64 "\n", kim->bootloader_size);
+      printf("padded header size: %" PRIu64 "\n", kim->padded_header_size);
 
       /* Check for rollback of key version */
       if (kim->kernel_key_version < tpm_kernel_key_version) {
@@ -270,8 +279,7 @@ int LoadKernel(LoadKernelParams* params) {
       if (-1 == good_partition) {
         good_partition = gpt.current_kernel;
         params->partition_number = gpt.current_kernel;
-        params->bootloader_start = (uint8_t*)params->kernel_buffer +
-            kim->bootloader_offset;
+        params->bootloader_address = kim->bootloader_offset;
         params->bootloader_size = kim->bootloader_size;
 
         /* If the good partition's key version is the same as the tpm, then

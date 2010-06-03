@@ -132,8 +132,9 @@ int VerifyKernelData(RSAPublicKey* kernel_sign_key,
  * kernel_header_blob.  image->kernel_data is set to NULL, since it's not
  * part of the header and preamble data itself.
  *
- * The signing key to use for kernel data verification is returned in
- * [kernel_sign_key], This must be free-d explicitly by the caller after use.
+ * On success, the signing key to use for kernel data verification is
+ * returned in [kernel_sign_key], This must be free-d explicitly by
+ * the caller after use.  On failure, the signing key is set to NULL.
  *
  * Returns 0 on success, error code on failure.
  */

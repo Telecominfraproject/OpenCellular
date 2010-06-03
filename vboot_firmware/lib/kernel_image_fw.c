@@ -250,15 +250,16 @@ int VerifyKernelHeader(const uint8_t* firmware_key_blob,
   kernel_signature_len = siglen_map[kernel_sign_algorithm];
   kernel_key_signature_len = siglen_map[firmware_sign_algorithm];
   image->kernel_key_signature = (uint8_t*)st.remaining_buf;
-  StatefulSkip(&st, kernel_signature_len);
+  StatefulSkip(&st, kernel_key_signature_len);
 
   /* Only continue if preamble verification succeeds. */
   /* TODO: should pass the remaining len into VerifyKernelPreamble() */
   preamble_ptr = (const uint8_t*)st.remaining_buf;
   if ((error_code = VerifyKernelPreamble(*kernel_sign_key, preamble_ptr,
-                                         kernel_sign_algorithm,
+                                    kernel_sign_algorithm,
                                          &kernel_len))) {
     RSAPublicKeyFree(*kernel_sign_key);
+    *kernel_sign_key = NULL;
     return error_code;  /* AKA jump to recovery. */
   }
 
