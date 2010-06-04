@@ -34,14 +34,14 @@ LIB_SRCS = \
 	./lib/kernel_image_fw.c \
 	./lib/load_kernel_fw.c \
 	./lib/rollback_index.c \
-	./lib/stateful_util.c \
-	./lib/tlcl.c
+	./lib/stateful_util.c
 
 LIB_OBJS = $(LIB_SRCS:%.c=%.o)
 
 # find ./stub -iname '*.c' | sort
 STUB_SRCS = \
 	./stub/boot_device_stub.c \
+	./stub/tlcl.c \
 	./stub/utility_stub.c
 
 STUB_OBJS = $(STUB_SRCS:%.c=%.o)
