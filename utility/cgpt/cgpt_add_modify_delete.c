@@ -242,8 +242,7 @@ int CgptAdm(int argc, char *argv[]) {
   }
 
   if (command == DELETE) {
-    Guid unused = GPT_ENT_TYPE_UNUSED;
-    Memcpy(&entry->type, &unused, sizeof(Guid));
+    Memcpy(&entry->type, &guid_unused, sizeof(Guid));
   }
 
   if (dirty) {

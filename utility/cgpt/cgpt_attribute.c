@@ -12,19 +12,18 @@
 #include "cgpt_tofix.h"
 #include "utility.h"
 
-static struct number_range
-    range_1_0 = {1, 0},
-    range_15_0 = {15, 0};
+static struct number_range range_1_0 = {1, 0};
+static struct number_range range_15_0 = {15, 0};
+static struct number_range range_16_1 = {16, 1};
 
 /* Integers to store parsed argument. */
-static int help, partition, bad, successful, tries, priority;
+static int help, partition, successful, tries, priority;
 
 /* The structure for getopt_long(). When you add/delete any line, please refine
  * attribute_comments[] and third parameter of getopt_long() too.  */
 static struct option attribute_options[] = {
   {.name = "help", .has_arg = no_argument, .flag = 0, .val = 'h'},
   {.name = "partition", .has_arg = required_argument, .flag = 0, .val = 'i'},
-  {.name = "bad", .has_arg = required_argument, .flag = 0, .val = 'b'},
   {.name = "successful", .has_arg = required_argument, .flag = 0, .val = 's'},
   {.name = "tries", .has_arg = required_argument, .flag = 0, .val = 't'},
   {.name = "priority", .has_arg = required_argument, .flag = 0, .val = 'p'},
@@ -41,15 +40,10 @@ static struct option_details attribute_options_details[] = {
     .parsed = &help},
   /* partition */
   { .comment = "partition number "
-              "(defualt: first ChromeOS kernel)",
+              "(default: first ChromeOS kernel)",
     .validator = InNumberRange,
-    .valid_range = &range_15_0,
+    .valid_range = &range_16_1,
     .parsed = &partition},
-  /* bad */
-  { .comment = "mark partition bad",
-    .validator = InNumberRange,
-    .valid_range = &range_1_0,
-    .parsed = &bad},
   /* successful */
   { .comment = "mark partition successful",
     .validator = InNumberRange,
@@ -72,13 +66,13 @@ void AttributeHelp() {
   printf("\nUsage: %s attribute [OPTIONS] device_name\n\n", progname);
   ShowOptions(attribute_options, attribute_options_details,
               ARRAY_COUNT(attribute_options));
-  printf("\n* Attribute command only applies on ChromeOS kernel entry.\n\n");
 }
 
 /* Parses all options (and validates them), then opens the drive and sets
  * corresponding bits in GPT entry. */
 int CgptAttribute(int argc, char *argv[]) {
   struct drive drive;
+  GptEntry *entry;
 
   /* I know this is NOT the perfect place to put code to make options[] and
    * details[] are synced. But this is the best place we have right now since C
@@ -86,7 +80,7 @@ int CgptAttribute(int argc, char *argv[]) {
   assert(ARRAY_COUNT(attribute_options) ==
          ARRAY_COUNT(attribute_options_details));
 
-  help = partition = bad = successful = tries = priority = NOT_INITED;
+  help = partition = successful = tries = priority = NOT_INITED;
 
   if (CGPT_OK != HandleOptions(argc, argv,
                      "hi:b:s:t:p:",
@@ -108,31 +102,34 @@ int CgptAttribute(int argc, char *argv[]) {
   if (partition == NOT_INITED) {
     int i;
     for (i = 0; i < GetNumberOfEntries(&drive.gpt); ++i) {
-      static Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
-      GptEntry *entry;
       entry = GetEntry(&drive.gpt, PRIMARY, i);
-      if (!Memcmp(&chromeos_kernel, &entry->type, sizeof(Guid))) {
-        partition = i;
+      if (!Memcmp(&guid_chromeos_kernel, &entry->type, sizeof(Guid))) {
+        partition = i+1;
         break;
       }
     }
     if (partition == NOT_INITED) {
-      printf("[ERROR] No ChromeOS kernel is found. "
+      printf("[ERROR] No ChromeOS kernel partition found. "
              "Please use --partition to specify.\n");
       return CGPT_FAILED;
     } else {
       debug("No --partition is specified. "
-            "Found the first ChromeOS kernel at index [%d].\n",
+            "Found the first ChromeOS kernel in partition [%d].\n",
             partition);
     }
   }
+  int index = partition - 1;
 
   if (successful != NOT_INITED)
-    SetSuccessful(&drive.gpt, PRIMARY, partition, successful);
+    SetSuccessful(&drive.gpt, PRIMARY, index, successful);
   if (tries != NOT_INITED)
-    SetTries(&drive.gpt, PRIMARY, partition, tries);
+    SetTries(&drive.gpt, PRIMARY, index, tries);
   if (priority != NOT_INITED)
-    SetPriority(&drive.gpt, PRIMARY, partition, priority);
+    SetPriority(&drive.gpt, PRIMARY, index, priority);
+
+  /* Display state */
+  entry = GetEntry(&drive.gpt, PRIMARY, index);
+  EntryDetails(entry, index, NOT_INITED);
 
   /* Claims primary is good, then secondary will be overwritten. */
   /* TODO: rspangler broke this during cgptlib refactoring; need to

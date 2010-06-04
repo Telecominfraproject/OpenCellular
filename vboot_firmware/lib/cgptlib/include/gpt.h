@@ -34,6 +34,8 @@
   {{{0x3cb8e202,0x3b7e,0x47dd,0x8a,0x3c,{0x7f,0xf2,0xa1,0x3c,0xfc,0xec}}}}
 #define GPT_ENT_TYPE_CHROMEOS_RESERVED \
   {{{0x2e0a753d,0x9e48,0x43b0,0x83,0x37,{0xb1,0x51,0x92,0xcb,0x1b,0x5e}}}}
+#define GPT_ENT_TYPE_LINUX_DATA \
+  {{{0xebd0a0a2,0xb9e5,0x4433,0x87,0xc0,{0x68,0xb6,0xb7,0x26,0x99,0xc7}}}}
 
 
 #define UUID_NODE_LEN 6
@@ -55,6 +57,10 @@ typedef struct {
     uint8_t raw[GUID_SIZE];
   } u;
 } __attribute__((packed)) Guid;
+
+/* Some constant values */
+extern const Guid guid_unused;
+extern const Guid guid_chromeos_kernel;
 
 /* GPT header defines how many partitions exist on a drive and sectors managed.
  * For every drive device, there are 2 headers, primary and secondary.

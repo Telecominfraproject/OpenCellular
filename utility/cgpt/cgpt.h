@@ -120,6 +120,7 @@ void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16);
 int ResolveType(const Guid *type, char *buf);
 int SupportedType(const char *name, Guid *type);
 void PrintTypes(void);
+void EntryDetails(GptEntry *entry, int index, int raw);
 
 /* Describes the drive storing the GPT. */
 struct drive {

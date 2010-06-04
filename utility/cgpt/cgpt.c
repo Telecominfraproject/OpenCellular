@@ -142,6 +142,7 @@ void UTF16ToUTF8(const uint16_t *utf16, uint8_t *utf8)
       utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
     }
   }
+  utf8[s8idx++] = 0;
 }
 
 /* Convert UTF8 string to UTF16. Rewritten from gpt utility.
@@ -209,10 +210,11 @@ struct {
   char *description;
 } supported_types[] = {
  {GPT_ENT_TYPE_UNUSED, "unused", "Unused partition"},
- {GPT_ENT_TYPE_EFI, "efi", "EFI partition"},
+ {GPT_ENT_TYPE_EFI, "efi", "EFI System Partition"},
  {GPT_ENT_TYPE_CHROMEOS_KERNEL, "croskern", "ChromeOS kernel"},
  {GPT_ENT_TYPE_CHROMEOS_ROOTFS, "crosroot", "ChromeOS rootfs"},
  {GPT_ENT_TYPE_CHROMEOS_RESERVED, "crosresv", "ChromeOS reserved"},
+ {GPT_ENT_TYPE_LINUX_DATA, "data", "Linux data"},
 };
 
 /* Resolves human-readable GPT type.
@@ -444,7 +446,6 @@ int main(int argc, char *argv[]) {
   int i;
 
   progname = argv[0];
-  printf("Copyright (c) 2010 The Chromium OS Authors. All rights reserved.\n");
   cmd = argv[optind++];
   for (i = 0; i < sizeof(cmds)/sizeof(cmds[0]); ++i) {
     if (cmd && !strcmp(cmds[i].name, cmd))

@@ -88,11 +88,11 @@ static void RawDump(const uint8_t *memory, const int size,
 #define PARTITION_FMT  "%10d%10d%8d  %s\n"
 #define PARTITION_MORE "%10s%10s%8s  %s%s\n", "", "", ""
 
-static void HeaderDetails(GptHeader *header, const char *indent) {
+static void HeaderDetails(GptHeader *header, const char *indent, int raw) {
   int i;
 
   printf("%sSig: ", indent);
-  if (number == NOT_INITED) {
+  if (raw == NOT_INITED) {
     printf("[");
     for (i = 0; i < sizeof(header->signature); ++i)
       printf("%c", header->signature[i]);
@@ -123,52 +123,66 @@ static void HeaderDetails(GptHeader *header, const char *indent) {
   printf("%sEntries CRC: 0x%08x\n", indent, header->entries_crc32);
 }
 
-void EntriesDetails(GptData *gpt, const int secondary) {
+void EntryDetails(GptEntry *entry, int index, int raw) {
+  char contents[256];
+
+  if (raw == NOT_INITED) {
+    uint8_t label[sizeof(entry->name) * 3 / 2];
+    char type[GUID_STRLEN], unique[GUID_STRLEN];;
+
+    UTF16ToUTF8(entry->name, label);
+    snprintf(contents, sizeof(contents), "Label: \"%s\"", label);
+    printf(PARTITION_FMT, (int)entry->starting_lba,
+           (int)(entry->ending_lba - entry->starting_lba + 1),
+           index+1, contents);
+    if (CGPT_OK == ResolveType(&entry->type, type)) {
+      printf(PARTITION_MORE, "Type: ", type);
+    } else {
+      GuidToStr(&entry->type, type);
+      printf(PARTITION_MORE, "Type: ", type);
+    }
+    GuidToStr(&entry->unique, unique);
+    printf(PARTITION_MORE, "UUID: ", unique);
+    if (!Memcmp(&guid_chromeos_kernel, &entry->type, sizeof(Guid))) {
+      int tries = (entry->attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
+        CGPT_ATTRIBUTE_TRIES_OFFSET;
+      int successful = (entry->attributes & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
+        CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
+      int priority = (entry->attributes & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
+        CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+      snprintf(contents, sizeof(contents),
+               "priority=%d tries=%d successful=%d",
+               priority, tries, successful);
+      printf(PARTITION_MORE, "Attr: ", contents);
+    }
+  } else {
+    char label[BUFFER_SIZE(sizeof(entry->name))];
+    char type[GUID_STRLEN], unique[GUID_STRLEN];
+
+    RawDump((void*)entry->name, sizeof(entry->name), label, 2);
+    snprintf(contents, sizeof(contents), "Label: %s", label);
+    printf(PARTITION_FMT, (int)entry->starting_lba,
+           (int)(entry->ending_lba - entry->starting_lba + 1),
+           index+1, contents);
+    GuidToStr(&entry->type, type);
+    printf(PARTITION_MORE, "Type: ", type);
+    GuidToStr(&entry->unique, unique);
+    printf(PARTITION_MORE, "UUID: ", unique);
+    snprintf(contents, sizeof(contents), "[%016lx]", entry->attributes);
+    printf(PARTITION_MORE, "Attr: ", contents);
+  }
+}
+
+void EntriesDetails(GptData *gpt, const int secondary, int raw) {
   int i;
 
   for (i = 0; i < GetNumberOfEntries(gpt); ++i) {
-    static Guid unused = GPT_ENT_TYPE_UNUSED;
-    char contents[256];
-
     GptEntry *entry;
     entry = GetEntry(gpt, secondary, i);
 
-    if (!Memcmp(&unused, &entry->type, sizeof(unused))) continue;
+    if (!Memcmp(&guid_unused, &entry->type, sizeof(Guid))) continue;
 
-    if (number == NOT_INITED) {
-      uint8_t label[sizeof(entry->name) * 3 / 2];
-      char type[GUID_STRLEN], unique[GUID_STRLEN];;
-
-      UTF16ToUTF8(entry->name, label);
-      snprintf(contents, sizeof(contents), "Label: \"%s\"", label);
-      printf(PARTITION_FMT, (int)entry->starting_lba,
-             (int)(entry->ending_lba - entry->starting_lba + 1),
-             i, contents);
-      if (CGPT_OK == ResolveType(&entry->type, type)) {
-        printf(PARTITION_MORE, "Type: ", type);
-      } else {
-        GuidToStr(&entry->type, type);
-        printf(PARTITION_MORE, "Type: ", type);
-      }
-      GuidToStr(&entry->unique, unique);
-      printf(PARTITION_MORE, "UUID: ", unique);
-    } else {
-      char label[BUFFER_SIZE(sizeof(entry->name))];
-      char type[GUID_STRLEN], unique[GUID_STRLEN],
-           attributes[BUFFER_SIZE(sizeof(uint64_t))];
-
-      RawDump((void*)entry->name, sizeof(entry->name), label, 2);
-      snprintf(contents, sizeof(contents), "Label: %s", label);
-      printf(PARTITION_FMT, (int)entry->starting_lba,
-             (int)(entry->ending_lba - entry->starting_lba + 1),
-             i, contents);
-      GuidToStr(&entry->type, type);
-      printf(PARTITION_MORE, "Type: ", type);
-      GuidToStr(&entry->unique, unique);
-      printf(PARTITION_MORE, "UUID: ", unique);
-      RawDump((uint8_t*)&entry->attributes, 8, attributes, 4);
-      printf(PARTITION_MORE, "Attr: ", attributes);
-    }
+    EntryDetails(entry, i, raw);
   }
 }
 
@@ -216,7 +230,7 @@ int CgptShow(int argc, char *argv[]) {
   if (CGPT_OK != OpenDriveInLastArgument(argc, argv, &drive))
     return CGPT_FAILED;
 
-  printf(TITLE_FMT, "start", "size", "index", "contents");
+  printf(TITLE_FMT, "start", "size", "part", "contents");
   printf(GPT_FMT, 0, GPT_PMBR_SECTOR, "", "PMBR");
 
   if (drive.gpt.valid_headers & MASK_PRIMARY) {
@@ -228,7 +242,7 @@ int CgptShow(int argc, char *argv[]) {
 
       snprintf(indent, sizeof(indent), GPT_MORE);
       header = (GptHeader*)drive.gpt.primary_header;
-      HeaderDetails(header, indent);
+      HeaderDetails(header, indent, number);
     }
   } else {
     printf(GPT_FMT, (int)GPT_PMBR_SECTOR,
@@ -241,7 +255,7 @@ int CgptShow(int argc, char *argv[]) {
          "Pri GPT table");
 
   if (drive.gpt.valid_entries & MASK_PRIMARY)
-    EntriesDetails(&drive.gpt, PRIMARY);
+    EntriesDetails(&drive.gpt, PRIMARY, number);
 
   printf(GPT_FMT, (int)(drive.gpt.drive_sectors - GPT_HEADER_SECTOR -
                         GPT_ENTRIES_SECTORS),
@@ -256,7 +270,7 @@ int CgptShow(int argc, char *argv[]) {
       (!(drive.gpt.valid_entries & MASK_PRIMARY) ||
        Memcmp(drive.gpt.primary_entries, drive.gpt.secondary_entries,
               TOTAL_ENTRIES_SIZE))) {
-    EntriesDetails(&drive.gpt, SECONDARY);
+    EntriesDetails(&drive.gpt, SECONDARY, number);
   }
 
   if (drive.gpt.valid_headers & MASK_SECONDARY)
@@ -279,7 +293,7 @@ int CgptShow(int argc, char *argv[]) {
 
       snprintf(indent, sizeof(indent), GPT_MORE);
       header = (GptHeader*)drive.gpt.secondary_header;
-      HeaderDetails(header, indent);
+      HeaderDetails(header, indent, number);
     }
   }
 

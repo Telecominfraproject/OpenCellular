@@ -18,14 +18,15 @@
 
 /* Bit definitions and masks for GPT attributes.
  *
- *     63  -- do not automounting
- *     62  -- hidden
+ *  63-61  -- (reserved)
  *     60  -- read-only
- *      :
+ *  59-57  -- (reserved)
  *     56  -- success
- *  55,52  -- tries
- *  51,48  -- priority
- *      0  -- system partition
+ *  55-52  -- tries
+ *  51-48  -- priority
+ *   47-2  -- UEFI: reserved for future use
+ *      1  -- UEFI: partition is not mapped
+ *      0  -- UEFI: partition is required
  */
 #define CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET 56
 #define CGPT_ATTRIBUTE_MAX_SUCCESSFUL (1ULL)
