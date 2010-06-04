@@ -32,7 +32,7 @@ static int InitializeSpaces(void) {
     /* Spaces are already initialized, so this is an error */
     return 0;
   }
-  
+
   TlclSetNvLocked();
 
   TlclDefineSpace(FIRMWARE_VERSIONS_NV_INDEX, firmware_perm, sizeof(uint32_t));
@@ -70,24 +70,38 @@ static int InitializeSpaces(void) {
  */
 static void EnterRecovery(int unlocked) {
   uint32_t combined_versions;
-  uint32_t one = 1;
+  uint32_t backup_versions;
+  uint32_t backup_is_valid;
 
   if (!unlocked) {
     /* Saves the kernel versions and indicates that we should trust the saved
      * ones.
-     */ 
-    TlclRead(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &combined_versions,
-             sizeof(uint32_t));
-    TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX, (uint8_t*) &combined_versions,
-              sizeof(uint32_t));
-    TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &one,
-              sizeof(uint32_t));
+     */
+    TlclRead(KERNEL_VERSIONS_NV_INDEX,
+             (uint8_t*) &combined_versions, sizeof(uint32_t));
+    TlclRead(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+             (uint8_t*) &backup_versions, sizeof(uint32_t));
+    /* We could unconditional writes of both KERNEL_VERSIONS_BACKUP and
+     * KERNEL_BACKUP_IS_VALID, but this is more robust.
+     */
+    if (combined_versions != backup_versions) {
+      TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+                (uint8_t*) &combined_versions, sizeof(uint32_t));
+    }
+
+    TlclRead(KERNEL_BACKUP_IS_VALID_NV_INDEX,
+             (uint8_t*) &backup_is_valid, sizeof(uint32_t));
+    if (backup_is_valid != 1) {
+      backup_is_valid = 1;
+      TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &backup_is_valid,
+                sizeof(uint32_t));
+    }
     /* Protects the firmware and backup kernel versions. */
     LockFirmwareVersions();
   }
   debug("entering recovery mode");
-  
-  /* and then what? */
+
+  /* TODO(nelson): code for entering recovery mode. */
 }
 
 static int GetTPMRollbackIndices(void) {
@@ -129,11 +143,14 @@ static int GetTPMRollbackIndices(void) {
       TlclWrite(KERNEL_VERSIONS_NV_INDEX,
                 (uint8_t*) &protected_combined_versions, sizeof(uint32_t));
     }
-    /* We recovered and now we can reset the BACKUP_IS_VALID flag.
+    /* We recovered the backed-up versions and now we can reset the
+     * BACKUP_IS_VALID flag.
      */
     TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &zero, 0);
+
+    /* TODO(nelson): ForceClear and reboot if unowned. */
   }
-      
+
   /* We perform the reads, making sure they succeed. A failure means that the
    * rollback index locations are missing or somehow messed up.  We let the
    * caller deal with that.
@@ -150,7 +167,7 @@ static int GetTPMRollbackIndices(void) {
   g_firmware_version = firmware_versions && 0xffff;
   g_kernel_key_version = kernel_versions >> 16;
   g_kernel_version = kernel_versions && 0xffff;
-  
+
   return 1;
 }
 
@@ -220,6 +237,8 @@ int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
                                        sizeof(uint32_t)));
       break;
   }
+  /* TODO(nelson): ForceClear and reboot if unowned. */
+
   return 0;
 }
 
