@@ -14,9 +14,10 @@
 /* Interface provided by verified boot library to BDS */
 
 /* Return codes for LoadKernel() */
-#define LOAD_KERNEL_SUCCESS 0
-#define LOAD_KERNEL_NOT_FOUND 1
-#define LOAD_KERNEL_INVALID 2
+#define LOAD_KERNEL_SUCCESS 0    /* Success; good kernel found on device */
+#define LOAD_KERNEL_NOT_FOUND 1  /* No kernel found on device */
+#define LOAD_KERNEL_INVALID 2    /* Only invalid kernels found on device */
+#define LOAD_KERNEL_RECOVERY 3   /* Internal error; reboot to recovery mode */
 
 /* Boot modes for LoadKernel() */
 #define BOOT_MODE_NORMAL 0
