@@ -27,11 +27,11 @@ extern uint16_t g_kernel_version;
 #define KERNEL_VERSIONS_BACKUP_NV_INDEX 0x1004
 #define KERNEL_BACKUP_IS_VALID_NV_INDEX 0x1005
 
-
-void SetupTPM(void);
-void GetStoredVersions(int type, uint16_t* key_version, uint16_t* version);
+/* All functions return 0 if successful, non-zero if error */
+int SetupTPM(void);
+int GetStoredVersions(int type, uint16_t* key_version, uint16_t* version);
 int WriteStoredVersions(int type, uint16_t key_version, uint16_t version);
-void LockFirmwareVersions();
-void LockKernelVersionsByLockingPP();
+int LockFirmwareVersions();
+int LockKernelVersionsByLockingPP();
 
 #endif  /* VBOOT_REFERENCE_ROLLBACK_INDEX_H_ */

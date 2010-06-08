@@ -172,7 +172,7 @@ static int GetTPMRollbackIndices(void) {
 }
 
 
-void SetupTPM(void) {
+int SetupTPM(void) {
   uint8_t disable;
   uint8_t deactivated;
   TlclLibinit();
@@ -189,13 +189,13 @@ void SetupTPM(void) {
   /* Check that the TPM is enabled and activated. */
   if(TlclGetFlags(&disable, &deactivated) != TPM_SUCCESS) {
     debug("failed to get TPM flags");
-    EnterRecovery(1);
+    return 1;
   }
   if (disable || deactivated) {
     TlclSetEnable();
     if (TlclSetDeactivated(0) != TPM_SUCCESS) {
       debug("failed to activate TPM");
-      EnterRecovery(1);
+      return 1;
     }
   }
   /* We expect this to fail the first time we run on a device, indicating that
@@ -205,12 +205,22 @@ void SetupTPM(void) {
     if (!InitializeSpaces()) {
       /* If InitializeSpaces() fails (possibly because it had been executed
        * already), something is wrong. */
-      EnterRecovery(1);
+      return 1;
     }
   }
+
+  return 0;
 }
 
-void GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
+int GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
+
+  /* TODO: should verify that SetupTPM() has been called.  Note that
+   * SetupTPM() does hardware setup AND sets global variables.  When we
+   * get down into kernel verification, the hardware setup persists, but
+   * we don't have access to the global variables.  So I guess we DO need
+   * to call SetupTPM() there, and have it be smart enough not to redo the
+   * hardware init, but it still needs to re-read the flags... */
+
   switch (type) {
     case FIRMWARE_VERSIONS:
       *key_version = g_firmware_key_version;
@@ -221,37 +231,40 @@ void GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
       *version = g_kernel_version;
       break;
   }
+
+  return 0;
 }
 
 int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
   uint32_t combined_version = (key_version << 16) & version;
   switch (type) {
     case FIRMWARE_VERSIONS:
-      return (TPM_SUCCESS == TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
+      return (TPM_SUCCESS != TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
                                        (uint8_t*) &combined_version,
                                        sizeof(uint32_t)));
-      break;
+
     case KERNEL_VERSIONS:
-      return (TPM_SUCCESS == TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+      return (TPM_SUCCESS != TlclWrite(KERNEL_VERSIONS_NV_INDEX,
                                        (uint8_t*) &combined_version,
                                        sizeof(uint32_t)));
-      break;
   }
   /* TODO(nelson): ForceClear and reboot if unowned. */
 
+  return 1;
+}
+
+int LockFirmwareVersions() {
+  if (TlclSetGlobalLock() != TPM_SUCCESS) {
+    debug("failed to set global lock");
+    return 1;
+  }
   return 0;
 }
 
-void LockFirmwareVersions() {
-  if (TlclSetGlobalLock() != TPM_SUCCESS) {
-    debug("failed to set global lock");
-    EnterRecovery(1);
-  }
-}
-
-void LockKernelVersionsByLockingPP() {
+int LockKernelVersionsByLockingPP() {
   if (TlclLockPhysicalPresence() != TPM_SUCCESS) {
     debug("failed to turn off PP");
-    EnterRecovery(1);
+    return 1;
   }
+  return 0;
 }

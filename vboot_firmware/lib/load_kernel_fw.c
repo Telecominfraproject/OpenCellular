@@ -63,12 +63,12 @@ void FakePartitionAttributes(GptData* gpt) {
 }
 
 
-int AllocAndReadGptData(GptData *gptdata) {
-  /* Allocates and reads GPT data from the drive.  The sector_bytes and
-   * drive_sectors fields should be filled on input.  The primary and
-   * secondary header and entries are filled on output.
-   *
-   * Returns 0 if successful, 1 if error. */
+/* Allocates and reads GPT data from the drive.  The sector_bytes and
+ * drive_sectors fields should be filled on input.  The primary and
+ * secondary header and entries are filled on output.
+ *
+ * Returns 0 if successful, 1 if error. */
+int AllocAndReadGptData(GptData* gptdata) {
 
   uint64_t entries_sectors = GPT_ENTRIES_SIZE / gptdata->sector_bytes;
 
@@ -100,41 +100,54 @@ int AllocAndReadGptData(GptData *gptdata) {
   return 0;
 }
 
-void WriteAndFreeGptData(GptData *gptdata) {
-  /* Writes any changes for the GPT data back to the drive, then frees the
-   * buffers. */
+
+/* Writes any changes for the GPT data back to the drive, then frees
+ * the buffers.
+ *
+ * Returns 0 if successful, 1 if error. */
+int WriteAndFreeGptData(GptData* gptdata) {
 
   uint64_t entries_sectors = GPT_ENTRIES_SIZE / gptdata->sector_bytes;
 
   if (gptdata->primary_header) {
-    if (gptdata->modified & GPT_MODIFIED_HEADER1)
-      BootDeviceWriteLBA(1, 1, gptdata->primary_header);
+    if (gptdata->modified & GPT_MODIFIED_HEADER1) {
+      if (0 != BootDeviceWriteLBA(1, 1, gptdata->primary_header))
+        return 1;
+    }
     Free(gptdata->primary_header);
   }
 
   if (gptdata->primary_entries) {
-    if (gptdata->modified & GPT_MODIFIED_ENTRIES1)
-      BootDeviceWriteLBA(2, entries_sectors, gptdata->primary_entries);
+    if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
+      if (0 != BootDeviceWriteLBA(2, entries_sectors,
+                                  gptdata->primary_entries))
+        return 1;
+    }
     Free(gptdata->primary_entries);
   }
 
   if (gptdata->secondary_entries) {
-    if (gptdata->modified & GPT_MODIFIED_ENTRIES2)
-      BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
-                         entries_sectors, gptdata->secondary_entries);
+    if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
+      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
+                                  entries_sectors, gptdata->secondary_entries))
+        return 1;
+    }
     Free(gptdata->secondary_entries);
   }
 
   if (gptdata->secondary_header) {
-    if (gptdata->modified & GPT_MODIFIED_HEADER2)
-      BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
-                         1, gptdata->secondary_header);
-      BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
-                         gptdata->secondary_header);
+    if (gptdata->modified & GPT_MODIFIED_HEADER2) {
+      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
+                                  gptdata->secondary_header))
+        return 1;
+    }
     Free(gptdata->secondary_header);
   }
-  /* TODO: What to do with return codes from the writes? */
+
+  /* Success */
+  return 0;
 }
+
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 
@@ -157,15 +170,14 @@ int LoadKernel(LoadKernelParams* params) {
   params->bootloader_address = 0;
   params->bootloader_size = 0;
 
-  /* Read current kernel key index from TPM.  Assumes TPM is already
-   * initialized. */
-  /* TODO: Is that a safe assumption?  Normally, SetupTPM() would be called
-   * when the RW firmware is verified.  Is it harmful to call SetupTPM()
-   * again if it's already initialized?  It'd be easier if we could just do
-   * that. */
-  GetStoredVersions(KERNEL_VERSIONS,
-                    &tpm_kernel_key_version,
-                    &tpm_kernel_version);
+  if (BOOT_MODE_NORMAL == params->boot_mode) {
+    /* Read current kernel key index from TPM.  Assumes TPM is already
+     * initialized. */
+   if (0 != GetStoredVersions(KERNEL_VERSIONS,
+                               &tpm_kernel_key_version,
+                               &tpm_kernel_version))
+      return LOAD_KERNEL_RECOVERY;
+  }
 
   do {
     /* Read GPT data */
@@ -290,9 +302,16 @@ int LoadKernel(LoadKernelParams* params) {
         params->bootloader_address = kim->bootloader_offset;
         params->bootloader_size = kim->bootloader_size;
 
-        /* If the good partition's key version is the same as the tpm, then
-         * the TPM doesn't need updating; we can stop now.  Otherwise, we'll
-         * check all the other headers to see if they contain a newer key. */
+        /* If we're in developer or recovery mode, there's no rollback
+         * protection, so we can stop at the first valid kernel. */
+        if (BOOT_MODE_NORMAL != params->boot_mode)
+          break;
+
+        /* Otherwise, we're in normal boot mode, so we do care about
+         * the key index in the TPM.  If the good partition's key
+         * version is the same as the tpm, then the TPM doesn't need
+         * updating; we can stop now.  Otherwise, we'll check all the
+         * other headers to see if they contain a newer key. */
         if (kim->kernel_key_version == tpm_kernel_key_version &&
             kim->kernel_version == tpm_kernel_version)
           break;
@@ -306,19 +325,22 @@ int LoadKernel(LoadKernelParams* params) {
   if (kim)
     Free(kim);
 
-  // Write and free GPT data
+  /* Write and free GPT data */
   WriteAndFreeGptData(&gpt);
 
-  // Handle finding a good partition
+  /* Handle finding a good partition */
   if (good_partition >= 0) {
 
-    /* See if we need to update the TPM */
-    if ((lowest_kernel_key_version > tpm_kernel_key_version) ||
-        (lowest_kernel_key_version == tpm_kernel_key_version &&
-         lowest_kernel_version > tpm_kernel_version)) {
-      WriteStoredVersions(KERNEL_VERSIONS,
-                          lowest_kernel_key_version,
-                          lowest_kernel_version);
+    if (BOOT_MODE_NORMAL == params->boot_mode) {
+      /* See if we need to update the TPM, for normal boot mode only. */
+      if ((lowest_kernel_key_version > tpm_kernel_key_version) ||
+          (lowest_kernel_key_version == tpm_kernel_key_version &&
+           lowest_kernel_version > tpm_kernel_version)) {
+        if (0 != WriteStoredVersions(KERNEL_VERSIONS,
+                                     lowest_kernel_key_version,
+                                     lowest_kernel_version))
+          return LOAD_KERNEL_RECOVERY;
+      }
     }
 
     if (BOOT_MODE_RECOVERY != params->boot_mode) {
@@ -330,19 +352,17 @@ int LoadKernel(LoadKernelParams* params) {
        *
        * If we're already in recovery mode, we need to leave PP unlocked,
        * so don't lock the kernel versions. */
-      LockKernelVersionsByLockingPP();
+      if (0 != LockKernelVersionsByLockingPP())
+        return LOAD_KERNEL_RECOVERY;
     }
 
     /* Success! */
     return LOAD_KERNEL_SUCCESS;
   }
 
-  // Handle error cases
+  /* Handle error cases */
   if (found_partition)
     return LOAD_KERNEL_INVALID;
   else
     return LOAD_KERNEL_NOT_FOUND;
-  /* TODO: no error code for "internal error", but what would the firmware do
-   * with that anyway?  So in the do-while(0) code above, the firmware just
-   * does 'break' to indicate an internal error... */
 }
