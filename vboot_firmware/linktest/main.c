@@ -3,6 +3,7 @@
 #include "cgptlib.h"
 #include "firmware_image_fw.h"
 #include "kernel_image_fw.h"
+#include "load_firmware_fw.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "tlcl.h"
@@ -31,6 +32,10 @@ int main(void)
   VerifyKernelHeader(0, 0, 0, 0, 0, 0);
   VerifyKernel(0, 0, 0);
   GetLogicalKernelVersion(0);
+
+  // load_firmware_fw.h
+  UpdateFirmwareBodyHash(0, 0);
+  LoadFirmware(0);
 
   // load_kernel_fw.h
   LoadKernel(0);
