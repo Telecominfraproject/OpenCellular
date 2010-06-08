@@ -42,6 +42,7 @@ LIB_OBJS = $(LIB_SRCS:%.c=%.o)
 # find ./stub -iname '*.c' | sort
 STUB_SRCS = \
 	./stub/boot_device_stub.c \
+	./stub/load_firmware_stub.c \
 	./stub/tlcl.c \
 	./stub/utility_stub.c
 
