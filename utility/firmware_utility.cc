@@ -8,8 +8,8 @@
 #include "firmware_utility.h"
 
 #include <getopt.h>
-#include <stdio.h>
 #include <stdint.h>  // Needed for UINT16_MAX.
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -36,6 +36,7 @@ FirmwareUtility::FirmwareUtility():
     firmware_key_version_(-1),
     firmware_sign_algorithm_(-1),
     firmware_version_(-1),
+    kernel_subkey_sign_algorithm_(-1),
     is_generate_(false),
     is_verify_(false),
     is_describe_(false),
@@ -74,6 +75,8 @@ void FirmwareUtility::PrintUsage(void) {
       "  --out <outfile>\t\tOutput file for verified boot firmware image\n"
       "\n"
       "Optional:\n"
+      "  --kernel_root_algorithm\tKernel subkey signing algorithm\n"
+      "  --kernel_root_key_pub\t\tKernel subkey signing key to use\n"
       "  --subkey_out\t\t\tJust output the subkey (key verification) header\n"
       "  --vblock\t\t\tJust output the verification block\n"
       "\n"
@@ -103,6 +106,8 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     OPT_DESCRIBE,
     OPT_VBLOCK,
     OPT_SUBKEY_OUT,
+    OPT_KERNEL_ROOT_KEY_PUB,
+    OPT_KERNEL_ROOT_ALGORITHM,
   };
   static struct option long_options[] = {
     {"root_key", 1, 0,                  OPT_ROOT_KEY                },
@@ -120,6 +125,8 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
     {"describe", 0, 0,                  OPT_DESCRIBE                },
     {"vblock", 0, 0,                    OPT_VBLOCK                  },
     {"subkey_out", 0, 0,                OPT_SUBKEY_OUT              },
+    {"kernel_root_key_pub", 1, 0,       OPT_KERNEL_ROOT_KEY_PUB     },
+    {"kernel_root_algorithm", 1, 0,     OPT_KERNEL_ROOT_ALGORITHM   },
     {NULL, 0, 0, 0}
   };
   while ((i = getopt_long(argc, argv, "", long_options, &option_index)) != -1) {
@@ -190,6 +197,18 @@ bool FirmwareUtility::ParseCmdLineOptions(int argc, char* argv[]) {
       case OPT_SUBKEY_OUT:
         is_subkey_out_ = true;
         break;
+      case OPT_KERNEL_ROOT_ALGORITHM:
+        kernel_subkey_sign_algorithm_ = strtol(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          cerr << "Invalid argument to --"
+               << long_options[option_index].name
+               << ": " << optarg << "\n";
+          return false;
+        }
+        break;
+      case OPT_KERNEL_ROOT_KEY_PUB:
+        kernel_subkey_sign_pub_file_ = optarg;
+        break;
     }
   }
   return CheckOptions();
@@ -238,9 +257,6 @@ bool FirmwareUtility::GenerateSignedImage(void) {
 
     // Calculate header checksum.
     CalculateFirmwareHeaderChecksum(image_, image_->header_checksum);
-
-    image_->firmware_version = firmware_version_;
-    image_->firmware_len = 0;
 
     // Generate and add the key signatures.
     if (!AddFirmwareKeySignature(image_, root_key_file_.c_str())) {
@@ -314,12 +330,34 @@ bool FirmwareUtility::GenerateSignedImage(void) {
     Free(subkey_header_buf);
     if (st.overrun || st.remaining_len != 0)  // Overrun or underrun.
       return false;
-    return true;
   }
 
+  image_->firmware_version = firmware_version_;
+  image_->firmware_len = 0;
+  if (!kernel_subkey_sign_pub_file_.empty()) {
+    uint64_t subkey_len;
+    image_->kernel_subkey_sign_algorithm = kernel_subkey_sign_algorithm_;
+    image_->kernel_subkey_sign_key = BufferFromFile(
+        kernel_subkey_sign_pub_file_.c_str(), &subkey_len);
+    if (static_cast<int>(subkey_len) !=
+        RSAProcessedKeySize(kernel_subkey_sign_algorithm_)) {
+        cerr << "Invalid kernel subkey signing key."
+             << "\n";
+        return false;
+      }
+  } else {
+    // Reuse firmware signing key as kernel subkey signing key.
+    image_->kernel_subkey_sign_algorithm = image_->firmware_sign_algorithm;
+    image_->kernel_subkey_sign_key = (uint8_t*) Malloc(RSAProcessedKeySize(
+        image_->firmware_sign_algorithm));
+    Memcpy(image_->kernel_subkey_sign_key,
+           image_->firmware_sign_key,
+           RSAProcessedKeySize(image_->firmware_sign_algorithm));
+  }
   // TODO(gauravsh): Populate this with the right bytes once we decide
   // what goes into the preamble.
   Memset(image_->preamble, 'P', FIRMWARE_PREAMBLE_SIZE);
+
   image_->firmware_data = BufferFromFile(in_file_.c_str(),
                                          &image_->firmware_len);
   if (!image_->firmware_data)
@@ -406,6 +444,15 @@ bool FirmwareUtility::CheckOptions(void) {
     if (out_file_.empty()) {
       cerr <<"No output file specified." << "\n";
       return false;
+    }
+    if (!kernel_subkey_sign_pub_file_.empty()) {
+      // kernel subkey signing algorithm must be valid.
+      if (kernel_subkey_sign_algorithm_ < 0 ||
+          kernel_subkey_sign_algorithm_ >= kNumAlgorithms) {
+        cerr << "Invalid or no kernel subkey signing algorithm specified."
+             << "\n";
+        return false;
+      }
     }
   }
   return true;
