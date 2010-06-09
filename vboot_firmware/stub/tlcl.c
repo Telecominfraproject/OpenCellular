@@ -7,24 +7,29 @@
 
 #include "tss_constants.h"
 
-void TlclLibinit(void) { return; }
-void TlclStartup(void) { return; }
-void TlclSelftestfull(void) { return; }
-void TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size) { return; }
+void TlclLibInit(void) { return; }
+uint32_t TlclStartup(void) { return TPM_SUCCESS; }
+uint32_t TlclSelftestfull(void) { return TPM_SUCCESS; }
+uint32_t TlclContinueSelfTest(void) { return TPM_SUCCESS; }
+uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
+  return TPM_SUCCESS;
+}
 uint32_t TlclWrite(uint32_t index, uint8_t *data, uint32_t length) {
   return TPM_SUCCESS;
 }
 uint32_t TlclRead(uint32_t index, uint8_t *data, uint32_t length) {
   return TPM_SUCCESS;
 }
-void TlclWriteLock(uint32_t index) { return; }
-void TlclReadLock(uint32_t index) { return; }
-void TlclAssertPhysicalPresence(void) { return; }
+uint32_t TlclWriteLock(uint32_t index) { return TPM_SUCCESS; }
+uint32_t TlclReadLock(uint32_t index) { return TPM_SUCCESS; }
+uint32_t TlclAssertPhysicalPresence(void) { return TPM_SUCCESS; }
 uint32_t TlclLockPhysicalPresence(void) { return TPM_SUCCESS; }
-void TlclSetNvLocked(void) { return; }
-int TlclIsOwned(void) { return 0; }
-void TlclForceClear(void) { return; }
+uint32_t TlclSetNvLocked(void) { return TPM_SUCCESS; }
+int TlclIsOwned(void) { return TPM_SUCCESS; }
+uint32_t TlclForceClear(void) { return TPM_SUCCESS; }
 uint32_t TlclSetEnable(void) { return TPM_SUCCESS; }
 uint32_t TlclSetDeactivated(int deactivated) { return TPM_SUCCESS; }
 uint32_t TlclSetGlobalLock(void) { return TPM_SUCCESS; }
-int TlclGetFlags(uint8_t* disable, uint8_t* deactivated) { return TPM_SUCCESS; }
+uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated) {
+  return TPM_SUCCESS;
+}

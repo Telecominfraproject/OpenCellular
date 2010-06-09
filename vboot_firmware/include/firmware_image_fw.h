@@ -65,7 +65,8 @@ typedef struct FirmwareImage {
 #define VERIFY_FIRMWARE_WRONG_HEADER_CHECKSUM 7
 #define VERIFY_FIRMWARE_KEY_ROLLBACK 8
 #define VERIFY_FIRMWARE_VERSION_ROLLBACK 9
-#define VERIFY_FIRMWARE_MAX 10  /* Total number of error codes. */
+#define VERIFY_FIRMWARE_TPM_ERROR 10
+#define VERIFY_FIRMWARE_MAX 11  /* Total number of error codes. */
 
 extern char* kVerifyFirmwareErrors[VERIFY_FIRMWARE_MAX];
 

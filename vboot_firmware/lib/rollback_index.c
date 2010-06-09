@@ -19,7 +19,14 @@ uint16_t g_firmware_version = 0;
 uint16_t g_kernel_key_version = 0;
 uint16_t g_kernel_version = 0;
 
-static int InitializeSpaces(void) {
+#define RETURN_ON_FAILURE(tpm_command) do {     \
+    uint32_t result;                            \
+    if ((result = tpm_command) != TPM_SUCCESS) {\
+      return result;                            \
+    }                                           \
+  } while (0)
+
+static uint32_t InitializeSpaces(void) {
   uint32_t zero = 0;
   uint32_t space_holder;
   uint32_t firmware_perm = TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE;
@@ -33,35 +40,40 @@ static int InitializeSpaces(void) {
     return 0;
   }
 
-  TlclSetNvLocked();
+  RETURN_ON_FAILURE(TlclSetNvLocked());
 
-  TlclDefineSpace(FIRMWARE_VERSIONS_NV_INDEX, firmware_perm, sizeof(uint32_t));
-  TlclWrite(FIRMWARE_VERSIONS_NV_INDEX, (uint8_t*) &zero, sizeof(uint32_t));
+  RETURN_ON_FAILURE(TlclDefineSpace(FIRMWARE_VERSIONS_NV_INDEX,
+                                    firmware_perm, sizeof(uint32_t)));
+  RETURN_ON_FAILURE(TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
+                              (uint8_t*) &zero, sizeof(uint32_t)));
 
-  TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX, kernel_perm, sizeof(uint32_t));
-  TlclWrite(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &zero, sizeof(uint32_t));
+  RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+                                    kernel_perm, sizeof(uint32_t)));
+  RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &zero,
+                              sizeof(uint32_t)));
 
   /* The space KERNEL_VERSIONS_BACKUP_NV_INDEX is used to protect the kernel
    * versions when entering recovery mode.  The content of space
    * KERNEL_BACKUP_IS_VALID determines whether the backup value (1) or the
    * regular value (0) should be trusted.
    */
-  TlclDefineSpace(KERNEL_VERSIONS_BACKUP_NV_INDEX,
-                  firmware_perm, sizeof(uint32_t));
-  TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
-            (uint8_t*) &zero, sizeof(uint32_t));
-  TlclDefineSpace(KERNEL_BACKUP_IS_VALID_NV_INDEX,
-                  firmware_perm, sizeof(uint32_t));
-  TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX,
-            (uint8_t*) &zero, sizeof(uint32_t));
+  RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+                                    firmware_perm, sizeof(uint32_t)));
+  RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+                              (uint8_t*) &zero, sizeof(uint32_t)));
+  RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_BACKUP_IS_VALID_NV_INDEX,
+                                    firmware_perm, sizeof(uint32_t)));
+  RETURN_ON_FAILURE(TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX,
+                              (uint8_t*) &zero, sizeof(uint32_t)));
 
   /* The space TPM_IS_INITIALIZED_NV_INDEX is used to indicate that the TPM
    * initialization has completed.  Without it we cannot be sure that the last
    * space to be created was also initialized (power could have been lost right
    * after its creation).
    */
-  TlclDefineSpace(TPM_IS_INITIALIZED_NV_INDEX, firmware_perm, sizeof(uint32_t));
-  return 1;
+  RETURN_ON_FAILURE(TlclDefineSpace(TPM_IS_INITIALIZED_NV_INDEX,
+                                    firmware_perm, sizeof(uint32_t)));
+  return TPM_SUCCESS;
 }
 
 /* Enters the recovery mode.  If |unlocked| is true, there is some problem with
@@ -104,7 +116,7 @@ static void EnterRecovery(int unlocked) {
   /* TODO(nelson): code for entering recovery mode. */
 }
 
-static int GetTPMRollbackIndices(void) {
+static uint32_t GetTPMRollbackIndices(void) {
   uint32_t backup_is_valid;
   uint32_t firmware_versions;
   uint32_t kernel_versions;
@@ -133,86 +145,83 @@ static int GetTPMRollbackIndices(void) {
        * incompetent.  Foo to them.  Politeness and lack of an adequate
        * character set prevent me from expressing my true feelings.
        */
-      TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX, TPM_NV_PER_PPWRITE,
-                      sizeof(uint32_t));
+      RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+                                        TPM_NV_PER_PPWRITE,
+                                        sizeof(uint32_t)));
     } else if (result != TPM_SUCCESS) {
       EnterRecovery(1);
     }
     if (result == TPM_E_BADINDEX ||
         protected_combined_versions != unsafe_combined_versions) {
-      TlclWrite(KERNEL_VERSIONS_NV_INDEX,
-                (uint8_t*) &protected_combined_versions, sizeof(uint32_t));
+      RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+                                  (uint8_t*) &protected_combined_versions,
+                                  sizeof(uint32_t)));
     }
     /* We recovered the backed-up versions and now we can reset the
      * BACKUP_IS_VALID flag.
      */
-    TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX, (uint8_t*) &zero, 0);
+    RETURN_ON_FAILURE(TlclWrite(KERNEL_BACKUP_IS_VALID_NV_INDEX,
+                                (uint8_t*) &zero, 0));
 
-    /* TODO(nelson): ForceClear and reboot if unowned. */
+    if (!TlclIsOwned()) {
+      /* Must ForceClear and reboot to prevent from running into the 64-write
+       * limit.
+       */
+      RETURN_ON_FAILURE(TlclForceClear());
+      /* Reboot!  No return */
+      return 9999;
+    }
   }
 
   /* We perform the reads, making sure they succeed. A failure means that the
    * rollback index locations are missing or somehow messed up.  We let the
    * caller deal with that.
    */
-  if (TPM_SUCCESS != TlclRead(FIRMWARE_VERSIONS_NV_INDEX,
-                              (uint8_t*) &firmware_versions,
-                              sizeof(firmware_versions)) ||
-      TPM_SUCCESS != TlclRead(KERNEL_VERSIONS_NV_INDEX,
-                              (uint8_t*) &kernel_versions,
-                              sizeof(kernel_versions)))
-    return 0;
+  RETURN_ON_FAILURE(TlclRead(FIRMWARE_VERSIONS_NV_INDEX,
+                             (uint8_t*) &firmware_versions,
+                             sizeof(firmware_versions)));
+  RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_NV_INDEX,
+                             (uint8_t*) &kernel_versions,
+                             sizeof(kernel_versions)));
 
   g_firmware_key_version = firmware_versions >> 16;
   g_firmware_version = firmware_versions && 0xffff;
   g_kernel_key_version = kernel_versions >> 16;
   g_kernel_version = kernel_versions && 0xffff;
 
-  return 1;
+  return TPM_SUCCESS;
 }
 
 
-int SetupTPM(void) {
+uint32_t SetupTPM(void) {
   uint8_t disable;
   uint8_t deactivated;
-  TlclLibinit();
-  TlclStartup();
-  /* TODO(gauravsh): The call to self test  should probably be deferred.
-   * As per semenzato@chromium.org -
-   * TlclStartup should be called before the firmware initializes the memory
-   * controller, so the selftest can run in parallel with that. Here we should
-   * just call TlclSelftestFull to make sure the self test has
-   * completed---unless we want to rely on the NVRAM operations being available
-   * before the selftest completes. */
-  TlclSelftestfull();
-  TlclAssertPhysicalPresence();
+  TlclLibInit();
+  RETURN_ON_FAILURE(TlclStartup());
+  RETURN_ON_FAILURE(TlclContinueSelfTest());
+  RETURN_ON_FAILURE(TlclAssertPhysicalPresence());
   /* Check that the TPM is enabled and activated. */
-  if(TlclGetFlags(&disable, &deactivated) != TPM_SUCCESS) {
-    debug("failed to get TPM flags");
-    return 1;
-  }
+  RETURN_ON_FAILURE(TlclGetFlags(&disable, &deactivated));
   if (disable || deactivated) {
-    TlclSetEnable();
-    if (TlclSetDeactivated(0) != TPM_SUCCESS) {
-      debug("failed to activate TPM");
-      return 1;
-    }
+    RETURN_ON_FAILURE(TlclSetEnable());
+    RETURN_ON_FAILURE(TlclSetDeactivated(0));
+    /* TODO: Reboot now */
+    return 9999;
   }
   /* We expect this to fail the first time we run on a device, indicating that
    * the TPM has not been initialized yet. */
-  if (!GetTPMRollbackIndices()) {
-    debug("failed to get rollback indices");
-    if (!InitializeSpaces()) {
-      /* If InitializeSpaces() fails (possibly because it had been executed
-       * already), something is wrong. */
-      return 1;
-    }
+  if (GetTPMRollbackIndices() != TPM_SUCCESS) {
+    /* If InitializeSpaces() fails (possibly because it had been executed
+     * already), something is wrong. */
+    RETURN_ON_FAILURE(InitializeSpaces());
+    /* Try again. */
+    RETURN_ON_FAILURE(GetTPMRollbackIndices());
   }
 
-  return 0;
+  return TPM_SUCCESS;
 }
 
-int GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
+uint32_t GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
 
   /* TODO: should verify that SetupTPM() has been called.  Note that
    * SetupTPM() does hardware setup AND sets global variables.  When we
@@ -232,39 +241,39 @@ int GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
       break;
   }
 
-  return 0;
+  return TPM_SUCCESS;
 }
 
-int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
+uint32_t WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
   uint32_t combined_version = (key_version << 16) & version;
   switch (type) {
     case FIRMWARE_VERSIONS:
-      return (TPM_SUCCESS != TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
-                                       (uint8_t*) &combined_version,
-                                       sizeof(uint32_t)));
+      RETURN_ON_FAILURE(TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
+                                  (uint8_t*) &combined_version,
+                                  sizeof(uint32_t)));
+      break;
 
     case KERNEL_VERSIONS:
-      return (TPM_SUCCESS != TlclWrite(KERNEL_VERSIONS_NV_INDEX,
-                                       (uint8_t*) &combined_version,
-                                       sizeof(uint32_t)));
+      RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+                                  (uint8_t*) &combined_version,
+                                  sizeof(uint32_t)));
+      break;
   }
-  /* TODO(nelson): ForceClear and reboot if unowned. */
-
-  return 1;
+  /* TODO(semenzato): change TlclIsOwned to return a TPM status directly and
+   * the "owned" value by reference.
+   */
+  if (!TlclIsOwned()) {
+    RETURN_ON_FAILURE(TlclForceClear());
+    /* TODO: Reboot here.  No return. */
+    return 9999;
+  }
+  return TPM_SUCCESS;
 }
 
-int LockFirmwareVersions() {
-  if (TlclSetGlobalLock() != TPM_SUCCESS) {
-    debug("failed to set global lock");
-    return 1;
-  }
-  return 0;
+uint32_t LockFirmwareVersions() {
+  return TlclSetGlobalLock();
 }
 
-int LockKernelVersionsByLockingPP() {
-  if (TlclLockPhysicalPresence() != TPM_SUCCESS) {
-    debug("failed to turn off PP");
-    return 1;
-  }
-  return 0;
+uint32_t LockKernelVersionsByLockingPP() {
+  return TlclLockPhysicalPresence();
 }

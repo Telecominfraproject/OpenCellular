@@ -9,6 +9,7 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../misclibs/include \
+		-I../vboot_firmware/lib/include\
 		-I../vfirmware/include\
 		-I../vkernel/include
 IMAGE_LIBS = $(TOP)/vfirmware/firmware_image.o \

@@ -48,9 +48,10 @@ int main(void)
   LockKernelVersionsByLockingPP();
 
   // tlcl.h
-  TlclLibinit();
+  TlclLibInit();
   TlclStartup();
   TlclSelftestfull();
+  TlclContinueSelfTest();
   TlclDefineSpace(0, 0, 0);
   TlclWrite(0, 0, 0);
   TlclRead(0, 0, 0);

@@ -10,6 +10,7 @@
 
 #include "cryptolib.h"
 #include "rollback_index.h"
+#include "tss_constants.h"
 #include "utility.h"
 
 /* Macro to determine the size of a field structure in the FirmwareImage
@@ -310,7 +311,9 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
    * this is done by setting the globalLock bit, which is cleared only by
    * TPM_Init at reboot.
    */
-  LockFirmwareVersions();
+  if (TPM_SUCCESS != LockFirmwareVersions()) {
+    return VERIFY_FIRMWARE_TPM_ERROR;
+  }
 
   /* Determine which firmware (if any) to jump to.
    *

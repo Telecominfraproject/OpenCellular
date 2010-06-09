@@ -6,6 +6,7 @@
  */
 
 #include "rollback_index.h"
+#include "tss_constants.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -15,14 +16,14 @@ uint16_t g_firmware_version = 0;
 uint16_t g_kernel_key_version = 0;
 uint16_t g_kernel_version = 0;
 
-int SetupTPM(void) {
+uint32_t SetupTPM(void) {
 #ifndef NDEBUG
   debug("Rollback Index Library Mock: TPM initialized.\n");
 #endif
-  return 0;
+  return TPM_SUCCESS;
 }
 
-int GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
+uint32_t GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
   switch (type) {
     case FIRMWARE_VERSIONS:
       *key_version = g_firmware_key_version;
@@ -33,10 +34,10 @@ int GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
       *version = g_kernel_version;
       break;
   }
-  return 0;
+  return TPM_SUCCESS;
 }
 
-int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
+uint32_t WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
   switch (type) {
     case FIRMWARE_VERSIONS:
       g_firmware_key_version = key_version;
@@ -50,18 +51,19 @@ int WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
 #ifndef NDEBUG
   debug("Rollback Index Library Mock: Stored Versions written.\n");
 #endif
-  return 0;
+  return TPM_SUCCESS;
 }
 
-int LockFirmwareVersions() {
+uint32_t LockFirmwareVersions(void) {
 #ifndef NDEBUG
   debug("Rollback Index Library Mock: Firmware Versions Locked.\n");
 #endif
-  return 0;
+  return TPM_SUCCESS;
 }
-int LockKernelVersionsByLockingPP() {
+ 
+uint32_t LockKernelVersionsByLockingPP(void) {
 #ifndef NDEBUG
   debug("Rollback Index Library Mock: Kernel Versions Locked.\n");
 #endif
-  return 0;
+  return TPM_SUCCESS;
 }
