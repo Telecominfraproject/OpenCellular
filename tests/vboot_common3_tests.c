@@ -46,7 +46,8 @@ static void VerifyKeyBlockTest(const VbPublicKey* public_key,
   TEST_EQ(VerifyKeyBlock(hdr, hsize, public_key), 0,
           "VerifyKeyBlock() ok using key");
 
-  TEST_NEQ(VerifyKeyBlock(hdr, hsize-1, NULL), 0, "VerifyKeyBlock() size");
+  TEST_NEQ(VerifyKeyBlock(hdr, hsize - 1, NULL), 0, "VerifyKeyBlock() size--");
+  TEST_EQ(VerifyKeyBlock(hdr, hsize + 1, NULL), 0, "VerifyKeyBlock() size++");
 
   Memcpy(h, hdr, hsize);
   h->magic[0] &= 0x12;
@@ -164,8 +165,10 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
 
   TEST_EQ(VerifyFirmwarePreamble2(hdr, hsize, rsa), 0,
           "VerifyFirmwarePreamble2() ok using key");
-  TEST_NEQ(VerifyFirmwarePreamble2(hdr, hsize-1, rsa), 0,
-           "VerifyFirmwarePreamble2() size");
+  TEST_NEQ(VerifyFirmwarePreamble2(hdr, hsize - 1, rsa), 0,
+           "VerifyFirmwarePreamble2() size--");
+  TEST_EQ(VerifyFirmwarePreamble2(hdr, hsize + 1, rsa), 0,
+           "VerifyFirmwarePreamble2() size++");
 
   /* Care about major version but not minor */
   Memcpy(h, hdr, hsize);
@@ -268,13 +271,13 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  signing_public_key = PublicKeyRead(argv[4], signing_key_algorithm, 1);
+  signing_public_key = PublicKeyReadKeyb(argv[4], signing_key_algorithm, 1);
   if (!signing_public_key) {
     fprintf(stderr, "Error reading signing_public_key");
     return 1;
   }
 
-  data_public_key = PublicKeyRead(argv[6], data_key_algorithm, 1);
+  data_public_key = PublicKeyReadKeyb(argv[6], data_key_algorithm, 1);
   if (!data_public_key) {
     fprintf(stderr, "Error reading data_public_key");
     return 1;

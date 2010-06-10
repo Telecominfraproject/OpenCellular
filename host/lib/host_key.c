@@ -19,7 +19,7 @@
 #include "host_key.h"
 
 #include "cryptolib.h"
-#include "file_keys.h"
+#include "host_misc.h"
 #include "utility.h"
 #include "vboot_common.h"
 
@@ -80,6 +80,7 @@ void PublicKeyInit(VbPublicKey* key, uint8_t* key_data, uint64_t key_size) {
 }
 
 
+/* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version) {
   VbPublicKey* key = (VbPublicKey*)Malloc(sizeof(VbPublicKey) + key_size);
@@ -94,6 +95,9 @@ VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
 }
 
 
+/* Copy a public key from [src] to [dest].
+ *
+ * Returns zero if success, non-zero if error. */
 int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src) {
   if (dest->key_size < src->key_size)
     return 1;
@@ -106,28 +110,31 @@ int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src) {
 }
 
 
-VbPublicKey* PublicKeyRead(const char* filename, uint64_t algorithm,
-                           uint64_t version) {
-
+VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
+                               uint64_t version) {
   VbPublicKey* key;
   uint8_t* key_data;
   uint64_t key_size;
 
   if (algorithm >= kNumAlgorithms) {
-    debug("PublicKeyRead() called with invalid algorithm!\n");
+    debug("PublicKeyReadKeyb() called with invalid algorithm!\n");
     return NULL;
   }
   if (version > 0xFFFF) {
     /* Currently, TPM only supports 16-bit version */
-    debug("PublicKeyRead() called with invalid version!\n");
+    debug("PublicKeyReadKeyb() called with invalid version!\n");
     return NULL;
   }
 
-  key_data = BufferFromFile(filename, &key_size);
+  key_data = ReadFile(filename, &key_size);
   if (!key_data)
     return NULL;
 
-  /* TODO: sanity-check key length based on algorithm */
+  if (RSAProcessedKeySize(algorithm) != key_size) {
+    debug("PublicKeyReadKeyb() wrong key size for algorithm\n");
+    Free(key_data);
+    return NULL;
+  }
 
   key = PublicKeyAlloc(key_size, algorithm, version);
   if (!key) {
@@ -138,4 +145,79 @@ VbPublicKey* PublicKeyRead(const char* filename, uint64_t algorithm,
 
   Free(key_data);
   return key;
+}
+
+
+VbPublicKey* PublicKeyRead(const char* filename) {
+  VbPublicKey* key;
+  uint64_t file_size;
+
+  key = (VbPublicKey*)ReadFile(filename, &file_size);
+  if (!key)
+    return NULL;
+
+  do {
+    /* Sanity-check key data */
+    if (0 != VerifyPublicKeyInside(key, file_size, key)) {
+      debug("PublicKeyRead() not a VbPublicKey\n");
+      break;
+    }
+    if (key->algorithm >= kNumAlgorithms) {
+      debug("PublicKeyRead() invalid algorithm\n");
+      break;
+    }
+    if (key->key_version > 0xFFFF) {
+      debug("PublicKeyRead() invalid version\n");
+      break;  /* Currently, TPM only supports 16-bit version */
+    }
+    if (RSAProcessedKeySize(key->algorithm) != key->key_size) {
+      debug("PublicKeyRead() wrong key size for algorithm\n");
+      break;
+    }
+
+    /* Success */
+    return key;
+
+  } while(0);
+
+  /* Error */
+  Free(key);
+  return NULL;
+}
+
+
+int PublicKeyWrite(const char* filename, const VbPublicKey* key) {
+  VbPublicKey* kcopy = NULL;
+  FILE* f = NULL;
+  int rv = 1;
+
+  do {
+    f = fopen(filename, "wb");
+    if (!f) {
+      debug("PublicKeyWrite() unable to open file %s\n", filename);
+      break;
+    }
+
+    /* Copy the key, so its data is contiguous with the header */
+    kcopy = PublicKeyAlloc(key->key_size, 0, 0);
+    if (!kcopy || 0 != PublicKeyCopy(kcopy, key))
+      break;
+
+    if (1 != fwrite(kcopy, kcopy->key_offset + kcopy->key_size, 1, f))
+      break;
+
+    /* Success */
+    rv = 0;
+
+  } while(0);
+
+  if (kcopy)
+    Free(kcopy);
+  if (f)
+    fclose(f);
+
+  if (0 != rv)
+    unlink(filename);  /* Delete any partial file */
+
+  return rv;
 }

@@ -15,6 +15,7 @@
 
 #include "load_kernel_fw.h"
 #include "boot_device.h"
+#include "host_common.h"
 #include "rollback_index.h"
 #include "utility.h"
 
@@ -95,25 +96,12 @@ int main(int argc, char* argv[]) {
 
   /* Read header signing key blob */
   {
-    FILE* f;
-    int key_size;
-    printf("Reading key from: %s\n", keyfile_name);
-    f = fopen(keyfile_name, "rb");
-    if (!f) {
-      fprintf(stderr, "Unable to open key file %s\n", keyfile_name);
+    uint64_t key_size;
+    lkp.header_sign_key_blob = ReadFile(keyfile_name, &key_size);
+    if (!lkp.header_sign_key_blob)
+      fprintf(stderr, "Unable to read key file %s\n", keyfile_name);
       return 1;
     }
-    fseek(f, 0, SEEK_END);
-    key_size = ftell(f);
-    rewind(f);
-    lkp.header_sign_key_blob = Malloc(key_size);
-    printf("Reading %d bytes of key\n", key_size);
-    if (fread(lkp.header_sign_key_blob, key_size, 1, f) != 1) {
-      fprintf(stderr, "Unable to read key data\n");
-      return 1;
-    }
-    fclose(f);
-  }
 
   /* Get image size */
   printf("Reading from image: %s\n", image_name);

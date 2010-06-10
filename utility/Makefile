@@ -20,8 +20,8 @@ LIBS = $(TOP)/misclibs/file_keys.o \
 	$(TOP)/misclibs/signature_digest.o \
 	$(TOP)/vfirmware/firmware_image.o \
 	$(TOP)/vkernel/kernel_image.o \
-	$(FWLIB) \
-	$(HOSTLIB)
+	$(HOSTLIB) \
+	$(FWLIB)
 SUBDIRS = cgpt
 
 DESTDIR ?= /opt/bin
@@ -32,6 +32,7 @@ TARGET_BINS = dumpRSAPublicKey \
 		kernel_utility \
 		load_kernel_test \
 		signature_digest_utility \
+		vbutil_key \
 		verify_data
 
 all: $(TARGET_BINS) subdirs
@@ -64,6 +65,9 @@ load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 signature_digest_utility: signature_digest_utility.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+vbutil_key: vbutil_key.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 verify_data: verify_data.c $(LIBS)

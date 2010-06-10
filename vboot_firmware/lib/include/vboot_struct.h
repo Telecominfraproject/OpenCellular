@@ -26,7 +26,7 @@ typedef struct VbPublicKey {
 typedef struct VbSignature {
   uint64_t sig_offset;  /* Offset of signature data from start of this
                          * struct */
-  uint64_t sig_size;    /* Size of signature data from start of this struct */
+  uint64_t sig_size;    /* Size of signature data in bytes */
   uint64_t data_size;   /* Size of the data block which was signed in bytes */
 } VbSignature;
 

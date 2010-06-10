@@ -91,7 +91,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
 
   rsa = PublicKeyToRSA(public_key);
   hdr = CreateKernelPreamble(0x1234, 0x100000, 0x300000, 0x4000, body_sig,
-                             private_key);
+                             0, private_key);
   TEST_NEQ(hdr && rsa, 0, "VerifyKernelPreamble2() prerequisites");
   if (!hdr)
     return;
@@ -100,8 +100,10 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
 
   TEST_EQ(VerifyKernelPreamble2(hdr, hsize, rsa), 0,
           "VerifyKernelPreamble2() ok using key");
-  TEST_NEQ(VerifyKernelPreamble2(hdr, hsize-1, rsa), 0,
-           "VerifyKernelPreamble2() size");
+  TEST_NEQ(VerifyKernelPreamble2(hdr, hsize - 1, rsa), 0,
+           "VerifyKernelPreamble2() size--");
+  TEST_EQ(VerifyKernelPreamble2(hdr, hsize + 1, rsa), 0,
+           "VerifyKernelPreamble2() size++");
 
   /* Care about major version but not minor */
   Memcpy(h, hdr, hsize);
@@ -191,7 +193,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  public_key = PublicKeyRead(argv[3], key_algorithm, 1);
+  public_key = PublicKeyReadKeyb(argv[3], key_algorithm, 1);
   if (!public_key) {
     fprintf(stderr, "Error reading public_key");
     return 1;

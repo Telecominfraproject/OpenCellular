@@ -7,18 +7,6 @@
 
 /* TODO: change all 'return 0', 'return 1' into meaningful return codes */
 
-#if 0
-#define OPENSSL_NO_SHA
-#include <openssl/engine.h>
-#include <openssl/pem.h>
-#include <openssl/rsa.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include "file_keys.h"
-#endif
-
 #include "host_common.h"
 
 #include "cryptolib.h"
@@ -141,6 +129,7 @@ VbKernelPreambleHeader* CreateKernelPreamble(
     uint64_t bootloader_address,
     uint64_t bootloader_size,
     const VbSignature* body_signature,
+    uint64_t desired_size,
     const VbPrivateKey* signing_key) {
 
   VbKernelPreambleHeader* h;
@@ -150,6 +139,10 @@ VbKernelPreambleHeader* CreateKernelPreamble(
   uint8_t* body_sig_dest;
   uint8_t* block_sig_dest;
   VbSignature *sigtmp;
+
+  /* If the block size is smaller than the desired size, pad it */
+  if (block_size < desired_size)
+    block_size = desired_size;
 
   /* Allocate key block */
   h = (VbKernelPreambleHeader*)Malloc(block_size);

@@ -48,12 +48,23 @@ VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
 int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src);
 
 
-/* Read a public key from a file.  Caller owns the returned pointer,
- * and must free it with Free().
+/* Read a public key from a .vbpubk file.  Caller owns the returned
+ * pointer, and must free it with Free().
  *
  * Returns NULL if error. */
-/* TODO: should really store public keys in files as VbPublicKey */
-VbPublicKey* PublicKeyRead(const char* filename, uint64_t algorithm,
-                           uint64_t version);
+VbPublicKey* PublicKeyRead(const char* filename);
+
+
+/* Read a public key from a .keyb file.  Caller owns the returned
+ * pointer, and must free it with Free().
+ *
+ * Returns NULL if error. */
+VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
+                               uint64_t version);
+
+
+/* Write a public key to a file in .vbpubk format. */
+int PublicKeyWrite(const char* filename, const VbPublicKey* key);
+
 
 #endif  /* VBOOT_REFERENCE_HOST_KEY_H_ */

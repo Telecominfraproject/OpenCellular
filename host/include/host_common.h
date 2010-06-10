@@ -12,6 +12,7 @@
 
 #include "cryptolib.h"
 #include "host_key.h"
+#include "host_misc.h"
 #include "host_signature.h"
 #include "utility.h"
 #include "vboot_struct.h"
@@ -46,6 +47,7 @@ VbKernelPreambleHeader* CreateKernelPreamble(
     uint64_t bootloader_address,
     uint64_t bootloader_size,
     const VbSignature* body_signature,
+    uint64_t desired_size,
     const VbPrivateKey* signing_key);
 
 #endif  /* VBOOT_REFERENCE_HOST_COMMON_H_ */

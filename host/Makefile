@@ -21,13 +21,14 @@ INCLUDES += \
 LIB_SRCS = \
 	./lib/host_common.c \
 	./lib/host_key.c \
+	./lib/host_misc.c \
 	./lib/host_signature.c 
 
 LIB_OBJS = $(LIB_SRCS:%.c=%.o)
 
 test : $(LIBNAME)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(TESTDIR)/a.out $(TESTDIR)/main.c \
-	$(LIBNAME) $(FWLIB) $(TOP)/misclibs/file_keys.o -lcrypto
+	$(LIBNAME) $(FWLIB) -lcrypto
 
 $(LIBNAME) : $(LIB_OBJS) $(STUB_OBJS)
 	rm -f $@
