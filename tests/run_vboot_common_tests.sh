@@ -11,16 +11,22 @@
 
 return_code=0
 
-function test_firmware_verification {
+function test_vboot_common {
+  ${TEST_DIR}/vboot_common_tests
+  if [ $? -ne 0 ]
+  then
+    return_code=255
+  fi
+}
+
+function test_vboot_common2 {
   algorithmcounter=0
   for keylen in ${key_lengths[@]}
   do
     for hashalgo in ${hash_algos[@]}
     do
-      echo -e "For Root key ${COL_YELLOW}RSA-$keylen/$hashalgo${COL_STOP}:"
-      ${TEST_DIR}/firmware_image_tests $algorithmcounter \
-        ${TESTKEY_DIR}/key_rsa8192.pem \
-        ${TESTKEY_DIR}/key_rsa8192.keyb \
+      echo -e "For signing key ${COL_YELLOW}RSA-$keylen/$hashalgo${COL_STOP}:"
+      ${TEST_DIR}/vboot_common2_tests $algorithmcounter \
         ${TESTKEY_DIR}/key_rsa${keylen}.pem \
         ${TESTKEY_DIR}/key_rsa${keylen}.keyb
       if [ $? -ne 0 ]
@@ -32,7 +38,7 @@ function test_firmware_verification {
   done
 }
 
-function test_kernel_verification {
+function test_vboot_common3 {
 # Test for various combinations of firmware signing algorithm and
 # kernel signing algorithm
   firmware_algorithmcounter=0
@@ -46,11 +52,11 @@ function test_kernel_verification {
       do
         for kernel_hashalgo in ${hash_algos[@]}
         do
-          echo -e "For ${COL_YELLOW}Firmware signing algorithm \
+          echo -e "For ${COL_YELLOW}signing algorithm \
 RSA-${firmware_keylen}/${firmware_hashalgo}${COL_STOP} \
-and ${COL_YELLOW}Kernel signing algorithm RSA-${kernel_keylen}/\
+and ${COL_YELLOW}data signing algorithm RSA-${kernel_keylen}/\
 ${kernel_hashalgo}${COL_STOP}"
-          ${TEST_DIR}/kernel_image_tests \
+          ${TEST_DIR}/vboot_common3_tests \
             $firmware_algorithmcounter $kernel_algorithmcounter \
             ${TESTKEY_DIR}/key_rsa${firmware_keylen}.pem \
             ${TESTKEY_DIR}/key_rsa${firmware_keylen}.keyb \
@@ -69,13 +75,17 @@ ${kernel_hashalgo}${COL_STOP}"
 }
 
 check_test_keys
+echo
+echo "Testing vboot_common tests which don't depend on keys..."
+test_vboot_common
 
 echo
-echo "Testing high-level firmware image verification..."
-test_firmware_verification
+echo "Testing vboot_common tests which depend on one key..."
+test_vboot_common2
 
 echo
-echo "Testing high-level kernel image verification..."
-test_kernel_verification
+echo "Testing vboot_common tests which depend on two keys..."
+test_vboot_common3
+
 
 exit $return_code

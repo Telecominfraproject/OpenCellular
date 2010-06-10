@@ -7,17 +7,20 @@
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "tlcl.h"
+#include "vboot_common.h"
+#include "vboot_firmware.h"
+#include "vboot_kernel.h"
 
 int main(void)
 {
   uint16_t x, y;
 
-  // cgptlib.h
+  /* cgptlib.h */
   GptInit(0);
   GptNextKernelEntry(0, 0, 0);
   GptUpdateKernelEntry(0, 0);
 
-  // firmware_image_fw.h
+  /* firmware_image_fw.h */
   VerifyFirmwareHeader(0, 0, 0, 0);
   VerifyFirmwarePreamble(0, 0, 0, 0);
   VerifyFirmwareData(0, 0, 0, 0, 0);
@@ -25,7 +28,7 @@ int main(void)
   GetLogicalFirmwareVersion(0);
   VerifyFirmwareDriver_f(0, 0, 0, 0, 0);
 
-  // kernel_image_fw.h
+  /* kernel_image_fw.h */
   VerifyKernelKeyHeader(0, 0, 0, 0, 0, 0);
   VerifyKernelPreamble(0, 0, 0, 0);
   VerifyKernelData(0, 0, 0, 0, 0);
@@ -33,21 +36,21 @@ int main(void)
   VerifyKernel(0, 0, 0);
   GetLogicalKernelVersion(0);
 
-  // load_firmware_fw.h
+  /* load_firmware_fw.h */
   UpdateFirmwareBodyHash(0, 0);
   LoadFirmware(0);
 
-  // load_kernel_fw.h
+  /* load_kernel_fw.h */
   LoadKernel(0);
 
-  // rollback_index.h
+  /* rollback_index.h */
   SetupTPM();
   GetStoredVersions(0, &x, &y);
   WriteStoredVersions(0, 0, 0);
   LockFirmwareVersions();
   LockKernelVersionsByLockingPP();
 
-  // tlcl.h
+  /* tlcl.h */
   TlclLibInit();
   TlclStartup();
   TlclSelftestfull();
@@ -64,6 +67,28 @@ int main(void)
   TlclSetEnable();
   TlclSetDeactivated(0);
   TlclGetFlags(0, 0);
+
+  /* vboot_common.h */
+  OffsetOf(0, 0);
+  GetPublicKeyData(0);
+  GetPublicKeyDataC(0);
+  GetSignatureData(0);
+  GetSignatureDataC(0);
+  VerifyMemberInside(0, 0, 0, 0, 0, 0);
+  VerifyPublicKeyInside(0, 0, 0);
+  VerifySignatureInside(0, 0, 0);
+  PublicKeyToRSA(0);
+  VerifyData(0, 0, 0);
+  VerifyKeyBlock(0, 0, 0);
+  VerifyFirmwarePreamble2(0, 0, 0);
+  VerifyKernelPreamble2(0, 0, 0);
+
+  /* vboot_kernel.h */
+  LoadKernel2(0);
+
+  /* vboot_firmware.h */
+  UpdateFirmwareBodyHash2(0, 0);
+  LoadFirmware2(0);
 
   return 0;
 }

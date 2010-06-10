@@ -44,8 +44,10 @@ void UpdateFirmwareBodyHash(uint8_t* data, uint64_t size);
 typedef struct LoadFirmwareParams {
   /* Inputs to LoadFirmware() */
   void *firmware_root_key_blob;  /* Key used to sign firmware header */
-  void *verification_block_0;  /* Key block + preamble for firmware 0 */
-  void *verification_block_1;  /* Key block + preamble for firmware 1 */
+  void *verification_block_0;    /* Key block + preamble for firmware 0 */
+  void *verification_block_1;    /* Key block + preamble for firmware 1 */
+  uint64_t verification_size_0;  /* Verification block 0 size in bytes */
+  uint64_t verification_size_1;  /* Verification block 1 size in bytes */
 
   /* Outputs from LoadFirmware(); valid only if LoadFirmware() returns
    * LOAD_FIRMWARE_SUCCESS. */

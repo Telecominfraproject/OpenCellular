@@ -10,6 +10,7 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
+		-I$(HOSTDIR)/include \
 		-I../misclibs/include \
 		-I../vfirmware/include\
 		-I../vboot_firmware/include\
@@ -18,7 +19,9 @@ CFLAGS ?= -Wall -DNDEBUG -O3 -Werror $(INCLUDES)
 LIBS = $(TOP)/misclibs/file_keys.o \
 	$(TOP)/misclibs/signature_digest.o \
 	$(TOP)/vfirmware/firmware_image.o \
-	$(TOP)/vkernel/kernel_image.o
+	$(TOP)/vkernel/kernel_image.o \
+	$(FWLIB) \
+	$(HOSTLIB)
 SUBDIRS = cgpt
 
 DESTDIR ?= /opt/bin
@@ -43,25 +46,28 @@ subdirs:
 dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
 
-firmware_utility: firmware_utility.cc $(LIBS) $(FWLIB)
+firmware_utility: firmware_utility.cc $(LIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
-	-o $@ $(LIBS) $(FWLIB) -lcrypto
+	-o $@ $(LIBS) -lcrypto
 
 gbb_utility: gbb_utility.cc 
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $(INCLUDES) $< -o $@
 
-kernel_utility: kernel_utility.cc $(LIBS) $(FWLIB)
+load_kernel_test: load_kernel_test.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+kernel_utility: kernel_utility.cc $(LIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
-	-o $@ $(LIBS) $(FWLIB) -lcrypto
+	-o $@ $(LIBS) -lcrypto
 
-load_kernel_test: load_kernel_test.c $(LIBS) $(FWLIB)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FWLIB) -lcrypto
+load_kernel_test: load_kernel_test.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-signature_digest_utility: signature_digest_utility.c $(LIBS) $(FWLIB)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FWLIB) -lcrypto
+signature_digest_utility: signature_digest_utility.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-verify_data: verify_data.c $(LIBS) $(FWLIB)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) $(FWLIB) -lcrypto
+verify_data: verify_data.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 clean:
 	set -e; \
@@ -74,3 +80,6 @@ install: $(TARGET_BINS) subdirs
 	mkdir -p $(DESTDIR)
 	cp -f $(TARGET_BINS) $(DESTDIR)
 	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_BINS))
+
+%o : %c
+	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<

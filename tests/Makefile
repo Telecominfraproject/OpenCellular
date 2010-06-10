@@ -6,8 +6,10 @@ TOP ?= ../
 CC ?= gcc
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 INCLUDES += -I./include \
+		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
+		-I../host/include \
 		-I../misclibs/include \
 		-I../vboot_firmware/lib/include\
 		-I../vfirmware/include\
@@ -15,7 +17,7 @@ INCLUDES += -I./include \
 IMAGE_LIBS = $(TOP)/vfirmware/firmware_image.o \
 		$(TOP)/vkernel/kernel_image.o
 UTIL_LIBS = $(TOP)/misclibs/file_keys.o $(TOP)/misclibs/signature_digest.o
-LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(FWLIB) -lcrypto
+LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(HOSTLIB) $(FWLIB) -lcrypto
 
 TEST_BINS = big_firmware_tests \
 		big_kernel_tests \
@@ -32,6 +34,9 @@ TEST_BINS = big_firmware_tests \
 		rsa_verify_benchmark \
 		sha_benchmark \
 		sha_tests \
+		vboot_common_tests \
+		vboot_common2_tests \
+		vboot_common3_tests \
 		verify_firmware_fuzz_driver \
 		verify_kernel_fuzz_driver
 
@@ -90,6 +95,15 @@ sha_benchmark:	sha_benchmark.c timer_utils.c
 sha_tests: sha_tests.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FWLIB)
 
+vboot_common_tests: vboot_common_tests.c rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+vboot_common2_tests: vboot_common2_tests.c test_common.c $(HOSTLIB) $(FWLIB)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+vboot_common3_tests: vboot_common3_tests.c test_common.c $(HOSTLIB) $(FWLIB)
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
 verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c \
 	rollback_index_mock.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
@@ -101,6 +115,7 @@ runtests:
 	# Crypto tests
 	./run_rsa_tests.sh
 	./sha_tests
+	./run_vboot_common_tests.sh
 	./run_image_verification_tests.sh
 	# Splicing tests
 	./firmware_splicing_tests

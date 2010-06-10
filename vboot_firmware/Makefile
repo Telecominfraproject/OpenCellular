@@ -35,7 +35,10 @@ LIB_SRCS = \
 	./lib/load_firmware_fw.c \
 	./lib/load_kernel_fw.c \
 	./lib/rollback_index.c \
-	./lib/stateful_util.c
+	./lib/stateful_util.c \
+	./lib/vboot_common.c \
+	./lib/vboot_firmware.c \
+	./lib/vboot_kernel.c
 
 LIB_OBJS = $(LIB_SRCS:%.c=%.o)
 

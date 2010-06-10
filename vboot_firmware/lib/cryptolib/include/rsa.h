@@ -23,10 +23,11 @@
 #define RSA8192NUMWORDS (RSA8192NUMBYTES / sizeof(uint32_t))
 
 typedef struct RSAPublicKey {
-  int len;  /* Length of n[] in number of uint32_t */
+  uint32_t len;  /* Length of n[] in number of uint32_t */
   uint32_t n0inv;  /* -1 / n[0] mod 2^32 */
   uint32_t* n;  /* modulus as little endian array */
   uint32_t* rr; /* R^2 as little endian array */
+  int algorithm; /* Algorithm to use when verifying binaries with the key */
 } RSAPublicKey;
 
 /* Verify a RSA PKCS1.5 signature [sig] of [sig_type] and length [sig_len]

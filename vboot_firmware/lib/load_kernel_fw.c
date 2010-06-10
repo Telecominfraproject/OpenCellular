@@ -164,13 +164,17 @@ int LoadKernel(LoadKernelParams* params) {
   uint16_t lowest_kernel_key_version = 0xFFFF;
   uint16_t lowest_kernel_version = 0xFFFF;
   KernelImage *kim = NULL;
+  int is_dev = ((BOOT_FLAG_DEVELOPER & params->boot_flags) &&
+                !(BOOT_FLAG_RECOVERY & params->boot_flags));
+  int is_normal = (!(BOOT_FLAG_DEVELOPER & params->boot_flags) &&
+                !(BOOT_FLAG_RECOVERY & params->boot_flags));
 
   /* Clear output params in case we fail */
   params->partition_number = 0;
   params->bootloader_address = 0;
   params->bootloader_size = 0;
 
-  if (BOOT_MODE_NORMAL == params->boot_mode) {
+  if (is_normal) {
     /* Read current kernel key index from TPM.  Assumes TPM is already
      * initialized. */
    if (0 != GetStoredVersions(KERNEL_VERSIONS,
@@ -222,7 +226,7 @@ int LoadKernel(LoadKernelParams* params) {
               params->header_sign_key_blob,
               kbuf,
               KBUF_SIZE,
-              (BOOT_MODE_DEVELOPER == params->boot_mode ? 1 : 0),
+              (is_dev ? 1 : 0),
               kim,
               &kernel_sign_key)) {
         continue;
@@ -265,6 +269,12 @@ int LoadKernel(LoadKernelParams* params) {
         lowest_kernel_version = kim->kernel_version;
       }
 
+      /* If we already have a good kernel, no need to read another
+       * one; we only needed to look at the versions to check for
+       * rollback. */
+      if (-1 != good_partition)
+        continue;
+
       /* Verify kernel padding is a multiple of sector size. */
       if (0 != kim->padded_header_size % blba) {
         RSAPublicKeyFree(kernel_sign_key);
@@ -304,7 +314,7 @@ int LoadKernel(LoadKernelParams* params) {
 
         /* If we're in developer or recovery mode, there's no rollback
          * protection, so we can stop at the first valid kernel. */
-        if (BOOT_MODE_NORMAL != params->boot_mode)
+        if (!is_normal)
           break;
 
         /* Otherwise, we're in normal boot mode, so we do care about
@@ -331,7 +341,7 @@ int LoadKernel(LoadKernelParams* params) {
   /* Handle finding a good partition */
   if (good_partition >= 0) {
 
-    if (BOOT_MODE_NORMAL == params->boot_mode) {
+    if (is_normal) {
       /* See if we need to update the TPM, for normal boot mode only. */
       if ((lowest_kernel_key_version > tpm_kernel_key_version) ||
           (lowest_kernel_key_version == tpm_kernel_key_version &&
@@ -343,7 +353,7 @@ int LoadKernel(LoadKernelParams* params) {
       }
     }
 
-    if (BOOT_MODE_RECOVERY != params->boot_mode) {
+    if (!(BOOT_FLAG_RECOVERY & params->boot_flags)) {
       /* We can lock the TPM now, since we've decided which kernel we
        * like.  If we don't find a good kernel, we leave the TPM
        * unlocked so we can try again on the next boot device.  If no

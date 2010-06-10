@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
   }
 
   /* TODO: Option for boot mode */
-  lkp.boot_mode = BOOT_MODE_NORMAL;
+  lkp.boot_flags = 0;
 
   /* Call LoadKernel() */
   rv = LoadKernel(&lkp);

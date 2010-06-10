@@ -19,10 +19,9 @@
 #define LOAD_KERNEL_INVALID 2    /* Only invalid kernels found on device */
 #define LOAD_KERNEL_RECOVERY 3   /* Internal error; reboot to recovery mode */
 
-/* Boot modes for LoadKernel() */
-#define BOOT_MODE_NORMAL 0
-#define BOOT_MODE_DEVELOPER 1
-#define BOOT_MODE_RECOVERY 2
+/* Boot flags for LoadKernel().boot_flags */
+#define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
+#define BOOT_FLAG_RECOVERY  UINT64_C(0x02)  /* In recovery mode */
 
 typedef struct LoadKernelParams {
   /* Inputs to LoadKernel() */
@@ -33,7 +32,7 @@ typedef struct LoadKernelParams {
   void *kernel_buffer;          /* Destination buffer for kernel
                                  * (normally at 0x100000) */
   uint64_t kernel_buffer_size;  /* Size of kernel buffer in bytes */
-  uint8_t boot_mode;            /* Boot mode */
+  uint64_t boot_flags;          /* Boot flags */
 
   /* Outputs from LoadKernel(); valid only if LoadKernel() returns
    * LOAD_KERNEL_SUCCESS */

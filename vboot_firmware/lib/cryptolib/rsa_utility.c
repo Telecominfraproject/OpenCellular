@@ -15,7 +15,7 @@ int RSAProcessedKeySize(int algorithm) {
    *  2 * key_len bytes for the  n and rr arrays
    *  + sizeof len + sizeof n0inv.
    */
-  return (2 * key_len + sizeof(int) + sizeof(uint32_t));
+  return (2 * key_len + sizeof(uint32_t) + sizeof(uint32_t));
 }
 
 RSAPublicKey* RSAPublicKeyNew(void) {
