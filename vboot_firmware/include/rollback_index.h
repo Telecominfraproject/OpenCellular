@@ -25,7 +25,13 @@ extern uint16_t g_kernel_version;
 #define KERNEL_VERSIONS_NV_INDEX        0x1002
 #define TPM_IS_INITIALIZED_NV_INDEX     0x1003
 #define KERNEL_VERSIONS_BACKUP_NV_INDEX 0x1004
-#define KERNEL_BACKUP_IS_VALID_NV_INDEX 0x1005
+#define KERNEL_MUST_USE_BACKUP_NV_INDEX 0x1005
+
+/* Unique ID to detect kernel space redefinition */
+#define KERNEL_SPACE_UID "GRWL"        /* unique ID with secret meaning */
+#define KERNEL_SPACE_UID_SIZE (sizeof(KERNEL_SPACE_UID) - 1)
+#define KERNEL_SPACE_INIT_DATA ((uint8_t*) "\0\0\0\0" KERNEL_SPACE_UID)
+#define KERNEL_SPACE_SIZE (sizeof(uint32_t) + KERNEL_SPACE_UID_SIZE)
 
 /* All functions return 0 if successful, non-zero if error */
 uint32_t SetupTPM(void);

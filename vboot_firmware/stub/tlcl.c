@@ -33,3 +33,6 @@ uint32_t TlclSetGlobalLock(void) { return TPM_SUCCESS; }
 uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated) {
   return TPM_SUCCESS;
 }
+uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
+  return TPM_SUCCESS;
+}

@@ -25,6 +25,9 @@
 
 #define TPM_SUCCESS ((uint32_t)0x00000000)
 #define TPM_E_BADINDEX ((uint32_t)0x00000002)
+#define TPM_E_MAXNVWRITES ((uint32_t)0x00000048)
+#define TPM_E_ALREADY_INITIALIZED ((uint32_t)0x00005000)     /* vboot local */
+#define TPM_E_INTERNAL_INCONSISTENCY ((uint32_t)0x00005001)  /* vboot local */
 
 #define TPM_NV_INDEX0 ((uint32_t)0x00000000)
 #define TPM_NV_INDEX_LOCK ((uint32_t)0xffffffff)
