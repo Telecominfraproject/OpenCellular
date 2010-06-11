@@ -32,6 +32,7 @@ TARGET_BINS = dumpRSAPublicKey \
 		load_kernel_test \
 		signature_digest_utility \
 		vbutil_key \
+		vbutil_kernel \
 		vbutil_keyblock \
 		verify_data
 
@@ -55,6 +56,9 @@ kernel_utility: kernel_utility.cc $(LIBS)
 	-o $@ $(LIBS) -lcrypto
 
 signature_digest_utility: signature_digest_utility.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+vbutil_kernel: vbutil_kernel.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 vbutil_key: vbutil_key.c $(LIBS)

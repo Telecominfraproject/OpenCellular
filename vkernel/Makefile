@@ -7,6 +7,7 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
+		-I../utility/include \
 		-I../misclibs/include
 CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 KERNEL_OUT = kernel_image.o

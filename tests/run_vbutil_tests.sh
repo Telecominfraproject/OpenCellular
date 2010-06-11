@@ -69,7 +69,7 @@ ${datahashalgo}${COL_STOP}"
           # Pack
           ${UTIL_DIR}/vbutil_keyblock --pack ${keyblockfile} \
             --datapubkey \
-            tests/testkeys/key_alg${data_algorithmcounter}.vbpubk \
+            ${TESTKEY_DIR}/key_alg${data_algorithmcounter}.vbpubk \
             --signprivate ${TESTKEY_DIR}/key_rsa${signing_keylen}.pem \
             --algorithm $signing_algorithmcounter
           if [ $? -ne 0 ]
@@ -80,7 +80,7 @@ ${datahashalgo}${COL_STOP}"
           # Unpack
           ${UTIL_DIR}/vbutil_keyblock --unpack ${keyblockfile} \
             --signpubkey \
-            tests/testkeys/key_alg${signing_algorithmcounter}.vbpubk
+            ${TESTKEY_DIR}/key_alg${signing_algorithmcounter}.vbpubk
           # TODO: check data key against the packed one?
           if [ $? -ne 0 ]
           then
