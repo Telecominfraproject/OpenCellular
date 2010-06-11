@@ -187,37 +187,20 @@ VbPublicKey* PublicKeyRead(const char* filename) {
 
 
 int PublicKeyWrite(const char* filename, const VbPublicKey* key) {
-  VbPublicKey* kcopy = NULL;
-  FILE* f = NULL;
-  int rv = 1;
+  VbPublicKey* kcopy;
+  int rv;
 
-  do {
-    f = fopen(filename, "wb");
-    if (!f) {
-      debug("PublicKeyWrite() unable to open file %s\n", filename);
-      break;
-    }
-
-    /* Copy the key, so its data is contiguous with the header */
-    kcopy = PublicKeyAlloc(key->key_size, 0, 0);
-    if (!kcopy || 0 != PublicKeyCopy(kcopy, key))
-      break;
-
-    if (1 != fwrite(kcopy, kcopy->key_offset + kcopy->key_size, 1, f))
-      break;
-
-    /* Success */
-    rv = 0;
-
-  } while(0);
-
-  if (kcopy)
+  /* Copy the key, so its data is contiguous with the header */
+  kcopy = PublicKeyAlloc(key->key_size, 0, 0);
+  if (!kcopy)
+    return 1;
+  if (0 != PublicKeyCopy(kcopy, key)) {
     Free(kcopy);
-  if (f)
-    fclose(f);
+    return 1;
+  }
 
-  if (0 != rv)
-    unlink(filename);  /* Delete any partial file */
-
+  /* Write the copy, then free it */
+  rv = WriteFile(filename, kcopy, kcopy->key_offset + kcopy->key_size);
+  Free(kcopy);
   return rv;
 }

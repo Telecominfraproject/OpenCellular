@@ -22,4 +22,10 @@
 uint8_t* ReadFile(const char* filename, uint64_t* size);
 
 
+/* Writes [size] bytes of [data] to [filename].
+ *
+ * Returns 0 if success, 1 if error. */
+int WriteFile(const char* filename, const void *data, uint64_t size);
+
+
 #endif  /* VBOOT_REFERENCE_HOST_MISC_H_ */

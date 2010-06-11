@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "host_common.h"
 
@@ -46,4 +47,22 @@ uint8_t* ReadFile(const char* filename, uint64_t* size) {
 
   fclose(f);
   return buf;
+}
+
+
+int WriteFile(const char* filename, const void *data, uint64_t size) {
+  FILE *f = fopen(filename, "wb");
+  if (!f) {
+    debug("Unable to open file %s\n", filename);
+    return 1;
+  }
+
+  if (1 != fwrite(data, size, 1, f)) {
+    debug("Unable to write to file %s\n", filename);
+    fclose(f);
+    unlink(filename);  /* Delete any partial file */
+  }
+
+  fclose(f);
+  return 0;
 }

@@ -115,6 +115,7 @@ runtests:
 	# Crypto tests
 	./run_rsa_tests.sh
 	./sha_tests
+	./run_vbutil_tests.sh
 	./run_vboot_common_tests.sh
 	./run_image_verification_tests.sh
 	# Splicing tests
@@ -128,3 +129,5 @@ runtests:
 
 clean:
 	rm -f $(TEST_BINS)
+	rm -f testkeys/*.vbpubk
+	rm -f testkeys/*.keyblock

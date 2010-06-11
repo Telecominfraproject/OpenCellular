@@ -16,6 +16,7 @@ int main(void)
 
   /* host_misc.h */
   ReadFile(0, 0);
+  WriteFile(0, 0, 0);
 
   /* host_signature.h */
   SignatureInit(0, 0, 0, 0);

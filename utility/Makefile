@@ -33,6 +33,7 @@ TARGET_BINS = dumpRSAPublicKey \
 		load_kernel_test \
 		signature_digest_utility \
 		vbutil_key \
+		vbutil_keyblock \
 		verify_data
 
 all: $(TARGET_BINS) subdirs
@@ -61,13 +62,13 @@ kernel_utility: kernel_utility.cc $(LIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(LIBS) -lcrypto
 
-load_kernel_test: load_kernel_test.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
-
 signature_digest_utility: signature_digest_utility.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 vbutil_key: vbutil_key.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+vbutil_keyblock: vbutil_keyblock.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 verify_data: verify_data.c $(LIBS)
