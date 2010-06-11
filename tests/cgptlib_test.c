@@ -136,8 +136,8 @@ static void BuildTestGptData(GptData* gpt) {
   Memcpy(header->signature, GPT_HEADER_SIGNATURE,
          sizeof(GPT_HEADER_SIGNATURE));
   header->revision = GPT_HEADER_REVISION;
-  header->size = sizeof(GptHeader) - sizeof(header->padding);
-  header->reserved = 0;
+  header->size = sizeof(GptHeader);
+  header->reserved_zero = 0;
   header->my_lba = 1;
   header->alternate_lba = DEFAULT_DRIVE_SECTORS - 1;
   header->first_usable_lba = 34;
@@ -157,7 +157,6 @@ static void BuildTestGptData(GptData* gpt) {
   Memcpy(&entries[3].type, &chromeos_kernel, sizeof(chromeos_kernel));
   entries[3].starting_lba = 334;
   entries[3].ending_lba = 430;
-  Memset(header->padding, 0, sizeof(header->padding));
 
   /* build secondary */
   header2 = (GptHeader*)gpt->secondary_header;
@@ -355,8 +354,8 @@ static int ReservedFieldsTest() {
   GptHeader* h2 = (GptHeader*)gpt->secondary_header;
 
   BuildTestGptData(gpt);
-  h1->reserved ^= 0x12345678;  /* whatever random */
-  h2->reserved ^= 0x12345678;  /* whatever random */
+  h1->reserved_zero ^= 0x12345678;  /* whatever random */
+  h2->reserved_zero ^= 0x12345678;  /* whatever random */
   RefreshCrc32(gpt);
   EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
   EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));

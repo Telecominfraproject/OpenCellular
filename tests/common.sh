@@ -30,10 +30,21 @@ COL_STOP='\E[0;m'
 hash_algos=( sha1 sha256 sha512 )
 key_lengths=( 1024 2048 4096 8192 ) 
 
-function check_test_keys {
-  if [ ! -d ${TESTKEY_DIR} ]
-  then
-    echo "You must run gen_test_keys.sh to generate test keys first."
-    exit 1
-  fi
+function happy {
+  echo -e "${COL_GREEN}$*${COL_STOP}" 1>&2
 }
+
+function warning {
+  echo -e "${COL_YELLOW}WARNING: $*${COL_STOP}" 1>&2
+}
+
+function error {
+  echo -e "${COL_RED}ERROR: $*${COL_STOP}" 1>&2
+  exit 1
+}
+
+function check_test_keys {
+  [ -d ${TESTKEY_DIR} ] || \
+    error "You must run gen_test_keys.sh to generate test keys first."
+}
+

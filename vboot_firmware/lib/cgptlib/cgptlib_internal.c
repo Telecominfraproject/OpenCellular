@@ -57,7 +57,7 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors) {
     return 1;
 
   /* Reserved fields must be zero. */
-  if (h->reserved)
+  if (h->reserved_zero)
     return 1;
 
   /* TODO: Padding must be set to zero. */
@@ -174,7 +174,7 @@ int HeaderFieldsSame(GptHeader *h1, GptHeader *h2) {
     return 1;
   if (h1->size != h2->size)
     return 1;
-  if (h1->reserved != h2->reserved)
+  if (h1->reserved_zero != h2->reserved_zero)
     return 1;
   if (h1->first_usable_lba != h2->first_usable_lba)
     return 1;

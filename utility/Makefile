@@ -22,9 +22,8 @@ LIBS = $(TOP)/misclibs/file_keys.o \
 	$(TOP)/vkernel/kernel_image.o \
 	$(HOSTLIB) \
 	$(FWLIB)
-SUBDIRS = cgpt
 
-DESTDIR ?= /opt/bin
+DESTDIR ?= /usr/bin
 
 TARGET_BINS = dumpRSAPublicKey \
 		firmware_utility \
@@ -36,14 +35,7 @@ TARGET_BINS = dumpRSAPublicKey \
 		vbutil_keyblock \
 		verify_data
 
-all: $(TARGET_BINS) subdirs
-
-.PHONY: subdirs
-subdirs:
-	set -e; \
-	for i in $(SUBDIRS); do \
-		$(MAKE) -C $$i $(MAKECMDGOALS); \
-	done
+all: $(TARGET_BINS)
 
 dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
@@ -75,13 +67,9 @@ verify_data: verify_data.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 clean:
-	set -e; \
-	for i in $(SUBDIRS); do \
-		$(MAKE) -C $$i clean; \
-	done
 	rm -f $(TARGET_BINS)
 
-install: $(TARGET_BINS) subdirs
+install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
 	cp -f $(TARGET_BINS) $(DESTDIR)
 	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_BINS))

@@ -126,6 +126,8 @@ runtests:
 	./kernel_rollback_tests
 	# Helper Library Tests
 	./cgptlib_test
+	# Tool tests
+	./run_cgpt_tests.sh
 
 clean:
 	rm -f $(TEST_BINS)

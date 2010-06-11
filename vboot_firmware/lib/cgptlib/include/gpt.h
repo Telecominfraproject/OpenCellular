@@ -73,7 +73,7 @@ typedef struct {
   uint32_t revision;
   uint32_t size;
   uint32_t header_crc32;
-  uint32_t reserved;
+  uint32_t reserved_zero;
   uint64_t my_lba;
   uint64_t alternate_lba;
   uint64_t first_usable_lba;
@@ -84,7 +84,7 @@ typedef struct {
   uint32_t number_of_entries;
   uint32_t size_of_entry;
   uint32_t entries_crc32;
-  uint8_t padding[512 - 92]; /* Pad to end of sector */
+  uint8_t reserved_padding[];           /* entire sector reserved for header */
 } GptHeader;
 
 /* GPT partition entry defines the starting and ending LBAs of a partition.
@@ -98,7 +98,8 @@ typedef struct {
   uint64_t starting_lba;
   uint64_t ending_lba;
   uint64_t attributes;
-  uint16_t name[36];  /* UTF-16 encoded partition name */
+  uint16_t name[36];                    /* UTF-16 encoded partition name */
+  uint8_t reserved[];                   /* nothing, really */
 } GptEntry;
 
 #endif  /* VBOOT_REFERENCE_CGPTLIB_GPT_H_ */
