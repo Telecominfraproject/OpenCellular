@@ -13,8 +13,97 @@
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vboot_common.h"
+
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
+
+
+/* Allocates and reads GPT data from the drive.  The sector_bytes and
+ * drive_sectors fields should be filled on input.  The primary and
+ * secondary header and entries are filled on output.
+ *
+ * Returns 0 if successful, 1 if error. */
+int AllocAndReadGptData(GptData* gptdata) {
+
+  uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+
+  /* No data to be written yet */
+  gptdata->modified = 0;
+
+  /* Allocate all buffers */
+  gptdata->primary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
+  gptdata->secondary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
+  gptdata->primary_entries = (uint8_t*)Malloc(TOTAL_ENTRIES_SIZE);
+  gptdata->secondary_entries = (uint8_t*)Malloc(TOTAL_ENTRIES_SIZE);
+
+  if (gptdata->primary_header == NULL || gptdata->secondary_header == NULL ||
+      gptdata->primary_entries == NULL || gptdata->secondary_entries == NULL)
+    return 1;
+
+  /* Read data from the drive, skipping the protective MBR */
+  if (0 != BootDeviceReadLBA(1, 1, gptdata->primary_header))
+    return 1;
+  if (0 != BootDeviceReadLBA(2, entries_sectors, gptdata->primary_entries))
+    return 1;
+  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - entries_sectors - 1,
+                             entries_sectors, gptdata->secondary_entries))
+    return 1;
+  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - 1,
+                             1, gptdata->secondary_header))
+    return 1;
+
+  return 0;
+}
+
+
+/* Writes any changes for the GPT data back to the drive, then frees
+ * the buffers.
+ *
+ * Returns 0 if successful, 1 if error. */
+int WriteAndFreeGptData(GptData* gptdata) {
+
+  uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+
+  if (gptdata->primary_header) {
+    if (gptdata->modified & GPT_MODIFIED_HEADER1) {
+      if (0 != BootDeviceWriteLBA(1, 1, gptdata->primary_header))
+        return 1;
+    }
+    Free(gptdata->primary_header);
+  }
+
+  if (gptdata->primary_entries) {
+    if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
+      if (0 != BootDeviceWriteLBA(2, entries_sectors,
+                                  gptdata->primary_entries))
+        return 1;
+    }
+    Free(gptdata->primary_entries);
+  }
+
+  if (gptdata->secondary_entries) {
+    if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
+      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
+                                  entries_sectors, gptdata->secondary_entries))
+        return 1;
+    }
+    Free(gptdata->secondary_entries);
+  }
+
+  if (gptdata->secondary_header) {
+    if (gptdata->modified & GPT_MODIFIED_HEADER2) {
+      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
+                                  gptdata->secondary_header))
+        return 1;
+    }
+    Free(gptdata->secondary_header);
+  }
+
+  /* Success */
+  return 0;
+}
+
 
 int LoadKernel2(LoadKernelParams* params) {
 
@@ -64,9 +153,6 @@ int LoadKernel2(LoadKernelParams* params) {
     /* Initialize GPT library */
     if (GPT_SUCCESS != GptInit(&gpt))
       break;
-
-    /* TODO: TERRIBLE KLUDGE - fake partition attributes */
-    FakePartitionAttributes(&gpt);
 
     /* Allocate kernel header buffers */
     kbuf = (uint8_t*)Malloc(KBUF_SIZE);

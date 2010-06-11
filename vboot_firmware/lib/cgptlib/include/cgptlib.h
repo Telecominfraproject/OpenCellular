@@ -24,6 +24,10 @@ enum {
 #define GPT_MODIFIED_ENTRIES1 0x04
 #define GPT_MODIFIED_ENTRIES2 0x08
 
+#define TOTAL_ENTRIES_SIZE 16384  /* Size of GptData.primary_entries
+                                   * and secondary_entries: 128
+                                   * bytes/entry * 128 entries. */
+
 /* The 'update_type' of GptUpdateKernelEntry()
  * We expose TRY and BAD only because those are what verified boot needs.
  * For more precise control on GPT attribute bits, please refer to

@@ -44,7 +44,6 @@
                                       CGPT_ATTRIBUTE_PRIORITY_OFFSET)
 
 /* Defines ChromeOS-specific limitation on GPT */
-/* TODO: Move these to cgptlib_internal.h */
 #define MIN_SIZE_OF_HEADER 92
 #define MAX_SIZE_OF_HEADER 512
 #define MIN_SIZE_OF_ENTRY 128
@@ -52,7 +51,6 @@
 #define SIZE_OF_ENTRY_MULTIPLE 8
 #define MIN_NUMBER_OF_ENTRIES 32
 #define MAX_NUMBER_OF_ENTRIES 512
-#define TOTAL_ENTRIES_SIZE 16384  /* usual case is 128 bytes * 128 entries */
 
 /* Defines GPT sizes */
 #define GPT_PMBR_SECTOR 1  /* size (in sectors) of PMBR */

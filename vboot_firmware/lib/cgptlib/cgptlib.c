@@ -95,7 +95,6 @@ int GptUpdateKernelEntry(GptData* gpt, uint32_t update_type) {
   GptEntry* e = entries + gpt->current_kernel;
   uint64_t previous_attr = e->attributes;
 
-  /* TODO: need a better return code for these errors? */
   if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND)
     return GPT_ERROR_INVALID_UPDATE_TYPE;
   if (!IsKernelEntry(e))

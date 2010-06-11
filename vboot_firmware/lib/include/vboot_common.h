@@ -13,16 +13,20 @@
 #include "cryptolib.h"
 #include "vboot_struct.h"
 
-/* Error Codes for VerifyFirmware. */
-#define VBOOT_SUCCESS 0
-#define VBOOT_INVALID_IMAGE 1
-#define VBOOT_KEY_SIGNATURE_FAILED 2
-#define VBOOT_INVALID_ALGORITHM 3
-#define VBOOT_PREAMBLE_SIGNATURE_FAILED 4
-#define VBOOT_SIGNATURE_FAILED 5
-#define VBOOT_WRONG_MAGIC 6
-#define VBOOT_ERROR_MAX 7  /* Generic catch-all. */
-
+/* Error Codes for all common functions. */
+enum {
+  VBOOT_SUCCESS = 0,
+  VBOOT_KEY_BLOCK_INVALID,    /* Key block internal structure is
+                               * invalid, or not a key block */
+  VBOOT_KEY_BLOCK_SIGNATURE,  /* Key block signature check failed */
+  VBOOT_KEY_BLOCK_HASH,      /* Key block hash check failed */
+  VBOOT_PUBLIC_KEY_INVALID,  /* Invalid public key passed to a
+                              * signature verficiation function. */
+  VBOOT_PREAMBLE_INVALID,    /* Preamble internal structure is
+                              * invalid */
+  VBOOT_PREAMBLE_SIGNATURE,  /* Preamble signature check failed */
+  VBOOT_ERROR_MAX,
+};
 extern char* kVbootErrors[VBOOT_ERROR_MAX];
 
 

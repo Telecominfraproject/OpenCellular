@@ -60,7 +60,7 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors) {
   if (h->reserved_zero)
     return 1;
 
-  /* TODO: Padding must be set to zero. */
+  /* Could check that padding is zero, but that doesn't matter to us. */
 
   /* If entry size is different than our struct, we won't be able to
    * parse it.  Technically, any size 2^N where N>=7 is valid. */

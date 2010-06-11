@@ -13,6 +13,7 @@
 #include "kernel_image_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vboot_kernel.h"
 
 #define GPT_ENTRIES_SIZE 16384 /* Bytes to read for GPT entries */
 
@@ -20,133 +21,8 @@
 // TODO: for testing
 #include <stdio.h>
 #include <inttypes.h>  /* For PRIu64 macro */
-#endif
-
-/* TODO: Remove this terrible hack which fakes partition attributes
- * for the kernel partitions so that GptNextKernelEntry() won't
- * choke. */
 #include "cgptlib_internal.h"
-void FakePartitionAttributes(GptData* gpt) {
-  GptHeader* h = (GptHeader*)gpt->primary_header;
-  GptEntry* entries = (GptEntry*)gpt->primary_entries;
-  GptEntry* e;
-  int i;
-
-  for (i = 0, e = entries; i < h->number_of_entries; i++, e++) {
-    if (!IsKernelEntry(e))
-      continue;
-
-#ifdef PRINT_DEBUG_INFO
-
-    printf("%2d %08x %04x %04x %02x %02x %02x %02x %02x %02x %02x %02x",
-           i,
-           e->type.u.Uuid.time_low,
-           e->type.u.Uuid.time_mid,
-           e->type.u.Uuid.time_high_and_version,
-           e->type.u.Uuid.clock_seq_high_and_reserved,
-           e->type.u.Uuid.clock_seq_low,
-           e->type.u.Uuid.node[0],
-           e->type.u.Uuid.node[1],
-           e->type.u.Uuid.node[2],
-           e->type.u.Uuid.node[3],
-           e->type.u.Uuid.node[4],
-           e->type.u.Uuid.node[5]
-           );
-    printf(" %8" PRIu64 " %8" PRIu64"\n", e->starting_lba,
-           e->ending_lba - e->starting_lba + 1);
-    printf("Hacking attributes for kernel partition %d\n", i);
 #endif
-
-    SetEntryPriority(e, 2);
-    SetEntrySuccessful(e, 1);
-  }
-}
-
-
-/* Allocates and reads GPT data from the drive.  The sector_bytes and
- * drive_sectors fields should be filled on input.  The primary and
- * secondary header and entries are filled on output.
- *
- * Returns 0 if successful, 1 if error. */
-int AllocAndReadGptData(GptData* gptdata) {
-
-  uint64_t entries_sectors = GPT_ENTRIES_SIZE / gptdata->sector_bytes;
-
-  /* No data to be written yet */
-  gptdata->modified = 0;
-
-  /* Allocate all buffers */
-  gptdata->primary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
-  gptdata->secondary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
-  gptdata->primary_entries = (uint8_t*)Malloc(GPT_ENTRIES_SIZE);
-  gptdata->secondary_entries = (uint8_t*)Malloc(GPT_ENTRIES_SIZE);
-
-  if (gptdata->primary_header == NULL || gptdata->secondary_header == NULL ||
-      gptdata->primary_entries == NULL || gptdata->secondary_entries == NULL)
-    return 1;
-
-  /* Read data from the drive, skipping the protective MBR */
-  if (0 != BootDeviceReadLBA(1, 1, gptdata->primary_header))
-    return 1;
-  if (0 != BootDeviceReadLBA(2, entries_sectors, gptdata->primary_entries))
-    return 1;
-  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - entries_sectors - 1,
-                             entries_sectors, gptdata->secondary_entries))
-    return 1;
-  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - 1,
-                             1, gptdata->secondary_header))
-    return 1;
-
-  return 0;
-}
-
-
-/* Writes any changes for the GPT data back to the drive, then frees
- * the buffers.
- *
- * Returns 0 if successful, 1 if error. */
-int WriteAndFreeGptData(GptData* gptdata) {
-
-  uint64_t entries_sectors = GPT_ENTRIES_SIZE / gptdata->sector_bytes;
-
-  if (gptdata->primary_header) {
-    if (gptdata->modified & GPT_MODIFIED_HEADER1) {
-      if (0 != BootDeviceWriteLBA(1, 1, gptdata->primary_header))
-        return 1;
-    }
-    Free(gptdata->primary_header);
-  }
-
-  if (gptdata->primary_entries) {
-    if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
-      if (0 != BootDeviceWriteLBA(2, entries_sectors,
-                                  gptdata->primary_entries))
-        return 1;
-    }
-    Free(gptdata->primary_entries);
-  }
-
-  if (gptdata->secondary_entries) {
-    if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
-      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
-                                  entries_sectors, gptdata->secondary_entries))
-        return 1;
-    }
-    Free(gptdata->secondary_entries);
-  }
-
-  if (gptdata->secondary_header) {
-    if (gptdata->modified & GPT_MODIFIED_HEADER2) {
-      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
-                                  gptdata->secondary_header))
-        return 1;
-    }
-    Free(gptdata->secondary_header);
-  }
-
-  /* Success */
-  return 0;
-}
 
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
@@ -193,9 +69,6 @@ int LoadKernel(LoadKernelParams* params) {
     /* Initialize GPT library */
     if (GPT_SUCCESS != GptInit(&gpt))
       break;
-
-    /* TODO: TERRIBLE KLUDGE - fake partition attributes */
-    FakePartitionAttributes(&gpt);
 
     /* Allocate kernel header and image work buffers */
     kbuf = (uint8_t*)Malloc(KBUF_SIZE);
