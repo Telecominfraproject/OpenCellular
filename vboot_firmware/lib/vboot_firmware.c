@@ -64,7 +64,7 @@ int LoadFirmware2(LoadFirmwareParams* params) {
       key_block = (VbKeyBlockHeader*)params->verification_block_1;
       vblock_size = params->verification_size_1;
     }
-    if ((0 != VerifyKeyBlock(key_block, vblock_size, root_key)))
+    if ((0 != KeyBlockVerify(key_block, vblock_size, root_key)))
       continue;
 
     /* Check for rollback of key version. */

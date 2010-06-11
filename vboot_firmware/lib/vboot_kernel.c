@@ -92,7 +92,7 @@ int LoadKernel2(LoadKernelParams* params) {
 
       /* Verify the key block */
       key_block = (VbKeyBlockHeader*)kbuf;
-      if ((0 != VerifyKeyBlock(key_block, KBUF_SIZE, kernel_subkey)))
+      if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey)))
         continue;
 
       /* Check the key block flags against the current boot mode */

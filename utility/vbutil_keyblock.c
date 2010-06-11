@@ -99,11 +99,11 @@ static int Pack(const char* outfile, const char* datapubkey,
     return 1;
   }
 
-  block = CreateKeyBlock(data_key, signing_key, flags);
+  block = KeyBlockCreate(data_key, signing_key, flags);
   Free(data_key);
   Free(signing_key);
 
-  if (0 != WriteFile(outfile, block, block->key_block_size)) {
+  if (0 != KeyBlockWrite(outfile, block)) {
     fprintf(stderr, "vbutil_keyblock: Error writing key block.\n");
     return 1;
   }
@@ -117,7 +117,6 @@ static int Unpack(const char* infile, const char* datapubkey,
   VbPublicKey* data_key;
   VbPublicKey* sign_key;
   VbKeyBlockHeader* block;
-  uint64_t block_size;
 
   if (!infile || !signpubkey) {
     fprintf(stderr, "vbutil_keyblock: Must specify filename and signpubkey\n");
@@ -130,12 +129,17 @@ static int Unpack(const char* infile, const char* datapubkey,
     return 1;
   }
 
-  block = (VbKeyBlockHeader*)ReadFile(infile, &block_size);
+  block = KeyBlockRead(infile);
   if (!block) {
     fprintf(stderr, "vbutil_keyblock: Error reading key block.\n");
     return 1;
   }
-  if (0 != VerifyKeyBlock(block, block_size, sign_key)) {
+  /* Verify the block with the signing public key, since
+   * KeyBlockRead() only verified the hash. */
+  /* TODO: should just print a warning, since self-signed key blocks
+   * won't have a public key; signpubkey should also be an optional
+   * argument. */
+  if (0 != KeyBlockVerify(block, block->key_block_size, sign_key)) {
     fprintf(stderr, "vbutil_keyblock: Error verifying key block.\n");
     return 1;
   }

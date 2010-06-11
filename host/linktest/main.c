@@ -14,6 +14,11 @@ int main(void)
   PublicKeyReadKeyb(0, 0, 0);
   PublicKeyWrite(0, 0);
 
+  /* host_keyblock.h */
+  KeyBlockCreate(0, 0, 0);
+  KeyBlockRead(0);
+  KeyBlockWrite(0, 0);
+
   /* host_misc.h */
   ReadFile(0, 0);
   WriteFile(0, 0, 0);
@@ -26,7 +31,6 @@ int main(void)
   CalculateSignature(0, 0, 0);
 
   /* host_common.h */
-  CreateKeyBlock(0, 0, 0);
   CreateFirmwarePreamble(0, 0, 0, 0);
   CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0);
 

@@ -21,6 +21,7 @@ INCLUDES += \
 LIB_SRCS = \
 	./lib/host_common.c \
 	./lib/host_key.c \
+	./lib/host_keyblock.c \
 	./lib/host_misc.c \
 	./lib/host_signature.c 
 

@@ -124,7 +124,7 @@ int VerifyData(const uint8_t* data, const VbSignature *sig,
 }
 
 
-int VerifyKeyBlock(const VbKeyBlockHeader* block, uint64_t size,
+int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                    const VbPublicKey *key) {
 
   const VbSignature* sig;

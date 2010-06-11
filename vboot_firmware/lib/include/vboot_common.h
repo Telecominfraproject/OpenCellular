@@ -67,7 +67,7 @@ int VerifyData(const uint8_t* data, const VbSignature* sig,
  * key [key].  If [key]==NULL, uses only the block checksum to verify
  * the key block.  Header fields are also checked for sanity.  Does not
  * verify key index or key block flags. */
-int VerifyKeyBlock(const VbKeyBlockHeader* block, uint64_t size,
+int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                    const VbPublicKey *key);
 
 

@@ -79,7 +79,7 @@ int main(void)
   VerifySignatureInside(0, 0, 0);
   PublicKeyToRSA(0);
   VerifyData(0, 0, 0);
-  VerifyKeyBlock(0, 0, 0);
+  KeyBlockVerify(0, 0, 0);
   VerifyFirmwarePreamble2(0, 0, 0);
   VerifyKernelPreamble2(0, 0, 0);
 

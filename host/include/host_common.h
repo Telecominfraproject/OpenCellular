@@ -12,18 +12,11 @@
 
 #include "cryptolib.h"
 #include "host_key.h"
+#include "host_keyblock.h"
 #include "host_misc.h"
 #include "host_signature.h"
 #include "utility.h"
 #include "vboot_struct.h"
-
-
-/* Create a key block header containing [data_key] and [flags], signed
- * by [signing_key].  Caller owns the returned pointer, and must free
- * it with Free(). */
-VbKeyBlockHeader* CreateKeyBlock(const VbPublicKey* data_key,
-                                 const VbPrivateKey* signing_key,
-                                 uint64_t flags);
 
 
 /* Creates a firmware preamble, signed with [signing_key].
