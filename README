@@ -27,6 +27,35 @@ tests/ - User-land tests and benchmarks that test the reference
 implementation. Please have a look at these if you'd like to
 understand how to use the reference implementation.
 
+build/ - a directory where the generated files go to.
+
+--------------------
+Building and testing
+--------------------
+
+The suite can be built on the host or in the chroot environment.
+
+Building on the host could fail if certain packages are not installed. If
+there are host environment build problems due to missing .h files, try
+researching what packages the files belong to and install the missing packages
+before reporting a problem.
+
+To build the software run
+
+make
+
+in the top level directory. The build output is placed in the ./build
+directory.
+
+To run the tests either invoke
+
+RUNTESTS=1 make
+
+in the top level directory or
+
+cd tests
+BUILD=../build make runtests
+
 
 ---------- 
 Some useful utilities: 

@@ -2,9 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-TOP ?= ../
-CC ?= gcc
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
@@ -14,12 +11,13 @@ INCLUDES += -I./include \
 		-I../vboot_firmware/lib/include\
 		-I../vfirmware/include\
 		-I../vkernel/include
-IMAGE_LIBS = $(TOP)/vfirmware/firmware_image.o \
-		$(TOP)/vkernel/kernel_image.o
-UTIL_LIBS = $(TOP)/misclibs/file_keys.o $(TOP)/misclibs/signature_digest.o
+IMAGE_LIBS = $(BUILD)/vfirmware/firmware_image.o \
+		$(BUILD)/vkernel/kernel_image.o
+UTIL_LIBS = $(BUILD)/misclibs/file_keys.o $(BUILD)/misclibs/signature_digest.o
 LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(HOSTLIB) $(FWLIB) -lcrypto
+BUILD_ROOT = ${BUILD}/tests
 
-TEST_BINS = big_firmware_tests \
+TEST_NAMES = big_firmware_tests \
 		big_kernel_tests \
 		cgptlib_test \
 		firmware_image_tests \
@@ -39,97 +37,107 @@ TEST_BINS = big_firmware_tests \
 		vboot_common3_tests \
 		verify_firmware_fuzz_driver \
 		verify_kernel_fuzz_driver
+TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
+ALL_DEPS = $(addsuffix .d,${TEST_BINS})
 
-all: $(TEST_BINS)
+ifneq (${RUNTESTS},)
+EXTRA_TARGET = runtests
+endif
 
-big_firmware_tests: big_firmware_tests.c rollback_index_mock.c test_common.c
+all: $(TEST_BINS) ${EXTRA_TARGET}
+
+${BUILD_ROOT}/big_firmware_tests: big_firmware_tests.c \
+	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-big_kernel_tests: big_kernel_tests.c rollback_index_mock.c test_common.c
+${BUILD_ROOT}/big_kernel_tests: big_kernel_tests.c rollback_index_mock.c \
+	test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-cgptlib_test: cgptlib_test.c crc32_test.c
+${BUILD_ROOT}/cgptlib_test: cgptlib_test.c crc32_test.c
 	$(CC) $(CFLAGS) -ansi $(INCLUDES) $^ -o $@ $(LIBS)
 
-firmware_image_tests: firmware_image_tests.c rollback_index_mock.c test_common.c
+${BUILD_ROOT}/firmware_image_tests: firmware_image_tests.c \
+	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-firmware_rollback_tests: firmware_rollback_tests.c rollback_index_mock.c \
+${BUILD_ROOT}/firmware_rollback_tests: firmware_rollback_tests.c \
+	rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+${BUILD_ROOT}/firmware_splicing_tests: firmware_splicing_tests.c \
+	rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+${BUILD_ROOT}/firmware_verify_benchmark: firmware_verify_benchmark.c \
+	timer_utils.c rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
+
+${BUILD_ROOT}/kernel_image_tests: kernel_image_tests.c rollback_index_mock.c \
 	test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-firmware_splicing_tests: firmware_splicing_tests.c rollback_index_mock.c \
-	test_common.c
+${BUILD_ROOT}/kernel_rollback_tests: kernel_rollback_tests.c \
+	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-firmware_verify_benchmark: firmware_verify_benchmark.c timer_utils.c \
+${BUILD_ROOT}/kernel_splicing_tests: kernel_splicing_tests.c \
+	rollback_index_mock.c test_common.c
+	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
+
+${BUILD_ROOT}/kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c \
 	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
 
-kernel_image_tests: kernel_image_tests.c rollback_index_mock.c test_common.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
-
-kernel_rollback_tests: kernel_rollback_tests.c rollback_index_mock.c \
-	test_common.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
-
-kernel_splicing_tests: kernel_splicing_tests.c rollback_index_mock.c \
-	test_common.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
-
-kernel_verify_benchmark: kernel_verify_benchmark.c timer_utils.c \
-	rollback_index_mock.c test_common.c
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(LIBS)
-
-rsa_padding_test: rsa_padding_test.c
+${BUILD_ROOT}/rsa_padding_test: rsa_padding_test.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(UTIL_LIBS) $(FWLIB) \
 	-lcrypto
 
-rsa_verify_benchmark: rsa_verify_benchmark.c timer_utils.c
+${BUILD_ROOT}/rsa_verify_benchmark: rsa_verify_benchmark.c timer_utils.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(UTIL_LIBS) $(FWLIB) \
 	-lcrypto
 
-sha_benchmark:	sha_benchmark.c timer_utils.c
+${BUILD_ROOT}/sha_benchmark:	sha_benchmark.c timer_utils.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ -lrt $(FWLIB)
 
-sha_tests: sha_tests.c
+${BUILD_ROOT}/sha_tests: sha_tests.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(FWLIB)
 
-vboot_common_tests: vboot_common_tests.c rollback_index_mock.c test_common.c
+${BUILD_ROOT}/vboot_common_tests: vboot_common_tests.c \
+	rollback_index_mock.c test_common.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-vboot_common2_tests: vboot_common2_tests.c test_common.c $(HOSTLIB) $(FWLIB)
+${BUILD_ROOT}/vboot_common2_tests: vboot_common2_tests.c \
+	test_common.c $(HOSTLIB) $(FWLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-vboot_common3_tests: vboot_common3_tests.c test_common.c $(HOSTLIB) $(FWLIB)
+${BUILD_ROOT}/vboot_common3_tests: vboot_common3_tests.c \
+	test_common.c $(HOSTLIB) $(FWLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c \
+${BUILD_ROOT}/verify_firmware_fuzz_driver: verify_firmware_fuzz_driver.c \
 	rollback_index_mock.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
-verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c rollback_index_mock.c
+${BUILD_ROOT}/verify_kernel_fuzz_driver: verify_kernel_fuzz_driver.c \
+	rollback_index_mock.c
 	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@ $(LIBS)
 
 runtests:
+	./gen_test_keys.sh
 	# Crypto tests
 	./run_rsa_tests.sh
-	./sha_tests
+	${BUILD_ROOT}/sha_tests
 	./run_vbutil_tests.sh
 	./run_vboot_common_tests.sh
 	./run_image_verification_tests.sh
 	# Splicing tests
-	./firmware_splicing_tests
-	./kernel_splicing_tests	
+	${BUILD_ROOT}/firmware_splicing_tests
+	${BUILD_ROOT}/kernel_splicing_tests
 	# Rollback Tests
-	./firmware_rollback_tests
-	./kernel_rollback_tests
+	${BUILD_ROOT}/firmware_rollback_tests
+	${BUILD_ROOT}/kernel_rollback_tests
 	# Helper Library Tests
-	./cgptlib_test
+	${BUILD_ROOT}/cgptlib_test
 	# Tool tests
-	./run_cgpt_tests.sh
-
-clean:
-	rm -f $(TEST_BINS)
-	rm -f testkeys/*.vbpubk
-	rm -f testkeys/*.keyblock
+	./run_cgpt_tests.sh  ${BUILD}/cgpt/cgpt

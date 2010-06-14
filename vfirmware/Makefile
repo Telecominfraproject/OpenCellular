@@ -2,19 +2,17 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-CC ?= gcc
 INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
 		-I../misclibs/include
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
-FIRMWARE_OUT = firmware_image.o
 
-all: $(FIRMWARE_OUT)
+BUILD_ROOT := ${BUILD}/vfirmware
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+ALL_SRCS = firmware_image.c
 
-clean:
-	rm -f $(FIRMWARE_OUT)
+include ../common.mk
+
+all: $(ALL_OBJS)
+

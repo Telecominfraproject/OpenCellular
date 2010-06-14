@@ -2,44 +2,36 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-CC ?= gcc
-TOP ?= ..
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
 CFLAGS += -static
 LDFLAGS += -luuid
-FWDIR=$(TOP)/vboot_firmware
+BUILD_ROOT := ${BUILD}/cgpt
 
 INCLUDES = -I$(FWDIR)/lib/cgptlib/include
-LIBS = $(FWDIR)/vboot_fw.a
+LIBS = ${FWLIB}
 
 DESTDIR ?= /usr/bin
 
-PROGNAME = cgpt
+PROGNAME = ${BUILD_ROOT}/cgpt
 
-OBJS= \
-	cgpt.o \
-	cmd_show.o \
-	cmd_repair.o \
-	cmd_create.o \
-	cmd_add.o \
-	cmd_boot.o \
-	cgpt_common.o
+ALL_SRCS = \
+	cgpt.c \
+	cmd_show.c \
+	cmd_repair.c \
+	cmd_create.c \
+	cmd_add.c \
+	cmd_boot.c \
+	cgpt_common.c
 
+include ../common.mk
 
 all: $(PROGNAME)
 
-$(PROGNAME): $(OBJS) $(LIBS)
+$(PROGNAME): $(ALL_OBJS) $(LIBS)
 	$(CC) -o $(PROGNAME) $(CFLAGS) $^ $(LDFLAGS)
-
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-clean:
-	rm -f $(PROGNAME) *.o *~
 
 install: $(PROGNAME)
 	mkdir -p $(DESTDIR)
 	cp -f $^ $(DESTDIR)
-	chmod a+rx $(patsubst %,$(DESTDIR)/%,$^)
+	chmod a+rx $(patsubst ${BUILD_ROOT}/%,$(DESTDIR)/%,$^)
 
-.PHONY: all clean install
+.PHONY: all install

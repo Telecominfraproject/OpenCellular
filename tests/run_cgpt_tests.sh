@@ -9,7 +9,7 @@
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
-GPT=${1:-../cgpt/cgpt}
+GPT=$1
 [ -x "$GPT" ] || error "Can't execute $GPT"
 warning "testing $GPT"
 

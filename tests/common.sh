@@ -5,7 +5,7 @@
 # found in the LICENSE file.
 
 # Determine script directory.
-if [[ $0 == '/'* ]]; 
+if [[ $0 == '/'* ]];
 then
   SCRIPT_DIR="`dirname $0`"
 elif [[ $0 == './'* ]];
@@ -15,10 +15,17 @@ else
   SCRIPT_DIR="`pwd`"/"`dirname $0`"
 fi
 
-UTIL_DIR=`dirname ${SCRIPT_DIR}`/utility
-TEST_DIR=${SCRIPT_DIR}
+ROOT_DIR="$(dirname ${SCRIPT_DIR})"
+BUILD_DIR="${ROOT_DIR}/build"
+UTIL_DIR="${BUILD_DIR}/utility"
+TEST_DIR="${BUILD_DIR}/tests"
 TESTKEY_DIR=${SCRIPT_DIR}/testkeys
 TESTCASE_DIR=${SCRIPT_DIR}/testcases
+TESTKEY_SCRATCH_DIR=${TEST_DIR}/testkeys
+
+if [ ! -d ${TESTKEY_SCRATCH_DIR} ]; then
+    mkdir ${TESTKEY_SCRATCH_DIR}
+fi
 
 # Color output encodings.
 COL_RED='\E[31;1m'

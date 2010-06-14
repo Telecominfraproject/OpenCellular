@@ -2,10 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-FWDIR ?= ../vboot_firmware/
-TOP ?= ../
-CC ?= gcc
-CXX ?= g++
 INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
@@ -15,17 +11,20 @@ INCLUDES += -I./include \
 		-I../vfirmware/include\
 		-I../vboot_firmware/include\
 		-I../vkernel/include
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror $(INCLUDES)
-LIBS = $(TOP)/misclibs/file_keys.o \
-	$(TOP)/misclibs/signature_digest.o \
-	$(TOP)/vfirmware/firmware_image.o \
-	$(TOP)/vkernel/kernel_image.o \
+CFLAGS += $(INCLUDES)
+CFLAGS += -MMD -MF $@.d
+LIBS = $(BUILD)/misclibs/file_keys.o \
+	$(BUILD)/misclibs/signature_digest.o \
+	$(BUILD)/vfirmware/firmware_image.o \
+	$(BUILD)/vkernel/kernel_image.o \
 	$(HOSTLIB) \
 	$(FWLIB)
 
+BUILD_ROOT = ${BUILD}/utility
+
 DESTDIR ?= /usr/bin
 
-TARGET_BINS = dumpRSAPublicKey \
+TARGET_NAMES = dumpRSAPublicKey \
 		firmware_utility \
 		gbb_utility \
 		kernel_utility \
@@ -36,47 +35,47 @@ TARGET_BINS = dumpRSAPublicKey \
 		vbutil_keyblock \
 		verify_data
 
+TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
+ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
+
 all: $(TARGET_BINS)
 
-dumpRSAPublicKey: dumpRSAPublicKey.c
+${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
 
-firmware_utility: firmware_utility.cc $(LIBS)
+${BUILD_ROOT}/firmware_utility: firmware_utility.cc $(LIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(LIBS) -lcrypto
 
-gbb_utility: gbb_utility.cc 
-	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $(INCLUDES) $< -o $@
+${BUILD_ROOT}/gbb_utility: gbb_utility.cc
+	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
 
-load_kernel_test: load_kernel_test.c $(LIBS)
+${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-kernel_utility: kernel_utility.cc $(LIBS)
+${BUILD_ROOT}/kernel_utility: kernel_utility.cc $(LIBS)
 	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
 	-o $@ $(LIBS) -lcrypto
 
-signature_digest_utility: signature_digest_utility.c $(LIBS)
+${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-vbutil_kernel: vbutil_kernel.c $(LIBS)
+${BUILD_ROOT}/vbutil_kernel: vbutil_kernel.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-vbutil_key: vbutil_key.c $(LIBS)
+${BUILD_ROOT}/vbutil_key: vbutil_key.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-vbutil_keyblock: vbutil_keyblock.c $(LIBS)
+${BUILD_ROOT}/vbutil_keyblock: vbutil_keyblock.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-verify_data: verify_data.c $(LIBS)
+${BUILD_ROOT}/verify_data: verify_data.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-clean:
-	rm -f $(TARGET_BINS)
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
 	cp -f $(TARGET_BINS) $(DESTDIR)
-	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_BINS))
+	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_NAMES))
 
-%o : %c
-	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+-include ALL_DEPS

@@ -2,23 +2,16 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-TOP ?= ../
-CC ?= gcc
 INCLUDES += -I./include \
 		-I$(TOP)/common/include \
 		-I$(TOP)/vboot_firmware/lib/cryptolib/include \
 		-I$(TOP)/vfirmware/include \
 		-I$(TOP)/vkernel/include
 
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror $(INCLUDES)
-TOP ?= ../
+BUILD_ROOT := ${BUILD}/misclibs
 
-MISCLIB_OUT = file_keys.o signature_digest.o
+ALL_SRCS = file_keys.c signature_digest.c
 
-all: $(MISCLIB_OUT)
+include ../common.mk
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-clean: 
-	rm -f $(MISCLIB_OUT)
+all: $(ALL_OBJS)

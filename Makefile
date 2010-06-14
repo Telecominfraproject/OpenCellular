@@ -12,22 +12,27 @@ export INCLUDES = \
 	-I$(FWDIR)/include \
 	-I$(TOP)/misclibs/include
 
-export FWLIB=$(FWDIR)/vboot_fw.a
-export HOSTLIB=$(HOSTDIR)/vboot_host.a
+export BUILD = ${TOP}/build
+export FWLIB = ${BUILD}/vboot_fw.a
+export HOSTLIB= ${BUILD}/vboot_host.a
 
-SUBDIRS=vboot_firmware misclibs host vfirmware vkernel utility cgpt tests
+SUBDIRS = vboot_firmware misclibs host vfirmware vkernel utility cgpt tests
 
 all:
 	set -e; \
+	for d in $(shell find ${SUBDIRS} -name '*.c' -exec  dirname {} \; |\
+		 sort -u); do \
+		newdir=${BUILD}/$$d; \
+		if [ ! -d $$newdir ]; then \
+			mkdir -p $$newdir; \
+		fi; \
+	done && \
 	for i in $(SUBDIRS); do \
 		make -C $$i; \
 	done
 
 clean:
-	set -e; \
-	for i in $(SUBDIRS); do \
-		make -C $$i clean; \
-	done
+	/bin/rm -rf ${BUILD}
 
 install:
 	$(MAKE) -C utility install

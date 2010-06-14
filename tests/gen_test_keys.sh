@@ -13,6 +13,9 @@
 function generate_keys {
   for i in ${key_lengths[@]}
   do
+    if [ -f ${TESTKEY_DIR}/key_rsa$i.keyb ]; then
+      continue
+    fi
     openssl genrsa -F4 -out ${TESTKEY_DIR}/key_rsa$i.pem $i
     # Generate self-signed certificate from key.
     openssl req -batch -new -x509 -key ${TESTKEY_DIR}/key_rsa$i.pem \

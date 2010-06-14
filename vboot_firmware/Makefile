@@ -2,17 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-LIBNAME = vboot_fw.a
-
-CC ?= gcc
-CFLAGS = -Wall -DNDEBUG -O3 -Werror
-
 FWTOP := $(shell pwd)
 LIBDIR = $(FWTOP)/lib
 STUBDIR = $(FWTOP)/stub
 TESTDIR = $(FWTOP)/linktest
+BUILD_ROOT := ${BUILD}/$(shell basename ${FWTOP})
 
-INC = \
+INCLUDES = \
 	-I$(FWTOP)/include \
 	-I$(LIBDIR)/include \
 	-I$(LIBDIR)/cgptlib/include \
@@ -40,32 +36,20 @@ LIB_SRCS = \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c
 
-LIB_OBJS = $(LIB_SRCS:%.c=%.o)
-
-# find ./stub -iname '*.c' | sort
 STUB_SRCS = \
 	./stub/boot_device_stub.c \
 	./stub/load_firmware_stub.c \
 	./stub/tlcl.c \
 	./stub/utility_stub.c
 
-STUB_OBJS = $(STUB_SRCS:%.c=%.o)
+ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS}
 
+test : $(FWLIB)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out \
+		$(TESTDIR)/main.c $(FWLIB)
 
-test : $(LIBNAME)
-	$(CC) $(CFLAGS) $(INC) -o $(TESTDIR)/a.out $(TESTDIR)/main.c $(LIBNAME)
+include ../common.mk
 
-$(LIBNAME) : $(LIB_OBJS) $(STUB_OBJS)
+$(FWLIB) : $(ALL_OBJS)
 	rm -f $@
 	ar qc $@ $^
-
-%o : %c
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-clean: FORCE
-	rm -f $(LIBNAME) $(LIB_OBJS) $(STUB_OBJS) $(TESTDIR)/a.out
-
-FORCE:
-
-
-.PHONY: FORCE

@@ -2,20 +2,17 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-CC ?= gcc
 INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
 		-I../utility/include \
 		-I../misclibs/include
-CFLAGS ?= -Wall -DNDEBUG -O3 -Werror
-KERNEL_OUT = kernel_image.o
 
-all: $(KERNEL_OUT)
+BUILD_ROOT := ${BUILD}/vkernel
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+ALL_SRCS = kernel_image.c
 
-clean:
-	rm -f $(KERNEL_OUT)
+include ../common.mk
+
+all: $(ALL_OBJS)

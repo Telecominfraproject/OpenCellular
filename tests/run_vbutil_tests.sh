@@ -21,7 +21,7 @@ function test_vbutil_key {
       # Pack the key
       ${UTIL_DIR}/vbutil_key --pack \
         --in ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
-        --out ${TESTKEY_DIR}/key_alg${algorithmcounter}.vbpubk \
+        --out ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk \
         --version 1 \
         --algorithm $algorithmcounter
       if [ $? -ne 0 ]
@@ -32,7 +32,7 @@ function test_vbutil_key {
       # Unpack the key
       # TODO: should verify we get the same key back out?
       ${UTIL_DIR}/vbutil_key --unpack \
-        --in ${TESTKEY_DIR}/key_alg${algorithmcounter}.vbpubk 
+        --in ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk
       if [ $? -ne 0 ]
       then
         return_code=255
@@ -63,13 +63,15 @@ RSA-${signing_keylen}/${signing_hashalgo}${COL_STOP} \
 and ${COL_YELLOW}data key algorithm RSA-${datakeylen}/\
 ${datahashalgo}${COL_STOP}"
           # Remove old file
-          keyblockfile=${TESTKEY_DIR}/sign${signing_algorithmcounter}_data${data_algorithmcounter}.keyblock
+          keyblockfile="${TESTKEY_SCRATCH_DIR}/"
+          keyblockfile+="sign${signing_algorithmcounter}_data"
+          keyblockfile+="${data_algorithmcounter}.keyblock"
           rm -f ${keyblockfile}
 
           # Pack
           ${UTIL_DIR}/vbutil_keyblock --pack ${keyblockfile} \
             --datapubkey \
-            ${TESTKEY_DIR}/key_alg${data_algorithmcounter}.vbpubk \
+            ${TESTKEY_SCRATCH_DIR}/key_alg${data_algorithmcounter}.vbpubk \
             --signprivate ${TESTKEY_DIR}/key_rsa${signing_keylen}.pem \
             --algorithm $signing_algorithmcounter
           if [ $? -ne 0 ]
@@ -80,7 +82,7 @@ ${datahashalgo}${COL_STOP}"
           # Unpack
           ${UTIL_DIR}/vbutil_keyblock --unpack ${keyblockfile} \
             --signpubkey \
-            ${TESTKEY_DIR}/key_alg${signing_algorithmcounter}.vbpubk
+            ${TESTKEY_SCRATCH_DIR}/key_alg${signing_algorithmcounter}.vbpubk
           # TODO: check data key against the packed one?
           if [ $? -ne 0 ]
           then
