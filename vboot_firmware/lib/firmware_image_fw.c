@@ -111,6 +111,10 @@ int VerifyFirmwarePreamble(RSAPublicKey* firmware_sign_key,
          preamble_blob + (FIELD_LEN(firmware_version) +
                           FIELD_LEN(firmware_len)),
          FIELD_LEN(kernel_subkey_sign_algorithm));
+
+  if (kernel_subkey_sign_algorithm >= kNumAlgorithms)
+    return VERIFY_FIRMWARE_INVALID_ALGORITHM;
+
   preamble_len = GetFirmwarePreambleLen(kernel_subkey_sign_algorithm);
   if (!RSAVerifyBinary_f(NULL, firmware_sign_key,  /* Key to use */
                          preamble_blob,  /* Data to verify */
@@ -140,8 +144,11 @@ int VerifyFirmwareData(RSAPublicKey* firmware_sign_key,
          preamble_start + (FIELD_LEN(firmware_version) +
                           FIELD_LEN(firmware_len)),
          FIELD_LEN(kernel_subkey_sign_algorithm));
-  preamble_len = GetFirmwarePreambleLen(kernel_subkey_sign_algorithm);
 
+  if (kernel_subkey_sign_algorithm >= kNumAlgorithms)
+    return VERIFY_FIRMWARE_INVALID_ALGORITHM;
+
+  preamble_len = GetFirmwarePreambleLen(kernel_subkey_sign_algorithm);
 
   /* Since the firmware signature is over the preamble and the firmware data,
    * which does not form a contiguous region of memory, we calculate the
