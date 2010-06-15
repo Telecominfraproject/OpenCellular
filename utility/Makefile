@@ -30,8 +30,9 @@ TARGET_NAMES = dumpRSAPublicKey \
 		kernel_utility \
 		load_kernel_test \
 		signature_digest_utility \
-		vbutil_key \
+		vbutil_firmware \
 		vbutil_kernel \
+		vbutil_key \
 		vbutil_keyblock \
 		verify_data
 
@@ -58,6 +59,9 @@ ${BUILD_ROOT}/kernel_utility: kernel_utility.cc $(LIBS)
 	-o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/vbutil_kernel: vbutil_kernel.c $(LIBS)
