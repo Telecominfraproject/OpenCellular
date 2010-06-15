@@ -122,6 +122,22 @@ int VerifyData(const uint8_t* data, const VbSignature *sig,
 }
 
 
+int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
+                 const RSAPublicKey* key) {
+
+  if (sig->sig_size != siglen_map[key->algorithm]) {
+    debug("Wrong signature size for algorithm.\n");
+    return 1;
+  }
+
+  if (!RSAVerifyBinaryWithDigest_f(NULL, key, digest,
+                         GetSignatureDataC(sig), key->algorithm))
+    return 1;
+
+  return 0;
+}
+
+
 int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                    const VbPublicKey *key) {
 

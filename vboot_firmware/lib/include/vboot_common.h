@@ -67,6 +67,12 @@ int VerifyData(const uint8_t* data, const VbSignature* sig,
                const RSAPublicKey* key);
 
 
+/* Verifies a secure hash digest from DigestBuf() or DigestFinal(),
+ * using [key]. */
+int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
+                 const RSAPublicKey* key);
+
+
 /* Checks the sanity of a key block of size [size] bytes, using public
  * key [key].  If [key]==NULL, uses only the block checksum to verify
  * the key block.  Header fields are also checked for sanity.  Does not

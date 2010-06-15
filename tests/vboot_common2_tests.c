@@ -45,8 +45,8 @@ static void VerifyDataTest(const VbPublicKey* public_key,
                            const VbPrivateKey* private_key) {
 
   const uint8_t test_data[] = "This is some test data to sign.";
-  VbSignature *sig;
-  RSAPublicKey *rsa;
+  VbSignature* sig;
+  RSAPublicKey* rsa;
 
   sig = CalculateSignature(test_data, sizeof(test_data), private_key);
   rsa = PublicKeyToRSA(public_key);
@@ -65,6 +65,32 @@ static void VerifyDataTest(const VbPublicKey* public_key,
 
   RSAPublicKeyFree(rsa);
   Free(sig);
+}
+
+
+static void VerifyDigestTest(const VbPublicKey* public_key,
+                           const VbPrivateKey* private_key) {
+
+  const uint8_t test_data[] = "This is some other test data to sign.";
+  VbSignature* sig;
+  RSAPublicKey* rsa;
+  uint8_t* digest;
+
+  sig = CalculateSignature(test_data, sizeof(test_data), private_key);
+  rsa = PublicKeyToRSA(public_key);
+  digest = DigestBuf(test_data, sizeof(test_data), public_key->algorithm);
+  TEST_NEQ(sig && rsa && digest, 0, "VerifyData() prerequisites");
+  if (!sig || !rsa || !digest)
+    return;
+
+  TEST_EQ(VerifyDigest(digest, sig, rsa), 0, "VerifyDigest() ok");
+
+  GetSignatureData(sig)[0] ^= 0x5A;
+  TEST_EQ(VerifyDigest(digest, sig, rsa), 1, "VerifyDigest() wrong sig");
+
+  RSAPublicKeyFree(rsa);
+  Free(sig);
+  Free(digest);
 }
 
 
@@ -201,6 +227,7 @@ int main(int argc, char* argv[]) {
 
   VerifyPublicKeyToRSA(public_key);
   VerifyDataTest(public_key, private_key);
+  VerifyDigestTest(public_key, private_key);
   VerifyKernelPreambleTest(public_key, private_key);
 
   if (public_key)

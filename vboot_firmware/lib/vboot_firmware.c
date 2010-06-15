@@ -13,9 +13,23 @@
 #include "utility.h"
 #include "vboot_common.h"
 
+/* Static variables for UpdateFirmwareBodyHash().  It's less than
+ * optimal to have static variables in a library, but in UEFI the
+ * caller is deep inside a different firmware stack and doesn't have a
+ * good way to pass the params struct back to us. */
+static DigestContext ctx;
+static uint64_t body_size_accum = 0;
+static int inside_load_firmware = 0;
 
 void UpdateFirmwareBodyHash2(uint8_t* data, uint64_t size) {
-  /* TODO: actually update the hash. */
+
+  if (!inside_load_firmware) {
+    debug("UpdateFirmwareBodyHash() called outside LoadFirmware()\n");
+    return;
+  }
+
+  DigestUpdate(&ctx, data, size);
+  body_size_accum += size;
 }
 
 
@@ -56,6 +70,7 @@ int LoadFirmware2(LoadFirmwareParams* params) {
     uint64_t key_version;
     uint8_t* body_data;
     uint64_t body_size;
+    uint8_t* body_digest;
 
     /* Verify the key block */
     if (0 == index) {
@@ -112,23 +127,29 @@ int LoadFirmware2(LoadFirmwareParams* params) {
       continue;
 
     /* Read the firmware data */
-    /* TODO: should set up hash for UpdateFirmwareBodyHash(). */
+    DigestInit(&ctx, data_key->algorithm);
+    body_size_accum = 0;
+    inside_load_firmware = 1;
     body_data = GetFirmwareBody(index, &body_size);
-    if (!body_data || (body_size != preamble->body_signature.data_size)) {
+    inside_load_firmware = 0;
+    body_digest = DigestFinal(&ctx);
+    if (!body_data || (body_size != preamble->body_signature.data_size) ||
+        (body_size_accum != body_size)) {
       RSAPublicKeyFree(data_key);
+      Free(body_digest);
       continue;
     }
 
     /* Verify firmware data */
-    /* TODO: should use hash from UpdateFirmwareBodyHash() rather than
-     * recalculating it in VerifyData().  */
-    if (0 != VerifyData(body_data, &preamble->body_signature, data_key)) {
+    if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
       RSAPublicKeyFree(data_key);
+      Free(body_digest);
       continue;
     }
 
-    /* Done with the data key, so can free it now */
+    /* Done with the digest and data key, so can free them now */
     RSAPublicKeyFree(data_key);
+    Free(body_digest);
 
     /* If we're still here, the firmware is valid. */
     /* Save the first good firmware we find; that's the one we'll boot */
