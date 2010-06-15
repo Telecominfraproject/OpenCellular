@@ -273,7 +273,7 @@ int VerifyFirmwareDriver_f(uint8_t* root_key_blob,
   uint16_t version, key_version;  /* Temporary variables */
 
   /* Initialize the TPM since we'll be reading the rollback indices. */
-  SetupTPM();
+  SetupTPM(0, 0);
 
   /* We get the key versions by reading directly from the image blobs without
    * any additional (expensive) sanity checking on the blob since it's faster to

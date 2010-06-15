@@ -16,7 +16,7 @@ uint16_t g_firmware_version = 0;
 uint16_t g_kernel_key_version = 0;
 uint16_t g_kernel_version = 0;
 
-uint32_t SetupTPM(void) {
+uint32_t SetupTPM(int mode, int developer_flag) {
 #ifndef NDEBUG
   debug("Rollback Index Library Mock: TPM initialized.\n");
 #endif

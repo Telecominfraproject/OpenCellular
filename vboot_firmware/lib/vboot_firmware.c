@@ -40,7 +40,8 @@ int LoadFirmware2(LoadFirmwareParams* params) {
     return LOAD_FIRMWARE_RECOVERY;
 
   /* Initialize the TPM and read rollback indices. */
-  if (0 != SetupTPM() )
+  /* TODO: fix SetupTPM parameter */
+  if (0 != SetupTPM(0, 0) )
     return LOAD_FIRMWARE_RECOVERY;
   if (0 != GetStoredVersions(FIRMWARE_VERSIONS,
                              &tpm_key_version, &tpm_fw_version))

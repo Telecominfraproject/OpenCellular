@@ -44,7 +44,7 @@ int main(void)
   LoadKernel(0);
 
   /* rollback_index.h */
-  SetupTPM();
+  SetupTPM(0, 0);
   GetStoredVersions(0, &x, &y);
   WriteStoredVersions(0, 0, 0);
   LockFirmwareVersions();
