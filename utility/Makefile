@@ -29,6 +29,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		gbb_utility \
 		kernel_utility \
 		load_kernel_test \
+		sign_image \
 		signature_digest_utility \
 		vbutil_firmware \
 		vbutil_kernel \
@@ -76,6 +77,8 @@ ${BUILD_ROOT}/vbutil_keyblock: vbutil_keyblock.c $(LIBS)
 ${BUILD_ROOT}/verify_data: verify_data.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
+${BUILD_ROOT}/sign_image: sign_image.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
