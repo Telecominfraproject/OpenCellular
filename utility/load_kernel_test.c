@@ -98,10 +98,11 @@ int main(int argc, char* argv[]) {
   {
     uint64_t key_size;
     lkp.header_sign_key_blob = ReadFile(keyfile_name, &key_size);
-    if (!lkp.header_sign_key_blob)
+    if (!lkp.header_sign_key_blob) {
       fprintf(stderr, "Unable to read key file %s\n", keyfile_name);
       return 1;
     }
+  }
 
   /* Get image size */
   printf("Reading from image: %s\n", image_name);
