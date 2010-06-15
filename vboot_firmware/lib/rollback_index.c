@@ -214,7 +214,7 @@ static uint32_t CheckDeveloperModeTransition(uint32_t current_developer) {
   RETURN_ON_FAILURE(TlclRead(DEVELOPER_MODE_NV_INDEX,
                              (uint8_t*) &past_developer,
                              sizeof(past_developer)));
-  must_clear = current_developer && !past_developer;
+  must_clear = current_developer != past_developer;
   if (must_clear) {
     RETURN_ON_FAILURE(TlclForceClear());
   }

@@ -47,11 +47,11 @@ extern uint16_t g_kernel_version;
  * the developer switch is ON, 0 otherwise.
  *
  * If SetupTPM returns TPM_SUCCESS, the caller may proceed.  If it returns
- * TPM_E_MUST_REBOOT, the caller must reboot in normal mode.  For all other
- * return values, the caller must reboot in recovery mode.
+ * TPM_E_MUST_REBOOT, the caller must reboot in the current mode.  For all
+ * other return values, the caller must reboot in recovery mode.
  *
  * This function has many side effects on the TPM state.  In particular, when
- * called with mode = RECOVERY_MODE it locks the firmware versions before
+ * called with mode = RECOVERY_MODE, it locks the firmware versions before
  * returning.  In all other cases, the caller is responsible for locking the
  * firmware versions once it decides it doesn't need to update them.
  */
