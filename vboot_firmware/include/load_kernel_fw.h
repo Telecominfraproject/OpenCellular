@@ -22,6 +22,8 @@
 /* Boot flags for LoadKernel().boot_flags */
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
 #define BOOT_FLAG_RECOVERY  UINT64_C(0x02)  /* In recovery mode */
+#define BOOT_FLAG_SKIP_ADDR_CHECK UINT64_C(0x04)  /* Skip check of kernel
+                                                   * buffer address */
 
 typedef struct LoadKernelParams {
   /* Inputs to LoadKernel() */

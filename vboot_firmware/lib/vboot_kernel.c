@@ -8,6 +8,7 @@
 
 #include "vboot_kernel.h"
 
+#include <inttypes.h>  /* For PRIu64 */
 #include "boot_device.h"
 #include "cgptlib.h"
 #include "load_kernel_fw.h"
@@ -135,8 +136,10 @@ int LoadKernel2(LoadKernelParams* params) {
      * initialized. */
     if (0 != GetStoredVersions(KERNEL_VERSIONS,
                                &tpm_key_version,
-                               &tpm_kernel_version))
+                               &tpm_kernel_version)) {
+      debug("Unable to get stored version from TPM\n");
       return LOAD_KERNEL_RECOVERY;
+    }
   } else if (is_dev) {
     /* In developer mode, we ignore the kernel subkey, and just use
      * the SHA-512 hash to verify the key block. */
@@ -147,12 +150,16 @@ int LoadKernel2(LoadKernelParams* params) {
     /* Read GPT data */
     gpt.sector_bytes = blba;
     gpt.drive_sectors = params->ending_lba + 1;
-    if (0 != AllocAndReadGptData(&gpt))
+    if (0 != AllocAndReadGptData(&gpt)) {
+      debug("Unable to read GPT data\n");
       break;
+    }
 
     /* Initialize GPT library */
-    if (GPT_SUCCESS != GptInit(&gpt))
+    if (GPT_SUCCESS != GptInit(&gpt)) {
+      debug("Error parsing GPT\n");
       break;
+    }
 
     /* Allocate kernel header buffers */
     kbuf = (uint8_t*)Malloc(KBUF_SIZE);
@@ -167,6 +174,9 @@ int LoadKernel2(LoadKernelParams* params) {
       uint64_t key_version;
       uint64_t body_offset;
 
+      debug("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
+            part_start, part_size);
+
       /* Found at least one kernel partition. */
       found_partitions++;
 
@@ -178,25 +188,33 @@ int LoadKernel2(LoadKernelParams* params) {
 
       /* Verify the key block */
       key_block = (VbKeyBlockHeader*)kbuf;
-      if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey)))
+      if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey))) {
+        debug("Verifying key block failed.\n");
         continue;
+      }
 
       /* Check the key block flags against the current boot mode */
       if (!(key_block->key_block_flags &&
             ((BOOT_FLAG_DEVELOPER & params->boot_flags) ?
-             KEY_BLOCK_FLAG_DEVELOPER_1 : KEY_BLOCK_FLAG_DEVELOPER_0)))
+             KEY_BLOCK_FLAG_DEVELOPER_1 : KEY_BLOCK_FLAG_DEVELOPER_0))) {
+        debug("Developer flag mismatch.\n");
         continue;
+      }
       if (!(key_block->key_block_flags &&
             ((BOOT_FLAG_RECOVERY & params->boot_flags) ?
-             KEY_BLOCK_FLAG_RECOVERY_1 : KEY_BLOCK_FLAG_RECOVERY_0)))
+             KEY_BLOCK_FLAG_RECOVERY_1 : KEY_BLOCK_FLAG_RECOVERY_0))) {
+        debug("Recovery flag mismatch.\n");
         continue;
+      }
 
       /* Check for rollback of key version.  Note this is implicitly
        * skipped in recovery and developer modes because those set
        * key_version=0 above. */
       key_version = key_block->data_key.key_version;
-      if (key_version < tpm_key_version)
+      if (key_version < tpm_key_version) {
+        debug("Key version too old.\n");
         continue;
+      }
 
       /* Get the key for preamble/data verification from the key block */
       data_key = PublicKeyToRSA(&key_block->data_key);
@@ -208,6 +226,7 @@ int LoadKernel2(LoadKernelParams* params) {
       if ((0 != VerifyKernelPreamble2(preamble,
                                      KBUF_SIZE - key_block->key_block_size,
                                      data_key))) {
+        debug("Preamble verification failed.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
@@ -217,9 +236,12 @@ int LoadKernel2(LoadKernelParams* params) {
        * key_version=0 and kernel_version=0 above. */
       if (key_version == tpm_key_version &&
           preamble->kernel_version < tpm_kernel_version) {
+        debug("Kernel version too low.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
+
+      debug("Kernel preamble is good.\n");
 
       /* Check for lowest key version from a valid header. */
       if (lowest_key_version > key_version) {
@@ -238,7 +260,9 @@ int LoadKernel2(LoadKernelParams* params) {
         continue;
 
       /* Verify body load address matches what we expect */
-      if (preamble->body_load_address != (size_t)params->kernel_buffer) {
+      if ((preamble->body_load_address != (size_t)params->kernel_buffer) &&
+          !(params->boot_flags & BOOT_FLAG_SKIP_ADDR_CHECK)) {
+        debug("Wrong body load address.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
@@ -246,6 +270,7 @@ int LoadKernel2(LoadKernelParams* params) {
       /* Verify kernel body starts at a multiple of the sector size. */
       body_offset = key_block->key_block_size + preamble->preamble_size;
       if (0 != body_offset % blba) {
+        debug("Kernel body not at multiple of sector size.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
@@ -253,6 +278,7 @@ int LoadKernel2(LoadKernelParams* params) {
       /* Verify kernel body fits in the partition */
       if (body_offset + preamble->body_signature.data_size >
           part_size * blba) {
+        debug("Kernel body doesn't fit in partition.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
@@ -262,6 +288,7 @@ int LoadKernel2(LoadKernelParams* params) {
               part_start + (body_offset / blba),
               (preamble->body_signature.data_size + blba - 1) / blba,
               params->kernel_buffer)) {
+        debug("Unable to read kernel data.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
@@ -269,6 +296,7 @@ int LoadKernel2(LoadKernelParams* params) {
       /* Verify kernel data */
       if (0 != VerifyData((const uint8_t*)params->kernel_buffer,
                           &preamble->body_signature, data_key)) {
+        debug("Kernel data verification failed.\n");
         RSAPublicKeyFree(data_key);
         continue;
       }
@@ -278,25 +306,24 @@ int LoadKernel2(LoadKernelParams* params) {
 
       /* If we're still here, the kernel is valid. */
       /* Save the first good partition we find; that's the one we'll boot */
-      if (-1 == good_partition) {
-        good_partition = gpt.current_kernel;
-        params->partition_number = gpt.current_kernel;
-        params->bootloader_address = preamble->bootloader_address;
-        params->bootloader_size = preamble->bootloader_size;
-        /* If we're in developer or recovery mode, there's no rollback
-         * protection, so we can stop at the first valid kernel. */
-        if (!is_normal)
-          break;
+      debug("Partiton is good.\n");
+      good_partition = gpt.current_kernel;
+      params->partition_number = gpt.current_kernel;
+      params->bootloader_address = preamble->bootloader_address;
+      params->bootloader_size = preamble->bootloader_size;
+      /* If we're in developer or recovery mode, there's no rollback
+       * protection, so we can stop at the first valid kernel. */
+      if (!is_normal)
+        break;
 
-        /* Otherwise, we're in normal boot mode, so we do care about
-         * the key index in the TPM.  If the good partition's key
-         * version is the same as the tpm, then the TPM doesn't need
-         * updating; we can stop now.  Otherwise, we'll check all the
-         * other headers to see if they contain a newer key. */
-        if (key_version == tpm_key_version &&
-            preamble->kernel_version == tpm_kernel_version)
-          break;
-      }
+      /* Otherwise, we're in normal boot mode, so we do care about the
+       * key index in the TPM.  If the good partition's key version is
+       * the same as the tpm, then the TPM doesn't need updating; we
+       * can stop now.  Otherwise, we'll check all the other headers
+       * to see if they contain a newer key. */
+      if (key_version == tpm_key_version &&
+          preamble->kernel_version == tpm_kernel_version)
+        break;
     } /* while(GptNextKernelEntry) */
   } while(0);
 

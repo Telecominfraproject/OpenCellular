@@ -29,6 +29,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		gbb_utility \
 		kernel_utility \
 		load_kernel_test \
+		load_kernel2_test \
 		sign_image \
 		signature_digest_utility \
 		vbutil_firmware \
@@ -53,6 +54,9 @@ ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+${BUILD_ROOT}/load_kernel2_test: load_kernel2_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/kernel_utility: kernel_utility.cc $(LIBS)
