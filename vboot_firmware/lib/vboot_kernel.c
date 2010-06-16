@@ -8,7 +8,6 @@
 
 #include "vboot_kernel.h"
 
-#include <inttypes.h>  /* For PRIu64 */
 #include "boot_device.h"
 #include "cgptlib.h"
 #include "load_kernel_fw.h"

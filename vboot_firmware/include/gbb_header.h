@@ -8,7 +8,7 @@
 #ifndef VBOOT_REFERENCE_GBB_HEADER_H_
 #define VBOOT_REFERENCE_GBB_HEADER_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 #define GBB_HEADER_SIZE    (0x80)
 

@@ -6,7 +6,7 @@
 #ifndef VBOOT_REFERENCE_CGPTLIB_H_
 #define VBOOT_REFERENCE_CGPTLIB_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 enum {
   GPT_SUCCESS = 0,

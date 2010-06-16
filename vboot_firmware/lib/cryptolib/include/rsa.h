@@ -10,7 +10,7 @@
 #error "Do not include this file directly. Use cryptolib.h instead."
 #endif
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 #define RSA1024NUMBYTES 128  /* 1024 bit key length */
 #define RSA2048NUMBYTES 256  /* 2048 bit key length */

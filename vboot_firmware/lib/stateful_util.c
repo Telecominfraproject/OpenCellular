@@ -8,9 +8,7 @@
 
 #include "stateful_util.h"
 
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "utility.h"
 
 void* StatefulSkip(MemcpyState* state, uint64_t len) {
   if (state->overrun)

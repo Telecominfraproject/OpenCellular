@@ -5,7 +5,7 @@
 #ifndef VBOOT_REFERENCE_GPT_CRC32_H_
 #define VBOOT_REFERENCE_GPT_CRC32_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 uint32_t Crc32(const void *buffer, uint32_t len);
 

@@ -10,7 +10,7 @@
 #error "Do not include this file directly. Use cryptolib.h instead."
 #endif
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 extern const uint8_t paddingRSA1024_SHA1[];
 extern const uint8_t paddingRSA1024_SHA256[];

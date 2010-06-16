@@ -10,10 +10,7 @@
 #ifndef VBOOT_FIRMWARE_LIB_UTILITY_H_
 #define VBOOT_FIRMWARE_LIB_UTILITY_H_
 
-#include <stdint.h>
-#include <string.h>
-
-#include "utility.h"
+#include "sysincludes.h"
 
 /* Track remaining data to be read in a buffer. */
 typedef struct MemcpyState {

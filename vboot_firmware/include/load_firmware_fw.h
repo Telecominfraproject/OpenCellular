@@ -9,7 +9,7 @@
 #ifndef VBOOT_REFERENCE_LOAD_FIRMWARE_FW_H_
 #define VBOOT_REFERENCE_LOAD_FIRMWARE_FW_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 /* Recommended size of kernel_sign_key_blob in bytes, for
  * implementations which must preallocate a transfer buffer between

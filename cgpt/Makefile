@@ -6,7 +6,7 @@ CFLAGS += -static
 LDFLAGS += -luuid
 BUILD_ROOT := ${BUILD}/cgpt
 
-INCLUDES = -I$(FWDIR)/lib/cgptlib/include
+INCLUDES = -I$(FWDIR)/lib/cgptlib/include -I$(FWDIR)/include
 LIBS = ${FWLIB}
 
 DESTDIR ?= /usr/bin

@@ -9,8 +9,10 @@
 #ifndef VBOOT_REFERENCE_ROLLBACK_INDEX_H_
 #define VBOOT_REFERENCE_ROLLBACK_INDEX_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
+/* TODO: global variables won't work in the boot stub, since it runs
+   directly out of ROM. */
 extern uint16_t g_firmware_key_version;
 extern uint16_t g_firmware_version;
 extern uint16_t g_kernel_key_version;

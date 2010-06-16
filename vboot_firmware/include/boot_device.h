@@ -8,7 +8,7 @@
 #ifndef VBOOT_REFERENCE_BOOT_DEVICE_H_
 #define VBOOT_REFERENCE_BOOT_DEVICE_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer);
 /* Reads lba_count LBA sectors, starting at sector lba_start, from the current

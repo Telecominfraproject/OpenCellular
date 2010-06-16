@@ -8,11 +8,9 @@
 
 #include "rollback_index.h"
 
-#include <stdint.h>
-
-#include "utility.h"
 #include "tlcl.h"
 #include "tss_constants.h"
+#include "utility.h"
 
 uint16_t g_firmware_key_version = 0;
 uint16_t g_firmware_version = 0;

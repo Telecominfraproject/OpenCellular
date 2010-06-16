@@ -10,8 +10,7 @@
 #ifndef VBOOT_REFERENCE_UTILITY_H_
 #define VBOOT_REFERENCE_UTILITY_H_
 
-#include <stdint.h>
-#include <string.h>
+#include "sysincludes.h"
 
 /* Outputs an error message and quits. */
 void error(const char *format, ...);

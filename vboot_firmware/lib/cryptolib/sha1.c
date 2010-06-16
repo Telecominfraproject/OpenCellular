@@ -16,9 +16,6 @@
 
 #if defined(HAVE_ENDIAN_H) && defined(HAVE_LITTLE_ENDIAN)
 
-#include <byteswap.h>
-#include <memory.h>
-
 /* This version is about 28% faster than the generic version below,
  * but assumes little-endianness.
  */

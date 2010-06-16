@@ -18,7 +18,7 @@
 #ifndef TPM_LITE_TSS_CONSTANTS_H_
 #define TPM_LITE_TSS_CONSTANTS_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 #define TPM_MAX_COMMAND_SIZE 4096
 #define TPM_LARGE_ENOUGH_COMMAND_SIZE 256  /* saves space in the firmware */

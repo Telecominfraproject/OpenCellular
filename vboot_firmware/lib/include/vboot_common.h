@@ -8,8 +8,6 @@
 #ifndef VBOOT_REFERENCE_VBOOT_COMMON_H_
 #define VBOOT_REFERENCE_VBOOT_COMMON_H_
 
-#include <stdint.h>
-
 #include "cryptolib.h"
 #include "vboot_struct.h"
 

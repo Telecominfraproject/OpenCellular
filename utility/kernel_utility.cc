@@ -20,6 +20,7 @@ extern "C" {
 #include "file_keys.h"
 #include "kernel_image.h"
 #include "stateful_util.h"
+#include "utility.h"
 }
 
 using std::cerr;

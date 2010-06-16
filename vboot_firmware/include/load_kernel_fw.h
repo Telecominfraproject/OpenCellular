@@ -9,7 +9,7 @@
 #ifndef VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 #define VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 /* Interface provided by verified boot library to BDS */
 

@@ -1,4 +1,3 @@
-#include <stdio.h>
 
 #include "cgptlib.h"
 #include "load_firmware_fw.h"

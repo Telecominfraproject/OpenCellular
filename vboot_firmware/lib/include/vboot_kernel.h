@@ -9,8 +9,6 @@
 #ifndef VBOOT_REFERENCE_VBOOT_KERNEL_H_
 #define VBOOT_REFERENCE_VBOOT_KERNEL_H_
 
-#include <stdint.h>
-
 #include "cgptlib.h"
 
 /* Allocates and reads GPT data from the drive.  The sector_bytes and

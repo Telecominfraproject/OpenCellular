@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 INCLUDES += -I./include \
+		-I$(FWDIR)/include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \

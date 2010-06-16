@@ -12,7 +12,7 @@
 #error "Do not include this file directly. Use cryptolib.h instead."
 #endif
 
-#include <stdint.h>
+#include "sysincludes.h"
 
 #define SHA1_DIGEST_SIZE 20
 #define SHA1_BLOCK_SIZE 64
