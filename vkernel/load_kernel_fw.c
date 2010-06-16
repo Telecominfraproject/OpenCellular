@@ -27,7 +27,7 @@
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 
-int LoadKernel(LoadKernelParams* params) {
+int LoadKernelOld(LoadKernelParams* params) {
 
   GptData gpt;
   uint64_t part_start, part_size;

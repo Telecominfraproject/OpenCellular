@@ -106,7 +106,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
 }
 
 
-int LoadKernel2(LoadKernelParams* params) {
+int LoadKernel(LoadKernelParams* params) {
 
   VbPublicKey* kernel_subkey = (VbPublicKey*)params->header_sign_key_blob;
 

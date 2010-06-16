@@ -18,7 +18,11 @@
 #include "host_common.h"
 #include "rollback_index.h"
 #include "utility.h"
-#include "vboot_kernel.h"
+
+int LoadKernelOld(LoadKernelParams* params);
+/* Attempts to load the kernel from the current device.
+ *
+ * Returns LOAD_KERNEL_SUCCESS if successful, error code on failure. */
 
 /* ANSI Color coding sequences. */
 #define COL_GREEN "\e[1;32m"
@@ -124,14 +128,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  /* TODO: Option for boot mode - developer, recovery */
-  /* Need to skip the address check, since we're putting it somewhere on the
-   * heap instead of its actual target address in the firmware. */
-  lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK;
+  /* TODO: Option for boot mode */
+  lkp.boot_flags = 0;
 
   /* Call LoadKernel() */
-  rv = LoadKernel2(&lkp);
-  printf("LoadKernel() returned %d\n", rv);
+  rv = LoadKernelOld(&lkp);
+  printf("LoadKernelOld() returned %d\n", rv);
 
   if (LOAD_KERNEL_SUCCESS == rv) {
     printf("Partition number:   %" PRIu64 "\n", lkp.partition_number);

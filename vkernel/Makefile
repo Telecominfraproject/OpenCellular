@@ -4,6 +4,7 @@
 
 INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
+		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I../common/include \
 		-I../utility/include \
@@ -11,7 +12,7 @@ INCLUDES += -I./include \
 
 BUILD_ROOT := ${BUILD}/vkernel
 
-ALL_SRCS = kernel_image.c
+ALL_SRCS = kernel_image.c kernel_image_fw.c load_kernel_fw.c
 
 include ../common.mk
 

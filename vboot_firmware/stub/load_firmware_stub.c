@@ -8,9 +8,11 @@
  */
 
 #include "load_firmware_fw.h"
-
-#include "firmware_image_fw.h"
 #include "utility.h"
+
+#define  BOOT_FIRMWARE_A_CONTINUE 1
+#define  BOOT_FIRMWARE_B_CONTINUE 2
+#define  BOOT_FIRMWARE_RECOVERY_CONTINUE 3
 
 typedef struct CallerInternal {
   uint8_t *firmwareA;

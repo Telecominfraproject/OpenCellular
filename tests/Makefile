@@ -10,7 +10,8 @@ INCLUDES += -I./include \
 		-I../misclibs/include \
 		-I../vboot_firmware/lib/include\
 		-I../vkernel/include
-IMAGE_LIBS = $(BUILD)/vkernel/kernel_image.o
+IMAGE_LIBS = $(BUILD)/vkernel/kernel_image.o \
+		$(BUILD)/vkernel/kernel_image_fw.o
 UTIL_LIBS = $(BUILD)/misclibs/file_keys.o $(BUILD)/misclibs/signature_digest.o
 LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(HOSTLIB) $(FWLIB) -lcrypto
 BUILD_ROOT = ${BUILD}/tests

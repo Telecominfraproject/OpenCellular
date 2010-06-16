@@ -18,6 +18,7 @@
 #include "host_common.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vboot_kernel.h"
 
 /* ANSI Color coding sequences. */
 #define COL_GREEN "\e[1;32m"
@@ -123,8 +124,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  /* TODO: Option for boot mode */
-  lkp.boot_flags = 0;
+  /* TODO: Option for boot mode - developer, recovery */
+  /* Need to skip the address check, since we're putting it somewhere on the
+   * heap instead of its actual target address in the firmware. */
+  lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK;
 
   /* Call LoadKernel() */
   rv = LoadKernel(&lkp);

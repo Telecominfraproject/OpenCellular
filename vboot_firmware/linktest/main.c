@@ -1,8 +1,6 @@
 #include <stdio.h>
 
 #include "cgptlib.h"
-#include "firmware_image_fw.h"
-#include "kernel_image_fw.h"
 #include "load_firmware_fw.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
@@ -18,14 +16,6 @@ int main(void)
   GptInit(0);
   GptNextKernelEntry(0, 0, 0);
   GptUpdateKernelEntry(0, 0);
-
-  /* kernel_image_fw.h */
-  VerifyKernelKeyHeader(0, 0, 0, 0, 0, 0);
-  VerifyKernelPreamble(0, 0, 0, 0);
-  VerifyKernelData(0, 0, 0, 0, 0);
-  VerifyKernelHeader(0, 0, 0, 0, 0, 0);
-  VerifyKernel(0, 0, 0);
-  GetLogicalKernelVersion(0);
 
   /* load_firmware_fw.h */
   UpdateFirmwareBodyHash(0, 0, 0);
@@ -76,9 +66,6 @@ int main(void)
   KeyBlockVerify(0, 0, 0);
   VerifyFirmwarePreamble2(0, 0, 0);
   VerifyKernelPreamble2(0, 0, 0);
-
-  /* vboot_kernel.h */
-  LoadKernel2(0);
 
   return 0;
 }
