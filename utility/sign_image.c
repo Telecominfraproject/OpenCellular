@@ -20,7 +20,7 @@ static void usage()
   static char* help_mesg =
       "Usage: sign_image <fw_version> <fw_key_block> <signing_key> "
       "<kernel_public_key> <firmware_file> <output_file>\n";
-  printf(help_mesg);
+  printf("%s", help_mesg);
 }
 
 int SignAndWriteImage(uint64_t fw_version, VbKeyBlockHeader* wrapper_kb,
