@@ -17,25 +17,26 @@
  * optimal to have static variables in a library, but in UEFI the
  * caller is deep inside a different firmware stack and doesn't have a
  * good way to pass the params struct back to us. */
-static DigestContext ctx;
-static uint64_t body_size_accum = 0;
-static int inside_load_firmware = 0;
+typedef struct VbLoadFirmwareInternal {
+  DigestContext body_digest_context;
+  uint64_t body_size_accum;
+} VbLoadFirmwareInternal;
 
-void UpdateFirmwareBodyHash2(uint8_t* data, uint64_t size) {
 
-  if (!inside_load_firmware) {
-    debug("UpdateFirmwareBodyHash() called outside LoadFirmware()\n");
-    return;
-  }
+void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
+                             uint8_t* data, uint64_t size) {
+  VbLoadFirmwareInternal* lfi =
+      (VbLoadFirmwareInternal*)params->load_firmware_internal;
 
-  DigestUpdate(&ctx, data, size);
-  body_size_accum += size;
+  DigestUpdate(&lfi->body_digest_context, data, size);
+  lfi->body_size_accum += size;
 }
 
 
 int LoadFirmware2(LoadFirmwareParams* params) {
 
   VbPublicKey* root_key = (VbPublicKey*)params->firmware_root_key_blob;
+  VbLoadFirmwareInternal* lfi;
 
   uint16_t tpm_key_version = 0;
   uint16_t tpm_fw_version = 0;
@@ -61,6 +62,12 @@ int LoadFirmware2(LoadFirmwareParams* params) {
                              &tpm_key_version, &tpm_fw_version))
     return LOAD_FIRMWARE_RECOVERY;
 
+  /* Allocate our internal data */
+  lfi = (VbLoadFirmwareInternal*)Malloc(sizeof(VbLoadFirmwareInternal));
+  if (!lfi)
+    return LOAD_FIRMWARE_RECOVERY;
+  params->load_firmware_internal = lfi;
+
   /* Loop over indices */
   for (index = 0; index < 2; index++) {
     VbKeyBlockHeader* key_block;
@@ -68,8 +75,6 @@ int LoadFirmware2(LoadFirmwareParams* params) {
     VbFirmwarePreambleHeader* preamble;
     RSAPublicKey* data_key;
     uint64_t key_version;
-    uint8_t* body_data;
-    uint64_t body_size;
     uint8_t* body_digest;
 
     /* Verify the key block */
@@ -127,20 +132,16 @@ int LoadFirmware2(LoadFirmwareParams* params) {
       continue;
 
     /* Read the firmware data */
-    DigestInit(&ctx, data_key->algorithm);
-    body_size_accum = 0;
-    inside_load_firmware = 1;
-    body_data = GetFirmwareBody(index, &body_size);
-    inside_load_firmware = 0;
-    body_digest = DigestFinal(&ctx);
-    if (!body_data || (body_size != preamble->body_signature.data_size) ||
-        (body_size_accum != body_size)) {
+    DigestInit(&lfi->body_digest_context, data_key->algorithm);
+    lfi->body_size_accum = 0;
+    if ((0 != GetFirmwareBody(params, index)) ||
+        (lfi->body_size_accum != preamble->body_signature.data_size)) {
       RSAPublicKeyFree(data_key);
-      Free(body_digest);
       continue;
     }
 
     /* Verify firmware data */
+    body_digest = DigestFinal(&lfi->body_digest_context);
     if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
       RSAPublicKeyFree(data_key);
       Free(body_digest);
@@ -152,13 +153,24 @@ int LoadFirmware2(LoadFirmwareParams* params) {
     Free(body_digest);
 
     /* If we're still here, the firmware is valid. */
-    /* Save the first good firmware we find; that's the one we'll boot */
     if (-1 == good_index) {
+      VbPublicKey *kdest = (VbPublicKey*)params->kernel_sign_key_blob;
+
+      /* Copy the kernel sign key blob into the destination buffer */
+      PublicKeyInit(kdest, (uint8_t*)(kdest + 1),
+                    (params->kernel_sign_key_size - sizeof(VbPublicKey)));
+
+      if (0 != PublicKeyCopy(kdest, &preamble->kernel_subkey))
+        continue;  /* The firmware signature was good, but the public
+                    * key was bigger that the caller can handle. */
+
+      /* Save the key size we actually used */
+      params->kernel_sign_key_size = kdest->key_offset + kdest->key_size;
+
+      /* Save the good index, now that we're sure we can actually use
+       * this firmware.  That's the one we'll boot. */
       good_index = index;
       params->firmware_index = index;
-      params->kernel_sign_key_blob = &preamble->kernel_subkey;
-      params->kernel_sign_key_size = (preamble->kernel_subkey.key_offset +
-                                      preamble->kernel_subkey.key_size);
 
       /* If the good firmware's key version is the same as the tpm,
        * then the TPM doesn't need updating; we can stop now.
@@ -169,6 +181,10 @@ int LoadFirmware2(LoadFirmwareParams* params) {
         break;
     }
   }
+
+  /* Free internal data */
+  Free(lfi);
+  params->load_firmware_internal = NULL;
 
   /* Handle finding good firmware */
   if (good_index >= 0) {

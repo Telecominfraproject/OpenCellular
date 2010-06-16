@@ -72,14 +72,6 @@ void PrivateKeyFree(VbPrivateKey* key) {
 }
 
 
-void PublicKeyInit(VbPublicKey* key, uint8_t* key_data, uint64_t key_size) {
-  key->key_offset = OffsetOf(key, key_data);
-  key->key_size = key_size;
-  key->algorithm = kNumAlgorithms; /* Key not present yet */
-  key->key_version = 0;
-}
-
-
 /* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version) {
@@ -92,21 +84,6 @@ VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
   key->key_size = key_size;
   key->key_offset = sizeof(VbPublicKey);
   return key;
-}
-
-
-/* Copy a public key from [src] to [dest].
- *
- * Returns zero if success, non-zero if error. */
-int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src) {
-  if (dest->key_size < src->key_size)
-    return 1;
-
-  dest->key_size = src->key_size;
-  dest->algorithm = src->algorithm;
-  dest->key_version = src->key_version;
-  Memcpy(GetPublicKeyData(dest), GetPublicKeyDataC(src), src->key_size);
-  return 0;
 }
 
 

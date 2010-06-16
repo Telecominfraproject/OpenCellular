@@ -37,7 +37,6 @@ int main(void)
   GetLogicalKernelVersion(0);
 
   /* load_firmware_fw.h */
-  UpdateFirmwareBodyHash(0, 0);
   LoadFirmware(0);
 
   /* load_kernel_fw.h */
@@ -77,6 +76,8 @@ int main(void)
   VerifyMemberInside(0, 0, 0, 0, 0, 0);
   VerifyPublicKeyInside(0, 0, 0);
   VerifySignatureInside(0, 0, 0);
+  PublicKeyInit(0, 0, 0);
+  PublicKeyCopy(0, 0);
   PublicKeyToRSA(0);
   VerifyData(0, 0, 0);
   VerifyDigest(0, 0, 0);
@@ -88,7 +89,7 @@ int main(void)
   LoadKernel2(0);
 
   /* vboot_firmware.h */
-  UpdateFirmwareBodyHash2(0, 0);
+  UpdateFirmwareBodyHash(0, 0, 0);
   LoadFirmware2(0);
 
   return 0;

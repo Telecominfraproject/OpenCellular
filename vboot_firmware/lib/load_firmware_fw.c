@@ -12,48 +12,15 @@
 #include "utility.h"
 
 
-static const char kFakeKernelBlob[] = "Fake kernel sign key blob";
-
-void UpdateFirmwareBodyHash(uint8_t* data, uint64_t size) {
-  /* TODO: actually update the hash. */
-}
+static const char kFakeKernelBlob[2088] = "Fake kernel sign key blob";
 
 
 int LoadFirmware(LoadFirmwareParams* params) {
-  /* TODO: real implementation!  For now, this just chains to the old
-   * implementation. */
-
-  uint8_t* fw0;
-  uint8_t* fw1;
-  uint64_t len;
-  int rv;
-
-  /* Get the firmware data */
-  fw0 = GetFirmwareBody(0, &len);
-  fw1 = GetFirmwareBody(1, &len);
-
-  /* Call the old firmware image driver */
-  rv = VerifyFirmwareDriver_f(params->firmware_root_key_blob,
-                              params->verification_block_0,
-                              fw0,
-                              params->verification_block_1,
-                              fw1);
-
-  /* Pass back a dummy key blob, since we can't extract the real
-   * kernel sign key blob yet */
-  params->kernel_sign_key_blob = (void*)kFakeKernelBlob;
+  /* TODO: real implementation!  This is now sufficiently broken due
+   * to refactoring that we'll just trust firmware A. */
+  Memcpy(params->kernel_sign_key_blob, kFakeKernelBlob,
+         sizeof(kFakeKernelBlob));
   params->kernel_sign_key_size = sizeof(kFakeKernelBlob);
-
-  switch(rv) {
-    case BOOT_FIRMWARE_A_CONTINUE:
-      params->firmware_index = 0;
-      return LOAD_FIRMWARE_SUCCESS;
-    case BOOT_FIRMWARE_B_CONTINUE:
-      params->firmware_index = 1;
-      return LOAD_FIRMWARE_SUCCESS;
-  }
-
-  /* If we're still here, we failed */
-  return LOAD_FIRMWARE_RECOVERY;
-
+  params->firmware_index = 0;
+  return LOAD_FIRMWARE_SUCCESS;
 }

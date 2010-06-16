@@ -12,42 +12,43 @@
 #include "firmware_image_fw.h"
 #include "utility.h"
 
+typedef struct CallerInternal {
+  uint8_t *firmwareA;
+  uint64_t firmwareA_size;
+  uint8_t *firmwareB;
+  uint64_t firmwareB_size;
+} CallerInternal;
 
-static uint8_t *g_firmwareA;
-static uint64_t g_firmwareA_size;
-static uint8_t *g_firmwareB;
-static uint64_t g_firmwareB_size;
+int GetFirmwareBody(LoadFirmwareParams* params, uint64_t index) {
 
-
-void *GetFirmwareBody(uint64_t firmware_index, uint64_t* size) {
-
+  CallerInternal* ci = (CallerInternal*)params->caller_internal;
   uint8_t *fw;
+  uint64_t size;
 
   /* In a real implementation, GetFirmwareBody() should be what reads
    * and decompresses the firmware volume.  In this temporary hack, we
    * just pass the pointer which we got from
    * VerifyFirmwareDriver_Stub(). */
-  switch(firmware_index) {
+  switch(index) {
     case 0:
-      *size = g_firmwareA_size;
-      fw = g_firmwareA;
+      size = ci->firmwareA_size;
+      fw = ci->firmwareA;
     case 1:
-      *size = g_firmwareB_size;
-      fw = g_firmwareB;
+      size = ci->firmwareB_size;
+      fw = ci->firmwareB;
     default:
       /* Anything else is invalid */
-      *size = 0;
-      return NULL;
+      return 1;
   }
 
   /* Need to call UpdateFirmwareBodyHash() with the firmware volume
    * data.  In this temporary hack, the FV is already decompressed, so
    * we pass in the entire volume at once.  In a real implementation,
    * you should call this as the FV is being decompressed. */
-  UpdateFirmwareBodyHash(fw, *size);
+  UpdateFirmwareBodyHash(params, fw, size);
 
-  /* Return the firmware body pointer */
-  return fw;
+  /* Success */
+  return 0;
 }
 
 
@@ -64,19 +65,26 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
 
   int rv;
 
+  CallerInternal ci;
+
   /* Copy the firmware volume pointers to our global variables. */
-  g_firmwareA = firmwareA;
-  g_firmwareB = firmwareB;
+  ci.firmwareA = firmwareA;
+  ci.firmwareB = firmwareB;
 
   /* TODO: YOU NEED TO PASS IN THE FIRMWARE VOLUME SIZES SOMEHOW */
-  g_firmwareA_size = 0;
-  g_firmwareB_size = 0;
+  ci.firmwareA_size = 0;
+  ci.firmwareB_size = 0;
 
   /* Set up the params for LoadFirmware() */
   LoadFirmwareParams p;
+  p.caller_internal = &ci;
   p.firmware_root_key_blob = root_key_blob;
   p.verification_block_0 = verification_headerA;
   p.verification_block_1 = verification_headerB;
+
+  /* Allocate a key blob buffer */
+  p.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_MAX);
+  p.kernel_sign_key_size = LOAD_FIRMWARE_KEY_BLOB_MAX;
 
   /* Call LoadFirmware() */
   rv = LoadFirmware(&p);

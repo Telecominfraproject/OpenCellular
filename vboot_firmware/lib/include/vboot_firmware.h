@@ -17,7 +17,6 @@
 #include "vboot_common.h"
 
 /* Alternate LoadFirmware() implementation; see load_firmware_fw.h */
-void UpdateFirmwareBodyHash2(uint8_t* data, uint64_t size);
 int LoadFirmware2(LoadFirmwareParams* params);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_FIRMWARE_H_ */

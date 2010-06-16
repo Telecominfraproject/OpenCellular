@@ -33,19 +33,9 @@ VbPrivateKey* PrivateKeyRead(const char* filename, uint64_t algorithm);
 void PrivateKeyFree(VbPrivateKey* key);
 
 
-/* Initialize a public key to refer to [key_data]. */
-void PublicKeyInit(VbPublicKey* key, uint8_t* key_data, uint64_t key_size);
-
-
 /* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version);
-
-
-/* Copy a public key from [src] to [dest].
- *
- * Returns 0 if success, non-zero if error. */
-int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src);
 
 
 /* Read a public key from a .vbpubk file.  Caller owns the returned
