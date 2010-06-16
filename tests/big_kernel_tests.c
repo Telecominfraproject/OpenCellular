@@ -50,11 +50,11 @@ int BigKernelTest() {
   }
   debug("Done.\n");
   TEST_EQ(VerifyKernelImage(firmware_key, image, 0),
-          VERIFY_FIRMWARE_SUCCESS,
+          VERIFY_KERNEL_SUCCESS,
           "Big KernelImage Verification");
   kernel_blob = GetKernelBlob(image, &len);
   TEST_EQ(VerifyKernel(firmware_key_blob, kernel_blob, 0),
-          VERIFY_FIRMWARE_SUCCESS,
+          VERIFY_KERNEL_SUCCESS,
           "Big Kernel Blob Verification");
 
 cleanup:

@@ -70,9 +70,10 @@ ${kernel_hashalgo}${COL_STOP}"
 
 check_test_keys
 
-echo
-echo "Testing high-level firmware image verification..."
-test_firmware_verification
+# TODO: re-enable when tests are ported to new vboot
+#echo
+#echo "Testing high-level firmware image verification..."
+#test_firmware_verification
 
 echo
 echo "Testing high-level kernel image verification..."

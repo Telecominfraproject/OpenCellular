@@ -6,8 +6,6 @@
  * (Firmware portion)
  */
 
-#include "vboot_firmware.h"
-
 #include "load_firmware_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
@@ -33,7 +31,7 @@ void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
 }
 
 
-int LoadFirmware2(LoadFirmwareParams* params) {
+int LoadFirmware(LoadFirmwareParams* params) {
 
   VbPublicKey* root_key = (VbPublicKey*)params->firmware_root_key_blob;
   VbLoadFirmwareInternal* lfi;

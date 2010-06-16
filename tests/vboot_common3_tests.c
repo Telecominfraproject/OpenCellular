@@ -10,7 +10,6 @@
 
 #include "cryptolib.h"
 #include "file_keys.h"
-#include "firmware_image.h"
 #include "host_common.h"
 #include "test_common.h"
 #include "utility.h"

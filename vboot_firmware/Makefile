@@ -26,9 +26,7 @@ LIB_SRCS = \
 	./lib/cryptolib/sha1.c \
 	./lib/cryptolib/sha2.c \
 	./lib/cryptolib/sha_utility.c \
-	./lib/firmware_image_fw.c \
 	./lib/kernel_image_fw.c \
-	./lib/load_firmware_fw.c \
 	./lib/load_kernel_fw.c \
 	./lib/rollback_index.c \
 	./lib/stateful_util.c \

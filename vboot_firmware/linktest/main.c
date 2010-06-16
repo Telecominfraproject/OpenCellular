@@ -8,7 +8,6 @@
 #include "rollback_index.h"
 #include "tlcl.h"
 #include "vboot_common.h"
-#include "vboot_firmware.h"
 #include "vboot_kernel.h"
 
 int main(void)
@@ -20,14 +19,6 @@ int main(void)
   GptNextKernelEntry(0, 0, 0);
   GptUpdateKernelEntry(0, 0);
 
-  /* firmware_image_fw.h */
-  VerifyFirmwareHeader(0, 0, 0, 0);
-  VerifyFirmwarePreamble(0, 0, 0, 0);
-  VerifyFirmwareData(0, 0, 0, 0, 0);
-  VerifyFirmware(0, 0, 0);
-  GetLogicalFirmwareVersion(0);
-  VerifyFirmwareDriver_f(0, 0, 0, 0, 0);
-
   /* kernel_image_fw.h */
   VerifyKernelKeyHeader(0, 0, 0, 0, 0, 0);
   VerifyKernelPreamble(0, 0, 0, 0);
@@ -37,6 +28,7 @@ int main(void)
   GetLogicalKernelVersion(0);
 
   /* load_firmware_fw.h */
+  UpdateFirmwareBodyHash(0, 0, 0);
   LoadFirmware(0);
 
   /* load_kernel_fw.h */
@@ -87,10 +79,6 @@ int main(void)
 
   /* vboot_kernel.h */
   LoadKernel2(0);
-
-  /* vboot_firmware.h */
-  UpdateFirmwareBodyHash(0, 0, 0);
-  LoadFirmware2(0);
 
   return 0;
 }

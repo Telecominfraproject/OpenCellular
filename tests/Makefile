@@ -9,21 +9,14 @@ INCLUDES += -I./include \
 		-I../host/include \
 		-I../misclibs/include \
 		-I../vboot_firmware/lib/include\
-		-I../vfirmware/include\
 		-I../vkernel/include
-IMAGE_LIBS = $(BUILD)/vfirmware/firmware_image.o \
-		$(BUILD)/vkernel/kernel_image.o
+IMAGE_LIBS = $(BUILD)/vkernel/kernel_image.o
 UTIL_LIBS = $(BUILD)/misclibs/file_keys.o $(BUILD)/misclibs/signature_digest.o
 LIBS = $(IMAGE_LIBS) $(UTIL_LIBS) $(HOSTLIB) $(FWLIB) -lcrypto
 BUILD_ROOT = ${BUILD}/tests
 
-TEST_NAMES = big_firmware_tests \
-		big_kernel_tests \
+TEST_NAMES = big_kernel_tests \
 		cgptlib_test \
-		firmware_image_tests \
-		firmware_rollback_tests \
-		firmware_splicing_tests \
-		firmware_verify_benchmark \
 		kernel_image_tests \
 		kernel_rollback_tests \
 		kernel_splicing_tests \
@@ -35,10 +28,19 @@ TEST_NAMES = big_firmware_tests \
 		vboot_common_tests \
 		vboot_common2_tests \
 		vboot_common3_tests \
-		verify_firmware_fuzz_driver \
 		verify_kernel_fuzz_driver
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
 ALL_DEPS = $(addsuffix .d,${TEST_BINS})
+
+# TODO: port these tests to vboot_firmware, if not already eqivalent
+# functionality
+#		big_firmware_tests
+#		firmware_image_tests
+#		firmware_rollback_tests
+#		firmware_splicing_tests
+#		firmware_verify_benchmark
+#		verify_firmware_fuzz_driver
+
 
 ifneq (${RUNTESTS},)
 EXTRA_TARGET = runtests
@@ -132,10 +134,10 @@ runtests:
 	./run_vboot_common_tests.sh
 	./run_image_verification_tests.sh
 	# Splicing tests
-	${BUILD_ROOT}/firmware_splicing_tests
+	#${BUILD_ROOT}/firmware_splicing_tests
 	${BUILD_ROOT}/kernel_splicing_tests
 	# Rollback Tests
-	${BUILD_ROOT}/firmware_rollback_tests
+	#${BUILD_ROOT}/firmware_rollback_tests
 	${BUILD_ROOT}/kernel_rollback_tests
 	# Helper Library Tests
 	${BUILD_ROOT}/cgptlib_test

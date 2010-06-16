@@ -16,7 +16,7 @@ export BUILD = ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
 export HOSTLIB= ${BUILD}/vboot_host.a
 
-SUBDIRS = vboot_firmware misclibs host vfirmware vkernel utility cgpt tests
+SUBDIRS = vboot_firmware misclibs host vkernel utility cgpt tests
 
 all:
 	set -e; \

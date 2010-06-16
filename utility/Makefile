@@ -8,14 +8,12 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I$(HOSTDIR)/include \
 		-I../misclibs/include \
-		-I../vfirmware/include\
 		-I../vboot_firmware/include\
 		-I../vkernel/include
 CFLAGS += $(INCLUDES)
 CFLAGS += -MMD -MF $@.d
 LIBS = $(BUILD)/misclibs/file_keys.o \
 	$(BUILD)/misclibs/signature_digest.o \
-	$(BUILD)/vfirmware/firmware_image.o \
 	$(BUILD)/vkernel/kernel_image.o \
 	$(HOSTLIB) \
 	$(FWLIB)
@@ -25,7 +23,6 @@ BUILD_ROOT = ${BUILD}/utility
 DESTDIR ?= /usr/bin
 
 TARGET_NAMES = dumpRSAPublicKey \
-		firmware_utility \
 		gbb_utility \
 		kernel_utility \
 		load_kernel_test \
@@ -45,10 +42,6 @@ all: $(TARGET_BINS)
 
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
-
-${BUILD_ROOT}/firmware_utility: firmware_utility.cc $(LIBS)
-	$(CXX) $(CFLAGS) $(INCLUDES) -ggdb -D__STDC_LIMIT_MACROS $< \
-	-o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
