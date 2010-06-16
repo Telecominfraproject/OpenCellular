@@ -11,9 +11,10 @@
 
 #include <stdint.h>
 
-/* Maximum size of kernel_sign_key_blob in bytes, for implementations
- * which must preallocate a transfer buffer between boot phases */
-#define LOAD_FIRMWARE_KEY_BLOB_MAX 2104
+/* Recommended size of kernel_sign_key_blob in bytes, for
+ * implementations which must preallocate a transfer buffer between
+ * boot phases */
+#define LOAD_FIRMWARE_KEY_BLOB_REC_SIZE 2104
 
 /* Return codes for LoadFirmware() */
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */

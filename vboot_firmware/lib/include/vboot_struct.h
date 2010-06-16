@@ -19,7 +19,7 @@ typedef struct VbPublicKey {
                            * in bits) */
   uint64_t algorithm;      /* Signature algorithm used by the key */
   uint64_t key_version;    /* Key version */
-} VbPublicKey;
+} __attribute__((packed)) VbPublicKey;
 
 
 /* Signature data (a secure hash, possibly signed) */
@@ -28,7 +28,7 @@ typedef struct VbSignature {
                          * struct */
   uint64_t sig_size;    /* Size of signature data in bytes */
   uint64_t data_size;   /* Size of the data block which was signed in bytes */
-} VbSignature;
+} __attribute__((packed)) VbSignature;
 
 
 #define KEY_BLOCK_MAGIC "CHROMEOS"
@@ -61,7 +61,7 @@ typedef struct VbKeyBlockHeader {
                                       * For use with unsigned data keys */
   uint64_t key_block_flags;          /* Flags for key (KEY_BLOCK_FLAG_*) */
   VbPublicKey data_key;              /* Key to verify the chunk of data */
-} VbKeyBlockHeader;
+} __attribute__((packed)) VbKeyBlockHeader;
 /* This should be followed by:
  *   1) The data_key key data, pointed to by data_key.key_offset.
  *   2) The checksum data for (VBKeyBlockHeader + data_key data), pointed to
@@ -86,7 +86,7 @@ typedef struct VbFirmwarePreambleHeader {
   uint64_t firmware_version;         /* Firmware version */
   VbPublicKey kernel_subkey;         /* Key to verify kernel key block */
   VbSignature body_signature;        /* Signature for the firmware body */
-} VbFirmwarePreambleHeader;
+} __attribute__((packed)) VbFirmwarePreambleHeader;
 /* This should be followed by:
  *   1) The kernel_subkey key data, pointed to by kernel_subkey.key_offset.
  *   2) The signature data for the firmware body, pointed to by
@@ -114,7 +114,7 @@ typedef struct VbKernelPreambleHeader {
                                       * loaded at body_load_address */
   uint64_t bootloader_size;          /* Size of bootloader in bytes */
   VbSignature body_signature;        /* Signature for the kernel body */
-} VbKernelPreambleHeader;
+} __attribute__((packed)) VbKernelPreambleHeader;
 /* This should be followed by:
  *   2) The signature data for the kernel body, pointed to by
  *      body_signature.sig_offset.

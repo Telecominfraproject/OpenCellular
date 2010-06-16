@@ -83,8 +83,8 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
   p.verification_block_1 = verification_headerB;
 
   /* Allocate a key blob buffer */
-  p.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_MAX);
-  p.kernel_sign_key_size = LOAD_FIRMWARE_KEY_BLOB_MAX;
+  p.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_REC_SIZE);
+  p.kernel_sign_key_size = LOAD_FIRMWARE_KEY_BLOB_REC_SIZE;
 
   /* Call LoadFirmware() */
   rv = LoadFirmware(&p);

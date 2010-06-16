@@ -102,16 +102,16 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors) {
 }
 
 
-/* Return 1 if the entry is unused, 0 if it is used. */
+/* Return non-zero if the entry is unused, 0 if it is used. */
 int IsUnusedEntry(const GptEntry* e) {
   static Guid zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
-  return (Memcmp(&zero, (const uint8_t*)(&e->type), sizeof(zero)) ? 0 : 1);
+  return !Memcmp(&zero, (const uint8_t*)(&e->type), sizeof(zero));
 }
 
-/* Returns 1 if the entry is a Chrome OS kernel partition, else 0. */
+/* Returns non-zero if the entry is a Chrome OS kernel partition, else 0. */
 int IsKernelEntry(const GptEntry* e) {
   static Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
-  return (Memcmp(&e->type, &chromeos_kernel, sizeof(Guid)) ? 0 : 1);
+  return !Memcmp(&e->type, &chromeos_kernel, sizeof(Guid));
 }
 
 
