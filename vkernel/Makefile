@@ -15,4 +15,3 @@ ALL_SRCS = kernel_image.c
 
 include ../common.mk
 
-all: $(ALL_OBJS)

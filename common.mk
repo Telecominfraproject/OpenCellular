@@ -5,6 +5,15 @@
 ALL_OBJS = $(ALL_SRCS:%.c=${BUILD_ROOT}/%.o)
 ALL_DEPS = $(ALL_OBJS:%.o=%.o.d)
 
+#
+# For this target (all) to be built by default, the including file must not
+# define any other targets above the line including this file.
+#
+# This all: rule must be above the %.o: %.c rule below, otherwise the
+# rule below becomes the default target.
+#
+all: ${ALL_OBJS}
+
 ${BUILD_ROOT}/%.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
 

@@ -82,4 +82,4 @@ install: $(TARGET_BINS)
 	cp -f $(TARGET_BINS) $(DESTDIR)
 	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_NAMES))
 
--include ALL_DEPS
+-include ${ALL_DEPS}

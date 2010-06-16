@@ -14,4 +14,3 @@ ALL_SRCS = file_keys.c signature_digest.c
 
 include ../common.mk
 
-all: $(ALL_OBJS)

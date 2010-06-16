@@ -22,9 +22,9 @@ ALL_SRCS = \
 	cmd_boot.c \
 	cgpt_common.c
 
-include ../common.mk
+main: $(PROGNAME)
 
-all: $(PROGNAME)
+include ../common.mk
 
 $(PROGNAME): $(ALL_OBJS) $(LIBS)
 	$(CC) -o $(PROGNAME) $(CFLAGS) $^ $(LDFLAGS)
