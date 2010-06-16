@@ -95,6 +95,7 @@ static void HeaderDetails(GptHeader *header, const char *indent, int raw) {
   printf("%sSize: %d\n", indent, header->size);
   printf("%sHeader CRC: 0x%08x\n", indent, header->header_crc32);
   printf("%sMy LBA: %lld\n", indent, (long long)header->my_lba);
+  printf("%sAlternate LBA: %lld\n", indent, (long long)header->alternate_lba);
   printf("%sFirst LBA: %lld\n", indent, (long long)header->first_usable_lba);
   printf("%sLast LBA: %lld\n", indent, (long long)header->last_usable_lba);
 

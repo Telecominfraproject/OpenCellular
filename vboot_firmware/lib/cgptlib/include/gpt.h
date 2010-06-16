@@ -79,13 +79,12 @@ typedef struct {
   uint64_t first_usable_lba;
   uint64_t last_usable_lba;
   Guid disk_uuid;
-
   uint64_t entries_lba;
   uint32_t number_of_entries;
   uint32_t size_of_entry;
   uint32_t entries_crc32;
   uint8_t reserved_padding[];           /* entire sector reserved for header */
-} GptHeader;
+} __attribute__((packed)) GptHeader;
 
 /* GPT partition entry defines the starting and ending LBAs of a partition.
  * It also contains the unique GUID, type, and attribute bits.
@@ -100,6 +99,6 @@ typedef struct {
   uint64_t attributes;
   uint16_t name[36];                    /* UTF-16 encoded partition name */
   uint8_t reserved[];                   /* nothing, really */
-} GptEntry;
+} __attribute__((packed)) GptEntry;
 
 #endif  /* VBOOT_REFERENCE_CGPTLIB_GPT_H_ */

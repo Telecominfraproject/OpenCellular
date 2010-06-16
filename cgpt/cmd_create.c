@@ -88,6 +88,7 @@ int cmd_create(int argc, char *argv[]) {
     h->revision = GPT_HEADER_REVISION;
     h->size = sizeof(GptHeader);
     h->my_lba = 1;
+    h->alternate_lba = drive.gpt.drive_sectors - 1;
     h->first_usable_lba = 1 + 1 + GPT_ENTRIES_SECTORS;
     h->last_usable_lba = drive.gpt.drive_sectors - 1 - GPT_ENTRIES_SECTORS - 1;
     uuid_generate((uint8_t *)&h->disk_uuid);
