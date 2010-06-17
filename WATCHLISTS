@@ -9,6 +9,6 @@
     },
   },
   'WATCHLISTS': {
-    'all': ['adlr@chromium.org', 'dneiss@codeaurora.org']
+    'all': ['gauravsh@chromium.org', 'rspangler@chromium.org', 'semenzato@chromium.org', 'wfrichar@chromium.org']
   },
 }
