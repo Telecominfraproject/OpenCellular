@@ -14,12 +14,13 @@ INCLUDES += \
 
 # find ./lib -iname '*.c' | sort
 ALL_SRCS = \
+	./lib/file_keys.c \
 	./lib/host_common.c \
 	./lib/host_key.c \
 	./lib/host_keyblock.c \
 	./lib/host_misc.c \
-	./lib/host_signature.c
-
+	./lib/host_signature.c \
+	./lib/signature_digest.c
 
 test : $(HOSTLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out $(TESTDIR)/main.c \

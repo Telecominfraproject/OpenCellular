@@ -6,17 +6,15 @@ export CC ?= gcc
 export CXX ?= g++
 export CFLAGS = -Wall -DNDEBUG -O3 -Werror
 export TOP = $(shell pwd)
-export FWDIR=$(TOP)/vboot_firmware
+export FWDIR=$(TOP)/firmware
 export HOSTDIR=$(TOP)/host
-export INCLUDES = \
-	-I$(FWDIR)/include \
-	-I$(TOP)/misclibs/include
+export INCLUDES = -I$(FWDIR)/include
 
 export BUILD = ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
 export HOSTLIB= ${BUILD}/vboot_host.a
 
-SUBDIRS = vboot_firmware misclibs host vkernel utility cgpt tests
+SUBDIRS = firmware host utility cgpt tests
 
 all:
 	set -e; \

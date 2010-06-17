@@ -7,21 +7,18 @@ Directory Structure
 
 The source is organized into distinct modules -
 
-vboot_firmware/ - Contains ONLY the code required by the BIOS to validate
-the secure boot components. There shouldn't be any code in here that signs
-or generates images. BIOS should require ONLY this directory to implement
-secure boot. Refer to vboot_firmware/README for futher details.
+firmware/ - Contains ONLY the code required by the BIOS to validate
+the secure boot components. There shouldn't be any code in here that
+signs or generates images. BIOS should require ONLY this directory to
+implement secure boot. Refer to firmware/README for futher details.
 
-cgptlib/ - Work in progress for handling GPT headers. Parts of this will no
-doubt be migrated into vboot_firmware/
+cgpt/ - Utility to read/write/modify GPT partitions.  Much like the
+gpt tool, but with support for Chrome OS extensiosn.
 
-misclibs/ - Miscellaneous functions used by userland utilities.
+host/ - Miscellaneous functions used by userland utilities.
 
 utility/ - Utilities for generating and verifying signed
 firmware and kernel images, as well as arbitrary blobs.
-
-vfirmware/ and vkernel/ - Functions for generating, verifying, and
-manipulating signed firmware and kernel images.
 
 tests/ - User-land tests and benchmarks that test the reference
 implementation. Please have a look at these if you'd like to
@@ -61,14 +58,17 @@ BUILD=../build make runtests
 Some useful utilities: 
 ----------
 
-firmware_utility.c To generate verified boot firmware images.
+vbutil_key		Convert a public key into .vbpubk format
+vbutil_keyblock		Wrap a public key inside a signature and checksum
+vbutil_firmware		Create a .vblock with signature info for a
+			firmware image
+vbutil_kernel		Pack a kernel image, bootloader, and config into
+			a signed binary
 
-kernel_utility.c To generate verified boot kernel images.
-
-dumpRSAPublicKey.c Dump RSA Public key (from a DER-encoded X509
-                   certificate) in a format suitable for
-		   use by RSAVerify* functions in
-                   crypto/.
+dumpRSAPublicKey 	Dump RSA Public key (from a DER-encoded X509
+			certificate) in a format suitable for
+		   	use by RSAVerify* functions in
+                   	crypto/.
 
 verify_data.c Verify a given signature on a given file.
 				 
@@ -98,6 +98,8 @@ $ openssl req -batch -new -x509 -key root_key.pem -out root_key.crt
 $ openssl req -batch -new -x509 -key signing_key.pem -out signing_key.crt
 $ utility/dumpRSAPublicKey root_key.crt > root_key.keyb
 $ utility/dumpRSAPublicKey signing_key.crt > signing_key.keyb
+
+************** TODO: STUFF PAST HERE IS OUT OF DATE ***************
 
 At this point we have all the requisite keys needed to generate a signed
 firmware image.

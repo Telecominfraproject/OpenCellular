@@ -4,12 +4,13 @@
  */
 
 /* System includes for vboot reference library.  This is the ONLY
- * place in vboot_firmware where system headers may be included via
+ * place in firmware/ where system headers may be included via
  * #include <...>, so that there's only one place that needs to be
  * fixed up for platforms which don't have all the system includes.
  *
- * Stub files may still include system headers, because they're local
- * implementations and will be ported to each system anyway. */
+ * Files in firmware/stub may still include system headers, because
+ * they're local implementations and will be ported to each system
+ * anyway. */
 
 #ifndef VBOOT_REFERENCE_SYSINCLUDES_H_
 #define VBOOT_REFERENCE_SYSINCLUDES_H_

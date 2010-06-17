@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #include "host_common.h"
+#include "file_keys.h"
+#include "signature_digest.h"
 
 int main(void)
 {
@@ -31,6 +33,17 @@ int main(void)
   /* host_common.h */
   CreateFirmwarePreamble(0, 0, 0, 0);
   CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0);
+
+  /* file_keys.h */
+  BufferFromFile(0, 0);
+  RSAPublicKeyFromFile(0);
+  DigestFile(0, 0);
+  SignatureFile(0, 0, 0);
+
+  /* signature_digest.h */
+  PrependDigestInfo(0, 0);
+  SignatureDigest(0, 0, 0);
+  SignatureBuf(0, 0, 0, 0);
 
   return 0;
 }
