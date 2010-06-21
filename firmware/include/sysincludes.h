@@ -15,6 +15,8 @@
 #ifndef VBOOT_REFERENCE_SYSINCLUDES_H_
 #define VBOOT_REFERENCE_SYSINCLUDES_H_
 
+#ifdef CHROMEOS_ENVIRONMENT
+
 #include <inttypes.h>  /* For PRIu64 */
 #include <stdint.h>
 #include <stdlib.h>
@@ -24,5 +26,8 @@
 #include <memory.h>
 #endif
 
+#else
+#include "stub/biosincludes.h"
+#endif
 
 #endif  /* VBOOT_REFERENCE_SYSINCLUDES_H_ */
