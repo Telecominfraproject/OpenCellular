@@ -22,8 +22,10 @@ int GptInit(GptData *gpt) {
   gpt->current_priority = 999;
 
   retval = GptSanityCheck(gpt);
-  if (GPT_SUCCESS != retval)
+  if (GPT_SUCCESS != retval) {
+    debug("GptInit() failed sanity check\n");
     return retval;
+  }
 
   GptRepair(gpt);
   return GPT_SUCCESS;
@@ -36,7 +38,7 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
   GptEntry* e;
   int new_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
   int new_prio = 0;
-  int i;
+  uint32_t i;
 
   /* If we already found a kernel, continue the scan at the current
    * kernel's prioity, in case there is another kernel with the same
@@ -46,12 +48,16 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
       e = entries + i;
       if (!IsKernelEntry(e))
         continue;
+      debug("GptNextKernelEntry looking at same prio partition %d\n", i);
+      debug("GptNextKernelEntry s%d t%d p%d\n",
+            GetEntrySuccessful(e), GetEntryTries(e), GetEntryPriority(e));
       if (!(GetEntrySuccessful(e) || GetEntryTries(e)))
         continue;
       if (GetEntryPriority(e) == gpt->current_priority) {
         gpt->current_kernel = i;
         *start_sector = e->starting_lba;
         *size = e->ending_lba - e->starting_lba + 1;
+        debug("GptNextKernelEntry likes that one\n");
         return GPT_SUCCESS;
       }
     }
@@ -63,6 +69,9 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
     int current_prio = GetEntryPriority(e);
     if (!IsKernelEntry(e))
       continue;
+    debug("GptNextKernelEntry looking at new prio partition %d\n", i);
+    debug("GptNextKernelEntry s%d t%d p%d\n",
+          GetEntrySuccessful(e), GetEntryTries(e), GetEntryPriority(e));
     if (!(GetEntrySuccessful(e) || GetEntryTries(e)))
       continue;
     if (current_prio >= gpt->current_priority)
@@ -79,9 +88,12 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
   gpt->current_kernel = new_kernel;
   gpt->current_priority = new_prio;
 
-  if (CGPT_KERNEL_ENTRY_NOT_FOUND == new_kernel)
+  if (CGPT_KERNEL_ENTRY_NOT_FOUND == new_kernel) {
+    debug("GptNextKernelEntry no more kernels\n");
     return GPT_ERROR_NO_VALID_KERNEL;
+  }
 
+  debug("GptNextKernelEntry likes that one\n");
   e = entries + new_kernel;
   *start_sector = e->starting_lba;
   *size = e->ending_lba - e->starting_lba + 1;

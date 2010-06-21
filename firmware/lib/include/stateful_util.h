@@ -14,7 +14,7 @@
 
 /* Track remaining data to be read in a buffer. */
 typedef struct MemcpyState {
-  void* remaining_buf;
+  uint8_t* remaining_buf;
   uint64_t remaining_len;  /* Remaining length of the buffer. */
   uint8_t overrun;  /* Flag set to 1 when an overrun occurs. */
 } MemcpyState;

@@ -119,7 +119,7 @@ int CheckEntries(GptEntry* entries, GptHeader* h, uint64_t drive_sectors) {
 
   GptEntry* entry;
   uint32_t crc32;
-  int i;
+  uint32_t i;
 
   /* Check CRC before examining entries. */
   crc32 = Crc32((const uint8_t *)entries,

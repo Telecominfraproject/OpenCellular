@@ -147,7 +147,7 @@ int LoadKernel(LoadKernelParams* params) {
 
   do {
     /* Read GPT data */
-    gpt.sector_bytes = blba;
+    gpt.sector_bytes = (uint32_t)blba;
     gpt.drive_sectors = params->ending_lba + 1;
     if (0 != AllocAndReadGptData(&gpt)) {
       debug("Unable to read GPT data\n");
@@ -306,14 +306,18 @@ int LoadKernel(LoadKernelParams* params) {
       /* If we're still here, the kernel is valid. */
       /* Save the first good partition we find; that's the one we'll boot */
       debug("Partiton is good.\n");
-      good_partition = gpt.current_kernel;
+      /* TODO: GPT partitions start at 1, but cgptlib starts them at 0.
+       * Adjust here, until cgptlib is fixed. */
+      good_partition = gpt.current_kernel + 1;
       params->partition_number = gpt.current_kernel;
       params->bootloader_address = preamble->bootloader_address;
       params->bootloader_size = preamble->bootloader_size;
       /* If we're in developer or recovery mode, there's no rollback
        * protection, so we can stop at the first valid kernel. */
-      if (!is_normal)
+      if (!is_normal) {
+        debug("Boot_flags = !is_normal\n");
         break;
+      }
 
       /* Otherwise, we're in normal boot mode, so we do care about the
        * key index in the TPM.  If the good partition's key version is
@@ -321,8 +325,10 @@ int LoadKernel(LoadKernelParams* params) {
        * can stop now.  Otherwise, we'll check all the other headers
        * to see if they contain a newer key. */
       if (key_version == tpm_key_version &&
-          preamble->kernel_version == tpm_kernel_version)
+          preamble->kernel_version == tpm_kernel_version) {
+        debug("Same key version\n");
         break;
+      }
     } /* while(GptNextKernelEntry) */
   } while(0);
 
@@ -335,6 +341,7 @@ int LoadKernel(LoadKernelParams* params) {
 
   /* Handle finding a good partition */
   if (good_partition >= 0) {
+    debug("Good_partition >= 0\n");
 
     /* See if we need to update the TPM */
     if (is_normal) {
@@ -344,12 +351,13 @@ int LoadKernel(LoadKernelParams* params) {
        * forward.  In recovery mode, the TPM stays PP-unlocked, so
        * anything we write gets blown away by the firmware when we go
        * back to normal mode. */
+      debug("Boot_flags = is_normal\n");
       if ((lowest_key_version > tpm_key_version) ||
           (lowest_key_version == tpm_key_version &&
            lowest_kernel_version > tpm_kernel_version)) {
         if (0 != WriteStoredVersions(KERNEL_VERSIONS,
-                                     lowest_key_version,
-                                     lowest_kernel_version))
+                                     (uint16_t)lowest_key_version,
+                                     (uint16_t)lowest_kernel_version))
           return LOAD_KERNEL_RECOVERY;
       }
     }
@@ -363,6 +371,7 @@ int LoadKernel(LoadKernelParams* params) {
        *
        * If we're already in recovery mode, we need to leave PP unlocked,
        * so don't lock the kernel versions. */
+      debug("Lock kernel versions\n");
       if (0 != LockKernelVersionsByLockingPP())
         return LOAD_KERNEL_RECOVERY;
     }

@@ -112,16 +112,16 @@ RSAPublicKey* PublicKeyToRSA(const VbPublicKey* key) {
     debug("Invalid algorithm.\n");
     return NULL;
   }
-  if (RSAProcessedKeySize(key->algorithm) != key->key_size) {
+  if (RSAProcessedKeySize((int)key->algorithm) != (int)key->key_size) {
     debug("Wrong key size for algorithm\n");
     return NULL;
   }
 
-  rsa = RSAPublicKeyFromBuf(GetPublicKeyDataC(key), key->key_size);
+  rsa = RSAPublicKeyFromBuf(GetPublicKeyDataC(key), (int)key->key_size);
   if (!rsa)
     return NULL;
 
-  rsa->algorithm = key->algorithm;
+  rsa->algorithm = (int)key->algorithm;
   return rsa;
 }
 
@@ -190,7 +190,8 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       return VBOOT_KEY_BLOCK_INVALID;
     }
 
-    if (!((rsa = PublicKeyToRSA(key)))) {
+    rsa = PublicKeyToRSA(key);
+    if (!rsa) {
       debug("Invalid public key\n");
       return VBOOT_PUBLIC_KEY_INVALID;
     }

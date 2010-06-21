@@ -94,7 +94,8 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
     return 0; /* Both can't be NULL or non-NULL. */
 
   digest = DigestBuf(buf, len, algorithm);
-  success = RSAVerify(verification_key, sig, sig_size, algorithm, digest);
+  success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
+                      (uint8_t)algorithm, digest);
 
   Free(digest);
   if (!key)
@@ -126,7 +127,8 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
   else
     return 0; /* Both can't be NULL or non-NULL. */
 
-  success = RSAVerify(verification_key, sig, sig_size, algorithm, digest);
+  success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
+                      (uint8_t)algorithm, digest);
 
   if (!key)
     RSAPublicKeyFree(verification_key);  /* Only free if we allocated it. */

@@ -72,14 +72,14 @@
 
 #define UNPACK64(x, str)                        \
   {                                             \
-    *((str) + 7) = (uint8_t) ((x)      );       \
-    *((str) + 6) = (uint8_t) ((x) >>  8);       \
-    *((str) + 5) = (uint8_t) ((x) >> 16);       \
-    *((str) + 4) = (uint8_t) ((x) >> 24);       \
-    *((str) + 3) = (uint8_t) ((x) >> 32);       \
-    *((str) + 2) = (uint8_t) ((x) >> 40);       \
-    *((str) + 1) = (uint8_t) ((x) >> 48);       \
-    *((str) + 0) = (uint8_t) ((x) >> 56);       \
+    *((str) + 7) = (uint8_t) x;                 \
+    *((str) + 6) = (uint8_t) UINT64_RSHIFT(x,  8); \
+    *((str) + 5) = (uint8_t) UINT64_RSHIFT(x, 16); \
+    *((str) + 4) = (uint8_t) UINT64_RSHIFT(x, 24); \
+    *((str) + 3) = (uint8_t) UINT64_RSHIFT(x, 32); \
+    *((str) + 2) = (uint8_t) UINT64_RSHIFT(x, 40); \
+    *((str) + 1) = (uint8_t) UINT64_RSHIFT(x, 48); \
+    *((str) + 0) = (uint8_t) UINT64_RSHIFT(x, 56); \
   }
 
 #define PACK64(str, x)                          \
@@ -338,16 +338,16 @@ void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint64_t len) {
     const uint8_t *shifted_data;
 
     tmp_len = SHA256_BLOCK_SIZE - ctx->len;
-    rem_len = len < tmp_len ? len : tmp_len;
+    rem_len = len < tmp_len ? (unsigned int)len : tmp_len;
 
     Memcpy(&ctx->block[ctx->len], data, rem_len);
 
     if (ctx->len + len < SHA256_BLOCK_SIZE) {
-        ctx->len += len;
+        ctx->len += (uint32_t)len;
         return;
     }
 
-    new_len = len - rem_len;
+    new_len = (unsigned int)len - rem_len;
     block_nb = new_len / SHA256_BLOCK_SIZE;
 
     shifted_data = data + rem_len;
@@ -526,16 +526,16 @@ void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
     const uint8_t* shifted_data;
 
     tmp_len = SHA512_BLOCK_SIZE - ctx->len;
-    rem_len = len < tmp_len ? len : tmp_len;
+    rem_len = len < tmp_len ? (unsigned int)len : tmp_len;
 
     Memcpy(&ctx->block[ctx->len], data, rem_len);
 
     if (ctx->len + len < SHA512_BLOCK_SIZE) {
-        ctx->len += len;
+        ctx->len += (uint32_t)len;
         return;
     }
 
-    new_len = len - rem_len;
+    new_len = (unsigned int)len - rem_len;
     block_nb = new_len / SHA512_BLOCK_SIZE;
 
     shifted_data = data + rem_len;

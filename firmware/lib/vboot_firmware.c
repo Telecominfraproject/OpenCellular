@@ -48,6 +48,8 @@ int LoadFirmware(LoadFirmwareParams* params) {
   params->kernel_sign_key_blob = NULL;
   params->kernel_sign_key_size = 0;
 
+  debug("LoadFirmware started...\n");
+
   /* Must have a root key */
   if (!root_key)
     return LOAD_FIRMWARE_RECOVERY;
@@ -64,7 +66,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   lfi = (VbLoadFirmwareInternal*)Malloc(sizeof(VbLoadFirmwareInternal));
   if (!lfi)
     return LOAD_FIRMWARE_RECOVERY;
-  params->load_firmware_internal = lfi;
+  params->load_firmware_internal = (uint8_t*)lfi;
 
   /* Loop over indices */
   for (index = 0; index < 2; index++) {
@@ -192,8 +194,8 @@ int LoadFirmware(LoadFirmwareParams* params) {
         (lowest_key_version == tpm_key_version &&
          lowest_fw_version > tpm_fw_version)) {
       if (0 != WriteStoredVersions(FIRMWARE_VERSIONS,
-                                   lowest_key_version,
-                                   lowest_fw_version))
+                                   (uint16_t)lowest_key_version,
+                                   (uint16_t)lowest_fw_version))
         return LOAD_FIRMWARE_RECOVERY;
     }
 

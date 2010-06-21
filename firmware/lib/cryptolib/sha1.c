@@ -224,7 +224,7 @@ static void SHA1_transform(SHA1_CTX *ctx) {
 }
 
 void SHA1_update(SHA1_CTX *ctx, const uint8_t *data, uint64_t len) {
-  int i = ctx->count % sizeof(ctx->buf);
+  int i = (int)(ctx->count % sizeof(ctx->buf));
   const uint8_t* p = (const uint8_t*) data;
 
   ctx->count += len;
@@ -239,7 +239,7 @@ void SHA1_update(SHA1_CTX *ctx, const uint8_t *data, uint64_t len) {
 }
 uint8_t* SHA1_final(SHA1_CTX *ctx) {
   uint8_t *p = ctx->buf;
-  uint64_t cnt = ctx->count * 8;
+  uint64_t cnt = ctx->count << 3;
   int i;
 
   SHA1_update(ctx, (uint8_t*)"\x80", 1);
@@ -247,16 +247,16 @@ uint8_t* SHA1_final(SHA1_CTX *ctx) {
     SHA1_update(ctx, (uint8_t*)"\0", 1);
   }
   for (i = 0; i < 8; ++i) {
-    uint8_t tmp = cnt >> ((7 - i) * 8);
+    uint8_t tmp = (uint8_t)UINT64_RSHIFT(cnt, (7 - i) * 8);
     SHA1_update(ctx, &tmp, 1);
   }
 
   for (i = 0; i < 5; i++) {
     uint32_t tmp = ctx->state[i];
-    *p++ = tmp >> 24;
-    *p++ = tmp >> 16;
-    *p++ = tmp >> 8;
-    *p++ = tmp >> 0;
+    *p++ = (uint8_t)(tmp >> 24);
+    *p++ = (uint8_t)(tmp >> 16);
+    *p++ = (uint8_t)(tmp >> 8);
+    *p++ = (uint8_t)(tmp >> 0);
   }
 
   return ctx->buf;

@@ -121,15 +121,15 @@ static uint32_t GetTPMRollbackIndices(int type) {
     RETURN_ON_FAILURE(TlclRead(FIRMWARE_VERSIONS_NV_INDEX,
                                (uint8_t*) &firmware_versions,
                                sizeof(firmware_versions)));
-    g_firmware_key_version = firmware_versions >> 16;
-    g_firmware_version = firmware_versions && 0xffff;
+    g_firmware_key_version = (uint16_t) (firmware_versions >> 16);
+    g_firmware_version = (uint16_t) (firmware_versions & 0xffff);
     break;
   case KERNEL_VERSIONS:
     RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_NV_INDEX,
                                (uint8_t*) &kernel_versions,
                                sizeof(kernel_versions)));
-    g_kernel_key_version = kernel_versions >> 16;
-    g_kernel_version = kernel_versions && 0xffff;
+    g_kernel_key_version = (uint16_t) (kernel_versions >> 16);
+    g_kernel_version = (uint16_t) (kernel_versions & 0xffff);
     break;
   }
 
