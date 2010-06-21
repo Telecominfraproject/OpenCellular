@@ -45,7 +45,7 @@ int cmd_add(int argc, char *argv[]) {
   int successful = 0;
   int tries = 0;
   int priority = 0;
-  uint64_t raw_value = 0;
+  uint16_t raw_value = 0;
   int set_begin = 0;
   int set_size = 0;
   int set_type = 0;
@@ -249,7 +249,7 @@ int cmd_add(int argc, char *argv[]) {
     memcpy(entry->name, buf, sizeof(entry->name));
   }
   if (set_raw) {
-    entry->attributes = raw_value;
+    entry->attrs.fields.gpt_att = raw_value;
   } else {
     if (set_successful)
       SetSuccessful(&drive.gpt, PRIMARY, index, successful);

@@ -309,40 +309,40 @@ void GptRepair(GptData *gpt) {
 
 
 int GetEntrySuccessful(const GptEntry* e) {
-  return (e->attributes & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
-         CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
+  return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
+      CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
 }
 
 
 int GetEntryPriority(const GptEntry* e) {
-  return (e->attributes & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
-         CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+  return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
+      CGPT_ATTRIBUTE_PRIORITY_OFFSET;
 }
 
 
 int GetEntryTries(const GptEntry* e) {
-  return (e->attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
-         CGPT_ATTRIBUTE_TRIES_OFFSET;
+  return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_TRIES_MASK) >>
+      CGPT_ATTRIBUTE_TRIES_OFFSET;
 }
 
 
 void SetEntrySuccessful(GptEntry* e, int successful) {
   if (successful)
-    e->attributes |= CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
+    e->attrs.fields.gpt_att |= CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
   else
-    e->attributes &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
+    e->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
 }
 
 
 void SetEntryPriority(GptEntry* e, int priority) {
-  e->attributes &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
-  e->attributes |= ((uint64_t)priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET) &
+  e->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
+  e->attrs.fields.gpt_att |= (priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET) &
       CGPT_ATTRIBUTE_PRIORITY_MASK;
 }
 
 
 void SetEntryTries(GptEntry* e, int tries) {
-  e->attributes &= ~CGPT_ATTRIBUTE_TRIES_MASK;
-  e->attributes |= ((uint64_t)tries << CGPT_ATTRIBUTE_TRIES_OFFSET) &
+  e->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_TRIES_MASK;
+  e->attrs.fields.gpt_att |= (tries << CGPT_ATTRIBUTE_TRIES_OFFSET) &
       CGPT_ATTRIBUTE_TRIES_MASK;
 }

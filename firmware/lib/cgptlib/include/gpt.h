@@ -96,7 +96,13 @@ typedef struct {
   Guid unique;
   uint64_t starting_lba;
   uint64_t ending_lba;
-  uint64_t attributes;
+  union {
+    struct {
+     uint64_t         : 48;
+     uint16_t gpt_att : 16;
+    } __attribute__((packed)) fields;
+    uint64_t whole;
+  } attrs;
   uint16_t name[36];                    /* UTF-16 encoded partition name */
   uint8_t reserved[];                   /* nothing, really */
 } __attribute__((packed)) GptEntry;

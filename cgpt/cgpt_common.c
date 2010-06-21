@@ -522,15 +522,15 @@ void SetPriority(GptData *gpt, int secondary, int entry_index, int priority) {
   entry = GetEntry(gpt, secondary, entry_index);
 
   assert(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
-  entry->attributes &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
-  entry->attributes |= (uint64_t)priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+  entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
+  entry->attrs.fields.gpt_att |= priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET;
 }
 
 int GetPriority(GptData *gpt, int secondary, int entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attributes & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
-         CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+  return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
+      CGPT_ATTRIBUTE_PRIORITY_OFFSET;
 }
 
 void SetTries(GptData *gpt, int secondary, int entry_index, int tries) {
@@ -538,15 +538,15 @@ void SetTries(GptData *gpt, int secondary, int entry_index, int tries) {
   entry = GetEntry(gpt, secondary, entry_index);
 
   assert(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
-  entry->attributes &= ~CGPT_ATTRIBUTE_TRIES_MASK;
-  entry->attributes |= (uint64_t)tries << CGPT_ATTRIBUTE_TRIES_OFFSET;
+  entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_TRIES_MASK;
+  entry->attrs.fields.gpt_att |= tries << CGPT_ATTRIBUTE_TRIES_OFFSET;
 }
 
 int GetTries(GptData *gpt, int secondary, int entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
-         CGPT_ATTRIBUTE_TRIES_OFFSET;
+  return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_TRIES_MASK) >>
+      CGPT_ATTRIBUTE_TRIES_OFFSET;
 }
 
 void SetSuccessful(GptData *gpt, int secondary, int entry_index, int success) {
@@ -554,14 +554,14 @@ void SetSuccessful(GptData *gpt, int secondary, int entry_index, int success) {
   entry = GetEntry(gpt, secondary, entry_index);
 
   assert(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
-  entry->attributes &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
-  entry->attributes |= (uint64_t)success << CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
+  entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
+  entry->attrs.fields.gpt_att |= success << CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
 }
 
 int GetSuccessful(GptData *gpt, int secondary, int entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attributes & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
+  return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
          CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
 }
 

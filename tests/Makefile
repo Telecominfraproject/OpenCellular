@@ -27,6 +27,10 @@ CFLAGS +=  -MMD -MF $@.d
 
 LIBS := ${TEST_LIB} $(HOSTLIB) $(FWLIB)
 
+ifneq (${RUNTESTS},)
+EXTRA_TARGET = runtests
+endif
+
 all: $(TEST_BINS) ${EXTRA_TARGET}
 
 ${TEST_LIB}: ${TEST_LIB_OBJS}
@@ -55,11 +59,6 @@ ${BUILD_ROOT}/%: %.c ${LIBS}
 #		kernel_splicing_tests 
 #		kernel_verify_benchmark 
 #		verify_kernel_fuzz_driver
-
-
-ifneq (${RUNTESTS},)
-EXTRA_TARGET = runtests
-endif
 
 # Generate test keys
 genkeys:

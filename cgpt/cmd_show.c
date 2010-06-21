@@ -132,12 +132,15 @@ void EntryDetails(GptEntry *entry, int index, int raw) {
     GuidToStr(&entry->unique, unique);
     printf(PARTITION_MORE, "UUID: ", unique);
     if (!memcmp(&guid_chromeos_kernel, &entry->type, sizeof(Guid))) {
-      int tries = (entry->attributes & CGPT_ATTRIBUTE_TRIES_MASK) >>
-        CGPT_ATTRIBUTE_TRIES_OFFSET;
-      int successful = (entry->attributes & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
-        CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
-      int priority = (entry->attributes & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
-        CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+      int tries = (entry->attrs.fields.gpt_att &
+                   CGPT_ATTRIBUTE_TRIES_MASK) >>
+          CGPT_ATTRIBUTE_TRIES_OFFSET;
+      int successful = (entry->attrs.fields.gpt_att &
+                        CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
+          CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
+      int priority = (entry->attrs.fields.gpt_att &
+                      CGPT_ATTRIBUTE_PRIORITY_MASK) >>
+          CGPT_ATTRIBUTE_PRIORITY_OFFSET;
       snprintf(contents, sizeof(contents),
                "priority=%d tries=%d successful=%d",
                priority, tries, successful);
@@ -155,7 +158,7 @@ void EntryDetails(GptEntry *entry, int index, int raw) {
     printf(PARTITION_MORE, "Type: ", type);
     GuidToStr(&entry->unique, unique);
     printf(PARTITION_MORE, "UUID: ", unique);
-    snprintf(contents, sizeof(contents), "[%" PRIx64 "]", entry->attributes);
+    snprintf(contents, sizeof(contents), "[%x]", entry->attrs.fields.gpt_att);
     printf(PARTITION_MORE, "Attr: ", contents);
   }
 }
@@ -299,7 +302,7 @@ int cmd_show(int argc, char *argv[]) {
         printf("%d\n", GetPriority(&drive.gpt, PRIMARY, index));
         break;
       case 'A':
-        printf("0x%" PRIx64 "\n", entry->attributes);
+        printf("0x%x\n", entry->attrs.fields.gpt_att);
         break;
       }
     } else {

@@ -93,7 +93,7 @@ int GptUpdateKernelEntry(GptData* gpt, uint32_t update_type) {
   GptHeader* header = (GptHeader*)gpt->primary_header;
   GptEntry* entries = (GptEntry*)gpt->primary_entries;
   GptEntry* e = entries + gpt->current_kernel;
-  uint64_t previous_attr = e->attributes;
+  uint16_t previous_attr = e->attrs.fields.gpt_att;
 
   if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND)
     return GPT_ERROR_INVALID_UPDATE_TYPE;
@@ -117,9 +117,10 @@ int GptUpdateKernelEntry(GptData* gpt, uint32_t update_type) {
     }
     case GPT_UPDATE_ENTRY_BAD: {
       /* Giving up on this partition entirely. */
-      e->attributes &= ~(CGPT_ATTRIBUTE_SUCCESSFUL_MASK |
-                         CGPT_ATTRIBUTE_TRIES_MASK |
-                         CGPT_ATTRIBUTE_PRIORITY_MASK);
+      e->attrs.fields.gpt_att = previous_attr & ~(
+          CGPT_ATTRIBUTE_SUCCESSFUL_MASK |
+          CGPT_ATTRIBUTE_TRIES_MASK |
+          CGPT_ATTRIBUTE_PRIORITY_MASK);
       break;
     }
     default:
@@ -127,7 +128,7 @@ int GptUpdateKernelEntry(GptData* gpt, uint32_t update_type) {
   }
 
   /* If no change to attributes, we're done */
-  if (e->attributes == previous_attr)
+  if (e->attrs.fields.gpt_att == previous_attr)
     return GPT_SUCCESS;
 
   /* Update the CRCs */
