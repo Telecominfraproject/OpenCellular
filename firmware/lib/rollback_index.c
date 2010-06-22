@@ -24,10 +24,32 @@ uint16_t g_kernel_version = 0;
     }                                                   \
   } while (0)
 
+static uint32_t TPMClearAndReenable() {
+  RETURN_ON_FAILURE(TlclForceClear());
+  RETURN_ON_FAILURE(TlclSetEnable());
+  RETURN_ON_FAILURE(TlclSetDeactivated(0));
+  return TPM_SUCCESS;
+}
+
+/* Like TlclWrite(), but checks for write errors due to hitting the 64-write
+ * limit and clears the TPM when that happens.  This can only happen when the
+ * TPM is unowned, so it is OK to clear it (and we really have no choice).
+ * This is not expected to happen frequently, but it could happen.
+ */
+static uint32_t SafeWrite(uint32_t index, uint8_t* data, uint32_t length) {
+  uint32_t result = TlclWrite(index, data, length);
+  if (result == TPM_E_MAXNVWRITES) {
+    RETURN_ON_FAILURE(TPMClearAndReenable());
+    return TlclWrite(index, data, length);
+  } else {
+    return result;
+  }
+}
+
 static uint32_t InitializeKernelVersionsSpaces(void) {
   RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
                                     TPM_NV_PER_PPWRITE, KERNEL_SPACE_SIZE));
-  RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX, KERNEL_SPACE_INIT_DATA,
+  RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX, KERNEL_SPACE_INIT_DATA,
                               KERNEL_SPACE_SIZE));
   return TPM_SUCCESS;
 }
@@ -65,7 +87,7 @@ static uint32_t InitializeSpaces(void) {
 
   RETURN_ON_FAILURE(TlclDefineSpace(FIRMWARE_VERSIONS_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
+  RETURN_ON_FAILURE(SafeWrite(FIRMWARE_VERSIONS_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
 
   RETURN_ON_FAILURE(InitializeKernelVersionsSpaces());
@@ -76,15 +98,15 @@ static uint32_t InitializeSpaces(void) {
    */
   RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+  RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
   RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
+  RETURN_ON_FAILURE(SafeWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
   RETURN_ON_FAILURE(TlclDefineSpace(DEVELOPER_MODE_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclWrite(DEVELOPER_MODE_NV_INDEX,
+  RETURN_ON_FAILURE(SafeWrite(DEVELOPER_MODE_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
 
   /* The space TPM_IS_INITIALIZED_NV_INDEX is used to indicate that the TPM
@@ -102,7 +124,7 @@ static uint32_t SetDistrustKernelSpaceAtNextBoot(uint32_t distrust) {
   RETURN_ON_FAILURE(TlclRead(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                              (uint8_t*) &must_use_backup, sizeof(uint32_t)));
   if (must_use_backup != distrust) {
-     RETURN_ON_FAILURE(TlclWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
+     RETURN_ON_FAILURE(SafeWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                                  (uint8_t*) &distrust, sizeof(uint32_t)));
   }
   return TPM_SUCCESS;
@@ -173,14 +195,13 @@ uint32_t RecoverKernelSpace(void) {
   RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                              (uint8_t*) &backup_combined_versions,
                              sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+  RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
                               (uint8_t*) &backup_combined_versions,
                               sizeof(uint32_t)));
   if (must_use_backup) {
     uint32_t zero = 0;
-    RETURN_ON_FAILURE(TlclWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                                 (uint8_t*) &zero, 0));
-    
   }
   return TPM_SUCCESS;
 }
@@ -198,7 +219,7 @@ static uint32_t BackupKernelSpace(void) {
     /* This cannot happen.  We're screwed. */
     return TPM_E_INTERNAL_INCONSISTENCY;
   }
-  RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+  RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                               (uint8_t*) &kernel_versions, sizeof(uint32_t)));
   return TPM_SUCCESS;
 }
@@ -208,23 +229,16 @@ static uint32_t BackupKernelSpace(void) {
  */
 static uint32_t CheckDeveloperModeTransition(uint32_t current_developer) {
   uint32_t past_developer;
-  int must_clear;
   RETURN_ON_FAILURE(TlclRead(DEVELOPER_MODE_NV_INDEX,
                              (uint8_t*) &past_developer,
                              sizeof(past_developer)));
-  must_clear = current_developer != past_developer;
-  if (must_clear) {
-    RETURN_ON_FAILURE(TlclForceClear());
-  }
   if (past_developer != current_developer) {
-    /* (Unauthorized) writes to the TPM succeed even when the TPM is disabled
-     * and deactivated.
-     */
-    RETURN_ON_FAILURE(TlclWrite(DEVELOPER_MODE_NV_INDEX,
+    RETURN_ON_FAILURE(TPMClearAndReenable());
+    RETURN_ON_FAILURE(SafeWrite(DEVELOPER_MODE_NV_INDEX,
                                 (uint8_t*) &current_developer,
                                 sizeof(current_developer)));
   }
-  return must_clear ? TPM_E_MUST_REBOOT : TPM_SUCCESS;
+  return TPM_SUCCESS;
 }
 
 static uint32_t SetupTPM_(int mode, int developer_flag) {
@@ -295,11 +309,7 @@ uint32_t SetupTPM(int mode, int developer_flag) {
   case RO_RECOVERY_MODE:
   case RO_NORMAL_MODE: {
     uint32_t result = SetupTPM_(mode, developer_flag);
-    if (result == TPM_E_MAXNVWRITES) {
-      /* ForceClears and reboots */
-      RETURN_ON_FAILURE(TlclForceClear());
-      return TPM_E_MUST_REBOOT;
-    } else if (mode == RO_NORMAL_MODE) {
+    if (mode == RO_NORMAL_MODE) {
       return result;
     } else {
       /* In recovery mode we want to keep going even if there are errors. */
@@ -307,8 +317,6 @@ uint32_t SetupTPM(int mode, int developer_flag) {
     }
   }
   case RW_NORMAL_MODE:
-    /* There are no TPM writes here, so no need to check for write limit errors.
-     */
     RETURN_ON_FAILURE(GetTPMRollbackIndices(KERNEL_VERSIONS));
   default:
     return TPM_E_INTERNAL_INCONSISTENCY;
@@ -340,13 +348,13 @@ uint32_t WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
   uint32_t combined_version = (key_version << 16) & version;
   switch (type) {
     case FIRMWARE_VERSIONS:
-      RETURN_ON_FAILURE(TlclWrite(FIRMWARE_VERSIONS_NV_INDEX,
+      RETURN_ON_FAILURE(SafeWrite(FIRMWARE_VERSIONS_NV_INDEX,
                                   (uint8_t*) &combined_version,
                                   sizeof(uint32_t)));
       break;
 
     case KERNEL_VERSIONS:
-      RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+      RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
                                   (uint8_t*) &combined_version,
                                   sizeof(uint32_t)));
   }
