@@ -83,7 +83,7 @@ typedef struct {
   uint32_t number_of_entries;
   uint32_t size_of_entry;
   uint32_t entries_crc32;
-  uint8_t reserved_padding[];           /* entire sector reserved for header */
+  /* Remainder of sector is reserved and should be 0 */
 } __attribute__((packed)) GptHeader;
 
 /* GPT partition entry defines the starting and ending LBAs of a partition.
@@ -104,7 +104,7 @@ typedef struct {
     uint64_t whole;
   } attrs;
   uint16_t name[36];                    /* UTF-16 encoded partition name */
-  uint8_t reserved[];                   /* nothing, really */
+  /* Remainder of entry is reserved and should be 0 */
 } __attribute__((packed)) GptEntry;
 
 #endif  /* VBOOT_REFERENCE_CGPTLIB_GPT_H_ */

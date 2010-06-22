@@ -8,7 +8,7 @@ export CFLAGS = -Wall -DNDEBUG -O3 -Werror -DCHROMEOS_ENVIRONMENT
 export TOP = $(shell pwd)
 export FWDIR=$(TOP)/firmware
 export HOSTDIR=$(TOP)/host
-export INCLUDES = -I$(FWDIR)/include
+export INCLUDES = -I$(FWDIR)/include -I$(FWDIR)/stub/include
 
 export BUILD = ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a

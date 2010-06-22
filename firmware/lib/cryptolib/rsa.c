@@ -170,7 +170,7 @@ int RSAVerify(const RSAPublicKey *key,
   }
 
   /* Check if digest matches. */
-  for (; i < sig_len; ++i) {
+  for (; i < (int)sig_len; ++i) {
     if (buf[i] != *hash++) {
 #ifndef NDEBUG
 /* TODO(gauravsh): Replace with a macro call for logging. */

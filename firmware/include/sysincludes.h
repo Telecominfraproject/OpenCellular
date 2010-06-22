@@ -31,7 +31,7 @@
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
 
 #else
-#include "stub/biosincludes.h"
+#include "biosincludes.h"
 #endif
 
 #endif  /* VBOOT_REFERENCE_SYSINCLUDES_H_ */

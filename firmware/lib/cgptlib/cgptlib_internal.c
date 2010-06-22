@@ -130,7 +130,7 @@ int CheckEntries(GptEntry* entries, GptHeader* h, uint64_t drive_sectors) {
   /* Check all entries. */
   for (i = 0, entry = entries; i < h->number_of_entries; i++, entry++) {
     GptEntry* e2;
-    int i2;
+    uint32_t i2;
 
     if (IsUnusedEntry(entry))
       continue;

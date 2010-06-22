@@ -12,7 +12,8 @@ INCLUDES = \
 	-I$(FWTOP)/include \
 	-I$(LIBDIR)/include \
 	-I$(LIBDIR)/cgptlib/include \
-	-I$(LIBDIR)/cryptolib/include
+	-I$(LIBDIR)/cryptolib/include \
+	-I$(STUBDIR)/include
 
 
 # find ./lib -iname '*.c' | sort
