@@ -368,3 +368,36 @@ uint32_t LockFirmwareVersions() {
 uint32_t LockKernelVersionsByLockingPP() {
   return TlclLockPhysicalPresence();
 }
+
+
+
+/* NEW APIS!  HELP ME LUIGI, YOU'RE MY ONLY HOPE! */
+
+uint32_t RollbackFirmwareSetup(int developer_mode,
+                               uint16_t* key_version, uint16_t* version) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackFirmwareLock(void) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelRecovery(int developer_mode) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelLock(void) {
+  return TPM_SUCCESS;
+}

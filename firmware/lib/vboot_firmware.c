@@ -58,12 +58,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   /* Initialize the TPM and read rollback indices. */
   /* TODO: fix SetupTPM parameter for developer mode */
-  if (0 != SetupTPM(RO_NORMAL_MODE, 0)) {
-    debug("SetupTPM failed\n");
-    return LOAD_FIRMWARE_RECOVERY;
-  }
-  if (0 != GetStoredVersions(FIRMWARE_VERSIONS,
-                             &tpm_key_version, &tpm_fw_version)) {
+  if (0 != RollbackFirmwareSetup(0, &tpm_key_version, &tpm_fw_version)) {
     debug("Unable to get stored versions.\n");
     return LOAD_FIRMWARE_RECOVERY;
   }
@@ -217,18 +212,15 @@ int LoadFirmware(LoadFirmwareParams* params) {
     if ((lowest_key_version > tpm_key_version) ||
         (lowest_key_version == tpm_key_version &&
          lowest_fw_version > tpm_fw_version)) {
-      if (0 != WriteStoredVersions(FIRMWARE_VERSIONS,
-                                   (uint16_t)lowest_key_version,
-                                   (uint16_t)lowest_fw_version)) {
+      if (0 != RollbackFirmwareWrite((uint16_t)lowest_key_version,
+                                     (uint16_t)lowest_fw_version)) {
         debug("Unable to write stored versions.\n");
         return LOAD_FIRMWARE_RECOVERY;
       }
     }
 
-    /* Lock Firmware TPM rollback indices from further writes.  In
-     * this design, this is done by setting the globalLock bit, which
-     * is cleared only by TPM_Init at reboot.  */
-    if (0 != LockFirmwareVersions()) {
+    /* Lock firmware versions in TPM */
+    if (0 != RollbackFirmwareLock()) {
       debug("Unable to lock firmware versions.\n");
       return LOAD_FIRMWARE_RECOVERY;
     }

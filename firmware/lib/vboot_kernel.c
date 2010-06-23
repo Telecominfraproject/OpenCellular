@@ -134,22 +134,20 @@ int LoadKernel(LoadKernelParams* params) {
   params->bootloader_address = 0;
   params->bootloader_size = 0;
 
-  /* Set up TPM; required in all modes */
-  if (0 != SetupTPM(
-          ((BOOT_FLAG_RECOVERY & params->boot_flags) ?
-           RO_RECOVERY_MODE : RW_NORMAL_MODE),
-          ((BOOT_FLAG_DEVELOPER & params->boot_flags) ? 1 : 0))) {
-    debug("Error setting up TPM\n");
-    return LOAD_KERNEL_RECOVERY;
+  /* Let the TPM know if we're in recovery mode */
+  if (BOOT_FLAG_RECOVERY & params->boot_flags) {
+    if (0 != RollbackKernelRecovery(BOOT_FLAG_DEVELOPER & params->boot_flags
+                                    ? 1 : 0)) {
+      debug("Error setting up TPM for recovery kernel\n");
+      return LOAD_KERNEL_RECOVERY;
+    }
   }
 
   if (is_normal) {
     /* Read current kernel key index from TPM.  Assumes TPM is already
      * initialized. */
-    if (0 != GetStoredVersions(KERNEL_VERSIONS,
-                               &tpm_key_version,
-                               &tpm_kernel_version)) {
-      debug("Unable to get stored version from TPM\n");
+    if (0 != RollbackKernelRead(&tpm_key_version, &tpm_kernel_version)) {
+      debug("Unable to get kernel versions from TPM\n");
       return LOAD_KERNEL_RECOVERY;
     }
   } else if (is_dev) {
@@ -368,25 +366,18 @@ int LoadKernel(LoadKernelParams* params) {
       if ((lowest_key_version > tpm_key_version) ||
           (lowest_key_version == tpm_key_version &&
            lowest_kernel_version > tpm_kernel_version)) {
-        if (0 != WriteStoredVersions(KERNEL_VERSIONS,
-                                     (uint16_t)lowest_key_version,
-                                     (uint16_t)lowest_kernel_version))
+        if (0 != RollbackKernelWrite((uint16_t)lowest_key_version,
+                                     (uint16_t)lowest_kernel_version)) {
+          debug("Error writing kernel versions to TPM.\n");
           return LOAD_KERNEL_RECOVERY;
+        }
       }
     }
 
-    if (!(BOOT_FLAG_RECOVERY & params->boot_flags)) {
-      /* We can lock the TPM now, since we've decided which kernel we
-       * like.  If we don't find a good kernel, we leave the TPM
-       * unlocked so we can try again on the next boot device.  If no
-       * kernels are good, we'll reboot to recovery mode, so it's ok to
-       * leave the TPM unlocked in that case too.
-       *
-       * If we're already in recovery mode, we need to leave PP unlocked,
-       * so don't lock the kernel versions. */
-      debug("Lock kernel versions\n");
-      if (0 != LockKernelVersionsByLockingPP())
-        return LOAD_KERNEL_RECOVERY;
+    /* Lock the kernel versions, since we're about to boot the kernel */
+    if (0 != RollbackKernelLock()) {
+      debug("Error locking kernel versions.\n");
+      return LOAD_KERNEL_RECOVERY;
     }
 
     /* Success! */

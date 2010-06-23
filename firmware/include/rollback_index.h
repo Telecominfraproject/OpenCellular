@@ -43,6 +43,58 @@ extern uint16_t g_kernel_version;
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
+
+/*
+
+Call from LoadFirmware()
+  Normal or developer mode (not recovery)
+  Wants firmware versions
+  Must send in developer flag
+
+  RollbackFirmwareSetup(IN devmode, OUT firmware versions)
+  (maybe) RollbackFirmwareWrite()
+  RollbackFirmwareLock()
+
+Call from LoadKernel()
+
+  RollbackKernelRecovery(IN devmode)
+     (implies LockFirmwareVersions() inside the setup)
+
+  RollbackKernelRead(OUT kernel versions)
+  (maybe) RollbackKernelWrite()
+  RollbackKernelLock()
+
+  Any mode
+    If recovery mode, this is the first time we've been called
+      Must send in developer flag
+    If not recovery mode, wants kernel versions
+  Must send in developer and recovery flags
+*/
+
+/* These functions are callable from LoadFirmware().  They cannot use
+ * global variables. */
+/* Setup must be called. */
+uint32_t RollbackFirmwareSetup(int developer_mode,
+                               uint16_t* key_version, uint16_t* version);
+/* Write may be called if the versions change */
+uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version);
+/* Lock must be called */
+uint32_t RollbackFirmwareLock(void);
+
+/* These functions are callable from LoadKernel().  They may use global
+ * variables. */
+/* Recovery may be called.  If it is, this is the first time a
+ * rollback function has been called this boot, so it needs to know if
+ * we're in developer mode. */
+uint32_t RollbackKernelRecovery(int developer_mode);
+/* Read and write may be called if not in developer mode.  If called in
+ * recovery mode, these are ignored and/or return 0 versions. */
+uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version);
+uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version);
+/* Lock must be called.  Internally, it's ignored in recovery mode. */
+uint32_t RollbackKernelLock(void);
+
+
 /* SetupTPM is called on boot and on starting the RW firmware, passing the
  * appripriate MODE and DEVELOPER_FLAG parameters.  MODE can be one of
  * RO_RECOVERY_MODE, RO_NORMAL_MODE, RW_NORMAL_MODE.  DEVELOPER_FLAG is 1 when

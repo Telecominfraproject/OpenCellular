@@ -24,11 +24,13 @@ int main(void)
   LoadKernel(0);
 
   /* rollback_index.h */
-  SetupTPM(0, 0);
-  GetStoredVersions(0, &x, &y);
-  WriteStoredVersions(0, 0, 0);
-  LockFirmwareVersions();
-  LockKernelVersionsByLockingPP();
+  RollbackFirmwareSetup(0, &x, &y);
+  RollbackFirmwareWrite(0, 0);
+  RollbackFirmwareLock();
+  RollbackKernelRecovery(0);
+  RollbackKernelRead(&x, &y);
+  RollbackKernelWrite(0, 0);
+  RollbackKernelLock();
 
   /* tlcl.h */
   TlclLibInit();
