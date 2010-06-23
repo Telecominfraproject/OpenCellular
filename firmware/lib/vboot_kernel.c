@@ -322,7 +322,7 @@ int LoadKernel(LoadKernelParams* params) {
       /* TODO: GPT partitions start at 1, but cgptlib starts them at 0.
        * Adjust here, until cgptlib is fixed. */
       good_partition = gpt.current_kernel + 1;
-      params->partition_number = gpt.current_kernel;
+      params->partition_number = gpt.current_kernel + 1;
       params->bootloader_address = preamble->bootloader_address;
       params->bootloader_size = preamble->bootloader_size;
       /* If we're in developer or recovery mode, there's no rollback

@@ -11,7 +11,9 @@
 
 #include "sysincludes.h"
 
-PACK_START  /* Support packing for MSVC */
+#ifdef _MSC_VER
+#pragma pack(push, 1) /* Support packing for MSVC. */
+#endif
 
 /* Public key data */
 typedef struct VbPublicKey {
@@ -131,7 +133,8 @@ typedef struct VbKernelPreambleHeader {
 
 #define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
 
-
-PACK_STOP  /* Support packing for MSVC */
+#ifdef _MSC_VER
+#pragma pack(pop) /* Support packing for MSVC. */
+#endif
 
 #endif  /* VBOOT_REFERENCE_VBOOT_STRUCT_H_ */
