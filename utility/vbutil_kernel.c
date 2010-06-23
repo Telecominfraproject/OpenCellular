@@ -7,6 +7,7 @@
 
 #include <getopt.h>
 #include <inttypes.h>  /* For PRIu64 */
+#include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,10 @@
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "vboot_common.h"
+
+
+/* Global opt */
+static int opt_debug = 0;
 
 
 /* Command line options */
@@ -43,6 +48,7 @@ static struct option long_opts[] = {
   {"bootloader", 1, 0,                OPT_BOOTLOADER              },
   {"config", 1, 0,                    OPT_CONFIG                  },
   {"pad", 1, 0,                       OPT_PAD                     },
+  {"debug", 0, &opt_debug, 1                                      },
   {NULL, 0, 0, 0}
 };
 
@@ -68,6 +74,17 @@ static int PrintHelp(void) {
        "  --signpubkey <file>         Signing public key in .vbpubk format\n"
        "");
   return 1;
+}
+
+static void Debug(const char *format, ...) {
+  if (!opt_debug)
+    return;
+
+  va_list ap;
+  va_start(ap, format);
+  fprintf(stderr, "DEBUG: ");
+  vfprintf(stderr, format, ap);
+  va_end(ap);
 }
 
 
@@ -165,9 +182,11 @@ static int Pack(const char* outfile, const char* keyblock_file,
   }
 
   /* Read the config file */
+  Debug("Reading %s\n", config_file);
   config_buf = ReadFile(config_file, &config_size);
   if (!config_buf)
     return 1;
+  Debug(" config file size=0x%" PRIx64 "\n", config_size);
   if (CROS_CONFIG_SIZE <= config_size) {  /* need room for trailing '\0' */
     error("Config file %s is too large (>= %d bytes)\n",
           config_file, CROS_CONFIG_SIZE);
@@ -179,14 +198,18 @@ static int Pack(const char* outfile, const char* keyblock_file,
       config_buf[i] = ' ';
 
   /* Read the bootloader */
+  Debug("Reading %s\n", bootloader_file);
   bootloader_buf = ReadFile(bootloader_file, &bootloader_size);
   if (!bootloader_buf)
     return 1;
+  Debug(" bootloader file size=0x%" PRIx64 "\n", bootloader_size);
 
   /* Read the kernel */
+  Debug("Reading %s\n", vmlinuz);
   kernel_buf = ReadFile(vmlinuz, &kernel_size);
   if (!kernel_buf)
     return 1;
+  Debug(" kernel file size=0x%" PRIx64 "\n", kernel_size);
   if (!kernel_size) {
     error("Empty kernel file\n");
     return 1;
@@ -201,6 +224,8 @@ static int Pack(const char* outfile, const char* keyblock_file,
     return 1;
   }
   kernel32_size = kernel_size - kernel32_start;
+  Debug(" kernel32_start=0x%" PRIx64 "\n", kernel32_start);
+  Debug(" kernel32_size=0x%" PRIx64 "\n", kernel32_size);
 
   /* Allocate and zero the blob we need. */
   blob_size = roundup(kernel32_size, CROS_ALIGN) +
@@ -208,6 +233,7 @@ static int Pack(const char* outfile, const char* keyblock_file,
       CROS_PARAMS_SIZE +
       roundup(bootloader_size, CROS_ALIGN);
   blob = (uint8_t *)Malloc(blob_size);
+  Debug("blob_size=0x%" PRIx64 "\n", blob_size);
   if (!blob) {
     error("Couldn't allocate %ld bytes.\n", blob_size);
     return 1;
@@ -215,13 +241,16 @@ static int Pack(const char* outfile, const char* keyblock_file,
   Memset(blob, 0, blob_size);
 
   /* Copy the 32-bit kernel. */
+  Debug("kernel goes at blob+=0x%" PRIx64 "\n", now);
   if (kernel32_size)
     Memcpy(blob + now, kernel_buf + kernel32_start, kernel32_size);
   now += roundup(now + kernel32_size, CROS_ALIGN);
 
+  Debug("config goes at blob+0x%" PRIx64 "\n", now);
   /* Find the load address of the commandline. We'll need it later. */
   cmdline_addr = CROS_32BIT_ENTRY_ADDR + now +
       find_cmdline_start((char *)config_buf, config_size);
+  Debug(" cmdline_addr=0x%" PRIx64 "\n", cmdline_addr);
 
   /* Copy the config. */
   if (config_size)
@@ -230,6 +259,7 @@ static int Pack(const char* outfile, const char* keyblock_file,
 
   /* The zeropage data is next. Overlay the linux_kernel_header onto it, and
    * tweak a few fields. */
+  Debug("params goes at blob+=0x%" PRIx64 "\n", now);
   params = (struct linux_kernel_params *)(blob + now);
   Memcpy(&(params->setup_sects), &(lh->setup_sects),
          sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
@@ -242,11 +272,15 @@ static int Pack(const char* outfile, const char* keyblock_file,
 
   /* Finally, append the bootloader. Remember where it will load in
    * memory, too. */
+  Debug("bootloader goes at blob+=0x%" PRIx64 "\n", now);
   bootloader_mem_start = CROS_32BIT_ENTRY_ADDR + now;
   bootloader_mem_size = roundup(bootloader_size, CROS_ALIGN);
+  Debug(" bootloader_mem_start=0x%" PRIx64 "\n", bootloader_mem_start);
+  Debug(" bootloader_mem_size=0x%" PRIx64 "\n", bootloader_mem_size);
   if (bootloader_size)
     Memcpy(blob + now, bootloader_buf, bootloader_size);
   now += bootloader_mem_size;
+  Debug("end of blob is 0x%" PRIx64 "\n", now);
 
   /* Free input buffers */
   Free(kernel_buf);
@@ -274,11 +308,15 @@ static int Pack(const char* outfile, const char* keyblock_file,
   }
 
   /* Write the output file */
+  Debug("writing %s...\n", outfile);
   f = fopen(outfile, "wb");
   if (!f) {
     error("Can't open output file %s\n", outfile);
     return 1;
   }
+  Debug("0x%" PRIx64 " bytes of key_block\n", key_block_size);
+  Debug("0x%" PRIx64 " bytes of preamble\n", preamble->preamble_size);
+  Debug("0x%" PRIx64 " bytes of blob\n", blob_size);
   i = ((1 != fwrite(key_block, key_block_size, 1, f)) ||
        (1 != fwrite(preamble, preamble->preamble_size, 1, f)) ||
        (1 != fwrite(blob, blob_size, 1, f)));
@@ -361,11 +399,11 @@ static int Verify(const char* infile, const char* signpubkey) {
   printf("  Header version:      %" PRIu32 ".%" PRIu32"\n",
          preamble->header_version_major, preamble->header_version_minor);
   printf("  Kernel version:      %" PRIu64 "\n", preamble->kernel_version);
-  printf("  Body load address:   %" PRIu64 "\n", preamble->body_load_address);
-  printf("  Body size:           %" PRIu64 "\n",
+  printf("  Body load address:   0x%" PRIx64 "\n", preamble->body_load_address);
+  printf("  Body size:           0x%" PRIx64 "\n",
          preamble->body_signature.data_size);
-  printf("  Bootloader address:  %" PRIu64 "\n", preamble->bootloader_address);
-  printf("  Bootloader size:     %" PRIu64 "\n", preamble->bootloader_size);
+  printf("  Bootloader address:  0x%" PRIx64 "\n", preamble->bootloader_address);
+  printf("  Bootloader size:     0x%" PRIx64 "\n", preamble->bootloader_size);
 
   /* Verify body */
   if (0 != VerifyData(blob + now, &preamble->body_signature, rsa)) {
