@@ -67,6 +67,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
 
   if (gptdata->primary_header) {
     if (gptdata->modified & GPT_MODIFIED_HEADER1) {
+      debug("Updating GPT header 1\n");
       if (0 != BootDeviceWriteLBA(1, 1, gptdata->primary_header))
         return 1;
     }
@@ -75,6 +76,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
 
   if (gptdata->primary_entries) {
     if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
+      debug("Updating GPT entries 1\n");
       if (0 != BootDeviceWriteLBA(2, entries_sectors,
                                   gptdata->primary_entries))
         return 1;
@@ -84,6 +86,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
 
   if (gptdata->secondary_entries) {
     if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
+      debug("Updating GPT header 2\n");
       if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
                                   entries_sectors, gptdata->secondary_entries))
         return 1;
@@ -93,6 +96,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
 
   if (gptdata->secondary_header) {
     if (gptdata->modified & GPT_MODIFIED_HEADER2) {
+      debug("Updating GPT entries 2\n");
       if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
                                   gptdata->secondary_header))
         return 1;
@@ -129,6 +133,15 @@ int LoadKernel(LoadKernelParams* params) {
   params->partition_number = 0;
   params->bootloader_address = 0;
   params->bootloader_size = 0;
+
+  /* Set up TPM; required in all modes */
+  if (0 != SetupTPM(
+          ((BOOT_FLAG_RECOVERY & params->boot_flags) ?
+           RO_RECOVERY_MODE : RW_NORMAL_MODE),
+          ((BOOT_FLAG_DEVELOPER & params->boot_flags) ? 1 : 0))) {
+    debug("Error setting up TPM\n");
+    return LOAD_KERNEL_RECOVERY;
+  }
 
   if (is_normal) {
     /* Read current kernel key index from TPM.  Assumes TPM is already

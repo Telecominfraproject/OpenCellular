@@ -55,8 +55,8 @@ int LoadFirmware(LoadFirmwareParams* params) {
     return LOAD_FIRMWARE_RECOVERY;
 
   /* Initialize the TPM and read rollback indices. */
-  /* TODO: fix SetupTPM parameter */
-  if (0 != SetupTPM(0, 0) )
+  /* TODO: fix SetupTPM parameter for developer mode */
+  if (0 != SetupTPM(RO_NORMAL_MODE, 0) )
     return LOAD_FIRMWARE_RECOVERY;
   if (0 != GetStoredVersions(FIRMWARE_VERSIONS,
                              &tpm_key_version, &tpm_fw_version))
@@ -204,6 +204,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
      * is cleared only by TPM_Init at reboot.  */
     if (0 != LockFirmwareVersions())
       return LOAD_FIRMWARE_RECOVERY;
+
+    /* Success */
+    return LOAD_FIRMWARE_SUCCESS;
   }
 
   /* If we're still here, no good firmware, so go to recovery mode. */

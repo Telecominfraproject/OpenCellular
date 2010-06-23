@@ -11,6 +11,7 @@
 
 #include "sysincludes.h"
 
+PACK_START  /* Support packing for MSVC */
 
 /* Public key data */
 typedef struct VbPublicKey {
@@ -21,6 +22,8 @@ typedef struct VbPublicKey {
   uint64_t key_version;    /* Key version */
 } __attribute__((packed)) VbPublicKey;
 
+#define EXPECTED_VBPUBLICKEY_SIZE 32
+
 
 /* Signature data (a secure hash, possibly signed) */
 typedef struct VbSignature {
@@ -29,6 +32,8 @@ typedef struct VbSignature {
   uint64_t sig_size;    /* Size of signature data in bytes */
   uint64_t data_size;   /* Size of the data block which was signed in bytes */
 } __attribute__((packed)) VbSignature;
+
+#define EXPECTED_VBSIGNATURE_SIZE 24
 
 
 #define KEY_BLOCK_MAGIC "CHROMEOS"
@@ -69,6 +74,8 @@ typedef struct VbKeyBlockHeader {
  *   3) The signature data for (VBKeyBlockHeader + data_key data), pointed to
  *      by key_block_signature.sig_offset. */
 
+#define EXPECTED_VBKEYBLOCKHEADER_SIZE 112
+
 
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 0
@@ -95,6 +102,7 @@ typedef struct VbFirmwarePreambleHeader {
  *      + body signature data), pointed to by
  *      preamble_signature.sig_offset. */
 
+#define EXPECTED_VBFIRMWAREPREAMBLEHEADER_SIZE 104
 
 #define KERNEL_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 0
@@ -120,5 +128,10 @@ typedef struct VbKernelPreambleHeader {
  *      body_signature.sig_offset.
  *   3) The signature data for (VBFirmwarePreambleHeader + body signature
  *      data), pointed to by preamble_signature.sig_offset. */
+
+#define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
+
+
+PACK_STOP  /* Support packing for MSVC */
 
 #endif  /* VBOOT_REFERENCE_VBOOT_STRUCT_H_ */

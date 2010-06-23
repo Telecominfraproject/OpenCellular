@@ -11,9 +11,23 @@
 #include "test_common.h"
 #include "vboot_common.h"
 
+/* Test struct packing */
+static void StructPackingTest(void) {
+  TEST_EQ(EXPECTED_VBPUBLICKEY_SIZE, sizeof(VbPublicKey),
+          "sizeof(VbPublicKey)");
+  TEST_EQ(EXPECTED_VBSIGNATURE_SIZE, sizeof(VbSignature),
+          "sizeof(VbSignature)");
+  TEST_EQ(EXPECTED_VBKEYBLOCKHEADER_SIZE, sizeof(VbKeyBlockHeader),
+          "sizeof(VbKeyBlockHeader)");
+  TEST_EQ(EXPECTED_VBFIRMWAREPREAMBLEHEADER_SIZE,
+          sizeof(VbFirmwarePreambleHeader), "sizeof(VbFirmwarePreambleHeader)");
+  TEST_EQ(EXPECTED_VBKERNELPREAMBLEHEADER_SIZE,
+          sizeof(VbKernelPreambleHeader), "sizeof(VbKernelPreambleHeader)");
+}
+
 
 /* Helper functions not dependent on specific key sizes */
-void VerifyHelperFunctions(void) {
+static void VerifyHelperFunctions(void) {
 
   {
     uint8_t p[1];
@@ -91,7 +105,7 @@ void VerifyHelperFunctions(void) {
 int main(int argc, char* argv[]) {
   int error_code = 0;
 
-  /* Test helper functions */
+  StructPackingTest();
   VerifyHelperFunctions();
 
   if (!gTestSuccess)

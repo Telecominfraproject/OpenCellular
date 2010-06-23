@@ -12,6 +12,8 @@
 
 #include "sysincludes.h"
 
+PACK_START  /* Support packing for MSVC */
+
 #define GPT_HEADER_SIGNATURE "EFI PART"
 #define GPT_HEADER_SIGNATURE_SIZE sizeof(GPT_HEADER_SIGNATURE)
 #define GPT_HEADER_REVISION 0x00010000
@@ -58,6 +60,8 @@ typedef struct {
   } u;
 } __attribute__((packed)) Guid;
 
+#define GUID_EXPECTED_SIZE GUID_SIZE
+
 /* Some constant values */
 extern const Guid guid_unused;
 extern const Guid guid_chromeos_kernel;
@@ -86,6 +90,8 @@ typedef struct {
   /* Remainder of sector is reserved and should be 0 */
 } __attribute__((packed)) GptHeader;
 
+#define GPTHEADER_EXPECTED_SIZE 92
+
 /* GPT partition entry defines the starting and ending LBAs of a partition.
  * It also contains the unique GUID, type, and attribute bits.
  *
@@ -98,13 +104,17 @@ typedef struct {
   uint64_t ending_lba;
   union {
     struct {
-     uint64_t         : 48;
-     uint16_t gpt_att : 16;
+      uint16_t reserved[3];
+      uint16_t gpt_att;
     } __attribute__((packed)) fields;
     uint64_t whole;
   } attrs;
   uint16_t name[36];                    /* UTF-16 encoded partition name */
   /* Remainder of entry is reserved and should be 0 */
 } __attribute__((packed)) GptEntry;
+
+#define GPTENTRY_EXPECTED_SIZE 128
+
+PACK_STOP  /* Support packing for MSVC */
 
 #endif  /* VBOOT_REFERENCE_CGPTLIB_GPT_H_ */

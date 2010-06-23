@@ -171,6 +171,18 @@ static void BuildTestGptData(GptData* gpt) {
 }
 
 
+/* Tests if the structures are the expected size; if this fails,
+ * struct packing is not working properly. */
+static int StructSizeTest() {
+
+  EXPECT(GUID_EXPECTED_SIZE == sizeof(Guid));
+  EXPECT(GPTHEADER_EXPECTED_SIZE == sizeof(GptHeader));
+  EXPECT(GPTENTRY_EXPECTED_SIZE == sizeof(GptEntry));
+
+  return TEST_OK;
+}
+
+
 /* Tests if the default structure returned by BuildTestGptData() is good. */
 static int TestBuildTestGptData() {
   GptData* gpt;
@@ -1088,6 +1100,7 @@ int main(int argc, char *argv[]) {
     test_func fp;
     int retval;
   } test_cases[] = {
+    { TEST_CASE(StructSizeTest), },
     { TEST_CASE(TestBuildTestGptData), },
     { TEST_CASE(ParameterTests), },
     { TEST_CASE(HeaderCrcTest), },
