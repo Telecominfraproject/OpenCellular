@@ -135,17 +135,17 @@ int RSAVerify(const RSAPublicKey *key,
   int success = 1;
 
   if (sig_len != (key->len * sizeof(uint32_t))) {
-    debug("Signature is of incorrect length!\n");
+    VBDEBUG(("Signature is of incorrect length!\n"));
     return 0;
   }
 
   if (sig_type >= kNumAlgorithms) {
-    debug("Invalid signature type!\n");
+    VBDEBUG(("Invalid signature type!\n"));
     return 0;
   }
 
   if (key->len != siglen_map[sig_type] / sizeof(uint32_t)) {
-    debug("Wrong key passed in!\n");
+    VBDEBUG(("Wrong key passed in!\n"));
     return 0;
   }
 
@@ -162,8 +162,7 @@ int RSAVerify(const RSAPublicKey *key,
     if (buf[i] != padding[i]) {
 #ifndef NDEBUG
 /* TODO(gauravsh): Replace with a macro call for logging. */
-      debug("Padding: Expecting = %02x Got = %02x\n", padding[i],
-              buf[i]);
+      VBDEBUG(("Padding: Expecting = %02x Got = %02x\n", padding[i], buf[i]));
 #endif
       success = 0;
     }
@@ -174,8 +173,7 @@ int RSAVerify(const RSAPublicKey *key,
     if (buf[i] != *hash++) {
 #ifndef NDEBUG
 /* TODO(gauravsh): Replace with a macro call for logging. */
-      debug("Digest: Expecting = %02x Got = %02x\n", padding[i],
-              buf[i]);
+      VBDEBUG(("Digest: Expecting = %02x Got = %02x\n", padding[i], buf[i]));
 #endif
       success = 0;
     }

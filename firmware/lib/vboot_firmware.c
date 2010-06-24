@@ -46,23 +46,23 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* Clear output params in case we fail */
   params->firmware_index = 0;
 
-  debug("LoadFirmware started...\n");
+  VBDEBUG(("LoadFirmware started...\n"));
 
   if (params->kernel_sign_key_size < sizeof(VbPublicKey)) {
-    debug("Kernel sign key buffer too small\n");
+    VBDEBUG(("Kernel sign key buffer too small\n"));
     return LOAD_FIRMWARE_RECOVERY;
   }
 
   /* Must have a root key */
   if (!root_key) {
-    debug("No root key\n");
+    VBDEBUG(("No root key\n"));
     return LOAD_FIRMWARE_RECOVERY;
   }
 
   /* Initialize the TPM and read rollback indices. */
   /* TODO: fix SetupTPM parameter for developer mode */
   if (0 != RollbackFirmwareSetup(0, &tpm_key_version, &tpm_fw_version)) {
-    debug("Unable to get stored versions.\n");
+    VBDEBUG(("Unable to get stored versions.\n"));
     return LOAD_FIRMWARE_RECOVERY;
   }
 
@@ -90,21 +90,21 @@ int LoadFirmware(LoadFirmwareParams* params) {
       vblock_size = params->verification_size_1;
     }
     if ((0 != KeyBlockVerify(key_block, vblock_size, root_key))) {
-      debug("Key block verification failed.\n");
+      VBDEBUG(("Key block verification failed.\n"));
       continue;
     }
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;
     if (key_version < tpm_key_version) {
-      debug("Key rollback detected.\n");
+      VBDEBUG(("Key rollback detected.\n"));
       continue;
     }
 
     /* Get the key for preamble/data verification from the key block. */
     data_key = PublicKeyToRSA(&key_block->data_key);
     if (!data_key) {
-      debug("Unable to parse data key.\n");
+      VBDEBUG(("Unable to parse data key.\n"));
       continue;
     }
 
@@ -114,7 +114,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     if ((0 != VerifyFirmwarePreamble2(preamble,
                                       vblock_size - key_block->key_block_size,
                                       data_key))) {
-      debug("Preamble verfication failed.\n");
+      VBDEBUG(("Preamble verfication failed.\n"));
       RSAPublicKeyFree(data_key);
       continue;
     }
@@ -122,7 +122,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* Check for rollback of firmware version. */
     if (key_version == tpm_key_version &&
         preamble->firmware_version < tpm_fw_version) {
-      debug("Firmware version rollback detected.\n");
+      VBDEBUG(("Firmware version rollback detected.\n"));
       RSAPublicKeyFree(data_key);
       continue;
     }
@@ -147,13 +147,14 @@ int LoadFirmware(LoadFirmwareParams* params) {
     DigestInit(&lfi->body_digest_context, data_key->algorithm);
     lfi->body_size_accum = 0;
     if (0 != GetFirmwareBody(params, index)) {
-      debug("GetFirmwareBody() failed for index %d\n", index);
+      VBDEBUG(("GetFirmwareBody() failed for index %d\n", index));
       RSAPublicKeyFree(data_key);
       continue;
     }
     if (lfi->body_size_accum != preamble->body_signature.data_size) {
-      debug("Hash updated %d bytes but expected %d\n",
-            (int)lfi->body_size_accum, (int)preamble->body_signature.data_size);
+      VBDEBUG(("Hash updated %d bytes but expected %d\n",
+               (int)lfi->body_size_accum,
+               (int)preamble->body_signature.data_size));
       RSAPublicKeyFree(data_key);
       continue;
     }
@@ -161,7 +162,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* Verify firmware data */
     body_digest = DigestFinal(&lfi->body_digest_context);
     if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
-      debug("Firmware body verification failed.\n");
+      VBDEBUG(("Firmware body verification failed.\n"));
       RSAPublicKeyFree(data_key);
       Free(body_digest);
       continue;
@@ -172,7 +173,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     Free(body_digest);
 
     /* If we're still here, the firmware is valid. */
-    debug("Firmware %d is valid.\n", index);
+    VBDEBUG(("Firmware %d is valid.\n", index));
     if (-1 == good_index) {
       VbPublicKey *kdest = (VbPublicKey*)params->kernel_sign_key_blob;
 
@@ -181,7 +182,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
                     (params->kernel_sign_key_size - sizeof(VbPublicKey)));
 
       if (0 != PublicKeyCopy(kdest, &preamble->kernel_subkey)) {
-        debug("Kernel subkey too big for buffer.\n");
+        VBDEBUG(("Kernel subkey too big for buffer.\n"));
         continue;  /* The firmware signature was good, but the public
                     * key was bigger that the caller can handle. */
       }
@@ -217,23 +218,23 @@ int LoadFirmware(LoadFirmwareParams* params) {
          lowest_fw_version > tpm_fw_version)) {
       if (0 != RollbackFirmwareWrite((uint16_t)lowest_key_version,
                                      (uint16_t)lowest_fw_version)) {
-        debug("Unable to write stored versions.\n");
+        VBDEBUG(("Unable to write stored versions.\n"));
         return LOAD_FIRMWARE_RECOVERY;
       }
     }
 
     /* Lock firmware versions in TPM */
     if (0 != RollbackFirmwareLock()) {
-      debug("Unable to lock firmware versions.\n");
+      VBDEBUG(("Unable to lock firmware versions.\n"));
       return LOAD_FIRMWARE_RECOVERY;
     }
 
     /* Success */
-    debug("Will boot firmware index %d\n", (int)params->firmware_index);
+    VBDEBUG(("Will boot firmware index %d\n", (int)params->firmware_index));
     return LOAD_FIRMWARE_SUCCESS;
   }
 
   /* If we're still here, no good firmware, so go to recovery mode. */
-  debug("Alas, no good firmware.\n");
+  VBDEBUG(("Alas, no good firmware.\n"));
   return LOAD_FIRMWARE_RECOVERY;
 }

@@ -81,7 +81,7 @@ static uint32_t InitializeSpaces(void) {
   uint32_t zero = 0;
   uint32_t firmware_perm = TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE;
 
-  debug("Initializing spaces\n");
+  VBDEBUG(("Initializing spaces\n"));
 
   RETURN_ON_FAILURE(TlclSetNvLocked());
 

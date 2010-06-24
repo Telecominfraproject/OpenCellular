@@ -12,6 +12,13 @@
 
 #include "sysincludes.h"
 
+/* Debug and error output */
+#ifdef VBOOT_DEBUG
+#define VBDEBUG(params) debug params
+#else
+#define VBDEBUG(params)
+#endif
+
 /* Outputs an error message and quits. */
 void error(const char *format, ...);
 
