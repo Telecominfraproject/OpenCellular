@@ -60,8 +60,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Initialize the TPM and read rollback indices. */
-  /* TODO: fix SetupTPM parameter for developer mode */
-  if (0 != RollbackFirmwareSetup(0, &tpm_key_version, &tpm_fw_version)) {
+  if (0 != RollbackFirmwareSetup(
+          (params->boot_flags & BOOT_FLAG_DEVELOPER ? 1 : 0),
+          &tpm_key_version, &tpm_fw_version)) {
     VBDEBUG(("Unable to get stored versions.\n"));
     return LOAD_FIRMWARE_RECOVERY;
   }

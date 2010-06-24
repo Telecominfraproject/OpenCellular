@@ -20,6 +20,9 @@
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */
 #define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode */
 
+/* Boot flags for LoadFirmware().boot_flags */
+#define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
+
 typedef struct LoadFirmwareParams {
   /* Inputs to LoadFirmware() */
   void *firmware_root_key_blob;  /* Key used to sign firmware header */
@@ -35,6 +38,7 @@ typedef struct LoadFirmwareParams {
                                   * buffer, in bytes.  On output, this
                                   * will contain the actual key blob
                                   * size placed into the buffer. */
+  uint64_t boot_flags;           /* Boot flags */
 
   /* Outputs from LoadFirmware(); valid only if LoadFirmware() returns
    * LOAD_FIRMWARE_SUCCESS. */
