@@ -73,7 +73,8 @@ Call from LoadKernel()
 
 /* These functions are callable from LoadFirmware().  They cannot use
  * global variables. */
-/* Setup must be called. */
+/* Setup must be called.  Pass developer_mode=nonzero if in developer
+ * mode. */
 uint32_t RollbackFirmwareSetup(int developer_mode,
                                uint16_t* key_version, uint16_t* version);
 /* Write may be called if the versions change */
@@ -85,7 +86,8 @@ uint32_t RollbackFirmwareLock(void);
  * variables. */
 /* Recovery may be called.  If it is, this is the first time a
  * rollback function has been called this boot, so it needs to know if
- * we're in developer mode. */
+ * we're in developer mode.  Pass developer_mode=nonzero if in developer
+ * mode. */
 uint32_t RollbackKernelRecovery(int developer_mode);
 /* Read and write may be called if not in developer mode.  If called in
  * recovery mode, these are ignored and/or return 0 versions. */

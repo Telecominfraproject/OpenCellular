@@ -124,10 +124,9 @@ int LoadKernel(LoadKernelParams* params) {
   uint16_t tpm_kernel_version = 0;
   uint64_t lowest_key_version = 0xFFFF;
   uint64_t lowest_kernel_version = 0xFFFF;
-  int is_dev = ((BOOT_FLAG_DEVELOPER & params->boot_flags) &&
-                !(BOOT_FLAG_RECOVERY & params->boot_flags));
-  int is_normal = (!(BOOT_FLAG_DEVELOPER & params->boot_flags) &&
-                   !(BOOT_FLAG_RECOVERY & params->boot_flags));
+  int is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags);
+  int is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags);
+  int is_normal = (!is_dev && !is_rec);
 
   /* Clear output params in case we fail */
   params->partition_number = 0;
@@ -135,11 +134,11 @@ int LoadKernel(LoadKernelParams* params) {
   params->bootloader_size = 0;
 
   /* Let the TPM know if we're in recovery mode */
-  if (BOOT_FLAG_RECOVERY & params->boot_flags) {
-    if (0 != RollbackKernelRecovery(BOOT_FLAG_DEVELOPER & params->boot_flags
-                                    ? 1 : 0)) {
+  if (is_rec) {
+    if (0 != RollbackKernelRecovery(is_dev ? 1 : 0)) {
       VBDEBUG(("Error setting up TPM for recovery kernel\n"));
-      return LOAD_KERNEL_RECOVERY;
+      /* Ignore return code, since we need to boot recovery mode to
+       * fix the TPM. */
     }
   }
 
@@ -150,7 +149,7 @@ int LoadKernel(LoadKernelParams* params) {
       VBDEBUG(("Unable to get kernel versions from TPM\n"));
       return LOAD_KERNEL_RECOVERY;
     }
-  } else if (is_dev) {
+  } else if (is_dev && !is_rec) {
     /* In developer mode, we ignore the kernel subkey, and just use
      * the SHA-512 hash to verify the key block. */
     kernel_subkey = NULL;
@@ -205,14 +204,14 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* Check the key block flags against the current boot mode */
       if (!(key_block->key_block_flags &&
-            ((BOOT_FLAG_DEVELOPER & params->boot_flags) ?
-             KEY_BLOCK_FLAG_DEVELOPER_1 : KEY_BLOCK_FLAG_DEVELOPER_0))) {
+            (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
+             KEY_BLOCK_FLAG_DEVELOPER_0))) {
         VBDEBUG(("Developer flag mismatch.\n"));
         continue;
       }
       if (!(key_block->key_block_flags &&
-            ((BOOT_FLAG_RECOVERY & params->boot_flags) ?
-             KEY_BLOCK_FLAG_RECOVERY_1 : KEY_BLOCK_FLAG_RECOVERY_0))) {
+            (is_rec ? KEY_BLOCK_FLAG_RECOVERY_1 :
+             KEY_BLOCK_FLAG_RECOVERY_0))) {
         VBDEBUG(("Recovery flag mismatch.\n"));
         continue;
       }
@@ -374,10 +373,12 @@ int LoadKernel(LoadKernelParams* params) {
       }
     }
 
-    /* Lock the kernel versions, since we're about to boot the kernel */
+    /* Lock the kernel versions */
     if (0 != RollbackKernelLock()) {
       VBDEBUG(("Error locking kernel versions.\n"));
-      return LOAD_KERNEL_RECOVERY;
+      /* Don't reboot to recovery mode if we're already there */
+      if (!is_rec)
+        return LOAD_KERNEL_RECOVERY;
     }
 
     /* Success! */
