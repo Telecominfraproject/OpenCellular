@@ -78,6 +78,9 @@ int SHA512_tests(void) {
   return success;
 }
 
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
+
 int main(int argc, char* argv[]) {
   int success = 1;
   /* Initialize long_msg with 'a' x 1,000,000 */

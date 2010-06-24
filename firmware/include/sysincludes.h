@@ -26,12 +26,20 @@
 #include <memory.h>
 #endif
 
+#else
+#include "biosincludes.h"
+#endif
+
+#ifndef _MSC_VER
+#define __pragma(...)
+#endif
+
+#if defined (CHROMEOS_ENVIRONMENT) || defined (TARGET_TEST_MODE)
+
 /* 64-bit operations, for platforms where they need to be function calls */
 #define UINT64_RSHIFT(v, shiftby) (((uint64_t)(v)) >> (shiftby))
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
 
-#else
-#include "biosincludes.h"
 #endif
 
 #endif  /* VBOOT_REFERENCE_SYSINCLUDES_H_ */

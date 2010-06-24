@@ -12,9 +12,7 @@
 
 #include "sysincludes.h"
 
-#ifdef _MSC_VER
-#pragma pack(push,1) /* Support packing for MSVC. */
-#endif
+__pragma(pack(push,1)) /* Support packing for MSVC. */
 
 #define GPT_HEADER_SIGNATURE "EFI PART"
 #define GPT_HEADER_SIGNATURE_SIZE sizeof(GPT_HEADER_SIGNATURE)
@@ -117,8 +115,6 @@ typedef struct {
 
 #define GPTENTRY_EXPECTED_SIZE 128
 
-#ifdef _MSC_VER
-#pragma pack(pop) /* Support packing for MSVC. */
-#endif
+__pragma(pack(pop)) /* Support packing for MSVC. */
 
 #endif  /* VBOOT_REFERENCE_CGPTLIB_GPT_H_ */

@@ -17,6 +17,9 @@ uint16_t g_firmware_version = 0;
 uint16_t g_kernel_key_version = 0;
 uint16_t g_kernel_version = 0;
 
+/* disable MSVC warning on const logical expression (as in } while(0);) */
+__pragma(warning (disable: 4127))
+
 #define RETURN_ON_FAILURE(tpm_command) do {             \
     uint32_t result;                                    \
     if ((result = (tpm_command)) != TPM_SUCCESS) {      \
@@ -369,7 +372,8 @@ uint32_t LockKernelVersionsByLockingPP() {
   return TlclLockPhysicalPresence();
 }
 
-
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
 
 /* NEW APIS!  HELP ME LUIGI, YOU'RE MY ONLY HOPE! */
 

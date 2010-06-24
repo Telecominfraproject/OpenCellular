@@ -52,10 +52,10 @@ void Free(void* ptr);
 int Memcmp(const void* src1, const void* src2, size_t n);
 
 /* Copy [n] bytes from [src] to [dest]. */
-void* Memcpy(void* dest, const void* src, size_t n);
+void* Memcpy(void* dest, const void* src, uint64_t n);
 
 /* Set [n] bytes starting at [s] to [c]. */
-void* Memset(void *dest, const uint8_t c, size_t n);
+void* Memset(void *dest, const uint8_t c, uint64_t n);
 
 /* Compare [n] bytes starting at [s1] with [s2] and return 0 if they match,
  * 1 if they don't. Time taken to perform the comparison is only dependent on

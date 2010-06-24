@@ -6,6 +6,7 @@
 #define VBOOT_REFERENCE_CGPTLIB_TEST_H_
 
 #include <stdio.h>
+#include "sysincludes.h"
 
 enum {
   TEST_FAIL = -1,
@@ -13,14 +14,12 @@ enum {
 };
 
 #define TEST_CASE(func) #func, func
-typedef int (*test_func)(void);
+typedef int (*test_func)();
 
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
-/* ANSI Color coding sequences. */
-#define COL_GREEN "\e[1;32m"
-#define COL_RED "\e[0;31m"
-#define COL_STOP "\e[m"
+/* disable MSVC warning on const logical expression (as in } while(0);) */
+__pragma(warning (disable: 4127))
 
 #define EXPECT(expr) \
   do { \

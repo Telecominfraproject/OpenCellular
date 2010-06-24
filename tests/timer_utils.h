@@ -6,7 +6,10 @@
 #ifndef VBOOT_REFERENCE_TIMER_UTILS_H_
 #define VBOOT_REFERENCE_TIMER_UTILS_H_
 
+#ifndef _MSC_VER
 #include <inttypes.h>
+#endif
+
 #include <time.h>
 
 typedef struct ClockTimer {

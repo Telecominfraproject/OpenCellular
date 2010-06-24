@@ -31,24 +31,24 @@ static void VerifyHelperFunctions(void) {
 
   {
     uint8_t p[1];
-    TEST_EQ(OffsetOf(p, p), 0, "OffsetOf() equal");
-    TEST_EQ(OffsetOf(p, p+10), 10, "OffsetOf() positive");
-    TEST_EQ(OffsetOf(p, p+0x12345678), 0x12345678, "OffsetOf() large");
+    TEST_EQ((int)OffsetOf(p, p), 0, "OffsetOf() equal");
+    TEST_EQ((int)OffsetOf(p, p+10), 10, "OffsetOf() positive");
+    TEST_EQ((int)OffsetOf(p, p+0x12345678), 0x12345678, "OffsetOf() large");
   }
 
   {
     VbPublicKey k = {sizeof(k), 2, 3, 4};
-    TEST_EQ(OffsetOf(&k, GetPublicKeyData(&k)), sizeof(k),
+    TEST_EQ((int)OffsetOf(&k, GetPublicKeyData(&k)), sizeof(k),
             "GetPublicKeyData() adjacent");
-    TEST_EQ(OffsetOf(&k, GetPublicKeyDataC(&k)), sizeof(k),
+    TEST_EQ((int)OffsetOf(&k, GetPublicKeyDataC(&k)), sizeof(k),
             "GetPublicKeyDataC() adjacent");
   }
 
   {
     VbPublicKey k = {123, 2, 3, 4};
-    TEST_EQ(OffsetOf(&k, GetPublicKeyData(&k)), 123,
+    TEST_EQ((int)OffsetOf(&k, GetPublicKeyData(&k)), 123,
             "GetPublicKeyData() spaced");
-    TEST_EQ(OffsetOf(&k, GetPublicKeyDataC(&k)), 123,
+    TEST_EQ((int)OffsetOf(&k, GetPublicKeyDataC(&k)), 123,
             "GetPublicKeyDataC() spaced");
   }
 
@@ -64,7 +64,7 @@ static void VerifyHelperFunctions(void) {
             "MemberInside member too big");
     TEST_EQ(VerifyMemberInside(p, 20, p, 4, 21, 0), 1,
             "MemberInside data after parent");
-    TEST_EQ(VerifyMemberInside(p, 20, p, 4, -1, 0), 1,
+    TEST_EQ(VerifyMemberInside(p, 20, p, 4, (uint64_t)-1, 0), 1,
             "MemberInside data before parent");
     TEST_EQ(VerifyMemberInside(p, 20, p, 4, 4, 17), 1,
             "MemberInside data too big");
@@ -101,6 +101,8 @@ static void VerifyHelperFunctions(void) {
 
 }
 
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
 
 int main(int argc, char* argv[]) {
   int error_code = 0;

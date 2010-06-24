@@ -35,9 +35,13 @@ int GetFirmwareBody(LoadFirmwareParams* params, uint64_t index) {
     case 0:
       size = ci->firmwareA_size;
       fw = ci->firmwareA;
+      break;
+
     case 1:
       size = ci->firmwareB_size;
       fw = ci->firmwareB;
+      break;
+
     default:
       /* Anything else is invalid */
       return 1;
@@ -68,6 +72,7 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
   int rv;
 
   CallerInternal ci;
+  LoadFirmwareParams p;
 
   /* Copy the firmware volume pointers to our global variables. */
   ci.firmwareA = firmwareA;
@@ -78,7 +83,6 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
   ci.firmwareB_size = 0;
 
   /* Set up the params for LoadFirmware() */
-  LoadFirmwareParams p;
   p.caller_internal = &ci;
   p.firmware_root_key_blob = root_key_blob;
   p.verification_block_0 = verification_headerA;

@@ -108,6 +108,8 @@ int WriteAndFreeGptData(GptData* gptdata) {
   return 0;
 }
 
+/* disable MSVC warning on const logical expression (as in } while(0);) */
+__pragma(warning(disable: 4127))
 
 int LoadKernel(LoadKernelParams* params) {
 

@@ -31,13 +31,13 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
 
   VbKeyBlockHeader *hdr;
   VbKeyBlockHeader *h;
-  uint64_t hsize;
+  unsigned hsize;
 
   hdr = KeyBlockCreate(data_key, private_key, 0x1234);
   TEST_NEQ((size_t)hdr, 0, "KeyBlockVerify() prerequisites");
   if (!hdr)
     return;
-  hsize = hdr->key_block_size;
+  hsize = (unsigned) hdr->key_block_size;
   h = (VbKeyBlockHeader*)Malloc(hsize + 1024);
 
   TEST_EQ(KeyBlockVerify(hdr, hsize, NULL), 0,
@@ -149,7 +149,7 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
   VbFirmwarePreambleHeader *hdr;
   VbFirmwarePreambleHeader *h;
   RSAPublicKey* rsa;
-  uint64_t hsize;
+  unsigned hsize;
 
   /* Create a dummy signature */
   VbSignature *body_sig = SignatureAlloc(56, 78);
@@ -159,7 +159,7 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
   TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble2() prerequisites");
   if (!hdr)
     return;
-  hsize = hdr->preamble_size;
+  hsize = (unsigned) hdr->preamble_size;
   h = (VbFirmwarePreambleHeader*)Malloc(hsize + 16384);
 
   TEST_EQ(VerifyFirmwarePreamble2(hdr, hsize, rsa), 0,

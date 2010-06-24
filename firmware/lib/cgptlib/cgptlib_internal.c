@@ -115,7 +115,7 @@ int IsKernelEntry(const GptEntry* e) {
 }
 
 
-int CheckEntries(GptEntry* entries, GptHeader* h, uint64_t drive_sectors) {
+int CheckEntries(GptEntry* entries, GptHeader* h) {
 
   GptEntry* entry;
   uint32_t crc32;
@@ -227,17 +227,17 @@ int GptSanityCheck(GptData *gpt) {
    * Note that we use the same header in both checks.  This way we'll
    * catch the case where (header1,entries1) and (header2,entries2)
    * are both valid, but (entries1 != entries2). */
-  if (0 == CheckEntries(entries1, goodhdr, gpt->drive_sectors))
+  if (0 == CheckEntries(entries1, goodhdr))
     gpt->valid_entries |= MASK_PRIMARY;
-  if (0 == CheckEntries(entries2, goodhdr, gpt->drive_sectors))
+  if (0 == CheckEntries(entries2, goodhdr))
     gpt->valid_entries |= MASK_SECONDARY;
 
   /* If both headers are good but neither entries were good, check the
    * entries with the secondary header. */
   if (MASK_BOTH == gpt->valid_headers && !gpt->valid_entries) {
-    if (0 == CheckEntries(entries1, header2, gpt->drive_sectors))
+    if (0 == CheckEntries(entries1, header2))
       gpt->valid_entries |= MASK_PRIMARY;
-    if (0 == CheckEntries(entries2, header2, gpt->drive_sectors))
+    if (0 == CheckEntries(entries2, header2))
       gpt->valid_entries |= MASK_SECONDARY;
     if (gpt->valid_entries) {
       /* Sure enough, header2 had a good CRC for one of the entries.  Mark

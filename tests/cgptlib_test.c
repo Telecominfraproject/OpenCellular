@@ -11,6 +11,7 @@
 #include "crc32.h"
 #include "crc32_test.h"
 #include "gpt.h"
+#include "test_common.h"
 #include "utility.h"
 
 /* Testing partition layout (sector_bytes=512)
@@ -560,12 +561,12 @@ static int EntriesCrcTest() {
 
   /* Modify the first byte of primary entries, and expect the CRC is wrong. */
   BuildTestGptData(gpt);
-  EXPECT(0 == CheckEntries(e1, h1, gpt->drive_sectors));
-  EXPECT(0 == CheckEntries(e2, h1, gpt->drive_sectors));
+  EXPECT(0 == CheckEntries(e1, h1));
+  EXPECT(0 == CheckEntries(e2, h1));
   gpt->primary_entries[0] ^= 0xa5;  /* just XOR a non-zero value */
   gpt->secondary_entries[TOTAL_ENTRIES_SIZE-1] ^= 0x5a;
-  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
-  EXPECT(1 == CheckEntries(e2, h1, gpt->drive_sectors));
+  EXPECT(1 == CheckEntries(e1, h1));
+  EXPECT(1 == CheckEntries(e2, h1));
 
   return TEST_OK;
 }
@@ -586,26 +587,26 @@ static int ValidEntryTest() {
   BuildTestGptData(gpt);
   e1[0].starting_lba = h1->first_usable_lba - 1;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
+  EXPECT(1 == CheckEntries(e1, h1));
 
   /* error case: entry.EndingLBA > header.LastUsableLBA */
   BuildTestGptData(gpt);
   e1[2].ending_lba = h1->last_usable_lba + 1;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
+  EXPECT(1 == CheckEntries(e1, h1));
 
   /* error case: entry.StartingLBA > entry.EndingLBA */
   BuildTestGptData(gpt);
   e1[3].starting_lba = e1[3].ending_lba + 1;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckEntries(e1, h1, gpt->drive_sectors));
+  EXPECT(1 == CheckEntries(e1, h1));
 
   /* case: non active entry should be ignored. */
   BuildTestGptData(gpt);
   Memset(&e1[1].type, 0, sizeof(e1[1].type));
   e1[1].starting_lba = e1[1].ending_lba + 1;
   RefreshCrc32(gpt);
-  EXPECT(0 == CheckEntries(e1, h1, gpt->drive_sectors));
+  EXPECT(0 == CheckEntries(e1, h1));
 
   return TEST_OK;
 }
@@ -667,7 +668,7 @@ static int OverlappedPartitionTest() {
     }
     RefreshCrc32(gpt);
 
-    EXPECT(cases[i].overlapped == CheckEntries(e, h, gpt->drive_sectors));
+    EXPECT(cases[i].overlapped == CheckEntries(e, h));
   }
   return TEST_OK;
 }
@@ -823,39 +824,39 @@ static int EntryAttributeGetSetTest() {
   GptData* gpt = GetEmptyGptData();
   GptEntry* e = (GptEntry*)(gpt->primary_entries);
 
-  e->attrs.whole = 0x0000000000000000LLU;
+  e->attrs.whole = 0x0000000000000000ULL;
   SetEntrySuccessful(e, 1);
-  EXPECT(0x0100000000000000LLU == e->attrs.whole);
+  EXPECT(0x0100000000000000ULL == e->attrs.whole);
   EXPECT(1 == GetEntrySuccessful(e));
-  e->attrs.whole = 0xFFFFFFFFFFFFFFFFLLU;
+  e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
   SetEntrySuccessful(e, 0);
-  EXPECT(0xFEFFFFFFFFFFFFFFLLU == e->attrs.whole);
+  EXPECT(0xFEFFFFFFFFFFFFFFULL == e->attrs.whole);
   EXPECT(0 == GetEntrySuccessful(e));
 
-  e->attrs.whole = 0x0000000000000000LLU;
+  e->attrs.whole = 0x0000000000000000ULL;
   SetEntryTries(e, 15);
   EXPECT(15 == GetEntryTries(e));
-  EXPECT(0x00F0000000000000LLU == e->attrs.whole);
-  e->attrs.whole = 0xFFFFFFFFFFFFFFFFLLU;
+  EXPECT(0x00F0000000000000ULL == e->attrs.whole);
+  e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
   SetEntryTries(e, 0);
-  EXPECT(0xFF0FFFFFFFFFFFFFLLU == e->attrs.whole);
+  EXPECT(0xFF0FFFFFFFFFFFFFULL == e->attrs.whole);
   EXPECT(0 == GetEntryTries(e));
 
-  e->attrs.whole = 0x0000000000000000LLU;
+  e->attrs.whole = 0x0000000000000000ULL;
   SetEntryPriority(e, 15);
-  EXPECT(0x000F000000000000LLU == e->attrs.whole);
+  EXPECT(0x000F000000000000ULL == e->attrs.whole);
   EXPECT(15 == GetEntryPriority(e));
-  e->attrs.whole = 0xFFFFFFFFFFFFFFFFLLU;
+  e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
   SetEntryPriority(e, 0);
-  EXPECT(0xFFF0FFFFFFFFFFFFLLU == e->attrs.whole);
+  EXPECT(0xFFF0FFFFFFFFFFFFULL == e->attrs.whole);
   EXPECT(0 == GetEntryPriority(e));
 
-  e->attrs.whole = 0xFFFFFFFFFFFFFFFFLLU;
+  e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
   EXPECT(1 == GetEntrySuccessful(e));
   EXPECT(15 == GetEntryPriority(e));
   EXPECT(15 == GetEntryTries(e));
 
-  e->attrs.whole = 0x0123000000000000LLU;
+  e->attrs.whole = 0x0123000000000000ULL;
   EXPECT(1 == GetEntrySuccessful(e));
   EXPECT(2 == GetEntryTries(e));
   EXPECT(3 == GetEntryPriority(e));
@@ -1091,6 +1092,8 @@ static int UpdateInvalidKernelTypeTest() {
   return TEST_OK;
 }
 
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
 
 int main(int argc, char *argv[]) {
   int i;

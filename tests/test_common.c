@@ -13,11 +13,6 @@
 #include "file_keys.h"
 #include "utility.h"
 
-/* ANSI Color coding sequences. */
-#define COL_GREEN "\e[1;32m"
-#define COL_RED "\e[0;31m"
-#define COL_STOP "\e[m"
-
 /* Global test success flag. */
 int gTestSuccess = 1;
 

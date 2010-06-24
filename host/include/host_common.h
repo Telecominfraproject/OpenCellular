@@ -8,8 +8,6 @@
 #ifndef VBOOT_REFERENCE_HOST_COMMON_H_
 #define VBOOT_REFERENCE_HOST_COMMON_H_
 
-#include <stdint.h>
-
 #include "cryptolib.h"
 #include "host_key.h"
 #include "host_keyblock.h"

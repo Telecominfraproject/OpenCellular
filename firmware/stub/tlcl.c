@@ -7,6 +7,9 @@
 
 #include "tss_constants.h"
 
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
+
 void TlclLibInit(void) { return; }
 uint32_t TlclStartup(void) { return TPM_SUCCESS; }
 uint32_t TlclSelftestfull(void) { return TPM_SUCCESS; }

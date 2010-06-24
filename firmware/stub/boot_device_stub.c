@@ -7,6 +7,9 @@
 
 #include "boot_device.h"
 
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
+
 int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
   return 1;
 }

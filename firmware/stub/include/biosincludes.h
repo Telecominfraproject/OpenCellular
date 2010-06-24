@@ -11,4 +11,24 @@
  * CHROMEOS_ENVIRONMENT is not defined at compilation time.
  */
 
+#ifdef TARGET_TEST_MODE
+
+typedef unsigned long long uint64_t;
+typedef long long int64_t;
+typedef unsigned int uint32_t;
+typedef unsigned short uint16_t;
+typedef unsigned char uint8_t;
+typedef unsigned size_t;
+
+#ifndef NULL
+#define NULL ((void*) 0)
+#endif
+
+#define UINT64_C(x) ((uint64_t)x)
+#define __attribute__(x)
+#define PRIu64 "%ll"
+extern void debug(const char *format, ...);
+
+#endif
+
 #endif /*CHROMEOS_SRC_PLATFORM_VBOOT_REFERENCE_FIRMWARE_STUB_BIOSINCLUDES_H_*/

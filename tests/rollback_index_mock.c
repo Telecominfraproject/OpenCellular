@@ -8,13 +8,15 @@
 #include "rollback_index.h"
 #include "tss_constants.h"
 
-#include <stdint.h>
 #include <stdio.h>
 
 uint16_t g_firmware_key_version = 0;
 uint16_t g_firmware_version = 0;
 uint16_t g_kernel_key_version = 0;
 uint16_t g_kernel_version = 0;
+
+/* disable MSVC warnings on unused arguments */
+__pragma(warning (disable: 4100))
 
 uint32_t SetupTPM(int mode, int developer_flag) {
 #ifndef NDEBUG

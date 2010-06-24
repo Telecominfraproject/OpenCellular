@@ -20,12 +20,6 @@
 #include "utility.h"
 #include "vboot_kernel.h"
 
-/* ANSI Color coding sequences. */
-#define COL_GREEN "\e[1;32m"
-#define COL_RED "\e[0;31m"
-#define COL_STOP "\e[m"
-
-
 #define LBA_BYTES 512
 #define KERNEL_BUFFER_SIZE 0x600000
 

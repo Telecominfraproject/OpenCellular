@@ -34,7 +34,8 @@ static void VerifyPublicKeyToRSA(const VbPublicKey* orig_key) {
   rsa = PublicKeyToRSA(orig_key);
   TEST_NEQ((size_t)rsa, 0, "PublicKeyToRSA() ok");
   if (rsa) {
-    TEST_EQ(rsa->algorithm, key->algorithm, "PublicKeyToRSA() algorithm");
+    TEST_EQ((int)rsa->algorithm, (int)key->algorithm,
+            "PublicKeyToRSA() algorithm");
     RSAPublicKeyFree(rsa);
   }
 }
@@ -77,7 +78,7 @@ static void VerifyDigestTest(const VbPublicKey* public_key,
 
   sig = CalculateSignature(test_data, sizeof(test_data), private_key);
   rsa = PublicKeyToRSA(public_key);
-  digest = DigestBuf(test_data, sizeof(test_data), public_key->algorithm);
+  digest = DigestBuf(test_data, sizeof(test_data), (int)public_key->algorithm);
   TEST_NEQ(sig && rsa && digest, 0, "VerifyData() prerequisites");
   if (!sig || !rsa || !digest)
     return;
@@ -109,7 +110,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
   VbKernelPreambleHeader *hdr;
   VbKernelPreambleHeader *h;
   RSAPublicKey* rsa;
-  uint64_t hsize;
+  unsigned hsize;
 
   /* Create a dummy signature */
   VbSignature *body_sig = SignatureAlloc(56, 78);
@@ -120,7 +121,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
   TEST_NEQ(hdr && rsa, 0, "VerifyKernelPreamble2() prerequisites");
   if (!hdr)
     return;
-  hsize = hdr->preamble_size;
+  hsize = (unsigned) hdr->preamble_size;
   h = (VbKernelPreambleHeader*)Malloc(hsize + 16384);
 
   TEST_EQ(VerifyKernelPreamble2(hdr, hsize, rsa), 0,

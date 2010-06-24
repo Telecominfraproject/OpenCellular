@@ -83,7 +83,7 @@ uint32_t HeaderCrc(GptHeader* h);
 /* Check entries.
  *
  * Returns 0 if entries are valid, 1 if invalid. */
-int CheckEntries(GptEntry* entries, GptHeader* h, uint64_t drive_sectors);
+int CheckEntries(GptEntry* entries, GptHeader* h);
 
 /* Check GptData, headers, entries.
  *
