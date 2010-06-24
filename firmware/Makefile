@@ -39,11 +39,21 @@ STUB_SRCS = \
 	./stub/tlcl.c \
 	./stub/utility_stub.c
 
-ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS}
+ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS} version.c
 
-test : $(FWLIB)
+test : $(FWLIB) update-version
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out \
 		$(TESTDIR)/main.c $(FWLIB)
+
+# This is executed at every make, to see if anything has changed
+update-version :
+	find \( -name '*.[ch]' -o -name 'Makefile*' \) -a \! -name version.c \
+		| sort | xargs cat | md5sum | cut -c 25-32 > x.tmp
+	echo "char* VbootVersion = \"VBOOv=$$(cat x.tmp)\";" > version.tmp
+	cmp -s version.tmp version.c || \
+		( echo "** Updating version.c **" && \
+		  cp version.tmp version.c )
+
 
 include ../common.mk
 
