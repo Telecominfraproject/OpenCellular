@@ -45,10 +45,13 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   /* Clear output params in case we fail */
   params->firmware_index = 0;
-  params->kernel_sign_key_blob = NULL;
-  params->kernel_sign_key_size = 0;
 
   debug("LoadFirmware started...\n");
+
+  if (params->kernel_sign_key_size < sizeof(VbPublicKey)) {
+    debug("Kernel sign key buffer too small\n");
+    return LOAD_FIRMWARE_RECOVERY;
+  }
 
   /* Must have a root key */
   if (!root_key) {
