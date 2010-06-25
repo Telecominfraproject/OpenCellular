@@ -48,12 +48,13 @@ test : $(FWLIB) update-version
 # This is executed at every make, to see if anything has changed
 update-version :
 	find \( -name '*.[ch]' -o -name 'Makefile*' \) -a \! -name version.c \
-		| sort | xargs cat | md5sum | cut -c 25-32 > x.tmp
-	echo "char* VbootVersion = \"VBOOv=$$(cat x.tmp)\";" > version.tmp
-	cmp -s version.tmp version.c || \
-		( echo "** Updating version.c **" && \
-		  cp version.tmp version.c )
-
+		| sort | xargs cat | md5sum | cut -c 25-32 > \
+	${BUILD_ROOT}/x.tmp && \
+	echo "char* VbootVersion = \"VBOOv=$$(cat ${BUILD_ROOT}/x.tmp)\";" > \
+		${BUILD_ROOT}\version.tmp && \
+	(cmp -s ${BUILD_ROOT}\version.tmp version.c || \
+		( echo "** Updating version.c **" &&  \
+		  cp ${BUILD_ROOT}\version.tmp version.c))
 
 include ../common.mk
 
