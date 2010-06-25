@@ -16,6 +16,7 @@ BUILD_ROOT = ${BUILD}/utility
 DESTDIR ?= /usr/bin
 
 TARGET_NAMES = dumpRSAPublicKey \
+		dump_kernel_config \
 		gbb_utility \
 		load_kernel_test \
 		signature_digest_utility \
@@ -32,6 +33,9 @@ all: $(TARGET_BINS)
 
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
+
+${BUILD_ROOT}/dump_kernel_config: dump_kernel_config.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
