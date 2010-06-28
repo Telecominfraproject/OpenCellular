@@ -60,10 +60,12 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Initialize the TPM and read rollback indices. */
-  if (0 != RollbackFirmwareSetup(
-          (params->boot_flags & BOOT_FLAG_DEVELOPER ? 1 : 0),
-          &tpm_key_version, &tpm_fw_version)) {
-    VBDEBUG(("Unable to get stored versions.\n"));
+  if (0 != RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER)) {
+    VBDEBUG(("Unable to setup TPM.\n"));
+    return LOAD_FIRMWARE_RECOVERY;
+  }
+  if (0 != RollbackFirmwareRead(&tpm_key_version, &tpm_fw_version)) {
+    VBDEBUG(("Unable to read stored versions.\n"));
     return LOAD_FIRMWARE_RECOVERY;
   }
 

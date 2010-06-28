@@ -11,13 +11,6 @@
 
 #include "sysincludes.h"
 
-/* TODO: global variables won't work in the boot stub, since it runs
-   directly out of ROM. */
-extern uint16_t g_firmware_key_version;
-extern uint16_t g_firmware_version;
-extern uint16_t g_kernel_key_version;
-extern uint16_t g_kernel_version;
-
 /* Rollback version types. */
 #define FIRMWARE_VERSIONS 0
 #define KERNEL_VERSIONS   1
@@ -43,7 +36,6 @@ extern uint16_t g_kernel_version;
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
-
 /*
 
 Call from LoadFirmware()
@@ -51,7 +43,8 @@ Call from LoadFirmware()
   Wants firmware versions
   Must send in developer flag
 
-  RollbackFirmwareSetup(IN devmode, OUT firmware versions)
+  RollbackFirmwareSetup(IN devmode)
+  (maybe) RollbackFirmwareRead()
   (maybe) RollbackFirmwareWrite()
   RollbackFirmwareLock()
 
@@ -73,48 +66,33 @@ Call from LoadKernel()
 
 /* These functions are callable from LoadFirmware().  They cannot use
  * global variables. */
+
 /* Setup must be called.  Pass developer_mode=nonzero if in developer
  * mode. */
-uint32_t RollbackFirmwareSetup(int developer_mode,
-                               uint16_t* key_version, uint16_t* version);
+uint32_t RollbackFirmwareSetup(int developer_mode);
+/* Read and Write may be called after Setup. */
+uint32_t RollbackFirmwareRead(uint16_t* key_version, uint16_t* version);
 /* Write may be called if the versions change */
 uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version);
+
 /* Lock must be called */
 uint32_t RollbackFirmwareLock(void);
 
 /* These functions are callable from LoadKernel().  They may use global
  * variables. */
+
 /* Recovery may be called.  If it is, this is the first time a
  * rollback function has been called this boot, so it needs to know if
  * we're in developer mode.  Pass developer_mode=nonzero if in developer
  * mode. */
 uint32_t RollbackKernelRecovery(int developer_mode);
+
 /* Read and write may be called if not in developer mode.  If called in
- * recovery mode, these are ignored and/or return 0 versions. */
+ * recovery mode, the effect is undefined. */
 uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version);
 uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version);
+
 /* Lock must be called.  Internally, it's ignored in recovery mode. */
 uint32_t RollbackKernelLock(void);
-
-
-/* SetupTPM is called on boot and on starting the RW firmware, passing the
- * appripriate MODE and DEVELOPER_FLAG parameters.  MODE can be one of
- * RO_RECOVERY_MODE, RO_NORMAL_MODE, RW_NORMAL_MODE.  DEVELOPER_FLAG is 1 when
- * the developer switch is ON, 0 otherwise.
- *
- * If SetupTPM returns TPM_SUCCESS, the caller may proceed.  If it returns
- * TPM_E_MUST_REBOOT, the caller must reboot in the current mode.  For all
- * other return values, the caller must reboot in recovery mode.
- *
- * This function has many side effects on the TPM state.  In particular, when
- * called with mode = RECOVERY_MODE, it locks the firmware versions before
- * returning.  In all other cases, the caller is responsible for locking the
- * firmware versions once it decides it doesn't need to update them.
- */
-uint32_t SetupTPM(int mode, int developer_flag);
-uint32_t GetStoredVersions(int type, uint16_t* key_version, uint16_t* version);
-uint32_t WriteStoredVersions(int type, uint16_t key_version, uint16_t version);
-uint32_t LockFirmwareVersions(void);
-uint32_t LockKernelVersionsByLockingPP(void);
 
 #endif  /* VBOOT_REFERENCE_ROLLBACK_INDEX_H_ */

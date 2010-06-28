@@ -12,10 +12,7 @@
 #include "tss_constants.h"
 #include "utility.h"
 
-uint16_t g_firmware_key_version = 0;
-uint16_t g_firmware_version = 0;
-uint16_t g_kernel_key_version = 0;
-uint16_t g_kernel_version = 0;
+static int g_rollback_recovery_mode = 0;
 
 /* disable MSVC warning on const logical expression (as in } while(0);) */
 __pragma(warning (disable: 4127))
@@ -133,34 +130,6 @@ static uint32_t SetDistrustKernelSpaceAtNextBoot(uint32_t distrust) {
   return TPM_SUCCESS;
 }
 
-static uint32_t GetTPMRollbackIndices(int type) {
-  uint32_t firmware_versions;
-  uint32_t kernel_versions;
-
-  /* We perform the reads, making sure they succeed. A failure means that the
-   * rollback index locations are missing or somehow messed up.  We let the
-   * caller deal with that.
-   */
-  switch (type) {
-  case FIRMWARE_VERSIONS:
-    RETURN_ON_FAILURE(TlclRead(FIRMWARE_VERSIONS_NV_INDEX,
-                               (uint8_t*) &firmware_versions,
-                               sizeof(firmware_versions)));
-    g_firmware_key_version = (uint16_t) (firmware_versions >> 16);
-    g_firmware_version = (uint16_t) (firmware_versions & 0xffff);
-    break;
-  case KERNEL_VERSIONS:
-    RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_NV_INDEX,
-                               (uint8_t*) &kernel_versions,
-                               sizeof(kernel_versions)));
-    g_kernel_key_version = (uint16_t) (kernel_versions >> 16);
-    g_kernel_version = (uint16_t) (kernel_versions & 0xffff);
-    break;
-  }
-
-  return TPM_SUCCESS;
-}
-
 /* Checks if the kernel version space has been mucked with.  If it has,
  * reconstructs it using the backup value.
  */
@@ -244,9 +213,30 @@ static uint32_t CheckDeveloperModeTransition(uint32_t current_developer) {
   return TPM_SUCCESS;
 }
 
-static uint32_t SetupTPM_(int mode, int developer_flag) {
+/* SetupTPM starts the TPM and establishes the root of trust for the
+ * anti-rollback mechanism.  SetupTPM can fail for three reasons.  1 A bug. 2 a
+ * TPM hardware failure. 3 An unexpected TPM state due to some attack.  In
+ * general we cannot easily distinguish the kind of failure, so our strategy is
+ * to reboot in recovery mode in all cases.  The recovery mode calls SetupTPM
+ * again, which executes (almost) the same sequence of operations.  There is a
+ * good chance that, if recovery mode was entered because of a TPM failure, the
+ * failure will repeat itself.  (In general this is impossible to guarantee
+ * because we have no way of creating the exact TPM initial state at the
+ * previous boot.)  In recovery mode, we ignore the failure and continue, thus
+ * giving the recovery kernel a chance to fix things (that's why we don't set
+ * bGlobalLock).  The choice is between a knowingly insecure device and a
+ * bricked device.
+ *
+ * As a side note, observe that we go through considerable hoops to avoid using
+ * the STCLEAR permissions for the index spaces.  We do this to avoid writing
+ * to the TPM flashram at every reboot or wake-up, because of concerns about
+ * the durability of the NVRAM.
+ */
+static uint32_t SetupTPM(int recovery_mode,
+                         int developer_mode) {
   uint8_t disable;
   uint8_t deactivated;
+
   TlclLibInit();
   RETURN_ON_FAILURE(TlclStartup());
   RETURN_ON_FAILURE(TlclContinueSelfTest());
@@ -272,136 +262,83 @@ static uint32_t SetupTPM_(int mode, int developer_flag) {
     }
   }
   RETURN_ON_FAILURE(BackupKernelSpace());
-  RETURN_ON_FAILURE(SetDistrustKernelSpaceAtNextBoot(mode == RO_RECOVERY_MODE));
-  RETURN_ON_FAILURE(GetTPMRollbackIndices(FIRMWARE_VERSIONS));
-  RETURN_ON_FAILURE(GetTPMRollbackIndices(KERNEL_VERSIONS));
+  RETURN_ON_FAILURE(SetDistrustKernelSpaceAtNextBoot(recovery_mode));
+  RETURN_ON_FAILURE(CheckDeveloperModeTransition(developer_mode));
 
-  RETURN_ON_FAILURE(CheckDeveloperModeTransition(developer_flag));
-
-  /* As a courtesy (I hope) to the caller, lock the firmware versions if we are
-   * in recovery mode.  The normal mode may need to update the firmware
-   * versions, so they cannot be locked here.
-   */
-  if (mode == RO_RECOVERY_MODE) {
-    RETURN_ON_FAILURE(LockFirmwareVersions());
+  if (recovery_mode) {
+    /* In recovery mode global variables are usable. */
+    g_rollback_recovery_mode = 1;
   }
   return TPM_SUCCESS;
-}
-
-/* SetupTPM starts the TPM and establishes the root of trust for the
- * anti-rollback mechanism.  SetupTPM can fail for three reasons.  1 A bug. 2 a
- * TPM hardware failure. 3 An unexpected TPM state due to some attack.  In
- * general we cannot easily distinguish the kind of failure, so our strategy is
- * to reboot in recovery mode in all cases.  The recovery mode calls SetupTPM
- * again, which executes (almost) the same sequence of operations.  There is a
- * good chance that, if recovery mode was entered because of a TPM failure, the
- * failure will repeat itself.  (In general this is impossible to guarantee
- * because we have no way of creating the exact TPM initial state at the
- * previous boot.)  In recovery mode, we ignore the failure and continue, thus
- * giving the recovery kernel a chance to fix things (that's why we don't set
- * bGlobalLock).  The choice is between a knowingly insecure device and a
- * bricked device.
- *
- * As a side note, observe that we go through considerable hoops to avoid using
- * the STCLEAR permissions for the index spaces.  We do this to avoid writing
- * to the TPM flashram at every reboot or wake-up, because of concerns about
- * the durability of the NVRAM.
- */
-uint32_t SetupTPM(int mode, int developer_flag) {
-  switch (mode) {
-  case RO_RECOVERY_MODE:
-  case RO_NORMAL_MODE: {
-    uint32_t result = SetupTPM_(mode, developer_flag);
-    if (mode == RO_NORMAL_MODE) {
-      return result;
-    } else {
-      /* In recovery mode we want to keep going even if there are errors. */
-      return TPM_SUCCESS;
-    }
-  }
-  case RW_NORMAL_MODE:
-    RETURN_ON_FAILURE(GetTPMRollbackIndices(KERNEL_VERSIONS));
-  default:
-    return TPM_E_INTERNAL_INCONSISTENCY;
-  }
-}
-
-uint32_t GetStoredVersions(int type, uint16_t* key_version, uint16_t* version) {
-  /* TODO: should verify that SetupTPM() has been called.
-   *
-   * Note that SetupTPM() does hardware setup AND sets global variables.  When
-   * we get down into kernel verification, the hardware setup persists, but we
-   * lose the global variables.
-   */
-  switch (type) {
-    case FIRMWARE_VERSIONS:
-      *key_version = g_firmware_key_version;
-      *version = g_firmware_version;
-      break;
-    case KERNEL_VERSIONS:
-      *key_version = g_kernel_key_version;
-      *version = g_kernel_version;
-      break;
-  }
-
-  return TPM_SUCCESS;
-}
-
-uint32_t WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
-  uint32_t combined_version = (key_version << 16) & version;
-  switch (type) {
-    case FIRMWARE_VERSIONS:
-      RETURN_ON_FAILURE(SafeWrite(FIRMWARE_VERSIONS_NV_INDEX,
-                                  (uint8_t*) &combined_version,
-                                  sizeof(uint32_t)));
-      break;
-
-    case KERNEL_VERSIONS:
-      RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
-                                  (uint8_t*) &combined_version,
-                                  sizeof(uint32_t)));
-  }
-  return TPM_SUCCESS;
-}
-
-uint32_t LockFirmwareVersions() {
-  return TlclSetGlobalLock();
-}
-
-uint32_t LockKernelVersionsByLockingPP() {
-  return TlclLockPhysicalPresence();
 }
 
 /* disable MSVC warnings on unused arguments */
 __pragma(warning (disable: 4100))
 
-/* NEW APIS!  HELP ME LUIGI, YOU'RE MY ONLY HOPE! */
+uint32_t RollbackFirmwareSetup(int developer_mode) {
+  return SetupTPM(0, developer_mode);
+}
 
-uint32_t RollbackFirmwareSetup(int developer_mode,
-                               uint16_t* key_version, uint16_t* version) {
+uint32_t RollbackFirmwareRead(uint16_t* key_version, uint16_t* version) {
+  uint32_t firmware_versions;
+  /* Gets firmware versions. */
+  RETURN_ON_FAILURE(TlclRead(FIRMWARE_VERSIONS_NV_INDEX,
+                             (uint8_t*) &firmware_versions,
+                             sizeof(firmware_versions)));
+  *key_version = (uint16_t) (firmware_versions >> 16);
+  *version = (uint16_t) (firmware_versions & 0xffff);
   return TPM_SUCCESS;
 }
 
 uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version) {
-  return TPM_SUCCESS;
+  uint32_t combined_version = (key_version << 16) & version;
+  return SafeWrite(FIRMWARE_VERSIONS_NV_INDEX,
+                   (uint8_t*) &combined_version,
+                   sizeof(uint32_t));
 }
 
 uint32_t RollbackFirmwareLock(void) {
-  return TPM_SUCCESS;
+  return TlclSetGlobalLock();
 }
 
 uint32_t RollbackKernelRecovery(int developer_mode) {
+  uint32_t result = SetupTPM(1, developer_mode);
+  if (result == TPM_SUCCESS) {
+    RETURN_ON_FAILURE(TlclSetGlobalLock());
+  }
   return TPM_SUCCESS;
 }
 
 uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version) {
+  uint32_t kernel_versions;
+  if (g_rollback_recovery_mode) {
+    *key_version = 0;
+    *version = 0;
+  } else {
+    /* Reads kernel versions from TPM. */
+    RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_NV_INDEX,
+                               (uint8_t*) &kernel_versions,
+                               sizeof(kernel_versions)));
+    *key_version = (uint16_t) (kernel_versions >> 16);
+    *version = (uint16_t) (kernel_versions & 0xffff);
+  }
   return TPM_SUCCESS;
 }
 
 uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version) {
+  if (!g_rollback_recovery_mode) {
+    uint32_t combined_version = (key_version << 16) & version;
+    return SafeWrite(KERNEL_VERSIONS_NV_INDEX,
+                     (uint8_t*) &combined_version,
+                     sizeof(uint32_t));
+  }
   return TPM_SUCCESS;
 }
 
 uint32_t RollbackKernelLock(void) {
-  return TPM_SUCCESS;
+  if (!g_rollback_recovery_mode) {
+    return TlclLockPhysicalPresence();
+  } else {
+    return TPM_SUCCESS;
+  }
 }
