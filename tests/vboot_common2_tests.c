@@ -69,7 +69,7 @@ static void VerifyDataTest(const VbPublicKey* public_key,
 
 
 static void VerifyDigestTest(const VbPublicKey* public_key,
-                           const VbPrivateKey* private_key) {
+                             const VbPrivateKey* private_key) {
 
   const uint8_t test_data[] = "This is some other test data to sign.";
   VbSignature* sig;
