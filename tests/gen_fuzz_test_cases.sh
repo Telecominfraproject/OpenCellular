@@ -11,50 +11,72 @@
 
 # Use a different directory for fuzzing test cases.
 TESTCASE_DIR=${SCRIPT_DIR}/fuzz_testcases
-TEST_FILE=${TESTCASE_DIR}/testfile
-TEST_FILE_SIZE=500000
+TEST_IMAGE_FILE=${TESTCASE_DIR}/testimage
+TEST_IMAGE_SIZE=500000
+TEST_BOOTLOADER_FILE=${TESTCASE_DIR}/testbootloader
+TEST_BOOTLOADER_SIZE=50000
+TEST_CONFIG_FILE=${TESTCASE_DIR}/testconfig
+# Config size must < 4096
+TEST_CONFIG_SIZE=3000
 
-# Generate public key signatures and digest on an input file for 
-# various combinations of message digest algorithms and RSA key sizes.
 function generate_fuzzing_images {
+  echo "Generating key blocks..."
+  # Firmware key block - RSA8192/SHA512 root key, RSA4096/SHA512 firmware
+  # signing key.
+  ${UTIL_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/firmware.keyblock \
+    --datapubkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
+    --signprivate ${TESTKEY_DIR}/key_rsa8192.pem \
+    --algorithm 11
+
+  # Kernel key block - RSA4096/SHA512 kernel signing subkey, RSA4096/SHA512
+  # kernel signing key.
+  ${UTIL_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/kernel.keyblock \
+    --datapubkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
+    --signprivate ${TESTKEY_DIR}/key_rsa4096.pem \
+    --flags 15 \
+    --algorithm 8
+  
   echo "Generating signed firmware test image..."
-  # Generate a test verified boot firmware image and copy root public key.
-  ${UTIL_DIR}/firmware_utility --generate \
-    --in  $1 \
-    --root_key ${TESTKEY_DIR}/key_rsa8192.pem \
-    --firmware_sign_key ${TESTKEY_DIR}/key_rsa4096.pem \
-    --firmware_sign_key_pub ${TESTKEY_DIR}/key_rsa4096.keyb \
-    --firmware_sign_algorithm 8 \
-    --firmware_key_version 1 \
-    --firmware_version 1 \
-    --out ${TESTCASE_DIR}/firmware.signed
-  cp ${TESTKEY_DIR}/key_rsa8192.keyb ${TESTCASE_DIR}/root_key.keyb
+  ${UTIL_DIR}/vbutil_firmware \
+    --vblock ${TESTCASE_DIR}/firmware.vblock \
+    --keyblock ${TESTCASE_DIR}/firmware.keyblock\
+    --signprivate ${TESTKEY_DIR}/key_rsa4096.pem \
+    --version 1 \
+    --fv  $1 \
+    --kernelkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk
+  # TODO(gauravsh): ALso test with (optional) flags.
+  cp ${TESTKEY_DIR}/key_rsa8192.sha512.vbpubk ${TESTCASE_DIR}/root_key.vbpubk
 
   echo "Generating signed kernel test image..."
-  # Generate a test verified boot kernel image and copy firmware public key.
-  ${UTIL_DIR}/kernel_utility --generate \
-    --firmware_key ${TESTKEY_DIR}/key_rsa4096.pem \
-    --kernel_key ${TESTKEY_DIR}/key_rsa1024.pem \
-    --kernel_key_pub ${TESTKEY_DIR}/key_rsa1024.keyb \
-    --firmware_sign_algorithm 8 \
-    --kernel_sign_algorithm 2 \
-    --kernel_key_version 1 \
-    --kernel_version 1 \
-    --vmlinuz /dev/null \
-    --config /dev/null \
-    --bootloader ${TEST_FILE} \
-    --out ${TESTCASE_DIR}/kernel.signed 
-  cp ${TESTKEY_DIR}/key_rsa4096.keyb ${TESTCASE_DIR}/firmware_key.keyb
+  ${UTIL_DIR}/vbutil_kernel \
+    --pack ${TESTCASE_DIR}/kernel.vblock.image \
+    --keyblock ${TESTCASE_DIR}/kernel.keyblock \
+    --signprivate ${TESTKEY_DIR}/key_rsa4096.pem \
+    --version 1 \
+    --vmlinuz ${TEST_IMAGE_FILE} \
+    --bootloader ${TEST_BOOTLOADER_FILE} \
+    --config ${TEST_CONFIG_FILE}
+  # TODO(gauravsh): Also test with (optional) padding.
+  cp ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
+    ${TESTCASE_DIR}/firmware_key.vbpubk
 }
 
 function pre_work {
   # Generate a file to serve as random bytes for firmware/kernel contents.
   # NOTE: The kernel and config file can't really be random, but the bootloader
   # can. That's probably close enough.
-  echo "Generating test file..."
-  dd if=/dev/urandom of=${TEST_FILE} bs=${TEST_FILE_SIZE} count=1
+  echo "Generating test image file..."
+  dd if=/dev/urandom of=${TEST_IMAGE_FILE} bs=${TEST_IMAGE_SIZE} count=1
+  echo "Generating test bootloader file..."
+  # TODO(gauravsh): Use a valid bootloader here?
+  dd if=/dev/urandom of=${TEST_BOOTLOADER_FILE} bs=${TEST_BOOTLOADER_SIZE} \
+    count=1
+  echo "Generating test config file..."
+  # TODO(gauravsh): Use a valid config file here?
+  dd if=/dev/urandom of=${TEST_CONFIG_FILE} bs=${TEST_CONFIG_SIZE} count=1
 }
+
 mkdir -p ${TESTCASE_DIR}
 pre_work
 check_test_keys
-generate_fuzzing_images ${TEST_FILE}
+generate_fuzzing_images ${TEST_IMAGE_FILE}
