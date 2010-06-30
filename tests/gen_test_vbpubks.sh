@@ -25,11 +25,5 @@ function generate_vpubks {
   done
 }
 
-
-if [ ! -d ${TESTKEY_DIR} ]; then
-  echo "Test Key Directory does not exist!"
-  echo "You must run gen_test_keys.sh first."
-  exit 1
-fi
-
+check_test_keys
 generate_vpubks
