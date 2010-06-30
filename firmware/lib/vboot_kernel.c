@@ -126,8 +126,8 @@ int LoadKernel(LoadKernelParams* params) {
   uint16_t tpm_kernel_version = 0;
   uint64_t lowest_key_version = 0xFFFF;
   uint64_t lowest_kernel_version = 0xFFFF;
-  int is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags);
-  int is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags);
+  int is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
+  int is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
   int is_normal = (!is_dev && !is_rec);
 
   /* Clear output params in case we fail */
@@ -205,13 +205,13 @@ int LoadKernel(LoadKernelParams* params) {
       }
 
       /* Check the key block flags against the current boot mode */
-      if (!(key_block->key_block_flags &&
+      if (!(key_block->key_block_flags &
             (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
              KEY_BLOCK_FLAG_DEVELOPER_0))) {
         VBDEBUG(("Developer flag mismatch.\n"));
         continue;
       }
-      if (!(key_block->key_block_flags &&
+      if (!(key_block->key_block_flags &
             (is_rec ? KEY_BLOCK_FLAG_RECOVERY_1 :
              KEY_BLOCK_FLAG_RECOVERY_0))) {
         VBDEBUG(("Recovery flag mismatch.\n"));
