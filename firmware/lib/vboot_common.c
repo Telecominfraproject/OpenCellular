@@ -195,11 +195,16 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       VBDEBUG(("Invalid public key\n"));
       return VBOOT_PUBLIC_KEY_INVALID;
     }
+
+    /* Make sure advertised signature data sizes are sane. */
+    if (block->key_block_size < sig->data_size) {
+      VBDEBUG(("Signature calculated past end of the block\n"));
+      return VBOOT_KEY_BLOCK_INVALID;
+    }
     rv = VerifyData((const uint8_t*)block, sig, rsa);
     RSAPublicKeyFree(rsa);
     if (rv)
       return VBOOT_KEY_BLOCK_SIGNATURE;
-
   } else {
     /* Check hash */
     uint8_t* header_checksum = NULL;
@@ -269,6 +274,13 @@ int VerifyFirmwarePreamble2(const VbFirmwarePreambleHeader* preamble,
     VBDEBUG(("Preamble signature off end of preamble\n"));
     return VBOOT_PREAMBLE_INVALID;
   }
+
+  /* Make sure advertised signature data sizes are sane. */
+  if (preamble->preamble_size < sig->data_size) {
+    VBDEBUG(("Signature calculated past end of the block\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+
   if (VerifyData((const uint8_t*)preamble, sig, key)) {
     VBDEBUG(("Preamble signature validation failed\n"));
     return VBOOT_PREAMBLE_SIGNATURE;
