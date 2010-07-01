@@ -22,9 +22,9 @@ typedef struct VbPrivateKey {
 } VbPrivateKey;
 
 
-/* Read a private key from a file.  Caller owns the returned pointer,
+/* Read a private key from a .pem file.  Caller owns the returned pointer,
  * and must free it with PrivateKeyFree(). */
-VbPrivateKey* PrivateKeyRead(const char* filename, uint64_t algorithm);
+VbPrivateKey* PrivateKeyReadPem(const char* filename, uint64_t algorithm);
 
 
 /* Free a private key. */

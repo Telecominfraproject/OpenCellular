@@ -7,7 +7,7 @@
 int main(void)
 {
   /* host_key.h */
-  PrivateKeyRead(0, 0);
+  PrivateKeyReadPem(0, 0);
   PrivateKeyFree(0);
   PublicKeyAlloc(0, 0, 0);
   PublicKeyRead(0);

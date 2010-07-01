@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
   signing_key_algorithm = atoi(argv[1]);
   data_key_algorithm = atoi(argv[2]);
 
-  signing_private_key = PrivateKeyRead(argv[3], signing_key_algorithm);
+  signing_private_key = PrivateKeyReadPem(argv[3], signing_key_algorithm);
   if (!signing_private_key) {
     fprintf(stderr, "Error reading signing_private_key");
     return 1;

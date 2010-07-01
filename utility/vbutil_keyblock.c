@@ -93,7 +93,7 @@ static int Pack(const char* outfile, const char* datapubkey,
     fprintf(stderr, "vbutil_keyblock: Error reading data key.\n");
     return 1;
   }
-  signing_key = PrivateKeyRead(signprivate, algorithm);
+  signing_key = PrivateKeyReadPem(signprivate, algorithm);
   if (!signing_key) {
     fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
     return 1;

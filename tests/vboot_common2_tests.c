@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
   /* Read verification keys and create a test image. */
   key_algorithm = atoi(argv[1]);
 
-  private_key = PrivateKeyRead(argv[2], key_algorithm);
+  private_key = PrivateKeyReadPem(argv[2], key_algorithm);
   if (!private_key) {
     fprintf(stderr, "Error reading private_key");
     return 1;

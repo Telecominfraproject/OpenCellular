@@ -24,27 +24,27 @@
 #include "vboot_common.h"
 
 
-VbPrivateKey* PrivateKeyRead(const char* filename, uint64_t algorithm) {
+VbPrivateKey* PrivateKeyReadPem(const char* filename, uint64_t algorithm) {
 
   VbPrivateKey* key;
   RSA* rsa_key;
   FILE* f;
 
   if (algorithm >= kNumAlgorithms) {
-    debug("PrivateKeyRead() called with invalid algorithm!\n");
+    debug("%s() called with invalid algorithm!\n", __FUNCTION__);
     return NULL;
   }
 
   /* Read private key */
   f = fopen(filename, "r");
   if (!f) {
-    debug("PrivateKeyRead(): Couldn't open key file: %s\n", filename);
+    debug("%s(): Couldn't open key file: %s\n", __FUNCTION__, filename);
     return NULL;
   }
   rsa_key = PEM_read_RSAPrivateKey(f, NULL, NULL, NULL);
   fclose(f);
   if (!rsa_key) {
-    debug("PrivateKeyRead(): Couldn't read private key from file: %s\n",
+    debug("%s(): Couldn't read private key from file: %s\n", __FUNCTION__,
           filename);
     return NULL;
   }
