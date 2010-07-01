@@ -20,7 +20,7 @@ __pragma(warning (disable: 4100))
 
 uint32_t SetupTPM(int mode, int developer_flag) {
 #ifndef NDEBUG
-  debug("Rollback Index Library Mock: TPM initialized.\n");
+  VBDEBUG(("Rollback Index Library Mock: TPM initialized.\n"));
 #endif
   return TPM_SUCCESS;
 }
@@ -51,21 +51,21 @@ uint32_t WriteStoredVersions(int type, uint16_t key_version, uint16_t version) {
       break;
   }
 #ifndef NDEBUG
-  debug("Rollback Index Library Mock: Stored Versions written.\n");
+  VBDEBUG(("Rollback Index Library Mock: Stored Versions written.\n"));
 #endif
   return TPM_SUCCESS;
 }
 
 uint32_t LockFirmwareVersions(void) {
 #ifndef NDEBUG
-  debug("Rollback Index Library Mock: Firmware Versions Locked.\n");
+  VBDEBUG(("Rollback Index Library Mock: Firmware Versions Locked.\n"));
 #endif
   return TPM_SUCCESS;
 }
  
 uint32_t LockKernelVersionsByLockingPP(void) {
 #ifndef NDEBUG
-  debug("Rollback Index Library Mock: Kernel Versions Locked.\n");
+  VBDEBUG(("Rollback Index Library Mock: Kernel Versions Locked.\n"));
 #endif
   return TPM_SUCCESS;
 }

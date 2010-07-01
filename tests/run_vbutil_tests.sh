@@ -19,9 +19,9 @@ function test_vbutil_key {
     do
       echo -e "For signing key ${COL_YELLOW}RSA-$keylen/$hashalgo${COL_STOP}:"
       # Pack the key
-      ${UTIL_DIR}/vbutil_key --pack \
-        --in ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
-        --out ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk \
+      ${UTIL_DIR}/vbutil_key \
+        --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk \
+        --key ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
         --version 1 \
         --algorithm $algorithmcounter
       if [ $? -ne 0 ]
@@ -31,8 +31,8 @@ function test_vbutil_key {
 
       # Unpack the key
       # TODO: should verify we get the same key back out?
-      ${UTIL_DIR}/vbutil_key --unpack \
-        --in ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk
+      ${UTIL_DIR}/vbutil_key \
+         --unpack ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk
       if [ $? -ne 0 ]
       then
         return_code=255
@@ -68,12 +68,22 @@ ${datahashalgo}${COL_STOP}"
           keyblockfile+="${data_algorithmcounter}.keyblock"
           rm -f ${keyblockfile}
 
+          # Wrap
+          ${UTIL_DIR}/vbutil_key \
+            --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbprivk \
+            --key ${TESTKEY_DIR}/key_rsa${signing_keylen}.pem \
+            --algorithm $signing_algorithmcounter
+          if [ $? -ne 0 ]
+          then
+            return_code=255
+          fi
+
           # Pack
           ${UTIL_DIR}/vbutil_keyblock --pack ${keyblockfile} \
             --datapubkey \
-            ${TESTKEY_SCRATCH_DIR}/key_alg${data_algorithmcounter}.vbpubk \
-            --signprivate ${TESTKEY_DIR}/key_rsa${signing_keylen}.pem \
-            --algorithm $signing_algorithmcounter
+              ${TESTKEY_SCRATCH_DIR}/key_alg${data_algorithmcounter}.vbpubk \
+            --signprivate \
+              ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbprivk
           if [ $? -ne 0 ]
           then
             return_code=255

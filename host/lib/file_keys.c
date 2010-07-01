@@ -25,12 +25,12 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   uint8_t* buf = NULL;
 
   if ((fd = open(input_file, O_RDONLY)) == -1) {
-    debug("Couldn't open file %s\n", input_file);
+    VBDEBUG(("Couldn't open file %s\n", input_file));
     return NULL;
   }
 
   if (-1 == fstat(fd, &stat_fd)) {
-    debug("Couldn't stat file %s\n", input_file);
+    VBDEBUG(("Couldn't stat file %s\n", input_file));
     return NULL;
   }
   *len = stat_fd.st_size;
@@ -42,7 +42,7 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   }
 
   if (*len != read(fd, buf, *len)) {
-    debug("Couldn't read file %s into a buffer\n", input_file);
+    VBDEBUG(("Couldn't read file %s into a buffer\n", input_file));
     return NULL;
   }
 
@@ -67,7 +67,7 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm) {
   DigestContext ctx;
 
   if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
-    debug("Couldn't open %s\n", input_file);
+    VBDEBUG(("Couldn't open %s\n", input_file));
     return NULL;
   }
   DigestInit(&ctx, sig_algorithm);
@@ -104,13 +104,13 @@ uint8_t* SignatureFile(const char* input_file, const char* key_file,
   cmd_out = popen(cmd, "r");
   Free(cmd);
   if (!cmd_out) {
-    debug("Couldn't execute: %s\n", cmd);
+    VBDEBUG(("Couldn't execute: %s\n", cmd));
     return NULL;
   }
 
   signature = (uint8_t*) Malloc(signature_size);
   if (fread(signature, signature_size, 1, cmd_out) != 1) {
-    debug("Couldn't read signature.\n");
+    VBDEBUG(("Couldn't read signature.\n"));
     pclose(cmd_out);
     Free(signature);
     return NULL;

@@ -61,7 +61,7 @@ void VerifyKernelDriverTest(void) {
    * the full blown kernel boot logic. Updates to the kernel attributes
    * in the paritition table are not tested.
    */
-  debug("Kernel A boot priority(15) > Kernel B boot priority(1)\n");
+  VBDEBUG(("Kernel A boot priority(15) > Kernel B boot priority(1)\n"));
   TEST_EQ(VerifyKernelDriver_f(firmware_key_pub,
                                &valid_kernelA, &valid_kernelB,
                                DEV_MODE_DISABLED),
@@ -87,8 +87,8 @@ void VerifyKernelDriverTest(void) {
           "(Corrupt Kernel A (current version)\n"
           " Corrupt Kernel B (current version) runs Recovery):");
 
-  debug("\nSwapping boot priorities...\n"
-         "Kernel B boot priority(15) > Kernel A boot priority(1)\n");
+  VBDEBUG(("\nSwapping boot priorities...\n"
+           "Kernel B boot priority(15) > Kernel A boot priority(1)\n"));
   valid_kernelA.boot_priority = corrupt_kernelA.boot_priority = 1;
   valid_kernelB.boot_priority = corrupt_kernelB.boot_priority = 15;
   TEST_EQ(VerifyKernelDriver_f(firmware_key_pub,
@@ -116,8 +116,8 @@ void VerifyKernelDriverTest(void) {
           "(Corrupt Kernel A (current version)\n"
           " Corrupt Kernel B (current version) runs Recovery):");
 
-  debug("\nUpdating stored version information. Obsoleting "
-          "exiting kernel images.\n");
+  VBDEBUG(("\nUpdating stored version information. Obsoleting "
+           "exiting kernel images.\n"));
   g_kernel_key_version = 2;
   g_kernel_version = 2;
   TEST_EQ(VerifyKernelDriver_f(firmware_key_pub,
@@ -127,8 +127,8 @@ void VerifyKernelDriverTest(void) {
           "(Valid Kernel A (old version)\n"
           " Valid Kernel B (old version) runs Recovery):");
 
-  debug("\nGenerating updated Kernel A blob with "
-          "new version.\n");
+  VBDEBUG(("\nGenerating updated Kernel A blob with "
+           "new version.\n"));
   Free(valid_kernelA.kernel_blob);
   valid_kernelA.kernel_blob = GenerateRollbackTestKernelBlob(3, 3, 0);
   TEST_EQ(VerifyKernelDriver_f(firmware_key_pub,

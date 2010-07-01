@@ -11,6 +11,7 @@
 #include <openssl/engine.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
+#include <openssl/x509.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,21 +32,21 @@ VbPrivateKey* PrivateKeyReadPem(const char* filename, uint64_t algorithm) {
   FILE* f;
 
   if (algorithm >= kNumAlgorithms) {
-    debug("%s() called with invalid algorithm!\n", __FUNCTION__);
+    VBDEBUG(("%s() called with invalid algorithm!\n", __FUNCTION__));
     return NULL;
   }
 
   /* Read private key */
   f = fopen(filename, "r");
   if (!f) {
-    debug("%s(): Couldn't open key file: %s\n", __FUNCTION__, filename);
+    VBDEBUG(("%s(): Couldn't open key file: %s\n", __FUNCTION__, filename));
     return NULL;
   }
   rsa_key = PEM_read_RSAPrivateKey(f, NULL, NULL, NULL);
   fclose(f);
   if (!rsa_key) {
-    debug("%s(): Couldn't read private key from file: %s\n", __FUNCTION__,
-          filename);
+    VBDEBUG(("%s(): Couldn't read private key from file: %s\n", __FUNCTION__,
+             filename));
     return NULL;
   }
 
@@ -72,6 +73,83 @@ void PrivateKeyFree(VbPrivateKey* key) {
 }
 
 
+/* Write a private key to a file in .vbprivk format. */
+int PrivateKeyWrite(const char* filename, const VbPrivateKey* key) {
+  uint8_t *outbuf = 0;
+  int buflen;
+  FILE *f;
+
+  buflen = i2d_RSAPrivateKey(key->rsa_private_key, &outbuf);
+  if (buflen <= 0) {
+    error("Unable to write private key buffer\n");
+    return 1;
+  }
+
+  f = fopen(filename, "wb");
+  if (!f) {
+    error("Unable to open file %s\n", filename);
+    Free(outbuf);
+    return 1;
+  }
+
+  if (1 != fwrite(&key->algorithm, sizeof(key->algorithm), 1, f)) {
+    error("Unable to write to file %s\n", filename);
+    fclose(f);
+    Free(outbuf);
+    unlink(filename);  /* Delete any partial file */
+  }
+
+  if (1 != fwrite(outbuf, buflen, 1, f)) {
+    error("Unable to write to file %s\n", filename);
+    fclose(f);
+    unlink(filename);  /* Delete any partial file */
+    Free(outbuf);
+  }
+
+  fclose(f);
+  Free(outbuf);
+  return 0;
+}
+
+VbPrivateKey* PrivateKeyRead(const char* filename) {
+  VbPrivateKey *key;
+  uint64_t filelen = 0;
+  uint8_t *buffer;
+  const unsigned char *start;
+  
+  buffer = ReadFile(filename, &filelen);
+  if (!buffer) {
+    error("unable to read from file %s\n", filename);
+    return 0;
+  }
+
+  key = (VbPrivateKey*)Malloc(sizeof(VbPrivateKey));
+  if (!key) {
+    error("Unable to allocate VbPrivateKey\n");
+    Free(buffer);
+    return 0;
+  }
+
+  key->algorithm = *(typeof(key->algorithm) *)buffer;
+  start = buffer + sizeof(key->algorithm);
+
+  key->rsa_private_key = d2i_RSAPrivateKey(0, &start,
+                                           filelen - sizeof(key->algorithm));
+
+  if (!key->rsa_private_key) {
+    error("Unable to parse RSA private key\n");
+    Free(buffer);
+    Free(key);
+    return 0;
+  }
+
+  Free(buffer);
+  return key;
+}
+
+
+
+
 /* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version) {
@@ -94,12 +172,12 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
   uint64_t key_size;
 
   if (algorithm >= kNumAlgorithms) {
-    debug("PublicKeyReadKeyb() called with invalid algorithm!\n");
+    VBDEBUG(("PublicKeyReadKeyb() called with invalid algorithm!\n"));
     return NULL;
   }
   if (version > 0xFFFF) {
     /* Currently, TPM only supports 16-bit version */
-    debug("PublicKeyReadKeyb() called with invalid version!\n");
+    VBDEBUG(("PublicKeyReadKeyb() called with invalid version!\n"));
     return NULL;
   }
 
@@ -108,7 +186,7 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
     return NULL;
 
   if (RSAProcessedKeySize(algorithm) != key_size) {
-    debug("PublicKeyReadKeyb() wrong key size for algorithm\n");
+    VBDEBUG(("PublicKeyReadKeyb() wrong key size for algorithm\n"));
     Free(key_data);
     return NULL;
   }
@@ -136,19 +214,19 @@ VbPublicKey* PublicKeyRead(const char* filename) {
   do {
     /* Sanity-check key data */
     if (0 != VerifyPublicKeyInside(key, file_size, key)) {
-      debug("PublicKeyRead() not a VbPublicKey\n");
+      VBDEBUG(("PublicKeyRead() not a VbPublicKey\n"));
       break;
     }
     if (key->algorithm >= kNumAlgorithms) {
-      debug("PublicKeyRead() invalid algorithm\n");
+      VBDEBUG(("PublicKeyRead() invalid algorithm\n"));
       break;
     }
     if (key->key_version > 0xFFFF) {
-      debug("PublicKeyRead() invalid version\n");
+      VBDEBUG(("PublicKeyRead() invalid version\n"));
       break;  /* Currently, TPM only supports 16-bit version */
     }
     if (RSAProcessedKeySize(key->algorithm) != key->key_size) {
-      debug("PublicKeyRead() wrong key size for algorithm\n");
+      VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
       break;
     }
 

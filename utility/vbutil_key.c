@@ -7,8 +7,10 @@
 
 #include <getopt.h>
 #include <inttypes.h>  /* For PRIu64 */
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cryptolib.h"
 #include "host_common.h"
@@ -17,8 +19,7 @@
 
 /* Command line options */
 enum {
-  OPT_IN = 1000,
-  OPT_OUT,
+  OPT_INKEY = 1000,
   OPT_KEY_VERSION,
   OPT_ALGORITHM,
   OPT_MODE_PACK,
@@ -26,94 +27,116 @@ enum {
 };
 
 static struct option long_opts[] = {
-  {"in", 1, 0,                        OPT_IN                      },
-  {"out", 1, 0,                       OPT_OUT                     },
+  {"key", 1, 0,                       OPT_INKEY                   },
   {"version", 1, 0,                   OPT_KEY_VERSION             },
   {"algorithm", 1, 0,                 OPT_ALGORITHM               },
-  {"pack", 0, 0,                      OPT_MODE_PACK               },
-  {"unpack", 0, 0,                    OPT_MODE_UNPACK             },
+  {"pack", 1, 0,                      OPT_MODE_PACK               },
+  {"unpack", 1, 0,                    OPT_MODE_UNPACK             },
   {NULL, 0, 0, 0}
 };
 
 
 /* Print help and return error */
-static int PrintHelp(void) {
+static int PrintHelp(char *progname) {
   int i;
 
-  puts("vbutil_key - Verified boot key utility\n"
-       "\n"
-       "Usage:  vbutil_key <--pack|--unpack> [OPTIONS]\n"
-       "\n"
-       "For '--pack', required OPTIONS are:\n"
-       "  --in <infile>                 Input key in .keyb format\n"
-       "  --out <outfile>               Output file for .vbpubk format\n"
-       "  --version <number>            Key version number\n"
-       "  --algorithm <algoid>          Signing algorithm for key, one of:");
+  fprintf(stderr,
+          "This program wraps RSA keys with verified boot headers\n");
+  fprintf(stderr,
+          "\n"
+          "Usage:  %s --pack <outfile> [PARAMETERS]\n"
+          "\n"
+          "  Required parameters:\n"
+          "    --key <infile>              RSA key file (.keyb or .pem)\n"
+          "    --version <number>          Key version number "
+          "(required for .keyb, ignored for .pem)\n"
+          "    --algorithm <number>        Signing algorithm to use with key:\n",
+          progname);
 
-  for (i = 0; i < kNumAlgorithms; i++)
-    printf("                                %d (%s)\n", i, algo_strings[i]);
+  for (i = 0; i < kNumAlgorithms; i++) {
+    fprintf(stderr,
+            "                                  %d = (%s)\n",
+            i, algo_strings[i]);
+  }
 
-  puts("\n"
-       "For '--unpack', required OPTIONS are:\n"
-       "  --in <infile>                 Input key in .vbpubk format\n"
-       "Optional OPTIONS are:\n"
-       "  --out <outfile>               Output file for .keyb format\n"
-       "");
+  fprintf(stderr,
+          "\nOR\n\n"
+          "Usage:  %s --unpack <infile>\n"
+          "\n",
+          progname);
+
   return 1;
 }
 
-
-/* Pack a .keyb file into a .vbpubk */
+/* Pack a .keyb file into a .vbpubk, or a .pem into a .vbprivk */
 static int Pack(const char *infile, const char *outfile, uint64_t algorithm,
                 uint64_t version) {
-  VbPublicKey* key;
+  VbPublicKey* pubkey;
+  VbPrivateKey* privkey;
 
   if (!infile || !outfile) {
     fprintf(stderr, "vbutil_key: Must specify --in and --out\n");
     return 1;
   }
 
-  key = PublicKeyReadKeyb(infile, algorithm, version);
-  if (!key) {
-    fprintf(stderr, "vbutil_key: Error reading key.\n");
-    return 1;
+  if ((pubkey = PublicKeyReadKeyb(infile, algorithm, version))) {
+    if (0 != PublicKeyWrite(outfile, pubkey)) {
+      fprintf(stderr, "vbutil_key: Error writing key.\n");
+      return 1;
+    }
+    Free(pubkey);
+    return 0;
   }
 
-  if (0 != PublicKeyWrite(outfile, key)) {
-    fprintf(stderr, "vbutil_key: Error writing key.\n");
-    return 1;
-  }
+  if ((privkey = PrivateKeyReadPem(infile, algorithm))) {
+    if (0 != PrivateKeyWrite(outfile, privkey)) {
+      fprintf(stderr, "vbutil_key: Error writing key.\n");
+      return 1;
+    }
+    Free(privkey);
+    return 0;
+  } 
 
-  Free(key);
-  return 0;
+  error("Unable to parse either .keyb or .pem from %s\n", infile);
+  return 1;
 }
 
 
-/* Unpack a .vbpubk */
+/* Unpack a .vbpubk or .vbprivk */
 static int Unpack(const char *infile, const char *outfile) {
-  VbPublicKey* key;
+  VbPublicKey* pubkey;
+  VbPrivateKey* privkey;
 
   if (!infile) {
-    fprintf(stderr, "vbutil_key: Must specify --in\n");
+    fprintf(stderr, "Need file to unpack\n");
     return 1;
   }
 
-  key = PublicKeyRead(infile);
-  if (!key) {
-    fprintf(stderr, "vbutil_key: Error reading key.\n");
-    return 1;
+  if ((pubkey = PublicKeyRead(infile))) {
+    printf("Public Key file:   %s\n", infile);
+    printf("Algorithm:         %" PRIu64 " %s\n", pubkey->algorithm,
+           (pubkey->algorithm < kNumAlgorithms ?
+            algo_strings[pubkey->algorithm] : "(invalid)"));
+    printf("Key Version:       %" PRIu64 "\n", pubkey->key_version);
+    Free(pubkey);
+    return 0;
   }
 
-  printf("Key file:    %s\n", infile);
-  printf("Algorithm:   %" PRIu64 " %s\n", key->algorithm,
-         (key->algorithm < kNumAlgorithms ?
-          algo_strings[key->algorithm] : "(invalid)"));
-  printf("Version:     %" PRIu64 "\n", key->key_version);
+
+  if ((privkey = PrivateKeyRead(infile))) {
+    printf("Private Key file:  %s\n", infile);
+    printf("Algorithm:         %" PRIu64 " %s\n", privkey->algorithm,
+           (privkey->algorithm < kNumAlgorithms ?
+            algo_strings[privkey->algorithm] : "(invalid)"));
+    Free(privkey);
+    return 0;
+  }
+
 
   /* TODO: write key data, if any */
 
-  Free(key);
-  return 0;
+  error("Unable to parse either .vbpubk or vbprivk from %s\n", infile);
+  return 1;
 }
 
 
@@ -128,26 +151,28 @@ int main(int argc, char* argv[]) {
   char* e;
   int i;
 
+  char *progname = strrchr(argv[0], '/');
+  if (progname)
+    progname++;
+  else
+    progname = argv[0];
+
   while ((i = getopt_long(argc, argv, "", long_opts, NULL)) != -1) {
     switch (i) {
       case '?':
         /* Unhandled option */
-        printf("Unknown option\n");
+        error("Unknown option\n");
         parse_error = 1;
         break;
 
-      case OPT_IN:
+      case OPT_INKEY:
         infile = optarg;
-        break;
-
-      case OPT_OUT:
-        outfile = optarg;
         break;
 
       case OPT_KEY_VERSION:
         version = strtoul(optarg, &e, 0);
         if (!*optarg || (e && *e)) {
-          printf("Invalid --version\n");
+          error("Invalid --version\n");
           parse_error = 1;
         }
         break;
@@ -155,20 +180,25 @@ int main(int argc, char* argv[]) {
       case OPT_ALGORITHM:
         algorithm = strtoul(optarg, &e, 0);
         if (!*optarg || (e && *e)) {
-          printf("Invalid --algorithm\n");
+          error("Invalid --algorithm\n");
           parse_error = 1;
         }
         break;
 
       case OPT_MODE_PACK:
+        mode = i;
+        outfile = optarg;
+        break;
+
       case OPT_MODE_UNPACK:
         mode = i;
+        infile = optarg;
         break;
     }
   }
 
   if (parse_error)
-    return PrintHelp();
+    return PrintHelp(progname);
 
   switch(mode) {
     case OPT_MODE_PACK:
@@ -177,6 +207,6 @@ int main(int argc, char* argv[]) {
       return Unpack(infile, outfile);
     default:
       printf("Must specify a mode.\n");
-      return PrintHelp();
+      return PrintHelp(progname);
   }
 }

@@ -125,7 +125,7 @@ VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
   Free(signature_digest);
 
   if (-1 == rv) {
-    debug("SignatureBuf(): RSA_private_encrypt() failed.\n");
+    VBDEBUG(("SignatureBuf(): RSA_private_encrypt() failed.\n"));
     Free(sig);
     return NULL;
   }

@@ -460,7 +460,7 @@ static int Pack(const char* outfile, const char* keyblock_file,
     return 1;
   }
 
-  signing_key = PrivateKeyReadPem(signprivate, key_block->data_key.algorithm);
+  signing_key = PrivateKeyRead(signprivate);
   if (!signing_key) {
     error("Error reading signing key.\n");
     return 1;

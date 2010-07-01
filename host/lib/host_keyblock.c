@@ -78,14 +78,14 @@ VbKeyBlockHeader* KeyBlockRead(const char* filename) {
 
   block = (VbKeyBlockHeader*)ReadFile(filename, &file_size);
   if (!block) {
-    debug("Error reading key block file: %s\n", filename);
+    VBDEBUG(("Error reading key block file: %s\n", filename));
     return NULL;
   }
 
   /* Verify the hash of the key block, since we can do that without
    * the public signing key. */
   if (0 != KeyBlockVerify(block, file_size, NULL)) {
-    debug("Invalid key block file: filename\n", filename);
+    VBDEBUG(("Invalid key block file: filename\n", filename));
     Free(block);
     return NULL;
   }
@@ -98,7 +98,7 @@ VbKeyBlockHeader* KeyBlockRead(const char* filename) {
 int KeyBlockWrite(const char* filename, const VbKeyBlockHeader* key_block) {
 
   if (0 != WriteFile(filename, key_block, key_block->key_block_size)) {
-    debug("KeyBlockWrite() error writing key block\n");
+    VBDEBUG(("KeyBlockWrite() error writing key block\n"));
     return 1;
   }
 

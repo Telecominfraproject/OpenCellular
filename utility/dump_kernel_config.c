@@ -75,7 +75,7 @@ static void* MapFile(const char *filename, size_t *size) {
 
   f = fopen(filename, "rb");
   if (!f) {
-    debug("Unable to open file %s\n", filename);
+    VBDEBUG(("Unable to open file %s\n", filename));
     return NULL;
   }
 

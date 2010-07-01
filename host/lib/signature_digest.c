@@ -31,7 +31,7 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len, int algorithm) {
   uint8_t* digest = NULL;
 
   if (algorithm >= kNumAlgorithms) {
-    debug("SignatureDigest() called with invalid algorithm!\n");
+    VBDEBUG(("SignatureDigest() called with invalid algorithm!\n"));
   } else if ((digest = DigestBuf(buf, len, algorithm))) {
     info_digest = PrependDigestInfo(algorithm, digest);
   }
@@ -49,22 +49,22 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
                               digestinfo_size_map[algorithm]);
   key_fp  = fopen(key_file, "r");
   if (!key_fp) {
-    debug("SignatureBuf(): Couldn't open key file: %s\n", key_file);
+    VBDEBUG(("SignatureBuf(): Couldn't open key file: %s\n", key_file));
     Free(signature_digest);
     return NULL;
   }
   if ((key = PEM_read_RSAPrivateKey(key_fp, NULL, NULL, NULL)))
     signature = (uint8_t*) Malloc(siglen_map[algorithm]);
   else
-    debug("SignatureBuf(): Couldn't read private key from file: %s\n",
-            key_file);
+    VBDEBUG(("SignatureBuf(): Couldn't read private key from file: %s\n",
+             key_file));
   if (signature) {
     if (-1 == RSA_private_encrypt(signature_digest_len,  /* Input length. */
                                   signature_digest,  /* Input data. */
                                   signature,  /* Output signature. */
                                   key,  /* Key to use. */
                                   RSA_PKCS1_PADDING))  /* Padding to use. */
-      debug("SignatureBuf(): RSA_private_encrypt() failed.\n");
+      VBDEBUG(("SignatureBuf(): RSA_private_encrypt() failed.\n"));
   }
   fclose(key_fp);
   if (key)

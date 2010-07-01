@@ -30,6 +30,16 @@ VbPrivateKey* PrivateKeyReadPem(const char* filename, uint64_t algorithm);
 /* Free a private key. */
 void PrivateKeyFree(VbPrivateKey* key);
 
+/* Write a private key to a file in .vbprivk format. */
+int PrivateKeyWrite(const char* filename, const VbPrivateKey* key);
+
+/* Read a privake key from a .vbprivk file.  Caller owns the returned
+ * pointer, and must free it with PrivateKeyFree().
+ *
+ * Returns NULL if error. */
+VbPrivateKey* PrivateKeyRead(const char* filename);
+
+
 
 /* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
