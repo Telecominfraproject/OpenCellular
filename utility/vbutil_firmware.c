@@ -52,7 +52,7 @@ static int PrintHelp(void) {
        "\n"
        "For '--vblock <file>', required OPTIONS are:\n"
        "  --keyblock <file>           Key block in .keyblock format\n"
-       "  --signprivate <file>        Signing private key in .pem format\n"
+       "  --signprivate <file>        Signing private key in .vbprivk format\n"
        "  --version <number>          Firmware version\n"
        "  --fv <file>                 Firmware volume to sign\n"
        "  --kernelkey <file>          Kernel subkey in .vbpubk format\n"
@@ -101,7 +101,7 @@ static int Vblock(const char* outfile, const char* keyblock_file,
     return 1;
   }
 
-  signing_key = PrivateKeyReadPem(signprivate, key_block->data_key.algorithm);
+  signing_key = PrivateKeyRead(signprivate);
   if (!signing_key) {
     error("Error reading signing key.\n");
     return 1;
