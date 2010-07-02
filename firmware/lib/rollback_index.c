@@ -136,42 +136,39 @@ static uint32_t SetDistrustKernelSpaceAtNextBoot(uint32_t distrust) {
 uint32_t RecoverKernelSpace(void) {
   uint32_t perms = 0;
   uint8_t buffer[KERNEL_SPACE_SIZE];
-  int read_OK = 0;
-  int perms_OK = 0;
   uint32_t backup_combined_versions;
   uint32_t must_use_backup;
+  uint32_t zero = 0;
 
   RETURN_ON_FAILURE(TlclRead(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                              (uint8_t*) &must_use_backup, sizeof(uint32_t)));
   /* must_use_backup is true if the previous boot entered recovery mode. */
 
-  read_OK = TlclRead(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &buffer,
-                     KERNEL_SPACE_SIZE) == TPM_SUCCESS;
-  if (read_OK) {
-    RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_VERSIONS_NV_INDEX, &perms));
-    perms_OK = perms == TPM_NV_PER_PPWRITE;
-  }
-  if (!must_use_backup && read_OK && perms_OK &&
+  /* If we can't read the kernel space, or it has the wrong permission, or it
+   * doesn't contain the right identifier, we give up.  This will need to be
+   * fixed by the recovery kernel.  We have to worry about this because at any
+   * time (even with PP turned off) the TPM owner can remove and redefine a
+   * PP-protected space (but not write to it).
+   */
+  RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_NV_INDEX, (uint8_t*) &buffer,
+                             KERNEL_SPACE_SIZE));
+  RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_VERSIONS_NV_INDEX, &perms));
+  if (perms != TPM_NV_PER_PPWRITE ||
       !Memcmp(buffer + sizeof(uint32_t), KERNEL_SPACE_UID,
               KERNEL_SPACE_UID_SIZE)) {
-    /* Everything is fine.  This is the normal, frequent path. */
-    return TPM_SUCCESS;
+    return TPM_E_CORRUPTED_STATE;
   }
 
-  /* Either we detected that something went wrong, or we cannot trust the
-   * PP-protected kernel space.  Attempts to fix.  It is not always necessary
-   * to redefine the space, but we might as well, since this path should be
-   * taken quite seldom (after recovery mode and after an attack).
-   */
-  RETURN_ON_FAILURE(InitializeKernelVersionsSpaces());
-  RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_BACKUP_NV_INDEX,
-                             (uint8_t*) &backup_combined_versions,
-                             sizeof(uint32_t)));
-  RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
-                              (uint8_t*) &backup_combined_versions,
-                              sizeof(uint32_t)));
   if (must_use_backup) {
-    uint32_t zero = 0;
+    /* We must use the backup space because in the preceding boot cycle the
+     * primary space was left unlocked and cannot be trusted.
+     */
+    RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+                               (uint8_t*) &backup_combined_versions,
+                               sizeof(uint32_t)));
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
+                                (uint8_t*) &backup_combined_versions,
+                                sizeof(uint32_t)));
     RETURN_ON_FAILURE(SafeWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                                 (uint8_t*) &zero, 0));
   }
@@ -302,8 +299,13 @@ uint32_t RollbackFirmwareLock(void) {
 }
 
 uint32_t RollbackKernelRecovery(int developer_mode) {
-  uint32_t result = SetupTPM(1, developer_mode);
-  if (result == TPM_SUCCESS) {
+  (void) SetupTPM(1, developer_mode);
+  /* In recovery mode we ignore TPM malfunctions or corruptions, and leave the
+   * TPM completely unlocked if and only if the dev mode switch is ON.  The
+   * recovery kernel will fix the TPM (if needed) and lock it ASAP.  We leave
+   * Physical Presence on in either case.
+   */
+  if (!developer_mode) {
     RETURN_ON_FAILURE(TlclSetGlobalLock());
   }
   return TPM_SUCCESS;
