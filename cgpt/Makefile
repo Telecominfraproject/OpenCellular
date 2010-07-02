@@ -20,6 +20,7 @@ ALL_SRCS = \
 	cmd_create.c \
 	cmd_add.c \
 	cmd_boot.c \
+	cmd_find.c \
 	cgpt_common.c
 
 main: $(PROGNAME)

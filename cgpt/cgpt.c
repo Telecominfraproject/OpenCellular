@@ -26,6 +26,7 @@ struct {
   {"show", cmd_show, "Show partition table and entries"},
   {"repair", cmd_repair, "Repair damaged GPT headers and tables"},
   {"boot", cmd_boot, "Edit the PMBR sector for legacy BIOSes"},
+  {"find", cmd_find, "Locate a partition by its GUID"},
 };
 
 
