@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
   /* TODO: Option for boot mode - developer, recovery */
   /* Need to skip the address check, since we're putting it somewhere on the
    * heap instead of its actual target address in the firmware. */
-  lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK;
+  lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK | BOOT_FLAG_RECOVERY;
 
   /* Call LoadKernel() */
   rv = LoadKernel(&lkp);
@@ -135,5 +135,5 @@ int main(int argc, char* argv[]) {
 
   fclose(image_file);
   Free(lkp.kernel_buffer);
-  return 0;
+  return rv != LOAD_KERNEL_SUCCESS;
 }
