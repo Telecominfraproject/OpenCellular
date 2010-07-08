@@ -32,7 +32,9 @@ ifneq (${RUNTESTS},)
 EXTRA_TARGET = runtests
 endif
 
-all: $(TEST_BINS) ${EXTRA_TARGET} $(BUILD_ROOT)/rollback_index_test
+# Disable rollback_index_test by default because it requires the real
+# tlcl lib
+all: $(TEST_BINS) ${EXTRA_TARGET} # $(BUILD_ROOT)/rollback_index_test
 
 ${TEST_LIB}: ${TEST_LIB_OBJS}
 	rm -f $@
@@ -99,8 +101,8 @@ runtests: genkeys runcgpttests runcryptotests runmisctests
 #	${BUILD_ROOT}/firmware_rollback_tests
 #	${BUILD_ROOT}/kernel_rollback_tests
 
-install: $(BUILD_ROOT)/rollback_index_test
-	mkdir -p $(DESTDIR)
-	cp -f $(BUILD_ROOT)/rollback_index_test $(DESTDIR)
+#install: $(BUILD_ROOT)/rollback_index_test
+#	mkdir -p $(DESTDIR)
+#	cp -f $(BUILD_ROOT)/rollback_index_test $(DESTDIR)
 
 -include ${ALL_DEPS}
