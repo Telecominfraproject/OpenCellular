@@ -155,6 +155,26 @@ static void reboot(void) {
   }
 }
 
+static uint32_t SafeWrite(uint32_t index, uint8_t* data, uint32_t length) {
+  uint32_t result = TlclWrite(index, data, length);
+  if (result == TPM_E_MAXNVWRITES) {
+    RETURN_ON_FAILURE(TPMClearAndReenable());
+    result = TlclWrite(index, data, length);
+    tpm_was_just_cleared = 0;
+  }
+  return result;
+}
+
+static uint32_t SafeDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
+  uint32_t result = TlclDefineSpace(index, perm, size);
+  if (result == TPM_E_MAXNVWRITES) {
+    RETURN_ON_FAILURE(TPMClearAndReenable());
+    result = TlclDefineSpace(index, perm, size);
+    tpm_was_just_cleared = 0;
+  }
+  return result;
+}
+
 static void RollbackTest_SaveState(FILE* file) {
   rewind(file);
   fprintf(file, RBTS_format,
@@ -303,7 +323,7 @@ static uint32_t RollbackTest_AdjustIsInitialized(void) {
   int initialized;
   RETURN_ON_FAILURE(GetSpacesInitialized(&initialized));
   if (RBTS.TPM_IS_INITIALIZED_exists && !initialized) {
-    RETURN_ON_FAILURE(TlclDefineSpace(TPM_IS_INITIALIZED_NV_INDEX,
+    RETURN_ON_FAILURE(SafeDefineSpace(TPM_IS_INITIALIZED_NV_INDEX,
                                       TPM_NV_PER_PPWRITE, sizeof(uint32_t)));
   }
   if (!RBTS.TPM_IS_INITIALIZED_exists && initialized) {
@@ -320,7 +340,7 @@ static uint32_t RollbackTest_AdjustMustUseBackup(void) {
                              (uint8_t*) &must_use_backup,
                              sizeof(must_use_backup)));
   if (RBTS.KERNEL_MUST_USE_BACKUP != must_use_backup) {
-    RETURN_ON_FAILURE(TlclWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                                 (uint8_t*) &must_use_backup,
                                 sizeof(must_use_backup)));
   }
@@ -342,7 +362,7 @@ static uint32_t RollbackTest_AdjustKernelVersions(int* wrong_value) {
                         KERNEL_SPACE_UID_SIZE);     /* for later use */
   exists = result == TPM_SUCCESS;
   if (RBTS.KERNEL_VERSIONS_exists && !exists) {
-    RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+    RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_VERSIONS_NV_INDEX,
                                       TPM_NV_PER_PPWRITE, KERNEL_SPACE_SIZE));
   }
   if (!RBTS.KERNEL_VERSIONS_exists && exists) {
@@ -363,7 +383,7 @@ static uint32_t RollbackTest_AdjustKernelPermissions(int* wrong_value) {
   if (RBTS.KERNEL_VERSIONS_wrong_permissions && perms == TPM_NV_PER_PPWRITE) {
     /* Redefines with wrong permissions. */
     RETURN_ON_FAILURE(RollbackTest_RemoveSpace(KERNEL_VERSIONS_NV_INDEX));
-    RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+    RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_VERSIONS_NV_INDEX,
                                       TPM_NV_PER_PPWRITE |
                                       TPM_NV_PER_GLOBALLOCK,
                                       KERNEL_SPACE_SIZE));
@@ -372,9 +392,9 @@ static uint32_t RollbackTest_AdjustKernelPermissions(int* wrong_value) {
   if (!RBTS.KERNEL_VERSIONS_wrong_permissions &&
       perms != TPM_NV_PER_PPWRITE) {
     /* Redefines with right permissions. */
-    RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+    RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_VERSIONS_NV_INDEX,
                                       TPM_NV_PER_PPWRITE, 0));
-    RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+    RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_VERSIONS_NV_INDEX,
                                       TPM_NV_PER_PPWRITE,
                                       KERNEL_SPACE_SIZE));
     *wrong_value = 1;
@@ -384,11 +404,11 @@ static uint32_t RollbackTest_AdjustKernelPermissions(int* wrong_value) {
 
 static uint32_t RollbackTest_AdjustKernelValue(int wrong_value) {
   if (!RBTS.KERNEL_VERSIONS_wrong_value && wrong_value) {
-    RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
                                 KERNEL_SPACE_INIT_DATA, KERNEL_SPACE_SIZE));
   }
   if (RBTS.KERNEL_VERSIONS_wrong_value && !wrong_value) {
-    RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX,
                                 (uint8_t*) "mickey mouse",
                                 KERNEL_SPACE_SIZE));
   }
@@ -406,12 +426,12 @@ static uint32_t RollbackTest_AdjustKernelBackup(void) {
                              (uint8_t*) &kvbackup, sizeof(kvbackup)));
   if (RBTS.KERNEL_VERSIONS_same_as_backup && kv != kvbackup) {
     kvbackup = kv;
-    RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                                 (uint8_t*) &kvbackup, sizeof(kvbackup)));
   }
   if (!RBTS.KERNEL_VERSIONS_same_as_backup && kv == kvbackup) {
     kvbackup = kv + 1;
-    RETURN_ON_FAILURE(TlclWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                                 (uint8_t*) &kvbackup, sizeof(kvbackup)));
   }
   return TPM_SUCCESS;
@@ -427,7 +447,7 @@ static uint32_t RollbackTest_AdjustDeveloperMode(void) {
 
   if (RBTS.developer != dev) {
     dev = RBTS.developer;
-    RETURN_ON_FAILURE(TlclWrite(DEVELOPER_MODE_NV_INDEX,
+    RETURN_ON_FAILURE(SafeWrite(DEVELOPER_MODE_NV_INDEX,
                                 (uint8_t*) &dev, sizeof(dev)));
   }
   return TPM_SUCCESS;
@@ -452,7 +472,7 @@ static uint32_t RollbackTest_AdjustWriteCount(void) {
          * writes.
          */
         uint8_t b = (uint8_t) i;
-        RETURN_ON_FAILURE(TlclWrite(WRITE_BUCKET_NV_INDEX, &b, 1));
+        RETURN_ON_FAILURE(SafeWrite(WRITE_BUCKET_NV_INDEX, &b, 1));
       }
     }
   }
@@ -613,7 +633,7 @@ static uint32_t RollbackTest_InitializeTPM(void) {
   RETURN_ON_FAILURE(TlclStartup());
   RETURN_ON_FAILURE(TlclContinueSelfTest());
   RETURN_ON_FAILURE(TlclAssertPhysicalPresence());
-  RETURN_ON_FAILURE(TlclDefineSpace(WRITE_BUCKET_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(WRITE_BUCKET_NV_INDEX,
                                     TPM_NV_PER_PPWRITE, 1));
   RETURN_ON_FAILURE(RollbackTest_SetTPMState(0));
   return TPM_SUCCESS;

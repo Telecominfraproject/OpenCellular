@@ -47,8 +47,23 @@ static uint32_t SafeWrite(uint32_t index, uint8_t* data, uint32_t length) {
   }
 }
 
+/* Similarly to SafeWrite(), this ensures we don't fail a DefineSpace because
+ * we hit the TPM write limit.  This is even less likely to happen than with
+ * writes because we only define spaces once at initialization, but we'd rather
+ * be paranoid about this.
+ */
+static uint32_t SafeDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
+  uint32_t result = TlclDefineSpace(index, perm, size);
+  if (result == TPM_E_MAXNVWRITES) {
+    RETURN_ON_FAILURE(TPMClearAndReenable());
+    return TlclDefineSpace(index, perm, size);
+  } else {
+    return result;
+  }
+}
+
 static uint32_t InitializeKernelVersionsSpaces(void) {
-  RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_VERSIONS_NV_INDEX,
                                     TPM_NV_PER_PPWRITE, KERNEL_SPACE_SIZE));
   RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_NV_INDEX, KERNEL_SPACE_INIT_DATA,
                               KERNEL_SPACE_SIZE));
@@ -86,7 +101,7 @@ static uint32_t InitializeSpaces(void) {
 
   RETURN_ON_FAILURE(TlclSetNvLocked());
 
-  RETURN_ON_FAILURE(TlclDefineSpace(FIRMWARE_VERSIONS_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(FIRMWARE_VERSIONS_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
   RETURN_ON_FAILURE(SafeWrite(FIRMWARE_VERSIONS_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
@@ -97,15 +112,15 @@ static uint32_t InitializeSpaces(void) {
    * versions.  The content of space KERNEL_MUST_USE_BACKUP determines whether
    * only the backup value should be trusted.
    */
-  RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_VERSIONS_BACKUP_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
   RETURN_ON_FAILURE(SafeWrite(KERNEL_VERSIONS_BACKUP_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclDefineSpace(KERNEL_MUST_USE_BACKUP_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
   RETURN_ON_FAILURE(SafeWrite(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
-  RETURN_ON_FAILURE(TlclDefineSpace(DEVELOPER_MODE_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(DEVELOPER_MODE_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
   RETURN_ON_FAILURE(SafeWrite(DEVELOPER_MODE_NV_INDEX,
                               (uint8_t*) &zero, sizeof(uint32_t)));
@@ -115,7 +130,7 @@ static uint32_t InitializeSpaces(void) {
    * space to be created was also initialized (power could have been lost right
    * after its creation).
    */
-  RETURN_ON_FAILURE(TlclDefineSpace(TPM_IS_INITIALIZED_NV_INDEX,
+  RETURN_ON_FAILURE(SafeDefineSpace(TPM_IS_INITIALIZED_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
   return TPM_SUCCESS;
 }
