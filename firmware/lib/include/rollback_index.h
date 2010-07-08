@@ -10,6 +10,7 @@
 #define VBOOT_REFERENCE_ROLLBACK_INDEX_H_
 
 #include "sysincludes.h"
+#include "tss_constants.h"
 
 /* Rollback version types. */
 #define FIRMWARE_VERSIONS 0

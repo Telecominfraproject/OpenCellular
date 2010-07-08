@@ -40,6 +40,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   uint16_t tpm_fw_version = 0;
   uint64_t lowest_key_version = 0xFFFF;
   uint64_t lowest_fw_version = 0xFFFF;
+  uint32_t status;
   int good_index = -1;
   int index;
 
@@ -60,13 +61,17 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Initialize the TPM and read rollback indices. */
-  if (0 != RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER)) {
+  status = RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER);
+  if (0 != status) {
     VBDEBUG(("Unable to setup TPM.\n"));
-    return LOAD_FIRMWARE_RECOVERY;
+    return (status == TPM_E_MUST_REBOOT ?
+            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
   }
-  if (0 != RollbackFirmwareRead(&tpm_key_version, &tpm_fw_version)) {
+  status = RollbackFirmwareRead(&tpm_key_version, &tpm_fw_version);
+  if (0 != status) {
     VBDEBUG(("Unable to read stored versions.\n"));
-    return LOAD_FIRMWARE_RECOVERY;
+    return (status == TPM_E_MUST_REBOOT ?
+            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
   }
 
   /* Allocate our internal data */
@@ -219,17 +224,23 @@ int LoadFirmware(LoadFirmwareParams* params) {
     if ((lowest_key_version > tpm_key_version) ||
         (lowest_key_version == tpm_key_version &&
          lowest_fw_version > tpm_fw_version)) {
-      if (0 != RollbackFirmwareWrite((uint16_t)lowest_key_version,
-                                     (uint16_t)lowest_fw_version)) {
+
+
+      status = RollbackFirmwareWrite((uint16_t)lowest_key_version,
+                                     (uint16_t)lowest_fw_version);
+      if (0 != status) {
         VBDEBUG(("Unable to write stored versions.\n"));
-        return LOAD_FIRMWARE_RECOVERY;
+        return (status == TPM_E_MUST_REBOOT ?
+                LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
       }
     }
 
     /* Lock firmware versions in TPM */
-    if (0 != RollbackFirmwareLock()) {
+    status = RollbackFirmwareLock();
+    if (0 != status) {
       VBDEBUG(("Unable to lock firmware versions.\n"));
-      return LOAD_FIRMWARE_RECOVERY;
+      return (status == TPM_E_MUST_REBOOT ?
+              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
     }
 
     /* Success */

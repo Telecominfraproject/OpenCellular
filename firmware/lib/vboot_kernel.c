@@ -129,6 +129,7 @@ int LoadKernel(LoadKernelParams* params) {
   int is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
   int is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
   int is_normal = (!is_dev && !is_rec);
+  uint32_t status;
 
   /* Clear output params in case we fail */
   params->partition_number = 0;
@@ -147,9 +148,11 @@ int LoadKernel(LoadKernelParams* params) {
   if (is_normal) {
     /* Read current kernel key index from TPM.  Assumes TPM is already
      * initialized. */
-    if (0 != RollbackKernelRead(&tpm_key_version, &tpm_kernel_version)) {
+    status = RollbackKernelRead(&tpm_key_version, &tpm_kernel_version);
+    if (0 != status) {
       VBDEBUG(("Unable to get kernel versions from TPM\n"));
-      return LOAD_KERNEL_RECOVERY;
+      return (status == TPM_E_MUST_REBOOT ?
+              LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
     }
   } else if (is_dev && !is_rec) {
     /* In developer mode, we ignore the kernel subkey, and just use
@@ -367,20 +370,25 @@ int LoadKernel(LoadKernelParams* params) {
       if ((lowest_key_version > tpm_key_version) ||
           (lowest_key_version == tpm_key_version &&
            lowest_kernel_version > tpm_kernel_version)) {
-        if (0 != RollbackKernelWrite((uint16_t)lowest_key_version,
-                                     (uint16_t)lowest_kernel_version)) {
+
+        status = RollbackKernelWrite((uint16_t)lowest_key_version,
+                                     (uint16_t)lowest_kernel_version);
+        if (0 != status) {
           VBDEBUG(("Error writing kernel versions to TPM.\n"));
-          return LOAD_KERNEL_RECOVERY;
+      return (status == TPM_E_MUST_REBOOT ?
+              LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
         }
       }
     }
 
     /* Lock the kernel versions */
-    if (0 != RollbackKernelLock()) {
+    status = RollbackKernelLock();
+    if (0 != status) {
       VBDEBUG(("Error locking kernel versions.\n"));
       /* Don't reboot to recovery mode if we're already there */
       if (!is_rec)
-        return LOAD_KERNEL_RECOVERY;
+        return (status == TPM_E_MUST_REBOOT ?
+                LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
     }
 
     /* Success! */

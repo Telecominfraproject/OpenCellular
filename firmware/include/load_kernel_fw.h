@@ -18,6 +18,8 @@
 #define LOAD_KERNEL_NOT_FOUND 1  /* No kernel found on device */
 #define LOAD_KERNEL_INVALID 2    /* Only invalid kernels found on device */
 #define LOAD_KERNEL_RECOVERY 3   /* Internal error; reboot to recovery mode */
+#define LOAD_KERNEL_REBOOT 4     /* Internal error; reboot to current mode */
+
 
 /* Boot flags for LoadKernel().boot_flags */
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */

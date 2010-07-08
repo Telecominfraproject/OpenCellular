@@ -19,6 +19,7 @@
 /* Return codes for LoadFirmware() */
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */
 #define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode */
+#define LOAD_FIRMWARE_REBOOT 2    /* Reboot to same mode as current boot */
 
 /* Boot flags for LoadFirmware().boot_flags */
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
