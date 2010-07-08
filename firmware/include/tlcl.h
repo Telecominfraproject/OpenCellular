@@ -30,6 +30,13 @@
  */
 void TlclLibInit(void);
 
+/* Close and open the device.  This is needed for running more complex commands
+ * at user level, such as TPM_TakeOwnership, since the TPM device can be opened
+ * only by one process at a time.
+ */
+void TlclCloseDevice(void);
+void TlclOpenDevice(void);
+
 /* Sends a TPM_Startup(ST_CLEAR).  Note that this is a no-op for the emulator,
  * because it runs this command during initialization.  The TPM error code is
  * returned (0 for success).
@@ -89,9 +96,13 @@ int TlclIsOwned(void);
  */
 uint32_t TlclForceClear(void);
 
-/* Issues a SetEnable.  The TPM error code is returned.
+/* Issues a PhysicalEnable.  The TPM error code is returned.
  */
 uint32_t TlclSetEnable(void);
+
+/* Issues a PhysicalDisable.  The TPM error code is returned.
+ */
+uint32_t TlclClearEnable(void);
 
 /* Issues a SetDeactivated.  Pass 0 to activate.  Returns result code.
  */

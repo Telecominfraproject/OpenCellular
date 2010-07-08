@@ -26,7 +26,9 @@
 #define TPM_SUCCESS ((uint32_t)0x00000000)
 #define TPM_E_BADINDEX ((uint32_t)0x00000002)
 #define TPM_E_MAXNVWRITES ((uint32_t)0x00000048)
-#define TPM_E_ALREADY_INITIALIZED ((uint32_t)0x00005000)     /* vboot local */
+#define TPM_E_OWNER_SET ((uint32_t)0x00000014)
+
+#define TPM_E_ALREADY_INITIALIZED    ((uint32_t)0x00005000)  /* vboot local */
 #define TPM_E_INTERNAL_INCONSISTENCY ((uint32_t)0x00005001)  /* vboot local */
 #define TPM_E_MUST_REBOOT            ((uint32_t)0x00005002)  /* vboot local */
 #define TPM_E_CORRUPTED_STATE        ((uint32_t)0x00005003)  /* vboot local */

@@ -35,6 +35,8 @@ int main(void)
 
   /* tlcl.h */
   TlclLibInit();
+  TlclCloseDevice();
+  TlclOpenDevice();
   TlclStartup();
   TlclSelftestfull();
   TlclContinueSelfTest();
@@ -48,6 +50,7 @@ int main(void)
   TlclIsOwned();
   TlclForceClear();
   TlclSetEnable();
+  TlclClearEnable();
   TlclSetDeactivated(0);
   TlclGetFlags(0, 0);
 

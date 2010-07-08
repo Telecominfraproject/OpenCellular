@@ -51,10 +51,10 @@ update-version :
 		| sort | xargs cat | md5sum | cut -c 25-32 > \
 	${BUILD_ROOT}/x.tmp && \
 	echo "char* VbootVersion = \"VBOOv=$$(cat ${BUILD_ROOT}/x.tmp)\";" > \
-		${BUILD_ROOT}\version.tmp && \
-	(cmp -s ${BUILD_ROOT}\version.tmp version.c || \
+		${BUILD_ROOT}/version.tmp && \
+	(cmp -s ${BUILD_ROOT}/version.tmp version.c || \
 		( echo "** Updating version.c **" &&  \
-		  cp ${BUILD_ROOT}\version.tmp version.c))
+		  cp ${BUILD_ROOT}/version.tmp version.c))
 
 include ../common.mk
 

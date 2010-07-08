@@ -95,4 +95,13 @@ uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version);
 /* Lock must be called.  Internally, it's ignored in recovery mode. */
 uint32_t RollbackKernelLock(void);
 
+/* The following functions are here for testing only. */
+
+/* Store 1 in *|initialized| if the TPM NVRAM spaces have been initialized, 0
+ * otherwise.  Return TPM errors. */
+uint32_t GetSpacesInitialized(int* initialized);
+
+/* Issue a TPM_Clear and reenable/reactivate the TPM. */
+uint32_t TPMClearAndReenable(void);
+
 #endif  /* VBOOT_REFERENCE_ROLLBACK_INDEX_H_ */

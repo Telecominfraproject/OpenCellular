@@ -24,7 +24,7 @@ __pragma(warning (disable: 4127))
     }                                                   \
   } while (0)
 
-static uint32_t TPMClearAndReenable() {
+uint32_t TPMClearAndReenable(void) {
   RETURN_ON_FAILURE(TlclForceClear());
   RETURN_ON_FAILURE(TlclSetEnable());
   RETURN_ON_FAILURE(TlclSetDeactivated(0));
@@ -58,7 +58,7 @@ static uint32_t InitializeKernelVersionsSpaces(void) {
  * if the spaces have been fully initialized, to 0 if not.  Otherwise
  * *|initialized| is not changed.
  */
-static uint32_t GetSpacesInitialized(int* initialized) {
+uint32_t GetSpacesInitialized(int* initialized) {
   uint32_t space_holder;
   uint32_t result;
   result = TlclRead(TPM_IS_INITIALIZED_NV_INDEX,
@@ -154,8 +154,8 @@ uint32_t RecoverKernelSpace(void) {
                              KERNEL_SPACE_SIZE));
   RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_VERSIONS_NV_INDEX, &perms));
   if (perms != TPM_NV_PER_PPWRITE ||
-      !Memcmp(buffer + sizeof(uint32_t), KERNEL_SPACE_UID,
-              KERNEL_SPACE_UID_SIZE)) {
+      Memcmp(buffer + sizeof(uint32_t), KERNEL_SPACE_UID,
+              KERNEL_SPACE_UID_SIZE) != 0) {
     return TPM_E_CORRUPTED_STATE;
   }
 
@@ -233,6 +233,7 @@ static uint32_t SetupTPM(int recovery_mode,
                          int developer_mode) {
   uint8_t disable;
   uint8_t deactivated;
+  uint32_t result;
 
   TlclLibInit();
   RETURN_ON_FAILURE(TlclStartup());
@@ -245,14 +246,15 @@ static uint32_t SetupTPM(int recovery_mode,
     RETURN_ON_FAILURE(TlclSetDeactivated(0));
     return TPM_E_MUST_REBOOT;
   }
-  /* We expect this to fail the first time we run on a device, because the TPM
-   * has not been initialized yet.
-   */
-  if (RecoverKernelSpace() != TPM_SUCCESS) {
+  result = RecoverKernelSpace();
+  if (result != TPM_SUCCESS) {
+     /* Check if this is the first time we run and the TPM has not been
+      * initialized yet.
+      */
     int initialized = 0;
     RETURN_ON_FAILURE(GetSpacesInitialized(&initialized));
     if (initialized) {
-      return TPM_E_ALREADY_INITIALIZED;
+      return result;
     } else {
       RETURN_ON_FAILURE(InitializeSpaces());
       RETURN_ON_FAILURE(RecoverKernelSpace());
@@ -299,7 +301,7 @@ uint32_t RollbackFirmwareLock(void) {
 }
 
 uint32_t RollbackKernelRecovery(int developer_mode) {
-  (void) SetupTPM(1, developer_mode);
+  uint32_t result = SetupTPM(1, developer_mode);
   /* In recovery mode we ignore TPM malfunctions or corruptions, and leave the
    * TPM completely unlocked if and only if the dev mode switch is ON.  The
    * recovery kernel will fix the TPM (if needed) and lock it ASAP.  We leave
@@ -308,7 +310,10 @@ uint32_t RollbackKernelRecovery(int developer_mode) {
   if (!developer_mode) {
     RETURN_ON_FAILURE(TlclSetGlobalLock());
   }
-  return TPM_SUCCESS;
+  /* We still return the result of SetupTPM even though we expect the caller to
+   * ignore it.  It's useful in unit testing.
+   */
+  return result;
 }
 
 uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version) {

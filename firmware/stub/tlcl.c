@@ -11,6 +11,8 @@
 __pragma(warning (disable: 4100))
 
 void TlclLibInit(void) { return; }
+void TlclCloseDevice(void) { return; }
+void TlclOpenDevice(void) { return; }
 uint32_t TlclStartup(void) { return TPM_SUCCESS; }
 uint32_t TlclSelftestfull(void) { return TPM_SUCCESS; }
 uint32_t TlclContinueSelfTest(void) { return TPM_SUCCESS; }
@@ -31,6 +33,7 @@ uint32_t TlclSetNvLocked(void) { return TPM_SUCCESS; }
 int TlclIsOwned(void) { return TPM_SUCCESS; }
 uint32_t TlclForceClear(void) { return TPM_SUCCESS; }
 uint32_t TlclSetEnable(void) { return TPM_SUCCESS; }
+uint32_t TlclClearEnable(void) { return TPM_SUCCESS; }
 uint32_t TlclSetDeactivated(int deactivated) { return TPM_SUCCESS; }
 uint32_t TlclSetGlobalLock(void) { return TPM_SUCCESS; }
 uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated) {

@@ -10,13 +10,14 @@ INCLUDES += -I./include \
 BUILD_ROOT = ${BUILD}/tests
 
 TEST_NAMES = cgptlib_test \
-		rsa_padding_test \
-		rsa_verify_benchmark \
-		sha_benchmark \
-		sha_tests \
-		vboot_common_tests \
-		vboot_common2_tests \
-		vboot_common3_tests
+	     rsa_padding_test \
+	     rsa_verify_benchmark \
+	     sha_benchmark \
+	     sha_tests \
+	     vboot_common_tests \
+	     vboot_common2_tests \
+	     vboot_common3_tests \
+
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
 
 TEST_LIB = ${BUILD_ROOT}/test.a
@@ -31,11 +32,18 @@ ifneq (${RUNTESTS},)
 EXTRA_TARGET = runtests
 endif
 
-all: $(TEST_BINS) ${EXTRA_TARGET}
+all: $(TEST_BINS) ${EXTRA_TARGET} $(BUILD_ROOT)/rollback_index_test
 
 ${TEST_LIB}: ${TEST_LIB_OBJS}
 	rm -f $@
 	ar qc $@ $^
+
+${BUILD_ROOT}/rollback_index_test.o : rollback_index_test.c
+	$(CC) $(CFLAGS) -I/usr/include $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
+
+${BUILD_ROOT}/rollback_index_test: rollback_index_test.c ${HOSTLIB} ${FWLIB}
+	$(CC) $(CFLAGS) -I/usr/include $(INCLUDES) $< -o $@ \
+        -ltlcl ${HOSTLIB} ${FWLIB} -lcrypto -lrt
 
 ${BUILD_ROOT}/%.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
@@ -54,10 +62,10 @@ ${BUILD_ROOT}/%: %.c ${LIBS}
 #		verify_firmware_fuzz_driver
 #
 #		big_kernel_tests
-#		kernel_image_tests 
-#		kernel_rollback_tests 
-#		kernel_splicing_tests 
-#		kernel_verify_benchmark 
+#		kernel_image_tests
+#		kernel_rollback_tests
+#		kernel_splicing_tests
+#		kernel_verify_benchmark
 #		verify_kernel_fuzz_driver
 
 # Generate test keys
@@ -90,5 +98,9 @@ runtests: genkeys runcgpttests runcryptotests runmisctests
 #	# Rollback Tests
 #	${BUILD_ROOT}/firmware_rollback_tests
 #	${BUILD_ROOT}/kernel_rollback_tests
+
+install: $(BUILD_ROOT)/rollback_index_test
+	mkdir -p $(DESTDIR)
+	cp -f $(BUILD_ROOT)/rollback_index_test $(DESTDIR)
 
 -include ${ALL_DEPS}
