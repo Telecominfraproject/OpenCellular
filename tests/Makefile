@@ -101,6 +101,9 @@ runtests: genkeys runcgpttests runcryptotests runmisctests
 #	${BUILD_ROOT}/firmware_rollback_tests
 #	${BUILD_ROOT}/kernel_rollback_tests
 
+# Must have a dummy install target for ebuild
+install:
+
 #install: $(BUILD_ROOT)/rollback_index_test
 #	mkdir -p $(DESTDIR)
 #	cp -f $(BUILD_ROOT)/rollback_index_test $(DESTDIR)
