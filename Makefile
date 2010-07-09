@@ -35,7 +35,9 @@ clean:
 install:
 	$(MAKE) -C utility install
 	$(MAKE) -C cgpt install
-	$(MAKE) -C tests install
 
 runtests:
 	$(MAKE) -C tests runtests
+
+rbtest:
+	$(MAKE) -C tests rbtest
