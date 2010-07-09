@@ -82,8 +82,8 @@ int main(int argc, char* argv[]) {
   lkp.bytes_per_lba = LBA_BYTES;
 
   /* Read command line parameters */
-  if (3 > argc) {
-    fprintf(stderr, "usage: %s <drive_image> <sign_key>\n", argv[0]);
+  if (4 > argc) {
+    fprintf(stderr, "usage: %s <drive_image> <sign_key> [boot flag]\n", argv[0]);
     return 1;
   }
   image_name = argv[1];
@@ -118,11 +118,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  /* TODO: Option for boot mode - developer, recovery */
   /* Need to skip the address check, since we're putting it somewhere on the
    * heap instead of its actual target address in the firmware. */
-  lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK | BOOT_FLAG_RECOVERY;
-
+  if (argc == 4) {
+    lkp.boot_flags = atoi(argv[3]) | BOOT_FLAG_SKIP_ADDR_CHECK;
+  } else {
+    /* Default to recovery. */
+    lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK | BOOT_FLAG_RECOVERY;
+  }
   /* Call LoadKernel() */
   rv = LoadKernel(&lkp);
   printf("LoadKernel() returned %d\n", rv);
