@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
   lkp.bytes_per_lba = LBA_BYTES;
 
   /* Read command line parameters */
-  if (4 > argc) {
+  if (3 > argc) {
     fprintf(stderr, "usage: %s <drive_image> <sign_key> [boot flag]\n", argv[0]);
     return 1;
   }
