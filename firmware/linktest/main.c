@@ -7,6 +7,7 @@
 #include "vboot_common.h"
 #include "vboot_kernel.h"
 
+
 int main(void)
 {
   uint16_t x, y;

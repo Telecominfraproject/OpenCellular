@@ -245,8 +245,7 @@ static uint32_t CheckDeveloperModeTransition(uint32_t current_developer) {
  * to the TPM flashram at every reboot or wake-up, because of concerns about
  * the durability of the NVRAM.
  */
-static uint32_t SetupTPM(int recovery_mode,
-                         int developer_mode) {
+uint32_t SetupTPM(int recovery_mode, int developer_mode) {
   uint8_t disable;
   uint8_t deactivated;
   uint32_t result;
@@ -289,6 +288,47 @@ static uint32_t SetupTPM(int recovery_mode,
 
 /* disable MSVC warnings on unused arguments */
 __pragma(warning (disable: 4100))
+
+
+#ifdef DISABLE_ROLLBACK_TPM
+
+/* Dummy implementations which don't call into the tpm_lite library */
+
+uint32_t RollbackFirmwareSetup(int developer_mode) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackFirmwareRead(uint16_t* key_version, uint16_t* version) {
+  *key_version = *version = 0;
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackFirmwareLock(void) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelRecovery(int developer_mode) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version) {
+  *key_version = *version = 0;
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version) {
+  return TPM_SUCCESS;
+}
+
+uint32_t RollbackKernelLock(void) {
+  return TPM_SUCCESS;
+}
+
+#else
 
 uint32_t RollbackFirmwareSetup(int developer_mode) {
   return SetupTPM(0, developer_mode);
@@ -365,3 +405,5 @@ uint32_t RollbackKernelLock(void) {
     return TPM_SUCCESS;
   }
 }
+
+#endif // DISABLE_ROLLBACK_TPM

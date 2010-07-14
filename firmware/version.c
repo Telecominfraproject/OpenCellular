@@ -1,1 +1,1 @@
-char* VbootVersion = "VBOOv=c61037c4";
+char* VbootVersion = "VBOOv=43853f81";

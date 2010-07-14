@@ -29,6 +29,9 @@ typedef unsigned size_t;
 #define PRIu64 "%ll"
 extern void debug(const char *format, ...);
 
+#define POSSIBLY_UNUSED
+#define INLINE
+
 #endif
 
 #endif /*CHROMEOS_SRC_PLATFORM_VBOOT_REFERENCE_FIRMWARE_STUB_BIOSINCLUDES_H_*/

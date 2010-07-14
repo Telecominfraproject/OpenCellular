@@ -8,27 +8,16 @@
  * A low-level library for interfacing to TPM hardware or an emulator.
  */
 
-/* FIXME(gauravsh):
- * NOTE: This file is copied over from
- *       src/platform/tpm_lite/src/tlcl/tlcl.h
- * Ideally, we want to directly include it without having two maintain
- * duplicate copies in sync. But in the current model, this is hard
- * to do without breaking standalone compilation.
- * Eventually tpm_lite should be moved into vboot_reference.
- *
- * FURTHER NOTE: The subset of TPM error codes relevant to verified boot
- * (TPM_SUCCESS, etc.) are in tss_constants.h.  A full list of TPM error codes
- * are in /usr/include/tss/tpm_error.h, from the trousers package.
- */
-
 #ifndef TPM_LITE_TLCL_H_
 #define TPM_LITE_TLCL_H_
 
 #include "sysincludes.h"
 
-/* Call this first.
- */
-void TlclLibInit(void);
+/*****************************************************************************/
+/* Functions to be implemented by the stub library */
+
+/* Initialize the stub library */
+void TlclStubInit(void);
 
 /* Close and open the device.  This is needed for running more complex commands
  * at user level, such as TPM_TakeOwnership, since the TPM device can be opened
@@ -37,9 +26,27 @@ void TlclLibInit(void);
 void TlclCloseDevice(void);
 void TlclOpenDevice(void);
 
-/* Sends a TPM_Startup(ST_CLEAR).  Note that this is a no-op for the emulator,
- * because it runs this command during initialization.  The TPM error code is
- * returned (0 for success).
+void TlclStubSendReceive(uint8_t* request, int request_length,
+                         uint8_t* response, int max_length);
+
+/*****************************************************************************/
+/* Functions implemented in tlcl.c */
+
+/* Call this first.
+ */
+void TlclLibInit(void);
+
+
+/* Logs to stdout.  Arguments like printf.
+ */
+void TlclLog(char* format, ...);
+
+/* Sets the log level.  0 is quietest.
+ */
+void TlclSetLogLevel(int level);
+
+/* Sends a TPM_Startup(ST_CLEAR).  The TPM error code is returned (0
+ * for success).
  */
 uint32_t TlclStartup(void);
 
@@ -48,7 +55,7 @@ uint32_t TlclStartup(void);
  */
 uint32_t TlclSelftestfull(void);
 
-/* Runs the self test in the background.  The TPM error code is returned.
+/* Runs the self test in the background.
  */
 uint32_t TlclContinueSelfTest(void);
 
@@ -56,6 +63,11 @@ uint32_t TlclContinueSelfTest(void);
  * [size] the usable data size.  The TPM error code is returned.
  */
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size);
+
+/* Defines a space with permission [perm].  [index] is the index for the space,
+ * [size] the usable data size.  Returns the TPM error code.
+ */
+uint32_t TlclDefineSpaceResult(uint32_t index, uint32_t perm, uint32_t size);
 
 /* Writes [length] bytes of [data] to space at [index].  The TPM error code is
  * returned.
@@ -117,6 +129,10 @@ uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated);
  * code is returned.
  */
 uint32_t TlclSetGlobalLock(void);
+
+/* Performs a TPM_Extend.
+ */
+uint32_t TlclExtend(int pcr_num, uint8_t* in_digest, uint8_t* out_digest);
 
 /* Gets the permission bits for the NVRAM space with |index|.
  */

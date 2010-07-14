@@ -7,14 +7,19 @@ LIBDIR = $(FWTOP)/lib
 STUBDIR = $(FWTOP)/stub
 TESTDIR = $(FWTOP)/linktest
 BUILD_ROOT := ${BUILD}/$(shell basename ${FWTOP})
+LIBS = $(FWLIB)  # Firmware library must be self-contained
+
+# Disable rollback TPM when compiling locally, since otherwise 
+# load_kernel_test attempts to talk to the TPM.
+CFLAGS += -DDISABLE_ROLLBACK_TPM
 
 INCLUDES = \
 	-I$(FWTOP)/include \
 	-I$(LIBDIR)/include \
 	-I$(LIBDIR)/cgptlib/include \
 	-I$(LIBDIR)/cryptolib/include \
+	-I$(LIBDIR)/tpm_lite/include \
 	-I$(STUBDIR)/include
-
 
 # find ./lib -iname '*.c' | sort
 LIB_SRCS = \
@@ -29,6 +34,7 @@ LIB_SRCS = \
 	./lib/cryptolib/sha_utility.c \
 	./lib/rollback_index.c \
 	./lib/stateful_util.c \
+	./lib/tpm_lite/tlcl.c \
 	./lib/vboot_common.c \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c
@@ -36,14 +42,14 @@ LIB_SRCS = \
 STUB_SRCS = \
 	./stub/boot_device_stub.c \
 	./stub/load_firmware_stub.c \
-	./stub/tlcl.c \
+	./stub/tpm_lite_stub.c \
 	./stub/utility_stub.c
 
 ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS} version.c
 
 test : $(FWLIB) update-version
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out \
-		$(TESTDIR)/main.c $(FWLIB)
+		$(TESTDIR)/main.c $(LIBS)
 
 # This is executed at every make, to see if anything has changed
 update-version :

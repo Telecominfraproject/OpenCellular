@@ -14,7 +14,7 @@ export BUILD = ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
 export HOSTLIB= ${BUILD}/vboot_host.a
 
-SUBDIRS = firmware host utility cgpt tests
+SUBDIRS = firmware host utility cgpt tests tests/tpm_lite
 
 all:
 	set -e; \
@@ -41,3 +41,6 @@ runtests:
 
 rbtest:
 	$(MAKE) -C tests rbtest
+
+update_tlcl_structures:
+	$(MAKE) -C utility update_tlcl_structures

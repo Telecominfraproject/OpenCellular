@@ -6,6 +6,7 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
+		-I$(FWDIR)/lib/tpm_lite/include \
 		-I$(HOSTDIR)/include
 BUILD_ROOT = ${BUILD}/tests
 

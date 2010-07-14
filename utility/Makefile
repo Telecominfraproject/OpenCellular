@@ -6,6 +6,7 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
+		-I$(FWDIR)/lib/tpm_lite/include \
 		-I$(HOSTDIR)/include
 CFLAGS += $(INCLUDES)
 CFLAGS += -MMD -MF $@.d
@@ -20,6 +21,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		gbb_utility \
 		load_kernel_test \
 		signature_digest_utility \
+		tlcl_generator \
 		vbutil_firmware \
 		vbutil_kernel \
 		vbutil_key \
@@ -46,6 +48,9 @@ ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
+${BUILD_ROOT}/tlcl_generator: tlcl_generator.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) -fpack-struct $< -o $@ $(LIBS) -lcrypto
+
 ${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
@@ -68,5 +73,14 @@ install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
 	cp -f $(TARGET_BINS) $(DESTDIR)
 	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(TARGET_NAMES))
+
+STRUCTURES_TMP=${BUILD}/tlcl_structures.tmp
+STRUCTURES_SRC=${FWDIR}/lib/tpm_lite/include/tlcl_structures.h
+
+update_tlcl_structures: ${BUILD_ROOT}/tlcl_generator
+	${BUILD_ROOT}/tlcl_generator > $(STRUCTURES_TMP)
+	cmp -s $(STRUCTURES_TMP) $(STRUCTURES_SRC) || \
+		( echo "%% Updating structures.h %%" && \
+		  cp $(STRUCTURES_TMP) $(STRUCTURES_SRC) )
 
 -include ${ALL_DEPS}

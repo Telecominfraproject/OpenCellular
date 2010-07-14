@@ -6,15 +6,6 @@
  * the firmware
  */
 
-/* FIXME(gauravsh):
- * NOTE: This file is copied over from
- *       src/platform/tpm_lite/src/tlcl/tss_constants.h
- * Ideally, we want to directly include it without having two maintain
- * duplicate copies in sync. But in the current model, this is hard
- * to do without breaking standalone compilation.
- * Eventually tpm_lite should be moved into vboot_reference.
- */
-
 #ifndef TPM_LITE_TSS_CONSTANTS_H_
 #define TPM_LITE_TSS_CONSTANTS_H_
 

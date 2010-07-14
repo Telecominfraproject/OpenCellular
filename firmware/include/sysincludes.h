@@ -26,6 +26,14 @@
 #include <memory.h>
 #endif
 
+#define POSSIBLY_UNUSED __attribute__((unused))
+
+#ifdef __STRICT_ANSI__
+#define INLINE
+#else
+#define INLINE inline
+#endif
+
 #else
 #include "biosincludes.h"
 #endif
