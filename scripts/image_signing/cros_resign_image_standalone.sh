@@ -7,11 +7,14 @@
 # Standalone version of cros_resign_image.sh script from
 # from chromeos/src/scripts/bin/ for use on signing servers.
 
-# Both the cgpt tool and vbutil_kernel should be in the system path. 
+# Both the cgpt tool and vbutil_kernel should be in the system path.
+
+# Abort on error
+set -e
 
 # Check arguments
 if [ $# -ne 4 ] ; then
-  echo "usage: $0 src_bin dst_bin kernel_datakey kernel_keyblock" 
+  echo "usage: $0 src_bin dst_bin kernel_datakey kernel_keyblock"
   exit 1
 fi
 
@@ -54,6 +57,3 @@ dd if="${temp_out_vb}" of="${dst_bin}" seek=$koffset bs=$sector_size \
 
 echo "New signed image was output to ${dst_bin}"
 
-# Clean up temporary files
-rm -f ${temp_kimage}
-rm -f ${temp_out_vb}
