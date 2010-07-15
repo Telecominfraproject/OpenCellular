@@ -4,7 +4,16 @@
 
 export CC ?= gcc
 export CXX ?= g++
-export CFLAGS = -Wall -DNDEBUG -O3 -Werror -DCHROMEOS_ENVIRONMENT
+export CFLAGS = -Wall -Werror -DCHROMEOS_ENVIRONMENT
+ifeq (${DEBUG},)
+CFLAGS += -O3
+else
+CFLAGS += -O0 -g -DVBOOT_DEBUG
+endif
+ifeq (${DISABLE_NDEBUG},)
+CFLAGS += -DNDEBUG
+endif
+
 export TOP = $(shell pwd)
 export FWDIR=$(TOP)/firmware
 export HOSTDIR=$(TOP)/host

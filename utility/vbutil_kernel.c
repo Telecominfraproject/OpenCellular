@@ -43,6 +43,7 @@ enum {
   OPT_CONFIG,
   OPT_VBLOCKONLY,
   OPT_PAD,
+  OPT_VERBOSE,
 };
 
 static struct option long_opts[] = {
@@ -59,6 +60,7 @@ static struct option long_opts[] = {
   {"config", 1, 0,                    OPT_CONFIG                  },
   {"vblockonly", 0, 0,                OPT_VBLOCKONLY              },
   {"pad", 1, 0,                       OPT_PAD                     },
+  {"verbose", 0, 0,                   OPT_VERBOSE                 },
   {"debug", 0, &opt_debug, 1                                      },
   {NULL, 0, 0, 0}
 };
@@ -78,7 +80,7 @@ static int PrintHelp(char *progname) {
           "    --version <number>        Kernel version\n"
           "    --vmlinuz <file>          Linux kernel bzImage file\n"
           "    --bootloader <file>       Bootloader stub\n"
-          "    --config <file>           Config file\n"
+          "    --config <file>           Command line file\n"
           "\n"
           "  Optional:\n"
           "    --pad <number>            Verification padding size in bytes\n"
@@ -88,10 +90,12 @@ static int PrintHelp(char *progname) {
           "\nOR\n\n"
           "Usage:  %s --repack <file> [PARAMETERS]\n"
           "\n"
-          "  Required parameters:\n"
+          "  Required parameters (of --keyblock and --config at least "
+          "one is required):\n"
           "    --keyblock <file>         Key block in .keyblock format\n"
           "    --signprivate <file>      Signing private key in .pem format\n"
           "    --oldblob <file>          Previously packed kernel blob\n"
+          "    --config <file>           New command line file\n"
           "\n"
           "  Optional:\n"
           "    --pad <number>            Verification padding size in bytes\n"
@@ -103,6 +107,9 @@ static int PrintHelp(char *progname) {
           "\n"
           "  Required parameters:\n"
           "    --signpubkey <file>       Signing public key in .vbpubk format\n"
+          "\n"
+          "  Optional:\n"
+          "    --verbose                 Print a more detailed report\n"
           "\n",
           progname);
   return 1;
@@ -161,15 +168,58 @@ typedef struct blob_s {
   /* Raw kernel blob data */
   uint64_t blob_size;
   uint8_t *blob;
+
+  /* these fields are not always initialized */
+  VbKernelPreambleHeader* preamble;
+  VbKeyBlockHeader* key_block;
+  uint8_t *buf;
+
 } blob_t;
 
+/* Given a blob return the location of the kernel command line buffer. */
+static char* BpCmdLineLocation(blob_t *bp)
+{
+  return (char*)(bp->blob + bp->bootloader_address - CROS_32BIT_ENTRY_ADDR -
+                 CROS_CONFIG_SIZE - CROS_PARAMS_SIZE);
+}
 
 static void FreeBlob(blob_t *bp) {
   if (bp) {
     if (bp->blob)
       Free(bp->blob);
+    if (bp->buf)
+      Free(bp->buf);
     Free(bp);
   }
+}
+
+/*
+ * Read the kernel command line from a file. Get rid of \n characters along
+ * the way and verify that the line fits into a 4K buffer.
+ *
+ * Return the buffer contaning the line on success (and set the line length
+ * using the passed in parameter), or NULL in case something goes wrong.
+ */
+static uint8_t* ReadConfigFile(const char* config_file, uint64_t* config_size)
+{
+  uint8_t* config_buf;
+  int ii;
+
+  config_buf = ReadFile(config_file, config_size);
+  Debug(" config file size=0x%" PRIx64 "\n", *config_size);
+  if (CROS_CONFIG_SIZE <= *config_size) {  /* need room for trailing '\0' */
+    error("Config file %s is too large (>= %d bytes)\n",
+          config_file, CROS_CONFIG_SIZE);
+    return NULL;
+  }
+
+  /* Replace newlines with spaces */
+  for (ii = 0; ii < *config_size; ii++) {
+    if ('\n' == config_buf[ii]) {
+      config_buf[ii] = ' ';
+    }
+  }
+  return config_buf;
 }
 
 /* Create a blob from its components */
@@ -191,7 +241,6 @@ static blob_t *NewBlob(uint64_t version,
   uint32_t cmdline_addr;
   uint8_t* blob = NULL;
   uint64_t now = 0;
-  uint64_t i;
 
   if (!vmlinuz || !bootloader_file || !config_file) {
     error("Must specify all input files\n");
@@ -203,23 +252,15 @@ static blob_t *NewBlob(uint64_t version,
     error("Couldn't allocate bytes for blob_t.\n");
     return 0;
   }
+
+  Memset(bp, 0, sizeof(*bp));
   bp->kernel_version = version;
 
   /* Read the config file */
   Debug("Reading %s\n", config_file);
-  config_buf = ReadFile(config_file, &config_size);
+  config_buf = ReadConfigFile(config_file, &config_size);
   if (!config_buf)
     return 0;
-  Debug(" config file size=0x%" PRIx64 "\n", config_size);
-  if (CROS_CONFIG_SIZE <= config_size) {  /* need room for trailing '\0' */
-    error("Config file %s is too large (>= %d bytes)\n",
-          config_file, CROS_CONFIG_SIZE);
-    return 0;
-  }
-  /* Replace newlines with spaces */
-  for (i = 0; i < config_size; i++)
-    if ('\n' == config_buf[i])
-      config_buf[i] = ' ';
 
   /* Read the bootloader */
   Debug("Reading %s\n", bootloader_file);
@@ -319,13 +360,14 @@ static blob_t *NewBlob(uint64_t version,
 
 /* Pull the blob_t stuff out of a prepacked kernel blob file */
 static blob_t *OldBlob(const char* filename) {
-  FILE* fp;
-  blob_t *bp;
+  FILE* fp = NULL;
+  blob_t *bp = NULL;
   struct stat statbuf;
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
   uint64_t now = 0;
-  uint8_t buf[DEFAULT_PADDING];
+  uint8_t* buf = NULL;
+  int ret_error = 1;
 
   if (!filename) {
     error("Must specify prepacked blob to read\n");
@@ -350,10 +392,15 @@ static blob_t *OldBlob(const char* filename) {
     return 0;
   }
 
-  if (1 != fread(buf, sizeof(buf), 1, fp)) {
+  buf = Malloc(DEFAULT_PADDING);
+  if (!buf) {
+    error("Unable to allocate padding\n");
+    goto unwind_oldblob;
+  }
+
+  if (1 != fread(buf, DEFAULT_PADDING, 1, fp)) {
     error("Unable to read header from %s: %s\n", filename, strerror(errno));
-    fclose(fp);
-    return 0;
+    goto unwind_oldblob;
   }
 
   /* Skip the key block */
@@ -362,7 +409,7 @@ static blob_t *OldBlob(const char* filename) {
   now += key_block->key_block_size;
   if (now > statbuf.st_size) {
     error("key_block_size advances past the end of the blob\n");
-    return 0;
+    goto unwind_oldblob;
   }
 
   /* Skip the preamble */
@@ -371,7 +418,7 @@ static blob_t *OldBlob(const char* filename) {
   now += preamble->preamble_size;
   if (now > statbuf.st_size) {
     error("preamble_size advances past the end of the blob\n");
-    return 0;
+    goto unwind_oldblob;
   }
 
   /* Go find the kernel blob */
@@ -379,17 +426,19 @@ static blob_t *OldBlob(const char* filename) {
   if (0 != fseek(fp, now, SEEK_SET)) {
     error("Unable to seek to 0x%" PRIx64 " in %s: %s\n", now, filename,
           strerror(errno));
-    fclose(fp);
-    return 0;
+    goto unwind_oldblob;
   }
 
   /* Remember what we've got */
   bp = (blob_t *)Malloc(sizeof(blob_t));
   if (!bp) {
     error("Couldn't allocate bytes for blob_t.\n");
-    fclose(fp);
-    return 0;
+    goto unwind_oldblob;
   }
+
+  bp->buf = buf;
+  bp->key_block = key_block;
+  bp->preamble = preamble;
 
   bp->kernel_version = preamble->kernel_version;
   bp->bootloader_address = preamble->bootloader_address;
@@ -404,22 +453,28 @@ static blob_t *OldBlob(const char* filename) {
   bp->blob = (uint8_t *)Malloc(bp->blob_size);
   if (!bp->blob) {
     error("Couldn't allocate 0x%" PRIx64 " bytes for blob_t.\n", bp->blob_size);
-    fclose(fp);
-    Free(bp);
-    return 0;
+    goto unwind_oldblob;
   }
 
   /* read it in */
   if (1 != fread(bp->blob, bp->blob_size, 1, fp)) {
     error("Unable to read kernel blob from %s: %s\n", filename, strerror(errno));
-    fclose(fp);
-    Free(bp);
-    return 0;
+    goto unwind_oldblob;
   }
 
-  /* done */
-  fclose(fp);
+  ret_error = 0;
 
+  /* done */
+unwind_oldblob:
+  fclose(fp);
+  if (ret_error) {
+    if (bp) {
+      FreeBlob(bp);
+      bp = NULL;
+    } else if (buf) {
+      Free(buf);
+    }
+  }
   return bp;
 }
 
@@ -440,21 +495,27 @@ static int Pack(const char* outfile, const char* keyblock_file,
     error("Must specify output filename\n");
     return 1;
   }
-  if (!keyblock_file || !signprivate) {
+  if ((!keyblock_file && !bp->key_block) || !signprivate) {
     error("Must specify all keys\n");
     return 1;
   }
   if (!bp) {
     error("Refusing to pack invalid kernel blob\n");
     return 1;
-  }    
-
-  /* Read the key block and private key */
-  key_block = (VbKeyBlockHeader*)ReadFile(keyblock_file, &key_block_size);
-  if (!key_block) {
-    error("Error reading key block.\n");
-    return 1;
   }
+
+  /* Get the key block and read the private key. */
+  if (keyblock_file) {
+    key_block = (VbKeyBlockHeader*)ReadFile(keyblock_file, &key_block_size);
+    if (!key_block) {
+      error("Error reading key block.\n");
+      return 1;
+    }
+  } else {
+    key_block = bp->key_block;
+    key_block_size = key_block->key_block_size;
+  }
+
   if (pad < key_block->key_block_size) {
     error("Pad too small\n");
     return 1;
@@ -521,17 +582,40 @@ static int Pack(const char* outfile, const char* keyblock_file,
   return 0;
 }
 
+/*
+ * Replace kernel command line in a blob representing a kernel.
+ */
+static int ReplaceConfig(blob_t* bp, const char* config_file)
+{
+  uint8_t* new_conf;
+  uint64_t config_size;
 
-static int Verify(const char* infile, const char* signpubkey) {
+  if (!config_file) {
+    return 0;
+  }
+
+  new_conf = ReadConfigFile(config_file, &config_size);
+  if (!new_conf) {
+    return 1;
+  }
+
+  /* fill the config buffer with zeros */
+  Memset(BpCmdLineLocation(bp), 0, CROS_CONFIG_SIZE);
+  Memcpy(BpCmdLineLocation(bp), new_conf, config_size);
+  Free(new_conf);
+  return 0;
+}
+
+static int Verify(const char* infile, const char* signpubkey, int verbose) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
   VbPublicKey* data_key;
   VbPublicKey* sign_key;
   RSAPublicKey* rsa;
-  uint8_t* blob;
-  uint64_t blob_size;
-  uint64_t now = 0;
+  blob_t* bp;
+  uint64_t now;
+  int rv = 1;
 
   if (!infile || !signpubkey) {
     error("Must specify filename and signpubkey\n");
@@ -546,20 +630,19 @@ static int Verify(const char* infile, const char* signpubkey) {
   }
 
   /* Read blob */
-  blob = ReadFile(infile, &blob_size);
-  if (!blob) {
+  bp = OldBlob(infile);
+  if (!bp) {
     error("Error reading input file\n");
     return 1;
   }
 
   /* Verify key block */
-  key_block = (VbKeyBlockHeader*)blob;
-  if (0 != KeyBlockVerify(key_block, blob_size, sign_key)) {
+  key_block = bp->key_block;
+  if (0 != KeyBlockVerify(key_block, bp->blob_size, sign_key)) {
     error("Error verifying key block.\n");
-    return 1;
+    goto verify_exit;
   }
-  Free(sign_key);
-  now += key_block->key_block_size;
+  now = key_block->key_block_size;
 
   printf("Key block:\n");
   data_key = &key_block->data_key;
@@ -573,14 +656,15 @@ static int Verify(const char* infile, const char* signpubkey) {
   rsa = PublicKeyToRSA(&key_block->data_key);
   if (!rsa) {
     error("Error parsing data key.\n");
-    return 1;
+    goto verify_exit;
   }
 
   /* Verify preamble */
-  preamble = (VbKernelPreambleHeader*)(blob + now);
-  if (0 != VerifyKernelPreamble2(preamble, blob_size - now, rsa)) {
+  preamble = bp->preamble;
+  if (0 != VerifyKernelPreamble2(
+          preamble, bp->blob_size - key_block->key_block_size, rsa)) {
     error("Error verifying preamble.\n");
-    return 1;
+    goto verify_exit;
   }
   now += preamble->preamble_size;
 
@@ -596,12 +680,23 @@ static int Verify(const char* infile, const char* signpubkey) {
   printf("  Bootloader size:     0x%" PRIx64 "\n", preamble->bootloader_size);
 
   /* Verify body */
-  if (0 != VerifyData(blob + now, &preamble->body_signature, rsa)) {
+  if (0 != VerifyData(bp->blob, &preamble->body_signature, rsa)) {
     error("Error verifying kernel body.\n");
-    return 1;
+    goto verify_exit;
   }
   printf("Body verification succeeded.\n");
-  return 0;
+
+  rv = 0;
+
+  if (!verbose) {
+    goto verify_exit;
+  }
+
+  printf("Config:\n%s\n", BpCmdLineLocation(bp));
+
+verify_exit:
+  FreeBlob(bp);
+  return rv;
 }
 
 
@@ -616,6 +711,7 @@ int main(int argc, char* argv[]) {
   char* bootloader = NULL;
   char* config_file = NULL;
   int vblockonly = 0;
+  int verbose = 0;
   uint64_t pad = DEFAULT_PADDING;
   int mode = 0;
   int parse_error = 0;
@@ -630,8 +726,10 @@ int main(int argc, char* argv[]) {
   else
     progname = argv[0];
 
-  while ((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) {
+  while (((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) &&
+         !parse_error) {
     switch (i) {
+      default:
       case '?':
         /* Unhandled option */
         parse_error = 1;
@@ -640,6 +738,11 @@ int main(int argc, char* argv[]) {
       case OPT_MODE_PACK:
       case OPT_MODE_REPACK:
       case OPT_MODE_VERIFY:
+        if (mode && (mode != i)) {
+          fprintf(stderr, "Only single mode can be specified\n");
+          parse_error = 1;
+          break;
+        }
         mode = i;
         filename = optarg;
         break;
@@ -691,6 +794,10 @@ int main(int argc, char* argv[]) {
           parse_error = 1;
         }
         break;
+
+      case OPT_VERBOSE:
+        verbose = 1;
+        break;
     }
   }
 
@@ -707,15 +814,24 @@ int main(int argc, char* argv[]) {
       return r;
 
     case OPT_MODE_REPACK:
+      if (!config_file && !key_block_file) {
+        fprintf(stderr,
+                "You must supply at least one of --config and --keyblock\n");
+        return 1;
+      }
+
       bp = OldBlob(oldfile);
       if (!bp)
         return 1;
-      r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
+      r = ReplaceConfig(bp, config_file);
+      if (!r) {
+        r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
+      }
       FreeBlob(bp);
       return r;
 
     case OPT_MODE_VERIFY:
-      return Verify(filename, signpubkey);
+      return Verify(filename, signpubkey, verbose);
 
     default:
       fprintf(stderr,
