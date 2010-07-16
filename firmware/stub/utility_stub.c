@@ -60,14 +60,18 @@ void* Memset(void* d, const uint8_t c, uint64_t n) {
   return dest;
 }
 
+
 int SafeMemcmp(const void* s1, const void* s2, size_t n) {
-  int match = 0;
+  int result = 0;
+  if (0 == n)
+    return 1;
+
   const unsigned char* us1 = s1;
   const unsigned char* us2 = s2;
-  while (n--) {
-    if (*us1++ != *us2++)
-      match = 1;
-  }
+  /* Code snippet without data-dependent branch due to
+   * Nate Lawson (nate@root.org) of Root Labs. */
+  while (n--)
+    result |= *us1++ ^ *us2++;
 
-  return match;
+  return result != 0;
 }
