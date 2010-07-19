@@ -156,61 +156,61 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
 
   rsa = PublicKeyToRSA(public_key);
   hdr = CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig, private_key);
-  TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble2() prerequisites");
+  TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble() prerequisites");
   if (!hdr)
     return;
   hsize = (unsigned) hdr->preamble_size;
   h = (VbFirmwarePreambleHeader*)Malloc(hsize + 16384);
 
-  TEST_EQ(VerifyFirmwarePreamble2(hdr, hsize, rsa), 0,
-          "VerifyFirmwarePreamble2() ok using key");
-  TEST_NEQ(VerifyFirmwarePreamble2(hdr, hsize - 1, rsa), 0,
-           "VerifyFirmwarePreamble2() size--");
-  TEST_EQ(VerifyFirmwarePreamble2(hdr, hsize + 1, rsa), 0,
-           "VerifyFirmwarePreamble2() size++");
+  TEST_EQ(VerifyFirmwarePreamble(hdr, hsize, rsa), 0,
+          "VerifyFirmwarePreamble() ok using key");
+  TEST_NEQ(VerifyFirmwarePreamble(hdr, hsize - 1, rsa), 0,
+           "VerifyFirmwarePreamble() size--");
+  TEST_EQ(VerifyFirmwarePreamble(hdr, hsize + 1, rsa), 0,
+           "VerifyFirmwarePreamble() size++");
 
   /* Care about major version but not minor */
   Memcpy(h, hdr, hsize);
   h->header_version_major++;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() major++");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() major++");
 
   Memcpy(h, hdr, hsize);
   h->header_version_major--;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() major--");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() major--");
 
   Memcpy(h, hdr, hsize);
   h->header_version_minor++;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_EQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-          "VerifyFirmwarePreamble2() minor++");
+  TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+          "VerifyFirmwarePreamble() minor++");
 
   Memcpy(h, hdr, hsize);
   h->header_version_minor--;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_EQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-          "VerifyFirmwarePreamble2() minor--");
+  TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+          "VerifyFirmwarePreamble() minor--");
 
   /* Check signature */
   Memcpy(h, hdr, hsize);
   h->preamble_signature.sig_offset = hsize;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() sig off end");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() sig off end");
 
   Memcpy(h, hdr, hsize);
   h->preamble_signature.sig_size--;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() sig too small");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() sig too small");
 
   Memcpy(h, hdr, hsize);
   GetPublicKeyData(&h->kernel_subkey)[0] ^= 0x34;
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() sig mismatch");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() sig mismatch");
 
   /* Check that we signed header, kernel subkey, and body sig */
   Memcpy(h, hdr, hsize);
@@ -220,20 +220,20 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
   h->body_signature.sig_offset = 0;
   h->body_signature.sig_size = 0;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() didn't sign header");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() didn't sign header");
 
   Memcpy(h, hdr, hsize);
   h->kernel_subkey.key_offset = hsize;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() kernel subkey off end");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() kernel subkey off end");
 
   Memcpy(h, hdr, hsize);
   h->body_signature.sig_offset = hsize;
   ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble2(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble2() body sig off end");
+  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+           "VerifyFirmwarePreamble() body sig off end");
 
   /* TODO: verify parser can support a bigger header. */
 

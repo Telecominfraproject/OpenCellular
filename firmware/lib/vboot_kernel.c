@@ -241,7 +241,7 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* Verify the preamble, which follows the key block */
       preamble = (VbKernelPreambleHeader*)(kbuf + key_block->key_block_size);
-      if ((0 != VerifyKernelPreamble2(preamble,
+      if ((0 != VerifyKernelPreamble(preamble,
                                      KBUF_SIZE - key_block->key_block_size,
                                      data_key))) {
         VBDEBUG(("Preamble verification failed.\n"));
@@ -313,6 +313,7 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* Verify kernel data */
       if (0 != VerifyData((const uint8_t*)params->kernel_buffer,
+                          params->kernel_buffer_size,
                           &preamble->body_signature, data_key)) {
         VBDEBUG(("Kernel data verification failed.\n"));
         RSAPublicKeyFree(data_key);

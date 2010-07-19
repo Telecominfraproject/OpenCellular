@@ -224,7 +224,7 @@ static int Verify(const char* infile, const char* signpubkey,
 
   /* Verify preamble */
   preamble = (VbFirmwarePreambleHeader*)(blob + now);
-  if (0 != VerifyFirmwarePreamble2(preamble, blob_size - now, rsa)) {
+  if (0 != VerifyFirmwarePreamble(preamble, blob_size - now, rsa)) {
     error("Error verifying preamble.\n");
     return 1;
   }
@@ -247,7 +247,7 @@ static int Verify(const char* infile, const char* signpubkey,
   /* TODO: verify body size same as signature size */
 
   /* Verify body */
-  if (0 != VerifyData(fv_data, &preamble->body_signature, rsa)) {
+  if (0 != VerifyData(fv_data, fv_size, &preamble->body_signature, rsa)) {
     error("Error verifying firmware body.\n");
     return 1;
   }

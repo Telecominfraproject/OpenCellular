@@ -67,11 +67,11 @@ int main(void)
   PublicKeyInit(0, 0, 0);
   PublicKeyCopy(0, 0);
   PublicKeyToRSA(0);
-  VerifyData(0, 0, 0);
+  VerifyData(0, 0, 0, 0);
   VerifyDigest(0, 0, 0);
   KeyBlockVerify(0, 0, 0);
-  VerifyFirmwarePreamble2(0, 0, 0);
-  VerifyKernelPreamble2(0, 0, 0);
+  VerifyFirmwarePreamble(0, 0, 0);
+  VerifyKernelPreamble(0, 0, 0);
 
   return 0;
 }

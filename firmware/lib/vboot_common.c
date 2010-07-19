@@ -126,11 +126,15 @@ RSAPublicKey* PublicKeyToRSA(const VbPublicKey* key) {
 }
 
 
-int VerifyData(const uint8_t* data, const VbSignature *sig,
+int VerifyData(const uint8_t* data, uint64_t size, const VbSignature *sig,
                const RSAPublicKey* key) {
 
   if (sig->sig_size != siglen_map[key->algorithm]) {
     VBDEBUG(("Wrong signature size for algorithm.\n"));
+    return 1;
+  }
+  if (sig->data_size > size) {
+    VBDEBUG(("Data buffer smaller than length of signed data.\n"));
     return 1;
   }
 
@@ -201,7 +205,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       VBDEBUG(("Signature calculated past end of the block\n"));
       return VBOOT_KEY_BLOCK_INVALID;
     }
-    rv = VerifyData((const uint8_t*)block, sig, rsa);
+    rv = VerifyData((const uint8_t*)block, size, sig, rsa);
     RSAPublicKeyFree(rsa);
     if (rv)
       return VBOOT_KEY_BLOCK_SIGNATURE;
@@ -253,7 +257,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
 }
 
 
-int VerifyFirmwarePreamble2(const VbFirmwarePreambleHeader* preamble,
+int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
                            uint64_t size, const RSAPublicKey* key) {
 
   const VbSignature* sig = &preamble->preamble_signature;
@@ -281,7 +285,7 @@ int VerifyFirmwarePreamble2(const VbFirmwarePreambleHeader* preamble,
     return VBOOT_PREAMBLE_INVALID;
   }
 
-  if (VerifyData((const uint8_t*)preamble, sig, key)) {
+  if (VerifyData((const uint8_t*)preamble, size, sig, key)) {
     VBDEBUG(("Preamble signature validation failed\n"));
     return VBOOT_PREAMBLE_SIGNATURE;
   }
@@ -311,7 +315,7 @@ int VerifyFirmwarePreamble2(const VbFirmwarePreambleHeader* preamble,
 }
 
 
-int VerifyKernelPreamble2(const VbKernelPreambleHeader* preamble,
+int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
                          uint64_t size, const RSAPublicKey* key) {
 
   const VbSignature* sig = &preamble->preamble_signature;
@@ -331,7 +335,7 @@ int VerifyKernelPreamble2(const VbKernelPreambleHeader* preamble,
     VBDEBUG(("Preamble signature off end of preamble\n"));
     return VBOOT_PREAMBLE_INVALID;
   }
-  if (VerifyData((const uint8_t*)preamble, sig, key)) {
+  if (VerifyData((const uint8_t*)preamble, size, sig, key)) {
     VBDEBUG(("Preamble signature validation failed\n"));
     return VBOOT_PREAMBLE_SIGNATURE;
   }

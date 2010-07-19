@@ -45,23 +45,29 @@ static void VerifyDataTest(const VbPublicKey* public_key,
                            const VbPrivateKey* private_key) {
 
   const uint8_t test_data[] = "This is some test data to sign.";
+  const uint64_t test_size = sizeof(test_data);
   VbSignature* sig;
   RSAPublicKey* rsa;
 
-  sig = CalculateSignature(test_data, sizeof(test_data), private_key);
+  sig = CalculateSignature(test_data, test_size, private_key);
   rsa = PublicKeyToRSA(public_key);
   TEST_NEQ(sig && rsa, 0, "VerifyData() prerequisites");
   if (!sig || !rsa)
     return;
 
-  TEST_EQ(VerifyData(test_data, sig, rsa), 0, "VerifyData() ok");
+  TEST_EQ(VerifyData(test_data, test_size, sig, rsa), 0, "VerifyData() ok");
 
   sig->sig_size -= 16;
-  TEST_EQ(VerifyData(test_data, sig, rsa), 1, "VerifyData() wrong sig size");
+  TEST_EQ(VerifyData(test_data, test_size, sig, rsa), 1,
+          "VerifyData() wrong sig size");
   sig->sig_size += 16;
 
+  TEST_EQ(VerifyData(test_data, test_size - 1, sig, rsa), 1,
+          "VerifyData() input buffer too small");
+
   GetSignatureData(sig)[0] ^= 0x5A;
-  TEST_EQ(VerifyData(test_data, sig, rsa), 1, "VerifyData() wrong sig");
+  TEST_EQ(VerifyData(test_data, test_size, sig, rsa), 1,
+          "VerifyData() wrong sig");
 
   RSAPublicKeyFree(rsa);
   Free(sig);
@@ -118,61 +124,61 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
   rsa = PublicKeyToRSA(public_key);
   hdr = CreateKernelPreamble(0x1234, 0x100000, 0x300000, 0x4000, body_sig,
                              0, private_key);
-  TEST_NEQ(hdr && rsa, 0, "VerifyKernelPreamble2() prerequisites");
+  TEST_NEQ(hdr && rsa, 0, "VerifyKernelPreamble() prerequisites");
   if (!hdr)
     return;
   hsize = (unsigned) hdr->preamble_size;
   h = (VbKernelPreambleHeader*)Malloc(hsize + 16384);
 
-  TEST_EQ(VerifyKernelPreamble2(hdr, hsize, rsa), 0,
-          "VerifyKernelPreamble2() ok using key");
-  TEST_NEQ(VerifyKernelPreamble2(hdr, hsize - 1, rsa), 0,
-           "VerifyKernelPreamble2() size--");
-  TEST_EQ(VerifyKernelPreamble2(hdr, hsize + 1, rsa), 0,
-           "VerifyKernelPreamble2() size++");
+  TEST_EQ(VerifyKernelPreamble(hdr, hsize, rsa), 0,
+          "VerifyKernelPreamble() ok using key");
+  TEST_NEQ(VerifyKernelPreamble(hdr, hsize - 1, rsa), 0,
+           "VerifyKernelPreamble() size--");
+  TEST_EQ(VerifyKernelPreamble(hdr, hsize + 1, rsa), 0,
+           "VerifyKernelPreamble() size++");
 
   /* Care about major version but not minor */
   Memcpy(h, hdr, hsize);
   h->header_version_major++;
   ReSignKernelPreamble(h, private_key);
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() major++");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() major++");
 
   Memcpy(h, hdr, hsize);
   h->header_version_major--;
   ReSignKernelPreamble(h, private_key);
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() major--");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() major--");
 
   Memcpy(h, hdr, hsize);
   h->header_version_minor++;
   ReSignKernelPreamble(h, private_key);
-  TEST_EQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-          "VerifyKernelPreamble2() minor++");
+  TEST_EQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+          "VerifyKernelPreamble() minor++");
 
   Memcpy(h, hdr, hsize);
   h->header_version_minor--;
   ReSignKernelPreamble(h, private_key);
-  TEST_EQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-          "VerifyKernelPreamble2() minor--");
+  TEST_EQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+          "VerifyKernelPreamble() minor--");
 
   /* Check signature */
   Memcpy(h, hdr, hsize);
   h->preamble_signature.sig_offset = hsize;
   ReSignKernelPreamble(h, private_key);
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() sig off end");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() sig off end");
 
   Memcpy(h, hdr, hsize);
   h->preamble_signature.sig_size--;
   ReSignKernelPreamble(h, private_key);
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() sig too small");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() sig too small");
 
   Memcpy(h, hdr, hsize);
   GetSignatureData(&h->body_signature)[0] ^= 0x34;
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() sig mismatch");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() sig mismatch");
 
   /* Check that we signed header and body sig */
   Memcpy(h, hdr, hsize);
@@ -180,14 +186,14 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
   h->body_signature.sig_offset = 0;
   h->body_signature.sig_size = 0;
   ReSignKernelPreamble(h, private_key);
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() didn't sign header");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() didn't sign header");
 
   Memcpy(h, hdr, hsize);
   h->body_signature.sig_offset = hsize;
   ReSignKernelPreamble(h, private_key);
-  TEST_NEQ(VerifyKernelPreamble2(h, hsize, rsa), 0,
-           "VerifyKernelPreamble2() body sig off end");
+  TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
+           "VerifyKernelPreamble() body sig off end");
 
   /* TODO: verify parser can support a bigger header. */
 

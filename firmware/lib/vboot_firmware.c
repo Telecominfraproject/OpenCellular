@@ -124,9 +124,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* Verify the preamble, which follows the key block. */
     preamble = (VbFirmwarePreambleHeader*)((uint8_t*)key_block +
                                            key_block->key_block_size);
-    if ((0 != VerifyFirmwarePreamble2(preamble,
-                                      vblock_size - key_block->key_block_size,
-                                      data_key))) {
+    if ((0 != VerifyFirmwarePreamble(preamble,
+                                     vblock_size - key_block->key_block_size,
+                                     data_key))) {
       VBDEBUG(("Preamble verfication failed.\n"));
       RSAPublicKeyFree(data_key);
       continue;

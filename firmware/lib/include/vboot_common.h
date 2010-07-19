@@ -70,8 +70,10 @@ int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src);
 RSAPublicKey* PublicKeyToRSA(const VbPublicKey* key);
 
 
-/* Verifies [data] matches signature [sig] using [key]. */
-int VerifyData(const uint8_t* data, const VbSignature* sig,
+/* Verifies [data] matches signature [sig] using [key].  [size] is the size
+ * of the data buffer; the amount of data to be validated is contained in
+ * sig->data_size. */
+int VerifyData(const uint8_t* data, uint64_t size, const VbSignature* sig,
                const RSAPublicKey* key);
 
 
@@ -93,7 +95,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
  * using public key [key].
  *
  * Returns VBOOT_SUCCESS if successful. */
-int VerifyFirmwarePreamble2(const VbFirmwarePreambleHeader* preamble,
+int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
                            uint64_t size, const RSAPublicKey* key);
 
 
@@ -101,7 +103,7 @@ int VerifyFirmwarePreamble2(const VbFirmwarePreambleHeader* preamble,
  * using public key [key].
  *
  * Returns VBOOT_SUCCESS if successful. */
-int VerifyKernelPreamble2(const VbKernelPreambleHeader* preamble,
+int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
                          uint64_t size, const RSAPublicKey* key);
 
 

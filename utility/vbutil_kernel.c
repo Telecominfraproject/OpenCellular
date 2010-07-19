@@ -661,7 +661,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
 
   /* Verify preamble */
   preamble = bp->preamble;
-  if (0 != VerifyKernelPreamble2(
+  if (0 != VerifyKernelPreamble(
           preamble, bp->blob_size - key_block->key_block_size, rsa)) {
     error("Error verifying preamble.\n");
     goto verify_exit;
@@ -676,11 +676,13 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
   printf("  Body load address:   0x%" PRIx64 "\n", preamble->body_load_address);
   printf("  Body size:           0x%" PRIx64 "\n",
          preamble->body_signature.data_size);
-  printf("  Bootloader address:  0x%" PRIx64 "\n", preamble->bootloader_address);
+  printf("  Bootloader address:  0x%" PRIx64 "\n",
+         preamble->bootloader_address);
   printf("  Bootloader size:     0x%" PRIx64 "\n", preamble->bootloader_size);
 
   /* Verify body */
-  if (0 != VerifyData(bp->blob, &preamble->body_signature, rsa)) {
+  if (0 != VerifyData(bp->blob, bp->blob_size, &preamble->body_signature,
+                      rsa)) {
     error("Error verifying kernel body.\n");
     goto verify_exit;
   }
