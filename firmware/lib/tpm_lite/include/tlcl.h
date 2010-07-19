@@ -53,7 +53,7 @@ uint32_t TlclStartup(void);
 /* Run the self test.  Note---this is synchronous.  To run this in parallel
  * with other firmware, use ContinueSelfTest.  The TPM error code is returned.
  */
-uint32_t TlclSelftestfull(void);
+uint32_t TlclSelfTestFull(void);
 
 /* Runs the self test in the background.
  */
@@ -63,11 +63,6 @@ uint32_t TlclContinueSelfTest(void);
  * [size] the usable data size.  The TPM error code is returned.
  */
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size);
-
-/* Defines a space with permission [perm].  [index] is the index for the space,
- * [size] the usable data size.  Returns the TPM error code.
- */
-uint32_t TlclDefineSpaceResult(uint32_t index, uint32_t perm, uint32_t size);
 
 /* Writes [length] bytes of [data] to space at [index].  The TPM error code is
  * returned.
@@ -120,10 +115,10 @@ uint32_t TlclClearEnable(void);
  */
 uint32_t TlclSetDeactivated(uint8_t flag);
 
-/* Gets flags of interest.  (Add more here as needed.)  The TPM error code is
- * returned.
+/* Gets flags of interest.  Pointers for flags you aren't interested in may
+ * be NULL.  The TPM error code is returned.  
  */
-uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated);
+uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t* nvlocked);
 
 /* Sets the bGlobalLock flag, which only a reboot can clear.  The TPM error
  * code is returned.

@@ -21,7 +21,7 @@
 #include "vboot_kernel.h"
 
 #define LBA_BYTES 512
-#define KERNEL_BUFFER_SIZE 0x600000
+#define KERNEL_BUFFER_SIZE 0xA00000
 
 /* Global variables for stub functions */
 static LoadKernelParams lkp;

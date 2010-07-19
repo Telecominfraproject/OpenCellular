@@ -26,7 +26,7 @@ void error(const char *format, ...) {
 void debug(const char *format, ...) {
   va_list ap;
   va_start(ap, format);
-  fprintf(stderr, "WARNING: ");
+  fprintf(stderr, "DEBUG: ");
   vfprintf(stderr, format, ap);
   va_end(ap);
 }
@@ -53,7 +53,7 @@ void* Memcpy(void* dest, const void* src, uint64_t n) {
 }
 
 void* Memset(void* d, const uint8_t c, uint64_t n) {
-  uint8_t *dest = d; /* the only way to keep both cl and gcc happy */
+  uint8_t* dest = d; /* the only way to keep both cl and gcc happy */
   while (n--) {
     *dest++ = c;
   }

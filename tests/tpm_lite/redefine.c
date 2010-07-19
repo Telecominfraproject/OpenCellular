@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 
   TlclLibInit();
   TlclStartup();
-  TlclSelftestfull();
+  TlclSelfTestFull();
   TlclAssertPhysicalPresence();
 
   result = TlclRead(INDEX0, (uint8_t*) &x, sizeof(x));

@@ -22,12 +22,14 @@
 #define RW_NORMAL_MODE   2
 
 /* TPM NVRAM location indices. */
+#define FIRST_ROLLBACK_NV_INDEX         0x1001  /* First index used here */
 #define FIRMWARE_VERSIONS_NV_INDEX      0x1001
 #define KERNEL_VERSIONS_NV_INDEX        0x1002
 #define TPM_IS_INITIALIZED_NV_INDEX     0x1003
 #define KERNEL_VERSIONS_BACKUP_NV_INDEX 0x1004
 #define KERNEL_MUST_USE_BACKUP_NV_INDEX 0x1005
 #define DEVELOPER_MODE_NV_INDEX         0x1006
+#define LAST_ROLLBACK_NV_INDEX          0x1006  /* Last index used here */
 
 /* Unique ID to detect kernel space redefinition */
 #define KERNEL_SPACE_UID "GRWL"        /* unique ID with secret meaning */

@@ -25,11 +25,11 @@ int main(int argc, char** argv) {
   TlclLibInit();
 
   TlclStartup();
-  TlclSelftestfull();
+  TlclSelfTestFull();
 
   TlclAssertPhysicalPresence();
 
-  result = TlclGetFlags(&disable, &deactivated);
+  result = TlclGetFlags(&disable, &deactivated, NULL);
   printf("disable is %d, deactivated is %d\n", disable, deactivated);
 
   if (disable || deactivated) {

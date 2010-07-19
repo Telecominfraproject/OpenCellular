@@ -39,7 +39,7 @@ int main(void)
   TlclCloseDevice();
   TlclOpenDevice();
   TlclStartup();
-  TlclSelftestfull();
+  TlclSelfTestFull();
   TlclContinueSelfTest();
   TlclDefineSpace(0, 0, 0);
   TlclWrite(0, 0, 0);
@@ -53,7 +53,7 @@ int main(void)
   TlclSetEnable();
   TlclClearEnable();
   TlclSetDeactivated(0);
-  TlclGetFlags(0, 0);
+  TlclGetFlags(0, 0, 0);
 
   /* vboot_common.h */
   OffsetOf(0, 0);

@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
   TlclLibInit();
 
   TlclStartup();
-  TlclSelftestfull();
+  TlclSelfTestFull();
 
   TlclAssertPhysicalPresence();
 

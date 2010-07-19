@@ -52,19 +52,26 @@ static void CheckResult(uint8_t* request, uint8_t* response, int warn_only) {
   int result = TpmReturnCode(response);
   if (result != TPM_SUCCESS) {
     if (warn_only)
-      VBDEBUG(("TPM command %d 0x%x failed: %d 0x%x\n",
-               command, command, result, result));
+      VBDEBUG(("TPM: command 0x%x failed: 0x%x\n", command, result));
     else
-      error("TPM command %d 0x%x failed: %d 0x%x\n",
-            command, command, result, result);
+      error("TPM: command 0x%x failed: 0x%x\n", command, result);
   }
 }
 
 /* Sends a TPM command and gets a response. */
 static void TlclSendReceive(uint8_t* request, uint8_t* response,
                             int max_length) {
+
   TlclStubSendReceive(request, TpmCommandSize(request),
                       response, max_length);
+
+#ifdef VBOOT_DEBUG
+  {
+    int command = TpmCommandCode(request);
+    int result = TpmReturnCode(response);
+    VBDEBUG(("TPM: command 0x%x returned 0x%x\n", command, result));
+  }
+#endif
 }
 
 
@@ -82,18 +89,22 @@ void TlclLibInit(void) {
 }
 
 uint32_t TlclStartup(void) {
+  VBDEBUG(("TPM: Startup\n"));
   return Send(tpm_startup_cmd.buffer);
 }
 
-uint32_t TlclSelftestfull(void) {
+uint32_t TlclSelfTestFull(void) {
+  VBDEBUG(("TPM: Self test full\n"));
   return Send(tpm_selftestfull_cmd.buffer);
 }
 
 uint32_t TlclContinueSelfTest(void) {
+  VBDEBUG(("TPM: Continue self test\n"));
   return Send(tpm_continueselftest_cmd.buffer);
 }
 
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
+  VBDEBUG(("TPM: TlclDefineSpace(0x%x, 0x%x, %d)\n", index, perm, size));
   ToTpmUint32(tpm_nv_definespace_cmd.index, index);
   ToTpmUint32(tpm_nv_definespace_cmd.perm, perm);
   ToTpmUint32(tpm_nv_definespace_cmd.size, size);
@@ -105,6 +116,7 @@ uint32_t TlclWrite(uint32_t index, uint8_t* data, uint32_t length) {
   const int total_length =
     kTpmRequestHeaderLength + kWriteInfoLength + length;
 
+  VBDEBUG(("TPM: TlclWrite(0x%x, %d)\n", index, length));
   assert(total_length <= TPM_LARGE_ENOUGH_COMMAND_SIZE);
   SetTpmCommandSize(tpm_nv_write_cmd.buffer, total_length);
 
@@ -123,6 +135,7 @@ uint32_t TlclRead(uint32_t index, uint8_t* data, uint32_t length) {
   uint32_t result_length;
   uint32_t result;
 
+  VBDEBUG(("TPM: TlclRead(0x%x, %d)\n", index, length));
   ToTpmUint32(tpm_nv_read_cmd.index, index);
   ToTpmUint32(tpm_nv_read_cmd.length, length);
 
@@ -139,14 +152,17 @@ uint32_t TlclRead(uint32_t index, uint8_t* data, uint32_t length) {
 }
 
 uint32_t TlclWriteLock(uint32_t index) {
+  VBDEBUG(("TPM: Write lock 0x%x\n", index));
   return TlclWrite(index, NULL, 0);
 }
 
 uint32_t TlclReadLock(uint32_t index) {
+  VBDEBUG(("TPM: Read lock 0x%x\n", index));
   return TlclRead(index, NULL, 0);
 }
 
 uint32_t TlclAssertPhysicalPresence(void) {
+  VBDEBUG(("TPM: Asserting physical presence\n"));
   return Send(tpm_ppassert_cmd.buffer);
 }
 
@@ -157,10 +173,12 @@ uint32_t TlclAssertPhysicalPresenceResult(void) {
 }
 
 uint32_t TlclLockPhysicalPresence(void) {
+  VBDEBUG(("TPM: Lock physical presence\n"));
   return Send(tpm_pplock_cmd.buffer);
 }
 
 uint32_t TlclSetNvLocked(void) {
+  VBDEBUG(("TPM: Set NV locked\n"));
   return TlclDefineSpace(TPM_NV_INDEX_LOCK, 0, 0);
 }
 
@@ -173,27 +191,32 @@ int TlclIsOwned(void) {
 }
 
 uint32_t TlclForceClear(void) {
+  VBDEBUG(("TPM: Force clear\n"));
   return Send(tpm_forceclear_cmd.buffer);
 }
 
 uint32_t TlclSetEnable(void) {
+  VBDEBUG(("TPM: Enabling TPM\n"));
   return Send(tpm_physicalenable_cmd.buffer);
 }
 
 uint32_t TlclClearEnable(void) {
+  VBDEBUG(("TPM: Disabling TPM\n"));
   return Send(tpm_physicaldisable_cmd.buffer);
 }
 
 uint32_t TlclSetDeactivated(uint8_t flag) {
+  VBDEBUG(("TPM: SetDeactivated(%d)\n", flag));
   *((uint8_t*)tpm_physicalsetdeactivated_cmd.deactivated) = flag;
   return Send(tpm_physicalsetdeactivated_cmd.buffer);
 }
 
-uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated) {
+uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t *nvlocked) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   TPM_PERMANENT_FLAGS* pflags;
   uint32_t result;
   uint32_t size;
+  VBDEBUG(("TPM: Get flags\n"));
 
   TlclSendReceive(tpm_getflags_cmd.buffer, response, sizeof(response));
   result = TpmReturnCode(response);
@@ -204,13 +227,20 @@ uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated) {
   assert(size == sizeof(TPM_PERMANENT_FLAGS));
   pflags =
     (TPM_PERMANENT_FLAGS*) (response + kTpmResponseHeaderLength + sizeof(size));
-  *disable = pflags->disable;
-  *deactivated = pflags->deactivated;
+  VBDEBUG(("TPM: Got flags disable=%d, deactivated=%d, nvlocked=%d\n", 
+           pflags->disable, pflags->deactivated, pflags->nvLocked));
+  if (disable)
+    *disable = pflags->disable;
+  if (deactivated)
+    *deactivated = pflags->deactivated;
+  if (nvlocked)
+    *nvlocked = pflags->nvLocked;
   return result;
 }
 
 uint32_t TlclSetGlobalLock(void) {
   uint32_t x;
+  VBDEBUG(("TPM: Set Set global lock\n"));
   return TlclWrite(TPM_NV_INDEX0, (uint8_t*) &x, 0);
 }
 

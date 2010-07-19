@@ -28,12 +28,12 @@ int main(int argc, char** argv) {
 
   TlclLibInit();
   CHECK(TlclStartup());
-  CHECK(TlclSelftestfull());
+  CHECK(TlclSelfTestFull());
 
   CHECK(TlclAssertPhysicalPresence());
   printf("PP asserted\n");
 
-  CHECK(TlclGetFlags(&disable, &deactivated));
+  CHECK(TlclGetFlags(&disable, &deactivated, NULL));
   printf("disable is %d, deactivated is %d\n", disable, deactivated);
 
   for (i = 0; i < 2; i++) {
@@ -41,19 +41,19 @@ int main(int argc, char** argv) {
     CHECK(TlclForceClear());
     printf("tpm is cleared\n");
 
-    CHECK(TlclGetFlags(&disable, &deactivated));
+    CHECK(TlclGetFlags(&disable, &deactivated, NULL));
     printf("disable is %d, deactivated is %d\n", disable, deactivated);
 
     CHECK(TlclSetEnable());
     printf("disable flag is cleared\n");
 
-    CHECK(TlclGetFlags(&disable, &deactivated));
+    CHECK(TlclGetFlags(&disable, &deactivated, NULL));
     printf("disable is %d, deactivated is %d\n", disable, deactivated);
 
     CHECK(TlclSetDeactivated(0));
     printf("deactivated flag is cleared\n");
 
-    CHECK(TlclGetFlags(&disable, &deactivated));
+    CHECK(TlclGetFlags(&disable, &deactivated, NULL));
     printf("disable is %d, deactivated is %d\n", disable, deactivated);
   }
 

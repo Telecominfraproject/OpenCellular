@@ -136,12 +136,16 @@ int LoadKernel(LoadKernelParams* params) {
   params->bootloader_address = 0;
   params->bootloader_size = 0;
 
-  /* Let the TPM know if we're in recovery mode */
-  if (is_rec) {
-    if (0 != RollbackKernelRecovery(is_dev ? 1 : 0)) {
-      VBDEBUG(("Error setting up TPM for recovery kernel\n"));
-      /* Ignore return code, since we need to boot recovery mode to
-       * fix the TPM. */
+  if (!is_dev) {
+    /* TODO: should use the TPM all the time; for now, only use when
+     * not in developer mode. */
+    /* Let the TPM know if we're in recovery mode */
+    if (is_rec) {
+      if (0 != RollbackKernelRecovery(is_dev ? 1 : 0)) {
+        VBDEBUG(("Error setting up TPM for recovery kernel\n"));
+        /* Ignore return code, since we need to boot recovery mode to
+         * fix the TPM. */
+      }
     }
   }
 
@@ -381,14 +385,18 @@ int LoadKernel(LoadKernelParams* params) {
       }
     }
 
-    /* Lock the kernel versions */
-    status = RollbackKernelLock();
-    if (0 != status) {
-      VBDEBUG(("Error locking kernel versions.\n"));
-      /* Don't reboot to recovery mode if we're already there */
-      if (!is_rec)
-        return (status == TPM_E_MUST_REBOOT ?
-                LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
+    if (!is_dev) {
+      /* TODO: should use the TPM all the time; for now, only use when
+       * not in developer mode. */
+      /* Lock the kernel versions */
+      status = RollbackKernelLock();
+      if (0 != status) {
+        VBDEBUG(("Error locking kernel versions.\n"));
+        /* Don't reboot to recovery mode if we're already there */
+        if (!is_rec)
+          return (status == TPM_E_MUST_REBOOT ?
+                  LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
+      }
     }
 
     /* Success! */

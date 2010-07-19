@@ -26,9 +26,11 @@ __pragma(warning (disable: 4127))
   } while (0)
 
 uint32_t TPMClearAndReenable(void) {
+  VBDEBUG(("TPM: Clear and re-enable\n"));
   RETURN_ON_FAILURE(TlclForceClear());
   RETURN_ON_FAILURE(TlclSetEnable());
   RETURN_ON_FAILURE(TlclSetDeactivated(0));
+  
   return TPM_SUCCESS;
 }
 
@@ -96,10 +98,32 @@ uint32_t GetSpacesInitialized(int* initialized) {
 static uint32_t InitializeSpaces(void) {
   uint32_t zero = 0;
   uint32_t firmware_perm = TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE;
+  uint8_t nvlocked = 0;
+  uint32_t i;
 
-  VBDEBUG(("Initializing spaces\n"));
+  VBDEBUG(("TPM: Initializing spaces\n"));
 
-  RETURN_ON_FAILURE(TlclSetNvLocked());
+#ifdef FORCE_CLEAR_ON_INIT
+  /* Force the TPM clear, in case it previously had an owner, so that we can
+   * redefine the NVRAM spaces. */
+  RETURN_ON_FAILURE(TPMClearAndReenable());
+#endif
+
+  /* The TPM will not enforce the NV authorization restrictions until the 
+   * execution of a TPM_NV_DefineSpace with the handle of TPM_NV_INDEX_LOCK.
+   * Create that space if it doesn't already exist. */
+  RETURN_ON_FAILURE(TlclGetFlags(NULL, NULL, &nvlocked));
+  VBDEBUG(("TPM: nvlocked=%d\n", nvlocked));
+  if (!nvlocked) {
+    VBDEBUG(("TPM: Enabling NV locking\n"));
+    RETURN_ON_FAILURE(TlclSetNvLocked());
+  }
+
+  /* If the spaces were previously defined, we need to undefine them before we
+   * can redefine them.  Undefine by setting size=0.  Ignore these return codes,
+   * since they fail if the spaces aren't actually defined? */
+  for (i = FIRST_ROLLBACK_NV_INDEX; i <= LAST_ROLLBACK_NV_INDEX; i++)
+    SafeDefineSpace(i, firmware_perm, 0);
 
   RETURN_ON_FAILURE(SafeDefineSpace(FIRMWARE_VERSIONS_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
@@ -156,9 +180,13 @@ uint32_t RecoverKernelSpace(void) {
   uint32_t must_use_backup;
   uint32_t zero = 0;
 
+  VBDEBUG(("TPM: RecoverKernelSpace()\n"));
+
   RETURN_ON_FAILURE(TlclRead(KERNEL_MUST_USE_BACKUP_NV_INDEX,
                              (uint8_t*) &must_use_backup, sizeof(uint32_t)));
   /* must_use_backup is true if the previous boot entered recovery mode. */
+
+  VBDEBUG(("TPM: must_use_backup = %d\n", must_use_backup));
 
   /* If we can't read the kernel space, or it has the wrong permission, or it
    * doesn't contain the right identifier, we give up.  This will need to be
@@ -194,6 +222,7 @@ uint32_t RecoverKernelSpace(void) {
 static uint32_t BackupKernelSpace(void) {
   uint32_t kernel_versions;
   uint32_t backup_versions;
+  VBDEBUG(("TPM: BackupKernelSpace()\n"));
   RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_NV_INDEX,
                              (uint8_t*) &kernel_versions, sizeof(uint32_t)));
   RETURN_ON_FAILURE(TlclRead(KERNEL_VERSIONS_BACKUP_NV_INDEX,
@@ -250,15 +279,27 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode) {
   uint8_t deactivated;
   uint32_t result;
 
+  VBDEBUG(("TPM: SetupTPM(r%d, d%d)\n", recovery_mode, developer_mode));
+
+  /* TODO: TlclLibInit() should be able to return failure */
   TlclLibInit();
+
   RETURN_ON_FAILURE(TlclStartup());
+#ifdef USE_CONTINUE_SELF_TEST
+  /* TODO: ContinueSelfTest() should be faster than SelfTestFull, but may also
+   * not work properly in older TPM firmware.  For now, do the full self test. */
   RETURN_ON_FAILURE(TlclContinueSelfTest());
+#else
+  RETURN_ON_FAILURE(TlclSelfTestFull());
+#endif
   RETURN_ON_FAILURE(TlclAssertPhysicalPresence());
   /* Checks that the TPM is enabled and activated. */
-  RETURN_ON_FAILURE(TlclGetFlags(&disable, &deactivated));
+  RETURN_ON_FAILURE(TlclGetFlags(&disable, &deactivated, NULL));
   if (disable || deactivated) {
+    VBDEBUG(("TPM: disabled (%d) or deactivated (%d).  Fixing...\n", disable, deactivated));
     RETURN_ON_FAILURE(TlclSetEnable());
     RETURN_ON_FAILURE(TlclSetDeactivated(0));
+    VBDEBUG(("TPM: Must reboot to re-enable\n"));
     return TPM_E_MUST_REBOOT;
   }
   result = RecoverKernelSpace();
@@ -267,11 +308,15 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode) {
       * initialized yet.
       */
     int initialized = 0;
+    VBDEBUG(("TPM: RecoverKernelSpace() failed\n"));
     RETURN_ON_FAILURE(GetSpacesInitialized(&initialized));
     if (initialized) {
+      VBDEBUG(("TPM: Already initialized, so give up\n"));
       return result;
     } else {
+      VBDEBUG(("TPM: Need to initialize spaces.\n"));
       RETURN_ON_FAILURE(InitializeSpaces());
+      VBDEBUG(("TPM: Retrying RecoverKernelSpace() now that spaces are initialized.\n"));
       RETURN_ON_FAILURE(RecoverKernelSpace());
     }
   }
@@ -283,6 +328,7 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode) {
     /* In recovery mode global variables are usable. */
     g_rollback_recovery_mode = 1;
   }
+  VBDEBUG(("TPM: SetupTPM() succeeded\n"));
   return TPM_SUCCESS;
 }
 
