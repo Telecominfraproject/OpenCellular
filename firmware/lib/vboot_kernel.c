@@ -211,18 +211,21 @@ int LoadKernel(LoadKernelParams* params) {
         continue;
       }
 
-      /* Check the key block flags against the current boot mode */
-      if (!(key_block->key_block_flags &
-            (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
-             KEY_BLOCK_FLAG_DEVELOPER_0))) {
-        VBDEBUG(("Developer flag mismatch.\n"));
-        continue;
-      }
-      if (!(key_block->key_block_flags &
-            (is_rec ? KEY_BLOCK_FLAG_RECOVERY_1 :
-             KEY_BLOCK_FLAG_RECOVERY_0))) {
-        VBDEBUG(("Recovery flag mismatch.\n"));
-        continue;
+      /* Check the key block flags against the current boot mode in normal
+       * and recovery modes (not in developer mode booting from SSD). */
+      if (is_rec || is_normal) {
+        if (!(key_block->key_block_flags &
+              (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
+               KEY_BLOCK_FLAG_DEVELOPER_0))) {
+          VBDEBUG(("Developer flag mismatch.\n"));
+          continue;
+        }
+        if (!(key_block->key_block_flags &
+              (is_rec ? KEY_BLOCK_FLAG_RECOVERY_1 :
+               KEY_BLOCK_FLAG_RECOVERY_0))) {
+          VBDEBUG(("Recovery flag mismatch.\n"));
+          continue;
+        }
       }
 
       /* Check for rollback of key version.  Note this is implicitly
