@@ -104,42 +104,48 @@ uint32_t TlclContinueSelfTest(void) {
 }
 
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
+  struct s_tpm_nv_definespace_cmd cmd;
   VBDEBUG(("TPM: TlclDefineSpace(0x%x, 0x%x, %d)\n", index, perm, size));
-  ToTpmUint32(tpm_nv_definespace_cmd.index, index);
-  ToTpmUint32(tpm_nv_definespace_cmd.perm, perm);
-  ToTpmUint32(tpm_nv_definespace_cmd.size, size);
-  return Send(tpm_nv_definespace_cmd.buffer);
+  Memcpy(&cmd, &tpm_nv_definespace_cmd, sizeof(cmd));
+  ToTpmUint32(cmd.buffer + tpm_nv_definespace_cmd.index, index);
+  ToTpmUint32(cmd.buffer + tpm_nv_definespace_cmd.perm, perm);
+  ToTpmUint32(cmd.buffer + tpm_nv_definespace_cmd.size, size);
+  return Send(cmd.buffer);
 }
 
 uint32_t TlclWrite(uint32_t index, uint8_t* data, uint32_t length) {
+  struct s_tpm_nv_write_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   const int total_length =
     kTpmRequestHeaderLength + kWriteInfoLength + length;
 
   VBDEBUG(("TPM: TlclWrite(0x%x, %d)\n", index, length));
+  Memcpy(&cmd, &tpm_nv_write_cmd, sizeof(cmd));
   assert(total_length <= TPM_LARGE_ENOUGH_COMMAND_SIZE);
   SetTpmCommandSize(tpm_nv_write_cmd.buffer, total_length);
 
-  ToTpmUint32(tpm_nv_write_cmd.index, index);
-  ToTpmUint32(tpm_nv_write_cmd.length, length);
-  Memcpy(tpm_nv_write_cmd.data, data, length);
+  ToTpmUint32(cmd.buffer + tpm_nv_write_cmd.index, index);
+  ToTpmUint32(cmd.buffer + tpm_nv_write_cmd.length, length);
+  Memcpy(cmd.buffer + tpm_nv_write_cmd.data, data, length);
 
-  TlclSendReceive(tpm_nv_write_cmd.buffer, response, sizeof(response));
-  CheckResult(tpm_nv_write_cmd.buffer, response, 1);
+  TlclSendReceive(cmd.buffer, response, sizeof(response));
+  CheckResult(cmd.buffer, response, 1);
 
   return TpmReturnCode(response);
 }
 
 uint32_t TlclRead(uint32_t index, uint8_t* data, uint32_t length) {
+  struct s_tpm_nv_read_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   uint32_t result_length;
   uint32_t result;
 
   VBDEBUG(("TPM: TlclRead(0x%x, %d)\n", index, length));
-  ToTpmUint32(tpm_nv_read_cmd.index, index);
-  ToTpmUint32(tpm_nv_read_cmd.length, length);
+  Memcpy(&cmd, &tpm_nv_read_cmd, sizeof(cmd));
+  ToTpmUint32(cmd.buffer + tpm_nv_read_cmd.index, index);
+  ToTpmUint32(cmd.buffer + tpm_nv_read_cmd.length, length);
 
-  TlclSendReceive(tpm_nv_read_cmd.buffer, response, sizeof(response));
+  TlclSendReceive(cmd.buffer, response, sizeof(response));
   result = TpmReturnCode(response);
   if (result == TPM_SUCCESS && length > 0) {
     uint8_t* nv_read_cursor = response + kTpmResponseHeaderLength;
@@ -206,9 +212,11 @@ uint32_t TlclClearEnable(void) {
 }
 
 uint32_t TlclSetDeactivated(uint8_t flag) {
+  struct s_tpm_physicalsetdeactivated_cmd cmd;
   VBDEBUG(("TPM: SetDeactivated(%d)\n", flag));
-  *((uint8_t*)tpm_physicalsetdeactivated_cmd.deactivated) = flag;
-  return Send(tpm_physicalsetdeactivated_cmd.buffer);
+  Memcpy(&cmd, &tpm_physicaldisable_cmd, sizeof(cmd));
+  *(cmd.buffer + cmd.deactivated) = flag;
+  return Send(cmd.buffer);
 }
 
 uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t *nvlocked) {
@@ -227,7 +235,7 @@ uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t *nvlocked)
   assert(size == sizeof(TPM_PERMANENT_FLAGS));
   pflags =
     (TPM_PERMANENT_FLAGS*) (response + kTpmResponseHeaderLength + sizeof(size));
-  VBDEBUG(("TPM: Got flags disable=%d, deactivated=%d, nvlocked=%d\n", 
+  VBDEBUG(("TPM: Got flags disable=%d, deactivated=%d, nvlocked=%d\n",
            pflags->disable, pflags->deactivated, pflags->nvLocked));
   if (disable)
     *disable = pflags->disable;
@@ -245,21 +253,25 @@ uint32_t TlclSetGlobalLock(void) {
 }
 
 uint32_t TlclExtend(int pcr_num, uint8_t* in_digest, uint8_t* out_digest) {
+  struct s_tpm_extend_cmd cmd;
+  Memcpy(&cmd, &tpm_extend_cmd, sizeof(cmd));
   uint8_t response[kTpmResponseHeaderLength + kPcrDigestLength];
-  ToTpmUint32(tpm_extend_cmd.pcrNum, pcr_num);
-  Memcpy(tpm_extend_cmd.inDigest, in_digest, kPcrDigestLength);
-  TlclSendReceive(tpm_extend_cmd.buffer, response, sizeof(response));
+  ToTpmUint32(cmd.buffer + tpm_extend_cmd.pcrNum, pcr_num);
+  Memcpy(cmd.buffer + cmd.inDigest, in_digest, kPcrDigestLength);
+  TlclSendReceive(cmd.buffer, response, sizeof(response));
   Memcpy(out_digest, response + kTpmResponseHeaderLength, kPcrDigestLength);
   return TpmReturnCode(response);
 }
 
 uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
+  struct s_tpm_getpermissions_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   uint8_t* nvdata;
   uint32_t result;
   uint32_t size;
 
-  ToTpmUint32(tpm_getpermissions_cmd.index, index);
+  Memcpy(&cmd, &tpm_getpermissions_cmd, sizeof(cmd));
+  ToTpmUint32(cmd.buffer + tpm_getpermissions_cmd.index, index);
   TlclSendReceive(tpm_getpermissions_cmd.buffer, response, sizeof(response));
   result = TpmReturnCode(response);
   if (result != TPM_SUCCESS) {

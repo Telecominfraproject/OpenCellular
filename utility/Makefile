@@ -48,8 +48,8 @@ ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-${BUILD_ROOT}/tlcl_generator: tlcl_generator.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) -fpack-struct $< -o $@ $(LIBS) -lcrypto
+${BUILD_ROOT}/tlcl_generator: tlcl_generator.c
+	$(CC) $(CFLAGS) $(INCLUDES) -fpack-struct $< -o $@
 
 ${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto

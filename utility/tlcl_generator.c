@@ -11,6 +11,7 @@
  * (see PCR_SELECTION_FIX below).
  */
 
+#include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +20,6 @@
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "tpmextras.h"
-#include "utility.h"
 
 /* See struct Command below.  This structure represent a field in a TPM
  * command.  [name] is the field name.  [visible] is 1 if the field is
@@ -54,9 +54,8 @@ typedef struct Command {
  * added at increasing offsets.
  */
 static void AddVisibleField(Command* cmd, const char* name, int offset) {
-  Field* fld = (Field*) Malloc(sizeof(Field));
+  Field* fld = (Field*) malloc(sizeof(Field));
   if (cmd->fields != NULL) {
-    Field* fn = cmd->fields;
     assert(offset > fn->offset);
   }
   fld->next = cmd->fields;
@@ -71,7 +70,7 @@ static void AddVisibleField(Command* cmd, const char* name, int offset) {
  */
 static void AddInitializedField(Command* cmd, int offset,
                                 int size, uint32_t value) {
-  Field* fld = (Field*) Malloc(sizeof(Field));
+  Field* fld = (Field*) malloc(sizeof(Field));
   fld->next = cmd->fields;
   cmd->fields = fld;
   fld->name = NULL;
@@ -84,7 +83,7 @@ static void AddInitializedField(Command* cmd, int offset,
 /* Create a structure representing a TPM command datagram.
  */
 Command* newCommand(TPM_COMMAND_CODE code, int size) {
-  Command* cmd = (Command*) Malloc(sizeof(Command));
+  Command* cmd = (Command*) malloc(sizeof(Command));
   cmd->size = size;
   AddInitializedField(cmd, 0, sizeof(TPM_TAG), TPM_TAG_RQU_COMMAND);
   AddInitializedField(cmd, sizeof(TPM_TAG), sizeof(uint32_t), size);
@@ -306,7 +305,7 @@ void OutputFields(Field* fld) {
   if (fld != NULL) {
     OutputFields(fld->next);
     if (fld->visible) {
-      printf("  uint8_t* %s;\n", fld->name);
+      printf("  uint16_t %s;\n", fld->name);
     }
   }
 }
@@ -350,7 +349,8 @@ int OutputBytes_(Command* cmd, Field* fld) {
       cursor += 4;
       break;
     default:
-      error("invalid field size %d\n", fld->size);
+      fprintf(stderr, "invalid field size %d\n", fld->size);
+      exit(1);
       break;
     }
   }
@@ -369,7 +369,7 @@ void OutputFieldPointers(Command* cmd, Field* fld) {
   } else {
     OutputFieldPointers(cmd, fld->next);
     if (fld->visible) {
-      printf("%s.buffer + %d, ", cmd->name, fld->offset);
+      printf("%d, ", fld->offset);
     }
   }
 }
@@ -380,8 +380,8 @@ void OutputCommands(Command* cmd) {
   if (cmd == NULL) {
     return;
   } else {
-    printf("struct {\n  uint8_t buffer[%d];\n",
-           cmd->size == 0 ? cmd->max_size : cmd->size);
+    printf("struct s_%s{\n  uint8_t buffer[%d];\n",
+           cmd->name, cmd->size == 0 ? cmd->max_size : cmd->size);
     OutputFields(cmd->fields);
     printf("} %s = {{", cmd->name);
     OutputBytes(cmd);
@@ -414,7 +414,7 @@ Command* (*builders[])(void) = {
 static void FreeFields(Field* fld) {
   if (fld != NULL) {
     Field* next_field = fld->next;
-    Free(fld);
+    free(fld);
     FreeFields(next_field);
   }
 }
@@ -422,7 +422,7 @@ static void FreeFields(Field* fld) {
 static void FreeCommands(Command* cmd) {
   if (cmd != NULL) {
     Command* next_command = cmd->next;
-    Free(cmd);
+    free(cmd);
     FreeFields(cmd->fields);
     FreeCommands(next_command);
   }
