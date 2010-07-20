@@ -30,7 +30,7 @@ uint32_t TPMClearAndReenable(void) {
   RETURN_ON_FAILURE(TlclForceClear());
   RETURN_ON_FAILURE(TlclSetEnable());
   RETURN_ON_FAILURE(TlclSetDeactivated(0));
-  
+
   return TPM_SUCCESS;
 }
 
@@ -99,15 +99,12 @@ static uint32_t InitializeSpaces(void) {
   uint32_t zero = 0;
   uint32_t firmware_perm = TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE;
   uint8_t nvlocked = 0;
-  uint32_t i;
 
   VBDEBUG(("TPM: Initializing spaces\n"));
 
-#ifdef FORCE_CLEAR_ON_INIT
   /* Force the TPM clear, in case it previously had an owner, so that we can
    * redefine the NVRAM spaces. */
   RETURN_ON_FAILURE(TPMClearAndReenable());
-#endif
 
   /* The TPM will not enforce the NV authorization restrictions until the 
    * execution of a TPM_NV_DefineSpace with the handle of TPM_NV_INDEX_LOCK.
@@ -118,12 +115,6 @@ static uint32_t InitializeSpaces(void) {
     VBDEBUG(("TPM: Enabling NV locking\n"));
     RETURN_ON_FAILURE(TlclSetNvLocked());
   }
-
-  /* If the spaces were previously defined, we need to undefine them before we
-   * can redefine them.  Undefine by setting size=0.  Ignore these return codes,
-   * since they fail if the spaces aren't actually defined? */
-  for (i = FIRST_ROLLBACK_NV_INDEX; i <= LAST_ROLLBACK_NV_INDEX; i++)
-    SafeDefineSpace(i, firmware_perm, 0);
 
   RETURN_ON_FAILURE(SafeDefineSpace(FIRMWARE_VERSIONS_NV_INDEX,
                                     firmware_perm, sizeof(uint32_t)));
@@ -338,9 +329,15 @@ __pragma(warning (disable: 4100))
 
 #ifdef DISABLE_ROLLBACK_TPM
 
-/* Dummy implementations which don't call into the tpm_lite library */
+/* Dummy implementations which don't support TPM rollback protection */
 
 uint32_t RollbackFirmwareSetup(int developer_mode) {
+#ifndef CHROMEOS_ENVIRONMENT
+  /* Initialize the TPM, but ignore return codes.  In ChromeOS
+   * environment, don't even talk to the TPM. */
+  TlclLibInit();
+  TlclStartup();
+#endif
   return TPM_SUCCESS;
 }
 
@@ -358,6 +355,12 @@ uint32_t RollbackFirmwareLock(void) {
 }
 
 uint32_t RollbackKernelRecovery(int developer_mode) {
+#ifndef CHROMEOS_ENVIRONMENT
+  /* Initialize the TPM, but ignore return codes.  In ChromeOS
+   * environment, don't even talk to the TPM. */
+  TlclLibInit();
+  TlclStartup();
+#endif
   return TPM_SUCCESS;
 }
 

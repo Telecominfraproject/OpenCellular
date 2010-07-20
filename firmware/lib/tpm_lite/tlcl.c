@@ -254,8 +254,9 @@ uint32_t TlclSetGlobalLock(void) {
 
 uint32_t TlclExtend(int pcr_num, uint8_t* in_digest, uint8_t* out_digest) {
   struct s_tpm_extend_cmd cmd;
-  Memcpy(&cmd, &tpm_extend_cmd, sizeof(cmd));
   uint8_t response[kTpmResponseHeaderLength + kPcrDigestLength];
+
+  Memcpy(&cmd, &tpm_extend_cmd, sizeof(cmd));
   ToTpmUint32(cmd.buffer + tpm_extend_cmd.pcrNum, pcr_num);
   Memcpy(cmd.buffer + cmd.inDigest, in_digest, kPcrDigestLength);
   TlclSendReceive(cmd.buffer, response, sizeof(response));
