@@ -117,6 +117,7 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "Unable to allocate kernel buffer.\n");
     return 1;
   }
+  lkp.kernel_buffer_size = KERNEL_BUFFER_SIZE;
 
   /* Need to skip the address check, since we're putting it somewhere on the
    * heap instead of its actual target address in the firmware. */

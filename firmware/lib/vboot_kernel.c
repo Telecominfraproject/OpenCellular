@@ -112,13 +112,11 @@ int WriteAndFreeGptData(GptData* gptdata) {
 __pragma(warning(disable: 4127))
 
 int LoadKernel(LoadKernelParams* params) {
-
-  VbPublicKey* kernel_subkey = (VbPublicKey*)params->header_sign_key_blob;
-
+  VbPublicKey* kernel_subkey;
   GptData gpt;
   uint64_t part_start, part_size;
-  uint64_t blba = params->bytes_per_lba;
-  uint64_t kbuf_sectors = KBUF_SIZE / blba;
+  uint64_t blba;
+  uint64_t kbuf_sectors;
   uint8_t* kbuf = NULL;
   int found_partitions = 0;
   int good_partition = -1;
@@ -126,10 +124,29 @@ int LoadKernel(LoadKernelParams* params) {
   uint16_t tpm_kernel_version = 0;
   uint64_t lowest_key_version = 0xFFFF;
   uint64_t lowest_kernel_version = 0xFFFF;
-  int is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
-  int is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
-  int is_normal = (!is_dev && !is_rec);
+  int is_dev;
+  int is_rec;
+  int is_normal;
   uint32_t status;
+
+  /* Sanity Checks */
+  if (!params ||
+      !params->header_sign_key_blob ||
+      !params->bytes_per_lba ||
+      !params->ending_lba ||
+      !params->kernel_buffer ||
+      !params->kernel_buffer_size) {
+    VBDEBUG(("LoadKernel() called with invalid params\n"));
+    return LOAD_KERNEL_INVALID;
+  }
+
+  /* Initialization */
+  kernel_subkey = (VbPublicKey*)params->header_sign_key_blob;
+  blba = params->bytes_per_lba;
+  kbuf_sectors = KBUF_SIZE / blba;
+  is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
+  is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
+  is_normal = (!is_dev && !is_rec);
 
   /* Clear output params in case we fail */
   params->partition_number = 0;
