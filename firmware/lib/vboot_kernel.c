@@ -10,11 +10,11 @@
 
 #include "boot_device.h"
 #include "cgptlib.h"
+#include "cgptlib_internal.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
 #include "vboot_common.h"
-
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 
@@ -131,7 +131,6 @@ int LoadKernel(LoadKernelParams* params) {
 
   /* Sanity Checks */
   if (!params ||
-      !params->header_sign_key_blob ||
       !params->bytes_per_lba ||
       !params->ending_lba ||
       !params->kernel_buffer ||
@@ -350,6 +349,7 @@ int LoadKernel(LoadKernelParams* params) {
        * Adjust here, until cgptlib is fixed. */
       good_partition = gpt.current_kernel + 1;
       params->partition_number = gpt.current_kernel + 1;
+      GetCurrentKernelUniqueGuid(&gpt, &params->partition_guid);
       params->bootloader_address = preamble->bootloader_address;
       params->bootloader_size = preamble->bootloader_size;
       /* If we're in developer or recovery mode, there's no rollback

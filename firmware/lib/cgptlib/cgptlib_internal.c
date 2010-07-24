@@ -346,3 +346,9 @@ void SetEntryTries(GptEntry* e, int tries) {
   e->attrs.fields.gpt_att |= (tries << CGPT_ATTRIBUTE_TRIES_OFFSET) &
       CGPT_ATTRIBUTE_TRIES_MASK;
 }
+
+void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest) {
+  GptEntry* entries = (GptEntry*)gpt->primary_entries;
+  GptEntry* e = entries + gpt->current_kernel;
+  Memcpy(dest, &e->unique, sizeof(Guid));
+}

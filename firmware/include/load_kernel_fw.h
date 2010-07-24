@@ -44,6 +44,7 @@ typedef struct LoadKernelParams {
                                  * (1...M) */
   uint64_t bootloader_address;  /* Address of bootloader image in RAM */
   uint64_t bootloader_size;     /* Size of bootloader image in bytes */
+  uint8_t  partition_guid[16];  /* UniquePartitionGuid for boot partition */
 } LoadKernelParams;
 
 int LoadKernel(LoadKernelParams* params);
@@ -62,6 +63,7 @@ typedef struct KernelBootloaderOptions {
   uint64_t original_address;    /* Absolute bootloader start adddress,
                                  * as returned from LoadKernel() in
                                  * LoadKernelParams.bootloader_start */
+  uint8_t  partition_guid[16];  /* UniquePartitionGuid for boot partition */
 } KernelBootloaderOptions;
 
 

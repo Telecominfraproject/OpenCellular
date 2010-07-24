@@ -112,4 +112,7 @@ int IsUnusedEntry(const GptEntry* e);
 /* Returns 1 if the entry is a Chrome OS kernel partition, else 0. */
 int IsKernelEntry(const GptEntry* e);
 
+/* Copies the current kernel partition's UniquePartitionGuid to the dest */
+void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest);
+
 #endif /* VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_ */
