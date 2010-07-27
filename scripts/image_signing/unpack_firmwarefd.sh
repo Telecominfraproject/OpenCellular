@@ -25,21 +25,34 @@ type -P fmap_decode &>/dev/null || \
 
 src_fd=$1
 
-# Parse offsets and size of firmware data and vblocks
-let gbb_offset="$(fmap_decode $1 | grep GBB | cut -b 14-23)"
-let gbb_size="$(fmap_decode $1 | grep GBB | cut -b 37-46)"
-set -x
+# Grab GBB Area offset and size
+match_str="GBB Area"
+line=$(fmap_decode $1 | grep "$match_str")
+offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
+let gbb_offset="$offset"
+size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
+let gbb_size="$size"
+
+# Grab Firmware A and B offset and size
 for i in "A" "B"
 do
   match_str="$i Key"
+  line=$(fmap_decode $1 | grep "$match_str")
+  offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval let \
-    fw${i}_vblock_offset="$(fmap_decode $1 | grep "$match_str" | cut -b 14-23)"
+    fw${i}_vblock_offset="$offset"
+  size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
   eval let \
-    fw${i}_vblock_size="$(fmap_decode $1 | grep "$match_str" | cut -b 37-46)"
+    fw${i}_vblock_size="$size"
 
   match_str="$i Data"
-  eval let fw${i}_offset="$(fmap_decode $1 | grep "$match_str" | cut -b 14-23)"
-  eval let fw${i}_size="$(fmap_decode $1 | grep "$match_str" | cut -b 37-46)"
+  line=$(fmap_decode $1 | grep "$match_str")
+  offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
+  eval let \
+    fw${i}_offset="$offset"
+  size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
+  eval let \
+    fw${i}_size="$size"
 done
 
 echo "Extracting GBB"
