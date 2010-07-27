@@ -5,7 +5,7 @@
 # found in the LICENSE file.
 
 # Standalone version of cros_resign_image.sh script from
-# from chromeos/src/scripts/bin/ for use on signing servers.
+# chromeos/src/scripts/bin/ for use on signing servers.
 
 # Both the cgpt tool and vbutil_kernel should be in the system path.
 
@@ -28,8 +28,8 @@ sector_size=512  # sector size in bytes
 num_sectors_vb=128  # number of sectors in kernel verification blob
 src_bin=$1
 dst_bin=$2
-datakey=$3
-keyblock=$4
+kernel_datakey=$3
+kernel_keyblock=$4
 
 koffset="$(cgpt show -b -i 2 $1)"
 ksize="$(cgpt show -s -i 2 $1)"
