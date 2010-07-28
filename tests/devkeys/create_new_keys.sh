@@ -107,6 +107,9 @@ make_keyblock recovery_kernel 11 recovery_kernel_data_key recovery_key
 # Create the normal kernel keyblock for use only in Normal mode. 
 make_keyblock kernel 7 kernel_data_key kernel_subkey
 
+# Create the installer keyblock for use in Developer + Recovery mode
+# For use in Factory Install and Developer Mode install shims.
+make_keyblock installer_kernel 10 recovery_kernel_data_key recovery_key
 
 # CAUTION: The public parts of most of these blobs must be compiled into the
 # firmware, which is built separately (and some of which can't be changed after
