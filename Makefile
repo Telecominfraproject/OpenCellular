@@ -34,6 +34,7 @@ all:
 			mkdir -p $$newdir; \
 		fi; \
 	done && \
+	make -C utility update_tlcl_structures; \
 	for i in $(SUBDIRS); do \
 		make -C $$i; \
 	done
@@ -50,6 +51,3 @@ runtests:
 
 rbtest:
 	$(MAKE) -C tests rbtest
-
-update_tlcl_structures:
-	$(MAKE) -C utility update_tlcl_structures

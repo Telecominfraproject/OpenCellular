@@ -56,7 +56,7 @@ static void TpmExecute(const uint8_t *in, const uint32_t in_len,
                 uint8_t *out, uint32_t *pout_len) {
   uint8_t response[TPM_MAX_COMMAND_SIZE];
   if (in_len <= 0) {
-    error("invalid command length %d\n", in_len);
+    error("invalid command length %d for command 0x%x\n", in_len, in[9]);
   } else if (tpm_fd < 0) {
     error("the TPM device was not opened.  Forgot to call TlclLibInit?\n");
   } else {
