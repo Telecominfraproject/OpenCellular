@@ -21,6 +21,7 @@ TEST_NAMES = tpmtest_clear \
              tpmtest_readonly \
              tpmtest_redefine \
              tpmtest_spaceperm \
+	     tpmtest_startup \
              tpmtest_writelimit \
 
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))

@@ -22,6 +22,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		load_kernel_test \
 		signature_digest_utility \
 		tlcl_generator \
+		tpm_init_temp_fix \
 		vbutil_firmware \
 		vbutil_kernel \
 		vbutil_key \
@@ -68,6 +69,9 @@ ${BUILD_ROOT}/verify_data: verify_data.c $(LIBS)
 
 ${BUILD_ROOT}/sign_image: sign_image.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
