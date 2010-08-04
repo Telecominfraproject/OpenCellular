@@ -290,7 +290,7 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
 
   Memcpy(&cmd, &tpm_getpermissions_cmd, sizeof(cmd));
   ToTpmUint32(cmd.buffer + tpm_getpermissions_cmd.index, index);
-  TlclSendReceive(tpm_getpermissions_cmd.buffer, response, sizeof(response));
+  TlclSendReceive(cmd.buffer, response, sizeof(response));
   result = TpmReturnCode(response);
   if (result != TPM_SUCCESS) {
     return result;
