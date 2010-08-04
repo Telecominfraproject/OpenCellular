@@ -10,7 +10,10 @@
 # The following changes are applied:
 # - Set the root password.
 
-# Usage: ./customize_image <image.bin> <root_password>
+# Usage: ./customize_image.sh <image.bin> <root_password>
+
+# Load common constants and variables.
+. "$(dirname "$0")/common.sh"
 
 readonly ROOTFS_DIR=$(mktemp -d)
 readonly GPT=cgpt
@@ -25,20 +28,6 @@ cleanup() {
 failure() {
   cleanup
   exit 1
-}
-
-# Read GPT table to find the starting location of a specific partition.
-# Args: DEVICE PARTNUM
-# Returns: offset (in sectors) of partition PARTNUM
-partoffset() {
-  sudo $GPT show -b -i $2 $1
-}
-
-mount_image() {
-  local image=$1
-  echo "Mounting image '$image'..."
-  local offset=$(partoffset "$image" 3)
-  sudo mount -o loop,offset=$((offset * 512)) "$image" "$ROOTFS_DIR"
 }
 
 change_root_password() {
@@ -63,7 +52,7 @@ main() {
 
   set -e
   trap failure EXIT
-  mount_image "$image"
+  mount_image_partition "$image" 3 $ROOTFS_DIR
   change_root_password "$root_password"
   cleanup
   echo "Done."
