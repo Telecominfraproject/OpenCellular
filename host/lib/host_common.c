@@ -94,6 +94,8 @@ VbKernelPreambleHeader* CreateKernelPreamble(
 
   /* Allocate key block */
   h = (VbKernelPreambleHeader*)Malloc(block_size);
+  Memset(h, 0, block_size);
+
   if (!h)
     return NULL;
   body_sig_dest = (uint8_t*)(h + 1);
