@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -111,12 +112,19 @@ void TlclCloseDevice(void) {
 
 
 void TlclOpenDevice(void) {
+  char* device_path;
+
   if (tpm_fd >= 0)
     return;  /* Already open */
 
-  tpm_fd = open(TPM_DEVICE_PATH, O_RDWR);
+  device_path = getenv("TPM_DEVICE_PATH");
+  if (device_path == NULL) {
+    device_path = TPM_DEVICE_PATH;
+  }
+
+  tpm_fd = open(device_path, O_RDWR);
   if (tpm_fd < 0) {
-    error("cannot open TPM device %s: %s\n", TPM_DEVICE_PATH, strerror(errno));
+    error("cannot open TPM device %s: %s\n", device_path, strerror(errno));
   }
 }
 

@@ -13,13 +13,14 @@
  * This also enables the TPM if it is disabled, and activates it if it is
  * deactivated.
  *
- * Exit status: 0 for normal, 1 for errors (see syslog), 2 for normal but needs
- * reboot.
+ * Exit status always 0.  Prints "reboot" to request reboot, "fail" for errors,
+ * "success" when everything worked.
  */
 
-#include "tlcl.h"
-
+#include <stdio.h>
 #include <syslog.h>
+
+#include "tlcl.h"
 
 int main(int argc, char* argv[]) {
   uint32_t result;
@@ -33,34 +34,41 @@ int main(int argc, char* argv[]) {
     result = TlclSelfTestFull();
     if (result != 0) {
       syslog(pri, "TPM selftest failed with code 0x%x\n", result);
-      return 1;
+      printf("fail\n");
+      return 0;
     }
   }
   /* Optional one-time enabling of TPM. */
   result = TlclAssertPhysicalPresence();
   if (result != 0) {
     syslog(pri, "TPM assertpp failed with code 0x%x\n", result);
-    return 1;
+    printf("fail\n");
+    return 0;
   }
   result = TlclGetFlags(&disable, &deactivated, NULL);
   if (result != 0) {
     syslog(pri, "TPM getflags failed with code 0x%x\n", result);
-    return 1;
+    printf("fail\n");
+    return 0;
   }
   if (disable) {
     result = TlclSetEnable();
     if (result != 0) {
       syslog(pri, "TPM physical enable failed with code 0x%x\n", result);
-      return 1;
+      printf("fail\n");
+      return 0;
     }
   }
   if (deactivated) {
     result = TlclSetDeactivated(0);
     if (result != 0) {
       syslog(pri, "TPM physical activate failed with code 0x%x\n", result);
-      return 1;
+      printf("fail\n");
+    } else {
+      printf("reboot\n");
     }
-    return 2; /* needs reboot */
+    return 0; /* needs reboot */
   }
+  printf("success\n");
   return 0;
 }
