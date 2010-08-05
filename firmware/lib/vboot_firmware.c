@@ -41,7 +41,6 @@ int LoadFirmware(LoadFirmwareParams* params) {
   uint64_t lowest_key_version = 0xFFFF;
   uint64_t lowest_fw_version = 0xFFFF;
   uint32_t status;
-  int is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
   int good_index = -1;
   int index;
 
@@ -62,21 +61,17 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Initialize the TPM and read rollback indices. */
-  if (!is_dev) {
-    /* TODO: should use the TPM all the time; for now, only use when
-     * not in developer mode. */
-    status = RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER);
-    if (0 != status) {
-      VBDEBUG(("Unable to setup TPM.\n"));
-      return (status == TPM_E_MUST_REBOOT ?
-              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
-    }
-    status = RollbackFirmwareRead(&tpm_key_version, &tpm_fw_version);
-    if (0 != status) {
-      VBDEBUG(("Unable to read stored versions.\n"));
-      return (status == TPM_E_MUST_REBOOT ?
-              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
-    }
+  status = RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER);
+  if (0 != status) {
+    VBDEBUG(("Unable to setup TPM.\n"));
+    return (status == TPM_E_MUST_REBOOT ?
+            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
+  }
+  status = RollbackFirmwareRead(&tpm_key_version, &tpm_fw_version);
+  if (0 != status) {
+    VBDEBUG(("Unable to read stored versions.\n"));
+    return (status == TPM_E_MUST_REBOOT ?
+            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
   }
 
   /* Allocate our internal data */
@@ -230,29 +225,21 @@ int LoadFirmware(LoadFirmwareParams* params) {
         (lowest_key_version == tpm_key_version &&
          lowest_fw_version > tpm_fw_version)) {
 
-      if (!is_dev) {
-        /* TODO: should use the TPM all the time; for now, only use
-         * when not in developer mode. */
-        status = RollbackFirmwareWrite((uint16_t)lowest_key_version,
-                                       (uint16_t)lowest_fw_version);
-        if (0 != status) {
-          VBDEBUG(("Unable to write stored versions.\n"));
-          return (status == TPM_E_MUST_REBOOT ?
-                  LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
-        }
-      }
-    }
-
-    if (!is_dev) {
-      /* TODO: should use the TPM all the time; for now, only use
-       * when not in developer mode. */
-      /* Lock firmware versions in TPM */
-      status = RollbackFirmwareLock();
+      status = RollbackFirmwareWrite((uint16_t)lowest_key_version,
+                                     (uint16_t)lowest_fw_version);
       if (0 != status) {
-        VBDEBUG(("Unable to lock firmware versions.\n"));
+        VBDEBUG(("Unable to write stored versions.\n"));
         return (status == TPM_E_MUST_REBOOT ?
                 LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
       }
+    }
+
+    /* Lock firmware versions in TPM */
+    status = RollbackFirmwareLock();
+    if (0 != status) {
+      VBDEBUG(("Unable to lock firmware versions.\n"));
+      return (status == TPM_E_MUST_REBOOT ?
+              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
     }
 
     /* Success */

@@ -21,12 +21,6 @@
 #include "tss_constants.h"
 #include "utility.h"
 
-#define EXTRA_LOGGING 0
-
-#if EXTRA_LOGGING
-#include <stdio.h>
-#endif
-
 /* Sets the size field of a TPM command. */
 static INLINE void SetTpmCommandSize(uint8_t* buffer, uint32_t size) {
   ToTpmUint32(buffer + sizeof(uint16_t), size);
@@ -67,19 +61,21 @@ static void CheckResult(uint8_t* request, uint8_t* response, int warn_only) {
 static void TlclSendReceive(uint8_t* request, uint8_t* response,
                             int max_length) {
 
-#if EXTRA_LOGGING
-  printf("command: %x%x %x%x%x%x %x%x%x%x\n",
-         request[0], request[1],
-         request[2], request[3], request[4], request[5],
-         request[6], request[7], request[8], request[9]);
+#ifdef EXTRA_LOGGING
+  VBDEBUG(("TPM: command: %x%x %x%x%x%x %x%x%x%x\n",
+           request[0], request[1],
+           request[2], request[3], request[4], request[5],
+           request[6], request[7], request[8], request[9]));
 #endif
+
   TlclStubSendReceive(request, TpmCommandSize(request),
                       response, max_length);
-#if EXTRA_LOGGING
-  printf("response: %x%x %x%x%x%x %x%x%x%x\n",
-         response[0], response[1],
-         response[2], response[3], response[4], response[5],
-         response[6], response[7], response[8], response[9]);
+
+#ifdef EXTRA_LOGGING
+  VBDEBUG(("TPM: response: %x%x %x%x%x%x %x%x%x%x\n",
+           response[0], response[1],
+           response[2], response[3], response[4], response[5],
+           response[6], response[7], response[8], response[9]));
 #endif
 
 #ifdef VBOOT_DEBUG

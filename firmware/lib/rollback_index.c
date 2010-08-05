@@ -230,7 +230,7 @@ static uint32_t BackupKernelSpace(void) {
 }
 
 /* Checks for transitions between protected mode to developer mode.  When going
- * into developer mode, clear the TPM.
+ * into or out of developer mode, clear the TPM.
  */
 static uint32_t CheckDeveloperModeTransition(uint32_t current_developer) {
   uint32_t past_developer;
@@ -337,6 +337,7 @@ uint32_t RollbackFirmwareSetup(int developer_mode) {
    * environment, don't even talk to the TPM. */
   TlclLibInit();
   TlclStartup();
+  TlclSelfTestFull();
 #endif
   return TPM_SUCCESS;
 }
@@ -360,6 +361,7 @@ uint32_t RollbackKernelRecovery(int developer_mode) {
    * environment, don't even talk to the TPM. */
   TlclLibInit();
   TlclStartup();
+  TlclSelfTestFull();
 #endif
   return TPM_SUCCESS;
 }
