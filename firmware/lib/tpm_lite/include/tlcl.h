@@ -26,8 +26,10 @@ void TlclStubInit(void);
 void TlclCloseDevice(void);
 void TlclOpenDevice(void);
 
-void TlclStubSendReceive(uint8_t* request, int request_length,
-                         uint8_t* response, int max_length);
+/* Send data to the TPM and receive a response.  Returns 0 if success,
+ * nonzero if error. */
+uint32_t TlclStubSendReceive(uint8_t* request, int request_length,
+                             uint8_t* response, int max_length);
 
 /*****************************************************************************/
 /* Functions implemented in tlcl.c */
@@ -35,7 +37,6 @@ void TlclStubSendReceive(uint8_t* request, int request_length,
 /* Call this first.
  */
 void TlclLibInit(void);
-
 
 /* Logs to stdout.  Arguments like printf.
  */
@@ -116,7 +117,7 @@ uint32_t TlclClearEnable(void);
 uint32_t TlclSetDeactivated(uint8_t flag);
 
 /* Gets flags of interest.  Pointers for flags you aren't interested in may
- * be NULL.  The TPM error code is returned.  
+ * be NULL.  The TPM error code is returned.
  */
 uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t* nvlocked);
 

@@ -129,8 +129,8 @@ void TlclOpenDevice(void) {
 }
 
 
-void TlclStubSendReceive(uint8_t* request, int request_length,
-                         uint8_t* response, int max_length) {
+uint32_t TlclStubSendReceive(uint8_t* request, int request_length,
+                             uint8_t* response, int max_length) {
   /*
    * In a real firmware implementation, this function should contain
    * the equivalent API call for the firmware TPM driver which takes a
@@ -183,4 +183,6 @@ void TlclStubSendReceive(uint8_t* request, int request_length,
     (tag == TPM_TAG_RQU_AUTH2_COMMAND &&
      response_tag == TPM_TAG_RSP_AUTH2_COMMAND));
   assert(response_length == TpmResponseSize(response));
+
+  return 0;  /* Success */
 }
