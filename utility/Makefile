@@ -23,6 +23,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		signature_digest_utility \
 		tlcl_generator \
 		tpm_init_temp_fix \
+		tpmc \
 		vbutil_firmware \
 		vbutil_kernel \
 		vbutil_key \
@@ -76,6 +77,9 @@ ${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
 
 ${BUILD_ROOT}/dev_make_keypair: dev_make_keypair
 	cp -f $< $@
+
+${BUILD_ROOT}/tpmc: tpmc.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
