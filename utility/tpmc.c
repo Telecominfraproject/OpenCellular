@@ -60,6 +60,7 @@ command_record command_table[] = {
     HandlerActivate },
   { "deactivate", "deact", "deactivate the TPM (needs PP, maybe reboot)",
     HandlerDeactivate },
+  { "clear", "clr", "clear the TPM owner (needs PP)", TlclForceClear },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);
