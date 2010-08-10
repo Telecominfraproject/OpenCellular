@@ -29,7 +29,8 @@ TARGET_NAMES = dumpRSAPublicKey \
 		vbutil_key \
 		vbutil_keyblock \
 		verify_data \
-		dev_make_keypair
+		dev_make_keypair \
+		dev_sign_file
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
@@ -80,6 +81,9 @@ ${BUILD_ROOT}/dev_make_keypair: dev_make_keypair
 
 ${BUILD_ROOT}/tpmc: tpmc.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+
+${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
