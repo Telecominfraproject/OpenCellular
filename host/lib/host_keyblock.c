@@ -22,7 +22,7 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   VbKeyBlockHeader* h;
   uint64_t signed_size = sizeof(VbKeyBlockHeader) + data_key->key_size;
   uint64_t block_size = (signed_size + SHA512_DIGEST_SIZE +
-                         siglen_map[signing_key->algorithm]);
+                         (signing_key ? siglen_map[signing_key->algorithm] : 0));
   uint8_t* data_key_dest;
   uint8_t* block_sig_dest;
   uint8_t* block_chk_dest;
@@ -49,8 +49,11 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   /* Set up signature structs so we can calculate the signatures */
   SignatureInit(&h->key_block_checksum, block_chk_dest,
                 SHA512_DIGEST_SIZE, signed_size);
-  SignatureInit(&h->key_block_signature, block_sig_dest,
-                siglen_map[signing_key->algorithm], signed_size);
+  if (signing_key)
+    SignatureInit(&h->key_block_signature, block_sig_dest,
+                  siglen_map[signing_key->algorithm], signed_size);
+  else
+    Memset(&h->key_block_signature, 0, sizeof(VbSignature));
 
   /* Calculate checksum */
   sigtmp = CalculateChecksum((uint8_t*)h, signed_size);
@@ -58,9 +61,11 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   Free(sigtmp);
 
   /* Calculate signature */
-  sigtmp = CalculateSignature((uint8_t*)h, signed_size, signing_key);
-  SignatureCopy(&h->key_block_signature, sigtmp);
-  Free(sigtmp);
+  if (signing_key) {
+    sigtmp = CalculateSignature((uint8_t*)h, signed_size, signing_key);
+    SignatureCopy(&h->key_block_signature, sigtmp);
+    Free(sigtmp);
+  }
 
   /* Return the header */
   return h;

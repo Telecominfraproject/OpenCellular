@@ -181,7 +181,11 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
     return VBOOT_KEY_BLOCK_INVALID;
   }
 
-  /* Check signature or hash, depending on whether we have a key. */
+  /* Check signature or hash, depending on whether we provide a key. Note that
+   * we don't require a key even if the keyblock has a signature, because the
+   * caller may not care if the keyblock itself is signed (for example, booting
+   * a Google-signed kernel in developer mode).
+   */
   if (key) {
     /* Check signature */
     RSAPublicKey* rsa;
@@ -205,10 +209,13 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       VBDEBUG(("Signature calculated past end of the block\n"));
       return VBOOT_KEY_BLOCK_INVALID;
     }
+    VBDEBUG(("Checking key block signature...\n"));
     rv = VerifyData((const uint8_t*)block, size, sig, rsa);
     RSAPublicKeyFree(rsa);
-    if (rv)
+    if (rv) {
+      VBDEBUG(("Invalid key block signature.\n"));
       return VBOOT_KEY_BLOCK_SIGNATURE;
+    }
   } else {
     /* Check hash */
     uint8_t* header_checksum = NULL;
@@ -225,6 +232,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       return VBOOT_KEY_BLOCK_INVALID;
     }
 
+    VBDEBUG(("Checking key block hash only...\n"));
     header_checksum = DigestBuf((const uint8_t*)block, sig->data_size,
                                 SHA512_DIGEST_ALGORITHM);
     rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),

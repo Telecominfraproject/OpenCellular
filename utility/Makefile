@@ -27,7 +27,8 @@ TARGET_NAMES = dumpRSAPublicKey \
 		vbutil_kernel \
 		vbutil_key \
 		vbutil_keyblock \
-		verify_data
+		verify_data \
+		dev_make_keypair
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
@@ -72,6 +73,9 @@ ${BUILD_ROOT}/sign_image: sign_image.c $(LIBS)
 
 ${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+
+${BUILD_ROOT}/dev_make_keypair: dev_make_keypair
+	cp -f $< $@
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)

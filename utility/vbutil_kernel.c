@@ -76,7 +76,8 @@ static int PrintHelp(char *progname) {
           "\n"
           "  Required parameters:\n"
           "    --keyblock <file>         Key block in .keyblock format\n"
-          "    --signprivate <file>      Signing private key in .pem format\n"
+          "    --signprivate <file>"
+          "      Private key to sign kernel data, in .vbprivk format\n"
           "    --version <number>        Kernel version\n"
           "    --vmlinuz <file>          Linux kernel bzImage file\n"
           "    --bootloader <file>       Bootloader stub\n"
@@ -93,7 +94,8 @@ static int PrintHelp(char *progname) {
           "  Required parameters (of --keyblock and --config at least "
           "one is required):\n"
           "    --keyblock <file>         Key block in .keyblock format\n"
-          "    --signprivate <file>      Signing private key in .pem format\n"
+          "    --signprivate <file>"
+          "      Private key to sign kernel data, in .vbprivk format\n"
           "    --oldblob <file>          Previously packed kernel blob\n"
           "    --config <file>           New command line file\n"
           "\n"
@@ -105,10 +107,9 @@ static int PrintHelp(char *progname) {
           "\nOR\n\n"
           "Usage:  %s --verify <file> [PARAMETERS]\n"
           "\n"
-          "  Required parameters:\n"
-          "    --signpubkey <file>       Signing public key in .vbpubk format\n"
-          "\n"
           "  Optional:\n"
+          "    --signpubkey <file>"
+          "       Public key to verify kernel keyblock, in .vbpubk format\n"
           "    --verbose                 Print a more detailed report\n"
           "\n",
           progname);
@@ -611,22 +612,24 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
   VbPublicKey* data_key;
-  VbPublicKey* sign_key;
+  VbPublicKey* sign_key = NULL;
   RSAPublicKey* rsa;
   blob_t* bp;
   uint64_t now;
   int rv = 1;
 
-  if (!infile || !signpubkey) {
-    error("Must specify filename and signpubkey\n");
+  if (!infile) {
+    error("Must specify filename\n");
     return 1;
   }
 
   /* Read public signing key */
-  sign_key = PublicKeyRead(signpubkey);
-  if (!sign_key) {
-    error("Error reading signpubkey.\n");
-    return 1;
+  if (signpubkey) {
+    sign_key = PublicKeyRead(signpubkey);
+    if (!sign_key) {
+      error("Error reading signpubkey.\n");
+      return 1;
+    }
   }
 
   /* Read blob */
@@ -646,6 +649,8 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
 
   printf("Key block:\n");
   data_key = &key_block->data_key;
+  if (verbose)
+    printf("  Signature:           %s\n", sign_key ? "valid" : "ignored");
   printf("  Size:                0x%" PRIx64 "\n", key_block->key_block_size);
   printf("  Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
          (data_key->algorithm < kNumAlgorithms ?
@@ -662,7 +667,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
   /* Verify preamble */
   preamble = bp->preamble;
   if (0 != VerifyKernelPreamble(
-          preamble, bp->blob_size - key_block->key_block_size, rsa)) {
+        preamble, bp->blob_size - key_block->key_block_size, rsa)) {
     error("Error verifying preamble.\n");
     goto verify_exit;
   }
@@ -735,6 +740,10 @@ int main(int argc, char* argv[]) {
       case '?':
         /* Unhandled option */
         parse_error = 1;
+        break;
+
+      case 0:
+        /* silently handled option */
         break;
 
       case OPT_MODE_PACK:

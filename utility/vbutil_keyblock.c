@@ -46,16 +46,19 @@ static int PrintHelp(char *progname) {
           "\n"
           "For '--pack <file>', required OPTIONS are:\n"
           "  --datapubkey <file>         Data public key in .vbpubk format\n"
+          "\n"
+          "Optional OPTIONS are:\n"
           "  --signprivate <file>"
-          "        Signing private key in .vbprivk format\n"
+          "        Signing private key in .vbprivk format. Without this arg,\n"
+          "                                the keyblock will not be signed.\n"
+          "  --flags <number>            Specifies allowed use conditions.\n"
           "\n"
-          "Optional OPTIONS are:\n"
-          "  --flags <number>            Flags\n"
-          "\n"
-          "For '--unpack <file>', required OPTIONS are:\n"
-          "  --signpubkey <file>         Signing public key in .vbpubk format\n"
-          "Optional OPTIONS are:\n"
-          "  --datapubkey <file>         Data public key output file\n",
+          "For '--unpack <file>', optional OPTIONS are:\n"
+          "  --signpubkey <file>"
+          "         Signing public key in .vbpubk format. This is required to\n"
+          "                                verify a signed keyblock.\n"
+          "  --datapubkey <file>"
+          "         Write the data public key to this file.\n",
           progname);
   return 1;
 }
@@ -65,15 +68,15 @@ static int PrintHelp(char *progname) {
 static int Pack(const char* outfile, const char* datapubkey,
                 const char* signprivate, uint64_t flags) {
   VbPublicKey* data_key;
-  VbPrivateKey* signing_key;
+  VbPrivateKey* signing_key = NULL;
   VbKeyBlockHeader* block;
 
   if (!outfile) {
-    fprintf(stderr, "vbutil_keyblock: Must specify output filename\n");
+    fprintf(stderr, "vbutil_keyblock: Must specify output filename.\n");
     return 1;
   }
-  if (!datapubkey || !signprivate) {
-    fprintf(stderr, "vbutil_keyblock: Must specify all keys\n");
+  if (!datapubkey) {
+    fprintf(stderr, "vbutil_keyblock: Must specify data public key.\n");
     return 1;
   }
 
@@ -82,15 +85,19 @@ static int Pack(const char* outfile, const char* datapubkey,
     fprintf(stderr, "vbutil_keyblock: Error reading data key.\n");
     return 1;
   }
-  signing_key = PrivateKeyRead(signprivate);
-  if (!signing_key) {
-    fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
-    return 1;
+
+  if (signprivate) {
+    signing_key = PrivateKeyRead(signprivate);
+    if (!signing_key) {
+      fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
+      return 1;
+    }
   }
 
   block = KeyBlockCreate(data_key, signing_key, flags);
   Free(data_key);
-  Free(signing_key);
+  if (signing_key)
+    Free(signing_key);
 
   if (0 != KeyBlockWrite(outfile, block)) {
     fprintf(stderr, "vbutil_keyblock: Error writing key block.\n");
@@ -104,17 +111,11 @@ static int Pack(const char* outfile, const char* datapubkey,
 static int Unpack(const char* infile, const char* datapubkey,
                   const char* signpubkey) {
   VbPublicKey* data_key;
-  VbPublicKey* sign_key;
+  VbPublicKey* sign_key = NULL;
   VbKeyBlockHeader* block;
 
-  if (!infile || !signpubkey) {
-    fprintf(stderr, "vbutil_keyblock: Must specify filename and signpubkey\n");
-    return 1;
-  }
-
-  sign_key = PublicKeyRead(signpubkey);
-  if (!sign_key) {
-    fprintf(stderr, "vbutil_keyblock: Error reading signpubkey.\n");
+  if (!infile) {
+    fprintf(stderr, "vbutil_keyblock: Must specify filename\n");
     return 1;
   }
 
@@ -123,27 +124,48 @@ static int Unpack(const char* infile, const char* datapubkey,
     fprintf(stderr, "vbutil_keyblock: Error reading key block.\n");
     return 1;
   }
-  /* Verify the block with the signing public key, since
-   * KeyBlockRead() only verified the hash. */
-  /* TODO: should just print a warning, since self-signed key blocks
-   * won't have a public key; signpubkey should also be an optional
-   * argument. */
-  if (0 != KeyBlockVerify(block, block->key_block_size, sign_key)) {
-    fprintf(stderr, "vbutil_keyblock: Error verifying key block.\n");
-    return 1;
-  }
-  Free(sign_key);
 
-  printf("Key block file:      %s\n", infile);
-  printf("Flags:               %" PRIu64 "\n", block->key_block_flags);
+  /* If the block is signed, then verify it with the signing public key, since
+     KeyBlockRead() only verified the hash. */
+  if (block->key_block_signature.sig_size) {
+    if (!signpubkey) {
+      fprintf(stderr,
+              "vbutil_keyblock: keyblock requires public key to verify\n");
+      return 1;
+    }
+    sign_key = PublicKeyRead(signpubkey);
+    if (!sign_key) {
+      fprintf(stderr, "vbutil_keyblock: Error reading signpubkey.\n");
+      return 1;
+    }
+    if (0 != KeyBlockVerify(block, block->key_block_size, sign_key)) {
+      fprintf(stderr, "vbutil_keyblock: Error verifying key block.\n");
+      return 1;
+    }
+    printf("Signature algorithm:  %" PRIu64 " %s\n", sign_key->algorithm,
+           (sign_key->algorithm < kNumAlgorithms ?
+            algo_strings[sign_key->algorithm] : "(invalid)"));
+    Free(sign_key);
+  } else {
+    printf("Signature Algorithm:  <none>\n");
+  }
+
+  printf("Key block file:       %s\n", infile);
+  printf("Flags:                %" PRIu64 "\n", block->key_block_flags);
 
   data_key = &block->data_key;
-  printf("Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
+  printf("Data key algorithm:   %" PRIu64 " %s\n", data_key->algorithm,
          (data_key->algorithm < kNumAlgorithms ?
           algo_strings[data_key->algorithm] : "(invalid)"));
-  printf("Data key version:    %" PRIu64 "\n", data_key->key_version);
+  printf("Data key version:     %" PRIu64 "\n", data_key->key_version);
 
-  /* TODO: write key data, if output file specified */
+  if (datapubkey) {
+    if (0 != PublicKeyWrite(datapubkey, data_key)) {
+      fprintf(stderr,
+              "vbutil_keyblock: unable to write public key\n");
+      return 1;
+    }
+  }
 
   Free(block);
   return 0;

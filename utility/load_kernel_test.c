@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "load_kernel_fw.h"
 #include "boot_device.h"
@@ -75,29 +76,75 @@ int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
 int main(int argc, char* argv[]) {
 
   const char* image_name;
-  const char* keyfile_name;
-  int rv;
+  int rv, c, argsleft;
+  int errorcnt = 0;
+  char *e = 0;
 
   Memset(&lkp, 0, sizeof(LoadKernelParams));
   lkp.bytes_per_lba = LBA_BYTES;
+  lkp.boot_flags = BOOT_FLAG_RECOVERY;
 
-  /* Read command line parameters */
-  if (3 > argc) {
-    fprintf(stderr, "usage: %s <drive_image> <sign_key> [boot flag]\n", argv[0]);
+  /* Parse options */
+  opterr = 0;
+  while ((c=getopt(argc, argv, ":b:")) != -1)
+  {
+    switch (c)
+    {
+    case 'b':
+      lkp.boot_flags = strtoull(optarg, &e, 0);
+      if (!*optarg || (e && *e))
+      {
+        fprintf(stderr, "Invalid argument to -%c: \"%s\"\n", c, optarg);
+        errorcnt++;
+      }
+      break;
+    case '?':
+      fprintf(stderr, "Unrecognized switch: -%c\n", optopt);
+      errorcnt++;
+      break;
+    case ':':
+      fprintf(stderr, "Missing argument to -%c\n", optopt);
+      errorcnt++;
+      break;
+    default:
+      errorcnt++;
+      break;
+    }
+  }
+
+  /* Update argc */
+  argsleft = argc - optind;
+
+  if (errorcnt || !argsleft)
+  {
+    fprintf(stderr, "usage: %s [options] <drive_image> [<sign_key>]\n",
+            argv[0]);
+    fprintf(stderr, "\noptions:\n");
+    fprintf(stderr, "  -b NUM     boot flag bits (default %" PRIu64 "):\n",
+            BOOT_FLAG_RECOVERY);
+    fprintf(stderr, "               %" PRIu64 " = developer mode on\n",
+            BOOT_FLAG_DEVELOPER);
+    fprintf(stderr, "               %" PRIu64 " = recovery mode on\n",
+            BOOT_FLAG_RECOVERY);
     return 1;
   }
-  image_name = argv[1];
-  keyfile_name = argv[2];
+
+  image_name = argv[optind];
 
   /* Read header signing key blob */
-  {
+  if (argsleft > 1) {
     uint64_t key_size;
-    lkp.header_sign_key_blob = ReadFile(keyfile_name, &key_size);
+    lkp.header_sign_key_blob = ReadFile(argv[optind+1], &key_size);
     if (!lkp.header_sign_key_blob) {
-      fprintf(stderr, "Unable to read key file %s\n", keyfile_name);
+      fprintf(stderr, "Unable to read key file %s\n", argv[optind+1]);
       return 1;
     }
   }
+  /* Need to skip the address check, since we're putting it somewhere on the
+   * heap instead of its actual target address in the firmware. */
+  lkp.boot_flags |= BOOT_FLAG_SKIP_ADDR_CHECK;
+
+  printf("bootflags = %" PRIu64 "\n", lkp.boot_flags);
 
   /* Get image size */
   printf("Reading from image: %s\n", image_name);
@@ -119,14 +166,6 @@ int main(int argc, char* argv[]) {
   }
   lkp.kernel_buffer_size = KERNEL_BUFFER_SIZE;
 
-  /* Need to skip the address check, since we're putting it somewhere on the
-   * heap instead of its actual target address in the firmware. */
-  if (argc == 4) {
-    lkp.boot_flags = atoi(argv[3]) | BOOT_FLAG_SKIP_ADDR_CHECK;
-  } else {
-    /* Default to recovery. */
-    lkp.boot_flags = BOOT_FLAG_SKIP_ADDR_CHECK | BOOT_FLAG_RECOVERY;
-  }
   /* Call LoadKernel() */
   rv = LoadKernel(&lkp);
   printf("LoadKernel() returned %d\n", rv);

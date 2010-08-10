@@ -68,13 +68,25 @@ ${datahashalgo}${COL_STOP}"
           keyblockfile+="${data_algorithmcounter}.keyblock"
           rm -f ${keyblockfile}
 
-          # Wrap
+          # Wrap private key
           ${UTIL_DIR}/vbutil_key \
             --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbprivk \
             --key ${TESTKEY_DIR}/key_rsa${signing_keylen}.pem \
             --algorithm $signing_algorithmcounter
           if [ $? -ne 0 ]
           then
+            echo -e "${COL_RED}Wrap vbprivk${COL_STOP}"
+            return_code=255
+          fi
+
+          # Wrap public key
+          ${UTIL_DIR}/vbutil_key \
+            --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk \
+            --key ${TESTKEY_DIR}/key_rsa${signing_keylen}.keyb \
+            --algorithm $signing_algorithmcounter
+          if [ $? -ne 0 ]
+          then
+            echo -e "${COL_RED}Wrap vbpubk${COL_STOP}"
             return_code=255
           fi
 
@@ -86,17 +98,30 @@ ${datahashalgo}${COL_STOP}"
               ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbprivk
           if [ $? -ne 0 ]
           then
+            echo -e "${COL_RED}Pack${COL_STOP}"
             return_code=255
           fi
 
           # Unpack
           ${UTIL_DIR}/vbutil_keyblock --unpack ${keyblockfile} \
+            --datapubkey \
+            ${TESTKEY_SCRATCH_DIR}/key_alg${data_algorithmcounter}.vbpubk2 \
             --signpubkey \
-            ${TESTKEY_SCRATCH_DIR}/key_alg${signing_algorithmcounter}.vbpubk
-          # TODO: check data key against the packed one?
+            ${TESTKEY_SCRATCH_DIR}/key_alg${algorithmcounter}.vbpubk
           if [ $? -ne 0 ]
           then
+            echo -e "${COL_RED}Unpack${COL_STOP}"
             return_code=255
+          fi
+
+          # Check
+          if ! cmp -s \
+            ${TESTKEY_SCRATCH_DIR}/key_alg${data_algorithmcounter}.vbpubk \
+            ${TESTKEY_SCRATCH_DIR}/key_alg${data_algorithmcounter}.vbpubk2
+          then
+            echo -e "${COL_RED}Check${COL_STOP}"
+            return_code=255
+            exit 1
           fi
 
           let data_algorithmcounter=data_algorithmcounter+1

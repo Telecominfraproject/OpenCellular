@@ -24,6 +24,11 @@ function alg_to_keylen {
 }
 
 # Emit .vbpubk and .vbprivk using given basename and algorithm
+# NOTE: This function also appears in ../../utility/dev_make_keypair. Making
+# the two implementations the same would require some common.sh, which is more
+# likely to cause problems than just keeping an eye out for any differences. If
+# you feel the need to change this file, check the history of that other file
+# to see what may need updating here too.
 function make_pair {
   local base=$1
   local alg=$2
@@ -101,10 +106,10 @@ make_pair recovery_kernel_data_key 11
 # since it's never even checked during Recovery mode.
 make_keyblock firmware 7 firmware_data_key root_key
 
-# Create the recovery kernel keyblock for use only in Recovery mode. 
+# Create the recovery kernel keyblock for use only in Recovery mode.
 make_keyblock recovery_kernel 11 recovery_kernel_data_key recovery_key
 
-# Create the normal kernel keyblock for use only in Normal mode. 
+# Create the normal kernel keyblock for use only in Normal mode.
 make_keyblock kernel 7 kernel_data_key kernel_subkey
 
 # Create the installer keyblock for use in Developer + Recovery mode
