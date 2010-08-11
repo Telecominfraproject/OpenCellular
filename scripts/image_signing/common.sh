@@ -6,6 +6,7 @@
 
 # Determine script directory
 SCRIPT_DIR=$(dirname $0)
+PROG=$(basename $0)
 GPT=cgpt
 
 # Read GPT table to find the starting location of a specific partition.
