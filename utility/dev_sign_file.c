@@ -47,7 +47,7 @@ static struct option long_opts[] = {
 
 
 /* Print help and return error */
-static int PrintHelp(char *progname) {
+static int PrintHelp(const char *progname) {
   fprintf(stderr,
           "This program is used to sign and verify developer-mode files\n");
   fprintf(stderr,
@@ -88,15 +88,14 @@ static void Debug(const char *format, ...) {
    having to declare yet another one for just this purpose. */
 static int Sign(const char* filename, const char* keyblock_file,
                 const char* signprivate_file, const char* outfile) {
-  uint8_t *file_data;
+  uint8_t* file_data;
   uint64_t file_size;
   VbKeyBlockHeader* key_block;
   uint64_t key_block_size;
   VbPrivateKey* signing_key;
   VbSignature* body_sig;
   VbKernelPreambleHeader* preamble;
-  FILE* f;
-  uint64_t i;
+  FILE* output_fp;
 
   /* Read the file that we're going to sign. */
   file_data = ReadFile(filename, &file_size);
@@ -125,8 +124,13 @@ static int Sign(const char* filename, const char* keyblock_file,
   }
 
   /* Create preamble */
-  preamble = CreateKernelPreamble(0UL, 0UL, 0UL, 0UL,
-                                  body_sig, 0UL, signing_key);
+  preamble = CreateKernelPreamble((uint64_t)0,
+                                  (uint64_t)0,
+                                  (uint64_t)0,
+                                  (uint64_t)0,
+                                  body_sig,
+                                  (uint64_t)0,
+                                  signing_key);
   if (!preamble) {
     error("Error creating preamble.\n");
     return 1;
@@ -134,22 +138,21 @@ static int Sign(const char* filename, const char* keyblock_file,
 
   /* Write the output file */
   Debug("writing %s...\n", outfile);
-  f = fopen(outfile, "wb");
-  if (!f) {
+  output_fp = fopen(outfile, "wb");
+  if (!output_fp) {
     error("Can't open output file %s\n", outfile);
     return 1;
   }
   Debug("0x%" PRIx64 " bytes of key_block\n", key_block_size);
   Debug("0x%" PRIx64 " bytes of preamble\n", preamble->preamble_size);
-  i = ((1 != fwrite(key_block, key_block_size, 1, f)) ||
-       (1 != fwrite(preamble, preamble->preamble_size, 1, f)));
-  if (i) {
+  if ((1 != fwrite(key_block, key_block_size, 1, output_fp)) ||
+      (1 != fwrite(preamble, preamble->preamble_size, 1, output_fp))) {
     error("Can't write output file %s\n", outfile);
-    fclose(f);
+    fclose(output_fp);
     unlink(outfile);
     return 1;
   }
-  fclose(f);
+  fclose(output_fp);
 
   /* Done */
   Free(preamble);
@@ -163,15 +166,15 @@ static int Sign(const char* filename, const char* keyblock_file,
 }
 
 static int Verify(const char* filename, const char* vblock_file) {
-  uint8_t *file_data;
+  uint8_t* file_data;
   uint64_t file_size;
-  uint8_t *buf;
+  uint8_t* buf;
   uint64_t buf_size;
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
   VbPublicKey* data_key;
   RSAPublicKey* rsa;
-  uint64_t now = 0;
+  uint64_t current_buf_offset = 0;
 
   /* Read the file that we're going to verify. */
   file_data = ReadFile(filename, &file_size);
@@ -190,22 +193,22 @@ static int Verify(const char* filename, const char* vblock_file) {
   /* Find the key block */
   key_block = (VbKeyBlockHeader*)buf;
   Debug("Keyblock is 0x%" PRIx64 " bytes\n", key_block->key_block_size);
-  now += key_block->key_block_size;
-  if (now > buf_size) {
+  current_buf_offset += key_block->key_block_size;
+  if (current_buf_offset > buf_size) {
     error("key_block_size advances past the end of the buffer\n");
     return 1;
   }
 
   /* Find the preamble */
-  preamble = (VbKernelPreambleHeader*)(buf + now);
+  preamble = (VbKernelPreambleHeader*)(buf + current_buf_offset);
   Debug("Preamble is 0x%" PRIx64 " bytes\n", preamble->preamble_size);
-  now += preamble->preamble_size;
-  if (now > buf_size ) {
+  current_buf_offset += preamble->preamble_size;
+  if (current_buf_offset > buf_size ) {
     error("preamble_size advances past the end of the buffer\n");
     return 1;
   }
 
-  Debug("Now is at 0x%" PRIx64 " bytes\n", now);
+  Debug("Current buf offset is at 0x%" PRIx64 " bytes\n", current_buf_offset);
 
   /* Check the keyblock */
   if (0 != KeyBlockVerify(key_block, file_size, NULL)) {
@@ -215,7 +218,6 @@ static int Verify(const char* filename, const char* vblock_file) {
 
   printf("Key block:\n");
   data_key = &key_block->data_key;
-//HEY   printf("  Signature:           %s\n", sign_key ? "valid" : "ignored");
   printf("  Size:                0x%" PRIx64 "\n", key_block->key_block_size);
   printf("  Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
          (data_key->algorithm < kNumAlgorithms ?
@@ -230,8 +232,7 @@ static int Verify(const char* filename, const char* vblock_file) {
     error("Error parsing data key.\n");
     return 1;
   }
-  if (0 != VerifyKernelPreamble(
-        preamble, file_size, rsa)) {
+  if (0 != VerifyKernelPreamble(preamble, file_size, rsa)) {
     error("Error verifying preamble.\n");
     return 1;
   }
@@ -249,14 +250,12 @@ static int Verify(const char* filename, const char* vblock_file) {
   printf("  Bootloader size:     0x%" PRIx64 "\n", preamble->bootloader_size);
 
   /* Verify body */
-  if (0 != VerifyData(file_data, file_size, &preamble->body_signature,
-                      rsa)) {
+  if (0 != VerifyData(file_data, file_size, &preamble->body_signature, rsa)) {
     error("Error verifying kernel body.\n");
     return 1;
   }
   printf("Body verification succeeded.\n");
 
-  // HEY
   return 0;
 }
 
@@ -268,7 +267,7 @@ int main(int argc, char* argv[]) {
   char* vblock_file = NULL;
   int mode = 0;
   int parse_error = 0;
-  int i;
+  int option_index;
 
   char *progname = strrchr(argv[0], '/');
   if (progname)
@@ -276,9 +275,9 @@ int main(int argc, char* argv[]) {
   else
     progname = argv[0];
 
-  while (((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) &&
+  while ((option_index = getopt_long(argc, argv, ":", long_opts, NULL)) != -1 &&
          !parse_error) {
-    switch (i) {
+    switch (option_index) {
       default:
       case '?':
         /* Unhandled option */
@@ -291,12 +290,12 @@ int main(int argc, char* argv[]) {
 
       case OPT_MODE_SIGN:
       case OPT_MODE_VERIFY:
-        if (mode && (mode != i)) {
+        if (mode && (mode != option_index)) {
           fprintf(stderr, "Only a single mode can be specified\n");
           parse_error = 1;
           break;
         }
-        mode = i;
+        mode = option_index;
         filename = optarg;
         break;
 
@@ -338,5 +337,6 @@ int main(int argc, char* argv[]) {
       return PrintHelp(progname);
   }
 
+  /* NOTREACHED */
   return 1;
 }
