@@ -11,48 +11,35 @@
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
-readonly ROOTFS_DIR=$(mktemp -d)
-
-cleanup() {
-  set +e
-  echo Cleaning up...
-  sudo umount -d "$ROOTFS_DIR"
-  rm -rf "$ROOTFS_DIR"
-}
-
-failure() {
-  cleanup
-  exit 1
-}
-
 change_chronos_password() {
-  local password=$1
+  local rootfs=$1
+  local password=$2
   echo "Changing chronos password to '$password'..."
   local crypted_password="$(echo $password | openssl passwd -1 -stdin)"
-  local temp_shadow="$ROOTFS_DIR/etc/tempshadow"
+  local temp_shadow="$rootfs/etc/tempshadow"
   echo "chronos:$crypted_password:14500:0:99999::::" \
     | sudo tee "$temp_shadow" > /dev/null
-  grep -Ev ^chronos: "$ROOTFS_DIR/etc/shadow" \
+  grep -Ev ^chronos: "$rootfs/etc/shadow" \
     | sudo tee -a "$temp_shadow" > /dev/null
-  sudo mv -f "$temp_shadow" "$ROOTFS_DIR/etc/shadow"
+  sudo mv -f "$temp_shadow" "$rootfs/etc/shadow"
 }
 
 main() {
+  set -e
+
   local image=$1
   local chronos_password=$2
   if [ $# -ne 2 ]; then
-    echo "Usage: $0 <image.bin> <chronos_password>"
+    echo "Usage: $PROG <image.bin> <chronos_password>"
     exit 1
   fi
 
-  set -e
-  trap failure EXIT
-  mount_image_partition "$image" 3 $ROOTFS_DIR
-  change_chronos_password "$chronos_password"
-  cleanup
+  local rootfs=$(mktemp -d)
+  mount_image_partition "$image" 3 "$rootfs"
+  trap "sudo umount -d $rootfs; rm -rf $rootfs" EXIT
+  change_chronos_password "$rootfs" "$chronos_password"
   touch "$image"  # Updates the image modification time.
   echo "Done."
-  trap - EXIT
 }
 
 main $@

@@ -43,4 +43,3 @@ extract_image_partition() {
   local size=$(partsize "$image" "$partnum")
   dd if=$image of=$output_file bs=512 skip=$offset count=$size
 }
-  
