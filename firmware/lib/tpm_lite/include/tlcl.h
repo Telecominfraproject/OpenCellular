@@ -68,12 +68,12 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size);
 /* Writes [length] bytes of [data] to space at [index].  The TPM error code is
  * returned.
  */
-uint32_t TlclWrite(uint32_t index, uint8_t *data, uint32_t length);
+uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length);
 
 /* Reads [length] bytes from space at [index] into [data].  The TPM error code
  * is returned.
  */
-uint32_t TlclRead(uint32_t index, uint8_t *data, uint32_t length);
+uint32_t TlclRead(uint32_t index, void* data, uint32_t length);
 
 /* Write-locks space at [index].  The TPM error code is returned.
  */

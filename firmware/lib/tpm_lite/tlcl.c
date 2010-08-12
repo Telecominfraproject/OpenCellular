@@ -121,7 +121,7 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
   return Send(cmd.buffer);
 }
 
-uint32_t TlclWrite(uint32_t index, uint8_t* data, uint32_t length) {
+uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length) {
   struct s_tpm_nv_write_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   const int total_length =
@@ -139,7 +139,7 @@ uint32_t TlclWrite(uint32_t index, uint8_t* data, uint32_t length) {
   return TlclSendReceive(cmd.buffer, response, sizeof(response));
 }
 
-uint32_t TlclRead(uint32_t index, uint8_t* data, uint32_t length) {
+uint32_t TlclRead(uint32_t index, void* data, uint32_t length) {
   struct s_tpm_nv_read_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   uint32_t result_length;

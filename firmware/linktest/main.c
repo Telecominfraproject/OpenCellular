@@ -29,8 +29,7 @@ int main(void)
   LoadKernel(0);
 
   /* rollback_index.h */
-  RollbackFirmwareSetup(0);
-  RollbackFirmwareRead(&x, &y);
+  RollbackFirmwareSetup(0, &x, &y);
   RollbackFirmwareWrite(0, 0);
   RollbackFirmwareLock();
   RollbackKernelRecovery(0);

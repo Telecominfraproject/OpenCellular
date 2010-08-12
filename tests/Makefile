@@ -22,7 +22,7 @@ TEST_NAMES = cgptlib_test \
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
 
 TEST_LIB = ${BUILD_ROOT}/test.a
-TEST_LIB_SRCS = rollback_index_mock.c test_common.c timer_utils.c crc32_test.c
+TEST_LIB_SRCS = test_common.c timer_utils.c crc32_test.c
 TEST_LIB_OBJS = $(TEST_LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 ALL_DEPS = $(addsuffix .d,${TEST_BINS} ${TEST_LIB_OBJS})
 CFLAGS +=  -MMD -MF $@.d
