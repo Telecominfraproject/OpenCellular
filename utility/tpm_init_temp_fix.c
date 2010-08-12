@@ -29,15 +29,21 @@ int main(int argc, char* argv[]) {
 
   TlclLibInit();
   TlclStartup();        /* ignore result */
+
+  /* On the dogfood device, GetFlags causes an assertion failure because the
+   * device uses an older TPM which is not compatible with the current spec.
+   * We take advantage of this to cause the program to exit and not run the
+   * self test again (which takes 1 second).
+   */
   result = TlclGetFlags(NULL, NULL, NULL);
+
+  result = TlclSelfTestFull();
   if (result != 0) {
-    result = TlclSelfTestFull();
-    if (result != 0) {
-      syslog(pri, "TPM selftest failed with code 0x%x\n", result);
-      printf("fail\n");
-      return 0;
-    }
+    syslog(pri, "TPM selftest failed with code 0x%x\n", result);
+    printf("fail\n");
+    return 0;
   }
+
   /* Optional one-time enabling of TPM. */
   result = TlclAssertPhysicalPresence();
   if (result != 0) {
