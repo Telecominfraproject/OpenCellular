@@ -9,6 +9,10 @@ SCRIPT_DIR=$(dirname $0)
 PROG=$(basename $0)
 GPT=cgpt
 
+# List of Temporary files and mount points.
+TEMP_FILE_LIST=$(mktemp)
+TEMP_DIR_LIST=$(mktemp)
+
 # Read GPT table to find the starting location of a specific partition.
 # Args: DEVICE PARTNUM
 # Returns: offset (in sectors) of partition PARTNUM
@@ -41,5 +45,51 @@ extract_image_partition() {
   local output_file=$3
   local offset=$(partoffset "$image" "$partnum")
   local size=$(partsize "$image" "$partnum")
-  dd if=$image of=$output_file bs=512 skip=$offset count=$size
+  dd if=$image of=$output_file bs=512 skip=$offset count=$size conv=notrunc
 }
+  
+# Replace a partition in an image from file
+# Args: IMAGE PARTNUM INPUTFILE
+replace_image_partition() {
+  local image=$1
+  local partnum=$2
+  local input_file=$3
+  local offset=$(partoffset "$image" "$partnum")
+  local size=$(partsize "$image" "$partnum")
+  dd if=$input_file of=$image bs=512 seek=$offset count=$size conv=notrunc
+}
+
+# Create a new temporary file and return its name.
+# File is automatically cleaned when cleanup_temps_and_mounts() is called.
+make_temp_file() {
+  local tempfile=$(mktemp)
+  echo "$tempfile" >> $TEMP_FILE_LIST
+  echo $tempfile
+}
+
+# Create a new temporary directory and return its name.
+# Directory is automatically deleted and any filesystem mounted on it unmounted
+# when cleanup_temps_and_mounts() is called.
+make_temp_dir() {
+  local tempdir=$(mktemp -d)
+  echo "$tempdir" >> $TEMP_DIR_LIST
+  echo $tempdir
+}
+
+cleanup_temps_and_mounts() {
+  for i in "$(cat $TEMP_FILE_LIST)"; do
+    rm -f $i
+  done
+  set +e  # umount may fail for unmounted directories
+  for i in "$(cat $TEMP_DIR_LIST)"; do
+    if [ -n "$i" ]; then
+      sudo umount -d $i 2>/dev/null
+      rm -rf $i
+    fi
+  done
+  set -e
+  rm -rf $TEMP_DIR_LIST $TEMP_FILE_LIST
+}
+
+trap "cleanup_temps_and_mounts" EXIT
+

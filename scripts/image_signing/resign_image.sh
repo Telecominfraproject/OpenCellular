@@ -9,6 +9,9 @@
 
 # Both the cgpt tool and vbutil_kernel should be in the system path.
 
+# Load common constants and variables.
+. "$(dirname "$0")/common.sh"
+
 # Abort on error
 set -e
 
@@ -35,10 +38,8 @@ koffset="$(cgpt show -b -i 2 $1)"
 ksize="$(cgpt show -s -i 2 $1)"
 
 echo "Re-signing image ${src_bin} and outputting ${dst_bin}"
-temp_kimage=$(mktemp)
-trap "rm -f ${temp_kimage}" EXIT
-temp_out_vb=$(mktemp)
-trap "rm -f ${temp_out_vb}" EXIT
+temp_kimage=$(make_temp_file)
+temp_out_vb=$(make_temp_file)
 
 # Grab the kernel image in preparation for resigning
 dd if="${src_bin}" of="${temp_kimage}" skip=$koffset bs=$sector_size \

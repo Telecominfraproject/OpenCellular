@@ -47,6 +47,9 @@
 # which can then replace old vblock for Firmware A ("Firmware A Key" region at
 # offset 0x00008000 and size 0x00002000).
 
+# Load common constants and variables.
+. "$(dirname "$0")/common.sh"
+
 # Abort on error
 set -e
 
@@ -95,9 +98,8 @@ do
     fw${i}_size="$size"
 done
 
-temp_fwimage=$(mktemp)
-temp_out_vb=$(mktemp)
-trap "rm -f ${temp_fwimage} ${temp_out_vb}" EXIT
+temp_fwimage=$(make_temp_file)
+temp_out_vb=$(make_temp_file)
 
 # Extract out Firmware A data and generate signature using the right keys
 dd if="${src_fd}" of="${temp_fwimage}" skip="${fwA_offset}" bs=1 \
