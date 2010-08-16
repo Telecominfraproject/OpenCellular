@@ -14,8 +14,6 @@
 
 int main(void)
 {
-  uint16_t x, y;
-
   /* cgptlib.h */
   GptInit(0);
   GptNextKernelEntry(0, 0, 0);
@@ -29,12 +27,12 @@ int main(void)
   LoadKernel(0);
 
   /* rollback_index.h */
-  RollbackFirmwareSetup(0, &x, &y);
-  RollbackFirmwareWrite(0, 0);
+  RollbackFirmwareSetup(0, 0);
+  RollbackFirmwareWrite(0);
   RollbackFirmwareLock();
   RollbackKernelRecovery(0);
-  RollbackKernelRead(&x, &y);
-  RollbackKernelWrite(0, 0);
+  RollbackKernelRead(0);
+  RollbackKernelWrite(0);
   RollbackKernelLock();
 
   /* tlcl.h */

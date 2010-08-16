@@ -89,13 +89,10 @@ Call from LoadKernel()
 
 /* Setup must be called.  Pass developer_mode=nonzero if in developer
  * mode. */
-/* TODO: use a 32-bit version instead of 2 version pieces */
-uint32_t RollbackFirmwareSetup(int developer_mode, uint16_t* key_version,
-                               uint16_t* version);
+uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version);
 
 /* Write may be called if the versions change */
-/* TODO: use a 32-bit version instead of 2 version pieces */
-uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version);
+uint32_t RollbackFirmwareWrite(uint32_t version);
 
 /* Lock must be called */
 uint32_t RollbackFirmwareLock(void);
@@ -111,9 +108,8 @@ uint32_t RollbackKernelRecovery(int developer_mode);
 
 /* Read and write may be called if not in developer mode.  If called in
  * recovery mode, the effect is undefined. */
-/* TODO: use a 32-bit version instead of 2 version pieces */
-uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version);
-uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version);
+uint32_t RollbackKernelRead(uint32_t* version);
+uint32_t RollbackKernelWrite(uint32_t version);
 
 /* Lock must be called.  Internally, it's ignored in recovery mode. */
 uint32_t RollbackKernelLock(void);

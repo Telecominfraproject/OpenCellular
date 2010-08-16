@@ -120,10 +120,8 @@ int LoadKernel(LoadKernelParams* params) {
   uint8_t* kbuf = NULL;
   int found_partitions = 0;
   int good_partition = -1;
-  uint16_t tpm_key_version = 0;
-  uint16_t tpm_kernel_version = 0;
-  uint64_t lowest_key_version = 0xFFFF;
-  uint64_t lowest_kernel_version = 0xFFFF;
+  uint32_t tpm_version = 0;
+  uint64_t lowest_version = 0xFFFFFFFF;
   int is_dev;
   int is_rec;
   int is_normal;
@@ -164,7 +162,7 @@ int LoadKernel(LoadKernelParams* params) {
   if (is_normal) {
     /* Read current kernel key index from TPM.  Assumes TPM is already
      * initialized. */
-    status = RollbackKernelRead(&tpm_key_version, &tpm_kernel_version);
+    status = RollbackKernelRead(&tpm_version);
     if (0 != status) {
       VBDEBUG(("Unable to get kernel versions from TPM\n"));
       return (status == TPM_E_MUST_REBOOT ?
@@ -202,6 +200,7 @@ int LoadKernel(LoadKernelParams* params) {
       VbKernelPreambleHeader* preamble;
       RSAPublicKey* data_key;
       uint64_t key_version;
+      uint64_t combined_version;
       uint64_t body_offset;
 
       VBDEBUG(("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
@@ -244,7 +243,7 @@ int LoadKernel(LoadKernelParams* params) {
        * skipped in recovery and developer modes because those set
        * key_version=0 above. */
       key_version = key_block->data_key.key_version;
-      if (key_version < tpm_key_version) {
+      if (key_version < (tpm_version >> 16)) {
         VBDEBUG(("Key version too old.\n"));
         continue;
       }
@@ -265,10 +264,11 @@ int LoadKernel(LoadKernelParams* params) {
       }
 
       /* Check for rollback of kernel version.  Note this is implicitly
-       * skipped in recovery and developer modes because those set
-       * key_version=0 and kernel_version=0 above. */
-      if (key_version == tpm_key_version &&
-          preamble->kernel_version < tpm_kernel_version) {
+       * skipped in recovery and developer modes because rollback_index
+       * sets those to 0 in those modes. */
+      combined_version = ((key_version << 16) |
+                          (preamble->kernel_version & 0xFFFF));
+      if (combined_version < tpm_version) {
         VBDEBUG(("Kernel version too low.\n"));
         RSAPublicKeyFree(data_key);
         continue;
@@ -276,15 +276,9 @@ int LoadKernel(LoadKernelParams* params) {
 
       VBDEBUG(("Kernel preamble is good.\n"));
 
-      /* Check for lowest key version from a valid header. */
-      if (lowest_key_version > key_version) {
-        lowest_key_version = key_version;
-        lowest_kernel_version = preamble->kernel_version;
-      }
-      else if (lowest_key_version == key_version &&
-               lowest_kernel_version > preamble->kernel_version) {
-        lowest_kernel_version = preamble->kernel_version;
-      }
+      /* Check for lowest version from a valid header. */
+      if (lowest_version > combined_version)
+        lowest_version = combined_version;
 
       /* If we already have a good kernel, no need to read another
        * one; we only needed to look at the versions to check for
@@ -362,9 +356,8 @@ int LoadKernel(LoadKernelParams* params) {
        * the same as the tpm, then the TPM doesn't need updating; we
        * can stop now.  Otherwise, we'll check all the other headers
        * to see if they contain a newer key. */
-      if (key_version == tpm_key_version &&
-          preamble->kernel_version == tpm_kernel_version) {
-        VBDEBUG(("Same key version\n"));
+      if (combined_version == tpm_version) {
+        VBDEBUG(("Same kernel version\n"));
         break;
       }
     } /* while(GptNextKernelEntry) */
@@ -390,12 +383,8 @@ int LoadKernel(LoadKernelParams* params) {
        * anything we write gets blown away by the firmware when we go
        * back to normal mode. */
       VBDEBUG(("Boot_flags = is_normal\n"));
-      if ((lowest_key_version > tpm_key_version) ||
-          (lowest_key_version == tpm_key_version &&
-           lowest_kernel_version > tpm_kernel_version)) {
-
-        status = RollbackKernelWrite((uint16_t)lowest_key_version,
-                                     (uint16_t)lowest_kernel_version);
+      if (lowest_version > tpm_version) {
+        status = RollbackKernelWrite((uint32_t)lowest_version);
         if (0 != status) {
           VBDEBUG(("Error writing kernel versions to TPM.\n"));
           return (status == TPM_E_MUST_REBOOT ?

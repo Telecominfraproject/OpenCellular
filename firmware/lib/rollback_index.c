@@ -271,8 +271,7 @@ __pragma(warning (disable: 4100))
 
 /* Dummy implementations which don't support TPM rollback protection */
 
-uint32_t RollbackFirmwareSetup(int developer_mode,
-                               uint16_t* key_version, uint16_t* version) {
+uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
 #ifndef CHROMEOS_ENVIRONMENT
   /* Initialize the TPM, but ignore return codes.  In ChromeOS
    * environment, don't even talk to the TPM. */
@@ -281,11 +280,11 @@ uint32_t RollbackFirmwareSetup(int developer_mode,
   TlclSelfTestFull();
 #endif
 
-  *key_version = *version = 0;
+  *version = 0;
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version) {
+uint32_t RollbackFirmwareWrite(uint32_t version) {
   return TPM_SUCCESS;
 }
 
@@ -304,12 +303,12 @@ uint32_t RollbackKernelRecovery(int developer_mode) {
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version) {
-  *key_version = *version = 0;
+uint32_t RollbackKernelRead(uint32_t* version) {
+  *version = 0;
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version) {
+uint32_t RollbackKernelWrite(uint32_t version) {
   return TPM_SUCCESS;
 }
 
@@ -319,28 +318,22 @@ uint32_t RollbackKernelLock(void) {
 
 #else
 
-uint32_t RollbackFirmwareSetup(int developer_mode, uint16_t* key_version,
-                               uint16_t* version) {
+uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   RollbackSpaceFirmware rsf;
 
   RETURN_ON_FAILURE(SetupTPM(0, developer_mode, &rsf));
-  *key_version = (uint16_t)(rsf.fw_versions >> 16);
-  *version = (uint16_t)(rsf.fw_versions & 0xffff);
-
-  VBDEBUG(("TPM: RollbackFirmwareSetup %x %x %x\n", (int)rsf.fw_versions, (int)*key_version, (int)*version));
-
+  *version = rsf.fw_versions;
+  VBDEBUG(("TPM: RollbackFirmwareSetup %x %x %x\n", (int)rsf.fw_versions));
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackFirmwareWrite(uint16_t key_version, uint16_t version) {
+uint32_t RollbackFirmwareWrite(uint32_t version) {
   RollbackSpaceFirmware rsf;
-  uint32_t new_versions = ((uint32_t)key_version << 16) | version;
-
-  VBDEBUG(("TPM: RollbackFirmwareWrite(%d, %d)\n", (int)key_version, (int)version));
 
   RETURN_ON_FAILURE(ReadSpaceFirmware(&rsf));
-  VBDEBUG(("TPM: RollbackFirmwareWrite %x --> %x\n", (int)rsf.fw_versions, (int)new_versions));
-  rsf.fw_versions = new_versions;
+  VBDEBUG(("TPM: RollbackFirmwareWrite %x --> %x\n", (int)rsf.fw_versions,
+           (int)version));
+  rsf.fw_versions = version;
   return WriteSpaceFirmware(&rsf);
 }
 
@@ -363,36 +356,27 @@ uint32_t RollbackKernelRecovery(int developer_mode) {
   return result;
 }
 
-uint32_t RollbackKernelRead(uint16_t* key_version, uint16_t* version) {
+uint32_t RollbackKernelRead(uint32_t* version) {
   if (g_rollback_recovery_mode) {
-    *key_version = 0;
     *version = 0;
   } else {
     RollbackSpaceKernel rsk;
     RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
-    *key_version = (uint16_t)(rsk.kernel_versions >> 16);
-    *version = (uint16_t)(rsk.kernel_versions & 0xffff);
-    VBDEBUG(("TPM: RollbackKernelRead %x %x %x\n", (int)rsk.kernel_versions,
-             (int)*key_version, (int)*version));
+    *version = rsk.kernel_versions;
+    VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)rsk.kernel_versions));
   }
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelWrite(uint16_t key_version, uint16_t version) {
-
-  VBDEBUG(("TPM: RollbackKernelWrite(%d, %d)\n", (int)key_version,
-           (int)version));
-
+uint32_t RollbackKernelWrite(uint32_t version) {
   if (g_rollback_recovery_mode) {
     return TPM_SUCCESS;
   } else {
     RollbackSpaceKernel rsk;
-    uint32_t new_versions = ((uint32_t)key_version << 16) | version;
-
     RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
     VBDEBUG(("TPM: RollbackKernelWrite %x --> %x\n", (int)rsk.kernel_versions,
-             (int)new_versions));
-    rsk.kernel_versions = new_versions;
+             (int)version));
+    rsk.kernel_versions = version;
     return WriteSpaceKernel(&rsk);
   }
 }

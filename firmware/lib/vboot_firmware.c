@@ -36,10 +36,8 @@ int LoadFirmware(LoadFirmwareParams* params) {
   VbPublicKey* root_key = (VbPublicKey*)params->firmware_root_key_blob;
   VbLoadFirmwareInternal* lfi;
 
-  uint16_t tpm_key_version = 0;
-  uint16_t tpm_fw_version = 0;
-  uint64_t lowest_key_version = 0xFFFF;
-  uint64_t lowest_fw_version = 0xFFFF;
+  uint32_t tpm_version = 0;
+  uint64_t lowest_version = 0xFFFFFFFF;
   uint32_t status;
   int good_index = -1;
   int index;
@@ -62,7 +60,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   /* Initialize the TPM and read rollback indices. */
   status = RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER,
-                                 &tpm_key_version, &tpm_fw_version);
+                                 &tpm_version);
   if (0 != status) {
     VBDEBUG(("Unable to setup TPM and read stored versions.\n"));
     return (status == TPM_E_MUST_REBOOT ?
@@ -82,6 +80,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     VbFirmwarePreambleHeader* preamble;
     RSAPublicKey* data_key;
     uint64_t key_version;
+    uint64_t combined_version;
     uint8_t* body_digest;
 
     /* Verify the key block */
@@ -99,7 +98,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;
-    if (key_version < tpm_key_version) {
+    if (key_version < (tpm_version >> 16)) {
       VBDEBUG(("Key rollback detected.\n"));
       continue;
     }
@@ -123,22 +122,17 @@ int LoadFirmware(LoadFirmwareParams* params) {
     }
 
     /* Check for rollback of firmware version. */
-    if (key_version == tpm_key_version &&
-        preamble->firmware_version < tpm_fw_version) {
+    combined_version = ((key_version << 16) |
+                        (preamble->firmware_version & 0xFFFF));
+    if (combined_version < tpm_version) {
       VBDEBUG(("Firmware version rollback detected.\n"));
       RSAPublicKeyFree(data_key);
       continue;
     }
 
     /* Check for lowest key version from a valid header. */
-    if (lowest_key_version > key_version) {
-      lowest_key_version = key_version;
-      lowest_fw_version = preamble->firmware_version;
-    }
-    else if (lowest_key_version == key_version &&
-             lowest_fw_version > preamble->firmware_version) {
-      lowest_fw_version = preamble->firmware_version;
-    }
+    if (lowest_version > combined_version)
+      lowest_version = combined_version;
 
     /* If we already have good firmware, no need to read another one;
      * we only needed to look at the versions to check for
@@ -202,8 +196,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
        * then the TPM doesn't need updating; we can stop now.
        * Otherwise, we'll check all the other headers to see if they
        * contain a newer key. */
-      if (key_version == tpm_key_version &&
-          preamble->firmware_version == tpm_fw_version)
+      if (combined_version == tpm_version)
         break;
     }
   }
@@ -216,12 +209,8 @@ int LoadFirmware(LoadFirmwareParams* params) {
   if (good_index >= 0) {
 
     /* Update TPM if necessary */
-    if ((lowest_key_version > tpm_key_version) ||
-        (lowest_key_version == tpm_key_version &&
-         lowest_fw_version > tpm_fw_version)) {
-
-      status = RollbackFirmwareWrite((uint16_t)lowest_key_version,
-                                     (uint16_t)lowest_fw_version);
+    if (lowest_version > tpm_version) {
+      status = RollbackFirmwareWrite((uint32_t)lowest_version);
       if (0 != status) {
         VBDEBUG(("Unable to write stored versions.\n"));
         return (status == TPM_E_MUST_REBOOT ?
