@@ -48,7 +48,6 @@ typedef struct RollbackSpaceFirmware {
   uint8_t  flags;           /* Flags (see FLAG_* above) */
   uint32_t fw_versions;     /* Firmware versions */
   uint32_t reserved;            /* Reserved for future expansion */
-  RollbackSpaceKernel kernel_backup;  /* Backup of kernel space */
 } __attribute__((packed)) RollbackSpaceFirmware;
 
 __pragma(pack(pop)) /* Support packing for MSVC. */
