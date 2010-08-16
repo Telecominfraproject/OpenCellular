@@ -150,6 +150,8 @@ int RSAVerify(const RSAPublicKey *key,
   }
 
   buf = (uint8_t*) Malloc(sig_len);
+  if (!buf)
+    return 0;
   Memcpy(buf, sig, sig_len);
 
   modpowF4(key, buf);
@@ -161,7 +163,6 @@ int RSAVerify(const RSAPublicKey *key,
   for (i = 0; i < padding_size_map[sig_type]; ++i) {
     if (buf[i] != padding[i]) {
 #ifndef NDEBUG
-/* TODO(gauravsh): Replace with a macro call for logging. */
       VBDEBUG(("Padding: Expecting = %02x Got = %02x\n", padding[i], buf[i]));
 #endif
       success = 0;
@@ -172,7 +173,6 @@ int RSAVerify(const RSAPublicKey *key,
   for (; i < (int)sig_len; ++i) {
     if (buf[i] != *hash++) {
 #ifndef NDEBUG
-/* TODO(gauravsh): Replace with a macro call for logging. */
       VBDEBUG(("Digest: Expecting = %02x Got = %02x\n", padding[i], buf[i]));
 #endif
       success = 0;
