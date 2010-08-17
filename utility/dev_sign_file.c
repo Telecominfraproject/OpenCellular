@@ -210,8 +210,8 @@ static int Verify(const char* filename, const char* vblock_file) {
 
   Debug("Current buf offset is at 0x%" PRIx64 " bytes\n", current_buf_offset);
 
-  /* Check the keyblock */
-  if (0 != KeyBlockVerify(key_block, file_size, NULL)) {
+  /* Check the key block (hash only) */
+  if (0 != KeyBlockVerify(key_block, file_size, NULL, 1)) {
     error("Error verifying key block.\n");
     return 1;
   }

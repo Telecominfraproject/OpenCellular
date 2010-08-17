@@ -138,7 +138,7 @@ static int Unpack(const char* infile, const char* datapubkey,
       fprintf(stderr, "vbutil_keyblock: Error reading signpubkey.\n");
       return 1;
     }
-    if (0 != KeyBlockVerify(block, block->key_block_size, sign_key)) {
+    if (0 != KeyBlockVerify(block, block->key_block_size, sign_key, 0)) {
       fprintf(stderr, "vbutil_keyblock: Error verifying key block.\n");
       return 1;
     }

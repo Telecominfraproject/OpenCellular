@@ -56,11 +56,18 @@ int VerifyMemberInside(const void* parent, uint64_t parent_size,
   if (end > parent_size)
     return 1;
 
+  if (UINT64_MAX - end < member_size)
+    return 1;  /* Detect wraparound in integer math */
   if (end + member_size > parent_size)
     return 1;
 
+  if (UINT64_MAX - end < member_data_offset)
+    return 1;
   end += member_data_offset;
   if (end > parent_size)
+    return 1;
+
+  if (UINT64_MAX - end < member_data_size)
     return 1;
   if (end + member_data_size > parent_size)
     return 1;
@@ -163,7 +170,7 @@ int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
 
 
 int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
-                   const VbPublicKey *key) {
+                   const VbPublicKey *key, int hash_only) {
 
   const VbSignature* sig;
 
@@ -180,13 +187,43 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
     VBDEBUG(("Not enough data for key block.\n"));
     return VBOOT_KEY_BLOCK_INVALID;
   }
+  if (!hash_only && !key) {
+    VBDEBUG(("Missing required public key.\n"));
+    return VBOOT_PUBLIC_KEY_INVALID;
+  }
 
-  /* Check signature or hash, depending on whether we provide a key. Note that
+  /* Check signature or hash, depending on the hash_only parameter. Note that
    * we don't require a key even if the keyblock has a signature, because the
    * caller may not care if the keyblock itself is signed (for example, booting
    * a Google-signed kernel in developer mode).
    */
-  if (key) {
+  if (hash_only) {
+    /* Check hash */
+    uint8_t* header_checksum = NULL;
+    int rv;
+
+    sig = &block->key_block_checksum;
+
+    if (VerifySignatureInside(block, block->key_block_size, sig)) {
+      VBDEBUG(("Key block hash off end of block\n"));
+      return VBOOT_KEY_BLOCK_INVALID;
+    }
+    if (sig->sig_size != SHA512_DIGEST_SIZE) {
+      VBDEBUG(("Wrong hash size for key block.\n"));
+      return VBOOT_KEY_BLOCK_INVALID;
+    }
+
+    VBDEBUG(("Checking key block hash only...\n"));
+    header_checksum = DigestBuf((const uint8_t*)block, sig->data_size,
+                                SHA512_DIGEST_ALGORITHM);
+    rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
+                    SHA512_DIGEST_SIZE);
+    Free(header_checksum);
+    if (rv) {
+      VBDEBUG(("Invalid key block hash.\n"));
+      return VBOOT_KEY_BLOCK_HASH;
+    }
+  } else {
     /* Check signature */
     RSAPublicKey* rsa;
     int rv;
@@ -215,32 +252,6 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
     if (rv) {
       VBDEBUG(("Invalid key block signature.\n"));
       return VBOOT_KEY_BLOCK_SIGNATURE;
-    }
-  } else {
-    /* Check hash */
-    uint8_t* header_checksum = NULL;
-    int rv;
-
-    sig = &block->key_block_checksum;
-
-    if (VerifySignatureInside(block, block->key_block_size, sig)) {
-      VBDEBUG(("Key block hash off end of block\n"));
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
-    if (sig->sig_size != SHA512_DIGEST_SIZE) {
-      VBDEBUG(("Wrong hash size for key block.\n"));
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
-
-    VBDEBUG(("Checking key block hash only...\n"));
-    header_checksum = DigestBuf((const uint8_t*)block, sig->data_size,
-                                SHA512_DIGEST_ALGORITHM);
-    rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
-                    SHA512_DIGEST_SIZE);
-    Free(header_checksum);
-    if (rv) {
-      VBDEBUG(("Invalid key block hash.\n"));
-      return VBOOT_KEY_BLOCK_HASH;
     }
   }
 

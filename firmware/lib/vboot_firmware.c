@@ -91,7 +91,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
       key_block = (VbKeyBlockHeader*)params->verification_block_1;
       vblock_size = params->verification_size_1;
     }
-    if ((0 != KeyBlockVerify(key_block, vblock_size, root_key))) {
+    if ((0 != KeyBlockVerify(key_block, vblock_size, root_key, 0))) {
       VBDEBUG(("Key block verification failed.\n"));
       continue;
     }

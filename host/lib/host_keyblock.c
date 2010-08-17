@@ -5,8 +5,6 @@
  * Host functions for verified boot.
  */
 
-/* TODO: change all 'return 0', 'return 1' into meaningful return codes */
-
 #include "host_keyblock.h"
 
 #include "cryptolib.h"
@@ -22,7 +20,8 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   VbKeyBlockHeader* h;
   uint64_t signed_size = sizeof(VbKeyBlockHeader) + data_key->key_size;
   uint64_t block_size = (signed_size + SHA512_DIGEST_SIZE +
-                         (signing_key ? siglen_map[signing_key->algorithm] : 0));
+                         (signing_key ?
+                          siglen_map[signing_key->algorithm] : 0));
   uint8_t* data_key_dest;
   uint8_t* block_sig_dest;
   uint8_t* block_chk_dest;
@@ -89,7 +88,7 @@ VbKeyBlockHeader* KeyBlockRead(const char* filename) {
 
   /* Verify the hash of the key block, since we can do that without
    * the public signing key. */
-  if (0 != KeyBlockVerify(block, file_size, NULL)) {
+  if (0 != KeyBlockVerify(block, file_size, NULL, 1)) {
     VBDEBUG(("Invalid key block file: filename\n", filename));
     Free(block);
     return NULL;

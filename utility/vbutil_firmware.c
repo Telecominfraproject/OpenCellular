@@ -200,7 +200,7 @@ static int Verify(const char* infile, const char* signpubkey,
 
   /* Verify key block */
   key_block = (VbKeyBlockHeader*)blob;
-  if (0 != KeyBlockVerify(key_block, blob_size, sign_key)) {
+  if (0 != KeyBlockVerify(key_block, blob_size, sign_key, 0)) {
     error("Error verifying key block.\n");
     return 1;
   }

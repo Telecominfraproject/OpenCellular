@@ -40,73 +40,77 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
   hsize = (unsigned) hdr->key_block_size;
   h = (VbKeyBlockHeader*)Malloc(hsize + 1024);
 
-  TEST_EQ(KeyBlockVerify(hdr, hsize, NULL), 0,
+  TEST_EQ(KeyBlockVerify(hdr, hsize, NULL, 1), 0,
           "KeyBlockVerify() ok using checksum");
-  TEST_EQ(KeyBlockVerify(hdr, hsize, public_key), 0,
+  TEST_EQ(KeyBlockVerify(hdr, hsize, public_key, 0), 0,
           "KeyBlockVerify() ok using key");
+  TEST_NEQ(KeyBlockVerify(hdr, hsize, NULL, 0), 0,
+           "KeyBlockVerify() missing key");
 
-  TEST_NEQ(KeyBlockVerify(hdr, hsize - 1, NULL), 0, "KeyBlockVerify() size--");
-  TEST_EQ(KeyBlockVerify(hdr, hsize + 1, NULL), 0, "KeyBlockVerify() size++");
+  TEST_NEQ(KeyBlockVerify(hdr, hsize - 1, NULL, 1), 0,
+           "KeyBlockVerify() size--");
+  TEST_EQ(KeyBlockVerify(hdr, hsize + 1, NULL, 1), 0,
+          "KeyBlockVerify() size++");
 
   Memcpy(h, hdr, hsize);
   h->magic[0] &= 0x12;
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0, "KeyBlockVerify() magic");
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() magic");
 
   /* Care about major version but not minor */
   Memcpy(h, hdr, hsize);
   h->header_version_major++;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0, "KeyBlockVerify() major++");
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() major++");
 
   Memcpy(h, hdr, hsize);
   h->header_version_major--;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0, "KeyBlockVerify() major--");
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() major--");
 
   Memcpy(h, hdr, hsize);
   h->header_version_minor++;
   ReChecksumKeyBlock(h);
-  TEST_EQ(KeyBlockVerify(h, hsize, NULL), 0, "KeyBlockVerify() minor++");
+  TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() minor++");
 
   Memcpy(h, hdr, hsize);
   h->header_version_minor--;
   ReChecksumKeyBlock(h);
-  TEST_EQ(KeyBlockVerify(h, hsize, NULL), 0, "KeyBlockVerify() minor--");
+  TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() minor--");
 
   /* Check hash */
   Memcpy(h, hdr, hsize);
   h->key_block_checksum.sig_offset = hsize;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
            "KeyBlockVerify() checksum off end");
 
   Memcpy(h, hdr, hsize);
   h->key_block_checksum.sig_size /= 2;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
            "KeyBlockVerify() checksum too small");
 
   Memcpy(h, hdr, hsize);
   GetPublicKeyData(&h->data_key)[0] ^= 0x34;
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
            "KeyBlockVerify() checksum mismatch");
 
   /* Check signature */
   Memcpy(h, hdr, hsize);
   h->key_block_signature.sig_offset = hsize;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
            "KeyBlockVerify() sig off end");
 
   Memcpy(h, hdr, hsize);
   h->key_block_signature.sig_size--;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
            "KeyBlockVerify() sig too small");
 
   Memcpy(h, hdr, hsize);
   GetPublicKeyData(&h->data_key)[0] ^= 0x34;
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
            "KeyBlockVerify() sig mismatch");
 
   /* Check that we signed header and data key */
@@ -115,13 +119,13 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
   h->data_key.key_offset = 0;
   h->data_key.key_size = 0;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
            "KeyBlockVerify() didn't sign header");
 
   Memcpy(h, hdr, hsize);
   h->data_key.key_offset = hsize;
   ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL), 0,
+  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
            "KeyBlockVerify() data key off end");
 
   /* TODO: verify parser can support a bigger header (i.e., one where

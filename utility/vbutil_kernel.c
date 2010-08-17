@@ -641,7 +641,8 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
 
   /* Verify key block */
   key_block = bp->key_block;
-  if (0 != KeyBlockVerify(key_block, bp->blob_size, sign_key)) {
+  if (0 != KeyBlockVerify(key_block, bp->blob_size, sign_key,
+                          (sign_key ? 0 : 1))) {
     error("Error verifying key block.\n");
     goto verify_exit;
   }

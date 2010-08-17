@@ -84,11 +84,11 @@ int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
 
 
 /* Checks the sanity of a key block of size [size] bytes, using public
- * key [key].  If [key]==NULL, uses only the block checksum to verify
- * the key block.  Header fields are also checked for sanity.  Does not
- * verify key index or key block flags. */
+ * key [key].  If hash_only is non-zero, uses only the block checksum
+ * to verify the key block.  Header fields are also checked for
+ * sanity.  Does not verify key index or key block flags. */
 int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
-                   const VbPublicKey *key);
+                   const VbPublicKey *key, int hash_only);
 
 
 /* Checks the sanity of a firmware preamble of size [size] bytes,

@@ -168,10 +168,6 @@ int LoadKernel(LoadKernelParams* params) {
       return (status == TPM_E_MUST_REBOOT ?
               LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
     }
-  } else if (is_dev && !is_rec) {
-    /* In developer mode, we ignore the kernel subkey, and just use
-     * the SHA-512 hash to verify the key block. */
-    kernel_subkey = NULL;
   }
 
   do {
@@ -215,9 +211,11 @@ int LoadKernel(LoadKernelParams* params) {
       if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf))
         continue;
 
-      /* Verify the key block */
+      /* Verify the key block.  In developer mode, we ignore the key
+       * and use only the SHA-512 hash to verify the key block. */
       key_block = (VbKeyBlockHeader*)kbuf;
-      if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey))) {
+      if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey,
+                               is_dev && !is_rec))) {
         VBDEBUG(("Verifying key block failed.\n"));
         continue;
       }
