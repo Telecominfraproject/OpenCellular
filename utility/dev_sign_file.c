@@ -67,6 +67,10 @@ static int PrintHelp(const char *progname) {
           "\n"
           "  Required parameters:\n"
           "    --vblock <file>           Signature file in .vblock format\n"
+          "\n"
+          "  Optional parameters:\n"
+          "    --keyblock <file>"
+          "         Extract .keyblock to file if verification succeeds\n"
           "\n",
           progname);
   return 1;
@@ -165,7 +169,8 @@ static int Sign(const char* filename, const char* keyblock_file,
   return 0;
 }
 
-static int Verify(const char* filename, const char* vblock_file) {
+static int Verify(const char* filename, const char* vblock_file,
+                  const char* keyblock_file) {
   uint8_t* file_data;
   uint64_t file_size;
   uint8_t* buf;
@@ -256,6 +261,14 @@ static int Verify(const char* filename, const char* vblock_file) {
   }
   printf("Body verification succeeded.\n");
 
+  if (keyblock_file) {
+    if (0 != WriteFile(keyblock_file, key_block, key_block->key_block_size)) {
+      error("Unable to export keyblock file\n");
+      return 1;
+    }
+    printf("Key block exported to %s\n", keyblock_file);
+  }
+
   return 0;
 }
 
@@ -329,7 +342,7 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Some required options are missing\n");
         return PrintHelp(progname);
       }
-      return Verify(filename, vblock_file);
+      return Verify(filename, vblock_file, keyblock_file);
 
     default:
       fprintf(stderr,

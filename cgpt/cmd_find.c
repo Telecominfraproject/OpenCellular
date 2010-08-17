@@ -28,6 +28,10 @@ static void Usage(void)
          "  -v           Be verbose in displaying matches (repeatable)\n"
          "  -n           Numeric output only\n"
          "  -1           Fail if more than one match is found\n"
+         "  -M FILE"
+         "      Matching partition data must also contain FILE content\n"
+         "  -O NUM"
+         "       Byte offset into partition to match content (default 0)\n"
          "\n", progname);
   PrintTypes();
 }
@@ -40,6 +44,10 @@ static int set_type = 0;
 static int set_label = 0;
 static int oneonly = 0;
 static int numeric = 0;
+static uint8_t *matchbuf = NULL;
+static uint64_t matchlen = 0;
+static uint64_t matchoffset = 0;
+static uint8_t *comparebuf = NULL;
 
 static Guid unique_guid;
 static Guid type_guid;
@@ -47,12 +55,94 @@ static char *label;
 static int hits = 0;
 
 #define BUFSIZE 1024
+// FIXME: currently we only support 512-byte sectors.
+#define LBA_SIZE 512
 
 
 // remember one of the possibly many hits
 static int match_partnum = 0;           // 0 for no match, 1-N for match
 static char match_filename[BUFSIZE];    // matching filename
 
+
+// read a file into a buffer, return buffer and update size
+static uint8_t *ReadFile(const char *filename, uint64_t *size) {
+  FILE *f;
+  uint8_t *buf;
+
+  f = fopen(filename, "rb");
+  if (!f) {
+    return NULL;
+  }
+
+  fseek(f, 0, SEEK_END);
+  *size = ftell(f);
+  rewind(f);
+
+  buf = malloc(*size);
+  if (!buf) {
+    fclose(f);
+    return NULL;
+  }
+
+  if(1 != fread(buf, *size, 1, f)) {
+    fclose(f);
+    free(buf);
+    return NULL;
+  }
+
+  fclose(f);
+  return buf;
+}
+
+// fill comparebuf with the data to be examined, returning true on success.
+static int FillBuffer(int fd, uint64_t pos, uint64_t count) {
+  uint8_t *bufptr = comparebuf;
+
+  if (-1 == lseek(fd, pos, SEEK_SET))
+    return 0;
+
+  // keep reading until done or error
+  while (count) {
+    ssize_t bytes_read = read(fd, bufptr, count);
+    // negative means error, 0 means (unexpected) EOF
+    if (bytes_read <= 0)
+      return 0;
+    count -= bytes_read;
+    bufptr += bytes_read;
+  }
+
+  return 1;
+}
+
+// check partition data content. return true for match, 0 for no match or error
+static int match_content(struct drive *drive, GptEntry *entry) {
+  uint64_t part_size;
+
+  if (!matchlen)
+    return 1;
+
+  // Ensure that the region we want to match against is inside the partition.
+  part_size = LBA_SIZE * (entry->ending_lba - entry->starting_lba + 1);
+  if (matchoffset + matchlen > part_size) {
+    return 0;
+  }
+
+  // Read the partition data.
+  if (!FillBuffer(drive->fd,
+                  (LBA_SIZE * entry->starting_lba) + matchoffset,
+                  matchlen)) {
+    Error("unable to read partition data\n");
+    return 0;
+  }
+
+  // Compare it
+  if (0 == memcmp(matchbuf, comparebuf, matchlen)) {
+    return 1;
+  }
+
+  // Nope.
+  return 0;
+}
 
 // FIXME: This needs to handle /dev/mmcblk0 -> /dev/mmcblk0p3
 static void showmatch(char *filename, int partnum, GptEntry *entry) {
@@ -96,7 +186,7 @@ static int do_search(char *filename) {
         found = 1;
       }
     }
-    if (found) {
+    if (found && match_content(&drive, entry)) {
       hits++;
       retval++;
       showmatch(filename, i+1, entry);
@@ -111,7 +201,7 @@ static int do_search(char *filename) {
 
   return retval;
 }
-  
+
 
 #define PROC_PARTITIONS "/proc/partitions"
 #define DEV_DIR "/dev"
@@ -128,12 +218,9 @@ static char *is_wholedev(const char *basename) {
   static char pathname[BUFSIZE];        // we'll return this.
   char tmpname[BUFSIZE];
 
-//   printf("basename is %s\n", basename);
-
-  // It should be a block device under /dev/, 
+  // It should be a block device under /dev/,
   for (i = 0; devdirs[i]; i++) {
     sprintf(pathname, "%s/%s", devdirs[i], basename);
-//     printf(" look at %s\n", pathname);
 
     if (0 != stat(pathname, &statbuf))
       continue;
@@ -143,7 +230,6 @@ static char *is_wholedev(const char *basename) {
 
     // It should have a symlink called /sys/block/*/device
     sprintf(tmpname, "%s/%s/device", SYS_BLOCK_DIR, basename);
-//     printf(" look at %s\n", tmpname);
 
     if (0 != lstat(tmpname, &statbuf))
       continue;
@@ -177,7 +263,7 @@ static int scan_real_devs(void) {
   while (fgets(line, sizeof(line), fp)) {
     int ma, mi;
     long long unsigned int sz;
-    
+
     if (sscanf(line, " %d %d %llu %128[^\n ]", &ma, &mi, &sz, partname) != 4)
       continue;
 
@@ -187,20 +273,20 @@ static int scan_real_devs(void) {
       }
     }
   }
-  
+
   fclose(fp);
   return found;
 }
-  
+
 
 int cmd_find(int argc, char *argv[]) {
   int i;
-  
   int errorcnt = 0;
+  char *e = 0;
   int c;
-  
+
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hv1nt:u:l:")) != -1)
+  while ((c=getopt(argc, argv, ":hv1nt:u:l:M:O:")) != -1)
   {
     switch (c)
     {
@@ -232,6 +318,27 @@ int cmd_find(int argc, char *argv[]) {
         errorcnt++;
       }
       break;
+    case 'M':
+      matchbuf = ReadFile(optarg, &matchlen);
+      if (!matchbuf || !matchlen) {
+        Error("Unable to read from %s\n", optarg);
+        errorcnt++;
+      }
+      // Go ahead and allocate space for the comparison too
+      comparebuf = (uint8_t *)malloc(matchlen);
+      if (!comparebuf) {
+        Error("Unable to allocate %" PRIu64 "bytes for comparison buffer\n",
+              matchlen);
+        errorcnt++;
+      }
+      break;
+    case 'O':
+      matchoffset = strtoull(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
+        errorcnt++;
+      }
+      break;
 
     case 'h':
       Usage();
@@ -249,12 +356,15 @@ int cmd_find(int argc, char *argv[]) {
       break;
     }
   }
+  if (!set_unique && !set_type && !set_label) {
+    Error("You must specify at least one of -t, -u, or -l\n");
+    errorcnt++;
+  }
   if (errorcnt)
   {
     Usage();
     return CGPT_FAILED;
   }
-
 
   if (optind < argc) {
     for (i=optind; i<argc; i++)

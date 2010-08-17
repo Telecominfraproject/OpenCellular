@@ -75,7 +75,7 @@ function make_pair {
 # First create the .vbpubk and .vbprivk pair.
 make_pair "$1" "${2:-4}"
 
-# Now create a .vblock to hold our .vbpubk. Since it's for developer use, it
+# Now create a .keyblock to hold our .vbpubk. Since it's for developer use, it
 # won't be signed, just checksummed. Developer kernels can only be run in
 # non-recovery mode with the developer switch enabled, but it won't hurt us to
 # turn on all the flags bits anyway.
