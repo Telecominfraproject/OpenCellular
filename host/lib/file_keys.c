@@ -82,7 +82,7 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm) {
 }
 
 uint8_t* SignatureFile(const char* input_file, const char* key_file,
-                       int algorithm) {
+                       unsigned int algorithm) {
   char* sign_utility = "./sign_data.sh";
   char* cmd;  /* Command line to invoke. */
   int cmd_len;
@@ -99,7 +99,7 @@ uint8_t* SignatureFile(const char* input_file, const char* key_file,
              strlen(input_file) +
              1);  /* For the trailing '\0'. */
   cmd = (char*) Malloc(cmd_len);
-  snprintf(cmd, cmd_len, "%s %d %s %s", sign_utility, algorithm, key_file,
+  snprintf(cmd, cmd_len, "%s %u %s %s", sign_utility, algorithm, key_file,
            input_file);
   cmd_out = popen(cmd, "r");
   Free(cmd);

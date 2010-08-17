@@ -116,7 +116,7 @@ VbPrivateKey* PrivateKeyRead(const char* filename) {
   uint64_t filelen = 0;
   uint8_t *buffer;
   const unsigned char *start;
-  
+
   buffer = ReadFile(filename, &filelen);
   if (!buffer) {
     error("unable to read from file %s\n", filename);
@@ -148,8 +148,6 @@ VbPrivateKey* PrivateKeyRead(const char* filename) {
 }
 
 
-
-
 /* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version) {
@@ -164,12 +162,12 @@ VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
   return key;
 }
 
-
 VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
                                uint64_t version) {
   VbPublicKey* key;
   uint8_t* key_data;
   uint64_t key_size;
+  int expected_key_size;
 
   if (algorithm >= kNumAlgorithms) {
     VBDEBUG(("PublicKeyReadKeyb() called with invalid algorithm!\n"));
@@ -185,7 +183,8 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
   if (!key_data)
     return NULL;
 
-  if (RSAProcessedKeySize(algorithm) != key_size) {
+  if (!RSAProcessedKeySize(algorithm, &expected_key_size) ||
+      expected_key_size != key_size) {
     VBDEBUG(("PublicKeyReadKeyb() wrong key size for algorithm\n"));
     Free(key_data);
     return NULL;
@@ -206,6 +205,7 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
 VbPublicKey* PublicKeyRead(const char* filename) {
   VbPublicKey* key;
   uint64_t file_size;
+  int key_size;
 
   key = (VbPublicKey*)ReadFile(filename, &file_size);
   if (!key)
@@ -225,7 +225,8 @@ VbPublicKey* PublicKeyRead(const char* filename) {
       VBDEBUG(("PublicKeyRead() invalid version\n"));
       break;  /* Currently, TPM only supports 16-bit version */
     }
-    if (RSAProcessedKeySize(key->algorithm) != key->key_size) {
+    if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
+        key_size != key->key_size) {
       VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
       break;
     }
@@ -239,7 +240,6 @@ VbPublicKey* PublicKeyRead(const char* filename) {
   Free(key);
   return NULL;
 }
-
 
 int PublicKeyWrite(const char* filename, const VbPublicKey* key) {
   VbPublicKey* kcopy;

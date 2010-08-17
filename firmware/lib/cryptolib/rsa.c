@@ -134,6 +134,9 @@ int RSAVerify(const RSAPublicKey *key,
   const uint8_t* padding;
   int success = 1;
 
+  if (!key || !sig || !hash)
+    return 0;
+
   if (sig_len != (key->len * sizeof(uint32_t))) {
     VBDEBUG(("Signature is of incorrect length!\n"));
     return 0;

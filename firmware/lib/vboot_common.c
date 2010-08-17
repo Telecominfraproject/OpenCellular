@@ -114,12 +114,14 @@ int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src) {
 
 RSAPublicKey* PublicKeyToRSA(const VbPublicKey* key) {
   RSAPublicKey *rsa;
+  int key_size;
 
   if (kNumAlgorithms <= key->algorithm) {
     VBDEBUG(("Invalid algorithm.\n"));
     return NULL;
   }
-  if (RSAProcessedKeySize((int)key->algorithm) != (int)key->key_size) {
+  if (!RSAProcessedKeySize((int)key->algorithm, &key_size) ||
+      key_size != (int)key->key_size) {
     VBDEBUG(("Wrong key size for algorithm\n"));
     return NULL;
   }

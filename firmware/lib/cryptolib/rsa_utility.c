@@ -9,14 +9,18 @@
 #include "stateful_util.h"
 #include "utility.h"
 
-int RSAProcessedKeySize(int algorithm) {
-  int key_len = siglen_map[algorithm];  /* Key length in
-                                         * bytes. */
-  /* Total size needed by a RSAPublicKey structure is =
-   *  2 * key_len bytes for the  n and rr arrays
-   *  + sizeof len + sizeof n0inv.
-   */
-  return (2 * key_len + sizeof(uint32_t) + sizeof(uint32_t));
+int RSAProcessedKeySize(unsigned int algorithm, int* out_size) {
+  int key_len; /* Key length in bytes. */
+  if (algorithm < kNumAlgorithms) {
+    key_len =  siglen_map[algorithm];
+    /* Total size needed by a RSAPublicKey structure is =
+     *  2 * key_len bytes for the  n and rr arrays
+     *  + sizeof len + sizeof n0inv.
+     */
+    *out_size = (2 * key_len + sizeof(uint32_t) + sizeof(uint32_t));
+    return 1;
+  }
+  return 0;
 }
 
 RSAPublicKey* RSAPublicKeyNew(void) {
@@ -74,7 +78,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
                       const uint8_t* buf,
                       uint64_t len,
                       const uint8_t* sig,
-                      int algorithm) {
+                      unsigned int algorithm) {
   RSAPublicKey* verification_key = NULL;
   uint8_t* digest = NULL;
   int key_size;
@@ -83,7 +87,8 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
 
   if (algorithm >= kNumAlgorithms)
     return 0;  /* Invalid algorithm. */
-  key_size = RSAProcessedKeySize(algorithm);
+  if (!RSAProcessedKeySize(algorithm, &key_size))
+    return 0;
   sig_size = siglen_map[algorithm];
 
   if (key_blob && !key)
@@ -92,6 +97,10 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
     verification_key = (RSAPublicKey*) key;  /* Supress const warning. */
   else
     return 0; /* Both can't be NULL or non-NULL. */
+
+  /* Ensure we have a valid key. */
+  if (!verification_key)
+    return 0;
 
   digest = DigestBuf(buf, len, algorithm);
   success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
@@ -109,7 +118,7 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
                                 const RSAPublicKey* key,
                                 const uint8_t* digest,
                                 const uint8_t* sig,
-                                int algorithm) {
+                                unsigned int algorithm) {
   RSAPublicKey* verification_key = NULL;
   int key_size;
   int sig_size;
@@ -117,7 +126,8 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
 
   if (algorithm >= kNumAlgorithms)
     return 0;  /* Invalid algorithm. */
-  key_size = RSAProcessedKeySize(algorithm);
+  if (!RSAProcessedKeySize(algorithm, &key_size))
+    return 0;
   sig_size = siglen_map[algorithm];
 
   if (key_blob && !key)
@@ -126,6 +136,10 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
     verification_key = (RSAPublicKey*) key;  /* Supress const warning. */
   else
     return 0; /* Both can't be NULL or non-NULL. */
+
+  /* Ensure we have a valid key. */
+  if (!verification_key)
+    return 0;
 
   success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
                       (uint8_t)algorithm, digest);

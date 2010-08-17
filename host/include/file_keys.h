@@ -38,6 +38,6 @@ uint8_t* DigestFile(char* input_file, int sig_algorithm);
  * Returns the signature. Caller owns the buffer and must Free() it.
  */
 uint8_t* SignatureFile(const char* input_file, const char* key_file,
-                       int algorithm);
+                       unsigned int algorithm);
 
 #endif  /* VBOOT_REFERENCE_FILE_KEYS_H_ */

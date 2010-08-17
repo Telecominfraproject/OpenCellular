@@ -27,7 +27,7 @@ typedef struct RSAPublicKey {
   uint32_t n0inv;  /* -1 / n[0] mod 2^32 */
   uint32_t* n;  /* modulus as little endian array */
   uint32_t* rr; /* R^2 as little endian array */
-  int algorithm; /* Algorithm to use when verifying binaries with the key */
+  unsigned int algorithm; /* Algorithm to use when verifying with the key */
 } RSAPublicKey;
 
 /* Verify a RSA PKCS1.5 signature [sig] of [sig_type] and length [sig_len]
@@ -57,7 +57,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
                       const uint8_t* buf,
                       uint64_t len,
                       const uint8_t* sig,
-                      int algorithm);
+                      unsigned int algorithm);
 
 /* Version of RSAVerifyBinary_f() where instead of the raw binary blob
  * of data, its digest is passed as the argument. */
@@ -65,14 +65,17 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
                                 const RSAPublicKey* key,
                                 const uint8_t* digest,
                                 const uint8_t* sig,
-                                int algorithm);
+                                unsigned int algorithm);
 
 
 /* ----Some additional utility functions for RSA.---- */
 
-/* Returns the size of a pre-processed RSA public key in bytes with algorithm
- * [algorithm]. */
-int RSAProcessedKeySize(int algorithm);
+/* Returns the size of a pre-processed RSA public key in
+ * [out_size] with the algorithm [algorithm].
+ *
+ * Returns 1 on success, 0 on failure.
+ */
+int RSAProcessedKeySize(unsigned int algorithm, int* out_size);
 
 /* Allocate a new RSAPublicKey structure and initialize its pointer fields to
  * NULL */

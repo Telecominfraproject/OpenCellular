@@ -16,7 +16,7 @@
 #include "cryptolib.h"
 #include "utility.h"
 
-uint8_t* PrependDigestInfo(int algorithm, uint8_t* digest) {
+uint8_t* PrependDigestInfo(unsigned int algorithm, uint8_t* digest) {
   const int digest_size = hash_size_map[algorithm];
   const int digestinfo_size = digestinfo_size_map[algorithm];
   const uint8_t* digestinfo = hash_digestinfo_map[algorithm];
@@ -26,7 +26,8 @@ uint8_t* PrependDigestInfo(int algorithm, uint8_t* digest) {
   return p;
 }
 
-uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len, int algorithm) {
+uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len,
+                         unsigned int algorithm) {
   uint8_t* info_digest  = NULL;
   uint8_t* digest = NULL;
 
@@ -40,7 +41,7 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len, int algorithm) {
 }
 
 uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
-                      int algorithm) {
+                      unsigned int algorithm) {
   FILE* key_fp = NULL;
   RSA* key = NULL;
   uint8_t* signature = NULL;
