@@ -38,6 +38,12 @@ fi
 # Abort on errors.
 set -e
 
+# Make sure the tools we need are available.
+for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity; do
+  type -P "${prereqs}" &>/dev/null || \
+    { echo "${prereqs} tool not found."; exit 1; }
+done
+
 TYPE=$1
 INPUT_IMAGE=$2
 KEY_DIR=$3
@@ -205,7 +211,9 @@ sign_for_factory_install() {
   echo "Output signed factory install image to ${OUTPUT_IMAGE}"
 }
 
-if [ ! "${FW_NOUPDATE}" == "1" ]; then
+# Firmware payload signing hidden behind a flag until it actually makes
+# it into the image.
+if [ ! "${FW_UPDATE}" == "1" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
 fi
 
