@@ -11,7 +11,7 @@
 
 int RSAProcessedKeySize(unsigned int algorithm, int* out_size) {
   int key_len; /* Key length in bytes. */
-  if (algorithm < kNumAlgorithms) {
+  if (algorithm < (unsigned int)kNumAlgorithms) {
     key_len =  siglen_map[algorithm];
     /* Total size needed by a RSAPublicKey structure is =
      *  2 * key_len bytes for the  n and rr arrays
@@ -85,7 +85,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
   int sig_size;
   int success;
 
-  if (algorithm >= kNumAlgorithms)
+  if (algorithm >= (unsigned int)kNumAlgorithms)
     return 0;  /* Invalid algorithm. */
   if (!RSAProcessedKeySize(algorithm, &key_size))
     return 0;
@@ -124,7 +124,7 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
   int sig_size;
   int success;
 
-  if (algorithm >= kNumAlgorithms)
+  if (algorithm >= (unsigned int)kNumAlgorithms)
     return 0;  /* Invalid algorithm. */
   if (!RSAProcessedKeySize(algorithm, &key_size))
     return 0;
