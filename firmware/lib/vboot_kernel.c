@@ -141,6 +141,11 @@ int LoadKernel(LoadKernelParams* params) {
   kernel_subkey = (VbPublicKey*)params->header_sign_key_blob;
   blba = params->bytes_per_lba;
   kbuf_sectors = KBUF_SIZE / blba;
+  if (0 == kbuf_sectors) {
+    VBDEBUG(("LoadKernel() called with sector size > KBUF_SIZE\n"));
+    return LOAD_KERNEL_INVALID;
+  }
+
   is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
   is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
   is_normal = (!is_dev && !is_rec);
@@ -198,6 +203,8 @@ int LoadKernel(LoadKernelParams* params) {
       uint64_t key_version;
       uint64_t combined_version;
       uint64_t body_offset;
+      uint64_t body_offset_sectors;
+      uint64_t body_sectors;
 
       VBDEBUG(("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
               part_start, part_size));
@@ -299,20 +306,27 @@ int LoadKernel(LoadKernelParams* params) {
         RSAPublicKeyFree(data_key);
         continue;
       }
+      body_offset_sectors = body_offset / blba;
+
+      /* Verify kernel body fits in the buffer */
+      body_sectors = (preamble->body_signature.data_size + blba - 1) / blba;
+      if (body_sectors * blba > params->kernel_buffer_size) {
+        VBDEBUG(("Kernel body doesn't fit in memory.\n"));
+        RSAPublicKeyFree(data_key);
+        continue;
+      }
 
       /* Verify kernel body fits in the partition */
-      if (body_offset + preamble->body_signature.data_size >
-          part_size * blba) {
+      if (body_offset_sectors + body_sectors > part_size) {
         VBDEBUG(("Kernel body doesn't fit in partition.\n"));
         RSAPublicKeyFree(data_key);
         continue;
       }
 
       /* Read the kernel data */
-      if (0 != BootDeviceReadLBA(
-              part_start + (body_offset / blba),
-              (preamble->body_signature.data_size + blba - 1) / blba,
-              params->kernel_buffer)) {
+      if (0 != BootDeviceReadLBA(part_start + body_offset_sectors,
+                                 body_sectors,
+                                 params->kernel_buffer)) {
         VBDEBUG(("Unable to read kernel data.\n"));
         RSAPublicKeyFree(data_key);
         continue;
