@@ -52,6 +52,7 @@ OUTPUT_IMAGE=$4
 # Re-calculate rootfs hash, update rootfs and kernel command line.
 # Args: IMAGE KEYBLOCK PRIVATEKEY
 recalculate_rootfs_hash() {
+  echo "Recalculating rootfs"
   local image=$1  # Input image.
   local keyblock=$2  # Keyblock for re-generating signed kernel partition
   local signprivate=$3  # Private key to use for signing.
@@ -69,7 +70,7 @@ recalculate_rootfs_hash() {
   # sha1 63b7ad16cb9db4b70b28593f825aa6b7825fdcf2"
   #
 
-  if [ -z ${dm_config} ]; then
+  if [ -z "${dm_config}" ]; then
     echo "WARNING: Couldn't grab dm_config. Aborting rootfs hash calculation"
     return
   fi
@@ -108,7 +109,7 @@ recalculate_rootfs_hash() {
     --signprivate ${signprivate} \
     --oldblob ${temp_kimage} \
     --config ${temp_config}
-  
+
   replace_image_partition ${image} 2 ${updated_kimage}
   replace_image_partition ${image} 3 ${rootfs_img}
 }
@@ -120,8 +121,7 @@ get_firmwarebin_from_shellball() {
   local input=$1
   local output_dir=$2  
   uudecode -o - ${input} | tar -C ${output_dir} -zxf - 2>/dev/null || \
-    echo "Extracting firmware autoupdate failed.
-Try re-running with FW_NOUPDATE=1." && exit 1
+    echo "Extracting firmware autoupdate failed." && exit 1
 }
 
 # Re-sign the firmware AU payload inside the image rootfs with a new keys.
@@ -213,7 +213,7 @@ sign_for_factory_install() {
 
 # Firmware payload signing hidden behind a flag until it actually makes
 # it into the image.
-if [ ! "${FW_UPDATE}" == "1" ]; then
+if [ "${FW_UPDATE}" == "1" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
 fi
 
