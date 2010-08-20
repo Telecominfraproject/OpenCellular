@@ -5,15 +5,7 @@
 # found in the LICENSE file.
 
 # Determine script directory.
-if [[ $0 == '/'* ]];
-then
-  SCRIPT_DIR="`dirname $0`"
-elif [[ $0 == './'* ]];
-then
-  SCRIPT_DIR="`pwd`"
-else
-  SCRIPT_DIR="`pwd`"/"`dirname $0`"
-fi
+SCRIPT_DIR=$(dirname $(readlink -f "$0"))
 
 ROOT_DIR="$(dirname ${SCRIPT_DIR})"
 BUILD_DIR="${ROOT_DIR}/build"

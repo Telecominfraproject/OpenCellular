@@ -9,16 +9,19 @@
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
-GPT=$1
+GPT=$(readlink -f "$1")
 [ -x "$GPT" ] || error "Can't execute $GPT"
-warning "testing $GPT"
+
+# Run tests in a dedicated directory for easy cleanup or debugging.
+DIR="${TEST_DIR}/cgpt_test_dir"
+[ -d "$DIR" ] || mkdir -p "$DIR"
+warning "testing $GPT in $DIR"
+cd "$DIR"
 
 echo "Create an empty file to use as the device..."
 NUM_SECTORS=1000
-DEV=$(mktemp)
-BOOTFILE=$(mktemp)
+DEV=fake_dev.bin
 dd if=/dev/zero of=${DEV} conv=notrunc bs=512 count=${NUM_SECTORS} 2>/dev/null
-trap "rm -f ${DEV}" EXIT
 
 
 echo "Create a bunch of partitions, using the real GUID types..."
