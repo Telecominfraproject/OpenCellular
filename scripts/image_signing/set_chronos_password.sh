@@ -19,7 +19,7 @@ change_chronos_password() {
   local temp_shadow="$rootfs/etc/tempshadow"
   echo "chronos:$crypted_password:14500:0:99999::::" \
     | sudo tee "$temp_shadow" > /dev/null
-  grep -Ev ^chronos: "$rootfs/etc/shadow" \
+  sudo grep -Ev ^chronos: "$rootfs/etc/shadow" \
     | sudo tee -a "$temp_shadow" > /dev/null
   sudo mv -f "$temp_shadow" "$rootfs/etc/shadow"
 }
