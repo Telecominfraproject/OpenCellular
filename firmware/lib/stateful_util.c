@@ -2,8 +2,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Stub implementations of utility functions which call their linux-specific
- * equivalents.
+ * Implementations of stateful memory operations.
  */
 
 #include "stateful_util.h"

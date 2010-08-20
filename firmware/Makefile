@@ -35,6 +35,7 @@ LIB_SRCS = \
 	./lib/rollback_index.c \
 	./lib/stateful_util.c \
 	./lib/tpm_lite/tlcl.c \
+	./lib/utility.c \
 	./lib/vboot_common.c \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c

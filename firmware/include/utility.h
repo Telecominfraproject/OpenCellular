@@ -54,6 +54,10 @@ int Memcmp(const void* src1, const void* src2, size_t n);
 /* Copy [n] bytes from [src] to [dest]. */
 void* Memcpy(void* dest, const void* src, uint64_t n);
 
+
+/* Implementations of the functions below must be built as part of the firmware
+ * and defined in lib/utility.c */
+
 /* Set [n] bytes starting at [s] to [c]. */
 void* Memset(void *dest, const uint8_t c, uint64_t n);
 
@@ -71,6 +75,5 @@ int SafeMemcmp(const void* s1, const void* s2, size_t n);
 #define memcpy _do_not_use_standard_memcpy
 #define memset _do_not_use_standard_memset
 #endif
-
 
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */
