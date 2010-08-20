@@ -199,7 +199,7 @@ int LoadKernel(LoadKernelParams* params) {
     while (GPT_SUCCESS == GptNextKernelEntry(&gpt, &part_start, &part_size)) {
       VbKeyBlockHeader* key_block;
       VbKernelPreambleHeader* preamble;
-      RSAPublicKey* data_key;
+      RSAPublicKey* data_key = NULL;
       uint64_t key_version;
       uint64_t combined_version;
       uint64_t body_offset;
@@ -214,9 +214,9 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* Read the first part of the kernel partition  */
       if (part_size < kbuf_sectors)
-        continue;
+        goto bad_kernel;
       if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf))
-        continue;
+        goto bad_kernel;
 
       /* Verify the key block.  In developer mode, we ignore the key
        * and use only the SHA-512 hash to verify the key block. */
@@ -224,7 +224,7 @@ int LoadKernel(LoadKernelParams* params) {
       if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey,
                                is_dev && !is_rec))) {
         VBDEBUG(("Verifying key block failed.\n"));
-        continue;
+        goto bad_kernel;
       }
 
       /* Check the key block flags against the current boot mode in normal
@@ -234,13 +234,13 @@ int LoadKernel(LoadKernelParams* params) {
               (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
                KEY_BLOCK_FLAG_DEVELOPER_0))) {
           VBDEBUG(("Developer flag mismatch.\n"));
-          continue;
+          goto bad_kernel;
         }
         if (!(key_block->key_block_flags &
               (is_rec ? KEY_BLOCK_FLAG_RECOVERY_1 :
                KEY_BLOCK_FLAG_RECOVERY_0))) {
           VBDEBUG(("Recovery flag mismatch.\n"));
-          continue;
+          goto bad_kernel;
         }
       }
 
@@ -250,13 +250,13 @@ int LoadKernel(LoadKernelParams* params) {
       key_version = key_block->data_key.key_version;
       if (key_version < (tpm_version >> 16)) {
         VBDEBUG(("Key version too old.\n"));
-        continue;
+        goto bad_kernel;
       }
 
       /* Get the key for preamble/data verification from the key block */
       data_key = PublicKeyToRSA(&key_block->data_key);
       if (!data_key)
-        continue;
+        goto bad_kernel;
 
       /* Verify the preamble, which follows the key block */
       preamble = (VbKernelPreambleHeader*)(kbuf + key_block->key_block_size);
@@ -264,8 +264,7 @@ int LoadKernel(LoadKernelParams* params) {
                                      KBUF_SIZE - key_block->key_block_size,
                                      data_key))) {
         VBDEBUG(("Preamble verification failed.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       /* Check for rollback of kernel version.  Note this is implicitly
@@ -275,8 +274,7 @@ int LoadKernel(LoadKernelParams* params) {
                           (preamble->kernel_version & 0xFFFF));
       if (combined_version < tpm_version) {
         VBDEBUG(("Kernel version too low.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       VBDEBUG(("Kernel preamble is good.\n"));
@@ -289,22 +287,20 @@ int LoadKernel(LoadKernelParams* params) {
        * one; we only needed to look at the versions to check for
        * rollback. */
       if (-1 != good_partition)
-        continue;
+        goto bad_kernel;
 
       /* Verify body load address matches what we expect */
       if ((preamble->body_load_address != (size_t)params->kernel_buffer) &&
           !(params->boot_flags & BOOT_FLAG_SKIP_ADDR_CHECK)) {
         VBDEBUG(("Wrong body load address.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       /* Verify kernel body starts at a multiple of the sector size. */
       body_offset = key_block->key_block_size + preamble->preamble_size;
       if (0 != body_offset % blba) {
         VBDEBUG(("Kernel body not at multiple of sector size.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
       body_offset_sectors = body_offset / blba;
 
@@ -312,15 +308,13 @@ int LoadKernel(LoadKernelParams* params) {
       body_sectors = (preamble->body_signature.data_size + blba - 1) / blba;
       if (body_sectors * blba > params->kernel_buffer_size) {
         VBDEBUG(("Kernel body doesn't fit in memory.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       /* Verify kernel body fits in the partition */
       if (body_offset_sectors + body_sectors > part_size) {
         VBDEBUG(("Kernel body doesn't fit in partition.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       /* Read the kernel data */
@@ -328,8 +322,7 @@ int LoadKernel(LoadKernelParams* params) {
                                  body_sectors,
                                  params->kernel_buffer)) {
         VBDEBUG(("Unable to read kernel data.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       /* Verify kernel data */
@@ -337,12 +330,12 @@ int LoadKernel(LoadKernelParams* params) {
                           params->kernel_buffer_size,
                           &preamble->body_signature, data_key)) {
         VBDEBUG(("Kernel data verification failed.\n"));
-        RSAPublicKeyFree(data_key);
-        continue;
+        goto bad_kernel;
       }
 
       /* Done with the kernel signing key, so can free it now */
       RSAPublicKeyFree(data_key);
+      data_key = NULL;
 
       /* If we're still here, the kernel is valid. */
       /* Save the first good partition we find; that's the one we'll boot */
@@ -356,6 +349,10 @@ int LoadKernel(LoadKernelParams* params) {
        * the dest should be a struct, so we know it's big enough. */
       params->bootloader_address = preamble->bootloader_address;
       params->bootloader_size = preamble->bootloader_size;
+
+      /* Update GPT to note this is the kernel we're trying */
+      GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_TRY);
+
       /* If we're in developer or recovery mode, there's no rollback
        * protection, so we can stop at the first valid kernel. */
       if (!is_normal) {
@@ -372,6 +369,19 @@ int LoadKernel(LoadKernelParams* params) {
         VBDEBUG(("Same kernel version\n"));
         break;
       }
+
+      /* Continue, so that we skip the error handling code below */
+      continue;
+
+   bad_kernel:
+      /* Handle errors parsing this kernel */
+      if (NULL != data_key)
+        RSAPublicKeyFree(data_key);
+
+      VBDEBUG(("Marking kernel as invalid.\n"));
+      GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_BAD);
+
+
     } /* while(GptNextKernelEntry) */
   } while(0);
 
