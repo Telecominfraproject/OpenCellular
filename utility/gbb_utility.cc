@@ -475,6 +475,7 @@ int main(int argc, char *argv[]) {
       bool set_new_value(GoogleBinaryBlockUtil::PROPINDEX id, const string &v) {
         if (find(id) != end())
           return false;
+
         (*this)[id] = v;
         return true;
       }
@@ -645,4 +646,3 @@ int main(int argc, char *argv[]) {
 }
 
 #endif  // WITH_UTIL_MAIN
-
