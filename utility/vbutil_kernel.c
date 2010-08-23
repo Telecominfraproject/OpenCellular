@@ -335,6 +335,14 @@ static blob_t *NewBlob(uint64_t version,
   params->ramdisk_size = 0;
   params->type_of_loader = 0xff;
   params->cmd_line_ptr = cmdline_addr;
+  /* A fake e820 memory map with 2 entries */
+  params->n_e820_entry = 2;
+  params->e820_entries[0].start_addr = 0x00000000;
+  params->e820_entries[0].segment_size = 0x00001000;
+  params->e820_entries[0].segment_type = E820_TYPE_RAM;
+  params->e820_entries[1].start_addr = 0xfffff000;
+  params->e820_entries[1].segment_size = 0x00001000;
+  params->e820_entries[1].segment_type = E820_TYPE_RESERVED;
   now += CROS_PARAMS_SIZE;
 
   /* Finally, append the bootloader. Remember where it will load in

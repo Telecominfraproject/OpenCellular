@@ -28,22 +28,35 @@ struct linux_kernel_header
   uint8_t  pad1[0x0230 - 0x1f2];
 } __attribute__ ((packed));
 
+// Simplified version of x86 kernel e820 memory map entries
+#define E820_ENTRY_MAX 128
+#define E820_TYPE_RAM      1
+#define E820_TYPE_RESERVED 2
+
+struct linux_kernel_e820entry {
+  uint64_t start_addr;
+  uint64_t segment_size;
+  uint32_t segment_type;
+} __attribute__((packed));
 
 // Simplified version of the x86 kernel zeropage table
 struct linux_kernel_params
 {
-  uint8_t  pad0[0x01f1 - 0x0];
+  uint8_t  pad0[0x1e8 - 0x0];
+  uint8_t  n_e820_entry;                // 1e8
+  uint8_t  pad1[0x1f1 - 0x1e9];
   uint8_t  setup_sects;                 // 1f1
-  uint8_t  pad1[0x1fe - 0x1f2];
+  uint8_t  pad2[0x1fe - 0x1f2];
   uint16_t boot_flag;                   // 1fe
-  uint8_t  pad2[0x210 - 0x200];
+  uint8_t  pad3[0x210 - 0x200];
   uint8_t  type_of_loader;              // 210
-  uint8_t  pad3[0x218 - 0x211];
+  uint8_t  pad4[0x218 - 0x211];
   uint32_t ramdisk_image;               // 218
-  uint32_t ramdisk_size;		// 21c
-  uint8_t  pad4[0x228 - 0x220];
+  uint32_t ramdisk_size;                // 21c
+  uint8_t  pad5[0x228 - 0x220];
   uint32_t cmd_line_ptr;                // 228
-  uint8_t  pad5[0x0cd0 - 0x22c];
+  uint8_t  pad6[0x2d0 - 0x22c];
+  struct   linux_kernel_e820entry e820_entries[E820_ENTRY_MAX]; // 2d0 - cd0
 } __attribute__ ((packed));
 
 
