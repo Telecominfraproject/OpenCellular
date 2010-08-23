@@ -5,6 +5,7 @@
  * Utility functions that need to be built as part of the firmware.
  */
 
+#include "sysincludes.h"
 #include "utility.h"
 
 void* Memset(void* d, const uint8_t c, uint64_t n) {
@@ -16,12 +17,13 @@ void* Memset(void* d, const uint8_t c, uint64_t n) {
 }
 
 int SafeMemcmp(const void* s1, const void* s2, size_t n) {
+  const unsigned char* us1 = s1;
+  const unsigned char* us2 = s2;
   int result = 0;
+
   if (0 == n)
     return 1;
 
-  const unsigned char* us1 = s1;
-  const unsigned char* us2 = s2;
   /* Code snippet without data-dependent branch due to
    * Nate Lawson (nate@root.org) of Root Labs. */
   while (n--)
