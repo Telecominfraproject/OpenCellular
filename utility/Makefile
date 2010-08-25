@@ -11,6 +11,7 @@ INCLUDES += -I./include \
 CFLAGS += $(INCLUDES)
 CFLAGS += -MMD -MF $@.d
 LIBS = $(HOSTLIB) $(FWLIB)
+HOSTCC = cc
 
 BUILD_ROOT = ${BUILD}/utility
 
@@ -53,7 +54,7 @@ ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/tlcl_generator: tlcl_generator.c
-	$(CC) $(CFLAGS) $(INCLUDES) -fpack-struct $< -o $@
+	$(HOSTCC) $(CFLAGS) $(INCLUDES) -fpack-struct $< -o $@
 
 ${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto

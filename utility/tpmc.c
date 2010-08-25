@@ -200,6 +200,52 @@ static uint32_t HandlerGetPermissions(void) {
   return result;
 }
 
+static uint32_t HandlerGetPermanentFlags(void) {
+  TPM_PERMANENT_FLAGS pflags;
+  uint32_t result = TlclGetPermanentFlags(&pflags);
+  if (result == 0) {
+#define P(name) printf("%s %d\n", #name, pflags.name)
+    P(disable);
+    P(ownership);
+    P(deactivated);
+    P(readPubek);
+    P(disableOwnerClear);
+    P(allowMaintenance);
+    P(physicalPresenceLifetimeLock);
+    P(physicalPresenceHWEnable);
+    P(physicalPresenceCMDEnable);
+    P(CEKPUsed);
+    P(TPMpost);
+    P(TPMpostLock);
+    P(FIPS);
+    P(Operator);
+    P(enableRevokeEK);
+    P(nvLocked);
+    P(readSRKPub);
+    P(tpmEstablished);
+    P(maintenanceDone);
+    P(disableFullDALogicInfo);
+#undef P
+  }
+  return result;
+}
+
+static uint32_t HandlerGetSTClearFlags(void) {
+  TPM_STCLEAR_FLAGS vflags;
+  uint32_t result = TlclGetSTClearFlags(&vflags);
+  if (result == 0) {
+#define P(name) printf("%s %d\n", #name, vflags.name)
+  P(deactivated);
+  P(disableForceClear);
+  P(physicalPresence);
+  P(physicalPresenceLock);
+  P(bGlobalLock);
+#undef P
+  }
+  return result;
+}
+
+
 /* Table of TPM commands.
  */
 command_record command_table[] = {
@@ -232,6 +278,10 @@ command_record command_table[] = {
     HandlerRead },
   { "getpermissions", "getp", "print space permissions (getp <index>)",
     HandlerGetPermissions },
+  { "getpermanentflags", "getpf", "print all permanent flags",
+    HandlerGetPermanentFlags },
+  { "getstclearflags", "getvf", "print all volatile (ST_CLEAR) flags",
+    HandlerGetSTClearFlags },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);

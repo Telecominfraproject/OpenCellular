@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <tss/tcs.h>
+
 #include "tpmextras.h"
 #define TPM_DEVICE_PATH "/dev/tpm0"
 

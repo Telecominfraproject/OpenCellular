@@ -18,7 +18,7 @@
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "tlcl_structures.h"
-#include "tss_constants.h"
+#include "tpmextras.h"
 #include "utility.h"
 
 /* Sets the size field of a TPM command. */
@@ -221,32 +221,55 @@ uint32_t TlclSetDeactivated(uint8_t flag) {
   return Send(cmd.buffer);
 }
 
-uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t *nvlocked) {
+uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
-  TPM_PERMANENT_FLAGS* pflags;
-  uint32_t result;
   uint32_t size;
-  VBDEBUG(("TPM: Get flags\n"));
-
-  result = TlclSendReceive(tpm_getflags_cmd.buffer, response, sizeof(response));
+  uint32_t result =
+    TlclSendReceive(tpm_getflags_cmd.buffer, response, sizeof(response));
   if (result != TPM_SUCCESS)
     return result;
-
   FromTpmUint32(response + kTpmResponseHeaderLength, &size);
   assert(size == sizeof(TPM_PERMANENT_FLAGS));
-  pflags =
-    (TPM_PERMANENT_FLAGS*) (response + kTpmResponseHeaderLength + sizeof(size));
-  VBDEBUG(("TPM: Got flags disable=%d, deactivated=%d, nvlocked=%d\n",
-           pflags->disable, pflags->deactivated, pflags->nvLocked));
-  if (disable)
-    *disable = pflags->disable;
-  if (deactivated)
-    *deactivated = pflags->deactivated;
-  if (nvlocked)
-    *nvlocked = pflags->nvLocked;
+  Memcpy(pflags,
+         response + kTpmResponseHeaderLength + sizeof(size),
+         sizeof(TPM_PERMANENT_FLAGS));
   return result;
 }
 
+uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* vflags) {
+  uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
+  uint32_t size;
+  uint32_t result =
+    TlclSendReceive(tpm_getstclearflags_cmd.buffer, response, sizeof(response));
+  if (result != TPM_SUCCESS)
+    return result;
+  FromTpmUint32(response + kTpmResponseHeaderLength, &size);
+  /* Ugly assertion, but the struct is padded up by one byte. */
+  assert(size == 7 && sizeof(TPM_STCLEAR_FLAGS) - 1 == 7);
+  Memcpy(vflags,
+         response + kTpmResponseHeaderLength + sizeof(size),
+         sizeof(TPM_STCLEAR_FLAGS));
+  return result;
+}
+
+uint32_t TlclGetFlags(uint8_t* disable,
+                      uint8_t* deactivated,
+                      uint8_t *nvlocked) {
+  TPM_PERMANENT_FLAGS pflags;
+  uint32_t result = TlclGetPermanentFlags(&pflags);
+  if (result == TPM_SUCCESS) {
+    if (disable)
+      *disable = pflags.disable;
+    if (deactivated)
+      *deactivated = pflags.deactivated;
+    if (nvlocked)
+      *nvlocked = pflags.nvLocked;
+    VBDEBUG(("TPM: Got flags disable=%d, deactivated=%d, nvlocked=%d\n",
+             pflags.disable, pflags.deactivated, pflags.nvLocked));
+  }
+  return result;
+}
+    
 uint32_t TlclSetGlobalLock(void) {
   uint32_t x;
   VBDEBUG(("TPM: Set global lock\n"));

@@ -13,7 +13,6 @@
  */
 
 #include <stdio.h>
-#include <tss/tcs.h>
 
 #include "tlcl.h"
 #include "utility.h"

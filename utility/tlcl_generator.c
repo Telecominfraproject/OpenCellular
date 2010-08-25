@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <tss/tcs.h>
 
-#include "tlcl.h"
+#include "sysincludes.h"
 #include "tlcl_internal.h"
 #include "tpmextras.h"
 
@@ -278,6 +278,25 @@ Command* BuildGetFlagsCommand(void) {
   return cmd;
 }
 
+Command* BuildGetSTClearFlagsCommand(void) {
+  int size = (kTpmRequestHeaderLength +
+              sizeof(TPM_CAPABILITY_AREA) +   /* capArea */
+              sizeof(uint32_t) +              /* subCapSize */
+              sizeof(uint32_t));              /* subCap */
+
+  Command* cmd = newCommand(TPM_ORD_GetCapability, size);
+  cmd->name = "tpm_getstclearflags_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength,
+                      sizeof(TPM_CAPABILITY_AREA), TPM_CAP_FLAG);
+  AddInitializedField(cmd, kTpmRequestHeaderLength +
+                      sizeof(TPM_CAPABILITY_AREA),
+                      sizeof(uint32_t), sizeof(uint32_t));
+  AddInitializedField(cmd, kTpmRequestHeaderLength +
+                      sizeof(TPM_CAPABILITY_AREA) + sizeof(uint32_t),
+                      sizeof(uint32_t), TPM_CAP_FLAG_VOLATILE);
+  return cmd;
+}
+
 Command* BuildGetPermissionsCommand(void) {
   int size = (kTpmRequestHeaderLength +
               sizeof(TPM_CAPABILITY_AREA) +   /* capArea */
@@ -407,6 +426,7 @@ Command* (*builders[])(void) = {
   BuildPhysicalEnableCommand,
   BuildPhysicalSetDeactivatedCommand,
   BuildGetFlagsCommand,
+  BuildGetSTClearFlagsCommand,
   BuildGetPermissionsCommand,
   BuildExtendCommand,
 };

@@ -33,7 +33,8 @@ all:
 		if [ ! -d $$newdir ]; then \
 			mkdir -p $$newdir; \
 		fi; \
-	done && \
+	done; \
+	make -C utility update_tlcl_structures; \
 	for i in $(SUBDIRS); do \
 		make -C $$i; \
 	done

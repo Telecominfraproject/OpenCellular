@@ -14,10 +14,18 @@
 #define TPM_MAX_COMMAND_SIZE 4096
 #define TPM_LARGE_ENOUGH_COMMAND_SIZE 256  /* saves space in the firmware */
 
+#define TPM_E_NON_FATAL 0x800
+
 #define TPM_SUCCESS ((uint32_t)0x00000000)
+
+#define TPM_E_AREA_LOCKED ((uint32_t)0x00000003c)
 #define TPM_E_BADINDEX ((uint32_t)0x00000002)
+#define TPM_E_BAD_PRESENCE ((uint32_t)0x00000002d)
 #define TPM_E_MAXNVWRITES ((uint32_t)0x00000048)
 #define TPM_E_OWNER_SET ((uint32_t)0x00000014)
+
+#define TPM_E_NEEDS_SELFTEST ((uint32_t)(TPM_E_NON_FATAL + 1))
+#define TPM_E_DOING_SELFTEST ((uint32_t)(TPM_E_NON_FATAL + 2))
 
 #define TPM_E_ALREADY_INITIALIZED    ((uint32_t)0x00005000)  /* vboot local */
 #define TPM_E_INTERNAL_INCONSISTENCY ((uint32_t)0x00005001)  /* vboot local */
@@ -27,18 +35,21 @@
 
 #define TPM_NV_INDEX0 ((uint32_t)0x00000000)
 #define TPM_NV_INDEX_LOCK ((uint32_t)0xffffffff)
-#define TPM_NV_PER_WRITE_STCLEAR (((uint32_t)1)<<14)
-#define TPM_NV_PER_PPWRITE (((uint32_t)1)<<0)
 #define TPM_NV_PER_GLOBALLOCK (((uint32_t)1)<<15)
+#define TPM_NV_PER_PPWRITE (((uint32_t)1)<<0)
+#define TPM_NV_PER_READ_STCLEAR (((uint32_t)1)<<31)
+#define TPM_NV_PER_WRITE_STCLEAR (((uint32_t)1)<<14)
+
+#define TPM_TAG_RQU_COMMAND       ((uint16_t) 0xc1)
+#define TPM_TAG_RQU_AUTH1_COMMAND ((uint16_t) 0xc2)
+#define TPM_TAG_RQU_AUTH2_COMMAND ((uint16_t) 0xc3)
+
+#define TPM_TAG_RSP_COMMAND       ((uint16_t) 0xc4)
+#define TPM_TAG_RSP_AUTH1_COMMAND ((uint16_t) 0xc5)
+#define TPM_TAG_RSP_AUTH2_COMMAND ((uint16_t) 0xc6)
 
 typedef uint8_t TSS_BOOL;
 typedef uint16_t TPM_STRUCTURE_TAG;
-
-typedef struct tdTPM_WRITE_INFO {
-  uint32_t nvIndex;
-  uint32_t offset;
-  uint32_t dataSize;
-} TPM_WRITE_INFO;
 
 typedef struct tdTPM_PERMANENT_FLAGS
 {
@@ -65,10 +76,13 @@ typedef struct tdTPM_PERMANENT_FLAGS
     TSS_BOOL disableFullDALogicInfo;
 } TPM_PERMANENT_FLAGS;
 
-#define TPM_ALL_LOCALITIES (TPM_LOC_ZERO | TPM_LOC_ONE | TPM_LOC_TWO \
-                            | TPM_LOC_THREE | TPM_LOC_FOUR)  /* 0x1f */
-
-#define TPM_ENCAUTH_SIZE 20
-#define TPM_PUBEK_SIZE 256
+typedef struct tdTPM_STCLEAR_FLAGS{
+  TPM_STRUCTURE_TAG tag;
+  TSS_BOOL deactivated;
+  TSS_BOOL disableForceClear;
+  TSS_BOOL physicalPresence;
+  TSS_BOOL physicalPresenceLock;
+  TSS_BOOL bGlobalLock;
+} TPM_STCLEAR_FLAGS;
 
 #endif  /* TPM_LITE_TSS_CONSTANTS_H_ */

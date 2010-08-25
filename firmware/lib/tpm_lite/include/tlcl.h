@@ -12,6 +12,7 @@
 #define TPM_LITE_TLCL_H_
 
 #include "sysincludes.h"
+#include "tss_constants.h"
 
 /*****************************************************************************/
 /* Functions to be implemented by the stub library */
@@ -133,5 +134,13 @@ uint32_t TlclExtend(int pcr_num, uint8_t* in_digest, uint8_t* out_digest);
 /* Gets the permission bits for the NVRAM space with |index|.
  */
 uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions);
+
+/* Gets the entire set of permanent flags.
+ */
+uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags);
+
+/* Gets the entire set of volatile (ST_CLEAR) flags.
+ */
+uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* pflags);
 
 #endif  /* TPM_LITE_TLCL_H_ */
