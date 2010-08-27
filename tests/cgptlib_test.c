@@ -45,6 +45,13 @@ static const Guid guid_zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
 static const Guid guid_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
 static const Guid guid_rootfs = GPT_ENT_TYPE_CHROMEOS_ROOTFS;
 
+/* Copy a random-for-this-program-only Guid into the dest. The num parameter
+ * completely determines the Guid.
+ */
+static void SetGuid(void *dest, uint32_t num) {
+  Guid g = {{{num,0xd450,0x44bc,0xa6,0x93,{0xb8,0xac,0x75,0x5f,0xcd,0x48}}}};
+  Memcpy(dest, &g, sizeof(Guid));
+}
 
 /* Given a GptData pointer, first re-calculate entries CRC32 value,
  * then reset header CRC32 value to 0, and calculate header CRC32 value.
@@ -147,15 +154,19 @@ static void BuildTestGptData(GptData* gpt) {
   header->number_of_entries = 128;  /* 512B / 128B * 32sectors = 128 entries */
   header->size_of_entry = 128;  /* bytes */
   Memcpy(&entries[0].type, &chromeos_kernel, sizeof(chromeos_kernel));
+  SetGuid(&entries[0].unique, 0);
   entries[0].starting_lba = 34;
   entries[0].ending_lba = 133;
   Memcpy(&entries[1].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
+  SetGuid(&entries[1].unique, 1);
   entries[1].starting_lba = 134;
   entries[1].ending_lba = 232;
   Memcpy(&entries[2].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
+  SetGuid(&entries[2].unique, 2);
   entries[2].starting_lba = 234;
   entries[2].ending_lba = 331;
   Memcpy(&entries[3].type, &chromeos_kernel, sizeof(chromeos_kernel));
+  SetGuid(&entries[3].unique, 3);
   entries[3].starting_lba = 334;
   entries[3].ending_lba = 430;
 
@@ -663,6 +674,7 @@ static int OverlappedPartitionTest() {
 
       if (cases[i].entries[j].active)
         Memcpy(&e[j].type, &guid_kernel, sizeof(Guid));
+      SetGuid(&e[j].unique, j);
       e[j].starting_lba = cases[i].entries[j].starting_lba;
       e[j].ending_lba = cases[i].entries[j].ending_lba;
     }
@@ -776,6 +788,31 @@ static int SanityCheckTest() {
   EXPECT(MASK_BOTH == gpt->valid_headers);
   EXPECT(MASK_BOTH == gpt->valid_entries);
   EXPECT(GPT_MODIFIED_ENTRIES2 == gpt->modified);
+
+  /* Modify both header and entries */
+  BuildTestGptData(gpt);
+  gpt->primary_header[0]++;
+  gpt->primary_entries[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_SECONDARY == gpt->valid_headers);
+  EXPECT(MASK_SECONDARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT((GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1) == gpt->modified);
+
+  BuildTestGptData(gpt);
+  gpt->secondary_header[0]++;
+  gpt->secondary_entries[0]++;
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_PRIMARY == gpt->valid_headers);
+  EXPECT(MASK_PRIMARY == gpt->valid_entries);
+  GptRepair(gpt);
+  EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+  EXPECT(MASK_BOTH == gpt->valid_headers);
+  EXPECT(MASK_BOTH == gpt->valid_entries);
+  EXPECT((GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
 
   /* Test cross-correction (h1+e2, h2+e1) */
   BuildTestGptData(gpt);
@@ -1092,6 +1129,66 @@ static int UpdateInvalidKernelTypeTest() {
   return TEST_OK;
 }
 
+
+/* Tests duplicate UniqueGuids can be detected. */
+static int DuplicateUniqueGuidTest() {
+  GptData* gpt = GetEmptyGptData();
+  GptHeader* h = (GptHeader*)gpt->primary_header;
+  GptEntry* e = (GptEntry*)gpt->primary_entries;
+  int i, j;
+
+  struct {
+    int duplicate;
+    struct {
+      uint64_t starting_lba;
+      uint64_t ending_lba;
+      uint32_t type_guid;
+      uint32_t unique_guid;
+    } entries[16];   /* enough for testing. */
+  } cases[] = {
+    {0, {{100, 109, 1, 1},
+         {110, 119, 2, 2},
+         {120, 129, 3, 3},
+         {130, 139, 4, 4},
+      }},
+    {0, {{100, 109, 1, 1},
+         {110, 119, 1, 2},
+         {120, 129, 2, 3},
+         {130, 139, 2, 4},
+      }},
+    {1, {{100, 109, 1, 1},
+         {110, 119, 2, 2},
+         {120, 129, 3, 1},
+         {130, 139, 4, 4},
+      }},
+    {1, {{100, 109, 1, 1},
+         {110, 119, 1, 2},
+         {120, 129, 2, 3},
+         {130, 139, 2, 2},
+      }},
+  };
+
+  for (i = 0; i < ARRAY_SIZE(cases); ++i) {
+    BuildTestGptData(gpt);
+    ZeroEntries(gpt);
+    for(j = 0; j < ARRAY_SIZE(cases[0].entries); ++j) {
+      if (!cases[i].entries[j].starting_lba)
+        break;
+
+      e[j].starting_lba = cases[i].entries[j].starting_lba;
+      e[j].ending_lba = cases[i].entries[j].ending_lba;
+      SetGuid(&e[j].type, cases[i].entries[j].type_guid);
+      SetGuid(&e[j].unique, cases[i].entries[j].unique_guid);
+    }
+    RefreshCrc32(gpt);
+
+    EXPECT(cases[i].duplicate == CheckEntries(e, h));
+  }
+  return TEST_OK;
+}
+
+
+
 /* disable MSVC warnings on unused arguments */
 __pragma(warning (disable: 4100))
 
@@ -1128,6 +1225,7 @@ int main(int argc, char *argv[]) {
     { TEST_CASE(GetNextTriesTest), },
     { TEST_CASE(GptUpdateTest), },
     { TEST_CASE(UpdateInvalidKernelTypeTest), },
+    { TEST_CASE(DuplicateUniqueGuidTest), },
     { TEST_CASE(TestCrc32TestVectors), },
   };
 

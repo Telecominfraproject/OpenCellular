@@ -152,6 +152,10 @@ int CheckEntries(GptEntry* entries, GptHeader* h) {
       if ((entry->ending_lba >= e2->starting_lba) &&
           (entry->ending_lba <= e2->ending_lba))
         return 1;
+
+      /* UniqueGuid field must be unique. */
+      if (0 == Memcmp(&entry->unique, &e2->unique, sizeof(Guid)))
+        return 1;
     }
   }
 
