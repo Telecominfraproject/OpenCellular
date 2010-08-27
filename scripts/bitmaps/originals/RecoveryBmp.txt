@@ -1,2 +1,2 @@
-Remove all USB and SD devices and press SPACE to begin recovery.
+Please remove all USB and SD devices to begin recovery.
 $URL
