@@ -55,6 +55,9 @@ int main(void)
   TlclClearEnable();
   TlclSetDeactivated(0);
   TlclGetFlags(0, 0, 0);
+  TlclSetGlobalLock();
+  TlclExtend(0, 0, 0);
+  TlclGetPermissions(0, 0);
 
   /* vboot_common.h */
   OffsetOf(0, 0);

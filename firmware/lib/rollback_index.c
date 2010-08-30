@@ -12,6 +12,17 @@
 #include "tss_constants.h"
 #include "utility.h"
 
+
+/* TPM PCR to use for storing dev mode measurements */
+#define DEV_MODE_PCR 0
+/* Input digests for PCR extend */
+#define DEV_MODE_ON_SHA1_DIGEST ((uint8_t*) "\xbf\x8b\x45\x30\xd8\xd2\x46\xdd" \
+                                 "\x74\xac\x53\xa1\x34\x71\xbb\xa1\x79\x41" \
+                                 "\xdf\xf7") /* SHA1("\x01") */
+#define DEV_MODE_OFF_SHA1_DIGEST ((uint8_t*) "\x5b\xa9\x3c\x9d\xb0\xcf\xf9\x3f"\
+                                  "\x52\xb5\x21\xd7\x42\x0e\x43\xf6\xed\xa2" \
+                                  "\x78\x4f") /* SHA1("\x00") */
+
 static int g_rollback_recovery_mode = 0;
 
 /* disable MSVC warning on const logical expression (as in } while(0);) */
@@ -278,13 +289,22 @@ uint32_t RollbackKernelLock(void) {
 }
 
 #else
-
 uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   RollbackSpaceFirmware rsf;
+  uint8_t out_digest[20];  /* For PCR extend output */
 
   RETURN_ON_FAILURE(SetupTPM(0, developer_mode, &rsf));
   *version = rsf.fw_versions;
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
+  if (developer_mode)
+    RETURN_ON_FAILURE(TlclExtend(DEV_MODE_PCR, DEV_MODE_ON_SHA1_DIGEST,
+                                 out_digest));
+  else
+    RETURN_ON_FAILURE(TlclExtend(DEV_MODE_PCR, DEV_MODE_OFF_SHA1_DIGEST,
+                                 out_digest));
+  VBDEBUG(("TPM: RollbackFirmwareSetup dev mode PCR out_digest %02x %02x %02x "
+           "%02x", out_digest, out_digest+1, out_digest+2, out_digest+3));
+
   return TPM_SUCCESS;
 }
 
