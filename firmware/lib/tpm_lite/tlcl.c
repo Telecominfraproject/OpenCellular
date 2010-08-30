@@ -176,6 +176,11 @@ uint32_t TlclAssertPhysicalPresence(void) {
   return Send(tpm_ppassert_cmd.buffer);
 }
 
+uint32_t TlclPhysicalPresenceCMDEnable(void) {
+  VBDEBUG(("TPM: Enable the physical presence command\n"));
+  return Send(tpm_ppenable_cmd.buffer);
+}
+
 uint32_t TlclAssertPhysicalPresenceResult(void) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   return TlclSendReceive(tpm_ppassert_cmd.buffer, response, sizeof(response));
@@ -269,7 +274,7 @@ uint32_t TlclGetFlags(uint8_t* disable,
   }
   return result;
 }
-    
+
 uint32_t TlclSetGlobalLock(void) {
   uint32_t x;
   VBDEBUG(("TPM: Set global lock\n"));

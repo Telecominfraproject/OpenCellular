@@ -257,6 +257,8 @@ command_record command_table[] = {
     TlclContinueSelfTest },
   { "assertphysicalpresence", "ppon", "assert Physical Presence",
     TlclAssertPhysicalPresence },
+  { "physicalpresencecmdenable", "ppcmd", "turn on software PP",
+    TlclPhysicalPresenceCMDEnable },
   { "enable", "ena", "enable the TPM (needs PP)", TlclSetEnable },
   { "disable", "dis", "disable the TPM (needs PP)", TlclClearEnable },
   { "activate", "act", "activate the TPM (needs PP, maybe reboot)",
@@ -298,9 +300,9 @@ int main(int argc, char* argv[]) {
     args = argv;
 
     if (strcmp(cmd, "help") == 0) {
-      printf("%23s %7s  %s\n\n", "command", "abbr.", "description");
+      printf("%26s %7s  %s\n\n", "command", "abbr.", "description");
       for (c = command_table; c < command_table + n_commands; c++) {
-        printf("%23s %7s  %s\n", c->name, c->abbr, c->description);
+        printf("%26s %7s  %s\n", c->name, c->abbr, c->description);
       }
       return 0;
     }
