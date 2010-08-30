@@ -429,9 +429,10 @@ int LoadKernel(LoadKernelParams* params) {
     return LOAD_KERNEL_SUCCESS;
   }
 
-  // Handle error cases
-  if (found_partitions)
-    return LOAD_KERNEL_INVALID;
-  else
-    return LOAD_KERNEL_NOT_FOUND;
+  /* The BIOS may attempt to display different screens depending on whether
+   * we find an invalid kernel partition (return LOAD_KERNEL_INVALID) or not.
+   * But the flow is changing, so for now treating both cases as invalid gives
+   * slightly less confusing user feedback. Sigh.
+   */
+  return LOAD_KERNEL_INVALID;
 }
