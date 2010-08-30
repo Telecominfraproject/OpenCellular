@@ -129,9 +129,9 @@ int RSAVerify(const RSAPublicKey *key,
               const uint32_t sig_len,
               const uint8_t sig_type,
               const uint8_t *hash) {
-  int i;
   uint8_t* buf;
   const uint8_t* padding;
+  int padding_len;
   int success = 1;
 
   if (!key || !sig || !hash)
@@ -161,27 +161,22 @@ int RSAVerify(const RSAPublicKey *key,
 
   /* Determine padding to use depending on the signature type. */
   padding = padding_map[sig_type];
+  padding_len = padding_size_map[sig_type];
+
+  /* Even though there are probably no timing issues here, we use
+   * SafeMemcmp() just to be on the safe side. */
 
   /* Check pkcs1.5 padding bytes. */
-  for (i = 0; i < padding_size_map[sig_type]; ++i) {
-    if (buf[i] != padding[i]) {
-#ifndef NDEBUG
-      VBDEBUG(("Padding: Expecting = %02x Got = %02x\n", padding[i], buf[i]));
-#endif
-      success = 0;
-    }
+  if (SafeMemcmp(buf, padding, padding_len)) {
+    VBDEBUG(("In RSAVerify(): Padding check failed!\n"));
+    success = 0;
   }
 
-  /* Check if digest matches. */
-  for (; i < (int)sig_len; ++i) {
-    if (buf[i] != *hash++) {
-#ifndef NDEBUG
-      VBDEBUG(("Digest: Expecting = %02x Got = %02x\n", padding[i], buf[i]));
-#endif
-      success = 0;
-    }
+  /* Check hash. */
+  if (SafeMemcmp(buf + padding_len, hash, sig_len - padding_len)) {
+    VBDEBUG(("In RSAVerify(): Hash check failed!\n"));
+    success  = 0;
   }
-
   Free(buf);
 
   return success;
