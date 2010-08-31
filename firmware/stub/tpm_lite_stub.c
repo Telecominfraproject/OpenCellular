@@ -84,7 +84,7 @@ static void TpmExecute(const uint8_t *in, const uint32_t in_len,
 
 /* Gets the tag field of a TPM command.
  */
-POSSIBLY_UNUSED static INLINE int TpmTag(uint8_t* buffer) {
+POSSIBLY_UNUSED static INLINE int TpmTag(const uint8_t* buffer) {
   uint16_t tag;
   FromTpmUint16(buffer, &tag);
   return (int) tag;
@@ -129,7 +129,7 @@ void TlclOpenDevice(void) {
 }
 
 
-uint32_t TlclStubSendReceive(uint8_t* request, int request_length,
+uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
                              uint8_t* response, int max_length) {
   /*
    * In a real firmware implementation, this function should contain

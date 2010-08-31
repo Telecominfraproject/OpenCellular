@@ -431,7 +431,7 @@ void OutputCommands(Command* cmd) {
   if (cmd == NULL) {
     return;
   } else {
-    printf("struct s_%s{\n  uint8_t buffer[%d];\n",
+    printf("const struct s_%s{\n  uint8_t buffer[%d];\n",
            cmd->name, cmd->size == 0 ? cmd->max_size : cmd->size);
     OutputFields(cmd->fields);
     printf("} %s = {{", cmd->name);

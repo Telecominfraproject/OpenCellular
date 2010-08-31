@@ -47,7 +47,7 @@ static INLINE int TpmReturnCode(const uint8_t* buffer) {
 
 /* Sends a TPM command and gets a response.  Returns 0 if success or the TPM
  * error code if error. */
-static uint32_t TlclSendReceive(uint8_t* request, uint8_t* response,
+static uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
                                 int max_length) {
 
   uint32_t result;
@@ -85,7 +85,7 @@ static uint32_t TlclSendReceive(uint8_t* request, uint8_t* response,
 
 
 /* Sends a command and returns the error code. */
-static uint32_t Send(uint8_t* command) {
+static uint32_t Send(const uint8_t* command) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   return TlclSendReceive(command, response, sizeof(response));
 }

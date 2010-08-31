@@ -29,7 +29,7 @@ void TlclOpenDevice(void);
 
 /* Send data to the TPM and receive a response.  Returns 0 if success,
  * nonzero if error. */
-uint32_t TlclStubSendReceive(uint8_t* request, int request_length,
+uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
                              uint8_t* response, int max_length);
 
 /*****************************************************************************/
