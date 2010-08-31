@@ -52,7 +52,12 @@ void TlclSetLogLevel(int level);
  */
 uint32_t TlclStartup(void);
 
-/* Run the self test.  Note---this is synchronous.  To run this in parallel
+/* Resumes by sending a TPM_Startup(ST_STATE).  The TPM error code is returned
+ * (0 for success).
+ */
+uint32_t TlclResume(void);
+
+/* Runs the self test.  Note---this is synchronous.  To run this in parallel
  * with other firmware, use ContinueSelfTest.  The TPM error code is returned.
  */
 uint32_t TlclSelfTestFull(void);

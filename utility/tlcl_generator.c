@@ -213,12 +213,22 @@ Command* BuildPPLockCommand(void) {
 }
 
 Command* BuildStartupCommand(void) {
-  int size = kTpmRequestHeaderLength + sizeof(TPM_PHYSICAL_PRESENCE);
+  int size = kTpmRequestHeaderLength + sizeof(TPM_STARTUP_TYPE);
   Command* cmd = newCommand(TPM_ORD_Startup, size);
   cmd->name = "tpm_startup_cmd";
   AddInitializedField(cmd, kTpmRequestHeaderLength,
                       sizeof(TPM_STARTUP_TYPE),
                       TPM_ST_CLEAR);
+  return cmd;
+}
+
+Command* BuildResumeCommand(void) {
+  int size = kTpmRequestHeaderLength + sizeof(TPM_STARTUP_TYPE);
+  Command* cmd = newCommand(TPM_ORD_Startup, size);
+  cmd->name = "tpm_resume_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength,
+                      sizeof(TPM_STARTUP_TYPE),
+                      TPM_ST_STATE);
   return cmd;
 }
 
@@ -442,6 +452,7 @@ Command* (*builders[])(void) = {
   BuildPPLockCommand,
   BuildFinalizePPCommand,
   BuildStartupCommand,
+  BuildResumeCommand,
   BuildSelftestfullCommand,
   BuildContinueSelfTestCommand,
   BuildReadPubekCommand,

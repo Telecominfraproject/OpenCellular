@@ -101,6 +101,11 @@ uint32_t TlclStartup(void) {
   return Send(tpm_startup_cmd.buffer);
 }
 
+uint32_t TlclResume(void) {
+  VBDEBUG(("TPM: Resume\n"));
+  return Send(tpm_resume_cmd.buffer);
+}
+
 uint32_t TlclSelfTestFull(void) {
   VBDEBUG(("TPM: Self test full\n"));
   return Send(tpm_selftestfull_cmd.buffer);
