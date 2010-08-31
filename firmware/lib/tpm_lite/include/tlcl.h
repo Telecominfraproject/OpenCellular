@@ -88,9 +88,14 @@ uint32_t TlclReadLock(uint32_t index);
  */
 uint32_t TlclAssertPhysicalPresence(void);
 
-/* Enable the physical presence command.  The TPM error code is returned.
+/* Enables the physical presence command.  The TPM error code is returned.
  */
 uint32_t TlclPhysicalPresenceCMDEnable(void);
+
+/* Finalizes the physical presence settings: sofware PP is enabled, hardware PP
+ * is disabled, and the lifetime lock is set.  The TPM error code is returned.
+ */
+uint32_t TlclFinalizePhysicalPresence(void);
 
 /* Turns off physical presence and locks it off until next reboot.  The TPM
  * error code is returned.

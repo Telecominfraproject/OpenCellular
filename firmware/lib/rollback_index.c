@@ -98,20 +98,25 @@ static uint32_t WriteSpaceKernel(const RollbackSpaceKernel* rsk) {
   return SafeWrite(KERNEL_NV_INDEX, rsk, sizeof(RollbackSpaceKernel));
 }
 
-/* Creates the NVRAM spaces, and sets their initial values as needed. */
-static uint32_t InitializeSpaces(RollbackSpaceFirmware* rsf,
-                                 RollbackSpaceKernel* rsk) {
+/* Performs one-time initializations.  Creates the NVRAM spaces, and sets their
+ * initial values as needed.  Sets the nvLocked bit and ensures the physical
+ * presence command is enabled and locked.
+ */
+static uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
+                                     RollbackSpaceKernel* rsk) {
   static const RollbackSpaceFirmware rsf_init = {
     ROLLBACK_SPACE_FIRMWARE_VERSION, 0, 0, 0};
   static const RollbackSpaceKernel rsk_init = {
     ROLLBACK_SPACE_KERNEL_VERSION, ROLLBACK_SPACE_KERNEL_UID, 0, 0};
   uint8_t nvlocked = 0;
 
-  VBDEBUG(("TPM: Initializing spaces\n"));
+  VBDEBUG(("TPM: One-time initialization\n"));
+
+  RETURN_ON_FAILURE(TlclFinalizePhysicalPresence());
 
   /* The TPM will not enforce the NV authorization restrictions until the
    * execution of a TPM_NV_DefineSpace with the handle of TPM_NV_INDEX_LOCK.
-   * Create that space if it doesn't already exist. */
+   * Here we create that space if it doesn't already exist. */
   RETURN_ON_FAILURE(TlclGetFlags(NULL, NULL, &nvlocked));
   VBDEBUG(("TPM: nvlocked=%d\n", nvlocked));
   if (!nvlocked) {
@@ -119,11 +124,11 @@ static uint32_t InitializeSpaces(RollbackSpaceFirmware* rsf,
     RETURN_ON_FAILURE(TlclSetNvLocked());
   }
 
-  /* Initialize the firmware and kernel spaces */
+  /* Initializes the firmware and kernel spaces */
   Memcpy(rsf, &rsf_init, sizeof(RollbackSpaceFirmware));
   Memcpy(rsk, &rsk_init, sizeof(RollbackSpaceKernel));
 
-  /* Define and set firmware and kernel spaces */
+  /* Defines and sets firmware and kernel spaces */
   RETURN_ON_FAILURE(SafeDefineSpace(FIRMWARE_NV_INDEX,
                                     TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE,
                                     sizeof(RollbackSpaceFirmware)));
@@ -177,9 +182,17 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
 #else
   RETURN_ON_FAILURE(TlclSelfTestFull());
 #endif
-  RETURN_ON_FAILURE(TlclAssertPhysicalPresence());
+  result = TlclAssertPhysicalPresence();
+  if (result != 0) {
+    /* It is possible that the TPM was delivered with the physical presence
+     * command disabled.  This tries enabling it, then tries asserting PP
+     * again.
+     */
+    RETURN_ON_FAILURE(TlclPhysicalPresenceCMDEnable());
+    RETURN_ON_FAILURE(TlclAssertPhysicalPresence());
+  }
 
-  /* Check that the TPM is enabled and activated. */
+  /* Checks that the TPM is enabled and activated. */
   RETURN_ON_FAILURE(TlclGetFlags(&disable, &deactivated, NULL));
   if (disable || deactivated) {
     VBDEBUG(("TPM: disabled (%d) or deactivated (%d).  Fixing...\n",
@@ -190,15 +203,15 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
     return TPM_E_MUST_REBOOT;
   }
 
-  /* Read the firmware space. */
+  /* Reads the firmware space. */
   result = ReadSpaceFirmware(rsf);
   if (TPM_E_BADINDEX == result) {
     RollbackSpaceKernel rsk;
 
     /* This is the first time we've run, and the TPM has not been
-     * initialized.  Initialize it. */
+     * initialized.  This initializes it. */
     VBDEBUG(("TPM: Not initialized yet.\n"));
-    RETURN_ON_FAILURE(InitializeSpaces(rsf, &rsk));
+    RETURN_ON_FAILURE(OneTimeInitializeTPM(rsf, &rsk));
   } else if (TPM_SUCCESS != result) {
     VBDEBUG(("TPM: Firmware space in a bad state; giving up.\n"));
     return TPM_E_CORRUPTED_STATE;
@@ -206,14 +219,14 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   VBDEBUG(("TPM: Firmware space sv%d f%x v%x\n",
            rsf->struct_version, rsf->flags, rsf->fw_versions));
 
-  /* Clear ownership if developer flag has toggled */
+  /* Clears ownership if developer flag has toggled */
   if ((developer_mode ? FLAG_LAST_BOOT_DEVELOPER : 0) !=
       (rsf->flags & FLAG_LAST_BOOT_DEVELOPER)) {
     VBDEBUG(("TPM: Developer flag changed; clearing owner.\n"));
     RETURN_ON_FAILURE(TPMClearAndReenable());
   }
 
-  /* Update flags */
+  /* Updates flags */
   if (developer_mode)
     new_flags |= FLAG_LAST_BOOT_DEVELOPER;
   if (recovery_mode)
@@ -225,7 +238,7 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
     rsf_dirty = 1;
   }
 
-  /* If firmware space is dirty, flush it back to the TPM */
+  /* If firmware space is dirty, this flushes it back to the TPM */
   if (rsf_dirty) {
     VBDEBUG(("TPM: Updating firmware space.\n"));
     RETURN_ON_FAILURE(WriteSpaceFirmware(rsf));
@@ -245,8 +258,8 @@ __pragma(warning (disable: 4100))
 
 uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
 #ifndef CHROMEOS_ENVIRONMENT
-  /* Initialize the TPM, but ignore return codes.  In ChromeOS
-   * environment, don't even talk to the TPM. */
+  /* Initializes the TPM, but ignores return codes.  In ChromeOS
+   * environment, doesn't even talk to the TPM. */
   TlclLibInit();
   TlclStartup();
   TlclSelfTestFull();
@@ -266,8 +279,8 @@ uint32_t RollbackFirmwareLock(void) {
 
 uint32_t RollbackKernelRecovery(int developer_mode) {
 #ifndef CHROMEOS_ENVIRONMENT
-  /* Initialize the TPM, but ignore return codes.  In ChromeOS
-   * environment, don't even talk to the TPM. */
+  /* Initializes the TPM, but ignore return codes.  In ChromeOS
+   * environment, doesn't even talk to the TPM. */
   TlclLibInit();
   TlclStartup();
   TlclSelfTestFull();

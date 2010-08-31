@@ -190,6 +190,18 @@ Command* BuildPPEnableCommand(void) {
   return cmd;
 }
 
+Command* BuildFinalizePPCommand(void) {
+  int size = kTpmRequestHeaderLength + sizeof(TPM_PHYSICAL_PRESENCE);
+  Command* cmd = newCommand(TSC_ORD_PhysicalPresence, size);
+  cmd->name = "tpm_finalizepp_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength,
+                      sizeof(TPM_PHYSICAL_PRESENCE),
+                      TPM_PHYSICAL_PRESENCE_CMD_ENABLE |
+                      TPM_PHYSICAL_PRESENCE_HW_DISABLE |
+                      TPM_PHYSICAL_PRESENCE_LIFETIME_LOCK);
+  return cmd;
+}
+
 Command* BuildPPLockCommand(void) {
   int size = kTpmRequestHeaderLength + sizeof(TPM_PHYSICAL_PRESENCE);
   Command* cmd = newCommand(TSC_ORD_PhysicalPresence, size);
@@ -428,6 +440,7 @@ Command* (*builders[])(void) = {
   BuildPPAssertCommand,
   BuildPPEnableCommand,
   BuildPPLockCommand,
+  BuildFinalizePPCommand,
   BuildStartupCommand,
   BuildSelftestfullCommand,
   BuildContinueSelfTestCommand,

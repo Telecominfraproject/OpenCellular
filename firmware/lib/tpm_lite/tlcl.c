@@ -181,6 +181,11 @@ uint32_t TlclPhysicalPresenceCMDEnable(void) {
   return Send(tpm_ppenable_cmd.buffer);
 }
 
+uint32_t TlclFinalizePhysicalPresence(void) {
+  VBDEBUG(("TPM: Enable PP cmd, disable HW pp, and set lifetime lock\n"));
+  return Send(tpm_finalizepp_cmd.buffer);
+}
+
 uint32_t TlclAssertPhysicalPresenceResult(void) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   return TlclSendReceive(tpm_ppassert_cmd.buffer, response, sizeof(response));
@@ -199,7 +204,8 @@ uint32_t TlclSetNvLocked(void) {
 int TlclIsOwned(void) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE + TPM_PUBEK_SIZE];
   uint32_t result;
-  result = TlclSendReceive(tpm_readpubek_cmd.buffer, response, sizeof(response));
+  result = TlclSendReceive(tpm_readpubek_cmd.buffer,
+                           response, sizeof(response));
   return (result != TPM_SUCCESS);
 }
 
