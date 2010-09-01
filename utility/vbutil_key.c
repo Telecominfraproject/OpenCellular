@@ -24,6 +24,7 @@ enum {
   OPT_ALGORITHM,
   OPT_MODE_PACK,
   OPT_MODE_UNPACK,
+  OPT_COPYTO,
 };
 
 static struct option long_opts[] = {
@@ -32,6 +33,7 @@ static struct option long_opts[] = {
   {"algorithm", 1, 0,                 OPT_ALGORITHM               },
   {"pack", 1, 0,                      OPT_MODE_PACK               },
   {"unpack", 1, 0,                    OPT_MODE_UNPACK             },
+  {"copyto", 1, 0,                    OPT_COPYTO                  },
   {NULL, 0, 0, 0}
 };
 
@@ -62,6 +64,10 @@ static int PrintHelp(char *progname) {
   fprintf(stderr,
           "\nOR\n\n"
           "Usage:  %s --unpack <infile>\n"
+          "\n"
+          "  Optional parameters:\n"
+          "    --copyto <file>             "
+          "Write a copy of the key to this file.\n"
           "\n",
           progname);
 
@@ -95,12 +101,21 @@ static int Pack(const char *infile, const char *outfile, uint64_t algorithm,
     }
     Free(privkey);
     return 0;
-  } 
+  }
 
   error("Unable to parse either .keyb or .pem from %s\n", infile);
   return 1;
 }
 
+
+static void PrintDigest(const uint8_t* buf, uint64_t buflen) {
+  uint8_t *digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+  int i;
+  for (i=0; i<SHA1_DIGEST_SIZE; i++)
+    printf("%02x", digest[i]);
+  printf("\n");
+  Free(digest);
+}
 
 /* Unpack a .vbpubk or .vbprivk */
 static int Unpack(const char *infile, const char *outfile) {
@@ -118,6 +133,15 @@ static int Unpack(const char *infile, const char *outfile) {
            (pubkey->algorithm < kNumAlgorithms ?
             algo_strings[pubkey->algorithm] : "(invalid)"));
     printf("Key Version:       %" PRIu64 "\n", pubkey->key_version);
+    printf("Key sha1sum:       ");
+    PrintDigest(((uint8_t *)pubkey) + pubkey->key_offset, pubkey->key_size);
+    if (outfile) {
+      if (0 != PublicKeyWrite(outfile, pubkey)) {
+        fprintf(stderr, "vbutil_key: Error writing key copy.\n");
+        Free(pubkey);
+        return 1;
+      }
+    }
     Free(pubkey);
     return 0;
   }
@@ -128,12 +152,16 @@ static int Unpack(const char *infile, const char *outfile) {
     printf("Algorithm:         %" PRIu64 " %s\n", privkey->algorithm,
            (privkey->algorithm < kNumAlgorithms ?
             algo_strings[privkey->algorithm] : "(invalid)"));
+    if (outfile) {
+      if (0 != PrivateKeyWrite(outfile, privkey)) {
+        fprintf(stderr, "vbutil_key: Error writing key copy.\n");
+        Free(privkey);
+        return 1;
+      }
+    }
     Free(privkey);
     return 0;
   }
-
-
-  /* TODO: write key data, if any */
 
   error("Unable to parse either .vbpubk or vbprivk from %s\n", infile);
   return 1;
@@ -193,6 +221,10 @@ int main(int argc, char* argv[]) {
       case OPT_MODE_UNPACK:
         mode = i;
         infile = optarg;
+        break;
+
+      case OPT_COPYTO:
+        outfile = optarg;
         break;
     }
   }
