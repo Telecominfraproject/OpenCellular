@@ -18,7 +18,6 @@
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "tlcl_structures.h"
-#include "tpmextras.h"
 #include "utility.h"
 
 /* Sets the size field of a TPM command. */

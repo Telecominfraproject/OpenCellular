@@ -256,6 +256,17 @@ __pragma(warning (disable: 4100))
 
 /* Dummy implementations which don't support TPM rollback protection */
 
+uint32_t RollbackS3Resume(void) {
+#ifndef CHROMEOS_ENVIRONMENT
+  /* Initialize the TPM, but ignore return codes.  In ChromeOS
+   * environment, don't even talk to the TPM. */
+  TlclLibInit();
+  TlclResume();
+  TlclSelfTestFull();
+#endif
+  return TPM_SUCCESS;
+}
+
 uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
 #ifndef CHROMEOS_ENVIRONMENT
   /* Initializes the TPM, but ignores return codes.  In ChromeOS
@@ -302,6 +313,22 @@ uint32_t RollbackKernelLock(void) {
 }
 
 #else
+
+uint32_t RollbackS3Resume(void) {
+  TlclLibInit();
+  RETURN_ON_FAILURE(TlclResume());
+#ifdef USE_CONTINUE_SELF_TEST
+  /* TODO: ContinueSelfTest() should be faster than SelfTestFull, but
+   * may also not work properly in older TPM firmware.  For now, do
+   * the full self test. */
+  RETURN_ON_FAILURE(TlclContinueSelfTest());
+#else
+  RETURN_ON_FAILURE(TlclSelfTestFull());
+#endif
+  return TPM_SUCCESS;
+}
+
+
 uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   RollbackSpaceFirmware rsf;
   uint8_t out_digest[20];  /* For PCR extend output */
@@ -316,7 +343,7 @@ uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
     RETURN_ON_FAILURE(TlclExtend(DEV_MODE_PCR, DEV_MODE_OFF_SHA1_DIGEST,
                                  out_digest));
   VBDEBUG(("TPM: RollbackFirmwareSetup dev mode PCR out_digest %02x %02x %02x "
-           "%02x", out_digest, out_digest+1, out_digest+2, out_digest+3));
+           "%02x\n", out_digest, out_digest+1, out_digest+2, out_digest+3));
 
   return TPM_SUCCESS;
 }

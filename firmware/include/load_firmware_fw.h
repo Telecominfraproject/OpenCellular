@@ -16,10 +16,12 @@
  * boot phases */
 #define LOAD_FIRMWARE_KEY_BLOB_REC_SIZE 2104
 
-/* Return codes for LoadFirmware() */
+/* Return codes for LoadFirmware() and S3Resume(). */
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */
 #define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode */
 #define LOAD_FIRMWARE_REBOOT 2    /* Reboot to same mode as current boot */
+#define LOAD_FIRMWARE_RECOVERY_TPM 3  /* Reboot to recovery mode due
+                                       * to TPM error */
 
 /* Boot flags for LoadFirmware().boot_flags */
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
@@ -85,7 +87,9 @@ int LoadFirmware(LoadFirmwareParams* params);
 void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
                             uint8_t* data, uint64_t size);
 
-
-
+/* Handle S3 resume.
+ *
+ * Returns LOAD_FIRMWARE_SUCCESS if successful, error code on failure. */
+int S3Resume(void);
 
 #endif  /* VBOOT_REFERENCE_LOAD_FIRMWARE_FW_H_ */

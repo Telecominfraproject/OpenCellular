@@ -83,6 +83,10 @@ Call from LoadKernel()
   Must send in developer and recovery flags
 */
 
+/* These functions are called from S3Resume().  They cannot use
+ * global variables. */
+uint32_t RollbackS3Resume(void);
+
 /* These functions are callable from LoadFirmware().  They cannot use
  * global variables. */
 

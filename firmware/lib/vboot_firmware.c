@@ -64,7 +64,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   if (0 != status) {
     VBDEBUG(("Unable to setup TPM and read stored versions.\n"));
     return (status == TPM_E_MUST_REBOOT ?
-            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
+            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
   }
 
   /* Allocate our internal data */
@@ -214,7 +214,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
       if (0 != status) {
         VBDEBUG(("Unable to write stored versions.\n"));
         return (status == TPM_E_MUST_REBOOT ?
-                LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
+                LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
       }
     }
 
@@ -223,7 +223,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     if (0 != status) {
       VBDEBUG(("Unable to lock firmware versions.\n"));
       return (status == TPM_E_MUST_REBOOT ?
-              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY);
+              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
     }
 
     /* Success */
@@ -234,4 +234,17 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* If we're still here, no good firmware, so go to recovery mode. */
   VBDEBUG(("Alas, no good firmware.\n"));
   return LOAD_FIRMWARE_RECOVERY;
+}
+
+
+int S3Resume(void) {
+  /* Resume the TPM */
+  uint32_t status = RollbackS3Resume();
+
+  if (status == TPM_SUCCESS)
+    return LOAD_FIRMWARE_SUCCESS;
+  else if (status == TPM_E_MUST_REBOOT)
+    return LOAD_FIRMWARE_REBOOT;
+  else
+    return LOAD_FIRMWARE_RECOVERY_TPM;
 }

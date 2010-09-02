@@ -22,7 +22,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "tpmextras.h"
 #define TPM_DEVICE_PATH "/dev/tpm0"
 
 /* TODO: these functions should pass errors back rather than returning void */

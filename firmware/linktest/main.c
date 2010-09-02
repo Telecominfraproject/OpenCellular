@@ -27,6 +27,7 @@ int main(void)
   LoadKernel(0);
 
   /* rollback_index.h */
+  RollbackS3Resume();
   RollbackFirmwareSetup(0, 0);
   RollbackFirmwareWrite(0);
   RollbackFirmwareLock();
@@ -40,6 +41,7 @@ int main(void)
   TlclCloseDevice();
   TlclOpenDevice();
   TlclStartup();
+  TlclResume();
   TlclSelfTestFull();
   TlclContinueSelfTest();
   TlclDefineSpace(0, 0, 0);
