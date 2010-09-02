@@ -1,2 +1,21 @@
 This copy of Chrome OS is untrusted. Press SPACE to begin recovery.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://google.com/chromeos/recovery
 $URL
+

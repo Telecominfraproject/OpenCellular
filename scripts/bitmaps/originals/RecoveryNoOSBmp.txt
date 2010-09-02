@@ -1,2 +1,20 @@
 The device you inserted does not contain Chrome OS. Try another?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+http://google.com/chromeos/recovery
 $URL

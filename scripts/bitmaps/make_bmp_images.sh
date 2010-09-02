@@ -83,16 +83,16 @@ function process_one_file {
   if [ -r "$txt_file" ]; then
     # Replace all '$URL' in the URL in the text file with the real url
     perl -p \
-      -e 'BEGIN {$/ = ""; $url = shift; }' \
-      -e 'chomp; s/\$URL/$url/gse;' \
-      -e 'END {print "\n";}' "$url" "$txt_file" > "$label_file"
+      -e 'BEGIN {$/ = undef; $url = shift; }' \
+      -e 's/\s+$/\n/gs; s/\$URL/$url/gs;' \
+      "$url" "$txt_file" > "$label_file"
     # Render it
     convert "$img_crop_a" -fill white \
       -font "$font" -pointsize "$pointsize" -interline-spacing 5 \
-      -gravity south -annotate '+0+10' '@'"$label_file" "$img_txt_a"
+      -gravity south -annotate '+0+0' '@'"$label_file" "$img_txt_a"
     convert "$img_crop_b" -fill white \
       -font "$font" -pointsize "$pointsize" -interline-spacing 5 \
-      -gravity south -annotate '+0+10' '@'"$label_file" "$img_txt_b"
+      -gravity south -annotate '+0+0' '@'"$label_file" "$img_txt_b"
   else
     mv "$img_crop_a" "$img_txt_a"
     mv "$img_crop_b" "$img_txt_b"
@@ -110,5 +110,6 @@ for file in originals/*.gif; do
 done
 
 # Zip up the bitmaps
-(cd "$outdir_a" && zip -qr "${thisdir}/out_${geom_crop_a}.zip" *)
-(cd "$outdir_b" && zip -qr "${thisdir}/out_${geom_crop_b}.zip" *)
+nicename=${url// /_}
+(cd "$outdir_a" && zip -qr "${thisdir}/out_${nicename}__${geom_crop_a}.zip" *)
+(cd "$outdir_b" && zip -qr "${thisdir}/out_${nicename}__${geom_crop_b}.zip" *)
