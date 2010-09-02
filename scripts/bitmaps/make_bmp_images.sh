@@ -39,9 +39,10 @@ img_txt_b="${tmpdir}/img_txt_b.bmp"
 label_file="${tmpdir}/label.txt"
 
 # Output directories
-outdir_a=$(dirname $0)/out_${geom_crop_a}
+thisdir=$(readlink -e $(dirname $0))
+outdir_a=${thisdir}/out_${geom_crop_a}
 [ -d "$outdir_a" ] || mkdir -p "$outdir_a"
-outdir_b=$(dirname $0)/out_${geom_crop_b}
+outdir_b=${thisdir}/out_${geom_crop_b}
 [ -d "$outdir_b" ] || mkdir -p "$outdir_b"
 
 
@@ -107,3 +108,7 @@ function process_one_file {
 for file in originals/*.gif; do
   process_one_file "$file"
 done
+
+# Zip up the bitmaps
+(cd "$outdir_a" && zip -qr "${thisdir}/out_${geom_crop_a}.zip" *)
+(cd "$outdir_b" && zip -qr "${thisdir}/out_${geom_crop_b}.zip" *)
