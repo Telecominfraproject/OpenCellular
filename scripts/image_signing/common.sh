@@ -45,9 +45,9 @@ extract_image_partition() {
   local output_file=$3
   local offset=$(partoffset "$image" "$partnum")
   local size=$(partsize "$image" "$partnum")
-  dd if=$image of=$output_file bs=512 skip=$offset count=$size conv=notrunc
+  dd if=$image of=$output_file bs=512 skip=$offset count=$size conv=notrunc >/dev/null 2>&1
 }
-  
+
 # Replace a partition in an image from file
 # Args: IMAGE PARTNUM INPUTFILE
 replace_image_partition() {
