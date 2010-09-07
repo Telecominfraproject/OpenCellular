@@ -1,0 +1,42 @@
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "ChromeOS Team"
+NAME = "firmware_VbootCrypto"
+PURPOSE = """
+Verifies Firmware Verified Boot Reference Implementation, its components, and
+crypto performance.
+"""
+CRITERIA = """
+This test is a benchmark.
+
+Errors in any of the following tests will cause a failure:
+  - _sha_test()
+  - _rsa_test()
+  - _image_verification_test()
+  - _rollback_tests()
+  - _splicing_tests()
+"""
+TIME = "LONG"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "firmware"
+TEST_TYPE = "client"
+
+DOC = """
+This test implements various RSA and SHA by creating and verifying various
+keys and hashes. It will generate public key signatures using sha1, sha256,
+and sha512 algorithms with key lengths of 1024, 2048, 4096, and 8192. RSA
+padding tests will then be run to verify them. Tests are also run to verify
+the correctness of firmware and kernel image verification.
+"""
+
+test_suites = [
+    'crypto',  # RSA Signature Verification and SHA* Correctness.
+    'verification',  # Firmware and Kernel Image Verification.
+    'benchmarks',  # Crypto and Image Verification benchmarks.
+    'rollback',  # Firmware/Kernel Rollback Prevention.
+    'splicing',  # Image Splicing Attack.
+]
+for suite in test_suites:
+  job.run_test('firmware_VbootCrypto', suite=suite, tag=suite)
