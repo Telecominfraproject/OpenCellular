@@ -1068,17 +1068,12 @@ static int GptUpdateTest() {
   EXPECT(4 == GetEntryPriority(e + KERNEL_A));
   EXPECT(0 == GetEntryTries(e + KERNEL_A));
   EXPECT(0 == gpt->modified);
-  /* Marking it bad does, though */
+  /* Marking it bad also does not update it. */
   EXPECT(GPT_SUCCESS == GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
-  EXPECT(0 == GetEntrySuccessful(e + KERNEL_A));
-  EXPECT(0 == GetEntryPriority(e + KERNEL_A));
+  EXPECT(1 == GetEntrySuccessful(e + KERNEL_A));
+  EXPECT(4 == GetEntryPriority(e + KERNEL_A));
   EXPECT(0 == GetEntryTries(e + KERNEL_A));
-  /* Which affects both copies of the partition entries */
-  EXPECT(0 == GetEntrySuccessful(e2 + KERNEL_A));
-  EXPECT(0 == GetEntryPriority(e2 + KERNEL_A));
-  EXPECT(0 == GetEntryTries(e2 + KERNEL_A));
-  /* And that's caused the GPT to need updating */
-  EXPECT(0x0F == gpt->modified);
+  EXPECT(0 == gpt->modified);
 
   /* Kernel with tries */
   EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
@@ -1091,6 +1086,12 @@ static int GptUpdateTest() {
   EXPECT(0 == GetEntrySuccessful(e + KERNEL_B));
   EXPECT(0 == GetEntryPriority(e + KERNEL_B));
   EXPECT(0 == GetEntryTries(e + KERNEL_B));
+  /* Which affects both copies of the partition entries */
+  EXPECT(0 == GetEntrySuccessful(e2 + KERNEL_B));
+  EXPECT(0 == GetEntryPriority(e2 + KERNEL_B));
+  EXPECT(0 == GetEntryTries(e2 + KERNEL_B));
+  /* And that's caused the GPT to need updating */
+  EXPECT(0x0F == gpt->modified);
 
   /* Another kernel with tries */
   EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));

@@ -129,10 +129,12 @@ int GptUpdateKernelEntry(GptData* gpt, uint32_t update_type) {
     }
     case GPT_UPDATE_ENTRY_BAD: {
       /* Giving up on this partition entirely. */
-      e->attrs.fields.gpt_att = previous_attr & ~(
-          CGPT_ATTRIBUTE_SUCCESSFUL_MASK |
-          CGPT_ATTRIBUTE_TRIES_MASK |
-          CGPT_ATTRIBUTE_PRIORITY_MASK);
+      if (!GetEntrySuccessful(e)) {
+        /* Only clear tries and priority if the successful bit is not set. */
+        e->attrs.fields.gpt_att = previous_attr & ~(
+            CGPT_ATTRIBUTE_TRIES_MASK |
+            CGPT_ATTRIBUTE_PRIORITY_MASK);
+      }
       break;
     }
     default:
