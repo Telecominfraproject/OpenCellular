@@ -315,8 +315,18 @@ uint32_t RollbackKernelLock(void) {
 #else
 
 uint32_t RollbackS3Resume(void) {
+  uint32_t result;
   TlclLibInit();
-  RETURN_ON_FAILURE(TlclResume());
+  /* Check for INVALID_POSTINIT error, so we don't have to worry if this ends
+   * up in hardware that keeps the TPM powered on during S3.
+   */
+  result = TlclResume();
+  if (result == TPM_E_INVALID_POSTINIT) {
+    return TPM_SUCCESS;
+  }
+  if (result != TPM_SUCCESS) {
+    return result;
+  }
 #ifdef USE_CONTINUE_SELF_TEST
   /* TODO: ContinueSelfTest() should be faster than SelfTestFull, but
    * may also not work properly in older TPM firmware.  For now, do
