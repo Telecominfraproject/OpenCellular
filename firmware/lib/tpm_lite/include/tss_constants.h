@@ -19,11 +19,12 @@
 
 #define TPM_SUCCESS ((uint32_t)0x00000000)
 
-#define TPM_E_AREA_LOCKED ((uint32_t)0x00000003c)
-#define TPM_E_BADINDEX ((uint32_t)0x00000002)
-#define TPM_E_BAD_PRESENCE ((uint32_t)0x00000002d)
-#define TPM_E_MAXNVWRITES ((uint32_t)0x00000048)
-#define TPM_E_OWNER_SET ((uint32_t)0x00000014)
+#define TPM_E_AREA_LOCKED           ((uint32_t)0x0000003c)
+#define TPM_E_BADINDEX              ((uint32_t)0x00000002)
+#define TPM_E_BAD_PRESENCE          ((uint32_t)0x0000002d)
+#define TPM_E_INVALID_POSTINIT      ((uint32_t)0x00000026)
+#define TPM_E_MAXNVWRITES           ((uint32_t)0x00000048)
+#define TPM_E_OWNER_SET             ((uint32_t)0x00000014)
 
 #define TPM_E_NEEDS_SELFTEST ((uint32_t)(TPM_E_NON_FATAL + 1))
 #define TPM_E_DOING_SELFTEST ((uint32_t)(TPM_E_NON_FATAL + 2))
