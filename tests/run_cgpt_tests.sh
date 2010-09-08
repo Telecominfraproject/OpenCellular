@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# Run tests for RSA Signature verification.
+# Run tests for CGPT.
 
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
