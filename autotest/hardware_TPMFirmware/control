@@ -1,0 +1,20 @@
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "Chrome OS Team"
+NAME = "hardware_TPMFirmware"
+PURPOSE = "Verify that system firmware is compatible with TPM device."
+CRITERIA = "This will run a suite of server-side TPM tests."
+TIME = "MEDIUM"
+TEST_CATEGORY = "Functionality"
+TEST_CLASS = "hardware"
+TEST_TYPE = "client"
+
+DOC = """
+Hardware test for the TPM functionality needed in the firmware.
+This test requires a modified BIOS that issues no commands to the TPM.
+This test is driven by a server-side test (hardware_TPMFirmwareServer).
+"""
+
+job.run_test('hardware_TPMFirmware')
