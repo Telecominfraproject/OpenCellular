@@ -14,6 +14,7 @@
 #  dump_kernel_config (from src/platform/vboot_reference)
 #  verity (from src/platform/verity)
 #  load_kernel_test (from src/platform/vboot_reference)
+#  dumpe2fs
 
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
@@ -42,7 +43,7 @@ set -e
 
 # Make sure the tools we need are available.
 for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity \
-  load_kernel_test;
+  load_kernel_test dumpe2fs;
 do
   type -P "${prereqs}" &>/dev/null || \
     { echo "${prereqs} tool not found."; exit 1; }
@@ -129,7 +130,7 @@ update_rootfs_hash() {
   local new_kernel_config=$(calculate_rootfs_hash "${rootfs_image}" \
     "${kernel_config}" "${hash_image}")
 
-  local rootfs_blocks=$(dumpe2fs "${rootfs_image}" 2> /dev/null |
+  local rootfs_blocks=$(sudo dumpe2fs "${rootfs_image}" 2> /dev/null |
     grep "Block count" |
     tr -d ' ' |
     cut -f2 -d:)
