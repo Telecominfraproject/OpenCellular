@@ -661,11 +661,23 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
   if (verbose)
     printf("  Signature:           %s\n", sign_key ? "valid" : "ignored");
   printf("  Size:                0x%" PRIx64 "\n", key_block->key_block_size);
+  printf("  Flags:               %" PRIu64 " ", key_block->key_block_flags);
+  if (key_block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
+    printf(" !DEV");
+  if (key_block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
+    printf(" DEV");
+  if (key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_0)
+    printf(" !REC");
+  if (key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)
+    printf(" REC");
+  printf("\n");
   printf("  Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
          (data_key->algorithm < kNumAlgorithms ?
           algo_strings[data_key->algorithm] : "(invalid)"));
   printf("  Data key version:    %" PRIu64 "\n", data_key->key_version);
-  printf("  Flags:               %" PRIu64 "\n", key_block->key_block_flags);
+  printf("  Data key sha1sum:    ");
+  PrintPubKeySha1Sum(data_key);
+  printf("\n");
 
   rsa = PublicKeyToRSA(&key_block->data_key);
   if (!rsa) {

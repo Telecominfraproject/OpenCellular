@@ -31,7 +31,9 @@ TARGET_NAMES = dumpRSAPublicKey \
 		vbutil_keyblock \
 		verify_data \
 		dev_make_keypair \
-		dev_sign_file
+		dev_sign_file \
+		dump_fmap \
+		dev_debug_vboot
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
@@ -79,12 +81,20 @@ ${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
 
 ${BUILD_ROOT}/dev_make_keypair: dev_make_keypair
 	cp -f $< $@
+	chmod +x $@
+
+${BUILD_ROOT}/dev_debug_vboot: dev_debug_vboot
+	cp -f $< $@
+	chmod +x $@
 
 ${BUILD_ROOT}/tpmc: tpmc.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+${BUILD_ROOT}/dump_fmap: dump_fmap.c
+	$(CC) $(CFLAGS) $< -o $@
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)

@@ -152,12 +152,24 @@ static int Unpack(const char* infile, const char* datapubkey,
 
   printf("Key block file:       %s\n", infile);
   printf("Flags:                %" PRIu64 "\n", block->key_block_flags);
+  if (block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
+    printf(" !DEV");
+  if (block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
+    printf(" DEV");
+  if (block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_0)
+    printf(" !REC");
+  if (block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)
+    printf(" REC");
+  printf("\n");
 
   data_key = &block->data_key;
   printf("Data key algorithm:   %" PRIu64 " %s\n", data_key->algorithm,
          (data_key->algorithm < kNumAlgorithms ?
           algo_strings[data_key->algorithm] : "(invalid)"));
   printf("Data key version:     %" PRIu64 "\n", data_key->key_version);
+  printf("Data key sha1sum:     ");
+  PrintPubKeySha1Sum(data_key);
+  printf("\n");
 
   if (datapubkey) {
     if (0 != PublicKeyWrite(datapubkey, data_key)) {

@@ -66,3 +66,13 @@ int WriteFile(const char* filename, const void *data, uint64_t size) {
   fclose(f);
   return 0;
 }
+
+void PrintPubKeySha1Sum(VbPublicKey* key) {
+  uint8_t* buf = ((uint8_t *)key) + key->key_offset;
+  uint64_t buflen = key->key_size;
+  uint8_t* digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+  int i;
+  for (i=0; i<SHA1_DIGEST_SIZE; i++)
+    printf("%02x", digest[i]);
+  Free(digest);
+}

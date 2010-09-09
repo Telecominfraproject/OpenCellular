@@ -108,15 +108,6 @@ static int Pack(const char *infile, const char *outfile, uint64_t algorithm,
 }
 
 
-static void PrintDigest(const uint8_t* buf, uint64_t buflen) {
-  uint8_t *digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
-  int i;
-  for (i=0; i<SHA1_DIGEST_SIZE; i++)
-    printf("%02x", digest[i]);
-  printf("\n");
-  Free(digest);
-}
-
 /* Unpack a .vbpubk or .vbprivk */
 static int Unpack(const char *infile, const char *outfile) {
   VbPublicKey* pubkey;
@@ -134,7 +125,8 @@ static int Unpack(const char *infile, const char *outfile) {
             algo_strings[pubkey->algorithm] : "(invalid)"));
     printf("Key Version:       %" PRIu64 "\n", pubkey->key_version);
     printf("Key sha1sum:       ");
-    PrintDigest(((uint8_t *)pubkey) + pubkey->key_offset, pubkey->key_size);
+    PrintPubKeySha1Sum(pubkey);
+    printf("\n");
     if (outfile) {
       if (0 != PublicKeyWrite(outfile, pubkey)) {
         fprintf(stderr, "vbutil_key: Error writing key copy.\n");
@@ -145,7 +137,6 @@ static int Unpack(const char *infile, const char *outfile) {
     Free(pubkey);
     return 0;
   }
-
 
   if ((privkey = PrivateKeyRead(infile))) {
     printf("Private Key file:  %s\n", infile);

@@ -60,6 +60,9 @@ static int PrintHelp(void) {
        "For '--verify <file>', required OPTIONS are:\n"
        "  --signpubkey <file>         Signing public key in .vbpubk format\n"
        "  --fv <file>                 Firmware volume to verify\n"
+       "\n"
+       "For '--verify <file>', optional OPTIONS are:\n"
+       "  --kernelkey <file>          Write the kernel subkey to this file\n"
        "");
   return 1;
 }
@@ -157,14 +160,14 @@ static int Vblock(const char* outfile, const char* keyblock_file,
   return 0;
 }
 
-
 static int Verify(const char* infile, const char* signpubkey,
-                  const char* fv_file) {
+                  const char* fv_file, const char* kernelkey_file) {
 
   VbKeyBlockHeader* key_block;
   VbFirmwarePreambleHeader* preamble;
   VbPublicKey* data_key;
   VbPublicKey* sign_key;
+  VbPublicKey* kernel_subkey;
   RSAPublicKey* rsa;
   uint8_t* blob;
   uint64_t blob_size;
@@ -210,11 +213,15 @@ static int Verify(const char* infile, const char* signpubkey,
   printf("Key block:\n");
   data_key = &key_block->data_key;
   printf("  Size:                %" PRIu64 "\n", key_block->key_block_size);
+  printf("  Flags:               %" PRIu64 " (ignored)\n",
+         key_block->key_block_flags);
   printf("  Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
          (data_key->algorithm < kNumAlgorithms ?
           algo_strings[data_key->algorithm] : "(invalid)"));
   printf("  Data key version:    %" PRIu64 "\n", data_key->key_version);
-  printf("  Flags:               %" PRIu64 "\n", key_block->key_block_flags);
+  printf("  Data key sha1sum:    ");
+  PrintPubKeySha1Sum(data_key);
+  printf("\n");
 
   rsa = PublicKeyToRSA(&key_block->data_key);
   if (!rsa) {
@@ -235,12 +242,16 @@ static int Verify(const char* infile, const char* signpubkey,
   printf("  Header version:        %" PRIu32 ".%" PRIu32"\n",
          preamble->header_version_major, preamble->header_version_minor);
   printf("  Firmware version:      %" PRIu64 "\n", preamble->firmware_version);
+  kernel_subkey = &preamble->kernel_subkey;
   printf("  Kernel key algorithm:  %" PRIu64 " %s\n",
-         preamble->kernel_subkey.algorithm,
-         (preamble->kernel_subkey.algorithm < kNumAlgorithms ?
-          algo_strings[preamble->kernel_subkey.algorithm] : "(invalid)"));
+         kernel_subkey->algorithm,
+         (kernel_subkey->algorithm < kNumAlgorithms ?
+          algo_strings[kernel_subkey->algorithm] : "(invalid)"));
   printf("  Kernel key version:    %" PRIu64 "\n",
-         preamble->kernel_subkey.key_version);
+         kernel_subkey->key_version);
+  printf("  Kernel key sha1sum:    ");
+  PrintPubKeySha1Sum(kernel_subkey);
+  printf("\n");
   printf("  Firmware body size:    %" PRIu64 "\n",
          preamble->body_signature.data_size);
 
@@ -252,6 +263,15 @@ static int Verify(const char* infile, const char* signpubkey,
     return 1;
   }
   printf("Body verification succeeded.\n");
+
+  if (kernelkey_file) {
+    if (0 != PublicKeyWrite(kernelkey_file, kernel_subkey)) {
+      fprintf(stderr,
+              "vbutil_firmware: unable to write kernel subkey\n");
+      return 1;
+    }
+  }
+
   return 0;
 }
 
@@ -322,7 +342,7 @@ int main(int argc, char* argv[]) {
       return Vblock(filename, key_block_file, signprivate, version, fv_file,
                     kernelkey_file);
     case OPT_MODE_VERIFY:
-      return Verify(filename, signpubkey, fv_file);
+      return Verify(filename, signpubkey, fv_file, kernelkey_file);
     default:
       printf("Must specify a mode.\n");
       return PrintHelp();

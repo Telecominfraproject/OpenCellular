@@ -1,0 +1,67 @@
+#!/bin/sh
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+
+TMPDIR=/tmp/debug_vboot
+BIOS=bios.rom
+# FIXME: support ARM
+HD_KERN_A=/dev/sda2
+HD_KERN_B=/dev/sda4
+tmp=$(rootdev -s -d)2
+if [ "$tmp" != "$HD_KERN_A" ]; then
+  USB_KERN_A="$tmp"
+fi
+
+
+[ -d ${TMPDIR} ] || mkdir -p ${TMPDIR}
+cd ${TMPDIR}
+
+echo "INFO: extracting BIOS image from flash"
+flashrom -r ${BIOS}
+
+echo "INFO: extracting kernel images from drives"
+dd if=${HD_KERN_A} of=hd_kern_a.blob
+dd if=${HD_KERN_B} of=hd_kern_b.blob
+if [ -n "$USB_KERN_A" ]; then
+  dd if=${USB_KERN_A} of=usb_kern_a.blob
+fi
+
+echo "INFO: extracting BIOS components"
+dump_fmap -x ${BIOS} || echo "FAILED"
+
+echo "INFO: pulling root and recovery keys from GBB"
+gbb_utility -g --rootkey rootkey.vbpubk --recoverykey recoverykey.vbpubk \
+  GBB_Area || echo "FAILED"
+echo "INFO: display root key"
+vbutil_key --unpack rootkey.vbpubk
+echo "INFO: display recovery key"
+vbutil_key --unpack recoverykey.vbpubk
+
+echo "TEST: verify firmware A with root key"
+vbutil_firmware --verify Firmware_A_Key --signpubkey rootkey.vbpubk \
+  --fv Firmware_A_Data --kernelkey kernel_subkey_a.vbpubk || echo "FAILED"
+echo "TEST: verify firmware B with root key"
+vbutil_firmware --verify Firmware_B_Key --signpubkey rootkey.vbpubk \
+  --fv Firmware_B_Data --kernelkey kernel_subkey_b.vbpubk || echo "FAILED"
+
+echo "TEST: verify HD kernel A with firmware A key"
+vbutil_kernel --verify hd_kern_a.blob --signpubkey kernel_subkey_a.vbpubk \
+  || echo "FAILED"
+echo "TEST: verify HD kernel B with firmware A key"
+vbutil_kernel --verify hd_kern_b.blob --signpubkey kernel_subkey_a.vbpubk \
+  || echo "FAILED"
+
+echo "TEST: verify HD kernel A with firmware B key"
+vbutil_kernel --verify hd_kern_a.blob --signpubkey kernel_subkey_b.vbpubk \
+  || echo "FAILED"
+echo "TEST: verify HD kernel B with firmware B key"
+vbutil_kernel --verify hd_kern_b.blob --signpubkey kernel_subkey_b.vbpubk \
+  || echo "FAILED"
+
+if [ -n "$USB_KERN_A" ]; then
+  echo "TEST: verify USB kernel A with recovery key"
+  vbutil_kernel --verify usb_kern_a.blob --signpubkey recoverykey.vbpubk \
+    || echo "FAILED"
+fi
