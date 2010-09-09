@@ -12,7 +12,6 @@
 #include "tss_constants.h"
 #include "utility.h"
 
-
 /* TPM PCR to use for storing dev mode measurements */
 #define DEV_MODE_PCR 0
 /* Input digests for PCR extend */
@@ -174,14 +173,12 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   TlclLibInit();
 
   RETURN_ON_FAILURE(TlclStartup());
-#ifdef USE_CONTINUE_SELF_TEST
-  /* TODO: ContinueSelfTest() should be faster than SelfTestFull, but
-   * may also not work properly in older TPM firmware.  For now, do
-   * the full self test. */
+  /* Use ContinueSelfTest rather than SelfTestFull().  It enables
+   * access to the subset of TPM commands we need in the firmware, and
+   * allows the full self test to run in paralle with firmware
+   * startup.  By the time we get to the OS, self test will have
+   * completed. */
   RETURN_ON_FAILURE(TlclContinueSelfTest());
-#else
-  RETURN_ON_FAILURE(TlclSelfTestFull());
-#endif
   result = TlclAssertPhysicalPresence();
   if (result != 0) {
     /* It is possible that the TPM was delivered with the physical presence
@@ -262,7 +259,7 @@ uint32_t RollbackS3Resume(void) {
    * environment, don't even talk to the TPM. */
   TlclLibInit();
   TlclResume();
-  TlclSelfTestFull();
+  TlclContinueSelfTest();
 #endif
   return TPM_SUCCESS;
 }
@@ -273,7 +270,7 @@ uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
    * environment, doesn't even talk to the TPM. */
   TlclLibInit();
   TlclStartup();
-  TlclSelfTestFull();
+  TlclContinueSelfTest();
 #endif
 
   *version = 0;
@@ -317,24 +314,18 @@ uint32_t RollbackKernelLock(void) {
 uint32_t RollbackS3Resume(void) {
   uint32_t result;
   TlclLibInit();
-  /* Check for INVALID_POSTINIT error, so we don't have to worry if this ends
-   * up in hardware that keeps the TPM powered on during S3.
-   */
   result = TlclResume();
   if (result == TPM_E_INVALID_POSTINIT) {
+    /* We're on a platform where the TPM maintains power in S3, so
+       it's already initialized.  No need for a self-test. */
     return TPM_SUCCESS;
   }
   if (result != TPM_SUCCESS) {
     return result;
   }
-#ifdef USE_CONTINUE_SELF_TEST
-  /* TODO: ContinueSelfTest() should be faster than SelfTestFull, but
-   * may also not work properly in older TPM firmware.  For now, do
-   * the full self test. */
+
   RETURN_ON_FAILURE(TlclContinueSelfTest());
-#else
-  RETURN_ON_FAILURE(TlclSelfTestFull());
-#endif
+
   return TPM_SUCCESS;
 }
 
