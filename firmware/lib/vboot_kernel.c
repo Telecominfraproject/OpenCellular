@@ -213,10 +213,15 @@ int LoadKernel(LoadKernelParams* params) {
       found_partitions++;
 
       /* Read the first part of the kernel partition  */
-      if (part_size < kbuf_sectors)
+      if (part_size < kbuf_sectors) {
+        VBDEBUG(("Partition too small to hold kernel.\n"));
         goto bad_kernel;
-      if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf))
+      }
+
+      if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf)) {
+        VBDEBUG(("Unable to read start of partition.\n"));
         goto bad_kernel;
+      }
 
       /* Verify the key block.  In developer mode, we ignore the key
        * and use only the SHA-512 hash to verify the key block. */
@@ -255,8 +260,10 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* Get the key for preamble/data verification from the key block */
       data_key = PublicKeyToRSA(&key_block->data_key);
-      if (!data_key)
+      if (!data_key) {
+        VBDEBUG(("Data key bad.\n"));
         goto bad_kernel;
+      }
 
       /* Verify the preamble, which follows the key block */
       preamble = (VbKernelPreambleHeader*)(kbuf + key_block->key_block_size);
@@ -285,9 +292,9 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* If we already have a good kernel, no need to read another
        * one; we only needed to look at the versions to check for
-       * rollback. */
+       * rollback.  So skip to the next kernel preamble. */
       if (-1 != good_partition)
-        goto bad_kernel;
+        continue;
 
       /* Verify body load address matches what we expect */
       if ((preamble->body_load_address != (size_t)params->kernel_buffer) &&
