@@ -162,8 +162,12 @@ update_rootfs_hash() {
 get_firmwarebin_from_shellball() {
   local input=$1
   local output_dir=$2
-  uudecode -o - ${input} | tar -C ${output_dir} -zxf - 2>/dev/null || \
-    echo "Extracting firmware autoupdate failed." && exit 1
+  if [ -s "${input}" ]; then
+    uudecode -o - ${input} | tar -C ${output_dir} -zxf - 2>/dev/null || \
+      { echo "Extracting firmware autoupdate failed." && exit 1; }
+  else
+    return 1
+  fi
 }
 
 # Re-sign the firmware AU payload inside the image rootfs with a new keys.
@@ -176,19 +180,32 @@ resign_firmware_payload() {
   mount_image_partition ${image} 3 ${rootfs_dir}
 
   local shellball_dir=$(make_temp_dir)
+  # get_firmwarebin_from_shellball can fail if the image has no 
+  # firmware update.
   get_firmwarebin_from_shellball \
-    ${rootfs_dir}/usr/sbin/chromeos-firmwareupdate ${shellball_dir}
+    ${rootfs_dir}/usr/sbin/chromeos-firmwareupdate ${shellball_dir} || \
+    { echo "Didn't find a firmware update. Not signing firmware."
+    return; }
+  echo "Found a valid firmware update shellball."
 
   temp_outfd=$(make_temp_file)
   # Replace the root key in the GBB
   # TODO(gauravsh): Remove when we lock down the R/O portion of firmware.
-  gbb_utility -s \
-    --rootkey=${KEY_DIR}/root_key.vbpubk \
-    --recoverykey=${KEY_DIR}/recovery_key.vbpubk \
-    ${shellball_dir}/bios.bin ${temp_outfd}
-
+  if [ -e "${KEY_DIR}/hwid" ]; then
+    # Only update the hwid if we see one in the key directory.
+    gbb_utility -s \
+      --rootkey=${KEY_DIR}/root_key.vbpubk \
+      --recoverykey=${KEY_DIR}/recovery_key.vbpubk \
+      --hwid="$(cat ${KEY_DIR}/hwid)" \
+      ${shellball_dir}/bios.bin ${temp_outfd}
+  else
+        gbb_utility -s \
+      --rootkey=${KEY_DIR}/root_key.vbpubk \
+      --recoverykey=${KEY_DIR}/recovery_key.vbpubk \
+      ${shellball_dir}/bios.bin ${temp_outfd}
+  fi
   # Resign the firmware with new keys
-  ${SCRIPT_DIR}/resign_firmwarefd.sh ${temp_outfd} ${temp_dir}/bios.bin \
+  ${SCRIPT_DIR}/resign_firmwarefd.sh ${temp_outfd} ${shellball_dir}/bios.bin \
     ${KEY_DIR}/firmware_data_key.vbprivk \
     ${KEY_DIR}/firmware.keyblock \
     ${KEY_DIR}/kernel_subkey.vbpubk
@@ -271,7 +288,7 @@ sign_for_ssd() {
   ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
     ${KEY_DIR}/kernel_data_key.vbprivk \
     ${KEY_DIR}/kernel.keyblock
-  echo "Output signed SSD image to ${OUTPUT_IMAGE}"
+  echo "Signed SSD image output to ${OUTPUT_IMAGE}"
 }
 
 # Generate the USB (recovery + install) image
@@ -293,7 +310,7 @@ sign_for_recovery() {
   mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
 
-  echo "Output signed recovery image to ${OUTPUT_IMAGE}"
+  echo "Signed recovery image output to ${OUTPUT_IMAGE}"
 }
 
 # Generate the factory install image.
@@ -301,14 +318,8 @@ sign_for_factory_install() {
   ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     ${KEY_DIR}/installer_kernel.keyblock
-  echo "Output signed factory install image to ${OUTPUT_IMAGE}"
+  echo "Signed factory install image output to ${OUTPUT_IMAGE}"
 }
-
-# Firmware payload signing hidden behind a flag until it actually makes
-# it into the image.
-if [ "${FW_UPDATE}" == "1" ]; then
-  resign_firmware_payload ${INPUT_IMAGE}
-fi
 
 # Verification
 if [ "${TYPE}" == "verify" ]; then
@@ -316,24 +327,27 @@ if [ "${TYPE}" == "verify" ]; then
   exit 1
 fi
 
-
 # Signing requires an output image name
 if [ -z "${OUTPUT_IMAGE}" ]; then
   usage
   exit 1
 fi
 
+
 if [ "${TYPE}" == "ssd" ]; then
+  resign_firmware_payload ${INPUT_IMAGE}
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/kernel.keyblock \
     ${KEY_DIR}/kernel_data_key.vbprivk
   sign_for_ssd
 elif [ "${TYPE}" == "recovery" ]; then
+  resign_firmware_payload ${INPUT_IMAGE}
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk
   sign_for_recovery
 elif [ "${TYPE}" == "install" ]; then
+  resign_firmware_payload ${INPUT_IMAGE}
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/installer_kernel.keyblock \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk
