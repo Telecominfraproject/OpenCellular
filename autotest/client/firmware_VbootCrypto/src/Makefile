@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-VBOOT_SRC_DIR ?= ../../..
+VBOOT_SRC_DIR ?= ../../../..
 BUILD_TEST_DIR = vboot_tests
 # Test Binaries.
 TEST_BINS = \

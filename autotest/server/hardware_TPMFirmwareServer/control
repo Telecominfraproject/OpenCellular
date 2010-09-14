@@ -1,0 +1,18 @@
+# Copyright (c) 2009 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+AUTHOR = "Chrome OS Team"
+NAME = "TPMFirmwareServer"
+TIME = "SHORT"
+TEST_CATEGORY = "Functional"
+TEST_CLASS = "hardware"
+TEST_TYPE = "server"
+
+DOC = """
+This test covers the required TPM functionality in the firmware (mostly
+NVRAM related).
+"""
+
+job.run_test("hardware_TPMFirmwareServer",
+             host=hosts.create_host(machines[0]))
