@@ -14,10 +14,10 @@
 # firmware_datakey: Key used to sign firmware data (in .vbprivk format)
 # firmware_keyblock: Key block for firmware data key (in .keyblock format)
 #
-# Both the fmap_decode tool and vbutil_firmware should be in the system path.
+# Both the mosys tool and vbutil_firmware should be in the system path.
 #
-# This script parses the output of fmap_decode tool from the Flashmap project
-# http://code.google.com/p/flashmap
+# This script parses the output of mosys tool from
+# http://code.google.com/p/mosys
 #
 # to determine the regions in the image containing "Firmware [A|B] Data" and
 # "Firmware [A|B] Key", which contain firmware data and firmware vblocks
@@ -25,7 +25,7 @@
 # passed as arguments and output a new firmware image, with this new firmware
 # vblocks the old ones.
 #
-# Here is an example output of fmap_decode:
+# Here is an example output of mosys:
 #
 # area_offset="0x001c0000" area_size="0x00040000" area_name="Boot Stub" \
 #   area_flags_raw="0x01" area_flags="static"
@@ -61,7 +61,7 @@ if [ $# -ne 5 ] ; then
 fi
 
 # Make sure the tools we need are available.
-for prog in fmap_decode vbutil_firmware; do
+for prog in mosys vbutil_firmware; do
   type -P "${prog}" &>/dev/null || \
     { echo "${prog} tool not found."; exit 1; }
 done
@@ -80,7 +80,7 @@ VERSION=1
 for i in "A" "B"
 do
   match_str="$i Key"
-  line=$(fmap_decode $1 | grep "$match_str")
+  line=$(mosys -f -k eeprom map $1 | grep "$match_str")
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval let \
     fw${i}_vblock_offset="$offset"
@@ -89,7 +89,7 @@ do
     fw${i}_vblock_size="$size"
 
   match_str="$i Data"
-  line=$(fmap_decode $1 | grep "$match_str")
+  line=$(mosys -f -k eeprom map $1 | grep "$match_str")
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval let \
     fw${i}_offset="$offset"

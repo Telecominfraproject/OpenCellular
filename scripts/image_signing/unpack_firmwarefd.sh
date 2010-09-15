@@ -7,7 +7,7 @@
 # Script that unpacks a firmware image (in .fd format) into its component
 # pieces. Only outputs firmware A and B data, vblocks and the GBB.
 
-# The fmap_decode tool must be in the system path.
+# The mosys tool must be in the system path.
 
 # Abort on error
 set -e
@@ -20,14 +20,14 @@ if [ $# -ne 1 ] ; then
 fi
 
 # Make sure the tools we need are available.
-type -P fmap_decode &>/dev/null || \
-  { echo "fmap_decode tool not found."; exit 1; }
+type -P mosys &>/dev/null || \
+  { echo "mosys tool not found."; exit 1; }
 
 src_fd=$1
 
 # Grab GBB Area offset and size
 match_str="GBB Area"
-line=$(fmap_decode $1 | grep "$match_str")
+line=$(mosys -f -k eeprom map $1 | grep "$match_str")
 offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
 let gbb_offset="$offset"
 size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
@@ -37,7 +37,7 @@ let gbb_size="$size"
 for i in "A" "B"
 do
   match_str="$i Key"
-  line=$(fmap_decode $1 | grep "$match_str")
+  line=$(mosys -f -k eeprom map $1 | grep "$match_str")
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval let \
     fw${i}_vblock_offset="$offset"
@@ -46,7 +46,7 @@ do
     fw${i}_vblock_size="$size"
 
   match_str="$i Data"
-  line=$(fmap_decode $1 | grep "$match_str")
+  line=$(mosys -f -k eeprom map $1 | grep "$match_str")
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval let \
     fw${i}_offset="$offset"
