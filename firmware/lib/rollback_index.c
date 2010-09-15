@@ -107,21 +107,36 @@ static uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
     ROLLBACK_SPACE_FIRMWARE_VERSION, 0, 0, 0};
   static const RollbackSpaceKernel rsk_init = {
     ROLLBACK_SPACE_KERNEL_VERSION, ROLLBACK_SPACE_KERNEL_UID, 0, 0};
-  uint8_t nvlocked = 0;
+  TPM_PERMANENT_FLAGS pflags;
+  uint32_t result;
 
   VBDEBUG(("TPM: One-time initialization\n"));
 
-  RETURN_ON_FAILURE(TlclFinalizePhysicalPresence());
+  result = TlclGetPermanentFlags(&pflags);
+  if (result != TPM_SUCCESS)
+    return result;
+
+  /* TPM may come from the factory without physical presence finalized.  Fix
+   * if necessary. */
+  VBDEBUG(("TPM: physicalPresenceLifetimeLock=%d\n",
+           pflags.physicalPresenceLifetimeLock));
+  if (!pflags.physicalPresenceLifetimeLock) {
+    VBDEBUG(("TPM: Finalizing physical presence\n"));
+    RETURN_ON_FAILURE(TlclFinalizePhysicalPresence());
+  }
 
   /* The TPM will not enforce the NV authorization restrictions until the
    * execution of a TPM_NV_DefineSpace with the handle of TPM_NV_INDEX_LOCK.
    * Here we create that space if it doesn't already exist. */
-  RETURN_ON_FAILURE(TlclGetFlags(NULL, NULL, &nvlocked));
-  VBDEBUG(("TPM: nvlocked=%d\n", nvlocked));
-  if (!nvlocked) {
+  VBDEBUG(("TPM: nvLocked=%d\n", pflags.nvLocked));
+  if (!pflags.nvLocked) {
     VBDEBUG(("TPM: Enabling NV locking\n"));
     RETURN_ON_FAILURE(TlclSetNvLocked());
   }
+
+  /* Clear TPM owner, in case the TPM is already owned for some reason. */
+  VBDEBUG(("TPM: Clearing owner\n"));
+  RETURN_ON_FAILURE(TlclForceClear());
 
   /* Initializes the firmware and kernel spaces */
   Memcpy(rsf, &rsf_init, sizeof(RollbackSpaceFirmware));
