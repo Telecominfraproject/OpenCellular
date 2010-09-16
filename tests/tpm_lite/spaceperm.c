@@ -3,8 +3,7 @@
  * found in the LICENSE file.
  */
 
-/* Test of space permissions retrieval.  The spaces 0xcafe and 0xcaff must have
- * already been defined (by running, for instance, the "redefine" test).
+/* Test of space permissions retrieval.
  */
 
 #include <stdint.h>
@@ -12,32 +11,25 @@
 #include <stdlib.h>
 
 #include "tlcl.h"
+#include "tlcl_tests.h"
 #include "utility.h"
-
-#define INDEX0 0xcafe
-#define INDEX1 0xcaff
 
 int main(int argc, char** argv) {
   uint32_t perm;
   uint32_t perm_pp_gl = TPM_NV_PER_PPWRITE | TPM_NV_PER_GLOBALLOCK;
   uint32_t perm_pp = TPM_NV_PER_PPWRITE;
-  uint32_t result;
 
   TlclLibInit();
-  TlclStartup();
-  TlclContinueSelfTest();
-  TlclAssertPhysicalPresence();
+  TPM_CHECK(TlclStartupIfNeeded());
+  TPM_CHECK(TlclContinueSelfTest());
+  TPM_CHECK(TlclAssertPhysicalPresence());
 
-  result = TlclGetPermissions(INDEX0, &perm);
-  assert(result == TPM_SUCCESS);
-  printf("permissions for INDEX0 = 0x%x\n", perm);
+  TPM_CHECK(TlclGetPermissions(INDEX0, &perm));
   assert((perm & perm_pp_gl) == perm_pp_gl);
 
-  result = TlclGetPermissions(INDEX1, &perm);
-  assert(result == TPM_SUCCESS);
-  printf("permissions for INDEX1 = 0x%x\n", perm);
+  TPM_CHECK(TlclGetPermissions(INDEX1, &perm));
   assert((perm & perm_pp) == perm_pp);
 
-  printf("Test completed successfully\n");
+  printf("TEST SUCCEEDED\n");
   exit(0);
 }

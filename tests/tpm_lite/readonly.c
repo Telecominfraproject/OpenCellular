@@ -104,6 +104,6 @@ int main(int argc, char** argv) {
 
   /* Done for now.
    */
-  printf("Test completed successfully\n");
+  printf("TEST SUCCEEDED\n");
   exit(0);
 }

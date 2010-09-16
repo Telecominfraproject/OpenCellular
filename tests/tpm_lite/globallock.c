@@ -11,58 +11,36 @@
 #include <stdlib.h>
 
 #include "tlcl.h"
+#include "tlcl_tests.h"
 #include "utility.h"
-
-#define INDEX0 0xcafe
-#define INDEX1 0xcaff
 
 int main(int argc, char** argv) {
   uint32_t zero = 0;
-  uint32_t perm;
   uint32_t result;
   uint32_t x;
 
   TlclLibInit();
-
-  TlclStartup();
-  TlclSelfTestFull();
-
-  TlclAssertPhysicalPresence();
-
-  result = TlclRead(INDEX0, (uint8_t*) &x, sizeof(x));
-  if (result == TPM_E_BADINDEX) {
-    perm = TPM_NV_PER_PPWRITE | TPM_NV_PER_GLOBALLOCK;
-    TlclDefineSpace(INDEX0, perm, sizeof(uint32_t));
-  }
-  result = TlclWrite(INDEX0, (uint8_t*) &zero, sizeof(uint32_t));
-  assert(result == TPM_SUCCESS);
-
-  result = TlclRead(INDEX1, (uint8_t*) &x, sizeof(x));
-  if (result == TPM_E_BADINDEX) {
-    perm = TPM_NV_PER_PPWRITE;
-    TlclDefineSpace(INDEX1, perm, sizeof(uint32_t));
-  }
-  result = TlclWrite(INDEX1, (uint8_t*) &zero, sizeof(uint32_t));
-  assert(result == TPM_SUCCESS);
-
-  // Sets the global lock.
-  TlclSetGlobalLock();
+  TPM_CHECK(TlclStartupIfNeeded());
+  TPM_CHECK(TlclSelfTestFull());
+  TPM_CHECK(TlclAssertPhysicalPresence());
+  TPM_CHECK(TlclRead(INDEX0, (uint8_t*) &x, sizeof(x)));
+  TPM_CHECK(TlclWrite(INDEX0, (uint8_t*) &zero, sizeof(uint32_t)));
+  TPM_CHECK(TlclRead(INDEX1, (uint8_t*) &x, sizeof(x)));
+  TPM_CHECK(TlclWrite(INDEX1, (uint8_t*) &zero, sizeof(uint32_t)));
+  TPM_CHECK(TlclSetGlobalLock());
 
   // Verifies that write to index0 fails.
   x = 1;
   result = TlclWrite(INDEX0, (uint8_t*) &x, sizeof(x));
-  if (result != TPM_E_AREA_LOCKED) {
-    error("INDEX0 is not locked\n");
-    exit(1);
-  }
+  assert(result == TPM_E_AREA_LOCKED);
+  TPM_CHECK(TlclRead(INDEX0, (uint8_t*) &x, sizeof(x)));
+  assert(x == 0);
 
   // Verifies that write to index1 is still possible.
   x = 2;
-  result = TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x));
-  if (result != TPM_SUCCESS) {
-    error("failure to write at INDEX1\n");
-    exit(2);
-  }
+  TPM_CHECK(TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x)));
+  TPM_CHECK(TlclRead(INDEX1, (uint8_t*) &x, sizeof(x)));
+  assert(x == 2);
 
   // Turns off PP.
   TlclLockPhysicalPresence();
@@ -70,11 +48,9 @@ int main(int argc, char** argv) {
   // Verifies that write to index1 fails.
   x = 3;
   result = TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x));
-  if (result != TPM_E_BAD_PRESENCE) {
-    error("INDEX1 is not locked\n");
-    exit(3);
-  }
-
-  printf("Test completed successfully\n");
+  assert(result == TPM_E_BAD_PRESENCE);
+  TPM_CHECK(TlclRead(INDEX1, (uint8_t*) &x, sizeof(x)));
+  assert(x == 2);
+  printf("TEST SUCCEEDED\n");
   exit(0);
 }

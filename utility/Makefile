@@ -33,7 +33,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		dev_make_keypair \
 		dev_sign_file \
 		dump_fmap \
-		dev_debug_vboot
+		dev_debug_vboot \
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
@@ -78,6 +78,9 @@ ${BUILD_ROOT}/sign_image: sign_image.c $(LIBS)
 
 ${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+
+${BUILD_ROOT}/tpm_set_readsrkpub: tpm_set_readsrkpub.c
+	$(CC) $(CFLAGS) $< -o $@ -ltspi
 
 ${BUILD_ROOT}/dev_make_keypair: dev_make_keypair
 	cp -f $< $@

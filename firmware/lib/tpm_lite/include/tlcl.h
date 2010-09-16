@@ -134,7 +134,8 @@ uint32_t TlclSetDeactivated(uint8_t flag);
 /* Gets flags of interest.  Pointers for flags you aren't interested in may
  * be NULL.  The TPM error code is returned.
  */
-uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated, uint8_t* nvlocked);
+uint32_t TlclGetFlags(uint8_t* disable, uint8_t* deactivated,
+                      uint8_t* nvlocked);
 
 /* Sets the bGlobalLock flag, which only a reboot can clear.  The TPM error
  * code is returned.

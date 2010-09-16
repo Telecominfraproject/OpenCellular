@@ -11,50 +11,45 @@
 #include <stdlib.h>
 
 #include "tlcl.h"
+#include "tlcl_tests.h"
 #include "utility.h"
 
-#define INDEX0 0xda70
 #define TPM_MAX_NV_WRITES_NOOWNER 64
 
 int main(int argc, char** argv) {
   int i;
+
   uint32_t result;
-  uint8_t disable, deactivated;  /* the TPM specs use these exact names */
 
   TlclLibInit();
 
-  TlclStartup();
-  TlclSelfTestFull();
-
-  TlclAssertPhysicalPresence();
-
-  result = TlclGetFlags(&disable, &deactivated, NULL);
-  printf("disable is %d, deactivated is %d\n", disable, deactivated);
-
-  if (disable || deactivated) {
-    TlclSetEnable();
-    (void) TlclSetDeactivated(0);
-    printf("TPM will be active after next reboot\n");
-    exit(0);
-  }
+  TPM_CHECK(TlclStartupIfNeeded());
+  TPM_CHECK(TlclSelfTestFull());
+  TPM_CHECK(TlclAssertPhysicalPresence());
+  TPM_CHECK(TlclForceClear());
+  TPM_CHECK(TlclSetEnable());
+  TPM_CHECK(TlclSetDeactivated(0));
 
   for (i = 0; i < TPM_MAX_NV_WRITES_NOOWNER + 2; i++) {
     printf("writing %d\n", i);
     if ((result = TlclWrite(INDEX0, (uint8_t*)&i, sizeof(i))) != TPM_SUCCESS) {
       switch (result) {
       case TPM_E_MAXNVWRITES:
-        printf("Max NV writes exceeded - forcing clear\n");
-        TlclForceClear();
-        printf("Please reboot and run this program again\n");
-        exit(0);
+        assert(i >= TPM_MAX_NV_WRITES_NOOWNER);
       default:
-        error("unexpected error code %d (0x%x)\n");
+        error("unexpected error code %d (0x%x)\n", result, result);
       }
     }
   }
 
-  /* Done for now.
-   */
-  printf("Test completed successfully\n");
+  /* Reset write count */
+  TPM_CHECK(TlclForceClear());
+  TPM_CHECK(TlclSetEnable());
+  TPM_CHECK(TlclSetDeactivated(0));
+
+  /* Try writing again. */
+  TPM_CHECK(TlclWrite(INDEX0, (uint8_t*)&i, sizeof(i)));
+
+  printf("TEST SUCCEEDED\n");
   exit(0);
 }

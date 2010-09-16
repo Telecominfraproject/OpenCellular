@@ -9,28 +9,25 @@
 #include <stdio.h>
 
 #include "tlcl.h"
-
-#define CHECK(command) do {                     \
-    uint32_t r = (command);                     \
-    if (r != 0) {                               \
-      printf(#command "returned 0x%x\n", r);    \
-    }                                           \
-} while(0)
+#include "tlcl_tests.h"
+#include "utility.h"
 
 int main(int argc, char** argv) {
   uint8_t disable, deactivated;
 
   TlclLibInit();
-  TlclStartup();
-  CHECK(TlclSelfTestFull());
-
-  CHECK(TlclAssertPhysicalPresence());
-  CHECK(TlclGetFlags(&disable, &deactivated, NULL));
+  TPM_CHECK(TlclStartupIfNeeded());
+  TPM_CHECK(TlclSelfTestFull());
+  TPM_CHECK(TlclAssertPhysicalPresence());
+  TPM_CHECK(TlclGetFlags(&disable, &deactivated, NULL));
   printf("disable is %d, deactivated is %d\n", disable, deactivated);
-  CHECK(TlclSetEnable());
-  CHECK(TlclSetDeactivated(0));
-  CHECK(TlclGetFlags(&disable, &deactivated, NULL));
+  TPM_CHECK(TlclSetEnable());
+  TPM_CHECK(TlclSetDeactivated(0));
+  TPM_CHECK(TlclGetFlags(&disable, &deactivated, NULL));
   printf("disable is %d, deactivated is %d\n", disable, deactivated);
-
+  if (disable == 1 || deactivated == 1) {
+    error("failed to enable or activate");
+  }
+  printf("TEST SUCCEEDED\n");
   return 0;
 }

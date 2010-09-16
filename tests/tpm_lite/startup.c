@@ -27,5 +27,6 @@ int main(int argc, char** argv) {
   if (result != 0) {
     printf("tpm getflags failed with 0x%x\n", result);
   }
+  printf("TEST SUCCEEDED\n");
   return 0;
 }

@@ -10,21 +10,20 @@ INCLUDES += -I./include \
 	-I$(HOSTDIR)/include
 BUILD_ROOT = ${BUILD}/tests/tpm_lite
 
-TEST_NAMES = tpmtest_clear \
-             tpmtest_earlyextend \
+TEST_NAMES = tpmtest_earlyextend \
              tpmtest_earlynvram \
              tpmtest_earlynvram2 \
 	     tpmtest_enable \
 	     tpmtest_fastenable \
 	     tpmtest_globallock \
-             tpmtest_lock \
-             tpmtest_readonly \
-             tpmtest_redefine \
+             tpmtest_redefine_unowned \
              tpmtest_spaceperm \
-	     tpmtest_startup \
+	     tpmtest_testsetup \
+	     tpmtest_timing \
              tpmtest_writelimit \
 
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
+SHARED_TEST_OBJ = $(BUILD_ROOT)/tlcl_tests.o
 
 ALL_DEPS = $(addsuffix .d,${TEST_BINS})
 CFLAGS +=  -MMD -MF $@.d
@@ -36,7 +35,8 @@ all: $(TEST_BINS)
 ${BUILD_ROOT}/%.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
 
-${BUILD_ROOT}/tpmtest_%: %.c ${LIBS}
-	$(CC) $(CFLAGS) $(INCLUDES) $< ${LIBS} -o $@ -lcrypto -lrt $(LDFLAGS)
+${BUILD_ROOT}/tpmtest_%: %.c ${LIBS} ${SHARED_TEST_OBJ}
+	$(CC) $(CFLAGS) $(INCLUDES) $< ${SHARED_TEST_OBJ} \
+	  ${LIBS} -o $@ -lcrypto -lrt $(LDFLAGS)
 
 -include ${ALL_DEPS}
