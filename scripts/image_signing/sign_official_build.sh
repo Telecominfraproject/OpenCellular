@@ -178,7 +178,9 @@ resign_firmware_payload() {
   # Grab firmware image from the autoupdate shellball.
   local rootfs_dir=$(make_temp_dir)
   mount_image_partition ${image} 3 ${rootfs_dir}
-
+  # Force unmount of the rootfs on function exit as it is needed later.
+  trap "sudo umount -d ${rootfs_dir}" RETURN
+  
   local shellball_dir=$(make_temp_dir)
   # get_firmwarebin_from_shellball can fail if the image has no 
   # firmware update.
@@ -227,8 +229,6 @@ resign_firmware_payload() {
     sed -e '/^begin .*firmware_package/,/end/D' | \
     cat - ${new_fwblob} >${new_shellball}
   sudo cp ${new_shellball} ${rootfs_dir}/usr/sbin/chromeos-firmwareupdate
-  # Force unmount of the image as it is needed later.
-  sudo umount -d ${rootfs_dir}
   echo "Re-signed firmware AU payload in $image"
 }
 
