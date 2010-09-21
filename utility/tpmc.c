@@ -4,6 +4,9 @@
  *
  * TPM command utility.  Runs simple TPM commands.  Mostly useful when physical
  * presence has not been locked.
+ *
+ * The exit code is 0 for success, the TPM error code for TPM errors, and 255
+ * for other errors.
  */
 
 #include <stdio.h>
@@ -13,6 +16,8 @@
 #include "tlcl.h"
 #include "tpm_error_messages.h"
 #include "tss_constants.h"
+
+#define OTHER_ERROR 255
 
 typedef struct command_record {
   const char* name;
@@ -67,11 +72,11 @@ uint32_t ErrorCheck(uint32_t result, const char* cmd) {
       if (tpm_error_table[i].code == result) {
         fprintf(stderr, "%s\n%s\n", tpm_error_table[i].name,
                 tpm_error_table[i].description);
-        return 1;
+        return result;
       }
     }
     fprintf(stderr, "the TPM error code is unknown to this program\n");
-    return 1;
+    return result;
   }
 }
 
@@ -101,14 +106,14 @@ static uint32_t HandlerDefineSpace(void) {
   uint32_t index, size, perm;
   if (nargs != 5) {
     fprintf(stderr, "usage: tpmc def <index> <size> <perm>\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   if (HexStringToUint32(args[2], &index) != 0 ||
       HexStringToUint32(args[3], &size) != 0 ||
       HexStringToUint32(args[4], &perm) != 0) {
     fprintf(stderr, "<index>, <size>, and <perm> must be "
             "32-bit hex (0x[0-9a-f]+)\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   return TlclDefineSpace(index, perm, size);
 }
@@ -120,16 +125,16 @@ static uint32_t HandlerWrite(void) {
   int i;
   if (nargs < 3) {
     fprintf(stderr, "usage: tpmc write <index> [<byte0> <byte1> ...]\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   if (HexStringToUint32(args[2], &index) != 0) {
     fprintf(stderr, "<index> must be 32-bit hex (0x[0-9a-f]+)\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   size = nargs - 3;
   if (size > sizeof(value)) {
     fprintf(stderr, "byte array too large\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
 
   byteargs = args + 3;
@@ -137,7 +142,7 @@ static uint32_t HandlerWrite(void) {
     if (HexStringToUint8(byteargs[i], &value[i]) != 0) {
       fprintf(stderr, "invalid byte %s, should be [0-9a-f][0-9a-f]?\n",
               byteargs[i]);
-      exit(1);
+      exit(OTHER_ERROR);
     }
   }
 
@@ -145,7 +150,7 @@ static uint32_t HandlerWrite(void) {
     if (index == TPM_NV_INDEX_LOCK) {
       fprintf(stderr, "This would set the nvLocked bit. "
               "Use \"tpmc setnv\" instead.\n");
-      exit(1);
+      exit(OTHER_ERROR);
     }
     printf("warning: zero-length write\n");
   } else {
@@ -162,16 +167,16 @@ static uint32_t HandlerRead(void) {
   int i;
   if (nargs != 4) {
     fprintf(stderr, "usage: tpmc read <index> <size>\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   if (HexStringToUint32(args[2], &index) != 0 ||
       HexStringToUint32(args[3], &size) != 0) {
     fprintf(stderr, "<index> and <size> must be 32-bit hex (0x[0-9a-f]+)\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   if (size > sizeof(value)) {
     fprintf(stderr, "size of read (0x%x) is too big\n", size);
-    exit(1);
+    exit(OTHER_ERROR);
   }
   result = TlclRead(index, value, size);
   if (result == 0 && size > 0) {
@@ -187,11 +192,11 @@ static uint32_t HandlerGetPermissions(void) {
   uint32_t index, permissions, result;
   if (nargs != 3) {
     fprintf(stderr, "usage: tpmc getp <index>\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   if (HexStringToUint32(args[2], &index) != 0) {
     fprintf(stderr, "<index> must be 32-bit hex (0x[0-9a-f]+)\n");
-    exit(1);
+    exit(OTHER_ERROR);
   }
   result = TlclGetPermissions(index, &permissions);
   if (result == 0) {
@@ -292,7 +297,7 @@ int main(int argc, char* argv[]) {
   if (argc < 2) {
     fprintf(stderr, "usage: %s <TPM command> [args]\n   or: %s help\n",
             argv[0], argv[0]);
-    exit(1);
+    return OTHER_ERROR;
   } else {
     command_record* c;
     const char* cmd = argv[1];
@@ -317,6 +322,6 @@ int main(int argc, char* argv[]) {
 
     /* No command matched. */
     fprintf(stderr, "%s: unknown command: %s\n", argv[0], cmd);
-    return 1;
+    return OTHER_ERROR;
   }
 }
