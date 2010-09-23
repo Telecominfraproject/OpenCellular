@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
       retval = dump_fmap(s);
       break;
     }
-    s++;
+    s += FMAP_SEARCH_STRIDE;
   }
 
   if (0 != munmap(base_of_rom, sb.st_size)) {
