@@ -136,7 +136,7 @@ static uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
 
   /* Clear TPM owner, in case the TPM is already owned for some reason. */
   VBDEBUG(("TPM: Clearing owner\n"));
-  RETURN_ON_FAILURE(TlclForceClear());
+  RETURN_ON_FAILURE(TPMClearAndReenable());
 
   /* Initializes the firmware and kernel spaces */
   Memcpy(rsf, &rsf_init, sizeof(RollbackSpaceFirmware));
