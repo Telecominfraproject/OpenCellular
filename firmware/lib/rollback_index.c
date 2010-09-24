@@ -184,6 +184,10 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
 
   VBDEBUG(("TPM: SetupTPM(r%d, d%d)\n", recovery_mode, developer_mode));
 
+  if (recovery_mode)
+    g_rollback_recovery_mode = 1;  /* Global variables are usable in
+                                    * recovery mode */
+
   /* TODO: TlclLibInit() should be able to return failure */
   TlclLibInit();
 
@@ -241,10 +245,6 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   /* Updates flags */
   if (developer_mode)
     new_flags |= FLAG_LAST_BOOT_DEVELOPER;
-  if (recovery_mode)
-    g_rollback_recovery_mode = 1;  /* Global variables are usable in
-                                    * recovery mode */
-
   if (rsf->flags != new_flags) {
     rsf->flags = new_flags;
     rsf_dirty = 1;
