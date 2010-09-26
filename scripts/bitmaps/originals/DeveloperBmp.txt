@@ -1,4 +1,4 @@
-This copy of Chrome OS is untrusted. Press SPACE to begin recovery.
+This copy of Chrome OS is unverified. Press SPACE to begin recovery.
 
 
 
