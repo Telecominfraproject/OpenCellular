@@ -27,6 +27,16 @@ partsize() {
   sudo $GPT show -s -i $2 $1
 }
 
+# Mount a partition read-only from an image into a local directory
+# Args: IMAGE PARTNUM MOUNTDIRECTORY
+mount_image_partition_ro() {
+  local image=$1
+  local partnum=$2
+  local mount_dir=$3
+  local offset=$(partoffset "$image" "$partnum")
+  sudo mount -o loop,ro,offset=$((offset * 512)) "$image" "$mount_dir"
+}
+
 # Mount a partition from an image into a local directory
 # Args: IMAGE PARTNUM MOUNTDIRECTORY
 mount_image_partition() {

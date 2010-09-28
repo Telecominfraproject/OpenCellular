@@ -48,9 +48,11 @@ EOF
   fi
 
   local rootfs=$(mktemp -d)
-  mount_image_partition "$image" 3 "$rootfs"
+  mount_image_partition_ro "$image" 3 "$rootfs"
   trap "sudo umount -d $rootfs; rm -rf $rootfs" EXIT
   if [ -n "$key" ]; then
+    sudo umount -d "$rootfs"
+    mount_image_partition "$image" 3 "$rootfs"
     set_lsb_release_keyval "$rootfs" "$key" "$value"
     touch "$image"  # Updates the image modification time.
   fi
