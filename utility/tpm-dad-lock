@@ -1,0 +1,47 @@
+#!/bin/bash -e
+#
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Attempt to trigger the TPM Dictionary Attack Defense Lock and measure its
+# behavior.
+
+owned=$(cat /sys/class/misc/tpm0/device/owned)
+if [ "$owned" = "" ]; then
+  echo "TPM is not functional"
+  exit 1
+fi
+if [ "$owned" = "0" ]; then
+  echo "please use random, non-empty passwords"
+  tpm_takeownership || exit 1
+fi
+
+attempts=0
+max=1
+e=/tmp/x$$
+
+while true; do
+  attempts=$(( $attempts + 1 ))
+  before=$(date +%s)
+  defending=1
+  while [ $defending -eq 1 ]; do
+    if tpm_getpubek -z 2> $e; then
+      echo "unexpected success of tpm_getpubek"
+      exit 1
+    fi
+    if grep -q communication $e; then
+      echo "communication failure"
+      exit 1
+    fi
+    if ! grep -q dictionary $e; then
+      defending=0
+    fi
+  done
+  after=$(date +%s)
+  elapsed=$(( $after - $before ))
+  if [ $elapsed -gt $max ]; then
+    echo delay of $elapsed seconds after $attempts attempts
+    max=$elapsed
+  fi
+done
