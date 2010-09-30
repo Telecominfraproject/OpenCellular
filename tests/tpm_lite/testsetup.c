@@ -24,6 +24,9 @@ int main(int argc, char** argv) {
   TPM_CHECK(TlclStartupIfNeeded());
   TPM_CHECK(TlclSelfTestFull());
   TPM_CHECK(TlclAssertPhysicalPresence());
+  TPM_CHECK(TlclForceClear());
+  TPM_CHECK(TlclSetEnable());
+  TPM_CHECK(TlclSetDeactivated(0));
 
   result = TlclRead(INDEX0, (uint8_t*) &x, sizeof(x));
   if (result == TPM_E_BADINDEX) {
@@ -34,7 +37,7 @@ int main(int argc, char** argv) {
   result = TlclRead(INDEX1, (uint8_t*) &x, sizeof(x));
   if (result == TPM_E_BADINDEX) {
     perm = TPM_NV_PER_PPWRITE;
-    TlclDefineSpace(INDEX1, perm, sizeof(uint32_t));
+    TPM_CHECK(TlclDefineSpace(INDEX1, perm, sizeof(uint32_t)));
   }
 
   printf("TEST SUCCEEDED\n");

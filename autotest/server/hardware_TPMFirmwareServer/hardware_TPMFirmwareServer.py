@@ -16,14 +16,27 @@ class hardware_TPMFirmwareServer(test.test):
     See also client/site_tests/hardware_TPMFirmware.  The server side of the
     test is used to coordinate the multiple reboots needed to bring the TPM to
     a new state (for instance between owned and unowned).
+
+    IMPORTANT.  This can only run on a machine modified as follows.
+
+    1. The TCSD daemon must not be started.  Otherwise the machine might try to
+    take ownership and who knows what else.  A good way of preventing this is
+    to comment out 'start tcsd' in /etc/init/tpm-probe.conf.
+
+    2. The firmware on the machine must not send any commands to the TPM,
+    including TPM_Startup.
     """
     version = 1
     n_client_reboots = 0
     client_at = None
+    test_suffix = ""
 
     # Run the client subtest named [subtest].
-    def tpm_run(self, subtest, ignore_status=False):
-        self.client_at.run_test(self.client_test, subtest=subtest)
+    def tpm_run(self, subtest, ignore_status=False, reboot=True):
+        if (reboot):
+            self.reboot_client()
+        ttag = subtest + self.test_suffix
+        self.client_at.run_test(self.client_test, subtest=subtest, tag=ttag)
         cstatus = self.job.get_state("client_status")
         logging.info("server: client status = %s", cstatus)
         self.job.set_state("client_status", None)
@@ -41,6 +54,23 @@ class hardware_TPMFirmwareServer(test.test):
         self.n_client_reboots += 1
 
 
+    def run_unowned_only(self):
+        # The fastenable test is implicit in testsetup, but run it anyhow.
+        self.tpm_run("tpmtest_fastenable")
+        # The writelimit test may redundantly clear the TPM.
+        self.tpm_run("tpmtest_writelimit")
+        self.tpm_run("tpmtest_redefine_unowned")
+
+
+    def run_owned_and_unowned(self, suffix):
+        self.test_suffix = suffix
+        self.tpm_run("tpmtest_earlyextend")
+        self.tpm_run("tpmtest_earlynvram")
+        self.tpm_run("tpmtest_earlynvram2")
+        self.tpm_run("tpmtest_globallock")
+        self.tpm_run("tpmtest_spaceperm")
+        self.tpm_run("tpmtest_timing")
+
     def run_once(self, host=None):
         self.client = host
         self.client_at = autotest.Autotest(self.client)
@@ -49,23 +79,13 @@ class hardware_TPMFirmwareServer(test.test):
         self.job.set_state("client_status", None)
 
         # Set up the client in the unowned state.
-        self.reboot_client()
-        self.tpm_run("tpmtest_clear", ignore_status=True)
+        # TODO(semenzato): this should be in a separate "setup" function.
+        self.tpm_run("tpmtest_testsetup")
 
-        self.reboot_client()
-        self.tpm_run("tpmtest_enable", ignore_status=True)
+        # Run these unowned only.
+        self.run_unowned_only()
 
-        self.reboot_client()
-        self.tpm_run("tpmtest_readonly")
-
-        self.reboot_client()
-        self.tpm_run("tpmtest_globallock")
-
-        self.reboot_client()
+        # Run these both owned and unowned.
+        self.run_owned_and_unowned("-u")
         self.tpm_run("takeownership")
-
-        self.reboot_client()
-        self.tpm_run("tpmtest_readonly")
-
-        self.reboot_client()
-        self.tpm_run("tpmtest_globallock")
+        self.run_owned_and_unowned("-o")
