@@ -122,6 +122,17 @@ update_rootfs_hash() {
   local keyblock=$2  # Keyblock for re-generating signed kernel partition
   local signprivate=$3  # Private key to use for signing.
 
+  # check and clear need_to_resign tag
+  local rootfs_dir=$(make_temp_dir)
+  mount_image_partition_ro "${image}" 3 "${rootfs_dir}"
+  if has_needs_to_be_resigned_tag "${rootfs_dir}"; then
+    # remount as RW
+    sudo umount -d "${rootfs_dir}"
+    mount_image_partition "${image}" 3 "${rootfs_dir}"
+    sudo rm -f "${rootfs_dir}/${TAG_NEEDS_TO_BE_SIGNED}"
+  fi
+  sudo umount -d "${rootfs_dir}"
+
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${image} 3 ${rootfs_image}
   local kernel_config=$(grab_kernel_config "${image}")
@@ -180,7 +191,7 @@ resign_firmware_payload() {
   mount_image_partition ${image} 3 ${rootfs_dir}
   # Force unmount of the rootfs on function exit as it is needed later.
   trap "sudo umount -d ${rootfs_dir}" RETURN
-  
+
   local shellball_dir=$(make_temp_dir)
   # get_firmwarebin_from_shellball can fail if the image has no 
   # firmware update.

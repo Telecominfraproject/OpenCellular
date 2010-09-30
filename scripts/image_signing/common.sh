@@ -9,6 +9,16 @@ SCRIPT_DIR=$(dirname $0)
 PROG=$(basename $0)
 GPT=cgpt
 
+# The tag when the rootfs is changed.
+TAG_NEEDS_TO_BE_SIGNED="/root/.need_to_be_signed"
+
+# Load shflags
+if [[ -f /usr/lib/shflags ]]; then
+  . /usr/lib/shflags
+else
+  . "${SCRIPT_DIR}/lib/shflags/shflags"
+fi
+
 # List of Temporary files and mount points.
 TEMP_FILE_LIST=$(mktemp)
 TEMP_DIR_LIST=$(mktemp)
@@ -25,6 +35,38 @@ partoffset() {
 # Returns: size (in sectors) of partition PARTNUM
 partsize() {
   sudo $GPT show -s -i $2 $1
+}
+
+# Tags a file system as "needs to be resigned".
+# Args: MOUNTDIRECTORY
+tag_as_needs_to_be_resigned() {
+  local mount_dir="$1"
+  sudo touch "$mount_dir/$TAG_NEEDS_TO_BE_SIGNED"
+}
+
+# Determines if the target file system has the tag for resign
+# Args: MOUNTDIRECTORY
+# Returns: $FLAGS_TRUE if the tag is there, otherwise $FLAGS_FALSE
+has_needs_to_be_resigned_tag() {
+  local mount_dir="$1"
+  if [ -f "$mount_dir/$TAG_NEEDS_TO_BE_SIGNED" ]; then
+    return ${FLAGS_TRUE}
+  else
+    return ${FLAGS_FALSE}
+  fi
+}
+
+# Determines if the target file system is a Chrome OS root fs
+# Args: MOUNTDIRECTORY
+# Returns: $FLAGS_TRUE if MOUNTDIRECTORY looks like root fs,
+#          otherwise $FLAGS_FALSE
+is_rootfs_partition() {
+  local mount_dir="$1"
+  if [ -f "$mount_dir/$(dirname "$TAG_NEEDS_TO_BE_SIGNED")" ]; then
+    return ${FLAGS_TRUE}
+  else
+    return ${FLAGS_FALSE}
+  fi
 }
 
 # Mount a partition read-only from an image into a local directory
@@ -45,6 +87,9 @@ mount_image_partition() {
   local mount_dir=$3
   local offset=$(partoffset "$image" "$partnum")
   sudo mount -o loop,offset=$((offset * 512)) "$image" "$mount_dir"
+  if is_rootfs_partition "$mount_dir"; then
+    tag_as_needs_to_be_resigned "$mount_dir"
+  fi
 }
 
 # Extract a partition to a file
@@ -93,6 +138,9 @@ cleanup_temps_and_mounts() {
   set +e  # umount may fail for unmounted directories
   for i in "$(cat $TEMP_DIR_LIST)"; do
     if [ -n "$i" ]; then
+      if has_needs_to_be_resigned_tag "$i"; then
+        echo "Warning: image may be modified. Please resign image."
+      fi
       sudo umount -d $i 2>/dev/null
       rm -rf $i
     fi
