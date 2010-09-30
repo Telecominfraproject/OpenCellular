@@ -36,7 +36,7 @@ static int tpm_fd = -1;
 
 /* Print |n| bytes from array |a|, with newlines.
  */
-POSSIBLY_UNUSED static void PrintBytes(uint8_t* a, int n) {
+POSSIBLY_UNUSED static void PrintBytes(const uint8_t* a, int n) {
   int i;
   for (i = 0; i < n; i++) {
     VBDEBUG(("%02x ", a[i]));

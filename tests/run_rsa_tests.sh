@@ -9,6 +9,8 @@
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
+set -e
+
 return_code=0
 TEST_FILE=${TESTCASE_DIR}/test_file
 
@@ -24,7 +26,7 @@ function test_signatures {
         ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig \
         ${TEST_FILE}
       if [ $? -ne 0 ]
-      then  
+      then
         return_code=255
       fi
       let algorithmcounter=algorithmcounter+1

@@ -9,20 +9,51 @@
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
-# Generate RSA test keys of various lengths. 
+set -e
+
+PATH="$(dirname "$0")/../build/utility:${PATH}"
+
+sha_types=( 1 256 512 )
+
+# Generate RSA test keys of various lengths.
 function generate_keys {
+  key_index=0
+  key_name_base="${TESTKEY_DIR}/key_rsa"
   for i in ${key_lengths[@]}
   do
-    if [ -f ${TESTKEY_DIR}/key_rsa$i.keyb ]; then
+    key_base="${key_name_base}${i}"
+    if [ -f "${key_base}.keyb" ]; then
       continue
     fi
-    openssl genrsa -F4 -out ${TESTKEY_DIR}/key_rsa$i.pem $i
+
+    openssl genrsa -F4 -out ${key_base}.pem $i
     # Generate self-signed certificate from key.
-    openssl req -batch -new -x509 -key ${TESTKEY_DIR}/key_rsa$i.pem \
-      -out ${TESTKEY_DIR}/key_rsa$i.crt
+    openssl req -batch -new -x509 -key ${key_base}.pem \
+      -out ${key_base}.crt
+
     # Generate pre-processed key for use by RSA signature verification code.
-    ${UTIL_DIR}/dumpRSAPublicKey ${TESTKEY_DIR}/key_rsa$i.crt \
-      > ${TESTKEY_DIR}/key_rsa$i.keyb
+    ${UTIL_DIR}/dumpRSAPublicKey ${key_base}.crt \
+      > ${key_base}.keyb
+
+    alg_index=0
+    for sha_type in ${sha_types[@]}
+    do
+      alg=$((${key_index} * 3 + ${alg_index}))
+  # wrap the public key
+      vbutil_key \
+        --pack "${key_base}.sha${sha_type}.vbpubk" \
+        --key "${key_base}.keyb" \
+        --version 1 \
+        --algorithm ${alg}
+
+  # wrap the private key
+      vbutil_key \
+        --pack "${key_base}.sha${sha_type}.vbprivk" \
+        --key "${key_base}.pem" \
+        --algorithm ${alg}
+      alg_index=$((${alg_index} + 1))
+    done
+    key_index=$((${key_index} + 1))
   done
 }
 

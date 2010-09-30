@@ -6,11 +6,14 @@
 
 # Generate test cases for use for the RSA verify benchmark.
 
+set -e
+
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
 # Use a different directory for fuzzing test cases.
-TESTCASE_DIR=${SCRIPT_DIR}/fuzz_testcases
+TESTKEY_DIR=${TESTKEY_DIR:-$(realpath  ${SCRIPT_DIR}/../tests/testkeys)}
+TESTCASE_DIR="$(realpath ${SCRIPT_DIR}/../build)"/fuzz_testcases
 TEST_IMAGE_FILE=${TESTCASE_DIR}/testimage
 TEST_IMAGE_SIZE=500000
 TEST_BOOTLOADER_FILE=${TESTCASE_DIR}/testbootloader
@@ -25,22 +28,20 @@ function generate_fuzzing_images {
   # signing key.
   ${UTIL_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/firmware.keyblock \
     --datapubkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
-    --signprivate ${TESTKEY_DIR}/key_rsa8192.pem \
-    --algorithm 11
+    --signprivate ${TESTKEY_DIR}/key_rsa8192.sha1.vbprivk
 
   # Kernel key block - RSA4096/SHA512 kernel signing subkey, RSA4096/SHA512
   # kernel signing key.
   ${UTIL_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/kernel.keyblock \
     --datapubkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
-    --signprivate ${TESTKEY_DIR}/key_rsa4096.pem \
-    --flags 15 \
-    --algorithm 8
-  
+    --signprivate ${TESTKEY_DIR}/key_rsa4096.sha1.vbprivk \
+    --flags 15
+
   echo "Generating signed firmware test image..."
   ${UTIL_DIR}/vbutil_firmware \
     --vblock ${TESTCASE_DIR}/firmware.vblock \
     --keyblock ${TESTCASE_DIR}/firmware.keyblock\
-    --signprivate ${TESTKEY_DIR}/key_rsa4096.pem \
+    --signprivate ${TESTKEY_DIR}/key_rsa4096.sha256.vbprivk \
     --version 1 \
     --fv  $1 \
     --kernelkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk
@@ -51,7 +52,7 @@ function generate_fuzzing_images {
   ${UTIL_DIR}/vbutil_kernel \
     --pack ${TESTCASE_DIR}/kernel.vblock.image \
     --keyblock ${TESTCASE_DIR}/kernel.keyblock \
-    --signprivate ${TESTKEY_DIR}/key_rsa4096.pem \
+    --signprivate ${TESTKEY_DIR}/key_rsa4096.sha256.vbprivk \
     --version 1 \
     --vmlinuz ${TEST_IMAGE_FILE} \
     --bootloader ${TEST_BOOTLOADER_FILE} \
@@ -80,3 +81,4 @@ mkdir -p ${TESTCASE_DIR}
 pre_work
 check_test_keys
 generate_fuzzing_images ${TEST_IMAGE_FILE}
+
