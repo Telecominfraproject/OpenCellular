@@ -186,6 +186,11 @@ get_firmwarebin_from_shellball() {
 resign_firmware_payload() {
   local image=$1
 
+  if [ -n "${NO_FWUPDATE}" ]; then
+    echo "Skipping firmware update."
+    return
+  fi
+
   # Grab firmware image from the autoupdate shellball.
   local rootfs_dir=$(make_temp_dir)
   mount_image_partition ${image} 3 ${rootfs_dir}
