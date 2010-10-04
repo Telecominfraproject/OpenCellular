@@ -19,15 +19,35 @@
 #define VBDEBUG(params)
 #endif
 
+#ifndef VBOOT_PERFORMANCE
+/* Define performance macros as nothing.  If you enable VBOOT_PERFORMANCE,
+ * you must define these macros in your platform's biosincludes.h.
+ *
+ * Intended usage for using a performance counter called 'foo':
+ *
+ * VBPERFSTART("foo")
+ * ...code to be tested...
+ * VBPERFEND("foo")
+ *
+ * Names should be <= 8 characters to be compatible with all platforms.
+ */
+#define VBPERFSTART(name)
+#define VBPERFEND(name)
+#endif
+
 /* Outputs an error message and quits. */
-void error(const char *format, ...);
+void error(const char* format, ...);
 
 /* Outputs debug/warning messages. */
-void debug(const char *format, ...);
+void debug(const char* format, ...);
 
+#ifdef VBOOT_DEBUG
 #define assert(expr) do { if (!(expr)) { \
       error("assert fail: %s at %s:%d\n", \
             #expr, __FILE__, __LINE__); }} while(0)
+#else
+#define assert(expr)
+#endif
 
 /* Combine [msw] and [lsw] uint16s to a uint32_t with its [msw] and
  * [lsw] forming the most and least signficant 16-bit words.
