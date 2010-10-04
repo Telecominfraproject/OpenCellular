@@ -14,10 +14,11 @@
 #include "tlcl_tests.h"
 #include "utility.h"
 
+#define PERMPPGL (TPM_NV_PER_PPWRITE | TPM_NV_PER_GLOBALLOCK)
+#define PERMPP TPM_NV_PER_PPWRITE
+
 int main(int argc, char** argv) {
   uint32_t perm;
-  uint32_t perm_pp_gl = TPM_NV_PER_PPWRITE | TPM_NV_PER_GLOBALLOCK;
-  uint32_t perm_pp = TPM_NV_PER_PPWRITE;
 
   TlclLibInit();
   TPM_CHECK(TlclStartupIfNeeded());
@@ -25,10 +26,10 @@ int main(int argc, char** argv) {
   TPM_CHECK(TlclAssertPhysicalPresence());
 
   TPM_CHECK(TlclGetPermissions(INDEX0, &perm));
-  assert((perm & perm_pp_gl) == perm_pp_gl);
+  assert((perm & PERMPPGL) == PERMPPGL);
 
   TPM_CHECK(TlclGetPermissions(INDEX1, &perm));
-  assert((perm & perm_pp) == perm_pp);
+  assert((perm & PERMPP) == PERMPP);
 
   printf("TEST SUCCEEDED\n");
   exit(0);
