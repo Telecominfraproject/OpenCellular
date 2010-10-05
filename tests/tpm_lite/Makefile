@@ -2,6 +2,9 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# Always use VBOOT_DEBUG for tests.  (Multiple -DVAR for the same VAR are OK.)
+CFLAGS += -DVBOOT_DEBUG
+
 INCLUDES += -I./include \
 	-I$(FWDIR)/lib/include \
 	-I$(FWDIR)/lib/cgptlib/include \
