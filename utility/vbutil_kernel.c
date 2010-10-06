@@ -91,13 +91,14 @@ static int PrintHelp(char *progname) {
           "\nOR\n\n"
           "Usage:  %s --repack <file> [PARAMETERS]\n"
           "\n"
-          "  Required parameters (of --keyblock and --config at least "
-          "one is required):\n"
+          "  Required parameters (of --keyblock, --config, and --version \n"
+          "    at least one is required):\n"
           "    --keyblock <file>         Key block in .keyblock format\n"
           "    --signprivate <file>"
           "      Private key to sign kernel data, in .vbprivk format\n"
           "    --oldblob <file>          Previously packed kernel blob\n"
           "    --config <file>           New command line file\n"
+          "    --version <number>        Kernel version\n"
           "\n"
           "  Optional:\n"
           "    --pad <number>            Verification padding size in bytes\n"
@@ -846,9 +847,10 @@ int main(int argc, char* argv[]) {
       return r;
 
     case OPT_MODE_REPACK:
-      if (!config_file && !key_block_file) {
+      if (!config_file && !key_block_file && !version) {
         fprintf(stderr,
-                "You must supply at least one of --config and --keyblock\n");
+                "You must supply at least one of "
+                "--config, --keyblock or --version\n");
         return 1;
       }
 
@@ -857,6 +859,9 @@ int main(int argc, char* argv[]) {
         return 1;
       r = ReplaceConfig(bp, config_file);
       if (!r) {
+        if (version) {
+          bp->kernel_version = version;
+        }
         r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
       }
       FreeBlob(bp);
