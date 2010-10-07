@@ -1,4 +1,5 @@
-This copy of Chrome OS is unverified. Press SPACE to begin recovery.
+Chrome OS verification is currently turned OFF.
+Please turn on verification, or press SPACE to begin recovery.
 
 
 
@@ -15,7 +16,5 @@ This copy of Chrome OS is unverified. Press SPACE to begin recovery.
 
 
 
-
-http://google.com/chromeos/recovery
+http://google.com/chromeos/unverified
 $URL
-
