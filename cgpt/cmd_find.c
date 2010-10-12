@@ -160,7 +160,7 @@ static int do_search(char *filename) {
   int i;
   struct drive drive;
   GptEntry *entry;
-  char partlabel[sizeof(entry->name) * 3 / 2];
+  char partlabel[GPT_PARTNAME_LEN];
 
   if (CGPT_OK != DriveOpen(filename, &drive))
     return 0;
@@ -181,7 +181,8 @@ static int do_search(char *filename) {
         (set_type && !memcmp(&type_guid, &entry->type, sizeof(Guid)))) {
       found = 1;
     } else if (set_label) {
-      UTF16ToUTF8(entry->name, (uint8_t *)partlabel);
+      UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
+                  (uint8_t *)partlabel, sizeof(partlabel));
       if (!strncmp(label, partlabel, sizeof(partlabel))) {
         found = 1;
       }
@@ -250,7 +251,7 @@ static char *is_wholedev(const char *basename) {
 static int scan_real_devs(void) {
   int found = 0;
   char line[BUFSIZE];
-  char partname[128];
+  char partname[128];                   // max size for /proc/partition lines?
   FILE *fp;
   char *pathname;
 
@@ -264,7 +265,7 @@ static int scan_real_devs(void) {
     int ma, mi;
     long long unsigned int sz;
 
-    if (sscanf(line, " %d %d %llu %128[^\n ]", &ma, &mi, &sz, partname) != 4)
+    if (sscanf(line, " %d %d %llu %127[^\n ]", &ma, &mi, &sz, partname) != 4)
       continue;
 
     if ((pathname = is_wholedev(partname))) {

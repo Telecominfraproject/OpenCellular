@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,12 +21,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <assert.h>
-#include <stdarg.h>
 
 #include "cgptlib_internal.h"
 #include "crc32.h"
-
 
 void Error(const char *format, ...) {
   va_list ap;
@@ -65,17 +63,32 @@ static int Load(const int fd, uint8_t **buf,
   int count;  /* byte count to read */
   int nread;
 
-  assert(buf);
+  require(buf);
+  if (!sector_count || !sector_bytes) {
+    Error("%s() failed at line %d: sector_count=%d, sector_bytes=%d\n",
+          __FUNCTION__, __LINE__, sector_count, sector_bytes);
+    return CGPT_FAILED;
+  }
+  /* Make sure that sector_bytes * sector_count doesn't roll over. */
+  if (sector_bytes > (UINT64_MAX / sector_count)) {
+    Error("%s() failed at line %d: sector_count=%d, sector_bytes=%d\n",
+          __FUNCTION__, __LINE__, sector_count, sector_bytes);
+    return CGPT_FAILED;
+  }
   count = sector_bytes * sector_count;
   *buf = malloc(count);
-  assert(*buf);
+  require(*buf);
 
-  if (-1 == lseek(fd, sector * sector_bytes, SEEK_SET))
+  if (-1 == lseek(fd, sector * sector_bytes, SEEK_SET)) {
+    Error("Can't lseek: %s\n", strerror(errno));
     goto error_free;
+  }
 
   nread = read(fd, *buf, count);
-  if (nread < count)
+  if (nread < count) {
+    Error("Can't read enough: %d, not %d\n", nread, count);
     goto error_free;
+  }
 
   return CGPT_OK;
 
@@ -125,7 +138,7 @@ static int Save(const int fd, const uint8_t *buf,
   int count;  /* byte count to write */
   int nwrote;
 
-  assert(buf);
+  require(buf);
   count = sector_bytes * sector_count;
 
   if (-1 == lseek(fd, sector * sector_bytes, SEEK_SET))
@@ -140,25 +153,26 @@ static int Save(const int fd, const uint8_t *buf,
 
 
 // Opens a block device or file, loads raw GPT data from it.
-// 
+//
 // Returns CGPT_FAILED if any error happens.
 // Returns CGPT_OK if success and information are stored in 'drive'. */
 int DriveOpen(const char *drive_path, struct drive *drive) {
   struct stat stat;
 
-  assert(drive_path);
-  assert(drive);
+  require(drive_path);
+  require(drive);
 
   // Clear struct for proper error handling.
   memset(drive, 0, sizeof(struct drive));
 
-  drive->fd = open(drive_path, O_RDWR | O_LARGEFILE);
+  drive->fd = open(drive_path, O_RDWR | O_LARGEFILE | O_NOFOLLOW);
   if (drive->fd == -1) {
     Error("Can't open %s: %s\n", drive_path, strerror(errno));
     return CGPT_FAILED;
   }
 
   if (fstat(drive->fd, &stat) == -1) {
+    Error("Can't fstat %s: %s\n", drive_path, strerror(errno));
     goto error_close;
   }
   if ((stat.st_mode & S_IFMT) != S_IFREG) {
@@ -204,7 +218,7 @@ int DriveOpen(const char *drive_path, struct drive *drive) {
                       drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
     goto error_close;
   }
-    
+
   // We just load the data. Caller must validate it.
   return CGPT_OK;
 
@@ -226,7 +240,7 @@ int DriveClose(struct drive *drive, int update_as_needed) {
         Error("Cannot write primary header: %s\n", strerror(errno));
       }
     }
-      
+
     if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
       if(CGPT_OK != Save(drive->fd, drive->gpt.secondary_header,
                          drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
@@ -273,7 +287,6 @@ int DriveClose(struct drive *drive, int update_as_needed) {
 }
 
 
-
 /* GUID conversion functions. Accepted format:
  *
  *   "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
@@ -297,7 +310,7 @@ int StrToGuid(const char *str, Guid *guid) {
                    chunk+7,
                    chunk+8,
                    chunk+9,
-                   chunk+10)) {                   
+                   chunk+10)) {
     printf("FAILED\n");
     return CGPT_FAILED;
   }
@@ -321,115 +334,72 @@ int StrToGuid(const char *str, Guid *guid) {
 
   return CGPT_OK;
 }
-void GuidToStr(const Guid *guid, char *str) {
-  sprintf(str, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-          le32toh(guid->u.Uuid.time_low), le16toh(guid->u.Uuid.time_mid),
-          le16toh(guid->u.Uuid.time_high_and_version),
-          guid->u.Uuid.clock_seq_high_and_reserved, guid->u.Uuid.clock_seq_low,
-          guid->u.Uuid.node[0], guid->u.Uuid.node[1], guid->u.Uuid.node[2],
-          guid->u.Uuid.node[3], guid->u.Uuid.node[4], guid->u.Uuid.node[5]);
+void GuidToStr(const Guid *guid, char *str, unsigned int buflen) {
+  require(buflen >= GUID_STRLEN);
+  require(snprintf(str, buflen,
+                  "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+                  le32toh(guid->u.Uuid.time_low),
+                  le16toh(guid->u.Uuid.time_mid),
+                  le16toh(guid->u.Uuid.time_high_and_version),
+                  guid->u.Uuid.clock_seq_high_and_reserved,
+                  guid->u.Uuid.clock_seq_low,
+                  guid->u.Uuid.node[0], guid->u.Uuid.node[1],
+                  guid->u.Uuid.node[2], guid->u.Uuid.node[3],
+                  guid->u.Uuid.node[4], guid->u.Uuid.node[5]) == GUID_STRLEN-1);
 }
 
-/* Convert UTF16 string to UTF8. Rewritten from gpt utility.
- * Caller must prepare enough space for UTF8. The rough estimation is:
- *
- *   utf8 length = bytecount(utf16) * 1.5
+/* Convert possibly unterminated UTF16 string to UTF8.
+ * Caller must prepare enough space for UTF8, which could be up to
+ * twice the number of UTF16 chars plus the terminating '\0'.
+ * FIXME(wfrichar): The original implementation had security issues. As a
+ * temporary fix, I'm making this ONLY support ASCII codepoints. Bug 7542
+ * (http://code.google.com/p/chromium-os/issues/detail?id=7542) is filed to fix
+ * this.
  */
-#define SIZEOF_GPTENTRY_NAME 36  /* sizeof(GptEntry.name[]) */
-void UTF16ToUTF8(const uint16_t *utf16, uint8_t *utf8)
+void UTF16ToUTF8(const uint16_t *utf16, unsigned int maxinput,
+                 uint8_t *utf8, unsigned int maxoutput)
 {
-  size_t s8idx, s16idx, s16len;
+  size_t s16idx, s8idx;
   uint32_t utfchar;
-  unsigned int next_utf16;
 
-  for (s16len = 0; s16len < SIZEOF_GPTENTRY_NAME && utf16[s16len]; ++s16len);
+  if (!utf16 || !maxinput || !utf8 || !maxoutput)
+    return;
 
-  *utf8 = s8idx = s16idx = 0;
-  while (s16idx < s16len) {
-    utfchar = le16toh(utf16[s16idx++]);
-    if ((utfchar & 0xf800) == 0xd800) {
-      next_utf16 = le16toh(utf16[s16idx]);
-      if ((utfchar & 0x400) != 0 || (next_utf16 & 0xfc00) != 0xdc00)
-        utfchar = 0xfffd;
-      else
-        s16idx++;
-    }
-    if (utfchar < 0x80) {
-      utf8[s8idx++] = utfchar;
-    } else if (utfchar < 0x800) {
-      utf8[s8idx++] = 0xc0 | (utfchar >> 6);
-      utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
-    } else if (utfchar < 0x10000) {
-      utf8[s8idx++] = 0xe0 | (utfchar >> 12);
-      utf8[s8idx++] = 0x80 | ((utfchar >> 6) & 0x3f);
-      utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
-    } else if (utfchar < 0x200000) {
-      utf8[s8idx++] = 0xf0 | (utfchar >> 18);
-      utf8[s8idx++] = 0x80 | ((utfchar >> 12) & 0x3f);
-      utf8[s8idx++] = 0x80 | ((utfchar >> 6) & 0x3f);
-      utf8[s8idx++] = 0x80 | (utfchar & 0x3f);
-    }
+  maxoutput--;                             /* plan for termination now */
+
+  for (s16idx = s8idx = 0;
+       s16idx < maxinput && utf16[s16idx] && maxoutput;
+       s16idx++, maxoutput--) {
+    utfchar = le16toh(utf16[s16idx]);
+    utf8[s8idx++] = utfchar & 0x7F;
   }
   utf8[s8idx++] = 0;
 }
 
-/* Convert UTF8 string to UTF16. Rewritten from gpt utility.
- * Caller must prepare enough space for UTF16. The conservative estimation is:
- *
- *   utf16 bytecount = bytecount(utf8) / 3 * 4
+/* Convert UTF8 string to UTF16. The UTF8 string must be null-terminated.
+ * Caller must prepare enough space for UTF16, including a terminating 0x0000.
+ * FIXME(wfrichar): The original implementation had security issues. As a
+ * temporary fix, I'm making this ONLY support ASCII codepoints. Bug 7542
+ * (http://code.google.com/p/chromium-os/issues/detail?id=7542) is filed to fix
+ * this.
  */
-void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16)
+void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput)
 {
-  size_t s16idx, s8idx, s8len;
+  size_t s16idx, s8idx;
   uint32_t utfchar;
-  unsigned int c, utfbytes;
 
-  for (s8len = 0; utf8[s8len]; ++s8len);
+  if (!utf8 || !utf16 || !maxoutput)
+    return;
 
-  s8idx = s16idx = 0;
-  utfbytes = 0;
-  do {
-    c = utf8[s8idx++];
-    if ((c & 0xc0) != 0x80) {
-      /* Initial characters. */
-      if (utfbytes != 0) {
-        /* Incomplete encoding. */
-        utf16[s16idx++] = 0xfffd;
-      }
-      if ((c & 0xf8) == 0xf0) {
-        utfchar = c & 0x07;
-        utfbytes = 3;
-      } else if ((c & 0xf0) == 0xe0) {
-        utfchar = c & 0x0f;
-        utfbytes = 2;
-      } else if ((c & 0xe0) == 0xc0) {
-        utfchar = c & 0x1f;
-        utfbytes = 1;
-      } else {
-        utfchar = c & 0x7f;
-        utfbytes = 0;
-      }
-    } else {
-      /* Followup characters. */
-      if (utfbytes > 0) {
-        utfchar = (utfchar << 6) + (c & 0x3f);
-        utfbytes--;
-      } else if (utfbytes == 0)
-        utfbytes = -1;
-        utfchar = 0xfffd;
-    }
-    if (utfbytes == 0) {
-      if (utfchar >= 0x10000) {
-        utf16[s16idx++] = htole16(0xd800 | ((utfchar>>10)-0x40));
-        if (s16idx >= SIZEOF_GPTENTRY_NAME) break;
-        utf16[s16idx++] = htole16(0xdc00 | (utfchar & 0x3ff));
-      } else {
-        utf16[s16idx++] = htole16(utfchar);
-      }
-    }
-  } while (c != 0 && s16idx < SIZEOF_GPTENTRY_NAME);
-  if (s16idx < SIZEOF_GPTENTRY_NAME)
-    utf16[s16idx++] = 0;
+  maxoutput--;                             /* plan for termination */
+
+  for (s8idx = s16idx = 0;
+       utf8[s8idx] && maxoutput;
+       s8idx++, maxoutput--) {
+    utfchar = utf8[s8idx];
+    utf16[s16idx++] = utfchar & 0x7F;
+  }
+  utf16[s16idx++] = 0;
 }
 
 struct {
@@ -499,14 +469,14 @@ static uint32_t GetSizeOfEntries(const GptData *gpt) {
     header = (GptHeader*)gpt->secondary_header;
   else
     return 0;
-  return header->number_of_entries;
+  return header->size_of_entry;
 }
 
-GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index) {
+GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
   uint8_t *entries;
-  int stride = GetSizeOfEntries(gpt);
-  if (!stride)
-    return 0;
+  uint32_t stride = GetSizeOfEntries(gpt);
+  require(stride);
+  require(entry_index < GetNumberOfEntries(gpt));
 
   if (secondary == PRIMARY) {
     entries = gpt->primary_entries;
@@ -517,48 +487,48 @@ GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index) {
   return (GptEntry*)(&entries[stride * entry_index]);
 }
 
-void SetPriority(GptData *gpt, int secondary, int entry_index, int priority) {
+void SetPriority(GptData *gpt, int secondary, uint32_t entry_index,
+                 int priority) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
-
-  assert(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
+  require(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
   entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
   entry->attrs.fields.gpt_att |= priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET;
 }
 
-int GetPriority(GptData *gpt, int secondary, int entry_index) {
+int GetPriority(GptData *gpt, int secondary, uint32_t entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
   return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
       CGPT_ATTRIBUTE_PRIORITY_OFFSET;
 }
 
-void SetTries(GptData *gpt, int secondary, int entry_index, int tries) {
+void SetTries(GptData *gpt, int secondary, uint32_t entry_index, int tries) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
-
-  assert(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
+  require(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
   entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_TRIES_MASK;
   entry->attrs.fields.gpt_att |= tries << CGPT_ATTRIBUTE_TRIES_OFFSET;
 }
 
-int GetTries(GptData *gpt, int secondary, int entry_index) {
+int GetTries(GptData *gpt, int secondary, uint32_t entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
   return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_TRIES_MASK) >>
       CGPT_ATTRIBUTE_TRIES_OFFSET;
 }
 
-void SetSuccessful(GptData *gpt, int secondary, int entry_index, int success) {
+void SetSuccessful(GptData *gpt, int secondary, uint32_t entry_index,
+                   int success) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
 
-  assert(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
+  require(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
   entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
   entry->attrs.fields.gpt_att |= success << CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
 }
 
-int GetSuccessful(GptData *gpt, int secondary, int entry_index) {
+int GetSuccessful(GptData *gpt, int secondary, uint32_t entry_index) {
   GptEntry *entry;
   entry = GetEntry(gpt, secondary, entry_index);
   return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
@@ -714,13 +684,13 @@ int IsZero(const Guid *gp) {
   return (0 == memcmp(gp, &guid_unused, sizeof(Guid)));
 }
 
-void PMBRToStr(struct pmbr *pmbr, char *str) {
-  char buf[256];
+void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen) {
+  char buf[GUID_STRLEN];
   if (IsZero(&pmbr->boot_guid)) {
-    sprintf(str, "PMBR");
+    require(snprintf(str, buflen, "PMBR") < buflen);
   } else {
-    GuidToStr(&pmbr->boot_guid, buf);
-    sprintf(str, "PMBR (Boot GUID: %s)", buf);
+    GuidToStr(&pmbr->boot_guid, buf, sizeof(buf));
+    require(snprintf(str, buflen, "PMBR (Boot GUID: %s)", buf) < buflen);
   }
 }
 

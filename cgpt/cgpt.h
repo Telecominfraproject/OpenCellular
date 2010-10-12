@@ -9,6 +9,8 @@
 #define _FILE_OFFSET_BITS 64
 #include <features.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "endian.h"
 #include "gpt.h"
 #include "cgptlib.h"
@@ -45,7 +47,7 @@ struct pmbr {
   uint8_t                 sig[2];       // 0x55, 0xaa
 } __attribute__((packed));
 
-void PMBRToStr(struct pmbr *pmbr, char *str);
+void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen);
 
 // Handle to the drive storing the GPT.
 struct drive {
@@ -69,7 +71,7 @@ int CheckValid(const struct drive *drive);
  */
 #define GUID_STRLEN 37
 int StrToGuid(const char *str, Guid *guid);
-void GuidToStr(const Guid *guid, char *str);
+void GuidToStr(const Guid *guid, char *str, unsigned int buflen);
 int IsZero(const Guid *guid);
 
 
@@ -77,33 +79,33 @@ int ReadPMBR(struct drive *drive);
 int WritePMBR(struct drive *drive);
 
 
-/* Convert UTF16 string to UTF8. Rewritten from gpt utility.
- * Caller must prepare enough space for UTF8. The rough estimation is:
- *
- *   utf8 length = bytecount(utf16) * 1.5
+/* Convert possibly unterminated UTF16 string to UTF8.
+ * Caller must prepare enough space for UTF8, which could be up to
+ * twice the number of UTF16 chars plus the terminating '\0'.
  */
-void UTF16ToUTF8(const uint16_t *utf16, uint8_t *utf8);
-/* Convert UTF8 string to UTF16. Rewritten from gpt utility.
- * Caller must prepare enough space for UTF16. The conservative estimation is:
- *
- *   utf16 bytecount = bytecount(utf8) / 3 * 4
+void UTF16ToUTF8(const uint16_t *utf16, unsigned int maxinput,
+                 uint8_t *utf8, unsigned int maxoutput);
+/* Convert null-terminated UTF8 string to UTF16.
+ * Caller must prepare enough space for UTF16, including a terminating 0x0000
  */
-void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16);
+void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput);
 
 /* Helper functions for supported GPT types. */
 int ResolveType(const Guid *type, char *buf);
 int SupportedType(const char *name, Guid *type);
 void PrintTypes(void);
-void EntryDetails(GptEntry *entry, int index, int raw);
+void EntryDetails(GptEntry *entry, uint32_t index, int raw);
 
 uint32_t GetNumberOfEntries(const GptData *gpt);
-GptEntry *GetEntry(GptData *gpt, int secondary, int entry_index);
-void SetPriority(GptData *gpt, int secondary, int entry_index, int priority);
-int GetPriority(GptData *gpt, int secondary, int entry_index);
-void SetTries(GptData *gpt, int secondary, int entry_index, int tries);
-int GetTries(GptData *gpt, int secondary, int entry_index);
-void SetSuccessful(GptData *gpt, int secondary, int entry_index, int success);
-int GetSuccessful(GptData *gpt, int secondary, int entry_index);
+GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index);
+void SetPriority(GptData *gpt, int secondary, uint32_t entry_index,
+                 int priority);
+int GetPriority(GptData *gpt, int secondary, uint32_t entry_index);
+void SetTries(GptData *gpt, int secondary, uint32_t entry_index, int tries);
+int GetTries(GptData *gpt, int secondary, uint32_t entry_index);
+void SetSuccessful(GptData *gpt, int secondary, uint32_t entry_index,
+                   int success);
+int GetSuccessful(GptData *gpt, int secondary, uint32_t entry_index);
 
 uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers);
 uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries);
@@ -127,5 +129,16 @@ int cmd_find(int argc, char *argv[]);
 #define ARRAY_COUNT(array) (sizeof(array)/sizeof((array)[0]))
 const char *GptError(int errnum);
 
+// Size in chars of the GPT Entry's PartitionName field
+#define GPT_PARTNAME_LEN 72
+
+/* The standard "assert" macro goes away when NDEBUG is defined. This doesn't.
+ */
+#define require(A) do { \
+  if (!(A)) { \
+    fprintf(stderr, "condition (%s) failed at %s:%d\n", \
+            #A, __FILE__, __LINE__); \
+    exit(1); } \
+  } while (0)
 
 #endif  // VBOOT_REFERENCE_UTILITY_CGPT_CGPT_H_

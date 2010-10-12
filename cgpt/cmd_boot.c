@@ -34,12 +34,12 @@ static void Usage(void)
 
 int cmd_boot(int argc, char *argv[]) {
   struct drive drive;
-  int partition = 0;
+  uint32_t partition = 0;
   char *bootfile = 0;
   int create_pmbr = 0;
   int retval = 1;
   int gpt_retval;
-  
+
   int c;
   int errorcnt = 0;
   char *e = 0;
@@ -63,7 +63,7 @@ int cmd_boot(int argc, char *argv[]) {
     case 'p':
       create_pmbr = 1;
       break;
-      
+
     case 'h':
       Usage();
       return CGPT_OK;
@@ -98,7 +98,7 @@ int cmd_boot(int argc, char *argv[]) {
     Error("Unable to read PMBR\n");
     goto done;
   }
-    
+
   if (create_pmbr) {
     drive.pmbr.magic[0] = 0x1d;
     drive.pmbr.magic[1] = 0x9a;
@@ -131,7 +131,7 @@ int cmd_boot(int argc, char *argv[]) {
       goto done;
     }
 
-    int index = partition - 1;
+    uint32_t index = partition - 1;
     GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
     memcpy(&drive.pmbr.boot_guid, &entry->unique, sizeof(Guid));
   }
@@ -152,9 +152,9 @@ int cmd_boot(int argc, char *argv[]) {
 
     close(fd);
   }
-      
-  char buf[256];
-  GuidToStr(&drive.pmbr.boot_guid, buf);
+
+  char buf[GUID_STRLEN];
+  GuidToStr(&drive.pmbr.boot_guid, buf, sizeof(buf));
   printf("%s\n", buf);
 
   // Write it all out

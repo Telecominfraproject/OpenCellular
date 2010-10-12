@@ -6,7 +6,7 @@
 
 #define __STDC_FORMAT_MACROS
 #include <getopt.h>
-#include <inttypes.h> 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,7 +80,7 @@ static void HeaderDetails(GptHeader *header, const char *indent, int raw) {
 
   printf("%sSig: ", indent);
   if (!raw) {
-    printf("["); 
+    printf("[");
     for (i = 0; i < sizeof(header->signature); ++i)
       printf("%c", header->signature[i]);
     printf("]");
@@ -101,7 +101,7 @@ static void HeaderDetails(GptHeader *header, const char *indent, int raw) {
 
   {  /* For disk guid */
     char buf[GUID_STRLEN];
-    GuidToStr(&header->disk_uuid, buf);
+    GuidToStr(&header->disk_uuid, buf, GUID_STRLEN);
     printf("%sDisk UUID: %s\n", indent, buf);
   }
 
@@ -111,25 +111,27 @@ static void HeaderDetails(GptHeader *header, const char *indent, int raw) {
   printf("%sEntries CRC: 0x%08x\n", indent, header->entries_crc32);
 }
 
-void EntryDetails(GptEntry *entry, int index, int raw) {
-  char contents[256];
-  uint8_t label[sizeof(entry->name) * 3 / 2];
+void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
+  char contents[256];                   // scratch buffer for formatting output
+  uint8_t label[GPT_PARTNAME_LEN];
 
   if (!raw) {
-    char type[GUID_STRLEN], unique[GUID_STRLEN];;
+    char type[GUID_STRLEN], unique[GUID_STRLEN];
 
-    UTF16ToUTF8(entry->name, label);
-    snprintf(contents, sizeof(contents), "Label: \"%s\"", label);
+    UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
+                label, sizeof(label));
+    require(snprintf(contents, sizeof(contents),
+                     "Label: \"%s\"", label) < sizeof(contents));
     printf(PARTITION_FMT, (int)entry->starting_lba,
            (int)(entry->ending_lba - entry->starting_lba + 1),
            index+1, contents);
     if (CGPT_OK == ResolveType(&entry->type, type)) {
       printf(PARTITION_MORE, "Type: ", type);
     } else {
-      GuidToStr(&entry->type, type);
+      GuidToStr(&entry->type, type, GUID_STRLEN);
       printf(PARTITION_MORE, "Type: ", type);
     }
-    GuidToStr(&entry->unique, unique);
+    GuidToStr(&entry->unique, unique, GUID_STRLEN);
     printf(PARTITION_MORE, "UUID: ", unique);
     if (!memcmp(&guid_chromeos_kernel, &entry->type, sizeof(Guid))) {
       int tries = (entry->attrs.fields.gpt_att &
@@ -141,31 +143,34 @@ void EntryDetails(GptEntry *entry, int index, int raw) {
       int priority = (entry->attrs.fields.gpt_att &
                       CGPT_ATTRIBUTE_PRIORITY_MASK) >>
           CGPT_ATTRIBUTE_PRIORITY_OFFSET;
-      snprintf(contents, sizeof(contents),
-               "priority=%d tries=%d successful=%d",
-               priority, tries, successful);
+      require(snprintf(contents, sizeof(contents),
+                       "priority=%d tries=%d successful=%d",
+                       priority, tries, successful) < sizeof(contents));
       printf(PARTITION_MORE, "Attr: ", contents);
     }
   } else {
     char type[GUID_STRLEN], unique[GUID_STRLEN];
 
-    UTF16ToUTF8(entry->name, label);
-    snprintf(contents, sizeof(contents), "Label: \"%s\"", label);
+    UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
+                label, sizeof(label));
+    require(snprintf(contents, sizeof(contents),
+                     "Label: \"%s\"", label) < sizeof(contents));
     printf(PARTITION_FMT, (int)entry->starting_lba,
            (int)(entry->ending_lba - entry->starting_lba + 1),
            index+1, contents);
-    GuidToStr(&entry->type, type);
+    GuidToStr(&entry->type, type, GUID_STRLEN);
     printf(PARTITION_MORE, "Type: ", type);
-    GuidToStr(&entry->unique, unique);
+    GuidToStr(&entry->unique, unique, GUID_STRLEN);
     printf(PARTITION_MORE, "UUID: ", unique);
-    snprintf(contents, sizeof(contents), "[%x]", entry->attrs.fields.gpt_att);
+    require(snprintf(contents, sizeof(contents),
+                     "[%x]", entry->attrs.fields.gpt_att) < sizeof(contents));
     printf(PARTITION_MORE, "Attr: ", contents);
   }
 }
 
 
 void EntriesDetails(GptData *gpt, const int secondary, int raw) {
-  int i;
+  uint32_t i;
 
   for (i = 0; i < GetNumberOfEntries(gpt); ++i) {
     GptEntry *entry;
@@ -182,7 +187,7 @@ int cmd_show(int argc, char *argv[]) {
   int numeric = 0;
   int verbose = 0;
   int quick = 0;
-  int partition = 0; 
+  uint32_t partition = 0;
   int single_item = 0;
   int gpt_retval;
 
@@ -268,9 +273,9 @@ int cmd_show(int argc, char *argv[]) {
       return CGPT_FAILED;
     }
 
-    int index = partition - 1;
+    uint32_t index = partition - 1;
     GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
-    char buf[256];
+    char buf[256];                      // scratch buffer for string conversion
 
     if (single_item) {
       switch(single_item) {
@@ -281,15 +286,16 @@ int cmd_show(int argc, char *argv[]) {
         printf("%" PRId64 "\n", entry->ending_lba - entry->starting_lba + 1);
         break;
       case 't':
-        GuidToStr(&entry->type, buf);
+        GuidToStr(&entry->type, buf, sizeof(buf));
         printf("%s\n", buf);
         break;
       case 'u':
-        GuidToStr(&entry->unique, buf);
+        GuidToStr(&entry->unique, buf, sizeof(buf));
         printf("%s\n", buf);
         break;
       case 'l':
-        UTF16ToUTF8(entry->name, (uint8_t *)buf);
+        UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
+                    (uint8_t *)buf, sizeof(buf));
         printf("%s\n", buf);
         break;
       case 'S':
@@ -311,7 +317,7 @@ int cmd_show(int argc, char *argv[]) {
     }
 
   } else if (quick) {                   // show all partitions, quickly
-    int i;
+    uint32_t i;
     GptEntry *entry;
     char type[GUID_STRLEN];
 
@@ -323,7 +329,7 @@ int cmd_show(int argc, char *argv[]) {
 
       if (!numeric && CGPT_OK == ResolveType(&entry->type, type)) {
       } else {
-        GuidToStr(&entry->type, type);
+        GuidToStr(&entry->type, type, GUID_STRLEN);
       }
       printf(PARTITION_FMT, (int)entry->starting_lba,
              (int)(entry->ending_lba - entry->starting_lba + 1),
@@ -338,8 +344,8 @@ int cmd_show(int argc, char *argv[]) {
     }
 
     printf(TITLE_FMT, "start", "size", "part", "contents");
-    char buf[256];
-    PMBRToStr(&drive.pmbr, buf);
+    char buf[256];                      // buffer for formatted PMBR content
+    PMBRToStr(&drive.pmbr, buf, sizeof(buf)); // will exit if buf is too small
     printf(GPT_FMT, 0, GPT_PMBR_SECTOR, "", buf);
 
     if (drive.gpt.valid_headers & MASK_PRIMARY) {
@@ -349,7 +355,7 @@ int cmd_show(int argc, char *argv[]) {
         GptHeader *header;
         char indent[64];
 
-        snprintf(indent, sizeof(indent), GPT_MORE);
+        require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
         header = (GptHeader*)drive.gpt.primary_header;
         HeaderDetails(header, indent, numeric);
       }
@@ -400,7 +406,7 @@ int cmd_show(int argc, char *argv[]) {
         GptHeader *header;
         char indent[64];
 
-        snprintf(indent, sizeof(indent), GPT_MORE);
+        require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
         header = (GptHeader*)drive.gpt.secondary_header;
         HeaderDetails(header, indent, numeric);
       }
@@ -412,6 +418,3 @@ int cmd_show(int argc, char *argv[]) {
 
   return CGPT_OK;
 }
-
-
-

@@ -24,7 +24,7 @@ static void Usage(void)
 int cmd_create(int argc, char *argv[]) {
   struct drive drive;
   int zap = 0;
-  
+
   int c;
   int errorcnt = 0;
 
@@ -76,7 +76,7 @@ int cmd_create(int argc, char *argv[]) {
          drive.gpt.sector_bytes * GPT_ENTRIES_SECTORS);
   memset(drive.gpt.secondary_entries, 0,
          drive.gpt.sector_bytes * GPT_ENTRIES_SECTORS);
-  
+
   drive.gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
                          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
 

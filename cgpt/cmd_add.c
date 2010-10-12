@@ -36,7 +36,7 @@ static void Usage(void)
 
 int cmd_add(int argc, char *argv[]) {
   struct drive drive;
-  int partition = 0;
+  uint32_t partition = 0;
   uint64_t begin = 0;
   uint64_t size = 0;
   Guid type_guid;
@@ -57,8 +57,8 @@ int cmd_add(int argc, char *argv[]) {
 
   int gpt_retval;
   GptEntry *entry;
-  int index;
-  
+  uint32_t index;
+
   int c;
   int errorcnt = 0;
   char *e = 0;
@@ -198,7 +198,7 @@ int cmd_add(int argc, char *argv[]) {
     return CGPT_FAILED;
   }
 
-  int max_part = GetNumberOfEntries(&drive.gpt);
+  uint32_t max_part = GetNumberOfEntries(&drive.gpt);
   if (partition) {
     if (partition > max_part) {
       Error("invalid partition number: %d\n", partition);
@@ -244,9 +244,8 @@ int cmd_add(int argc, char *argv[]) {
   if (set_unique)
     memcpy(&entry->unique, &unique_guid, sizeof(Guid));
   if (label) {
-    uint16_t buf[128];
-    UTF8ToUTF16((uint8_t *)label, buf);
-    memcpy(entry->name, buf, sizeof(entry->name));
+    UTF8ToUTF16((uint8_t *)label, entry->name,
+                sizeof(entry->name) / sizeof(entry->name[0]));
   }
   if (set_raw) {
     entry->attrs.fields.gpt_att = raw_value;
