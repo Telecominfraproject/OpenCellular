@@ -13,7 +13,7 @@ GPT=cgpt
 TAG_NEEDS_TO_BE_SIGNED="/root/.need_to_be_signed"
 
 # Load shflags
-if [[ -f /usr/lib/shflags ]]; then
+if [ -f /usr/lib/shflags ]; then
   . /usr/lib/shflags
 else
   . "${SCRIPT_DIR}/lib/shflags/shflags"
