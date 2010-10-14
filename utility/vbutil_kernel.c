@@ -128,6 +128,16 @@ static void Debug(const char *format, ...) {
   va_end(ap);
 }
 
+/* Return an explanation when fread() fails. */
+static const char *error_fread(FILE *fp) {
+  const char *retval = "beats me why";
+  if (feof(fp))
+    retval = "EOF";
+  else if (ferror(fp))
+    retval = strerror(errno);
+  clearerr(fp);
+  return retval;
+}
 
 /* Return the smallest integral multiple of [alignment] that is equal
  * to or greater than [val]. Used to determine the number of
@@ -385,7 +395,7 @@ static blob_t *OldBlob(const char* filename) {
   }
 
   if (0 != stat(filename, &statbuf)) {
-    error("unable to stat %s: %s\n", filename, strerror(errno));
+    error("Unable to stat %s: %s\n", filename, strerror(errno));
     return 0;
   }
 
@@ -409,7 +419,7 @@ static blob_t *OldBlob(const char* filename) {
   }
 
   if (1 != fread(buf, DEFAULT_PADDING, 1, fp)) {
-    error("Unable to read header from %s: %s\n", filename, strerror(errno));
+    error("Unable to read header from %s: %s\n", filename, error_fread(fp));
     goto unwind_oldblob;
   }
 
@@ -460,6 +470,11 @@ static blob_t *OldBlob(const char* filename) {
   Debug(" bootloader_size = 0x%" PRIx64 "\n", bp->bootloader_size);
   Debug(" blob_size = 0x%" PRIx64 "\n", bp->blob_size);
 
+  if (!bp->blob_size) {
+    error("No kernel blob found\n");
+    goto unwind_oldblob;
+  }
+
   bp->blob = (uint8_t *)Malloc(bp->blob_size);
   if (!bp->blob) {
     error("Couldn't allocate 0x%" PRIx64 " bytes for blob_t.\n", bp->blob_size);
@@ -468,7 +483,7 @@ static blob_t *OldBlob(const char* filename) {
 
   /* read it in */
   if (1 != fread(bp->blob, bp->blob_size, 1, fp)) {
-    error("Unable to read kernel blob from %s: %s\n", filename, strerror(errno));
+    error("Unable to read kernel blob from %s: %s\n", filename, error_fread(fp));
     goto unwind_oldblob;
   }
 
