@@ -12,10 +12,17 @@
 
 DEFINE_string from "chromiumos_image.bin" \
   "Input file name of Chrome OS image to tag/stamp."
-DEFINE_string update_firmware "" \
-  "Tag to force updating firmware (1 to enable, 0 to disable)"
 DEFINE_string dev_mode "" \
-  "Tag for developer mode (1 to enable, 0 to disable)"
+  "(build-info) Tag as a developer mode build (1 to enable, 0 to disable)"
+DEFINE_string update_firmware "" \
+  "(auto-update) Force updating firmware (1 to enable, 0 to disable)"
+DEFINE_string forget_usernames "" \
+  "(session-manager) Forget usernames (1 to enable, 0 to disable)"
+DEFINE_string leave_core "" \
+  "(crash-reporter) Leave core dumps (1 to enable, 0 to disable)"
+
+# TODO(hungte) we can add factory_installer and factory_test,
+# but I don't see any reason to tweak/check these values.
 
 # Parse command line
 FLAGS "$@" || exit 1
@@ -24,8 +31,8 @@ eval set -- "${FLAGS_ARGV}"
 # Abort on error
 set -e
 
-if [ -z ${FLAGS_from} ] || [ ! -f ${FLAGS_from} ] ; then
-  echo "Error: invalid flag --from"
+if [ -z "${FLAGS_from}" ] || [ ! -s "${FLAGS_from}" ] ; then
+  echo "Error: need a valid file by --from"
   exit 1
 fi
 
@@ -112,16 +119,28 @@ process_all_tags() {
   local do_modification="$2"
 
   process_tag "${do_modification}" \
-    "Update Firmware" \
+    "(build-info) dev_mode" \
+    "${rootfs}" \
+    /root/.dev_mode \
+    "${FLAGS_dev_mode}"
+
+  process_tag "${do_modification}" \
+    "(auto-update) update_firmware" \
     "${rootfs}" \
     /root/.force_update_firmware \
     "${FLAGS_update_firmware}"
 
   process_tag "${do_modification}" \
-    "Developer Mode" \
+    "(session-manager) forget_usernames" \
     "${rootfs}" \
-    /root/.dev_mode \
-    "${FLAGS_dev_mode}"
+    /root/.forget_usernames \
+    "${FLAGS_forget_usernames}"
+
+  process_tag "${do_modification}" \
+    "(crash-reporter) leave_core" \
+    "${rootfs}" \
+    /root/.leave_core \
+    "${FLAGS_leave_core}"
 }
 
 IMAGE=$(readlink -f "${FLAGS_from}")
