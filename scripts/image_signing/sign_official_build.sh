@@ -198,7 +198,7 @@ resign_firmware_payload() {
   trap "sudo umount -d ${rootfs_dir}" RETURN
 
   local shellball_dir=$(make_temp_dir)
-  # get_firmwarebin_from_shellball can fail if the image has no 
+  # get_firmwarebin_from_shellball can fail if the image has no
   # firmware update.
   get_firmwarebin_from_shellball \
     ${rootfs_dir}/usr/sbin/chromeos-firmwareupdate ${shellball_dir} || \
