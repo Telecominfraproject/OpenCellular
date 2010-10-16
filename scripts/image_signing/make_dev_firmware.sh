@@ -5,19 +5,23 @@
 # found in the LICENSE file.
 #
 # This script can change key (usually developer keys) in a firmware binary
-# image or system live firmware, and assign proper HWID, BMPFV as well.
+# image or system live firmware (EEPROM), and assign proper HWID, BMPFV as well.
 
 SCRIPT_BASE="$(dirname "$0")"
 . "$SCRIPT_BASE/common.sh"
+load_shflags || exit 1
 
 # Constants used by DEFINE_*
+VBOOT_BASE='/usr/share/vboot'
+DEFAULT_KEYS_FOLDER="$VBOOT_BASE/devkeys"
+DEFAULT_BMPFV_FILE="$DEFAULT_KEYS_FOLDER/firmware_bmpfv.bin"
 DEFAULT_BACKUP_FOLDER='/mnt/stateful_partition/backups'
 
 # DEFINE_string name default_value description flag
 DEFINE_string from "" "Path of input file (empty for system live firmware)" "f"
 DEFINE_string to "" "Path of output file (empty for system live firmware)" "t"
-DEFINE_string keys "$SCRIPT_BASE/keys" "Path of folder of dev keys" "k"
-DEFINE_string bmpfv "$SCRIPT_BASE/rsrc/bmpfv.bin" "Path to the new bitmap FV" ""
+DEFINE_string keys "$DEFAULT_KEYS_FOLDER" "Path to folder of dev keys" "k"
+DEFINE_string bmpfv "$DEFAULT_BMPFV_FILE" "Path to the new bitmap FV" ""
 DEFINE_boolean force_backup \
   $FLAGS_TRUE "Create backup even if source is not live" ""
 DEFINE_string backup_dir \
@@ -33,10 +37,10 @@ eval set -- "$FLAGS_ARGV"
 set -e
 
 # the image we are (temporary) working with
-IMAGE=$(make_temp_file)
+IMAGE="$(make_temp_file)"
 
 # a log file to keep the output results of executed command
-EXEC_LOG=$(make_temp_file)
+EXEC_LOG="$(make_temp_file)"
 
 # Functions
 # ----------------------------------------------------------------------------
@@ -77,6 +81,7 @@ read_image() {
 write_image() {
   if [ -z "$FLAGS_to" ]; then
     echo "Writing system live firmware..."
+    # TODO(hungte) we can enable partial write to make this faster
     if is_debug_mode; then
       flashrom -V -w "$IMAGE"
     else
@@ -96,6 +101,8 @@ echo_dev_hwid() {
 
   # NOTE: Some DEV firmware image files may put GUID in HWID.
   # These are not officially supported and they will see "{GUID} DEV".
+  # Also there's some length limitation in chromeos_acpi/HWID, so
+  # a "{GUID} DEV" will become "{GUID} " in that case.
 
   if [ "$hwid" != "$hwid_no_dev" ]; then
     hwid="$hwid_no_dev"
@@ -103,21 +110,6 @@ echo_dev_hwid() {
   local hwid_dev="$hwid DEV"
   debug_msg "echo_dev_hwid: [$1] -> [$hwid_dev]"
   echo "$hwid_dev"
-}
-
-# Checks if the files given by parameters all exist.
-check_exist_or_die() {
-  local file is_success=$FLAGS_TRUE
-  for file in "$@"; do
-    if [ ! -s "$file" ]; then
-      echo "ERROR: Cannot find required file: $file"
-      is_success=$FLAGS_FALSE
-    fi
-  done
-
-  if [ "$is_success" = $FLAGS_FALSE ]; then
-    exit 1
-  fi
 }
 
 # Main
@@ -133,19 +125,20 @@ main() {
   local is_from_live=0
   local backup_image=
 
-  debug_msg "Pre-requisition check"
-  check_exist_or_die \
+  debug_msg "Prerequisite check"
+  ensure_files_exist \
     "$root_pubkey" \
     "$recovery_pubkey" \
     "$firmware_keyblock" \
     "$firmware_prvkey" \
     "$kernel_sub_pubkey" \
-    "$new_bmpfv"
+    "$new_bmpfv" ||
+    exit 1
 
   if [ -z "$FLAGS_from" ]; then
     is_from_live=1
   else
-    check_exist_or_die "$FLAGS_from"
+    ensure_files_exist "$FLAGS_from"
   fi
 
   # TODO(hungte) check if GPIO.3 (WP) is enabled
@@ -156,27 +149,26 @@ main() {
 
   debug_msg "Prepare to backup the file"
   if [ -n "$is_from_live" -o $FLAGS_force_backup = $FLAGS_TRUE ]; then
-    backup_image=$(make_temp_file)
+    backup_image="$(make_temp_file)"
     debug_msg "Creating backup file to $backup_image..."
     cp -f "$IMAGE" "$backup_image"
   fi
 
   # TODO(hungte) We can use vbutil_firmware to check if the current firmware is
-  # valid, so that we can know both they key, vbutil_firmware are working fine.
+  # valid so that we know keys and vbutil_firmware are all working fine.
 
   echo "Preparing new firmware image..."
-
   debug_msg "Extract current HWID and rootkey"
   local old_hwid
-  old_hwid=$(gbb_utility --get --hwid "$IMAGE" 2>"$EXEC_LOG" |
-             grep '^hardware_id:' |
-             sed 's/^hardware_id: //')
+  old_hwid="$(gbb_utility --get --hwid "$IMAGE" 2>"$EXEC_LOG" |
+              grep '^hardware_id:' |
+              sed 's/^hardware_id: //')"
 
   debug_msg "Decide new HWID"
   if [ -z "$old_hwid" ]; then
     err_die "Cannot find current HWID. (message: $(cat "$EXEC_LOG"))"
   fi
-  local new_hwid=$(echo_dev_hwid "$old_hwid")
+  local new_hwid="$(echo_dev_hwid "$old_hwid")"
 
   debug_msg "Replace GBB parts (gbb_utility allows changing on-the-fly)"
   gbb_utility --set \
@@ -188,7 +180,7 @@ main() {
     err_die "Failed to change GBB Data. (message: $(cat "$EXEC_LOG"))"
 
   debug_msg "Resign the firmware code (A/B) with new keys"
-  local unsigned_image=$(make_temp_file)
+  local unsigned_image="$(make_temp_file)"
   cp -f "$IMAGE" "$unsigned_image"
   "$SCRIPT_BASE/resign_firmwarefd.sh" \
     "$unsigned_image" \
@@ -200,21 +192,22 @@ main() {
 
   # TODO(hungte) compare if the image really needs to be changed.
 
-  debug_msg "Backup files when reading from system live image."
+  debug_msg "Check if we need to make backup file(s)"
   if [ -n "$backup_image" ]; then
-    local backup_hwid_name=$(echo "$old_hwid" | sed 's/ /_/g')
-    local backup_date_time=$(date +'%Y%m%d_%H%M%S')
+    local backup_hwid_name="$(echo "$old_hwid" | sed 's/ /_/g')"
+    local backup_date_time="$(date +'%Y%m%d_%H%M%S')"
     local backup_file_name="firmware_${backup_hwid_name}_${backup_date_time}.fd"
     local backup_file_path="$FLAGS_backup_dir/$backup_file_name"
     if mkdir -p "$FLAGS_backup_dir" &&
        cp -f "$backup_image" "$backup_file_path"; then
       echo "Backup of current firmware image is stored in: $backup_file_path"
     else
-      echo "Cannot create file in $FLAGS_backup_dir... Ignore backups."
+      echo "WARNING: Cannot create file in $FLAGS_backup_dir... Ignore backups."
     fi
   fi
 
   # TODO(hungte) use vbutil_firmware to check if the new firmware is valid.
+  # Or, do verification in resign_firmwarefd.sh and trust it.
 
   debug_msg "Write the image"
   write_image ||
@@ -224,7 +217,7 @@ main() {
   if [ -z "$FLAGS_to" ]; then
     echo "Successfully changed firmware to Developer Keys. New HWID: $new_hwid"
   else
-    echo "Firmware image '$FLAGS_to' now uses Developer Keys. HWID: $new_hwid"
+    echo "Firmware '$FLAGS_to' now uses Developer Keys. New HWID: $new_hwid"
   fi
 }
 

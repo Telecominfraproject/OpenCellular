@@ -12,12 +12,20 @@ GPT=cgpt
 # The tag when the rootfs is changed.
 TAG_NEEDS_TO_BE_SIGNED="/root/.need_to_be_signed"
 
-# Load shflags
-if [ -f /usr/lib/shflags ]; then
-  . /usr/lib/shflags
-else
-  . "${SCRIPT_DIR}/lib/shflags/shflags"
-fi
+# Finds and loads the 'shflags' library, or return as failed.
+load_shflags() {
+  # Load shflags
+  if [ -f /usr/lib/shflags ]; then
+    . /usr/lib/shflags
+  elif [ -f "${SCRIPT_DIR}/shflags" ]; then
+    . "${SCRIPT_DIR}/shflags"
+  elif [ -f "${SCRIPT_DIR}/lib/shflags/shflags" ]; then
+    . "${SCRIPT_DIR}/lib/shflags/shflags"
+  else
+    echo "ERROR: Cannot find the required shflags library."
+    return 1
+  fi
+}
 
 # List of Temporary files and mount points.
 TEMP_FILE_LIST=$(mktemp)
@@ -46,27 +54,18 @@ tag_as_needs_to_be_resigned() {
 
 # Determines if the target file system has the tag for resign
 # Args: MOUNTDIRECTORY
-# Returns: $FLAGS_TRUE if the tag is there, otherwise $FLAGS_FALSE
+# Returns: true if the tag is there otherwise false
 has_needs_to_be_resigned_tag() {
   local mount_dir="$1"
-  if [ -f "$mount_dir/$TAG_NEEDS_TO_BE_SIGNED" ]; then
-    return ${FLAGS_TRUE}
-  else
-    return ${FLAGS_FALSE}
-  fi
+  [ -f "$mount_dir/$TAG_NEEDS_TO_BE_SIGNED" ]
 }
 
 # Determines if the target file system is a Chrome OS root fs
 # Args: MOUNTDIRECTORY
-# Returns: $FLAGS_TRUE if MOUNTDIRECTORY looks like root fs,
-#          otherwise $FLAGS_FALSE
+# Returns: true if MOUNTDIRECTORY looks like root fs, otherwise false
 is_rootfs_partition() {
   local mount_dir="$1"
-  if [ -f "$mount_dir/$(dirname "$TAG_NEEDS_TO_BE_SIGNED")" ]; then
-    return ${FLAGS_TRUE}
-  else
-    return ${FLAGS_FALSE}
-  fi
+  [ -f "$mount_dir/$(dirname "$TAG_NEEDS_TO_BE_SIGNED")" ]
 }
 
 # Mount a partition read-only from an image into a local directory
@@ -147,6 +146,19 @@ cleanup_temps_and_mounts() {
   done
   set -e
   rm -rf $TEMP_DIR_LIST $TEMP_FILE_LIST
+}
+
+# Returns true if all files in parameters exist.
+ensure_files_exist() {
+  local filename return_value=0
+  for filename in "$@"; do
+    if [ ! -f "$filename" -a ! -b "$filename" ]; then
+      echo "ERROR: Cannot find required file: $filename"
+      return_value=1
+    fi
+  done
+
+  return $return_value
 }
 
 trap "cleanup_temps_and_mounts" EXIT
