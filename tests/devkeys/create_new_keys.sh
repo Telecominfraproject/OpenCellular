@@ -97,10 +97,10 @@ make_pair firmware_data_key        7
 make_pair kernel_subkey            7
 make_pair kernel_data_key          4
 
-# Create the recovery keypairs
+# Create the recovery and factory installer keypairs
 make_pair recovery_key             11
 make_pair recovery_kernel_data_key 11
-
+make_pair installer_kernel_data_key 11
 
 # Create the firmware keyblock for use only in Normal mode. This is redundant,
 # since it's never even checked during Recovery mode.
@@ -114,7 +114,7 @@ make_keyblock kernel 7 kernel_data_key kernel_subkey
 
 # Create the installer keyblock for use in Developer + Recovery mode
 # For use in Factory Install and Developer Mode install shims.
-make_keyblock installer_kernel 10 recovery_kernel_data_key recovery_key
+make_keyblock installer_kernel 10 installer_kernel_data_key recovery_key
 
 # CAUTION: The public parts of most of these blobs must be compiled into the
 # firmware, which is built separately (and some of which can't be changed after
