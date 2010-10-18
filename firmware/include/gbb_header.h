@@ -18,6 +18,9 @@
 #define GBB_MAJOR_VER      (0x01)
 #define GBB_MINOR_VER      (0x00)
 
+/* Maximum length of a HWID in bytes, counting terminating null. */
+#define GBB_HWID_MAX_SIZE  256
+
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
