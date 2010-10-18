@@ -380,17 +380,13 @@ uint32_t RollbackFirmwareLock(void) {
 
 uint32_t RollbackKernelRecovery(int developer_mode) {
   RollbackSpaceFirmware rsf;
-  uint32_t result = SetupTPM(1, developer_mode, &rsf);
-  /* In recovery mode we ignore TPM malfunctions or corruptions, and leave the
-   * TPM completely unlocked if and only if the dev mode switch is ON.  The
-   * recovery kernel will fix the TPM (if needed) and lock it ASAP.  We leave
+
+  /* In recovery mode we ignore TPM malfunctions or corruptions, and *
+   * leave the TPM complelely unlocked; we call neither
+   * TlclSetGlobalLock() nor TlclLockPhysicalPresence().  The recovery
+   * kernel will fix the TPM (if needed) and lock it ASAP.  We leave
    * Physical Presence on in either case. */
-  if (!developer_mode) {
-    RETURN_ON_FAILURE(TlclSetGlobalLock());
-  }
-  /* We still return the result of SetupTPM even though we expect the caller to
-   * ignore it.  It's useful in unit testing. */
-  return result;
+  return SetupTPM(1, developer_mode, &rsf);
 }
 
 uint32_t RollbackKernelRead(uint32_t* version) {
