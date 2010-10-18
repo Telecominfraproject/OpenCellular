@@ -59,18 +59,22 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Initialize the TPM and read rollback indices. */
+  VBPERFSTART("VB_TPMI");
   status = RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER,
                                  &tpm_version);
   if (0 != status) {
     VBDEBUG(("Unable to setup TPM and read stored versions.\n"));
+    VBPERFEND("VB_TPMI");
     return (status == TPM_E_MUST_REBOOT ?
             LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
   }
+  VBPERFEND("VB_TPMI");
 
   /* Allocate our internal data */
   lfi = (VbLoadFirmwareInternal*)Malloc(sizeof(VbLoadFirmwareInternal));
   if (!lfi)
     return LOAD_FIRMWARE_RECOVERY;
+
   params->load_firmware_internal = (uint8_t*)lfi;
 
   /* Loop over indices */
@@ -84,6 +88,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     uint8_t* body_digest;
 
     /* Verify the key block */
+    VBPERFSTART("VB_VKB");
     if (0 == index) {
       key_block = (VbKeyBlockHeader*)params->verification_block_0;
       vblock_size = params->verification_size_0;
@@ -93,8 +98,10 @@ int LoadFirmware(LoadFirmwareParams* params) {
     }
     if ((0 != KeyBlockVerify(key_block, vblock_size, root_key, 0))) {
       VBDEBUG(("Key block verification failed.\n"));
+      VBPERFEND("VB_VKB");
       continue;
     }
+    VBPERFEND("VB_VKB");
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;
@@ -111,6 +118,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     }
 
     /* Verify the preamble, which follows the key block. */
+    VBPERFSTART("VB_VPB");
     preamble = (VbFirmwarePreambleHeader*)((uint8_t*)key_block +
                                            key_block->key_block_size);
     if ((0 != VerifyFirmwarePreamble(preamble,
@@ -118,8 +126,10 @@ int LoadFirmware(LoadFirmwareParams* params) {
                                      data_key))) {
       VBDEBUG(("Preamble verfication failed.\n"));
       RSAPublicKeyFree(data_key);
+      VBPERFEND("VB_VPB");
       continue;
     }
+    VBPERFEND("VB_VPB");
 
     /* Check for rollback of firmware version. */
     combined_version = ((key_version << 16) |
@@ -141,11 +151,13 @@ int LoadFirmware(LoadFirmwareParams* params) {
       continue;
 
     /* Read the firmware data */
+    VBPERFSTART("VB_RFD");
     DigestInit(&lfi->body_digest_context, data_key->algorithm);
     lfi->body_size_accum = 0;
     if (0 != GetFirmwareBody(params, index)) {
       VBDEBUG(("GetFirmwareBody() failed for index %d\n", index));
       RSAPublicKeyFree(data_key);
+      VBPERFEND("VB_RFD");
       continue;
     }
     if (lfi->body_size_accum != preamble->body_signature.data_size) {
@@ -153,17 +165,22 @@ int LoadFirmware(LoadFirmwareParams* params) {
                (int)lfi->body_size_accum,
                (int)preamble->body_signature.data_size));
       RSAPublicKeyFree(data_key);
+      VBPERFEND("VB_RFD");
       continue;
     }
+    VBPERFEND("VB_RFD");
 
     /* Verify firmware data */
+    VBPERFSTART("VB_VFD");
     body_digest = DigestFinal(&lfi->body_digest_context);
     if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
       VBDEBUG(("Firmware body verification failed.\n"));
       RSAPublicKeyFree(data_key);
       Free(body_digest);
+      VBPERFEND("VB_VFD");
       continue;
     }
+    VBPERFEND("VB_VFD");
 
     /* Done with the digest and data key, so can free them now */
     RSAPublicKeyFree(data_key);
@@ -210,7 +227,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
     /* Update TPM if necessary */
     if (lowest_version > tpm_version) {
+      VBPERFSTART("VB_TPMU");
       status = RollbackFirmwareWrite((uint32_t)lowest_version);
+      VBPERFEND("VB_TPMU");
       if (0 != status) {
         VBDEBUG(("Unable to write stored versions.\n"));
         return (status == TPM_E_MUST_REBOOT ?
@@ -219,7 +238,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
     }
 
     /* Lock firmware versions in TPM */
+    VBPERFSTART("VB_TPML");
     status = RollbackFirmwareLock();
+    VBPERFEND("VB_TPML");
     if (0 != status) {
       VBDEBUG(("Unable to lock firmware versions.\n"));
       return (status == TPM_E_MUST_REBOOT ?

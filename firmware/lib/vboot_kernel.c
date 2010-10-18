@@ -325,12 +325,15 @@ int LoadKernel(LoadKernelParams* params) {
       }
 
       /* Read the kernel data */
+      VBPERFSTART("VB_RKD");
       if (0 != BootDeviceReadLBA(part_start + body_offset_sectors,
                                  body_sectors,
                                  params->kernel_buffer)) {
         VBDEBUG(("Unable to read kernel data.\n"));
+        VBPERFEND("VB_RKD");
         goto bad_kernel;
       }
+      VBPERFEND("VB_RKD");
 
       /* Verify kernel data */
       if (0 != VerifyData((const uint8_t*)params->kernel_buffer,
