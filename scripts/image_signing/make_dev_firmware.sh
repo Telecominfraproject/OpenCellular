@@ -200,7 +200,24 @@ main() {
     local backup_file_path="$FLAGS_backup_dir/$backup_file_name"
     if mkdir -p "$FLAGS_backup_dir" &&
        cp -f "$backup_image" "$backup_file_path"; then
-      echo "Backup of current firmware image is stored in: $backup_file_path"
+      true
+    elif cp -f "$backup_image" "/tmp/$backup_file_name"; then
+      backup_file_path="/tmp/$backup_file_name"
+    else
+      backup_file_path=''
+    fi
+    if [ -n "$backup_file_path" -a -s "$backup_file_path" ]; then
+      # TODO(hungte) maybe we can wrap the flashrom by 'make_dev_firmware.sh -r'
+      # so that the only command to remember would be make_dev_firmware.sh.
+      echo "
+      Backup of current firmware image is stored in:
+        $backup_file_path
+      Please copy the backup file to a safe place ASAP.
+
+      To stop using devkeys and restore original firmware, execute command:
+        flashrom -w [PATH_TO_BACKUP_IMAGE]
+      Ex: flashrom -w $backup_file_path
+      "
     else
       echo "WARNING: Cannot create file in $FLAGS_backup_dir... Ignore backups."
     fi
