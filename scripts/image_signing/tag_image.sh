@@ -10,6 +10,8 @@
 # The path to common.sh should be relative to your script's location.
 . "$(dirname "$0")/common.sh"
 
+load_shflags
+
 DEFINE_string from "chromiumos_image.bin" \
   "Input file name of Chrome OS image to tag/stamp."
 DEFINE_string dev_mode "" \
@@ -20,15 +22,24 @@ DEFINE_string forget_usernames "" \
   "(session-manager) Forget usernames (1 to enable, 0 to disable)"
 DEFINE_string leave_core "" \
   "(crash-reporter) Leave core dumps (1 to enable, 0 to disable)"
+DEFINE_string crosh_workarounds "" \
+  "(crosh) Keep crosh (1 to keep, 0 to disable *irreversible*)"
+
+# Parameters for manipulating /etc/lsb-release.
+DEFINE_boolean remove_test_label false \
+  "(build-info) Remove 'test' suffix in /etc/lsb-release"
+DEFINE_boolean change_dev_to_beta false \
+  "(build-info) Change 'dev' -> 'beta' in /etc/lsb-release"
+
 
 # TODO(hungte) we can add factory_installer and factory_test,
 # but I don't see any reason to tweak/check these values.
 
-# Parse command line
+# Parse command line.
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 
-# Abort on error
+# Abort on error.
 set -e
 
 if [ -z "${FLAGS_from}" ] || [ ! -s "${FLAGS_from}" ] ; then
@@ -36,7 +47,7 @@ if [ -z "${FLAGS_from}" ] || [ ! -s "${FLAGS_from}" ] ; then
   exit 1
 fi
 
-# Global variable to track if image is modified.
+# Global variable to track if the image is modified.
 g_modified=${FLAGS_FALSE}
 
 # Processes (enable, disable, or simply report) a tag file.
@@ -141,7 +152,40 @@ process_all_tags() {
     "${rootfs}" \
     /root/.leave_core \
     "${FLAGS_leave_core}"
+
+  process_tag "${do_modification}" \
+    "(crosh) crosh_workarounds" \
+    "${rootfs}" \
+    /usr/bin/crosh-workarounds \
+    "${FLAGS_crosh_workarounds}"
 }
+
+# Iterates through all options for manipulating the lsb-release.
+# Args: ROOTFS DO_MODIFICATION
+process_all_lsb_mods() {
+  local rootfs="$1"
+  local do_modifications="$2"
+  if [ ${FLAGS_remove_test_label} = ${FLAGS_TRUE} ]; then
+    if grep -wq "test" ${rootfs}/etc/lsb-release; then
+      g_modified=${FLAGS_TRUE}
+    fi
+    if [ ${do_modifications} = ${FLAGS_TRUE} ]; then
+      sed -i 's/\btest\b//' "${rootfs}/etc/lsb-release" &&
+        echo "Test Label removed from /etc/lsb-release"
+    fi
+  fi
+
+  if [ ${FLAGS_change_dev_to_beta} = ${FLAGS_TRUE} ]; then
+    if grep -wq "dev" ${rootfs}/etc/lsb-release; then
+      g_modified=${FLAGS_TRUE}
+    fi
+    if [ ${do_modifications} = ${FLAGS_TRUE} ]; then
+      sed -i 's/\bdev\b/beta/' "${rootfs}/etc/lsb-release" &&
+        echo "Dev Channel Label was changed to Beta"
+    fi
+  fi
+}
+
 
 IMAGE=$(readlink -f "${FLAGS_from}")
 if [[ -z "${IMAGE}" || ! -f "${IMAGE}" ]]; then
@@ -150,7 +194,7 @@ if [[ -z "${IMAGE}" || ! -f "${IMAGE}" ]]; then
   exit 1
 fi
 
-# First round, mount as read-only and check if we read any modification.
+# First round, mount as read-only and check if we need any modifications.
 rootfs=$(make_temp_dir)
 mount_image_partition_ro "${IMAGE}" 3 "${rootfs}"
 
@@ -159,14 +203,16 @@ mount_image_partition_ro "${IMAGE}" 3 "${rootfs}"
 # mount_image_partition ${IMAGE} 1 ${stateful_dir}
 
 process_all_tags "${rootfs}" ${FLAGS_FALSE}
+process_all_lsb_mods "${rootfs}" ${FLAGS_FALSE}
 
 if [ ${g_modified} = ${FLAGS_TRUE} ]; then
   # remount as RW (we can't use mount -o rw,remount because of loop device)
   sudo umount -d "${rootfs}"
   mount_image_partition "${IMAGE}" 3 "${rootfs}"
 
-  # Second round, apply the modification to image.
+  # second round, apply the modification to image.
   process_all_tags "${rootfs}" ${FLAGS_TRUE}
+  process_all_lsb_mods "${rootfs}" ${FLAGS_TRUE}
 
   # this is supposed to be automatically done in mount_image_partition,
   # but it's no harm to explicitly make it again here.
