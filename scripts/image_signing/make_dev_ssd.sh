@@ -222,6 +222,12 @@ main() {
     "$FLAGS_image" ||
     exit 1
 
+  # Make the root filesystem remountable if needed.
+  if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_TRUE ]; then
+    local root_offset=$(partoffset "$FLAGS_image" 3)
+    enable_rw_mount "$FLAGS_image" "$root_offset"
+  fi
+
   resign_ssd_kernel "$FLAGS_image" || num_signed=$?
 
   debug_msg "Complete."

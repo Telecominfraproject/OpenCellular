@@ -138,6 +138,9 @@ update_rootfs_hash() {
   local kernel_config=$(grab_kernel_config "${image}")
   local hash_image=$(make_temp_file)
 
+  # Disable rw mount support prior to hashing.
+  disable_rw_mount "${rootfs_image}"
+
   local new_kernel_config=$(calculate_rootfs_hash "${rootfs_image}" \
     "${kernel_config}" "${hash_image}")
 

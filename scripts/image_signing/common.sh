@@ -85,6 +85,9 @@ mount_image_partition() {
   local partnum=$2
   local mount_dir=$3
   local offset=$(partoffset "$image" "$partnum")
+  # Forcibly call enable_rw_mount.  It should fail on unsupported filesystems
+  # and be idempotent on ext*.
+  enable_rw_mount "$image" $((offset * 512)) 2> /dev/null
   sudo mount -o loop,offset=$((offset * 512)) "$image" "$mount_dir"
   if is_rootfs_partition "$mount_dir"; then
     tag_as_needs_to_be_resigned "$mount_dir"
@@ -159,6 +162,80 @@ ensure_files_exist() {
   done
 
   return $return_value
+}
+
+# For details, see crosutils.git/common.sh
+enable_rw_mount() {
+  local rootfs="$1"
+  local offset="${2-0}"
+
+  # Make sure we're checking an ext2 image
+  if ! is_ext2 "$rootfs" $offset; then
+    echo "enable_rw_mount called on non-ext2 filesystem: $rootfs $offset" 1>&2
+    return 1
+  fi
+
+  local ro_compat_offset=$((0x464 + 3))  # Set 'highest' byte
+  # Dash can't do echo -ne, but it can do printf "\NNN"
+  # We could use /dev/zero here, but this matches what would be
+  # needed for disable_rw_mount (printf '\377').
+  printf '\000' |
+    sudo dd of="$rootfs" seek=$((offset + ro_compat_offset)) \
+            conv=notrunc count=1 bs=1
+}
+
+# For details, see crosutils.git/common.sh
+is_ext2() {
+  local rootfs="$1"
+  local offset="${2-0}"
+
+  # Make sure we're checking an ext2 image
+  local sb_magic_offset=$((0x438))
+  local sb_value=$(sudo dd if="$rootfs" skip=$((offset + sb_magic_offset)) \
+                   count=2 bs=1 2>/dev/null)
+  local expected_sb_value=$(printf '\123\357')
+  if [ "$sb_value" = "$expected_sb_value" ]; then
+    return 0
+  fi
+  return 1
+}
+
+disable_rw_mount() {
+  local rootfs="$1"
+  local offset="${2-0}"
+
+  # Make sure we're checking an ext2 image
+  if ! is_ext2 "$rootfs" $offset; then
+    echo "disable_rw_mount called on non-ext2 filesystem: $rootfs $offset" 1>&2
+    return 1
+  fi
+
+  local ro_compat_offset=$((0x464 + 3))  # Set 'highest' byte
+  # Dash can't do echo -ne, but it can do printf "\NNN"
+  # We could use /dev/zero here, but this matches what would be
+  # needed for disable_rw_mount (printf '\377').
+  printf '\377' |
+    sudo dd of="$rootfs" seek=$((offset + ro_compat_offset)) \
+            conv=notrunc count=1 bs=1
+}
+
+rw_mount_disabled() {
+  local rootfs="$1"
+  local offset="${2-0}"
+
+  # Make sure we're checking an ext2 image
+  if ! is_ext2 "$rootfs" $offset; then
+    return 2
+  fi
+
+  local ro_compat_offset=$((0x464 + 3))  # Set 'highest' byte
+  local ro_value=$(sudo dd if="$rootfs" skip=$((offset + ro_compat_offset)) \
+                   count=1 bs=1 2>/dev/null)
+  local expected_ro_value=$(printf '\377')
+  if [ "$ro_value" = "$expected_ro_value" ]; then
+    return 0
+  fi
+  return 1
 }
 
 trap "cleanup_temps_and_mounts" EXIT
