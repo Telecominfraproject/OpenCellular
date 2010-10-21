@@ -750,7 +750,7 @@ int main(int argc, char* argv[]) {
   char* key_block_file = NULL;
   char* signpubkey = NULL;
   char* signprivate = NULL;
-  uint64_t version = 0;
+  int version = -1;
   char* vmlinuz = NULL;
   char* bootloader = NULL;
   char* config_file = NULL;
@@ -862,7 +862,7 @@ int main(int argc, char* argv[]) {
       return r;
 
     case OPT_MODE_REPACK:
-      if (!config_file && !key_block_file && !version) {
+      if (!config_file && !key_block_file && (version<0)) {
         fprintf(stderr,
                 "You must supply at least one of "
                 "--config, --keyblock or --version\n");
@@ -874,8 +874,8 @@ int main(int argc, char* argv[]) {
         return 1;
       r = ReplaceConfig(bp, config_file);
       if (!r) {
-        if (version) {
-          bp->kernel_version = version;
+        if (version >= 0) {
+		bp->kernel_version = (uint64_t) version;
         }
         r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
       }
