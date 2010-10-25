@@ -127,12 +127,7 @@ static int Unpack(const char* infile, const char* datapubkey,
 
   /* If the block is signed, then verify it with the signing public key, since
      KeyBlockRead() only verified the hash. */
-  if (block->key_block_signature.sig_size) {
-    if (!signpubkey) {
-      fprintf(stderr,
-              "vbutil_keyblock: keyblock requires public key to verify\n");
-      return 1;
-    }
+  if (block->key_block_signature.sig_size && signpubkey) {
     sign_key = PublicKeyRead(signpubkey);
     if (!sign_key) {
       fprintf(stderr, "vbutil_keyblock: Error reading signpubkey.\n");
@@ -142,16 +137,12 @@ static int Unpack(const char* infile, const char* datapubkey,
       fprintf(stderr, "vbutil_keyblock: Error verifying key block.\n");
       return 1;
     }
-    printf("Signature algorithm:  %" PRIu64 " %s\n", sign_key->algorithm,
-           (sign_key->algorithm < kNumAlgorithms ?
-            algo_strings[sign_key->algorithm] : "(invalid)"));
     Free(sign_key);
-  } else {
-    printf("Signature Algorithm:  <none>\n");
   }
 
   printf("Key block file:       %s\n", infile);
-  printf("Flags:                %" PRIu64 "\n", block->key_block_flags);
+  printf("Signature             %s\n", sign_key ? "valid" : "ignored");
+  printf("Flags:                %" PRIu64 " ", block->key_block_flags);
   if (block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
     printf(" !DEV");
   if (block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
