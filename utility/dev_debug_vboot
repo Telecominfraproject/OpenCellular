@@ -4,64 +4,117 @@
 # found in the LICENSE file.
 #
 
-TMPDIR=/tmp/debug_vboot
-BIOS=bios.rom
-# FIXME: support ARM
-HD_KERN_A=/dev/sda2
-HD_KERN_B=/dev/sda4
-tmp=$(rootdev -s -d)2
-if [ "$tmp" != "$HD_KERN_A" ]; then
-  USB_KERN_A="$tmp"
+LOGFILE=noisy.log
+
+die() {
+  echo "$*" 1>&2
+  exit 1
+}
+
+info() {
+  echo "$@"
+  echo "#" "$@" >> "$LOGFILE"
+}
+
+infon() {
+  echo -n "$@"
+  echo "#" "$@" >> "$LOGFILE"
+}
+
+log() {
+  echo "+" "$@" >> "$LOGFILE"
+  "$@" >> "$LOGFILE" 2>&1
+}
+
+logdie() {
+  echo "+" "$@" >> "$LOGFILE"
+  "$@" >> "$LOGFILE" 2>&1
+  die "$@"
+}
+
+result() {
+  if [ "$?" = "0" ]; then
+    info "OK"
+  else
+    info "FAILED"
+  fi
+}
+
+# Optional directory name containing "bios.rom" and "*kern*.blob" files. If not
+# provided, we'll attempt to extract them ourselves.
+if [ -d "$1" ]; then
+  TMPDIR="$1"
+  [ -d ${TMPDIR} ] || die "${TMPDIR} doesn't exist"
+  USE_EXISTING=yes
+else
+  TMPDIR=/tmp/debug_vboot
+  [ -d ${TMPDIR} ] || mkdir -p ${TMPDIR}
 fi
 
-
-[ -d ${TMPDIR} ] || mkdir -p ${TMPDIR}
 cd ${TMPDIR}
+echo "$0 $*" > "$LOGFILE"
+log date
+echo "Saving verbose log as $(pwd)/$LOGFILE"
 
-echo "INFO: extracting BIOS image from flash"
-flashrom -r ${BIOS}
+BIOS=bios.rom
 
-echo "INFO: extracting kernel images from drives"
-dd if=${HD_KERN_A} of=hd_kern_a.blob
-dd if=${HD_KERN_B} of=hd_kern_b.blob
-if [ -n "$USB_KERN_A" ]; then
-  dd if=${USB_KERN_A} of=usb_kern_a.blob
+# Find BIOS and kernel images
+if [ -n "$USE_EXISTING" ]; then
+  info "Using images in $(pwd)/"
+else
+  info "Extracting BIOS image from flash..."
+  log flashrom -r ${BIOS}
+
+  # FIXME: support ARM
+  HD_KERN_A=/dev/sda2
+  HD_KERN_B=/dev/sda4
+  tmp=$(rootdev -s -d)2
+  if [ "$tmp" != "$HD_KERN_A" ]; then
+    USB_KERN_A="$tmp"
+  fi
+
+  info "Extracting kernel images from drives..."
+  log dd if=${HD_KERN_A} of=hd_kern_a.blob
+  log dd if=${HD_KERN_B} of=hd_kern_b.blob
+  if [ -n "$USB_KERN_A" ]; then
+    log dd if=${USB_KERN_A} of=usb_kern_a.blob
+  fi
 fi
 
-echo "INFO: extracting BIOS components"
-dump_fmap -x ${BIOS} || echo "FAILED"
+# Make sure we have something to work on
+[ -f "$BIOS" ] || logdie "no BIOS image found"
+ls *kern*.blob >/dev/null 2>&1 || logdie "no kernel images found"
 
-echo "INFO: pulling root and recovery keys from GBB"
-gbb_utility -g --rootkey rootkey.vbpubk --recoverykey recoverykey.vbpubk \
-  GBB_Area || echo "FAILED"
-echo "INFO: display root key"
-vbutil_key --unpack rootkey.vbpubk
-echo "INFO: display recovery key"
-vbutil_key --unpack recoverykey.vbpubk
+info "Extracting BIOS components..."
+log dump_fmap -x ${BIOS} || logdie "Unable to extract BIOS components"
 
-echo "TEST: verify firmware A with root key"
-vbutil_firmware --verify Firmware_A_Key --signpubkey rootkey.vbpubk \
-  --fv Firmware_A_Data --kernelkey kernel_subkey_a.vbpubk || echo "FAILED"
-echo "TEST: verify firmware B with root key"
-vbutil_firmware --verify Firmware_B_Key --signpubkey rootkey.vbpubk \
-  --fv Firmware_B_Data --kernelkey kernel_subkey_b.vbpubk || echo "FAILED"
+info "Pulling root and recovery keys from GBB..."
+log gbb_utility -g --rootkey rootkey.vbpubk --recoverykey recoverykey.vbpubk \
+  GBB_Area || logdie "Unable to extract keys from GBB"
+log vbutil_key --unpack rootkey.vbpubk
+log vbutil_key --unpack recoverykey.vbpubk
 
-echo "TEST: verify HD kernel A with firmware A key"
-vbutil_kernel --verify hd_kern_a.blob --signpubkey kernel_subkey_a.vbpubk \
-  || echo "FAILED"
-echo "TEST: verify HD kernel B with firmware A key"
-vbutil_kernel --verify hd_kern_b.blob --signpubkey kernel_subkey_a.vbpubk \
-  || echo "FAILED"
+infon "Verify firmware A with root key... "
+log vbutil_firmware --verify Firmware_A_Key --signpubkey rootkey.vbpubk \
+  --fv Firmware_A_Data --kernelkey kernel_subkey_a.vbpubk ; result
+infon "Verify firmware B with root key... "
+log vbutil_firmware --verify Firmware_B_Key --signpubkey rootkey.vbpubk \
+  --fv Firmware_B_Data --kernelkey kernel_subkey_b.vbpubk ; result
 
-echo "TEST: verify HD kernel A with firmware B key"
-vbutil_kernel --verify hd_kern_a.blob --signpubkey kernel_subkey_b.vbpubk \
-  || echo "FAILED"
-echo "TEST: verify HD kernel B with firmware B key"
-vbutil_kernel --verify hd_kern_b.blob --signpubkey kernel_subkey_b.vbpubk \
-  || echo "FAILED"
+for key in kernel_subkey_a.vbpubk kernel_subkey_b.vbpubk; do
+  infon "Test $key... "
+  log vbutil_key --unpack $key ; result
+done
 
-if [ -n "$USB_KERN_A" ]; then
-  echo "TEST: verify USB kernel A with recovery key"
-  vbutil_kernel --verify usb_kern_a.blob --signpubkey recoverykey.vbpubk \
-    || echo "FAILED"
-fi
+for keyblock in *kern*.blob; do
+  infon "Test $keyblock... "
+  log vbutil_keyblock --unpack $keyblock ; result
+done
+
+# Test each kernel with each key
+for key in kernel_subkey_a.vbpubk kernel_subkey_b.vbpubk recoverykey.vbpubk; do
+  for kern in *kern*.blob; do
+    infon "Verify $kern with $key... "
+    log vbutil_kernel --verify $kern --signpubkey $key ; result
+  done
+done
