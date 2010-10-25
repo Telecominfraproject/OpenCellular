@@ -1,0 +1,213 @@
+#!/bin/sh -u
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Test the chromeos TPM recovery script by faking the entire execution
+# environment.
+
+rm -rf tpm_recovery_test_workdir
+mkdir  tpm_recovery_test_workdir
+cd     tpm_recovery_test_workdir
+
+export USR_BIN=.
+export USR_SBIN=.
+export DOT_RECOVERY=.recovery
+export ACPI_DIR=.
+
+ctr=../chromeos_tpm_recovery
+
+# build the permanent environment
+
+echo > .recovery
+echo 3 > BINF.0
+echo 0 > CRSW
+
+# build tpmc
+cat > tpmc <<"EOF"
+#!/bin/sh -u
+# Fake tpmc program
+
+definespace () {
+  index=$2
+  size=$3
+  permissions=$4
+
+  if [ -e space.$index.data -a -e tpm-owned ]; then
+    echo "cannot redefine space without auth"
+  fi
+
+  if [ $index != 0xf004 ]; then
+    echo $size > space.$index.size
+    echo $permissions > space.$index.perm
+    for i in $(seq 1 $(($size))); do
+      echo -n "ff " >> space.$index.data
+    done
+  fi
+  return 0
+}
+
+case $1 in
+
+  clear)
+    rm -f tpm-owned
+  ;;
+
+  enable)
+    # boring
+  ;;
+
+  activate)
+    # boring
+  ;;
+
+  definespace)
+    definespace $*
+  ;;
+
+  getp)
+    echo space blah has permissions $(cat space.$2.perm)
+  ;;
+
+  read)
+    index=$2
+    size=$3
+    maxsize=$(cat space.$index.size)
+    if [ $(($size > $maxsize)) -eq 1  ]; then
+      echo "size $size too large for space (max is $maxsize)"
+      exit 1
+    fi
+    dd if=space.$index.data bs=1 count=$(($3 * 3)) 2> /dev/null
+  ;;
+
+  write)
+    args="$@"
+    index=$2
+    bytes="$(echo $args | sed 's/[^ ]* [^ ]* //')"
+    size=$(echo $bytes | wc -w)
+    maxsize=$(cat space.$index.size)
+    if [ $(($size > $maxsize)) -eq 1  ]; then
+      echo "size $size too large for space (max is $(($maxsize)))"
+      exit 1
+    fi
+    re=$(echo "$bytes " | sed 's/././g')
+    sed "s/$re/$bytes /" < space.$index.data > _tmp_
+    mv _tmp_ space.$index.data
+  ;;
+
+  getpf)
+    echo "disable 0"
+    echo "deactivated 0"
+    echo "nvLocked 1"
+    echo "physicalPresenceLifetimeLock 1"
+    echo "physicalPresenceHWEnable 0"
+    echo "physicalPresenceCMDEnable 1"
+  ;;
+
+  getvf)
+    echo "bGlobalLock 1"
+    echo "physicalPresence 1"
+    echo "physicalPresenceLock 0"
+  ;;
+
+  ppfin)
+    # boring
+  ;;
+
+  ppon)
+    # boring
+  ;;
+
+  *)
+    echo "tpmc: invalid command $1"
+    exit 1
+  ;;
+esac
+
+EOF
+
+# build nvtool
+cat > tpm-nvtool <<"EOF"
+#!/bin/sh -u
+
+print_space () {
+  index=$1
+  echo "# NV Index $index"
+  echo " uninteresting random garbage"
+  echo " further random garbage"
+  echo ""
+}
+
+if [ "$1" = "--release" ]; then
+  if [ "$2" != "--index" -o \
+       "$4" != "--owner_password" ]; then
+    echo "sorry, picky tpm-nvtool"
+    exit 1
+  fi
+  index=$3
+  if [ ! -f tpm-owned ]; then
+    echo "tpm is unowned"
+    exit 1
+  fi
+  rm space.$index.*
+elif [ "$1" = "--list" ]; then
+  for s in space.*.data; do
+    print_space $(echo $s | sed -e "s/[^.]*\.//" -e "s/\..*//")
+  done
+fi
+EOF
+
+# build tpm_takeownership
+cat > tpm_takeownership <<"EOF"
+#!/bin/sh -u
+if [ -f tpm-owned ]; then
+  echo "tpm is already owned"
+  exit 1
+fi
+echo > tpm-owned
+EOF
+
+# build tcsd
+cat > tcsd <<"EOF"
+#!/bin/sh -u
+trap "{ rm tcsd_is_running; }" EXIT
+echo > tcsd_is_running
+sleep 365d
+EOF
+
+chmod 755 tpmc tpm-nvtool tpm_takeownership tcsd
+
+echo "starting TPM recovery test" > log
+
+# normal run
+
+./tpmc definespace 0x1007 0xa 0x8001
+./tpmc definespace 0x1008 0xd 0x1
+./tpmc write 0x1008 01 4c 57 52 47
+touch tpm-owned
+
+echo "TEST: normal run" > log
+$ctr log
+
+# attempt to hijack kernel space
+
+rm space.*
+
+./tpmc definespace 0x1007 0xa 0x8001
+./tpmc definespace 0x1008 0xd 0x1
+touch tpm-owned
+
+echo "TEST: bad kernel space ID" >> log
+$ctr log
+
+# attempt to hijack kernel space
+
+rm space.*
+
+./tpmc definespace 0x1007 0xa 0x8001
+./tpmc definespace 0x1008 0xc 0x1
+touch tpm-owned
+
+echo "TEST: bad kernel space size" >> log
+$ctr log
+

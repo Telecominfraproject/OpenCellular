@@ -1,0 +1,324 @@
+#!/bin/sh -u
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Run TPM diagnostics in recovery mode, and attempt to fix problems.  This is
+# specific to devices with chromeos firmware.
+#
+# Usage: chromeos_tpm_recovery <log file>
+#
+# Most of the diagnostics examine the TPM state and try to fix it.  This may
+# require clearing TPM ownership.
+
+tpmc=${USR_BIN:=/usr/bin}/tpmc
+nvtool=$USR_BIN/tpm-nvtool
+tpm_takeownership=${USR_SBIN:=/usr/sbin}/tpm_takeownership
+tcsd=$USR_SBIN/tcsd
+dot_recovery=${DOT_RECOVERY:=/mnt/stateful_partition/.recovery}
+acpi=${ACPI_DIR:=/sys/devices/platform/chromeos_acpi}
+awk=/usr/bin/awk
+
+# At the time this script starts, we assume the following holds:
+#
+# - TPM may be owned, but not with the well-known password
+# - tcsd has not been started
+
+tpm_owned_with_well_known_password=0
+tpm_unowned=0
+tcsd_pid=0
+
+log() {
+  echo "$(date): $*" >> $RECOVERY_LOG
+}
+
+quit() {
+  log "ERROR: $*"
+  log "exiting"
+  exit 1
+}
+
+log_tryfix() {
+  log "$*: attempting to fix"
+}
+
+# bit <n> <i> outputs bit i of number n, with bit 0 being the lsb.
+
+bit () {
+  echo $(( ( $1 >> $2 ) & 1 ))
+}
+
+ensure_tcsd_is_running () {
+  if [ $tcsd_pid = 0 ]; then
+    $tcsd -f &
+    tcsd_pid=$!
+  fi
+}
+
+ensure_tcsd_is_not_running () {
+  if [ $tcsd_pid != 0 ]; then
+    kill $tcsd_pid
+    wait $tcsd_pid > /dev/null 2>&1  # we trust that tcsd will agree to die
+    tcsd_pid=0
+  fi
+}
+
+tpm_clear_and_reenable () {
+  ensure_tcsd_is_not_running
+  $tpmc clear
+  $tpmc enable
+  $tpmc activate
+  tpm_owned_with_well_known_password=0
+  tpm_unowned=1
+}
+
+ensure_tpm_is_owned () {
+  if [ $tpm_owned_with_well_known_password = 0 -a \
+       $tpm_unowned = 0 ]; then
+    tpm_clear_and_reenable
+    ensure_tcsd_is_running
+    $tpm_takeownership -y -z || log "takeownership failed with status $?"
+    tpm_owned_with_well_known_password=1
+    tpm_unowned=0
+  fi
+}
+
+ensure_tpm_is_unowned () {
+  if [ $tpm_unowned = 0 ]; then
+    tpm_clear_and_reenable
+  fi
+}
+
+remove_space () {
+  index=$1
+  log "removing space $index"
+  ensure_tpm_is_owned
+  ensure_tcsd_is_running
+  $nvtool --release --index "$index" --owner_password "" >> $RECOVERY_LOG 2>&1
+  log "nvtool --release: status $?"
+}
+
+# Makes some room by removing a TPM space it doesn't recognize.  It would be
+# nice to let the user choose which space, but we may not have a UI.
+
+make_room () {
+
+  # Check NVRAM spaces.
+  AWK_PROGRAM=/tmp/tpm_recovery_$$.awk
+  cat > $AWK_PROGRAM <<"EOF"
+/# NV Index 0xffffffff/ { next } # NV_INDEX_LOCK
+/# NV Index 0x00000000/ { next } # NV_INDEX0
+/# NV Index 0x00000001/ { next } # NV_INDEX_DIR
+/# NV Index 0x0000f.../ { next } # reserved for TPM use
+/# NV Index 0x0001..../ { next } # reserved for TCG WGs
+/# NV Index 0x00001007/ { next } # firmware space index
+/# NV Index 0x00001008/ { next } # kernel space index
+/# NV Index / { print $4 } #unexpected space
+EOF
+
+  ensure_tcsd_is_running
+  ensure_tpm_is_owned
+  unexpected_spaces=$($nvtool --list | $awk -f $AWK_PROGRAM)
+
+  status=1
+
+  if ("$unexpected_spaces" != ""); then
+    log_tryfix "unexpected spaces: $unexpected_spaces"
+    for index in $unexpected_spaces; do
+      if remove_space $index; then
+        status=0
+        break;
+      fi
+    done
+  fi
+
+  return $status
+}
+
+# define_space <index> <size> <permissions>
+
+define_space () {
+  local index=$1
+  local size=$2
+  local permissions=$3
+  # 0xf004 is for testing if there is enough room without side effects.
+  local test_space=0xf004
+  local perm_ppwrite=0x1
+  local enough_room
+
+  ensure_tpm_is_unowned
+  while true; do
+    if $tpmc definespace $test_space $size $perm_ppwrite; then
+      enough_room=1
+      break
+    else
+      if ! make_room; then
+        enough_room=0
+        break
+      fi
+    fi
+  done
+
+  if [ $enough_room -eq 0 ]; then
+    log "not enough room to define space $index"
+    return 1
+  fi
+  $tpmc definespace $index $size $permissions
+}
+
+fix_space () {
+  local index=$1
+  local permissions=$2
+  local size=$3
+  local bytes="$4"
+
+  local space_exists=1
+
+  ensure_tcsd_is_not_running
+  observed_permissions=$($tpmc getp $index | $awk '{print $5;}')
+  if [ $? -ne 0 ]; then
+    space_exists=0
+  fi
+
+  # Check kernel space ID.
+  if [ $space_exists -eq 1 -a $index = 0x1008 ]; then
+    if ! $tpmc read 0x1008 0x5 | grep -q " 4c 57 52 47[ ]*$"; then
+      log "bad kernel space id"
+      remove_space $index
+      space_exists=0
+    fi
+  fi
+
+  # Check that space is large enough (we don't care if it's larger)
+  if [ $space_exists -eq 1 ]; then
+    if ! $tpmc read $index $size > /dev/null; then
+      log "space $index read of size $size failed"
+      remove_space $index
+      space_exists=0
+    fi
+  fi
+
+  # If space exists but permissions are bad, delete the space.
+  if [ $space_exists -eq 1 -a $observed_permissions != $permissions ]; then
+    log "space $index has unexpected permissions $permissions"
+    remove_space $index
+    space_exists=0
+  fi
+
+  # If space does not exist, reconstruct it.
+  if [ $space_exists -eq 0 ]; then
+    log_tryfix "space $index is gone"
+    if ! define_space $index $size $permissions; then
+      log "could not redefine space $index"
+      return 1
+    fi
+    # do not quote "$bytes", as we mean to expand it here
+    $tpmc write $index $bytes || log "writing to $index failed with code $?"
+    log "space $index was recreated successfully"
+  fi
+}
+
+
+# ------------
+# MAIN PROGRAM
+# ------------
+
+# Set up logging and announce ourselves.
+
+if [ $# = 1 ]; then
+  RECOVERY_LOG="$1"
+  /usr/bin/logger "$0 started, output in $RECOVERY_LOG"
+  log "starting"
+else
+  /usr/bin/logger "$0 usage error"
+  echo "usage: $0 <log file>"
+  exit 1
+fi
+
+# Sanity check: are we executing in a recovery image?
+
+if [ ! -e $dot_recovery ]; then
+  quit "not a recovery image"
+fi
+
+# Mnemonic: "B, I, N, F, O, and BINFO was his name-o."
+# Except it's a zero (0), not an O.
+BINF0=$acpi/BINF.0
+CRSW=$acpi/CRSW
+
+# There is no point running unless this a ChromeOS device.
+
+if [ ! -e $BINF0 ]; then
+  log "not a chromeos device, exiting"
+  exit 0
+fi
+
+BOOT_REASON=$(cat $BINF0)
+log "boot reason is $BOOT_REASON"
+
+# Sanity check: did we boot in recovery mode?
+
+if ! echo $BOOT_REASON | grep -q "^[345678]$"; then
+  quit "unexpected boot reason $BOOT_REASON"
+fi
+
+# Do we even have these tools in the image?
+
+if [ ! -e $tpmc -o ! -e $nvtool -o ! -e $tpm_takeownership ]; then
+  quit "tpmc or nvtool or tpm_takeownership are missing"
+fi
+
+# Is the state of the PP enable flags correct?
+
+if ! ($tpmc getpf | grep -q "physicalPresenceLifetimeLock 1" &&
+      $tpmc getpf | grep -q "physicalPresenceHWEnable 0" &&
+      $tpmc getpf | grep -q "physicalPresenceCMDEnable 1"); then
+  log_tryfix "bad state of physical presence enable flags"
+  if $tpmc ppfin; then
+    log "physical presence enable flags are now correctly set"
+  else
+    quit "could not set physical presence enable flags"
+  fi
+fi
+
+# Is physical presence turned on?
+
+if $tpmc getvf | grep -q "physicalPresence 0"; then
+  log_tryfix "physical presence is OFF, expected ON"
+  # attempt to turn on physical presence
+  if $tpmc ppon; then
+    log "physical presence is now on"
+  else
+    quit "could not turn physical presence on"
+  fi
+fi
+
+DEV_MODE_NOW=$(bit $(cat $CRSW) 4)
+DEV_MODE_AT_BOOT=$(bit $(cat $CRSW) 5)
+
+# Check that bGlobalLock is unset
+
+if [ $DEV_MODE_NOW != $DEV_MODE_AT_BOOT ]; then
+  # this is either too weird or malicious, so we give up
+  quit "dev mode is $DEV_MODE_NOW, but was $DEV_MODE_AT_BOOT at boot"
+fi
+
+BGLOBALLOCK=$($tpmc getvf | $awk '/bGlobalLock/ {print $2;}')
+
+if [ 0 -ne $BGLOBALLOCK ]; then
+  # this indicates either TPM malfunction or firmware malfunction.
+  log "bGlobalLock is $BGLOBALLOCK (dev mode is $DEV_MODE_NOW)."
+fi
+
+# Check firmware and kernel spaces
+fix_space 0x1007 0x8001 0xa "01 00    00 00 00 00    00 00 00 00" || \
+  log "could not fix firmware space"
+fix_space 0x1008 0x1 0xd "01    4c 57 52 47    00 00 00 00    00 00 00 00" || \
+  log "could not fix kernel space"
+
+# Cleanup: don't leave the tpm owned with the well-known password.
+if [ $tpm_owned_with_well_known_password -eq 1 ]; then
+  tpm_clear_and_reenable
+fi
+
+ensure_tcsd_is_not_running
