@@ -11,12 +11,18 @@
 # to the full screen size.
 #
 
+
+
+
 # Require one arg
 if [ $# -ne "1" ]; then
-  echo "Usage: $(basename $0) URL" 1>&2
+  echo "Usage: $(basename $0) MODEL" 1>&2
   exit 1
 fi
-url=$1
+MODEL=$1
+
+# Default URL
+URL='http://google.com/chromeos/recovery'
 
 
 # Image parameters
@@ -24,8 +30,11 @@ geom_orig='1366x800'
 geom_crop_a='1366x768'
 geom_crop_b='1280x800'
 geom_final='800x600!'
-font="Helvetica-Narrow"
-pointsize=30
+bluecolor='#9ccaec'
+bluefont="Helvetica-Narrow"
+bluepointsize=30
+whitefont="Helvetica-Narrow"
+whitepointsize=48
 
 
 # Temporary files
@@ -37,6 +46,7 @@ img_crop_b="${tmpdir}/img_crop_b.bmp"
 img_txt_a="${tmpdir}/img_txt_a.bmp"
 img_txt_b="${tmpdir}/img_txt_b.bmp"
 label_file="${tmpdir}/label.txt"
+label_img="${tmpdir}/label.bmp"
 
 # Output directories
 thisdir=$(readlink -e $(dirname $0))
@@ -81,18 +91,35 @@ function process_one_file {
 
   # Add the labels in
   if [ -r "$txt_file" ]; then
-    # Replace all '$URL' in the URL in the text file with the real url
-    perl -p \
-      -e 'BEGIN {$/ = undef; $url = shift; }' \
-      -e 's/\s+$/\n/gs; s/\$URL/$url/gs;' \
-      "$url" "$txt_file" > "$label_file"
-    # Render it
-    convert "$img_crop_a" -fill white \
-      -font "$font" -pointsize "$pointsize" -interline-spacing 5 \
-      -gravity south -annotate '+0+0' '@'"$label_file" "$img_txt_a"
-    convert "$img_crop_b" -fill white \
-      -font "$font" -pointsize "$pointsize" -interline-spacing 5 \
-      -gravity south -annotate '+0+0' '@'"$label_file" "$img_txt_b"
+    # The only way to change font and color in multiline text is to split each
+    # line into a separate image and then composite them together. Ugh.
+    # First, split each input line into a separate file.
+    "${thisdir}/makelines" -u "$URL" -m "$MODEL" -d "$tmpdir" "$txt_file"
+    # Convert each line file into an image file.
+    for txtfile in ${tmpdir}/linetxt_*; do
+      case "$txtfile" in
+        *.txt)
+          convert \
+            -background "$bg" -fill "$bluecolor" \
+            -font "$bluefont" -pointsize "$bluepointsize" \
+            -bordercolor "$bg" -border 0x1 \
+            label:'@'"$txtfile" "${txtfile%.*}".bmp
+          ;;
+        *.TXT)
+          convert \
+            -background "$bg" -fill "white" \
+            -font "$whitefont" -pointsize "$whitepointsize" \
+            -bordercolor "$bg" -border 0x10 \
+            label:'@'"$txtfile" "${txtfile%.*}".bmp
+          ;;
+      esac
+    done
+    # Now bash them all together to make one image.
+    convert -background "$bg" -gravity center ${tmpdir}/linetxt_*.bmp \
+      label:'\n\n\n\n' -append "$label_img"
+    # Finally, layer the label image on top of the original.
+    composite "$label_img" -gravity south "$img_crop_a" "$img_txt_a"
+    composite "$label_img" -gravity south "$img_crop_b" "$img_txt_b"
   else
     mv "$img_crop_a" "$img_txt_a"
     mv "$img_crop_b" "$img_txt_b"
@@ -110,6 +137,6 @@ for file in originals/*.gif; do
 done
 
 # Zip up the bitmaps
-nicename=${url// /_}
+nicename=${MODEL// /_}
 (cd "$outdir_a" && zip -qr "${thisdir}/out_${nicename}__${geom_crop_a}.zip" *)
 (cd "$outdir_b" && zip -qr "${thisdir}/out_${nicename}__${geom_crop_b}.zip" *)

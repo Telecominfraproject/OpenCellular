@@ -1,20 +1,3 @@
 Please remove all USB and SD devices to begin recovery.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-http://google.com/chromeos/recovery
-$URL
+$BIG: $URL
+Model: $MODEL

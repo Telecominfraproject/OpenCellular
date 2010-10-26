@@ -1,20 +1,2 @@
-Chrome OS verification is currently turned OFF.
-Please turn on verification, or press SPACE to begin recovery.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-http://google.com/chromeos/unverified
-$URL
+Chrome OS verification is turned off.
+Press space to begin recovery.
