@@ -112,6 +112,8 @@ static int PrintHelp(char *progname) {
           "    --signpubkey <file>"
           "       Public key to verify kernel keyblock, in .vbpubk format\n"
           "    --verbose                 Print a more detailed report\n"
+          "    --keyblock <file>"
+          "       Outputs the verified key block, in .keyblock format\n"
           "\n",
           progname);
   return 1;
@@ -631,7 +633,8 @@ static int ReplaceConfig(blob_t* bp, const char* config_file)
   return 0;
 }
 
-static int Verify(const char* infile, const char* signpubkey, int verbose) {
+static int Verify(const char* infile, const char* signpubkey, int verbose,
+                  const char* key_block_file) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
@@ -671,6 +674,20 @@ static int Verify(const char* infile, const char* signpubkey, int verbose) {
     goto verify_exit;
   }
   now = key_block->key_block_size;
+
+  if (key_block_file) {
+    FILE* f = NULL;
+    f = fopen(key_block_file, "wb");
+    if (!f) {
+      error("Can't open key block file %s\n", key_block_file);
+      return 1;
+    }
+    if (1 != fwrite(key_block, key_block->key_block_size, 1, f)) {
+      error("Can't write key block file %s\n", key_block_file);
+      return 1;
+    }
+    fclose(f);
+  }
 
   printf("Key block:\n");
   data_key = &key_block->data_key;
@@ -883,7 +900,7 @@ int main(int argc, char* argv[]) {
       return r;
 
     case OPT_MODE_VERIFY:
-      return Verify(filename, signpubkey, verbose);
+      return Verify(filename, signpubkey, verbose, key_block_file);
 
     default:
       fprintf(stderr,
