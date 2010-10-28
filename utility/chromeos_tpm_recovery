@@ -72,9 +72,10 @@ tpm_clear_and_reenable () {
   tpm_unowned=1
 }
 
+# We want the TPM owned with the well-known password.
+
 ensure_tpm_is_owned () {
-  if [ $tpm_owned_with_well_known_password = 0 -a \
-       $tpm_unowned = 0 ]; then
+  if [ $tpm_owned_with_well_known_password = 0 ]; then
     tpm_clear_and_reenable
     ensure_tcsd_is_running
     $tpm_takeownership -y -z || log "takeownership failed with status $?"
@@ -116,16 +117,20 @@ make_room () {
 /# NV Index / { print $4 } #unexpected space
 EOF
 
+  local index
+
+  log "trying to make room by freeing one space"
   ensure_tcsd_is_running
   ensure_tpm_is_owned
   unexpected_spaces=$($nvtool --list | $awk -f $AWK_PROGRAM)
 
   status=1
 
-  if ("$unexpected_spaces" != ""); then
+  if [ "$unexpected_spaces" != "" ]; then
     log_tryfix "unexpected spaces: $unexpected_spaces"
     for index in $unexpected_spaces; do
-      if remove_space $index; then
+      log "trying to remove space $index"
+      if remove_space $(printf "0x%x" $(( $index )) ); then
         status=0
         break;
       fi
@@ -148,10 +153,13 @@ define_space () {
 
   ensure_tpm_is_unowned
   while true; do
+    log "checking for NVRAM room for space with size $size"
     if $tpmc definespace $test_space $size $perm_ppwrite; then
+      log "there is enough room"
       enough_room=1
       break
     else
+      log "definespace $test_space $size failed with status $?"
       if ! make_room; then
         enough_room=0
         break
@@ -228,7 +236,7 @@ fix_space () {
 if [ $# = 1 ]; then
   RECOVERY_LOG="$1"
   /usr/bin/logger "$0 started, output in $RECOVERY_LOG"
-  log "starting"
+  log "starting $0"
 else
   /usr/bin/logger "$0 usage error"
   echo "usage: $0 <log file>"

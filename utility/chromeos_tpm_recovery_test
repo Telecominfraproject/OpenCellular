@@ -23,6 +23,8 @@ echo > .recovery
 echo 3 > BINF.0
 echo 0 > CRSW
 
+space_overhead=200
+
 # build tpmc
 cat > tpmc <<"EOF"
 #!/bin/sh -u
@@ -32,9 +34,18 @@ definespace () {
   index=$2
   size=$3
   permissions=$4
+  space_overhead=200
 
   if [ -e space.$index.data -a -e tpm-owned ]; then
     echo "cannot redefine space without auth"
+  fi
+
+  totalsize=$(( $size + $space_overhead ))
+  free=$(cat nvram.freespace)
+
+  if [ $totalsize -gt $free ]; then
+    echo "tpmc: definespace: need $totalsize, available $free"
+    return 17  # NO_SPACE
   fi
 
   if [ $index != 0xf004 ]; then
@@ -43,6 +54,7 @@ definespace () {
     for i in $(seq 1 $(($size))); do
       echo -n "ff " >> space.$index.data
     done
+    echo $(( $free - $totalsize )) > nvram.freespace
   fi
   return 0
 }
@@ -130,9 +142,11 @@ EOF
 cat > tpm-nvtool <<"EOF"
 #!/bin/sh -u
 
+space_overhead=200
+
 print_space () {
   index=$1
-  echo "# NV Index $index"
+  printf "# NV Index 0x%08x" $(( $index ))
   echo " uninteresting random garbage"
   echo " further random garbage"
   echo ""
@@ -149,7 +163,10 @@ if [ "$1" = "--release" ]; then
     echo "tpm is unowned"
     exit 1
   fi
+  size=$(cat space.$index.size)
+  free=$(cat nvram.freespace)
   rm space.$index.*
+  echo $(( $size + $space_overhead + $free )) > nvram.freespace
 elif [ "$1" = "--list" ]; then
   for s in space.*.data; do
     print_space $(echo $s | sed -e "s/[^.]*\.//" -e "s/\..*//")
@@ -180,34 +197,54 @@ chmod 755 tpmc tpm-nvtool tpm_takeownership tcsd
 echo "starting TPM recovery test" > log
 
 # normal run
+echo "TEST: normal run" > log
+
+echo 1500 > nvram.freespace
 
 ./tpmc definespace 0x1007 0xa 0x8001
 ./tpmc definespace 0x1008 0xd 0x1
 ./tpmc write 0x1008 01 4c 57 52 47
 touch tpm-owned
 
-echo "TEST: normal run" > log
 $ctr log
 
-# attempt to hijack kernel space
+# Kernel space with wrong ID
+echo "TEST: bad kernel space ID" >> log
 
 rm space.*
+echo 1500 > nvram.freespace
 
 ./tpmc definespace 0x1007 0xa 0x8001
 ./tpmc definespace 0x1008 0xd 0x1
 touch tpm-owned
 
-echo "TEST: bad kernel space ID" >> log
 $ctr log
 
-# attempt to hijack kernel space
+# Kernel space with wrong size
+echo "TEST: bad kernel space size" >> log
 
 rm space.*
+echo 1500 > nvram.freespace
 
 ./tpmc definespace 0x1007 0xa 0x8001
 ./tpmc definespace 0x1008 0xc 0x1
 touch tpm-owned
 
-echo "TEST: bad kernel space size" >> log
 $ctr log
 
+# Kernel space with wrong size AND bogus space to exhaust nvram
+echo "TEST: bad kernel space size and no room" >> log
+
+rm space.*
+echo 1500 > nvram.freespace
+
+./tpmc definespace 0x1007 0xa 0x8001
+./tpmc definespace 0x1008 0x1 0x1
+space_hog_size=$(printf "0x%x" \
+  $(( $(cat nvram.freespace) - $space_overhead - 1 )) )
+echo "remaining $(cat nvram.freespace) bytes" >> log
+echo "hogging $(( $space_hog_size )) bytes" >> log
+./tpmc definespace 0xcafe $space_hog_size 0x1 || echo "hogging failed!" >> log
+touch tpm-owned
+
+$ctr log
