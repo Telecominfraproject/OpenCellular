@@ -3,8 +3,25 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
+# Usage:  dev_debug_vboot [ --cleanup | DIRECTORY ]
+#
+# This extracts some useful debugging information about verified boot. A short
+# summary is printed on stdout, more detailed information and working files are
+# left in a log directory.
+#
 
+TMPDIR=/tmp/debug_vboot
 LOGFILE=noisy.log
+
+# TODO(wfrichar): Need to support ARM. The hard disk path is likely different.
+HD=/dev/sda
+ACPI=/sys/devices/platform/chromeos_acpi
+
+cleanup() {
+  if [ -n "${CLEANUP}" ]; then
+    find "${TMPDIR}" -type f -not -name "${LOGFILE}" -exec rm {} ";"
+  fi
+}
 
 die() {
   echo "$*" 1>&2
@@ -40,17 +57,33 @@ result() {
   fi
 }
 
-# Optional directory name containing "bios.rom" and "*kern*.blob" files. If not
-# provided, we'll attempt to extract them ourselves.
-if [ -d "$1" ]; then
-  TMPDIR="$1"
-  [ -d ${TMPDIR} ] || die "${TMPDIR} doesn't exist"
-  USE_EXISTING=yes
-else
-  TMPDIR=/tmp/debug_vboot
-  [ -d ${TMPDIR} ] || mkdir -p ${TMPDIR}
+require_chromeos_bios() {
+  log cgpt show "${HD}"
+  log rootdev -s
+  if [ ! -e "${ACPI}/HWID" ]; then
+    info "Not running Chrome OS BIOS, no further information available"
+    exit 0
+  fi
+  # including /dev/null just to get final "\n"
+  log head "${ACPI}"/*ID "${ACPI}"/BINF* "${ACPI}"/CHSW /dev/null
+}
+
+# Here we go...
+umask 022
+trap cleanup EXIT
+
+# Parse args
+if [ -n "$1" ]; then
+  if [ "$1" = "--cleanup" ]; then
+    CLEANUP=1
+  else
+    TMPDIR="$1"
+    [ -d ${TMPDIR} ] || die "${TMPDIR} doesn't exist"
+    USE_EXISTING=yes
+  fi
 fi
 
+[ -d ${TMPDIR} ] || mkdir -p ${TMPDIR} || exit 1
 cd ${TMPDIR}
 echo "$0 $*" > "$LOGFILE"
 log date
@@ -62,12 +95,12 @@ BIOS=bios.rom
 if [ -n "$USE_EXISTING" ]; then
   info "Using images in $(pwd)/"
 else
+  require_chromeos_bios
   info "Extracting BIOS image from flash..."
   log flashrom -r ${BIOS}
 
-  # FIXME: support ARM
-  HD_KERN_A=/dev/sda2
-  HD_KERN_B=/dev/sda4
+  HD_KERN_A="${HD}2"
+  HD_KERN_B="${HD}4"
   tmp=$(rootdev -s -d)2
   if [ "$tmp" != "$HD_KERN_A" ]; then
     USB_KERN_A="$tmp"
