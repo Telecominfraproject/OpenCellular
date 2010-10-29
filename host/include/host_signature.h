@@ -32,15 +32,25 @@ int SignatureCopy(VbSignature* dest, const VbSignature* src);
 /* Calculates a SHA-512 checksum.
  * Caller owns the returned pointer, and must free it with Free().
  *
- * Returns NULL if error. */
+ * Returns NULL on error. */
 VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size);
 
 
 /* Calculates a signature for the data using the specified key.
  * Caller owns the returned pointer, and must free it with Free().
  *
- * Returns NULL if error. */
+ * Returns NULL on error. */
 VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
                                 const VbPrivateKey* key);
+
+/* Calculates a signature for the data using the specified key and
+ * an external program.
+ * Caller owns the returned pointer, and must free it with Free().
+ *
+ * Returns NULL on error. */
+VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
+                                         const char* key_file,
+                                         uint64_t key_algorithm,
+                                         const char* external_signer);
 
 #endif  /* VBOOT_REFERENCE_HOST_SIGNATURE_H_ */

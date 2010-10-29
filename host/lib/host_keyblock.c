@@ -70,6 +70,65 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   return h;
 }
 
+/* TODO(gauravsh): This could easily be integrated into KeyBlockCreate()
+ * since the code is almost a mirror - I have kept it as such to avoid changing
+ * the existing interface. */
+VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
+                                          const char* signing_key_pem_file,
+                                          uint64_t algorithm,
+                                          uint64_t flags,
+                                          const char* external_signer) {
+  VbKeyBlockHeader* h;
+  uint64_t signed_size = sizeof(VbKeyBlockHeader) + data_key->key_size;
+  uint64_t block_size = (signed_size + SHA512_DIGEST_SIZE +
+                         siglen_map[algorithm]);
+  uint8_t* data_key_dest;
+  uint8_t* block_sig_dest;
+  uint8_t* block_chk_dest;
+  VbSignature *sigtmp;
+
+  /* Allocate key block */
+  h = (VbKeyBlockHeader*)Malloc(block_size);
+  if (!h)
+    return NULL;
+  if (!signing_key_pem_file || !data_key || !external_signer)
+    return NULL;
+
+  data_key_dest = (uint8_t*)(h + 1);
+  block_chk_dest = data_key_dest + data_key->key_size;
+  block_sig_dest = block_chk_dest + SHA512_DIGEST_SIZE;
+
+  Memcpy(h->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE);
+  h->header_version_major = KEY_BLOCK_HEADER_VERSION_MAJOR;
+  h->header_version_minor = KEY_BLOCK_HEADER_VERSION_MINOR;
+  h->key_block_size = block_size;
+  h->key_block_flags = flags;
+
+  /* Copy data key */
+  PublicKeyInit(&h->data_key, data_key_dest, data_key->key_size);
+  PublicKeyCopy(&h->data_key, data_key);
+
+  /* Set up signature structs so we can calculate the signatures */
+  SignatureInit(&h->key_block_checksum, block_chk_dest,
+                SHA512_DIGEST_SIZE, signed_size);
+  SignatureInit(&h->key_block_signature, block_sig_dest,
+                siglen_map[algorithm], signed_size);
+
+  /* Calculate checksum */
+  sigtmp = CalculateChecksum((uint8_t*)h, signed_size);
+  SignatureCopy(&h->key_block_checksum, sigtmp);
+  Free(sigtmp);
+
+  /* Calculate signature */
+  sigtmp = CalculateSignature_external((uint8_t*)h, signed_size,
+                                       signing_key_pem_file, algorithm,
+                                       external_signer);
+  SignatureCopy(&h->key_block_signature, sigtmp);
+  Free(sigtmp);
+
+  /* Return the header */
+  return h;
+}
 
 /* Read a key block from a .keyblock file.  Caller owns the returned
  * pointer, and must free it with Free().

@@ -6,7 +6,7 @@
  */
 
 #include <getopt.h>
-#include <inttypes.h>  /* For PRIu64 */
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +23,9 @@ enum {
   OPT_DATAPUBKEY,
   OPT_SIGNPUBKEY,
   OPT_SIGNPRIVATE,
+  OPT_SIGNPRIVATE_PEM,
+  OPT_PEM_ALGORITHM,
+  OPT_EXTERNAL_SIGNER,
   OPT_FLAGS,
 };
 
@@ -32,6 +35,9 @@ static struct option long_opts[] = {
   {"datapubkey", 1, 0,                OPT_DATAPUBKEY              },
   {"signpubkey", 1, 0,                OPT_SIGNPUBKEY              },
   {"signprivate", 1, 0,               OPT_SIGNPRIVATE             },
+  {"signprivate_pem", 1, 0,           OPT_SIGNPRIVATE_PEM         },
+  {"pem_algorithm", 1, 0,             OPT_PEM_ALGORITHM           },
+  {"externalsigner", 1, 0,            OPT_EXTERNAL_SIGNER         },
   {"flags", 1, 0,                     OPT_FLAGS                   },
   {NULL, 0, 0, 0}
 };
@@ -49,24 +55,34 @@ static int PrintHelp(char *progname) {
           "\n"
           "Optional OPTIONS are:\n"
           "  --signprivate <file>"
-          "        Signing private key in .vbprivk format. Without this arg,\n"
-          "                                the keyblock will not be signed.\n"
+          "        Signing private key in .vbprivk format.\n"
+          "OR\n"
+          "  --signprivate_pem <file>\n"
+          "  --pem_algorithm <algo>\n"
+          "        Signing private key in .pem format and algorithm id.\n"
+          "(If one of the above arguments is not specified, the keyblock will\n"
+          "not be signed.)\n"
+          "\n"
           "  --flags <number>            Specifies allowed use conditions.\n"
+          "  --externalsigner \"cmd\""
+          "        Use an external program cmd to calculate the signatures.\n"
           "\n"
           "For '--unpack <file>', optional OPTIONS are:\n"
           "  --signpubkey <file>"
-          "         Signing public key in .vbpubk format. This is required to\n"
+          "        Signing public key in .vbpubk format. This is required to\n"
           "                                verify a signed keyblock.\n"
           "  --datapubkey <file>"
-          "         Write the data public key to this file.\n",
+          "        Write the data public key to this file.\n",
           progname);
   return 1;
 }
 
-
 /* Pack a .keyblock */
 static int Pack(const char* outfile, const char* datapubkey,
-                const char* signprivate, uint64_t flags) {
+                const char* signprivate,
+                const char* signprivate_pem, uint64_t pem_algorithm,
+                uint64_t flags,
+                const char* external_signer) {
   VbPublicKey* data_key;
   VbPrivateKey* signing_key = NULL;
   VbKeyBlockHeader* block;
@@ -86,15 +102,37 @@ static int Pack(const char* outfile, const char* datapubkey,
     return 1;
   }
 
-  if (signprivate) {
-    signing_key = PrivateKeyRead(signprivate);
-    if (!signing_key) {
-      fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
+  if (signprivate_pem) {
+    if (pem_algorithm >= kNumAlgorithms) {
+      fprintf(stderr, "vbutil_keyblock: Invalid --pem_algorithm %" PRIu64 "\n",
+              pem_algorithm);
       return 1;
     }
+    if (external_signer) {
+      /* External signing uses the PEM file directly. */
+      block = KeyBlockCreate_external(data_key,
+                                      signprivate_pem, pem_algorithm,
+                                      flags,
+                                      external_signer);
+    } else {
+      signing_key = PrivateKeyReadPem(signprivate, pem_algorithm);
+      if (!signing_key) {
+        fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
+        return 1;
+      }
+      block = KeyBlockCreate(data_key, signing_key, flags);
+    }
+  } else {
+    if (signprivate) {
+      signing_key = PrivateKeyRead(signprivate);
+      if (!signing_key) {
+        fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
+        return 1;
+      }
+    }
+    block = KeyBlockCreate(data_key, signing_key, flags);
   }
 
-  block = KeyBlockCreate(data_key, signing_key, flags);
   Free(data_key);
   if (signing_key)
     Free(signing_key);
@@ -106,7 +144,6 @@ static int Pack(const char* outfile, const char* datapubkey,
   Free(block);
   return 0;
 }
-
 
 static int Unpack(const char* infile, const char* datapubkey,
                   const char* signpubkey) {
@@ -181,7 +218,11 @@ int main(int argc, char* argv[]) {
   char* datapubkey = NULL;
   char* signpubkey = NULL;
   char* signprivate = NULL;
+  char* signprivate_pem = NULL;
+  char* external_signer = NULL;
   uint64_t flags = 0;
+  uint64_t pem_algorithm = 0;
+  int is_pem_algorithm = 0;
   int mode = 0;
   int parse_error = 0;
   char* e;
@@ -219,14 +260,50 @@ int main(int argc, char* argv[]) {
         signprivate = optarg;
         break;
 
+      case OPT_SIGNPRIVATE_PEM:
+        signprivate_pem = optarg;
+        break;
+
+      case OPT_PEM_ALGORITHM:
+        pem_algorithm = strtoul(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          fprintf(stderr, "Invalid --pem_algorithm\n");
+          parse_error = 1;
+        } else {
+          is_pem_algorithm = 1;
+        }
+        break;
+
+      case OPT_EXTERNAL_SIGNER:
+        external_signer = optarg;
+        break;
+
       case OPT_FLAGS:
         flags = strtoul(optarg, &e, 0);
         if (!*optarg || (e && *e)) {
-          printf("Invalid --flags\n");
+          fprintf(stderr, "Invalid --flags\n");
           parse_error = 1;
         }
         break;
     }
+  }
+
+  /* Check if the right combination of options was provided. */
+  if (signprivate && signprivate_pem) {
+    fprintf(stderr, "Only one of --signprivate or --signprivate_pem must"
+            " be specified\n");
+    parse_error = 1;
+  }
+
+  if (signprivate_pem && !is_pem_algorithm) {
+    fprintf(stderr, "--pem_algorithm must be used with --signprivate_pem\n");
+    parse_error = 1;
+  }
+
+  if (external_signer && !signprivate_pem) {
+    fprintf(stderr, "--externalsigner must be used with --signprivate_pem"
+            "\n");
+    parse_error = 1;
   }
 
   if (parse_error)
@@ -234,7 +311,10 @@ int main(int argc, char* argv[]) {
 
   switch(mode) {
     case OPT_MODE_PACK:
-      return Pack(filename, datapubkey, signprivate, flags);
+      return Pack(filename, datapubkey, signprivate,
+                  signprivate_pem, pem_algorithm,
+                  flags,
+                  external_signer);
     case OPT_MODE_UNPACK:
       return Unpack(filename, datapubkey, signpubkey);
     default:

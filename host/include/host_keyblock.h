@@ -13,6 +13,18 @@
 
 
 /* Create a key block header containing [data_key] and [flags], signed
+ * by private key the file [signing_key_pem_file] and algorithm [algorithm]
+ * using the external signer program [external_signer] for all private key
+ * operations.
+ * Caller owns the returned pointer, and must free
+ * it with Free(). */
+VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
+                                          const char* signing_key_pem_file,
+                                          uint64_t algorithm,
+                                          uint64_t flags,
+                                          const char* external_signer);
+
+/* Create a key block header containing [data_key] and [flags], signed
  * by [signing_key].  Caller owns the returned pointer, and must free
  * it with Free(). */
 VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
