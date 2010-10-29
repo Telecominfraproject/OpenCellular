@@ -15,20 +15,20 @@
 
 
 # Require one arg
-if [ $# -ne "1" ]; then
-  echo "Usage: $(basename $0) MODEL" 1>&2
+if [ $# -ne "2" ]; then
+  echo "Usage: $(basename $0) <MODEL> <screen geometry>" 1>&2
   exit 1
 fi
 MODEL=$1
+geom_crop=$2
+
+nicename=${MODEL// /_}
 
 # Default URL
 URL='http://google.com/chromeos/recovery'
 
-
 # Image parameters
 geom_orig='1366x800'
-geom_crop_a='1366x768'
-geom_crop_b='1280x800'
 geom_final='800x600!'
 bluecolor='#9ccaec'
 bluefont="Helvetica-Narrow"
@@ -38,23 +38,18 @@ whitepointsize=48
 
 
 # Temporary files
-tmpdir=$(mktemp -d /tmp/tmp.XXXXXXXXX)
+tmpdir=$(mktemp -d /tmp/tmp.bmp.XXXXXX)
 trap "rm -rf $tmpdir" EXIT
 img_orig="${tmpdir}/img_orig.bmp"
-img_crop_a="${tmpdir}/img_crop_a.bmp"
-img_crop_b="${tmpdir}/img_crop_b.bmp"
-img_txt_a="${tmpdir}/img_txt_a.bmp"
-img_txt_b="${tmpdir}/img_txt_b.bmp"
+img_crop="${tmpdir}/img_crop.bmp"
+img_txt="${tmpdir}/img_txt.bmp"
 label_file="${tmpdir}/label.txt"
 label_img="${tmpdir}/label.bmp"
 
 # Output directories
 thisdir=$(readlink -e $(dirname $0))
-outdir_a=${thisdir}/out_${geom_crop_a}
-[ -d "$outdir_a" ] || mkdir -p "$outdir_a"
-outdir_b=${thisdir}/out_${geom_crop_b}
-[ -d "$outdir_b" ] || mkdir -p "$outdir_b"
-
+outdir="${thisdir}/out_${nicename}"
+[ -d "$outdir" ] || mkdir -p "$outdir"
 
 function find_background_color {
   src_img=$1
@@ -70,12 +65,9 @@ function process_one_file {
   root=$(basename "$src_img")
   root=${root%*.*}
   # one more layer of heirarchy to match BIOS source tree
-  dst_dir_a="${outdir_a}/${root}"
-  [ -d "$dst_dir_a" ] || mkdir -p "$dst_dir_a"
-  dst_dir_b="${outdir_b}/${root}"
-  [ -d "$dst_dir_b" ] || mkdir -p "$dst_dir_b"
-  dst_img_a="${dst_dir_a}/${root}.bmp"
-  dst_img_b="${dst_dir_b}/${root}.bmp"
+  dst_dir="${outdir}/${root}"
+  [ -d "$dst_dir" ] || mkdir -p "$dst_dir"
+  dst_img="${dst_dir}/${root}.bmp"
   echo "processing $root ..."
 
   # First, make sure we start with the right-size original
@@ -85,9 +77,7 @@ function process_one_file {
 
   # Now crop that to the two target sizes
   convert "$img_orig" -gravity Center \
-    -crop "$geom_crop_a"+0+0 +repage "$img_crop_a"
-  convert "$img_orig" -gravity Center \
-    -crop "$geom_crop_b"+0+0 +repage "$img_crop_b"
+    -crop "$geom_crop"+0+0 +repage "$img_crop"
 
   # Add the labels in
   if [ -r "$txt_file" ]; then
@@ -118,16 +108,13 @@ function process_one_file {
     convert -background "$bg" -gravity center ${tmpdir}/linetxt_*.bmp \
       label:'\n\n\n\n' -append "$label_img"
     # Finally, layer the label image on top of the original.
-    composite "$label_img" -gravity south "$img_crop_a" "$img_txt_a"
-    composite "$label_img" -gravity south "$img_crop_b" "$img_txt_b"
+    composite "$label_img" -gravity south "$img_crop" "$img_txt"
   else
-    mv "$img_crop_a" "$img_txt_a"
-    mv "$img_crop_b" "$img_txt_b"
+    mv "$img_crop" "$img_txt"
   fi
 
   # Now scale the result to the final size
-  convert "$img_txt_a" -scale "$geom_final" -alpha off "$dst_img_a"
-  convert "$img_txt_b" -scale "$geom_final" -alpha off "$dst_img_b"
+  convert "$img_txt" -scale "$geom_final" -alpha off "$dst_img"
 }
 
 
@@ -137,6 +124,4 @@ for file in originals/*.gif; do
 done
 
 # Zip up the bitmaps
-nicename=${MODEL// /_}
-(cd "$outdir_a" && zip -qr "${thisdir}/out_${nicename}__${geom_crop_a}.zip" *)
-(cd "$outdir_b" && zip -qr "${thisdir}/out_${nicename}__${geom_crop_b}.zip" *)
+(cd "$outdir" && zip -qr "${geom_crop}.zip" *)
