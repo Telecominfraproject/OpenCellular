@@ -136,40 +136,52 @@ failure:
 }
 
 int main(int argc, char* argv[]) {
+  int cert_mode = 0;
   FILE* fp;
   X509* cert = NULL;
   RSA* pubkey = NULL;
   EVP_PKEY* key;
 
-  if (argc != 2) {
-    fprintf(stderr, "Usage: %s <certfile>\n", argv[0]);
+  if (argc != 3 || (strcmp(argv[1], "-cert") && strcmp(argv[1], "-pub"))) {
+    fprintf(stderr, "Usage: %s <-cert | -pub> <file>\n", argv[0]);
     return -1;
   }
 
-  fp = fopen(argv[1], "r");
+  if (!strcmp(argv[1], "-cert"))
+    cert_mode = 1;
+
+  fp = fopen(argv[2], "r");
 
   if (!fp) {
-    fprintf(stderr, "Couldn't open certificate file!\n");
+    fprintf(stderr, "Couldn't open file %s!\n", argv[2]);
     return -1;
   }
 
-  /* Read the certificate */
-  if (!PEM_read_X509(fp, &cert, NULL, NULL)) {
-    fprintf(stderr, "Couldn't read certificate.\n");
-    goto fail;
-  }
+  if (cert_mode) {
+    /* Read the certificate */
+    if (!PEM_read_X509(fp, &cert, NULL, NULL)) {
+      fprintf(stderr, "Couldn't read certificate.\n");
+      goto fail;
+    }
 
-  /* Get the public key from the certificate. */
-  key = X509_get_pubkey(cert);
+    /* Get the public key from the certificate. */
+    key = X509_get_pubkey(cert);
 
-  /* Convert to a RSA_style key. */
-  if (!(pubkey = EVP_PKEY_get1_RSA(key))) {
-    fprintf(stderr, "Couldn't convert to a RSA style key.\n");
-    goto fail;
+    /* Convert to a RSA_style key. */
+    if (!(pubkey = EVP_PKEY_get1_RSA(key))) {
+      fprintf(stderr, "Couldn't convert to a RSA style key.\n");
+      goto fail;
+    }
+  } else {
+    /* Read the pubkey in .PEM format. */
+    if (!(pubkey = PEM_read_RSA_PUBKEY(fp, NULL, NULL, NULL))) {
+      fprintf(stderr, "Couldn't read public key file.\n");
+      goto fail;
+    }
   }
 
   if (check(pubkey)) {
-    output (pubkey);
+    output(pubkey);
   }
 
 fail:

@@ -32,7 +32,7 @@ function generate_keys {
       -out ${key_base}.crt
 
     # Generate pre-processed key for use by RSA signature verification code.
-    ${UTIL_DIR}/dumpRSAPublicKey ${key_base}.crt \
+    ${UTIL_DIR}/dumpRSAPublicKey -cert ${key_base}.crt \
       > ${key_base}.keyb
 
     alg_index=0

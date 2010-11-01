@@ -53,7 +53,7 @@ function make_pair {
   openssl req -batch -new -x509 -key "${base}_${len}.pem" \
     -out "${base}_${len}.crt"
   # generate pre-processed RSA public key
-  dumpRSAPublicKey "${base}_${len}.crt" > "${base}_${len}.keyb"
+  dumpRSAPublicKey -cert "${base}_${len}.crt" > "${base}_${len}.keyb"
 
   # wrap the public key
   vbutil_key \
