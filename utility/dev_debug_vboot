@@ -43,6 +43,10 @@ log() {
   "$@" >> "$LOGFILE" 2>&1
 }
 
+loghead() {
+  echo "+" "$@" "| head" >> "$LOGFILE"
+  "$@" | head >> "$LOGFILE" 2>&1
+}
 logdie() {
   echo "+" "$@" >> "$LOGFILE"
   "$@" >> "$LOGFILE" 2>&1
@@ -66,6 +70,9 @@ require_chromeos_bios() {
   fi
   # including /dev/null just to get final "\n"
   log head "${ACPI}"/*ID "${ACPI}"/BINF* "${ACPI}"/CHSW /dev/null
+  log reboot_mode
+  log ls -la /mnt/stateful_partition/.need_firmware_update
+  log ls -la /root/.force_update_firmware
 }
 
 # Here we go...
@@ -97,6 +104,7 @@ if [ -n "$USE_EXISTING" ]; then
 else
   require_chromeos_bios
   info "Extracting BIOS image from flash..."
+  log flashrom --wp-status
   log flashrom -r ${BIOS}
 
   HD_KERN_A="${HD}2"
@@ -142,6 +150,7 @@ done
 for keyblock in *kern*.blob; do
   infon "Test $keyblock... "
   log vbutil_keyblock --unpack $keyblock ; result
+  loghead od -Ax -tx1 $keyblock
 done
 
 # Test each kernel with each key
