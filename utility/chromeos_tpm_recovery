@@ -12,9 +12,9 @@
 # require clearing TPM ownership.
 
 tpmc=${USR_BIN:=/usr/bin}/tpmc
-nvtool=$USR_BIN/tpm-nvtool
-tpm_takeownership=${USR_SBIN:=/usr/sbin}/tpm_takeownership
-tcsd=$USR_SBIN/tcsd
+nvtool=${USR_LOCAL_BIN:=/usr/local/bin}/tpm-nvtool
+tpm_takeownership=${USR_LOCAL_SBIN:=/usr/local/sbin}/tpm_takeownership
+tcsd=${USR_SBIN:=/usr/sbin}/tcsd
 dot_recovery=${DOT_RECOVERY:=/mnt/stateful_partition/.recovery}
 acpi=${ACPI_DIR:=/sys/devices/platform/chromeos_acpi}
 awk=/usr/bin/awk
@@ -52,12 +52,16 @@ ensure_tcsd_is_running () {
   if [ $tcsd_pid = 0 ]; then
     $tcsd -f &
     tcsd_pid=$!
+    sleep 2    # give tcsd time to initialize
   fi
 }
 
 ensure_tcsd_is_not_running () {
   if [ $tcsd_pid != 0 ]; then
     kill $tcsd_pid
+    sleep 0.5
+    kill $tcsd_pid > /dev/null 2>&1
+    sleep 0.5
     wait $tcsd_pid > /dev/null 2>&1  # we trust that tcsd will agree to die
     tcsd_pid=0
   fi
@@ -252,7 +256,7 @@ fi
 # Mnemonic: "B, I, N, F, O, and BINFO was his name-o."
 # Except it's a zero (0), not an O.
 BINF0=$acpi/BINF.0
-CRSW=$acpi/CRSW
+CHSW=$acpi/CHSW
 
 # There is no point running unless this a ChromeOS device.
 
@@ -301,8 +305,8 @@ if $tpmc getvf | grep -q "physicalPresence 0"; then
   fi
 fi
 
-DEV_MODE_NOW=$(bit $(cat $CRSW) 4)
-DEV_MODE_AT_BOOT=$(bit $(cat $CRSW) 5)
+DEV_MODE_NOW=$(bit $(cat $CHSW) 4)
+DEV_MODE_AT_BOOT=$(bit $(cat $CHSW) 5)
 
 # Check that bGlobalLock is unset
 
@@ -330,3 +334,4 @@ if [ $tpm_owned_with_well_known_password -eq 1 ]; then
 fi
 
 ensure_tcsd_is_not_running
+log "tpm recovery has completed"

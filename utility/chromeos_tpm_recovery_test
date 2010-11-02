@@ -10,20 +10,39 @@ rm -rf tpm_recovery_test_workdir
 mkdir  tpm_recovery_test_workdir
 cd     tpm_recovery_test_workdir
 
-export USR_BIN=.
-export USR_SBIN=.
-export DOT_RECOVERY=.recovery
-export ACPI_DIR=.
+test_kind=
+if [ $# -ge 1 ]; then
+  test_kind="$1"
+fi
 
-ctr=../chromeos_tpm_recovery
+if [ "$test_kind" != "" -a "$test_kind" != "fake" ]; then
+  echo "$0: usage: $0 [fake]"
+  echo "With fake as the argument, use a simulated TPM instead of the real one"
+fi
 
-# build the permanent environment
+if [ "$test_kind" = "fake" ]; then
+  export USR_BIN=.
+  export USR_SBIN=.
+  export USR_LOCAL_BIN=.
+  export USR_LOCAL_SBIN=.
+  export DOT_RECOVERY=.recovery
+  export ACPI_DIR=.
+  ctr=../chromeos_tpm_recovery
+  tpmc=./tpmc
+else
+  ctr=/usr/sbin/chromeos_tpm_recovery
+  tpmc=tpmc
+fi
+
+# For simplicity, build the permanent environment as if we prepared to run the
+# fake test, even if we're running the test on a real TPM.
 
 echo > .recovery
 echo 3 > BINF.0
-echo 0 > CRSW
+echo 0 > CHSW
 
-space_overhead=200
+export NVRAM_SPACE_OVERHEAD=200
+space_overhead=$NVRAM_SPACE_OVERHEAD
 
 # build tpmc
 cat > tpmc <<"EOF"
@@ -34,7 +53,7 @@ definespace () {
   index=$2
   size=$3
   permissions=$4
-  space_overhead=200
+  space_overhead=$NVRAM_SPACE_OVERHEAD
 
   if [ -e space.$index.data -a -e tpm-owned ]; then
     echo "cannot redefine space without auth"
@@ -44,7 +63,6 @@ definespace () {
   free=$(cat nvram.freespace)
 
   if [ $totalsize -gt $free ]; then
-    echo "tpmc: definespace: need $totalsize, available $free"
     return 17  # NO_SPACE
   fi
 
@@ -142,10 +160,10 @@ EOF
 cat > tpm-nvtool <<"EOF"
 #!/bin/sh -u
 
-space_overhead=200
+space_overhead=$NVRAM_SPACE_OVERHEAD
 
 print_space () {
-  index=$1
+  local index=$1
   printf "# NV Index 0x%08x" $(( $index ))
   echo " uninteresting random garbage"
   echo " further random garbage"
@@ -192,59 +210,134 @@ echo > tcsd_is_running
 sleep 365d
 EOF
 
+tcsd_pid=0
+
+start_tcsd () {
+  if [ $tcsd_pid -ne 0 ]; then
+    echo TCSD is already started
+    exit 1
+  fi
+  tcsd -f &
+  tcsd_pid=$!
+  sleep 2
+}
+
+stop_tcsd () {
+  if [ $tcsd_pid -eq 0 ]; then
+    echo TCSD is already stopped
+    exit 1
+  fi
+  kill $tcsd_pid
+  sleep 0.5
+  kill $tcsd_pid > /dev/null 2>&1
+  sleep 0.5
+  wait $tcsd_pid > /dev/null 2>&1  # we trust that tcsd will agree to die
+  tcsd_pid=0
+}
+
+tpm_clear_and_reenable () {
+  tpmc clear
+  tpmc enable
+  tpmc activate
+}
+
+takeownership () {
+  if [ "$test_kind" = "fake" ]; then
+    touch tpm_owned
+  else
+    tpm_clear_and_reenable
+    start_tcsd
+    tpm_takeownership -y -z
+    stop_tcsd
+  fi
+}
+
+remove_chromeos_spaces () {
+  if [ "$test_kind" = "fake" ]; then
+    rm -f space.*
+    echo 1500 > nvram.freespace
+  else
+    takeownership
+    start_tcsd
+    tpm-nvtool --release --index 0x1007 --owner_password ""
+    tpm-nvtool --release --index 0x1008 --owner_password ""
+    stop_tcsd
+    tpm_clear_and_reenable
+  fi
+}
+
 chmod 755 tpmc tpm-nvtool tpm_takeownership tcsd
 
+echo "starting test, results in $(pwd)/log"
 echo "starting TPM recovery test" > log
 
+if ps ax | grep "tcs[d]"; then
+  echo "a tcsd is process appears to be running, please kill it first"
+  exit 1
+fi
+
 # normal run
-echo "TEST: normal run" > log
+test_normal_run () {
+  echo "TEST: normal run" >> log
 
-echo 1500 > nvram.freespace
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0xd 0x1
+  $tpmc write 0x1008 01 4c 57 52 47
+  takeownership
 
-./tpmc definespace 0x1007 0xa 0x8001
-./tpmc definespace 0x1008 0xd 0x1
-./tpmc write 0x1008 01 4c 57 52 47
-touch tpm-owned
-
-$ctr log
+  $ctr log
+}
 
 # Kernel space with wrong ID
-echo "TEST: bad kernel space ID" >> log
+test_wrong_id () {
+  echo "TEST: bad kernel space ID" >> log
 
-rm space.*
-echo 1500 > nvram.freespace
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0xd 0x1
+  takeownership
 
-./tpmc definespace 0x1007 0xa 0x8001
-./tpmc definespace 0x1008 0xd 0x1
-touch tpm-owned
-
-$ctr log
+  $ctr log
+}
 
 # Kernel space with wrong size
-echo "TEST: bad kernel space size" >> log
+test_wrong_size () {
+  echo "TEST: bad kernel space size" >> log
 
-rm space.*
-echo 1500 > nvram.freespace
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0xc 0x1
+  takeownership
 
-./tpmc definespace 0x1007 0xa 0x8001
-./tpmc definespace 0x1008 0xc 0x1
-touch tpm-owned
-
-$ctr log
+  $ctr log
+}
 
 # Kernel space with wrong size AND bogus space to exhaust nvram
-echo "TEST: bad kernel space size and no room" >> log
+test_wrong_size_hog () {
+  echo "TEST: bad kernel space size and no room" >> log
 
-rm space.*
-echo 1500 > nvram.freespace
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0x1 0x1
+  if [ "$test_kind" = "fake" ]; then
+    space_hog_size=$(( $(cat nvram.freespace) - $space_overhead - 1 ))
+    echo "remaining $(cat nvram.freespace) bytes" >> log
+  else
+    space_hog_size=$(( $(tpm-nvsize) - 2 ))
+  fi
+  echo "hogging $(( $space_hog_size )) bytes" >> log
+  $tpmc definespace 0xcafe $(printf "0x%x" $space_hog_size) 0x1 \
+    || echo "hogging failed!" >> log
+  takeownership
 
-./tpmc definespace 0x1007 0xa 0x8001
-./tpmc definespace 0x1008 0x1 0x1
-space_hog_size=$(printf "0x%x" \
-  $(( $(cat nvram.freespace) - $space_overhead - 1 )) )
-echo "remaining $(cat nvram.freespace) bytes" >> log
-echo "hogging $(( $space_hog_size )) bytes" >> log
-./tpmc definespace 0xcafe $space_hog_size 0x1 || echo "hogging failed!" >> log
-touch tpm-owned
+  $ctr log
+}
 
-$ctr log
+test_normal_run
+test_wrong_id
+test_wrong_size
+test_wrong_size_hog
+
+echo "test completed" >> log
+echo "test completed"

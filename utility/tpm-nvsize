@@ -16,7 +16,7 @@ try=$high
 while true; do
   ## echo trying $try [ $low $high ]
   if /usr/bin/tpmc definespace 0xf004 $(printf "0x%x" $try) 0x1 \
-                                                      > dev/null 2>&1; then
+                                                      > /dev/null 2>&1; then
     # definespace success: end, or $try must grow
     if [ $try -eq $low ]; then
       echo $low
