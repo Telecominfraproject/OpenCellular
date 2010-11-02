@@ -6,7 +6,7 @@
 # Run TPM diagnostics in recovery mode, and attempt to fix problems.  This is
 # specific to devices with chromeos firmware.
 #
-# Usage: chromeos_tpm_recovery <log file>
+# Usage: chromeos-tpm-recovery <log file>
 #
 # Most of the diagnostics examine the TPM state and try to fix it.  This may
 # require clearing TPM ownership.

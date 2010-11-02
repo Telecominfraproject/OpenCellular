@@ -6,9 +6,9 @@
 # Test the chromeos TPM recovery script by faking the entire execution
 # environment.
 
-rm -rf tpm_recovery_test_workdir
-mkdir  tpm_recovery_test_workdir
-cd     tpm_recovery_test_workdir
+rm -rf tpm-recovery-test-workdir
+mkdir  tpm-recovery-test-workdir
+cd     tpm-recovery-test-workdir
 
 test_kind=
 if [ $# -ge 1 ]; then
@@ -27,10 +27,10 @@ if [ "$test_kind" = "fake" ]; then
   export USR_LOCAL_SBIN=.
   export DOT_RECOVERY=.recovery
   export ACPI_DIR=.
-  ctr=../chromeos_tpm_recovery
+  ctr=../chromeos-tpm-recovery
   tpmc=./tpmc
 else
-  ctr=/usr/sbin/chromeos_tpm_recovery
+  ctr=/usr/sbin/chromeos-tpm-recovery
   tpmc=tpmc
 fi
 
