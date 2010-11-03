@@ -266,8 +266,7 @@ VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
   rv = InvokeExternalSigner(signature_digest_len, /* Input length */
                             signature_digest,     /* Input data */
                             GetSignatureData(sig), /* Output sig */
-                            (sizeof(VbSignature) + /* Max Output sig size. */
-                             siglen_map[key_algorithm]) ,
+                            siglen_map[key_algorithm], /* Max Output sig size */
                             key_file,             /* Key file to use */
                             external_signer);     /* External cmd to invoke */
   Free(signature_digest);
