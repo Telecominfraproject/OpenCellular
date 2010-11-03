@@ -15,6 +15,7 @@
 #  verity (from src/platform/verity)
 #  load_kernel_test (from src/platform/vboot_reference)
 #  dumpe2fs
+#  sha1sum
 
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
@@ -43,7 +44,7 @@ set -e
 
 # Make sure the tools we need are available.
 for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity \
-  load_kernel_test dumpe2fs;
+  load_kernel_test dumpe2fs sha1sum;
 do
   type -P "${prereqs}" &>/dev/null || \
     { echo "${prereqs} tool not found."; exit 1; }
@@ -55,12 +56,13 @@ KEY_DIR=$3
 OUTPUT_IMAGE=$4
 
 # Get current rootfs hash and kernel command line
-# ARGS: IMAGE
+# ARGS: IMAGE KERNELPART
 grab_kernel_config() {
   local image=$1
+  local kernelpart=$2  # Kernel partition number to grab.
   # Grab the existing kernel partition and get the kernel config.
   temp_kimage=$(make_temp_file)
-  extract_image_partition ${image} 2 ${temp_kimage}
+  extract_image_partition ${image} ${kernelpart} ${temp_kimage}
   dump_kernel_config ${temp_kimage}
 }
 
@@ -115,12 +117,15 @@ calculate_rootfs_hash() {
 }
 
 # Re-calculate rootfs hash, update rootfs and kernel command line.
-# Args: IMAGE KEYBLOCK PRIVATEKEY
+# Args: IMAGE KEYBLOCK PRIVATEKEY KERNELPART
 update_rootfs_hash() {
-  echo "Recalculating rootfs"
   local image=$1  # Input image.
   local keyblock=$2  # Keyblock for re-generating signed kernel partition
   local signprivate=$3  # Private key to use for signing.
+  local kernelpart=$4  # Kernel partition number to update (usually 2 or 4)
+
+  echo "Updating rootfs hash and updating config for Kernel partition " \
+    "$kernelpart"
 
   # check and clear need_to_resign tag
   local rootfs_dir=$(make_temp_dir)
@@ -135,7 +140,7 @@ update_rootfs_hash() {
 
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${image} 3 ${rootfs_image}
-  local kernel_config=$(grab_kernel_config "${image}")
+  local kernel_config=$(grab_kernel_config "${image}" ${kernelpart})
   local hash_image=$(make_temp_file)
 
   # Disable rw mount support prior to hashing.
@@ -143,6 +148,8 @@ update_rootfs_hash() {
 
   local new_kernel_config=$(calculate_rootfs_hash "${rootfs_image}" \
     "${kernel_config}" "${hash_image}")
+  echo "New config for kernel partition $kernelpart is:"
+  echo $new_kernel_config
 
   local rootfs_blocks=$(sudo dumpe2fs "${rootfs_image}" 2> /dev/null |
     grep "Block count" |
@@ -157,7 +164,7 @@ update_rootfs_hash() {
     seek=${rootfs_sectors} conv=notrunc
 
   local temp_kimage=$(make_temp_file)
-  extract_image_partition ${image} 2 ${temp_kimage}
+  extract_image_partition ${image} ${kernelpart} ${temp_kimage}
   # Re-calculate kernel partition signature and command line.
   local updated_kimage=$(make_temp_file)
   vbutil_kernel --repack ${updated_kimage} \
@@ -166,7 +173,7 @@ update_rootfs_hash() {
     --oldblob ${temp_kimage} \
     --config ${temp_config}
 
-  replace_image_partition ${image} 2 ${updated_kimage}
+  replace_image_partition ${image} ${kernelpart} ${updated_kimage}
   replace_image_partition ${image} 3 ${rootfs_image}
 }
 
@@ -253,12 +260,11 @@ resign_firmware_payload() {
 
 # Verify an image including rootfs hash using the specified keys.
 verify_image() {
-  local kernel_config=$(grab_kernel_config ${INPUT_IMAGE})
+  local kernel_config=$(grab_kernel_config ${INPUT_IMAGE} 2)
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${INPUT_IMAGE} 3 ${rootfs_image}
   local hash_image=$(make_temp_file)
   local type=""
-
 
   # First, perform RootFS verification
   echo "Verifying RootFS hash..."
@@ -312,19 +318,44 @@ sign_for_ssd() {
 
 # Generate the USB (recovery + install) image
 sign_for_recovery() {
-  ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
-    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
-    ${KEY_DIR}/recovery_kernel.keyblock
+  # Update the Kernel B hash in Kernel A command line
+  temp_kimageb=$(make_temp_file)
+  extract_image_partition ${INPUT_IMAGE} 4 ${temp_kimageb}
+  local kern_a_config=$(grab_kernel_config "${INPUT_IMAGE}" 2)
+  local kern_b_hash=$(sha1sum ${temp_kimageb} | cut -f1 -d' ')
+
+  temp_configa=$(make_temp_file)
+  echo "$kern_a_config" | 
+    sed -e "s#\(kern_b_hash=\)[a-z0-9]*#\1${kern_b_hash}#" > ${temp_configa}
+  echo "New config for kernel partition 2 is"
+  cat $temp_configa
+
+  # Make a copy of the input image
+  cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
+  local temp_kimagea=$(make_temp_file)
+  extract_image_partition ${OUTPUT_IMAGE} 2 ${temp_kimagea}
+  # Re-calculate kernel partition signature and command line.
+  local updated_kimagea=$(make_temp_file)
+  vbutil_kernel --repack ${updated_kimagea} \
+    --keyblock ${KEY_DIR}/recovery_kernel.keyblock \
+    --signprivate ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    --oldblob ${temp_kimagea} \
+    --config ${temp_configa}
+  
+  replace_image_partition ${OUTPUT_IMAGE} 2 ${updated_kimagea}
 
   # Now generate the installer vblock with the SSD keys.
-  temp_kimage=$(make_temp_file)
+  # The installer vblock is for KERN-B on recovery images.
   temp_out_vb=$(make_temp_file)
-  extract_image_partition ${OUTPUT_IMAGE} 2 ${temp_kimage}
-  ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimage} ${temp_out_vb} \
+  extract_image_partition ${OUTPUT_IMAGE} 4 ${temp_kimageb}
+  ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimageb} ${temp_out_vb} \
     ${KEY_DIR}/kernel_data_key.vbprivk \
     ${KEY_DIR}/kernel.keyblock
 
   # Copy the installer vblock to the stateful partition.
+  # TODO(gauravsh): Remove this after we get rid of the need to overwrite
+  # the vblock during installs. Kenrn B could directly be signed by the
+  # SSD keys.
   local stateful_dir=$(make_temp_dir)
   mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
@@ -357,19 +388,27 @@ if [ "${TYPE}" == "ssd" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/kernel.keyblock \
-    ${KEY_DIR}/kernel_data_key.vbprivk
+    ${KEY_DIR}/kernel_data_key.vbprivk \
+    2
   sign_for_ssd
 elif [ "${TYPE}" == "recovery" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
+  # Both kernel command lines must have the correct rootfs hash
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
-    ${KEY_DIR}/recovery_kernel_data_key.vbprivk
+    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    4
+  update_rootfs_hash ${INPUT_IMAGE} \
+    ${KEY_DIR}/recovery_kernel.keyblock \
+    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    2
   sign_for_recovery
 elif [ "${TYPE}" == "install" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/installer_kernel.keyblock \
-    ${KEY_DIR}/recovery_kernel_data_key.vbprivk
+    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    2
   sign_for_factory_install
 else
   echo "Invalid type ${TYPE}"
