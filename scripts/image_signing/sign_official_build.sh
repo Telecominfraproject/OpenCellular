@@ -28,6 +28,7 @@ where <type> is one of:
              ssd  (sign an SSD image)
              recovery (sign a USB recovery image)
              install (sign a factory install image)
+             usb  (sign an image to boot directly from USB)
              verify (verify an image including rootfs hashes)
 
 If you are signing an image, you must specify an [output_image].
@@ -316,6 +317,14 @@ sign_for_ssd() {
   echo "Signed SSD image output to ${OUTPUT_IMAGE}"
 }
 
+# Generate the USB image (direct boot)
+sign_for_usb() {
+  ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
+    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    ${KEY_DIR}/recovery_kernel.keyblock
+  echo "Signed USB image output to ${OUTPUT_IMAGE}"
+}
+
 # Generate the USB (recovery + install) image
 sign_for_recovery() {
   # Update the Kernel B hash in Kernel A command line
@@ -391,6 +400,13 @@ if [ "${TYPE}" == "ssd" ]; then
     ${KEY_DIR}/kernel_data_key.vbprivk \
     2
   sign_for_ssd
+elif [ "${TYPE}" == "usb" ]; then
+  resign_firmware_payload ${INPUT_IMAGE}
+  update_rootfs_hash ${INPUT_IMAGE} \
+    ${KEY_DIR}/recovery_kernel.keyblock \
+    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    2
+  sign_for_usb
 elif [ "${TYPE}" == "recovery" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
   # Both kernel command lines must have the correct rootfs hash
