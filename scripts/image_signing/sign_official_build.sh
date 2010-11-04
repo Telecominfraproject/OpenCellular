@@ -322,6 +322,21 @@ sign_for_usb() {
   ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     ${KEY_DIR}/recovery_kernel.keyblock
+
+  # Now generate the installer vblock with the SSD keys.
+  # The installer vblock is for KERN-A on direct boot images.
+  temp_kimagea=$(make_temp_file)
+  temp_out_vb=$(make_temp_file)
+  extract_image_partition ${OUTPUT_IMAGE} 2 ${temp_kimagea}
+  ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimagea} ${temp_out_vb} \
+    ${KEY_DIR}/kernel_data_key.vbprivk \
+    ${KEY_DIR}/kernel.keyblock
+
+  # Copy the installer vblock to the stateful partition.
+  local stateful_dir=$(make_temp_dir)
+  mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
+  sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
+
   echo "Signed USB image output to ${OUTPUT_IMAGE}"
 }
 
@@ -362,8 +377,8 @@ sign_for_recovery() {
     ${KEY_DIR}/kernel.keyblock
 
   # Copy the installer vblock to the stateful partition.
-  # TODO(gauravsh): Remove this after we get rid of the need to overwrite
-  # the vblock during installs. Kenrn B could directly be signed by the
+  # TODO(gauravsh): Remove this if we get rid of the need to overwrite
+  # the vblock during installs. Kern B could directly be signed by the
   # SSD keys.
   local stateful_dir=$(make_temp_dir)
   mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
