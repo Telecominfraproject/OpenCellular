@@ -6,7 +6,7 @@
 
 # Customizes a Chrome OS release image by setting the chronos user password.
 
-# Usage: ./set_chronos_password.sh <image.bin> <chronos_password>
+# Usage: ./set_chronos_password.sh <image.bin> <chronos_password> [--force]
 
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
@@ -29,17 +29,25 @@ main() {
 
   local image=$1
   local chronos_password=$2
-  if [ $# -ne 2 ]; then
-    echo "Usage: $PROG <image.bin> <chronos_password>"
+  if [ $# -ne 2 ] && [ $# -ne 3 ] || [ ! $3 = "--force" ] ; then
+    echo "Usage: $PROG <image.bin> <chronos_password> [--force]"
     exit 1
   fi
 
-  local rootfs=$(mktemp -d)
+  local rootfs=$(make_temp_dir)
+  if [ $# -eq 2 ]; then
+    mount_image_partition_ro "$image" 3 "$rootfs"
+    if ! no_chronos_password "$rootfs"; then
+      echo "Password is already set [use --force if you'd like to update it]"
+      exit 1
+    fi
+    # Prepare for remounting read/write.
+    sudo umount -d $rootfs
+  fi
   mount_image_partition "$image" 3 "$rootfs"
-  trap "sudo umount -d $rootfs; rm -rf $rootfs" EXIT
   change_chronos_password "$rootfs" "$chronos_password"
   touch "$image"  # Updates the image modification time.
-  echo "Done."
+  echo "Password Changed."
 }
 
 main $@

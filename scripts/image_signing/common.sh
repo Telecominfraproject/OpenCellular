@@ -238,5 +238,12 @@ rw_mount_disabled() {
   return 1
 }
 
+# Check if the 'chronos' user already has a password
+# ARGS: rootfs
+no_chronos_password() {
+  local rootfs=$1
+  sudo grep -q '^chronos:\*:' "$rootfs/etc/shadow"
+}
+
 trap "cleanup_temps_and_mounts" EXIT
 
