@@ -390,7 +390,7 @@ sign_for_recovery() {
 # Generate the factory install image.
 sign_for_factory_install() {
   ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
-    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    ${KEY_DIR}/installer_kernel_data_key.vbprivk \
     ${KEY_DIR}/installer_kernel.keyblock
   echo "Signed factory install image output to ${OUTPUT_IMAGE}"
 }
@@ -438,7 +438,7 @@ elif [ "${TYPE}" == "install" ]; then
   resign_firmware_payload ${INPUT_IMAGE}
   update_rootfs_hash ${INPUT_IMAGE} \
     ${KEY_DIR}/installer_kernel.keyblock \
-    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+    ${KEY_DIR}/installer_kernel_data_key.vbprivk \
     2
   sign_for_factory_install
 else
