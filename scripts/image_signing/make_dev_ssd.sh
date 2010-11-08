@@ -59,11 +59,15 @@ debug_msg() {
 # Removes rootfs verification from kernel boot parameter
 remove_rootfs_verification() {
   echo "$*" | sed '
-    s|dm_verity[^ ]\+||g
-    s| ro | rw |
-    s|verity /dev/sd%D%P /dev/sd%D%P ||
     s| root=/dev/dm-0 | root=/dev/sd%D%P |
-    s|dm="[^"]\+" ||'
+    s| dm_verity[^=]*=[-0-9]*||g
+    s| dm="[^"]*"||
+    s| ro | rw |'
+}
+
+# Checks if rootfs verification is enabled from kernel boot parameter
+is_rootfs_verification_enabled() {
+  echo "$*" | grep -q 'root=/dev/dm-0'
 }
 
 # Wrapped version of dd
@@ -103,6 +107,7 @@ resign_ssd_kernel() {
     local old_blob="$(make_temp_file)"
     local new_blob="$(make_temp_file)"
     local name="$(cros_kernel_name $kernel_index)"
+    local rootfs_index="$(($kernel_index + 1))"
 
     debug_msg "Probing $name information"
     local offset size
@@ -111,11 +116,11 @@ resign_ssd_kernel() {
     size="$(partsize "$ssd_device" "$kernel_index")" ||
       err_die "Failed to get partition $kernel_index size from $ssd_device"
     if [ ! $size -gt $min_kernel_size ]; then
-      echo "WARNING: $name seems too small ($size), ignored."
+      echo "INFO: $name seems too small ($size), ignored."
       continue
     fi
     if [ ! $size -le $max_kernel_size ]; then
-      echo "WARNING: $name seems too large ($size), ignored."
+      echo "INFO: $name seems too large ($size), ignored."
       continue
     fi
 
@@ -127,30 +132,16 @@ resign_ssd_kernel() {
     if ! old_kernel_config="$(dump_kernel_config "$old_blob" 2>"$EXEC_LOG")"
     then
       debug_msg "dump_kernel_config error message: $(cat "$EXEC_LOG")"
-      echo "WARNING: $name: no kernel boot information, ignored."
+      echo "INFO: $name: no kernel boot information, ignored."
       continue
     fi
 
-    debug_msg "Decide and prepare signing parameters"
-    local resign_command
-    # TODO(hungte) $KERNEL_KEYBLOCK and $new_kernel_config should also be
-    # quoted, but quoting inside would cause extra quote... We should find some
-    # better way to do this, for example using eval.
-    if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_TRUE ]; then
-      local new_kernel_config_file="$(make_temp_file)"
-      remove_rootfs_verification "$old_kernel_config" >"$new_kernel_config_file"
-      resign_command="--config $new_kernel_config_file"
-      debug_msg "New kernel config: $(cat $new_kernel_config_file)"
-      echo "$name: Disabled rootfs verification."
-    else
-      resign_command="--vblockonly --keyblock $KERNEL_KEYBLOCK"
-    fi
-
     debug_msg "Re-signing $name from $old_blob to $new_blob"
-    debug_msg "Using key: $KERNEL_DATAKEY, command: $resign_command"
+    debug_msg "Using key: $KERNEL_DATAKEY"
+
     vbutil_kernel \
       --repack "$new_blob" \
-      $resign_command \
+      --vblockonly --keyblock "$KERNEL_KEYBLOCK" \
       --signprivate "$KERNEL_DATAKEY" \
       --oldblob "$old_blob" >"$EXEC_LOG" 2>&1 ||
       err_die "Failed to resign $name. Message: $(cat "$EXEC_LOG")"
@@ -159,6 +150,25 @@ resign_ssd_kernel() {
     local new_kern="$(make_temp_file)"
     cp "$old_blob" "$new_kern"
     mydd if="$new_blob" of="$new_kern" conv=notrunc
+
+    if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_FALSE ]; then
+      debug_msg "Bypassing rootfs verification check"
+    elif ! is_rootfs_verification_enabled "$old_kernel_config"; then
+      echo "INFO: $name: rootfs verification was not enabled."
+    else
+      debug_msg "Changing boot parameter to remove rootfs verification"
+      local new_kernel_config_file="$(make_temp_file)"
+      remove_rootfs_verification "$old_kernel_config" >"$new_kernel_config_file"
+      debug_msg "New kernel config: $(cat $new_kernel_config_file)"
+      vbutil_kernel \
+        --repack "$new_blob" \
+        --config "$new_kernel_config_file" \
+        --signprivate "$KERNEL_DATAKEY" \
+        --oldblob "$new_kern" >"$EXEC_LOG" 2>&1 ||
+      err_die "Failed to resign $name. Message: $(cat "$EXEC_LOG")"
+      echo "$name: Disabled rootfs verification."
+      mydd if="$new_blob" of="$new_kern" conv=notrunc
+    fi
 
     if is_debug_mode; then
       debug_msg "for debug purposes, check *.dbgbin"
@@ -195,6 +205,27 @@ resign_ssd_kernel() {
       conv=notrunc
     resigned_kernels=$(($resigned_kernels + 1))
 
+    debug_msg "Make the root filesystem writable if needed."
+    # TODO(hungte) for safety concern, a more robust way would be to:
+    # (1) change kernel config to ro
+    # (2) check if we can enable rw mount
+    # (3) change kernel config to rw
+    if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_TRUE ]; then
+      local root_offset_sector=$(partoffset "$ssd_device" $rootfs_index)
+      local root_offset_bytes=$((root_offset_sector * 512))
+      if ! is_ext2 "$ssd_device" "$root_offset_bytes"; then
+        debug_msg "Non-ext2 partition: $ssd_device$rootfs_index, skip."
+      elif ! rw_mount_disabled "$ssd_device" "$root_offset_bytes"; then
+        debug_msg "Root file system is writable. No need to modify."
+      else
+        # disable the RO ext2 hack
+        debug_msg "Disabling rootfs ext2 RO bit hack"
+        enable_rw_mount "$ssd_device" "$root_offset_bytes" >"$EXEC_LOG" 2>&1 ||
+          err_die "Failed turning off rootfs RO bit. OS may be corrupted. " \
+                  "Message: $(cat "$EXEC_LOG")"
+      fi
+    fi
+
     # Sometimes doing "dump_kernel_config" or other I/O now (or after return to
     # shell) will get the data before modification. Not a problem now, but for
     # safety, let's try to sync more.
@@ -221,12 +252,6 @@ main() {
     "$KERNEL_PUBKEY" \
     "$FLAGS_image" ||
     exit 1
-
-  # Make the root filesystem remountable if needed.
-  if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_TRUE ]; then
-    local root_offset=$(partoffset "$FLAGS_image" 3)
-    enable_rw_mount "$FLAGS_image" "$((root_offset * 512))"
-  fi
 
   resign_ssd_kernel "$FLAGS_image" || num_signed=$?
 
