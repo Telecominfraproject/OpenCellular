@@ -13,24 +13,7 @@
 
 #include "sysincludes.h"
 #include "tss_constants.h"
-
-/*****************************************************************************/
-/* Functions to be implemented by the stub library */
-
-/* Initialize the stub library */
-void TlclStubInit(void);
-
-/* Close and open the device.  This is needed for running more complex commands
- * at user level, such as TPM_TakeOwnership, since the TPM device can be opened
- * only by one process at a time.
- */
-void TlclCloseDevice(void);
-void TlclOpenDevice(void);
-
-/* Send data to the TPM and receive a response.  Returns 0 if success,
- * nonzero if error. */
-uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
-                             uint8_t* response, int max_length);
+#include "tlcl_stub.h"
 
 /*****************************************************************************/
 /* Functions implemented in tlcl.c */

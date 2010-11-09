@@ -13,7 +13,7 @@ INCLUDES += \
 	-I$(FWDIR)/lib/cryptolib/include
 
 # find ./lib -iname '*.c' | sort
-ALL_SRCS = \
+LIB_SRCS = \
 	./lib/file_keys.c \
 	./lib/host_common.c \
 	./lib/host_key.c \
@@ -22,12 +22,22 @@ ALL_SRCS = \
 	./lib/host_signature.c \
 	./lib/signature_digest.c
 
+STUB_SRCS = \
+	../firmware/stub/boot_device_stub.c \
+	../firmware/stub/load_firmware_stub.c \
+	../firmware/stub/tpm_lite_stub.c \
+	../firmware/stub/utility_stub.c
+
+ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS}
+
 test : $(HOSTLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out $(TESTDIR)/main.c \
-	$(HOSTLIB) $(FWLIB) -lcrypto
+	$(HOSTLIB) -lcrypto
 
 include ../common.mk
 
-$(HOSTLIB) : $(ALL_OBJS)
-	rm -f $@
-	ar qc $@ $^
+$(HOSTLIB) : $(ALL_OBJS) $(FWLIB)
+	rm -rf $@ $(BUILD_ROOT)/.tmp
+	mkdir -p $(BUILD_ROOT)/.tmp
+	cd $(BUILD_ROOT)/.tmp ; ar x $(FWLIB)
+	ar qc $@ $^ $(BUILD_ROOT)/.tmp/*.o

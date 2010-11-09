@@ -21,7 +21,7 @@ export INCLUDES = -I$(FWDIR)/include -I$(FWDIR)/stub/include
 
 export BUILD = ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
-export HOSTLIB= ${BUILD}/vboot_host.a
+export HOSTLIB = ${BUILD}/vboot_host.a
 
 SUBDIRS = firmware host utility cgpt tests tests/tpm_lite
 

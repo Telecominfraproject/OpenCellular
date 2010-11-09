@@ -40,17 +40,21 @@ LIB_SRCS = \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c
 
+LIB_OBJS = $(LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
+
 STUB_SRCS = \
 	./stub/boot_device_stub.c \
 	./stub/load_firmware_stub.c \
 	./stub/tpm_lite_stub.c \
 	./stub/utility_stub.c
 
+STUB_OBJS = $(STUB_SRCS:%.c=${BUILD_ROOT}/%.o)
+
 ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS} version.c
 
-test : $(FWLIB) update-version
+test : $(STUB_OBJS) $(FWLIB) update-version
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out \
-		$(TESTDIR)/main.c $(LIBS)
+		$(TESTDIR)/main.c $(STUB_OBJS) $(LIBS)
 
 # This is executed at every make, to see if anything has changed
 update-version :
@@ -65,6 +69,6 @@ update-version :
 
 include ../common.mk
 
-$(FWLIB) : $(ALL_OBJS)
+$(FWLIB) : $(LIB_OBJS)
 	rm -f $@
 	ar qc $@ $^

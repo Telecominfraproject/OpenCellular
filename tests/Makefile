@@ -27,7 +27,7 @@ TEST_LIB_OBJS = $(TEST_LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 ALL_DEPS = $(addsuffix .d,${TEST_BINS} ${TEST_LIB_OBJS})
 CFLAGS +=  -MMD -MF $@.d
 
-LIBS := ${TEST_LIB} $(HOSTLIB) $(FWLIB)
+LIBS := ${TEST_LIB} $(HOSTLIB)
 
 ifneq (${RUNTESTS},)
 EXTRA_TARGET = runtests
@@ -44,9 +44,9 @@ ${TEST_LIB}: ${TEST_LIB_OBJS}
 ${BUILD_ROOT}/rollback_index_test.o : rollback_index_test.c
 	$(CC) $(CFLAGS) -I/usr/include $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
 
-${BUILD_ROOT}/rollback_index_test: rollback_index_test.c ${HOSTLIB} ${FWLIB}
+${BUILD_ROOT}/rollback_index_test: rollback_index_test.c ${HOSTLIB}
 	$(CC) $(CFLAGS) -I/usr/include $(INCLUDES) $< -o $@ \
-        -ltlcl ${HOSTLIB} ${FWLIB} -lcrypto -lrt
+        -ltlcl ${HOSTLIB} -lcrypto -lrt
 
 ${BUILD_ROOT}/%.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<

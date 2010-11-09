@@ -6,8 +6,8 @@
  * the firmware
  */
 
-#ifndef TPM_LITE_TSS_CONSTANTS_H_
-#define TPM_LITE_TSS_CONSTANTS_H_
+#ifndef VBOOT_REFERENCE_TSS_CONSTANTS_H_
+#define VBOOT_REFERENCE_TSS_CONSTANTS_H_
 
 #include "sysincludes.h"
 
@@ -87,4 +87,4 @@ typedef struct tdTPM_STCLEAR_FLAGS{
   TSS_BOOL bGlobalLock;
 } TPM_STCLEAR_FLAGS;
 
-#endif  /* TPM_LITE_TSS_CONSTANTS_H_ */
+#endif  /* VBOOT_REFERENCE_TSS_CONSTANTS_H_ */

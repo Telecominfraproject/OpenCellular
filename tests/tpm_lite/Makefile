@@ -31,7 +31,7 @@ SHARED_TEST_OBJ = $(BUILD_ROOT)/tlcl_tests.o
 ALL_DEPS = $(addsuffix .d,${TEST_BINS})
 CFLAGS +=  -MMD -MF $@.d
 
-LIBS := ${TEST_LIB} $(HOSTLIB) $(FWLIB)
+LIBS := ${TEST_LIB} $(HOSTLIB)
 
 all: $(TEST_BINS)
 

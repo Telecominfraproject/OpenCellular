@@ -10,7 +10,7 @@ INCLUDES += -I./include \
 		-I$(HOSTDIR)/include
 CFLAGS += $(INCLUDES)
 CFLAGS += -MMD -MF $@.d
-LIBS = $(HOSTLIB) $(FWLIB)
+LIBS = $(HOSTLIB)
 HOSTCC = cc
 
 BUILD_ROOT = ${BUILD}/utility
