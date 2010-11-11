@@ -90,8 +90,11 @@ runcryptotests:
 runmisctests:
 	./run_vbutil_tests.sh
 
+#This will exercise vbutil_kernel and vbutil_firmware
+runfuzztests:
+	./gen_fuzz_test_cases.sh
 
-runtests: genkeys runcgpttests runcryptotests runmisctests
+runtests: genkeys runcgpttests runcryptotests runmisctests runfuzztests
 
 # TODO: tests to run when ported to new API
 #	./run_image_verification_tests.sh
