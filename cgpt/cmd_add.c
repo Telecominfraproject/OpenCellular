@@ -198,6 +198,13 @@ int cmd_add(int argc, char *argv[]) {
     return CGPT_FAILED;
   }
 
+  if (((drive.gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
+      ((drive.gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
+    Error("one of the GPT header/entries is invalid.\n"
+          "please run 'cgpt repair' before adding anything.\n");
+    return CGPT_FAILED;
+  }
+
   uint32_t max_part = GetNumberOfEntries(&drive.gpt);
   if (partition) {
     if (partition > max_part) {

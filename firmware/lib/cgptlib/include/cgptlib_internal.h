@@ -61,8 +61,12 @@
 /* alias name of index in internal array for primary and secondary header and
  * entries. */
 enum {
+  /* constants for index */
   PRIMARY = 0,
   SECONDARY = 1,
+  ANY_VALID = 9999,  /* accept any between primary and secondary */
+
+  /* constants for bit mask */
   MASK_NONE = 0,
   MASK_PRIMARY = 1,
   MASK_SECONDARY = 2,

@@ -480,8 +480,16 @@ GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
 
   if (secondary == PRIMARY) {
     entries = gpt->primary_entries;
-  } else {
+  } else if (secondary == SECONDARY) {
     entries = gpt->secondary_entries;
+  } else {  /* ANY_VALID */
+    require(secondary == ANY_VALID);
+    if (gpt->valid_entries & MASK_PRIMARY) {
+      entries = gpt->primary_entries;
+    } else {
+      require(gpt->valid_entries & MASK_SECONDARY);
+      entries = gpt->secondary_entries;
+    }
   }
 
   return (GptEntry*)(&entries[stride * entry_index]);
@@ -570,12 +578,12 @@ void UpdateCrc(GptData *gpt) {
   if (gpt->modified & GPT_MODIFIED_HEADER1) {
     primary_header->header_crc32 = 0;
     primary_header->header_crc32 = Crc32(
-        (const uint8_t *)primary_header, primary_header->size);
+        (const uint8_t *)primary_header, sizeof(GptHeader));
   }
   if (gpt->modified & GPT_MODIFIED_HEADER2) {
     secondary_header->header_crc32 = 0;
     secondary_header->header_crc32 = Crc32(
-        (const uint8_t *)secondary_header, secondary_header->size);
+        (const uint8_t *)secondary_header, sizeof(GptHeader));
   }
 }
 /* Two headers are NOT bitwise identical. For example, my_lba pointers to header
@@ -662,14 +670,14 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
       return GPT_MODIFIED_HEADER2;
     }
   } else if (valid_headers == MASK_PRIMARY) {
-    memcpy(secondary_header, primary_header, primary_header->size);
+    memcpy(secondary_header, primary_header, sizeof(GptHeader));
     secondary_header->my_lba = gpt->drive_sectors - 1;  /* the last sector */
     secondary_header->alternate_lba = primary_header->my_lba;
     secondary_header->entries_lba = secondary_header->my_lba -
         GPT_ENTRIES_SECTORS;
     return GPT_MODIFIED_HEADER2;
   } else if (valid_headers == MASK_SECONDARY) {
-    memcpy(primary_header, secondary_header, secondary_header->size);
+    memcpy(primary_header, secondary_header, sizeof(GptHeader));
     primary_header->my_lba = GPT_PMBR_SECTOR;  /* the second sector on drive */
     primary_header->alternate_lba = secondary_header->my_lba;
     primary_header->entries_lba = primary_header->my_lba + GPT_HEADER_SECTOR;
@@ -693,4 +701,3 @@ void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen) {
     require(snprintf(str, buflen, "PMBR (Boot GUID: %s)", buf) < buflen);
   }
 }
-

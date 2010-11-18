@@ -132,7 +132,7 @@ int cmd_boot(int argc, char *argv[]) {
     }
 
     uint32_t index = partition - 1;
-    GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
+    GptEntry *entry = GetEntry(&drive.gpt, ANY_VALID, index);
     memcpy(&drive.pmbr.boot_guid, &entry->unique, sizeof(Guid));
   }
 

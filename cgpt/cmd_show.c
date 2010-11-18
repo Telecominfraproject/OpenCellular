@@ -274,7 +274,7 @@ int cmd_show(int argc, char *argv[]) {
     }
 
     uint32_t index = partition - 1;
-    GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
+    GptEntry *entry = GetEntry(&drive.gpt, ANY_VALID, index);
     char buf[256];                      // scratch buffer for string conversion
 
     if (single_item) {
@@ -299,13 +299,13 @@ int cmd_show(int argc, char *argv[]) {
         printf("%s\n", buf);
         break;
       case 'S':
-        printf("%d\n", GetSuccessful(&drive.gpt, PRIMARY, index));
+        printf("%d\n", GetSuccessful(&drive.gpt, ANY_VALID, index));
         break;
       case 'T':
-        printf("%d\n", GetTries(&drive.gpt, PRIMARY, index));
+        printf("%d\n", GetTries(&drive.gpt, ANY_VALID, index));
         break;
       case 'P':
-        printf("%d\n", GetPriority(&drive.gpt, PRIMARY, index));
+        printf("%d\n", GetPriority(&drive.gpt, ANY_VALID, index));
         break;
       case 'A':
         printf("0x%x\n", entry->attrs.fields.gpt_att);
@@ -322,7 +322,7 @@ int cmd_show(int argc, char *argv[]) {
     char type[GUID_STRLEN];
 
     for (i = 0; i < GetNumberOfEntries(&drive.gpt); ++i) {
-      entry = GetEntry(&drive.gpt, PRIMARY, i);
+      entry = GetEntry(&drive.gpt, ANY_VALID, i);
 
       if (IsZero(&entry->type))
         continue;

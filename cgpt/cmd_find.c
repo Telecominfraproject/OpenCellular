@@ -171,7 +171,7 @@ static int do_search(char *filename) {
   }
 
   for (i = 0; i < GetNumberOfEntries(&drive.gpt); ++i) {
-    entry = GetEntry(&drive.gpt, PRIMARY, i);
+    entry = GetEntry(&drive.gpt, ANY_VALID, i);
 
     if (IsZero(&entry->type))
       continue;
