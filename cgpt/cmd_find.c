@@ -181,12 +181,8 @@ static int do_search(char *filename) {
         (set_type && !memcmp(&type_guid, &entry->type, sizeof(Guid)))) {
       found = 1;
     } else if (set_label) {
-      if (CGPT_OK != UTF16ToUTF8(entry->name,
-                                 sizeof(entry->name) / sizeof(entry->name[0]),
-                                 (uint8_t *)partlabel, sizeof(partlabel))) {
-        Error("The label cannot be converted to UTF16, so abort.\n");
-        return 0;
-      }
+      UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
+                  (uint8_t *)partlabel, sizeof(partlabel));
       if (!strncmp(label, partlabel, sizeof(partlabel))) {
         found = 1;
       }

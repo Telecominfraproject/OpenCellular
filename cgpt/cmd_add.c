@@ -251,11 +251,8 @@ int cmd_add(int argc, char *argv[]) {
   if (set_unique)
     memcpy(&entry->unique, &unique_guid, sizeof(Guid));
   if (label) {
-    if (CGPT_OK != UTF8ToUTF16((uint8_t *)label, entry->name,
-                               sizeof(entry->name) / sizeof(entry->name[0]))) {
-      Error("The label cannot be converted to UTF16.\n");
-      goto bad;
-    }
+    UTF8ToUTF16((uint8_t *)label, entry->name,
+                sizeof(entry->name) / sizeof(entry->name[0]));
   }
   if (set_raw) {
     entry->attrs.fields.gpt_att = raw_value;
