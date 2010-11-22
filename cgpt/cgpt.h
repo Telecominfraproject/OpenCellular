@@ -81,14 +81,22 @@ int WritePMBR(struct drive *drive);
 
 /* Convert possibly unterminated UTF16 string to UTF8.
  * Caller must prepare enough space for UTF8, which could be up to
- * twice the number of UTF16 chars plus the terminating '\0'.
+ * twice the byte length of UTF16 string plus the terminating '\0'.
+ *
+ * Return: CGPT_OK --- all character are converted successfully.
+ *         CGPT_FAILED --- convert error, i.e. output buffer is too short.
  */
-void UTF16ToUTF8(const uint16_t *utf16, unsigned int maxinput,
-                 uint8_t *utf8, unsigned int maxoutput);
+int UTF16ToUTF8(const uint16_t *utf16, unsigned int maxinput,
+                uint8_t *utf8, unsigned int maxoutput);
+
 /* Convert null-terminated UTF8 string to UTF16.
- * Caller must prepare enough space for UTF16, including a terminating 0x0000
+ * Caller must prepare enough space for UTF16, which is the byte length of UTF8
+ * plus the terminating 0x0000.
+ *
+ * Return: CGPT_OK --- all character are converted successfully.
+ *         CGPT_FAILED --- convert error, i.e. output buffer is too short.
  */
-void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput);
+int UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput);
 
 /* Helper functions for supported GPT types. */
 int ResolveType(const Guid *type, char *buf);

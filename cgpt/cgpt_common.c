@@ -350,56 +350,211 @@ void GuidToStr(const Guid *guid, char *str, unsigned int buflen) {
 
 /* Convert possibly unterminated UTF16 string to UTF8.
  * Caller must prepare enough space for UTF8, which could be up to
- * twice the number of UTF16 chars plus the terminating '\0'.
- * FIXME(wfrichar): The original implementation had security issues. As a
- * temporary fix, I'm making this ONLY support ASCII codepoints. Bug 7542
- * (http://code.google.com/p/chromium-os/issues/detail?id=7542) is filed to fix
- * this.
+ * twice the byte length of UTF16 string plus the terminating '\0'.
+ * See the following table for encoding lengths.
+ *
+ *     Code point       UTF16       UTF8
+ *   0x0000-0x007F     2 bytes     1 byte
+ *   0x0080-0x07FF     2 bytes     2 bytes
+ *   0x0800-0xFFFF     2 bytes     3 bytes
+ *  0x10000-0x10FFFF   4 bytes     4 bytes
+ *
+ * This function uses a simple state meachine to convert UTF-16 char(s) to
+ * a code point. Once a code point is parsed out, the state machine throws
+ * out sequencial UTF-8 chars in one time.
+ *
+ * Return: CGPT_OK --- all character are converted successfully.
+ *         CGPT_FAILED --- convert error, i.e. output buffer is too short.
  */
-void UTF16ToUTF8(const uint16_t *utf16, unsigned int maxinput,
-                 uint8_t *utf8, unsigned int maxoutput)
+int UTF16ToUTF8(const uint16_t *utf16, unsigned int maxinput,
+                uint8_t *utf8, unsigned int maxoutput)
 {
   size_t s16idx, s8idx;
-  uint32_t utfchar;
+  uint32_t code_point = 0;
+  int code_point_ready = 1;  // code point is ready to output.
+  int retval = CGPT_OK;
 
   if (!utf16 || !maxinput || !utf8 || !maxoutput)
-    return;
+    return CGPT_FAILED;
 
   maxoutput--;                             /* plan for termination now */
 
   for (s16idx = s8idx = 0;
        s16idx < maxinput && utf16[s16idx] && maxoutput;
-       s16idx++, maxoutput--) {
-    utfchar = le16toh(utf16[s16idx]);
-    utf8[s8idx++] = utfchar & 0x7F;
+       s16idx++) {
+    uint16_t codeunit = le16toh(utf16[s16idx]);
+
+    if (code_point_ready) {
+      if (codeunit >= 0xD800 && codeunit <= 0xDBFF) {
+        /* high surrogate, need the low surrogate. */
+        code_point_ready = 0;
+        code_point = (codeunit & 0x03FF) + 0x0040;
+      } else {
+        /* BMP char, output it. */
+        code_point = codeunit;
+      }
+    } else {
+      /* expect the low surrogate */
+      if (codeunit >= 0xDC00 && codeunit <= 0xDFFF) {
+        code_point = (code_point << 10) | (codeunit & 0x03FF);
+        code_point_ready = 1;
+      } else {
+        /* the second code unit is NOT the low surrogate. Unexpected. */
+        code_point_ready = 0;
+        retval = CGPT_FAILED;
+        break;
+      }
+    }
+
+    /* If UTF code point is ready, output it. */
+    if (code_point_ready) {
+      require(code_point <= 0x10FFFF);
+      if (code_point <= 0x7F && maxoutput >= 1) {
+        maxoutput -= 1;
+        utf8[s8idx++] = code_point & 0x7F;
+      } else if (code_point <= 0x7FF && maxoutput >= 2) {
+        maxoutput -= 2;
+        utf8[s8idx++] = 0xC0 | (code_point >> 6);
+        utf8[s8idx++] = 0x80 | (code_point & 0x3F);
+      } else if (code_point <= 0xFFFF && maxoutput >= 3) {
+        maxoutput -= 3;
+        utf8[s8idx++] = 0xE0 | (code_point >> 12);
+        utf8[s8idx++] = 0x80 | ((code_point >> 6) & 0x3F);
+        utf8[s8idx++] = 0x80 | (code_point & 0x3F);
+      } else if (code_point <= 0x10FFFF && maxoutput >= 4) {
+        maxoutput -= 4;
+        utf8[s8idx++] = 0xF0 | (code_point >> 18);
+        utf8[s8idx++] = 0x80 | ((code_point >> 12) & 0x3F);
+        utf8[s8idx++] = 0x80 | ((code_point >> 6) & 0x3F);
+        utf8[s8idx++] = 0x80 | (code_point & 0x3F);
+      } else {
+        /* buffer underrun */
+        retval = CGPT_FAILED;
+        break;
+      }
+    }
   }
   utf8[s8idx++] = 0;
+  return retval;
 }
 
 /* Convert UTF8 string to UTF16. The UTF8 string must be null-terminated.
  * Caller must prepare enough space for UTF16, including a terminating 0x0000.
- * FIXME(wfrichar): The original implementation had security issues. As a
- * temporary fix, I'm making this ONLY support ASCII codepoints. Bug 7542
- * (http://code.google.com/p/chromium-os/issues/detail?id=7542) is filed to fix
- * this.
+ * See the following table for encoding lengths. In any case, the caller
+ * just needs to prepare the byte length of UTF8 plus the terminating 0x0000.
+ *
+ *     Code point       UTF16       UTF8
+ *   0x0000-0x007F     2 bytes     1 byte
+ *   0x0080-0x07FF     2 bytes     2 bytes
+ *   0x0800-0xFFFF     2 bytes     3 bytes
+ *  0x10000-0x10FFFF   4 bytes     4 bytes
+ *
+ * This function converts UTF8 chars to a code point first. Then, convrts it
+ * to UTF16 code unit(s).
+ *
+ * Return: CGPT_OK --- all character are converted successfully.
+ *         CGPT_FAILED --- convert error, i.e. output buffer is too short.
  */
-void UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput)
+int UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput)
 {
   size_t s16idx, s8idx;
-  uint32_t utfchar;
+  uint32_t code_point = 0;
+  unsigned int expected_units = 1;
+  unsigned int decoded_units = 1;
+  int retval = CGPT_OK;
 
   if (!utf8 || !utf16 || !maxoutput)
-    return;
+    return CGPT_FAILED;
 
   maxoutput--;                             /* plan for termination */
 
   for (s8idx = s16idx = 0;
        utf8[s8idx] && maxoutput;
-       s8idx++, maxoutput--) {
-    utfchar = utf8[s8idx];
-    utf16[s16idx++] = utfchar & 0x7F;
+       s8idx++) {
+    uint8_t code_unit;
+    code_unit = utf8[s8idx];
+
+    if (expected_units != decoded_units) {
+      /* Trailing bytes of multi-byte character */
+      if ((code_unit & 0xC0) == 0x80) {
+        code_point = (code_point << 6) | (code_unit & 0x3F);
+        ++decoded_units;
+      } else {
+        /* Unexpected code unit. */
+        retval = CGPT_FAILED;
+        break;
+      }
+    } else {
+      /* parsing a new code point. */
+      decoded_units = 1;
+      if (code_unit <= 0x7F) {
+        code_point = code_unit;
+        expected_units = 1;
+      } else if (code_unit <= 0xBF) {
+        /* 0x80-0xBF must NOT be the heading byte unit of a new code point. */
+        retval = CGPT_FAILED;
+        break;
+      } else if (code_unit >= 0xC2 && code_unit <= 0xDF) {
+        code_point = code_unit & 0x1F;
+        expected_units = 2;
+      } else if (code_unit >= 0xE0 && code_unit <= 0xEF) {
+        code_point = code_unit & 0x0F;
+        expected_units = 3;
+      } else if (code_unit >= 0xF0 && code_unit <= 0xF4) {
+        code_point = code_unit & 0x07;
+        expected_units = 4;
+      } else {
+        /* illegal code unit: 0xC0-0xC1, 0xF5-0xFF */
+        retval = CGPT_FAILED;
+        break;
+      }
+    }
+
+    /* If no more unit is needed, output the UTF16 unit(s). */
+    if ((retval == CGPT_OK) &&
+        (expected_units == decoded_units)) {
+      /* Check if the encoding is the shortest possible UTF-8 sequence. */
+      switch (expected_units) {
+        case 2:
+          if (code_point <= 0x7F) retval = CGPT_FAILED;
+          break;
+        case 3:
+          if (code_point <= 0x7FF) retval = CGPT_FAILED;
+          break;
+        case 4:
+          if (code_point <= 0xFFFF) retval = CGPT_FAILED;
+          break;
+      }
+      if (retval == CGPT_FAILED) break;  /* leave immediately */
+
+      if ((code_point <= 0xD7FF) ||
+          (code_point >= 0xE000 && code_point <= 0xFFFF)) {
+        utf16[s16idx++] = code_point;
+        maxoutput -= 1;
+      } else if (code_point >= 0x10000 && code_point <= 0x10FFFF &&
+                 maxoutput >= 2) {
+        utf16[s16idx++] = 0xD800 | ((code_point >> 10) - 0x0040);
+        utf16[s16idx++] = 0xDC00 | (code_point & 0x03FF);
+        maxoutput -= 2;
+      } else {
+        /* Three possibilities fall into here. Both are failure cases.
+         *   a. surrogate pair (non-BMP characters; 0xD800~0xDFFF)
+         *   b. invalid code point > 0x10FFFF
+         *   c. buffer underrun
+         */
+        retval = CGPT_FAILED;
+        break;
+      }
+    }
   }
+
+  /* A null-terminator shows up before the UTF8 sequence ends. */
+  if (expected_units != decoded_units) {
+    retval = CGPT_FAILED;
+  }
+
   utf16[s16idx++] = 0;
+  return retval;
 }
 
 struct {
