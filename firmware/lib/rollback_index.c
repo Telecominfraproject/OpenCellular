@@ -283,7 +283,6 @@ uint32_t RollbackS3Resume(void) {
    * environment, don't even talk to the TPM. */
   TlclLibInit();
   TlclResume();
-  TlclContinueSelfTest();
 #endif
   return TPM_SUCCESS;
 }
@@ -341,16 +340,10 @@ uint32_t RollbackS3Resume(void) {
   result = TlclResume();
   if (result == TPM_E_INVALID_POSTINIT) {
     /* We're on a platform where the TPM maintains power in S3, so
-       it's already initialized.  No need for a self-test. */
+       it's already initialized. */
     return TPM_SUCCESS;
   }
-  if (result != TPM_SUCCESS) {
-    return result;
-  }
-
-  RETURN_ON_FAILURE(TlclContinueSelfTest());
-
-  return TPM_SUCCESS;
+  return result;
 }
 
 
