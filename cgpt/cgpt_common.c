@@ -557,17 +557,25 @@ int UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput)
   return retval;
 }
 
-struct {
-  Guid type;
+/* global types to compare against */
+const Guid guid_chromeos_kernel =   GPT_ENT_TYPE_CHROMEOS_KERNEL;
+const Guid guid_chromeos_rootfs =   GPT_ENT_TYPE_CHROMEOS_ROOTFS;
+const Guid guid_linux_data =        GPT_ENT_TYPE_LINUX_DATA;
+const Guid guid_chromeos_reserved = GPT_ENT_TYPE_CHROMEOS_RESERVED;
+const Guid guid_efi =               GPT_ENT_TYPE_EFI;
+const Guid guid_unused =            GPT_ENT_TYPE_UNUSED;
+
+static struct {
+  const Guid *type;
   char *name;
   char *description;
 } supported_types[] = {
-  {GPT_ENT_TYPE_CHROMEOS_KERNEL, "kernel", "ChromeOS kernel"},
-  {GPT_ENT_TYPE_CHROMEOS_ROOTFS, "rootfs", "ChromeOS rootfs"},
-  {GPT_ENT_TYPE_LINUX_DATA, "data", "Linux data"},
-  {GPT_ENT_TYPE_CHROMEOS_RESERVED, "reserved", "ChromeOS reserved"},
-  {GPT_ENT_TYPE_EFI, "efi", "EFI System Partition"},
-  {GPT_ENT_TYPE_UNUSED, "unused", "Unused (nonexistent) partition"},
+  {&guid_chromeos_kernel, "kernel", "ChromeOS kernel"},
+  {&guid_chromeos_rootfs, "rootfs", "ChromeOS rootfs"},
+  {&guid_linux_data, "data", "Linux data"},
+  {&guid_chromeos_reserved, "reserved", "ChromeOS reserved"},
+  {&guid_efi, "efi", "EFI System Partition"},
+  {&guid_unused, "unused", "Unused (nonexistent) partition"},
 };
 
 /* Resolves human-readable GPT type.
@@ -576,7 +584,7 @@ struct {
 int ResolveType(const Guid *type, char *buf) {
   int i;
   for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
-    if (!memcmp(type, &supported_types[i].type, sizeof(Guid))) {
+    if (!memcmp(type, supported_types[i].type, sizeof(Guid))) {
       strcpy(buf, supported_types[i].description);
       return CGPT_OK;
     }
@@ -588,7 +596,7 @@ int SupportedType(const char *name, Guid *type) {
   int i;
   for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
     if (!strcmp(name, supported_types[i].name)) {
-      memcpy(type, &supported_types[i].type, sizeof(Guid));
+      memcpy(type, supported_types[i].type, sizeof(Guid));
       return CGPT_OK;
     }
   }
@@ -842,9 +850,12 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
   return 0;
 }
 
+int GuidEqual(const Guid *guid1, const Guid *guid2) {
+  return (0 == memcmp(guid1, guid2, sizeof(Guid)));
+}
 
 int IsZero(const Guid *gp) {
-  return (0 == memcmp(gp, &guid_unused, sizeof(Guid)));
+  return GuidEqual(gp, &guid_unused);
 }
 
 void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen) {

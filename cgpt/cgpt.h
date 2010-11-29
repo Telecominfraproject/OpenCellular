@@ -72,12 +72,19 @@ int CheckValid(const struct drive *drive);
 #define GUID_STRLEN 37
 int StrToGuid(const char *str, Guid *guid);
 void GuidToStr(const Guid *guid, char *str, unsigned int buflen);
+int GuidEqual(const Guid *guid1, const Guid *guid2);
 int IsZero(const Guid *guid);
 
+/* Constant global type values to compare against */
+extern const Guid guid_chromeos_kernel;
+extern const Guid guid_chromeos_rootfs;
+extern const Guid guid_linux_data;
+extern const Guid guid_chromeos_reserved;
+extern const Guid guid_efi;
+extern const Guid guid_unused;
 
 int ReadPMBR(struct drive *drive);
 int WritePMBR(struct drive *drive);
-
 
 /* Convert possibly unterminated UTF16 string to UTF8.
  * Caller must prepare enough space for UTF8, which could be up to
@@ -133,6 +140,7 @@ int cmd_create(int argc, char *argv[]);
 int cmd_add(int argc, char *argv[]);
 int cmd_boot(int argc, char *argv[]);
 int cmd_find(int argc, char *argv[]);
+int cmd_prioritize(int argc, char *argv[]);
 
 #define ARRAY_COUNT(array) (sizeof(array)/sizeof((array)[0]))
 const char *GptError(int errnum);

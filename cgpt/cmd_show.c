@@ -133,7 +133,7 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
     }
     GuidToStr(&entry->unique, unique, GUID_STRLEN);
     printf(PARTITION_MORE, "UUID: ", unique);
-    if (!memcmp(&guid_chromeos_kernel, &entry->type, sizeof(Guid))) {
+    if (GuidEqual(&guid_chromeos_kernel, &entry->type)) {
       int tries = (entry->attrs.fields.gpt_att &
                    CGPT_ATTRIBUTE_TRIES_MASK) >>
           CGPT_ATTRIBUTE_TRIES_OFFSET;
@@ -176,7 +176,8 @@ void EntriesDetails(GptData *gpt, const int secondary, int raw) {
     GptEntry *entry;
     entry = GetEntry(gpt, secondary, i);
 
-    if (!memcmp(&guid_unused, &entry->type, sizeof(Guid))) continue;
+    if (IsZero(&entry->type))
+      continue;
 
     EntryDetails(entry, i, raw);
   }

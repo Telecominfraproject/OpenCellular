@@ -27,23 +27,41 @@ COL_BLUE='\E[34;1m'
 COL_STOP='\E[0;m'
 
 hash_algos=( sha1 sha256 sha512 )
-key_lengths=( 1024 2048 4096 8192 ) 
+key_lengths=( 1024 2048 4096 8192 )
 
 function happy {
   echo -e "${COL_GREEN}$*${COL_STOP}" 1>&2
 }
 
+# args: [nested level [message]]
 function warning {
   echo -e "${COL_YELLOW}WARNING: $*${COL_STOP}" 1>&2
 }
 
+# args: [nested level [message]]
 function error {
-  echo -e "${COL_RED}ERROR: $*${COL_STOP}" 1>&2
+  local lev=${1:-}
+  case "${1:-}" in
+    [0-9]*)
+      lev=$1
+      shift
+      ;;
+    *) lev=0
+      ;;
+  esac
+  local x=$(caller $lev)
+  local cline=${x%% *}
+  local cfunc=${x#* }
+  cfunc=${cfunc##*/}
+  local args="$*"
+  local spacer=${args:+: }
+  echo -e "${COL_RED}ERROR at ${cfunc}, line ${cline}${spacer}${args}" \
+    "${COL_STOP}" 1>&2
   exit 1
 }
 
 function check_test_keys {
   [ -d ${TESTKEY_DIR} ] || \
-    error "You must run gen_test_keys.sh to generate test keys first."
+    error 1 "You must run gen_test_keys.sh to generate test keys first."
 }
 

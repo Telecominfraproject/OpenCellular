@@ -9,11 +9,6 @@
 #include "gpt.h"
 #include "utility.h"
 
-/* global types to compare against */
-const Guid guid_unused = GPT_ENT_TYPE_UNUSED;
-const Guid guid_chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
-
-
 int GptInit(GptData *gpt) {
   int retval;
 

@@ -62,10 +62,6 @@ typedef struct {
 
 #define GUID_EXPECTED_SIZE GUID_SIZE
 
-/* Some constant values */
-extern const Guid guid_unused;
-extern const Guid guid_chromeos_kernel;
-
 /* GPT header defines how many partitions exist on a drive and sectors managed.
  * For every drive device, there are 2 headers, primary and secondary.
  * Most of fields are duplicated except my_lba and entries_lba.

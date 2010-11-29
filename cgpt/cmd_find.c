@@ -177,8 +177,8 @@ static int do_search(char *filename) {
       continue;
 
     int found = 0;
-    if ((set_unique && !memcmp(&unique_guid, &entry->unique, sizeof(Guid))) ||
-        (set_type && !memcmp(&type_guid, &entry->type, sizeof(Guid)))) {
+    if ((set_unique && GuidEqual(&unique_guid, &entry->unique)) ||
+        (set_type && GuidEqual(&type_guid, &entry->type))) {
       found = 1;
     } else if (set_label) {
       if (CGPT_OK != UTF16ToUTF8(entry->name,

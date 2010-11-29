@@ -27,18 +27,19 @@ struct {
   {"repair", cmd_repair, "Repair damaged GPT headers and tables"},
   {"boot", cmd_boot, "Edit the PMBR sector for legacy BIOSes"},
   {"find", cmd_find, "Locate a partition by its GUID"},
+  {"prioritize", cmd_prioritize,
+   "Reorder the priority of all kernel partitions"},
 };
-
 
 void Usage(void) {
   int i;
 
-  printf("Usage: %s COMMAND [OPTIONS] DRIVE\n\n"
+  printf("\nUsage: %s COMMAND [OPTIONS] DRIVE\n\n"
          "Supported COMMANDs:\n\n",
          progname);
 
   for (i = 0; i < sizeof(cmds)/sizeof(cmds[0]); ++i) {
-    printf("    %-10s  %s\n", cmds[i].name, cmds[i].comment);
+    printf("    %-15s  %s\n", cmds[i].name, cmds[i].comment);
   }
   printf("\nFor more detailed usage, use %s COMMAND -h\n\n", progname);
 }
@@ -47,6 +48,8 @@ void Usage(void) {
 
 int main(int argc, char *argv[]) {
   int i;
+  int match_count = 0;
+  int match_index = 0;
 
   progname = strrchr(argv[0], '/');
   if (progname)
@@ -64,12 +67,23 @@ int main(int argc, char *argv[]) {
 
   // Find the command to invoke.
   for (i = 0; command && i < sizeof(cmds)/sizeof(cmds[0]); ++i) {
+    // exact match?
     if (0 == strcmp(cmds[i].name, command)) {
-      return cmds[i].fp(argc, argv);
+      match_index = i;
+      match_count = 1;
+      break;
+    }
+    // unique match?
+    else if (0 == strncmp(cmds[i].name, command, strlen(command))) {
+      match_index = i;
+      match_count++;
     }
   }
 
-  // Couldn't find the command.
+  if (match_count == 1)
+    return cmds[match_index].fp(argc, argv);
+
+  // Couldn't find a single matching command.
   Usage();
 
   return CGPT_FAILED;
