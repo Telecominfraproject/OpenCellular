@@ -414,7 +414,7 @@ sign_for_factory_install() {
 # Verification
 if [ "${TYPE}" == "verify" ]; then
   verify_image
-  exit 1
+  exit 0
 fi
 
 # Signing requires an output image name
