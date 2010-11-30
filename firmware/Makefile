@@ -9,17 +9,24 @@ TESTDIR = $(FWTOP)/linktest
 BUILD_ROOT := ${BUILD}/$(shell basename ${FWTOP})
 LIBS = $(FWLIB)  # Firmware library must be self-contained
 
-# Disable rollback TPM when compiling locally, since otherwise 
+# Disable rollback TPM when compiling locally, since otherwise
 # load_kernel_test attempts to talk to the TPM.
+ifeq ($(FIRMWARE_ARCH),)
 CFLAGS += -DDISABLE_ROLLBACK_TPM
+endif
 
 INCLUDES = \
 	-I$(FWTOP)/include \
 	-I$(LIBDIR)/include \
 	-I$(LIBDIR)/cgptlib/include \
 	-I$(LIBDIR)/cryptolib/include \
-	-I$(LIBDIR)/tpm_lite/include \
-	-I$(STUBDIR)/include
+	-I$(LIBDIR)/tpm_lite/include
+
+ifeq ($(FIRMWARE_ARCH),)
+INCLUDES += -I$(STUBDIR)/include
+else
+INCLUDES += -I$(FWDIR)/arch/$(FIRMWARE_ARCH)/include
+endif
 
 # find ./lib -iname '*.c' | sort
 LIB_SRCS = \
@@ -52,9 +59,13 @@ STUB_OBJS = $(STUB_SRCS:%.c=${BUILD_ROOT}/%.o)
 
 ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS} version.c
 
+ifeq ($(FIRMWARE_ARCH),)
 test : $(STUB_OBJS) $(FWLIB) update-version
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out \
 		$(TESTDIR)/main.c $(STUB_OBJS) $(LIBS)
+else
+test : $(FWLIB)
+endif
 
 # This is executed at every make, to see if anything has changed
 update-version :

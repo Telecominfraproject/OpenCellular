@@ -1,3 +1,5 @@
+arch/ is stuff that defines the architecture-dependent information (only used in
+firmware build mode).
 
 lib/ is stuff that the BIOS needs to link with.
 

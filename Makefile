@@ -2,14 +2,22 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+export FIRMWARE_ARCH
+
 export CC ?= gcc
 export CXX ?= g++
+ifeq ($(FIRMWARE_ARCH),)
 export CFLAGS = -Wall -Werror -DCHROMEOS_ENVIRONMENT
+else
+export CFLAGS = -Wall -Werror
+endif
+
 ifeq (${DEBUG},)
 CFLAGS += -O3
 else
 CFLAGS += -O0 -g -DVBOOT_DEBUG
 endif
+
 ifeq (${DISABLE_NDEBUG},)
 CFLAGS += -DNDEBUG
 endif
@@ -17,13 +25,21 @@ endif
 export TOP = $(shell pwd)
 export FWDIR=$(TOP)/firmware
 export HOSTDIR=$(TOP)/host
+ifeq ($(FIRMWARE_ARCH),)
 export INCLUDES = -I$(FWDIR)/include -I$(FWDIR)/stub/include
+else
+export INCLUDES = -I$(FWDIR)/include -I$(FWDIR)/arch/$(FIRMWARE_ARCH)/include
+endif
 
 export BUILD = ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
 export HOSTLIB = ${BUILD}/vboot_host.a
 
+ifeq ($(FIRMWARE_ARCH),)
 SUBDIRS = firmware host utility cgpt tests tests/tpm_lite
+else
+SUBDIRS = firmware
+endif
 
 all:
 	set -e; \
@@ -34,7 +50,7 @@ all:
 			mkdir -p $$newdir; \
 		fi; \
 	done; \
-	make -C utility update_tlcl_structures; \
+	[ -z "$(FIRMWARE_ARCH)" ] && make -C utility update_tlcl_structures; \
 	for i in $(SUBDIRS); do \
 		make -C $$i; \
 	done
