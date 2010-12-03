@@ -24,6 +24,10 @@ DEFINE_boolean remove_rootfs_verification \
 DEFINE_string backup_dir \
   "$DEFAULT_BACKUP_FOLDER" "Path of directory to store kernel backups" ""
 DEFINE_boolean debug $FLAGS_FALSE "Provide debug messages" "d"
+DEFINE_string save_config "" \
+  "Base filename to store kernel configs to, instead of resigning." ""
+DEFINE_string set_config "" \
+  "Base filename to load kernel configs from" ""
 
 # Parse command line
 FLAGS "$@" || exit 1
@@ -128,20 +132,53 @@ resign_ssd_kernel() {
     mydd if="$ssd_device" of="$old_blob" bs=$bs skip=$offset count=$size
 
     debug_msg "Checking if $name is valid"
-    local old_kernel_config
-    if ! old_kernel_config="$(dump_kernel_config "$old_blob" 2>"$EXEC_LOG")"
-    then
+    local kernel_config
+    if ! kernel_config="$(dump_kernel_config "$old_blob" 2>"$EXEC_LOG")"; then
       debug_msg "dump_kernel_config error message: $(cat "$EXEC_LOG")"
       echo "INFO: $name: no kernel boot information, ignored."
       continue
     fi
 
+    if [ -n "${FLAGS_save_config}" ]; then
+      # Save current kernel config
+      local old_config_file
+      old_config_file="${FLAGS_save_config}.$kernel_index"
+      echo "Saving $name config to $old_config_file"
+      echo "$kernel_config" > "$old_config_file"
+      # Just save; don't resign
+      continue
+    fi
+
+    if [ -n "${FLAGS_set_config}" ]; then
+      # Set new kernel config from file
+      local new_config_file
+      new_config_file="${FLAGS_set_config}.$kernel_index"
+      kernel_config="$(cat "$new_config_file")" ||
+        err_die "Failed to read new kernel config from $new_config_file"
+      debug_msg "New kernel config: $kernel_config)"
+      echo "$name: Replaced config from $new_config_file"
+    fi
+
+    if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_FALSE ]; then
+      debug_msg "Bypassing rootfs verification check"
+    elif ! is_rootfs_verification_enabled "$kernel_config"; then
+      echo "INFO: $name: rootfs verification was not enabled."
+    else
+      debug_msg "Changing boot parameter to remove rootfs verification"
+      kernel_config="$(remove_rootfs_verification "$kernel_config")"
+      debug_msg "New kernel config: $kernel_config"
+      echo "$name: Disabled rootfs verification."
+    fi
+
+    local new_kernel_config_file="$(make_temp_file)"
+    echo "$kernel_config"  >"$new_kernel_config_file"
+
     debug_msg "Re-signing $name from $old_blob to $new_blob"
     debug_msg "Using key: $KERNEL_DATAKEY"
-
     vbutil_kernel \
       --repack "$new_blob" \
-      --vblockonly --keyblock "$KERNEL_KEYBLOCK" \
+      --keyblock "$KERNEL_KEYBLOCK" \
+      --config "$new_kernel_config_file" \
       --signprivate "$KERNEL_DATAKEY" \
       --oldblob "$old_blob" >"$EXEC_LOG" 2>&1 ||
       err_die "Failed to resign $name. Message: $(cat "$EXEC_LOG")"
@@ -150,25 +187,6 @@ resign_ssd_kernel() {
     local new_kern="$(make_temp_file)"
     cp "$old_blob" "$new_kern"
     mydd if="$new_blob" of="$new_kern" conv=notrunc
-
-    if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_FALSE ]; then
-      debug_msg "Bypassing rootfs verification check"
-    elif ! is_rootfs_verification_enabled "$old_kernel_config"; then
-      echo "INFO: $name: rootfs verification was not enabled."
-    else
-      debug_msg "Changing boot parameter to remove rootfs verification"
-      local new_kernel_config_file="$(make_temp_file)"
-      remove_rootfs_verification "$old_kernel_config" >"$new_kernel_config_file"
-      debug_msg "New kernel config: $(cat $new_kernel_config_file)"
-      vbutil_kernel \
-        --repack "$new_blob" \
-        --config "$new_kernel_config_file" \
-        --signprivate "$KERNEL_DATAKEY" \
-        --oldblob "$new_kern" >"$EXEC_LOG" 2>&1 ||
-      err_die "Failed to resign $name. Message: $(cat "$EXEC_LOG")"
-      echo "$name: Disabled rootfs verification."
-      mydd if="$new_blob" of="$new_kern" conv=notrunc
-    fi
 
     if is_debug_mode; then
       debug_msg "for debug purposes, check *.dbgbin"
@@ -233,6 +251,13 @@ resign_ssd_kernel() {
 
     echo "$name: Re-signed with developer keys successfully."
   done
+
+  # If we saved the kernel config, exit now so we don't print an error
+  if [ -n "${FLAGS_save_config}" ]; then
+    echo "(Kernels have not been resigned.)"
+    exit 0
+  fi
+
   return $resigned_kernels
 }
 
