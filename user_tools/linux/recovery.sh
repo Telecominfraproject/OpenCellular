@@ -94,9 +94,8 @@ knowledgeable friend for help.
 # when there is more than one equivalent tool available:
 #
 #   FETCH          = name of utility used to download files from the web
-#   FETCHNEW       = command to invoke to download fresh each time
-#   FETCHCONT      = command to invoke to download with resume if possible
 #   CHECK          = command to invoke to generate checksums on a file
+#   CHECKTYPE      = type of checksum generated
 #
 require_utils() {
   local external
@@ -112,7 +111,7 @@ require_utils() {
 
   for tool in $external ; do
     if ! type "$tool" >/dev/null 2>&1 ; then
-      warn "ERROR: can't find \"$tool\""
+      warn "ERROR: need \"$tool\""
       errors=yes
     fi
   done
@@ -123,30 +122,32 @@ require_utils() {
   FETCH=
   if [ -z "$FETCH" ] && tmp=$(type curl 2>/dev/null) ; then
     FETCH=curl
-    FETCHNEW="curl -f -s -S -o"
-    FETCHCONT="curl -f -C - -o"
   fi
   if [ -z "$FETCH" ] && tmp=$(type wget 2>/dev/null) ; then
     FETCH=wget
-    FETCHNEW="wget -nv -O"
-    FETCHCONT="wget -c -O"
   fi
   if [ -z "$FETCH" ]; then
-    warn "ERROR: can't find \"curl\" or \"wget\""
+    warn "ERROR: need \"curl\" or \"wget\""
     errors=yes
   fi
 
-  # Once we've fetched a file we need to compute its checksum. There are a
-  # couple of possiblities here too.
+  # Once we've fetched a file we need to compute its checksum. There are
+  # multiple possiblities here too.
   CHECK=
   if [ -z "$CHECK" ] && tmp=$(type md5sum 2>/dev/null) ; then
     CHECK="md5sum"
+    CHECKTYPE="md5"
   fi
   if [ -z "$CHECK" ] && tmp=$(type sha1sum 2>/dev/null) ; then
     CHECK="sha1sum"
+    CHECKTYPE="sha1"
+  fi
+  if [ -z "$CHECK" ] && tmp=$(type openssl 2>/dev/null) ; then
+    CHECK="openssl"
+    CHECKTYPE="md5"
   fi
   if [ -z "$CHECK" ]; then
-    warn "ERROR: can't find \"md5sum\" or \"sha1sum\""
+    warn "ERROR: need \"md5sum\" or \"sha1sum\" or \"openssl\""
     errors=yes
   fi
 
@@ -154,6 +155,69 @@ require_utils() {
     ufatal "Some required linux utilities are missing."
   fi
 }
+
+# This retrieves a URL and stores it locally. It uses the global variable
+# 'FETCH' to determine the utility (and args) to invoke.
+# Args:  URL FILENAME [RESUME]
+fetch_url() {
+  local url
+  local filename
+  local resume
+  local err
+
+  url="$1"
+  filename="$2"
+  resume="${3:-}"
+
+  DEBUG "FETCH=($FETCH) url=($url) filename=($filename) resume=($resume)"
+
+  if [ "$FETCH" = "curl" ]; then
+    if [ -z "$resume" ]; then
+      # quietly fetch a new copy each time
+      rm -f "$filename"
+      curl -f -s -S -o "$filename" "$url"
+    else
+      # continue where we left off, if possible
+      curl -f -C - -o "$filename" "$url"
+      # If you give curl the '-C -' option but the file you want is already
+      # complete and the server doesn't report the total size correctly, it
+      # will report an error instead of just doing nothing. We'll try to work
+      # around that.
+      err=$?
+      if [ "$err" = "18" ]; then
+        warn "Ignoring spurious complaint"
+        true
+      fi
+    fi
+  elif [ "$FETCH" = "wget" ]; then
+    if [ -z "$resume" ]; then
+      # quietly fetch a new copy each time
+      rm -f "$filename"
+      wget -nv -q -O "$filename" "$url"
+    else
+      # continue where we left off, if possible
+      wget -c -O "$filename" "$url"
+    fi
+  fi
+}
+
+# This returns a checksum on a file. It uses the global variable 'CHECK' to
+# determine the utility (and args) to invoke.
+# Args:  FILENAME
+compute_checksum() {
+  local filename
+
+  filename="$1"
+
+  DEBUG "CHECK=($CHECK) CHECKTYPE=($CHECKTYPE)"
+
+  if [ "$CHECK" = "openssl" ]; then
+    openssl md5 < "$filename"
+  else
+    $CHECK "$tarball" | cut -d' ' -f1
+  fi
+}
+
 
 ##############################################################################
 # Helper functions to handle the config file and image tarball.
@@ -269,11 +333,11 @@ good_config() {
         DEBUG "image $count is missing url"
         errors=yes
       fi
-      if [ "$CHECK" = "md5sum" ] && [ -z "$md5" ]; then
+      if [ "$CHECKTYPE" = "md5" ] && [ -z "$md5" ]; then
         DEBUG "image $count is missing required md5"
         errors=yes
       fi
-      if [ "$CHECK" = "sha1sum" ] && [ -z "$sha1" ]; then
+      if [ "$CHECKTYPE" = "sha1" ] && [ -z "$sha1" ]; then
         DEBUG "image $count is missing required sha1"
         errors=yes
       fi
@@ -414,19 +478,9 @@ fetch_image() {
           warn "Downloading image tarball from $val"
           warn
           tarball=${val##*/}
-          if $FETCHCONT "$tarball" "$val"; then
+          if fetch_url "$val" "$tarball" "resumeok"; then
             # Got it.
             url="$val"
-          else
-            # If you give curl the '-C -' option but the file you want is
-            # already complete and the server doesn't report the total size
-            # correctly, it will report an error instead of just doing nothing.
-            # We'll try to work around that.
-            err=$?
-            if [ "$FETCH" = "curl" ] && [ "$err" = "18" ]; then
-              warn "Ignoring spurious complaint"
-              url="$val"
-            fi
           fi
           ;;
       esac
@@ -443,12 +497,12 @@ fetch_image() {
     DEBUG "size is wrong"
     return 1
   fi
-  sum=$($CHECK "$tarball" | cut -d' ' -f1)
-  DEBUG "$CHECK is $sum"
-  if [ "$CHECK" = "md5sum" ] && [ "$sum" != "$md5" ]; then
+  sum=$(compute_checksum "$tarball")
+  DEBUG "checksum is $sum"
+  if [ "$CHECKTYPE" = "md5" ] && [ "$sum" != "$md5" ]; then
     DEBUG "wrong $CHECK"
     return 1
-  elif [ "$CHECK" = "sha1sum" ] && [ "$sum" != "$sha1" ]; then
+  elif [ "$CHECKTYPE" = "sha1" ] && [ "$sum" != "$sha1" ]; then
     DEBUG "wrong $CHECK"
     return 1
   fi
@@ -599,7 +653,7 @@ rm -f "$debug"
 
 # Download the config file to see what choices we have.
 warn "Downloading config file from $CONFIGURL"
-$FETCHNEW "$tmpfile" "$CONFIGURL" || \
+fetch_url "$CONFIGURL" "$tmpfile" || \
   gfatal "Unable to download the config file"
 
 # Un-DOS-ify the config file and separate the version info from the images
