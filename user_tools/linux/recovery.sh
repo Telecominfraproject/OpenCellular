@@ -19,8 +19,9 @@ set -eu
 # run again without needing to download a second time.
 WORKDIR=/tmp/tmp.crosrec
 
-# Where do we look for the config file?
-CONFIGURL='http://www.chromium.org/some/random/place.cfg'
+# Where do we look for the config file? Note that we can override this by just
+# specifying the config file URL on the command line.
+CONFIGURL="${1:-http://www.chromium.org/some/random/place.cfg}"
 
 # What version is this script? It must match the 'recovery_tool_version=' value
 # in the config file that we'll download.
