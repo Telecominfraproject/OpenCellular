@@ -104,7 +104,7 @@ require_utils() {
   local tool
   local tmp
 
-  external='cat cut dd grep ls mkdir mount readlink sed sync umount unzip wc'
+  external='cat cut dd grep ls mkdir mount readlink sed sync tr umount unzip wc'
   if [ -z "$WORKDIR" ]; then
     external="$external mktemp"
   fi
@@ -658,8 +658,8 @@ fetch_url "$CONFIGURL" "$tmpfile" || \
   gfatal "Unable to download the config file"
 
 # Un-DOS-ify the config file and separate the version info from the images
-sed 's/\r//g' "$tmpfile" | grep '^recovery_tool' > "$version"
-sed 's/\r//g' "$tmpfile" | grep -v '^#' | grep -v '^recovery_tool' > "$config"
+tr -d '\015' < "$tmpfile" | grep '^recovery_tool' > "$version"
+tr -d '\015' < "$tmpfile" | grep -v '^#' | grep -v '^recovery_tool' > "$config"
 # Add one empty line to the config file to terminate the last stanza
 echo >> "$config"
 
@@ -725,7 +725,7 @@ Installing the recovery image
 
 # Unmount anything on that device.
 echo "unmounting..."
-for tmp in $(mount | grep ^"/dev/${user_choice}" | sed 's/[ \t].*//'); do
+for tmp in $(mount | grep ^"/dev/${user_choice}" | cut -d' ' -f1); do
   umount $tmp || ufatal "Unable to unmount $tmp."
 done
 
