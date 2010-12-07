@@ -17,11 +17,14 @@ set -eu
 # Where should we do our work? Use 'WORKDIR=' to make a temporary directory,
 # but using a persistent location may let us resume interrupted downloads or
 # run again without needing to download a second time.
-WORKDIR=/tmp/tmp.crosrec
+WORKDIR=${WORKDIR:-/tmp/tmp.crosrec}
 
 # Where do we look for the config file? Note that we can override this by just
 # specifying the config file URL on the command line.
-CONFIGURL="${1:-http://www.chromium.org/some/random/place.cfg}"
+CONFIGURL="${1:-https://dl.google.com/dl/edgedl/chromeos/recovery/recovery.conf}"
+
+# Device to put this stuff on, perhaps the user knows best?
+DEVICE="${DEVICE:-}"
 
 # What version is this script? It must match the 'recovery_tool_version=' value
 # in the config file that we'll download.
@@ -33,7 +36,7 @@ MYVERSION='0.9.1'
 debug='debug.log'
 tmpfile='tmp.txt'
 config='config.txt'
-version='verson.txt'
+version='version.txt'
 
 ##############################################################################
 # Various warning messages
@@ -748,11 +751,16 @@ choose_image
 fetch_image "$user_choice" || \
   gfatal "Unable to download a valid recovery image."
 
-# Make the user pick a USB drive, or exit.
-choose_drive
+if [ -n "$DEVICE" ]; then
+  user_choice="${DEVICE#/dev/}"
+  dev_desc="${DEVICE}"
+else
+  # Make the user pick a USB drive, or exit.
+  choose_drive
 
-# Be sure
-dev_desc=$(get_devinfo "$user_choice")
+  # Be sure
+  dev_desc=$(get_devinfo "$user_choice")
+fi
 echo "
 Is this the device you want to put the recovery image on?
 
@@ -773,7 +781,7 @@ whatever you may have on that drive. You won't be able to undo it.
   $dev_desc
 "
 
-prompt "If you're sure that's the device to use, enter 'DoIt' now:  "
+prompt "If you're sure that's the device to use, enter 'DoIt' now: "
 read tmp
 if [ "$tmp" != "DoIt" ]; then
   quit
@@ -792,7 +800,7 @@ done
 
 # Write it.
 echo "copying... (this may take several minutes)"
-dd of=/dev/${user_choice} if="$image_file" ||
+dd bs=4194304 of=/dev/${user_choice} if="$image_file" conv=sync ||
   ufatal "Unable to write the image."
 sync
 
@@ -801,5 +809,14 @@ echo "
 Done. Remove the USB drive and insert it in your Chrome notebook.
 
 "
+
+prompt "Shall I remove the temporary files now? [y/n] "
+read tmp
+case $tmp in
+  [Yy]*)
+    cd
+    \rm -rf ${WORKDIR}
+    ;;
+esac
 
 exit 0
