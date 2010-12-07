@@ -25,7 +25,7 @@ CONFIGURL="${1:-http://www.chromium.org/some/random/place.cfg}"
 
 # What version is this script? It must match the 'recovery_tool_version=' value
 # in the config file that we'll download.
-MYVERSION='1.0'
+MYVERSION='0.9.1'
 
 
 ##############################################################################
@@ -40,6 +40,11 @@ version='verson.txt'
 
 DEBUG() {
   echo "DEBUG: $@" >>"$debug"
+}
+
+prompt() {
+  # builtin echo may not grok '-n'. We should always have /bin/echo, right?
+  /bin/echo -n "$@"
 }
 
 warn() {
@@ -97,6 +102,7 @@ knowledgeable friend for help.
 #   FETCH          = name of utility used to download files from the web
 #   CHECK          = command to invoke to generate checksums on a file
 #   CHECKTYPE      = type of checksum generated
+#   DISKUTIL       = set if we have 'diskutil' (for Macs)
 #
 require_utils() {
   local external
@@ -152,8 +158,15 @@ require_utils() {
     errors=yes
   fi
 
+  # FIXME: If we're on a Mac, we need this too. Is there a way to tell we're on
+  # a Mac other than by having this executable?
+  DISKUTIL=
+  if type diskutil >/dev/null 2>&1; then
+    DISKUTIL=diskutil
+  fi
+
   if [ -n "$errors" ]; then
-    ufatal "Some required linux utilities are missing."
+    ufatal "Some required utilities are missing."
   fi
 }
 
@@ -377,18 +390,30 @@ choose_image() {
   while true; do
     if [ -n "$show" ]; then
       echo
-      echo "There are $num_images recovery images to choose from:"
+      if [ "$num_images" -gt 1 ]; then
+        echo "There are $num_images recovery images to choose from:"
+      else
+        echo "There is $num_images recovery image to choose from:"
+      fi
       echo
       count=0
       echo "0 - <quit>"
-      grep '^display_name=' "$config" | while read line; do
-        count=$(( count + 1 ))
-        echo "$line" | sed "s/display_name=/$count - /"
-      done
+      # NOTE: making assumptions about the order of lines in each stanza!
+      while read line; do
+        if echo "$line" | grep -q '^display_name='; then
+          echo
+          count=$(( count + 1 ))
+          echo "$line" | sed "s/display_name=/$count - /"
+        elif echo "$line" | grep -q '^channel='; then
+          echo "$line" | sed 's/channel=/      channel:  /'
+        elif echo "$line" | grep -q '^hwid=[^*]'; then
+          echo "$line" | sed 's/hwid=/      HWID:     /'
+        fi
+      done < "$config"
       echo
       show=
     fi
-    echo -n "Please select a recovery image to download: "
+    prompt "Please select a recovery image to download: "
     read num
     if [ -z "$num" ] || [ "$num" = "?" ]; then
       show=yes
@@ -477,7 +502,7 @@ fetch_image() {
             continue;
           fi
           warn "Downloading image tarball from $val"
-          warn
+          warn ""
           tarball=${val##*/}
           if fetch_url "$val" "$tarball" "resumeok"; then
             # Got it.
@@ -529,15 +554,29 @@ get_devlist() {
   local t
   local r
 
-  for dev in $(cat /proc/partitions); do
-    [ -r "/sys/block/$dev/device/type" ] &&
-    t=$(cat "/sys/block/$dev/device/type") &&
-    [ "$t" = "0" ] &&
-    r=$(cat "/sys/block/$dev/removable") &&
-    [ "$r" = "1" ] &&
-    readlink -f "/sys/block/$dev" | grep -q -i usb &&
-    echo "$dev" || true
-  done
+  # Are we on a mac?
+  if [ -n "$DISKUTIL" ]; then
+    for dev in $(diskutil list | grep '^/dev'); do
+      r=$(diskutil info $dev | grep 'Ejectable\: *Yes') || true
+      t=$(diskutil info $dev | grep 'Protocol\: *USB') || true
+      if [ "$r" != "" ]; then
+        if [ "$t" != "" ]; then
+          echo "$dev" | sed 's,/dev/,,'
+        fi
+      fi
+    done
+  else
+    # No, linux, I hope
+    for dev in $(cat /proc/partitions); do
+      [ -r "/sys/block/$dev/device/type" ] &&
+      t=$(cat "/sys/block/$dev/device/type") &&
+      [ "$t" = "0" ] &&
+      r=$(cat "/sys/block/$dev/removable") &&
+      [ "$r" = "1" ] &&
+      readlink -f "/sys/block/$dev" | grep -q -i usb &&
+      echo "$dev" || true
+    done
+  fi
 }
 
 # Return descriptions for each provided base device name ("sda sdb ...")
@@ -548,12 +587,24 @@ get_devinfo() {
   local s
   local ss
 
-  for dev in $1; do
-    v=$(cat "/sys/block/$dev/device/vendor") &&
-    m=$(cat "/sys/block/$dev/device/model") &&
-    s=$(cat "/sys/block/$dev/size") && ss=$(( $s * 512 / 1000000 )) &&
-    echo "/dev/$dev ${ss}MB $v $m"
-  done
+  # Are we on a mac?
+  if [ -n "$DISKUTIL" ]; then
+    for dev in $1; do
+      m=$(diskutil info $dev | grep 'Device \/ Media Name\:' | \
+          sed 's/^[^:]*: *//') || true
+      s=$(diskutil info $dev | grep 'Total Size\:' | \
+          sed 's/^[^:]*: *\([^(]*\).*/\1/') || true
+      echo "/dev/$dev  $s $m"
+    done
+  else
+    # No, linux, hopefully
+    for dev in $1; do
+      v=$(cat "/sys/block/$dev/device/vendor") &&
+      m=$(cat "/sys/block/$dev/device/model") &&
+      s=$(cat "/sys/block/$dev/size") && ss=$(( $s * 512 / 1000000 )) &&
+      echo "/dev/$dev ${ss}MB $v $m"
+    done
+  fi
 }
 
 # Enumerate and descript the specified base device names ("sda sdb ...")
@@ -566,6 +617,7 @@ get_choices() {
   echo "0 - <quit>"
   for dev in $1; do
     desc=$(get_devinfo "$dev")
+    echo ""
     echo "$count - Use $desc"
     count=$(( count + 1 ))
   done
@@ -597,16 +649,15 @@ choose_drive() {
           msg="I found $num_drives USB drive"
         fi
       fi
-      echo -n "
+      echo "
 
 $msg
 
 $choices
-
 "
       show=
     fi
-    echo -n "Tell me what to do (or just press Enter to scan again): "
+    prompt "Tell me what to do (or just press Enter to scan again): "
     read num
     if [ -z "$num" ] || [ "$num" = "?" ]; then
       show=yes
@@ -627,6 +678,14 @@ $choices
   user_choice=$(echo $devlist | cut -d' ' -f$num)
 }
 
+# Unmount a partition
+unmount_partition() {
+  if [ -n "$DISKUTIL" ]; then
+    diskutil unmountDisk "$1" || ufatal "Unable to unmount $1."
+  else
+    umount "$1" || ufatal "Unable to unmount $1."
+  fi
+}
 
 ##############################################################################
 # Okay, do something...
@@ -663,8 +722,10 @@ tr -d '\015' < "$tmpfile" | grep -v '^#' | grep -v '^recovery_tool' > "$config"
 # Add one empty line to the config file to terminate the last stanza
 echo >> "$config"
 
-# Make sure that the config file version matches this script version
-tmp=$(grep '^recovery_tool_version=' "$version") || \
+# Make sure that the config file version matches this script version.
+# FIXME: Prefer linux or use linux only? What about macs?
+tmp=$(grep '^recovery_tool_linux_version=' "$version") || \
+  tmp=$(grep '^recovery_tool_version=' "$version") || \
   gfatal "The config file doesn't contain a version string."
 filevers=${tmp#*=}
 if [ "$filevers" != "$MYVERSION" ]; then
@@ -697,7 +758,7 @@ Is this the device you want to put the recovery image on?
 
   $dev_desc
 "
-echo -n "You must enter 'YES' to continue: "
+prompt "You must enter 'YES' to continue: "
 read tmp
 if [ "$tmp" != "YES" ]; then
   quit
@@ -712,7 +773,7 @@ whatever you may have on that drive. You won't be able to undo it.
   $dev_desc
 "
 
-echo -n "If you're sure that's the device to use, enter 'DoIt' now:  "
+prompt "If you're sure that's the device to use, enter 'DoIt' now:  "
 read tmp
 if [ "$tmp" != "DoIt" ]; then
   quit
@@ -726,7 +787,7 @@ Installing the recovery image
 # Unmount anything on that device.
 echo "unmounting..."
 for tmp in $(mount | grep ^"/dev/${user_choice}" | cut -d' ' -f1); do
-  umount $tmp || ufatal "Unable to unmount $tmp."
+  unmount_partition "$tmp"
 done
 
 # Write it.
@@ -737,7 +798,7 @@ sync
 
 echo "
 
-Done. Remove the USB drive and insert it in your Chrome OS netbook.
+Done. Remove the USB drive and insert it in your Chrome notebook.
 
 "
 
