@@ -20,7 +20,7 @@ typedef unsigned int size_t;
 #endif
 
 #define UINT64_C(x) ((uint64_t) x)
-#define PRIu64 "%ll"
+#define PRIu64 "ll"
 extern void debug(const char *format, ...);
 
 #define POSSIBLY_UNUSED __attribute__((unused))
