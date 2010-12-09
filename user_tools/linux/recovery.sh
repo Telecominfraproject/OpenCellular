@@ -113,7 +113,7 @@ require_utils() {
   local tool
   local tmp
 
-  external='cat cut dd grep ls mkdir mount readlink sed sync tr umount unzip wc'
+  external='cat cut dd grep ls mkdir mount readlink sed sync umount unzip wc'
   if [ -z "$WORKDIR" ]; then
     external="$external mktemp"
   fi
@@ -161,8 +161,7 @@ require_utils() {
     errors=yes
   fi
 
-  # FIXME: If we're on a Mac, we need this too. Is there a way to tell we're on
-  # a Mac other than by having this executable?
+  # This utility is on Macs, so use it if we find it.
   DISKUTIL=
   if type diskutil >/dev/null 2>&1; then
     DISKUTIL=diskutil
@@ -231,13 +230,13 @@ compute_checksum() {
   if [ "$CHECK" = "openssl" ]; then
     openssl md5 < "$filename"
   else
-    $CHECK "$tarball" | cut -d' ' -f1
+    $CHECK "$zipfile" | cut -d' ' -f1
   fi
 }
 
 
 ##############################################################################
-# Helper functions to handle the config file and image tarball.
+# Helper functions to handle the config file and image zipfile.
 
 # Each paragraph in the config file should describe a new image. Let's make
 # sure it follows all the rules. This scans the config file and returns success
@@ -248,9 +247,10 @@ good_config() {
   local line
   local key
   local val
-  local display_name
+  local name
   local file
-  local size
+  local zipfilesize
+  local filesize
   local url
   local md5
   local sha1
@@ -259,9 +259,10 @@ good_config() {
   local count
   local line_num
 
-  display_name=
+  name=
   file=
-  size=
+  zipfilesize=
+  filesize=
   url=
   md5=
   sha1=
@@ -298,12 +299,12 @@ good_config() {
       fi
 
       case $key in
-        display_name)
-          if [ -n "$display_name" ]; then
+        name)
+          if [ -n "$name" ]; then
             DEBUG "duplicate $key"
             errors=yes
           fi
-          display_name="$val"
+          name="$val"
           ;;
         file)
           if [ -n "$file" ]; then
@@ -312,12 +313,19 @@ good_config() {
           fi
           file="$val"
           ;;
-        size)
-          if [ -n "$size" ]; then
+        zipfilesize)
+          if [ -n "$zipfilesize" ]; then
             DEBUG "duplicate $key"
             errors=yes
           fi
-          size="$val"
+          zipfilesize="$val"
+          ;;
+        filesize)
+          if [ -n "$filesize" ]; then
+            DEBUG "duplicate $key"
+            errors=yes
+          fi
+          filesize="$val"
           ;;
         url)
           url="$val"
@@ -334,16 +342,20 @@ good_config() {
       end_lines="$end_lines $line_num"
       count=$(( count + 1))
 
-      if [ -z "$display_name" ]; then
-        DEBUG "image $count is missing display_name"
+      if [ -z "$name" ]; then
+        DEBUG "image $count is missing name"
         errors=yes
       fi
       if [ -z "$file" ]; then
         DEBUG "image $count is missing file"
         errors=yes
       fi
-      if [ -z "$size" ]; then
-        DEBUG "image $count is missing size"
+      if [ -z "$zipfilesize" ]; then
+        DEBUG "image $count is missing zipfilesize"
+        errors=yes
+      fi
+      if [ -z "$filesize" ]; then
+        DEBUG "image $count is missing filesize"
         errors=yes
       fi
       if [ -z "$url" ]; then
@@ -360,9 +372,10 @@ good_config() {
       fi
 
       # Prepare for next stanza
-      display_name=
+      name=
       file=
-      size=
+      zipfilesize=
+      filesize=
       url=
       md5=
       sha1=
@@ -403,13 +416,13 @@ choose_image() {
       echo "0 - <quit>"
       # NOTE: making assumptions about the order of lines in each stanza!
       while read line; do
-        if echo "$line" | grep -q '^display_name='; then
+        if echo "$line" | grep -q '^name='; then
           echo
           count=$(( count + 1 ))
-          echo "$line" | sed "s/display_name=/$count - /"
+          echo "$line" | sed "s/name=/$count - /"
         elif echo "$line" | grep -q '^channel='; then
           echo "$line" | sed 's/channel=/      channel:  /'
-        elif echo "$line" | grep -q '^hwid=[^*]'; then
+        elif echo "$line" | grep -q '^hwid='; then
           echo "$line" | sed 's/hwid=/      HWID:     /'
         fi
       done < "$config"
@@ -448,17 +461,19 @@ fetch_image() {
   local key
   local val
   local file
-  local size
+  local zipfilesize
+  local filesize
   local url
   local md5
   local sha1
   local line_num
-  local tarball
+  local zipfile
   local err
   local sum
 
   file=
-  size=
+  zipfilesize=
+  filesize=
   url=
   md5=
   sha1=
@@ -489,8 +504,11 @@ fetch_image() {
         file)
           file="$val"
           ;;
-        size)
-          size="$val"
+        zipfilesize)
+          zipfilesize="$val"
+          ;;
+        filesize)
+          filesize="$val"
           ;;
         md5)
           md5="$val"
@@ -504,10 +522,10 @@ fetch_image() {
             # We've already got one (it's very nice).
             continue;
           fi
-          warn "Downloading image tarball from $val"
+          warn "Downloading image zipfile from $val"
           warn ""
-          tarball=${val##*/}
-          if fetch_url "$val" "$tarball" "resumeok"; then
+          zipfile=${val##*/}
+          if fetch_url "$val" "$zipfile" "resumeok"; then
             # Got it.
             url="$val"
           fi
@@ -517,16 +535,16 @@ fetch_image() {
   done < "$config"
 
   if [ -z "$url" ]; then
-    DEBUG "couldn't fetch tarball"
+    DEBUG "couldn't fetch zipfile"
     return 1
   fi
 
-  # Verify the tarball
-  if ! ls -l "$tarball" | grep -q "$size"; then
-    DEBUG "size is wrong"
+  # Verify the zipfile
+  if ! ls -l "$zipfile" | grep -q "$zipfilesize"; then
+    DEBUG "zipfilesize is wrong"
     return 1
   fi
-  sum=$(compute_checksum "$tarball")
+  sum=$(compute_checksum "$zipfile")
   DEBUG "checksum is $sum"
   if [ "$CHECKTYPE" = "md5" ] && [ "$sum" != "$md5" ]; then
     DEBUG "wrong $CHECK"
@@ -537,10 +555,15 @@ fetch_image() {
   fi
 
   # Unpack the file
-  warn "Unpacking the tarball"
+  warn "Unpacking the zipfile"
   rm -f "$file"
-  if ! unzip "$tarball" "$file"; then
-    DEBUG "Can't unpack the tarball"
+  if ! unzip "$zipfile" "$file"; then
+    DEBUG "Can't unpack the zipfile"
+    return 1
+  fi
+
+  if ! ls -l "$file" | grep -q "$filesize"; then
+    DEBUG "unpacked filesize is wrong"
     return 1
   fi
 
@@ -719,14 +742,13 @@ warn "Downloading config file from $CONFIGURL"
 fetch_url "$CONFIGURL" "$tmpfile" || \
   gfatal "Unable to download the config file"
 
-# Un-DOS-ify the config file and separate the version info from the images
-tr -d '\015' < "$tmpfile" | grep '^recovery_tool' > "$version"
-tr -d '\015' < "$tmpfile" | grep -v '^#' | grep -v '^recovery_tool' > "$config"
+# Separate the version info from the images
+grep '^recovery_tool' "$tmpfile" > "$version"
+grep -v '^#' "$tmpfile" | grep -v '^recovery_tool' > "$config"
 # Add one empty line to the config file to terminate the last stanza
 echo >> "$config"
 
 # Make sure that the config file version matches this script version.
-# FIXME: Prefer linux or use linux only? What about macs?
 tmp=$(grep '^recovery_tool_linux_version=' "$version") || \
   tmp=$(grep '^recovery_tool_version=' "$version") || \
   gfatal "The config file doesn't contain a version string."
