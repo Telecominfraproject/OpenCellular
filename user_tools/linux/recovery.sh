@@ -788,7 +788,7 @@ Is this the device you want to put the recovery image on?
 
   $dev_desc
 "
-prompt "You must enter 'YES' to continue: "
+prompt "You must enter 'YES' (all uppercase) to continue: "
 read tmp
 if [ "$tmp" != "YES" ]; then
   quit
@@ -803,7 +803,7 @@ whatever you may have on that drive. You won't be able to undo it.
   $dev_desc
 "
 
-prompt "If you're sure that's the device to use, enter 'DoIt' now: "
+prompt "If you're sure that's correct, enter 'DoIt' now (case is important): "
 read tmp
 if [ "$tmp" != "DoIt" ]; then
   quit
