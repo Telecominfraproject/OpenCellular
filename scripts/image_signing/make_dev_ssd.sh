@@ -91,6 +91,9 @@ cros_kernel_name() {
     4)
       echo "Kernel B"
       ;;
+    6)
+      echo "Kernel C"
+      ;;
     *)
       err_die "unknown kernel index: $1"
   esac
@@ -107,7 +110,7 @@ resign_ssd_kernel() {
   local max_kernel_size=65536
   local resigned_kernels=0
 
-  for kernel_index in 2 4; do
+  for kernel_index in 2 4 6; do
     local old_blob="$(make_temp_file)"
     local new_blob="$(make_temp_file)"
     local name="$(cros_kernel_name $kernel_index)"
