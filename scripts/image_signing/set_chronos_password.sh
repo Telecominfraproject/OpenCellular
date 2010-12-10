@@ -14,7 +14,7 @@
 change_chronos_password() {
   local rootfs=$1
   local password=$2
-  echo "Changing chronos password to '$password'..."
+  echo "Setting chronos password..."
   local crypted_password="$(echo $password | openssl passwd -1 -stdin)"
   local temp_shadow="$rootfs/etc/tempshadow"
   echo "chronos:$crypted_password:14500:0:99999::::" \
@@ -47,7 +47,7 @@ main() {
   mount_image_partition "$image" 3 "$rootfs"
   change_chronos_password "$rootfs" "$chronos_password"
   touch "$image"  # Updates the image modification time.
-  echo "Password Changed."
+  echo "Password Set."
 }
 
 main $@
