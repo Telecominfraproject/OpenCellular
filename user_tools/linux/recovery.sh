@@ -822,6 +822,12 @@ done
 
 # Write it.
 echo "copying... (this may take several minutes)"
+
+# Many BSD variants provide both normal /dev/FOO and raw /dev/rFOO devices,
+# with the raw path being much faster. If that device exists, we'll use it.
+if [ -e /dev/r${user_choice} ]; then
+  user_choice="r${user_choice}"
+fi
 dd bs=4194304 of=/dev/${user_choice} if="$image_file" conv=sync ||
   ufatal "Unable to write the image."
 sync
