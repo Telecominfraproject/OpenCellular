@@ -15,6 +15,7 @@ load_shflags || exit 1
 VBOOT_BASE='/usr/share/vboot'
 DEFAULT_KEYS_FOLDER="$VBOOT_BASE/devkeys"
 DEFAULT_BACKUP_FOLDER='/mnt/stateful_partition/backups'
+DEFAULT_PARTITIONS='2 4'
 
 # DEFINE_string name default_value description flag
 DEFINE_string image "/dev/sda" "Path to device or image file" "i"
@@ -28,6 +29,8 @@ DEFINE_string save_config "" \
   "Base filename to store kernel configs to, instead of resigning." ""
 DEFINE_string set_config "" \
   "Base filename to load kernel configs from" ""
+DEFINE_string partitions "$DEFAULT_PARTITIONS" \
+ "List of partitions to examine" ""
 
 # Parse command line
 FLAGS "$@" || exit 1
@@ -95,7 +98,7 @@ cros_kernel_name() {
       echo "Kernel C"
       ;;
     *)
-      err_die "unknown kernel index: $1"
+      echo "Partition $1"
   esac
 }
 
@@ -110,7 +113,7 @@ resign_ssd_kernel() {
   local max_kernel_size=65536
   local resigned_kernels=0
 
-  for kernel_index in 2 4 6; do
+  for kernel_index in $FLAGS_partitions; do
     local old_blob="$(make_temp_file)"
     local new_blob="$(make_temp_file)"
     local name="$(cros_kernel_name $kernel_index)"
@@ -268,6 +271,7 @@ resign_ssd_kernel() {
 # ----------------------------------------------------------------------------
 main() {
   local num_signed=0
+  local num_given=$(echo "$FLAGS_partitions" | wc -w)
   # Check parameters
   KERNEL_KEYBLOCK="$FLAGS_keys/kernel.keyblock"
   KERNEL_DATAKEY="$FLAGS_keys/kernel_data_key.vbprivk"
@@ -284,9 +288,10 @@ main() {
   resign_ssd_kernel "$FLAGS_image" || num_signed=$?
 
   debug_msg "Complete."
-  if [ $num_signed -gt 0 -a $num_signed -le 2 ]; then
-    # signed 1 or two kernels
-    echo "Successfully re-signed $num_signed kernel(s) on device $FLAGS_image".
+  if [ $num_signed -gt 0 -a $num_signed -le $num_given ]; then
+    # signed something at least
+    echo "Successfully re-signed $num_signed of $num_given kernel(s)" \
+      " on device $FLAGS_image".
   else
     err_die "Failed re-signing kernels."
   fi
