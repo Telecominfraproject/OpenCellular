@@ -423,7 +423,7 @@ choose_image() {
         elif echo "$line" | grep -q '^channel='; then
           echo "$line" | sed 's/channel=/      channel:  /'
         elif echo "$line" | grep -q '^hwid='; then
-          echo "$line" | sed 's/hwid=/      HWID:     /'
+          echo "$line" | sed 's/hwid=/      model:    /'
         fi
       done < "$config"
       echo
