@@ -191,10 +191,10 @@ fetch_url() {
     if [ -z "$resume" ]; then
       # quietly fetch a new copy each time
       rm -f "$filename"
-      curl -f -s -S -o "$filename" "$url"
+      curl -L -f -s -S -o "$filename" "$url"
     else
       # continue where we left off, if possible
-      curl -f -C - -o "$filename" "$url"
+      curl -L -f -C - -o "$filename" "$url"
       # If you give curl the '-C -' option but the file you want is already
       # complete and the server doesn't report the total size correctly, it
       # will report an error instead of just doing nothing. We'll try to work
