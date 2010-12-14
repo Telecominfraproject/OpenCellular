@@ -28,7 +28,7 @@ DEVICE="${DEVICE:-}"
 
 # What version is this script? It must match the 'recovery_tool_version=' value
 # in the config file that we'll download.
-MYVERSION='0.9.1'
+MYVERSION='0.9.2'
 
 
 ##############################################################################
@@ -108,18 +108,18 @@ knowledgeable friend for help.
 #   DISKUTIL       = set if we have 'diskutil' (for Macs)
 #
 require_utils() {
-  local external
+  local extern
   local errors
   local tool
   local tmp
 
-  external='cat cut dd grep ls mkdir mount readlink sed sync umount unzip wc'
+  extern='awk cat cut dd grep ls mkdir mount readlink sed sync umount unzip wc'
   if [ -z "$WORKDIR" ]; then
-    external="$external mktemp"
+    extern="$extern mktemp"
   fi
   errors=
 
-  for tool in $external ; do
+  for tool in $extern ; do
     if ! type "$tool" >/dev/null 2>&1 ; then
       warn "ERROR: need \"$tool\""
       errors=yes
@@ -237,6 +237,50 @@ compute_checksum() {
 
 ##############################################################################
 # Helper functions to handle the config file and image zipfile.
+
+# Convert bytes to MB, rounding up to determine storage needed to hold bytes.
+roundup() {
+  local num=$1
+  local div=$(( 1024 * 1024 ))
+  local rem=$(( $num % $div ))
+
+  if [ $rem -ne 0 ]; then
+    num=$(($num + $div - $rem))
+  fi
+  echo $(( $num / $div ))
+}
+
+
+# Die unless the filesystem containing the current directory has enough free
+# space. The argument is the number of MB required.
+verify_tmp_space() {
+  local need
+  local got
+  need="$1"
+
+  # The output of "df -m ." could take two forms:
+  #
+  # Filesystem           1M-blocks      Used Available Use% Mounted on
+  # /some/really/long/path/to/some/where
+  #                          37546     11118     24521  32% /
+  #
+  # Filesystem         1048576-blocks      Used Available Capacity Mounted on
+  # /some/short/path         37546     11118     24521      32% /
+  #
+  got=$(df -m . | awk '/^\/[^ ]+ +[0-9]/ {print $4} /^ +[0-9]/ {print $3}')
+
+  if [ "$need" -gt "$got" ]; then
+    fatal " There is not enough free space in ${WORKDIR}" \
+"(it has ${got}MB, we need ${need}MB).
+
+Please free up some space on that filesystem, or specify a temporary directory
+on the commandline like so:
+
+  WORKDIR=/path/to/some/dir  $0
+"
+  fi
+}
+
 
 # Each paragraph in the config file should describe a new image. Let's make
 # sure it follows all the rules. This scans the config file and returns success
@@ -453,7 +497,8 @@ choose_image() {
 
 # Fetch and verify the user's chosen image. On success, it sets the global
 # variable 'image_file' to indicate the local name of the unpacked binary that
-# should be written to the USB drive.
+# should be written to the USB drive. It also sets the global variable
+# 'disk_needed' to the minimum capacity of the USB drive required (in MB).
 fetch_image() {
   local start
   local end
@@ -517,6 +562,8 @@ fetch_image() {
           sha1="$val"
           ;;
         url)
+          # Make sure we have enough temp space available. Die if we don't.
+          verify_tmp_space $(roundup $(( $zipfilesize + $filesize )))
           # Try to download each url until one works.
           if [ -n "$url" ]; then
             # We've already got one (it's very nice).
@@ -569,6 +616,7 @@ fetch_image() {
 
   # global
   image_file="$file"
+  disk_needed=$(roundup "$filesize")
 }
 
 ##############################################################################
@@ -604,6 +652,28 @@ get_devlist() {
     done
   fi
 }
+
+# Return the raw size in MB of each provided base device name ("sda sdb ...")
+get_devsize() {
+  local dev
+  local bytes
+  local sectors
+
+  # Are we on a mac?
+  if [ -n "$DISKUTIL" ]; then
+    for dev in $1; do
+      bytes=$(diskutil info $dev | \
+        awk '/\([0-9]+ Bytes\)/' | sed -E 's/.*\(([0-9]+) Bytes\).*/\1/')
+      echo $(( $bytes / 1024 / 1024))
+    done
+  else
+    for dev in $1; do
+      sectors=$(cat "/sys/block/$dev/size")
+      echo $(( $sectors * 512 / 1024 / 1024 ))
+    done
+  fi
+}
+
 
 # Return descriptions for each provided base device name ("sda sdb ...")
 get_devinfo() {
@@ -670,16 +740,17 @@ choose_drive() {
       else
         num_drives=$(echo "$devlist" | wc -l)
         if [ "$num_drives" != "1" ]; then
-          msg="I found $num_drives USB drives"
+          msg="I found $num_drives USB drives."
         else
-          msg="I found $num_drives USB drive"
+          msg="I found $num_drives USB drive."
         fi
       fi
       echo "
 
-$msg
+$msg  We need one with at least ${disk_needed}MB capacity.
 
 $choices
+
 "
       show=
     fi
@@ -782,6 +853,15 @@ else
 
   # Be sure
   dev_desc=$(get_devinfo "$user_choice")
+fi
+
+# Start asking for confirmation
+dev_size=$(get_devsize "$user_choice")
+if [ "$dev_size" -lt "$disk_needed" ]; then
+  echo "
+
+WARNING: This drive seems too small (${dev_size}MB)." \
+  "The recovery image is ${disk_needed}MB."
 fi
 echo "
 Is this the device you want to put the recovery image on?
