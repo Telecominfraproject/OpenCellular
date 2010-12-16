@@ -99,22 +99,25 @@ POSSIBLY_UNUSED static INLINE int TpmResponseSize(const uint8_t* buffer) {
 }
 
 
-void TlclStubInit(void) {
-  TlclOpenDevice();
+uint32_t TlclStubInit(void) {
+  return TlclOpenDevice();
 }
 
 
-void TlclCloseDevice(void) {
-  close(tpm_fd);
-  tpm_fd = -1;
+uint32_t TlclCloseDevice(void) {
+  if (tpm_fd != -1) {
+    close(tpm_fd);
+    tpm_fd = -1;
+  }
+  return 0;
 }
 
 
-void TlclOpenDevice(void) {
+uint32_t TlclOpenDevice(void) {
   char* device_path;
 
   if (tpm_fd >= 0)
-    return;  /* Already open */
+    return 0;  /* Already open */
 
   device_path = getenv("TPM_DEVICE_PATH");
   if (device_path == NULL) {
@@ -123,8 +126,12 @@ void TlclOpenDevice(void) {
 
   tpm_fd = open(device_path, O_RDWR);
   if (tpm_fd < 0) {
-    error("cannot open TPM device %s: %s\n", device_path, strerror(errno));
+    VBDEBUG(("TPM: Cannot open TPM device %s: %s\n", device_path,
+             strerror(errno)));
+    return TPM_E_IOERROR;
   }
+
+  return 0;
 }
 
 

@@ -22,6 +22,7 @@
 #define TPM_E_AREA_LOCKED           ((uint32_t)0x0000003c)
 #define TPM_E_BADINDEX              ((uint32_t)0x00000002)
 #define TPM_E_BAD_PRESENCE          ((uint32_t)0x0000002d)
+#define TPM_E_IOERROR               ((uint32_t)0x0000001f)
 #define TPM_E_INVALID_POSTINIT      ((uint32_t)0x00000026)
 #define TPM_E_MAXNVWRITES           ((uint32_t)0x00000048)
 #define TPM_E_OWNER_SET             ((uint32_t)0x00000014)

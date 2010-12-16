@@ -91,8 +91,8 @@ static uint32_t Send(const uint8_t* command) {
 
 /* Exported functions. */
 
-void TlclLibInit(void) {
-  TlclStubInit();
+uint32_t TlclLibInit(void) {
+  return TlclStubInit();
 }
 
 uint32_t TlclStartup(void) {

@@ -18,9 +18,9 @@
 /*****************************************************************************/
 /* Functions implemented in tlcl.c */
 
-/* Call this first.
+/* Call this first.  Returns 0 if success, nonzero if error.
  */
-void TlclLibInit(void);
+uint32_t TlclLibInit(void);
 
 /* Logs to stdout.  Arguments like printf.
  */

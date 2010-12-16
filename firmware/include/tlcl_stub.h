@@ -17,15 +17,15 @@
 /*****************************************************************************/
 /* Functions to be implemented by the stub library */
 
-/* Initialize the stub library */
-void TlclStubInit(void);
+/* Initialize the stub library.  Returns 0 if success, nonzero if error. */
+uint32_t TlclStubInit(void);
 
 /* Close and open the device.  This is needed for running more complex commands
  * at user level, such as TPM_TakeOwnership, since the TPM device can be opened
- * only by one process at a time.
+ * only by one process at a time.  Returns 0 if success, nonzero if error.
  */
-void TlclCloseDevice(void);
-void TlclOpenDevice(void);
+uint32_t TlclCloseDevice(void);
+uint32_t TlclOpenDevice(void);
 
 /* Send data to the TPM and receive a response.  Returns 0 if success,
  * nonzero if error. */

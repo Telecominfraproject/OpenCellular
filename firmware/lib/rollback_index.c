@@ -197,8 +197,7 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
     g_rollback_recovery_mode = 1;  /* Global variables are usable in
                                     * recovery mode */
 
-  /* TODO: TlclLibInit() should be able to return failure */
-  TlclLibInit();
+  RETURN_ON_FAILURE(TlclLibInit());
 
   RETURN_ON_FAILURE(TlclStartup());
   /* Use ContinueSelfTest rather than SelfTestFull().  It enables
@@ -336,7 +335,7 @@ uint32_t RollbackKernelLock(void) {
 
 uint32_t RollbackS3Resume(void) {
   uint32_t result;
-  TlclLibInit();
+  RETURN_ON_FAILURE(TlclLibInit());
   result = TlclResume();
   if (result == TPM_E_INVALID_POSTINIT) {
     /* We're on a platform where the TPM maintains power in S3, so
