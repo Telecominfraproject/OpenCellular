@@ -15,6 +15,10 @@ GPT=cgpt
 # The tag when the rootfs is changed.
 TAG_NEEDS_TO_BE_SIGNED="/root/.need_to_be_signed"
 
+# List of Temporary files and mount points.
+TEMP_FILE_LIST=$(mktemp)
+TEMP_DIR_LIST=$(mktemp)
+
 # Array of actions that are executed during the clean up process.
 declare -a cleanup_actions
 
