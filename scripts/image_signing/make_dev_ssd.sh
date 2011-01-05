@@ -24,7 +24,6 @@ DEFINE_boolean remove_rootfs_verification \
   $FLAGS_FALSE "Modify kernel boot config to disable rootfs verification" ""
 DEFINE_string backup_dir \
   "$DEFAULT_BACKUP_FOLDER" "Path of directory to store kernel backups" ""
-DEFINE_boolean debug $FLAGS_FALSE "Provide debug messages" "d"
 DEFINE_string save_config "" \
   "Base filename to store kernel configs to, instead of resigning." ""
 DEFINE_string set_config "" \
@@ -45,23 +44,6 @@ EXEC_LOG="$(make_temp_file)"
 
 # Functions
 # ----------------------------------------------------------------------------
-# Reports error message and exit(1)
-err_die() {
-  echo "ERROR: $*" 1>&2
-  exit 1
-}
-
-# Returns true if we're running in debug mode
-is_debug_mode() {
-  [ "$FLAGS_debug" = $FLAGS_TRUE ]
-}
-
-# Prints messages (in parameters) in debug mode
-debug_msg() {
-  if is_debug_mode; then
-    echo "DEBUG: $*" 1>&2
-  fi
-}
 
 # Removes rootfs verification from kernel boot parameter
 remove_rootfs_verification() {
