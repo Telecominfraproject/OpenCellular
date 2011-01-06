@@ -44,6 +44,21 @@ EXEC_LOG="$(make_temp_file)"
 # Functions
 # ----------------------------------------------------------------------------
 
+# Disables write protection status registers
+disable_write_protection() {
+  # No need to change WP status in file mode
+  if [ -n "$FLAGS_to" ]; then
+    return $FLAGS_TRUE
+  fi
+
+  # --wp-disable command may return success even if WP is still enabled,
+  # so we should use --wp-status to verify the results.
+  echo "Disabling system software write protection status..."
+  (flashrom --wp-disable && flashrom --wp-status) 2>&1 |
+    tee "$EXEC_LOG" |
+    grep -q '^WP: .* is disabled\.$'
+}
+
 # Reads $IMAGE from $FLAGS_from
 read_image() {
   if [ -z "$FLAGS_from" ]; then
@@ -123,7 +138,14 @@ main() {
     ensure_files_exist "$FLAGS_from"
   fi
 
-  # TODO(hungte) check if GPIO.3 (WP) is enabled
+  debug_msg "Checking software write protection status"
+  disable_write_protection ||
+    if is_debug_mode; then
+      err_die "Failed to disable WP. Diagnose Message: $(cat "$EXEC_LOG")"
+    else
+      err_die "Write protection is still enabled. " \
+              "Please verify that hardware write protection is disabled."
+    fi
 
   debug_msg "Pulling image to $IMAGE"
   (read_image && [ -s "$IMAGE" ]) ||
