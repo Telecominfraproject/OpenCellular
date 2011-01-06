@@ -34,6 +34,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		dev_sign_file \
 		dump_fmap \
 		dev_debug_vboot \
+		pack_firmware_image
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
@@ -98,6 +99,10 @@ ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
 
 ${BUILD_ROOT}/dump_fmap: dump_fmap.c
 	$(CC) $(CFLAGS) $< -o $@
+
+${BUILD_ROOT}/pack_firmware_image: pack_firmware_image
+	cp -f $< $@
+	chmod +x $@
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
