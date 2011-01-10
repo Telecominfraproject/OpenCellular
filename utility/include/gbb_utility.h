@@ -7,6 +7,7 @@
 #define VBOOT_REFERENCE_GBB_UTILITY_H_
 
 #include <string>
+#include <vector>
 #include "gbb_header.h"
 
 namespace vboot_reference {
@@ -32,6 +33,11 @@ class GoogleBinaryBlockUtil {
   // save loaded (and modified) GBB with BIOS image to new file
   // return true on success.
   bool save_to_file(const char *filename);
+
+  // create a new GBB blob by providing a list of reserved data size for each
+  // properties, following the order described in GoogleBinaryBlockHeader.
+  // return true on success.
+  bool create_new(const std::vector<uint32_t> &create_param);
 
   // retrieve the value of a property from GBB data.
   // return the property value.
@@ -86,4 +92,3 @@ class GoogleBinaryBlockUtil {
 }  // namespace vboot_reference
 
 #endif  // VBOOT_REFERENCE_GBB_UTILITY_H_
-

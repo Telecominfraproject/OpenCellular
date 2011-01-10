@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <string>
@@ -92,6 +93,47 @@ void GoogleBinaryBlockUtil::initialize() {
   memset(&header_, 0, sizeof(header_));
   file_content_.clear();
 }
+
+bool GoogleBinaryBlockUtil::create_new(
+    const std::vector<uint32_t> &create_param) {
+  uint32_t *prop = &header_.hwid_offset;  // must be first entry.
+  uint32_t allocated_size = sizeof(header_);
+  std::vector<uint32_t>::const_iterator i = create_param.begin();
+
+  // max properties = available space in header / size of record (offset+size)
+  size_t max_properties =
+      (sizeof(header_) - (reinterpret_cast<uint8_t*>(prop) -
+                          reinterpret_cast<uint8_t*>(&header_))) /
+      (sizeof(uint32_t) * 2);
+
+  if (create_param.size() >= max_properties) {
+    if (verbose)
+      fprintf(stderr, "error: creation parameters cannot exceed %zu entries.\n",
+              max_properties);
+    return false;
+  }
+
+  initialize();
+  memcpy(header_.signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
+  header_.major_version = GBB_MAJOR_VER;
+  header_.minor_version = GBB_MINOR_VER;
+  header_.header_size = GBB_HEADER_SIZE;
+
+  while (i != create_param.end()) {
+    *prop++ = allocated_size;  // property offset
+    *prop++ = *i;  // property size
+    allocated_size += *i;
+    i++;
+  }
+
+  file_content_.resize(allocated_size);
+  std::copy(reinterpret_cast<char*>(&header_),
+            reinterpret_cast<char*>(&header_ + 1),
+            file_content_.begin());
+  is_valid_gbb = true;
+  return true;
+}
+
 
 bool GoogleBinaryBlockUtil::load_from_file(const char *filename) {
   is_valid_gbb = false;
@@ -374,7 +416,7 @@ using vboot_reference::GoogleBinaryBlockUtil;
 static void usagehelp_exit(const char *prog_name) {
   printf(
     "Utility to manage Google Binary Block (GBB)\n"
-    "Usage: %s [-g|-s] [OPTIONS] bios_file [output_file]\n"
+    "Usage: %s [-g|-s|-c] [OPTIONS] bios_file [output_file]\n"
     "\n"
     "GET MODE:\n"
     "-g, --get   (default)\tGet (read) from bios_file, "
@@ -393,10 +435,14 @@ static void usagehelp_exit(const char *prog_name) {
     " -b, --bmpfv=FILE    \tFile name of new Bitmap FV.\n"
     "     --recoverykey=FILE\tFile name of new Recovery Key.\n"
     "\n"
+    "CREATE MODE:\n"
+    "-c, --create=prop1_size,prop2_size...\n"
+    "                     \tCreate a GBB blob by given size list.\n"
     "SAMPLE:\n"
     "  %s -g bios.bin\n"
     "  %s --set --hwid='New Model' -k key.bin bios.bin newbios.bin\n"
-    , prog_name, prog_name, prog_name);
+    "  %s -c 0x100,0x1000,0x03DE80,0x1000 gbb.blob\n"
+    , prog_name, prog_name, prog_name, prog_name);
   exit(1);
 }
 
@@ -461,12 +507,34 @@ static bool import_property(
   return true;
 }
 
+static bool parse_creation_param(const string &input_string,
+                                 std::vector<uint32_t> *output_vector) {
+  const char *input = input_string.c_str();
+  char *parsed = NULL;
+  uint32_t param;
+
+  if (input_string.empty())
+    return false;
+
+  do {
+    param = (uint32_t)strtol(input, &parsed, 0);
+    if (*parsed && *parsed != ',')
+      return false;
+    output_vector->push_back(param);
+    input = parsed + 1;
+    // printf("(debug) param: %zd\n", param);
+  } while (*input);
+
+  return true;
+}
+
 ///////////////////////////////////////////////////////////////////////
 // main
 
 int main(int argc, char *argv[]) {
   const char *myname = argv[0];
   int err_stage = 0;    // an indicator for error exits
+  GoogleBinaryBlockUtil util;
 
   // small parameter helper class
   class OptPropertyMap: public
@@ -483,16 +551,18 @@ int main(int argc, char *argv[]) {
   OptPropertyMap opt_props;
 
   struct GBBUtilOptions {
-    bool get_mode, set_mode;
+    bool get_mode, set_mode, create_mode;
     string input_fn, output_fn;
+    std::vector<uint32_t> create_param;
   } myopts;
-  myopts.get_mode = myopts.set_mode = false;
+  myopts.get_mode = myopts.set_mode = myopts.create_mode = false;
 
   // snippets for getopt_long
   int option_index, opt;
   static struct option long_options[] = {
     {"get", 0, NULL, 'g' },
     {"set", 0, NULL, 's' },
+    {"create", 1, NULL, 'c' },
     {"output", 1, NULL, 'o' },
     {"hwid", 2, NULL, 'i' },
     {"rootkey", 1, NULL, 'k' },
@@ -502,7 +572,7 @@ int main(int argc, char *argv[]) {
   };
 
   // parse command line options
-  while ((opt = getopt_long(argc, argv, "gso:i:k:b:",
+  while ((opt = getopt_long(argc, argv, "gsc:o:i:k:b:",
                             long_options, &option_index)) >= 0) {
     switch (opt) {
       case 'g':
@@ -511,6 +581,15 @@ int main(int argc, char *argv[]) {
 
       case 's':
         myopts.set_mode = true;
+        break;
+
+      case 'c':
+        myopts.create_mode = true;
+        assert(optarg);
+        if (!*optarg || !parse_creation_param(optarg, &myopts.create_param)) {
+          printf("error: invalid creation parameter: %s\n", optarg);
+          usagehelp_exit(myname);
+        }
         break;
 
       case 'o':
@@ -565,7 +644,19 @@ int main(int argc, char *argv[]) {
 
   // stage: complete parameter parsing and checking
   err_stage++;
-  if (myopts.get_mode == myopts.set_mode) {
+  if (myopts.create_mode) {
+    if (myopts.get_mode || myopts.set_mode) {
+      printf("error: please assign only one mode from get/set/create.\n");
+      return err_stage;
+    }
+    if (!opt_props.empty() || myopts.create_param.empty()) {
+      printf("error: creation parameter syntax error.\n");
+      return err_stage;
+    }
+    if (myopts.output_fn.empty()) {
+      myopts.output_fn = myopts.input_fn;
+    }
+  } else if (myopts.get_mode == myopts.set_mode) {
     if (myopts.get_mode) {
       printf("error: please assign either get or set mode.\n");
       return err_stage;
@@ -579,10 +670,22 @@ int main(int argc, char *argv[]) {
     return err_stage;
   }
 
+  if (myopts.create_mode) {
+    if (!util.create_new(myopts.create_param))
+      return err_stage;
+
+    assert(!myopts.output_fn.empty());
+    if (!util.save_to_file(myopts.output_fn.c_str())) {
+      printf("error: cannot create to file: %s\n", myopts.output_fn.c_str());
+      return err_stage;
+    } else {
+      printf("successfully created new GBB to: %s\n", myopts.output_fn.c_str());
+    }
+    return 0;
+  }
+
   // stage: load image files
   err_stage++;
-  GoogleBinaryBlockUtil util;
-
   assert(!myopts.input_fn.empty());
   if (!util.load_from_file(myopts.input_fn.c_str())) {
     printf("error: cannot load valid BIOS file: %s\n", myopts.input_fn.c_str());
