@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
@@ -48,7 +48,7 @@
 # offset 0x00008000 and size 0x00002000).
 
 # Load common constants and variables.
-. "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/common_minimal.sh"
 
 # Abort on error
 set -e
@@ -62,7 +62,7 @@ fi
 
 # Make sure the tools we need are available.
 for prog in mosys vbutil_firmware; do
-  type -P "${prog}" &>/dev/null || \
+  type "${prog}" &>/dev/null || \
     { echo "${prog} tool not found."; exit 1; }
 done
 
@@ -82,20 +82,16 @@ do
   match_str="$i Key"
   line=$(mosys -f -k eeprom map $1 | grep "$match_str")
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
-  eval let \
-    fw${i}_vblock_offset="$offset"
+  eval fw${i}_vblock_offset=$((offset))
   size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
-  eval let \
-    fw${i}_vblock_size="$size"
+  eval fw${i}_vblock_size=$((size))
 
   match_str="$i Data"
   line=$(mosys -f -k eeprom map $1 | grep "$match_str")
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
-  eval let \
-    fw${i}_offset="$offset"
+  eval fw${i}_offset=$((offset))
   size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
-  eval let \
-    fw${i}_size="$size"
+  eval fw${i}_size=$((size))
 done
 
 temp_fwimage=$(make_temp_file)

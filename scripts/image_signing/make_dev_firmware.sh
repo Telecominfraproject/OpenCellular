@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -8,7 +8,7 @@
 # image or system live firmware (EEPROM), and assign proper HWID, BMPFV as well.
 
 SCRIPT_BASE="$(dirname "$0")"
-. "$SCRIPT_BASE/common.sh"
+. "$SCRIPT_BASE/common_minimal.sh"
 load_shflags || exit 1
 
 # Constants used by DEFINE_*
