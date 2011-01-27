@@ -3,19 +3,33 @@
 # found in the LICENSE file.
 
 export FIRMWARE_ARCH
+export FIRMWARE_CONFIG_PATH
 
 export CC ?= gcc
 export CXX ?= g++
-ifeq ($(FIRMWARE_ARCH),)
-export CFLAGS = -Wall -Werror -DCHROMEOS_ENVIRONMENT
-else
-export CFLAGS = -Wall -Werror
+export CFLAGS
+
+# Include compiler flags if provided.
+# The CC and CFLAGS should not be overridden hereafter.
+ifneq ($(FIRMWARE_CONFIG_PATH),)
+include $(FIRMWARE_CONFIG_PATH)
 endif
 
+# Provides default optimization level if not set by FIRMWARE_CONFIG_PATH
 ifeq (${DEBUG},)
-CFLAGS += -O3
+CFLAGS ?= -O3
 else
-CFLAGS += -O0 -g -DVBOOT_DEBUG
+CFLAGS ?= -O0
+endif
+
+ifeq ($(FIRMWARE_ARCH),)
+CFLAGS += -Wall -Werror -DCHROMEOS_ENVIRONMENT
+else
+CFLAGS += -Wall -Werror
+endif
+
+ifneq (${DEBUG},)
+CFLAGS += -g -DVBOOT_DEBUG
 endif
 
 ifeq (${DISABLE_NDEBUG},)
