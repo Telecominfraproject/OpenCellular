@@ -6,16 +6,26 @@ export FIRMWARE_ARCH
 
 export CC ?= gcc
 export CXX ?= g++
-ifeq ($(FIRMWARE_ARCH),)
-export CFLAGS = -Wall -Werror -DCHROMEOS_ENVIRONMENT
-else
 export CFLAGS = -Wall -Werror
-endif
 
 ifeq (${DEBUG},)
 CFLAGS += -O3
 else
-CFLAGS += -O0 -g -DVBOOT_DEBUG
+CFLAGS += -O0 -g
+endif
+
+# Override CC and CFLAGS only if FIRMWARE_CONFIG_PATH is not empty, but we
+# wish to preserve -D flags (so move all -D flags after this).
+ifneq (${FIRMWARE_CONFIG_PATH},)
+include ${FIRMWARE_CONFIG_PATH}
+endif
+
+ifeq ($(FIRMWARE_ARCH),)
+CFLAGS += -DCHROMEOS_ENVIRONMENT
+endif
+
+ifneq (${DEBUG},)
+CFLAGS += -DVBOOT_DEBUG
 endif
 
 ifeq (${DISABLE_NDEBUG},)
