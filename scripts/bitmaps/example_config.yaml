@@ -1,0 +1,100 @@
+# This describes four screens, with three localizations.
+
+bmpblock:         1.0
+
+
+# These are the individual images which are layered to produce a screen layout.
+images:
+    devmode:      Developer.bmp
+    recovery:     Recovery.bmp
+    rec_insert:   RecoveryMissingOS.bmp
+    rec_yuck:     RecoveryNoOS.bmp
+
+    url:          url.bmp
+
+    dev_text_en:  dev_text_en.bmp
+    rec_text_en:  rec_text_en.bmp
+    ins_text_en:  ins_text_en.bmp
+    yuck_text_en: yuck_text_en.bmp
+
+    dev_text_fr:  dev_text_fr.bmp
+    rec_text_fr:  rec_text_fr.bmp
+    ins_text_fr:  ins_text_fr.bmp
+    yuck_text_fr: yuck_text_fr.bmp
+
+    dev_text_de:  dev_text_de.bmp
+    rec_text_de:  rec_text_de.bmp
+    ins_text_de:  ins_text_de.bmp
+    yuck_text_de: yuck_text_de.bmp
+
+
+# These are all of the distinct layouts that we know how to display.
+screens:
+  dev_en:
+      - [0, 0, devmode]
+      - [100, 500, url]
+      - [100, 620, dev_text_en]
+
+  dev_fr:
+      - [0, 0, devmode]
+      - [100, 500, url]
+      - [100, 620, dev_text_fr]
+
+  dev_de:
+      - [0, 0, devmode]
+      - [100, 500, url]
+      - [100, 620, dev_text_de]
+
+  rec_en:
+      - [0, 0, recovery]
+      - [100, 500, url]
+      - [100, 620, rec_text_en]
+
+  rec_fr:
+      - [0, 0, recovery]
+      - [100, 500, url]
+      - [100, 620, rec_text_fr]
+
+  rec_de:
+      - [0, 0, recovery]
+      - [100, 500, url]
+      - [100, 620, rec_text_de]
+
+  ins_en:
+      - [0, 0, rec_insert]
+      - [100, 500, url]
+      - [100, 620, ins_text_en]
+
+  ins_fr:
+      - [0, 0, rec_insert]
+      - [100, 500, url]
+      - [100, 620, ins_text_fr]
+
+  ins_de:
+      - [0, 0, rec_insert]
+      - [100, 500, url]
+      - [100, 620, ins_text_de]
+
+  yuck_en:
+      - [0, 0, rec_yuck]
+      - [100, 500, url]
+      - [100, 620, yuck_text_en]
+
+  yuck_fr:
+      - [0, 0, rec_yuck]
+      - [100, 500, url]
+      - [100, 620, yuck_text_fr]
+
+  yuck_de:
+      - [0, 0, rec_yuck]
+      - [100, 500, url]
+      - [100, 620, yuck_text_de]
+
+
+# To customize the images for a particular locale, just reorder this list so
+# that the default language appears first.
+localizations:
+  - [ dev_en, rec_en, ins_en, yuck_en ]
+  - [ dev_fr, rec_fr, ins_fr, yuck_fr ]
+  - [ dev_de, rec_de, ins_de, yuck_de ]
+  

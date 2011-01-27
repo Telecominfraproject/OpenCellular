@@ -20,6 +20,7 @@ DESTDIR ?= /usr/bin
 TARGET_NAMES = dumpRSAPublicKey \
 		dump_kernel_config \
 		gbb_utility \
+		bmpblk_utility \
 		load_kernel_test \
 		signature_digest_utility \
 		tlcl_generator \
@@ -49,6 +50,9 @@ ${BUILD_ROOT}/dump_kernel_config: dump_kernel_config.c $(LIBS)
 
 ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
+
+${BUILD_ROOT}/bmpblk_utility: bmpblk_utility.cc
+	$(CXX) -DWITH_UTIL_MAIN -lyaml $(CFLAGS) $< -o $@
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
