@@ -60,7 +60,7 @@ print_vector(char *name, u_int32_t num_bytes, u_int8_t *data)
 {
 	u_int32_t i;
 
-	printf("%s [%d] @0x%08x", name, num_bytes, (u_int32_t)data);
+	printf("%s [%d] @%p", name, num_bytes, data);
 	for (i=0; i<num_bytes; i++) {
 		if ( i % 16 == 0 )
 			printf(" = ");
@@ -300,4 +300,3 @@ sign_bct(build_image_context *context,
 	free(hash_buffer);
 	return e;
 }
-
