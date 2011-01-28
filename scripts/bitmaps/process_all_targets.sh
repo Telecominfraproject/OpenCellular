@@ -63,6 +63,6 @@ for f in $(find "${tree}" -type f -name 'bmp_*_[0-9]*.fv'); do
       continue
     ;;
   esac
-  ./make_bmp_images.sh "${elements} ${signature}" "${geometry}"
+  ./make_bmp_images.sh "${elements} ${signature}" "${geometry}" "x86"
   echo
 done

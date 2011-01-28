@@ -6,30 +6,35 @@
 # This adds text to our non-labeled recovery images.
 #
 # The source images should be 1366x800, with the expectation they'll be cropped
-# to 1366x768 or 1280x800, have 2 lines of text overlayed at the bottom, and
-# then be resized to 800x600 so that the BIOS can then display them stretched
-# to the full screen size.
+# to <screen geometry>, which is 1366x768 or 1280x800, have 2 lines of text
+# overlayed at the bottom, and then be resized to 800x600 if on x86, otherwise
+# same as <screen geometry>. On x86, resizing to 800x600 because the BIOS can
+# then display them stretched to the full screen size.
 #
 
 
-
-
-# Require one arg
-if [ $# -ne "2" ]; then
-  echo "Usage: $(basename $0) <MODEL> <screen geometry>" 1>&2
+# Require three args
+if [ $# -ne "3" -o \( "$3" != "x86" -a "$3" != "arm" \) ]; then
+  echo "Usage: $(basename $0) <HWID> <screen geometry> <x86/arm>" 1>&2
   exit 1
 fi
-MODEL=$1
+HWID=$1
 geom_crop=$2
+geom_final='800x600!'
+flag_final=
+# If arm, make the final geometry as screen size and use 8bpp rle format.
+if [ $3 = "arm" ]; then
+  geom_final=$2
+  flag_final="-colors 256 -compress rle"
+fi
 
-nicename=${MODEL// /_}
+nicename=${HWID// /_}
 
 # Default URL
 URL='http://google.com/chromeos/recovery'
 
 # Image parameters
 geom_orig='1366x800'
-geom_final='800x600!'
 bluecolor='#9ccaec'
 bluefont="Helvetica-Narrow"
 bluepointsize=30
@@ -48,7 +53,7 @@ label_img="${tmpdir}/label.bmp"
 
 # Output directories
 thisdir=$(readlink -e $(dirname $0))
-outdir="${thisdir}/out_${nicename}"
+outdir="out_${nicename}"
 [ -d "$outdir" ] || mkdir -p "$outdir"
 
 function find_background_color {
@@ -84,7 +89,7 @@ function process_one_file {
     # The only way to change font and color in multiline text is to split each
     # line into a separate image and then composite them together. Ugh.
     # First, split each input line into a separate file.
-    "${thisdir}/makelines" -u "$URL" -m "$MODEL" -d "$tmpdir" "$txt_file"
+    "${thisdir}/makelines.sh" -u "$URL" -m "$HWID" -d "$tmpdir" "$txt_file"
     # Convert each line file into an image file.
     for txtfile in ${tmpdir}/linetxt_*; do
       case "$txtfile" in
@@ -114,12 +119,12 @@ function process_one_file {
   fi
 
   # Now scale the result to the final size
-  convert "$img_txt" -scale "$geom_final" -alpha off "$dst_img"
+  convert "$img_txt" -scale "$geom_final" -alpha off $flag_final "$dst_img"
 }
 
 
 # Do it.
-for file in originals/*.gif; do
+for file in ${thisdir}/originals/*.gif; do
   process_one_file "$file"
 done
 
