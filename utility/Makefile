@@ -36,6 +36,10 @@ TARGET_NAMES = dumpRSAPublicKey \
 		dev_debug_vboot \
 		pack_firmware_image
 
+ifeq ($(MINIMAL),)
+TARGET_NAMES += bmpblk_utility
+endif
+
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
 
@@ -49,6 +53,9 @@ ${BUILD_ROOT}/dump_kernel_config: dump_kernel_config.c $(LIBS)
 
 ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
+
+${BUILD_ROOT}/bmpblk_utility: bmpblk_utility.cc
+	$(CXX) -DWITH_UTIL_MAIN -lyaml $(CFLAGS) $< -o $@
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
