@@ -54,9 +54,9 @@
 set -e
 
 # Check arguments
-if [ $# -ne 5 ] ; then
-  echo \
-    "Usage: $0 src_fd dst_fd firmware_datakey firmware_keyblock kernel_subkey"
+if [ $# -lt 5 ] || [ $# -gt 6 ]; then
+  echo "Usage: $PROG src_fd dst_fd firmware_datakey firmware_keyblock"\
+   "kernel_subkey [version]"
   exit 1
 fi
 
@@ -66,15 +66,17 @@ for prog in mosys vbutil_firmware; do
     { echo "${prog} tool not found."; exit 1; }
 done
 
-src_fd=$1
-dst_fd=$2
-firmware_datakey=$3
-firmware_keyblock=$4
-kernel_subkey=$5
+SRC_FD=$1
+DST_FD=$2
+FIRMWARE_DATAKEY=$3
+FIRMWARE_KEYBLOCK=$4
+KERNEL_SUBKEY=$5
+VERSION=$6
 
-# TODO(gauravsh): Figure out where the version comes from.
-#                 Do we rev it manually?
-VERSION=1
+if [ -z $VERSION ]; then
+  VERSION=1
+fi
+echo "Using firmware version: $VERSION"
 
 # Parse offsets and size of firmware data and vblocks
 for i in "A" "B"
@@ -98,37 +100,37 @@ temp_fwimage=$(make_temp_file)
 temp_out_vb=$(make_temp_file)
 
 # Extract out Firmware A data and generate signature using the right keys
-dd if="${src_fd}" of="${temp_fwimage}" skip="${fwA_offset}" bs=1 \
+dd if="${SRC_FD}" of="${temp_fwimage}" skip="${fwA_offset}" bs=1 \
   count="${fwA_size}"
 
 echo "Re-calculating Firmware A vblock"
 vbutil_firmware \
   --vblock "${temp_out_vb}" \
-  --keyblock "${firmware_keyblock}" \
-  --signprivate "${firmware_datakey}" \
+  --keyblock "${FIRMWARE_KEYBLOCK}" \
+  --signprivate "${FIRMWARE_DATAKEY}" \
   --version "${VERSION}" \
   --fv "${temp_fwimage}" \
-  --kernelkey "${kernel_subkey}"
+  --kernelkey "${KERNEL_SUBKEY}"
 
 # Create a copy of the input image and put in the new vblock for firmware A
-cp "${src_fd}" "${dst_fd}"
-dd if="${temp_out_vb}" of="${dst_fd}" seek="${fwA_vblock_offset}" bs=1 \
+cp "${SRC_FD}" "${DST_FD}"
+dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
   count="${fwA_vblock_size}" conv=notrunc
 
 # Repeat for firmware B
-dd if="${src_fd}" of="${temp_fwimage}" skip="${fwB_offset}" bs=1 \
+dd if="${SRC_FD}" of="${temp_fwimage}" skip="${fwB_offset}" bs=1 \
   count="${fwB_size}"
 echo "Re-calculating Firmware B vblock"
 vbutil_firmware \
   --vblock "${temp_out_vb}" \
-  --keyblock "${firmware_keyblock}" \
-  --signprivate "${firmware_datakey}" \
+  --keyblock "${FIRMWARE_KEYBLOCK}" \
+  --signprivate "${FIRMWARE_DATAKEY}" \
   --version "${VERSION}" \
   --fv "${temp_fwimage}" \
-  --kernelkey "${kernel_subkey}"
+  --kernelkey "${KERNEL_SUBKEY}"
 
 # Destination image has already been created.
-dd if="${temp_out_vb}" of="${dst_fd}" seek="${fwB_vblock_offset}" bs=1 \
+dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
   count="${fwB_vblock_size}" conv=notrunc
 
-echo "New signed image was output to ${dst_fd}"
+echo "New signed image was output to ${DST_FD}"

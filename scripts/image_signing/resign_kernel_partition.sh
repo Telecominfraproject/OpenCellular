@@ -9,12 +9,14 @@
 
 # vbutil_kernel must be in the system path.
 
+SCRIPT_DIR=$(dirname $0)
+
 # Abort on error
 set -e
 
 # Check arguments
-if [ $# -ne 4 ] ; then
-  echo "usage: $0 src_kpart dst_vblock kernel_datakey kernel_keyblock"
+if [ $# -lt 4 ] || [ $# -gt 5 ]; then
+  echo "usage: $0 src_kpart dst_vblock kernel_datakey kernel_keyblock [version]"
   exit 1
 fi
 
@@ -22,17 +24,23 @@ fi
 type -P vbutil_kernel &>/dev/null || \
   ( echo "vbutil_kernel tool not found."; exit 1; )
 
-src_kpart=$1
-dst_vblock=$2
-kernel_datakey=$3
-kernel_keyblock=$4
+SRC_KPART=$1
+DST_VBLOCK=$2
+KERNEL_DATAKEY=$3
+KERNEL_KEYBLOCK=$4
+VERSION=$5
 
-vbutil_kernel \
-  --repack "${dst_vblock}" \
+if [ -z $VERSION ]; then
+  VERSION=1
+fi
+echo "Using kernel version: $VERSION"
+
+vbutil_kernel --repack "${DST_VBLOCK}" \
   --vblockonly \
-  --keyblock "${kernel_keyblock}" \
-  --signprivate "${kernel_datakey}" \
-  --oldblob "${src_kpart}"
+  --keyblock "${KERNEL_KEYBLOCK}" \
+  --signprivate "${KERNEL_DATAKEY}" \
+  --version "${VERSION}" \
+  --oldblob "${SRC_KPART}"
 
-echo "New kernel vblock was output to ${dst_vblock}"
+echo "New kernel vblock was output to ${DST_VBLOCK}"
 

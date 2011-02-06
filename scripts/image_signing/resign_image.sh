@@ -16,45 +16,41 @@
 set -e
 
 # Check arguments
-if [ $# -ne 4 ] ; then
-  echo "usage: $0 src_bin dst_bin kernel_datakey kernel_keyblock"
+if [ $# -lt 4 ] || [ $# -gt 5 ] ; then
+  echo "usage: $PROG src_bin dst_bin kernel_datakey kernel_keyblock [version]"
   exit 1
 fi
 
 # Make sure the tools we need are available.
-type -P cgpt &>/dev/null || \
-  { echo "cgpt tool not found."; exit 1; }
-type -P vbutil_kernel &>/dev/null || \
-  { echo "vbutil_kernel tool not found."; exit 1; }
+for prereqs in vbutil_kernel cgpt;
+do
+  type -P "${prereqs}" &>/dev/null || \
+    { echo "${prereqs} tool not found."; exit 1; }
+done
 
-sector_size=512  # sector size in bytes
-num_sectors_vb=128  # number of sectors in kernel verification blob
-src_bin=$1
-dst_bin=$2
-kernel_datakey=$3
-kernel_keyblock=$4
+SRC_BIN=$1
+DST_BIN=$2
+KERNEL_DATAKEY=$3
+KERNEL_KEYBLOCK=$4
+VERSION=$5
 
-koffset="$(cgpt show -b -i 2 $1)"
-ksize="$(cgpt show -s -i 2 $1)"
+if [ -z $VERSION ]; then
+  VERSION=1
+fi
+echo "Using kernel version: $VERSION"
 
-echo "Re-signing image ${src_bin} and outputting ${dst_bin}"
 temp_kimage=$(make_temp_file)
-temp_out_vb=$(make_temp_file)
+extract_image_partition ${SRC_BIN} 2 ${temp_kimage}
+updated_kimage=$(make_temp_file)
 
-# Grab the kernel image in preparation for resigning
-dd if="${src_bin}" of="${temp_kimage}" skip=$koffset bs=$sector_size \
-  count=$ksize
-vbutil_kernel \
-  --repack "${temp_out_vb}" \
-  --vblockonly \
-  --keyblock "${kernel_keyblock}" \
-  --signprivate "${kernel_datakey}" \
+vbutil_kernel --repack "${updated_kimage}" \
+  --keyblock "${KERNEL_KEYBLOCK}" \
+  --signprivate "${KERNEL_DATAKEY}" \
+  --version "${VERSION}" \
   --oldblob "${temp_kimage}"
 
 # Create a copy of the input image and put in the new vblock
-cp "${src_bin}" "${dst_bin}"
-dd if="${temp_out_vb}" of="${dst_bin}" seek=$koffset bs=$sector_size \
-  count=$num_sectors_vb conv=notrunc
-
-echo "New signed image was output to ${dst_bin}"
+cp "${SRC_BIN}" "${DST_BIN}"
+replace_image_partition ${DST_BIN} 2 ${updated_kimage}
+echo "New signed image was output to ${DST_BIN}"
 
