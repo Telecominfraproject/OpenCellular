@@ -57,26 +57,15 @@ STUB_SRCS = \
 
 STUB_OBJS = $(STUB_SRCS:%.c=${BUILD_ROOT}/%.o)
 
-ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS} version.c
+ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS}
 
 ifeq ($(FIRMWARE_ARCH),)
-test : $(STUB_OBJS) $(FWLIB) update-version
+test : $(STUB_OBJS) $(FWLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out \
 		$(TESTDIR)/main.c $(STUB_OBJS) $(LIBS)
 else
 test : $(FWLIB)
 endif
-
-# This is executed at every make, to see if anything has changed
-update-version :
-	find \( -name '*.[ch]' -o -name 'Makefile*' \) -a \! -name version.c \
-		| sort | xargs cat | md5sum | cut -c 25-32 > \
-	${BUILD_ROOT}/x.tmp && \
-	echo "char* VbootVersion = \"VBOOv=$$(cat ${BUILD_ROOT}/x.tmp)\";" > \
-		${BUILD_ROOT}/version.tmp && \
-	(cmp -s ${BUILD_ROOT}/version.tmp version.c || \
-		( echo "** Updating version.c **" &&  \
-		  cp ${BUILD_ROOT}/version.tmp version.c))
 
 include ../common.mk
 
