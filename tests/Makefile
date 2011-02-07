@@ -94,7 +94,13 @@ runmisctests:
 runfuzztests:
 	./gen_fuzz_test_cases.sh
 
-runtests: genkeys runcgpttests runcryptotests runmisctests runfuzztests
+# Run bmpblk_utility tests
+runbmptests:
+	$(MAKE) BUILD=$(shell readlink -f ${BUILD}) -C bitmaps runtests
+
+ALLTESTS=runcgpttests runcryptotests runmisctests runfuzztests runbmptests
+
+runtests: genkeys ${ALLTESTS}
 
 # TODO: tests to run when ported to new API
 #	./run_image_verification_tests.sh

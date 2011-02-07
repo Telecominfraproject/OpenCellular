@@ -77,3 +77,6 @@ runtests:
 
 rbtest:
 	$(MAKE) -C tests rbtest
+
+runbmptests:
+	$(MAKE) -C tests runbmptests

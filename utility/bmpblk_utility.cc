@@ -338,7 +338,7 @@ void BmpBlockUtil::fill_all_image_infos() {
         it->second.data.height = get_bmp_image_height(it->second.raw_content);
         break;
       default:
-        error("Unsupported image format.");
+        error("Unsupported image format.\n");
     }
   }
 }
@@ -355,7 +355,7 @@ void BmpBlockUtil::compress_all_images(const Compression compress) {
       }
       break;
     default:
-      error("Unsupported data compression.");
+      error("Unsupported data compression.\n");
   }
 }
 
