@@ -10,4 +10,4 @@ then
   exit -1
 fi
 
-./signature_digest $1 $3 | openssl rsautl -sign -pkcs -inkey $2 
+./signature_digest_utility $1 $3 | openssl rsautl -sign -pkcs -inkey $2 

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
   uint32_t signature_digest_len;
 
   if (argc != 3) {
-    fprintf(stderr, "Usage: %s <algoid> <file>", argv[0]);
+    fprintf(stderr, "Usage: %s <alg_id> <file>", argv[0]);
     return -1;
   }
   algorithm = atoi(argv[1]);
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
   buf = BufferFromFile(argv[2], &len);
   if (!buf) {
-    fprintf(stderr, "Could read file: %s\n", argv[2]);
+    fprintf(stderr, "Could not read file: %s\n", argv[2]);
     return -1;
   }
 

@@ -21,6 +21,7 @@ TARGET_NAMES = dumpRSAPublicKey \
 		dump_kernel_config \
 		gbb_utility \
 		load_kernel_test \
+		pad_digest_utility \
 		signature_digest_utility \
 		tlcl_generator \
 		tpm_init_temp_fix \
@@ -58,6 +59,9 @@ ${BUILD_ROOT}/bmpblk_utility: bmpblk_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN -lyaml $(CFLAGS) $< -o $@
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
+${BUILD_ROOT}/pad_digest_utility: pad_digest_utility.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
