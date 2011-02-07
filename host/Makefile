@@ -14,6 +14,7 @@ INCLUDES += \
 
 # find ./lib -iname '*.c' | sort
 LIB_SRCS = \
+	./lib/crossystem.c \
 	./lib/file_keys.c \
 	./lib/host_common.c \
 	./lib/host_key.c \

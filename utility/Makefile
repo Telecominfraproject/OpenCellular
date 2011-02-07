@@ -17,7 +17,8 @@ BUILD_ROOT = ${BUILD}/utility
 
 DESTDIR ?= /usr/bin
 
-TARGET_NAMES = dumpRSAPublicKey \
+TARGET_NAMES = crossystem \
+		dumpRSAPublicKey \
 		dump_kernel_config \
 		gbb_utility \
 		load_kernel_test \
@@ -45,6 +46,9 @@ TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
 
 all: $(TARGET_BINS)
+
+${BUILD_ROOT}/crossystem: crossystem_main.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
