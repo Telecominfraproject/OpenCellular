@@ -16,10 +16,28 @@
 #include <string.h>
 #include <yaml.h>
 
-/* The offsets of width and height fields in a BMP file.
- * See http://en.wikipedia.org/wiki/BMP_file_format */
-#define BMP_WIDTH_OFFSET   18
-#define BMP_HEIGHT_OFFSET  22
+/* BMP header, used to validate image requirements
+ * See http://en.wikipedia.org/wiki/BMP_file_format
+ */
+typedef struct {
+  uint8_t         CharB;                // must be 'B'
+  uint8_t         CharM;                // must be 'M'
+  uint32_t        Size;
+  uint16_t        Reserved[2];
+  uint32_t        ImageOffset;
+  uint32_t        HeaderSize;
+  uint32_t        PixelWidth;
+  uint32_t        PixelHeight;
+  uint16_t        Planes;               // Must be 1 for x86
+  uint16_t        BitPerPixel;          // 1, 4, 8, or 24 for x86
+  uint32_t        CompressionType;      // must be 0 for x86
+  uint32_t        ImageSize;
+  uint32_t        XPixelsPerMeter;
+  uint32_t        YPixelsPerMeter;
+  uint32_t        NumberOfColors;
+  uint32_t        ImportantColors;
+} __attribute__((packed)) BMP_IMAGE_HEADER;
+
 
 static void error(const char *format, ...) {
   va_list ap;
@@ -132,9 +150,14 @@ void BmpBlockUtil::parse_bmpblock(yaml_parser_t *parser) {
   if (event.type != YAML_SCALAR_EVENT) {
     error("Syntax error in parsing bmpblock.\n");
   }
-  config_.header.major_version = atoi((char*)event.data.scalar.value);
-  config_.header.minor_version = atoi(
-      strchr((char*)event.data.scalar.value, '.') + 1);
+  char wantversion[20];
+  sprintf(wantversion, "%d.%d",
+          BMPBLOCK_MAJOR_VERSION,
+          BMPBLOCK_MINOR_VERSION);
+  string gotversion = (char*)event.data.scalar.value;
+  if (gotversion != wantversion) {
+    error("Invalid version specified in config file\n");
+  }
   yaml_event_delete(&event);
 }
 
@@ -305,29 +328,32 @@ const string BmpBlockUtil::read_image_file(const char *filename) {
 }
 
 ImageFormat BmpBlockUtil::get_image_format(const string content) {
-  if (content[0] == 'B' && content[1] == 'M')
-    return FORMAT_BMP;
-  else
+  if (content.size() < sizeof(BMP_IMAGE_HEADER))
     return FORMAT_INVALID;
+  const BMP_IMAGE_HEADER *hdr = (const BMP_IMAGE_HEADER *)content.c_str();
+
+  if (hdr->CharB != 'B' || hdr->CharM != 'M' ||
+      hdr->Planes != 1 ||
+      hdr->CompressionType != 0 ||
+      (hdr->BitPerPixel != 1 && hdr->BitPerPixel != 4 &&
+       hdr->BitPerPixel != 8 && hdr->BitPerPixel != 24))
+    return FORMAT_INVALID;
+
+  return FORMAT_BMP;
 }
 
 uint32_t BmpBlockUtil::get_bmp_image_width(const string content) {
-  const char *start = content.c_str();
-  uint32_t width = *(uint32_t*)(start + BMP_WIDTH_OFFSET);
-  /* Do a rough verification. */
-  assert(width > 0 && width < 1600);
-  return width;
+  const BMP_IMAGE_HEADER *hdr = (const BMP_IMAGE_HEADER *)content.c_str();
+  return hdr->PixelWidth;
 }
 
 uint32_t BmpBlockUtil::get_bmp_image_height(const string content) {
-  const char *start = content.c_str();
-  uint32_t height = *(uint32_t*)(start + BMP_HEIGHT_OFFSET);
-  /* Do a rough verification. */
-  assert(height > 0 && height < 1000);
-  return height;
+  const BMP_IMAGE_HEADER *hdr = (const BMP_IMAGE_HEADER *)content.c_str();
+  return hdr->PixelHeight;
 }
 
 void BmpBlockUtil::fill_all_image_infos() {
+  int errcnt = 0;
   for (StrImageConfigMap::iterator it = config_.images_map.begin();
        it != config_.images_map.end();
        ++it) {
@@ -338,9 +364,13 @@ void BmpBlockUtil::fill_all_image_infos() {
         it->second.data.height = get_bmp_image_height(it->second.raw_content);
         break;
       default:
-        error("Unsupported image format.\n");
+        fprintf(stderr, "Unsupported image format in %s\n",
+                it->second.filename.c_str());
+        errcnt++;
     }
   }
+  if (errcnt)
+    error("Unable to continue due to errors.\n");
 }
 
 void BmpBlockUtil::compress_all_images(const Compression compress) {
@@ -363,6 +393,8 @@ void BmpBlockUtil::fill_bmpblock_header() {
   memset(&config_.header, '\0', sizeof(config_.header));
   memcpy(&config_.header.signature, BMPBLOCK_SIGNATURE,
          BMPBLOCK_SIGNATURE_SIZE);
+  config_.header.major_version = BMPBLOCK_MAJOR_VERSION;
+  config_.header.minor_version = BMPBLOCK_MINOR_VERSION;
   config_.header.number_of_localizations = config_.localizations.size();
   config_.header.number_of_screenlayouts = config_.localizations[0].size();
   for (unsigned int i = 1; i < config_.localizations.size(); ++i) {
