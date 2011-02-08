@@ -16,7 +16,6 @@
 
 int main(int argc, char** argv) {
   uint32_t perm;
-  uint32_t result;
   uint32_t x;
 
   TlclLibInit();
@@ -43,8 +42,8 @@ int main(int argc, char** argv) {
   TlclSetGlobalLock();
 
   // Verifies that index0 cannot be redefined.
-  result = TlclDefineSpace(INDEX0, perm, sizeof(uint32_t));
-  assert(result == TPM_E_AREA_LOCKED);
+  TPM_EXPECT(TlclDefineSpace(INDEX0, perm, sizeof(uint32_t)),
+             TPM_E_AREA_LOCKED);
 
   // Checks that index1 can.
   TPM_CHECK(TlclDefineSpace(INDEX1, perm, 2 * sizeof(uint32_t)));
@@ -54,10 +53,10 @@ int main(int argc, char** argv) {
   TlclLockPhysicalPresence();
 
   // Verifies that neither index0 nor index1 can be redefined.
-  result = TlclDefineSpace(INDEX0, perm, sizeof(uint32_t));
-  assert(result == TPM_E_BAD_PRESENCE);
-  result = TlclDefineSpace(INDEX1, perm, sizeof(uint32_t));
-  assert(result == TPM_E_BAD_PRESENCE);
+  TPM_EXPECT(TlclDefineSpace(INDEX0, perm, sizeof(uint32_t)),
+             TPM_E_BAD_PRESENCE);
+  TPM_EXPECT(TlclDefineSpace(INDEX1, perm, sizeof(uint32_t)),
+             TPM_E_BAD_PRESENCE);
 
   printf("TEST SUCCEEDED\n");
   exit(0);

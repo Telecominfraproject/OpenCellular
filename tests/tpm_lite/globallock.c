@@ -16,7 +16,6 @@
 
 int main(int argc, char** argv) {
   uint32_t zero = 0;
-  uint32_t result;
   uint32_t x;
 
   TlclLibInit();
@@ -31,8 +30,7 @@ int main(int argc, char** argv) {
 
   // Verifies that write to index0 fails.
   x = 1;
-  result = TlclWrite(INDEX0, (uint8_t*) &x, sizeof(x));
-  assert(result == TPM_E_AREA_LOCKED);
+  TPM_EXPECT(TlclWrite(INDEX0, (uint8_t*) &x, sizeof(x)), TPM_E_AREA_LOCKED);
   TPM_CHECK(TlclRead(INDEX0, (uint8_t*) &x, sizeof(x)));
   assert(x == 0);
 
@@ -47,8 +45,7 @@ int main(int argc, char** argv) {
 
   // Verifies that write to index1 fails.
   x = 3;
-  result = TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x));
-  assert(result == TPM_E_BAD_PRESENCE);
+  TPM_EXPECT(TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x)), TPM_E_BAD_PRESENCE);
   TPM_CHECK(TlclRead(INDEX1, (uint8_t*) &x, sizeof(x)));
   assert(x == 2);
   printf("TEST SUCCEEDED\n");
