@@ -120,4 +120,6 @@ typedef enum Compression {
   COMPRESS_TBD,             /* Only on ARM? */
 } Compression;
 
+__pragma(pack(pop)) /* Support packing for MSVC. */
+
 #endif  /* VBOOT_REFERENCE_BMPBLK_HEADER_H_ */
