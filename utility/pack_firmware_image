@@ -129,9 +129,9 @@ class EntryBlob(EntryFmapArea):
 
   def Pack(self, firmware_image, entries):
     size = os.stat(self.path).st_size
-    if size > 0:
-      size = min(size, self.length)
-    else:
+    if size > self.length:
+        raise PackError('blob too large: %d > %d' % (size, self.length))
+    if size == 0: # special case for files like /dev/zero
       size = self.length
     with open(self.path, 'rb') as blob_image:
       firmware_image.seek(self.offset)
