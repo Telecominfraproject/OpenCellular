@@ -1017,9 +1017,12 @@ write_block_raw(build_image_context *context)
 			data = empty_blk;
 		}
 		/* Write the data */
-		fwrite(data, 1,
-			pages_to_write * context->page_size,
-			context->raw_file);
+		{
+			size_t bytes = pages_to_write * context->page_size;
+
+			if (fwrite(data, 1, bytes, context->raw_file) != bytes)
+				return -1;
+		}
 	}
 
 	free(empty_blk);
