@@ -94,7 +94,7 @@ typedef struct ImageInfo {
   uint32_t width;            /* Width of the image */
   uint32_t height;           /* Height of the image */
   uint32_t format;           /* File format of the image */
-  uint32_t compression;      /* Compression method to the image file */
+  uint32_t compression;      /* Compression method for the image file */
   uint32_t original_size;    /* Size of the original uncompressed image */
   uint32_t compressed_size;  /* Size of the compressed image */
   uint32_t reserved;
@@ -118,6 +118,7 @@ typedef enum Compression {
   COMPRESS_NONE = 0,
   COMPRESS_EFIv1,           /* The x86 BIOS only supports this */
   COMPRESS_TBD,             /* Only on ARM? */
+  MAX_COMPRESS,
 } Compression;
 
 __pragma(pack(pop)) /* Support packing for MSVC. */

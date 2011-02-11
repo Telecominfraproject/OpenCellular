@@ -482,30 +482,41 @@ void BmpBlockUtil::write_to_bmpblock(const char *filename) {
 
 #ifdef WITH_UTIL_MAIN
 
-///////////////////////////////////////////////////////////////////////
-// Command line utilities
+//////////////////////////////////////////////////////////////////////////////
+// Command line utilities.
+
+extern "C" {
+#include "bmpblk_util.h"
+}
 
 using vboot_reference::BmpBlockUtil;
 
 // utility function: provide usage of this utility and exit.
 static void usagehelp_exit(const char *prog_name) {
   printf(
-    "Utility to manage firmware screen block (BMPBLOCK)\n"
-    "Usage: %s -c|-l|-x [options] BMPBLOCK_FILE\n"
     "\n"
-    "Main Operation Mode:\n"
-    "  -c, --create   Create a new BMPBLOCK file. Should specify --config.\n"
-    "  -l, --list     List the contents of a BMPBLOCK file.\n"
-    "  -x, --extract  Extract embedded images and config file from a BMPBLOCK\n"
-    "                 file.\n"
+    "To create a new BMPBLOCK file using config from YAML file:\n"
     "\n"
-    "Other Options:\n"
-    "  -C, --config=CONFIG_FILE    Config file describing screen layouts and\n"
-    "                              embedded images. (default: bmpblk.cfg)\n"
+    "  %s [-z NUM] -c YAML BMPBLOCK\n"
     "\n"
-    "Example:\n"
-    "  %s --create --config=screens.cfg bmpblk.bin\n"
-    , prog_name, prog_name);
+    "    -z NUM  = compression algorithm to use\n"
+    "              0 = none\n"
+    "              1 = EFIv1\n"
+    "              2 = TBD\n"
+    "\n", prog_name);
+  printf(
+    "To display the contents of a BMPBLOCK:\n"
+    "\n"
+    "  %s BMPBLOCK\n"
+    "\n", prog_name);
+  printf(
+    "To unpack a BMPBLOCK file:\n"
+    "\n"
+    "  %s -x [-d DIR] [-f] BMPBLOCK\n"
+    "\n"
+    "    -d DIR  = directory to use (default '.')\n"
+    "    -f      = force overwriting existing files\n"
+    "\n", prog_name);
   exit(1);
 }
 
@@ -513,68 +524,97 @@ static void usagehelp_exit(const char *prog_name) {
 // main
 
 int main(int argc, char *argv[]) {
-  const char *prog_name = argv[0];
-  BmpBlockUtil util;
 
-  struct BmpBlockUtilOptions {
-    bool create_mode, list_mode, extract_mode;
-    string config_fn, bmpblock_fn;
-  } options;
+  const char *prog_name = strrchr(argv[0], '/');
+  if (prog_name)
+    prog_name++;
+  else
+    prog_name = argv[0];
 
-  int longindex, opt;
-  static struct option longopts[] = {
-    {"create",  0, NULL, 'c'},
-    {"list",    0, NULL, 'l'},
-    {"extract", 0, NULL, 'x'},
-    {"config",  1, NULL, 'C'},
-    { NULL,     0, NULL,  0 },
-  };
+  int force = 0, extract_mode = 0;
+  int compression = 0;
+  const char *config_fn = 0, *bmpblock_fn = 0, *extract_dir = ".";
 
-  while ((opt = getopt_long(argc, argv, "clxC:", longopts, &longindex)) >= 0) {
+  int opt;
+  opterr = 0;                           // quiet
+  int errorcnt = 0;
+  char *e = 0;
+  while ((opt = getopt(argc, argv, ":c:xz:fd:")) != -1) {
     switch (opt) {
-      case 'c':
-        options.create_mode = true;
-        break;
-      case 'l':
-        options.list_mode = true;
-        break;
-      case 'x':
-        options.extract_mode = true;
-        break;
-      case 'C':
-        options.config_fn = optarg;
-        break;
-      default:
-      case '?':
-        usagehelp_exit(prog_name);
-        break;
+    case 'c':
+      config_fn = optarg;
+      break;
+    case 'x':
+      extract_mode = 1;
+      break;
+    case 'z':
+      compression = (int)strtoul(optarg, &e, 0);
+      if (!*optarg || (e && *e)) {
+        fprintf(stderr, "%s: invalid argument to -%c: \"%s\"\n",
+                prog_name, opt, optarg);
+        errorcnt++;
+      }
+      if (compression >= MAX_COMPRESS) {
+        fprintf(stderr, "%s: compression type must be less than %d\n",
+                prog_name, compression);
+        errorcnt++;
+      }
+      break;
+    case 'f':
+      force = 1;
+      break;
+    case 'd':
+      extract_dir= optarg;
+      break;
+    case ':':
+      fprintf(stderr, "%s: missing argument to -%c\n",
+              prog_name, optopt);
+      errorcnt++;
+      break;
+    default:
+      fprintf(stderr, "%s: unrecognized switch: -%c\n",
+              prog_name, optopt);
+      errorcnt++;
+      break;
     }
   }
   argc -= optind;
   argv += optind;
 
-  if (argc == 1) {
-    options.bmpblock_fn = argv[0];
+  if (argc >= 1) {
+    bmpblock_fn = argv[0];
   } else {
+    fprintf(stderr, "%s: missing BMPBLOCK name\n", prog_name);
+    errorcnt++;
+  }
+
+  if (errorcnt)
     usagehelp_exit(prog_name);
-  }
 
-  if (options.create_mode) {
-    util.load_from_config(options.config_fn.c_str());
+  BmpBlockUtil util;
+
+  if (config_fn) {
+    printf("compression is %d\n", compression);
+    util.load_from_config(config_fn);
     util.pack_bmpblock();
-    util.write_to_bmpblock(options.bmpblock_fn.c_str());
+    util.write_to_bmpblock(bmpblock_fn);
     printf("The BMPBLOCK is sucessfully created in: %s.\n",
-           options.bmpblock_fn.c_str());
+           bmpblock_fn);
   }
 
-  if (options.list_mode) {
+  else if (extract_mode) {
+    return extract_bmpblock(bmpblock_fn, extract_dir, force);
+    printf("extract parts from %s into %s %s overwriting\n",
+           bmpblock_fn, extract_dir, force ? "with" : "without");
+    /* TODO(waihong): Implement the list mode. */
+    error("Extract mode hasn't been implemented yet.\n");
+  }
+
+  else {
+    return display_bmpblock(bmpblock_fn);
+    printf("display content of %s\n", bmpblock_fn);
     /* TODO(waihong): Implement the list mode. */
     error("List mode hasn't been implemented yet.\n");
-  }
-
-  if (options.extract_mode) {
-    /* TODO(waihong): Implement the extract mode. */
-    error("Extract mode hasn't been implemented yet.\n");
   }
 
   return 0;
