@@ -19,7 +19,7 @@ def runprog(*args):
   return (p.returncode, out, err)
 
 
-class TestBmpBlock(unittest.TestCase):
+class TestFailures(unittest.TestCase):
 
   def testNoArgs(self):
     """Running with no args should print usage and fail."""
@@ -39,6 +39,72 @@ class TestBmpBlock(unittest.TestCase):
     rc, out, err = runprog(prog, '-c', 'case_badbmp.yaml', 'FOO')
     self.assertNotEqual(0, rc)
     self.assertTrue(err.count("Unsupported image format"))
+
+  def testBadCompression(self):
+    """Wrong compression types should fail."""
+    rc, out, err = runprog(prog, '-z', '99', '-c', 'case_simple.yaml', 'FOO')
+    self.assertNotEqual(0, rc)
+    self.assertTrue(err.count("compression type"))
+
+
+class TestOverWrite(unittest.TestCase):
+
+  def setUp(self):
+    rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+
+  def testOverwrite(self):
+    """Create, unpack, unpack again, with and without -f"""
+    rc, out, err = runprog(prog, '-c', 'case_simple.yaml', 'FOO')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', 'FOO')
+    self.assertNotEqual(0, rc)
+    self.assertTrue(err.count("File exists"))
+    rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', '-f', 'FOO')
+    self.assertEqual(0, rc)
+
+  def tearDown(self):
+    rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+
+
+class TestPackUnpack(unittest.TestCase):
+
+  def setUp(self):
+    rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+
+  def testPackUnpack(self):
+    """Create, unpack, recreate without compression"""
+    rc, out, err = runprog(prog, '-c', 'case_simple.yaml', 'FOO')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+    os.chdir('./FOO_DIR')
+    rc, out, err = runprog(prog, '-c', 'config.yaml', 'BAR')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog('/usr/bin/cmp', '../FOO', 'BAR')
+    self.assertEqual(0, rc)
+    os.chdir('..')
+
+  def testPackUnpackZ(self):
+    """Create, unpack, recreate with explicit compression"""
+    rc, out, err = runprog(prog, '-z', '1', '-c', 'case_simple.yaml', 'FOO')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+    os.chdir('./FOO_DIR')
+    rc, out, err = runprog(prog, '-z', '1', '-c', 'config.yaml', 'BAR')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog('/usr/bin/cmp', '../FOO', 'BAR')
+    self.assertEqual(0, rc)
+    os.chdir('..')
+
+  def tearDown(self):
+    rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
 
 
 # Run these tests

@@ -64,6 +64,9 @@ class BmpBlockUtil {
   /* Write the bmpblock to a file */
   void write_to_bmpblock(const char *filename);
 
+  /* What compression to use for the images */
+  void force_compression(uint32_t compression);
+
  private:
   /* Clear all internal data. */
   void initialize();
@@ -105,6 +108,10 @@ class BmpBlockUtil {
 
   /* Internal variable for storing the content of BmpBlock. */
   string bmpblock_;
+
+  /* Internal variables to determine whether or not to specify compression */
+  bool set_compression_;                // true if we force it
+  uint32_t compression_;                // what we force it to
 };
 
 }  // namespace vboot_reference

@@ -7,7 +7,7 @@
 
 #include "bmpblk_header.h"
 
-int display_bmpblock(const char *infile);
-int extract_bmpblock(const char *infile, const char *dirname, int force);
+int dump_bmpblock(const char *infile, int show_as_yaml,
+                  const char *todir, int overwrite);
 
 #endif // VBOOT_REFERENCE_BMPBLK_UTIL_H_

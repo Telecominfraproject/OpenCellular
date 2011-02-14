@@ -16,6 +16,11 @@
 #include <string.h>
 #include <yaml.h>
 
+extern "C" {
+#include "eficompress.h"
+}
+
+
 /* BMP header, used to validate image requirements
  * See http://en.wikipedia.org/wiki/BMP_file_format
  */
@@ -67,6 +72,13 @@ void BmpBlockUtil::initialize() {
   config_.screens_map.clear();
   config_.localizations.clear();
   bmpblock_.clear();
+  set_compression_ = false;
+  compression_ = COMPRESS_NONE;
+}
+
+void BmpBlockUtil::force_compression(uint32_t compression) {
+  compression_ = compression;
+  set_compression_ = true;
 }
 
 void BmpBlockUtil::load_from_config(const char *filename) {
@@ -292,10 +304,31 @@ void BmpBlockUtil::load_all_image_files() {
     const string &content = read_image_file(it->second.filename.c_str());
     it->second.raw_content = content;
     it->second.data.original_size = content.size();
-    /* Use no compression as default */
-    it->second.data.compression = COMPRESS_NONE;
-    it->second.compressed_content = content;
-    it->second.data.compressed_size = content.size();
+    switch(compression_) {
+    case COMPRESS_NONE:
+      it->second.data.compression = compression_;
+      it->second.compressed_content = content;
+      it->second.data.compressed_size = content.size();
+      break;
+    case COMPRESS_EFIv1:
+      {
+        // The content will always compress smaller (so sez the docs).
+        uint32_t tmpsize = content.size();
+        uint8_t *tmpbuf = (uint8_t *)malloc(tmpsize);
+        // The size of the compressed content is also returned.
+        if (EFI_SUCCESS != EfiCompress((uint8_t *)content.c_str(), tmpsize,
+                                       tmpbuf, &tmpsize)) {
+          error("Unable to compress!\n");
+        }
+        it->second.data.compression = compression_;
+        it->second.compressed_content.assign((const char *)tmpbuf, tmpsize);
+        it->second.data.compressed_size = tmpsize;
+        free(tmpbuf);
+      }
+      break;
+    default:
+      error("Unsupported compression method attempted.\n");
+    }
   }
 }
 
@@ -409,7 +442,7 @@ void BmpBlockUtil::pack_bmpblock() {
 
   /* Compute the ImageInfo offsets from start of BMPBLOCK. */
   uint32_t current_offset = sizeof(BmpBlockHeader) +
-                            sizeof(ScreenLayout) * config_.images_map.size();
+                            sizeof(ScreenLayout) * config_.screens_map.size();
   for (StrImageConfigMap::iterator it = config_.images_map.begin();
        it != config_.images_map.end();
        ++it) {
@@ -507,7 +540,9 @@ static void usagehelp_exit(const char *prog_name) {
   printf(
     "To display the contents of a BMPBLOCK:\n"
     "\n"
-    "  %s BMPBLOCK\n"
+    "  %s [-y] BMPBLOCK\n"
+    "\n"
+    "    -y  = display as yaml\n"
     "\n", prog_name);
   printf(
     "To unpack a BMPBLOCK file:\n"
@@ -531,21 +566,26 @@ int main(int argc, char *argv[]) {
   else
     prog_name = argv[0];
 
-  int force = 0, extract_mode = 0;
+  int overwrite = 0, extract_mode = 0;
   int compression = 0;
+  int set_compression = 0;
   const char *config_fn = 0, *bmpblock_fn = 0, *extract_dir = ".";
+  int show_as_yaml = 0;
 
   int opt;
   opterr = 0;                           // quiet
   int errorcnt = 0;
   char *e = 0;
-  while ((opt = getopt(argc, argv, ":c:xz:fd:")) != -1) {
+  while ((opt = getopt(argc, argv, ":c:xz:fd:y")) != -1) {
     switch (opt) {
     case 'c':
       config_fn = optarg;
       break;
     case 'x':
       extract_mode = 1;
+      break;
+    case 'y':
+      show_as_yaml = 1;
       break;
     case 'z':
       compression = (int)strtoul(optarg, &e, 0);
@@ -556,12 +596,13 @@ int main(int argc, char *argv[]) {
       }
       if (compression >= MAX_COMPRESS) {
         fprintf(stderr, "%s: compression type must be less than %d\n",
-                prog_name, compression);
+                prog_name, MAX_COMPRESS);
         errorcnt++;
       }
+      set_compression = 1;
       break;
     case 'f':
-      force = 1;
+      overwrite = 1;
       break;
     case 'd':
       extract_dir= optarg;
@@ -594,27 +635,17 @@ int main(int argc, char *argv[]) {
   BmpBlockUtil util;
 
   if (config_fn) {
-    printf("compression is %d\n", compression);
+    if (set_compression)
+      util.force_compression(compression);
     util.load_from_config(config_fn);
     util.pack_bmpblock();
     util.write_to_bmpblock(bmpblock_fn);
-    printf("The BMPBLOCK is sucessfully created in: %s.\n",
-           bmpblock_fn);
   }
 
   else if (extract_mode) {
-    return extract_bmpblock(bmpblock_fn, extract_dir, force);
-    printf("extract parts from %s into %s %s overwriting\n",
-           bmpblock_fn, extract_dir, force ? "with" : "without");
-    /* TODO(waihong): Implement the list mode. */
-    error("Extract mode hasn't been implemented yet.\n");
-  }
-
-  else {
-    return display_bmpblock(bmpblock_fn);
-    printf("display content of %s\n", bmpblock_fn);
-    /* TODO(waihong): Implement the list mode. */
-    error("List mode hasn't been implemented yet.\n");
+    return dump_bmpblock(bmpblock_fn, 1, extract_dir, overwrite);
+  } else {
+    return dump_bmpblock(bmpblock_fn, show_as_yaml, 0, 0);
   }
 
   return 0;
