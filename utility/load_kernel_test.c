@@ -144,6 +144,15 @@ int main(int argc, char* argv[]) {
    * heap instead of its actual target address in the firmware. */
   lkp.boot_flags |= BOOT_FLAG_SKIP_ADDR_CHECK;
 
+  /* If the boot flags are for developer mode, non-recovery, add the dev-type
+   * firmware bit.  LoadKernel() masks off the developer bit if the dev
+   * firmware bit is absent, to keep normal firmware from verifying dev
+   * kernels. */
+  if ((lkp.boot_flags & BOOT_FLAG_DEVELOPER)
+      && !(lkp.boot_flags & BOOT_FLAG_RECOVERY)) {
+    lkp.boot_flags |= BOOT_FLAG_DEV_FIRMWARE;
+  }
+
   printf("bootflags = %" PRIu64 "\n", lkp.boot_flags);
 
   /* Get image size */

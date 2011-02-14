@@ -40,6 +40,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   uint64_t lowest_version = 0xFFFFFFFF;
   uint32_t status;
   int good_index = -1;
+  int is_dev;
   int index;
 
   /* Clear output params in case we fail */
@@ -58,10 +59,12 @@ int LoadFirmware(LoadFirmwareParams* params) {
     return LOAD_FIRMWARE_RECOVERY;
   }
 
+  /* Parse flags */
+  is_dev = (params->boot_flags & BOOT_FLAG_DEVELOPER ? 1 : 0);
+
   /* Initialize the TPM and read rollback indices. */
   VBPERFSTART("VB_TPMI");
-  status = RollbackFirmwareSetup(params->boot_flags & BOOT_FLAG_DEVELOPER,
-                                 &tpm_version);
+  status = RollbackFirmwareSetup(is_dev, &tpm_version);
   if (0 != status) {
     VBDEBUG(("Unable to setup TPM and read stored versions.\n"));
     VBPERFEND("VB_TPMI");
@@ -102,6 +105,19 @@ int LoadFirmware(LoadFirmwareParams* params) {
       continue;
     }
     VBPERFEND("VB_VKB");
+
+    /* Check the key block flags against the current boot mode. */
+    if (!(key_block->key_block_flags &
+          (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
+           KEY_BLOCK_FLAG_DEVELOPER_0))) {
+      VBDEBUG(("Developer flag mismatch.\n"));
+      continue;
+    }
+    /* RW firmware never runs in recovery mode. */
+    if (!(key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_0)) {
+      VBDEBUG(("Recovery flag mismatch.\n"));
+      continue;
+    }
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;

@@ -92,6 +92,9 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
   p.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_REC_SIZE);
   p.kernel_sign_key_size = LOAD_FIRMWARE_KEY_BLOB_REC_SIZE;
 
+  /* TODO: YOU NEED TO SET THE BOOT FLAGS SOMEHOW */
+  p.boot_flags = 0;
+
   /* Call LoadFirmware() */
   rv = LoadFirmware(&p);
   if (LOAD_FIRMWARE_SUCCESS == rv) {

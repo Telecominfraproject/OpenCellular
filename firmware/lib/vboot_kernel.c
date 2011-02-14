@@ -146,8 +146,16 @@ int LoadKernel(LoadKernelParams* params) {
     return LOAD_KERNEL_INVALID;
   }
 
-  is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
   is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
+  if (is_rec || (BOOT_FLAG_DEV_FIRMWARE & params->boot_flags)) {
+    /* Recovery or developer firmware, so accurately represent the
+     * state of the developer switch for the purposes of verified boot. */
+    is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
+  } else {
+    /* Normal firmware always does a fully verified boot regardless of
+     * the state of the developer switch. */
+    is_dev = 0;
+  }
   is_normal = (!is_dev && !is_rec);
 
   /* Clear output params in case we fail */
