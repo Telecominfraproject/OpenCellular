@@ -81,15 +81,21 @@ echo "Using firmware version: $VERSION"
 # Parse offsets and size of firmware data and vblocks
 for i in "A" "B"
 do
-  match_str="$i Key"
-  line=$(mosys -f -k eeprom map $1 | grep "$match_str")
+  line=$(mosys -f -k eeprom map $1 | grep "$i Key") ||
+  line=$(mosys -f -k eeprom map $1 | grep "VBLOCK_$i") ||
+   { echo "Couldn't parse vblock section $i from mosys output";
+     exit 1; }
+
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval fw${i}_vblock_offset=$((offset))
   size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
   eval fw${i}_vblock_size=$((size))
 
-  match_str="$i Data"
-  line=$(mosys -f -k eeprom map $1 | grep "$match_str")
+  line=$(mosys -f -k eeprom map $1 | grep "$i Data") ||
+  line=$(mosys -f -k eeprom map $1 | grep "FW_MAIN_$i") ||
+  { echo "Couldn't parse Firmware $i section from mosys output";
+    exit 1; }
+
   offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
   eval fw${i}_offset=$((offset))
   size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
