@@ -30,7 +30,7 @@ typedef struct {
   uint32_t        PixelHeight;
   uint16_t        Planes;               // Must be 1 for x86
   uint16_t        BitPerPixel;          // 1, 4, 8, or 24 for x86
-  uint32_t        CompressionType;      // must be 0 for x86
+  uint32_t        CompressionType;      // 0 (none) for x86, 1 (RLE) for arm
   uint32_t        ImageSize;
   uint32_t        XPixelsPerMeter;
   uint32_t        YPixelsPerMeter;
@@ -334,7 +334,7 @@ ImageFormat BmpBlockUtil::get_image_format(const string content) {
 
   if (hdr->CharB != 'B' || hdr->CharM != 'M' ||
       hdr->Planes != 1 ||
-      hdr->CompressionType != 0 ||
+      (hdr->CompressionType != 0 && hdr->CompressionType != 1) ||
       (hdr->BitPerPixel != 1 && hdr->BitPerPixel != 4 &&
        hdr->BitPerPixel != 8 && hdr->BitPerPixel != 24))
     return FORMAT_INVALID;
