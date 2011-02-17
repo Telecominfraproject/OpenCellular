@@ -159,7 +159,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
   }
 
   printf("firmware root key blob at 0x%08" PRIx64 "\n",
-      lfp.firmware_root_key_blob - base_of_rom);
+      (uint64_t) (lfp.firmware_root_key_blob - base_of_rom));
 
   /* Loop to initialize firmware key and data A / B */
   for (index = 0; index < 2; ++index) {
@@ -170,7 +170,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
     }
 
     printf("verification block %d at 0x%08" PRIx64 "\n", index,
-        *vblock_ptr[index] - base_of_rom);
+        (uint64_t) (*vblock_ptr[index] - base_of_rom));
     printf("verification block %d size is 0x%08" PRIx64 "\n", index,
         *vsize_ptr[index]);
 
@@ -181,7 +181,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
     }
 
     printf("firmware %c at 0x%08" PRIx64 "\n", "AB"[index],
-        (void*) ci.firmware[index].fw - base_of_rom);
+        (uint64_t) ((void*) ci.firmware[index].fw - base_of_rom));
     printf("firmware %c size is 0x%08" PRIx64 "\n", "AB"[index],
         ci.firmware[index].size);
   }
