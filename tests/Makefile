@@ -18,6 +18,7 @@ TEST_NAMES = cgptlib_test \
 	     vboot_common_tests \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
+	     vboot_nvstorage_test
 
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
 

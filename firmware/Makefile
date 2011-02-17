@@ -45,7 +45,8 @@ LIB_SRCS = \
 	./lib/utility.c \
 	./lib/vboot_common.c \
 	./lib/vboot_firmware.c \
-	./lib/vboot_kernel.c
+	./lib/vboot_kernel.c \
+	./lib/vboot_nvstorage.c
 
 LIB_OBJS = $(LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 
