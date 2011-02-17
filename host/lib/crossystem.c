@@ -83,6 +83,16 @@ int ReadFileBit(const char* filename, int bitmask) {
 }
 
 
+/* Return true if the FWID starts with the specified string. */
+static int FwidStartsWith(const char *start) {
+  char fwid[128];
+  if (!VbGetSystemPropertyString("fwid", fwid, sizeof(fwid)))
+    return 0;
+
+  return 0 == strncmp(fwid, start, strlen(start));
+}
+
+
 /* Read a GPIO of the specified signal type (see ACPI GPIO SignalType).
  *
  * Returns 1 if the signal is asserted, 0 if not asserted, or -1 if error. */
@@ -155,25 +165,31 @@ int ReadGpio(int signal_type) {
  *
  * Returns the property value, or -1 if error. */
 int VbGetSystemPropertyInt(const char* name) {
+  int value = -1;
 
   if (!strcasecmp(name,"devsw_cur")) {
-    return ReadGpio(GPIO_SIGNAL_TYPE_DEV);
+    value = ReadGpio(GPIO_SIGNAL_TYPE_DEV);
   } else if (!strcasecmp(name,"devsw_boot")) {
-    return ReadFileBit(ACPI_CHSW_PATH, CHSW_DEV_BOOT);
+    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_DEV_BOOT);
   } else if (!strcasecmp(name,"recoverysw_cur")) {
-    return ReadGpio(GPIO_SIGNAL_TYPE_RECOVERY);
+    value = ReadGpio(GPIO_SIGNAL_TYPE_RECOVERY);
   } else if (!strcasecmp(name,"recoverysw_boot")) {
-    return ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_BOOT);
+    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_BOOT);
   } else if (!strcasecmp(name,"recoverysw_ec_boot")) {
-    return ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_EC_BOOT);
+    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_EC_BOOT);
   } else if (!strcasecmp(name,"wpsw_cur")) {
-    return ReadGpio(GPIO_SIGNAL_TYPE_WP);
+    value = ReadGpio(GPIO_SIGNAL_TYPE_WP);
+    if (-1 != value && FwidStartsWith("Mario."))
+      value = 1 - value;  /* Mario reports this backwards */
   } else if (!strcasecmp(name,"wpsw_boot")) {
-    return ReadFileBit(ACPI_CHSW_PATH, CHSW_WP_BOOT);
-  } else
-    return -1;
+    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_WP_BOOT);
+    if (-1 != value && FwidStartsWith("Mario."))
+      value = 1 - value;  /* Mario reports this backwards */
+  }
 
   /* TODO: remaining properties from spec */
+
+  return value;
 }
 
 
