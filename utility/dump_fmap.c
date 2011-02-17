@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+ * Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -15,41 +15,22 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "fmap.h"
+
 /* global variables */
 static int opt_extract = 0;
-static char *progname;
-static void *base_of_rom;
-
-/* FMAP structs. See http://code.google.com/p/flashmap/wiki/FmapSpec */
-#define FMAP_SIGLEN 8
-#define FMAP_NAMELEN 32
-#define FMAP_SEARCH_STRIDE 4
-typedef struct _FmapHeader {
-  char        fmap_signature[FMAP_SIGLEN]; /* avoiding endian issues */
-  uint8_t     fmap_ver_major;
-  uint8_t     fmap_ver_minor;
-  uint64_t    fmap_base;
-  uint32_t    fmap_size;
-  char        fmap_name[FMAP_NAMELEN];
-  uint16_t    fmap_nareas;
-} __attribute__((packed)) FmapHeader;
-
-typedef struct _AreaHeader {
-  uint32_t area_offset;
-  uint32_t area_size;
-  char     area_name[FMAP_NAMELEN];
-  uint16_t area_flags;
-} __attribute__((packed)) AreaHeader;
+static char* progname;
+static void* base_of_rom;
 
 
 /* Return 0 if successful */
-static int dump_fmap(void *ptr) {
+static int dump_fmap(const void* ptr) {
   int i,retval = 0;
   char buf[80];                         // DWR: magic number
-  FmapHeader *fmh = (FmapHeader *)ptr;
-  AreaHeader *ah = (AreaHeader *)(ptr + sizeof(FmapHeader));
+  const FmapHeader* fmh = (const FmapHeader*) ptr;
+  const FmapAreaHeader* ah = (const FmapAreaHeader*) (ptr + sizeof(FmapHeader));
 
-  snprintf(buf, FMAP_SIGLEN+1, "%s", fmh->fmap_signature);
+  snprintf(buf, FMAP_SIGNATURE_SIZE+1, "%s", fmh->fmap_signature);
   printf("fmap_signature   %s\n", buf);
   printf("fmap_version:    %d.%d\n", fmh->fmap_ver_major, fmh->fmap_ver_minor);
   printf("fmap_base:       0x%" PRIx64 "\n", fmh->fmap_base);
@@ -66,11 +47,11 @@ static int dump_fmap(void *ptr) {
     printf("area_name:       %s\n", buf);
 
     if (opt_extract) {
-      char *s;
-      for (s=buf; *s; s++)
+      char* s;
+      for (s=buf;* s; s++)
         if (*s == ' ')
-          *s = '_';
-      FILE *fp = fopen(buf,"wb");
+         *s = '_';
+      FILE* fp = fopen(buf,"wb");
       if (!fp) {
         fprintf(stderr, "%s: can't open %s: %s\n",
                 progname, buf, strerror(errno));
@@ -94,13 +75,12 @@ static int dump_fmap(void *ptr) {
 }
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   int c;
   int errorcnt = 0;
   struct stat sb;
   int fd;
-  char *s;
-  size_t i;
+  const char* fmap;
   int retval = 1;
 
   progname = strrchr(argv[0], '/');
@@ -160,7 +140,7 @@ int main(int argc, char *argv[]) {
   printf("opened %s\n", argv[optind]);
 
   base_of_rom = mmap(0, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-  if (base_of_rom == (char *)-1) {
+  if (base_of_rom == (char*)-1) {
     fprintf(stderr, "%s: can't mmap %s: %s\n",
             progname,
             argv[optind],
@@ -170,14 +150,10 @@ int main(int argc, char *argv[]) {
   }
   close(fd);                            /* done with this now */
 
-  s = (char *)base_of_rom;
-  for (i=0; i<sb.st_size; i += FMAP_SEARCH_STRIDE) {
-    if (0 == strncmp(s, "__FMAP__", 8)) {
-      printf("hit at 0x%08x\n", (uint32_t)i);
-      retval = dump_fmap(s);
-      break;
-    }
-    s += FMAP_SEARCH_STRIDE;
+  fmap = FmapFind((char*) base_of_rom, sb.st_size);
+  if (fmap) {
+    printf("hit at 0x%08x\n", (uint32_t) (fmap - (char*) base_of_rom));
+    retval = dump_fmap(fmap);
   }
 
   if (0 != munmap(base_of_rom, sb.st_size)) {

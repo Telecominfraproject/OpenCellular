@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -16,6 +16,7 @@ INCLUDES += \
 LIB_SRCS = \
 	./lib/crossystem.c \
 	./lib/file_keys.c \
+	./lib/fmap.c \
 	./lib/host_common.c \
 	./lib/host_key.c \
 	./lib/host_keyblock.c \

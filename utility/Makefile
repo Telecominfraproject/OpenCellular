@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -21,6 +21,7 @@ TARGET_NAMES = crossystem \
 		dumpRSAPublicKey \
 		dump_kernel_config \
 		gbb_utility \
+		load_firmware_test \
 		load_kernel_test \
 		pad_digest_utility \
 		signature_digest_utility \
@@ -77,6 +78,9 @@ ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 				${BUILD_ROOT}/efidecompress.o
 	$(CXX) -llzma -lyaml $(CFLAGS) $^ -o $@
 
+${BUILD_ROOT}/load_firmware_test: load_firmware_test.c $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
@@ -127,8 +131,8 @@ ${BUILD_ROOT}/tpmc: tpmc.c $(LIBS)
 ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
 
-${BUILD_ROOT}/dump_fmap: dump_fmap.c
-	$(CC) $(CFLAGS) $< -o $@
+${BUILD_ROOT}/dump_fmap: dump_fmap.c $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/pack_firmware_image: pack_firmware_image
 	cp -f $< $@
