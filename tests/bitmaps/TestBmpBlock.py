@@ -115,6 +115,26 @@ class TestPackUnpack(unittest.TestCase):
     self.assertEqual(0, rc)
 
 
+class TestReproducable(unittest.TestCase):
+
+  def setUp(self):
+    rc, out, err = runprog('/bin/rm', '-f', 'ORDER1', 'ORDER2')
+    self.assertEqual(0, rc)
+
+  def testReproduce(self):
+    """Equivalent yaml files should produce identical bmpblocks"""
+    rc, out, err = runprog(prog, '-c', 'case_order1.yaml', 'ORDER1')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog(prog, '-c', 'case_order2.yaml', 'ORDER2')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog('/usr/bin/cmp', 'ORDER1', 'ORDER2')
+    self.assertEqual(0, rc)
+
+  def tearDown(self):
+    rc, out, err = runprog('/bin/rm', '-f', 'ORDER1', 'ORDER2')
+    self.assertEqual(0, rc)
+
+
 # Run these tests
 if __name__ == '__main__':
   varname = 'BMPBLK'

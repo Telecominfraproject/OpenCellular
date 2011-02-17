@@ -189,6 +189,7 @@ void BmpBlockUtil::parse_images(yaml_parser_t *parser) {
           error("Syntax error in parsing images.\n");
         }
         image_filename = (char*)event.data.scalar.value;
+        config_.image_names.push_back(image_name);
         config_.images_map[image_name] = ImageConfig();
         config_.images_map[image_name].filename = image_filename;
         break;
@@ -476,11 +477,12 @@ void BmpBlockUtil::pack_bmpblock() {
   /* Compute the ImageInfo offsets from start of BMPBLOCK. */
   uint32_t current_offset = sizeof(BmpBlockHeader) +
                             sizeof(ScreenLayout) * config_.screens_map.size();
-  for (StrImageConfigMap::iterator it = config_.images_map.begin();
-       it != config_.images_map.end();
-       ++it) {
-    it->second.offset = current_offset;
-    current_offset += sizeof(ImageInfo) + it->second.data.compressed_size;
+  for (unsigned int i = 0; i < config_.image_names.size(); ++i) {
+    string image_name = config_.image_names[i];
+    ImageConfig &img = config_.images_map[image_name];
+    img.offset = current_offset;
+    current_offset += sizeof(ImageInfo) +
+      config_.images_map[image_name].data.compressed_size;
     /* Make it 4-byte aligned. */
     if ((current_offset & 3) > 0) {
       current_offset = (current_offset & ~3) + 4;

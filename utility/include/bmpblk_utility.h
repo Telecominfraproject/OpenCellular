@@ -42,6 +42,7 @@ typedef map<string, ScreenConfig> StrScreenConfigMap;
 typedef struct BmpBlockConfig {
   string config_filename;
   BmpBlockHeader header;
+  vector<string> image_names;
   StrImageConfigMap images_map;
   StrScreenConfigMap screens_map;
   vector<vector<string> > localizations;
