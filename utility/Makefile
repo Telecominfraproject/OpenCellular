@@ -60,7 +60,7 @@ ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
 
 ${BUILD_ROOT}/bmpblk_utility.o: bmpblk_utility.cc
-	$(CXX) -DWITH_UTIL_MAIN -lyaml $(CFLAGS) -c $< -o $@
+	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) -c $< -o $@
 
 ${BUILD_ROOT}/bmpblk_util.o: bmpblk_util.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -75,7 +75,7 @@ ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 				${BUILD_ROOT}/bmpblk_util.o \
 				${BUILD_ROOT}/eficompress.o \
 				${BUILD_ROOT}/efidecompress.o
-	$(CXX) -DWITH_UTIL_MAIN -lyaml $(CFLAGS) $^ -o $@
+	$(CXX) -llzma -lyaml $(CFLAGS) $^ -o $@
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto

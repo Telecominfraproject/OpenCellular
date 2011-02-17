@@ -117,7 +117,7 @@ typedef enum ImageFormat {
 typedef enum Compression {
   COMPRESS_NONE = 0,
   COMPRESS_EFIv1,           /* The x86 BIOS only supports this */
-  COMPRESS_TBD,             /* Only on ARM? */
+  COMPRESS_LZMA1,           /* The ARM BIOS supports LZMA1 */
   MAX_COMPRESS,
 } Compression;
 

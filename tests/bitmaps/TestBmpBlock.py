@@ -89,18 +89,26 @@ class TestPackUnpack(unittest.TestCase):
     self.assertEqual(0, rc)
     os.chdir('..')
 
-  def testPackUnpackZ(self):
-    """Create, unpack, recreate with explicit compression"""
-    rc, out, err = runprog(prog, '-z', '1', '-c', 'case_simple.yaml', 'FOO')
+  def doPackUnpackZ(self, comp):
+    """Create, unpack, recreate with a given compression"""
+    rc, out, err = runprog(prog, '-z', comp, '-c', 'case_simple.yaml', 'FOO')
     self.assertEqual(0, rc)
     rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', 'FOO')
     self.assertEqual(0, rc)
     os.chdir('./FOO_DIR')
-    rc, out, err = runprog(prog, '-z', '1', '-c', 'config.yaml', 'BAR')
+    rc, out, err = runprog(prog, '-z', comp, '-c', 'config.yaml', 'BAR')
     self.assertEqual(0, rc)
     rc, out, err = runprog('/usr/bin/cmp', '../FOO', 'BAR')
     self.assertEqual(0, rc)
     os.chdir('..')
+
+  def testPackUnpackZ1(self):
+    """Create, unpack, recreate with EFIv1 compression"""
+    self.doPackUnpackZ('1');
+
+  def testPackUnpackZ2(self):
+    """Create, unpack, recreate with LZMA compression"""
+    self.doPackUnpackZ('2');
 
   def tearDown(self):
     rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')

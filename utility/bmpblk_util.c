@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <lzma.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -99,7 +100,7 @@ static void *do_efi_decompress(ImageInfo *img) {
   uint32_t osize;
   EFI_STATUS r;
 
-  ibuf = ((void *)img) + sizeof(ImageInfo);
+  ibuf = (void*)(img + 1);
   isize = img->compressed_size;
 
   r = EfiGetInfo(ibuf, isize, &osize, &ssize);
@@ -137,6 +138,50 @@ static void *do_efi_decompress(ImageInfo *img) {
   free(sbuf);
   return obuf;
 }
+
+
+
+static void *do_lzma_decompress(ImageInfo *img) {
+  void *ibuf;
+  void *obuf;
+  uint32_t isize;
+  uint32_t osize;
+  lzma_stream stream = LZMA_STREAM_INIT;
+  lzma_ret result;
+
+  ibuf = (void*)(img + 1);
+  isize = img->compressed_size;
+  osize = img->original_size;
+  obuf = malloc(osize);
+  if (!obuf) {
+    fprintf(stderr, "Can't allocate %d bytes: %s\n",
+            osize,
+            strerror(errno));
+    return 0;
+  }
+
+  result = lzma_auto_decoder(&stream, -1, 0);
+  if (result != LZMA_OK) {
+    fprintf(stderr, "Unable to initialize auto decoder (error: %d)!\n",
+            result);
+    free(obuf);
+    return 0;
+  }
+
+  stream.next_in = ibuf;
+  stream.avail_in = isize;
+  stream.next_out = obuf;
+  stream.avail_out = osize;
+  result = lzma_code(&stream, LZMA_FINISH);
+  if (result != LZMA_STREAM_END) {
+    fprintf(stderr, "Unalbe to decode data (error: %d)!\n", result);
+    free(obuf);
+    return 0;
+  }
+  lzma_end(&stream);
+  return obuf;
+}
+
 
 
 // Show what's inside. If todir is NULL, just print. Otherwise unpack.
@@ -258,6 +303,16 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
         break;
       case COMPRESS_EFIv1:
         data_ptr = do_efi_decompress(img);
+        if (!data_ptr) {
+          fclose(bfp);
+          fclose(yfp);
+          discard_file(ptr, length);
+          return 1;
+        }
+        free_data = 1;
+        break;
+      case COMPRESS_LZMA1:
+        data_ptr = do_lzma_decompress(img);
         if (!data_ptr) {
           fclose(bfp);
           fclose(yfp);

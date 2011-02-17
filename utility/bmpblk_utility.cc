@@ -10,6 +10,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <getopt.h>
+#include <lzma.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -326,6 +327,38 @@ void BmpBlockUtil::load_all_image_files() {
         free(tmpbuf);
       }
       break;
+    case COMPRESS_LZMA1:
+      {
+        // Calculate the worst case of buffer size.
+        uint32_t tmpsize = lzma_stream_buffer_bound(content.size());
+        uint8_t *tmpbuf = (uint8_t *)malloc(tmpsize);
+        lzma_stream stream = LZMA_STREAM_INIT;
+        lzma_options_lzma options;
+        lzma_ret result;
+
+        lzma_lzma_preset(&options, 9);
+        result = lzma_alone_encoder(&stream, &options);
+        if (result != LZMA_OK) {
+          error("Unable to initialize easy encoder (error: %d)!\n", result);
+        }
+
+        stream.next_in = (uint8_t *)content.data();
+        stream.avail_in = content.size();
+        stream.next_out = tmpbuf;
+        stream.avail_out = tmpsize;
+        result = lzma_code(&stream, LZMA_FINISH);
+        if (result != LZMA_STREAM_END) {
+          error("Unable to encode data (error: %d)!\n", result);
+        }
+
+        it->second.data.compression = compression_;
+        it->second.compressed_content.assign((const char *)tmpbuf,
+                                             tmpsize - stream.avail_out);
+        it->second.data.compressed_size = tmpsize - stream.avail_out;
+        lzma_end(&stream);
+        free(tmpbuf);
+      }
+      break;
     default:
       error("Unsupported compression method attempted.\n");
     }
@@ -535,7 +568,7 @@ static void usagehelp_exit(const char *prog_name) {
     "    -z NUM  = compression algorithm to use\n"
     "              0 = none\n"
     "              1 = EFIv1\n"
-    "              2 = TBD\n"
+    "              2 = LZMA1\n"
     "\n", prog_name);
   printf(
     "To display the contents of a BMPBLOCK:\n"
