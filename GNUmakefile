@@ -6,6 +6,7 @@ C_FILES += parse.c
 C_FILES += set.c
 C_FILES += crypto.c
 C_FILES += aes_ref.c
+C_FILES += context.c
 
 OBJS := $(patsubst %.c,%.o,$(notdir $(C_FILES)))
 
