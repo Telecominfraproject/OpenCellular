@@ -476,7 +476,8 @@ void BmpBlockUtil::pack_bmpblock() {
 
   /* Compute the ImageInfo offsets from start of BMPBLOCK. */
   uint32_t current_offset = sizeof(BmpBlockHeader) +
-                            sizeof(ScreenLayout) * config_.screens_map.size();
+    sizeof(ScreenLayout) * (config_.header.number_of_localizations *
+                            config_.header.number_of_screenlayouts);
   for (unsigned int i = 0; i < config_.image_names.size(); ++i) {
     string image_name = config_.image_names[i];
     ImageConfig &img = config_.images_map[image_name];

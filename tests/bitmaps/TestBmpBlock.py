@@ -134,6 +134,29 @@ class TestReproducable(unittest.TestCase):
     rc, out, err = runprog('/bin/rm', '-f', 'ORDER1', 'ORDER2')
     self.assertEqual(0, rc)
 
+class TestReuse(unittest.TestCase):
+
+  def setUp(self):
+    rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+
+  def testReuse(self):
+    """Reusing screens in the yaml file should be okay"""
+    rc, out, err = runprog(prog, '-c', 'case_reuse.yaml', 'FOO')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog(prog, '-x', '-d', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+    os.chdir('./FOO_DIR')
+    rc, out, err = runprog(prog, '-c', 'config.yaml', 'BAR')
+    self.assertEqual(0, rc)
+    rc, out, err = runprog('/usr/bin/cmp', '../FOO', 'BAR')
+    self.assertEqual(0, rc)
+    os.chdir('..')
+
+  def tearDown(self):
+    rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+
 
 # Run these tests
 if __name__ == '__main__':
