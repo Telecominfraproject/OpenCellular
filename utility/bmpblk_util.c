@@ -264,11 +264,22 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
 
   // Write out yaml
   fprintf(yfp, "bmpblock: %d.%d\n", hdr->major_version, hdr->minor_version);
-  fprintf(yfp, "images:\n");
   offset = sizeof(BmpBlockHeader) +
     (sizeof(ScreenLayout) *
      hdr->number_of_localizations *
      hdr->number_of_screenlayouts);
+  // FIXME(chromium-os:12134): The bmbblock structure allows each image to be
+  // compressed differently, but we haven't provided a way for the yaml file to
+  // specify that. Additionally, we allow the yaml file to specify a default
+  // compression scheme for all images, but only if that line appears in the
+  // yaml file before any images. Accordingly, we'll just check the first image
+  // to see if it has any compression, and if it does, we'll write that out as
+  // the default. When this bug is fixed, we should just write each image's
+  // compression setting separately.
+  img = (ImageInfo *)(ptr + offset);
+  if (img->compression)
+    fprintf(yfp, "compression: %d\n", img->compression);
+  fprintf(yfp, "images:\n");
   for(i=0; i<hdr->number_of_imageinfos; i++) {
     img = (ImageInfo *)(ptr + offset);
     sprintf(image_name, "img_%08x.bmp", offset);

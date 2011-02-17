@@ -93,6 +93,7 @@ class BmpBlockUtil {
   void parse_config(yaml_parser_t *parser);
   void parse_first_layer(yaml_parser_t *parser);
   void parse_bmpblock(yaml_parser_t *parser);
+  void parse_compression(yaml_parser_t *parser);
   void parse_images(yaml_parser_t *parser);
   void parse_layout(yaml_parser_t *parser, ScreenConfig &screen);
   void parse_screens(yaml_parser_t *parser);

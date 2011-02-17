@@ -139,6 +139,8 @@ void BmpBlockUtil::parse_first_layer(yaml_parser_t *parser) {
         keyword = (char*)event.data.scalar.value;
         if (keyword == "bmpblock") {
           parse_bmpblock(parser);
+        } else if (keyword == "compression") {
+          parse_compression(parser);
         } else if (keyword == "images") {
           parse_images(parser);
         } else if (keyword == "screens") {
@@ -170,6 +172,24 @@ void BmpBlockUtil::parse_bmpblock(yaml_parser_t *parser) {
   string gotversion = (char*)event.data.scalar.value;
   if (gotversion != wantversion) {
     error("Invalid version specified in config file\n");
+  }
+  yaml_event_delete(&event);
+}
+
+void BmpBlockUtil::parse_compression(yaml_parser_t *parser) {
+  yaml_event_t event;
+  yaml_parser_parse(parser, &event);
+  if (event.type != YAML_SCALAR_EVENT) {
+    error("Syntax error in parsing bmpblock.\n");
+  }
+  char *comp_str = (char *)event.data.scalar.value;
+  char *e = 0;
+  uint32_t comp = (uint32_t)strtoul(comp_str, &e, 0);
+  if (!*comp_str || (e && *e) || comp >= MAX_COMPRESS) {
+    error("Invalid compression specified in config file\n");
+  }
+  if (!set_compression_) {
+    compression_ = comp;
   }
   yaml_event_delete(&event);
 }

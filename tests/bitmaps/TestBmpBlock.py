@@ -73,6 +73,7 @@ class TestOverWrite(unittest.TestCase):
 class TestPackUnpack(unittest.TestCase):
 
   def setUp(self):
+    self._cwd = os.getcwd()
     rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
     self.assertEqual(0, rc)
 
@@ -110,7 +111,39 @@ class TestPackUnpack(unittest.TestCase):
     """Create, unpack, recreate with LZMA compression"""
     self.doPackUnpackZ('2');
 
+  def doPackUnpackImplicitZ(self, comp, noncomp):
+    """Create with given compression, unpack, repack without specifying"""
+    # create with the specified compression scheme
+    rc, out, err = runprog(prog, '-z', comp, '-c', 'case_simple.yaml', 'FOO')
+    self.assertEqual(0, rc)
+    # unpack. yaml file should have compression scheme in it
+    rc, out, err = runprog(prog, '-f', '-x', '-d', './FOO_DIR', 'FOO')
+    self.assertEqual(0, rc)
+    os.chdir('./FOO_DIR')
+    # create with no compression specified, should use default from yaml
+    rc, out, err = runprog(prog, '-c', 'config.yaml', 'BAR')
+    self.assertEqual(0, rc)
+    # so new output should match original
+    rc, out, err = runprog('/usr/bin/cmp', '../FOO', 'BAR')
+    self.assertEqual(0, rc)
+    # Now make sure that specifying a compression arg will override the default
+    for mycomp in noncomp:
+      # create with compression scheme different from default
+      rc, out, err = runprog(prog, '-z', str(mycomp), '-c', 'config.yaml', 'BAR')
+      self.assertEqual(0, rc)
+      # should be different binary
+      rc, out, err = runprog('/usr/bin/cmp', '../FOO', 'BAR')
+      self.assertNotEqual(0, rc)
+    os.chdir('..')
+
+  def testPackUnpackImplicitZ(self):
+    """Create, unpack, recreate with implicit compression"""
+    self._allowed = range(3)
+    for c in self._allowed:
+      self.doPackUnpackImplicitZ(str(c), [x for x in self._allowed if x != c])
+
   def tearDown(self):
+    os.chdir(self._cwd)
     rc, out, err = runprog('/bin/rm', '-rf', './FOO_DIR', 'FOO')
     self.assertEqual(0, rc)
 
