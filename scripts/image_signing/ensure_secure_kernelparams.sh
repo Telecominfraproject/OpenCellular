@@ -32,6 +32,12 @@ dmparams_mangle_sha1() {
     echo "$1" | sed 's/sha1 [0-9a-fA-F]*/sha1 MAGIC_HASH/'
 }
 
+# This escapes any non-alphanum character, since many such characters
+# are regex metacharacters.
+escape_regexmetas() {
+    echo "$1" | sed 's/\([^a-zA-Z0-9]\)/\\\1/g'
+}
+
 usage() {
     echo "Usage $PROG image [config]"
 }
@@ -86,20 +92,22 @@ main() {
     fi
 
     # Ensure all other required params are present.
-    for param in ${required_kparams[@]}; do :
+    for param in ${required_kparams[@]}; do
         if [[ "$kparams_nodm" != *$param* ]]; then
             echo "Kernel parameters missing required value: $param"
             testfail=1
         else
             # Remove matched params as we go. If all goes well, kparams_nodm
             # will be nothing left but whitespace by the end.
-            kparams_nodm=${kparams_nodm/$param/}
+            param=$(escape_regexmetas "$param")
+            kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
         fi
     done
 
     # Check-off each of the allowed-but-optional params that were present.
-    for param in ${optional_kparams[@]}; do :
-        kparams_nodm=${kparams_nodm/$param/}
+    for param in ${optional_kparams[@]}; do
+        param=$(escape_regexmetas "$param")
+        kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
     done
 
     # This section enforces the default-deny for any unexpected params
