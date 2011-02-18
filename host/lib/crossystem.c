@@ -11,6 +11,7 @@
 #include "crossystem.h"
 #include "utility.h"
 #include "vboot_common.h"
+#include "vboot_nvstorage.h"
 
 /* ACPI constants from Chrome OS Main Processor Firmware Spec */
 /* GPIO signal types */
@@ -22,6 +23,10 @@
 #define CHSW_RECOVERY_EC_BOOT  0x00000004
 #define CHSW_DEV_BOOT          0x00000020
 #define CHSW_WP_BOOT           0x00000200
+/* CMOS reboot field bitflags */
+#define CMOSRF_RECOVERY        0x80
+#define CMOSRF_DEBUG_RESET     0x40
+#define CMOSRF_TRY_B           0x20
 
 /* Base name for ACPI files */
 #define ACPI_BASE_PATH "/sys/devices/platform/chromeos_acpi"
@@ -33,6 +38,9 @@
 /* Base name for GPIO files */
 #define GPIO_BASE_PATH "/sys/class/gpio"
 #define GPIO_EXPORT_PATH GPIO_BASE_PATH "/export"
+
+/* Base name for NVRAM file */
+#define NVRAM_PATH "/dev/nvram"
 
 /* Read a string from a file.  Passed the destination, dest size, and
  * filename to read.
@@ -161,12 +169,80 @@ int ReadGpio(int signal_type) {
 }
 
 
+/* Read the CMOS reboot field in NVRAM.
+ *
+ * Returns 0 if the mask is clear in the field, 1 if set, or -1 if error. */
+int VbGetCmosRebootField(uint8_t mask) {
+  FILE* f;
+  int chnv, nvbyte;
+
+  /* Get the byte offset from CHNV */
+  chnv = ReadFileInt(ACPI_CHNV_PATH);
+  if (chnv == -1)
+    return -1;
+
+  f = fopen(NVRAM_PATH, "rb");
+  if (!f)
+    return -1;
+
+  if (0 != fseek(f, chnv, SEEK_SET) || EOF == (nvbyte = fgetc(f))) {
+    fclose(f);
+    return -1;
+  }
+
+  fclose(f);
+  return (nvbyte & mask ? 1 : 0);
+}
+
+
+/* Write the CMOS reboot field in NVRAM.
+ *
+ * Sets (value=0) or clears (value!=0) the mask in the byte.
+ *
+ * Returns 0 if success, or -1 if error. */
+int VbSetCmosRebootField(uint8_t mask, int value) {
+  FILE* f;
+  int chnv, nvbyte;
+
+  /* Get the byte offset from CHNV */
+  chnv = ReadFileInt(ACPI_CHNV_PATH);
+  if (chnv == -1)
+    return -1;
+
+  f = fopen(NVRAM_PATH, "w+b");
+  if (!f)
+    return -1;
+
+  /* Read the current value */
+  if (0 != fseek(f, chnv, SEEK_SET) || EOF == (nvbyte = fgetc(f))) {
+    fclose(f);
+    return -1;
+  }
+
+  /* Set/clear the mask */
+  if (value)
+    nvbyte |= mask;
+  else
+    nvbyte &= ~mask;
+
+  /* Write the byte back */
+  if (0 != fseek(f, chnv, SEEK_SET) || EOF == (fputc(nvbyte, f))) {
+    fclose(f);
+    return -1;
+  }
+
+  /* Success */
+  fclose(f);
+  return 0;
+}
+
 /* Read a system property integer.
  *
  * Returns the property value, or -1 if error. */
 int VbGetSystemPropertyInt(const char* name) {
   int value = -1;
 
+  /* Switch positions */
   if (!strcasecmp(name,"devsw_cur")) {
     value = ReadGpio(GPIO_SIGNAL_TYPE_DEV);
   } else if (!strcasecmp(name,"devsw_boot")) {
@@ -185,6 +261,14 @@ int VbGetSystemPropertyInt(const char* name) {
     value = ReadFileBit(ACPI_CHSW_PATH, CHSW_WP_BOOT);
     if (-1 != value && FwidStartsWith("Mario."))
       value = 1 - value;  /* Mario reports this backwards */
+  }
+  /* NV storage values for older H2C BIOS */
+  else if (!strcasecmp(name,"recovery_request")) {
+    value = VbGetCmosRebootField(CMOSRF_RECOVERY);
+  } else if (!strcasecmp(name,"dbg_reset")) {
+    value = VbGetCmosRebootField(CMOSRF_DEBUG_RESET);
+  } else if (!strcasecmp(name,"fwb_tries")) {
+    value = VbGetCmosRebootField(CMOSRF_TRY_B);
   }
 
   /* TODO: remaining properties from spec */
@@ -217,7 +301,15 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
  * Returns 0 if success, -1 if error. */
 int VbSetSystemPropertyInt(const char* name, int value) {
 
-  /* TODO: support setting */
+  /* NV storage values for older H2C BIOS */
+  if (!strcasecmp(name,"recovery_request")) {
+    return VbSetCmosRebootField(CMOSRF_RECOVERY, value);
+  } else if (!strcasecmp(name,"dbg_reset")) {
+    return VbSetCmosRebootField(CMOSRF_DEBUG_RESET, value);
+  } else if (!strcasecmp(name,"fwb_tries")) {
+    return VbSetCmosRebootField(CMOSRF_TRY_B, value);
+  }
+
   return -1;
 }
 

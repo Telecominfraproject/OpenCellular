@@ -32,6 +32,11 @@ const Param sys_param_list[] = {
   {"hwid", 1, 0, "Hardware ID"},
   {"fwid", 1, 0, "Active firmware ID"},
   {"ro_fwid", 1, 0, "Read-only firmware ID"},
+  /* Writable integers */
+  {"recovery_request", 0, 1, "Recovery mode request (writable)"},
+  {"dbg_reset", 0, 1, "Debug reset mode request (writable)"},
+  {"fwb_tries", 0, 1, "Try firmware B count (writable)"},
+
   /* Terminate with null name */
   {NULL, 0, 0, NULL}
 };
