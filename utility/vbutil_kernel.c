@@ -33,6 +33,7 @@ enum {
   OPT_MODE_PACK = 1000,
   OPT_MODE_REPACK,
   OPT_MODE_VERIFY,
+  OPT_ARCH,
   OPT_OLDBLOB,
   OPT_KEYBLOCK,
   OPT_SIGNPUBKEY,
@@ -46,10 +47,16 @@ enum {
   OPT_VERBOSE,
 };
 
+enum {
+  ARCH_ARM,
+  ARCH_X86 /* default */
+};
+
 static struct option long_opts[] = {
   {"pack", 1, 0,                      OPT_MODE_PACK               },
   {"repack", 1, 0,                    OPT_MODE_REPACK             },
   {"verify", 1, 0,                    OPT_MODE_VERIFY             },
+  {"arch", 1, 0,                      OPT_ARCH                    },
   {"oldblob", 1, 0,                   OPT_OLDBLOB                 },
   {"keyblock", 1, 0,                  OPT_KEYBLOCK                },
   {"signpubkey", 1, 0,                OPT_SIGNPUBKEY              },
@@ -82,6 +89,7 @@ static int PrintHelp(char *progname) {
           "    --vmlinuz <file>          Linux kernel bzImage file\n"
           "    --bootloader <file>       Bootloader stub\n"
           "    --config <file>           Command line file\n"
+          "    --arch <arch>             Cpu architecture (default x86)\n"
           "\n"
           "  Optional:\n"
           "    --pad <number>            Verification padding size in bytes\n"
@@ -240,10 +248,11 @@ static uint8_t* ReadConfigFile(const char* config_file, uint64_t* config_size)
 static blob_t *NewBlob(uint64_t version,
                        const char* vmlinuz,
                        const char* bootloader_file,
-                       const char* config_file) {
-  blob_t *bp;
-  struct linux_kernel_header *lh = 0;
-  struct linux_kernel_params *params = 0;
+                       const char* config_file,
+                       int arch) {
+  blob_t* bp;
+  struct linux_kernel_header* lh = 0;
+  struct linux_kernel_params* params = 0;
   uint8_t* config_buf;
   uint64_t config_size;
   uint8_t* bootloader_buf;
@@ -294,14 +303,17 @@ static blob_t *NewBlob(uint64_t version,
     return 0;
   }
 
-  /* The first part of vmlinuz is a header, followed by a real-mode
-   * boot stub.  We only want the 32-bit part. */
-  lh = (struct linux_kernel_header *)kernel_buf;
-  kernel32_start = (lh->setup_sects + 1) << 9;
-  if (kernel32_start >= kernel_size) {
-    error("Malformed kernel\n");
-    return 0;
-  }
+  if (arch == ARCH_X86) {
+    /* The first part of vmlinuz is a header, followed by a real-mode
+     * boot stub.  We only want the 32-bit part. */
+    lh = (struct linux_kernel_header *)kernel_buf;
+    kernel32_start = (lh->setup_sects + 1) << 9;
+    if (kernel32_start >= kernel_size) {
+      error("Malformed kernel\n");
+      return 0;
+    }
+  } else
+    kernel32_start = 0;
   kernel32_size = kernel_size - kernel32_start;
   Debug(" kernel32_start=0x%" PRIx64 "\n", kernel32_start);
   Debug(" kernel32_size=0x%" PRIx64 "\n", kernel32_size);
@@ -341,8 +353,12 @@ static blob_t *NewBlob(uint64_t version,
    * tweak a few fields. */
   Debug("params goes at blob+=0x%" PRIx64 "\n", now);
   params = (struct linux_kernel_params *)(blob + now);
-  Memcpy(&(params->setup_sects), &(lh->setup_sects),
-         sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
+  if (arch == ARCH_X86)
+    Memcpy(&(params->setup_sects), &(lh->setup_sects),
+           sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
+  else
+    Memset(&(params->setup_sects), 0,
+           sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
   params->boot_flag = 0;
   params->ramdisk_image = 0;             /* we don't support initrd */
   params->ramdisk_size = 0;
@@ -771,6 +787,7 @@ int main(int argc, char* argv[]) {
   char* vmlinuz = NULL;
   char* bootloader = NULL;
   char* config_file = NULL;
+  int arch = ARCH_X86;
   int vblockonly = 0;
   int verbose = 0;
   uint64_t pad = DEFAULT_PADDING;
@@ -810,6 +827,17 @@ int main(int argc, char* argv[]) {
         }
         mode = i;
         filename = optarg;
+        break;
+
+      case OPT_ARCH:
+        if (!strcasecmp(optarg, "x86"))
+          arch = ARCH_X86;
+        else if (!strcasecmp(optarg, "arm"))
+          arch = ARCH_ARM;
+        else {
+          fprintf(stderr, "Unknown architecture string: %s\n", optarg);
+          parse_error = 1;
+        }
         break;
 
       case OPT_OLDBLOB:
@@ -871,7 +899,7 @@ int main(int argc, char* argv[]) {
 
   switch(mode) {
     case OPT_MODE_PACK:
-      bp = NewBlob(version, vmlinuz, bootloader, config_file);
+      bp = NewBlob(version, vmlinuz, bootloader, config_file, arch);
       if (!bp)
         return 1;
       r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
@@ -892,7 +920,7 @@ int main(int argc, char* argv[]) {
       r = ReplaceConfig(bp, config_file);
       if (!r) {
         if (version >= 0) {
-		bp->kernel_version = (uint64_t) version;
+          bp->kernel_version = (uint64_t) version;
         }
         r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
       }
