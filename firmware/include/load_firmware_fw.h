@@ -10,6 +10,7 @@
 #define VBOOT_REFERENCE_LOAD_FIRMWARE_FW_H_
 
 #include "sysincludes.h"
+#include "vboot_nvstorage.h"
 
 /* Recommended size of kernel_sign_key_blob in bytes, for
  * implementations which must preallocate a transfer buffer between
@@ -42,6 +43,12 @@ typedef struct LoadFirmwareParams {
                                   * will contain the actual key blob
                                   * size placed into the buffer. */
   uint64_t boot_flags;           /* Boot flags */
+  VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
+                                  * must be filled before calling
+                                  * LoadFirmware().  On output, check
+                                  * nv_context->raw_changed to see if
+                                  * nv_context->raw has been modified and
+                                  * needs saving. */
 
   /* Outputs from LoadFirmware(); valid only if LoadFirmware() returns
    * LOAD_FIRMWARE_SUCCESS. */

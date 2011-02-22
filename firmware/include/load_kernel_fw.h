@@ -10,6 +10,7 @@
 #define VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 
 #include "sysincludes.h"
+#include "vboot_nvstorage.h"
 
 /* Interface provided by verified boot library to BDS */
 
@@ -33,14 +34,20 @@
 
 typedef struct LoadKernelParams {
   /* Inputs to LoadKernel() */
-  void *header_sign_key_blob;   /* Key blob used to sign the kernel header */
+  void* header_sign_key_blob;   /* Key blob used to sign the kernel header */
   uint64_t bytes_per_lba;       /* Bytes per lba sector on current device */
   uint64_t ending_lba;          /* Last addressable lba sector on current
                                  * device */
-  void *kernel_buffer;          /* Destination buffer for kernel
+  void* kernel_buffer;          /* Destination buffer for kernel
                                  * (normally at 0x100000) */
   uint64_t kernel_buffer_size;  /* Size of kernel buffer in bytes */
   uint64_t boot_flags;          /* Boot flags */
+  VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
+                                  * must be filled before calling
+                                  * LoadKernel().  On output, check
+                                  * nv_context->raw_changed to see if
+                                  * nv_context->raw has been modified and
+                                  * needs saving. */
 
   /* Outputs from LoadKernel(); valid only if LoadKernel() returns
    * LOAD_KERNEL_SUCCESS */

@@ -13,44 +13,8 @@
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
 
-#if 0
 
-/* Initialize the NV storage library.  This must be called before any
- * other functions in this library. Returns 0 if success, non-zero if
- * error. */
-int VbNvSetup(VbNvContext* context);
-
-/* Clean up and flush changes back to the raw data.  This must be
- * called after other functions in this library.  Caller must check
- * context.raw_changed after calling tis function.  Returns 0 if
- * success, non-zero if error. */
-int VbNvTeardown(VbNvContext* context);
-
-/* Read a NV storage parameter into *dest.  Returns 0 if success,
- * non-zero if error. */
-int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest);
-
-/* Set a NV storage param to a new value.  Returns 0 if success,
- * non-zero if error. */
-int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value);
-
-typedef struct VbNvContext {
-  /* Raw NV data.  Caller must fill this before calling VbNvStart(). */
-  uint8_t raw[NV_BLOCK_SIZE];
-  /* Flag indicating whether raw data has changed.  Set by VbNvStop() if
-   * the raw data has changed and needs to be stored to the underlying
-   * non-volatile data store. */
-  int raw_changed;
-
-  /* Internal data for NV storage routines.  Caller should not touch
-   * these fields. */
-  int regenerate_crc;
-
-} VbNvContext;
-
-#endif
-
-static void VbStorageTest(void) {
+static void VbNvStorageTest(void) {
 
   VbNvContext c;
   uint8_t goodcrc;
@@ -201,7 +165,7 @@ __pragma(warning (disable: 4100))
 int main(int argc, char* argv[]) {
   int error_code = 0;
 
-  VbStorageTest();
+  VbNvStorageTest();
 
   if (!gTestSuccess)
     error_code = 255;

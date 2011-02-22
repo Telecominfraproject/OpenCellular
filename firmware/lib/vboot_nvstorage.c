@@ -61,7 +61,7 @@ int VbNvSetup(VbNvContext* context) {
       || (Crc8(raw, CRC_OFFSET) != raw[CRC_OFFSET])) {
 
     /* Data is inconsistent (bad CRC or header), so reset defaults */
-    Memset(raw, 0, NV_BLOCK_SIZE);
+    Memset(raw, 0, VBNV_BLOCK_SIZE);
     raw[HEADER_OFFSET] = (HEADER_SIGNATURE | HEADER_FIRMWARE_SETTINGS_RESET |
                           HEADER_KERNEL_SETTINGS_RESET);
 
@@ -153,19 +153,30 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
       if (value)
         raw[BOOT_OFFSET] |= BOOT_DEBUG_RESET_MODE;
       else
-        raw[BOOT_OFFSET] &= BOOT_DEBUG_RESET_MODE;
+        raw[BOOT_OFFSET] &= ~BOOT_DEBUG_RESET_MODE;
       break;
 
     case VBNV_TRY_B_COUNT:
+      /* Clip to valid range. */
+      if (value > BOOT_TRY_B_COUNT)
+        value = BOOT_TRY_B_COUNT - 1;
+
       raw[BOOT_OFFSET] &= ~BOOT_TRY_B_COUNT;
-      raw[BOOT_OFFSET] |= (uint8_t)(value & BOOT_TRY_B_COUNT);
+      raw[BOOT_OFFSET] |= (uint8_t)value;
       break;
 
     case VBNV_RECOVERY_REQUEST:
+      /* Map values outside the valid range to the legacy reason, since we
+       * can't determine if we're called from kernel or user mode. */
+      if (value > 0xFF)
+        value = VBNV_RECOVERY_LEGACY;
       raw[RECOVERY_OFFSET] = (uint8_t)value;
       break;
 
     case VBNV_LOCALIZATION_INDEX:
+      /* Map values outside the valid range to the default index. */
+      if (value > 0xFF)
+        value = 0;
       raw[LOCALIZATION_OFFSET] = (uint8_t)value;
       break;
 

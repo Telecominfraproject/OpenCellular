@@ -10,6 +10,7 @@
 #include "tlcl.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
+#include "vboot_nvstorage.h"
 
 
 int main(void)
@@ -78,6 +79,11 @@ int main(void)
   KeyBlockVerify(0, 0, 0, 0);
   VerifyFirmwarePreamble(0, 0, 0);
   VerifyKernelPreamble(0, 0, 0);
+
+  VbNvSetup(0);
+  VbNvGet(0, 0, 0);
+  VbNvSet(0, 0, 0);
+  VbNvTeardown(0);
 
   return 0;
 }
