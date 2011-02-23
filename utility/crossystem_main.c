@@ -28,14 +28,24 @@ const Param sys_param_list[] = {
   {"recoverysw_ec_boot", 0, 0, "Recovery switch position at EC boot"},
   {"wpsw_cur",  0, 0, "Firmware write protect switch current position"},
   {"wpsw_boot", 0, 0, "Firmware write protect switch position at boot"},
+  {"recovery_reason",  0, 0, "Recovery mode reason for current boot"},
+  {"savedmem_base", 0, 0, "RAM debug data area physical address"},
+  {"savedmem_size", 0, 0, "RAM debug data area size in bytes"},
   /* Read-only strings */
   {"hwid", 1, 0, "Hardware ID"},
   {"fwid", 1, 0, "Active firmware ID"},
   {"ro_fwid", 1, 0, "Read-only firmware ID"},
+  {"mainfw_act", 1, 0, "Active main firmware"},
+  {"mainfw_type", 1, 0, "Active main firmware type"},
+  {"ecfw_act", 1, 0, "Active EC firmware"},
   /* Writable integers */
   {"recovery_request", 0, 1, "Recovery mode request (writable)"},
   {"dbg_reset", 0, 1, "Debug reset mode request (writable)"},
   {"fwb_tries", 0, 1, "Try firmware B count (writable)"},
+
+  /* TODO: implement the following:
+   *   nvram_cleared
+   */
 
   /* Terminate with null name */
   {NULL, 0, 0, NULL}

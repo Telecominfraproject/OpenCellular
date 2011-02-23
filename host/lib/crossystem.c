@@ -27,10 +27,38 @@
 #define CMOSRF_RECOVERY        0x80
 #define CMOSRF_DEBUG_RESET     0x40
 #define CMOSRF_TRY_B           0x20
+/* Boot reasons from BINF.0, from early H2C firmware */
+/* Unknown */
+#define BINF0_UNKNOWN                  0
+/* Normal boot to Chrome OS */
+#define BINF0_NORMAL                   1
+/* Developer mode boot (developer mode warning displayed) */
+#define BINF0_DEVELOPER                2
+/* Recovery initiated by user, using recovery button */
+#define BINF0_RECOVERY_BUTTON          3
+/* Recovery initiated by user pressing a key at developer mode warning
+ * screen */
+#define BINF0_RECOVERY_DEV_SCREEN_KEY  4
+/* Recovery caused by BIOS failed signature check (neither rewritable
+ * firmware was valid) */
+#define BINF0_RECOVERY_RW_FW_BAD       5
+/* Recovery caused by no OS kernel detected */
+#define BINF0_RECOVERY_NO_OS           6
+/* Recovery caused by OS kernel failed signature check */
+#define BINF0_RECOVERY_BAD_OS          7
+/* Recovery initiated by OS */
+#define BINF0_RECOVERY_OS_INITIATED    8
+/* OS-initiated S3 diagnostic path (debug mode boot) */
+#define BINF0_S3_DIAGNOSTIC_PATH       9
+/* S3 resume failed */
+#define BINF0_S3_RESUME_FAILED        10
+/* Recovery caused by TPM error */
+#define BINF0_RECOVERY_TPM_ERROR      11
 
 /* Base name for ACPI files */
 #define ACPI_BASE_PATH "/sys/devices/platform/chromeos_acpi"
 /* Paths for frequently used ACPI files */
+#define ACPI_BINF_PATH ACPI_BASE_PATH "/BINF"
 #define ACPI_CHNV_PATH ACPI_BASE_PATH "/CHNV"
 #define ACPI_CHSW_PATH ACPI_BASE_PATH "/CHSW"
 #define ACPI_GPIO_PATH ACPI_BASE_PATH "/GPIO"
@@ -41,6 +69,17 @@
 
 /* Base name for NVRAM file */
 #define NVRAM_PATH "/dev/nvram"
+
+
+/* Copy up to dest_size-1 characters from src to dest, ensuring null
+   termination (which strncpy() doesn't do).  Returns the destination
+   string. */
+char* StrCopy(char* dest, const char* src, int dest_size) {
+  strncpy(dest, src, dest_size);
+  dest[dest_size - 1] = '\0';
+  return dest;
+}
+
 
 /* Read a string from a file.  Passed the destination, dest size, and
  * filename to read.
@@ -236,6 +275,82 @@ int VbSetCmosRebootField(uint8_t mask, int value) {
   return 0;
 }
 
+/* Read the recovery reason.  Returns the reason code or -1 if error. */
+int VbGetRecoveryReason(void) {
+  int value;
+
+  /* Try reading type from BINF.4 */
+  value = ReadFileInt(ACPI_BINF_PATH ".4");
+  if (-1 != value)
+    return value;
+
+  /* Fall back to BINF.0 for legacy systems like Mario. */
+  switch(ReadFileInt(ACPI_BINF_PATH ".0")) {
+    case BINF0_NORMAL:
+    case BINF0_DEVELOPER:
+      return VBNV_RECOVERY_NOT_REQUESTED;
+    case BINF0_RECOVERY_BUTTON:
+      return VBNV_RECOVERY_RO_MANUAL;
+    case BINF0_RECOVERY_DEV_SCREEN_KEY:
+      return VBNV_RECOVERY_RW_DEV_SCREEN;
+    case BINF0_RECOVERY_RW_FW_BAD:
+    case BINF0_RECOVERY_NO_OS:
+      return VBNV_RECOVERY_RW_NO_OS;
+    case BINF0_RECOVERY_BAD_OS:
+      return VBNV_RECOVERY_RW_INVALID_OS;
+    case BINF0_RECOVERY_OS_INITIATED:
+      return VBNV_RECOVERY_LEGACY;
+    default:
+      /* Other values don't map cleanly to firmware type. */
+      return -1;
+  }
+}
+
+
+/* Read the active main firmware type into the destination buffer.
+ * Passed the destination and its size.  Returns the destination, or
+ * NULL if error. */
+const char* VbReadMainFwType(char* dest, int size) {
+
+  /* Try reading type from BINF.3 */
+  switch(ReadFileInt(ACPI_BINF_PATH ".3")) {
+    case 0:
+      return StrCopy(dest, "recovery", size);
+    case 1:
+      return StrCopy(dest, "normal", size);
+    case 2:
+      return StrCopy(dest, "developer", size);
+    default:
+      break;  /* Fall through to legacy handling */
+  }
+
+  /* Fall back to BINF.0 for legacy systems like Mario. */
+  switch(ReadFileInt(ACPI_BINF_PATH ".0")) {
+    case -1:
+      /* Both BINF.0 and BINF.3 are missing, so this isn't Chrome OS
+       * firmware. */
+      return StrCopy(dest, "nonchrome", size);
+    case BINF0_NORMAL:
+      return StrCopy(dest, "normal", size);
+    case BINF0_DEVELOPER:
+      return StrCopy(dest, "developer", size);
+    case BINF0_RECOVERY_BUTTON:
+    case BINF0_RECOVERY_DEV_SCREEN_KEY:
+    case BINF0_RECOVERY_RW_FW_BAD:
+    case BINF0_RECOVERY_NO_OS:
+    case BINF0_RECOVERY_BAD_OS:
+    case BINF0_RECOVERY_OS_INITIATED:
+    case BINF0_RECOVERY_TPM_ERROR:
+      /* Assorted flavors of recovery boot reason. */
+      return StrCopy(dest, "recovery", size);
+    default:
+      /* Other values don't map cleanly to firmware type. */
+      return NULL;
+  }
+}
+
+
+
 /* Read a system property integer.
  *
  * Returns the property value, or -1 if error. */
@@ -262,6 +377,13 @@ int VbGetSystemPropertyInt(const char* name) {
     if (-1 != value && FwidStartsWith("Mario."))
       value = 1 - value;  /* Mario reports this backwards */
   }
+  /* Saved memory is at a fixed location for all H2C BIOS.  If the CHSW
+   * path exists in sysfs, it's a H2C BIOS. */
+  else if (!strcasecmp(name,"savedmem_base")) {
+    return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00F00000);
+  } else if (!strcasecmp(name,"savedmem_size")) {
+    return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00100000);
+  }
   /* NV storage values for older H2C BIOS */
   else if (!strcasecmp(name,"recovery_request")) {
     value = VbGetCmosRebootField(CMOSRF_RECOVERY);
@@ -270,8 +392,14 @@ int VbGetSystemPropertyInt(const char* name) {
   } else if (!strcasecmp(name,"fwb_tries")) {
     value = VbGetCmosRebootField(CMOSRF_TRY_B);
   }
+  /* Other parameters */
+  else if (!strcasecmp(name,"recovery_reason")) {
+    return VbGetRecoveryReason();
+  }
 
-  /* TODO: remaining properties from spec */
+  /* TODO: implement the following properties:
+   *   nvram_cleared
+   */
 
   return value;
 }
@@ -289,10 +417,30 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
     return ReadFileString(dest, size, ACPI_BASE_PATH "/FWID");
   } else if (!strcasecmp(name,"ro_fwid")) {
     return ReadFileString(dest, size, ACPI_BASE_PATH "/FRID");
+  } else if (!strcasecmp(name,"mainfw_act")) {
+    switch(ReadFileInt(ACPI_BINF_PATH ".1")) {
+      case 0:
+        return StrCopy(dest, "recovery", size);
+      case 1:
+        return StrCopy(dest, "A", size);
+      case 2:
+        return StrCopy(dest, "B", size);
+      default:
+        return NULL;
+    }
+  } else if (!strcasecmp(name,"mainfw_type")) {
+    return VbReadMainFwType(dest, size);
+  } else if (!strcasecmp(name,"ecfw_act")) {
+    switch(ReadFileInt(ACPI_BINF_PATH ".2")) {
+      case 0:
+        return StrCopy(dest, "RO", size);
+      case 1:
+        return StrCopy(dest, "RW", size);
+      default:
+        return NULL;
+    }
   } else
     return NULL;
-
-  /* TODO: remaining properties from spec */
 }
 
 
@@ -309,6 +457,10 @@ int VbSetSystemPropertyInt(const char* name, int value) {
   } else if (!strcasecmp(name,"fwb_tries")) {
     return VbSetCmosRebootField(CMOSRF_TRY_B, value);
   }
+
+  /* TODO: implement the following:
+   *   nvram_cleared
+   */
 
   return -1;
 }
