@@ -61,6 +61,7 @@
 #define ACPI_BINF_PATH ACPI_BASE_PATH "/BINF"
 #define ACPI_CHNV_PATH ACPI_BASE_PATH "/CHNV"
 #define ACPI_CHSW_PATH ACPI_BASE_PATH "/CHSW"
+#define ACPI_FMAP_PATH ACPI_BASE_PATH "/FMAP"
 #define ACPI_GPIO_PATH ACPI_BASE_PATH "/GPIO"
 
 /* Base name for GPIO files */
@@ -395,6 +396,8 @@ int VbGetSystemPropertyInt(const char* name) {
   /* Other parameters */
   else if (!strcasecmp(name,"recovery_reason")) {
     return VbGetRecoveryReason();
+  } else if (!strcasecmp(name,"fmap_base")) {
+    value = ReadFileInt(ACPI_FMAP_PATH);
   }
 
   /* TODO: implement the following properties:

@@ -31,6 +31,7 @@ const Param sys_param_list[] = {
   {"recovery_reason",  0, 0, "Recovery mode reason for current boot"},
   {"savedmem_base", 0, 0, "RAM debug data area physical address"},
   {"savedmem_size", 0, 0, "RAM debug data area size in bytes"},
+  {"fmap_base", 0, 0, "Main firmware flashmap physical address"},
   /* Read-only strings */
   {"hwid", 1, 0, "Hardware ID"},
   {"fwid", 1, 0, "Active firmware ID"},
