@@ -94,6 +94,7 @@ function make_keyblock {
 # Create the normal keypairs
 make_pair root_key                 11
 make_pair firmware_data_key        7
+make_pair dev_firmware_data_key    7
 make_pair kernel_subkey            7
 make_pair kernel_data_key          4
 
@@ -105,6 +106,9 @@ make_pair installer_kernel_data_key 11
 # Create the firmware keyblock for use only in Normal mode. This is redundant,
 # since it's never even checked during Recovery mode.
 make_keyblock firmware 7 firmware_data_key root_key
+
+# Create the dev firmware keyblock for use only in Developer mode.
+make_keyblock dev_firmware 6 dev_firmware_data_key root_key
 
 # Create the recovery kernel keyblock for use only in Recovery mode.
 make_keyblock recovery_kernel 11 recovery_kernel_data_key recovery_key
