@@ -412,6 +412,8 @@ sign_for_recovery() {
   # TODO(gauravsh): Remove this if we get rid of the need to overwrite
   # the vblock during installs. Kern B could directly be signed by the
   # SSD keys.
+  # Note: This vblock is also needed for the ability to convert a recovery
+  # image into the equivalent SSD image (convert_recovery_to_ssd.sh)
   local stateful_dir=$(make_temp_dir)
   mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
