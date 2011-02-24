@@ -59,6 +59,7 @@ usage(void)
 	printf("    options:\n");
 	printf("    -h, --help, -?  Display this message.\n");
 	printf("    -d, --debug     Output debugging information.\n");
+	printf("    -gbct               Generate the new bct file.\n");
 	printf("    configfile      File with configuration information\n");
 	printf("    imagename       Output image name\n");
 }
@@ -67,6 +68,8 @@ static int
 process_command_line(int argc, char *argv[], build_image_context *context)
 {
 	int arg = 1;
+
+	context->generate_bct = 0;
 
 	while (arg < argc) {
 		/* Process the next argument. */
@@ -79,6 +82,9 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 		} else if (!strcmp(argv[arg], "-d") ||
 	 	!strcmp(argv[arg], "--debug")) {
 			enable_debug = 1;
+			arg++;
+		} else if (!strcmp(argv[arg], "-gbct")) {
+			context->generate_bct = 1;
 			arg++;
 		} else if (argv[arg][0] == '-') {
 			printf("Illegal option %s\n", argv[arg]);
@@ -167,6 +173,20 @@ main(int argc, char *argv[])
 
 	/* Parse & process the contents of the config file. */
 	process_config_file(&context);
+
+	/* Generate the new bct file */
+	if (context.generate_bct != 0) {
+		/* Signing the bct. */
+		e = sign_bct(&context, context.bct);
+		if (e != 0) 
+			printf("Signing BCT failed, error: %d.\n", e);
+
+		fwrite(context.bct, 1, sizeof(nvboot_config_table),
+			context.raw_file);
+		printf("New BCT file %s has been successfully generated!\n",
+			context.image_filename);
+		goto fail;
+	}
 
 	/* Update the bct file */
 	/* Update the add on file */

@@ -42,39 +42,65 @@
  * constants.
  */
 typedef enum {
-    nvbct_lib_id_none = 0,
+	nvbct_lib_id_none = 0,
 
-    nvbct_lib_id_crypto_hash,
-    nvbct_lib_id_random_aes_blk,
-    nvbct_lib_id_boot_data_version,
-    nvbct_lib_id_block_size_log2,
-    nvbct_lib_id_page_size_log2,
-    nvbct_lib_id_partition_size,
-    nvbct_lib_id_bootloader_used,
-    nvbct_lib_id_bootloaders_max,
-    nvbct_lib_id_reserved,
-    nvbct_lib_id_reserved_size,
-    nvbct_lib_id_reserved_offset,
-    nvbct_lib_id_bct_size,
-    nvbct_lib_id_hash_size,
-    nvbct_lib_id_crypto_offset,
-    nvbct_lib_id_crypto_length,
-    nvbct_lib_id_max_bct_search_blks,
+	nvbct_lib_id_crypto_hash,
+	nvbct_lib_id_random_aes_blk,
+	nvbct_lib_id_boot_data_version,
+	nvbct_lib_id_block_size_log2,
+	nvbct_lib_id_page_size_log2,
+	nvbct_lib_id_partition_size,
+	nvbct_lib_id_dev_type,
+	nvbct_lib_id_bootloader_used,
+	nvbct_lib_id_bootloaders_max,
+	nvbct_lib_id_reserved,
+	nvbct_lib_id_reserved_size,
+	nvbct_lib_id_reserved_offset,
+	nvbct_lib_id_bct_size,
+	nvbct_lib_id_hash_size,
+	nvbct_lib_id_crypto_offset,
+	nvbct_lib_id_crypto_length,
+	nvbct_lib_id_max_bct_search_blks,
+	nvbct_lib_id_num_param_sets,
+	nvbct_lib_id_dev_type_sdmmc,
+	nvbct_lib_id_dev_type_spi,
 
-    nvbct_lib_id_bl_version,
-    nvbct_lib_id_bl_start_blk,
-    nvbct_lib_id_bl_start_page,
-    nvbct_lib_id_bl_length,
-    nvbct_lib_id_bl_load_addr,
-    nvbct_lib_id_bl_entry_point,
-    nvbct_lib_id_bl_attribute,
-    nvbct_lib_id_bl_crypto_hash,
+	nvbct_lib_id_sdmmc_clock_divider,
+	nvbct_lib_id_sdmmc_data_width,
+	nvbct_lib_id_sdmmc_max_power_class_supported,
+	nvbct_lib_id_spiflash_read_command_type_fast,
+	nvbct_lib_id_spiflash_clock_source,
+	nvbct_lib_id_spiflash_clock_divider,
+	nvbct_lib_id_sdmmc_data_width_4bit,
+	nvbct_lib_id_sdmmc_data_width_8bit,
+	nvbct_lib_id_spi_clock_source_pllp_out0,
+	nvbct_lib_id_spi_clock_source_pllc_out0,
+	nvbct_lib_id_spi_clock_source_pllm_out0,
+	nvbct_lib_id_spi_clock_source_clockm,
 
-    nvbct_lib_id_max,
+	nvbct_lib_id_bl_version,
+	nvbct_lib_id_bl_start_blk,
+	nvbct_lib_id_bl_start_page,
+	nvbct_lib_id_bl_length,
+	nvbct_lib_id_bl_load_addr,
+	nvbct_lib_id_bl_entry_point,
+	nvbct_lib_id_bl_attribute,
+	nvbct_lib_id_bl_crypto_hash,
 
-    nvbct_lib_id_force32 = 0x7fffffff
+	nvbct_lib_id_max,
+
+	nvbct_lib_id_force32 = 0x7fffffff
 
 } nvbct_lib_id;
+
+typedef int  (*nvbct_lib_get_dev_param)(u_int32_t set,
+					nvbct_lib_id id,
+					u_int32_t *data,
+					u_int8_t *bct);
+typedef int  (*nvbct_lib_set_dev_param)(u_int32_t set,
+					nvbct_lib_id id,
+					u_int32_t data,
+					u_int8_t *bct);
 
 typedef int (*nvbct_lib_get_bl_param)(u_int32_t set,
 					nvbct_lib_id id,
@@ -110,15 +136,17 @@ typedef int (*nvbct_lib_set_data)(nvbct_lib_id id,
  */
 typedef struct nvbct_lib_fns_rec
 {
-    nvbct_lib_get_value      get_value;
-    nvbct_lib_set_value      set_value;
+	nvbct_lib_get_value    get_value;
+	nvbct_lib_set_value    set_value;
 
-    nvbct_lib_get_data       get_data;
-    nvbct_lib_set_data       set_data;
+	nvbct_lib_get_data    get_data;
+	nvbct_lib_set_data    set_data;
 
-    nvbct_lib_get_bl_param    getbl_param;
-    nvbct_lib_set_bl_param    setbl_param;
+	nvbct_lib_get_bl_param    getbl_param;
+	nvbct_lib_set_bl_param    setbl_param;
 
+	nvbct_lib_get_dev_param getdev_param;
+	nvbct_lib_set_dev_param setdev_param;
 } nvbct_lib_fns;
 
 void nvbct_lib_get_fns(nvbct_lib_fns *fns);

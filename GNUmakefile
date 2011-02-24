@@ -12,7 +12,7 @@ OBJS := $(patsubst %.c,%.o,$(notdir $(C_FILES)))
 
 TARGET = cbootimage
 CC = gcc
-CFLAGS=-Wall -O
+CFLAGS=-Wall -O -lm
 
 $(TARGET):$(OBJS)
 	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)

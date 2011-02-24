@@ -111,6 +111,7 @@ typedef struct build_image_context_rec
 	u_int32_t newbl_load_addr;
 	u_int32_t newbl_entry_point;
 	u_int32_t newbl_attr;
+	u_int8_t generate_bct;
 	u_int8_t *bct;
 
 	struct addon_table_rec addon_tbl;

@@ -46,7 +46,13 @@
  */
 #define NVBOOT_MAX_BOOTLOADERS         4
 
-#define NVBOOT_BCT_USED_DATA_SIZE	534
+#define NVBOOT_BCT_USED_DATA_SIZE	2052
+
+/**
+ * Defines the maximum number of device parameter sets in the BCT.
+ * The value must be equal to (1 << # of device straps)
+ */
+#define NVBOOT_BCT_MAX_PARAM_SETS      4
 
 /**
  * Defines the number of entries (bits) in the bad block table.
@@ -93,6 +99,135 @@ typedef struct nvboot_hash_rec
 	u_int32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
 } nvboot_hash;
 
+/// Defines various data widths supported.
+typedef enum
+{
+	/**
+	 * Specifies a 1 bit interface to eMMC.
+	 * Note that 1-bit data width is only for the driver's internal use.
+	 * Fuses doesn't provide option to select 1-bit data width.
+	 * The driver selects 1-bit internally based on need.
+	 * It is used for reading Extended CSD and when the power class
+	 * requirements of a card for 4-bit or 8-bit transfers are not
+	 * supported by the target board.
+	 */
+	nvboot_sdmmc_data_width_1bit = 0,
+
+	/// Specifies a 4 bit interface to eMMC.
+	nvboot_sdmmc_data_width_4bit = 1,
+
+	/// Specifies a 8 bit interface to eMMC.
+	nvboot_sdmmc_data_width_8bit = 2,
+
+	nvboot_sdmmc_data_width_num,
+	nvboot_sdmmc_data_width_force32 = 0x7FFFFFFF
+} nvboot_sdmmc_data_width;
+
+/// Defines the parameters that can be changed after BCT is read.
+typedef struct nvboot_sdmmc_params_rec
+{
+	/**
+	 * Specifies the clock divider for the SDMMC controller's clock source,
+	 * which is PLLP running at 432MHz.  If it is set to 18, then the SDMMC
+	 * controller runs at 432/18 = 24MHz.
+	 */
+	u_int8_t clock_divider;
+
+	/// Specifies the data bus width. Supported data widths are 4/8 bits.
+	nvboot_sdmmc_data_width data_width;
+
+	/** 
+	 * Max Power class supported by the target board.
+	 * The driver determines the best data width and clock frequency
+	 * supported within the power class range (0 to Max) if the selected
+	 * data width cannot be used at the chosen clock frequency.
+	 */
+	u_int8_t max_power_class_supported;
+	u_int32_t reserved;
+} nvboot_sdmmc_params;
+
+typedef enum 
+{
+	/// Specifies SPI clock source to be PLLP.
+	nvboot_spi_clock_source_pllp_out0 = 0,
+
+	/// Specifies SPI clock source to be PLLC.
+	nvboot_spi_clock_source_pllc_out0,
+
+	/// Specifies SPI clock source to be PLLM.
+	nvboot_spi_clock_source_pllm_out0,
+
+	/// Specifies SPI clock source to be ClockM.
+	nvboot_spi_clock_source_clockm,
+
+	nvboot_spi_clock_source_num,
+	nvboot_spi_clock_source_force32 = 0x7FFFFFF
+} nvboot_spi_clock_source;
+
+
+/**
+ * Defines the parameters SPI FLASH devices.
+ */
+typedef struct nvboot_spiflash_params_rec
+{
+	/**
+	 * Specifies the clock source to use.
+	 */
+	nvboot_spi_clock_source clock_source;
+
+	/**
+	 * Specifes the clock divider to use.
+	 * The value is a 7-bit value based on an input clock of 432Mhz.
+	 * Divider = (432+ DesiredFrequency-1)/DesiredFrequency;
+	 * Typical values:
+	 *     NORMAL_READ at 20MHz: 22
+	 *     FAST_READ   at 33MHz: 14
+	 *     FAST_READ   at 40MHz: 11
+	 *     FAST_READ   at 50MHz:  9
+	 */
+	u_int8_t clock_divider;
+
+	/**
+	 * Specifies the type of command for read operations.
+	 * NV_FALSE specifies a NORMAL_READ Command
+	 * NV_TRUE  specifies a FAST_READ   Command
+	 */
+	u_int8_t read_command_type_fast;
+} nvboot_spiflash_params;
+
+/**
+* Defines the union of the parameters required by each device.
+*/
+typedef union{
+	/// Specifies optimized parameters for eMMC and eSD
+	nvboot_sdmmc_params sdmmc_params;
+	/// Specifies optimized parameters for SPI NOR
+	nvboot_spiflash_params spiflash_params;
+} nvboot_dev_params;
+
+/**
+ * Identifies the types of devices from which the system booted.
+ * Used to identify primary and secondary boot devices.
+ * @note These no longer match the fuse API device values (for
+ * backward compatibility with AP15).
+ */
+typedef enum
+{
+	/// Specifies a default (unset) value.
+	nvboot_dev_type_none = 0,
+
+	/// Specifies SPI NOR.
+	nvboot_dev_type_spi = 3,
+
+	/// Specifies SDMMC (either eMMC or eSD).
+	nvboot_dev_type_sdmmc,
+
+	nvboot_dev_type_max,
+
+	/// Ignore -- Forces compilers to make 32-bit enums.
+	nvboot_dev_type_force32 = 0x7FFFFFFF
+ } nvboot_dev_type;
+
 /**
  * Stores information needed to locate and verify a boot loader.
  *
@@ -138,7 +273,10 @@ typedef struct nvboot_config_table_rec
 	u_int32_t block_size_log2;
 	u_int32_t page_size_log2;
 	u_int32_t partition_size;
-	u_int32_t bct_used_data[NVBOOT_BCT_USED_DATA_SIZE];
+	u_int32_t num_param_sets;
+	nvboot_dev_type dev_type[NVBOOT_BCT_MAX_PARAM_SETS];
+	nvboot_dev_params dev_params[NVBOOT_BCT_MAX_PARAM_SETS];
+	u_int8_t bct_used_data[NVBOOT_BCT_USED_DATA_SIZE];
 	nvboot_badblock_table badblock_table;
 	u_int32_t bootloader_used;
 	nv_bootloader_info bootloader[NVBOOT_MAX_BOOTLOADERS];

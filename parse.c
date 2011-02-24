@@ -52,7 +52,19 @@
  */
 
 static char *parse_u32(char *statement, u_int32_t *val);
+static char *parse_u8(char *statement, u_int32_t *val);
 static char *parse_filename(char *statement, char *name, int chars_remaining);
+static char *parse_enum(build_image_context *context,
+			char *statement,
+			enum_item *table,
+			u_int32_t *val);
+static char
+*parse_field_name(char *rest, field_item *field_table, field_item **field);
+static char
+*parse_field_value(build_image_context *context, 
+			char *rest,
+			field_item *field,
+			u_int32_t *value);
 static int
 parse_array(build_image_context *context, parse_token token, char *rest);
 static int
@@ -66,13 +78,111 @@ parse_addon(build_image_context *context, parse_token token, char *rest);
 static char *parse_string(char *statement, char *uname, int chars_remaining);
 static char
 *parse_end_state(char *statement, char *uname, int chars_remaining);
+static int
+parse_dev_param(build_image_context *context, parse_token token, char *rest);
+
 static int process_statement(build_image_context *context, char *statement);
+
+static enum_item s_devtype_table[] = 
+{
+	{ "NvBootDevType_Sdmmc", nvbct_lib_id_dev_type_sdmmc },
+	{ "NvBootDevType_Spi", nvbct_lib_id_dev_type_spi },
+	{ "Sdmmc", nvbct_lib_id_dev_type_sdmmc },
+	{ "Spi", nvbct_lib_id_dev_type_spi },
+
+	{ NULL, 0 }
+};
+
+static enum_item s_sdmmc_data_width_table[] =
+{
+	{
+	  "NvBootSdmmcDataWidth_4Bit",
+	  nvbct_lib_id_sdmmc_data_width_4bit
+	},
+	{
+	  "NvBootSdmmcDataWidth_8Bit",
+	  nvbct_lib_id_sdmmc_data_width_8bit
+	},
+	{ "4Bit", nvbct_lib_id_sdmmc_data_width_4bit },
+	{ "8Bit", nvbct_lib_id_sdmmc_data_width_8bit },
+	{ NULL, 0 }
+};
+
+static enum_item s_spi_clock_source_table[] = 
+{
+	{
+	    "NvBootSpiClockSource_PllPOut0",
+	    nvbct_lib_id_spi_clock_source_pllp_out0
+	},
+	{
+	    "NvBootSpiClockSource_PllCOut0",
+	    nvbct_lib_id_spi_clock_source_pllc_out0
+	},
+	{
+	    "NvBootSpiClockSource_PllMOut0",
+	    nvbct_lib_id_spi_clock_source_pllm_out0
+	},
+	{
+	    "NvBootSpiClockSource_ClockM",
+	    nvbct_lib_id_spi_clock_source_clockm
+	},
+
+	{ "ClockSource_PllPOut0", nvbct_lib_id_spi_clock_source_pllp_out0 },
+	{ "ClockSource_PllCOut0", nvbct_lib_id_spi_clock_source_pllc_out0 },
+	{ "ClockSource_PllMOut0", nvbct_lib_id_spi_clock_source_pllm_out0 },
+	{ "ClockSource_ClockM",   nvbct_lib_id_spi_clock_source_clockm },
+
+
+	{ "PllPOut0", nvbct_lib_id_spi_clock_source_pllp_out0 },
+	{ "PllCOut0", nvbct_lib_id_spi_clock_source_pllc_out0 },
+	{ "PllMOut0", nvbct_lib_id_spi_clock_source_pllm_out0 },
+	{ "ClockM",   nvbct_lib_id_spi_clock_source_clockm },
+
+	{ NULL, 0 }
+};
+
+static field_item s_sdmmc_table[] = 
+{
+	{ "ClockDivider", token_clock_divider, field_type_u32,  NULL },
+	{ "DataWidth", token_data_width,
+		field_type_enum,  s_sdmmc_data_width_table },
+	{ "MaxPowerClassSupported", token_max_power_class_supported,
+		field_type_u32,  NULL },
+
+	{ NULL, 0, 0, NULL }
+};
+
+static field_item s_spiflash_table[] = 
+{
+	{ "ReadCommandTypeFast", token_read_command_type_fast,
+		field_type_u8,  NULL },
+	{ "ClockDivider", token_clock_divider, field_type_u8,  NULL },
+	{ "ClockSource", token_clock_source,
+		field_type_enum,  s_spi_clock_source_table },
+
+	{ NULL, 0, 0, NULL }
+};
+
+static parse_subfield_item s_device_type_table[] =
+{
+	{ "SdmmcParams.", token_sdmmc_params,
+		s_sdmmc_table, set_sdmmc_param },
+	{ "SpiFlashParams.", token_spiflash_params,
+		s_spiflash_table, set_spiflash_param },
+
+	{ NULL, 0, NULL }
+};
 
 static parse_item s_top_level_items[] =
 {
 	{ "Bctfile=",	token_bct_file,		parse_bct_file },
 	{ "Attribute=",	token_attribute,		parse_value_u32 },
 	{ "Attribute[",	token_attribute,		parse_array },
+	{ "PageSize=",	token_page_size,		parse_value_u32 },
+	{ "BlockSize=",	token_block_size,		parse_value_u32 },
+	{ "PartitionSize=",	token_partition_size,	parse_value_u32 },
+	{ "DevType[",	token_dev_type,		parse_array },
+	{ "DeviceParam[",	token_dev_param,		parse_dev_param },
 	{ "BootLoader=",	token_bootloader,		parse_bootloader },
 	{ "Redundancy=",	token_redundancy,		parse_value_u32 },
 	{ "Version=",	token_version,		parse_value_u32 },
@@ -120,6 +230,23 @@ parse_u32(char *statement, u_int32_t *val)
 	return statement;
 }
 
+char *
+parse_u8(char *statement, u_int32_t *val)
+{
+	char *retval;
+
+	retval = parse_u32(statement, val);
+
+	if (*val > 0xff) {
+		printf("Warning: Parsed 8-bit value that exceeded 8-bits.\n");
+		printf("         Parsed value = %d. Remaining text = %s\n",
+			 *val, retval);
+	}
+
+	return retval;
+}
+
+
 /* This parsing code was initially borrowed from nvcamera_config_parse.c. */
 /* Returns the address of the character after the parsed data. */
 static char *
@@ -152,6 +279,100 @@ parse_filename(char *statement, char *name, int chars_remaining)
 	return statement;
 }
 
+static char
+*parse_field_name(char *rest, field_item *field_table, field_item **field)
+{
+	u_int32_t i;
+	u_int32_t field_name_len = 0;
+
+	assert(field_table != NULL);
+	assert(rest != NULL);
+	assert(field != NULL);
+
+	while(*(rest + field_name_len) != '=')
+		field_name_len++;
+
+	/* Parse the field name. */
+	for (i = 0; field_table[i].name != NULL; i++) {
+		if ((strlen(field_table[i].name) == field_name_len) &&
+			!strncmp(field_table[i].name,
+			rest,
+			field_name_len)) {
+
+			*field = &(field_table[i]);
+			rest = rest + field_name_len;
+			return rest;
+		}
+	}
+
+	/* Field wasn't found or a parse error occurred. */
+	return NULL;
+}
+
+static char
+*parse_field_value(build_image_context *context, 
+			char *rest,
+			field_item *field,
+			u_int32_t *value)
+{
+	assert(rest != NULL);
+	assert(field != NULL);
+	assert((field->type != field_type_enum)
+		|| (field->enum_table != NULL));
+
+	switch (field->type) {
+	case field_type_enum:
+		rest = parse_enum(context, rest, field->enum_table, value);
+		break;
+
+	case field_type_u32:
+		rest = parse_u32(rest, value);
+		break;
+
+	case field_type_u8:
+		rest = parse_u8(rest, value);
+		break;
+
+	default:
+		printf("Unexpected field type %d at line %d\n",
+			field->type, __LINE__);
+		rest = NULL;
+		break;
+	}
+
+	return rest;
+}
+
+static char *
+parse_enum(build_image_context *context,
+		char *statement,
+		enum_item *table,
+		u_int32_t *val)
+{
+	int i;
+	char *rest;
+	int e;
+
+	for (i = 0; table[i].name != NULL; i++) {
+		if (!strncmp(table[i].name, statement,
+			strlen(table[i].name))) {
+		/* Lookup the correct value for the token. */
+		e = context->bctlib.get_value(table[i].value,
+				val, context->bct);
+		if (e) {
+			printf("Error looking up token %d.\n", table[i].value);
+			printf("\"%s\" is not valid for this chip.\n",
+					table[i].name);
+			*val = -1;
+		}
+
+		rest = statement + strlen(table[i].name);
+		return rest;
+		}
+	}
+	return parse_u32(statement, val);
+
+}
 /*
  * parse_bootloader(): Processes commands to set a bootloader.
  */
@@ -167,6 +388,8 @@ static int parse_bootloader(build_image_context *context,
 	assert(context != NULL);
 	assert(rest != NULL);
 
+	if (context->generate_bct != 0)
+		return 0;
 	/* Parse the file name. */
 	rest = parse_filename(rest, filename, MAX_BUFFER);
 	if (rest == NULL)
@@ -228,13 +451,16 @@ parse_array(build_image_context *context, parse_token token, char *rest)
 
 	/* Parse the value based on the field table. */
 	switch(token) {
-		case token_attribute:
-			rest = parse_u32(rest, &value);
-			break;
+	case token_attribute:
+		rest = parse_u32(rest, &value);
+		break;
+	case token_dev_type:
+		rest = parse_enum(context, rest, s_devtype_table, &value);
+		break;
 
-		default:
-		/* Unknown token */
-			return 1;
+	default:
+	/* Unknown token */
+		return 1;
 	}
 
 	if (rest == NULL)
@@ -394,6 +620,65 @@ parse_addon(build_image_context *context, parse_token token, char *rest)
 	return 0;
 }
 
+static int
+parse_dev_param(build_image_context *context, parse_token token, char *rest)
+{
+	u_int32_t i;
+	u_int32_t value;
+	field_item *field;
+	u_int32_t index;
+	parse_subfield_item *device_item = NULL;
+    
+	assert(context != NULL);
+	assert(rest != NULL);
+
+	/* Parse the index. */
+	rest = parse_u32(rest, &index);
+	if (rest == NULL)
+		return 1;
+
+	/* Parse the closing bracket. */
+	if (*rest != ']')
+		return 1;
+	rest++;
+
+	/* Parse the following '.' */
+	if (*rest != '.')
+		return 1;
+	rest++;
+
+	/* Parse the device name. */
+	for (i = 0; s_device_type_table[i].prefix != NULL; i++) {
+		if (!strncmp(s_device_type_table[i].prefix,
+			rest, strlen(s_device_type_table[i].prefix))) {
+
+			device_item = &(s_device_type_table[i]);
+			rest = rest + strlen(s_device_type_table[i].prefix);
+
+			/* Parse the field name. */
+			rest = parse_field_name(rest,
+				s_device_type_table[i].field_table,
+				&field);
+			if (rest == NULL)
+				return 1;
+
+			/* Parse the equals sign.*/
+			if (*rest != '=')
+				return 1;
+			rest++;
+
+			/* Parse the value based on the field table. */
+			rest = parse_field_value(context, rest, field, &value);
+			if (rest == NULL)
+				return 1;
+			return device_item->process(context,
+						index, field->token, value);
+		}
+	}
+
+    return 1;
+
+}
 /* Return 0 on success, 1 on error */
 static int
 process_statement(build_image_context *context, char *statement)

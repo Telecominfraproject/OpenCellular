@@ -28,6 +28,16 @@
 /* nvbctlib_ap20.c: The implementation of the nvbctlib API for AP20. */
 
 /* Definitions that simplify the code which follows. */
+#define CASE_GET_DEV_PARAM(dev, x) \
+case nvbct_lib_id_##dev##_##x:\
+	*data = bct_ptr->dev_params[set].dev##_params.x; \
+	break
+
+#define CASE_SET_DEV_PARAM(dev, x) \
+case nvbct_lib_id_##dev##_##x:\
+	bct_ptr->dev_params[set].dev##_params.x = data; \
+	break
+
 #define CASE_GET_BL_PARAM(x) \
 case nvbct_lib_id_bl_##x:\
 	*data = bct_ptr->bootloader[set].x; \
@@ -51,7 +61,7 @@ case nvbct_lib_id_##id:\
 
 #define CASE_GET_CONST_PREFIX(id, val_prefix) \
 case nvbct_lib_id_##id:\
-	*data = val_prefix##id; \
+	*data = val_prefix##_##id; \
 	break
 
 #define CASE_SET_NVU32(id) \
@@ -72,6 +82,68 @@ case nvbct_lib_id_##id:\
 	memcpy(&(bct_ptr->id), data, size);   \
 	break
 
+static int
+getdev_param(u_int32_t set,
+		nvbct_lib_id id,
+		u_int32_t *data,
+		u_int8_t *bct)
+{
+	nvboot_config_table *bct_ptr = (nvboot_config_table*)bct;
+
+	if (data == NULL || bct == NULL)
+		return -ENODATA;
+
+	switch (id) {
+	CASE_GET_DEV_PARAM(sdmmc, clock_divider);
+	CASE_GET_DEV_PARAM(sdmmc, data_width);
+	CASE_GET_DEV_PARAM(sdmmc, max_power_class_supported);
+
+	CASE_GET_DEV_PARAM(spiflash, clock_source);
+	CASE_GET_DEV_PARAM(spiflash, clock_divider);
+	CASE_GET_DEV_PARAM(spiflash, read_command_type_fast);
+
+	case nvbct_lib_id_dev_type:
+		*data = bct_ptr->dev_type[set];
+		break;
+
+	default:
+		return -ENODATA;
+	}
+
+	return 0;
+}
+
+static int
+setdev_param(u_int32_t set,
+		nvbct_lib_id id,
+		u_int32_t data,
+		u_int8_t *bct)
+{
+	nvboot_config_table *bct_ptr = (nvboot_config_table*)bct;
+
+	if (bct == NULL)
+		return -ENODATA;
+
+	switch (id) {
+	CASE_SET_DEV_PARAM(sdmmc, clock_divider);
+	CASE_SET_DEV_PARAM(sdmmc, data_width);
+	CASE_SET_DEV_PARAM(sdmmc, max_power_class_supported);
+
+	CASE_SET_DEV_PARAM(spiflash, clock_source);
+	CASE_SET_DEV_PARAM(spiflash, clock_divider);
+	CASE_SET_DEV_PARAM(spiflash, read_command_type_fast);
+
+	case nvbct_lib_id_dev_type:
+		bct_ptr->dev_type[set] = data;
+		break;
+
+	default:
+		return -ENODATA;
+	}
+
+	return 0;
+
+}
 
 static int
 getbl_param(u_int32_t set,
@@ -166,6 +238,7 @@ bct_get_value(nvbct_lib_id id, u_int32_t *data, u_int8_t *bct)
 	CASE_GET_NVU32(block_size_log2);
 	CASE_GET_NVU32(page_size_log2);
 	CASE_GET_NVU32(partition_size);
+	CASE_GET_NVU32(num_param_sets);
 	CASE_GET_NVU32(bootloader_used);
 
 	/*
@@ -199,6 +272,15 @@ bct_get_value(nvbct_lib_id id, u_int32_t *data, u_int8_t *bct)
 
 	CASE_GET_CONST(max_bct_search_blks, NVBOOT_MAX_BCT_SEARCH_BLOCKS);
 
+	CASE_GET_CONST_PREFIX(dev_type_sdmmc, nvboot);
+	CASE_GET_CONST_PREFIX(dev_type_spi, nvboot);
+	CASE_GET_CONST_PREFIX(sdmmc_data_width_4bit, nvboot);
+	CASE_GET_CONST_PREFIX(sdmmc_data_width_8bit, nvboot);
+	CASE_GET_CONST_PREFIX(spi_clock_source_pllp_out0, nvboot);
+	CASE_GET_CONST_PREFIX(spi_clock_source_pllc_out0, nvboot);
+	CASE_GET_CONST_PREFIX(spi_clock_source_pllm_out0, nvboot);
+	CASE_GET_CONST_PREFIX(spi_clock_source_clockm, nvboot);
+
 	default:
 		return -ENODATA;
 	}
@@ -221,6 +303,7 @@ bct_set_value(nvbct_lib_id id, u_int32_t  data, u_int8_t *bct)
 	CASE_SET_NVU32(block_size_log2);
 	CASE_SET_NVU32(page_size_log2);
 	CASE_SET_NVU32(partition_size);
+	CASE_SET_NVU32(num_param_sets);
 	CASE_SET_NVU32(bootloader_used);
 
 	default:
@@ -279,4 +362,8 @@ nvbct_lib_get_fns(nvbct_lib_fns *fns)
 
 	fns->getbl_param = getbl_param;
 	fns->setbl_param = setbl_param;
+
+	fns->getdev_param = getdev_param;
+	fns->setdev_param = setdev_param;
+
 }
