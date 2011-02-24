@@ -16,6 +16,7 @@ typedef struct Param {
   int is_string;     /* 0 if integer, 1 if string */
   int can_write;     /* 0 if read-only, 1 if writable */
   const char* desc;  /* Human-readable description */
+  const char* format; /* Format string, if non-NULL and 0==is_string*/
 } Param;
 
 /* List of parameters, terminated with a param with NULL name */
@@ -29,9 +30,9 @@ const Param sys_param_list[] = {
   {"wpsw_cur",  0, 0, "Firmware write protect switch current position"},
   {"wpsw_boot", 0, 0, "Firmware write protect switch position at boot"},
   {"recovery_reason",  0, 0, "Recovery mode reason for current boot"},
-  {"savedmem_base", 0, 0, "RAM debug data area physical address"},
+  {"savedmem_base", 0, 0, "RAM debug data area physical address", "0x%08x"},
   {"savedmem_size", 0, 0, "RAM debug data area size in bytes"},
-  {"fmap_base", 0, 0, "Main firmware flashmap physical address"},
+  {"fmap_base", 0, 0, "Main firmware flashmap physical address", "0x%08x"},
   /* Read-only strings */
   {"hwid", 1, 0, "Hardware ID"},
   {"fwid", 1, 0, "Active firmware ID"},
@@ -117,7 +118,7 @@ int PrintParam(const Param* p) {
     int v = VbGetSystemPropertyInt(p->name);
     if (v == -1)
       return 1;
-    printf("%d", v);
+    printf(p->format ? p->format : "%d", v);
   }
   return 0;
 }
@@ -140,7 +141,7 @@ int PrintAllParams(void) {
       if (v == -1)
         value = NULL;
       else {
-        snprintf(buf, sizeof(buf), "%d", v);
+        snprintf(buf, sizeof(buf), p->format ? p->format : "%d", v);
         value = buf;
       }
     }
