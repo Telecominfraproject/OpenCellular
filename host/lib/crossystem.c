@@ -63,6 +63,7 @@
 #define ACPI_CHSW_PATH ACPI_BASE_PATH "/CHSW"
 #define ACPI_FMAP_PATH ACPI_BASE_PATH "/FMAP"
 #define ACPI_GPIO_PATH ACPI_BASE_PATH "/GPIO"
+#define ACPI_VBNV_PATH ACPI_BASE_PATH "/VBNV"
 
 /* Base name for GPIO files */
 #define GPIO_BASE_PATH "/sys/class/gpio"
@@ -276,6 +277,104 @@ int VbSetCmosRebootField(uint8_t mask, int value) {
   return 0;
 }
 
+
+/* Read an integer property from VbNvStorage.
+ *
+ * Returns the parameter value, or -1 if error. */
+int VbGetNvStorage(VbNvParam param) {
+  FILE* f;
+  VbNvContext vnc;
+  int offs;
+  uint32_t value;
+  int retval;
+
+  /* Get the byte offset from VBNV */
+  offs = ReadFileInt(ACPI_VBNV_PATH ".0");
+  if (offs == -1)
+    return -1;
+  if (VBNV_BLOCK_SIZE > ReadFileInt(ACPI_VBNV_PATH ".1"))
+    return -1;  /* NV storage block is too small */
+
+  /* TODO: locking around NV access */
+  f = fopen(NVRAM_PATH, "rb");
+  if (!f)
+    return -1;
+
+  if (0 != fseek(f, offs, SEEK_SET) ||
+      1 != fread(vnc.raw, VBNV_BLOCK_SIZE, 1, f)) {
+    fclose(f);
+    return -1;
+  }
+
+  fclose(f);
+
+  if (0 != VbNvSetup(&vnc))
+    return -1;
+  retval = VbNvGet(&vnc, param, &value);
+  if (0 != VbNvTeardown(&vnc))
+    return -1;
+  if (0 != retval)
+    return -1;
+
+  /* TODO: If vnc.raw_changed, attempt to reopen NVRAM for write and
+   * save the new defaults.  If we're able to, log. */
+  /* TODO: release lock */
+
+  return (int)value;
+}
+
+
+/* Write an integer property to VbNvStorage.
+ *
+ * Returns 0 if success, -1 if error. */
+int VbSetNvStorage(VbNvParam param, int value) {
+  FILE* f;
+  VbNvContext vnc;
+  int offs;
+  int retval = -1;
+  int i;
+
+  /* Get the byte offset from VBNV */
+  offs = ReadFileInt(ACPI_VBNV_PATH ".0");
+  if (offs == -1)
+    return -1;
+  if (VBNV_BLOCK_SIZE > ReadFileInt(ACPI_VBNV_PATH ".1"))
+    return -1;  /* NV storage block is too small */
+
+  /* TODO: locking around NV access */
+  f = fopen(NVRAM_PATH, "w+b");
+  if (!f)
+    return -1;
+
+  if (0 != fseek(f, offs, SEEK_SET) ||
+      1 != fread(vnc.raw, VBNV_BLOCK_SIZE, 1, f)) {
+    goto VbSetNvCleanup;
+  }
+
+  if (0 != VbNvSetup(&vnc))
+    goto VbSetNvCleanup;
+  i = VbNvSet(&vnc, param, (uint32_t)value);
+  if (0 != VbNvTeardown(&vnc))
+    goto VbSetNvCleanup;
+  if (0 != i)
+    goto VbSetNvCleanup;
+
+  if (vnc.raw_changed) {
+    if (0 != fseek(f, offs, SEEK_SET) ||
+        1 != fwrite(vnc.raw, VBNV_BLOCK_SIZE, 1, f))
+      goto VbSetNvCleanup;
+  }
+
+  /* Success */
+  retval = 0;
+
+VbSetNvCleanup:
+  fclose(f);
+  /* TODO: release lock */
+  return retval;
+}
+
+
 /* Read the recovery reason.  Returns the reason code or -1 if error. */
 int VbGetRecoveryReason(void) {
   int value;
@@ -385,13 +484,20 @@ int VbGetSystemPropertyInt(const char* name) {
   } else if (!strcasecmp(name,"savedmem_size")) {
     return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00100000);
   }
-  /* NV storage values for older H2C BIOS */
+  /* NV storage values.  If unable to get from NV storage, fall back to the
+   * CMOS reboot field used by older BIOS. */
   else if (!strcasecmp(name,"recovery_request")) {
-    value = VbGetCmosRebootField(CMOSRF_RECOVERY);
+    value = VbGetNvStorage(VBNV_RECOVERY_REQUEST);
+    if (-1 == value)
+      value = VbGetCmosRebootField(CMOSRF_RECOVERY);
   } else if (!strcasecmp(name,"dbg_reset")) {
-    value = VbGetCmosRebootField(CMOSRF_DEBUG_RESET);
+    value = VbGetNvStorage(VBNV_DEBUG_RESET_MODE);
+    if (-1 == value)
+      value = VbGetCmosRebootField(CMOSRF_DEBUG_RESET);
   } else if (!strcasecmp(name,"fwb_tries")) {
-    value = VbGetCmosRebootField(CMOSRF_TRY_B);
+    value = VbGetNvStorage(VBNV_TRY_B_COUNT);
+    if (-1 == value)
+      value = VbGetCmosRebootField(CMOSRF_TRY_B);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"recovery_reason")) {
@@ -452,12 +558,19 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
  * Returns 0 if success, -1 if error. */
 int VbSetSystemPropertyInt(const char* name, int value) {
 
-  /* NV storage values for older H2C BIOS */
+  /* NV storage values.  If unable to get from NV storage, fall back to the
+   * CMOS reboot field used by older BIOS. */
   if (!strcasecmp(name,"recovery_request")) {
+    if (0 == VbSetNvStorage(VBNV_RECOVERY_REQUEST, value))
+      return 0;
     return VbSetCmosRebootField(CMOSRF_RECOVERY, value);
   } else if (!strcasecmp(name,"dbg_reset")) {
-    return VbSetCmosRebootField(CMOSRF_DEBUG_RESET, value);
+    if (0 == VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value))
+      return 0;
+    return  VbSetCmosRebootField(CMOSRF_DEBUG_RESET, value);
   } else if (!strcasecmp(name,"fwb_tries")) {
+    if (0 == VbSetNvStorage(VBNV_TRY_B_COUNT, value))
+      return 0;
     return VbSetCmosRebootField(CMOSRF_TRY_B, value);
   }
 
