@@ -486,7 +486,7 @@ int VbGetSystemPropertyInt(const char* name) {
   }
   /* NV storage values with no defaults for older BIOS. */
   else if (!strcasecmp(name,"tried_fwb")) {
-    value = VbGetNvStorage(VBNV_FW_USED_TRY_B);
+    value = VbGetNvStorage(VBNV_TRIED_FIRMWARE_B);
   }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */

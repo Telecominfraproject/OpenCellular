@@ -29,7 +29,7 @@ static VbNvField nvfields[] = {
   {VBNV_RECOVERY_REQUEST, 0, 0x42, 0xED, "recovery request"},
   {VBNV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},
   {VBNV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
-  {VBNV_FW_USED_TRY_B, 0, 1, 0, "firmware used try B"},
+  {VBNV_TRIED_FIRMWARE_B, 0, 1, 0, "tried firmware B"},
   {VBNV_FW_VERIFIED_KERNEL_KEY, 0, 1, 0, "firmware verified kernel key"},
   {0, 0, 0, 0, NULL}
 };

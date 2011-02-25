@@ -49,7 +49,7 @@ typedef enum VbNvParam {
   VBNV_KERNEL_FIELD,
   /* Firmware checked RW slot B before slot A on the current boot because
    * VBNV_TRY_B_COUNT was non-zero at that time.  0=no; 1=yes. */
-  VBNV_FW_USED_TRY_B,
+  VBNV_TRIED_FIRMWARE_B,
   /* Firmware verified the kernel key block signature using the key stored
    * in the firmware.  0=no, just used the key block hash; 1=yes, used the
    * key block signature. */
