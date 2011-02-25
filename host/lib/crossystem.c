@@ -484,6 +484,10 @@ int VbGetSystemPropertyInt(const char* name) {
   } else if (!strcasecmp(name,"savedmem_size")) {
     return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00100000);
   }
+  /* NV storage values with no defaults for older BIOS. */
+  else if (!strcasecmp(name,"tried_fwb")) {
+    value = VbGetNvStorage(VBNV_FW_USED_TRY_B);
+  }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */
   else if (!strcasecmp(name,"recovery_request")) {
@@ -545,6 +549,15 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
         return StrCopy(dest, "RO", size);
       case 1:
         return StrCopy(dest, "RW", size);
+      default:
+        return NULL;
+    }
+  } else if (!strcasecmp(name,"kernkey_vfy")) {
+    switch(VbGetNvStorage(VBNV_FW_VERIFIED_KERNEL_KEY)) {
+      case 0:
+        return "hash";
+      case 1:
+        return "sig";
       default:
         return NULL;
     }

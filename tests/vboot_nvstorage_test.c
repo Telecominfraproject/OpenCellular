@@ -2,7 +2,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Tests for firmware image library.
+ * Tests for firmware NV storage library.
  */
 
 #include <stdio.h>
@@ -13,9 +13,30 @@
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
 
+/* Single NV storage field to test */
+typedef struct VbNvField {
+  VbNvParam param;          /* Parameter index */
+  uint32_t default_value;   /* Expected default value */
+  uint32_t test_value;      /* Value to test writing */
+  uint32_t test_value2;     /* Second value to test writing */
+  char* desc;               /* Field description */
+} VbNvField;
+
+/* Array of fields to test, terminated with a field with desc==NULL. */
+static VbNvField nvfields[] = {
+  {VBNV_DEBUG_RESET_MODE, 0, 1, 0, "debug reset mode"},
+  {VBNV_TRY_B_COUNT, 0, 6, 15, "try B count"},
+  {VBNV_RECOVERY_REQUEST, 0, 0x42, 0xED, "recovery request"},
+  {VBNV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},
+  {VBNV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
+  {VBNV_FW_USED_TRY_B, 0, 1, 0, "firmware used try B"},
+  {VBNV_FW_VERIFIED_KERNEL_KEY, 0, 1, 0, "firmware verified kernel key"},
+  {0, 0, 0, 0, NULL}
+};
 
 static void VbNvStorageTest(void) {
 
+  VbNvField* vnf;
   VbNvContext c;
   uint8_t goodcrc;
   uint32_t data;
@@ -77,65 +98,20 @@ static void VbNvStorageTest(void) {
   /* That should have changed the CRC */
   TEST_NEQ(c.raw[15], goodcrc, "VbNvTeardown() CRC changed due to flags clear");
 
-  /* Test debug reset mode field */
+  /* Test other fields */
   VbNvSetup(&c);
-  TEST_EQ(VbNvGet(&c, VBNV_DEBUG_RESET_MODE, &data), 0,
-          "Get debug reset mode");
-  TEST_EQ(data, 0, "Debug reset mode default");
-  TEST_EQ(VbNvSet(&c, VBNV_DEBUG_RESET_MODE, 1), 0,
-          "Set debug reset mode");
-  VbNvGet(&c, VBNV_DEBUG_RESET_MODE, &data);
-  TEST_EQ(data, 1, "Debug reset mode set");
-  VbNvTeardown(&c);
+  for (vnf = nvfields; vnf->desc; vnf++) {
+    TEST_EQ(VbNvGet(&c, vnf->param, &data), 0, vnf->desc);
+    TEST_EQ(data, vnf->default_value, vnf->desc);
 
-  /* Test try B count */
-  VbNvSetup(&c);
-  TEST_EQ(VbNvGet(&c, VBNV_TRY_B_COUNT, &data), 0, "Get try b count");
-  TEST_EQ(data, 0, "Try b count default");
-  TEST_EQ(VbNvSet(&c, VBNV_TRY_B_COUNT, 6), 0, "Set try b count");
-  VbNvGet(&c, VBNV_TRY_B_COUNT, &data);
-  TEST_EQ(data, 6, "Try b count set");
-  VbNvSet(&c, VBNV_TRY_B_COUNT, 15);
-  VbNvGet(&c, VBNV_TRY_B_COUNT, &data);
-  TEST_EQ(data, 15, "Try b count set 2");
-  VbNvTeardown(&c);
+    TEST_EQ(VbNvSet(&c, vnf->param, vnf->test_value), 0, vnf->desc);
+    TEST_EQ(VbNvGet(&c, vnf->param, &data), 0, vnf->desc);
+    TEST_EQ(data, vnf->test_value, vnf->desc);
 
-  /* Test recovery request */
-  VbNvSetup(&c);
-  TEST_EQ(VbNvGet(&c, VBNV_RECOVERY_REQUEST, &data), 0, "Get recovery request");
-  TEST_EQ(data, 0, "Default recovery request");
-  TEST_EQ(VbNvSet(&c, VBNV_RECOVERY_REQUEST, 0x42), 0, "Set recovery request");
-  VbNvGet(&c, VBNV_RECOVERY_REQUEST, &data);
-  TEST_EQ(data, 0x42, "Set recovery request");
-  VbNvSet(&c, VBNV_RECOVERY_REQUEST, 0xED);
-  VbNvGet(&c, VBNV_RECOVERY_REQUEST, &data);
-  TEST_EQ(data, 0xED, "Set recovery request 2");
-  VbNvTeardown(&c);
-
-  /* Test localization index */
-  VbNvSetup(&c);
-  TEST_EQ(VbNvGet(&c, VBNV_LOCALIZATION_INDEX, &data), 0,
-          "Get localization index");
-  TEST_EQ(data, 0, "Default localization index");
-  TEST_EQ(VbNvSet(&c, VBNV_LOCALIZATION_INDEX, 0x69), 0,
-          "Set localization index");
-  VbNvGet(&c, VBNV_LOCALIZATION_INDEX, &data);
-  TEST_EQ(data, 0x69, "Set localization index");
-  VbNvSet(&c, VBNV_LOCALIZATION_INDEX, 0xB0);
-  VbNvGet(&c, VBNV_LOCALIZATION_INDEX, &data);
-  TEST_EQ(data, 0xB0, "Set localization index 2");
-  VbNvTeardown(&c);
-
-  /* Test kernel field */
-  VbNvSetup(&c);
-  TEST_EQ(VbNvGet(&c, VBNV_KERNEL_FIELD, &data), 0, "Get kernel field");
-  TEST_EQ(data, 0, "Default kernel field");
-  TEST_EQ(VbNvSet(&c, VBNV_KERNEL_FIELD, 0x12345678), 0, "Set kernel field");
-  VbNvGet(&c, VBNV_KERNEL_FIELD, &data);
-  TEST_EQ(data, 0x12345678, "Set kernel field");
-  VbNvSet(&c, VBNV_KERNEL_FIELD, 0xFEDCBA98);
-  VbNvGet(&c, VBNV_KERNEL_FIELD, &data);
-  TEST_EQ(data, 0xFEDCBA98, "Set kernel field 2");
+    TEST_EQ(VbNvSet(&c, vnf->param, vnf->test_value2), 0, vnf->desc);
+    TEST_EQ(VbNvGet(&c, vnf->param, &data), 0, vnf->desc);
+    TEST_EQ(data, vnf->test_value2, vnf->desc);
+  }
   VbNvTeardown(&c);
 
   /* None of those changes should have caused a reset to defaults */
@@ -149,10 +125,8 @@ static void VbNvStorageTest(void) {
   /* Verify writing identical settings doesn't cause the CRC to regenerate */
   VbNvSetup(&c);
   TEST_EQ(c.regenerate_crc, 0, "No regen CRC on open");
-  VbNvSet(&c, VBNV_DEBUG_RESET_MODE, 1);
-  VbNvSet(&c, VBNV_RECOVERY_REQUEST, 0xED);
-  VbNvSet(&c, VBNV_LOCALIZATION_INDEX, 0xB0);
-  VbNvSet(&c, VBNV_KERNEL_FIELD, 0xFEDCBA98);
+  for (vnf = nvfields; vnf->desc; vnf++)
+    TEST_EQ(VbNvSet(&c, vnf->param, vnf->test_value2), 0, vnf->desc);
   TEST_EQ(c.regenerate_crc, 0, "No regen CRC if data not changed");
   VbNvTeardown(&c);
   TEST_EQ(c.raw_changed, 0, "No raw change if data not changed");

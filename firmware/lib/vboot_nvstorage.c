@@ -14,17 +14,22 @@
  * bitfields so the data format is consistent across platforms and
  * compilers. */
 #define HEADER_OFFSET                0
-#define HEADER_MASK                    0xC0
-#define HEADER_SIGNATURE               0x40
-#define HEADER_FIRMWARE_SETTINGS_RESET 0x20
-#define HEADER_KERNEL_SETTINGS_RESET   0x10
+#define HEADER_MASK                     0xC0
+#define HEADER_SIGNATURE                0x40
+#define HEADER_FIRMWARE_SETTINGS_RESET  0x20
+#define HEADER_KERNEL_SETTINGS_RESET    0x10
 
 #define BOOT_OFFSET                  1
-#define BOOT_DEBUG_RESET_MODE          0x80
-#define BOOT_TRY_B_COUNT               0x0F
+#define BOOT_DEBUG_RESET_MODE           0x80
+#define BOOT_TRY_B_COUNT                0x0F
 
 #define RECOVERY_OFFSET              2
 #define LOCALIZATION_OFFSET          3
+
+#define FIRMWARE_FLAGS_OFFSET        5
+#define FIRMWARE_FW_USED_TRY_B          0x80
+#define FIRMWARE_FW_VERIFIED_KERNEL_KEY 0x40
+
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
 
@@ -120,6 +125,15 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
                | (raw[KERNEL_FIELD_OFFSET + 3] << 24));
       return 0;
 
+    case VBNV_FW_USED_TRY_B:
+      *dest = (raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_FW_USED_TRY_B ? 1 : 0);
+      return 0;
+
+    case VBNV_FW_VERIFIED_KERNEL_KEY:
+      *dest = (raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_FW_VERIFIED_KERNEL_KEY ?
+               1 : 0);
+      return 0;
+
     default:
       return 1;
   }
@@ -185,6 +199,20 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
       raw[KERNEL_FIELD_OFFSET + 1] = (uint8_t)(value >> 8);
       raw[KERNEL_FIELD_OFFSET + 2] = (uint8_t)(value >> 16);
       raw[KERNEL_FIELD_OFFSET + 3] = (uint8_t)(value >> 24);
+      break;
+
+    case VBNV_FW_USED_TRY_B:
+      if (value)
+        raw[FIRMWARE_FLAGS_OFFSET] |= FIRMWARE_FW_USED_TRY_B;
+      else
+        raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_FW_USED_TRY_B;
+      break;
+
+    case VBNV_FW_VERIFIED_KERNEL_KEY:
+      if (value)
+        raw[FIRMWARE_FLAGS_OFFSET] |= FIRMWARE_FW_VERIFIED_KERNEL_KEY;
+      else
+        raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_FW_VERIFIED_KERNEL_KEY;
       break;
 
     default:

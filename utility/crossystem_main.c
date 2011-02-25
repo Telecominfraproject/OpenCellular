@@ -33,6 +33,7 @@ const Param sys_param_list[] = {
   {"savedmem_base", 0, 0, "RAM debug data area physical address", "0x%08x"},
   {"savedmem_size", 0, 0, "RAM debug data area size in bytes"},
   {"fmap_base", 0, 0, "Main firmware flashmap physical address", "0x%08x"},
+  {"tried_fwb", 0, 0, "Tried firmware B before A this boot"},
   /* Read-only strings */
   {"hwid", 1, 0, "Hardware ID"},
   {"fwid", 1, 0, "Active firmware ID"},
@@ -40,6 +41,7 @@ const Param sys_param_list[] = {
   {"mainfw_act", 1, 0, "Active main firmware"},
   {"mainfw_type", 1, 0, "Active main firmware type"},
   {"ecfw_act", 1, 0, "Active EC firmware"},
+  {"kernkey_vfy", 1, 0, "Type of verification done on kernel key block"},
   /* Writable integers */
   {"recovery_request", 0, 1, "Recovery mode request (writable)"},
   {"dbg_reset", 0, 1, "Debug reset mode request (writable)"},
