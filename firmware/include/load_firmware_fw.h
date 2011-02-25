@@ -19,10 +19,10 @@
 
 /* Return codes for LoadFirmware() and S3Resume(). */
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */
-#define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode */
+#define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode.  The specific
+                                   * recovery reason has been set in
+                                   * VbNvContext (VBNV_RECOVERY_REQUEST). */
 #define LOAD_FIRMWARE_REBOOT 2    /* Reboot to same mode as current boot */
-#define LOAD_FIRMWARE_RECOVERY_TPM 3  /* Reboot to recovery mode due
-                                       * to TPM error */
 
 /* Boot flags for LoadFirmware().boot_flags */
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
@@ -81,6 +81,12 @@ int GetFirmwareBody(LoadFirmwareParams* params, uint64_t firmware_index);
 
 
 /* Functions provided by verified boot library to PEI */
+
+/* Early setup for LoadFirmware().  This should be called as soon as the TPM
+ * is available in the boot process.
+ *
+ * Returns LOAD_FIRMWARE_SUCCESS if successful, error code on failure. */
+int LoadFirmwareSetup(void);
 
 /* Attempts to load the rewritable firmware.
  *

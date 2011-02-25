@@ -225,8 +225,6 @@ const char* status_string(int status) {
       return "LOAD_FIRMWARE_RECOVERY";
     case LOAD_FIRMWARE_REBOOT:
       return "LOAD_FIRMWARE_REBOOT";
-    case LOAD_FIRMWARE_RECOVERY_TPM:
-      return "LOAD_FIRMWARE_RECOVERY_TPM";
     default:
       return NULL;
   }

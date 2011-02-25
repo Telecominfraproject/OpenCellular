@@ -10,6 +10,7 @@
 #include "rollback_index.h"
 #include "utility.h"
 #include "vboot_common.h"
+#include "vboot_nvstorage.h"
 
 /* Static variables for UpdateFirmwareBodyHash().  It's less than
  * optimal to have static variables in a library, but in UEFI the
@@ -31,32 +32,47 @@ void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
 }
 
 
+int LoadFirmwareSetup(void) {
+  /* TODO: start initializing the TPM */
+  return LOAD_FIRMWARE_SUCCESS;
+}
+
+
 int LoadFirmware(LoadFirmwareParams* params) {
 
   VbPublicKey* root_key = (VbPublicKey*)params->firmware_root_key_blob;
   VbLoadFirmwareInternal* lfi;
+  VbNvContext* vnc = params->nv_context;
 
+  uint32_t try_b_count;
   uint32_t tpm_version = 0;
   uint64_t lowest_version = 0xFFFFFFFF;
   uint32_t status;
   int good_index = -1;
   int is_dev;
   int index;
+  int i;
+
+  int retval = LOAD_FIRMWARE_RECOVERY;
+  int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
 
   /* Clear output params in case we fail */
   params->firmware_index = 0;
 
   VBDEBUG(("LoadFirmware started...\n"));
 
+  /* Setup NV storage */
+  VbNvSetup(vnc);
+
   if (params->kernel_sign_key_size < sizeof(VbPublicKey)) {
     VBDEBUG(("Kernel sign key buffer too small\n"));
-    return LOAD_FIRMWARE_RECOVERY;
+    goto LoadFirmwareExit;
   }
 
   /* Must have a root key */
   if (!root_key) {
     VBDEBUG(("No root key\n"));
-    return LOAD_FIRMWARE_RECOVERY;
+    goto LoadFirmwareExit;
   }
 
   /* Parse flags */
@@ -68,10 +84,19 @@ int LoadFirmware(LoadFirmwareParams* params) {
   if (0 != status) {
     VBDEBUG(("Unable to setup TPM and read stored versions.\n"));
     VBPERFEND("VB_TPMI");
-    return (status == TPM_E_MUST_REBOOT ?
-            LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
+    if (status == TPM_E_MUST_REBOOT)
+      retval = LOAD_FIRMWARE_REBOOT;
+    else
+      recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+    goto LoadFirmwareExit;
   }
   VBPERFEND("VB_TPMI");
+
+  /* Read try-b count and decrement if necessary */
+  VbNvGet(vnc, VBNV_TRY_B_COUNT, &try_b_count);
+  if (0 != try_b_count)
+    VbNvSet(vnc, VBNV_TRY_B_COUNT, try_b_count - 1);
+  VbNvSet(vnc, VBNV_TRIED_FIRMWARE_B, try_b_count ? 1 : 0);
 
   /* Allocate our internal data */
   lfi = (VbLoadFirmwareInternal*)Malloc(sizeof(VbLoadFirmwareInternal));
@@ -81,7 +106,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   params->load_firmware_internal = (uint8_t*)lfi;
 
   /* Loop over indices */
-  for (index = 0; index < 2; index++) {
+  for (i = 0; i < 2; i++) {
     VbKeyBlockHeader* key_block;
     uint64_t vblock_size;
     VbFirmwarePreambleHeader* preamble;
@@ -89,6 +114,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
     uint64_t key_version;
     uint64_t combined_version;
     uint8_t* body_digest;
+
+    /* If try B count is non-zero try firmware B first */
+    index = (try_b_count ? i : 1 - i);
 
     /* Verify the key block */
     VBPERFSTART("VB_VKB");
@@ -248,8 +276,11 @@ int LoadFirmware(LoadFirmwareParams* params) {
       VBPERFEND("VB_TPMU");
       if (0 != status) {
         VBDEBUG(("Unable to write stored versions.\n"));
-        return (status == TPM_E_MUST_REBOOT ?
-                LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
+        if (status == TPM_E_MUST_REBOOT)
+          retval = LOAD_FIRMWARE_REBOOT;
+        else
+          recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+        goto LoadFirmwareExit;
       }
     }
 
@@ -259,18 +290,29 @@ int LoadFirmware(LoadFirmwareParams* params) {
     VBPERFEND("VB_TPML");
     if (0 != status) {
       VBDEBUG(("Unable to lock firmware versions.\n"));
-      return (status == TPM_E_MUST_REBOOT ?
-              LOAD_FIRMWARE_REBOOT : LOAD_FIRMWARE_RECOVERY_TPM);
+      if (status == TPM_E_MUST_REBOOT)
+        retval = LOAD_FIRMWARE_REBOOT;
+      else
+        recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+      goto LoadFirmwareExit;
     }
 
     /* Success */
     VBDEBUG(("Will boot firmware index %d\n", (int)params->firmware_index));
-    return LOAD_FIRMWARE_SUCCESS;
+    retval = LOAD_FIRMWARE_SUCCESS;
+  } else {
+    /* No good firmware, so go to recovery mode. */
+    VBDEBUG(("Alas, no good firmware.\n"));
+    recovery = VBNV_RECOVERY_RO_INVALID_RW;
   }
 
-  /* If we're still here, no good firmware, so go to recovery mode. */
-  VBDEBUG(("Alas, no good firmware.\n"));
-  return LOAD_FIRMWARE_RECOVERY;
+LoadFirmwareExit:
+  /* Store recovery request, if any, then tear down non-volatile storage */
+  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_FIRMWARE_RECOVERY == retval ?
+          recovery : VBNV_RECOVERY_NOT_REQUESTED);
+  VbNvTeardown(vnc);
+
+  return retval;
 }
 
 
@@ -278,10 +320,11 @@ int S3Resume(void) {
   /* Resume the TPM */
   uint32_t status = RollbackS3Resume();
 
+  /* If we can't resume, just do a full reboot.  No need to go to recovery
+   * mode here, since if the TPM is really broken we'll catch it on the
+   * next boot. */
   if (status == TPM_SUCCESS)
     return LOAD_FIRMWARE_SUCCESS;
-  else if (status == TPM_E_MUST_REBOOT)
-    return LOAD_FIRMWARE_REBOOT;
   else
-    return LOAD_FIRMWARE_RECOVERY_TPM;
+    return LOAD_FIRMWARE_REBOOT;
 }

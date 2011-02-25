@@ -73,6 +73,11 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
 
   CallerInternal ci;
   LoadFirmwareParams p;
+  VbNvContext vnc;
+
+  /* TODO: YOU SHOULD CALL LoadFirmwareSetup() AS SOON AS THE TPM
+   * INTERFACE IS AVAILABLE */
+  LoadFirmwareSetup();
 
   /* Copy the firmware volume pointers to our global variables. */
   ci.firmwareA = firmwareA;
@@ -82,11 +87,14 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
   ci.firmwareA_size = 0;
   ci.firmwareB_size = 0;
 
+  /* TODO: YOU NEED TO LOAD vnc.raw[] FROM NON-VOLATILE STORAGE */
+
   /* Set up the params for LoadFirmware() */
   p.caller_internal = &ci;
   p.firmware_root_key_blob = root_key_blob;
   p.verification_block_0 = verification_headerA;
   p.verification_block_1 = verification_headerB;
+  p.nv_context = &vnc;
 
   /* Allocate a key blob buffer */
   p.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_REC_SIZE);
@@ -97,6 +105,11 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
 
   /* Call LoadFirmware() */
   rv = LoadFirmware(&p);
+
+  if (vnc.raw_changed) {
+    /* TODO: YOU NEED TO SAVE vnc.raw TO NON-VOLATILE STORAGE */
+  }
+
   if (LOAD_FIRMWARE_SUCCESS == rv) {
     /* TODO: YOU NEED TO KEEP TRACK OF p.kernel_sign_key_blob AND
      * p.kernel_sign_key_size SO YOU CAN PASS THEM TO LoadKernel(). */
