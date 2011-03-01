@@ -1,0 +1,2 @@
+Le périphérique que vous avez inséré ne contient pas Chrome OS.
+Essayez un autre?

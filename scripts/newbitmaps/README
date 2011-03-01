@@ -1,0 +1,110 @@
+This directory contains examples of the new-style BIOS bitmaps, and a simple
+(and ugly) tool to view the configuration file that describes how each
+screen is displayed.
+
+Old-style bitmaps:
+
+In the Cr-48 BIOS there are four BIOS screens that may be presented to the
+user. Each contains a graphic, a URL, and some informative text. The screens
+are single bitmap images, hardcoded in read-only BIOS (because they have to
+display even when the R/W BIOS and SSD are both completely erased). They can
+be replaced at manufacturing time, but creating the screens is difficult.
+The format is a compressed EFI firmware volume that is generated when the
+BIOS is compiled. The result is an opaque blob that cannot be viewed or
+edited with linux-based tools.
+
+
+New-style bitmaps:
+
+Future BIOSes will continue to display the same basic screens, but using a
+different format. Each screen will have separate bitmaps for the basic
+graphic, the URL, and the informative text, and will be displayed by
+rendering each component in order. This will allow us to modify and replace
+any bitmap (most frequently the HWID), using standard command-line tools
+such as imagemagick. Compositing each screen in this way also means that we
+can easily provide localized BIOS screens or custom messages.
+
+
+Note:
+
+Because the bitmap images and display code is part of the Read-Only BIOS,
+back-porting the new-style bitmaps to older devices is not possible.
+
+
+Instructions:
+
+The bmpblk_utility reads a config file and produces a binary bmpblock. The
+config file lists the individual bitmaps and describes where to place each
+one when displaying each screen. The bmpblock is then written into the BIOS
+image with the gbb_utility. The bitmap_viewer program lets you view the
+composited screens as described by the config file.
+
+* First, get the bitmap_viewer working. This is best used OUTSIDE of the
+  chroot. Test it by changing to the scripts/newbitmaps/images/1280x800
+  directory and running "../../bitmap_viewer unknown.yaml". You may need to
+  install some additional packages. For example, on Ubuntu you'll probably
+  need to install the "python-yaml" and "python-wxgtk2.8" packages.
+
+* Now make changes to the unknown.yaml config file, and use the
+  bitmap_viewer to see how the layout looks. Hit Ctrl-R in the small window
+  to reload the config file without restarting.
+
+* The bitmap_viewer can display images in several different formats, but the
+  BIOS is very limited (and may differ between x86 and ARM). For x86, ensure
+  that you're using the proper format by converting any new bitmaps with a
+  command like this:
+
+    convert IN.bmp -colors 256 -compress none -alpha off OUT.bmp
+
+* When you have the screens tweaked to your satisfaction, generate the
+  binary bmpblock to embed into the BIOS.
+
+    bmpblk_utility -c unknown.yaml bmpblock.bin
+
+* Use the gbb_utility to modify the BIOS to contain our new set of bitmaps.
+  We will need to pad our replacement bmpblock to match the size of the
+  original.
+
+  NOTE: These commands are run (as root) on the device under test!
+
+  NOTE: This will only work if the BIOS write-protection is disabled!
+
+  Copy our new bmpblock over.
+
+    cd /mnt/stateful_partition
+    scp USER@SOMEHOST:/SOMEPATH/bmpblock.bin .
+
+  Get a copy of the current BIOS.
+
+    flashrom -r bios.bin
+
+  Extract the current bmpblock from the BIOS, and see how big it is.
+
+    gbb_utility -g -b oldblob bios.bin
+    ls -l oldblob
+
+  Pad our bmpblock to the same size (for example, 253568 bytes)
+
+    dd if=bmpblock.bin bs=253568 count=1 of=newblob
+
+  Put our bmpblock in our copy of the BIOS
+
+    gbb_utility -s newblob bios.bin
+
+  Reflash the BIOS with the new content
+
+    flashrom -w bios.bin
+
+* Reboot. You should see your new bitmaps appear whenever the BIOS screens
+  are displayed. If you have more than one localization, you should be able
+  to cycle among them with the arrow keys.
+
+* If you want to examine a binary bmpblock that you've pulled from a BIOS
+  image, the bmpblk_utility has options to display or unpack the binary.
+
+    bmpblk_utility bmpblock.bin
+
+    bmpblk_utility -y bmpblock.bin
+
+    cd /SOME/SCRATCH/DIR
+    bmpblk_utility -x bmpblock.bin

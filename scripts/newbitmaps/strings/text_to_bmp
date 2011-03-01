@@ -1,0 +1,53 @@
+#!/bin/bash -e
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Render a text file into a bitmap.
+#
+
+# Image parameters
+bg='#607c91'
+bluecolor='#9ccaec'
+bluefont="Helvetica-Narrow"
+bluepointsize=19
+whitefont="Helvetica-Narrow"
+whitepointsize=30
+
+
+tmpdir=$(mktemp -d /tmp/tmp.bmp.XXXXXX)
+trap "rm -rf $tmpdir" EXIT
+label_file="${tmpdir}/label.txt"
+
+for txtfile in $*; do
+  bmpfile="${txtfile%.*}".bmp
+  perl -p -e 'BEGIN{ $/=undef; }' \
+    -e 's/^\s+//s;' -e 's/\s+$//s;' \
+    "$txtfile" > "$label_file"
+
+  case "$txtfile" in
+    *.txt)
+      convert \
+        -background "$bg" -fill "$bluecolor" \
+        -font "$bluefont" -pointsize "$bluepointsize" \
+        -bordercolor "$bg" -border 0x1 -gravity Center \
+        label:'@'"$label_file" \
+        -colors 256 -compress none -alpha off \
+        "$bmpfile"
+      echo "wrote $bmpfile"
+      ;;
+    *.TXT)
+      convert \
+        -background "$bg" -fill "white" \
+        -font "$whitefont" -pointsize "$whitepointsize" \
+        -bordercolor "$bg" -border 0x10 -gravity Center \
+        label:'@'"$label_file" \
+        -colors 256 -compress none -alpha off \
+        "$bmpfile"
+      echo "wrote $bmpfile"
+      ;;
+    *)
+      echo "Ignoring $txtfile. Filname should end with .txt or .TXT"
+      ;;
+  esac
+done

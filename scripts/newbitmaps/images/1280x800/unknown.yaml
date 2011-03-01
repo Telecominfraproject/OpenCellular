@@ -1,0 +1,164 @@
+
+bmpblock: 1.0
+
+compression: 1
+
+images:
+
+  # The HWID must change for every BOM
+
+  hwid:              hwid_unknown.bmp
+
+  # This URL never changes
+
+  url:               url.bmp
+
+  # These are from the UI people
+
+  devmode_bg:        Developer.bmp
+  remove_bg:         Recovery.bmp
+  yuck_bg:           RecoveryNoOS.bmp
+  insert_bg:         RecoveryMissingOS.bmp
+
+  # The following strings must be approved by the localization people
+
+  en_model:          en_model.bmp
+  en_devmode_text:   en_devmode_text.bmp
+  en_remove_text:    en_remove_text.bmp
+  en_yuck_text:      en_yuck_text.bmp
+  en_insert_text:    en_insert_text.bmp
+
+  de_model:          de_model.bmp
+  de_devmode_text:   de_devmode_text.bmp
+  de_remove_text:    de_remove_text.bmp
+  de_yuck_text:      de_yuck_text.bmp
+  de_insert_text:    de_insert_text.bmp
+
+  es_model:          es_model.bmp
+  es_devmode_text:   es_devmode_text.bmp
+  es_remove_text:    es_remove_text.bmp
+  es_yuck_text:      es_yuck_text.bmp
+  es_insert_text:    es_insert_text.bmp
+
+  fr_model:          fr_model.bmp
+  fr_devmode_text:   fr_devmode_text.bmp
+  fr_remove_text:    fr_remove_text.bmp
+  fr_yuck_text:      fr_yuck_text.bmp
+  fr_insert_text:    fr_insert_text.bmp
+
+screens:
+  en_devel:
+    - [  0,   0, devmode_bg]
+    - [274, 470, en_devmode_text]
+
+  en_remove:
+    - [ 0,    0, remove_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [264, 559, en_model]
+    - [198, 488, en_remove_text]
+
+  en_yuck:
+    - [ 0,    0, yuck_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [264, 559, en_model]
+    - [163, 488, en_yuck_text]
+
+  en_insert:
+    - [  0,   0, insert_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [264, 559, en_model]
+    - [277, 470, en_insert_text]
+
+
+  de_devel:
+    - [  0,   0, devmode_bg]
+    - [234, 452, de_devmode_text]
+
+  de_remove:
+    - [ 0,    0, remove_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [265, 559, de_model]
+    - [224, 470, de_remove_text]
+
+  de_yuck:
+    - [ 0,    0, yuck_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [265, 559, de_model]
+    - [216, 470, de_yuck_text]
+
+  de_insert:
+    - [  0,   0, insert_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [265, 559, de_model]
+    - [222, 470, de_insert_text]
+
+
+  es_devel:
+    - [  0,   0, devmode_bg]
+    - [165, 470, es_devmode_text]
+
+  es_remove:
+    - [ 0,    0, remove_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [260, 559, es_model]
+    - [122, 488, es_remove_text]
+
+  es_yuck:
+    - [ 0,    0, yuck_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [260, 559, es_model]
+    - [130, 470, es_yuck_text]
+
+  es_insert:
+    - [  0,   0, insert_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [260, 559, es_model]
+    - [202, 470, es_insert_text]
+
+
+
+  fr_devel:
+    - [  0,   0, devmode_bg]
+    - [195, 470, fr_devmode_text]
+
+  fr_remove:
+    - [ 0,    0, remove_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [260, 559, fr_model]
+    - [144, 488, fr_remove_text]
+
+  fr_yuck:
+    - [ 0,    0, yuck_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [260, 559, fr_model]
+    - [166, 470, fr_yuck_text]
+
+  fr_insert:
+    - [  0,   0, insert_bg]
+    - [324, 559, hwid]
+    - [195, 509, url]
+    - [260, 559, fr_model]
+    - [238, 470, fr_insert_text]
+
+
+
+localizations:
+
+  # This determines the order in which the localizations appear. The first
+  # one is the default.
+
+  - [ en_devel, en_remove, en_yuck, en_insert ]
+  - [ es_devel, es_remove, es_yuck, es_insert ]
+  - [ fr_devel, fr_remove, fr_yuck, fr_insert ]
+  - [ de_devel, de_remove, de_yuck, de_insert ]

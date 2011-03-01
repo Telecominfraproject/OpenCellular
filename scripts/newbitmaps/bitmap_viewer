@@ -1,0 +1,34 @@
+#!/usr/bin/python -tt
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+"""Quick-and-dirty viewer for bmpblock yaml files"""
+import os
+import sys
+import wx
+
+from lib import bmpblock
+from lib import pixcontrol
+from lib import pixdisplay
+
+class MyApp(wx.App):
+
+  def OnInit(self):
+    self._bmpblock = bmpblock.BmpBlock(sys.argv[1])
+    progname = os.path.basename(sys.argv[0])
+    self._mainframe = pixcontrol.Frame(self._bmpblock, progname)
+    self._mainframe.Show()
+    self.SetTopWindow(self._mainframe)
+    self._imgframe = pixdisplay.Frame(self._bmpblock, sys.argv[1])
+    self._imgframe.Show()
+    return True
+
+def main():
+  if len(sys.argv) != 2:
+    print "You must specify a config.yaml file to view"
+    sys.exit(1)
+  MyApp(False).MainLoop()
+
+if __name__ == '__main__':
+  main()
