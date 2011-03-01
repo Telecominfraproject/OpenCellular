@@ -43,10 +43,11 @@ const Param sys_param_list[] = {
   {"ecfw_act", 1, 0, "Active EC firmware"},
   {"kernkey_vfy", 1, 0, "Type of verification done on kernel key block"},
   /* Writable integers */
+  {"nvram_cleared", 0, 1, "Have NV settings been lost?  Write 0 to clear"},
+  {"kern_nv", 0, 1, "Non-volatile field for kernel use", "0x%08x"},
   {"recovery_request", 0, 1, "Recovery mode request (writable)"},
   {"dbg_reset", 0, 1, "Debug reset mode request (writable)"},
   {"fwb_tries", 0, 1, "Try firmware B count (writable)"},
-  {"kern_nv", 0, 1, "Non-volatile field for kernel use", "0x%08x"},
 
   /* TODO: implement the following:
    *   nvram_cleared

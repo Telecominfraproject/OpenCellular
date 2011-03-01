@@ -489,6 +489,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_TRIED_FIRMWARE_B);
   } else if (!strcasecmp(name,"kern_nv")) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+  } else if (!strcasecmp(name,"nvram_cleared")) {
+    value = VbGetNvStorage(VBNV_KERNEL_SETTINGS_RESET);
   }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */
@@ -511,10 +513,6 @@ int VbGetSystemPropertyInt(const char* name) {
   } else if (!strcasecmp(name,"fmap_base")) {
     value = ReadFileInt(ACPI_FMAP_PATH);
   }
-
-  /* TODO: implement the following properties:
-   *   nvram_cleared
-   */
 
   return value;
 }
@@ -574,7 +572,10 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
 int VbSetSystemPropertyInt(const char* name, int value) {
 
   /* NV storage values with no defaults for older BIOS. */
-  if (!strcasecmp(name,"kern_nv")) {
+  if (!strcasecmp(name,"nvram_cleared")) {
+    /* Can only clear this flag; it's set inside the NV storage library. */
+    return VbSetNvStorage(VBNV_KERNEL_SETTINGS_RESET, 0);
+  } else if (!strcasecmp(name,"kern_nv")) {
     return VbSetNvStorage(VBNV_KERNEL_FIELD, value);
   }
   /* NV storage values.  If unable to get from NV storage, fall back to the
@@ -592,10 +593,6 @@ int VbSetSystemPropertyInt(const char* name, int value) {
       return 0;
     return VbSetCmosRebootField(CMOSRF_TRY_B, value);
   }
-
-  /* TODO: implement the following:
-   *   nvram_cleared
-   */
 
   return -1;
 }

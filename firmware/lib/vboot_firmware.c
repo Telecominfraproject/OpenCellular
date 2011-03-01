@@ -116,10 +116,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     uint8_t* body_digest;
 
     /* If try B count is non-zero try firmware B first */
-    index = (try_b_count ? i : 1 - i);
-
-    /* Verify the key block */
-    VBPERFSTART("VB_VKB");
+    index = (try_b_count ? 1 - i : i);
     if (0 == index) {
       key_block = (VbKeyBlockHeader*)params->verification_block_0;
       vblock_size = params->verification_size_0;
@@ -127,14 +124,10 @@ int LoadFirmware(LoadFirmwareParams* params) {
       key_block = (VbKeyBlockHeader*)params->verification_block_1;
       vblock_size = params->verification_size_1;
     }
-    if ((0 != KeyBlockVerify(key_block, vblock_size, root_key, 0))) {
-      VBDEBUG(("Key block verification failed.\n"));
-      VBPERFEND("VB_VKB");
-      continue;
-    }
-    VBPERFEND("VB_VKB");
 
-    /* Check the key block flags against the current boot mode. */
+    /* Check the key block flags against the current boot mode.  Do this
+     * before verifying the key block, since flags are faster to check than
+     * the RSA signature. */
     if (!(key_block->key_block_flags &
           (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
            KEY_BLOCK_FLAG_DEVELOPER_0))) {
@@ -146,6 +139,15 @@ int LoadFirmware(LoadFirmwareParams* params) {
       VBDEBUG(("Recovery flag mismatch.\n"));
       continue;
     }
+
+    /* Verify the key block */
+    VBPERFSTART("VB_VKB");
+    if ((0 != KeyBlockVerify(key_block, vblock_size, root_key, 0))) {
+      VBDEBUG(("Key block verification failed.\n"));
+      VBPERFEND("VB_VKB");
+      continue;
+    }
+    VBPERFEND("VB_VKB");
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;

@@ -21,7 +21,7 @@
 
 #define BOOT_OFFSET                  1
 #define BOOT_DEBUG_RESET_MODE           0x80
-#define BOOT_TRY_B_COUNT                0x0F
+#define BOOT_TRY_B_COUNT_MASK           0x0F
 
 #define RECOVERY_OFFSET              2
 #define LOCALIZATION_OFFSET          3
@@ -107,7 +107,7 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
       return 0;
 
     case VBNV_TRY_B_COUNT:
-      *dest = raw[BOOT_OFFSET] & BOOT_TRY_B_COUNT;
+      *dest = raw[BOOT_OFFSET] & BOOT_TRY_B_COUNT_MASK;
       return 0;
 
     case VBNV_RECOVERY_REQUEST:
@@ -172,10 +172,10 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
 
     case VBNV_TRY_B_COUNT:
       /* Clip to valid range. */
-      if (value > BOOT_TRY_B_COUNT)
-        value = BOOT_TRY_B_COUNT - 1;
+      if (value > BOOT_TRY_B_COUNT_MASK)
+        value = BOOT_TRY_B_COUNT_MASK;
 
-      raw[BOOT_OFFSET] &= ~BOOT_TRY_B_COUNT;
+      raw[BOOT_OFFSET] &= ~BOOT_TRY_B_COUNT_MASK;
       raw[BOOT_OFFSET] |= (uint8_t)value;
       break;
 
