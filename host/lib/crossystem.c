@@ -487,6 +487,8 @@ int VbGetSystemPropertyInt(const char* name) {
   /* NV storage values with no defaults for older BIOS. */
   else if (!strcasecmp(name,"tried_fwb")) {
     value = VbGetNvStorage(VBNV_TRIED_FIRMWARE_B);
+  } else if (!strcasecmp(name,"kern_nv")) {
+    value = VbGetNvStorage(VBNV_KERNEL_FIELD);
   }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */
@@ -571,9 +573,13 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
  * Returns 0 if success, -1 if error. */
 int VbSetSystemPropertyInt(const char* name, int value) {
 
+  /* NV storage values with no defaults for older BIOS. */
+  if (!strcasecmp(name,"kern_nv")) {
+    return VbSetNvStorage(VBNV_KERNEL_FIELD, value);
+  }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */
-  if (!strcasecmp(name,"recovery_request")) {
+  else if (!strcasecmp(name,"recovery_request")) {
     if (0 == VbSetNvStorage(VBNV_RECOVERY_REQUEST, value))
       return 0;
     return VbSetCmosRebootField(CMOSRF_RECOVERY, value);
