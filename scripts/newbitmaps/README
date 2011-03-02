@@ -62,8 +62,6 @@ composited screens as described by the config file.
     bmpblk_utility -c unknown.yaml bmpblock.bin
 
 * Use the gbb_utility to modify the BIOS to contain our new set of bitmaps.
-  We will need to pad our replacement bmpblock to match the size of the
-  original.
 
   NOTE: These commands are run (as root) on the device under test!
 
@@ -78,18 +76,9 @@ composited screens as described by the config file.
 
     flashrom -r bios.bin
 
-  Extract the current bmpblock from the BIOS, and see how big it is.
-
-    gbb_utility -g -b oldblob bios.bin
-    ls -l oldblob
-
-  Pad our bmpblock to the same size (for example, 253568 bytes)
-
-    dd if=bmpblock.bin bs=253568 count=1 of=newblob
-
   Put our bmpblock in our copy of the BIOS
 
-    gbb_utility -s newblob bios.bin
+    gbb_utility -s -b bmpblock.bin bios.bin
 
   Reflash the BIOS with the new content
 
@@ -106,5 +95,4 @@ composited screens as described by the config file.
 
     bmpblk_utility -y bmpblock.bin
 
-    cd /SOME/SCRATCH/DIR
-    bmpblk_utility -x bmpblock.bin
+    bmpblk_utility -x -d /SOME/SCRATCH/DIR bmpblock.bin
