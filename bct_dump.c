@@ -99,17 +99,17 @@ main(int argc, char *argv[])
 	}
 
 	e = context.bctlib.get_value(nvbct_lib_id_bootloader_used,
-								 &bootloaders_used,
-								 context.bct);
+				     &bootloaders_used,
+				     context.bct);
 
 	for (i = 0; (e == 0) && (i < bootloaders_used); ++i) {
 		printf("Bootloader[%d]\n", i);
 
 		for (j = 0; j < sizeof(bl_values) / sizeof(bl_values[0]); ++j) {
 			e = context.bctlib.getbl_param(i,
-										   bl_values[j].id,
-										   &data,
-										   context.bct);
+						       bl_values[j].id,
+						       &data,
+						       context.bct);
 			printf(bl_values[j].message, e == 0 ? data : -1);
 		}
 	}

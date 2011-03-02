@@ -32,9 +32,9 @@ query_alloc(build_image_context *context,
         u_int32_t size;
 
         /* Note: 3rd argument not used in this particular query. */
-        if (context->bctlib.get_value(size_id,
-                        &size, context->bct) != 0)
+        if (context->bctlib.get_value(size_id, &size, context->bct) != 0)
                 return -ENODATA;
+
         *dst = malloc(size);
 
         if (*dst == NULL)
