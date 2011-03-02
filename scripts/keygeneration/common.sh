@@ -1,11 +1,11 @@
 #!/bin/bash
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-#
-# Generate .vbpubk and .vbprivk pairs for use by developer builds. These should
-# be exactly like the real keys except that the private keys aren't secret.
 
+# Common key generation functions.
+
+SCRIPT_DIR="$(dirname "$0")"
 
 # 0 = (RSA1024 SHA1)
 # 1 = (RSA1024 SHA256)
@@ -89,39 +89,4 @@ function make_keyblock {
     --signpubkey "${signkey}.vbpubk"
 }
 
-
-
-# Create the normal keypairs
-make_pair root_key                 11
-make_pair firmware_data_key        7
-make_pair dev_firmware_data_key    7
-make_pair kernel_subkey            7
-make_pair kernel_data_key          4
-
-# Create the recovery and factory installer keypairs
-make_pair recovery_key             11
-make_pair recovery_kernel_data_key 11
-make_pair installer_kernel_data_key 11
-
-# Create the firmware keyblock for use only in Normal mode. This is redundant,
-# since it's never even checked during Recovery mode.
-make_keyblock firmware 7 firmware_data_key root_key
-
-# Create the dev firmware keyblock for use only in Developer mode.
-make_keyblock dev_firmware 6 dev_firmware_data_key root_key
-
-# Create the recovery kernel keyblock for use only in Recovery mode.
-make_keyblock recovery_kernel 11 recovery_kernel_data_key recovery_key
-
-# Create the normal kernel keyblock for use only in Normal mode.
-make_keyblock kernel 7 kernel_data_key kernel_subkey
-
-# Create the installer keyblock for use in Developer + Recovery mode
-# For use in Factory Install and Developer Mode install shims.
-make_keyblock installer_kernel 10 installer_kernel_data_key recovery_key
-
-# CAUTION: The public parts of most of these blobs must be compiled into the
-# firmware, which is built separately (and some of which can't be changed after
-# manufacturing). If you update these keys, you must coordinate the changes
-# with the BIOS people or you'll be unable to boot the resulting images.
 

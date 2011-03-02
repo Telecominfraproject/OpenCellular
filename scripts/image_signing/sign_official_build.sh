@@ -261,6 +261,8 @@ resign_firmware_payload() {
   ${SCRIPT_DIR}/resign_firmwarefd.sh ${temp_outfd} ${shellball_dir}/bios.bin \
     ${KEY_DIR}/firmware_data_key.vbprivk \
     ${KEY_DIR}/firmware.keyblock \
+    ${KEY_DIR}/dev_firmware_data_key.vbprivk \
+    ${KEY_DIR}/dev_firmware.keyblock \
     ${KEY_DIR}/kernel_subkey.vbpubk \
     ${FIRMWARE_VERSION}
 

@@ -54,9 +54,9 @@
 set -e
 
 # Check arguments
-if [ $# -lt 5 ] || [ $# -gt 6 ]; then
+if [ $# -lt 7 ] || [ $# -gt 8 ]; then
   echo "Usage: $PROG src_fd dst_fd firmware_datakey firmware_keyblock"\
-   "kernel_subkey [version]"
+   "dev_firmware_datakey dev_firmware_keyblock kernel_subkey [version]"
   exit 1
 fi
 
@@ -70,8 +70,10 @@ SRC_FD=$1
 DST_FD=$2
 FIRMWARE_DATAKEY=$3
 FIRMWARE_KEYBLOCK=$4
-KERNEL_SUBKEY=$5
-VERSION=$6
+DEV_FIRMWARE_DATAKEY=$5
+DEV_FIRMWARE_KEYBLOCK=$6
+KERNEL_SUBKEY=$7
+VERSION=$8
 
 if [ -z $VERSION ]; then
   VERSION=1
@@ -105,15 +107,16 @@ done
 temp_fwimage=$(make_temp_file)
 temp_out_vb=$(make_temp_file)
 
-# Extract out Firmware A data and generate signature using the right keys
+# Extract out Firmware A data and generate signature using the right keys.
+# Firmware A is the dev firmware.
 dd if="${SRC_FD}" of="${temp_fwimage}" skip="${fwA_offset}" bs=1 \
   count="${fwA_size}"
 
 echo "Re-calculating Firmware A vblock"
 vbutil_firmware \
   --vblock "${temp_out_vb}" \
-  --keyblock "${FIRMWARE_KEYBLOCK}" \
-  --signprivate "${FIRMWARE_DATAKEY}" \
+  --keyblock "${DEV_FIRMWARE_KEYBLOCK}" \
+  --signprivate "${DEV_FIRMWARE_DATAKEY}" \
   --version "${VERSION}" \
   --fv "${temp_fwimage}" \
   --kernelkey "${KERNEL_SUBKEY}"
@@ -123,7 +126,7 @@ cp "${SRC_FD}" "${DST_FD}"
 dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
   count="${fwA_vblock_size}" conv=notrunc
 
-# Repeat for firmware B
+# Firmware B is the normal firmware.
 dd if="${SRC_FD}" of="${temp_fwimage}" skip="${fwB_offset}" bs=1 \
   count="${fwB_size}"
 echo "Re-calculating Firmware B vblock"
