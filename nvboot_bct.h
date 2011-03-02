@@ -24,6 +24,7 @@
 #define INCLUDED_NVBOOT_BCT_H
 
 #include <sys/types.h>
+#include "nvboot_sdram_param.h"
 
 /**
  * Defines the number of 32-bit words in the customer_data area of the BCT.
@@ -46,13 +47,17 @@
  */
 #define NVBOOT_MAX_BOOTLOADERS         4
 
-#define NVBOOT_BCT_USED_DATA_SIZE	2052
-
 /**
  * Defines the maximum number of device parameter sets in the BCT.
  * The value must be equal to (1 << # of device straps)
  */
 #define NVBOOT_BCT_MAX_PARAM_SETS      4
+
+/**
+ * Defines the maximum number of SDRAM parameter sets in the BCT.
+ * The value must be equal to (1 << # of SDRAM straps)
+ */
+#define NVBOOT_BCT_MAX_SDRAM_SETS      4
 
 /**
  * Defines the number of entries (bits) in the bad block table.
@@ -99,6 +104,28 @@ typedef struct nvboot_hash_rec
 	u_int32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
 } nvboot_hash;
 
+/// Defines the params that can be configured for NAND devices.
+typedef struct nvboot_nand_params_rec{
+	/**
+	 * Specifies the clock divider for the PLL_P 432MHz source.
+	 * If it is set to 18, then clock source to Nand controller is
+	 * 432 / 18 = 24MHz.
+	 */
+	u_int8_t clock_divider;
+
+	/// Specifies the value to be programmed to Nand Timing Register 1
+	u_int32_t nand_timing;
+
+	/// Specifies the value to be programmed to Nand Timing Register 2
+	u_int32_t nand_timing2;
+
+	/// Specifies the block size in log2 bytes
+	u_int8_t block_size_log2;
+
+	/// Specifies the page size in log2 bytes
+	u_int8_t page_size_log2;
+} nvboot_nand_params;
+
 /// Defines various data widths supported.
 typedef enum
 {
@@ -143,7 +170,6 @@ typedef struct nvboot_sdmmc_params_rec
 	 * data width cannot be used at the chosen clock frequency.
 	 */
 	u_int8_t max_power_class_supported;
-	u_int32_t reserved;
 } nvboot_sdmmc_params;
 
 typedef enum 
@@ -199,6 +225,8 @@ typedef struct nvboot_spiflash_params_rec
 * Defines the union of the parameters required by each device.
 */
 typedef union{
+	/// Specifies optimized parameters for NAND
+	nvboot_nand_params nand_params;
 	/// Specifies optimized parameters for eMMC and eSD
 	nvboot_sdmmc_params sdmmc_params;
 	/// Specifies optimized parameters for SPI NOR
@@ -215,6 +243,9 @@ typedef enum
 {
 	/// Specifies a default (unset) value.
 	nvboot_dev_type_none = 0,
+
+	/// Specifies NAND.
+	nvboot_dev_type_nand,
 
 	/// Specifies SPI NOR.
 	nvboot_dev_type_spi = 3,
@@ -276,7 +307,8 @@ typedef struct nvboot_config_table_rec
 	u_int32_t num_param_sets;
 	nvboot_dev_type dev_type[NVBOOT_BCT_MAX_PARAM_SETS];
 	nvboot_dev_params dev_params[NVBOOT_BCT_MAX_PARAM_SETS];
-	u_int8_t bct_used_data[NVBOOT_BCT_USED_DATA_SIZE];
+	u_int32_t num_sdram_sets;
+	nvboot_sdram_params sdram_params[NVBOOT_BCT_MAX_SDRAM_SETS];
 	nvboot_badblock_table badblock_table;
 	u_int32_t bootloader_used;
 	nv_bootloader_info bootloader[NVBOOT_MAX_BOOTLOADERS];
@@ -285,5 +317,4 @@ typedef struct nvboot_config_table_rec
 	u_int8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
 } nvboot_config_table;
 
-/** @} */
 #endif /* #ifndef INCLUDED_NVBOOT_BCT_H */
