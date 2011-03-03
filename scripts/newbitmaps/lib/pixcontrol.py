@@ -15,6 +15,7 @@ class Frame(wx.Frame):
     m_about = menuFile.Append(wx.ID_ANY, "About...\tCtrl+A")
     menuFile.AppendSeparator()
     m_reload = menuFile.Append(wx.ID_ANY, "Reload\tCtrl+R")
+    m_snapshot = menuFile.Append(wx.ID_ANY, "Save snapshot")
     m_quit = menuFile.Append(wx.ID_ANY, "Quit\tCtrl+Q")
     menuBar = wx.MenuBar()
     menuBar.Append(menuFile, "&File")
@@ -22,6 +23,7 @@ class Frame(wx.Frame):
     self.CreateStatusBar()
     self.Bind(wx.EVT_MENU, self.OnAbout, m_about)
     self.Bind(wx.EVT_MENU, self.OnReload, m_reload)
+    self.Bind(wx.EVT_MENU, self.OnSaveit, m_snapshot)
     self.Bind(wx.EVT_MENU, self.OnQuit, m_quit)
     self.Bind(wx.EVT_CLOSE, self.OnQuit)
 
@@ -77,6 +79,10 @@ class Frame(wx.Frame):
     self.bmpblock.Reload()
     self.do_update = True;
     self.UpdateControls()
+
+  def OnSaveit(self, event):
+    """Tell the model object to save the view that the user sees."""
+    self.bmpblock.Saveit()
 
   def OnSelected(self, event):
     """User may have picked one of the pulldowns."""

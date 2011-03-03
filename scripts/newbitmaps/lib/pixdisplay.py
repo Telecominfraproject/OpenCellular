@@ -37,6 +37,24 @@ class MyPanel(wx.Panel):
       bmp = img.ConvertToBitmap()
       dc.DrawBitmap(bmp, x, y)
 
+  def OnSave(self, name):
+    """Draw the current image sequence into a file."""
+    dc = wx.MemoryDC()
+    done_first = False
+    for x, y, filename in self.imglist:
+      img = wx.Image(filename, wx.BITMAP_TYPE_ANY)
+      if (not done_first):
+        w,h = img.GetSize()
+        base = wx.EmptyBitmap(w,h)
+        dc.SelectObject(base)
+        done_first = True
+      bmp = img.ConvertToBitmap()
+      dc.DrawBitmap(bmp, x, y)
+    new = wx.ImageFromBitmap(base)
+    outfile = name + '.png'
+    new.SaveFile(outfile, wx.BITMAP_TYPE_PNG)
+    print "wrote", outfile
+
 
 class Frame(wx.Frame):
 
@@ -60,3 +78,7 @@ class Frame(wx.Frame):
     self.SetStatusText(name)
     self.p.imglist = imglist
     self.p.OnPaint()
+
+  def SaveScreen(self, name, imglist):
+    self.p.imglist = imglist
+    self.p.OnSave(name)

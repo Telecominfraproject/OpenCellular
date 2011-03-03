@@ -102,3 +102,11 @@ class BmpBlock(object):
         sc = self.yaml['screens'][self.current_screen]
         slist = [(x,y,self.yaml['images'][z]) for x,y,z in sc]
         self.displayer.DisplayScreen(self.current_screen, slist)
+
+  def Saveit(self):
+    """Save current screen to file."""
+    if self.displayer:
+      if self.current_screen:
+        sc = self.yaml['screens'][self.current_screen]
+        slist = [(x,y,self.yaml['images'][z]) for x,y,z in sc]
+        self.displayer.SaveScreen(self.current_screen, slist)
