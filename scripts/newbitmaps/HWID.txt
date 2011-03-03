@@ -31,7 +31,7 @@ Here's how to generate a new bitmap blob with a modified HWID
    starts with "hwid:" to refer to your new hwid.bmp file (or replace the
    existing hwid bitmap file with your new one).
 
-7. Run "bmpblock_utility -c unknown.yaml new_bitmaps.bin", to create the new
+7. Run "bmpblk_utility -c unknown.yaml new_bitmaps.bin", to create the new
    bitmap blob.
 
 8. Install the new_bitmaps.bin on your device (see below).
