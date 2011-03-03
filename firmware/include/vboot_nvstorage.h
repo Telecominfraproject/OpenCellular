@@ -85,6 +85,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RW_INVALID_OS   0x43
 /* TPM error in rewritable firmware */
 #define VBNV_RECOVERY_RW_TPM_ERROR    0x44
+/* RW firmware in dev mode, but dev switch is off */
+#define VBNV_RECOVERY_RW_DEV_MISMATCH 0x45
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */

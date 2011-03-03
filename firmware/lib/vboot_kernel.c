@@ -18,6 +18,12 @@
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 
+typedef enum BootMode {
+  kBootNormal,   /* Normal firmware */
+  kBootDev,      /* Dev firmware AND dev switch is on */
+  kBootRecovery  /* Recovery firmware, regardless of dev switch position */
+} BootMode;
+
 
 /* Allocates and reads GPT data from the drive.  The sector_bytes and
  * drive_sectors fields should be filled on input.  The primary and
@@ -112,6 +118,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
 __pragma(warning(disable: 4127))
 
 int LoadKernel(LoadKernelParams* params) {
+  VbNvContext* vnc = params->nv_context;
   VbPublicKey* kernel_subkey;
   GptData gpt;
   uint64_t part_start, part_size;
@@ -120,12 +127,21 @@ int LoadKernel(LoadKernelParams* params) {
   uint8_t* kbuf = NULL;
   int found_partitions = 0;
   int good_partition = -1;
+  int good_partition_key_block_valid = 0;
   uint32_t tpm_version = 0;
   uint64_t lowest_version = 0xFFFFFFFF;
-  int is_dev;
-  int is_rec;
-  int is_normal;
+  int rec_switch, dev_switch;
+  BootMode boot_mode;
   uint32_t status;
+
+  /* TODO: differentiate between finding an invalid kernel (found_partitions>0)
+   * and not finding one at all.  Right now we treat them the same, and return
+   * LOAD_KERNEL_INVALID for both. */
+  int retval = LOAD_KERNEL_INVALID;
+  int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
+
+  /* Setup NV storage */
+  VbNvSetup(vnc);
 
   /* Sanity Checks */
   if (!params ||
@@ -134,7 +150,7 @@ int LoadKernel(LoadKernelParams* params) {
       !params->kernel_buffer ||
       !params->kernel_buffer_size) {
     VBDEBUG(("LoadKernel() called with invalid params\n"));
-    return LOAD_KERNEL_INVALID;
+    goto LoadKernelExit;
   }
 
   /* Initialization */
@@ -143,20 +159,28 @@ int LoadKernel(LoadKernelParams* params) {
   kbuf_sectors = KBUF_SIZE / blba;
   if (0 == kbuf_sectors) {
     VBDEBUG(("LoadKernel() called with sector size > KBUF_SIZE\n"));
-    return LOAD_KERNEL_INVALID;
+    goto LoadKernelExit;
   }
 
-  is_rec = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
-  if (is_rec || (BOOT_FLAG_DEV_FIRMWARE & params->boot_flags)) {
-    /* Recovery or developer firmware, so accurately represent the
-     * state of the developer switch for the purposes of verified boot. */
-    is_dev = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
-  } else {
-    /* Normal firmware always does a fully verified boot regardless of
-     * the state of the developer switch. */
-    is_dev = 0;
+  rec_switch = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
+  dev_switch = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
+
+  if (rec_switch)
+    boot_mode = kBootRecovery;
+  else if (BOOT_FLAG_DEV_FIRMWARE & params->boot_flags)
+    if (!dev_switch) {
+      /* Dev firmware should be signed such that it never boots with the dev
+       * switch is off; so something is terribly wrong. */
+      VBDEBUG(("LoadKernel() called with dev firmware but dev switch off\n"));
+      recovery = VBNV_RECOVERY_RW_DEV_MISMATCH;
+      goto LoadKernelExit;
+    }
+    boot_mode = kBootDev;
+  else {
+    /* Normal firmware */
+    boot_mode = kBootNormal;
+    dev_switch = 0;  /* Always do a fully verified boot */
   }
-  is_normal = (!is_dev && !is_rec);
 
   /* Clear output params in case we fail */
   params->partition_number = 0;
@@ -164,22 +188,23 @@ int LoadKernel(LoadKernelParams* params) {
   params->bootloader_size = 0;
 
   /* Let the TPM know if we're in recovery mode */
-  if (is_rec) {
-    if (0 != RollbackKernelRecovery(is_dev)) {
+  if (kBootRecovery == boot_mode) {
+    if (0 != RollbackKernelRecovery(dev_switch)) {
       VBDEBUG(("Error setting up TPM for recovery kernel\n"));
       /* Ignore return code, since we need to boot recovery mode to
        * fix the TPM. */
     }
-  }
-
-  if (is_normal) {
+  } else {
     /* Read current kernel key index from TPM.  Assumes TPM is already
      * initialized. */
     status = RollbackKernelRead(&tpm_version);
     if (0 != status) {
       VBDEBUG(("Unable to get kernel versions from TPM\n"));
-      return (status == TPM_E_MUST_REBOOT ?
-              LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
+      if (status == TPM_E_MUST_REBOOT)
+        retval = LOAD_KERNEL_REBOOT;
+      else
+        recovery = VBNV_RECOVERY_RW_TPM_ERROR;
+      goto LoadKernelExit;
     }
   }
 
@@ -213,6 +238,7 @@ int LoadKernel(LoadKernelParams* params) {
       uint64_t body_offset;
       uint64_t body_offset_sectors;
       uint64_t body_sectors;
+      int key_block_valid = 1;
 
       VBDEBUG(("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
               part_start, part_size));
@@ -220,7 +246,7 @@ int LoadKernel(LoadKernelParams* params) {
       /* Found at least one kernel partition. */
       found_partitions++;
 
-      /* Read the first part of the kernel partition  */
+      /* Read the first part of the kernel partition. */
       if (part_size < kbuf_sectors) {
         VBDEBUG(("Partition too small to hold kernel.\n"));
         goto bad_kernel;
@@ -231,42 +257,54 @@ int LoadKernel(LoadKernelParams* params) {
         goto bad_kernel;
       }
 
-      /* Verify the key block.  In developer mode, we ignore the key
-       * and use only the SHA-512 hash to verify the key block. */
+      /* Verify the key block. */
       key_block = (VbKeyBlockHeader*)kbuf;
-      if ((0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey,
-                               is_dev && !is_rec))) {
-        VBDEBUG(("Verifying key block failed.\n"));
-        goto bad_kernel;
-      }
+      if (0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey, 0)) {
+        VBDEBUG(("Verifying key block signature failed.\n"));
+        key_block_valid = 0;
 
-      /* Check the key block flags against the current boot mode in normal
-       * and recovery modes (not in developer mode booting from SSD). */
-      if (is_rec || is_normal) {
-        if (!(key_block->key_block_flags &
-              (is_dev ? KEY_BLOCK_FLAG_DEVELOPER_1 :
-               KEY_BLOCK_FLAG_DEVELOPER_0))) {
-          VBDEBUG(("Developer flag mismatch.\n"));
+        /* If we're not in developer mode, this kernel is bad. */
+        if (kBootDev != boot_mode)
           goto bad_kernel;
-        }
-        if (!(key_block->key_block_flags &
-              (is_rec ? KEY_BLOCK_FLAG_RECOVERY_1 :
-               KEY_BLOCK_FLAG_RECOVERY_0))) {
-          VBDEBUG(("Recovery flag mismatch.\n"));
+
+        /* In developer mode, we can continue if the SHA-512 hash of the key
+         * block is valid. */
+        if (0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey, 1)) {
+          VBDEBUG(("Verifying key block hash failed.\n"));
           goto bad_kernel;
         }
       }
 
-      /* Check for rollback of key version.  Note this is implicitly
-       * skipped in recovery and developer modes because those set
-       * key_version=0 above. */
+      /* Check the key block flags against the current boot mode. */
+      if (!(key_block->key_block_flags &
+            (dev_switch ? KEY_BLOCK_FLAG_DEVELOPER_1 :
+             KEY_BLOCK_FLAG_DEVELOPER_0))) {
+        VBDEBUG(("Key block developer flag mismatch.\n"));
+        key_block_valid = 0;
+      }
+      if (!(key_block->key_block_flags &
+            (rec_switch ? KEY_BLOCK_FLAG_RECOVERY_1 :
+             KEY_BLOCK_FLAG_RECOVERY_0))) {
+        VBDEBUG(("Key block recovery flag mismatch.\n"));
+        key_block_valid = 0;
+      }
+
+      /* Check for rollback of key version except in recovery mode. */
       key_version = key_block->data_key.key_version;
-      if (key_version < (tpm_version >> 16)) {
-        VBDEBUG(("Key version too old.\n"));
+      if (kBootRecovery != boot_mode) {
+        if (key_version < (tpm_version >> 16)) {
+          VBDEBUG(("Key version too old.\n"));
+          key_block_valid = 0;
+        }
+      }
+
+      /* If we're not in developer mode, require the key block to be valid. */
+      if (kBootDev != boot_mode && !key_block_valid) {
+        VBDEBUG(("Key block is invalid.\n"));
         goto bad_kernel;
       }
 
-      /* Get the key for preamble/data verification from the key block */
+      /* Get the key for preamble/data verification from the key block. */
       data_key = PublicKeyToRSA(&key_block->data_key);
       if (!data_key) {
         VBDEBUG(("Data key bad.\n"));
@@ -282,20 +320,23 @@ int LoadKernel(LoadKernelParams* params) {
         goto bad_kernel;
       }
 
-      /* Check for rollback of kernel version.  Note this is implicitly
-       * skipped in recovery and developer modes because rollback_index
-       * sets those to 0 in those modes. */
+      /* If the key block is valid and we're not in recovery mode, check for
+       * rollback of the kernel version. */
       combined_version = ((key_version << 16) |
                           (preamble->kernel_version & 0xFFFF));
-      if (combined_version < tpm_version) {
-        VBDEBUG(("Kernel version too low.\n"));
-        goto bad_kernel;
+      if (key_block_valid && kBootRecovery != boot_mode) {
+        if (combined_version < tpm_version) {
+          VBDEBUG(("Kernel version too low.\n"));
+          /* If we're not in developer mode, kernel version must be valid. */
+          if (kBootDev != boot_mode)
+            goto bad_kernel;
+        }
       }
 
       VBDEBUG(("Kernel preamble is good.\n"));
 
       /* Check for lowest version from a valid header. */
-      if (lowest_version > combined_version)
+      if (key_block_valid && lowest_version > combined_version)
         lowest_version = combined_version;
 
       /* If we already have a good kernel, no need to read another
@@ -357,7 +398,8 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* If we're still here, the kernel is valid. */
       /* Save the first good partition we find; that's the one we'll boot */
-      VBDEBUG(("Partiton is good.\n"));
+      VBDEBUG(("Partition is good.\n"));
+      good_partition_key_block_valid = key_block_valid;
       /* TODO: GPT partitions start at 1, but cgptlib starts them at 0.
        * Adjust here, until cgptlib is fixed. */
       good_partition = gpt.current_kernel + 1;
@@ -371,18 +413,18 @@ int LoadKernel(LoadKernelParams* params) {
       /* Update GPT to note this is the kernel we're trying */
       GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_TRY);
 
-      /* If we're in developer or recovery mode, there's no rollback
-       * protection, so we can stop at the first valid kernel. */
-      if (!is_normal) {
-        VBDEBUG(("Boot_flags = !is_normal\n"));
+      /* If we're in recovery mode or we're about to boot a dev-signed kernel,
+       * there's no rollback protection, so we can stop at the first valid
+       * kernel. */
+      if (kBootRecovery == boot_mode || !key_block_valid) {
+        VBDEBUG(("In recovery mode or dev-signed kernel\n"));
         break;
       }
 
-      /* Otherwise, we're in normal boot mode, so we do care about the
-       * key index in the TPM.  If the good partition's key version is
-       * the same as the tpm, then the TPM doesn't need updating; we
-       * can stop now.  Otherwise, we'll check all the other headers
-       * to see if they contain a newer key. */
+      /* Otherwise, we do care about the key index in the TPM.  If the good
+       * partition's key version is the same as the tpm, then the TPM doesn't
+       * need updating; we can stop now.  Otherwise, we'll check all the other
+       * headers to see if they contain a newer key. */
       if (combined_version == tpm_version) {
         VBDEBUG(("Same kernel version\n"));
         break;
@@ -415,20 +457,22 @@ int LoadKernel(LoadKernelParams* params) {
     VBDEBUG(("Good_partition >= 0\n"));
 
     /* See if we need to update the TPM */
-    if (is_normal) {
-      /* We only update the TPM in normal boot mode.  In developer
-       * mode, the kernel is self-signed by the developer, so we can't
-       * trust the key version and wouldn't want to roll the TPM
-       * forward.  In recovery mode, the TPM stays PP-unlocked, so
-       * anything we write gets blown away by the firmware when we go
-       * back to normal mode. */
-      VBDEBUG(("Boot_flags = is_normal\n"));
+    if (kBootRecovery != boot_mode) {
+      /* We only update the TPM in normal and developer boot modes.  In
+       * developer mode, we only advanced lowest_version for kernels with valid
+       * key blocks, and didn't count self-signed key blocks.  In recovery
+       * mode, the TPM stays PP-unlocked, so anything we write gets blown away
+       * by the firmware when we go back to normal mode. */
+      VBDEBUG(("Boot_flags = not recovery\n"));
       if (lowest_version > tpm_version) {
         status = RollbackKernelWrite((uint32_t)lowest_version);
         if (0 != status) {
           VBDEBUG(("Error writing kernel versions to TPM.\n"));
-          return (status == TPM_E_MUST_REBOOT ?
-                  LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
+          if (status == TPM_E_MUST_REBOOT)
+            retval = LOAD_KERNEL_REBOOT;
+          else
+            recovery = VBNV_RECOVERY_RW_TPM_ERROR;
+          goto LoadKernelExit;
         }
       }
     }
@@ -438,19 +482,28 @@ int LoadKernel(LoadKernelParams* params) {
     if (0 != status) {
       VBDEBUG(("Error locking kernel versions.\n"));
       /* Don't reboot to recovery mode if we're already there */
-      if (!is_rec)
-        return (status == TPM_E_MUST_REBOOT ?
-                LOAD_KERNEL_REBOOT : LOAD_KERNEL_RECOVERY);
+      if (kBootRecovery != boot_mode) {
+        if (status == TPM_E_MUST_REBOOT)
+          retval = LOAD_KERNEL_REBOOT;
+        else
+          recovery = VBNV_RECOVERY_RW_TPM_ERROR;
+        goto LoadKernelExit;
+      }
     }
 
     /* Success! */
-    return LOAD_KERNEL_SUCCESS;
+    retval = LOAD_KERNEL_SUCCESS;
   }
 
-  /* The BIOS may attempt to display different screens depending on whether
-   * we find an invalid kernel partition (return LOAD_KERNEL_INVALID) or not.
-   * But the flow is changing, so for now treating both cases as invalid gives
-   * slightly less confusing user feedback. Sigh.
-   */
-  return LOAD_KERNEL_INVALID;
+LoadKernelExit:
+
+  /* Save whether the good partition's key block was fully verified */
+  VbNvSet(vnc, VBNV_FW_VERIFIED_KERNEL_KEY, good_partition_key_block_valid);
+
+  /* Store recovery request, if any, then tear down non-volatile storage */
+  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_KERNEL_RECOVERY == retval ?
+          recovery : VBNV_RECOVERY_NOT_REQUESTED);
+  VbNvTeardown(vnc);
+
+  return retval;
 }
