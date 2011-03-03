@@ -53,4 +53,7 @@ update_addon_item(struct build_image_context_rec *context);
 int
 write_block_raw(struct build_image_context_rec *context);
 
+int
+begin_update(build_image_context *context);
+
 #endif /* #ifndef INCLUDED_DATA_LAYOUT_H */

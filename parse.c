@@ -87,8 +87,10 @@ static enum_item s_devtype_table[] =
 {
 	{ "NvBootDevType_Sdmmc", nvbct_lib_id_dev_type_sdmmc },
 	{ "NvBootDevType_Spi", nvbct_lib_id_dev_type_spi },
+	{ "NvBootDevType_Nand", nvbct_lib_id_dev_type_nand },
 	{ "Sdmmc", nvbct_lib_id_dev_type_sdmmc },
 	{ "Spi", nvbct_lib_id_dev_type_spi },
+	{ "Nand", nvbct_lib_id_dev_type_nand },
 
 	{ NULL, 0 }
 };
@@ -141,6 +143,19 @@ static enum_item s_spi_clock_source_table[] =
 	{ NULL, 0 }
 };
 
+static field_item s_nand_table[] = 
+{
+	{ "ClockDivider", token_clock_divider, field_type_u32,  NULL },
+	/* Note: NandTiming2 must appear before NandTiming, because NandTiming
+	 *       is a prefix of NandTiming2 and would otherwise match first.
+	 */
+	{ "NandTiming2", token_nand_timing2, field_type_u32, NULL },
+	{ "NandTiming", token_nand_timing, field_type_u32, NULL },
+	{ "BlockSizeLog2", token_block_size_log2, field_type_u32, NULL },
+	{ "PageSizeLog2", token_page_size_log2, field_type_u32, NULL },
+	{ NULL, 0, 0, NULL }
+};
+
 static field_item s_sdmmc_table[] = 
 {
 	{ "ClockDivider", token_clock_divider, field_type_u32,  NULL },
@@ -165,6 +180,8 @@ static field_item s_spiflash_table[] =
 
 static parse_subfield_item s_device_type_table[] =
 {
+	{ "NandParams.", token_nand_params,
+		s_nand_table, set_nand_param },
 	{ "SdmmcParams.", token_sdmmc_params,
 		s_sdmmc_table, set_sdmmc_param },
 	{ "SpiFlashParams.", token_spiflash_params,
@@ -175,18 +192,18 @@ static parse_subfield_item s_device_type_table[] =
 
 static parse_item s_top_level_items[] =
 {
-	{ "Bctfile=",	token_bct_file,		parse_bct_file },
-	{ "Attribute=",	token_attribute,		parse_value_u32 },
-	{ "Attribute[",	token_attribute,		parse_array },
-	{ "PageSize=",	token_page_size,		parse_value_u32 },
-	{ "BlockSize=",	token_block_size,		parse_value_u32 },
-	{ "PartitionSize=",	token_partition_size,	parse_value_u32 },
-	{ "DevType[",	token_dev_type,		parse_array },
-	{ "DeviceParam[",	token_dev_param,		parse_dev_param },
-	{ "BootLoader=",	token_bootloader,		parse_bootloader },
-	{ "Redundancy=",	token_redundancy,		parse_value_u32 },
-	{ "Version=",	token_version,		parse_value_u32 },
-	{ "AddOn[",	token_addon,		parse_addon },
+	{ "Bctfile=",       token_bct_file,		parse_bct_file },
+	{ "Attribute=",     token_attribute,		parse_value_u32 },
+	{ "Attribute[",     token_attribute,		parse_array },
+	{ "PageSize=",      token_page_size,		parse_value_u32 },
+	{ "BlockSize=",     token_block_size,		parse_value_u32 },
+	{ "PartitionSize=", token_partition_size,	parse_value_u32 },
+	{ "DevType[",       token_dev_type,		parse_array },
+	{ "DeviceParam[",   token_dev_param,		parse_dev_param },
+	{ "BootLoader=",    token_bootloader,		parse_bootloader },
+	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
+	{ "Version=",       token_version,		parse_value_u32 },
+	{ "AddOn[",         token_addon,		parse_addon },
 	{ NULL, 0, NULL } /* Must be last */
 };
 

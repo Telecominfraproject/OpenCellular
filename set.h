@@ -71,6 +71,12 @@ set_other_field(build_image_context *context,
 		int	index);
 
 int
+set_nand_param(build_image_context *context,
+		u_int32_t index,
+		parse_token token,
+		u_int32_t value);
+
+int
 set_sdmmc_param(build_image_context *context,
 		u_int32_t index,
 		parse_token token,

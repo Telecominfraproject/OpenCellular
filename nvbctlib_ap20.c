@@ -94,6 +94,12 @@ getdev_param(u_int32_t set,
 		return -ENODATA;
 
 	switch (id) {
+	CASE_GET_DEV_PARAM(nand, clock_divider);
+	CASE_GET_DEV_PARAM(nand, nand_timing);
+	CASE_GET_DEV_PARAM(nand, nand_timing2);
+	CASE_GET_DEV_PARAM(nand, block_size_log2);
+	CASE_GET_DEV_PARAM(nand, page_size_log2);
+
 	CASE_GET_DEV_PARAM(sdmmc, clock_divider);
 	CASE_GET_DEV_PARAM(sdmmc, data_width);
 	CASE_GET_DEV_PARAM(sdmmc, max_power_class_supported);
@@ -125,6 +131,12 @@ setdev_param(u_int32_t set,
 		return -ENODATA;
 
 	switch (id) {
+	CASE_SET_DEV_PARAM(nand, clock_divider);
+	CASE_SET_DEV_PARAM(nand, nand_timing);
+	CASE_SET_DEV_PARAM(nand, nand_timing2);
+	CASE_SET_DEV_PARAM(nand, block_size_log2);
+	CASE_SET_DEV_PARAM(nand, page_size_log2);
+
 	CASE_SET_DEV_PARAM(sdmmc, clock_divider);
 	CASE_SET_DEV_PARAM(sdmmc, data_width);
 	CASE_SET_DEV_PARAM(sdmmc, max_power_class_supported);
@@ -272,6 +284,7 @@ bct_get_value(nvbct_lib_id id, u_int32_t *data, u_int8_t *bct)
 
 	CASE_GET_CONST(max_bct_search_blks, NVBOOT_MAX_BCT_SEARCH_BLOCKS);
 
+	CASE_GET_CONST_PREFIX(dev_type_nand, nvboot);
 	CASE_GET_CONST_PREFIX(dev_type_sdmmc, nvboot);
 	CASE_GET_CONST_PREFIX(dev_type_spi, nvboot);
 	CASE_GET_CONST_PREFIX(sdmmc_data_width_4bit, nvboot);

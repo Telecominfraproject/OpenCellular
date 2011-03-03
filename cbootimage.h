@@ -35,12 +35,10 @@
 #include <errno.h>
 
 #define NVBOOT_AES_BLOCK_SIZE_LOG2 4
-
-#define KEY_LENGTH (128/8)
-
 #define MAX_BUFFER 200
 #define MAX_STR_LEN	20
 #define MAX_BOOTLOADER_SIZE (16 * 1024 * 1024)
+#define NVBOOT_BOOTDATA_VERSION(a, b) ((((a)&0xffff) << 16) | ((b)&0xffff))
 
 /*
  * Enumerations

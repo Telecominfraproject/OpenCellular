@@ -372,6 +372,32 @@ update_num_param_sets(build_image_context *context, u_int32_t index)
 }
 
 /*
+ * set_nand_param(): Processes commands to set Nand parameters.
+ */
+int
+set_nand_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t value)
+{
+	assert(context != NULL);
+	assert(context->bct != NULL);
+
+	update_num_param_sets(context, index);
+
+	switch (token) {
+		CASE_DEVICE_VALUE(nand, clock_divider);
+		CASE_DEVICE_VALUE(nand, nand_timing);
+		CASE_DEVICE_VALUE(nand, nand_timing2);
+		CASE_DEVICE_VALUE(nand, block_size_log2);
+		CASE_DEVICE_VALUE(nand, page_size_log2);
+		DEFAULT();
+	}
+
+	return 0;
+}
+
+/*
  * set_sdmmc_param(): Processes commands to set MoviNand parameters.
  */
 int

@@ -79,7 +79,6 @@ set_bl_data(build_image_context *context,
 static int write_bootloaders(build_image_context *context);
 
 static void find_new_journal_blk(build_image_context *context);
-static int begin_update (build_image_context *context);
 static int finish_update(build_image_context *context);
 static u_int32_t
 iceil_log2(u_int32_t a, u_int32_t b)
@@ -871,7 +870,7 @@ find_new_journal_blk(build_image_context *context)
  *       - Write the good BCT to slot 0 of the journal block.
  *   - Erase block 0
  */
-static int
+int
 begin_update(build_image_context *context)
 {
 	u_int32_t pages_per_bct;
@@ -896,6 +895,7 @@ begin_update(build_image_context *context)
 			block_size_log2, page_size_log2);
 	}
 
+	SET_VALUE(boot_data_version, NVBOOT_BOOTDATA_VERSION(2, 1));
 	GET_VALUE(bct_size,  &bct_size);
 	GET_VALUE(hash_size, &hash_size);
 	GET_VALUE(reserved_size, &reserved_size);

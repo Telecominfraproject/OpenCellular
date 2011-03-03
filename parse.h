@@ -53,6 +53,7 @@ typedef enum
 	token_version,
 	token_bct_file,
 	token_addon,
+	token_nand_params,
 	token_sdmmc_params,
 	token_spiflash_params,
 	token_data_width,
@@ -60,6 +61,10 @@ typedef enum
 	token_clock_source,
 	token_read_command_type_fast,
 	token_max_power_class_supported,
+	token_nand_timing2,
+	token_nand_timing,
+	token_block_size_log2,
+	token_page_size_log2,
 
 	token_force32 = 0x7fffffff
 } parse_token;

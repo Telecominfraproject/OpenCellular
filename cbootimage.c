@@ -176,6 +176,8 @@ main(int argc, char *argv[])
 
 	/* Generate the new bct file */
 	if (context.generate_bct != 0) {
+		/* Update the BCT */
+		begin_update(&context);
 		/* Signing the bct. */
 		e = sign_bct(&context, context.bct);
 		if (e != 0) 
