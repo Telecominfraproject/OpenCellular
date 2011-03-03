@@ -167,7 +167,7 @@ int LoadKernel(LoadKernelParams* params) {
 
   if (rec_switch)
     boot_mode = kBootRecovery;
-  else if (BOOT_FLAG_DEV_FIRMWARE & params->boot_flags)
+  else if (BOOT_FLAG_DEV_FIRMWARE & params->boot_flags) {
     if (!dev_switch) {
       /* Dev firmware should be signed such that it never boots with the dev
        * switch is off; so something is terribly wrong. */
@@ -176,7 +176,7 @@ int LoadKernel(LoadKernelParams* params) {
       goto LoadKernelExit;
     }
     boot_mode = kBootDev;
-  else {
+  } else {
     /* Normal firmware */
     boot_mode = kBootNormal;
     dev_switch = 0;  /* Always do a fully verified boot */
