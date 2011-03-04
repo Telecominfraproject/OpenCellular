@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -457,7 +457,7 @@ int LoadKernel(LoadKernelParams* params) {
     VBDEBUG(("Good_partition >= 0\n"));
 
     /* See if we need to update the TPM */
-    if (kBootRecovery != boot_mode) {
+    if (kBootRecovery != boot_mode && good_partition_key_block_valid) {
       /* We only update the TPM in normal and developer boot modes.  In
        * developer mode, we only advanced lowest_version for kernels with valid
        * key blocks, and didn't count self-signed key blocks.  In recovery
