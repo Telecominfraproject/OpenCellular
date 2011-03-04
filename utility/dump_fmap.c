@@ -57,7 +57,8 @@ static int dump_fmap(const void* ptr) {
                 progname, buf, strerror(errno));
         retval = 1;
       } else {
-        if (1 != fwrite(base_of_rom + ah->area_offset, ah->area_size, 1, fp)) {
+        if (ah->area_size &&
+            1 != fwrite(base_of_rom + ah->area_offset, ah->area_size, 1, fp)) {
           fprintf(stderr, "%s: can't write %s: %s\n",
                   progname, buf, strerror(errno));
           retval = 1;
