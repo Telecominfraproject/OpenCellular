@@ -14,14 +14,16 @@ load_shflags || exit 1
 # Constants used by DEFINE_*
 VBOOT_BASE='/usr/share/vboot'
 DEFAULT_KEYS_FOLDER="$VBOOT_BASE/devkeys"
-DEFAULT_BMPFV_FILE="$DEFAULT_KEYS_FOLDER/firmware_bmpfv.bin"
+DEFAULT_BMPFV_FILE="<auto>"
 DEFAULT_BACKUP_FOLDER='/mnt/stateful_partition/backups'
+DEFAULT_FIRMWARE_UPDATER='/usr/sbin/chromeos-firmwareupdate'
 
 # DEFINE_string name default_value description flag
 DEFINE_string from "" "Path of input file (empty for system live firmware)" "f"
 DEFINE_string to "" "Path of output file (empty for system live firmware)" "t"
 DEFINE_string keys "$DEFAULT_KEYS_FOLDER" "Path to folder of dev keys" "k"
-DEFINE_string bmpfv "$DEFAULT_BMPFV_FILE" "Path to the new bitmap FV" ""
+DEFINE_string bmpfv "$DEFAULT_BMPFV_FILE" \
+  "Path to the new bitmaps, <auto> to extract from system, empty to keep." ""
 DEFINE_boolean force_backup \
   $FLAGS_TRUE "Create backup even if source is not live" ""
 DEFINE_string backup_dir \
@@ -109,6 +111,28 @@ echo_dev_hwid() {
   echo "$hwid_dev"
 }
 
+# Explores compatible firmware bitmaps
+explore_bmpfv() {
+  local tmp_folder=""
+
+  if [ -s "$DEFAULT_FIRMWARE_UPDATER" ]; then
+    # try to extract from built-in firmware updater
+    debug_msg "found default firmware updater, trying to fetch bitmap..."
+    tmp_folder=$("$DEFAULT_FIRMWARE_UPDATER" --sb_extract | sed "s'[^/]*''")
+    debug_msg "updater resources extrated to: $tmp_folder"
+
+    if [ -d "$tmp_folder" -a -s "$tmp_folder/bios.bin" ]; then
+      new_bmpfv="$tmp_folder/bmpfv.bin"
+      echo "$new_bmpfv"
+      gbb_utility --bmpfv="$new_bmpfv" "$tmp_folder/bios.bin" >/dev/null 2>&1
+    else
+      debug_msg "failed to find valid BIOS image file."
+    fi
+  else
+    debug_msg "no firmware updater in system. not changing bitmaps."
+  fi
+}
+
 # Main
 # ----------------------------------------------------------------------------
 main() {
@@ -121,6 +145,12 @@ main() {
   local new_bmpfv="$FLAGS_bmpfv"
   local is_from_live=0
   local backup_image=
+  local opt_bmpfv=""
+
+  if [ "$new_bmpfv" = "$DEFAULT_BMPFV_FILE" ]; then
+    new_bmpfv=$(explore_bmpfv) &&
+      debug_msg "Using bitmaps from $new_bmpfv"
+  fi
 
   debug_msg "Prerequisite check"
   ensure_files_exist \
@@ -128,14 +158,18 @@ main() {
     "$recovery_pubkey" \
     "$firmware_keyblock" \
     "$firmware_prvkey" \
-    "$kernel_sub_pubkey" \
-    "$new_bmpfv" ||
+    "$kernel_sub_pubkey" ||
     exit 1
+
+  if [ -n "$new_bmpfv" ]; then
+    opt_bmpfv="--bmpfv=$new_bmpfv"
+    ensure_files_exist "$new_bmpfv" || exit 1
+  fi
 
   if [ -z "$FLAGS_from" ]; then
     is_from_live=1
   else
-    ensure_files_exist "$FLAGS_from"
+    ensure_files_exist "$FLAGS_from" || exit 1
   fi
 
   debug_msg "Checking software write protection status"
@@ -177,9 +211,9 @@ main() {
   debug_msg "Replace GBB parts (gbb_utility allows changing on-the-fly)"
   gbb_utility --set \
     --hwid="$new_hwid" \
-    --bmpfv="$new_bmpfv" \
     --rootkey="$root_pubkey" \
     --recoverykey="$recovery_pubkey" \
+    $opt_bmpfv \
     "$IMAGE" >"$EXEC_LOG" 2>&1 ||
     err_die "Failed to change GBB Data. (message: $(cat "$EXEC_LOG"))"
 
