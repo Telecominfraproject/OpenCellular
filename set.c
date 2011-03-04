@@ -50,6 +50,14 @@
 			context->bct);              \
 	break
 
+#define CASE_SDRAM_VALUE(id)                                          \
+	case token_##id:                                              \
+		(void)context->bctlib.set_sdram_params(index,            \
+			nvbct_lib_id_sdram_##id,      \
+			value,                      \
+			context->bct);              \
+            break
+
 #define DEFAULT()                                                     \
 	default:                                                      \
 		printf("Unexpected token %d at line %d\n",            \
@@ -442,5 +450,130 @@ set_spiflash_param(build_image_context *context,
 		DEFAULT();
 	}
 
+	return 0;
+}
+
+int
+set_sdram_param(build_image_context *context,
+		u_int32_t index,
+		parse_token token,
+		u_int32_t value)
+{
+	u_int32_t num_sdram_sets;
+
+	assert(context != NULL);
+	assert(context->bct != NULL);
+
+	// Update the number of SDRAM parameter sets.
+	GET_VALUE(num_sdram_sets, &num_sdram_sets);
+	num_sdram_sets = NV_MAX(num_sdram_sets, index + 1);
+	SET_VALUE(num_sdram_sets, num_sdram_sets);
+
+	switch (token) {
+
+	CASE_SDRAM_VALUE(memory_type);
+	CASE_SDRAM_VALUE(pllm_charge_pump_setup_ctrl);
+	CASE_SDRAM_VALUE(pllm_loop_filter_setup_ctrl);
+	CASE_SDRAM_VALUE(pllm_input_divider);
+	CASE_SDRAM_VALUE(pllm_feedback_divider);
+	CASE_SDRAM_VALUE(pllm_post_divider);
+	CASE_SDRAM_VALUE(pllm_stable_time);
+	CASE_SDRAM_VALUE(emc_clock_divider);
+	CASE_SDRAM_VALUE(emc_auto_cal_interval);
+	CASE_SDRAM_VALUE(emc_auto_cal_config);   
+	CASE_SDRAM_VALUE(emc_auto_cal_wait);
+	CASE_SDRAM_VALUE(emc_pin_program_wait);
+	CASE_SDRAM_VALUE(emc_rc);
+	CASE_SDRAM_VALUE(emc_rfc);
+	CASE_SDRAM_VALUE(emc_ras);
+	CASE_SDRAM_VALUE(emc_rp);
+	CASE_SDRAM_VALUE(emc_r2w);
+	CASE_SDRAM_VALUE(emc_w2r);
+	CASE_SDRAM_VALUE(emc_r2p);
+	CASE_SDRAM_VALUE(emc_w2p);
+	CASE_SDRAM_VALUE(emc_rd_rcd);
+	CASE_SDRAM_VALUE(emc_wr_rcd);
+	CASE_SDRAM_VALUE(emc_rrd);
+	CASE_SDRAM_VALUE(emc_rext);
+	CASE_SDRAM_VALUE(emc_wdv);
+	CASE_SDRAM_VALUE(emc_quse);
+	CASE_SDRAM_VALUE(emc_qrst);
+	CASE_SDRAM_VALUE(emc_qsafe);
+	CASE_SDRAM_VALUE(emc_rdv);
+	CASE_SDRAM_VALUE(emc_refresh);
+	CASE_SDRAM_VALUE(emc_burst_refresh_num);
+	CASE_SDRAM_VALUE(emc_pdex2wr);
+	CASE_SDRAM_VALUE(emc_pdex2rd);
+	CASE_SDRAM_VALUE(emc_pchg2pden);
+	CASE_SDRAM_VALUE(emc_act2pden);
+	CASE_SDRAM_VALUE(emc_ar2pden);
+	CASE_SDRAM_VALUE(emc_rw2pden);
+	CASE_SDRAM_VALUE(emc_txsr);
+	CASE_SDRAM_VALUE(emc_tcke);
+	CASE_SDRAM_VALUE(emc_tfaw);
+	CASE_SDRAM_VALUE(emc_trpab);
+	CASE_SDRAM_VALUE(emc_tclkstable);
+	CASE_SDRAM_VALUE(emc_tclkstop);
+	CASE_SDRAM_VALUE(emc_trefbw);
+	CASE_SDRAM_VALUE(emc_quse_extra);
+	CASE_SDRAM_VALUE(emc_fbio_cfg1);
+	CASE_SDRAM_VALUE(emc_fbio_dqsib_dly);
+	CASE_SDRAM_VALUE(emc_fbio_dqsib_dly_msb);
+	CASE_SDRAM_VALUE(emc_fbio_quse_dly);
+	CASE_SDRAM_VALUE(emc_fbio_quse_dly_msb);
+	CASE_SDRAM_VALUE(emc_fbio_cfg5);
+	CASE_SDRAM_VALUE(emc_fbio_cfg6);
+	CASE_SDRAM_VALUE(emc_fbio_spare);
+	CASE_SDRAM_VALUE(emc_mrs);
+	CASE_SDRAM_VALUE(emc_emrs);
+	CASE_SDRAM_VALUE(emc_mrw1);
+	CASE_SDRAM_VALUE(emc_mrw2);
+	CASE_SDRAM_VALUE(emc_mrw3);
+	CASE_SDRAM_VALUE(emc_mrw_reset_command);
+	CASE_SDRAM_VALUE(emc_mrw_reset_ninit_wait);
+	CASE_SDRAM_VALUE(emc_adr_cfg);
+	CASE_SDRAM_VALUE(emc_adr_cfg1);
+	CASE_SDRAM_VALUE(mc_emem_Cfg);
+	CASE_SDRAM_VALUE(mc_lowlatency_config);
+	CASE_SDRAM_VALUE(emc_cfg);
+	CASE_SDRAM_VALUE(emc_cfg2);
+	CASE_SDRAM_VALUE(emc_dbg);
+	CASE_SDRAM_VALUE(ahb_arbitration_xbar_ctrl);
+	CASE_SDRAM_VALUE(emc_cfg_dig_dll);
+	CASE_SDRAM_VALUE(emc_dll_xform_dqs);
+	CASE_SDRAM_VALUE(emc_dll_xform_quse);
+	CASE_SDRAM_VALUE(warm_boot_wait);
+	CASE_SDRAM_VALUE(emc_ctt_term_ctrl);
+	CASE_SDRAM_VALUE(emc_odt_write);
+	CASE_SDRAM_VALUE(emc_odt_read);
+	CASE_SDRAM_VALUE(emc_zcal_ref_cnt);
+	CASE_SDRAM_VALUE(emc_zcal_wait_cnt);
+	CASE_SDRAM_VALUE(emc_zcal_mrw_cmd);
+	CASE_SDRAM_VALUE(emc_mrs_reset_dll);
+	CASE_SDRAM_VALUE(emc_mrw_zq_init_dev0);
+	CASE_SDRAM_VALUE(emc_mrw_zq_init_dev1);
+	CASE_SDRAM_VALUE(emc_mrw_zq_init_wait);
+	CASE_SDRAM_VALUE(emc_mrs_reset_dll_wait);
+	CASE_SDRAM_VALUE(emc_emrs_emr2);
+	CASE_SDRAM_VALUE(emc_emrs_emr3);
+	CASE_SDRAM_VALUE(emc_emrs_ddr2_dll_enable);
+	CASE_SDRAM_VALUE(emc_mrs_ddr2_dll_reset);
+	CASE_SDRAM_VALUE(emc_emrs_ddr2_ocd_calib);
+	CASE_SDRAM_VALUE(emc_ddr2_wait);
+	CASE_SDRAM_VALUE(emc_cfg_clktrim0);
+	CASE_SDRAM_VALUE(emc_cfg_clktrim1);
+	CASE_SDRAM_VALUE(emc_cfg_clktrim2);
+	CASE_SDRAM_VALUE(pmc_ddr_pwr);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2cfga_pad_ctrl);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2cfgc_pad_ctrl);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2cfgc_pad_ctrl2);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2cfgd_pad_ctrl);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2cfgd_pad_ctrl2);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2clkcfg_Pad_ctrl);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2comp_pad_ctrl);
+	CASE_SDRAM_VALUE(apb_misc_gp_xm2vttgen_pad_ctrl);
+
+	DEFAULT();
+    	}
 	return 0;
 }

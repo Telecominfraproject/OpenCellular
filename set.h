@@ -89,6 +89,12 @@ set_spiflash_param(build_image_context *context,
 		u_int32_t value);
 
 int
+set_sdram_param(build_image_context *context,
+		u_int32_t index,
+		parse_token token,
+		u_int32_t value);
+
+int
 read_from_image(char *filename,
 		u_int32_t	page_size,
 		u_int8_t	**Image,

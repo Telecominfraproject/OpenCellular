@@ -80,6 +80,8 @@ static char
 *parse_end_state(char *statement, char *uname, int chars_remaining);
 static int
 parse_dev_param(build_image_context *context, parse_token token, char *rest);
+static int
+parse_sdram_param(build_image_context *context, parse_token token, char *rest);
 
 static int process_statement(build_image_context *context, char *statement);
 
@@ -143,6 +145,231 @@ static enum_item s_spi_clock_source_table[] =
 	{ NULL, 0 }
 };
 
+static enum_item s_nvboot_memory_type_table[] =
+{
+	{ "NvBootMemoryType_None", nvbct_lib_id_memory_type_none },
+	{ "NvBootMemoryType_Ddr2", nvbct_lib_id_memory_type_ddr2 },
+	{ "NvBootMemoryType_Ddr", nvbct_lib_id_memory_type_ddr },
+	{ "NvBootMemoryType_LpDdr2", nvbct_lib_id_memory_type_lpddr2 },
+	{ "NvBootMemoryType_LpDdr", nvbct_lib_id_memory_type_lpddr },
+
+	{ "None", nvbct_lib_id_memory_type_none },
+	{ "Ddr2", nvbct_lib_id_memory_type_ddr2 },
+	{ "Ddr", nvbct_lib_id_memory_type_ddr },
+	{ "LpDdr2", nvbct_lib_id_memory_type_lpddr2 },
+	{ "LpDdr", nvbct_lib_id_memory_type_lpddr },
+
+	{ NULL, 0 }
+};
+
+static field_item s_sdram_field_table[] = 
+{
+	{ "MemoryType", token_memory_type,
+		field_type_enum,  s_nvboot_memory_type_table },
+	{ "PllMChargePumpSetupControl", token_pllm_charge_pump_setup_ctrl,
+		field_type_u32,  NULL },
+	{ "PllMLoopFilterSetupControl", token_pllm_loop_filter_setup_ctrl,
+		field_type_u32,  NULL },
+	{ "PllMInputDivider", token_pllm_input_divider,
+		field_type_u32,  NULL },
+	{ "PllMFeedbackDivider", token_pllm_feedback_divider,
+		field_type_u32,  NULL },
+	{ "PllMPostDivider", token_pllm_post_divider,
+		field_type_u32,  NULL },
+	{ "PllMStableTime", token_pllm_stable_time,
+		field_type_u32,  NULL },
+	{ "EmcClockDivider", token_emc_clock_divider,
+		field_type_u32,  NULL },
+	{ "EmcAutoCalInterval", token_emc_auto_cal_interval,
+		field_type_u32,  NULL },
+	{ "EmcAutoCalConfig", token_emc_auto_cal_config,
+		field_type_u32,  NULL },
+	{ "EmcAutoCalWait", token_emc_auto_cal_wait,
+		field_type_u32,  NULL },
+	{ "EmcPinProgramWait", token_emc_pin_program_wait,
+		field_type_u32,  NULL },
+	{ "EmcRc", token_emc_rc,
+		field_type_u32,  NULL },
+	{ "EmcRfc", token_emc_rfc,
+		field_type_u32,  NULL },
+	{ "EmcRas", token_emc_ras,
+		field_type_u32,  NULL },
+	{ "EmcRp", token_emc_rp,
+		field_type_u32,  NULL },
+	{ "EmcR2w", token_emc_r2w,
+		field_type_u32,  NULL },
+	{ "EmcW2r", token_emc_w2r,
+		field_type_u32,  NULL },
+	{ "EmcR2p", token_emc_r2p,
+		field_type_u32,  NULL },
+	{ "EmcW2p", token_emc_w2p,
+		field_type_u32,  NULL },
+	{ "EmcRrd", token_emc_rrd,
+		field_type_u32,  NULL },
+	{ "EmcRdRcd", token_emc_rd_rcd,
+		field_type_u32,  NULL },
+	{ "EmcWrRcd", token_emc_wr_rcd,
+		field_type_u32,  NULL },
+	{ "EmcRext", token_emc_rext,
+		field_type_u32,  NULL },
+	{ "EmcWdv", token_emc_wdv,
+		field_type_u32,  NULL },
+	{ "EmcQUseExtra", token_emc_quse_extra,
+		field_type_u32,  NULL },
+	{ "EmcQUse", token_emc_quse,
+		field_type_u32,  NULL },
+	{ "EmcQRst", token_emc_qrst,
+		field_type_u32,  NULL },
+	{ "EmcQSafe", token_emc_qsafe,
+		field_type_u32,  NULL },
+	{ "EmcRdv", token_emc_rdv,
+		field_type_u32,  NULL },
+	{ "EmcRefresh", token_emc_refresh,
+		field_type_u32,  NULL },
+	{ "EmcBurstRefreshNum", token_emc_burst_refresh_num,
+		field_type_u32,  NULL },
+	{ "EmcPdEx2Wr", token_emc_pdex2wr,
+		field_type_u32,  NULL },
+	{ "EmcPdEx2Rd", token_emc_pdex2rd,
+		field_type_u32,  NULL },
+	{ "EmcPChg2Pden", token_emc_pchg2pden,
+		field_type_u32,  NULL },
+	{ "EmcAct2Pden", token_emc_act2pden,
+		field_type_u32,  NULL },
+	{ "EmcAr2Pden", token_emc_ar2pden,
+		field_type_u32,  NULL },
+	{ "EmcRw2Pden", token_emc_rw2pden,
+		field_type_u32,  NULL },
+	{ "EmcTxsr", token_emc_txsr,
+		field_type_u32,  NULL },
+	{ "EmcTcke", token_emc_tcke,
+		field_type_u32,  NULL },
+	{ "EmcTfaw", token_emc_tfaw,
+		field_type_u32,  NULL },
+	{ "EmcTrpab", token_emc_trpab,
+		field_type_u32,  NULL },
+	{ "EmcTClkStable", token_emc_tclkstable,
+		field_type_u32,  NULL },
+	{ "EmcTClkStop", token_emc_tclkstop,
+		field_type_u32,  NULL },
+	{ "EmcTRefBw", token_emc_trefbw,
+		field_type_u32,  NULL },
+	{ "EmcFbioCfg1", token_emc_fbio_cfg1,
+		field_type_u32,  NULL },
+	{ "EmcFbioDqsibDlyMsb", token_emc_fbio_dqsib_dly_msb,
+		field_type_u32,  NULL },
+	{ "EmcFbioDqsibDly", token_emc_fbio_dqsib_dly,
+		field_type_u32,  NULL },
+	{ "EmcFbioQuseDlyMsb", token_emc_fbio_quse_dly_msb,
+		field_type_u32,  NULL },
+	{ "EmcFbioQuseDly", token_emc_fbio_quse_dly,
+		field_type_u32,  NULL },
+	{ "EmcFbioCfg5", token_emc_fbio_cfg5,
+		field_type_u32,  NULL },
+	{ "EmcFbioCfg6", token_emc_fbio_cfg6,
+		field_type_u32,  NULL },
+	{ "EmcFbioSpare", token_emc_fbio_spare,
+		field_type_u32,  NULL },
+	{ "EmcMrsResetDllWait", token_emc_mrs_reset_dll_wait,
+		field_type_u32,  NULL },
+	{ "EmcMrsResetDll", token_emc_mrs_reset_dll,
+		field_type_u32,  NULL },
+	{ "EmcMrsDdr2DllReset", token_emc_mrs_ddr2_dll_reset,
+		field_type_u32,  NULL },
+	{ "EmcMrs", token_emc_mrs,
+		field_type_u32,  NULL },
+	{ "EmcEmrsEmr2", token_emc_emrs_emr2,
+		field_type_u32,  NULL },
+	{ "EmcEmrsEmr3", token_emc_emrs_emr3,
+		field_type_u32,  NULL },
+	{ "EmcEmrsDdr2DllEnable", token_emc_emrs_ddr2_dll_enable,
+		field_type_u32,  NULL },
+	{ "EmcEmrsDdr2OcdCalib", token_emc_emrs_ddr2_ocd_calib,
+		field_type_u32,  NULL },
+	{ "EmcEmrs", token_emc_emrs,
+		field_type_u32,  NULL },
+	{ "EmcMrw1", token_emc_mrw1,
+		field_type_u32,  NULL },
+	{ "EmcMrw2", token_emc_mrw2,
+		field_type_u32,  NULL },
+	{ "EmcMrw3", token_emc_mrw3,
+		field_type_u32,  NULL },
+	{ "EmcMrwResetCommand", token_emc_mrw_reset_command,
+		field_type_u32,  NULL },
+	{ "EmcMrwResetNInitWait", token_emc_mrw_reset_ninit_wait,
+		field_type_u32,  NULL },
+	{ "EmcAdrCfg1", token_emc_adr_cfg1,
+		field_type_u32,  NULL },
+	{ "EmcAdrCfg", token_emc_adr_cfg,
+		field_type_u32,  NULL },
+	{ "McEmemCfg", token_mc_emem_Cfg,
+		field_type_u32,  NULL },
+	{ "McLowLatencyConfig", token_mc_lowlatency_config,
+		field_type_u32,  NULL },
+	{ "EmcCfg2", token_emc_cfg2,
+		field_type_u32,  NULL },
+	{ "EmcCfgDigDll", token_emc_cfg_dig_dll,
+		field_type_u32,  NULL },
+	{ "EmcCfgClktrim0", token_emc_cfg_clktrim0,
+		field_type_u32,  NULL },
+	{ "EmcCfgClktrim1", token_emc_cfg_clktrim1,
+		field_type_u32,  NULL },
+	{ "EmcCfgClktrim2", token_emc_cfg_clktrim2,
+		field_type_u32,  NULL },
+	{ "EmcCfg", token_emc_cfg,
+		field_type_u32,  NULL },
+	{ "EmcDbg", token_emc_dbg,
+		field_type_u32,  NULL },
+	{ "AhbArbitrationXbarCtrl", token_ahb_arbitration_xbar_ctrl,
+		field_type_u32,  NULL },
+	{ "EmcDllXformDqs", token_emc_dll_xform_dqs,
+		field_type_u32,  NULL },
+	{ "EmcDllXformQUse", token_emc_dll_xform_quse,
+		field_type_u32,  NULL },
+	{ "WarmBootWait", token_warm_boot_wait,
+		field_type_u32,  NULL },
+	{ "EmcCttTermCtrl", token_emc_ctt_term_ctrl,
+		field_type_u32,  NULL },
+	{ "EmcOdtWrite", token_emc_odt_write,
+		field_type_u32,  NULL },
+	{ "EmcOdtRead", token_emc_odt_read,
+		field_type_u32,  NULL },
+	{ "EmcZcalRefCnt", token_emc_zcal_ref_cnt,
+		field_type_u32,  NULL },
+	{ "EmcZcalWaitCnt", token_emc_zcal_wait_cnt,
+		field_type_u32,  NULL },
+	{ "EmcZcalMrwCmd", token_emc_zcal_mrw_cmd,
+		field_type_u32,  NULL },
+	{ "EmcMrwZqInitDev0", token_emc_mrw_zq_init_dev0,
+		field_type_u32,  NULL },
+	{ "EmcMrwZqInitDev1", token_emc_mrw_zq_init_dev1,
+		field_type_u32,  NULL },
+	{ "EmcMrwZqInitWait", token_emc_mrw_zq_init_wait,
+		field_type_u32,  NULL },
+	{ "EmcDdr2Wait", token_emc_ddr2_wait,
+		field_type_u32,  NULL },
+	{ "PmcDdrPwr", token_pmc_ddr_pwr,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2CfgAPadCtrl", token_apb_misc_gp_xm2cfga_pad_ctrl,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2CfgCPadCtrl2", token_apb_misc_gp_xm2cfgc_pad_ctrl2,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2CfgCPadCtrl", token_apb_misc_gp_xm2cfgc_pad_ctrl,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2CfgDPadCtrl2", token_apb_misc_gp_xm2cfgd_pad_ctrl2,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2CfgDPadCtrl", token_apb_misc_gp_xm2cfgd_pad_ctrl,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2ClkCfgPadCtrl", token_apb_misc_gp_xm2clkcfg_Pad_ctrl,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2CompPadCtrl", token_apb_misc_gp_xm2comp_pad_ctrl,
+		field_type_u32,  NULL },
+	{ "ApbMiscGpXm2VttGenPadCtrl", token_apb_misc_gp_xm2vttgen_pad_ctrl
+		,field_type_u32,  NULL },
+
+	{ NULL, 0, 0, NULL }
+};
+
 static field_item s_nand_table[] = 
 {
 	{ "ClockDivider", token_clock_divider, field_type_u32,  NULL },
@@ -200,6 +427,7 @@ static parse_item s_top_level_items[] =
 	{ "PartitionSize=", token_partition_size,	parse_value_u32 },
 	{ "DevType[",       token_dev_type,		parse_array },
 	{ "DeviceParam[",   token_dev_param,		parse_dev_param },
+	{ "SDRAM[",         token_sdram,		parse_sdram_param },
 	{ "BootLoader=",    token_bootloader,		parse_bootloader },
 	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
 	{ "Version=",       token_version,		parse_value_u32 },
@@ -694,6 +922,51 @@ parse_dev_param(build_image_context *context, parse_token token, char *rest)
 	}
 
     return 1;
+
+}
+
+static int
+parse_sdram_param(build_image_context *context, parse_token token, char *rest)
+{
+	u_int32_t value;
+	field_item *field;
+	u_int32_t index;
+
+	assert(context != NULL);
+	assert(rest != NULL);
+
+	/* Parse the index. */
+	rest = parse_u32(rest, &index);
+	if (rest == NULL)
+		return 1;
+
+	/* Parse the closing bracket. */
+	if (*rest != ']')
+		return 1;
+	rest++;
+
+	/* Parse the following '.' */
+	if (*rest != '.')
+		return 1;
+	rest++;
+
+	/* Parse the field name. */
+	rest = parse_field_name(rest, s_sdram_field_table, &field);
+	if (rest == NULL)
+		return 1;
+
+	/* Parse the equals sign.*/
+	if (*rest != '=')
+		return 1;
+	rest++;
+
+	/* Parse the value based on the field table. */
+	rest = parse_field_value(context, rest, field, &value);
+	if (rest == NULL)
+		return 1;
+
+	/* Store the result. */
+	return set_sdram_param(context, index, field->token, value);
 
 }
 /* Return 0 on success, 1 on error */
