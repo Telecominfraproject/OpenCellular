@@ -44,27 +44,26 @@ int GetFirmwareBody(LoadFirmwareParams* params, uint64_t firmware_index) {
   return 0;
 }
 
-/* Get firmware root key
+/* Get GBB
  *
- * Return pointer to firmware root key of firmware image, or NULL if not found
+ * Return pointer to GBB from firmware image, or NULL if not found.
  *
  * [base_of_rom] pointer to firmware image
  * [fmap] pointer to Flash Map of firmware image
+ * [gbb_size] GBB size will be stored here if GBB is found
  */
-void* GetFirmwareRootKey(const void* base_of_rom, const void* fmap) {
+void* GetFirmwareGBB(const void* base_of_rom, const void* fmap,
+                     uint64_t* gbb_size) {
   const FmapHeader* fh = (const FmapHeader*) fmap;
   const FmapAreaHeader* ah = (const FmapAreaHeader*)
     (fmap + sizeof(FmapHeader));
   int i = FmapAreaIndexOrError(fh, ah, "GBB Area");
-  const void* gbb;
-  const GoogleBinaryBlockHeader* gbbh;
 
   if (i < 0)
     return NULL;
 
-  gbb = base_of_rom + ah[i].area_offset;
-  gbbh = (const GoogleBinaryBlockHeader*) gbb;
-  return (void*) gbb + gbbh->rootkey_offset;
+  *gbb_size = ah[i].area_size;
+  return (void*)(base_of_rom + ah[i].area_offset);
 }
 
 /* Get verification block
@@ -151,15 +150,14 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
   /* Initialize LoadFirmwareParams lfp */
 
   lfp.caller_internal = &ci;
-
-  lfp.firmware_root_key_blob = GetFirmwareRootKey(base_of_rom, fmap);
-  if (!lfp.firmware_root_key_blob) {
-    printf("ERROR: cannot get firmware root key blob\n");
+  lfp.gbb_data = GetFirmwareGBB(base_of_rom, fmap, &lfp.gbb_size);
+  if (!lfp.gbb_data) {
+    printf("ERROR: cannot get firmware GBB\n");
     return 1;
   }
 
-  printf("firmware root key blob at 0x%08" PRIx64 "\n",
-      (uint64_t) (lfp.firmware_root_key_blob - base_of_rom));
+  printf("firmware GBB at 0x%08" PRIx64 "\n",
+      (uint64_t) (lfp.gbb_data - base_of_rom));
 
   /* Loop to initialize firmware key and data A / B */
   for (index = 0; index < 2; ++index) {
@@ -186,9 +184,9 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
         ci.firmware[index].size);
   }
 
-  lfp.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_REC_SIZE);
-  lfp.kernel_sign_key_size = LOAD_FIRMWARE_KEY_BLOB_REC_SIZE;
-  printf("kernel sign key size is 0x%08" PRIx64 "\n", lfp.kernel_sign_key_size);
+  lfp.shared_data_blob = Malloc(VB_SHARED_DATA_MIN_SIZE);
+  lfp.shared_data_size = VB_SHARED_DATA_MIN_SIZE;
+  printf("shared data size 0x%08" PRIx64 "\n", lfp.shared_data_size);
 
   lfp.boot_flags = 0;
   printf("boot flags is 0x%08" PRIx64 "\n", lfp.boot_flags);
@@ -202,7 +200,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
   if (status == LOAD_FIRMWARE_SUCCESS)
     printf("firmwiare index is %" PRIu64 "\n", lfp.firmware_index);
 
-  Free(lfp.kernel_sign_key_blob);
+  Free(lfp.shared_data_blob);
 
   return 0;
 }

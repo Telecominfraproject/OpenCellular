@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -6,6 +6,7 @@
  * (Firmware portion)
  */
 
+#include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
@@ -39,8 +40,9 @@ int LoadFirmwareSetup(void) {
 
 
 int LoadFirmware(LoadFirmwareParams* params) {
-
-  VbPublicKey* root_key = (VbPublicKey*)params->firmware_root_key_blob;
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)params->shared_data_blob;
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)params->gbb_data;
+  VbPublicKey* root_key;
   VbLoadFirmwareInternal* lfi;
   VbNvContext* vnc = params->nv_context;
 
@@ -64,16 +66,19 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* Setup NV storage */
   VbNvSetup(vnc);
 
-  if (params->kernel_sign_key_size < sizeof(VbPublicKey)) {
-    VBDEBUG(("Kernel sign key buffer too small\n"));
+  /* Initialize shared data structure. */
+  if (0 != VbSharedDataInit(shared, params->shared_data_size)) {
+    VBDEBUG(("Shared data init error\n"));
+    recovery = VBNV_RECOVERY_RO_SHARED_DATA;
     goto LoadFirmwareExit;
   }
 
-  /* Must have a root key */
-  if (!root_key) {
-    VBDEBUG(("No root key\n"));
+  /* Must have a root key from the GBB */
+  if (!gbb) {
+    VBDEBUG(("No GBB\n"));
     goto LoadFirmwareExit;
   }
+  root_key = (VbPublicKey*)((uint8_t*)gbb + gbb->rootkey_offset);
 
   /* Parse flags */
   is_dev = (params->boot_flags & BOOT_FLAG_DEVELOPER ? 1 : 0);
@@ -235,20 +240,12 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* If we're still here, the firmware is valid. */
     VBDEBUG(("Firmware %d is valid.\n", index));
     if (-1 == good_index) {
-      VbPublicKey *kdest = (VbPublicKey*)params->kernel_sign_key_blob;
-
-      /* Copy the kernel sign key blob into the destination buffer */
-      PublicKeyInit(kdest, (uint8_t*)(kdest + 1),
-                    (params->kernel_sign_key_size - sizeof(VbPublicKey)));
-
-      if (0 != PublicKeyCopy(kdest, &preamble->kernel_subkey)) {
-        VBDEBUG(("Kernel subkey too big for buffer.\n"));
+      /* Save the key we actually used */
+      if (0 != VbSharedDataSetKernelKey(shared, &preamble->kernel_subkey)) {
+        VBDEBUG(("Unable to save kernel subkey to shared data.\n"));
         continue;  /* The firmware signature was good, but the public
                     * key was bigger that the caller can handle. */
       }
-
-      /* Save the key size we actually used */
-      params->kernel_sign_key_size = kdest->key_offset + kdest->key_size;
 
       /* Save the good index, now that we're sure we can actually use
        * this firmware.  That's the one we'll boot. */
@@ -313,6 +310,10 @@ LoadFirmwareExit:
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_FIRMWARE_RECOVERY == retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
+
+  /* Note that we don't reduce params->shared_data_size to shared->data_used,
+   * since we want to leave space for LoadKernel() to add to the shared data
+   * buffer. */
 
   return retval;
 }

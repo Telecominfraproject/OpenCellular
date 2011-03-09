@@ -79,6 +79,9 @@ int main(void)
   KeyBlockVerify(0, 0, 0, 0);
   VerifyFirmwarePreamble(0, 0, 0);
   VerifyKernelPreamble(0, 0, 0);
+  VbSharedDataInit(0, 0);
+  VbSharedDataReserve(0, 0);
+  VbSharedDataSetKernelKey(0, 0);
 
   VbNvSetup(0);
   VbNvGet(0, 0, 0);

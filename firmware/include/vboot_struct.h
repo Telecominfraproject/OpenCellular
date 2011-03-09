@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -130,6 +130,49 @@ typedef struct VbKernelPreambleHeader {
  *      data), pointed to by preamble_signature.sig_offset. */
 
 #define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
+
+/* Minimum and recommended size of shared_data_blob in bytes. */
+#define VB_SHARED_DATA_MIN_SIZE 3072
+#define VB_SHARED_DATA_REC_SIZE 16384
+
+/* Data shared between LoadFirmware(), LoadKernel(), and OS.
+ *
+ * The boot process is:
+ *   1) Caller allocates buffer, at least VB_SHARED_DATA_MIN bytes, ideally
+ *      VB_SHARED_DATA_REC_SIZE bytes.
+ *   2) If non-recovery boot, this is passed to LoadFirmware(), which
+ *      initializes the buffer, adding this header and some data.
+ *   3) Buffer is passed to LoadKernel().  If this is a recovery boot,
+ *      LoadKernel() initializes the buffer, adding this header.  Regardless
+ *      of boot type, LoadKernel() adds some data to the buffer.
+ *   4) Caller makes data available to the OS in a platform-dependent manner.
+ *      For example, via ACPI or ATAGs. */
+typedef struct VbSharedDataHeader {
+  /* Fields present in version 1 */
+  uint32_t struct_version;            /* Version of this structure */
+  uint64_t struct_size;               /* Size of this structure in bytes */
+  uint64_t data_size;                 /* Size of shared data buffer in bytes */
+  uint64_t data_used;                 /* Amount of shared data used so far */
+
+  VbPublicKey kernel_subkey;          /* Kernel subkey, from firmware */
+  uint64_t kernel_subkey_data_offset; /* Offset of kernel subkey data from
+                                       * start of this struct */
+  uint64_t kernel_subkey_data_size;   /* Offset of kernel subkey data */
+
+  uint64_t flags;                     /* Flags */
+
+  /* After read-only firmware which uses version 1 is released, any additional
+   * fields must be added below, and the struct version must be increased.
+   * Before reading/writing those fields, make sure that the struct being
+   * accessed is at least version 2.
+   *
+   * It's always ok for an older firmware to access a newer struct, since all
+   * the fields it knows about are present.  Newer firmware needs to use
+   * reasonable defaults when accessing older structs. */
+
+} __attribute__((packed)) VbSharedDataHeader;
+
+#define VB_SHARED_DATA_VERSION 1      /* Version for struct_version */
 
 __pragma(pack(pop)) /* Support packing for MSVC. */
 

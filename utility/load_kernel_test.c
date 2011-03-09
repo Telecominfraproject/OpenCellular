@@ -14,11 +14,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "load_firmware_fw.h"
 #include "load_kernel_fw.h"
 #include "boot_device.h"
+#include "gbb_header.h"
 #include "host_common.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vboot_common.h"
 #include "vboot_kernel.h"
 
 #define LBA_BYTES 512
@@ -77,6 +80,10 @@ int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
 int main(int argc, char* argv[]) {
 
   const char* image_name;
+  uint64_t key_size;
+  uint8_t* key_blob = NULL;
+  VbSharedDataHeader* shared;
+  GoogleBinaryBlockHeader* gbb;
   int rv, c, argsleft;
   int errorcnt = 0;
   char *e = 0;
@@ -136,14 +143,53 @@ int main(int argc, char* argv[]) {
 
   /* Read header signing key blob */
   if (argsleft > 1) {
-    uint64_t key_size;
-    lkp.header_sign_key_blob = ReadFile(argv[optind+1], &key_size);
-    if (!lkp.header_sign_key_blob) {
+    key_blob = ReadFile(argv[optind+1], &key_size);
+    if (!key_blob) {
       fprintf(stderr, "Unable to read key file %s\n", argv[optind+1]);
       return 1;
     }
+    printf("Read %" PRIu64 " bytes of key from %s\n", key_size, argv[optind+1]);
   }
-  /* Need to skip the address check, since we're putting it somewhere on the
+
+  /* Initialize the GBB */
+  lkp.gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
+  lkp.gbb_data = (void*)Malloc(lkp.gbb_size);
+  gbb = (GoogleBinaryBlockHeader*)lkp.gbb_data;
+  Memset(gbb, 0, lkp.gbb_size);
+  Memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
+  gbb->major_version = GBB_MAJOR_VER;
+  gbb->minor_version = GBB_MINOR_VER;
+  gbb->header_size = sizeof(GoogleBinaryBlockHeader);
+  /* Fill in the given key, if any, for both root and recovery */
+  if (key_blob) {
+    gbb->rootkey_offset = gbb->header_size;
+    gbb->rootkey_size = key_size;
+    Memcpy((uint8_t*)gbb + gbb->rootkey_offset, key_blob, key_size);
+
+    gbb->recovery_key_offset = gbb->rootkey_offset;
+    gbb->recovery_key_size = key_size;
+  }
+
+  /* Initialize the shared data area */
+  lkp.shared_data_blob = Malloc(LOAD_FIRMWARE_SHARED_DATA_REC_SIZE);
+  lkp.shared_data_size = LOAD_FIRMWARE_SHARED_DATA_REC_SIZE;
+  shared = (VbSharedDataHeader*)lkp.shared_data_blob;
+  if (0 != VbSharedDataInit(shared, lkp.shared_data_size)) {
+    fprintf(stderr, "Unable to init shared data\n");
+    return 1;
+  }
+  /* Copy in the key blob, if any */
+  if (key_blob) {
+    if (0 != VbSharedDataSetKernelKey(shared, (VbPublicKey*)key_blob)) {
+      fprintf(stderr, "Unable to set key in shared data\n");
+      return 1;
+    }
+  }
+
+  /* Free the key blob, now that we're done with it */
+  Free(key_blob);
+
+  /* Needs to skip the address check, since we're putting it somewhere on the
    * heap instead of its actual target address in the firmware. */
   lkp.boot_flags |= BOOT_FLAG_SKIP_ADDR_CHECK;
 

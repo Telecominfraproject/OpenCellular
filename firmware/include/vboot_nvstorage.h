@@ -74,6 +74,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RO_S3_RESUME    0x04
 /* TPM error in read-only firmware */
 #define VBNV_RECOVERY_RO_TPM_ERROR    0x05
+/* Shared data error in read-only firmware */
+#define VBNV_RECOVERY_RO_SHARED_DATA  0x06
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /* User manually requested recovery by pressing a key at developer
@@ -87,6 +89,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RW_TPM_ERROR    0x44
 /* RW firmware in dev mode, but dev switch is off */
 #define VBNV_RECOVERY_RW_DEV_MISMATCH 0x45
+/* Shared data error in rewritable firmware */
+#define VBNV_RECOVERY_RW_SHARED_DATA  0x46
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */

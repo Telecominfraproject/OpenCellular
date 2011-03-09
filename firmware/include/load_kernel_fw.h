@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -34,7 +34,15 @@
 
 typedef struct LoadKernelParams {
   /* Inputs to LoadKernel() */
-  void* header_sign_key_blob;   /* Key blob used to sign the kernel header */
+  void* shared_data_blob;       /* Buffer for data shared between
+                                 * LoadFirmware() and LoadKernel().  Pass the
+                                 * same buffer which was passed to
+                                 * LoadFirmware(). */
+  uint64_t shared_data_size;    /* Size of shared data blob buffer, in bytes.
+                                 * On output, this will contain the actual
+                                 * data size placed into the buffer. */
+  void* gbb_data;               /* Pointer to GBB data */
+  uint64_t gbb_size;            /* Size of GBB data in bytes */
   uint64_t bytes_per_lba;       /* Bytes per lba sector on current device */
   uint64_t ending_lba;          /* Last addressable lba sector on current
                                  * device */

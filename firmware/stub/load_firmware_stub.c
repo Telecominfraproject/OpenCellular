@@ -63,7 +63,8 @@ int GetFirmwareBody(LoadFirmwareParams* params, uint64_t index) {
  * volumes, this call will still be slow.  Once we reach feature
  * complete, you should modify your code to call LoadImage()
  * directly. */
-int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
+int VerifyFirmwareDriver_stub(uint8_t* gbb_data,
+                              uint64_t gbb_size,
                               uint8_t* verification_headerA,
                               uint8_t* firmwareA,
                               uint8_t* verification_headerB,
@@ -91,14 +92,15 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
 
   /* Set up the params for LoadFirmware() */
   p.caller_internal = &ci;
-  p.firmware_root_key_blob = root_key_blob;
+  p.gbb_data = gbb_data;
+  p.gbb_size = gbb_size;
   p.verification_block_0 = verification_headerA;
   p.verification_block_1 = verification_headerB;
   p.nv_context = &vnc;
 
-  /* Allocate a key blob buffer */
-  p.kernel_sign_key_blob = Malloc(LOAD_FIRMWARE_KEY_BLOB_REC_SIZE);
-  p.kernel_sign_key_size = LOAD_FIRMWARE_KEY_BLOB_REC_SIZE;
+  /* Allocate a shared data buffer */
+  p.shared_data_blob = Malloc(LOAD_FIRMWARE_SHARED_DATA_REC_SIZE);
+  p.shared_data_size = LOAD_FIRMWARE_SHARED_DATA_REC_SIZE;
 
   /* TODO: YOU NEED TO SET THE BOOT FLAGS SOMEHOW */
   p.boot_flags = 0;
@@ -111,8 +113,8 @@ int VerifyFirmwareDriver_stub(uint8_t* root_key_blob,
   }
 
   if (LOAD_FIRMWARE_SUCCESS == rv) {
-    /* TODO: YOU NEED TO KEEP TRACK OF p.kernel_sign_key_blob AND
-     * p.kernel_sign_key_size SO YOU CAN PASS THEM TO LoadKernel(). */
+    /* TODO: YOU NEED TO KEEP TRACK OF p.shared_data_blob AND
+     * p.shared_data_size SO YOU CAN PASS THEM TO LoadKernel(). */
 
     return (0 == p.firmware_index ? BOOT_FIRMWARE_A_CONTINUE :
             BOOT_FIRMWARE_B_CONTINUE);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -11,6 +11,7 @@
 #include "boot_device.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
+#include "gbb_header.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
@@ -118,7 +119,9 @@ int WriteAndFreeGptData(GptData* gptdata) {
 __pragma(warning(disable: 4127))
 
 int LoadKernel(LoadKernelParams* params) {
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)params->shared_data_blob;
   VbNvContext* vnc = params->nv_context;
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)params->gbb_data;
   VbPublicKey* kernel_subkey;
   GptData gpt;
   uint64_t part_start, part_size;
@@ -154,7 +157,6 @@ int LoadKernel(LoadKernelParams* params) {
   }
 
   /* Initialization */
-  kernel_subkey = (VbPublicKey*)params->header_sign_key_blob;
   blba = params->bytes_per_lba;
   kbuf_sectors = KBUF_SIZE / blba;
   if (0 == kbuf_sectors) {
@@ -187,14 +189,30 @@ int LoadKernel(LoadKernelParams* params) {
   params->bootloader_address = 0;
   params->bootloader_size = 0;
 
-  /* Let the TPM know if we're in recovery mode */
   if (kBootRecovery == boot_mode) {
+    /* Initialize the shared data structure, since LoadFirmware() didn't do it
+     * for us. */
+    if (0 != VbSharedDataInit(shared, params->shared_data_size)) {
+      /* Error initializing the shared data, but we can keep going.  We just
+       * can't use the shared data. */
+      VBDEBUG(("Shared data init error\n"));
+      params->shared_data_size = 0;
+      shared = NULL;
+    }
+
+    /* Use the recovery key to verify the kernel */
+    kernel_subkey = (VbPublicKey*)((uint8_t*)gbb + gbb->recovery_key_offset);
+
+    /* Let the TPM know if we're in recovery mode */
     if (0 != RollbackKernelRecovery(dev_switch)) {
       VBDEBUG(("Error setting up TPM for recovery kernel\n"));
       /* Ignore return code, since we need to boot recovery mode to
        * fix the TPM. */
     }
   } else {
+    /* Use the kernel subkey passed from LoadFirmware(). */
+    kernel_subkey = &shared->kernel_subkey;
+
     /* Read current kernel key index from TPM.  Assumes TPM is already
      * initialized. */
     status = RollbackKernelRead(&tpm_version);
@@ -504,6 +522,10 @@ LoadKernelExit:
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_KERNEL_RECOVERY == retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
+
+  /* Store how much shared data we used, if any */
+  if (shared)
+    params->shared_data_size = shared->data_used;
 
   return retval;
 }

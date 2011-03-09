@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -19,6 +19,7 @@ char* kVbootErrors[VBOOT_ERROR_MAX] = {
   "Public key invalid.",
   "Preamble invalid.",
   "Preamble signature check failed.",
+  "Shared data invalid."
 };
 
 
@@ -376,4 +377,68 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
 
   /* Success */
   return VBOOT_SUCCESS;
+}
+
+
+int VbSharedDataInit(VbSharedDataHeader* header, uint64_t size) {
+  if (size < sizeof(VbSharedDataHeader)) {
+    VBDEBUG(("Not enough data for header.\n"));
+    return VBOOT_SHARED_DATA_INVALID;
+  }
+  if (size < VB_SHARED_DATA_MIN_SIZE) {
+    VBDEBUG(("Shared data buffer too small.\n"));
+    return VBOOT_SHARED_DATA_INVALID;
+  }
+
+  if (!header)
+    return VBOOT_SHARED_DATA_INVALID;
+
+  /* Zero the header */
+  Memset(header, 0, sizeof(VbSharedDataHeader));
+
+  /* Initialize fields */
+  header->struct_version = VB_SHARED_DATA_VERSION;
+  header->struct_size = sizeof(VbSharedDataHeader);
+  header->data_size = size;
+  header->data_used = sizeof(VbSharedDataHeader);
+
+  /* Success */
+  return VBOOT_SUCCESS;
+}
+
+
+uint64_t VbSharedDataReserve(VbSharedDataHeader* header, uint64_t size) {
+  uint64_t offs = header->data_used;
+
+  if (!header || size > header->data_size - header->data_used) {
+    VBDEBUG(("VbSharedData buffer out of space.\n"));
+    return 0;  /* Not initialized, or not enough space left. */
+  }
+  header->data_used += size;
+  return offs;
+}
+
+
+int VbSharedDataSetKernelKey(VbSharedDataHeader* header,
+                             const VbPublicKey* src) {
+
+  VbPublicKey *kdest = &header->kernel_subkey;
+
+  if (!header)
+    return VBOOT_SHARED_DATA_INVALID;
+
+  /* Attempt to allocate space for the key, if it hasn't been allocated yet */
+  if (!header->kernel_subkey_data_offset) {
+    header->kernel_subkey_data_offset = VbSharedDataReserve(header,
+                                                          src->key_size);
+    if (!header->kernel_subkey_data_offset)
+      return VBOOT_SHARED_DATA_INVALID;
+    header->kernel_subkey_data_size = src->key_size;
+  }
+
+  /* Copy the kernel sign key blob into the destination buffer */
+  PublicKeyInit(kdest, (uint8_t*)header + header->kernel_subkey_data_offset,
+                header->kernel_subkey_data_size);
+
+  return PublicKeyCopy(kdest, src);
 }

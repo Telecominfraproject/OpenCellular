@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -12,10 +12,8 @@
 #include "sysincludes.h"
 #include "vboot_nvstorage.h"
 
-/* Recommended size of kernel_sign_key_blob in bytes, for
- * implementations which must preallocate a transfer buffer between
- * boot phases */
-#define LOAD_FIRMWARE_KEY_BLOB_REC_SIZE 2104
+/* Recommended size of shared_data_blob in bytes. */
+#define LOAD_FIRMWARE_SHARED_DATA_REC_SIZE 16384
 
 /* Return codes for LoadFirmware() and S3Resume(). */
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */
@@ -29,19 +27,21 @@
 
 typedef struct LoadFirmwareParams {
   /* Inputs to LoadFirmware() */
-  void *firmware_root_key_blob;  /* Key used to sign firmware header */
-  void *verification_block_0;    /* Key block + preamble for firmware 0 */
-  void *verification_block_1;    /* Key block + preamble for firmware 1 */
+  void* gbb_data;                /* Pointer to GBB data */
+  uint64_t gbb_size;             /* Size of GBB data in bytes */
+  void* verification_block_0;    /* Key block + preamble for firmware 0 */
+  void* verification_block_1;    /* Key block + preamble for firmware 1 */
   uint64_t verification_size_0;  /* Verification block 0 size in bytes */
   uint64_t verification_size_1;  /* Verification block 1 size in bytes */
-  void *kernel_sign_key_blob;    /* Destination buffer for key to use
-                                  * when loading kernel.  Pass this
+  void* shared_data_blob;        /* Destination buffer for data shared between
+                                  * LoadFirmware() and LoadKernel().  Pass this
                                   * data to LoadKernel() in
-                                  * LoadKernelParams.header_sign_key_blob. */
-  uint64_t kernel_sign_key_size; /* Size of kernel signing key blob
-                                  * buffer, in bytes.  On output, this
-                                  * will contain the actual key blob
-                                  * size placed into the buffer. */
+                                  * LoadKernelParams.shared_data_blob. */
+  uint64_t shared_data_size;     /* Size of shared data blob buffer, in bytes.
+                                  * On output, this will contain the actual
+                                  * data size placed into the buffer.  Caller
+                                  * need only pass this much data to
+                                  * LoadKernel().*/
   uint64_t boot_flags;           /* Boot flags */
   VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
                                   * must be filled before calling

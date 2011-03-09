@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -23,6 +23,7 @@ enum {
   VBOOT_PREAMBLE_INVALID,    /* Preamble internal structure is
                               * invalid */
   VBOOT_PREAMBLE_SIGNATURE,  /* Preamble signature check failed */
+  VBOOT_SHARED_DATA_INVALID, /* Shared data is invalid. */
   VBOOT_ERROR_MAX,
 };
 extern char* kVbootErrors[VBOOT_ERROR_MAX];
@@ -107,6 +108,20 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
                          uint64_t size, const RSAPublicKey* key);
 
 
+/* Initialize a verified boot shared data structure.
+ *
+ * Returns 0 if success, non-zero if error. */
+int VbSharedDataInit(VbSharedDataHeader* header, uint64_t size);
+
+/* Reserve [size] bytes of the shared data area.  Returns the offset of the
+ * reserved data from the start of the shared data buffer, or 0 if error. */
+uint64_t VbSharedDataReserve(VbSharedDataHeader* header, uint64_t size);
+
+/* Copy the kernel subkey into the shared data.
+ *
+ * Returns 0 if success, non-zero if error. */
+int VbSharedDataSetKernelKey(VbSharedDataHeader* header,
+                             const VbPublicKey* src);
 
 
 #endif  /* VBOOT_REFERENCE_VBOOT_COMMON_H_ */
