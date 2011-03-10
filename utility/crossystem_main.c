@@ -34,6 +34,7 @@ const Param sys_param_list[] = {
   {"savedmem_size", 0, 0, "RAM debug data area size in bytes"},
   {"fmap_base", 0, 0, "Main firmware flashmap physical address", "0x%08x"},
   {"tried_fwb", 0, 0, "Tried firmware B before A this boot"},
+  {"cros_debug", 0, 0, "OS should allow debug features"},
   /* Read-only strings */
   {"hwid", 1, 0, "Hardware ID"},
   {"fwid", 1, 0, "Active firmware ID"},

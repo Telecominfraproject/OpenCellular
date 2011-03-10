@@ -54,6 +54,10 @@
 #define BINF0_S3_RESUME_FAILED        10
 /* Recovery caused by TPM error */
 #define BINF0_RECOVERY_TPM_ERROR      11
+/* Firmware types from BINF.3 */
+#define BINF3_RECOVERY   0
+#define BINF3_NORMAL     1
+#define BINF3_DEVELOPER  2
 
 /* Base name for ACPI files */
 #define ACPI_BASE_PATH "/sys/devices/platform/chromeos_acpi"
@@ -69,8 +73,11 @@
 #define GPIO_BASE_PATH "/sys/class/gpio"
 #define GPIO_EXPORT_PATH GPIO_BASE_PATH "/export"
 
-/* Base name for NVRAM file */
+/* Filename for NVRAM file */
 #define NVRAM_PATH "/dev/nvram"
+
+/* Filename for kernel command line */
+#define KERNEL_CMDLINE_PATH "/proc/cmdline"
 
 
 /* Copy up to dest_size-1 characters from src to dest, ensuring null
@@ -414,11 +421,11 @@ const char* VbReadMainFwType(char* dest, int size) {
 
   /* Try reading type from BINF.3 */
   switch(ReadFileInt(ACPI_BINF_PATH ".3")) {
-    case 0:
+    case BINF3_RECOVERY:
       return StrCopy(dest, "recovery", size);
-    case 1:
+    case BINF3_NORMAL:
       return StrCopy(dest, "normal", size);
-    case 2:
+    case BINF3_DEVELOPER:
       return StrCopy(dest, "developer", size);
     default:
       break;  /* Fall through to legacy handling */
@@ -449,6 +456,43 @@ const char* VbReadMainFwType(char* dest, int size) {
   }
 }
 
+
+/* Determine whether OS-level debugging should be allowed.  Passed the
+ * destination and its size.  Returns 1 if yes, 0 if no, -1 if error. */
+int VbGetCrosDebug(void) {
+  FILE* f = NULL;
+  char buf[4096] = "";
+  int binf3;
+  char *t, *saveptr;
+
+  /* Try reading firmware type from BINF.3. */
+  binf3 = ReadFileInt(ACPI_BINF_PATH ".3");
+  if (BINF3_RECOVERY == binf3)
+    return 0;  /* Recovery mode never allows debug. */
+  else if (BINF3_DEVELOPER == binf3)
+    return 1;  /* Developer firmware always allows debug. */
+
+  /* Normal new firmware, older ChromeOS firmware, or non-Chrome firmware.
+   * For all these cases, check /proc/cmdline for cros_debug. */
+  f = fopen(KERNEL_CMDLINE_PATH, "rt");
+  if (f) {
+    if (NULL == fgets(buf, sizeof(buf), f))
+      *buf = 0;
+    fclose(f);
+  }
+  for (t = strtok_r(buf, " ", &saveptr); t; t=strtok_r(NULL, " ", &saveptr)) {
+    if (0 == strcmp(t, "cros_debug"))
+      return 1;
+  }
+
+  /* Normal new firmware or older Chrome OS firmware allows debug if the
+   * dev switch is on. */
+  if (1 == ReadFileBit(ACPI_CHSW_PATH, CHSW_DEV_BOOT))
+    return 1;
+
+  /* All other cases disallow debug. */
+  return 0;
+}
 
 
 /* Read a system property integer.
@@ -512,6 +556,8 @@ int VbGetSystemPropertyInt(const char* name) {
     return VbGetRecoveryReason();
   } else if (!strcasecmp(name,"fmap_base")) {
     value = ReadFileInt(ACPI_FMAP_PATH);
+  } else if (!strcasecmp(name,"cros_debug")) {
+    value = VbGetCrosDebug();
   }
 
   return value;
