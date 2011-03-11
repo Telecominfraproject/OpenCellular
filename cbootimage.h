@@ -33,12 +33,15 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <errno.h>
+#include <math.h>
 
 #define NVBOOT_AES_BLOCK_SIZE_LOG2 4
 #define MAX_BUFFER 200
 #define MAX_STR_LEN	20
 #define MAX_BOOTLOADER_SIZE (16 * 1024 * 1024)
 #define NVBOOT_BOOTDATA_VERSION(a, b) ((((a)&0xffff) << 16) | ((b)&0xffff))
+#define NVBOOT_BAD_BLOCK_TABLE_SIZE 4096
+#define NV_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 /*
  * Enumerations

@@ -80,10 +80,47 @@ static int write_bootloaders(build_image_context *context);
 
 static void find_new_journal_blk(build_image_context *context);
 static int finish_update(build_image_context *context);
+static void init_bad_block_table(build_image_context *context);
+
 static u_int32_t
 iceil_log2(u_int32_t a, u_int32_t b)
 {
 	return (a + (1 << b) - 1) >> b;
+}
+
+/* Returns the smallest power of 2 >= a */
+static u_int32_t
+ceil_log2(u_int32_t a)
+{
+	u_int32_t result;
+
+	result = log2(a);
+	if ((1UL << result) < a)
+		result++;
+
+	return result;
+}
+
+static void init_bad_block_table(build_image_context *context)
+{
+	u_int32_t bytes_per_entry;
+	nvboot_badblock_table *table;
+	nvboot_config_table *bct;
+
+	bct = (nvboot_config_table *)(context->bct);
+
+	assert(context != NULL);
+	assert(bct != NULL);
+
+	table = &(bct->badblock_table);
+
+	bytes_per_entry = ICEIL(context->partition_size,
+				NVBOOT_BAD_BLOCK_TABLE_SIZE);
+	table->block_size_log2 = context->block_size_log2;
+	table->virtual_blk_size_log2 = NV_MAX(ceil_log2(bytes_per_entry),
+					table->block_size_log2);
+	table->entries_used = iceil_log2(context->partition_size,
+					table->virtual_blk_size_log2);
 }
 
 static block_data *new_block(u_int32_t blk_number, u_int32_t block_size)
@@ -904,7 +941,8 @@ begin_update(build_image_context *context)
 	pages_per_bct = iceil_log2(bct_size, context->page_size_log2);
 	pages_per_blk = (1 << (context->block_size_log2
 		- context->page_size_log2));
-
+	/* Initialize the bad block table field. */
+	init_bad_block_table(context);
 	/* Fill the reserved data w/the padding pattern. */
 	write_padding(context->bct + reserved_offset, reserved_size);
 

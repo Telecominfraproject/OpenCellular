@@ -24,7 +24,6 @@
  * set.c - State setting support for the cbootimage tool
  */
 
-#include <math.h>
 #include "set.h"
 #include "cbootimage.h"
 #include "crypto.h"
@@ -39,8 +38,6 @@
  * A ParseXXX() function may call other parse functions and set functions.
  * A SetXXX() function may not call any parseing functions.
  */
-
-#define NV_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 #define CASE_DEVICE_VALUE(prefix, id)                                 \
 	case token_##id:                                              \
