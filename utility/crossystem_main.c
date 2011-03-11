@@ -70,8 +70,11 @@ void PrintHelp(const char *progname) {
          "    Prints the current value(s) of the parameter(s).\n"
          "  %s [param1=value1] [param2=value2 [...]]]\n"
          "    Sets the parameter(s) to the specified value(s).\n"
+         "  %s [param1?value1] [param2?value2 [...]]]\n"
+         "    Checks if the parameter(s) all contain the specified value(s).\n"
+         "Stops at the first error."
          "\n"
-         "Valid parameters:\n", progname, progname, progname);
+         "Valid parameters:\n", progname, progname, progname, progname);
   for (p = sys_param_list; p->name; p++)
     printf("  %-22s  %s\n", p->name, p->desc);
 }
@@ -101,11 +104,33 @@ int SetParam(const Param* p, const char* value) {
     return (0 == VbSetSystemPropertyString(p->name, value) ? 0 : 1);
   } else {
     char* e;
-    int i = strtol(value, &e, 0);
+    int i = (int)strtol(value, &e, 0);
     if (!*value || (e && *e))
       return 1;
     return (0 == VbSetSystemPropertyInt(p->name, i) ? 0 : 1);
   }
+}
+
+
+/* Compares the parameter with the expected value.
+ *
+ * Returns 0 if success (match), non-zero if error (mismatch). */
+int CheckParam(const Param* p, char* expect) {
+  if (p->is_string) {
+    char buf[256];
+    const char* v = VbGetSystemPropertyString(p->name, buf, sizeof(buf));
+    if (!v || 0 != strcmp(v, expect))
+      return 1;
+  } else {
+    char* e;
+    int i = (int)strtol(expect, &e, 0);
+    int v = VbGetSystemPropertyInt(p->name);
+    if (!*expect || (e && *e))
+      return 1;
+    if (v == -1 || i != v)
+      return 1;
+  }
+  return 0;
 }
 
 
@@ -179,19 +204,28 @@ int main(int argc, char* argv[]) {
 
   /* Otherwise, loop through params and get/set them */
   for (i = 1; i < argc && retval == 0; i++) {
-    char* name = strtok(argv[i], "=");
-    char* value = strtok(NULL, "=");
+    int has_set = (NULL != strchr(argv[i], '='));
+    int has_expect = (NULL != strchr(argv[i], '?'));
+    char* name = strtok(argv[i], "=?");
+    char* value = strtok(NULL, "=?");
     const Param* p = FindParam(name);
     if (!p) {
       fprintf(stderr, "Invalid parameter name: %s\n", name);
       PrintHelp(progname);
       return 1;
     }
+    if (has_set && has_expect) {
+      fprintf(stderr, "Use either = or ? in a parameter, but not both.\n");
+      PrintHelp(progname);
+      return 1;
+    }
 
     if (i > 1)
       printf(" ");  /* Output params space-delimited */
-    if (value)
+    if (has_set)
       retval = SetParam(p, value);
+    else if (has_expect)
+      retval = CheckParam(p, value);
     else
       retval = PrintParam(p);
   }

@@ -473,7 +473,7 @@ int VbGetCrosDebug(void) {
     return 1;  /* Developer firmware always allows debug. */
 
   /* Normal new firmware, older ChromeOS firmware, or non-Chrome firmware.
-   * For all these cases, check /proc/cmdline for cros_debug. */
+   * For all these cases, check /proc/cmdline for cros_[no]debug. */
   f = fopen(KERNEL_CMDLINE_PATH, "rt");
   if (f) {
     if (NULL == fgets(buf, sizeof(buf), f))
@@ -483,6 +483,8 @@ int VbGetCrosDebug(void) {
   for (t = strtok_r(buf, " ", &saveptr); t; t=strtok_r(NULL, " ", &saveptr)) {
     if (0 == strcmp(t, "cros_debug"))
       return 1;
+    else if (0 == strcmp(t, "cros_nodebug"))
+      return 0;
   }
 
   /* Normal new firmware or older Chrome OS firmware allows debug if the
