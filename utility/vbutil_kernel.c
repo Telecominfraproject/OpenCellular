@@ -35,6 +35,7 @@ enum {
   OPT_MODE_VERIFY,
   OPT_ARCH,
   OPT_OLDBLOB,
+  OPT_KLOADADDR,
   OPT_KEYBLOCK,
   OPT_SIGNPUBKEY,
   OPT_SIGNPRIVATE,
@@ -58,6 +59,7 @@ static struct option long_opts[] = {
   {"verify", 1, 0,                    OPT_MODE_VERIFY             },
   {"arch", 1, 0,                      OPT_ARCH                    },
   {"oldblob", 1, 0,                   OPT_OLDBLOB                 },
+  {"kloadaddr", 1, 0,                 OPT_KLOADADDR               },
   {"keyblock", 1, 0,                  OPT_KEYBLOCK                },
   {"signpubkey", 1, 0,                OPT_SIGNPUBKEY              },
   {"signprivate", 1, 0,               OPT_SIGNPRIVATE             },
@@ -92,6 +94,7 @@ static int PrintHelp(char *progname) {
           "    --arch <arch>             Cpu architecture (default x86)\n"
           "\n"
           "  Optional:\n"
+          "    --kloadaddr <address>     Assign kernel body load address\n"
           "    --pad <number>            Verification padding size in bytes\n"
           "    --vblockonly              Emit just the verification blob\n",
           progname);
@@ -109,6 +112,7 @@ static int PrintHelp(char *progname) {
           "    --version <number>        Kernel version\n"
           "\n"
           "  Optional:\n"
+          "    --kloadaddr <address>     Assign kernel body load address\n"
           "    --pad <number>            Verification padding size in bytes\n"
           "    --vblockonly              Emit just the verification blob\n",
           progname);
@@ -121,7 +125,8 @@ static int PrintHelp(char *progname) {
           "       Public key to verify kernel keyblock, in .vbpubk format\n"
           "    --verbose                 Print a more detailed report\n"
           "    --keyblock <file>"
-          "       Outputs the verified key block, in .keyblock format\n"
+          "         Outputs the verified key block, in .keyblock format\n"
+          "    --kloadaddr <address>     Assign kernel body load address\n"
           "\n",
           progname);
   return 1;
@@ -199,9 +204,9 @@ typedef struct blob_s {
 } blob_t;
 
 /* Given a blob return the location of the kernel command line buffer. */
-static char* BpCmdLineLocation(blob_t *bp)
+static char* BpCmdLineLocation(blob_t *bp, uint64_t kernel_body_load_address)
 {
-  return (char*)(bp->blob + bp->bootloader_address - CROS_32BIT_ENTRY_ADDR -
+  return (char*)(bp->blob + bp->bootloader_address - kernel_body_load_address -
                  CROS_CONFIG_SIZE - CROS_PARAMS_SIZE);
 }
 
@@ -249,7 +254,8 @@ static blob_t *NewBlob(uint64_t version,
                        const char* vmlinuz,
                        const char* bootloader_file,
                        const char* config_file,
-                       int arch) {
+                       int arch,
+                       uint64_t kernel_body_load_address) {
   blob_t* bp;
   struct linux_kernel_header* lh = 0;
   struct linux_kernel_params* params = 0;
@@ -340,7 +346,7 @@ static blob_t *NewBlob(uint64_t version,
 
   Debug("config goes at blob+0x%" PRIx64 "\n", now);
   /* Find the load address of the commandline. We'll need it later. */
-  cmdline_addr = CROS_32BIT_ENTRY_ADDR + now +
+  cmdline_addr = kernel_body_load_address + now +
       find_cmdline_start((char *)config_buf, config_size);
   Debug(" cmdline_addr=0x%" PRIx64 "\n", cmdline_addr);
 
@@ -377,7 +383,7 @@ static blob_t *NewBlob(uint64_t version,
   /* Finally, append the bootloader. Remember where it will load in
    * memory, too. */
   Debug("bootloader goes at blob+=0x%" PRIx64 "\n", now);
-  bp->bootloader_address = CROS_32BIT_ENTRY_ADDR + now;
+  bp->bootloader_address = kernel_body_load_address + now;
   bp->bootloader_size = roundup(bootloader_size, CROS_ALIGN);
   Debug(" bootloader_address=0x%" PRIx64 "\n", bp->bootloader_address);
   Debug(" bootloader_size=0x%" PRIx64 "\n", bp->bootloader_size);
@@ -525,7 +531,8 @@ unwind_oldblob:
 /* Pack a .kernel */
 static int Pack(const char* outfile, const char* keyblock_file,
                 const char* signprivate, blob_t *bp, uint64_t pad,
-                int vblockonly) {
+                int vblockonly,
+                uint64_t kernel_body_load_address) {
   VbPrivateKey* signing_key;
   VbSignature* body_sig;
   VbKernelPreambleHeader* preamble;
@@ -579,7 +586,7 @@ static int Pack(const char* outfile, const char* keyblock_file,
 
   /* Create preamble */
   preamble = CreateKernelPreamble(bp->kernel_version,
-                                  CROS_32BIT_ENTRY_ADDR,
+                                  kernel_body_load_address,
                                   bp->bootloader_address,
                                   bp->bootloader_size,
                                   body_sig,
@@ -628,7 +635,8 @@ static int Pack(const char* outfile, const char* keyblock_file,
 /*
  * Replace kernel command line in a blob representing a kernel.
  */
-static int ReplaceConfig(blob_t* bp, const char* config_file)
+static int ReplaceConfig(blob_t* bp, const char* config_file,
+    uint64_t kernel_body_load_address)
 {
   uint8_t* new_conf;
   uint64_t config_size;
@@ -643,14 +651,16 @@ static int ReplaceConfig(blob_t* bp, const char* config_file)
   }
 
   /* fill the config buffer with zeros */
-  Memset(BpCmdLineLocation(bp), 0, CROS_CONFIG_SIZE);
-  Memcpy(BpCmdLineLocation(bp), new_conf, config_size);
+  Memset(BpCmdLineLocation(bp, kernel_body_load_address), 0, CROS_CONFIG_SIZE);
+  Memcpy(BpCmdLineLocation(bp, kernel_body_load_address),
+      new_conf, config_size);
   Free(new_conf);
   return 0;
 }
 
 static int Verify(const char* infile, const char* signpubkey, int verbose,
-                  const char* key_block_file) {
+                  const char* key_block_file,
+                  uint64_t kernel_body_load_address) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
@@ -769,7 +779,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
     goto verify_exit;
   }
 
-  printf("Config:\n%s\n", BpCmdLineLocation(bp));
+  printf("Config:\n%s\n", BpCmdLineLocation(bp, kernel_body_load_address));
 
 verify_exit:
   FreeBlob(bp);
@@ -790,6 +800,7 @@ int main(int argc, char* argv[]) {
   int arch = ARCH_X86;
   int vblockonly = 0;
   int verbose = 0;
+  uint64_t kernel_body_load_address = CROS_32BIT_ENTRY_ADDR;
   uint64_t pad = DEFAULT_PADDING;
   int mode = 0;
   int parse_error = 0;
@@ -842,6 +853,14 @@ int main(int argc, char* argv[]) {
 
       case OPT_OLDBLOB:
         oldfile = optarg;
+        break;
+
+      case OPT_KLOADADDR:
+        kernel_body_load_address = strtoul(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          fprintf(stderr, "Invalid --kloadaddr\n");
+          parse_error = 1;
+        }
         break;
 
       case OPT_KEYBLOCK:
@@ -899,10 +918,12 @@ int main(int argc, char* argv[]) {
 
   switch(mode) {
     case OPT_MODE_PACK:
-      bp = NewBlob(version, vmlinuz, bootloader, config_file, arch);
+      bp = NewBlob(version, vmlinuz, bootloader, config_file, arch,
+          kernel_body_load_address);
       if (!bp)
         return 1;
-      r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
+      r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly,
+          kernel_body_load_address);
       FreeBlob(bp);
       return r;
 
@@ -917,18 +938,20 @@ int main(int argc, char* argv[]) {
       bp = OldBlob(oldfile);
       if (!bp)
         return 1;
-      r = ReplaceConfig(bp, config_file);
+      r = ReplaceConfig(bp, config_file, kernel_body_load_address);
       if (!r) {
         if (version >= 0) {
           bp->kernel_version = (uint64_t) version;
         }
-        r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly);
+        r = Pack(filename, key_block_file, signprivate, bp, pad, vblockonly,
+            kernel_body_load_address);
       }
       FreeBlob(bp);
       return r;
 
     case OPT_MODE_VERIFY:
-      return Verify(filename, signpubkey, verbose, key_block_file);
+      return Verify(filename, signpubkey, verbose, key_block_file,
+          kernel_body_load_address);
 
     default:
       fprintf(stderr,
