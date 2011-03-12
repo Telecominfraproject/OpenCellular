@@ -49,6 +49,8 @@ def ProcessDir(directory):
   re_bmp = re.compile(r'\'data_bitmap_fv\': \[\'(?P<bmp>.*)\'\],')
   re_hwid = re.compile(r'\'part_id_hwqual\': \[\'(?P<hwid>.*)\'\],')
   re_geom = re.compile(r'\'data_display_geometry\': \[\'(?P<geom>.*)\'\],')
+  # Old bitmap style
+  re_fv = re.compile(r'.*\.fv')
 
   # Find the components files.
   files = glob.glob(os.path.join(directory, "data_*/components_*"))
@@ -74,8 +76,11 @@ def ProcessDir(directory):
     if not ( bmp and hwid and geom):
       print "Corrupt HWID configuration"
       sys.exit(1)
-    print "HWID: %s, %s, %s" % (hwid, geom, bmp)
-    MakeBmp(hwid, geom, bmp, directory)
+    if re_fv.match(bmp):
+      print "HWID: %s, %s, %s (skipping old style bitmap)" % (hwid, geom, bmp)
+    else:
+      print "HWID: %s, %s, %s" % (hwid, geom, bmp)
+      MakeBmp(hwid, geom, bmp, directory)
 
 def main():
   directory = os.path.abspath(sys.argv[1])
