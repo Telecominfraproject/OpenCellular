@@ -338,19 +338,41 @@ EOF
   # TODO(gauravsh): Check embedded firmware AU signatures.
 }
 
+# Sign the kernel partition on an image using the given keys. Modifications are
+# made in-place.
+# Args: src_bin kernel_datakey kernel_keyblock kernel_version
+sign_image_inplace() {
+  src_bin=$1
+  kernel_datakey=$2
+  kernel_keyblock=$3
+  kernel_version=$4
+
+  temp_kimage=$(make_temp_file)
+  extract_image_partition ${src_bin} 2 ${temp_kimage}
+  updated_kimage=$(make_temp_file)
+
+  vbutil_kernel --repack "${updated_kimage}" \
+  --keyblock "${kernel_keyblock}" \
+  --signprivate "${kernel_datakey}" \
+  --version "${kernel_version}" \
+  --oldblob "${temp_kimage}"
+  replace_image_partition ${src_bin} 2 ${updated_kimage}
+}
+
 # Generate the SSD image
+# Args: image_bin
 sign_for_ssd() {
-  ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
-    ${KEY_DIR}/kernel_data_key.vbprivk \
+  image_bin=$1
+  sign_image_inplace ${image_bin} ${KEY_DIR}/kernel_data_key.vbprivk \
     ${KEY_DIR}/kernel.keyblock \
     "${KERNEL_VERSION}"
-  echo "Signed SSD image output to ${OUTPUT_IMAGE}"
+  echo "Signed SSD image output to ${image_bin}"
 }
 
 # Generate the USB image (direct boot)
 sign_for_usb() {
-  ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
-    ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
+  image_bin=$1
+  sign_image_inplace ${image_bin} ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     ${KEY_DIR}/recovery_kernel.keyblock \
     "${KERNEL_VERSION}"
 
@@ -358,7 +380,7 @@ sign_for_usb() {
   # The installer vblock is for KERN-A on direct boot images.
   temp_kimagea=$(make_temp_file)
   temp_out_vb=$(make_temp_file)
-  extract_image_partition ${OUTPUT_IMAGE} 2 ${temp_kimagea}
+  extract_image_partition ${image_bin} 2 ${temp_kimagea}
   ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimagea} ${temp_out_vb} \
     ${KEY_DIR}/kernel_data_key.vbprivk \
     ${KEY_DIR}/kernel.keyblock \
@@ -366,18 +388,20 @@ sign_for_usb() {
 
   # Copy the installer vblock to the stateful partition.
   local stateful_dir=$(make_temp_dir)
-  mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
+  mount_image_partition ${image_bin} 1 ${stateful_dir}
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
 
-  echo "Signed USB image output to ${OUTPUT_IMAGE}"
+  echo "Signed USB image output to ${image_bin}"
 }
 
 # Generate the USB (recovery + install) image
+# Args: image_bin
 sign_for_recovery() {
+  image_bin=$1
   # Update the Kernel B hash in Kernel A command line
   temp_kimageb=$(make_temp_file)
-  extract_image_partition ${INPUT_IMAGE} 4 ${temp_kimageb}
-  local kern_a_config=$(grab_kernel_config "${INPUT_IMAGE}" 2)
+  extract_image_partition ${image_bin} 4 ${temp_kimageb}
+  local kern_a_config=$(grab_kernel_config "${image_bin}" 2)
   local kern_b_hash=$(sha1sum ${temp_kimageb} | cut -f1 -d' ')
 
   temp_configa=$(make_temp_file)
@@ -386,10 +410,8 @@ sign_for_recovery() {
   echo "New config for kernel partition 2 is"
   cat $temp_configa
 
-  # Make a copy of the input image
-  cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   local temp_kimagea=$(make_temp_file)
-  extract_image_partition ${OUTPUT_IMAGE} 2 ${temp_kimagea}
+  extract_image_partition ${image_bin} 2 ${temp_kimagea}
   # Re-calculate kernel partition signature and command line.
   local updated_kimagea=$(make_temp_file)
   vbutil_kernel --repack ${updated_kimagea} \
@@ -399,12 +421,12 @@ sign_for_recovery() {
     --oldblob ${temp_kimagea} \
     --config ${temp_configa}
 
-  replace_image_partition ${OUTPUT_IMAGE} 2 ${updated_kimagea}
+  replace_image_partition ${image_bin} 2 ${updated_kimagea}
 
   # Now generate the installer vblock with the SSD keys.
   # The installer vblock is for KERN-B on recovery images.
   temp_out_vb=$(make_temp_file)
-  extract_image_partition ${OUTPUT_IMAGE} 4 ${temp_kimageb}
+  extract_image_partition ${image_bin} 4 ${temp_kimageb}
   ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimageb} ${temp_out_vb} \
     ${KEY_DIR}/kernel_data_key.vbprivk \
     ${KEY_DIR}/kernel.keyblock \
@@ -417,19 +439,20 @@ sign_for_recovery() {
   # Note: This vblock is also needed for the ability to convert a recovery
   # image into the equivalent SSD image (convert_recovery_to_ssd.sh)
   local stateful_dir=$(make_temp_dir)
-  mount_image_partition ${OUTPUT_IMAGE} 1 ${stateful_dir}
+  mount_image_partition ${image_bin} 1 ${stateful_dir}
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
 
-  echo "Signed recovery image output to ${OUTPUT_IMAGE}"
+  echo "Signed recovery image output to ${image_bin}"
 }
 
 # Generate the factory install image.
+# Args: image_bin
 sign_for_factory_install() {
-  ${SCRIPT_DIR}/resign_image.sh ${INPUT_IMAGE} ${OUTPUT_IMAGE} \
-    ${KEY_DIR}/installer_kernel_data_key.vbprivk \
+  image_bin=$1
+  sign_image_inplace ${image_bin} ${KEY_DIR}/installer_kernel_data_key.vbprivk \
     ${KEY_DIR}/installer_kernel.keyblock \
     "${KERNEL_VERSION}"
-  echo "Signed factory install image output to ${OUTPUT_IMAGE}"
+  echo "Signed factory install image output to ${image_bin}"
 }
 
 # Verification
@@ -453,39 +476,44 @@ fi
 echo "Using firmware version: ${FIRMWARE_VERSION}"
 echo "Using kernel version: ${KERNEL_VERSION}"
 
+# Make all modifications on output copy.
 if [ "${TYPE}" == "ssd" ]; then
-  resign_firmware_payload ${INPUT_IMAGE}
-  update_rootfs_hash ${INPUT_IMAGE} \
+  cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
+  resign_firmware_payload ${OUTPUT_IMAGE}
+  update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/kernel.keyblock \
     ${KEY_DIR}/kernel_data_key.vbprivk \
     2
-  sign_for_ssd
+  sign_for_ssd ${OUTPUT_IMAGE}
 elif [ "${TYPE}" == "usb" ]; then
-  resign_firmware_payload ${INPUT_IMAGE}
-  update_rootfs_hash ${INPUT_IMAGE} \
+  cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
+  resign_firmware_payload ${OUTPUT_IMAGE}
+  update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     2
-  sign_for_usb
+  sign_for_usb ${OUTPUT_IMAGE}
 elif [ "${TYPE}" == "recovery" ]; then
-  resign_firmware_payload ${INPUT_IMAGE}
+  cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
+  resign_firmware_payload ${OUTPUT_IMAGE}
   # Both kernel command lines must have the correct rootfs hash
-  update_rootfs_hash ${INPUT_IMAGE} \
+  update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     4
-  update_rootfs_hash ${INPUT_IMAGE} \
+  update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     2
-  sign_for_recovery
+  sign_for_recovery ${OUTPUT_IMAGE}
 elif [ "${TYPE}" == "install" ]; then
-  resign_firmware_payload ${INPUT_IMAGE}
-  update_rootfs_hash ${INPUT_IMAGE} \
+  cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
+  resign_firmware_payload ${OUTPUT_IMAGE}
+  update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/installer_kernel.keyblock \
     ${KEY_DIR}/installer_kernel_data_key.vbprivk \
     2
-  sign_for_factory_install
+  sign_for_factory_install ${OUTPUT_IMAGE}
 else
   echo "Invalid type ${TYPE}"
   exit 1
