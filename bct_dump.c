@@ -36,51 +36,27 @@ typedef struct {
 } value_data;
 
 static value_data const	values[] = {
-	{nvbct_lib_id_boot_data_version,
-	 "Version..................: 0x%08x\n"},
-	{nvbct_lib_id_block_size_log2,
-	 "Block size (log2)........: %d\n"},
-	{nvbct_lib_id_page_size_log2,
-	 "Page size (log2).........: %d\n"},
-	{nvbct_lib_id_partition_size,
-	 "Parition size............: 0x%08x\n"},
-	{nvbct_lib_id_bootloader_used,
-	 "Bootloader used..........: %d\n"},
-	{nvbct_lib_id_bootloaders_max,
-	 "Bootloaders max..........: %d\n"},
-	{nvbct_lib_id_bct_size,
-	 "BCT size.................: %d\n"},
-	{nvbct_lib_id_hash_size,
-	 "Hash size................: %d\n"},
-	{nvbct_lib_id_crypto_offset,
-	 "Crypto offset............: %d\n"},
-	{nvbct_lib_id_crypto_length,
-	 "Crypto length............: %d\n"},
-	{nvbct_lib_id_max_bct_search_blks,
-	 "Max BCT search blocks....: %d\n"},
-	{nvbct_lib_id_num_param_sets,
-	 "Device parameters used...: %d\n"},
+	{ nvbct_lib_id_boot_data_version,   "Version       = 0x%08x;\n" },
+	{ nvbct_lib_id_block_size_log2,	    "BlockSize     = 0x%08x;\n" },
+	{ nvbct_lib_id_page_size_log2,      "PageSize      = 0x%08x;\n" },
+	{ nvbct_lib_id_partition_size,	    "PartitionSize = 0x%08x;\n" },
+	{ nvbct_lib_id_bootloader_used,	    "# Bootloader used       = %d;\n" },
+	{ nvbct_lib_id_bootloaders_max,     "# Bootloaders max       = %d;\n" },
+	{ nvbct_lib_id_bct_size,            "# BCT size              = %d;\n" },
+	{ nvbct_lib_id_hash_size,           "# Hash size             = %d;\n" },
+	{ nvbct_lib_id_crypto_offset,       "# Crypto offset         = %d;\n" },
+	{ nvbct_lib_id_crypto_length,       "# Crypto length         = %d;\n" },
+	{ nvbct_lib_id_max_bct_search_blks, "# Max BCT search blocks = %d;\n" },
 };
 
 static value_data const	bl_values[] = {
-	{nvbct_lib_id_bl_version,
-	 "    Version.......: 0x%08x\n"},
-	{nvbct_lib_id_bl_start_blk,
-	 "    Start block...: %d\n"},
-	{nvbct_lib_id_bl_start_page,
-	 "    Start page....: %d\n"},
-	{nvbct_lib_id_bl_length,
-	 "    Length........: %d\n"},
-	{nvbct_lib_id_bl_load_addr,
-	 "    Load address..: 0x%08x\n"},
-	{nvbct_lib_id_bl_entry_point,
-	 "    Entry point...: 0x%08x\n"},
-	{nvbct_lib_id_bl_attribute,
-	 "    Attributes....: 0x%08x\n"},
-};
-
-static const char *sdram_types[nvboot_memory_type_num] = {
-	"None", "DDR", "LPDDR", "DDR2", "LPDDR2"
+	{ nvbct_lib_id_bl_version,     "Version      = 0x%08x;\n" },
+	{ nvbct_lib_id_bl_start_blk,   "Start block  = %d;\n" },
+	{ nvbct_lib_id_bl_start_page,  "Start page   = %d;\n" },
+	{ nvbct_lib_id_bl_length,      "Length       = %d;\n" },
+	{ nvbct_lib_id_bl_load_addr,   "Load address = 0x%08x;\n" },
+	{ nvbct_lib_id_bl_entry_point, "Entry point  = 0x%08x;\n" },
+	{ nvbct_lib_id_bl_attribute,   "Attributes   = 0x%08x;\n" },
 };
 
 /*****************************************************************************/
@@ -106,28 +82,54 @@ static int max_width(field_item const * table)
 	return width;
 }
 /*****************************************************************************/
-static int display_field_value(field_item const * item, u_int32_t value)
+static enum_item const * find_enum_item(build_image_context *context,
+					enum_item const * table,
+					u_int32_t value)
+{
+	int i;
+
+	for (i = 0; table[i].name != NULL; ++i)
+	{
+		u_int32_t	table_value;
+
+		if (!context->bctlib.get_value(table[i].value,
+					       &table_value,
+					       context->bct) &&
+		    table_value == value)
+			return table + i;
+	}
+
+	return NULL;
+}
+/*****************************************************************************/
+static void display_enum_value(build_image_context *context,
+			       enum_item const * table,
+			       u_int32_t value)
+{
+	enum_item const * e_item = find_enum_item(context, table, value);
+
+	if (e_item)
+		printf("%s", e_item->name);
+	else
+		printf("<UNKNOWN ENUM VALUE (%d)>", value);
+}
+/*****************************************************************************/
+static int display_field_value(build_image_context *context,
+			       field_item const * item,
+			       u_int32_t value)
 {
 	switch (item->type)
 	{
 		case field_type_enum:
-			/*
-			 * It would be ideal if we could take the enum value
-			 * and programatically look up a string that the parse
-			 * would accept for this field.  The problem is that
-			 * the mapping between field values and nvbct_lib_id
-			 * values is hard coded in the nvbctlib source.  For
-			 * now we drop down to the u32 printing code.
-			 *
-			 * TODO(robotboy): Fix this
-			 */
+			display_enum_value(context, item->enum_table, value);
+			break;
 
 		case field_type_u32:
 			printf("0x%08x", value);
 			break;
 
 		case field_type_u8:
-			printf("0x%02x", value);
+			printf("%d", value);
 			break;
 
 		default:
@@ -171,7 +173,14 @@ int main(int argc, char *argv[])
 	/* Display root values */
 	for (i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
 		e = context.bctlib.get_value(values[i].id, &data, context.bct);
-		printf(values[i].message, e == 0 ? data : -1);
+
+		if (e != 0)
+			data = -1;
+		else if (values[i].id == nvbct_lib_id_block_size_log2 ||
+			 values[i].id == nvbct_lib_id_page_size_log2)
+			data = 1 << data;
+
+		printf(values[i].message, data);
 	}
 
 	/* Display bootloader values */
@@ -179,55 +188,71 @@ int main(int argc, char *argv[])
 				     &bootloaders_used,
 				     context.bct);
 
-	for (i = 0; (e == 0) && (i < bootloaders_used); ++i) {
-		printf("Bootloader[%d]\n", i);
+	if ((e == 0) && (bootloaders_used > 0)) {
+		int bl_count = sizeof(bl_values) / sizeof(bl_values[0]);
 
-		for (j = 0; j < sizeof(bl_values) / sizeof(bl_values[0]); ++j) {
-			e = context.bctlib.getbl_param(i,
-						       bl_values[j].id,
-						       &data,
-						       context.bct);
-			printf(bl_values[j].message, e == 0 ? data : -1);
+		printf("#\n"
+		       "# These values are set by cbootimage using the\n"
+		       "# bootloader provided by the Bootloader=...\n"
+		       "# configuration option.\n"
+		       "#\n");
+
+		for (i = 0; i < bootloaders_used; ++i) {
+			for (j = 0; j < bl_count; ++j) {
+				e = context.bctlib.getbl_param(i,
+							       bl_values[j].id,
+							       &data,
+							       context.bct);
+				printf("# Bootloader[%d].", i);
+
+				if (e != 0)
+					data = -1;
+
+				printf(bl_values[j].message, data);
+			}
 		}
 	}
 
-	/* Display device values */
+	/* Display flash device parameters */
 	e = context.bctlib.get_value(nvbct_lib_id_num_param_sets,
 				     &parameters_used,
 				     context.bct);
 
 	for (i = 0; (e == 0) && (i < parameters_used); ++i) {
 		field_item const * device_field_table = NULL;
+		char const * prefix = NULL;
 		field_item const * item;
-
-		printf("DeviceParameter[%d]\n", i);
 
 		e = context.bctlib.getdev_param(i,
 						nvbct_lib_id_dev_type,
 						&type,
 						context.bct);
 
+		printf("\n"
+		       "DevType[%d] = ", i);
+		display_enum_value(&context, s_devtype_table, type);
+		printf(";\n");
+
 		switch (type)
 		{
 			case nvboot_dev_type_spi:
-				printf("    Type = SPI\n");
 				device_field_table = s_spiflash_table;
+				prefix = "SpiFlashParams";
 				break;
 
 			case nvboot_dev_type_sdmmc:
-				printf("    Type = SDMMC\n");
 				device_field_table = s_sdmmc_table;
+				prefix = "SdmmcParams";
 				break;
 
 			case nvboot_dev_type_nand:
-				printf("    Type = NAND\n");
 				device_field_table = s_nand_table;
+				prefix = "NandParams";
 				break;
 
 			default:
 				device_field_table = NULL;
-				printf("    Type = <UNKNOWN TYPE (%d)>\n",
-				       type);
+				prefix = "";
 				break;
 		}
 
@@ -241,45 +266,42 @@ int main(int argc, char *argv[])
 							item->enum_value,
 							&data,
 							context.bct);
-			printf("    %-*s = 0x%08x\n",
-			       width, item->name,
-			       e == 0 ? data : -1);
+			printf("DeviceParam[%d].%s.%-*s = ",
+			       i, prefix, width, item->name);
+
+			if (e != 0)
+				printf("<ERROR reading parameter (%d)>", e);
+			else
+				display_field_value(&context, item, data);
+
+			printf(";\n");
 		}
 	}
 
-	/* Display SDRAM parameters sets */
+	/* Display SDRAM parameters */
 	e = context.bctlib.get_value(nvbct_lib_id_num_sdram_sets,
 				     &sdram_used,
 				     context.bct);
 
 	for (i = 0; (e == 0) && (i < sdram_used); ++i) {
-		printf("SDRAMParameter[%d]\n", i);
-
-		e = context.bctlib.get_sdram_params(i,
-						nvbct_lib_id_sdram_memory_type,
-						&type,
-						context.bct);
-
-		printf("    Type............................: %s\n",
-			type < nvboot_memory_type_num ? sdram_types[type]
-						      : "Unknown");
-
 		int width = max_width(s_sdram_field_table);
 		field_item const * item;
+
+		printf("\n");
 
 		for (item = s_sdram_field_table; item->name != NULL; ++item) {
 			e = context.bctlib.get_sdram_params(i,
 							    item->enum_value,
 							    &data,
 							    context.bct);
-			printf("    %-*s = ", width, item->name);
+			printf("SDRAM[%d].%-*s = ", i, width, item->name);
 
 			if (e != 0)
 				printf("<ERROR reading parameter (%d)>", e);
 			else
-				display_field_value(item, data);
+				display_field_value(&context, item, data);
 
-			printf("\n");
+			printf(";\n");
 		}
 	}
 
@@ -288,3 +310,4 @@ int main(int argc, char *argv[])
 
 	return e;
 }
+/*****************************************************************************/
