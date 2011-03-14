@@ -28,6 +28,7 @@ cbootimage: $(CBOOTIMAGE_OBJS)
 BCT_DUMP_C_FILES := bct_dump.c
 BCT_DUMP_C_FILES += nvbctlib_ap20.c
 BCT_DUMP_C_FILES += data_layout.c
+BCT_DUMP_C_FILES += parse.c
 BCT_DUMP_C_FILES += set.c
 BCT_DUMP_C_FILES += crypto.c
 BCT_DUMP_C_FILES += aes_ref.c

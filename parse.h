@@ -202,6 +202,7 @@ typedef struct
 {
 	char *name;
 	u_int32_t token;
+	u_int32_t enum_value;
 	field_type type;
 	enum_item *enum_table;
 } field_item;
@@ -220,6 +221,19 @@ typedef struct
 	parse_token token;
 	process_function process;
 } parse_item;
+
+/*
+ * Provide access to enum and field tables.  These tables are useful when
+ * pretty printing a BCT file using bct_dump.
+ */
+extern enum_item s_devtype_table[];
+extern enum_item s_sdmmc_data_width_table[];
+extern enum_item s_spi_clock_source_table[];
+extern enum_item s_nvboot_memory_type_table[];
+extern field_item s_sdram_field_table[];
+extern field_item s_nand_table[];
+extern field_item s_sdmmc_table[];
+extern field_item s_spiflash_table[];
 
 /*
  * Function prototypes
