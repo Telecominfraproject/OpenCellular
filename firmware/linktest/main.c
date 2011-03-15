@@ -8,6 +8,7 @@
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "tlcl.h"
+#include "tpm_bootmode.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
 #include "vboot_nvstorage.h"
@@ -36,6 +37,9 @@ int main(void)
   RollbackKernelRead(0);
   RollbackKernelWrite(0);
   RollbackKernelLock();
+
+  /* tpm_bootmode.c */
+  SetTPMBootModeState(0, 0, 0);
 
   /* tlcl.h */
   TlclLibInit();

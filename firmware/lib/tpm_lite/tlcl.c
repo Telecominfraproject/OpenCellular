@@ -291,7 +291,8 @@ uint32_t TlclSetGlobalLock(void) {
   return TlclWrite(TPM_NV_INDEX0, (uint8_t*) &x, 0);
 }
 
-uint32_t TlclExtend(int pcr_num, uint8_t* in_digest, uint8_t* out_digest) {
+uint32_t TlclExtend(int pcr_num, const uint8_t* in_digest,
+                    uint8_t* out_digest) {
   struct s_tpm_extend_cmd cmd;
   uint8_t response[kTpmResponseHeaderLength + kPcrDigestLength];
   uint32_t result;

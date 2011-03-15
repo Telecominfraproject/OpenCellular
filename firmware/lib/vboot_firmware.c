@@ -9,6 +9,7 @@
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "rollback_index.h"
+#include "tpm_bootmode.h"
 #include "utility.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
@@ -53,6 +54,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   uint32_t status;
   uint32_t test_err = 0;
   int good_index = -1;
+  int boot_fw_keyblock_flags = 0;
   int is_dev;
   int index;
   int i;
@@ -274,6 +276,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
        * this firmware.  That's the one we'll boot. */
       good_index = index;
       params->firmware_index = index;
+      /* Since we now know which firmware to boot, we can update the
+       * bootable firmware key block mode. */
+      boot_fw_keyblock_flags = key_block->key_block_flags;
 
       /* If the good firmware's key version is the same as the tpm,
        * then the TPM doesn't need updating; we can stop now.
@@ -282,6 +287,19 @@ int LoadFirmware(LoadFirmwareParams* params) {
       if (combined_version == tpm_version)
         break;
     }
+  }
+
+  /* At this point, we have a good idea of how we are going to boot. Update the
+   * TPM with this state information.
+   */
+  status = SetTPMBootModeState(is_dev, 0, boot_fw_keyblock_flags);
+  if (0 != status) {
+    VBDEBUG(("Unable to update the TPM with boot mode information.\n"));
+    if (status == TPM_E_MUST_REBOOT)
+      retval = LOAD_FIRMWARE_REBOOT;
+    else
+      recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+    goto LoadFirmwareExit;
   }
 
   /* Free internal data */

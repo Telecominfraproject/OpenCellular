@@ -40,6 +40,7 @@ LIB_SRCS = \
 	./lib/cryptolib/sha2.c \
 	./lib/cryptolib/sha_utility.c \
 	./lib/rollback_index.c \
+	./lib/tpm_bootmode.c \
 	./lib/stateful_util.c \
 	./lib/tpm_lite/tlcl.c \
 	./lib/utility.c \

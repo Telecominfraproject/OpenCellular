@@ -9,27 +9,9 @@
 #include "rollback_index.h"
 
 #include "tlcl.h"
+#include "tpm_bootmode.h"
 #include "tss_constants.h"
 #include "utility.h"
-
-/* TPM PCR to use for storing dev mode measurements */
-#define DEV_REC_MODE_PCR 0
-/* Input digests for PCR extend */
-#define DEV_OFF_REC_OFF_SHA1_DIGEST ((uint8_t*) "\x14\x89\xf9\x23\xc4\xdc\xa7" \
-                                     "\x29\x17\x8b\x3e\x32\x33\x45\x85\x50" \
-                                     "\xd8\xdd\xdf\x29") /* SHA1("\x00\x00") */
-
-#define DEV_OFF_REC_ON_SHA1_DIGEST ((uint8_t*) "\x3f\x29\x54\x64\x53\x67\x8b" \
-                                    "\x85\x59\x31\xc1\x74\xa9\x7d\x6c\x08" \
-                                    "\x94\xb8\xf5\x46") /* SHA1("\x00\x01") */
-
-#define DEV_ON_REC_OFF_SHA1_DIGEST ((uint8_t*) "\x0e\x35\x6b\xa5\x05\x63\x1f" \
-                                    "\xbf\x71\x57\x58\xbe\xd2\x7d\x50\x3f" \
-                                    "\x8b\x26\x0e\x3a") /* SHA1("\x01\x00") */
-
-#define DEV_ON_REC_ON_SHA1_DIGEST ((uint8_t*) "\x91\x59\xcb\x8b\xce\xe7\xfc" \
-                                    "\xb9\x55\x82\xf1\x40\x96\x0c\xda\xe7" \
-                                    "\x27\x88\xd3\x26") /* SHA1("\x01\x01") */
 
 static int g_rollback_recovery_mode = 0;
 
@@ -294,7 +276,6 @@ uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   TlclStartup();
   TlclContinueSelfTest();
 #endif
-
   *version = 0;
   return TPM_SUCCESS;
 }
@@ -348,22 +329,13 @@ uint32_t RollbackS3Resume(void) {
 
 uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   RollbackSpaceFirmware rsf;
-  uint8_t out_digest[20];  /* For PCR extend output */
 
   RETURN_ON_FAILURE(SetupTPM(0, developer_mode, &rsf));
   *version = rsf.fw_versions;
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
-  if (developer_mode)
-    RETURN_ON_FAILURE(TlclExtend(DEV_REC_MODE_PCR, DEV_ON_REC_OFF_SHA1_DIGEST,
-                                 out_digest));
-  else
-    RETURN_ON_FAILURE(TlclExtend(DEV_REC_MODE_PCR, DEV_OFF_REC_OFF_SHA1_DIGEST,
-                                 out_digest));
-  VBDEBUG(("TPM: RollbackFirmwareSetup dev mode PCR out_digest %02x %02x %02x "
-           "%02x\n", out_digest, out_digest+1, out_digest+2, out_digest+3));
-
   return TPM_SUCCESS;
 }
+
 
 uint32_t RollbackFirmwareWrite(uint32_t version) {
   RollbackSpaceFirmware rsf;
@@ -390,12 +362,10 @@ uint32_t RollbackKernelRecovery(int developer_mode) {
    * kernel will fix the TPM (if needed) and lock it ASAP.  We leave
    * Physical Presence on in either case. */
   rvs = SetupTPM(1, developer_mode, &rsf);
-  if (developer_mode)
-    rve = TlclExtend(DEV_REC_MODE_PCR, DEV_ON_REC_ON_SHA1_DIGEST, out_digest);
-  else
-    rve = TlclExtend(DEV_REC_MODE_PCR, DEV_OFF_REC_ON_SHA1_DIGEST, out_digest);
-  VBDEBUG(("TPM: RollbackKernelRecovery dev mode PCR out_digest %02x %02x %02x "
-           "%02x\n", out_digest, out_digest+1, out_digest+2, out_digest+3));
+  rve = SetTPMBootModeState(developer_mode,
+                            1,  /* Recovery Mode Status. */
+                            0);  /* In recovery mode, there is no RW firmware
+                                  * keyblock flag. */
   return (TPM_SUCCESS == rvs) ? rve : rvs;
 }
 
