@@ -49,6 +49,7 @@ const Param sys_param_list[] = {
   {"recovery_request", 0, 1, "Recovery mode request (writable)"},
   {"dbg_reset", 0, 1, "Debug reset mode request (writable)"},
   {"fwb_tries", 0, 1, "Try firmware B count (writable)"},
+  {"vdat", 1, 0, "Raw VDAT contents."},
 
   /* TODO: implement the following:
    *   nvram_cleared

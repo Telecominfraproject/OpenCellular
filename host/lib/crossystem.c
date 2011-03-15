@@ -5,6 +5,10 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <ctype.h>
 
 #include "host_common.h"
 
@@ -68,6 +72,7 @@
 #define ACPI_FMAP_PATH ACPI_BASE_PATH "/FMAP"
 #define ACPI_GPIO_PATH ACPI_BASE_PATH "/GPIO"
 #define ACPI_VBNV_PATH ACPI_BASE_PATH "/VBNV"
+#define ACPI_VDAT_PATH ACPI_BASE_PATH "/VDAT"
 
 /* Base name for GPIO files */
 #define GPIO_BASE_PATH "/sys/class/gpio"
@@ -78,6 +83,12 @@
 
 /* Filename for kernel command line */
 #define KERNEL_CMDLINE_PATH "/proc/cmdline"
+
+/* A structure to contain buffer data retrieved from the ACPI. */
+typedef struct {
+  int buffer_size;
+  void* buffer;
+} AcpiBuffer;
 
 
 /* Copy up to dest_size-1 characters from src to dest, ensuring null
@@ -284,6 +295,102 @@ int VbSetCmosRebootField(uint8_t mask, int value) {
   return 0;
 }
 
+/*
+ * Get buffer data from ACPI.
+ *
+ * Buffer data is expected to be represented by a file which is a text dump of
+ * the buffer, representing each byte by two hex numbers, space and newline
+ * separated.
+ *
+ * Input - ACPI file name to get data from.
+ *
+ * Output: a pointer to AcpiBuffer structure containing the binary
+ *         representation of the data. The caller is responsible for
+ *         deallocating the pointer, this will take care of both the structure
+ *         and the buffer. Null in case of error.
+ */
+
+AcpiBuffer* VbGetBuffer(const char* filename)
+{
+  FILE* f = NULL;
+  char* file_buffer = NULL;
+  AcpiBuffer* acpi_buffer = NULL;
+  AcpiBuffer* return_value = NULL;
+
+  do {
+    struct stat fs;
+    unsigned char* output_ptr;
+    int rv, i, real_size;
+
+    rv = stat(filename, &fs);
+    if (rv || !S_ISREG(fs.st_mode))
+      break;
+
+    f = fopen(filename, "r");
+    if (!f)
+      break;
+
+    file_buffer = Malloc(fs.st_size + 1);
+    if (!file_buffer)
+      break;
+
+
+    real_size = fread(file_buffer, 1, fs.st_size, f);
+    if (!real_size)
+      break;
+
+    /* each byte in the output will replace two characters and a space in the
+     *  input, so the output size does not exceed input side/3 (a little less
+     *  if account for newline characters).
+     */
+    acpi_buffer = Malloc(sizeof(AcpiBuffer) + real_size/3);
+
+    if (!acpi_buffer)
+      break;
+
+    file_buffer[real_size] = '\0';
+
+    acpi_buffer->buffer = acpi_buffer + 1;
+    acpi_buffer->buffer_size = 0;
+    output_ptr = acpi_buffer->buffer;
+
+    /* process the file contents */
+    for (i = 0; i < real_size; i++) {
+      char* base, *end;
+
+      base = file_buffer + i;
+
+      if (!isxdigit(*base))
+        continue;
+
+      output_ptr[acpi_buffer->buffer_size++] = strtol(base, &end, 16) & 0xff;
+
+      if ((end - base) != 2)
+        /* Input file format error */
+        break;
+
+      i += 2; /* skip the second character and the following space */
+    }
+
+    if (i == real_size) {
+      /* all is well */
+      return_value = acpi_buffer;
+      acpi_buffer = NULL; /* prevent it from deallocating */
+    }
+  } while(0);
+
+  /* wrap up */
+  if (f)
+    fclose(f);
+
+  if (file_buffer)
+    Free(file_buffer);
+
+  if (acpi_buffer)
+    Free(acpi_buffer);
+
+  return return_value;
+}
 
 /* Read an integer property from VbNvStorage.
  *
@@ -565,6 +672,31 @@ int VbGetSystemPropertyInt(const char* name) {
   return value;
 }
 
+/* This function is just an example illustrating the use of VbGetBuffer(). It
+ * converts the binary contents of the buffer into a space delimetered hex
+ * string. It is expected to be replaced with a function which has knowledge
+ * of the buffer data structure.
+ */
+char* GetVdatBuffer(void)
+{
+  char* buffer, *src, *p;
+  int i;
+
+  AcpiBuffer* ab = VbGetBuffer(ACPI_VDAT_PATH);
+  if (!ab)
+    return NULL;
+
+  buffer = Malloc(ab->buffer_size * 3 + 2);
+  p = buffer;
+  src = ab->buffer;
+  for (i = 0; i < ab->buffer_size; i++) {
+    snprintf(p, 4, " %2.2x", *src++);
+    p += 3;
+  }
+  *p = '\0';
+  Free(ab);
+  return buffer;
+}
 
 /* Read a system property string into a destination buffer of the specified
  * size.
@@ -609,6 +741,8 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
       default:
         return NULL;
     }
+  } else if (!strcasecmp(name, "vdat")) {
+    return GetVdatBuffer();
   } else
     return NULL;
 }
