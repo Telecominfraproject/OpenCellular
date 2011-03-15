@@ -18,6 +18,8 @@ DEFINE_string dev_mode "" \
   "(build-info) Tag as a developer mode build (1 to enable, 0 to disable)"
 DEFINE_string update_firmware "" \
   "(auto-update) Force updating firmware (1 to enable, 0 to disable)"
+DEFINE_string leave_firmware_alone "" \
+  "(auto-update) For BIOS development use ONLY (1 to enable, 0 to disable)"
 DEFINE_string forget_usernames "" \
   "(session-manager) Forget usernames (1 to enable, 0 to disable)"
 DEFINE_string leave_core "" \
@@ -140,6 +142,12 @@ process_all_tags() {
     "${rootfs}" \
     /root/.force_update_firmware \
     "${FLAGS_update_firmware}"
+
+  process_tag "${do_modification}" \
+    "(auto-update) leave_firmware_alone" \
+    "${rootfs}" \
+    /root/.leave_firmware_alone \
+    "${FLAGS_leave_firmware_alone}"
 
   process_tag "${do_modification}" \
     "(session-manager) forget_usernames" \
