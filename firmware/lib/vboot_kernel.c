@@ -18,6 +18,7 @@
 #include "vboot_common.h"
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
+#define LOWEST_TPM_VERSION 0xffffffff
 
 typedef enum BootMode {
   kBootNormal,   /* Normal firmware */
@@ -132,7 +133,7 @@ int LoadKernel(LoadKernelParams* params) {
   int good_partition = -1;
   int good_partition_key_block_valid = 0;
   uint32_t tpm_version = 0;
-  uint64_t lowest_version = 0xFFFFFFFF;
+  uint64_t lowest_version = LOWEST_TPM_VERSION;
   int rec_switch, dev_switch;
   BootMode boot_mode;
   uint32_t test_err = 0;
@@ -380,6 +381,10 @@ int LoadKernel(LoadKernelParams* params) {
       /* Check for lowest version from a valid header. */
       if (key_block_valid && lowest_version > combined_version)
         lowest_version = combined_version;
+      else {
+        VBDEBUG(("Key block valid: %d\n", key_block_valid));
+        VBDEBUG(("Combined version: %" PRIu64 "\n", combined_version));
+      }
 
       /* If we already have a good kernel, no need to read another
        * one; we only needed to look at the versions to check for
@@ -506,7 +511,9 @@ int LoadKernel(LoadKernelParams* params) {
        * mode, the TPM stays PP-unlocked, so anything we write gets blown away
        * by the firmware when we go back to normal mode. */
       VBDEBUG(("Boot_flags = not recovery\n"));
-      if (lowest_version > tpm_version) {
+
+      if ((lowest_version > tpm_version) &&
+          (lowest_version != LOWEST_TPM_VERSION)) {
         status = RollbackKernelWrite((uint32_t)lowest_version);
         if (0 != status) {
           VBDEBUG(("Error writing kernel versions to TPM.\n"));
