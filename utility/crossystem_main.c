@@ -27,8 +27,10 @@ const Param sys_param_list[] = {
   {"recoverysw_cur", 0, 0, "Recovery switch current position"},
   {"recoverysw_boot", 0, 0, "Recovery switch position at boot"},
   {"recoverysw_ec_boot", 0, 0, "Recovery switch position at EC boot"},
-  {"wpsw_cur",  0, 0, "Firmware write protect switch current position"},
-  {"wpsw_boot", 0, 0, "Firmware write protect switch position at boot"},
+  {"wpsw_cur",  0, 0,
+   "Firmware write protect hardware switch current position"},
+  {"wpsw_boot", 0, 0,
+   "Firmware write protect hardware switch position at boot"},
   {"recovery_reason",  0, 0, "Recovery mode reason for current boot"},
   {"savedmem_base", 0, 0, "RAM debug data area physical address", "0x%08x"},
   {"savedmem_size", 0, 0, "RAM debug data area size in bytes"},
@@ -49,11 +51,9 @@ const Param sys_param_list[] = {
   {"recovery_request", 0, 1, "Recovery mode request (writable)"},
   {"dbg_reset", 0, 1, "Debug reset mode request (writable)"},
   {"fwb_tries", 0, 1, "Try firmware B count (writable)"},
+  {"vbtest_errfunc", 0, 1, "Verified boot test error function (writable)"},
+  {"vbtest_errno", 0, 1, "Verified boot test error number (writable)"},
   {"vdat", 1, 0, "Raw VDAT contents."},
-
-  /* TODO: implement the following:
-   *   nvram_cleared
-   */
 
   /* Terminate with null name */
   {NULL, 0, 0, NULL}

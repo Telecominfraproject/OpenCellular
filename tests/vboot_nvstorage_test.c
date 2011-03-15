@@ -31,6 +31,8 @@ static VbNvField nvfields[] = {
   {VBNV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
   {VBNV_TRIED_FIRMWARE_B, 0, 1, 0, "tried firmware B"},
   {VBNV_FW_VERIFIED_KERNEL_KEY, 0, 1, 0, "firmware verified kernel key"},
+  {VBNV_TEST_ERROR_FUNC, 0, 1, 7, "verified boot test error func"},
+  {VBNV_TEST_ERROR_NUM, 0, 3, 6, "verified boot test error number"},
   {0, 0, 0, 0, NULL}
 };
 

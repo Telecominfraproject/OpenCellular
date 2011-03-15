@@ -644,6 +644,10 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
   } else if (!strcasecmp(name,"nvram_cleared")) {
     value = VbGetNvStorage(VBNV_KERNEL_SETTINGS_RESET);
+  } else if (!strcasecmp(name,"vbtest_errfunc")) {
+    value = VbGetNvStorage(VBNV_TEST_ERROR_FUNC);
+  } else if (!strcasecmp(name,"vbtest_errno")) {
+    value = VbGetNvStorage(VBNV_TEST_ERROR_NUM);
   }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */
@@ -759,6 +763,10 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_KERNEL_SETTINGS_RESET, 0);
   } else if (!strcasecmp(name,"kern_nv")) {
     return VbSetNvStorage(VBNV_KERNEL_FIELD, value);
+  } else if (!strcasecmp(name,"vbtest_errfunc")) {
+    return VbSetNvStorage(VBNV_TEST_ERROR_FUNC, value);
+  } else if (!strcasecmp(name,"vbtest_errno")) {
+    return VbSetNvStorage(VBNV_TEST_ERROR_NUM, value);
   }
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS. */
