@@ -135,6 +135,7 @@ int LoadKernel(LoadKernelParams* params) {
   uint64_t lowest_version = 0xFFFFFFFF;
   int rec_switch, dev_switch;
   BootMode boot_mode;
+  uint32_t test_err = 0;
   uint32_t status;
 
   /* TODO: differentiate between finding an invalid kernel (found_partitions>0)
@@ -154,6 +155,29 @@ int LoadKernel(LoadKernelParams* params) {
       !params->kernel_buffer_size) {
     VBDEBUG(("LoadKernel() called with invalid params\n"));
     goto LoadKernelExit;
+  }
+
+  /* Handle test errors */
+  VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
+  if (VBNV_TEST_ERROR_LOAD_KERNEL == test_err) {
+    /* Get error code */
+    VbNvGet(vnc, VBNV_TEST_ERROR_NUM, &test_err);
+    /* Clear test params so we don't repeat the error */
+    VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
+    VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
+    /* Handle error codes */
+    switch (test_err) {
+      case LOAD_KERNEL_RECOVERY:
+        recovery = VBNV_RECOVERY_RW_TEST_LK;
+        goto LoadKernelExit;
+      case LOAD_KERNEL_NOT_FOUND:
+      case LOAD_KERNEL_INVALID:
+      case LOAD_KERNEL_REBOOT:
+        retval = test_err;
+        goto LoadKernelExit;
+      default:
+        break;
+    }
   }
 
   /* Initialization */

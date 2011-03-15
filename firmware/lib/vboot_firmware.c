@@ -34,6 +34,7 @@ void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
 
 
 int LoadFirmwareSetup(void) {
+  /* TODO: handle test errors (requires passing in VbNvContext) */
   /* TODO: start initializing the TPM */
   return LOAD_FIRMWARE_SUCCESS;
 }
@@ -50,6 +51,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   uint32_t tpm_version = 0;
   uint64_t lowest_version = 0xFFFFFFFF;
   uint32_t status;
+  uint32_t test_err = 0;
   int good_index = -1;
   int is_dev;
   int index;
@@ -71,6 +73,27 @@ int LoadFirmware(LoadFirmwareParams* params) {
     VBDEBUG(("Shared data init error\n"));
     recovery = VBNV_RECOVERY_RO_SHARED_DATA;
     goto LoadFirmwareExit;
+  }
+
+  /* Handle test errors */
+  VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
+  if (VBNV_TEST_ERROR_LOAD_FIRMWARE == test_err) {
+    /* Get error code */
+    VbNvGet(vnc, VBNV_TEST_ERROR_NUM, &test_err);
+    /* Clear test params so we don't repeat the error */
+    VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
+    VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
+    /* Handle error codes */
+    switch (test_err) {
+      case LOAD_FIRMWARE_RECOVERY:
+        recovery = VBNV_RECOVERY_RO_TEST_LF;
+        goto LoadFirmwareExit;
+      case LOAD_FIRMWARE_REBOOT:
+        retval = test_err;
+        goto LoadFirmwareExit;
+      default:
+        break;
+    }
   }
 
   /* Must have a root key from the GBB */
@@ -320,6 +343,9 @@ LoadFirmwareExit:
 
 
 int S3Resume(void) {
+
+  /* TODO: handle test errors (requires passing in VbNvContext) */
+
   /* Resume the TPM */
   uint32_t status = RollbackS3Resume();
 

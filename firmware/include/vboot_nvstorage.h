@@ -116,6 +116,13 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_US_UNSPECIFIED  0xFF
 
 
+/* Function codes for VBNV_TEST_ERROR_FUNC */
+#define VBNV_TEST_ERROR_LOAD_FIRMWARE_SETUP  1
+#define VBNV_TEST_ERROR_LOAD_FIRMWARE        2
+#define VBNV_TEST_ERROR_LOAD_KERNEL          3
+#define VBNV_TEST_ERROR_S3_RESUME            4
+
+
 /* Initialize the NV storage library.  This must be called before any
  * other functions in this library.  Returns 0 if success, non-zero if
  * error.
