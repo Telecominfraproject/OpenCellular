@@ -120,6 +120,9 @@ class EntryFmapArea(Entry):
     Entry._CheckFields(kwargs, ('flags',))
     super(EntryFmapArea, self).__init__(**kwargs)
 
+  def Pack(self, firmware_image, entries):
+    pass
+
 
 class EntryBlob(EntryFmapArea):
 
@@ -130,7 +133,8 @@ class EntryBlob(EntryFmapArea):
   def Pack(self, firmware_image, entries):
     size = os.stat(self.path).st_size
     if size > self.length:
-        raise PackError('blob too large: %d > %d' % (size, self.length))
+      raise PackError('blob too large: %s: %d > %d' %
+          (self.path, size, self.length))
     if size == 0: # special case for files like /dev/zero
       size = self.length
     with open(self.path, 'rb') as blob_image:
@@ -214,7 +218,10 @@ def parse_value(expr):
 def pack_firmware_image(entries, output_path, image_size):
   entries = sorted(entries, key=lambda e: e.offset)
   for e1, e2 in zip(entries, entries[1:]):
-    if e1.IsOverlapped(e2):
+    # Allow overlap between "pure" fmap areas, but not any of its subclasses
+    # Here we exploit the fact that Entry is a new-style class
+    if (e1.IsOverlapped(e2) and
+        type(e1) is not EntryFmapArea and type(e2) is not EntryFmapArea):
       raise PackError('overlapped entries: [%08x:%08x], [%08x:%08x]' %
           (e1.offset, e1.offset + e1.length, e2.offset, e2.offset + e2.length))
 
