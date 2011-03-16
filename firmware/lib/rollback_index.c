@@ -354,7 +354,6 @@ uint32_t RollbackFirmwareLock(void) {
 uint32_t RollbackKernelRecovery(int developer_mode) {
   uint32_t rvs, rve;
   RollbackSpaceFirmware rsf;
-  uint8_t out_digest[20];  /* For PCR extend output */
 
   /* In recovery mode we ignore TPM malfunctions or corruptions, and *
    * leave the TPM complelely unlocked; we call neither

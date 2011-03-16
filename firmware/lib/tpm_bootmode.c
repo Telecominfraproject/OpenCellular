@@ -28,7 +28,8 @@
  *   7 Normal-signed firmware  |     1
  *   (anything else)           |     0
  */
-const uint8_t kBootStateSHA1Digests[][20] = {
+
+const char* kBootStateSHA1Digests[] = {
   /* SHA1("\x00\x00\x00") */
   "\x29\xe2\xdc\xfb\xb1\x6f\x63\xbb\x02\x54\xdf\x75\x85\xa1\x5b\xb6"
   "\xfb\x5e\x92\x7d",
@@ -78,11 +79,11 @@ const uint8_t kBootStateSHA1Digests[][20] = {
   "\xbf\x35\x31\x78",
 };
 
-#define MAX_BOOT_STATE_INDEX (sizeof(kBootStateSHA1Digests)/sizeof(char[20]))
+#define MAX_BOOT_STATE_INDEX (sizeof(kBootStateSHA1Digests)/sizeof(char*))
 
 /* Used for PCR extend when the passed-in boot state is invalid or
  * if there is an internal error. */
-const uint8_t kBootInvalidSHA1Digest[20] = {
+const uint8_t kBootInvalidSHA1Digest[] = {
   "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"
   "\xff\xff\xff\xff"
 };
@@ -123,7 +124,7 @@ uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
                                        fw_keyblock_flags);
 
   if (digest_index >= 0 && digest_index < MAX_BOOT_STATE_INDEX)
-    in_digest = kBootStateSHA1Digests[digest_index];
+    in_digest = (const uint8_t*)kBootStateSHA1Digests[digest_index];
   else
     in_digest = kBootInvalidSHA1Digest;  /* Internal out of bounds error. */
   result = TlclExtend(BOOT_MODE_PCR, in_digest, out_digest);
