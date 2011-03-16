@@ -117,8 +117,8 @@ if [ -n "$USE_EXISTING" ]; then
 else
   require_chromeos_bios
   info "Extracting BIOS image from flash..."
-  log flashrom --wp-status
-  log flashrom -r ${BIOS}
+  log flashrom -p internal:bus=spi --wp-status
+  log flashrom -p internal:bus=spi -r ${BIOS}
 
   HD_KERN_A="${HD}2"
   HD_KERN_B="${HD}4"
