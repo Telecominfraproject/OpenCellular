@@ -139,10 +139,7 @@ int LoadKernel(LoadKernelParams* params) {
   uint32_t test_err = 0;
   uint32_t status;
 
-  /* TODO: differentiate between finding an invalid kernel (found_partitions>0)
-   * and not finding one at all.  Right now we treat them the same, and return
-   * LOAD_KERNEL_INVALID for both. */
-  int retval = LOAD_KERNEL_INVALID;
+  int retval = LOAD_KERNEL_RECOVERY;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
 
   /* Setup NV storage */
@@ -542,6 +539,11 @@ int LoadKernel(LoadKernelParams* params) {
 
     /* Success! */
     retval = LOAD_KERNEL_SUCCESS;
+  } else {
+    /* TODO: differentiate between finding an invalid kernel
+     * (found_partitions>0) and not finding one at all.  Right now we
+     * treat them the same, and return LOAD_KERNEL_INVALID for both. */
+    retval = LOAD_KERNEL_INVALID;
   }
 
 LoadKernelExit:
