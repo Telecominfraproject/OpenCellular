@@ -290,6 +290,7 @@ command_record command_table[] = {
   { "getstclearflags", "getvf", "print all volatile (ST_CLEAR) flags",
     HandlerGetSTClearFlags },
   { "resume", "res", "execute TPM_Startup(ST_STATE)", TlclResume },
+  { "savestate", "save", "execute TPM_SaveState", TlclSaveState },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);

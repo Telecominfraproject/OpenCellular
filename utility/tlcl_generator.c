@@ -222,6 +222,13 @@ Command* BuildStartupCommand(void) {
   return cmd;
 }
 
+Command* BuildSaveStateCommand(void) {
+  int size = kTpmRequestHeaderLength;
+  Command* cmd = newCommand(TPM_ORD_SaveState, size);
+  cmd->name = "tpm_savestate_cmd";
+  return cmd;
+}
+
 Command* BuildResumeCommand(void) {
   int size = kTpmRequestHeaderLength + sizeof(TPM_STARTUP_TYPE);
   Command* cmd = newCommand(TPM_ORD_Startup, size);
@@ -452,6 +459,7 @@ Command* (*builders[])(void) = {
   BuildPPLockCommand,
   BuildFinalizePPCommand,
   BuildStartupCommand,
+  BuildSaveStateCommand,
   BuildResumeCommand,
   BuildSelftestfullCommand,
   BuildContinueSelfTestCommand,

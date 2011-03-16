@@ -35,6 +35,11 @@ void TlclSetLogLevel(int level);
  */
 uint32_t TlclStartup(void);
 
+/* Save the TPM state.  Normally done by the kernel before a suspend, included
+ * here for tests.  The TPM error code is returned (0 for success).
+ */
+uint32_t TlclSaveState(void);
+
 /* Resumes by sending a TPM_Startup(ST_STATE).  The TPM error code is returned
  * (0 for success).
  */

@@ -100,6 +100,11 @@ uint32_t TlclStartup(void) {
   return Send(tpm_startup_cmd.buffer);
 }
 
+uint32_t TlclSaveState(void) {
+  VBDEBUG(("TPM: SaveState\n"));
+  return Send(tpm_savestate_cmd.buffer);
+}
+
 uint32_t TlclResume(void) {
   VBDEBUG(("TPM: Resume\n"));
   return Send(tpm_resume_cmd.buffer);
