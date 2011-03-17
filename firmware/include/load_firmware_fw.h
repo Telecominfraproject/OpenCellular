@@ -11,9 +11,7 @@
 
 #include "sysincludes.h"
 #include "vboot_nvstorage.h"
-
-/* Recommended size of shared_data_blob in bytes. */
-#define LOAD_FIRMWARE_SHARED_DATA_REC_SIZE 16384
+#include "vboot_struct.h"
 
 /* Return codes for LoadFirmware() and S3Resume(). */
 #define LOAD_FIRMWARE_SUCCESS 0   /* Success */
@@ -33,15 +31,19 @@ typedef struct LoadFirmwareParams {
   void* verification_block_1;    /* Key block + preamble for firmware 1 */
   uint64_t verification_size_0;  /* Verification block 0 size in bytes */
   uint64_t verification_size_1;  /* Verification block 1 size in bytes */
-  void* shared_data_blob;        /* Destination buffer for data shared between
-                                  * LoadFirmware() and LoadKernel().  Pass this
+
+  /* Shared data blob for data shared between LoadFirmware() and LoadKernel().
+   * This should be at least VB_SHARED_DATA_MIN_SIZE bytes long, and ideally
+   * is VB_SHARED_DATA_REC_SIZE bytes long. */
+  void* shared_data_blob;        /* Shared data blob buffer.  Pass this
                                   * data to LoadKernel() in
                                   * LoadKernelParams.shared_data_blob. */
-  uint64_t shared_data_size;     /* Size of shared data blob buffer, in bytes.
-                                  * On output, this will contain the actual
-                                  * data size placed into the buffer.  Caller
-                                  * need only pass this much data to
-                                  * LoadKernel().*/
+  uint64_t shared_data_size;     /* On input, set to size of shared data blob
+                                  * buffer, in bytes.  On output, this will
+                                  * contain the actual data size placed into
+                                  * the buffer.  Caller need only pass that
+                                  * much data to LoadKernel().*/
+
   uint64_t boot_flags;           /* Boot flags */
   VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
                                   * must be filled before calling

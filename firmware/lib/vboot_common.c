@@ -381,6 +381,10 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
 
 
 int VbSharedDataInit(VbSharedDataHeader* header, uint64_t size) {
+
+  VBDEBUG(("VbSharedDataInit, %d bytes, header %d bytes\n", (int)size,
+           sizeof(VbSharedDataHeader)));
+
   if (size < sizeof(VbSharedDataHeader)) {
     VBDEBUG(("Not enough data for header.\n"));
     return VBOOT_SHARED_DATA_INVALID;
@@ -397,10 +401,12 @@ int VbSharedDataInit(VbSharedDataHeader* header, uint64_t size) {
   Memset(header, 0, sizeof(VbSharedDataHeader));
 
   /* Initialize fields */
+  header->magic = VB_SHARED_DATA_MAGIC;
   header->struct_version = VB_SHARED_DATA_VERSION;
   header->struct_size = sizeof(VbSharedDataHeader);
   header->data_size = size;
   header->data_used = sizeof(VbSharedDataHeader);
+  header->firmware_index = 0xFF;
 
   /* Success */
   return VBOOT_SUCCESS;
@@ -409,6 +415,8 @@ int VbSharedDataInit(VbSharedDataHeader* header, uint64_t size) {
 
 uint64_t VbSharedDataReserve(VbSharedDataHeader* header, uint64_t size) {
   uint64_t offs = header->data_used;
+
+  VBDEBUG(("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs));
 
   if (!header || size > header->data_size - header->data_used) {
     VBDEBUG(("VbSharedData buffer out of space.\n"));

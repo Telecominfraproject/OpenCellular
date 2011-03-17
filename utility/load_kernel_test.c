@@ -171,8 +171,8 @@ int main(int argc, char* argv[]) {
   }
 
   /* Initialize the shared data area */
-  lkp.shared_data_blob = Malloc(LOAD_FIRMWARE_SHARED_DATA_REC_SIZE);
-  lkp.shared_data_size = LOAD_FIRMWARE_SHARED_DATA_REC_SIZE;
+  lkp.shared_data_blob = Malloc(VB_SHARED_DATA_REC_SIZE);
+  lkp.shared_data_size = VB_SHARED_DATA_REC_SIZE;
   shared = (VbSharedDataHeader*)lkp.shared_data_blob;
   if (0 != VbSharedDataInit(shared, lkp.shared_data_size)) {
     fprintf(stderr, "Unable to init shared data\n");

@@ -131,9 +131,37 @@ typedef struct VbKernelPreambleHeader {
 
 #define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
 
+/* Magic number for recognizing VbSharedDataHeader ("VbSD") */
+#define VB_SHARED_DATA_MAGIC 0x44536256
+
 /* Minimum and recommended size of shared_data_blob in bytes. */
 #define VB_SHARED_DATA_MIN_SIZE 3072
 #define VB_SHARED_DATA_REC_SIZE 16384
+
+/* Flags for VbSharedDataHeader */
+/* LoadFirmware() tried firmware B because of VbNvStorage firmware B tries */
+#define VBSD_FWB_TRIED                  0x00000001
+/* LoadKernel() verified the kernel keyblock using the kernel subkey from
+ * the firmware.  If this flag is not present, it just used the hash of the
+ * kernel keyblock. */
+#define VBSD_KERNEL_KEY_VERIFIED        0x00000002
+/* LoadFirmware() was told the developer switch was on */
+#define VBSD_LF_DEV_SWITCH_ON           0x00000004
+
+/* Result codes for checking firmware A and B */
+#define VBSD_LF_CHECK_NOT_DONE          0
+#define VBSD_LF_CHECK_DEV_MISMATCH      1
+#define VBSD_LF_CHECK_REC_MISMATCH      2
+#define VBSD_LF_CHECK_VERIFY_KEYBLOCK   3
+#define VBSD_LF_CHECK_KEY_ROLLBACK      4
+#define VBSD_LF_CHECK_DATA_KEY_PARSE    5
+#define VBSD_LF_CHECK_VERIFY_PREAMBLE   6
+#define VBSD_LF_CHECK_FW_ROLLBACK       7
+#define VBSD_LF_CHECK_HEADER_VALID      8
+#define VBSD_LF_CHECK_GET_FW_BODY       9
+#define VBSD_LF_CHECK_HASH_WRONG_SIZE   10
+#define VBSD_LF_CHECK_VERIFY_BODY       11
+#define VBSD_LF_CHECK_VALID             12
 
 /* Data shared between LoadFirmware(), LoadKernel(), and OS.
  *
@@ -149,17 +177,18 @@ typedef struct VbKernelPreambleHeader {
  *      For example, via ACPI or ATAGs. */
 typedef struct VbSharedDataHeader {
   /* Fields present in version 1 */
+  uint32_t magic;                     /* Magic number for struct
+                                       * (VB_SHARED_DATA_MAGIC) */
   uint32_t struct_version;            /* Version of this structure */
   uint64_t struct_size;               /* Size of this structure in bytes */
   uint64_t data_size;                 /* Size of shared data buffer in bytes */
   uint64_t data_used;                 /* Amount of shared data used so far */
+  uint32_t flags;                     /* Flags */
 
   VbPublicKey kernel_subkey;          /* Kernel subkey, from firmware */
   uint64_t kernel_subkey_data_offset; /* Offset of kernel subkey data from
                                        * start of this struct */
   uint64_t kernel_subkey_data_size;   /* Size of kernel subkey data */
-
-  uint64_t flags;                     /* Flags */
 
   /* Timer values from VbGetTimer().  Unused values are set to 0.  If a
    * function is called mutiple times, these are the times from the
@@ -170,6 +199,13 @@ typedef struct VbSharedDataHeader {
   uint64_t timer_load_firmware_exit;         /* LoadFirmware() - exit */
   uint64_t timer_load_kernel_enter;          /* LoadKernel() - enter */
   uint64_t timer_load_kernel_exit;           /* LoadKernel() - exit */
+
+  uint8_t check_fw_a_result;          /* Result of checking RW firmware A */
+  uint8_t check_fw_b_result;          /* Result of checking RW firmware B */
+  uint8_t firmware_index;             /* Firmware index returned by
+                                       * LoadFirmware() or 0xFF if failure */
+  uint32_t fw_version_tpm_start;      /* Firmware TPM version at start */
+  uint32_t fw_version_lowest;         /* Firmware lowest version found */
 
   /* After read-only firmware which uses version 1 is released, any additional
    * fields must be added below, and the struct version must be increased.

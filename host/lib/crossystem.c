@@ -16,6 +16,7 @@
 #include "utility.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
+#include "vboot_struct.h"
 
 /* ACPI constants from Chrome OS Main Processor Firmware Spec */
 /* GPIO signal types */
@@ -87,8 +88,21 @@
 /* A structure to contain buffer data retrieved from the ACPI. */
 typedef struct {
   int buffer_size;
-  void* buffer;
+  uint8_t* buffer;
 } AcpiBuffer;
+
+
+/* Fields that GetVdatString() can get */
+typedef enum VdatStringField {
+  VDAT_STRING_TIMERS = 0,          /* Timer values */
+  VDAT_STRING_LOAD_FIRMWARE_DEBUG  /* LoadFirmware() debug information */
+} VdatStringField;
+
+
+/* Fields that GetVdatInt() can get */
+typedef enum VdatIntField {
+  VDAT_INT_FLAGS = 0  /* Flags */
+} VdatIntField;
 
 
 /* Copy up to dest_size-1 characters from src to dest, ensuring null
@@ -319,7 +333,7 @@ AcpiBuffer* VbGetBuffer(const char* filename)
 
   do {
     struct stat fs;
-    unsigned char* output_ptr;
+    uint8_t* output_ptr;
     int rv, i, real_size;
 
     rv = stat(filename, &fs);
@@ -334,23 +348,18 @@ AcpiBuffer* VbGetBuffer(const char* filename)
     if (!file_buffer)
       break;
 
-
     real_size = fread(file_buffer, 1, fs.st_size, f);
     if (!real_size)
       break;
-
-    /* each byte in the output will replace two characters and a space in the
-     *  input, so the output size does not exceed input side/3 (a little less
-     *  if account for newline characters).
-     */
-    acpi_buffer = Malloc(sizeof(AcpiBuffer) + real_size/3);
-
-    if (!acpi_buffer)
-      break;
-
     file_buffer[real_size] = '\0';
 
-    acpi_buffer->buffer = acpi_buffer + 1;
+    /* Each byte in the output will replace two characters and a space
+     * in the input, so the output size does not exceed input side/3
+     * (a little less if account for newline characters). */
+    acpi_buffer = Malloc(sizeof(AcpiBuffer) + real_size/3);
+    if (!acpi_buffer)
+      break;
+    acpi_buffer->buffer = (uint8_t*)(acpi_buffer + 1);
     acpi_buffer->buffer_size = 0;
     output_ptr = acpi_buffer->buffer;
 
@@ -604,6 +613,71 @@ int VbGetCrosDebug(void) {
 }
 
 
+char* GetVdatString(char* dest, int size, VdatStringField field)
+{
+  VbSharedDataHeader* sh;
+  AcpiBuffer* ab = VbGetBuffer(ACPI_VDAT_PATH);
+  if (!ab)
+    return NULL;
+
+  sh = (VbSharedDataHeader*)ab->buffer;
+
+  switch (field) {
+    case VDAT_STRING_TIMERS:
+      snprintf(dest, size,
+               "LFS=%" PRIu64 ",%" PRIu64
+               " LF=%" PRIu64 ",%" PRIu64
+               " LK=%" PRIu64 ",%" PRIu64,
+               sh->timer_load_firmware_start_enter,
+               sh->timer_load_firmware_start_exit,
+               sh->timer_load_firmware_enter,
+               sh->timer_load_firmware_exit,
+               sh->timer_load_kernel_enter,
+               sh->timer_load_kernel_exit);
+      break;
+
+    case VDAT_STRING_LOAD_FIRMWARE_DEBUG:
+      snprintf(dest, size,
+               "check=%d,%d index=0x%02x tpmver=0x%x lowestver=0x%x",
+               sh->check_fw_a_result,
+               sh->check_fw_b_result,
+               sh->firmware_index,
+               sh->fw_version_tpm_start,
+               sh->fw_version_lowest);
+      break;
+
+    default:
+      Free(ab);
+      return NULL;
+  }
+
+  Free(ab);
+  return dest;
+}
+
+
+int GetVdatInt(VdatIntField field) {
+  VbSharedDataHeader* sh;
+  AcpiBuffer* ab = VbGetBuffer(ACPI_VDAT_PATH);
+  int value = -1;
+
+  if (!ab)
+    return -1;
+
+  sh = (VbSharedDataHeader*)ab->buffer;
+
+  switch (field) {
+    case VDAT_INT_FLAGS:
+      value = (int)sh->flags;
+      break;
+
+  }
+
+  Free(ab);
+  return value;
+}
+
+
 /* Read a system property integer.
  *
  * Returns the property value, or -1 if error. */
@@ -671,35 +745,11 @@ int VbGetSystemPropertyInt(const char* name) {
     value = ReadFileInt(ACPI_FMAP_PATH);
   } else if (!strcasecmp(name,"cros_debug")) {
     value = VbGetCrosDebug();
+  } else if (!strcasecmp(name,"vdat_flags")) {
+    value = GetVdatInt(VDAT_INT_FLAGS);
   }
 
   return value;
-}
-
-/* This function is just an example illustrating the use of VbGetBuffer(). It
- * converts the binary contents of the buffer into a space delimetered hex
- * string. It is expected to be replaced with a function which has knowledge
- * of the buffer data structure.
- */
-char* GetVdatBuffer(void)
-{
-  char* buffer, *src, *p;
-  int i;
-
-  AcpiBuffer* ab = VbGetBuffer(ACPI_VDAT_PATH);
-  if (!ab)
-    return NULL;
-
-  buffer = Malloc(ab->buffer_size * 3 + 2);
-  p = buffer;
-  src = ab->buffer;
-  for (i = 0; i < ab->buffer_size; i++) {
-    snprintf(p, 4, " %2.2x", *src++);
-    p += 3;
-  }
-  *p = '\0';
-  Free(ab);
-  return buffer;
 }
 
 /* Read a system property string into a destination buffer of the specified
@@ -745,8 +795,10 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
       default:
         return NULL;
     }
-  } else if (!strcasecmp(name, "vdat")) {
-    return GetVdatBuffer();
+  } else if (!strcasecmp(name, "vdat_timers")) {
+    return GetVdatString(dest, size, VDAT_STRING_TIMERS);
+  } else if (!strcasecmp(name, "vdat_lfdebug")) {
+    return GetVdatString(dest, size, VDAT_STRING_LOAD_FIRMWARE_DEBUG);
   } else
     return NULL;
 }

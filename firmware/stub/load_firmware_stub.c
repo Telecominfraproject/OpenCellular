@@ -99,8 +99,8 @@ int VerifyFirmwareDriver_stub(uint8_t* gbb_data,
   p.nv_context = &vnc;
 
   /* Allocate a shared data buffer */
-  p.shared_data_blob = Malloc(LOAD_FIRMWARE_SHARED_DATA_REC_SIZE);
-  p.shared_data_size = LOAD_FIRMWARE_SHARED_DATA_REC_SIZE;
+  p.shared_data_blob = Malloc(VB_SHARED_DATA_REC_SIZE);
+  p.shared_data_size = VB_SHARED_DATA_REC_SIZE;
 
   /* TODO: YOU NEED TO SET THE BOOT FLAGS SOMEHOW */
   p.boot_flags = 0;
