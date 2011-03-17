@@ -103,6 +103,15 @@ static uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
 
   VBDEBUG(("TPM: One-time initialization\n"));
 
+  /* Do a full test.  This only happens the first time the device is turned on
+   * in the factory, so performance is not an issue.  This is almost certainly
+   * not necessary, but it gives us more confidence about some code paths below
+   * that are difficult to test---specifically the ones that set lifetime
+   * flags, and are only executed once per physical TPM. */
+  result = TlclSelfTestFull();
+  if (result != TPM_SUCCESS)
+    return result;
+
   result = TlclGetPermanentFlags(&pflags);
   if (result != TPM_SUCCESS)
     return result;
