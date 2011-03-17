@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 void error(const char *format, ...) {
   va_list ap;
@@ -50,4 +51,14 @@ int Memcmp(const void* src1, const void* src2, size_t n) {
 
 void* Memcpy(void* dest, const void* src, uint64_t n) {
   return memcpy(dest, src, (size_t)n);
+}
+
+uint64_t VbGetTimer(void) {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
+}
+
+uint64_t VbGetTimerMaxFreq(void) {
+  return UINT64_C(1000000);
 }

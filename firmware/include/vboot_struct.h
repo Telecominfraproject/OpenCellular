@@ -157,9 +157,19 @@ typedef struct VbSharedDataHeader {
   VbPublicKey kernel_subkey;          /* Kernel subkey, from firmware */
   uint64_t kernel_subkey_data_offset; /* Offset of kernel subkey data from
                                        * start of this struct */
-  uint64_t kernel_subkey_data_size;   /* Offset of kernel subkey data */
+  uint64_t kernel_subkey_data_size;   /* Size of kernel subkey data */
 
   uint64_t flags;                     /* Flags */
+
+  /* Timer values from VbGetTimer().  Unused values are set to 0.  If a
+   * function is called mutiple times, these are the times from the
+   * most recent call. */
+  uint64_t timer_load_firmware_start_enter;  /* LoadFirmwareStart() - enter */
+  uint64_t timer_load_firmware_start_exit;   /* LoadFirmwareStart() - exit */
+  uint64_t timer_load_firmware_enter;        /* LoadFirmware() - enter */
+  uint64_t timer_load_firmware_exit;         /* LoadFirmware() - exit */
+  uint64_t timer_load_kernel_enter;          /* LoadKernel() - enter */
+  uint64_t timer_load_kernel_exit;           /* LoadKernel() - exit */
 
   /* After read-only firmware which uses version 1 is released, any additional
    * fields must be added below, and the struct version must be increased.

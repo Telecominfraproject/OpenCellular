@@ -36,6 +36,7 @@ void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
 
 int LoadFirmwareSetup(void) {
   /* TODO: handle test errors (requires passing in VbNvContext) */
+  /* TODO: record timer values (requires passing in VbSharedData) */
   /* TODO: start initializing the TPM */
   return LOAD_FIRMWARE_SUCCESS;
 }
@@ -76,6 +77,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     recovery = VBNV_RECOVERY_RO_SHARED_DATA;
     goto LoadFirmwareExit;
   }
+  shared->timer_load_firmware_enter = VbGetTimer();
 
   /* Handle test errors */
   VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
@@ -351,6 +353,8 @@ LoadFirmwareExit:
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_FIRMWARE_RECOVERY == retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
+
+  shared->timer_load_firmware_exit = VbGetTimer();
 
   /* Note that we don't reduce params->shared_data_size to shared->data_used,
    * since we want to leave space for LoadKernel() to add to the shared data

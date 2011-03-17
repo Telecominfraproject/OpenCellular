@@ -141,6 +141,7 @@ int LoadKernel(LoadKernelParams* params) {
 
   int retval = LOAD_KERNEL_RECOVERY;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
+  uint64_t timer_enter = VbGetTimer();
 
   /* Setup NV storage */
   VbNvSetup(vnc);
@@ -154,6 +155,11 @@ int LoadKernel(LoadKernelParams* params) {
     VBDEBUG(("LoadKernel() called with invalid params\n"));
     goto LoadKernelExit;
   }
+
+  /* Clear output params in case we fail */
+  params->partition_number = 0;
+  params->bootloader_address = 0;
+  params->bootloader_size = 0;
 
   /* Handle test errors */
   VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
@@ -205,11 +211,6 @@ int LoadKernel(LoadKernelParams* params) {
     boot_mode = kBootNormal;
     dev_switch = 0;  /* Always do a fully verified boot */
   }
-
-  /* Clear output params in case we fail */
-  params->partition_number = 0;
-  params->bootloader_address = 0;
-  params->bootloader_size = 0;
 
   if (kBootRecovery == boot_mode) {
     /* Initialize the shared data structure, since LoadFirmware() didn't do it
@@ -556,9 +557,13 @@ LoadKernelExit:
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
 
-  /* Store how much shared data we used, if any */
-  if (shared)
+  if (shared) {
+    /* Save timer values */
+    shared->timer_load_kernel_enter = timer_enter;
+    shared->timer_load_kernel_exit = VbGetTimer();
+    /* Store how much shared data we used, if any */
     params->shared_data_size = shared->data_used;
+  }
 
   return retval;
 }
