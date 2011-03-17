@@ -44,11 +44,11 @@ static INLINE int TpmReturnCode(const uint8_t* buffer) {
   return TpmCommandCode(buffer);
 }
 
-/* Sends a TPM command and gets a response.  Returns 0 if success or the TPM
- * error code if error. */
-static uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
-                                int max_length) {
-
+/* Like TlclSendReceive below, but do not retry if NEEDS_SELFTEST or
+ * DOING_SELFTEST errors are returned.
+ */
+static uint32_t TlclSendReceiveNoRetry(const uint8_t* request,
+                                       uint8_t* response, int max_length) {
   uint32_t result;
 
 #ifdef EXTRA_LOGGING
@@ -83,6 +83,40 @@ static uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
 }
 
 
+/* Sends a TPM command and gets a response.  Returns 0 if success or the TPM
+ * error code if error. In the firmware, waits for the self test to complete
+ * if needed. In the host, reports the first error without retries. */
+static uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
+                                int max_length) {
+  uint32_t result = TlclSendReceiveNoRetry(request, response, max_length);
+  /* When compiling for the firmware, hide command failures due to the self
+   * test not having run or completed. */
+#ifndef CHROMEOS_ENVIRONMENT
+  /* If the command fails because the self test has not completed, try it
+   * again after attempting to ensure that the self test has completed. */
+  if (result == TPM_E_NEEDS_SELFTEST || result == TPM_E_DOING_SELFTEST) {
+    result = TlclContinueSelfTest();
+    if (result != TPM_SUCCESS) {
+      return result;
+    }
+#if defined(TPM_BLOCKING_CONTINUESELFTEST) || defined(VB_RECOVERY_MODE)
+    /* Retry only once */
+    result = TlclSendReceiveNoRetry(request, response, max_length);
+#else
+    /* This needs serious testing.  The TPM specification says: "iii. The
+     * caller MUST wait for the actions of TPM_ContinueSelfTest to complete
+     * before reissuing the command C1."  But, if ContinueSelfTest is
+     * non-blocking, how do we know that the actions have completed other than
+     * trying again? */
+    do {
+      result = TlclSendReceiveNoRetry(request, response, max_length);
+    } while (result == TPM_E_DOING_SELFTEST);
+#endif
+  }
+#endif  /* ! defined(CHROMEOS_ENVIRONMENT) */
+  return result;
+}
+
 /* Sends a command and returns the error code. */
 static uint32_t Send(const uint8_t* command) {
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
@@ -116,8 +150,11 @@ uint32_t TlclSelfTestFull(void) {
 }
 
 uint32_t TlclContinueSelfTest(void) {
+  uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   VBDEBUG(("TPM: Continue self test\n"));
-  return Send(tpm_continueselftest_cmd.buffer);
+  /* Call the No Retry version of SendReceive to avoid recursion. */
+  return TlclSendReceiveNoRetry(tpm_continueselftest_cmd.buffer,
+                                response, sizeof(response));
 }
 
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {

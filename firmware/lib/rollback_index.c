@@ -182,12 +182,24 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   RETURN_ON_FAILURE(TlclLibInit());
 
   RETURN_ON_FAILURE(TlclStartup());
-  /* Use ContinueSelfTest rather than SelfTestFull().  It enables
-   * access to the subset of TPM commands we need in the firmware, and
-   * allows the full self test to run in paralle with firmware
-   * startup.  By the time we get to the OS, self test will have
-   * completed. */
+  /* Some TPMs start the self test automatically at power on.  In that case we
+   * don't need to call ContinueSelfTest.  On some (other) TPMs,
+   * ContinueSelfTest may block.  In that case, we definitely don't want to
+   * call it here.  For TPMs in the intersection of these two sets, we're
+   * screwed.  (In other words: TPMs that require manually starting the
+   * self-test AND block will have poor performance until we split
+   * TlclSendReceive() into Send() and Receive(), and have a state machine to
+   * control setup.)
+   *
+   * This comment is likely to become obsolete in the near future, so don't
+   * trust it.  It may have not been updated.
+   */
+#ifdef TPM_MANUAL_SELFTEST
+#ifdef TPM_BLOCKING_CONTINUESELFTEST
+#warning "lousy TPM!"
+#endif
   RETURN_ON_FAILURE(TlclContinueSelfTest());
+#endif
   result = TlclAssertPhysicalPresence();
   if (result != 0) {
     /* It is possible that the TPM was delivered with the physical presence

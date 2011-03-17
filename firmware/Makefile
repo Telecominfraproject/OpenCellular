@@ -15,6 +15,24 @@ ifeq ($(FIRMWARE_ARCH),)
 CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
+# TPM-specific flags.  These depend on the particular TPM we're targeting for.
+# They are needed here only for compiling parts of the firmware code into
+# user-level tests.
+
+# TPM_BLOCKING_CONTINUESELFTEST is defined if TPM_ContinueSelfTest blocks until
+# the self test has completed.
+
+CLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
+
+# TPM_MANUAL_SELFTEST is defined if the self test must be started manually
+# (with a call to TPM_ContinueSelfTest) instead of starting automatically at
+# power on.
+#
+# We sincerely hope that TPM_BLOCKING_CONTINUESELFTEST and TPM_MANUAL_SELFTEST
+# are not both defined at the same time.  (See comment in code.)
+
+# CLAGS += -DTPM_MANUAL_SELFTEST
+
 INCLUDES = \
 	-I$(FWTOP)/include \
 	-I$(LIBDIR)/include \
