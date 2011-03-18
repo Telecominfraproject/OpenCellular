@@ -134,7 +134,6 @@ int LoadFirmware(LoadFirmwareParams* params) {
     VbNvSet(vnc, VBNV_TRY_B_COUNT, try_b_count - 1);
     shared->flags |= VBSD_FWB_TRIED;
   }
-  VbNvSet(vnc, VBNV_TRIED_FIRMWARE_B, try_b_count ? 1 : 0);
 
   /* Allocate our internal data */
   lfi = (VbLoadFirmwareInternal*)Malloc(sizeof(VbLoadFirmwareInternal));

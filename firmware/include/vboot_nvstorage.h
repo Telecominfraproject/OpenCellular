@@ -47,13 +47,6 @@ typedef enum VbNvParam {
   VBNV_LOCALIZATION_INDEX,
   /* Field reserved for kernel/user-mode use; 32-bit value. */
   VBNV_KERNEL_FIELD,
-  /* Firmware checked RW slot B before slot A on the current boot because
-   * VBNV_TRY_B_COUNT was non-zero at that time.  0=no; 1=yes. */
-  VBNV_TRIED_FIRMWARE_B,
-  /* Firmware verified the kernel key block signature using the key stored
-   * in the firmware.  0=no, just used the key block hash; 1=yes, used the
-   * key block signature. */
-  VBNV_FW_VERIFIED_KERNEL_KEY,
   /* Verified boot API function which should generate a test error, if
    * error number (below) is non-zero. */
   VBNV_TEST_ERROR_FUNC,

@@ -651,9 +651,6 @@ int LoadKernel(LoadKernelParams* params) {
 
 LoadKernelExit:
 
-  /* Save whether the good partition's key block was fully verified */
-  VbNvSet(vnc, VBNV_FW_VERIFIED_KERNEL_KEY, good_partition_key_block_valid);
-
   /* Store recovery request, if any, then tear down non-volatile storage */
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_KERNEL_RECOVERY == retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);

@@ -101,9 +101,12 @@ typedef enum VdatStringField {
 
 /* Fields that GetVdatInt() can get */
 typedef enum VdatIntField {
-  VDAT_INT_FLAGS = 0,              /* Flags */
-  VDAT_INT_FW_VERSION_TPM,         /* Current firmware version in TPM */
-  VDAT_INT_KERNEL_VERSION_TPM      /* Current kernel version in TPM */
+  VDAT_INT_FLAGS = 0,                /* Flags */
+  VDAT_INT_FW_VERSION_TPM,           /* Current firmware version in TPM */
+  VDAT_INT_KERNEL_VERSION_TPM,       /* Current kernel version in TPM */
+  VDAT_INT_TRIED_FIRMWARE_B,         /* Tried firmware B due to fwb_tries */
+  VDAT_INT_KERNEL_KEY_VERIFIED       /* Kernel key verified using
+                                      * signature, not just hash */
 } VdatIntField;
 
 
@@ -678,6 +681,12 @@ int GetVdatInt(VdatIntField field) {
     case VDAT_INT_KERNEL_VERSION_TPM:
       value = (int)sh->kernel_version_tpm;
       break;
+    case VDAT_INT_TRIED_FIRMWARE_B:
+      value = (sh->flags & VBSD_FWB_TRIED ? 1 : 0);
+      break;
+    case VDAT_INT_KERNEL_KEY_VERIFIED:
+      value = (sh->flags & VBSD_KERNEL_KEY_VERIFIED ? 1 : 0);
+      break;
   }
 
   Free(ab);
@@ -719,9 +728,7 @@ int VbGetSystemPropertyInt(const char* name) {
     return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00100000);
   }
   /* NV storage values with no defaults for older BIOS. */
-  else if (!strcasecmp(name,"tried_fwb")) {
-    value = VbGetNvStorage(VBNV_TRIED_FIRMWARE_B);
-  } else if (!strcasecmp(name,"kern_nv")) {
+  else if (!strcasecmp(name,"kern_nv")) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
   } else if (!strcasecmp(name,"nvram_cleared")) {
     value = VbGetNvStorage(VBNV_KERNEL_SETTINGS_RESET);
@@ -758,6 +765,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = GetVdatInt(VDAT_INT_FW_VERSION_TPM);
   } else if (!strcasecmp(name,"tpm_kernver")) {
     value = GetVdatInt(VDAT_INT_KERNEL_VERSION_TPM);
+  } else if (!strcasecmp(name,"tried_fwb")) {
+    value = GetVdatInt(VDAT_INT_TRIED_FIRMWARE_B);
   }
 
   return value;
@@ -798,7 +807,7 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
         return NULL;
     }
   } else if (!strcasecmp(name,"kernkey_vfy")) {
-    switch(VbGetNvStorage(VBNV_FW_VERIFIED_KERNEL_KEY)) {
+    switch(GetVdatInt(VDAT_INT_KERNEL_KEY_VERIFIED)) {
       case 0:
         return "hash";
       case 1:

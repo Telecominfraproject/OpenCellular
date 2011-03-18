@@ -27,8 +27,6 @@
 #define LOCALIZATION_OFFSET          3
 
 #define FIRMWARE_FLAGS_OFFSET        5
-#define FIRMWARE_TRIED_FIRMWARE_B       0x80
-#define FIRMWARE_FW_VERIFIED_KERNEL_KEY 0x40
 #define FIRMWARE_TEST_ERR_FUNC_MASK     0x38
 #define FIRMWARE_TEST_ERR_FUNC_SHIFT    3
 #define FIRMWARE_TEST_ERR_NUM_MASK      0x07
@@ -128,15 +126,6 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
                | (raw[KERNEL_FIELD_OFFSET + 3] << 24));
       return 0;
 
-    case VBNV_TRIED_FIRMWARE_B:
-      *dest = (raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_TRIED_FIRMWARE_B ? 1 : 0);
-      return 0;
-
-    case VBNV_FW_VERIFIED_KERNEL_KEY:
-      *dest = (raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_FW_VERIFIED_KERNEL_KEY ?
-               1 : 0);
-      return 0;
-
     case VBNV_TEST_ERROR_FUNC:
       *dest = (raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_TEST_ERR_FUNC_MASK)
           >> FIRMWARE_TEST_ERR_FUNC_SHIFT;
@@ -211,20 +200,6 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
       raw[KERNEL_FIELD_OFFSET + 1] = (uint8_t)(value >> 8);
       raw[KERNEL_FIELD_OFFSET + 2] = (uint8_t)(value >> 16);
       raw[KERNEL_FIELD_OFFSET + 3] = (uint8_t)(value >> 24);
-      break;
-
-    case VBNV_TRIED_FIRMWARE_B:
-      if (value)
-        raw[FIRMWARE_FLAGS_OFFSET] |= FIRMWARE_TRIED_FIRMWARE_B;
-      else
-        raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_TRIED_FIRMWARE_B;
-      break;
-
-    case VBNV_FW_VERIFIED_KERNEL_KEY:
-      if (value)
-        raw[FIRMWARE_FLAGS_OFFSET] |= FIRMWARE_FW_VERIFIED_KERNEL_KEY;
-      else
-        raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_FW_VERIFIED_KERNEL_KEY;
       break;
 
     case VBNV_TEST_ERROR_FUNC:
