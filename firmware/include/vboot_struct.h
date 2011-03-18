@@ -131,6 +131,8 @@ typedef struct VbKernelPreambleHeader {
 
 #define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
 
+/* Constants and sub-structures for VbSharedDataHeader */
+
 /* Magic number for recognizing VbSharedDataHeader ("VbSD") */
 #define VB_SHARED_DATA_MAGIC 0x44536256
 
@@ -141,14 +143,14 @@ typedef struct VbKernelPreambleHeader {
 /* Flags for VbSharedDataHeader */
 /* LoadFirmware() tried firmware B because of VbNvStorage firmware B tries */
 #define VBSD_FWB_TRIED                  0x00000001
-/* LoadKernel() verified the kernel keyblock using the kernel subkey from
+/* LoadKernel() verified the good kernel keyblock using the kernel subkey from
  * the firmware.  If this flag is not present, it just used the hash of the
  * kernel keyblock. */
 #define VBSD_KERNEL_KEY_VERIFIED        0x00000002
 /* LoadFirmware() was told the developer switch was on */
 #define VBSD_LF_DEV_SWITCH_ON           0x00000004
 
-/* Result codes for checking firmware A and B */
+/* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
 #define VBSD_LF_CHECK_NOT_DONE          0
 #define VBSD_LF_CHECK_DEV_MISMATCH      1
 #define VBSD_LF_CHECK_REC_MISMATCH      2
@@ -162,6 +164,81 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_LF_CHECK_HASH_WRONG_SIZE   10
 #define VBSD_LF_CHECK_VERIFY_BODY       11
 #define VBSD_LF_CHECK_VALID             12
+
+/* Boot mode for VbSharedDataHeader.lk_boot_mode */
+#define VBSD_LK_BOOT_MODE_RECOVERY      0
+#define VBSD_LK_BOOT_MODE_NORMAL        1
+#define VBSD_LK_BOOT_MODE_DEVELOPER     2
+
+/* Flags for VbSharedDataKernelPart.flags */
+#define VBSD_LKP_FLAG_KEY_BLOCK_VALID   0x01
+
+/* Result codes for VbSharedDataKernelPart.check_result */
+#define VBSD_LKP_CHECK_NOT_DONE           0
+#define VBSD_LKP_CHECK_TOO_SMALL          1
+#define VBSD_LKP_CHECK_READ_START         2
+#define VBSD_LKP_CHECK_KEY_BLOCK_SIG      3
+#define VBSD_LKP_CHECK_KEY_BLOCK_HASH     4
+#define VBSD_LKP_CHECK_DEV_MISMATCH       5
+#define VBSD_LKP_CHECK_REC_MISMATCH       6
+#define VBSD_LKP_CHECK_KEY_ROLLBACK       7
+#define VBSD_LKP_CHECK_DATA_KEY_PARSE     8
+#define VBSD_LKP_CHECK_VERIFY_PREAMBLE    9
+#define VBSD_LKP_CHECK_KERNEL_ROLLBACK    10
+#define VBSD_LKP_CHECK_PREAMBLE_VALID     11
+#define VBSD_LKP_CHECK_BODY_ADDRESS       12
+#define VBSD_LKP_CHECK_BODY_OFFSET        13
+#define VBSD_LKP_CHECK_BODY_EXCEEDS_MEM   15
+#define VBSD_LKP_CHECK_BODY_EXCEEDS_PART  16
+#define VBSD_LKP_CHECK_READ_DATA          17
+#define VBSD_LKP_CHECK_VERIFY_DATA        18
+#define VBSD_LKP_CHECK_KERNEL_GOOD        19
+
+
+/* Information about a single kernel partition check in LoadKernel() */
+typedef struct VbSharedDataKernelPart {
+  uint64_t sector_start;              /* Start sector of partition */
+  uint64_t sector_count;              /* Sector count of partition */
+  uint32_t combined_version;          /* Combined key+kernel version */
+  uint8_t gpt_index;                  /* Index of partition in GPT */
+  uint8_t check_result;               /* Check result; see VBSD_LKP_CHECK_* */
+  uint8_t flags;                      /* Flags (see VBSD_LKP_FLAG_* */
+} VbSharedDataKernelPart;
+
+/* Number of kernel partitions to track per call.  Must be power of 2. */
+#define VBSD_MAX_KERNEL_PARTS 8
+
+/* Flags for VbSharedDataKernelCall.flags */
+/* Error initializing TPM in recovery mode */
+#define VBSD_LK_FLAG_REC_TPM_INIT_ERROR 0x00000001
+
+/* Result codes for VbSharedDataKernelCall.check_result */
+#define VBSD_LKC_CHECK_NOT_DONE            0
+#define VBSD_LKC_CHECK_DEV_SWITCH_MISMATCH 1
+#define VBSD_LKC_CHECK_GPT_READ_ERROR      2
+#define VBSD_LKC_CHECK_GPT_PARSE_ERROR     3
+#define VBSD_LKC_CHECK_GOOD_PARTITION      4
+#define VBSD_LKC_CHECK_INVALID_PARTITIONS  5
+#define VBSD_LKC_CHECK_NO_PARTITIONS       6
+
+/* Information about a single call to LoadKernel() */
+typedef struct VbSharedDataKernelCall {
+  uint32_t boot_flags;                /* Bottom 32 bits of flags passed in
+                                       * LoadKernelParams.boot_flags */
+  uint32_t flags;                     /* Debug flags; see VBSD_LK_FLAG_* */
+  uint64_t sector_count;              /* Number of sectors on drive */
+  uint32_t sector_size;               /* Sector size in bytes */
+  uint8_t check_result;               /* Check result; see VBSD_LKC_CHECK_* */
+  uint8_t boot_mode;                  /* Boot mode for LoadKernel(); see
+                                       * VBSD_LK_BOOT_MODE_* constants */
+  uint8_t test_error_num;             /* Test error number, if non-zero */
+  uint8_t return_code;                /* Return code from LoadKernel() */
+  uint8_t kernel_parts_found;         /* Number of kernel partitions found */
+  VbSharedDataKernelPart parts[VBSD_MAX_KERNEL_PARTS]; /* Data on kernels */
+} VbSharedDataKernelCall;
+
+/* Number of kernel calls to track.  Must be power of 2. */
+#define VBSD_MAX_KERNEL_CALLS 4
 
 /* Data shared between LoadFirmware(), LoadKernel(), and OS.
  *
@@ -200,6 +277,11 @@ typedef struct VbSharedDataHeader {
   uint64_t timer_load_kernel_enter;          /* LoadKernel() - enter */
   uint64_t timer_load_kernel_exit;           /* LoadKernel() - exit */
 
+  /* Information stored in TPM, as retrieved by firmware */
+  uint32_t fw_version_tpm;            /* Current firmware version in TPM */
+  uint32_t kernel_version_tpm;        /* Current kernel version in TPM */
+
+  /* Debugging information from LoadFirmware() */
   uint8_t check_fw_a_result;          /* Result of checking RW firmware A */
   uint8_t check_fw_b_result;          /* Result of checking RW firmware B */
   uint8_t firmware_index;             /* Firmware index returned by
@@ -208,8 +290,17 @@ typedef struct VbSharedDataHeader {
                                        * LoadFirmware() */
   uint32_t fw_version_lowest;         /* Firmware lowest version found */
 
-  uint32_t fw_version_tpm;            /* Current firmware version in TPM */
-  uint32_t kernel_version_tpm;        /* Current kernel version in TPM */
+  /* Debugging information from LoadKernel() */
+  uint32_t lk_call_count;             /* Number of times LoadKernel() called */
+  VbSharedDataKernelCall lk_calls[VBSD_MAX_KERNEL_CALLS];  /* Info on calls */
+
+  /* Offset and size of supplemental kernel data.  Reserve space for these
+   * fields now, so that future LoadKernel() versions can store information
+   * there without needing to shift down whatever data the original
+   * LoadFirmware() might have put immediately following its
+   * VbSharedDataHeader. */
+  uint64_t kernel_supplemental_offset;
+  uint64_t kernel_supplemental_size;
 
   /* After read-only firmware which uses version 1 is released, any additional
    * fields must be added below, and the struct version must be increased.
