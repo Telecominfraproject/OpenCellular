@@ -301,6 +301,11 @@ uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   return TPM_SUCCESS;
 }
 
+uint32_t RollbackFirmwareRead(uint32_t* version) {
+  *version = 0;
+  return TPM_SUCCESS;
+}
+
 uint32_t RollbackFirmwareWrite(uint32_t version) {
   return TPM_SUCCESS;
 }
@@ -357,6 +362,16 @@ uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
   return TPM_SUCCESS;
 }
 
+uint32_t RollbackFirmwareRead(uint32_t* version) {
+  RollbackSpaceFirmware rsf;
+
+  RETURN_ON_FAILURE(ReadSpaceFirmware(&rsf));
+  VBDEBUG(("TPM: RollbackFirmwareRead %x --> %x\n", (int)rsf.fw_versions,
+           (int)version));
+  *version = rsf.fw_versions;
+  VBDEBUG(("TPM: RollbackFirmwareRead %x\n", (int)rsf.fw_versions));
+  return TPM_SUCCESS;
+}
 
 uint32_t RollbackFirmwareWrite(uint32_t version) {
   RollbackSpaceFirmware rsf;
@@ -390,40 +405,32 @@ uint32_t RollbackKernelRecovery(int developer_mode) {
 }
 
 uint32_t RollbackKernelRead(uint32_t* version) {
-  if (g_rollback_recovery_mode) {
-    *version = 0;
-  } else {
-    RollbackSpaceKernel rsk;
-    uint32_t perms;
+  RollbackSpaceKernel rsk;
+  uint32_t perms;
 
-    /* Read the kernel space and verify its permissions.  If the kernel
-     * space has the wrong permission, or it doesn't contain the right
-     * identifier, we give up.  This will need to be fixed by the
-     * recovery kernel.  We have to worry about this because at any time
-     * (even with PP turned off) the TPM owner can remove and redefine a
-     * PP-protected space (but not write to it). */
-    RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
-    RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_NV_INDEX, &perms));
-    if (TPM_NV_PER_PPWRITE != perms || ROLLBACK_SPACE_KERNEL_UID != rsk.uid)
-      return TPM_E_CORRUPTED_STATE;
+  /* Read the kernel space and verify its permissions.  If the kernel
+   * space has the wrong permission, or it doesn't contain the right
+   * identifier, we give up.  This will need to be fixed by the
+   * recovery kernel.  We have to worry about this because at any time
+   * (even with PP turned off) the TPM owner can remove and redefine a
+   * PP-protected space (but not write to it). */
+  RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
+  RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_NV_INDEX, &perms));
+  if (TPM_NV_PER_PPWRITE != perms || ROLLBACK_SPACE_KERNEL_UID != rsk.uid)
+    return TPM_E_CORRUPTED_STATE;
 
-    *version = rsk.kernel_versions;
-    VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)rsk.kernel_versions));
-  }
+  *version = rsk.kernel_versions;
+  VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)rsk.kernel_versions));
   return TPM_SUCCESS;
 }
 
 uint32_t RollbackKernelWrite(uint32_t version) {
-  if (g_rollback_recovery_mode) {
-    return TPM_SUCCESS;
-  } else {
-    RollbackSpaceKernel rsk;
-    RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
-    VBDEBUG(("TPM: RollbackKernelWrite %x --> %x\n", (int)rsk.kernel_versions,
-             (int)version));
-    rsk.kernel_versions = version;
-    return WriteSpaceKernel(&rsk);
-  }
+  RollbackSpaceKernel rsk;
+  RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
+  VBDEBUG(("TPM: RollbackKernelWrite %x --> %x\n", (int)rsk.kernel_versions,
+           (int)version));
+  rsk.kernel_versions = version;
+  return WriteSpaceKernel(&rsk);
 }
 
 uint32_t RollbackKernelLock(void) {

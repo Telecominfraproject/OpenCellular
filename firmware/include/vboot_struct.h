@@ -204,8 +204,12 @@ typedef struct VbSharedDataHeader {
   uint8_t check_fw_b_result;          /* Result of checking RW firmware B */
   uint8_t firmware_index;             /* Firmware index returned by
                                        * LoadFirmware() or 0xFF if failure */
-  uint32_t fw_version_tpm_start;      /* Firmware TPM version at start */
+  uint32_t fw_version_tpm_start;      /* Firmware TPM version at start of
+                                       * LoadFirmware() */
   uint32_t fw_version_lowest;         /* Firmware lowest version found */
+
+  uint32_t fw_version_tpm;            /* Current firmware version in TPM */
+  uint32_t kernel_version_tpm;        /* Current kernel version in TPM */
 
   /* After read-only firmware which uses version 1 is released, any additional
    * fields must be added below, and the struct version must be increased.

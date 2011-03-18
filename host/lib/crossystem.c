@@ -101,7 +101,9 @@ typedef enum VdatStringField {
 
 /* Fields that GetVdatInt() can get */
 typedef enum VdatIntField {
-  VDAT_INT_FLAGS = 0  /* Flags */
+  VDAT_INT_FLAGS = 0,              /* Flags */
+  VDAT_INT_FW_VERSION_TPM,         /* Current firmware version in TPM */
+  VDAT_INT_KERNEL_VERSION_TPM      /* Current kernel version in TPM */
 } VdatIntField;
 
 
@@ -670,7 +672,12 @@ int GetVdatInt(VdatIntField field) {
     case VDAT_INT_FLAGS:
       value = (int)sh->flags;
       break;
-
+    case VDAT_INT_FW_VERSION_TPM:
+      value = (int)sh->fw_version_tpm;
+      break;
+    case VDAT_INT_KERNEL_VERSION_TPM:
+      value = (int)sh->kernel_version_tpm;
+      break;
   }
 
   Free(ab);
@@ -747,6 +754,10 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetCrosDebug();
   } else if (!strcasecmp(name,"vdat_flags")) {
     value = GetVdatInt(VDAT_INT_FLAGS);
+  } else if (!strcasecmp(name,"tpm_fwver")) {
+    value = GetVdatInt(VDAT_INT_FW_VERSION_TPM);
+  } else if (!strcasecmp(name,"tpm_kernver")) {
+    value = GetVdatInt(VDAT_INT_KERNEL_VERSION_TPM);
   }
 
   return value;

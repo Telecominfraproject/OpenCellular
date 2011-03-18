@@ -41,6 +41,8 @@ const Param sys_param_list[] = {
   {"tried_fwb", 0, "Tried firmware B before A this boot"},
   {"cros_debug", 0, "OS should allow debug features"},
   {"vdat_flags", 0, "Flags from VbSharedData", "0x%08x"},
+  {"tpm_fwver", 0, "Firmware version stored in TPM", "0x%08x"},
+  {"tpm_kernver", 0, "Kernel version stored in TPM", "0x%08x"},
   /* Read-only strings */
   {"hwid", IS_STRING, "Hardware ID"},
   {"fwid", IS_STRING, "Active firmware ID"},

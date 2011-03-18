@@ -125,6 +125,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     goto LoadFirmwareExit;
   }
   shared->fw_version_tpm_start = tpm_version;
+  shared->fw_version_tpm = tpm_version;
   VBPERFEND("VB_TPMI");
 
   /* Read try-b count and decrement if necessary */
@@ -347,6 +348,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
           recovery = VBNV_RECOVERY_RO_TPM_ERROR;
         goto LoadFirmwareExit;
       }
+      shared->fw_version_tpm = (uint32_t)lowest_version;
     }
 
     /* Lock firmware versions in TPM */

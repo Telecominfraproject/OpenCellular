@@ -232,6 +232,12 @@ int LoadKernel(LoadKernelParams* params) {
       /* Ignore return code, since we need to boot recovery mode to
        * fix the TPM. */
     }
+
+    /* Read the key indices from the TPM; ignore any errors */
+    if (shared) {
+      RollbackFirmwareRead(&shared->fw_version_tpm);
+      RollbackKernelRead(&shared->kernel_version_tpm);
+    }
   } else {
     /* Use the kernel subkey passed from LoadFirmware(). */
     kernel_subkey = &shared->kernel_subkey;
@@ -247,6 +253,8 @@ int LoadKernel(LoadKernelParams* params) {
         recovery = VBNV_RECOVERY_RW_TPM_ERROR;
       goto LoadKernelExit;
     }
+    if (shared)
+      shared->kernel_version_tpm = tpm_version;
   }
 
   do {
@@ -521,6 +529,8 @@ int LoadKernel(LoadKernelParams* params) {
             recovery = VBNV_RECOVERY_RW_TPM_ERROR;
           goto LoadKernelExit;
         }
+        if (shared)
+          shared->kernel_version_tpm = (uint32_t)lowest_version;
       }
     }
 

@@ -94,6 +94,11 @@ uint32_t RollbackS3Resume(void);
  * mode. */
 uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version);
 
+/* Read may be called to get the version.  This is not necessary in
+ * the normal boot path, because RollbackFirmwareSetup() provides the
+ * same information.  It may be used in the recovery path. */
+uint32_t RollbackFirmwareRead(uint32_t* version);
+
 /* Write may be called if the versions change */
 uint32_t RollbackFirmwareWrite(uint32_t version);
 
@@ -109,8 +114,7 @@ uint32_t RollbackFirmwareLock(void);
  * mode. */
 uint32_t RollbackKernelRecovery(int developer_mode);
 
-/* Read and write may be called if not in developer mode.  If called in
- * recovery mode, the effect is undefined. */
+/* Read and write may be called to read and write the kernel version. */
 uint32_t RollbackKernelRead(uint32_t* version);
 uint32_t RollbackKernelWrite(uint32_t version);
 
