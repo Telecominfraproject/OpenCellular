@@ -99,6 +99,8 @@ void PrintHelp(const char *progname) {
  * Returns the parameter, or NULL if no match. */
 const Param* FindParam(const char* name) {
   const Param* p;
+  if (!name)
+    return NULL;
   for (p = sys_param_list; p->name; p++) {
     if (!strcasecmp(p->name, name))
       return p;
@@ -220,18 +222,30 @@ int main(int argc, char* argv[]) {
 
   /* Otherwise, loop through params and get/set them */
   for (i = 1; i < argc && retval == 0; i++) {
-    int has_set = (NULL != strchr(argv[i], '='));
-    int has_expect = (NULL != strchr(argv[i], '?'));
+    char* has_set = strchr(argv[i], '=');
+    char* has_expect = strchr(argv[i], '?');
     char* name = strtok(argv[i], "=?");
     char* value = strtok(NULL, "=?");
-    const Param* p = FindParam(name);
-    if (!p) {
-      fprintf(stderr, "Invalid parameter name: %s\n", name);
+    const Param* p;
+
+    /* Make sure args are well-formed. '' or '=foo' or '?foo' not allowed. */
+    if (!name || has_set == argv[i] || has_expect == argv[i]) {
+      fprintf(stderr, "Poorly formed parameter\n");
       PrintHelp(progname);
       return 1;
     }
+    if (!value)
+      value=""; /* Allow setting/checking an empty string ('foo=' or 'foo?') */
     if (has_set && has_expect) {
       fprintf(stderr, "Use either = or ? in a parameter, but not both.\n");
+      PrintHelp(progname);
+      return 1;
+    }
+
+    /* Find the parameter */
+    p = FindParam(name);
+    if (!p) {
+      fprintf(stderr, "Invalid parameter name: %s\n", name);
       PrintHelp(progname);
       return 1;
     }
