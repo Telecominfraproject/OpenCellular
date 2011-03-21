@@ -94,8 +94,9 @@ typedef struct {
 
 /* Fields that GetVdatString() can get */
 typedef enum VdatStringField {
-  VDAT_STRING_TIMERS = 0,          /* Timer values */
-  VDAT_STRING_LOAD_FIRMWARE_DEBUG  /* LoadFirmware() debug information */
+  VDAT_STRING_TIMERS = 0,           /* Timer values */
+  VDAT_STRING_LOAD_FIRMWARE_DEBUG,  /* LoadFirmware() debug information */
+  VDAT_STRING_LOAD_KERNEL_DEBUG     /* LoadKernel() debug information */
 } VdatStringField;
 
 
@@ -618,10 +619,123 @@ int VbGetCrosDebug(void) {
 }
 
 
+char* GetVdatLoadFirmwareDebug(char* dest, int size,
+                               const VbSharedDataHeader* sh) {
+  snprintf(dest, size,
+           "Check A result=%d\n"
+           "Check B result=%d\n"
+           "Firmware index booted=0x%02x\n"
+           "TPM combined version at start=0x%08x\n"
+           "Lowest combined version from firmware=0x%08x\n",
+           sh->check_fw_a_result,
+           sh->check_fw_b_result,
+           sh->firmware_index,
+           sh->fw_version_tpm_start,
+           sh->fw_version_lowest);
+  return dest;
+}
+
+
+#define TRUNCATED "\n(truncated)\n"
+
+char* GetVdatLoadKernelDebug(char* dest, int size,
+                             const VbSharedDataHeader* sh) {
+  int used = 0;
+  int first_call_tracked = 0;
+  int call;
+
+  /* Make sure we have space for truncation warning */
+  if (size < strlen(TRUNCATED) + 1)
+    return NULL;
+  size -= strlen(TRUNCATED) + 1;
+
+  used += snprintf(
+      dest + used, size - used,
+      "Calls to LoadKernel()=%d\n",
+      sh->lk_call_count);
+  if (used > size)
+    goto LoadKernelDebugExit;
+
+  /* Report on the last calls */
+  if (sh->lk_call_count > VBSD_MAX_KERNEL_CALLS)
+    first_call_tracked = sh->lk_call_count - VBSD_MAX_KERNEL_CALLS;
+  for (call = first_call_tracked; call < sh->lk_call_count; call++) {
+    const VbSharedDataKernelCall* shc =
+        sh->lk_calls + (call & (VBSD_MAX_KERNEL_CALLS - 1));
+    int first_part_tracked = 0;
+    int part;
+
+    used += snprintf(
+        dest + used, size - used,
+        "Call %d:\n"
+        "  Boot flags=0x%02x\n"
+        "  Boot mode=%d\n"
+        "  Test error=%d\n"
+        "  Return code=%d\n"
+        "  Debug flags=0x%02x\n"
+        "  Drive sectors=%" PRIu64 "\n"
+        "  Sector size=%d\n"
+        "  Check result=%d\n"
+        "  Kernel partitions found=%d\n",
+        call + 1,
+        shc->boot_flags,
+        shc->boot_mode,
+        shc->test_error_num,
+        shc->return_code,
+        shc->flags,
+        shc->sector_count,
+        shc->sector_size,
+        shc->check_result,
+        shc->kernel_parts_found);
+    if (used > size)
+      goto LoadKernelDebugExit;
+
+    /* If we found too many partitions, only prints ones where the
+     * structure has info. */
+    if (shc->kernel_parts_found > VBSD_MAX_KERNEL_PARTS)
+      first_part_tracked = shc->kernel_parts_found - VBSD_MAX_KERNEL_PARTS;
+
+    /* Report on the partitions checked */
+    for (part = first_part_tracked; part < shc->kernel_parts_found; part++) {
+      const VbSharedDataKernelPart* shp =
+          shc->parts + (part & (VBSD_MAX_KERNEL_PARTS - 1));
+
+      used += snprintf(
+          dest + used, size - used,
+          "  Kernel %d:\n"
+          "    GPT index=%d\n"
+          "    Start sector=%" PRIu64 "\n"
+          "    Sector count=%" PRIu64 "\n"
+          "    Combined version=0x%08x\n"
+          "    Check result=%d\n"
+          "    Debug flags=0x%02x\n",
+          part + 1,
+          shp->gpt_index,
+          shp->sector_start,
+          shp->sector_count,
+          shp->combined_version,
+          shp->check_result,
+          shp->flags);
+      if (used > size)
+        goto LoadKernelDebugExit;
+    }
+  }
+
+LoadKernelDebugExit:
+
+  /* Warn if data was truncated; we left space for this above. */
+  if (used > size)
+    strcat(dest, TRUNCATED);
+
+  return dest;
+}
+
+
 char* GetVdatString(char* dest, int size, VdatStringField field)
 {
   VbSharedDataHeader* sh;
   AcpiBuffer* ab = VbGetBuffer(ACPI_VDAT_PATH);
+  char* value = dest;
   if (!ab)
     return NULL;
 
@@ -642,13 +756,11 @@ char* GetVdatString(char* dest, int size, VdatStringField field)
       break;
 
     case VDAT_STRING_LOAD_FIRMWARE_DEBUG:
-      snprintf(dest, size,
-               "check=%d,%d index=0x%02x tpmver=0x%x lowestver=0x%x",
-               sh->check_fw_a_result,
-               sh->check_fw_b_result,
-               sh->firmware_index,
-               sh->fw_version_tpm_start,
-               sh->fw_version_lowest);
+      value = GetVdatLoadFirmwareDebug(dest, size, sh);
+      break;
+
+    case VDAT_STRING_LOAD_KERNEL_DEBUG:
+      value = GetVdatLoadKernelDebug(dest, size, sh);
       break;
 
     default:
@@ -657,7 +769,7 @@ char* GetVdatString(char* dest, int size, VdatStringField field)
   }
 
   Free(ab);
-  return dest;
+  return value;
 }
 
 
@@ -819,6 +931,8 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
     return GetVdatString(dest, size, VDAT_STRING_TIMERS);
   } else if (!strcasecmp(name, "vdat_lfdebug")) {
     return GetVdatString(dest, size, VDAT_STRING_LOAD_FIRMWARE_DEBUG);
+  } else if (!strcasecmp(name, "vdat_lkdebug")) {
+    return GetVdatString(dest, size, VDAT_STRING_LOAD_KERNEL_DEBUG);
   } else
     return NULL;
 }

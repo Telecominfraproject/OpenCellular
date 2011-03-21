@@ -11,6 +11,9 @@
 
 #include "crossystem.h"
 
+/* Max length of a string parameter */
+#define MAX_STRING 8192
+
 /* Flags for Param */
 #define IS_STRING      0x01  /* String (not present = integer) */
 #define CAN_WRITE      0x02  /* Writable (not present = read-only */
@@ -52,7 +55,6 @@ const Param sys_param_list[] = {
   {"ecfw_act", IS_STRING, "Active EC firmware"},
   {"kernkey_vfy", IS_STRING, "Type of verification done on kernel key block"},
   {"vdat_timers", IS_STRING, "Timer values from VbSharedData"},
-  {"vdat_lfdebug", IS_STRING, "LoadFirmware() debug data VbSharedData"},
   /* Writable integers */
   {"nvram_cleared", CAN_WRITE, "Have NV settings been lost?  Write 0 to clear"},
   {"kern_nv", CAN_WRITE, "Non-volatile field for kernel use", "0x%08x"},
@@ -61,7 +63,11 @@ const Param sys_param_list[] = {
   {"fwb_tries", CAN_WRITE, "Try firmware B count (writable)"},
   {"vbtest_errfunc", CAN_WRITE, "Verified boot test error function (writable)"},
   {"vbtest_errno", CAN_WRITE, "Verified boot test error number (writable)"},
-
+  /* Fields not shown in a print-all list */
+  {"vdat_lfdebug", IS_STRING|NO_PRINT_ALL,
+   "LoadFirmware() debug data (not in print-all)"},
+  {"vdat_lkdebug", IS_STRING|NO_PRINT_ALL,
+   "LoadKernel() debug data (not in print-all)"},
   /* Terminate with null name */
   {NULL, 0, NULL}
 };
@@ -125,7 +131,7 @@ int SetParam(const Param* p, const char* value) {
  * Returns 0 if success (match), non-zero if error (mismatch). */
 int CheckParam(const Param* p, char* expect) {
   if (p->flags & IS_STRING) {
-    char buf[256];
+    char buf[MAX_STRING];
     const char* v = VbGetSystemPropertyString(p->name, buf, sizeof(buf));
     if (!v || 0 != strcmp(v, expect))
       return 1;
@@ -147,7 +153,7 @@ int CheckParam(const Param* p, char* expect) {
  * Returns 0 if success, non-zero if error. */
 int PrintParam(const Param* p) {
   if (p->flags & IS_STRING) {
-    char buf[256];
+    char buf[MAX_STRING];
     const char* v = VbGetSystemPropertyString(p->name, buf, sizeof(buf));
     if (!v)
       return 1;
@@ -168,7 +174,7 @@ int PrintParam(const Param* p) {
 int PrintAllParams(void) {
   const Param* p;
   int retval = 0;
-  char buf[256];
+  char buf[MAX_STRING];
   const char* value;
 
   for (p = sys_param_list; p->name; p++) {

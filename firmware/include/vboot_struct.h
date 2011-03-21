@@ -203,6 +203,7 @@ typedef struct VbSharedDataKernelPart {
   uint8_t gpt_index;                  /* Index of partition in GPT */
   uint8_t check_result;               /* Check result; see VBSD_LKP_CHECK_* */
   uint8_t flags;                      /* Flags (see VBSD_LKP_FLAG_* */
+  uint8_t reserved0;                  /* Reserved for padding */
 } VbSharedDataKernelPart;
 
 /* Number of kernel partitions to track per call.  Must be power of 2. */
@@ -234,6 +235,7 @@ typedef struct VbSharedDataKernelCall {
   uint8_t test_error_num;             /* Test error number, if non-zero */
   uint8_t return_code;                /* Return code from LoadKernel() */
   uint8_t kernel_parts_found;         /* Number of kernel partitions found */
+  uint8_t reserved0[7];               /* Reserved for padding */
   VbSharedDataKernelPart parts[VBSD_MAX_KERNEL_PARTS]; /* Data on kernels */
 } VbSharedDataKernelCall;
 
@@ -261,6 +263,7 @@ typedef struct VbSharedDataHeader {
   uint64_t data_size;                 /* Size of shared data buffer in bytes */
   uint64_t data_used;                 /* Amount of shared data used so far */
   uint32_t flags;                     /* Flags */
+  uint32_t reserved0;                 /* Reserved for padding */
 
   VbPublicKey kernel_subkey;          /* Kernel subkey, from firmware */
   uint64_t kernel_subkey_data_offset; /* Offset of kernel subkey data from
@@ -286,6 +289,7 @@ typedef struct VbSharedDataHeader {
   uint8_t check_fw_b_result;          /* Result of checking RW firmware B */
   uint8_t firmware_index;             /* Firmware index returned by
                                        * LoadFirmware() or 0xFF if failure */
+  uint8_t reserved1;                  /* Reserved for padding */
   uint32_t fw_version_tpm_start;      /* Firmware TPM version at start of
                                        * LoadFirmware() */
   uint32_t fw_version_lowest;         /* Firmware lowest version found */
