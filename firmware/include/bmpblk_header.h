@@ -85,7 +85,8 @@ typedef enum ScreenIndex {
   SCREEN_RECOVERY_MODE,
   SCREEN_RECOVERY_NO_OS,
   SCREEN_RECOVERY_MISSING_OS,
-  MAX_SCREEN_INDEX,
+  MAX_VALID_SCREEN_INDEX,
+  SCREEN_BLANK = ~0UL,
 } ScreenIndex;
 
 /* Image info, describing the information of the image block */
