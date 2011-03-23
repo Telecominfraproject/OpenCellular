@@ -141,6 +141,8 @@ main() {
   local recovery_pubkey="$FLAGS_keys/recovery_key.vbpubk"
   local firmware_keyblock="$FLAGS_keys/firmware.keyblock"
   local firmware_prvkey="$FLAGS_keys/firmware_data_key.vbprivk"
+  local dev_firmware_keyblock="$FLAGS_keys/dev_firmware.keyblock"
+  local dev_firmware_prvkey="$FLAGS_keys/dev_firmware_data_key.vbprivk"
   local kernel_sub_pubkey="$FLAGS_keys/kernel_subkey.vbpubk"
   local new_bmpfv="$FLAGS_bmpfv"
   local is_from_live=0
@@ -225,6 +227,8 @@ main() {
     "$IMAGE" \
     "$firmware_prvkey" \
     "$firmware_keyblock" \
+    "$dev_firmware_prvkey" \
+    "$dev_firmware_keyblock" \
     "$kernel_sub_pubkey" >"$EXEC_LOG" 2>&1 ||
     err_die "Failed to re-sign firmware. (message: $(cat "$EXEC_LOG"))"
 
