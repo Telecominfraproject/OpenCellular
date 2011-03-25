@@ -216,6 +216,12 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       return VBOOT_KEY_BLOCK_INVALID;
     }
 
+    /* Make sure advertised signature data sizes are sane. */
+    if (block->key_block_size < sig->data_size) {
+      VBDEBUG(("Signature calculated past end of the block\n"));
+      return VBOOT_KEY_BLOCK_INVALID;
+    }
+
     VBDEBUG(("Checking key block hash only...\n"));
     header_checksum = DigestBuf((const uint8_t*)block, sig->data_size,
                                 SHA512_DIGEST_ALGORITHM);
@@ -249,6 +255,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
       VBDEBUG(("Signature calculated past end of the block\n"));
       return VBOOT_KEY_BLOCK_INVALID;
     }
+
     VBDEBUG(("Checking key block signature...\n"));
     rv = VerifyData((const uint8_t*)block, size, sig, rsa);
     RSAPublicKeyFree(rsa);
