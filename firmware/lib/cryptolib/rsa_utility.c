@@ -9,9 +9,9 @@
 #include "stateful_util.h"
 #include "utility.h"
 
-int RSAProcessedKeySize(unsigned int algorithm, int* out_size) {
-  int key_len; /* Key length in bytes. */
-  if (algorithm < (unsigned int)kNumAlgorithms) {
+uint64_t RSAProcessedKeySize(uint64_t algorithm, uint64_t* out_size) {
+  uint64_t key_len; /* Key length in bytes. */
+  if (algorithm < kNumAlgorithms) {
     key_len =  siglen_map[algorithm];
     /* Total size needed by a RSAPublicKey structure is =
      *  2 * key_len bytes for the  n and rr arrays
@@ -38,10 +38,10 @@ void RSAPublicKeyFree(RSAPublicKey* key) {
   }
 }
 
-RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len) {
+RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, uint64_t len) {
   RSAPublicKey* key = RSAPublicKeyNew();
   MemcpyState st;
-  int key_len;
+  uint64_t key_len;
 
   st.remaining_buf = (uint8_t*) buf;
   st.remaining_len = len;
@@ -81,7 +81,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
                       unsigned int algorithm) {
   RSAPublicKey* verification_key = NULL;
   uint8_t* digest = NULL;
-  int key_size;
+  uint64_t key_size;
   int sig_size;
   int success;
 
@@ -120,7 +120,7 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
                                 const uint8_t* sig,
                                 unsigned int algorithm) {
   RSAPublicKey* verification_key = NULL;
-  int key_size;
+  uint64_t key_size;
   int sig_size;
   int success;
 

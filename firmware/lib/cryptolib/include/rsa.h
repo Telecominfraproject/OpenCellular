@@ -75,7 +75,7 @@ int RSAVerifyBinaryWithDigest_f(const uint8_t* key_blob,
  *
  * Returns 1 on success, 0 on failure.
  */
-int RSAProcessedKeySize(unsigned int algorithm, int* out_size);
+uint64_t RSAProcessedKeySize(uint64_t algorithm, uint64_t* out_size);
 
 /* Allocate a new RSAPublicKey structure and initialize its pointer fields to
  * NULL */
@@ -89,7 +89,7 @@ void RSAPublicKeyFree(RSAPublicKey* key);
  *
  * Caller owns the returned key and must free it.
  */
-RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, int len);
+RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, uint64_t len);
 
 
 #endif  /* VBOOT_REFERENCE_RSA_H_ */

@@ -167,7 +167,7 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
   VbPublicKey* key;
   uint8_t* key_data;
   uint64_t key_size;
-  int expected_key_size;
+  uint64_t expected_key_size;
 
   if (algorithm >= kNumAlgorithms) {
     VBDEBUG(("PublicKeyReadKeyb() called with invalid algorithm!\n"));
@@ -205,7 +205,7 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
 VbPublicKey* PublicKeyRead(const char* filename) {
   VbPublicKey* key;
   uint64_t file_size;
-  int key_size;
+  uint64_t key_size;
 
   key = (VbPublicKey*)ReadFile(filename, &file_size);
   if (!key)
