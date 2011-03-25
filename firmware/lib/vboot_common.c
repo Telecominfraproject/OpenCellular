@@ -178,6 +178,10 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
   const VbSignature* sig;
 
   /* Sanity checks before attempting signature of data */
+  if(size < sizeof(VbKeyBlockHeader)) {
+    VBDEBUG(("Not enough space for key block header.\n"));
+    return VBOOT_KEY_BLOCK_INVALID;
+  }
   if (SafeMemcmp(block->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE)) {
     VBDEBUG(("Not a valid verified boot key block.\n"));
     return VBOOT_KEY_BLOCK_INVALID;
@@ -292,6 +296,10 @@ int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
   const VbSignature* sig = &preamble->preamble_signature;
 
   /* Sanity checks before attempting signature of data */
+  if(size < sizeof(VbFirmwarePreambleHeader)) {
+    VBDEBUG(("Not enough data for preamble header.\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
   if (preamble->header_version_major !=
       FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR) {
     VBDEBUG(("Incompatible firmware preamble header version.\n"));
@@ -350,6 +358,10 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
   const VbSignature* sig = &preamble->preamble_signature;
 
   /* Sanity checks before attempting signature of data */
+  if(size < sizeof(VbKernelPreambleHeader)) {
+    VBDEBUG(("Not enough data for preamble header.\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
   if (preamble->header_version_major != KERNEL_PREAMBLE_HEADER_VERSION_MAJOR) {
     VBDEBUG(("Incompatible kernel preamble header version.\n"));
     return VBOOT_PREAMBLE_INVALID;
