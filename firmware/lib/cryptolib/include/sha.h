@@ -58,11 +58,11 @@ void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, uint64_t len);
 uint8_t* SHA1_final(SHA1_CTX* ctx);
 
 void SHA256_init(SHA256_CTX* ctx);
-void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint32_t len);
+void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint64_t len);
 uint8_t* SHA256_final(SHA256_CTX* ctx);
 
 void SHA512_init(SHA512_CTX* ctx);
-void SHA512_update(SHA512_CTX* ctx, const uint8_t* data, uint32_t len);
+void SHA512_update(SHA512_CTX* ctx, const uint8_t* data, uint64_t len);
 uint8_t* SHA512_final(SHA512_CTX* ctx);
 
 /* Convenience function for SHA-1.  Computes hash on [data] of length [len].

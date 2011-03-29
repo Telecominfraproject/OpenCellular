@@ -332,22 +332,22 @@ static void SHA256_transform(SHA256_CTX* ctx, const uint8_t* message,
 
 
 
-void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint32_t len) {
+void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint64_t len) {
     unsigned int block_nb;
     unsigned int new_len, rem_len, tmp_len;
     const uint8_t *shifted_data;
 
     tmp_len = SHA256_BLOCK_SIZE - ctx->len;
-    rem_len = len < tmp_len ? len : tmp_len;
+    rem_len = len < tmp_len ? (unsigned int)len : tmp_len;
 
     Memcpy(&ctx->block[ctx->len], data, rem_len);
 
     if (ctx->len + len < SHA256_BLOCK_SIZE) {
-        ctx->len += len;
+        ctx->len += (uint32_t)len;
         return;
     }
 
-    new_len = len - rem_len;
+    new_len = (unsigned int)len - rem_len;
     block_nb = new_len / SHA256_BLOCK_SIZE;
 
     shifted_data = data + rem_len;
@@ -424,7 +424,8 @@ void SHA512_init(SHA512_CTX *ctx) {
 
 
 static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
-                             unsigned int block_nb) {
+                   unsigned int block_nb)
+{
   uint64_t w[80];
   uint64_t wv[8];
   uint64_t t1, t2;
@@ -519,22 +520,22 @@ static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
 
 
 void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
-                   uint32_t len) {
+                   uint64_t len) {
     unsigned int block_nb;
     unsigned int new_len, rem_len, tmp_len;
     const uint8_t* shifted_data;
 
     tmp_len = SHA512_BLOCK_SIZE - ctx->len;
-    rem_len = len < tmp_len ? len : tmp_len;
+    rem_len = len < tmp_len ? (unsigned int)len : tmp_len;
 
     Memcpy(&ctx->block[ctx->len], data, rem_len);
 
     if (ctx->len + len < SHA512_BLOCK_SIZE) {
-        ctx->len += len;
+        ctx->len += (uint32_t)len;
         return;
     }
 
-    new_len = len - rem_len;
+    new_len = (unsigned int)len - rem_len;
     block_nb = new_len / SHA512_BLOCK_SIZE;
 
     shifted_data = data + rem_len;
@@ -592,60 +593,31 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
 }
 
 
+
+/* Convenient functions. */
 uint8_t* SHA256(const uint8_t* data, uint64_t len, uint8_t* digest) {
-  const uint8_t* input_ptr;
-  const uint8_t* result;
-  uint64_t remaining_len;
+  const uint8_t* p;
   int i;
   SHA256_CTX ctx;
-
   SHA256_init(&ctx);
-
-  input_ptr = data;
-  remaining_len = len;
-
-  /* Process data in at most UINT32_MAX byte chunks at a time. */
-  while (remaining_len) {
-    uint32_t block_size;
-    block_size = (uint32_t) ((remaining_len >= UINT32_MAX) ?
-                             UINT32_MAX : remaining_len);
-    SHA256_update(&ctx, input_ptr, block_size);
-    remaining_len -= block_size;
-    input_ptr += block_size;
-  }
-
-  result = SHA256_final(&ctx);
+  SHA256_update(&ctx, data, len);
+  p = SHA256_final(&ctx);
   for (i = 0; i < SHA256_DIGEST_SIZE; ++i) {
-    digest[i] = *result++;
+    digest[i] = *p++;
   }
   return digest;
 }
 
 
 uint8_t* SHA512(const uint8_t* data, uint64_t len, uint8_t* digest) {
-  const uint8_t* input_ptr;
-  const uint8_t* result;
-  uint64_t remaining_len;
+  const uint8_t* p;
   int i;
   SHA512_CTX ctx;
   SHA512_init(&ctx);
-
-  input_ptr = data;
-  remaining_len = len;
-
-  /* Process data in at most UINT32_MAX byte chunks at a time. */
-  while (remaining_len) {
-    uint32_t block_size;
-    block_size = (uint32_t) ((remaining_len >= UINT32_MAX) ?
-                             UINT32_MAX : remaining_len);
-       SHA512_update(&ctx, input_ptr, block_size);
-    remaining_len -= block_size;
-    input_ptr += block_size;
-  }
-
-  result = SHA512_final(&ctx);
+  SHA512_update(&ctx, data, len);
+  p = SHA512_final(&ctx);
   for (i = 0; i < SHA512_DIGEST_SIZE; ++i) {
-    digest[i] = *result++;
+    digest[i] = *p++;
   }
   return digest;
 }
