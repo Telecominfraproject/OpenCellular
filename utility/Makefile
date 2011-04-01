@@ -49,13 +49,13 @@ ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
 all: $(TARGET_BINS)
 
 ${BUILD_ROOT}/crossystem: crossystem_main.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ -lcrypto
 
 ${BUILD_ROOT}/dump_kernel_config: dump_kernel_config.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
@@ -79,40 +79,40 @@ ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 	$(CXX) -llzma -lyaml $(CFLAGS) $^ -o $@
 
 ${BUILD_ROOT}/load_firmware_test: load_firmware_test.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/pad_digest_utility: pad_digest_utility.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/tlcl_generator: tlcl_generator.c
-	$(HOSTCC) $(CFLAGS) $(INCLUDES) -fpack-struct $< -o $@
+	$(HOSTCC) $(CFLAGS) -fpack-struct $< -o $@
 
 ${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/vbutil_kernel: vbutil_kernel.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/vbutil_key: vbutil_key.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/vbutil_keyblock: vbutil_keyblock.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/verify_data: verify_data.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/sign_image: sign_image.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/tpm_set_readsrkpub: tpm_set_readsrkpub.c
 	$(CC) $(CFLAGS) $< -o $@ -ltspi
@@ -126,10 +126,10 @@ ${BUILD_ROOT}/dev_debug_vboot: dev_debug_vboot
 	chmod +x $@
 
 ${BUILD_ROOT}/tpmc: tpmc.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
-	$(CC) $(CFLAGS) $(INCLUDES) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/dump_fmap: dump_fmap.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
