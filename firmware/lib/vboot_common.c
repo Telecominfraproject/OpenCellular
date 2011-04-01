@@ -333,15 +333,15 @@ int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
     return VBOOT_PREAMBLE_INVALID;
   }
 
-  /* Verify body signature is inside the block */
-  if (VerifySignatureInside(preamble, preamble->preamble_size,
+  /* Verify body signature is inside the signed data */
+  if (VerifySignatureInside(preamble, sig->data_size,
                             &preamble->body_signature)) {
     VBDEBUG(("Firmware body signature off end of preamble\n"));
     return VBOOT_PREAMBLE_INVALID;
   }
 
-  /* Verify kernel subkey is inside the block */
-  if (VerifyPublicKeyInside(preamble, preamble->preamble_size,
+  /* Verify kernel subkey is inside the signed data */
+  if (VerifyPublicKeyInside(preamble, sig->data_size,
                             &preamble->kernel_subkey)) {
     VBDEBUG(("Kernel subkey off end of preamble\n"));
     return VBOOT_PREAMBLE_INVALID;
@@ -387,8 +387,8 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
     return VBOOT_PREAMBLE_INVALID;
   }
 
-  /* Verify body signature is inside the block */
-  if (VerifySignatureInside(preamble, preamble->preamble_size,
+  /* Verify body signature is inside the signed data */
+  if (VerifySignatureInside(preamble, sig->data_size,
                             &preamble->body_signature)) {
     VBDEBUG(("Kernel body signature off end of preamble\n"));
     return VBOOT_PREAMBLE_INVALID;
