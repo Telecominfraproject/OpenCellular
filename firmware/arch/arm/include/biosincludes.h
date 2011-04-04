@@ -19,6 +19,7 @@ typedef unsigned int size_t;
 #define NULL ((void*) 0)
 #endif
 
+#define UINT32_C(x) ((uint32_t) x)
 #define UINT64_C(x) ((uint64_t) x)
 #define PRIu64 "llu"
 extern void debug(const char *format, ...);
