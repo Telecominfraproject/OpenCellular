@@ -34,6 +34,10 @@ extern void debug(const char *format, ...);
 #define UINT64_RSHIFT(v, shiftby) (((uint64_t)(v)) >> (shiftby))
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
 
+#ifndef UINT32_MAX
+#define UINT32_MAX (UINT32_C(0xffffffffU))
+#endif
+
 #ifndef UINT64_MAX
 #define UINT64_MAX (UINT64_C(0xffffffffffffffffULL))
 #endif
