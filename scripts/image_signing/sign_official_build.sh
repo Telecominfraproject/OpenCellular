@@ -301,12 +301,17 @@ verify_image() {
   local expected_hash=$(get_hash_from_config "${new_kernel_config}")
   local got_hash=$(get_hash_from_config "${kernel_config}")
 
+  if [ -z "${expected_hash}" ]; then
+    echo "FAILED: RootFS hash is empty!"
+    exit 1
+  fi
   if [ ! "${got_hash}" = "${expected_hash}" ]; then
     cat <<EOF
 FAILED: RootFS hash is incorrect.
 Expected: ${expected_hash}
 Got: ${got_hash}
 EOF
+    exit 1
   else
     echo "PASS: RootFS hash is correct (${expected_hash})"
   fi
