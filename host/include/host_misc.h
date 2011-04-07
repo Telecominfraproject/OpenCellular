@@ -11,6 +11,10 @@
 #include "utility.h"
 #include "vboot_struct.h"
 
+/* Copy up to dest_size-1 characters from src to dest, ensuring null
+   termination (which strncpy() doesn't do).  Returns the destination
+   string. */
+char* StrCopy(char* dest, const char* src, int dest_size);
 
 /* Read data from [filename].  Store the size of returned data in [size].
  *
@@ -18,6 +22,21 @@
  * error. */
 uint8_t* ReadFile(const char* filename, uint64_t* size);
 
+/* Read a string from a file.  Passed the destination, dest size, and
+ * filename to read.
+ *
+ * Returns the destination, or NULL if error. */
+char* ReadFileString(char* dest, int size, const char* filename);
+
+/* Read an integer from a file.
+ *
+ * Returns the parsed integer, or -1 if error. */
+int ReadFileInt(const char* filename);
+
+/* Check if a bit is set in a file which contains an integer.
+ *
+ * Returns 1 if the bit is set, 0 if clear, or -1 if error. */
+int ReadFileBit(const char* filename, int bitmask);
 
 /* Writes [size] bytes of [data] to [filename].
  *

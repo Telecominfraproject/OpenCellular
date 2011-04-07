@@ -8,12 +8,14 @@ BUILD_ROOT := ${BUILD}/$(shell basename ${HOSTTOP})
 
 INCLUDES += \
 	-I$(HOSTTOP)/include \
+	-I$(HOSTTOP)/arch/$(ARCH)/include \
 	-I$(FWDIR)/lib/include \
 	-I$(FWDIR)/lib/cgptlib/include \
 	-I$(FWDIR)/lib/cryptolib/include
 
 # find ./lib -iname '*.c' | sort
 LIB_SRCS = \
+	./arch/$(ARCH)/lib/crossystem_arch.c \
 	./lib/crossystem.c \
 	./lib/file_keys.c \
 	./lib/fmap.c \
