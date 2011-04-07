@@ -124,6 +124,29 @@ class EntryFmapArea(Entry):
     pass
 
 
+class EntryWiped(EntryFmapArea):
+
+  def __init__(self, **kwargs):
+    Entry._CheckFields(kwargs, ('wipe_value',))
+    super(EntryWiped, self).__init__(**kwargs)
+    if type(self.wipe_value) is int:
+      try:
+        self.wipe_value = chr(self.wipe_value)
+      except ValueError as e:
+        raise PackError('cannot convert wipe_value to a character: %s' % str(e))
+    elif type(self.wipe_value) is str:
+      if len(self.wipe_value) != 1:
+        raise PackError('wipe_value out of range [00:ff]: %s' %
+            repr(self.wipe_value))
+    else:
+      raise PackError('wipe_value is neither int nor str: %s' %
+          repr(self.wipe_value))
+
+  def Pack(self, firmware_image, entries):
+    firmware_image.seek(self.offset)
+    firmware_image.write(self.wipe_value * self.length)
+
+
 class EntryBlob(EntryFmapArea):
 
   def __init__(self, **kwargs):
