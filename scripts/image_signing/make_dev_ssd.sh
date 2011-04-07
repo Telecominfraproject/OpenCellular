@@ -30,6 +30,8 @@ DEFINE_string set_config "" \
   "Base filename to load kernel configs from" ""
 DEFINE_string partitions "$DEFAULT_PARTITIONS" \
  "List of partitions to examine" ""
+DEFINE_boolean recovery_key "$FLAGS_FALSE" \
+ "Use recovery key to sign image (to boot from USB" ""
 
 # Parse command line
 FLAGS "$@" || exit 1
@@ -255,9 +257,15 @@ main() {
   local num_signed=0
   local num_given=$(echo "$FLAGS_partitions" | wc -w)
   # Check parameters
-  KERNEL_KEYBLOCK="$FLAGS_keys/kernel.keyblock"
-  KERNEL_DATAKEY="$FLAGS_keys/kernel_data_key.vbprivk"
-  KERNEL_PUBKEY="$FLAGS_keys/kernel_subkey.vbpubk"
+  if [ "$FLAGS_recovery_key" = "$FLAGS_TRUE" ]; then
+    KERNEL_KEYBLOCK="$FLAGS_keys/recovery_kernel.keyblock"
+    KERNEL_DATAKEY="$FLAGS_keys/recovery_kernel_data_key.vbprivk"
+    KERNEL_PUBKEY="$FLAGS_keys/recovery_key.vbpubk"
+  else
+    KERNEL_KEYBLOCK="$FLAGS_keys/kernel.keyblock"
+    KERNEL_DATAKEY="$FLAGS_keys/kernel_data_key.vbprivk"
+    KERNEL_PUBKEY="$FLAGS_keys/kernel_subkey.vbpubk"
+  fi
 
   debug_msg "Prerequisite check"
   ensure_files_exist \
