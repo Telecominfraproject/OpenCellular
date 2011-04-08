@@ -81,8 +81,9 @@ void PrintHelp(const char *progname) {
   const Param *p;
 
   printf("\nUsage:\n"
-         "  %s\n"
+         "  %s [--all]\n"
          "    Prints all parameters with descriptions and current values.\n"
+         "    If --all is specified, prints even normally hidden fields.\n"
          "  %s [param1 [param2 [...]]]\n"
          "    Prints the current value(s) of the parameter(s).\n"
          "  %s [param1=value1] [param2=value2 [...]]]\n"
@@ -173,17 +174,18 @@ int PrintParam(const Param* p) {
 }
 
 
-/* Print all parameters with descriptions,
+/* Print all parameters with descriptions.  If force_all!=0, prints even
+ * parameters that specify the NO_PRINT_ALL flag.
  *
  * Returns 0 if success, non-zero if error. */
-int PrintAllParams(void) {
+int PrintAllParams(int force_all) {
   const Param* p;
   int retval = 0;
   char buf[MAX_STRING];
   const char* value;
 
   for (p = sys_param_list; p->name; p++) {
-    if (p->flags & NO_PRINT_ALL)
+    if (0 == force_all && (p->flags & NO_PRINT_ALL))
       continue;
     if (p->flags & IS_STRING) {
       value = VbGetSystemPropertyString(p->name, buf, sizeof(buf));
@@ -215,7 +217,10 @@ int main(int argc, char* argv[]) {
 
   /* If no args specified, print all params */
   if (argc == 1)
-    return PrintAllParams();
+    return PrintAllParams(0);
+  /* --all or -a prints all params including normally hidden ones */
+  if (!strcasecmp(argv[1], "--all") || !strcmp(argv[1], "-a"))
+    return PrintAllParams(1);
 
   /* Print help if needed */
   if (!strcasecmp(argv[1], "-h") || !strcmp(argv[1], "-?")) {
