@@ -41,6 +41,10 @@ typedef enum VdatIntField {
 } VdatIntField;
 
 
+/* Masks for kern_nv usage by kernel */
+#define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
+
+
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start) {
   char fwid[128];
@@ -93,7 +97,7 @@ int VbSetNvStorage(VbNvParam param, int value) {
     goto VbSetNvCleanup;
 
   if (vnc.raw_changed) {
-    if (0 != VbReadNvStorage(&vnc))
+    if (0 != VbWriteNvStorage(&vnc))
       goto VbSetNvCleanup;
   }
 
@@ -351,6 +355,10 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_DEBUG_RESET_MODE);
   } else if (!strcasecmp(name,"fwb_tries")) {
     value = VbGetNvStorage(VBNV_TRY_B_COUNT);
+  } else if (!strcasecmp(name,"fwupdate_tries")) {
+    value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+    if (value != -1)
+      value &= KERN_NV_FWUPDATE_TRIES_MASK;
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
@@ -397,6 +405,7 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
 
 int VbSetSystemPropertyInt(const char* name, int value) {
   /* Check architecture-dependent properties first */
+
   if (0 == VbSetArchPropertyInt(name, value))
     return 0;
 
@@ -416,6 +425,13 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value);
   } else if (!strcasecmp(name,"fwb_tries")) {
     return VbSetNvStorage(VBNV_TRY_B_COUNT, value);
+  } else if (!strcasecmp(name,"fwupdate_tries")) {
+    int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
+    if (kern_nv == -1)
+      return -1;
+    kern_nv &= ~KERN_NV_FWUPDATE_TRIES_MASK;
+    kern_nv |= (value & KERN_NV_FWUPDATE_TRIES_MASK);
+    return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
   }
 
   return -1;
