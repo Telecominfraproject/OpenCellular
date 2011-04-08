@@ -62,7 +62,8 @@ const Param sys_param_list[] = {
   {"recovery_request", CAN_WRITE, "Recovery mode request (writable)"},
   {"dbg_reset", CAN_WRITE, "Debug reset mode request (writable)"},
   {"fwb_tries", CAN_WRITE, "Try firmware B count (writable)"},
-  {"fwupdate_tries", CAN_WRITE, "Times to try OS firmware update (writable)"},
+  {"fwupdate_tries", CAN_WRITE,
+   "Times to try OS firmware update (writable, inside kern_nv)"},
   {"vbtest_errfunc", CAN_WRITE, "Verified boot test error function (writable)"},
   {"vbtest_errno", CAN_WRITE, "Verified boot test error number (writable)"},
   /* Fields not shown in a print-all list */
