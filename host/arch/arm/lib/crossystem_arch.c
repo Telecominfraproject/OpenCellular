@@ -75,7 +75,9 @@ int VbGetArchPropertyInt(const char* name) {
 const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
   /* TODO: IMPLEMENT ME!  For now, return reasonable defaults for
    * values where reasonable defaults exist. */
-  if (!strcasecmp(name,"hwid")) {
+  if (!strcasecmp(name,"arch")) {
+    return StrCopy(dest, "arm", size);
+  } else if (!strcasecmp(name,"hwid")) {
     return StrCopy(dest, "UnknownArmHwid", size);
   } else if (!strcasecmp(name,"fwid")) {
     return StrCopy(dest, "UnknownArmFwid", size);

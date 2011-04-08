@@ -47,6 +47,7 @@ const Param sys_param_list[] = {
   {"tpm_fwver", 0, "Firmware version stored in TPM", "0x%08x"},
   {"tpm_kernver", 0, "Kernel version stored in TPM", "0x%08x"},
   /* Read-only strings */
+  {"arch", IS_STRING, "Platform architecture"},
   {"hwid", IS_STRING, "Hardware ID"},
   {"fwid", IS_STRING, "Active firmware ID"},
   {"ro_fwid", IS_STRING, "Read-only firmware ID"},

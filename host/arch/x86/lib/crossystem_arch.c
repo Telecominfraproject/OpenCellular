@@ -529,7 +529,9 @@ int VbGetArchPropertyInt(const char* name) {
 
 const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
 
-  if (!strcasecmp(name,"hwid")) {
+  if (!strcasecmp(name,"arch")) {
+    return StrCopy(dest, "x86", size);
+  } else if (!strcasecmp(name,"hwid")) {
     return ReadFileString(dest, size, ACPI_BASE_PATH "/HWID");
   } else if (!strcasecmp(name,"fwid")) {
     return ReadFileString(dest, size, ACPI_BASE_PATH "/FWID");
