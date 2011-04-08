@@ -1,5 +1,5 @@
-#!/bin/sh
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+#!/bin/sh -u
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -10,16 +10,27 @@
 # left in a log directory.
 #
 
-TMPDIR=/tmp/debug_vboot
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+TMPDIR=$(mktemp -d /tmp/debug_vboot_XXXXXXXXX)
 LOGFILE=noisy.log
+# The public file must live directly in /tmp, not in a subdirectory.
+# See http://crosbug.com/8947
+PUBLOGFILE=/tmp/debug_vboot_noisy.log
 
 # TODO(wfrichar): Need to support ARM. The hard disk path is likely different.
+# We can use 'crossystem arch' to distinguish between x86 and ARM.
 HD=/dev/sda
-ACPI=/sys/devices/platform/chromeos_acpi
 
 cleanup() {
-  if [ -n "${CLEANUP}" ]; then
-    find "${TMPDIR}" -type f -not -name "${LOGFILE}" -exec rm {} ";"
+  if [ -z "${USE_EXISTING:-}" ]; then
+    # See http://crosbug.com/8947
+    cp --no-target-directory --remove-destination "${LOGFILE}" "${PUBLOGFILE}"
+    info "exporting log file as ${PUBLOGFILE}"
+  fi
+  if [ -n "${CLEANUP:-}" ]; then
+    cd /
+    rm -rf "${TMPDIR}"
   fi
 }
 
@@ -64,15 +75,9 @@ result() {
 require_chromeos_bios() {
   log cgpt show "${HD}"
   log rootdev -s
-  if [ ! -e "${ACPI}/HWID" ]; then
-    info "Not running Chrome OS BIOS, no further information available"
-    exit 0
-  fi
-  # including /dev/null just to get final "\n"
-  log head "${ACPI}"/*ID "${ACPI}"/BINF* "${ACPI}"/CHSW /dev/null
-  log reboot_mode
-  log ls -la /mnt/stateful_partition/.need_firmware_update
-  log ls -la /root/.force_update_firmware
+  log crossystem --all
+  log ls -aCF /root
+  log ls -aCF /mnt/stateful_partition
 }
 
 # Search for files from the FMAP, in the order listed. Return the first one
@@ -93,7 +98,7 @@ umask 022
 trap cleanup EXIT
 
 # Parse args
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   if [ "$1" = "--cleanup" ]; then
     CLEANUP=1
   else
@@ -112,7 +117,7 @@ echo "Saving verbose log as $(pwd)/$LOGFILE"
 BIOS=bios.rom
 
 # Find BIOS and kernel images
-if [ -n "$USE_EXISTING" ]; then
+if [ -n "${USE_EXISTING:-}" ]; then
   info "Using images in $(pwd)/"
 else
   require_chromeos_bios
@@ -130,7 +135,7 @@ else
   info "Extracting kernel images from drives..."
   log dd if=${HD_KERN_A} of=hd_kern_a.blob
   log dd if=${HD_KERN_B} of=hd_kern_b.blob
-  if [ -n "$USB_KERN_A" ]; then
+  if [ -n "${USB_KERN_A:-}" ]; then
     log dd if=${USB_KERN_A} of=usb_kern_a.blob
   fi
 fi
