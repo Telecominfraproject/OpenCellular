@@ -20,6 +20,11 @@ ifneq (${FIRMWARE_CONFIG_PATH},)
 include ${FIRMWARE_CONFIG_PATH}
 endif
 
+# Fix compiling directly on host (outside of emake)
+ifeq ($(ARCH),)
+export ARCH=amd64
+endif
+
 ifeq ($(FIRMWARE_ARCH),)
 CFLAGS += -DCHROMEOS_ENVIRONMENT
 endif
