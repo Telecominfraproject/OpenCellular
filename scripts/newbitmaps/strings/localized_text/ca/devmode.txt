@@ -1,0 +1,2 @@
+﻿La verificació del SO de Chrome està desactivada.
+Premeu l'espaiador per iniciar la recuperació.

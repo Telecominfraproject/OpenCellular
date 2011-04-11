@@ -1,2 +1,0 @@
-La vérification de Chrome OS est désactivée.
-Tappez la touche "espace" pour commencer la réparation.

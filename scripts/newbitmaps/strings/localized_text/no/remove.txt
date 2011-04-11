@@ -1,0 +1,1 @@
+﻿Fjern alle USB- og SD-enheter for å starte gjenoppretting.

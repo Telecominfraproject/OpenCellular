@@ -1,0 +1,2 @@
+﻿Google Chrome OS-verifisering er slått av.
+Trykk på mellomromstasten for å starte gjenoppretting.

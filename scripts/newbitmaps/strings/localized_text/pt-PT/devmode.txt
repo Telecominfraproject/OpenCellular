@@ -1,0 +1,2 @@
+﻿A verificação do SO do Chrome está desactivada.
+Prima a barra de espaços para iniciar a recuperação.

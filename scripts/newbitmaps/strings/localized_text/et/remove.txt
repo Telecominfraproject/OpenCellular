@@ -1,0 +1,1 @@
+﻿Taastamise alustamiseks eemaldage kõik USB- ja SD-seadmed.

@@ -1,0 +1,2 @@
+﻿La vérification de Google Chrome OS est désactivée.
+Pour lancer le processus de récupération, appuyez sur la touche Espace.

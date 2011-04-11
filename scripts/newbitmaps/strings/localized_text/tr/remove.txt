@@ -1,0 +1,1 @@
+﻿Kurtarma işlemini başlatmadan önce lütfen tüm USB ve SD cihazları kaldırın.

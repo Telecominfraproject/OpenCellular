@@ -1,0 +1,1 @@
+﻿Veuillez retirer tous les périphériques USB et SD avant de lancer le processus de récupération.

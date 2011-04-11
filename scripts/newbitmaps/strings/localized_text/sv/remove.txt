@@ -1,0 +1,1 @@
+﻿Ta bort alla USB-enheter och SD-kort om du vill återställa enheten.

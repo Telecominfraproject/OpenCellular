@@ -1,0 +1,2 @@
+﻿Provjera OS-a Chrome je isključena.
+Pritisnite razmaknicu da biste pokrenuli oporavak.

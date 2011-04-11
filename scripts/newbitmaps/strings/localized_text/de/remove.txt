@@ -1,0 +1,1 @@
+﻿Entfernen Sie vor Beginn der Wiederherstellung alle USB- und SD-Geräte.

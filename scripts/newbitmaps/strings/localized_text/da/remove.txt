@@ -1,0 +1,1 @@
+﻿Fjern alle USB- og SD-enheder for at starte gendannelsen.

@@ -1,0 +1,2 @@
+﻿Sprawdzanie systemu Chrome OS jest wyłączone.
+Naciśnij spację, aby rozpocząć przywracanie systemu.

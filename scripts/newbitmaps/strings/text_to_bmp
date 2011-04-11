@@ -3,7 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# Render a text file into a bitmap.
+# Render a text file into a bitmap. Files named '*.txt' are small font, those
+# nameed '*.TXT' are large font.
 #
 
 # Image parameters
@@ -21,7 +22,11 @@ label_file="${tmpdir}/label.txt"
 
 for txtfile in $*; do
   bmpfile="${txtfile%.*}".bmp
+  # Must strip off the leading U+FEFF byte order mark (bytes 0xEF,0xBB,0xBF) of
+  # each file before I can pass it to imagemagick. Chomp any leading/trailing
+  # whitespace too.
   perl -p -e 'BEGIN{ $/=undef; }' \
+    -e 'if (substr($_,0,3) eq "\xef\xbb\xbf") { substr($_, 0, 3) = ""; }' \
     -e 's/^\s+//s;' -e 's/\s+$//s;' \
     "$txtfile" > "$label_file"
 

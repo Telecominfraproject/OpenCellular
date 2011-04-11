@@ -1,0 +1,1 @@
+﻿Da biste pokrenuli oporavak, uklonite sve USB i SD uređaje.

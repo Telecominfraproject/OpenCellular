@@ -1,0 +1,2 @@
+﻿Brak systemu Chrome OS lub jest on uszkodzony.
+Podłącz urządzenie do przywracania systemu.

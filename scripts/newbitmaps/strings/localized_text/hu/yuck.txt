@@ -1,0 +1,1 @@
+﻿A csatlakoztatott eszköz nem tartalmazza a Chrome OS-t. Megpróbál egy másikat?

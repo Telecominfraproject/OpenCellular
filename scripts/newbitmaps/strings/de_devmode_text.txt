@@ -1,3 +1,0 @@
-Die Überprüfung von Chrome OS ist deaktiviert.
-Drücken Sie die Leertaste,
-um mit der Wiederherstellung zu beginnen.
