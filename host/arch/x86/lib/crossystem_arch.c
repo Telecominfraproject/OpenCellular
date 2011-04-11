@@ -84,6 +84,9 @@
 /* Filename for NVRAM file */
 #define NVRAM_PATH "/dev/nvram"
 
+/* Filename for legacy firmware update tries */
+#define NEED_FWUPDATE_PATH "/mnt/stateful_partition/.need_firmware_update"
+
 
 int VbReadNvStorage(VbNvContext* vnc) {
   FILE* f;
@@ -522,6 +525,19 @@ int VbGetArchPropertyInt(const char* name) {
     if (-1 == value)
       value = VbGetCmosRebootField(CMOSRF_TRY_B);
   }
+  /* Firmware update tries is now stored in the kernel field.  On
+   * older systems where it's not, it was stored in a file in the
+   * stateful partition. */
+  else if (!strcasecmp(name,"fwupdate_tries")) {
+    if (-1 != VbGetNvStorage(VBNV_KERNEL_FIELD))
+      return -1;  /* NvStorage supported; fail through arch-specific
+                   * implementation to normal implementation. */
+
+    /* Read value from file; missing file means value=0. */
+    value = ReadFileInt(NEED_FWUPDATE_PATH);
+    if (-1 == value)
+      value = 0;
+  }
 
   return value;
 }
@@ -580,6 +596,24 @@ int VbSetArchPropertyInt(const char* name, int value) {
     if (0 == VbSetNvStorage(VBNV_TRY_B_COUNT, value))
       return 0;
     return VbSetCmosRebootField(CMOSRF_TRY_B, value);
+  }
+  /* Firmware update tries is now stored in the kernel field.  On
+   * older systems where it's not, it was stored in a file in the
+   * stateful partition. */
+  else if (!strcasecmp(name,"fwupdate_tries")) {
+    if (-1 != VbGetNvStorage(VBNV_KERNEL_FIELD))
+      return -1;  /* NvStorage supported; fail through arch-specific
+                   * implementation to normal implementation */
+
+    if (value) {
+      char buf[32];
+      snprintf(buf, sizeof(buf), "%d", value);
+      return WriteFile(NEED_FWUPDATE_PATH, buf, strlen(buf));
+    } else {
+      /* No update tries, so remove file if it exists. */
+      unlink(NEED_FWUPDATE_PATH);
+      return 0;
+    }
   }
 
   return -1;
