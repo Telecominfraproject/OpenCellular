@@ -359,6 +359,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
     if (value != -1)
       value &= KERN_NV_FWUPDATE_TRIES_MASK;
+  } else if (!strcasecmp(name,"loc_idx")) {
+    value = VbGetNvStorage(VBNV_LOCALIZATION_INDEX);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
@@ -432,6 +434,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     kern_nv &= ~KERN_NV_FWUPDATE_TRIES_MASK;
     kern_nv |= (value & KERN_NV_FWUPDATE_TRIES_MASK);
     return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
+  } else if (!strcasecmp(name,"loc_idx")) {
+    return VbSetNvStorage(VBNV_LOCALIZATION_INDEX, value);
   }
 
   return -1;

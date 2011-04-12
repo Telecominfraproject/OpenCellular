@@ -66,6 +66,7 @@ const Param sys_param_list[] = {
    "Times to try OS firmware update (writable, inside kern_nv)"},
   {"vbtest_errfunc", CAN_WRITE, "Verified boot test error function (writable)"},
   {"vbtest_errno", CAN_WRITE, "Verified boot test error number (writable)"},
+  {"loc_idx", CAN_WRITE, "Localization index for firmware screens (writable)"},
   /* Fields not shown in a print-all list */
   {"vdat_lfdebug", IS_STRING|NO_PRINT_ALL,
    "LoadFirmware() debug data (not in print-all)"},
