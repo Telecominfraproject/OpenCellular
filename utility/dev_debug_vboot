@@ -13,10 +13,8 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 
 TMPDIR=$(mktemp -d /tmp/debug_vboot_XXXXXXXXX)
-LOGFILE=noisy.log
-# The public file must live directly in /tmp, not in a subdirectory.
-# See http://crosbug.com/8947
-PUBLOGFILE=/tmp/debug_vboot_noisy.log
+LOGFILE="${TMPDIR}/noisy.log"
+PUBLOGFILE="/var/log/debug_vboot_noisy.log"
 
 # TODO(wfrichar): Need to support ARM. The hard disk path is likely different.
 # We can use 'crossystem arch' to distinguish between x86 and ARM.
@@ -24,8 +22,7 @@ HD=/dev/sda
 
 cleanup() {
   if [ -z "${USE_EXISTING:-}" ]; then
-    # See http://crosbug.com/8947
-    cp --no-target-directory --remove-destination "${LOGFILE}" "${PUBLOGFILE}"
+    cp -f "${LOGFILE}" "${PUBLOGFILE}"
     info "exporting log file as ${PUBLOGFILE}"
   fi
   if [ -n "${CLEANUP:-}" ]; then
@@ -109,7 +106,7 @@ if [ -n "${1:-}" ]; then
 fi
 
 [ -d ${TMPDIR} ] || mkdir -p ${TMPDIR} || exit 1
-cd ${TMPDIR}
+cd ${TMPDIR} || exit 1
 echo "$0 $*" > "$LOGFILE"
 log date
 echo "Saving verbose log as $(pwd)/$LOGFILE"
