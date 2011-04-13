@@ -23,6 +23,27 @@ function alg_to_keylen {
   echo $(( 1 << (10 + ($1 / 3)) ))
 }
 
+# Default alrogithms.
+ROOT_KEY_ALGOID=11
+RECOVERY_KEY_ALGOID=11
+
+FIRMWARE_DATAKEY_ALGOID=7
+DEV_FIRMWARE_DATAKEY_ALGOID=7
+
+RECOVERY_KERNEL_ALGOID=11
+INSTALLER_KERNEL_ALGOID=11
+KERNEL_SUBKEY_ALGOID=7
+KERNEL_DATAKEY_ALGOID=4
+
+# Keyblock modes determine which boot modes a signing key is valid for use
+# in verification.
+FIRMWARE_KEYBLOCK_MODE=7
+DEV_FIRMWARE_KEYBLOCK_MODE=6  # Only allow in dev mode.
+RECOVERY_KERNEL_KEYBLOCK_MODE=11
+KERNEL_KEYBLOCK_MODE=7  # Only allow in non-recovery.
+INSTALLER_KERNEL_KEYBLOCK_MODE=10  # Only allow in Dev + Recovery.
+
+
 # Emit .vbpubk and .vbprivk using given basename and algorithm
 # NOTE: This function also appears in ../../utility/dev_make_keypair. Making
 # the two implementations the same would require some common.sh, which is more
@@ -32,9 +53,10 @@ function alg_to_keylen {
 function make_pair {
   local base=$1
   local alg=$2
+  local key_version=${3:-1}
   local len=$(alg_to_keylen $alg)
 
-  echo "creating $base keypair..."
+  echo "creating $base keypair (version = $key_version)..."
 
   # make the RSA keypair
   openssl genrsa -F4 -out "${base}_${len}.pem" $len
@@ -48,7 +70,7 @@ function make_pair {
   vbutil_key \
     --pack "${base}.vbpubk" \
     --key "${base}_${len}.keyb" \
-    --version 1 \
+    --version  "${key_version}" \
     --algorithm $alg
 
   # wrap the private key

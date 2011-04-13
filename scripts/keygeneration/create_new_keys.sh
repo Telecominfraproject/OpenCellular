@@ -9,26 +9,6 @@
 # Load common constants and functions.
 . "$(dirname "$0")/common.sh"
 
-# Mapping are in common.sh.
-ROOT_KEY_ALGOID=11
-RECOVERY_KEY_ALGOID=11
-
-FIRMWARE_DATAKEY_ALGOID=7
-DEV_FIRMWARE_DATAKEY_ALGOID=7
-
-RECOVERY_KERNEL_ALGOID=11
-INSTALLER_KERNEL_ALGOID=11
-KERNEL_SUBKEY_ALGOID=7
-KERNEL_DATAKEY_ALGOID=4
-
-# Keyblock modes determine which boot modes a signing key is valid for use
-# in verification.
-FIRMWARE_KEYBLOCK_MODE=7
-DEV_FIRMWARE_KEYBLOCK_MODE=6  # Only allow in dev mode.
-RECOVERY_KERNEL_KEYBLOCK_MODE=11
-KERNEL_KEYBLOCK_MODE=7  # Only allow in non-recovery.
-INSTALLER_KERNEL_KEYBLOCK_MODE=10  # Only allow in Dev + Recovery.
-
 # Create the normal keypairs
 make_pair root_key                 $ROOT_KEY_ALGOID
 make_pair firmware_data_key        $FIRMWARE_DATAKEY_ALGOID
