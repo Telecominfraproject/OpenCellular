@@ -61,6 +61,22 @@ is_rootfs_verification_enabled() {
   echo "$*" | grep -q 'root=/dev/dm-0'
 }
 
+remove_legacy_boot_rootfs_verification() {
+  # See src/scripts/create_legacy_bootloader_templates
+  local image="$1"
+  local mount_point="$(make_temp_dir)"
+  local config_file
+  debug_msg "Removing rootfs verification for legacy boot configuration."
+  mount_image_partition "$image" 12 "$mount_point" || return $FLAGS_FALSE
+  config_file="$mount_point/efi/boot/grub.cfg"
+  [ ! -f "$config_file" ] ||
+    sudo sed -i 's/^ *set default=2 *$/set default=0/g' "$config_file"
+  config_file="$mount_point/syslinux/default.cfg"
+  [ ! -f "$config_file" ] ||
+    sudo sed -i 's/-vusb/-usb/g; s/-vhd/-hd/g' "$config_file"
+  sudo umount "$mount_point"
+}
+
 # Wrapped version of dd
 mydd() {
   # oflag=sync is safer, but since we need bs=512, syncing every block would be
@@ -158,6 +174,7 @@ resign_ssd_kernel() {
       kernel_config="$(remove_rootfs_verification "$kernel_config")"
       debug_msg "New kernel config: $kernel_config"
       echo "$name: Disabled rootfs verification."
+      remove_legacy_boot_rootfs_verification "$ssd_device"
     fi
 
     local new_kernel_config_file="$(make_temp_file)"
@@ -286,5 +303,12 @@ main() {
     err_die "Failed re-signing kernels."
   fi
 }
+
+# People using this to process images may forget to add "-i",
+# so adding parameter check is safer.
+if [ "$#" -gt 0 ]; then
+  flags_help
+  err_die "Unknown parameters: $@"
+fi
 
 main
