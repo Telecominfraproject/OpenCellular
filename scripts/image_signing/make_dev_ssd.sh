@@ -17,8 +17,11 @@ DEFAULT_KEYS_FOLDER="$VBOOT_BASE/devkeys"
 DEFAULT_BACKUP_FOLDER='/mnt/stateful_partition/backups'
 DEFAULT_PARTITIONS='2 4'
 
+# TODO(hungte) or use "rootdev -s" in future
+DEFAULT_IMAGE="/dev/sda"
+
 # DEFINE_string name default_value description flag
-DEFINE_string image "/dev/sda" "Path to device or image file" "i"
+DEFINE_string image "$DEFAULT_IMAGE" "Path to device or image file" "i"
 DEFINE_string keys "$DEFAULT_KEYS_FOLDER" "Path to folder of dev keys" "k"
 DEFINE_boolean remove_rootfs_verification \
   $FLAGS_FALSE "Modify kernel boot config to disable rootfs verification" ""
@@ -32,9 +35,11 @@ DEFINE_string partitions "$DEFAULT_PARTITIONS" \
  "List of partitions to examine" ""
 DEFINE_boolean recovery_key "$FLAGS_FALSE" \
  "Use recovery key to sign image (to boot from USB" ""
+DEFINE_boolean force "$FLAGS_FALSE" "Skip sanity checks and make the change" "f"
 
 # Parse command line
 FLAGS "$@" || exit 1
+ORIGINAL_PARAMS="$@"
 eval set -- "$FLAGS_ARGV"
 
 # Globals
@@ -291,6 +296,36 @@ main() {
     "$KERNEL_PUBKEY" \
     "$FLAGS_image" ||
     exit 1
+
+  debug_msg "Firmware compatibility sanity check"
+  if [ "$FLAGS_force" = "$FLAGS_FALSE" ] &&
+     [ "$FLAGS_image" = "$DEFAULT_IMAGE" ] &&
+     [ "$(crossystem mainfw_type)" != "developer" ]; then
+
+      # TODO(hungte) we can check if the fimware rootkey is already dev keys."
+      echo "
+      ERROR: YOU ARE NOT USING DEVELOPER FIRMWARE, AND RUNNING THIS COMMAND MAY
+      THROW YOUR CHROMEOS DEVICE INTO UNBOOTABLE STATE.
+
+      You need to either install developer firmware, or change system rootkey.
+
+       - To install developer firmware: type command
+         sudo chromeos-firmwareupdate --mode=todev
+
+       - To change system rootkey: disable firmware write protection (a hardware
+         switch) and then type command:
+         sudo ./make_dev_firmware.sh
+
+      If you are sure that you want to make such image without developer
+      firmware or you've already changed system root keys, please run this
+      command again with --force param:
+
+         sudo ./make_dev_ssd.sh --force $ORIGINAL_PARAMS
+
+      YOUR IMAGE $FLAGS_image IS NOT MODIFIED.
+      "
+      exit 1
+  fi
 
   resign_ssd_kernel "$FLAGS_image" || num_signed=$?
 
