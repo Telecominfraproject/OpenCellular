@@ -597,13 +597,12 @@ int LoadKernel(LoadKernelParams* params) {
       shcall->check_result = VBSD_LKC_CHECK_GOOD_PARTITION;
 
     /* See if we need to update the TPM */
-    if (kBootRecovery != boot_mode && good_partition_key_block_valid) {
-      /* We only update the TPM in normal and developer boot modes.  In
-       * developer mode, we only advanced lowest_version for kernels with valid
-       * key blocks, and didn't count self-signed key blocks.  In recovery
-       * mode, the TPM stays PP-unlocked, so anything we write gets blown away
-       * by the firmware when we go back to normal mode. */
-      VBDEBUG(("Boot_flags = not recovery\n"));
+    if ((kBootNormal == boot_mode) &&
+        !((1 == shared->firmware_index) && (shared->flags & VBSD_FWB_TRIED))) {
+      /* We only update the TPM in normal mode.  We don't advance the
+       * TPM if we're trying a new firmware B, because that firmware
+       * may have a key change and roll forward the TPM too soon. */
+      VBDEBUG(("Checking if TPM kernel version needs advancing\n"));
 
       if ((lowest_version > tpm_version) &&
           (lowest_version != LOWEST_TPM_VERSION)) {
