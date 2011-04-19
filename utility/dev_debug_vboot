@@ -109,7 +109,7 @@ fi
 cd ${TMPDIR} || exit 1
 echo "$0 $*" > "$LOGFILE"
 log date
-echo "Saving verbose log as $(pwd)/$LOGFILE"
+echo "Saving verbose log as $LOGFILE"
 
 BIOS=bios.rom
 
