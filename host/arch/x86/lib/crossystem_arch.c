@@ -392,6 +392,7 @@ static int VbGetRecoveryReason(void) {
     case BINF0_RECOVERY_DEV_SCREEN_KEY:
       return VBNV_RECOVERY_RW_DEV_SCREEN;
     case BINF0_RECOVERY_RW_FW_BAD:
+      return VBNV_RECOVERY_RO_INVALID_RW;
     case BINF0_RECOVERY_NO_OS:
       return VBNV_RECOVERY_RW_NO_OS;
     case BINF0_RECOVERY_BAD_OS:
