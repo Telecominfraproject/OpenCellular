@@ -6,8 +6,9 @@
 # Generate a new yaml file for each specified hwid_*.bmp file.
 #
 
-# Do initial release locales only, 'cause I'm in a hurry. GB == US.
-locales="en es fr it nl de"
+# I'm sorting the locales in more-or-less geographical order. Right should move
+# east, left should move west. Of course we'll start in the US. :-)
+locales="en es_419 pt_BR en_GB fr es pt_PT ca it de el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja"
 localedir="./localized_bitmaps"
 
 # Arbitrary padding
