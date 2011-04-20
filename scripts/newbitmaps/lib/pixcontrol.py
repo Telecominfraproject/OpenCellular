@@ -16,6 +16,7 @@ class Frame(wx.Frame):
     menuFile.AppendSeparator()
     m_reload = menuFile.Append(wx.ID_ANY, "Reload\tCtrl+R")
     m_snapshot = menuFile.Append(wx.ID_ANY, "Save snapshot")
+    m_snapshotall = menuFile.Append(wx.ID_ANY, "Save snapshot of all screens")
     m_quit = menuFile.Append(wx.ID_ANY, "Quit\tCtrl+Q")
     menuBar = wx.MenuBar()
     menuBar.Append(menuFile, "&File")
@@ -24,6 +25,7 @@ class Frame(wx.Frame):
     self.Bind(wx.EVT_MENU, self.OnAbout, m_about)
     self.Bind(wx.EVT_MENU, self.OnReload, m_reload)
     self.Bind(wx.EVT_MENU, self.OnSaveit, m_snapshot)
+    self.Bind(wx.EVT_MENU, self.OnSaveAll, m_snapshotall)
     self.Bind(wx.EVT_MENU, self.OnQuit, m_quit)
     self.Bind(wx.EVT_CLOSE, self.OnQuit)
 
@@ -106,3 +108,14 @@ class Frame(wx.Frame):
       # FIXME: The model should know when to do this itself, right?
       self.bmpblock.Redisplay()
       self.do_update = False
+
+  def OnSaveAll(self, event=None):
+    """Save snapshots of all screens"""
+    start = self.bmpblock.current_screen
+    thinglist = self.screenlist.GetItems()
+    for thing in thinglist:
+      self.bmpblock.current_screen = thing
+      self.bmpblock.Redisplay()
+      self.bmpblock.Saveit()
+    self.bmpblock.current_screen = start
+    self.do_update = True
