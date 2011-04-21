@@ -57,7 +57,7 @@ void* GetFirmwareGBB(const void* base_of_rom, const void* fmap,
   const FmapHeader* fh = (const FmapHeader*) fmap;
   const FmapAreaHeader* ah = (const FmapAreaHeader*)
     (fmap + sizeof(FmapHeader));
-  int i = FmapAreaIndexOrError(fh, ah, "GBB Area");
+  int i = FmapAreaIndexOrError(fh, ah, "GBB");
 
   if (i < 0)
     return NULL;
@@ -79,8 +79,8 @@ void* GetFirmwareGBB(const void* base_of_rom, const void* fmap,
 int GetVerificationBlock(const void* base_of_rom, const void* fmap, int index,
     void** verification_block_ptr, uint64_t* verification_size_ptr) {
   const char* key_area_name[2] = {
-    "Firmware A Key",
-    "Firmware B Key"
+    "VBLOCK_A",
+    "VBLOCK_B"
   };
   const FmapHeader* fh = (const FmapHeader*) fmap;
   const FmapAreaHeader* ah = (const FmapAreaHeader*)
@@ -108,8 +108,8 @@ int GetVerificationBlock(const void* base_of_rom, const void* fmap, int index,
 int GetFirmwareData(const void* base_of_rom, const void* fmap, int index,
     void *verification_block, uint8_t** body_ptr, uint64_t *size_ptr) {
   const char* data_area_name[2] = {
-    "Firmware A Data",
-    "Firmware B Data"
+    "FW_MAIN_A",
+    "FW_MAIN_B"
   };
   const FmapHeader* fh = (const FmapHeader*) fmap;
   const FmapAreaHeader* ah = (const FmapAreaHeader*)
