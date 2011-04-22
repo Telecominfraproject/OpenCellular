@@ -57,15 +57,24 @@ LIB_SRCS = \
 	./lib/cryptolib/sha1.c \
 	./lib/cryptolib/sha2.c \
 	./lib/cryptolib/sha_utility.c \
-	./lib/rollback_index.c \
-	./lib/tpm_bootmode.c \
 	./lib/stateful_util.c \
-	./lib/tpm_lite/tlcl.c \
 	./lib/utility.c \
 	./lib/vboot_common.c \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c \
 	./lib/vboot_nvstorage.c
+
+ifeq ($(MOCK_TPM),)
+LIB_SRCS += \
+	./lib/rollback_index.c \
+	./lib/tpm_bootmode.c \
+	./lib/tpm_lite/tlcl.c
+else
+LIB_SRCS += \
+	./lib/mocked_rollback_index.c \
+	./lib/mocked_tpm_bootmode.c \
+	./lib/tpm_lite/mocked_tlcl.c
+endif
 
 LIB_OBJS = $(LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 

@@ -3,6 +3,7 @@
 # found in the LICENSE file.
 
 export FIRMWARE_ARCH
+export MOCK_TPM
 
 export CC ?= gcc
 export CXX ?= g++
