@@ -1607,3 +1607,126 @@ Returns:
   //
   return k;
 }
+
+
+#ifdef STANDALONE
+int main(int argc, char *argv[])
+{
+  char *progname;
+  int retval = 1;
+
+  progname = strrchr(argv[0], '/');
+  if (progname)
+    progname++;
+  else
+    progname = argv[0];
+
+  if (argc != 3)
+  {
+    fprintf(stderr, "\nUsage:  %s INFILE OUTFILE\n\n", progname);
+    exit(1);
+  }
+
+  char *infile = argv[1];
+  char *outfile = argv[2];
+
+  struct stat istat;
+  if (0 != stat(infile, &istat)) {
+    fprintf(stderr, "%s: can't stat %s: %s\n",
+            progname,
+            infile,
+            strerror(errno));
+    exit(1);
+  }
+  uint32_t isize = (uint32_t)istat.st_size;
+
+  printf("%s is %d bytes\n", infile, isize);
+
+  FILE *ifp = fopen(infile, "rb");
+  if (!ifp)
+  {
+    fprintf(stderr, "%s: can't read %s: %s\n",
+            progname,
+            infile,
+            strerror(errno));
+    exit(1);
+  }
+  printf("opened %s\n", infile);
+
+  // read input file into buffer
+  uint8_t *ibuf = malloc(isize);
+  if (!ibuf) {
+    fprintf(stderr, "%s: can't malloc %d bytes: %s\n",
+            progname,
+            isize,
+            strerror(errno));
+    goto done1;
+  }
+  if (1 != fread(ibuf, isize, 1, ifp)) {
+    fprintf(stderr, "%s: can't read %d bytes: %s\n",
+            progname,
+            isize,
+            strerror(errno));
+    goto done2;
+  }
+
+  // assume compression will actually work
+  uint32_t osize = isize;
+  uint8_t *obuf = malloc(osize);
+  if (!obuf) {
+    fprintf(stderr, "%s: can't allocate %d bytes: %s\n",
+            progname,
+            osize,
+            strerror(errno));
+    goto done2;
+  }
+
+  // try it and see
+  EFI_STATUS r = EfiCompress(ibuf, isize, obuf, &osize);
+  if (r != EFI_SUCCESS) {
+    fprintf(stderr, "%s: compression failed with code %d\n",
+            progname,
+            r);
+    goto done3;
+  }
+
+  printf("Compressed %d bytes to %d bytes\n", isize, osize);
+
+  // Write it out
+  FILE *ofp = fopen(outfile, "wb");
+  if (!ofp)
+  {
+    fprintf(stderr, "%s: can't open %s for writing: %s\n",
+            progname,
+            outfile,
+            strerror(errno));
+    goto done3;
+  }
+  printf("opened %s\n", outfile);
+
+  if (1 != fwrite(obuf, osize, 1, ofp)) {
+    fprintf(stderr, "%s: can't write %d bytes: %s\n",
+            progname,
+            osize,
+            strerror(errno));
+    goto done4;
+  }
+
+  printf("wrote %d bytes to %s\n", osize, outfile);
+  retval = 0;
+
+done4:
+  fclose(ofp);
+
+done3:
+  free(obuf);
+
+done2:
+  free(ibuf);
+
+done1:
+  fclose(ifp);
+
+  return retval;
+}
+#endif // STANDALONE

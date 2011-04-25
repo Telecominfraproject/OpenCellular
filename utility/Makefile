@@ -40,7 +40,7 @@ TARGET_NAMES = crossystem \
 		pack_firmware_image
 
 ifeq ($(MINIMAL),)
-TARGET_NAMES += bmpblk_utility
+TARGET_NAMES += bmpblk_utility eficompress efidecompress
 endif
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
@@ -69,8 +69,14 @@ ${BUILD_ROOT}/bmpblk_util.o: bmpblk_util.c
 ${BUILD_ROOT}/eficompress.o: eficompress.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+${BUILD_ROOT}/eficompress: eficompress.c
+	$(CC) $(CFLAGS) -DSTANDALONE $< -o $@
+
 ${BUILD_ROOT}/efidecompress.o: efidecompress.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+${BUILD_ROOT}/efidecompress: efidecompress.c
+	$(CC) $(CFLAGS) -DSTANDALONE $< -o $@
 
 ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 				${BUILD_ROOT}/bmpblk_util.o \
