@@ -5,7 +5,7 @@
 # found in the LICENSE file.
 #
 # This script can change key (usually developer keys) and kernel config
-# of a kernels on SSD.
+# of kernels on an disk image (usually for SSD but also works for USB).
 
 SCRIPT_BASE="$(dirname "$0")"
 . "$SCRIPT_BASE/common_minimal.sh"
@@ -17,11 +17,15 @@ DEFAULT_KEYS_FOLDER="$VBOOT_BASE/devkeys"
 DEFAULT_BACKUP_FOLDER='/mnt/stateful_partition/backups'
 DEFAULT_PARTITIONS='2 4'
 
-# TODO(hungte) or use "rootdev -s" in future
-DEFAULT_IMAGE="/dev/sda"
+# TODO(hungte) The default image selection is no longer a SSD, so the script
+# works more like "make_dev_image".  We may change the file name in future.
+ROOTDEV="$(rootdev -s 2>/dev/null)"
+ROOTDEV_PARTITION="$(echo $ROOTDEV | sed -n 's/.*\([0-9][0-9]*\)$/\1/p')"
+ROOTDEV_DISK="${ROOTDEV%$ROOTDEV_PARTITION}"
+ROOTDEV_KERNEL="$((ROOTDEV_PARTITION - 1))"
 
 # DEFINE_string name default_value description flag
-DEFINE_string image "$DEFAULT_IMAGE" "Path to device or image file" "i"
+DEFINE_string image "$ROOTDEV_DISK" "Path to device or image file" "i"
 DEFINE_string keys "$DEFAULT_KEYS_FOLDER" "Path to folder of dev keys" "k"
 DEFINE_boolean remove_rootfs_verification \
   $FLAGS_FALSE "Modify kernel boot config to disable rootfs verification" ""
@@ -31,8 +35,8 @@ DEFINE_string save_config "" \
   "Base filename to store kernel configs to, instead of resigning." ""
 DEFINE_string set_config "" \
   "Base filename to load kernel configs from" ""
-DEFINE_string partitions "$DEFAULT_PARTITIONS" \
- "List of partitions to examine" ""
+DEFINE_string partitions "" \
+  "List of partitions to examine (default: $DEFAULT_PARTITIONS)" ""
 DEFINE_boolean recovery_key "$FLAGS_FALSE" \
  "Use recovery key to sign image (to boot from USB" ""
 DEFINE_boolean force "$FLAGS_FALSE" "Skip sanity checks and make the change" "f"
@@ -41,6 +45,8 @@ DEFINE_boolean force "$FLAGS_FALSE" "Skip sanity checks and make the change" "f"
 FLAGS "$@" || exit 1
 ORIGINAL_PARAMS="$@"
 eval set -- "$FLAGS_ARGV"
+ORIGINAL_PARTITIONS="$FLAGS_partitions"
+: ${FLAGS_partitions:=$DEFAULT_PARTITIONS}
 
 # Globals
 # ----------------------------------------------------------------------------
@@ -105,6 +111,24 @@ cros_kernel_name() {
     *)
       echo "Partition $1"
   esac
+}
+
+find_valid_kernel_partitions() {
+  local part_id
+  local valid_partitions=""
+  for part_id in $*; do
+    local name="$(cros_kernel_name $part_id)"
+    if [ -z "$(dump_kernel_config $FLAGS_image$part_id 2>"$EXEC_LOG")" ]; then
+      echo "INFO: $name: no kernel boot information, ignored." >&2
+    else
+      [ -z "$valid_partitions" ] &&
+        valid_partitions="$part_id" ||
+        valid_partitions="$valid_partitions $part_id"
+      continue
+    fi
+  done
+  debug_msg "find_valid_kernel_partitions: [$*] -> [$valid_partitions]"
+  echo "$valid_partitions"
 }
 
 # Resigns a kernel on SSD or image.
@@ -235,7 +259,7 @@ resign_ssd_kernel() {
       conv=notrunc
     resigned_kernels=$(($resigned_kernels + 1))
 
-    debug_msg "Make the root filesystem writable if needed."
+    debug_msg "Make the root file system writable if needed."
     # TODO(hungte) for safety concern, a more robust way would be to:
     # (1) change kernel config to ro
     # (2) check if we can enable rw mount
@@ -273,6 +297,85 @@ resign_ssd_kernel() {
   return $resigned_kernels
 }
 
+sanity_check_live_partitions() {
+  debug_msg "Partition sanity check"
+  if [ "$FLAGS_partitions" = "$ROOTDEV_KERNEL" ]; then
+    debug_msg "only for current active partition - safe."
+    return
+  fi
+  if [ "$ORIGINAL_PARTITIONS" != "" ]; then
+    debug_msg "user has assigned partitions - provide more info."
+    echo "INFO: Making change to $FLAGS_partitions on $FLAGS_image."
+    return
+  fi
+  echo "
+  ERROR: YOU ARE TRYING TO MODIFY THE LIVE SYSTEM IMAGE $FLAGS_image.
+
+  The system may become unusable after that change, especially when you have
+  some auto updates in progress. To make it safer, we suggest you to only
+  change the partition you have booted with. To do that, re-execute this command
+  as:
+
+    sudo ./make_dev_ssd.sh $ORIGINAL_PARAMS --partitions $ROOTDEV_KERNEL
+
+  If you are sure to modify other partition, please invoke the command again and
+  explicitly assign only one target partition for each time  (--partitions N )
+  "
+  return $FLAGS_FALSE
+}
+
+sanity_check_live_firmware() {
+  debug_msg "Firmware compatibility sanity check"
+  if [ "$(crossystem mainfw_type)" = "developer" ]; then
+    debug_msg "developer type firmware in active."
+    return
+  fi
+  debug_msg "Loading firmware to check root key..."
+  local bios_image="$(make_temp_file)"
+  local rootkey_file="$(make_temp_file)"
+  echo "INFO: checking system firmware..."
+  sudo flashrom -p internal:bus=spi -i GBB -r "$bios_image" >/dev/null 2>&1
+  gbb_utility -g --rootkey="$rootkey_file" "$bios_image" >/dev/null 2>&1
+  if [ ! -s "$rootkey_file" ]; then
+    debug_msg "failed to read root key from system firmware..."
+  else
+    # The magic 130 is counted by "od dev-rootkey" for the lines until the body
+    # of key is reached. Trailing bytes (0x00 or 0xFF - both may appear, and
+    # that's why we need to skip them) are started at line 131.
+    # TODO(hungte) compare with rootkey in $VBOOT_BASE directly.
+    local rootkey_hash="$(od "$rootkey_file" |
+                          head -130 | md5sum |
+                          sed 's/ .*$//' )"
+    if [ "$rootkey_hash" = "a13642246ef93daaf75bd791446fec9b" ]; then
+      debug_msg "detected DEV root key in firmware."
+      return
+    else
+      debug_msg "non-devkey hash: $rootkey_hash"
+    fi
+  fi
+
+  echo "
+  ERROR: YOU ARE NOT USING DEVELOPER FIRMWARE, AND RUNNING THIS COMMAND MAY
+  THROW YOUR CHROMEOS DEVICE INTO UN-BOOTABLE STATE.
+
+  You need to either install developer firmware, or change system root key.
+
+   - To install developer firmware: type command
+     sudo chromeos-firmwareupdate --mode=todev
+
+   - To change system rootkey: disable firmware write protection (a hardware
+     switch) and then type command:
+     sudo ./make_dev_firmware.sh
+
+  If you are sure that you want to make such image without developer
+  firmware or you've already changed system root keys, please run this
+  command again with --force paramemeter:
+
+     sudo ./make_dev_ssd.sh --force $ORIGINAL_PARAMS
+  "
+  return $FLAGS_FALSE
+}
+
 # Main
 # ----------------------------------------------------------------------------
 main() {
@@ -297,34 +400,31 @@ main() {
     "$FLAGS_image" ||
     exit 1
 
-  debug_msg "Firmware compatibility sanity check"
-  if [ "$FLAGS_force" = "$FLAGS_FALSE" ] &&
-     [ "$FLAGS_image" = "$DEFAULT_IMAGE" ] &&
-     [ "$(crossystem mainfw_type)" != "developer" ]; then
+  # checks for running on a live system image.
+  if [ "$FLAGS_image" = "$ROOTDEV_DISK" ]; then
+    debug_msg "check valid kernel partitions for live system"
+    local valid_partitions="$(find_valid_kernel_partitions $FLAGS_partitions)"
+    [ -n "$valid_partitions" ] ||
+      err_die "No valid kernel partitions on $FLAGS_image ($FLAGS_partitions)."
+    FLAGS_partitions="$valid_partitions"
 
-      # TODO(hungte) we can check if the fimware rootkey is already dev keys."
+    # Sanity checks
+    if [ "$FLAGS_force" = "$FLAGS_TRUE" ]; then
       echo "
-      ERROR: YOU ARE NOT USING DEVELOPER FIRMWARE, AND RUNNING THIS COMMAND MAY
-      THROW YOUR CHROMEOS DEVICE INTO UNBOOTABLE STATE.
-
-      You need to either install developer firmware, or change system rootkey.
-
-       - To install developer firmware: type command
-         sudo chromeos-firmwareupdate --mode=todev
-
-       - To change system rootkey: disable firmware write protection (a hardware
-         switch) and then type command:
-         sudo ./make_dev_firmware.sh
-
-      If you are sure that you want to make such image without developer
-      firmware or you've already changed system root keys, please run this
-      command again with --force param:
-
-         sudo ./make_dev_ssd.sh --force $ORIGINAL_PARAMS
-
-      YOUR IMAGE $FLAGS_image IS NOT MODIFIED.
-      "
-      exit 1
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      ! INFO: ALL SANITY CHECKS WERE BYPASSED. YOU ARE ON YOUR OWN. !
+      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      " >&2
+      local i
+      for i in $(seq 5 -1 1); do
+        echo -n "\rStart in $i second(s) (^C to abort)...  " >&2
+        sleep 1
+      done
+      echo ""
+    elif ! sanity_check_live_firmware ||
+         ! sanity_check_live_partitions; then
+      err_die "IMAGE $FLAGS_image IS NOT MODIFIED."
+    fi
   fi
 
   resign_ssd_kernel "$FLAGS_image" || num_signed=$?
