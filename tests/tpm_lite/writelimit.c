@@ -36,6 +36,7 @@ int main(int argc, char** argv) {
       switch (result) {
       case TPM_E_MAXNVWRITES:
         assert(i >= TPM_MAX_NV_WRITES_NOOWNER);
+        break;
       default:
         error("unexpected error code %d (0x%x)\n", result, result);
       }
