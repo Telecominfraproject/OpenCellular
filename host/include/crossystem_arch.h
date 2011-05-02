@@ -11,6 +11,14 @@
 #include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
+/* Firmware types from BINF.3. Placed in the common file because both x86 and
+ * arm use this. The constants are defined in "Chrome OS Main Processor
+ * Firmware Spec"
+ */
+#define BINF3_RECOVERY   0
+#define BINF3_NORMAL     1
+#define BINF3_DEVELOPER  2
+
 
 /* INTERNAL APIS FOR CROSSYSTEM AVAILABLE TO ARCH-SPECIFIC FUNCTIONS */
 

@@ -48,10 +48,6 @@
 #define BINF0_S3_RESUME_FAILED        10
 /* Recovery caused by TPM error */
 #define BINF0_RECOVERY_TPM_ERROR      11
-/* Firmware types from BINF.3 */
-#define BINF3_RECOVERY   0
-#define BINF3_NORMAL     1
-#define BINF3_DEVELOPER  2
 /* CHSW bitflags */
 #define CHSW_RECOVERY_BOOT     0x00000002
 #define CHSW_RECOVERY_EC_BOOT  0x00000004

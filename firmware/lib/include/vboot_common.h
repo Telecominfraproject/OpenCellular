@@ -11,6 +11,8 @@
 #include "cryptolib.h"
 #include "vboot_struct.h"
 
+#define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+
 /* Error Codes for all common functions. */
 enum {
   VBOOT_SUCCESS = 0,

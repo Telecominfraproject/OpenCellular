@@ -14,6 +14,11 @@
 /* Max length of a string parameter */
 #define MAX_STRING 8192
 
+/*
+ * Call arch specific init, if provided, otherwise use the 'weak' stub.
+ */
+int __VbArchInit(void) { return 0; }
+int VbArchInit(void) __attribute__((weak, alias("__VbArchInit")));
 /* Flags for Param */
 #define IS_STRING      0x01  /* String (not present = integer) */
 #define CAN_WRITE      0x02  /* Writable (not present = read-only */
@@ -211,6 +216,11 @@ int main(int argc, char* argv[]) {
     progname++;
   else
     progname = argv[0];
+
+  if (VbArchInit()) {
+    fprintf(stderr, "Failed to initialize\n");
+    return -1;
+  }
 
   /* If no args specified, print all params */
   if (argc == 1)
