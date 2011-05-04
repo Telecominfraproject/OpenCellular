@@ -9,12 +9,29 @@
 # Load common constants and functions.
 . "$(dirname "$0")/common.sh"
 
+# File to read current versions from.
+VERSION_FILE="key.versions"
+
+# ARGS: <version_type>
+get_version() {
+  local version_type=$1
+  version=$(sed -n "s#^${version_type}=\(.*\)#\1#pg" ${VERSION_FILE})
+  echo $version
+}
+
+# Get the key versions for normal keypairs
+FKEY_VERSION=$(get_version "firmware_key_version")
+# Firmware version is the kernel subkey version.
+KSUBKEY_VERSION=$(get_version "firmware_version")
+# Kernel data key version is the kernel key version.
+KDATAKEY_VERSION=$(get_version "kernel_key_version")
+
 # Create the normal keypairs
 make_pair root_key                 $ROOT_KEY_ALGOID
-make_pair firmware_data_key        $FIRMWARE_DATAKEY_ALGOID
-make_pair dev_firmware_data_key    $DEV_FIRMWARE_DATAKEY_ALGOID
-make_pair kernel_subkey            $KERNEL_SUBKEY_ALGOID
-make_pair kernel_data_key          $KERNEL_DATAKEY_ALGOID
+make_pair firmware_data_key        $FIRMWARE_DATAKEY_ALGOID $FKEY_VERSION
+make_pair dev_firmware_data_key    $DEV_FIRMWARE_DATAKEY_ALGOID $FKEY_VERSION
+make_pair kernel_subkey            $KERNEL_SUBKEY_ALGOID $KSUBKEY_VERSION
+make_pair kernel_data_key          $KERNEL_DATAKEY_ALGOID $KDATAKEY_VERSION
 
 # Create the recovery and factory installer keypairs
 make_pair recovery_key             $RECOVERY_KEY_ALGOID
@@ -42,4 +59,3 @@ make_keyblock installer_kernel $INSTALLER_KERNEL_KEYBLOCK_MODE installer_kernel_
 # firmware, which is built separately (and some of which can't be changed after
 # manufacturing). If you update these keys, you must coordinate the changes
 # with the BIOS people or you'll be unable to boot the resulting images.
-
