@@ -14,10 +14,11 @@ class BmpBlock(object):
   It has a few special attributes to specify which part we're focusing on.
   """
 
-  def __init__(self, filename=None):
+  def __init__(self, libdir, filename=None):
     self.yaml = None
     self.filename = None
     self.current_screen = None
+    self.libdir = libdir
     self.filename = filename                    # always set, so we can reload
     if filename:
       self.LoadFile(filename)
@@ -45,9 +46,9 @@ class BmpBlock(object):
     """Raise an error if the specified dict is not a valid BmpBlock structure"""
 
     assert isinstance(thing, dict)
-    assert thing["bmpblock"] == 1.0
+    assert thing["bmpblock"] == 1.0 or thing["bmpblock"] == 1.1
 
-    seen_images = {}
+    seen_images = {"$HWID":1, "$HWID.rtol":2}
     seen_screens = {}
 
     images = thing["images"]
@@ -56,6 +57,10 @@ class BmpBlock(object):
     # image values should all be filenames (ie, strings)
     for val in images.values():
       assert val and isinstance(val, types.StringTypes)
+    if not "$HWID" in images:
+      images["$HWID"] = os.path.join(self.libdir,'current_hwid.bmp')
+    if not "$HWID.rtol" in images:
+      images["$HWID.rtol"] = os.path.join(self.libdir, 'current_hwid.bmp')
 
     screens = thing["screens"]
     assert isinstance(screens, dict)

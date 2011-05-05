@@ -2,7 +2,13 @@ This directory contains examples of the new-style BIOS bitmaps, and a simple
 (and ugly) tool to view the configuration file that describes how each
 screen is displayed.
 
-Old-style bitmaps:
+Note:
+
+Because the bitmap images and display code is part of the Read-Only BIOS,
+back-porting any new bitmaps to older devices is not possible.
+
+
+Old-style, unversioned bitmaps (used in Cr-48):
 
 In the Cr-48 BIOS there are four BIOS screens that may be presented to the
 user. Each contains a graphic, a URL, and some informative text. The screens
@@ -14,21 +20,26 @@ BIOS is compiled. The result is an opaque blob that cannot be viewed or
 edited with linux-based tools.
 
 
-New-style bitmaps (version 1.0):
+Version 1.0, new-style bitmaps (used in Alex):
 
-Future BIOSes will continue to display the same basic screens, but using a
+The BIOSes will continue to display the same basic screens, but it uses a
 different format. Each screen has separate bitmaps for the basic graphic,
-the URL, and the informative text, and will be displayed by rendering each
-component in order. This will allow us to modify and replace any bitmap
-(most frequently the HWID), using standard command-line tools such as
-imagemagick. Compositing each screen in this way also means that we can
-easily provide localized BIOS screens or custom messages.
+the URL, and the informative text, and is displayed by rendering each
+component in order. This allows us to modify and replace any bitmap (most
+frequently the HWID), using standard command-line tools such as imagemagick.
+Compositing each screen in this way also means that we can easily provide
+localized BIOS screens or custom messages.
 
 
-Note:
+Version 1.1 (used in ZGB):
 
-Because the bitmap images and display code is part of the Read-Only BIOS,
-back-porting the new-style bitmaps to older devices is not possible.
+This is essentially the same as version 1.0, except that the ASCII HWID
+string can be rendered directly. In the screen description, the magic image
+name "$HWID" (or "$HWID.rtol") indicates that the ASCII HWID value should be
+displayed instead of an actual image. This means that we only need to
+generate one bmpblock for all locales, since the HWID string can be changed
+at the factory using "gbb_utility".
+
 
 
 Manual instructions:

@@ -1,11 +1,8 @@
-bmpblock: 1.0
+bmpblock: 1.1
 
 compression: 1
 
 images:
-
-  # The HWID must change for every BOM
-  hwid:              hwid_unknown.bmp
 
   # This URL never changes
   url:               URL.bmp
@@ -283,21 +280,21 @@ screens:
   en_remove:
     - [  0,   0, remove_bg]
     - [263, 534, en_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [195, 453, en_remove_text]
 
   en_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, en_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [160, 453, en_yuck_text]
 
   en_insert:
     - [  0,   0, insert_bg]
     - [263, 534, en_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [273, 435, en_insert_text]
 
@@ -308,21 +305,21 @@ screens:
   es_419_remove:
     - [  0,   0, remove_bg]
     - [258, 534, es_419_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [161, 453, es_419_remove_text]
 
   es_419_yuck:
     - [  0,   0, yuck_bg]
     - [258, 534, es_419_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [115, 453, es_419_yuck_text]
 
   es_419_insert:
     - [  0,   0, insert_bg]
     - [258, 534, es_419_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [256, 435, es_419_insert_text]
 
@@ -333,21 +330,21 @@ screens:
   pt_BR_remove:
     - [  0,   0, remove_bg]
     - [258, 534, pt_BR_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [161, 453, pt_BR_remove_text]
 
   pt_BR_yuck:
     - [  0,   0, yuck_bg]
     - [258, 534, pt_BR_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [154, 453, pt_BR_yuck_text]
 
   pt_BR_insert:
     - [  0,   0, insert_bg]
     - [258, 534, pt_BR_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [249, 435, pt_BR_insert_text]
 
@@ -358,21 +355,21 @@ screens:
   en_GB_remove:
     - [  0,   0, remove_bg]
     - [263, 534, en_GB_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [195, 453, en_GB_remove_text]
 
   en_GB_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, en_GB_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [135, 453, en_GB_yuck_text]
 
   en_GB_insert:
     - [  0,   0, insert_bg]
     - [263, 534, en_GB_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [273, 435, en_GB_insert_text]
 
@@ -383,21 +380,21 @@ screens:
   fr_remove:
     - [  0,   0, remove_bg]
     - [256, 534, fr_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [68, 453, fr_remove_text]
 
   fr_yuck:
     - [  0,   0, yuck_bg]
     - [256, 534, fr_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [66, 453, fr_yuck_text]
 
   fr_insert:
     - [  0,   0, insert_bg]
     - [256, 534, fr_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [215, 435, fr_insert_text]
 
@@ -408,21 +405,21 @@ screens:
   es_remove:
     - [  0,   0, remove_bg]
     - [258, 534, es_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [166, 453, es_remove_text]
 
   es_yuck:
     - [  0,   0, yuck_bg]
     - [258, 534, es_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [147, 453, es_yuck_text]
 
   es_insert:
     - [  0,   0, insert_bg]
     - [258, 534, es_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [239, 435, es_insert_text]
 
@@ -433,21 +430,21 @@ screens:
   pt_PT_remove:
     - [  0,   0, remove_bg]
     - [258, 534, pt_PT_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [161, 453, pt_PT_remove_text]
 
   pt_PT_yuck:
     - [  0,   0, yuck_bg]
     - [258, 534, pt_PT_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [167, 453, pt_PT_yuck_text]
 
   pt_PT_insert:
     - [  0,   0, insert_bg]
     - [258, 534, pt_PT_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [239, 435, pt_PT_insert_text]
 
@@ -458,21 +455,21 @@ screens:
   ca_remove:
     - [  0,   0, remove_bg]
     - [263, 534, ca_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [180, 453, ca_remove_text]
 
   ca_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, ca_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [97, 453, ca_yuck_text]
 
   ca_insert:
     - [  0,   0, insert_bg]
     - [263, 534, ca_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [240, 435, ca_insert_text]
 
@@ -483,21 +480,21 @@ screens:
   it_remove:
     - [  0,   0, remove_bg]
     - [257, 534, it_model_text]
-    - [327, 534, hwid]
+    - [327, 534, $HWID]
     - [192, 479, url]
     - [200, 453, it_remove_text]
 
   it_yuck:
     - [  0,   0, yuck_bg]
     - [257, 534, it_model_text]
-    - [327, 534, hwid]
+    - [327, 534, $HWID]
     - [192, 479, url]
     - [168, 453, it_yuck_text]
 
   it_insert:
     - [  0,   0, insert_bg]
     - [257, 534, it_model_text]
-    - [327, 534, hwid]
+    - [327, 534, $HWID]
     - [192, 479, url]
     - [241, 435, it_insert_text]
 
@@ -508,21 +505,21 @@ screens:
   de_remove:
     - [  0,   0, remove_bg]
     - [261, 534, de_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [140, 453, de_remove_text]
 
   de_yuck:
     - [  0,   0, yuck_bg]
     - [261, 534, de_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [134, 453, de_yuck_text]
 
   de_insert:
     - [  0,   0, insert_bg]
     - [261, 534, de_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [212, 435, de_insert_text]
 
@@ -533,21 +530,21 @@ screens:
   el_remove:
     - [  0,   0, remove_bg]
     - [236, 540, el_model_text]
-    - [348, 540, hwid]
+    - [348, 540, $HWID]
     - [192, 485, url]
     - [91, 437, el_remove_text]
 
   el_yuck:
     - [  0,   0, yuck_bg]
     - [236, 540, el_model_text]
-    - [348, 540, hwid]
+    - [348, 540, $HWID]
     - [192, 485, url]
     - [80, 437, el_yuck_text]
 
   el_insert:
     - [  0,   0, insert_bg]
     - [236, 540, el_model_text]
-    - [348, 540, hwid]
+    - [348, 540, $HWID]
     - [192, 485, url]
     - [145, 437, el_insert_text]
 
@@ -558,21 +555,21 @@ screens:
   nl_remove:
     - [  0,   0, remove_bg]
     - [263, 534, nl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [170, 453, nl_remove_text]
 
   nl_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, nl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [58, 453, nl_yuck_text]
 
   nl_insert:
     - [  0,   0, insert_bg]
     - [263, 534, nl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [259, 435, nl_insert_text]
 
@@ -583,21 +580,21 @@ screens:
   da_remove:
     - [  0,   0, remove_bg]
     - [263, 534, da_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [193, 453, da_remove_text]
 
   da_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, da_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [144, 453, da_yuck_text]
 
   da_insert:
     - [  0,   0, insert_bg]
     - [263, 534, da_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [257, 435, da_insert_text]
 
@@ -608,21 +605,21 @@ screens:
   no_remove:
     - [  0,   0, remove_bg]
     - [261, 534, no_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [198, 453, no_remove_text]
 
   no_yuck:
     - [  0,   0, yuck_bg]
     - [261, 534, no_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [89, 453, no_yuck_text]
 
   no_insert:
     - [  0,   0, insert_bg]
     - [261, 534, no_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [244, 435, no_insert_text]
 
@@ -633,21 +630,21 @@ screens:
   sv_remove:
     - [  0,   0, remove_bg]
     - [261, 534, sv_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [166, 453, sv_remove_text]
 
   sv_yuck:
     - [  0,   0, yuck_bg]
     - [261, 534, sv_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [153, 453, sv_yuck_text]
 
   sv_insert:
     - [  0,   0, insert_bg]
     - [261, 534, sv_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [275, 435, sv_insert_text]
 
@@ -658,21 +655,21 @@ screens:
   fi_remove:
     - [  0,   0, remove_bg]
     - [269, 534, fi_model_text]
-    - [315, 534, hwid]
+    - [315, 534, $HWID]
     - [192, 479, url]
     - [215, 453, fi_remove_text]
 
   fi_yuck:
     - [  0,   0, yuck_bg]
     - [269, 534, fi_model_text]
-    - [315, 534, hwid]
+    - [315, 534, $HWID]
     - [192, 479, url]
     - [117, 453, fi_yuck_text]
 
   fi_insert:
     - [  0,   0, insert_bg]
     - [269, 534, fi_model_text]
-    - [315, 534, hwid]
+    - [315, 534, $HWID]
     - [192, 479, url]
     - [205, 435, fi_insert_text]
 
@@ -683,21 +680,21 @@ screens:
   et_remove:
     - [  0,   0, remove_bg]
     - [263, 534, et_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [172, 453, et_remove_text]
 
   et_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, et_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [163, 453, et_yuck_text]
 
   et_insert:
     - [  0,   0, insert_bg]
     - [263, 534, et_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [269, 435, et_insert_text]
 
@@ -708,21 +705,21 @@ screens:
   lv_remove:
     - [  0,   0, remove_bg]
     - [257, 534, lv_model_text]
-    - [326, 534, hwid]
+    - [326, 534, $HWID]
     - [192, 479, url]
     - [209, 453, lv_remove_text]
 
   lv_yuck:
     - [  0,   0, yuck_bg]
     - [257, 534, lv_model_text]
-    - [326, 534, hwid]
+    - [326, 534, $HWID]
     - [192, 479, url]
     - [211, 453, lv_yuck_text]
 
   lv_insert:
     - [  0,   0, insert_bg]
     - [257, 534, lv_model_text]
-    - [326, 534, hwid]
+    - [326, 534, $HWID]
     - [192, 479, url]
     - [280, 435, lv_insert_text]
 
@@ -733,21 +730,21 @@ screens:
   lt_remove:
     - [  0,   0, remove_bg]
     - [257, 534, lt_model_text]
-    - [326, 534, hwid]
+    - [326, 534, $HWID]
     - [192, 479, url]
     - [172, 453, lt_remove_text]
 
   lt_yuck:
     - [  0,   0, yuck_bg]
     - [257, 534, lt_model_text]
-    - [326, 534, hwid]
+    - [326, 534, $HWID]
     - [192, 479, url]
     - [209, 453, lt_yuck_text]
 
   lt_insert:
     - [  0,   0, insert_bg]
     - [257, 534, lt_model_text]
-    - [326, 534, hwid]
+    - [326, 534, $HWID]
     - [192, 479, url]
     - [265, 435, lt_insert_text]
 
@@ -758,21 +755,21 @@ screens:
   ru_remove:
     - [  0,   0, remove_bg]
     - [255, 534, ru_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [158, 453, ru_remove_text]
 
   ru_yuck:
     - [  0,   0, yuck_bg]
     - [255, 534, ru_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [117, 453, ru_yuck_text]
 
   ru_insert:
     - [  0,   0, insert_bg]
     - [255, 534, ru_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [230, 435, ru_insert_text]
 
@@ -783,21 +780,21 @@ screens:
   pl_remove:
     - [  0,   0, remove_bg]
     - [263, 534, pl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [109, 453, pl_remove_text]
 
   pl_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, pl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [133, 453, pl_yuck_text]
 
   pl_insert:
     - [  0,   0, insert_bg]
     - [263, 534, pl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [222, 435, pl_insert_text]
 
@@ -808,21 +805,21 @@ screens:
   cs_remove:
     - [  0,   0, remove_bg]
     - [263, 534, cs_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [136, 453, cs_remove_text]
 
   cs_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, cs_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [119, 453, cs_yuck_text]
 
   cs_insert:
     - [  0,   0, insert_bg]
     - [263, 534, cs_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [202, 435, cs_insert_text]
 
@@ -833,21 +830,21 @@ screens:
   sk_remove:
     - [  0,   0, remove_bg]
     - [263, 534, sk_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [159, 453, sk_remove_text]
 
   sk_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, sk_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [138, 453, sk_yuck_text]
 
   sk_insert:
     - [  0,   0, insert_bg]
     - [263, 534, sk_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [196, 435, sk_insert_text]
 
@@ -858,21 +855,21 @@ screens:
   hu_remove:
     - [  0,   0, remove_bg]
     - [261, 534, hu_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [111, 453, hu_remove_text]
 
   hu_yuck:
     - [  0,   0, yuck_bg]
     - [261, 534, hu_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [108, 453, hu_yuck_text]
 
   hu_insert:
     - [  0,   0, insert_bg]
     - [261, 534, hu_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [223, 435, hu_insert_text]
 
@@ -883,21 +880,21 @@ screens:
   sl_remove:
     - [  0,   0, remove_bg]
     - [263, 534, sl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [203, 453, sl_remove_text]
 
   sl_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, sl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [121, 453, sl_yuck_text]
 
   sl_insert:
     - [  0,   0, insert_bg]
     - [263, 534, sl_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [263, 435, sl_insert_text]
 
@@ -908,21 +905,21 @@ screens:
   sr_remove:
     - [  0,   0, remove_bg]
     - [268, 534, sr_model_text]
-    - [315, 534, hwid]
+    - [315, 534, $HWID]
     - [192, 479, url]
     - [172, 453, sr_remove_text]
 
   sr_yuck:
     - [  0,   0, yuck_bg]
     - [268, 534, sr_model_text]
-    - [315, 534, hwid]
+    - [315, 534, $HWID]
     - [192, 479, url]
     - [85, 453, sr_yuck_text]
 
   sr_insert:
     - [  0,   0, insert_bg]
     - [268, 534, sr_model_text]
-    - [315, 534, hwid]
+    - [315, 534, $HWID]
     - [192, 479, url]
     - [259, 435, sr_insert_text]
 
@@ -933,21 +930,21 @@ screens:
   hr_remove:
     - [  0,   0, remove_bg]
     - [263, 534, hr_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [189, 453, hr_remove_text]
 
   hr_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, hr_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [199, 453, hr_yuck_text]
 
   hr_insert:
     - [  0,   0, insert_bg]
     - [263, 534, hr_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [279, 435, hr_insert_text]
 
@@ -958,21 +955,21 @@ screens:
   bg_remove:
     - [  0,   0, remove_bg]
     - [259, 534, bg_model_text]
-    - [324, 534, hwid]
+    - [324, 534, $HWID]
     - [192, 479, url]
     - [106, 453, bg_remove_text]
 
   bg_yuck:
     - [  0,   0, yuck_bg]
     - [259, 534, bg_model_text]
-    - [324, 534, hwid]
+    - [324, 534, $HWID]
     - [192, 479, url]
     - [103, 453, bg_yuck_text]
 
   bg_insert:
     - [  0,   0, insert_bg]
     - [259, 534, bg_model_text]
-    - [324, 534, hwid]
+    - [324, 534, $HWID]
     - [192, 479, url]
     - [221, 435, bg_insert_text]
 
@@ -983,21 +980,21 @@ screens:
   ro_remove:
     - [  0,   0, remove_bg]
     - [263, 534, ro_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [131, 453, ro_remove_text]
 
   ro_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, ro_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [191, 453, ro_yuck_text]
 
   ro_insert:
     - [  0,   0, insert_bg]
     - [263, 534, ro_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [251, 435, ro_insert_text]
 
@@ -1008,21 +1005,21 @@ screens:
   uk_remove:
     - [  0,   0, remove_bg]
     - [255, 534, uk_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [171, 453, uk_remove_text]
 
   uk_yuck:
     - [  0,   0, yuck_bg]
     - [255, 534, uk_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [163, 453, uk_yuck_text]
 
   uk_insert:
     - [  0,   0, insert_bg]
     - [255, 534, uk_model_text]
-    - [328, 534, hwid]
+    - [328, 534, $HWID]
     - [192, 479, url]
     - [255, 435, uk_insert_text]
 
@@ -1033,21 +1030,21 @@ screens:
   tr_remove:
     - [  0,   0, remove_bg]
     - [263, 534, tr_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [133, 453, tr_remove_text]
 
   tr_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, tr_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [121, 453, tr_yuck_text]
 
   tr_insert:
     - [  0,   0, insert_bg]
     - [263, 534, tr_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [266, 435, tr_insert_text]
 
@@ -1058,21 +1055,21 @@ screens:
   iw_remove:
     - [  0,   0, remove_bg]
     - [256, 539, iw_model_text]
-    - [327, 539, hwid]
+    - [327, 539, $HWID]
     - [192, 484, url]
     - [100, 459, iw_remove_text]
 
   iw_yuck:
     - [  0,   0, yuck_bg]
     - [256, 539, iw_model_text]
-    - [327, 539, hwid]
+    - [327, 539, $HWID]
     - [192, 484, url]
     - [92, 435, iw_yuck_text]
 
   iw_insert:
     - [  0,   0, insert_bg]
     - [256, 539, iw_model_text]
-    - [327, 539, hwid]
+    - [327, 539, $HWID]
     - [192, 484, url]
     - [256, 436, iw_insert_text]
 
@@ -1083,21 +1080,21 @@ screens:
   ar_remove:
     - [  0,   0, remove_bg]
     - [243, 537, ar_model_text]
-    - [341, 537, hwid]
+    - [341, 537, $HWID]
     - [192, 482, url]
     - [121, 453, ar_remove_text]
 
   ar_yuck:
     - [  0,   0, yuck_bg]
     - [243, 537, ar_model_text]
-    - [341, 537, hwid]
+    - [341, 537, $HWID]
     - [192, 482, url]
     - [80, 429, ar_yuck_text]
 
   ar_insert:
     - [  0,   0, insert_bg]
     - [243, 537, ar_model_text]
-    - [341, 537, hwid]
+    - [341, 537, $HWID]
     - [192, 482, url]
     - [178, 430, ar_insert_text]
 
@@ -1108,21 +1105,21 @@ screens:
   fa_remove:
     - [  0,   0, remove_bg]
     - [263, 539, fa_model_text]
-    - [320, 539, hwid]
+    - [320, 539, $HWID]
     - [192, 484, url]
     - [79, 432, fa_remove_text]
 
   fa_yuck:
     - [  0,   0, yuck_bg]
     - [263, 539, fa_model_text]
-    - [320, 539, hwid]
+    - [320, 539, $HWID]
     - [192, 484, url]
     - [88, 434, fa_yuck_text]
 
   fa_insert:
     - [  0,   0, insert_bg]
     - [263, 539, fa_model_text]
-    - [320, 539, hwid]
+    - [320, 539, $HWID]
     - [192, 484, url]
     - [119, 434, fa_insert_text]
 
@@ -1133,21 +1130,21 @@ screens:
   hi_remove:
     - [  0,   0, remove_bg]
     - [258, 535, hi_model_text]
-    - [325, 535, hwid]
+    - [325, 535, $HWID]
     - [192, 480, url]
     - [75, 448, hi_remove_text]
 
   hi_yuck:
     - [  0,   0, yuck_bg]
     - [258, 535, hi_model_text]
-    - [325, 535, hwid]
+    - [325, 535, $HWID]
     - [192, 480, url]
     - [83, 448, hi_yuck_text]
 
   hi_insert:
     - [  0,   0, insert_bg]
     - [258, 535, hi_model_text]
-    - [325, 535, hwid]
+    - [325, 535, $HWID]
     - [192, 480, url]
     - [205, 424, hi_insert_text]
 
@@ -1158,21 +1155,21 @@ screens:
   th_remove:
     - [  0,   0, remove_bg]
     - [267, 528, th_model_text]
-    - [316, 528, hwid]
+    - [316, 528, $HWID]
     - [192, 473, url]
     - [92, 435, th_remove_text]
 
   th_yuck:
     - [  0,   0, yuck_bg]
     - [267, 528, th_model_text]
-    - [316, 528, hwid]
+    - [316, 528, $HWID]
     - [192, 473, url]
     - [100, 435, th_yuck_text]
 
   th_insert:
     - [  0,   0, insert_bg]
     - [267, 528, th_model_text]
-    - [316, 528, hwid]
+    - [316, 528, $HWID]
     - [192, 473, url]
     - [239, 416, th_insert_text]
 
@@ -1183,21 +1180,21 @@ screens:
   vi_remove:
     - [  0,   0, remove_bg]
     - [249, 541, vi_model_text]
-    - [335, 541, hwid]
+    - [335, 541, $HWID]
     - [192, 486, url]
     - [71, 434, vi_remove_text]
 
   vi_yuck:
     - [  0,   0, yuck_bg]
     - [249, 541, vi_model_text]
-    - [335, 541, hwid]
+    - [335, 541, $HWID]
     - [192, 486, url]
     - [111, 434, vi_yuck_text]
 
   vi_insert:
     - [  0,   0, insert_bg]
     - [249, 541, vi_model_text]
-    - [335, 541, hwid]
+    - [335, 541, $HWID]
     - [192, 486, url]
     - [125, 434, vi_insert_text]
 
@@ -1208,21 +1205,21 @@ screens:
   id_remove:
     - [  0,   0, remove_bg]
     - [263, 534, id_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [148, 453, id_remove_text]
 
   id_yuck:
     - [  0,   0, yuck_bg]
     - [263, 534, id_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [139, 453, id_yuck_text]
 
   id_insert:
     - [  0,   0, insert_bg]
     - [263, 534, id_model_text]
-    - [321, 534, hwid]
+    - [321, 534, $HWID]
     - [192, 479, url]
     - [271, 435, id_insert_text]
 
@@ -1233,21 +1230,21 @@ screens:
   fil_remove:
     - [  0,   0, remove_bg]
     - [258, 534, fil_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [138, 453, fil_remove_text]
 
   fil_yuck:
     - [  0,   0, yuck_bg]
     - [258, 534, fil_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [122, 453, fil_yuck_text]
 
   fil_insert:
     - [  0,   0, insert_bg]
     - [258, 534, fil_model_text]
-    - [325, 534, hwid]
+    - [325, 534, $HWID]
     - [192, 479, url]
     - [229, 435, fil_insert_text]
 
@@ -1258,21 +1255,21 @@ screens:
   zh_CN_remove:
     - [  0,   0, remove_bg]
     - [261, 534, zh_CN_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [144, 451, zh_CN_remove_text]
 
   zh_CN_yuck:
     - [  0,   0, yuck_bg]
     - [261, 534, zh_CN_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [97, 451, zh_CN_yuck_text]
 
   zh_CN_insert:
     - [  0,   0, insert_bg]
     - [261, 534, zh_CN_model_text]
-    - [322, 534, hwid]
+    - [322, 534, $HWID]
     - [192, 479, url]
     - [223, 427, zh_CN_insert_text]
 
@@ -1283,21 +1280,21 @@ screens:
   zh_TW_remove:
     - [  0,   0, remove_bg]
     - [261, 533, zh_TW_model_text]
-    - [322, 533, hwid]
+    - [322, 533, $HWID]
     - [192, 478, url]
     - [159, 450, zh_TW_remove_text]
 
   zh_TW_yuck:
     - [  0,   0, yuck_bg]
     - [261, 533, zh_TW_model_text]
-    - [322, 533, hwid]
+    - [322, 533, $HWID]
     - [192, 478, url]
     - [103, 450, zh_TW_yuck_text]
 
   zh_TW_insert:
     - [  0,   0, insert_bg]
     - [261, 533, zh_TW_model_text]
-    - [322, 533, hwid]
+    - [322, 533, $HWID]
     - [192, 478, url]
     - [216, 426, zh_TW_insert_text]
 
@@ -1308,21 +1305,21 @@ screens:
   ko_remove:
     - [  0,   0, remove_bg]
     - [260, 535, ko_model_text]
-    - [323, 535, hwid]
+    - [323, 535, $HWID]
     - [192, 480, url]
     - [106, 454, ko_remove_text]
 
   ko_yuck:
     - [  0,   0, yuck_bg]
     - [260, 535, ko_model_text]
-    - [323, 535, hwid]
+    - [323, 535, $HWID]
     - [192, 480, url]
     - [75, 430, ko_yuck_text]
 
   ko_insert:
     - [  0,   0, insert_bg]
     - [260, 535, ko_model_text]
-    - [323, 535, hwid]
+    - [323, 535, $HWID]
     - [192, 480, url]
     - [217, 430, ko_insert_text]
 
@@ -1333,21 +1330,21 @@ screens:
   ja_remove:
     - [  0,   0, remove_bg]
     - [250, 536, ja_model_text]
-    - [334, 536, hwid]
+    - [334, 536, $HWID]
     - [192, 481, url]
     - [75, 429, ja_remove_text]
 
   ja_yuck:
     - [  0,   0, yuck_bg]
     - [250, 536, ja_model_text]
-    - [334, 536, hwid]
+    - [334, 536, $HWID]
     - [192, 481, url]
     - [73, 429, ja_yuck_text]
 
   ja_insert:
     - [  0,   0, insert_bg]
     - [250, 536, ja_model_text]
-    - [334, 536, hwid]
+    - [334, 536, $HWID]
     - [192, 481, url]
     - [170, 430, ja_insert_text]
 

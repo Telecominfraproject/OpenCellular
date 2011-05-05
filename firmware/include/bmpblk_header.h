@@ -52,7 +52,7 @@ __pragma(pack(push, 1))  /* Support packing for MSVC. */
 #define BMPBLOCK_SIGNATURE_SIZE (4)
 
 #define BMPBLOCK_MAJOR_VERSION  (0x0001)
-#define BMPBLOCK_MINOR_VERSION  (0x0000)
+#define BMPBLOCK_MINOR_VERSION  (0x0001)
 
 #define MAX_IMAGE_IN_LAYOUT     (8)
 
@@ -106,6 +106,7 @@ typedef struct ImageInfo {
 typedef enum ImageTag {
   TAG_NONE = 0,
   TAG_HWID,
+  TAG_HWID_RTOL,            /* "right-to-left", ie, right-justified HWID */
 } ImageTag;
 
 /* Constants for ImageInfo.format */
@@ -121,6 +122,13 @@ typedef enum Compression {
   COMPRESS_LZMA1,           /* The ARM BIOS supports LZMA1 */
   MAX_COMPRESS,
 } Compression;
+
+/* These magic image names can be used in the .yaml file to indicate that
+   the ASCII HWID should be displayed. For RENDER_HWID, the image coordinates
+   specify upper-left corner of the HWID string. For RENDER_HWID_RTOL, they
+   indicate the upper-right corner (handy for right-to-left languages). */
+#define RENDER_HWID       "$HWID"
+#define RENDER_HWID_RTOL  "$HWID.rtol"
 
 __pragma(pack(pop)) /* Support packing for MSVC. */
 

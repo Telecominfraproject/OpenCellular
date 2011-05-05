@@ -50,14 +50,11 @@ typedef struct BmpBlockConfig {
 
 class BmpBlockUtil {
  public:
-  BmpBlockUtil();
+  BmpBlockUtil(bool debug);
   ~BmpBlockUtil();
 
   /* Load all the images and related infomations according to a config file. */
   void load_from_config(const char *filename);
-
-  /* Compress all the images using a given comression method. */
-  void compress_all_images(const Compression compress);
 
   /* Contruct the bmpblock. */
   void pack_bmpblock();
@@ -69,9 +66,6 @@ class BmpBlockUtil {
   void force_compression(uint32_t compression);
 
  private:
-  /* Clear all internal data. */
-  void initialize();
-
   /* Elemental function called from load_from_config.
    * Load the config file (yaml format) and parse it. */
   void load_yaml_config(const char *filename);
@@ -79,10 +73,6 @@ class BmpBlockUtil {
   /* Elemental function called from load_from_config.
    * Load all image files into the internal variables. */
   void load_all_image_files();
-
-  /* Elemental function called from load_from_config.
-   * Contruct all ImageInfo structs. */
-  void fill_all_image_infos();
 
   /* Elemental function called from load_from_config.
    * Contruct the BmpBlockHeader struct. */
@@ -104,6 +94,16 @@ class BmpBlockUtil {
   ImageFormat get_image_format(const string content);
   uint32_t get_bmp_image_width(const string content);
   uint32_t get_bmp_image_height(const string content);
+
+  /* Verbosity flags */
+  bool debug_;
+
+  /* Internal variable for string the BmpBlock version. */
+  uint16_t major_version_;
+  uint16_t minor_version_;
+
+  /* Flags for version-specific features */
+  bool render_hwid_;
 
   /* Internal variable for storing the config of BmpBlock. */
   BmpBlockConfig config_;

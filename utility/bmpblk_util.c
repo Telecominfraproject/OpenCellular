@@ -282,74 +282,89 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
   fprintf(yfp, "images:\n");
   for(i=0; i<hdr->number_of_imageinfos; i++) {
     img = (ImageInfo *)(ptr + offset);
-    sprintf(image_name, "img_%08x.bmp", offset);
-    fprintf(yfp, "  img_%08x: %s  # %dx%d  %d/%d\n", offset, image_name,
-            img->width, img->height,
-            img->compressed_size, img->original_size);
-    if (todir) {
-      sprintf(full_path_name, "%s/%s", todir, image_name);
-      bfd = open(full_path_name,
-                 O_WRONLY | O_CREAT | O_TRUNC | (overwrite ? 0 : O_EXCL),
-                 0666);
-      if (bfd < 0) {
-        fprintf(stderr, "Unable to open %s: %s\n", full_path_name,
-                strerror(errno));
-        fclose(yfp);
-        discard_file(ptr, length);
-        return 1;
+    if (img->compressed_size) {
+      sprintf(image_name, "img_%08x.bmp", offset);
+      if (img->tag == TAG_HWID) {
+        fprintf(yfp, "  %s: %s  # %dx%d  %d/%d  tag=%d\n",
+                RENDER_HWID, image_name,
+                img->width, img->height,
+                img->compressed_size, img->original_size, img->tag);
+      } else if (img->tag == TAG_HWID_RTOL) {
+        fprintf(yfp, "  %s: %s  # %dx%d  %d/%d  tag=%d\n",
+                RENDER_HWID_RTOL, image_name,
+                img->width, img->height,
+                img->compressed_size, img->original_size, img->tag);
+      } else {
+        fprintf(yfp, "  img_%08x: %s  # %dx%d  %d/%d  tag=%d\n",
+                offset, image_name,
+                img->width, img->height,
+                img->compressed_size, img->original_size, img->tag);
       }
-      bfp = fdopen(bfd, "wb");
-      if (!bfp) {
-        fprintf(stderr, "Unable to fdopen %s: %s\n", full_path_name,
-                strerror(errno));
-        close(bfd);
-        fclose(yfp);
-        discard_file(ptr, length);
-        return 1;
-      }
-      switch(img->compression) {
-      case COMPRESS_NONE:
-        data_ptr = ptr + offset + sizeof(ImageInfo);
-        free_data = 0;
-        break;
-      case COMPRESS_EFIv1:
-        data_ptr = do_efi_decompress(img);
-        if (!data_ptr) {
+      if (todir) {
+        sprintf(full_path_name, "%s/%s", todir, image_name);
+        bfd = open(full_path_name,
+                   O_WRONLY | O_CREAT | O_TRUNC | (overwrite ? 0 : O_EXCL),
+                   0666);
+        if (bfd < 0) {
+          fprintf(stderr, "Unable to open %s: %s\n", full_path_name,
+                  strerror(errno));
+          fclose(yfp);
+          discard_file(ptr, length);
+          return 1;
+        }
+        bfp = fdopen(bfd, "wb");
+        if (!bfp) {
+          fprintf(stderr, "Unable to fdopen %s: %s\n", full_path_name,
+                  strerror(errno));
+          close(bfd);
+          fclose(yfp);
+          discard_file(ptr, length);
+          return 1;
+        }
+        switch(img->compression) {
+        case COMPRESS_NONE:
+          data_ptr = ptr + offset + sizeof(ImageInfo);
+          free_data = 0;
+          break;
+        case COMPRESS_EFIv1:
+          data_ptr = do_efi_decompress(img);
+          if (!data_ptr) {
+            fclose(bfp);
+            fclose(yfp);
+            discard_file(ptr, length);
+            return 1;
+          }
+          free_data = 1;
+          break;
+        case COMPRESS_LZMA1:
+          data_ptr = do_lzma_decompress(img);
+          if (!data_ptr) {
+            fclose(bfp);
+            fclose(yfp);
+            discard_file(ptr, length);
+            return 1;
+          }
+          free_data = 1;
+          break;
+        default:
+          fprintf(stderr, "Unsupported compression method encountered.\n");
           fclose(bfp);
           fclose(yfp);
           discard_file(ptr, length);
           return 1;
         }
-        free_data = 1;
-        break;
-      case COMPRESS_LZMA1:
-        data_ptr = do_lzma_decompress(img);
-        if (!data_ptr) {
+        if (1 != fwrite(data_ptr, img->original_size, 1, bfp)) {
+          fprintf(stderr, "Unable to write %s: %s\n", full_path_name,
+                  strerror(errno));
           fclose(bfp);
           fclose(yfp);
           discard_file(ptr, length);
           return 1;
         }
-        free_data = 1;
-        break;
-      default:
-        fprintf(stderr, "Unsupported compression method encountered.\n");
         fclose(bfp);
-        fclose(yfp);
-        discard_file(ptr, length);
-        return 1;
+        if (free_data)
+          free(data_ptr);
       }
-      if (1 != fwrite(data_ptr, img->original_size, 1, bfp)) {
-        fprintf(stderr, "Unable to write %s: %s\n", full_path_name,
-                strerror(errno));
-        fclose(bfp);
-        fclose(yfp);
-        discard_file(ptr, length);
-        return 1;
-      }
-      fclose(bfp);
-      if (free_data)
-        free(data_ptr);
     }
     offset += sizeof(ImageInfo);
     offset += img->compressed_size;
@@ -370,9 +385,21 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
       scr = (ScreenLayout *)(ptr + offset);
       for(i=0; i<MAX_IMAGE_IN_LAYOUT; i++) {
         if (scr->images[i].image_info_offset) {
-          fprintf(yfp, "    - [%d, %d, img_%08x]\n",
-                  scr->images[i].x, scr->images[i].y,
-                  scr->images[i].image_info_offset);
+          ImageInfo *iptr =
+            (ImageInfo *)(ptr + scr->images[i].image_info_offset);
+          if (iptr->tag == TAG_HWID) {
+            fprintf(yfp, "    - [%d, %d, %s]\n",
+                    scr->images[i].x, scr->images[i].y,
+                    RENDER_HWID);
+          } else if (iptr->tag == TAG_HWID_RTOL) {
+            fprintf(yfp, "    - [%d, %d, %s]\n",
+                    scr->images[i].x, scr->images[i].y,
+                    RENDER_HWID_RTOL);
+          } else {
+            fprintf(yfp, "    - [%d, %d, img_%08x]\n",
+                    scr->images[i].x, scr->images[i].y,
+                    scr->images[i].image_info_offset);
+          }
         }
       }
     }

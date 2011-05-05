@@ -13,10 +13,17 @@ import re
 import tempfile
 
 
-if len(sys.argv) < 2:
-  print "usage: %s autotest/../hardware_Components/" % sys.argv[0]
+if '--force' in sys.argv:
+  sys.argv.remove('--force')
+else:
+  print "This script is deprecated."
+  print "The latest BIOSes can render HWIDs directly from ASCII."
+  print "Use --force to proceed anyway."
   sys.exit(1)
 
+if len(sys.argv) < 2:
+  print "usage: %s --force autotest/../hardware_Components/" % sys.argv[0]
+  sys.exit(1)
 
 def MakeBmp(hwid, geom, bmp, directory):
   """ Create the bitmap for this file. """
