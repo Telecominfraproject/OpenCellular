@@ -155,7 +155,9 @@ uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
    * // Error checking depending on the value of the status above
    */
   uint32_t response_length = max_length;
+#ifndef NDEBUG
   int tag, response_tag;
+#endif
 
   struct timeval before, after;
   gettimeofday(&before, NULL);
@@ -178,6 +180,7 @@ uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
   }
 #endif
 
+#ifndef NDEBUG
   /* sanity checks */
   tag = TpmTag(request);
   response_tag = TpmTag(response);
@@ -189,6 +192,7 @@ uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
     (tag == TPM_TAG_RQU_AUTH2_COMMAND &&
      response_tag == TPM_TAG_RSP_AUTH2_COMMAND));
   assert(response_length == TpmResponseSize(response));
+#endif
 
   return 0;  /* Success */
 }

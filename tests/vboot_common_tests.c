@@ -30,7 +30,7 @@ static void StructPackingTest(void) {
 static void VerifyHelperFunctions(void) {
 
   {
-    uint8_t p[1];
+    uint8_t *p = (uint8_t *)VerifyHelperFunctions;
     TEST_EQ((int)OffsetOf(p, p), 0, "OffsetOf() equal");
     TEST_EQ((int)OffsetOf(p, p+10), 10, "OffsetOf() positive");
     TEST_EQ((int)OffsetOf(p, p+0x12345678), 0x12345678, "OffsetOf() large");
@@ -53,7 +53,7 @@ static void VerifyHelperFunctions(void) {
   }
 
   {
-    uint8_t p[1];
+    uint8_t *p = (uint8_t *)VerifyHelperFunctions;
     TEST_EQ(VerifyMemberInside(p, 20, p, 6, 11, 3), 0, "MemberInside ok 1");
     TEST_EQ(VerifyMemberInside(p, 20, p+4, 4, 8, 4), 0, "MemberInside ok 2");
     TEST_EQ(VerifyMemberInside(p, 20, p-4, 4, 8, 4), 1,
