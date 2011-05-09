@@ -368,9 +368,20 @@ int LoadFirmware(LoadFirmwareParams* params) {
     shared->firmware_index = (uint8_t)params->firmware_index;
     retval = LOAD_FIRMWARE_SUCCESS;
   } else {
+    UINT8 a = shared->check_fw_a_result;
+    UINT8 b = shared->check_fw_b_result;
+    UINT8 best_check;
+
     /* No good firmware, so go to recovery mode. */
     VBDEBUG(("Alas, no good firmware.\n"));
     recovery = VBNV_RECOVERY_RO_INVALID_RW;
+
+    /* If the best check result fits in the range of recovery reasons, provide
+     * more detail on how far we got in validation. */
+    best_check = (a > b ? a : b) + VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN;
+    if (best_check >= VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN &&
+        best_check <= VBNV_RECOVERY_RO_INVALID_RW_CHECK_MAX)
+      recovery = best_check;
   }
 
 LoadFirmwareExit:

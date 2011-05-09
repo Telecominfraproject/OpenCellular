@@ -80,6 +80,12 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RO_TEST_LFS     0x08
 /* Test error from LoadFirmware() */
 #define VBNV_RECOVERY_RO_TEST_LF      0x09
+/* RW firmware failed signature check (neither RW firmware slot was valid).
+ * Recovery reason is VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + the check value
+ * for the slot which came closest to validating; see VBSD_LF_CHECK_* in
+ * vboot_struct.h. */
+#define VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN  0x10
+#define VBNV_RECOVERY_RO_INVALID_RW_CHECK_MAX  0x1F
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /* User manually requested recovery by pressing a key at developer
