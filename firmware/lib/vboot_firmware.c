@@ -368,9 +368,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
     shared->firmware_index = (uint8_t)params->firmware_index;
     retval = LOAD_FIRMWARE_SUCCESS;
   } else {
-    UINT8 a = shared->check_fw_a_result;
-    UINT8 b = shared->check_fw_b_result;
-    UINT8 best_check;
+    uint8_t a = shared->check_fw_a_result;
+    uint8_t b = shared->check_fw_b_result;
+    uint8_t best_check;
 
     /* No good firmware, so go to recovery mode. */
     VBDEBUG(("Alas, no good firmware.\n"));
