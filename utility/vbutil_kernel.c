@@ -129,6 +129,7 @@ static int PrintHelp(char *progname) {
           "    --keyblock <file>"
           "         Outputs the verified key block, in .keyblock format\n"
           "    --kloadaddr <address>     Assign kernel body load address\n"
+          "    --pad <number>            Verification padding size in bytes\n"
           "    --minversion <number>     Minimum combined kernel key version\n"
           "                              and kernel version\n"
           "\n",
@@ -407,7 +408,7 @@ static blob_t *NewBlob(uint64_t version,
 
 
 /* Pull the blob_t stuff out of a prepacked kernel blob file */
-static blob_t *OldBlob(const char* filename) {
+static blob_t *OldBlob(const char* filename, uint64_t pad) {
   FILE* fp = NULL;
   blob_t *bp = NULL;
   struct stat statbuf;
@@ -428,7 +429,7 @@ static blob_t *OldBlob(const char* filename) {
   }
 
   Debug("%s size is 0x%" PRIx64 "\n", filename, statbuf.st_size);
-  if (statbuf.st_size < DEFAULT_PADDING) {
+  if (statbuf.st_size < pad) {
     error("%s is too small to be a valid kernel blob\n");
     return 0;
   }
@@ -440,13 +441,13 @@ static blob_t *OldBlob(const char* filename) {
     return 0;
   }
 
-  buf = Malloc(DEFAULT_PADDING);
+  buf = Malloc(pad);
   if (!buf) {
     error("Unable to allocate padding\n");
     goto unwind_oldblob;
   }
 
-  if (1 != fread(buf, DEFAULT_PADDING, 1, fp)) {
+  if (1 != fread(buf, pad, 1, fp)) {
     error("Unable to read header from %s: %s\n", filename, error_fread(fp));
     goto unwind_oldblob;
   }
@@ -459,6 +460,10 @@ static blob_t *OldBlob(const char* filename) {
     error("key_block_size advances past the end of the blob\n");
     goto unwind_oldblob;
   }
+  if (now > pad) {
+    error("key_block_size advances past %" PRIu64 " byte padding\n", pad);
+    goto unwind_oldblob;
+  }
 
   /* Skip the preamble */
   preamble = (VbKernelPreambleHeader*)(buf + now);
@@ -466,6 +471,10 @@ static blob_t *OldBlob(const char* filename) {
   now += preamble->preamble_size;
   if (now > statbuf.st_size) {
     error("preamble_size advances past the end of the blob\n");
+    goto unwind_oldblob;
+  }
+  if (now > pad) {
+    error("preamble_size advances past %" PRIu64 " byte padding\n", pad);
     goto unwind_oldblob;
   }
 
@@ -664,7 +673,8 @@ static int ReplaceConfig(blob_t* bp, const char* config_file,
 
 static int Verify(const char* infile, const char* signpubkey, int verbose,
                   const char* key_block_file,
-                  uint64_t kernel_body_load_address, uint64_t min_version) {
+                  uint64_t kernel_body_load_address, uint64_t min_version,
+                  uint64_t pad) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
@@ -690,7 +700,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
   }
 
   /* Read blob */
-  bp = OldBlob(infile);
+  bp = OldBlob(infile, pad);
   if (!bp) {
     error("Error reading input file\n");
     return 1;
@@ -960,7 +970,7 @@ int main(int argc, char* argv[]) {
         return 1;
       }
 
-      bp = OldBlob(oldfile);
+      bp = OldBlob(oldfile, pad);
       if (!bp)
         return 1;
       r = ReplaceConfig(bp, config_file, kernel_body_load_address);
@@ -976,7 +986,7 @@ int main(int argc, char* argv[]) {
 
     case OPT_MODE_VERIFY:
       return Verify(filename, signpubkey, verbose, key_block_file,
-                    kernel_body_load_address, min_version);
+                    kernel_body_load_address, min_version, pad);
 
     default:
       fprintf(stderr,
