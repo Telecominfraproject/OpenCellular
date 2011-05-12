@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -46,6 +46,7 @@ enum {
   OPT_VBLOCKONLY,
   OPT_PAD,
   OPT_VERBOSE,
+  OPT_MINVERSION,
 };
 
 enum {
@@ -64,6 +65,7 @@ static struct option long_opts[] = {
   {"signpubkey", 1, 0,                OPT_SIGNPUBKEY              },
   {"signprivate", 1, 0,               OPT_SIGNPRIVATE             },
   {"version", 1, 0,                   OPT_VERSION                 },
+  {"minversion", 1, 0,                OPT_MINVERSION              },
   {"vmlinuz", 1, 0,                   OPT_VMLINUZ                 },
   {"bootloader", 1, 0,                OPT_BOOTLOADER              },
   {"config", 1, 0,                    OPT_CONFIG                  },
@@ -127,6 +129,8 @@ static int PrintHelp(char *progname) {
           "    --keyblock <file>"
           "         Outputs the verified key block, in .keyblock format\n"
           "    --kloadaddr <address>     Assign kernel body load address\n"
+          "    --minversion <number>     Minimum combined kernel key version\n"
+          "                              and kernel version\n"
           "\n",
           progname);
   return 1;
@@ -660,7 +664,7 @@ static int ReplaceConfig(blob_t* bp, const char* config_file,
 
 static int Verify(const char* infile, const char* signpubkey, int verbose,
                   const char* key_block_file,
-                  uint64_t kernel_body_load_address) {
+                  uint64_t kernel_body_load_address, uint64_t min_version) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
@@ -738,6 +742,12 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
   PrintPubKeySha1Sum(data_key);
   printf("\n");
 
+  if (data_key->key_version < (min_version >> 16)) {
+    error("Data key version %" PRIu64 " is lower than minimum %" PRIu64".\n",
+          data_key->key_version, (min_version >> 16));
+    goto verify_exit;
+  }
+
   rsa = PublicKeyToRSA(&key_block->data_key);
   if (!rsa) {
     error("Error parsing data key.\n");
@@ -764,6 +774,12 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
   printf("  Bootloader address:  0x%" PRIx64 "\n",
          preamble->bootloader_address);
   printf("  Bootloader size:     0x%" PRIx64 "\n", preamble->bootloader_size);
+
+  if (preamble->kernel_version < (min_version & 0xFFFF)) {
+    error("Kernel version %" PRIu64 " is lower than minimum %" PRIu64 ".\n",
+          preamble->kernel_version, (min_version & 0xFFFF));
+    goto verify_exit;
+  }
 
   /* Verify body */
   if (0 != VerifyData(bp->blob, bp->blob_size, &preamble->body_signature,
@@ -804,6 +820,7 @@ int main(int argc, char* argv[]) {
   uint64_t pad = DEFAULT_PADDING;
   int mode = 0;
   int parse_error = 0;
+  uint64_t min_version = 0;
   char* e;
   int i,r;
   blob_t *bp;
@@ -899,6 +916,14 @@ int main(int argc, char* argv[]) {
         }
         break;
 
+      case OPT_MINVERSION:
+        min_version = strtoul(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          fprintf(stderr, "Invalid --minversion\n");
+          parse_error = 1;
+        }
+        break;
+
       case OPT_PAD:
         pad = strtoul(optarg, &e, 0);
         if (!*optarg || (e && *e)) {
@@ -951,7 +976,7 @@ int main(int argc, char* argv[]) {
 
     case OPT_MODE_VERIFY:
       return Verify(filename, signpubkey, verbose, key_block_file,
-          kernel_body_load_address);
+                    kernel_body_load_address, min_version);
 
     default:
       fprintf(stderr,
