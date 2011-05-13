@@ -48,6 +48,10 @@ fi
 # Abort on errors.
 set -e
 
+# Add to the path since some tools reside here and may not be in the non-root
+# system path.
+PATH=$PATH:/usr/sbin:/sbin
+
 # Make sure the tools we need are available.
 for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity \
   load_kernel_test dumpe2fs sha1sum e2fsck;
