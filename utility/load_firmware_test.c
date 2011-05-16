@@ -6,6 +6,8 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "fmap.h"
 #include "gbb_header.h"
@@ -133,7 +135,8 @@ int GetFirmwareData(const void* base_of_rom, const void* fmap, int index,
  * [base_of_rom] pointer to start of firmware image
  * [fmap] pointer to start of Flash Map of firmware image
  */
-int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
+int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
+    const uint64_t boot_flags) {
   LoadFirmwareParams lfp;
   CallerInternal ci;
 
@@ -188,7 +191,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap) {
   lfp.shared_data_size = VB_SHARED_DATA_MIN_SIZE;
   printf("shared data size 0x%08" PRIx64 "\n", lfp.shared_data_size);
 
-  lfp.boot_flags = 0;
+  lfp.boot_flags = boot_flags;
   printf("boot flags is 0x%08" PRIx64 "\n", lfp.boot_flags);
 
   status = LoadFirmware(&lfp);
@@ -229,19 +232,25 @@ const char* status_string(int status) {
 }
 
 int main(int argc, char* argv[]) {
+  int i;
   int retval = 0;
   const void* base_of_rom;
   const void* fmap;
-  uint64_t rom_size;
+  uint64_t boot_flags = 0, rom_size;
 
   progname = argv[0];
 
   if (argc < 2) {
-    fprintf(stderr, "usage: %s <firmware_image>\n", progname);
+    fprintf(stderr, "usage: %s [-b NUM] <firmware_image>\n", progname);
     exit(1);
   }
 
-  image_path = argv[1];
+  for (i = 1; i < argc; i++) {
+    if (!strcmp(argv[i], "-b") && i < argc - 1)
+      boot_flags = strtoull(argv[++i], NULL, 0);
+    else
+      image_path = argv[i];
+  }
 
   base_of_rom = ReadFile(image_path, &rom_size);
   if (base_of_rom == NULL) {
@@ -253,7 +262,7 @@ int main(int argc, char* argv[]) {
 
   fmap = FmapFind((char*) base_of_rom, rom_size);
 
-  retval = DriveLoadFirmware(base_of_rom, fmap);
+  retval = DriveLoadFirmware(base_of_rom, fmap, boot_flags);
 
   Free((void*) base_of_rom);
 
