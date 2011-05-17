@@ -234,14 +234,14 @@ int LoadKernel(LoadKernelParams* params) {
   }
 
   if (kBootDev == boot_mode && !dev_switch) {
-      /* Dev firmware should be signed such that it never boots with the dev
-       * switch is off; so something is terribly wrong. */
-      VBDEBUG(("LoadKernel() called with dev firmware but dev switch off\n"));
+    /* Dev firmware should be signed such that it never boots with the dev
+     * switch is off; so something is terribly wrong. */
+    VBDEBUG(("LoadKernel() called with dev firmware but dev switch off\n"));
     if (shcall)
       shcall->check_result = VBSD_LKC_CHECK_DEV_SWITCH_MISMATCH;
-      recovery = VBNV_RECOVERY_RW_DEV_MISMATCH;
-      goto LoadKernelExit;
-    }
+    recovery = VBNV_RECOVERY_RW_DEV_MISMATCH;
+    goto LoadKernelExit;
+  }
 
   if (kBootRecovery == boot_mode) {
     /* Use the recovery key to verify the kernel */
