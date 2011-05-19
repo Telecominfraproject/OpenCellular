@@ -1396,3 +1396,53 @@ localizations:
   - [ zh_TW_devel, zh_TW_remove, zh_TW_yuck, zh_TW_insert ]
   - [ ko_devel, ko_remove, ko_yuck, ko_insert ]
   - [ ja_devel, ja_remove, ja_yuck, ja_insert ]
+
+locale_index:
+
+  # This list MUST match the order and number of the localizations above.
+  # These entries are used to match the locale name index (for example,
+  # "en_US" is index 0, "es_41" is index 1, etc).
+
+  - en
+  - es_419
+  - pt_BR
+  - en_GB
+  - fr
+  - es
+  - pt_PT
+  - ca
+  - it
+  - de
+  - el
+  - nl
+  - da
+  - no
+  - sv
+  - fi
+  - et
+  - lv
+  - lt
+  - ru
+  - pl
+  - cs
+  - sk
+  - hu
+  - sl
+  - sr
+  - hr
+  - bg
+  - ro
+  - uk
+  - tr
+  - iw
+  - ar
+  - fa
+  - hi
+  - th
+  - vi
+  - id
+  - fil
+  - zh_CN
+  - zh_TW
+  - ko
+  - ja

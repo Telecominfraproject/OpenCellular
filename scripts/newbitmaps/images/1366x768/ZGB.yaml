@@ -1,0 +1,225 @@
+bmpblock: 1.1
+
+compression: 1
+
+images:
+
+  # This URL never changes
+  url:               URL.bmp
+
+  # The background images are from the UI people
+  devmode_bg:        Devmode.bmp
+  remove_bg:         Remove.bmp
+  yuck_bg:           Yuck.bmp
+  insert_bg:         Insert.bmp
+
+  # The following strings must be approved by the localization people
+  en_model_text:       ./localized_bitmaps/en/model.bmp
+  en_devmode_text:     ./localized_bitmaps/en/devmode.bmp
+  en_remove_text:      ./localized_bitmaps/en/remove.bmp
+  en_yuck_text:        ./localized_bitmaps/en/yuck.bmp
+  en_insert_text:      ./localized_bitmaps/en/insert.bmp
+
+  fr_model_text:       ./localized_bitmaps/fr/model.bmp
+  fr_devmode_text:     ./localized_bitmaps/fr/devmode.bmp
+  fr_remove_text:      ./localized_bitmaps/fr/remove.bmp
+  fr_yuck_text:        ./localized_bitmaps/fr/yuck.bmp
+  fr_insert_text:      ./localized_bitmaps/fr/insert.bmp
+
+  es_model_text:       ./localized_bitmaps/es/model.bmp
+  es_devmode_text:     ./localized_bitmaps/es/devmode.bmp
+  es_remove_text:      ./localized_bitmaps/es/remove.bmp
+  es_yuck_text:        ./localized_bitmaps/es/yuck.bmp
+  es_insert_text:      ./localized_bitmaps/es/insert.bmp
+
+  it_model_text:       ./localized_bitmaps/it/model.bmp
+  it_devmode_text:     ./localized_bitmaps/it/devmode.bmp
+  it_remove_text:      ./localized_bitmaps/it/remove.bmp
+  it_yuck_text:        ./localized_bitmaps/it/yuck.bmp
+  it_insert_text:      ./localized_bitmaps/it/insert.bmp
+
+  de_model_text:       ./localized_bitmaps/de/model.bmp
+  de_devmode_text:     ./localized_bitmaps/de/devmode.bmp
+  de_remove_text:      ./localized_bitmaps/de/remove.bmp
+  de_yuck_text:        ./localized_bitmaps/de/yuck.bmp
+  de_insert_text:      ./localized_bitmaps/de/insert.bmp
+
+  nl_model_text:       ./localized_bitmaps/nl/model.bmp
+  nl_devmode_text:     ./localized_bitmaps/nl/devmode.bmp
+  nl_remove_text:      ./localized_bitmaps/nl/remove.bmp
+  nl_yuck_text:        ./localized_bitmaps/nl/yuck.bmp
+  nl_insert_text:      ./localized_bitmaps/nl/insert.bmp
+
+screens:
+  en_devel:
+    - [  0,   0, devmode_bg]
+    - [272, 516, en_devmode_text]
+
+  en_remove:
+    - [  0,   0, remove_bg]
+    - [256, 534, en_model_text]
+    - [314, 534, $HWID]
+    - [192, 479, url]
+    - [195, 453, en_remove_text]
+
+  en_yuck:
+    - [  0,   0, yuck_bg]
+    - [256, 534, en_model_text]
+    - [314, 534, $HWID]
+    - [192, 479, url]
+    - [160, 453, en_yuck_text]
+
+  en_insert:
+    - [  0,   0, insert_bg]
+    - [256, 534, en_model_text]
+    - [314, 534, $HWID]
+    - [192, 479, url]
+    - [273, 435, en_insert_text]
+
+  fr_devel:
+    - [  0,   0, devmode_bg]
+    - [141, 516, fr_devmode_text]
+
+  fr_remove:
+    - [  0,   0, remove_bg]
+    - [249, 534, fr_model_text]
+    - [321, 534, $HWID]
+    - [192, 479, url]
+    - [68, 453, fr_remove_text]
+
+  fr_yuck:
+    - [  0,   0, yuck_bg]
+    - [249, 534, fr_model_text]
+    - [321, 534, $HWID]
+    - [192, 479, url]
+    - [66, 453, fr_yuck_text]
+
+  fr_insert:
+    - [  0,   0, insert_bg]
+    - [249, 534, fr_model_text]
+    - [321, 534, $HWID]
+    - [192, 479, url]
+    - [215, 435, fr_insert_text]
+
+  es_devel:
+    - [  0,   0, devmode_bg]
+    - [212, 516, es_devmode_text]
+
+  es_remove:
+    - [  0,   0, remove_bg]
+    - [252, 534, es_model_text]
+    - [319, 534, $HWID]
+    - [192, 479, url]
+    - [166, 453, es_remove_text]
+
+  es_yuck:
+    - [  0,   0, yuck_bg]
+    - [252, 534, es_model_text]
+    - [319, 534, $HWID]
+    - [192, 479, url]
+    - [147, 453, es_yuck_text]
+
+  es_insert:
+    - [  0,   0, insert_bg]
+    - [252, 534, es_model_text]
+    - [319, 534, $HWID]
+    - [192, 479, url]
+    - [239, 435, es_insert_text]
+
+  it_devel:
+    - [  0,   0, devmode_bg]
+    - [229, 516, it_devmode_text]
+
+  it_remove:
+    - [  0,   0, remove_bg]
+    - [250, 534, it_model_text]
+    - [320, 534, $HWID]
+    - [192, 479, url]
+    - [200, 453, it_remove_text]
+
+  it_yuck:
+    - [  0,   0, yuck_bg]
+    - [250, 534, it_model_text]
+    - [320, 534, $HWID]
+    - [192, 479, url]
+    - [168, 453, it_yuck_text]
+
+  it_insert:
+    - [  0,   0, insert_bg]
+    - [250, 534, it_model_text]
+    - [320, 534, $HWID]
+    - [192, 479, url]
+    - [241, 435, it_insert_text]
+
+  de_devel:
+    - [  0,   0, devmode_bg]
+    - [181, 516, de_devmode_text]
+
+  de_remove:
+    - [  0,   0, remove_bg]
+    - [255, 534, de_model_text]
+    - [316, 534, $HWID]
+    - [192, 479, url]
+    - [140, 453, de_remove_text]
+
+  de_yuck:
+    - [  0,   0, yuck_bg]
+    - [255, 534, de_model_text]
+    - [316, 534, $HWID]
+    - [192, 479, url]
+    - [134, 453, de_yuck_text]
+
+  de_insert:
+    - [  0,   0, insert_bg]
+    - [255, 534, de_model_text]
+    - [316, 534, $HWID]
+    - [192, 479, url]
+    - [212, 435, de_insert_text]
+
+  nl_devel:
+    - [  0,   0, devmode_bg]
+    - [222, 516, nl_devmode_text]
+
+  nl_remove:
+    - [  0,   0, remove_bg]
+    - [256, 534, nl_model_text]
+    - [314, 534, $HWID]
+    - [192, 479, url]
+    - [170, 453, nl_remove_text]
+
+  nl_yuck:
+    - [  0,   0, yuck_bg]
+    - [256, 534, nl_model_text]
+    - [314, 534, $HWID]
+    - [192, 479, url]
+    - [58, 453, nl_yuck_text]
+
+  nl_insert:
+    - [  0,   0, insert_bg]
+    - [256, 534, nl_model_text]
+    - [314, 534, $HWID]
+    - [192, 479, url]
+    - [259, 435, nl_insert_text]
+
+localizations:
+
+  # This determines the order in which the localizations appear. The first
+  # one is the default.
+
+  - [ en_devel, en_remove, en_yuck, en_insert ]
+  - [ fr_devel, fr_remove, fr_yuck, fr_insert ]
+  - [ es_devel, es_remove, es_yuck, es_insert ]
+  - [ it_devel, it_remove, it_yuck, it_insert ]
+  - [ de_devel, de_remove, de_yuck, de_insert ]
+  - [ nl_devel, nl_remove, nl_yuck, nl_insert ]
+
+locale_index:
+
+  # This list MUST match the order and number of the localizations above.
+
+  - en
+  - fr
+  - es
+  - it
+  - de
+  - nl

@@ -46,6 +46,7 @@ typedef struct BmpBlockConfig {
   StrImageConfigMap images_map;
   StrScreenConfigMap screens_map;
   vector<vector<string> > localizations;
+  string locale_names;
 } BmpBlockConfig;
 
 class BmpBlockUtil {
@@ -88,6 +89,7 @@ class BmpBlockUtil {
   void parse_layout(yaml_parser_t *parser, ScreenConfig &screen);
   void parse_screens(yaml_parser_t *parser);
   void parse_localizations(yaml_parser_t *parser);
+  void parse_locale_index(yaml_parser_t *parser);
 
   /* Useful functions */
   const string read_image_file(const char *filename);

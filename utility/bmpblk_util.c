@@ -419,6 +419,21 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
     fprintf(yfp, " ]\n");
   }
 
+  if (hdr->locale_string_offset) {
+    char *loc_ptr = (char *)ptr + hdr->locale_string_offset;
+    char c;
+    fprintf(yfp, "locale_index:\n");
+    while ((c = *loc_ptr) != '\0') {
+      fprintf(yfp, "  - ");
+      do {
+        fputc(c, yfp);
+        loc_ptr++;
+      } while((c = *loc_ptr) != '\0');
+      loc_ptr++;
+      fputc('\n', yfp);
+    }
+  }
+
   if (todir)
     fclose(yfp);
 

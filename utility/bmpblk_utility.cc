@@ -94,6 +94,7 @@ namespace vboot_reference {
     config_.images_map.clear();
     config_.screens_map.clear();
     config_.localizations.clear();
+    config_.locale_names.clear();
 
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
@@ -113,6 +114,7 @@ namespace vboot_reference {
     // All images referenced in the screens should be defined.
     // All screens should be used somewhere in the localizations.
     // All screens referenced in the localizations should be defined.
+    // The number of localizations should match the number of locale_index
 
     if (debug_) {
       printf("%ld image_names\n", config_.image_names.size());
@@ -143,6 +145,7 @@ namespace vboot_reference {
                  it->second.data.images[k].image_info_offset);
         }
       }
+      // TODO(wfrichar): print debugging info about locale_names
     }
   }
 
@@ -183,6 +186,8 @@ namespace vboot_reference {
           parse_screens(parser);
         } else if (keyword == "localizations") {
           parse_localizations(parser);
+        } else if (keyword == "locale_index") {
+          parse_locale_index(parser);
         }
         break;
       case YAML_MAPPING_END_EVENT:
@@ -370,6 +375,26 @@ namespace vboot_reference {
     }
   }
 
+  void BmpBlockUtil::parse_locale_index(yaml_parser_t *parser) {
+    yaml_event_t event;
+    expect_event(parser, YAML_SEQUENCE_START_EVENT);
+    for (;;) {
+      yaml_parser_parse(parser, &event);
+      switch (event.type) {
+      case YAML_SCALAR_EVENT:
+        config_.locale_names.append((char*)event.data.scalar.value);
+        config_.locale_names.append(1, (char)'\0'); // '\0' to delimit
+        break;
+      case YAML_SEQUENCE_END_EVENT:
+        yaml_event_delete(&event);
+        config_.locale_names.append(1, (char)'\0'); // double '\0' to terminate
+        return;
+      default:
+        error("Syntax error in parsing localizations.\n");
+      }
+    }
+  }
+
   void BmpBlockUtil::load_all_image_files() {
     for (unsigned int i = 0; i < config_.image_names.size(); i++) {
       StrImageConfigMap::iterator it =
@@ -518,6 +543,7 @@ namespace vboot_reference {
              config_.localizations[i].size());
     }
     config_.header.number_of_imageinfos = config_.images_map.size();
+    config_.header.locale_string_offset = 0; // Filled by pack_bmpblock()
   }
 
   void BmpBlockUtil::pack_bmpblock() {
@@ -544,6 +570,12 @@ namespace vboot_reference {
         current_offset = (current_offset & ~3) + 4;
       }
     }
+    /* And leave room for the locale_index string */
+    if (config_.locale_names.size()) {
+      config_.header.locale_string_offset = current_offset;
+      current_offset += config_.locale_names.size();
+    }
+
     bmpblock_.resize(current_offset);
 
     /* Fill BmpBlockHeader struct. */
@@ -602,6 +634,18 @@ namespace vboot_reference {
                current_offset, it->second.compressed_content.length());
       std::copy(it->second.compressed_content.begin(),
                 it->second.compressed_content.end(),
+                current_filled);
+    }
+
+    /* Fill in locale_names. */
+    if (config_.header.locale_string_offset) {
+      current_offset = config_.header.locale_string_offset;
+      current_filled = bmpblock_.begin() + current_offset;
+      if (debug_)
+        printf("locale_names: offset 0x%08x (len %ld)\n",
+               current_offset, config_.locale_names.size());
+      std::copy(config_.locale_names.begin(),
+                config_.locale_names.end(),
                 current_filled);
     }
   }

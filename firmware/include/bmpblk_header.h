@@ -65,7 +65,8 @@ typedef struct BmpBlockHeader {
   uint32_t number_of_screenlayouts;  /* Number of screen layouts in each
                                       * localization */
   uint32_t number_of_imageinfos;     /* Number of image infos */
-  uint32_t reserved[3];
+  uint32_t locale_string_offset;     /* Offset of locale-translation string */
+  uint32_t reserved[2];
 } __attribute__((packed)) BmpBlockHeader;
 
 /* Screen layout, describing how to stack multiple images on screen */
