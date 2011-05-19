@@ -23,12 +23,13 @@
 typedef struct {
   const char *signal_name;
   unsigned gpio_number;
+  uint8_t  needs_inversion;
 }  GpioMap;
 
 static const GpioMap vb_gpio_map_kaen[] = {
-  {"recoverysw_cur", 56},
+  {"recoverysw_cur", 56, 1},
   {"devsw_cur", 168},
-  {"wpsw_cur", 59},
+  {"wpsw_cur", 59, 1},
 };
 
 /* This is map is for kaen, function to gpio number mapping */
@@ -100,13 +101,16 @@ static int VbGetGpioStatus(unsigned gpio_number) {
 }
 
 static int VbGetVarGpio(const char* name) {
-        int i;
+  int i;
+  const GpioMap* pmap;
 
-        for (i = 0; i < ARRAY_SIZE(vb_gpio_map_kaen); i++) {
-                if (!strcmp(name, vb_gpio_map_kaen[i].signal_name))
-                        return VbGetGpioStatus(vb_gpio_map_kaen[i].gpio_number);
-        }
-        return 2;  /* means not found */
+  for (i = 0, pmap = vb_gpio_map_kaen;
+       i < ARRAY_SIZE(vb_gpio_map_kaen);
+       i++, pmap++) {
+    if (!strcmp(name, pmap->signal_name))
+      return VbGetGpioStatus(pmap->gpio_number) ^ pmap->needs_inversion;
+  }
+  return 2;  /* means not found */
 }
 
 static int VbReadSharedMemory(void) {
