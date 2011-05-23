@@ -236,7 +236,7 @@ const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
   if (!strcasecmp(name,"arch")) {
     return StrCopy(dest, "arm", size);
   } else if (!strcasecmp(name,"mainfw_act")) {
-    switch(shared_memory.binf[2]) {
+    switch(shared_memory.binf[1]) {
       case 0:
         return StrCopy(dest, "recovery", size);
       case 1:
