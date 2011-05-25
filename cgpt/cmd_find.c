@@ -144,9 +144,12 @@ static int match_content(struct drive *drive, GptEntry *entry) {
   return 0;
 }
 
-// FIXME: This needs to handle /dev/mmcblk0 -> /dev/mmcblk0p3
+// This needs to handle /dev/mmcblk0 -> /dev/mmcblk0p3, /dev/sda -> /dev/sda3
 static void showmatch(char *filename, int partnum, GptEntry *entry) {
-  printf("%s%d\n", filename, partnum);
+  char * format = "%s%d\n";
+  if (strncmp("/dev/mmcblk", filename, 11) == 0)
+    format = "%sp%d\n";
+  printf(format, filename, partnum);
   if (verbose > 0)
     EntryDetails(entry, partnum - 1, numeric);
 }
