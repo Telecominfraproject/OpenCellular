@@ -127,10 +127,10 @@ static int VbReadSharedMemory(void) {
     size = fread(&shared_memory, 1, sizeof(shared_memory), data_file);
     if ((size != sizeof(shared_memory)) || (size != shared_memory.total_size)) {
       fprintf(stderr,  "%s: failed to read shared memory: got %d bytes, "
-              "expected %d, should have been %d\n",
+              "expected %lu, should have been %d\n",
               __FUNCTION__,
               size,
-              sizeof(shared_memory),
+              (unsigned long)sizeof(shared_memory),
               shared_memory.total_size);
       break;
     }
