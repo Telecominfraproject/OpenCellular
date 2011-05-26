@@ -164,6 +164,7 @@ update_rootfs_hash() {
     "${kernel_config}" "${hash_image}")
   echo "New config for kernel partition $kernelpart is:"
   echo $new_kernel_config
+  echo
 
   local rootfs_blocks=$(sudo dumpe2fs "${rootfs_image}" 2> /dev/null |
     grep "Block count" |
@@ -175,7 +176,7 @@ update_rootfs_hash() {
   local temp_config=$(make_temp_file)
   echo ${new_kernel_config} >${temp_config}
   dd if=${hash_image} of=${rootfs_image} bs=512 \
-    seek=${rootfs_sectors} conv=notrunc
+    seek=${rootfs_sectors} conv=notrunc 2>/dev/null
 
   local temp_kimage=$(make_temp_file)
   extract_image_partition ${image} ${kernelpart} ${temp_kimage}
@@ -407,20 +408,50 @@ sign_for_usb() {
 # Args: image_bin
 sign_for_recovery() {
   image_bin=$1
-  # Update the Kernel B hash in Kernel A command line
-  temp_kimageb=$(make_temp_file)
-  extract_image_partition ${image_bin} 4 ${temp_kimageb}
-  local kern_a_config=$(grab_kernel_config "${image_bin}" 2)
-  local kern_b_hash=$(sha1sum ${temp_kimageb} | cut -f1 -d' ')
 
-  temp_configa=$(make_temp_file)
-  echo "$kern_a_config" |
-    sed -e "s#\(kern_b_hash=\)[a-z0-9]*#\1${kern_b_hash}#" > ${temp_configa}
+  # Sign the install kernel with SSD keys.
+  local temp_kimageb=$(make_temp_file)
+  extract_image_partition ${image_bin} 4 ${temp_kimageb}
+  local updated_kimageb=$(make_temp_file)
+  vbutil_kernel --repack ${updated_kimageb} \
+    --keyblock ${KEY_DIR}/kernel.keyblock \
+    --signprivate ${KEY_DIR}/kernel_data_key.vbprivk \
+    --version "${KERNEL_VERSION}" \
+    --oldblob ${temp_kimageb}
+
+  replace_image_partition ${image_bin} 4 ${updated_kimageb}
+
+  # Copy the SSD kernel vblock to the stateful partition.
+  # TODO(gauravsh): Get rid of this once --skip_vblock is nuked from
+  # orbit everywhere. crosbug.com/8378
+  local temp_out_vb=$(make_temp_file)
+  ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimageb} ${temp_out_vb} \
+    ${KEY_DIR}/kernel_data_key.vbprivk \
+    ${KEY_DIR}/kernel.keyblock \
+    "${KERNEL_VERSION}"
+  local stateful_dir=$(make_temp_dir)
+  mount_image_partition ${image_bin} 1 ${stateful_dir}
+  sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
+  sudo umount -d "${stateful_dir}"
+
+  # Update the Kernel B hash in Kernel A command line
+  local old_kerna_config=$(grab_kernel_config "${image_bin}" 2)
+  local new_kernb=$(make_temp_file)
+  # Can't use updated_kimageb since the hash is calculated on the
+  # whole partition including the null padding at the end.
+  extract_image_partition ${image_bin} 4 ${new_kernb}
+  local new_kernb_hash=$(sha1sum ${new_kernb} | cut -f1 -d' ')
+
+  new_kerna_config=$(make_temp_file)
+  echo "$old_kerna_config" |
+    sed -e "s#\(kern_b_hash=\)[a-z0-9]*#\1${new_kernb_hash}#" \
+      > ${new_kerna_config}
   echo "New config for kernel partition 2 is"
-  cat $temp_configa
+  cat ${new_kerna_config}
 
   local temp_kimagea=$(make_temp_file)
   extract_image_partition ${image_bin} 2 ${temp_kimagea}
+
   # Re-calculate kernel partition signature and command line.
   local updated_kimagea=$(make_temp_file)
   vbutil_kernel --repack ${updated_kimagea} \
@@ -428,29 +459,9 @@ sign_for_recovery() {
     --signprivate ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     --version "${KERNEL_VERSION}" \
     --oldblob ${temp_kimagea} \
-    --config ${temp_configa}
+    --config ${new_kerna_config}
 
   replace_image_partition ${image_bin} 2 ${updated_kimagea}
-
-  # Now generate the installer vblock with the SSD keys.
-  # The installer vblock is for KERN-B on recovery images.
-  temp_out_vb=$(make_temp_file)
-  extract_image_partition ${image_bin} 4 ${temp_kimageb}
-  ${SCRIPT_DIR}/resign_kernel_partition.sh ${temp_kimageb} ${temp_out_vb} \
-    ${KEY_DIR}/kernel_data_key.vbprivk \
-    ${KEY_DIR}/kernel.keyblock \
-    "${KERNEL_VERSION}"
-
-  # Copy the installer vblock to the stateful partition.
-  # TODO(gauravsh): Remove this if we get rid of the need to overwrite
-  # the vblock during installs. Kern B could directly be signed by the
-  # SSD keys.
-  # Note: This vblock is also needed for the ability to convert a recovery
-  # image into the equivalent SSD image (convert_recovery_to_ssd.sh)
-  local stateful_dir=$(make_temp_dir)
-  mount_image_partition ${image_bin} 1 ${stateful_dir}
-  sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
-
   echo "Signed recovery image output to ${image_bin}"
 }
 

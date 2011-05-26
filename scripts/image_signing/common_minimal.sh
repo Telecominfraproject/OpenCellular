@@ -179,7 +179,8 @@ extract_image_partition() {
   local output_file=$3
   local offset=$(partoffset "$image" "$partnum")
   local size=$(partsize "$image" "$partnum")
-  dd if=$image of=$output_file bs=512 skip=$offset count=$size conv=notrunc >/dev/null 2>&1
+  dd if=$image of=$output_file bs=512 skip=$offset count=$size \
+    conv=notrunc 2>/dev/null
 }
 
 # Replace a partition in an image from file
@@ -190,7 +191,8 @@ replace_image_partition() {
   local input_file=$3
   local offset=$(partoffset "$image" "$partnum")
   local size=$(partsize "$image" "$partnum")
-  dd if=$input_file of=$image bs=512 seek=$offset count=$size conv=notrunc
+  dd if=$input_file of=$image bs=512 seek=$offset count=$size \
+    conv=notrunc 2>/dev/null
 }
 
 # For details, see crosutils.git/common.sh
@@ -210,7 +212,7 @@ enable_rw_mount() {
   # needed for disable_rw_mount (printf '\377').
   printf '\000' |
     sudo dd of="$rootfs" seek=$((offset + ro_compat_offset)) \
-            conv=notrunc count=1 bs=1
+            conv=notrunc count=1 bs=1 2>/dev/null
 }
 
 # For details, see crosutils.git/common.sh
@@ -245,7 +247,7 @@ disable_rw_mount() {
   # needed for disable_rw_mount (printf '\377').
   printf '\377' |
     sudo dd of="$rootfs" seek=$((offset + ro_compat_offset)) \
-            conv=notrunc count=1 bs=1
+            conv=notrunc count=1 bs=1 2>/dev/null
 }
 
 rw_mount_disabled() {
