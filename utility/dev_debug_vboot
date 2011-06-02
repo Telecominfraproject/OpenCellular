@@ -16,9 +16,16 @@ TMPDIR=$(mktemp -d /tmp/debug_vboot_XXXXXXXXX)
 LOGFILE="${TMPDIR}/noisy.log"
 PUBLOGFILE="/var/log/debug_vboot_noisy.log"
 
-# TODO(wfrichar): Need to support ARM. The hard disk path is likely different.
-# We can use 'crossystem arch' to distinguish between x86 and ARM.
-HD=/dev/sda
+ARCH="$(crossystem arch)"
+ROOT_BASE=$(rootdev -s -d)
+
+if [ "${ARCH}" = "arm" ]; then
+  HD='/dev/mmcblk0'
+  PARTITION_PREFIX='p'
+else
+  HD='/dev/sda'
+  PARTITION_PREFIX=''
+fi
 
 cleanup() {
   if [ -z "${USE_EXISTING:-}" ]; then
@@ -90,6 +97,28 @@ find_name() {
   exit 1
 }
 
+# Iterate through block devices, as soon as the first removable USB device
+# which is not mounted as root file system is found - consider it the USB
+# flash stick and return its device name.
+find_usb_device() {
+  dm_dev=$(rootdev | cut -f3 -d/)
+  real_dev=$(echo ${ROOT_BASE} | cut -f3 -d/)
+  block_dir='/sys/block'
+  for d in $(ls ${block_dir}); do
+    if [ "$d" = "${dm_dev}" -o "$d" = "${real_dev}" ]; then
+      continue  # Skip root file system.
+    fi
+    if [ "$(readlink -f ${block_dir}/$d | grep usb)" = "" ]; then
+      continue # Not a usb device.
+    fi
+    r=${block_dir}/$d/removable
+    if [ -f $r -a "$(cat $r)" = "1" ]; then
+      echo /dev/$d
+      return
+    fi
+  done
+}
+
 # Here we go...
 umask 022
 trap cleanup EXIT
@@ -122,13 +151,18 @@ else
   log flashrom -p internal:bus=spi --wp-status
   log flashrom -p internal:bus=spi -r ${BIOS}
 
-  HD_KERN_A="${HD}2"
-  HD_KERN_B="${HD}4"
-  tmp=$(rootdev -s -d)2
-  if [ "$tmp" != "$HD_KERN_A" ]; then
-    USB_KERN_A="$tmp"
-  fi
+  HD_KERN_A="${HD}${PARTITION_PREFIX}2"
+  HD_KERN_B="${HD}${PARTITION_PREFIX}4"
 
+  if [ "${ROOT_BASE}" != "${HD}" ]; then
+    # Not running off HD, must be ruining off USB.
+    USB_KERN_A="${ROOT_BASE}2"
+  else
+    USB_DEV="$(find_usb_device)"
+    if [ -n "${USB_DEV}" ]; then
+      USB_KERN_A="${USB_DEV}2"
+    fi
+  fi
   info "Extracting kernel images from drives..."
   log dd if=${HD_KERN_A} of=hd_kern_a.blob
   log dd if=${HD_KERN_B} of=hd_kern_b.blob
