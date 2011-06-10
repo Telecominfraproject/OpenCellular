@@ -76,6 +76,7 @@ main() {
                   cut -d = -f 2 | cut -d - -f 1,2 --output-delimiter=_)
     eval "required_kparams=(\${required_kparams_$board[@]})"
     eval "optional_kparams=(\${optional_kparams_$board[@]})"
+    eval "optional_kparams_regex=(\${optional_kparams_regex_$board[@]})"
     eval "required_dmparams=\"\$required_dmparams_$board\""
 
     # Divide the dm params from the rest and process seperately.
@@ -107,6 +108,11 @@ main() {
     # Check-off each of the allowed-but-optional params that were present.
     for param in ${optional_kparams[@]}; do
         param=$(escape_regexmetas "$param")
+        kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
+    done
+
+    # Check-off each of the allowed-but-optional params that were present.
+    for param in ${optional_kparams_regex[@]}; do
         kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
     done
 
