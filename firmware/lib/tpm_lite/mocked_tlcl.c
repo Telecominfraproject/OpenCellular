@@ -5,6 +5,7 @@
 
 #include "tlcl.h"
 #include "tlcl_internal.h"
+#include "utility.h"
 
 uint32_t TlclLibInit(void) {
   return TlclStubInit();
