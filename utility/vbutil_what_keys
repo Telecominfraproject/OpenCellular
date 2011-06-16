@@ -1,0 +1,79 @@
+#!/bin/bash -u
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+if [ -z "$*" ]; then
+  cat <<EOF 1>&2
+
+Usage:  vbutil_what_keys IMAGE [IMAGE...]
+
+Given a ChromiumOS disk image, try to figure out how it's signed. Note that
+this does not verify the signature, it just reports which keyblock was used to
+create the signature.
+
+EOF
+  exit 1
+fi
+
+
+# We'll look up the known kernel.keyblock and recovery_kernel.keyblock sha1sums
+# right here. Obtain them by running this script on images you know have been
+# signed correctly (since the keys themselves are inside the HSM).
+#
+# e78ce746a037837155388a1096212ded04fb86eb  recovery dev-key
+# d6170aa480136f1f29cf339a5ab1b960585fa444    normal dev-key
+#
+# 20f3e8b77da6577706c91feefb203f98ee20d479  recovery ZGB MP
+# 7b7ae8652775ad7305f565161b3acc00fcc8ea22    normal ZGB MP
+#
+# 03172b08f0b99172c73d947f51e8ca23d418bcbf  recovery Alex MP
+# af24e46b6c3805869616e71c002c9a2a847ad266    normal Alex MP
+#
+# f6fadd7e31eebf4bcc4eb8d2dd512e3a2313627f  recovery Cr-48 MP
+# a1454fcecb98a6f33b38638564bdfc20161a7b04    normal Cr-48 MP
+#
+
+TMPFILE=$(mktemp /tmp/keyblock_XXXXXXXXX)
+trap "rm -f $TMPFILE" EXIT
+
+dofile() {
+  file="$1"
+  echo "$file"
+
+  for pnum in $(cgpt find -n -t kernel "$file" 2>/dev/null); do
+
+    psize=$(cgpt show -s -i "$pnum" "$file")
+    if [ "$psize" -ge 128 ]; then
+
+      pstart=$(cgpt show -b -i "$pnum" "$file")
+      dd if="$file" of="$TMPFILE" bs=512 count=128 skip="$pstart" 2>/dev/null
+
+      psum=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+        grep sha1sum | sed -e 's/^.*: *//')
+
+      if [ -n "$psum" ]; then
+        match=$(grep "$psum" "$0" 2>/dev/null | sed -e 's/^# //')
+        flags=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+          grep Flags: | sed -e 's/^.*:[ 0-9]*//')
+      else
+        match=""
+        psum="--invalid--"
+        flags=""
+      fi
+
+      if [ -n "$match" ]; then
+        echo "  part $pnum: $match ($flags)"
+      else
+        echo "  part $pnum: $psum ($flags)"
+      fi
+    fi
+
+  done
+}
+
+
+for file in "$@"; do
+  dofile $file
+done
+

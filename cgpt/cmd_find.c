@@ -149,7 +149,10 @@ static void showmatch(char *filename, int partnum, GptEntry *entry) {
   char * format = "%s%d\n";
   if (strncmp("/dev/mmcblk", filename, 11) == 0)
     format = "%sp%d\n";
-  printf(format, filename, partnum);
+  if (numeric)
+    printf("%d\n", partnum);
+  else
+    printf(format, filename, partnum);
   if (verbose > 0)
     EntryDetails(entry, partnum - 1, numeric);
 }
