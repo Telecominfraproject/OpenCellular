@@ -23,7 +23,7 @@ endif
 # Override CC and CFLAGS for firmware builds; if you have any -D flags, please
 # add them after this point (e.g., -DVBOOT_DEBUG).
 #
-ifeq ($(FIRMWARE_ARCH), "arm")
+ifeq ($(FIRMWARE_ARCH), arm)
 CC = armv7a-cros-linux-gnueabi-gcc
 CFLAGS = -g -Os -fno-common -ffixed-r8 -msoft-float -fno-builtin \
 	-ffreestanding -nostdinc \
@@ -31,7 +31,7 @@ CFLAGS = -g -Os -fno-common -ffixed-r8 -msoft-float -fno-builtin \
 	-pipe -marm -mabi=aapcs-linux -mno-thumb-interwork -march=armv5 \
 	-Werror -Wall -Wstrict-prototypes -fno-stack-protector
 endif
-ifeq ($(FIRMWARE_ARCH), "i386")
+ifeq ($(FIRMWARE_ARCH), i386)
 CC = i686-pc-linux-gnu-gcc
 CFLAGS = -g -Os -ffunction-sections -fvisibility=hidden -fno-builtin \
 	-ffreestanding -nostdinc \
