@@ -126,9 +126,7 @@ uint32_t TlclOpenDevice(void) {
 
   tpm_fd = open(device_path, O_RDWR);
   if (tpm_fd < 0) {
-    VBDEBUG(("TPM: Cannot open TPM device %s: %s\n", device_path,
-             strerror(errno)));
-    return TPM_E_IOERROR;
+    error("TPM: Cannot open TPM device %s: %s\n", device_path, strerror(errno));
   }
 
   return 0;
