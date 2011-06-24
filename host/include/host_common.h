@@ -8,12 +8,17 @@
 #ifndef VBOOT_REFERENCE_HOST_COMMON_H_
 #define VBOOT_REFERENCE_HOST_COMMON_H_
 
+/* Host is allowed direct use of stdlib funcs such as malloc() and free(),
+ * since it's using the stub implementation from firmware/lib/stub. */
+#define _STUB_IMPLEMENTATION_
+
 #include "cryptolib.h"
 #include "host_key.h"
 #include "host_keyblock.h"
 #include "host_misc.h"
 #include "host_signature.h"
 #include "utility.h"
+#include "vboot_api.h"
 #include "vboot_struct.h"
 
 

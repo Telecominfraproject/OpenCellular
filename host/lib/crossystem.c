@@ -36,8 +36,9 @@ typedef enum VdatIntField {
   VDAT_INT_FW_VERSION_TPM,           /* Current firmware version in TPM */
   VDAT_INT_KERNEL_VERSION_TPM,       /* Current kernel version in TPM */
   VDAT_INT_TRIED_FIRMWARE_B,         /* Tried firmware B due to fwb_tries */
-  VDAT_INT_KERNEL_KEY_VERIFIED       /* Kernel key verified using
+  VDAT_INT_KERNEL_KEY_VERIFIED,      /* Kernel key verified using
                                       * signature, not just hash */
+  VDAT_INT_RECOVERY_REASON           /* Recovery reason for current boot */
 } VdatIntField;
 
 
@@ -325,6 +326,11 @@ int GetVdatInt(VdatIntField field) {
     case VDAT_INT_KERNEL_KEY_VERIFIED:
       value = (sh->flags & VBSD_KERNEL_KEY_VERIFIED ? 1 : 0);
       break;
+    case VDAT_INT_RECOVERY_REASON:
+      /* Field added in struct version 2 */
+      if (sh->struct_version >= 2)
+        value = sh->recovery_reason;
+      break;
   }
 
   Free(sh);
@@ -373,6 +379,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = GetVdatInt(VDAT_INT_KERNEL_VERSION_TPM);
   } else if (!strcasecmp(name,"tried_fwb")) {
     value = GetVdatInt(VDAT_INT_TRIED_FIRMWARE_B);
+  } else if (!strcasecmp(name,"recovery_reason")) {
+    value = GetVdatInt(VDAT_INT_RECOVERY_REASON);
   }
 
   return value;

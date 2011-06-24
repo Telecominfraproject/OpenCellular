@@ -10,6 +10,7 @@
 #define VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 
 #include "sysincludes.h"
+#include "vboot_api.h"
 #include "vboot_nvstorage.h"
 
 /* Interface provided by verified boot library to BDS */
@@ -43,9 +44,12 @@ typedef struct LoadKernelParams {
                                  * data size placed into the buffer. */
   void* gbb_data;               /* Pointer to GBB data */
   uint64_t gbb_size;            /* Size of GBB data in bytes */
+
+  VbExDiskHandle_t disk_handle; /* Disk handle for current device */
   uint64_t bytes_per_lba;       /* Bytes per lba sector on current device */
   uint64_t ending_lba;          /* Last addressable lba sector on current
                                  * device */
+
   void* kernel_buffer;          /* Destination buffer for kernel
                                  * (normally at 0x100000) */
   uint64_t kernel_buffer_size;  /* Size of kernel buffer in bytes */

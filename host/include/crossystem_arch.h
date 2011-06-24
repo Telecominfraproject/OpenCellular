@@ -58,8 +58,8 @@ int VbWriteNvStorage(VbNvContext* vnc);
  * some data was not returned; callers must handle this; this is not considered
  * an error.
  *
- * Returns the data buffer, which must be freed by the caller, or NULL if
- * error. */
+ * Returns the data buffer, which must be freed by the caller using
+ * free(), or NULL if error. */
 VbSharedDataHeader* VbSharedDataRead(void);
 
 /* Read an architecture-specific system property integer.

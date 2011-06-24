@@ -149,6 +149,13 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_KERNEL_KEY_VERIFIED        0x00000002
 /* LoadFirmware() was told the developer switch was on */
 #define VBSD_LF_DEV_SWITCH_ON           0x00000004
+/* Developer switch was enabled at boot time */
+#define VBSD_BOOT_DEV_SWITCH_ON         0x00000010
+/* Recovery switch was enabled at boot time */
+#define VBSD_BOOT_REC_SWITCH_ON         0x00000020
+/* Firmware write protect was enabled at boot time */
+#define VBSD_BOOT_FIRMWARE_WP_ENABLED   0x00000040
+
 
 /* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
 #define VBSD_LF_CHECK_NOT_DONE          0
@@ -306,10 +313,15 @@ typedef struct VbSharedDataHeader {
   uint64_t kernel_supplemental_offset;
   uint64_t kernel_supplemental_size;
 
-  /* After read-only firmware which uses version 1 is released, any additional
+  /* Fields added in version 2.  Before accessing, make sure that
+   * struct_version >= 2*/
+  uint8_t recovery_reason;            /* Recovery reason for current boot */
+  uint8_t reserved2[7];               /* Reserved for padding */
+
+  /* After read-only firmware which uses version 2 is released, any additional
    * fields must be added below, and the struct version must be increased.
    * Before reading/writing those fields, make sure that the struct being
-   * accessed is at least version 2.
+   * accessed is at least version 3.
    *
    * It's always ok for an older firmware to access a newer struct, since all
    * the fields it knows about are present.  Newer firmware needs to use
@@ -317,7 +329,13 @@ typedef struct VbSharedDataHeader {
 
 } __attribute__((packed)) VbSharedDataHeader;
 
-#define VB_SHARED_DATA_VERSION 1      /* Version for struct_version */
+/* Size of VbSharedDataheader for each older version */
+// TODO: crossystem needs not to
+// fail if called on a v1 system where sizeof(VbSharedDataHeader) was smaller
+
+#define VB_SHARED_DATA_HEADER_SIZE_V1 1072
+
+#define VB_SHARED_DATA_VERSION 2      /* Version for struct_version */
 
 __pragma(pack(pop)) /* Support packing for MSVC. */
 

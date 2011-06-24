@@ -103,6 +103,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RW_SHARED_DATA  0x46
 /* Test error from LoadKernel() */
 #define VBNV_RECOVERY_RW_TEST_LK      0x47
+/* No bootable disk found */
+#define VBNV_RECOVERY_RW_NO_DISK      0x48
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */

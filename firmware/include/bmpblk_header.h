@@ -98,7 +98,10 @@ typedef struct ImageInfo {
   uint32_t format;           /* File format of the image */
   uint32_t compression;      /* Compression method for the image file */
   uint32_t original_size;    /* Size of the original uncompressed image */
-  uint32_t compressed_size;  /* Size of the compressed image */
+  uint32_t compressed_size;  /* Size of the compressed image; if image is not
+                              * compressed, this will be the same as the
+                              * original size. */
+
   uint32_t reserved;
   /* NOTE: actual image content follows immediately */
 } __attribute__((packed)) ImageInfo;
