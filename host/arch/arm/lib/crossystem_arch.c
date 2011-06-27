@@ -205,7 +205,7 @@ VbSharedDataHeader *VbSharedDataRead(void) {
   /* don't need this malloc/copy, but have to do it to comply with the
    * wrapper.
    */
-  VbSharedDataHeader *p = Malloc(sizeof(*p));
+  VbSharedDataHeader *p = malloc(sizeof(*p));
   Memcpy(p, shared_memory.shared_data_body, sizeof(*p));
   return p;
 }

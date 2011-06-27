@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -68,7 +68,7 @@ int SpeedTestAlgorithm(int algorithm) {
 
   /* Generate test images. */
   for (i = 0; i < NUM_SIZES_TO_TEST; ++i) {
-    firmware_blobs[i] = (uint8_t*) Malloc(g_firmware_sizes_to_test[i]);
+    firmware_blobs[i] = (uint8_t*) malloc(g_firmware_sizes_to_test[i]);
     Memset(firmware_blobs[i], 'F', g_firmware_sizes_to_test[i]);
     verification_blobs[i] = GenerateTestVerificationBlob(
         algorithm,
@@ -120,10 +120,10 @@ int SpeedTestAlgorithm(int algorithm) {
 
  cleanup:
   for (i = 0; i < NUM_SIZES_TO_TEST; i++) {
-    Free(firmware_blobs[i]);
-    Free(verification_blobs[i]);
+    free(firmware_blobs[i]);
+    free(verification_blobs[i]);
   }
-  Free(root_key_blob);
+  free(root_key_blob);
   return error_code;
 }
 
