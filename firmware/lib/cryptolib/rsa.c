@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -9,6 +9,7 @@
  */
 
 #include "cryptolib.h"
+#include "vboot_api.h"
 #include "utility.h"
 
 /* a[] -= mod */
@@ -77,9 +78,9 @@ static void montMul(const RSAPublicKey *key,
  */
 static void modpowF4(const RSAPublicKey *key,
                     uint8_t* inout) {
-  uint32_t* a = (uint32_t*) Malloc(key->len * sizeof(uint32_t));
-  uint32_t* aR = (uint32_t*) Malloc(key->len * sizeof(uint32_t));
-  uint32_t* aaR = (uint32_t*) Malloc(key->len * sizeof(uint32_t));
+  uint32_t* a = (uint32_t*) VbExMalloc(key->len * sizeof(uint32_t));
+  uint32_t* aR = (uint32_t*) VbExMalloc(key->len * sizeof(uint32_t));
+  uint32_t* aaR = (uint32_t*) VbExMalloc(key->len * sizeof(uint32_t));
 
   uint32_t* aaa = aaR;  /* Re-use location. */
   int i;
@@ -116,9 +117,9 @@ static void modpowF4(const RSAPublicKey *key,
     *inout++ = (uint8_t)(tmp >>  0);
   }
 
-  Free(a);
-  Free(aR);
-  Free(aaR);
+  VbExFree(a);
+  VbExFree(aR);
+  VbExFree(aaR);
 }
 
 /* Verify a RSA PKCS1.5 signature against an expected hash.
@@ -152,7 +153,7 @@ int RSAVerify(const RSAPublicKey *key,
     return 0;
   }
 
-  buf = (uint8_t*) Malloc(sig_len);
+  buf = (uint8_t*) VbExMalloc(sig_len);
   if (!buf)
     return 0;
   Memcpy(buf, sig, sig_len);
@@ -177,7 +178,7 @@ int RSAVerify(const RSAPublicKey *key,
     VBDEBUG(("In RSAVerify(): Hash check failed!\n"));
     success  = 0;
   }
-  Free(buf);
+  VbExFree(buf);
 
   return success;
 }
