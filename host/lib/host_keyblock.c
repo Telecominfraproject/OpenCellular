@@ -1,15 +1,14 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
  * Host functions for verified boot.
  */
 
-#include "host_keyblock.h"
 
 #include "cryptolib.h"
 #include "host_common.h"
-#include "utility.h"
+#include "host_keyblock.h"
 #include "vboot_common.h"
 
 
@@ -28,7 +27,7 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   VbSignature *sigtmp;
 
   /* Allocate key block */
-  h = (VbKeyBlockHeader*)Malloc(block_size);
+  h = (VbKeyBlockHeader*)malloc(block_size);
   if (!h)
     return NULL;
   data_key_dest = (uint8_t*)(h + 1);
@@ -57,13 +56,13 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
   /* Calculate checksum */
   sigtmp = CalculateChecksum((uint8_t*)h, signed_size);
   SignatureCopy(&h->key_block_checksum, sigtmp);
-  Free(sigtmp);
+  free(sigtmp);
 
   /* Calculate signature */
   if (signing_key) {
     sigtmp = CalculateSignature((uint8_t*)h, signed_size, signing_key);
     SignatureCopy(&h->key_block_signature, sigtmp);
-    Free(sigtmp);
+    free(sigtmp);
   }
 
   /* Return the header */
@@ -88,7 +87,7 @@ VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
   VbSignature *sigtmp;
 
   /* Allocate key block */
-  h = (VbKeyBlockHeader*)Malloc(block_size);
+  h = (VbKeyBlockHeader*)malloc(block_size);
   if (!h)
     return NULL;
   if (!signing_key_pem_file || !data_key || !external_signer)
@@ -117,21 +116,21 @@ VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
   /* Calculate checksum */
   sigtmp = CalculateChecksum((uint8_t*)h, signed_size);
   SignatureCopy(&h->key_block_checksum, sigtmp);
-  Free(sigtmp);
+  free(sigtmp);
 
   /* Calculate signature */
   sigtmp = CalculateSignature_external((uint8_t*)h, signed_size,
                                        signing_key_pem_file, algorithm,
                                        external_signer);
   SignatureCopy(&h->key_block_signature, sigtmp);
-  Free(sigtmp);
+  free(sigtmp);
 
   /* Return the header */
   return h;
 }
 
 /* Read a key block from a .keyblock file.  Caller owns the returned
- * pointer, and must free it with Free().
+ * pointer, and must free it with free().
  *
  * Returns NULL if error. */
 VbKeyBlockHeader* KeyBlockRead(const char* filename) {
@@ -149,7 +148,7 @@ VbKeyBlockHeader* KeyBlockRead(const char* filename) {
    * the public signing key. */
   if (0 != KeyBlockVerify(block, file_size, NULL, 1)) {
     VBDEBUG(("Invalid key block file: filename\n", filename));
-    Free(block);
+    free(block);
     return NULL;
   }
 

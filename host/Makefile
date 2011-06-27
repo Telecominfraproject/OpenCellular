@@ -30,7 +30,8 @@ STUB_SRCS = \
 	../firmware/stub/boot_device_stub.c \
 	../firmware/stub/load_firmware_stub.c \
 	../firmware/stub/tpm_lite_stub.c \
-	../firmware/stub/utility_stub.c
+	../firmware/stub/utility_stub.c \
+	../firmware/stub/vboot_api_stub.c
 
 ALL_SRCS = ${LIB_SRCS} ${STUB_SRCS}
 

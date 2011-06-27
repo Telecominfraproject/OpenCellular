@@ -82,7 +82,9 @@ STUB_SRCS = \
 	./stub/boot_device_stub.c \
 	./stub/load_firmware_stub.c \
 	./stub/tpm_lite_stub.c \
-	./stub/utility_stub.c
+	./stub/utility_stub.c \
+	./stub/vboot_api_stub.c \
+	./stub/vboot_api_stub_disk.c
 
 STUB_OBJS = $(STUB_SRCS:%.c=${BUILD_ROOT}/%.o)
 

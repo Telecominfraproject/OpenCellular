@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -12,9 +12,10 @@
 #include <stdlib.h>
 
 #include "file_keys.h"
+#include "host_common.h"
 #include "padding.h"
 #include "signature_digest.h"
-#include "utility.h"
+
 
 int main(int argc, char* argv[]) {
   int algorithm = -1;
@@ -48,7 +49,7 @@ int main(int argc, char* argv[]) {
   if(signature_digest &&
      1 != fwrite(signature_digest, signature_digest_len, 1, stdout))
     error_code = -1;
-  Free(signature_digest);
-  Free(buf);
+  free(signature_digest);
+  free(buf);
   return error_code;
 }

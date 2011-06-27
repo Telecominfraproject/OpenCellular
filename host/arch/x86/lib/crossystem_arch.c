@@ -180,7 +180,7 @@ static uint8_t* VbGetBuffer(const char* filename, int* buffer_size) {
     if (!f)
       break;
 
-    file_buffer = Malloc(fs.st_size + 1);
+    file_buffer = malloc(fs.st_size + 1);
     if (!file_buffer)
       break;
 
@@ -192,7 +192,7 @@ static uint8_t* VbGetBuffer(const char* filename, int* buffer_size) {
     /* Each byte in the output will replace two characters and a space
      * in the input, so the output size does not exceed input side/3
      * (a little less if account for newline characters). */
-    output_buffer = Malloc(real_size/3);
+    output_buffer = malloc(real_size/3);
     if (!output_buffer)
       break;
     output_ptr = output_buffer;
@@ -229,10 +229,10 @@ static uint8_t* VbGetBuffer(const char* filename, int* buffer_size) {
     fclose(f);
 
   if (file_buffer)
-    Free(file_buffer);
+    free(file_buffer);
 
   if (output_buffer)
-    Free(output_buffer);
+    free(output_buffer);
 
   return return_value;
 }
@@ -257,7 +257,7 @@ VbSharedDataHeader* VbSharedDataRead(void) {
   }
 
   if (got_size < expect_size) {
-    Free(sh);
+    free(sh);
     return NULL;
   }
   if (sh->data_size > got_size)
@@ -388,7 +388,7 @@ static int VbGetRecoveryReason(void) {
   if (sh) {
     if (sh->struct_version >= 2)
       value = sh->recovery_reason;
-    Free(sh);
+    free(sh);
     if (-1 != value)
       return value;
   }

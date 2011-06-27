@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -17,11 +17,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "host_key.h"
-
 #include "cryptolib.h"
+#include "host_common.h"
+#include "host_key.h"
 #include "host_misc.h"
-#include "utility.h"
 #include "vboot_common.h"
 
 
@@ -51,7 +50,7 @@ VbPrivateKey* PrivateKeyReadPem(const char* filename, uint64_t algorithm) {
   }
 
   /* Store key and algorithm in our struct */
-  key = (VbPrivateKey*)Malloc(sizeof(VbPrivateKey));
+  key = (VbPrivateKey*)malloc(sizeof(VbPrivateKey));
   if (!key) {
     RSA_free(rsa_key);
     return NULL;
@@ -69,7 +68,7 @@ void PrivateKeyFree(VbPrivateKey* key) {
     return;
   if (key->rsa_private_key)
     RSA_free(key->rsa_private_key);
-  Free(key);
+  free(key);
 }
 
 
@@ -81,33 +80,33 @@ int PrivateKeyWrite(const char* filename, const VbPrivateKey* key) {
 
   buflen = i2d_RSAPrivateKey(key->rsa_private_key, &outbuf);
   if (buflen <= 0) {
-    error("Unable to write private key buffer\n");
+    VbExError("Unable to write private key buffer\n");
     return 1;
   }
 
   f = fopen(filename, "wb");
   if (!f) {
-    error("Unable to open file %s\n", filename);
-    Free(outbuf);
+    VbExError("Unable to open file %s\n", filename);
+    free(outbuf);
     return 1;
   }
 
   if (1 != fwrite(&key->algorithm, sizeof(key->algorithm), 1, f)) {
-    error("Unable to write to file %s\n", filename);
+    VbExError("Unable to write to file %s\n", filename);
     fclose(f);
-    Free(outbuf);
+    free(outbuf);
     unlink(filename);  /* Delete any partial file */
   }
 
   if (1 != fwrite(outbuf, buflen, 1, f)) {
-    error("Unable to write to file %s\n", filename);
+    VbExError("Unable to write to file %s\n", filename);
     fclose(f);
     unlink(filename);  /* Delete any partial file */
-    Free(outbuf);
+    free(outbuf);
   }
 
   fclose(f);
-  Free(outbuf);
+  free(outbuf);
   return 0;
 }
 
@@ -119,14 +118,14 @@ VbPrivateKey* PrivateKeyRead(const char* filename) {
 
   buffer = ReadFile(filename, &filelen);
   if (!buffer) {
-    error("unable to read from file %s\n", filename);
+    VbExError("unable to read from file %s\n", filename);
     return 0;
   }
 
-  key = (VbPrivateKey*)Malloc(sizeof(VbPrivateKey));
+  key = (VbPrivateKey*)malloc(sizeof(VbPrivateKey));
   if (!key) {
-    error("Unable to allocate VbPrivateKey\n");
-    Free(buffer);
+    VbExError("Unable to allocate VbPrivateKey\n");
+    free(buffer);
     return 0;
   }
 
@@ -137,13 +136,13 @@ VbPrivateKey* PrivateKeyRead(const char* filename) {
                                            filelen - sizeof(key->algorithm));
 
   if (!key->rsa_private_key) {
-    error("Unable to parse RSA private key\n");
-    Free(buffer);
-    Free(key);
+    VbExError("Unable to parse RSA private key\n");
+    free(buffer);
+    free(key);
     return 0;
   }
 
-  Free(buffer);
+  free(buffer);
   return key;
 }
 
@@ -151,7 +150,7 @@ VbPrivateKey* PrivateKeyRead(const char* filename) {
 /* Allocate a new public key with space for a [key_size] byte key. */
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version) {
-  VbPublicKey* key = (VbPublicKey*)Malloc(sizeof(VbPublicKey) + key_size);
+  VbPublicKey* key = (VbPublicKey*)malloc(sizeof(VbPublicKey) + key_size);
   if (!key)
     return NULL;
 
@@ -186,18 +185,18 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
   if (!RSAProcessedKeySize(algorithm, &expected_key_size) ||
       expected_key_size != key_size) {
     VBDEBUG(("PublicKeyReadKeyb() wrong key size for algorithm\n"));
-    Free(key_data);
+    free(key_data);
     return NULL;
   }
 
   key = PublicKeyAlloc(key_size, algorithm, version);
   if (!key) {
-    Free(key_data);
+    free(key_data);
     return NULL;
   }
   Memcpy(GetPublicKeyData(key), key_data, key_size);
 
-  Free(key_data);
+  free(key_data);
   return key;
 }
 
@@ -237,7 +236,7 @@ VbPublicKey* PublicKeyRead(const char* filename) {
   } while(0);
 
   /* Error */
-  Free(key);
+  free(key);
   return NULL;
 }
 
@@ -250,12 +249,12 @@ int PublicKeyWrite(const char* filename, const VbPublicKey* key) {
   if (!kcopy)
     return 1;
   if (0 != PublicKeyCopy(kcopy, key)) {
-    Free(kcopy);
+    free(kcopy);
     return 1;
   }
 
   /* Write the copy, then free it */
   rv = WriteFile(filename, kcopy, kcopy->key_offset + kcopy->key_size);
-  Free(kcopy);
+  free(kcopy);
   return rv;
 }

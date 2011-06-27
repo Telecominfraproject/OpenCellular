@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -20,13 +20,12 @@
 
 #include "cryptolib.h"
 #include "file_keys.h"
-#include "utility.h"
-#include "vboot_common.h"
 #include "host_common.h"
+#include "vboot_common.h"
 
 
 VbSignature* SignatureAlloc(uint64_t sig_size, uint64_t data_size) {
-  VbSignature* sig = (VbSignature*)Malloc(sizeof(VbSignature) + sig_size);
+  VbSignature* sig = (VbSignature*)malloc(sizeof(VbSignature) + sig_size);
   if (!sig)
     return NULL;
 
@@ -66,7 +65,7 @@ VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size) {
 
   sig = SignatureAlloc(SHA512_DIGEST_SIZE, 0);
   if (!sig) {
-    Free(header_checksum);
+    free(header_checksum);
     return NULL;
   }
   sig->sig_offset = sizeof(VbSignature);
@@ -75,7 +74,7 @@ VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size) {
 
   /* Signature data immediately follows the header */
   Memcpy(GetSignatureData(sig), header_checksum, SHA512_DIGEST_SIZE);
-  Free(header_checksum);
+  free(header_checksum);
   return sig;
 }
 
@@ -101,19 +100,19 @@ VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
     return NULL;
 
   /* Prepend the digest info to the digest */
-  signature_digest = Malloc(signature_digest_len);
+  signature_digest = malloc(signature_digest_len);
   if (!signature_digest) {
-    Free(digest);
+    free(digest);
     return NULL;
   }
   Memcpy(signature_digest, digestinfo, digestinfo_size);
   Memcpy(signature_digest + digestinfo_size, digest, digest_size);
-  Free(digest);
+  free(digest);
 
   /* Allocate output signature */
   sig = SignatureAlloc(siglen_map[key->algorithm], size);
   if (!sig) {
-    Free(signature_digest);
+    free(signature_digest);
     return NULL;
   }
 
@@ -123,11 +122,11 @@ VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
                            GetSignatureData(sig),  /* Output sig */
                            key->rsa_private_key,   /* Key to use */
                            RSA_PKCS1_PADDING);     /* Padding to use */
-  Free(signature_digest);
+  free(signature_digest);
 
   if (-1 == rv) {
     VBDEBUG(("SignatureBuf(): RSA_private_encrypt() failed.\n"));
-    Free(sig);
+    free(sig);
     return NULL;
   }
 
@@ -246,19 +245,19 @@ VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
     return NULL;
 
   /* Prepend the digest info to the digest */
-  signature_digest = Malloc(signature_digest_len);
+  signature_digest = malloc(signature_digest_len);
   if (!signature_digest) {
-    Free(digest);
+    free(digest);
     return NULL;
   }
   Memcpy(signature_digest, digestinfo, digestinfo_size);
   Memcpy(signature_digest + digestinfo_size, digest, digest_size);
-  Free(digest);
+  free(digest);
 
   /* Allocate output signature */
   sig = SignatureAlloc(siglen_map[key_algorithm], size);
   if (!sig) {
-    Free(signature_digest);
+    free(signature_digest);
     return NULL;
   }
 
@@ -269,11 +268,11 @@ VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
                             siglen_map[key_algorithm], /* Max Output sig size */
                             key_file,             /* Key file to use */
                             external_signer);     /* External cmd to invoke */
-  Free(signature_digest);
+  free(signature_digest);
 
   if (-1 == rv) {
     VBDEBUG(("SignatureBuf(): RSA_private_encrypt() failed.\n"));
-    Free(sig);
+    free(sig);
     return NULL;
   }
 

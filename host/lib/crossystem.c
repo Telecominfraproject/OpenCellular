@@ -298,7 +298,7 @@ char* GetVdatString(char* dest, int size, VdatStringField field)
       break;
   }
 
-  Free(sh);
+  free(sh);
   return value;
 }
 
@@ -333,7 +333,7 @@ int GetVdatInt(VdatIntField field) {
       break;
   }
 
-  Free(sh);
+  free(sh);
   return value;
 }
 

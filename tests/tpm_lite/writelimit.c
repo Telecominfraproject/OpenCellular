@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -10,9 +10,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "host_common.h"
 #include "tlcl.h"
 #include "tlcl_tests.h"
-#include "utility.h"
 
 #define TPM_MAX_NV_WRITES_NOOWNER 64
 
@@ -35,10 +35,10 @@ int main(int argc, char** argv) {
     if ((result = TlclWrite(INDEX0, (uint8_t*)&i, sizeof(i))) != TPM_SUCCESS) {
       switch (result) {
       case TPM_E_MAXNVWRITES:
-        assert(i >= TPM_MAX_NV_WRITES_NOOWNER);
+        VbAssert(i >= TPM_MAX_NV_WRITES_NOOWNER);
         break;
       default:
-        error("unexpected error code %d (0x%x)\n", result, result);
+        VbExError("unexpected error code %d (0x%x)\n", result, result);
       }
     }
   }

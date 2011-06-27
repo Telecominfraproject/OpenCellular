@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -7,8 +7,8 @@
 #include <stdlib.h>
 
 #include "cryptolib.h"
+#include "host_common.h"
 #include "timer_utils.h"
-#include "utility.h"
 
 #define NUM_HASH_ALGORITHMS 3
 #define TEST_BUFFER_SIZE 4000000
@@ -30,8 +30,8 @@ int main(int argc, char* argv[]) {
   int i;
   double speed;
   uint32_t msecs;
-  uint8_t* buffer = (uint8_t*) Malloc(TEST_BUFFER_SIZE);
-  uint8_t* digest = (uint8_t*) Malloc(SHA512_DIGEST_SIZE); /* Maximum size of
+  uint8_t* buffer = (uint8_t*) malloc(TEST_BUFFER_SIZE);
+  uint8_t* digest = (uint8_t*) malloc(SHA512_DIGEST_SIZE); /* Maximum size of
                                                             * the digest. */
   ClockTimerState ct;
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
             hash_functions[i].description, speed);
   }
 
-  Free(digest);
-  Free(buffer);
+  free(digest);
+  free(buffer);
   return 0;
 }

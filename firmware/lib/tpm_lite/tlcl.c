@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -175,7 +175,7 @@ uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length) {
 
   VBDEBUG(("TPM: TlclWrite(0x%x, %d)\n", index, length));
   Memcpy(&cmd, &tpm_nv_write_cmd, sizeof(cmd));
-  assert(total_length <= TPM_LARGE_ENOUGH_COMMAND_SIZE);
+  VbAssert(total_length <= TPM_LARGE_ENOUGH_COMMAND_SIZE);
   SetTpmCommandSize(cmd.buffer, total_length);
 
   ToTpmUint32(cmd.buffer + tpm_nv_write_cmd.index, index);
@@ -286,7 +286,7 @@ uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags) {
   if (result != TPM_SUCCESS)
     return result;
   FromTpmUint32(response + kTpmResponseHeaderLength, &size);
-  assert(size == sizeof(TPM_PERMANENT_FLAGS));
+  VbAssert(size == sizeof(TPM_PERMANENT_FLAGS));
   Memcpy(pflags,
          response + kTpmResponseHeaderLength + sizeof(size),
          sizeof(TPM_PERMANENT_FLAGS));
@@ -302,7 +302,7 @@ uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* vflags) {
     return result;
   FromTpmUint32(response + kTpmResponseHeaderLength, &size);
   /* Ugly assertion, but the struct is padded up by one byte. */
-  assert(size == 7 && sizeof(TPM_STCLEAR_FLAGS) - 1 == 7);
+  VbAssert(size == 7 && sizeof(TPM_STCLEAR_FLAGS) - 1 == 7);
   Memcpy(vflags,
          response + kTpmResponseHeaderLength + sizeof(size),
          sizeof(TPM_STCLEAR_FLAGS));

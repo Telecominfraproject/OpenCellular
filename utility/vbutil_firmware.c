@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -85,34 +85,34 @@ static int Vblock(const char* outfile, const char* keyblock_file,
   uint64_t i;
 
   if (!outfile) {
-    error("Must specify output filename\n");
+    VbExError("Must specify output filename\n");
     return 1;
   }
   if (!keyblock_file || !signprivate || !kernelkey_file) {
-    error("Must specify all keys\n");
+    VbExError("Must specify all keys\n");
     return 1;
   }
   if (!fv_file) {
-    error("Must specify firmware volume\n");
+    VbExError("Must specify firmware volume\n");
     return 1;
   }
 
   /* Read the key block and keys */
   key_block = (VbKeyBlockHeader*)ReadFile(keyblock_file, &key_block_size);
   if (!key_block) {
-    error("Error reading key block.\n");
+    VbExError("Error reading key block.\n");
     return 1;
   }
 
   signing_key = PrivateKeyRead(signprivate);
   if (!signing_key) {
-    error("Error reading signing key.\n");
+    VbExError("Error reading signing key.\n");
     return 1;
   }
 
   kernel_subkey = PublicKeyRead(kernelkey_file);
   if (!kernel_subkey) {
-    error("Error reading kernel subkey.\n");
+    VbExError("Error reading kernel subkey.\n");
     return 1;
   }
 
@@ -121,15 +121,15 @@ static int Vblock(const char* outfile, const char* keyblock_file,
   if (!fv_data)
     return 1;
   if (!fv_size) {
-    error("Empty firmware volume file\n");
+    VbExError("Empty firmware volume file\n");
     return 1;
   }
   body_sig = CalculateSignature(fv_data, fv_size, signing_key);
   if (!body_sig) {
-    error("Error calculating body signature\n");
+    VbExError("Error calculating body signature\n");
     return 1;
   }
-  Free(fv_data);
+  free(fv_data);
 
   /* Create preamble */
   preamble = CreateFirmwarePreamble(version,
@@ -137,21 +137,21 @@ static int Vblock(const char* outfile, const char* keyblock_file,
                                     body_sig,
                                     signing_key);
   if (!preamble) {
-    error("Error creating preamble.\n");
+    VbExError("Error creating preamble.\n");
     return 1;
   }
 
   /* Write the output file */
   f = fopen(outfile, "wb");
   if (!f) {
-    error("Can't open output file %s\n", outfile);
+    VbExError("Can't open output file %s\n", outfile);
     return 1;
   }
   i = ((1 != fwrite(key_block, key_block_size, 1, f)) ||
        (1 != fwrite(preamble, preamble->preamble_size, 1, f)));
   fclose(f);
   if (i) {
-    error("Can't write output file %s\n", outfile);
+    VbExError("Can't write output file %s\n", outfile);
     unlink(outfile);
     return 1;
   }
@@ -176,38 +176,38 @@ static int Verify(const char* infile, const char* signpubkey,
   uint64_t now = 0;
 
   if (!infile || !signpubkey || !fv_file) {
-    error("Must specify filename, signpubkey, and fv\n");
+    VbExError("Must specify filename, signpubkey, and fv\n");
     return 1;
   }
 
   /* Read public signing key */
   sign_key = PublicKeyRead(signpubkey);
   if (!sign_key) {
-    error("Error reading signpubkey.\n");
+    VbExError("Error reading signpubkey.\n");
     return 1;
   }
 
   /* Read blob */
   blob = ReadFile(infile, &blob_size);
   if (!blob) {
-    error("Error reading input file\n");
+    VbExError("Error reading input file\n");
     return 1;
   }
 
   /* Read firmware volume */
   fv_data = ReadFile(fv_file, &fv_size);
   if (!fv_data) {
-    error("Error reading firmware volume\n");
+    VbExError("Error reading firmware volume\n");
     return 1;
   }
 
   /* Verify key block */
   key_block = (VbKeyBlockHeader*)blob;
   if (0 != KeyBlockVerify(key_block, blob_size, sign_key, 0)) {
-    error("Error verifying key block.\n");
+    VbExError("Error verifying key block.\n");
     return 1;
   }
-  Free(sign_key);
+  free(sign_key);
   now += key_block->key_block_size;
 
   printf("Key block:\n");
@@ -225,14 +225,14 @@ static int Verify(const char* infile, const char* signpubkey,
 
   rsa = PublicKeyToRSA(&key_block->data_key);
   if (!rsa) {
-    error("Error parsing data key.\n");
+    VbExError("Error parsing data key.\n");
     return 1;
   }
 
   /* Verify preamble */
   preamble = (VbFirmwarePreambleHeader*)(blob + now);
   if (0 != VerifyFirmwarePreamble(preamble, blob_size - now, rsa)) {
-    error("Error verifying preamble.\n");
+    VbExError("Error verifying preamble.\n");
     return 1;
   }
   now += preamble->preamble_size;
@@ -259,7 +259,7 @@ static int Verify(const char* infile, const char* signpubkey,
 
   /* Verify body */
   if (0 != VerifyData(fv_data, fv_size, &preamble->body_signature, rsa)) {
-    error("Error verifying firmware body.\n");
+    VbExError("Error verifying firmware body.\n");
     return 1;
   }
   printf("Body verification succeeded.\n");

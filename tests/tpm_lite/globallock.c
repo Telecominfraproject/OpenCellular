@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -10,9 +10,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "host_common.h"
 #include "tlcl.h"
 #include "tlcl_tests.h"
-#include "utility.h"
 
 int main(int argc, char** argv) {
   uint32_t zero = 0;
@@ -32,13 +32,13 @@ int main(int argc, char** argv) {
   x = 1;
   TPM_EXPECT(TlclWrite(INDEX0, (uint8_t*) &x, sizeof(x)), TPM_E_AREA_LOCKED);
   TPM_CHECK(TlclRead(INDEX0, (uint8_t*) &x, sizeof(x)));
-  assert(x == 0);
+  VbAssert(x == 0);
 
   // Verifies that write to index1 is still possible.
   x = 2;
   TPM_CHECK(TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x)));
   TPM_CHECK(TlclRead(INDEX1, (uint8_t*) &x, sizeof(x)));
-  assert(x == 2);
+  VbAssert(x == 2);
 
   // Turns off PP.
   TlclLockPhysicalPresence();
@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   x = 3;
   TPM_EXPECT(TlclWrite(INDEX1, (uint8_t*) &x, sizeof(x)), TPM_E_BAD_PRESENCE);
   TPM_CHECK(TlclRead(INDEX1, (uint8_t*) &x, sizeof(x)));
-  assert(x == 2);
+  VbAssert(x == 2);
   printf("TEST SUCCEEDED\n");
   exit(0);
 }

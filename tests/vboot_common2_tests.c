@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -12,7 +12,6 @@
 #include "file_keys.h"
 #include "host_common.h"
 #include "test_common.h"
-#include "utility.h"
 #include "vboot_common.h"
 
 
@@ -70,7 +69,7 @@ static void VerifyDataTest(const VbPublicKey* public_key,
           "VerifyData() wrong sig");
 
   RSAPublicKeyFree(rsa);
-  Free(sig);
+  free(sig);
 }
 
 
@@ -95,8 +94,8 @@ static void VerifyDigestTest(const VbPublicKey* public_key,
   TEST_EQ(VerifyDigest(digest, sig, rsa), 1, "VerifyDigest() wrong sig");
 
   RSAPublicKeyFree(rsa);
-  Free(sig);
-  Free(digest);
+  free(sig);
+  free(digest);
 }
 
 
@@ -106,7 +105,7 @@ static void ReSignKernelPreamble(VbKernelPreambleHeader *h,
                                         h->preamble_signature.data_size, key);
 
   SignatureCopy(&h->preamble_signature, sig);
-  Free(sig);
+  free(sig);
 }
 
 
@@ -128,7 +127,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
   if (!hdr)
     return;
   hsize = (unsigned) hdr->preamble_size;
-  h = (VbKernelPreambleHeader*)Malloc(hsize + 16384);
+  h = (VbKernelPreambleHeader*)malloc(hsize + 16384);
 
   TEST_EQ(VerifyKernelPreamble(hdr, hsize, rsa), 0,
           "VerifyKernelPreamble() ok using key");
@@ -197,9 +196,9 @@ static void VerifyKernelPreambleTest(const VbPublicKey* public_key,
 
   /* TODO: verify parser can support a bigger header. */
 
-  Free(h);
+  free(h);
   RSAPublicKeyFree(rsa);
-  Free(hdr);
+  free(hdr);
 }
 
 
@@ -237,9 +236,9 @@ int main(int argc, char* argv[]) {
   VerifyKernelPreambleTest(public_key, private_key);
 
   if (public_key)
-    Free(public_key);
+    free(public_key);
   if (private_key)
-    Free(private_key);
+    free(private_key);
 
   return error_code;
 }

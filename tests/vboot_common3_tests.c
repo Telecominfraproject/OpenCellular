@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -12,7 +12,6 @@
 #include "file_keys.h"
 #include "host_common.h"
 #include "test_common.h"
-#include "utility.h"
 #include "vboot_common.h"
 
 
@@ -21,7 +20,7 @@ static void ReChecksumKeyBlock(VbKeyBlockHeader *h) {
                               h->key_block_checksum.data_size,
                               SHA512_DIGEST_ALGORITHM);
   Memcpy(GetSignatureData(&h->key_block_checksum), newchk, SHA512_DIGEST_SIZE);
-  Free(newchk);
+  free(newchk);
 }
 
 
@@ -38,7 +37,7 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
   if (!hdr)
     return;
   hsize = (unsigned) hdr->key_block_size;
-  h = (VbKeyBlockHeader*)Malloc(hsize + 1024);
+  h = (VbKeyBlockHeader*)malloc(hsize + 1024);
 
   TEST_EQ(KeyBlockVerify(hdr, hsize, NULL, 1), 0,
           "KeyBlockVerify() ok using checksum");
@@ -131,8 +130,8 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
   /* TODO: verify parser can support a bigger header (i.e., one where
    * data_key.key_offset is bigger than expected). */
 
-  Free(h);
-  Free(hdr);
+  free(h);
+  free(hdr);
 }
 
 
@@ -142,7 +141,7 @@ static void ReSignFirmwarePreamble(VbFirmwarePreambleHeader *h,
                                         h->preamble_signature.data_size, key);
 
   SignatureCopy(&h->preamble_signature, sig);
-  Free(sig);
+  free(sig);
 }
 
 
@@ -164,7 +163,7 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
   if (!hdr)
     return;
   hsize = (unsigned) hdr->preamble_size;
-  h = (VbFirmwarePreambleHeader*)Malloc(hsize + 16384);
+  h = (VbFirmwarePreambleHeader*)malloc(hsize + 16384);
 
   TEST_EQ(VerifyFirmwarePreamble(hdr, hsize, rsa), 0,
           "VerifyFirmwarePreamble() ok using key");
@@ -241,9 +240,9 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
 
   /* TODO: verify parser can support a bigger header. */
 
-  Free(h);
+  free(h);
   RSAPublicKeyFree(rsa);
-  Free(hdr);
+  free(hdr);
 }
 
 
@@ -291,11 +290,11 @@ int main(int argc, char* argv[]) {
                              data_public_key);
 
   if (signing_public_key)
-    Free(signing_public_key);
+    free(signing_public_key);
   if (signing_private_key)
-    Free(signing_private_key);
+    free(signing_private_key);
   if (data_public_key)
-    Free(data_public_key);
+    free(data_public_key);
 
   return error_code;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -31,7 +31,7 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
   VbSignature *sigtmp;
 
   /* Allocate key block */
-  h = (VbFirmwarePreambleHeader*)Malloc(block_size);
+  h = (VbFirmwarePreambleHeader*)malloc(block_size);
   if (!h)
     return NULL;
   kernel_subkey_dest = (uint8_t*)(h + 1);
@@ -60,7 +60,7 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
   /* Calculate signature */
   sigtmp = CalculateSignature((uint8_t*)h, signed_size, signing_key);
   SignatureCopy(&h->preamble_signature, sigtmp);
-  Free(sigtmp);
+  free(sigtmp);
 
   /* Return the header */
   return h;
@@ -68,7 +68,7 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
 
 
 /* Creates a kernel preamble, signed with [signing_key].
- * Caller owns the returned pointer, and must free it with Free().
+ * Caller owns the returned pointer, and must free it with free().
  *
  * Returns NULL if error. */
 VbKernelPreambleHeader* CreateKernelPreamble(
@@ -93,7 +93,7 @@ VbKernelPreambleHeader* CreateKernelPreamble(
     block_size = desired_size;
 
   /* Allocate key block */
-  h = (VbKernelPreambleHeader*)Malloc(block_size);
+  h = (VbKernelPreambleHeader*)malloc(block_size);
   Memset(h, 0, block_size);
 
   if (!h)
@@ -121,7 +121,7 @@ VbKernelPreambleHeader* CreateKernelPreamble(
   /* Calculate signature */
   sigtmp = CalculateSignature((uint8_t*)h, signed_size, signing_key);
   SignatureCopy(&h->preamble_signature, sigtmp);
-  Free(sigtmp);
+  free(sigtmp);
 
   /* Return the header */
   return h;

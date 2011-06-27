@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -12,10 +12,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "host_common.h"
-
 #include "cryptolib.h"
-#include "utility.h"
+#include "host_common.h"
 #include "vboot_common.h"
 
 
@@ -40,7 +38,7 @@ uint8_t* ReadFile(const char* filename, uint64_t* size) {
   *size = ftell(f);
   rewind(f);
 
-  buf = Malloc(*size);
+  buf = malloc(*size);
   if (!buf) {
     fclose(f);
     return NULL;
@@ -49,7 +47,7 @@ uint8_t* ReadFile(const char* filename, uint64_t* size) {
   if(1 != fread(buf, *size, 1, f)) {
     VBDEBUG(("Unable to read from file %s\n", filename));
     fclose(f);
-    Free(buf);
+    free(buf);
     return NULL;
   }
 
@@ -121,5 +119,5 @@ void PrintPubKeySha1Sum(VbPublicKey* key) {
   int i;
   for (i=0; i<SHA1_DIGEST_SIZE; i++)
     printf("%02x", digest[i]);
-  Free(digest);
+  free(digest);
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -133,15 +133,15 @@ static int Pack(const char* outfile, const char* datapubkey,
     block = KeyBlockCreate(data_key, signing_key, flags);
   }
 
-  Free(data_key);
+  free(data_key);
   if (signing_key)
-    Free(signing_key);
+    free(signing_key);
 
   if (0 != KeyBlockWrite(outfile, block)) {
     fprintf(stderr, "vbutil_keyblock: Error writing key block.\n");
     return 1;
   }
-  Free(block);
+  free(block);
   return 0;
 }
 
@@ -174,7 +174,7 @@ static int Unpack(const char* infile, const char* datapubkey,
       fprintf(stderr, "vbutil_keyblock: Error verifying key block.\n");
       return 1;
     }
-    Free(sign_key);
+    free(sign_key);
   }
 
   printf("Key block file:       %s\n", infile);
@@ -207,7 +207,7 @@ static int Unpack(const char* infile, const char* datapubkey,
     }
   }
 
-  Free(block);
+  free(block);
   return 0;
 }
 

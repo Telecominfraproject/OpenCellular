@@ -10,9 +10,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "host_common.h"
 #include "tlcl.h"
 #include "tlcl_tests.h"
-#include "utility.h"
 
 int main(int argc, char** argv) {
   uint32_t perm;
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   TPM_CHECK(TlclSelfTestFull());
   TPM_CHECK(TlclAssertPhysicalPresence());
 
-  assert(!TlclIsOwned());
+  VbAssert(!TlclIsOwned());
 
   /* Ensures spaces exist. */
   TPM_CHECK(TlclRead(INDEX0, (uint8_t*) &x, sizeof(x)));

@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -8,9 +8,10 @@
 
 #include <stdio.h>
 
+#include "host_common.h"
 #include "tlcl.h"
 #include "tlcl_tests.h"
-#include "utility.h"
+
 
 int main(int argc, char** argv) {
   uint8_t disable, deactivated;
@@ -26,7 +27,7 @@ int main(int argc, char** argv) {
   TPM_CHECK(TlclGetFlags(&disable, &deactivated, NULL));
   printf("disable is %d, deactivated is %d\n", disable, deactivated);
   if (disable == 1 || deactivated == 1) {
-    error("failed to enable or activate");
+    VbExError("failed to enable or activate");
   }
   printf("TEST SUCCEEDED\n");
   return 0;

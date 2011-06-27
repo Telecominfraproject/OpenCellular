@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -104,26 +104,26 @@ static int Sign(const char* filename, const char* keyblock_file,
   /* Read the file that we're going to sign. */
   file_data = ReadFile(filename, &file_size);
   if (!file_data) {
-    error("Error reading file to sign.\n");
+    VbExError("Error reading file to sign.\n");
     return 1;
   }
 
   /* Get the key block and read the private key corresponding to it. */
   key_block = (VbKeyBlockHeader*)ReadFile(keyblock_file, &key_block_size);
   if (!key_block) {
-    error("Error reading key block.\n");
+    VbExError("Error reading key block.\n");
     return 1;
   }
   signing_key = PrivateKeyRead(signprivate_file);
   if (!signing_key) {
-    error("Error reading signing key.\n");
+    VbExError("Error reading signing key.\n");
     return 1;
   }
 
   /* Sign the file data */
   body_sig = CalculateSignature(file_data, file_size, signing_key);
   if (!body_sig) {
-    error("Error calculating body signature\n");
+    VbExError("Error calculating body signature\n");
     return 1;
   }
 
@@ -136,7 +136,7 @@ static int Sign(const char* filename, const char* keyblock_file,
                                   (uint64_t)0,
                                   signing_key);
   if (!preamble) {
-    error("Error creating preamble.\n");
+    VbExError("Error creating preamble.\n");
     return 1;
   }
 
@@ -144,14 +144,14 @@ static int Sign(const char* filename, const char* keyblock_file,
   Debug("writing %s...\n", outfile);
   output_fp = fopen(outfile, "wb");
   if (!output_fp) {
-    error("Can't open output file %s\n", outfile);
+    VbExError("Can't open output file %s\n", outfile);
     return 1;
   }
   Debug("0x%" PRIx64 " bytes of key_block\n", key_block_size);
   Debug("0x%" PRIx64 " bytes of preamble\n", preamble->preamble_size);
   if ((1 != fwrite(key_block, key_block_size, 1, output_fp)) ||
       (1 != fwrite(preamble, preamble->preamble_size, 1, output_fp))) {
-    error("Can't write output file %s\n", outfile);
+    VbExError("Can't write output file %s\n", outfile);
     fclose(output_fp);
     unlink(outfile);
     return 1;
@@ -159,11 +159,11 @@ static int Sign(const char* filename, const char* keyblock_file,
   fclose(output_fp);
 
   /* Done */
-  Free(preamble);
-  Free(body_sig);
-  Free(signing_key);
-  Free(key_block);
-  Free(file_data);
+  free(preamble);
+  free(body_sig);
+  free(signing_key);
+  free(key_block);
+  free(file_data);
 
   /* Success */
   return 0;
@@ -184,14 +184,14 @@ static int Verify(const char* filename, const char* vblock_file,
   /* Read the file that we're going to verify. */
   file_data = ReadFile(filename, &file_size);
   if (!file_data) {
-    error("Error reading file to sign.\n");
+    VbExError("Error reading file to sign.\n");
     return 1;
   }
 
   /* Read the vblock that we're going to use on it */
   buf = ReadFile(vblock_file, &buf_size);
   if (!buf) {
-    error("Error reading vblock_file.\n");
+    VbExError("Error reading vblock_file.\n");
     return 1;
   }
 
@@ -200,7 +200,7 @@ static int Verify(const char* filename, const char* vblock_file,
   Debug("Keyblock is 0x%" PRIx64 " bytes\n", key_block->key_block_size);
   current_buf_offset += key_block->key_block_size;
   if (current_buf_offset > buf_size) {
-    error("key_block_size advances past the end of the buffer\n");
+    VbExError("key_block_size advances past the end of the buffer\n");
     return 1;
   }
 
@@ -209,7 +209,7 @@ static int Verify(const char* filename, const char* vblock_file,
   Debug("Preamble is 0x%" PRIx64 " bytes\n", preamble->preamble_size);
   current_buf_offset += preamble->preamble_size;
   if (current_buf_offset > buf_size ) {
-    error("preamble_size advances past the end of the buffer\n");
+    VbExError("preamble_size advances past the end of the buffer\n");
     return 1;
   }
 
@@ -217,7 +217,7 @@ static int Verify(const char* filename, const char* vblock_file,
 
   /* Check the key block (hash only) */
   if (0 != KeyBlockVerify(key_block, key_block->key_block_size, NULL, 1)) {
-    error("Error verifying key block.\n");
+    VbExError("Error verifying key block.\n");
     return 1;
   }
 
@@ -234,11 +234,11 @@ static int Verify(const char* filename, const char* vblock_file,
   /* Verify preamble */
   rsa = PublicKeyToRSA(&key_block->data_key);
   if (!rsa) {
-    error("Error parsing data key.\n");
+    VbExError("Error parsing data key.\n");
     return 1;
   }
   if (0 != VerifyKernelPreamble(preamble, preamble->preamble_size, rsa)) {
-    error("Error verifying preamble.\n");
+    VbExError("Error verifying preamble.\n");
     return 1;
   }
 
@@ -256,14 +256,14 @@ static int Verify(const char* filename, const char* vblock_file,
 
   /* Verify body */
   if (0 != VerifyData(file_data, file_size, &preamble->body_signature, rsa)) {
-    error("Error verifying kernel body.\n");
+    VbExError("Error verifying kernel body.\n");
     return 1;
   }
   printf("Body verification succeeded.\n");
 
   if (keyblock_file) {
     if (0 != WriteFile(keyblock_file, key_block, key_block->key_block_size)) {
-      error("Unable to export keyblock file\n");
+      VbExError("Unable to export keyblock file\n");
       return 1;
     }
     printf("Key block exported to %s\n", keyblock_file);

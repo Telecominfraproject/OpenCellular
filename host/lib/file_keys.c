@@ -1,11 +1,9 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
  * Utility functions for file and key handling.
  */
-
-#include "file_keys.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -16,8 +14,9 @@
 #include <unistd.h>
 
 #include "cryptolib.h"
+#include "file_keys.h"
+#include "host_common.h"
 #include "signature_digest.h"
-#include "utility.h"
 
 uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   int fd;
@@ -35,9 +34,9 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
   }
   *len = stat_fd.st_size;
 
-  buf = (uint8_t*) Malloc(*len);
+  buf = (uint8_t*)malloc(*len);
   if (!buf) {
-    error("Couldn't allocate %ld bytes for file %s\n", *len, input_file);
+    VbExError("Couldn't allocate %ld bytes for file %s\n", *len, input_file);
     return NULL;
   }
 
@@ -56,7 +55,7 @@ RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
   uint8_t* buf = BufferFromFile(input_file, &len);
   if (buf)
     key = RSAPublicKeyFromBuf(buf, len);
-  Free(buf);
+  free(buf);
   return key;
 }
 
@@ -98,21 +97,21 @@ uint8_t* SignatureFile(const char* input_file, const char* key_file,
              strlen(key_file) + 1 + /* +1 for space. */
              strlen(input_file) +
              1);  /* For the trailing '\0'. */
-  cmd = (char*) Malloc(cmd_len);
+  cmd = (char*) malloc(cmd_len);
   snprintf(cmd, cmd_len, "%s %u %s %s", sign_utility, algorithm, key_file,
            input_file);
   cmd_out = popen(cmd, "r");
-  Free(cmd);
+  free(cmd);
   if (!cmd_out) {
     VBDEBUG(("Couldn't execute: %s\n", cmd));
     return NULL;
   }
 
-  signature = (uint8_t*) Malloc(signature_size);
+  signature = (uint8_t*) malloc(signature_size);
   if (fread(signature, signature_size, 1, cmd_out) != 1) {
     VBDEBUG(("Couldn't read signature.\n"));
     pclose(cmd_out);
-    Free(signature);
+    free(signature);
     return NULL;
   }
 

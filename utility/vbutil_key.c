@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -90,7 +90,7 @@ static int Pack(const char *infile, const char *outfile, uint64_t algorithm,
       fprintf(stderr, "vbutil_key: Error writing key.\n");
       return 1;
     }
-    Free(pubkey);
+    free(pubkey);
     return 0;
   }
 
@@ -99,11 +99,11 @@ static int Pack(const char *infile, const char *outfile, uint64_t algorithm,
       fprintf(stderr, "vbutil_key: Error writing key.\n");
       return 1;
     }
-    Free(privkey);
+    free(privkey);
     return 0;
   }
 
-  error("Unable to parse either .keyb or .pem from %s\n", infile);
+  VbExError("Unable to parse either .keyb or .pem from %s\n", infile);
   return 1;
 }
 
@@ -130,11 +130,11 @@ static int Unpack(const char *infile, const char *outfile) {
     if (outfile) {
       if (0 != PublicKeyWrite(outfile, pubkey)) {
         fprintf(stderr, "vbutil_key: Error writing key copy.\n");
-        Free(pubkey);
+        free(pubkey);
         return 1;
       }
     }
-    Free(pubkey);
+    free(pubkey);
     return 0;
   }
 
@@ -146,15 +146,15 @@ static int Unpack(const char *infile, const char *outfile) {
     if (outfile) {
       if (0 != PrivateKeyWrite(outfile, privkey)) {
         fprintf(stderr, "vbutil_key: Error writing key copy.\n");
-        Free(privkey);
+        free(privkey);
         return 1;
       }
     }
-    Free(privkey);
+    free(privkey);
     return 0;
   }
 
-  error("Unable to parse either .vbpubk or vbprivk from %s\n", infile);
+  VbExError("Unable to parse either .vbpubk or vbprivk from %s\n", infile);
   return 1;
 }
 
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
     switch (i) {
       case '?':
         /* Unhandled option */
-        error("Unknown option\n");
+        VbExError("Unknown option\n");
         parse_error = 1;
         break;
 
@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
       case OPT_KEY_VERSION:
         version = strtoul(optarg, &e, 0);
         if (!*optarg || (e && *e)) {
-          error("Invalid --version\n");
+          VbExError("Invalid --version\n");
           parse_error = 1;
         }
         break;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
       case OPT_ALGORITHM:
         algorithm = strtoul(optarg, &e, 0);
         if (!*optarg || (e && *e)) {
-          error("Invalid --algorithm\n");
+          VbExError("Invalid --algorithm\n");
           parse_error = 1;
         }
         break;

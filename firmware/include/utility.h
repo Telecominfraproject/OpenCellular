@@ -42,11 +42,11 @@ void error(const char* format, ...);
 void debug(const char* format, ...);
 
 #ifdef VBOOT_DEBUG
-#define assert(expr) do { if (!(expr)) { \
+#define VbAssert(expr) do { if (!(expr)) { \
       error("assert fail: %s at %s:%d\n", \
             #expr, __FILE__, __LINE__); }} while(0)
 #else
-#define assert(expr)
+#define VbAssert(expr)
 #endif
 
 /* Combine [msw] and [lsw] uint16s to a uint32_t with its [msw] and

@@ -11,9 +11,9 @@
 
 #include "fmap.h"
 #include "gbb_header.h"
+#include "host_common.h"
 #include "host_misc.h"
 #include "load_firmware_fw.h"
-#include "vboot_struct.h"
 
 
 typedef struct _CallerInternal {
@@ -187,7 +187,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
         ci.firmware[index].size);
   }
 
-  lfp.shared_data_blob = Malloc(VB_SHARED_DATA_MIN_SIZE);
+  lfp.shared_data_blob = malloc(VB_SHARED_DATA_MIN_SIZE);
   lfp.shared_data_size = VB_SHARED_DATA_MIN_SIZE;
   printf("shared data size 0x%08" PRIx64 "\n", lfp.shared_data_size);
 
@@ -203,7 +203,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
   if (status == LOAD_FIRMWARE_SUCCESS)
     printf("firmwiare index is %" PRIu64 "\n", lfp.firmware_index);
 
-  Free(lfp.shared_data_blob);
+  free(lfp.shared_data_blob);
 
   return 0;
 }
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
 
   retval = DriveLoadFirmware(base_of_rom, fmap, boot_flags);
 
-  Free((void*) base_of_rom);
+  free((void*) base_of_rom);
 
   return retval;
 }

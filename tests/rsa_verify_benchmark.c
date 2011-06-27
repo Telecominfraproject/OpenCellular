@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -8,8 +8,8 @@
 
 #include "cryptolib.h"
 #include "file_keys.h"
+#include "host_common.h"
 #include "timer_utils.h"
-#include "utility.h"
 
 #define FILE_NAME_SIZE 128
 #define NUM_OPERATIONS 100 /* Number of signature operations to time. */
@@ -77,8 +77,8 @@ int SpeedTestAlgorithm(int algorithm) {
           msecs);
 
 failure:
-  Free(signature);
-  Free(digest);
+  free(signature);
+  free(digest);
   RSAPublicKeyFree(key);
   return error_code;
 }
