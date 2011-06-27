@@ -9,6 +9,7 @@
 
 #include "tlcl.h"
 #include "utility.h"
+#include "vboot_api.h"
 
 /* TPM PCR to use for storing boot mode measurements. */
 #define BOOT_MODE_PCR 0

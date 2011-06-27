@@ -7,6 +7,7 @@
  */
 
 
+#include "vboot_api.h"
 #include "vboot_common.h"
 #include "utility.h"
 
@@ -231,7 +232,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                                 SHA512_DIGEST_ALGORITHM);
     rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
                     SHA512_DIGEST_SIZE);
-    Free(header_checksum);
+    VbExFree(header_checksum);
     if (rv) {
       VBDEBUG(("Invalid key block hash.\n"));
       return VBOOT_KEY_BLOCK_HASH;

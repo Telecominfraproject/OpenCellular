@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -9,6 +9,7 @@
 
 #include "load_firmware_fw.h"
 #include "utility.h"
+#include "vboot_api.h"
 
 #define  BOOT_FIRMWARE_A_CONTINUE 1
 #define  BOOT_FIRMWARE_B_CONTINUE 2
@@ -99,7 +100,7 @@ int VerifyFirmwareDriver_stub(uint8_t* gbb_data,
   p.nv_context = &vnc;
 
   /* Allocate a shared data buffer */
-  p.shared_data_blob = Malloc(VB_SHARED_DATA_REC_SIZE);
+  p.shared_data_blob = VbExMalloc(VB_SHARED_DATA_REC_SIZE);
   p.shared_data_size = VB_SHARED_DATA_REC_SIZE;
 
   /* TODO: YOU NEED TO SET THE BOOT FLAGS SOMEHOW */

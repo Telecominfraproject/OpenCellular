@@ -6,8 +6,6 @@
  * (Firmware portion)
  */
 
-#include "vboot_kernel.h"
-
 #include "boot_device.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
@@ -15,7 +13,9 @@
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vboot_api.h"
 #include "vboot_common.h"
+#include "vboot_kernel.h"
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 #define LOWEST_TPM_VERSION 0xffffffff
@@ -40,10 +40,10 @@ int AllocAndReadGptData(GptData* gptdata) {
   gptdata->modified = 0;
 
   /* Allocate all buffers */
-  gptdata->primary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
-  gptdata->secondary_header = (uint8_t*)Malloc(gptdata->sector_bytes);
-  gptdata->primary_entries = (uint8_t*)Malloc(TOTAL_ENTRIES_SIZE);
-  gptdata->secondary_entries = (uint8_t*)Malloc(TOTAL_ENTRIES_SIZE);
+  gptdata->primary_header = (uint8_t*)VbExMalloc(gptdata->sector_bytes);
+  gptdata->secondary_header = (uint8_t*)VbExMalloc(gptdata->sector_bytes);
+  gptdata->primary_entries = (uint8_t*)VbExMalloc(TOTAL_ENTRIES_SIZE);
+  gptdata->secondary_entries = (uint8_t*)VbExMalloc(TOTAL_ENTRIES_SIZE);
 
   if (gptdata->primary_header == NULL || gptdata->secondary_header == NULL ||
       gptdata->primary_entries == NULL || gptdata->secondary_entries == NULL)
@@ -79,7 +79,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
       if (0 != BootDeviceWriteLBA(1, 1, gptdata->primary_header))
         return 1;
     }
-    Free(gptdata->primary_header);
+    VbExFree(gptdata->primary_header);
   }
 
   if (gptdata->primary_entries) {
@@ -89,7 +89,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
                                   gptdata->primary_entries))
         return 1;
     }
-    Free(gptdata->primary_entries);
+    VbExFree(gptdata->primary_entries);
   }
 
   if (gptdata->secondary_entries) {
@@ -99,7 +99,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
                                   entries_sectors, gptdata->secondary_entries))
         return 1;
     }
-    Free(gptdata->secondary_entries);
+    VbExFree(gptdata->secondary_entries);
   }
 
   if (gptdata->secondary_header) {
@@ -109,7 +109,7 @@ int WriteAndFreeGptData(GptData* gptdata) {
                                   gptdata->secondary_header))
         return 1;
     }
-    Free(gptdata->secondary_header);
+    VbExFree(gptdata->secondary_header);
   }
 
   /* Success */
@@ -142,7 +142,7 @@ int LoadKernel(LoadKernelParams* params) {
 
   int retval = LOAD_KERNEL_RECOVERY;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
-  uint64_t timer_enter = VbGetTimer();
+  uint64_t timer_enter = VbExGetTimer();
 
   /* Setup NV storage */
   VbNvSetup(vnc);
@@ -300,7 +300,7 @@ int LoadKernel(LoadKernelParams* params) {
     }
 
     /* Allocate kernel header buffers */
-    kbuf = (uint8_t*)Malloc(KBUF_SIZE);
+    kbuf = (uint8_t*)VbExMalloc(KBUF_SIZE);
     if (!kbuf)
       break;
 
@@ -585,7 +585,7 @@ int LoadKernel(LoadKernelParams* params) {
 
   /* Free kernel buffer */
   if (kbuf)
-    Free(kbuf);
+    VbExFree(kbuf);
 
   /* Write and free GPT data */
   WriteAndFreeGptData(&gpt);
@@ -665,7 +665,7 @@ LoadKernelExit:
 
     /* Save timer values */
     shared->timer_load_kernel_enter = timer_enter;
-    shared->timer_load_kernel_exit = VbGetTimer();
+    shared->timer_load_kernel_exit = VbExGetTimer();
     /* Store how much shared data we used, if any */
     params->shared_data_size = shared->data_used;
   }
