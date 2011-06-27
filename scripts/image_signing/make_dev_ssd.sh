@@ -21,7 +21,7 @@ DEFAULT_PARTITIONS='2 4'
 # works more like "make_dev_image".  We may change the file name in future.
 ROOTDEV="$(rootdev -s 2>/dev/null)"
 ROOTDEV_PARTITION="$(echo $ROOTDEV | sed -n 's/.*\([0-9][0-9]*\)$/\1/p')"
-ROOTDEV_DISK="${ROOTDEV%$ROOTDEV_PARTITION}"
+ROOTDEV_DISK="$(rootdev -s -d 2>/dev/null)"
 ROOTDEV_KERNEL="$((ROOTDEV_PARTITION - 1))"
 
 # DEFINE_string name default_value description flag
@@ -60,8 +60,13 @@ EXEC_LOG="$(make_temp_file)"
 
 # Removes rootfs verification from kernel boot parameter
 remove_rootfs_verification() {
+  # TODO(hungte) replace this with %U when x86 and arm both supports it.
+  local new_root="/dev/sd%D%P"
+  if [ "$(crossystem arch 2>/dev/null)" = "arm" ]; then
+    new_root='/dev/${devname}${rootpart}'
+  fi
   echo "$*" | sed '
-    s| root=/dev/dm-0 | root=/dev/sd%D%P |
+    s| root=/dev/dm-0 | root='"$new_root"' |
     s| dm_verity[^=]*=[-0-9]*||g
     s| dm="[^"]*"||
     s| ro | rw |'
@@ -118,7 +123,8 @@ find_valid_kernel_partitions() {
   local valid_partitions=""
   for part_id in $*; do
     local name="$(cros_kernel_name $part_id)"
-    if [ -z "$(dump_kernel_config $FLAGS_image$part_id 2>"$EXEC_LOG")" ]; then
+    local kernel_part="$(make_partition_dev "$FLAGS_image" "$part_id")"
+    if [ -z "$(dump_kernel_config "$kernel_part" 2>"$EXEC_LOG")" ]; then
       echo "INFO: $name: no kernel boot information, ignored." >&2
     else
       [ -z "$valid_partitions" ] &&

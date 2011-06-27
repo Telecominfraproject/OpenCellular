@@ -108,6 +108,22 @@ trap "cleanup_temps_and_mounts" EXIT
 # Functions for partition management
 # ----------------------------------------------------------------------------
 
+# Construct a partition device name from a whole disk block device and a
+# partition number.
+# This works for [/dev/sda, 3] (-> /dev/sda3) as well as [/dev/mmcblk0, 2]
+# (-> /dev/mmcblk0p2).
+make_partition_dev() {
+  local block="$1"
+  local num="$2"
+  # If the disk block device ends with a number, we add a 'p' before the
+  # partition number.
+  if [ "${block%[0-9]}" = "${block}" ]; then
+    echo "${block}${num}"
+  else
+    echo "${block}p${num}"
+  fi
+}
+
 # Read GPT table to find the starting location of a specific partition.
 # Args: DEVICE PARTNUM
 # Returns: offset (in sectors) of partition PARTNUM
