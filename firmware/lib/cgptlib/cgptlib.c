@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -8,7 +8,6 @@
 #include "crc32.h"
 #include "gpt.h"
 #include "utility.h"
-#include "vboot_api.h"
 
 int GptInit(GptData *gpt) {
   int retval;

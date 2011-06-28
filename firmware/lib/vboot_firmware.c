@@ -11,7 +11,6 @@
 #include "rollback_index.h"
 #include "tpm_bootmode.h"
 #include "utility.h"
-#include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
 
@@ -78,7 +77,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     recovery = VBNV_RECOVERY_RO_SHARED_DATA;
     goto LoadFirmwareExit;
   }
-  shared->timer_load_firmware_enter = VbExGetTimer();
+  shared->timer_load_firmware_enter = VbGetTimer();
 
   /* Handle test errors */
   VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
@@ -137,7 +136,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Allocate our internal data */
-  lfi = (VbLoadFirmwareInternal*)VbExMalloc(sizeof(VbLoadFirmwareInternal));
+  lfi = (VbLoadFirmwareInternal*)Malloc(sizeof(VbLoadFirmwareInternal));
   if (!lfi)
     return LOAD_FIRMWARE_RECOVERY;
 
@@ -276,7 +275,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
       VBDEBUG(("Firmware body verification failed.\n"));
       *check_result = VBSD_LF_CHECK_VERIFY_BODY;
       RSAPublicKeyFree(data_key);
-      VbExFree(body_digest);
+      Free(body_digest);
       VBPERFEND("VB_VFD");
       continue;
     }
@@ -284,7 +283,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
     /* Done with the digest and data key, so can free them now */
     RSAPublicKeyFree(data_key);
-    VbExFree(body_digest);
+    Free(body_digest);
 
     /* If we're still here, the firmware is valid. */
     VBDEBUG(("Firmware %d is valid.\n", index));
@@ -328,7 +327,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
   /* Free internal data */
-  VbExFree(lfi);
+  Free(lfi);
   params->load_firmware_internal = NULL;
 
   /* Handle finding good firmware */
@@ -391,7 +390,7 @@ LoadFirmwareExit:
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
 
-  shared->timer_load_firmware_exit = VbExGetTimer();
+  shared->timer_load_firmware_exit = VbGetTimer();
 
   /* Note that we don't reduce params->shared_data_size to shared->data_used,
    * since we want to leave space for LoadKernel() to add to the shared data
