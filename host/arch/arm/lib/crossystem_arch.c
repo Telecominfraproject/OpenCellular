@@ -276,6 +276,13 @@ VbSharedDataHeader *VbSharedDataRead(void) {
   size_t size = 0;
   if (ReadFdtBlock("vboot-shared-data", &block, &size))
     return NULL;
+  VbSharedDataHeader *p = (VbSharedDataHeader *)block;
+  if (p->magic != VB_SHARED_DATA_MAGIC) {
+    fprintf(stderr,  "%s: failed to validate magic in "
+            "VbSharedDataHeader (%x != %x)\n",
+            __FUNCTION__, p->magic, VB_SHARED_DATA_MAGIC);
+    return NULL;
+  }
   return (VbSharedDataHeader *)block;
 }
 
