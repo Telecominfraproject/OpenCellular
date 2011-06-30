@@ -162,13 +162,13 @@ static uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
   Memcpy(rsk, &rsk_init, sizeof(RollbackSpaceKernel));
 
   /* Defines and sets firmware and kernel spaces */
+  RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_NV_INDEX, TPM_NV_PER_PPWRITE,
+                                    sizeof(RollbackSpaceKernel)));
+  RETURN_ON_FAILURE(WriteSpaceKernel(rsk));
   RETURN_ON_FAILURE(SafeDefineSpace(FIRMWARE_NV_INDEX,
                                     TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE,
                                     sizeof(RollbackSpaceFirmware)));
   RETURN_ON_FAILURE(WriteSpaceFirmware(rsf));
-  RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_NV_INDEX, TPM_NV_PER_PPWRITE,
-                                    sizeof(RollbackSpaceKernel)));
-  RETURN_ON_FAILURE(WriteSpaceKernel(rsk));
   return TPM_SUCCESS;
 }
 
