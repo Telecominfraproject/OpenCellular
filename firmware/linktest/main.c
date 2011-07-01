@@ -43,9 +43,6 @@ int main(void)
   SetTPMBootModeState(0, 0, 0);
 
   /* tlcl.h */
-  TlclLibInit();
-  TlclCloseDevice();
-  TlclOpenDevice();
   TlclStartup();
   TlclResume();
   TlclSelfTestFull();
@@ -66,6 +63,13 @@ int main(void)
   TlclSetGlobalLock();
   TlclExtend(0, 0, 0);
   TlclGetPermissions(0, 0);
+
+  /* vboot_api.h - entry points INTO vboot_reference */
+  VbS3Resume();
+  VbInit(0, 0);
+  VbSelectFirmware(0, 0);
+  VbUpdateFirmwareBodyHash(0, 0, 0);
+  VbSelectAndLoadKernel(0, 0);
 
   /* vboot_common.h */
   OffsetOf(0, 0);

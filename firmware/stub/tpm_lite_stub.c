@@ -100,25 +100,25 @@ POSSIBLY_UNUSED static INLINE int TpmResponseSize(const uint8_t* buffer) {
 }
 
 
-uint32_t TlclStubInit(void) {
-  return TlclOpenDevice();
+VbError_t VbExTpmInit(void) {
+  return VbExTpmOpen();
 }
 
 
-uint32_t TlclCloseDevice(void) {
+VbError_t VbExTpmClose(void) {
   if (tpm_fd != -1) {
     close(tpm_fd);
     tpm_fd = -1;
   }
-  return 0;
+  return VBERROR_SUCCESS;
 }
 
 
-uint32_t TlclOpenDevice(void) {
+VbError_t VbExTpmOpen(void) {
   char* device_path;
 
   if (tpm_fd >= 0)
-    return 0;  /* Already open */
+    return VBERROR_SUCCESS;  /* Already open */
 
   device_path = getenv("TPM_DEVICE_PATH");
   if (device_path == NULL) {
@@ -127,16 +127,16 @@ uint32_t TlclOpenDevice(void) {
 
   tpm_fd = open(device_path, O_RDWR);
   if (tpm_fd < 0) {
-    VbExError("TPM: Cannot open TPM device %s: %s\n", device_path,
-              strerror(errno));
+    VbExError("TPM: Cannot open TPM device %s: %s\n",
+              device_path, strerror(errno));
   }
 
-  return 0;
+  return VBERROR_SUCCESS;
 }
 
 
-uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
-                             uint8_t* response, int max_length) {
+VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
+                             uint8_t* response, uint32_t* response_length) {
   /*
    * In a real firmware implementation, this function should contain
    * the equivalent API call for the firmware TPM driver which takes a
@@ -154,20 +154,19 @@ uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
    *                                                   response);
    * // Error checking depending on the value of the status above
    */
-  uint32_t response_length = max_length;
 #ifndef NDEBUG
   int tag, response_tag;
 #endif
 
   struct timeval before, after;
   gettimeofday(&before, NULL);
-  TpmExecute(request, request_length, response, &response_length);
+  TpmExecute(request, request_length, response, response_length);
   gettimeofday(&after, NULL);
 
 #ifdef VBOOT_DEBUG
   {
     int x = request_length;
-    int y = response_length;
+    int y = *response_length;
     VBDEBUG(("request (%d bytes): ", x));
     PrintBytes(request, 10);
     PrintBytes(request + 10, x - 10);
@@ -191,8 +190,8 @@ uint32_t TlclStubSendReceive(const uint8_t* request, int request_length,
      response_tag == TPM_TAG_RSP_AUTH1_COMMAND) ||
     (tag == TPM_TAG_RQU_AUTH2_COMMAND &&
      response_tag == TPM_TAG_RSP_AUTH2_COMMAND));
-  assert(response_length == TpmResponseSize(response));
+  assert(*response_length == TpmResponseSize(response));
 #endif
 
-  return 0;  /* Success */
+  return VBERROR_SUCCESS;
 }

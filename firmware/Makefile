@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -60,6 +60,9 @@ LIB_SRCS = \
 	./lib/stateful_util.c \
 	./lib/utility.c \
 	./lib/utility_string.c \
+	./lib/vboot_api_init.c \
+	./lib/vboot_api_firmware.c \
+	./lib/vboot_api_kernel.c \
 	./lib/vboot_common.c \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c \
@@ -80,8 +83,6 @@ endif
 LIB_OBJS = $(LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 
 STUB_SRCS = \
-	./stub/boot_device_stub.c \
-	./stub/load_firmware_stub.c \
 	./stub/tpm_lite_stub.c \
 	./stub/utility_stub.c \
 	./stub/vboot_api_stub.c \

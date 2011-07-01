@@ -155,6 +155,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_BOOT_REC_SWITCH_ON         0x00000020
 /* Firmware write protect was enabled at boot time */
 #define VBSD_BOOT_FIRMWARE_WP_ENABLED   0x00000040
+/* Boot is a S3->S0 resume, not a S5->S0 normal boot */
+#define VBSD_BOOT_S3_RESUME             0x00000100
 
 
 /* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
@@ -277,11 +279,11 @@ typedef struct VbSharedDataHeader {
                                        * start of this struct */
   uint64_t kernel_subkey_data_size;   /* Size of kernel subkey data */
 
-  /* Timer values from VbGetTimer().  Unused values are set to 0.  If a
-   * function is called mutiple times, these are the times from the
-   * most recent call. */
-  uint64_t timer_load_firmware_start_enter;  /* LoadFirmwareStart() - enter */
-  uint64_t timer_load_firmware_start_exit;   /* LoadFirmwareStart() - exit */
+  /* Timer values from VbExGetTimer().  Unused values are set to 0.
+   * If a function is called mutiple times, these are the times from
+   * the most recent call.  See crosbug.com/17018. */
+  uint64_t timer_load_firmware_start_enter;  /* VbInit() - enter */
+  uint64_t timer_load_firmware_start_exit;   /* VbInit() - exit */
   uint64_t timer_load_firmware_enter;        /* LoadFirmware() - enter */
   uint64_t timer_load_firmware_exit;         /* LoadFirmware() - exit */
   uint64_t timer_load_kernel_enter;          /* LoadKernel() - enter */

@@ -93,6 +93,8 @@ typedef struct VbCommonParams {
 #define VB_INIT_FLAG_REC_BUTTON_PRESSED  0x00000002
 /* Hardware write protect was enabled at boot time. */
 #define VB_INIT_FLAG_WP_ENABLED          0x00000004
+/* This is a S3 resume, not a normal boot. */
+#define VB_INIT_FLAG_S3_RESUME           0x00000008
 
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
@@ -113,6 +115,8 @@ typedef struct VbCommonParams {
  * VB_DISK_FLAG_REMOVABLE flag.  If this flag is not present, VbExDisk*()
  * functions will only be called for fixed disks. */
 #define VB_INIT_OUT_ENABLE_USB_STORAGE   0x00000008
+/* If this is a S3 resume, do a debug reset boot instead */
+#define VB_INIT_OUT_S3_DEBUG_BOOT        0x00000010
 
 
 /* Data only used by VbInit() */

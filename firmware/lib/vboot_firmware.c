@@ -26,20 +26,12 @@ typedef struct VbLoadFirmwareInternal {
 
 
 void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
-                             uint8_t* data, uint64_t size) {
+                             uint8_t* data, uint32_t size) {
   VbLoadFirmwareInternal* lfi =
       (VbLoadFirmwareInternal*)params->load_firmware_internal;
 
   DigestUpdate(&lfi->body_digest_context, data, size);
   lfi->body_size_accum += size;
-}
-
-
-int LoadFirmwareSetup(void) {
-  /* TODO: handle test errors (requires passing in VbNvContext) */
-  /* TODO: record timer values (requires passing in VbSharedData) */
-  /* TODO: start initializing the TPM */
-  return LOAD_FIRMWARE_SUCCESS;
 }
 
 
@@ -72,12 +64,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* Setup NV storage */
   VbNvSetup(vnc);
 
-  /* Initialize shared data structure. */
-  if (0 != VbSharedDataInit(shared, params->shared_data_size)) {
-    VBDEBUG(("Shared data init error\n"));
-    recovery = VBNV_RECOVERY_RO_SHARED_DATA;
-    goto LoadFirmwareExit;
-  }
+  /* Start timer */
   shared->timer_load_firmware_enter = VbExGetTimer();
 
   /* Handle test errors */
@@ -398,21 +385,4 @@ LoadFirmwareExit:
    * buffer. */
 
   return retval;
-}
-
-
-int S3Resume(void) {
-
-  /* TODO: handle test errors (requires passing in VbNvContext) */
-
-  /* Resume the TPM */
-  uint32_t status = RollbackS3Resume();
-
-  /* If we can't resume, just do a full reboot.  No need to go to recovery
-   * mode here, since if the TPM is really broken we'll catch it on the
-   * next boot. */
-  if (status == TPM_SUCCESS)
-    return LOAD_FIRMWARE_SUCCESS;
-  else
-    return LOAD_FIRMWARE_REBOOT;
 }

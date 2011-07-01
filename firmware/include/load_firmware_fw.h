@@ -100,7 +100,7 @@ int LoadFirmware(LoadFirmwareParams* params);
  * by [size] bytes stored in [*data].  This function must only be
  * called inside GetFirmwareBody(). */
 void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
-                            uint8_t* data, uint64_t size);
+                            uint8_t* data, uint32_t size);
 
 /* Handle S3 resume.
  *

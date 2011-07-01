@@ -6,7 +6,7 @@
  * (Firmware portion)
  */
 
-#include "boot_device.h"
+
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "gbb_header.h"
@@ -16,7 +16,6 @@
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
-
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 #define LOWEST_TPM_VERSION 0xffffffff
@@ -33,7 +32,7 @@ typedef enum BootMode {
  * secondary header and entries are filled on output.
  *
  * Returns 0 if successful, 1 if error. */
-int AllocAndReadGptData(GptData* gptdata) {
+int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData* gptdata) {
 
   uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
 
@@ -51,15 +50,17 @@ int AllocAndReadGptData(GptData* gptdata) {
     return 1;
 
   /* Read data from the drive, skipping the protective MBR */
-  if (0 != BootDeviceReadLBA(1, 1, gptdata->primary_header))
+  if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header))
     return 1;
-  if (0 != BootDeviceReadLBA(2, entries_sectors, gptdata->primary_entries))
+  if (0 != VbExDiskRead(disk_handle, 2, entries_sectors,
+                        gptdata->primary_entries))
     return 1;
-  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - entries_sectors - 1,
-                             entries_sectors, gptdata->secondary_entries))
+  if (0 != VbExDiskRead(disk_handle,
+                        gptdata->drive_sectors - entries_sectors - 1,
+                        entries_sectors, gptdata->secondary_entries))
     return 1;
-  if (0 != BootDeviceReadLBA(gptdata->drive_sectors - 1,
-                             1, gptdata->secondary_header))
+  if (0 != VbExDiskRead(disk_handle, gptdata->drive_sectors - 1, 1,
+                        gptdata->secondary_header))
     return 1;
 
   return 0;
@@ -70,14 +71,14 @@ int AllocAndReadGptData(GptData* gptdata) {
  * the buffers.
  *
  * Returns 0 if successful, 1 if error. */
-int WriteAndFreeGptData(GptData* gptdata) {
+int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData* gptdata) {
 
   uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
 
   if (gptdata->primary_header) {
     if (gptdata->modified & GPT_MODIFIED_HEADER1) {
       VBDEBUG(("Updating GPT header 1\n"));
-      if (0 != BootDeviceWriteLBA(1, 1, gptdata->primary_header))
+      if (0 != VbExDiskWrite(disk_handle, 1, 1, gptdata->primary_header))
         return 1;
     }
     VbExFree(gptdata->primary_header);
@@ -86,8 +87,8 @@ int WriteAndFreeGptData(GptData* gptdata) {
   if (gptdata->primary_entries) {
     if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
       VBDEBUG(("Updating GPT entries 1\n"));
-      if (0 != BootDeviceWriteLBA(2, entries_sectors,
-                                  gptdata->primary_entries))
+      if (0 != VbExDiskWrite(disk_handle, 2, entries_sectors,
+                             gptdata->primary_entries))
         return 1;
     }
     VbExFree(gptdata->primary_entries);
@@ -96,8 +97,9 @@ int WriteAndFreeGptData(GptData* gptdata) {
   if (gptdata->secondary_entries) {
     if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
       VBDEBUG(("Updating GPT header 2\n"));
-      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - entries_sectors - 1,
-                                  entries_sectors, gptdata->secondary_entries))
+      if (0 != VbExDiskWrite(disk_handle,
+                             gptdata->drive_sectors - entries_sectors - 1,
+                             entries_sectors, gptdata->secondary_entries))
         return 1;
     }
     VbExFree(gptdata->secondary_entries);
@@ -106,8 +108,8 @@ int WriteAndFreeGptData(GptData* gptdata) {
   if (gptdata->secondary_header) {
     if (gptdata->modified & GPT_MODIFIED_HEADER2) {
       VBDEBUG(("Updating GPT entries 2\n"));
-      if (0 != BootDeviceWriteLBA(gptdata->drive_sectors - 1, 1,
-                                  gptdata->secondary_header))
+      if (0 != VbExDiskWrite(disk_handle, gptdata->drive_sectors - 1, 1,
+                             gptdata->secondary_header))
         return 1;
     }
     VbExFree(gptdata->secondary_header);
@@ -285,7 +287,7 @@ int LoadKernel(LoadKernelParams* params) {
     /* Read GPT data */
     gpt.sector_bytes = (uint32_t)blba;
     gpt.drive_sectors = params->ending_lba + 1;
-    if (0 != AllocAndReadGptData(&gpt)) {
+    if (0 != AllocAndReadGptData(params->disk_handle, &gpt)) {
       VBDEBUG(("Unable to read GPT data\n"));
       if (shcall)
         shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;
@@ -346,7 +348,8 @@ int LoadKernel(LoadKernelParams* params) {
         goto bad_kernel;
       }
 
-      if (0 != BootDeviceReadLBA(part_start, kbuf_sectors, kbuf)) {
+      if (0 != VbExDiskRead(params->disk_handle, part_start, kbuf_sectors,
+                            kbuf)) {
         VBDEBUG(("Unable to read start of partition.\n"));
         if (shpart)
           shpart->check_result = VBSD_LKP_CHECK_READ_START;
@@ -504,9 +507,9 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* Read the kernel data */
       VBPERFSTART("VB_RKD");
-      if (0 != BootDeviceReadLBA(part_start + body_offset_sectors,
-                                 body_sectors,
-                                 params->kernel_buffer)) {
+      if (0 != VbExDiskRead(params->disk_handle,
+                            part_start + body_offset_sectors,
+                            body_sectors, params->kernel_buffer)) {
         VBDEBUG(("Unable to read kernel data.\n"));
         VBPERFEND("VB_RKD");
         if (shpart)
@@ -589,7 +592,7 @@ int LoadKernel(LoadKernelParams* params) {
     VbExFree(kbuf);
 
   /* Write and free GPT data */
-  WriteAndFreeGptData(&gpt);
+  WriteAndFreeGptData(params->disk_handle, &gpt);
 
   /* Handle finding a good partition */
   if (good_partition >= 0) {

@@ -13,7 +13,6 @@
 
 #include "sysincludes.h"
 #include "tss_constants.h"
-#include "tlcl_stub.h"
 
 /*****************************************************************************/
 /* Functions implemented in tlcl.c */

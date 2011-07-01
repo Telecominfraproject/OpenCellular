@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -17,10 +17,10 @@
  * secondary header and entries are filled on output.
  *
  * Returns 0 if successful, 1 if error. */
-int AllocAndReadGptData(GptData* gptdata);
+int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData* gptdata);
 
 /* Writes any changes for the GPT data back to the drive, then frees the
  * buffers. */
-int WriteAndFreeGptData(GptData* gptdata);
+int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData* gptdata);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */

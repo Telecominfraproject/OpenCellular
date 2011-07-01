@@ -14,7 +14,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "boot_device.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "load_firmware_fw.h"
@@ -33,7 +32,8 @@ static FILE *image_file = NULL;
 
 
 /* Boot device stub implementations to read from the image file */
-int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
+VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
+                       uint64_t lba_count, void *buffer) {
   printf("Read(%" PRIu64 ", %" PRIu64 ")\n", lba_start, lba_count);
 
   if (lba_start > lkp.ending_lba ||
@@ -48,11 +48,12 @@ int BootDeviceReadLBA(uint64_t lba_start, uint64_t lba_count, void *buffer) {
     fprintf(stderr, "Read error.");
     return 1;
   }
-  return 0;
+  return VBERROR_SUCCESS;
 }
 
-int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
-                       const void *buffer) {
+
+VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
+                        uint64_t lba_count, const void *buffer) {
   printf("Write(%" PRIu64 ", %" PRIu64 ")\n", lba_start, lba_count);
 
   if (lba_start > lkp.ending_lba ||
@@ -63,14 +64,14 @@ int BootDeviceWriteLBA(uint64_t lba_start, uint64_t lba_count,
   }
 
   /* TODO: enable writes, once we're sure it won't trash our example file */
-  return 0;
+  return VBERROR_SUCCESS;
 
   fseek(image_file, lba_start * lkp.bytes_per_lba, SEEK_SET);
   if (1 != fwrite(buffer, lba_count * lkp.bytes_per_lba, 1, image_file)) {
     fprintf(stderr, "Read error.");
     return 1;
   }
-  return 0;
+  return VBERROR_SUCCESS;
 }
 
 

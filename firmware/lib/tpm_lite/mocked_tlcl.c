@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -6,9 +6,10 @@
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "utility.h"
+#include "vboot_api.h"
 
 uint32_t TlclLibInit(void) {
-  return TlclStubInit();
+  return VbExTpmInit();
 }
 
 uint32_t TlclStartup(void) {
