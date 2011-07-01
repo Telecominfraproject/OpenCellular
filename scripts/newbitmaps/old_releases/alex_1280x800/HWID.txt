@@ -20,16 +20,14 @@ Here's how to generate a new bitmap blob with a modified HWID
 
 4. Copy the hwid.bmp image to the directory where the rest of the bitmap
    blob comes from (which might not be public yet). If you don't know where
-   that is, just use the example directory:
-
-     src/platform/vboot_reference/scripts/newbitmaps/images/1280x800
+   that is, just use the alex_1280x800 directory.
 
 5. cd to the bitmap source directory, INSIDE the chroot.
 
 6. Edit the .yaml file that describes the bitmap blob (if you're in the
-   1280x800 directory, it's called "unknown.yaml"). Change the line that
-   starts with "hwid:" to refer to your new hwid.bmp file (or replace the
-   existing hwid bitmap file with your new one).
+   alex_1280x800 directory, it's called "unknown.yaml"). Change the line
+   that starts with "hwid:" to refer to your new hwid.bmp file (or replace
+   the existing hwid bitmap file with your new one).
 
 7. Run "bmpblk_utility -c unknown.yaml new_bitmaps.bin", to create the new
    bitmap blob.
