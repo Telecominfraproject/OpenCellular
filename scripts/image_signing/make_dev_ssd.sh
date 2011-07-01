@@ -60,11 +60,7 @@ EXEC_LOG="$(make_temp_file)"
 
 # Removes rootfs verification from kernel boot parameter
 remove_rootfs_verification() {
-  # TODO(hungte) replace this with %U when x86 and arm both supports it.
-  local new_root="/dev/sd%D%P"
-  if [ "$(crossystem arch 2>/dev/null)" = "arm" ]; then
-    new_root='/dev/${devname}${rootpart}'
-  fi
+  local new_root="PARTUUID=%U/PARTNROFF=1"
   echo "$*" | sed '
     s| root=/dev/dm-0 | root='"$new_root"' |
     s| dm_verity[^=]*=[-0-9]*||g
