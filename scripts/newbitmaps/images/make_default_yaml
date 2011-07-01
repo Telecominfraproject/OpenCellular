@@ -3,22 +3,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# Generate a new yaml file for each specified hwid_*.bmp file.
+# Generate a new DEFAULT.yaml file using hwid_unknown.png as a placeholder.
 #
-
-if [ "${1:-}" = "--force" ]; then
-  shift;
-else
-  echo "This script is deprecated."
-  echo "The latest BIOSes can render HWIDs directly from ASCII."
-  echo "Use --force to proceed anyway."
-  exit 1
-fi
 
 # I'm sorting the locales in more-or-less geographical order. Right should move
 # east, left should move west. Of course we'll start in the US. :-)
 locales="en es_419 pt_BR en_GB fr es pt_PT ca it de el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja"
-localedir="./localized_bitmaps"
+localedir="./localized_images"
 
 # Arbitrary padding
 ypad=5
@@ -33,9 +24,9 @@ cur_x=0
 cur_y=0
 
 
-# Return width of the specified .bmp file
+# Return width of the specified .png file
 get_x() {
-  file $1 | awk '{print $7}'
+  file $1 | awk '{print $4}' | sed -e 's/[^0-9]//g'
 }
 
 get_xx() {
@@ -43,12 +34,12 @@ get_xx() {
   get_x $ffile
 }
 
-# Return height of the specified .bmp file
+# Return height of the specified .png file
 get_y() {
-  file $1 | awk '{print $9}'
+  file $1 | awk '{print $6}' | sed -e 's/[^0-9]//g'
 }
 
-# Return height of the specified .bmp file
+# Return height of the specified .png file
 get_yy() {
   local ffile=$(eval "echo \$$1")
   get_y $ffile
@@ -88,13 +79,13 @@ guess_locale() {
 }
 
 
-# Reset the current baseline and width to the size of the specified .bmp file
+# Reset the current baseline and width to the size of the specified .png file
 reset_base() {
   cur_x=$(get_x "$1")
   cur_y=$(expr $(get_y $1) - $yborder)
 }
 
-# Emit a screen line entry centering the given .bmp files at the current
+# Emit a screen line entry centering the given .png files at the current
 # baseline. We assume that all args are the same height.
 center_up() {
   local totalx
@@ -120,87 +111,88 @@ center_up() {
 
 
 
-# Generate a new yaml file for each specified hwid_*.bmp file.
-for hwid_bmp in "$@"; do
-  yaml_file=$(echo $(basename "$hwid_bmp" .bmp) | tr 'A-Z' 'a-z').yaml
+# Generate a new yaml file for each specified hwid_*.png file.
+for hwid_bmp in hwid_unknown.png; do
+  yaml_file=DEFAULT.yaml
   echo "$yaml_file"
 
   # List the images. The major difference is the HWID.
   cat >"$yaml_file" <<EOF1
-bmpblock: 1.0
+bmpblock: 1.1
 
 compression: 1
 
 images:
 
   # The HWID must change for every BOM
-  hwid:              $hwid_bmp
+  # hwid:              $hwid_bmp
 
   # This URL never changes
-  url:               URL.bmp
+  url:               URL.png
 
   # The background images are from the UI people
-  devmode_bg:        Devmode.bmp
-  remove_bg:         Remove.bmp
-  yuck_bg:           Yuck.bmp
-  insert_bg:         Insert.bmp
+  devmode_bg:        Devmode.png
+  remove_bg:         Remove.png
+  yuck_bg:           Yuck.png
+  insert_bg:         Insert.png
 
   # The following strings must be approved by the localization people
 EOF1
 
   # some global variables matching the yaml definitions
   hwid=$hwid_bmp
-  url="URL.bmp"
+  url="URL.png"
 
   # Enumerate the bitmaps for each locale-specific string.
   for lc in $locales; do
     cat >>"$yaml_file" <<EOF2
-  ${lc}_model_text:       ${localedir}/$lc/model.bmp
-  ${lc}_devmode_text:     ${localedir}/$lc/devmode.bmp
-  ${lc}_remove_text:      ${localedir}/$lc/remove.bmp
-  ${lc}_yuck_text:        ${localedir}/$lc/yuck.bmp
-  ${lc}_insert_text:      ${localedir}/$lc/insert.bmp
+  ${lc}_model_text:       ${localedir}/$lc/model.png
+  ${lc}_devmode_text:     ${localedir}/$lc/devmode.png
+  ${lc}_remove_text:      ${localedir}/$lc/remove.png
+  ${lc}_yuck_text:        ${localedir}/$lc/yuck.png
+  ${lc}_insert_text:      ${localedir}/$lc/insert.png
 
 EOF2
 
     # Also define global variables matching those in the yaml file.
-    eval "${lc}_model_text=${localedir}/$lc/model.bmp"
-    eval "${lc}_devmode_text=${localedir}/$lc/devmode.bmp"
-    eval "${lc}_remove_text=${localedir}/$lc/remove.bmp"
-    eval "${lc}_yuck_text=${localedir}/$lc/yuck.bmp"
-    eval "${lc}_insert_text=${localedir}/$lc/insert.bmp"
+    eval "${lc}_model_text=${localedir}/$lc/model.png"
+    eval "${lc}_devmode_text=${localedir}/$lc/devmode.png"
+    eval "${lc}_remove_text=${localedir}/$lc/remove.png"
+    eval "${lc}_yuck_text=${localedir}/$lc/yuck.png"
+    eval "${lc}_insert_text=${localedir}/$lc/insert.png"
   done
 
   # List the screens. We need to composite four screens for each locale.
   echo "screens:" >> "$yaml_file"
 
   for lc in $locales; do
+    echo -n " $lc"
     echo "  ${lc}_devel:" >> "$yaml_file"
     echo "    - [  0,   0, devmode_bg]" >> "$yaml_file"
-    reset_base Devmode.bmp
+    reset_base Devmode.png
     center_up "${lc}_devmode_text"
     echo "" >> "$yaml_file"
 
     echo "  ${lc}_remove:" >> "$yaml_file"
     echo "    - [  0,   0, remove_bg]" >> "$yaml_file"
-    reset_base Remove.bmp
-    center_up "${lc}_model_text" "hwid"
+    reset_base Remove.png
+    center_up "${lc}_model_text" 'hwid'
     center_up "url"
     center_up "${lc}_remove_text"
     echo "" >> "$yaml_file"
 
     echo "  ${lc}_yuck:" >> "$yaml_file"
     echo "    - [  0,   0, yuck_bg]" >> "$yaml_file"
-    reset_base Yuck.bmp
-    center_up "${lc}_model_text" "hwid"
+    reset_base Yuck.png
+    center_up "${lc}_model_text" 'hwid'
     center_up "url"
     center_up "${lc}_yuck_text"
     echo "" >> "$yaml_file"
 
     echo "  ${lc}_insert:" >> "$yaml_file"
     echo "    - [  0,   0, insert_bg]" >> "$yaml_file"
-    reset_base Insert.bmp
-    center_up "${lc}_model_text" "hwid"
+    reset_base Insert.png
+    center_up "${lc}_model_text" 'hwid'
     center_up "url"
     center_up "${lc}_insert_text"
     echo "" >> "$yaml_file"
@@ -227,3 +219,7 @@ EOF2
   done
 
 done
+
+# Now replace the 'hwid' string with '$HWID'.
+perl -i -p -e 's/\bhwid\b/\$HWID/g;' "$yaml_file"
+echo ""

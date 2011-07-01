@@ -10,10 +10,10 @@
 # Image parameters
 bg='#607c91'
 bluecolor='#9ccaec'
-bluefont="Helvetica-Narrow"
-bluepointsize=19
-whitefont="Helvetica-Narrow"
-whitepointsize=30
+bluefont="Helvetica"
+bluepointsize=22
+whitefont="Helvetica"
+whitepointsize=40
 
 
 tmpdir=$(mktemp -d /tmp/tmp.bmp.XXXXXX)
@@ -21,7 +21,7 @@ trap "rm -rf $tmpdir" EXIT
 label_file="${tmpdir}/label.txt"
 
 for txtfile in $*; do
-  bmpfile="${txtfile%.*}".bmp
+  bmpfile="${txtfile%.*}".png
   # Must strip off the leading U+FEFF byte order mark (bytes 0xEF,0xBB,0xBF) of
   # each file before I can pass it to imagemagick. Chomp any leading/trailing
   # whitespace too.
@@ -35,8 +35,10 @@ for txtfile in $*; do
       convert \
         -background "$bg" -fill "$bluecolor" \
         -font "$bluefont" -pointsize "$bluepointsize" \
-        -bordercolor "$bg" -border 0x1 -gravity Center \
+        -bordercolor "$bg" -border 0x3 -gravity Center \
+        -interline-spacing 3 \
         label:'@'"$label_file" \
+        -resize '120%x100' \
         -colors 256 -compress none -alpha off \
         "$bmpfile"
       echo "wrote $bmpfile"
@@ -46,7 +48,9 @@ for txtfile in $*; do
         -background "$bg" -fill "white" \
         -font "$whitefont" -pointsize "$whitepointsize" \
         -bordercolor "$bg" -border 0x10 -gravity Center \
+        -interline-spacing 5 \
         label:'@'"$label_file" \
+        -resize '120%x100' \
         -colors 256 -compress none -alpha off \
         "$bmpfile"
       echo "wrote $bmpfile"
