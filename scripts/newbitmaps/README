@@ -1,14 +1,17 @@
-This directory contains examples of the new-style BIOS bitmaps, and a simple
-(and ugly) tool to view the configuration file that describes how each
-screen is displayed.
+This directory contains the sources for the new-style BIOS bitmaps, and a
+simple (and ugly) tool to view the configuration file that describes how
+each screen is displayed.
 
 Note:
+
+Due to continuing improvements and tweaks, there have been several different
+formats used for the BIOS bitmaps.
 
 Because the bitmap images and display code is part of the Read-Only BIOS,
 back-porting any new bitmaps to older devices is not possible.
 
 
-Old-style, unversioned bitmaps (used in Cr-48):
+Old-style, unversioned bitmaps. Used in Mario / Cr-48.
 
 In the Cr-48 BIOS there are four BIOS screens that may be presented to the
 user. Each contains a graphic, a URL, and some informative text. The screens
@@ -20,29 +23,34 @@ BIOS is compiled. The result is an opaque blob that cannot be viewed or
 edited with linux-based tools.
 
 
-Version 1.0, new-style bitmaps (used in Alex):
+Version 1.0, new-style bitmaps. Used in Alex / Samsung Series 5.
 
-The BIOSes will continue to display the same basic screens, but it uses a
-different format. Each screen has separate bitmaps for the basic graphic,
-the URL, and the informative text, and is displayed by rendering each
-component in order. This allows us to modify and replace any bitmap (most
-frequently the HWID), using standard command-line tools such as imagemagick.
-Compositing each screen in this way also means that we can easily provide
-localized BIOS screens or custom messages.
+The BIOS continues to display the same basic screens, but it uses a
+different format internally (which we call the bmpblock). Each screen has
+separate bitmaps for the basic graphic, the URL, and the informative text,
+and the screen is displayed by rendering each component in order. This
+allows us to modify and replace any bitmap (most frequently the HWID), using
+standard command-line linux tools such as imagemagick. Compositing each
+screen in this way also means that we can easily provide localized BIOS
+screens or custom messages. The BIOS rotates through the localizations by
+pressing the arrow keys when any screen is displayed.
 
 
-Version 1.1 (used in ZGB):
+Version 1.1. Used in ZGB / Acer AC700.
 
 This is essentially the same as version 1.0, except that the ASCII HWID
-string can be rendered directly. In the screen description, the magic image
-name "$HWID" (or "$HWID.rtol") indicates that the ASCII HWID value should be
-displayed instead of an actual image. This means that we only need to
-generate one bmpblock for all locales, since the HWID string can be changed
-at the factory using "gbb_utility".
+string can be rendered directly by the BIOS instead of as a bitmap. In the
+screen description, the magic image name "$HWID" (or "$HWID.rtol" for a
+right-justified placement) indicates that the ASCII HWID value should be
+displayed at the given coordinates instead of a bitmap image. This means
+that we only need to generate one bmpblock for all locales, since the ASCII
+HWID string can be changed at the factory using "gbb_utility". The
+last-displayed locale is stored in nvram, so it's sticky across reboots. The
+factory process sets the default locale to the appropriate region.
 
 
 
-Manual instructions:
+Instructions:
 
 The bmpblk_utility reads a config file and produces a binary bmpblock. The
 config file lists the individual bitmaps and describes where to place each
@@ -50,29 +58,29 @@ one when displaying each screen. The bmpblock is then written into the BIOS
 image with the gbb_utility. The bitmap_viewer program lets you view the
 composited screens as described by the config file.
 
-* First, get the bitmap_viewer working. This is best used OUTSIDE of the
-  chroot. Test it by changing to the scripts/newbitmaps/images/1280x800
-  directory and running "../../bitmap_viewer hwid_unknown.yaml". You may
+* First, get the bitmap_viewer working. This is best done OUTSIDE of the
+  chroot. Test it by changing to the scripts/newbitmaps/images/16x9_generic
+  directory and running "../../bitmap_viewer DEFAULT.yaml". You may
   need to install some additional packages. For example, on Ubuntu you'll
   probably need to install the "python-yaml" and "python-wxgtk2.8" packages.
 
-* Now make changes to the hwid_unknown.yaml config file, and use the
-  bitmap_viewer to see how the layout looks. Hit Ctrl-R in the small window
-  to reload the config file without restarting.
+* Now make changes to the DEFAULT.yaml config file, and use bitmap_viewer to
+  see how the layout looks. Hit Ctrl-R in the small window to reload the
+  config file without restarting.
 
-* The bitmap_viewer can display images in several different formats, but the
-  BIOS is very limited (and may differ between x86 and ARM). For x86, ensure
-  that you're using the proper format by converting any new bitmaps with a
-  command like this:
+* The bitmap_viewer tool can display images in several different formats,
+  but the BIOS is very limited (and may differ between x86 and ARM). For
+  x86, ensure that you're using the proper format by converting any new
+  bitmaps with a command like this:
 
     convert IN.bmp -colors 256 -compress none -alpha off OUT.bmp
 
 * When you have the screens tweaked to your satisfaction, generate the
   binary bmpblock to embed into the BIOS.
 
-    bmpblk_utility -c hwid_unknown.yaml bmpblock.bin
+    bmpblk_utility -c DEFAULT.yaml bmpblock.bin
 
-* Use the gbb_utility to modify the BIOS to contain our new set of bitmaps.
+* Use the gbb_utility to modify the BIOS to contain this new set of bitmaps.
 
   NOTE: These commands are run (as root) on the device under test!
 
@@ -87,7 +95,7 @@ composited screens as described by the config file.
 
     flashrom -p internal:bus=spi -r bios.bin
 
-  Put our bmpblock in our copy of the BIOS
+  Put the new bmpblock in the copy of the BIOS
 
     gbb_utility -s -b bmpblock.bin bios.bin
 
@@ -109,90 +117,5 @@ composited screens as described by the config file.
     bmpblk_utility -x -d /SOME/SCRATCH/DIR bmpblock.bin
 
  Once you've unpacked it you can use the bitmap_viewer on the unpacked yaml
- file to see what it looks like. There's not (yet) a single tool that just
- displays the raw binary.
-
-
-
-Automated instructions:
-
-If you've got a LOT of HWIDs to generate, this is one way to do it. You can
-do this entirely outside of the chroot if you've built vboot_reference
-natively and put the resulting binaries into your $PATH.
-
-
-* First, we generate the strings and bitmaps for each HWID:
-
-    cd ./strings
-    mkdir ./hwids
-    cd ./hwids
-
-  Put the list of new HWIDs strings into a file 'w':
-
-    SAMS ALEX ALPHA-US
-    SAMS ALEX ALPHA-GB
-    SAMS ALEX ALPHA-FR
-    SAMS ALEX ALPHA-DE
-    SAMS ALEX ALPHA-ES
-
-  You need to generate the HWID checksum numbers. I wrote this script, named
-  'hwidsum', to append the digits to the string:
-
-    #!/usr/bin/python
-    import sys,zlib;
-    me=' '.join(sys.argv[1:]);
-    print me, ('%04u'%(zlib.crc32(me)&0xffffffffL))[-4:]
-
-
-  Run another script like this to generate the checksums for the whole list:
-
-    #!/bin/bash
-    while read STUFF; do
-      full=$(hwidsum "$STUFF")
-      str=$(echo "HWID ${full}" | sed 's/ /_/g').txt
-      echo "$full" > "$str"
-    done < w
-
-
-  And now convert the text files into bmps:
-
-    ../text_to_bmp *.txt
-
-
-* Move those HWID bmp files to the appropriate images directory:
-
-    pushd ../../images/1280x800/
-    mkdir ./hwids
-    mv ~1/*.bmp ./hwids/
-
-
-* Generate the yaml files for all these new HWIDs:
-
-    ../make_yaml_from_hwids hwids/*.bmp
-
-
-* Look at them with the bitmap viewer if you want.
-
-    ../../bitmap_viewer hwid_sams_alex_alpha-us_4504.yaml
-
-
-* Convert the yaml files into bitmap blobs:
-
-    for i in *.yaml; do bmpblk_utility -c $i ${i%.yaml}.bin; done
-
-
-* Test the bitmaps on a running system:
-
-  As root on an Alex, for example, you'd say something like this:
-
-    stop update-engine
-    cd /mnt/stateful_partition
-    flashrom -p internal:bus=spi -r bios.rom
-    scp USER@HOST:/SOME/PATH/TO/hwid_sams_alex_alpha-us_4504.bin .
-    gbb_utility -s \
-      -i 'SAMS ALEX ALPHA-US 4504' \
-      -b hwid_sams_alex_alpha-us_4504.bin
-      bios.rom newbios.rom
-    flashrom -p internal:bus=spi -w newbios.rom
-
-  Then reboot and see what happens.
+ file to see what it looks like. There's not (yet) a single tool that
+ directly displays the raw binary.

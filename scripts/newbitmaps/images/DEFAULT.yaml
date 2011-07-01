@@ -1,0 +1,1401 @@
+bmpblock: 1.1
+
+compression: 1
+
+images:
+
+  # The HWID must change for every BOM
+  # $HWID:              hwid_unknown.png
+
+  # This URL never changes
+  url:               URL.png
+
+  # The background images are from the UI people
+  devmode_bg:        Devmode.png
+  remove_bg:         Remove.png
+  yuck_bg:           Yuck.png
+  insert_bg:         Insert.png
+
+  # The following strings must be approved by the localization people
+  en_model_text:       ./localized_images/en/model.png
+  en_devmode_text:     ./localized_images/en/devmode.png
+  en_remove_text:      ./localized_images/en/remove.png
+  en_yuck_text:        ./localized_images/en/yuck.png
+  en_insert_text:      ./localized_images/en/insert.png
+
+  es_419_model_text:       ./localized_images/es_419/model.png
+  es_419_devmode_text:     ./localized_images/es_419/devmode.png
+  es_419_remove_text:      ./localized_images/es_419/remove.png
+  es_419_yuck_text:        ./localized_images/es_419/yuck.png
+  es_419_insert_text:      ./localized_images/es_419/insert.png
+
+  pt_BR_model_text:       ./localized_images/pt_BR/model.png
+  pt_BR_devmode_text:     ./localized_images/pt_BR/devmode.png
+  pt_BR_remove_text:      ./localized_images/pt_BR/remove.png
+  pt_BR_yuck_text:        ./localized_images/pt_BR/yuck.png
+  pt_BR_insert_text:      ./localized_images/pt_BR/insert.png
+
+  en_GB_model_text:       ./localized_images/en_GB/model.png
+  en_GB_devmode_text:     ./localized_images/en_GB/devmode.png
+  en_GB_remove_text:      ./localized_images/en_GB/remove.png
+  en_GB_yuck_text:        ./localized_images/en_GB/yuck.png
+  en_GB_insert_text:      ./localized_images/en_GB/insert.png
+
+  fr_model_text:       ./localized_images/fr/model.png
+  fr_devmode_text:     ./localized_images/fr/devmode.png
+  fr_remove_text:      ./localized_images/fr/remove.png
+  fr_yuck_text:        ./localized_images/fr/yuck.png
+  fr_insert_text:      ./localized_images/fr/insert.png
+
+  es_model_text:       ./localized_images/es/model.png
+  es_devmode_text:     ./localized_images/es/devmode.png
+  es_remove_text:      ./localized_images/es/remove.png
+  es_yuck_text:        ./localized_images/es/yuck.png
+  es_insert_text:      ./localized_images/es/insert.png
+
+  pt_PT_model_text:       ./localized_images/pt_PT/model.png
+  pt_PT_devmode_text:     ./localized_images/pt_PT/devmode.png
+  pt_PT_remove_text:      ./localized_images/pt_PT/remove.png
+  pt_PT_yuck_text:        ./localized_images/pt_PT/yuck.png
+  pt_PT_insert_text:      ./localized_images/pt_PT/insert.png
+
+  ca_model_text:       ./localized_images/ca/model.png
+  ca_devmode_text:     ./localized_images/ca/devmode.png
+  ca_remove_text:      ./localized_images/ca/remove.png
+  ca_yuck_text:        ./localized_images/ca/yuck.png
+  ca_insert_text:      ./localized_images/ca/insert.png
+
+  it_model_text:       ./localized_images/it/model.png
+  it_devmode_text:     ./localized_images/it/devmode.png
+  it_remove_text:      ./localized_images/it/remove.png
+  it_yuck_text:        ./localized_images/it/yuck.png
+  it_insert_text:      ./localized_images/it/insert.png
+
+  de_model_text:       ./localized_images/de/model.png
+  de_devmode_text:     ./localized_images/de/devmode.png
+  de_remove_text:      ./localized_images/de/remove.png
+  de_yuck_text:        ./localized_images/de/yuck.png
+  de_insert_text:      ./localized_images/de/insert.png
+
+  el_model_text:       ./localized_images/el/model.png
+  el_devmode_text:     ./localized_images/el/devmode.png
+  el_remove_text:      ./localized_images/el/remove.png
+  el_yuck_text:        ./localized_images/el/yuck.png
+  el_insert_text:      ./localized_images/el/insert.png
+
+  nl_model_text:       ./localized_images/nl/model.png
+  nl_devmode_text:     ./localized_images/nl/devmode.png
+  nl_remove_text:      ./localized_images/nl/remove.png
+  nl_yuck_text:        ./localized_images/nl/yuck.png
+  nl_insert_text:      ./localized_images/nl/insert.png
+
+  da_model_text:       ./localized_images/da/model.png
+  da_devmode_text:     ./localized_images/da/devmode.png
+  da_remove_text:      ./localized_images/da/remove.png
+  da_yuck_text:        ./localized_images/da/yuck.png
+  da_insert_text:      ./localized_images/da/insert.png
+
+  no_model_text:       ./localized_images/no/model.png
+  no_devmode_text:     ./localized_images/no/devmode.png
+  no_remove_text:      ./localized_images/no/remove.png
+  no_yuck_text:        ./localized_images/no/yuck.png
+  no_insert_text:      ./localized_images/no/insert.png
+
+  sv_model_text:       ./localized_images/sv/model.png
+  sv_devmode_text:     ./localized_images/sv/devmode.png
+  sv_remove_text:      ./localized_images/sv/remove.png
+  sv_yuck_text:        ./localized_images/sv/yuck.png
+  sv_insert_text:      ./localized_images/sv/insert.png
+
+  fi_model_text:       ./localized_images/fi/model.png
+  fi_devmode_text:     ./localized_images/fi/devmode.png
+  fi_remove_text:      ./localized_images/fi/remove.png
+  fi_yuck_text:        ./localized_images/fi/yuck.png
+  fi_insert_text:      ./localized_images/fi/insert.png
+
+  et_model_text:       ./localized_images/et/model.png
+  et_devmode_text:     ./localized_images/et/devmode.png
+  et_remove_text:      ./localized_images/et/remove.png
+  et_yuck_text:        ./localized_images/et/yuck.png
+  et_insert_text:      ./localized_images/et/insert.png
+
+  lv_model_text:       ./localized_images/lv/model.png
+  lv_devmode_text:     ./localized_images/lv/devmode.png
+  lv_remove_text:      ./localized_images/lv/remove.png
+  lv_yuck_text:        ./localized_images/lv/yuck.png
+  lv_insert_text:      ./localized_images/lv/insert.png
+
+  lt_model_text:       ./localized_images/lt/model.png
+  lt_devmode_text:     ./localized_images/lt/devmode.png
+  lt_remove_text:      ./localized_images/lt/remove.png
+  lt_yuck_text:        ./localized_images/lt/yuck.png
+  lt_insert_text:      ./localized_images/lt/insert.png
+
+  ru_model_text:       ./localized_images/ru/model.png
+  ru_devmode_text:     ./localized_images/ru/devmode.png
+  ru_remove_text:      ./localized_images/ru/remove.png
+  ru_yuck_text:        ./localized_images/ru/yuck.png
+  ru_insert_text:      ./localized_images/ru/insert.png
+
+  pl_model_text:       ./localized_images/pl/model.png
+  pl_devmode_text:     ./localized_images/pl/devmode.png
+  pl_remove_text:      ./localized_images/pl/remove.png
+  pl_yuck_text:        ./localized_images/pl/yuck.png
+  pl_insert_text:      ./localized_images/pl/insert.png
+
+  cs_model_text:       ./localized_images/cs/model.png
+  cs_devmode_text:     ./localized_images/cs/devmode.png
+  cs_remove_text:      ./localized_images/cs/remove.png
+  cs_yuck_text:        ./localized_images/cs/yuck.png
+  cs_insert_text:      ./localized_images/cs/insert.png
+
+  sk_model_text:       ./localized_images/sk/model.png
+  sk_devmode_text:     ./localized_images/sk/devmode.png
+  sk_remove_text:      ./localized_images/sk/remove.png
+  sk_yuck_text:        ./localized_images/sk/yuck.png
+  sk_insert_text:      ./localized_images/sk/insert.png
+
+  hu_model_text:       ./localized_images/hu/model.png
+  hu_devmode_text:     ./localized_images/hu/devmode.png
+  hu_remove_text:      ./localized_images/hu/remove.png
+  hu_yuck_text:        ./localized_images/hu/yuck.png
+  hu_insert_text:      ./localized_images/hu/insert.png
+
+  sl_model_text:       ./localized_images/sl/model.png
+  sl_devmode_text:     ./localized_images/sl/devmode.png
+  sl_remove_text:      ./localized_images/sl/remove.png
+  sl_yuck_text:        ./localized_images/sl/yuck.png
+  sl_insert_text:      ./localized_images/sl/insert.png
+
+  sr_model_text:       ./localized_images/sr/model.png
+  sr_devmode_text:     ./localized_images/sr/devmode.png
+  sr_remove_text:      ./localized_images/sr/remove.png
+  sr_yuck_text:        ./localized_images/sr/yuck.png
+  sr_insert_text:      ./localized_images/sr/insert.png
+
+  hr_model_text:       ./localized_images/hr/model.png
+  hr_devmode_text:     ./localized_images/hr/devmode.png
+  hr_remove_text:      ./localized_images/hr/remove.png
+  hr_yuck_text:        ./localized_images/hr/yuck.png
+  hr_insert_text:      ./localized_images/hr/insert.png
+
+  bg_model_text:       ./localized_images/bg/model.png
+  bg_devmode_text:     ./localized_images/bg/devmode.png
+  bg_remove_text:      ./localized_images/bg/remove.png
+  bg_yuck_text:        ./localized_images/bg/yuck.png
+  bg_insert_text:      ./localized_images/bg/insert.png
+
+  ro_model_text:       ./localized_images/ro/model.png
+  ro_devmode_text:     ./localized_images/ro/devmode.png
+  ro_remove_text:      ./localized_images/ro/remove.png
+  ro_yuck_text:        ./localized_images/ro/yuck.png
+  ro_insert_text:      ./localized_images/ro/insert.png
+
+  uk_model_text:       ./localized_images/uk/model.png
+  uk_devmode_text:     ./localized_images/uk/devmode.png
+  uk_remove_text:      ./localized_images/uk/remove.png
+  uk_yuck_text:        ./localized_images/uk/yuck.png
+  uk_insert_text:      ./localized_images/uk/insert.png
+
+  tr_model_text:       ./localized_images/tr/model.png
+  tr_devmode_text:     ./localized_images/tr/devmode.png
+  tr_remove_text:      ./localized_images/tr/remove.png
+  tr_yuck_text:        ./localized_images/tr/yuck.png
+  tr_insert_text:      ./localized_images/tr/insert.png
+
+  iw_model_text:       ./localized_images/iw/model.png
+  iw_devmode_text:     ./localized_images/iw/devmode.png
+  iw_remove_text:      ./localized_images/iw/remove.png
+  iw_yuck_text:        ./localized_images/iw/yuck.png
+  iw_insert_text:      ./localized_images/iw/insert.png
+
+  ar_model_text:       ./localized_images/ar/model.png
+  ar_devmode_text:     ./localized_images/ar/devmode.png
+  ar_remove_text:      ./localized_images/ar/remove.png
+  ar_yuck_text:        ./localized_images/ar/yuck.png
+  ar_insert_text:      ./localized_images/ar/insert.png
+
+  fa_model_text:       ./localized_images/fa/model.png
+  fa_devmode_text:     ./localized_images/fa/devmode.png
+  fa_remove_text:      ./localized_images/fa/remove.png
+  fa_yuck_text:        ./localized_images/fa/yuck.png
+  fa_insert_text:      ./localized_images/fa/insert.png
+
+  hi_model_text:       ./localized_images/hi/model.png
+  hi_devmode_text:     ./localized_images/hi/devmode.png
+  hi_remove_text:      ./localized_images/hi/remove.png
+  hi_yuck_text:        ./localized_images/hi/yuck.png
+  hi_insert_text:      ./localized_images/hi/insert.png
+
+  th_model_text:       ./localized_images/th/model.png
+  th_devmode_text:     ./localized_images/th/devmode.png
+  th_remove_text:      ./localized_images/th/remove.png
+  th_yuck_text:        ./localized_images/th/yuck.png
+  th_insert_text:      ./localized_images/th/insert.png
+
+  vi_model_text:       ./localized_images/vi/model.png
+  vi_devmode_text:     ./localized_images/vi/devmode.png
+  vi_remove_text:      ./localized_images/vi/remove.png
+  vi_yuck_text:        ./localized_images/vi/yuck.png
+  vi_insert_text:      ./localized_images/vi/insert.png
+
+  id_model_text:       ./localized_images/id/model.png
+  id_devmode_text:     ./localized_images/id/devmode.png
+  id_remove_text:      ./localized_images/id/remove.png
+  id_yuck_text:        ./localized_images/id/yuck.png
+  id_insert_text:      ./localized_images/id/insert.png
+
+  fil_model_text:       ./localized_images/fil/model.png
+  fil_devmode_text:     ./localized_images/fil/devmode.png
+  fil_remove_text:      ./localized_images/fil/remove.png
+  fil_yuck_text:        ./localized_images/fil/yuck.png
+  fil_insert_text:      ./localized_images/fil/insert.png
+
+  zh_CN_model_text:       ./localized_images/zh_CN/model.png
+  zh_CN_devmode_text:     ./localized_images/zh_CN/devmode.png
+  zh_CN_remove_text:      ./localized_images/zh_CN/remove.png
+  zh_CN_yuck_text:        ./localized_images/zh_CN/yuck.png
+  zh_CN_insert_text:      ./localized_images/zh_CN/insert.png
+
+  zh_TW_model_text:       ./localized_images/zh_TW/model.png
+  zh_TW_devmode_text:     ./localized_images/zh_TW/devmode.png
+  zh_TW_remove_text:      ./localized_images/zh_TW/remove.png
+  zh_TW_yuck_text:        ./localized_images/zh_TW/yuck.png
+  zh_TW_insert_text:      ./localized_images/zh_TW/insert.png
+
+  ko_model_text:       ./localized_images/ko/model.png
+  ko_devmode_text:     ./localized_images/ko/devmode.png
+  ko_remove_text:      ./localized_images/ko/remove.png
+  ko_yuck_text:        ./localized_images/ko/yuck.png
+  ko_insert_text:      ./localized_images/ko/insert.png
+
+  ja_model_text:       ./localized_images/ja/model.png
+  ja_devmode_text:     ./localized_images/ja/devmode.png
+  ja_remove_text:      ./localized_images/ja/remove.png
+  ja_yuck_text:        ./localized_images/ja/yuck.png
+  ja_insert_text:      ./localized_images/ja/insert.png
+
+screens:
+  en_devel:
+    - [  0,   0, devmode_bg]
+    - [469, 669, en_devmode_text]
+
+  en_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, en_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [342, 595, en_remove_text]
+
+  en_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, en_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [289, 595, en_yuck_text]
+
+  en_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, en_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [473, 570, en_insert_text]
+
+  es_419_devel:
+    - [  0,   0, devmode_bg]
+    - [400, 669, es_419_devmode_text]
+
+  es_419_remove:
+    - [  0,   0, remove_bg]
+    - [469, 694, es_419_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [282, 595, es_419_remove_text]
+
+  es_419_yuck:
+    - [  0,   0, yuck_bg]
+    - [469, 694, es_419_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [210, 595, es_419_yuck_text]
+
+  es_419_insert:
+    - [  0,   0, insert_bg]
+    - [469, 694, es_419_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [447, 570, es_419_insert_text]
+
+  pt_BR_devel:
+    - [  0,   0, devmode_bg]
+    - [358, 669, pt_BR_devmode_text]
+
+  pt_BR_remove:
+    - [  0,   0, remove_bg]
+    - [469, 694, pt_BR_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [285, 595, pt_BR_remove_text]
+
+  pt_BR_yuck:
+    - [  0,   0, yuck_bg]
+    - [469, 694, pt_BR_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [275, 595, pt_BR_yuck_text]
+
+  pt_BR_insert:
+    - [  0,   0, insert_bg]
+    - [469, 694, pt_BR_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [434, 570, pt_BR_insert_text]
+
+  en_GB_devel:
+    - [  0,   0, devmode_bg]
+    - [469, 669, en_GB_devmode_text]
+
+  en_GB_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, en_GB_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [342, 595, en_GB_remove_text]
+
+  en_GB_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, en_GB_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [248, 595, en_GB_yuck_text]
+
+  en_GB_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, en_GB_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [473, 570, en_GB_insert_text]
+
+  fr_devel:
+    - [  0,   0, devmode_bg]
+    - [257, 669, fr_devmode_text]
+
+  fr_remove:
+    - [  0,   0, remove_bg]
+    - [465, 694, fr_model_text]
+    - [577, 694, $HWID]
+    - [288, 629, url]
+    - [131, 595, fr_remove_text]
+
+  fr_yuck:
+    - [  0,   0, yuck_bg]
+    - [465, 694, fr_model_text]
+    - [577, 694, $HWID]
+    - [288, 629, url]
+    - [132, 595, fr_yuck_text]
+
+  fr_insert:
+    - [  0,   0, insert_bg]
+    - [465, 694, fr_model_text]
+    - [577, 694, $HWID]
+    - [288, 629, url]
+    - [379, 570, fr_insert_text]
+
+  es_devel:
+    - [  0,   0, devmode_bg]
+    - [371, 669, es_devmode_text]
+
+  es_remove:
+    - [  0,   0, remove_bg]
+    - [469, 694, es_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [290, 595, es_remove_text]
+
+  es_yuck:
+    - [  0,   0, yuck_bg]
+    - [469, 694, es_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [264, 595, es_yuck_text]
+
+  es_insert:
+    - [  0,   0, insert_bg]
+    - [469, 694, es_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [419, 570, es_insert_text]
+
+  pt_PT_devel:
+    - [  0,   0, devmode_bg]
+    - [373, 669, pt_PT_devmode_text]
+
+  pt_PT_remove:
+    - [  0,   0, remove_bg]
+    - [469, 694, pt_PT_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [285, 595, pt_PT_remove_text]
+
+  pt_PT_yuck:
+    - [  0,   0, yuck_bg]
+    - [469, 694, pt_PT_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [297, 595, pt_PT_yuck_text]
+
+  pt_PT_insert:
+    - [  0,   0, insert_bg]
+    - [469, 694, pt_PT_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [416, 570, pt_PT_insert_text]
+
+  ca_devel:
+    - [  0,   0, devmode_bg]
+    - [386, 669, ca_devmode_text]
+
+  ca_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, ca_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [312, 595, ca_remove_text]
+
+  ca_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, ca_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [180, 595, ca_yuck_text]
+
+  ca_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, ca_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [417, 570, ca_insert_text]
+
+  it_devel:
+    - [  0,   0, devmode_bg]
+    - [398, 669, it_devmode_text]
+
+  it_remove:
+    - [  0,   0, remove_bg]
+    - [466, 694, it_model_text]
+    - [576, 694, $HWID]
+    - [288, 629, url]
+    - [342, 595, it_remove_text]
+
+  it_yuck:
+    - [  0,   0, yuck_bg]
+    - [466, 694, it_model_text]
+    - [576, 694, $HWID]
+    - [288, 629, url]
+    - [297, 595, it_yuck_text]
+
+  it_insert:
+    - [  0,   0, insert_bg]
+    - [466, 694, it_model_text]
+    - [576, 694, $HWID]
+    - [288, 629, url]
+    - [422, 570, it_insert_text]
+
+  de_devel:
+    - [  0,   0, devmode_bg]
+    - [321, 669, de_devmode_text]
+
+  de_remove:
+    - [  0,   0, remove_bg]
+    - [474, 694, de_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [249, 595, de_remove_text]
+
+  de_yuck:
+    - [  0,   0, yuck_bg]
+    - [474, 694, de_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [243, 595, de_yuck_text]
+
+  de_insert:
+    - [  0,   0, insert_bg]
+    - [474, 694, de_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [369, 570, de_insert_text]
+
+  el_devel:
+    - [  0,   0, devmode_bg]
+    - [265, 669, el_devmode_text]
+
+  el_remove:
+    - [  0,   0, remove_bg]
+    - [462, 694, el_model_text]
+    - [580, 694, $HWID]
+    - [288, 629, url]
+    - [201, 595, el_remove_text]
+
+  el_yuck:
+    - [  0,   0, yuck_bg]
+    - [462, 694, el_model_text]
+    - [580, 694, $HWID]
+    - [288, 629, url]
+    - [174, 595, el_yuck_text]
+
+  el_insert:
+    - [  0,   0, insert_bg]
+    - [462, 694, el_model_text]
+    - [580, 694, $HWID]
+    - [288, 629, url]
+    - [416, 570, el_insert_text]
+
+  nl_devel:
+    - [  0,   0, devmode_bg]
+    - [389, 669, nl_devmode_text]
+
+  nl_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, nl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [297, 595, nl_remove_text]
+
+  nl_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, nl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [119, 595, nl_yuck_text]
+
+  nl_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, nl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [451, 570, nl_insert_text]
+
+  da_devel:
+    - [  0,   0, devmode_bg]
+    - [368, 669, da_devmode_text]
+
+  da_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, da_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [340, 595, da_remove_text]
+
+  da_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, da_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [261, 595, da_yuck_text]
+
+  da_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, da_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [446, 570, da_insert_text]
+
+  no_devel:
+    - [  0,   0, devmode_bg]
+    - [364, 669, no_devmode_text]
+
+  no_remove:
+    - [  0,   0, remove_bg]
+    - [474, 694, no_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [347, 595, no_remove_text]
+
+  no_yuck:
+    - [  0,   0, yuck_bg]
+    - [474, 694, no_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [169, 595, no_yuck_text]
+
+  no_insert:
+    - [  0,   0, insert_bg]
+    - [474, 694, no_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [425, 570, no_insert_text]
+
+  sv_devel:
+    - [  0,   0, devmode_bg]
+    - [401, 669, sv_devmode_text]
+
+  sv_remove:
+    - [  0,   0, remove_bg]
+    - [474, 694, sv_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [293, 595, sv_remove_text]
+
+  sv_yuck:
+    - [  0,   0, yuck_bg]
+    - [474, 694, sv_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [275, 595, sv_yuck_text]
+
+  sv_insert:
+    - [  0,   0, insert_bg]
+    - [474, 694, sv_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [476, 570, sv_insert_text]
+
+  fi_devel:
+    - [  0,   0, devmode_bg]
+    - [338, 669, fi_devmode_text]
+
+  fi_remove:
+    - [  0,   0, remove_bg]
+    - [485, 694, fi_model_text]
+    - [557, 694, $HWID]
+    - [288, 629, url]
+    - [369, 595, fi_remove_text]
+
+  fi_yuck:
+    - [  0,   0, yuck_bg]
+    - [485, 694, fi_model_text]
+    - [557, 694, $HWID]
+    - [288, 629, url]
+    - [207, 595, fi_yuck_text]
+
+  fi_insert:
+    - [  0,   0, insert_bg]
+    - [485, 694, fi_model_text]
+    - [557, 694, $HWID]
+    - [288, 629, url]
+    - [360, 570, fi_insert_text]
+
+  et_devel:
+    - [  0,   0, devmode_bg]
+    - [404, 669, et_devmode_text]
+
+  et_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, et_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [305, 595, et_remove_text]
+
+  et_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, et_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [289, 595, et_yuck_text]
+
+  et_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, et_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [465, 570, et_insert_text]
+
+  lv_devel:
+    - [  0,   0, devmode_bg]
+    - [387, 669, lv_devmode_text]
+
+  lv_remove:
+    - [  0,   0, remove_bg]
+    - [467, 694, lv_model_text]
+    - [575, 694, $HWID]
+    - [288, 629, url]
+    - [362, 595, lv_remove_text]
+
+  lv_yuck:
+    - [  0,   0, yuck_bg]
+    - [467, 694, lv_model_text]
+    - [575, 694, $HWID]
+    - [288, 629, url]
+    - [368, 595, lv_yuck_text]
+
+  lv_insert:
+    - [  0,   0, insert_bg]
+    - [467, 694, lv_model_text]
+    - [575, 694, $HWID]
+    - [288, 629, url]
+    - [482, 570, lv_insert_text]
+
+  lt_devel:
+    - [  0,   0, devmode_bg]
+    - [372, 669, lt_devmode_text]
+
+  lt_remove:
+    - [  0,   0, remove_bg]
+    - [467, 694, lt_model_text]
+    - [575, 694, $HWID]
+    - [288, 629, url]
+    - [300, 595, lt_remove_text]
+
+  lt_yuck:
+    - [  0,   0, yuck_bg]
+    - [467, 694, lt_model_text]
+    - [575, 694, $HWID]
+    - [288, 629, url]
+    - [365, 595, lt_yuck_text]
+
+  lt_insert:
+    - [  0,   0, insert_bg]
+    - [467, 694, lt_model_text]
+    - [575, 694, $HWID]
+    - [288, 629, url]
+    - [459, 570, lt_insert_text]
+
+  ru_devel:
+    - [  0,   0, devmode_bg]
+    - [380, 669, ru_devmode_text]
+
+  ru_remove:
+    - [  0,   0, remove_bg]
+    - [464, 694, ru_model_text]
+    - [578, 694, $HWID]
+    - [288, 629, url]
+    - [272, 595, ru_remove_text]
+
+  ru_yuck:
+    - [  0,   0, yuck_bg]
+    - [464, 694, ru_model_text]
+    - [578, 694, $HWID]
+    - [288, 629, url]
+    - [205, 595, ru_yuck_text]
+
+  ru_insert:
+    - [  0,   0, insert_bg]
+    - [464, 694, ru_model_text]
+    - [578, 694, $HWID]
+    - [288, 629, url]
+    - [399, 570, ru_insert_text]
+
+  pl_devel:
+    - [  0,   0, devmode_bg]
+    - [363, 669, pl_devmode_text]
+
+  pl_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, pl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [198, 595, pl_remove_text]
+
+  pl_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, pl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [240, 595, pl_yuck_text]
+
+  pl_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, pl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [387, 570, pl_insert_text]
+
+  cs_devel:
+    - [  0,   0, devmode_bg]
+    - [372, 669, cs_devmode_text]
+
+  cs_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, cs_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [244, 595, cs_remove_text]
+
+  cs_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, cs_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [216, 595, cs_yuck_text]
+
+  cs_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, cs_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [357, 570, cs_insert_text]
+
+  sk_devel:
+    - [  0,   0, devmode_bg]
+    - [354, 669, sk_devmode_text]
+
+  sk_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, sk_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [282, 595, sk_remove_text]
+
+  sk_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, sk_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [250, 595, sk_yuck_text]
+
+  sk_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, sk_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [347, 570, sk_insert_text]
+
+  hu_devel:
+    - [  0,   0, devmode_bg]
+    - [309, 669, hu_devmode_text]
+
+  hu_remove:
+    - [  0,   0, remove_bg]
+    - [474, 694, hu_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [200, 595, hu_remove_text]
+
+  hu_yuck:
+    - [  0,   0, yuck_bg]
+    - [474, 694, hu_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [199, 595, hu_yuck_text]
+
+  hu_insert:
+    - [  0,   0, insert_bg]
+    - [474, 694, hu_model_text]
+    - [569, 694, $HWID]
+    - [288, 629, url]
+    - [389, 570, hu_insert_text]
+
+  sl_devel:
+    - [  0,   0, devmode_bg]
+    - [438, 669, sl_devmode_text]
+
+  sl_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, sl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [357, 595, sl_remove_text]
+
+  sl_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, sl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [216, 595, sl_yuck_text]
+
+  sl_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, sl_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [456, 570, sl_insert_text]
+
+  sr_devel:
+    - [  0,   0, devmode_bg]
+    - [314, 669, sr_devmode_text]
+
+  sr_remove:
+    - [  0,   0, remove_bg]
+    - [484, 694, sr_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [301, 595, sr_remove_text]
+
+  sr_yuck:
+    - [  0,   0, yuck_bg]
+    - [484, 694, sr_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [158, 595, sr_yuck_text]
+
+  sr_insert:
+    - [  0,   0, insert_bg]
+    - [484, 694, sr_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [447, 570, sr_insert_text]
+
+  hr_devel:
+    - [  0,   0, devmode_bg]
+    - [392, 669, hr_devmode_text]
+
+  hr_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, hr_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [330, 595, hr_remove_text]
+
+  hr_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, hr_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [350, 595, hr_yuck_text]
+
+  hr_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, hr_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [480, 570, hr_insert_text]
+
+  bg_devel:
+    - [  0,   0, devmode_bg]
+    - [268, 669, bg_devmode_text]
+
+  bg_remove:
+    - [  0,   0, remove_bg]
+    - [471, 694, bg_model_text]
+    - [571, 694, $HWID]
+    - [288, 629, url]
+    - [188, 595, bg_remove_text]
+
+  bg_yuck:
+    - [  0,   0, yuck_bg]
+    - [471, 694, bg_model_text]
+    - [571, 694, $HWID]
+    - [288, 629, url]
+    - [180, 595, bg_yuck_text]
+
+  bg_insert:
+    - [  0,   0, insert_bg]
+    - [471, 694, bg_model_text]
+    - [571, 694, $HWID]
+    - [288, 629, url]
+    - [380, 570, bg_insert_text]
+
+  ro_devel:
+    - [  0,   0, devmode_bg]
+    - [323, 669, ro_devmode_text]
+
+  ro_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, ro_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [233, 595, ro_remove_text]
+
+  ro_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, ro_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [335, 595, ro_yuck_text]
+
+  ro_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, ro_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [438, 570, ro_insert_text]
+
+  uk_devel:
+    - [  0,   0, devmode_bg]
+    - [395, 669, uk_devmode_text]
+
+  uk_remove:
+    - [  0,   0, remove_bg]
+    - [464, 694, uk_model_text]
+    - [578, 694, $HWID]
+    - [288, 629, url]
+    - [296, 595, uk_remove_text]
+
+  uk_yuck:
+    - [  0,   0, yuck_bg]
+    - [464, 694, uk_model_text]
+    - [578, 694, $HWID]
+    - [288, 629, url]
+    - [283, 595, uk_yuck_text]
+
+  uk_insert:
+    - [  0,   0, insert_bg]
+    - [464, 694, uk_model_text]
+    - [578, 694, $HWID]
+    - [288, 629, url]
+    - [441, 570, uk_insert_text]
+
+  tr_devel:
+    - [  0,   0, devmode_bg]
+    - [369, 669, tr_devmode_text]
+
+  tr_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, tr_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [235, 595, tr_remove_text]
+
+  tr_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, tr_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [216, 595, tr_yuck_text]
+
+  tr_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, tr_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [462, 570, tr_insert_text]
+
+  iw_devel:
+    - [  0,   0, devmode_bg]
+    - [459, 669, iw_devmode_text]
+
+  iw_remove:
+    - [  0,   0, remove_bg]
+    - [484, 694, iw_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [376, 595, iw_remove_text]
+
+  iw_yuck:
+    - [  0,   0, yuck_bg]
+    - [484, 694, iw_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [300, 595, iw_yuck_text]
+
+  iw_insert:
+    - [  0,   0, insert_bg]
+    - [484, 694, iw_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [531, 570, iw_insert_text]
+
+  ar_devel:
+    - [  0,   0, devmode_bg]
+    - [427, 669, ar_devmode_text]
+
+  ar_remove:
+    - [  0,   0, remove_bg]
+    - [469, 694, ar_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [374, 595, ar_remove_text]
+
+  ar_yuck:
+    - [  0,   0, yuck_bg]
+    - [469, 694, ar_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [179, 595, ar_yuck_text]
+
+  ar_insert:
+    - [  0,   0, insert_bg]
+    - [469, 694, ar_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [453, 570, ar_insert_text]
+
+  fa_devel:
+    - [  0,   0, devmode_bg]
+    - [398, 669, fa_devmode_text]
+
+  fa_remove:
+    - [  0,   0, remove_bg]
+    - [491, 694, fa_model_text]
+    - [551, 694, $HWID]
+    - [288, 629, url]
+    - [276, 595, fa_remove_text]
+
+  fa_yuck:
+    - [  0,   0, yuck_bg]
+    - [491, 694, fa_model_text]
+    - [551, 694, $HWID]
+    - [288, 629, url]
+    - [196, 595, fa_yuck_text]
+
+  fa_insert:
+    - [  0,   0, insert_bg]
+    - [491, 694, fa_model_text]
+    - [551, 694, $HWID]
+    - [288, 629, url]
+    - [384, 570, fa_insert_text]
+
+  hi_devel:
+    - [  0,   0, devmode_bg]
+    - [396, 669, hi_devmode_text]
+
+  hi_remove:
+    - [  0,   0, remove_bg]
+    - [484, 694, hi_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [230, 595, hi_remove_text]
+
+  hi_yuck:
+    - [  0,   0, yuck_bg]
+    - [484, 694, hi_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [254, 595, hi_yuck_text]
+
+  hi_insert:
+    - [  0,   0, insert_bg]
+    - [484, 694, hi_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [390, 570, hi_insert_text]
+
+  th_devel:
+    - [  0,   0, devmode_bg]
+    - [483, 669, th_devmode_text]
+
+  th_remove:
+    - [  0,   0, remove_bg]
+    - [484, 694, th_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [294, 595, th_remove_text]
+
+  th_yuck:
+    - [  0,   0, yuck_bg]
+    - [484, 694, th_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [264, 595, th_yuck_text]
+
+  th_insert:
+    - [  0,   0, insert_bg]
+    - [484, 694, th_model_text]
+    - [559, 694, $HWID]
+    - [288, 629, url]
+    - [491, 570, th_insert_text]
+
+  vi_devel:
+    - [  0,   0, devmode_bg]
+    - [456, 669, vi_devmode_text]
+
+  vi_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, vi_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [323, 595, vi_remove_text]
+
+  vi_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, vi_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [224, 595, vi_yuck_text]
+
+  vi_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, vi_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [416, 570, vi_insert_text]
+
+  id_devel:
+    - [  0,   0, devmode_bg]
+    - [422, 669, id_devmode_text]
+
+  id_remove:
+    - [  0,   0, remove_bg]
+    - [477, 694, id_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [267, 595, id_remove_text]
+
+  id_yuck:
+    - [  0,   0, yuck_bg]
+    - [477, 694, id_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [251, 595, id_yuck_text]
+
+  id_insert:
+    - [  0,   0, insert_bg]
+    - [477, 694, id_model_text]
+    - [566, 694, $HWID]
+    - [288, 629, url]
+    - [474, 570, id_insert_text]
+
+  fil_devel:
+    - [  0,   0, devmode_bg]
+    - [399, 669, fil_devmode_text]
+
+  fil_remove:
+    - [  0,   0, remove_bg]
+    - [469, 694, fil_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [247, 595, fil_remove_text]
+
+  fil_yuck:
+    - [  0,   0, yuck_bg]
+    - [469, 694, fil_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [223, 595, fil_yuck_text]
+
+  fil_insert:
+    - [  0,   0, insert_bg]
+    - [469, 694, fil_model_text]
+    - [573, 694, $HWID]
+    - [288, 629, url]
+    - [404, 570, fil_insert_text]
+
+  zh_CN_devel:
+    - [  0,   0, devmode_bg]
+    - [557, 669, zh_CN_devmode_text]
+
+  zh_CN_remove:
+    - [  0,   0, remove_bg]
+    - [495, 694, zh_CN_model_text]
+    - [548, 694, $HWID]
+    - [288, 629, url]
+    - [489, 595, zh_CN_remove_text]
+
+  zh_CN_yuck:
+    - [  0,   0, yuck_bg]
+    - [495, 694, zh_CN_model_text]
+    - [548, 694, $HWID]
+    - [288, 629, url]
+    - [460, 595, zh_CN_yuck_text]
+
+  zh_CN_insert:
+    - [  0,   0, insert_bg]
+    - [495, 694, zh_CN_model_text]
+    - [548, 694, $HWID]
+    - [288, 629, url]
+    - [543, 570, zh_CN_insert_text]
+
+  zh_TW_devel:
+    - [  0,   0, devmode_bg]
+    - [528, 669, zh_TW_devmode_text]
+
+  zh_TW_remove:
+    - [  0,   0, remove_bg]
+    - [495, 694, zh_TW_model_text]
+    - [548, 694, $HWID]
+    - [288, 629, url]
+    - [507, 595, zh_TW_remove_text]
+
+  zh_TW_yuck:
+    - [  0,   0, yuck_bg]
+    - [495, 694, zh_TW_model_text]
+    - [548, 694, $HWID]
+    - [288, 629, url]
+    - [464, 595, zh_TW_yuck_text]
+
+  zh_TW_insert:
+    - [  0,   0, insert_bg]
+    - [495, 694, zh_TW_model_text]
+    - [548, 694, $HWID]
+    - [288, 629, url]
+    - [536, 570, zh_TW_insert_text]
+
+  ko_devel:
+    - [  0,   0, devmode_bg]
+    - [530, 669, ko_devmode_text]
+
+  ko_remove:
+    - [  0,   0, remove_bg]
+    - [498, 694, ko_model_text]
+    - [544, 694, $HWID]
+    - [288, 629, url]
+    - [467, 595, ko_remove_text]
+
+  ko_yuck:
+    - [  0,   0, yuck_bg]
+    - [498, 694, ko_model_text]
+    - [544, 694, $HWID]
+    - [288, 629, url]
+    - [368, 595, ko_yuck_text]
+
+  ko_insert:
+    - [  0,   0, insert_bg]
+    - [498, 694, ko_model_text]
+    - [544, 694, $HWID]
+    - [288, 629, url]
+    - [552, 570, ko_insert_text]
+
+  ja_devel:
+    - [  0,   0, devmode_bg]
+    - [476, 669, ja_devmode_text]
+
+  ja_remove:
+    - [  0,   0, remove_bg]
+    - [491, 694, ja_model_text]
+    - [551, 694, $HWID]
+    - [288, 629, url]
+    - [374, 595, ja_remove_text]
+
+  ja_yuck:
+    - [  0,   0, yuck_bg]
+    - [491, 694, ja_model_text]
+    - [551, 694, $HWID]
+    - [288, 629, url]
+    - [358, 595, ja_yuck_text]
+
+  ja_insert:
+    - [  0,   0, insert_bg]
+    - [491, 694, ja_model_text]
+    - [551, 694, $HWID]
+    - [288, 629, url]
+    - [498, 570, ja_insert_text]
+
+localizations:
+
+  # This determines the order in which the localizations appear. The first
+  # one is the default.
+
+  - [ en_devel, en_remove, en_yuck, en_insert ]
+  - [ es_419_devel, es_419_remove, es_419_yuck, es_419_insert ]
+  - [ pt_BR_devel, pt_BR_remove, pt_BR_yuck, pt_BR_insert ]
+  - [ en_GB_devel, en_GB_remove, en_GB_yuck, en_GB_insert ]
+  - [ fr_devel, fr_remove, fr_yuck, fr_insert ]
+  - [ es_devel, es_remove, es_yuck, es_insert ]
+  - [ pt_PT_devel, pt_PT_remove, pt_PT_yuck, pt_PT_insert ]
+  - [ ca_devel, ca_remove, ca_yuck, ca_insert ]
+  - [ it_devel, it_remove, it_yuck, it_insert ]
+  - [ de_devel, de_remove, de_yuck, de_insert ]
+  - [ el_devel, el_remove, el_yuck, el_insert ]
+  - [ nl_devel, nl_remove, nl_yuck, nl_insert ]
+  - [ da_devel, da_remove, da_yuck, da_insert ]
+  - [ no_devel, no_remove, no_yuck, no_insert ]
+  - [ sv_devel, sv_remove, sv_yuck, sv_insert ]
+  - [ fi_devel, fi_remove, fi_yuck, fi_insert ]
+  - [ et_devel, et_remove, et_yuck, et_insert ]
+  - [ lv_devel, lv_remove, lv_yuck, lv_insert ]
+  - [ lt_devel, lt_remove, lt_yuck, lt_insert ]
+  - [ ru_devel, ru_remove, ru_yuck, ru_insert ]
+  - [ pl_devel, pl_remove, pl_yuck, pl_insert ]
+  - [ cs_devel, cs_remove, cs_yuck, cs_insert ]
+  - [ sk_devel, sk_remove, sk_yuck, sk_insert ]
+  - [ hu_devel, hu_remove, hu_yuck, hu_insert ]
+  - [ sl_devel, sl_remove, sl_yuck, sl_insert ]
+  - [ sr_devel, sr_remove, sr_yuck, sr_insert ]
+  - [ hr_devel, hr_remove, hr_yuck, hr_insert ]
+  - [ bg_devel, bg_remove, bg_yuck, bg_insert ]
+  - [ ro_devel, ro_remove, ro_yuck, ro_insert ]
+  - [ uk_devel, uk_remove, uk_yuck, uk_insert ]
+  - [ tr_devel, tr_remove, tr_yuck, tr_insert ]
+  - [ iw_devel, iw_remove, iw_yuck, iw_insert ]
+  - [ ar_devel, ar_remove, ar_yuck, ar_insert ]
+  - [ fa_devel, fa_remove, fa_yuck, fa_insert ]
+  - [ hi_devel, hi_remove, hi_yuck, hi_insert ]
+  - [ th_devel, th_remove, th_yuck, th_insert ]
+  - [ vi_devel, vi_remove, vi_yuck, vi_insert ]
+  - [ id_devel, id_remove, id_yuck, id_insert ]
+  - [ fil_devel, fil_remove, fil_yuck, fil_insert ]
+  - [ zh_CN_devel, zh_CN_remove, zh_CN_yuck, zh_CN_insert ]
+  - [ zh_TW_devel, zh_TW_remove, zh_TW_yuck, zh_TW_insert ]
+  - [ ko_devel, ko_remove, ko_yuck, ko_insert ]
+  - [ ja_devel, ja_remove, ja_yuck, ja_insert ]
