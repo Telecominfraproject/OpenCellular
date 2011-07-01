@@ -19,7 +19,6 @@
 #include "tlcl_internal.h"
 #include "tlcl_structures.h"
 #include "utility.h"
-#include "vboot_api.h"
 
 /* Sets the size field of a TPM command. */
 static INLINE void SetTpmCommandSize(uint8_t* buffer, uint32_t size) {

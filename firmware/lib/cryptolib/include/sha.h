@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -107,7 +107,7 @@ typedef struct DigestContext {
 
 /* Initialize a digest context for use with signature algorithm [algorithm]. */
 void DigestInit(DigestContext* ctx, int sig_algorithm);
-void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint32_t len);
+void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint64_t len);
 
 /* Caller owns the returned digest and must free it. */
 uint8_t* DigestFinal(DigestContext* ctx);

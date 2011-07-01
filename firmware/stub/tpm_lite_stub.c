@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -10,7 +10,6 @@
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "utility.h"
-#include "vboot_api.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -57,22 +56,22 @@ static void TpmExecute(const uint8_t *in, const uint32_t in_len,
                 uint8_t *out, uint32_t *pout_len) {
   uint8_t response[TPM_MAX_COMMAND_SIZE];
   if (in_len <= 0) {
-    VbExError("invalid command length %d for command 0x%x\n", in_len, in[9]);
+    error("invalid command length %d for command 0x%x\n", in_len, in[9]);
   } else if (tpm_fd < 0) {
-    VbExError("the TPM device was not opened.  Forgot to call TlclLibInit?\n");
+    error("the TPM device was not opened.  Forgot to call TlclLibInit?\n");
   } else {
     int n = write(tpm_fd, in, in_len);
     if (n != in_len) {
-      VbExError("write failure to TPM device: %s\n", strerror(errno));
+      error("write failure to TPM device: %s\n", strerror(errno));
     }
     n = read(tpm_fd, response, sizeof(response));
     if (n == 0) {
-      VbExError("null read from TPM device\n");
+      error("null read from TPM device\n");
     } else if (n < 0) {
-      VbExError("read failure from TPM device: %s\n", strerror(errno));
+      error("read failure from TPM device: %s\n", strerror(errno));
     } else {
       if (n > *pout_len) {
-        VbExError("TPM response too long for output buffer\n");
+        error("TPM response too long for output buffer\n");
       } else {
         *pout_len = n;
         Memcpy(out, response, n);
@@ -127,8 +126,7 @@ uint32_t TlclOpenDevice(void) {
 
   tpm_fd = open(device_path, O_RDWR);
   if (tpm_fd < 0) {
-    VbExError("TPM: Cannot open TPM device %s: %s\n", device_path,
-              strerror(errno));
+    error("TPM: Cannot open TPM device %s: %s\n", device_path, strerror(errno));
   }
 
   return 0;
