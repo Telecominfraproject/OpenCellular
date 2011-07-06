@@ -6,235 +6,281 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/param.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <netinet/in.h>
 
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
 #include "host_common.h"
 #include "crossystem_arch.h"
 
-#define offsetof(struct_name, field) ((int) &(((struct_name*)0)->field))
+/* Base name for FDT files */
+#define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
+/* Device for NVCTX write */
+#define NVCTX_PATH "/dev/mmcblk%d"
+/* BINF */
+#define BINF_MAINFW_ACT       1
+#define BINF_ECFW_ACT         2
+#define BINF_MAINFW_TYPE      3
+#define BINF_RECOVERY_REASON  4
+/* Errors */
+#define E_FAIL      -1
+#define E_FILEOP    -2
+#define E_MEM       -3
+/* Common constants */
+#define FNAME_SIZE  80
+#define SECTOR_SIZE 512
+#define MAX_NMMCBLK 9
 
-/* This is used to keep u-boot and kernel in sync */
-#define SHARED_MEM_VERSION 1
-#define SHARED_MEM_SIGNATURE "CHROMEOS"
+static int FindEmmcDev(void) {
+  int mmcblk;
+  char filename[FNAME_SIZE];
+  for (mmcblk = 0; mmcblk < MAX_NMMCBLK; mmcblk++) {
+    /* Get first non-removable mmc block device */
+    snprintf(filename, sizeof(filename), "/sys/block/mmcblk%d/removable",
+              mmcblk);
+    if (ReadFileInt(filename) == 0)
+      return mmcblk;
+  }
+  /* eMMC not found */
+  return E_FAIL;
+}
 
-typedef struct {
-  const char *signal_name;
-  unsigned gpio_number;
-  uint8_t  needs_inversion;
-}  GpioMap;
+static int ReadFdtValue(const char *property, int *value) {
+  char filename[FNAME_SIZE];
+  FILE *file;
+  int data = 0;
 
-static const GpioMap vb_gpio_map_kaen[] = {
-  {"recoverysw_cur", 56, 1},
-  {"devsw_cur", 168},
-  {"wpsw_cur", 59, 1},
-};
+  snprintf(filename, sizeof(filename), FDT_BASE_PATH "/%s", property);
+  file = fopen(filename, "rb");
+  if (!file) {
+    fprintf(stderr, "Unable to open FDT property %s\n", property);
+    return E_FILEOP;
+  }
 
-/* This is map is for kaen, function to gpio number mapping */
+  fread(&data, 1, sizeof(data), file);
+  fclose(file);
 
-/*
- * This structure has been copied from u-boot-next
- * files/lib/chromeos/os_storage.c. Keep it in sync until a better interface
- * is implemented.
- */
-typedef struct {
-  uint32_t total_size;
-  uint8_t  signature[10];
-  uint16_t version;
-  uint64_t nvcxt_lba;
-  uint16_t vbnv[2];
-  uint8_t  nvcxt_cache[VBNV_BLOCK_SIZE];
-  uint8_t  write_protect_sw;
-  uint8_t  recovery_sw;
-  uint8_t  developer_sw;
-  uint8_t  binf[5];
-  uint32_t chsw;
-  uint8_t  hwid[256];
-  uint8_t  fwid[256];
-  uint8_t  frid[256];
-  uint32_t fmap_base;
-  uint8_t  shared_data_body[VB_SHARED_DATA_REC_SIZE];
-} __attribute__((packed)) VbSharedMem;
+  if (value)
+    *value = ntohl(data); /* FDT is network byte order */
 
-typedef struct {
-  const char *cs_field_name;
-  const void *cs_value;
-} VbVarInfo;
+  return 0;
+}
 
-static VbSharedMem shared_memory;
-static const char *blob_name = "/sys/kernel/debug/chromeos_arm";
-static VbVarInfo vb_cs_map[] = {
-  {"hwid", &shared_memory.hwid},
-  {"fwid", &shared_memory.fwid},
-  {"ro_fwid", &shared_memory.frid},
-  {"devsw_boot", &shared_memory.developer_sw},
-  {"recoverysw_boot", &shared_memory.recovery_sw},
-  {"wpsw_boot", &shared_memory.write_protect_sw},
-  {"recovery_reason", &shared_memory.binf[4]},
-};
+static int ReadFdtInt(const char *property) {
+  int value;
+  if (ReadFdtValue(property, &value))
+    return E_FAIL;
+  return value;
+}
+
+static int ReadFdtBlock(const char *property, void **block, size_t *size) {
+  char filename[FNAME_SIZE];
+  FILE *file;
+  size_t property_size;
+  char *data;
+
+  if (!block)
+    return E_FAIL;
+
+  snprintf(filename, sizeof(filename), FDT_BASE_PATH "/%s", property);
+  file = fopen(filename, "rb");
+  if (!file) {
+    fprintf(stderr, "Unable to open FDT property %s\n", property);
+    return E_FILEOP;
+  }
+
+  fseek(file, 0, SEEK_END);
+  property_size = ftell(file);
+  rewind(file);
+
+  data = malloc(property_size +1);
+  if (!data) {
+    fclose(file);
+    return E_MEM;
+  }
+  data[property_size] = 0;
+
+  if (1 != fread(data, property_size, 1, file)) {
+    fprintf(stderr, "Unable to read from property %s\n", property);
+    fclose(file);
+    free(data);
+    return E_FILEOP;
+  }
+
+  fclose(file);
+  *block = data;
+  if (size)
+    *size = property_size;
+
+  return 0;
+}
+
+static char * ReadFdtString(const char *property) {
+  void *str = NULL;
+  /* Do not need property size */
+  ReadFdtBlock(property, &str, 0);
+  return (char *)str;
+}
 
 static int VbGetGpioStatus(unsigned gpio_number) {
   char const *gpio_name_format = "/sys/class/gpio/gpio%d/value";
-  char gpio_name [80];
-  char gpio_value[3]; /* gpio value file contains the value and the CR */
-  FILE *gpio_file;
-  int rv = -1, size;
+  char gpio_name[FNAME_SIZE];
 
   snprintf(gpio_name, sizeof(gpio_name), gpio_name_format, gpio_number);
-  gpio_file = fopen(gpio_name, "r");
-  if (!gpio_file) {
-    fprintf(stderr, "%s: failed to open %s\n", __FUNCTION__, gpio_name);
-    return -1;
-  }
-
-  size = fread(&gpio_value, 1, sizeof(gpio_value), gpio_file);
-  if ((size == 2) && (gpio_value[1] == 0xa)) {
-    rv = gpio_value[0] - '0'; /* we expect 0 or 1 only */
-  } else {
-    fprintf(stderr,  "%s: failed to read %s, got %d\n",
-            __FUNCTION__, gpio_name, size);
-  }
-  fclose(gpio_file);
-  return rv;
+  return ReadFileInt(gpio_name);
 }
 
 static int VbGetVarGpio(const char* name) {
-  int i;
-  const GpioMap* pmap;
+  int polarity, gpio_num;
+  char prop_polarity[FNAME_SIZE];
+  char prop_gpio_num[FNAME_SIZE];
 
-  for (i = 0, pmap = vb_gpio_map_kaen;
-       i < ARRAY_SIZE(vb_gpio_map_kaen);
-       i++, pmap++) {
-    if (!strcmp(name, pmap->signal_name))
-      return VbGetGpioStatus(pmap->gpio_number) ^ pmap->needs_inversion;
-  }
-  return 2;  /* means not found */
-}
+  snprintf(prop_polarity, sizeof(prop_polarity), "polarity_%s", name);
+  snprintf(prop_gpio_num, sizeof(prop_gpio_num), "gpio_port_%s", name);
 
-static int VbReadSharedMemory(void) {
-  FILE *data_file = NULL;
-  int rv = -1;
-  int size;
+  polarity = ReadFdtInt(prop_polarity);
+  gpio_num = ReadFdtInt(prop_gpio_num);
 
-  do {
-    data_file = fopen(blob_name, "rb");
-    if (!data_file) {
-      fprintf(stderr, "%s: failed to open %s\n", __FUNCTION__, blob_name);
-      break;
-    }
-    size = fread(&shared_memory, 1, sizeof(shared_memory), data_file);
-    if ((size != sizeof(shared_memory)) || (size != shared_memory.total_size)) {
-      fprintf(stderr,  "%s: failed to read shared memory: got %d bytes, "
-              "expected %lu, should have been %d\n",
-              __FUNCTION__,
-              size,
-              (unsigned long)sizeof(shared_memory),
-              shared_memory.total_size);
-      break;
-    }
+  if (polarity == -1 || gpio_num == -1)
+    return 2;
 
-    if (strcmp((const char*)shared_memory.signature, SHARED_MEM_SIGNATURE)) {
-      fprintf(stderr, "%s: signature verification failed\n", __FUNCTION__);
-      break;
-    }
-
-    if (shared_memory.version != SHARED_MEM_VERSION) {
-      fprintf(stderr, "%s: version mismatch: %d != %d\n",
-              __FUNCTION__, shared_memory.version, SHARED_MEM_VERSION);
-      break;
-    }
-    rv = 0;
-  } while (0);
-
-  if (data_file)
-    fclose(data_file);
-
-  return rv;
-}
-
-/* Retrieve the address of an entity in the shared memory based on the entity
- * name, as described in vb_cs_map table.
- *
- * Return NULL if the entity name is not found in the table.
- */
-static const void* VbGetVarAuto(const char* name) {
-  int i;
-  VbVarInfo *pi;
-
-  for (i = 0, pi = vb_cs_map; i < ARRAY_SIZE(vb_cs_map); i++, pi++) {
-    if (strcmp(pi->cs_field_name, name)) continue;
-    return pi->cs_value;
-  }
-  return NULL;
+  return VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
 }
 
 int VbReadNvStorage(VbNvContext* vnc) {
-  Memcpy(vnc->raw, shared_memory.nvcxt_cache, sizeof(vnc->raw));
+  void *nvcxt_cache;
+  size_t size;
+
+  if (ReadFdtBlock("nvcxt_cache", &nvcxt_cache, &size))
+    return E_FAIL;
+
+  Memcpy(vnc->raw, nvcxt_cache, MIN(sizeof(vnc->raw), size));
+  free(nvcxt_cache);
   return 0;
 }
 
 int VbWriteNvStorage(VbNvContext* vnc) {
-  FILE *data_file = NULL;
+  int nvctx_fd = -1;
+  uint8_t sector[SECTOR_SIZE];
   int rv = -1;
-  int size;
+  ssize_t size;
+  char nvctx_path[FNAME_SIZE];
+  int emmc_dev;
+
+  emmc_dev = FindEmmcDev();
+  if (emmc_dev < 0)
+    return E_FAIL;
+  snprintf(nvctx_path, sizeof(nvctx_path), NVCTX_PATH, emmc_dev);
 
   do {
-    data_file = fopen(blob_name, "w");
-    if (!data_file) {
-      fprintf(stderr, "%s: failed to open %s\n", __FUNCTION__, blob_name);
+    nvctx_fd = open(nvctx_path, O_RDWR);
+    if (nvctx_fd == -1) {
+      fprintf(stderr, "%s: failed to open %s\n", __FUNCTION__, nvctx_path);
       break;
     }
-    size = fwrite(vnc->raw, 1, sizeof(vnc->raw), data_file);
-    if (size != sizeof(vnc->raw)) {
-      fprintf(stderr,  "%s: failed to write shared memory (%d)\n",
-              __FUNCTION__, size);
+    size = read(nvctx_fd, sector, SECTOR_SIZE);
+    if (size <= 0) {
+      fprintf(stderr, "%s: failed to read nvctx from device %s\n",
+              __FUNCTION__, nvctx_path);
+      break;
+    }
+    size = MIN(sizeof(vnc->raw), SECTOR_SIZE);
+    Memcpy(sector, vnc->raw, size);
+    lseek(nvctx_fd, 0, SEEK_SET);
+    size = write(nvctx_fd, sector, SECTOR_SIZE);
+    if (size <= 0) {
+      fprintf(stderr,  "%s: failed to write nvctx to device %s\n",
+              __FUNCTION__, nvctx_path);
       break;
     }
     rv = 0;
   } while (0);
 
-  if (data_file)
-    fclose(data_file);
+  if (nvctx_fd > 0)
+    close(nvctx_fd);
 
   return rv;
 }
 
 VbSharedDataHeader *VbSharedDataRead(void) {
-  /* don't need this malloc/copy, but have to do it to comply with the
-   * wrapper.
-   */
-  VbSharedDataHeader *p = malloc(sizeof(*p));
-  Memcpy(p, shared_memory.shared_data_body, sizeof(*p));
-  return p;
+  void *block = NULL;
+  size_t size = 0;
+  if (ReadFdtBlock("vbshared_data", &block, &size))
+    return NULL;
+  return (VbSharedDataHeader *)block;
+}
+
+static int VbGetRecoveryReason(void) {
+  int value;
+  size_t size;
+  uint8_t *binf;
+  if (ReadFdtBlock("binf", (void **)&binf, &size))
+    return -1;
+  value = binf[BINF_RECOVERY_REASON];
+  free(binf);
+  return value;
 }
 
 int VbGetArchPropertyInt(const char* name) {
-
-  const uint8_t *value;
-  int rv;
-
-  value = VbGetVarAuto(name);
-
-  if (value) return (int) *value;
-
-  rv = VbGetVarGpio(name);
-  if (rv <= 1) return rv;
-
-  if (!strcasecmp(name,"fmap_base")) {
-    return shared_memory.fmap_base;
-  }
-
-  return -1;
+  if (!strcasecmp(name, "recovery_reason")) {
+    return VbGetRecoveryReason();
+  } else if (!strcasecmp(name, "fmap_base")) {
+    return ReadFdtInt("fmap_base");
+  } else if (!strcasecmp(name, "devsw_boot")) {
+    return ReadFdtInt("developer_sw");
+  } else if (!strcasecmp(name, "recoverysw_boot")) {
+    return ReadFdtInt("recovery_sw");
+  } else if (!strcasecmp(name, "wpsw_boot")) {
+    return ReadFdtInt("write_protect_sw");
+  } else if (!strcasecmp(name, "devsw_cur")) {
+    return VbGetVarGpio("developer_sw");
+  } else if (!strcasecmp(name, "recoverysw_cur")) {
+    return VbGetVarGpio("recovery_sw");
+  } else if (!strcasecmp(name, "wpsw_cur")) {
+    return VbGetVarGpio("write_protect_sw");
+  } else if (!strcasecmp(name, "recoverysw_ec_boot")) {
+    return 0;
+  } else
+    return -1;
 }
 
 const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
-  const char* value = VbGetVarAuto(name);
-  if (value) return StrCopy(dest, value, size);
+  char *str = NULL;
+  char *rv = NULL;
+  size_t block_size;
+  uint8_t *binf, mainfw_act, mainfw_type, ecfw_act;
+
+  /* Properties from fdt */
+  if (!strcasecmp(name, "ro_fwid")) {
+    str = ReadFdtString("frid");
+  } else if (!strcasecmp(name, "hwid")) {
+    str = ReadFdtString("hwid");
+  } else if (!strcasecmp(name, "fwid")) {
+    str = ReadFdtString("fwid");
+  }
+
+  if (str) {
+    rv = StrCopy(dest, str, size);
+    free(str);
+    return rv;
+  }
+
+  /* Other properties */
+  if (ReadFdtBlock("binf", (void**)&binf, &block_size))
+    return NULL;
+  mainfw_act  = binf[BINF_MAINFW_ACT];
+  ecfw_act    = binf[BINF_ECFW_ACT];
+  mainfw_type = binf[BINF_MAINFW_TYPE];
+  free(binf);
 
   if (!strcasecmp(name,"arch")) {
     return StrCopy(dest, "arm", size);
   } else if (!strcasecmp(name,"mainfw_act")) {
-    switch(shared_memory.binf[1]) {
+    switch(mainfw_act) {
       case 0:
         return StrCopy(dest, "recovery", size);
       case 1:
@@ -245,7 +291,7 @@ const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
         return NULL;
     }
   } else if (!strcasecmp(name,"mainfw_type")) {
-    switch(shared_memory.binf[3]) {
+    switch(mainfw_type) {
     case BINF3_RECOVERY:
       return StrCopy(dest, "recovery", size);
     case BINF3_NORMAL:
@@ -256,7 +302,7 @@ const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
       return NULL;
     }
   } else if (!strcasecmp(name,"ecfw_act")) {
-    switch(shared_memory.binf[2]) {
+    switch(ecfw_act) {
       case 0:
         return StrCopy(dest, "RO", size);
       case 1:
@@ -280,5 +326,5 @@ int VbSetArchPropertyString(const char* name, const char* value) {
 
 int VbArchInit(void)
 {
-  return VbReadSharedMemory();
+  return 0;
 }
