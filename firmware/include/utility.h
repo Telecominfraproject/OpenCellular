@@ -87,6 +87,24 @@ void* Memset(void *dest, const uint8_t c, uint64_t n);
  */
 int SafeMemcmp(const void* s1, const void* s2, size_t n);
 
+/* Buffer size required to hold the longest possible output of
+ * Uint64ToString() - that is, Uint64ToString(~0, 2). */
+#define UINT64_TO_STRING_MAX 65
+
+/* Convert a value to a string in the specified radix (2=binary, 10=decimal,
+ * 16=hex) and store it in <buf>, which is <bufsize> chars long.  If
+ * <zero_pad_width>, left-pads the string to at least that width with '0'.
+ * Returns the length of the stored string, not counting the terminating
+ * null. */
+uint32_t Uint64ToString(char *buf, uint32_t bufsize, uint64_t value,
+                        uint32_t radix, uint32_t zero_pad_width);
+
+/* Concatenate <src> onto <dest>, which has space for <destlen> characters
+ * including the terminating null.  Note that <dest> will always be
+ * null-terminated if <destlen> > 0.  Returns the number of characters
+ * used in <dest>, not counting the terminating null. */
+uint32_t Strncat(char *dest, const char *src, uint32_t destlen);
+
 /* Ensure that only our stub implementations are used, not standard C */
 #ifndef _STUB_IMPLEMENTATION_
 #define malloc _do_not_use_standard_malloc

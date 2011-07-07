@@ -59,6 +59,7 @@ LIB_SRCS = \
 	./lib/cryptolib/sha_utility.c \
 	./lib/stateful_util.c \
 	./lib/utility.c \
+	./lib/utility_string.c \
 	./lib/vboot_common.c \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c \

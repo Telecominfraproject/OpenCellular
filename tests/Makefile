@@ -15,6 +15,7 @@ TEST_NAMES = cgptlib_test \
 	     rsa_verify_benchmark \
 	     sha_benchmark \
 	     sha_tests \
+	     utility_string_tests \
 	     vboot_common_tests \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
@@ -90,6 +91,7 @@ runcryptotests:
 # Run other misc tests
 runmisctests:
 	./run_vbutil_tests.sh
+	${BUILD_ROOT}/utility_string_tests
 
 #This will exercise vbutil_kernel and vbutil_firmware
 runfuzztests:
