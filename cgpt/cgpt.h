@@ -76,6 +76,7 @@ int GuidEqual(const Guid *guid1, const Guid *guid2);
 int IsZero(const Guid *guid);
 
 /* Constant global type values to compare against */
+extern const Guid guid_chromeos_firmware;
 extern const Guid guid_chromeos_kernel;
 extern const Guid guid_chromeos_rootfs;
 extern const Guid guid_linux_data;

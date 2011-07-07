@@ -558,6 +558,7 @@ int UTF8ToUTF16(const uint8_t *utf8, uint16_t *utf16, unsigned int maxoutput)
 }
 
 /* global types to compare against */
+const Guid guid_chromeos_firmware = GPT_ENT_TYPE_CHROMEOS_FIRMWARE;
 const Guid guid_chromeos_kernel =   GPT_ENT_TYPE_CHROMEOS_KERNEL;
 const Guid guid_chromeos_rootfs =   GPT_ENT_TYPE_CHROMEOS_ROOTFS;
 const Guid guid_linux_data =        GPT_ENT_TYPE_LINUX_DATA;
@@ -570,6 +571,7 @@ static struct {
   char *name;
   char *description;
 } supported_types[] = {
+  {&guid_chromeos_firmware, "firmware", "ChromeOS firmware"},
   {&guid_chromeos_kernel, "kernel", "ChromeOS kernel"},
   {&guid_chromeos_rootfs, "rootfs", "ChromeOS rootfs"},
   {&guid_linux_data, "data", "Linux data"},
