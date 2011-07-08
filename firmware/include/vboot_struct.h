@@ -280,14 +280,17 @@ typedef struct VbSharedDataHeader {
   uint64_t kernel_subkey_data_size;   /* Size of kernel subkey data */
 
   /* Timer values from VbExGetTimer().  Unused values are set to 0.
-   * If a function is called mutiple times, these are the times from
-   * the most recent call.  See crosbug.com/17018. */
-  uint64_t timer_load_firmware_start_enter;  /* VbInit() - enter */
-  uint64_t timer_load_firmware_start_exit;   /* VbInit() - exit */
-  uint64_t timer_load_firmware_enter;        /* LoadFirmware() - enter */
-  uint64_t timer_load_firmware_exit;         /* LoadFirmware() - exit */
-  uint64_t timer_load_kernel_enter;          /* LoadKernel() - enter */
-  uint64_t timer_load_kernel_exit;           /* LoadKernel() - exit */
+   * Note that these are now the enter/exit times for the wrapper API entry
+   * points; see crosbug.com/17018. */
+  /* VbInit() enter/exit */
+  uint64_t timer_vb_init_enter;
+  uint64_t timer_vb_init_exit;
+  /* VbSelectFirmware() enter/exit */
+  uint64_t timer_vb_select_firmware_enter;
+  uint64_t timer_vb_select_firmware_exit;
+  /* VbSelectAndLoadKernel() enter/exit */
+  uint64_t timer_vb_select_and_load_kernel_enter;
+  uint64_t timer_vb_select_and_load_kernel_exit;
 
   /* Information stored in TPM, as retrieved by firmware */
   uint32_t fw_version_tpm;            /* Current firmware version in TPM */

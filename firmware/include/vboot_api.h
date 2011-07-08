@@ -95,7 +95,11 @@ typedef struct VbCommonParams {
 #define VB_INIT_FLAG_WP_ENABLED          0x00000004
 /* This is a S3 resume, not a normal boot. */
 #define VB_INIT_FLAG_S3_RESUME           0x00000008
-
+/* Previous boot attempt failed for reasons external to verified boot (RAM
+ * init failure, SSD missing, etc.). */
+/* TODO: add a field to VbInitParams which holds a reason code, and report
+ * that via VbSharedData. */
+#define VB_INIT_FLAG_PREVIOUS_BOOT_FAIL  0x00000010
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware
@@ -209,14 +213,6 @@ void VbUpdateFirmwareBodyHash(VbCommonParams* cparams,
  * caller should reboot. */
 VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
                                 VbSelectAndLoadKernelParams* kparams);
-
-/* S3 resume handler.  This only needs to be called if the hardware
- * does not maintain power to the TPM when in S3 (suspend-to-RAM).
- *
- * Returns VBERROR_SUCCESS if success, non-zero if error; on error,
- * caller should reboot. */
-VbError_t VbS3Resume(void);
-
 
 /*****************************************************************************/
 /* Debug output (from utility.h) */

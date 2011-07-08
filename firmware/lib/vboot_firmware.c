@@ -64,9 +64,6 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* Setup NV storage */
   VbNvSetup(vnc);
 
-  /* Start timer */
-  shared->timer_load_firmware_enter = VbExGetTimer();
-
   /* Handle test errors */
   VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
   if (VBNV_TEST_ERROR_LOAD_FIRMWARE == test_err) {
@@ -377,8 +374,6 @@ LoadFirmwareExit:
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_FIRMWARE_RECOVERY == retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
-
-  shared->timer_load_firmware_exit = VbExGetTimer();
 
   /* Note that we don't reduce params->shared_data_size to shared->data_used,
    * since we want to leave space for LoadKernel() to add to the shared data

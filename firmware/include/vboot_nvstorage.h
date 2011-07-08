@@ -86,6 +86,9 @@ typedef enum VbNvParam {
  * vboot_struct.h. */
 #define VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN  0x10
 #define VBNV_RECOVERY_RO_INVALID_RW_CHECK_MAX  0x1F
+/* Firmware boot failure outside of verified boot (RAM init, missing SSD,
+ * etc.). */
+#define VBNV_RECOVERY_RO_FIRMWARE     0x20
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /* User manually requested recovery by pressing a key at developer

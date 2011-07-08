@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -65,7 +65,6 @@ int main(void)
   TlclGetPermissions(0, 0);
 
   /* vboot_api.h - entry points INTO vboot_reference */
-  VbS3Resume();
   VbInit(0, 0);
   VbSelectFirmware(0, 0);
   VbUpdateFirmwareBodyHash(0, 0, 0);

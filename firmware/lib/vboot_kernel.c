@@ -145,7 +145,6 @@ int LoadKernel(LoadKernelParams* params) {
 
   int retval = LOAD_KERNEL_RECOVERY;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
-  uint64_t timer_enter = VbExGetTimer();
 
   /* Setup NV storage */
   VbNvSetup(vnc);
@@ -178,38 +177,23 @@ int LoadKernel(LoadKernelParams* params) {
     dev_switch = 0;  /* Always do a fully verified boot */
   }
 
-  if (kBootRecovery == boot_mode) {
-    /* Initialize the shared data structure, since LoadFirmware() didn't do it
-     * for us. */
-    if (0 != VbSharedDataInit(shared, params->shared_data_size)) {
-      /* Error initializing the shared data, but we can keep going.  We just
-       * can't use the shared data. */
-      VBDEBUG(("Shared data init error\n"));
-      params->shared_data_size = 0;
-      shared = NULL;
-    }
-  }
-
-  if (shared) {
-    /* Set up tracking for this call.  This wraps around if called many times,
-     * so we need to initialize the call entry each time. */
-    shcall = shared->lk_calls + (shared->lk_call_count
-                                 & (VBSD_MAX_KERNEL_CALLS - 1));
-    Memset(shcall, 0, sizeof(VbSharedDataKernelCall));
-    shcall->boot_flags = (uint32_t)params->boot_flags;
-    shcall->boot_mode = boot_mode;
-    shcall->sector_size = (uint32_t)params->bytes_per_lba;
-    shcall->sector_count = params->ending_lba + 1;
-    shared->lk_call_count++;
-  }
+  /* Set up tracking for this call.  This wraps around if called many times,
+   * so we need to initialize the call entry each time. */
+  shcall = shared->lk_calls + (shared->lk_call_count
+                               & (VBSD_MAX_KERNEL_CALLS - 1));
+  Memset(shcall, 0, sizeof(VbSharedDataKernelCall));
+  shcall->boot_flags = (uint32_t)params->boot_flags;
+  shcall->boot_mode = boot_mode;
+  shcall->sector_size = (uint32_t)params->bytes_per_lba;
+  shcall->sector_count = params->ending_lba + 1;
+  shared->lk_call_count++;
 
   /* Handle test errors */
   VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
   if (VBNV_TEST_ERROR_LOAD_KERNEL == test_err) {
     /* Get error code */
     VbNvGet(vnc, VBNV_TEST_ERROR_NUM, &test_err);
-    if (shcall)
-      shcall->test_error_num = (uint8_t)test_err;
+    shcall->test_error_num = (uint8_t)test_err;
     /* Clear test params so we don't repeat the error */
     VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
     VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
@@ -237,11 +221,10 @@ int LoadKernel(LoadKernelParams* params) {
   }
 
   if (kBootDev == boot_mode && !dev_switch) {
-    /* Dev firmware should be signed such that it never boots with the dev
-     * switch is off; so something is terribly wrong. */
+      /* Dev firmware should be signed such that it never boots with the dev
+       * switch is off; so something is terribly wrong. */
     VBDEBUG(("LoadKernel() called with dev firmware but dev switch off\n"));
-    if (shcall)
-      shcall->check_result = VBSD_LKC_CHECK_DEV_SWITCH_MISMATCH;
+    shcall->check_result = VBSD_LKC_CHECK_DEV_SWITCH_MISMATCH;
     recovery = VBNV_RECOVERY_RW_DEV_MISMATCH;
     goto LoadKernelExit;
   }
@@ -253,17 +236,14 @@ int LoadKernel(LoadKernelParams* params) {
     /* Let the TPM know if we're in recovery mode */
     if (0 != RollbackKernelRecovery(dev_switch)) {
       VBDEBUG(("Error setting up TPM for recovery kernel\n"));
-      if (shcall)
-        shcall->flags |= VBSD_LK_FLAG_REC_TPM_INIT_ERROR;
+      shcall->flags |= VBSD_LK_FLAG_REC_TPM_INIT_ERROR;
       /* Ignore return code, since we need to boot recovery mode to
        * fix the TPM. */
     }
 
     /* Read the key indices from the TPM; ignore any errors */
-    if (shared) {
-      RollbackFirmwareRead(&shared->fw_version_tpm);
-      RollbackKernelRead(&shared->kernel_version_tpm);
-    }
+    RollbackFirmwareRead(&shared->fw_version_tpm);
+    RollbackKernelRead(&shared->kernel_version_tpm);
   } else {
     /* Use the kernel subkey passed from LoadFirmware(). */
     kernel_subkey = &shared->kernel_subkey;
@@ -279,8 +259,7 @@ int LoadKernel(LoadKernelParams* params) {
         recovery = VBNV_RECOVERY_RW_TPM_ERROR;
       goto LoadKernelExit;
     }
-    if (shared)
-      shared->kernel_version_tpm = tpm_version;
+    shared->kernel_version_tpm = tpm_version;
   }
 
   do {
@@ -289,16 +268,14 @@ int LoadKernel(LoadKernelParams* params) {
     gpt.drive_sectors = params->ending_lba + 1;
     if (0 != AllocAndReadGptData(params->disk_handle, &gpt)) {
       VBDEBUG(("Unable to read GPT data\n"));
-      if (shcall)
-        shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;
+      shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;
       break;
     }
 
     /* Initialize GPT library */
     if (GPT_SUCCESS != GptInit(&gpt)) {
       VBDEBUG(("Error parsing GPT\n"));
-      if (shcall)
-        shcall->check_result = VBSD_LKC_CHECK_GPT_PARSE_ERROR;
+      shcall->check_result = VBSD_LKC_CHECK_GPT_PARSE_ERROR;
       break;
     }
 
@@ -323,19 +300,17 @@ int LoadKernel(LoadKernelParams* params) {
       VBDEBUG(("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
               part_start, part_size));
 
-      if (shcall) {
-        /* Set up tracking for this partition.  This wraps around if called
-         * many times, so initialize the partition entry each time. */
-        shpart = shcall->parts + (shcall->kernel_parts_found
-                                 & (VBSD_MAX_KERNEL_PARTS - 1));
-        Memset(shpart, 0, sizeof(VbSharedDataKernelPart));
-        shpart->sector_start = part_start;
-        shpart->sector_count = part_size;
-        /* TODO: GPT partitions start at 1, but cgptlib starts them at 0.
-         * Adjust here, until cgptlib is fixed. */
-        shpart->gpt_index = (uint8_t)(gpt.current_kernel + 1);
-        shcall->kernel_parts_found++;
-      }
+      /* Set up tracking for this partition.  This wraps around if called
+       * many times, so initialize the partition entry each time. */
+      shpart = shcall->parts + (shcall->kernel_parts_found
+                                & (VBSD_MAX_KERNEL_PARTS - 1));
+      Memset(shpart, 0, sizeof(VbSharedDataKernelPart));
+      shpart->sector_start = part_start;
+      shpart->sector_count = part_size;
+      /* TODO: GPT partitions start at 1, but cgptlib starts them at 0.
+       * Adjust here, until cgptlib is fixed. */
+      shpart->gpt_index = (uint8_t)(gpt.current_kernel + 1);
+      shcall->kernel_parts_found++;
 
       /* Found at least one kernel partition. */
       found_partitions++;
@@ -343,16 +318,14 @@ int LoadKernel(LoadKernelParams* params) {
       /* Read the first part of the kernel partition. */
       if (part_size < kbuf_sectors) {
         VBDEBUG(("Partition too small to hold kernel.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_TOO_SMALL;
+        shpart->check_result = VBSD_LKP_CHECK_TOO_SMALL;
         goto bad_kernel;
       }
 
       if (0 != VbExDiskRead(params->disk_handle, part_start, kbuf_sectors,
                             kbuf)) {
         VBDEBUG(("Unable to read start of partition.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_READ_START;
+        shpart->check_result = VBSD_LKP_CHECK_READ_START;
         goto bad_kernel;
       }
 
@@ -360,8 +333,7 @@ int LoadKernel(LoadKernelParams* params) {
       key_block = (VbKeyBlockHeader*)kbuf;
       if (0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey, 0)) {
         VBDEBUG(("Verifying key block signature failed.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_SIG;
+        shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_SIG;
 
         key_block_valid = 0;
 
@@ -373,8 +345,7 @@ int LoadKernel(LoadKernelParams* params) {
          * block is valid. */
         if (0 != KeyBlockVerify(key_block, KBUF_SIZE, kernel_subkey, 1)) {
           VBDEBUG(("Verifying key block hash failed.\n"));
-          if (shpart)
-            shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_HASH;
+          shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_HASH;
           goto bad_kernel;
         }
       }
@@ -384,16 +355,14 @@ int LoadKernel(LoadKernelParams* params) {
             (dev_switch ? KEY_BLOCK_FLAG_DEVELOPER_1 :
              KEY_BLOCK_FLAG_DEVELOPER_0))) {
         VBDEBUG(("Key block developer flag mismatch.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_DEV_MISMATCH;
+        shpart->check_result = VBSD_LKP_CHECK_DEV_MISMATCH;
         key_block_valid = 0;
       }
       if (!(key_block->key_block_flags &
             (rec_switch ? KEY_BLOCK_FLAG_RECOVERY_1 :
              KEY_BLOCK_FLAG_RECOVERY_0))) {
         VBDEBUG(("Key block recovery flag mismatch.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_REC_MISMATCH;
+        shpart->check_result = VBSD_LKP_CHECK_REC_MISMATCH;
         key_block_valid = 0;
       }
 
@@ -402,8 +371,7 @@ int LoadKernel(LoadKernelParams* params) {
       if (kBootRecovery != boot_mode) {
         if (key_version < (tpm_version >> 16)) {
           VBDEBUG(("Key version too old.\n"));
-          if (shpart)
-            shpart->check_result = VBSD_LKP_CHECK_KEY_ROLLBACK;
+          shpart->check_result = VBSD_LKP_CHECK_KEY_ROLLBACK;
           key_block_valid = 0;
         }
       }
@@ -418,8 +386,7 @@ int LoadKernel(LoadKernelParams* params) {
       data_key = PublicKeyToRSA(&key_block->data_key);
       if (!data_key) {
         VBDEBUG(("Data key bad.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_DATA_KEY_PARSE;
+        shpart->check_result = VBSD_LKP_CHECK_DATA_KEY_PARSE;
         goto bad_kernel;
       }
 
@@ -429,8 +396,7 @@ int LoadKernel(LoadKernelParams* params) {
                                      KBUF_SIZE - key_block->key_block_size,
                                      data_key))) {
         VBDEBUG(("Preamble verification failed.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_VERIFY_PREAMBLE;
+        shpart->check_result = VBSD_LKP_CHECK_VERIFY_PREAMBLE;
         goto bad_kernel;
       }
 
@@ -438,13 +404,11 @@ int LoadKernel(LoadKernelParams* params) {
        * rollback of the kernel version. */
       combined_version = ((key_version << 16) |
                           (preamble->kernel_version & 0xFFFF));
-      if (shpart)
-        shpart->combined_version = (uint32_t)combined_version;
+      shpart->combined_version = (uint32_t)combined_version;
       if (key_block_valid && kBootRecovery != boot_mode) {
         if (combined_version < tpm_version) {
           VBDEBUG(("Kernel version too low.\n"));
-          if (shpart)
-            shpart->check_result = VBSD_LKP_CHECK_KERNEL_ROLLBACK;
+          shpart->check_result = VBSD_LKP_CHECK_KERNEL_ROLLBACK;
           /* If we're not in developer mode, kernel version must be valid. */
           if (kBootDev != boot_mode)
             goto bad_kernel;
@@ -452,8 +416,7 @@ int LoadKernel(LoadKernelParams* params) {
       }
 
       VBDEBUG(("Kernel preamble is good.\n"));
-      if (shpart)
-        shpart->check_result = VBSD_LKP_CHECK_PREAMBLE_VALID;
+      shpart->check_result = VBSD_LKP_CHECK_PREAMBLE_VALID;
 
       /* Check for lowest version from a valid header. */
       if (key_block_valid && lowest_version > combined_version)
@@ -473,8 +436,7 @@ int LoadKernel(LoadKernelParams* params) {
       if ((preamble->body_load_address != (size_t)params->kernel_buffer) &&
           !(params->boot_flags & BOOT_FLAG_SKIP_ADDR_CHECK)) {
         VBDEBUG(("Wrong body load address.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_BODY_ADDRESS;
+        shpart->check_result = VBSD_LKP_CHECK_BODY_ADDRESS;
         goto bad_kernel;
       }
 
@@ -482,8 +444,7 @@ int LoadKernel(LoadKernelParams* params) {
       body_offset = key_block->key_block_size + preamble->preamble_size;
       if (0 != body_offset % blba) {
         VBDEBUG(("Kernel body not at multiple of sector size.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_BODY_OFFSET;
+        shpart->check_result = VBSD_LKP_CHECK_BODY_OFFSET;
         goto bad_kernel;
       }
       body_offset_sectors = body_offset / blba;
@@ -492,16 +453,14 @@ int LoadKernel(LoadKernelParams* params) {
       body_sectors = (preamble->body_signature.data_size + blba - 1) / blba;
       if (body_sectors * blba > params->kernel_buffer_size) {
         VBDEBUG(("Kernel body doesn't fit in memory.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
+        shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
         goto bad_kernel;
       }
 
       /* Verify kernel body fits in the partition */
       if (body_offset_sectors + body_sectors > part_size) {
         VBDEBUG(("Kernel body doesn't fit in partition.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_PART;
+        shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_PART;
         goto bad_kernel;
       }
 
@@ -512,8 +471,7 @@ int LoadKernel(LoadKernelParams* params) {
                             body_sectors, params->kernel_buffer)) {
         VBDEBUG(("Unable to read kernel data.\n"));
         VBPERFEND("VB_RKD");
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_READ_DATA;
+        shpart->check_result = VBSD_LKP_CHECK_READ_DATA;
         goto bad_kernel;
       }
       VBPERFEND("VB_RKD");
@@ -523,8 +481,7 @@ int LoadKernel(LoadKernelParams* params) {
                           params->kernel_buffer_size,
                           &preamble->body_signature, data_key)) {
         VBDEBUG(("Kernel data verification failed.\n"));
-        if (shpart)
-          shpart->check_result = VBSD_LKP_CHECK_VERIFY_DATA;
+        shpart->check_result = VBSD_LKP_CHECK_VERIFY_DATA;
         goto bad_kernel;
       }
 
@@ -535,11 +492,9 @@ int LoadKernel(LoadKernelParams* params) {
       /* If we're still here, the kernel is valid. */
       /* Save the first good partition we find; that's the one we'll boot */
       VBDEBUG(("Partition is good.\n"));
-      if (shpart) {
-        shpart->check_result = VBSD_LKP_CHECK_KERNEL_GOOD;
-        if (key_block_valid)
-          shpart->flags |= VBSD_LKP_FLAG_KEY_BLOCK_VALID;
-      }
+      shpart->check_result = VBSD_LKP_CHECK_KERNEL_GOOD;
+      if (key_block_valid)
+        shpart->flags |= VBSD_LKP_FLAG_KEY_BLOCK_VALID;
 
       good_partition_key_block_valid = key_block_valid;
       /* TODO: GPT partitions start at 1, but cgptlib starts them at 0.
@@ -597,8 +552,7 @@ int LoadKernel(LoadKernelParams* params) {
   /* Handle finding a good partition */
   if (good_partition >= 0) {
     VBDEBUG(("Good_partition >= 0\n"));
-    if (shcall)
-      shcall->check_result = VBSD_LKC_CHECK_GOOD_PARTITION;
+    shcall->check_result = VBSD_LKC_CHECK_GOOD_PARTITION;
 
     /* See if we need to update the TPM */
     if ((kBootNormal == boot_mode) &&
@@ -619,8 +573,7 @@ int LoadKernel(LoadKernelParams* params) {
             recovery = VBNV_RECOVERY_RW_TPM_ERROR;
           goto LoadKernelExit;
         }
-        if (shared)
-          shared->kernel_version_tpm = (uint32_t)lowest_version;
+        shared->kernel_version_tpm = (uint32_t)lowest_version;
       }
     }
 
@@ -641,10 +594,9 @@ int LoadKernel(LoadKernelParams* params) {
     /* Success! */
     retval = LOAD_KERNEL_SUCCESS;
   } else {
-    if (shcall)
-      shcall->check_result = (found_partitions > 0
-                              ? VBSD_LKC_CHECK_INVALID_PARTITIONS
-                              : VBSD_LKC_CHECK_NO_PARTITIONS);
+    shcall->check_result = (found_partitions > 0
+                            ? VBSD_LKC_CHECK_INVALID_PARTITIONS
+                            : VBSD_LKC_CHECK_NO_PARTITIONS);
 
     /* TODO: differentiate between finding an invalid kernel
      * (found_partitions>0) and not finding one at all.  Right now we
@@ -659,20 +611,14 @@ LoadKernelExit:
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
 
-  if (shared) {
-    if (shcall)
-      shcall->return_code = (uint8_t)retval;
+  shcall->return_code = (uint8_t)retval;
 
-    /* Save whether the good partition's key block was fully verified */
-    if (good_partition_key_block_valid)
-      shared->flags |= VBSD_KERNEL_KEY_VERIFIED;
+  /* Save whether the good partition's key block was fully verified */
+  if (good_partition_key_block_valid)
+    shared->flags |= VBSD_KERNEL_KEY_VERIFIED;
 
-    /* Save timer values */
-    shared->timer_load_kernel_enter = timer_enter;
-    shared->timer_load_kernel_exit = VbExGetTimer();
-    /* Store how much shared data we used, if any */
-    params->shared_data_size = shared->data_used;
-  }
+  /* Store how much shared data we used, if any */
+  params->shared_data_size = shared->data_used;
 
   return retval;
 }

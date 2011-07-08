@@ -17,6 +17,7 @@
 VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   VbNvContext vnc;
+  VbError_t retval = VBERROR_SUCCESS;
   uint32_t recovery = VBNV_RECOVERY_NOT_REQUESTED;
   int is_s3_resume = 0;
   uint32_t s3_debug_boot = 0;
@@ -36,7 +37,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     return 1;
   }
 
-  shared->timer_load_firmware_start_enter = VbExGetTimer();
+  shared->timer_vb_init_enter = VbExGetTimer();
 
   /* Copy boot switch flags */
   shared->flags = 0;
@@ -74,6 +75,15 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
       VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_NOT_REQUESTED);
   }
 
+  /* If the previous boot failed in the firmware somewhere outside of verified
+   * boot, and recovery is not requested for our own reasons, request recovery
+   * mode.  This gives the calling firmware a way to request recovery if it
+   * finds something terribly wrong. */
+  if (VBNV_RECOVERY_NOT_REQUESTED == recovery &&
+      iparams->flags & VB_INIT_FLAG_PREVIOUS_BOOT_FAIL) {
+    recovery = VBNV_RECOVERY_RO_FIRMWARE;
+  }
+
   /* If recovery button is pressed, override recovery reason.  Note that we
    * do this in the S3 resume path also. */
   if (iparams->flags & VB_INIT_FLAG_REC_BUTTON_PRESSED)
@@ -97,11 +107,15 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   /* Copy current recovery reason to shared data */
   shared->recovery_reason = (uint8_t)recovery;
 
-  /* Clear the recovery request, so we won't get stuck in recovery mode */
-  VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_NOT_REQUESTED);
-
-  // TODO: Handle S3 resume path ourselves, if VB_INIT_FLAG_S3_RESUME
-  // (I believe we can do this now...)
+  /* If this is a S3 resume, resume the TPM */
+  if (is_s3_resume) {
+    if (TPM_SUCCESS != RollbackS3Resume()) {
+      /* If we can't resume, just do a full reboot.  No need to go to recovery
+       * mode here, since if the TPM is really broken we'll catch it on the
+       * next boot. */
+      retval = 1;
+    }
+  }
 
   /* Tear down NV storage */
   VbNvTeardown(&vnc);
@@ -110,24 +124,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
 
   VBDEBUG(("VbInit() output flags 0x%x\n", iparams->out_flags));
 
-  shared->timer_load_firmware_start_exit = VbExGetTimer();
+  shared->timer_vb_init_exit = VbExGetTimer();
 
-  return VBERROR_SUCCESS;
-}
-
-
-VbError_t VbS3Resume(void) {
-
-  /* TODO: handle test errors (requires passing in VbNvContext) */
-
-  /* Resume the TPM */
-  uint32_t status = RollbackS3Resume();
-
-  /* If we can't resume, just do a full reboot.  No need to go to recovery
-   * mode here, since if the TPM is really broken we'll catch it on the
-   * next boot. */
-  if (status == TPM_SUCCESS)
-    return VBERROR_SUCCESS;
-  else
-    return 1;
+  return retval;
 }

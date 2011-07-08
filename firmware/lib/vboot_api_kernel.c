@@ -219,24 +219,67 @@ static VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen,
   return VbExDisplayScreen(screen);
 }
 
+#define DEBUG_INFO_SIZE 512
 
 static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
 
   if ('\t' == key) {
     /* Tab = display debug info */
+    char buf[DEBUG_INFO_SIZE] = "";
+    uint32_t used = 0;
+    uint32_t i;
 
     /* Redisplay the current screen, to overwrite any previous debug output */
     VbDisplayScreen(cparams, disp_current_screen, 1);
 
-    /* TODO: add real data:
-     * - HWID
-     * - Current recovery request
-     * - Boot flags
+    /* Add hardware ID */
+    used += Strncat(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
+    if (0 == gbb->hwid_size ||
+        gbb->hwid_offset > cparams->gbb_size ||
+        gbb->hwid_offset + gbb->hwid_size > cparams->gbb_size) {
+      VBDEBUG(("VbCheckDisplayKey(): invalid hwid offset/size\n"));
+      used += Strncat(buf + used, "(INVALID)", DEBUG_INFO_SIZE - used);
+    } else {
+      used += Strncat(buf + used, (char*)((uint8_t*)gbb + gbb->hwid_offset),
+                      DEBUG_INFO_SIZE - used);
+    }
+
+    /* Add recovery request */
+    used += Strncat(buf + used, "\nrecovery_request: 0x",
+                    DEBUG_INFO_SIZE - used);
+    used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                           shared->recovery_reason, 16, 2);
+
+    /* Add VbSharedData flags */
+    used += Strncat(buf + used, "\nVbSD.flags: 0x", DEBUG_INFO_SIZE - used);
+    used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                           shared->flags, 16, 8);
+
+    /* Add raw contents of VbNvStorage */
+    used += Strncat(buf + used, "\nVbNv.raw:", DEBUG_INFO_SIZE - used);
+    for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
+      used += Strncat(buf + used, " ", DEBUG_INFO_SIZE - used);
+      used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                             vnc.raw[i], 16, 2);
+    }
+
+    used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
+
+    /* TODO: add more interesting data:
+     * - TPM firmware and kernel versions.  In the current code, they're
+     *   only filled into VbSharedData by LoadFirmware() and LoadKernel(), and
+     *   since neither of those is called in the recovery path this isn't
+     *   feasible yet.
+     * - SHA1 of kernel subkey (assuming we always set it in VbSelectFirmware,
+     *   even in recovery mode, where we just copy it from the root key)
      * - Information on current disks
-     * - Anything else interesting from cparams and/or nvram
-     *
-     * TODO: Add a VbExSnprintf() function for this? */
-    return VbExDisplayDebugInfo("Testing 1 2 3\nTesting 4 5 6\n");
+     * - Anything else interesting from VbNvStorage */
+
+    buf[DEBUG_INFO_SIZE - 1] = '\0';
+    VBDEBUG(("VbCheckDisplayKey() wants to show '%s'\n", buf));
+    return VbExDisplayDebugInfo(buf);
 
   } else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key) {
     /* Arrow keys = change localization */
@@ -505,6 +548,9 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
 
   VBDEBUG(("VbSelectAndLoadKernel() start\n"));
 
+  /* Start timer */
+  shared->timer_vb_select_and_load_kernel_enter = VbExGetTimer();
+
   VbExNvStorageRead(vnc.raw);
   vnc.raw_changed = 0;
 
@@ -562,6 +608,9 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
 
   if (vnc.raw_changed)
     VbExNvStorageWrite(vnc.raw);
+
+  /* Stop timer */
+  shared->timer_vb_select_and_load_kernel_exit = VbExGetTimer();
 
   VBDEBUG(("VbSelectAndLoadKernel() returning %d\n", (int)retval));
 

@@ -277,12 +277,12 @@ char* GetVdatString(char* dest, int size, VdatStringField field)
                "LFS=%" PRIu64 ",%" PRIu64
                " LF=%" PRIu64 ",%" PRIu64
                " LK=%" PRIu64 ",%" PRIu64,
-               sh->timer_load_firmware_start_enter,
-               sh->timer_load_firmware_start_exit,
-               sh->timer_load_firmware_enter,
-               sh->timer_load_firmware_exit,
-               sh->timer_load_kernel_enter,
-               sh->timer_load_kernel_exit);
+               sh->timer_vb_init_enter,
+               sh->timer_vb_init_exit,
+               sh->timer_vb_select_firmware_enter,
+               sh->timer_vb_select_firmware_exit,
+               sh->timer_vb_select_and_load_kernel_enter,
+               sh->timer_vb_select_and_load_kernel_exit);
       break;
 
     case VDAT_STRING_LOAD_FIRMWARE_DEBUG:

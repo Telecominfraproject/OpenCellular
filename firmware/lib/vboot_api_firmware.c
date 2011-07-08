@@ -20,11 +20,15 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   VbNvContext vnc;
   int rv;
 
+  /* Start timer */
+  shared->timer_vb_select_firmware_enter = VbExGetTimer();
+
   /* If recovery is requested, go straight to recovery without checking the
    * RW firmware. */
   if (VBNV_RECOVERY_NOT_REQUESTED != shared->recovery_reason) {
     VBDEBUG(("VbSelectFirmware() detected recovery request, reason=%d.\n",
              (int)shared->recovery_reason));
+    shared->timer_vb_select_firmware_exit = VbExGetTimer();
     fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;
     return VBERROR_SUCCESS;
   }
@@ -65,6 +69,9 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
 
   /* Copy amount of used shared data back to the wrapper API struct */
   cparams->shared_data_size = (uint32_t)p.shared_data_size;
+
+  /* Stop timer */
+  shared->timer_vb_select_firmware_exit = VbExGetTimer();
 
   /* Translate return codes */
   if (LOAD_FIRMWARE_SUCCESS == rv) {
