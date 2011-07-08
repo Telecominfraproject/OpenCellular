@@ -14,7 +14,7 @@
 
 /* Debug and error output */
 #ifdef VBOOT_DEBUG
-#define VBDEBUG(params) debug params
+#define VBDEBUG(params) VbExDebug params
 #else
 #define VBDEBUG(params)
 #endif
@@ -35,16 +35,10 @@
 #define VBPERFEND(name)
 #endif
 
-/* Outputs an error message and quits. */
-void error(const char* format, ...);
-
-/* Outputs debug/warning messages. */
-void debug(const char* format, ...);
-
 #ifdef VBOOT_DEBUG
 #define VbAssert(expr) do { if (!(expr)) { \
-      error("assert fail: %s at %s:%d\n", \
-            #expr, __FILE__, __LINE__); }} while(0)
+    VbExError("assert fail: %s at %s:%d\n", \
+              #expr, __FILE__, __LINE__); }} while(0)
 #else
 #define VbAssert(expr)
 #endif
@@ -56,14 +50,6 @@ void debug(const char* format, ...);
                                     (((lsw)) & 0xFFFF))
 /* Return the minimum of (a) or (b). */
 #define Min(a, b) (((a) < (b)) ? (a) : (b))
-
-/* Allocate [size] bytes and return a pointer to the allocated memory. Abort
- * on error.
- */
-void* Malloc(size_t size);
-
-/* Free memory pointed by [ptr] previously allocated by Malloc(). */
-void Free(void* ptr);
 
 /* Compare [n] bytes in [src1] and [src2]
  * Returns an integer less than, equal to, or greater than zero if the first [n]
@@ -113,19 +99,5 @@ uint32_t Strncat(char *dest, const char *src, uint32_t destlen);
 #define memcpy _do_not_use_standard_memcpy
 #define memset _do_not_use_standard_memset
 #endif
-
-/* Read a high-resolution timer. */
-uint64_t VbGetTimer(void);
-
-/* Return the maximum frequency for the high-resolution timer, in Hz.
- *
- * Note that this call MUST be fast; the implementation must not
- * attempt to actually measure the frequency.  This function need only
- * return an upper bound for the timer frequency, so that minimum
- * delays can be established.  For example, if the same BIOS can run
- * on CPUs where the timer frequency varies between 1.2GHz and 1.8GHz,
- * return 1800000000 (or even 2000000000). */
-uint64_t VbGetTimerMaxFreq(void);
-
 
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */

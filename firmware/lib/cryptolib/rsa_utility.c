@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -8,11 +8,12 @@
 #include "cryptolib.h"
 #include "stateful_util.h"
 #include "utility.h"
+#include "vboot_api.h"
 
 uint64_t RSAProcessedKeySize(uint64_t algorithm, uint64_t* out_size) {
-  uint64_t key_len; /* Key length in bytes. */
+  int key_len; /* Key length in bytes.  (int type matches siglen_map) */
   if (algorithm < kNumAlgorithms) {
-    key_len =  siglen_map[algorithm];
+    key_len = siglen_map[algorithm];
     /* Total size needed by a RSAPublicKey structure is =
      *  2 * key_len bytes for the  n and rr arrays
      *  + sizeof len + sizeof n0inv.
@@ -24,7 +25,7 @@ uint64_t RSAProcessedKeySize(uint64_t algorithm, uint64_t* out_size) {
 }
 
 RSAPublicKey* RSAPublicKeyNew(void) {
-  RSAPublicKey* key = (RSAPublicKey*) Malloc(sizeof(RSAPublicKey));
+  RSAPublicKey* key = (RSAPublicKey*) VbExMalloc(sizeof(RSAPublicKey));
   key->n = NULL;
   key->rr = NULL;
   return key;
@@ -32,9 +33,9 @@ RSAPublicKey* RSAPublicKeyNew(void) {
 
 void RSAPublicKeyFree(RSAPublicKey* key) {
   if (key) {
-    Free(key->n);
-    Free(key->rr);
-    Free(key);
+    VbExFree(key->n);
+    VbExFree(key->rr);
+    VbExFree(key);
   }
 }
 
@@ -59,8 +60,8 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, uint64_t len) {
     return NULL;
   }
 
-  key->n = (uint32_t*) Malloc(key_len);
-  key->rr = (uint32_t*) Malloc(key_len);
+  key->n = (uint32_t*) VbExMalloc(key_len);
+  key->rr = (uint32_t*) VbExMalloc(key_len);
 
   StatefulMemcpy(&st, &key->n0inv, sizeof(key->n0inv));
   StatefulMemcpy(&st, key->n, key_len);
@@ -106,7 +107,7 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
   success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
                       (uint8_t)algorithm, digest);
 
-  Free(digest);
+  VbExFree(digest);
   if (!key)
     RSAPublicKeyFree(verification_key);  /* Only free if we allocated it. */
   return success;

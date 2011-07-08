@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -7,26 +7,27 @@
 
 #include "cryptolib.h"
 #include "utility.h"
+#include "vboot_api.h"
 
 void DigestInit(DigestContext* ctx, int sig_algorithm) {
   ctx->algorithm = hash_type_map[sig_algorithm];
   switch(ctx->algorithm) {
     case SHA1_DIGEST_ALGORITHM:
-      ctx->sha1_ctx = (SHA1_CTX*) Malloc(sizeof(SHA1_CTX));
+      ctx->sha1_ctx = (SHA1_CTX*) VbExMalloc(sizeof(SHA1_CTX));
       SHA1_init(ctx->sha1_ctx);
       break;
     case SHA256_DIGEST_ALGORITHM:
-      ctx->sha256_ctx = (SHA256_CTX*) Malloc(sizeof(SHA256_CTX));
+      ctx->sha256_ctx = (SHA256_CTX*) VbExMalloc(sizeof(SHA256_CTX));
       SHA256_init(ctx->sha256_ctx);
       break;
     case SHA512_DIGEST_ALGORITHM:
-      ctx->sha512_ctx = (SHA512_CTX*) Malloc(sizeof(SHA512_CTX));
+      ctx->sha512_ctx = (SHA512_CTX*) VbExMalloc(sizeof(SHA512_CTX));
       SHA512_init(ctx->sha512_ctx);
       break;
   };
 }
 
-void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint64_t len) {
+void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint32_t len) {
   switch(ctx->algorithm) {
     case SHA1_DIGEST_ALGORITHM:
       SHA1_update(ctx->sha1_ctx, data, len);
@@ -44,26 +45,27 @@ uint8_t* DigestFinal(DigestContext* ctx) {
   uint8_t* digest = NULL;
   switch(ctx->algorithm) {
     case SHA1_DIGEST_ALGORITHM:
-      digest = (uint8_t*) Malloc(SHA1_DIGEST_SIZE);
+      digest = (uint8_t*) VbExMalloc(SHA1_DIGEST_SIZE);
       Memcpy(digest, SHA1_final(ctx->sha1_ctx), SHA1_DIGEST_SIZE);
-      Free(ctx->sha1_ctx);
+      VbExFree(ctx->sha1_ctx);
       break;
     case SHA256_DIGEST_ALGORITHM:
-      digest = (uint8_t*) Malloc(SHA256_DIGEST_SIZE);
+      digest = (uint8_t*) VbExMalloc(SHA256_DIGEST_SIZE);
       Memcpy(digest, SHA256_final(ctx->sha256_ctx), SHA256_DIGEST_SIZE);
-      Free(ctx->sha256_ctx);
+      VbExFree(ctx->sha256_ctx);
       break;
     case SHA512_DIGEST_ALGORITHM:
-      digest = (uint8_t*) Malloc(SHA512_DIGEST_SIZE);
+      digest = (uint8_t*) VbExMalloc(SHA512_DIGEST_SIZE);
       Memcpy(digest, SHA512_final(ctx->sha512_ctx), SHA512_DIGEST_SIZE);
-      Free(ctx->sha512_ctx);
+      VbExFree(ctx->sha512_ctx);
       break;
   };
   return digest;
 }
 
 uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm) {
-  uint8_t* digest = (uint8_t*) Malloc(SHA512_DIGEST_SIZE); /* Use the max. */
+  /* Allocate enough space for the largest digest */
+  uint8_t* digest = (uint8_t*) VbExMalloc(SHA512_DIGEST_SIZE);
   /* Define an array mapping [sig_algorithm] to function pointers to the
    * SHA{1|256|512} functions.
    */

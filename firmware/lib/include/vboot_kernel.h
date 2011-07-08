@@ -10,6 +10,7 @@
 #define VBOOT_REFERENCE_VBOOT_KERNEL_H_
 
 #include "cgptlib.h"
+#include "vboot_api.h"
 
 /* Allocates and reads GPT data from the drive.  The sector_bytes and
  * drive_sectors fields should be filled on input.  The primary and

@@ -12,6 +12,7 @@
 #include "tpm_bootmode.h"
 #include "tss_constants.h"
 #include "utility.h"
+#include "vboot_api.h"
 
 static int g_rollback_recovery_mode = 0;
 
@@ -414,7 +415,7 @@ uint32_t RollbackFirmwareRead(uint32_t* version) {
 
   RETURN_ON_FAILURE(ReadSpaceFirmware(&rsf));
   VBDEBUG(("TPM: RollbackFirmwareRead %x --> %x\n", (int)rsf.fw_versions,
-           (int)version));
+           (int)*version));
   *version = rsf.fw_versions;
   VBDEBUG(("TPM: RollbackFirmwareRead %x\n", (int)rsf.fw_versions));
   return TPM_SUCCESS;
