@@ -97,7 +97,7 @@ static void Uint64ToStringTest(void) {
 
   /* Zero pad corner cases */
   /* Don't pad if over length */
-  TestU64ToS(0x1234567890, 16, 8, "1234567890");
+  TestU64ToS(UINT64_C(0x1234567890), 16, 8, "1234567890");
   /* Fail if padding won't fit in buffer */
   TEST_EQ(0, Uint64ToString(dest, 8, 123, 10, 8), "Uint64ToString bad pad");
   TEST_EQ(0, strcmp(dest, ""), "Uint64ToString bad pad result");
