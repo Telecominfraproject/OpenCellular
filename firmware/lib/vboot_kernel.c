@@ -22,8 +22,8 @@
 
 typedef enum BootMode {
   kBootRecovery = 0,  /* Recovery firmware, regardless of dev switch position */
-  kBootNormal = 1,    /* Normal firmware */
-  kBootDev = 2        /* Dev firmware AND dev switch is on */
+  kBootNormal = 1,    /* Normal boot - kernel must be verified */
+  kBootDev = 2        /* Developer boot - self-signed kernel ok */
 } BootMode;
 
 
@@ -169,13 +169,10 @@ int LoadKernel(LoadKernelParams* params) {
   dev_switch = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
   if (rec_switch)
     boot_mode = kBootRecovery;
-  else if (BOOT_FLAG_DEV_FIRMWARE & params->boot_flags)
+  else if (dev_switch)
     boot_mode = kBootDev;
-  else {
-    /* Normal firmware */
+  else
     boot_mode = kBootNormal;
-    dev_switch = 0;  /* Always do a fully verified boot */
-  }
 
   /* Set up tracking for this call.  This wraps around if called many times,
    * so we need to initialize the call entry each time. */
@@ -217,15 +214,6 @@ int LoadKernel(LoadKernelParams* params) {
   kbuf_sectors = KBUF_SIZE / blba;
   if (0 == kbuf_sectors) {
     VBDEBUG(("LoadKernel() called with sector size > KBUF_SIZE\n"));
-    goto LoadKernelExit;
-  }
-
-  if (kBootDev == boot_mode && !dev_switch) {
-      /* Dev firmware should be signed such that it never boots with the dev
-       * switch is off; so something is terribly wrong. */
-    VBDEBUG(("LoadKernel() called with dev firmware but dev switch off\n"));
-    shcall->check_result = VBSD_LKC_CHECK_DEV_SWITCH_MISMATCH;
-    recovery = VBNV_RECOVERY_RW_DEV_MISMATCH;
     goto LoadKernelExit;
   }
 

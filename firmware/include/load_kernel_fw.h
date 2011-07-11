@@ -30,7 +30,9 @@
 #define BOOT_FLAG_RECOVERY  UINT64_C(0x02)
 /* Skip check of kernel buffer address */
 #define BOOT_FLAG_SKIP_ADDR_CHECK UINT64_C(0x04)
-/* Active main firmware is developer-type, not normal-type or recovery-type. */
+/* TODO: remove flag, once the firmware builds which call
+ * vboot_reference are updated.  This flag now does nothing.  See
+ * crosbug.com/17457. */
 #define BOOT_FLAG_DEV_FIRMWARE UINT64_C(0x08)
 
 typedef struct LoadKernelParams {
