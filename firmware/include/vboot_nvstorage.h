@@ -52,6 +52,8 @@ typedef enum VbNvParam {
   VBNV_TEST_ERROR_FUNC,
   /* Verified boot API error to generate for the function, if non-zero. */
   VBNV_TEST_ERROR_NUM,
+  /* Allow booting from USB in developer mode.  0=no, 1=yes. */
+  VBNV_DEV_BOOT_USB,
 } VbNvParam;
 
 

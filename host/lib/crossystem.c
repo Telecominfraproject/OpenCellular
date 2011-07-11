@@ -367,6 +367,8 @@ int VbGetSystemPropertyInt(const char* name) {
       value &= KERN_NV_FWUPDATE_TRIES_MASK;
   } else if (!strcasecmp(name,"loc_idx")) {
     value = VbGetNvStorage(VBNV_LOCALIZATION_INDEX);
+  } else if (!strcasecmp(name,"dev_boot_usb")) {
+    value = VbGetNvStorage(VBNV_DEV_BOOT_USB);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
@@ -444,6 +446,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
   } else if (!strcasecmp(name,"loc_idx")) {
     return VbSetNvStorage(VBNV_LOCALIZATION_INDEX, value);
+  } else if (!strcasecmp(name,"dev_boot_usb")) {
+    return VbSetNvStorage(VBNV_DEV_BOOT_USB, value);
   }
 
   return -1;

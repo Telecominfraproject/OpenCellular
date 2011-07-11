@@ -26,6 +26,9 @@
 #define RECOVERY_OFFSET              2
 #define LOCALIZATION_OFFSET          3
 
+#define DEV_FLAGS_OFFSET             4
+#define DEV_BOOT_USB_MASK               0x01
+
 #define FIRMWARE_FLAGS_OFFSET        5
 #define FIRMWARE_TEST_ERR_FUNC_MASK     0x38
 #define FIRMWARE_TEST_ERR_FUNC_SHIFT    3
@@ -135,6 +138,10 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
       *dest = raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_TEST_ERR_NUM_MASK;
       return 0;
 
+    case VBNV_DEV_BOOT_USB:
+      *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_USB_MASK ? 1 : 0);
+      return 0;
+
     default:
       return 1;
   }
@@ -211,6 +218,13 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
     case VBNV_TEST_ERROR_NUM:
       raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_TEST_ERR_NUM_MASK;
       raw[FIRMWARE_FLAGS_OFFSET] |= (value & FIRMWARE_TEST_ERR_NUM_MASK);
+      break;
+
+    case VBNV_DEV_BOOT_USB:
+      if (value)
+        raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_USB_MASK;
+      else
+        raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_USB_MASK;
       break;
 
     default:

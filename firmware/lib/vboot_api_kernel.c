@@ -393,8 +393,15 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
 }
 
 
-/* Handle a normal boot from fixed drive only. */
+/* Handle a normal boot. */
 VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
+
+  /* Force dev_boot_usb flag disabled.  This ensures the flag will be
+   * initially disabled if the user later transitions back into
+   * developer mode. */
+  VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
+
+  /* Boot from fixed disk only */
   return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
 
@@ -409,6 +416,10 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
 /* Handle a developer-mode boot */
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
   uint32_t delay_time = 0;
+  uint32_t allow_usb = 0;
+
+  /* Check if USB booting is allowed */
+  VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
 
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0);
@@ -444,8 +455,11 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       case 0x15:
         /* Ctrl+U = try USB boot, or beep if failure */
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+U; try USB\n"));
-        if (VBERROR_SUCCESS == VbTryLoadKernel(cparams, p,
-                                               VB_DISK_FLAG_REMOVABLE)) {
+        if (!allow_usb) {
+          VBDEBUG(("VbBootDeveloper() - USB booting is disabled\n"));
+          VbExBeep(DEV_DELAY_INCREMENT, 400);
+        } else if (VBERROR_SUCCESS ==
+                   VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE)) {
           VBDEBUG(("VbBootDeveloper() - booting USB\n"));
           return VBERROR_SUCCESS;
         } else {
