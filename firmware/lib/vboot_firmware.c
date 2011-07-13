@@ -57,7 +57,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
 
   /* Clear output params in case we fail */
-  params->firmware_index = 0;
+  shared->firmware_index = 0xFF;
 
   VBDEBUG(("LoadFirmware started...\n"));
 
@@ -93,7 +93,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   root_key = (VbPublicKey*)((uint8_t*)gbb + gbb->rootkey_offset);
 
   /* Parse flags */
-  is_dev = (params->boot_flags & BOOT_FLAG_DEVELOPER ? 1 : 0);
+  is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
   if (is_dev)
     shared->flags |= VBSD_LF_DEV_SWITCH_ON;
 
@@ -231,44 +231,60 @@ int LoadFirmware(LoadFirmwareParams* params) {
     if (-1 != good_index)
       continue;
 
-    /* Read the firmware data */
-    VBPERFSTART("VB_RFD");
-    DigestInit(&lfi->body_digest_context, data_key->algorithm);
-    lfi->body_size_accum = 0;
-    if (0 != GetFirmwareBody(params, index)) {
-      VBDEBUG(("GetFirmwareBody() failed for index %d\n", index));
-      *check_result = VBSD_LF_CHECK_GET_FW_BODY;
-      RSAPublicKeyFree(data_key);
-      VBPERFEND("VB_RFD");
-      continue;
-    }
-    if (lfi->body_size_accum != preamble->body_signature.data_size) {
-      VBDEBUG(("Hash updated %d bytes but expected %d\n",
-               (int)lfi->body_size_accum,
-               (int)preamble->body_signature.data_size));
-      *check_result = VBSD_LF_CHECK_HASH_WRONG_SIZE;
-      RSAPublicKeyFree(data_key);
-      VBPERFEND("VB_RFD");
-      continue;
-    }
-    VBPERFEND("VB_RFD");
+    /* Handle preamble flag for using the RO normal/dev code path */
+    if (VbGetFirmwarePreambleFlags(preamble) &
+        VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
 
-    /* Verify firmware data */
-    VBPERFSTART("VB_VFD");
-    body_digest = DigestFinal(&lfi->body_digest_context);
-    if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
-      VBDEBUG(("Firmware body verification failed.\n"));
-      *check_result = VBSD_LF_CHECK_VERIFY_BODY;
-      RSAPublicKeyFree(data_key);
+      /* Fail if calling firmware doesn't support RO normal */
+      if (!(shared->flags & VBSD_BOOT_RO_NORMAL_SUPPORT)) {
+        *check_result = VBSD_LF_CHECK_NO_RO_NORMAL;
+        RSAPublicKeyFree(data_key);
+        continue;
+      }
+
+      /* Indicate that we should use the RO normal code path */
+      shared->flags |= VBSD_LF_USE_RO_NORMAL;
+
+    } else {
+      /* Read the firmware data */
+      VBPERFSTART("VB_RFD");
+      DigestInit(&lfi->body_digest_context, data_key->algorithm);
+      lfi->body_size_accum = 0;
+      if (0 != GetFirmwareBody(params, index)) {
+        VBDEBUG(("GetFirmwareBody() failed for index %d\n", index));
+        *check_result = VBSD_LF_CHECK_GET_FW_BODY;
+        RSAPublicKeyFree(data_key);
+        VBPERFEND("VB_RFD");
+        continue;
+      }
+      if (lfi->body_size_accum != preamble->body_signature.data_size) {
+        VBDEBUG(("Hash updated %d bytes but expected %d\n",
+                 (int)lfi->body_size_accum,
+                 (int)preamble->body_signature.data_size));
+        *check_result = VBSD_LF_CHECK_HASH_WRONG_SIZE;
+        RSAPublicKeyFree(data_key);
+        VBPERFEND("VB_RFD");
+        continue;
+      }
+      VBPERFEND("VB_RFD");
+
+      /* Verify firmware data */
+      VBPERFSTART("VB_VFD");
+      body_digest = DigestFinal(&lfi->body_digest_context);
+      if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
+        VBDEBUG(("Firmware body verification failed.\n"));
+        *check_result = VBSD_LF_CHECK_VERIFY_BODY;
+        RSAPublicKeyFree(data_key);
+        VbExFree(body_digest);
+        VBPERFEND("VB_VFD");
+        continue;
+      }
       VbExFree(body_digest);
       VBPERFEND("VB_VFD");
-      continue;
     }
-    VBPERFEND("VB_VFD");
 
-    /* Done with the digest and data key, so can free them now */
+    /* Done with the data key, so can free it now */
     RSAPublicKeyFree(data_key);
-    VbExFree(body_digest);
 
     /* If we're still here, the firmware is valid. */
     VBDEBUG(("Firmware %d is valid.\n", index));
@@ -284,7 +300,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
       /* Save the good index, now that we're sure we can actually use
        * this firmware.  That's the one we'll boot. */
       good_index = index;
-      params->firmware_index = index;
+      shared->firmware_index = index;
       /* Since we now know which firmware to boot, we can update the
        * bootable firmware key block mode. */
       boot_fw_keyblock_flags = key_block->key_block_flags;
@@ -349,8 +365,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     }
 
     /* Success */
-    VBDEBUG(("Will boot firmware index %d\n", (int)params->firmware_index));
-    shared->firmware_index = (uint8_t)params->firmware_index;
+    VBDEBUG(("Will boot firmware index %d\n", (int)shared->firmware->index));
     retval = LOAD_FIRMWARE_SUCCESS;
   } else {
     uint8_t a = shared->check_fw_a_result;

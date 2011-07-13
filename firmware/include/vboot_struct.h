@@ -180,6 +180,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_KERNEL_KEY_VERIFIED        0x00000002
 /* LoadFirmware() was told the developer switch was on */
 #define VBSD_LF_DEV_SWITCH_ON           0x00000004
+/* LoadFirmware() is requesting the read only normal/dev code path */
+#define VBSD_LF_USE_RO_NORMAL           0x00000008
 /* Developer switch was enabled at boot time */
 #define VBSD_BOOT_DEV_SWITCH_ON         0x00000010
 /* Recovery switch was enabled at boot time */
@@ -188,7 +190,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_BOOT_FIRMWARE_WP_ENABLED   0x00000040
 /* Boot is a S3->S0 resume, not a S5->S0 normal boot */
 #define VBSD_BOOT_S3_RESUME             0x00000100
-
+/* Read-only firmware supports the normal/developer code path */
+#define VBSD_BOOT_RO_NORMAL_SUPPORT     0x00000200
 
 /* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
 #define VBSD_LF_CHECK_NOT_DONE          0
@@ -204,6 +207,9 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_LF_CHECK_HASH_WRONG_SIZE   10
 #define VBSD_LF_CHECK_VERIFY_BODY       11
 #define VBSD_LF_CHECK_VALID             12
+/* Read-only normal path requested by firmware preamble, but
+ * unsupported by firmware. */
+#define VBSD_LF_CHECK_NO_RO_NORMAL      13
 
 /* Boot mode for VbSharedDataHeader.lk_boot_mode */
 #define VBSD_LK_BOOT_MODE_RECOVERY      0

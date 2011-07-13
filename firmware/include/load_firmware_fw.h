@@ -20,9 +20,6 @@
                                    * VbNvContext (VBNV_RECOVERY_REQUEST). */
 #define LOAD_FIRMWARE_REBOOT 2    /* Reboot to same mode as current boot */
 
-/* Boot flags for LoadFirmware().boot_flags */
-#define BOOT_FLAG_DEVELOPER UINT64_C(0x01)  /* Developer switch is on */
-
 typedef struct LoadFirmwareParams {
   /* Inputs to LoadFirmware() */
   void* gbb_data;                /* Pointer to GBB data */
@@ -38,23 +35,18 @@ typedef struct LoadFirmwareParams {
   void* shared_data_blob;        /* Shared data blob buffer.  Pass this
                                   * data to LoadKernel() in
                                   * LoadKernelParams.shared_data_blob. */
-  uint64_t shared_data_size;     /* On input, set to size of shared data blob
+  uint32_t shared_data_size;     /* On input, set to size of shared data blob
                                   * buffer, in bytes.  On output, this will
                                   * contain the actual data size placed into
                                   * the buffer.  Caller need only pass that
                                   * much data to LoadKernel().*/
 
-  uint64_t boot_flags;           /* Boot flags */
   VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
                                   * must be filled before calling
                                   * LoadFirmware().  On output, check
                                   * nv_context->raw_changed to see if
                                   * nv_context->raw has been modified and
                                   * needs saving. */
-
-  /* Outputs from LoadFirmware(); valid only if LoadFirmware() returns
-   * LOAD_FIRMWARE_SUCCESS. */
-  uint64_t firmware_index;       /* Firmware index to run. */
 
   /* Internal data for LoadFirmware() / UpdateFirmwareBodyHash(). */
   void* load_firmware_internal;

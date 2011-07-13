@@ -189,10 +189,12 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
 
   lfp.shared_data_blob = malloc(VB_SHARED_DATA_MIN_SIZE);
   lfp.shared_data_size = VB_SHARED_DATA_MIN_SIZE;
-  printf("shared data size 0x%08" PRIx64 "\n", lfp.shared_data_size);
-
-  lfp.boot_flags = boot_flags;
-  printf("boot flags is 0x%08" PRIx64 "\n", lfp.boot_flags);
+  printf("shared data size 0x%08" PRIx32 "\n", lfp.shared_data_size);
+  /* TODO: load_firmware_test was broken in the wrapper API rewrite.
+   * Nothing uses it, so we haven't noticed yet.  Need to fix it.  See
+   * crosbug.com/17564.  LoadFirmware() now assumes that VbInit() has
+   * been called to set up the shared data structure, but that isn't
+   * happening here. */
 
   status = LoadFirmware(&lfp);
   status_str = status_string(status);
@@ -200,8 +202,6 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
     printf("LoadFirmware returns %s\n", status_str);
   else
     printf("LoadFirmware returns unknown status code: %d\n", status);
-  if (status == LOAD_FIRMWARE_SUCCESS)
-    printf("firmwiare index is %" PRIu64 "\n", lfp.firmware_index);
 
   free(lfp.shared_data_blob);
 

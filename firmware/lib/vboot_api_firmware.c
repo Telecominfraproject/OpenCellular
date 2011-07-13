@@ -40,11 +40,6 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   p.shared_data_size      = cparams->shared_data_size;
   p.nv_context            = &vnc;
 
-  /* TODO: LoadFirmware() should use VbSharedDataHeader.flags directly. */
-  p.boot_flags = 0;
-  if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
-    p.boot_flags |= BOOT_FLAG_DEVELOPER;
-
   p.verification_block_0  = fparams->verification_block_A;
   p.verification_block_1  = fparams->verification_block_B;
   p.verification_size_0   = fparams->verification_size_A;
@@ -75,8 +70,10 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
 
   /* Translate return codes */
   if (LOAD_FIRMWARE_SUCCESS == rv) {
-    /* Found good firmware in either A or B */
-    if (0 == p.firmware_index)
+    if (shared->flags & VBSD_LF_USE_RO_NORMAL) {
+      /* Request the read-only normal/dev code path */
+      fparams->selected_firmware = VB_SELECT_FIRMWARE_READONLY;
+    } else if (0 == shared->firmware_index)
       fparams->selected_firmware = VB_SELECT_FIRMWARE_A;
     else
       fparams->selected_firmware = VB_SELECT_FIRMWARE_B;

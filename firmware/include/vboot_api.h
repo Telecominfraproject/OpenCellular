@@ -100,6 +100,9 @@ typedef struct VbCommonParams {
 /* TODO: add a field to VbInitParams which holds a reason code, and report
  * that via VbSharedData. */
 #define VB_INIT_FLAG_PREVIOUS_BOOT_FAIL  0x00000010
+/* Calling firmware supports read only firmware for normal/developer
+ * boot path. */
+#define VB_INIT_FLAG_RO_NORMAL_SUPPORT   0x00000020
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware
@@ -143,7 +146,7 @@ enum VbSelectFirmware_t {
   /* Rewritable firmware A/B for normal or developer path */
   VB_SELECT_FIRMWARE_A = 1,
   VB_SELECT_FIRMWARE_B = 2,
-  /* Read only firmware for normal or developer path */
+  /* Read only firmware for normal or developer path. */
   VB_SELECT_FIRMWARE_READONLY = 3
 };
 
@@ -157,7 +160,8 @@ typedef struct VbSelectFirmwareParams {
   uint32_t verification_size_B;  /* Verification block B size in bytes */
 
   /* Outputs from VbSelectFirmware(); valid only if it returns success. */
-  uint32_t selected_firmware;    /* Main firmware to run; see VB_SELECT_*. */
+  uint32_t selected_firmware;    /* Main firmware to run; see
+                                  * VB_SELECT_FIRMWARE_*. */
 } VbSelectFirmwareParams;
 
 
