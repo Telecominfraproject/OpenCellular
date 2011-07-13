@@ -28,6 +28,7 @@ enum {
   OPT_VERSION,
   OPT_FV,
   OPT_KERNELKEY,
+  OPT_FLAGS,
 };
 
 static struct option long_opts[] = {
@@ -39,6 +40,7 @@ static struct option long_opts[] = {
   {"version", 1, 0,                   OPT_VERSION                 },
   {"fv", 1, 0,                        OPT_FV                      },
   {"kernelkey", 1, 0,                 OPT_KERNELKEY               },
+  {"flags", 1, 0,                     OPT_FLAGS                   },
   {NULL, 0, 0, 0}
 };
 
@@ -56,6 +58,8 @@ static int PrintHelp(void) {
        "  --version <number>          Firmware version\n"
        "  --fv <file>                 Firmware volume to sign\n"
        "  --kernelkey <file>          Kernel subkey in .vbpubk format\n"
+       "optional OPTIONS are:\n"
+       "  --flags <number>            Preamble flags (defaults to 0)\n"
        "\n"
        "For '--verify <file>', required OPTIONS are:\n"
        "  --signpubkey <file>         Signing public key in .vbpubk format\n"
@@ -71,7 +75,8 @@ static int PrintHelp(void) {
 /* Create a firmware .vblock */
 static int Vblock(const char* outfile, const char* keyblock_file,
                   const char* signprivate, uint64_t version,
-                  const char* fv_file, const char* kernelkey_file) {
+                  const char* fv_file, const char* kernelkey_file,
+                  uint32_t preamble_flags) {
 
   VbPrivateKey* signing_key;
   VbPublicKey* kernel_subkey;
@@ -135,7 +140,8 @@ static int Vblock(const char* outfile, const char* keyblock_file,
   preamble = CreateFirmwarePreamble(version,
                                     kernel_subkey,
                                     body_sig,
-                                    signing_key);
+                                    signing_key,
+                                    preamble_flags);
   if (!preamble) {
     VbExError("Error creating preamble.\n");
     return 1;
@@ -254,6 +260,8 @@ static int Verify(const char* infile, const char* signpubkey,
   printf("\n");
   printf("  Firmware body size:    %" PRIu64 "\n",
          preamble->body_signature.data_size);
+  printf("  Preamble flags:        %" PRIu32 "\n",
+         VbGetFirmwarePreambleFlags(preamble));
 
   /* TODO: verify body size same as signature size */
 
@@ -285,6 +293,7 @@ int main(int argc, char* argv[]) {
   uint64_t version = 0;
   char* fv_file = NULL;
   char* kernelkey_file = NULL;
+  uint32_t preamble_flags = 0;
   int mode = 0;
   int parse_error = 0;
   char* e;
@@ -331,6 +340,14 @@ int main(int argc, char* argv[]) {
           parse_error = 1;
         }
         break;
+
+      case OPT_FLAGS:
+        preamble_flags = strtoul(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          printf("Invalid --flags\n");
+          parse_error = 1;
+        }
+        break;
     }
   }
 
@@ -340,7 +357,7 @@ int main(int argc, char* argv[]) {
   switch(mode) {
     case OPT_MODE_VBLOCK:
       return Vblock(filename, key_block_file, signprivate, version, fv_file,
-                    kernelkey_file);
+                    kernelkey_file, preamble_flags);
     case OPT_MODE_VERIFY:
       return Verify(filename, signpubkey, fv_file, kernelkey_file);
     default:

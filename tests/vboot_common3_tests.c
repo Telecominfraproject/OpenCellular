@@ -135,8 +135,8 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
 }
 
 
-static void ReSignFirmwarePreamble(VbFirmwarePreambleHeader *h,
-                                   const VbPrivateKey *key) {
+static void ReSignFirmwarePreamble(VbFirmwarePreambleHeader* h,
+                                   const VbPrivateKey* key) {
   VbSignature *sig = CalculateSignature((const uint8_t*)h,
                                         h->preamble_signature.data_size, key);
 
@@ -149,16 +149,17 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
                                        const VbPrivateKey* private_key,
                                        const VbPublicKey* kernel_subkey) {
 
-  VbFirmwarePreambleHeader *hdr;
-  VbFirmwarePreambleHeader *h;
+  VbFirmwarePreambleHeader* hdr;
+  VbFirmwarePreambleHeader* h;
   RSAPublicKey* rsa;
   unsigned hsize;
 
   /* Create a dummy signature */
-  VbSignature *body_sig = SignatureAlloc(56, 78);
+  VbSignature* body_sig = SignatureAlloc(56, 78);
 
   rsa = PublicKeyToRSA(public_key);
-  hdr = CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig, private_key);
+  hdr = CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig, private_key,
+                               0x5678);
   TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble() prerequisites");
   if (!hdr)
     return;
@@ -238,7 +239,15 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
   TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
            "VerifyFirmwarePreamble() body sig off end");
 
-  /* TODO: verify parser can support a bigger header. */
+  /* Check that we return flags properly for new and old structs */
+  Memcpy(h, hdr, hsize);
+  TEST_EQ(VbGetFirmwarePreambleFlags(h), 0x5678,
+          "VbGetFirmwarePreambleFlags() v2.1");
+  h->header_version_minor = 0;
+  TEST_EQ(VbGetFirmwarePreambleFlags(h), 0,
+          "VbGetFirmwarePreambleFlags() v2.0");
+
+  /* TODO: verify with extra padding at end of header. */
 
   free(h);
   RSAPublicKeyFree(rsa);

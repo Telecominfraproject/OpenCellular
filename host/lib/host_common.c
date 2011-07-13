@@ -18,7 +18,8 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
     uint64_t firmware_version,
     const VbPublicKey* kernel_subkey,
     const VbSignature* body_signature,
-    const VbPrivateKey* signing_key) {
+    const VbPrivateKey* signing_key,
+    uint32_t flags) {
 
   VbFirmwarePreambleHeader* h;
   uint64_t signed_size = (sizeof(VbFirmwarePreambleHeader) +
@@ -34,6 +35,7 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
   h = (VbFirmwarePreambleHeader*)malloc(block_size);
   if (!h)
     return NULL;
+  Memset(h, 0, block_size);
   kernel_subkey_dest = (uint8_t*)(h + 1);
   body_sig_dest = kernel_subkey_dest + kernel_subkey->key_size;
   block_sig_dest = body_sig_dest + body_signature->sig_size;
@@ -42,6 +44,7 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
   h->header_version_minor = FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR;
   h->preamble_size = block_size;
   h->firmware_version = firmware_version;
+  h->flags = flags;
 
   /* Copy data key */
   PublicKeyInit(&h->kernel_subkey, kernel_subkey_dest,

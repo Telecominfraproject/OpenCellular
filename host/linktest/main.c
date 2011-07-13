@@ -35,7 +35,7 @@ int main(void)
   CalculateSignature(0, 0, 0);
 
   /* host_common.h */
-  CreateFirmwarePreamble(0, 0, 0, 0);
+  CreateFirmwarePreamble(0, 0, 0, 0, 0);
   CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0);
 
   /* file_keys.h */

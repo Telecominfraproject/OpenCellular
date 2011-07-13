@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -19,8 +19,12 @@ static void StructPackingTest(void) {
           "sizeof(VbSignature)");
   TEST_EQ(EXPECTED_VBKEYBLOCKHEADER_SIZE, sizeof(VbKeyBlockHeader),
           "sizeof(VbKeyBlockHeader)");
-  TEST_EQ(EXPECTED_VBFIRMWAREPREAMBLEHEADER_SIZE,
-          sizeof(VbFirmwarePreambleHeader), "sizeof(VbFirmwarePreambleHeader)");
+  TEST_EQ(EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE,
+          sizeof(VbFirmwarePreambleHeader2_0),
+          "sizeof(VbFirmwarePreambleHeader)");
+  TEST_EQ(EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE,
+          sizeof(VbFirmwarePreambleHeader),
+          "sizeof(VbFirmwarePreambleHeader)");
   TEST_EQ(EXPECTED_VBKERNELPREAMBLEHEADER_SIZE,
           sizeof(VbKernelPreambleHeader), "sizeof(VbKernelPreambleHeader)");
 }

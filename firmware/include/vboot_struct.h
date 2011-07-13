@@ -78,9 +78,33 @@ typedef struct VbKeyBlockHeader {
 
 
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR 2
-#define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 0
+#define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 1
 
-/* Preamble block for rewritable firmware */
+/* Preamble block for rewritable firmware, version 2.0.  All 2.x
+ * versions of this struct must start with the same data, to be
+ * compatible with version 2.0 readers. */
+typedef struct VbFirmwarePreambleHeader2_0 {
+  uint64_t preamble_size;            /* Size of this preamble, including keys,
+                                      * signatures, and padding, in bytes */
+  VbSignature preamble_signature;    /* Signature for this preamble
+                                      * (header + kernel subkey +
+                                      * body signature) */
+  uint32_t header_version_major;     /* Version of this header format (= 2) */
+  uint32_t header_version_minor;     /* Version of this header format (= 0) */
+
+  uint64_t firmware_version;         /* Firmware version */
+  VbPublicKey kernel_subkey;         /* Key to verify kernel key block */
+  VbSignature body_signature;        /* Signature for the firmware body */
+} __attribute__((packed)) VbFirmwarePreambleHeader2_0;
+
+#define EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE 104
+
+/* Flags for VbFirmwarePreambleHeader.flags */
+/* Use the normal/dev boot path from the read-only firmware, instead
+ * of verifying the body signature. */
+#define VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL 0x00000001
+
+/* Premable block for rewritable firmware, version 2.1 */
 typedef struct VbFirmwarePreambleHeader {
   uint64_t preamble_size;            /* Size of this preamble, including keys,
                                       * signatures, and padding, in bytes */
@@ -93,16 +117,23 @@ typedef struct VbFirmwarePreambleHeader {
   uint64_t firmware_version;         /* Firmware version */
   VbPublicKey kernel_subkey;         /* Key to verify kernel key block */
   VbSignature body_signature;        /* Signature for the firmware body */
+
+  /* Fields added in header version 2.1.  You must verify the header version
+   * before reading these fields! */
+  uint32_t flags;                    /* Flags; see VB_FIRMWARE_PREAMBLE_*.
+                                      * Readers should return 0 for header
+                                      * version < 2.1. */
 } __attribute__((packed)) VbFirmwarePreambleHeader;
-/* This should be followed by:
+
+#define EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE 108
+
+/* The firmware preamble header should be followed by:
  *   1) The kernel_subkey key data, pointed to by kernel_subkey.key_offset.
  *   2) The signature data for the firmware body, pointed to by
  *      body_signature.sig_offset.
- *   3) The signature data for (VBFirmwarePreambleHeader + kernel_subkey data
- *      + body signature data), pointed to by
- *      preamble_signature.sig_offset. */
+ *   3) The signature data for (header + kernel_subkey data + body signature
+ *      data), pointed to by preamble_signature.sig_offset. */
 
-#define EXPECTED_VBFIRMWAREPREAMBLEHEADER_SIZE 104
 
 #define KERNEL_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 0

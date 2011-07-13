@@ -138,9 +138,13 @@ typedef struct VbInitParams {
  * VbSelectFirmwareParams.selected_firmware.  Note that we store these
  * in a uint32_t because enum maps to int, which isn't fixed-size. */
 enum VbSelectFirmware_t {
+  /* Recovery mode */
   VB_SELECT_FIRMWARE_RECOVERY = 0,
+  /* Rewritable firmware A/B for normal or developer path */
   VB_SELECT_FIRMWARE_A = 1,
-  VB_SELECT_FIRMWARE_B = 2
+  VB_SELECT_FIRMWARE_B = 2,
+  /* Read only firmware for normal or developer path */
+  VB_SELECT_FIRMWARE_READONLY = 3
 };
 
 

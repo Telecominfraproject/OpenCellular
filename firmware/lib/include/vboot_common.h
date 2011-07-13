@@ -102,6 +102,14 @@ int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
                            uint64_t size, const RSAPublicKey* key);
 
 
+/* Returns the flags from a firmware preamble, or a default value for
+ * older preamble versions which didn't contain flags.  Use this
+ * function to ensure compatibility with older preamble versions
+ * (2.0).  Assumes the preamble has already been verified via
+ * VerifyFirmwarePreamble(). */
+uint32_t VbGetFirmwarePreambleFlags(const VbFirmwarePreambleHeader* preamble);
+
+
 /* Checks the sanity of a kernel preamble of size [size] bytes,
  * using public key [key].
  *

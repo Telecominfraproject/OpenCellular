@@ -30,7 +30,8 @@ VbFirmwarePreambleHeader* CreateFirmwarePreamble(
     uint64_t firmware_version,
     const VbPublicKey* kernel_subkey,
     const VbSignature* body_signature,
-    const VbPrivateKey* signing_key);
+    const VbPrivateKey* signing_key,
+    uint32_t flags);
 
 
 /* Creates a kernel preamble, signed with [signing_key].

@@ -297,8 +297,8 @@ int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
   const VbSignature* sig = &preamble->preamble_signature;
 
   /* Sanity checks before attempting signature of data */
-  if(size < sizeof(VbFirmwarePreambleHeader)) {
-    VBDEBUG(("Not enough data for preamble header.\n"));
+  if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE) {
+    VBDEBUG(("Not enough data for preamble header 2.0.\n"));
     return VBOOT_PREAMBLE_INVALID;
   }
   if (preamble->header_version_major !=
@@ -348,8 +348,29 @@ int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
     return VBOOT_PREAMBLE_INVALID;
   }
 
+  /* If the preamble header version is at least 2.1, verify we have
+   * space for the added fields from 2.1. */
+  if (preamble->header_version_minor >= 1) {
+    if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE) {
+      VBDEBUG(("Not enough data for preamble header 2.1.\n"));
+      return VBOOT_PREAMBLE_INVALID;
+    }
+  }
+
   /* Success */
   return VBOOT_SUCCESS;
+}
+
+
+uint32_t VbGetFirmwarePreambleFlags(const VbFirmwarePreambleHeader* preamble) {
+  if (preamble->header_version_minor < 1) {
+    /* Old structure; return default flags.  (Note that we don't need
+     * to check header_version_major; if that's not 2 then
+     * VerifyFirmwarePreamble() would have already failed. */
+    return 0;
+  }
+
+  return preamble->flags;
 }
 
 
