@@ -26,7 +26,8 @@
 typedef enum VdatStringField {
   VDAT_STRING_TIMERS = 0,           /* Timer values */
   VDAT_STRING_LOAD_FIRMWARE_DEBUG,  /* LoadFirmware() debug information */
-  VDAT_STRING_LOAD_KERNEL_DEBUG     /* LoadKernel() debug information */
+  VDAT_STRING_LOAD_KERNEL_DEBUG,    /* LoadKernel() debug information */
+  VDAT_STRING_MAINFW_ACT            /* Active main firmware */
 } VdatStringField;
 
 
@@ -293,6 +294,22 @@ char* GetVdatString(char* dest, int size, VdatStringField field)
       value = GetVdatLoadKernelDebug(dest, size, sh);
       break;
 
+    case VDAT_STRING_MAINFW_ACT:
+      switch(sh->firmware_index) {
+        case 0:
+          StrCopy(dest, "A", size);
+          break;
+        case 1:
+          StrCopy(dest, "B", size);
+          break;
+        case 0xFF:
+          StrCopy(dest, "recovery", size);
+          break;
+        default:
+          value = NULL;
+      }
+      break;
+
     default:
       value = NULL;
       break;
@@ -403,6 +420,8 @@ const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
       default:
         return NULL;
     }
+  } else if (!strcasecmp(name, "mainfw_act")) {
+    return GetVdatString(dest, size, VDAT_STRING_MAINFW_ACT);
   } else if (!strcasecmp(name, "vdat_timers")) {
     return GetVdatString(dest, size, VDAT_STRING_TIMERS);
   } else if (!strcasecmp(name, "vdat_lfdebug")) {

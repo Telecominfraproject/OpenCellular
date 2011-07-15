@@ -321,8 +321,6 @@ const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
     prop = "hardware-id";
   else if (!strcasecmp(name, "fwid"))
     prop = "firmware-version";
-  else if (!strcasecmp(name, "mainfw_act"))
-    prop = "active-firmware";
   else if (!strcasecmp(name, "mainfw_type"))
     prop = "firmware-type";
   else if (!strcasecmp(name, "ecfw_act"))
