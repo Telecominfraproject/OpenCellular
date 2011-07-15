@@ -147,19 +147,32 @@ static int VbGetGpioStatus(unsigned gpio_number) {
 
 static int VbGetVarGpio(const char* name) {
   int polarity, gpio_num;
-  char prop_polarity[FNAME_SIZE];
-  char prop_gpio_num[FNAME_SIZE];
+  void *pp = NULL;
+  int *prop;
+  size_t proplen = 0;
+  int ret = 0;
 
-  snprintf(prop_polarity, sizeof(prop_polarity), "%s-polarity", name);
-  snprintf(prop_gpio_num, sizeof(prop_gpio_num), "%s-gpio", name);
+  /* TODO: This should at some point in the future use the phandle
+   * to find the gpio chip and thus the base number. Assume 0 now,
+   * which isn't 100% future-proof (i.e. if one of the switches gets
+   * moved to an offchip gpio controller.
+   */
 
-  polarity = ReadFdtInt(prop_polarity);
-  gpio_num = ReadFdtInt(prop_gpio_num);
+  ret = ReadFdtBlock(name, &pp, &proplen);
+  if (ret || !pp || proplen != 12) {
+    ret = 2;
+    goto out;
+  }
+  prop = pp;
+  gpio_num = ntohl(prop[1]);
+  polarity = ntohl(prop[2]);
 
-  if (polarity == -1 || gpio_num == -1)
-    return 2;
+  ret = VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+out:
+  if (pp)
+    free(pp);
 
-  return VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+  return ret;
 }
 
 int VbReadNvStorage(VbNvContext* vnc) {
