@@ -365,7 +365,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     }
 
     /* Success */
-    VBDEBUG(("Will boot firmware index %d\n", (int)shared->firmware->index));
+    VBDEBUG(("Will boot firmware index %d\n", (int)shared->firmware_index));
     retval = LOAD_FIRMWARE_SUCCESS;
   } else {
     uint8_t a = shared->check_fw_a_result;
