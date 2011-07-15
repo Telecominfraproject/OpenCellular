@@ -300,7 +300,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
       /* Save the good index, now that we're sure we can actually use
        * this firmware.  That's the one we'll boot. */
       good_index = index;
-      shared->firmware_index = index;
+      shared->firmware_index = (uint8_t)index;
       /* Since we now know which firmware to boot, we can update the
        * bootable firmware key block mode. */
       boot_fw_keyblock_flags = key_block->key_block_flags;
