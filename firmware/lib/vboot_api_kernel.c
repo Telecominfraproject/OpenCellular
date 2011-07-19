@@ -478,6 +478,10 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         } else {
           VBDEBUG(("VbBootDeveloper() - no kernel found on USB\n"));
           VbExBeep(DEV_DELAY_INCREMENT, 400);
+          /* Clear recovery requests from failed kernel loading, so
+           * that powering off at this point doesn't put us into
+           * recovery mode. */
+          VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
         }
         break;
       default:
@@ -542,6 +546,11 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
   while (1) {
     VBDEBUG(("VbBootRecovery() attempting to load kernel\n"));
     retval = VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE);
+
+    /* Clear recovery requests from failed kernel loading, since we're
+     * already in recovery mode.  Do this now, so that powering off after
+     * inserting an invalid disk doesn't leave us stuck in recovery mode. */
+    VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
 
     if (VBERROR_SUCCESS == retval)
       break;  /* Found a recovery kernel */
@@ -642,10 +651,6 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
     kparams->bootloader_size = (uint32_t)p.bootloader_size;
     Memcpy(kparams->partition_guid, p.partition_guid,
            sizeof(kparams->partition_guid));
-
-    /* Since we did find something to boot, clear recovery request, if any,
-     * resulting from disk checks during developer or recovery mode. */
-    VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
   }
 
   if (vnc.raw_changed)
