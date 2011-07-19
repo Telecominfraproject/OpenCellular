@@ -219,67 +219,79 @@ static VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen,
   return VbExDisplayScreen(screen);
 }
 
+
 #define DEBUG_INFO_SIZE 512
 
-static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
+/* Display debug info to the screen */
+static VbError_t VbDisplayDebugInfo(VbCommonParams* cparams) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
+  char buf[DEBUG_INFO_SIZE] = "";
+  uint32_t used = 0;
+  uint32_t i;
+
+  /* Redisplay the current screen, to overwrite any previous debug output */
+  VbDisplayScreen(cparams, disp_current_screen, 1);
+
+  /* Add hardware ID */
+  used += Strncat(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
+  if (0 == gbb->hwid_size ||
+      gbb->hwid_offset > cparams->gbb_size ||
+      gbb->hwid_offset + gbb->hwid_size > cparams->gbb_size) {
+    VBDEBUG(("VbCheckDisplayKey(): invalid hwid offset/size\n"));
+    used += Strncat(buf + used, "(INVALID)", DEBUG_INFO_SIZE - used);
+  } else {
+    used += Strncat(buf + used, (char*)((uint8_t*)gbb + gbb->hwid_offset),
+                    DEBUG_INFO_SIZE - used);
+  }
+
+  /* Add recovery reason */
+  used += Strncat(buf + used, "\nrecovery_reason: 0x", DEBUG_INFO_SIZE - used);
+  used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                         shared->recovery_reason, 16, 2);
+
+  /* Add VbSharedData flags */
+  used += Strncat(buf + used, "\nVbSD.flags: 0x", DEBUG_INFO_SIZE - used);
+  used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                         shared->flags, 16, 8);
+
+  /* Add raw contents of VbNvStorage */
+  used += Strncat(buf + used, "\nVbNv.raw:", DEBUG_INFO_SIZE - used);
+  for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
+    used += Strncat(buf + used, " ", DEBUG_INFO_SIZE - used);
+    used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                           vnc.raw[i], 16, 2);
+  }
+
+  /* Add dev_boot_usb flag */
+  VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &i);
+  used += Strncat(buf + used, "\ndev_boot_usb: ", DEBUG_INFO_SIZE - used);
+  used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
+
+  /* Make sure we finish with a newline */
+  used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
+
+  /* TODO: add more interesting data:
+   * - TPM firmware and kernel versions.  In the current code, they're
+   *   only filled into VbSharedData by LoadFirmware() and LoadKernel(), and
+   *   since neither of those is called in the recovery path this isn't
+   *   feasible yet.
+   * - SHA1 of kernel subkey (assuming we always set it in VbSelectFirmware,
+   *   even in recovery mode, where we just copy it from the root key)
+   * - Information on current disks
+   * - Anything else interesting from VbNvStorage */
+
+  buf[DEBUG_INFO_SIZE - 1] = '\0';
+  VBDEBUG(("VbCheckDisplayKey() wants to show '%s'\n", buf));
+  return VbExDisplayDebugInfo(buf);
+}
+
+
+static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
 
   if ('\t' == key) {
     /* Tab = display debug info */
-    char buf[DEBUG_INFO_SIZE] = "";
-    uint32_t used = 0;
-    uint32_t i;
-
-    /* Redisplay the current screen, to overwrite any previous debug output */
-    VbDisplayScreen(cparams, disp_current_screen, 1);
-
-    /* Add hardware ID */
-    used += Strncat(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
-    if (0 == gbb->hwid_size ||
-        gbb->hwid_offset > cparams->gbb_size ||
-        gbb->hwid_offset + gbb->hwid_size > cparams->gbb_size) {
-      VBDEBUG(("VbCheckDisplayKey(): invalid hwid offset/size\n"));
-      used += Strncat(buf + used, "(INVALID)", DEBUG_INFO_SIZE - used);
-    } else {
-      used += Strncat(buf + used, (char*)((uint8_t*)gbb + gbb->hwid_offset),
-                      DEBUG_INFO_SIZE - used);
-    }
-
-    /* Add recovery request */
-    used += Strncat(buf + used, "\nrecovery_request: 0x",
-                    DEBUG_INFO_SIZE - used);
-    used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-                           shared->recovery_reason, 16, 2);
-
-    /* Add VbSharedData flags */
-    used += Strncat(buf + used, "\nVbSD.flags: 0x", DEBUG_INFO_SIZE - used);
-    used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-                           shared->flags, 16, 8);
-
-    /* Add raw contents of VbNvStorage */
-    used += Strncat(buf + used, "\nVbNv.raw:", DEBUG_INFO_SIZE - used);
-    for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
-      used += Strncat(buf + used, " ", DEBUG_INFO_SIZE - used);
-      used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-                             vnc.raw[i], 16, 2);
-    }
-
-    used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
-
-    /* TODO: add more interesting data:
-     * - TPM firmware and kernel versions.  In the current code, they're
-     *   only filled into VbSharedData by LoadFirmware() and LoadKernel(), and
-     *   since neither of those is called in the recovery path this isn't
-     *   feasible yet.
-     * - SHA1 of kernel subkey (assuming we always set it in VbSelectFirmware,
-     *   even in recovery mode, where we just copy it from the root key)
-     * - Information on current disks
-     * - Anything else interesting from VbNvStorage */
-
-    buf[DEBUG_INFO_SIZE - 1] = '\0';
-    VBDEBUG(("VbCheckDisplayKey() wants to show '%s'\n", buf));
-    return VbExDisplayDebugInfo(buf);
+    return VbDisplayDebugInfo(cparams);
 
   } else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key) {
     /* Arrow keys = change localization */
@@ -456,7 +468,9 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+U; try USB\n"));
         if (!allow_usb) {
           VBDEBUG(("VbBootDeveloper() - USB booting is disabled\n"));
-          VbExBeep(DEV_DELAY_INCREMENT, 400);
+          VbExBeep(DEV_DELAY_INCREMENT / 2, 400);
+          VbExSleepMs(DEV_DELAY_INCREMENT / 2);
+          VbExBeep(DEV_DELAY_INCREMENT / 2, 400);
         } else if (VBERROR_SUCCESS ==
                    VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE)) {
           VBDEBUG(("VbBootDeveloper() - booting USB\n"));
@@ -573,6 +587,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
   /* Fill in params for calls to LoadKernel() */
+  Memset(&p, 0, sizeof(p));
   p.shared_data_blob = cparams->shared_data_blob;
   p.shared_data_size = cparams->shared_data_size;
   p.gbb_data = cparams->gbb_data;
