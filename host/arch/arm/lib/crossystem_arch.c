@@ -279,14 +279,8 @@ VbSharedDataHeader *VbSharedDataRead(void) {
   return (VbSharedDataHeader *)block;
 }
 
-static int VbGetRecoveryReason(void) {
-  return ReadFdtInt("recovery-reason");
-}
-
 int VbGetArchPropertyInt(const char* name) {
-  if (!strcasecmp(name, "recovery_reason"))
-    return VbGetRecoveryReason();
-  else if (!strcasecmp(name, "fmap_base"))
+  if (!strcasecmp(name, "fmap_base"))
     return ReadFdtInt("fmap-offset");
   else if (!strcasecmp(name, "devsw_boot"))
     return ReadFdtBool("boot-developer-switch");
