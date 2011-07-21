@@ -118,12 +118,11 @@ calculate_rootfs_hash() {
   local verity_algorithm=$(echo ${dm_config} | cut -f8 -d' ')
 
   # Run the verity tool on the rootfs partition.
-  local table="vroot none ro,"$(sudo verity create \
-    ${verity_depth} \
-    ${verity_algorithm} \
-    ${rootfs_image} \
-    $((rootfs_sectors / 8)) \
-    ${hash_image})
+  local table="vroot none ro,"$(sudo verity mode=create \
+    alg=${verity_algorithm} \
+    payload="${rootfs_image}" \
+    payload_blocks=$((rootfs_sectors / 8)) \
+    hashtree="${hash_image}")
   # Reconstruct new kernel config command line and replace placeholders.
   table="$(echo "$table" |
     sed -s "s|ROOT_DEV|${root_dev}|g;s|HASH_DEV|${hash_dev}|")"
