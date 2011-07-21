@@ -273,7 +273,7 @@ command_record command_table[] = {
   { "clear", "clr", "clear the TPM owner (needs PP)", TlclForceClear },
   { "setnvlocked", "setnv", "set the nvLocked flag permanently (IRREVERSIBLE!)",
     TlclSetNvLocked },
-  { "lockphysicalpresence", "pplock", "lock PP to current value until reboot",
+  { "lockphysicalpresence", "pplock", "lock (turn off) PP until reboot",
     TlclLockPhysicalPresence },
   { "setbgloballock", "block", "set the bGlobalLock until reboot",
     TlclSetGlobalLock },
