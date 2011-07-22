@@ -18,7 +18,6 @@
 #define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode.  The specific
                                    * recovery reason has been set in
                                    * VbNvContext (VBNV_RECOVERY_REQUEST). */
-#define LOAD_FIRMWARE_REBOOT 2    /* Reboot to same mode as current boot */
 
 typedef struct LoadFirmwareParams {
   /* Inputs to LoadFirmware() */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -55,34 +55,6 @@ __pragma(pack(pop)) /* Support packing for MSVC. */
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
-/*
-
-Call from LoadFirmware()
-  Normal or developer mode (not recovery)
-  Wants firmware versions
-  Must send in developer flag
-
-  RollbackFirmwareSetup(IN devmode)
-  (maybe) RollbackFirmwareRead()
-  (maybe) RollbackFirmwareWrite()
-  RollbackFirmwareLock()
-
-Call from LoadKernel()
-
-  RollbackKernelRecovery(IN devmode)
-     (implies LockFirmwareVersions() inside the setup)
-
-  RollbackKernelRead(OUT kernel versions)
-  (maybe) RollbackKernelWrite()
-  RollbackKernelLock()
-
-  Any mode
-    If recovery mode, this is the first time we've been called
-      Must send in developer flag
-    If not recovery mode, wants kernel versions
-  Must send in developer and recovery flags
-*/
-
 /* These functions are called from S3Resume().  They cannot use
  * global variables. */
 uint32_t RollbackS3Resume(void);
@@ -90,14 +62,11 @@ uint32_t RollbackS3Resume(void);
 /* These functions are callable from LoadFirmware().  They cannot use
  * global variables. */
 
-/* Setup must be called.  Pass developer_mode=nonzero if in developer
+/* Setup must be called.  Pass recovery_mode=nonzero if in recovery
+ * mode.  Pass developer_mode=nonzero if in developer
  * mode. */
-uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version);
-
-/* Read may be called to get the version.  This is not necessary in
- * the normal boot path, because RollbackFirmwareSetup() provides the
- * same information.  It may be used in the recovery path. */
-uint32_t RollbackFirmwareRead(uint32_t* version);
+uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
+                               uint32_t* version);
 
 /* Write may be called if the versions change */
 uint32_t RollbackFirmwareWrite(uint32_t version);
@@ -107,12 +76,6 @@ uint32_t RollbackFirmwareLock(void);
 
 /* These functions are callable from LoadKernel().  They may use global
  * variables. */
-
-/* Recovery may be called.  If it is, this is the first time a
- * rollback function has been called this boot, so it needs to know if
- * we're in developer mode.  Pass developer_mode=nonzero if in developer
- * mode. */
-uint32_t RollbackKernelRecovery(int developer_mode);
 
 /* Read and write may be called to read and write the kernel version. */
 uint32_t RollbackKernelRead(uint32_t* version);

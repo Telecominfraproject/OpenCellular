@@ -7,10 +7,23 @@
 
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
+#include "rollback_index.h"
+#include "tpm_bootmode.h"
 #include "utility.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
+
+
+/* Set recovery request */
+static void VbSfRequestRecovery(VbNvContext *vnc, uint32_t recovery_request) {
+  VBDEBUG(("VbSfRequestRecovery(%d)\n", (int)recovery_request));
+  VbNvSetup(vnc);
+  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, recovery_request);
+  VbNvTeardown(vnc);
+  if (vnc->raw_changed)
+    VbExNvStorageWrite(vnc->raw);
+}
 
 
 VbError_t VbSelectFirmware(VbCommonParams* cparams,
@@ -18,58 +31,93 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   LoadFirmwareParams p;
   VbNvContext vnc;
+  VbError_t retval = 1;  /* Assume error until proven successful */
+  int is_rec = (shared->recovery_reason ? 1 : 0);
+  int is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
+  uint32_t tpm_version = 0;
+  uint32_t tpm_status = 0;
   int rv;
 
   /* Start timer */
   shared->timer_vb_select_firmware_enter = VbExGetTimer();
 
-  /* If recovery is requested, go straight to recovery without checking the
-   * RW firmware. */
-  if (VBNV_RECOVERY_NOT_REQUESTED != shared->recovery_reason) {
-    VBDEBUG(("VbSelectFirmware() detected recovery request, reason=%d.\n",
-             (int)shared->recovery_reason));
-    shared->timer_vb_select_firmware_exit = VbExGetTimer();
-    fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;
-    return VBERROR_SUCCESS;
-  }
-
-  /* Copy parameters from wrapper API structs to old struct */
-  p.gbb_data              = cparams->gbb_data;
-  p.gbb_size              = cparams->gbb_size;
-  p.shared_data_blob      = cparams->shared_data_blob;
-  p.shared_data_size      = cparams->shared_data_size;
-  p.nv_context            = &vnc;
-
-  p.verification_block_0  = fparams->verification_block_A;
-  p.verification_block_1  = fparams->verification_block_B;
-  p.verification_size_0   = fparams->verification_size_A;
-  p.verification_size_1   = fparams->verification_size_B;
-
   /* Load NV storage */
   VbExNvStorageRead(vnc.raw);
   vnc.raw_changed = 0;
 
-  /* Use vboot_context and caller_internal to link our params with
-   * LoadFirmware()'s params. */
-  // TODO: clean up LoadFirmware() to use common params?
-  p.caller_internal = (void*)cparams;
-  cparams->vboot_context = (void*)&p;
+  /* Initialize the TPM */
+  VBPERFSTART("VB_TPMI");
+  tpm_status = RollbackFirmwareSetup(is_rec, is_dev, &tpm_version);
+  VBPERFEND("VB_TPMI");
+  if (0 != tpm_status) {
+    VBDEBUG(("Unable to setup TPM and read firmware version.\n"));
 
-  /* Chain to LoadFirmware() */
-  rv = LoadFirmware(&p);
+    if (TPM_E_MUST_REBOOT == tpm_status) {
+      /* TPM wants to reboot into the same mode we're in now */
+      VBDEBUG(("TPM requires a reboot.\n"));
+      if (!is_rec) {
+        /* Not recovery mode.  Just reboot (not into recovery). */
+        goto VbSelectFirmware_exit;
+      } else if (VBNV_RECOVERY_RO_TPM_REBOOT != shared->recovery_reason) {
+        /* In recovery mode now, and we haven't requested a TPM reboot yet,
+         * so request one. */
+        VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_REBOOT);
+        goto VbSelectFirmware_exit;
+      }
+    }
 
-  /* Save NV storage, if necessary */
-  if (vnc.raw_changed)
-    VbExNvStorageWrite(vnc.raw);
+    if (!is_rec) {
+      VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
+      goto VbSelectFirmware_exit;
+    }
+  }
+  shared->fw_version_tpm_start = tpm_version;
+  shared->fw_version_tpm = tpm_version;
 
-  /* Copy amount of used shared data back to the wrapper API struct */
-  cparams->shared_data_size = (uint32_t)p.shared_data_size;
+  if (is_rec) {
+    /* Recovery is requested; go straight to recovery without checking the
+     * RW firmware. */
+    VBDEBUG(("VbSelectFirmware() detected recovery request, reason=%d.\n",
+             (int)shared->recovery_reason));
 
-  /* Stop timer */
-  shared->timer_vb_select_firmware_exit = VbExGetTimer();
+    /* Go directly to recovery mode */
+    fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;
 
-  /* Translate return codes */
-  if (LOAD_FIRMWARE_SUCCESS == rv) {
+  } else {
+    /* Check the RW firmware */
+    /* Copy parameters from wrapper API structs to old struct */
+    p.gbb_data              = cparams->gbb_data;
+    p.gbb_size              = cparams->gbb_size;
+    p.shared_data_blob      = cparams->shared_data_blob;
+    p.shared_data_size      = cparams->shared_data_size;
+    p.nv_context            = &vnc;
+
+    p.verification_block_0  = fparams->verification_block_A;
+    p.verification_block_1  = fparams->verification_block_B;
+    p.verification_size_0   = fparams->verification_size_A;
+    p.verification_size_1   = fparams->verification_size_B;
+
+    /* Use vboot_context and caller_internal to link our params with
+     * LoadFirmware()'s params. */
+    // TODO: clean up LoadFirmware() to use common params?
+    p.caller_internal = (void*)cparams;
+    cparams->vboot_context = (void*)&p;
+
+    /* Chain to LoadFirmware() */
+    rv = LoadFirmware(&p);
+
+    /* Save NV storage, if necessary */
+    if (vnc.raw_changed)
+      VbExNvStorageWrite(vnc.raw);
+
+    /* Copy amount of used shared data back to the wrapper API struct */
+    cparams->shared_data_size = (uint32_t)p.shared_data_size;
+
+    /* Exit if we failed to find an acceptable firmware */
+    if (LOAD_FIRMWARE_SUCCESS != rv)
+      goto VbSelectFirmware_exit;
+
+    /* Translate the selected firmware path */
     if (shared->flags & VBSD_LF_USE_RO_NORMAL) {
       /* Request the read-only normal/dev code path */
       fparams->selected_firmware = VB_SELECT_FIRMWARE_READONLY;
@@ -77,21 +125,51 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
       fparams->selected_firmware = VB_SELECT_FIRMWARE_A;
     else
       fparams->selected_firmware = VB_SELECT_FIRMWARE_B;
-    return VBERROR_SUCCESS;
 
-  } else if (LOAD_FIRMWARE_REBOOT == rv) {
-    /* Reboot in the same mode we just left; copy the recovery reason */
-    VbNvSetup(&vnc);
-    VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, shared->recovery_reason);
-    VbNvTeardown(&vnc);
-    if (vnc.raw_changed)
-      VbExNvStorageWrite(vnc.raw);
-    return 1;
+    /* Update TPM if necessary */
+    if (shared->fw_version_tpm_start < shared->fw_version_tpm) {
+      VBPERFSTART("VB_TPMU");
+      tpm_status = RollbackFirmwareWrite(shared->fw_version_tpm);
+      VBPERFEND("VB_TPMU");
+      if (0 != tpm_status) {
+        VBDEBUG(("Unable to write firmware version to TPM.\n"));
+        goto VbSelectFirmware_exit;
+      }
+    }
 
-  } else {
-    /* Other error */
-    return 1;
+    /* Lock firmware versions in TPM */
+    VBPERFSTART("VB_TPML");
+    tpm_status = RollbackFirmwareLock();
+    VBPERFEND("VB_TPML");
+    if (0 != tpm_status) {
+      VBDEBUG(("Unable to lock firmware version in TPM.\n"));
+      if (!is_rec) {
+        VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
+        goto VbSelectFirmware_exit;
+      }
+    }
   }
+
+  /* At this point, we have a good idea of how we are going to
+   * boot. Update the TPM with this state information. */
+  tpm_status = SetTPMBootModeState(is_dev, is_rec, shared->fw_keyblock_flags);
+  if (0 != tpm_status) {
+    VBDEBUG(("Unable to update the TPM with boot mode information.\n"));
+    if (!is_rec) {
+      VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
+      goto VbSelectFirmware_exit;
+    }
+  }
+
+  /* Success! */
+  retval = VBERROR_SUCCESS;
+
+VbSelectFirmware_exit:
+
+  /* Stop timer */
+  shared->timer_vb_select_firmware_exit = VbExGetTimer();
+
+  return retval;
 }
 
 

@@ -30,11 +30,9 @@ int main(void)
 
   /* rollback_index.h */
   RollbackS3Resume();
-  RollbackFirmwareSetup(0, 0);
-  RollbackFirmwareRead(0);
+  RollbackFirmwareSetup(0, 0, 0);
   RollbackFirmwareWrite(0);
   RollbackFirmwareLock();
-  RollbackKernelRecovery(0);
   RollbackKernelRead(0);
   RollbackKernelWrite(0);
   RollbackKernelLock();
