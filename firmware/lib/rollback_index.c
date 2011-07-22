@@ -15,10 +15,6 @@
 
 static int g_rollback_recovery_mode = 0;
 
-#ifdef TEGRA_SOFT_REBOOT_WORKAROUND
-static int soft_reset = 0;
-#endif
-
 /* disable MSVC warning on const logical expression (as in } while(0);) */
 __pragma(warning (disable: 4127))
 
@@ -51,21 +47,6 @@ static uint32_t SafeWrite(uint32_t index, const void* data, uint32_t length) {
   if (result == TPM_E_MAXNVWRITES) {
     RETURN_ON_FAILURE(TPMClearAndReenable());
     return TlclWrite(index, data, length);
-#ifdef TEGRA_SOFT_REBOOT_WORKAROUND
-  } else if ((result == TPM_E_BAD_PRESENCE ||
-              result == TPM_E_AREA_LOCKED) &&
-             soft_reset == 1) {
-    /* Ignore writes that failed because the TPM wasn't unlocked.
-     *
-     * This may have security implications.  1. It may delay updating the
-     * version number, therefore widening the window for a rollback attack.
-     * 2. It may prevent noticing transitions between developer mode and normal
-     * mode, in which case the TPM owner will not be cleared when
-     * transitioning.  See crosbug.com/15759.  Note that this code path is not
-     * taken on systems where a CPU reset implies a TPM reset.
-     */
-    return TPM_SUCCESS;
-#endif
   } else {
     return result;
   }
@@ -212,11 +193,11 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
 #ifdef TEGRA_SOFT_REBOOT_WORKAROUND
   result = TlclStartup();
   if (result == TPM_E_INVALID_POSTINIT) {
-    /* Some prototype hardware doesn't reset the TPM on a CPU reset.  We try to
-     * tolerate this failure, which is possible in most cases.
+    /* Some prototype hardware doesn't reset the TPM on a CPU reset.  We do a
+     * hard reset to get around this.
      */
     VBDEBUG(("TPM: soft reset detected\n", result));
-    soft_reset = 1;
+    return TPM_E_MUST_REBOOT;
   } else if (result != TPM_SUCCESS) {
     VBDEBUG(("TPM: TlclStartup returned %08x\n", result));
     return result;
@@ -244,19 +225,6 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   RETURN_ON_FAILURE(TlclContinueSelfTest());
 #endif
   result = TlclAssertPhysicalPresence();
-#ifdef TEGRA_SOFT_REBOOT_WORKAROUND
-    /*
-     * If soft_reset is true, the failure to assert PP is expected because the
-     * TPM is locked from a previous boot.  In this case we will never execute
-     * the PhysicalPresenceCMDEnable below, but that's OK because this is a
-     * warm boot and at some point in the past we must have cold-booted with
-     * this firmware (one would hope), so that situation (TPM delivered with PP
-     * disabled) has already been resolved.
-     */
-  if (soft_reset) {
-    result = TPM_SUCCESS;
-  }
-#endif
   if (result != TPM_SUCCESS) {
     /* It is possible that the TPM was delivered with the physical presence
      * command disabled.  This tries enabling it, then tries asserting PP
@@ -484,18 +452,7 @@ uint32_t RollbackKernelLock(void) {
   if (g_rollback_recovery_mode) {
     return TPM_SUCCESS;
   } else {
-#ifdef TEGRA_SOFT_REBOOT_WORKAROUND
-    TPM_STCLEAR_FLAGS flags;
-    uint32_t result = TlclLockPhysicalPresence();
-    if (result == TPM_SUCCESS) {
-      return result;
-    }
-    RETURN_ON_FAILURE(TlclGetSTClearFlags(&flags));
-    /* Ignore PP locking failure if PP is already locked. */
-    return flags.physicalPresenceLock == 1 ? TPM_SUCCESS : result;
-#else
     return TlclLockPhysicalPresence();
-#endif
   }
 }
 
