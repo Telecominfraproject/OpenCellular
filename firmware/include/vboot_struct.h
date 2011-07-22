@@ -340,7 +340,7 @@ typedef struct VbSharedDataHeader {
                                        * LoadFirmware() or 0xFF if failure */
   uint8_t reserved1;                  /* Reserved for padding */
   uint32_t fw_version_tpm_start;      /* Firmware TPM version at start of
-                                       * LoadFirmware() */
+                                       * VbSelectFirmware() */
   uint32_t fw_version_lowest;         /* Firmware lowest version found */
 
   /* Debugging information from LoadKernel() */
@@ -359,6 +359,10 @@ typedef struct VbSharedDataHeader {
    * struct_version >= 2*/
   uint8_t recovery_reason;            /* Recovery reason for current boot */
   uint8_t reserved2[7];               /* Reserved for padding */
+  uint64_t fw_keyblock_flags;         /* Flags from firmware keyblock */
+  uint32_t kernel_version_tpm_start;  /* Kernel TPM version at start of
+                                       * VbSelectAndLoadKernel() */
+  uint32_t kernel_version_lowest;     /* Kernel lowest version found */
 
   /* After read-only firmware which uses version 2 is released, any additional
    * fields must be added below, and the struct version must be increased.

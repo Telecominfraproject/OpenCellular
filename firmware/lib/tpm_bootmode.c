@@ -91,7 +91,7 @@ const uint8_t kBootInvalidSHA1Digest[] = {
 
 /* Given the boot state, return the correct SHA1 digest index for TPMExtend
  * in kBootStateSHA1Digests[]. */
-int GetBootStateIndex(int dev_mode, int rec_mode, int keyblock_flags) {
+int GetBootStateIndex(int dev_mode, int rec_mode, uint64_t keyblock_flags) {
   int index = 0;
 
   /* Convert keyblock flags into keyblock mode which we use to index into
@@ -117,7 +117,7 @@ int GetBootStateIndex(int dev_mode, int rec_mode, int keyblock_flags) {
 }
 
 uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
-                             int fw_keyblock_flags) {
+                             uint64_t fw_keyblock_flags) {
   uint32_t result;
   const uint8_t* in_digest = NULL;
   uint8_t out_digest[20];  /* For PCR extend output. */

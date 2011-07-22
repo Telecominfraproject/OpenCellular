@@ -91,6 +91,9 @@ typedef enum VbNvParam {
 /* Firmware boot failure outside of verified boot (RAM init, missing SSD,
  * etc.). */
 #define VBNV_RECOVERY_RO_FIRMWARE     0x20
+/* Recovery mode TPM initialization requires a system reboot.  The system was
+ * already in recovery mode for some other reason when this happened. */
+#define VBNV_RECOVERY_RO_TPM_REBOOT   0x21
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /* User manually requested recovery by pressing a key at developer

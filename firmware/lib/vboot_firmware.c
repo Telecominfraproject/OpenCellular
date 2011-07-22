@@ -317,7 +317,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* At this point, we have a good idea of how we are going to boot. Update the
    * TPM with this state information.
    */
-  status = SetTPMBootModeState(is_dev, 0, (int)boot_fw_keyblock_flags);
+  status = SetTPMBootModeState(is_dev, 0, boot_fw_keyblock_flags);
   if (0 != status) {
     VBDEBUG(("Unable to update the TPM with boot mode information.\n"));
     if (status == TPM_E_MUST_REBOOT)

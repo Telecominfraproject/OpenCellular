@@ -11,6 +11,6 @@
 
 
 uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
-                             int fw_keyblock_flags) {
+                             uint64_t fw_keyblock_flags) {
   return TPM_SUCCESS;
 }
