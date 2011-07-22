@@ -8,7 +8,6 @@
 
 #include "rollback_index.h"
 #include "tlcl.h"
-#include "tpm_bootmode.h"
 #include "tss_constants.h"
 #include "utility.h"
 #include "vboot_api.h"
@@ -304,10 +303,11 @@ uint32_t RollbackS3Resume(void) {
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
+                               uint32_t* version) {
 #ifndef CHROMEOS_ENVIRONMENT
-  /* Initializes the TPM, but ignores return codes.  In ChromeOS
-   * environment, doesn't even talk to the TPM. */
+  /* Initialize the TPM, but ignores return codes.  In ChromeOS
+   * environment, don't even talk to the TPM. */
   TlclLibInit();
   TlclStartup();
   TlclContinueSelfTest();
@@ -326,17 +326,6 @@ uint32_t RollbackFirmwareWrite(uint32_t version) {
 }
 
 uint32_t RollbackFirmwareLock(void) {
-  return TPM_SUCCESS;
-}
-
-uint32_t RollbackKernelRecovery(int developer_mode) {
-#ifndef CHROMEOS_ENVIRONMENT
-  /* Initializes the TPM, but ignore return codes.  In ChromeOS
-   * environment, doesn't even talk to the TPM. */
-  TlclLibInit();
-  TlclStartup();
-  TlclSelfTestFull();
-#endif
   return TPM_SUCCESS;
 }
 
@@ -367,24 +356,16 @@ uint32_t RollbackS3Resume(void) {
   return result;
 }
 
-
-uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
+                               uint32_t* version) {
   RollbackSpaceFirmware rsf;
 
-  RETURN_ON_FAILURE(SetupTPM(0, developer_mode, &rsf));
+  /* Set version to 0 in case we fail */
+  *version = 0;
+
+  RETURN_ON_FAILURE(SetupTPM(recovery_mode, developer_mode, &rsf));
   *version = rsf.fw_versions;
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
-  return TPM_SUCCESS;
-}
-
-uint32_t RollbackFirmwareRead(uint32_t* version) {
-  RollbackSpaceFirmware rsf;
-
-  RETURN_ON_FAILURE(ReadSpaceFirmware(&rsf));
-  VBDEBUG(("TPM: RollbackFirmwareRead %x --> %x\n", (int)rsf.fw_versions,
-           (int)*version));
-  *version = rsf.fw_versions;
-  VBDEBUG(("TPM: RollbackFirmwareRead %x\n", (int)rsf.fw_versions));
   return TPM_SUCCESS;
 }
 
@@ -400,23 +381,6 @@ uint32_t RollbackFirmwareWrite(uint32_t version) {
 
 uint32_t RollbackFirmwareLock(void) {
   return TlclSetGlobalLock();
-}
-
-uint32_t RollbackKernelRecovery(int developer_mode) {
-  uint32_t rvs, rve;
-  RollbackSpaceFirmware rsf;
-
-  /* In recovery mode we ignore TPM malfunctions or corruptions, and *
-   * leave the TPM complelely unlocked; we call neither
-   * TlclSetGlobalLock() nor TlclLockPhysicalPresence().  The recovery
-   * kernel will fix the TPM (if needed) and lock it ASAP.  We leave
-   * Physical Presence on in either case. */
-  rvs = SetupTPM(1, developer_mode, &rsf);
-  rve = SetTPMBootModeState(developer_mode,
-                            1,  /* Recovery Mode Status. */
-                            0);  /* In recovery mode, there is no RW firmware
-                                  * keyblock flag. */
-  return (TPM_SUCCESS == rvs) ? rve : rvs;
 }
 
 uint32_t RollbackKernelRead(uint32_t* version) {

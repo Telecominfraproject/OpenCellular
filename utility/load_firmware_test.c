@@ -224,8 +224,6 @@ const char* status_string(int status) {
       return "LOAD_FIRMWARE_SUCCESS";
     case LOAD_FIRMWARE_RECOVERY:
       return "LOAD_FIRMWARE_RECOVERY";
-    case LOAD_FIRMWARE_REBOOT:
-      return "LOAD_FIRMWARE_REBOOT";
     default:
       return NULL;
   }

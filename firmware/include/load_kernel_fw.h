@@ -20,7 +20,6 @@
 #define LOAD_KERNEL_NOT_FOUND 1  /* No kernel found on device */
 #define LOAD_KERNEL_INVALID 2    /* Only invalid kernels found on device */
 #define LOAD_KERNEL_RECOVERY 3   /* Internal error; reboot to recovery mode */
-#define LOAD_KERNEL_REBOOT 4     /* Internal error; reboot to current mode */
 
 
 /* Boot flags for LoadKernel().boot_flags */
@@ -30,10 +29,6 @@
 #define BOOT_FLAG_RECOVERY  UINT64_C(0x02)
 /* Skip check of kernel buffer address */
 #define BOOT_FLAG_SKIP_ADDR_CHECK UINT64_C(0x04)
-/* TODO: remove flag, once the firmware builds which call
- * vboot_reference are updated.  This flag now does nothing.  See
- * crosbug.com/17457. */
-#define BOOT_FLAG_DEV_FIRMWARE UINT64_C(0x08)
 
 typedef struct LoadKernelParams {
   /* Inputs to LoadKernel() */
