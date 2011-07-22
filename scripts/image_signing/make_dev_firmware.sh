@@ -222,6 +222,7 @@ main() {
   debug_msg "Resign the firmware code (A/B) with new keys"
   local unsigned_image="$(make_temp_file)"
   cp -f "$IMAGE" "$unsigned_image"
+  # TODO(hungte) derive kernel key and preamble flag from existing firmware
   "$SCRIPT_BASE/resign_firmwarefd.sh" \
     "$unsigned_image" \
     "$IMAGE" \
@@ -231,6 +232,9 @@ main() {
     "$dev_firmware_keyblock" \
     "$kernel_sub_pubkey" >"$EXEC_LOG" 2>&1 ||
     err_die "Failed to re-sign firmware. (message: $(cat "$EXEC_LOG"))"
+    if is_debug_mode; then
+      cat "$EXEC_LOG"
+    fi
 
   # TODO(hungte) compare if the image really needs to be changed.
 
