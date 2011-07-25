@@ -121,7 +121,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData* gptdata) {
 /* disable MSVC warning on const logical expression (as in } while(0);) */
 __pragma(warning(disable: 4127))
 
-int LoadKernel(LoadKernelParams* params) {
+VbError_t LoadKernel(LoadKernelParams* params) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)params->shared_data_blob;
   VbSharedDataKernelCall* shcall = NULL;
   VbNvContext* vnc = params->nv_context;
@@ -140,7 +140,7 @@ int LoadKernel(LoadKernelParams* params) {
   BootMode boot_mode;
   uint32_t test_err = 0;
 
-  int retval = LOAD_KERNEL_RECOVERY;
+  VbError_t retval = VBERROR_UNKNOWN;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
 
   /* Setup NV storage */
@@ -153,6 +153,7 @@ int LoadKernel(LoadKernelParams* params) {
       !params->kernel_buffer ||
       !params->kernel_buffer_size) {
     VBDEBUG(("LoadKernel() called with invalid params\n"));
+    retval = VBERROR_INVALID_PARAMETER;
     goto LoadKernelExit;
   }
 
@@ -191,17 +192,11 @@ int LoadKernel(LoadKernelParams* params) {
     /* Clear test params so we don't repeat the error */
     VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
     VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
-    /* Handle error codes */
-    switch (test_err) {
-      case LOAD_KERNEL_RECOVERY:
-        recovery = VBNV_RECOVERY_RW_TEST_LK;
-        goto LoadKernelExit;
-      case LOAD_KERNEL_NOT_FOUND:
-      case LOAD_KERNEL_INVALID:
-        retval = test_err;
-        goto LoadKernelExit;
-      default:
-        break;
+    /* All error codes currently map to simulated error */
+    if (test_err) {
+      recovery = VBNV_RECOVERY_RW_TEST_LK;
+      retval = VBERROR_SIMULATED;
+      goto LoadKernelExit;
     }
   }
 
@@ -210,6 +205,7 @@ int LoadKernel(LoadKernelParams* params) {
   kbuf_sectors = KBUF_SIZE / blba;
   if (0 == kbuf_sectors) {
     VBDEBUG(("LoadKernel() called with sector size > KBUF_SIZE\n"));
+    retval = VBERROR_INVALID_PARAMETER;
     goto LoadKernelExit;
   }
 
@@ -528,22 +524,21 @@ int LoadKernel(LoadKernelParams* params) {
       shared->kernel_version_tpm = lowest_version;
 
     /* Success! */
-    retval = LOAD_KERNEL_SUCCESS;
+    retval = VBERROR_SUCCESS;
+  } else if (found_partitions > 0) {
+    shcall->check_result = VBSD_LKC_CHECK_INVALID_PARTITIONS;
+    recovery = VBNV_RECOVERY_RW_INVALID_OS;
+    retval = VBERROR_INVALID_KERNEL_FOUND;
   } else {
-    shcall->check_result = (found_partitions > 0
-                            ? VBSD_LKC_CHECK_INVALID_PARTITIONS
-                            : VBSD_LKC_CHECK_NO_PARTITIONS);
-
-    /* TODO: differentiate between finding an invalid kernel
-     * (found_partitions>0) and not finding one at all.  Right now we
-     * treat them the same, and return LOAD_KERNEL_INVALID for both. */
-    retval = LOAD_KERNEL_INVALID;
+    shcall->check_result = VBSD_LKC_CHECK_NO_PARTITIONS;
+    recovery = VBNV_RECOVERY_RW_NO_OS;
+    retval = VBERROR_NO_KERNEL_FOUND;
   }
 
 LoadKernelExit:
 
   /* Store recovery request, if any, then tear down non-volatile storage */
-  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_KERNEL_RECOVERY == retval ?
+  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
 

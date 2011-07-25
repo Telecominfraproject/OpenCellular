@@ -90,7 +90,11 @@ enum VbErrorPredefined_t {
   /* Invalid bitmap volume */
   VBERROR_INVALID_BMPFV                 = 0x10014,
   /* Invalid screen index */
-  VBERROR_INVALID_SCREEN_INDEX          = 0x10015
+  VBERROR_INVALID_SCREEN_INDEX          = 0x10015,
+  /* Simulated (test) error */
+  VBERROR_SIMULATED                     = 0x10016,
+  /* Invalid parameter */
+  VBERROR_INVALID_PARAMETER             = 0x10017
 };
 
 

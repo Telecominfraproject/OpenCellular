@@ -13,12 +13,6 @@
 #include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
-/* Return codes for LoadFirmware() and S3Resume(). */
-#define LOAD_FIRMWARE_SUCCESS 0   /* Success */
-#define LOAD_FIRMWARE_RECOVERY 1  /* Reboot to recovery mode.  The specific
-                                   * recovery reason has been set in
-                                   * VbNvContext (VBNV_RECOVERY_REQUEST). */
-
 typedef struct LoadFirmwareParams {
   /* Inputs to LoadFirmware() */
   void* gbb_data;                /* Pointer to GBB data */
@@ -56,7 +50,7 @@ typedef struct LoadFirmwareParams {
 } LoadFirmwareParams;
 
 
-/* Functions provided by PEI to LoadFirmware() */
+/* Functions provided by wrapper to LoadFirmware() */
 
 /* Get the firmware body data for [firmware_index], which is either
  * 0 (the first firmware image) or 1 (the second firmware image).
@@ -73,17 +67,12 @@ typedef struct LoadFirmwareParams {
 int GetFirmwareBody(LoadFirmwareParams* params, uint64_t firmware_index);
 
 
-/* Functions provided by verified boot library to PEI */
+/* Functions provided by vboot_firmware to wrapper */
 
-/* Early setup for LoadFirmware().  This should be called as soon as the TPM
- * is available in the boot process.
+/* Load the rewritable firmware.
  *
- * Returns LOAD_FIRMWARE_SUCCESS if successful, error code on failure. */
-int LoadFirmwareSetup(void);
-
-/* Attempts to load the rewritable firmware.
- *
- * Returns LOAD_FIRMWARE_SUCCESS if successful, error code on failure. */
+ * Returns VBERROR_SUCCESS if successful.  If unsuccessful, sets a recovery
+ * reason via VbNvStorage and returns an error code. */
 int LoadFirmware(LoadFirmwareParams* params);
 
 
@@ -92,10 +81,5 @@ int LoadFirmware(LoadFirmwareParams* params);
  * called inside GetFirmwareBody(). */
 void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
                             uint8_t* data, uint32_t size);
-
-/* Handle S3 resume.
- *
- * Returns LOAD_FIRMWARE_SUCCESS if successful, error code on failure. */
-int S3Resume(void);
 
 #endif  /* VBOOT_REFERENCE_LOAD_FIRMWARE_FW_H_ */

@@ -48,7 +48,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
   int index;
   int i;
 
-  int retval = LOAD_FIRMWARE_RECOVERY;
+  int retval = VBERROR_UNKNOWN;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
 
   /* Clear output params in case we fail */
@@ -67,19 +67,18 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* Clear test params so we don't repeat the error */
     VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
     VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
-    /* Handle error codes */
-    switch (test_err) {
-      case LOAD_FIRMWARE_RECOVERY:
-        recovery = VBNV_RECOVERY_RO_TEST_LF;
-        goto LoadFirmwareExit;
-      default:
-        break;
+    /* All error codes currently map to simulated error */
+    if (test_err) {
+      recovery = VBNV_RECOVERY_RO_TEST_LF;
+      retval = VBERROR_SIMULATED;
+      goto LoadFirmwareExit;
     }
   }
 
   /* Must have a root key from the GBB */
   if (!gbb) {
     VBDEBUG(("No GBB\n"));
+    retval = VBERROR_INVALID_GBB;
     goto LoadFirmwareExit;
   }
   root_key = (VbPublicKey*)((uint8_t*)gbb + gbb->rootkey_offset);
@@ -98,9 +97,6 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   /* Allocate our internal data */
   lfi = (VbLoadFirmwareInternal*)VbExMalloc(sizeof(VbLoadFirmwareInternal));
-  if (!lfi)
-    return LOAD_FIRMWARE_RECOVERY;
-
   params->load_firmware_internal = (uint8_t*)lfi;
 
   /* Loop over indices */
@@ -309,7 +305,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
     /* Success */
     VBDEBUG(("Will boot firmware index %d\n", (int)shared->firmware_index));
-    retval = LOAD_FIRMWARE_SUCCESS;
+    retval = VBERROR_SUCCESS;
   } else {
     uint8_t a = shared->check_fw_a_result;
     uint8_t b = shared->check_fw_b_result;
@@ -318,6 +314,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* No good firmware, so go to recovery mode. */
     VBDEBUG(("Alas, no good firmware.\n"));
     recovery = VBNV_RECOVERY_RO_INVALID_RW;
+    retval = VBERROR_LOAD_FIRMWARE;
 
     /* If the best check result fits in the range of recovery reasons, provide
      * more detail on how far we got in validation. */
@@ -329,7 +326,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
 LoadFirmwareExit:
   /* Store recovery request, if any, then tear down non-volatile storage */
-  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, LOAD_FIRMWARE_RECOVERY == retval ?
+  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
   VbNvTeardown(vnc);
 

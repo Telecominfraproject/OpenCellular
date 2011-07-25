@@ -30,8 +30,6 @@ static char* image_path = NULL;
 /* wrapper of FmapAreaIndex; print error when not found */
 int FmapAreaIndexOrError(const FmapHeader* fh, const FmapAreaHeader* ah,
     const char* name);
-/* return NULL on error */
-const char* status_string(int status);
 
 int GetFirmwareBody(LoadFirmwareParams* params, uint64_t firmware_index) {
   CallerInternal* ci = (CallerInternal*) params->caller_internal;
@@ -140,8 +138,8 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
   LoadFirmwareParams lfp;
   CallerInternal ci;
 
-  const char* status_str;
-  int index, status;
+  VbError_t status;
+  int index;
 
   void** vblock_ptr[2] = {
     &lfp.verification_block_0, &lfp.verification_block_1
@@ -197,11 +195,7 @@ int DriveLoadFirmware(const void* base_of_rom, const void* fmap,
    * happening here. */
 
   status = LoadFirmware(&lfp);
-  status_str = status_string(status);
-  if (status_str)
-    printf("LoadFirmware returns %s\n", status_str);
-  else
-    printf("LoadFirmware returns unknown status code: %d\n", status);
+  printf("LoadFirmware returned: 0x%x\n", (int)status);
 
   free(lfp.shared_data_blob);
 
@@ -215,18 +209,6 @@ int FmapAreaIndexOrError(const FmapHeader* fh, const FmapAreaHeader* ah,
   if (i < 0)
     fprintf(stderr, "%s: can't find %s in firmware image\n", progname, name);
   return i;
-}
-
-/* Convert status returned by LoadFirmware to string. Return NULL on error. */
-const char* status_string(int status) {
-  switch (status) {
-    case LOAD_FIRMWARE_SUCCESS:
-      return "LOAD_FIRMWARE_SUCCESS";
-    case LOAD_FIRMWARE_RECOVERY:
-      return "LOAD_FIRMWARE_RECOVERY";
-    default:
-      return NULL;
-  }
 }
 
 int main(int argc, char* argv[]) {

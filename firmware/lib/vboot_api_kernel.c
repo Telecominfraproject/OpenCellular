@@ -342,7 +342,7 @@ static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
  * May return other VBERROR_ codes for other failures. */
 uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
                          uint32_t get_info_flags) {
-  int lk_retval = LOAD_KERNEL_RECOVERY;
+  int retval = VBERROR_UNKNOWN;
   VbDiskInfo* disk_info = NULL;
   uint32_t disk_count = 0;
   uint32_t i;
@@ -369,38 +369,25 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
     p->disk_handle = disk_info[i].handle;
     p->bytes_per_lba = disk_info[i].bytes_per_lba;
     p->ending_lba = disk_info[i].lba_count - 1;
-    lk_retval = LoadKernel(p);
-    VBDEBUG(("VbTryLoadKernel() LoadKernel() returned %d\n", lk_retval));
+    retval = LoadKernel(p);
+    VBDEBUG(("VbTryLoadKernel() LoadKernel() returned %d\n", retval));
 
     /* Stop now if we found a kernel */
     /* TODO: If recovery requested, should track the farthest we get, instead
      * of just returning the value from the last disk attempted. */
-    if (LOAD_KERNEL_SUCCESS == lk_retval)
+    if (VBERROR_SUCCESS == retval)
       break;
   }
 
   /* If we didn't succeed, don't return a disk handle */
-  if (LOAD_KERNEL_SUCCESS != lk_retval)
+  if (VBERROR_SUCCESS != retval)
     p->disk_handle = NULL;
 
   VbExDiskFreeInfo(disk_info, p->disk_handle);
 
-  /* Translate return codes */
-  switch (lk_retval) {
-    case LOAD_KERNEL_SUCCESS:
-      return VBERROR_SUCCESS;
-    case LOAD_KERNEL_NOT_FOUND:
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_OS);
-      return VBERROR_NO_KERNEL_FOUND;
-    case LOAD_KERNEL_INVALID:
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_INVALID_OS);
-      return VBERROR_INVALID_KERNEL_FOUND;
-    case LOAD_KERNEL_RECOVERY:
-      return VBERROR_LOAD_KERNEL_RECOVERY;
-    default:
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_UNSPECIFIED);
-      return VBERROR_LOAD_KERNEL;
-  }
+  /* Pass through return code.  Recovery reason (if any) has already been set
+   * by LoadKernel(). */
+  return retval;
 }
 
 

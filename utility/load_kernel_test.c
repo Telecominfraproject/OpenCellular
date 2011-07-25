@@ -83,7 +83,8 @@ int main(int argc, char* argv[]) {
   uint8_t* key_blob = NULL;
   VbSharedDataHeader* shared;
   GoogleBinaryBlockHeader* gbb;
-  int rv, c, argsleft;
+  VbError_t rv;
+  int c, argsleft;
   int errorcnt = 0;
   char *e = 0;
 
@@ -218,7 +219,7 @@ int main(int argc, char* argv[]) {
   rv = LoadKernel(&lkp);
   printf("LoadKernel() returned %d\n", rv);
 
-  if (LOAD_KERNEL_SUCCESS == rv) {
+  if (VBERROR_SUCCESS == rv) {
     printf("Partition number:   %" PRIu64 "\n", lkp.partition_number);
     printf("Bootloader address: %" PRIu64 "\n", lkp.bootloader_address);
     printf("Bootloader size:    %" PRIu64 "\n", lkp.bootloader_size);
@@ -245,5 +246,5 @@ int main(int argc, char* argv[]) {
 
   fclose(image_file);
   free(lkp.kernel_buffer);
-  return rv != LOAD_KERNEL_SUCCESS;
+  return rv != VBERROR_SUCCESS;
 }

@@ -36,7 +36,6 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   int is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
   uint32_t tpm_version = 0;
   uint32_t tpm_status = 0;
-  int rv;
 
   /* Start timer */
   shared->timer_vb_select_firmware_enter = VbExGetTimer();
@@ -107,7 +106,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
     cparams->vboot_context = (void*)&p;
 
     /* Chain to LoadFirmware() */
-    rv = LoadFirmware(&p);
+    retval = LoadFirmware(&p);
 
     /* Save NV storage, if necessary */
     if (vnc.raw_changed)
@@ -117,10 +116,8 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
     cparams->shared_data_size = (uint32_t)p.shared_data_size;
 
     /* Exit if we failed to find an acceptable firmware */
-    if (LOAD_FIRMWARE_SUCCESS != rv) {
-      retval = VBERROR_LOAD_FIRMWARE;
+    if (VBERROR_SUCCESS != retval)
       goto VbSelectFirmware_exit;
-    }
 
     /* Translate the selected firmware path */
     if (shared->flags & VBSD_LF_USE_RO_NORMAL) {

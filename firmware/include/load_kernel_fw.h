@@ -15,13 +15,6 @@
 
 /* Interface provided by verified boot library to BDS */
 
-/* Return codes for LoadKernel() */
-#define LOAD_KERNEL_SUCCESS 0    /* Success; good kernel found on device */
-#define LOAD_KERNEL_NOT_FOUND 1  /* No kernel found on device */
-#define LOAD_KERNEL_INVALID 2    /* Only invalid kernels found on device */
-#define LOAD_KERNEL_RECOVERY 3   /* Internal error; reboot to recovery mode */
-
-
 /* Boot flags for LoadKernel().boot_flags */
 /* Developer switch is on */
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)
@@ -67,10 +60,11 @@ typedef struct LoadKernelParams {
   uint8_t  partition_guid[16];  /* UniquePartitionGuid for boot partition */
 } LoadKernelParams;
 
-int LoadKernel(LoadKernelParams* params);
+VbError_t LoadKernel(LoadKernelParams* params);
 /* Attempts to load the kernel from the current device.
  *
- * Returns LOAD_KERNEL_SUCCESS if successful, error code on failure. */
+ * Returns VBERROR_SUCCESS if successful.  If unsuccessful, sets a recovery
+ * reason via VbNvStorage and returns an error code. */
 
 
 typedef struct KernelBootloaderOptions {
