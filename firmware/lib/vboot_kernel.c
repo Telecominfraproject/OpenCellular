@@ -11,6 +11,7 @@
 #include "cgptlib_internal.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
+#include "rollback_index.h"
 #include "utility.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -135,10 +136,12 @@ int LoadKernel(LoadKernelParams* params) {
   int found_partitions = 0;
   int good_partition = -1;
   int good_partition_key_block_valid = 0;
-  uint32_t lowest_version = LOWEST_TPM_VERSION;
+  uint32_t tpm_version = 0;
+  uint64_t lowest_version = LOWEST_TPM_VERSION;
   int rec_switch, dev_switch;
   BootMode boot_mode;
   uint32_t test_err = 0;
+  uint32_t status;
 
   int retval = LOAD_KERNEL_RECOVERY;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
@@ -198,6 +201,7 @@ int LoadKernel(LoadKernelParams* params) {
         goto LoadKernelExit;
       case LOAD_KERNEL_NOT_FOUND:
       case LOAD_KERNEL_INVALID:
+      case LOAD_KERNEL_REBOOT:
         retval = test_err;
         goto LoadKernelExit;
       default:
@@ -216,9 +220,34 @@ int LoadKernel(LoadKernelParams* params) {
   if (kBootRecovery == boot_mode) {
     /* Use the recovery key to verify the kernel */
     kernel_subkey = (VbPublicKey*)((uint8_t*)gbb + gbb->recovery_key_offset);
+
+    /* Let the TPM know if we're in recovery mode */
+    if (0 != RollbackKernelRecovery(dev_switch)) {
+      VBDEBUG(("Error setting up TPM for recovery kernel\n"));
+      shcall->flags |= VBSD_LK_FLAG_REC_TPM_INIT_ERROR;
+      /* Ignore return code, since we need to boot recovery mode to
+       * fix the TPM. */
+    }
+
+    /* Read the key indices from the TPM; ignore any errors */
+    RollbackFirmwareRead(&shared->fw_version_tpm);
+    RollbackKernelRead(&shared->kernel_version_tpm);
   } else {
     /* Use the kernel subkey passed from LoadFirmware(). */
     kernel_subkey = &shared->kernel_subkey;
+
+    /* Read current kernel key index from TPM.  Assumes TPM is already
+     * initialized. */
+    status = RollbackKernelRead(&tpm_version);
+    if (0 != status) {
+      VBDEBUG(("Unable to get kernel versions from TPM\n"));
+      if (status == TPM_E_MUST_REBOOT)
+        retval = LOAD_KERNEL_REBOOT;
+      else
+        recovery = VBNV_RECOVERY_RW_TPM_ERROR;
+      goto LoadKernelExit;
+    }
+    shared->kernel_version_tpm = tpm_version;
   }
 
   do {
@@ -250,7 +279,7 @@ int LoadKernel(LoadKernelParams* params) {
       VbKernelPreambleHeader* preamble;
       RSAPublicKey* data_key = NULL;
       uint64_t key_version;
-      uint32_t combined_version;
+      uint64_t combined_version;
       uint64_t body_offset;
       uint64_t body_offset_sectors;
       uint64_t body_sectors;
@@ -328,15 +357,8 @@ int LoadKernel(LoadKernelParams* params) {
       /* Check for rollback of key version except in recovery mode. */
       key_version = key_block->data_key.key_version;
       if (kBootRecovery != boot_mode) {
-        if (key_version < (shared->kernel_version_tpm >> 16)) {
+        if (key_version < (tpm_version >> 16)) {
           VBDEBUG(("Key version too old.\n"));
-          shpart->check_result = VBSD_LKP_CHECK_KEY_ROLLBACK;
-          key_block_valid = 0;
-        }
-        if (key_version > 0xFFFF) {
-          /* Key version is stored in 16 bits in the TPM, so key versions
-           * greater than 0xFFFF can't be stored properly. */
-          VBDEBUG(("Key version > 0xFFFF.\n"));
           shpart->check_result = VBSD_LKP_CHECK_KEY_ROLLBACK;
           key_block_valid = 0;
         }
@@ -368,11 +390,11 @@ int LoadKernel(LoadKernelParams* params) {
 
       /* If the key block is valid and we're not in recovery mode, check for
        * rollback of the kernel version. */
-      combined_version = (uint32_t)((key_version << 16) |
-                                    (preamble->kernel_version & 0xFFFF));
-      shpart->combined_version = combined_version;
+      combined_version = ((key_version << 16) |
+                          (preamble->kernel_version & 0xFFFF));
+      shpart->combined_version = (uint32_t)combined_version;
       if (key_block_valid && kBootRecovery != boot_mode) {
-        if (combined_version < shared->kernel_version_tpm) {
+        if (combined_version < tpm_version) {
           VBDEBUG(("Kernel version too low.\n"));
           shpart->check_result = VBSD_LKP_CHECK_KERNEL_ROLLBACK;
           /* If we're not in developer mode, kernel version must be valid. */
@@ -389,7 +411,7 @@ int LoadKernel(LoadKernelParams* params) {
         lowest_version = combined_version;
       else {
         VBDEBUG(("Key block valid: %d\n", key_block_valid));
-        VBDEBUG(("Combined version: %" PRIu32 "\n", combined_version));
+        VBDEBUG(("Combined version: %" PRIu64 "\n", combined_version));
       }
 
       /* If we already have a good kernel, no need to read another
@@ -488,7 +510,7 @@ int LoadKernel(LoadKernelParams* params) {
        * partition's key version is the same as the tpm, then the TPM doesn't
        * need updating; we can stop now.  Otherwise, we'll check all the other
        * headers to see if they contain a newer key. */
-      if (combined_version == shared->kernel_version_tpm) {
+      if (combined_version == tpm_version) {
         VBDEBUG(("Same kernel version\n"));
         break;
       }
@@ -519,13 +541,43 @@ int LoadKernel(LoadKernelParams* params) {
   if (good_partition >= 0) {
     VBDEBUG(("Good_partition >= 0\n"));
     shcall->check_result = VBSD_LKC_CHECK_GOOD_PARTITION;
-    shared->kernel_version_lowest = lowest_version;
-    /* Sanity check - only store a new TPM version if we found one.
-     * If lowest_version is still at its initial value, we didn't find
-     * one; for example, we're in developer mode and just didn't look. */
-    if (lowest_version != LOWEST_TPM_VERSION &&
-        lowest_version > shared->kernel_version_tpm)
-      shared->kernel_version_tpm = lowest_version;
+
+    /* See if we need to update the TPM */
+    if ((kBootNormal == boot_mode) &&
+        !((1 == shared->firmware_index) && (shared->flags & VBSD_FWB_TRIED))) {
+      /* We only update the TPM in normal mode.  We don't advance the
+       * TPM if we're trying a new firmware B, because that firmware
+       * may have a key change and roll forward the TPM too soon. */
+      VBDEBUG(("Checking if TPM kernel version needs advancing\n"));
+
+      if ((lowest_version > tpm_version) &&
+          (lowest_version != LOWEST_TPM_VERSION)) {
+        status = RollbackKernelWrite((uint32_t)lowest_version);
+        if (0 != status) {
+          VBDEBUG(("Error writing kernel versions to TPM.\n"));
+          if (status == TPM_E_MUST_REBOOT)
+            retval = LOAD_KERNEL_REBOOT;
+          else
+            recovery = VBNV_RECOVERY_RW_TPM_ERROR;
+          goto LoadKernelExit;
+        }
+        shared->kernel_version_tpm = (uint32_t)lowest_version;
+      }
+    }
+
+    /* Lock the kernel versions */
+    status = RollbackKernelLock();
+    if (0 != status) {
+      VBDEBUG(("Error locking kernel versions.\n"));
+      /* Don't reboot to recovery mode if we're already there */
+      if (kBootRecovery != boot_mode) {
+        if (status == TPM_E_MUST_REBOOT)
+          retval = LOAD_KERNEL_REBOOT;
+        else
+          recovery = VBNV_RECOVERY_RW_TPM_ERROR;
+        goto LoadKernelExit;
+      }
+    }
 
     /* Success! */
     retval = LOAD_KERNEL_SUCCESS;

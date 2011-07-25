@@ -8,6 +8,8 @@
 
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
+#include "rollback_index.h"
+#include "tpm_bootmode.h"
 #include "utility.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -41,9 +43,12 @@ int LoadFirmware(LoadFirmwareParams* params) {
   VbNvContext* vnc = params->nv_context;
 
   uint32_t try_b_count;
-  uint32_t lowest_version = 0xFFFFFFFF;
+  uint32_t tpm_version = 0;
+  uint64_t lowest_version = 0xFFFFFFFF;
+  uint32_t status;
   uint32_t test_err = 0;
   int good_index = -1;
+  uint64_t boot_fw_keyblock_flags = 0;
   int is_dev;
   int index;
   int i;
@@ -72,6 +77,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
       case LOAD_FIRMWARE_RECOVERY:
         recovery = VBNV_RECOVERY_RO_TEST_LF;
         goto LoadFirmwareExit;
+      case LOAD_FIRMWARE_REBOOT:
+        retval = test_err;
+        goto LoadFirmwareExit;
       default:
         break;
     }
@@ -88,6 +96,22 @@ int LoadFirmware(LoadFirmwareParams* params) {
   is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
   if (is_dev)
     shared->flags |= VBSD_LF_DEV_SWITCH_ON;
+
+  /* Initialize the TPM and read rollback indices. */
+  VBPERFSTART("VB_TPMI");
+  status = RollbackFirmwareSetup(is_dev, &tpm_version);
+  if (0 != status) {
+    VBDEBUG(("Unable to setup TPM and read stored versions.\n"));
+    VBPERFEND("VB_TPMI");
+    if (status == TPM_E_MUST_REBOOT)
+      retval = LOAD_FIRMWARE_REBOOT;
+    else
+      recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+    goto LoadFirmwareExit;
+  }
+  shared->fw_version_tpm_start = tpm_version;
+  shared->fw_version_tpm = tpm_version;
+  VBPERFEND("VB_TPMI");
 
   /* Read try-b count and decrement if necessary */
   VbNvGet(vnc, VBNV_TRY_B_COUNT, &try_b_count);
@@ -110,7 +134,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
     VbFirmwarePreambleHeader* preamble;
     RSAPublicKey* data_key;
     uint64_t key_version;
-    uint32_t combined_version;
+    uint64_t combined_version;
     uint8_t* body_digest;
     uint8_t* check_result;
 
@@ -155,15 +179,8 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;
-    if (key_version < (shared->fw_version_tpm >> 16)) {
+    if (key_version < (tpm_version >> 16)) {
       VBDEBUG(("Key rollback detected.\n"));
-      *check_result = VBSD_LF_CHECK_KEY_ROLLBACK;
-      continue;
-    }
-    if (key_version > 0xFFFF) {
-      /* Key version is stored in 16 bits in the TPM, so key versions greater
-       * than 0xFFFF can't be stored properly. */
-      VBDEBUG(("Key version > 0xFFFF.\n"));
       *check_result = VBSD_LF_CHECK_KEY_ROLLBACK;
       continue;
     }
@@ -192,9 +209,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
     VBPERFEND("VB_VPB");
 
     /* Check for rollback of firmware version. */
-    combined_version = (uint32_t)((key_version << 16) |
-                                  (preamble->firmware_version & 0xFFFF));
-    if (combined_version < shared->fw_version_tpm) {
+    combined_version = ((key_version << 16) |
+                        (preamble->firmware_version & 0xFFFF));
+    if (combined_version < tpm_version) {
       VBDEBUG(("Firmware version rollback detected.\n"));
       *check_result = VBSD_LF_CHECK_FW_ROLLBACK;
       RSAPublicKeyFree(data_key);
@@ -284,15 +301,30 @@ int LoadFirmware(LoadFirmwareParams* params) {
        * this firmware.  That's the one we'll boot. */
       good_index = index;
       shared->firmware_index = (uint8_t)index;
-      shared->fw_keyblock_flags = key_block->key_block_flags;
+      /* Since we now know which firmware to boot, we can update the
+       * bootable firmware key block mode. */
+      boot_fw_keyblock_flags = key_block->key_block_flags;
 
       /* If the good firmware's key version is the same as the tpm,
        * then the TPM doesn't need updating; we can stop now.
        * Otherwise, we'll check all the other headers to see if they
        * contain a newer key. */
-      if (combined_version == shared->fw_version_tpm)
+      if (combined_version == tpm_version)
         break;
     }
+  }
+
+  /* At this point, we have a good idea of how we are going to boot. Update the
+   * TPM with this state information.
+   */
+  status = SetTPMBootModeState(is_dev, 0, boot_fw_keyblock_flags);
+  if (0 != status) {
+    VBDEBUG(("Unable to update the TPM with boot mode information.\n"));
+    if (status == TPM_E_MUST_REBOOT)
+      retval = LOAD_FIRMWARE_REBOOT;
+    else
+      recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+    goto LoadFirmwareExit;
   }
 
   /* Free internal data */
@@ -302,10 +334,35 @@ int LoadFirmware(LoadFirmwareParams* params) {
   /* Handle finding good firmware */
   if (good_index >= 0) {
 
-    /* Save versions we found */
-    shared->fw_version_lowest = lowest_version;
-    if (lowest_version > shared->fw_version_tpm)
-      shared->fw_version_tpm = lowest_version;
+    /* Update TPM if necessary */
+    shared->fw_version_lowest = (uint32_t)lowest_version;
+    if (lowest_version > tpm_version) {
+      VBPERFSTART("VB_TPMU");
+      status = RollbackFirmwareWrite((uint32_t)lowest_version);
+      VBPERFEND("VB_TPMU");
+      if (0 != status) {
+        VBDEBUG(("Unable to write stored versions.\n"));
+        if (status == TPM_E_MUST_REBOOT)
+          retval = LOAD_FIRMWARE_REBOOT;
+        else
+          recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+        goto LoadFirmwareExit;
+      }
+      shared->fw_version_tpm = (uint32_t)lowest_version;
+    }
+
+    /* Lock firmware versions in TPM */
+    VBPERFSTART("VB_TPML");
+    status = RollbackFirmwareLock();
+    VBPERFEND("VB_TPML");
+    if (0 != status) {
+      VBDEBUG(("Unable to lock firmware versions.\n"));
+      if (status == TPM_E_MUST_REBOOT)
+        retval = LOAD_FIRMWARE_REBOOT;
+      else
+        recovery = VBNV_RECOVERY_RO_TPM_ERROR;
+      goto LoadFirmwareExit;
+    }
 
     /* Success */
     VBDEBUG(("Will boot firmware index %d\n", (int)shared->firmware_index));

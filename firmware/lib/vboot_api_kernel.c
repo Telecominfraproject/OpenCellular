@@ -7,7 +7,6 @@
 
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
-#include "rollback_index.h"
 #include "utility.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -269,18 +268,14 @@ static VbError_t VbDisplayDebugInfo(VbCommonParams* cparams) {
   used += Strncat(buf + used, "\ndev_boot_usb: ", DEBUG_INFO_SIZE - used);
   used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
-  /* Add TPM versions */
-  used += Strncat(buf + used, "\nTPM: fwver=0x", DEBUG_INFO_SIZE - used);
-  used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-                         shared->fw_version_tpm, 16, 8);
-  used += Strncat(buf + used, " kernver=0x", DEBUG_INFO_SIZE - used);
-  used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-                         shared->kernel_version_tpm, 16, 8);
-
   /* Make sure we finish with a newline */
   used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
 
   /* TODO: add more interesting data:
+   * - TPM firmware and kernel versions.  In the current code, they're
+   *   only filled into VbSharedData by LoadFirmware() and LoadKernel(), and
+   *   since neither of those is called in the recovery path this isn't
+   *   feasible yet.
    * - SHA1 of kernel subkey (assuming we always set it in VbSelectFirmware,
    *   even in recovery mode, where we just copy it from the root key)
    * - Information on current disks
@@ -327,11 +322,12 @@ static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
 }
 
 
-/* Return codes for VbTryLoadKernel(), in addition to VBERROR_SUCCESS.  Note
- * that there are some gaps in the enum from obsoleted old error codes. */
+/* Return codes fof VbTryLoadKernel, in addition to VBERROR_SUCCESS */
 enum VbTryLoadKernelError_t {
   /* No disks found */
   VBERROR_TRY_LOAD_NO_DISKS = 1,
+  /* Need to reboot to same mode/recovery reason as this boot */
+  VBERROR_TRY_LOAD_REBOOT = 2,
   /* Some other error; go to recovery mode if this was the only hope to boot */
   VBERROR_TRY_LOAD_RECOVERY = 3,
 };
@@ -342,6 +338,7 @@ enum VbTryLoadKernelError_t {
  * VBERROR_TRY_LOAD_* for additional return codes. */
 uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
                          uint32_t get_info_flags) {
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   int retval = VBERROR_TRY_LOAD_NO_DISKS;
   VbDiskInfo* disk_info = NULL;
   uint32_t disk_count = 0;
@@ -372,10 +369,10 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
     retval = LoadKernel(p);
     VBDEBUG(("VbTryLoadKernel() LoadKernel() returned %d\n", retval));
 
-    /* Stop now if we found a kernel */
+    /* Stop now if we found a kernel or we need to reboot */
     /* TODO: If recovery requested, should track the farthest we get, instead
      * of just returning the value from the last disk attempted. */
-    if (LOAD_KERNEL_SUCCESS == retval)
+    if (LOAD_KERNEL_SUCCESS == retval || LOAD_KERNEL_REBOOT == retval)
       break;
   }
 
@@ -389,6 +386,10 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
   switch (retval) {
     case LOAD_KERNEL_SUCCESS:
       return VBERROR_SUCCESS;
+    case LOAD_KERNEL_REBOOT:
+      /* Reboot to same mode, so reuse the current recovery reason */
+      VbSetRecoveryRequest(shared->recovery_reason);
+      return VBERROR_TRY_LOAD_REBOOT;
     case LOAD_KERNEL_NOT_FOUND:
       VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_OS);
       return VBERROR_TRY_LOAD_RECOVERY;
@@ -553,6 +554,8 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 
     if (VBERROR_SUCCESS == retval)
       break;  /* Found a recovery kernel */
+    else if (VBERROR_TRY_LOAD_REBOOT == retval)
+      return 1;  /* Must reboot (back into recovery mode) */
 
     VbDisplayScreen(cparams, VBERROR_TRY_LOAD_NO_DISKS == retval ?
                     VB_SCREEN_RECOVERY_INSERT : VB_SCREEN_RECOVERY_NO_GOOD, 0);
@@ -576,7 +579,6 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   VbError_t retval = VBERROR_SUCCESS;
   LoadKernelParams p;
-  uint32_t tpm_status = 0;
 
   VBDEBUG(("VbSelectAndLoadKernel() start\n"));
 
@@ -592,18 +594,6 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   kparams->bootloader_address = 0;
   kparams->bootloader_size = 0;
   Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
-
-  /* Read the kernel version from the TPM.  Ignore errors in recovery mode. */
-  tpm_status = RollbackKernelRead(&shared->kernel_version_tpm);
-  if (0 != tpm_status) {
-    VBDEBUG(("Unable to get kernel versions from TPM\n"));
-    if (!shared->recovery_reason) {
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
-      retval = 1;
-      goto VbSelectAndLoadKernel_exit;
-    }
-  }
-  shared->kernel_version_tpm_start = shared->kernel_version_tpm;
 
   /* Fill in params for calls to LoadKernel() */
   Memset(&p, 0, sizeof(p));
@@ -630,7 +620,6 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
     VBDEBUG(("Developer firmware called with dev switch off!\n"));
     VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_MISMATCH);
     retval = 1;
-    goto VbSelectAndLoadKernel_exit;
   }
 #else
   /* Recovery firmware, or merged normal+developer firmware.  No
@@ -638,62 +627,31 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
 #endif
 
   /* Select boot path */
-  if (shared->recovery_reason) {
+  if (VBERROR_SUCCESS != retval) {
+    /* Failure during setup; don't attempt booting a kernel */
+  } else if (shared->recovery_reason) {
     /* Recovery boot */
     p.boot_flags |= BOOT_FLAG_RECOVERY;
     retval = VbBootRecovery(cparams, &p);
     VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0);
-
   } else if (p.boot_flags & BOOT_FLAG_DEVELOPER) {
     /* Developer boot */
     retval = VbBootDeveloper(cparams, &p);
     VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0);
-
   } else {
     /* Normal boot */
     retval = VbBootNormal(cparams, &p);
-
-    /* See if we need to update the TPM. */
-    if (!((1 == shared->firmware_index) && (shared->flags & VBSD_FWB_TRIED))) {
-      /* We don't advance the TPM if we're trying a new firmware B, because
-       * that firmware may have a key change and roll forward the TPM too
-       * soon. */
-      VBDEBUG(("Checking if TPM kernel version needs advancing\n"));
-      if (shared->kernel_version_tpm > shared->kernel_version_tpm_start) {
-        tpm_status = RollbackKernelWrite(shared->kernel_version_tpm);
-        if (0 != tpm_status) {
-          VBDEBUG(("Error writing kernel versions to TPM.\n"));
-          VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
-          retval = 1;
-          goto VbSelectAndLoadKernel_exit;
-        }
-      }
-    }
   }
 
-  if (VBERROR_SUCCESS != retval)
-    goto VbSelectAndLoadKernel_exit;
-
-  /* Save disk parameters */
-  kparams->disk_handle = p.disk_handle;
-  kparams->partition_number = (uint32_t)p.partition_number;
-  kparams->bootloader_address = p.bootloader_address;
-  kparams->bootloader_size = (uint32_t)p.bootloader_size;
-  Memcpy(kparams->partition_guid, p.partition_guid,
-         sizeof(kparams->partition_guid));
-
-  /* Lock the kernel versions.  Ignore errors in recovery mode. */
-  tpm_status = RollbackKernelLock();
-  if (0 != tpm_status) {
-    VBDEBUG(("Error locking kernel versions.\n"));
-    if (!shared->recovery_reason) {
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
-      retval = 1;
-      goto VbSelectAndLoadKernel_exit;
-    }
+  if (VBERROR_SUCCESS == retval) {
+    /* Save disk parameters */
+    kparams->disk_handle = p.disk_handle;
+    kparams->partition_number = (uint32_t)p.partition_number;
+    kparams->bootloader_address = p.bootloader_address;
+    kparams->bootloader_size = (uint32_t)p.bootloader_size;
+    Memcpy(kparams->partition_guid, p.partition_guid,
+           sizeof(kparams->partition_guid));
   }
-
-VbSelectAndLoadKernel_exit:
 
   if (vnc.raw_changed)
     VbExNvStorageWrite(vnc.raw);

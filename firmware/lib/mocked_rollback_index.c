@@ -27,8 +27,13 @@ uint32_t RollbackS3Resume(void) {
 }
 
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
-                               uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int developer_mode, uint32_t* version) {
+  *version = 0;
+  return TPM_SUCCESS;
+}
+
+
+uint32_t RollbackFirmwareRead(uint32_t* version) {
   *version = 0;
   return TPM_SUCCESS;
 }
@@ -40,6 +45,11 @@ uint32_t RollbackFirmwareWrite(uint32_t version) {
 
 
 uint32_t RollbackFirmwareLock(void) {
+  return TPM_SUCCESS;
+}
+
+
+uint32_t RollbackKernelRecovery(int developer_mode) {
   return TPM_SUCCESS;
 }
 
