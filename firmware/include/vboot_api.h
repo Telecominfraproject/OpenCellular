@@ -31,15 +31,67 @@
 /* Error codes */
 
 /* Functions which return an error all return this type.  This is a
-* 32-bit value rather than an int so it's consistent across UEFI,
-* which is 32-bit during PEI and 64-bit during DXE/BDS. */
+ * 32-bit value rather than an int so it's consistent across UEFI,
+ * which is 32-bit during PEI and 64-bit during DXE/BDS. */
 typedef uint32_t VbError_t;
 
-/* No error; function completed successfully. */
-#define VBERROR_SUCCESS 0
-/* Errors are non-zero, but differ between functions.  For example,
- * the TPM functions may pass through TPM error codes, some of which
- * may be recoverable. */
+/* Predefined error numbers. */
+enum VbErrorPredefined_t {
+  /* No error; function completed successfully. */
+  VBERROR_SUCCESS                       = 0,
+
+  /* Errors are non-zero, but differ between functions.  For example,
+   * the TPM functions may pass through TPM error codes, some of which
+   * may be recoverable. */
+
+  /* The verified boot entry points VbInit(), VbSelectFirmware(),
+   * VbSelectAndLoadKernel() may return the following errors. */
+
+  /* Unknown error */
+  VBERROR_UNKNOWN                       = 0x10000,
+  /* Unable to initialize shared data */
+  VBERROR_INIT_SHARED_DATA              = 0x10001,
+  /* Error resuming TPM during a S3 resume */
+  VBERROR_TPM_S3_RESUME                 = 0x10002,
+  /* LoadFirmware() failed to find a valid firmware */
+  VBERROR_LOAD_FIRMWARE                 = 0x10003,
+  /* Unable to write firmware versions to TPM */
+  VBERROR_TPM_WRITE_FIRMWARE            = 0x10004,
+  /* Unable to lock firmware versions in TPM */
+  VBERROR_TPM_LOCK_FIRMWARE             = 0x10005,
+  /* Unable to set boot mode state in TPM */
+  VBERROR_TPM_SET_BOOT_MODE_STATE       = 0x10006,
+  /* TPM requires reboot */
+  VBERROR_TPM_REBOOT_REQUIRED           = 0x10007,
+  /* Unable to set up TPM */
+  VBERROR_TPM_FIRMWARE_SETUP            = 0x10008,
+  /* Unable to read kernel versions from TPM */
+  VBERROR_TPM_READ_KERNEL               = 0x10009,
+  /* Attempted to load developer-only firmware when developer switch was off */
+  VBERROR_DEV_FIRMWARE_SWITCH_MISMATCH  = 0x1000A,
+  /* Unable to write kernel versions to TPM */
+  VBERROR_TPM_WRITE_KERNEL              = 0x1000B,
+  /* Unable to lock kernel versions in TPM */
+  VBERROR_TPM_LOCK_KERNEL               = 0x1000C,
+  /* Calling firmware requested shutdown via VbExIsShutdownRequested() */
+  VBERROR_SHUTDOWN_REQUESTED            = 0x1000D,
+  /* Unable to find a suitable boot device on which to look for a kernel */
+  VBERROR_NO_DISK_FOUND                 = 0x1000E,
+  /* No OS kernel found on any boot device */
+  VBERROR_NO_KERNEL_FOUND               = 0x1000F,
+  /* All OS kernels found were invalid (corrupt, improperly signed, etc.) */
+  VBERROR_INVALID_KERNEL_FOUND          = 0x10010,
+  /* LoadKernel() requested recovery mode */
+  VBERROR_LOAD_KERNEL_RECOVERY          = 0x10011,
+  /* Other error inside LoadKernel() */
+  VBERROR_LOAD_KERNEL                   = 0x10012,
+  /* Invalid Google binary block */
+  VBERROR_INVALID_GBB                   = 0x10013,
+  /* Invalid bitmap volume */
+  VBERROR_INVALID_BMPFV                 = 0x10014,
+  /* Invalid screen index */
+  VBERROR_INVALID_SCREEN_INDEX          = 0x10015
+};
 
 
 /*****************************************************************************/

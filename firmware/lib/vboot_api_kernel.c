@@ -53,7 +53,7 @@ static VbError_t VbGetLocalizationCount(VbCommonParams* cparams,
   if (0 == gbb->bmpfv_size ||
       gbb->bmpfv_offset > cparams->gbb_size ||
       gbb->bmpfv_offset + gbb->bmpfv_size > cparams->gbb_size) {
-    return 1;
+    return VBERROR_INVALID_GBB;
   }
 
   /* Sanity-check the bitmap block header */
@@ -63,7 +63,7 @@ static VbError_t VbGetLocalizationCount(VbCommonParams* cparams,
       (hdr->major_version > BMPBLOCK_MAJOR_VERSION) ||
       ((hdr->major_version == BMPBLOCK_MAJOR_VERSION) &&
        (hdr->minor_version > BMPBLOCK_MINOR_VERSION))) {
-    return 1;
+    return VBERROR_INVALID_BMPFV;
   }
 
   *count = hdr->number_of_localizations;
@@ -81,7 +81,8 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
   ImageInfo* image_info;
   uint32_t screen_index;
   uint32_t localization = 0;
-  VbError_t retval = 1;         /* Assume error until proven successful */
+  VbError_t retval = VBERROR_UNKNOWN;  /* Assume error until proven
+                                        * successful */
   uint32_t offset;
   uint32_t i;
 
@@ -90,7 +91,7 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
       gbb->bmpfv_offset > cparams->gbb_size ||
       gbb->bmpfv_offset + gbb->bmpfv_size > cparams->gbb_size) {
     VBDEBUG(("VbDisplayScreenFromGBB(): invalid bmpfv offset/size\n"));
-    return 1;
+    return VBERROR_INVALID_GBB;
   }
 
   /* Copy bitmap data from GBB into RAM for speed */
@@ -105,6 +106,7 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
       ((hdr->major_version == BMPBLOCK_MAJOR_VERSION) &&
        (hdr->minor_version > BMPBLOCK_MINOR_VERSION))) {
     VBDEBUG(("VbDisplayScreenFromGBB(): invalid/too new bitmap header\n"));
+    retval = VBERROR_INVALID_BMPFV;
     goto VbDisplayScreenFromGBB_exit;
   }
 
@@ -131,11 +133,13 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
       /* Screens which aren't in the GBB */
       VBDEBUG(("VbDisplayScreenFromGBB(): screen %d not in the GBB\n",
                (int)screen));
+      retval = VBERROR_INVALID_SCREEN_INDEX;
       goto VbDisplayScreenFromGBB_exit;
   }
   if (screen_index >= hdr->number_of_screenlayouts) {
     VBDEBUG(("VbDisplayScreenFromGBB(): screen %d index %d not in the GBB\n",
              (int)screen, (int)screen_index));
+    retval = VBERROR_INVALID_SCREEN_INDEX;
     goto VbDisplayScreenFromGBB_exit;
   }
 
@@ -193,13 +197,15 @@ VbDisplayScreenFromGBB_exit:
  * redisplays the screen even if it's the same as the current screen. */
 static VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen,
                                  int force) {
+  VbError_t retval;
 
   VBDEBUG(("VbDisplayScreen(%d, %d)\n", (int)screen, force));
 
   /* Initialize display if necessary */
   if (!disp_width) {
-    if (VBERROR_SUCCESS != VbExDisplayInit(&disp_width, &disp_height))
-      return 1;
+    retval = VbExDisplayInit(&disp_width, &disp_height);
+    if (VBERROR_SUCCESS != retval)
+      return retval;
   }
 
   /* If the requested screen is the same as the current one, we're done. */
@@ -327,22 +333,16 @@ static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
 }
 
 
-/* Return codes for VbTryLoadKernel(), in addition to VBERROR_SUCCESS.  Note
- * that there are some gaps in the enum from obsoleted old error codes. */
-enum VbTryLoadKernelError_t {
-  /* No disks found */
-  VBERROR_TRY_LOAD_NO_DISKS = 1,
-  /* Some other error; go to recovery mode if this was the only hope to boot */
-  VBERROR_TRY_LOAD_RECOVERY = 3,
-};
-
-
 /* Attempt loading a kernel from the specified type(s) of disks.  If
- * successful, sets p->disk_handle to the disk for the kernel.  See
- * VBERROR_TRY_LOAD_* for additional return codes. */
+ * successful, sets p->disk_handle to the disk for the kernel and returns
+ * VBERROR_SUCCESS.
+ *
+ * Returns VBERROR_NO_DISK_FOUND if no disks of the specified type were found.
+ *
+ * May return other VBERROR_ codes for other failures. */
 uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
                          uint32_t get_info_flags) {
-  int retval = VBERROR_TRY_LOAD_NO_DISKS;
+  int lk_retval = LOAD_KERNEL_RECOVERY;
   VbDiskInfo* disk_info = NULL;
   uint32_t disk_count = 0;
   uint32_t i;
@@ -360,7 +360,7 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
   VBDEBUG(("VbTryLoadKernel() found %d disks\n", (int)disk_count));
   if (0 == disk_count) {
     VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_DISK);
-    return VBERROR_TRY_LOAD_NO_DISKS;
+    return VBERROR_NO_DISK_FOUND;
   }
 
   /* Loop over disks */
@@ -369,37 +369,37 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
     p->disk_handle = disk_info[i].handle;
     p->bytes_per_lba = disk_info[i].bytes_per_lba;
     p->ending_lba = disk_info[i].lba_count - 1;
-    retval = LoadKernel(p);
-    VBDEBUG(("VbTryLoadKernel() LoadKernel() returned %d\n", retval));
+    lk_retval = LoadKernel(p);
+    VBDEBUG(("VbTryLoadKernel() LoadKernel() returned %d\n", lk_retval));
 
     /* Stop now if we found a kernel */
     /* TODO: If recovery requested, should track the farthest we get, instead
      * of just returning the value from the last disk attempted. */
-    if (LOAD_KERNEL_SUCCESS == retval)
+    if (LOAD_KERNEL_SUCCESS == lk_retval)
       break;
   }
 
   /* If we didn't succeed, don't return a disk handle */
-  if (LOAD_KERNEL_SUCCESS != retval)
+  if (LOAD_KERNEL_SUCCESS != lk_retval)
     p->disk_handle = NULL;
 
   VbExDiskFreeInfo(disk_info, p->disk_handle);
 
   /* Translate return codes */
-  switch (retval) {
+  switch (lk_retval) {
     case LOAD_KERNEL_SUCCESS:
       return VBERROR_SUCCESS;
     case LOAD_KERNEL_NOT_FOUND:
       VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_OS);
-      return VBERROR_TRY_LOAD_RECOVERY;
+      return VBERROR_NO_KERNEL_FOUND;
     case LOAD_KERNEL_INVALID:
       VbSetRecoveryRequest(VBNV_RECOVERY_RW_INVALID_OS);
-      return VBERROR_TRY_LOAD_RECOVERY;
+      return VBERROR_INVALID_KERNEL_FOUND;
     case LOAD_KERNEL_RECOVERY:
-      return VBERROR_TRY_LOAD_RECOVERY;
+      return VBERROR_LOAD_KERNEL_RECOVERY;
     default:
       VbSetRecoveryRequest(VBNV_RECOVERY_RW_UNSPECIFIED);
-      return VBERROR_TRY_LOAD_RECOVERY;
+      return VBERROR_LOAD_KERNEL;
   }
 }
 
@@ -440,7 +440,7 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
     uint32_t key;
 
     if (VbExIsShutdownRequested())
-      return 1;
+      return VBERROR_SHUTDOWN_REQUESTED;
 
     if (DEV_DELAY_BEEP1 == delay_time || DEV_DELAY_BEEP2 == delay_time)
       VbExBeep(DEV_DELAY_INCREMENT, 400);
@@ -535,7 +535,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
       for (i = 0; i < 4; i++) {
         VbCheckDisplayKey(cparams, VbExKeyboardRead());
         if (VbExIsShutdownRequested())
-          return 1;
+          return VBERROR_SHUTDOWN_REQUESTED;
         VbExSleepMs(REC_DELAY_INCREMENT);
       }
     }
@@ -554,7 +554,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
     if (VBERROR_SUCCESS == retval)
       break;  /* Found a recovery kernel */
 
-    VbDisplayScreen(cparams, VBERROR_TRY_LOAD_NO_DISKS == retval ?
+    VbDisplayScreen(cparams, VBERROR_NO_DISK_FOUND == retval ?
                     VB_SCREEN_RECOVERY_INSERT : VB_SCREEN_RECOVERY_NO_GOOD, 0);
 
     /* Scan keyboard more frequently than media, since x86 platforms don't like
@@ -562,7 +562,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
     for (i = 0; i < 4; i++) {
       VbCheckDisplayKey(cparams, VbExKeyboardRead());
       if (VbExIsShutdownRequested())
-        return 1;
+        return VBERROR_SHUTDOWN_REQUESTED;
       VbExSleepMs(REC_DELAY_INCREMENT);
     }
   }
@@ -599,7 +599,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
     VBDEBUG(("Unable to get kernel versions from TPM\n"));
     if (!shared->recovery_reason) {
       VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
-      retval = 1;
+      retval = VBERROR_TPM_READ_KERNEL;
       goto VbSelectAndLoadKernel_exit;
     }
   }
@@ -629,7 +629,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
      * when the dev switch is on, so we should never get here. */
     VBDEBUG(("Developer firmware called with dev switch off!\n"));
     VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_MISMATCH);
-    retval = 1;
+    retval = VBERROR_DEV_FIRMWARE_SWITCH_MISMATCH;
     goto VbSelectAndLoadKernel_exit;
   }
 #else
@@ -664,7 +664,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
         if (0 != tpm_status) {
           VBDEBUG(("Error writing kernel versions to TPM.\n"));
           VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
-          retval = 1;
+          retval = VBERROR_TPM_WRITE_KERNEL;
           goto VbSelectAndLoadKernel_exit;
         }
       }
@@ -688,7 +688,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
     VBDEBUG(("Error locking kernel versions.\n"));
     if (!shared->recovery_reason) {
       VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
-      retval = 1;
+      retval = VBERROR_TPM_LOCK_KERNEL;
       goto VbSelectAndLoadKernel_exit;
     }
   }

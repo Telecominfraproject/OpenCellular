@@ -34,7 +34,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   /* Initialize shared data structure */
   if (0 != VbSharedDataInit(shared, cparams->shared_data_size)) {
     VBDEBUG(("Shared data init error\n"));
-    return 1;
+    return VBERROR_INIT_SHARED_DATA;
   }
 
   shared->timer_vb_init_enter = VbExGetTimer();
@@ -115,7 +115,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
       /* If we can't resume, just do a full reboot.  No need to go to recovery
        * mode here, since if the TPM is really broken we'll catch it on the
        * next boot. */
-      retval = 1;
+      retval = VBERROR_TPM_S3_RESUME;
     }
   }
 
