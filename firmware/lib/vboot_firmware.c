@@ -56,9 +56,6 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   VBDEBUG(("LoadFirmware started...\n"));
 
-  /* Setup NV storage */
-  VbNvSetup(vnc);
-
   /* Handle test errors */
   VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
   if (VBNV_TEST_ERROR_LOAD_FIRMWARE == test_err) {
@@ -325,10 +322,9 @@ int LoadFirmware(LoadFirmwareParams* params) {
   }
 
 LoadFirmwareExit:
-  /* Store recovery request, if any, then tear down non-volatile storage */
+  /* Store recovery request, if any */
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
-  VbNvTeardown(vnc);
 
   /* Note that we don't reduce params->shared_data_size to shared->data_used,
    * since we want to leave space for LoadKernel() to add to the shared data

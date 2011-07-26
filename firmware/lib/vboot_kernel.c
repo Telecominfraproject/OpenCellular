@@ -143,9 +143,6 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   VbError_t retval = VBERROR_UNKNOWN;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
 
-  /* Setup NV storage */
-  VbNvSetup(vnc);
-
   /* Sanity Checks */
   if (!params ||
       !params->bytes_per_lba ||
@@ -537,10 +534,9 @@ VbError_t LoadKernel(LoadKernelParams* params) {
 
 LoadKernelExit:
 
-  /* Store recovery request, if any, then tear down non-volatile storage */
+  /* Store recovery request, if any */
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
-  VbNvTeardown(vnc);
 
   shcall->return_code = (uint8_t)retval;
 

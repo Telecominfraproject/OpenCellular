@@ -18,11 +18,7 @@
 /* Set recovery request */
 static void VbSfRequestRecovery(VbNvContext *vnc, uint32_t recovery_request) {
   VBDEBUG(("VbSfRequestRecovery(%d)\n", (int)recovery_request));
-  VbNvSetup(vnc);
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, recovery_request);
-  VbNvTeardown(vnc);
-  if (vnc->raw_changed)
-    VbExNvStorageWrite(vnc->raw);
 }
 
 
@@ -42,7 +38,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
 
   /* Load NV storage */
   VbExNvStorageRead(vnc.raw);
-  vnc.raw_changed = 0;
+  VbNvSetup(&vnc);
 
   /* Initialize the TPM */
   VBPERFSTART("VB_TPMI");
@@ -108,10 +104,6 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
     /* Chain to LoadFirmware() */
     retval = LoadFirmware(&p);
 
-    /* Save NV storage, if necessary */
-    if (vnc.raw_changed)
-      VbExNvStorageWrite(vnc.raw);
-
     /* Copy amount of used shared data back to the wrapper API struct */
     cparams->shared_data_size = (uint32_t)p.shared_data_size;
 
@@ -169,6 +161,11 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   retval = VBERROR_SUCCESS;
 
 VbSelectFirmware_exit:
+
+  /* Save NV storage */
+  VbNvTeardown(&vnc);
+  if (vnc.raw_changed)
+    VbExNvStorageWrite(vnc.raw);
 
   /* Stop timer */
   shared->timer_vb_select_firmware_exit = VbExGetTimer();

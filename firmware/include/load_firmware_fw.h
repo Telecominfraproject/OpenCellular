@@ -34,12 +34,9 @@ typedef struct LoadFirmwareParams {
                                   * the buffer.  Caller need only pass that
                                   * much data to LoadKernel().*/
 
-  VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
-                                  * must be filled before calling
-                                  * LoadFirmware().  On output, check
-                                  * nv_context->raw_changed to see if
-                                  * nv_context->raw has been modified and
-                                  * needs saving. */
+  VbNvContext* nv_context;       /* Context for NV storage.  Caller is
+                                  * responsible for calling VbNvSetup() and
+                                  * VbNvTeardown() on the context. */
 
   /* Internal data for LoadFirmware() / UpdateFirmwareBodyHash(). */
   void* load_firmware_internal;

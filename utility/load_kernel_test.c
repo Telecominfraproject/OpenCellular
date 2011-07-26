@@ -92,6 +92,7 @@ int main(int argc, char* argv[]) {
   lkp.bytes_per_lba = LBA_BYTES;
   lkp.boot_flags = BOOT_FLAG_RECOVERY;
   Memset(&vnc, 0, sizeof(VbNvContext));
+  VbNvSetup(&vnc);
   lkp.nv_context = &vnc;
 
   /* Parse options */

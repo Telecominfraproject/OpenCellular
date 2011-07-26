@@ -31,12 +31,7 @@ VbNvContext* VbApiKernelGetVnc(void) {
 /* Set recovery request */
 static void VbSetRecoveryRequest(uint32_t recovery_request) {
   VBDEBUG(("VbSetRecoveryRequest(%d)\n", (int)recovery_request));
-
-  VbNvSetup(&vnc);
   VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, recovery_request);
-  VbNvTeardown(&vnc);
-  if (vnc.raw_changed)
-    VbExNvStorageWrite(vnc.raw);
 }
 
 
@@ -144,15 +139,11 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
   }
 
   /* Clip localization to the number of localizations present in the GBB */
-  VbNvSetup(&vnc);
   VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &localization);
   if (localization >= hdr->number_of_localizations) {
     localization = 0;
     VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, localization);
   }
-  VbNvTeardown(&vnc);
-  if (vnc.raw_changed)
-    VbExNvStorageWrite(vnc.raw);
 
   /* Calculate offset of screen layout = start of screen stuff +
    * correct locale + correct screen. */
@@ -309,21 +300,15 @@ static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
     uint32_t loc = 0;
     uint32_t count = 0;
 
-    /* Get localization count */
-    VbGetLocalizationCount(cparams, &count);
-
-    /* Change localization */
-    VbNvSetup(&vnc);
     VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &loc);
-    if (VB_KEY_RIGHT == key)
+    if (VBERROR_SUCCESS != VbGetLocalizationCount(cparams, &count))
+      loc = 0;  /* No localization count (bad GBB?), so set to 0 (default) */
+    else if (VB_KEY_RIGHT == key)
       loc = (loc < count - 1 ? loc + 1 : 0);
     else
       loc = (loc > 0 ? loc - 1 : count - 1);
     VBDEBUG(("VbCheckDisplayKey() - change localization to %d\n", (int)loc));
     VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, loc);
-    VbNvTeardown(&vnc);
-    if (vnc.raw_changed)
-      VbExNvStorageWrite(vnc.raw);
 
     /* Force redraw of current screen */
     return VbDisplayScreen(cparams, disp_current_screen, 1);
@@ -342,13 +327,13 @@ static VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key) {
  * May return other VBERROR_ codes for other failures. */
 uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
                          uint32_t get_info_flags) {
-  int retval = VBERROR_UNKNOWN;
+  VbError_t retval = VBERROR_UNKNOWN;
   VbDiskInfo* disk_info = NULL;
   uint32_t disk_count = 0;
   uint32_t i;
 
   VBDEBUG(("VbTryLoadKernel() start, get_info_flags=0x%x\n",
-          (int)get_info_flags));
+          (unsigned)get_info_flags));
 
   p->disk_handle = NULL;
 
@@ -571,7 +556,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   shared->timer_vb_select_and_load_kernel_enter = VbExGetTimer();
 
   VbExNvStorageRead(vnc.raw);
-  vnc.raw_changed = 0;
+  VbNvSetup(&vnc);
 
   /* Clear output params in case we fail */
   kparams->disk_handle = NULL;

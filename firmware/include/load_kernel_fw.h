@@ -44,12 +44,9 @@ typedef struct LoadKernelParams {
                                  * (normally at 0x100000) */
   uint64_t kernel_buffer_size;  /* Size of kernel buffer in bytes */
   uint64_t boot_flags;          /* Boot flags */
-  VbNvContext* nv_context;       /* Context for NV storage.  nv_context->raw
-                                  * must be filled before calling
-                                  * LoadKernel().  On output, check
-                                  * nv_context->raw_changed to see if
-                                  * nv_context->raw has been modified and
-                                  * needs saving. */
+  VbNvContext* nv_context;      /* Context for NV storage.  Caller is
+                                 * responsible for calling VbNvSetup() and
+                                 * VbNvTeardown() on the context. */
 
   /* Outputs from LoadKernel(); valid only if LoadKernel() returns
    * LOAD_KERNEL_SUCCESS */
