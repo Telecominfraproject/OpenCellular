@@ -48,7 +48,7 @@ const Param sys_param_list[] = {
   {"fwupdate_tries", CAN_WRITE,
    "Times to try OS firmware update (writable, inside kern_nv)"},
   {"hwid", IS_STRING, "Hardware ID"},
-  {"kern_nv", CAN_WRITE, "Non-volatile field for kernel use", "0x%08x"},
+  {"kern_nv", 0, "Non-volatile field for kernel use", "0x%08x"},
   {"kernkey_vfy", IS_STRING, "Type of verification done on kernel key block"},
   {"loc_idx", CAN_WRITE, "Localization index for firmware screens (writable)"},
   {"mainfw_act", IS_STRING, "Active main firmware"},

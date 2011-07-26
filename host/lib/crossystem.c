@@ -43,9 +43,13 @@ typedef enum VdatIntField {
 } VdatIntField;
 
 
-/* Masks for kern_nv usage by kernel */
+/* Masks for kern_nv usage by kernel. */
 #define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
-
+/* If you want to use the remaining currently-unused bits in kern_nv
+ * for something kernel-y, define a new field (the way we did for
+ * fwupdate_tries).  Don't just modify kern_nv directly, because that
+ * makes it too easy to accidentally corrupt other sub-fields. */
+#define KERN_NV_CURRENTLY_UNUSED    0xFFFFFFF0
 
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start) {
@@ -444,8 +448,6 @@ int VbSetSystemPropertyInt(const char* name, int value) {
   if (!strcasecmp(name,"nvram_cleared")) {
     /* Can only clear this flag; it's set inside the NV storage library. */
     return VbSetNvStorage(VBNV_KERNEL_SETTINGS_RESET, 0);
-  } else if (!strcasecmp(name,"kern_nv")) {
-    return VbSetNvStorage(VBNV_KERNEL_FIELD, value);
   } else if (!strcasecmp(name,"vbtest_errfunc")) {
     return VbSetNvStorage(VBNV_TEST_ERROR_FUNC, value);
   } else if (!strcasecmp(name,"vbtest_errno")) {
