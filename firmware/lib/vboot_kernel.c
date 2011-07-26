@@ -385,7 +385,7 @@ VbError_t LoadKernel(LoadKernelParams* params) {
         lowest_version = combined_version;
       else {
         VBDEBUG(("Key block valid: %d\n", key_block_valid));
-        VBDEBUG(("Combined version: %" PRIu32 "\n", combined_version));
+        VBDEBUG(("Combined version: %u\n", (unsigned) combined_version));
       }
 
       /* If we already have a good kernel, no need to read another
