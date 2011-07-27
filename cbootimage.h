@@ -103,10 +103,11 @@ typedef struct build_image_context_rec
 	u_int32_t partition_size;
 	u_int32_t redundancy;
 	u_int32_t version;
+	u_int32_t bct_copy;
 	/* Allocation data. */
 	struct blk_data_rec *memory; /* Representation of memory */
-	/* block number for the (first) journal block */
-	u_int32_t journal_blk;
+	/* block number for the BCT block */
+	u_int32_t next_bct_blk;
 
 	char *newbl_filename;
 	u_int32_t newbl_load_addr;

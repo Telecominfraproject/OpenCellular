@@ -60,7 +60,7 @@ init_context(build_image_context *context)
 
         /* Set defaults */
         context->memory = new_block_list();
-        context->journal_blk = 1; /* Default to 1st block */
+        context->next_bct_blk = 0; /* Default to block 0 */
 
         /* Allocate space for the bct.
          * Note that this is different from the old code which pointed directly
@@ -73,6 +73,7 @@ init_context(build_image_context *context)
         context_set_value(context, token_page_size, 2048);
         context_set_value(context, token_redundancy, 1);
         context_set_value(context, token_version, 1);
+        context_set_value(context, token_bct_copy, 2);
 
         return 0;
 

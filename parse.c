@@ -347,6 +347,7 @@ static parse_item s_top_level_items[] =
 	{ "SDRAM[",         token_sdram,		parse_sdram_param },
 	{ "BootLoader=",    token_bootloader,		parse_bootloader },
 	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
+	{ "Bctcopy=",       token_bct_copy,		parse_value_u32 },
 	{ "Version=",       token_version,		parse_value_u32 },
 	{ "AddOn[",         token_addon,		parse_addon },
 	{ NULL, 0, NULL } /* Must be last */

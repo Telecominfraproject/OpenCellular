@@ -52,6 +52,7 @@ typedef enum
 	token_redundancy,
 	token_version,
 	token_bct_file,
+	token_bct_copy,
 	token_addon,
 	token_nand_params,
 	token_sdmmc_params,

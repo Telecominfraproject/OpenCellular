@@ -239,6 +239,10 @@ int context_set_value(build_image_context *context,
 		context->version = value;
 		break;
 
+	case token_bct_copy:
+		context->bct_copy = value;
+		break;
+
 	DEFAULT();
 	}
 

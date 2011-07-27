@@ -78,7 +78,7 @@ set_bl_data(build_image_context *context,
 
 static int write_bootloaders(build_image_context *context);
 
-static void find_new_journal_blk(build_image_context *context);
+static u_int32_t find_new_bct_blk(build_image_context *context);
 static int finish_update(build_image_context *context);
 static void init_bad_block_table(build_image_context *context);
 
@@ -489,7 +489,7 @@ write_bootloaders(build_image_context *context)
 
 	pages_in_bl = iceil_log2(bl_length, context->page_size_log2);
 
-	current_blk = context->journal_blk+1;
+	current_blk = context->next_bct_blk;
 	current_page  = 0;
 	for (bl_instance = 0; bl_instance < context->redundancy;
 					bl_instance++) {
@@ -847,24 +847,24 @@ void destroy_addon_list(struct addon_item_rec *addon_list)
 	}
 }
 
-static void
-find_new_journal_blk(build_image_context *context)
+static u_int32_t
+find_new_bct_blk(build_image_context *context)
 {
 	u_int32_t current_blk;
 	u_int32_t max_bct_search_blks;
 
 	assert(context);
 
-	current_blk = context->journal_blk;
+	current_blk = context->next_bct_blk;
 
 	GET_VALUE(max_bct_search_blks, &max_bct_search_blks);
 
-	if (current_blk > max_bct_search_blks) {
+	if (current_blk >= max_bct_search_blks) {
 		printf("Error: Unable to locate a journal block.\n");
 		exit(1);
 	}
-
-	context->journal_blk = current_blk;
+	context->next_bct_blk++;
+	return current_blk;
 }
 
 /*
@@ -916,7 +916,9 @@ begin_update(build_image_context *context)
 	u_int32_t hash_size;
 	u_int32_t reserved_size;
 	u_int32_t reserved_offset;
+	u_int32_t current_bct_blk;
 	int e = 0;
+	int i;
 
 	assert(context);
 
@@ -946,16 +948,13 @@ begin_update(build_image_context *context)
 	/* Fill the reserved data w/the padding pattern. */
 	write_padding(context->bct + reserved_offset, reserved_size);
 
-	/* Device is new */
-	/* Find the new journal block starting at block 1. */
-	find_new_journal_blk(context);
-
-	e = erase_block(context, context->journal_blk);
-	if (e != 0)
-		goto fail;
-	e = erase_block(context, 0);
-	if (e != 0)
-		goto fail;
+	/* Find the next bct block starting at block 0. */
+	for (i = 0; i < context->bct_copy; i++) {
+		current_bct_blk = find_new_bct_blk(context);
+		e = erase_block(context, current_bct_blk);
+		if (e != 0)
+			goto fail;
+	}
 	return 0;
 fail:
 	printf("Erase block failed, error: %d.\n", e);
@@ -972,14 +971,17 @@ fail:
 static int
 finish_update(build_image_context *context)
 {
+	u_int32_t current_bct_blk;
 	int e = 0;
+	int i;
 
-	e = write_bct(context, context->journal_blk, 0);
-	if (e != 0)
-		goto fail;
-	e = write_bct(context, 0, 0);
-	if (e != 0) /* Write to block 0, slot 0. */
-		goto fail;
+	current_bct_blk = context->next_bct_blk;
+	for (i = 0; i < context->bct_copy; i++) {
+		e = write_bct(context, --current_bct_blk, 0);
+		if (e != 0)
+			goto fail;
+	}
+
 	return 0;
 fail:
 	printf("Write BCT failed, error: %d.\n", e);
