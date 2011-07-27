@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -10,42 +10,62 @@
 
 #include "sysincludes.h"
 
-#define GBB_HEADER_SIZE    (0x80)
+#define GBB_HEADER_SIZE    128
 
 #define GBB_SIGNATURE      "$GBB"
-#define GBB_SIGNATURE_SIZE (4)
+#define GBB_SIGNATURE_SIZE 4
 
-#define GBB_MAJOR_VER      (0x01)
-#define GBB_MINOR_VER      (0x00)
+/* GBB version constants.
+ *
+ * If the major version is different than the reader can handle, it
+ * shouldn't attempt to parse the GBB.
+ *
+ * If the minor version is different, the reader can still parse it.
+ * If the minor version is greater than expected, new fields were
+ * added in a way which does not interfere with the old fields.  If
+ * it's less than expected, some of the fields expected by the reader
+ * aren't initialized, and the reader should return default values for
+ * those fields. */
+#define GBB_MAJOR_VER      1
+#define GBB_MINOR_VER      1
 
 /* Maximum length of a HWID in bytes, counting terminating null. */
 #define GBB_HWID_MAX_SIZE  256
 
+/* Flags for .flags field */
+/* Reduce the dev screen delay to 2 sec from 30 sec */
+#define GBB_FLAG_DEV_SCREEN_SHORT_DELAY   0x00000001
+
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif  /* __cplusplus */
 
 typedef struct GoogleBinaryBlockHeader {
-  uint8_t  signature[GBB_SIGNATURE_SIZE]; // GBB_SIGNATURE "$GBB"
-  uint16_t major_version;   // see GBB_MAJOR_VER
-  uint16_t minor_version;   // see GBB_MINOR_VER
-  uint32_t header_size;     // size of GBB header in bytes
+  /* Fields present in version 1.0 */
+  uint8_t  signature[GBB_SIGNATURE_SIZE]; /* GBB_SIGNATURE "$GBB" */
+  uint16_t major_version;   /* See GBB_MAJOR_VER */
+  uint16_t minor_version;   /* See GBB_MINOR_VER */
+  uint32_t header_size;     /* size of GBB header in bytes */
   uint32_t reserved;
 
-  uint32_t hwid_offset;     // HWID offset from header
-  uint32_t hwid_size;       // HWID size in bytes
-  uint32_t rootkey_offset;  // Root Key offset from header
-  uint32_t rootkey_size;    // Root Key size in bytes
-  uint32_t bmpfv_offset;    // BMP FV offset from header
-  uint32_t bmpfv_size;      // BMP FV size in bytes
-  uint32_t recovery_key_offset;  // Recovery Key offset from header
-  uint32_t recovery_key_size;    // Recovery Key size in bytes
+  uint32_t hwid_offset;     /* HWID offset from start of header */
+  uint32_t hwid_size;       /* HWID size in bytes */
+  uint32_t rootkey_offset;  /* Root Key offset from start of header */
+  uint32_t rootkey_size;    /* Root Key size in bytes */
+  uint32_t bmpfv_offset;    /* BMP FV offset from start of header */
+  uint32_t bmpfv_size;      /* BMP FV size in bytes */
+  uint32_t recovery_key_offset;  /* Recovery Key offset from start of header */
+  uint32_t recovery_key_size;    /* Recovery Key size in bytes */
 
-  uint8_t  pad[80];         // to match GBB_HEADER_SIZE
-} GoogleBinaryBlockHeader;
+  /* Fields added in version 1.1 */
+  uint32_t flags;           /* Flags (see GBB_FLAG_*).  Readers should return
+                             * flags=0 for v1.0 structs. */
+
+  uint8_t  pad[76];         /* To match GBB_HEADER_SIZE.  Initialize to 0. */
+} __attribute__((packed)) GoogleBinaryBlockHeader;
 
 #ifdef __cplusplus
 }
-#endif  // __cplusplus
+#endif  /* __cplusplus */
 
 #endif  /* VBOOT_REFERENCE_GBB_HEADER_H_ */

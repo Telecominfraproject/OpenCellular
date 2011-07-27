@@ -1,4 +1,4 @@
-// Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+// Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 //
@@ -193,7 +193,7 @@ int GoogleBinaryBlockUtil::search_header_signatures(const string &image,
   return found_signatures;
 }
 
-// uility function for load_gbb_header to check property range
+// utility function for load_gbb_header to check property range
 static bool check_property_range(uint32_t off, uint32_t sz,
                                  uint32_t hdr_sz, uint32_t max_sz,
                                  const char *prop_name, bool verbose) {
@@ -239,8 +239,7 @@ bool GoogleBinaryBlockUtil::load_gbb_header(const string &image, long offset,
   const GoogleBinaryBlockHeader &h = *phdr;  // for quick access
 
   // check version
-  if (h.major_version != GBB_MAJOR_VER ||
-      h.minor_version != GBB_MINOR_VER) {
+  if (h.major_version != GBB_MAJOR_VER) {
     if (verbose)
       fprintf(stderr, " error: invalid GBB version (%d.%d)\n",
           h.major_version, h.minor_version);
