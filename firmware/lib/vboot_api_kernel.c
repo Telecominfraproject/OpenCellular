@@ -274,17 +274,24 @@ static VbError_t VbDisplayDebugInfo(VbCommonParams* cparams) {
   used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
                          shared->kernel_version_tpm, 16, 8);
 
+  /* Add GBB flags */
+  used += Strncat(buf + used, "\ngbb.flags: 0x", DEBUG_INFO_SIZE - used);
+  if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1) {
+    used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+                           gbb->flags, 16, 8);
+  } else {
+    used += Strncat(buf + used, "0 (default)", DEBUG_INFO_SIZE - used);
+  }
+
   /* Make sure we finish with a newline */
   used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
 
   /* TODO: add more interesting data:
    * - SHA1 of kernel subkey (assuming we always set it in VbSelectFirmware,
    *   even in recovery mode, where we just copy it from the root key)
-   * - Information on current disks
-   * - Anything else interesting from VbNvStorage */
+   * - Information on current disks */
 
   buf[DEBUG_INFO_SIZE - 1] = '\0';
-  VBDEBUG(("VbCheckDisplayKey() wants to show '%s'\n", buf));
   return VbExDisplayDebugInfo(buf);
 }
 
@@ -394,20 +401,30 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
 #define DEV_DELAY_BEEP1 20000    /* Beep for first time at this time */
 #define DEV_DELAY_BEEP2 21000    /* Beep for second time at this time */
 #define DEV_DELAY_TIMEOUT 30000  /* Give up at this time */
+#define DEV_DELAY_TIMEOUT_SHORT 2000  /* Give up at this time (short delay) */
 
 /* Handle a developer-mode boot */
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
+  uint32_t delay_timeout = DEV_DELAY_TIMEOUT;
   uint32_t delay_time = 0;
   uint32_t allow_usb = 0;
 
   /* Check if USB booting is allowed */
   VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
 
+  /* Use a short developer screen delay if indicated by GBB flags */
+  if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1
+      && (gbb->flags & GBB_FLAG_DEV_SCREEN_SHORT_DELAY)) {
+    VBDEBUG(("VbBootDeveloper() - using short developer screen delay\n"));
+    delay_timeout = DEV_DELAY_TIMEOUT_SHORT;
+  }
+
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0);
 
   /* Loop for dev mode warning delay */
-  for (delay_time = 0; delay_time < DEV_DELAY_TIMEOUT;
+  for (delay_time = 0; delay_time < delay_timeout;
        delay_time += DEV_DELAY_INCREMENT) {
     uint32_t key;
 
