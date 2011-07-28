@@ -703,6 +703,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
 
 VbSelectAndLoadKernel_exit:
 
+  VbNvTeardown(&vnc);
   if (vnc.raw_changed)
     VbExNvStorageWrite(vnc.raw);
 
