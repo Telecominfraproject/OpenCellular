@@ -452,17 +452,19 @@ static int ReadGpio(int signal_type) {
   if (active_high == -1 || controller_offset == -1)
     return -1;  /* Missing needed info */
 
-  /* We only support the NM10 for now */
+  /* Check for chipsets we recognize. */
   snprintf(name, sizeof(name), "%s.%d/GPIO.3", ACPI_GPIO_PATH, index);
   if (!ReadFileString(controller_name, sizeof(controller_name), name))
     return -1;
-  if (0 != strcmp(controller_name, "NM10"))
+  if ((0 != strcmp(controller_name, "NM10")) &&
+      (0 != strcmp(controller_name, "CougarPoint")))
     return -1;
 
-  /* Assume the NM10 has offset 192 */
-  /* TODO: should really check gpiochipNNN/label to see if it's the
-   * address we expect for the NM10, and then read the offset from
-   * gpiochipNNN/base. */
+  /* We blindly assume the controller has offset 192.
+   * There is some information under /sys/class/gpio/gpiochip192/,
+   * but there's nothing there to correlate that with anything we already
+   * discovered, so if it's not the right thing we have no way of knowing.
+   */
   controller_offset += 192;
 
   /* Try reading the GPIO value */
