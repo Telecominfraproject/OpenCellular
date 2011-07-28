@@ -37,9 +37,11 @@ int GetFirmwareBody(LoadFirmwareParams* params, uint64_t firmware_index) {
   if (firmware_index != 0 && firmware_index != 1)
     return 1;
 
-  UpdateFirmwareBodyHash(params,
+#if 0
+  VbUpdateFirmwareBodyHash(params,
                          ci->firmware[firmware_index].fw,
                          ci->firmware[firmware_index].size);
+#endif
 
   return 0;
 }

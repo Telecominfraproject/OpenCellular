@@ -21,7 +21,6 @@ TARGET_NAMES = crossystem \
 		dumpRSAPublicKey \
 		dump_kernel_config \
 		gbb_utility \
-		load_firmware_test \
 		load_kernel_test \
 		pad_digest_utility \
 		signature_digest_utility \
@@ -85,8 +84,9 @@ ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 				${BUILD_ROOT}/efidecompress.o
 	$(CXX) -llzma -lyaml $(CFLAGS) $^ -o $@
 
-${BUILD_ROOT}/load_firmware_test: load_firmware_test.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+# TODO: rewrite load_firmware_test to support new wrapper API
+#${BUILD_ROOT}/load_firmware_test: load_firmware_test.c $(LIBS)
+#	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto

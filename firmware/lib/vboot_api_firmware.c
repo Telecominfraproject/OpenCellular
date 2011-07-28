@@ -25,7 +25,6 @@ static void VbSfRequestRecovery(VbNvContext *vnc, uint32_t recovery_request) {
 VbError_t VbSelectFirmware(VbCommonParams* cparams,
                            VbSelectFirmwareParams* fparams) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
-  LoadFirmwareParams p;
   VbNvContext vnc;
   VbError_t retval = VBERROR_UNKNOWN; /* Assume error until proven successful */
   int is_rec = (shared->recovery_reason ? 1 : 0);
@@ -82,30 +81,8 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
     fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;
 
   } else {
-    /* Check the RW firmware */
-    /* Copy parameters from wrapper API structs to old struct */
-    p.gbb_data              = cparams->gbb_data;
-    p.gbb_size              = cparams->gbb_size;
-    p.shared_data_blob      = cparams->shared_data_blob;
-    p.shared_data_size      = cparams->shared_data_size;
-    p.nv_context            = &vnc;
-
-    p.verification_block_0  = fparams->verification_block_A;
-    p.verification_block_1  = fparams->verification_block_B;
-    p.verification_size_0   = fparams->verification_size_A;
-    p.verification_size_1   = fparams->verification_size_B;
-
-    /* Use vboot_context and caller_internal to link our params with
-     * LoadFirmware()'s params. */
-    // TODO: clean up LoadFirmware() to use common params?
-    p.caller_internal = (void*)cparams;
-    cparams->vboot_context = (void*)&p;
-
     /* Chain to LoadFirmware() */
-    retval = LoadFirmware(&p);
-
-    /* Copy amount of used shared data back to the wrapper API struct */
-    cparams->shared_data_size = (uint32_t)p.shared_data_size;
+    retval = LoadFirmware(cparams, fparams, &vnc);
 
     /* Exit if we failed to find an acceptable firmware */
     if (VBERROR_SUCCESS != retval)
@@ -174,28 +151,4 @@ VbSelectFirmware_exit:
   VbAssert(VBERROR_UNKNOWN != retval);
 
   return retval;
-}
-
-
-/* TODO: Move this inside vboot_firmware.c; for now this just translates to
- * the original function call. */
-void VbUpdateFirmwareBodyHash(VbCommonParams* cparams, uint8_t* data,
-                              uint32_t size) {
-  LoadFirmwareParams* lfparams = (LoadFirmwareParams*)cparams->vboot_context;
-
-  UpdateFirmwareBodyHash(lfparams, data, size);
-}
-
-
-/* Translation layer from LoadFirmware()'s GetFirmwareBody() to the new
- * wrapper API call.
- *
- * TODO: call directly from LoadFirmware() */
-int GetFirmwareBody(LoadFirmwareParams* lfparams, uint64_t index) {
-  VbCommonParams* cparams = (VbCommonParams*)lfparams->caller_internal;
-  VbError_t rv;
-
-  rv = VbExHashFirmwareBody(cparams, (index ? VB_SELECT_FIRMWARE_B :
-                                      VB_SELECT_FIRMWARE_A));
-  return (VBERROR_SUCCESS == rv ? 0 : 1);
 }

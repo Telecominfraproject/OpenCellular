@@ -19,26 +19,26 @@
  * good way to pass the params struct back to us. */
 typedef struct VbLoadFirmwareInternal {
   DigestContext body_digest_context;
-  uint64_t body_size_accum;
+  uint32_t body_size_accum;
 } VbLoadFirmwareInternal;
 
 
-void UpdateFirmwareBodyHash(LoadFirmwareParams* params,
-                             uint8_t* data, uint32_t size) {
+void VbUpdateFirmwareBodyHash(VbCommonParams* cparams,
+                              uint8_t* data, uint32_t size) {
   VbLoadFirmwareInternal* lfi =
-      (VbLoadFirmwareInternal*)params->load_firmware_internal;
+      (VbLoadFirmwareInternal*)cparams->vboot_context;
 
   DigestUpdate(&lfi->body_digest_context, data, size);
   lfi->body_size_accum += size;
 }
 
 
-int LoadFirmware(LoadFirmwareParams* params) {
-  VbSharedDataHeader* shared = (VbSharedDataHeader*)params->shared_data_blob;
-  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)params->gbb_data;
+int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
+                 VbNvContext* vnc) {
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   VbPublicKey* root_key;
   VbLoadFirmwareInternal* lfi;
-  VbNvContext* vnc = params->nv_context;
 
   uint32_t try_b_count;
   uint32_t lowest_version = 0xFFFFFFFF;
@@ -94,12 +94,12 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   /* Allocate our internal data */
   lfi = (VbLoadFirmwareInternal*)VbExMalloc(sizeof(VbLoadFirmwareInternal));
-  params->load_firmware_internal = (uint8_t*)lfi;
+  cparams->vboot_context = (void*)lfi;
 
   /* Loop over indices */
   for (i = 0; i < 2; i++) {
     VbKeyBlockHeader* key_block;
-    uint64_t vblock_size;
+    uint32_t vblock_size;
     VbFirmwarePreambleHeader* preamble;
     RSAPublicKey* data_key;
     uint64_t key_version;
@@ -110,12 +110,12 @@ int LoadFirmware(LoadFirmwareParams* params) {
     /* If try B count is non-zero try firmware B first */
     index = (try_b_count ? 1 - i : i);
     if (0 == index) {
-      key_block = (VbKeyBlockHeader*)params->verification_block_0;
-      vblock_size = params->verification_size_0;
+      key_block = (VbKeyBlockHeader*)fparams->verification_block_A;
+      vblock_size = fparams->verification_size_A;
       check_result = &shared->check_fw_a_result;
     } else {
-      key_block = (VbKeyBlockHeader*)params->verification_block_1;
-      vblock_size = params->verification_size_1;
+      key_block = (VbKeyBlockHeader*)fparams->verification_block_B;
+      vblock_size = fparams->verification_size_B;
       check_result = &shared->check_fw_b_result;
     }
 
@@ -222,12 +222,16 @@ int LoadFirmware(LoadFirmwareParams* params) {
       shared->flags |= VBSD_LF_USE_RO_NORMAL;
 
     } else {
+      VbError_t rv;
+
       /* Read the firmware data */
       VBPERFSTART("VB_RFD");
       DigestInit(&lfi->body_digest_context, data_key->algorithm);
       lfi->body_size_accum = 0;
-      if (0 != GetFirmwareBody(params, index)) {
-        VBDEBUG(("GetFirmwareBody() failed for index %d\n", index));
+      rv = VbExHashFirmwareBody(cparams, (index ? VB_SELECT_FIRMWARE_B :
+                                          VB_SELECT_FIRMWARE_A));
+      if (VBERROR_SUCCESS != rv) {
+        VBDEBUG(("VbExHashFirmwareBody() failed for index %d\n", index));
         *check_result = VBSD_LF_CHECK_GET_FW_BODY;
         RSAPublicKeyFree(data_key);
         VBPERFEND("VB_RFD");
@@ -290,7 +294,7 @@ int LoadFirmware(LoadFirmwareParams* params) {
 
   /* Free internal data */
   VbExFree(lfi);
-  params->load_firmware_internal = NULL;
+  cparams->vboot_context = NULL;
 
   /* Handle finding good firmware */
   if (good_index >= 0) {
@@ -325,10 +329,6 @@ LoadFirmwareExit:
   /* Store recovery request, if any */
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
-
-  /* Note that we don't reduce params->shared_data_size to shared->data_used,
-   * since we want to leave space for LoadKernel() to add to the shared data
-   * buffer. */
 
   return retval;
 }

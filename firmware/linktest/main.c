@@ -22,8 +22,7 @@ int main(void)
   GptUpdateKernelEntry(0, 0);
 
   /* load_firmware_fw.h */
-  UpdateFirmwareBodyHash(0, 0, 0);
-  LoadFirmware(0);
+  LoadFirmware(0, 0, 0);
 
   /* load_kernel_fw.h */
   LoadKernel(0);
