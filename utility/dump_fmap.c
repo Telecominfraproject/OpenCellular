@@ -17,9 +17,11 @@
 
 #include "fmap.h"
 
+enum { FMT_NORMAL, FMT_PRETTY, FMT_FLASHROM };
+
 /* global variables */
 static int opt_extract = 0;
-static int opt_pretty = 0;
+static int opt_format = FMT_NORMAL;
 static char* progname;
 static void* base_of_rom;
 
@@ -31,7 +33,7 @@ static int dump_fmap(const void* ptr) {
   const FmapHeader* fmh = (const FmapHeader*) ptr;
   const FmapAreaHeader* ah = (const FmapAreaHeader*) (ptr + sizeof(FmapHeader));
 
-  if (!opt_pretty) {
+  if (FMT_NORMAL == opt_format) {
     snprintf(buf, FMAP_SIGNATURE_SIZE+1, "%s", fmh->fmap_signature);
     printf("fmap_signature   %s\n", buf);
     printf("fmap_version:    %d.%d\n",
@@ -44,10 +46,17 @@ static int dump_fmap(const void* ptr) {
   }
 
   for (i=0; i<fmh->fmap_nareas; i++) {
-      snprintf(buf, FMAP_NAMELEN+1, "%s", ah->area_name);
-    if (opt_pretty) {
+    snprintf(buf, FMAP_NAMELEN+1, "%s", ah->area_name);
+    switch(opt_format)
+    {
+    case FMT_PRETTY:
       printf("%s %d %d\n", buf, ah->area_offset, ah->area_size);
-    } else {
+      break;
+    case FMT_FLASHROM:
+      if (ah->area_size)
+        printf("0x%08x:0x%08x %s\n", ah->area_offset, ah->area_size - 1, buf);
+      break;
+    default:
       printf("area:            %d\n", i+1);
       printf("area_offset:     0x%08x\n", ah->area_offset);
       printf("area_size:       0x%08x (%d)\n", ah->area_size, ah->area_size);
@@ -71,7 +80,7 @@ static int dump_fmap(const void* ptr) {
                   progname, buf, strerror(errno));
           retval = 1;
         } else {
-          if (!opt_pretty)
+          if (FMT_NORMAL == opt_format)
             printf("saved as \"%s\"\n", buf);
         }
         fclose(fp);
@@ -100,14 +109,17 @@ int main(int argc, char* argv[]) {
     progname = argv[0];
 
   opterr = 0;                     /* quiet, you */
-  while ((c=getopt(argc, argv, ":xp")) != -1) {
+  while ((c=getopt(argc, argv, ":xpf")) != -1) {
     switch (c)
     {
     case 'x':
       opt_extract = 1;
       break;
     case 'p':
-      opt_pretty = 1;
+      opt_format = FMT_PRETTY;
+      break;
+    case 'f':
+      opt_format = FMT_FLASHROM;
       break;
     case '?':
       fprintf(stderr, "%s: unrecognized switch: -%c\n",
@@ -127,9 +139,10 @@ int main(int argc, char* argv[]) {
 
   if (errorcnt || optind >= argc) {
     fprintf(stderr,
-      "\nUsage:  %s [-x] [-p] FLASHIMAGE\n\n"
+      "\nUsage:  %s [-x] [-p|-f] FLASHIMAGE\n\n"
       "Display (and extract with -x) the FMAP components from a BIOS image.\n"
       "The -p option makes the output easier to parse by scripts.\n"
+      "The -f option emits the FMAP in the format used by flashrom\n"
       "\n",
       progname);
     return 1;
@@ -151,7 +164,7 @@ int main(int argc, char* argv[]) {
             strerror(errno));
     return 1;
   }
-  if (!opt_pretty)
+  if (FMT_NORMAL == opt_format)
     printf("opened %s\n", argv[optind]);
 
   base_of_rom = mmap(0, sb.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -167,7 +180,7 @@ int main(int argc, char* argv[]) {
 
   fmap = FmapFind((char*) base_of_rom, sb.st_size);
   if (fmap) {
-    if (!opt_pretty)
+    if (FMT_NORMAL == opt_format)
       printf("hit at 0x%08x\n", (uint32_t) (fmap - (char*) base_of_rom));
     retval = dump_fmap(fmap);
   }
