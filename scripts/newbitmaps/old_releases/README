@@ -1,6 +1,0 @@
-This directory contains bitmap image sources used to create already shipping
-systems. We don't expect to need these again, unless there's some emergency
-needed by the factory flow that requires a change to the read-only BIOS
-screens.
-
-
