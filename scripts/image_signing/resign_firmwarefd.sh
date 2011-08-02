@@ -14,10 +14,9 @@
 # firmware_datakey: Key used to sign firmware data (in .vbprivk format)
 # firmware_keyblock: Key block for firmware data key (in .keyblock format)
 #
-# Both the mosys tool and vbutil_firmware should be in the system path.
+# Both the dump_fmap tool and vbutil_firmware should be in the system path.
 #
-# This script parses the output of mosys tool from
-# http://code.google.com/p/mosys
+# This script parses the output of dump_fmap tool
 #
 # to determine the regions in the image containing "Firmware [A|B] Data" and
 # "Firmware [A|B] Key", which contain firmware data and firmware vblocks
@@ -25,27 +24,22 @@
 # passed as arguments and output a new firmware image, with this new firmware
 # vblocks the old ones.
 #
-# Here is an example output of mosys:
+# Here is an example output of "dump_fmap -p" (section name, offset, size):
+# Boot Stub 3932160 262144
+# GBB Area 3670016 262144
+# Recovery Firmware 2490368 1048576
+# RO VPD 2359296 131072
+# Firmware A Key 196608 65536
+# Firmware A Data 262144 851968
+# Firmware B Key 1114112 65536
+# Firmware B Data 1179648 851968
+# RW VPD 152064 4096
+# Log Volume 0 131072
 #
-# area_offset="0x001c0000" area_size="0x00040000" area_name="Boot Stub" \
-#   area_flags_raw="0x01" area_flags="static"
-# area_offset="0x001a0000" area_size="0x00020000" area_name="GBB Area" \
-#   area_flags_raw="0x01" area_flags="static"
-# area_offset="0x00008000" area_size="0x00002000" area_name="Firmware A Key" \
-#   area_flags_raw="0x01" area_flags="static"
-# area_offset="0x0000a000" area_size="0x0009e000" area_name="Firmware A Data" \
-#  area_flags_raw="0x03" area_flags="static,compressed"
-# area_offset="0x000a8000" area_size="0x00002000" area_name="Firmware B Key" \
-#  area_flags_raw="0x01" area_flags="static"
-# area_offset="0x000aa000" area_size="0x0002e000" area_name="Firmware B Data" \
-#  area_flags_raw="0x03" area_flags="static,compressed"
-# area_offset="0x00005200" area_size="0x00001000" area_name="RW VPD" \
-#  area_flags_raw="0x00" area_flags=""
-#
-# This shows that Firmware A Data is at offset 0x0000a0000 in the .fd image
-# and is of size 0x0009e000 bytes. This can be extracted to generate new vblocks
-# which can then replace old vblock for Firmware A ("Firmware A Key" region at
-# offset 0x00008000 and size 0x00002000).
+# This shows that Firmware A Data is at offset 262144(0x40000) in the .fd image
+# and is of size 851968(0xd0000) bytes. This can be extracted to generate new
+# vblocks which can then replace old vblock for Firmware A ("Firmware A Key"
+# region at offset 196608(0x30000) and size 65536(0x10000) ).
 
 # Load common constants and variables.
 . "$(dirname "$0")/common_minimal.sh"
@@ -61,7 +55,7 @@ if [ $# -lt 7 ] || [ $# -gt 9 ]; then
 fi
 
 # Make sure the tools we need are available.
-for prog in mosys vbutil_firmware; do
+for prog in dump_fmap vbutil_firmware; do
   type "${prog}" &>/dev/null || \
     { echo "${prog} tool not found."; exit 1; }
 done
@@ -87,24 +81,24 @@ echo "Using firmware version: $VERSION"
 # Parse offsets and size of firmware data and vblocks
 for i in "A" "B"
 do
-  line=$(mosys -f -k eeprom map $1 | grep "$i Key") ||
-  line=$(mosys -f -k eeprom map $1 | grep "VBLOCK_$i") ||
-   { echo "Couldn't parse vblock section $i from mosys output";
+  line=$(dump_fmap -p $1 | grep "^Firmware $i Key") ||
+  line=$(dump_fmap -p $1 | grep "^VBLOCK_$i") ||
+   { echo "Couldn't parse vblock section $i from dump_fmap output";
      exit 1; }
 
-  offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
+  offset="$(echo $line | sed -r -e 's/.* ([0-9]+) [0-9]+$/\1/')"
   eval fw${i}_vblock_offset=$((offset))
-  size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
+  size="$(echo $line | sed -r -e 's/.* [0-9]+ ([0-9]+)$/\1/')"
   eval fw${i}_vblock_size=$((size))
 
-  line=$(mosys -f -k eeprom map $1 | grep "$i Data") ||
-  line=$(mosys -f -k eeprom map $1 | grep "FW_MAIN_$i") ||
-  { echo "Couldn't parse Firmware $i section from mosys output";
+  line=$(dump_fmap -p $1 | grep "^Firmware $i Data") ||
+  line=$(dump_fmap -p $1 | grep "^FW_MAIN_$i") ||
+  { echo "Couldn't parse Firmware $i section from dump_fmap output";
     exit 1; }
 
-  offset="$(echo $line | sed -e 's/.*area_offset=\"\([a-f0-9x]*\)\".*/\1/')"
+  offset="$(echo $line | sed -r -e 's/.* ([0-9]+) [0-9]+$/\1/')"
   eval fw${i}_offset=$((offset))
-  size="$(echo $line | sed -e 's/.*area_size=\"\([a-f0-9x]*\)\".*/\1/')"
+  size="$(echo $line | sed -r -e 's/.* [0-9]+ ([0-9]+)$/\1/')"
   eval fw${i}_size=$((size))
 done
 
