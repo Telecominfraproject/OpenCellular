@@ -84,11 +84,6 @@ if [ -z "$VERSION" ]; then
 fi
 echo "Using firmware version: $VERSION"
 
-if [ -n "$PREAMBLE_FLAG" ]; then
-  echo "Using firmware preamble flag: $PREAMBLE_FLAG"
-  PREAMBLE_FLAG="--flag $PREAMBLE_FLAG"
-fi
-
 # Parse offsets and size of firmware data and vblocks
 for i in "A" "B"
 do
@@ -120,6 +115,24 @@ temp_out_vb=$(make_temp_file)
 # Firmware A is the dev firmware.
 dd if="${SRC_FD}" of="${temp_fwimage}" skip="${fwA_offset}" bs=1 \
   count="${fwA_size}"
+
+# Extract existing preamble flag if not assigned yet.
+if [ -n "$PREAMBLE_FLAG" ]; then
+  PREAMBLE_FLAG="--flag $PREAMBLE_FLAG"
+else
+  temp_root_key=$(make_temp_file)
+  gbb_utility -g --rootkey="$temp_root_key" "${SRC_FD}"
+  dd if="${SRC_FD}" of="${temp_out_vb}" skip="${fwA_vblock_offset}" bs=1 \
+    count="${fwA_vblock_size}"
+  flag="$(vbutil_firmware \
+    --verify "${temp_out_vb}" \
+    --signpubkey "${temp_root_key}" \
+    --fv "${temp_fwimage}" |
+    grep "Preamble flags:" |
+    sed 's/.*: *//')" || flag=""
+  [ -z "$flag" ] || PREAMBLE_FLAG="--flag $flag"
+fi
+echo "Using firmware preamble flag: $PREAMBLE_FLAG"
 
 echo "Re-calculating Firmware A vblock"
 vbutil_firmware \
