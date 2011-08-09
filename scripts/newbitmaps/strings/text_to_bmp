@@ -21,7 +21,7 @@ trap "rm -rf $tmpdir" EXIT
 label_file="${tmpdir}/label.txt"
 
 for txtfile in $*; do
-  bmpfile="${txtfile%.*}".png
+  bmpfile="${txtfile%.*}".bmp
   # Must strip off the leading U+FEFF byte order mark (bytes 0xEF,0xBB,0xBF) of
   # each file before I can pass it to imagemagick. Chomp any leading/trailing
   # whitespace too.
