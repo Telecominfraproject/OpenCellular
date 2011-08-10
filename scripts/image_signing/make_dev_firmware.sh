@@ -39,6 +39,7 @@ set -e
 
 # the image we are (temporary) working with
 IMAGE="$(make_temp_file)"
+IMAGE="$(readlink -f "$IMAGE")"
 
 # a log file to keep the output results of executed command
 EXEC_LOG="$(make_temp_file)"
@@ -192,6 +193,34 @@ main() {
     backup_image="$(make_temp_file)"
     debug_msg "Creating backup file to $backup_image..."
     cp -f "$IMAGE" "$backup_image"
+  fi
+
+  debug_msg "Detecting developer firmware keyblock"
+  local expanded_firmware_dir="$(make_temp_dir)"
+  local use_devfw_keyblock="$FLAGS_FALSE"
+  (cd "$expanded_firmware_dir"; dump_fmap -x "$IMAGE" >/dev/null 2>&1) ||
+    err_die "Failed to extract firmware image."
+  if [ -f "$expanded_firmware_dir/VBLOCK_A" ]; then
+    local has_dev=$FLAGS_TRUE has_norm=$FLAGS_TRUE
+    # In output of vbutil_keyblock, "!DEV" means "bootable on normal mode" and
+    # "DEV" means "bootable on developer mode". Here we try to match the pattern
+    # in output of vbutil_block, and disable the flags (has_dev, has_norm) if
+    # the pattern was not found.
+    vbutil_keyblock --unpack "$expanded_firmware_dir/VBLOCK_A" |
+      grep -qw '!DEV' || has_norm=$FLAGS_FALSE
+    vbutil_keyblock --unpack "$expanded_firmware_dir/VBLOCK_A" |
+      grep -qw '[^!]DEV' || has_dev=$FLAGS_FALSE
+    if [ "$has_norm" = "$FLAGS_FALSE" -a "$has_dev" = "$FLAGS_TRUE" ]; then
+      use_devfw_keyblock=$FLAGS_TRUE
+    fi
+  fi
+
+  if [ "$use_devfw_keyblock" = "$FLAGS_TRUE" ]; then
+    echo "Using keyblocks (developer, normal)..."
+  else
+    echo "Using keyblocks (normal, normal)..."
+    dev_firmware_prvkey="$firmware_prvkey"
+    dev_firmware_keyblock="$firmware_keyblock"
   fi
 
   # TODO(hungte) We can use vbutil_firmware to check if the current firmware is
