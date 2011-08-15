@@ -36,7 +36,6 @@ TARGET_NAMES = crossystem \
 		dev_sign_file \
 		dump_fmap \
 		dev_debug_vboot \
-		pack_firmware_image \
 		vbutil_what_keys
 
 ifeq ($(MINIMAL),)
@@ -144,10 +143,6 @@ ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
 
 ${BUILD_ROOT}/dump_fmap: dump_fmap.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
-
-${BUILD_ROOT}/pack_firmware_image: pack_firmware_image
-	cp -f $< $@
-	chmod +x $@
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
