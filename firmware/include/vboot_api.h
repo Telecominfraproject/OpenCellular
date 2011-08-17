@@ -506,14 +506,14 @@ VbError_t VbExDisplayBacklight(uint8_t enable);
 VbError_t VbExDisplayScreen(uint32_t screen_type);
 
 
-/* Write an image to the display, with the upper left corner at the
- * specified pixel coordinates.  The bitmap buffer is a
- * platform-dependent binary blob with size specified by
- * info->compressed_size. */
-// TODO: I don't like passing an ImageInfo directly to the underlying firmware;
-// should pass a struct defined in THIS header file, or individual params.
-VbError_t VbExDisplayImage(uint32_t x, uint32_t y, const ImageInfo* info,
-                           const void* buffer);
+/* Write an image to the display, with the upper left corner at the specified
+ * pixel coordinates.  The bitmap buffer is a pointer to the platform-dependent
+ * uncompressed binary blob with dimensions and format specified internally
+ * (for example, a raw BMP, GIF, PNG, whatever). We pass the size just for
+ * convenience.
+ */
+VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
+                           void* buffer, uint32_t buffersize);
 
 /* Display a string containing debug information on the screen,
  * rendered in a platform-dependent font.  Should be able to handle
@@ -527,7 +527,7 @@ VbError_t VbExDisplayDebugInfo(const char* info_str);
  * (CMOS breadcrumbs) is platform-specific.  If we decide to
  * soft-render the HWID string (chrome-os-partner:3693), we'll need to
  * maintain our own fonts, so we'll likely display it via
- * VbExDisplayBitmap() above. */
+ * VbExDisplayImage() above. */
 
 
 /*****************************************************************************/
@@ -579,5 +579,15 @@ uint32_t VbExKeyboardRead(void);
  * should shut down the computer.  We need a way to break out of our
  * control loop so this can occur cleanly. */
 uint32_t VbExIsShutdownRequested(void);
+
+/* Expose the BIOS' built-in decompression routine to the vboot wrapper. The
+ * caller must know how large the uncompressed data will be and must manage
+ * that memory. The decompression routine just puts the uncompressed data into
+ * the specified buffer. We pass in the size of the outbuf, and get back the
+ * actual size used.
+ */
+VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
+                         uint32_t compression_type,
+                         void *outbuf, uint32_t *out_size);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */

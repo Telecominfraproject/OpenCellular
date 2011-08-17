@@ -71,13 +71,14 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
                                         uint32_t screen) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   uint8_t* bmpfv = NULL;
+  uint8_t* fullimage = NULL;
   BmpBlockHeader* hdr;
   ScreenLayout* layout;
   ImageInfo* image_info;
   uint32_t screen_index;
   uint32_t localization = 0;
-  VbError_t retval = VBERROR_UNKNOWN;  /* Assume error until proven
-                                        * successful */
+  VbError_t retval = VBERROR_UNKNOWN;  /* Assume error until proven ok */
+  uint32_t inoutsize;
   uint32_t offset;
   uint32_t i;
 
@@ -165,9 +166,25 @@ static VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams,
                layout->images[i].x, layout->images[i].y,
                image_info->compressed_size, image_info->original_size,
                image_info->tag, offset));
-
-      retval = VbExDisplayImage(layout->images[i].x, layout->images[i].y,
-                                image_info, bmpfv + offset + sizeof(ImageInfo));
+      if (COMPRESS_NONE != image_info->compression) {
+        inoutsize = image_info->original_size;
+        fullimage = (uint8_t*)VbExMalloc(inoutsize);
+        retval = VbExDecompress(bmpfv + offset + sizeof(ImageInfo),
+                                image_info->compressed_size,
+                                image_info->compression,
+                                fullimage, &inoutsize);
+        if (VBERROR_SUCCESS != retval) {
+          VbExFree(fullimage);
+          goto VbDisplayScreenFromGBB_exit;
+        }
+        retval = VbExDisplayImage(layout->images[i].x, layout->images[i].y,
+                                  fullimage, inoutsize);
+        VbExFree(fullimage);
+      } else {
+        retval = VbExDisplayImage(layout->images[i].x, layout->images[i].y,
+                                  bmpfv + offset + sizeof(ImageInfo),
+                                  image_info->original_size);
+      }
       if (VBERROR_SUCCESS != retval)
         goto VbDisplayScreenFromGBB_exit;
     }

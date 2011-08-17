@@ -99,8 +99,8 @@ VbError_t VbExDisplayScreen(uint32_t screen_type) {
 }
 
 
-VbError_t VbExDisplayImage(uint32_t x, uint32_t y, const ImageInfo* info,
-                           const void* buffer) {
+VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
+                           void* buffer, uint32_t buffersize) {
   return VBERROR_SUCCESS;
 }
 
@@ -117,4 +117,10 @@ uint32_t VbExKeyboardRead(void) {
 
 uint32_t VbExIsShutdownRequested(void) {
   return 0;
+}
+
+VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
+                         uint32_t compression_type,
+                         void *outbuf, uint32_t *out_size) {
+  return VBERROR_SUCCESS;
 }
