@@ -180,6 +180,7 @@ static int Verify(const char* infile, const char* signpubkey,
   uint8_t* fv_data;
   uint64_t fv_size;
   uint64_t now = 0;
+  uint32_t flags;
 
   if (!infile || !signpubkey || !fv_file) {
     VbExError("Must specify filename, signpubkey, and fv\n");
@@ -243,6 +244,7 @@ static int Verify(const char* infile, const char* signpubkey,
   }
   now += preamble->preamble_size;
 
+  flags = VbGetFirmwarePreambleFlags(preamble);
   printf("Preamble:\n");
   printf("  Size:                  %" PRIu64 "\n", preamble->preamble_size);
   printf("  Header version:        %" PRIu32 ".%" PRIu32"\n",
@@ -260,17 +262,20 @@ static int Verify(const char* infile, const char* signpubkey,
   printf("\n");
   printf("  Firmware body size:    %" PRIu64 "\n",
          preamble->body_signature.data_size);
-  printf("  Preamble flags:        %" PRIu32 "\n",
-         VbGetFirmwarePreambleFlags(preamble));
+  printf("  Preamble flags:        %" PRIu32 "\n", flags);
 
   /* TODO: verify body size same as signature size */
 
   /* Verify body */
-  if (0 != VerifyData(fv_data, fv_size, &preamble->body_signature, rsa)) {
-    VbExError("Error verifying firmware body.\n");
-    return 1;
+  if (flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
+    printf("Preamble requests USE_RO_NORMAL; skipping body verification.\n");
+  } else {
+    if (0 != VerifyData(fv_data, fv_size, &preamble->body_signature, rsa)) {
+      VbExError("Error verifying firmware body.\n");
+      return 1;
+    }
+    printf("Body verification succeeded.\n");
   }
-  printf("Body verification succeeded.\n");
 
   if (kernelkey_file) {
     if (0 != PublicKeyWrite(kernelkey_file, kernel_subkey)) {
