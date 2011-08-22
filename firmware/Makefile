@@ -64,6 +64,7 @@ LIB_SRCS = \
 	./lib/vboot_api_firmware.c \
 	./lib/vboot_api_kernel.c \
 	./lib/vboot_common.c \
+	./lib/vboot_display.c \
 	./lib/vboot_firmware.c \
 	./lib/vboot_kernel.c \
 	./lib/vboot_nvstorage.c
