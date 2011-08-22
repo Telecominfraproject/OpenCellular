@@ -7,6 +7,8 @@
 #define VBOOT_REFERENCE_BMPBLK_UTILITY_H_
 
 #include "bmpblk_header.h"
+#include "bmpblk_font.h"
+#include "image_types.h"
 
 #include <yaml.h>
 
@@ -93,9 +95,6 @@ class BmpBlockUtil {
 
   /* Useful functions */
   const string read_image_file(const char *filename);
-  ImageFormat get_image_format(const string content);
-  uint32_t get_bmp_image_width(const string content);
-  uint32_t get_bmp_image_height(const string content);
 
   /* Verbosity flags */
   bool debug_;
@@ -106,6 +105,9 @@ class BmpBlockUtil {
 
   /* Flags for version-specific features */
   bool render_hwid_;
+  bool support_font_;
+  bool got_font_;
+  bool got_rtol_font_;
 
   /* Internal variable for storing the config of BmpBlock. */
   BmpBlockConfig config_;

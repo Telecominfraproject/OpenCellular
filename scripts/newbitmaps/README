@@ -49,6 +49,31 @@ last-displayed locale is stored in nvram, so it's sticky across reboots. The
 factory process sets the default locale to the appropriate region.
 
 
+Version 1.2. Used by any BIOS that uses "vboot_api.h"
+
+The "vboot wrapper" is a refactoring of the vboot_reference library to
+isolate our verified boot stuff from the underlying BIOS. Among other
+things, it places the burden of displaying the ASCII HWID value on the
+vboot_reference library, which means the bmpblock must contain a "font" to
+translate the ASCII characters in the HWID into graphical images. The yaml
+file must now specify a font file for the $HWID (and $HWID.rtol, if used)
+image name. For example:
+
+  bmpblock: 1.2
+  images:
+    $HWID: font.bin            # THIS IS NOW REQUIRED WHEN USING $HWID
+  screens:
+    scr_0_0:
+     - [ 0, 0, $HWID]
+  localizations:
+    - [ scr_0_0, scr_0_0, scr_0_0, scr_0_0 ]
+  locale_index:
+    en
+
+The old v1.1 bmpblock will be accepted by the vboot wrapper, but a $HWID
+screen without a corresponding font will be silently ignored.
+
+
 
 Instructions:
 

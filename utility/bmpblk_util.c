@@ -285,20 +285,23 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
     if (img->compressed_size) {
       sprintf(image_name, "img_%08x.bmp", offset);
       if (img->tag == TAG_HWID) {
-        fprintf(yfp, "  %s: %s  # %dx%d  %d/%d  tag=%d\n",
+        fprintf(yfp, "  %s: %s  # %dx%d  %d/%d  tag=%d fmt=%d\n",
                 RENDER_HWID, image_name,
                 img->width, img->height,
-                img->compressed_size, img->original_size, img->tag);
+                img->compressed_size, img->original_size,
+                img->tag, img->format);
       } else if (img->tag == TAG_HWID_RTOL) {
-        fprintf(yfp, "  %s: %s  # %dx%d  %d/%d  tag=%d\n",
+        fprintf(yfp, "  %s: %s  # %dx%d  %d/%d  tag=%d fmt=%d\n",
                 RENDER_HWID_RTOL, image_name,
                 img->width, img->height,
-                img->compressed_size, img->original_size, img->tag);
+                img->compressed_size, img->original_size,
+                img->tag, img->format);
       } else {
-        fprintf(yfp, "  img_%08x: %s  # %dx%d  %d/%d  tag=%d\n",
+        fprintf(yfp, "  img_%08x: %s  # %dx%d  %d/%d  tag=%d fmt=%d\n",
                 offset, image_name,
                 img->width, img->height,
-                img->compressed_size, img->original_size, img->tag);
+                img->compressed_size, img->original_size,
+                img->tag, img->format);
       }
       if (todir) {
         sprintf(full_path_name, "%s/%s", todir, image_name);
@@ -388,17 +391,23 @@ int dump_bmpblock(const char *infile, int show_as_yaml,
           ImageInfo *iptr =
             (ImageInfo *)(ptr + scr->images[i].image_info_offset);
           if (iptr->tag == TAG_HWID) {
-            fprintf(yfp, "    - [%d, %d, %s]\n",
+            fprintf(yfp, "    - [%d, %d, %s] # tag=%d fmt=%d c=%d %d/%d\n",
                     scr->images[i].x, scr->images[i].y,
-                    RENDER_HWID);
+                    RENDER_HWID, iptr->tag, iptr->format, iptr->compression,
+                    iptr->compressed_size, iptr->original_size);
           } else if (iptr->tag == TAG_HWID_RTOL) {
-            fprintf(yfp, "    - [%d, %d, %s]\n",
+            fprintf(yfp, "    - [%d, %d, %s] # tag=%d fmt=%d c=%d %d/%d\n",
                     scr->images[i].x, scr->images[i].y,
-                    RENDER_HWID_RTOL);
+                    RENDER_HWID_RTOL, iptr->tag,
+                    iptr->format, iptr->compression,
+                    iptr->compressed_size, iptr->original_size);
           } else {
-            fprintf(yfp, "    - [%d, %d, img_%08x]\n",
+            fprintf(yfp, "    - [%d, %d, img_%08x]"
+                    " # tag=%d fmt=%d c=%d %d/%d\n",
                     scr->images[i].x, scr->images[i].y,
-                    scr->images[i].image_info_offset);
+                    scr->images[i].image_info_offset,
+                    iptr->tag, iptr->format, iptr->compression,
+                    iptr->compressed_size, iptr->original_size);
           }
         }
       }

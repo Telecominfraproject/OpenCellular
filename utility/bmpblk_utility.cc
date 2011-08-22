@@ -6,6 +6,7 @@
 //
 
 #include "bmpblk_utility.h"
+#include "image_types.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -20,29 +21,6 @@
 extern "C" {
 #include "eficompress.h"
 }
-
-
-/* BMP header, used to validate image requirements
- * See http://en.wikipedia.org/wiki/BMP_file_format
- */
-typedef struct {
-  uint8_t         CharB;                // must be 'B'
-  uint8_t         CharM;                // must be 'M'
-  uint32_t        Size;
-  uint16_t        Reserved[2];
-  uint32_t        ImageOffset;
-  uint32_t        HeaderSize;
-  uint32_t        PixelWidth;
-  uint32_t        PixelHeight;
-  uint16_t        Planes;               // Must be 1 for x86
-  uint16_t        BitPerPixel;          // 1, 4, 8, or 24 for x86
-  uint32_t        CompressionType;      // 0 (none) for x86, 1 (RLE) for arm
-  uint32_t        ImageSize;
-  uint32_t        XPixelsPerMeter;
-  uint32_t        YPixelsPerMeter;
-  uint32_t        NumberOfColors;
-  uint32_t        ImportantColors;
-} __attribute__((packed)) BMP_IMAGE_HEADER;
 
 
 static void error(const char *format, ...) {
@@ -71,6 +49,10 @@ namespace vboot_reference {
     set_compression_ = false;
     compression_ = COMPRESS_NONE;
     debug_ = debug;
+    render_hwid_ = true;
+    support_font_ = true;
+    got_font_ = false;
+    got_rtol_font_ = false;
   }
 
   BmpBlockUtil::~BmpBlockUtil() {
@@ -125,11 +107,12 @@ namespace vboot_reference {
       for (StrImageConfigMap::iterator it = config_.images_map.begin();
            it != config_.images_map.end();
            ++it) {
-        printf("  \"%s\": filename=\"%s\" offset=0x%x tag=%d\n",
+        printf("  \"%s\": filename=\"%s\" offset=0x%x tag=%d fmt=%d\n",
                it->first.c_str(),
                it->second.filename.c_str(),
                it->second.offset,
-               it->second.data.tag);
+               it->second.data.tag,
+               it->second.data.format);
       }
       printf("%ld screens_map\n", config_.screens_map.size());
       for (StrScreenConfigMap::iterator it = config_.screens_map.begin();
@@ -206,11 +189,19 @@ namespace vboot_reference {
       error("Syntax error in parsing bmpblock.\n");
     }
     string gotversion = (char*)event.data.scalar.value;
-    if (gotversion == "1.1") {
+    if (gotversion == "1.2") {
       render_hwid_ = true;
+      support_font_ = true;
+    } else if (gotversion == "1.1") {
+      minor_version_ = 1;
+      render_hwid_ = true;
+      support_font_ = false;
+      fprintf(stderr, "WARNING: using old format: %s\n", gotversion.c_str());
     } else if (gotversion == "1.0") {
       minor_version_ = 0;
       render_hwid_ = false;
+      support_font_ = false;
+      fprintf(stderr, "WARNING: using old format: %s\n", gotversion.c_str());
     } else {
       error("Unsupported version specified in config file (%s)\n",
             gotversion.c_str());
@@ -254,6 +245,12 @@ namespace vboot_reference {
         config_.image_names.push_back(image_name);
         config_.images_map[image_name] = ImageConfig();
         config_.images_map[image_name].filename = image_filename;
+        if (image_name == RENDER_HWID) {
+          got_font_ = true;
+        }
+        if (image_name == RENDER_HWID_RTOL) {
+          got_rtol_font_ = true;
+        }
         break;
       case YAML_MAPPING_END_EVENT:
         yaml_event_delete(&event);
@@ -286,17 +283,22 @@ namespace vboot_reference {
         case 2:
           screen.image_names[index1] = (char*)event.data.scalar.value;
           // Detect the special case where we're rendering the HWID string
-          // instead of displaying a bitmap.  The image name shouldn't
-          // exist in the list of images, but we will still need an
+          // instead of displaying a bitmap.  The image name may not
+          // exist in the list of images (v1.1), but we will still need an
           // ImageInfo struct to remember where to draw the text.
-          // Note that if the image name DOES exist, we still will won't
-          // display it (yet). Future versions may use that image to hold the
-          // font glpyhs, which is why we pass it around now.
+          // Note that v1.2 requires that the image name DOES exist, because
+          // the corresponding file is used to hold the font glpyhs.
           if (render_hwid_) {
             if (screen.image_names[index1] == RENDER_HWID) {
               config_.images_map[RENDER_HWID].data.tag = TAG_HWID;
+              if (support_font_ && !got_font_)
+                error("Font required in 'image:' section for %s\n",
+                      RENDER_HWID);
             } else if (screen.image_names[index1] == RENDER_HWID_RTOL) {
               config_.images_map[RENDER_HWID_RTOL].data.tag = TAG_HWID_RTOL;
+              if (support_font_ && !got_rtol_font_)
+                error("Font required in 'image:' section for %s\n",
+                      RENDER_HWID_RTOL);
             }
           }
           break;
@@ -406,13 +408,10 @@ namespace vboot_reference {
       const string &content = read_image_file(it->second.filename.c_str());
       it->second.raw_content = content;
       it->second.data.original_size = content.size();
-      it->second.data.format = get_image_format(content);
-      switch (it->second.data.format) {
-      case FORMAT_BMP:
-        it->second.data.width = get_bmp_image_width(it->second.raw_content);
-        it->second.data.height = get_bmp_image_height(it->second.raw_content);
-        break;
-      default:
+      it->second.data.format =
+        identify_image_type(content.c_str(),
+                            (uint32_t)content.size(), &it->second.data);
+      if (FORMAT_INVALID == it->second.data.format) {
         error("Unsupported image format in %s\n", it->second.filename.c_str());
       }
       switch(compression_) {
@@ -503,31 +502,6 @@ namespace vboot_reference {
     return content;
   }
 
-  ImageFormat BmpBlockUtil::get_image_format(const string content) {
-    if (content.size() < sizeof(BMP_IMAGE_HEADER))
-      return FORMAT_INVALID;
-    const BMP_IMAGE_HEADER *hdr = (const BMP_IMAGE_HEADER *)content.c_str();
-
-    if (hdr->CharB != 'B' || hdr->CharM != 'M' ||
-        hdr->Planes != 1 ||
-        (hdr->CompressionType != 0 && hdr->CompressionType != 1) ||
-        (hdr->BitPerPixel != 1 && hdr->BitPerPixel != 4 &&
-         hdr->BitPerPixel != 8 && hdr->BitPerPixel != 24))
-      return FORMAT_INVALID;
-
-    return FORMAT_BMP;
-  }
-
-  uint32_t BmpBlockUtil::get_bmp_image_width(const string content) {
-    const BMP_IMAGE_HEADER *hdr = (const BMP_IMAGE_HEADER *)content.c_str();
-    return hdr->PixelWidth;
-  }
-
-  uint32_t BmpBlockUtil::get_bmp_image_height(const string content) {
-    const BMP_IMAGE_HEADER *hdr = (const BMP_IMAGE_HEADER *)content.c_str();
-    return hdr->PixelHeight;
-  }
-
   void BmpBlockUtil::fill_bmpblock_header() {
     memset(&config_.header, '\0', sizeof(config_.header));
     memcpy(&config_.header.signature, BMPBLOCK_SIGNATURE,
@@ -557,11 +531,12 @@ namespace vboot_reference {
          ++it) {
       it->second.offset = current_offset;
       if (debug_)
-        printf("  \"%s\": filename=\"%s\" offset=0x%x tag=%d\n",
+        printf("  \"%s\": filename=\"%s\" offset=0x%x tag=%d fmt=%d\n",
                it->first.c_str(),
                it->second.filename.c_str(),
                it->second.offset,
-               it->second.data.tag);
+               it->second.data.tag,
+               it->second.data.format);
       current_offset += sizeof(ImageInfo) +
         it->second.data.compressed_size;
       /* Make it 4-byte aligned. */

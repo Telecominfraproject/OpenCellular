@@ -57,10 +57,13 @@ class BmpBlock(object):
     # image values should all be filenames (ie, strings)
     for val in images.values():
       assert val and isinstance(val, types.StringTypes)
-    if not "$HWID" in images:
-      images["$HWID"] = os.path.join(self.libdir,'current_hwid.bmp')
-    if not "$HWID.rtol" in images:
-      images["$HWID.rtol"] = os.path.join(self.libdir, 'current_hwid.bmp')
+    # don't worry about fonts. eventually we'll have graphical mocks on host.
+    if "$HWID" in images:
+      print "WARNING: ignoring $HWID font blob"
+    if "$HWID.rtol" in images:
+      print "WARNING: ignoring $HWID.rtol font blob"
+    images["$HWID"] = os.path.join(self.libdir,'current_hwid.bmp')
+    images["$HWID.rtol"] = os.path.join(self.libdir, 'current_hwid.bmp')
 
     screens = thing["screens"]
     assert isinstance(screens, dict)

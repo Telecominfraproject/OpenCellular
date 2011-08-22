@@ -5,6 +5,7 @@
  * Display functions used in kernel selection.
  */
 
+#include "bmpblk_font.h"
 #include "gbb_header.h"
 #include "utility.h"
 #include "vboot_api.h"
@@ -48,21 +49,131 @@ static VbError_t VbGetLocalizationCount(VbCommonParams* cparams,
 
 
 
+/* Return a fixed string representing the HWID */
+static char *VbHWID(VbCommonParams* cparams) {
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
+  if (0 == gbb->hwid_size ||
+      gbb->hwid_offset > cparams->gbb_size ||
+      gbb->hwid_offset + gbb->hwid_size > cparams->gbb_size) {
+    VBDEBUG(("VbHWID(): invalid hwid offset/size\n"));
+    return "{INVALID}";
+  }
+  return (char*)((uint8_t*)gbb + gbb->hwid_offset);
+}
+
+
+/* TODO: We could cache the font info to speed things up, by making the
+ * in-memory font structure distinct from the in-flash version.  We'll do that
+ * Real Soon Now. Until then, we just repeat the same linear search every time.
+ */
+typedef FontArrayHeader VbFont_t;
+
+static VbFont_t *VbInternalizeFontData(FontArrayHeader *fonthdr) {
+  /* Just return the raw data pointer for now. */
+  return (VbFont_t *)fonthdr;
+}
+
+static void VbDoneWithFontForNow(VbFont_t *ptr) {
+  /* Nothing. */
+}
+
+static ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
+                                  void **bufferptr, uint32_t *buffersize) {
+  uint8_t *ptr, *firstptr;
+  uint32_t max;
+  uint32_t i;
+  FontArrayEntryHeader *entry;
+
+  ptr = (uint8_t *)font;
+  max = ((FontArrayHeader *)ptr)->num_entries;
+  ptr += sizeof(FontArrayHeader);
+  firstptr = ptr;
+
+  /* Simple linear search. */
+  for(i=0; i<max; i++)
+  {
+    entry = (FontArrayEntryHeader *)ptr;
+    if (entry->ascii == ascii) {
+      /* Note: We're assuming the glpyh is uncompressed. That's true
+       * because the bmpblk_font tool doesn't compress anything. The
+       * bmpblk_utility does, but it compresses the entire font blob at once,
+       * and we've already uncompressed that before we got here.
+       */
+      *bufferptr = ptr + sizeof(FontArrayEntryHeader);
+      *buffersize = entry->info.original_size;
+      return &(entry->info);
+    }
+    ptr += sizeof(FontArrayEntryHeader)+entry->info.compressed_size;
+  }
+
+  /* NOTE: We must return something valid. We'll just use the first glyph in the
+   * font structure (so it should be something distinct).
+   */
+  entry = (FontArrayEntryHeader *)firstptr;
+  *bufferptr = firstptr + sizeof(FontArrayEntryHeader);
+  *buffersize = entry->info.original_size;
+  return &(entry->info);
+}
+
+/* Try to display the specified text at a particular position. */
+static void VbRenderTextAtPos(char *text, int right_to_left,
+                              uint32_t x, uint32_t y, VbFont_t *font) {
+  int i;
+  ImageInfo *image_info = 0;
+  void *buffer;
+  uint32_t buffersize;
+  uint32_t cur_x = x, cur_y = y;
+
+  if (!text || !font) {
+    VBDEBUG(("  VbRenderTextAtPos: invalid args\n"));
+    return;
+  }
+
+  for (i=0; text[i]; i++) {
+
+    if (text[i] == '\n') {
+      if (!image_info)
+        image_info = VbFindFontGlyph(font, text[i], &buffer, &buffersize);
+      cur_x = x;
+      cur_y += image_info->height;
+      continue;
+    }
+
+    image_info = VbFindFontGlyph(font, text[i], &buffer, &buffersize);
+
+    if (right_to_left) {
+      cur_x -= image_info->width;
+    }
+
+    if (VBERROR_SUCCESS != VbExDisplayImage(cur_x, cur_y, buffer, buffersize)) {
+      VBDEBUG(("  VbRenderTextAtPos: can't display ascii 0x%x\n", text[i]));
+    }
+
+    if (!right_to_left) {
+      cur_x += image_info->width;
+    }
+  }
+}
+
+
 /* Display a screen from the GBB. */
 VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
                                  VbNvContext *vncptr) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   uint8_t* bmpfv = NULL;
-  uint8_t* fullimage = NULL;
+  void* fullimage = NULL;
   BmpBlockHeader* hdr;
   ScreenLayout* layout;
   ImageInfo* image_info;
   uint32_t screen_index;
   uint32_t localization = 0;
-  VbError_t retval = VBERROR_UNKNOWN;  /* Assume error until proven ok */
+  VbError_t retval = VBERROR_UNKNOWN;   /* Assume error until proven ok */
   uint32_t inoutsize;
   uint32_t offset;
   uint32_t i;
+  VbFont_t *font;
+  char *text_to_show;
+  int rtol = 0;
 
   /* Make sure the bitmap data is inside the GBB and is non-zero in size */
   if (0 == gbb->bmpfv_size ||
@@ -93,26 +204,26 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   /* TODO: ensure screen IDs match indices?  Having this translation
    * here is awful. */
   switch (screen) {
-    case VB_SCREEN_DEVELOPER_WARNING:
-      screen_index = 0;
-      break;
-    case VB_SCREEN_RECOVERY_REMOVE:
-      screen_index = 1;
-      break;
-    case VB_SCREEN_RECOVERY_NO_GOOD:
-      screen_index = 2;
-      break;
-    case VB_SCREEN_RECOVERY_INSERT:
-      screen_index = 3;
-      break;
-    case VB_SCREEN_BLANK:
-    case VB_SCREEN_DEVELOPER_EGG:
-    default:
-      /* Screens which aren't in the GBB */
-      VBDEBUG(("VbDisplayScreenFromGBB(): screen %d not in the GBB\n",
-               (int)screen));
-      retval = VBERROR_INVALID_SCREEN_INDEX;
-      goto VbDisplayScreenFromGBB_exit;
+  case VB_SCREEN_DEVELOPER_WARNING:
+    screen_index = 0;
+    break;
+  case VB_SCREEN_RECOVERY_REMOVE:
+    screen_index = 1;
+    break;
+  case VB_SCREEN_RECOVERY_NO_GOOD:
+    screen_index = 2;
+    break;
+  case VB_SCREEN_RECOVERY_INSERT:
+    screen_index = 3;
+    break;
+  case VB_SCREEN_BLANK:
+  case VB_SCREEN_DEVELOPER_EGG:
+  default:
+    /* Screens which aren't in the GBB */
+    VBDEBUG(("VbDisplayScreenFromGBB(): screen %d not in the GBB\n",
+             (int)screen));
+    retval = VBERROR_INVALID_SCREEN_INDEX;
+    goto VbDisplayScreenFromGBB_exit;
   }
   if (screen_index >= hdr->number_of_screenlayouts) {
     VBDEBUG(("VbDisplayScreenFromGBB(): screen %d index %d not in the GBB\n",
@@ -131,10 +242,8 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   /* Calculate offset of screen layout = start of screen stuff +
    * correct locale + correct screen. */
   offset = sizeof(BmpBlockHeader) +
-      localization * hdr->number_of_screenlayouts * sizeof(ScreenLayout) +
-      screen_index * sizeof(ScreenLayout);
-  VBDEBUG(("VbDisplayScreenFromGBB(): scr_%d_%d at offset 0x%x\n",
-           localization, screen_index, offset));
+    localization * hdr->number_of_screenlayouts * sizeof(ScreenLayout) +
+    screen_index * sizeof(ScreenLayout);
   layout = (ScreenLayout*)(bmpfv + offset);
 
   /* Display all bitmaps for the image */
@@ -142,15 +251,10 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
     if (layout->images[i].image_info_offset) {
       offset = layout->images[i].image_info_offset;
       image_info = (ImageInfo*)(bmpfv + offset);
-      VBDEBUG(("VbDisplayScreenFromGBB: image %d: %dx%d+%d+%d %d/%d"
-               "tag %d at 0x%x\n",
-               i, image_info->width, image_info->height,
-               layout->images[i].x, layout->images[i].y,
-               image_info->compressed_size, image_info->original_size,
-               image_info->tag, offset));
-      if (COMPRESS_NONE != image_info->compression) {
-        inoutsize = image_info->original_size;
-        fullimage = (uint8_t*)VbExMalloc(inoutsize);
+      fullimage = bmpfv + offset + sizeof(ImageInfo);
+      inoutsize = image_info->original_size;
+      if (inoutsize && image_info->compression != COMPRESS_NONE) {
+        fullimage = VbExMalloc(inoutsize);
         retval = VbExDecompress(bmpfv + offset + sizeof(ImageInfo),
                                 image_info->compressed_size,
                                 image_info->compression,
@@ -159,16 +263,45 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
           VbExFree(fullimage);
           goto VbDisplayScreenFromGBB_exit;
         }
+      }
+
+      switch(image_info->format) {
+      case FORMAT_BMP:
         retval = VbExDisplayImage(layout->images[i].x, layout->images[i].y,
                                   fullimage, inoutsize);
-        VbExFree(fullimage);
-      } else {
-        retval = VbExDisplayImage(layout->images[i].x, layout->images[i].y,
-                                  bmpfv + offset + sizeof(ImageInfo),
-                                  image_info->original_size);
+        break;
+
+      case FORMAT_FONT:
+        /* The uncompressed blob is our font structure. Cache it as needed. */
+        font = VbInternalizeFontData(fullimage);
+
+        /* TODO: handle text in general here */
+        if (TAG_HWID == image_info->tag || TAG_HWID_RTOL == image_info->tag) {
+          text_to_show = VbHWID(cparams);
+          rtol = (TAG_HWID_RTOL == image_info->tag);
+        } else {
+          text_to_show = "";
+          rtol = 0;
+        }
+
+        VbRenderTextAtPos(text_to_show, rtol,
+                          layout->images[i].x, layout->images[i].y, font);
+
+        VbDoneWithFontForNow(font);
+        break;
+
+      default:
+        VBDEBUG(("VbDisplayScreenFromGBB(): unsupported ImageFormat %d\n",
+                 image_info->format));
+        retval = VBERROR_INVALID_GBB;
       }
+
+      if (COMPRESS_NONE != image_info->compression)
+        VbExFree(fullimage);
+
       if (VBERROR_SUCCESS != retval)
         goto VbDisplayScreenFromGBB_exit;
+
     }
   }
 
@@ -188,8 +321,6 @@ VbDisplayScreenFromGBB_exit:
 VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen, int force,
                           VbNvContext *vncptr) {
   VbError_t retval;
-
-  VBDEBUG(("VbDisplayScreen(%d, %d)\n", (int)screen, force));
 
   /* Initialize display if necessary */
   if (!disp_width) {

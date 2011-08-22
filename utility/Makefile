@@ -39,7 +39,7 @@ TARGET_NAMES = crossystem \
 		vbutil_what_keys
 
 ifeq ($(MINIMAL),)
-TARGET_NAMES += bmpblk_utility eficompress efidecompress
+TARGET_NAMES += bmpblk_font bmpblk_utility eficompress efidecompress
 endif
 
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
@@ -65,6 +65,12 @@ ${BUILD_ROOT}/bmpblk_utility.o: bmpblk_utility.cc
 ${BUILD_ROOT}/bmpblk_util.o: bmpblk_util.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+${BUILD_ROOT}/bmpblk_font.o: bmpblk_font.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+${BUILD_ROOT}/image_types.o: image_types.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 ${BUILD_ROOT}/eficompress.o: eficompress.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -79,9 +85,14 @@ ${BUILD_ROOT}/efidecompress: efidecompress.c
 
 ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 				${BUILD_ROOT}/bmpblk_util.o \
+				${BUILD_ROOT}/image_types.o \
 				${BUILD_ROOT}/eficompress.o \
 				${BUILD_ROOT}/efidecompress.o
 	$(CXX) -llzma -lyaml $(CFLAGS) $^ -o $@
+
+${BUILD_ROOT}/bmpblk_font: ${BUILD_ROOT}/bmpblk_font.o \
+				${BUILD_ROOT}/image_types.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 # TODO: rewrite load_firmware_test to support new wrapper API
 #${BUILD_ROOT}/load_firmware_test: load_firmware_test.c $(LIBS)

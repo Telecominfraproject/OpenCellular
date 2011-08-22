@@ -14,6 +14,7 @@ TARGETS=x86 arm
 
 BASE_IMAGES=Devmode.bmp Insert.bmp Remove.bmp Yuck.bmp
 OTHER_IMAGES=Url.bmp hwid_unknown.bmp
+FONTS=hwid_fonts.bin
 
 default: outside_chroot
 	@echo "Specify a target to build for:"
@@ -36,6 +37,8 @@ ${TARGETS}:: outside_chroot
 # those, so let's just assume 16:9 for future platforms to make things simpler.
 _x86_max="800x600!"
 _x86_scale="59%x78%"
+_arm_max="800x600!"
+_arm_scale="59%x78%"
 
 x86::
 	# create output directories
@@ -43,6 +46,8 @@ x86::
 	for i in localized_images/*; do \
 		mkdir -p "out_$@/$$i"; \
 	done
+	# copy stuff we need
+	cp "${FONTS}" "out_$@"
 	# scale the background pictures exactly
 	for i in ${BASE_IMAGES}; do \
 		convert $$i -scale "${_x86_max}" "out_$@/$$i"; \
@@ -58,7 +63,32 @@ x86::
 
 
 arm::
-	echo "Not sure what to do here. Please fix me."
+	# create output directories
+	mkdir -p "out_$@"
+	for i in localized_images/*; do \
+		mkdir -p "out_$@/$$i"; \
+	done
+	# copy stuff we need
+	cp "${FONTS}" "out_$@"
+	convert ${BASE_IMAGES} -append \
+		-colors 256 -unique-colors "out_$@/base_cmap.png"
+	convert localized_images/*/*.bmp -append \
+		-colors 256 -unique-colors "out_$@/loc_cmap.png"
+	# scale the background pictures exactly
+	for i in ${BASE_IMAGES}; do \
+		convert $$i -scale "${_arm_max}" \
+			-remap "out_$@/base_cmap.png" "out_$@/$$i"; \
+	done
+	# scale the localized string images using percentages
+	for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
+		convert $$i -scale "${_arm_scale}" \
+			-remap "out_$@/loc_cmap.png" "out_$@/$$i"; \
+	done
+	# produce the new yaml
+	cd "out_$@" && ../make_default_yaml
+	# Note: hand-edit the new DEFAULT.yaml to select the shipping locales,
+	# then use bmpblk_utility to create the binary.
+
 
 
 clean:

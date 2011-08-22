@@ -54,7 +54,7 @@ __pragma(pack(push, 1))  /* Support packing for MSVC. */
 #define BMPBLOCK_SIGNATURE_SIZE (4)
 
 #define BMPBLOCK_MAJOR_VERSION  (0x0001)
-#define BMPBLOCK_MINOR_VERSION  (0x0001)
+#define BMPBLOCK_MINOR_VERSION  (0x0002)
 
 #define MAX_IMAGE_IN_LAYOUT     (8)
 
@@ -118,6 +118,7 @@ typedef enum ImageTag {
 typedef enum ImageFormat {
   FORMAT_INVALID = 0,
   FORMAT_BMP,
+  FORMAT_FONT,
 } ImageFormat;
 
 /* Constants for ImageInfo.compression */

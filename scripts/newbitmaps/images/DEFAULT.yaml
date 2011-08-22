@@ -1,11 +1,11 @@
-bmpblock: 1.1
+bmpblock: 1.2
 
 compression: 1
 
 images:
 
-  # The HWID must change for every BOM
-  # $HWID:              hwid_unknown.bmp
+  # We must specify a font blob to use to render the HWID
+  $HWID:              hwid_fonts.bin
 
   # This URL never changes
   url:               Url.bmp
