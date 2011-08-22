@@ -38,6 +38,8 @@
  *  +-----------------------------------------+
  *  |              Image Content              |
  *  +-----------------------------------------+
+ *  |        List of locale names             |
+ *  +-----------------------------------------+
  *
  */
 
@@ -101,9 +103,8 @@ typedef struct ImageInfo {
   uint32_t compressed_size;  /* Size of the compressed image; if image is not
                               * compressed, this will be the same as the
                               * original size. */
-
   uint32_t reserved;
-  /* NOTE: actual image content follows immediately */
+  /* NOTE: The actual image content (if any) follows immediately. */
 } __attribute__((packed)) ImageInfo;
 
 /* Constants for ImageInfo.tag */

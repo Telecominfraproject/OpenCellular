@@ -218,6 +218,18 @@ EOF2
       "$yaml_file"
   done
 
+  cat >>"$yaml_file" <<EOF3
+
+locale_index:
+
+  # List the locale names in order so we can choose the default at the factory
+
+EOF3
+
+  for lc in $newlocales; do
+    echo "  - ${lc}" >> "$yaml_file"
+  done
+
 done
 
 # Now replace the 'hwid' string with '$HWID'.

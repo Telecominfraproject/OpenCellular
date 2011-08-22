@@ -109,7 +109,7 @@ namespace vboot_reference {
     fclose(fp);
 
 
-    // HEY: Check the yaml file for self-consistency now. Warn on any problems.
+    // TODO: Check the yaml file for self-consistency. Warn on any problems.
     // All images should be used somewhere in the screens.
     // All images referenced in the screens should be defined.
     // All screens should be used somewhere in the localizations.
@@ -145,7 +145,6 @@ namespace vboot_reference {
                  it->second.data.images[k].image_info_offset);
         }
       }
-      // TODO(wfrichar): print debugging info about locale_names
     }
   }
 
