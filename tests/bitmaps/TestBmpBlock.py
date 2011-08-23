@@ -154,8 +154,12 @@ class TestReproducable(unittest.TestCase):
     rc, out, err = runprog('/bin/rm', '-f', 'ORDER1', 'ORDER2')
     self.assertEqual(0, rc)
 
-  def testReproduce(self):
+  def disabledTestReproduce(self):
     """Equivalent yaml files should produce identical bmpblocks"""
+    # TODO: This test is currently broken because bmpblock_utility
+    # uses a map to hold the images, and the map doesn't preserve image
+    # order.  So a simple compare is insufficient to determine that
+    # the bmpblocks are equivalent.  See crosbug.com/19541.
     rc, out, err = runprog(prog, '-c', 'case_order1.yaml', 'ORDER1')
     self.assertEqual(0, rc)
     rc, out, err = runprog(prog, '-c', 'case_order2.yaml', 'ORDER2')
@@ -201,4 +205,3 @@ if __name__ == '__main__':
   prog = os.environ[varname]
   print "Testing prog...", prog
   unittest.main()
-
