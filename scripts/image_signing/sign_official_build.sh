@@ -87,6 +87,23 @@ get_hash_from_config() {
     cut -f2- -d, | cut -f9 -d ' '
 }
 
+# TODO(gauravsh): These are duplicated from chromeos-setimage. We need
+# to move all signing and rootfs code to one single place where it can be
+# reused. crosbug.com/19543
+
+# get_verity_arg <commandline> <key> -> <value>
+get_verity_arg() {
+  echo "$1" | sed "s/.*\b$2=\([^ \"]*\).*/\1/"
+}
+
+is_old_verity_argv() {
+  local depth=$(echo "$1" | cut -f7 -d' ')
+  if [ "$depth" = "0" ]; then
+    return 0
+  fi
+  return 1
+}
+
 # Calculate rootfs hash of an image
 # Args: ROOTFS_IMAGE KERNEL_CONFIG HASH_IMAGE
 #
@@ -101,21 +118,33 @@ calculate_rootfs_hash() {
   local dm_config=$(echo ${kernel_config} |
     sed -e 's/.*dm="\([^"]*\)".*/\1/g' |
     cut -f2- -d,)
-  # We extract dm=... portion of the config command line. Here's an example:
-  #
-  # dm="0 2097152 verity ROOT_DEV HASH_DEV 2097152 1 \
-  # sha1 63b7ad16cb9db4b70b28593f825aa6b7825fdcf2"
-  #
 
   if [ -z "${dm_config}" ]; then
     echo "WARNING: Couldn't grab dm_config. Aborting rootfs hash calculation"
     exit 1
   fi
-  local rootfs_sectors=$(echo ${dm_config} | cut -f2 -d' ')
-  local root_dev=$(echo ${dm_config} | cut -f4 -d ' ')
-  local hash_dev=$(echo ${dm_config} | cut -f5 -d ' ')
-  local verity_depth=$(echo ${dm_config} | cut -f7 -d' ')
-  local verity_algorithm=$(echo ${dm_config} | cut -f8 -d' ')
+
+  local rootfs_sectors
+  local verity_depth
+  local verity_algorithm
+  local root_dev
+  local hash_dev
+  if is_old_verity_argv "${dm_config}"; then
+    # dm="0 2097152 verity ROOT_DEV HASH_DEV 2097152 1 \
+    # sha1 63b7ad16cb9db4b70b28593f825aa6b7825fdcf2"
+    rootfs_sectors=$(echo ${dm_config} | cut -f2 -d' ')
+    verity_depth=$(echo ${dm_config} | cut -f7 -d' ')
+    verity_algorithm=$(echo ${dm_config} | cut -f8 -d' ')
+    root_dev=$(echo ${dm_config} | cut -f4 -d ' ')
+    hash_dev=$(echo ${dm_config} | cut -f5 -d ' ')
+  else
+    # Key-value parameters.
+    rootfs_sectors=$(get_verity_arg "${dm_config}" hashstart)
+    verity_depth=0
+    verity_algorithm=$(get_verity_arg "${dm_config}" alg)
+    root_dev=$(get_verity_arg "${dm_config}" payload)
+    hash_dev=$(get_verity_arg "${dm_config}" hashtree)
+  fi
 
   # Run the verity tool on the rootfs partition.
   local table="vroot none ro,"$(sudo verity mode=create \
