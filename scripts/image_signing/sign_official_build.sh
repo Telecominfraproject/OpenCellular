@@ -80,13 +80,6 @@ grab_kernel_config() {
   dump_kernel_config ${temp_kimage}
 }
 
-# Get the hash from a kernel config command line
-get_hash_from_config() {
-  local kernel_config=$1
-  echo ${kernel_config} | sed -e 's/.*dm="\([^"]*\)".*/\1/g' | \
-    cut -f2- -d, | cut -f9 -d ' '
-}
-
 # TODO(gauravsh): These are duplicated from chromeos-setimage. We need
 # to move all signing and rootfs code to one single place where it can be
 # reused. crosbug.com/19543
@@ -102,6 +95,19 @@ is_old_verity_argv() {
     return 0
   fi
   return 1
+}
+
+# Get the verity root digest hash from a kernel config command line.
+get_hash_from_config() {
+  local kernel_config=$1
+  local dm_config=$(echo ${kernel_config} |
+    sed -e 's/.*dm="\([^"]*\)".*/\1/g' |
+    cut -f2- -d, )
+  if is_old_verity_argv "${dm_config}"; then
+    echo ${dm_config} | cut -f9 -d ' '
+  else
+    echo $(get_verity_arg "${dm_config}" root_hexdigest)
+  fi
 }
 
 # Calculate rootfs hash of an image
