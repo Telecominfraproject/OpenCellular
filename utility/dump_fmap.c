@@ -54,7 +54,8 @@ static int dump_fmap(const void* ptr) {
       break;
     case FMT_FLASHROM:
       if (ah->area_size)
-        printf("0x%08x:0x%08x %s\n", ah->area_offset, ah->area_size - 1, buf);
+        printf("0x%08x:0x%08x %s\n", ah->area_offset,
+                                     ah->area_offset + ah->area_size - 1, buf);
       break;
     default:
       printf("area:            %d\n", i+1);
