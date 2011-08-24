@@ -26,7 +26,7 @@ static void MemsetTest(void) {
 
   /* Simple fill */
   memset(want, 123, 5);
-  TEST_EQ(0, dest - (char*)Memset(dest, 123, 5), "Memset() returns dest");
+  TEST_PTR_EQ(dest, Memset(dest, 123, 5), "Memset() returns dest");
   TEST_EQ(0, memcmp(dest, want, 128), "Memset()");
 
   /* Filling length 0 does nothing */

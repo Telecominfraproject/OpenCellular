@@ -9,6 +9,12 @@
 
 #include "utility.h"
 
+void StatefulInit(MemcpyState* state, void* buf, uint64_t len) {
+  state->remaining_buf = buf;
+  state->remaining_len = len;
+  state->overrun = 0;
+}
+
 void* StatefulSkip(MemcpyState* state, uint64_t len) {
   if (state->overrun)
     return NULL;
