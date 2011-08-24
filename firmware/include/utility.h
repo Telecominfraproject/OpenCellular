@@ -46,7 +46,7 @@
 /* Combine [msw] and [lsw] uint16s to a uint32_t with its [msw] and
  * [lsw] forming the most and least signficant 16-bit words.
  */
-#define CombineUint16Pair(msw,lsw) (((msw) << 16) |     \
+#define CombineUint16Pair(msw,lsw) (((uint32_t)(msw) << 16) |   \
                                     (((lsw)) & 0xFFFF))
 /* Return the minimum of (a) or (b). */
 #define Min(a, b) (((a) < (b)) ? (a) : (b))

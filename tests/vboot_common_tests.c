@@ -21,12 +21,32 @@ static void StructPackingTest(void) {
           "sizeof(VbKeyBlockHeader)");
   TEST_EQ(EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE,
           sizeof(VbFirmwarePreambleHeader2_0),
-          "sizeof(VbFirmwarePreambleHeader)");
+          "sizeof(VbFirmwarePreambleHeader2_0)");
   TEST_EQ(EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE,
           sizeof(VbFirmwarePreambleHeader),
           "sizeof(VbFirmwarePreambleHeader)");
   TEST_EQ(EXPECTED_VBKERNELPREAMBLEHEADER_SIZE,
           sizeof(VbKernelPreambleHeader), "sizeof(VbKernelPreambleHeader)");
+
+  TEST_EQ(VB_SHARED_DATA_HEADER_SIZE_V1,
+          (long)&((VbSharedDataHeader*)NULL)->recovery_reason,
+          "sizeof(VbSharedDataHeader) V1");
+
+  TEST_EQ(VB_SHARED_DATA_HEADER_SIZE_V2,
+          sizeof(VbSharedDataHeader),
+          "sizeof(VbSharedDataHeader) V2");
+}
+
+
+/* Test array sized macro */
+static void ArraySizeTest(void) {
+  uint8_t arr1[12];
+  uint32_t arr2[7];
+  uint64_t arr3[9];
+
+  TEST_EQ(ARRAY_SIZE(arr1), 12, "ARRAYSIZE(uint8_t)");
+  TEST_EQ(ARRAY_SIZE(arr2), 7, "ARRAYSIZE(uint32_t)");
+  TEST_EQ(ARRAY_SIZE(arr3), 9, "ARRAYSIZE(uint64_t)");
 }
 
 
@@ -112,6 +132,7 @@ int main(int argc, char* argv[]) {
   int error_code = 0;
 
   StructPackingTest();
+  ArraySizeTest();
   VerifyHelperFunctions();
 
   if (!gTestSuccess)

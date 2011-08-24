@@ -375,11 +375,12 @@ typedef struct VbSharedDataHeader {
 
 } __attribute__((packed)) VbSharedDataHeader;
 
-/* Size of VbSharedDataheader for each older version */
+/* Size of VbSharedDataheader for each version */
 // TODO: crossystem needs not to
 // fail if called on a v1 system where sizeof(VbSharedDataHeader) was smaller
 
 #define VB_SHARED_DATA_HEADER_SIZE_V1 1072
+#define VB_SHARED_DATA_HEADER_SIZE_V2 1096
 
 #define VB_SHARED_DATA_VERSION 2      /* Version for struct_version */
 
