@@ -123,20 +123,12 @@ int VbGetCrosDebug(void) {
   char buf[4096] = "";
   char *t, *saveptr;
 
-  /* Try reading firmware type. */
-  if (VbGetArchPropertyString("mainfw_type", buf, sizeof(buf))) {
-    if (0 == strcmp(buf, "recovery"))
-      return 0;  /* Recovery mode never allows debug. */
-    else if (0 == strcmp(buf, "developer"))
-      return 1;  /* Developer firmware always allows debug. */
-  }
-
-  /* Normal new firmware, older ChromeOS firmware, or non-Chrome firmware.
-   * For all these cases, check /proc/cmdline for cros_[no]debug. */
-  f = fopen(KERNEL_CMDLINE_PATH, "rt");
-  if (f) {
+  /* If the currently running system specifies its debug status, use
+   * that in preference to other indicators. */
+  f = fopen(KERNEL_CMDLINE_PATH, "r");
+  if (NULL != f) {
     if (NULL == fgets(buf, sizeof(buf), f))
-      *buf = 0;
+      buf[0] = 0;
     fclose(f);
   }
   for (t = strtok_r(buf, " ", &saveptr); t; t=strtok_r(NULL, " ", &saveptr)) {
@@ -146,8 +138,7 @@ int VbGetCrosDebug(void) {
       return 0;
   }
 
-  /* Normal new firmware or older Chrome OS firmware allows debug if the
-   * dev switch is on. */
+  /* Command line is silent; allow debug if the dev switch is on. */
   if (1 == VbGetSystemPropertyInt("devsw_boot"))
     return 1;
 
