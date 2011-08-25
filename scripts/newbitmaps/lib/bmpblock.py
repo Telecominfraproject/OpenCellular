@@ -46,7 +46,6 @@ class BmpBlock(object):
     """Raise an error if the specified dict is not a valid BmpBlock structure"""
 
     assert isinstance(thing, dict)
-    assert thing["bmpblock"] == 1.0 or thing["bmpblock"] == 1.1
 
     seen_images = {"$HWID":1, "$HWID.rtol":2}
     seen_screens = {}

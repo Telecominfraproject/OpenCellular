@@ -12,6 +12,9 @@
 
 TARGETS=x86 arm
 
+DEFAULT_LOCALES=en fr es it de nl
+
+
 BASE_IMAGES=Devmode.bmp Insert.bmp Remove.bmp Yuck.bmp
 OTHER_IMAGES=Url.bmp hwid_unknown.bmp
 FONTS=hwid_fonts.bin
@@ -48,18 +51,20 @@ x86::
 	done
 	# copy stuff we need
 	cp "${FONTS}" "out_$@"
-	# scale the background pictures exactly
-	for i in ${BASE_IMAGES}; do \
+	# scale the background pictures exactly...
+	@for i in ${BASE_IMAGES}; do \
+		echo "  out_$@/$$i"; \
 		convert $$i -scale "${_x86_max}" "out_$@/$$i"; \
 	done
-	# scale the localized string images using percentages
-	for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
+	# scale the localized string images using percentages...
+	@for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
+		echo "  out_$@/$$i"; \
 		convert $$i -scale "${_x86_scale}" "out_$@/$$i"; \
 	done
 	# produce the new yaml
-	cd "out_$@" && ../make_default_yaml
-	# Note: hand-edit the new DEFAULT.yaml to select the shipping locales,
-	# then use bmpblk_utility to create the binary.
+	cd "out_$@" && ../make_default_yaml ${DEFAULT_LOCALES}
+	# Note: manually use bmpblk_utility to create the binary from out_$@
+
 
 
 arm::
@@ -74,20 +79,23 @@ arm::
 		-colors 256 -unique-colors "out_$@/base_cmap.png"
 	convert localized_images/*/*.bmp -append \
 		-colors 256 -unique-colors "out_$@/loc_cmap.png"
-	# scale the background pictures exactly
-	for i in ${BASE_IMAGES}; do \
+	# scale the background pictures exactly...
+	@for i in ${BASE_IMAGES}; do \
+		echo "  out_$@/$$i"; \
 		convert $$i -scale "${_arm_max}" \
 			-remap "out_$@/base_cmap.png" "out_$@/$$i"; \
 	done
-	# scale the localized string images using percentages
-	for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
+	# scale the localized string images using percentages...
+	@for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
+		echo "  out_$@/$$i"; \
 		convert $$i -scale "${_arm_scale}" \
 			-remap "out_$@/loc_cmap.png" "out_$@/$$i"; \
 	done
 	# produce the new yaml
-	cd "out_$@" && ../make_default_yaml
-	# Note: hand-edit the new DEFAULT.yaml to select the shipping locales,
-	# then use bmpblk_utility to create the binary.
+	cd "out_$@" && ../make_default_yaml ${DEFAULT_LOCALES}
+	perl -i -p -e 's/^compression:.*/compression: 2/;' "out_$@/DEFAULT.yaml"
+	# Note: manually use bmpblk_utility to create the binary from out_$@
+
 
 
 

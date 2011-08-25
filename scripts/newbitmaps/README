@@ -71,56 +71,85 @@ image name. For example:
     en
 
 The old v1.1 bmpblock will be accepted by the vboot wrapper, but a $HWID
-screen without a corresponding font will be silently ignored.
+screen without a corresponding font should be silently ignored.
 
 
 
-Instructions:
+--------------------------------------------
+Instructions for manually rebuilding things:
 
-The bmpblk_utility reads a config file and produces a binary bmpblock. The
-config file lists the individual bitmaps and describes where to place each
-one when displaying each screen. The bmpblock is then written into the BIOS
-image with the gbb_utility. The bitmap_viewer program lets you view the
-composited screens as described by the config file.
+We do most of the image manipulation using ImageMagick, which is much easier
+and simpler to do OUTSIDE of the chroot. So the first step is to just build
+vboot_reference outside of the chroot.
 
-* First, get the bitmap_viewer working. This is best done OUTSIDE of the
-  chroot. Test it by changing to the scripts/newbitmaps/images/16x9_generic
-  directory and running "../../bitmap_viewer DEFAULT.yaml". You may
-  need to install some additional packages. For example, on Ubuntu you'll
-  probably need to install the "python-yaml" and "python-wxgtk2.8" packages.
+  cd src/platform/vboot_reference
+  make
 
-* Now make changes to the DEFAULT.yaml config file, and use bitmap_viewer to
-  see how the layout looks. Hit Ctrl-R in the small window to reload the
-  config file without restarting.
+You'll probably need to install several additional packages to make this
+work. In addition, scripts/newbitmaps/bitmap_viewer is a python script that
+may require some packages of its own. Test it by changing to the
+scripts/newbitmaps/images directory and running
 
-* The bitmap_viewer tool can display images in several different formats,
-  but the BIOS is very limited (and may differ between x86 and ARM). For
-  x86, ensure that you're using the proper format by converting any new
-  bitmaps with a command like this:
+  ../bitmap_viewer DEFAULT.yaml
 
-    convert IN.bmp -colors 256 -compress none -alpha off OUT.bmp
+On Ubuntu you may find you need libtspi-dev, uuid-dev, imagemagick,
+python-yaml, and python-wxgtk2.8, among others.
 
-* When you have the screens tweaked to your satisfaction, generate the
-  binary bmpblock to embed into the BIOS.
 
-    bmpblk_utility -c DEFAULT.yaml bmpblock.bin
+Once you've built vboot_reference you'll find the executables in
+./build/utility/ (and ./build/cgpt/cgpt, if you want it). Put these
+somewhere in your $PATH.
 
-* Use the gbb_utility to modify the BIOS to contain this new set of bitmaps.
 
-  NOTE: These commands are run (as root) on the device under test!
+Create the font file:
 
-  NOTE: This will only work if the BIOS write-protection is disabled!
+  cd scripts/newbitmaps/fonts
+  ./make_ascii_bmps.py
+  bmpblk_font --outfile ../images/hwid_fonts.bin outdir/*
 
-  Copy our new bmpblock over.
+Create and examine the localized images:
+
+For x86:
+
+  cd scripts/newbitmaps/images
+  make x86
+  cd out_x86
+  ../../bitmap_viewer DEFAULT.yaml
+  bmpblock_utility -c DEFAULT.yaml bmpblock.bin
+
+For arm:
+
+  cd scripts/newbitmaps/images
+  make arm
+  cd out_arm
+  ../../bitmap_viewer DEFAULT.yaml
+  bmpblock_utility -c DEFAULT.yaml bmpblock.bin
+
+
+Now use the gbb_utility to modify your BIOS to contain this new set of
+bitmaps:
+
+  gbb_utility -s -b PATH/TO/YOUR/bmpblock.bin OLDBIOS.bin NEWBIOS.bin
+
+
+
+You can do that last step on the chromebook device itself, provided that the
+BIOS write-protection is disabled. gbb_utility should be in the rootfs:
+
+  Become root:
+
+    sudo bash
+
+  Copy your new bmpblock over:
 
     cd /mnt/stateful_partition
     scp USER@SOMEHOST:/SOMEPATH/bmpblock.bin .
 
-  Get a copy of the current BIOS.
+  Get a copy of the current BIOS:
 
     flashrom -p internal:bus=spi -r bios.bin
 
-  Put the new bmpblock in the copy of the BIOS
+  Put the new bmpblock in the copy of the BIOS:
 
     gbb_utility -s -b bmpblock.bin bios.bin
 
@@ -128,19 +157,20 @@ composited screens as described by the config file.
 
     flashrom -p internal:bus=spi -w bios.bin
 
-* Reboot. You should see your new bitmaps appear whenever the BIOS screens
+  Reboot. You should see your new bitmaps appear whenever the BIOS screens
   are displayed. If you have more than one localization, you should be able
   to cycle among them with the arrow keys.
 
-* If you want to examine a binary bmpblock that you've pulled from a BIOS
-  image, the bmpblk_utility has options to display or unpack the binary.
 
-    bmpblk_utility bmpblock.bin
+If you want to examine a binary bmpblock that you've pulled from a BIOS
+image, the bmpblk_utility has options to display or unpack the binary.
 
-    bmpblk_utility -y bmpblock.bin
+  bmpblk_utility bmpblock.bin
 
-    bmpblk_utility -x -d /SOME/SCRATCH/DIR bmpblock.bin
+  bmpblk_utility -y bmpblock.bin
 
- Once you've unpacked it you can use the bitmap_viewer on the unpacked yaml
- file to see what it looks like. There's not (yet) a single tool that
- directly displays the raw binary.
+  bmpblk_utility -x -d /SOME/SCRATCH/DIR bmpblock.bin
+
+Once you've unpacked it you can use the bitmap_viewer on the unpacked
+config.yaml file to see what it looks like. There's not (yet) a single tool
+that directly displays the raw binary.

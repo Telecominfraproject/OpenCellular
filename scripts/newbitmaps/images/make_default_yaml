@@ -12,6 +12,19 @@ yaml_file="DEFAULT.yaml"
 locales="en es_419 pt_BR en_GB fr es pt_PT ca it de el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja"
 localedir="./localized_images"
 
+# Accept optional args which are the locales to emit. Default is all of 'em.
+if [ -n "$*" ]; then
+  # Make sure all the args actually match
+  for arg in "$@"; do
+    if [ ! -d "$localedir/$arg" ]; then
+      echo "$0: locale \"$arg\" is unknown" 1>&2
+      exit 1
+    fi
+  done
+  locales="$*"
+fi
+
+
 # Arbitrary padding
 ypad=5
 xpad=10

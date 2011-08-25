@@ -70,6 +70,8 @@ def main():
            '-border', '0x3',
            '-gravity', 'Center',
            '-pointsize', options.size,
+           '-resize', '120%x100',               # Yes, magic.
+           '-scale', '59%x78%',                 # Here, too.
            'label:%s' % ascii,
            '-remap', gradient_file,
            '-compress', 'none',
