@@ -18,6 +18,7 @@ TEST_NAMES = cgptlib_test \
 	     stateful_util_tests \
 	     utility_string_tests \
 	     utility_tests \
+	     tpm_bootmode_tests \
 	     vboot_common_tests \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
@@ -94,6 +95,7 @@ runcryptotests:
 runmisctests:
 	./run_vbutil_tests.sh
 	${BUILD_ROOT}/stateful_util_tests
+	${BUILD_ROOT}/tpm_bootmode_tests
 	${BUILD_ROOT}/utility_string_tests
 	${BUILD_ROOT}/utility_tests
 
