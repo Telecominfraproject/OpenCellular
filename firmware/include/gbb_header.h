@@ -46,7 +46,7 @@ typedef struct GoogleBinaryBlockHeader {
   uint16_t major_version;   /* See GBB_MAJOR_VER */
   uint16_t minor_version;   /* See GBB_MINOR_VER */
   uint32_t header_size;     /* size of GBB header in bytes */
-  uint32_t reserved;
+  uint32_t flags;           /* Flags (see GBB_FLAG_*), should be 0 for 1.0. */
 
   uint32_t hwid_offset;     /* HWID offset from start of header */
   uint32_t hwid_size;       /* HWID size in bytes */
@@ -57,11 +57,7 @@ typedef struct GoogleBinaryBlockHeader {
   uint32_t recovery_key_offset;  /* Recovery Key offset from start of header */
   uint32_t recovery_key_size;    /* Recovery Key size in bytes */
 
-  /* Fields added in version 1.1 */
-  uint32_t flags;           /* Flags (see GBB_FLAG_*).  Readers should return
-                             * flags=0 for v1.0 structs. */
-
-  uint8_t  pad[76];         /* To match GBB_HEADER_SIZE.  Initialize to 0. */
+  uint8_t  pad[80];         /* To match GBB_HEADER_SIZE.  Initialize to 0. */
 } __attribute__((packed)) GoogleBinaryBlockHeader;
 
 #ifdef __cplusplus

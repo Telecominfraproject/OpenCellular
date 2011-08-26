@@ -16,6 +16,7 @@ class GoogleBinaryBlockUtil {
  public:
   // enumerate of available data fields
   enum PROPINDEX {
+    PROP_FLAGS = -1,// flags (virtual property)
     PROP_HWID,      // hardware id
     PROP_ROOTKEY,   // root key
     PROP_BMPFV,     // bitmap FV
@@ -38,6 +39,14 @@ class GoogleBinaryBlockUtil {
   // properties, following the order described in GoogleBinaryBlockHeader.
   // return true on success.
   bool create_new(const std::vector<uint32_t> &create_param);
+
+  // retrieve the value of GBB header flags.
+  // return the flags value.
+  uint32_t get_flags() const;
+
+  // overwrite GBB header flags.
+  // return true on success.
+  bool set_flags(const uint32_t flags);
 
   // retrieve the value of a property from GBB data.
   // return the property value.
