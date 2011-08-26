@@ -55,11 +55,11 @@ __pragma(pack(pop)) /* Support packing for MSVC. */
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
-/* These functions are called from S3Resume().  They cannot use
- * global variables. */
+/* These functions are called from VbInit().  They cannot use global
+ * variables. */
 uint32_t RollbackS3Resume(void);
 
-/* These functions are callable from LoadFirmware().  They cannot use
+/* These functions are callable from VbSelectFirmware().  They cannot use
  * global variables. */
 
 /* Setup must be called.  Pass recovery_mode=nonzero if in recovery
@@ -74,8 +74,8 @@ uint32_t RollbackFirmwareWrite(uint32_t version);
 /* Lock must be called */
 uint32_t RollbackFirmwareLock(void);
 
-/* These functions are callable from LoadKernel().  They may use global
- * variables. */
+/* These functions are callable from VbSelectAndLoadKernel().  They
+ * may use global variables. */
 
 /* Read and write may be called to read and write the kernel version. */
 uint32_t RollbackKernelRead(uint32_t* version);
@@ -84,9 +84,35 @@ uint32_t RollbackKernelWrite(uint32_t version);
 /* Lock must be called.  Internally, it's ignored in recovery mode. */
 uint32_t RollbackKernelLock(void);
 
-/* The following functions are here for testing only. */
+/****************************************************************************/
+/* The following functions are internal apis, listed here for use by
+ * unit tests only. */
 
 /* Issue a TPM_Clear and reenable/reactivate the TPM. */
 uint32_t TPMClearAndReenable(void);
+
+/* Like TlclWrite(), but checks for write errors due to hitting the 64-write
+ * limit and clears the TPM when that happens.  This can only happen when the
+ * TPM is unowned, so it is OK to clear it (and we really have no choice).
+ * This is not expected to happen frequently, but it could happen. */
+uint32_t SafeWrite(uint32_t index, const void* data, uint32_t length);
+
+/* Similarly to SafeWrite(), this ensures we don't fail a DefineSpace because
+ * we hit the TPM write limit.  This is even less likely to happen than with
+ * writes because we only define spaces once at initialization, but we'd rather
+ * be paranoid about this. */
+uint32_t SafeDefineSpace(uint32_t index, uint32_t perm, uint32_t size);
+
+/* Performs one-time initializations.  Creates the NVRAM spaces, and sets their
+ * initial values as needed.  Sets the nvLocked bit and ensures the physical
+ * presence command is enabled and locked.
+ */
+uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
+                              RollbackSpaceKernel* rsk);
+
+/* SetupTPM starts the TPM and establishes the root of trust for the
+ * anti-rollback mechanism. */
+uint32_t SetupTPM(int recovery_mode, int developer_mode,
+                  RollbackSpaceFirmware* rsf);
 
 #endif  /* VBOOT_REFERENCE_ROLLBACK_INDEX_H_ */

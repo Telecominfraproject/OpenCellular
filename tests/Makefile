@@ -11,6 +11,7 @@ INCLUDES += -I./include \
 BUILD_ROOT = ${BUILD}/tests
 
 TEST_NAMES = cgptlib_test \
+	     rollback_index2_tests \
 	     rsa_padding_test \
 	     rsa_verify_benchmark \
 	     sha_benchmark \
@@ -30,7 +31,8 @@ TEST_LIB = ${BUILD_ROOT}/test.a
 TEST_LIB_SRCS = test_common.c timer_utils.c crc32_test.c
 TEST_LIB_OBJS = $(TEST_LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 ALL_DEPS = $(addsuffix .d,${TEST_BINS} ${TEST_LIB_OBJS})
-CFLAGS +=  -MMD -MF $@.d
+# Allow multiple definitions, so tests can mock functions from other libraries
+CFLAGS +=  -MMD -MF $@.d -Xlinker --allow-multiple-definition
 
 LIBS := ${TEST_LIB} $(HOSTLIB)
 
@@ -94,6 +96,7 @@ runcryptotests:
 # Run other misc tests
 runmisctests:
 	./run_vbutil_tests.sh
+	${BUILD_ROOT}/rollback_index2_tests
 	${BUILD_ROOT}/stateful_util_tests
 	${BUILD_ROOT}/tpm_bootmode_tests
 	${BUILD_ROOT}/utility_string_tests

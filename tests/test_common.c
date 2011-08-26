@@ -8,6 +8,7 @@
 #include "test_common.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "cryptolib.h"
 #include "file_keys.h"
@@ -20,8 +21,7 @@ int TEST_EQ(int result, int expected_result, char* testname) {
   if (result == expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
-  }
-  else {
+  } else {
     fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
     fprintf(stderr, "  Expected: %d, got: %d\n", expected_result, result);
     gTestSuccess = 0;
@@ -33,8 +33,7 @@ int TEST_NEQ(int result, int not_expected_result, char* testname) {
   if (result != not_expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
-  }
-  else {
+  } else {
     fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
     fprintf(stderr, "  Didn't expect %d, but got it.\n", not_expected_result);
     gTestSuccess = 0;
@@ -47,12 +46,32 @@ int TEST_PTR_EQ(const void* result, const void* expected_result,
   if (result == expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
-  }
-  else {
+  } else {
     fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
     fprintf(stderr, "  Expected: 0x%lx, got: 0x%lx\n", (long)expected_result,
             (long)result);
     gTestSuccess = 0;
     return 0;
   }
+}
+
+int TEST_STR_EQ(const char* result, const char* expected_result,
+                char* testname) {
+
+  if (!result || !expected_result) {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  String compare with NULL\n");
+    gTestSuccess = 0;
+    return 0;
+  } else if (!strcmp(result, expected_result)) {
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    return 1;
+  } else {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  Expected: \"%s\", got: \"%s\"\n", expected_result,
+            result);
+    gTestSuccess = 0;
+    return 0;
+  }
+
 }

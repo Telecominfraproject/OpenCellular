@@ -36,12 +36,7 @@ uint32_t TPMClearAndReenable(void) {
 }
 
 
-/* Like TlclWrite(), but checks for write errors due to hitting the 64-write
- * limit and clears the TPM when that happens.  This can only happen when the
- * TPM is unowned, so it is OK to clear it (and we really have no choice).
- * This is not expected to happen frequently, but it could happen.
- */
-static uint32_t SafeWrite(uint32_t index, const void* data, uint32_t length) {
+uint32_t SafeWrite(uint32_t index, const void* data, uint32_t length) {
   uint32_t result = TlclWrite(index, data, length);
   if (result == TPM_E_MAXNVWRITES) {
     RETURN_ON_FAILURE(TPMClearAndReenable());
@@ -52,12 +47,7 @@ static uint32_t SafeWrite(uint32_t index, const void* data, uint32_t length) {
 }
 
 
-/* Similarly to SafeWrite(), this ensures we don't fail a DefineSpace because
- * we hit the TPM write limit.  This is even less likely to happen than with
- * writes because we only define spaces once at initialization, but we'd rather
- * be paranoid about this.
- */
-static uint32_t SafeDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
+uint32_t SafeDefineSpace(uint32_t index, uint32_t perm, uint32_t size) {
   uint32_t result = TlclDefineSpace(index, perm, size);
   if (result == TPM_E_MAXNVWRITES) {
     RETURN_ON_FAILURE(TPMClearAndReenable());
@@ -87,12 +77,9 @@ static uint32_t WriteSpaceKernel(const RollbackSpaceKernel* rsk) {
   return SafeWrite(KERNEL_NV_INDEX, rsk, sizeof(RollbackSpaceKernel));
 }
 
-/* Performs one-time initializations.  Creates the NVRAM spaces, and sets their
- * initial values as needed.  Sets the nvLocked bit and ensures the physical
- * presence command is enabled and locked.
- */
-static uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
-                                     RollbackSpaceKernel* rsk) {
+
+uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
+                              RollbackSpaceKernel* rsk) {
   static const RollbackSpaceFirmware rsf_init = {
     ROLLBACK_SPACE_FIRMWARE_VERSION, 0, 0, 0};
   static const RollbackSpaceKernel rsk_init = {
