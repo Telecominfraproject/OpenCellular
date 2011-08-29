@@ -63,7 +63,7 @@ ${BUILD_ROOT}/rollback_index_for_test.o : $(FWDIR)/lib/rollback_index.c
 
 ${BUILD_ROOT}/rollback_index2_tests: rollback_index2_tests.c \
 		${BUILD_ROOT}/rollback_index_for_test.o ${LIBS}
-	$(CC) $(CFLAGS) $(INCLUDES) $< ${BUILD_ROOT}/rollback_index2.o \
+	$(CC) $(CFLAGS) $(INCLUDES) $< ${BUILD_ROOT}/rollback_index_for_test.o \
 	${LIBS} -o $@ -lcrypto -lrt
 
 ${BUILD_ROOT}/%.o : %.c
