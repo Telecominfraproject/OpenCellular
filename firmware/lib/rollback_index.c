@@ -12,6 +12,14 @@
 #include "utility.h"
 #include "vboot_api.h"
 
+#ifdef ROLLBACK_UNITTEST
+/* Compiling for unit test, so we need the real implementations of
+ * rollback functions.  The unit test mocks the underlying tlcl
+ * functions, so this is ok to run on the host. */
+#undef CHROMEOS_ENVIRONMENT
+#undef DISABLE_ROLLBACK_TPM
+#endif
+
 static int g_rollback_recovery_mode = 0;
 
 /* disable MSVC warning on const logical expression (as in } while(0);) */

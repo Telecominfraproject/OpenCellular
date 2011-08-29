@@ -55,6 +55,17 @@ ${BUILD_ROOT}/rollback_index_test: rollback_index_test.c ${HOSTLIB}
 	$(CC) $(CFLAGS) -I/usr/include $(INCLUDES) $< -o $@ \
         -ltlcl ${HOSTLIB} -lcrypto -lrt
 
+# Compile rollback_index.c for unit test, so it uses the same implementation
+# as it does in the firmware.
+${BUILD_ROOT}/rollback_index_for_test.o : $(FWDIR)/lib/rollback_index.c
+	$(CC) $(CFLAGS) -DROLLBACK_UNITTEST $(INCLUDES) \
+	-MMD -MF $@.d -c -o $@ $<
+
+${BUILD_ROOT}/rollback_index2_tests: rollback_index2_tests.c \
+		${BUILD_ROOT}/rollback_index_for_test.o ${LIBS}
+	$(CC) $(CFLAGS) $(INCLUDES) $< ${BUILD_ROOT}/rollback_index2.o \
+	${LIBS} -o $@ -lcrypto -lrt
+
 ${BUILD_ROOT}/%.o : %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
 
