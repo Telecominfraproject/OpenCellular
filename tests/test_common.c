@@ -55,6 +55,20 @@ int TEST_PTR_EQ(const void* result, const void* expected_result,
   }
 }
 
+int TEST_PTR_NEQ(const void* result, const void* not_expected_result,
+                char* testname) {
+  if (result != not_expected_result) {
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    return 1;
+  } else {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  Didn't expect 0x%lx, but got it\n",
+            (long)not_expected_result);
+    gTestSuccess = 0;
+    return 0;
+  }
+}
+
 int TEST_STR_EQ(const char* result, const char* expected_result,
                 char* testname) {
 

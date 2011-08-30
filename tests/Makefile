@@ -13,6 +13,7 @@ BUILD_ROOT = ${BUILD}/tests
 TEST_NAMES = cgptlib_test \
 	     rollback_index2_tests \
 	     rsa_padding_test \
+	     rsa_utility_tests \
 	     rsa_verify_benchmark \
 	     sha_benchmark \
 	     sha_tests \
@@ -101,6 +102,7 @@ runcgpttests:
 # Run crypto tests
 runcryptotests:
 	./run_rsa_tests.sh
+	${BUILD_ROOT}/rsa_utility_tests
 	${BUILD_ROOT}/sha_tests
 	./run_vboot_common_tests.sh
 

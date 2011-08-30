@@ -14,7 +14,7 @@ uint64_t RSAProcessedKeySize(uint64_t algorithm, uint64_t* out_size) {
   int key_len; /* Key length in bytes.  (int type matches siglen_map) */
   if (algorithm < kNumAlgorithms) {
     key_len = siglen_map[algorithm];
-    /* Total size needed by a RSAPublicKey structure is =
+    /* Total size needed by a RSAPublicKey buffer is =
      *  2 * key_len bytes for the  n and rr arrays
      *  + sizeof len + sizeof n0inv.
      */
@@ -28,13 +28,17 @@ RSAPublicKey* RSAPublicKeyNew(void) {
   RSAPublicKey* key = (RSAPublicKey*) VbExMalloc(sizeof(RSAPublicKey));
   key->n = NULL;
   key->rr = NULL;
+  key->len = 0;
+  key->algorithm = kNumAlgorithms;
   return key;
 }
 
 void RSAPublicKeyFree(RSAPublicKey* key) {
   if (key) {
-    VbExFree(key->n);
-    VbExFree(key->rr);
+    if (key->n)
+      VbExFree(key->n);
+    if (key->rr)
+      VbExFree(key->rr);
     VbExFree(key);
   }
 }
@@ -44,9 +48,7 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, uint64_t len) {
   MemcpyState st;
   uint64_t key_len;
 
-  st.remaining_buf = (uint8_t*) buf;
-  st.remaining_len = len;
-  st.overrun = 0;
+  StatefulInit(&st, (void*)buf, len);
 
   StatefulMemcpy(&st, &key->len, sizeof(key->len));
   key_len = key->len * sizeof(uint32_t);  /* key length in bytes. */

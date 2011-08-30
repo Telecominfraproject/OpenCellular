@@ -43,10 +43,10 @@ static void TestRSAVerify(RSAPublicKey* key) {
                     test_message_sha1_hash), 1, "RSAVerify() good");
   TEST_EQ(RSAVerify(key, signatures[0], RSA1024NUMBYTES - 1, 0,
                     test_message_sha1_hash), 0, "RSAVerify() sig len");
-  TEST_EQ(RSAVerify(key, signatures[0], RSA1024NUMBYTES, kNumAlgorithms + 1,
+  TEST_EQ(RSAVerify(key, signatures[0], RSA1024NUMBYTES, kNumAlgorithms,
                     test_message_sha1_hash), 0, "RSAVerify() invalid alg");
   TEST_EQ(RSAVerify(key, signatures[0], RSA1024NUMBYTES, 3,
-                    test_message_sha1_hash), 0, "RSAVerify() wrong key");
+                    test_message_sha1_hash), 0, "RSAVerify() wrong alg");
 
   /* Corrupt the signature near start and end */
   Memcpy(sig, signatures[0], RSA1024NUMBYTES);
