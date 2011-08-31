@@ -3,12 +3,13 @@
  * found in the LICENSE file.
  */
 
+#include <ctype.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
-#include <ctype.h>
 
 #include "host_common.h"
 
@@ -422,6 +423,32 @@ static int VbGetRecoveryReason(void) {
 }
 
 
+/* Physical GPIO number <N> may be accessed through /sys/class/gpio/gpio<M>/,
+ * but <N> and <M> may differ by some offset <O>. To determine that constant,
+ * we look for a directory named /sys/class/gpio/gpiochip<O>/. If there's not
+ * exactly one match for that, we're SOL.
+ */
+static int FindGpioChipOffset(int *offset) {
+  DIR *dir;
+  struct dirent *ent;
+  int match = 0;
+
+  dir = opendir(GPIO_BASE_PATH);
+  if (!dir) {
+    return 0;
+  }
+
+  while(0 != (ent = readdir(dir))) {
+    if (1 == sscanf(ent->d_name, "gpiochip%d", offset)) {
+      match++;
+    }
+  }
+
+  closedir(dir);
+  return (1 == match);
+}
+
+
 /* Read a GPIO of the specified signal type (see ACPI GPIO SignalType).
  *
  * Returns 1 if the signal is asserted, 0 if not asserted, or -1 if error. */
@@ -430,7 +457,8 @@ static int ReadGpio(int signal_type) {
   int index = 0;
   int gpio_type;
   int active_high;
-  int controller_offset;
+  int controller_num;
+  int controller_offset = 0;
   char controller_name[128];
   int value;
 
@@ -441,16 +469,16 @@ static int ReadGpio(int signal_type) {
     if (gpio_type == signal_type)
       break;
     else if (gpio_type == -1)
-      return -1;  /* Ran out of GPIOs before finding a match */
+      return -1;                  /* Ran out of GPIOs before finding a match */
   }
 
   /* Read attributes and controller info for the GPIO */
   snprintf(name, sizeof(name), "%s.%d/GPIO.1", ACPI_GPIO_PATH, index);
   active_high = ReadFileBit(name, 0x00000001);
   snprintf(name, sizeof(name), "%s.%d/GPIO.2", ACPI_GPIO_PATH, index);
-  controller_offset = ReadFileInt(name);
-  if (active_high == -1 || controller_offset == -1)
-    return -1;  /* Missing needed info */
+  controller_num = ReadFileInt(name);
+  if (active_high == -1 || controller_num == -1)
+    return -1;                          /* Missing needed info */
 
   /* Check for chipsets we recognize. */
   snprintf(name, sizeof(name), "%s.%d/GPIO.3", ACPI_GPIO_PATH, index);
@@ -460,12 +488,10 @@ static int ReadGpio(int signal_type) {
       (0 != strcmp(controller_name, "CougarPoint")))
     return -1;
 
-  /* We blindly assume the controller has offset 192.
-   * There is some information under /sys/class/gpio/gpiochip192/,
-   * but there's nothing there to correlate that with anything we already
-   * discovered, so if it's not the right thing we have no way of knowing.
-   */
-  controller_offset += 192;
+  /* Modify GPIO number by driver's offset */
+  if (!FindGpioChipOffset(&controller_offset))
+    return -1;
+  controller_offset += controller_num;
 
   /* Try reading the GPIO value */
   snprintf(name, sizeof(name), "%s/gpio%d/value",
