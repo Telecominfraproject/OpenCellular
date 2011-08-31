@@ -17,7 +17,7 @@
 /* Global test success flag. */
 int gTestSuccess = 1;
 
-int TEST_EQ(int result, int expected_result, char* testname) {
+int TEST_EQ(int result, int expected_result, const char* testname) {
   if (result == expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
@@ -29,7 +29,7 @@ int TEST_EQ(int result, int expected_result, char* testname) {
   }
 }
 
-int TEST_NEQ(int result, int not_expected_result, char* testname) {
+int TEST_NEQ(int result, int not_expected_result, const char* testname) {
   if (result != not_expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
@@ -42,7 +42,7 @@ int TEST_NEQ(int result, int not_expected_result, char* testname) {
 }
 
 int TEST_PTR_EQ(const void* result, const void* expected_result,
-                char* testname) {
+                const char* testname) {
   if (result == expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
@@ -56,7 +56,7 @@ int TEST_PTR_EQ(const void* result, const void* expected_result,
 }
 
 int TEST_PTR_NEQ(const void* result, const void* not_expected_result,
-                char* testname) {
+                const char* testname) {
   if (result != not_expected_result) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
     return 1;
@@ -70,7 +70,7 @@ int TEST_PTR_NEQ(const void* result, const void* not_expected_result,
 }
 
 int TEST_STR_EQ(const char* result, const char* expected_result,
-                char* testname) {
+                const char* testname) {
 
   if (!result || !expected_result) {
     fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);

@@ -24,6 +24,7 @@ TEST_NAMES = cgptlib_test \
 	     vboot_common_tests \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
+	     vboot_firmware_tests \
 	     vboot_nvstorage_test
 
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
@@ -114,6 +115,7 @@ runmisctests:
 	${BUILD_ROOT}/tpm_bootmode_tests
 	${BUILD_ROOT}/utility_string_tests
 	${BUILD_ROOT}/utility_tests
+	${BUILD_ROOT}/vboot_firmware_tests
 
 #This will exercise vbutil_kernel and vbutil_firmware
 runfuzztests:

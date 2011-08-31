@@ -204,8 +204,10 @@ int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
     /* If we already have good firmware, no need to read another one;
      * we only needed to look at the versions to check for
      * rollback. */
-    if (-1 != good_index)
+    if (-1 != good_index) {
+      RSAPublicKeyFree(data_key);
       continue;
+    }
 
     /* Handle preamble flag for using the RO normal/dev code path */
     if (VbGetFirmwarePreambleFlags(preamble) &
@@ -251,7 +253,8 @@ int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
       /* Verify firmware data */
       VBPERFSTART("VB_VFD");
       body_digest = DigestFinal(&lfi->body_digest_context);
-      if (0 != VerifyDigest(body_digest, &preamble->body_signature, data_key)) {
+      if (0 != VerifyDigest(body_digest, &preamble->body_signature,
+                            data_key)) {
         VBDEBUG(("Firmware body verification failed.\n"));
         *check_result = VBSD_LF_CHECK_VERIFY_BODY;
         RSAPublicKeyFree(data_key);
