@@ -348,6 +348,25 @@ VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen, int force,
 }
 
 
+static void Uint8ToString(char *buf, uint8_t val) {
+  const char *trans = "0123456789abcdef";
+  *buf++ = trans[val >> 4];
+  *buf = trans[val & 0xF];
+}
+
+static void FillInSha1Sum(char *outbuf, VbPublicKey* key) {
+  uint8_t* buf = ((uint8_t *)key) + key->key_offset;
+  uint64_t buflen = key->key_size;
+  uint8_t* digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+  int i;
+  for (i=0; i<SHA1_DIGEST_SIZE; i++) {
+    Uint8ToString(outbuf, digest[i]);
+    outbuf += 2;
+  }
+  *outbuf = '\0';
+  VbExFree(digest);
+}
+
 #define DEBUG_INFO_SIZE 512
 
 /* Display debug info to the screen */
@@ -355,6 +374,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   char buf[DEBUG_INFO_SIZE] = "";
+  char sha1sum[SHA1_DIGEST_SIZE * 2 + 1];
   uint32_t used = 0;
   uint32_t i;
 
@@ -413,12 +433,27 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr) {
     used += Strncat(buf + used, "0 (default)", DEBUG_INFO_SIZE - used);
   }
 
+  /* Add sha1sum for Root & Recovery keys */
+  FillInSha1Sum(sha1sum,
+                (VbPublicKey*)((uint8_t*)gbb + gbb->rootkey_offset));
+  used += Strncat(buf + used, "\ngbb.rootkey: ", DEBUG_INFO_SIZE - used);
+  used += Strncat(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
+  FillInSha1Sum(sha1sum,
+                (VbPublicKey*)((uint8_t*)gbb + gbb->recovery_key_offset));
+  used += Strncat(buf + used, "\ngbb.recovery_key: ", DEBUG_INFO_SIZE - used);
+  used += Strncat(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
+
+  /* If we're in dev-mode, show the kernel subkey that we expect, too. */
+  if (0 == shared->recovery_reason) {
+    FillInSha1Sum(sha1sum, &shared->kernel_subkey);
+    used += Strncat(buf + used, "\nkernel_subkey: ", DEBUG_INFO_SIZE - used);
+    used += Strncat(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
+  }
+
   /* Make sure we finish with a newline */
   used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
 
   /* TODO: add more interesting data:
-   * - SHA1 of kernel subkey (assuming we always set it in VbSelectFirmware,
-   *   even in recovery mode, where we just copy it from the root key)
    * - Information on current disks */
 
   buf[DEBUG_INFO_SIZE - 1] = '\0';
