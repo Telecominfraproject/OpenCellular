@@ -4,55 +4,46 @@
 # found in the LICENSE file.
 #
 # Render a text file into a bitmap. Files named '*.txt' are small font, those
-# nameed '*.TXT' are large font.
+# named '*.TXT' are large font.
 #
 
 # Image parameters
+# - New pango-view has --pixel to assign font size in pixel, but that is not
+#   supported by old (ex, 1.24.5 in chroot) so we must assign --dpi 72 for
+#   pointsize.
 bg='#607c91'
-bluecolor='#9ccaec'
-bluefont="Helvetica"
-bluepointsize=22
-whitefont="Helvetica"
-whitepointsize=40
-
-
-tmpdir=$(mktemp -d /tmp/tmp.bmp.XXXXXX)
-trap "rm -rf $tmpdir" EXIT
-label_file="${tmpdir}/label.txt"
+small_color='#9ccaec'
+small_font="Helvetica"
+small_pointsize=22
+large_color="white"
+large_font="Helvetica"
+large_pointsize=40
 
 for txtfile in $*; do
+  # pango-view does not support assigning output format options for bitmap, so
+  # we first create the images in PNG format and then convert into BMP by
+  # ImageMagick.
+  pngfile="${txtfile%.*}".png
   bmpfile="${txtfile%.*}".bmp
-  # Must strip off the leading U+FEFF byte order mark (bytes 0xEF,0xBB,0xBF) of
-  # each file before I can pass it to imagemagick. Chomp any leading/trailing
-  # whitespace too.
-  perl -p -e 'BEGIN{ $/=undef; }' \
-    -e 'if (substr($_,0,3) eq "\xef\xbb\xbf") { substr($_, 0, 3) = ""; }' \
-    -e 's/^\s+//s;' -e 's/\s+$//s;' \
-    "$txtfile" > "$label_file"
-
   case "$txtfile" in
     *.txt)
-      convert \
-        -background "$bg" -fill "$bluecolor" \
-        -font "$bluefont" -pointsize "$bluepointsize" \
-        -bordercolor "$bg" -border 0x3 -gravity Center \
-        -interline-spacing 3 \
-        label:'@'"$label_file" \
-        -resize '120%x100' \
-        -colors 256 -compress none -alpha off \
-        "$bmpfile"
+      pango-view -q \
+        --background "$bg" --foreground "$small_color" \
+        --font "$small_font $small_pointsize" --dpi 72 \
+        --margin=3 --align=center \
+        --output "$pngfile" \
+        "$txtfile"
+      convert -colors 256 -compress none -alpha off "$pngfile" "$bmpfile"
       echo "wrote $bmpfile"
       ;;
     *.TXT)
-      convert \
-        -background "$bg" -fill "white" \
-        -font "$whitefont" -pointsize "$whitepointsize" \
-        -bordercolor "$bg" -border 0x10 -gravity Center \
-        -interline-spacing 5 \
-        label:'@'"$label_file" \
-        -resize '120%x100' \
-        -colors 256 -compress none -alpha off \
-        "$bmpfile"
+      pango-view -q \
+        --background "$bg" --foreground "$large_color" \
+        --font "$large_font $large_pointsize" --dpi 72 \
+        --margin=10 --align=center \
+        --output "$pngfile" \
+        "$txtfile"
+      convert -colors 256 -compress none -alpha off "$pngfile" "$bmpfile"
       echo "wrote $bmpfile"
       ;;
     *)
