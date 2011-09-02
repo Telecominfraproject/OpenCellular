@@ -177,7 +177,7 @@ static void TestLoadFirmware(VbError_t expected_retval,
 
   TEST_EQ(LoadFirmware(&cparams, &fparams, &vnc), expected_retval, desc);
   VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &rr);
-  TEST_EQ(rr, expected_recovery, "  recovery reason");
+  TEST_EQ(rr, expected_recovery, "  recovery request");
   TEST_EQ(data_key.len, 0, "  Data key free must be paired with alloc");
 }
 
