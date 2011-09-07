@@ -12,6 +12,9 @@ yaml_file="DEFAULT.yaml"
 locales="en es_419 pt_BR en_GB fr es pt_PT ca it de el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja"
 localedir="./localized_images"
 
+# These render right-to-left
+rtol="ar fa iw"
+
 # Accept optional args which are the locales to emit. Default is all of 'em.
 if [ -n "$*" ]; then
   # Make sure all the args actually match
@@ -189,7 +192,11 @@ EOF2
     echo "  ${lc}_remove:" >> "$yaml_file"
     echo "    - [  0,   0, remove_bg]" >> "$yaml_file"
     reset_base Remove.bmp
-    center_up "${lc}_model_text" 'hwid'
+    if echo "$rtol" | grep -q -w "$lc" ; then
+      center_up 'hwid' "${lc}_model_text"
+    else
+      center_up "${lc}_model_text" 'hwid'
+    fi
     center_up "url"
     center_up "${lc}_remove_text"
     echo "" >> "$yaml_file"
@@ -197,7 +204,11 @@ EOF2
     echo "  ${lc}_yuck:" >> "$yaml_file"
     echo "    - [  0,   0, yuck_bg]" >> "$yaml_file"
     reset_base Yuck.bmp
-    center_up "${lc}_model_text" 'hwid'
+    if echo "$rtol" | grep -q -w "$lc" ; then
+      center_up 'hwid' "${lc}_model_text"
+    else
+      center_up "${lc}_model_text" 'hwid'
+    fi
     center_up "url"
     center_up "${lc}_yuck_text"
     echo "" >> "$yaml_file"
@@ -205,7 +216,11 @@ EOF2
     echo "  ${lc}_insert:" >> "$yaml_file"
     echo "    - [  0,   0, insert_bg]" >> "$yaml_file"
     reset_base Insert.bmp
-    center_up "${lc}_model_text" 'hwid'
+    if echo "$rtol" | grep -q -w "$lc" ; then
+      center_up 'hwid' "${lc}_model_text"
+    else
+      center_up "${lc}_model_text" 'hwid'
+    fi
     center_up "url"
     center_up "${lc}_insert_text"
     echo "" >> "$yaml_file"

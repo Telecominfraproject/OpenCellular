@@ -528,28 +528,28 @@ screens:
 
   el_devel:
     - [  0,   0, devmode_bg]
-    - [265, 669, el_devmode_text]
+    - [299, 661, el_devmode_text]
 
   el_remove:
     - [  0,   0, remove_bg]
-    - [424, 694, el_model_text]
-    - [542, 694, $HWID]
-    - [288, 629, url]
-    - [201, 595, el_remove_text]
+    - [425, 689, el_model_text]
+    - [542, 689, $HWID]
+    - [288, 624, url]
+    - [250, 585, el_remove_text]
 
   el_yuck:
     - [  0,   0, yuck_bg]
-    - [424, 694, el_model_text]
-    - [542, 694, $HWID]
-    - [288, 629, url]
-    - [174, 595, el_yuck_text]
+    - [425, 689, el_model_text]
+    - [542, 689, $HWID]
+    - [288, 624, url]
+    - [232, 585, el_yuck_text]
 
   el_insert:
     - [  0,   0, insert_bg]
-    - [424, 694, el_model_text]
-    - [542, 694, $HWID]
-    - [288, 629, url]
-    - [416, 570, el_insert_text]
+    - [425, 689, el_model_text]
+    - [542, 689, $HWID]
+    - [288, 624, url]
+    - [453, 557, el_insert_text]
 
   nl_devel:
     - [  0,   0, devmode_bg]
@@ -1053,153 +1053,153 @@ screens:
 
   iw_devel:
     - [  0,   0, devmode_bg]
-    - [459, 669, iw_devmode_text]
+    - [486, 661, iw_devmode_text]
 
   iw_remove:
     - [  0,   0, remove_bg]
-    - [446, 694, iw_model_text]
-    - [521, 694, $HWID]
+    - [449, 694, $HWID]
+    - [853, 694, iw_model_text]
     - [288, 629, url]
-    - [376, 595, iw_remove_text]
+    - [419, 590, iw_remove_text]
 
   iw_yuck:
     - [  0,   0, yuck_bg]
-    - [446, 694, iw_model_text]
-    - [521, 694, $HWID]
+    - [449, 694, $HWID]
+    - [853, 694, iw_model_text]
     - [288, 629, url]
-    - [300, 595, iw_yuck_text]
+    - [351, 590, iw_yuck_text]
 
   iw_insert:
     - [  0,   0, insert_bg]
-    - [446, 694, iw_model_text]
-    - [521, 694, $HWID]
+    - [449, 694, $HWID]
+    - [853, 694, iw_model_text]
     - [288, 629, url]
-    - [531, 570, iw_insert_text]
+    - [554, 562, iw_insert_text]
 
   ar_devel:
     - [  0,   0, devmode_bg]
-    - [427, 669, ar_devmode_text]
+    - [479, 661, ar_devmode_text]
 
   ar_remove:
     - [  0,   0, remove_bg]
-    - [431, 694, ar_model_text]
-    - [535, 694, $HWID]
+    - [442, 694, $HWID]
+    - [846, 694, ar_model_text]
     - [288, 629, url]
-    - [374, 595, ar_remove_text]
+    - [458, 590, ar_remove_text]
 
   ar_yuck:
     - [  0,   0, yuck_bg]
-    - [431, 694, ar_model_text]
-    - [535, 694, $HWID]
+    - [442, 694, $HWID]
+    - [846, 694, ar_model_text]
     - [288, 629, url]
-    - [179, 595, ar_yuck_text]
+    - [301, 590, ar_yuck_text]
 
   ar_insert:
     - [  0,   0, insert_bg]
-    - [431, 694, ar_model_text]
-    - [535, 694, $HWID]
+    - [442, 694, $HWID]
+    - [846, 694, ar_model_text]
     - [288, 629, url]
-    - [453, 570, ar_insert_text]
+    - [501, 562, ar_insert_text]
 
   fa_devel:
     - [  0,   0, devmode_bg]
-    - [398, 669, fa_devmode_text]
+    - [464, 661, fa_devmode_text]
 
   fa_remove:
     - [  0,   0, remove_bg]
-    - [453, 694, fa_model_text]
-    - [513, 694, $HWID]
+    - [452, 694, $HWID]
+    - [856, 694, fa_model_text]
     - [288, 629, url]
-    - [276, 595, fa_remove_text]
+    - [374, 590, fa_remove_text]
 
   fa_yuck:
     - [  0,   0, yuck_bg]
-    - [453, 694, fa_model_text]
-    - [513, 694, $HWID]
+    - [452, 694, $HWID]
+    - [856, 694, fa_model_text]
     - [288, 629, url]
-    - [196, 595, fa_yuck_text]
+    - [287, 590, fa_yuck_text]
 
   fa_insert:
     - [  0,   0, insert_bg]
-    - [453, 694, fa_model_text]
-    - [513, 694, $HWID]
+    - [452, 694, $HWID]
+    - [856, 694, fa_model_text]
     - [288, 629, url]
-    - [384, 570, fa_insert_text]
+    - [459, 562, fa_insert_text]
 
   hi_devel:
     - [  0,   0, devmode_bg]
-    - [396, 669, hi_devmode_text]
+    - [516, 649, hi_devmode_text]
 
   hi_remove:
     - [  0,   0, remove_bg]
-    - [446, 694, hi_model_text]
-    - [521, 694, $HWID]
-    - [288, 629, url]
-    - [230, 595, hi_remove_text]
+    - [448, 683, hi_model_text]
+    - [518, 683, $HWID]
+    - [288, 618, url]
+    - [386, 573, hi_remove_text]
 
   hi_yuck:
     - [  0,   0, yuck_bg]
-    - [446, 694, hi_model_text]
-    - [521, 694, $HWID]
-    - [288, 629, url]
-    - [254, 595, hi_yuck_text]
+    - [448, 683, hi_model_text]
+    - [518, 683, $HWID]
+    - [288, 618, url]
+    - [391, 573, hi_yuck_text]
 
   hi_insert:
     - [  0,   0, insert_bg]
-    - [446, 694, hi_model_text]
-    - [521, 694, $HWID]
-    - [288, 629, url]
-    - [390, 570, hi_insert_text]
+    - [448, 683, hi_model_text]
+    - [518, 683, $HWID]
+    - [288, 618, url]
+    - [504, 539, hi_insert_text]
 
   th_devel:
     - [  0,   0, devmode_bg]
-    - [483, 669, th_devmode_text]
+    - [531, 641, th_devmode_text]
 
   th_remove:
     - [  0,   0, remove_bg]
-    - [446, 694, th_model_text]
-    - [521, 694, $HWID]
-    - [288, 629, url]
-    - [294, 595, th_remove_text]
+    - [459, 679, th_model_text]
+    - [508, 679, $HWID]
+    - [288, 614, url]
+    - [389, 565, th_remove_text]
 
   th_yuck:
     - [  0,   0, yuck_bg]
-    - [446, 694, th_model_text]
-    - [521, 694, $HWID]
-    - [288, 629, url]
-    - [264, 595, th_yuck_text]
+    - [459, 679, th_model_text]
+    - [508, 679, $HWID]
+    - [288, 614, url]
+    - [392, 565, th_yuck_text]
 
   th_insert:
     - [  0,   0, insert_bg]
-    - [446, 694, th_model_text]
-    - [521, 694, $HWID]
-    - [288, 629, url]
-    - [491, 570, th_insert_text]
+    - [459, 679, th_model_text]
+    - [508, 679, $HWID]
+    - [288, 614, url]
+    - [525, 527, th_insert_text]
 
   vi_devel:
     - [  0,   0, devmode_bg]
-    - [456, 669, vi_devmode_text]
+    - [491, 661, vi_devmode_text]
 
   vi_remove:
     - [  0,   0, remove_bg]
-    - [439, 694, vi_model_text]
-    - [528, 694, $HWID]
-    - [288, 629, url]
-    - [323, 595, vi_remove_text]
+    - [443, 689, vi_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [377, 585, vi_remove_text]
 
   vi_yuck:
     - [  0,   0, yuck_bg]
-    - [439, 694, vi_model_text]
-    - [528, 694, $HWID]
-    - [288, 629, url]
-    - [224, 595, vi_yuck_text]
+    - [443, 689, vi_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [294, 585, vi_yuck_text]
 
   vi_insert:
     - [  0,   0, insert_bg]
-    - [439, 694, vi_model_text]
-    - [528, 694, $HWID]
-    - [288, 629, url]
-    - [416, 570, vi_insert_text]
+    - [443, 689, vi_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [459, 557, vi_insert_text]
 
   id_devel:
     - [  0,   0, devmode_bg]
@@ -1253,103 +1253,103 @@ screens:
 
   zh_CN_devel:
     - [  0,   0, devmode_bg]
-    - [557, 669, zh_CN_devmode_text]
+    - [526, 662, zh_CN_devmode_text]
 
   zh_CN_remove:
     - [  0,   0, remove_bg]
-    - [457, 694, zh_CN_model_text]
-    - [510, 694, $HWID]
-    - [288, 629, url]
-    - [489, 595, zh_CN_remove_text]
+    - [442, 689, zh_CN_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [429, 585, zh_CN_remove_text]
 
   zh_CN_yuck:
     - [  0,   0, yuck_bg]
-    - [457, 694, zh_CN_model_text]
-    - [510, 694, $HWID]
-    - [288, 629, url]
-    - [460, 595, zh_CN_yuck_text]
+    - [442, 689, zh_CN_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [380, 585, zh_CN_yuck_text]
 
   zh_CN_insert:
     - [  0,   0, insert_bg]
-    - [457, 694, zh_CN_model_text]
-    - [510, 694, $HWID]
-    - [288, 629, url]
-    - [543, 570, zh_CN_insert_text]
+    - [442, 689, zh_CN_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [504, 558, zh_CN_insert_text]
 
   zh_TW_devel:
     - [  0,   0, devmode_bg]
-    - [528, 669, zh_TW_devmode_text]
+    - [482, 662, zh_TW_devmode_text]
 
   zh_TW_remove:
     - [  0,   0, remove_bg]
-    - [457, 694, zh_TW_model_text]
-    - [510, 694, $HWID]
-    - [288, 629, url]
-    - [507, 595, zh_TW_remove_text]
+    - [442, 689, zh_TW_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [439, 585, zh_TW_remove_text]
 
   zh_TW_yuck:
     - [  0,   0, yuck_bg]
-    - [457, 694, zh_TW_model_text]
-    - [510, 694, $HWID]
-    - [288, 629, url]
-    - [464, 595, zh_TW_yuck_text]
+    - [442, 689, zh_TW_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [383, 585, zh_TW_yuck_text]
 
   zh_TW_insert:
     - [  0,   0, insert_bg]
-    - [457, 694, zh_TW_model_text]
-    - [510, 694, $HWID]
-    - [288, 629, url]
-    - [536, 570, zh_TW_insert_text]
+    - [442, 689, zh_TW_model_text]
+    - [524, 689, $HWID]
+    - [288, 624, url]
+    - [493, 558, zh_TW_insert_text]
 
   ko_devel:
     - [  0,   0, devmode_bg]
-    - [530, 669, ko_devmode_text]
+    - [478, 661, ko_devmode_text]
 
   ko_remove:
     - [  0,   0, remove_bg]
-    - [460, 694, ko_model_text]
-    - [506, 694, $HWID]
-    - [288, 629, url]
-    - [467, 595, ko_remove_text]
+    - [450, 689, ko_model_text]
+    - [516, 689, $HWID]
+    - [288, 624, url]
+    - [406, 585, ko_remove_text]
 
   ko_yuck:
     - [  0,   0, yuck_bg]
-    - [460, 694, ko_model_text]
-    - [506, 694, $HWID]
-    - [288, 629, url]
-    - [368, 595, ko_yuck_text]
+    - [450, 689, ko_model_text]
+    - [516, 689, $HWID]
+    - [288, 624, url]
+    - [248, 585, ko_yuck_text]
 
   ko_insert:
     - [  0,   0, insert_bg]
-    - [460, 694, ko_model_text]
-    - [506, 694, $HWID]
-    - [288, 629, url]
-    - [552, 570, ko_insert_text]
+    - [450, 689, ko_model_text]
+    - [516, 689, $HWID]
+    - [288, 624, url]
+    - [506, 557, ko_insert_text]
 
   ja_devel:
     - [  0,   0, devmode_bg]
-    - [476, 669, ja_devmode_text]
+    - [398, 661, ja_devmode_text]
 
   ja_remove:
     - [  0,   0, remove_bg]
-    - [453, 694, ja_model_text]
-    - [513, 694, $HWID]
-    - [288, 629, url]
-    - [374, 595, ja_remove_text]
+    - [439, 689, ja_model_text]
+    - [527, 689, $HWID]
+    - [288, 624, url]
+    - [253, 585, ja_remove_text]
 
   ja_yuck:
     - [  0,   0, yuck_bg]
-    - [453, 694, ja_model_text]
-    - [513, 694, $HWID]
-    - [288, 629, url]
-    - [358, 595, ja_yuck_text]
+    - [439, 689, ja_model_text]
+    - [527, 689, $HWID]
+    - [288, 624, url]
+    - [240, 585, ja_yuck_text]
 
   ja_insert:
     - [  0,   0, insert_bg]
-    - [453, 694, ja_model_text]
-    - [513, 694, $HWID]
-    - [288, 629, url]
-    - [498, 570, ja_insert_text]
+    - [439, 689, ja_model_text]
+    - [527, 689, $HWID]
+    - [288, 624, url]
+    - [452, 558, ja_insert_text]
 
 localizations:
 
