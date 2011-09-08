@@ -44,7 +44,7 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
       e = entries + i;
       if (!IsKernelEntry(e))
         continue;
-      VBDEBUG(("GptNextKernelEntry looking at same prio partition %d\n", i));
+      VBDEBUG(("GptNextKernelEntry looking at same prio partition %d\n", i+1));
       VBDEBUG(("GptNextKernelEntry s%d t%d p%d\n",
                GetEntrySuccessful(e), GetEntryTries(e), GetEntryPriority(e)));
       if (!(GetEntrySuccessful(e) || GetEntryTries(e)))
@@ -65,7 +65,7 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
     int current_prio = GetEntryPriority(e);
     if (!IsKernelEntry(e))
       continue;
-    VBDEBUG(("GptNextKernelEntry looking at new prio partition %d\n", i));
+    VBDEBUG(("GptNextKernelEntry looking at new prio partition %d\n", i+1));
     VBDEBUG(("GptNextKernelEntry s%d t%d p%d\n",
              GetEntrySuccessful(e), GetEntryTries(e), GetEntryPriority(e)));
     if (!(GetEntrySuccessful(e) || GetEntryTries(e)))

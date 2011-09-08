@@ -61,7 +61,10 @@ typedef struct {
                                   * 0x04 = table1
                                   * 0x08 = table2  */
   int current_kernel; /* the current chromeos kernel index in partition table.
-                       * -1 means not found on drive. */
+                       * -1 means not found on drive. Note that GPT partition
+                       * numbers are traditionally 1-based, but we're using
+                       * a zero-based index here.
+                       */
 
   /* Internal variables */
   uint32_t valid_headers, valid_entries;
