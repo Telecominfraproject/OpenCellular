@@ -22,6 +22,7 @@ TEST_NAMES = cgptlib_test \
 	     utility_tests \
 	     tpm_bootmode_tests \
 	     vboot_api_init_tests \
+	     vboot_api_firmware_tests \
 	     vboot_common_tests \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
@@ -117,6 +118,7 @@ runmisctests:
 	${BUILD_ROOT}/utility_string_tests
 	${BUILD_ROOT}/utility_tests
 	${BUILD_ROOT}/vboot_api_init_tests
+	${BUILD_ROOT}/vboot_api_firmware_tests
 	${BUILD_ROOT}/vboot_firmware_tests
 
 #This will exercise vbutil_kernel and vbutil_firmware
