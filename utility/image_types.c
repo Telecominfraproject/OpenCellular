@@ -65,7 +65,7 @@ ImageFormat identify_image_type(const void *buf, uint32_t bufsize,
     return FORMAT_FONT;
   }
 
-  return FORMAT_BMP;
+  return FORMAT_INVALID;
 }
 
 
