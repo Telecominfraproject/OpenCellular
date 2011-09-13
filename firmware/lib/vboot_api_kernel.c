@@ -109,7 +109,7 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
 /* Developer mode delays.  All must be multiples of DEV_DELAY_INCREMENT */
 #define DEV_DELAY_INCREMENT 250  /* Delay each loop, in msec */
 #define DEV_DELAY_BEEP1 20000    /* Beep for first time at this time */
-#define DEV_DELAY_BEEP2 21000    /* Beep for second time at this time */
+#define DEV_DELAY_BEEP2 20500    /* Beep for second time at this time */
 #define DEV_DELAY_TIMEOUT 30000  /* Give up at this time */
 #define DEV_DELAY_TIMEOUT_SHORT 2000  /* Give up at this time (short delay) */
 
@@ -153,7 +153,7 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       case ' ':
       case 0x1B:
         /* Enter, space, or ESC = reboot to recovery */
-        VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC"));
+        VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
         VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
         return 1;
       case 0x04:
@@ -185,7 +185,6 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       default:
         VbCheckDisplayKey(cparams, key, &vnc);
         break;
-        /* TODO: xyzzy easter egg check */
     }
   }
 

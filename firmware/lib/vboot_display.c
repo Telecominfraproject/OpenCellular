@@ -461,8 +461,19 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr) {
 }
 
 
+#define MAGIC_WORD_LEN 5
+#define MAGIC_WORD     "xyzzy"
+static uint8_t MagicBuffer[MAGIC_WORD_LEN];
+
 VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
                             VbNvContext *vncptr) {
+  int i;
+
+  /* Update key buffer */
+  for(i=1; i<MAGIC_WORD_LEN; i++)
+    MagicBuffer[i-1] = MagicBuffer[i];
+  /* Save as lower-case ASCII */
+  MagicBuffer[MAGIC_WORD_LEN-1] = (key | 0x20) & 0xFF;
 
   if ('\t' == key) {
     /* Tab = display debug info */
@@ -486,6 +497,10 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
 
     /* Force redraw of current screen */
     return VbDisplayScreen(cparams, disp_current_screen, 1, vncptr);
+  }
+
+  if (0 == Memcmp(MagicBuffer, MAGIC_WORD, MAGIC_WORD_LEN)) {
+    VBEASTEREGG(cparams, vncptr);
   }
 
   return VBERROR_SUCCESS;
