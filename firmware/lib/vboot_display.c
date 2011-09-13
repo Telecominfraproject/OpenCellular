@@ -468,7 +468,8 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
     /* Tab = display debug info */
     return VbDisplayDebugInfo(cparams, vncptr);
 
-  } else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key) {
+  } else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key ||
+             VB_KEY_DOWN == key || VB_KEY_UP == key) {
     /* Arrow keys = change localization */
     uint32_t loc = 0;
     uint32_t count = 0;
@@ -476,7 +477,7 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
     VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &loc);
     if (VBERROR_SUCCESS != VbGetLocalizationCount(cparams, &count))
       loc = 0;  /* No localization count (bad GBB?), so set to 0 (default) */
-    else if (VB_KEY_RIGHT == key)
+    else if (VB_KEY_RIGHT == key || VB_KEY_UP == key)
       loc = (loc < count - 1 ? loc + 1 : 0);
     else
       loc = (loc > 0 ? loc - 1 : count - 1);
