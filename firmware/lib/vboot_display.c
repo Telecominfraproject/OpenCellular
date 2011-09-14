@@ -308,6 +308,17 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   /* Successful if all bitmaps displayed */
   retval = VBERROR_SUCCESS;
 
+  /* If GBB flags is nonzero, complain because that's something that the
+   * factory MUST fix before shipping. We only have to do this here, because
+   * it's obvious that something is wrong if we're not displaying screens from
+   * the GBB.
+   */
+  if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1 &&
+      (gbb->flags != 0)) {
+    (void)VbExDisplayDebugInfo("GBB.flags is nonzero");
+  }
+
+
 VbDisplayScreenFromGBB_exit:
 
   /* Free the bitmap data copy */
