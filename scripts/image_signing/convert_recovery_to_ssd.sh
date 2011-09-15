@@ -7,32 +7,46 @@
 # Script to convert a recovery image into an SSD image. Changes are made in-
 # place.
 
-# Load common constants and variables.
-. "$(dirname "$0")/common_minimal.sh"
-
 usage() {
   cat <<EOF
-Usage: $PROG <image> [--force]
+Usage: $PROG <image> [--force] [--cgpt=/path/to/cgpt]
 
-In-place converts recovery <image> into an SSD image. With --force, does not ask for
-confirmation from the user.
+In-place converts recovery <image> into an SSD image. With --force, does not
+ask for confirmation from the user. Use --cgpt= to specify cgpt binary location.
 
 EOF
+  exit 1
 }
 
-if [ $# -gt 2 ]; then
+if [ $# -lt 1 ] || [ $# -gt 3 ]; then
   usage
-  exit 1
+else
+  IMAGE=$1
+  shift
 fi
 
-type -P cgpt &>/dev/null || 
-  { echo "cgpt tool must be in the path"; exit 1; }
+for arg in $*; do
+  case "$arg" in
+  --force)
+    IS_FORCE=$arg
+    ;;
+  --cgpt=*)
+    GPT=${arg#--cgpt=}
+    ;;
+  *)
+    usage
+    ;;
+  esac
+done
+
+# Load common constants (and use GPT if set above) and variables.
+. "$(dirname "$0")/common_minimal.sh"
+
+type -P $GPT &>/dev/null ||
+  { echo "cgpt tool must be in the path or specified via --cgpt"; exit 1; }
 
 # Abort on errors.
 set -e
-
-IMAGE=$1
-IS_FORCE=$2
 
 if [ "${IS_FORCE}" != "--force" ]; then
   echo "This will modify ${IMAGE} in-place and convert it into an SSD image."

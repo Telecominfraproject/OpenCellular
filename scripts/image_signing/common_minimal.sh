@@ -10,7 +10,7 @@
 # Determine script directory
 SCRIPT_DIR=$(dirname $0)
 PROG=$(basename $0)
-GPT=cgpt
+GPT=${GPT:-"cgpt"}
 
 # The tag when the rootfs is changed.
 TAG_NEEDS_TO_BE_SIGNED="/root/.need_to_be_signed"
