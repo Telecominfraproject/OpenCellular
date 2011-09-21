@@ -24,12 +24,22 @@ kparams_remove_dm() {
     echo "$1" | sed 's/dm="[^"]*"//'
 }
 
-# Given a dm param string which includes a long and unpredictable
-# sha1 hash, return the same string with the sha1 hash replaced
-# with a magic placeholder. This same magic placeholder is used
-# in the config file, for comparison purposes.
-dmparams_mangle_sha1() {
-    echo "$1" | sed 's/sha1 [0-9a-fA-F]*/sha1 MAGIC_HASH/'
+# Given a dm param string which includes dynamic values, return the
+# same string with these values replaced by a magic string placeholder.
+# This same magic placeholder is used in the config file, for comparison
+# purposes.
+dmparams_mangle() {
+  local dmparams=$1
+  # First handle new key-value style verity parameters.
+  dmparams=$(echo "$dmparams" |
+    sed -e 's/root_hexdigest=[0-9a-fA-F]*/root_hexdigest=MAGIC_HASH/' |
+    sed -e 's/salt=[0-9a-fA-F]*/salt=MAGIC_SALT'/)
+  # If we didn't substitute the MAGIC_HASH yet, these are the old
+  # verity parameter format.
+  if [[ $dmparams != *MAGIC_HASH* ]]; then
+    dmparams=$(echo $dmparams | sed 's/sha1 [0-9a-fA-F]*/sha1 MAGIC_HASH/')
+  fi
+  echo $dmparams
 }
 
 # This escapes any non-alphanum character, since many such characters
@@ -77,19 +87,28 @@ main() {
     eval "required_kparams=(\${required_kparams_$board[@]})"
     eval "optional_kparams=(\${optional_kparams_$board[@]})"
     eval "optional_kparams_regex=(\${optional_kparams_regex_$board[@]})"
-    eval "required_dmparams=\"\$required_dmparams_$board\""
+    eval "required_dmparams=(\"\${required_dmparams_$board[@]}\")"
 
     # Divide the dm params from the rest and process seperately.
     local kparams=$(dump_kernel_config "$kernelblob")
-    local dmparams=$(dmparams_mangle_sha1 "$(get_dmparams "$kparams")")
+    local dmparams=$(get_dmparams "$kparams")
     local kparams_nodm=$(kparams_remove_dm "$kparams")
 
+    mangled_dmparams=$(dmparams_mangle "${dmparams}")
     # Special-case handling of the dm= param:
-    if [[ "$dmparams" != "$required_dmparams" ]]; then
-        echo "Kernel dm= parameter does not match expected value!"
-        echo "Expected: $required_dmparams"
+    for expected_dmparams in "${required_dmparams[@]}"; do
+      # Filter out all dynamic parameters.
+      testfail=1
+      if [ "$mangled_dmparams" = "$expected_dmparams" ]; then
+        testfail=0
+        break
+      fi
+    done
+
+    if [ $testfail -eq 1 ]; then
+        echo "Kernel dm= parameter does not match any expected values!"
         echo "Actual:   $dmparams"
-        testfail=1
+        echo "Expected: ${required_dmparams[@]}"
     fi
 
     # Ensure all other required params are present.
