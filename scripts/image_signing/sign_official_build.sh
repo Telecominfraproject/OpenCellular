@@ -86,7 +86,7 @@ grab_kernel_config() {
 
 # get_verity_arg <commandline> <key> -> <value>
 get_verity_arg() {
-  echo "$1" | sed "s/.*\b$2=\([^ \"]*\).*/\1/"
+  echo "$1" | sed -n "s/.*\b$2=\([^ \"]*\).*/\1/p"
 }
 
 is_old_verity_argv() {
@@ -135,6 +135,7 @@ calculate_rootfs_hash() {
   local verity_algorithm
   local root_dev
   local hash_dev
+  local verity_bin="verity"
   if is_old_verity_argv "${dm_config}"; then
     # dm="0 2097152 verity ROOT_DEV HASH_DEV 2097152 1 \
     # sha1 63b7ad16cb9db4b70b28593f825aa6b7825fdcf2"
@@ -143,6 +144,10 @@ calculate_rootfs_hash() {
     verity_algorithm=$(echo ${dm_config} | cut -f8 -d' ')
     root_dev=$(echo ${dm_config} | cut -f4 -d ' ')
     hash_dev=$(echo ${dm_config} | cut -f5 -d ' ')
+    # Hack around the fact that the signer needs to use the old version of
+    # verity to generate legacy verity kernel parameters. If we find it,
+    # we use it.
+    type -P "verity-old" &>/dev/null && verity_bin="verity-old"
   else
     # Key-value parameters.
     rootfs_sectors=$(get_verity_arg "${dm_config}" hashstart)
@@ -150,14 +155,20 @@ calculate_rootfs_hash() {
     verity_algorithm=$(get_verity_arg "${dm_config}" alg)
     root_dev=$(get_verity_arg "${dm_config}" payload)
     hash_dev=$(get_verity_arg "${dm_config}" hashtree)
+    salt=$(get_verity_arg "${dm_config}" salt)
+  fi
+
+  local salt_arg
+  if [ -n "$salt" ]; then
+    salt_arg="salt=$salt"
   fi
 
   # Run the verity tool on the rootfs partition.
-  local table="vroot none ro,"$(sudo verity mode=create \
+  local table="vroot none ro,"$(sudo ${verity_bin} mode=create \
     alg=${verity_algorithm} \
     payload="${rootfs_image}" \
     payload_blocks=$((rootfs_sectors / 8)) \
-    hashtree="${hash_image}")
+    hashtree="${hash_image}" ${salt_arg})
   # Reconstruct new kernel config command line and replace placeholders.
   table="$(echo "$table" |
     sed -s "s|ROOT_DEV|${root_dev}|g;s|HASH_DEV|${hash_dev}|")"
