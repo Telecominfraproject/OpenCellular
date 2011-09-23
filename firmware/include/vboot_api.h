@@ -94,7 +94,11 @@ enum VbErrorPredefined_t {
   /* Simulated (test) error */
   VBERROR_SIMULATED                     = 0x10016,
   /* Invalid parameter */
-  VBERROR_INVALID_PARAMETER             = 0x10017
+  VBERROR_INVALID_PARAMETER             = 0x10017,
+  /* VbExBeep() can't make sounds at all */
+  VBERROR_NO_SOUND                      = 0x10018,
+  /* VbExBeep() can't make sound in the background */
+  VBERROR_NO_BACKGROUND_SOUND           = 0x10019
 };
 
 
@@ -329,11 +333,21 @@ void VbExSleepMs(uint32_t msec);
 /* Play a beep tone of the specified frequency in Hz and duration in msec.
  * This is effectively a VbSleep() variant that makes noise.
  *
- * The implementation should do the best it can if it cannot fully
- * support this interface - for example, beeping at a fixed frequency
- * if frequency support is not available.  At a minimum, it must delay for
- * the specified duration. */
-void VbExBeep(uint32_t msec, uint32_t frequency);
+ * If the audio codec can run in the background, then:
+ *   zero frequency means OFF, non-zero frequency means ON
+ *   zero msec means return immediately, non-zero msec means delay (and
+ *     then OFF if needed)
+ * else:
+ *   non-zero msec and non-zero frequency means ON, delay, OFF, return
+ *   zero msec or zero frequency means do nothing and return immediately
+ *
+ * The return value is used by the caller to determine the capabilities. The
+ * implementation should always do the best it can if it cannot fully support
+ * all features - for example, beeping at a fixed frequency if frequency
+ * support is not available.  At a minimum, it must delay for the specified
+ * non-zero duration.
+ */
+VbError_t VbExBeep(uint32_t msec, uint32_t frequency);
 
 
 /*****************************************************************************/

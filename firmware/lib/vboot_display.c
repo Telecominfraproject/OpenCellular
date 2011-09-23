@@ -315,7 +315,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
    */
   if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1 &&
       (gbb->flags != 0)) {
-    (void)VbExDisplayDebugInfo("GBB.flags is nonzero");
+    (void)VbExDisplayDebugInfo("gbb.flags is nonzero");
   }
 
 

@@ -64,7 +64,8 @@ void VbExSleepMs(uint32_t msec) {
 }
 
 
-void VbExBeep(uint32_t msec, uint32_t frequency) {
+VbError_t VbExBeep(uint32_t msec, uint32_t frequency) {
+  return VBERROR_SUCCESS;
 }
 
 
