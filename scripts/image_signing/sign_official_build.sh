@@ -354,6 +354,7 @@ resign_firmware_payload() {
 
   new_shellball=$(make_temp_file)
   cp -f "${firmware_bundle}" "${new_shellball}"
+  chmod a+rx "${new_shellball}"
   repack_firmware_bundle "${shellball_dir}" "${new_shellball}"
   sudo cp -f "${new_shellball}" "${firmware_bundle}"
   sudo chmod a+rx "${firmware_bundle}"
