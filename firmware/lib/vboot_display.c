@@ -157,6 +157,7 @@ static void VbRenderTextAtPos(char *text, int right_to_left,
 
 
 /* Display a screen from the GBB. */
+#define OUTBUF_LEN 128
 VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
                                  VbNvContext *vncptr) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
@@ -174,6 +175,8 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   VbFont_t *font;
   char *text_to_show;
   int rtol = 0;
+  char outbuf[OUTBUF_LEN] = "";
+  uint32_t used = 0;
 
   /* Make sure the bitmap data is inside the GBB and is non-zero in size */
   if (0 == gbb->bmpfv_size ||
@@ -315,7 +318,10 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
    */
   if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1 &&
       (gbb->flags != 0)) {
-    (void)VbExDisplayDebugInfo("gbb.flags is nonzero");
+    used += Strncat(outbuf + used, "gbb.flags is nonzero: 0x",
+                    OUTBUF_LEN - used);
+    used += Uint64ToString(outbuf + used, OUTBUF_LEN - used, gbb->flags, 16, 8);
+    (void)VbExDisplayDebugInfo(outbuf);
   }
 
 
@@ -378,6 +384,90 @@ static void FillInSha1Sum(char *outbuf, VbPublicKey* key) {
   VbExFree(digest);
 }
 
+
+static const char *RecoveryReasonString(uint8_t code) {
+  switch(code) {
+  case VBNV_RECOVERY_NOT_REQUESTED:
+    return "Recovery not requested";
+  case VBNV_RECOVERY_LEGACY:
+    return "Recovery requested from legacy utility";
+  case VBNV_RECOVERY_RO_MANUAL:
+    return "recovery button pressed";
+  case VBNV_RECOVERY_RO_INVALID_RW:
+    return "RW firmware failed signature check";
+  case VBNV_RECOVERY_RO_S3_RESUME:
+    return "S3 resume failed";
+  case VBNV_RECOVERY_RO_TPM_ERROR:
+    return "TPM error in read-only firmware";
+  case VBNV_RECOVERY_RO_SHARED_DATA:
+    return "Shared data error in read-only firmware";
+  case VBNV_RECOVERY_RO_TEST_S3:
+    return "Test error from S3Resume()";
+  case VBNV_RECOVERY_RO_TEST_LFS:
+    return "Test error from LoadFirmwareSetup()";
+  case VBNV_RECOVERY_RO_TEST_LF:
+    return "Test error from LoadFirmware()";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_NOT_DONE:
+    return "RW firmware check not done";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_DEV_MISMATCH:
+    return "RW firmware developer flag mismatch";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_REC_MISMATCH:
+    return "RW firmware recovery flag mismatch";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_VERIFY_KEYBLOCK:
+    return "RW firmware unable to verify key block";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_KEY_ROLLBACK:
+    return "RW firmware key version rollback detected";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_DATA_KEY_PARSE:
+    return "RW firmware unable to parse data key";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_VERIFY_PREAMBLE:
+    return "RW firmware unable to verify preamble";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_FW_ROLLBACK:
+    return "RW firmware version rollback detected";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_GET_FW_BODY:
+    return "RW firmware unable to get firmware body";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_HASH_WRONG_SIZE:
+    return "RW firmware hash is wrong size";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_VERIFY_BODY:
+    return "RW firmware unable to verify firmware body";
+  case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_NO_RO_NORMAL:
+    return "RW firmware read-only normal path is not supported";
+  case VBNV_RECOVERY_RO_FIRMWARE:
+    return "Firmware problem outside of verified boot";
+  case VBNV_RECOVERY_RO_TPM_REBOOT:
+    return "TPM requires a system reboot (should be transient)";
+  case VBNV_RECOVERY_RO_UNSPECIFIED:
+    return "Unspecified/unknown error in RO firmware";
+  case VBNV_RECOVERY_RW_DEV_SCREEN:
+    return "User requested recovery from dev-mode warning screen";
+  case VBNV_RECOVERY_RW_NO_OS:
+    return "No OS kernel detected (or kernel rollback attempt?)";
+  case VBNV_RECOVERY_RW_INVALID_OS:
+    return "OS kernel failed signature check";
+  case VBNV_RECOVERY_RW_TPM_ERROR:
+    return "TPM error in rewritable firmware";
+  case VBNV_RECOVERY_RW_DEV_MISMATCH:
+    return "RW firmware in dev mode, but dev switch is off";
+  case VBNV_RECOVERY_RW_SHARED_DATA:
+    return "Shared data error in rewritable firmware";
+  case VBNV_RECOVERY_RW_TEST_LK:
+    return "Test error from LoadKernel()";
+  case VBNV_RECOVERY_RW_NO_DISK:
+    return "No bootable disk found";
+  case VBNV_RECOVERY_RW_UNSPECIFIED:
+    return "Unspecified/unknown error in RW firmware";
+  case VBNV_RECOVERY_KE_DM_VERITY:
+    return "DM-verity error";
+  case VBNV_RECOVERY_KE_UNSPECIFIED:
+    return "Unspecified/unknown error in kernel";
+  case VBNV_RECOVERY_US_TEST:
+    return "Recovery mode test from user-mode";
+  case VBNV_RECOVERY_US_UNSPECIFIED:
+    return "Unspecified/unknown error in user-mode";
+  }
+  return "We have no idea what this means";
+}
+
+
 #define DEBUG_INFO_SIZE 512
 
 /* Display debug info to the screen */
@@ -408,6 +498,10 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr) {
   used += Strncat(buf + used, "\nrecovery_reason: 0x", DEBUG_INFO_SIZE - used);
   used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
                          shared->recovery_reason, 16, 2);
+  used += Strncat(buf + used, "  ", DEBUG_INFO_SIZE - used);
+  used += Strncat(buf + used, RecoveryReasonString(shared->recovery_reason),
+                  DEBUG_INFO_SIZE - used);
+
 
   /* Add VbSharedData flags */
   used += Strncat(buf + used, "\nVbSD.flags: 0x", DEBUG_INFO_SIZE - used);
