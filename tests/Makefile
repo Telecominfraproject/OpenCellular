@@ -27,7 +27,8 @@ TEST_NAMES = cgptlib_test \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
 	     vboot_firmware_tests \
-	     vboot_nvstorage_test
+	     vboot_nvstorage_test \
+	     vboot_api_devmode_tests
 
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
 
@@ -51,6 +52,16 @@ rbtest: $(BUILD_ROOT)/rollback_index_test
 ${TEST_LIB}: ${TEST_LIB_OBJS}
 	rm -f $@
 	ar qc $@ $^
+
+${BUILD_ROOT}/vboot_api_kernel_for_test.o : $(FWDIR)/lib/vboot_api_kernel.c
+	$(CC) $(CFLAGS) $(INCLUDES) \
+	-MMD -MF $@.d -c -o $@ $<
+
+${BUILD_ROOT}/vboot_api_devmode_tests: vboot_api_devmode_tests.c \
+		${BUILD_ROOT}/vboot_api_kernel_for_test.o ${LIBS}
+	$(CC) $(CFLAGS) $(INCLUDES) $< \
+		${BUILD_ROOT}/vboot_api_kernel_for_test.o \
+	${LIBS} -o $@ -lcrypto -lrt
 
 ${BUILD_ROOT}/rollback_index_test.o : rollback_index_test.c
 	$(CC) $(CFLAGS) -I/usr/include $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
@@ -129,7 +140,11 @@ runfuzztests:
 runbmptests:
 	$(MAKE) BUILD=$(shell readlink -f ${BUILD}) -C bitmaps runtests
 
-ALLTESTS=runcgpttests runcryptotests runmisctests runfuzztests runbmptests
+runsoundtests:
+	${BUILD_ROOT}/vboot_api_devmode_tests
+
+ALLTESTS=runcgpttests runcryptotests runmisctests runfuzztests \
+	runbmptests runsoundtests
 
 runtests: genkeys ${ALLTESTS}
 
