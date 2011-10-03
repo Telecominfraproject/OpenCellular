@@ -10,6 +10,7 @@
 #include "rollback_index.h"
 #include "utility.h"
 #include "vboot_api.h"
+#include "vboot_audio.h"
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_nvstorage.h"
@@ -105,42 +106,10 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
   return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
 
-#define DEV_LOOP_TIME 10  /* Minimum note granularity in msecs */
-
-static uint16_t VbMsecToLoops(uint16_t msec) {
-  return (DEV_LOOP_TIME / 2 + msec) / DEV_LOOP_TIME;
-}
-
-static VbDevMusicNote default_notes[] = { {20000, 0}, /* 20 seconds */
-                                          {250, 400}, /* two beeps */
-                                          {250, 0},
-                                          {250, 400},
-                                          {9250, 0} }; /* total 30 seconds */
-
-static VbDevMusicNote short_notes[] = { {2000, 0} };   /* two seconds */
-
-/* Return a valid set of note events. */
-static VbDevMusicNote* VbGetDevMusicNotes(uint32_t *count, int use_short) {
-
-  if (use_short) {
-    *count = sizeof(short_notes) / sizeof(short_notes[0]);
-    return short_notes;
-  }
-
-  *count = sizeof(default_notes) / sizeof(default_notes[0]);
-  return default_notes;
-}
-
-
 /* Handle a developer-mode boot */
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
-  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   uint32_t allow_usb = 0;
-  uint32_t note_count = 0;
-  VbDevMusicNote* music_notes = 0;
-  uint32_t current_note = 0;
-  uint32_t current_note_loops = 0;
-  int background_beep = 1;
+  VbAudioContext* audio = 0;
 
   /* Check if USB booting is allowed */
   VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
@@ -148,27 +117,11 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
 
-  /* See if we have full background sound capability or not. */
-  if (VBERROR_SUCCESS != VbExBeep(0,0)) {
-    VBDEBUG(("VbBootDeveloper: VbExBeep() is limited\n"));
-    background_beep = 0;
-  }
+  /* Get audio/delay context */
+  audio = VbAudioOpen(cparams);
 
-  /* Prepare to generate audio/delay event. Use a short developer screen delay
-   * if indicated by GBB flags.
-   */
-  if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1
-      && (gbb->flags & GBB_FLAG_DEV_SCREEN_SHORT_DELAY)) {
-    VBDEBUG(("VbBootDeveloper() - using short developer screen delay\n"));
-    music_notes = VbGetDevMusicNotes(&note_count, 1);
-  } else {
-    music_notes = VbGetDevMusicNotes(&note_count, 0);
-  }
-
-  VBDEBUG(("VbBootDeveloper() - note count %d\n", note_count));
-
-  /* We'll loop until we finish the notes or are interrupted */
-  while(1) {
+  /* We'll loop until we finish the delay or are interrupted */
+  do {
     uint32_t key;
 
     if (VbExIsShutdownRequested())
@@ -184,8 +137,8 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       case 0x1B:
         /* Enter, space, or ESC = reboot to recovery */
         VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
-        VbExBeep(0, 0);                /* sound off */
         VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
+        VbAudioClose(audio);
         return 1;
       case 0x04:
         /* Ctrl+D = dismiss warning; advance to timeout */
@@ -195,7 +148,6 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       case 0x15:
         /* Ctrl+U = try USB boot, or beep if failure */
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+U; try USB\n"));
-        VbExBeep(0, 0);                /* sound off */
         if (!allow_usb) {
           VBDEBUG(("VbBootDeveloper() - USB booting is disabled\n"));
           VbExBeep(120, 400);
@@ -204,11 +156,12 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         } else if (VBERROR_SUCCESS ==
                    VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE)) {
           VBDEBUG(("VbBootDeveloper() - booting USB\n"));
+          VbAudioClose(audio);
           return VBERROR_SUCCESS;
         } else {
           VBDEBUG(("VbBootDeveloper() - no kernel found on USB\n"));
           VbExBeep(250, 200);
-          VbExBeep(100, 0);
+          VbExSleepMs(120);
           /* Clear recovery requests from failed kernel loading, so
            * that powering off at this point doesn't put us into
            * recovery mode. */
@@ -220,47 +173,12 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         break;
     }
 
-    /* Time to play a note? */
-    if (!current_note_loops) {
-      VBDEBUG(("VbBootDeveloper() - current_note is %d\n", current_note));
-
-      /* Sorry, out of notes */
-      if (current_note >= note_count)
-        break;
-
-      /* For how many loops do we hold this note? */
-      current_note_loops = VbMsecToLoops(music_notes[current_note].msec);
-      VBDEBUG(("VbBootDeveloper() - new current_note_loops == %d\n",
-               current_note_loops));
-
-      if (background_beep) {
-
-        /* start (or stop) the sound */
-        VbExBeep(0, music_notes[current_note].frequency);
-
-      } else if (music_notes[current_note].frequency) {
-
-        /* the sound will block, so don't loop repeatedly */
-        current_note_loops = 1;
-        VbExBeep(music_notes[current_note].msec,
-                 music_notes[current_note].frequency);
-      }
-
-      current_note++;
-    }
-
-    /* Wait a bit. Yes, one extra loop sometimes, but it's only 10msec */
-    VbExSleepMs(DEV_LOOP_TIME);
-
-    /* That's one... */
-    if (current_note_loops)
-      current_note_loops--;
-  }
+  } while( VbAudioLooping(audio) );
 
 fallout:
   /* Timeout or Ctrl+D; attempt loading from fixed disk */
-  VbExBeep(0, 0);                /* sound off */
   VBDEBUG(("VbBootDeveloper() - trying fixed disk\n"));
+  VbAudioClose(audio);
   return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
 

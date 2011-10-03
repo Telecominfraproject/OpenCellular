@@ -21,18 +21,5 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
 
 void VbExEasterEgg(VbCommonParams* cparams, VbNvContext *vncptr);
 
-typedef struct VbDevMusicNote {
-  uint16_t msec;
-  uint16_t frequency;
-} __attribute__((packed)) VbDevMusicNote;
-
-typedef struct VbDevMusic {
-  uint8_t sig[4];                       /* "$SND" */
-  uint32_t checksum;                    /* crc32 over count & all notes */
-  uint32_t count;                       /* number of notes */
-  VbDevMusicNote notes[1];              /* gcc allows [0], MSVC doesn't */
-  /* more VbDevMusicNotes follow immediately */
-} __attribute__((packed)) VbDevMusic;
-
 #endif /* VBOOT_REFERENCE_VBOOT_DISPLAY_H_ */
 

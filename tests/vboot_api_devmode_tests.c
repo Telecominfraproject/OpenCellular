@@ -113,11 +113,10 @@ test_case_t test[] = {
   { "VbBootDeveloperSoundTest( normal, background, Ctrl-U not allowed )",
     0x00000000, VBERROR_SUCCESS,
     21, 10000,                          // Ctrl-U at 10 seconds
-    10,
+    9,
     {
       {0, 0, 0},                        // probing for capability
       {0, 0, 0},                        // starts with no sound
-      {0, 0, 10000},                    // sees Ctrl-U, turns sound off
       {120, 400, 10000},                // complains about Ctrl-U (one beep)
                                         // waits 120ms...
       {120, 400, 10240},                // complains about Ctrl-U (two beeps)
