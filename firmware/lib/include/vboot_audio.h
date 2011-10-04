@@ -2,7 +2,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Display functions used in kernel selection.
+ * Delay/beep functions used in dev-mode kernel selection.
  */
 
 #ifndef VBOOT_REFERENCE_VBOOT_AUDIO_H_

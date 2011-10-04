@@ -89,3 +89,25 @@ int TEST_STR_EQ(const char* result, const char* expected_result,
   }
 
 }
+
+int TEST_TRUE(int result, const char* testname) {
+  if (result) {
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+  } else {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  Expected TRUE, got 0\n");
+    gTestSuccess = 0;
+  }
+  return result;
+}
+
+int TEST_FALSE(int result, const char* testname) {
+  if (!result) {
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+  } else {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  Expected FALSE, got: 0x%lx\n", (long)result);
+    gTestSuccess = 0;
+  }
+  return !result;
+}

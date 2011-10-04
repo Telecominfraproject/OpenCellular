@@ -5,20 +5,20 @@
  * Tests for vboot_api_firmware
  */
 
-#include <stdio.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "crc32.h"
+#include "gbb_header.h"
 #include "host_common.h"
+#include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "test_common.h"
 #include "vboot_common.h"
+#include "vboot_display.h"
 #include "vboot_nvstorage.h"
 #include "vboot_struct.h"
-#include "load_kernel_fw.h"
-#include "gbb_header.h"
-#include "vboot_display.h"
 
 
 /* Expected results */
@@ -128,11 +128,7 @@ test_case_t test[] = {
       {0, 0, 30360},                    // returns at 30 seconds + 360ms
     }},
 
-
-
-
 };
-
 
 /* Mock data */
 static VbCommonParams cparams;
@@ -149,7 +145,6 @@ static int kbd_fire_at;
 static uint32_t kbd_fire_key;
 static VbError_t beep_return;
 static note_event_t *expected_event;
-
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
@@ -282,7 +277,6 @@ VbError_t VbExDisplayScreen(uint32_t screen_type) {
   return VBERROR_SUCCESS;
 }
 
-
 /****************************************************************************/
 
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p);
@@ -304,8 +298,8 @@ static void VbBootDeveloperSoundTest(void) {
     (void) VbBootDeveloper(&cparams, &lkparams);
     VBDEBUG(("INFO: matched %d total %d expected %d\n",
              matched_events, current_event, test[i].num_events));
-    TEST_EQ(matched_events, test[i].num_events, test[i].name);
-    TEST_EQ(current_event, test[i].num_events, test[i].name);
+    TEST_TRUE(matched_events == test[i].num_events &&
+              current_event == test[i].num_events, test[i].name);
   }
 }
 

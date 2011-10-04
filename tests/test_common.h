@@ -34,6 +34,14 @@ int TEST_PTR_NEQ(const void* result, const void* expected_result,
 int TEST_STR_EQ(const char* result, const char* expected_result,
                 const char* testname);
 
+/* Return 1 if the result is true, else return 0.
+ * Also update the global gTestSuccess flag if test fails. */
+int TEST_TRUE(int result, const char* testname);
+
+/* Return 1 if the result is false, else return 0.
+ * Also update the global gTestSuccess flag if test fails. */
+int TEST_FALSE(int result, const char* testname);
+
 /* ANSI Color coding sequences.
  *
  * Don't use \e as MSC does not recognize it as a valid escape sequence.
