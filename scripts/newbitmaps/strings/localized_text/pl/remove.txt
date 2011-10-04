@@ -1,1 +1,1 @@
-﻿Zanim rozpoczniesz przywracanie systemu odłącz wszystkie urządzenia USB i SD.
+Zanim rozpoczniesz przywracanie systemu odłącz wszystkie urządzenia USB i SD.

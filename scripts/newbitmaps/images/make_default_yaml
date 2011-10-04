@@ -121,7 +121,12 @@ center_up() {
   x=$(expr "(" $cur_x - $totalx ")" / 2)
 
   for fname in $*; do
-    echo "    - [$x, $cur_y, $fname]" >> "$yaml_file"
+    if [ "$fname" = "th_model_text" ]; then
+      tmp_y=$(expr $cur_y - 9)
+      echo "    - [$x, $tmp_y, $fname]" >> "$yaml_file"
+    else
+      echo "    - [$x, $cur_y, $fname]" >> "$yaml_file"
+    fi
     x=$(expr $x + $(get_xx $fname) + $xpad)
   done
 }

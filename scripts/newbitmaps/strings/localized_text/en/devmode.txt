@@ -1,2 +1,2 @@
-﻿Chrome OS verification is turned off.
+Chrome OS verification is turned off.
 Press space to begin recovery.

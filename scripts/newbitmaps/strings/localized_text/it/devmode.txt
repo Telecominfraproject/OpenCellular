@@ -1,2 +1,2 @@
-﻿La verifica di Chrome OS è disattivata.
+La verifica di Chrome OS è disattivata.
 Premi la barra spaziatrice per avviare il ripristino.

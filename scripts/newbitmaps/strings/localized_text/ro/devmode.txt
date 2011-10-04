@@ -1,2 +1,2 @@
-﻿Verificarea Chrome OS este dezactivată.
+Verificarea sistemului de operare Chrome este dezactivată.
 Apăsaţi pe tasta Space pentru a iniţia procesul de recuperare.

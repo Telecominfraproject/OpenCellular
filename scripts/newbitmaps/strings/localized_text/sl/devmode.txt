@@ -1,2 +1,2 @@
-﻿Preverjanje za Chrome OS je izklopljeno.
+Preverjanje za Chrome OS je izklopljeno.
 Pritisnite preslednico, da začnete obnovo.

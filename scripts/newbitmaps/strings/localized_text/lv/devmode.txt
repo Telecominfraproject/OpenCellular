@@ -1,2 +1,2 @@
-﻿Chrome OS verifikācija ir izslēgta.
+Chrome OS verifikācija ir izslēgta.
 Lai sāktu atkopšanu, nospiediet atstarpes taustiņu.

@@ -1,1 +1,1 @@
-﻿Aloita palautus poistamalla kaikki USB- ja SD-laitteet.
+Aloita palautus poistamalla kaikki USB- ja SD-laitteet.

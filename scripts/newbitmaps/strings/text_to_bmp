@@ -6,6 +6,30 @@
 # Render a text file into a bitmap. Files named '*.txt' are small font, those
 # named '*.TXT' are large font.
 #
+# Options:
+#
+#    --rtl              Render right-to-left languages
+#    --font=FONTNAME    Use specified font (instead of Helvetica)
+#
+font="Helvetica"
+rtl=""
+
+while true ; do
+  case "$1" in
+    --rtl)
+      rtl="--rtl"
+      shift
+      ;;
+    --font=*)
+      font="${1##*=}"
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
 
 # Image parameters
 # - New pango-view has --pixel to assign font size in pixel, but that is not
@@ -13,10 +37,10 @@
 #   pointsize.
 bg='#607c91'
 small_color='#9ccaec'
-small_font="Helvetica"
+small_font="$font"
 small_pointsize=22
 large_color="white"
-large_font="Helvetica"
+large_font="$font"
 large_pointsize=40
 
 for txtfile in $*; do
@@ -27,23 +51,25 @@ for txtfile in $*; do
   bmpfile="${txtfile%.*}".bmp
   case "$txtfile" in
     *.txt)
-      pango-view -q \
+      pango-view -q $rtl --no-auto-dir \
         --background "$bg" --foreground "$small_color" \
         --font "$small_font $small_pointsize" --dpi 72 \
         --margin=3 --align=center \
         --output "$pngfile" \
         "$txtfile"
       convert -colors 256 -compress none -alpha off "$pngfile" "$bmpfile"
+      rm -f "$pngfile"
       echo "wrote $bmpfile"
       ;;
     *.TXT)
-      pango-view -q \
+      pango-view -q $rtl --no-auto-dir \
         --background "$bg" --foreground "$large_color" \
         --font "$large_font $large_pointsize" --dpi 72 \
         --margin=10 --align=center \
         --output "$pngfile" \
         "$txtfile"
       convert -colors 256 -compress none -alpha off "$pngfile" "$bmpfile"
+      rm -f "$pngfile"
       echo "wrote $bmpfile"
       ;;
     *)

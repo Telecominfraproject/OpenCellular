@@ -1,2 +1,2 @@
-﻿Chrome OS no está instalado o está dañado.
+Chrome OS no está instalado o está dañado.
 Conecta un dispositivo de recuperación.

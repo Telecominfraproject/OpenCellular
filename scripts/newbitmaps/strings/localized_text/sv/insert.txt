@@ -1,2 +1,2 @@
-﻿Chrome OS saknas eller är skadat.
+Chrome OS saknas eller är skadat.
 Anslut en återställningsenhet.

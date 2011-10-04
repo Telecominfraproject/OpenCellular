@@ -1,2 +1,2 @@
-﻿Chrome OS-i verifitseerimine on välja lülitatud.
+Chrome OS-i verifitseerimine on välja lülitatud.
 Taastamise alustamiseks vajutage tühikuklahvi.

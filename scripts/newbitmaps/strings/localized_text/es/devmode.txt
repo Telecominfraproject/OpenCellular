@@ -1,2 +1,2 @@
-﻿La verificación de Chrome OS está desactivada.
+La verificación de Chrome OS está desactivada.
 Pulsa la tecla de espacio para iniciar la recuperación.

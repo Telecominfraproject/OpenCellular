@@ -1,1 +1,1 @@
-﻿Retira todos los dispositivos USB y SD para iniciar la recuperación.
+Retira todos los dispositivos USB y SD para iniciar la recuperación.

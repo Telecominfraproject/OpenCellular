@@ -1,2 +1,2 @@
-﻿Die Chrome OS-Verifikation ist deaktiviert.
+Die Chrome OS-Verifikation ist deaktiviert.
 Drücken Sie zum Starten der Wiederherstellung die Leertaste.

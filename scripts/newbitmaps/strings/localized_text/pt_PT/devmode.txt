@@ -1,2 +1,2 @@
-﻿A verificação do SO do Chrome está desactivada.
+A verificação do SO do Chrome está desativada.
 Prima a barra de espaços para iniciar a recuperação.

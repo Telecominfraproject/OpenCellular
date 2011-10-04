@@ -1,1 +1,1 @@
-﻿O dispositivo inserido não contém o SO do Chrome. Tentar outro?
+O dispositivo inserido não contém o SO do Chrome. Tentar outro?

@@ -1,2 +1,2 @@
-﻿Xác minh hệ điều hành Chrome bị tắt.
+Xác minh hệ điều hành Chrome bị tắt.
 Nhấn dấu cách để bắt đầu khôi phục.

@@ -1,2 +1,2 @@
-﻿A Chrome OS ellenőrzése ki van kapcsolva.
+A Chrome OS ellenőrzése ki van kapcsolva.
 A helyreállítás megkezdéséhez nyomja meg a szóköz billentyűt.

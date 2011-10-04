@@ -1,2 +1,2 @@
-﻿Chrome-käyttöjärjestelmän vahvistus on poistettu käytöstä.
+Chrome-käyttöjärjestelmän vahvistus on poistettu käytöstä.
 Aloita palautus painamalla välilyöntiä.
