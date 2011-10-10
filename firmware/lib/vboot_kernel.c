@@ -538,7 +538,10 @@ LoadKernelExit:
   VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
           recovery : VBNV_RECOVERY_NOT_REQUESTED);
 
-  shcall->return_code = (uint8_t)retval;
+  /* If LoadKernel was called with bad parameters,
+   * shcall may not be initialized. */
+  if (shcall)
+    shcall->return_code = (uint8_t)retval;
 
   /* Save whether the good partition's key block was fully verified */
   if (good_partition_key_block_valid)
