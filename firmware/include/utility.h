@@ -45,9 +45,9 @@
 
 /* Optional, up to the BIOS */
 #ifdef VBOOT_EASTER_EGG
-#define VBEASTEREGG(A,B) VbExEasterEgg(A,B)
+#define VBEASTEREGG VbExEasterEgg()
 #else
-#define VBEASTEREGG(A,B) 0
+#define VBEASTEREGG 0
 #endif
 
 /* Combine [msw] and [lsw] uint16s to a uint32_t with its [msw] and
