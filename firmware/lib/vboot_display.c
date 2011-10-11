@@ -605,7 +605,8 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
   }
 
   if (0 == Memcmp(MagicBuffer, MAGIC_WORD, MAGIC_WORD_LEN)) {
-    VBEASTEREGG(cparams, vncptr);
+    if (VBEASTEREGG(cparams, vncptr))
+      (void)VbDisplayScreen(cparams, disp_current_screen, 1, vncptr);
   }
 
   return VBERROR_SUCCESS;

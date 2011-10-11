@@ -47,7 +47,7 @@
 #ifdef VBOOT_EASTER_EGG
 #define VBEASTEREGG(A,B) VbExEasterEgg(A,B)
 #else
-#define VBEASTEREGG(A,B)
+#define VBEASTEREGG(A,B) 0
 #endif
 
 /* Combine [msw] and [lsw] uint16s to a uint32_t with its [msw] and

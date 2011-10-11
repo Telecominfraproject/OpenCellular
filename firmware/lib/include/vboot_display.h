@@ -19,7 +19,8 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr);
 VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
                             VbNvContext *vncptr);
 
-void VbExEasterEgg(VbCommonParams* cparams, VbNvContext *vncptr);
+/* If not VBERROR_SUCCESS, will need to refresh the display */
+VbError_t VbExEasterEgg(VbCommonParams* cparams, VbNvContext *vncptr);
 
 #endif /* VBOOT_REFERENCE_VBOOT_DISPLAY_H_ */
 
