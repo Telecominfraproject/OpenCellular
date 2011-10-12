@@ -873,7 +873,8 @@ int main(int argc, char* argv[]) {
 
       case OPT_ARCH:
         /* check the first 3 characters to also detect x86_64 */
-        if (!strncasecmp(optarg, "x86", 3))
+        if ((!strncasecmp(optarg, "x86", 3)) ||
+            (!strcasecmp(optarg, "amd64")))
           arch = ARCH_X86;
         else if (!strcasecmp(optarg, "arm"))
           arch = ARCH_ARM;
