@@ -16,9 +16,9 @@ CFLAGS += -O0 -g
 endif
 
 #
-# TODO We hard-code u-boot's compiler flags here just temporarily. As we are
-# still investigating which flags are necessary for maintaining a compatible
-# ABI, etc. between u-boot and vboot_reference.
+# TODO(crosbug.com/16808) We hard-code u-boot's compiler flags here just
+# temporarily. As we are still investigating which flags are necessary for
+# maintaining a compatible ABI, etc. between u-boot and vboot_reference.
 #
 # Override CC and CFLAGS for firmware builds; if you have any -D flags, please
 # add them after this point (e.g., -DVBOOT_DEBUG).
@@ -27,7 +27,6 @@ ifeq ($(FIRMWARE_ARCH), arm)
 CC = armv7a-cros-linux-gnueabi-gcc
 CFLAGS = -g -Os -fno-common -ffixed-r8 -msoft-float -fno-builtin \
 	-ffreestanding -nostdinc \
-	-isystem /usr/lib/gcc/armv7a-cros-linux-gnueabi/4.4.3/gcc/armv7a-cros-linux-gnueabi/4.4.3/include \
 	-pipe -marm -mabi=aapcs-linux -mno-thumb-interwork -march=armv5 \
 	-Werror -Wall -Wstrict-prototypes -fno-stack-protector
 endif
@@ -35,7 +34,6 @@ ifeq ($(FIRMWARE_ARCH), i386)
 CC = i686-pc-linux-gnu-gcc
 CFLAGS = -g -Os -ffunction-sections -fvisibility=hidden -fno-builtin \
 	-ffreestanding -nostdinc \
-	-isystem /usr/lib/gcc/i686-pc-linux-gnu/4.4.3/gcc/i686-pc-linux-gnu/4.4.3/include \
 	-pipe -fno-strict-aliasing -Wstrict-prototypes -mregparm=3 \
 	-fomit-frame-pointer -ffreestanding -fno-toplevel-reorder \
 	-fno-stack-protector -mpreferred-stack-boundary=2 -fno-dwarf2-cfi-asm \
