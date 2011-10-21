@@ -4,8 +4,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# Note: This file must be written in dash compatible way as scripts that use 
-# this may run in the Chrome OS client enviornment.  
+# Note: This file must be written in dash compatible way as scripts that use
+# this may run in the Chrome OS client enviornment.
 
 # Determine script directory
 SCRIPT_DIR=$(dirname $0)
@@ -22,10 +22,8 @@ TEMP_DIR_LIST=$(mktemp)
 # Finds and loads the 'shflags' library, or return as failed.
 load_shflags() {
   # Load shflags
-  if [ -f /usr/lib/shflags ]; then
-    . /usr/lib/shflags
-  elif [ -f "${SCRIPT_DIR}/shflags" ]; then
-    . "${SCRIPT_DIR}/shflags"
+  if [ -f /usr/share/misc/shflags ]; then
+    .  /usr/share/misc/shflags
   elif [ -f "${SCRIPT_DIR}/lib/shflags/shflags" ]; then
     . "${SCRIPT_DIR}/lib/shflags/shflags"
   else
