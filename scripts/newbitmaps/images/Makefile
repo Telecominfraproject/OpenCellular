@@ -12,8 +12,9 @@
 
 TARGETS=x86 arm
 
-DEFAULT_LOCALES=en fr es it de nl
-
+DEFAULT_LOCALES=en es_419 pt_BR en_GB fr es pt_PT ca it de \
+  el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro \
+  uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja
 
 BASE_IMAGES=Devmode.bmp Insert.bmp Remove.bmp Yuck.bmp
 OTHER_IMAGES=Url.bmp hwid_unknown.bmp
@@ -38,10 +39,12 @@ ${TARGETS}:: outside_chroot
 # the entire screen. With previous devices the physical screen size was either
 # 1280x800 (16:10) or 1366x768 (16:9). There's not a lot of difference between
 # those, so let's just assume 16:9 for future platforms to make things simpler.
-_x86_max="800x600!"
-_x86_scale="59%x78%"
-_arm_max="800x600!"
-_arm_scale="59%x78%"
+_x86_max=800x600!
+_x86_scale=59%x78%
+_x86_opts=-colors 256 -compress none -alpha off
+_arm_max=800x600!
+_arm_scale=59%x78%
+
 
 x86::
 	# create output directories
@@ -53,18 +56,22 @@ x86::
 	cp "${FONTS}" "out_$@"
 	# scale the background pictures exactly...
 	@for i in ${BASE_IMAGES}; do \
-		echo "  out_$@/$$i"; \
-		convert $$i -scale "${_x86_max}" "out_$@/$$i"; \
+		echo "  out_$@/$$i" && \
+		convert $$i -scale '${_x86_max}' ${_x86_opts} \
+			"BMP3:out_$@/$$i" || \
+		exit 1; \
 	done
 	# scale the localized string images using percentages...
 	@for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
-		echo "  out_$@/$$i"; \
-		convert $$i -scale "${_x86_scale}" "out_$@/$$i"; \
+		echo "  out_$@/$$i" && \
+		convert $$i -scale '${_x86_scale}' ${_x86_opts} \
+			"BMP3:out_$@/$$i" || \
+		exit 1; \
 	done
 	# produce the new yaml
 	cd "out_$@" && ../make_default_yaml ${DEFAULT_LOCALES}
-	# Note: manually use bmpblk_utility to create the binary from out_$@
-
+	cd "out_$@" && bmpblk_utility -c DEFAULT.yaml bmpblock.bin
+	ls -l "out_$@"/bmpblock.bin
 
 
 arm::
