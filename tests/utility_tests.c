@@ -47,25 +47,6 @@ static void MacrosTest(void) {
 }
 
 
-/* Test Memset */
-static void MemsetTest(void) {
-  char dest[128];
-  char want[128];
-
-  memset(want, 0, 128);
-  memset(dest, 0, 128);
-
-  /* Simple fill */
-  memset(want, 123, 5);
-  TEST_PTR_EQ(dest, Memset(dest, 123, 5), "Memset() returns dest");
-  TEST_EQ(0, memcmp(dest, want, 128), "Memset()");
-
-  /* Filling length 0 does nothing */
-  Memset(dest, 42, 0);
-  TEST_EQ(0, memcmp(dest, want, 128), "Memset() size=0");
-}
-
-
 /* Test SafeMemcmp */
 static void SafeMemcmpTest(void) {
   /* Zero-length strings are equal */
@@ -88,7 +69,6 @@ int main(int argc, char* argv[]) {
   int error_code = 0;
 
   MacrosTest();
-  MemsetTest();
   SafeMemcmpTest();
 
   if (!gTestSuccess)

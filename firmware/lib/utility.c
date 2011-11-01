@@ -8,14 +8,6 @@
 #include "sysincludes.h"
 #include "utility.h"
 
-void* Memset(void* d, const uint8_t c, uint64_t n) {
-  uint8_t* dest = d; /* the only way to keep both cl and gcc happy */
-  while (n--) {
-    *dest++ = c;
-  }
-  return d;
-}
-
 int SafeMemcmp(const void* s1, const void* s2, size_t n) {
   const unsigned char* us1 = s1;
   const unsigned char* us2 = s2;
