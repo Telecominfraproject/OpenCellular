@@ -49,7 +49,7 @@ last-displayed locale is stored in nvram, so it's sticky across reboots. The
 factory process sets the default locale to the appropriate region.
 
 
-Version 1.2. Used by any BIOS that uses "vboot_api.h"
+Version 1.2. Used by any BIOS that uses "vboot_api.h" (ARM, Stumpy, etc.)
 
 The "vboot wrapper" is a refactoring of the vboot_reference library to
 isolate our verified boot stuff from the underlying BIOS. Among other
@@ -78,6 +78,7 @@ screen without a corresponding font should be silently ignored.
 --------------------------------------------
 Instructions for manually rebuilding things:
 
+
 We do most of the image manipulation using ImageMagick, which is much easier
 and simpler to do OUTSIDE of the chroot. So the first step is to just build
 vboot_reference outside of the chroot.
@@ -86,47 +87,26 @@ vboot_reference outside of the chroot.
   make
 
 You'll probably need to install several additional packages to make this
-work. In addition, scripts/newbitmaps/bitmap_viewer is a python script that
-may require some packages of its own. Test it by changing to the
-scripts/newbitmaps/images directory and running
-
-  ../bitmap_viewer DEFAULT.yaml
-
-On Ubuntu you may find you need libtspi-dev, uuid-dev, imagemagick,
-python-yaml, and python-wxgtk2.8, among others.
+work. On Ubuntu you may find you need libtspi-dev, uuid-dev, and
+imagemagick. If you want to use scripts/newbitmaps/bitmap_viewer, you may
+need python-yaml and python-wxgtk2.8.
 
 
 Once you've built vboot_reference you'll find the executables in
 ./build/utility/ (and ./build/cgpt/cgpt, if you want it). Put these
 somewhere in your $PATH.
 
+Now you should be able to just run "make" and everything will be
+regenerated:
 
-Create the font file:
+  cd scripts/newbitmaps
+  make
 
-  cd scripts/newbitmaps/fonts
-  ./make_ascii_bmps.py
-  bmpblk_font --outfile ../images/hwid_fonts.bin outdir/*
-
-Create and examine the localized images:
-
-For x86:
-
-  cd scripts/newbitmaps/images
-  make x86
-  cd out_x86
-  ../../bitmap_viewer DEFAULT.yaml
-  bmpblock_utility -c DEFAULT.yaml bmpblock.bin
-
-For arm:
-
-  cd scripts/newbitmaps/images
-  make arm
-  cd out_arm
-  ../../bitmap_viewer DEFAULT.yaml
-  bmpblock_utility -c DEFAULT.yaml bmpblock.bin
+This should generate both x86 and ARM versions of the BIOS bmpblock file,
+although ARM may not be 100% correct just yet.
 
 
-Now use the gbb_utility to modify your BIOS to contain this new set of
+You can use the gbb_utility to modify your BIOS to contain this new set of
 bitmaps:
 
   gbb_utility -s -b PATH/TO/YOUR/bmpblock.bin OLDBIOS.bin NEWBIOS.bin

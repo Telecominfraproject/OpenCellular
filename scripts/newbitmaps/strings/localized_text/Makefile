@@ -2,28 +2,53 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-NORMAL=bg ca cs da de el en en_GB es es_419 et fi fil fr hi hr hu \
-	id it ja ko lt lv nl no pl pt_BR pt_PT ro ru sk sl sr sv th tr \
+LOCALES=ar bg ca cs da de el en en_GB es es_419 et fa fi fil fr hi hr hu \
+	id it iw ja ko lt lv nl no pl pt_BR pt_PT ro ru sk sl sr sv th tr \
 	uk vi zh_CN zh_TW
 
-SPECIAL=ar fa iw
-
-RTL=--rtl
-TNR=--font='Times New Roman'
-
-default: $(foreach DIR,$(NORMAL),$(DIR)-dodir) $(SPECIAL)
-
-%-dodir:
-	@../text_to_bmp $(subst -dodir,,$@)/*
-
-ar:
-	@../text_to_bmp $(RTL) $(TNR) $@/*
-
-fa:
-	@../text_to_bmp $(RTL) $(TNR) $@/*
-
-iw:
-	@../text_to_bmp $(RTL) $@/*
+# Use "make PT=15" for 800x600 (x86)
+PT=22
 
 
-.PHONY: $(SPECIAL)
+DIR_TARGETS=$(foreach DIR,$(LOCALES),$(DIR)-dir)
+
+CVT=../text_to_bmp --point=$(PT)
+
+
+default: $(DIR_TARGETS)
+
+%-dir:
+	$(CVT) $(subst -dir,,$@)/*.txt
+
+ar-dir:
+	$(CVT) --rtl --font="Droid Sans Arabic" $(subst -dir,,$@)/*.txt
+
+fa-dir:
+	$(CVT) --rtl $(subst -dir,,$@)/*.txt
+
+hi-dir:
+	$(CVT) --font="Lohit-Hindi" $(subst -dir,,$@)/*.txt
+
+iw-dir:
+	$(CVT) --rtl --font="Droid Sans Hebrew" $(subst -dir,,$@)/*.txt
+
+ja-dir:
+	$(CVT) --font="IPAPGothic" $(subst -dir,,$@)/*.txt
+
+ko-dir:
+	$(CVT) --font="NanumGothic" $(subst -dir,,$@)/*.txt
+
+th-dir:
+	$(CVT) --font="Droid Sans Thai" $(subst -dir,,$@)/*.txt
+
+zh_CN-dir:
+	$(CVT) --font="Droid Sans Fallback" $(subst -dir,,$@)/*.txt
+
+zh_TW-dir:
+	$(CVT) --font="Droid Sans Fallback" $(subst -dir,,$@)/*.txt
+
+
+
+$(DIR_TARGETS) : FORCE
+
+.PHONY: FORCE

@@ -11,8 +11,9 @@
 #    --rtl              Render right-to-left languages
 #    --font=FONTNAME    Use specified font (instead of Helvetica)
 #
-font="Helvetica"
+font="Droid Sans"
 rtl=""
+point=22
 
 while true ; do
   case "$1" in
@@ -22,6 +23,10 @@ while true ; do
       ;;
     --font=*)
       font="${1##*=}"
+      shift
+      ;;
+    --point=*)
+      point="${1##*=}"
       shift
       ;;
     *)
@@ -38,7 +43,7 @@ done
 bg='#607c91'
 small_color='#9ccaec'
 small_font="$font"
-small_pointsize=22
+small_pointsize="$point"
 large_color="white"
 large_font="$font"
 large_pointsize=40
@@ -57,7 +62,7 @@ for txtfile in $*; do
         --margin=3 --align=center \
         --output "$pngfile" \
         "$txtfile"
-      convert -colors 256 -compress none -alpha off "$pngfile" "$bmpfile"
+      convert -colors 256 -compress none -alpha off "$pngfile" BMP3:"$bmpfile"
       rm -f "$pngfile"
       echo "wrote $bmpfile"
       ;;
@@ -68,12 +73,12 @@ for txtfile in $*; do
         --margin=10 --align=center \
         --output "$pngfile" \
         "$txtfile"
-      convert -colors 256 -compress none -alpha off "$pngfile" "$bmpfile"
+      convert -colors 256 -compress none -alpha off "$pngfile" BMP3:"$bmpfile"
       rm -f "$pngfile"
       echo "wrote $bmpfile"
       ;;
     *)
-      echo "Ignoring $txtfile. Filname should end with .txt or .TXT"
+      echo "Ignoring $txtfile. Filename should end with .txt or .TXT"
       ;;
   esac
 done

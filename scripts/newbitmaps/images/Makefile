@@ -12,9 +12,12 @@
 
 TARGETS=x86 arm
 
+# These are all the known locales, sorted more-or-less geograpically. We
+# generally don't have room in the BIOS for all of them at once.
 DEFAULT_LOCALES=en es_419 pt_BR en_GB fr es pt_PT ca it de \
   el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro \
   uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja
+
 
 BASE_IMAGES=Devmode.bmp Insert.bmp Remove.bmp Yuck.bmp
 OTHER_IMAGES=Url.bmp hwid_unknown.bmp
@@ -49,9 +52,6 @@ _arm_scale=59%x78%
 x86::
 	# create output directories
 	mkdir -p "out_$@"
-	for i in localized_images/*; do \
-		mkdir -p "out_$@/$$i"; \
-	done
 	# copy stuff we need
 	cp "${FONTS}" "out_$@"
 	# scale the background pictures exactly...
@@ -61,8 +61,7 @@ x86::
 			"BMP3:out_$@/$$i" || \
 		exit 1; \
 	done
-	# scale the localized string images using percentages...
-	@for i in ${OTHER_IMAGES} localized_images/*/*.bmp; do \
+	@for i in ${OTHER_IMAGES}; do \
 		echo "  out_$@/$$i" && \
 		convert $$i -scale '${_x86_scale}' ${_x86_opts} \
 			"BMP3:out_$@/$$i" || \
