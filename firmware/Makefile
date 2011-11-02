@@ -22,7 +22,7 @@ endif
 # TPM_BLOCKING_CONTINUESELFTEST is defined if TPM_ContinueSelfTest blocks until
 # the self test has completed.
 
-CLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
+CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 
 # TPM_MANUAL_SELFTEST is defined if the self test must be started manually
 # (with a call to TPM_ContinueSelfTest) instead of starting automatically at
