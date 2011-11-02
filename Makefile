@@ -33,11 +33,9 @@ endif
 ifeq ($(FIRMWARE_ARCH), i386)
 CC = i686-pc-linux-gnu-gcc
 CFLAGS = -g -Os -ffunction-sections -fvisibility=hidden -fno-builtin \
-	-ffreestanding -nostdinc \
-	-pipe -fno-strict-aliasing -Wstrict-prototypes -mregparm=3 \
-	-fomit-frame-pointer -ffreestanding -fno-toplevel-reorder \
-	-fno-stack-protector -mpreferred-stack-boundary=2 -fno-dwarf2-cfi-asm \
-	-march=i386 -Werror -Wall -Wstrict-prototypes -fno-stack-protector
+	-ffreestanding -nostdinc -pipe -Wstrict-prototypes -mregparm=3 \
+	-fomit-frame-pointer -fno-stack-protector \
+	-mpreferred-stack-boundary=2 -fno-dwarf2-cfi-asm -Werror -Wall
 endif
 
 # Fix compiling directly on host (outside of emake)

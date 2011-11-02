@@ -31,7 +31,13 @@ CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 # We sincerely hope that TPM_BLOCKING_CONTINUESELFTEST and TPM_MANUAL_SELFTEST
 # are not both defined at the same time.  (See comment in code.)
 
-# CLAGS += -DTPM_MANUAL_SELFTEST
+# CFLAGS += -DTPM_MANUAL_SELFTEST
+
+#
+# Unrolling loops in cryptolib makes it faster
+#
+
+CFLAGS += -DUNROLL_LOOPS
 
 INCLUDES = \
 	-I$(FWTOP)/include \
