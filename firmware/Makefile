@@ -37,7 +37,9 @@ CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 # Unrolling loops in cryptolib makes it faster
 #
 
+ifeq ($(FIRMWARE_ARCH),i386)
 CFLAGS += -DUNROLL_LOOPS
+endif
 
 INCLUDES = \
 	-I$(FWTOP)/include \
