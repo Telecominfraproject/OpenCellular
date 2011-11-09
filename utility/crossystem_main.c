@@ -39,6 +39,8 @@ const Param sys_param_list[] = {
   {"dbg_reset", CAN_WRITE, "Debug reset mode request (writable)"},
   {"dev_boot_usb", CAN_WRITE,
    "Enable developer mode boot from USB/SD (writable)"},
+  {"dev_boot_custom", CAN_WRITE,
+   "Enable developer mode boot using self-signed kernels (writable)"},
   {"devsw_boot", 0, "Developer switch position at boot"},
   {"devsw_cur",  0, "Developer switch current position"},
   {"ecfw_act", IS_STRING, "Active EC firmware"},

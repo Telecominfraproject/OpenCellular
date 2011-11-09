@@ -234,6 +234,7 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_LKP_CHECK_PREAMBLE_VALID     11
 #define VBSD_LKP_CHECK_BODY_ADDRESS       12
 #define VBSD_LKP_CHECK_BODY_OFFSET        13
+#define VBSD_LKP_CHECK_SELF_SIGNED        14
 #define VBSD_LKP_CHECK_BODY_EXCEEDS_MEM   15
 #define VBSD_LKP_CHECK_BODY_EXCEEDS_PART  16
 #define VBSD_LKP_CHECK_READ_DATA          17
