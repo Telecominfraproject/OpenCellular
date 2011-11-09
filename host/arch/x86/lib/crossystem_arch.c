@@ -5,8 +5,11 @@
 
 #include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
+#include <linux/nvram.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -85,8 +88,62 @@
 #define NEED_FWUPDATE_PATH "/mnt/stateful_partition/.need_firmware_update"
 
 
-int VbReadNvStorage(VbNvContext* vnc) {
+static void VbFixCmosChecksum(FILE* file) {
+  int fd = fileno(file);
+  ioctl(fd, NVRAM_SETCKS);
+}
+
+
+static int VbCmosRead(int offs, size_t size, void *ptr) {
+  size_t res;
   FILE* f;
+
+  f = fopen(NVRAM_PATH, "rb");
+  if (!f)
+    return -1;
+
+  if (0 != fseek(f, offs, SEEK_SET)) {
+    fclose(f);
+    return -1;
+  }
+
+  res = fread(ptr, size, 1, f);
+  if (1 != res && errno == EIO && ferror(f)) {
+    VbFixCmosChecksum(f);
+    res = fread(ptr, size, 1, f);
+  }
+  if (1 != res) {
+    fclose(f);
+    return -1;
+  }
+
+  return 0;
+}
+
+
+static int VbCmosWrite(int offs, size_t size, const void *ptr) {
+  size_t res;
+  FILE* f;
+
+  f = fopen(NVRAM_PATH, "w+b");
+  if (!f)
+    return -1;
+
+  res = fwrite(ptr, size, 1, f);
+  if (1 != res && errno == EIO && ferror(f)) {
+    VbFixCmosChecksum(f);
+    res = fwrite(ptr, size, 1, f);
+  }
+  if (1 != res) {
+    fclose(f);
+    return -1;
+  }
+
+  return 0;
+}
+
+
+int VbReadNvStorage(VbNvContext* vnc) {
   int offs;
 
   /* Get the byte offset from VBNV */
@@ -96,23 +153,14 @@ int VbReadNvStorage(VbNvContext* vnc) {
   if (VBNV_BLOCK_SIZE > ReadFileInt(ACPI_VBNV_PATH ".1"))
     return -1;  /* NV storage block is too small */
 
-  f = fopen(NVRAM_PATH, "rb");
-  if (!f)
+  if (0 != VbCmosRead(offs, VBNV_BLOCK_SIZE, vnc->raw))
     return -1;
 
-  if (0 != fseek(f, offs, SEEK_SET) ||
-      1 != fread(vnc->raw, VBNV_BLOCK_SIZE, 1, f)) {
-    fclose(f);
-    return -1;
-  }
-
-  fclose(f);
   return 0;
 }
 
 
 int VbWriteNvStorage(VbNvContext* vnc) {
-  FILE* f;
   int offs;
 
   if (!vnc->raw_changed)
@@ -125,17 +173,9 @@ int VbWriteNvStorage(VbNvContext* vnc) {
   if (VBNV_BLOCK_SIZE > ReadFileInt(ACPI_VBNV_PATH ".1"))
     return -1;  /* NV storage block is too small */
 
-  f = fopen(NVRAM_PATH, "w+b");
-  if (!f)
+  if (0 != VbCmosWrite(offs, VBNV_BLOCK_SIZE, vnc->raw))
     return -1;
 
-  if (0 != fseek(f, offs, SEEK_SET) ||
-      1 != fwrite(vnc->raw, VBNV_BLOCK_SIZE, 1, f)) {
-    fclose(f);
-    return -1;
-  }
-
-  fclose(f);
   return 0;
 }
 
@@ -272,24 +312,17 @@ VbSharedDataHeader* VbSharedDataRead(void) {
  *
  * Returns 0 if the mask is clear in the field, 1 if set, or -1 if error. */
 static int VbGetCmosRebootField(uint8_t mask) {
-  FILE* f;
-  int chnv, nvbyte;
+  int chnv;
+  uint8_t nvbyte;
 
   /* Get the byte offset from CHNV */
   chnv = ReadFileInt(ACPI_CHNV_PATH);
   if (chnv == -1)
     return -1;
 
-  f = fopen(NVRAM_PATH, "rb");
-  if (!f)
+  if (0 != VbCmosRead(chnv, 1, &nvbyte))
     return -1;
 
-  if (0 != fseek(f, chnv, SEEK_SET) || EOF == (nvbyte = fgetc(f))) {
-    fclose(f);
-    return -1;
-  }
-
-  fclose(f);
   return (nvbyte & mask ? 1 : 0);
 }
 
@@ -300,23 +333,16 @@ static int VbGetCmosRebootField(uint8_t mask) {
  *
  * Returns 0 if success, or -1 if error. */
 static int VbSetCmosRebootField(uint8_t mask, int value) {
-  FILE* f;
-  int chnv, nvbyte;
+  int chnv;
+  uint8_t nvbyte;
 
   /* Get the byte offset from CHNV */
   chnv = ReadFileInt(ACPI_CHNV_PATH);
   if (chnv == -1)
     return -1;
 
-  f = fopen(NVRAM_PATH, "w+b");
-  if (!f)
+  if (0 != VbCmosRead(chnv, 1, &nvbyte))
     return -1;
-
-  /* Read the current value */
-  if (0 != fseek(f, chnv, SEEK_SET) || EOF == (nvbyte = fgetc(f))) {
-    fclose(f);
-    return -1;
-  }
 
   /* Set/clear the mask */
   if (value)
@@ -325,13 +351,10 @@ static int VbSetCmosRebootField(uint8_t mask, int value) {
     nvbyte &= ~mask;
 
   /* Write the byte back */
-  if (0 != fseek(f, chnv, SEEK_SET) || EOF == (fputc(nvbyte, f))) {
-    fclose(f);
+  if (0 != VbCmosWrite(chnv, 1, &nvbyte))
     return -1;
-  }
 
   /* Success */
-  fclose(f);
   return 0;
 }
 
