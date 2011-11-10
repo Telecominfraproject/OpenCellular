@@ -16,6 +16,7 @@
 
 VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   VbNvContext vnc;
   VbError_t retval = VBERROR_SUCCESS;
   uint32_t recovery = VBNV_RECOVERY_NOT_REQUESTED;
@@ -106,7 +107,11 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
                           VB_INIT_OUT_ENABLE_USB_STORAGE);
   }
 
-  /* Copy current recovery reason to shared data */
+  /* Allow BIOS to load arbitrary option ROMs? */
+  if (gbb->flags & GBB_FLAG_LOAD_OPTION_ROMS)
+    iparams->out_flags |= VB_INIT_OUT_ENABLE_OPROM;
+
+  /* copy current recovery reason to shared data */
   shared->recovery_reason = (uint8_t)recovery;
 
   /* If this is a S3 resume, resume the TPM */

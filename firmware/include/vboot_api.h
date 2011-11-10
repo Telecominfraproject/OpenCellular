@@ -184,6 +184,8 @@ typedef struct VbCommonParams {
 #define VB_INIT_OUT_ENABLE_USB_STORAGE   0x00000008
 /* If this is a S3 resume, do a debug reset boot instead */
 #define VB_INIT_OUT_S3_DEBUG_BOOT        0x00000010
+/* BIOS should load any PCI option ROMs it finds, not just internal video */
+#define VB_INIT_OUT_ENABLE_OPROM         0x00000020
 
 
 /* Data only used by VbInit() */

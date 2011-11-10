@@ -33,8 +33,14 @@
 #define GBB_HWID_MAX_SIZE  256
 
 /* Flags for .flags field */
-/* Reduce the dev screen delay to 2 sec from 30 sec */
+/* Reduce the dev screen delay to 2 sec from 30 sec to speedup factory. */
 #define GBB_FLAG_DEV_SCREEN_SHORT_DELAY   0x00000001
+/* BIOS should load option ROMs from arbitrary PCI devices. We'll never enable
+ * this ourselves because it executes non-verified code, but if a customer wants
+ * to void their warranty and set this flag in the read-only flash, they should
+ * be able to do so.
+ */
+#define GBB_FLAG_LOAD_OPTION_ROMS         0x00000002
 
 #ifdef __cplusplus
 extern "C" {

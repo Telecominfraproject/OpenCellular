@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "gbb_header.h"
 #include "host_common.h"
 #include "rollback_index.h"
 #include "test_common.h"
@@ -24,12 +25,20 @@ static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
 static uint64_t mock_timer;
 static int rollback_s3_retval;
 static int nv_write_called;
+static GoogleBinaryBlockHeader gbb;
+
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
   Memset(&cparams, 0, sizeof(cparams));
   cparams.shared_data_size = sizeof(shared_data);
   cparams.shared_data_blob = shared_data;
+  cparams.gbb_data = &gbb;
+
+  Memset(&gbb, 0, sizeof(gbb));
+  gbb.major_version = GBB_MAJOR_VER;
+  gbb.minor_version = GBB_MINOR_VER;
+  gbb.flags = 0;
 
   Memset(&iparams, 0, sizeof(iparams));
 
