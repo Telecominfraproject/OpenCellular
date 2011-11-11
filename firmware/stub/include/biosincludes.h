@@ -33,6 +33,10 @@ extern void debug(const char *format, ...);
 #define POSSIBLY_UNUSED
 #define INLINE
 
+#else
+
+#warning "No FIRMARE_ARCH defined and not TARGET_TEST_MODE"
+
 #endif
 
 #endif /*CHROMEOS_SRC_PLATFORM_VBOOT_REFERENCE_FIRMWARE_STUB_BIOSINCLUDES_H_*/

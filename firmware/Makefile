@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# This Makefile is designed to be called from the top-level vboot_reference one
+
 FWTOP := $(shell pwd)
 LIBDIR = $(FWTOP)/lib
 STUBDIR = $(FWTOP)/stub
@@ -12,6 +14,7 @@ LIBS = $(FWLIB)  # Firmware library must be self-contained
 # Disable rollback TPM when compiling locally, since otherwise
 # load_kernel_test attempts to talk to the TPM.
 ifeq ($(FIRMWARE_ARCH),)
+$(warning FIRMWARE_ARCH not defined, assuming local compile)
 CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
