@@ -69,6 +69,15 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
   /* Loop over disks */
   for (i = 0; i < disk_count; i++) {
     VBDEBUG(("VbTryLoadKernel() trying disk %d\n", (int)i));
+    /* Sanity-check what we can. FWIW, VbTryLoadKernel() is always called
+     * with only a single bit set in get_info_flags
+     */
+    if (512 != disk_info[i].bytes_per_lba || /* cgptlib restriction */
+        32 > disk_info[i].lba_count ||       /* ditto */
+        get_info_flags != disk_info[i].flags) { /* got only what we asked for */
+      VBDEBUG(("  skipping - bogus parameters\n"));
+      continue;
+    }
     p->disk_handle = disk_info[i].handle;
     p->bytes_per_lba = disk_info[i].bytes_per_lba;
     p->ending_lba = disk_info[i].lba_count - 1;
