@@ -13,6 +13,10 @@
 #include "vboot_audio_private.h"
 #include "vboot_common.h"
 
+/* BIOS doesn't have /usr/include */
+#ifndef UINT_MAX
+#define UINT_MAX 4294967295U            /* 0xffffffff */
+#endif
 
 #define DEV_LOOP_TIME 10                /* Minimum note granularity in msecs */
 
@@ -47,7 +51,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
   VbDevMusicNote *notebuf = 0;
   VbDevMusicNote *builtin = 0;
   VbDevMusic *hdr = CUSTOM_MUSIC_NOTES;
-  uint32_t maxsize = CUSTOM_MUSIC_MAXSIZE;
+  uint32_t maxsize = CUSTOM_MUSIC_MAXSIZE; /* always <= flash size (8M) */
   uint32_t maxnotes, mysum, mylen, i;
   uint64_t on_loops, total_loops, min_loops;
   uint32_t this_loops;
@@ -77,6 +81,9 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
     goto nope;
   }
 
+  /* How many notes will fit in the flash region? One more than you'd think,
+   * because there's one note in the header itself.
+   */
   maxnotes = 1 + (maxsize - sizeof(VbDevMusic)) / sizeof(VbDevMusicNote);
   if (hdr->count == 0 || hdr->count > maxnotes) {
     VBDEBUG(("VbGetDevMusicNotes: count=%d maxnotes=%d\n",
@@ -84,6 +91,16 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
     goto nope;
   }
 
+  /* CUSTOM_MUSIC_MAXSIZE can't be larger than the size of the flash (around 8M
+   * or so) so this isn't really necessary, but let's be safe anyway.
+   */
+  if ((sizeof(VbDevMusicNote) > UINT_MAX / hdr->count) ||
+      (sizeof(hdr->count) > UINT_MAX - hdr->count * sizeof(VbDevMusicNote))) {
+    VBDEBUG(("VbGetDevMusicNotes: count=%d, just isn't right\n"));
+    goto nope;
+  }
+
+  /* Now we know this won't overflow */
   mylen = (uint32_t)(sizeof(hdr->count) + hdr->count * sizeof(VbDevMusicNote));
   mysum = Crc32(&(hdr->count), mylen);
 
@@ -128,7 +145,13 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
     goto nope;
   }
 
-  /* Okay, it looks good. Allocate the space (plus one) and copy it over */
+  /* One more check, just to be paranoid. */
+  if (hdr->count > (UINT_MAX / sizeof(VbDevMusicNote) - 1)) {
+    VBDEBUG(("VbGetDevMusicNotes:   they're all out to get me!\n"));
+    goto nope;
+  }
+
+  /* Okay, it looks good. Allocate the space (plus one) and copy it over. */
   notebuf = VbExMalloc((hdr->count + 1) * sizeof(VbDevMusicNote));
   Memcpy(notebuf, hdr->notes, hdr->count * sizeof(VbDevMusicNote));
   count = hdr->count;
