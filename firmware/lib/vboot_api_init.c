@@ -22,6 +22,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   uint32_t recovery = VBNV_RECOVERY_NOT_REQUESTED;
   int is_s3_resume = 0;
   uint32_t s3_debug_boot = 0;
+  uint32_t user_enabled_custom_os = 0;
 
   VBDEBUG(("VbInit() input flags 0x%x\n", iparams->flags));
 
@@ -105,11 +106,26 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     iparams->out_flags |= (VB_INIT_OUT_CLEAR_RAM |
                           VB_INIT_OUT_ENABLE_DISPLAY |
                           VB_INIT_OUT_ENABLE_USB_STORAGE);
+    /* ... which could include custom OSes */
+    VbNvGet(&vnc, VBNV_DEV_BOOT_CUSTOM, &user_enabled_custom_os);
+    if (user_enabled_custom_os)
+      iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
+  } else {
+    /* Normal mode, so disable dev_boot_* flags.  This ensures they will be
+     * initially disabled if the user later transitions back into developer
+     * mode. */
+    VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
+    VbNvSet(&vnc, VBNV_DEV_BOOT_CUSTOM, 0);
   }
 
   /* Allow BIOS to load arbitrary option ROMs? */
   if (gbb->flags & GBB_FLAG_LOAD_OPTION_ROMS)
     iparams->out_flags |= VB_INIT_OUT_ENABLE_OPROM;
+
+  /* The factory may need to boot custom OSes whenever the dev-switch is on */
+  if ((gbb->flags & GBB_FLAG_ENABLE_ALTERNATE_OS) &&
+      (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON))
+    iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
 
   /* copy current recovery reason to shared data */
   shared->recovery_reason = (uint8_t)recovery;

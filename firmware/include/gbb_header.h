@@ -38,9 +38,11 @@
 /* BIOS should load option ROMs from arbitrary PCI devices. We'll never enable
  * this ourselves because it executes non-verified code, but if a customer wants
  * to void their warranty and set this flag in the read-only flash, they should
- * be able to do so.
- */
+ * be able to do so. */
 #define GBB_FLAG_LOAD_OPTION_ROMS         0x00000002
+/* The factory flow may need the BIOS to boot a non-ChromeOS kernel if the
+ * dev-switch is on. This flag allows that. */
+#define GBB_FLAG_ENABLE_ALTERNATE_OS      0x00000004
 
 #ifdef __cplusplus
 extern "C" {

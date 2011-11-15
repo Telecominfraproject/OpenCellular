@@ -186,6 +186,8 @@ typedef struct VbCommonParams {
 #define VB_INIT_OUT_S3_DEBUG_BOOT        0x00000010
 /* BIOS should load any PCI option ROMs it finds, not just internal video */
 #define VB_INIT_OUT_ENABLE_OPROM         0x00000020
+/* BIOS may be asked to boot something other than ChromeOS */
+#define VB_INIT_OUT_ENABLE_ALTERNATE_OS  0x00000040
 
 
 /* Data only used by VbInit() */

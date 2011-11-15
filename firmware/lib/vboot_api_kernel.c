@@ -105,13 +105,6 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
 
 /* Handle a normal boot. */
 VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
-
-  /* Force dev_boot_* flags disabled.  This ensures they will be
-   * initially disabled if the user later transitions back into
-   * developer mode. */
-  VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
-  VbNvSet(&vnc, VBNV_DEV_BOOT_CUSTOM, 0);
-
   /* Boot from fixed disk only */
   return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
