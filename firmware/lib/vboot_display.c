@@ -487,7 +487,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr) {
   if (0 == gbb->hwid_size ||
       gbb->hwid_offset > cparams->gbb_size ||
       gbb->hwid_offset + gbb->hwid_size > cparams->gbb_size) {
-    VBDEBUG(("VbCheckDisplayKey(): invalid hwid offset/size\n"));
+    VBDEBUG(("VbDisplayDebugInfo(): invalid hwid offset/size\n"));
     used += Strncat(buf + used, "(INVALID)", DEBUG_INFO_SIZE - used);
   } else {
     used += Strncat(buf + used, (char*)((uint8_t*)gbb + gbb->hwid_offset),

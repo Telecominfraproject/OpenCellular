@@ -179,6 +179,7 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         }
         break;
       default:
+        VBDEBUG(("VbBootDeveloper() - pressed key %d\n", key));
         VbCheckDisplayKey(cparams, key, &vnc);
         break;
     }
