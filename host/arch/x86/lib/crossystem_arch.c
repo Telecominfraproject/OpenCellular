@@ -112,12 +112,9 @@ static int VbCmosRead(int offs, size_t size, void *ptr) {
     VbFixCmosChecksum(f);
     res = fread(ptr, size, 1, f);
   }
-  if (1 != res) {
-    fclose(f);
-    return -1;
-  }
 
-  return 0;
+  fclose(f);
+  return (1 == res) ? 0 : -1;
 }
 
 
@@ -129,17 +126,19 @@ static int VbCmosWrite(int offs, size_t size, const void *ptr) {
   if (!f)
     return -1;
 
+  if (0 != fseek(f, offs, SEEK_SET)) {
+    fclose(f);
+    return -1;
+  }
+
   res = fwrite(ptr, size, 1, f);
   if (1 != res && errno == EIO && ferror(f)) {
     VbFixCmosChecksum(f);
     res = fwrite(ptr, size, 1, f);
   }
-  if (1 != res) {
-    fclose(f);
-    return -1;
-  }
 
-  return 0;
+  fclose(f);
+  return (1 == res) ? 0 : -1;
 }
 
 
