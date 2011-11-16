@@ -31,17 +31,21 @@ OUT_FIRMWARE=$3
 temp_fw=$(mktemp)
 trap "rm ${temp_fw}" EXIT
 
-# Replace the root and recovery key in the Google Binary Block of the firmware.
-gbb_utility -s \
-  --rootkey=${KEY_DIR}/root_key.vbpubk \
-  --recoverykey=${KEY_DIR}/recovery_key.vbpubk \
-  ${IN_FIRMWARE} ${temp_fw}
-
 # Resign the firmware with new keys
-${SCRIPT_DIR}/resign_firmwarefd.sh ${temp_fw} ${OUT_FIRMWARE} \
+${SCRIPT_DIR}/resign_firmwarefd.sh ${IN_FIRMWARE} ${temp_fw} \
   ${KEY_DIR}/firmware_data_key.vbprivk \
   ${KEY_DIR}/firmware.keyblock \
   ${KEY_DIR}/dev_firmware_data_key.vbprivk \
   ${KEY_DIR}/dev_firmware.keyblock \
   ${KEY_DIR}/kernel_subkey.vbpubk \
   ${FIRMWARE_VERSION}
+
+# Replace the root and recovery key in the Google Binary Block of the firmware.
+# Note: This needs to happen after calling resign_firmwarefd.sh since it needs
+# to be able to verify the firmware using the root key to determine the preamble
+# flags.
+gbb_utility -s \
+  --rootkey=${KEY_DIR}/root_key.vbpubk \
+  --recoverykey=${KEY_DIR}/recovery_key.vbpubk \
+  ${temp_fw} ${OUT_FIRMWARE}
+
