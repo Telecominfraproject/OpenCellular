@@ -198,8 +198,10 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 
   VBDEBUG(("VbBootRecovery() start\n"));
 
-  /* If dev mode switch is off, require removal of all external media. */
-  if (!(shared->flags & VBSD_BOOT_DEV_SWITCH_ON)) {
+  /* If the dev-mode switch is off and the user didn't press the recovery
+   * button, require removal of all external media. */
+  if (!(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
+      (VBNV_RECOVERY_RO_MANUAL != shared->recovery_reason)) {
     VbDiskInfo* disk_info = NULL;
     uint32_t disk_count = 0;
 
