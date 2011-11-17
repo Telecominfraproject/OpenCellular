@@ -390,8 +390,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_LOCALIZATION_INDEX);
   } else if (!strcasecmp(name,"dev_boot_usb")) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_USB);
-  } else if (!strcasecmp(name,"dev_boot_custom")) {
-    value = VbGetNvStorage(VBNV_DEV_BOOT_CUSTOM);
+  } else if (!strcasecmp(name,"dev_boot_signed_only")) {
+    value = VbGetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
@@ -471,8 +471,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_LOCALIZATION_INDEX, value);
   } else if (!strcasecmp(name,"dev_boot_usb")) {
     return VbSetNvStorage(VBNV_DEV_BOOT_USB, value);
-  } else if (!strcasecmp(name,"dev_boot_custom")) {
-    return VbSetNvStorage(VBNV_DEV_BOOT_CUSTOM, value);
+  } else if (!strcasecmp(name,"dev_boot_signed_only")) {
+    return VbSetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY, value);
   }
 
   return -1;

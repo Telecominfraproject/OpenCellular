@@ -28,7 +28,7 @@
 
 #define DEV_FLAGS_OFFSET             4
 #define DEV_BOOT_USB_MASK               0x01
-#define DEV_BOOT_CUSTOM_MASK            0x02
+#define DEV_BOOT_SIGNED_ONLY_MASK       0x02
 
 #define FIRMWARE_FLAGS_OFFSET        5
 #define FIRMWARE_TEST_ERR_FUNC_MASK     0x38
@@ -143,8 +143,8 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
       *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_USB_MASK ? 1 : 0);
       return 0;
 
-    case VBNV_DEV_BOOT_CUSTOM:
-      *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_CUSTOM_MASK ? 1 : 0);
+    case VBNV_DEV_BOOT_SIGNED_ONLY:
+      *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_SIGNED_ONLY_MASK ? 1 : 0);
       return 0;
 
     default:
@@ -232,11 +232,11 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
         raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_USB_MASK;
       break;
 
-    case VBNV_DEV_BOOT_CUSTOM:
+    case VBNV_DEV_BOOT_SIGNED_ONLY:
       if (value)
-        raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_CUSTOM_MASK;
+        raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_SIGNED_ONLY_MASK;
       else
-        raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_CUSTOM_MASK;
+        raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_SIGNED_ONLY_MASK;
       break;
 
     default:

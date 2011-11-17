@@ -192,7 +192,8 @@ static void VbInitTest(void) {
   TEST_EQ(iparams.out_flags,
           VB_INIT_OUT_CLEAR_RAM |
           VB_INIT_OUT_ENABLE_DISPLAY |
-          VB_INIT_OUT_ENABLE_USB_STORAGE, "  out flags");
+          VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
   TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 
   /* Recovery mode from NV storage */

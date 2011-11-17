@@ -54,8 +54,8 @@ typedef enum VbNvParam {
   VBNV_TEST_ERROR_NUM,
   /* Allow booting from USB in developer mode.  0=no, 1=yes. */
   VBNV_DEV_BOOT_USB,
-  /* Allow booting self-signed images in developer mode.  0=no, 1=yes. */
-  VBNV_DEV_BOOT_CUSTOM,
+  /* Only boot Google-signed images in developer mode.  0=no, 1=yes. */
+  VBNV_DEV_BOOT_SIGNED_ONLY,
 } VbNvParam;
 
 

@@ -521,9 +521,10 @@ VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr) {
   used += Strncat(buf + used, "\ndev_boot_usb: ", DEBUG_INFO_SIZE - used);
   used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
-  /* Add dev_boot_custom flag */
-  VbNvGet(vncptr, VBNV_DEV_BOOT_CUSTOM, &i);
-  used += Strncat(buf + used, "\ndev_boot_custom: ", DEBUG_INFO_SIZE - used);
+  /* Add dev_boot_signed_only flag */
+  VbNvGet(vncptr, VBNV_DEV_BOOT_SIGNED_ONLY, &i);
+  used += Strncat(buf + used, "\ndev_boot_signed_only: ",
+                  DEBUG_INFO_SIZE - used);
   used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
   /* Add TPM versions */

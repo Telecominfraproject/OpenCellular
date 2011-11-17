@@ -140,7 +140,7 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   int rec_switch, dev_switch;
   BootMode boot_mode;
   uint32_t test_err = 0;
-  uint32_t allow_self_signed = 0;
+  uint32_t require_official_os = 0;
 
   VbError_t retval = VBERROR_UNKNOWN;
   int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
@@ -168,7 +168,7 @@ VbError_t LoadKernel(LoadKernelParams* params) {
     boot_mode = kBootRecovery;
   } else if (dev_switch) {
     boot_mode = kBootDev;
-    VbNvGet(vnc, VBNV_DEV_BOOT_CUSTOM, &allow_self_signed);
+    VbNvGet(vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &require_official_os);
   } else {
     boot_mode = kBootNormal;
   }
@@ -297,8 +297,8 @@ VbError_t LoadKernel(LoadKernelParams* params) {
         if (kBootDev != boot_mode)
           goto bad_kernel;
 
-        /* In developer mode, we have to explictly allow self-signed kernels */
-        if (!allow_self_signed) {
+        /* In developer mode, we can explictly disallow self-signed kernels */
+        if (require_official_os) {
           VBDEBUG(("Self-signed custom kernels are not enabled.\n"));
           shpart->check_result = VBSD_LKP_CHECK_SELF_SIGNED;
           goto bad_kernel;

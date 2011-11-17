@@ -22,7 +22,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   uint32_t recovery = VBNV_RECOVERY_NOT_REQUESTED;
   int is_s3_resume = 0;
   uint32_t s3_debug_boot = 0;
-  uint32_t user_enabled_custom_os = 0;
+  uint32_t require_official_os = 0;
 
   VBDEBUG(("VbInit() input flags 0x%x\n", iparams->flags));
 
@@ -106,16 +106,16 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     iparams->out_flags |= (VB_INIT_OUT_CLEAR_RAM |
                           VB_INIT_OUT_ENABLE_DISPLAY |
                           VB_INIT_OUT_ENABLE_USB_STORAGE);
-    /* ... which could include custom OSes */
-    VbNvGet(&vnc, VBNV_DEV_BOOT_CUSTOM, &user_enabled_custom_os);
-    if (user_enabled_custom_os)
+    /* ... which may or may not include custom OSes */
+    VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &require_official_os);
+    if (!require_official_os)
       iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
   } else {
     /* Normal mode, so disable dev_boot_* flags.  This ensures they will be
      * initially disabled if the user later transitions back into developer
      * mode. */
     VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
-    VbNvSet(&vnc, VBNV_DEV_BOOT_CUSTOM, 0);
+    VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 0);
   }
 
   /* Allow BIOS to load arbitrary option ROMs? */

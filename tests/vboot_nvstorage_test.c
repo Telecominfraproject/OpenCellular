@@ -32,7 +32,7 @@ static VbNvField nvfields[] = {
   {VBNV_TEST_ERROR_FUNC, 0, 1, 7, "verified boot test error func"},
   {VBNV_TEST_ERROR_NUM, 0, 3, 6, "verified boot test error number"},
   {VBNV_DEV_BOOT_USB, 0, 1, 0, "dev boot usb"},
-  {VBNV_DEV_BOOT_CUSTOM, 0, 1, 0, "dev boot custom"},
+  {VBNV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
   {0, 0, 0, 0, NULL}
 };
 
