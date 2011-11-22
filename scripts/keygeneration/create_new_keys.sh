@@ -9,6 +9,13 @@
 # Load common constants and functions.
 . "$(dirname "$0")/common.sh"
 
+# Flag to indicate whether we should be generating a developer keyblock flag.
+DEV_KEYBLOCK_FLAG=""
+if [ $# -eq 1 ] && [ $1 = "--devkeyblock" ]; then
+  echo "Will also generate developer firmware keyblock and data key."
+  DEV_KEYBLOCK_FLAG=1
+fi
+
 # File to read current versions from.
 VERSION_FILE="key.versions"
 
@@ -29,7 +36,9 @@ KDATAKEY_VERSION=$(get_version "kernel_key_version")
 # Create the normal keypairs
 make_pair root_key                 $ROOT_KEY_ALGOID
 make_pair firmware_data_key        $FIRMWARE_DATAKEY_ALGOID $FKEY_VERSION
-make_pair dev_firmware_data_key    $DEV_FIRMWARE_DATAKEY_ALGOID $FKEY_VERSION
+if [ -n "$DEV_KEYBLOCK_FLAG" ]; then
+  make_pair dev_firmware_data_key    $DEV_FIRMWARE_DATAKEY_ALGOID $FKEY_VERSION
+fi
 make_pair kernel_subkey            $KERNEL_SUBKEY_ALGOID $KSUBKEY_VERSION
 make_pair kernel_data_key          $KERNEL_DATAKEY_ALGOID $KDATAKEY_VERSION
 
@@ -42,8 +51,12 @@ make_pair installer_kernel_data_key $INSTALLER_KERNEL_ALGOID
 # since it's never even checked during Recovery mode.
 make_keyblock firmware $FIRMWARE_KEYBLOCK_MODE firmware_data_key root_key
 
-# Create the dev firmware keyblock for use only in Developer mode.
-make_keyblock dev_firmware $DEV_FIRMWARE_KEYBLOCK_MODE dev_firmware_data_key root_key
+
+if [ -n "$DEV_KEYBLOCK_FLAG" ]; then
+  # Create the dev firmware keyblock for use only in Developer mode.
+  make_keyblock dev_firmware $DEV_FIRMWARE_KEYBLOCK_MODE dev_firmware_data_key root_key
+fi
+
 
 # Create the recovery kernel keyblock for use only in Recovery mode.
 make_keyblock recovery_kernel $RECOVERY_KERNEL_KEYBLOCK_MODE recovery_kernel_data_key recovery_key

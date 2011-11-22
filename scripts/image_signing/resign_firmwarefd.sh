@@ -78,6 +78,12 @@ if [ -z "$VERSION" ]; then
 fi
 echo "Using firmware version: $VERSION"
 
+if [ ! -e $DEV_FIRMWARE_KEYBLOCK ] || [ ! -e $DEV_FIRMWARE_DATAKEY ] ; then
+  echo "No dev firmware keyblock/datakey found. Reusing normal keys."
+  DEV_FIRMWARE_KEYBLOCK=$FIRMWARE_KEYBLOCK
+  DEV_FIRMWARE_DATAKEY=$FIRMWARE_DATAKEY
+fi
+
 # Parse offsets and size of firmware data and vblocks
 for i in "A" "B"
 do
