@@ -12,14 +12,13 @@ SCRIPT_DIR=$(dirname $0)
 # Abort on error.
 set -e
 
-FIRMWARE_VERSION=1
-
-if [ $# -ne 3 ]; then
+if [ $# -lt 3 ] || [ $# -gt 4 ]; then
   cat<<EOF
-Usage: $0 <input_firmware> <key_dir> <output_firmware>
+Usage: $0 <input_firmware> <key_dir> <output_firmware> [firmware_version]
 
-Signs <input_firmware> with keys in <key_dir> and outputs signed firmware to 
-<output_firmware>.
+Signs <input_firmware> with keys in <key_dir>, setting firmware version
+to <firmware_version>. Outputs signed firmware to <output_firmware>.
+If no firmware version is specified, it is set as 1.
 EOF
   exit 1
 fi
@@ -27,6 +26,7 @@ fi
 IN_FIRMWARE=$1
 KEY_DIR=$2
 OUT_FIRMWARE=$3
+FIRMWARE_VERSION=${4:-1}
 
 temp_fw=$(mktemp)
 trap "rm ${temp_fw}" EXIT

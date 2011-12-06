@@ -328,7 +328,7 @@ resign_firmware_payload() {
   # Resign the firmware with new keys, also replacing the root and recovery
   # public keys in the GBB.
   ${SCRIPT_DIR}/sign_firmware.sh ${shellball_dir}/bios.bin ${KEY_DIR} \
-    ${temp_outfd}
+    ${temp_outfd} ${FIRMWARE_VERSION}
   # Note: Although sign_firmware.sh may correctly handle specifying the same
   # output file as the input file, we do not want to rely on it correctly
   # handing that. Hence, the use of a temporary file.
