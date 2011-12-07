@@ -124,20 +124,20 @@ temp_fwimage_a=$(make_temp_file)
 temp_fwimage_b=$(make_temp_file)
 temp_out_vb=$(make_temp_file)
 
-# Extract out Firmware A and B.
+echo "Extracting Firmware A and B"
 dd if="${SRC_FD}" of="${temp_fwimage_a}" skip="${fwA_offset}" bs=1 \
-  count="${fwA_size}"
+  count="${fwA_size}" 2>/dev/null
 dd if="${SRC_FD}" of="${temp_fwimage_b}" skip="${fwB_offset}" bs=1 \
-  count="${fwB_size}"
+  count="${fwB_size}" 2>/dev/null
 
-# Extract existing preamble flag if not assigned yet.
+echo "Determining preamble flag from existing firmware"
 if [ -n "$PREAMBLE_FLAG" ]; then
   PREAMBLE_FLAG="--flag $PREAMBLE_FLAG"
 else
   temp_root_key=$(make_temp_file)
   gbb_utility -g --rootkey="$temp_root_key" "${SRC_FD}"
   dd if="${SRC_FD}" of="${temp_out_vb}" skip="${fwA_vblock_offset}" bs=1 \
-    count="${fwA_vblock_size}"
+    count="${fwA_vblock_size}" 2>/dev/null
   flag="$(vbutil_firmware \
     --verify "${temp_out_vb}" \
     --signpubkey "${temp_root_key}" \
@@ -168,7 +168,7 @@ vbutil_firmware \
 # Create a copy of the input image and put in the new vblock for firmware A
 cp "${SRC_FD}" "${DST_FD}"
 dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
-  count="${fwA_vblock_size}" conv=notrunc
+  count="${fwA_vblock_size}" conv=notrunc 2>/dev/null
 
 echo "Re-calculating Firmware B vblock"
 vbutil_firmware \
@@ -182,6 +182,6 @@ vbutil_firmware \
 
 # Destination image has already been created.
 dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
-  count="${fwB_vblock_size}" conv=notrunc
+  count="${fwB_vblock_size}" conv=notrunc 2>/dev/null
 
 echo "New signed image was output to ${DST_FD}"

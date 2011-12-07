@@ -54,8 +54,7 @@ PATH=$PATH:/usr/sbin:/sbin
 
 # Make sure the tools we need are available.
 for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity \
-  load_kernel_test dumpe2fs sha1sum e2fsck;
-do
+  load_kernel_test dumpe2fs sha1sum e2fsck; do
   type -P "${prereqs}" &>/dev/null || \
     { echo "${prereqs} tool not found."; exit 1; }
 done
@@ -97,12 +96,15 @@ is_old_verity_argv() {
   return 1
 }
 
+# Get the dmparams parameters from a kernel config.
+get_dmparams_from_config() {
+  local kernel_config=$1
+  echo ${kernel_config} | sed -ne 's/.*dm="\([^"]*\)".*/\1/gp' | cut -f2- -d,
+}
 # Get the verity root digest hash from a kernel config command line.
 get_hash_from_config() {
   local kernel_config=$1
-  local dm_config=$(echo ${kernel_config} |
-    sed -e 's/.*dm="\([^"]*\)".*/\1/g' |
-    cut -f2- -d, )
+  local dm_config=$(get_dmparams_from_config "${kernel_config}")
   if is_old_verity_argv "${dm_config}"; then
     echo ${dm_config} | cut -f9 -d ' '
   else
@@ -110,24 +112,24 @@ get_hash_from_config() {
   fi
 }
 
+CALCULATED_KERNEL_CONFIG=
 # Calculate rootfs hash of an image
 # Args: ROOTFS_IMAGE KERNEL_CONFIG HASH_IMAGE
 #
 # rootfs calculation parameters are grabbed from KERNEL_CONFIG
 #
-# Returns an updated kernel config command line with the new hash.
-# and writes the new hash image to the file HASH_IMAGE
+# Updated kernel config command line with the new hash is stored in
+# $CALCULATED_KERNEL_CONFIG and the new hash image is written to the file
+# HASH_IMAGE.
 calculate_rootfs_hash() {
   local rootfs_image=$1
   local kernel_config=$2
   local hash_image=$3
-  local dm_config=$(echo ${kernel_config} |
-    sed -e 's/.*dm="\([^"]*\)".*/\1/g' |
-    cut -f2- -d,)
+  local dm_config=$(get_dmparams_from_config "${kernel_config}")
 
   if [ -z "${dm_config}" ]; then
-    echo "WARNING: Couldn't grab dm_config. Aborting rootfs hash calculation"
-    exit 1
+    echo "WARNING: Couldn't grab dm_config. Aborting rootfs hash calculation."
+    return 1
   fi
 
   local rootfs_sectors
@@ -172,7 +174,8 @@ calculate_rootfs_hash() {
   # Reconstruct new kernel config command line and replace placeholders.
   table="$(echo "$table" |
     sed -s "s|ROOT_DEV|${root_dev}|g;s|HASH_DEV|${hash_dev}|")"
-  echo ${kernel_config} | sed -e 's#\(.*dm="\)\([^"]*\)\(".*\)'"#\1${table}\3#g"
+  CALCULATED_KERNEL_CONFIG=$(echo ${kernel_config} |
+    sed -e 's#\(.*dm="\)\([^"]*\)\(".*\)'"#\1${table}\3#g")
 }
 
 # Re-calculate rootfs hash, update rootfs and kernel command line.
@@ -185,6 +188,15 @@ update_rootfs_hash() {
 
   echo "Updating rootfs hash and updating config for Kernel partition" \
     "$kernelpart"
+
+  # If we can't find dm parameters in the kernel config, bail out now.
+  local kernel_config=$(grab_kernel_config "${image}" ${kernelpart})
+  local dm_config=$(get_dmparams_from_config "${kernel_config}")
+  if [ -z "${dm_config}" ]; then
+    echo "WARNING: Couldn't grab dm_config from kernel partition ${kernelpart}"
+    echo "WARNING: Not performing rootfs hash update!"
+    return
+  fi
 
   # check and clear need_to_resign tag
   local rootfs_dir=$(make_temp_dir)
@@ -199,14 +211,19 @@ update_rootfs_hash() {
 
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${image} 3 ${rootfs_image}
-  local kernel_config=$(grab_kernel_config "${image}" ${kernelpart})
   local hash_image=$(make_temp_file)
 
   # Disable rw mount support prior to hashing.
   disable_rw_mount "${rootfs_image}"
 
-  local new_kernel_config=$(calculate_rootfs_hash "${rootfs_image}" \
-    "${kernel_config}" "${hash_image}")
+  if ! calculate_rootfs_hash "${rootfs_image}"  "${kernel_config}" \
+    "${hash_image}"; then
+    echo "calculate_rootfs_hash failed!"
+    echo "Aborting rootfs hash update!"
+    return
+  fi
+
+  local new_kernel_config=$CALCULATED_KERNEL_CONFIG
   echo "New config for kernel partition $kernelpart is:"
   echo $new_kernel_config
   echo
@@ -349,23 +366,40 @@ resign_firmware_payload() {
 
 # Verify an image including rootfs hash using the specified keys.
 verify_image() {
-  local kernel_config=$(grab_kernel_config ${INPUT_IMAGE} 2)
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${INPUT_IMAGE} 3 ${rootfs_image}
-  local hash_image=$(make_temp_file)
-  local type=""
 
-  # First, perform RootFS verification.
   echo "Verifying RootFS hash..."
-  local new_kernel_config=$(calculate_rootfs_hash "${rootfs_image}" \
-    "${kernel_config}" "${hash_image}")
-  local expected_hash=$(get_hash_from_config "${new_kernel_config}")
-  local got_hash=$(get_hash_from_config "${kernel_config}")
+  # What we get from image.
+  local kernel_config
+  # What we calculate from the rootfs.
+  local new_kernel_config
+  # Depending on the type of image, the verity parameters may
+  # exist in either kernel partition 2 or kernel partition 4
+  local partnum
+  for partnum in 2 4; do
+    echo "Considering Kernel partition $partnum"
+    kernel_config=$(grab_kernel_config ${INPUT_IMAGE} $partnum)
+    local hash_image=$(make_temp_file)
+    if ! calculate_rootfs_hash "${rootfs_image}" "${kernel_config}" \
+      "${hash_image}"; then
+      echo "Trying next kernel partition."
+      continue
+    fi
+    new_kernel_config="$CALCULATED_KERNEL_CONFIG"
+    break
+  done
 
-  if [ -z "${expected_hash}" ]; then
-    echo "FAILED: RootFS hash is empty!"
+  # Note: If calculate_rootfs_hash succeeded above, these should
+  # be non-empty.
+  expected_hash=$(get_hash_from_config "${new_kernel_config}")
+  got_hash=$(get_hash_from_config "${kernel_config}")
+
+  if [ -z "${expected_hash}" ] || [ -z "${got_hash}" ]; then
+    echo "FAILURE: Couldn't verify RootFS hash on the image."
     exit 1
   fi
+
   if [ ! "${got_hash}" = "${expected_hash}" ]; then
     cat <<EOF
 FAILED: RootFS hash is incorrect.
