@@ -76,7 +76,11 @@ main() {
     . "$configfile"
 
     local kernelblob=$(make_temp_file)
-    extract_image_partition "$image" 2 "$kernelblob"
+    # TODO(jimhebert): Perform the kernel security tests on both the kernel
+    #                  partitions. Here, we just run it on kernel partition 4
+    #                  which is the install kernel on the recovery image.
+    #                  crosbug.com/24274
+    extract_image_partition "$image" 4 "$kernelblob"
     local rootfs=$(make_temp_dir)
     mount_image_partition_ro "$image" 3 "$rootfs"
 
