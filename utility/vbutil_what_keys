@@ -8,9 +8,9 @@ if [ -z "$*" ]; then
 
 Usage:  vbutil_what_keys IMAGE [IMAGE...]
 
-Given a ChromiumOS disk image, try to figure out how it's signed. Note that
-this does not verify the signature, it just reports which keyblock was used to
-create the signature.
+Given a ChromiumOS disk (or BIOS) image, try to figure out how it's signed.
+Note that this does not verify the signature, it just reports which keyblock
+was used to create the signature.
 
 EOF
   exit 1
@@ -33,43 +33,102 @@ fi
 # f6fadd7e31eebf4bcc4eb8d2dd512e3a2313627f  recovery Cr-48 MP
 # a1454fcecb98a6f33b38638564bdfc20161a7b04    normal Cr-48 MP
 #
+# de11a604715a920d7371ceefda75a5b1b062443f recovery Tegra2-Kaen PVT
+# 5c626cd8a684e470e74d3ceaf518aae745fe15dc   normal Tegra2-Kaen PVT
+#
+# cb45bc04a932e4bcac41b44d31afd9516ca0fe24 recovery Lumpy PVT
+# fa55cba16857a49270fb1561f87343c00959eb19   normal Lumpy PVT
+#
+# 057a03c1526a1be7f42d29095c5a583231a75b35 recovery Stumpy PVT
+# 04dd63e835c979b57f87fd74e99af68e0cd39ad7   normal Stumpy PVT
+
+
+# And here are values for BIOS components.
+#
+# The default H2C HWIDs are fixed for each platform
+# {97A1FBD6-FDE1-4FC5-BB81-286608B90FCE}    Alex H2C
+# {9D799111-A88A-439E-9E1F-FBBB41B00A9A}    Cr-48 H2C
+# {24B107F2-BA6A-4EBD-8CDD-E768438CE0F0}    Stumpy H2C
+# {FA42644C-CF3A-4692-A9D3-1A667CB232E9}    ZGB H2C
+
+# The first line is the recovery key, the second is the root key
+#
+# c14bd720b70d97394257e3e826bd8f43de48d4ed  dev-key
+# b11d74edd286c144e1135b49e7f0bc20cf041f10  dev-key
+#
+# 5c5776bf7574e5601c25042e0748b6844cfdd1dc  Alex MP
+# 00f77be2a0c013343db84fc6259da09e558b8318  Alex MP
+#
+# ebcac421fbf411bee99ee90672a3add17f5a967b  Lumpy PVT
+# c9fc61f331b34e00a148e657bde5fb6b0b576c0a  Lumpy PVT
+#
+# 5d0d163b824cab5ae4f23fb2cc012e2a4124f4fe  Cr-48 MP
+# 541f467a7d8747f55ae9087ee4e34155f5ee3cd7  Cr-48 MP
+#
+# 8540f56f87d91c5403704c960c1f385705201e20  Stumpy PVT
+# 06939c65797eadfe6be1b3343a2e339800a34108  Stumpy PVT
+#
+# 9bd99a594c45b6739899a17ec29ac2289ee75463  ZGB MP
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac  ZGB MP
+
+set -o pipefail
 
 TMPFILE=$(mktemp /tmp/keyblock_XXXXXXXXX)
 trap "rm -f $TMPFILE" EXIT
 
 dofile() {
   file="$1"
-  echo "$file"
+  size=$(stat -c %s "$file")
 
-  for pnum in $(cgpt find -n -t kernel "$file" 2>/dev/null); do
+  if [ "$size" -eq 4194304 ] || [ "$size" -eq 8388608 ]; then
+    echo "BIOS: $file"
 
-    psize=$(cgpt show -s -i "$pnum" "$file")
-    if [ "$psize" -ge 128 ]; then
+    hwid=$(gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || continue;
+    match1=$(grep "$hwid" "$0" 2>/dev/null | sed -e 's/^# //')
 
-      pstart=$(cgpt show -b -i "$pnum" "$file")
-      dd if="$file" of="$TMPFILE" bs=512 count=128 skip="$pstart" 2>/dev/null
+    gbb_utility --recoverykey="$TMPFILE" "$file" >/dev/null
+    recoverykey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+      sed -e 's/^.*: *//')
+    match2=$(grep "$recoverykey" "$0" 2>/dev/null | sed -e 's/^# //')
 
-      psum=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
-        grep sha1sum | sed -e 's/^.*: *//')
+    gbb_utility --rootkey="$TMPFILE" "$file" >/dev/null
+    rootkey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+      sed -e 's/^.*: *//')
+    match3=$(grep "$rootkey" "$0" 2>/dev/null |  sed -e 's/^# //')
 
-      if [ -n "$psum" ]; then
-        match=$(grep "$psum" "$0" 2>/dev/null | sed -e 's/^# //')
-        flags=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
-          grep Flags: | sed -e 's/^.*:[ 0-9]*//')
-      else
-        match=""
-        psum="--invalid--"
-        flags=""
+    echo "  hwid:          ${match1:-$hwid}"
+    echo "  recovery key:  ${match2:-$recoverykey}"
+    echo "  root key:      ${match3:-$rootkey}"
+
+  else
+    echo "IMAGE: $file"
+
+    for pnum in $(cgpt find -n -t kernel "$file" 2>/dev/null); do
+
+      psize=$(cgpt show -s -i "$pnum" "$file")
+      if [ "$psize" -ge 128 ]; then
+
+        pstart=$(cgpt show -b -i "$pnum" "$file")
+        dd if="$file" of="$TMPFILE" bs=512 count=128 skip="$pstart" 2>/dev/null
+
+        psum=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+          grep sha1sum | sed -e 's/^.*: *//')
+
+        if [ -n "$psum" ]; then
+          match=$(grep "$psum" "$0" 2>/dev/null | sed -e 's/^# //')
+          flags=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+            grep Flags: | sed -e 's/^.*:[ 0-9]*//')
+        else
+          match=""
+          psum="--invalid--"
+          flags=""
+        fi
+
+        echo "  part $pnum:    ${match:-$psum} ($flags)"
       fi
 
-      if [ -n "$match" ]; then
-        echo "  part $pnum: $match ($flags)"
-      else
-        echo "  part $pnum: $psum ($flags)"
-      fi
-    fi
-
-  done
+    done
+  fi
 }
 
 
