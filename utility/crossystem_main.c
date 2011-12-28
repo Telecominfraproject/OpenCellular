@@ -56,6 +56,7 @@ const Param sys_param_list[] = {
   {"mainfw_act", IS_STRING, "Active main firmware"},
   {"mainfw_type", IS_STRING, "Active main firmware type"},
   {"nvram_cleared", CAN_WRITE, "Have NV settings been lost?  Write 0 to clear"},
+  {"platform_family", IS_STRING, "Platform family type"},
   {"recovery_reason", 0, "Recovery mode reason for current boot"},
   {"recovery_request", CAN_WRITE, "Recovery mode request (writable)"},
   {"recoverysw_boot", 0, "Recovery switch position at boot"},

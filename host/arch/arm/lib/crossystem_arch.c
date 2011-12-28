@@ -32,6 +32,21 @@
 #define SECTOR_SIZE 512
 #define MAX_NMMCBLK 9
 
+typedef struct PlatformFamily {
+  const char* compatible_string; /* Last string in FDT compatible entry */
+  const char* platform_string;   /* String to return */
+} PlatformFamily;
+
+/* Array of platform family names, terminated with a NULL entry */
+const PlatformFamily platform_family_array[] = {
+  {"nvidia,tegra250", "Tegra2"},
+  {"nvidia,tegra20", "Tegra2"},
+  {"ti,omap4", "OMAP4"},
+  {"ti,omap3", "OMAP3"},
+  /* Terminate with NULL entry */
+  {NULL, NULL}
+};
+
 static int FindEmmcDev(void) {
   int mmcblk;
   char filename[FNAME_SIZE];
@@ -135,6 +150,38 @@ static char * ReadFdtString(const char *property) {
   /* Do not need property size */
   ReadFdtBlock(property, &str, 0);
   return (char *)str;
+}
+
+static char * ReadFdtPlatformFamily(void) {
+  char *compat = NULL;
+  char *s;
+  FILE *file;
+  const PlatformFamily* p;
+  size_t size = 0;
+  int slen;
+
+  /* TODO: Allow this to be a more direct path by modifying ReadFdtBlock */
+  ReadFdtBlock("../../compatible", &compat, &size);
+
+  if (size > 0)
+    compat[size-1] = 0;
+
+  /* Check each null separated string in compatible against the family array */
+  s = compat;
+  while ((s-compat) < size) {
+    slen = strlen(s);
+    for (p = platform_family_array; p->compatible_string; p++) {
+      if (!strcmp(s, p->compatible_string)) {
+        free(compat);
+        return strdup(p->platform_string);
+      }
+    }
+    s += slen + 1;
+  }
+
+  /* No recognized 'compatible' entry found */
+  free(compat);
+  return NULL;
 }
 
 static int VbGetGpioStatus(unsigned gpio_number) {
@@ -329,6 +376,9 @@ const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
 
   if (prop)
     str = ReadFdtString(prop);
+
+  if (!strcasecmp(name, "platform_family"))
+    str = ReadFdtPlatformFamily();
 
   if (str) {
       rv = StrCopy(dest, str, size);
