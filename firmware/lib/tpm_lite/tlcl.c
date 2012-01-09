@@ -214,6 +214,28 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length) {
   return result;
 }
 
+uint32_t TlclPCRRead(uint32_t index, void* data, uint32_t length) {
+  struct s_tpm_nv_read_cmd cmd;
+  uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
+  uint32_t result_length;
+  uint32_t result;
+
+  VBDEBUG(("TPM: TlclPCRRead(0x%x, %d)\n", index, length));
+  if (length < kPcrDigestLength) {
+    return TPM_E_IOERROR;
+  }
+  Memcpy(&cmd, &tpm_pcr_read_cmd, sizeof(cmd));
+  ToTpmUint32(cmd.buffer + tpm_pcr_read_cmd.pcrNum, index);
+
+  result = TlclSendReceive(cmd.buffer, response, sizeof(response));
+  if (result == TPM_SUCCESS) {
+    uint8_t* pcr_read_cursor = response + kTpmResponseHeaderLength;
+    Memcpy(data, pcr_read_cursor, kPcrDigestLength);
+  }
+
+  return result;
+}
+
 uint32_t TlclWriteLock(uint32_t index) {
   VBDEBUG(("TPM: Write lock 0x%x\n", index));
   return TlclWrite(index, NULL, 0);

@@ -160,6 +160,29 @@ static uint32_t HandlerWrite(void) {
   return TlclWrite(index, value, size);
 }
 
+static uint32_t HandlerPCRRead(void) {
+  uint32_t index;
+  uint8_t value[TPM_PCR_DIGEST];
+  uint32_t result;
+  int i;
+  if (nargs != 3) {
+    fprintf(stderr, "usage: tpmc pcrread <index>\n");
+    exit(OTHER_ERROR);
+  }
+  if (HexStringToUint32(args[2], &index) != 0) {
+    fprintf(stderr, "<index> must be 32-bit hex (0x[0-9a-f]+)\n");
+    exit(OTHER_ERROR);
+  }
+  result = TlclPCRRead(index, value, sizeof(value));
+  if (result == 0) {
+    for (i = 0; i < TPM_PCR_DIGEST; i++) {
+      printf("%02x", value[i]);
+    }
+    printf("\n");
+  }
+  return result;
+}
+
 static uint32_t HandlerRead(void) {
   uint32_t index, size;
   uint8_t value[4096];
@@ -283,6 +306,8 @@ command_record command_table[] = {
     HandlerWrite },
   { "read", "read", "read from a space (read <index> <size>)",
     HandlerRead },
+  { "pcrread", "pcr", "read from a PCR (pcrread <index>)",
+    HandlerPCRRead },
   { "getpermissions", "getp", "print space permissions (getp <index>)",
     HandlerGetPermissions },
   { "getpermanentflags", "getpf", "print all permanent flags",

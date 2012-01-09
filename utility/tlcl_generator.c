@@ -170,6 +170,14 @@ Command* BuildReadCommand(void) {
   return cmd;
 }
 
+Command* BuildPCRReadCommand(void) {
+  int size = kTpmRequestHeaderLength + sizeof(uint32_t);
+  Command* cmd = newCommand(TPM_ORD_PcrRead, size);
+  cmd->name = "tpm_pcr_read_cmd";
+  AddVisibleField(cmd, "pcrNum", kTpmRequestHeaderLength);
+  return cmd;
+}
+
 Command* BuildPPAssertCommand(void) {
   int size = kTpmRequestHeaderLength + sizeof(TPM_PHYSICAL_PRESENCE);
   Command* cmd = newCommand(TSC_ORD_PhysicalPresence, size);
@@ -454,6 +462,7 @@ Command* (*builders[])(void) = {
   BuildDefineSpaceCommand,
   BuildWriteCommand,
   BuildReadCommand,
+  BuildPCRReadCommand,
   BuildPPAssertCommand,
   BuildPPEnableCommand,
   BuildPPLockCommand,
