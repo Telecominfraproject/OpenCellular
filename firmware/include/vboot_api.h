@@ -53,7 +53,7 @@ enum VbErrorPredefined_t {
   VBERROR_INIT_SHARED_DATA              = 0x10001,
   /* Error resuming TPM during a S3 resume */
   VBERROR_TPM_S3_RESUME                 = 0x10002,
-  /* LoadFirmware() failed to find a valid firmware */
+  /* VbSelectFirmware() failed to find a valid firmware */
   VBERROR_LOAD_FIRMWARE                 = 0x10003,
   /* Unable to write firmware versions to TPM */
   VBERROR_TPM_WRITE_FIRMWARE            = 0x10004,
@@ -81,9 +81,9 @@ enum VbErrorPredefined_t {
   VBERROR_NO_KERNEL_FOUND               = 0x1000F,
   /* All OS kernels found were invalid (corrupt, improperly signed, etc.) */
   VBERROR_INVALID_KERNEL_FOUND          = 0x10010,
-  /* LoadKernel() requested recovery mode */
+  /* VbSelectAndLoadKernel() requested recovery mode */
   VBERROR_LOAD_KERNEL_RECOVERY          = 0x10011,
-  /* Other error inside LoadKernel() */
+  /* Other error inside VbSelectAndLoadKernel() */
   VBERROR_LOAD_KERNEL                   = 0x10012,
   /* Invalid Google binary block */
   VBERROR_INVALID_GBB                   = 0x10013,
@@ -98,7 +98,9 @@ enum VbErrorPredefined_t {
   /* VbExBeep() can't make sounds at all */
   VBERROR_NO_SOUND                      = 0x10018,
   /* VbExBeep() can't make sound in the background */
-  VBERROR_NO_BACKGROUND_SOUND           = 0x10019
+  VBERROR_NO_BACKGROUND_SOUND           = 0x10019,
+  /* Developer has requested a BIOS shell */
+  VBERROR_BIOS_SHELL_REQUESTED          = 0x10020
 };
 
 

@@ -142,7 +142,7 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
         VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
         VbAudioClose(audio);
-        return 1;
+        return VBERROR_LOAD_KERNEL_RECOVERY;
       case 0x04:
         /* Ctrl+D = dismiss warning; advance to timeout */
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+D; skip delay\n"));
