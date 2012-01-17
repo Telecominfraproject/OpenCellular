@@ -19,8 +19,10 @@
 #include "host_common.h"
 #include "crossystem_arch.h"
 
-/* Base name for FDT files */
+/* Base name for firmware FDT files */
 #define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
+/* Path to compatible FDT entry */
+#define FDT_COMPATIBLE_PATH "/proc/device-tree/compatible"
 /* Device for NVCTX write */
 #define NVCTX_PATH "/dev/mmcblk%d"
 /* Errors */
@@ -112,7 +114,10 @@ static int ReadFdtBlock(const char *property, void **block, size_t *size) {
   if (!block)
     return E_FAIL;
 
-  snprintf(filename, sizeof(filename), FDT_BASE_PATH "/%s", property);
+  if (property[0] == '/')
+    StrCopy(filename, property, sizeof(filename));
+  else
+    snprintf(filename, sizeof(filename), FDT_BASE_PATH "/%s", property);
   file = fopen(filename, "rb");
   if (!file) {
     fprintf(stderr, "Unable to open FDT property %s\n", property);
@@ -160,8 +165,7 @@ static char * ReadFdtPlatformFamily(void) {
   size_t size = 0;
   int slen;
 
-  /* TODO: Allow this to be a more direct path by modifying ReadFdtBlock */
-  ReadFdtBlock("../../compatible", &compat, &size);
+  ReadFdtBlock(FDT_COMPATIBLE_PATH, &compat, &size);
 
   if (size > 0)
     compat[size-1] = 0;
