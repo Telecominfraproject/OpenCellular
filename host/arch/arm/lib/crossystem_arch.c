@@ -165,7 +165,8 @@ static char * ReadFdtPlatformFamily(void) {
   size_t size = 0;
   int slen;
 
-  ReadFdtBlock(FDT_COMPATIBLE_PATH, &compat, &size);
+  if(ReadFdtBlock(FDT_COMPATIBLE_PATH, &compat, &size))
+    return NULL;
 
   if (size > 0)
     compat[size-1] = 0;
