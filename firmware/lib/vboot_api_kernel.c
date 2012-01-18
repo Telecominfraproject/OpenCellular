@@ -156,19 +156,25 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
           VbExBeep(120, 400);
           VbExSleepMs(120);
           VbExBeep(120, 400);
-        } else if (VBERROR_SUCCESS ==
-                   VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE)) {
-          VBDEBUG(("VbBootDeveloper() - booting USB\n"));
-          VbAudioClose(audio);
-          return VBERROR_SUCCESS;
         } else {
-          VBDEBUG(("VbBootDeveloper() - no kernel found on USB\n"));
-          VbExBeep(250, 200);
-          VbExSleepMs(120);
-          /* Clear recovery requests from failed kernel loading, so
-           * that powering off at this point doesn't put us into
-           * recovery mode. */
-          VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
+          /* Clear the screen to show we get the Ctrl+U key press. */
+          VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0, &vnc);
+          if (VBERROR_SUCCESS ==
+              VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE)) {
+            VBDEBUG(("VbBootDeveloper() - booting USB\n"));
+            VbAudioClose(audio);
+            return VBERROR_SUCCESS;
+          } else {
+            VBDEBUG(("VbBootDeveloper() - no kernel found on USB\n"));
+            VbExBeep(250, 200);
+            VbExSleepMs(120);
+            /* Clear recovery requests from failed kernel loading, so
+             * that powering off at this point doesn't put us into
+             * recovery mode. */
+            VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
+            /* Show the dev mode warning screen again */
+            VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
+          }
         }
         break;
       default:
