@@ -25,12 +25,19 @@ typedef struct VbDevMusic {
 } __attribute__((packed)) VbDevMusic;
 
 struct VbAudioContext {
-  uint32_t note_count;
+  /* note tracking */
   VbDevMusicNote* music_notes;
-  int free_notes_when_done;
-  uint32_t current_note;
-  uint32_t current_note_loops;
+  uint32_t note_count;
+  uint32_t next_note;
+
+  /* implementation flags */
   int background_beep;
+  int free_notes_when_done;
+
+  /* sound tracking */
+  uint16_t current_frequency;
+  uint64_t play_until;
+  uint64_t last_time;
 };
 
 #ifdef CUSTOM_MUSIC

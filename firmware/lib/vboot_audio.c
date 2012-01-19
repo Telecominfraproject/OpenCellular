@@ -18,7 +18,12 @@
 #define UINT_MAX 4294967295U            /* 0xffffffff */
 #endif
 
-#define DEV_LOOP_TIME 10                /* Minimum note granularity in msecs */
+/* Need one second of noise in the first 22 seconds.
+ * Total delay >= 30 seconds, <= 60 seconds. */
+#define REQUIRED_NOISE_TIME    1000
+#define REQUIRED_NOISE_WITHIN 22000
+#define REQUIRED_TOTAL_DELAY  30000
+#define MAX_CUSTOM_DELAY      60000
 
 /* These are visible externally only to make testing easier */
 VbDevMusicNote default_notes_[] = { {20000, 0}, /* 20 seconds */
@@ -35,9 +40,10 @@ uint32_t short_count_ = sizeof(short_notes_) / sizeof(VbDevMusicNote);
 static VbAudioContext au;
 
 
-/* Arg is 16-bit, but use 32-bit to avoid rollover */
-static uint32_t VbMsecToLoops(uint32_t msec) {
-  return (DEV_LOOP_TIME / 2 + msec) / DEV_LOOP_TIME;
+/* Convert from msecs to VbExGetTimer() units. */
+static uint64_t ticks_per_msec = 0;     /* Initialized by VbAudioOpen() */
+static uint64_t VbMsecToTicks(uint16_t msec) {
+  return ticks_per_msec * msec;
 }
 
 /* Find and return a valid set of note events. We'll use the user's struct
@@ -53,8 +59,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
   VbDevMusic *hdr = CUSTOM_MUSIC_NOTES;
   uint32_t maxsize = CUSTOM_MUSIC_MAXSIZE; /* always <= flash size (8M) */
   uint32_t maxnotes, mysum, mylen, i;
-  uint64_t on_loops, total_loops, min_loops;
-  uint32_t this_loops;
+  uint32_t this_msecs, on_msecs, total_msecs;
   uint32_t count;
 
   VBDEBUG(("VbGetDevMusicNotes: use_short is %d, hdr is %lx, maxsize is %d\n",
@@ -116,32 +121,30 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
    * avoid rollover. The note time is 16 bits, and the note count is 32 bits.
    * The product should fit in 64 bits.
    */
-  total_loops = 0;
-  on_loops = 0;
-  min_loops = VbMsecToLoops(22000);
+  total_msecs = 0;
+  on_msecs = 0;
   for (i=0; i < hdr->count; i++) {
-    this_loops = VbMsecToLoops(hdr->notes[i].msec);
-    if (this_loops) {
-      total_loops += this_loops;
-      if (total_loops <= min_loops &&
+    this_msecs = hdr->notes[i].msec ;
+    if (this_msecs) {
+      total_msecs += this_msecs;
+      if (total_msecs <= REQUIRED_NOISE_WITHIN &&
           hdr->notes[i].frequency >= 100 && hdr->notes[i].frequency <= 2000)
-        on_loops += this_loops;
+        on_msecs += this_msecs;
     }
   }
 
   /* We require at least one second of noise in the first 22 seconds */
   VBDEBUG(("VbGetDevMusicNotes:   with %ld msecs of sound to begin\n",
-           on_loops * DEV_LOOP_TIME));
-  if (on_loops < VbMsecToLoops(1000)) {
+           on_msecs));
+  if (on_msecs < REQUIRED_NOISE_TIME) {
     goto nope;
   }
 
   /* We'll also require that the total time be less than a minute. No real
    * reason, it just gives us less to worry about.
    */
-  VBDEBUG(("VbGetDevMusicNotes:   lasting %ld msecs\n",
-           total_loops * DEV_LOOP_TIME));
-  if (total_loops > VbMsecToLoops(60000)) {
+  VBDEBUG(("VbGetDevMusicNotes:   lasting %ld msecs\n", total_msecs));
+  if (total_msecs > MAX_CUSTOM_DELAY) {
     goto nope;
   }
 
@@ -157,17 +160,16 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short) {
   count = hdr->count;
 
   /* We also require at least 30 seconds of delay. */
-  min_loops = VbMsecToLoops(30000);
-  if (total_loops < min_loops) {
+  if (total_msecs < REQUIRED_TOTAL_DELAY) {
     /* If the total time is less than 30 seconds, the needed difference will
      * fit in 16 bits.
      */
-    this_loops = (min_loops - total_loops) & 0xffff;
-    notebuf[hdr->count].msec = (uint16_t)(this_loops * DEV_LOOP_TIME);
+    this_msecs = (REQUIRED_TOTAL_DELAY - total_msecs) & 0xffff;
+    notebuf[hdr->count].msec = this_msecs;
     notebuf[hdr->count].frequency = 0;
     count++;
     VBDEBUG(("VbGetDevMusicNotes:   adding %ld msecs of silence\n",
-             this_loops * DEV_LOOP_TIME));
+             this_msecs));
   }
 
   /* done */
@@ -190,15 +192,21 @@ VbAudioContext* VbAudioOpen(VbCommonParams* cparams) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   VbAudioContext* audio = &au;
   int use_short = 0;
+  uint64_t a,b;
 
   /* Note: may need to allocate things here in future */
 
-  /* defaults */
-  audio->note_count = 0;
-  audio->music_notes = 0;
-  audio->current_note = 0;
-  audio->current_note_loops = 0;
+  /* Calibrate audio delay */
+  a = VbExGetTimer();
+  VbExSleepMs(10);
+  b = VbExGetTimer();
+  ticks_per_msec = (b - a) / 10ULL ;
+  VBDEBUG(("VbAudioOpen() - ticks_per_msec is %Lu\n", ticks_per_msec));
+
+  /* Initialize */
+  Memset(audio, 0, sizeof(*audio));
   audio->background_beep = 1;
+  audio->play_until = b;                /* "zero" starts now */
 
   /* See if we have full background sound capability or not. */
   if (VBERROR_SUCCESS != VbExBeep(0,0)) {
@@ -223,45 +231,46 @@ VbAudioContext* VbAudioOpen(VbCommonParams* cparams) {
 
 /* Caller should loop without extra delay until this returns false */
 int VbAudioLooping(VbAudioContext* audio) {
+  uint64_t now;
+  uint16_t freq = audio->current_frequency;
+  uint16_t msec = 0;
+  int looping = 1;
 
-    /* Time to play a note? */
-    if (!audio->current_note_loops) {
-      VBDEBUG(("VbAudioLooping() - current_note is %d\n", audio->current_note));
+  now = VbExGetTimer();
+  VBDEBUG(("VbAudioLooping: now=%Lu, cur=%d, play_until=%Lu, next=%d/[0-%d]\n",
+           now, audio->current_frequency, audio->play_until, audio->next_note,
+           audio->note_count-1));
 
-      /* Hooray, out of notes! */
-      if (audio->current_note >= audio->note_count)
-        return 0;
+  while (audio->next_note < audio->note_count && now >= audio->play_until) {
+    freq = audio->music_notes[audio->next_note].frequency;
+    msec = audio->music_notes[audio->next_note].msec;
+    audio->play_until += VbMsecToTicks(msec);
+    audio->next_note++;
+    VBDEBUG(("  freq=%d, play_until=%Lu, next=%d/[0-%d]\n",
+             freq, audio->play_until, audio->next_note, audio->note_count-1));
+  }
 
-      /* For how many loops do we hold this note? */
-      audio->current_note_loops =
-        VbMsecToLoops(audio->music_notes[audio->current_note].msec);
-      VBDEBUG(("VbAudioLooping() - new current_note_loops == %d\n",
-               audio->current_note_loops));
+  if (now >= audio->play_until) {
+    looping = 0;
+    freq = 0;
+  }
 
-      if (audio->background_beep) {
-
-        /* start (or stop) the sound */
-        VbExBeep(0, audio->music_notes[audio->current_note].frequency);
-
-      } else if (audio->music_notes[audio->current_note].frequency) {
-
-        /* the sound will block, so don't loop repeatedly */
-        audio->current_note_loops = 1;
-        VbExBeep(audio->music_notes[audio->current_note].msec,
-                 audio->music_notes[audio->current_note].frequency);
-      }
-
-      audio->current_note++;
+  // Do action here.
+  if (audio->background_beep) {
+    if (audio->current_frequency != freq) {
+      VbExBeep(0, freq);
+      audio->current_frequency = freq;
     }
+  } else if (freq && msec) {
+    VbExBeep(msec, freq);
+    now = VbExGetTimer();
+    VBDEBUG(("    (now=%ul)\n", now));
+  }
 
-    /* Wait a bit. Yes, one extra loop sometimes, but it's only 10msec */
-    VbExSleepMs(DEV_LOOP_TIME);
-
-    /* That's one... */
-    if (audio->current_note_loops)
-      audio->current_note_loops--;
-
-  return 1;
+  VBDEBUG(("DONE: now=%Lu, freq=%d, looping=%d\n", now,
+           audio->current_frequency, looping));
+  audio->last_time = now;
+  return looping;
 }
 
 /* Caller should call this prior to booting */

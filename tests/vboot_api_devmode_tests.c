@@ -24,11 +24,14 @@
 /* Expected results */
 
 #define MAX_NOTE_EVENTS 10
+#define TICKS_PER_MSEC 1900ULL
+#define TIME_FUZZ 500
+#define KBD_READ_TIME 60
 
 typedef struct {
   uint16_t msec;
   uint16_t freq;
-  uint32_t time;
+  int time;
 } note_event_t;
 
 typedef struct {
@@ -46,20 +49,18 @@ test_case_t test[] = {
   { "VbBootDeveloperSoundTest( fast, background )",
     0x00000001, VBERROR_SUCCESS,
     0, 0,
-    3,
+    2,
     {
       {0, 0, 0},                        // probing for capability
-      {0, 0, 0},                        // starts with no sound
       {0, 0, 2000},                     // off and return at 2 seconds
     }},
 
   { "VbBootDeveloperSoundTest( normal, background )",
     0x00000000, VBERROR_SUCCESS,
     0, 0,
-    7,
+    6,
     {
       {0, 0, 0},                        // probing for capability
-      {0, 0, 0},                        // starts with no sound
       {0, 400, 20000},                  // starts first beep at 20 seconds
       {0, 0, 20250},                    // stops 250ms later
       {0, 400, 20500},                  // starts second beep
@@ -87,16 +88,14 @@ test_case_t test[] = {
       {0, 0, 30020},                    // off and return at 30 seconds
     }},
 
-
   // Now with some keypresses
 
   { "VbBootDeveloperSoundTest( normal, background, Ctrl-D )",
     0x00000000, VBERROR_SUCCESS,
     4, 10000,                           // Ctrl-D at 10 seconds
-    3,
+    2,
     {
       {0, 0, 0},                        // probing for capability
-      {0, 0, 0},                        // starts with no sound
       {0, 0, 10000},                    // sees Ctrl-D, sound off, return
     }},
 
@@ -113,10 +112,9 @@ test_case_t test[] = {
   { "VbBootDeveloperSoundTest( normal, background, Ctrl-U not allowed )",
     0x00000000, VBERROR_SUCCESS,
     21, 10000,                          // Ctrl-U at 10 seconds
-    9,
+    8,
     {
       {0, 0, 0},                        // probing for capability
-      {0, 0, 0},                        // starts with no sound
       {120, 400, 10000},                // complains about Ctrl-U (one beep)
                                         // waits 120ms...
       {120, 400, 10240},                // complains about Ctrl-U (two beeps)
@@ -138,6 +136,7 @@ static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
 static GoogleBinaryBlockHeader gbb;
 static int current_time;
+static uint64_t current_ticks;
 static int current_event;
 static int max_events;
 static int matched_events;
@@ -169,7 +168,9 @@ static void ResetMocks(void) {
   gbb.minor_version = GBB_MINOR_VER;
   gbb.flags = 0;
 
+  current_ticks = 0;
   current_time = 0;
+
   current_event = 0;
   kbd_fire_at = 0;
   kbd_fire_key = 0;
@@ -219,18 +220,31 @@ uint32_t VbExIsShutdownRequested(void) {
 
 uint32_t VbExKeyboardRead(void) {
   uint32_t tmp;
-  if (kbd_fire_key && current_time >= kbd_fire_at) {
+  uint32_t now;
+
+  VbExSleepMs(KBD_READ_TIME);
+  now = current_time;
+
+  if (kbd_fire_key && now >= kbd_fire_at) {
     VBDEBUG(("  VbExKeyboardRead() - returning %d at %d msec\n",
-             kbd_fire_key, current_time));
+             kbd_fire_key, now));
     tmp = kbd_fire_key;
     kbd_fire_key = 0;
     return tmp;
   }
+  VBDEBUG(("  VbExKeyboardRead() - returning %d at %d msec\n",
+           0, now));
   return 0;
 }
 
 void VbExSleepMs(uint32_t msec) {
-  current_time += msec;
+  current_ticks += (uint64_t)msec * TICKS_PER_MSEC;
+  current_time = current_ticks / TICKS_PER_MSEC;
+  VBDEBUG(("VbExSleepMs(%d) -> %d\n", msec, current_time));
+}
+
+uint64_t VbExGetTimer(void) {
+  return current_ticks;
 }
 
 VbError_t VbExBeep(uint32_t msec, uint32_t frequency) {
@@ -239,11 +253,12 @@ VbError_t VbExBeep(uint32_t msec, uint32_t frequency) {
   if (current_event < max_events &&
       msec == expected_event[current_event].msec &&
       frequency == expected_event[current_event].freq &&
-      current_time == expected_event[current_event].time ) {
+      abs(current_time - expected_event[current_event].time) < TIME_FUZZ ) {
     matched_events++;
   }
 
-  current_time += msec;
+  if (msec)
+    VbExSleepMs(msec);
   current_event++;
   return beep_return;
 }
