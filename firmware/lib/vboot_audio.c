@@ -237,17 +237,11 @@ int VbAudioLooping(VbAudioContext* audio) {
   int looping = 1;
 
   now = VbExGetTimer();
-  VBDEBUG(("VbAudioLooping: now=%Lu, cur=%d, play_until=%Lu, next=%d/[0-%d]\n",
-           now, audio->current_frequency, audio->play_until, audio->next_note,
-           audio->note_count-1));
-
   while (audio->next_note < audio->note_count && now >= audio->play_until) {
     freq = audio->music_notes[audio->next_note].frequency;
     msec = audio->music_notes[audio->next_note].msec;
     audio->play_until += VbMsecToTicks(msec);
     audio->next_note++;
-    VBDEBUG(("  freq=%d, play_until=%Lu, next=%d/[0-%d]\n",
-             freq, audio->play_until, audio->next_note, audio->note_count-1));
   }
 
   if (now >= audio->play_until) {
@@ -264,11 +258,8 @@ int VbAudioLooping(VbAudioContext* audio) {
   } else if (freq && msec) {
     VbExBeep(msec, freq);
     now = VbExGetTimer();
-    VBDEBUG(("    (now=%ul)\n", now));
   }
 
-  VBDEBUG(("DONE: now=%Lu, freq=%d, looping=%d\n", now,
-           audio->current_frequency, looping));
   audio->last_time = now;
   return looping;
 }
