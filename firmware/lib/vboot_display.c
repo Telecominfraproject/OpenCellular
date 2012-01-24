@@ -605,6 +605,14 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
       loc = (loc > 0 ? loc - 1 : count - 1);
     VBDEBUG(("VbCheckDisplayKey() - change localization to %d\n", (int)loc));
     VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, loc);
+    /* Workaround for coreboot on x86, which will power off asynchronously
+     * without giving us a chance to react. This is not an example of the Right
+     * Way to do things. See chrome-os-partner:7689, and the commit message
+     * that made this change.
+     */
+    VbNvTeardown(vncptr);               /* really only computes checksum */
+    if (vncptr->raw_changed)
+      VbExNvStorageWrite(vncptr->raw);
 
     /* Force redraw of current screen */
     return VbDisplayScreen(cparams, disp_current_screen, 1, vncptr);

@@ -127,8 +127,11 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
   do {
     uint32_t key;
 
-    if (VbExIsShutdownRequested())
+    if (VbExIsShutdownRequested()) {
+      VBDEBUG(("VbBootDeveloper() - shutdown is requested!\n"));
+      VbAudioClose(audio);
       return VBERROR_SHUTDOWN_REQUESTED;
+    }
 
     key = VbExKeyboardRead();
     switch (key) {
