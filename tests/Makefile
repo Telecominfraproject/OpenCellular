@@ -29,7 +29,8 @@ TEST_NAMES = cgptlib_test \
 	     vboot_firmware_tests \
 	     vboot_nvstorage_test \
 	     vboot_api_devmode_tests \
-	     vboot_audio_tests
+	     vboot_audio_tests \
+	     vboot_api_kernel_tests
 
 TEST_BINS = $(addprefix ${BUILD_ROOT}/,$(TEST_NAMES))
 
