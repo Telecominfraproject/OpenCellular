@@ -1,4 +1,4 @@
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -83,6 +83,7 @@ endif
 export BUILD ?= ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
 export HOSTLIB = ${BUILD}/vboot_host.a
+export DUMPKERNELCONFIGLIB = ${BUILD}/dump_kernel_config.a
 
 ifeq ($(FIRMWARE_ARCH),)
 SUBDIRS = firmware host utility cgpt tests tests/tpm_lite

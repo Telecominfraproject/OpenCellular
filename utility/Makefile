@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -45,7 +45,7 @@ endif
 TARGET_BINS = $(addprefix ${BUILD_ROOT}/,$(TARGET_NAMES))
 ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
 
-all: $(TARGET_BINS)
+all: $(TARGET_BINS) $(DUMPKERNELCONFIGLIB)
 
 ${BUILD_ROOT}/crossystem: crossystem_main.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
@@ -53,8 +53,16 @@ ${BUILD_ROOT}/crossystem: crossystem_main.c $(LIBS)
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $< -o $@ -lcrypto
 
-${BUILD_ROOT}/dump_kernel_config: dump_kernel_config.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+${BUILD_ROOT}/dump_kernel_config: dump_kernel_config_main.c \
+                                  $(DUMPKERNELCONFIGLIB)
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(DUMPKERNELCONFIGLIB) -lcrypto
+
+${BUILD_ROOT}/dump_kernel_config.o: dump_kernel_config.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(DUMPKERNELCONFIGLIB): ${BUILD_ROOT}/dump_kernel_config.o
+	rm -f $@
+	ar qc $@ $^
 
 ${BUILD_ROOT}/gbb_utility: gbb_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $< -o $@
