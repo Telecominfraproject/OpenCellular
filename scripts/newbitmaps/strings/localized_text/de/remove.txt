@@ -1,1 +1,1 @@
-Entfernen Sie vor Beginn der Wiederherstellung alle USB- und SD-Geräte.
+Bitte entfernen Sie alle externen Medien, um die Wiederherstellung zu starten.

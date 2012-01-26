@@ -1,1 +1,1 @@
-Ak chcete spustiť obnovenie, odstráňte všetky zariadenia USB a SD.
+Ak chcete začať obnovovanie, odstráňte všetky externé médiá.

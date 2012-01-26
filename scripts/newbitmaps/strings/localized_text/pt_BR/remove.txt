@@ -1,1 +1,1 @@
-Remova todos os dispositivos USB e SD para iniciar a recuperação.
+Remova toda mídia externa para iniciar a recuperação.

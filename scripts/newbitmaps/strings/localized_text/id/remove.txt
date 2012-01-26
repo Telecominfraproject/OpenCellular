@@ -1,1 +1,1 @@
-Lepaskanlah semua perangkat USB dan SD untuk memulai pemulihan.
+Hapus semua media eksternal untuk memulai pemulihan.

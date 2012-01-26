@@ -1,1 +1,1 @@
-Verwijder alle USB- en SD-apparaten om het herstellen te starten.
+Verwijder alle externe media om het herstel te starten.

@@ -1,1 +1,1 @@
-Pentru a iniţia procesul de recuperare, scoateţi toate dispozitivele USB şi SD.
+Pentru a iniţia procesul de recuperare, eliminaţi toate suporturile media externe.

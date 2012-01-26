@@ -1,1 +1,1 @@
-Per avviare il ripristino, rimuovi tutti i dispositivi USB e SD.
+Per avviare il ripristino, rimuovi tutti i supporti esterni.

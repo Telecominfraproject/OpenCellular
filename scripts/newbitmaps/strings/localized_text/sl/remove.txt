@@ -1,1 +1,1 @@
-Odstranite vse naprave USB in SD, da začnete obnovo.
+Preden začnete obnovo, odstranite vse zunanje nosilce podatkov.

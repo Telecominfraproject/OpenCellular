@@ -1,1 +1,1 @@
-Veuillez retirer tous les périphériques USB et SD avant de lancer le processus de récupération.
+Veuillez retirer tous les supports externes pour lancer le processus de récupération.

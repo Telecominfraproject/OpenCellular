@@ -1,1 +1,1 @@
-Kérjük, távolítsa el az összes USB- és SD-eszközt a helyreállítás megkezdéséhez.
+Távolítson el minden külső meghajtót a helyreállítás megkezdéséhez.

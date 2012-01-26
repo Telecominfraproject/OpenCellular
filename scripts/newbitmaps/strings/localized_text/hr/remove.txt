@@ -1,1 +1,1 @@
-Da biste pokrenuli oporavak, uklonite sve USB i SD uređaje.
+Uklonite sve vanjske medije da biste počeli s oporavkom.

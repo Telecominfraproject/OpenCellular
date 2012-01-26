@@ -1,1 +1,1 @@
-Ta bort alla USB-enheter och SD-kort om du vill återställa enheten.
+Ta bort alla externa media innan du påbörjar återställningen.

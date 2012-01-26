@@ -1,1 +1,1 @@
-Please remove all USB and SD devices to begin recovery.
+Please remove all external media to begin recovery.

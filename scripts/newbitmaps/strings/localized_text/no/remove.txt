@@ -1,1 +1,1 @@
-Fjern alle USB- og SD-enheter for å starte gjenoppretting.
+Fjern alle eksterne medier for å starte gjenopprettingen.

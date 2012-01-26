@@ -1,1 +1,1 @@
-Zanim rozpoczniesz przywracanie systemu odłącz wszystkie urządzenia USB i SD.
+Aby rozpocząć odzyskiwanie, usuń wszystkie nośniki zewnętrzne.

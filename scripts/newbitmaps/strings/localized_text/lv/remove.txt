@@ -1,1 +1,1 @@
-Pirms atkopšanas atvienojiet visas USB un SD ierīces.
+Lai sāktu atkopšanu, atvienojiet visus ārējos datu nesējus.

@@ -1,1 +1,1 @@
-Fjern alle USB- og SD-enheder for at starte gendannelsen.
+Fjern alle eksterne medier for at starte genoprettelse.

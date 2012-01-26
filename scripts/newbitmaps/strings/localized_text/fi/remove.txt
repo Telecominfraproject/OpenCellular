@@ -1,1 +1,1 @@
-Aloita palautus poistamalla kaikki USB- ja SD-laitteet.
+Poista kaikki ulkoiset tallennusvälineet aloittaaksesi palautuksen.

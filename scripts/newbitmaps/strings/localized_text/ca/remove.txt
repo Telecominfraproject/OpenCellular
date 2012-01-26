@@ -1,1 +1,1 @@
-Extraieu tots els dispositius USB i SD per iniciar la recuperació.
+Retireu tots els suports externs per començar la recuperació.
