@@ -96,7 +96,6 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
   /* If we didn't succeed, don't return a disk handle */
   if (VBERROR_SUCCESS != retval) {
     VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_DISK);
-    retval = VBERROR_NO_DISK_FOUND;
     p->disk_handle = NULL;
   }
 
