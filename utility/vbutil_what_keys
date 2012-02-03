@@ -41,7 +41,9 @@ fi
 #
 # 057a03c1526a1be7f42d29095c5a583231a75b35 recovery Stumpy PVT
 # 04dd63e835c979b57f87fd74e99af68e0cd39ad7   normal Stumpy PVT
-
+#
+# 6f6d6df4e328633904990cf8c60baa18b8cf6fc7 recovery Stumpy MP
+# de0b76af3caa55a8e7aa34c805e4248ad03b18e7   normal Stumpy MP
 
 # And here are values for BIOS components.
 #
@@ -70,6 +72,9 @@ fi
 #
 # 9bd99a594c45b6739899a17ec29ac2289ee75463  ZGB MP
 # 9f59876c7f7dc881f02d934786c6b7c2c17dcaac  ZGB MP
+#
+# 37e7bad73449f782f280b1668fed48d1132137fa  Stumpy MP
+# 4ec4ba0a746b37b1c6286ab807c2a5b1e7ab4ab0  Stumpy MP
 
 set -o pipefail
 
