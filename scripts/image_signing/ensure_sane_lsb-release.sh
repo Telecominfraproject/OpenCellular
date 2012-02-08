@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -149,7 +149,13 @@ main() {
                   cut -d - -f 1,2)
     # a copy of the board string with '-' squished to variable-name-safe '_'.
     local boardvar=${board//-/_}
-    eval "expected_appid=\"\$expected_appid_$boardvar\""
+    # For a canary channel, appid maybe a different default value.
+    if ! lsbequals $lsb CHROMEOS_RELEASE_TRACK "canary-channel" \
+      >/dev/null 2>&1; then
+      eval "expected_appid=\"\$expected_appid_$boardvar\""
+    else
+      eval "expected_appid=\"\$expected_appid_canary\""
+    fi
     lsbequals $lsb CHROMEOS_RELEASE_APPID "$expected_appid" || testfail=1
   else # unrecognized board
     testfail=1
