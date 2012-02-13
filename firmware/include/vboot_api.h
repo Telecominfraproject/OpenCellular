@@ -558,7 +558,8 @@ enum VbKeyCode_t {
   VB_KEY_UP = 0x100,
   VB_KEY_DOWN = 0x101,
   VB_KEY_LEFT = 0x102,
-  VB_KEY_RIGHT = 0x103
+  VB_KEY_RIGHT = 0x103,
+  VB_KEY_CTRL_ENTER = 0x104,
 };
 
 /* Read the next keypress from the keyboard buffer.
