@@ -83,7 +83,7 @@ endif
 export BUILD ?= ${TOP}/build
 export FWLIB = ${BUILD}/vboot_fw.a
 export HOSTLIB = ${BUILD}/vboot_host.a
-export DUMPKERNELCONFIGLIB = ${BUILD}/dump_kernel_config.a
+export DUMPKERNELCONFIGLIB = ${BUILD}/libdump_kernel_config.a
 
 ifeq ($(FIRMWARE_ARCH),)
 SUBDIRS = firmware host utility cgpt tests tests/tpm_lite
