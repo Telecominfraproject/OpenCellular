@@ -8,16 +8,16 @@
 #include "cgpt.h"
 
 // This file defines the internal methods that use the user-mode cgpt programatically.
-// This is the interface for the callers such as the cgpt tool or the C++ post installer 
+// This is the interface for the callers such as the cgpt tool or the C++ post installer
 // executable.
 
 typedef struct CgptCreateParams {
-  char *driveName;
+  char *drive_name;
   int zap;
 } CgptCreateParams;
 
 typedef struct CgptAddParams {
-  char *driveName;
+  char *drive_name;
   uint32_t partition;
   uint64_t begin;
   uint64_t size;
@@ -39,28 +39,31 @@ typedef struct CgptAddParams {
 } CgptAddParams;
 
 typedef struct CgptShowParams {
-  char *driveName;
+  char *drive_name;
   int numeric;
   int verbose;
   int quick;
   uint32_t partition;
   int single_item;
+
+  // This is filled in by the relevant methods in cgpt_show.c
+  int num_partitions;
 } CgptShowParams;
 
 typedef struct CgptRepairParams {
-  char *driveName;
+  char *drive_name;
   int verbose;
 } CgptRepairParams;
 
 typedef struct CgptBootParams {
-  char *driveName;
+  char *drive_name;
   uint32_t partition;
   char *bootfile;
   int create_pmbr;
 } CgptBootParams;
 
 typedef struct CgptPrioritizeParams {
-  char *driveName;
+  char *drive_name;
 
   uint32_t set_partition;
   int set_friends;
@@ -69,7 +72,7 @@ typedef struct CgptPrioritizeParams {
 } CgptPrioritizeParams;
 
 typedef struct CgptFindParams {
-  char *driveName;
+  char *drive_name;
 
   int verbose;
   int set_unique;
@@ -88,11 +91,28 @@ typedef struct CgptFindParams {
   int match_partnum;           // 0 for no match, 1-N for match
 } CgptFindParams;
 
+// create related methods.
 int cgpt_create(CgptCreateParams *params);
+
+// add/attribute/details related methods
 int cgpt_add(CgptAddParams *params);
+int cgpt_set_attributes(CgptAddParams *params);
+int cgpt_get_partition_details(CgptAddParams *params);
+
+// boot related methods.
 int cgpt_boot(CgptBootParams *params);
+int cgpt_get_boot_partition_number(CgptBootParams *params);
+
+// show/get related methods.
 int cgpt_show(CgptShowParams *params);
+int cgpt_get_num_non_empty_partitions(CgptShowParams *params);
+
+// repair related methods.
 int cgpt_repair(CgptRepairParams *params);
+
+// priority related methods.
 int cgpt_prioritize(CgptPrioritizeParams *params);
+
+// find related methods.
 void cgpt_find(CgptFindParams *params);
 #endif  // VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_

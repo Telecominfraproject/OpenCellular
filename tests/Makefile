@@ -2,12 +2,18 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+ifeq ($(FIRMWARE_ARCH),)
+CFLAGS += -DCHROMEOS_ENVIRONMENT
+CXXFLAGS += -DCHROMEOS_ENVIRONMENT
+endif
+
 INCLUDES += -I./include \
 		-I$(FWDIR)/lib/include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I$(FWDIR)/lib/tpm_lite/include \
 		-I$(HOSTDIR)/include
+
 BUILD_ROOT = ${BUILD}/tests
 
 TEST_NAMES = cgptlib_test \
@@ -40,6 +46,8 @@ TEST_LIB_OBJS = $(TEST_LIB_SRCS:%.c=${BUILD_ROOT}/%.o)
 ALL_DEPS = $(addsuffix .d,${TEST_BINS} ${TEST_LIB_OBJS})
 # Allow multiple definitions, so tests can mock functions from other libraries
 CFLAGS +=  -MMD -MF $@.d -Xlinker --allow-multiple-definition
+CXXFLAGS +=  -MMD -MF $@.d -Xlinker --allow-multiple-definition
+LDFLAGS += -luuid
 
 LIBS := ${TEST_LIB} $(HOSTLIB)
 
@@ -54,6 +62,14 @@ rbtest: $(BUILD_ROOT)/rollback_index_test
 ${TEST_LIB}: ${TEST_LIB_OBJS}
 	rm -f $@
 	ar qc $@ $^
+
+
+${BUILD_ROOT}/CgptManagerTests.o: CgptManagerTests.cc
+	$(CXX) -DWITH_UTIL_MAIN $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+CgptManagerTests: ${BUILD_ROOT}/CgptManagerTests.o ${LIBS}
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -lgtest -lgflags $^ \
+	${BUILD}/cgpt/libcgpt-cc.a ${FWLIB} $(HOSTLIB) -lbase -lpthread -lrt -o ${BUILD_ROOT}/$@
 
 ${BUILD_ROOT}/vboot_audio_for_test.o : $(FWDIR)/lib/vboot_audio.c
 	$(CC) $(CFLAGS) -DCUSTOM_MUSIC $(INCLUDES) \
@@ -113,6 +129,10 @@ genkeys:
 runcgpttests:
 	${BUILD_ROOT}/cgptlib_test
 	./run_cgpt_tests.sh  ${BUILD}/cgpt/cgpt
+
+# Run CgptManager tests
+runcgptmanagertests:
+	${BUILD_ROOT}/CgptManagerTests --v=1
 
 # Run crypto tests
 runcryptotests:

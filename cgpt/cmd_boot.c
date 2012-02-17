@@ -81,7 +81,7 @@ int cmd_boot(int argc, char *argv[]) {
     return CGPT_FAILED;
   }
 
-  params.driveName = argv[optind];
+  params.drive_name = argv[optind];
 
   return cgpt_boot(&params);
 }

@@ -2,8 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-CFLAGS += -static
-LDFLAGS += -luuid
+LDFLAGS += -luuid -static
 BUILD_ROOT := ${BUILD}/cgpt
 
 INCLUDES = -I$(FWDIR)/lib/cgptlib/include -I$(FWDIR)/include
@@ -12,6 +11,8 @@ LIBS = ${HOSTLIB}
 DESTDIR ?= /usr/bin
 
 PROGNAME = ${BUILD_ROOT}/cgpt
+
+LIB_CGPT_CC = ${BUILD_ROOT}/libcgpt-cc.a
 
 ALL_SRCS = \
 	cgpt.c \
@@ -31,9 +32,21 @@ ALL_SRCS = \
 	cmd_prioritize.c \
 	cgpt_common.c
 
+LIB_CGPT_CC_SRCS = \
+	CgptManager.cc
+
 main: $(PROGNAME)
 
 include ../common.mk
+
+LIB_CGPT_CC_OBJS = $(LIB_CGPT_CC_SRCS:%.cc=${BUILD_ROOT}/%.o)
+LIB_CGPT_CC_DEPS = $(LIB_CGPT_CC_OBJS:%.o=%.o.d)
+
+libcgpt_cc: main $(LIB_CGPT_CC)
+
+$(LIB_CGPT_CC): $(ALL_OBJS) $(LIB_CGPT_CC_OBJS)
+	rm -f $@
+	ar qc $@ $^
 
 $(PROGNAME): $(ALL_OBJS) $(LIBS)
 	$(CC) -o $(PROGNAME) $(CFLAGS) $^ $(LDFLAGS)
@@ -44,3 +57,4 @@ install: $(PROGNAME)
 	chmod a+rx $(patsubst ${BUILD_ROOT}/%,$(DESTDIR)/%,$^)
 
 .PHONY: all install
+

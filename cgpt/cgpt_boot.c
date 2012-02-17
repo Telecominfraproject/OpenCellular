@@ -12,6 +12,55 @@
 #include "endian.h"
 #include "cgpt_params.h"
 
+
+int cgpt_get_boot_partition_number(CgptBootParams *params) {
+  struct drive drive;
+  int gpt_retval= 0;
+  int retval;
+
+  if (params == NULL)
+    return CGPT_FAILED;
+
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive))
+    return CGPT_FAILED;
+
+  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
+    Error("GptSanityCheck() returned %d: %s\n",
+          gpt_retval, GptError(gpt_retval));
+    retval = CGPT_FAILED;
+    goto done;
+  }
+
+  if (CGPT_OK != ReadPMBR(&drive)) {
+    Error("Unable to read PMBR\n");
+    goto done;
+  }
+
+  char buf[GUID_STRLEN];
+  GuidToStr(&drive.pmbr.boot_guid, buf, sizeof(buf));
+
+  int numEntries = GetNumberOfEntries(&drive.gpt);
+  int i;
+  for(i = 0; i < numEntries; i++) {
+      GptEntry *entry = GetEntry(&drive.gpt, ANY_VALID, i);
+
+      if (GuidEqual(&entry->unique, &drive.pmbr.boot_guid)) {
+        params->partition = i + 1;
+        retval = CGPT_OK;
+        goto done;
+      }
+  }
+
+  Error("Didn't find any boot partition\n");
+  params->partition = 0;
+  retval = CGPT_FAILED;
+
+done:
+  (void) DriveClose(&drive, 1);
+  return retval;
+}
+
+
 int cgpt_boot(CgptBootParams *params) {
   struct drive drive;
   int retval = 1;
@@ -20,7 +69,7 @@ int cgpt_boot(CgptBootParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->driveName, &drive))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive))
     return CGPT_FAILED;
 
   if (CGPT_OK != ReadPMBR(&drive)) {

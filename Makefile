@@ -105,6 +105,10 @@ all:
 		make -C $$i; \
 	done
 
+libcgpt_cc: all
+	$(MAKE) -C cgpt libcgpt_cc
+	$(MAKE) -C tests CgptManagerTests
+
 clean:
 	/bin/rm -rf ${BUILD}
 
@@ -114,6 +118,9 @@ install:
 
 runtests:
 	$(MAKE) -C tests runtests
+
+runcgptmanagertests:
+	$(MAKE) -C tests runcgptmanagertests
 
 rbtest:
 	$(MAKE) -C tests rbtest

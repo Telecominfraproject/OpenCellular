@@ -104,7 +104,7 @@ int cmd_prioritize(int argc, char *argv[]) {
     return CGPT_FAILED;
   }
 
-  params.driveName = argv[optind];
+  params.drive_name = argv[optind];
 
   return cgpt_prioritize(&params);
 }

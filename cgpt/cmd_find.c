@@ -152,7 +152,7 @@ int cmd_find(int argc, char *argv[]) {
 
   if (optind < argc) {
     for (i=optind; i<argc; i++) {
-      params.driveName = argv[i];
+      params.drive_name = argv[i];
       cgpt_find(&params);
       }
   } else {

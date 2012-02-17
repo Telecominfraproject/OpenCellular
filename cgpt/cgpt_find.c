@@ -17,7 +17,7 @@
 
 
 // fill comparebuf with the data to be examined, returning true on success.
-static int FillBuffer(CgptFindParams *params, int fd, uint64_t pos, 
+static int FillBuffer(CgptFindParams *params, int fd, uint64_t pos,
                        uint64_t count) {
   uint8_t *bufptr = params->comparebuf;
 
@@ -38,7 +38,7 @@ static int FillBuffer(CgptFindParams *params, int fd, uint64_t pos,
 }
 
 // check partition data content. return true for match, 0 for no match or error
-static int match_content(CgptFindParams *params, struct drive *drive, 
+static int match_content(CgptFindParams *params, struct drive *drive,
                              GptEntry *entry) {
   uint64_t part_size;
 
@@ -70,7 +70,7 @@ static int match_content(CgptFindParams *params, struct drive *drive,
 }
 
 // This needs to handle /dev/mmcblk0 -> /dev/mmcblk0p3, /dev/sda -> /dev/sda3
-static void showmatch(CgptFindParams *params, char *filename, 
+static void showmatch(CgptFindParams *params, char *filename,
                            int partnum, GptEntry *entry) {
   char * format = "%s%d\n";
   if (strncmp("/dev/mmcblk", filename, 11) == 0)
@@ -217,8 +217,8 @@ void cgpt_find(CgptFindParams *params) {
   if (params == NULL)
     return;
 
-  if (params->driveName != NULL)
-    do_search(params, params->driveName);
+  if (params->drive_name != NULL)
+    do_search(params, params->drive_name);
   else
     scan_real_devs(params);
 }

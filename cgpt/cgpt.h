@@ -1,11 +1,14 @@
-// Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+// Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef VBOOT_REFERENCE_UTILITY_CGPT_CGPT_H_
 #define VBOOT_REFERENCE_UTILITY_CGPT_CGPT_H_
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
+
 #define _FILE_OFFSET_BITS 64
 #include <features.h>
 #include <stdint.h>

@@ -165,13 +165,13 @@ int cmd_add(int argc, char *argv[]) {
     return CGPT_FAILED;
   }
 
-  if (optind >= argc) 
+  if (optind >= argc)
   {
     Error("missing drive argument\n");
     return CGPT_FAILED;
   }
 
-  params.driveName = argv[optind];
+  params.drive_name = argv[optind];
 
   return cgpt_add(&params);
 }
