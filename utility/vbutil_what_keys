@@ -85,7 +85,7 @@ dofile() {
   file="$1"
   size=$(stat -c %s "$file")
 
-  if [ "$size" -le 8388608 ]; then
+  if [ -f "$file" ] && [ "$size" -le 8388608 ]; then
     echo "BIOS: $file"
 
     hwid=$(gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || continue;
