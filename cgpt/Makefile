@@ -33,18 +33,28 @@ ALL_SRCS = \
 	cgpt_common.c
 
 LIB_CGPT_CC_SRCS = \
-	CgptManager.cc
+	CgptManager.cc \
+	cgpt_create.c \
+	cgpt_add.c \
+	cgpt_boot.c \
+	cgpt_show.c \
+	cgpt_repair.c \
+	cgpt_prioritize.c \
+	cgpt_common.c \
+	../firmware/lib/cgptlib/crc32.c \
+	../firmware/lib/cgptlib/cgptlib_internal.c \
+	../firmware/stub/utility_stub.c
 
 main: $(PROGNAME)
 
 include ../common.mk
 
-LIB_CGPT_CC_OBJS = $(LIB_CGPT_CC_SRCS:%.cc=${BUILD_ROOT}/%.o)
+LIB_CGPT_CC_OBJS = $(LIB_CGPT_CC_SRCS:%.c=${BUILD_ROOT}/%.o) $(LIB_CGPT_CC_SRCS:%.cc=${BUILD_ROOT}/%.o)
 LIB_CGPT_CC_DEPS = $(LIB_CGPT_CC_OBJS:%.o=%.o.d)
 
-libcgpt_cc: main $(LIB_CGPT_CC)
+libcgpt_cc: $(LIB_CGPT_CC)
 
-$(LIB_CGPT_CC): $(ALL_OBJS) $(LIB_CGPT_CC_OBJS)
+$(LIB_CGPT_CC): $(LIB_CGPT_CC_OBJS)
 	rm -f $@
 	ar qc $@ $^
 

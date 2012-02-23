@@ -15,6 +15,8 @@ using std::string;
 // We don't use these variables for the libcgpt version.
 const char* progname = "";
 const char* command = "";
+void (*uuid_generator)(uint8_t* buffer) = NULL;
+
 
 // This file implements the C++ wrapper methods over the C cgpt methods.
 

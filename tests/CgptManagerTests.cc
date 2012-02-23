@@ -22,6 +22,7 @@ extern "C" {
 #include <base/logging.h>
 #include <gflags/gflags.h>
 #include <gtest/gtest.h>
+#include <uuid/uuid.h>
 
 using std::string;
 
@@ -36,7 +37,12 @@ DEFINE_int32(v, 0, 0);
 // This class unit tests the CgptManager class.
 class CgptManagerUnitTest : public ::testing::Test {
 public:
-  CgptManagerUnitTest() { }
+  CgptManagerUnitTest() {
+    // Even though the post-installer doesn't use any methods that require
+    // uuid_generate, for the unit test we use those methods, so we need to
+    // set the uuid_generator.
+    uuid_generator = uuid_generate;
+  }
 
   void SetUp() {
     const string device_name = "/tmp/DummyFileForCgptManagerTests.bin";

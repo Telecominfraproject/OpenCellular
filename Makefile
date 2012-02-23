@@ -105,9 +105,17 @@ all:
 		make -C $$i; \
 	done
 
-libcgpt_cc: all
+libcgpt_cc:
+	mkdir -p ${BUILD}/cgpt ${BUILD}/firmware/lib/cgptlib ${BUILD}/firmware/stub 
 	$(MAKE) -C cgpt libcgpt_cc
-	$(MAKE) -C tests CgptManagerTests
+
+cgptmanager_tests: libcgpt_cc
+	mkdir -p ${BUILD}/tests
+	$(MAKE) -C tests cgptmanager_tests
+
+libdump_kernel_config:
+	mkdir -p ${BUILD}/utility
+	$(MAKE) -C utility $(DUMPKERNELCONFIGLIB)
 
 clean:
 	/bin/rm -rf ${BUILD}

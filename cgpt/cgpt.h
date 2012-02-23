@@ -136,6 +136,13 @@ extern const char* progname;
 extern const char* command;
 void Error(const char *format, ...);
 
+// The code paths that require uuid_generate are not used currently in
+// libcgpt-cc.a so using this method would create an unnecessary dependency
+// on libuuid which then requires us to build it for 32-bit for the static
+// post-installer. So, we just expose this function pointer which should be
+// set to uuid_generate in case of the cgpt binary and can be null or some
+// no-op method in case of ilbcgpt-cc.a.
+extern void (*uuid_generator)(uint8_t* buffer);
 
 // Command functions.
 int cmd_show(int argc, char *argv[]);

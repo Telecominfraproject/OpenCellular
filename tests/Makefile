@@ -59,6 +59,8 @@ all: $(TEST_BINS) ${EXTRA_TARGET}
 
 rbtest: $(BUILD_ROOT)/rollback_index_test
 
+cgptmanager_tests: $(BUILD_ROOT)/CgptManagerTests
+
 ${TEST_LIB}: ${TEST_LIB_OBJS}
 	rm -f $@
 	ar qc $@ $^
@@ -67,9 +69,9 @@ ${TEST_LIB}: ${TEST_LIB_OBJS}
 ${BUILD_ROOT}/CgptManagerTests.o: CgptManagerTests.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
-CgptManagerTests: ${BUILD_ROOT}/CgptManagerTests.o ${LIBS}
+${BUILD_ROOT}/CgptManagerTests: ${BUILD_ROOT}/CgptManagerTests.o
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -lgtest -lgflags $^ \
-	${BUILD}/cgpt/libcgpt-cc.a ${FWLIB} $(HOSTLIB) -lbase -lpthread -lrt -o ${BUILD_ROOT}/$@
+	${BUILD}/cgpt/libcgpt-cc.a -lbase -lpthread -lrt -o $@
 
 ${BUILD_ROOT}/vboot_audio_for_test.o : $(FWDIR)/lib/vboot_audio.c
 	$(CC) $(CFLAGS) -DCUSTOM_MUSIC $(INCLUDES) \

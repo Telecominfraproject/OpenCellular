@@ -11,10 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <uuid/uuid.h>
 
 const char* progname;
 const char* command;
+void (*uuid_generator)(uint8_t* buffer);
 
 struct {
   const char *name;
@@ -50,6 +51,8 @@ int main(int argc, char *argv[]) {
   int i;
   int match_count = 0;
   int match_index = 0;
+
+  uuid_generator = uuid_generate;
 
   progname = strrchr(argv[0], '/');
   if (progname)

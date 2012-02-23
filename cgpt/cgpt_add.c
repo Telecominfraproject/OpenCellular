@@ -233,7 +233,11 @@ int cgpt_add(CgptAddParams *params) {
       goto bad;
     }
     if (!params->set_unique)
-      uuid_generate((uint8_t *)&entry->unique);
+      if (!uuid_generator) {
+        Error("Unable to generate new GUID. uuid_generator not set.\n");
+        goto bad;
+      }
+      (*uuid_generator)((uint8_t *)&entry->unique);
   }
 
   if (params->set_begin)

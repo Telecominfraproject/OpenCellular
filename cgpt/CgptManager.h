@@ -6,7 +6,6 @@
 #define VBOOT_REFERENCE_CGPT_CGPTMANAGER_H_
 
 #include <string>
-#include <base/basictypes.h>
 #include "gpt.h"
 
 // This file defines a simple C++ wrapper class interface for the cgpt methods.
@@ -166,7 +165,8 @@ class CgptManager {
     std::string device_name_;
     bool is_initialized_;
 
-    DISALLOW_COPY_AND_ASSIGN(CgptManager);
+    CgptManager(const CgptManager &);
+    void operator=(const CgptManager &);
 };
 
 #endif  // VBOOT_REFERENCE_CGPT_CGPTMANAGER_H_
