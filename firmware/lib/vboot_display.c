@@ -321,6 +321,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
     used += Strncat(outbuf + used, "gbb.flags is nonzero: 0x",
                     OUTBUF_LEN - used);
     used += Uint64ToString(outbuf + used, OUTBUF_LEN - used, gbb->flags, 16, 8);
+    used += Strncat(outbuf + used, "\n", OUTBUF_LEN - used);
     (void)VbExDisplayDebugInfo(outbuf);
   }
 
