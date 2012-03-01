@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -394,5 +394,36 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
 
   nvdata = response + kTpmResponseHeaderLength + sizeof(size);
   FromTpmUint32(nvdata + kNvDataPublicPermissionsOffset, permissions);
+  return result;
+}
+
+uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size) {
+  struct s_tpm_get_random_cmd cmd;
+  uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
+  uint32_t result;
+
+  VBDEBUG(("TPM: TlclGetRandom(%d)\n", length));
+  Memcpy(&cmd, &tpm_get_random_cmd, sizeof(cmd));
+  ToTpmUint32(cmd.buffer + tpm_get_random_cmd.bytesRequested, length);
+  /* There must be room in the response buffer for the bytes. */
+  if (length > TPM_LARGE_ENOUGH_COMMAND_SIZE - kTpmResponseHeaderLength
+               - sizeof(uint32_t)) {
+    return TPM_E_IOERROR;
+  }
+
+  result = TlclSendReceive(cmd.buffer, response, sizeof(response));
+  if (result == TPM_SUCCESS) {
+    uint8_t* get_random_cursor;
+    FromTpmUint32(response + kTpmResponseHeaderLength, size);
+
+    /* There must be room in the target buffer for the bytes. */
+    if (*size > length) {
+      return TPM_E_RESPONSE_TOO_LARGE;
+    }
+    get_random_cursor = response + kTpmResponseHeaderLength
+                                 + sizeof(uint32_t);
+    Memcpy(data, get_random_cursor, *size);
+  }
+
   return result;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -228,6 +228,35 @@ static uint32_t HandlerGetPermissions(void) {
   return result;
 }
 
+static uint32_t HandlerGetRandom(void) {
+  uint32_t length, size;
+  uint8_t* bytes;
+  uint32_t result;
+  int i;
+  if (nargs != 3) {
+    fprintf(stderr, "usage: tpmc getrandom <size>\n");
+    exit(OTHER_ERROR);
+  }
+  if (HexStringToUint32(args[2], &length) != 0) {
+    fprintf(stderr, "<size> must be 32-bit hex (0x[0-9a-f]+)\n");
+    exit(OTHER_ERROR);
+  }
+  bytes = calloc(1, length);
+  if (bytes == NULL) {
+    perror("calloc");
+    exit(OTHER_ERROR);
+  }
+  result = TlclGetRandom(bytes, length, &size);
+  if (result == 0 && size > 0) {
+    for (i = 0; i < size; i++) {
+      printf("%02x", bytes[i]);
+    }
+    printf("\n");
+  }
+  free(bytes);
+  return result;
+}
+
 static uint32_t HandlerGetPermanentFlags(void) {
   TPM_PERMANENT_FLAGS pflags;
   uint32_t result = TlclGetPermanentFlags(&pflags);
@@ -312,6 +341,8 @@ command_record command_table[] = {
     HandlerGetPermissions },
   { "getpermanentflags", "getpf", "print all permanent flags",
     HandlerGetPermanentFlags },
+  { "getrandom", "rand", "read bytes from RNG (rand <size>)",
+    HandlerGetRandom },
   { "getstclearflags", "getvf", "print all volatile (ST_CLEAR) flags",
     HandlerGetSTClearFlags },
   { "resume", "res", "execute TPM_Startup(ST_STATE)", TlclResume },

@@ -7,6 +7,12 @@ const struct s_tpm_extend_cmd{
 } tpm_extend_cmd = {{0x0, 0xc1, 0x0, 0x0, 0x0, 0x22, 0x0, 0x0, 0x0, 0x14, },
 10, 14, };
 
+const struct s_tpm_get_random_cmd{
+  uint8_t buffer[14];
+  uint16_t bytesRequested;
+} tpm_get_random_cmd = {{0x0, 0xc1, 0x0, 0x0, 0x0, 0xe, 0x0, 0x0, 0x0, 0x46, },
+10, };
+
 const struct s_tpm_getpermissions_cmd{
   uint8_t buffer[22];
   uint16_t index;

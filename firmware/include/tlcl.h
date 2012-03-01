@@ -1,4 +1,4 @@
-/* Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -149,5 +149,10 @@ uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags);
 /* Gets the entire set of volatile (ST_CLEAR) flags.
  */
 uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* pflags);
+
+/* Requests [length] bytes from TPM RNG to be stored in [data]. Actual
+ * number of bytes read is stored in [size]. The TPM error code is returned.
+ */
+uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t* size);
 
 #endif  /* TPM_LITE_TLCL_H_ */

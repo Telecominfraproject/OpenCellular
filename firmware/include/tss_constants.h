@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -36,6 +36,7 @@
 #define TPM_E_MUST_REBOOT            ((uint32_t)0x00005002)  /* vboot local */
 #define TPM_E_CORRUPTED_STATE        ((uint32_t)0x00005003)  /* vboot local */
 #define TPM_E_COMMUNICATION_ERROR    ((uint32_t)0x00005004)  /* vboot local */
+#define TPM_E_RESPONSE_TOO_LARGE     ((uint32_t)0x00005005)  /* vboot local */
 
 #define TPM_NV_INDEX0 ((uint32_t)0x00000000)
 #define TPM_NV_INDEX_LOCK ((uint32_t)0xffffffff)
