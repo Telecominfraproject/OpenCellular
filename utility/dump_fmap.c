@@ -27,8 +27,8 @@ static void* base_of_rom;
 
 
 /* Return 0 if successful */
-static int dump_fmap(const void* ptr) {
-  int i,retval = 0;
+static int dump_fmap(const void* ptr, int argc, char *argv[]) {
+  int i,j,retval = 0;
   char buf[80];                         // DWR: magic number
   const FmapHeader* fmh = (const FmapHeader*) ptr;
   const FmapAreaHeader* ah = (const FmapAreaHeader*) (ptr + sizeof(FmapHeader));
@@ -45,8 +45,21 @@ static int dump_fmap(const void* ptr) {
     printf("fmap_nareas:     %d\n", fmh->fmap_nareas);
   }
 
-  for (i=0; i<fmh->fmap_nareas; i++) {
+  for (i=0; i<fmh->fmap_nareas; i++, ah++) {
     snprintf(buf, FMAP_NAMELEN+1, "%s", ah->area_name);
+
+    if (argc) {
+      int j, found=0;
+      for (j=0; j<argc; j++)
+        if (!strcmp(argv[j], buf)) {
+            found = 1;
+            break;
+          }
+      if (!found) {
+        continue;
+      }
+    }
+
     switch(opt_format)
     {
     case FMT_PRETTY:
@@ -87,8 +100,6 @@ static int dump_fmap(const void* ptr) {
         fclose(fp);
       }
     }
-
-    ah++;
   }
 
   return retval;
@@ -140,10 +151,12 @@ int main(int argc, char* argv[]) {
 
   if (errorcnt || optind >= argc) {
     fprintf(stderr,
-      "\nUsage:  %s [-x] [-p|-f] FLASHIMAGE\n\n"
+      "\nUsage:  %s [-x] [-p|-f] FLASHIMAGE [NAME...]\n\n"
       "Display (and extract with -x) the FMAP components from a BIOS image.\n"
       "The -p option makes the output easier to parse by scripts.\n"
-      "The -f option emits the FMAP in the format used by flashrom\n"
+      "The -f option emits the FMAP in the format used by flashrom.\n"
+      "\n"
+      "Specify one or more NAMEs to only print sections that exactly match.\n"
       "\n",
       progname);
     return 1;
@@ -183,7 +196,7 @@ int main(int argc, char* argv[]) {
   if (fmap) {
     if (FMT_NORMAL == opt_format)
       printf("hit at 0x%08x\n", (uint32_t) (fmap - (char*) base_of_rom));
-    retval = dump_fmap(fmap);
+    retval = dump_fmap(fmap, argc-optind-1, argv+optind+1);
   }
 
   if (0 != munmap(base_of_rom, sb.st_size)) {
