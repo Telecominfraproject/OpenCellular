@@ -2,6 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+PKG_CONFIG ?= pkg-config
+
+BASE_VER = 85268
+PC_DEPS = libchrome-$(BASE_VER)
+PC_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PC_DEPS))
+PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
+
 ifeq ($(FIRMWARE_ARCH),)
 CFLAGS += -DCHROMEOS_ENVIRONMENT
 CXXFLAGS += -DCHROMEOS_ENVIRONMENT
@@ -12,7 +19,8 @@ INCLUDES += -I./include \
 		-I$(FWDIR)/lib/cgptlib/include \
 		-I$(FWDIR)/lib/cryptolib/include \
 		-I$(FWDIR)/lib/tpm_lite/include \
-		-I$(HOSTDIR)/include
+		-I$(HOSTDIR)/include \
+		$(PC_CFLAGS)
 
 BUILD_ROOT = ${BUILD}/tests
 
@@ -63,7 +71,7 @@ cgptmanager_tests: $(BUILD_ROOT)/CgptManagerTests
 
 ${TEST_LIB}: ${TEST_LIB_OBJS}
 	rm -f $@
-	ar qc $@ $^
+	$(AR) rc $@ $^
 
 
 ${BUILD_ROOT}/CgptManagerTests.o: CgptManagerTests.cc
@@ -71,7 +79,7 @@ ${BUILD_ROOT}/CgptManagerTests.o: CgptManagerTests.cc
 
 ${BUILD_ROOT}/CgptManagerTests: ${BUILD_ROOT}/CgptManagerTests.o
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -lgtest -lgflags $^ \
-	${BUILD}/cgpt/libcgpt-cc.a -lbase -lpthread -lrt -o $@
+	${BUILD}/cgpt/libcgpt-cc.a $(PC_LIBS) -o $@
 
 ${BUILD_ROOT}/vboot_audio_for_test.o : $(FWDIR)/lib/vboot_audio.c
 	$(CC) $(CFLAGS) -DCUSTOM_MUSIC $(INCLUDES) \
