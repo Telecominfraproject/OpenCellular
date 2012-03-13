@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,7 +24,7 @@
 #define INCLUDED_NVBOOT_BCT_H
 
 #include <sys/types.h>
-#include "nvboot_sdram_param.h"
+#include "nvboot_sdram_param_t20.h"
 
 /**
  * Defines the number of 32-bit words in the customer_data area of the BCT.
@@ -35,7 +35,7 @@
  * Defines the number of bytes in the customer_data area of the BCT.
  */
 #define NVBOOT_BCT_CUSTOMER_DATA_SIZE \
-                (NVBOOT_BCT_CUSTOMER_DATA_WORDS * 4)
+		(NVBOOT_BCT_CUSTOMER_DATA_WORDS * 4)
 
 /**
  * Defines the number of bytes in the reserved area of the BCT.
@@ -99,13 +99,12 @@ enum {NVBOOT_CMAC_AES_HASH_LENGTH = 4};
 /**
  * Defines the storage for a hash value (128 bits).
  */
-typedef struct nvboot_hash_rec
-{
+typedef struct nvboot_hash_rec {
 	u_int32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
 } nvboot_hash;
 
-/// Defines the params that can be configured for NAND devices.
-typedef struct nvboot_nand_params_rec{
+/* Defines the params that can be configured for NAND devices. */
+typedef struct nvboot_nand_params_rec {
 	/**
 	 * Specifies the clock divider for the PLL_P 432MHz source.
 	 * If it is set to 18, then clock source to Nand controller is
@@ -113,22 +112,21 @@ typedef struct nvboot_nand_params_rec{
 	 */
 	u_int8_t clock_divider;
 
-	/// Specifies the value to be programmed to Nand Timing Register 1
+	/* Specifies the value to be programmed to Nand Timing Register 1 */
 	u_int32_t nand_timing;
 
-	/// Specifies the value to be programmed to Nand Timing Register 2
+	/* Specifies the value to be programmed to Nand Timing Register 2 */
 	u_int32_t nand_timing2;
 
-	/// Specifies the block size in log2 bytes
+	/* Specifies the block size in log2 bytes */
 	u_int8_t block_size_log2;
 
-	/// Specifies the page size in log2 bytes
+	/* Specifies the page size in log2 bytes */
 	u_int8_t page_size_log2;
 } nvboot_nand_params;
 
-/// Defines various data widths supported.
-typedef enum
-{
+/* Defines various data widths supported. */
+typedef enum {
 	/**
 	 * Specifies a 1 bit interface to eMMC.
 	 * Note that 1-bit data width is only for the driver's internal use.
@@ -140,19 +138,18 @@ typedef enum
 	 */
 	nvboot_sdmmc_data_width_1bit = 0,
 
-	/// Specifies a 4 bit interface to eMMC.
+	/* Specifies a 4 bit interface to eMMC. */
 	nvboot_sdmmc_data_width_4bit = 1,
 
-	/// Specifies a 8 bit interface to eMMC.
+	/* Specifies a 8 bit interface to eMMC. */
 	nvboot_sdmmc_data_width_8bit = 2,
 
 	nvboot_sdmmc_data_width_num,
 	nvboot_sdmmc_data_width_force32 = 0x7FFFFFFF
 } nvboot_sdmmc_data_width;
 
-/// Defines the parameters that can be changed after BCT is read.
-typedef struct nvboot_sdmmc_params_rec
-{
+/* Defines the parameters that can be changed after BCT is read. */
+typedef struct nvboot_sdmmc_params_rec {
 	/**
 	 * Specifies the clock divider for the SDMMC controller's clock source,
 	 * which is PLLP running at 432MHz.  If it is set to 18, then the SDMMC
@@ -160,10 +157,10 @@ typedef struct nvboot_sdmmc_params_rec
 	 */
 	u_int8_t clock_divider;
 
-	/// Specifies the data bus width. Supported data widths are 4/8 bits.
+	/* Specifies the data bus width. Supported data widths are 4/8 bits. */
 	nvboot_sdmmc_data_width data_width;
 
-	/** 
+	/**
 	 * Max Power class supported by the target board.
 	 * The driver determines the best data width and clock frequency
 	 * supported within the power class range (0 to Max) if the selected
@@ -172,18 +169,17 @@ typedef struct nvboot_sdmmc_params_rec
 	u_int8_t max_power_class_supported;
 } nvboot_sdmmc_params;
 
-typedef enum 
-{
-	/// Specifies SPI clock source to be PLLP.
+typedef enum {
+	/* Specifies SPI clock source to be PLLP. */
 	nvboot_spi_clock_source_pllp_out0 = 0,
 
-	/// Specifies SPI clock source to be PLLC.
+	/* Specifies SPI clock source to be PLLC. */
 	nvboot_spi_clock_source_pllc_out0,
 
-	/// Specifies SPI clock source to be PLLM.
+	/* Specifies SPI clock source to be PLLM. */
 	nvboot_spi_clock_source_pllm_out0,
 
-	/// Specifies SPI clock source to be ClockM.
+	/* Specifies SPI clock source to be ClockM. */
 	nvboot_spi_clock_source_clockm,
 
 	nvboot_spi_clock_source_num,
@@ -194,8 +190,7 @@ typedef enum
 /**
  * Defines the parameters SPI FLASH devices.
  */
-typedef struct nvboot_spiflash_params_rec
-{
+typedef struct nvboot_spiflash_params_rec {
 	/**
 	 * Specifies the clock source to use.
 	 */
@@ -224,12 +219,12 @@ typedef struct nvboot_spiflash_params_rec
 /**
 * Defines the union of the parameters required by each device.
 */
-typedef union{
-	/// Specifies optimized parameters for NAND
+typedef union {
+	/* Specifies optimized parameters for NAND */
 	nvboot_nand_params nand_params;
-	/// Specifies optimized parameters for eMMC and eSD
+	/* Specifies optimized parameters for eMMC and eSD */
 	nvboot_sdmmc_params sdmmc_params;
-	/// Specifies optimized parameters for SPI NOR
+	/* Specifies optimized parameters for SPI NOR */
 	nvboot_spiflash_params spiflash_params;
 } nvboot_dev_params;
 
@@ -239,25 +234,24 @@ typedef union{
  * @note These no longer match the fuse API device values (for
  * backward compatibility with AP15).
  */
-typedef enum
-{
-	/// Specifies a default (unset) value.
+typedef enum {
+	/* Specifies a default (unset) value. */
 	nvboot_dev_type_none = 0,
 
-	/// Specifies NAND.
+	/* Specifies NAND. */
 	nvboot_dev_type_nand,
 
-	/// Specifies SPI NOR.
+	/* Specifies SPI NOR. */
 	nvboot_dev_type_spi = 3,
 
-	/// Specifies SDMMC (either eMMC or eSD).
+	/* Specifies SDMMC (either eMMC or eSD). */
 	nvboot_dev_type_sdmmc,
 
 	nvboot_dev_type_max,
 
-	/// Ignore -- Forces compilers to make 32-bit enums.
+	/* Ignore -- Forces compilers to make 32-bit enums. */
 	nvboot_dev_type_force32 = 0x7FFFFFFF
- } nvboot_dev_type;
+} nvboot_dev_type;
 
 /**
  * Stores information needed to locate and verify a boot loader.
@@ -265,8 +259,7 @@ typedef enum
  * There is one \c nv_bootloader_info structure for each copy of a BL stored on
  * the device.
  */
-typedef struct nv_bootloader_info_rec
-{
+typedef struct nv_bootloader_info_rec {
 	u_int32_t version;
 	u_int32_t start_blk;
 	u_int32_t start_page;
@@ -280,8 +273,7 @@ typedef struct nv_bootloader_info_rec
 /**
  * Defines the bad block table structure stored in the BCT.
  */
-typedef struct nvboot_badblock_table_rec
-{
+typedef struct nvboot_badblock_table_rec {
 	u_int32_t entries_used;
 	u_int8_t virtual_blk_size_log2;
 	u_int8_t block_size_log2;
@@ -296,8 +288,7 @@ typedef struct nvboot_badblock_table_rec
  * - The \c random_aes_blk member exists to increase the difficulty of
  *   key attacks based on knowledge of this structure.
  */
-typedef struct nvboot_config_table_rec
-{
+typedef struct nvboot_config_table_rec {
 	nvboot_hash crypto_hash;
 	nvboot_hash random_aes_blk;
 	u_int32_t boot_data_version;
@@ -316,5 +307,4 @@ typedef struct nvboot_config_table_rec
 	u_int8_t enable_fail_back;
 	u_int8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
 } nvboot_config_table;
-
 #endif /* #ifndef INCLUDED_NVBOOT_BCT_H */

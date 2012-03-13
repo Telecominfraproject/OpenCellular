@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,6 +29,9 @@
 #include "cbootimage.h"
 #include "crypto.h"
 #include "set.h"
+#include "context.h"
+#include "parse.h"
+#include "t20/nvboot_bct_t20.h"
 #include <sys/param.h>
 
 typedef struct blk_data_rec
@@ -78,18 +81,17 @@ set_bl_data(build_image_context *context,
 
 static int write_bootloaders(build_image_context *context);
 
-static u_int32_t find_new_bct_blk(build_image_context *context);
+static void find_new_bct_blk(build_image_context *context);
 static int finish_update(build_image_context *context);
-static void init_bad_block_table(build_image_context *context);
 
-static u_int32_t
+u_int32_t
 iceil_log2(u_int32_t a, u_int32_t b)
 {
 	return (a + (1 << b) - 1) >> b;
 }
 
 /* Returns the smallest power of 2 >= a */
-static u_int32_t
+u_int32_t
 ceil_log2(u_int32_t a)
 {
 	u_int32_t result;
@@ -99,28 +101,6 @@ ceil_log2(u_int32_t a)
 		result++;
 
 	return result;
-}
-
-static void init_bad_block_table(build_image_context *context)
-{
-	u_int32_t bytes_per_entry;
-	nvboot_badblock_table *table;
-	nvboot_config_table *bct;
-
-	bct = (nvboot_config_table *)(context->bct);
-
-	assert(context != NULL);
-	assert(bct != NULL);
-
-	table = &(bct->badblock_table);
-
-	bytes_per_entry = ICEIL(context->partition_size,
-				NVBOOT_BAD_BLOCK_TABLE_SIZE);
-	table->block_size_log2 = context->block_size_log2;
-	table->virtual_blk_size_log2 = NV_MAX(ceil_log2(bytes_per_entry),
-					table->block_size_log2);
-	table->entries_used = iceil_log2(context->partition_size,
-					table->virtual_blk_size_log2);
 }
 
 static block_data *new_block(u_int32_t blk_number, u_int32_t block_size)
@@ -286,21 +266,16 @@ write_bct(build_image_context *context,
 	u_int32_t block,
 	u_int32_t bct_slot)
 {
-	u_int32_t bct_size;
 	u_int32_t pagesremaining;
 	u_int32_t page;
 	u_int32_t pages_per_bct;
 	u_int8_t *buffer;
 	u_int8_t *data;
-	int e = 0;
+	int err = 0;
 
 	assert(context);
 
-	/* Note: 3rd argument not used in this particular query. */
-	(void)context->bctlib.get_value(nvbct_lib_id_bct_size,
-			&bct_size, context->bct);
-
-	pages_per_bct = iceil_log2(bct_size, context->page_size_log2);
+	pages_per_bct = iceil_log2(context->bct_size, context->page_size_log2);
 	pagesremaining = pages_per_bct;
 	page = bct_slot * pages_per_bct;
 
@@ -310,20 +285,20 @@ write_bct(build_image_context *context,
 		return -ENOMEM;
 	memset(buffer, 0, pages_per_bct * context->page_size);
 
-	memcpy(buffer, context->bct, bct_size);
+	memcpy(buffer, context->bct, context->bct_size);
 
-	insert_padding(buffer, bct_size);
+	insert_padding(buffer, context->bct_size);
 
 	/* Encrypt and compute hash */
-	e = sign_bct(context, buffer);
-	if (e != 0)
+	err = sign_bct(context, buffer);
+	if (err != 0)
 		goto fail;
 
 	/* Write the BCT data to the storage device, picking up ECC errors */
 	data = buffer;
 	while (pagesremaining > 0) {
-		e = write_page(context, block, page, data);
-		if (e != 0)
+		err = write_page(context, block, page, data);
+		if (err != 0)
 			goto fail;
 		page++;
 		pagesremaining--;
@@ -332,28 +307,28 @@ write_bct(build_image_context *context,
 fail:
 	/* Cleanup */
 	free(buffer);
-	return e;
+	return err;
 }
 
-#define SET_BL_FIELD(instance, field, value)                    \
+#define SET_BL_FIELD(instance, field, value)                \
 do {                                                        \
-	(void)context->bctlib.setbl_param(instance,              \
-		nvbct_lib_id_bl_##field, \
-			&(value),              \
-			context->bct);         \
+	g_bct_parse_interf->setbl_param(instance,           \
+		token_bl_##field,                           \
+			&(value),                           \
+			context->bct);                      \
 } while (0);
 
-#define GET_BL_FIELD(instance, field, ptr)                    \
-(void)context->bctlib.getbl_param(instance,                \
-		nvbct_lib_id_bl_##field,   \
-			ptr,                     \
+#define GET_BL_FIELD(instance, field, ptr)                  \
+g_bct_parse_interf->getbl_param(instance,                   \
+		token_bl_##field,                           \
+			ptr,                                \
 			context->bct);
 
-#define COPY_BL_FIELD(from, to, field)                        \
-do {                                                      \
-	u_int32_t v;                                              \
-	GET_BL_FIELD(from, field, &v);                        \
-	SET_BL_FIELD(to,   field,  v);                        \
+#define COPY_BL_FIELD(from, to, field)                      \
+do {                                                        \
+	u_int32_t v;                                        \
+	GET_BL_FIELD(from, field, &v);                      \
+	SET_BL_FIELD(to,   field,  v);                      \
 } while (0);
 
 static void
@@ -374,14 +349,16 @@ set_bl_data(build_image_context *context,
 	SET_BL_FIELD(instance, attribute, context->newbl_attr);
 }
 
-
 /*
+ * Load the bootloader image then update it with the information
+ * from config file.
  * In the interest of expediency, all BL's allocated from bottom to top start
  * at page 0 of a block, and all BL's allocated from top to bottom end at
  * the end of a block.
+ *
+ * @param context		The main context pointer
+ * @return 0 for success
  */
-/* TODO: Check for partition overflow */
-/* TODO: Refactor this code! */
 static int
 write_bootloaders(build_image_context *context)
 {
@@ -396,7 +373,6 @@ write_bootloaders(build_image_context *context)
 	u_int8_t  *bl_storage; /* Holds the Bl after reading */
 	u_int8_t  *buffer;	/* Holds the Bl for writing */
 	u_int8_t  *src;	/* Scans through the Bl during writing */
-	u_int32_t  bl_length; /* In bytes */
 	u_int32_t  bl_actual_size; /* In bytes */
 	u_int32_t  pagesremaining;
 	u_int32_t  virtual_blk;
@@ -409,15 +385,17 @@ write_bootloaders(build_image_context *context)
 	u_int32_t  hash_size;
 	u_int32_t  bootloaders_max;
 	file_type bl_filetype = file_type_bl;
-	int e = 0;
+	int err = 0;
 
 	assert(context);
 
 	pages_per_blk = 1 << (context->block_size_log2
 			- context->page_size_log2);
 
-	GET_VALUE(hash_size, &hash_size);
-	GET_VALUE(bootloaders_max, &bootloaders_max);
+	g_bct_parse_interf->get_value(token_hash_size,
+			&hash_size, context->bct);
+	g_bct_parse_interf->get_value(token_bootloaders_max,
+			&bootloaders_max, context->bct);
 
 	hash_buffer = malloc(hash_size);
 	if (hash_buffer == NULL)
@@ -435,7 +413,8 @@ write_bootloaders(build_image_context *context)
 	 * a BL in the device.
 	 */
 	GET_BL_FIELD(0, version, &bl_0_version);
-	GET_VALUE(bootloader_used, &bl_used);
+	g_bct_parse_interf->get_value(token_bootloader_used,
+			&bl_used, context->bct);
 	for (bl_instance = 0; bl_instance < bl_used; bl_instance++) {
 		u_int32_t bl_version;
 		GET_BL_FIELD(bl_instance, version, &bl_version);
@@ -464,12 +443,12 @@ write_bootloaders(build_image_context *context)
 		COPY_BL_FIELD(inst_from, inst_to, entry_point);
 		COPY_BL_FIELD(inst_from, inst_to, attribute);
 
-		(void)context->bctlib.getbl_param(inst_from,
-			nvbct_lib_id_bl_crypto_hash,
+		g_bct_parse_interf->getbl_param(inst_from,
+			token_bl_crypto_hash,
 			(u_int32_t*)hash_buffer,
 			context->bct);
-		(void)context->bctlib.setbl_param(inst_to,
-			nvbct_lib_id_bl_crypto_hash,
+		g_bct_parse_interf->setbl_param(inst_to,
+			token_bl_crypto_hash,
 			(u_int32_t*)hash_buffer,
 			context->bct);
 		bl_move_remaining--;
@@ -477,9 +456,7 @@ write_bootloaders(build_image_context *context)
 
 	/* Read the BL into memory. */
 	if (read_from_image(context->newbl_filename,
-		context->page_size,
 		&bl_storage,
-		&bl_length,
 		&bl_actual_size,
 		bl_filetype) == 1) {
 		printf("Error reading Bootloader %s.\n",
@@ -487,7 +464,7 @@ write_bootloaders(build_image_context *context)
 		exit(1);
 	}
 
-	pages_in_bl = iceil_log2(bl_length, context->page_size_log2);
+	pages_in_bl = iceil_log2(bl_actual_size, context->page_size_log2);
 
 	current_blk = context->next_bct_blk;
 	current_page  = 0;
@@ -551,8 +528,8 @@ write_bootloaders(build_image_context *context)
 		sign_data_block(buffer,
 				bl_actual_size,
 				hash_buffer);
-		(void)context->bctlib.setbl_param(bl_instance,
-				nvbct_lib_id_bl_crypto_hash,
+		g_bct_parse_interf->setbl_param(bl_instance,
+				token_bl_crypto_hash,
 				(u_int32_t*)hash_buffer,
 				context->bct);
 
@@ -569,9 +546,9 @@ write_bootloaders(build_image_context *context)
 				erase_block(context, current_blk);
 			}
 
-			e = write_page(context,
+			err = write_page(context,
 				current_blk, current_page, src);
-			if (e != 0)
+			if (err != 0)
 				goto fail;
 			pagesremaining--;
 			src += context->page_size;
@@ -586,13 +563,11 @@ write_bootloaders(build_image_context *context)
 		free(buffer);
 	}
 
-	(void)context->bctlib.set_value(nvbct_lib_id_bootloader_used,
+	g_bct_parse_interf->set_value(token_bootloader_used,
 			context->redundancy + bl_move_count,
 			context->bct);
 
 	if (enable_debug) {
-		GET_VALUE(bootloader_used, &bl_used);
-
 		for (i = 0; i < bootloaders_max; i++) {
 			u_int32_t version;
 			u_int32_t start_blk;
@@ -618,8 +593,8 @@ write_bootloaders(build_image_context *context)
 				load_addr,
 				entry_point);
 
-			(void)context->bctlib.getbl_param(i,
-				nvbct_lib_id_bl_crypto_hash,
+			g_bct_parse_interf->getbl_param(i,
+				token_bl_crypto_hash,
 				(u_int32_t*)hash_buffer,
 				context->bct);
 			for (j = 0; j < hash_size / 4; j++) {
@@ -637,173 +612,20 @@ fail:
 	free(buffer);
 	free(bl_storage);
 	free(hash_buffer);
-	printf("Write bootloader failed, error: %d.\n", e);
-	return e;
-}
-
-int
-update_addon_item(build_image_context *context)
-{
-	u_int8_t *aoi_storage;
-	u_int8_t *buffer=NULL;
-	u_int8_t *src=NULL;
-	u_int32_t aoi_length;
-	u_int32_t aoi_actual_size;
-	u_int32_t pages_count;
-	u_int32_t pagesremaining;
-	u_int32_t current_blk;
-	u_int32_t current_page;
-	u_int32_t pages_per_blk;
-	u_int32_t table_length;
-	u_int32_t hash_size;
-	int i;
-	u_int8_t magicid[8] = "ChromeOs";
-	struct addon_item_rec *current_item;
-	file_type aoi_filetype = file_type_addon;
-	int e = 0;
-
-	/* Read the Addon item into memory. */
-	GET_VALUE(hash_size, &hash_size);
-	pages_per_blk = 1 << (context->block_size_log2
-		- context->page_size_log2);
-	current_blk = context->last_bl_blk;
-
-	/* Get the addon table block number */
-	current_blk++;
-	context->addon_tbl_blk = current_blk;
-
-	/* write the addon item */
-	current_item = context->addon_tbl.addon_item_list;
-	for(i = 0; i < context->addon_tbl.addon_item_no; i++) {
-
-		if (read_from_image(current_item->addon_filename,
-				context->page_size,
-				&aoi_storage,
-				&aoi_length,
-				&aoi_actual_size,
-				aoi_filetype) == 1) {
-			printf("Error reading addon file %s.\n",
-			context->addon_tbl.addon_item_list->addon_filename);
-
-			exit(1);
-		}
-		pages_count = iceil_log2(aoi_length, context->page_size_log2);
-
-		/* Create a local copy of the BCT data */
-		buffer = malloc(pages_count * context->page_size);
-		if (buffer == NULL)
-			return -ENOMEM;
-
-		memset(buffer, 0, pages_count * context->page_size);
-		memcpy(buffer, aoi_storage, aoi_actual_size);
-		insert_padding(buffer, aoi_actual_size);
-		/* Encrypt and compute hash */
-		sign_data_block(buffer,
-			aoi_actual_size,
-			(u_int8_t *)current_item->item.item_checksum);
-
-		pagesremaining = pages_count;
-		src = buffer;
-		current_blk++;
-		current_page = 0;
-		current_item->item.Location = current_blk;
-		current_item->item.size = aoi_actual_size;
-		while (pagesremaining) {
-			if (current_page == 0) {
-				/* Erase the block before writing into it. */
-				e = erase_block(context, current_blk);
-				if (e != 0)
-					goto fail_on_item;
-			}
-			e = write_page(context,
-				current_blk, current_page, src);
-			if (e != 0)
-				goto fail_on_item;
-			pagesremaining--;
-			src += context->page_size;
-			current_page++;
-			if (current_page >= pages_per_blk) {
-				current_page = 0;
-				current_blk++;
-			}
-		}
-		current_item = current_item->next;
-		free(aoi_storage);
-		free(buffer);
-	}
-
-	/* write add on table */
-	current_blk = context->addon_tbl_blk;
-	current_item = context->addon_tbl.addon_item_list;
-	current_page = 0;
-	table_length = sizeof(struct table_rec) +
-		context->addon_tbl.addon_item_no * sizeof(struct item_rec);
-	context->addon_tbl.table.table_size= table_length;
-	memcpy(context->addon_tbl.table.magic_id, magicid, 8);
-	pages_count = iceil_log2(table_length, context->page_size_log2);
-	buffer = malloc(pages_count * context->page_size);
-	if (buffer == NULL)
-		return -ENOMEM;
-
-	memset(buffer, 0, pages_count * context->page_size);
-	src = buffer;
-	memcpy(src, &context->addon_tbl, sizeof(struct table_rec));
-	src += sizeof(struct table_rec);
-
-	for(i = 0; i < context->addon_tbl.addon_item_no; i++) {
-		memcpy(src, current_item, sizeof(struct item_rec));
-		src += sizeof(struct item_rec);
-		current_item = current_item->next;
-	}
-	insert_padding(buffer, table_length);
-
-	pagesremaining = pages_count;
-	src = buffer;
-
-	/* Encrypt and compute hash */
-	e = sign_data_block(buffer,
-		table_length,
-		(u_int8_t *)context->addon_tbl.table.table_checksum);
-	if (e != 0)
-		goto fail_on_table;
-	memcpy(src+sizeof(context->addon_tbl.table.magic_id),
-			context->addon_tbl.table.table_checksum,
-			hash_size);
-
-	while (pagesremaining) {
-		if (current_page == 0) {
-			e = erase_block(context, current_blk);
-			if (e != 0)
-				goto fail_on_table;
-		}
-		e = write_page(context, current_blk, current_page, src);
-		if(e != 0)
-			goto fail_on_table;
-		pagesremaining--;
-		src += context->page_size;
-		current_page++;
-	}
-	free(buffer);
-	return 0;
-
-fail_on_item:
-	free(aoi_storage);
-
-fail_on_table:
-	free(buffer);
-	return e;
+	printf("Write bootloader failed, error: %d.\n", err);
+	return err;
 }
 
 void
 update_context(struct build_image_context_rec *context)
 {
-	(void)context->bctlib.get_value(nvbct_lib_id_partition_size,
+	g_bct_parse_interf->get_value(token_partition_size,
 			&context->partition_size,
 			context->bct);
-	(void)context->bctlib.get_value(nvbct_lib_id_page_size_log2,
+	g_bct_parse_interf->get_value(token_page_size_log2,
 			&context->page_size_log2,
 			context->bct);
-	(void)context->bctlib.get_value(nvbct_lib_id_block_size_log2,
+	g_bct_parse_interf->get_value(token_block_size_log2,
 			&context->block_size_log2,
 			context->bct);
 
@@ -812,112 +634,114 @@ update_context(struct build_image_context_rec *context)
 	context->pages_per_blk = 1 << (context->block_size_log2 -
                                            context->page_size_log2);
 }
-void
+
+/*
+ * Allocate and initialize the memory for bct data.
+ *
+ * @param context		The main context pointer
+ * @return 0 for success
+ */
+int
+init_bct(struct build_image_context_rec *context)
+{
+	/* Allocate space for the bct.	 */
+	context->bct = malloc(context->bct_size);
+
+	if (context->bct == NULL)
+		return -ENOMEM;
+
+	memset(context->bct, 0, context->bct_size);
+	context->bct_init = 1;
+
+	return 0;
+}
+
+/*
+ * Read the bct data from given file to allocated memory.
+ * Assign the global parse interface to corresponding hardware interface
+ *   according to the boot data version in bct file.
+ *
+ * @param context		The main context pointer
+ * @return 0 for success
+ */
+int
 read_bct_file(struct build_image_context_rec *context)
 {
 	u_int8_t  *bct_storage; /* Holds the Bl after reading */
-	u_int32_t  bct_length; /* In bytes */
 	u_int32_t  bct_actual_size; /* In bytes */
-	u_int32_t  bct_size;
 	file_type bct_filetype = file_type_bct;
+	nvboot_config_table *bct = NULL;
+	int err = 0;
 
-	bct_size = sizeof(nvboot_config_table);
 	if (read_from_image(context->bct_filename,
-		context->page_size,
 		&bct_storage,
-		&bct_length,
 		&bct_actual_size,
 		bct_filetype) == 1) {
 		printf("Error reading bct file %s.\n", context->bct_filename);
 		exit(1);
 	}
-	memcpy(context->bct, bct_storage, bct_size);
-	free(bct_storage);
-	update_context(context);
-}
-
-void destroy_addon_list(struct addon_item_rec *addon_list)
-{
-	struct addon_item_rec *next;
-
-	while (addon_list) {
-		next = addon_list->next;
-		free(addon_list);
-		addon_list = next;
+	context->bct_size = bct_actual_size;
+	if (context->bct_init != 1)
+		err = init_bct(context);
+	if (err != 0) {
+		printf("Context initialization failed.  Aborting.\n");
+		return err;
 	}
-}
+	memcpy(context->bct, bct_storage, context->bct_size);
+	free(bct_storage);
 
-static u_int32_t
+	bct = (nvboot_config_table *)(context->bct);
+	if (bct->boot_data_version == NVBOOT_BOOTDATA_VERSION(3, 1)) {
+		t30_get_cbootimage_interf(g_bct_parse_interf);
+		context->boot_data_version =
+				NVBOOT_BOOTDATA_VERSION(3, 1);
+	}
+	else {
+		t20_get_cbootimage_interf(g_bct_parse_interf);
+		context->boot_data_version =
+				NVBOOT_BOOTDATA_VERSION(2, 1);
+	}
+	return err;
+}
+/*
+ * Update the next_bct_blk and make it point to the next
+ * new blank block according to bct_copy given.
+ *
+ * @param context		The main context pointer
+ */
+static void
 find_new_bct_blk(build_image_context *context)
 {
-	u_int32_t current_blk;
 	u_int32_t max_bct_search_blks;
 
 	assert(context);
 
-	current_blk = context->next_bct_blk;
+	g_bct_parse_interf->get_value(token_hash_size,
+			&max_bct_search_blks, context->bct);
 
-	GET_VALUE(max_bct_search_blks, &max_bct_search_blks);
-
-	if (current_blk >= max_bct_search_blks) {
+	if (context->next_bct_blk > max_bct_search_blks) {
 		printf("Error: Unable to locate a journal block.\n");
 		exit(1);
 	}
 	context->next_bct_blk++;
-	return current_blk;
 }
 
 /*
- * Logic for updating a BCT or BL:
- * - begin_update():
- *   - If the device is blank:
- *     - Identify & erase a journal block.
- *   - If the journal block has gone bad:
- *     - Perform an UpdateBL to move the good bootloader out of the
- *       way, if needed.
- *     - Erase the new journal block
- *     - Write the good BCT to slot 0 of the new journal block.
- *   - If the journal block is full:
- *     - Erase block 0
- *     - Write 0's to BCT slot 0.
- *     - Write the good BCT to slot 1.
- *     - Erase the journal block.
- *     - Write the good BCT to slot 0 of the journal block.
- *   - Erase block 0
- * - If updating the BL, do so here.
- * - finish_update():
- *   - Write the new BCT to the next available of the journal block.
- *   - Write the new BCT to slot 0 of block 0.
- */
-
-/* - begin_update():
- *   - Test the following conditions in this order:
- *     - If the device is blank:
- *       - Identify & erase a journal block.
- *     - If the journal block has gone bad:
- *       - Perform an UpdateBL to move the good bootloader out of the
- *         way, if needed.
- *       - Erase the new journal block
- *       - Write the good BCT to slot 0 of the new journal block.
- *     - If the journal block is full:
- *       - Erase block 0
- *       - Write 0's to BCT slot 0.
- *       - Write the good BCT to slot 1.
- *       - Erase the journal block.
- *       - Write the good BCT to slot 0 of the journal block.
- *   - Erase block 0
+ * Initialization before bct and bootloader update.
+ * Find the new blank block and erase it.
+ *
+ * @param context		The main context pointer
+ * @return 0 for success
  */
 int
 begin_update(build_image_context *context)
 {
 	u_int32_t pages_per_bct;
 	u_int32_t pages_per_blk;
-	u_int32_t bct_size;
 	u_int32_t hash_size;
 	u_int32_t reserved_size;
 	u_int32_t reserved_offset;
-	u_int32_t current_bct_blk;
-	int e = 0;
+	int err = 0;
 	int i;
 
 	assert(context);
@@ -927,65 +751,68 @@ begin_update(build_image_context *context)
 		u_int32_t block_size_log2;
 		u_int32_t page_size_log2;
 
-		GET_VALUE(block_size_log2, &block_size_log2);
-		GET_VALUE(page_size_log2,  &page_size_log2);
+		g_bct_parse_interf->get_value(token_block_size_log2,
+			&block_size_log2, context->bct);
+		g_bct_parse_interf->get_value(token_page_size_log2,
+			&page_size_log2, context->bct);
 
 		printf("begin_update(): bct data: b=%d p=%d\n",
 			block_size_log2, page_size_log2);
 	}
 
-	SET_VALUE(boot_data_version, NVBOOT_BOOTDATA_VERSION(2, 1));
-	GET_VALUE(bct_size,  &bct_size);
-	GET_VALUE(hash_size, &hash_size);
-	GET_VALUE(reserved_size, &reserved_size);
-	GET_VALUE(reserved_offset, &reserved_offset);
+	g_bct_parse_interf->set_value(token_boot_data_version,
+			context->boot_data_version, context->bct);
+	g_bct_parse_interf->get_value(token_hash_size,
+			&hash_size, context->bct);
+	g_bct_parse_interf->get_value(token_reserved_size,
+			&reserved_size, context->bct);
+	g_bct_parse_interf->get_value(token_reserved_offset,
+			&reserved_offset, context->bct);
 
-	pages_per_bct = iceil_log2(bct_size, context->page_size_log2);
+	pages_per_bct = iceil_log2(context->bct_size, context->page_size_log2);
 	pages_per_blk = (1 << (context->block_size_log2
 		- context->page_size_log2));
 	/* Initialize the bad block table field. */
-	init_bad_block_table(context);
+	g_bct_parse_interf->init_bad_block_table(context);
 	/* Fill the reserved data w/the padding pattern. */
 	write_padding(context->bct + reserved_offset, reserved_size);
 
-	/* Find the next bct block starting at block 0. */
+	/* Find the next bct block starting at block 1. */
 	for (i = 0; i < context->bct_copy; i++) {
-		current_bct_blk = find_new_bct_blk(context);
-		e = erase_block(context, current_bct_blk);
-		if (e != 0)
+		find_new_bct_blk(context);
+		err = erase_block(context, i);
+		if (err != 0)
 			goto fail;
 	}
 	return 0;
 fail:
-	printf("Erase block failed, error: %d.\n", e);
-	return e;
+	printf("Erase block failed, error: %d.\n", err);
+	return err;
 }
 
-
 /*
- * - finish_update():
- *   - Write the new BCT to the next available of the journal block.
- *   - Write the new BCT to slot 0 of block 0.
- * For now, ignore end state.
+ * Write the new BCT to the next available of the journal block.
+ * Write the new BCT to slot 0 of block 0.
+ *
+ * @param context		The main context pointer
+ * @return 0 for success
  */
 static int
 finish_update(build_image_context *context)
 {
-	u_int32_t current_bct_blk;
-	int e = 0;
+	int err = 0;
 	int i;
 
-	current_bct_blk = context->next_bct_blk;
 	for (i = 0; i < context->bct_copy; i++) {
-		e = write_bct(context, --current_bct_blk, 0);
-		if (e != 0)
+		err = write_bct(context, i, 0);
+		if (err != 0)
 			goto fail;
 	}
 
 	return 0;
 fail:
-	printf("Write BCT failed, error: %d.\n", e);
-	return e;
+	printf("Write BCT failed, error: %d.\n", err);
+	return err;
 }
 
 /*
@@ -1005,12 +832,16 @@ update_bl(build_image_context *context)
 		return 1;
 	return 0;
 }
+
 /*
  * To write the current image:
- * - Loop over all blocks in the block data list:
- *   - Write out the data of real blocks.
- *   - Write out 0's for unused blocks.
- *   - Stop on the last used page of the last used block.
+ *   Loop over all blocks in the block data list:
+ *     Write out the data of real blocks.
+ *     Write out 0's for unused blocks.
+ *     Stop on the last used page of the last used block.
+ *
+ * @param context		The main context pointer
+ * @return 0 for success
  */
 int
 write_block_raw(build_image_context *context)

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -33,12 +33,6 @@
 #include "sys/stat.h"
 
 int
-context_set_array(build_image_context	*context,
-		u_int32_t	index,
-		parse_token	token,
-		u_int32_t	value);
-
-int
 set_bootloader(build_image_context	*context,
 		char	*filename,
 		u_int32_t	load_addr,
@@ -50,55 +44,8 @@ context_set_value(build_image_context	*context,
 		u_int32_t	value);
 
 int
-set_addon_filename(build_image_context	*context,
-		char	*filename,
-		int	index);
-
-int
-set_addon_attr(build_image_context *context,
-		u_int32_t	file_attr,
-		int	index);
-
-int
-set_unique_name(build_image_context *context,
-		char	*uname,
-		int	index);
-
-int
-set_other_field(build_image_context *context,
-		char	*other_str,
-		int	other,
-		int	index);
-
-int
-set_nand_param(build_image_context *context,
-		u_int32_t index,
-		parse_token token,
-		u_int32_t value);
-
-int
-set_sdmmc_param(build_image_context *context,
-		u_int32_t index,
-		parse_token token,
-		u_int32_t value);
-
-int
-set_spiflash_param(build_image_context *context,
-		u_int32_t index,
-		parse_token token,
-		u_int32_t value);
-
-int
-set_sdram_param(build_image_context *context,
-		u_int32_t index,
-		parse_token token,
-		u_int32_t value);
-
-int
 read_from_image(char *filename,
-		u_int32_t	page_size,
 		u_int8_t	**Image,
-		u_int32_t	*storage_size,
 		u_int32_t	*actual_size,
 		file_type	f_type);
 

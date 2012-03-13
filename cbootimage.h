@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,8 +27,6 @@
 #ifndef INCLUDED_BUILDIMAGE_H
 #define INCLUDED_BUILDIMAGE_H
 
-#include "nvboot_bct.h"
-#include "nvbctlib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -51,50 +49,16 @@ typedef enum
 {
 	file_type_bl = 0,
 	file_type_bct,
-	file_type_addon
 } file_type;
+
 /*
- * Structures
+ * The main context data structure of cbootimage tool
  */
-typedef struct item_rec
-{
-	u_int8_t unique_name[4];
-	u_int32_t Location;
-	u_int32_t size;
-	u_int32_t attribute;
-	u_int32_t reserve[4];
-	u_int32_t item_checksum[4];
-}item;
-
-typedef struct addon_item_rec
-{
-	struct item_rec item;
-	char  addon_filename[MAX_BUFFER];
-	int item_index;
-	struct addon_item_rec *next;
-}addon_item;
-
-typedef struct table_rec
-{
-	u_int8_t magic_id[8];
-	u_int32_t table_checksum[4];
-	u_int32_t table_size;
-
-}table;
-
-typedef struct addon_table_rec
-{
-	struct table_rec table;
-	u_int8_t addon_item_no;
-	struct addon_item_rec *addon_item_list;
-}addon_table;
-
 typedef struct build_image_context_rec
 {
 	FILE *config_file;
 	char *image_filename;
 	FILE *raw_file;
-	nvbct_lib_fns bctlib;
 	u_int32_t block_size;
 	u_int32_t block_size_log2;
 	u_int32_t page_size;
@@ -116,10 +80,11 @@ typedef struct build_image_context_rec
 	u_int8_t generate_bct;
 	u_int8_t *bct;
 
-	struct addon_table_rec addon_tbl;
 	char *bct_filename;
 	u_int32_t last_bl_blk;
-	u_int32_t addon_tbl_blk;
+	u_int32_t bct_size; /* The BCT file size */
+	u_int32_t boot_data_version; /* The boot data version of BCT */
+	u_int8_t bct_init; /* The flag for the memory allocation of bct */
 } build_image_context;
 
 /* Function prototypes */
@@ -128,17 +93,5 @@ int write_image_file(build_image_context *context);
 
 /* Global data */
 extern int enable_debug;
-
-/* Useful macros */
-
-#define GET_VALUE(id, ptr)                                    \
-    (void)context->bctlib.get_value(nvbct_lib_id_##id,           \
-                                   ptr,                       \
-                                   context->bct);
-
-#define SET_VALUE(id, value)                                  \
-    (void)context->bctlib.set_value(nvbct_lib_id_##id,           \
-                                   value,                     \
-                                   context->bct);
 
 #endif /* #ifndef INCLUDED_BUILDIMAGE_H */

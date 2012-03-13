@@ -1,5 +1,5 @@
 /*
- *  (C) Copyright 2011
+ *  (C) Copyright 2012
  *  NVIDIA Corporation <www.nvidia.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,6 +25,7 @@
  * crypto.c - Cryptography support
  */
 #include "crypto.h"
+#include "parse.h"
 #include "nvaes_ref.h"
 #include <stdio.h>
 
@@ -270,15 +271,15 @@ sign_bct(build_image_context *context,
 
 	assert(bct != NULL);
 
-	if (context->bctlib.get_value(nvbct_lib_id_hash_size,
+	if (g_bct_parse_interf->get_value(token_hash_size,
 					&hash_size,
 					bct) != 0)
 		return -ENODATA;
-	if (context->bctlib.get_value(nvbct_lib_id_crypto_offset,
+	if (g_bct_parse_interf->get_value(token_crypto_offset,
 	 	 	 	 	&Offset,
 					bct) != 0)
 		return -ENODATA;
-	if (context->bctlib.get_value(nvbct_lib_id_crypto_length,
+	if (g_bct_parse_interf->get_value(token_crypto_length,
 					&length,
 					bct) != 0)
 		return -ENODATA;
@@ -289,7 +290,7 @@ sign_bct(build_image_context *context,
 	e = sign_data_block(bct + Offset, length, hash_buffer);
 	if (e != 0)
 		goto fail;
-	e = context->bctlib.set_data(nvbct_lib_id_crypto_hash,
+	e = g_bct_parse_interf->set_data(token_crypto_hash,
 						hash_buffer,
 						hash_size,
 						bct);

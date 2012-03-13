@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,7 +36,6 @@ typedef struct blk_data_rec *blk_data_handle;
 
 blk_data_handle new_block_list(void);
 void destroy_block_list(blk_data_handle);
-void destroy_addon_list(struct addon_item_rec *addon_list);
 
 int
 update_bl(struct build_image_context_rec *context);
@@ -44,11 +43,11 @@ update_bl(struct build_image_context_rec *context);
 void
 update_context(struct build_image_context_rec *context);
 
-void
+int
 read_bct_file(struct build_image_context_rec *context);
 
 int
-update_addon_item(struct build_image_context_rec *context);
+init_bct(struct build_image_context_rec *context);
 
 int
 write_block_raw(struct build_image_context_rec *context);

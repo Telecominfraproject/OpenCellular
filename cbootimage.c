@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011 NVIDIA Corporation.  All rights reserved.
+ * Copyright (c) 2012 NVIDIA Corporation.  All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,12 +25,12 @@
  */
 
 #include "cbootimage.h"
-#include "nvbctlib.h"
 #include "crypto.h"
 #include "data_layout.h"
 #include "parse.h"
 #include "set.h"
 #include "context.h"
+#include <getopt.h>
 
 /*
  * Global data
@@ -39,10 +39,19 @@ int enable_debug                = 0;
 
 static int help_only            = 0; // Only print help & exit
 
+bct_parse_interface *g_bct_parse_interf;
 /*
  * Function prototypes
  */
 int main(int argc, char *argv[]);
+
+struct option cbootcmd[] = {
+	{"help", 0, NULL, 'h'},
+	{"debug", 0, NULL, 'd'},
+	{"generate", 1, NULL, 'g'},
+	{"tegra", 1, NULL, 't'},
+	{0, 0, 0, 0},
+};
 
 int
 write_image_file(build_image_context *context)
@@ -60,6 +69,8 @@ usage(void)
 	printf("    -h, --help, -?  Display this message.\n");
 	printf("    -d, --debug     Output debugging information.\n");
 	printf("    -gbct               Generate the new bct file.\n");
+	printf("    [-t20|-t25|-t30]   Select one of the possible\n");
+	printf("                       target devices, -t20 if unspecified\n");
 	printf("    configfile      File with configuration information\n");
 	printf("    imagename       Output image name\n");
 }
@@ -68,33 +79,60 @@ static int
 process_command_line(int argc, char *argv[], build_image_context *context)
 {
 	int arg = 1;
+	int c;
 
 	context->generate_bct = 0;
 
-	while (arg < argc) {
-		/* Process the next argument. */
-		if (!strcmp(argv[arg], "-h") ||
-		    !strcmp(argv[arg], "--help") ||
-		    !strcmp(argv[arg], "-?")) {
+	g_bct_parse_interf = malloc(sizeof(bct_parse_interface));
+	if (g_bct_parse_interf == NULL) {
+		printf("Insufficient memory to proceed.\n");
+		return -EINVAL;
+	}
+	/* Make the default interface to t20. */
+	t20_get_cbootimage_interf(g_bct_parse_interf);
+	context->boot_data_version = NVBOOT_BOOTDATA_VERSION(2, 1);
+
+	while ((c = getopt_long(argc, argv, "hdg:t:", cbootcmd, NULL)) != -1) {
+		switch (c) {
+		case 'h':
 			help_only = 1;
 			usage();
 			return 0;
-		} else if (!strcmp(argv[arg], "-d") ||
-	 	!strcmp(argv[arg], "--debug")) {
+		case 'd':
 			enable_debug = 1;
 			arg++;
-		} else if (!strcmp(argv[arg], "-gbct")) {
-			context->generate_bct = 1;
-			arg++;
-		} else if (argv[arg][0] == '-') {
-			printf("Illegal option %s\n", argv[arg]);
-			usage();
-			return -EINVAL;
+			break;
+		case 'g':
+			if (!strcasecmp("bct", optarg)) {
+				context->generate_bct = 1;
+				arg++;
+			} else {
+				printf("Invalid argument!\n");
+				usage();
+				return -EINVAL;
+			}
+			break;
+		case 't':
+			if (!(strcasecmp("20", optarg)
+				&& strcasecmp("25", optarg))) {
+				/* Assign the interface based on the chip. */
+				t20_get_cbootimage_interf(g_bct_parse_interf);
+				context->boot_data_version =
+					NVBOOT_BOOTDATA_VERSION(2, 1);
+				arg++;
+			} else if (!(strcasecmp("30", optarg))) {
+				t30_get_cbootimage_interf(g_bct_parse_interf);
+				context->boot_data_version =
+					NVBOOT_BOOTDATA_VERSION(3, 1);
+				arg++;
+			} else {
+				printf("Unsupported chipname!\n");
+				usage();
+				return -EINVAL;
+			}
+			break;
 		}
-		else
-			break; /* Finished with options */
 	}
-
 	/* Handle file specification errors. */
 	switch (argc - arg) {
 	case 0:
@@ -127,9 +165,6 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 	/* Record the output filename */
 	context->image_filename = argv[arg + 1];
 
-	/* Set up the Nvbctlib function pointers. */
-	nvbct_lib_get_fns(&(context->bctlib));
-
 	return 0;
 }
 
@@ -138,7 +173,6 @@ main(int argc, char *argv[])
 {
 	int e = 0;
 	build_image_context context;
-	u_int32_t data = 0;
 
 	memset(&context, 0, sizeof(build_image_context));
 
@@ -146,8 +180,14 @@ main(int argc, char *argv[])
 	if (process_command_line(argc, argv, &context) != 0)
 		return -EINVAL;
 
+	assert(g_bct_parse_interf != NULL);
+
 	if (help_only)
 		return 1;
+
+	g_bct_parse_interf->get_value(token_bct_size,
+					&context.bct_size,
+					context.bct);
 
 	e = init_context(&context);
 	if (e != 0) {
@@ -157,9 +197,7 @@ main(int argc, char *argv[])
 
 	if (enable_debug) {
 		/* Debugging information... */
-		e = context.bctlib.get_value(nvbct_lib_id_bct_size,
-				&data, context.bct);
-		printf("bct size: %d\n", e == 0 ? data : -1);
+		printf("bct size: %d\n", e == 0 ? context.bct_size : -1);
 	}
 
 	/* Open the raw output file. */
@@ -171,11 +209,16 @@ main(int argc, char *argv[])
 		goto fail;
 	}
 
-	/* Parse & process the contents of the config file. */
-	process_config_file(&context);
-
+	/* first, if we aren't generating the bct, read in config file */
+	if (context.generate_bct == 0) {
+		process_config_file(&context, 1);
+	}
 	/* Generate the new bct file */
-	if (context.generate_bct != 0) {
+	else {
+		/* Initialize the bct memory */
+		init_bct(&context);
+		/* Parse & process the contents of the config file. */
+		process_config_file(&context, 0);
 		/* Update the BCT */
 		begin_update(&context);
 		/* Signing the bct. */
@@ -183,20 +226,13 @@ main(int argc, char *argv[])
 		if (e != 0) 
 			printf("Signing BCT failed, error: %d.\n", e);
 
-		fwrite(context.bct, 1, sizeof(nvboot_config_table),
+		fwrite(context.bct, 1, context.bct_size,
 			context.raw_file);
 		printf("New BCT file %s has been successfully generated!\n",
 			context.image_filename);
 		goto fail;
 	}
 
-	/* Update the bct file */
-	/* Update the add on file */
-	e = update_addon_item(&context);
-	if ( e!= 0) {
-		printf("Write addon item failed, error: %d.\n", e);
-		goto fail;
-	}
 	/* Peform final signing & encryption of bct. */
 	e = sign_bct(&context, context.bct);
 	if (e != 0) {
@@ -218,6 +254,9 @@ main(int argc, char *argv[])
 
 	/* Clean up memory. */
 	cleanup_context(&context);
-
+	if (g_bct_parse_interf) {
+		free(g_bct_parse_interf);
+		g_bct_parse_interf = NULL;
+	}
 	return e;
 }
