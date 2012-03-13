@@ -149,12 +149,12 @@ main() {
                   cut -d - -f 1,2)
     # a copy of the board string with '-' squished to variable-name-safe '_'.
     local boardvar=${board//-/_}
-    # For a canary channel, appid maybe a different default value.
-    if ! lsbequals $lsb CHROMEOS_RELEASE_TRACK "canary-channel" \
-      >/dev/null 2>&1; then
-      eval "expected_appid=\"\$expected_appid_$boardvar\""
+    channel=$(lsbval $lsb CHROMEOS_RELEASE_TRACK)
+    # For a canary or dogfood channel, appid maybe a different default value.
+    if [ $channel = 'canary-channel' ] || [ $channel = 'dogfood-channel' ]; then
+      eval "expected_appid=\"\$expected_appid_${channel%\-channel}\""
     else
-      eval "expected_appid=\"\$expected_appid_canary\""
+      eval "expected_appid=\"\$expected_appid_$boardvar\""
     fi
     lsbequals $lsb CHROMEOS_RELEASE_APPID "$expected_appid" || testfail=1
   else # unrecognized board
