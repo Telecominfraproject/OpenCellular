@@ -193,35 +193,39 @@ static unsigned int find_cmdline_start(char *input, unsigned int max_len) {
 }
 
 
+
+
 typedef struct blob_s {
   /* Stuff needed by VbKernelPreambleHeader */
   uint64_t kernel_version;
-  uint64_t bootloader_address;
+  uint64_t bootloader_address;          /* in RAM, after loading from disk */
   uint64_t bootloader_size;
   /* Raw kernel blob data */
-  uint64_t blob_size;
-  uint8_t *blob;
+  uint64_t kern_blob_size;
+  uint8_t *kern_blob;
 
-  /* these fields are not always initialized */
-  VbKernelPreambleHeader* preamble;
-  VbKeyBlockHeader* key_block;
-  uint8_t *buf;
-
+  /* These fields are not always initialized. When they are, they point to the
+   * verification block as it's found on-disk. See
+   * http://www.chromium.org/chromium-os/chromiumos-design-docs/disk-format */
+  uint8_t *vblock_buf;                  /* typically includes padding */
+  VbKeyBlockHeader* key_block;          /* within vblock_buf, don't free it */
+  VbKernelPreambleHeader* preamble;     /* ditto */
 } blob_t;
 
 /* Given a blob return the location of the kernel command line buffer. */
 static char* BpCmdLineLocation(blob_t *bp, uint64_t kernel_body_load_address)
 {
-  return (char*)(bp->blob + bp->bootloader_address - kernel_body_load_address -
+  return (char*)(bp->kern_blob +
+                 bp->bootloader_address - kernel_body_load_address -
                  CROS_CONFIG_SIZE - CROS_PARAMS_SIZE);
 }
 
 static void FreeBlob(blob_t *bp) {
   if (bp) {
-    if (bp->blob)
-      free(bp->blob);
-    if (bp->buf)
-      free(bp->buf);
+    if (bp->kern_blob)
+      free(bp->kern_blob);
+    if (bp->vblock_buf)
+      free(bp->vblock_buf);
     free(bp);
   }
 }
@@ -274,7 +278,7 @@ static blob_t *NewBlob(uint64_t version,
   uint64_t kernel32_start = 0;
   uint64_t kernel32_size = 0;
   uint32_t cmdline_addr;
-  uint8_t* blob = NULL;
+  uint8_t* kern_blob = NULL;
   uint64_t now = 0;
 
   if (!vmlinuz || !bootloader_file || !config_file) {
@@ -330,27 +334,27 @@ static blob_t *NewBlob(uint64_t version,
   Debug(" kernel32_start=0x%" PRIx64 "\n", kernel32_start);
   Debug(" kernel32_size=0x%" PRIx64 "\n", kernel32_size);
 
-  /* Allocate and zero the blob we need. */
-  bp->blob_size = roundup(kernel32_size, CROS_ALIGN) +
+  /* Allocate and zero the space we need for the kernel blob. */
+  bp->kern_blob_size = roundup(kernel32_size, CROS_ALIGN) +
       CROS_CONFIG_SIZE +
       CROS_PARAMS_SIZE +
       roundup(bootloader_size, CROS_ALIGN);
-  blob = (uint8_t *)malloc(bp->blob_size);
-  Debug("blob_size=0x%" PRIx64 "\n", bp->blob_size);
-  if (!blob) {
-    VbExError("Couldn't allocate %ld bytes.\n", bp->blob_size);
+  Debug("kern_blob_size=0x%" PRIx64 "\n", bp->kern_blob_size);
+  kern_blob = (uint8_t *)malloc(bp->kern_blob_size);
+  if (!kern_blob) {
+    VbExError("Couldn't allocate %ld bytes.\n", bp->kern_blob_size);
     return 0;
   }
-  Memset(blob, 0, bp->blob_size);
-  bp->blob = blob;
+  Memset(kern_blob, 0, bp->kern_blob_size);
+  bp->kern_blob = kern_blob;
 
   /* Copy the 32-bit kernel. */
-  Debug("kernel goes at blob+=0x%" PRIx64 "\n", now);
+  Debug("kernel goes at kern_blob+0x%" PRIx64 "\n", now);
   if (kernel32_size)
-    Memcpy(blob + now, kernel_buf + kernel32_start, kernel32_size);
+    Memcpy(kern_blob + now, kernel_buf + kernel32_start, kernel32_size);
   now += roundup(now + kernel32_size, CROS_ALIGN);
 
-  Debug("config goes at blob+0x%" PRIx64 "\n", now);
+  Debug("config goes at kern_blob+0x%" PRIx64 "\n", now);
   /* Find the load address of the commandline. We'll need it later. */
   cmdline_addr = kernel_body_load_address + now +
       find_cmdline_start((char *)config_buf, config_size);
@@ -358,13 +362,13 @@ static blob_t *NewBlob(uint64_t version,
 
   /* Copy the config. */
   if (config_size)
-    Memcpy(blob + now, config_buf, config_size);
+    Memcpy(kern_blob + now, config_buf, config_size);
   now += CROS_CONFIG_SIZE;
 
   /* The zeropage data is next. Overlay the linux_kernel_header onto it, and
    * tweak a few fields. */
-  Debug("params goes at blob+=0x%" PRIx64 "\n", now);
-  params = (struct linux_kernel_params *)(blob + now);
+  Debug("params goes at kern_blob+0x%" PRIx64 "\n", now);
+  params = (struct linux_kernel_params *)(kern_blob + now);
   if (arch == ARCH_X86)
     Memcpy(&(params->setup_sects), &(lh->setup_sects),
            sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
@@ -388,15 +392,15 @@ static blob_t *NewBlob(uint64_t version,
 
   /* Finally, append the bootloader. Remember where it will load in
    * memory, too. */
-  Debug("bootloader goes at blob+=0x%" PRIx64 "\n", now);
+  Debug("bootloader goes at kern_blob+0x%" PRIx64 "\n", now);
   bp->bootloader_address = kernel_body_load_address + now;
   bp->bootloader_size = roundup(bootloader_size, CROS_ALIGN);
   Debug(" bootloader_address=0x%" PRIx64 "\n", bp->bootloader_address);
   Debug(" bootloader_size=0x%" PRIx64 "\n", bp->bootloader_size);
   if (bootloader_size)
-    Memcpy(blob + now, bootloader_buf, bootloader_size);
+    Memcpy(kern_blob + now, bootloader_buf, bootloader_size);
   now += bp->bootloader_size;
-  Debug("end of blob is 0x%" PRIx64 "\n", now);
+  Debug("end of kern_blob at kern_blob+0x%" PRIx64 "\n", now);
 
   /* Free input buffers */
   free(kernel_buf);
@@ -494,34 +498,34 @@ static blob_t *OldBlob(const char* filename, uint64_t pad) {
     goto unwind_oldblob;
   }
 
-  bp->buf = buf;
+  bp->vblock_buf = buf;
   bp->key_block = key_block;
   bp->preamble = preamble;
 
   bp->kernel_version = preamble->kernel_version;
   bp->bootloader_address = preamble->bootloader_address;
   bp->bootloader_size = preamble->bootloader_size;
-  bp->blob_size = preamble->body_signature.data_size;
+  bp->kern_blob_size = preamble->body_signature.data_size;
 
   Debug(" kernel_version = %d\n", bp->kernel_version);
   Debug(" bootloader_address = 0x%" PRIx64 "\n", bp->bootloader_address);
   Debug(" bootloader_size = 0x%" PRIx64 "\n", bp->bootloader_size);
-  Debug(" blob_size = 0x%" PRIx64 "\n", bp->blob_size);
+  Debug(" kern_blob_size = 0x%" PRIx64 "\n", bp->kern_blob_size);
 
-  if (!bp->blob_size) {
+  if (!bp->kern_blob_size) {
     VbExError("No kernel blob found\n");
     goto unwind_oldblob;
   }
 
-  bp->blob = (uint8_t *)malloc(bp->blob_size);
-  if (!bp->blob) {
+  bp->kern_blob = (uint8_t *)malloc(bp->kern_blob_size);
+  if (!bp->kern_blob) {
     VbExError("Couldn't allocate 0x%" PRIx64 " bytes for blob_t.\n",
-              bp->blob_size);
+              bp->kern_blob_size);
     goto unwind_oldblob;
   }
 
   /* read it in */
-  if (1 != fread(bp->blob, bp->blob_size, 1, fp)) {
+  if (1 != fread(bp->kern_blob, bp->kern_blob_size, 1, fp)) {
     VbExError("Unable to read kernel blob from %s: %s\n", filename,
               error_fread(fp));
     goto unwind_oldblob;
@@ -556,6 +560,7 @@ static int Pack(const char* outfile, const char* keyblock_file,
   uint64_t key_block_size;
   FILE* f;
   uint64_t i;
+  uint64_t written = 0;
 
   if (!outfile) {
     VbExError("Must specify output filename\n");
@@ -594,7 +599,7 @@ static int Pack(const char* outfile, const char* keyblock_file,
   }
 
   /* Sign the kernel data */
-  body_sig = CalculateSignature(bp->blob, bp->blob_size, signing_key);
+  body_sig = CalculateSignature(bp->kern_blob, bp->kern_blob_size, signing_key);
   if (!body_sig) {
     VbExError("Error calculating body signature\n");
     return 1;
@@ -630,18 +635,21 @@ static int Pack(const char* outfile, const char* keyblock_file,
     unlink(outfile);
     return 1;
   }
+  written += key_block_size;
+  written += preamble->preamble_size;
 
   if (!vblockonly) {
-    Debug("0x%" PRIx64 " bytes of blob\n", bp->blob_size);
-    i = (1 != fwrite(bp->blob, bp->blob_size, 1, f));
+    Debug("0x%" PRIx64 " bytes of kern_blob\n", bp->kern_blob_size);
+    i = (1 != fwrite(bp->kern_blob, bp->kern_blob_size, 1, f));
     if (i) {
       VbExError("Can't write output file %s\n", outfile);
       fclose(f);
       unlink(outfile);
       return 1;
     }
+    written += bp->kern_blob_size;
   }
-
+  Debug("0x%" PRIx64 " bytes total\n", written);
   fclose(f);
 
   /* Success */
@@ -711,7 +719,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
 
   /* Verify key block */
   key_block = bp->key_block;
-  if (0 != KeyBlockVerify(key_block, bp->blob_size, sign_key,
+  if (0 != KeyBlockVerify(key_block, bp->kern_blob_size, sign_key,
                           (sign_key ? 0 : 1))) {
     VbExError("Error verifying key block.\n");
     goto verify_exit;
@@ -771,7 +779,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
   /* Verify preamble */
   preamble = bp->preamble;
   if (0 != VerifyKernelPreamble(
-        preamble, bp->blob_size - key_block->key_block_size, rsa)) {
+        preamble, bp->kern_blob_size - key_block->key_block_size, rsa)) {
     VbExError("Error verifying preamble.\n");
     goto verify_exit;
   }
@@ -796,8 +804,8 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
   }
 
   /* Verify body */
-  if (0 != VerifyData(bp->blob, bp->blob_size, &preamble->body_signature,
-                      rsa)) {
+  if (0 != VerifyData(bp->kern_blob, bp->kern_blob_size,
+                      &preamble->body_signature, rsa)) {
     VbExError("Error verifying kernel body.\n");
     goto verify_exit;
   }
