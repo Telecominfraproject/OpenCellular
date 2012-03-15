@@ -55,7 +55,7 @@ ALL_DEPS = $(addsuffix .d,${TEST_BINS} ${TEST_LIB_OBJS})
 # Allow multiple definitions, so tests can mock functions from other libraries
 CFLAGS +=  -MMD -MF $@.d -Xlinker --allow-multiple-definition
 CXXFLAGS +=  -MMD -MF $@.d -Xlinker --allow-multiple-definition
-LDFLAGS += -luuid
+LDLIBS += $(PC_LIBS) -luuid
 
 LIBS := ${TEST_LIB} $(HOSTLIB)
 
@@ -78,8 +78,8 @@ ${BUILD_ROOT}/CgptManagerTests.o: CgptManagerTests.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CXXFLAGS) $(INCLUDES) -c $< -o $@
 
 ${BUILD_ROOT}/CgptManagerTests: ${BUILD_ROOT}/CgptManagerTests.o
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -lgtest -lgflags $^ \
-	${BUILD}/cgpt/libcgpt-cc.a $(PC_LIBS) -o $@
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) $^ \
+	${BUILD}/cgpt/libcgpt-cc.a -lgtest -lgflags $(LDLIBS) -o $@
 
 ${BUILD_ROOT}/vboot_audio_for_test.o : $(FWDIR)/lib/vboot_audio.c
 	$(CC) $(CFLAGS) -DCUSTOM_MUSIC $(INCLUDES) \
