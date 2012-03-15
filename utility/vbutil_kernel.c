@@ -719,7 +719,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
 
   /* Verify key block */
   key_block = bp->key_block;
-  if (0 != KeyBlockVerify(key_block, bp->kern_blob_size, sign_key,
+  if (0 != KeyBlockVerify(key_block, key_block->key_block_size, sign_key,
                           (sign_key ? 0 : 1))) {
     VbExError("Error verifying key block.\n");
     goto verify_exit;
@@ -778,8 +778,7 @@ static int Verify(const char* infile, const char* signpubkey, int verbose,
 
   /* Verify preamble */
   preamble = bp->preamble;
-  if (0 != VerifyKernelPreamble(
-        preamble, bp->kern_blob_size - key_block->key_block_size, rsa)) {
+  if (0 != VerifyKernelPreamble(preamble, preamble->preamble_size, rsa)) {
     VbExError("Error verifying preamble.\n");
     goto verify_exit;
   }

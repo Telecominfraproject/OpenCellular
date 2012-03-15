@@ -167,6 +167,7 @@ runmisctests:
 runfuzztests:
 	./gen_fuzz_test_cases.sh
 	./run_preamble_tests.sh
+	./run_vbutil_kernel_arg_tests.sh
 
 # Run bmpblk_utility tests
 runbmptests:
