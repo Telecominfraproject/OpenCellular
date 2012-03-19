@@ -24,9 +24,10 @@ char* StrCopy(char* dest, const char* src, int dest_size) {
 }
 
 
-uint8_t* ReadFile(const char* filename, uint64_t* size) {
+uint8_t* ReadFile(const char* filename, uint64_t* sizeptr) {
   FILE* f;
   uint8_t* buf;
+  uint64_t size;
 
   f = fopen(filename, "rb");
   if (!f) {
@@ -35,16 +36,16 @@ uint8_t* ReadFile(const char* filename, uint64_t* size) {
   }
 
   fseek(f, 0, SEEK_END);
-  *size = ftell(f);
+  size = ftell(f);
   rewind(f);
 
-  buf = malloc(*size);
+  buf = malloc(size);
   if (!buf) {
     fclose(f);
     return NULL;
   }
 
-  if(1 != fread(buf, *size, 1, f)) {
+  if(1 != fread(buf, size, 1, f)) {
     VBDEBUG(("Unable to read from file %s\n", filename));
     fclose(f);
     free(buf);
@@ -52,6 +53,8 @@ uint8_t* ReadFile(const char* filename, uint64_t* size) {
   }
 
   fclose(f);
+  if (sizeptr)
+    *sizeptr = size;
   return buf;
 }
 

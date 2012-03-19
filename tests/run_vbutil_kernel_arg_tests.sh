@@ -12,6 +12,7 @@
 . "$(dirname "$0")/common.sh"
 
 # directories
+DEVKEYS="${ROOT_DIR}/tests/devkeys"
 DATA_DIR="${SCRIPT_DIR}/preamble_tests/data"
 TMPDIR="${TEST_DIR}/vbutil_kernel_arg_tests_dir"
 [ -d "${TMPDIR}" ] || mkdir -p "${TMPDIR}"
@@ -43,7 +44,7 @@ while [ "$k" -lt "${#KERN_VALS[*]}" ]; do
   while [ "$b" -lt "${#BOOT_VALS[*]}" ]; do
     echo -n "pack kern_${k}_${b}.vblock ... "
     : $(( tests++ ))
-      ${UTIL_DIR}/vbutil_kernel --pack "${TMPDIR}/kern_${k}_${b}.vblock" \
+      "${UTIL_DIR}/vbutil_kernel" --pack "${TMPDIR}/kern_${k}_${b}.vblock" \
         --keyblock "${KEYBLOCK}" \
         --signprivate "${SIGNPRIVATE}" \
         --version 1 \
@@ -85,6 +86,109 @@ for v in ${TMPDIR}/kern_*.vblock; do
     echo -e "${COL_GREEN}PASSED${COL_STOP}"
   fi
 done
+
+
+
+# Test repacking a USB image for the SSD, the way the installer does.
+
+set -e
+# Pack for USB
+USB_KERN="${TMPDIR}/usb_kern.bin"
+USB_KEYBLOCK="${DEVKEYS}/recovery_kernel.keyblock"
+USB_SIGNPRIVATE="${DEVKEYS}/recovery_kernel_data_key.vbprivk"
+USB_SIGNPUBKEY="${DEVKEYS}/recovery_key.vbpubk"
+echo -n "pack USB kernel ... "
+: $(( tests++ ))
+"${UTIL_DIR}/vbutil_kernel" \
+  --pack "${USB_KERN}" \
+  --keyblock "${USB_KEYBLOCK}" \
+  --signprivate "${USB_SIGNPRIVATE}" \
+  --version 1 \
+  --config "${CONFIG}" \
+  --bootloader "${BIG}" \
+  --vmlinuz "${BIG}" \
+  --arch arm
+if [ "$?" -ne 0 ]; then
+  echo -e "${COL_RED}FAILED${COL_STOP}"
+  : $(( errs++ ))
+else
+  echo -e "${COL_GREEN}PASSED${COL_STOP}"
+fi
+
+# And verify it.
+echo -n "verify USB kernel ... "
+: $(( tests++ ))
+"${UTIL_DIR}/vbutil_kernel" \
+  --verify "${USB_KERN}" \
+  --signpubkey "${USB_SIGNPUBKEY}" >/dev/null
+if [ "$?" -ne 0 ]; then
+  echo -e "${COL_RED}FAILED${COL_STOP}"
+  : $(( errs++ ))
+else
+  echo -e "${COL_GREEN}PASSED${COL_STOP}"
+fi
+
+# Now we re-sign the same image using the normal keys. This is the kernel
+# image that is put on the hard disk by the installer. Note: To save space on
+# the USB image, we're only emitting the new verfication block, and the
+# installer just replaces that part of the hard disk's kernel partition.
+SSD_KERN="${TMPDIR}/ssd_kern.bin"
+SSD_KEYBLOCK="${DEVKEYS}/kernel.keyblock"
+SSD_SIGNPRIVATE="${DEVKEYS}/kernel_data_key.vbprivk"
+SSD_SIGNPUBKEY="${DEVKEYS}/kernel_subkey.vbpubk"
+echo -n "repack to SSD kernel ... "
+: $(( tests++ ))
+"${UTIL_DIR}/vbutil_kernel" \
+  --repack "${SSD_KERN}" \
+  --vblockonly \
+  --keyblock "${SSD_KEYBLOCK}" \
+  --signprivate "${SSD_SIGNPRIVATE}" \
+  --oldblob "${TMPDIR}/usb_kern.bin" >/dev/null
+if [ "$?" -ne 0 ]; then
+  echo -e "${COL_RED}FAILED${COL_STOP}"
+  : $(( errs++ ))
+else
+  echo -e "${COL_GREEN}PASSED${COL_STOP}"
+fi
+
+# To verify it, we have to replace the vblock from the original image.
+tempfile="${TMPDIR}/foo.bin"
+cat "${SSD_KERN}" > "$tempfile"
+dd if="${USB_KERN}" bs=65536 skip=1 >> $tempfile 2>/dev/null
+
+echo -n "verify SSD kernel ... "
+: $(( tests++ ))
+"${UTIL_DIR}/vbutil_kernel" \
+  --verify "$tempfile" \
+  --signpubkey "${SSD_SIGNPUBKEY}" >/dev/null
+if [ "$?" -ne 0 ]; then
+  echo -e "${COL_RED}FAILED${COL_STOP}"
+  : $(( errs++ ))
+else
+  echo -e "${COL_GREEN}PASSED${COL_STOP}"
+fi
+
+# Finally make sure that the kernel command line stays good.
+orig=$(cat "${CONFIG}" | tr '\012' ' ')
+packed=$("${UTIL_DIR}/dump_kernel_config" "${USB_KERN}")
+echo -n "check USB kernel config ..."
+: $(( tests++ ))
+if [ "$orig" != "$packed" ]; then
+  echo -e "${COL_RED}FAILED${COL_STOP}"
+  : $(( errs++ ))
+else
+  echo -e "${COL_GREEN}PASSED${COL_STOP}"
+fi
+
+repacked=$("${UTIL_DIR}/dump_kernel_config" "${tempfile}")
+echo -n "check SSD kernel config ..."
+: $(( tests++ ))
+if [ "$orig" != "$packed" ]; then
+  echo -e "${COL_RED}FAILED${COL_STOP}"
+  : $(( errs++ ))
+else
+  echo -e "${COL_GREEN}PASSED${COL_STOP}"
+fi
 
 # Summary
 ME=$(basename "$0")

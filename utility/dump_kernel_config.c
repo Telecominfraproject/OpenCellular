@@ -38,20 +38,14 @@ uint8_t* find_kernel_config(uint8_t* blob, uint64_t blob_size,
     return NULL;
   }
 
-  /* The parameters are packed before the bootloader and there is no specific
-   * pointer to it so we just walk back by its allocated size. */
+  /* The x86 kernels have a pointer to the kernel commandline in the zeropage
+   * table, but that's irrelevant for ARM. Both types keep the config blob in
+   * the same place, so just go find it. */
   offset = preamble->bootloader_address -
-           (kernel_body_load_address + CROS_PARAMS_SIZE) + now;
+    (kernel_body_load_address + CROS_PARAMS_SIZE +
+     CROS_CONFIG_SIZE) + now;
   if (offset > blob_size) {
     VbExError("params are outside of the memory blob: %x\n", offset);
-    return NULL;
-  }
-  params = (struct linux_kernel_params *)(blob + offset);
-
-  /* Grab the offset to the kernel command line using the supplied pointer. */
-  offset = params->cmd_line_ptr - kernel_body_load_address + now;
-  if (offset > blob_size) {
-    VbExError("cmdline is outside of the memory blob: %x\n", offset);
     return NULL;
   }
   return blob + offset;
