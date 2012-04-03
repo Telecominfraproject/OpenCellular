@@ -425,29 +425,11 @@ out:
 }
 
 /* Spawns a filesystem resizing process. */
-void filesystem_resizer(const char *device, size_t blocks, size_t blocks_max)
+int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
 {
-	pid_t pid;
-
 	/* Ignore resizing if we know the filesystem was built to max size. */
 	if (blocks >= blocks_max)
-		return;
-
-	fflush(NULL);
-	pid = fork();
-	if (pid < 0) {
-		PERROR("fork");
-		return;
-	}
-	if (pid != 0) {
-		INFO("Started filesystem resizing process %d.", pid);
-		return;
-	}
-
-	if (setsid() < 0) {
-		PERROR("setsid");
-		goto out;
-	}
+		return 1;
 
 	/* TODO(keescook): Read superblock to find out the current size of
 	 * the filesystem (since statvfs does not report the correct value).
@@ -470,7 +452,7 @@ void filesystem_resizer(const char *device, size_t blocks, size_t blocks_max)
 		blocks_str = g_strdup_printf("%zu", blocks);
 		if (!blocks_str) {
 			PERROR("g_strdup_printf");
-			goto out;
+			return 0;
 		}
 
 		const gchar *resize[] = {
@@ -484,14 +466,13 @@ void filesystem_resizer(const char *device, size_t blocks, size_t blocks_max)
 		INFO("Resizing filesystem on %s to %zu.", device, blocks);
 		if (runcmd(resize, NULL)) {
 			ERROR("resize2fs failed");
-			goto out;
+			return 0;
 		}
 		g_free(blocks_str);
 	} while (blocks < blocks_max);
 
 	INFO("Resizing finished.");
-out:
-	exit(0);
+	return 1;
 }
 
 char *keyfile_read(const char *keyfile, uint8_t *system_key)

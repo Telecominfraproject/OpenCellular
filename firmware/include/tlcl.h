@@ -21,6 +21,10 @@
  */
 uint32_t TlclLibInit(void);
 
+/* Call this on shutdown.  Returns 0 if success, nonzero if error.
+ */
+uint32_t TlclLibClose(void);
+
 /* Logs to stdout.  Arguments like printf.
  */
 void TlclLog(char* format, ...);

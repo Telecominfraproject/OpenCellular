@@ -74,6 +74,7 @@ static struct timeval tick;
 } while (0)
 #if DEBUG_ENABLED
 # define DEBUG(f, a...) do { \
+	TICK_REPORT(); \
 	printf(f, ## a); \
 	printf("\n"); \
 } while (0)

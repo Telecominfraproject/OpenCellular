@@ -89,6 +89,42 @@ static struct bind_mount {
 
 int has_tpm = 0;
 
+void tpm_init(void)
+{
+	int tpm;
+
+	DEBUG("Opening TPM");
+	tpm = open(kTpmDev, O_RDWR);
+	if (tpm >= 0) {
+		has_tpm = 1;
+		close(tpm);
+	}
+	else {
+		/* TlclLibInit does not fail, it exits, so instead,
+		 * have it open /dev/null if the TPM is not available.
+		 */
+		setenv("TPM_DEVICE_PATH", kNullDev, 1);
+	}
+	TlclLibInit();
+	DEBUG("TPM Ready");
+}
+
+uint32_t tpm_flags(TPM_PERMANENT_FLAGS *pflags)
+{
+	uint32_t result;
+
+	DEBUG("Reading TPM Permanent Flags");
+	result = TlclGetPermanentFlags(pflags);
+	DEBUG("TPM Permanent Flags returned: %s", result ? "FAIL" : "ok");
+
+	return result;
+}
+
+void tpm_close(void)
+{
+	TlclLibClose();
+}
+
 static void sha256(char *string, uint8_t *digest)
 {
 	SHA256((unsigned char *)string, strlen(string), digest);
@@ -129,6 +165,17 @@ static int get_key_from_cmdline(uint8_t *digest)
 	return result;
 }
 
+static int get_system_property(const char *prop, char *buf, size_t length)
+{
+	const char *rc;
+
+	DEBUG("Fetching System Property '%s'", prop);
+	rc = VbGetSystemPropertyString(prop, buf, length);
+	DEBUG("Got System Property 'mainfw_type': %s", rc ? buf : "FAIL");
+
+	return rc != NULL;
+}
+
 static int has_chromefw(void)
 {
 	static int state = -1;
@@ -138,7 +185,7 @@ static int has_chromefw(void)
 	if (state != -1)
 		return state;
 
-	if (!VbGetSystemPropertyString("mainfw_type", fw, sizeof(fw)))
+	if (!get_system_property("mainfw_type", fw, sizeof(fw)))
 		state = 0;
 	else
 		state = strcmp(fw, "nonchrome") != 0;
@@ -154,7 +201,7 @@ static int is_cr48(void)
 	if (state != -1)
 		return state;
 
-	if (!VbGetSystemPropertyString("hwid", hwid, sizeof(hwid)))
+	if (!get_system_property("hwid", hwid, sizeof(hwid)))
 		state = 0;
 	else
 		state = strstr(hwid, "MARIO") != NULL;
@@ -164,12 +211,18 @@ static int is_cr48(void)
 static int
 _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
 {
+	int rc;
+
 	if (size > len) {
 		ERROR("NVRAM size (0x%x > 0x%zx) is too big", size, len);
 		return 0;
 	}
 
-	return TlclRead(index, buffer, size);
+	DEBUG("Reading NVRAM area 0x%x (size %u)", index, size);
+	rc = TlclRead(index, buffer, size);
+	DEBUG("NVRAM read returned: %s", rc ? "FAIL" : "ok");
+
+	return rc;
 }
 
 /*
@@ -180,7 +233,6 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
  *  - legacy NVRAM area (migration needed)
  *  - modern NVRAM area (\o/)
  */
-// TODO(keescook): recovery code needs to wipe NVRAM area to new size?
 static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 {
 	TPM_PERMANENT_FLAGS pflags;
@@ -189,7 +241,14 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 	uint8_t *rand_bytes;
 	uint32_t rand_size;
 
-	/* Start by expecting modern NVRAM area. */
+	/* Reading the NVRAM takes 40ms. Instead of querying the NVRAM area
+	 * for its size (which takes time), just read the expected size. If
+	 * it fails, then fall back to the older size. This means cleared
+	 * devices take 80ms (2 failed reads), legacy devices take 80ms
+	 * (1 failed read, 1 good read), and populated devices take 40ms,
+	 * which is the minimum possible time (instead of 40ms + time to
+	 * query NVRAM size).
+	 */
 	*old_lockbox = 0;
 	size = kLockboxSizeV2;
 	result = _read_nvram(value, sizeof(value), kLockboxIndex, size);
@@ -211,7 +270,11 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 	debug_dump_hex("nvram", value, size);
 
 	/* Ignore defined but unowned NVRAM area. */
-	result = TlclGetPermanentFlags(&pflags);
+	/* TODO(keescook): remove this check (it adds 40ms) once the
+	 * NVRAM area is bound to owner so that it will be wiped out
+	 * across device mode changes.
+	 */
+	result = tpm_flags(&pflags);
 	if (result) {
 		INFO("Could not read TPM Permanent Flags.");
 		return 0;
@@ -481,6 +544,35 @@ static int finalize_from_cmdline(char *key)
 	return EXIT_SUCCESS;
 }
 
+void spawn_resizer(const char *device, size_t blocks, size_t blocks_max)
+{
+	pid_t pid;
+
+	fflush(NULL);
+	pid = fork();
+	if (pid < 0) {
+		PERROR("fork");
+		return;
+	}
+	if (pid != 0) {
+		INFO("Started filesystem resizing process %d.", pid);
+		return;
+	}
+
+	/* Child */
+	tpm_close();
+
+	if (daemon(0, 1)) {
+		PERROR("daemon");
+		goto out;
+	}
+
+	filesystem_resize(device, blocks, blocks_max);
+
+out:
+	exit(0);
+}
+
 static int setup_encrypted(void)
 {
 	int has_system_key;
@@ -622,7 +714,7 @@ static int setup_encrypted(void)
 
 	/* Always spawn filesystem resizer, in case growth was interrupted. */
 	/* TODO(keescook): if already full size, don't resize. */
-	filesystem_resizer(kCryptDev, blocks_min, blocks_max);
+	spawn_resizer(kCryptDev, blocks_min, blocks_max);
 
 	/* If the legacy lockbox NVRAM area exists, we've rebuilt the
 	 * filesystem, and there are old bind sources on disk, attempt
@@ -739,7 +831,7 @@ int device_details(void)
 
 	printf("TPM: %s\n", has_tpm ? "yes" : "no");
 	if (has_tpm) {
-		printf("TPM Owned: %s\n", TlclGetPermanentFlags(&pflags) ?
+		printf("TPM Owned: %s\n", tpm_flags(&pflags) ?
 			"fail" : (pflags.ownership ? "yes" : "no"));
 	}
 	printf("ChromeOS: %s\n", has_chromefw() ? "yes" : "no");
@@ -762,30 +854,12 @@ int device_details(void)
 	return EXIT_SUCCESS;
 }
 
-void init_tpm(void)
-{
-	int tpm;
-
-	tpm = open(kTpmDev, O_RDWR);
-	if (tpm >= 0) {
-		has_tpm = 1;
-		close(tpm);
-	}
-	else {
-		/* TlclLibInit does not fail, it exits, so instead,
-		 * have it open /dev/null if the TPM is not available.
-		 */
-		setenv("TPM_DEVICE_PATH", kNullDev, 1);
-	}
-	TlclLibInit();
-}
-
 int main(int argc, char *argv[])
 {
 	int okay;
 
 	INFO_INIT("Starting.");
-	init_tpm();
+	tpm_init();
 
 	if (argc > 1) {
 		if (!strcmp(argv[1], "device"))

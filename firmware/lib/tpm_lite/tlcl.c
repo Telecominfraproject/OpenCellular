@@ -136,6 +136,10 @@ uint32_t TlclLibInit(void) {
   return VbExTpmInit();
 }
 
+uint32_t TlclLibClose(void) {
+  return VbExTpmClose();
+}
+
 uint32_t TlclStartup(void) {
   VBDEBUG(("TPM: Startup\n"));
   return Send(tpm_startup_cmd.buffer);
