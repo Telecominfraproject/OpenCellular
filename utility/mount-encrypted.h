@@ -7,8 +7,7 @@
 #ifndef _MOUNT_ENCRYPTED_H_
 #define _MOUNT_ENCRYPTED_H_
 
-/* TODO(keescook): Disable debugging in production. */
-#define DEBUG_ENABLED 1
+#define DEBUG_ENABLED 0
 
 #include <openssl/err.h>
 #include <openssl/sha.h>
@@ -23,16 +22,19 @@
 #define ERROR(f, a...)	do { \
 	_ERROR(f, ## a); \
 	fprintf(stderr, "\n"); \
+	fflush(stderr); \
 } while (0)
 #define PERROR(f, a...)	do { \
 	_ERROR(f, ## a); \
 	fprintf(stderr, ": %s\n", strerror(errno)); \
+	fflush(stderr); \
 } while (0)
 
 #define SSL_ERROR(f, a...)	do { \
 	ERR_load_crypto_strings(); \
 	_ERROR(f, ## a); \
 	fprintf(stderr, "%s\n", ERR_error_string(ERR_get_error(), NULL)); \
+	fflush(stderr); \
 } while (0)
 
 #if DEBUG_ENABLED
@@ -67,6 +69,7 @@ static struct timeval tick;
 	TICK_REPORT(); \
 	printf(f, ## a); \
 	printf("\n"); \
+	fflush(stdout); \
 } while (0)
 #define INFO_INIT(f, a...) do { \
 	TICK_INIT(); \
@@ -77,6 +80,7 @@ static struct timeval tick;
 	TICK_REPORT(); \
 	printf(f, ## a); \
 	printf("\n"); \
+	fflush(stdout); \
 } while (0)
 #else
 # define DEBUG(f, a...) do { } while (0)

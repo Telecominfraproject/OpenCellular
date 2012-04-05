@@ -63,27 +63,39 @@ static const size_t kSectorSize = 512;
 static const size_t kExt4BlockSize = 4096;
 static const size_t kExt4MinBytes = 64 * 1024 * 1024;
 
+enum migration_method {
+	MIGRATE_TEST_ONLY,
+	MIGRATE_FOR_REAL,
+};
+
+enum bind_dir {
+	BIND_SOURCE,
+	BIND_DEST,
+};
+
 static struct bind_mount {
-	const char * const src;
-	const char * const old;
-	const char * const dst;
+	const char * const src;		/* Location of bind source. */
+	const char * const dst;		/* Destination of bind. */
+	const char * const previous;	/* Migratable prior bind source. */
+	const char * const pending;	/* Location for pending deletion. */
 	const char * const owner;
 	const char * const group;
 	const mode_t mode;
 	const int submount;		/* Submount is bound already. */
-	const int optional;		/* Non-fatal if this bind fails. */
 } bind_mounts[] = {
 #if DEBUG_ENABLED == 2
 # define DEBUG_DEST ".new"
 #else
 # define DEBUG_DEST ""
 #endif
-	{ ENCRYPTED_MNT "/var", STATEFUL_MNT "/var",
-	  "/var" DEBUG_DEST, "root", "root",
-	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 0, 0 },
-	{ ENCRYPTED_MNT "/chronos", STATEFUL_MNT "/home/chronos",
-	  "/home/chronos" DEBUG_DEST, "chronos", "chronos",
-	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 1, 1 },
+	{ ENCRYPTED_MNT "/var", "/var" DEBUG_DEST,
+	  STATEFUL_MNT "/var", STATEFUL_MNT "/.var",
+	  "root", "root",
+	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 0 },
+	{ ENCRYPTED_MNT "/chronos", "/home/chronos" DEBUG_DEST,
+	  STATEFUL_MNT "/home/chronos", STATEFUL_MNT "/home/.chronos",
+	  "chronos", "chronos",
+	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 1 },
 	{ },
 };
 
@@ -409,10 +421,25 @@ static char *choose_encryption_key(void)
 	return stringify_hex(digest, DIGEST_LENGTH);
 }
 
-static int check_bind_src(struct bind_mount *bind)
+static int check_bind(struct bind_mount *bind, enum bind_dir dir)
 {
 	struct passwd *user;
 	struct group *group;
+	const gchar *target;
+
+	if (dir == BIND_SOURCE)
+		target = bind->src;
+	else
+		target = bind->dst;
+
+	if (access(target, R_OK) && mkdir(target, bind->mode)) {
+		PERROR("mkdir(%s)", target);
+		return -1;
+	}
+
+	/* Destination may be on read-only filesystem, so skip tweaks. */
+	if (dir == BIND_DEST)
+		return 0;
 
 	if (!(user = getpwnam(bind->owner))) {
 		PERROR("getpwnam(%s)", bind->owner);
@@ -423,42 +450,50 @@ static int check_bind_src(struct bind_mount *bind)
 		return -1;
 	}
 
-	if (access(bind->src, R_OK) && mkdir(bind->src, bind->mode)) {
-		PERROR("mkdir(%s)", bind->src);
-		return -1;
-	}
 	/* Must do explicit chmod since mkdir()'s mode respects umask. */
-	if (chmod(bind->src, bind->mode)) {
-		PERROR("chmod(%s)", bind->src);
+	if (chmod(target, bind->mode)) {
+		PERROR("chmod(%s)", target);
 		return -1;
 	}
-	if (chown(bind->src, user->pw_uid, group->gr_gid)) {
-		PERROR("chown(%s)", bind->src);
+	if (chown(target, user->pw_uid, group->gr_gid)) {
+		PERROR("chown(%s)", target);
 		return -1;
 	}
 
 	return 0;
 }
 
-static void migrate_contents(struct bind_mount *bind)
+static int migrate_contents(struct bind_mount *bind,
+			    enum migration_method method)
 {
-	gchar *old;
+	const gchar *previous = NULL;
+	const gchar *pending = NULL;
+	gchar *dotdir;
 
-	/* Skip migration if the old bind src is missing. */
-	if (!bind->old || access(bind->old, R_OK))
-		return;
+	/* Skip migration if the previous bind sources are missing. */
+	if (bind->pending && access(bind->pending, R_OK) == 0)
+		pending = bind->pending;
+	if (bind->previous && access(bind->previous, R_OK) == 0)
+		previous = bind->previous;
+	if (!pending && !previous)
+		return 0;
 
-	INFO("Migrating bind mount contents %s to %s.", bind->old, bind->src);
-	check_bind_src(bind);
+	/* Pretend migration happened. */
+	if (method == MIGRATE_TEST_ONLY)
+		return 1;
 
-	if (!(old = g_strdup_printf("%s/.", bind->old))) {
+	check_bind(bind, BIND_SOURCE);
+
+	/* Prefer the pending-delete location when doing migration. */
+	if (!(dotdir = g_strdup_printf("%s/.", pending ? pending : previous))) {
 		PERROR("g_strdup_printf");
-		goto remove;
+		goto mark_for_removal;
 	}
 
+	INFO("Migrating bind mount contents %s to %s.", dotdir, bind->src);
 	const gchar *cp[] = {
 		"/bin/cp", "-a",
-		old,
+		dotdir,
 		bind->src,
 		NULL
 	};
@@ -466,22 +501,40 @@ static void migrate_contents(struct bind_mount *bind)
 	if (runcmd(cp, NULL) != 0) {
 		/* If the copy failed, it may have partially populated the
 		 * new source, so we need to remove the new source and
-		 * rebuild it. Regardless, the old source must be removed
+		 * rebuild it. Regardless, the previous source must be removed
 		 * as well.
 		 */
-		INFO("Failed to migrate %s to %s!", bind->old, bind->src);
+		INFO("Failed to migrate %s to %s!", dotdir, bind->src);
 		remove_tree(bind->src);
-		check_bind_src(bind);
+		check_bind(bind, BIND_SOURCE);
 	}
 
-remove:
-	g_free(old);
+mark_for_removal:
+	g_free(dotdir);
 
-	/* The removal of the old directory needs to happen at finalize
+	/* The removal of the previous directory needs to happen at finalize
 	 * time, otherwise /var state gets lost on a migration if the
-	 * system is powered off before the encryption key is saved.
+	 * system is powered off before the encryption key is saved. Instead,
+	 * relocate the directory so it can be removed (or re-migrated).
 	 */
-	return;
+
+	if (previous) {
+		/* If both pending and previous directory exists, we must
+		 * remove previous entirely now so it stops taking up disk
+		 * space. The pending area will stay pending to be deleted
+		 * later.
+		 */
+		if (pending)
+			remove_tree(pending);
+		if (rename(previous, bind->pending)) {
+			PERROR("rename(%s,%s)", previous, bind->pending);
+		}
+	}
+
+	/* As noted above, failures are unrecoverable, so getting here means
+	 * "we're done" more than "it worked".
+	 */
+	return 1;
 }
 
 static void finalize(uint8_t *system_key, char *encryption_key)
@@ -495,13 +548,13 @@ static void finalize(uint8_t *system_key, char *encryption_key)
 	}
 
 	for (bind = bind_mounts; bind->src; ++ bind) {
-		if (access(bind->old, R_OK))
+		if (!bind->pending || access(bind->pending, R_OK))
 			continue;
-		INFO("Removing %s.", bind->old);
+		INFO("Removing %s.", bind->pending);
 #if DEBUG_ENABLED
 		continue;
 #endif
-		remove_tree(bind->old);
+		remove_tree(bind->pending);
 	}
 }
 
@@ -674,14 +727,8 @@ static int setup_encrypted(void)
 		migrate_allowed = 0;
 	if (migrate_allowed) {
 		for (bind = bind_mounts; bind->src; ++ bind) {
-			/* Skip mounts that have no prior location defined. */
-			if (!bind->old)
-				continue;
-			/* Skip mounts that have no prior data on disk. */
-			if (access(bind->old, R_OK) != 0)
-				continue;
-
-			migrate_needed = 1;
+			if (migrate_contents(bind, MIGRATE_TEST_ONLY))
+				migrate_needed = 1;
 		}
 	}
 
@@ -726,17 +773,17 @@ static int setup_encrypted(void)
 		 * and would be over-mounted by the new bind mount.
 		 */
 		for (bind = bind_mounts; bind->src; ++ bind)
-			migrate_contents(bind);
+			migrate_contents(bind, MIGRATE_FOR_REAL);
 	}
 
 	/* Perform bind mounts. */
 	for (bind = bind_mounts; bind->src; ++ bind) {
 		INFO("Bind mounting %s onto %s.", bind->src, bind->dst);
-		if (check_bind_src(bind) ||
-		    mount(bind->src, bind->dst, "none", MS_BIND, NULL)) {
+		if (check_bind(bind, BIND_SOURCE) ||
+		    check_bind(bind, BIND_DEST))
+			goto unbind;
+		if (mount(bind->src, bind->dst, "none", MS_BIND, NULL)) {
 			PERROR("mount(%s,%s)", bind->src, bind->dst);
-			if (bind->optional)
-				continue;
 			goto unbind;
 		}
 	}

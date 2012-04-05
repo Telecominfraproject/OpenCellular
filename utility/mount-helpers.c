@@ -613,6 +613,7 @@ int keyfile_write(const char *keyfile, uint8_t *system_key, char *string)
 	length = cipher_length + final_len;
 
 	DEBUG("Writing keyfile %s", keyfile);
+	/* TODO(keescook): replace this with a mode-400 writer. */
 	if (!g_file_set_contents(keyfile, (gchar *)cipher, length, &error)) {
 		ERROR("Unable to write %s: %s", keyfile, error->message);
 		g_error_free(error);
@@ -626,6 +627,6 @@ free_ctx:
 free_cipher:
 	free(cipher);
 out:
-	DEBUG("rc:%d", rc);
+	DEBUG("keyfile write rc:%d", rc);
 	return rc;
 }
