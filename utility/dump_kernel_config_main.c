@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   size_t blob_size;
   char* infile = NULL;
   uint8_t *config = NULL;
-  uint64_t kernel_body_load_address = CROS_32BIT_ENTRY_ADDR;
+  uint64_t kernel_body_load_address = CROS_NO_ENTRY_ADDR;
   int parse_error = 0;
   char *e;
   int i;

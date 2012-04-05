@@ -17,6 +17,9 @@
 // Alignment of various chunks within the kernel blob
 #define CROS_ALIGN 4096
 
+// Sentinel RAM address indicating that no entry address is specified
+#define CROS_NO_ENTRY_ADDR     (~0)
+
 // RAM address where the 32-bit kernel expects to be started
 #define CROS_32BIT_ENTRY_ADDR  0x100000
 

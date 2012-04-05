@@ -38,6 +38,10 @@ uint8_t* find_kernel_config(uint8_t* blob, uint64_t blob_size,
     return NULL;
   }
 
+  /* Read body_load_address from preamble if no kernel_body_load_address */
+  if (kernel_body_load_address == CROS_NO_ENTRY_ADDR)
+    kernel_body_load_address = preamble->body_load_address;
+
   /* The x86 kernels have a pointer to the kernel commandline in the zeropage
    * table, but that's irrelevant for ARM. Both types keep the config blob in
    * the same place, so just go find it. */
