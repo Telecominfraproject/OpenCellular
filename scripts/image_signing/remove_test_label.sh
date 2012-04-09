@@ -15,5 +15,5 @@ image=$1
 
 rootfs=$(mktemp -d)
 mount_image_partition ${image} 3 ${rootfs}
-trap "umount -d ${rootfs}; rm -rf ${rootfs}" EXIT
+trap "umount ${rootfs}; rm -rf ${rootfs}" EXIT
 sed -i 's/test//' "${rootfs}/etc/lsb-release"

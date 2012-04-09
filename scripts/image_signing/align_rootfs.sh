@@ -120,12 +120,12 @@ copy_root_fs() {
   local src_root_fs_dir=$(mktemp -d "/tmp/align_root_fs_src_mount_dir.XXXX")
   add_cleanup_action "sudo rm -rf \"${src_root_fs_dir}\""
   mount_image_partition_ro "${src_image}" 3 "${src_root_fs_dir}"
-  add_cleanup_action "sudo umount -d \"${src_root_fs_dir}\""
+  add_cleanup_action "sudo umount \"${src_root_fs_dir}\""
 
   local dst_root_fs_dir=$(mktemp -d "/tmp/align_root_fs_dst_mount_dir.XXXX")
   add_cleanup_action "sudo rm -rf \"${dst_root_fs_dir}\""
   sudo mount -o loop "${dst_root_fs}" "${dst_root_fs_dir}" -o loop
-  add_cleanup_action "sudo umount -d \"${dst_root_fs_dir}\""
+  add_cleanup_action "sudo umount \"${dst_root_fs_dir}\""
 
   # Temporarily make immutable files on the dst rootfs mutable.
   # We'll need to track these files in ${immutable_files} so we can make them
@@ -165,7 +165,7 @@ zero_root_fs_free_space() {
   local root_fs_dir=$(mktemp -d "/tmp/align_rootfs_zero_free_space_dir.XXXX")
   add_cleanup_action "sudo rm -rf \"${root_fs_dir}\""
   mount_image_partition "${image}" 3 "${root_fs_dir}"
-  add_cleanup_action "sudo umount -d \"${root_fs_dir}\""
+  add_cleanup_action "sudo umount \"${root_fs_dir}\""
 
   info "Zeroing free space in rootfs"
   sudo dd if=/dev/zero of="${root_fs_dir}/filler" oflag=sync bs=4096 || true

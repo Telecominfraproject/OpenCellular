@@ -66,7 +66,7 @@ sudo cp ${stateful_dir}/vmlinuz_hd.vblock ${tmp_vblock}
 echo "Overwriting kernel vblock with SSD kernel vblock"
 sudo dd if=${tmp_vblock} of=${SSD_IMAGE} seek=${kerna_offset} bs=512 \
   conv=notrunc
-sudo umount -d ${stateful_dir}
+sudo umount ${stateful_dir}
 
 # Zero out Kernel B partition.
 echo "Zeroing out Kernel partition B"

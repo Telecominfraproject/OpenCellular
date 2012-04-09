@@ -215,7 +215,7 @@ process_all_lsb_mods "${rootfs}" ${FLAGS_FALSE}
 
 if [ ${g_modified} = ${FLAGS_TRUE} ]; then
   # remount as RW (we can't use mount -o rw,remount because of loop device)
-  sudo umount -d "${rootfs}"
+  sudo umount "${rootfs}"
   mount_image_partition "${IMAGE}" 3 "${rootfs}"
 
   # second round, apply the modification to image.

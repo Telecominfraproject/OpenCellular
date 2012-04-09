@@ -93,7 +93,7 @@ cleanup_temps_and_mounts() {
       if has_needs_to_be_resigned_tag "$i"; then
         echo "Warning: image may be modified. Please resign image."
       fi
-      sudo umount -d $i 2>/dev/null
+      sudo umount $i 2>/dev/null
       rm -rf $i
     fi
   done

@@ -42,7 +42,7 @@ main() {
       exit 1
     fi
     # Prepare for remounting read/write.
-    sudo umount -d $rootfs
+    sudo umount $rootfs
   fi
   mount_image_partition "$image" 3 "$rootfs"
   change_chronos_password "$rootfs" "$chronos_password"

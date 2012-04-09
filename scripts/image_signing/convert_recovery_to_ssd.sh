@@ -72,7 +72,7 @@ tmp_vblock=$(make_temp_file)
 mount_image_partition_ro ${IMAGE} 1 ${stateful_dir}
 sudo cp ${stateful_dir}/vmlinuz_hd.vblock ${tmp_vblock}
 # Unmount before overwriting image to avoid sync issues.
-sudo umount -d ${stateful_dir}
+sudo umount ${stateful_dir}
 echo "Overwriting kernel partition A vblock with SSD vblock"
 sudo dd if=${tmp_vblock} of=${IMAGE} seek=${kerna_offset} bs=512 conv=notrunc
 

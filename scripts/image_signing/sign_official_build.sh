@@ -203,11 +203,11 @@ update_rootfs_hash() {
   mount_image_partition_ro "${image}" 3 "${rootfs_dir}"
   if has_needs_to_be_resigned_tag "${rootfs_dir}"; then
     # remount as RW
-    sudo umount -d "${rootfs_dir}"
+    sudo umount "${rootfs_dir}"
     mount_image_partition "${image}" 3 "${rootfs_dir}"
     sudo rm -f "${rootfs_dir}/${TAG_NEEDS_TO_BE_SIGNED}"
   fi
-  sudo umount -d "${rootfs_dir}"
+  sudo umount "${rootfs_dir}"
 
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${image} 3 ${rootfs_image}
@@ -331,7 +331,7 @@ resign_firmware_payload() {
   local rootfs_dir=$(make_temp_dir)
   mount_image_partition ${image} 3 ${rootfs_dir}
   # Force unmount of the rootfs on function exit as it is needed later.
-  trap "sudo umount -d ${rootfs_dir}" RETURN
+  trap "sudo umount ${rootfs_dir}" RETURN
   local firmware_bundle="${rootfs_dir}/usr/sbin/chromeos-firmwareupdate"
   local shellball_dir=$(make_temp_dir)
 
@@ -522,7 +522,7 @@ sign_for_recovery() {
   local stateful_dir=$(make_temp_dir)
   mount_image_partition ${image_bin} 1 ${stateful_dir}
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
-  sudo umount -d "${stateful_dir}"
+  sudo umount "${stateful_dir}"
 
   # Update the Kernel B hash in Kernel A command line
   local old_kerna_config=$(grab_kernel_config "${image_bin}" 2)
