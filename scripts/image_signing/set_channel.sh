@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -24,17 +24,23 @@ fi
 main() {
   local image=$1
   local to=$2
-  
+  local rootfs lsb
+
   rootfs=$(make_temp_dir)
+  lsb="${rootfs}/etc/lsb-release"
   mount_image_partition "${image}" 3 "${rootfs}"
   # Get the current channel on the image.
-  local from=$(grep '^CHROMEOS_RELEASE_TRACK=' \
-    "${rootfs}/etc/lsb-release" | cut -d '=' -f 2)
+  local from=$(grep '^CHROMEOS_RELEASE_TRACK=' "${lsb}" | cut -d '=' -f 2)
   from=${from%"-channel"}
   echo "Current channel is '${from}'. Changing to '${to}'."
-  sed -i "s/\b${from}\b/${to}/" "${rootfs}/etc/lsb-release" &&
+
+  local sudo
+  if [[ ! -w ${lsb} ]] ; then
+    sudo="sudo"
+  fi
+  ${sudo} sed -i "s/\b${from}\b/${to}/" "${lsb}" &&
     echo "Channel change successful."
-  cat "${rootfs}/etc/lsb-release"
+  cat "${lsb}"
 }
 
 main "$@"

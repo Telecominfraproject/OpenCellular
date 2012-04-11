@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -173,22 +173,29 @@ process_all_tags() {
 process_all_lsb_mods() {
   local rootfs="$1"
   local do_modifications="$2"
+  local lsb="${rootfs}/etc/lsb-release"
+  local sudo
+
+  if [ ! -w "${lsb}" ]; then
+    sudo="sudo"
+  fi
+
   if [ ${FLAGS_remove_test_label} = ${FLAGS_TRUE} ]; then
-    if grep -wq "test" ${rootfs}/etc/lsb-release; then
+    if grep -wq "test" "${lsb}"; then
       g_modified=${FLAGS_TRUE}
     fi
     if [ ${do_modifications} = ${FLAGS_TRUE} ]; then
-      sed -i 's/\btest\b//' "${rootfs}/etc/lsb-release" &&
+      ${sudo} sed -i 's/\btest\b//' "${lsb}" &&
         echo "Test Label removed from /etc/lsb-release"
     fi
   fi
 
   if [ ${FLAGS_change_dev_to_beta} = ${FLAGS_TRUE} ]; then
-    if grep -wq "dev" ${rootfs}/etc/lsb-release; then
+    if grep -wq "dev" "${lsb}"; then
       g_modified=${FLAGS_TRUE}
     fi
     if [ ${do_modifications} = ${FLAGS_TRUE} ]; then
-      sed -i 's/\bdev\b/beta/' "${rootfs}/etc/lsb-release" &&
+      ${sudo} sed -i 's/\bdev\b/beta/' "${lsb}" &&
         echo "Dev Channel Label was changed to Beta"
     fi
   fi
