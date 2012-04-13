@@ -26,6 +26,11 @@ get_version() {
   echo $version
 }
 
+if [ ! -e "${VERSION_FILE}" ]; then
+  echo "No version file found. Creating default ${VERSION_FILE}."
+  printf '%s_version=1\n' {firmware,kernel}{_key,} > "${VERSION_FILE}"
+fi
+
 # Get the key versions for normal keypairs
 FKEY_VERSION=$(get_version "firmware_key_version")
 # Firmware version is the kernel subkey version.
