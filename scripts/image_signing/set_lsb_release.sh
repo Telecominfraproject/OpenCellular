@@ -47,9 +47,8 @@ EOF
     exit 1
   fi
 
-  local rootfs=$(mktemp -d)
+  local rootfs=$(make_temp_dir)
   mount_image_partition_ro "$image" 3 "$rootfs"
-  trap "sudo umount $rootfs; rm -rf $rootfs" EXIT
   if [ -n "$key" ]; then
     sudo umount "$rootfs"
     mount_image_partition "$image" 3 "$rootfs"

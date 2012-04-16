@@ -13,7 +13,6 @@
 set -e
 image=$1
 
-rootfs=$(mktemp -d)
+rootfs=$(make_temp_dir)
 mount_image_partition ${image} 3 ${rootfs}
-trap "umount ${rootfs}; rm -rf ${rootfs}" EXIT
 sed -i 's/test//' "${rootfs}/etc/lsb-release"
