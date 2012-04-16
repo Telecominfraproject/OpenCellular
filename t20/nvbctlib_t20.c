@@ -516,6 +516,7 @@ t20_bct_get_value(parse_token id, u_int32_t *data, u_int8_t *bct)
 	CASE_GET_NVU32(num_param_sets);
 	CASE_GET_NVU32(num_sdram_sets);
 	CASE_GET_NVU32(bootloader_used);
+	CASE_GET_NVU32(odm_data);
 
 	/*
 	 * Constants.
@@ -589,6 +590,7 @@ t20_bct_set_value(parse_token id, u_int32_t  data, u_int8_t *bct)
 	CASE_SET_NVU32(num_param_sets);
 	CASE_SET_NVU32(num_sdram_sets);
 	CASE_SET_NVU32(bootloader_used);
+	CASE_SET_NVU32(odm_data);
 
 	default:
 		return -ENODATA;

@@ -85,6 +85,7 @@ typedef struct build_image_context_rec
 	u_int32_t bct_size; /* The BCT file size */
 	u_int32_t boot_data_version; /* The boot data version of BCT */
 	u_int8_t bct_init; /* The flag for the memory allocation of bct */
+	u_int32_t odm_data; /* The odm data value */
 } build_image_context;
 
 /* Function prototypes */

@@ -628,6 +628,9 @@ update_context(struct build_image_context_rec *context)
 	g_bct_parse_interf->get_value(token_block_size_log2,
 			&context->block_size_log2,
 			context->bct);
+	g_bct_parse_interf->get_value(token_odm_data,
+			&context->odm_data,
+			context->bct);
 
 	context->page_size = 1 << context->page_size_log2;
 	context->block_size = 1 << context->block_size_log2;
@@ -768,6 +771,9 @@ begin_update(build_image_context *context)
 			&reserved_size, context->bct);
 	g_bct_parse_interf->get_value(token_reserved_offset,
 			&reserved_offset, context->bct);
+	/* Set the odm data */
+	g_bct_parse_interf->set_value(token_odm_data,
+			context->odm_data, context->bct);
 
 	pages_per_bct = iceil_log2(context->bct_size, context->page_size_log2);
 	pages_per_blk = (1 << (context->block_size_log2

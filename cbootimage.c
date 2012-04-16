@@ -50,6 +50,7 @@ struct option cbootcmd[] = {
 	{"debug", 0, NULL, 'd'},
 	{"generate", 1, NULL, 'g'},
 	{"tegra", 1, NULL, 't'},
+	{"odmdata", 1, NULL, 'o'},
 	{0, 0, 0, 0},
 };
 
@@ -69,6 +70,7 @@ usage(void)
 	printf("    -h, --help, -?  Display this message.\n");
 	printf("    -d, --debug     Output debugging information.\n");
 	printf("    -gbct               Generate the new bct file.\n");
+	printf("    -o<ODM_DATA>       Specify the odm_data(in hex).\n");
 	printf("    [-t20|-t25|-t30]   Select one of the possible\n");
 	printf("                       target devices, -t20 if unspecified\n");
 	printf("    configfile      File with configuration information\n");
@@ -78,7 +80,6 @@ usage(void)
 static int
 process_command_line(int argc, char *argv[], build_image_context *context)
 {
-	int arg = 1;
 	int c;
 
 	context->generate_bct = 0;
@@ -92,7 +93,7 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 	t20_get_cbootimage_interf(g_bct_parse_interf);
 	context->boot_data_version = NVBOOT_BOOTDATA_VERSION(2, 1);
 
-	while ((c = getopt_long(argc, argv, "hdg:t:", cbootcmd, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "hdg:t:o:", cbootcmd, NULL)) != -1) {
 		switch (c) {
 		case 'h':
 			help_only = 1;
@@ -100,12 +101,10 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 			return 0;
 		case 'd':
 			enable_debug = 1;
-			arg++;
 			break;
 		case 'g':
 			if (!strcasecmp("bct", optarg)) {
 				context->generate_bct = 1;
-				arg++;
 			} else {
 				printf("Invalid argument!\n");
 				usage();
@@ -119,51 +118,36 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 				t20_get_cbootimage_interf(g_bct_parse_interf);
 				context->boot_data_version =
 					NVBOOT_BOOTDATA_VERSION(2, 1);
-				arg++;
 			} else if (!(strcasecmp("30", optarg))) {
 				t30_get_cbootimage_interf(g_bct_parse_interf);
 				context->boot_data_version =
 					NVBOOT_BOOTDATA_VERSION(3, 1);
-				arg++;
 			} else {
 				printf("Unsupported chipname!\n");
 				usage();
 				return -EINVAL;
 			}
 			break;
+		case 'o':
+			context->odm_data = strtoul(optarg, NULL, 16);
+			break;
 		}
 	}
-	/* Handle file specification errors. */
-	switch (argc - arg) {
-	case 0:
-		printf("Missing configuration and image file names.\n");
-		usage();
-		return -EINVAL;
 
-	case 1:
-		printf("Missing configuration or image file name.\n");
-		usage();
-		return -EINVAL;
-
-	case 2:
-		/* Correct args, so break from the switch statement. */
-		break;
-
-	default:
-		printf("Too many arguments.\n");
+	if (argc - optind != 2) {
+		printf("Missing configuration and/or image file name.\n");
 		usage();
 		return -EINVAL;
 	}
-
 	/* Open the configuration file. */
-	context->config_file = fopen(argv[arg], "r");
+	context->config_file = fopen(argv[optind], "r");
 	if (context->config_file == NULL) {
 		printf("Error opening config file.\n");
 		return -ENODATA;
 	}
 
 	/* Record the output filename */
-	context->image_filename = argv[arg + 1];
+	context->image_filename = argv[optind + 1];
 
 	return 0;
 }

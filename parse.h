@@ -51,6 +51,7 @@ typedef enum
 	token_dev_param,
 	token_redundancy,
 	token_version,
+	token_odm_data,
 	token_bct_file,
 	token_bct_copy,
 	token_bct_size,

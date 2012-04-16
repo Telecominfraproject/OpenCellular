@@ -29,7 +29,7 @@
 /**
  * Defines the number of 32-bit words in the customer_data area of the BCT.
  */
-#define NVBOOT_BCT_CUSTOMER_DATA_WORDS 298
+#define NVBOOT_BCT_CUSTOMER_DATA_WORDS 296
 
 /**
  * Defines the number of bytes in the customer_data area of the BCT.
@@ -304,6 +304,15 @@ typedef struct nvboot_config_table_rec {
 	u_int32_t bootloader_used;
 	nv_bootloader_info bootloader[NVBOOT_MAX_BOOTLOADERS];
 	u_int8_t customer_data[NVBOOT_BCT_CUSTOMER_DATA_SIZE];
+
+	/*
+	 * ODMDATA is stored in the BCT in IRAM by the BootROM.
+	 * Read the data @ bct_start + (bct_size - 12). This works
+	 * on T20 and T30 BCTs, which are locked down. If this changes
+	 * in new chips, we can revisit this algorithm.
+	 */
+	u_int32_t odm_data;
+	u_int32_t reserved1;
 	u_int8_t enable_fail_back;
 	u_int8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
 } nvboot_config_table;
