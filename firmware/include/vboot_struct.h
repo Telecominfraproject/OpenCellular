@@ -232,6 +232,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_LKP_CHECK_VERIFY_PREAMBLE    9
 #define VBSD_LKP_CHECK_KERNEL_ROLLBACK    10
 #define VBSD_LKP_CHECK_PREAMBLE_VALID     11
+/* Body load address check is omitted; this result code is deprecated and not
+ * used anywhere in the codebase. */
 #define VBSD_LKP_CHECK_BODY_ADDRESS       12
 #define VBSD_LKP_CHECK_BODY_OFFSET        13
 #define VBSD_LKP_CHECK_SELF_SIGNED        14

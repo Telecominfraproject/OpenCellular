@@ -20,7 +20,8 @@
 #define BOOT_FLAG_DEVELOPER UINT64_C(0x01)
 /* In recovery mode */
 #define BOOT_FLAG_RECOVERY  UINT64_C(0x02)
-/* Skip check of kernel buffer address */
+/* Skip check of kernel buffer address.  Since body load address check is
+ * omitted; this flag is deprecated and not used anywhere in the codebase. */
 #define BOOT_FLAG_SKIP_ADDR_CHECK UINT64_C(0x04)
 
 typedef struct LoadKernelParams {

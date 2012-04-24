@@ -190,10 +190,6 @@ int main(int argc, char* argv[]) {
   /* Free the key blob, now that we're done with it */
   free(key_blob);
 
-  /* Needs to skip the address check, since we're putting it somewhere on the
-   * heap instead of its actual target address in the firmware. */
-  lkp.boot_flags |= BOOT_FLAG_SKIP_ADDR_CHECK;
-
   printf("bootflags = %" PRIu64 "\n", lkp.boot_flags);
 
   /* Get image size */
