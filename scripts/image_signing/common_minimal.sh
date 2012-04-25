@@ -159,27 +159,51 @@ is_rootfs_partition() {
   [ -f "$mount_dir/$(dirname "$TAG_NEEDS_TO_BE_SIGNED")" ]
 }
 
-# Mount a partition read-only from an image into a local directory
-# Args: IMAGE PARTNUM MOUNTDIRECTORY
-mount_image_partition_ro() {
+# If the kernel is buggy and is unable to loop+mount quickly,
+# retry the operation a few times.
+# Args: IMAGE PARTNUM MOUNTDIRECTORY [ro]
+_mount_image_partition_retry() {
   local image=$1
   local partnum=$2
   local mount_dir=$3
-  local offset=$(partoffset "$image" "$partnum")
-  sudo mount -o loop,ro,offset=$((offset * 512)) "$image" "$mount_dir"
+  local ro=$4
+  local offset=$(( $(partoffset "$image" "$partnum") * 512 ))
+  local out
+
+  if [ "$ro" != "ro" ]; then
+    # Forcibly call enable_rw_mount.  It should fail on unsupported
+    # filesystems and be idempotent on ext*.
+    enable_rw_mount "$image" ${offset} 2> /dev/null
+  fi
+
+  set -- sudo LC_ALL=C mount -o loop,offset=${offset},${ro} \
+    "${image}" "${mount_dir}"
+  if ! out=$("$@" 2>&1); then
+    if [ "${out}" = "mount: you must specify the filesystem type" ]; then
+      echo "WARNING: mounting ${image} at ${mount_dir} failed; retrying"
+      sleep 5
+      "$@"
+    else
+      echo "ERROR: mounting ${image} at ${mount_dir} failed:"
+      echo "${out}"
+      # We don't preserve the exact exit code of `mount`, but since
+      # no one in this code base seems to check it, it's a moot point.
+      return 1
+    fi
+  fi
+}
+
+# Mount a partition read-only from an image into a local directory
+# Args: IMAGE PARTNUM MOUNTDIRECTORY
+mount_image_partition_ro() {
+  _mount_image_partition_retry "$@" "ro"
 }
 
 # Mount a partition from an image into a local directory
 # Args: IMAGE PARTNUM MOUNTDIRECTORY
 mount_image_partition() {
-  local image=$1
-  local partnum=$2
   local mount_dir=$3
-  local offset=$(partoffset "$image" "$partnum")
-  # Forcibly call enable_rw_mount.  It should fail on unsupported filesystems
-  # and be idempotent on ext*.
-  enable_rw_mount "$image" $((offset * 512)) 2> /dev/null
-  sudo mount -o loop,offset=$((offset * 512)) "$image" "$mount_dir"
+  _mount_image_partition_retry "$@"
   if is_rootfs_partition "$mount_dir"; then
     tag_as_needs_to_be_resigned "$mount_dir"
   fi
