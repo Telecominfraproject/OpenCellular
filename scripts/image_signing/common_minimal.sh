@@ -168,7 +168,7 @@ _mount_image_partition_retry() {
   local mount_dir=$3
   local ro=$4
   local offset=$(( $(partoffset "$image" "$partnum") * 512 ))
-  local out
+  local out try
 
   if [ "$ro" != "ro" ]; then
     # Forcibly call enable_rw_mount.  It should fail on unsupported
@@ -178,19 +178,30 @@ _mount_image_partition_retry() {
 
   set -- sudo LC_ALL=C mount -o loop,offset=${offset},${ro} \
     "${image}" "${mount_dir}"
-  if ! out=$("$@" 2>&1); then
-    if [ "${out}" = "mount: you must specify the filesystem type" ]; then
-      echo "WARNING: mounting ${image} at ${mount_dir} failed; retrying"
-      sleep 5
-      "$@"
+  try=1
+  while [ ${try} -le 5 ]; do
+    if ! out=$("$@" 2>&1); then
+      if [ "${out}" = "mount: you must specify the filesystem type" ]; then
+        printf 'WARNING: mounting %s at %s failed (try %i); retrying\n' \
+               "${image}" "${mount_dir}" "${try}"
+        # Try to "quiet" the disks and sleep a little to reduce contention.
+        sync
+        sleep $(( try * 5 ))
+      else
+        # Failed for a different reason; abort!
+        break
+      fi
     else
-      echo "ERROR: mounting ${image} at ${mount_dir} failed:"
-      echo "${out}"
-      # We don't preserve the exact exit code of `mount`, but since
-      # no one in this code base seems to check it, it's a moot point.
-      return 1
+      # It worked!
+      return 0
     fi
-  fi
+    : $(( try += 1 ))
+  done
+  echo "ERROR: mounting ${image} at ${mount_dir} failed:"
+  echo "${out}"
+  # We don't preserve the exact exit code of `mount`, but since
+  # no one in this code base seems to check it, it's a moot point.
+  return 1
 }
 
 # Mount a partition read-only from an image into a local directory
