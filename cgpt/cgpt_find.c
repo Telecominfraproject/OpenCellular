@@ -94,7 +94,7 @@ static int do_search(CgptFindParams *params, char *fileName) {
   GptEntry *entry;
   char partlabel[GPT_PARTNAME_LEN];
 
-  if (CGPT_OK != DriveOpen(fileName, &drive))
+  if (CGPT_OK != DriveOpen(fileName, &drive, O_RDONLY))
     return 0;
 
   if (GPT_SUCCESS != GptSanityCheck(&drive.gpt)) {

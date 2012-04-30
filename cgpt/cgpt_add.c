@@ -39,7 +39,7 @@ int cgpt_set_attributes(CgptAddParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
@@ -101,7 +101,7 @@ int cgpt_get_partition_details(CgptAddParams *params) {
   if (params == NULL)
     return result;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive)) {
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR)) {
     Error("Unable to open drive: %s\n", params->drive_name);
     return result;
   }
@@ -183,7 +183,7 @@ int cgpt_add(CgptAddParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {

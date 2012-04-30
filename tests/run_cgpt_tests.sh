@@ -21,6 +21,7 @@ cd "$DIR"
 echo "Create an empty file to use as the device..."
 NUM_SECTORS=1000
 DEV=fake_dev.bin
+rm -f ${DEV}
 dd if=/dev/zero of=${DEV} conv=notrunc bs=512 count=${NUM_SECTORS} 2>/dev/null
 
 
@@ -231,6 +232,28 @@ assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1
 # but if I bring friends I don't have to squish
 $GPT prioritize -i 1 -f ${DEV}
 assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+
+
+# Now make sure that we don't need write access if we're just looking.
+echo "Test read vs read-write access..."
+chmod 0444 ${DEV}
+
+# These should fail
+$GPT create -z ${DEV} 2>/dev/null && error
+$GPT add -i 2 -P 3 ${DEV} 2>/dev/null && error
+$GPT repair ${DEV} 2>/dev/null && error
+$GPT prioritize -i 3 ${DEV} 2>/dev/null && error
+
+# Most 'boot' usage should fail too.
+$GPT boot -p ${DEV} 2>/dev/null && error
+dd if=/dev/zero of=fake_mbr.bin bs=100 count=1 2>/dev/null
+$GPT boot -b fake_mbr.bin ${DEV} 2>/dev/null && error
+$GPT boot -i 2 ${DEV} 2>/dev/null && error
+
+# These should pass
+$GPT boot ${DEV} >/dev/null
+$GPT show ${DEV} >/dev/null
+$GPT find -t kernel ${DEV} >/dev/null
 
 echo "Done."
 

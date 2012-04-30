@@ -153,10 +153,11 @@ static int Save(const int fd, const uint8_t *buf,
 
 
 // Opens a block device or file, loads raw GPT data from it.
+// mode should be O_RDONLY or O_RDWR
 //
 // Returns CGPT_FAILED if any error happens.
 // Returns CGPT_OK if success and information are stored in 'drive'. */
-int DriveOpen(const char *drive_path, struct drive *drive) {
+int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
   struct stat stat;
 
   require(drive_path);
@@ -165,7 +166,7 @@ int DriveOpen(const char *drive_path, struct drive *drive) {
   // Clear struct for proper error handling.
   memset(drive, 0, sizeof(struct drive));
 
-  drive->fd = open(drive_path, O_RDWR | O_LARGEFILE | O_NOFOLLOW);
+  drive->fd = open(drive_path, mode | O_LARGEFILE | O_NOFOLLOW);
   if (drive->fd == -1) {
     Error("Can't open %s: %s\n", drive_path, strerror(errno));
     return CGPT_FAILED;

@@ -186,7 +186,7 @@ int cgpt_get_num_non_empty_partitions(CgptShowParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
     return CGPT_FAILED;
 
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
@@ -221,7 +221,7 @@ int cgpt_show(CgptShowParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
     return CGPT_FAILED;
 
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {

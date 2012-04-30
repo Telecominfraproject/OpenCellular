@@ -10,6 +10,7 @@
 #endif
 
 #define _FILE_OFFSET_BITS 64
+#include <fcntl.h>
 #include <features.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -61,7 +62,8 @@ struct drive {
 };
 
 
-int DriveOpen(const char *drive_path, struct drive *drive);
+/* mode should be O_RDONLY or O_RDWR */
+int DriveOpen(const char *drive_path, struct drive *drive, int mode);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
 
