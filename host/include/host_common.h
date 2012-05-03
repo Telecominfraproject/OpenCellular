@@ -22,6 +22,18 @@
 #include "vboot_struct.h"
 
 
+/* Creates an EC preamble, signed with [signing_key].
+ * Caller owns the returned pointer, and must free it with Free().
+ *
+ * Returns NULL if error. */
+VbECPreambleHeader* CreateECPreamble(
+    uint64_t firmware_version,
+    const VbSignature* body_signature,
+    const VbPrivateKey* signing_key,
+    uint32_t flags,
+    const char* name);
+
+
 /* Creates a firmware preamble, signed with [signing_key].
  * Caller owns the returned pointer, and must free it with Free().
  *

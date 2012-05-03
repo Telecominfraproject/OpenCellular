@@ -32,6 +32,7 @@ if [ ! -e "${VERSION_FILE}" ]; then
 fi
 
 # Get the key versions for normal keypairs
+ECKEY_VERSION=$(get_version "ec_key_version")
 FKEY_VERSION=$(get_version "firmware_key_version")
 # Firmware version is the kernel subkey version.
 KSUBKEY_VERSION=$(get_version "firmware_version")
@@ -39,6 +40,8 @@ KSUBKEY_VERSION=$(get_version "firmware_version")
 KDATAKEY_VERSION=$(get_version "kernel_key_version")
 
 # Create the normal keypairs
+make_pair ec_root_key              $EC_ROOT_KEY_ALGOID
+make_pair ec_data_key              $EC_DATAKEY_ALGOID $ECKEY_VERSION
 make_pair root_key                 $ROOT_KEY_ALGOID
 make_pair firmware_data_key        $FIRMWARE_DATAKEY_ALGOID $FKEY_VERSION
 if [ -n "$DEV_KEYBLOCK_FLAG" ]; then
@@ -55,13 +58,13 @@ make_pair installer_kernel_data_key $INSTALLER_KERNEL_ALGOID
 # Create the firmware keyblock for use only in Normal mode. This is redundant,
 # since it's never even checked during Recovery mode.
 make_keyblock firmware $FIRMWARE_KEYBLOCK_MODE firmware_data_key root_key
-
+# Ditto EC keyblock
+make_keyblock ec $EC_KEYBLOCK_MODE ec_data_key ec_root_key
 
 if [ -n "$DEV_KEYBLOCK_FLAG" ]; then
   # Create the dev firmware keyblock for use only in Developer mode.
   make_keyblock dev_firmware $DEV_FIRMWARE_KEYBLOCK_MODE dev_firmware_data_key root_key
 fi
-
 
 # Create the recovery kernel keyblock for use only in Recovery mode.
 make_keyblock recovery_kernel $RECOVERY_KERNEL_KEYBLOCK_MODE recovery_kernel_data_key recovery_key

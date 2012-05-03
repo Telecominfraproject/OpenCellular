@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# Run verified boot firmware and kernel verification tests. 
+# Run verified boot firmware and kernel verification tests.
 
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"

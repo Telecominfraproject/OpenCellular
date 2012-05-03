@@ -6,6 +6,7 @@
  */
 
 /* TODO: change all 'return 0', 'return 1' into meaningful return codes */
+#include <string.h>
 
 #include "host_common.h"
 
@@ -13,6 +14,53 @@
 #include "utility.h"
 #include "vboot_common.h"
 
+VbECPreambleHeader* CreateECPreamble(
+    uint64_t firmware_version,
+    const VbSignature* body_digest,
+    const VbPrivateKey* signing_key,
+    uint32_t flags,
+    const char* name) {
+
+  VbECPreambleHeader* h;
+  uint64_t signed_size = (sizeof(VbECPreambleHeader) + body_digest->sig_size);
+  uint64_t block_size = signed_size + siglen_map[signing_key->algorithm];
+  uint8_t* body_digest_dest;
+  uint8_t* block_sig_dest;
+  VbSignature *sigtmp;
+
+  /* Allocate key block */
+  h = (VbECPreambleHeader*)malloc(block_size);
+  if (!h)
+    return NULL;
+  Memset(h, 0, block_size);
+  body_digest_dest = (uint8_t*)(h + 1);
+  block_sig_dest = body_digest_dest + body_digest->sig_size;
+
+  h->header_version_major = EC_PREAMBLE_HEADER_VERSION_MAJOR;
+  h->header_version_minor = EC_PREAMBLE_HEADER_VERSION_MINOR;
+  h->preamble_size = block_size;
+  h->firmware_version = firmware_version;
+  h->flags = flags;
+  if (name)
+    strncpy(h->name, name, sizeof(h->name));
+
+  /* Copy body hash */
+  SignatureInit(&h->body_digest, body_digest_dest,
+                body_digest->sig_size, 0);
+  SignatureCopy(&h->body_digest, body_digest);
+
+  /* Set up signature struct so we can calculate the signature */
+  SignatureInit(&h->preamble_signature, block_sig_dest,
+                siglen_map[signing_key->algorithm], signed_size);
+
+  /* Calculate signature */
+  sigtmp = CalculateSignature((uint8_t*)h, signed_size, signing_key);
+  SignatureCopy(&h->preamble_signature, sigtmp);
+  free(sigtmp);
+
+  /* Return the header */
+  return h;
+}
 
 VbFirmwarePreambleHeader* CreateFirmwarePreamble(
     uint64_t firmware_version,

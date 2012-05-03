@@ -78,6 +78,32 @@ VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size) {
   return sig;
 }
 
+VbSignature* CalculateHash(const uint8_t* data, uint64_t size,
+                           const VbPrivateKey* key) {
+  uint8_t* digest = NULL;
+  int digest_size = hash_size_map[key->algorithm];
+  VbSignature* sig = NULL;
+
+  /* Calculate the digest */
+  digest = DigestBuf(data, size, key->algorithm);
+  if (!digest)
+    return NULL;
+
+  /* Allocate output signature */
+  sig = SignatureAlloc(digest_size, size);
+  if (!sig) {
+    free(digest);
+    return NULL;
+  }
+
+  /* The digest itself is the signature data */
+  Memcpy(GetSignatureData(sig), digest, digest_size);
+  free(digest);
+
+  /* Return the signature */
+  return sig;
+}
+
 VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
                                 const VbPrivateKey* key) {
 

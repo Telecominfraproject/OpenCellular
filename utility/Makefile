@@ -27,6 +27,7 @@ TARGET_NAMES = crossystem \
 		tlcl_generator \
 		tpm_init_temp_fix \
 		tpmc \
+		vbutil_ec \
 		vbutil_firmware \
 		vbutil_kernel \
 		vbutil_key \
@@ -119,6 +120,9 @@ ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
 
 ${BUILD_ROOT}/tlcl_generator: tlcl_generator.c
 	$(HOSTCC) $(CFLAGS) -fpack-struct $< -o $@
+
+${BUILD_ROOT}/vbutil_ec: vbutil_ec.c $(LIBS)
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
 
 ${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto

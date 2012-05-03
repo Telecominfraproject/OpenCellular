@@ -76,6 +76,42 @@ typedef struct VbKeyBlockHeader {
 
 #define EXPECTED_VBKEYBLOCKHEADER_SIZE 112
 
+/****************************************************************************/
+
+#define EC_PREAMBLE_HEADER_VERSION_MAJOR 1
+#define EC_PREAMBLE_HEADER_VERSION_MINOR 0
+
+/* Flags for VbECPreambleHeader.flags */
+
+/* Use the normal boot path from the read-only firmware, instead
+ * of verifying the body signature. */
+#define VB_EC_PREAMBLE_USE_RO_NORMAL 0x00000001
+
+/* Premable block for EC rewritable firmware, version 1.0 */
+typedef struct VbECPreambleHeader {
+  uint64_t preamble_size;            /* Size of this preamble, including keys,
+                                      * signatures, and padding, in bytes */
+  VbSignature preamble_signature;    /* Signature for this preamble
+                                      * (header + * body signature) */
+  uint32_t header_version_major;     /* Version of this header format */
+  uint32_t header_version_minor;     /* Version of this header format */
+
+  uint64_t firmware_version;         /* Firmware version */
+  VbSignature body_digest;           /* Digest for the firmware body */
+
+  uint32_t flags;                    /* Flags; see VB_EC_PREAMBLE_* */
+  char name[128];                    /* Human-readable ASCII, null-padded */
+} __attribute__((packed)) VbECPreambleHeader;
+
+#define EXPECTED_VB_EC_PREAMBLE_HEADER1_0_SIZE 76
+
+/* The firmware preamble header should be followed by:
+ *   2) The signature data for the firmware body, pointed to by
+ *      body_signature.sig_offset.
+ *   3) The signature data for (header + body signature data), pointed
+ *      to by preamble_signature.sig_offset. */
+
+/****************************************************************************/
 
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 1
@@ -134,6 +170,7 @@ typedef struct VbFirmwarePreambleHeader {
  *   3) The signature data for (header + kernel_subkey data + body signature
  *      data), pointed to by preamble_signature.sig_offset. */
 
+/****************************************************************************/
 
 #define KERNEL_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 0
@@ -161,6 +198,8 @@ typedef struct VbKernelPreambleHeader {
  *      data), pointed to by preamble_signature.sig_offset. */
 
 #define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
+
+/****************************************************************************/
 
 /* Constants and sub-structures for VbSharedDataHeader */
 

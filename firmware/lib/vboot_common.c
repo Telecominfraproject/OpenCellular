@@ -173,6 +173,28 @@ int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
 }
 
 
+int EqualData(const uint8_t* data, uint64_t size, const VbSignature *hash,
+              const RSAPublicKey* key) {
+  uint8_t* digest = NULL;
+  int rv;
+
+  if (hash->sig_size != hash_size_map[key->algorithm]) {
+    VBDEBUG(("Wrong hash size for algorithm.\n"));
+    return 1;
+  }
+  if (hash->data_size > size) {
+    VBDEBUG(("Data buffer smaller than length of signed data.\n"));
+    return 1;
+  }
+
+  digest = DigestBuf(data, hash->data_size, key->algorithm);
+
+  rv = SafeMemcmp(digest, GetSignatureDataC(hash), hash->sig_size);
+  VbExFree(digest);
+  return rv;
+}
+
+
 int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                    const VbPublicKey *key, int hash_only) {
 
@@ -290,6 +312,62 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
   return VBOOT_SUCCESS;
 }
 
+
+int VerifyECPreamble(const VbECPreambleHeader* preamble,
+                           uint64_t size, const RSAPublicKey* key) {
+
+  const VbSignature* sig = &preamble->preamble_signature;
+
+  /* Sanity checks before attempting signature of data */
+  if(size < EXPECTED_VB_EC_PREAMBLE_HEADER1_0_SIZE) {
+    VBDEBUG(("Not enough data for EC preamble header.\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+  if (preamble->header_version_major !=
+      EC_PREAMBLE_HEADER_VERSION_MAJOR) {
+    VBDEBUG(("Incompatible EC preamble header version (%d, not %d).\n",
+             preamble->header_version_major,
+             EC_PREAMBLE_HEADER_VERSION_MAJOR));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+  if (size < preamble->preamble_size) {
+    VBDEBUG(("Not enough data for EC preamble.\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+
+  /* Check signature */
+  if (VerifySignatureInside(preamble, preamble->preamble_size, sig)) {
+    VBDEBUG(("EC preamble signature off end of preamble\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+
+  /* Make sure advertised signature data sizes are sane. */
+  if (preamble->preamble_size < sig->data_size) {
+    VBDEBUG(("EC signature calculated past end of the block\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+
+  if (VerifyData((const uint8_t*)preamble, size, sig, key)) {
+    VBDEBUG(("EC preamble signature validation failed\n"));
+    return VBOOT_PREAMBLE_SIGNATURE;
+  }
+
+  /* Verify we signed enough data */
+  if (sig->data_size < sizeof(VbFirmwarePreambleHeader)) {
+    VBDEBUG(("Didn't sign enough data\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+
+  /* Verify body digest is inside the signed data */
+  if (VerifySignatureInside(preamble, sig->data_size,
+                            &preamble->body_digest)) {
+    VBDEBUG(("EC body digest off end of preamble\n"));
+    return VBOOT_PREAMBLE_INVALID;
+  }
+
+  /* Success */
+  return VBOOT_SUCCESS;
+}
 
 int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
                            uint64_t size, const RSAPublicKey* key) {

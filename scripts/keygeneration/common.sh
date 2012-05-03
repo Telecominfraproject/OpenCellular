@@ -23,7 +23,10 @@ function alg_to_keylen {
   echo $(( 1 << (10 + ($1 / 3)) ))
 }
 
-# Default alrogithms.
+# Default algorithms.
+EC_ROOT_KEY_ALGOID=7
+EC_DATAKEY_ALGOID=7
+
 ROOT_KEY_ALGOID=11
 RECOVERY_KEY_ALGOID=11
 
@@ -37,12 +40,12 @@ KERNEL_DATAKEY_ALGOID=4
 
 # Keyblock modes determine which boot modes a signing key is valid for use
 # in verification.
-FIRMWARE_KEYBLOCK_MODE=7
+EC_KEYBLOCK_MODE=7  # Only allow RW EC firmware in non-recovery.
+FIRMWARE_KEYBLOCK_MODE=7  # Only allow RW firmware in non-recovery.
 DEV_FIRMWARE_KEYBLOCK_MODE=6  # Only allow in dev mode.
-RECOVERY_KERNEL_KEYBLOCK_MODE=11
+RECOVERY_KERNEL_KEYBLOCK_MODE=11 # Only in recovery mode.
 KERNEL_KEYBLOCK_MODE=7  # Only allow in non-recovery.
 INSTALLER_KERNEL_KEYBLOCK_MODE=10  # Only allow in Dev + Recovery.
-
 
 # Emit .vbpubk and .vbprivk using given basename and algorithm
 # NOTE: This function also appears in ../../utility/dev_make_keypair. Making

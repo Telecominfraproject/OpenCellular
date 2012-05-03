@@ -40,6 +40,7 @@ TEST_NAMES = cgptlib_test \
 	     vboot_common_tests \
 	     vboot_common2_tests \
 	     vboot_common3_tests \
+	     vboot_ec_tests \
 	     vboot_firmware_tests \
 	     vboot_nvstorage_test \
 	     vboot_api_devmode_tests \
@@ -150,6 +151,7 @@ runcryptotests:
 	${BUILD_ROOT}/rsa_utility_tests
 	${BUILD_ROOT}/sha_tests
 	./run_vboot_common_tests.sh
+	./run_vboot_ec_tests.sh
 
 # Run other misc tests
 runmisctests:

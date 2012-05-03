@@ -36,6 +36,13 @@ int SignatureCopy(VbSignature* dest, const VbSignature* src);
 VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size);
 
 
+/* Calculates a hash of the data using the algorithm from the specified key.
+ * Caller owns the returned pointer, and must free it with Free().
+ *
+ * Returns NULL on error. */
+VbSignature* CalculateHash(const uint8_t* data, uint64_t size,
+                           const VbPrivateKey* key);
+
 /* Calculates a signature for the data using the specified key.
  * Caller owns the returned pointer, and must free it with Free().
  *
