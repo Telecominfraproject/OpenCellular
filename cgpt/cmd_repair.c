@@ -19,8 +19,6 @@ static void Usage(void)
 }
 
 int cmd_repair(int argc, char *argv[]) {
-  struct drive drive;
-
   CgptRepairParams params;
   memset(&params, 0, sizeof(params));
 

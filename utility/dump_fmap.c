@@ -28,7 +28,7 @@ static void* base_of_rom;
 
 /* Return 0 if successful */
 static int dump_fmap(const void* ptr, int argc, char *argv[]) {
-  int i,j,retval = 0;
+  int i, retval = 0;
   char buf[80];                         // DWR: magic number
   const FmapHeader* fmh = (const FmapHeader*) ptr;
   const FmapAreaHeader* ah = (const FmapAreaHeader*) (ptr + sizeof(FmapHeader));

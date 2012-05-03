@@ -32,11 +32,8 @@ static void Usage(void)
 }
 
 int cmd_prioritize(int argc, char *argv[]) {
-  struct drive drive;
-
   CgptPrioritizeParams params;
   memset(&params, 0, sizeof(params));
-
 
   int c;
   int errorcnt = 0;

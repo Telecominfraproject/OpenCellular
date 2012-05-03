@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cgpt.h"
-
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
-#include "cgptlib_internal.h"
+#include "cgpt.h"
 #include "cgpt_params.h"
+#include "cgptlib_internal.h"
 
 #define BUFSIZE 1024
 // FIXME: currently we only support 512-byte sectors.

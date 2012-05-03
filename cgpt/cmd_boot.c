@@ -24,8 +24,6 @@ static void Usage(void)
 
 
 int cmd_boot(int argc, char *argv[]) {
-  struct drive drive;
-
   CgptBootParams params;
   memset(&params, 0, sizeof(params));
 

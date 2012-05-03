@@ -5,14 +5,15 @@
  * Exports the kernel commandline from a given partition/image.
  */
 
-#include "dump_kernel_config.h"
 
 #include <getopt.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include "dump_kernel_config.h"
 #include "kernel_blob.h"
+#include "vboot_api.h"
 
 enum {
   OPT_KLOADADDR = 1000,

@@ -58,7 +58,7 @@ export ARCH=amd64
 endif
 
 ifeq ($(FIRMWARE_ARCH),)
-CFLAGS += -DCHROMEOS_ENVIRONMENT
+CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall -Werror
 endif
 
 ifneq (${DEBUG},)
@@ -106,7 +106,7 @@ all:
 	done
 
 libcgpt_cc:
-	mkdir -p ${BUILD}/cgpt ${BUILD}/firmware/lib/cgptlib ${BUILD}/firmware/stub 
+	mkdir -p ${BUILD}/cgpt ${BUILD}/firmware/lib/cgptlib ${BUILD}/firmware/stub
 	$(MAKE) -C cgpt libcgpt_cc
 
 cgptmanager_tests: libcgpt_cc

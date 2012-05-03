@@ -160,12 +160,11 @@ static char * ReadFdtString(const char *property) {
 static char * ReadFdtPlatformFamily(void) {
   char *compat = NULL;
   char *s;
-  FILE *file;
   const PlatformFamily* p;
   size_t size = 0;
   int slen;
 
-  if(ReadFdtBlock(FDT_COMPATIBLE_PATH, &compat, &size))
+  if(ReadFdtBlock(FDT_COMPATIBLE_PATH, (void **)&compat, &size))
     return NULL;
 
   if (size > 0)

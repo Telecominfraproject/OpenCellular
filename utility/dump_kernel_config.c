@@ -5,20 +5,19 @@
  * Exports the kernel commandline from a given partition/image.
  */
 
-#include "dump_kernel_config.h"
-
 #include <stdio.h>
 #include <sys/mman.h>
 
+#include "dump_kernel_config.h"
 #include "host_common.h"
 #include "kernel_blob.h"
+#include "vboot_api.h"
 
 uint8_t* find_kernel_config(uint8_t* blob, uint64_t blob_size,
                             uint64_t kernel_body_load_address) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
-  struct linux_kernel_params *params;
   uint32_t now = 0;
   uint32_t offset = 0;
 

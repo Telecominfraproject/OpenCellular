@@ -19,8 +19,6 @@ static void Usage(void)
 }
 
 int cmd_create(int argc, char *argv[]) {
-  struct drive drive;
-
   CgptCreateParams params;
   memset(&params, 0, sizeof(params));
 

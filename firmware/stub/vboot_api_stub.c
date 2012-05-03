@@ -47,7 +47,6 @@ void VbExError(const char* format, ...) {
 
 void VbExDebug(const char* format, ...) {
   va_list ap;
-  int i;
   va_start(ap, format);
   fprintf(stderr, "DEBUG: ");
   vfprintf(stderr, fixfmt(format), ap);

@@ -2,15 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cgpt.h"
-
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 
+#include "cgpt.h"
+#include "cgpt_params.h"
 #include "cgptlib_internal.h"
 #include "endian.h"
-#include "cgpt_params.h"
 
 
 int cgpt_get_boot_partition_number(CgptBootParams *params) {

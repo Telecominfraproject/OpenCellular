@@ -36,10 +36,6 @@ int cmd_add(int argc, char *argv[]) {
   CgptAddParams params;
   memset(&params, 0, sizeof(params));
 
-  int gpt_retval;
-  GptEntry *entry;
-  uint32_t index;
-
   int c;
   int errorcnt = 0;
   char *e = 0;

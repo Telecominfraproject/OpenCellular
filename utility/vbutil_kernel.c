@@ -158,15 +158,6 @@ static void Fatal(const char *format, ...) {
   exit(1);
 }
 
-static void Warning(const char *format, ...) {
-  va_list ap;
-  va_start(ap, format);
-  fprintf(stderr, "WARNING: ");
-  vfprintf(stderr, format, ap);
-  va_end(ap);
-}
-
-
 /* Return an explanation when fread() fails. */
 static const char *error_fread(FILE *fp) {
   const char *retval = "beats me why";
@@ -451,7 +442,6 @@ static void UnpackKernelBlob(uint8_t *kernel_blob_data,
     g_preamble->body_load_address;
   uint64_t p_ofs = b_ofs - CROS_CONFIG_SIZE;
   uint64_t c_ofs = p_ofs - CROS_PARAMS_SIZE;
-  uint64_t k_size = c_ofs;
 
   Debug("k_blob_size    = 0x%" PRIx64 "\n", k_blob_size   );
   Debug("k_blob_ofs     = 0x%" PRIx64 "\n", k_blob_ofs    );
@@ -536,7 +526,6 @@ static int Pack(const char* outfile,
                 uint64_t kernel_body_load_address,
                 VbPrivateKey* signpriv_key) {
   VbSignature* body_sig;
-  uint64_t key_block_size;
   FILE* f;
   uint64_t i;
   uint64_t written = 0;

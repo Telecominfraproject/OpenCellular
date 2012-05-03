@@ -106,7 +106,7 @@ const PlatformFamily platform_family_array[] = {
   {0x8086, 0x0154, "IvyBridge"},   /* mobile */
   {0x8086, 0x0150, "IvyBridge"},   /* desktop */
   /* Terminate with NULL entry */
-  {NULL, NULL, NULL}
+  {0, 0, 0}
 };
 
 static void VbFixCmosChecksum(FILE* file) {
