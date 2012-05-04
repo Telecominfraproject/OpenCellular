@@ -155,23 +155,29 @@ static int is_loop_device(int fd)
 		major(info.st_rdev) == kLoopMajor);
 }
 
-static int loop_is_attached(int fd)
+static int loop_is_attached(int fd, struct loop_info64 *info)
 {
-	struct loop_info info;
+	struct loop_info64 local_info;
 
-	errno = 0;
-	if (ioctl(fd, LOOP_GET_STATUS, &info) && errno == ENXIO)
-		return 0;
-
-	return 1;
+	return ioctl(fd, LOOP_GET_STATUS64, info ? info : &local_info) == 0;
 }
 
-static int loop_allocate(gchar **loopback)
+/* Returns either the matching loopback name, or next available, if NULL. */
+static int loop_locate(gchar **loopback, const char *name)
 {
-	int i, fd;
+	int i, fd, namelen = 0;
+
+	if (name) {
+		namelen = strlen(name);
+		if (namelen >= LO_NAME_SIZE)
+			return -1;
+	}
 
 	*loopback = NULL;
 	for (i = 0; i < kLoopMax; ++i) {
+		struct loop_info64 info;
+		int attached;
+
 		g_free(*loopback);
 		*loopback = g_strdup_printf(kLoopTemplate, i);
 		if (!*loopback) {
@@ -184,13 +190,24 @@ static int loop_allocate(gchar **loopback)
 			PERROR("open(%s)", *loopback);
 			goto failed;
 		}
-		if (is_loop_device(fd) && !loop_is_attached(fd)) {
+		if (!is_loop_device(fd)) {
 			close(fd);
+			continue;
+		}
+
+		memset(&info, 0, sizeof(info));
+		attached = loop_is_attached(fd, &info);
+		close(fd);
+
+		if ((attached && name &&
+		     strncmp((char *)info.lo_file_name, name, namelen) == 0) ||
+		    (!attached && !name)) {
+			/* Reopen for working on it. */
 			fd = open(*loopback, O_RDWR | O_NOFOLLOW);
-			if (is_loop_device(fd) && !loop_is_attached(fd))
+			if (is_loop_device(fd) &&
+			    loop_is_attached(fd, NULL) == attached)
 				return fd;
 		}
-		close(fd);
 	}
 	ERROR("Ran out of loopback devices");
 
@@ -200,37 +217,55 @@ failed:
 	return -1;
 }
 
+static int loop_detach_fd(int fd)
+{
+	if (ioctl(fd, LOOP_CLR_FD, 0)) {
+		PERROR("LOOP_CLR_FD");
+		return 0;
+	}
+	return 1;
+}
+
 int loop_detach(const gchar *loopback)
 {
-	int fd;
+	int fd, rc = 1;
 
 	fd = open(loopback, O_RDONLY | O_NOFOLLOW);
 	if (fd < 0) {
 		PERROR("open(%s)", loopback);
 		return 0;
 	}
-	if (!is_loop_device(fd) || !loop_is_attached(fd))
-		goto failed;
-	if (ioctl(fd, LOOP_CLR_FD, 0)) {
-		PERROR("LOOP_CLR_FD");
-		goto failed;
-	}
+	if (!is_loop_device(fd) || !loop_is_attached(fd, NULL) ||
+	    !loop_detach_fd(fd))
+		rc = 0;
 
 	close (fd);
-	return 1;
-
-failed:
-	close(fd);
-	return 0;
+	return rc;
 }
 
+int loop_detach_name(const char *name)
+{
+	gchar *loopback = NULL;
+	int loopfd, rc;
+
+	loopfd = loop_locate(&loopback, name);
+	if (loopfd < 0)
+		return 0;
+	rc = loop_detach_fd(loopfd);
+
+	close(loopfd);
+	g_free(loopback);
+	return rc;
+}
+
+/* Closes fd, returns name of loopback device pathname. */
 gchar *loop_attach(int fd, const char *name)
 {
 	gchar *loopback = NULL;
 	int loopfd;
 	struct loop_info64 info;
 
-	loopfd = loop_allocate(&loopback);
+	loopfd = loop_locate(&loopback, NULL);
 	if (loopfd < 0)
 		return NULL;
 	if (ioctl(loopfd, LOOP_SET_FD, fd) < 0) {
@@ -295,7 +330,7 @@ int dm_setup(size_t sectors, const gchar *encryption_key, const char *name,
 	return 1;
 }
 
-void dm_teardown(const gchar *device)
+int dm_teardown(const gchar *device)
 {
 	const char *argv[] = {
 		"/sbin/dmsetup",
@@ -304,7 +339,9 @@ void dm_teardown(const gchar *device)
 		NULL
 	};
 	/* TODO(keescook): replace with call to libdevmapper. */
-	runcmd(argv, NULL);
+	if (runcmd(argv, NULL) != 0)
+		return 0;
+	return 1;
 }
 
 char *dm_get_key(const gchar *device)

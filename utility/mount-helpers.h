@@ -18,11 +18,12 @@ uint8_t *hexify_string(char *string, uint8_t *binary, size_t length);
 /* Loopback device attach/detach helpers. */
 gchar *loop_attach(int fd, const char *name);
 int loop_detach(const gchar *loopback);
+int loop_detach_name(const char *name);
 
 /* Encrypted device mapper setup/teardown. */
 int dm_setup(size_t sectors, const gchar *encryption_key, const char *name,
 		const gchar *device, const char *path);
-void dm_teardown(const gchar *device);
+int dm_teardown(const gchar *device);
 char *dm_get_key(const gchar *device);
 
 /* Sparse file creation. */

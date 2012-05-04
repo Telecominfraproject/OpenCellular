@@ -7,7 +7,8 @@
 #ifndef _MOUNT_ENCRYPTED_H_
 #define _MOUNT_ENCRYPTED_H_
 
-#define DEBUG_ENABLED 0
+#define DEBUG_ENABLED 1
+#define DEBUG_TIME_DELTA 1
 
 #include <openssl/err.h>
 #include <openssl/sha.h>
@@ -15,8 +16,8 @@
 #define DIGEST_LENGTH SHA256_DIGEST_LENGTH
 
 #define _ERROR(f, a...)	do { \
-	fprintf(stderr, "ERROR %s (%s, %d): ", \
-			__func__, __FILE__, __LINE__); \
+	fprintf(stderr, "ERROR[pid:%d] %s (%s, %d): ", \
+			getpid(), __func__, __FILE__, __LINE__); \
 	fprintf(stderr, f, ## a); \
 } while (0)
 #define ERROR(f, a...)	do { \
@@ -39,48 +40,87 @@
 
 #if DEBUG_ENABLED
 static struct timeval tick;
-# define TICK_INIT() gettimeofday(&tick, NULL)
+static struct timeval tick_start;
+# define TICK_INIT() do { \
+	gettimeofday(&tick, NULL); \
+	tick_start = tick; \
+} while (0)
 # ifdef DEBUG_TIME_DELTA
+/* This timeval helper copied from glibc manual. */
+static inline int timeval_subtract(struct timeval *result,
+				   struct timeval *x,
+				   struct timeval *y)
+{
+	/* Perform the carry for the later subtraction by updating y. */
+	if (x->tv_usec < y->tv_usec) {
+		int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+		y->tv_usec -= 1000000 * nsec;
+		y->tv_sec += nsec;
+	}
+	if (x->tv_usec - y->tv_usec > 1000000) {
+		int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+		y->tv_usec += 1000000 * nsec;
+		y->tv_sec -= nsec;
+	}
+
+	/* Compute the time remaining to wait.
+	 * tv_usec is certainly positive.
+	 */
+	result->tv_sec = x->tv_sec - y->tv_sec;
+	result->tv_usec = x->tv_usec - y->tv_usec;
+
+	/* Return 1 if result is negative. */
+	return x->tv_sec < y->tv_sec;
+}
 #  define TICK_REPORT() do { \
 	struct timeval now, diff; \
 	gettimeofday(&now, NULL); \
-	diff.tv_sec = now.tv_sec - tick.tv_sec; \
-	if (tick.tv_usec > now.tv_usec) { \
-		diff.tv_sec -= 1; \
-		diff.tv_usec = 1000000 - tick.tv_usec + now.tv_usec; \
-	} else { \
-		diff.tv_usec = now.tv_usec - tick.tv_usec; \
-	} \
+	timeval_subtract(&diff, &now, &tick); \
+	printf("\tTook: [pid:%d, %2lu.%06lus]\n", getpid(), \
+		(unsigned long)diff.tv_sec, (unsigned long)diff.tv_usec); \
 	tick = now; \
-	printf("\tTook: [%2d.%06d]\n", (int)diff.tv_sec, (int)diff.tv_usec); \
 } while (0)
 # else
 #  define TICK_REPORT() do { \
 	gettimeofday(&tick, NULL); \
-	printf("[%d:%2d.%06d] ", getpid(), (int)tick.tv_sec, (int)tick.tv_usec); \
+	printf("[%2d.%06d] ", (int)tick.tv_sec, (int)tick.tv_usec); \
 } while (0)
 # endif
+# define TICK_DONE() do { \
+	struct timeval tick_done; \
+	TICK_REPORT(); \
+	timeval_subtract(&tick_done, &tick, &tick_start); \
+	printf("Process Lifetime: [pid:%d, %2d.%06ds]\n", getpid(), \
+		(int)tick_done.tv_sec, (int)tick_done.tv_usec); \
+} while (0)
 #else
 # define TICK_INIT() do { } while (0)
 # define TICK_REPORT() do { } while (0)
+# define TICK_DONE() do { } while (0)
 #endif
 
-#define INFO(f, a...) do { \
-	TICK_REPORT(); \
+#define _INFO(f, a...) do { \
+	printf("[pid:%d] ", getpid()); \
 	printf(f, ## a); \
 	printf("\n"); \
 	fflush(stdout); \
+} while (0)
+#define INFO(f, a...) do { \
+	TICK_REPORT(); \
+	_INFO(f, ## a); \
 } while (0)
 #define INFO_INIT(f, a...) do { \
 	TICK_INIT(); \
 	INFO(f, ## a); \
 } while (0)
+#define INFO_DONE(f, a...) do { \
+	TICK_DONE(); \
+	INFO(f, ## a); \
+} while (0)
 #if DEBUG_ENABLED
 # define DEBUG(f, a...) do { \
 	TICK_REPORT(); \
-	printf(f, ## a); \
-	printf("\n"); \
-	fflush(stdout); \
+	_INFO(f, ## a); \
 } while (0)
 #else
 # define DEBUG(f, a...) do { } while (0)

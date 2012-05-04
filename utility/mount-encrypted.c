@@ -829,6 +829,34 @@ failed:
 	return 0;
 }
 
+/* Clean up all bind mounts, mounts, attaches, etc. Only the final
+ * action informs the return value. This makes it so that failures
+ * can be cleaned up from, and continue the shutdown process on a
+ * second call. If the loopback cannot be found, claim success.
+ */
+static int shutdown(void)
+{
+	struct bind_mount *bind;
+
+	for (bind = bind_mounts; bind->src; ++ bind) {
+		INFO("Unmounting %s.", bind->dst);
+		if (umount(bind->dst))
+			PERROR("umount(%s)", bind->dst);
+	}
+
+	/* TODO(keescook): this can actually succeed with binds mounted. */
+	INFO("Unmounting %s.", kEncryptedMount);
+	if (umount(kEncryptedMount))
+		PERROR("umount(%s)", kEncryptedMount);
+
+	INFO("Removing %s.", kCryptDev);
+	if (!dm_teardown(kCryptDev))
+		ERROR("dm_teardown(%s)", kCryptDev);
+
+	INFO("Unlooping %s.", kEncryptedBlock);
+	return loop_detach_name(kEncryptedBlock) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
 
 static void check_mount_states(void)
 {
@@ -909,12 +937,14 @@ int main(int argc, char *argv[])
 	tpm_init();
 
 	if (argc > 1) {
+		if (!strcmp(argv[1], "umount"))
+			return shutdown();
 		if (!strcmp(argv[1], "device"))
 			return device_details();
 		if (!strcmp(argv[1], "finalize"))
 			return finalize_from_cmdline(argc > 2 ? argv[2] : NULL);
 
-		fprintf(stderr, "Usage: %s [device|finalize]\n",
+		fprintf(stderr, "Usage: %s [device|finalize|umount]\n",
 			argv[0]);
 		return 1;
 	}
@@ -929,7 +959,7 @@ int main(int argc, char *argv[])
 		okay = setup_encrypted();
 	}
 
-	INFO("Done.");
+	INFO_DONE("Done.");
 
 	/* Continue boot. */
 	return !okay;
