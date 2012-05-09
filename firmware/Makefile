@@ -66,7 +66,8 @@ LIB_SRCS = \
 	./lib/cryptolib/rsa.c \
 	./lib/cryptolib/rsa_utility.c \
 	./lib/cryptolib/sha1.c \
-	./lib/cryptolib/sha2.c \
+	./lib/cryptolib/sha256.c \
+	./lib/cryptolib/sha512.c \
 	./lib/cryptolib/sha_utility.c \
 	./lib/stateful_util.c \
 	./lib/utility.c \
