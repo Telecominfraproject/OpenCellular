@@ -280,6 +280,7 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
     /* Make sure advertised signature data sizes are sane. */
     if (block->key_block_size < sig->data_size) {
       VBDEBUG(("Signature calculated past end of the block\n"));
+      RSAPublicKeyFree(rsa);
       return VBOOT_KEY_BLOCK_INVALID;
     }
 
