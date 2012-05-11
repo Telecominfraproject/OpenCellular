@@ -49,7 +49,9 @@ main: $(PROGNAME)
 
 include ../common.mk
 
-LIB_CGPT_CC_OBJS = $(LIB_CGPT_CC_SRCS:%.c=${BUILD_ROOT}/%.o) $(LIB_CGPT_CC_SRCS:%.cc=${BUILD_ROOT}/%.o)
+LIB_CGPT_CC_OBJS = $(filter %.o, \
+	$(LIB_CGPT_CC_SRCS:%.c=${BUILD_ROOT}/%.o) \
+	$(LIB_CGPT_CC_SRCS:%.cc=${BUILD_ROOT}/%.o))
 LIB_CGPT_CC_DEPS = $(LIB_CGPT_CC_OBJS:%.o=%.o.d)
 
 libcgpt_cc: $(LIB_CGPT_CC)
@@ -67,4 +69,3 @@ install: $(PROGNAME)
 	chmod a+rx $(patsubst ${BUILD_ROOT}/%,$(DESTDIR)/%,$^)
 
 .PHONY: all install
-
