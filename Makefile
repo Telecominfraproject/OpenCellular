@@ -32,7 +32,7 @@ ifeq ($(FIRMWARE_ARCH), arm)
 CC ?= armv7a-cros-linux-gnueabi-gcc
 CFLAGS ?= -march=armv5 \
 	-fno-common -ffixed-r8 \
-	-msoft-float -marm -mabi=aapcs-linux -mno-thumb-interwork \
+	-mfloat-abi=hard -marm -mabi=aapcs-linux -mno-thumb-interwork \
 	$(COMMON_FLAGS)
 endif
 ifeq ($(FIRMWARE_ARCH), i386)
