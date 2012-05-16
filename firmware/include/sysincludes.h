@@ -18,6 +18,7 @@
 #ifdef CHROMEOS_ENVIRONMENT
 
 #include <inttypes.h>  /* For PRIu64 */
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 

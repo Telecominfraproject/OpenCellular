@@ -11,6 +11,7 @@
 
 #define _STUB_IMPLEMENTATION_  /* So we can use memset() ourselves */
 
+#include "crc8.h"
 #include "rollback_index.h"
 #include "test_common.h"
 #include "tlcl.h"
@@ -38,6 +39,12 @@ static int mock_count = 0;
 static int fail_at_count = 0;
 static uint32_t fail_with_error = TPM_SUCCESS;
 
+/* Similar, to determine when to inject noise during reads & writes */
+#define MAX_NOISE_COUNT 64              /* no noise after this many */
+static int noise_count = 0;             /* read/write attempt (zero-based) */
+static int noise_on[MAX_NOISE_COUNT];   /* calls to inject noise on */
+
+
 /* Params / backing store for mocked Tlcl functions. */
 static TPM_PERMANENT_FLAGS mock_pflags;
 static RollbackSpaceFirmware mock_rsf;
@@ -51,11 +58,23 @@ static void ResetMocks(int fail_on_call, uint32_t fail_with_err) {
   mock_count = 0;
   fail_at_count = fail_on_call;
   fail_with_error = fail_with_err;
+  noise_count = 0;
+  Memset(&noise_on, 0, sizeof(noise_on));
 
   Memset(&mock_pflags, 0, sizeof(mock_pflags));
   Memset(&mock_rsf, 0, sizeof(mock_rsf));
   Memset(&mock_rsk, 0, sizeof(mock_rsk));
   mock_permissions = 0;
+}
+
+/****************************************************************************/
+/* Function to garble data on its way to or from the TPM */
+static void MaybeInjectNoise(void* data, uint32_t length) {
+  if (noise_count < MAX_NOISE_COUNT && noise_on[noise_count]) {
+    uint8_t *val = data;
+    val[length-1]++;
+  }
+  noise_count++;
 }
 
 /****************************************************************************/
@@ -97,9 +116,11 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length) {
   if (FIRMWARE_NV_INDEX == index) {
     TEST_EQ(length, sizeof(mock_rsf), "TlclRead rsf size");
     Memcpy(data, &mock_rsf, length);
+    MaybeInjectNoise(data, length);
   } else if (KERNEL_NV_INDEX == index) {
     TEST_EQ(length, sizeof(mock_rsk), "TlclRead rsk size");
     Memcpy(data, &mock_rsk, length);
+    MaybeInjectNoise(data, length);
   } else {
     Memset(data, 0, length);
   }
@@ -113,9 +134,11 @@ uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length) {
   if (FIRMWARE_NV_INDEX == index) {
     TEST_EQ(length, sizeof(mock_rsf), "TlclWrite rsf size");
     Memcpy(&mock_rsf, data, length);
+    MaybeInjectNoise(&mock_rsf, length);
   } else if (KERNEL_NV_INDEX == index) {
     TEST_EQ(length, sizeof(mock_rsk), "TlclWrite rsk size");
     Memcpy(&mock_rsk, data, length);
+    MaybeInjectNoise(&mock_rsk, length);
   }
 
   return (++mock_count == fail_at_count) ? fail_with_error : TPM_SUCCESS;
@@ -181,6 +204,204 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
   mock_cnext += sprintf(mock_cnext, "TlclGetPermissions(0x%x)\n", index);
   *permissions = mock_permissions;
   return (++mock_count == fail_at_count) ? fail_with_error : TPM_SUCCESS;
+}
+
+
+/****************************************************************************/
+/* Tests for CRC errors  */
+
+extern uint32_t ReadSpaceFirmware(RollbackSpaceFirmware* rsf);
+extern uint32_t WriteSpaceFirmware(RollbackSpaceFirmware* rsf);
+
+static void CrcTestFirmware(void) {
+  RollbackSpaceFirmware rsf;
+
+  /* noise on reading, shouldn't matter here because version == 0 */
+  ResetMocks(0, 0);
+  noise_on[0] = 1;
+  TEST_EQ(ReadSpaceFirmware(&rsf), 0, "ReadSpaceFirmware(), v0");
+  TEST_STR_EQ(mock_calls,
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+
+  /* But if the version >= 2, it will try three times and fail because the CRC
+   * is no good. */
+  ResetMocks(0, 0);
+  mock_rsf.struct_version = 2;
+  TEST_EQ(ReadSpaceFirmware(&rsf), TPM_E_CORRUPTED_STATE,
+          "ReadSpaceFirmware(), v2, bad CRC");
+  TEST_STR_EQ(mock_calls,
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+
+  /* OTOH, if the CRC is good and some noise happens, it should recover. */
+  ResetMocks(0, 0);
+  mock_rsf.struct_version = 2;
+  mock_rsf.crc8 = Crc8(&mock_rsf, offsetof(RollbackSpaceFirmware, crc8));
+  noise_on[0] = 1;
+  TEST_EQ(ReadSpaceFirmware(&rsf), 0, "ReadSpaceFirmware(), v2, good CRC");
+  TEST_STR_EQ(mock_calls,
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+
+  /* A write with version < 2 should convert to v2 and create the CRC */
+  ResetMocks(0, 0);
+  Memset(&rsf, 0, sizeof(rsf));
+  TEST_EQ(WriteSpaceFirmware(&rsf), 0, "WriteSpaceFirmware(), v0");
+  TEST_EQ(mock_rsf.struct_version, 2, "WriteSpaceFirmware(), check v2");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+
+  /* Same as above, but with some noise during the readback */
+  ResetMocks(0, 0);
+  Memset(&rsf, 0, sizeof(rsf));
+  noise_on[1] = 1;
+  noise_on[2] = 1;
+  TEST_EQ(WriteSpaceFirmware(&rsf), 0, "WriteSpaceFirmware(), read noise");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+
+  /* With noise during the write, we'll try the write again */
+  ResetMocks(0, 0);
+  Memset(&rsf, 0, sizeof(rsf));
+  noise_on[0] = 1;
+  TEST_EQ(WriteSpaceFirmware(&rsf), 0, "WriteSpaceFirmware(), write noise");
+  TEST_EQ(mock_rsf.struct_version, 2, "WriteSpaceFirmware(), check v2");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+
+  /* Only if it just keeps on failing forever do we eventually give up */
+  ResetMocks(0, 0);
+  Memset(&rsf, 0, sizeof(rsf));
+  Memset(noise_on, 1, sizeof(noise_on));
+  TEST_EQ(WriteSpaceFirmware(&rsf), TPM_E_CORRUPTED_STATE,
+          "WriteSpaceFirmware(), always noise");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
+              "tlcl calls");
+}
+
+extern uint32_t ReadSpaceKernel(RollbackSpaceKernel* rsk);
+extern uint32_t WriteSpaceKernel(RollbackSpaceKernel* rsk);
+
+static void CrcTestKernel(void) {
+  RollbackSpaceKernel rsk;
+
+  /* noise on reading, shouldn't matter here because version == 0 */
+  ResetMocks(0, 0);
+  noise_on[0] = 1;
+  TEST_EQ(ReadSpaceKernel(&rsk), 0, "ReadSpaceKernel(), v0");
+  TEST_STR_EQ(mock_calls,
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
+
+  /* But if the version >= 2, it will try three times and fail because the CRC
+   * is no good. */
+  ResetMocks(0, 0);
+  mock_rsk.struct_version = 2;
+  TEST_EQ(ReadSpaceKernel(&rsk), TPM_E_CORRUPTED_STATE,
+          "ReadSpaceKernel(), v2, bad CRC");
+  TEST_STR_EQ(mock_calls,
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
+
+  /* OTOH, if the CRC is good and some noise happens, it should recover. */
+  ResetMocks(0, 0);
+  mock_rsk.struct_version = 2;
+  mock_rsk.crc8 = Crc8(&mock_rsk, offsetof(RollbackSpaceKernel, crc8));
+  noise_on[0] = 1;
+  TEST_EQ(ReadSpaceKernel(&rsk), 0, "ReadSpaceKernel(), v2, good CRC");
+  TEST_STR_EQ(mock_calls,
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
+
+  /* A write with version < 2 should convert to v2 and create the CRC */
+  ResetMocks(0, 0);
+  Memset(&rsk, 0, sizeof(rsk));
+  TEST_EQ(WriteSpaceKernel(&rsk), 0, "WriteSpaceKernel(), v0");
+  TEST_EQ(mock_rsk.struct_version, 2, "WriteSpaceKernel(), check v2");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
+
+  /* Same as above, but with some noise during the readback */
+  ResetMocks(0, 0);
+  Memset(&rsk, 0, sizeof(rsk));
+  noise_on[1] = 1;
+  noise_on[2] = 1;
+  TEST_EQ(WriteSpaceKernel(&rsk), 0, "WriteSpaceKernel(), read noise");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
+
+  /* With noise during the write, we'll try the write again */
+  ResetMocks(0, 0);
+  Memset(&rsk, 0, sizeof(rsk));
+  noise_on[0] = 1;
+  TEST_EQ(WriteSpaceKernel(&rsk), 0, "WriteSpaceKernel(), write noise");
+  TEST_EQ(mock_rsk.struct_version, 2, "WriteSpaceKernel(), check v2");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
+
+  /* Only if it just keeps on failing forever do we eventually give up */
+  ResetMocks(0, 0);
+  Memset(&rsk, 0, sizeof(rsk));
+  Memset(noise_on, 1, sizeof(noise_on));
+  TEST_EQ(WriteSpaceKernel(&rsk), TPM_E_CORRUPTED_STATE,
+          "WriteSpaceKernel(), always noise");
+  TEST_STR_EQ(mock_calls,
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
+              "tlcl calls");
 }
 
 /****************************************************************************/
@@ -265,9 +486,11 @@ static void OneTimeInitTest(void) {
               /* kernel space */
               "TlclDefineSpace(0x1008, 0x1, 13)\n"
               "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
               /* firmware space */
               "TlclDefineSpace(0x1007, 0x8001, 10)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
   TEST_EQ(mock_rsf.struct_version, ROLLBACK_SPACE_FIRMWARE_VERSION, "rsf ver");
   TEST_EQ(mock_rsf.flags, 0, "rsf flags");
@@ -290,9 +513,11 @@ static void OneTimeInitTest(void) {
               /* kernel space */
               "TlclDefineSpace(0x1008, 0x1, 13)\n"
               "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
               /* firmware space */
               "TlclDefineSpace(0x1007, 0x8001, 10)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
 
   /* NV locking already initialized */
@@ -309,9 +534,11 @@ static void OneTimeInitTest(void) {
               /* kernel space */
               "TlclDefineSpace(0x1008, 0x1, 13)\n"
               "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
               /* firmware space */
               "TlclDefineSpace(0x1007, 0x8001, 10)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
 
   /* Self test error */
@@ -397,8 +624,10 @@ static void SetupTpmTest(void) {
               "TlclSetDeactivated(0)\n"
               "TlclDefineSpace(0x1008, 0x1, 13)\n"
               "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n"
               "TlclDefineSpace(0x1007, 0x8001, 10)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
 
   /* Other firmware space error is passed through */
@@ -425,7 +654,8 @@ static void SetupTpmTest(void) {
               "TlclForceClear()\n"
               "TlclSetEnable()\n"
               "TlclSetDeactivated(0)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
   TEST_EQ(mock_rsf.flags, FLAG_LAST_BOOT_DEVELOPER, "fw space flags to dev");
 
@@ -441,7 +671,8 @@ static void SetupTpmTest(void) {
               "TlclForceClear()\n"
               "TlclSetEnable()\n"
               "TlclSetDeactivated(0)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
   TEST_EQ(mock_rsf.flags, 0, "fw space flags from dev");
 
@@ -492,7 +723,8 @@ static void RollbackFirmwareTest(void) {
               "TlclForceClear()\n"
               "TlclSetEnable()\n"
               "TlclSetDeactivated(0)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
   TEST_EQ(mock_rsf.flags, FLAG_LAST_BOOT_DEVELOPER, "fw space flags to dev");
 
@@ -502,7 +734,8 @@ static void RollbackFirmwareTest(void) {
   TEST_EQ(mock_rsf.fw_versions, 0xBEAD1234, "RollbackFirmwareWrite() version");
   TEST_STR_EQ(mock_calls,
               "TlclRead(0x1007, 10)\n"
-              "TlclWrite(0x1007, 10)\n",
+              "TlclWrite(0x1007, 10)\n"
+              "TlclRead(0x1007, 10)\n",
               "tlcl calls");
 
   ResetMocks(1, TPM_E_IOERROR);
@@ -573,7 +806,8 @@ static void RollbackKernelTest(void) {
           "RollbackKernelWrite() version");
   TEST_STR_EQ(mock_calls,
               "TlclRead(0x1008, 13)\n"
-              "TlclWrite(0x1008, 13)\n",
+              "TlclWrite(0x1008, 13)\n"
+              "TlclRead(0x1008, 13)\n",
               "tlcl calls");
 
   ResetMocks(1, TPM_E_IOERROR);
@@ -622,6 +856,8 @@ __pragma(warning (disable: 4100))
 int main(int argc, char* argv[]) {
   int error_code = 0;
 
+  CrcTestFirmware();
+  CrcTestKernel();
   MiscTest();
   OneTimeInitTest();
   SetupTpmTest();

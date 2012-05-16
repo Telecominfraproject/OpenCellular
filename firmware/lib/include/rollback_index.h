@@ -21,14 +21,15 @@
 __pragma(pack(push, 1)) /* Support packing for MSVC. */
 
 /* Kernel space - KERNEL_NV_INDEX, locked with physical presence. */
-#define ROLLBACK_SPACE_KERNEL_VERSION 1
+#define ROLLBACK_SPACE_KERNEL_VERSION 2
 #define ROLLBACK_SPACE_KERNEL_UID 0x4752574C  /* 'GRWL' */
 typedef struct RollbackSpaceKernel {
   uint8_t  struct_version;      /* Struct version, for backwards
                                  * compatibility */
   uint32_t uid;                 /* Unique ID to detect space redefinition */
   uint32_t kernel_versions;     /* Kernel versions */
-  uint32_t reserved;            /* Reserved for future expansion */
+  uint8_t reserved[3];          /* Reserved for future expansion */
+  uint8_t crc8;                 /* Checksum (v2 and later only) */
 } __attribute__((packed)) RollbackSpaceKernel;
 
 
@@ -41,13 +42,14 @@ typedef struct RollbackSpaceKernel {
  * from the backup copy. */
 #define FLAG_KERNEL_SPACE_USE_BACKUP 0x02
 
-#define ROLLBACK_SPACE_FIRMWARE_VERSION 1
+#define ROLLBACK_SPACE_FIRMWARE_VERSION 2
 /* Firmware space - FIRMWARE_NV_INDEX, locked with global lock. */
 typedef struct RollbackSpaceFirmware {
   uint8_t  struct_version;  /* Struct version, for backwards compatibility */
   uint8_t  flags;           /* Flags (see FLAG_* above) */
   uint32_t fw_versions;     /* Firmware versions */
-  uint32_t reserved;            /* Reserved for future expansion */
+  uint8_t reserved[3];      /* Reserved for future expansion */
+  uint8_t crc8;             /* Checksum (v2 and later only) */
 } __attribute__((packed)) RollbackSpaceFirmware;
 
 __pragma(pack(pop)) /* Support packing for MSVC. */

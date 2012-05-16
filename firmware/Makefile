@@ -62,6 +62,7 @@ LIB_SRCS = \
 	./lib/cgptlib/cgptlib.c \
 	./lib/cgptlib/cgptlib_internal.c \
 	./lib/cgptlib/crc32.c \
+	./lib/crc8.c \
 	./lib/cryptolib/padding.c \
 	./lib/cryptolib/rsa.c \
 	./lib/cryptolib/rsa_utility.c \

@@ -6,6 +6,7 @@
 /* Non-volatile storage routines.
  */
 
+#include "crc8.h"
 #include "utility.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
@@ -37,26 +38,6 @@
 
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
-
-
-/* Return CRC-8 of the data, using x^8 + x^2 + x + 1 polynomial.  A
- * table-based algorithm would be faster, but for only 15 bytes isn't
- * worth the code size. */
-static uint8_t Crc8(const uint8_t* data, int len) {
-  unsigned crc = 0;
-  int i, j;
-
-  for (j = len; j; j--, data++) {
-    crc ^= (*data << 8);
-    for(i = 8; i; i--) {
-      if (crc & 0x8000)
-        crc ^= (0x1070 << 3);
-      crc <<= 1;
-    }
-  }
-
-  return (uint8_t)(crc >> 8);
-}
 
 
 int VbNvSetup(VbNvContext* context) {

@@ -12,7 +12,7 @@
 check_test_keys
 
 for priv in ${TESTKEY_DIR}/*.vbprivk; do
-  root=$(basename ${i%.vbprivk})
+  root=$(basename ${priv%.vbprivk})
   pub="${priv%.vbprivk}.vbpubk"
   echo "Trying $root ..."
   ${TEST_DIR}/vboot_ec_tests "$priv" "$pub"
