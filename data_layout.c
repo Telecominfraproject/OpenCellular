@@ -719,7 +719,7 @@ find_new_bct_blk(build_image_context *context)
 
 	assert(context);
 
-	g_bct_parse_interf->get_value(token_hash_size,
+	g_bct_parse_interf->get_value(token_max_bct_search_blks,
 			&max_bct_search_blks, context->bct);
 
 	if (context->next_bct_blk > max_bct_search_blks) {
