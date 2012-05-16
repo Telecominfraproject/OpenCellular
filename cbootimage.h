@@ -68,6 +68,13 @@ typedef struct build_image_context_rec
 	u_int32_t redundancy;
 	u_int32_t version;
 	u_int32_t bct_copy;
+	/*
+	 * Number of blocks at start of device to skip before the BCT.
+	 * This may be used to reserve space for a partition table, for
+	 * example, in order to write the resultant boot image to e.g. an
+	 * SD card while using the remaining space for a user filesystem.
+	 */
+	u_int32_t pre_bct_pad_blocks;
 	/* Allocation data. */
 	struct blk_data_rec *memory; /* Representation of memory */
 	/* block number for the BCT block */

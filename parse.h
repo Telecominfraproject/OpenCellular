@@ -110,6 +110,7 @@ typedef enum
 	token_dev_type_sdmmc,
 	token_dev_type_spi,
 	token_num_sdram_sets,
+	token_pre_bct_pad_blocks,
 
 	token_nand_clock_divider,
 	token_nand_nand_timing,

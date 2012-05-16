@@ -783,10 +783,17 @@ begin_update(build_image_context *context)
 	/* Fill the reserved data w/the padding pattern. */
 	write_padding(context->bct + reserved_offset, reserved_size);
 
-	/* Find the next bct block starting at block 1. */
-	for (i = 0; i < context->bct_copy; i++) {
+	/* Create the pad before the BCT starting at block 1 */
+	for (i = 0; i < context->pre_bct_pad_blocks; i++) {
 		find_new_bct_blk(context);
 		err = erase_block(context, i);
+		if (err != 0)
+			goto fail;
+	}
+	/* Find the next bct block starting at block pre_bct_pad_blocks. */
+	for (i = 0; i < context->bct_copy; i++) {
+		find_new_bct_blk(context);
+		err = erase_block(context, i + context->pre_bct_pad_blocks);
 		if (err != 0)
 			goto fail;
 	}
@@ -797,8 +804,7 @@ fail:
 }
 
 /*
- * Write the new BCT to the next available of the journal block.
- * Write the new BCT to slot 0 of block 0.
+ * Write the BCT(s) starting at slot 0 of block context->pre_bct_pad_blocks.
  *
  * @param context		The main context pointer
  * @return 0 for success
@@ -810,7 +816,7 @@ finish_update(build_image_context *context)
 	int i;
 
 	for (i = 0; i < context->bct_copy; i++) {
-		err = write_bct(context, i, 0);
+		err = write_bct(context, i + context->pre_bct_pad_blocks, 0);
 		if (err != 0)
 			goto fail;
 	}

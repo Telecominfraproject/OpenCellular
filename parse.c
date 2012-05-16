@@ -86,6 +86,7 @@ static parse_item parse_simple_items[] =
 	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
 	{ "Bctcopy=",       token_bct_copy,		parse_value_u32 },
 	{ "Version=",       token_version,		parse_value_u32 },
+	{ "PreBctPadBlocks=", token_pre_bct_pad_blocks,	parse_value_u32 },
 	{ NULL, 0, NULL } /* Must be last */
 };
 
