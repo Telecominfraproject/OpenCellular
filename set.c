@@ -190,6 +190,10 @@ int context_set_value(build_image_context *context,
 		context->bct_copy = value;
 		break;
 
+	case token_odm_data:
+		context->odm_data = value;
+		break;
+
 	DEFAULT();
 	}
 

@@ -103,6 +103,7 @@ static parse_item s_top_level_items[] = {
 	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
 	{ "Bctcopy=",       token_bct_copy,		parse_value_u32 },
 	{ "Version=",       token_version,		parse_value_u32 },
+	{ "OdmData=",       token_odm_data,		parse_value_u32 },
 	{ NULL, 0, NULL } /* Must be last */
 };
 
