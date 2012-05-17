@@ -14,14 +14,6 @@
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
 
-
-/* Set recovery request */
-static void VbSfRequestRecovery(VbNvContext *vnc, uint32_t recovery_request) {
-  VBDEBUG(("VbSfRequestRecovery(%d)\n", (int)recovery_request));
-  VbNvSet(vnc, VBNV_RECOVERY_REQUEST, recovery_request);
-}
-
-
 VbError_t VbSelectFirmware(VbCommonParams* cparams,
                            VbSelectFirmwareParams* fparams) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
@@ -29,7 +21,6 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   VbError_t retval = VBERROR_UNKNOWN; /* Assume error until proven successful */
   int is_rec = (shared->recovery_reason ? 1 : 0);
   int is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
-  uint32_t tpm_version = 0;
   uint32_t tpm_status = 0;
 
   /* Start timer */
@@ -38,38 +29,6 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   /* Load NV storage */
   VbExNvStorageRead(vnc.raw);
   VbNvSetup(&vnc);
-
-  /* Initialize the TPM */
-  VBPERFSTART("VB_TPMI");
-  tpm_status = RollbackFirmwareSetup(is_rec, is_dev, &tpm_version);
-  VBPERFEND("VB_TPMI");
-  if (0 != tpm_status) {
-    VBDEBUG(("Unable to setup TPM and read firmware version.\n"));
-
-    if (TPM_E_MUST_REBOOT == tpm_status) {
-      /* TPM wants to reboot into the same mode we're in now */
-      VBDEBUG(("TPM requires a reboot.\n"));
-      if (!is_rec) {
-        /* Not recovery mode.  Just reboot (not into recovery). */
-        retval = VBERROR_TPM_REBOOT_REQUIRED;
-        goto VbSelectFirmware_exit;
-      } else if (VBNV_RECOVERY_RO_TPM_REBOOT != shared->recovery_reason) {
-        /* In recovery mode now, and we haven't requested a TPM reboot yet,
-         * so request one. */
-        VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_REBOOT);
-        retval = VBERROR_TPM_REBOOT_REQUIRED;
-        goto VbSelectFirmware_exit;
-      }
-    }
-
-    if (!is_rec) {
-      VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
-      retval = VBERROR_TPM_FIRMWARE_SETUP;
-      goto VbSelectFirmware_exit;
-    }
-  }
-  shared->fw_version_tpm_start = tpm_version;
-  shared->fw_version_tpm = tpm_version;
 
   if (is_rec) {
     /* Recovery is requested; go straight to recovery without checking the
@@ -104,7 +63,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
       VBPERFEND("VB_TPMU");
       if (0 != tpm_status) {
         VBDEBUG(("Unable to write firmware version to TPM.\n"));
-        VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
+        VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
         retval = VBERROR_TPM_WRITE_FIRMWARE;
         goto VbSelectFirmware_exit;
       }
@@ -116,7 +75,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
     VBPERFEND("VB_TPML");
     if (0 != tpm_status) {
       VBDEBUG(("Unable to lock firmware version in TPM.\n"));
-      VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
+      VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
       retval = VBERROR_TPM_LOCK_FIRMWARE;
       goto VbSelectFirmware_exit;
     }
@@ -128,7 +87,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   if (0 != tpm_status) {
     VBDEBUG(("Unable to update the TPM with boot mode information.\n"));
     if (!is_rec) {
-      VbSfRequestRecovery(&vnc, VBNV_RECOVERY_RO_TPM_ERROR);
+      VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
       retval = VBERROR_TPM_SET_BOOT_MODE_STATE;
       goto VbSelectFirmware_exit;
     }

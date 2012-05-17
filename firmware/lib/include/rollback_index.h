@@ -37,10 +37,13 @@ typedef struct RollbackSpaceKernel {
 /* Last boot was developer mode.  TPM ownership is cleared when
  * transitioning to/from developer mode. */
 #define FLAG_LAST_BOOT_DEVELOPER 0x01
-/* There have been one or more boots which left PP unlocked, so the
- * contents of the kernel space are untrusted and must be restored
- * from the backup copy. */
-#define FLAG_KERNEL_SPACE_USE_BACKUP 0x02
+/* Some systems may not have a dedicated dev-mode switch, but enter and leave
+ * dev-mode through some recovery-mode magic keypresses. For those systems,
+ * the dev-mode "switch" state is in this bit (0=normal, 1=dev). To make it
+ * work, a new flag is passed to VbInit(), indicating that the system lacks a
+ * physical dev-mode switch. If a physical switch is present, this bit is
+ * ignored. */
+#define FLAG_VIRTUAL_DEV_MODE_ON 0x02
 
 #define ROLLBACK_SPACE_FIRMWARE_VERSION 2
 /* Firmware space - FIRMWARE_NV_INDEX, locked with global lock. */
@@ -64,11 +67,11 @@ uint32_t RollbackS3Resume(void);
 /* These functions are callable from VbSelectFirmware().  They cannot use
  * global variables. */
 
-/* Setup must be called.  Pass recovery_mode=nonzero if in recovery
- * mode.  Pass developer_mode=nonzero if in developer
- * mode. */
-uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
-                               uint32_t* version);
+/* Setup must be called. Pass recovery_mode=nonzero if in recovery mode. Pass
+ * *developer_mode=nonzero if in developer mode. Set hw_dev_sw if there's a
+ * hardware developer switch. Duh. */
+uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
+                               int* dev_mode_ptr, uint32_t* version);
 
 /* Write may be called if the versions change */
 uint32_t RollbackFirmwareWrite(uint32_t version);

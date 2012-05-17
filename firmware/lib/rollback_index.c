@@ -363,6 +363,12 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   VBDEBUG(("TPM: Firmware space sv%d f%x v%x\n",
            rsf->struct_version, rsf->flags, rsf->fw_versions));
 
+  /* The developer_mode value that's passed in is only set by a hardware
+   * dev-switch. We should OR it with any enabled virtual switch, since it
+   * can only be set by doing the keyboard-based dev-mode dance. */
+  if (rsf->flags & FLAG_VIRTUAL_DEV_MODE_ON)
+    developer_mode = 1;
+
   /* Clears ownership if developer flag has toggled */
   if ((developer_mode ? FLAG_LAST_BOOT_DEVELOPER : 0) !=
       (rsf->flags & FLAG_LAST_BOOT_DEVELOPER)) {
@@ -406,8 +412,8 @@ uint32_t RollbackS3Resume(void) {
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
-                               uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
+                               int* developer_mode, uint32_t* version) {
 #ifndef CHROMEOS_ENVIRONMENT
   /* Initialize the TPM, but ignores return codes.  In ChromeOS
    * environment, don't even talk to the TPM. */
@@ -459,15 +465,17 @@ uint32_t RollbackS3Resume(void) {
   return result;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
-                               uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
+                               int* dev_mode_ptr, uint32_t* version) {
   RollbackSpaceFirmware rsf;
 
   /* Set version to 0 in case we fail */
   *version = 0;
 
-  RETURN_ON_FAILURE(SetupTPM(recovery_mode, developer_mode, &rsf));
+  RETURN_ON_FAILURE(SetupTPM(recovery_mode, *dev_mode_ptr, &rsf));
   *version = rsf.fw_versions;
+  if (!hw_dev_sw)
+    *dev_mode_ptr = rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON ? 1 : 0;
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
   return TPM_SUCCESS;
 }

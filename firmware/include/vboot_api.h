@@ -165,6 +165,10 @@ typedef struct VbCommonParams {
 /* Calling firmware supports read only firmware for normal/developer
  * boot path. */
 #define VB_INIT_FLAG_RO_NORMAL_SUPPORT   0x00000020
+/* This platform does not have a physical dev-switch, so we must rely on a
+ * virtual switch (kept in the TPM) instead. When this flag is set,
+ * VB_INIT_FLAG_DEV_SWITCH_ON is ignored. */
+#define VB_INIT_FLAG_VIRTUAL_DEV_SWITCH  0x00000040
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware

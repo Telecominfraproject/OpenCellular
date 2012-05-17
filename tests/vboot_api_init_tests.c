@@ -26,7 +26,9 @@ static uint64_t mock_timer;
 static int rollback_s3_retval;
 static int nv_write_called;
 static GoogleBinaryBlockHeader gbb;
-
+static int mock_dev_mode;
+static uint32_t mock_tpm_version;
+static uint32_t mock_rfs_retval;
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
@@ -44,7 +46,7 @@ static void ResetMocks(void) {
 
   Memset(&vnc, 0, sizeof(vnc));
   VbNvSetup(&vnc);
-  VbNvTeardown(&vnc);  /* So CRC gets generated */
+  VbNvTeardown(&vnc);                   /* So CRC gets generated */
 
   Memset(&shared_data, 0, sizeof(shared_data));
   VbSharedDataInit(shared, sizeof(shared_data));
@@ -52,6 +54,10 @@ static void ResetMocks(void) {
   mock_timer = 10;
   rollback_s3_retval = TPM_SUCCESS;
   nv_write_called = 0;
+
+  mock_dev_mode = 0;
+  mock_tpm_version = 0x10001;
+  mock_rfs_retval = 0;
 }
 
 /****************************************************************************/
@@ -81,6 +87,14 @@ uint32_t RollbackS3Resume(void) {
   return rollback_s3_retval;
 }
 
+uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
+                               int* dev_mode_ptr, uint32_t* version) {
+  if (!hw_dev_sw)
+    *dev_mode_ptr = mock_dev_mode;
+  *version = mock_tpm_version;
+  return mock_rfs_retval;
+}
+
 /****************************************************************************/
 /* Test VbInit() and check expected return value and recovery reason */
 static void TestVbInit(VbError_t expected_retval,
@@ -89,7 +103,7 @@ static void TestVbInit(VbError_t expected_retval,
 
   TEST_EQ(VbInit(&cparams, &iparams), expected_retval, desc);
   VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &rr);
-  TEST_EQ(rr, expected_recovery, "  recovery request");
+  TEST_EQ(rr, expected_recovery, "  (recovery request)");
 }
 
 /****************************************************************************/
@@ -267,6 +281,61 @@ static void VbInitTest(void) {
           VBSD_BOOT_REC_SWITCH_ON | VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 }
 
+static void VbInitTestTPM(void) {
+
+  /* Rollback setup needs to reboot */
+  ResetMocks();
+  mock_rfs_retval = TPM_E_MUST_REBOOT;
+  TestVbInit(VBERROR_TPM_REBOOT_REQUIRED, 0, "Rollback TPM reboot (rec=0)");
+  ResetMocks();
+  mock_rfs_retval = TPM_E_MUST_REBOOT;
+  iparams.flags = VB_INIT_FLAG_REC_BUTTON_PRESSED;
+  TestVbInit(VBERROR_TPM_REBOOT_REQUIRED, VBNV_RECOVERY_RO_TPM_REBOOT,
+           "Rollback TPM reboot, in recovery, first time");
+  /* Ignore if we already tried rebooting */
+  ResetMocks();
+  mock_rfs_retval = TPM_E_MUST_REBOOT;
+  VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_REBOOT);
+  VbNvTeardown(&vnc);
+  TestVbInit(0, 0, "Rollback TPM reboot, in recovery, already retried");
+  TEST_EQ(shared->fw_version_tpm, 0x10001, "  shared fw_version_tpm");
+
+  /* Other rollback setup errors */
+  ResetMocks();
+  mock_rfs_retval = TPM_E_IOERROR;
+  mock_tpm_version = 0x20002;
+  TestVbInit(VBERROR_TPM_FIRMWARE_SETUP, VBNV_RECOVERY_RO_TPM_ERROR,
+           "Rollback TPM setup error - not in recovery");
+  TEST_EQ(shared->fw_version_tpm, 0, "  shared fw_version_tpm not set");
+  ResetMocks();
+  mock_rfs_retval = TPM_E_IOERROR;
+  VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_US_TEST);
+  VbNvTeardown(&vnc);
+  TestVbInit(0, 0, "Rollback TPM setup error ignored in recovery");
+  TEST_EQ(shared->fw_version_tpm, 0x10001, "  shared fw_version_tpm");
+
+  /* Virtual developer switch, but not enabled. */
+  ResetMocks();
+  iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON | VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
+  TestVbInit(0, 0, "TPM Dev mode off");
+  TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+  TEST_EQ(iparams.out_flags, 0, "  out flags");
+  TEST_EQ(shared->flags, 0, "  shared flags");
+
+  /* Virtual developer switch, enabled. */
+  ResetMocks();
+  iparams.flags = VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
+  mock_dev_mode = 1;
+  TestVbInit(0, 0, "TPM Dev mode on");
+  TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+  TEST_EQ(iparams.out_flags,
+          VB_INIT_OUT_CLEAR_RAM |
+          VB_INIT_OUT_ENABLE_DISPLAY |
+          VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
+  TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+}
+
 
 /* disable MSVC warnings on unused arguments */
 __pragma(warning (disable: 4100))
@@ -275,6 +344,7 @@ int main(int argc, char* argv[]) {
   int error_code = 0;
 
   VbInitTest();
+  VbInitTestTPM();
 
   if (!gTestSuccess)
     error_code = 255;

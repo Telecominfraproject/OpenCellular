@@ -27,8 +27,8 @@ uint32_t RollbackS3Resume(void) {
 }
 
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
-                               uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
+                               int* dev_mode_ptr, uint32_t* version) {
   *version = 0;
   return TPM_SUCCESS;
 }

@@ -23,6 +23,10 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   int is_s3_resume = 0;
   uint32_t s3_debug_boot = 0;
   uint32_t require_official_os = 0;
+  uint32_t tpm_version = 0;
+  uint32_t tpm_status = 0;
+  int hw_dev_sw = 1;
+  int is_dev = 0;
 
   VBDEBUG(("VbInit() input flags 0x%x\n", iparams->flags));
 
@@ -43,8 +47,9 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
 
   /* Copy boot switch flags */
   shared->flags = 0;
-  if (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON)
-    shared->flags |= VBSD_BOOT_DEV_SWITCH_ON;
+  if (!(iparams->flags & VB_INIT_FLAG_VIRTUAL_DEV_SWITCH) &&
+      (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON))
+    is_dev = 1;
   if (iparams->flags & VB_INIT_FLAG_REC_BUTTON_PRESSED)
     shared->flags |= VBSD_BOOT_REC_SWITCH_ON;
   if (iparams->flags & VB_INIT_FLAG_WP_ENABLED)
@@ -62,7 +67,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     if (is_s3_resume) {
       VBDEBUG(("VbInit() requesting S3 debug boot\n"));
       iparams->out_flags |= VB_INIT_OUT_S3_DEBUG_BOOT;
-      is_s3_resume = 0;         /* Proceed as if this is a normal boot */
+      is_s3_resume = 0;               /* Proceed as if this is a normal boot */
     }
 
     /* Clear the request even if this is a normal boot, since we don't
@@ -93,19 +98,91 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   if (iparams->flags & VB_INIT_FLAG_REC_BUTTON_PRESSED)
     recovery = VBNV_RECOVERY_RO_MANUAL;
 
+  /* Copy current recovery reason to shared data. If we fail later on, it
+   * won't matter, since we'll just reboot. */
+  shared->recovery_reason = (uint8_t)recovery;
+
+  /* If this is a S3 resume, resume the TPM. */
+  /* FIXME: I think U-Boot won't ever ask us to do this. Can we remove it? */
+  if (is_s3_resume) {
+    if (TPM_SUCCESS != RollbackS3Resume()) {
+      /* If we can't resume, just do a full reboot.  No need to go to recovery
+       * mode here, since if the TPM is really broken we'll catch it on the
+       * next boot. */
+      retval = VBERROR_TPM_S3_RESUME;
+    }
+  } else {
+
+    /* We need to know about dev mode now */
+    if (iparams->flags & VB_INIT_FLAG_VIRTUAL_DEV_SWITCH)
+      hw_dev_sw = 0;
+    else if (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON)
+      is_dev = 1;
+
+    VBPERFSTART("VB_TPMI");
+    /* Initialize the TPM. *is_dev is both an input and output. The only time
+     * it should be 1 on input is when we have a hardware dev-switch and it's
+     * enabled. The only time it's promoted from 0 to 1 on return is when we
+     * have a virtual dev-switch and the TPM has a valid rollback space with
+     * the virtual switch already enabled. If the TPM space is initialized by
+     * this call, its virtual dev-switch will be disabled by default. */
+    tpm_status = RollbackFirmwareSetup(recovery, hw_dev_sw,
+                                       &is_dev, &tpm_version);
+    VBPERFEND("VB_TPMI");
+    if (0 != tpm_status) {
+      VBDEBUG(("Unable to setup TPM and read firmware version.\n"));
+
+      if (TPM_E_MUST_REBOOT == tpm_status) {
+        /* TPM wants to reboot into the same mode we're in now */
+        VBDEBUG(("TPM requires a reboot.\n"));
+        if (!recovery) {
+          /* Not recovery mode.  Just reboot (not into recovery). */
+          retval = VBERROR_TPM_REBOOT_REQUIRED;
+          goto VbInit_exit;
+        } else if (VBNV_RECOVERY_RO_TPM_REBOOT != shared->recovery_reason) {
+          /* In recovery mode now, and we haven't requested a TPM reboot yet,
+           * so request one. */
+          VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_REBOOT);
+          retval = VBERROR_TPM_REBOOT_REQUIRED;
+          goto VbInit_exit;
+        }
+      }
+
+      if (!recovery) {
+        VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
+        retval = VBERROR_TPM_FIRMWARE_SETUP;
+        goto VbInit_exit;
+      }
+    }
+    shared->fw_version_tpm_start = tpm_version;
+    shared->fw_version_tpm = tpm_version;
+    if (is_dev)
+      shared->flags |= VBSD_BOOT_DEV_SWITCH_ON;
+  }
+
+  /* FIXME: May need a GBB flag for initial value of virtual dev-switch */
+
+  /* Allow BIOS to load arbitrary option ROMs? */
+  if (gbb->flags & GBB_FLAG_LOAD_OPTION_ROMS)
+    iparams->out_flags |= VB_INIT_OUT_ENABLE_OPROM;
+
+  /* The factory may need to boot custom OSes whenever the dev-switch is on */
+  if (is_dev && (gbb->flags & GBB_FLAG_ENABLE_ALTERNATE_OS))
+    iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
+
   /* Set output flags */
   if (VBNV_RECOVERY_NOT_REQUESTED != recovery) {
     /* Requesting recovery mode */
     iparams->out_flags |= (VB_INIT_OUT_ENABLE_RECOVERY |
-                          VB_INIT_OUT_CLEAR_RAM |
-                          VB_INIT_OUT_ENABLE_DISPLAY |
-                          VB_INIT_OUT_ENABLE_USB_STORAGE);
+                           VB_INIT_OUT_CLEAR_RAM |
+                           VB_INIT_OUT_ENABLE_DISPLAY |
+                           VB_INIT_OUT_ENABLE_USB_STORAGE);
   }
-  else if (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON) {
+  else if (is_dev) {
     /* Developer switch is on, so need to support dev mode */
     iparams->out_flags |= (VB_INIT_OUT_CLEAR_RAM |
-                          VB_INIT_OUT_ENABLE_DISPLAY |
-                          VB_INIT_OUT_ENABLE_USB_STORAGE);
+                           VB_INIT_OUT_ENABLE_DISPLAY |
+                           VB_INIT_OUT_ENABLE_USB_STORAGE);
     /* ... which may or may not include custom OSes */
     VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &require_official_os);
     if (!require_official_os)
@@ -118,27 +195,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 0);
   }
 
-  /* Allow BIOS to load arbitrary option ROMs? */
-  if (gbb->flags & GBB_FLAG_LOAD_OPTION_ROMS)
-    iparams->out_flags |= VB_INIT_OUT_ENABLE_OPROM;
-
-  /* The factory may need to boot custom OSes whenever the dev-switch is on */
-  if ((gbb->flags & GBB_FLAG_ENABLE_ALTERNATE_OS) &&
-      (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON))
-    iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
-
-  /* copy current recovery reason to shared data */
-  shared->recovery_reason = (uint8_t)recovery;
-
-  /* If this is a S3 resume, resume the TPM */
-  if (is_s3_resume) {
-    if (TPM_SUCCESS != RollbackS3Resume()) {
-      /* If we can't resume, just do a full reboot.  No need to go to recovery
-       * mode here, since if the TPM is really broken we'll catch it on the
-       * next boot. */
-      retval = VBERROR_TPM_S3_RESUME;
-    }
-  }
+VbInit_exit:
 
   /* Tear down NV storage */
   VbNvTeardown(&vnc);

@@ -31,12 +31,10 @@ static int nv_write_called;
 static uint32_t mock_tpm_version;
 static uint32_t mock_lf_tpm_version;  /* TPM version set by LoadFirmware() */
 /* Variables for tracking params passed to mock functions */
-static uint32_t mock_rfs_got_flags;
 static uint32_t mock_stbms_got_flags;
 static uint64_t mock_stbms_got_fw_flags;
 static int mock_rfl_called;
 /* Mock return values, so we can simulate errors */
-static VbError_t mock_rfs_retval;
 static VbError_t mock_rfw_retval;
 static VbError_t mock_rfl_retval;
 static VbError_t mock_lf_retval;
@@ -61,11 +59,12 @@ static void ResetMocks(void) {
   mock_timer = 10;
   nv_write_called = mock_rfl_called = 0;
 
-  mock_rfs_got_flags = mock_stbms_got_flags = 0;
+  mock_stbms_got_flags = 0;
   mock_stbms_got_fw_flags = 0;
 
   mock_tpm_version = mock_lf_tpm_version = 0x20004;
-  mock_rfs_retval = mock_rfw_retval = mock_rfl_retval = 0;
+  shared->fw_version_tpm_start = mock_tpm_version;
+  mock_rfw_retval = mock_rfl_retval = 0;
   mock_lf_retval = mock_stbms_retval = 0;
 }
 
@@ -90,17 +89,6 @@ uint64_t VbExGetTimer(void) {
   VbAssert(new_timer > mock_timer);  /* Make sure we don't overflow */
   mock_timer = new_timer;
   return mock_timer;
-}
-
-uint32_t RollbackFirmwareSetup(int recovery_mode, int developer_mode,
-                               uint32_t* version) {
-  if (recovery_mode)
-    mock_rfs_got_flags |= MOCK_REC_FLAG;
-  if (developer_mode)
-    mock_rfs_got_flags |= MOCK_DEV_FLAG;
-
-  *version = mock_tpm_version;
-  return mock_rfs_retval;
 }
 
 uint32_t RollbackFirmwareWrite(uint32_t version) {
@@ -153,7 +141,6 @@ static void VbSelectFirmwareTest(void) {
   TEST_EQ(shared->timer_vb_select_firmware_enter, 21, "  time enter");
   TEST_EQ(shared->timer_vb_select_firmware_exit, 43, "  time exit");
   TEST_EQ(nv_write_called, 0, "  NV write not called since nothing changed");
-  TEST_EQ(mock_rfs_got_flags, 0, "  RollbackFirmwareSetup() flags");
   TEST_EQ(mock_stbms_got_flags, 0, "  SetTPMBootModeState() flags");
   TEST_EQ(mock_stbms_got_fw_flags, 0xABCDE0, "  fw keyblock flags");
   TEST_EQ(mock_rfl_called, 1, "  RollbackFirmwareLock() called");
@@ -162,7 +149,6 @@ static void VbSelectFirmwareTest(void) {
   ResetMocks();
   shared->flags |= VBSD_BOOT_DEV_SWITCH_ON;
   TestVbSf(0, 0, "Developer mode");
-  TEST_EQ(mock_rfs_got_flags, MOCK_DEV_FLAG, "  RollbackFirmwareSetup() flags");
   TEST_EQ(mock_stbms_got_flags, MOCK_DEV_FLAG, "  SetTPMBootModeState() flags");
   TEST_EQ(mock_rfl_called, 1, "  RollbackFirmwareLock() called");
 
@@ -175,7 +161,6 @@ static void VbSelectFirmwareTest(void) {
   TestVbSf(0, 0, "Recovery mode");
   TEST_EQ(fparams.selected_firmware, VB_SELECT_FIRMWARE_RECOVERY,
           "  select recovery");
-  TEST_EQ(mock_rfs_got_flags, MOCK_REC_FLAG, "  RollbackFirmwareSetup() flags");
   TEST_EQ(mock_stbms_got_flags, MOCK_REC_FLAG, "  SetTPMBootModeState() flags");
   TEST_EQ(mock_rfl_called, 0, "  RollbackFirmwareLock() not called");
 
@@ -186,36 +171,9 @@ static void VbSelectFirmwareTest(void) {
   TestVbSf(0, 0, "Recovery+developer mode");
   TEST_EQ(fparams.selected_firmware, VB_SELECT_FIRMWARE_RECOVERY,
           "  select recovery");
-  TEST_EQ(mock_rfs_got_flags, MOCK_DEV_FLAG|MOCK_REC_FLAG,
-          "  RollbackFirmwareSetup() flags");
   TEST_EQ(mock_stbms_got_flags, MOCK_DEV_FLAG|MOCK_REC_FLAG,
           "  SetTPMBootModeState() flags");
   TEST_EQ(mock_rfl_called, 0, "  RollbackFirmwareLock() not called");
-
-  /* Rollback setup needs to reboot */
-  ResetMocks();
-  mock_rfs_retval = TPM_E_MUST_REBOOT;
-  TestVbSf(VBERROR_TPM_REBOOT_REQUIRED, 0, "Rollback TPM reboot (rec=0)");
-  ResetMocks();
-  mock_rfs_retval = TPM_E_MUST_REBOOT;
-  shared->recovery_reason = VBNV_RECOVERY_US_TEST;
-  TestVbSf(VBERROR_TPM_REBOOT_REQUIRED, VBNV_RECOVERY_RO_TPM_REBOOT,
-           "Rollback TPM reboot, in recovery, first time");
-  /* Ignore if we already tried rebooting */
-  ResetMocks();
-  mock_rfs_retval = TPM_E_MUST_REBOOT;
-  shared->recovery_reason = VBNV_RECOVERY_RO_TPM_REBOOT;
-  TestVbSf(0, 0, "Rollback TPM reboot, in recovery, already retried");
-
-  /* Other rollback setup errors */
-  ResetMocks();
-  mock_rfs_retval = TPM_E_IOERROR;
-  TestVbSf(VBERROR_TPM_FIRMWARE_SETUP, VBNV_RECOVERY_RO_TPM_ERROR,
-           "Rollback TPM setup error");
-  ResetMocks();
-  mock_rfs_retval = TPM_E_IOERROR;
-  shared->recovery_reason = VBNV_RECOVERY_US_TEST;
-  TestVbSf(0, 0, "Rollback TPM setup error ignored in recovery");
 
   /* LoadFirmware() error code passed through */
   ResetMocks();

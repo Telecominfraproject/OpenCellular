@@ -684,12 +684,15 @@ static void SetupTpmTest(void) {
 /* Tests for RollbackFirmware() calls */
 static void RollbackFirmwareTest(void) {
   uint32_t version;
+  int dev_mode;
 
   /* Normal setup */
   ResetMocks(0, 0);
+  dev_mode = 0;
   version = 123;
   mock_rsf.fw_versions = 0x12345678;
-  TEST_EQ(RollbackFirmwareSetup(0, 0, &version), 0, "RollbackFirmwareSetup()");
+  TEST_EQ(RollbackFirmwareSetup(0, 0, &dev_mode, &version), 0,
+          "RollbackFirmwareSetup()");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -701,9 +704,10 @@ static void RollbackFirmwareTest(void) {
 
   /* Error during setup should clear version */
   ResetMocks(1, TPM_E_IOERROR);
+  dev_mode = 0;
   version = 123;
   mock_rsf.fw_versions = 0x12345678;
-  TEST_EQ(RollbackFirmwareSetup(0, 0, &version), TPM_E_IOERROR,
+  TEST_EQ(RollbackFirmwareSetup(0, 0, &dev_mode, &version), TPM_E_IOERROR,
           "RollbackFirmwareSetup() error");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n",
@@ -712,7 +716,8 @@ static void RollbackFirmwareTest(void) {
 
   /* Developer mode flag gets passed properly */
   ResetMocks(0, 0);
-  TEST_EQ(RollbackFirmwareSetup(0, 1, &version), 0,
+  dev_mode = 1;
+  TEST_EQ(RollbackFirmwareSetup(0, 0, &dev_mode, &version), 0,
           "RollbackFirmwareSetup() to dev");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
