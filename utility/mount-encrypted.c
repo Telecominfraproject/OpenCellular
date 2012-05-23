@@ -36,22 +36,15 @@
 #include "mount-encrypted.h"
 #include "mount-helpers.h"
 
-#define STATEFUL_MNT "/mnt/stateful_partition"
+#define STATEFUL_MNT "mnt/stateful_partition"
 #define ENCRYPTED_MNT STATEFUL_MNT "/encrypted"
-#define DMCRYPT_DEV_NAME "encstateful"
 #define BUF_SIZE 1024
 #define PROP_SIZE 64
 
-static const gchar * const kRootDir = "/";
 static const gchar * const kKernelCmdline = "/proc/cmdline";
 static const gchar * const kKernelCmdlineOption = " encrypted-stateful-key=";
-static const gchar * const kStatefulMount = STATEFUL_MNT;
-static const gchar * const kEncryptedKey = STATEFUL_MNT "/encrypted.key";
-static const gchar * const kEncryptedBlock = STATEFUL_MNT "/encrypted.block";
-static const gchar * const kEncryptedMount = ENCRYPTED_MNT;
 static const gchar * const kEncryptedFSType = "ext4";
-static const gchar * const kCryptName = DMCRYPT_DEV_NAME;
-static const gchar * const kCryptDev = "/dev/mapper/" DMCRYPT_DEV_NAME;
+static const gchar * const kCryptDevName = "encstateful";
 static const gchar * const kTpmDev = "/dev/tpm0";
 static const gchar * const kNullDev = "/dev/null";
 static const float kSizePercent = 0.3;
@@ -74,32 +67,35 @@ enum bind_dir {
 };
 
 static struct bind_mount {
-	const char * const src;		/* Location of bind source. */
-	const char * const dst;		/* Destination of bind. */
-	const char * const previous;	/* Migratable prior bind source. */
-	const char * const pending;	/* Location for pending deletion. */
-	const char * const owner;
-	const char * const group;
-	const mode_t mode;
-	const int submount;		/* Submount is bound already. */
-} bind_mounts[] = {
-#if DEBUG_ENABLED == 2
-# define DEBUG_DEST ".new"
-#else
-# define DEBUG_DEST ""
-#endif
-	{ ENCRYPTED_MNT "/var", "/var" DEBUG_DEST,
+	char * src;		/* Location of bind source. */
+	char * dst;		/* Destination of bind. */
+	char * previous;	/* Migratable prior bind source. */
+	char * pending;		/* Location for pending deletion. */
+	char * owner;
+	char * group;
+	mode_t mode;
+	int submount;		/* Submount is bound already. */
+} bind_mounts_default[] = {
+	{ ENCRYPTED_MNT "/var", "var",
 	  STATEFUL_MNT "/var", STATEFUL_MNT "/.var",
 	  "root", "root",
 	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 0 },
-	{ ENCRYPTED_MNT "/chronos", "/home/chronos" DEBUG_DEST,
+	{ ENCRYPTED_MNT "/chronos", "home/chronos",
 	  STATEFUL_MNT "/home/chronos", STATEFUL_MNT "/home/.chronos",
 	  "chronos", "chronos",
 	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 1 },
 	{ },
 };
 
-int has_tpm = 0;
+static struct bind_mount *bind_mounts = NULL;
+static gchar *rootdir = NULL;
+static gchar *stateful_mount = NULL;
+static gchar *key_path = NULL;
+static gchar *block_path = NULL;
+static gchar *encrypted_mount = NULL;
+static gchar *dmcrypt_name = NULL;
+static gchar *dmcrypt_dev = NULL;
+static int has_tpm = 0;
 
 void tpm_init(void)
 {
@@ -118,7 +114,7 @@ void tpm_init(void)
 		setenv("TPM_DEVICE_PATH", kNullDev, 1);
 	}
 	TlclLibInit();
-	DEBUG("TPM Ready");
+	DEBUG("TPM %s", has_tpm ? "Ready" : "not available");
 }
 
 uint32_t tpm_flags(TPM_PERMANENT_FLAGS *pflags)
@@ -541,9 +537,9 @@ static void finalize(uint8_t *system_key, char *encryption_key)
 {
 	struct bind_mount *bind;
 
-	INFO("Writing keyfile %s.", kEncryptedKey);
-	if (!keyfile_write(kEncryptedKey, system_key, encryption_key)) {
-		ERROR("Failed to write %s -- aborting.", kEncryptedKey);
+	INFO("Writing keyfile %s.", key_path);
+	if (!keyfile_write(key_path, system_key, encryption_key)) {
+		ERROR("Failed to write %s -- aborting.", key_path);
 		return;
 	}
 
@@ -586,9 +582,9 @@ static int finalize_from_cmdline(char *key)
 		}
 	}
 
-	encryption_key = dm_get_key(kCryptDev);
+	encryption_key = dm_get_key(dmcrypt_dev);
 	if (!encryption_key) {
-		ERROR("Could not locate encryption key for %s.", kCryptDev);
+		ERROR("Could not locate encryption key for %s.", dmcrypt_dev);
 		return EXIT_FAILURE;
 	}
 
@@ -600,6 +596,13 @@ static int finalize_from_cmdline(char *key)
 void spawn_resizer(const char *device, size_t blocks, size_t blocks_max)
 {
 	pid_t pid;
+
+	/* Skip resize before forking, if it's not going to happen. */
+	if (blocks >= blocks_max) {
+		INFO("Resizing skipped. blocks:%zu >= blocks_max:%zu",
+		     blocks, blocks_max);
+		return;
+	}
 
 	fflush(NULL);
 	pid = fork();
@@ -614,6 +617,7 @@ void spawn_resizer(const char *device, size_t blocks, size_t blocks_max)
 
 	/* Child */
 	tpm_close();
+	INFO_INIT("Resizer spawned.");
 
 	if (daemon(0, 1)) {
 		PERROR("daemon");
@@ -623,6 +627,7 @@ void spawn_resizer(const char *device, size_t blocks, size_t blocks_max)
 	filesystem_resize(device, blocks, blocks_max);
 
 out:
+	INFO_DONE("Done.");
 	exit(0);
 }
 
@@ -643,7 +648,7 @@ static int setup_encrypted(void)
 	 */
 	has_system_key = find_system_key(system_key, &migrate_allowed);
 	if (has_system_key) {
-		encryption_key = keyfile_read(kEncryptedKey, system_key);
+		encryption_key = keyfile_read(key_path, system_key);
 	} else {
 		INFO("No usable system key found.");
 	}
@@ -667,12 +672,12 @@ static int setup_encrypted(void)
 		off_t size;
 
 		/* Wipe out the old files, and ignore errors. */
-		unlink(kEncryptedKey);
-		unlink(kEncryptedBlock);
+		unlink(key_path);
+		unlink(block_path);
 
 		/* Calculate the desired size of the new partition. */
-		if (statvfs(kStatefulMount, &buf)) {
-			PERROR(kStatefulMount);
+		if (statvfs(stateful_mount, &buf)) {
+			PERROR(stateful_mount);
 			return 0;
 		}
 		size = buf.f_blocks;
@@ -683,22 +688,22 @@ static int setup_encrypted(void)
 		     (unsigned long long)size);
 
 		/* Create the sparse file. */
-		sparsefd = sparse_create(kEncryptedBlock, size);
+		sparsefd = sparse_create(block_path, size);
 		if (sparsefd < 0) {
-			PERROR(kEncryptedBlock);
+			PERROR(block_path);
 			return 0;
 		}
 	} else {
-		sparsefd = open(kEncryptedBlock, O_RDWR | O_NOFOLLOW);
+		sparsefd = open(block_path, O_RDWR | O_NOFOLLOW);
 		if (sparsefd < 0) {
-			PERROR(kEncryptedBlock);
+			PERROR(block_path);
 			return 0;
 		}
 	}
 
 	/* Set up loopback device. */
-	INFO("Loopback attaching %s.", kEncryptedBlock);
-	lodev = loop_attach(sparsefd, kEncryptedBlock);
+	INFO("Loopback attaching %s (named %s).", block_path, dmcrypt_name);
+	lodev = loop_attach(sparsefd, dmcrypt_name);
 	if (!lodev || strlen(lodev) == 0) {
 		ERROR("loop_attach failed");
 		goto failed;
@@ -712,9 +717,9 @@ static int setup_encrypted(void)
 	}
 
 	/* Mount loopback device with dm-crypt using the encryption key. */
-	INFO("Setting up dm-crypt %s as %s.", lodev, kCryptDev);
-	if (!dm_setup(sectors, encryption_key, kCryptName, lodev,
-		      kCryptDev)) {
+	INFO("Setting up dm-crypt %s as %s.", lodev, dmcrypt_dev);
+	if (!dm_setup(sectors, encryption_key, dmcrypt_name, lodev,
+		      dmcrypt_dev)) {
 		ERROR("dm_setup failed");
 		goto lo_cleanup;
 	}
@@ -739,29 +744,29 @@ static int setup_encrypted(void)
 	if (rebuild) {
 		INFO("Building filesystem on %s "
 			"(blocksize:%zu, min:%zu, max:%zu).",
-			kCryptDev, kExt4BlockSize, blocks_min, blocks_max);
-		if (!filesystem_build(kCryptDev, kExt4BlockSize,
+			dmcrypt_dev, kExt4BlockSize, blocks_min, blocks_max);
+		if (!filesystem_build(dmcrypt_dev, kExt4BlockSize,
 					blocks_min, blocks_max))
 			goto dm_cleanup;
 	}
 
 	/* Mount the dm-crypt partition finally. */
-	INFO("Mounting %s onto %s.", kCryptDev, kEncryptedMount);
-	if (access(kEncryptedMount, R_OK) &&
-	    mkdir(kEncryptedMount, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
-		PERROR(kCryptDev);
+	INFO("Mounting %s onto %s.", dmcrypt_dev, encrypted_mount);
+	if (access(encrypted_mount, R_OK) &&
+	    mkdir(encrypted_mount, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+		PERROR(dmcrypt_dev);
 		goto dm_cleanup;
 	}
-	if (mount(kCryptDev, kEncryptedMount, kEncryptedFSType,
+	if (mount(dmcrypt_dev, encrypted_mount, kEncryptedFSType,
 		  MS_NODEV | MS_NOEXEC | MS_NOSUID | MS_RELATIME,
 		  "discard")) {
-		PERROR("mount(%s,%s)", kCryptDev, kEncryptedMount);
+		PERROR("mount(%s,%s)", dmcrypt_dev, encrypted_mount);
 		goto dm_cleanup;
 	}
 
 	/* Always spawn filesystem resizer, in case growth was interrupted. */
 	/* TODO(keescook): if already full size, don't resize. */
-	spawn_resizer(kCryptDev, blocks_min, blocks_max);
+	spawn_resizer(dmcrypt_dev, blocks_min, blocks_max);
 
 	/* If the legacy lockbox NVRAM area exists, we've rebuilt the
 	 * filesystem, and there are old bind sources on disk, attempt
@@ -806,18 +811,18 @@ unbind:
 		umount(bind->dst);
 	}
 
-	INFO("Unmounting %s.", kEncryptedMount);
-	umount(kEncryptedMount);
+	INFO("Unmounting %s.", encrypted_mount);
+	umount(encrypted_mount);
 
 dm_cleanup:
-	INFO("Removing %s.", kCryptDev);
+	INFO("Removing %s.", dmcrypt_dev);
 	/* TODO(keescook): something holds this open briefly on mkfs failure
 	 * and I haven't been able to catch it yet. Adding an "fuser" call
 	 * here is sufficient to lose the race. Instead, just sleep during
 	 * the error path.
 	 */
 	sleep(1);
-	dm_teardown(kCryptDev);
+	dm_teardown(dmcrypt_dev);
 
 lo_cleanup:
 	INFO("Unlooping %s.", lodev);
@@ -840,21 +845,51 @@ static int shutdown(void)
 
 	for (bind = bind_mounts; bind->src; ++ bind) {
 		INFO("Unmounting %s.", bind->dst);
-		if (umount(bind->dst))
-			PERROR("umount(%s)", bind->dst);
+		errno = 0;
+		/* Allow either success or a "not mounted" failure. */
+		if (umount(bind->dst)) {
+			if (errno != EINVAL) {
+				PERROR("umount(%s)", bind->dst);
+				return EXIT_FAILURE;
+			}
+		}
 	}
 
-	/* TODO(keescook): this can actually succeed with binds mounted. */
-	INFO("Unmounting %s.", kEncryptedMount);
-	if (umount(kEncryptedMount))
-		PERROR("umount(%s)", kEncryptedMount);
+	INFO("Unmounting %s.", encrypted_mount);
+	errno = 0;
+	/* Allow either success or a "not mounted" failure. */
+	if (umount(encrypted_mount)) {
+		if (errno != EINVAL) {
+			PERROR("umount(%s)", encrypted_mount);
+			return EXIT_FAILURE;
+		}
+	}
 
-	INFO("Removing %s.", kCryptDev);
-	if (!dm_teardown(kCryptDev))
-		ERROR("dm_teardown(%s)", kCryptDev);
+	/* Optionally run fsck on the device after umount. */
+	if (getenv("MOUNT_ENCRYPTED_FSCK")) {
+		char *cmd;
 
-	INFO("Unlooping %s.", kEncryptedBlock);
-	return loop_detach_name(kEncryptedBlock) ? EXIT_SUCCESS : EXIT_FAILURE;
+		if (asprintf(&cmd, "fsck -a %s", dmcrypt_dev) == -1)
+			PERROR("asprintf");
+		else {
+			int rc;
+
+			rc = system(cmd);
+			if (rc != 0)
+				ERROR("'%s' failed: %d", cmd, rc);
+		}
+	}
+
+	INFO("Removing %s.", dmcrypt_dev);
+	if (!dm_teardown(dmcrypt_dev))
+		ERROR("dm_teardown(%s)", dmcrypt_dev);
+
+	INFO("Unlooping %s (named %s).", block_path, dmcrypt_name);
+	if (!loop_detach_name(dmcrypt_name)) {
+		ERROR("loop_detach_name(%s)", dmcrypt_name);
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
 }
 
 
@@ -863,16 +898,16 @@ static void check_mount_states(void)
 	struct bind_mount *bind;
 
 	/* Verify stateful partition exists and is mounted. */
-	if (access(kStatefulMount, R_OK) ||
-	    same_vfs(kStatefulMount, kRootDir)) {
-		INFO("%s is not mounted.", kStatefulMount);
+	if (access(stateful_mount, R_OK) ||
+	    same_vfs(stateful_mount, rootdir)) {
+		INFO("%s is not mounted.", stateful_mount);
 		exit(1);
 	}
 
 	/* Verify encrypted partition is missing or not already mounted. */
-	if (access(kEncryptedMount, R_OK) == 0 &&
-	    !same_vfs(kEncryptedMount, kStatefulMount)) {
-		INFO("%s already appears to be mounted.", kEncryptedMount);
+	if (access(encrypted_mount, R_OK) == 0 &&
+	    !same_vfs(encrypted_mount, stateful_mount)) {
+		INFO("%s already appears to be mounted.", encrypted_mount);
 		exit(0);
 	}
 
@@ -889,7 +924,7 @@ static void check_mount_states(void)
 		if (bind->submount)
 			continue;
 
-		if (same_vfs(bind->dst, kStatefulMount)) {
+		if (same_vfs(bind->dst, stateful_mount)) {
 			INFO("%s already bind mounted.", bind->dst);
 			exit(1);
 		}
@@ -898,10 +933,11 @@ static void check_mount_states(void)
 	INFO("VFS mount state sanity check ok.");
 }
 
-int device_details(void)
+int report_info(void)
 {
 	uint8_t system_key[DIGEST_LENGTH];
 	TPM_PERMANENT_FLAGS pflags;
+	struct bind_mount *mnt;
 	int old_lockbox = -1;
 
 	printf("TPM: %s\n", has_tpm ? "yes" : "no");
@@ -926,7 +962,116 @@ int device_details(void)
 		printf("NVRAM: not present\n");
 	}
 
+	printf("rootdir: %s\n", rootdir);
+	printf("stateful_mount: %s\n", stateful_mount);
+	printf("key_path: %s\n", key_path);
+	printf("block_path: %s\n", block_path);
+	printf("encrypted_mount: %s\n", encrypted_mount);
+	printf("dmcrypt_name: %s\n", dmcrypt_name);
+	printf("dmcrypt_dev: %s\n", dmcrypt_dev);
+	printf("bind mounts:\n");
+	for (mnt = bind_mounts; mnt->src; ++mnt) {
+		printf("\tsrc:%s\n", mnt->src);
+		printf("\tdst:%s\n", mnt->dst);
+		printf("\tprevious:%s\n", mnt->previous);
+		printf("\tpending:%s\n", mnt->pending);
+		printf("\towner:%s\n", mnt->owner);
+		printf("\tmode:%o\n", mnt->mode);
+		printf("\tsubmount:%d\n", mnt->submount);
+		printf("\n");
+	}
+
 	return EXIT_SUCCESS;
+}
+
+/* This expects "mnt" to be allocated and initialized to NULL bytes. */
+static int dup_bind_mount(struct bind_mount *mnt, struct bind_mount *old,
+			  char *dir)
+{
+	if (old->src && asprintf(&mnt->src, "%s%s", dir, old->src) == -1)
+		goto fail;
+	if (old->dst && asprintf(&mnt->dst, "%s%s", dir, old->dst) == -1)
+		goto fail;
+	if (old->previous && asprintf(&mnt->previous, "%s%s", dir,
+				      old->previous) == -1)
+		goto fail;
+	if (old->pending && asprintf(&mnt->pending, "%s%s", dir,
+				     old->pending) == -1)
+		goto fail;
+	if (!(mnt->owner = strdup(old->owner)))
+		goto fail;
+	if (!(mnt->group = strdup(old->group)))
+		goto fail;
+	mnt->mode = old->mode;
+	mnt->submount = old->submount;
+
+	return 0;
+
+fail:
+	perror(__FUNCTION__);
+	return 1;
+}
+
+static void prepare_paths(void)
+{
+	char *dir = NULL;
+	struct bind_mount *old;
+	struct bind_mount *mnt;
+
+	mnt = bind_mounts = calloc(sizeof(bind_mounts_default) /
+					sizeof(*bind_mounts_default),
+				   sizeof(*bind_mounts_default));
+	if (!mnt) {
+		perror("calloc");
+		exit(1);
+	}
+
+	if ((dir = getenv("MOUNT_ENCRYPTED_ROOT")) != NULL) {
+		unsigned char digest[DIGEST_LENGTH];
+		gchar *hex;
+
+		if (asprintf(&rootdir, "%s/", dir) == -1)
+			goto fail;
+
+		/* Generate a shortened hash for non-default cryptnames,
+		 * which will get re-used in the loopback name, which
+		 * must be less than 64 (LO_NAME_SIZE) bytes. */
+		sha256(dir, digest);
+		hex = stringify_hex(digest, sizeof(digest));
+		hex[17] = '\0';
+		if (asprintf(&dmcrypt_name, "%s_%s", kCryptDevName,
+				hex) == -1)
+			goto fail;
+		g_free(hex);
+	} else {
+		rootdir = "/";
+		if (!(dmcrypt_name = strdup(kCryptDevName)))
+			goto fail;
+	}
+
+	if (asprintf(&stateful_mount, "%s%s", rootdir, STATEFUL_MNT) == -1)
+		goto fail;
+	if (asprintf(&key_path, "%s%s", rootdir,
+		     STATEFUL_MNT "/encrypted.key") == -1)
+		goto fail;
+	if (asprintf(&block_path, "%s%s", rootdir,
+		     STATEFUL_MNT "/encrypted.block") == -1)
+		goto fail;
+	if (asprintf(&encrypted_mount, "%s%s", rootdir, ENCRYPTED_MNT) == -1)
+		goto fail;
+	if (asprintf(&dmcrypt_dev, "/dev/mapper/%s", dmcrypt_name) == -1)
+		goto fail;
+
+	for (old = bind_mounts_default; old->src; ++old) {
+		if (dup_bind_mount(mnt++, old, rootdir))
+			exit(1);
+	}
+
+	return;
+
+fail:
+	perror("asprintf");
+	exit(1);
 }
 
 int main(int argc, char *argv[])
@@ -934,17 +1079,18 @@ int main(int argc, char *argv[])
 	int okay;
 
 	INFO_INIT("Starting.");
+	prepare_paths();
 	tpm_init();
 
 	if (argc > 1) {
 		if (!strcmp(argv[1], "umount"))
 			return shutdown();
-		if (!strcmp(argv[1], "device"))
-			return device_details();
+		if (!strcmp(argv[1], "info"))
+			return report_info();
 		if (!strcmp(argv[1], "finalize"))
 			return finalize_from_cmdline(argc > 2 ? argv[2] : NULL);
 
-		fprintf(stderr, "Usage: %s [device|finalize|umount]\n",
+		fprintf(stderr, "Usage: %s [info|finalize|umount]\n",
 			argv[0]);
 		return 1;
 	}
@@ -954,8 +1100,8 @@ int main(int argc, char *argv[])
 	okay = setup_encrypted();
 	if (!okay) {
 		INFO("Setup failed -- clearing files and retrying.");
-		unlink(kEncryptedKey);
-		unlink(kEncryptedBlock);
+		unlink(key_path);
+		unlink(block_path);
 		okay = setup_encrypted();
 	}
 

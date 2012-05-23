@@ -169,8 +169,10 @@ static int loop_locate(gchar **loopback, const char *name)
 
 	if (name) {
 		namelen = strlen(name);
-		if (namelen >= LO_NAME_SIZE)
+		if (namelen >= LO_NAME_SIZE) {
+			ERROR("'%s' too long (>= %d)", name, LO_NAME_SIZE);
 			return -1;
+		}
 	}
 
 	*loopback = NULL;
@@ -199,9 +201,13 @@ static int loop_locate(gchar **loopback, const char *name)
 		attached = loop_is_attached(fd, &info);
 		close(fd);
 
+		if (attached)
+			DEBUG("Saw %s on %s", info.lo_file_name, *loopback);
+
 		if ((attached && name &&
 		     strncmp((char *)info.lo_file_name, name, namelen) == 0) ||
 		    (!attached && !name)) {
+			DEBUG("Using %s", *loopback);
 			/* Reopen for working on it. */
 			fd = open(*loopback, O_RDWR | O_NOFOLLOW);
 			if (is_loop_device(fd) &&
@@ -464,9 +470,15 @@ out:
 /* Spawns a filesystem resizing process. */
 int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
 {
+	/* TODO(keescook): Quiet compiler. */
+	tick_start = tick_start;
+
 	/* Ignore resizing if we know the filesystem was built to max size. */
-	if (blocks >= blocks_max)
+	if (blocks >= blocks_max) {
+		INFO("Resizing aborted. blocks:%zu >= blocks_max:%zu",
+		     blocks, blocks_max);
 		return 1;
+	}
 
 	/* TODO(keescook): Read superblock to find out the current size of
 	 * the filesystem (since statvfs does not report the correct value).
@@ -475,7 +487,7 @@ int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
 	 */
 	blocks = blocks_max;
 
-	INFO_INIT("Resizing started in %d second steps.", kResizeStepSeconds);
+	INFO("Resizing started in %d second steps.", kResizeStepSeconds);
 
 	do {
 		gchar *blocks_str;
