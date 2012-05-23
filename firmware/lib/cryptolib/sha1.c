@@ -273,7 +273,7 @@ void SHA1_init(SHA1_CTX* ctx) {
   ctx->count = 0;
 }
 
-uint8_t* SHA1(const uint8_t *data, uint64_t len, uint8_t *digest) {
+uint8_t* internal_SHA1(const uint8_t *data, uint64_t len, uint8_t *digest) {
   const uint8_t *p;
   int i;
   SHA1_CTX ctx;

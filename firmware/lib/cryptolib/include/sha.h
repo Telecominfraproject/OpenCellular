@@ -69,19 +69,19 @@ uint8_t* SHA512_final(SHA512_CTX* ctx);
  * and stores it into [digest]. [digest] should be pre-allocated to
  * SHA1_DIGEST_SIZE bytes.
  */
-uint8_t* SHA1(const uint8_t* data, uint64_t len, uint8_t* digest);
+uint8_t* internal_SHA1(const uint8_t* data, uint64_t len, uint8_t* digest);
 
 /* Convenience function for SHA-256.  Computes hash on [data] of length [len].
  * and stores it into [digest]. [digest] should be pre-allocated to
  * SHA256_DIGEST_SIZE bytes.
  */
-uint8_t* SHA256(const uint8_t* data, uint64_t len, uint8_t* digest);
+uint8_t* internal_SHA256(const uint8_t* data, uint64_t len, uint8_t* digest);
 
 /* Convenience function for SHA-512.  Computes hash on [data] of length [len].
  * and stores it into [digest]. [digest] should be pre-allocated to
  * SHA512_DIGEST_SIZE bytes.
  */
-uint8_t* SHA512(const uint8_t* data, uint64_t len, uint8_t* digest);
+uint8_t* internal_SHA512(const uint8_t* data, uint64_t len, uint8_t* digest);
 
 
 /*---- Utility functions/wrappers for message digests. */

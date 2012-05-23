@@ -21,7 +21,7 @@ int SHA1_tests(void) {
   test_inputs[2] = (uint8_t *) long_msg;
 
   for (i = 0; i < 3; i++) {
-    SHA1(test_inputs[i], strlen((char *)test_inputs[i]),
+    internal_SHA1(test_inputs[i], strlen((char *)test_inputs[i]),
          sha1_digest);
     if (!memcmp(sha1_digest, sha1_results[i], SHA1_DIGEST_SIZE)) {
       fprintf(stderr, "Test vector %d PASSED for SHA-1\n", i+1);
@@ -43,7 +43,7 @@ int SHA256_tests(void) {
   test_inputs[2] = (uint8_t *) long_msg;
 
   for (i = 0; i < 3; i++) {
-    SHA256(test_inputs[i], strlen((char *)test_inputs[i]),
+    internal_SHA256(test_inputs[i], strlen((char *)test_inputs[i]),
            sha256_digest);
     if (!memcmp(sha256_digest, sha256_results[i], SHA256_DIGEST_SIZE)) {
       fprintf(stderr, "Test vector %d PASSED for SHA-256\n", i+1);
@@ -65,7 +65,7 @@ int SHA512_tests(void) {
   test_inputs[2] = (uint8_t *) long_msg;
 
   for (i = 0; i < 3; i++) {
-    SHA512(test_inputs[i], strlen((char *)test_inputs[i]),
+    internal_SHA512(test_inputs[i], strlen((char *)test_inputs[i]),
            sha512_digest);
     if (!memcmp(sha512_digest, sha512_results[i], SHA512_DIGEST_SIZE)) {
       fprintf(stderr, "Test vector %d PASSED for SHA-512\n", i+1);

@@ -91,24 +91,24 @@ uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm) {
     0,
     0,
     0,  /* RSA 4096 */
-    SHA256,
+    internal_SHA256,
     0,
     0,  /* RSA 8192 */
     0,
     0,
 #else
-    SHA1,  /* RSA 1024 */
-    SHA256,
-    SHA512,
-    SHA1,  /* RSA 2048 */
-    SHA256,
-    SHA512,
-    SHA1,  /* RSA 4096 */
-    SHA256,
-    SHA512,
-    SHA1,  /* RSA 8192 */
-    SHA256,
-    SHA512,
+    internal_SHA1,  /* RSA 1024 */
+    internal_SHA256,
+    internal_SHA512,
+    internal_SHA1,  /* RSA 2048 */
+    internal_SHA256,
+    internal_SHA512,
+    internal_SHA1,  /* RSA 4096 */
+    internal_SHA256,
+    internal_SHA512,
+    internal_SHA1,  /* RSA 8192 */
+    internal_SHA256,
+    internal_SHA512,
 #endif
   };
   /* Call the appropriate hash function. */

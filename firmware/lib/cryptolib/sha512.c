@@ -336,7 +336,7 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
 }
 
 
-uint8_t* SHA512(const uint8_t* data, uint64_t len, uint8_t* digest) {
+uint8_t* internal_SHA512(const uint8_t* data, uint64_t len, uint8_t* digest) {
   const uint8_t* input_ptr;
   const uint8_t* result;
   uint64_t remaining_len;

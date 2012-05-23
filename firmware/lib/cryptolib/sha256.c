@@ -310,7 +310,7 @@ uint8_t* SHA256_final(SHA256_CTX* ctx) {
    return ctx->buf;
 }
 
-uint8_t* SHA256(const uint8_t* data, uint64_t len, uint8_t* digest) {
+uint8_t* internal_SHA256(const uint8_t* data, uint64_t len, uint8_t* digest) {
   const uint8_t* input_ptr;
   const uint8_t* result;
   uint64_t remaining_len;

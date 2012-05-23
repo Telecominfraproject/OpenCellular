@@ -21,9 +21,9 @@ typedef struct HashFxTable {
 } HashFxTable;
 
 HashFxTable hash_functions[NUM_HASH_ALGORITHMS] = {
-  {SHA1, "sha1"},
-  {SHA256, "sha256"},
-  {SHA512, "sha512"}
+  {internal_SHA1, "sha1"},
+  {internal_SHA256, "sha256"},
+  {internal_SHA512, "sha512"}
 };
 
 int main(int argc, char* argv[]) {
