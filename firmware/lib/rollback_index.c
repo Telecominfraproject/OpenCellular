@@ -364,8 +364,7 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
            rsf->struct_version, rsf->flags, rsf->fw_versions));
 
   /* The developer_mode value that's passed in is only set by a hardware
-   * dev-switch. We should OR it with any enabled virtual switch, since it
-   * can only be set by doing the keyboard-based dev-mode dance. */
+   * dev-switch. We should OR it with any enabled virtual switch. */
   if (rsf->flags & FLAG_VIRTUAL_DEV_MODE_ON)
     developer_mode = 1;
 
@@ -474,8 +473,8 @@ uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
 
   RETURN_ON_FAILURE(SetupTPM(recovery_mode, *dev_mode_ptr, &rsf));
   *version = rsf.fw_versions;
-  if (!hw_dev_sw)
-    *dev_mode_ptr = rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON ? 1 : 0;
+  if (!hw_dev_sw && (rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON))
+    *dev_mode_ptr = 1;                  /* OR with the TPM's value */
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
   return TPM_SUCCESS;
 }

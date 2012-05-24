@@ -113,19 +113,22 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     }
   } else {
 
-    /* We need to know about dev mode now */
+    /* We need to know about dev mode now. */
     if (iparams->flags & VB_INIT_FLAG_VIRTUAL_DEV_SWITCH)
       hw_dev_sw = 0;
-    else if (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON)
+    if (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON)
       is_dev = 1;
+    /* FIXME: How about a GBB flag to force dev-switch on? */
 
     VBPERFSTART("VB_TPMI");
     /* Initialize the TPM. *is_dev is both an input and output. The only time
-     * it should be 1 on input is when we have a hardware dev-switch and it's
-     * enabled. The only time it's promoted from 0 to 1 on return is when we
-     * have a virtual dev-switch and the TPM has a valid rollback space with
-     * the virtual switch already enabled. If the TPM space is initialized by
-     * this call, its virtual dev-switch will be disabled by default. */
+     * it should be 1 on input is when the hardware dev-switch is enabled
+     * (which includes the fake_dev switch from the EC). The only time
+     * it's promoted from 0 to 1 on return is when we have a virtual dev-switch
+     * and the TPM has a valid rollback space with the virtual switch already
+     * enabled (if the TPM space is initialized by this call, its virtual
+     * dev-switch will be disabled by default). The TPM just uses the input
+     * value to clear ownership if the dev state has changed. */
     tpm_status = RollbackFirmwareSetup(recovery, hw_dev_sw,
                                        &is_dev, &tpm_version);
     VBPERFEND("VB_TPMI");
@@ -159,8 +162,6 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     if (is_dev)
       shared->flags |= VBSD_BOOT_DEV_SWITCH_ON;
   }
-
-  /* FIXME: May need a GBB flag for initial value of virtual dev-switch */
 
   /* Allow BIOS to load arbitrary option ROMs? */
   if (gbb->flags & GBB_FLAG_LOAD_OPTION_ROMS)
