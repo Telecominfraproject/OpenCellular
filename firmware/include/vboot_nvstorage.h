@@ -56,6 +56,9 @@ typedef enum VbNvParam {
   VBNV_DEV_BOOT_USB,
   /* Only boot Google-signed images in developer mode.  0=no, 1=yes. */
   VBNV_DEV_BOOT_SIGNED_ONLY,
+  /* Set by userspace to request that RO firmware disable dev-mode on the next
+   * boot. This is likely only possible if the dev-switch is virtual. */
+  VBNV_DISABLE_DEV_REQUEST,
 } VbNvParam;
 
 

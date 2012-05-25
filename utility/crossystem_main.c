@@ -37,6 +37,7 @@ const Param sys_param_list[] = {
   {"arch", IS_STRING, "Platform architecture"},
   {"cros_debug", 0, "OS should allow debug features"},
   {"dbg_reset", CAN_WRITE, "Debug reset mode request (writable)"},
+  {"disable_dev_request", CAN_WRITE, "Disable virtual dev-mode on next boot"},
   {"dev_boot_usb", CAN_WRITE,
    "Enable developer mode boot from USB/SD (writable)"},
   {"dev_boot_signed_only", CAN_WRITE,

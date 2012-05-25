@@ -371,6 +371,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_RECOVERY_REQUEST);
   } else if (!strcasecmp(name,"dbg_reset")) {
     value = VbGetNvStorage(VBNV_DEBUG_RESET_MODE);
+  } else if (!strcasecmp(name,"disable_dev_request")) {
+    value = VbGetNvStorage(VBNV_DISABLE_DEV_REQUEST);
   } else if (!strcasecmp(name,"fwb_tries")) {
     value = VbGetNvStorage(VBNV_TRY_B_COUNT);
   } else if (!strcasecmp(name,"fwupdate_tries")) {
@@ -449,6 +451,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_RECOVERY_REQUEST, value);
   } else if (!strcasecmp(name,"dbg_reset")) {
     return VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value);
+  } else if (!strcasecmp(name,"disable_dev_request")) {
+    return VbSetNvStorage(VBNV_DISABLE_DEV_REQUEST, value);
   } else if (!strcasecmp(name,"fwb_tries")) {
     return VbSetNvStorage(VBNV_TRY_B_COUNT, value);
   } else if (!strcasecmp(name,"fwupdate_tries")) {

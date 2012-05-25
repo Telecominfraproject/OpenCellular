@@ -22,6 +22,7 @@
 
 #define BOOT_OFFSET                  1
 #define BOOT_DEBUG_RESET_MODE           0x80
+#define BOOT_DISABLE_DEV_REQUEST        0x40
 #define BOOT_TRY_B_COUNT_MASK           0x0F
 
 #define RECOVERY_OFFSET              2
@@ -128,6 +129,10 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
       *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_SIGNED_ONLY_MASK ? 1 : 0);
       return 0;
 
+    case VBNV_DISABLE_DEV_REQUEST:
+      *dest = (raw[BOOT_OFFSET] & BOOT_DISABLE_DEV_REQUEST ? 1 : 0);
+      return 0;
+
     default:
       return 1;
   }
@@ -218,6 +223,13 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
         raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_SIGNED_ONLY_MASK;
       else
         raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_SIGNED_ONLY_MASK;
+      break;
+
+    case VBNV_DISABLE_DEV_REQUEST:
+      if (value)
+        raw[BOOT_OFFSET] |= BOOT_DISABLE_DEV_REQUEST;
+      else
+        raw[BOOT_OFFSET] &= ~BOOT_DISABLE_DEV_REQUEST;
       break;
 
     default:
