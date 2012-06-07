@@ -154,6 +154,10 @@ uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags);
  */
 uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* pflags);
 
+/* Gets ownership flag. The TPM error code is returned.
+ */
+uint32_t TlclGetOwnership(uint8_t* owned);
+
 /* Requests [length] bytes from TPM RNG to be stored in [data]. Actual
  * number of bytes read is stored in [size]. The TPM error code is returned.
  */

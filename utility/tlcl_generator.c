@@ -362,6 +362,25 @@ Command* BuildGetPermissionsCommand(void) {
   return cmd;
 }
 
+Command* BuildGetOwnershipCommand(void) {
+  int size = (kTpmRequestHeaderLength +
+              sizeof(TPM_CAPABILITY_AREA) +   /* capArea */
+              sizeof(uint32_t) +              /* subCapSize */
+              sizeof(uint32_t));              /* subCap */
+
+  Command* cmd = newCommand(TPM_ORD_GetCapability, size);
+  cmd->name = "tpm_getownership_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength,
+                      sizeof(TPM_CAPABILITY_AREA), TPM_CAP_PROPERTY);
+  AddInitializedField(cmd, kTpmRequestHeaderLength +
+                      sizeof(TPM_CAPABILITY_AREA),
+                      sizeof(uint32_t), sizeof(uint32_t));
+  AddInitializedField(cmd, kTpmRequestHeaderLength +
+                      sizeof(TPM_CAPABILITY_AREA) + sizeof(uint32_t),
+                      sizeof(uint32_t), TPM_CAP_PROP_OWNER);
+  return cmd;
+}
+
 Command* BuildGetRandomCommand(void) {
   int size = kTpmRequestHeaderLength + sizeof(uint32_t);
   Command* cmd = newCommand(TPM_ORD_GetRandom, size);
@@ -488,6 +507,7 @@ Command* (*builders[])(void) = {
   BuildGetFlagsCommand,
   BuildGetSTClearFlagsCommand,
   BuildGetPermissionsCommand,
+  BuildGetOwnershipCommand,
   BuildGetRandomCommand,
   BuildExtendCommand,
 };

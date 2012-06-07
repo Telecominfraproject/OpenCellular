@@ -228,6 +228,20 @@ static uint32_t HandlerGetPermissions(void) {
   return result;
 }
 
+static uint32_t HandlerGetOwnership(void) {
+  uint8_t owned = 0;
+  uint32_t result;
+  if (nargs != 2) {
+    fprintf(stderr, "usage: tpmc getownership\n");
+    exit(OTHER_ERROR);
+  }
+  result = TlclGetOwnership(&owned);
+  if (result == 0) {
+    printf("Owned: %s\n", owned ? "yes" : "no");
+  }
+  return result;
+}
+
 static uint32_t HandlerGetRandom(void) {
   uint32_t length, size;
   uint8_t* bytes;
@@ -337,6 +351,8 @@ command_record command_table[] = {
     HandlerRead },
   { "pcrread", "pcr", "read from a PCR (pcrread <index>)",
     HandlerPCRRead },
+  { "getownership", "geto", "print state of TPM ownership",
+    HandlerGetOwnership },
   { "getpermissions", "getp", "print space permissions (getp <index>)",
     HandlerGetPermissions },
   { "getpermanentflags", "getpf", "print all permanent flags",

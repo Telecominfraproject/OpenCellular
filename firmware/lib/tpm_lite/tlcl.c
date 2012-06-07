@@ -401,6 +401,21 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
   return result;
 }
 
+uint32_t TlclGetOwnership(uint8_t* owned) {
+  uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
+  uint32_t size;
+  uint32_t result =
+    TlclSendReceive(tpm_getownership_cmd.buffer, response, sizeof(response));
+  if (result != TPM_SUCCESS)
+    return result;
+  FromTpmUint32(response + kTpmResponseHeaderLength, &size);
+  VbAssert(size == sizeof(*owned));
+  Memcpy(owned,
+         response + kTpmResponseHeaderLength + sizeof(size),
+         sizeof(*owned));
+  return result;
+}
+
 uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size) {
   struct s_tpm_get_random_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
