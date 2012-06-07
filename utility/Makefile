@@ -12,6 +12,7 @@ CFLAGS += $(INCLUDES)
 CFLAGS += -MMD -MF $@.d
 LIBS = $(HOSTLIB)
 HOSTCC = cc
+CRYPTO_LIBS := $(shell $(PKG_CONFIG) --libs libcrypto)
 
 BUILD_ROOT = ${BUILD}/utility
 
@@ -54,11 +55,11 @@ ${BUILD_ROOT}/crossystem: crossystem_main.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
-	$(CC) $(CFLAGS) $< -o $@ -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/dump_kernel_config: dump_kernel_config_main.c \
                                   $(DUMPKERNELCONFIGLIB)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(DUMPKERNELCONFIGLIB) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(DUMPKERNELCONFIGLIB) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/dump_kernel_config.o: dump_kernel_config.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -107,40 +108,40 @@ ${BUILD_ROOT}/bmpblk_font: ${BUILD_ROOT}/bmpblk_font.o \
 
 # TODO: rewrite load_firmware_test to support new wrapper API
 #${BUILD_ROOT}/load_firmware_test: load_firmware_test.c $(LIBS)
-#	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+#	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/load_kernel_test: load_kernel_test.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/pad_digest_utility: pad_digest_utility.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/signature_digest_utility: signature_digest_utility.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/tlcl_generator: tlcl_generator.c
 	$(HOSTCC) $(CFLAGS) -fpack-struct $< -o $@
 
 ${BUILD_ROOT}/vbutil_ec: vbutil_ec.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/vbutil_firmware: vbutil_firmware.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/vbutil_kernel: vbutil_kernel.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/vbutil_key: vbutil_key.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/vbutil_keyblock: vbutil_keyblock.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/verify_data: verify_data.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/sign_image: sign_image.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/tpm_init_temp_fix: tpm_init_temp_fix.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS)
@@ -165,7 +166,7 @@ ${BUILD_ROOT}/tpmc: tpmc.c $(LIBS)
 
 ${BUILD_ROOT}/mount-helpers.o: mount-helpers.c mount-helpers.h mount-encrypted.h
 	$(CC) -Wall -Werror -O2 -D_FORTIFY_SOURCE=2 -fstack-protector \
-		$(shell pkg-config --cflags glib-2.0 openssl) \
+		$(shell $(PKG_CONFIG) --cflags glib-2.0 openssl) \
 		-c $< -o $@
 
 # The embedded libcrypto includes conflict with the shipped openssl,
@@ -173,14 +174,14 @@ ${BUILD_ROOT}/mount-helpers.o: mount-helpers.c mount-helpers.h mount-encrypted.h
 ${BUILD_ROOT}/mount-encrypted: mount-encrypted.c mount-encrypted.h \
 				${BUILD_ROOT}/mount-helpers.o $(LIBS)
 	$(CC) -Wall -Werror -O2 -D_FORTIFY_SOURCE=2 -fstack-protector \
-		$(shell pkg-config --cflags glib-2.0 openssl) \
+		$(shell $(PKG_CONFIG) --cflags glib-2.0 openssl) \
 		-I$(FWDIR)/include \
 		-I$(HOSTDIR)/include \
-		$< -o $@ $(shell pkg-config --libs glib-2.0 openssl) \
+		$< -o $@ $(shell $(PKG_CONFIG) --libs glib-2.0 openssl) \
 		${BUILD_ROOT}/mount-helpers.o $(LIBS)
 
 ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
-	$(CC) $(CFLAGS) $< -o $@ $(LIBS) -lcrypto
+	$(CC) $(CFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
 
 ${BUILD_ROOT}/dump_fmap: dump_fmap.c $(LIBS)
 	$(CC) $(CFLAGS) $< -o $@ $(LIBS)

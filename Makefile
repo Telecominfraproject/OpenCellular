@@ -52,6 +52,11 @@ endif
 CC ?= gcc
 CXX ?= g++
 
+PKG_CONFIG ?= pkg-config
+ifneq ($(filter-out -static,$(LDFLAGS)),$(LDFLAGS))
+PKG_CONFIG += --static
+endif
+
 # Fix compiling directly on host (outside of emake)
 ifeq ($(ARCH),)
 export ARCH=amd64
@@ -69,7 +74,7 @@ ifeq (${DISABLE_NDEBUG},)
 CFLAGS += -DNDEBUG
 endif
 
-export CC CXX CFLAGS
+export CC CXX PKG_CONFIG CFLAGS
 
 export TOP = $(shell pwd)
 export FWDIR=$(TOP)/firmware
@@ -102,7 +107,7 @@ all:
 	done; \
 	[ -z "$(FIRMWARE_ARCH)" ] && $(MAKE) -C utility update_tlcl_structures; \
 	for i in $(SUBDIRS); do \
-		make -C $$i; \
+		$(MAKE) -C $$i; \
 	done
 
 libcgpt_cc:
