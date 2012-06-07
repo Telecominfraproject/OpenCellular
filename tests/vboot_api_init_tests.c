@@ -26,7 +26,7 @@ static uint64_t mock_timer;
 static int rollback_s3_retval;
 static int nv_write_called;
 static GoogleBinaryBlockHeader gbb;
-static int mock_dev_mode;
+static int mock_virt_dev_sw;
 static uint32_t mock_tpm_version;
 static uint32_t mock_rfs_retval;
 
@@ -55,7 +55,7 @@ static void ResetMocks(void) {
   rollback_s3_retval = TPM_SUCCESS;
   nv_write_called = 0;
 
-  mock_dev_mode = 0;
+  mock_virt_dev_sw = 0;
   mock_tpm_version = 0x10001;
   mock_rfs_retval = 0;
 }
@@ -87,10 +87,11 @@ uint32_t RollbackS3Resume(void) {
   return rollback_s3_retval;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
-                               int* dev_mode_ptr, uint32_t* version) {
-  if (!hw_dev_sw)
-    *dev_mode_ptr = mock_dev_mode;
+uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+                               int disable_dev_request,
+                               /* two outputs on success */
+                               int *is_virt_dev, uint32_t *version) {
+  *is_virt_dev = mock_virt_dev_sw;
   *version = mock_tpm_version;
   return mock_rfs_retval;
 }
@@ -316,17 +317,38 @@ static void VbInitTestTPM(void) {
 
   /* Virtual developer switch, but not enabled. */
   ResetMocks();
-  iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON | VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
+  iparams.flags = VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
   TestVbInit(0, 0, "TPM Dev mode off");
   TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
   TEST_EQ(iparams.out_flags, 0, "  out flags");
-  TEST_EQ(shared->flags, 0, "  shared flags");
+  TEST_EQ(shared->flags, VBSD_HONOR_VIRT_DEV_SWITCH, "  shared flags");
 
   /* Virtual developer switch, enabled. */
   ResetMocks();
   iparams.flags = VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
-  mock_dev_mode = 1;
+  mock_virt_dev_sw = 1;
   TestVbInit(0, 0, "TPM Dev mode on");
+  TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+  TEST_EQ(iparams.out_flags,
+          VB_INIT_OUT_CLEAR_RAM |
+          VB_INIT_OUT_ENABLE_DISPLAY |
+          VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
+  TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON | VBSD_HONOR_VIRT_DEV_SWITCH,
+          "  shared flags");
+
+  /* Ignore virtual developer switch, even though enabled. */
+  ResetMocks();
+  mock_virt_dev_sw = 1;
+  TestVbInit(0, 0, "TPM Dev mode on but ignored");
+  TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+  TEST_EQ(iparams.out_flags, 0, "  out flags");
+  TEST_EQ(shared->flags, 0, "  shared flags");
+
+  /* HW dev switch on, no virtual developer switch */
+  ResetMocks();
+  iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON;
+  TestVbInit(0, 0, "HW Dev mode on");
   TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
   TEST_EQ(iparams.out_flags,
           VB_INIT_OUT_CLEAR_RAM |

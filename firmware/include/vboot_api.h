@@ -100,7 +100,7 @@ enum VbErrorPredefined_t {
   /* VbExBeep() can't make sound in the background */
   VBERROR_NO_BACKGROUND_SOUND           = 0x10019,
   /* Developer has requested a BIOS shell */
-  VBERROR_BIOS_SHELL_REQUESTED          = 0x10020
+  VBERROR_BIOS_SHELL_REQUESTED          = 0x10020,
 };
 
 
@@ -511,6 +511,8 @@ enum VbScreenType_t {
   VB_SCREEN_RECOVERY_REMOVE   = 0x201, /* Recovery - remove inserted devices */
   VB_SCREEN_RECOVERY_INSERT   = 0x202, /* Recovery - insert recovery image */
   VB_SCREEN_RECOVERY_NO_GOOD  = 0x203, /* Recovery - inserted image invalid */
+  VB_SCREEN_RECOVERY_TO_DEV   = 0x204, /* Recovery - confirm dev mode */
+  VB_SCREEN_RECOVERY_TO_NORM  = 0x205, /* Recovery - confirm normal mode */
 };
 
 /* Initialize and clear the display.  Set width and height to the screen

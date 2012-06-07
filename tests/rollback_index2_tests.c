@@ -558,7 +558,7 @@ static void SetupTpmTest(void) {
 
   /* Complete setup */
   ResetMocks(0, 0);
-  TEST_EQ(SetupTPM(0, 0, &rsf), 0, "SetupTPM()");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), 0, "SetupTPM()");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -570,7 +570,7 @@ static void SetupTpmTest(void) {
   /* If TPM is disabled or deactivated, must enable it */
   ResetMocks(0, 0);
   mock_pflags.disable = 1;
-  TEST_EQ(SetupTPM(0, 0, &rsf), TPM_E_MUST_REBOOT, "SetupTPM() disabled");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), TPM_E_MUST_REBOOT, "SetupTPM() disabled");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -582,7 +582,7 @@ static void SetupTpmTest(void) {
 
   ResetMocks(0, 0);
   mock_pflags.deactivated = 1;
-  TEST_EQ(SetupTPM(0, 0, &rsf), TPM_E_MUST_REBOOT, "SetupTPM() deactivated");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), TPM_E_MUST_REBOOT, "SetupTPM() deactivated");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -594,7 +594,7 @@ static void SetupTpmTest(void) {
 
   /* If physical presence command isn't enabled, should try to enable it */
   ResetMocks(3, TPM_E_IOERROR);
-  TEST_EQ(SetupTPM(0, 0, &rsf), 0, "SetupTPM() pp cmd");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), 0, "SetupTPM() pp cmd");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -609,7 +609,7 @@ static void SetupTpmTest(void) {
   ResetMocks(5, TPM_E_BADINDEX);
   mock_pflags.physicalPresenceLifetimeLock = 1;
   mock_pflags.nvLocked = 1;
-  TEST_EQ(SetupTPM(0, 0, &rsf), 0, "SetupTPM() no firmware space");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), 0, "SetupTPM() no firmware space");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -632,7 +632,7 @@ static void SetupTpmTest(void) {
 
   /* Other firmware space error is passed through */
   ResetMocks(5, TPM_E_IOERROR);
-  TEST_EQ(SetupTPM(0, 0, &rsf), TPM_E_CORRUPTED_STATE,
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), TPM_E_CORRUPTED_STATE,
           "SetupTPM() bad firmware space");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
@@ -644,7 +644,7 @@ static void SetupTpmTest(void) {
 
   /* If developer flag has toggled, clear ownership and write new flag */
   ResetMocks(0, 0);
-  TEST_EQ(SetupTPM(0, 1, &rsf), 0, "SetupTPM() to dev");
+  TEST_EQ(SetupTPM(0, 1, 0, &rsf), 0, "SetupTPM() to dev");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -657,11 +657,11 @@ static void SetupTpmTest(void) {
               "TlclWrite(0x1007, 10)\n"
               "TlclRead(0x1007, 10)\n",
               "tlcl calls");
-  TEST_EQ(mock_rsf.flags, FLAG_LAST_BOOT_DEVELOPER, "fw space flags to dev");
+  TEST_EQ(mock_rsf.flags, FLAG_LAST_BOOT_DEVELOPER, "fw space flags to dev 1");
 
   ResetMocks(0, 0);
   mock_rsf.flags = FLAG_LAST_BOOT_DEVELOPER;
-  TEST_EQ(SetupTPM(0, 0, &rsf), 0, "SetupTPM() from dev");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), 0, "SetupTPM() from dev");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
               "TlclStartup()\n"
@@ -674,7 +674,7 @@ static void SetupTpmTest(void) {
               "TlclWrite(0x1007, 10)\n"
               "TlclRead(0x1007, 10)\n",
               "tlcl calls");
-  TEST_EQ(mock_rsf.flags, 0, "fw space flags from dev");
+  TEST_EQ(mock_rsf.flags, 0, "fw space flags from dev 1");
 
   /* Note: SetupTPM() recovery_mode parameter sets a global flag in
    * rollback_index.c; this is tested along with RollbackKernelLock() below. */
@@ -691,7 +691,7 @@ static void RollbackFirmwareTest(void) {
   dev_mode = 0;
   version = 123;
   mock_rsf.fw_versions = 0x12345678;
-  TEST_EQ(RollbackFirmwareSetup(0, 0, &dev_mode, &version), 0,
+  TEST_EQ(RollbackFirmwareSetup(0, 0, dev_mode, &dev_mode, &version), 0,
           "RollbackFirmwareSetup()");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
@@ -707,7 +707,8 @@ static void RollbackFirmwareTest(void) {
   dev_mode = 0;
   version = 123;
   mock_rsf.fw_versions = 0x12345678;
-  TEST_EQ(RollbackFirmwareSetup(0, 0, &dev_mode, &version), TPM_E_IOERROR,
+  TEST_EQ(RollbackFirmwareSetup(0, 0, dev_mode, &dev_mode, &version),
+          TPM_E_IOERROR,
           "RollbackFirmwareSetup() error");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n",
@@ -717,7 +718,7 @@ static void RollbackFirmwareTest(void) {
   /* Developer mode flag gets passed properly */
   ResetMocks(0, 0);
   dev_mode = 1;
-  TEST_EQ(RollbackFirmwareSetup(0, 0, &dev_mode, &version), 0,
+  TEST_EQ(RollbackFirmwareSetup(0, dev_mode, 0, &dev_mode, &version), 0,
           "RollbackFirmwareSetup() to dev");
   TEST_STR_EQ(mock_calls,
               "TlclLibInit()\n"
@@ -731,7 +732,7 @@ static void RollbackFirmwareTest(void) {
               "TlclWrite(0x1007, 10)\n"
               "TlclRead(0x1007, 10)\n",
               "tlcl calls");
-  TEST_EQ(mock_rsf.flags, FLAG_LAST_BOOT_DEVELOPER, "fw space flags to dev");
+  TEST_EQ(mock_rsf.flags, FLAG_LAST_BOOT_DEVELOPER, "fw space flags to dev 2");
 
   /* Test write */
   ResetMocks(0, 0);
@@ -769,7 +770,7 @@ static void RollbackKernelTest(void) {
   /* RollbackKernel*() functions use a global flag inside
    * rollback_index.c based on recovery mode, which is set by
    * SetupTPM().  Clear the flag for the first set of tests. */
-  TEST_EQ(SetupTPM(0, 0, &rsf), 0, "SetupTPM()");
+  TEST_EQ(SetupTPM(0, 0, 0, &rsf), 0, "SetupTPM()");
 
   /* Normal read */
   ResetMocks(0, 0);
@@ -830,7 +831,7 @@ static void RollbackKernelTest(void) {
   TEST_EQ(RollbackKernelLock(), TPM_E_IOERROR, "RollbackKernelLock() error");
 
   /* Test lock with recovery on; shouldn't lock PP */
-  SetupTPM(1, 0, &rsf);
+  SetupTPM(1, 0, 0, &rsf);
   ResetMocks(0, 0);
   TEST_EQ(RollbackKernelLock(), 0, "RollbackKernelLock() in recovery");
   TEST_STR_EQ(mock_calls, "", "no tlcl calls");

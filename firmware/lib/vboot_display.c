@@ -219,6 +219,12 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   case VB_SCREEN_RECOVERY_INSERT:
     screen_index = 3;
     break;
+  case VB_SCREEN_RECOVERY_TO_DEV:
+    screen_index = 4;
+    break;
+  case VB_SCREEN_RECOVERY_TO_NORM:
+    screen_index = 5;
+    break;
   case VB_SCREEN_BLANK:
   case VB_SCREEN_DEVELOPER_EGG:
   default:
@@ -328,6 +334,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
 
 VbDisplayScreenFromGBB_exit:
 
+  VBDEBUG(("leaving VbDisplayScreenFromGBB() with %d\n",retval));
   /* Free the bitmap data copy */
   VbExFree(bmpfv);
   return retval;
@@ -590,7 +597,6 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
   if ('\t' == key) {
     /* Tab = display debug info */
     return VbDisplayDebugInfo(cparams, vncptr);
-
   } else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key ||
              VB_KEY_DOWN == key || VB_KEY_UP == key) {
     /* Arrow keys = change localization */

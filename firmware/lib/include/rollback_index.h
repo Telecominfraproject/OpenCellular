@@ -67,11 +67,11 @@ uint32_t RollbackS3Resume(void);
 /* These functions are callable from VbSelectFirmware().  They cannot use
  * global variables. */
 
-/* Setup must be called. Pass recovery_mode=nonzero if in recovery mode. Pass
- * *developer_mode=nonzero if in developer mode. Set hw_dev_sw if there's a
- * hardware developer switch. Duh. */
-uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
-                               int* dev_mode_ptr, uint32_t* version);
+/* This must be called. */
+uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+                               int disable_dev_request,
+                               /* two outputs on success */
+                               int *is_virt_dev, uint32_t *tpm_version);
 
 /* Write may be called if the versions change */
 uint32_t RollbackFirmwareWrite(uint32_t version);
@@ -118,6 +118,9 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
 /* SetupTPM starts the TPM and establishes the root of trust for the
  * anti-rollback mechanism. */
 uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  RollbackSpaceFirmware* rsf);
+                  int disable_dev_request, RollbackSpaceFirmware* rsf);
+
+/* Utility function to turn the virtual dev-mode flag on or off. 0=off, 1=on */
+uint32_t SetVirtualDevMode(int val);
 
 #endif  /* VBOOT_REFERENCE_ROLLBACK_INDEX_H_ */

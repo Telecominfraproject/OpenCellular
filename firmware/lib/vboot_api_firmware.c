@@ -33,8 +33,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   if (is_rec) {
     /* Recovery is requested; go straight to recovery without checking the
      * RW firmware. */
-    VBDEBUG(("VbSelectFirmware() detected recovery request, reason=%d.\n",
-             (int)shared->recovery_reason));
+    VBDEBUG(("VbSelectFirmware() detected recovery request\n"));
 
     /* Go directly to recovery mode */
     fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;

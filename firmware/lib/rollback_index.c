@@ -131,6 +131,28 @@ uint32_t WriteSpaceFirmware(RollbackSpaceFirmware* rsf) {
   return TPM_E_CORRUPTED_STATE;
 }
 
+uint32_t SetVirtualDevMode(int val) {
+  RollbackSpaceFirmware rsf;
+
+  VBDEBUG(("TPM: Entering %s()\n", __func__));
+  if (TPM_SUCCESS != ReadSpaceFirmware(&rsf))
+    return VBERROR_TPM_FIRMWARE_SETUP;
+
+  VBDEBUG(("TPM: flags were 0x%02x\n", rsf.flags));
+  if (val)
+    rsf.flags |= FLAG_VIRTUAL_DEV_MODE_ON;
+  else
+    rsf.flags &= ~FLAG_VIRTUAL_DEV_MODE_ON;
+  /* NOTE: This doesn't update the FLAG_LAST_BOOT_DEVELOPER bit */
+  VBDEBUG(("TPM: flags are now 0x%02x\n", rsf.flags));
+
+  if (TPM_SUCCESS != WriteSpaceFirmware(&rsf))
+    return VBERROR_TPM_SET_BOOT_MODE_STATE;
+
+  VBDEBUG(("TPM: Leaving %s()\n", __func__));
+  return VBERROR_SUCCESS;
+}
+
 uint32_t ReadSpaceKernel(RollbackSpaceKernel* rsk) {
   uint32_t r;
   int attempts = 3;
@@ -276,10 +298,9 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
  * the durability of the NVRAM.
  */
 uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  RollbackSpaceFirmware* rsf) {
+                  int disable_dev_request, RollbackSpaceFirmware* rsf) {
 
-  int rsf_dirty = 0;
-  uint8_t new_flags = 0;
+  uint8_t in_flags;
   uint8_t disable;
   uint8_t deactivated;
   uint32_t result;
@@ -362,29 +383,36 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   }
   VBDEBUG(("TPM: Firmware space sv%d f%x v%x\n",
            rsf->struct_version, rsf->flags, rsf->fw_versions));
+  in_flags = rsf->flags;
+
+  /* If we've been asked to clear the virtual dev-mode flag, do so now */
+  if (disable_dev_request) {
+    rsf->flags &= ~FLAG_VIRTUAL_DEV_MODE_ON;
+    VBDEBUG(("TPM: Clearing virt dev-switch: f%x\n", rsf->flags));
+  }
 
   /* The developer_mode value that's passed in is only set by a hardware
-   * dev-switch. We should OR it with any enabled virtual switch. */
+   * dev-switch. We should OR it with the virtual switch, whether or not the
+   * virtual switch is used. If it's not used, it shouldn't change, so it
+   * doesn't matter. */
   if (rsf->flags & FLAG_VIRTUAL_DEV_MODE_ON)
     developer_mode = 1;
 
   /* Clears ownership if developer flag has toggled */
   if ((developer_mode ? FLAG_LAST_BOOT_DEVELOPER : 0) !=
-      (rsf->flags & FLAG_LAST_BOOT_DEVELOPER)) {
+      (in_flags & FLAG_LAST_BOOT_DEVELOPER)) {
     VBDEBUG(("TPM: Developer flag changed; clearing owner.\n"));
     RETURN_ON_FAILURE(TPMClearAndReenable());
   }
 
-  /* Updates flags */
   if (developer_mode)
-    new_flags |= FLAG_LAST_BOOT_DEVELOPER;
-  if (rsf->flags != new_flags) {
-    rsf->flags = new_flags;
-    rsf_dirty = 1;
-  }
+    rsf->flags |= FLAG_LAST_BOOT_DEVELOPER;
+  else
+    rsf->flags &= ~FLAG_LAST_BOOT_DEVELOPER;
+
 
   /* If firmware space is dirty, this flushes it back to the TPM */
-  if (rsf_dirty) {
+  if (rsf->flags != in_flags) {
     VBDEBUG(("TPM: Updating firmware space.\n"));
     RETURN_ON_FAILURE(WriteSpaceFirmware(rsf));
   }
@@ -411,8 +439,9 @@ uint32_t RollbackS3Resume(void) {
   return TPM_SUCCESS;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
-                               int* developer_mode, uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+                               int disable_dev_request,
+                               int *is_virt_dev, uint32_t *version) {
 #ifndef CHROMEOS_ENVIRONMENT
   /* Initialize the TPM, but ignores return codes.  In ChromeOS
    * environment, don't even talk to the TPM. */
@@ -464,17 +493,18 @@ uint32_t RollbackS3Resume(void) {
   return result;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int hw_dev_sw,
-                               int* dev_mode_ptr, uint32_t* version) {
+uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+                               int disable_dev_request,
+                               int *is_virt_dev, uint32_t *version) {
   RollbackSpaceFirmware rsf;
 
   /* Set version to 0 in case we fail */
   *version = 0;
 
-  RETURN_ON_FAILURE(SetupTPM(recovery_mode, *dev_mode_ptr, &rsf));
+  RETURN_ON_FAILURE(SetupTPM(recovery_mode, is_hw_dev,
+                             disable_dev_request, &rsf));
   *version = rsf.fw_versions;
-  if (!hw_dev_sw && (rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON))
-    *dev_mode_ptr = 1;                  /* OR with the TPM's value */
+  *is_virt_dev = (rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON) ? 1 : 0;
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
   return TPM_SUCCESS;
 }

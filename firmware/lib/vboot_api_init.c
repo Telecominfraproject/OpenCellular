@@ -25,7 +25,10 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   uint32_t require_official_os = 0;
   uint32_t tpm_version = 0;
   uint32_t tpm_status = 0;
-  int hw_dev_sw = 1;
+  int has_virt_dev_switch = 0;
+  int is_hw_dev = 0;
+  int is_virt_dev = 0;
+  uint32_t disable_dev_request = 0;
   int is_dev = 0;
 
   VBDEBUG(("VbInit() input flags 0x%x\n", iparams->flags));
@@ -45,11 +48,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
 
   shared->timer_vb_init_enter = VbExGetTimer();
 
-  /* Copy boot switch flags */
+  /* Copy some boot switch flags */
   shared->flags = 0;
-  if (!(iparams->flags & VB_INIT_FLAG_VIRTUAL_DEV_SWITCH) &&
-      (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON))
-    is_dev = 1;
   if (iparams->flags & VB_INIT_FLAG_REC_BUTTON_PRESSED)
     shared->flags |= VBSD_BOOT_REC_SWITCH_ON;
   if (iparams->flags & VB_INIT_FLAG_WP_ENABLED)
@@ -80,6 +80,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
    * it so we don't get stuck in recovery mode. */
   if (!is_s3_resume) {
     VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &recovery);
+    VBDEBUG(("VbInit sees recovery request = %d\n", recovery));
     if (VBNV_RECOVERY_NOT_REQUESTED != recovery)
       VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_NOT_REQUESTED);
   }
@@ -101,6 +102,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   /* Copy current recovery reason to shared data. If we fail later on, it
    * won't matter, since we'll just reboot. */
   shared->recovery_reason = (uint8_t)recovery;
+  VBDEBUG(("VbInit now sets shared->recovery_reason = %d\n", recovery));
 
   /* If this is a S3 resume, resume the TPM. */
   /* FIXME: I think U-Boot won't ever ask us to do this. Can we remove it? */
@@ -112,25 +114,29 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
       retval = VBERROR_TPM_S3_RESUME;
     }
   } else {
-
-    /* We need to know about dev mode now. */
-    if (iparams->flags & VB_INIT_FLAG_VIRTUAL_DEV_SWITCH)
-      hw_dev_sw = 0;
+    /* Should we pay attention to the TPM's virtual dev-switch? */
+    if (iparams->flags & VB_INIT_FLAG_VIRTUAL_DEV_SWITCH) {
+      shared->flags |= VBSD_HONOR_VIRT_DEV_SWITCH;
+      has_virt_dev_switch = 1;
+    }
+    /* We always believe the HW dev-switch, since there's one attached to servo
+     * which may be active even on systems without a physical switch. The EC
+     * may also implement a fake dev-switch for testing. */
     if (iparams->flags & VB_INIT_FLAG_DEV_SWITCH_ON)
-      is_dev = 1;
+      is_hw_dev = 1;
+    /* We may be asked to clear the virtual dev-switch at boot. */
+    VbNvGet(&vnc, VBNV_DISABLE_DEV_REQUEST, &disable_dev_request);
+
     /* FIXME: How about a GBB flag to force dev-switch on? */
 
     VBPERFSTART("VB_TPMI");
-    /* Initialize the TPM. *is_dev is both an input and output. The only time
-     * it should be 1 on input is when the hardware dev-switch is enabled
-     * (which includes the fake_dev switch from the EC). The only time
-     * it's promoted from 0 to 1 on return is when we have a virtual dev-switch
-     * and the TPM has a valid rollback space with the virtual switch already
-     * enabled (if the TPM space is initialized by this call, its virtual
-     * dev-switch will be disabled by default). The TPM just uses the input
-     * value to clear ownership if the dev state has changed. */
-    tpm_status = RollbackFirmwareSetup(recovery, hw_dev_sw,
-                                       &is_dev, &tpm_version);
+    /* Initialize the TPM. If the developer mode state has changed since the
+     * last boot, we need to clear TPM ownership. If the TPM space is
+     * initialized by this call, the virtual dev-switch will be disabled by
+     * default) */
+    tpm_status = RollbackFirmwareSetup(recovery, is_hw_dev, disable_dev_request,
+                                       /* two outputs on success */
+                                       &is_virt_dev, &tpm_version);
     VBPERFEND("VB_TPMI");
     if (0 != tpm_status) {
       VBDEBUG(("Unable to setup TPM and read firmware version.\n"));
@@ -157,10 +163,16 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
         goto VbInit_exit;
       }
     }
+
+    /* TPM setup succeeded. What did we learn? */
     shared->fw_version_tpm_start = tpm_version;
     shared->fw_version_tpm = tpm_version;
-    if (is_dev)
+    if (is_hw_dev || (has_virt_dev_switch && is_virt_dev)) {
+      is_dev = 1;
       shared->flags |= VBSD_BOOT_DEV_SWITCH_ON;
+    }
+    if (disable_dev_request && !is_virt_dev)
+      VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 0);
   }
 
   /* Allow BIOS to load arbitrary option ROMs? */
@@ -207,5 +219,6 @@ VbInit_exit:
 
   shared->timer_vb_init_exit = VbExGetTimer();
 
+  VBDEBUG(("VbInit() returning 0x%x\n", retval));
   return retval;
 }
