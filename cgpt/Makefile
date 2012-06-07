@@ -2,11 +2,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-LDFLAGS += -luuid -static
 BUILD_ROOT := ${BUILD}/cgpt
 
 INCLUDES = -I$(FWDIR)/lib/cgptlib/include -I$(FWDIR)/include
 LIBS = ${HOSTLIB}
+LDLIBS += -luuid
+LDFLAGS += -static
 
 DESTDIR ?= /usr/bin
 
@@ -61,7 +62,7 @@ $(LIB_CGPT_CC): $(LIB_CGPT_CC_OBJS)
 	ar qc $@ $^
 
 $(PROGNAME): $(ALL_OBJS) $(LIBS)
-	$(CC) -o $(PROGNAME) $(CFLAGS) $^ $(LDFLAGS)
+	$(CC) -o $(PROGNAME) $(CFLAGS) $(LDFLAGS) $^ $(LDLIBS)
 
 install: $(PROGNAME)
 	mkdir -p $(DESTDIR)
