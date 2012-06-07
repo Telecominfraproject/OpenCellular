@@ -97,7 +97,7 @@ static gchar *dmcrypt_name = NULL;
 static gchar *dmcrypt_dev = NULL;
 static int has_tpm = 0;
 
-void tpm_init(void)
+static void tpm_init(void)
 {
 	int tpm;
 
@@ -117,18 +117,21 @@ void tpm_init(void)
 	DEBUG("TPM %s", has_tpm ? "Ready" : "not available");
 }
 
-uint32_t tpm_flags(TPM_PERMANENT_FLAGS *pflags)
+/* Returns TPM result status code, and on TPM_SUCCESS, stores ownership
+ * flag to "owned".
+ */
+static uint32_t tpm_owned(uint8_t *owned)
 {
 	uint32_t result;
 
-	DEBUG("Reading TPM Permanent Flags");
-	result = TlclGetPermanentFlags(pflags);
-	DEBUG("TPM Permanent Flags returned: %s", result ? "FAIL" : "ok");
+	DEBUG("Reading TPM Ownership Flag");
+	result = TlclGetOwnership(owned);
+	DEBUG("TPM Ownership Flag returned: %s", result ? "FAIL" : "ok");
 
 	return result;
 }
 
-void tpm_close(void)
+static void tpm_close(void)
 {
 	TlclLibClose();
 }
@@ -216,10 +219,10 @@ static int is_cr48(void)
 	return state;
 }
 
-static int
+static uint32_t
 _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
 {
-	int rc;
+	uint32_t result;
 
 	if (size > len) {
 		ERROR("NVRAM size (0x%x > 0x%zx) is too big", size, len);
@@ -227,10 +230,11 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
 	}
 
 	DEBUG("Reading NVRAM area 0x%x (size %u)", index, size);
-	rc = TlclRead(index, buffer, size);
-	DEBUG("NVRAM read returned: %s", rc ? "FAIL" : "ok");
+	result = TlclRead(index, buffer, size);
+	DEBUG("NVRAM read returned: %s", result == TPM_SUCCESS ? "ok"
+							       : "FAIL");
 
-	return rc;
+	return result;
 }
 
 /*
@@ -243,7 +247,7 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
  */
 static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 {
-	TPM_PERMANENT_FLAGS pflags;
+	uint8_t owned = 0;
 	uint8_t value[kLockboxSizeV2], bytes_anded, bytes_ored;
 	uint32_t size, result, i;
 	uint8_t *rand_bytes;
@@ -260,10 +264,10 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 	*old_lockbox = 0;
 	size = kLockboxSizeV2;
 	result = _read_nvram(value, sizeof(value), kLockboxIndex, size);
-	if (result) {
+	if (result != TPM_SUCCESS) {
 		size = kLockboxSizeV1;
 		result = _read_nvram(value, sizeof(value), kLockboxIndex, size);
-		if (result) {
+		if (result != TPM_SUCCESS) {
 			/* No NVRAM area at all. */
 			INFO("No NVRAM area defined.");
 			return 0;
@@ -282,12 +286,12 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 	 * NVRAM area is bound to owner so that it will be wiped out
 	 * across device mode changes.
 	 */
-	result = tpm_flags(&pflags);
-	if (result) {
+	result = tpm_owned(&owned);
+	if (result != TPM_SUCCESS) {
 		INFO("Could not read TPM Permanent Flags.");
 		return 0;
 	}
-	if (!pflags.ownership) {
+	if (!owned) {
 		INFO("TPM not Owned, ignoring NVRAM area.");
 		return 0;
 	}
@@ -385,7 +389,7 @@ static int get_random_bytes_tpm(unsigned char *buffer, int wanted)
 
 		result = TlclGetRandom(buffer + (wanted - remaining),
 				       remaining, &size);
-		if (result || size > remaining) {
+		if (result != TPM_SUCCESS || size > remaining) {
 			ERROR("TPM GetRandom failed.");
 			return 0;
 		}
@@ -565,6 +569,14 @@ static int finalize_from_cmdline(char *key)
 	char *encryption_key;
 	int migrate;
 
+	/* Early sanity-check to see if the encrypted device exists,
+	 * instead of failing at the end of this function.
+	 */
+	if (access(dmcrypt_dev, R_OK)) {
+		ERROR("'%s' does not exist, giving up.", dmcrypt_dev);
+		return EXIT_FAILURE;
+	}
+
 	if (key) {
 		if (strlen(key) != 2 * DIGEST_LENGTH) {
 			ERROR("Invalid key length.");
@@ -593,7 +605,8 @@ static int finalize_from_cmdline(char *key)
 	return EXIT_SUCCESS;
 }
 
-void spawn_resizer(const char *device, size_t blocks, size_t blocks_max)
+static void spawn_resizer(const char *device, size_t blocks,
+			  size_t blocks_max)
 {
 	pid_t pid;
 
@@ -892,7 +905,6 @@ static int shutdown(void)
 	return EXIT_SUCCESS;
 }
 
-
 static void check_mount_states(void)
 {
 	struct bind_mount *bind;
@@ -933,17 +945,17 @@ static void check_mount_states(void)
 	INFO("VFS mount state sanity check ok.");
 }
 
-int report_info(void)
+static int report_info(void)
 {
 	uint8_t system_key[DIGEST_LENGTH];
-	TPM_PERMANENT_FLAGS pflags;
+	uint8_t owned = 0;
 	struct bind_mount *mnt;
 	int old_lockbox = -1;
 
 	printf("TPM: %s\n", has_tpm ? "yes" : "no");
 	if (has_tpm) {
-		printf("TPM Owned: %s\n", tpm_flags(&pflags) ?
-			"fail" : (pflags.ownership ? "yes" : "no"));
+		printf("TPM Owned: %s\n", tpm_owned(&owned) != TPM_SUCCESS ?
+			"fail" : (owned ? "yes" : "no"));
 	}
 	printf("ChromeOS: %s\n", has_chromefw() ? "yes" : "no");
 	printf("CR48: %s\n", is_cr48() ? "yes" : "no");

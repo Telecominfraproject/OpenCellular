@@ -470,9 +470,6 @@ out:
 /* Spawns a filesystem resizing process. */
 int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
 {
-	/* TODO(keescook): Quiet compiler. */
-	tick_start = tick_start;
-
 	/* Ignore resizing if we know the filesystem was built to max size. */
 	if (blocks >= blocks_max) {
 		INFO("Resizing aborted. blocks:%zu >= blocks_max:%zu",
@@ -661,7 +658,7 @@ int keyfile_write(const char *keyfile, uint8_t *system_key, char *string)
 	}
 	length = cipher_length + final_len;
 
-	DEBUG("Writing keyfile %s", keyfile);
+	DEBUG("Writing %d bytes to %s", length, keyfile);
 	/* TODO(keescook): replace this with a mode-400 writer. */
 	if (!g_file_set_contents(keyfile, (gchar *)cipher, length, &error)) {
 		ERROR("Unable to write %s: %s", keyfile, error->message);

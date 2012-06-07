@@ -7,7 +7,7 @@
 #ifndef _MOUNT_ENCRYPTED_H_
 #define _MOUNT_ENCRYPTED_H_
 
-#define DEBUG_ENABLED 1
+/* #define DEBUG_ENABLED 1 */
 #define DEBUG_TIME_DELTA 1
 
 #include <openssl/err.h>
