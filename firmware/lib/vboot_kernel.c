@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -139,7 +139,6 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   uint32_t lowest_version = LOWEST_TPM_VERSION;
   int rec_switch, dev_switch;
   BootMode boot_mode;
-  uint32_t test_err = 0;
   uint32_t require_official_os = 0;
 
   VbError_t retval = VBERROR_UNKNOWN;
@@ -183,23 +182,6 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   shcall->sector_size = (uint32_t)params->bytes_per_lba;
   shcall->sector_count = params->ending_lba + 1;
   shared->lk_call_count++;
-
-  /* Handle test errors */
-  VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
-  if (VBNV_TEST_ERROR_LOAD_KERNEL == test_err) {
-    /* Get error code */
-    VbNvGet(vnc, VBNV_TEST_ERROR_NUM, &test_err);
-    shcall->test_error_num = (uint8_t)test_err;
-    /* Clear test params so we don't repeat the error */
-    VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
-    VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
-    /* All error codes currently map to simulated error */
-    if (test_err) {
-      recovery = VBNV_RECOVERY_RW_TEST_LK;
-      retval = VBERROR_SIMULATED;
-      goto LoadKernelExit;
-    }
-  }
 
   /* Initialization */
   blba = params->bytes_per_lba;

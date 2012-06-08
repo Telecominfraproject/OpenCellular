@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -31,11 +31,6 @@
 #define DEV_FLAGS_OFFSET             4
 #define DEV_BOOT_USB_MASK               0x01
 #define DEV_BOOT_SIGNED_ONLY_MASK       0x02
-
-#define FIRMWARE_FLAGS_OFFSET        5
-#define FIRMWARE_TEST_ERR_FUNC_MASK     0x38
-#define FIRMWARE_TEST_ERR_FUNC_SHIFT    3
-#define FIRMWARE_TEST_ERR_NUM_MASK      0x07
 
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
@@ -110,15 +105,6 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
                | (raw[KERNEL_FIELD_OFFSET + 1] << 8)
                | (raw[KERNEL_FIELD_OFFSET + 2] << 16)
                | (raw[KERNEL_FIELD_OFFSET + 3] << 24));
-      return 0;
-
-    case VBNV_TEST_ERROR_FUNC:
-      *dest = (raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_TEST_ERR_FUNC_MASK)
-          >> FIRMWARE_TEST_ERR_FUNC_SHIFT;
-      return 0;
-
-    case VBNV_TEST_ERROR_NUM:
-      *dest = raw[FIRMWARE_FLAGS_OFFSET] & FIRMWARE_TEST_ERR_NUM_MASK;
       return 0;
 
     case VBNV_DEV_BOOT_USB:
@@ -198,17 +184,6 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
       raw[KERNEL_FIELD_OFFSET + 1] = (uint8_t)(value >> 8);
       raw[KERNEL_FIELD_OFFSET + 2] = (uint8_t)(value >> 16);
       raw[KERNEL_FIELD_OFFSET + 3] = (uint8_t)(value >> 24);
-      break;
-
-    case VBNV_TEST_ERROR_FUNC:
-      raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_TEST_ERR_FUNC_MASK;
-      raw[FIRMWARE_FLAGS_OFFSET] |= (value << FIRMWARE_TEST_ERR_FUNC_SHIFT)
-          & FIRMWARE_TEST_ERR_FUNC_MASK;
-      break;
-
-    case VBNV_TEST_ERROR_NUM:
-      raw[FIRMWARE_FLAGS_OFFSET] &= ~FIRMWARE_TEST_ERR_NUM_MASK;
-      raw[FIRMWARE_FLAGS_OFFSET] |= (value & FIRMWARE_TEST_ERR_NUM_MASK);
       break;
 
     case VBNV_DEV_BOOT_USB:

@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -42,7 +42,6 @@ int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
 
   uint32_t try_b_count;
   uint32_t lowest_version = 0xFFFFFFFF;
-  uint32_t test_err = 0;
   int good_index = -1;
   int is_dev;
   int index;
@@ -55,22 +54,6 @@ int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
   shared->firmware_index = 0xFF;
 
   VBDEBUG(("LoadFirmware started...\n"));
-
-  /* Handle test errors */
-  VbNvGet(vnc, VBNV_TEST_ERROR_FUNC, &test_err);
-  if (VBNV_TEST_ERROR_LOAD_FIRMWARE == test_err) {
-    /* Get error code */
-    VbNvGet(vnc, VBNV_TEST_ERROR_NUM, &test_err);
-    /* Clear test params so we don't repeat the error */
-    VbNvSet(vnc, VBNV_TEST_ERROR_FUNC, 0);
-    VbNvSet(vnc, VBNV_TEST_ERROR_NUM, 0);
-    /* All error codes currently map to simulated error */
-    if (test_err) {
-      recovery = VBNV_RECOVERY_RO_TEST_LF;
-      retval = VBERROR_SIMULATED;
-      goto LoadFirmwareExit;
-    }
-  }
 
   /* Must have a root key from the GBB */
   if (!gbb) {

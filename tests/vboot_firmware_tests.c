@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -185,14 +185,6 @@ static void TestLoadFirmware(VbError_t expected_retval,
 
 static void LoadFirmwareTest(void) {
   uint32_t u;
-
-  /* Test error should cause abort */
-  ResetMocks();
-  VbNvSet(&vnc, VBNV_TEST_ERROR_FUNC, VBNV_TEST_ERROR_LOAD_FIRMWARE);
-  VbNvSet(&vnc, VBNV_TEST_ERROR_NUM, 1);
-  TestLoadFirmware(VBERROR_SIMULATED, VBNV_RECOVERY_RO_TEST_LF,
-                   "Simulated error");
-  TEST_EQ(shared->firmware_index, 0xFF, "Error means no firmware index");
 
   /* Require GBB */
   ResetMocks();

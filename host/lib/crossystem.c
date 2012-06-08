@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -363,10 +363,6 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
   } else if (!strcasecmp(name,"nvram_cleared")) {
     value = VbGetNvStorage(VBNV_KERNEL_SETTINGS_RESET);
-  } else if (!strcasecmp(name,"vbtest_errfunc")) {
-    value = VbGetNvStorage(VBNV_TEST_ERROR_FUNC);
-  } else if (!strcasecmp(name,"vbtest_errno")) {
-    value = VbGetNvStorage(VBNV_TEST_ERROR_NUM);
   } else if (!strcasecmp(name,"recovery_request")) {
     value = VbGetNvStorage(VBNV_RECOVERY_REQUEST);
   } else if (!strcasecmp(name,"dbg_reset")) {
@@ -443,10 +439,6 @@ int VbSetSystemPropertyInt(const char* name, int value) {
   if (!strcasecmp(name,"nvram_cleared")) {
     /* Can only clear this flag; it's set inside the NV storage library. */
     return VbSetNvStorage(VBNV_KERNEL_SETTINGS_RESET, 0);
-  } else if (!strcasecmp(name,"vbtest_errfunc")) {
-    return VbSetNvStorage(VBNV_TEST_ERROR_FUNC, value);
-  } else if (!strcasecmp(name,"vbtest_errno")) {
-    return VbSetNvStorage(VBNV_TEST_ERROR_NUM, value);
   } else if (!strcasecmp(name,"recovery_request")) {
     return VbSetNvStorage(VBNV_RECOVERY_REQUEST, value);
   } else if (!strcasecmp(name,"dbg_reset")) {

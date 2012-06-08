@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -29,8 +29,6 @@ static VbNvField nvfields[] = {
   {VBNV_RECOVERY_REQUEST, 0, 0x42, 0xED, "recovery request"},
   {VBNV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},
   {VBNV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
-  {VBNV_TEST_ERROR_FUNC, 0, 1, 7, "verified boot test error func"},
-  {VBNV_TEST_ERROR_NUM, 0, 3, 6, "verified boot test error number"},
   {VBNV_DEV_BOOT_USB, 0, 1, 0, "dev boot usb"},
   {VBNV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
   {0, 0, 0, 0, NULL}

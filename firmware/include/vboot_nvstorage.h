@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -47,11 +47,6 @@ typedef enum VbNvParam {
   VBNV_LOCALIZATION_INDEX,
   /* Field reserved for kernel/user-mode use; 32-bit value. */
   VBNV_KERNEL_FIELD,
-  /* Verified boot API function which should generate a test error, if
-   * error number (below) is non-zero. */
-  VBNV_TEST_ERROR_FUNC,
-  /* Verified boot API error to generate for the function, if non-zero. */
-  VBNV_TEST_ERROR_NUM,
   /* Allow booting from USB in developer mode.  0=no, 1=yes. */
   VBNV_DEV_BOOT_USB,
   /* Only boot Google-signed images in developer mode.  0=no, 1=yes. */
@@ -128,13 +123,6 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_US_TEST         0xC1
 /* Unspecified/unknown error in user-mode */
 #define VBNV_RECOVERY_US_UNSPECIFIED  0xFF
-
-
-/* Function codes for VBNV_TEST_ERROR_FUNC */
-#define VBNV_TEST_ERROR_LOAD_FIRMWARE_SETUP  1
-#define VBNV_TEST_ERROR_LOAD_FIRMWARE        2
-#define VBNV_TEST_ERROR_LOAD_KERNEL          3
-#define VBNV_TEST_ERROR_S3_RESUME            4
 
 
 /* Initialize the NV storage library.  This must be called before any
