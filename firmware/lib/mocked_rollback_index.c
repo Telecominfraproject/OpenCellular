@@ -17,7 +17,7 @@ uint32_t TPMClearAndReenable(void) {
 
 
 uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  RollbackSpaceFirmware* rsf) {
+                  int disable_dev_request, RollbackSpaceFirmware* rsf) {
   return TPM_SUCCESS;
 }
 
