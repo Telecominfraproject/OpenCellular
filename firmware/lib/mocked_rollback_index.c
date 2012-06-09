@@ -11,6 +11,11 @@
 #include "tss_constants.h"
 
 
+uint32_t SetVirtualDevMode(int val) {
+  return TPM_SUCCESS;
+}
+
+
 uint32_t TPMClearAndReenable(void) {
   return TPM_SUCCESS;
 }
