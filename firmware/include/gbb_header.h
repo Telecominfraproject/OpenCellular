@@ -43,6 +43,13 @@
 /* The factory flow may need the BIOS to boot a non-ChromeOS kernel if the
  * dev-switch is on. This flag allows that. */
 #define GBB_FLAG_ENABLE_ALTERNATE_OS      0x00000004
+/* Force dev switch on, regardless of physical/keyboard dev switch position. */
+#define GBB_FLAG_FORCE_DEV_SWITCH_ON      0x00000008
+/* Allow booting from USB in dev mode even if dev_boot_usb=0. */
+#define GBB_FLAG_FORCE_DEV_BOOT_USB       0x00000010
+/* Disable firmware rollback protection. */
+#define GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK  0x00000020
+
 
 #ifdef __cplusplus
 extern "C" {

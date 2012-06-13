@@ -127,7 +127,9 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     /* We may be asked to clear the virtual dev-switch at boot. */
     VbNvGet(&vnc, VBNV_DISABLE_DEV_REQUEST, &disable_dev_request);
 
-    /* FIXME: How about a GBB flag to force dev-switch on? */
+    /* Allow GBB flag to override dev switch */
+    if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
+      is_hw_dev = 1;
 
     VBPERFSTART("VB_TPMI");
     /* Initialize the TPM. If the developer mode state has changed since the

@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -203,6 +203,19 @@ static void VbInitTest(void) {
   ResetMocks();
   iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON;
   TestVbInit(0, 0, "Dev mode on");
+  TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+  TEST_EQ(iparams.out_flags,
+          VB_INIT_OUT_CLEAR_RAM |
+          VB_INIT_OUT_ENABLE_DISPLAY |
+          VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
+  TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+
+  /* Developer mode forced by GBB flag */
+  ResetMocks();
+  iparams.flags = 0;
+  gbb.flags = GBB_FLAG_FORCE_DEV_SWITCH_ON;
+  TestVbInit(0, 0, "Dev mode via GBB");
   TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
   TEST_EQ(iparams.out_flags,
           VB_INIT_OUT_CLEAR_RAM |

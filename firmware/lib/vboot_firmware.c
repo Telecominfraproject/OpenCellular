@@ -131,17 +131,19 @@ int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
 
     /* Check for rollback of key version. */
     key_version = key_block->data_key.key_version;
-    if (key_version < (shared->fw_version_tpm >> 16)) {
-      VBDEBUG(("Key rollback detected.\n"));
-      *check_result = VBSD_LF_CHECK_KEY_ROLLBACK;
-      continue;
-    }
-    if (key_version > 0xFFFF) {
-      /* Key version is stored in 16 bits in the TPM, so key versions greater
-       * than 0xFFFF can't be stored properly. */
-      VBDEBUG(("Key version > 0xFFFF.\n"));
-      *check_result = VBSD_LF_CHECK_KEY_ROLLBACK;
-      continue;
+    if (!(gbb->flags & GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK)) {
+      if (key_version < (shared->fw_version_tpm >> 16)) {
+        VBDEBUG(("Key rollback detected.\n"));
+        *check_result = VBSD_LF_CHECK_KEY_ROLLBACK;
+        continue;
+      }
+      if (key_version > 0xFFFF) {
+        /* Key version is stored in 16 bits in the TPM, so key versions greater
+         * than 0xFFFF can't be stored properly. */
+        VBDEBUG(("Key version > 0xFFFF.\n"));
+        *check_result = VBSD_LF_CHECK_KEY_ROLLBACK;
+        continue;
+      }
     }
 
     /* Get the key for preamble/data verification from the key block. */
@@ -170,7 +172,8 @@ int LoadFirmware(VbCommonParams* cparams, VbSelectFirmwareParams* fparams,
     /* Check for rollback of firmware version. */
     combined_version = (uint32_t)((key_version << 16) |
                                   (preamble->firmware_version & 0xFFFF));
-    if (combined_version < shared->fw_version_tpm) {
+    if (combined_version < shared->fw_version_tpm &&
+        !(gbb->flags & GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK)) {
       VBDEBUG(("Firmware version rollback detected.\n"));
       *check_result = VBSD_LF_CHECK_FW_ROLLBACK;
       RSAPublicKeyFree(data_key);

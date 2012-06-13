@@ -116,6 +116,7 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
 
 /* Handle a developer-mode boot */
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
+  GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   uint32_t allow_usb = 0;
   VbAudioContext* audio = 0;
 
@@ -123,6 +124,9 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
 
   /* Check if USB booting is allowed */
   VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
+  /* Handle GBB flag override */
+  if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_USB)
+    allow_usb = 1;
 
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);

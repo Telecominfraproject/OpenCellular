@@ -253,6 +253,14 @@ static void LoadFirmwareTest(void) {
   TEST_EQ(shared->check_fw_b_result, VBSD_LF_CHECK_DATA_KEY_PARSE,
           "Data key invalid");
 
+  /* Test invalid key version with GBB bypass-rollback flag */
+  ResetMocks();
+  vblock[0].data_key.key_version = 1;  /* Simulate rollback */
+  gbb->flags = GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK;
+  TestLoadFirmware(VBERROR_SUCCESS, 0, "Key version check + GBB override");
+  TEST_EQ(shared->check_fw_a_result, VBSD_LF_CHECK_VALID,
+          "Key version rollback + GBB override");
+
   /* Test invalid preamble with A */
   ResetMocks();
   mpreamble[0].header_version_major = 1;  /* Simulate failure */
@@ -276,6 +284,17 @@ static void LoadFirmwareTest(void) {
           "Firmware version rollback");
   TEST_EQ(shared->check_fw_b_result, VBSD_LF_CHECK_FW_ROLLBACK,
           "Firmware version overflow");
+
+  /* Test invalid firmware versions with GBB bypass-rollback flag */
+  ResetMocks();
+  mpreamble[0].firmware_version = 3;  /* Simulate rollback */
+  mpreamble[1].firmware_version = 0x10001;  /* Check overflow */
+  gbb->flags = GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK;
+  TestLoadFirmware(VBERROR_SUCCESS, 0, "Firmware version check + GBB bypass");
+  TEST_EQ(shared->check_fw_a_result, VBSD_LF_CHECK_VALID,
+          "Firmware version rollback + GBB override");
+  TEST_EQ(shared->check_fw_b_result, VBSD_LF_CHECK_HEADER_VALID,
+          "Firmware version overflow + GBB override");
 
   /* Test RO normal with A */
   ResetMocks();
