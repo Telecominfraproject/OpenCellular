@@ -20,6 +20,5 @@ ROOTFS=$(make_temp_dir)
 mount_image_partition_ro "$IMAGE" 3 "$ROOTFS"
 
 if ! no_chronos_password $ROOTFS; then
-    echo "chronos password is set! Shouldn't be for release builds."
-    exit 1
+    die "chronos password is set! Shouldn't be for release builds."
 fi

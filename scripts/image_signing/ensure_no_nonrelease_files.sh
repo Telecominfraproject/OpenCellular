@@ -50,4 +50,4 @@ main() {
 
     exit $testfail
 }
-main $@
+main "$@"
