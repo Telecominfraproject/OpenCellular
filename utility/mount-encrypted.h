@@ -39,8 +39,8 @@
 } while (0)
 
 #if DEBUG_ENABLED
-static struct timeval tick;
-static struct timeval tick_start;
+extern struct timeval tick;
+extern struct timeval tick_start;
 # define TICK_INIT() do { \
 	gettimeofday(&tick, NULL); \
 	tick_start = tick; \

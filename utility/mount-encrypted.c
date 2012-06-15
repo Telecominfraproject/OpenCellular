@@ -48,13 +48,14 @@ static const gchar * const kCryptDevName = "encstateful";
 static const gchar * const kTpmDev = "/dev/tpm0";
 static const gchar * const kNullDev = "/dev/null";
 static const float kSizePercent = 0.3;
+static const float kMigrationSizeMultiplier = 1.1;
 static const uint32_t kLockboxIndex = 0x20000004;
 static const uint32_t kLockboxSizeV1 = 0x2c;
 static const uint32_t kLockboxSizeV2 = 0x45;
 static const uint32_t kLockboxSaltOffset = 0x5;
 static const size_t kSectorSize = 512;
 static const size_t kExt4BlockSize = 4096;
-static const size_t kExt4MinBytes = 64 * 1024 * 1024;
+static const size_t kExt4MinBytes = 16 * 1024 * 1024;
 
 enum migration_method {
 	MIGRATE_TEST_ONLY,
@@ -86,6 +87,11 @@ static struct bind_mount {
 	  S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH, 1 },
 	{ },
 };
+
+#if DEBUG_ENABLED
+struct timeval tick = { };
+struct timeval tick_start = { };
+#endif
 
 static struct bind_mount *bind_mounts = NULL;
 static gchar *rootdir = NULL;
@@ -654,6 +660,7 @@ static int setup_encrypted(void)
 	size_t sectors;
 	struct bind_mount *bind;
 	int sparsefd;
+	struct statvfs stateful_statbuf;
 	size_t blocks_min, blocks_max;
 
 	/* Use the "system key" to decrypt the "encryption key" stored in
@@ -681,27 +688,26 @@ static int setup_encrypted(void)
 	}
 
 	if (rebuild) {
-		struct statvfs buf;
-		off_t size;
+		off_t fs_bytes_max;
 
 		/* Wipe out the old files, and ignore errors. */
 		unlink(key_path);
 		unlink(block_path);
 
 		/* Calculate the desired size of the new partition. */
-		if (statvfs(stateful_mount, &buf)) {
+		if (statvfs(stateful_mount, &stateful_statbuf)) {
 			PERROR(stateful_mount);
 			return 0;
 		}
-		size = buf.f_blocks;
-		size *= kSizePercent;
-		size *= buf.f_frsize;
+		fs_bytes_max = stateful_statbuf.f_blocks;
+		fs_bytes_max *= kSizePercent;
+		fs_bytes_max *= stateful_statbuf.f_frsize;
 
 		INFO("Creating sparse backing file with size %llu.",
-		     (unsigned long long)size);
+		     (unsigned long long)fs_bytes_max);
 
 		/* Create the sparse file. */
-		sparsefd = sparse_create(block_path, size);
+		sparsefd = sparse_create(block_path, fs_bytes_max);
 		if (sparsefd < 0) {
 			PERROR(block_path);
 			return 0;
@@ -752,8 +758,42 @@ static int setup_encrypted(void)
 
 	/* Calculate filesystem min/max size. */
 	blocks_max = sectors / (kExt4BlockSize / kSectorSize);
-	blocks_min = migrate_needed ? blocks_max :
-			kExt4MinBytes / kExt4BlockSize;
+	blocks_min = kExt4MinBytes / kExt4BlockSize;
+	if (migrate_needed && migrate_allowed) {
+		off_t fs_bytes_min;
+		size_t calc_blocks_min;
+		/* When doing a migration, the new filesystem must be
+		 * large enough to hold what we're going to migrate.
+		 * Instead of walking the bind mount sources, which would
+		 * be IO and time expensive, just read the bytes-used
+		 * value from statvfs (plus 10% for overhead). It will
+		 * be too large, since it includes the eCryptFS data, so
+		 * we must cap at the max filesystem size just in case.
+		 */
+
+		/* Bytes used in stateful partition plus 10%. */
+		fs_bytes_min = stateful_statbuf.f_blocks -
+			       stateful_statbuf.f_bfree;
+		fs_bytes_min *= stateful_statbuf.f_frsize;
+		DEBUG("Stateful bytes used: %llu",
+			(unsigned long long)fs_bytes_min);
+		fs_bytes_min *= kMigrationSizeMultiplier;
+
+		/* Minimum blocks needed for that many bytes. */
+		calc_blocks_min = fs_bytes_min / kExt4BlockSize;
+		/* Do not use more than blocks_max. */
+		if (calc_blocks_min > blocks_max)
+			calc_blocks_min = blocks_max;
+		/* Do not use less than blocks_min. */
+		else if (calc_blocks_min < blocks_min)
+			calc_blocks_min = blocks_min;
+
+		DEBUG("Maximum fs blocks: %zu", blocks_max);
+		DEBUG("Minimum fs blocks: %zu", blocks_min);
+		DEBUG("Migration blocks chosen: %zu", calc_blocks_min);
+		blocks_min = calc_blocks_min;
+	}
+
 	if (rebuild) {
 		INFO("Building filesystem on %s "
 			"(blocksize:%zu, min:%zu, max:%zu).",

@@ -658,7 +658,7 @@ int keyfile_write(const char *keyfile, uint8_t *system_key, char *string)
 	}
 	length = cipher_length + final_len;
 
-	DEBUG("Writing %d bytes to %s", length, keyfile);
+	DEBUG("Writing %zu bytes to %s", length, keyfile);
 	/* TODO(keescook): replace this with a mode-400 writer. */
 	if (!g_file_set_contents(keyfile, (gchar *)cipher, length, &error)) {
 		ERROR("Unable to write %s: %s", keyfile, error->message);
