@@ -617,4 +617,11 @@ VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
                          uint32_t compression_type,
                          void *outbuf, uint32_t *out_size);
 
+
+/* This is called only if the system implements a keyboard-based (virtual)
+ * developer switch. It must return true only if the system has an embedded
+ * controller which is provably running in its RO firmware at the time the
+ * function is called. */
+int VbExTrustEC(void);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */

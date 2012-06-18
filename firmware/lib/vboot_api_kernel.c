@@ -209,13 +209,6 @@ fallout:
 }
 
 
-/* FIXME(crosbug.com/p/9953): The platform BIOS should implement this! */
-/* And not here: somewhere outside of vboot with the other VbEx functions */
-int VbExTrustEC(void) {
-  /* Only return true if the EC is running in its RO firmware *right now*. */
-  return 1;
-}
-
 /* Ask the user to confirm changing the virtual dev-mode switch. If they confirm
  * we'll change it and return a reason to reboot. */
 static VbError_t VbConfirmChangeDevMode(VbCommonParams* cparams, int to_dev) {

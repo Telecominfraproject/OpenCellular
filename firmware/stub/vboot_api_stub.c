@@ -141,3 +141,7 @@ VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
                          void *outbuf, uint32_t *out_size) {
   return VBERROR_SUCCESS;
 }
+
+int VbExTrustEC(void) {
+  return 1;
+}
