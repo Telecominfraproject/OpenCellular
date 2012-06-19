@@ -1,1 +1,1 @@
-El dispositivo insertado no tiene Chrome OS. ¿Quieres probar con otro?
+El dispositivo que ha colocado no contiene Chrome OS.

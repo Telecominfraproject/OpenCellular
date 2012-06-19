@@ -1,1 +1,1 @@
-Elimina todos los medios externos para comenzar con la recuperación.
+Por favor, retire todos los dispositivos de almacenamiento externo para iniciar la recuperación.

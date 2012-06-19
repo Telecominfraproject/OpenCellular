@@ -1,1 +1,1 @@
-Desconecta todos los dispositivos de almacenamiento externos para comenzar la recuperación.
+Por favor, retire todos los dispositivos de almacenamiento externo para iniciar la recuperación.

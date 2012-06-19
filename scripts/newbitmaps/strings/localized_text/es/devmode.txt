@@ -1,2 +1,2 @@
-La verificación de Chrome OS está desactivada.
-Pulsa la tecla de espacio para iniciar la recuperación.
+Verificación de sistema operativo está en OFF
+Oprima SPACE para volver a habilitar.

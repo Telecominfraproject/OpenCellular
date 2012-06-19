@@ -1,1 +1,1 @@
-Enheten du anslöt har inte Chrome OS. Vill du prova en annan enhet?
+Enheten du satt innehåller inte Chrome OS.

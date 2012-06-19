@@ -27,41 +27,76 @@ if [ -n "$*" ]; then
   locales="$*"
 fi
 
-
 # Arbitrary padding
 ypad=5
-xpad=10
-yborder=40
+xpad=5
 
-
-# Stuff to center and position bitmaps from the bottom of the screen upwards.
-
-# Globals
+# Globals used to specify location images are inserted.
 cur_x=0
 cur_y=0
 
-
-# Return width of the specified .bmp file
-get_x() {
-  file $1 | awk '{print $7}' | sed -e 's/[^0-9]//g'
+reset_pos() {
+  cur_x=0
+  cur_y=0
 }
 
-get_xx() {
-  local ffile=$(eval "echo \$$1")
-  get_x $ffile
+move_pos_up() {
+  cur_y=$(expr $cur_y - $1 )
 }
 
-# Return height of the specified .bmp file
-get_y() {
-  file $1 | awk '{print $9}' | sed -e 's/[^0-9]//g'
+move_pos_down() {
+  cur_y=$(expr $cur_y + $1 )
 }
 
-# Return height of the specified .bmp file
-get_yy() {
-  local ffile=$(eval "echo \$$1")
-  get_y $ffile
+move_pos_left() {
+  cur_x=$(expr $cur_x - $1 )
 }
 
+move_pos_right() {
+  cur_x=$(expr $cur_x + $1 )
+}
+
+# Move insert location to the vertical midline of a specified image.
+# Example: set_centered_y_percent 'some_image' 80
+# Sets insert point to the center of an image specified by a variable name,
+# 80% towards the bottom. Assumes image was inserted at 0,0 so only good
+# for the background image.
+set_centered_y_percent() {
+  cur_x=$(expr $(get_width $1) / 2 )
+  cur_y=$(expr $(get_height $1) \* $2 / 100 )
+}
+
+# Return width of a .bmp file specified by a variable.
+get_width() {
+  local filename="$(eval "echo \$$1")"
+  file ${filename} | awk '{print $7}' | sed -e 's/[^0-9]//g'
+}
+
+# Return the width of a list of images.
+total_width() {
+  local width=$(expr 0 - $xpad)
+  for filename in "$@"; do
+    width=$(expr $width + $(get_width ${filename}) + $xpad)
+  done
+  echo $width
+}
+
+# Return height of a .bmp file specified by a variable.
+get_height() {
+  local filename="$(eval "echo \$${1}")"
+  file ${filename} | awk '{print $9}' | sed -e 's/[^0-9]//g'
+}
+
+# Returns the max height of a list of images.
+get_max_height() {
+  local max_height=0
+  local height
+  for filename in $@; do
+    height=$(get_height ${filename})
+    [ $max_height -gt $height ] || max_height=$height
+  done
+  echo $max_height
+}
 
 # Guess the locale based on the filename, set a global "newlocales" list
 # accordingly.
@@ -95,43 +130,142 @@ guess_locale() {
   newlocales=$newlist
 }
 
+# Add a list of images at provided location.
+# Images of different heights are added centered on the tallest image.
+add_images() {
+  local x=$1
+  local y=$2
+  local files=${@:3}
+  local max_height=$(get_max_height $files)
 
-# Reset the current baseline and width to the size of the specified .bmp file
-reset_base() {
-  cur_x=$(get_x "$1")
-  cur_y=$(expr $(get_y $1) - $yborder)
-}
-
-# Emit a screen line entry centering the given .bmp files at the current
-# baseline. We assume that all args are the same height.
-center_up() {
-  local totalx
-  local totaly
-  local x
-  local ffile
-
-  totaly=$(get_yy "$1")
-  cur_y=$(expr $cur_y - $totaly - $ypad)
-
-  totalx=$(expr 0 - $xpad / 2)
-  for fname in "$@"; do
-    totalx=$(expr $totalx + $(get_xx $fname) + $xpad)
-  done
-
-  x=$(expr "(" $cur_x - $totalx ")" / 2)
-
-  for fname in $*; do
+  for fname in $files; do
+    tmp_y=$(echo $( expr $y + "(" $max_height - $(get_height $fname) ")" / 2 ) )
     if [ "$fname" = "th_model_text" ]; then
-      tmp_y=$(expr $cur_y - 9)
-      echo "    - [$x, $tmp_y, $fname]" >> "$yaml_file"
-    else
-      echo "    - [$x, $cur_y, $fname]" >> "$yaml_file"
+      tmp_y=$(expr $y - 9)
     fi
-    x=$(expr $x + $(get_xx $fname) + $xpad)
+    echo "    - [$x, $tmp_y, $fname]" >> "$yaml_file"
+    x=$(expr $x + $(get_width $fname) + $xpad)
   done
 }
 
+add_centered_below() {
+  local images=$@
+  local width
+  local height
+  local x
+  local y
 
+  height=$(get_max_height $images)
+  y=$(expr $cur_y + $height)
+
+  width=$(total_width $images)
+  x=$(expr $cur_x - $width / 2)
+
+  add_images $x $y $images
+}
+
+# This adds a list of images and updates the insert location
+# below the new images with a padding of $xpad.
+insert_centered_below() {
+  local images=$@
+  local width
+  local height
+  local x
+  local y
+
+  height=$(get_max_height $images)
+  y=$(expr $cur_y + $height)
+
+  width=$(total_width $images)
+  x=$(expr $cur_x - $width / 2)
+
+  add_images $x $y $images
+  move_pos_down $(expr $height + $ypad)
+}
+
+add_right_above() {
+  local images=$@
+  local height
+  local x
+  local y
+
+  height=$(get_max_height $images)
+  y=$(expr $cur_y - $height)
+
+  add_images $cur_x $y $images
+}
+
+add_right_below() {
+  add_images $cur_x $cur_y $@
+}
+
+add_left_above() {
+  local images=$@
+  local width
+  local height
+  local x
+  local y
+
+  height=$(get_max_height $images)
+  y=$(expr $cur_y - $height)
+
+  width=$(total_width $images)
+  x=$(expr $cur_x - $width)
+
+  add_images $x $y $images
+}
+
+add_centered() {
+  local images=$@
+  local width
+  local height
+  local x
+  local y
+
+  height=$(get_max_height $images)
+  y=$(expr $cur_y - $height / 2)
+
+  width=$(total_width $images)
+  x=$(expr $cur_x - $width / 2)
+
+  add_images $x $y $images
+}
+
+add_header() {
+  local lc=$1
+  set_centered_y_percent "white_bg" 17
+  add_centered_below "divider_top"
+  move_pos_left $(expr $(get_width "divider_top") / 2 )
+  move_pos_up $ypad
+  add_right_above "chrome_logo"
+  move_pos_right $(get_width "divider_top")
+  add_left_above "arrow_left" "${lc}_language_text" "arrow_right"
+}
+
+add_footer_with_url() {
+  local lc=$1
+  set_centered_y_percent "white_bg" 80
+  insert_centered_below "divider_btm"
+  insert_centered_below "${lc}_for_help_text" "url"
+  if echo "$rtol" | grep -q -w "$lc" ; then
+    insert_centered_below 'hwid' "${lc}_model_text"
+  else
+    insert_centered_below "${lc}_model_text" 'hwid'
+  fi
+  echo "" >> "$yaml_file"
+}
+
+add_footer_without_url() {
+  local lc=$1
+  set_centered_y_percent "white_bg" 80
+  insert_centered_below "divider_btm"
+  if echo "$rtol" | grep -q -w "$lc" ; then
+    insert_centered_below 'hwid' "${lc}_model_text"
+  else
+    insert_centered_below "${lc}_model_text" 'hwid'
+  fi
+  echo "" >> "$yaml_file"
+}
 
 # Generate a new yaml file for each specified hwid_*.bmp file.
 for hwid_bmp in hwid_unknown.bmp; do
@@ -141,7 +275,7 @@ for hwid_bmp in hwid_unknown.bmp; do
   cat >"$yaml_file" <<'EOF1'
 bmpblock: 2.0
 
-compression: 1
+compression: 2
 
 images:
 
@@ -151,18 +285,34 @@ images:
   # This URL never changes
   url:               Url.bmp
 
-  # The background images are from the UI people
-  devmode_bg:        Devmode.bmp
-  remove_bg:         Remove.bmp
-  yuck_bg:           Yuck.bmp
-  insert_bg:         Insert.bmp
+  # Various UI elements
+  arrow_left:        arrow_left.bmp
+  arrow_right:       arrow_right.bmp
+  chrome_logo:       chrome_logo.bmp
+  devmode_graphic:   Devmode_graphic.bmp
+  divider_btm:       divider_btm.bmp
+  divider_top:       divider_top.bmp
+  remove_graphic:    Remove_graphic.bmp
+  insert_graphic:    Insert_graphic.bmp
+  white_bg:          Background_white.bmp
+  yuck_graphic:      Yuck_graphic.bmp
 
   # The following strings must be approved by the localization people
 EOF1
 
   # some global variables matching the yaml definitions
+  arrow_left='arrow_left.bmp'
+  arrow_right='arrow_right.bmp'
+  chrome_logo='chrome_logo.bmp'
+  devmode_graphic='Devmode_graphic.bmp'
+  divider_btm='divider_btm.bmp'
+  divider_top='divider_top.bmp'
   hwid=$hwid_bmp
-  url="Url.bmp"
+  insert_graphic='Insert_graphic.bmp'
+  remove_graphic='Remove_graphic.bmp'
+  url='Url.bmp'
+  white_bg='Background_white.bmp'
+  yuck_graphic='Yuck_graphic.bmp'
 
   # Enumerate the bitmaps for each locale-specific string.
   for lc in $locales; do
@@ -172,6 +322,9 @@ EOF1
   ${lc}_remove_text:      ${localedir}/$lc/remove.bmp
   ${lc}_yuck_text:        ${localedir}/$lc/yuck.bmp
   ${lc}_insert_text:      ${localedir}/$lc/insert.bmp
+  ${lc}_insert_usb_text:  ${localedir}/$lc/insert_usb.bmp
+  ${lc}_language_text:    ${localedir}/$lc/language.bmp
+  ${lc}_for_help_text:    ${localedir}/$lc/for_help.bmp
 
 EOF2
 
@@ -181,6 +334,9 @@ EOF2
     eval "${lc}_remove_text=${localedir}/$lc/remove.bmp"
     eval "${lc}_yuck_text=${localedir}/$lc/yuck.bmp"
     eval "${lc}_insert_text=${localedir}/$lc/insert.bmp"
+    eval "${lc}_insert_usb_text=${localedir}/$lc/insert_usb.bmp"
+    eval "${lc}_language_text=${localedir}/$lc/language.bmp"
+    eval "${lc}_for_help_text=${localedir}/$lc/for_help.bmp"
   done
 
   # List the screens. We need to composite four screens for each locale.
@@ -188,50 +344,52 @@ EOF2
 
   for lc in $locales; do
     echo -n " $lc"
+
+    # Dev Screen
     echo "  ${lc}_devel:" >> "$yaml_file"
-    echo "    - [  0,   0, devmode_bg]" >> "$yaml_file"
-    reset_base Devmode.bmp
-    center_up "${lc}_devmode_text"
-    echo "" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 40
+    add_centered "devmode_graphic"
+    set_centered_y_percent "white_bg" 50
+    add_centered_below "${lc}_devmode_text"
+    add_footer_without_url ${lc}
 
+    # Remove Screen
     echo "  ${lc}_remove:" >> "$yaml_file"
-    echo "    - [  0,   0, remove_bg]" >> "$yaml_file"
-    reset_base Remove.bmp
-    if echo "$rtol" | grep -q -w "$lc" ; then
-      center_up 'hwid' "${lc}_model_text"
-    else
-      center_up "${lc}_model_text" 'hwid'
-    fi
-    center_up "url"
-    center_up "${lc}_remove_text"
-    echo "" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 25
+    add_centered_below "${lc}_remove_text"
+    set_centered_y_percent "white_bg" 50
+    add_centered "remove_graphic"
+    add_footer_with_url ${lc}
 
+    # Yuck Screen
     echo "  ${lc}_yuck:" >> "$yaml_file"
-    echo "    - [  0,   0, yuck_bg]" >> "$yaml_file"
-    reset_base Yuck.bmp
-    if echo "$rtol" | grep -q -w "$lc" ; then
-      center_up 'hwid' "${lc}_model_text"
-    else
-      center_up "${lc}_model_text" 'hwid'
-    fi
-    center_up "url"
-    center_up "${lc}_yuck_text"
-    echo "" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 25
+    add_centered_below "${lc}_yuck_text"
+    set_centered_y_percent "white_bg" 50
+    add_centered "yuck_graphic"
+    add_footer_with_url ${lc}
 
+    # Insert Screen
     echo "  ${lc}_insert:" >> "$yaml_file"
-    echo "    - [  0,   0, insert_bg]" >> "$yaml_file"
-    reset_base Insert.bmp
-    if echo "$rtol" | grep -q -w "$lc" ; then
-      center_up 'hwid' "${lc}_model_text"
-    else
-      center_up "${lc}_model_text" 'hwid'
-    fi
-    center_up "url"
-    center_up "${lc}_insert_text"
-    echo "" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 40
+    add_centered "insert_graphic"
+    set_centered_y_percent "white_bg" 50
+    add_centered_below "${lc}_insert_usb_text"
+    add_footer_with_url ${lc}
 
   done
-
 
   # Finally list the localizations.
 

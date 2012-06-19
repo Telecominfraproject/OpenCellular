@@ -1,2 +1,2 @@
-Google Chrome OS-bekreftelse er slått av.
-Trykk på mellomromstasten for å starte gjenoppretting.
+OS verifisering er AV
+Trykk SPACE for å aktivere.

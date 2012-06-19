@@ -1,2 +1,2 @@
-Verifiering av Chrome OS är inaktiverad.
-Tryck på blanksteg om du vill återställa enheten.
+OS verifiering är AV
+Tryck MELLANSLAG för att återaktivera.

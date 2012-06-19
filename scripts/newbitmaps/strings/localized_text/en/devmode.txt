@@ -1,2 +1,2 @@
-Chrome OS verification is turned off.
-Press space to begin recovery.
+OS verification is OFF
+Press SPACE to re-enable.

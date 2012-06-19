@@ -13,7 +13,7 @@
 #
 font="Droid Sans"
 rtl=""
-point=22
+point=15
 
 while true ; do
   case "$1" in
@@ -40,13 +40,15 @@ done
 # - New pango-view has --pixel to assign font size in pixel, but that is not
 #   supported by old (ex, 1.24.5 in chroot) so we must assign --dpi 72 for
 #   pointsize.
-bg='#607c91'
-small_color='#9ccaec'
+bg="#ffffff"
+small_color="#000000"
 small_font="$font"
 small_pointsize="$point"
-large_color="white"
+large_color="#585858"
 large_font="$font"
 large_pointsize=40
+_x86_scale="-scale 59%x78%"
+_x86_opts="-colors 256 -compress none -alpha off"
 
 for txtfile in $*; do
   # pango-view does not support assigning output format options for bitmap, so
@@ -62,7 +64,7 @@ for txtfile in $*; do
         --margin=3 --align=center \
         --output "$pngfile" \
         "$txtfile"
-      convert -colors 256 -compress none -alpha off "$pngfile" BMP3:"$bmpfile"
+      convert ${_x86_scale} ${_x86_opts} "$pngfile" BMP3:"$bmpfile"
       rm -f "$pngfile"
       echo "wrote $bmpfile"
       ;;
@@ -73,7 +75,7 @@ for txtfile in $*; do
         --margin=10 --align=center \
         --output "$pngfile" \
         "$txtfile"
-      convert -colors 256 -compress none -alpha off "$pngfile" BMP3:"$bmpfile"
+      convert ${_x86_scale} ${_x86_opts} " $pngfile" BMP3:"$bmpfile"
       rm -f "$pngfile"
       echo "wrote $bmpfile"
       ;;

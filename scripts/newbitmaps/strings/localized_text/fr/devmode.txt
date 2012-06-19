@@ -1,2 +1,2 @@
-La vérification de Google Chrome OS est désactivée.
-Pour lancer le processus de récupération, appuyez sur la touche "Espace".
+Vérification OS est sur OFF
+Appuyez sur SPACE pour réactiver.

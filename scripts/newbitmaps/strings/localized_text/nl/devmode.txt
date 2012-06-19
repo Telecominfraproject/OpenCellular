@@ -1,2 +1,2 @@
-Authenticatie van Chrome OS is uitgeschakeld.
-Druk op de spatiebalk om het herstellen te starten.
+OS verificatie is UIT
+Druk op SPACE om opnieuw in te schakelen.

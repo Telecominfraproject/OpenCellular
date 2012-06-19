@@ -7,7 +7,7 @@ LOCALES=ar bg ca cs da de el en en_GB es es_419 et fa fi fil fr hi hr hu \
 	uk vi zh_CN zh_TW
 
 # Use "make PT=15" for 800x600 (x86)
-PT=22
+PT=15
 
 
 DIR_TARGETS=$(foreach DIR,$(LOCALES),$(DIR)-dir)

@@ -1,2 +1,2 @@
-Die Chrome OS-Verifikation ist deaktiviert.
-Drücken Sie zum Starten der Wiederherstellung die Leertaste.
+OS-Prüfung ist AUS
+Drücken Sie SPACE wieder zu aktivieren.

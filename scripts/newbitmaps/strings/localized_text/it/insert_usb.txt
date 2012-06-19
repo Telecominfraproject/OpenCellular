@@ -1,0 +1,3 @@
+Chrome OS è mancante o danneggiato.
+Si prega di inserire una chiavetta USB di ripristino in una delle quattro porte in
+il retro del dispositivo (le porte laterali non funzionano per il recupero).

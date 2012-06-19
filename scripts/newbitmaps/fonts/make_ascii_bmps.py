@@ -20,16 +20,16 @@ def main():
 
   parser = optparse.OptionParser()
   parser.description = ' '.join(main.__doc__.split())
-  parser.add_option("--foreground", default='#9ccaec',
+  parser.add_option("--foreground", default='#000000',
                     dest="fg", action="store", metavar="COLOR",
                     help="foreground color (%default)")
-  parser.add_option("--background", default='#607c91',
+  parser.add_option("--background", default='#ffffff',
                     dest="bg", action="store", metavar="COLOR",
                     help="background color (%default)")
   parser.add_option("--font", default='Helvetica',
                     dest="font", action="store",
                     help="font to use (%default)")
-  parser.add_option("--size", default='22', metavar="POINTSIZE",
+  parser.add_option("--size", default='15', metavar="POINTSIZE",
                     dest="size", action="store",
                     help="font size (%default)")
   parser.add_option('--dir', default='./outdir',

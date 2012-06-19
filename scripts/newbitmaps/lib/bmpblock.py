@@ -69,7 +69,7 @@ class BmpBlock(object):
     assert screens
     # screen values should all be lists of 3-tuples
     for scrname, imglist in screens.items():
-      assert len(imglist) <= 8
+      assert len(imglist) <= 16
       for img in imglist:
         assert 3 == len(img)
         # must have defined all referenced bitmaps

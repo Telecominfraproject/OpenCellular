@@ -1,0 +1,3 @@
+Chrome OS mangler eller er beskadiget.
+Indsæt et opsving USB-stick i en af de fire havne i
+bagsiden af enheden (side havne vil ikke arbejde til nyttiggørelse).

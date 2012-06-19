@@ -1,0 +1,3 @@
+Chrome OS falta o está dañado.
+Por favor, inserte un palillo USB de recuperación en uno de los cuatro puertos
+la parte posterior del dispositivo (los puertos secundarios no va a funcionar para la recuperación).
