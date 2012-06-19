@@ -57,6 +57,10 @@ typedef enum VbNvParam {
   /* Set and cleared by vboot to request that the video Option ROM be loaded at
    * boot time, so that BIOS screens can be displayed. 0=no, 1=yes. */
   VBNV_OPROM_NEEDED,
+  /* Request that the firmware clear the TPM owner on the next boot. */
+  VBNV_CLEAR_TPM_OWNER_REQUEST,
+  /* Flag that TPM owner was cleared on request. */
+  VBNV_CLEAR_TPM_OWNER_DONE,
 } VbNvParam;
 
 

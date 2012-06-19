@@ -29,6 +29,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   int is_hw_dev = 0;
   int is_virt_dev = 0;
   uint32_t disable_dev_request = 0;
+  uint32_t clear_tpm_owner_request = 0;
   int is_dev = 0;
 
   VBDEBUG(("VbInit() input flags 0x%x\n", iparams->flags));
@@ -136,12 +137,16 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
       is_hw_dev = 1;
 
+    /* Check if we've been explicitly asked to clear the TPM owner */
+    VbNvGet(&vnc, VBNV_CLEAR_TPM_OWNER_REQUEST, &clear_tpm_owner_request);
+
     VBPERFSTART("VB_TPMI");
     /* Initialize the TPM. If the developer mode state has changed since the
      * last boot, we need to clear TPM ownership. If the TPM space is
      * initialized by this call, the virtual dev-switch will be disabled by
      * default) */
     tpm_status = RollbackFirmwareSetup(recovery, is_hw_dev, disable_dev_request,
+                                       clear_tpm_owner_request,
                                        /* two outputs on success */
                                        &is_virt_dev, &tpm_version);
     VBPERFEND("VB_TPMI");
@@ -180,6 +185,10 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     }
     if (disable_dev_request && !is_virt_dev)
       VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 0);
+    if (clear_tpm_owner_request) {
+      VbNvSet(&vnc, VBNV_CLEAR_TPM_OWNER_REQUEST, 0);
+      VbNvSet(&vnc, VBNV_CLEAR_TPM_OWNER_DONE, 1);
+    }
   }
 
   /* Allow BIOS to load arbitrary option ROMs? */

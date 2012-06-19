@@ -403,6 +403,10 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_DEBUG_RESET_MODE);
   } else if (!strcasecmp(name,"disable_dev_request")) {
     value = VbGetNvStorage(VBNV_DISABLE_DEV_REQUEST);
+  } else if (!strcasecmp(name,"clear_tpm_owner_request")) {
+    value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_REQUEST);
+  } else if (!strcasecmp(name,"clear_tpm_owner_done")) {
+    value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE);
   } else if (!strcasecmp(name,"fwb_tries")) {
     value = VbGetNvStorage(VBNV_TRY_B_COUNT);
   } else if (!strcasecmp(name,"fwupdate_tries")) {
@@ -493,6 +497,11 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value);
   } else if (!strcasecmp(name,"disable_dev_request")) {
     return VbSetNvStorage(VBNV_DISABLE_DEV_REQUEST, value);
+  } else if (!strcasecmp(name,"clear_tpm_owner_request")) {
+    return VbSetNvStorage(VBNV_CLEAR_TPM_OWNER_REQUEST, value);
+  } else if (!strcasecmp(name,"clear_tpm_owner_done")) {
+    /* Can only clear this flag; it's set by firmware. */
+    return VbSetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE, 0);
   } else if (!strcasecmp(name,"fwb_tries")) {
     return VbSetNvStorage(VBNV_TRY_B_COUNT, value);
   } else if (!strcasecmp(name,"fwupdate_tries")) {

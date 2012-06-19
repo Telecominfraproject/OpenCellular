@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -22,7 +22,8 @@ uint32_t TPMClearAndReenable(void) {
 
 
 uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  int disable_dev_request, RollbackSpaceFirmware* rsf) {
+                  int disable_dev_request, int clear_tpm_owner_request,
+                  RollbackSpaceFirmware* rsf) {
   return TPM_SUCCESS;
 }
 
@@ -34,6 +35,7 @@ uint32_t RollbackS3Resume(void) {
 
 uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
                                int disable_dev_request,
+                               int clear_tpm_owner_request,
                                int *is_virt_dev, uint32_t *version) {
   *version = 0;
   return TPM_SUCCESS;

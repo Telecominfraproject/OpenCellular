@@ -33,6 +33,10 @@
 #define DEV_BOOT_USB_MASK               0x01
 #define DEV_BOOT_SIGNED_ONLY_MASK       0x02
 
+#define TPM_FLAGS_OFFSET             5
+#define TPM_CLEAR_OWNER_REQUEST         0x01
+#define TPM_CLEAR_OWNER_DONE            0x02
+
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
 
@@ -122,6 +126,14 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
 
     case VBNV_OPROM_NEEDED:
       *dest = (raw[BOOT_OFFSET] & BOOT_OPROM_NEEDED ? 1 : 0);
+      return 0;
+
+    case VBNV_CLEAR_TPM_OWNER_REQUEST:
+      *dest = (raw[TPM_FLAGS_OFFSET] & TPM_CLEAR_OWNER_REQUEST ? 1 : 0);
+      return 0;
+
+    case VBNV_CLEAR_TPM_OWNER_DONE:
+      *dest = (raw[TPM_FLAGS_OFFSET] & TPM_CLEAR_OWNER_DONE ? 1 : 0);
       return 0;
 
     default:
@@ -217,6 +229,20 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
         raw[BOOT_OFFSET] |= BOOT_OPROM_NEEDED;
       else
         raw[BOOT_OFFSET] &= ~BOOT_OPROM_NEEDED;
+      break;
+
+    case VBNV_CLEAR_TPM_OWNER_REQUEST:
+      if (value)
+        raw[TPM_FLAGS_OFFSET] |= TPM_CLEAR_OWNER_REQUEST;
+      else
+        raw[TPM_FLAGS_OFFSET] &= ~TPM_CLEAR_OWNER_REQUEST;
+      break;
+
+    case VBNV_CLEAR_TPM_OWNER_DONE:
+      if (value)
+        raw[TPM_FLAGS_OFFSET] |= TPM_CLEAR_OWNER_DONE;
+      else
+        raw[TPM_FLAGS_OFFSET] &= ~TPM_CLEAR_OWNER_DONE;
       break;
 
     default:

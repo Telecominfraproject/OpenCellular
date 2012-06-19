@@ -89,6 +89,7 @@ uint32_t RollbackS3Resume(void) {
 
 uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
                                int disable_dev_request,
+                               int clear_tpm_owner_request,
                                /* two outputs on success */
                                int *is_virt_dev, uint32_t *version) {
   *is_virt_dev = mock_virt_dev_sw;

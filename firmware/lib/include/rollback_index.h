@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -70,6 +70,7 @@ uint32_t RollbackS3Resume(void);
 /* This must be called. */
 uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
                                int disable_dev_request,
+                               int clear_tpm_owner_request,
                                /* two outputs on success */
                                int *is_virt_dev, uint32_t *tpm_version);
 
@@ -118,7 +119,8 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
 /* SetupTPM starts the TPM and establishes the root of trust for the
  * anti-rollback mechanism. */
 uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  int disable_dev_request, RollbackSpaceFirmware* rsf);
+                  int disable_dev_request, int clear_tpm_owner_request,
+                  RollbackSpaceFirmware* rsf);
 
 /* Utility function to turn the virtual dev-mode flag on or off. 0=off, 1=on */
 uint32_t SetVirtualDevMode(int val);

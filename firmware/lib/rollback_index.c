@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -298,7 +298,8 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware* rsf,
  * the durability of the NVRAM.
  */
 uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  int disable_dev_request, RollbackSpaceFirmware* rsf) {
+                  int disable_dev_request, int clear_tpm_owner_request,
+                  RollbackSpaceFirmware* rsf) {
 
   uint8_t in_flags;
   uint8_t disable;
@@ -398,10 +399,14 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
   if (rsf->flags & FLAG_VIRTUAL_DEV_MODE_ON)
     developer_mode = 1;
 
-  /* Clears ownership if developer flag has toggled */
+  /* Clears ownership if developer flag has toggled, or if an owner-clear has
+   * been requested. */
   if ((developer_mode ? FLAG_LAST_BOOT_DEVELOPER : 0) !=
       (in_flags & FLAG_LAST_BOOT_DEVELOPER)) {
     VBDEBUG(("TPM: Developer flag changed; clearing owner.\n"));
+    RETURN_ON_FAILURE(TPMClearAndReenable());
+  } else if (clear_tpm_owner_request) {
+    VBDEBUG(("TPM: Clearing owner as specifically requested.\n"));
     RETURN_ON_FAILURE(TPMClearAndReenable());
   }
 
@@ -441,6 +446,7 @@ uint32_t RollbackS3Resume(void) {
 
 uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
                                int disable_dev_request,
+                               int clear_tpm_owner_request,
                                int *is_virt_dev, uint32_t *version) {
 #ifndef CHROMEOS_ENVIRONMENT
   /* Initialize the TPM, but ignores return codes.  In ChromeOS
@@ -495,14 +501,15 @@ uint32_t RollbackS3Resume(void) {
 
 uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
                                int disable_dev_request,
+                               int clear_tpm_owner_request,
                                int *is_virt_dev, uint32_t *version) {
   RollbackSpaceFirmware rsf;
 
   /* Set version to 0 in case we fail */
   *version = 0;
 
-  RETURN_ON_FAILURE(SetupTPM(recovery_mode, is_hw_dev,
-                             disable_dev_request, &rsf));
+  RETURN_ON_FAILURE(SetupTPM(recovery_mode, is_hw_dev, disable_dev_request,
+                             clear_tpm_owner_request, &rsf));
   *version = rsf.fw_versions;
   *is_virt_dev = (rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON) ? 1 : 0;
   VBDEBUG(("TPM: RollbackFirmwareSetup %x\n", (int)rsf.fw_versions));
