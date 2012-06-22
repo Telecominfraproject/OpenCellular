@@ -9,6 +9,59 @@
 #include "cgptlib_internal.h"
 #include "cgpt_params.h"
 
+
+static const char* DumpCgptAddParams(const CgptAddParams *params) {
+  static char buf[256];
+  char tmp[64];
+
+  buf[0] = 0;
+  snprintf(tmp, sizeof(tmp), "-i %d ", params->partition);
+  strncat(buf, tmp, sizeof(buf));
+  if (params->label) {
+    snprintf(tmp, sizeof(tmp), "-l %s ", params->label);
+    strncat(buf, tmp, sizeof(buf));
+  }
+  if (params->set_begin) {
+    snprintf(tmp, sizeof(tmp), "-b %llu ", (unsigned long long)params->begin);
+    strncat(buf, tmp, sizeof(buf));
+  }
+  if (params->set_size) {
+    snprintf(tmp, sizeof(tmp), "-s %llu ", (unsigned long long)params->size);
+    strncat(buf, tmp, sizeof(buf));
+  }
+  if (params->set_type) {
+    GuidToStr(&params->type_guid, tmp, sizeof(tmp));
+    strncat(buf, "-t ", sizeof(buf));
+    strncat(buf, tmp, sizeof(buf));
+    strncat(buf, " ", sizeof(buf));
+  }
+  if (params->set_unique) {
+    GuidToStr(&params->unique_guid, tmp, sizeof(tmp));
+    strncat(buf, "-u ", sizeof(buf));
+    strncat(buf, tmp, sizeof(buf));
+    strncat(buf, " ", sizeof(buf));
+  }
+  if (params->set_successful) {
+    snprintf(tmp, sizeof(tmp), "-S %d ", params->successful);
+    strncat(buf, tmp, sizeof(buf));
+  }
+  if (params->set_tries) {
+    snprintf(tmp, sizeof(tmp), "-T %d ", params->tries);
+    strncat(buf, tmp, sizeof(buf));
+  }
+  if (params->set_priority) {
+    snprintf(tmp, sizeof(tmp), "-P %d ", params->priority);
+    strncat(buf, tmp, sizeof(buf));
+  }
+  if (params->set_raw) {
+    snprintf(tmp, sizeof(tmp), "-A 0x%x ", params->raw_value);
+    strncat(buf, tmp, sizeof(buf));
+  }
+
+  strncat(buf, "\n", sizeof(buf));
+  return buf;
+}
+
 // This is an internal helper function which assumes no NULL args are passed.
 // It sets the given attribute values for a single entry at the given index.
 static void set_entry_attributes(struct drive drive,
@@ -177,7 +230,7 @@ int cgpt_add(CgptAddParams *params) {
   struct drive drive;
 
   int gpt_retval;
-  GptEntry *entry;
+  GptEntry *entry, backup;
   uint32_t index;
 
   if (params == NULL)
@@ -221,6 +274,7 @@ int cgpt_add(CgptAddParams *params) {
       goto bad;
     }
   }
+  memcpy(&backup, entry, sizeof(backup));
 
   // New partitions must specify type, begin, and size.
   if (IsZero(&entry->type)) {
@@ -265,6 +319,15 @@ int cgpt_add(CgptAddParams *params) {
                          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
   UpdateCrc(&drive.gpt);
 
+  // If the modified entry is illegal, recovery it and return error.
+  if (0 != CheckEntries((GptEntry*)drive.gpt.primary_entries,
+                        (GptHeader*)drive.gpt.primary_header)) {
+    memcpy(entry, &backup, sizeof(*entry));
+    Error("At least a parameter is not allowed:\n");
+    Error(DumpCgptAddParams(params));
+    goto bad;
+  }
+
   // Write it all out.
   return DriveClose(&drive, 1);
 
@@ -272,4 +335,3 @@ bad:
   DriveClose(&drive, 0);
   return CGPT_FAILED;
 }
-
