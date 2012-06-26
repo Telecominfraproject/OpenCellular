@@ -45,6 +45,8 @@ const PlatformFamily platform_family_array[] = {
   {"nvidia,tegra20", "Tegra2"},
   {"ti,omap4", "OMAP4"},
   {"ti,omap3", "OMAP3"},
+  {"samsung,exynos4210", "EXYNOS4"},
+  {"samsung,exynos5250", "EXYNOS5"},
   /* Terminate with NULL entry */
   {NULL, NULL}
 };
