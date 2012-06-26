@@ -54,6 +54,9 @@ typedef enum VbNvParam {
   /* Set by userspace to request that RO firmware disable dev-mode on the next
    * boot. This is likely only possible if the dev-switch is virtual. */
   VBNV_DISABLE_DEV_REQUEST,
+  /* Set and cleared by vboot to request that the video Option ROM be loaded at
+   * boot time, so that BIOS screens can be displayed. 0=no, 1=yes. */
+  VBNV_OPROM_NEEDED,
 } VbNvParam;
 
 

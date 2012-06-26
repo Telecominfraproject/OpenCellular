@@ -58,6 +58,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     shared->flags |= VBSD_BOOT_S3_RESUME;
   if (iparams->flags & VB_INIT_FLAG_RO_NORMAL_SUPPORT)
     shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
+  if (iparams->flags & VB_INIT_FLAG_OPROM_LOADED)
+    shared->flags |= VBSD_BOOT_OPROM_LOADED;
 
   is_s3_resume = (iparams->flags & VB_INIT_FLAG_S3_RESUME ? 1 : 0);
 

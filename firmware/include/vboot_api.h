@@ -169,6 +169,8 @@ typedef struct VbCommonParams {
  * virtual switch (kept in the TPM) instead. When this flag is set,
  * VB_INIT_FLAG_DEV_SWITCH_ON is ignored. */
 #define VB_INIT_FLAG_VIRTUAL_DEV_SWITCH  0x00000040
+/* Set when the VGA Option ROM has been loaded already. */
+#define VB_INIT_FLAG_OPROM_LOADED        0x00000080
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware

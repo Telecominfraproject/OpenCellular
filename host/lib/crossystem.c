@@ -381,6 +381,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_USB);
   } else if (!strcasecmp(name,"dev_boot_signed_only")) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY);
+  } else if (!strcasecmp(name,"oprom_needed")) {
+    value = VbGetNvStorage(VBNV_OPROM_NEEDED);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
@@ -460,6 +462,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_DEV_BOOT_USB, value);
   } else if (!strcasecmp(name,"dev_boot_signed_only")) {
     return VbSetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY, value);
+  } else if (!strcasecmp(name,"oprom_needed")) {
+    return VbSetNvStorage(VBNV_OPROM_NEEDED, value);
   }
 
   return -1;
