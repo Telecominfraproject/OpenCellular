@@ -45,6 +45,7 @@ typedef struct CgptShowParams {
   int quick;
   uint32_t partition;
   int single_item;
+  int debug;
 
   // This is filled in by the relevant methods in cgpt_show.c
   int num_partitions;

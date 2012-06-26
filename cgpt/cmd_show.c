@@ -28,6 +28,7 @@ static void Usage(void)
          "               -T  Tries flag\n"
          "               -P  Priority flag\n"
          "               -A  raw 64-bit attribute value\n"
+         "  -d           Debug output (including invalid headers)\n"
          "\n", progname);
 }
 
@@ -40,7 +41,7 @@ int cmd_show(int argc, char *argv[]) {
   char *e = 0;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hnvqi:bstulSTPA")) != -1)
+  while ((c=getopt(argc, argv, ":hnvqi:bstulSTPAd")) != -1)
   {
     switch (c)
     {
@@ -71,6 +72,10 @@ int cmd_show(int argc, char *argv[]) {
     case 'P':
     case 'A':
       params.single_item = c;
+      break;
+
+    case 'd':
+      params.debug = 1;
       break;
 
     case 'h':
