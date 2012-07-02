@@ -25,6 +25,9 @@
 #define FDT_COMPATIBLE_PATH "/proc/device-tree/compatible"
 /* Device for NVCTX write */
 #define NVCTX_PATH "/dev/mmcblk%d"
+/* Base name for GPIO files */
+#define GPIO_BASE_PATH "/sys/class/gpio"
+#define GPIO_EXPORT_PATH GPIO_BASE_PATH "/export"
 /* Errors */
 #define E_FAIL      -1
 #define E_FILEOP    -2
@@ -191,11 +194,26 @@ static char * ReadFdtPlatformFamily(void) {
 }
 
 static int VbGetGpioStatus(unsigned gpio_number) {
-  char const *gpio_name_format = "/sys/class/gpio/gpio%d/value";
   char gpio_name[FNAME_SIZE];
+  int value;
 
-  snprintf(gpio_name, sizeof(gpio_name), gpio_name_format, gpio_number);
-  return ReadFileInt(gpio_name);
+  snprintf(gpio_name, sizeof(gpio_name), "%s/gpio%d/value",
+           GPIO_BASE_PATH, gpio_number);
+  value = ReadFileInt(gpio_name);
+
+  if (value == -1) {
+    /* Try exporting the GPIO */
+    FILE* f = fopen(GPIO_EXPORT_PATH, "wt");
+    if (!f)
+      return -1;
+    fprintf(f, "%d", gpio_number);
+    fclose(f);
+
+    /* Try re-reading the GPIO value */
+    value = ReadFileInt(gpio_name);
+  }
+
+  return value;
 }
 
 static int VbGetVarGpio(const char* name) {
