@@ -196,6 +196,8 @@ typedef struct VbCommonParams {
 #define VB_INIT_OUT_ENABLE_OPROM         0x00000020
 /* BIOS may be asked to boot something other than ChromeOS */
 #define VB_INIT_OUT_ENABLE_ALTERNATE_OS  0x00000040
+/* Enable developer path. */
+#define VB_INIT_OUT_ENABLE_DEVELOPER     0x00000080
 
 
 /* Data only used by VbInit() */

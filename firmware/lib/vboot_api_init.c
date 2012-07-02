@@ -197,7 +197,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   }
   else if (is_dev) {
     /* Developer switch is on, so need to support dev mode */
-    iparams->out_flags |= (VB_INIT_OUT_CLEAR_RAM |
+    iparams->out_flags |= (VB_INIT_OUT_ENABLE_DEVELOPER |
+                           VB_INIT_OUT_CLEAR_RAM |
                            VB_INIT_OUT_ENABLE_DISPLAY |
                            VB_INIT_OUT_ENABLE_USB_STORAGE);
     /* ... which may or may not include custom OSes */
