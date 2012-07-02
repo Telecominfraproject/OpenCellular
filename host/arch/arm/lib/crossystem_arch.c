@@ -213,14 +213,17 @@ static int VbGetVarGpio(const char* name) {
 
   ret = ReadFdtBlock(name, &pp, &proplen);
   if (ret || !pp || proplen != 12) {
-    ret = 2;
+    ret = -1;
     goto out;
   }
   prop = pp;
   gpio_num = ntohl(prop[1]);
   polarity = ntohl(prop[2]);
 
-  ret = VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+  if (gpio_num)
+    ret = VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+  else
+    ret = -1;
 out:
   if (pp)
     free(pp);
@@ -340,6 +343,8 @@ VbSharedDataHeader *VbSharedDataRead(void) {
 }
 
 int VbGetArchPropertyInt(const char* name) {
+  int value;
+
   if (!strcasecmp(name, "fmap_base"))
     return ReadFdtInt("fmap-offset");
   else if (!strcasecmp(name, "devsw_boot"))
@@ -349,15 +354,26 @@ int VbGetArchPropertyInt(const char* name) {
   else if (!strcasecmp(name, "wpsw_boot"))
     return ReadFdtBool("boot-write-protect-switch");
   else if (!strcasecmp(name, "devsw_cur"))
-    return VbGetVarGpio("developer-switch");
+    value = VbGetVarGpio("developer-switch");
   else if (!strcasecmp(name, "recoverysw_cur"))
-    return VbGetVarGpio("recovery-switch");
+    value = VbGetVarGpio("recovery-switch");
   else if (!strcasecmp(name, "wpsw_cur"))
-  return VbGetVarGpio("write-protect-switch");
+    return VbGetVarGpio("write-protect-switch");
   else if (!strcasecmp(name, "recoverysw_ec_boot"))
     return 0;
   else
     return -1;
+
+  if (value < 0) {
+    if (!strcasecmp(name, "devsw_cur"))
+      return ReadFdtBool("boot-developer-switch");
+    else if (!strcasecmp(name, "recoverysw_cur"))
+      return ReadFdtBool("boot-recovery-switch");
+    else
+      return -1;
+  } else {
+    return value;
+  }
 }
 
 const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
