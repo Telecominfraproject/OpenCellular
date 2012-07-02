@@ -131,20 +131,6 @@ uint32_t WriteSpaceFirmware(RollbackSpaceFirmware* rsf) {
   return TPM_E_CORRUPTED_STATE;
 }
 
-VbError_t VbGetVirtualDevMode(int *val) {
-  RollbackSpaceFirmware rsf;
-
-  VBDEBUG(("TPM: Entering %s()\n", __func__));
-  if (TPM_SUCCESS != ReadSpaceFirmware(&rsf))
-    return VBERROR_TPM_FIRMWARE_SETUP;
-
-  VBDEBUG(("TPM: flags are 0x%02x\n", rsf.flags));
-  *val = (rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON) ? 1 : 0;
-
-  VBDEBUG(("TPM: Leaving %s()\n", __func__));
-  return VBERROR_SUCCESS;
-}
-
 uint32_t SetVirtualDevMode(int val) {
   RollbackSpaceFirmware rsf;
 

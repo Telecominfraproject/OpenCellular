@@ -381,8 +381,6 @@ VbError_t VbExTpmOpen(void);
 VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
                              uint8_t* response, uint32_t* response_length);
 
-/* Utility function to get the virtual dev-mode flag value. 0=off, 1=on */
-VbError_t VbGetVirtualDevMode(int *val);
 
 /*****************************************************************************/
 /* Non-volatile storage */
