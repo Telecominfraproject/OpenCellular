@@ -171,6 +171,8 @@ typedef struct VbCommonParams {
 #define VB_INIT_FLAG_VIRTUAL_DEV_SWITCH  0x00000040
 /* Set when the VGA Option ROM has been loaded already. */
 #define VB_INIT_FLAG_OPROM_LOADED        0x00000080
+/* EC on this platform supports EC software sync. */
+#define VB_INIT_FLAG_EC_SOFTWARE_SYNC    0x00000100
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware
