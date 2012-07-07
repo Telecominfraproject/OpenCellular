@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -144,4 +144,46 @@ VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
 
 int VbExTrustEC(void) {
   return 1;
+}
+
+VbError_t VbExEcRunningRW(int *in_rw) {
+  *in_rw = 0;
+  return VBERROR_SUCCESS;
+}
+
+VbError_t VbExEcJumpToRW(void) {
+  return VBERROR_SUCCESS;
+}
+
+VbError_t VbExEcRebootToRO(void) {
+  /* Nothing to reboot, so all we can do is return failure. */
+  return VBERROR_UNKNOWN;
+}
+
+VbError_t VbExEcStayInRO(void) {
+  return VBERROR_SUCCESS;
+}
+
+#define SHA256_HASH_SIZE 32
+
+VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size) {
+  static const uint8_t fake_hash[32] = {1, 2, 3, 4};
+  *hash = fake_hash;
+  *hash_size = sizeof(fake_hash);
+  return VBERROR_SUCCESS;
+}
+
+VbError_t VbExEcGetExpectedRW(const uint8_t **image, int *image_size) {
+  static const uint8_t fake_image[64] = {5, 6, 7, 8};
+  *image = fake_image;
+  *image_size = sizeof(fake_image);
+  return VBERROR_SUCCESS;
+}
+
+VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size) {
+  return VBERROR_SUCCESS;
+}
+
+VbError_t VbExEcProtectRW(void) {
+  return VBERROR_SUCCESS;
 }

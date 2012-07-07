@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -601,6 +601,51 @@ uint32_t VbExKeyboardRead(void);
 
 
 /*****************************************************************************/
+/* Embedded controller (EC) */
+
+/* This is called only if the system implements a keyboard-based (virtual)
+ * developer switch. It must return true only if the system has an embedded
+ * controller which is provably running in its RO firmware at the time the
+ * function is called. */
+int VbExTrustEC(void);
+
+/* Check if the EC is currently running rewritable code.
+ *
+ * If the EC is in RO code, sets *in_rw=0.
+ * If the EC is in RW code, sets *in_rw non-zero.
+ * If the current EC image is unknown, returns error. */
+VbError_t VbExEcRunningRW(int *in_rw);
+
+/* Request the EC jump to its rewritable code.  If successful, returns
+ * when the EC has booting its RW code far enough to respond to
+ * subsequent commands.  Does nothing if the EC is already in its
+ * rewritable code. */
+VbError_t VbExEcJumpToRW(void);
+
+/* Cold-reboot the EC into read-only code.  This also reboots the main
+ * processor, so this function only returns if there was an error. */
+VbError_t VbExEcRebootToRO(void);
+
+/* Tell the EC to stay in RO code until it reboots.  Subsequent calls to
+ * VbExEcJumpToRW() this boot will fail.  Fails if the EC is not currently in
+ * RO code. */
+VbError_t VbExEcStayInRO(void);
+
+/* Read the SHA-256 hash of the rewriteable EC image. */
+VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size);
+
+/* Get the expected contents of the EC image as stored in the main firmware. */
+VbError_t VbExEcGetExpectedRW(const uint8_t **image, int *image_size);
+
+/* Update the EC rewritable image. */
+VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size);
+
+/* Lock the EC code to prevent updates until the EC is rebooted.
+ * Subsequent calls to VbExEcUpdateRW() this boot will fail. */
+VbError_t VbExEcProtectRW(void);
+
+
+/*****************************************************************************/
 /* Misc */
 
 /* Checks if the firmware needs to shut down the system.
@@ -623,11 +668,5 @@ VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
                          uint32_t compression_type,
                          void *outbuf, uint32_t *out_size);
 
-
-/* This is called only if the system implements a keyboard-based (virtual)
- * developer switch. It must return true only if the system has an embedded
- * controller which is provably running in its RO firmware at the time the
- * function is called. */
-int VbExTrustEC(void);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */
