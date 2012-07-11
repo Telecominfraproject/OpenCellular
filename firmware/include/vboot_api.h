@@ -101,6 +101,8 @@ enum VbErrorPredefined_t {
   VBERROR_NO_BACKGROUND_SOUND           = 0x10019,
   /* Developer has requested a BIOS shell */
   VBERROR_BIOS_SHELL_REQUESTED          = 0x10020,
+  /* Need VGA and don't have it, or vice-versa */
+  VBERROR_VGA_OPROM_MISMATCH            = 0x10021,
 };
 
 
@@ -171,8 +173,10 @@ typedef struct VbCommonParams {
 #define VB_INIT_FLAG_VIRTUAL_DEV_SWITCH  0x00000040
 /* Set when the VGA Option ROM has been loaded already. */
 #define VB_INIT_FLAG_OPROM_LOADED        0x00000080
+/* Set if we care about the VGA Option ROM - some platforms don't. */
+#define VB_INIT_FLAG_OPROM_MATTERS       0x00000100
 /* EC on this platform supports EC software sync. */
-#define VB_INIT_FLAG_EC_SOFTWARE_SYNC    0x00000100
+#define VB_INIT_FLAG_EC_SOFTWARE_SYNC    0x00000200
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware

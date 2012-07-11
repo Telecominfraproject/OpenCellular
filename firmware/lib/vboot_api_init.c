@@ -58,8 +58,6 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     shared->flags |= VBSD_BOOT_S3_RESUME;
   if (iparams->flags & VB_INIT_FLAG_RO_NORMAL_SUPPORT)
     shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
-  if (iparams->flags & VB_INIT_FLAG_OPROM_LOADED)
-    shared->flags |= VBSD_BOOT_OPROM_LOADED;
 
   is_s3_resume = (iparams->flags & VB_INIT_FLAG_S3_RESUME ? 1 : 0);
 
@@ -205,12 +203,32 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &require_official_os);
     if (!require_official_os)
       iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
+
+    /* Dev-mode needs the VGA option ROM to be loaded so it can display the
+     * scary boot screen. If we don't have it, we need to request it and
+     * reboot so it can be loaded. */
+    if ((iparams->flags & VB_INIT_FLAG_OPROM_MATTERS) &&
+        !(iparams->flags & VB_INIT_FLAG_OPROM_LOADED)) {
+      VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+      retval = VBERROR_VGA_OPROM_MISMATCH;
+      VBDEBUG(("VbInit() needs oprom, doesn't have it\n"));
+    }
+
   } else {
     /* Normal mode, so disable dev_boot_* flags.  This ensures they will be
      * initially disabled if the user later transitions back into developer
      * mode. */
     VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
     VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 0);
+
+    /* If we don't need the VGA option ROM but got it anyway, stop asking for
+     * it and reboot in case there's some vulnerability in using it. */
+    if ((iparams->flags & VB_INIT_FLAG_OPROM_MATTERS) &&
+        (iparams->flags & VB_INIT_FLAG_OPROM_LOADED)) {
+      VbNvSet(&vnc, VBNV_OPROM_NEEDED, 0);
+      retval = VBERROR_VGA_OPROM_MISMATCH;
+      VBDEBUG(("VbInit() has oprom, doesn't need it\n"));
+    }
   }
 
 VbInit_exit:

@@ -233,8 +233,6 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_BOOT_RO_NORMAL_SUPPORT     0x00000200
 /* VbInit was told that the system has a virtual dev-switch */
 #define VBSD_HONOR_VIRT_DEV_SWITCH      0x00000400
-/* VbInit was told that the VGA Option ROM was loaded at boot */
-#define VBSD_BOOT_OPROM_LOADED          0x00000800
 
 /* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
 #define VBSD_LF_CHECK_NOT_DONE          0
