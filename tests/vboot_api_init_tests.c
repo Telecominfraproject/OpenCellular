@@ -208,6 +208,7 @@ static void VbInitTest(void) {
           VB_INIT_OUT_CLEAR_RAM |
           VB_INIT_OUT_ENABLE_DISPLAY |
           VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_DEVELOPER |
           VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
   TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 
@@ -221,6 +222,7 @@ static void VbInitTest(void) {
           VB_INIT_OUT_CLEAR_RAM |
           VB_INIT_OUT_ENABLE_DISPLAY |
           VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_DEVELOPER |
           VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
   TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 
@@ -346,6 +348,7 @@ static void VbInitTestTPM(void) {
           VB_INIT_OUT_CLEAR_RAM |
           VB_INIT_OUT_ENABLE_DISPLAY |
           VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_DEVELOPER |
           VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
   TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON | VBSD_HONOR_VIRT_DEV_SWITCH,
           "  shared flags");
@@ -367,6 +370,7 @@ static void VbInitTestTPM(void) {
           VB_INIT_OUT_CLEAR_RAM |
           VB_INIT_OUT_ENABLE_DISPLAY |
           VB_INIT_OUT_ENABLE_USB_STORAGE |
+          VB_INIT_OUT_ENABLE_DEVELOPER |
           VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
   TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 }
