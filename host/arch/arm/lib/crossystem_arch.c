@@ -238,7 +238,16 @@ static int VbGetVarGpio(const char* name) {
   gpio_num = ntohl(prop[1]);
   polarity = ntohl(prop[2]);
 
-  ret = VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+  /*
+   * TODO(chrome-os-partner:11296): Use gpio_num == 0 to denote non-exist
+   * GPIO for now, at the risk that one day we might actually want to read
+   * from a GPIO port 0.  We should figure out how to represent "non-exist"
+   * properly.
+   */
+  if (gpio_num)
+    ret = VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+  else
+    ret = -1;
 out:
   if (pp)
     free(pp);
