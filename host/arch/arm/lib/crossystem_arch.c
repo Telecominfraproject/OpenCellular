@@ -217,7 +217,7 @@ static int VbGetGpioStatus(unsigned gpio_number) {
 }
 
 static int VbGetVarGpio(const char* name) {
-  int polarity, gpio_num;
+  int gpio_num;
   void *pp = NULL;
   int *prop;
   size_t proplen = 0;
@@ -236,7 +236,6 @@ static int VbGetVarGpio(const char* name) {
   }
   prop = pp;
   gpio_num = ntohl(prop[1]);
-  polarity = ntohl(prop[2]);
 
   /*
    * TODO(chrome-os-partner:11296): Use gpio_num == 0 to denote non-exist
@@ -245,7 +244,7 @@ static int VbGetVarGpio(const char* name) {
    * properly.
    */
   if (gpio_num)
-    ret = VbGetGpioStatus(gpio_num) ^ polarity ^ 1;
+    ret = VbGetGpioStatus(gpio_num);
   else
     ret = -1;
 out:
