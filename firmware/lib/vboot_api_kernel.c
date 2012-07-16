@@ -348,6 +348,103 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 }
 
 
+VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
+  int in_rw = 0;
+  int rv = VbExEcRunningRW(&in_rw);
+
+  if (shared->recovery_reason) {
+    /* Recovery mode; just verify the EC is in RO code */
+    if (rv == VBERROR_SUCCESS && in_rw == 1) {
+      /* EC is definitely in RW firmware.  We want it in read-only code, so
+       * preseve the current recovery reason and reboot.
+       *
+       * We don't reboot on error or unknown EC code, because we could end
+       * up in an endless reboot loop.  If we had some way to track that we'd
+       * already rebooted for this reason, we could retry only once. */
+      VBDEBUG(("VbEcSoftwareSync() - want recovery but got EC-RW\n"));
+      VbSetRecoveryRequest(shared->recovery_reason);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    VBDEBUG(("VbEcSoftwareSync() in recovery; EC-RO\n"));
+    return VBERROR_SUCCESS;
+  }
+
+  /* Not in recovery.  If we couldn't determine where the EC was,
+   * reboot to recovery. */
+  if (rv != VBERROR_SUCCESS) {
+    VBDEBUG(("VbEcSoftwareSync() - VbEcSoftwareSync() returned %d\n", rv));
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_UNKNOWN_IMAGE);
+    return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+  }
+
+  /* If AP is read-only normal, EC should be in its RO code also. */
+  if (shared->flags & VBSD_LF_USE_RO_NORMAL) {
+    /* If EC is in RW code, request reboot back to RO */
+    if (in_rw == 1) {
+      VBDEBUG(("VbEcSoftwareSync() - want RO-normal but got EC-RW\n"));
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    /* Protect the RW flash and stay in EC-RO */
+    rv = VbExEcProtectRW();
+    if (rv != VBERROR_SUCCESS) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcProtectRW() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    rv = VbExEcStayInRO();
+    if (rv != VBERROR_SUCCESS) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcStayInRO() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    VBDEBUG(("VbEcSoftwareSync() in RO-Normal; EC-RO\n"));
+
+    /* TODO: If EC-RW wasn't protected when we started, then this boot was
+     * simply to verify the EC.  Shut down instead of continuing. */
+
+    return VBERROR_SUCCESS;
+  }
+
+  /* TODO: verify EC-RW hash vs. expected code */
+
+  if (in_rw) {
+    /* TODO: if hash doesn't verify, reboot EC so we can reflash it
+     * with the expected code. */
+    VBDEBUG(("VbEcSoftwareSync() in RW; EC-RW\n"));
+    return VBERROR_SUCCESS;
+
+  } else {
+    /* TODO: if hash doesn't verify, reflash it with expected code. */
+
+    /* Protect EC-RW flash */
+    rv = VbExEcProtectRW();
+    if (rv != VBERROR_SUCCESS) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcProtectRW() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    /* Tell EC to jump to its RW code */
+    VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
+    rv = VbExEcJumpToRW();
+    if (rv != VBERROR_SUCCESS) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcJumpToRW() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    /* TODO: If there was no wake event from the EC (such as power button or
+     * lid-open), shut down.  The AP was powered on simply to verify the EC. */
+    VBDEBUG(("VbEcSoftwareSync() in RW; done jumping to EC-RW\n"));
+    return VBERROR_SUCCESS;
+  }
+}
+
+
 VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
                                 VbSelectAndLoadKernelParams* kparams) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
@@ -367,6 +464,13 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   kparams->bootloader_address = 0;
   kparams->bootloader_size = 0;
   Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
+
+  /* Do EC software sync if necessary */
+  if (shared->flags & VBSD_EC_SOFTWARE_SYNC) {
+    retval = VbEcSoftwareSync(shared);
+    if (retval != VBERROR_SUCCESS)
+      goto VbSelectAndLoadKernel_exit;
+  }
 
   /* Read the kernel version from the TPM.  Ignore errors in recovery mode. */
   tpm_status = RollbackKernelRead(&shared->kernel_version_tpm);

@@ -49,6 +49,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
   shared->timer_vb_init_enter = VbExGetTimer();
 
   /* Copy some boot switch flags */
+  /* TODO: in next refactor, just save in/out flags in VbSharedData */
   shared->flags = 0;
   if (iparams->flags & VB_INIT_FLAG_REC_BUTTON_PRESSED)
     shared->flags |= VBSD_BOOT_REC_SWITCH_ON;
@@ -58,6 +59,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     shared->flags |= VBSD_BOOT_S3_RESUME;
   if (iparams->flags & VB_INIT_FLAG_RO_NORMAL_SUPPORT)
     shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
+  if (iparams->flags & VB_INIT_FLAG_EC_SOFTWARE_SYNC)
+    shared->flags |= VBSD_EC_SOFTWARE_SYNC;
 
   is_s3_resume = (iparams->flags & VB_INIT_FLAG_S3_RESUME ? 1 : 0);
 

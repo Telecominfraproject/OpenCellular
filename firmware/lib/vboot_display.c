@@ -443,6 +443,10 @@ static const char *RecoveryReasonString(uint8_t code) {
     return "Firmware problem outside of verified boot";
   case VBNV_RECOVERY_RO_TPM_REBOOT:
     return "TPM requires a system reboot (should be transient)";
+  case VBNV_RECOVERY_EC_SOFTWARE_SYNC:
+    return "EC software sync error";
+  case VBNV_RECOVERY_EC_UNKNOWN_IMAGE:
+    return "Unable to determine active EC image";
   case VBNV_RECOVERY_RO_UNSPECIFIED:
     return "Unspecified/unknown error in RO firmware";
   case VBNV_RECOVERY_RW_DEV_SCREEN:

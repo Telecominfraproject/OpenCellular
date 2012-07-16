@@ -231,8 +231,10 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_BOOT_S3_RESUME             0x00000100
 /* Read-only firmware supports the normal/developer code path */
 #define VBSD_BOOT_RO_NORMAL_SUPPORT     0x00000200
-/* VbInit was told that the system has a virtual dev-switch */
+/* VbInit() was told that the system has a virtual dev-switch */
 #define VBSD_HONOR_VIRT_DEV_SWITCH      0x00000400
+/* VbInit() was told the system supports EC software sync */
+#define VBSD_EC_SOFTWARE_SYNC           0x00000800
 
 /* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
 #define VBSD_LF_CHECK_NOT_DONE          0
