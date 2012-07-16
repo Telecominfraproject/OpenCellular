@@ -103,6 +103,8 @@ enum VbErrorPredefined_t {
   VBERROR_BIOS_SHELL_REQUESTED          = 0x10020,
   /* Need VGA and don't have it, or vice-versa */
   VBERROR_VGA_OPROM_MISMATCH            = 0x10021,
+  /* Need EC to reboot to read-only code */
+  VBERROR_EC_REBOOT_TO_RO_REQUIRED      = 0x10022
 };
 
 
@@ -625,10 +627,6 @@ VbError_t VbExEcRunningRW(int *in_rw);
  * subsequent commands.  Does nothing if the EC is already in its
  * rewritable code. */
 VbError_t VbExEcJumpToRW(void);
-
-/* Cold-reboot the EC into read-only code.  This also reboots the main
- * processor, so this function only returns if there was an error. */
-VbError_t VbExEcRebootToRO(void);
 
 /* Tell the EC to stay in RO code until it reboots.  Subsequent calls to
  * VbExEcJumpToRW() this boot will fail.  Fails if the EC is not currently in
