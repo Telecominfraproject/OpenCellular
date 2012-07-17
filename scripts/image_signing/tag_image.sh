@@ -20,8 +20,6 @@ DEFINE_string update_firmware "" \
   "(auto-update) Force updating firmware (1 to enable, 0 to disable)"
 DEFINE_string leave_firmware_alone "" \
   "(auto-update) For BIOS development use ONLY (1 to enable, 0 to disable)"
-DEFINE_string forget_usernames "" \
-  "(session-manager) Forget usernames (1 to enable, 0 to disable)"
 DEFINE_string leave_core "" \
   "(crash-reporter) Leave core dumps (1 to enable, 0 to disable)"
 DEFINE_string crosh_workarounds "" \
@@ -148,12 +146,6 @@ process_all_tags() {
     "${rootfs}" \
     /root/.leave_firmware_alone \
     "${FLAGS_leave_firmware_alone}"
-
-  process_tag "${do_modification}" \
-    "(session-manager) forget_usernames" \
-    "${rootfs}" \
-    /root/.forget_usernames \
-    "${FLAGS_forget_usernames}"
 
   process_tag "${do_modification}" \
     "(crash-reporter) leave_core" \
