@@ -330,7 +330,9 @@ static int Verify(const char *filename) {
     sprintf(buf, "FW_MAIN_%c", i);
     if (!FindInFmap(fmap, buf, image, image_size, &fv_data, &fv_size)) {
       printf("Can't find %s in %s\n", buf, filename);
-      errorcnt++;
+      /* Not an error for firmware B */
+      if (i != 'B')
+        errorcnt++;
       continue;
     }
 
@@ -338,7 +340,9 @@ static int Verify(const char *filename) {
     if (!FindInFmap(fmap, buf, image, image_size,
                     (uint8_t **)&key_block, &key_block_size)) {
       printf("Can't find %s in %s\n", buf, filename);
-      errorcnt++;
+      /* Not an error for firmware B */
+      if (i != 'B')
+        errorcnt++;
       continue;
     }
 
