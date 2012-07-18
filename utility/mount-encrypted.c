@@ -56,6 +56,10 @@ static const uint32_t kLockboxSaltOffset = 0x5;
 static const size_t kSectorSize = 512;
 static const size_t kExt4BlockSize = 4096;
 static const size_t kExt4MinBytes = 16 * 1024 * 1024;
+static const char * const kStaticKeyDefault = "default unsafe static key";
+static const char * const kStaticKeyFactory = "factory unsafe static key";
+static const int kModeProduction = 0;
+static const int kModeFactory = 1;
 
 enum migration_method {
 	MIGRATE_TEST_ONLY,
@@ -343,13 +347,25 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
  * all the rest will fallback through various places (kernel command line,
  * BIOS UUID, and finally a static value) for a system key.
  */
-static int find_system_key(uint8_t *digest, int *migration_allowed)
+static int find_system_key(int mode, uint8_t *digest, int *migration_allowed)
 {
 	gchar *key;
 	gsize length;
 
 	/* By default, do not allow migration. */
 	*migration_allowed = 0;
+
+	/* Factory mode uses a static system key. */
+	if (mode == kModeFactory) {
+		INFO("Using factory insecure system key.");
+		sha256((char *)kStaticKeyFactory, digest);
+		debug_dump_hex("system key", digest, DIGEST_LENGTH);
+		return 1;
+	}
+
+	/* Force ChromeOS devices into requiring the system key come from
+	 * NVRAM.
+	 */
 	if (has_chromefw()) {
 		int rc;
 		rc = get_nvram_key(digest, migration_allowed);
@@ -379,7 +395,7 @@ static int find_system_key(uint8_t *digest, int *migration_allowed)
 	}
 
 	INFO("Using default insecure system key.");
-	sha256("default unsafe static key", digest);
+	sha256((char *)kStaticKeyDefault, digest);
 	debug_dump_hex("system key", digest, DIGEST_LENGTH);
 	return 1;
 }
@@ -594,7 +610,10 @@ static int finalize_from_cmdline(char *key)
 			return EXIT_FAILURE;
 		}
 	} else {
-		if (!find_system_key(system_key, &migrate)) {
+		/* Factory mode will never call finalize from the command
+		 * line, so force Production mode here.
+		 */
+		if (!find_system_key(kModeProduction, system_key, &migrate)) {
 			ERROR("Could not locate system key.");
 			return EXIT_FAILURE;
 		}
@@ -650,7 +669,11 @@ out:
 	exit(0);
 }
 
-static int setup_encrypted(void)
+/* Do all the work needed to actually set up the encrypted partition.
+ * Takes "mode" argument to help determine where the system key should
+ * come from.
+ */
+static int setup_encrypted(int mode)
 {
 	int has_system_key;
 	uint8_t system_key[DIGEST_LENGTH];
@@ -666,7 +689,7 @@ static int setup_encrypted(void)
 	/* Use the "system key" to decrypt the "encryption key" stored in
 	 * the stateful partition.
 	 */
-	has_system_key = find_system_key(system_key, &migrate_allowed);
+	has_system_key = find_system_key(mode, system_key, &migrate_allowed);
 	if (has_system_key) {
 		encryption_key = keyfile_read(key_path, system_key);
 	} else {
@@ -1129,6 +1152,7 @@ fail:
 int main(int argc, char *argv[])
 {
 	int okay;
+	int mode = kModeProduction;
 
 	INFO_INIT("Starting.");
 	prepare_paths();
@@ -1137,24 +1161,28 @@ int main(int argc, char *argv[])
 	if (argc > 1) {
 		if (!strcmp(argv[1], "umount"))
 			return shutdown();
-		if (!strcmp(argv[1], "info"))
+		else if (!strcmp(argv[1], "info"))
 			return report_info();
-		if (!strcmp(argv[1], "finalize"))
+		else if (!strcmp(argv[1], "finalize"))
 			return finalize_from_cmdline(argc > 2 ? argv[2] : NULL);
-
-		fprintf(stderr, "Usage: %s [info|finalize|umount]\n",
-			argv[0]);
-		return 1;
+		else if (!strcmp(argv[1], "factory"))
+			mode = kModeFactory;
+		else {
+			fprintf(stderr,
+				"Usage: %s [info|finalize|umount|factory]\n",
+				argv[0]);
+			return 1;
+		}
 	}
 
 	check_mount_states();
 
-	okay = setup_encrypted();
+	okay = setup_encrypted(mode);
 	if (!okay) {
 		INFO("Setup failed -- clearing files and retrying.");
 		unlink(key_path);
 		unlink(block_path);
-		okay = setup_encrypted();
+		okay = setup_encrypted(mode);
 	}
 
 	INFO_DONE("Done.");
