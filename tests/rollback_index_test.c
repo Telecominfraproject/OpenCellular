@@ -49,7 +49,7 @@
   } while (0)
 
 #define WRITE_BUCKET_NV_INDEX 0x1050
-#define STATEPATH "/mnt/stateful_partition/var/spool/rbtest.state"
+#define STATEPATH "/var/spool/rbtest.state"
 #define TPM_ANY_FAILURE (-1)
 
 #define TPM_MAX_NV_WRITE_NOOWNER 64
