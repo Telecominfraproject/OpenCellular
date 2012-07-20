@@ -60,6 +60,7 @@ static const char * const kStaticKeyDefault = "default unsafe static key";
 static const char * const kStaticKeyFactory = "factory unsafe static key";
 static const int kModeProduction = 0;
 static const int kModeFactory = 1;
+static const int kCryptAllowDiscard = 1;
 
 enum migration_method {
 	MIGRATE_TEST_ONLY,
@@ -761,9 +762,21 @@ static int setup_encrypted(int mode)
 	/* Mount loopback device with dm-crypt using the encryption key. */
 	INFO("Setting up dm-crypt %s as %s.", lodev, dmcrypt_dev);
 	if (!dm_setup(sectors, encryption_key, dmcrypt_name, lodev,
-		      dmcrypt_dev)) {
-		ERROR("dm_setup failed");
-		goto lo_cleanup;
+		      dmcrypt_dev, kCryptAllowDiscard)) {
+		/* If dm_setup() fails, it could be due to lacking
+		 * "allow_discard" support, so try again with discard
+		 * disabled. There doesn't seem to be a way to query
+		 * the kernel for this feature short of a fallible
+		 * version test or just trying to set up the dm table
+		 * again, so do the latter.
+		 */
+		if (!dm_setup(sectors, encryption_key, dmcrypt_name, lodev,
+			      dmcrypt_dev, !kCryptAllowDiscard)) {
+			ERROR("dm_setup failed");
+			goto lo_cleanup;
+		}
+		INFO("%s: dm-crypt does not support discard; disabling.",
+		     dmcrypt_dev);
 	}
 
 	/* Decide now if any migration will happen. If so, we will not

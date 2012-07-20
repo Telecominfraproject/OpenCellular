@@ -297,16 +297,16 @@ failed:
 }
 
 int dm_setup(size_t sectors, const gchar *encryption_key, const char *name,
-		const gchar *device, const char *path)
+		const gchar *device, const char *path, int discard)
 {
 	/* Mount loopback device with dm-crypt using the encryption key. */
 	gchar *table = g_strdup_printf("0 %zu crypt " \
 				       "aes-cbc-essiv:sha256 %s " \
-				       "0 %s 0 " \
-				       "1 allow_discards",
+				       "0 %s 0%s",
 				       sectors,
 				       encryption_key,
-				       device);
+				       device,
+				       discard ? " 1 allow_discards" : "");
 	if (!table) {
 		PERROR("g_strdup_printf");
 		return 0;

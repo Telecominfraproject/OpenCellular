@@ -22,7 +22,7 @@ int loop_detach_name(const char *name);
 
 /* Encrypted device mapper setup/teardown. */
 int dm_setup(size_t sectors, const gchar *encryption_key, const char *name,
-		const gchar *device, const char *path);
+		const gchar *device, const char *path, int discard);
 int dm_teardown(const gchar *device);
 char *dm_get_key(const gchar *device);
 
