@@ -194,13 +194,13 @@ static void SignImage(const char *filename,
   }
 
 
-  /* Sign RW Firmware */
-  if (!FindInFmap(fmap, "FW_MAIN", image, image_size, &fv_data, &fv_size))
-    VbExError("Can't find FW_MAIN in %s\n", filename);
+  /* Sign FW A */
+  if (!FindInFmap(fmap, "FW_MAIN_A", image, image_size, &fv_data, &fv_size))
+    VbExError("Can't find FW_MAIN_A in %s\n", filename);
 
-  if (!FindInFmap(fmap, "VBLOCK", image, image_size,
+  if (!FindInFmap(fmap, "VBLOCK_A", image, image_size,
                   &vblock_data, &vblock_size))
-    VbExError("Can't find VBLOCK in %s\n", filename);
+    VbExError("Can't find VBLOCK_A in %s\n", filename);
 
   fv_size = FindImageEnd(fv_data, fv_size);
 
@@ -222,6 +222,35 @@ static void SignImage(const char *filename,
 
   free(body_digest);
   free(preamble);
+
+
+  /* Sign FW B - skip if there isn't one */
+  if (!FindInFmap(fmap, "FW_MAIN_B", image, image_size, &fv_data, &fv_size) ||
+      !FindInFmap(fmap, "VBLOCK_B", image, image_size,
+                  &vblock_data, &vblock_size)) {
+    printf("Image does not contain FW B - ignoring that part\n");
+  } else {
+    fv_size = FindImageEnd(fv_data, fv_size);
+
+    body_digest = CalculateHash(fv_data, fv_size, privkey);
+    if (!body_digest)
+      VbExError("Error calculating body digest\n");
+
+    preamble = CreateECPreamble(version, body_digest, privkey,
+                                preamble_flags, name);
+    if (!preamble)
+      VbExError("Error creating preamble.\n");
+
+    if (key_block_size + preamble->preamble_size > vblock_size)
+      VbExError("VBLOCK_B is too small for digest (%d bytes, needs %d)\n",
+                vblock_size, key_block_size + preamble->preamble_size);
+
+    memcpy(vblock_data, key_block, key_block_size);
+    memcpy(vblock_data + key_block_size, preamble, preamble->preamble_size);
+
+    free(body_digest);
+    free(preamble);
+  }
 
   /* Unmap to write changes to disk. */
   if (0 != munmap(image, sb.st_size))
@@ -248,6 +277,7 @@ static int Verify(const char *filename) {
   RSAPublicKey* rsa;
   int errorcnt = 0;
   char buf[80];
+  int i;
 
   if (0 != stat(filename, &sb))
     VbExError("Can't stat %s: %s\n", filename, strerror(errno));
@@ -290,73 +320,95 @@ static int Verify(const char *filename) {
     printf("\n");
   }
 
-  fv_data = 0;
-  key_block = 0;
-  preamble = 0;
+  for (i = 'A'; i <= 'B'; i++) {
 
-  sprintf(buf, "FW_MAIN");
-  if (!FindInFmap(fmap, buf, image, image_size, &fv_data, &fv_size))
-    VbExError("Can't find %s in %s\n", buf, filename);
+    fv_data = 0;
+    key_block = 0;
+    preamble = 0;
 
-  sprintf(buf, "VBLOCK");
-  if (!FindInFmap(fmap, buf, image, image_size,
-                  (uint8_t **)&key_block, &key_block_size))
-    VbExError("Can't find %s in %s\n", buf, filename);
+    printf("FW %c\n", i);
+    sprintf(buf, "FW_MAIN_%c", i);
+    if (!FindInFmap(fmap, buf, image, image_size, &fv_data, &fv_size)) {
+      printf("Can't find %s in %s\n", buf, filename);
+      /* Not an error for firmware B */
+      if (i != 'B')
+        errorcnt++;
+      continue;
+    }
 
-  if (0 != KeyBlockVerify(key_block, key_block_size, pubkey, !pubkey))
-    VbExError("Error verifying key block for %s.\n", buf);
-  printf("  Key block:\n");
+    sprintf(buf, "VBLOCK_%c", i);
+    if (!FindInFmap(fmap, buf, image, image_size,
+                    (uint8_t **)&key_block, &key_block_size)) {
+      printf("Can't find %s in %s\n", buf, filename);
+      /* Not an error for firmware B */
+      if (i != 'B')
+        errorcnt++;
+      continue;
+    }
 
-  data_key = &key_block->data_key;
-  printf("    Size:                %" PRIu64 "\n",
-         key_block->key_block_size);
-  printf("    Flags:               %" PRIu64 " (ignored)\n",
-         key_block->key_block_flags);
-  printf("    Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
-         (data_key->algorithm < kNumAlgorithms ?
-          algo_strings[data_key->algorithm] : "(invalid)"));
-  printf("    Data key version:    %" PRIu64 "\n", data_key->key_version);
-  printf("    Data key sha1sum:    ");
-  PrintPubKeySha1Sum(data_key);
-  printf("\n");
+    if (0 != KeyBlockVerify(key_block, key_block_size, pubkey, !pubkey)) {
+      printf("Error verifying key block for %s.\n", buf);
+      errorcnt++;
+      continue;
+    }
+    printf("  Key block:\n");
+    data_key = &key_block->data_key;
+    printf("    Size:                %" PRIu64 "\n",
+           key_block->key_block_size);
+    printf("    Flags:               %" PRIu64 " (ignored)\n",
+           key_block->key_block_flags);
+    printf("    Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
+           (data_key->algorithm < kNumAlgorithms ?
+            algo_strings[data_key->algorithm] : "(invalid)"));
+    printf("    Data key version:    %" PRIu64 "\n", data_key->key_version);
+    printf("    Data key sha1sum:    ");
+    PrintPubKeySha1Sum(data_key);
+    printf("\n");
 
-  preamble = (VbECPreambleHeader*)
-    ((uint8_t *)key_block + key_block->key_block_size);
+    preamble = (VbECPreambleHeader*)
+      ((uint8_t *)key_block + key_block->key_block_size);
 
-  rsa = PublicKeyToRSA(&key_block->data_key);
-  if (!rsa)
-    VbExError("Error parsing data key.\n");
+    rsa = PublicKeyToRSA(&key_block->data_key);
+    if (!rsa) {
+      printf("Error parsing data key.\n");
+      errorcnt++;
+    }
+    /* Verify preamble */
+    if (0 != VerifyECPreamble(preamble,
+                              key_block_size - key_block->key_block_size,
+                              rsa)) {
+      printf("Error verifying preamble.\n");
+      errorcnt++;
+      free(rsa);
+      continue;
+    }
+    printf("  Preamble:\n");
+    printf("    Size:                  %" PRIu64 "\n",
+           preamble->preamble_size);
+    printf("    Header version:        %" PRIu32 ".%" PRIu32"\n",
+           preamble->header_version_major,
+           preamble->header_version_minor);
+    printf("    Firmware version:      %" PRIu64 "\n",
+           preamble->firmware_version);
+    printf("    Firmware body size:    %" PRIu64 "\n",
+           preamble->body_digest.data_size);
+    printf("    Preamble flags:        %" PRIu32 "\n", preamble->flags);
+    printf("    Preamble name:         %s\n", preamble->name);
 
-  /* Verify preamble */
-  if (0 != VerifyECPreamble(preamble,
-                            key_block_size - key_block->key_block_size,
-                            rsa))
-    VbExError("Error verifying preamble.\n");
+    /* TODO: verify body size same as signature size */
 
-  printf("  Preamble:\n");
-  printf("    Size:                  %" PRIu64 "\n",
-         preamble->preamble_size);
-  printf("    Header version:        %" PRIu32 ".%" PRIu32"\n",
-         preamble->header_version_major,
-         preamble->header_version_minor);
-  printf("    Firmware version:      %" PRIu64 "\n",
-         preamble->firmware_version);
-  printf("    Firmware body size:    %" PRIu64 "\n",
-         preamble->body_digest.data_size);
-  printf("    Preamble flags:        %" PRIu32 "\n", preamble->flags);
-  printf("    Preamble name:         %s\n", preamble->name);
-
-  /* TODO: verify body size same as signature size */
-
-  /* Verify body */
-  if (preamble->flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
-    printf("Preamble requests USE_RO_NORMAL; skipping verification.\n");
-  } else {
-    if (0 != EqualData(fv_data, fv_size,
-                       &preamble->body_digest, rsa))
-      VbExError("Error verifying firmware body.\n");
+    /* Verify body */
+    if (preamble->flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
+      printf("Preamble requests USE_RO_NORMAL; skipping verification.\n");
+    } else {
+      if (0 != EqualData(fv_data, fv_size,
+                         &preamble->body_digest, rsa)) {
+        printf("Error verifying firmware body.\n");
+        errorcnt++;
+      }
+    }
+    free(rsa);
   }
-  free(rsa);
 
   /* Done */
   if (0 != munmap(image, sb.st_size))
