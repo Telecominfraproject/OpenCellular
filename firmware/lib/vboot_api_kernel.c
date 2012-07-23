@@ -355,6 +355,9 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   int ec_hash_size;
   const uint8_t *expected;
   int expected_size;
+  uint8_t expected_hash[SHA256_DIGEST_SIZE];
+  int need_update;
+  int i;
 
   if (shared->recovery_reason) {
     /* Recovery mode; just verify the EC is in RO code */
@@ -407,9 +410,12 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
 
     VBDEBUG(("VbEcSoftwareSync() in RO-Normal; EC-RO\n"));
 
-    /* TODO: If EC-RW wasn't protected when we started, then this boot was
-     * simply to verify the EC.  Shut down instead of continuing. */
-
+    /* TODO: If there was no wake event from the EC (such as power button or
+     * lid-open), shut down.  The AP was powered on simply to verify the EC.
+     *
+     * Make sure this doesn't shut down when we're leaving recovery mode and
+     * jumping back to RW code, though.  EC can't currently track that,
+     * though that could be passed as an additional reboot flag to the EC. */
     return VBERROR_SUCCESS;
   }
 
@@ -420,7 +426,17 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
       VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
-  VBDEBUG(("VbEcSoftwareSync() - hash len = %d\n", ec_hash_size));
+  if (ec_hash_size != SHA256_DIGEST_SIZE) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() returned wrong size %d\n",
+               ec_hash_size));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+  }
+
+  VBDEBUG(("EC hash:"));
+  for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+    VBDEBUG(("%02x", ec_hash[i]));
+  VBDEBUG(("\n"));
 
   /* Get expected EC-RW code. Note that we've already checked for RO_NORMAL,
    * so we know that the BIOS must be RW-A or RW-B, and therefore the EC must
@@ -429,45 +445,82 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
     shared->firmware_index ? VB_SELECT_FIRMWARE_B : VB_SELECT_FIRMWARE_A,
     &expected, &expected_size);
   if (rv) {
-      VBDEBUG(("VbEcSoftwareSync() - VbExEcGetExpectedRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
-      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    VBDEBUG(("VbEcSoftwareSync() - VbExEcGetExpectedRW() returned %d\n", rv));
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
   VBDEBUG(("VbEcSoftwareSync() - expected len = %d\n", expected_size));
 
-  /* TODO: verify EC-RW hash vs. expected code */
+  /* Hash expected code */
+  internal_SHA256(expected, expected_size, expected_hash);
+  VBDEBUG(("Expected hash:"));
+  for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+    VBDEBUG(("%02x", expected_hash[i]));
+  VBDEBUG(("\n"));
+
+  need_update = SafeMemcmp(ec_hash, expected_hash, SHA256_DIGEST_SIZE);
+
+  /* TODO: GBB flag to override whether we need update; needed for EC
+   * development */
 
   if (in_rw) {
-    /* TODO: if hash doesn't verify, reboot EC so we can reflash it
-     * with the expected code. */
-    VBDEBUG(("VbEcSoftwareSync() in RW; EC-RW\n"));
-    return VBERROR_SUCCESS;
-
-  } else {
-    /* TODO: if hash doesn't verify, reflash it with expected code. */
-
-    /* Protect EC-RW flash */
-    rv = VbExEcProtectRW();
-    if (rv != VBERROR_SUCCESS) {
-      VBDEBUG(("VbEcSoftwareSync() - VbExEcProtectRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    if (need_update) {
+      /* EC is running the wrong RW code.  Reboot the EC to RO so we can update
+       * it on the next boot. */
+      VBDEBUG(("VbEcSoftwareSync() - in RW, need to update RW, so reboot\n"));
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
     }
 
-    /* Tell EC to jump to its RW code */
-    VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
-    rv = VbExEcJumpToRW();
-    if (rv != VBERROR_SUCCESS) {
-      VBDEBUG(("VbEcSoftwareSync() - VbExEcJumpToRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
-      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-    }
-
-    /* TODO: If there was no wake event from the EC (such as power button or
-     * lid-open), shut down.  The AP was powered on simply to verify the EC. */
-    VBDEBUG(("VbEcSoftwareSync() in RW; done jumping to EC-RW\n"));
+    VBDEBUG(("VbEcSoftwareSync() in EC-RW and it matches\n"));
     return VBERROR_SUCCESS;
   }
+
+  /* Update EC if necessary */
+  if (need_update) {
+    VBDEBUG(("VbEcSoftwareSync() updating EC-RW...\n"));
+
+    /*
+     * TODO: need flag passed into VbInit that EC update is slow; if it is,
+     * display an "updating" screen while the update happens.
+     */
+
+    rv = VbExEcUpdateRW(expected, expected_size);
+    if (rv != VBERROR_SUCCESS) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcUpdateRW() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+    }
+
+    /*
+     * TODO: should ask EC to recompute its hash to verify it's correct
+     * before continuing?
+     */
+  }
+
+  /* Protect EC-RW flash */
+  rv = VbExEcProtectRW();
+  if (rv != VBERROR_SUCCESS) {
+    VBDEBUG(("VbEcSoftwareSync() - VbExEcProtectRW() returned %d\n", rv));
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+  }
+
+  /* Tell EC to jump to its RW code */
+  VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
+  rv = VbExEcJumpToRW();
+  if (rv != VBERROR_SUCCESS) {
+    VBDEBUG(("VbEcSoftwareSync() - VbExEcJumpToRW() returned %d\n", rv));
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+  }
+
+  /* TODO: If there was no wake event from the EC (such as power button or
+   * lid-open), shut down.  The AP was powered on simply to verify the EC.
+   *
+   * Make sure this doesn't shut down when we're leaving recovery mode and
+   * jumping back to RW code, though. */
+  VBDEBUG(("VbEcSoftwareSync() in RW; done\n"));
+  return VBERROR_SUCCESS;
 }
 
 
