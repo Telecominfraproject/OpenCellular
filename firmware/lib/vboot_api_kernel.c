@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -351,6 +351,10 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   int in_rw = 0;
   int rv = VbExEcRunningRW(&in_rw);
+  const uint8_t *ec_hash;
+  int ec_hash_size;
+  const uint8_t *expected;
+  int expected_size;
 
   if (shared->recovery_reason) {
     /* Recovery mode; just verify the EC is in RO code */
@@ -408,6 +412,24 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
 
     return VBERROR_SUCCESS;
   }
+
+  /* Get hash of EC-RW */
+  rv = VbExEcHashRW(&ec_hash, &ec_hash_size);
+  if (rv) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+  }
+  VBDEBUG(("VbEcSoftwareSync() - hash len = %d\n", ec_hash_size));
+
+  /* Get expected EC-RW code */
+  rv = VbExEcGetExpectedRW(shared->firmware_index, &expected, &expected_size);
+  if (rv) {
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcGetExpectedRW() returned %d\n", rv));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+  }
+  VBDEBUG(("VbEcSoftwareSync() - expected len = %d\n", expected_size));
 
   /* TODO: verify EC-RW hash vs. expected code */
 

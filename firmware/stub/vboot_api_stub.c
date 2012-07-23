@@ -173,8 +173,8 @@ VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size) {
   return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select, uint8_t **image,
-                              int *image_size) {
+VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
+                              const uint8_t **image, int *image_size) {
   static uint8_t fake_image[64] = {5, 6, 7, 8};
   *image = fake_image;
   *image_size = sizeof(fake_image);
