@@ -249,20 +249,55 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
 }
 
 /*
- * Cases:
- *  - no NVRAM area at all (OOBE)
- *  - defined NVRAM area, but TPM not Owned
- *  - defined NVRAM area, but not Finalized
- *  - legacy NVRAM area (migration needed)
- *  - modern NVRAM area (\o/)
+ * TPM ownership cases:
+ *  - unowned (OOBE):
+ *    - expect modern lockbox (no migration allowed).
+ *  - owned: depends on NVRAM area (below).
+ *
+ * NVRAM area cases:
+ *  - no NVRAM area at all:
+ *    - if cr48, assume this is going to always be missing the lockbox:
+ *      - expect no lockbox (migration allowed).
+ *    - otherwise, assume an interrupted install
+ *      - expect modern lockbox (no migration allowed).
+ *  - defined NVRAM area, but not written to ("Finalized"); interrupted OOBE:
+ *    - if legacy size, allow migration.
+ *    - if not, disallow migration.
+ *  - written ("Finalized") NVRAM area:
+ *    - if legacy size, allow migration.
+ *    - if not, disallow migration.
+ *
+ * When returning 1: (NVRAM area found and used)
+ *  - *digest populated with NVRAM area entropy.
+ *  - *old_lockbox indicates which lockbox NVRAM area type was used.
+ *  - *static_key will always be 0.
+ * When returning 0: (NVRAM missing or error)
+ *  - *digest untouched.
+ *  - *old_lockbox indicates future expected lockbox size (after Finalize).
+ *  - *static_key=1 only if TPM owned, lockbox missing, and device is cr48.
  */
-static int get_nvram_key(uint8_t *digest, int *old_lockbox)
+static int get_nvram_key(uint8_t *digest, int *old_lockbox, int *static_key)
 {
 	uint8_t owned = 0;
 	uint8_t value[kLockboxSizeV2], bytes_anded, bytes_ored;
 	uint32_t size, result, i;
 	uint8_t *rand_bytes;
 	uint32_t rand_size;
+
+	/* Expect to use a new lockbox by default, and require NVRAM key. */
+	*old_lockbox = 0;
+	*static_key = 0;
+
+	/* Ignore unowned TPM's NVRAM area. */
+	result = tpm_owned(&owned);
+	if (result != TPM_SUCCESS) {
+		INFO("Could not read TPM Permanent Flags.");
+		return 0;
+	}
+	if (!owned) {
+		INFO("TPM not Owned, ignoring NVRAM area.");
+		return 0;
+	}
 
 	/* Reading the NVRAM takes 40ms. Instead of querying the NVRAM area
 	 * for its size (which takes time), just read the expected size. If
@@ -272,7 +307,6 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 	 * which is the minimum possible time (instead of 40ms + time to
 	 * query NVRAM size).
 	 */
-	*old_lockbox = 0;
 	size = kLockboxSizeV2;
 	result = _read_nvram(value, sizeof(value), kLockboxIndex, size);
 	if (result != TPM_SUCCESS) {
@@ -281,6 +315,21 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 		if (result != TPM_SUCCESS) {
 			/* No NVRAM area at all. */
 			INFO("No NVRAM area defined.");
+
+			/* TPM is owned, without an NVRAM area. If this is a
+			 * Cr48, mark this as using an old NVRAM area to
+			 * allow migration, and mark this as an ancient
+			 * install that did not even know to create a lockbox
+			 * at all. If this is actually a Cr48 that has had
+			 * its OOBE interrupted at the perfect moment, then
+			 * the user is going to lose their settings. This
+			 * should be extremely rare.
+			 */
+			if (is_cr48()) {
+				*static_key = 1;
+				*old_lockbox = 1;
+			}
+
 			return 0;
 		}
 		/* Legacy NVRAM area. */
@@ -291,21 +340,6 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 	}
 
 	debug_dump_hex("nvram", value, size);
-
-	/* Ignore defined but unowned NVRAM area. */
-	/* TODO(keescook): remove this check (it adds 40ms) once the
-	 * NVRAM area is bound to owner so that it will be wiped out
-	 * across device mode changes.
-	 */
-	result = tpm_owned(&owned);
-	if (result != TPM_SUCCESS) {
-		INFO("Could not read TPM Permanent Flags.");
-		return 0;
-	}
-	if (!owned) {
-		INFO("TPM not Owned, ignoring NVRAM area.");
-		return 0;
-	}
 
 	/* Ignore defined but unwritten NVRAM area. */
 	bytes_ored = 0x0;
@@ -344,9 +378,9 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox)
 }
 
 /* Find the system key used for decrypting the stored encryption key.
- * ChromeOS devices are required to use the NVRAM area (excepting CR-48s),
- * all the rest will fallback through various places (kernel command line,
- * BIOS UUID, and finally a static value) for a system key.
+ * ChromeOS devices are required to use the NVRAM area, all the rest will
+ * fallback through various places (kernel command line, BIOS UUID, and
+ * finally a static value) for a system key.
  */
 static int find_system_key(int mode, uint8_t *digest, int *migration_allowed)
 {
@@ -368,17 +402,25 @@ static int find_system_key(int mode, uint8_t *digest, int *migration_allowed)
 	 * NVRAM.
 	 */
 	if (has_chromefw()) {
-		int rc;
-		rc = get_nvram_key(digest, migration_allowed);
+		int rc, static_key = 0;
+		rc = get_nvram_key(digest, migration_allowed, &static_key);
 
-		/* Since the CR-48 did not ship with a lockbox area, they
-		 * are allowed to fall back to non-NVRAM system keys.
-		 */
-		if (rc || !is_cr48()) {
-			INFO("Using NVRAM as system key; %s.",
-				rc ? "already populated"
-				   : "needs population");
+		if (rc) {
+			/* Use populated NVRAM area. */
+			INFO("Using NVRAM as system key; already populated%s.",
+				migration_allowed ? " (legacy)" : "");
 			return rc;
+		} else {
+			if (!static_key) {
+				INFO("Using NVRAM as system key; area needed.");
+				return rc;
+			}
+			/* If a static key is allowed, it means the TPM is
+			 * already owned, is missing the NVRAM area, and is
+			 * running on a Cr48. In this special case, fall
+			 * through to the other key methods below, since
+			 * the NVRAM area will never be populated.
+			 */
 		}
 	}
 
@@ -1027,6 +1069,7 @@ static int report_info(void)
 	uint8_t owned = 0;
 	struct bind_mount *mnt;
 	int old_lockbox = -1;
+	int static_key = -1;
 
 	printf("TPM: %s\n", has_tpm ? "yes" : "no");
 	if (has_tpm) {
@@ -1037,11 +1080,12 @@ static int report_info(void)
 	printf("CR48: %s\n", is_cr48() ? "yes" : "no");
 	if (has_chromefw()) {
 		int rc;
-		rc = get_nvram_key(system_key, &old_lockbox);
+		rc = get_nvram_key(system_key, &old_lockbox, &static_key);
 		if (!rc)
-			printf("NVRAM: missing\n");
+			printf("NVRAM: missing%s.\n",
+				static_key ? " (static key allowed)" : "");
 		else {
-			printf("NVRAM: %s, %s\n",
+			printf("NVRAM: %s, %s.\n",
 				old_lockbox ? "legacy" : "modern",
 				rc ? "available" : "ignored");
 		}
