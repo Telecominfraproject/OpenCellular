@@ -422,8 +422,12 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   }
   VBDEBUG(("VbEcSoftwareSync() - hash len = %d\n", ec_hash_size));
 
-  /* Get expected EC-RW code */
-  rv = VbExEcGetExpectedRW(shared->firmware_index, &expected, &expected_size);
+  /* Get expected EC-RW code. Note that we've already checked for RO_NORMAL,
+   * so we know that the BIOS must be RW-A or RW-B, and therefore the EC must
+   * match. */
+  rv = VbExEcGetExpectedRW(
+    shared->firmware_index ? VB_SELECT_FIRMWARE_B : VB_SELECT_FIRMWARE_A,
+    &expected, &expected_size);
   if (rv) {
       VBDEBUG(("VbEcSoftwareSync() - VbExEcGetExpectedRW() returned %d\n", rv));
       VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
