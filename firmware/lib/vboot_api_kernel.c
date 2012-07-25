@@ -347,6 +347,18 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
   return VBERROR_SUCCESS;
 }
 
+/* Wrapper around VbExEcProtectRW() which sets recovery reason on error */
+static VbError_t EcProtectRW(void) {
+  int rv = VbExEcProtectRW();
+
+  if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
+    VBDEBUG(("VbExEcProtectRW() needs reboot\n"));
+  } else if (rv != VBERROR_SUCCESS) {
+    VBDEBUG(("VbExEcProtectRW() returned %d\n", rv));
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+  }
+  return rv;
+}
 
 VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   int in_rw = 0;
@@ -394,12 +406,9 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
     }
 
     /* Protect the RW flash and stay in EC-RO */
-    rv = VbExEcProtectRW();
-    if (rv != VBERROR_SUCCESS) {
-      VBDEBUG(("VbEcSoftwareSync() - VbExEcProtectRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
-      return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-    }
+    rv = EcProtectRW();
+    if (rv != VBERROR_SUCCESS)
+      return rv;
 
     rv = VbExEcStayInRO();
     if (rv != VBERROR_SUCCESS) {
@@ -485,7 +494,13 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
      */
 
     rv = VbExEcUpdateRW(expected, expected_size);
-    if (rv != VBERROR_SUCCESS) {
+    if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
+      /* Reboot required.  May need to unprotect RW before updating,
+       * or may need to reboot after RW updated.  Either way, it's not
+       * an error requiring recovery mode. */
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcUpdateRW() needs reboot\n"));
+      return rv;
+    } else if (rv != VBERROR_SUCCESS) {
       VBDEBUG(("VbEcSoftwareSync() - VbExEcUpdateRW() returned %d\n", rv));
       VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
@@ -498,12 +513,9 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   }
 
   /* Protect EC-RW flash */
-  rv = VbExEcProtectRW();
-  if (rv != VBERROR_SUCCESS) {
-    VBDEBUG(("VbEcSoftwareSync() - VbExEcProtectRW() returned %d\n", rv));
-    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
-    return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-  }
+  rv = EcProtectRW();
+  if (rv != VBERROR_SUCCESS)
+    return rv;
 
   /* Tell EC to jump to its RW code */
   VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
