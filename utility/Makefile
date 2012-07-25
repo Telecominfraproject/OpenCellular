@@ -18,10 +18,15 @@ BUILD_ROOT = ${BUILD}/utility
 
 DESTDIR ?= /usr/bin
 
-TARGET_NAMES = crossystem \
+# Special flags for auto-update toolkits (must be statically linked).
+AU_LDFLAGS = $(LDFLAGS) -static
+AU_TARGETS = crossystem \
+		dump_fmap \
+		gbb_utility
+
+TARGET_NAMES = $(AU_TARGETS) \
 		dumpRSAPublicKey \
 		dump_kernel_config \
-		gbb_utility \
 		load_kernel_test \
 		pad_digest_utility \
 		signature_digest_utility \
@@ -36,7 +41,6 @@ TARGET_NAMES = crossystem \
 		verify_data \
 		dev_make_keypair \
 		dev_sign_file \
-		dump_fmap \
 		dev_debug_vboot \
 		vbutil_what_keys
 
@@ -52,7 +56,13 @@ ALL_DEPS = $(addsuffix .d,${TARGET_BINS})
 all: $(TARGET_BINS) $(DUMPKERNELCONFIGLIB)
 
 ${BUILD_ROOT}/crossystem: crossystem_main.c $(LIBS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) $(AU_LDFLAGS) $< -o $@ $(LIBS)
+
+${BUILD_ROOT}/gbb_utility: gbb_utility.cc
+	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $(AU_LDFLAGS) $< -o $@
+
+${BUILD_ROOT}/dump_fmap: dump_fmap.c $(LIBS)
+	$(CC) $(CFLAGS) $(AU_LDFLAGS) $< -o $@ $(LIBS)
 
 ${BUILD_ROOT}/dumpRSAPublicKey: dumpRSAPublicKey.c
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(CRYPTO_LIBS)
@@ -68,9 +78,6 @@ ${BUILD_ROOT}/dump_kernel_config.o: dump_kernel_config.c
 $(DUMPKERNELCONFIGLIB): ${BUILD_ROOT}/dump_kernel_config.o
 	rm -f $@
 	ar qc $@ $^
-
-${BUILD_ROOT}/gbb_utility: gbb_utility.cc
-	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) $(LDFLAGS) $< -o $@
 
 ${BUILD_ROOT}/bmpblk_utility.o: bmpblk_utility.cc
 	$(CXX) -DWITH_UTIL_MAIN $(CFLAGS) -c $< -o $@
@@ -184,9 +191,6 @@ ${BUILD_ROOT}/mount-encrypted: mount-encrypted.c mount-encrypted.h \
 
 ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBS) $(CRYPTO_LIBS)
-
-${BUILD_ROOT}/dump_fmap: dump_fmap.c $(LIBS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBS)
 
 install: $(TARGET_BINS)
 	mkdir -p $(DESTDIR)
