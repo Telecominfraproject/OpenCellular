@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -66,11 +66,6 @@ remove_rootfs_verification() {
     s| dm_verity[^=]*=[-0-9]*||g
     s| dm="[^"]*"||
     s| ro | rw |'
-}
-
-# Checks if rootfs verification is enabled from kernel boot parameter
-is_rootfs_verification_enabled() {
-  echo "$*" | grep -q 'root=/dev/dm-0'
 }
 
 remove_legacy_boot_rootfs_verification() {
@@ -198,8 +193,6 @@ resign_ssd_kernel() {
 
     if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_FALSE ]; then
       debug_msg "Bypassing rootfs verification check"
-    elif ! is_rootfs_verification_enabled "$kernel_config"; then
-      echo "INFO: $name: rootfs verification was not enabled."
     else
       debug_msg "Changing boot parameter to remove rootfs verification"
       kernel_config="$(remove_rootfs_verification "$kernel_config")"
