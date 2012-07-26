@@ -422,12 +422,13 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
 
     VBDEBUG(("VbEcSoftwareSync() in RO-Normal; EC-RO\n"));
 
-    /* TODO: If there was no wake event from the EC (such as power button or
-     * lid-open), shut down.  The AP was powered on simply to verify the EC.
-     *
-     * Make sure this doesn't shut down when we're leaving recovery mode and
-     * jumping back to RW code, though.  EC can't currently track that,
-     * though that could be passed as an additional reboot flag to the EC. */
+    /* If shutdown is requested, just power the AP back off.  This covers the
+     * case where the lid is closed when then system boots. */
+    if (VbExIsShutdownRequested()) {
+      VBDEBUG(("VbEcSoftwareSync() sees shutdown-requested\n"));
+      return VBERROR_SHUTDOWN_REQUESTED;
+    }
+
     return VBERROR_SUCCESS;
   }
 
@@ -529,12 +530,15 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
     return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
 
-  /* TODO: If there was no wake event from the EC (such as power button or
-   * lid-open), shut down.  The AP was powered on simply to verify the EC.
-   *
-   * Make sure this doesn't shut down when we're leaving recovery mode and
-   * jumping back to RW code, though. */
   VBDEBUG(("VbEcSoftwareSync() in RW; done\n"));
+
+  /* If shutdown is requested, just power the AP back off.  This covers the
+   * case where the lid is closed when then system boots. */
+  if (VbExIsShutdownRequested()) {
+    VBDEBUG(("VbEcSoftwareSync() sees shutdown-requested\n"));
+    return VBERROR_SHUTDOWN_REQUESTED;
+  }
+
   return VBERROR_SUCCESS;
 }
 
