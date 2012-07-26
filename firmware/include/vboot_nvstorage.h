@@ -97,10 +97,20 @@ typedef enum VbNvParam {
 /* Recovery mode TPM initialization requires a system reboot.  The system was
  * already in recovery mode for some other reason when this happened. */
 #define VBNV_RECOVERY_RO_TPM_REBOOT   0x21
-/* Other EC software sync error */
+/* EC software sync - other error */
 #define VBNV_RECOVERY_EC_SOFTWARE_SYNC 0x22
-/* Unable to determine active EC image */
+/* EC software sync - unable to determine active EC image */
 #define VBNV_RECOVERY_EC_UNKNOWN_IMAGE 0x23
+/* EC software sync - error obtaining EC image hash */
+#define VBNV_RECOVERY_EC_HASH         0x24
+/* EC software sync - error obtaining expected EC image */
+#define VBNV_RECOVERY_EC_EXPECTED_IMAGE 0x25
+/* EC software sync - error updating EC */
+#define VBNV_RECOVERY_EC_UPDATE       0x26
+/* EC software sync - unable to jump to EC-RW */
+#define VBNV_RECOVERY_EC_JUMP_RW      0x27
+/* EC software sync - unable to protect / unprotect EC-RW */
+#define VBNV_RECOVERY_EC_PROTECT      0x28
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /* User manually requested recovery by pressing a key at developer

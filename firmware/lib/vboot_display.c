@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -446,7 +446,17 @@ static const char *RecoveryReasonString(uint8_t code) {
   case VBNV_RECOVERY_EC_SOFTWARE_SYNC:
     return "EC software sync error";
   case VBNV_RECOVERY_EC_UNKNOWN_IMAGE:
-    return "Unable to determine active EC image";
+    return "EC software sync unable to determine active EC image";
+  case VBNV_RECOVERY_EC_HASH:
+    return "EC software sync error obtaining EC image hash";
+  case VBNV_RECOVERY_EC_EXPECTED_IMAGE:
+    return "EC software sync error obtaining expected EC image from BIOS";
+  case VBNV_RECOVERY_EC_UPDATE:
+    return "EC software sync error updating EC";
+  case VBNV_RECOVERY_EC_JUMP_RW:
+    return "EC software sync unable to jump to EC-RW";
+  case VBNV_RECOVERY_EC_PROTECT:
+    return "EC software sync protection error";
   case VBNV_RECOVERY_RO_UNSPECIFIED:
     return "Unspecified/unknown error in RO firmware";
   case VBNV_RECOVERY_RW_DEV_SCREEN:

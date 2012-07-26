@@ -355,14 +355,14 @@ static VbError_t EcProtectRW(void) {
     VBDEBUG(("VbExEcProtectRW() needs reboot\n"));
   } else if (rv != VBERROR_SUCCESS) {
     VBDEBUG(("VbExEcProtectRW() returned %d\n", rv));
-    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_PROTECT);
   }
   return rv;
 }
 
 VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   int in_rw = 0;
-  int rv = VbExEcRunningRW(&in_rw);
+  int rv;
   const uint8_t *ec_hash;
   int ec_hash_size;
   const uint8_t *expected;
@@ -370,6 +370,9 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   uint8_t expected_hash[SHA256_DIGEST_SIZE];
   int need_update;
   int i;
+
+  /* Determine whether the EC is in RO or RW */
+  rv = VbExEcRunningRW(&in_rw);
 
   if (shared->recovery_reason) {
     /* Recovery mode; just verify the EC is in RO code */
@@ -432,13 +435,13 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   rv = VbExEcHashRW(&ec_hash, &ec_hash_size);
   if (rv) {
       VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
   if (ec_hash_size != SHA256_DIGEST_SIZE) {
       VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() returned wrong size %d\n",
                ec_hash_size));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
 
@@ -455,7 +458,7 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
     &expected, &expected_size);
   if (rv) {
     VBDEBUG(("VbEcSoftwareSync() - VbExEcGetExpectedRW() returned %d\n", rv));
-    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_IMAGE);
     return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
   VBDEBUG(("VbEcSoftwareSync() - expected len = %d\n", expected_size));
@@ -502,7 +505,7 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
       return rv;
     } else if (rv != VBERROR_SUCCESS) {
       VBDEBUG(("VbEcSoftwareSync() - VbExEcUpdateRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
     }
 
@@ -522,7 +525,7 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   rv = VbExEcJumpToRW();
   if (rv != VBERROR_SUCCESS) {
     VBDEBUG(("VbEcSoftwareSync() - VbExEcJumpToRW() returned %d\n", rv));
-    VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+    VbSetRecoveryRequest(VBNV_RECOVERY_EC_JUMP_RW);
     return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
 
