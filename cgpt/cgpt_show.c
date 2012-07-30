@@ -44,11 +44,11 @@ static void RawDump(const uint8_t *memory, const int size,
 }
 
 /* Output formatters */
-#define TITLE_FMT      "%10s%10s%8s  %s\n"
-#define GPT_FMT        "%10d%10d%8s  %s\n"
-#define GPT_MORE       "%10s%10s%8s  ", "", "", ""
-#define PARTITION_FMT  "%10d%10d%8d  %s\n"
-#define PARTITION_MORE "%10s%10s%8s  %s%s\n", "", "", ""
+#define TITLE_FMT      "%12s%12s%8s  %s\n"
+#define GPT_FMT        "%12d%12d%8s  %s\n"
+#define GPT_MORE       "%12s%12s%8s  ", "", "", ""
+#define PARTITION_FMT  "%12d%12d%8d  %s\n"
+#define PARTITION_MORE "%12s%12s%8s  %s%s\n", "", "", ""
 
 static void HeaderDetails(GptHeader *header, GptEntry *entries,
                           const char *indent, int raw) {
