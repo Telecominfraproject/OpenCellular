@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -51,7 +51,9 @@ RSAPublicKey* RSAPublicKeyFromBuf(const uint8_t* buf, uint64_t len) {
   StatefulInit(&st, (void*)buf, len);
 
   StatefulMemcpy(&st, &key->len, sizeof(key->len));
-  key_len = key->len * sizeof(uint32_t);  /* key length in bytes. */
+  /* key length in bytes (avoiding possible 32-bit rollover) */
+  key_len = key->len;
+  key_len *= sizeof(uint32_t);
 
   /* Sanity Check the key length. */
   if (RSA1024NUMBYTES != key_len &&
