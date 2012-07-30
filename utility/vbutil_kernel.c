@@ -839,6 +839,8 @@ int main(int argc, char* argv[]) {
     if (config_file) {
       Debug("Reading %s\n", config_file);
       g_config_data = ReadConfigFile(config_file, &g_config_size);
+      if (!g_config_data)
+        Fatal("Error reading config file.\n");
     }
 
     if (vmlinuz_file)
@@ -900,6 +902,8 @@ int main(int argc, char* argv[]) {
         free(g_config_data);
       Debug("Reading %s\n", config_file);
       g_config_data = ReadConfigFile(config_file, &g_config_size);
+      if (!g_config_data)
+        Fatal("Error reading config file.\n");
     }
 
     if (keyblock_file) {
