@@ -33,6 +33,7 @@ int cgpt_get_boot_partition_number(CgptBootParams *params) {
 
   if (CGPT_OK != ReadPMBR(&drive)) {
     Error("Unable to read PMBR\n");
+    retval = CGPT_FAILED;
     goto done;
   }
 
