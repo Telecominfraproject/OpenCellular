@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -41,6 +41,11 @@ uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length) {
 }
 
 uint32_t TlclRead(uint32_t index, void* data, uint32_t length) {
+  Memset(data, '\0', length);
+  return TPM_SUCCESS;
+}
+
+uint32_t TlclPCRRead(uint32_t index, void* data, uint32_t length) {
   Memset(data, '\0', length);
   return TPM_SUCCESS;
 }
@@ -128,5 +133,17 @@ uint32_t TlclExtend(int pcr_num, const uint8_t* in_digest,
 
 uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions) {
   *permissions = 0;
+  return TPM_SUCCESS;
+}
+
+uint32_t TlclGetOwnership(uint8_t* owned) {
+  *owned = 0;
+  return TPM_SUCCESS;
+}
+
+uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size) {
+  *size = length;
+  /* http://dilbert.com/strips/comic/2001-10-25/ */
+  Memset(data, '\x9', *size);
   return TPM_SUCCESS;
 }
