@@ -553,7 +553,7 @@ char *keyfile_read(const char *keyfile, uint8_t *system_key)
 		g_error_free(error);
 		goto out;
 	}
-	plain = malloc(length);
+	plain = malloc(length + EVP_CIPHER_block_size(algo));
 	if (!plain) {
 		PERROR("malloc");
 		goto free_cipher;
@@ -565,7 +565,6 @@ char *keyfile_read(const char *keyfile, uint8_t *system_key)
 		SSL_ERROR("EVP_DecryptInit");
 		goto free_plain;
 	}
-	/* TODO(keescook): this is a heap overflow -- file size not checked. */
 	if (!EVP_DecryptUpdate(&ctx, plain, &plain_length, cipher, length)) {
 		SSL_ERROR("EVP_DecryptUpdate");
 		goto free_ctx;
@@ -607,8 +606,12 @@ int keyfile_write(const char *keyfile, uint8_t *system_key, char *string)
 	GError *error = NULL;
 	EVP_CIPHER_CTX ctx;
 	const EVP_CIPHER *algo = EVP_aes_256_cbc();
+	mode_t mask;
 
 	DEBUG("Staring to process keyfile %s", keyfile);
+	/* Have key file be read/write only by root user. */
+	mask = umask(0077);
+
 	if (EVP_CIPHER_key_length(algo) != DIGEST_LENGTH) {
 		ERROR("cipher key size mismatch (got %d, want %d)",
 			EVP_CIPHER_key_length(algo), DIGEST_LENGTH);
@@ -659,7 +662,6 @@ int keyfile_write(const char *keyfile, uint8_t *system_key, char *string)
 	length = cipher_length + final_len;
 
 	DEBUG("Writing %zu bytes to %s", length, keyfile);
-	/* TODO(keescook): replace this with a mode-400 writer. */
 	if (!g_file_set_contents(keyfile, (gchar *)cipher, length, &error)) {
 		ERROR("Unable to write %s: %s", keyfile, error->message);
 		g_error_free(error);
@@ -673,6 +675,7 @@ free_ctx:
 free_cipher:
 	free(cipher);
 out:
+	umask(mask);
 	DEBUG("keyfile write rc:%d", rc);
 	return rc;
 }
