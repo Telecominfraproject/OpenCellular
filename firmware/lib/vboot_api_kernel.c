@@ -149,11 +149,11 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       case 0:
         /* nothing pressed */
         break;
+      case '\r':
       case ' ':
       case 0x1B:
-      case VB_KEY_CTRL_REFRESH:
-        /* Space, or ESC = request disable dev.  Ctrl+F3 is used for testing. */
-        VBDEBUG(("VbBootDeveloper() - user pressed SPACE/ESC/CTRL_F3\n"));
+        /* Enter, space, or ESC = reboot to recovery */
+        VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
         VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
         VbAudioClose(audio);
         return VBERROR_LOAD_KERNEL_RECOVERY;
@@ -223,16 +223,17 @@ static VbError_t VbConfirmChangeDevMode(VbCommonParams* cparams, int to_dev) {
   while (1) {
     if (VbExIsShutdownRequested())
       return VBERROR_SHUTDOWN_REQUESTED;
-    /* ENTER is always yes, ESC and SPACE are always no. */
+    /* ENTER is always yes, ESC is always no.
+     * SPACE is yes when leaving dev-mode, but is no when entering it. */
     key = VbExKeyboardRead();
-    if (key == '\r') {
+    if (key == '\r' || (key == ' ' && !to_dev)) {
       VBDEBUG(("%s() - Yes: virtual dev-mode switch => %d\n",
                __func__, to_dev));
       if (TPM_SUCCESS != SetVirtualDevMode(to_dev))
         return VBERROR_TPM_SET_BOOT_MODE_STATE;
       VBDEBUG(("%s() - Reboot so it will take effect\n", __func__));
       return VBERROR_TPM_REBOOT_REQUIRED;
-    } else if (key == 0x1B || key == ' ') {
+    } else if (key == 0x1B || (key == ' ' && to_dev)) {
       VBDEBUG(("%s() - No: don't change virtual dev-mode switch\n", __func__));
       VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_INSERT, 0, &vnc);
       return VBERROR_SUCCESS;
