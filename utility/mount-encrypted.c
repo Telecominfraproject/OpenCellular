@@ -1027,9 +1027,16 @@ static void check_mount_states(void)
 {
 	struct bind_mount *bind;
 
-	/* Verify stateful partition exists and is mounted. */
-	if (access(stateful_mount, R_OK) ||
-	    same_vfs(stateful_mount, rootdir)) {
+	/* Verify stateful partition exists. */
+	if (access(stateful_mount, R_OK)) {
+		INFO("%s does not exist.", stateful_mount);
+		exit(1);
+	}
+	/* Verify stateful is either a separate mount, or that the
+	 * root directory is writable (i.e. a factory install, dev mode
+	 * where root remounted rw, etc).
+	 */
+	if (same_vfs(stateful_mount, rootdir) && access(rootdir, W_OK)) {
 		INFO("%s is not mounted.", stateful_mount);
 		exit(1);
 	}
