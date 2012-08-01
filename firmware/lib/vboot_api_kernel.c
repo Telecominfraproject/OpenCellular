@@ -35,7 +35,6 @@ static void VbSetRecoveryRequest(uint32_t recovery_request) {
 }
 
 
-
 /* Attempt loading a kernel from the specified type(s) of disks.  If
  * successful, sets p->disk_handle to the disk for the kernel and returns
  * VBERROR_SUCCESS.
@@ -106,6 +105,34 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
   return retval;
 }
 
+/* Flush the keyboard buffer. */
+static VbError_t FlushKeyboard(void) {
+
+  int loops = 0;
+
+  /* Wait half a second to see if any keys are pressed.  If keys are
+   * auto-repeating, they'll repeat by then. */
+  VbExSleepMs(500);
+
+  /* If no keys are pressed, no need for any subsequent delay. */
+  if (!VbExKeyboardRead())
+    return VBERROR_SUCCESS;
+
+  /* Otherwise, wait 2 sec after the last key is pressed. */
+  VBDEBUG(("Keys held down at start of screen; flushing...\n"));
+  do {
+    if (VbExIsShutdownRequested())
+      return VBERROR_SHUTDOWN_REQUESTED;
+
+    VbExSleepMs(250);
+    loops++;
+    if (VbExKeyboardRead())
+      loops = 0;
+  } while (loops < 8);
+  VBDEBUG(("...done flushing.\n"));
+
+  return VBERROR_SUCCESS;
+}
 
 /* Handle a normal boot. */
 VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
@@ -130,6 +157,10 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
 
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
+
+  /* Flush any pending keystrokes */
+  if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
+    return VBERROR_SHUTDOWN_REQUESTED;
 
   /* Get audio/delay context */
   audio = VbAudioOpen(cparams);
@@ -219,6 +250,10 @@ static VbError_t VbConfirmChangeDevMode(VbCommonParams* cparams, int to_dev) {
   VbDisplayScreen(cparams, (to_dev ? VB_SCREEN_RECOVERY_TO_DEV
                             : VB_SCREEN_RECOVERY_TO_NORM), 0, &vnc);
 
+  /* Flush any pending keystrokes */
+  if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
+    return VBERROR_SHUTDOWN_REQUESTED;
+
   /* Await further instructions */
   while (1) {
     if (VbExIsShutdownRequested())
@@ -253,6 +288,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   uint32_t retval;
   uint32_t key;
+  int kb_flushed = 0;
   int i;
 
   VBDEBUG(("VbBootRecovery() start\n"));
@@ -281,6 +317,13 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
                (int)disk_count));
 
       VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_REMOVE, 0, &vnc);
+
+      /* Flush any pending keystrokes */
+      if (!kb_flushed) {
+        if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
+          return VBERROR_SHUTDOWN_REQUESTED;
+        kb_flushed = 1;
+      }
 
       /* Scan keyboard more frequently than media, since x86 platforms
        * don't like to scan USB too rapidly. */
@@ -321,6 +364,13 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
     VbDisplayScreen(cparams, VBERROR_NO_DISK_FOUND == retval ?
                     VB_SCREEN_RECOVERY_INSERT : VB_SCREEN_RECOVERY_NO_GOOD,
                     0, &vnc);
+
+    /* Flush any pending keystrokes */
+    if (!kb_flushed) {
+      if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
+        return VBERROR_SHUTDOWN_REQUESTED;
+      kb_flushed = 1;
+    }
 
     /* Scan keyboard more frequently than media, since x86 platforms don't like
      * to scan USB too rapidly. */
