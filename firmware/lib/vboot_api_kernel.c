@@ -134,6 +134,49 @@ static VbError_t FlushKeyboard(void) {
   return VBERROR_SUCCESS;
 }
 
+/* Ask the user to confirm something. We should display whatever the question
+ * is first, then call this. ESC is always "no", ENTER is always "yes", and
+ * we'll specify what SPACE means. We don't return until one of those keys is
+ * pressed, or until asked to shut down.
+ *
+ * Returns: 1=yes, 0=no, -1 = shutdown.
+ */
+static int VbUserConfirms(VbCommonParams* cparams, int space_returns_this) {
+  uint32_t key;
+
+  VBDEBUG(("Entering %s(%d)\n", __func__, space_returns_this));
+
+  /* Flush any pending keystrokes */
+  if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
+    return -1;
+
+  /* Await further instructions */
+  while (1) {
+    if (VbExIsShutdownRequested())
+      return -1;
+    key = VbExKeyboardRead();
+    switch (key) {
+    case '\r':
+      VBDEBUG(("%s() - Yes (1)\n", __func__));
+      return 1;
+      break;
+    case 0x1b:
+      VBDEBUG(("%s() - No (0)\n", __func__));
+      return 0;
+      break;
+    case ' ':
+      VBDEBUG(("%s() - Space (%s)\n", __func__, space_returns_this));
+      return space_returns_this;
+      break;
+    default:
+      VbCheckDisplayKey(cparams, key, &vnc);
+    }
+    VbExSleepMs(1000);
+  }
+  /* not reached, but compiler will complain without it */
+  return -1;
+}
+
 /* Handle a normal boot. */
 VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
   /* Boot from fixed disk only */
@@ -144,6 +187,7 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
 /* Handle a developer-mode boot */
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   uint32_t allow_usb = 0;
   VbAudioContext* audio = 0;
 
@@ -183,11 +227,33 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
       case '\r':
       case ' ':
       case 0x1B:
-        /* Enter, space, or ESC = reboot to recovery */
-        VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
-        VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
-        VbAudioClose(audio);
-        return VBERROR_LOAD_KERNEL_RECOVERY;
+        /* See if we should disable the virtual dev-mode switch. */
+        VBDEBUG(("%s shared->flags=0x%x\n", __func__, shared->flags));
+        if (shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
+            shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
+          VbAudioClose(audio);    /* Stop the countdown while we go ask... */
+          VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_TO_NORM, 0, &vnc);
+          switch (VbUserConfirms(cparams, 1)) { /* SPACE means yes */
+          case 1:
+            VBDEBUG(("%s() - leaving dev-mode...\n", __func__));
+            VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
+            return VBERROR_TPM_REBOOT_REQUIRED;
+          case -1:
+            VBDEBUG(("%s() - shutdown requested\n", __func__));
+            return VBERROR_SHUTDOWN_REQUESTED;
+          default:                      /* stay in dev-mode */
+            VBDEBUG(("%s() - stay in dev-mode\n", __func__));
+            VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
+            audio = VbAudioOpen(cparams); /* Start new countdown */
+          }
+        } else {
+          /* No virtual dev-mode switch, so go directly to recovery mode */
+          VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
+          VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
+          VbAudioClose(audio);
+          return VBERROR_LOAD_KERNEL_RECOVERY;
+        }
+        break;
       case 0x04:
         /* Ctrl+D = dismiss warning; advance to timeout */
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+D; skip delay\n"));
@@ -237,47 +303,6 @@ fallout:
   VBDEBUG(("VbBootDeveloper() - trying fixed disk\n"));
   VbAudioClose(audio);
   return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
-}
-
-
-/* Ask the user to confirm changing the virtual dev-mode switch. If they confirm
- * we'll change it and return a reason to reboot. */
-static VbError_t VbConfirmChangeDevMode(VbCommonParams* cparams, int to_dev) {
-  uint32_t key;
-
-  VBDEBUG(("Entering %s(%d)\n", __func__, to_dev));
-  /* Show the dev-mode confirmation screen */
-  VbDisplayScreen(cparams, (to_dev ? VB_SCREEN_RECOVERY_TO_DEV
-                            : VB_SCREEN_RECOVERY_TO_NORM), 0, &vnc);
-
-  /* Flush any pending keystrokes */
-  if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
-    return VBERROR_SHUTDOWN_REQUESTED;
-
-  /* Await further instructions */
-  while (1) {
-    if (VbExIsShutdownRequested())
-      return VBERROR_SHUTDOWN_REQUESTED;
-    /* ENTER is always yes, ESC is always no.
-     * SPACE is yes when leaving dev-mode, but is no when entering it. */
-    key = VbExKeyboardRead();
-    if (key == '\r' || (key == ' ' && !to_dev)) {
-      VBDEBUG(("%s() - Yes: virtual dev-mode switch => %d\n",
-               __func__, to_dev));
-      if (TPM_SUCCESS != SetVirtualDevMode(to_dev))
-        return VBERROR_TPM_SET_BOOT_MODE_STATE;
-      VBDEBUG(("%s() - Reboot so it will take effect\n", __func__));
-      return VBERROR_TPM_REBOOT_REQUIRED;
-    } else if (key == 0x1B || (key == ' ' && to_dev)) {
-      VBDEBUG(("%s() - No: don't change virtual dev-mode switch\n", __func__));
-      VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_INSERT, 0, &vnc);
-      return VBERROR_SUCCESS;
-    } else if (key) {
-      /* Anything else, just keep waiting */
-      VbCheckDisplayKey(cparams, key, &vnc);
-      VbExSleepMs(1000);
-    }
-  }
 }
 
 /* Delay between disk checks in recovery mode */
@@ -336,18 +361,6 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
     }
   }
 
-  /* See if we should disable the virtual dev-mode switch. */
-  VBDEBUG(("VbBootRecovery() shared->flags=0x%x, recovery_reason=%d\n",
-           shared->flags, shared->recovery_reason));
-  if (shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
-      shared->flags & VBSD_BOOT_DEV_SWITCH_ON &&
-      shared->recovery_reason == VBNV_RECOVERY_RW_DEV_SCREEN) {
-    retval = VbConfirmChangeDevMode(cparams, 0); /* .. so go ask */
-    VBDEBUG(("VbConfirmChangeDevMode() returned %d\n", retval));
-    if (retval != VBERROR_SUCCESS)
-      return retval;
-  }
-
   /* Loop and wait for a recovery image */
   while (1) {
     VBDEBUG(("VbBootRecovery() attempting to load kernel\n"));
@@ -382,10 +395,24 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
           !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) && /* not in dev-mode */
           (shared->flags & VBSD_BOOT_REC_SWITCH_ON) && /* user forced rec */
           VbExTrustEC()) {                             /* EC isn't pwned */
-        retval = VbConfirmChangeDevMode(cparams, 1);   /* .. so go ask */
-        VBDEBUG(("VbConfirmChangeDevMode() returned %d\n", retval));
-        if (retval != VBERROR_SUCCESS)
-          return retval;
+        /* Ask the user to confirm entering dev-mode */
+        VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_TO_DEV, 0, &vnc);
+        switch (VbUserConfirms(cparams, 0)) { /* SPACE means no */
+        case 1:
+          VBDEBUG(("%s() - Enabling dev-mode...\n", __func__));
+          if (TPM_SUCCESS != SetVirtualDevMode(1))
+            return VBERROR_TPM_SET_BOOT_MODE_STATE;
+          VBDEBUG(("%s() - Reboot so it will take effect\n", __func__));
+          return VBERROR_TPM_REBOOT_REQUIRED;
+        case -1:
+          VBDEBUG(("%s() - Shutdown requested\n", __func__));
+          return VBERROR_SHUTDOWN_REQUESTED;
+        default:                        /* zero, actually */
+          VBDEBUG(("%s() - Not enabling dev-mode\n", __func__));
+          /* Jump out of the outer loop to refresh the display quickly. */
+          i = 4;
+          break;
+        }
       } else
         VbCheckDisplayKey(cparams, key, &vnc);
       if (VbExIsShutdownRequested())

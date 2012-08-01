@@ -524,7 +524,7 @@ enum VbScreenType_t {
   VB_SCREEN_RECOVERY_INSERT   = 0x202, /* Recovery - insert recovery image */
   VB_SCREEN_RECOVERY_NO_GOOD  = 0x203, /* Recovery - inserted image invalid */
   VB_SCREEN_RECOVERY_TO_DEV   = 0x204, /* Recovery - confirm dev mode */
-  VB_SCREEN_RECOVERY_TO_NORM  = 0x205, /* Recovery - confirm normal mode */
+  VB_SCREEN_DEVELOPER_TO_NORM = 0x205, /* Developer - confirm normal mode */
 };
 
 /* Initialize and clear the display.  Set width and height to the screen
