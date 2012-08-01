@@ -189,20 +189,7 @@ namespace vboot_reference {
       error("Syntax error in parsing bmpblock.\n");
     }
     string gotversion = (char*)event.data.scalar.value;
-    if (gotversion == "1.2") {
-      render_hwid_ = true;
-      support_font_ = true;
-    } else if (gotversion == "1.1") {
-      minor_version_ = 1;
-      render_hwid_ = true;
-      support_font_ = false;
-      fprintf(stderr, "WARNING: using old format: %s\n", gotversion.c_str());
-    } else if (gotversion == "1.0") {
-      minor_version_ = 0;
-      render_hwid_ = false;
-      support_font_ = false;
-      fprintf(stderr, "WARNING: using old format: %s\n", gotversion.c_str());
-    } else {
+    if (gotversion != "2.0") {
       error("Unsupported version specified in config file (%s)\n",
             gotversion.c_str());
     }

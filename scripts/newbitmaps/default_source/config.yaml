@@ -3,7 +3,7 @@
 # original sources are lost in the mists of time, so most of this is simply
 # unpacked from the binary.
 
-bmpblock: 1.2
+bmpblock: 2.0
 compression: 2
 images:
   $HWID: FONTS.bmp  # 0x0  4092/58196  tag=1 fmt=2

@@ -74,6 +74,12 @@ The old v1.1 bmpblock will be accepted by the vboot wrapper, but a $HWID
 screen without a corresponding font should be silently ignored.
 
 
+Version 2.0. Used by BIOS with complex composition (Kiev, Link, Snow, etc.)
+
+The max number of components in one screen has increased from 8 to 16, makes
+bitmap block structure incompatible with previous versions.
+
+
 
 --------------------------------------------
 Instructions for manually rebuilding things:

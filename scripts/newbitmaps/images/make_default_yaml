@@ -139,7 +139,7 @@ for hwid_bmp in hwid_unknown.bmp; do
 
   # List the images. The major difference is the HWID.
   cat >"$yaml_file" <<'EOF1'
-bmpblock: 1.2
+bmpblock: 2.0
 
 compression: 1
 
