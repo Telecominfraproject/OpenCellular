@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -44,6 +44,18 @@ main() {
         if [ -e "$rootfs/$file" ]; then
             echo "FAIL: $file exists in this image!"
             ls -al "$rootfs/$file"
+            testfail=1
+        fi
+    done
+
+    # Some things which used to be flag-files, checked-for by this
+    # test, are now tracked as use-flags.
+    local useflag_path="$rootfs/etc/session_manager_use_flags.txt"
+    for prefix in dangerous_ test_; do
+        local matches=$(grep "^$prefix" "$useflag_path")
+        if [ -n "$matches" ]; then
+            echo "FAIL: Found non-release use flags in $useflag_path:"
+            echo "$matches"
             testfail=1
         fi
     done
