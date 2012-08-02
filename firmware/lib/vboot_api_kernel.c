@@ -669,8 +669,14 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   p.shared_data_size = cparams->shared_data_size;
   p.gbb_data = cparams->gbb_data;
   p.gbb_size = cparams->gbb_size;
+
+  /*
+   * this could be set to NULL, in which case the vboot header information
+   * about the load address and size will be used
+   */
   p.kernel_buffer = kparams->kernel_buffer;
   p.kernel_buffer_size = kparams->kernel_buffer_size;
+
   p.nv_context = &vnc;
   p.boot_flags = 0;
   if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
@@ -778,6 +784,9 @@ VbSelectAndLoadKernel_exit:
 
   /* Stop timer */
   shared->timer_vb_select_and_load_kernel_exit = VbExGetTimer();
+
+  kparams->kernel_buffer = p.kernel_buffer;
+  kparams->kernel_buffer_size = p.kernel_buffer_size;
 
   VBDEBUG(("VbSelectAndLoadKernel() returning %d\n", (int)retval));
 

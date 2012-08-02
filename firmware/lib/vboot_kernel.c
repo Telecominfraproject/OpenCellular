@@ -147,9 +147,7 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   /* Sanity Checks */
   if (!params ||
       !params->bytes_per_lba ||
-      !params->ending_lba ||
-      !params->kernel_buffer ||
-      !params->kernel_buffer_size) {
+      !params->ending_lba) {
     VBDEBUG(("LoadKernel() called with invalid params\n"));
     retval = VBERROR_INVALID_PARAMETER;
     goto LoadKernelExit;
@@ -392,12 +390,18 @@ VbError_t LoadKernel(LoadKernelParams* params) {
       }
       body_offset_sectors = body_offset / blba;
 
-      /* Verify kernel body fits in the buffer */
       body_sectors = (preamble->body_signature.data_size + blba - 1) / blba;
-      if (body_sectors * blba > params->kernel_buffer_size) {
-        VBDEBUG(("Kernel body doesn't fit in memory.\n"));
-        shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
-        goto bad_kernel;
+      if (!params->kernel_buffer) {
+        /* Get kernel load address and size from the header. */
+        params->kernel_buffer = (void*) ((long)preamble->body_load_address);
+        params->kernel_buffer_size = body_sectors * blba;
+      } else {
+        /* Verify kernel body fits in the buffer */
+        if (body_sectors * blba > params->kernel_buffer_size) {
+          VBDEBUG(("Kernel body doesn't fit in memory.\n"));
+          shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
+          goto bad_kernel;
+        }
       }
 
       /* Verify kernel body fits in the partition */
