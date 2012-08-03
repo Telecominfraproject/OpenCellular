@@ -147,6 +147,48 @@ uint8_t *hexify_string(char *string, uint8_t *binary, size_t length)
 	return binary;
 }
 
+/* Overwrite file contents. Useless on SSD. :( */
+void shred(const char *pathname)
+{
+	uint8_t patterns[] = { 0xA5, 0x5A, 0xFF, 0x00 };
+	FILE *target;
+	struct stat info;
+	uint8_t *pattern;
+	int fd, i;
+
+	/* Give up if we can't safely open or stat the target. */
+	if ((fd = open(pathname, O_WRONLY | O_NOFOLLOW)) < 0) {
+		PERROR(pathname);
+		return;
+	}
+	if (fstat(fd, &info)) {
+		close(fd);
+		PERROR(pathname);
+		return;
+	}
+	if (!(target = fdopen(fd, "w"))) {
+		close(fd);
+		PERROR(pathname);
+		return;
+	}
+	/* Ignore errors here, since there's nothing we can really do. */
+	pattern = malloc(info.st_size);
+	for (i = 0; i < sizeof(patterns); ++i) {
+		memset(pattern, patterns[i], info.st_size);
+		if (fseek(target, 0, SEEK_SET))
+			PERROR(pathname);
+		if (fwrite(pattern, info.st_size, 1, target) != 1)
+			PERROR(pathname);
+		if (fflush(target))
+			PERROR(pathname);
+		if (fdatasync(fd))
+			PERROR(pathname);
+	}
+	free(pattern);
+	/* fclose() closes the fd too. */
+	fclose(target);
+}
+
 static int is_loop_device(int fd)
 {
 	struct stat info;
@@ -662,6 +704,13 @@ int keyfile_write(const char *keyfile, uint8_t *system_key, char *string)
 	length = cipher_length + final_len;
 
 	DEBUG("Writing %zu bytes to %s", length, keyfile);
+	/* TODO(keescook): use fd here, and set secure delete. Unsupported
+	 * by ext4 currently. :(
+	 * 	int f;
+	 * 	ioctl(fd, EXT2_IOC_GETFLAGS, &f);
+	 * 	f |= EXT2_SECRM_FL;
+	 * 	ioctl(fd, EXT2_IOC_SETFLAGS, &f);
+	 */
 	if (!g_file_set_contents(keyfile, (gchar *)cipher, length, &error)) {
 		ERROR("Unable to write %s: %s", keyfile, error->message);
 		g_error_free(error);

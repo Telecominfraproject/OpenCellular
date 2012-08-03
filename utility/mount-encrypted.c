@@ -58,6 +58,7 @@ static const size_t kExt4BlockSize = 4096;
 static const size_t kExt4MinBytes = 16 * 1024 * 1024;
 static const char * const kStaticKeyDefault = "default unsafe static key";
 static const char * const kStaticKeyFactory = "factory unsafe static key";
+static const char * const kStaticKeyFinalizationNeeded = "needs finalization";
 static const int kModeProduction = 0;
 static const int kModeFactory = 1;
 static const int kCryptAllowDiscard = 1;
@@ -102,6 +103,7 @@ static struct bind_mount *bind_mounts = NULL;
 static gchar *rootdir = NULL;
 static gchar *stateful_mount = NULL;
 static gchar *key_path = NULL;
+static gchar *needs_finalization_path = NULL;
 static gchar *block_path = NULL;
 static gchar *encrypted_mount = NULL;
 static gchar *dmcrypt_name = NULL;
@@ -256,10 +258,10 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
  *
  * NVRAM area cases:
  *  - no NVRAM area at all:
- *    - if cr48, assume this is going to always be missing the lockbox:
- *      - expect no lockbox (migration allowed).
- *    - otherwise, assume an interrupted install
- *      - expect modern lockbox (no migration allowed).
+ *    - interrupted install (cryptohome has the TPM password)
+ *    - ancient device (cr48, cryptohome has thrown away TPM password)
+ *    - broken device (cryptohome has thrown away/never had TPM password)
+ *      - must expect worst-case: no lockbox ever, and migration allowed.
  *  - defined NVRAM area, but not written to ("Finalized"); interrupted OOBE:
  *    - if legacy size, allow migration.
  *    - if not, disallow migration.
@@ -269,14 +271,12 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
  *
  * When returning 1: (NVRAM area found and used)
  *  - *digest populated with NVRAM area entropy.
- *  - *old_lockbox indicates which lockbox NVRAM area type was used.
- *  - *static_key will always be 0.
+ *  - *migrate is 1 for NVRAM v1, 0 for NVRAM v2.
  * When returning 0: (NVRAM missing or error)
  *  - *digest untouched.
- *  - *old_lockbox indicates future expected lockbox size (after Finalize).
- *  - *static_key=1 only if TPM owned, lockbox missing, and device is cr48.
+ *  - *migrate always 1
  */
-static int get_nvram_key(uint8_t *digest, int *old_lockbox, int *static_key)
+static int get_nvram_key(uint8_t *digest, int *migrate)
 {
 	uint8_t owned = 0;
 	uint8_t value[kLockboxSizeV2], bytes_anded, bytes_ored;
@@ -284,9 +284,8 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox, int *static_key)
 	uint8_t *rand_bytes;
 	uint32_t rand_size;
 
-	/* Expect to use a new lockbox by default, and require NVRAM key. */
-	*old_lockbox = 0;
-	*static_key = 0;
+	/* Default to allowing migration (disallow when owned with NVRAMv2). */
+	*migrate = 1;
 
 	/* Ignore unowned TPM's NVRAM area. */
 	result = tpm_owned(&owned);
@@ -315,28 +314,13 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox, int *static_key)
 		if (result != TPM_SUCCESS) {
 			/* No NVRAM area at all. */
 			INFO("No NVRAM area defined.");
-
-			/* TPM is owned, without an NVRAM area. If this is a
-			 * Cr48, mark this as using an old NVRAM area to
-			 * allow migration, and mark this as an ancient
-			 * install that did not even know to create a lockbox
-			 * at all. If this is actually a Cr48 that has had
-			 * its OOBE interrupted at the perfect moment, then
-			 * the user is going to lose their settings. This
-			 * should be extremely rare.
-			 */
-			if (is_cr48()) {
-				*static_key = 1;
-				*old_lockbox = 1;
-			}
-
 			return 0;
 		}
 		/* Legacy NVRAM area. */
-		INFO("Legacy NVRAM area found.");
-		*old_lockbox = 1;
+		INFO("Version 1 NVRAM area found.");
 	} else {
-		INFO("NVRAM area found.");
+		*migrate = 0;
+		INFO("Version 2 NVRAM area found.");
 	}
 
 	debug_dump_hex("nvram", value, size);
@@ -354,7 +338,7 @@ static int get_nvram_key(uint8_t *digest, int *old_lockbox, int *static_key)
 	}
 
 	/* Choose random bytes to use based on NVRAM version. */
-	if (*old_lockbox) {
+	if (*migrate) {
 		rand_bytes = value;
 		rand_size = size;
 	} else {
@@ -402,26 +386,16 @@ static int find_system_key(int mode, uint8_t *digest, int *migration_allowed)
 	 * NVRAM.
 	 */
 	if (has_chromefw()) {
-		int rc, static_key = 0;
-		rc = get_nvram_key(digest, migration_allowed, &static_key);
+		int rc;
+		rc = get_nvram_key(digest, migration_allowed);
 
 		if (rc) {
-			/* Use populated NVRAM area. */
 			INFO("Using NVRAM as system key; already populated%s.",
-				migration_allowed ? " (legacy)" : "");
-			return rc;
+				*migration_allowed ? " (legacy)" : "");
 		} else {
-			if (!static_key) {
-				INFO("Using NVRAM as system key; area needed.");
-				return rc;
-			}
-			/* If a static key is allowed, it means the TPM is
-			 * already owned, is missing the NVRAM area, and is
-			 * running on a Cr48. In this special case, fall
-			 * through to the other key methods below, since
-			 * the NVRAM area will never be populated.
-			 */
+			INFO("Using NVRAM as system key; finalization needed.");
 		}
+		return rc;
 	}
 
 	if (get_key_from_cmdline(digest)) {
@@ -602,6 +576,16 @@ mark_for_removal:
 	return 1;
 }
 
+static void finalized(void)
+{
+	/* TODO(keescook): once ext4 supports secure delete, just unlink. */
+	if (access(needs_finalization_path, R_OK) == 0) {
+		/* This is nearly useless on SSDs. */
+		shred(needs_finalization_path);
+		unlink(needs_finalization_path);
+	}
+}
+
 static void finalize(uint8_t *system_key, char *encryption_key)
 {
 	struct bind_mount *bind;
@@ -612,6 +596,8 @@ static void finalize(uint8_t *system_key, char *encryption_key)
 		return;
 	}
 
+	finalized();
+
 	for (bind = bind_mounts; bind->src; ++ bind) {
 		if (!bind->pending || access(bind->pending, R_OK))
 			continue;
@@ -620,6 +606,20 @@ static void finalize(uint8_t *system_key, char *encryption_key)
 		continue;
 #endif
 		remove_tree(bind->pending);
+	}
+}
+
+static void needs_finalization(char *encryption_key)
+{
+	uint8_t useless_key[DIGEST_LENGTH];
+	sha256((char *)kStaticKeyFinalizationNeeded, useless_key);
+
+	INFO("Writing finalization intent %s.", needs_finalization_path);
+	if (!keyfile_write(needs_finalization_path, useless_key,
+			   encryption_key)) {
+		ERROR("Failed to write %s -- aborting.",
+		      needs_finalization_path);
+		return;
 	}
 }
 
@@ -746,11 +746,21 @@ static int setup_encrypted(int mode)
 		 */
 		migrate_allowed = 0;
 	} else {
-		INFO("Generating new encryption key.");
-		encryption_key = choose_encryption_key();
-		if (!encryption_key)
-			return 0;
-		rebuild = 1;
+		uint8_t useless_key[DIGEST_LENGTH];
+		sha256((char *)kStaticKeyFinalizationNeeded, useless_key);
+		encryption_key = keyfile_read(needs_finalization_path,
+					      useless_key);
+		if (!encryption_key) {
+			/* This is a brand new system with no keys. */
+			INFO("Generating new encryption key.");
+			encryption_key = choose_encryption_key();
+			if (!encryption_key)
+				return 0;
+			rebuild = 1;
+		} else {
+			ERROR("Finalization unfinished! " \
+			      "Encryption key still on disk!");
+		}
 	}
 
 	if (rebuild) {
@@ -924,14 +934,34 @@ static int setup_encrypted(int mode)
 		}
 	}
 
-	/* Devices that are not using NVRAM for their system key do not
-	 * need to wait for the NVRAM area to be populated by Cryptohome
-	 * and a call to "finalize". Devices that already have the NVRAM
-	 * area populated and are being rebuilt don't need to wait for
-	 * Cryptohome because the NVRAM area isn't going to change.
+	/* When we are creating the encrypted mount for the first time,
+	 * either finalize immediately, or write the encryption key to
+	 * disk (*sigh*) to handle the seemingly endless broken or
+	 * wedged TPM states.
 	 */
-	if (rebuild && has_system_key)
-		finalize(system_key, encryption_key);
+	if (rebuild) {
+		/* Devices that already have the NVRAM area populated and
+		 * are being rebuilt don't need to wait for Cryptohome
+		 * because the NVRAM area isn't going to change.
+		 *
+		 * Devices that do not have the NVRAM area populated
+		 * may potentially never have the NVRAM area populated,
+		 * which means we have to write the encryption key to
+		 * disk until we finalize. Once secure deletion is
+		 * supported on ext4, this won't be as horrible.
+		 */
+		if (has_system_key)
+			finalize(system_key, encryption_key);
+		else
+			needs_finalization(encryption_key);
+	} else {
+		/* If we're not rebuilding and we have a sane system
+		 * key, then we must have finalized. Force any required
+		 * clean up.
+		 */
+		if (has_system_key)
+			finalized();
+	}
 
 	free(lodev);
 	return 1;
@@ -1075,8 +1105,7 @@ static int report_info(void)
 	uint8_t system_key[DIGEST_LENGTH];
 	uint8_t owned = 0;
 	struct bind_mount *mnt;
-	int old_lockbox = -1;
-	int static_key = -1;
+	int migrate = -1;
 
 	printf("TPM: %s\n", has_tpm ? "yes" : "no");
 	if (has_tpm) {
@@ -1087,13 +1116,12 @@ static int report_info(void)
 	printf("CR48: %s\n", is_cr48() ? "yes" : "no");
 	if (has_chromefw()) {
 		int rc;
-		rc = get_nvram_key(system_key, &old_lockbox, &static_key);
+		rc = get_nvram_key(system_key, &migrate);
 		if (!rc)
-			printf("NVRAM: missing%s.\n",
-				static_key ? " (static key allowed)" : "");
+			printf("NVRAM: missing.\n");
 		else {
 			printf("NVRAM: %s, %s.\n",
-				old_lockbox ? "legacy" : "modern",
+				migrate ? "legacy" : "modern",
 				rc ? "available" : "ignored");
 		}
 	}
@@ -1193,6 +1221,9 @@ static void prepare_paths(void)
 	if (asprintf(&key_path, "%s%s", rootdir,
 		     STATEFUL_MNT "/encrypted.key") == -1)
 		goto fail;
+	if (asprintf(&needs_finalization_path, "%s%s", rootdir,
+		     STATEFUL_MNT "/encrypted.needs-finalization") == -1)
+		goto fail;
 	if (asprintf(&block_path, "%s%s", rootdir,
 		     STATEFUL_MNT "/encrypted.block") == -1)
 		goto fail;
@@ -1242,15 +1273,10 @@ int main(int argc, char *argv[])
 	check_mount_states();
 
 	okay = setup_encrypted(mode);
-	if (!okay) {
-		INFO("Setup failed -- clearing files and retrying.");
-		unlink(key_path);
-		unlink(block_path);
-		okay = setup_encrypted(mode);
-	}
+	/* If we fail, let chromeos_startup handle the stateful wipe. */
 
 	INFO_DONE("Done.");
 
 	/* Continue boot. */
-	return !okay;
+	return okay ? EXIT_SUCCESS : EXIT_FAILURE;
 }

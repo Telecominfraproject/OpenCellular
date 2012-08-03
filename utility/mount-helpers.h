@@ -14,6 +14,7 @@ int runcmd(const gchar *argv[], gchar **output);
 int same_vfs(const char *mnt_a, const char *mnt_b);
 char *stringify_hex(uint8_t *binary, size_t length);
 uint8_t *hexify_string(char *string, uint8_t *binary, size_t length);
+void shred(const char *keyfile);
 
 /* Loopback device attach/detach helpers. */
 gchar *loop_attach(int fd, const char *name);
