@@ -34,6 +34,12 @@ typedef enum VdatStringField {
 /* Fields that GetVdatInt() can get */
 typedef enum VdatIntField {
   VDAT_INT_FLAGS = 0,                /* Flags */
+  VDAT_INT_HEADER_VERSION,           /* Header version for VbSharedData */
+  VDAT_INT_DEVSW_BOOT,               /* Dev switch position at boot */
+  VDAT_INT_DEVSW_VIRTUAL,            /* Dev switch is virtual */
+  VDAT_INT_RECSW_BOOT,               /* Recovery switch position at boot */
+  VDAT_INT_WPSW_BOOT,                /* WP switch position at boot */
+
   VDAT_INT_FW_VERSION_TPM,           /* Current firmware version in TPM */
   VDAT_INT_KERNEL_VERSION_TPM,       /* Current kernel version in TPM */
   VDAT_INT_TRIED_FIRMWARE_B,         /* Tried firmware B due to fwb_tries */
@@ -322,15 +328,13 @@ int GetVdatInt(VdatIntField field) {
   if (!sh)
     return -1;
 
+  /* Fields supported in version 1 */
   switch (field) {
     case VDAT_INT_FLAGS:
       value = (int)sh->flags;
       break;
-    case VDAT_INT_FW_VERSION_TPM:
-      value = (int)sh->fw_version_tpm;
-      break;
-    case VDAT_INT_KERNEL_VERSION_TPM:
-      value = (int)sh->kernel_version_tpm;
+    case VDAT_INT_HEADER_VERSION:
+      value = sh->struct_version;
       break;
     case VDAT_INT_TRIED_FIRMWARE_B:
       value = (sh->flags & VBSD_FWB_TRIED ? 1 : 0);
@@ -338,17 +342,47 @@ int GetVdatInt(VdatIntField field) {
     case VDAT_INT_KERNEL_KEY_VERIFIED:
       value = (sh->flags & VBSD_KERNEL_KEY_VERIFIED ? 1 : 0);
       break;
-    case VDAT_INT_RECOVERY_REASON:
-      /* Field added in struct version 2 */
-      if (sh->struct_version >= 2)
-        value = sh->recovery_reason;
+    default:
       break;
+  }
+
+  /* Fields added in struct version 2 */
+  if (sh->struct_version >= 2) {
+    switch(field) {
+      case VDAT_INT_DEVSW_BOOT:
+        value = (sh->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
+        break;
+      case VDAT_INT_DEVSW_VIRTUAL:
+        value = (sh->flags & VBSD_HONOR_VIRT_DEV_SWITCH ? 1 : 0);
+        break;
+      case VDAT_INT_RECSW_BOOT:
+        value = (sh->flags & VBSD_BOOT_REC_SWITCH_ON ? 1 : 0);
+        break;
+      case VDAT_INT_WPSW_BOOT:
+        value = (sh->flags & VBSD_BOOT_FIRMWARE_WP_ENABLED ? 1 : 0);
+        break;
+      case VDAT_INT_FW_VERSION_TPM:
+        value = (int)sh->fw_version_tpm;
+        break;
+      case VDAT_INT_KERNEL_VERSION_TPM:
+        value = (int)sh->kernel_version_tpm;
+        break;
+      case VDAT_INT_RECOVERY_REASON:
+        value = sh->recovery_reason;
+        break;
+      default:
+        break;
+    }
   }
 
   free(sh);
   return value;
 }
 
+/* Return version of VbSharedData struct or -1 if not found. */
+int VbSharedDataVersion(void) {
+  return GetVdatInt(VDAT_INT_HEADER_VERSION);
+}
 
 int VbGetSystemPropertyInt(const char* name) {
   int value = -1;
@@ -387,6 +421,14 @@ int VbGetSystemPropertyInt(const char* name) {
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
     value = VbGetCrosDebug();
+  } else if (!strcasecmp(name,"devsw_boot")) {
+    value = GetVdatInt(VDAT_INT_DEVSW_BOOT);
+  } else if (!strcasecmp(name,"devsw_virtual")) {
+    value = GetVdatInt(VDAT_INT_DEVSW_VIRTUAL);
+  } else if (!strcasecmp(name, "recoverysw_boot")) {
+    value = GetVdatInt(VDAT_INT_RECSW_BOOT);
+  } else if (!strcasecmp(name, "wpsw_boot")) {
+    value = GetVdatInt(VDAT_INT_WPSW_BOOT);
   } else if (!strcasecmp(name,"vdat_flags")) {
     value = GetVdatInt(VDAT_INT_FLAGS);
   } else if (!strcasecmp(name,"tpm_fwver")) {

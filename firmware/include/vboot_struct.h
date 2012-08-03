@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -235,6 +235,12 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_HONOR_VIRT_DEV_SWITCH      0x00000400
 /* VbInit() was told the system supports EC software sync */
 #define VBSD_EC_SOFTWARE_SYNC           0x00000800
+
+/* Supported flags by header version.  It's ok to add new flags while keeping
+ * struct version 2 as long as flag-NOT-present is the correct value for
+ * existing hardware (Stumpy/Lumpy). */
+#define VBSD_FLAGS_VERSION_1            0x00000007  /* Alex, ZGB */
+#define VBSD_FLAGS_VERSION_2            0x00000F7F
 
 /* Result codes for VbSharedDataHeader.check_fw_a_result (and b_result) */
 #define VBSD_LF_CHECK_NOT_DONE          0

@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -426,18 +426,7 @@ static const char* VbReadMainFwType(char* dest, int size) {
 
 /* Read the recovery reason.  Returns the reason code or -1 if error. */
 static int VbGetRecoveryReason(void) {
-  VbSharedDataHeader* sh;
   int value = -1;
-
-  /* Try reading from VbSharedData first */
-  sh = VbSharedDataRead();
-  if (sh) {
-    if (sh->struct_version >= 2)
-      value = sh->recovery_reason;
-    free(sh);
-    if (-1 != value)
-      return value;
-  }
 
   /* Try reading type from BINF.4 */
   value = ReadFileInt(ACPI_BINF_PATH ".4");
@@ -601,13 +590,11 @@ int VbGetArchPropertyInt(const char* name) {
   int value = -1;
 
   /* Values from ACPI */
-  if (!strcasecmp(name,"recovery_reason")) {
-    value = VbGetRecoveryReason();
-  } else if (!strcasecmp(name,"fmap_base")) {
+  if (!strcasecmp(name,"fmap_base"))
     value = ReadFileInt(ACPI_FMAP_PATH);
-  }
+
   /* Switch positions */
-  else if (!strcasecmp(name,"devsw_cur")) {
+  if (!strcasecmp(name,"devsw_cur")) {
     value = ReadGpio(GPIO_SIGNAL_TYPE_DEV);
   } else if (!strcasecmp(name,"recoverysw_cur")) {
     value = ReadGpio(GPIO_SIGNAL_TYPE_RECOVERY);
@@ -615,28 +602,36 @@ int VbGetArchPropertyInt(const char* name) {
     value = ReadGpio(GPIO_SIGNAL_TYPE_WP);
     if (-1 != value && FwidStartsWith("Mario."))
       value = 1 - value;  /* Mario reports this backwards */
-  } else if (!strcasecmp(name,"devsw_boot")) {
-    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_DEV_BOOT);
-  } else if (!strcasecmp(name,"recoverysw_boot")) {
-    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_BOOT);
   } else if (!strcasecmp(name,"recoverysw_ec_boot")) {
     value = ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_EC_BOOT);
-  } else if (!strcasecmp(name,"wpsw_boot")) {
-    value = ReadFileBit(ACPI_CHSW_PATH, CHSW_WP_BOOT);
-    if (-1 != value && FwidStartsWith("Mario."))
-      value = 1 - value;  /* Mario reports this backwards */
+  }
+
+  /* Fields for old systems which don't have VbSharedData */
+  if (VbSharedDataVersion() < 2) {
+    if (!strcasecmp(name,"recovery_reason")) {
+      value = VbGetRecoveryReason();
+    } else if (!strcasecmp(name,"devsw_boot")) {
+      value = ReadFileBit(ACPI_CHSW_PATH, CHSW_DEV_BOOT);
+    } else if (!strcasecmp(name,"recoverysw_boot")) {
+      value = ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_BOOT);
+    } else if (!strcasecmp(name,"wpsw_boot")) {
+      value = ReadFileBit(ACPI_CHSW_PATH, CHSW_WP_BOOT);
+      if (-1 != value && FwidStartsWith("Mario."))
+        value = 1 - value;  /* Mario reports this backwards */
+    }
   }
 
   /* Saved memory is at a fixed location for all H2C BIOS.  If the CHSW
    * path exists in sysfs, it's a H2C BIOS. */
-  else if (!strcasecmp(name,"savedmem_base")) {
+  if (!strcasecmp(name,"savedmem_base")) {
     return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00F00000);
   } else if (!strcasecmp(name,"savedmem_size")) {
     return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00100000);
   }
+
   /* NV storage values.  If unable to get from NV storage, fall back to the
-   * CMOS reboot field used by older BIOS. */
-  else if (!strcasecmp(name,"recovery_request")) {
+   * CMOS reboot field used by older BIOS (e.g. Mario). */
+  if (!strcasecmp(name,"recovery_request")) {
     value = VbGetNvStorage(VBNV_RECOVERY_REQUEST);
     if (-1 == value)
       value = VbGetCmosRebootField(CMOSRF_RECOVERY);
@@ -649,10 +644,11 @@ int VbGetArchPropertyInt(const char* name) {
     if (-1 == value)
       value = VbGetCmosRebootField(CMOSRF_TRY_B);
   }
+
   /* Firmware update tries is now stored in the kernel field.  On
    * older systems where it's not, it was stored in a file in the
    * stateful partition. */
-  else if (!strcasecmp(name,"fwupdate_tries")) {
+  if (!strcasecmp(name,"fwupdate_tries")) {
     if (-1 != VbGetNvStorage(VBNV_KERNEL_FIELD))
       return -1;  /* NvStorage supported; fail through arch-specific
                    * implementation to normal implementation. */

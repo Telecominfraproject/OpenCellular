@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -85,20 +85,6 @@ static int ReadFdtValue(const char *property, int *value) {
 
   if (value)
     *value = ntohl(data); /* FDT is network byte order */
-
-  return 0;
-}
-
-static int ReadFdtBool(const char *property) {
-  char filename[FNAME_SIZE];
-  struct stat tmp;
-  int err;
-
-  snprintf(filename, sizeof(filename), FDT_BASE_PATH "/%s", property);
-  err = stat(filename, &tmp);
-
-  if (err == 0)
-    return 1;
 
   return 0;
 }
@@ -368,19 +354,14 @@ VbSharedDataHeader *VbSharedDataRead(void) {
 int VbGetArchPropertyInt(const char* name) {
   if (!strcasecmp(name, "fmap_base"))
     return ReadFdtInt("fmap-offset");
-  else if (!strcasecmp(name, "devsw_boot"))
-    return ReadFdtBool("boot-developer-switch");
-  else if (!strcasecmp(name, "recoverysw_boot"))
-    return ReadFdtBool("boot-recovery-switch");
-  else if (!strcasecmp(name, "wpsw_boot"))
-    return ReadFdtBool("boot-write-protect-switch");
   else if (!strcasecmp(name, "devsw_cur"))
     return VbGetVarGpio("developer-switch");
   else if (!strcasecmp(name, "recoverysw_cur"))
     return VbGetVarGpio("recovery-switch");
   else if (!strcasecmp(name, "wpsw_cur"))
-  return VbGetVarGpio("write-protect-switch");
+    return VbGetVarGpio("write-protect-switch");
   else if (!strcasecmp(name, "recoverysw_ec_boot"))
+    /* TODO: read correct value using ectool */
     return 0;
   else
     return -1;

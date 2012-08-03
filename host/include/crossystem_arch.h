@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -36,8 +36,10 @@ int VbSetNvStorage(VbNvParam param, int value);
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start);
 
+/* Return version of VbSharedData struct or -1 if not found. */
+int VbSharedDataVersion(void);
 
-/* APIS WITH ARCH-SPECIFIC IMPLEMENTATIONS */
+/* Apis WITH ARCH-SPECIFIC IMPLEMENTATIONS */
 
 /* Read the non-volatile context from NVRAM.
  *
