@@ -225,6 +225,9 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   case VB_SCREEN_DEVELOPER_TO_NORM:
     screen_index = 5;
     break;
+  case VB_SCREEN_WAIT:
+    screen_index = 6;
+    break;
   case VB_SCREEN_BLANK:
   case VB_SCREEN_DEVELOPER_EGG:
   default:
