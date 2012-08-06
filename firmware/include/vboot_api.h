@@ -179,6 +179,8 @@ typedef struct VbCommonParams {
 #define VB_INIT_FLAG_OPROM_MATTERS       0x00000100
 /* EC on this platform supports EC software sync. */
 #define VB_INIT_FLAG_EC_SOFTWARE_SYNC    0x00000200
+/* EC on this platform is slow to update. */
+#define VB_INIT_FLAG_EC_SLOW_UPDATE      0x00000400
 
 /* Output flags for VbInitParams.out_flags.  Used to indicate
  * potential boot paths and configuration to the calling firmware

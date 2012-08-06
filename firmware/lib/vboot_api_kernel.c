@@ -437,7 +437,8 @@ static VbError_t EcProtectRW(void) {
   return rv;
 }
 
-VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
+VbError_t VbEcSoftwareSync(VbCommonParams* cparams) {
+  VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   int in_rw = 0;
   int rv;
   const uint8_t *ec_hash;
@@ -455,7 +456,7 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
     /* Recovery mode; just verify the EC is in RO code */
     if (rv == VBERROR_SUCCESS && in_rw == 1) {
       /* EC is definitely in RW firmware.  We want it in read-only code, so
-       * preseve the current recovery reason and reboot.
+       * preserve the current recovery reason and reboot.
        *
        * We don't reboot on error or unknown EC code, because we could end
        * up in an endless reboot loop.  If we had some way to track that we'd
@@ -569,10 +570,11 @@ VbError_t VbEcSoftwareSync(VbSharedDataHeader *shared) {
   if (need_update) {
     VBDEBUG(("VbEcSoftwareSync() updating EC-RW...\n"));
 
-    /*
-     * TODO: need flag passed into VbInit that EC update is slow; if it is,
-     * display an "updating" screen while the update happens.
-     */
+    if (shared->flags & VBSD_EC_SLOW_UPDATE) {
+      VBDEBUG(("VbEcSoftwareSync() - EC is slow. Show WAIT screen.\n"));
+      /* FIXME(crosbug.com/p/12257): Ensure the VGA Option ROM is loaded! */
+      VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, &vnc);
+    }
 
     rv = VbExEcUpdateRW(expected, expected_size);
     if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
@@ -642,7 +644,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
 
   /* Do EC software sync if necessary */
   if (shared->flags & VBSD_EC_SOFTWARE_SYNC) {
-    retval = VbEcSoftwareSync(shared);
+    retval = VbEcSoftwareSync(cparams);
     if (retval != VBERROR_SUCCESS)
       goto VbSelectAndLoadKernel_exit;
   }

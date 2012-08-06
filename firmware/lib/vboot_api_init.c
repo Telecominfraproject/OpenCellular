@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -61,6 +61,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
   if (iparams->flags & VB_INIT_FLAG_EC_SOFTWARE_SYNC)
     shared->flags |= VBSD_EC_SOFTWARE_SYNC;
+  if (iparams->flags & VB_INIT_FLAG_EC_SLOW_UPDATE)
+    shared->flags |= VBSD_EC_SLOW_UPDATE;
 
   is_s3_resume = (iparams->flags & VB_INIT_FLAG_S3_RESUME ? 1 : 0);
 
