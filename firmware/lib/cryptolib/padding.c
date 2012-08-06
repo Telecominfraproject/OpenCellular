@@ -143,7 +143,7 @@ RSA8192NUMBYTES,
 RSA8192NUMBYTES,
 };
 
-const uint8_t* padding_map[NUMALGORITHMS] = {
+const uint8_t* const padding_map[NUMALGORITHMS] = {
 #ifdef CHROMEOS_EC
 0,
 0,
@@ -233,7 +233,7 @@ SHA256_BLOCK_SIZE,
 SHA512_BLOCK_SIZE,
 };
 
-const uint8_t* hash_digestinfo_map[NUMALGORITHMS] = {
+const uint8_t* const hash_digestinfo_map[NUMALGORITHMS] = {
 SHA1_digestinfo,
 SHA256_digestinfo,
 SHA512_digestinfo,
@@ -248,7 +248,7 @@ SHA256_digestinfo,
 SHA512_digestinfo,
 };
 
-const char* algo_strings[NUMALGORITHMS] = {
+const char* const algo_strings[NUMALGORITHMS] = {
 "RSA1024 SHA1",
 "RSA1024 SHA256",
 "RSA1024 SHA512",
