@@ -2,3 +2,7 @@
 /build-au
 /build-main
 ID
+scripts/newbitmaps/lib/*.pyc
+scripts/newbitmaps/strings/localized_text/*/*.png
+scripts/newbitmaps/fonts/outdir
+scripts/newbitmaps/images/out_*

@@ -1,0 +1,90 @@
+#!/bin/sh
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Prepares image resources into output folder.
+
+# Composition settings
+BACKGROUND_COLOR=white
+
+# The only file that uses different scaling parameter.
+BACKGROUND_IMAGE=Background_white.bmp
+
+die() {
+  echo "$*" >&2
+  exit 1
+}
+
+convert_to_bmp3() {
+  local input="$1"
+  local folder="$2"
+  local param="$3"
+  local output="$(basename "$input")"
+
+  # Always output as .bmp
+  output="${output%.*}.bmp"
+  mkdir -p "$folder"
+
+  # TODO(hungte) Add -flatten to support converting images with transparency.
+  # Syntax: -background "$BACKGROUND_COLOR" -flatten
+  # (Currently conflicts with -colors that will create 1 bit /pixel images)
+  echo "$input -> $folder/$output"
+  convert "$input" \
+    -compress none -alpha off -colors 256 \
+    $param "BMP3:$folder/$output"
+}
+
+main() {
+  local profile="$1"
+  local output="out_$1"
+  local scale_param="" background_scale_param=""
+  local base locale X
+
+  # Currently we use image resources originally designed for 1366x768, and
+  # re-scale to different aspects on demand.
+  case "$profile" in
+    x86 )
+      # The image size with x86 UEFI BIOS (also applies to coreboot) is always
+      # 800x600, which is stretched to fill the entire screen. With previous
+      # devices the physical screen size was either 1280x800 (16:10) or 1366x768
+      # (16:9).  There's not a lot of difference between those, so let's just
+      # assume 16:9 for future platforms to make things simpler.
+      scale_param="-scale 59%x78%"
+      background_scale_param="-scale 800x600!"
+      ;;
+    arm )
+      # On ARM platforms, we need to provide a bitmap with full size.
+      # TODO(hungte) Support more profiles, ex 1280x800.
+      true
+      ;;
+    * )
+      die "Sorry, unknown profile $profile."
+  esac
+
+  # Prepare output folder
+  mkdir -p "$output"
+  cp hwid_fonts.bin "$output"
+
+  # Prepare images in current folder
+  # TODO(hungte) Deprecate arrow*.bmp by markup &#x25c0; and &#x25b6;, and
+  # Url.bmp by <span foreground="blue">http://</span>.
+  for X in *.bmp *.png; do
+    if [ "$X" = "$BACKGROUND_IMAGE" ]; then
+      convert_to_bmp3 "$X" "$output" "$background_scale_param"
+    else
+      convert_to_bmp3 "$X" "$output" "$convert_param"
+    fi
+  done
+
+  # Prepares localized images
+  base="../strings/localized_text"
+  for X in $base/*/*.png; do
+    locale="$(basename $(dirname $X))"
+    convert_to_bmp3 "$X" "$output/locale/$locale" "$scale_param"
+  done
+}
+
+set -e
+main "$@"
+

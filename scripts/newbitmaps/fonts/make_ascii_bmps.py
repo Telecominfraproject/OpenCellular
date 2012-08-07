@@ -61,6 +61,7 @@ def main():
   for ascii in chars:
     outfile = os.path.join(options.outdir,
                            "idx%03d_%x.bmp" % (count,ord(ascii)))
+    # TODO(hungte) Support assigning size & scaling for character images.
     print outfile
     cmd = ('convert',
            '-font', options.font,
