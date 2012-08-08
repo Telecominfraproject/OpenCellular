@@ -115,7 +115,7 @@ else
 test : $(FWLIB)
 endif
 
-include ../common.mk
+include ../build.mk
 
 $(FWLIB) : $(LIB_OBJS)
 	rm -f $@

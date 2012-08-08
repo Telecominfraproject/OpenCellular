@@ -37,7 +37,7 @@ test : $(HOSTLIB)
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(BUILD_ROOT)/a.out $(TESTDIR)/main.c \
 	$(HOSTLIB) -lcrypto
 
-include ../common.mk
+include ../build.mk
 
 $(HOSTLIB) : $(ALL_OBJS) $(FWLIB)
 	rm -rf $@ $(BUILD_ROOT)/.tmp

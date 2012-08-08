@@ -48,7 +48,7 @@ LIB_CGPT_CC_SRCS = \
 
 main: $(PROGNAME)
 
-include ../common.mk
+include ../build.mk
 
 LIB_CGPT_CC_OBJS = $(filter %.o, \
 	$(LIB_CGPT_CC_SRCS:%.c=${BUILD_ROOT}/%.o) \
