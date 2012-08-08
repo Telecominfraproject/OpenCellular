@@ -8,21 +8,23 @@
 #
 # Options:
 #
-#    --rtl              Render right-to-left languages
-#    --font=FONTNAME    Use specified font (instead of Helvetica)
+#    --lan=LANGUAGE     Render language (locale) settings
+#    --font=FONTNAME    Use specified font (instead of Droid Sans)
 #
 font="Droid Sans"
-rtl=""
+language=""
 point=15
 
 while true ; do
   case "$1" in
-    --rtl)
-      rtl="--rtl"
+    --lan=* | --language=*)
+      language="--language ${1##*=}"
       shift
       ;;
     --font=*)
-      font="${1##*=}"
+      # Allows empty string = default font.
+      param="${1##*=}"
+      [ -n "$param" ] && font="$param"
       shift
       ;;
     --point=*)
@@ -40,44 +42,39 @@ done
 # - New pango-view has --pixel to assign font size in pixel, but that is not
 #   supported by old (ex, 1.24.5 in chroot) so we must assign --dpi 72 for
 #   pointsize.
+# TODO(hungte) Replace font color & size settings to pango --markup.
 bg="#ffffff"
 small_color="#000000"
 small_font="$font"
 small_pointsize="$point"
 large_color="#585858"
 large_font="$font"
-large_pointsize=40
-_x86_scale="-scale 59%x78%"
-_x86_opts="-colors 256 -compress none -alpha off"
+large_pointsize="$((point * 8 / 3))"
 
 for txtfile in $*; do
   # pango-view does not support assigning output format options for bitmap, so
-  # we first create the images in PNG format and then convert into BMP by
-  # ImageMagick.
+  # we must create images in PNG format and then post-process it (ex, convert
+  # into BMP by ImageMagick).
+
   pngfile="${txtfile%.*}".png
-  bmpfile="${txtfile%.*}".bmp
   case "$txtfile" in
     *.txt)
-      pango-view -q $rtl --no-auto-dir \
+      pango-view -q $language \
         --background "$bg" --foreground "$small_color" \
         --font "$small_font $small_pointsize" --dpi 72 \
         --margin=3 --align=center \
         --output "$pngfile" \
         "$txtfile"
-      convert ${_x86_scale} ${_x86_opts} "$pngfile" BMP3:"$bmpfile"
-      rm -f "$pngfile"
-      echo "wrote $bmpfile"
+      echo "wrote $pngfile"
       ;;
     *.TXT)
-      pango-view -q $rtl --no-auto-dir \
+      pango-view -q $language \
         --background "$bg" --foreground "$large_color" \
         --font "$large_font $large_pointsize" --dpi 72 \
         --margin=10 --align=center \
         --output "$pngfile" \
         "$txtfile"
-      convert ${_x86_scale} ${_x86_opts} " $pngfile" BMP3:"$bmpfile"
-      rm -f "$pngfile"
-      echo "wrote $bmpfile"
+      echo "wrote $pngfile"
       ;;
     *)
       echo "Ignoring $txtfile. Filename should end with .txt or .TXT"
