@@ -9,7 +9,9 @@ yaml_file="DEFAULT.yaml"
 
 # I'm sorting the locales in more-or-less geographical order. Right should move
 # east, left should move west. Of course we'll start in the US. :-)
-locales="en es_419 pt_BR en_GB fr es pt_PT ca it de el nl da no sv fi et lv lt ru pl cs sk hu sl sr hr bg ro uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja"
+locales="en es_419 pt_BR en_GB fr es pt_PT ca it de el nl da no sv fi et lv "\
+"lt ru pl cs sk hu sl sr hr bg ro uk tr iw ar fa hi th vi id fil zh_CN zh_TW "\
+"ko ja"
 localedir="./locale"
 
 # These render right-to-left
@@ -322,9 +324,13 @@ EOF1
   ${lc}_remove_text:      ${localedir}/$lc/remove.bmp
   ${lc}_yuck_text:        ${localedir}/$lc/yuck.bmp
   ${lc}_insert_text:      ${localedir}/$lc/insert.bmp
-  ${lc}_insert_usb_text:  ${localedir}/$lc/insert_usb.bmp
   ${lc}_language_text:    ${localedir}/$lc/language.bmp
   ${lc}_for_help_text:    ${localedir}/$lc/for_help.bmp
+
+  ${lc}_todev_text:    ${localedir}/$lc/todev.bmp
+  ${lc}_tonorm_text:    ${localedir}/$lc/tonorm.bmp
+  ${lc}_back_help_text:    ${localedir}/$lc/back_help.bmp
+  ${lc}_update_text:    ${localedir}/$lc/update.bmp
 
 EOF2
 
@@ -334,9 +340,12 @@ EOF2
     eval "${lc}_remove_text=${localedir}/$lc/remove.bmp"
     eval "${lc}_yuck_text=${localedir}/$lc/yuck.bmp"
     eval "${lc}_insert_text=${localedir}/$lc/insert.bmp"
-    eval "${lc}_insert_usb_text=${localedir}/$lc/insert_usb.bmp"
     eval "${lc}_language_text=${localedir}/$lc/language.bmp"
     eval "${lc}_for_help_text=${localedir}/$lc/for_help.bmp"
+    eval "${lc}_todev_text=${localedir}/$lc/todev.bmp"
+    eval "${lc}_tonorm_text=${localedir}/$lc/tonorm.bmp"
+    eval "${lc}_back_help_text=${localedir}/$lc/back_help.bmp"
+    eval "${lc}_update_text=${localedir}/$lc/update.bmp"
   done
 
   # List the screens. We need to composite four screens for each locale.
@@ -386,7 +395,39 @@ EOF2
     set_centered_y_percent "white_bg" 40
     add_centered "insert_graphic"
     set_centered_y_percent "white_bg" 50
-    add_centered_below "${lc}_insert_usb_text"
+    add_centered_below "${lc}_insert_text"
+    add_footer_with_url ${lc}
+
+    # ToDeveloper Screen
+    echo "  ${lc}_todev:" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 25
+    add_centered_below "${lc}_todev_text"
+    set_centered_y_percent "white_bg" 50
+    add_centered "${lc}_back_help_text"
+    add_footer_with_url ${lc}
+
+    # ToNormal Screen
+    echo "  ${lc}_tonorm:" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 30
+    add_centered "devmode_graphic"
+    add_centered_below "${lc}_tonorm_text"
+    set_centered_y_percent "white_bg" 70
+    add_centered "${lc}_back_help_text"
+    add_footer_with_url ${lc}
+
+    # Update (WAIT) Screen
+    echo "  ${lc}_update:" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 50
+    add_centered "${lc}_update_text"
     add_footer_with_url ${lc}
 
   done
@@ -405,8 +446,10 @@ EOF2
   guess_locale "$yaml_file"
 
   for lc in $newlocales; do
-    echo "  - [ ${lc}_devel, ${lc}_remove, ${lc}_yuck, ${lc}_insert ]" >> \
-      "$yaml_file"
+    screen_list="${lc}_devel, ${lc}_remove, ${lc}_yuck, ${lc}_insert"
+    # todev/tonorm/update are supported only by newer firmware.
+    screen_list="${screen_list}, ${lc}_todev, ${lc}_tonorm, ${lc}_update"
+    echo "  - [ $screen_list ]" >>"$yaml_file"
   done
 
   cat >>"$yaml_file" <<EOF3

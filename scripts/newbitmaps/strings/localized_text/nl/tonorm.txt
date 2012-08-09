@@ -1,0 +1,4 @@
+OS verification is OFF
+
+Press ENTER to confirm you wish to turn OS verification on.
+Your system will reboot and local data will be cleared.
