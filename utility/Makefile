@@ -108,7 +108,7 @@ ${BUILD_ROOT}/bmpblk_utility: ${BUILD_ROOT}/bmpblk_utility.o \
 				${BUILD_ROOT}/image_types.o \
 				${BUILD_ROOT}/eficompress.o \
 				${BUILD_ROOT}/efidecompress.o
-	$(CXX) -llzma -lyaml $(CFLAGS) $^ -o $@
+	$(CXX) $(CFLAGS) $^ -o $@ -llzma -lyaml
 
 ${BUILD_ROOT}/bmpblk_font: ${BUILD_ROOT}/bmpblk_font.o \
 				${BUILD_ROOT}/image_types.o
