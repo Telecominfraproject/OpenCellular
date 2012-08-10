@@ -61,6 +61,7 @@ class BmpBlock(object):
       print "WARNING: ignoring $HWID font blob"
     if "$HWID.rtol" in images:
       print "WARNING: ignoring $HWID.rtol font blob"
+    # TODO(hungte) Replace this by rendering with font block.
     images["$HWID"] = os.path.join(self.libdir,'current_hwid.bmp')
     images["$HWID.rtol"] = os.path.join(self.libdir, 'current_hwid.bmp')
 

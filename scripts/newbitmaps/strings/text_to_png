@@ -3,17 +3,27 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# Render a text file into a bitmap. Files named '*.txt' are small font, those
-# named '*.TXT' are large font.
+# Render a text file into a bitmap. Files named '*.txt' are normal text files,
+# while '*.TXT' files may contain markup.
 #
 # Options:
 #
 #    --lan=LANGUAGE     Render language (locale) settings
 #    --font=FONTNAME    Use specified font (instead of Droid Sans)
+#    --point=POINT      Font size, in points (72dpi)
+#    --margin=MARGIN    Set different margin (usually for font bitmaps)
+#    --color=COLOR      Override foreground color (in '#ffffff' format)
+#    --markup           Render text as pango-view markup file
+#    --align            Override align settings
 #
 font="Droid Sans"
 language=""
-point=15
+pointsize=15
+margin=3
+align="center"
+bgcolor="#ffffff"
+color="#000000"
+params=""
 
 while true ; do
   case "$1" in
@@ -27,8 +37,24 @@ while true ; do
       [ -n "$param" ] && font="$param"
       shift
       ;;
+    --align=*)
+      align="${1##*=}"
+      shift
+      ;;
+    --color=*)
+      color="${1##*=}"
+      shift
+      ;;
     --point=*)
-      point="${1##*=}"
+      pointsize="${1##*=}"
+      shift
+      ;;
+    --margin=*)
+      margin="${1##*=}"
+      shift
+      ;;
+    --markup)
+      params="$params --markup"
       shift
       ;;
     *)
@@ -42,42 +68,33 @@ done
 # - New pango-view has --pixel to assign font size in pixel, but that is not
 #   supported by old (ex, 1.24.5 in chroot) so we must assign --dpi 72 for
 #   pointsize.
-# TODO(hungte) Replace font color & size settings to pango --markup.
-bg="#ffffff"
-small_color="#000000"
-small_font="$font"
-small_pointsize="$point"
-large_color="#585858"
-large_font="$font"
-large_pointsize="$((point * 8 / 3))"
 
 for txtfile in $*; do
   # pango-view does not support assigning output format options for bitmap, so
   # we must create images in PNG format and then post-process it (ex, convert
   # into BMP by ImageMagick).
-
   pngfile="${txtfile%.*}".png
+  file_opt=""
   case "$txtfile" in
     *.txt)
-      pango-view -q $language \
-        --background "$bg" --foreground "$small_color" \
-        --font "$small_font $small_pointsize" --dpi 72 \
-        --margin=3 --align=center \
-        --output "$pngfile" \
-        "$txtfile"
-      echo "wrote $pngfile"
+      file_opt=""
       ;;
     *.TXT)
-      pango-view -q $language \
-        --background "$bg" --foreground "$large_color" \
-        --font "$large_font $large_pointsize" --dpi 72 \
-        --margin=10 --align=center \
-        --output "$pngfile" \
-        "$txtfile"
-      echo "wrote $pngfile"
+      file_opt="--markup "
       ;;
     *)
       echo "Ignoring $txtfile. Filename should end with .txt or .TXT"
+      continue
       ;;
   esac
+  pango-view -q $language \
+    --hinting=full \
+    --background "$bgcolor" --foreground "$color" \
+    --font "$font $pointsize" --dpi 72 \
+    --margin $margin \
+    --align="$align" \
+    $params $file_opt \
+    --output "$pngfile" \
+    "$txtfile"
+  echo "wrote $pngfile"
 done

@@ -248,7 +248,7 @@ add_footer_with_url() {
   local lc=$1
   set_centered_y_percent "white_bg" 80
   insert_centered_below "divider_btm"
-  insert_centered_below "${lc}_for_help_text" "url"
+  insert_centered_below "${lc}_help_left_text" "url" "${lc}_help_right_text"
   if echo "$rtol" | grep -q -w "$lc" ; then
     insert_centered_below 'hwid' "${lc}_model_text"
   else
@@ -269,6 +269,7 @@ add_footer_without_url() {
   echo "" >> "$yaml_file"
 }
 
+# TODO(hungte) Remove the unnecessary hwid_*.bmp loop below.
 # Generate a new yaml file for each specified hwid_*.bmp file.
 for hwid_bmp in hwid_unknown.bmp; do
   echo "$yaml_file"
@@ -302,7 +303,7 @@ images:
   # The following strings must be approved by the localization people
 EOF1
 
-  # some global variables matching the yaml definitions
+  # Global variables matching the yaml definitions
   arrow_left='arrow_left.bmp'
   arrow_right='arrow_right.bmp'
   chrome_logo='chrome_logo.bmp'
@@ -318,23 +319,7 @@ EOF1
 
   # Enumerate the bitmaps for each locale-specific string.
   for lc in $locales; do
-    cat >>"$yaml_file" <<EOF2
-  ${lc}_model_text:       ${localedir}/$lc/model.bmp
-  ${lc}_devmode_text:     ${localedir}/$lc/devmode.bmp
-  ${lc}_remove_text:      ${localedir}/$lc/remove.bmp
-  ${lc}_yuck_text:        ${localedir}/$lc/yuck.bmp
-  ${lc}_insert_text:      ${localedir}/$lc/insert.bmp
-  ${lc}_language_text:    ${localedir}/$lc/language.bmp
-  ${lc}_for_help_text:    ${localedir}/$lc/for_help.bmp
-
-  ${lc}_todev_text:    ${localedir}/$lc/todev.bmp
-  ${lc}_tonorm_text:    ${localedir}/$lc/tonorm.bmp
-  ${lc}_back_help_text:    ${localedir}/$lc/back_help.bmp
-  ${lc}_update_text:    ${localedir}/$lc/update.bmp
-
-EOF2
-
-    # Also define global variables matching those in the yaml file.
+    # Locale-specific variables matching those in the yaml file.
     eval "${lc}_model_text=${localedir}/$lc/model.bmp"
     eval "${lc}_devmode_text=${localedir}/$lc/devmode.bmp"
     eval "${lc}_remove_text=${localedir}/$lc/remove.bmp"
@@ -342,10 +327,29 @@ EOF2
     eval "${lc}_insert_text=${localedir}/$lc/insert.bmp"
     eval "${lc}_language_text=${localedir}/$lc/language.bmp"
     eval "${lc}_for_help_text=${localedir}/$lc/for_help.bmp"
+    eval "${lc}_help_left_text=${localedir}/$lc/for_help_left.bmp"
+    eval "${lc}_help_right_text=${localedir}/$lc/for_help_right.bmp"
     eval "${lc}_todev_text=${localedir}/$lc/todev.bmp"
     eval "${lc}_tonorm_text=${localedir}/$lc/tonorm.bmp"
     eval "${lc}_back_help_text=${localedir}/$lc/back_help.bmp"
     eval "${lc}_update_text=${localedir}/$lc/update.bmp"
+
+    cat >>"$yaml_file" <<EOF2
+  ${lc}_model_text:       $(eval echo \$${lc}_model_text)
+  ${lc}_devmode_text:     $(eval echo \$${lc}_devmode_text)
+  ${lc}_remove_text:      $(eval echo \$${lc}_remove_text)
+  ${lc}_yuck_text:        $(eval echo \$${lc}_yuck_text)
+  ${lc}_insert_text:      $(eval echo \$${lc}_insert_text)
+  ${lc}_language_text:    $(eval echo \$${lc}_language_text)
+  ${lc}_help_left_text:   $(eval echo \$${lc}_help_left_text)
+  ${lc}_help_right_text:  $(eval echo \$${lc}_help_right_text)
+  ${lc}_todev_text:       $(eval echo \$${lc}_todev_text)
+  ${lc}_tonorm_text:      $(eval echo \$${lc}_tonorm_text)
+  ${lc}_back_help_text:   $(eval echo \$${lc}_back_help_text)
+  ${lc}_update_text:      $(eval echo \$${lc}_update_text)
+
+EOF2
+
   done
 
   # List the screens. We need to composite four screens for each locale.
@@ -467,5 +471,6 @@ EOF3
 done
 
 # Now replace the 'hwid' string with '$HWID'.
-perl -i -p -e 's/\bhwid\b/\$HWID/g;' "$yaml_file"
+sed -i 's/\bhwid\b/\$HWID/g' "$yaml_file"
+
 echo ""

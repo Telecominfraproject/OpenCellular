@@ -1,1 +1,1 @@
-http://google.com/chromeos/recovery
+<span color="blue"><b> http://google.com/chromeos/recovery </b></span>

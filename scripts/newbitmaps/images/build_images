@@ -12,7 +12,7 @@ BACKGROUND_COLOR=white
 BACKGROUND_IMAGE=Background_white.bmp
 
 die() {
-  echo "$*" >&2
+  echo "ERROR: $*" >&2
   exit 1
 }
 
@@ -85,12 +85,11 @@ main() {
 
   # Prepare output folder
   mkdir -p "$output"
-  cp hwid_fonts.bin "$output"
 
   # Prepare images in current folder
   # TODO(hungte) Deprecate arrow*.bmp by markup &#x25c0; and &#x25b6;, and
   # Url.bmp by <span foreground="blue">http://</span>.
-  for X in *.bmp *.png; do
+  for X in $(ls *.bmp *.png); do
     if [ "$X" = "$BACKGROUND_IMAGE" ]; then
       convert_to_bmp3 "$X" "$output" "$background_scale_param"
     else
@@ -98,13 +97,38 @@ main() {
     fi
   done
 
-  # Prepares localized images. All these images were rendered by pango-view and
-  # should not have transparency, so we specify flatten="" to speed up.
-  base="../strings/localized_text"
-  for X in $base/*/*.png; do
-    locale="$(basename $(dirname $X))"
-    convert_to_bmp3 "$X" "$output/locale/$locale" "$scale_param" ""
+  # Prepares strings and localized images. All these images were rendered by
+  # pango-view and should not have transparency, so we specify flatten="" to
+  # speed up.
+  echo "Preparing common strings..."
+  base="../strings"
+  for X in $base/*.png; do
+    convert_to_bmp3 "$X" "$output" "$scale_param" ""
   done
+  echo "Preparing localized messages... $LOCALES"
+  base="../strings/localized_text"
+  if [ -z "$LOCALES" ]; then
+    # Collect all locales
+    for X in $(cd $base; ls); do
+      if [ -d "$base/$X" ]; then
+        LOCALES="${LOCALES}${X} "
+      fi
+    done
+    echo "Found locales: $LOCALES"
+  fi
+  for locale in $LOCALES; do
+    # Prepare all locales.
+    for X in $base/$locale/*.png; do
+      convert_to_bmp3 "$X" "$output/locale/$locale" "$scale_param" ""
+    done
+  done
+
+  # Prepare fonts
+  base="../strings/font"
+  for X in $base/*.png; do
+    convert_to_bmp3 "$X" "$output/font" "$scale_param" ""
+  done
+  bmpblk_font --outfile "$output/hwid_fonts.bin" "$output"/font/*.bmp
 }
 
 set -e

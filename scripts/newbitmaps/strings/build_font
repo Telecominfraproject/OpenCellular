@@ -1,0 +1,41 @@
+#!/bin/sh
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Generates font source images.
+
+SCRIPT="$(readlink -f "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT")"
+GLYPHS='* 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ{}-_'
+COLOR="#888888"
+FONT="Droid Sans Bold"
+
+die() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
+
+main() {
+  [ "$#" = "1" ] || die "Usage: $0 output_dir"
+  local output="$1"
+  mkdir -p "$output"
+
+  local i=1
+  local c=''
+  echo "Generating glyph text source..."
+  while true; do
+    c="$(echo "$GLYPHS" | cut -b $i)"
+    [ -z "$c" ] && break
+    ord="0x$(echo "$c" | od -t x1 -A none | awk '{print $1}')"
+    echo "$c" >"$output/idx$(printf "%03d" $ord)_$(printf "%x" $ord).txt"
+    i=$((i + 1))
+  done
+
+  echo "Converting glyph images..."
+  "$SCRIPT_DIR/text_to_png"  --margin=0 --font="$FONT" --color="$COLOR" \
+    "$output/*.txt"
+}
+
+set -e
+main "$@"
