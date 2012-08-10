@@ -75,6 +75,12 @@ fi
 #
 # 37e7bad73449f782f280b1668fed48d1132137fa  Stumpy MP
 # 4ec4ba0a746b37b1c6286ab807c2a5b1e7ab4ab0  Stumpy MP
+#
+# 02601fcbcac953f043a53eac6fed7a5367a7189c  Kiev PreMP
+# 9c138273527db0a0797233e2345ee39e46c0df95  Kiev PreMP
+#
+# d81c751df76a7d53a6d3c2f58987562c87416735  Kiev MP
+# 4c5067795ddbbf100d19f9ba08928af1c1ef37c6  Kiev MP
 
 set -o pipefail
 
