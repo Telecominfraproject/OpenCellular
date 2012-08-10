@@ -1,2 +1,2 @@
-Operační systém Chrome OS chybí nebo je poškozený.
-Připojte zařízení pro obnovu.
+Systém Chrome OS chybí nebo je poškozen.
+Vložte jednotku USB nebo kartu SD pro obnovení.

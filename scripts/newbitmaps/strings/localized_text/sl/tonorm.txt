@@ -1,0 +1,4 @@
+Preverjanje operacijskega sistema je IZKLOPLJENO
+
+Pritisnite ENTER za potrditev, da želite vklopiti preverjanje operacijskega sistema.
+Sistem se bo znova zagnal in lokalni podatki bodo izbrisani.

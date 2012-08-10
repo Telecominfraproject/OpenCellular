@@ -1,3 +1,2 @@
-Chrome OS est manquant ou endommagé.
-S'il vous plaît insérer un bâton de récupération USB dans un des quatre ports de
-l'arrière de l'appareil (les ports secondaires ne fonctionnera pas pour la récupération).
+Google Chrome OS est manquant ou endommagé.
+Veuillez insérer une clé USB de récupération.

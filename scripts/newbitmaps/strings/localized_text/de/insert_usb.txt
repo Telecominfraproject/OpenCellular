@@ -1,3 +1,2 @@
-Chrome OS fehlt oder beschädigt ist.
-Bitte geben Sie eine Erholung USB-Stick in einen der vier Ports in
-der Rückseite des Gerätes (die seitlichen Ports werden nicht für die Wiederherstellung zu arbeiten).
+Chrome OS fehlt oder ist beschädigt.
+Stecken Sie einen Wiederherstellungs-USB-Stick ein.

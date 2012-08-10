@@ -1,2 +1,2 @@
-OS-Prüfung ist AUS
-Drücken Sie SPACE wieder zu aktivieren.
+Die OS-Bestätigung ist AUS.
+Drücken Sie die Leertaste, um sie erneut zu aktivieren.

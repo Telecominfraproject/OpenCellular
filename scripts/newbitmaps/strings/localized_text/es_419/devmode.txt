@@ -1,2 +1,2 @@
-Verificación de sistema operativo está en OFF
-Oprima SPACE para volver a habilitar.
+La verificación del SO está DESACTIVADA.
+Presiona ESPACIO para volver a activarla.

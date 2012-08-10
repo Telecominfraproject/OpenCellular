@@ -1,0 +1,2 @@
+OS doğrulamayı KAPATMAK için ENTER tuşuna basın.
+Sisteminiz yeniden açılacak ve yerel veriler temizlenecek.

@@ -1,0 +1,2 @@
+Chrome OS is missing or damaged.
+Please insert a recovery USB stick into one of the 4 ports in the BACK of the device.

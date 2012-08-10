@@ -1,2 +1,2 @@
-Verifikasi OS Chrome dimatikan.
-Tekan bilah spasi untuk memulai pemulihan.
+Verifikasi OS MATI
+Tekan SPASI untuk mengaktifkan kembali.

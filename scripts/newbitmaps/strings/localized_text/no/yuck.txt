@@ -1,1 +1,1 @@
-Enheten du satt inn ikke inneholder Chrome OS.
+Enheten du har satt inn inneholder ikke Chrome OS:

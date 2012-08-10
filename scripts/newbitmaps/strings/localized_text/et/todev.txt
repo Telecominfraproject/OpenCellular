@@ -1,0 +1,2 @@
+OS-i kinnitamise VÄLJA lülitamiseks vajutage sisestusklahvi ENTER.
+Teie süsteem lähtestatakse ja kohalikud andmed kustutatakse.

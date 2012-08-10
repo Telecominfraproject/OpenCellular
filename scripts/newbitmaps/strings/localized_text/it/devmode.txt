@@ -1,2 +1,2 @@
-Verifica OS è OFF
-Premere SPACE per riattivare.
+Verifica del sistema operativo NON ATTIVA.
+Premi la BARRA SPAZIATRICE per riattivarla.

@@ -1,2 +1,2 @@
-O SO do Chrome está danificado ou em falta.
-Ligue um dispositivo de recuperação.
+O SO Chrome está em falta ou danificado.
+Insira um cartão SD ou memory stick USB de recuperação.

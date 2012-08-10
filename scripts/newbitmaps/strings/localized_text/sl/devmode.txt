@@ -1,2 +1,2 @@
-Preverjanje za Chrome OS je izklopljeno.
-Pritisnite preslednico, da začnete obnovo.
+Preverjanje operacijskega sistema je IZKLOPLJENO
+Pritisnite preslednico, da ga spet vklopite.

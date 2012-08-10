@@ -1,1 +1,1 @@
-S'il vous plaît supprimer tous les périphériques de stockage externes pour commencer la récupération.
+Veuillez retirer tous les périphériques externes pour lancer la procédure de récupération.

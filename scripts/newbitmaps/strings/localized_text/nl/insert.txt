@@ -1,2 +1,2 @@
 Chrome OS ontbreekt of is beschadigd.
-Sluit een herstelapparaat aan.
+Plaats een herstel-USB-stick of herstel-SD-kaart.

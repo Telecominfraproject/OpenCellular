@@ -1,0 +1,2 @@
+Chrome OS bị thiếu hoặc hỏng.
+Vui lòng cắm thẻ USB khôi phục vào một trong 4 cổng ở PHÍA SAU thiết bị.

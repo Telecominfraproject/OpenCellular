@@ -1,1 +1,1 @@
-Remova todos os suportes de dados externos para iniciar a recuperação.
+Retire todos os dispositivos externos para iniciar a recuperação.

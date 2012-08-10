@@ -1,4 +1,4 @@
-OS verification is OFF
+La verificación del SO está DESACTIVADA.
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Presiona ENTER para confirmar que deseas activar la verificación del SO.
+Tu sistema se reiniciará y se borrarán los datos locales.

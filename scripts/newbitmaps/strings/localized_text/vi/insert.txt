@@ -1,2 +1,2 @@
-Hệ điều hành Chrome bị thiếu hoặc bị hỏng.
-Vui lòng kết nối thiết bị khôi phục.
+Chrome OS bị thiếu hoặc hỏng.
+Vui lòng cắm thẻ USB hoặc thẻ SD khôi phục.

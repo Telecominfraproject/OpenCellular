@@ -1,1 +1,1 @@
-Chcete-li zahájit obnovení, odeberte prosím všechna externí média.
+Před spuštěním obnovení prosím odeberte všechna externí zařízení.

@@ -1,1 +1,1 @@
-Poista kaikki ulkoiset tallennusvälineet aloittaaksesi palautuksen.
+Aloita palautus poistamalla kaikki ulkoiset laitteet.

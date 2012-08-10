@@ -1,0 +1,4 @@
+Verificarea SO este DEZACTIVATĂ
+
+Apăsaţi pe ENTER pentru a confirma că doriţi să activaţi verificarea SO.
+Sistemul va reporni şi datele locale vor fi şterse.

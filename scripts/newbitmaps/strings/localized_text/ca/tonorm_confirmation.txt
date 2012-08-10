@@ -1,0 +1,2 @@
+La verificació d'OS està ACTIVADA.
+Es reiniciarà el sistema i s'esborraran les dades locals.

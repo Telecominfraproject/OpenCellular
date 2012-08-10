@@ -1,4 +1,4 @@
-OS verification is OFF
+OS の確認機能はオフになっています
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+OS の確認機能をオンにする場合は Enter キーを押してください。
+システムが再起動し、ローカル データは消去されます。

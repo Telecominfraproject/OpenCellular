@@ -1,2 +1,2 @@
 Chrome OS mangler eller er beskadiget.
-Tilslut en enhed til gendannelse.
+Indsæt en USB-nøgle eller et SD-kort til genoprettelse.

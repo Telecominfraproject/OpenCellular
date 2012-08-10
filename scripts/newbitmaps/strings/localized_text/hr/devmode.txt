@@ -1,2 +1,2 @@
-Provjera OS-a Chrome je isključena.
-Pritisnite razmaknicu da biste pokrenuli oporavak.
+Potvrda OS-a ISKLJUČENA je
+Pritisnite RAZMAKNICU da biste ju ponovo omogućili.

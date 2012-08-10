@@ -1,0 +1,4 @@
+Verifikácia OS je VYPNUTÁ
+
+Stlačením klávesu ENTER potvrdíte, že chcete zapnúť verifikáciu OS.
+Systém sa reštartuje a miestne údaje sa vymažú.

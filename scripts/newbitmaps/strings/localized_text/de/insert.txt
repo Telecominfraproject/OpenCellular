@@ -1,2 +1,2 @@
 Chrome OS fehlt oder ist beschädigt.
-Bitte stecken Sie ein Gerät zur Wiederherstellung ein.
+Stecken Sie einen Wiederherstellungs-USB-Stick bzw. eine Wiederherstellungs-SD-Karte ein.

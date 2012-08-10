@@ -1,0 +1,2 @@
+La verificación del SO está ACTIVADA.
+Tu sistema se reiniciará y se borrarán los datos locales.

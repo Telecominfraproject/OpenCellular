@@ -1,2 +1,2 @@
-To turn off OS verification, press ENTER.
-Your system will reboot and local data will be cleared.
+Tryk på ENTER for at slå bekræftelse af operativsystemet FRA.
+Systemet vil blive genstartet og lokale data ryddet.

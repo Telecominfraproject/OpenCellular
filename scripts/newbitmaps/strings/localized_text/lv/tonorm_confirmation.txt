@@ -1,0 +1,2 @@
+OS verifikācija ir IESLĒGTA.
+Sistēma tiks atsāknēta, un vietējie dati tiks dzēsti.

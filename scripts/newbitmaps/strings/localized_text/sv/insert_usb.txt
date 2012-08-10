@@ -1,3 +1,2 @@
-Chrome OS saknas eller är skadad.
-Sätt in en återhämtning USB-minne till en av de fyra hamnarna i
-baksidan av enheten (sidoöppningarna kommer inte att fungera för återvinning).
+Chrome OS saknas eller är skadat.
+Anslut ett USB-minne för återställning.

@@ -1,2 +1,2 @@
-Verificação OS é OFF
-Pressione ESPAÇO para reativar.
+A verificação do sistema operacional está DESATIVADA
+Pressione a tecla de espaço para reativá-la.

@@ -1,1 +1,1 @@
-Taastamise alustamiseks eemaldage kõik välised andmekandjad.
+Taastamise alustamiseks eemaldage kõik välised seadmed.

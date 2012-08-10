@@ -1,1 +1,1 @@
-Vennligst fjern alle eksterne lagringsenheter å begynne utvinning.
+Du må fjerne alle eksterne enheter for å starte gjenopprettingen.

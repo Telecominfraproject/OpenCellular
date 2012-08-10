@@ -1,2 +1,2 @@
 Chrome OS is missing or damaged.
-Please connect a recovery device.
+Please insert a recovery USB stick or SD card.

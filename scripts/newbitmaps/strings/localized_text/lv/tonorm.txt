@@ -1,0 +1,4 @@
+OS verifikācija ir IZSLĒGTA.
+
+Nospiediet taustiņu ENTER, lai apstiprinātu, ka vēlaties ieslēgt OS verifikāciju.
+Sistēma tiks atsāknēta, un vietējie dati tiks dzēsti.

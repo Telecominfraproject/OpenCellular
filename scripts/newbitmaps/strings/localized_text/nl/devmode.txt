@@ -1,2 +1,2 @@
-OS verificatie is UIT
-Druk op SPACE om opnieuw in te schakelen.
+OS-verificatie staat UIT
+Druk op de SPATIEBALK om dit weer in te schakelen.

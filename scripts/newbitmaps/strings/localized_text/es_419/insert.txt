@@ -1,2 +1,2 @@
-Chrome OS no está o está dañado.
-Conecta un dispositivo de recuperación.
+El Sistema operativo de Chrome no se encuentra o está dañado.
+Inserta una tarjeta SD o un dispositivo de memoria USB de recuperación.

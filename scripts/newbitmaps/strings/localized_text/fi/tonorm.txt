@@ -1,0 +1,4 @@
+Käyttöjärjestelmän todentaminen on POIS KÄYTÖSTÄ.
+
+Vahvista käyttöjärjestelmän todentamisen käyttöönotto painamalla ENTER.
+Järjestelmä käynnistyy uudelleen ja paikalliset tiedot poistetaan.

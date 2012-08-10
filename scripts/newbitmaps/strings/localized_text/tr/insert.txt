@@ -1,2 +1,2 @@
-Chrome OS eksik veya zarar görmüş.
-Lütfen bir kurtarma cihazı bağlayın.
+Chrome OS eksik veya hasarlı.
+Lütfen bir kurtarma USB çubuğu veya SD kartı yerleştirin.

@@ -1,0 +1,4 @@
+Xác minh OS đang TẮT
+
+Nhấn ENTER để xác nhận bạn muốn bật xác minh OS.
+Hệ thống của bạn sẽ khởi động lại và dữ liệu cục bộ sẽ bị xóa.

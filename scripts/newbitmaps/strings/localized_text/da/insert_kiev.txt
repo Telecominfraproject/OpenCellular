@@ -1,0 +1,2 @@
+Chrome OS mangler eller er beskadiget.
+Indsæt en USB-nøgle til genoprettelse i en af de fire porte på enhedens bagside.

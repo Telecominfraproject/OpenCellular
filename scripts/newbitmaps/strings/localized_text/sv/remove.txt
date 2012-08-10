@@ -1,1 +1,1 @@
-Ta bort alla externa lagringsenheter för att börja återhämtningen.
+Ta bort alla externa enheter och påbörja återställningen.

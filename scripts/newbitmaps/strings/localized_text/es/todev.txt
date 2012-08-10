@@ -1,2 +1,2 @@
-To turn off OS verification, press ENTER.
-Your system will reboot and local data will be cleared.
+Para DESACTIVARLA, pulsa INTRO.
+Se reiniciará el sistema y se borrarán los datos locales.

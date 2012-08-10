@@ -1,2 +1,2 @@
 O Chrome OS está ausente ou danificado.
-Conecte um dispositivo de recuperação.
+Insira um cartão SD ou USB de recuperação.

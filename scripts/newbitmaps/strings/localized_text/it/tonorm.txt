@@ -1,4 +1,4 @@
-OS verification is OFF
+Verifica del sistema operativo NON ATTIVA.
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Premi INVIO per confermare l'attivazione della verifica del sistema operativo.
+Il sistema verrà riavviato e i dati locali verranno cancellati.

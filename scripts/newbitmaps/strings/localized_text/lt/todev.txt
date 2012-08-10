@@ -1,0 +1,2 @@
+Jei norite IŠJUNGTI OS patvirtinimą, paspauskite ENTER.
+Sistema bus įkelta iš naujo, o vietiniai duomenys išvalyti.

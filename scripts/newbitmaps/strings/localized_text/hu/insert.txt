@@ -1,2 +1,2 @@
-A Chrome OS hiányzik vagy sérült.
-Kérjük, csatlakoztasson egy helyreállítási eszközt.
+A Chrome OS nincs telepítve vagy hibás.
+Helyezzen be egy helyreállítási USB-tárat vagy SD-kártyát.

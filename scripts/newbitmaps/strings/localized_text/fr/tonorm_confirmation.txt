@@ -1,0 +1,2 @@
+La vérification du système d'exploitation est ACTIVÉE.
+Votre système va redémarrer et les données locales vont être effacées.

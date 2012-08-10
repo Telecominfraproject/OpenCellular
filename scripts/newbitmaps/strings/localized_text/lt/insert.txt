@@ -1,2 +1,2 @@
-Trūksta „Chrome“ OS arba ji pažeista.
-Prijunkite atkūrimo įrenginį.
+„Chrome“ OS nėra arba ji pažeista.
+Įkiškite atkūrimo USB atmintuką arba SD kortelę.

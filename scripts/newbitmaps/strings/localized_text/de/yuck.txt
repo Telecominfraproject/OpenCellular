@@ -1,1 +1,1 @@
-Das Gerät, das Sie eingefügt enthält keine Chrome OS.
+Auf dem eingesteckten Gerät ist Chrome OS nicht vorhanden.

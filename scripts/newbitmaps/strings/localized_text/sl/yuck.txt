@@ -1,1 +1,1 @@
-Naprava, ki ste jo vstavili, ne vsebuje sistema Chrome OS. Želite poskusiti drugo?
+Na vstavljeni napravi ni sistema Chrome OS.

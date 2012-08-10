@@ -1,0 +1,2 @@
+Chrome OS no está instalado o está dañado.
+Inserta una memoria USB de recuperación en uno de los cuatro puertos situados en la PARTE POSTERIOR del dispositivo.

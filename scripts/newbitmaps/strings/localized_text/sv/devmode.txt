@@ -1,2 +1,2 @@
-OS verifiering är AV
-Tryck MELLANSLAG för att återaktivera.
+Verifiering av operativsystemet är AV
+Aktivera verifieringen på nytt genom att trycka på MELLANSLAG.

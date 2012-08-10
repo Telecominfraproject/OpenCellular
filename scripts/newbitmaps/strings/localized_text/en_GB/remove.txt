@@ -1,1 +1,1 @@
-Please remove all external storage devices to begin recovery.
+Please remove all external devices to begin recovery.

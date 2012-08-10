@@ -1,2 +1,2 @@
-OS verifikation er OFF
-Tryk Space for at genaktivere.
+Bekræftelse af operativsystemet er slået FRA
+Tryk på MELLEMRUMSTASTEN for at genaktivere.

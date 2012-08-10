@@ -1,0 +1,2 @@
+Da biste ISKLJUČILI potvrdu OS-a, pritisnite tipku ENTER.
+Sustav će se ponovo pokrenuti i lokalni će podaci biti obrisani.

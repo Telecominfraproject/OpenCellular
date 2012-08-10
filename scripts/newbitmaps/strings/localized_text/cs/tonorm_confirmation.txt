@@ -1,0 +1,2 @@
+Ověření operačního systému je ZAPNUTO.
+Systém se restartuje a smažou se místní data.

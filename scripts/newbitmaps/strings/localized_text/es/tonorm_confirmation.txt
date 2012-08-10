@@ -1,0 +1,2 @@
+La verificación de Chrome OS está ACTIVADA.
+Se reiniciará el sistema y se borrarán los datos locales.

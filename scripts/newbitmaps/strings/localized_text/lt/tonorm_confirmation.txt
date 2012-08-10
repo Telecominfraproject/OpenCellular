@@ -1,0 +1,2 @@
+OS patvirtinimas ĮJUNGTAS.
+Sistema bus įkelta iš naujo, o vietiniai duomenys išvalyti.

@@ -1,4 +1,4 @@
-OS verification is OFF
+Die OS-Bestätigung ist AUS.
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Drücken Sie die Eingabetaste, um zu bestätigen, dass Sie die OS-Bestätigung aktivieren möchten.
+Ihr System wird neu gestartet und lokale Daten werden gelöscht.

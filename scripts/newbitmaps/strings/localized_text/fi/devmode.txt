@@ -1,2 +1,2 @@
-Chrome-käyttöjärjestelmän vahvistus on poistettu käytöstä.
-Aloita palautus painamalla välilyöntiä.
+Käyttöjärjestelmän todentaminen on POIS KÄYTÖSTÄ.
+Ota se käyttöön painamalla välilyöntiä.

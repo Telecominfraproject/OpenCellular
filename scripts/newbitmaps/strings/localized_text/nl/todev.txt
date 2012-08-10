@@ -1,2 +1,2 @@
-To turn off OS verification, press ENTER.
-Your system will reboot and local data will be cleared.
+Druk op ENTER om OS-verificatie uit te schakelen.
+Uw systeem wordt opnieuw opgestart en de lokale gegevens worden gewist.

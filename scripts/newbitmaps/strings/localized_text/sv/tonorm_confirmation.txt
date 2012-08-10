@@ -1,0 +1,2 @@
+Verifiering av operativsystemet är PÅ.
+Systemet startas om, och lokala data tas bort.

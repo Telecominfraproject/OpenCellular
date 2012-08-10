@@ -1,1 +1,1 @@
-El dispositivo que ha colocado no contiene Chrome OS.
+Chrome OS no aparece en el dispositivo insertado.

@@ -1,2 +1,2 @@
-Chrome OS verifikācija ir izslēgta.
-Lai sāktu atkopšanu, nospiediet atstarpes taustiņu.
+OS verifikācija ir IZSLĒGTA.
+Lai to atkārtoti iespējotu, nospiediet ATSTARPES taustiņu.

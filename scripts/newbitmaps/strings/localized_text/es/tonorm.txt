@@ -1,4 +1,4 @@
-OS verification is OFF
+La verificación de Chrome OS está DESACTIVADA.
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Pulsa INTRO para confirmar que quieres ACTIVAR la verificación de Chrome OS.
+Se reiniciará el sistema y se borrarán los datos locales.

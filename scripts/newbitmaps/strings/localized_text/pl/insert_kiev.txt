@@ -1,0 +1,2 @@
+Brak systemu operacyjnego Chrome lub jest on uszkodzony.
+Podłącz dysk USB przywracania do jednego z czterech portów z TYŁU urządzenia.

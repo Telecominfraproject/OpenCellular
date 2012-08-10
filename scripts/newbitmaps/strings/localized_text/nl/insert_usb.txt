@@ -1,3 +1,2 @@
-Chrome OS ontbreekt of beschadigd is.
-Plaats een herstel USB-stick in een van de vier havens in
-de achterkant van het apparaat (de poorten aan de zijkant werkt niet voor nuttige toepassing).
+Chrome OS ontbreekt of is beschadigd.
+Plaats een herstel-USB-stick.

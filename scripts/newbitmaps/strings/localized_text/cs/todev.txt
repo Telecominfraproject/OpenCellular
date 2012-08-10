@@ -1,0 +1,2 @@
+Chcete-li ověření operačního systému VYPNOUT, stiskněte klávesu ENTER.
+Systém se restartuje a smažou se místní data.

@@ -1,3 +1,2 @@
-Chrome OS estiver faltando ou danificado.
-Por favor insira um pendrive USB de recuperação em um dos quatro portos
-a parte traseira do dispositivo (as portas laterais não vai funcionar para a recuperação).
+O Chrome OS está ausente ou danificado.
+Insira um cartão USB de recuperação.

@@ -1,2 +1,2 @@
-Google Chrome OS mangler eller er skadet.
-Koble til en gjenopprettingsenhet.
+Chrome OS mangler eller er skadet.
+Sett inn en USB-minnepinne eller et SD-kort for gjenoppretting.

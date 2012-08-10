@@ -1,2 +1,2 @@
-Ověření operačního systému Chrome OS je vypnuto.
-Obnovení spustíte stisknutím mezerníku.
+Ověření operačního systému je VYPNUTO.
+Chcete-li je znovu zapnout, stiskněte MEZERNÍK.

@@ -1,4 +1,4 @@
-OS verification is OFF
+La vérification du système d'exploitation est DÉSACTIVÉE.
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Appuyez sur ENTRÉE pour confirmer que vous souhaitez activer la vérification du système d'exploitation.
+Votre système va redémarrer et les données locales vont être effacées.

@@ -1,0 +1,2 @@
+Chrome OS mancante o danneggiato.
+Inserisci una chiavetta USB di ripristino in una delle quattro porte sul RETRO del dispositivo.

@@ -1,3 +1,2 @@
 Chrome OS mangler eller er skadet.
-Sett inn en recovery USB-pinnen i en av de fire havnene i
-baksiden av enheten (side porter vil ikke fungere for utvinning).
+Sett inn en USB-minnepinne for gjenoppretting.

@@ -1,0 +1,2 @@
+OS-i kinnitamine on SEES.
+Teie süsteem lähtestatakse ja kohalikud andmed kustutatakse.

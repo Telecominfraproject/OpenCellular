@@ -1,2 +1,2 @@
-Verificación de sistema operativo está en OFF
-Oprima SPACE para volver a habilitar.
+La verificación de Chrome OS está DESACTIVADA.
+Pulsa la BARRA ESPACIADORA para volver a habilitarla.

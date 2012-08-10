@@ -1,0 +1,2 @@
+Pentru a DEZACTIVA verificarea SO, apăsaţi pe ENTER.
+Sistemul va reporni şi datele locale vor fi şterse.

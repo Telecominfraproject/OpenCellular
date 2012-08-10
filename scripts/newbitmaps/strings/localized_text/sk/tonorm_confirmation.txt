@@ -1,0 +1,2 @@
+Verifikácia OS je ZAPNUTÁ.
+Systém sa reštartuje a miestne údaje sa vymažú.

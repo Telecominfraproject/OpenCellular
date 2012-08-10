@@ -1,0 +1,2 @@
+OS-verificatie staat AAN.
+Uw systeem wordt opnieuw opgestart en de lokale gegevens worden gewist.

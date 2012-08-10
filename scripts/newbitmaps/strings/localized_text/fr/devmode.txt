@@ -1,2 +1,2 @@
-Vérification OS est sur OFF
-Appuyez sur SPACE pour réactiver.
+La vérification du système d'exploitation est DÉSACTIVÉE.
+Appuyez sur ESPACE pour la réactiver.

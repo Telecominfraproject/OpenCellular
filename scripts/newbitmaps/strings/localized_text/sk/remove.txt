@@ -1,1 +1,1 @@
-Ak chcete začať obnovovanie, odstráňte všetky externé médiá.
+Pred spustením obnovenia odpojte všetky externé zariadenia.

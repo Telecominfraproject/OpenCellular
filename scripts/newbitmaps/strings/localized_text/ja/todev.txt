@@ -1,2 +1,2 @@
-To turn off OS verification, press ENTER.
-Your system will reboot and local data will be cleared.
+OS の確認機能をオフにするには Enter キーを押してください。
+システムが再起動し、ローカル データは消去されます。

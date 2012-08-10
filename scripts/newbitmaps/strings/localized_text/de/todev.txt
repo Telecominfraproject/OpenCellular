@@ -1,2 +1,2 @@
-To turn off OS verification, press ENTER.
-Your system will reboot and local data will be cleared.
+Drücken Sie die Eingabetaste, um die OS-Bestätigung auszuschalten.
+Ihr System wird neu gestartet und lokale Daten werden gelöscht.

@@ -1,4 +1,4 @@
-OS verification is OFF
+OS-verifiseringen er AV
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Trykk på ENTER for å bekrefte at du vil slå på OS-verifisering.
+Systemet ditt kommer til å starte på nytt og lokal data blir tømt.

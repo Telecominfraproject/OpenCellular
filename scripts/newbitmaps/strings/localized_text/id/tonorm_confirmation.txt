@@ -1,0 +1,2 @@
+Verifikasi OS NYALA.
+Sistem Anda akan dinyalakan ulang dan data lokal akan dihapus.

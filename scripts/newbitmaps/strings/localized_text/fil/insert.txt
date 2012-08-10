@@ -1,2 +1,2 @@
 Nawawala o sira ang Chrome OS.
-Mangyaring magkonekta ng device sa pagbawi.
+Mangyaring maglagay ng recovery USB stick o SD card.

@@ -1,2 +1,2 @@
-Verificarea sistemului de operare Chrome este dezactivată.
-Apăsaţi pe tasta Space pentru a iniţia procesul de recuperare.
+Verificarea SO este DEZACTIVATĂ
+Apăsaţi pe tasta SPACE pentru a o reactiva.

@@ -1,4 +1,4 @@
-OS verification is OFF
+Bekræftelse af operativsystemet er slået FRA
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Tryk på ENTER for at bekræfte, at du vil slå bekræftelse af operativsystemet til.
+Systemet vil blive genstartet og lokale data ryddet.

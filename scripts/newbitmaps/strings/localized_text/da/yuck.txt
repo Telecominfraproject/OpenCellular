@@ -1,1 +1,1 @@
-Den enhed, du indsatte ikke indeholder Chrome OS.
+Den enhed, du har indsat, indeholder ikke Chrome OS.

@@ -1,2 +1,2 @@
-Chrome OS-i verifitseerimine on välja lülitatud.
-Taastamise alustamiseks vajutage tühikuklahvi.
+OS-i kinnitamine on VÄLJAS
+Selle uuesti lubamiseks vajutage TÜHIKUT.

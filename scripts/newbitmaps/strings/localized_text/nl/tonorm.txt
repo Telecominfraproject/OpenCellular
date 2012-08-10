@@ -1,4 +1,4 @@
-OS verification is OFF
+OS-verificatie staat UIT
 
-Press ENTER to confirm you wish to turn OS verification on.
-Your system will reboot and local data will be cleared.
+Druk op ENTER om te bevestigen dat u OS-verificatie wilt inschakelen.
+Uw systeem wordt opnieuw opgestart en de lokale gegevens worden gewist.

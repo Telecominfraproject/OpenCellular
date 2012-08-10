@@ -1,1 +1,1 @@
-Kurtarma işlemine başlamak için lütfen tüm harici medyayı kaldırın.
+Kurtarma işlemine başlamak için lütfen tüm harici cihazları çıkarın.

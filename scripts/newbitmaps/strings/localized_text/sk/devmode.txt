@@ -1,2 +1,2 @@
-Verifikácia operačného systému Chrome OS je vypnutá.
-Obnovenie spustíte stlačením medzerníka.
+Verifikácia OS je VYPNUTÁ
+Ak ju chcete znova povoliť, stlačte MEDZERNÍK.

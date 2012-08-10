@@ -1,0 +1,2 @@
+Az OS-ellenőrzés KIKAPCSOLÁSÁHOZ nyomja meg az ENTER billentyűt.
+A rendszer újraindul, és a helyi adatok törlődnek.

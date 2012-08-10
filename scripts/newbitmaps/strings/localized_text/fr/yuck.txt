@@ -1,1 +1,1 @@
-Le dispositif que vous avez inséré ne contient pas de Chrome OS.
+Le périphérique inséré ne contient pas Google Chrome OS.
