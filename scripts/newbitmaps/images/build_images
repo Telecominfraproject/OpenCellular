@@ -26,13 +26,34 @@ convert_to_bmp3() {
   output="${output%.*}.bmp"
   mkdir -p "$folder"
 
-  # TODO(hungte) Add -flatten to support converting images with transparency.
-  # Syntax: -background "$BACKGROUND_COLOR" -flatten
-  # (Currently conflicts with -colors that will create 1 bit /pixel images)
-  echo "$input -> $folder/$output"
-  convert "$input" \
+  # When input has Alpha channel, we need to fill the background properly
+  # otherwise ImageMagick will fill it with black.  The operation (-flatten) is
+  # so slow so we only want to do that if the input source really has
+  # transparency.
+  if [ "$#" -gt 3 ]; then
+    flatten="$4"
+  else
+    # Auto-detect
+    if [ "$(identify -format "%A" "$input")" = "True" ]; then
+      flatten="-background $BACKGROUND_COLOR -flatten"
+    else
+      flatten=""
+    fi
+  fi
+
+  echo "$input -> $folder/$output $flatten"
+  convert "$input" $flatten \
     -compress none -alpha off -colors 256 \
     $param "BMP3:$folder/$output"
+
+  # ImageMagic quantization may choose arbitrary color depth, even if we assign
+  # -depth or -colors; so a single-color background may become 1 bit per pixel
+  # after convertion. To workaround that, we use Python Image Library which
+  # always generates 8bpp BMP file.
+  # TODO(hungte) Find a better way to decide if PIL is required. Unfortunately,
+  # ImageMagic identify "%z" is not always what we're looking for...
+  local fn="$folder/$output"
+  python -c "import Image; Image.open('$fn').convert('P').save('$fn')"
 }
 
 main() {
@@ -77,11 +98,12 @@ main() {
     fi
   done
 
-  # Prepares localized images
+  # Prepares localized images. All these images were rendered by pango-view and
+  # should not have transparency, so we specify flatten="" to speed up.
   base="../strings/localized_text"
   for X in $base/*/*.png; do
     locale="$(basename $(dirname $X))"
-    convert_to_bmp3 "$X" "$output/locale/$locale" "$scale_param"
+    convert_to_bmp3 "$X" "$output/locale/$locale" "$scale_param" ""
   done
 }
 
