@@ -6,176 +6,67 @@
 bmpblock: 2.0
 compression: 2
 images:
-  $HWID: FONTS.bmp  # 0x0  4092/58196  tag=1 fmt=2
-  UNOFFICIAL: UNOFFICIAL.bmp  # 640x480  4595/308278  tag=0 fmt=1
-  de_dev: de_dev.bmp  # 432x39  4193/17926  tag=0 fmt=1
-  de_insert: de_insert.bmp  # 371x39  3685/15586  tag=0 fmt=1
-  de_remove: de_remove.bmp  # 514x21  2975/11914  tag=0 fmt=1
-  de_yuck: de_yuck.bmp  # 526x21  3276/12166  tag=0 fmt=1
-  DEV: DEV.bmp  # 336x188  5830/64242  tag=0 fmt=1
-  es_dev: es_dev.bmp  # 371x39  4049/15586  tag=0 fmt=1
-  es_insert: es_insert.bmp  # 316x39  3447/13402  tag=0 fmt=1
-  es_remove: es_remove.bmp  # 463x21  2655/10822  tag=0 fmt=1
-  es_yuck: es_yuck.bmp  # 500x21  2832/11578  tag=0 fmt=1
-  fr_dev: fr_dev.bmp  # 513x39  5162/21202  tag=0 fmt=1
-  fr_insert: fr_insert.bmp  # 364x39  4072/15274  tag=0 fmt=1
-  fr_remove: fr_remove.bmp  # 658x21  3490/14938  tag=0 fmt=1
-  fr_yuck: fr_yuck.bmp  # 663x21  3612/15022  tag=0 fmt=1
-  INSERT: INSERT.bmp  # 515x169  7135/88250  tag=0 fmt=1
-  it_dev: it_dev.bmp  # 336x39  3512/14182  tag=0 fmt=1
-  it_insert: it_insert.bmp  # 312x39  3116/13246  tag=0 fmt=1
-  it_remove: it_remove.bmp  # 394x21  2273/9394  tag=0 fmt=1
-  it_yuck: it_yuck.bmp  # 458x21  2476/10738  tag=0 fmt=1
-  REMOVE: REMOVE.bmp  # 503x112  5862/57526  tag=0 fmt=1
-  YUCK: YUCK.bmp  # 400x219  6240/88650  tag=0 fmt=1
-  zh_CH_dev: zh_CH_dev.bmp  # 385x47  6863/19314  tag=0 fmt=1
-  zh_CH_insert: zh_CH_insert.bmp  # 363x47  5706/18186  tag=0 fmt=1
-  zh_CH_remove: zh_CH_remove.bmp  # 477x23  4989/12118  tag=0 fmt=1
-  zh_CH_yuck: zh_CH_yuck.bmp  # 588x23  5357/14602  tag=0 fmt=1
-  TODEV: TODEV.bmp
-  TONORM: TONORM.bmp
-  WAIT: WAIT.bmp
+  $HWID: font.bin
+  UNOFFICIAL: unofficial.bmp
+  EN_LAN: en_language.bmp
+  GB_LAN: gb_language.bmp
+  DEV: dev.bmp
+  INSERT: insert.bmp
+  REMOVE: remove.bmp
+  YUCK: yuck.bmp
+  TODEV: todev.bmp
+  TONORM: tonorm.bmp
+  WAIT: wait.bmp
+  TONORM_CONFIRM: tonorm_confirm.bmp
 screens:
   scr_en_dev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [304, 292, DEV] # tag=0 fmt=1 c=2 5830/64242
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_en_remove:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [137, 368, REMOVE] # tag=0 fmt=1 c=2 5862/57526
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_en_yuck:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [240, 261, YUCK] # tag=0 fmt=1 c=2 6240/88650
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
+    - [0, 0, UNOFFICIAL]
+    - [200, 250, DEV]
+    - [500, 175, EN_LAN]
+    - [100, 175, $HWID]
+  scr_gb_dev:
+    - [0, 0, UNOFFICIAL]
+    - [200, 250, DEV]
+    - [500, 175, GB_LAN]
+    - [100, 175, $HWID]
   scr_en_insert:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [125, 311, INSERT] # tag=0 fmt=1 c=2 7135/88250
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_zh_dev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [304, 292, DEV] # tag=0 fmt=1 c=2 5830/64242
-    - [100, 100, zh_CH_dev] # tag=0 fmt=1 c=2 6863/19314
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_zh_remove:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [137, 368, REMOVE] # tag=0 fmt=1 c=2 5862/57526
-    - [100, 100, zh_CH_remove] # tag=0 fmt=1 c=2 4989/12118
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_zh_yuck:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [240, 261, YUCK] # tag=0 fmt=1 c=2 6240/88650
-    - [100, 100, zh_CH_yuck] # tag=0 fmt=1 c=2 5357/14602
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_zh_insert:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [125, 311, INSERT] # tag=0 fmt=1 c=2 7135/88250
-    - [100, 100, zh_CH_insert] # tag=0 fmt=1 c=2 5706/18186
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_fr_dev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [304, 292, DEV] # tag=0 fmt=1 c=2 5830/64242
-    - [100, 100, fr_dev] # tag=0 fmt=1 c=2 5162/21202
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_fr_remove:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [137, 368, REMOVE] # tag=0 fmt=1 c=2 5862/57526
-    - [100, 100, fr_remove] # tag=0 fmt=1 c=2 3490/14938
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_fr_yuck:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [240, 261, YUCK] # tag=0 fmt=1 c=2 6240/88650
-    - [100, 100, fr_yuck] # tag=0 fmt=1 c=2 3612/15022
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_fr_insert:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [125, 311, INSERT] # tag=0 fmt=1 c=2 7135/88250
-    - [100, 100, fr_insert] # tag=0 fmt=1 c=2 4072/15274
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_es_dev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [304, 292, DEV] # tag=0 fmt=1 c=2 5830/64242
-    - [100, 100, es_dev] # tag=0 fmt=1 c=2 4049/15586
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_es_remove:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [137, 368, REMOVE] # tag=0 fmt=1 c=2 5862/57526
-    - [100, 100, es_remove] # tag=0 fmt=1 c=2 2655/10822
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_es_yuck:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [240, 261, YUCK] # tag=0 fmt=1 c=2 6240/88650
-    - [100, 100, es_yuck] # tag=0 fmt=1 c=2 2832/11578
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_es_insert:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [125, 311, INSERT] # tag=0 fmt=1 c=2 7135/88250
-    - [100, 100, es_insert] # tag=0 fmt=1 c=2 3447/13402
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_it_dev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [304, 292, DEV] # tag=0 fmt=1 c=2 5830/64242
-    - [100, 100, it_dev] # tag=0 fmt=1 c=2 3512/14182
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_it_remove:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [137, 368, REMOVE] # tag=0 fmt=1 c=2 5862/57526
-    - [100, 100, it_remove] # tag=0 fmt=1 c=2 2273/9394
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_it_yuck:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [240, 261, YUCK] # tag=0 fmt=1 c=2 6240/88650
-    - [100, 100, it_yuck] # tag=0 fmt=1 c=2 2476/10738
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_it_insert:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [125, 311, INSERT] # tag=0 fmt=1 c=2 7135/88250
-    - [100, 100, it_insert] # tag=0 fmt=1 c=2 3116/13246
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_de_dev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [304, 292, DEV] # tag=0 fmt=1 c=2 5830/64242
-    - [100, 100, de_dev] # tag=0 fmt=1 c=2 4193/17926
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_de_remove:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [137, 368, REMOVE] # tag=0 fmt=1 c=2 5862/57526
-    - [100, 100, de_remove] # tag=0 fmt=1 c=2 2975/11914
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_de_yuck:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [240, 261, YUCK] # tag=0 fmt=1 c=2 6240/88650
-    - [100, 100, de_yuck] # tag=0 fmt=1 c=2 3276/12166
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
-  scr_de_insert:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
-    - [125, 311, INSERT] # tag=0 fmt=1 c=2 7135/88250
-    - [100, 100, de_insert] # tag=0 fmt=1 c=2 3685/15586
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
+    - [0, 0, UNOFFICIAL]
+    - [125, 311, INSERT]
+    - [500, 175, EN_LAN]
+    - [100, 175, $HWID]
+  scr_gb_insert:
+    - [0, 0, UNOFFICIAL]
+    - [125, 311, INSERT]
+    - [500, 175, GB_LAN]
+    - [100, 175, $HWID]
+  scr_en_remove:
+    - [0, 0, UNOFFICIAL]
+    - [137, 368, REMOVE]
+    - [100, 175, $HWID]
+  scr_en_yuck:
+    - [0, 0, UNOFFICIAL]
+    - [240, 261, YUCK]
+    - [100, 175, $HWID]
   scr_en_todev:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
+    - [0, 0, UNOFFICIAL]
     - [305, 348, TODEV]
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
+    - [100, 175, $HWID]
   scr_en_tonorm:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
+    - [0, 0, UNOFFICIAL]
     - [221, 372, TONORM]
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
+    - [100, 175, $HWID]
   scr_en_wait:
-    - [0, 0, UNOFFICIAL] # tag=0 fmt=1 c=2 4595/308278
+    - [0, 0, UNOFFICIAL]
     - [221, 372, WAIT]
-    - [100, 175, $HWID] # tag=1 fmt=2 c=2 4092/58196
+    - [100, 175, $HWID]
+  scr_en_tonorm_confirm:
+    - [0, 0, UNOFFICIAL]
+    - [221, 372, TONORM_CONFIRM]
+    - [100, 175, $HWID]
 
 localizations:
-  - [ scr_en_dev, scr_en_remove, scr_en_yuck, scr_en_insert, scr_en_todev, scr_en_tonorm, scr_en_wait ]
-  - [ scr_zh_dev, scr_zh_remove, scr_zh_yuck, scr_zh_insert, scr_en_todev, scr_en_tonorm, scr_en_wait ]
-  - [ scr_fr_dev, scr_fr_remove, scr_fr_yuck, scr_fr_insert, scr_en_todev, scr_en_tonorm, scr_en_wait ]
-  - [ scr_es_dev, scr_es_remove, scr_es_yuck, scr_es_insert, scr_en_todev, scr_en_tonorm, scr_en_wait ]
-  - [ scr_it_dev, scr_it_remove, scr_it_yuck, scr_it_insert, scr_en_todev, scr_en_tonorm, scr_en_wait ]
-  - [ scr_de_dev, scr_de_remove, scr_de_yuck, scr_de_insert, scr_en_todev, scr_en_tonorm, scr_en_wait ]
+  - [ scr_en_dev, scr_en_remove, scr_en_yuck, scr_en_insert, scr_en_todev, scr_en_tonorm, scr_en_wait, scr_en_tonorm_confirm ]
+  - [ scr_gb_dev, scr_en_remove, scr_en_yuck, scr_gb_insert, scr_en_todev, scr_en_tonorm, scr_en_wait, scr_en_tonorm_confirm ]
 locale_index:
   - en
-  - zh_TW
-  - fr
-  - es
-  - it
-  - de
+  - en_GB

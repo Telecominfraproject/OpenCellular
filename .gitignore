@@ -2,8 +2,9 @@
 /build-au
 /build-main
 ID
+scripts/newbitmaps/default_source/*.bmp
 scripts/newbitmaps/images/out_*
 scripts/newbitmaps/lib/*.pyc
 scripts/newbitmaps/strings/font
+scripts/newbitmaps/strings/font
 scripts/newbitmaps/strings/localized_text/*/*.png
-scripts/newbitmaps/strings/*.png

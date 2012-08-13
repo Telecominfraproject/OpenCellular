@@ -274,8 +274,28 @@ add_footer_without_url() {
 for hwid_bmp in hwid_unknown.bmp; do
   echo "$yaml_file"
 
+  # Global variables matching the yaml definitions
+  arrow_left='arrow_left.bmp'
+  arrow_right='arrow_right.bmp'
+  chrome_logo='chrome_logo.bmp'
+  divider_btm='divider_btm.bmp'
+  divider_top='divider_top.bmp'
+  insert_graphic='Insert_graphic.bmp'
+  remove_graphic='Remove_graphic.bmp'
+  url='Url.bmp'
+  white_bg='Background_white.bmp'
+
+  asset_BadSD='BadSD.bmp'
+  asset_BadUSB='BadUSB.bmp'
+  asset_RemoveDevices='RemoveDevices.bmp'
+  asset_VerificationOff='VerificationOff.bmp'
+  asset_VerificationOn='VerificationOn.bmp'
+  asset_Warning='Warning.bmp'
+
+  hwid=$hwid_bmp
+
   # List the images. The major difference is the HWID.
-  cat >"$yaml_file" <<'EOF1'
+  cat >"$yaml_file" <<EOF1
 bmpblock: 2.0
 
 compression: 2
@@ -283,39 +303,29 @@ compression: 2
 images:
 
   # We must specify a font blob to use to render the HWID
-  $HWID:              hwid_fonts.bin
+  \$HWID:                  hwid_fonts.bin
 
   # This URL never changes
-  url:               Url.bmp
+  url:                    $(eval echo \$url)
 
   # Various UI elements
-  arrow_left:        arrow_left.bmp
-  arrow_right:       arrow_right.bmp
-  chrome_logo:       chrome_logo.bmp
-  devmode_graphic:   Devmode_graphic.bmp
-  divider_btm:       divider_btm.bmp
-  divider_top:       divider_top.bmp
-  remove_graphic:    Remove_graphic.bmp
-  insert_graphic:    Insert_graphic.bmp
-  white_bg:          Background_white.bmp
-  yuck_graphic:      Yuck_graphic.bmp
+  arrow_left:             $(eval echo \$arrow_left)
+  arrow_right:            $(eval echo \$arrow_right)
+  chrome_logo:            $(eval echo \$chrome_logo)
+  divider_btm:            $(eval echo \$divider_btm)
+  divider_top:            $(eval echo \$divider_top)
+  remove_graphic:         $(eval echo \$remove_graphic)
+  insert_graphic:         $(eval echo \$insert_graphic)
+  white_bg:               $(eval echo \$white_bg)
+
+  asset_VerificationOn:   $(eval echo \$asset_VerificationOn)
+  asset_VerificationOff:  $(eval echo \$asset_VerificationOff)
+  asset_BadSD:            $(eval echo \$asset_BadSD)
+  asset_BadUSB:           $(eval echo \$asset_BadUSB)
 
   # The following strings must be approved by the localization people
 EOF1
 
-  # Global variables matching the yaml definitions
-  arrow_left='arrow_left.bmp'
-  arrow_right='arrow_right.bmp'
-  chrome_logo='chrome_logo.bmp'
-  devmode_graphic='Devmode_graphic.bmp'
-  divider_btm='divider_btm.bmp'
-  divider_top='divider_top.bmp'
-  hwid=$hwid_bmp
-  insert_graphic='Insert_graphic.bmp'
-  remove_graphic='Remove_graphic.bmp'
-  url='Url.bmp'
-  white_bg='Background_white.bmp'
-  yuck_graphic='Yuck_graphic.bmp'
 
   # Enumerate the bitmaps for each locale-specific string.
   for lc in $locales; do
@@ -331,6 +341,7 @@ EOF1
     eval "${lc}_help_right_text=${localedir}/$lc/for_help_right.bmp"
     eval "${lc}_todev_text=${localedir}/$lc/todev.bmp"
     eval "${lc}_tonorm_text=${localedir}/$lc/tonorm.bmp"
+    eval "${lc}_tonorm_confirm_text=${localedir}/$lc/tonorm_confirmation.bmp"
     eval "${lc}_back_help_text=${localedir}/$lc/back_help.bmp"
     eval "${lc}_update_text=${localedir}/$lc/update.bmp"
 
@@ -348,6 +359,8 @@ EOF1
   ${lc}_back_help_text:   $(eval echo \$${lc}_back_help_text)
   ${lc}_update_text:      $(eval echo \$${lc}_update_text)
 
+  ${lc}_tonorm_confirm_text: $(eval echo \$${lc}_tonorm_confirm_text)
+
 EOF2
 
   done
@@ -364,7 +377,7 @@ EOF2
     add_right_below "white_bg"
     add_header ${lc}
     set_centered_y_percent "white_bg" 40
-    add_centered "devmode_graphic"
+    add_centered "asset_VerificationOff"
     set_centered_y_percent "white_bg" 50
     add_centered_below "${lc}_devmode_text"
     add_footer_without_url ${lc}
@@ -388,7 +401,7 @@ EOF2
     set_centered_y_percent "white_bg" 25
     add_centered_below "${lc}_yuck_text"
     set_centered_y_percent "white_bg" 50
-    add_centered "yuck_graphic"
+    add_centered "asset_BadSD" "asset_BadUSB"
     add_footer_with_url ${lc}
 
     # Insert Screen
@@ -419,7 +432,7 @@ EOF2
     add_right_below "white_bg"
     add_header ${lc}
     set_centered_y_percent "white_bg" 30
-    add_centered "devmode_graphic"
+    add_centered "asset_VerificationOff"
     add_centered_below "${lc}_tonorm_text"
     set_centered_y_percent "white_bg" 70
     add_centered "${lc}_back_help_text"
@@ -432,6 +445,17 @@ EOF2
     add_header ${lc}
     set_centered_y_percent "white_bg" 50
     add_centered "${lc}_update_text"
+    add_footer_with_url ${lc}
+
+    # ToNormalConfirm Screen
+    echo "  ${lc}_tonorm_confirm:" >> "$yaml_file"
+    reset_pos
+    add_right_below "white_bg"
+    add_header ${lc}
+    set_centered_y_percent "white_bg" 30
+    add_centered "asset_VerificationOn"
+    set_centered_y_percent "white_bg" 40
+    add_centered_below "${lc}_tonorm_confirm_text"
     add_footer_with_url ${lc}
 
   done
@@ -453,6 +477,7 @@ EOF2
     screen_list="${lc}_devel, ${lc}_remove, ${lc}_yuck, ${lc}_insert"
     # todev/tonorm/update are supported only by newer firmware.
     screen_list="${screen_list}, ${lc}_todev, ${lc}_tonorm, ${lc}_update"
+    screen_list="${screen_list}, ${lc}_tonorm_confirm"
     echo "  - [ $screen_list ]" >>"$yaml_file"
   done
 
