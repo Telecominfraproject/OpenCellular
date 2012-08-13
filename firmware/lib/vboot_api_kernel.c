@@ -237,6 +237,8 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
           case 1:
             VBDEBUG(("%s() - leaving dev-mode...\n", __func__));
             VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
+            VbDisplayScreen(cparams, VB_SCREEN_TO_NORM_CONFIRMED, 0, &vnc);
+            VbExSleepMs(5000);
             return VBERROR_TPM_REBOOT_REQUIRED;
           case -1:
             VBDEBUG(("%s() - shutdown requested\n", __func__));
