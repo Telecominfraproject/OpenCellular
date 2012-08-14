@@ -93,7 +93,7 @@ main() {
     if [ "$X" = "$BACKGROUND_IMAGE" ]; then
       convert_to_bmp3 "$X" "$output" "$background_scale_param"
     else
-      convert_to_bmp3 "$X" "$output" "$convert_param"
+      convert_to_bmp3 "$X" "$output" "$scale_param"
     fi
   done
 
