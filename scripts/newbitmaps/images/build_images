@@ -53,7 +53,8 @@ convert_to_bmp3() {
   # TODO(hungte) Find a better way to decide if PIL is required. Unfortunately,
   # ImageMagic identify "%z" is not always what we're looking for...
   local fn="$folder/$output"
-  python -c "import Image; Image.open('$fn').convert('P').save('$fn')"
+  local param="'P', dither=None, palette=Image.ADAPTIVE"
+  python -c "import Image; Image.open('$fn').convert($param).save('$fn')"
 }
 
 main() {
