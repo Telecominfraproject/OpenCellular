@@ -1,2 +1,4 @@
 Per DESACTIVAR la verificació d'OS, premeu RETORN.
 Es reiniciarà el sistema i s'esborraran les dades locals.
+
+Per tornar enrere, premeu ESC.

@@ -1,2 +1,4 @@
 Upang I-OFF ang pag-verify ng OS, pindutin ang ENTER.
 Magre-reboot ang iyong system at maki-clear ang lokal na data.
+
+Upang bumalik, pindutin ang ESC.

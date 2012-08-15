@@ -1,2 +1,4 @@
 Inaktivera verifiering av operativsystemet genom att trycka på RETUR.
 Systemet startas om, och lokala data tas bort.
+
+Tryck på Esc så återvänder du till föregående sida.

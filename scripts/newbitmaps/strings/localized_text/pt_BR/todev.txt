@@ -1,2 +1,4 @@
 Para DESATIVAR a verificação do sistema operacional, pressione "ENTER".
 Seu sistema será reiniciado, e os dados locais serão removidos.
+
+Para voltar, pressione a tecla "ESC".

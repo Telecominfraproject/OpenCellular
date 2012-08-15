@@ -1,2 +1,4 @@
 Tryk på ENTER for at slå bekræftelse af operativsystemet FRA.
 Systemet vil blive genstartet og lokale data ryddet.
+
+Tryk på ESC for at gå tilbage.

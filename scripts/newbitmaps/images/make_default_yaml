@@ -341,6 +341,7 @@ EOF1
     eval "${lc}_help_right_text=${localedir}/$lc/for_help_right.bmp"
     eval "${lc}_todev_text=${localedir}/$lc/todev.bmp"
     eval "${lc}_tonorm_text=${localedir}/$lc/tonorm.bmp"
+    eval "${lc}_verif_off_text=${localedir}/$lc/verif_off.bmp"
     eval "${lc}_tonorm_confirm_text=${localedir}/$lc/tonorm_confirmation.bmp"
     eval "${lc}_back_help_text=${localedir}/$lc/back_help.bmp"
     eval "${lc}_update_text=${localedir}/$lc/update.bmp"
@@ -356,7 +357,7 @@ EOF1
   ${lc}_help_right_text:  $(eval echo \$${lc}_help_right_text)
   ${lc}_todev_text:       $(eval echo \$${lc}_todev_text)
   ${lc}_tonorm_text:      $(eval echo \$${lc}_tonorm_text)
-  ${lc}_back_help_text:   $(eval echo \$${lc}_back_help_text)
+  ${lc}_verif_off_text:   $(eval echo \$${lc}_verif_off_text)
   ${lc}_update_text:      $(eval echo \$${lc}_update_text)
 
   ${lc}_tonorm_confirm_text: $(eval echo \$${lc}_tonorm_confirm_text)
@@ -420,23 +421,21 @@ EOF2
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 25
-    add_centered_below "${lc}_todev_text"
-    set_centered_y_percent "white_bg" 50
-    add_centered "${lc}_back_help_text"
-    add_footer_with_url ${lc}
+    set_centered_y_percent "white_bg" 45
+    add_centered "${lc}_todev_text"
+    add_footer_without_url ${lc}
 
     # ToNormal Screen
     echo "  ${lc}_tonorm:" >> "$yaml_file"
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 30
+    set_centered_y_percent "white_bg" 40
     add_centered "asset_VerificationOff"
-    add_centered_below "${lc}_tonorm_text"
-    set_centered_y_percent "white_bg" 70
-    add_centered "${lc}_back_help_text"
-    add_footer_with_url ${lc}
+    set_centered_y_percent "white_bg" 45
+    insert_centered_below "${lc}_verif_off_text"
+    insert_centered_below "${lc}_tonorm_text"
+    add_footer_without_url ${lc}
 
     # Update (WAIT) Screen
     echo "  ${lc}_update:" >> "$yaml_file"
@@ -445,18 +444,18 @@ EOF2
     add_header ${lc}
     set_centered_y_percent "white_bg" 50
     add_centered "${lc}_update_text"
-    add_footer_with_url ${lc}
+    add_footer_without_url ${lc}
 
     # ToNormalConfirm Screen
     echo "  ${lc}_tonorm_confirm:" >> "$yaml_file"
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 30
-    add_centered "asset_VerificationOn"
     set_centered_y_percent "white_bg" 40
-    add_centered_below "${lc}_tonorm_confirm_text"
-    add_footer_with_url ${lc}
+    add_centered "asset_VerificationOn"
+    set_centered_y_percent "white_bg" 50
+    insert_centered_below "${lc}_tonorm_confirm_text"
+    add_footer_without_url ${lc}
 
   done
 

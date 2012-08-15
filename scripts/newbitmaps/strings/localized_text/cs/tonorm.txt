@@ -1,4 +1,4 @@
-Ověření operačního systému je VYPNUTO.
-
 Stisknutím klávesy ENTER potvrdíte, že chcete zapnout ověření operačního systému.
 Systém se restartuje a smažou se místní data.
+
+Chcete-li se vrátit zpět, stiskněte klávesu ESC.

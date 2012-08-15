@@ -1,2 +1,4 @@
 Ak chcete verifikáciu OS VYPNÚŤ, stlačte kláves ENTER.
 Systém sa reštartuje a miestne údaje sa vymažú.
+
+Ak sa chcete vrátiť späť, stlačte kláves ESC.

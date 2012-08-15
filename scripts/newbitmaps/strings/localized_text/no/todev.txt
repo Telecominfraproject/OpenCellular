@@ -1,2 +1,4 @@
 Trykk på ENTER for å slå OS-verifiseringen AV.
 Systemet ditt kommer til å starte på nytt og lokal data blir tømt.
+
+Trykk på ESC for å gå tilbake.

@@ -1,0 +1,39 @@
+#!/bin/sh
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Generates localized text images
+
+SCRIPT="$(readlink -f "$0")"
+SCRIPT_DIR="$(dirname "$SCRIPT")"
+TXT_TO_PNG=$(readlink -f "$SCRIPT_DIR/../text_to_png")
+
+die() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
+
+do_locale() {
+  local locale_dir="$1"
+  local locale="$(basename $locale_dir)"
+  local file conf entry font
+
+  font="$(sed -nre "s/^$locale: *(.*) *$/\1/p" $SCRIPT_DIR/font.conf)"
+  for file in $locale_dir/*.txt; do
+    entry="$(basename $file)"
+    entry="${entry%%.*}"
+    conf="$(sed -nre "s/^$entry: *(.*) *$/\1/p" $SCRIPT_DIR/text.conf)"
+    $TXT_TO_PNG --lan="$locale" --font="$font" $conf $file
+  done
+}
+
+main() {
+  [ "$#" -gt "0" ] || die "Usage: $0 locale(s)..."
+  for locale in "$@"; do
+    do_locale "$locale"
+  done
+}
+
+set -e
+main "$@"

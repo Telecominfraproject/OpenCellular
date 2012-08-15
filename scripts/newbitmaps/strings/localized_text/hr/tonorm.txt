@@ -1,4 +1,4 @@
-Potvrda OS-a ISKLJUČENA je
-
 Pritisnite tipku ENTER kako biste potvrdili da želite uključiti potvrdu OS-a.
 Sustav će se ponovo pokrenuti i lokalni će podaci biti obrisani.
+
+Za povratak pritisnite ESC.

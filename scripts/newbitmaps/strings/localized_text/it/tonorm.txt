@@ -1,4 +1,4 @@
-Verifica del sistema operativo NON ATTIVA.
-
 Premi INVIO per confermare l'attivazione della verifica del sistema operativo.
 Il sistema verrà riavviato e i dati locali verranno cancellati.
+
+Per tornare indietro, premi ESC.

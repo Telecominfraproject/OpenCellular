@@ -1,4 +1,4 @@
-OS doğrulama KAPALI
-
 OS doğrulamayı açmak istediğinizi onaylamak için ENTER tuşuna basın.
 Sisteminiz yeniden açılacak ve yerel veriler temizlenecek.
+
+Geri gitmek için ESC tuşuna basın.

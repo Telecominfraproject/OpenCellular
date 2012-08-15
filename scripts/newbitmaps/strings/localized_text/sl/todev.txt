@@ -1,2 +1,4 @@
 Če želite IZKLOPITI preverjanje operacijskega sistema, pritisnite ENTER.
 Sistem se bo znova zagnal in lokalni podatki bodo izbrisani.
+
+Če se želite vrniti, pritisnite ESC.

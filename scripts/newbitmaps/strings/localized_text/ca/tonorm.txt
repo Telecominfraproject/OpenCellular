@@ -1,4 +1,4 @@
-La verificació d'OS està desactivada
-
 Premeu RETORN per confirmar que voleu activar la verificació d'OS.
 Es reiniciarà el sistema i s'esborraran les dades locals.
+
+Per tornar enrere, premeu ESC.

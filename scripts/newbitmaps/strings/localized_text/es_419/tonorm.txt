@@ -1,4 +1,4 @@
-La verificación del SO está DESACTIVADA.
-
 Presiona ENTER para confirmar que deseas activar la verificación del SO.
 Tu sistema se reiniciará y se borrarán los datos locales.
+
+Para volver atrás, presiona ESC.

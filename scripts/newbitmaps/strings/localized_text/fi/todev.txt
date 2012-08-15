@@ -1,2 +1,4 @@
 Poista käyttöjärjestelmän todentaminen käytöstä painamalla ENTER.
 Järjestelmä käynnistyy uudelleen ja paikalliset tiedot poistetaan.
+
+Paina ESC, jos haluat palata takaisin.

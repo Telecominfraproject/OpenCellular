@@ -1,4 +1,4 @@
-Bekræftelse af operativsystemet er slået FRA
-
 Tryk på ENTER for at bekræfte, at du vil slå bekræftelse af operativsystemet til.
 Systemet vil blive genstartet og lokale data ryddet.
+
+Tryk på ESC for at gå tilbage.
