@@ -10,6 +10,7 @@ SCRIPT_DIR="$(dirname "$SCRIPT")"
 GLYPHS='* 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ{}-_'
 COLOR="#888888"
 FONT="Droid Sans Bold"
+MARGIN="3"
 
 die() {
   echo "ERROR: $*" >&2
@@ -35,6 +36,11 @@ main() {
   echo "Converting glyph images..."
   "$SCRIPT_DIR/text_to_png"  --margin=0 --font="$FONT" --color="$COLOR" \
     "$output/*.txt"
+
+  echo "Adding vertical margin to images..."
+  for i in $output/*.png; do
+    convert $i -bordercolor white -border 0x$MARGIN $i
+  done
 }
 
 set -e

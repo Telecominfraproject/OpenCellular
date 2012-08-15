@@ -3,7 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# Generate a new DEFAULT.yaml file using hwid_unknown.bmp as a placeholder.
+# Generate a new DEFAULT.yaml file using hwid_placeholder.bmp as a placeholder.
 #
 yaml_file="DEFAULT.yaml"
 
@@ -271,7 +271,7 @@ add_footer_without_url() {
 
 # TODO(hungte) Remove the unnecessary hwid_*.bmp loop below.
 # Generate a new yaml file for each specified hwid_*.bmp file.
-for hwid_bmp in hwid_unknown.bmp; do
+for hwid_bmp in hwid_placeholder.bmp; do
   echo "$yaml_file"
 
   # Global variables matching the yaml definitions
