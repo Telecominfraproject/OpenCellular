@@ -105,35 +105,6 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
   return retval;
 }
 
-/* Flush the keyboard buffer. */
-static VbError_t FlushKeyboard(void) {
-
-  int loops = 0;
-
-  /* Wait half a second to see if any keys are pressed.  If keys are
-   * auto-repeating, they'll repeat by then. */
-  VbExSleepMs(500);
-
-  /* If no keys are pressed, no need for any subsequent delay. */
-  if (!VbExKeyboardRead())
-    return VBERROR_SUCCESS;
-
-  /* Otherwise, wait 2 sec after the last key is pressed. */
-  VBDEBUG(("Keys held down at start of screen; flushing...\n"));
-  do {
-    if (VbExIsShutdownRequested())
-      return VBERROR_SHUTDOWN_REQUESTED;
-
-    VbExSleepMs(250);
-    loops++;
-    if (VbExKeyboardRead())
-      loops = 0;
-  } while (loops < 8);
-  VBDEBUG(("...done flushing.\n"));
-
-  return VBERROR_SUCCESS;
-}
-
 /* Ask the user to confirm something. We should display whatever the question
  * is first, then call this. ESC is always "no", ENTER is always "yes", and
  * we'll specify what SPACE means. We don't return until one of those keys is
@@ -141,14 +112,10 @@ static VbError_t FlushKeyboard(void) {
  *
  * Returns: 1=yes, 0=no, -1 = shutdown.
  */
-static int VbUserConfirms(VbCommonParams* cparams, int space_returns_this) {
+static int VbUserConfirms(VbCommonParams* cparams, int space_means_no) {
   uint32_t key;
 
-  VBDEBUG(("Entering %s(%d)\n", __func__, space_returns_this));
-
-  /* Flush any pending keystrokes */
-  if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
-    return -1;
+  VBDEBUG(("Entering %s(%d)\n", __func__, space_means_no));
 
   /* Await further instructions */
   while (1) {
@@ -160,13 +127,14 @@ static int VbUserConfirms(VbCommonParams* cparams, int space_returns_this) {
       VBDEBUG(("%s() - Yes (1)\n", __func__));
       return 1;
       break;
+    case ' ':
+      VBDEBUG(("%s() - Space (%s)\n", __func__, space_means_no));
+      if (space_means_no)
+        return 0;
+      break;
     case 0x1b:
       VBDEBUG(("%s() - No (0)\n", __func__));
       return 0;
-      break;
-    case ' ':
-      VBDEBUG(("%s() - Space (%s)\n", __func__, space_returns_this));
-      return space_returns_this;
       break;
     default:
       VbCheckDisplayKey(cparams, key, &vnc);
@@ -202,10 +170,6 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
 
-  /* Flush any pending keystrokes */
-  if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
-    return VBERROR_SHUTDOWN_REQUESTED;
-
   /* Get audio/delay context */
   audio = VbAudioOpen(cparams);
 
@@ -225,6 +189,9 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         /* nothing pressed */
         break;
       case '\r':
+        /* Enter only disables the virtual dev switch if allowed by GBB */
+        if (!(gbb->flags & GBB_FLAG_ENTER_TRIGGERS_TONORM))
+          break;
       case ' ':
       case 0x1B:
         /* See if we should disable the virtual dev-mode switch. */
@@ -233,7 +200,7 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
             shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
           VbAudioClose(audio);    /* Stop the countdown while we go ask... */
           VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_TO_NORM, 0, &vnc);
-          switch (VbUserConfirms(cparams, 1)) { /* SPACE means yes */
+          switch (VbUserConfirms(cparams, 0)) { /* Ignore space */
           case 1:
             VBDEBUG(("%s() - leaving dev-mode...\n", __func__));
             VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
@@ -315,7 +282,6 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
   uint32_t retval;
   uint32_t key;
-  int kb_flushed = 0;
   int i;
 
   VBDEBUG(("VbBootRecovery() start\n"));
@@ -345,13 +311,6 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 
       VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_REMOVE, 0, &vnc);
 
-      /* Flush any pending keystrokes */
-      if (!kb_flushed) {
-        if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
-          return VBERROR_SHUTDOWN_REQUESTED;
-        kb_flushed = 1;
-      }
-
       /* Scan keyboard more frequently than media, since x86 platforms
        * don't like to scan USB too rapidly. */
       for (i = 0; i < 4; i++) {
@@ -380,13 +339,6 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
                     VB_SCREEN_RECOVERY_INSERT : VB_SCREEN_RECOVERY_NO_GOOD,
                     0, &vnc);
 
-    /* Flush any pending keystrokes */
-    if (!kb_flushed) {
-      if (FlushKeyboard() == VBERROR_SHUTDOWN_REQUESTED)
-        return VBERROR_SHUTDOWN_REQUESTED;
-      kb_flushed = 1;
-    }
-
     /* Scan keyboard more frequently than media, since x86 platforms don't like
      * to scan USB too rapidly. */
     for (i = 0; i < 4; i++) {
@@ -399,7 +351,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
           VbExTrustEC()) {                             /* EC isn't pwned */
         /* Ask the user to confirm entering dev-mode */
         VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_TO_DEV, 0, &vnc);
-        switch (VbUserConfirms(cparams, 0)) { /* SPACE means no */
+        switch (VbUserConfirms(cparams, 1)) { /* SPACE means no */
         case 1:
           VBDEBUG(("%s() - Enabling dev-mode...\n", __func__));
           if (TPM_SUCCESS != SetVirtualDevMode(1))
