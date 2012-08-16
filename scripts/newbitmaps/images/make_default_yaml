@@ -155,33 +155,27 @@ add_centered_below() {
   local width
   local height
   local x
-  local y
-
-  height=$(get_max_height $images)
-  y=$(expr $cur_y + $height)
 
   width=$(total_width $images)
   x=$(expr $cur_x - $width / 2)
 
-  add_images $x $y $images
+  add_images $x $cur_y $images
 }
 
 # This adds a list of images and updates the insert location
-# below the new images with a padding of $xpad.
+# below the new images with a padding of $ypad.
 insert_centered_below() {
   local images=$@
   local width
   local height
   local x
-  local y
-
-  height=$(get_max_height $images)
-  y=$(expr $cur_y + $height)
 
   width=$(total_width $images)
   x=$(expr $cur_x - $width / 2)
 
-  add_images $x $y $images
+  add_images $x $cur_y $images
+
+  height=$(get_max_height $images)
   move_pos_down $(expr $height + $ypad)
 }
 
