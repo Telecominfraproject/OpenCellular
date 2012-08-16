@@ -15,6 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <math.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
@@ -38,6 +39,9 @@ static const int kLoopMajor = 7;
 static const int kLoopMax = 8;
 static const unsigned int kResizeStepSeconds = 2;
 static const size_t kResizeBlocks = 32768 * 10;
+static const size_t kBlocksPerGroup = 32768;
+static const size_t kInodeRatioDefault = 16384;
+static const size_t kInodeRatioMinimum = 2048;
 static const gchar * const kExt4ExtendedOptions = "discard,lazy_itable_init";
 
 int remove_tree(const char *tree)
@@ -444,10 +448,68 @@ out:
 	return sparsefd;
 }
 
+/* When creating a filesystem that will grow, the inode ratio is calculated
+ * using the starting size not the hinted "resize" size, which means the
+ * number of inodes can be highly constrained on tiny starting filesystems.
+ * Instead, calculate what the correct inode ratio should be for a given
+ * filesystem based on its expected starting and ending sizes.
+ *
+ * inode-ratio_mkfs =
+ *
+ *               ceil(blocks_max / group-ratio) * size_mkfs
+ *      ------------------------------------------------------------------
+ *      ceil(size_max / inode-ratio_max) * ceil(blocks_mkfs / group-ratio)
+ */
+static size_t get_inode_ratio(size_t block_bytes_in, size_t blocks_mkfs_in,
+				size_t blocks_max_in)
+{
+	double block_bytes = (double)block_bytes_in;
+	double blocks_mkfs = (double)blocks_mkfs_in;
+	double blocks_max = (double)blocks_max_in;
+
+	double size_max, size_mkfs, groups_max, groups_mkfs, inodes_max;
+	double denom, inode_ratio_mkfs;
+
+	size_max = block_bytes * blocks_max;
+	size_mkfs = block_bytes * blocks_mkfs;
+
+	groups_max = ceil(blocks_max / kBlocksPerGroup);
+	groups_mkfs = ceil(blocks_mkfs / kBlocksPerGroup);
+
+	inodes_max = ceil(size_max / kInodeRatioDefault);
+
+	denom = inodes_max * groups_mkfs;
+	/* Make sure we never trigger divide-by-zero. */
+	if (denom == 0.0)
+		goto failure;
+	inode_ratio_mkfs = (groups_max * size_mkfs) / denom;
+
+	/* Make sure we never calculate anything totally huge. */
+	if (inode_ratio_mkfs > blocks_mkfs)
+		goto failure;
+	/* Make sure we never calculate anything totally tiny. */
+	if (inode_ratio_mkfs < kInodeRatioMinimum)
+		goto failure;
+
+	return (size_t)inode_ratio_mkfs;
+
+failure:
+	return kInodeRatioDefault;
+}
+
+/* Creates an ext4 filesystem.
+ * device: path to block device to create filesystem on.
+ * block_bytes: bytes per block to use for filesystem.
+ * blocks_min: starting number of blocks on filesystem.
+ * blocks_max: largest expected size in blocks of filesystem, for growth hints.
+ *
+ * Returns 1 on success, 0 on failure.
+ */
 int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
 			size_t blocks_max)
 {
 	int rc = 0;
+	size_t inode_ratio;
 
 	gchar *blocksize = g_strdup_printf("%zu", block_bytes);
 	if (!blocksize) {
@@ -474,12 +536,20 @@ int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
 		goto free_blocks_str;
 	}
 
+	inode_ratio = get_inode_ratio(block_bytes, blocks_min, blocks_max);
+	gchar *inode_ratio_str = g_strdup_printf("%zu", inode_ratio);
+	if (!inode_ratio_str) {
+		PERROR("g_strdup_printf");
+		goto free_extended;
+	}
+
 	const gchar *mkfs[] = {
 		"/sbin/mkfs.ext4",
 		"-T", "default",
 		"-b", blocksize,
 		"-m", "0",
 		"-O", "^huge_file,^flex_bg",
+		"-i", inode_ratio_str,
 		"-E", extended,
 		device,
 		blocks_str,
@@ -488,7 +558,7 @@ int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
 
 	rc = (runcmd(mkfs, NULL) == 0);
 	if (!rc)
-		goto free_extended;
+		goto free_inode_ratio_str;
 
 	const gchar *tune2fs[] = {
 		"/sbin/tune2fs",
@@ -499,6 +569,8 @@ int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
 	};
 	rc = (runcmd(tune2fs, NULL) == 0);
 
+free_inode_ratio_str:
+	g_free(inode_ratio_str);
 free_extended:
 	g_free(extended);
 free_blocks_str:

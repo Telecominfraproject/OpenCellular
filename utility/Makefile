@@ -187,6 +187,7 @@ ${BUILD_ROOT}/mount-encrypted: mount-encrypted.c mount-encrypted.h \
 		-I$(HOSTDIR)/include \
 		$(LDFLAGS) \
 		$< -o $@ $(shell $(PKG_CONFIG) --libs glib-2.0 openssl) \
+		-lm \
 		${BUILD_ROOT}/mount-helpers.o $(LIBS)
 
 ${BUILD_ROOT}/dev_sign_file: dev_sign_file.c $(LIBS)
