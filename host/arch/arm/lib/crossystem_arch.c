@@ -23,6 +23,8 @@
 #define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
 /* Path to compatible FDT entry */
 #define FDT_COMPATIBLE_PATH "/proc/device-tree/compatible"
+/* Path to the chromeos_arm platform device */
+#define PLATFORM_DEV_PATH "/sys/devices/platform/chromeos_arm"
 /* Device for NVCTX write */
 #define NVCTX_PATH "/dev/mmcblk%d"
 /* Base name for GPIO files */
@@ -177,6 +179,17 @@ static char * ReadFdtPlatformFamily(void) {
   /* No recognized 'compatible' entry found */
   free(compat);
   return NULL;
+}
+
+static int VbGetPlatformGpioStatus(const char* name) {
+  char gpio_name[FNAME_SIZE];
+  int value;
+
+  snprintf(gpio_name, sizeof(gpio_name), "%s/%s/value",
+           PLATFORM_DEV_PATH, name);
+  value = ReadFileInt(gpio_name);
+
+  return value;
 }
 
 static int VbGetGpioStatus(unsigned gpio_number) {
@@ -358,9 +371,14 @@ int VbGetArchPropertyInt(const char* name) {
     return VbGetVarGpio("developer-switch");
   else if (!strcasecmp(name, "recoverysw_cur"))
     return VbGetVarGpio("recovery-switch");
-  else if (!strcasecmp(name, "wpsw_cur"))
+  else if (!strcasecmp(name, "wpsw_cur")) {
+    int value;
+    /* Try finding the GPIO through the chromeos_arm platform device first. */
+    value = VbGetPlatformGpioStatus("write-protect");
+    if (value != -1)
+      return value;
     return VbGetVarGpio("write-protect-switch");
-  else if (!strcasecmp(name, "recoverysw_ec_boot"))
+  } else if (!strcasecmp(name, "recoverysw_ec_boot"))
     /* TODO: read correct value using ectool */
     return 0;
   else
