@@ -1,0 +1,1 @@
+Anslut ett USB-minne eller SD-kort för återställning (Obs! Den blå USB-porten kan INTE användas för återställning).

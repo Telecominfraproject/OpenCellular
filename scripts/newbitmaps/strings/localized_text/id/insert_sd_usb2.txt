@@ -1,0 +1,1 @@
+Masukkan kartu SD atau stik USB pemulihan (catatan: port USB biru TIDAK akan berfungsi untuk pemulihan).

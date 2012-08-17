@@ -1,0 +1,1 @@
+Inserta una memoria USB o una tarjeta SD de recuperación (nota: el puerto USB azul NO funcionará para la recuperación).

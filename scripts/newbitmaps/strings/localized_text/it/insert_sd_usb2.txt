@@ -1,0 +1,1 @@
+Inserisci una scheda SD o una chiavetta USB di ripristino (Nota. La porta USB blu NON funziona per il ripristino).

@@ -1,0 +1,1 @@
+Helyezzen be egy helyreállítási SD-kártyát vagy USB-tárat (megjegyzés: a kék USB-csatlakozó NEM használható helyreállításhoz).

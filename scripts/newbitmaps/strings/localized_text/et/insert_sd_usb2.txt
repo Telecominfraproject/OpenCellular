@@ -1,0 +1,1 @@
+Sisestage taastamiseks mõeldud SD-kaart või USB-mälupulk (märkus: sinine USB-port taastamise puhul EI tööta).
