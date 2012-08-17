@@ -1,2 +1,0 @@
-Sprawdzanie systemu operacyjnego jest WŁĄCZONE.
-System uruchomi się ponownie, a dane lokalne zostaną usunięte.

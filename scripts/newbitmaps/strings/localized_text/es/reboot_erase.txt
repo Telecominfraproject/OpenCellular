@@ -1,0 +1,1 @@
+Se reiniciará el sistema y se borrarán los datos locales.

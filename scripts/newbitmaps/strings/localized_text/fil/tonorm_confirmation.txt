@@ -1,2 +1,0 @@
-NAKA-ON ang pag-verify ng OS.
-Magre-reboot ang iyong system at maki-clear ang lokal na data.

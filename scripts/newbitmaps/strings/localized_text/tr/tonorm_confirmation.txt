@@ -1,2 +1,0 @@
-OS doğrulama AÇIK.
-Sisteminiz yeniden açılacak ve yerel veriler temizlenecek.

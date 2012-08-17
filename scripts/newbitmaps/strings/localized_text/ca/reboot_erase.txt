@@ -1,0 +1,1 @@
+Es reiniciarà el sistema i s'esborraran les dades locals.

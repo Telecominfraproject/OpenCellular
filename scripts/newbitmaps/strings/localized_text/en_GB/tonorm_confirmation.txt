@@ -1,2 +1,0 @@
-OS verification is ON.
-Your system will reboot and local data will be cleared.

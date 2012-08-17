@@ -16,9 +16,9 @@
 #    --align=ALING      Override align settings (default: center)
 #    --markup           Render text as pango-view markup file
 #
-font="Droid Sans"
+font="Verdana"
 language=""
-pointsize=15
+pointsize=17
 margin=3
 align="center"
 bgcolor="#ffffff"

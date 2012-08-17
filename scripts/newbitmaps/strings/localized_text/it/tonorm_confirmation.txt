@@ -1,2 +1,0 @@
-La verifica del sistema operativo è ATTIVA.
-Il sistema verrà riavviato e i dati locali verranno cancellati.

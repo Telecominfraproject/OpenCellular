@@ -1,2 +1,0 @@
-A verificação do sistema operacional está ATIVADA.
-Seu sistema será reiniciado, e os dados locais serão removidos.

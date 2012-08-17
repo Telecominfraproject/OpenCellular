@@ -1,0 +1,1 @@
+A rendszer újraindul, és a helyi adatok törlődnek.

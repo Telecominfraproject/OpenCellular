@@ -1,2 +1,0 @@
-Preverjanje operacijskega sistema je VKLOPLJENO.
-Sistem se bo znova zagnal in lokalni podatki bodo izbrisani.

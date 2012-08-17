@@ -1,2 +1,1 @@
-Sprawdzanie systemu operacyjnego jest WYŁĄCZONE.
 Naciśnij SPACJĘ, by je włączyć.

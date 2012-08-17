@@ -1,0 +1,1 @@
+Systém se restartuje a smažou se místní data.

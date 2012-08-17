@@ -1,0 +1,1 @@
+Systemet ditt kommer til å starte på nytt og lokal data blir tømt.

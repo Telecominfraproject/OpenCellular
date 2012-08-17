@@ -1,0 +1,1 @@
+Systemet startas om, och lokala data tas bort.

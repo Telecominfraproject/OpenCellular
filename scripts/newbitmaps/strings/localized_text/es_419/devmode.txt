@@ -1,2 +1,1 @@
-La verificación del SO está DESACTIVADA.
 Presiona ESPACIO para volver a activarla.

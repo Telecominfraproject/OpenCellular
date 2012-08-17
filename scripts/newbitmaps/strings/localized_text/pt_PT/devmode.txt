@@ -1,2 +1,1 @@
-A confirmação do SO está DESATIVADA
 Prima ESPAÇO para reativar.

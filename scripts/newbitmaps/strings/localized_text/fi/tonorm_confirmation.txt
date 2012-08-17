@@ -1,2 +1,0 @@
-Käyttöjärjestelmän todentaminen on KÄYTÖSSÄ.
-Järjestelmä käynnistyy uudelleen ja paikalliset tiedot poistetaan.

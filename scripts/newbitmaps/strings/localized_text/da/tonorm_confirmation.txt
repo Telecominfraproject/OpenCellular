@@ -1,2 +1,0 @@
-Bekræftelse af operativsystemet er slået TIL.
-Systemet vil blive genstartet og lokale data ryddet.

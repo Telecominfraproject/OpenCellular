@@ -274,8 +274,6 @@ for hwid_bmp in hwid_placeholder.bmp; do
   chrome_logo='chrome_logo.bmp'
   divider_btm='divider_btm.bmp'
   divider_top='divider_top.bmp'
-  insert_graphic='Insert_graphic.bmp'
-  remove_graphic='Remove_graphic.bmp'
   url='Url.bmp'
   white_bg='Background_white.bmp'
 
@@ -308,14 +306,14 @@ images:
   chrome_logo:            $(eval echo \$chrome_logo)
   divider_btm:            $(eval echo \$divider_btm)
   divider_top:            $(eval echo \$divider_top)
-  remove_graphic:         $(eval echo \$remove_graphic)
-  insert_graphic:         $(eval echo \$insert_graphic)
   white_bg:               $(eval echo \$white_bg)
 
-  asset_VerificationOn:   $(eval echo \$asset_VerificationOn)
-  asset_VerificationOff:  $(eval echo \$asset_VerificationOff)
   asset_BadSD:            $(eval echo \$asset_BadSD)
   asset_BadUSB:           $(eval echo \$asset_BadUSB)
+  asset_RemoveDevices:    $(eval echo \$asset_RemoveDevices)
+  asset_VerificationOff:  $(eval echo \$asset_VerificationOff)
+  asset_VerificationOn:   $(eval echo \$asset_VerificationOn)
+  asset_Warning:          $(eval echo \$asset_Warning)
 
   # The following strings must be approved by the localization people
 EOF1
@@ -336,7 +334,8 @@ EOF1
     eval "${lc}_todev_text=${localedir}/$lc/todev.bmp"
     eval "${lc}_tonorm_text=${localedir}/$lc/tonorm.bmp"
     eval "${lc}_verif_off_text=${localedir}/$lc/verif_off.bmp"
-    eval "${lc}_tonorm_confirm_text=${localedir}/$lc/tonorm_confirmation.bmp"
+    eval "${lc}_verif_on_text=${localedir}/$lc/verif_on.bmp"
+    eval "${lc}_reboot_erase_text=${localedir}/$lc/reboot_erase.bmp"
     eval "${lc}_back_help_text=${localedir}/$lc/back_help.bmp"
     eval "${lc}_update_text=${localedir}/$lc/update.bmp"
 
@@ -352,9 +351,9 @@ EOF1
   ${lc}_todev_text:       $(eval echo \$${lc}_todev_text)
   ${lc}_tonorm_text:      $(eval echo \$${lc}_tonorm_text)
   ${lc}_verif_off_text:   $(eval echo \$${lc}_verif_off_text)
+  ${lc}_verif_on_text:    $(eval echo \$${lc}_verif_on_text)
   ${lc}_update_text:      $(eval echo \$${lc}_update_text)
-
-  ${lc}_tonorm_confirm_text: $(eval echo \$${lc}_tonorm_confirm_text)
+  ${lc}_reboot_erase_text: $(eval echo \$${lc}_reboot_erase_text)
 
 EOF2
 
@@ -371,10 +370,10 @@ EOF2
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 40
-    add_centered "asset_VerificationOff"
-    set_centered_y_percent "white_bg" 50
-    add_centered_below "${lc}_devmode_text"
+    set_centered_y_percent "white_bg" 30
+    insert_centered_below "asset_VerificationOff"
+    insert_centered_below "${lc}_verif_off_text"
+    insert_centered_below "${lc}_devmode_text"
     add_footer_without_url ${lc}
 
     # Remove Screen
@@ -385,7 +384,7 @@ EOF2
     set_centered_y_percent "white_bg" 25
     add_centered_below "${lc}_remove_text"
     set_centered_y_percent "white_bg" 50
-    add_centered "remove_graphic"
+    add_centered "asset_RemoveDevices"
     add_footer_with_url ${lc}
 
     # Yuck Screen
@@ -404,10 +403,9 @@ EOF2
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 40
-    add_centered "insert_graphic"
-    set_centered_y_percent "white_bg" 50
-    add_centered_below "${lc}_insert_text"
+    set_centered_y_percent "white_bg" 30
+    insert_centered_below "asset_Warning"
+    insert_centered_below "${lc}_insert_text"
     add_footer_with_url ${lc}
 
     # ToDeveloper Screen
@@ -424,9 +422,8 @@ EOF2
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 40
-    add_centered "asset_VerificationOff"
-    set_centered_y_percent "white_bg" 45
+    set_centered_y_percent "white_bg" 30
+    insert_centered_below "asset_VerificationOff"
     insert_centered_below "${lc}_verif_off_text"
     insert_centered_below "${lc}_tonorm_text"
     add_footer_without_url ${lc}
@@ -445,10 +442,10 @@ EOF2
     reset_pos
     add_right_below "white_bg"
     add_header ${lc}
-    set_centered_y_percent "white_bg" 40
-    add_centered "asset_VerificationOn"
-    set_centered_y_percent "white_bg" 50
-    insert_centered_below "${lc}_tonorm_confirm_text"
+    set_centered_y_percent "white_bg" 30
+    insert_centered_below "asset_VerificationOn"
+    insert_centered_below "${lc}_verif_on_text"
+    insert_centered_below "${lc}_reboot_erase_text"
     add_footer_without_url ${lc}
 
   done

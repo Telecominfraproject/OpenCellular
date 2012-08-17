@@ -1,2 +1,1 @@
-OS verification is OFF
 Press SPACE to re-enable.

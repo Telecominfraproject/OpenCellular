@@ -1,2 +1,1 @@
-La vérification du système d'exploitation est DÉSACTIVÉE.
 Appuyez sur ESPACE pour la réactiver.
