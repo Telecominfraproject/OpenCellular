@@ -24,6 +24,7 @@ static int opt_extract = 0;
 static int opt_format = FMT_NORMAL;
 static char *progname;
 static void *base_of_rom;
+static int opt_gaps = 0;
 
 
 /* Return 0 if successful */
@@ -106,89 +107,244 @@ static int dump_fmap(const void *ptr, int argc, char *argv[])
 }
 
 
-/* Sort by start, then size, then name */
-static int by_start(FmapAreaHeader *a, FmapAreaHeader *b)
+/****************************************************************************/
+/* Stuff for human-readable form */
+
+typedef struct dup_s {
+  char *name;
+  struct dup_s *next;
+} dupe_t;
+
+typedef struct node_s {
+  char *name;
+  uint32_t start;
+  uint32_t size;
+  uint32_t end;
+  struct node_s *parent;
+  int num_children;
+  struct node_s **child;
+  dupe_t *alias;
+} node_t;
+
+static node_t *all_nodes;
+
+static void sort_nodes(int num, node_t *ary[])
 {
-  if (a->area_offset == b->area_offset) {
+  int i, j;
+  node_t *tmp;
 
-    if (a->area_size == b->area_size )
-      return strncmp(a->area_name, b->area_name, FMAP_NAMELEN) < 0;
-
-    return a->area_size < b->area_size;
+  /* bubble-sort is quick enough with only a few entries */
+  for (i = 0; i < num; i++) {
+    for (j = i + 1; j < num; j++) {
+      if (ary[j]->start > ary[i]->start) {
+        tmp = ary[i];
+        ary[i] = ary[j];
+        ary[j] = tmp;
+      }
+    }
   }
-
-  return a->area_offset > b->area_offset;
 }
 
 
-
-static void isort(FmapAreaHeader *ary, int num,
-                  int (*lessthan)(FmapAreaHeader *a, FmapAreaHeader *b))
+static void line(int indent, char *name,
+                 uint32_t start, uint32_t end, uint32_t size, char *append)
 {
-  int i, j;
-  FmapAreaHeader tmp;
+  int i;
+  for (i = 0; i < indent; i++)
+    printf("  ");
+  printf("%-25s  %08x    %08x    %08x%s\n", name, start, end, size,
+         append ? append : "");
+}
 
-  for (i = 1; i < num; i++) {
-    tmp = ary[i];
-    for (j = i; j && lessthan(ary+j-1, &tmp); j--)
-      ary[j] = ary[j-1];
-    ary[j] = tmp;
+static int gapcount;
+static void empty(int indent, uint32_t start, uint32_t end, char *name)
+{
+  char buf[80];
+  if (opt_gaps) {
+    sprintf(buf, "  // gap in %s", name);
+    line(indent + 1, "", start, end, end - start, buf);
+  }
+  gapcount++;
+}
+
+static void show(node_t *p, int indent, int show_first)
+{
+  int i;
+  dupe_t *alias;
+  if (show_first) {
+    line(indent, p->name, p->start, p->end, p->size, 0);
+    for (alias = p->alias; alias; alias = alias->next)
+      line(indent, alias->name, p->start, p->end, p->size, "  // DUPLICATE");
+  }
+  sort_nodes(p->num_children, p->child);
+  for (i = 0; i < p->num_children; i++) {
+      if (i == 0 && p->end != p->child[i]->end)
+        empty(indent, p->child[i]->end, p->end, p->name);
+      show(p->child[i], indent + show_first, 1);
+      if (i < p->num_children - 1 && p->child[i]->start != p->child[i+1]->end)
+        empty(indent, p->child[i+1]->end, p->child[i]->start, p->name);
+      if (i == p->num_children - 1 && p->child[i]->start != p->start)
+        empty(indent, p->start, p->child[i]->start, p->name);
   }
 }
 
-/* Return 0 if successful */
-static int human_fmap(void *ptr)
+static int overlaps(int i, int j)
 {
-  int i, j;
-  uint32_t end_i;
-  FmapHeader *fmh = (FmapHeader *)ptr;
-  FmapAreaHeader *ah = (FmapAreaHeader *)(fmh + 1);
-  FmapAreaHeader tmp;
+  node_t *a = all_nodes + i;
+  node_t *b = all_nodes + j;
 
-  /* We're using mmap() with MAP_PRIVATE, so we can freely fiddle with the fmap
-   * data. We'll sort the areas, reusing the flags field for indentation. */
-  for (i = 0; i < fmh->fmap_nareas; i++)
-    ah[i].area_flags = 0;
+  return ((a->start < b->start) && (b->start < a->end) &&
+          (b->start < a->end) && (a->end < b->end));
+}
 
-  /* First, sort by start and size. */
-  isort(ah, fmh->fmap_nareas, by_start);
+static int encloses(int i, int j)
+{
+  node_t *a = all_nodes + i;
+  node_t *b = all_nodes + j;
 
-  /* Now figure out indentation. */
-  for (i = 0; i < fmh->fmap_nareas - 1; i++) {
-    end_i = ah[i].area_offset + ah[i].area_size;
-    for (j = i+1; (j < fmh->fmap_nareas &&
-                 ah[j].area_offset + ah[j].area_size <= end_i &&
-                 /* Don't double-indent identical blocks. */
-                 !(ah[i].area_offset == ah[j].area_offset &&
-                   ah[i].area_size == ah[j].area_size)); j++)
-      ah[j].area_flags++;
+  return ((a->start <= b->start) &&
+          (a->end >= b->end));
+}
+
+static int duplicates(int i, int j)
+{
+  node_t *a = all_nodes + i;
+  node_t *b = all_nodes + j;
+
+  return ((a->start == b->start) &&
+          (a->end == b->end));
+}
+
+static void add_dupe(int i, int j, int numnodes)
+{
+  int k;
+  dupe_t *alias;
+
+  alias = (dupe_t *)malloc(sizeof(dupe_t));
+  alias->name = all_nodes[j].name;
+  alias->next = all_nodes[i].alias;
+  all_nodes[i].alias = alias;
+  for (k = j; k < numnodes; k++ )
+    all_nodes[k] = all_nodes[k + 1];
+}
+
+static void add_child(node_t *p, int n)
+{
+  int i;
+  if (p->num_children && !p->child) {
+    p->child = (struct node_s **)calloc(p->num_children, sizeof(node_t *));
+    if (!p->child) {
+      perror("calloc failed");
+      exit(1);
+    }
+  }
+  for (i = 0; i < p->num_children; i++)
+    if (!p->child[i]) {
+      p->child[i] = all_nodes + n;
+      return;
+    }
+}
+
+static int human_fmap(void *p)
+{
+  FmapHeader *fmh;
+  FmapAreaHeader *ah;
+  int i, j, errorcnt=0;
+  int numnodes;
+
+  fmh = (FmapHeader *)p;
+  ah = (FmapAreaHeader *)(fmh + 1);
+
+  /* The challenge here is to generate a directed graph from the
+   * arbitrarily-ordered FMAP entries, and then to prune it until it's as
+   * simple (and deep) as possible. Overlapping regions are not allowed.
+   * Duplicate regions are okay, but may require special handling. */
+
+  /* Convert the FMAP info into our format. */
+  numnodes = fmh->fmap_nareas;
+
+  /* plus one for the all-enclosing "root" */
+  all_nodes = (node_t *)calloc(numnodes+1, sizeof(node_t));
+  if (!all_nodes) {
+    perror("calloc failed");
+    exit(1);
+  }
+  for (i = 0; i < numnodes; i++) {
+    char buf[FMAP_NAMELEN+1];
+    strncpy(buf, ah[i].area_name, FMAP_NAMELEN);
+    buf[FMAP_NAMELEN] = '\0';
+    if (!(all_nodes[i].name = strdup(buf))) {
+      perror("strdup failed");
+      exit(1);
+    }
+    all_nodes[i].start = ah[i].area_offset;
+    all_nodes[i].size = ah[i].area_size;
+    all_nodes[i].end = ah[i].area_offset + ah[i].area_size;
+  }
+  /* Now add the root node */
+  all_nodes[numnodes].name = strdup("-entire flash-");
+  all_nodes[numnodes].start = fmh->fmap_base;
+  all_nodes[numnodes].size = fmh->fmap_size;
+  all_nodes[numnodes].end = fmh->fmap_base + fmh->fmap_size;
+
+
+  /* First, coalesce any duplicates */
+  for (i = 0; i < numnodes; i++) {
+    for (j = i + 1; j < numnodes; j++) {
+      if (duplicates(i, j)) {
+        add_dupe(i, j, numnodes);
+        numnodes--;
+      }
+    }
   }
 
-  /* Rearrange nested blocks */
-  for (i = 0; i < fmh->fmap_nareas - 1; i++) {
-    tmp = ah[i];
-    for (j = i+1; (j < fmh->fmap_nareas &&
-                 tmp.area_flags < ah[j].area_flags); j++)
-      ah[j-1] = ah[j];
-    ah[j-1] = tmp;
+  /* Each node should have at most one parent, which is the smallest enclosing
+   * node. Duplicate nodes "enclose" each other, but if there's already a
+   * relationship in one direction, we won't create another. */
+  for (i = 0; i < numnodes; i++) {
+    /* Find the smallest parent, which might be the root node. */
+    int k = numnodes;
+    for (j = 0; j < numnodes; j++) {    /* full O(N^2), not triangular */
+      if (i == j)
+        continue;
+      if (overlaps(i, j)) {
+        printf("ERROR: %s and %s overlap\n",
+               all_nodes[i].name, all_nodes[j].name);
+        printf("  %s: 0x%x - 0x%x\n", all_nodes[i].name,
+               all_nodes[i].start, all_nodes[i].end);
+        printf("  %s: 0x%x - 0x%x\n", all_nodes[j].name,
+               all_nodes[j].start, all_nodes[j].end);
+        errorcnt++;
+        continue;
+      }
+      if (encloses(j, i) && all_nodes[j].size < all_nodes[k].size)
+        k = j;
+    }
+    all_nodes[i].parent = all_nodes + k;
   }
+  if (errorcnt)
+    return 1;
 
-  /* Print the results. */
-  printf("%-20s   %8s   %8s   %6s\n", "# name", "start", "end", "size");
-  for (i = fmh->fmap_nareas - 1; i>= 0; i--) {
-    for (j = 0; j < ah[i].area_flags; j++)
-      printf("  ");
-    printf("%-*s", 20 - ah[i].area_flags * 2, ah[i].area_name);
-    printf("   %*s%0*x", ah[i].area_flags, "",
-           8 - ah[i].area_flags, ah[i].area_offset);
-    printf("   %*s%0*x", ah[i].area_flags, "",
-           8 - ah[i].area_flags, ah[i].area_offset + ah[i].area_size);
-    printf("   %6x\n", ah[i].area_size);
-  }
+  /* Force those deadbeat parents to recognize their children */
+  for (i = 0; i < numnodes; i++)        /* how many */
+    if (all_nodes[i].parent)
+      all_nodes[i].parent->num_children++;
+  for (i = 0; i < numnodes; i++)        /* here they are */
+    if (all_nodes[i].parent)
+      add_child(all_nodes[i].parent, i);
+
+  /* Ready to go */
+  printf("# name                     start       end         size\n");
+  show(all_nodes + numnodes, 0, opt_gaps);
+
+  if (gapcount && !opt_gaps)
+    printf("\nWARNING: unused regions found. Use -H to see them\n");
 
   return 0;
 }
 
+/* End of human-reable stuff */
+/****************************************************************************/
 
 int main(int argc, char *argv[])
 {
@@ -206,7 +362,7 @@ int main(int argc, char *argv[])
     progname = argv[0];
 
   opterr = 0;                           /* quiet, you */
-  while ((c = getopt(argc, argv, ":xpfh")) != -1) {
+  while ((c = getopt(argc, argv, ":xpfhH")) != -1) {
     switch (c) {
     case 'x':
       opt_extract = 1;
@@ -217,6 +373,9 @@ int main(int argc, char *argv[])
     case 'f':
       opt_format = FMT_FLASHROM;
       break;
+    case 'H':
+      opt_gaps = 1;
+      /* fallthrough */
     case 'h':
       opt_format = FMT_HUMAN;
       break;
@@ -246,6 +405,7 @@ int main(int argc, char *argv[])
       "Specify one or more NAMEs to only print sections that exactly match.\n"
       "\n"
       "The -h option shows the whole FMAP in human-readable form.\n"
+      "  Use -H to also display any gaps.\n"
       "\n",
       progname);
     return 1;
