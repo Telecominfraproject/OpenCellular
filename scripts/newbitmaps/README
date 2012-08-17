@@ -108,8 +108,7 @@ regenerated:
   cd scripts/newbitmaps
   make
 
-This should generate both x86 and ARM versions of the BIOS bmpblock file,
-although ARM may not be 100% correct just yet.
+This should generate BIOS bmpblock file for all platforms.
 
 
 You can use the gbb_utility to modify your BIOS to contain this new set of

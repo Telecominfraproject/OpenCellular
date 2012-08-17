@@ -10,38 +10,18 @@
 # ImageMagick is much to complex to bother installing into the chroot just for
 # this occasional need.
 
-TARGETS=x86 arm
+TARGETS=std s800 s1024 s1024usb2
 # To generate all locales, make from top level.
 LOCALES=en
 
-default: outside_chroot
-	@echo "Specify a target to build for:"
-	@echo "  ${TARGETS}"
+default: std
 
-# TODO(hungte) It's now not easy to have bmpblk_utility outside
-# chroot... We need some better way to do this.
-outside_chroot:
-	@if [ -e /etc/debian_chroot ]; then \
-		echo "ImageMagick is too complex to build inside the chroot."; \
-		echo "You must be outside the chroot to do this"; \
-		echo "(and you probably shouldn't be doing it anyway)."; \
-		exit 1; \
-	fi
+all: $(TARGETS)
 
-${TARGETS}:: outside_chroot
-
-x86::
+$(TARGETS):
 	LOCALES="$(LOCALES)" ./build_images "$@"
-	cd "out_$@" && ../make_default_yaml $(LOCALES)
-	cd "out_$@" && bmpblk_utility -c DEFAULT.yaml bmpblock.bin
-	ls -l "out_$@"/bmpblock.bin
-
-
-arm::
-	LOCALES="$(LOCALES)" ./build_images "$@"
-	cd "out_$@" && ../make_default_yaml $(LOCALES)
-	cd "out_$@" && bmpblk_utility -c DEFAULT.yaml bmpblock.bin
-	ls -l "out_$@"/bmpblock.bin
 
 clean:
 	rm -rf out_*
+
+.PHONY: $(TARGETS) clean all default

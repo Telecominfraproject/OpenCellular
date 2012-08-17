@@ -1,8 +1,8 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This will regenerate the BIOS bitmap images for both x86 and arm. You
+# This will regenerate the BIOS bitmap images for all platforms. You
 # shouldn't need to do this, though.
 
 # These are all the known locales, sorted more-or-less geograpically
@@ -13,7 +13,7 @@ ALL_LOCALES=en es_419 pt_BR en_GB fr es pt_PT ca it de \
 # Here are the launch locales for Stumpy/Lumpy (issue 6595), same ordering.
 LOCALES=en es_419 pt_BR en_GB fr es it de nl da no sv ko ja
 
-default: outside_chroot strings x86 arm clean
+default: outside_chroot strings images
 
 outside_chroot:
 	@if [ -e /etc/debian_chroot ]; then \
@@ -26,16 +26,11 @@ outside_chroot:
 strings:
 	$(MAKE) -C strings
 
-x86:
-	$(MAKE) -C images $@ LOCALES="$(LOCALES)"
-	cp -f images/out_$@/bmpblock.bin bmpblock_$@.bin
-
-arm:
-	$(MAKE) -C images $@ LOCALES="$(LOCALES)"
-	cp -f images/out_$@/bmpblock.bin bmpblock_$@.bin
+images:
+	$(MAKE) -C images LOCALES="$(LOCALES)" all
 
 clean:
 	$(MAKE) -C strings clean
 	$(MAKE) -C images clean
 
-.PHONY: outside_chroot strings x86 arm clean
+.PHONY: outside_chroot strings images clean
