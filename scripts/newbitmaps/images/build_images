@@ -9,7 +9,7 @@
 BACKGROUND_COLOR=white
 
 # The only file that uses different scaling parameter.
-BACKGROUND_IMAGE=Background_white.bmp
+BACKGROUND_IMAGE=Background_white.png
 
 die() {
   echo "ERROR: $*" >&2
@@ -90,7 +90,7 @@ main() {
   # Prepare images in current folder
   # TODO(hungte) Deprecate arrow*.bmp by markup &#x25c0; and &#x25b6;, and
   # Url.bmp by <span foreground="blue">http://</span>.
-  for X in $(ls *.bmp *.png assets/*.png); do
+  for X in *.png assets/*.png; do
     if [ "$X" = "$BACKGROUND_IMAGE" ]; then
       convert_to_bmp3 "$X" "$output" "$background_scale_param"
     else
