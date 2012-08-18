@@ -74,6 +74,21 @@ main() {
       true
       ;;
 
+    # Native profiles
+
+    n1366 )
+      # "Native 1366x768" resolution.
+      background_scale_param="-scale 1366x768!"
+      ;;
+
+    n1366usb2 )
+      # Similar to n1366, and can only boot recovery by SD card or USB2.
+      background_scale_param="-scale 1366x768!"
+      replace_files="insert=insert_sd_usb2"
+      ;;
+
+    # Stretched profiles
+
     s800 )
       # "Streched 800x600". Designed for x86 UEFI BIOS (and coreboot), which
       # always puts display into VESA 800x600 16-bit mode (0x0114), and is
@@ -86,6 +101,15 @@ main() {
       # Similar to s800, using VESA graphics mode 1024x768 (0x0117).
       scale_param="-scale 75%x100%"
       background_scale_param="-scale 1024x768!"
+      ;;
+
+    s1024usb )
+      # Similar to s1024, and can only boot recovery by USB2. (No card reader,
+      # not not able to recover from card reader.)
+      scale_param="-scale 75%x100%"
+      background_scale_param="-scale 1024x768!"
+      replace_files="insert=insert_usb BadSD=dummy"
+      # TODO(hungte) Revise bitmaps so there's no SD card images.
       ;;
 
     s1024usb2 )
@@ -145,7 +169,7 @@ main() {
 
   if [ -n "$replace_files" ]; then
     echo "Replacing files..."
-    echo "$replace_files" | while read X; do
+    echo "$replace_files" | tr ' ' '\n' | while read X; do
       local Xdest="${X%%=*}" Xsrc="${X##*=}" Xfile=""
       echo " $Xsrc => $Xdest"
       for Xfile in $(find "$output" -name "$Xsrc.bmp"); do

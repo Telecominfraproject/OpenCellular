@@ -11,7 +11,10 @@ ALL_LOCALES=en es_419 pt_BR en_GB fr es pt_PT ca it de \
   uk tr iw ar fa hi th vi id fil zh_CN zh_TW ko ja
 
 # Here are the launch locales for Stumpy/Lumpy (issue 6595), same ordering.
-LOCALES=en es_419 pt_BR en_GB fr es it de nl da no sv ko ja
+LOCALES=en es_419 pt_BR en_GB fr es it de nl da no sv ko ja \
+
+# Added more locales for future (crosbug.com/p/12846).
+LOCALES+= id th
 
 default: outside_chroot strings images
 

@@ -10,7 +10,8 @@
 # ImageMagick is much to complex to bother installing into the chroot just for
 # this occasional need.
 
-TARGETS=std s800 s1024 s1024usb2
+TARGETS=std n1366usb2 s800 s1024 s1024usb s1024usb2
+
 # To generate all locales, make from top level.
 LOCALES=en
 
