@@ -1,1 +1,3 @@
-Umetnite SD karticu ili USB memorijski uređaj za oporavak (napomena: plavi USB priključak NE funkcionira za oporavak).
+OS Chrome nedostaje ili je oštećen.
+Umetnite USB memorijski uređaj ili SD karticu za oporavak.
+(napomena: plavi USB priključak NE funkcionira za oporavak)

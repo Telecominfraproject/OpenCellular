@@ -1,1 +1,3 @@
-Sett inn et SD-kort eller en USB-minnepinne for gjenoppretting (merk: den blå USB-inngangen kan IKKE brukes for gjenoppretting).
+Chrome OS mangler eller er skadet.
+Sett inn en USB-minnepinne eller et SD-kort for gjenoppretting.
+(merk: den blå USB-inngangen kan IKKE brukes for gjenoppretting)

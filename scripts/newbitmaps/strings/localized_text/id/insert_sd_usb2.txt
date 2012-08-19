@@ -1,1 +1,3 @@
-Masukkan kartu SD atau stik USB pemulihan (catatan: port USB biru TIDAK akan berfungsi untuk pemulihan).
+Chrome OS tidak ada atau rusak.
+Masukkan stik USB atau kartu SD pemulihan.
+(catatan: port USB biru TIDAK akan berfungsi untuk pemulihan)

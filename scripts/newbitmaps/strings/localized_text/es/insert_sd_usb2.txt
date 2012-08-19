@@ -1,1 +1,3 @@
-Inserta una memoria USB o una tarjeta SD de recuperación (nota: el puerto USB azul NO funcionará para la recuperación).
+Chrome OS no está instalado o está dañado.
+Inserta una tarjeta SD o una memoria USB de recuperación.
+(nota: el puerto USB azul NO funcionará para la recuperación).

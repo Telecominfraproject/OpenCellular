@@ -1,1 +1,3 @@
-Įkiškite atkūrimo SD kortelę arba USB atmintuką (pastaba: mėlynos spalvos USB prievadas NEVEIKS atkuriant).
+„Chrome“ OS nėra arba ji pažeista.
+Įkiškite atkūrimo USB atmintuką arba SD kortelę.
+(pastaba: mėlynos spalvos USB prievadas NEVEIKS atkuriant)

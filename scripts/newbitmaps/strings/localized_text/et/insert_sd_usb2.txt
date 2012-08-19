@@ -1,1 +1,3 @@
-Sisestage taastamiseks mõeldud SD-kaart või USB-mälupulk (märkus: sinine USB-port taastamise puhul EI tööta).
+Chrome OS puudub või on kahjustatud.
+Sisestage taastamiseks mõeldud USB-mälupulk või SD-kaart.
+(märkus: sinine USB-port taastamise puhul EI tööta)

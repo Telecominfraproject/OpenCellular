@@ -1,1 +1,3 @@
-Insira um cartão SD ou memory stick USB de recuperação (nota: a porta USB azul NÃO funcionará para recuperação).
+O SO Chrome está em falta ou danificado.
+Insira um cartão SD ou memory stick USB de recuperação.
+(nota: a porta USB azul NÃO funcionará para recuperação)

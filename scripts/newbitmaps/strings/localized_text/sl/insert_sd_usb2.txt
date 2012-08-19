@@ -1,1 +1,3 @@
-Vstavite kartico SD ali pomnilnik USB za obnovitev (opomba: modra vrata USB NE delujejo za obnovitev).
+Sistema Chrome OS ni ali pa je poškodovan.
+Vstavite pomnilnik USB ali kartico SD za obnovitev.
+(opomba: modra vrata USB NE delujejo za obnovitev)

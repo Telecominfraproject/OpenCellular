@@ -1,1 +1,3 @@
-Vložte kartu SD alebo kľúč USB na obnovenie (poznámka: modrý port USB NIE JE MOŽNÉ použiť na obnovenie).
+Systém OS Chrome chýba alebo je poškodený.
+Vložte kľúč USB alebo kartu SD na obnovenie.
+(poznámka: modrý port USB NIE JE MOŽNÉ použiť na obnovenie)

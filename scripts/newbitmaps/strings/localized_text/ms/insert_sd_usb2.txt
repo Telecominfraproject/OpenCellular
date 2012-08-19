@@ -1,1 +1,3 @@
-Sila masukkan batang USB atau kad SD pemulihan (perhatian: port USB biru TIDAK akan berfungsi untuk pemulihan).
+OS Chrome tiada atau rosak.
+Sila masukkan batang USB atau kad SD pemulihan.
+(perhatian: port USB biru TIDAK akan berfungsi untuk pemulihan)

@@ -1,1 +1,3 @@
-Mangyaring maglagay ng recovery SD card o USB stick (tandaan: HINDI gagana ang asul na USB port para sa pagbawi).
+Nawawala o sira ang Chrome OS.
+Mangyaring maglagay ng recovery USB stick o SD card.
+(tandaan: HINDI gagana ang asul na USB port para sa pagbawi)

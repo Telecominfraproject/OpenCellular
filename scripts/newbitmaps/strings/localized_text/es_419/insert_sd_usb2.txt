@@ -1,1 +1,3 @@
-Inserta un dispositivo de memoria USB o una tarjeta SD de recuperación (ten en cuenta que el puerto USB azul NO funcionará para la recuperación de datos).
+El Sistema operativo de Chrome no se encuentra o está dañado.
+Inserta una tarjeta SD o un dispositivo de memoria USB de recuperación.
+(ten en cuenta que el puerto USB azul NO funcionará para la recuperación de datos)
