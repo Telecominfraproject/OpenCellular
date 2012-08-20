@@ -342,6 +342,12 @@ int GetVdatInt(VdatIntField field) {
     case VDAT_INT_KERNEL_KEY_VERIFIED:
       value = (sh->flags & VBSD_KERNEL_KEY_VERIFIED ? 1 : 0);
       break;
+    case VDAT_INT_FW_VERSION_TPM:
+      value = (int)sh->fw_version_tpm;
+      break;
+    case VDAT_INT_KERNEL_VERSION_TPM:
+      value = (int)sh->kernel_version_tpm;
+      break;
     default:
       break;
   }
@@ -360,12 +366,6 @@ int GetVdatInt(VdatIntField field) {
         break;
       case VDAT_INT_WPSW_BOOT:
         value = (sh->flags & VBSD_BOOT_FIRMWARE_WP_ENABLED ? 1 : 0);
-        break;
-      case VDAT_INT_FW_VERSION_TPM:
-        value = (int)sh->fw_version_tpm;
-        break;
-      case VDAT_INT_KERNEL_VERSION_TPM:
-        value = (int)sh->kernel_version_tpm;
         break;
       case VDAT_INT_RECOVERY_REASON:
         value = sh->recovery_reason;
