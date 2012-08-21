@@ -15,6 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <grp.h>
 #include <pwd.h>
 #include <sys/ioctl.h>
@@ -53,9 +54,9 @@ static const uint32_t kLockboxIndex = 0x20000004;
 static const uint32_t kLockboxSizeV1 = 0x2c;
 static const uint32_t kLockboxSizeV2 = 0x45;
 static const uint32_t kLockboxSaltOffset = 0x5;
-static const size_t kSectorSize = 512;
-static const size_t kExt4BlockSize = 4096;
-static const size_t kExt4MinBytes = 16 * 1024 * 1024;
+static const uint64_t kSectorSize = 512;
+static const uint64_t kExt4BlockSize = 4096;
+static const uint64_t kExt4MinBytes = 16 * 1024 * 1024;
 static const char * const kStaticKeyDefault = "default unsafe static key";
 static const char * const kStaticKeyFactory = "factory unsafe static key";
 static const char * const kStaticKeyFinalizationNeeded = "needs finalization";
@@ -673,14 +674,14 @@ static int finalize_from_cmdline(char *key)
 	return EXIT_SUCCESS;
 }
 
-static void spawn_resizer(const char *device, size_t blocks,
-			  size_t blocks_max)
+static void spawn_resizer(const char *device, uint64_t blocks,
+			  uint64_t blocks_max)
 {
 	pid_t pid;
 
 	/* Skip resize before forking, if it's not going to happen. */
 	if (blocks >= blocks_max) {
-		INFO("Resizing skipped. blocks:%zu >= blocks_max:%zu",
+		INFO("Resizing skipped. blocks:%" PRIu64 " >= blocks_max:%" PRIu64,
 		     blocks, blocks_max);
 		return;
 	}
@@ -723,11 +724,11 @@ static int setup_encrypted(int mode)
 	char *encryption_key = NULL;
 	int migrate_allowed = 0, migrate_needed = 0, rebuild = 0;
 	gchar *lodev = NULL;
-	size_t sectors;
+	uint64_t sectors;
 	struct bind_mount *bind;
 	int sparsefd;
 	struct statvfs stateful_statbuf;
-	size_t blocks_min, blocks_max;
+	uint64_t blocks_min, blocks_max;
 
 	/* Use the "system key" to decrypt the "encryption key" stored in
 	 * the stateful partition.
@@ -764,7 +765,7 @@ static int setup_encrypted(int mode)
 	}
 
 	if (rebuild) {
-		off_t fs_bytes_max;
+		uint64_t fs_bytes_max;
 
 		/* Wipe out the old files, and ignore errors. */
 		unlink(key_path);
@@ -779,8 +780,8 @@ static int setup_encrypted(int mode)
 		fs_bytes_max *= kSizePercent;
 		fs_bytes_max *= stateful_statbuf.f_frsize;
 
-		INFO("Creating sparse backing file with size %llu.",
-		     (unsigned long long)fs_bytes_max);
+		INFO("Creating sparse backing file with size %" PRIu64 ".",
+		     fs_bytes_max);
 
 		/* Create the sparse file. */
 		sparsefd = sparse_create(block_path, fs_bytes_max);
@@ -805,7 +806,7 @@ static int setup_encrypted(int mode)
 	}
 
 	/* Get size as seen by block device. */
-	sectors = get_sectors(lodev);
+	sectors = blk_size(lodev) / kSectorSize;
 	if (!sectors) {
 		ERROR("Failed to read device size");
 		goto lo_cleanup;
@@ -848,8 +849,8 @@ static int setup_encrypted(int mode)
 	blocks_max = sectors / (kExt4BlockSize / kSectorSize);
 	blocks_min = kExt4MinBytes / kExt4BlockSize;
 	if (migrate_needed && migrate_allowed) {
-		off_t fs_bytes_min;
-		size_t calc_blocks_min;
+		uint64_t fs_bytes_min;
+		uint64_t calc_blocks_min;
 		/* When doing a migration, the new filesystem must be
 		 * large enough to hold what we're going to migrate.
 		 * Instead of walking the bind mount sources, which would
@@ -863,8 +864,7 @@ static int setup_encrypted(int mode)
 		fs_bytes_min = stateful_statbuf.f_blocks -
 			       stateful_statbuf.f_bfree;
 		fs_bytes_min *= stateful_statbuf.f_frsize;
-		DEBUG("Stateful bytes used: %llu",
-			(unsigned long long)fs_bytes_min);
+		DEBUG("Stateful bytes used: %" PRIu64 "", fs_bytes_min);
 		fs_bytes_min *= kMigrationSizeMultiplier;
 
 		/* Minimum blocks needed for that many bytes. */
@@ -876,15 +876,15 @@ static int setup_encrypted(int mode)
 		else if (calc_blocks_min < blocks_min)
 			calc_blocks_min = blocks_min;
 
-		DEBUG("Maximum fs blocks: %zu", blocks_max);
-		DEBUG("Minimum fs blocks: %zu", blocks_min);
-		DEBUG("Migration blocks chosen: %zu", calc_blocks_min);
+		DEBUG("Maximum fs blocks: %" PRIu64 "", blocks_max);
+		DEBUG("Minimum fs blocks: %" PRIu64 "", blocks_min);
+		DEBUG("Migration blocks chosen: %" PRIu64 "", calc_blocks_min);
 		blocks_min = calc_blocks_min;
 	}
 
 	if (rebuild) {
 		INFO("Building filesystem on %s "
-			"(blocksize:%zu, min:%zu, max:%zu).",
+			"(blocksize:%" PRIu64 ", min:%" PRIu64 ", max:%" PRIu64 ").",
 			dmcrypt_dev, kExt4BlockSize, blocks_min, blocks_max);
 		if (!filesystem_build(dmcrypt_dev, kExt4BlockSize,
 					blocks_min, blocks_max))

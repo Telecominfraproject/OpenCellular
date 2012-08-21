@@ -15,6 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <inttypes.h>
 #include <math.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -38,10 +39,10 @@ static const gchar * const kLoopTemplate = "/dev/loop%d";
 static const int kLoopMajor = 7;
 static const int kLoopMax = 8;
 static const unsigned int kResizeStepSeconds = 2;
-static const size_t kResizeBlocks = 32768 * 10;
-static const size_t kBlocksPerGroup = 32768;
-static const size_t kInodeRatioDefault = 16384;
-static const size_t kInodeRatioMinimum = 2048;
+static const uint64_t kResizeBlocks = 32768 * 10;
+static const uint64_t kBlocksPerGroup = 32768;
+static const uint64_t kInodeRatioDefault = 16384;
+static const uint64_t kInodeRatioMinimum = 2048;
 static const gchar * const kExt4ExtendedOptions = "discard,lazy_itable_init";
 
 int remove_tree(const char *tree)
@@ -54,20 +55,20 @@ int remove_tree(const char *tree)
 	return runcmd(rm, NULL);
 }
 
-size_t get_sectors(const char *device)
+uint64_t blk_size(const char *device)
 {
-	size_t sectors;
+	uint64_t bytes;
 	int fd;
 	if ((fd = open(device, O_RDONLY | O_NOFOLLOW)) < 0) {
 		PERROR("open(%s)", device);
 		return 0;
 	}
-	if (ioctl(fd, BLKGETSIZE, &sectors)) {
-		PERROR("ioctl(%s, BLKGETSIZE)", device);
+	if (ioctl(fd, BLKGETSIZE64, &bytes)) {
+		PERROR("ioctl(%s, BLKGETSIZE64)", device);
 		return 0;
 	}
 	close(fd);
-	return sectors;
+	return bytes;
 }
 
 int runcmd(const gchar *argv[], gchar **output)
@@ -342,11 +343,11 @@ failed:
 	return 0;
 }
 
-int dm_setup(size_t sectors, const gchar *encryption_key, const char *name,
+int dm_setup(uint64_t sectors, const gchar *encryption_key, const char *name,
 		const gchar *device, const char *path, int discard)
 {
 	/* Mount loopback device with dm-crypt using the encryption key. */
-	gchar *table = g_strdup_printf("0 %zu crypt " \
+	gchar *table = g_strdup_printf("0 %" PRIu64 " crypt " \
 				       "aes-cbc-essiv:sha256 %s " \
 				       "0 %s 0%s",
 				       sectors,
@@ -425,7 +426,7 @@ char *dm_get_key(const gchar *device)
 	return key;
 }
 
-int sparse_create(const char *path, size_t size)
+int sparse_create(const char *path, uint64_t bytes)
 {
 	int sparsefd;
 
@@ -434,7 +435,7 @@ int sparse_create(const char *path, size_t size)
 	if (sparsefd < 0)
 		goto out;
 
-	if (ftruncate(sparsefd, size)) {
+	if (ftruncate(sparsefd, bytes)) {
 		int saved_errno = errno;
 
 		close(sparsefd);
@@ -460,8 +461,9 @@ out:
  *      ------------------------------------------------------------------
  *      ceil(size_max / inode-ratio_max) * ceil(blocks_mkfs / group-ratio)
  */
-static size_t get_inode_ratio(size_t block_bytes_in, size_t blocks_mkfs_in,
-				size_t blocks_max_in)
+static uint64_t get_inode_ratio(uint64_t block_bytes_in,
+				uint64_t blocks_mkfs_in,
+				uint64_t blocks_max_in)
 {
 	double block_bytes = (double)block_bytes_in;
 	double blocks_mkfs = (double)blocks_mkfs_in;
@@ -491,7 +493,7 @@ static size_t get_inode_ratio(size_t block_bytes_in, size_t blocks_mkfs_in,
 	if (inode_ratio_mkfs < kInodeRatioMinimum)
 		goto failure;
 
-	return (size_t)inode_ratio_mkfs;
+	return (uint64_t)inode_ratio_mkfs;
 
 failure:
 	return kInodeRatioDefault;
@@ -505,20 +507,20 @@ failure:
  *
  * Returns 1 on success, 0 on failure.
  */
-int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
-			size_t blocks_max)
+int filesystem_build(const char *device, uint64_t block_bytes,
+		     uint64_t blocks_min, uint64_t blocks_max)
 {
 	int rc = 0;
-	size_t inode_ratio;
+	uint64_t inode_ratio;
 
-	gchar *blocksize = g_strdup_printf("%zu", block_bytes);
+	gchar *blocksize = g_strdup_printf("%" PRIu64, block_bytes);
 	if (!blocksize) {
 		PERROR("g_strdup_printf");
 		goto out;
 	}
 
 	gchar *blocks_str;
-	blocks_str = g_strdup_printf("%zu", blocks_min);
+	blocks_str = g_strdup_printf("%" PRIu64, blocks_min);
 	if (!blocks_str) {
 		PERROR("g_strdup_printf");
 		goto free_blocksize;
@@ -526,7 +528,7 @@ int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
 
 	gchar *extended;
 	if (blocks_min < blocks_max) {
-		extended = g_strdup_printf("%s,resize=%zu",
+		extended = g_strdup_printf("%s,resize=%" PRIu64,
 			kExt4ExtendedOptions, blocks_max);
 	} else {
 		extended = g_strdup_printf("%s", kExt4ExtendedOptions);
@@ -537,7 +539,7 @@ int filesystem_build(const char *device, size_t block_bytes, size_t blocks_min,
 	}
 
 	inode_ratio = get_inode_ratio(block_bytes, blocks_min, blocks_max);
-	gchar *inode_ratio_str = g_strdup_printf("%zu", inode_ratio);
+	gchar *inode_ratio_str = g_strdup_printf("%" PRIu64, inode_ratio);
 	if (!inode_ratio_str) {
 		PERROR("g_strdup_printf");
 		goto free_extended;
@@ -582,11 +584,11 @@ out:
 }
 
 /* Spawns a filesystem resizing process. */
-int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
+int filesystem_resize(const char *device, uint64_t blocks, uint64_t blocks_max)
 {
 	/* Ignore resizing if we know the filesystem was built to max size. */
 	if (blocks >= blocks_max) {
-		INFO("Resizing aborted. blocks:%zu >= blocks_max:%zu",
+		INFO("Resizing aborted. blocks:%" PRIu64 " >= blocks_max:%" PRIu64,
 		     blocks, blocks_max);
 		return 1;
 	}
@@ -609,7 +611,7 @@ int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
 		if (blocks > blocks_max)
 			blocks = blocks_max;
 
-		blocks_str = g_strdup_printf("%zu", blocks);
+		blocks_str = g_strdup_printf("%" PRIu64, blocks);
 		if (!blocks_str) {
 			PERROR("g_strdup_printf");
 			return 0;
@@ -623,7 +625,7 @@ int filesystem_resize(const char *device, size_t blocks, size_t blocks_max)
 			NULL
 		};
 
-		INFO("Resizing filesystem on %s to %zu.", device, blocks);
+		INFO("Resizing filesystem on %s to %" PRIu64 ".", device, blocks);
 		if (runcmd(resize, NULL)) {
 			ERROR("resize2fs failed");
 			return 0;
