@@ -236,6 +236,10 @@ int VbAudioLooping(VbAudioContext* audio) {
   uint16_t msec = 0;
   int looping = 1;
 
+#if defined(CONFIG_SANDBOX)
+  return 0;
+#endif
+
   now = VbExGetTimer();
   while (audio->next_note < audio->note_count && now >= audio->play_until) {
     freq = audio->music_notes[audio->next_note].frequency;
