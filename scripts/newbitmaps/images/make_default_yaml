@@ -240,8 +240,12 @@ add_header() {
 
 add_footer_with_url() {
   local lc=$1
+  local old_xpad="$xpad"
   set_centered_y_percent "white_bg" 80
   insert_centered_below "divider_btm"
+  # Temporarily change padding to zero because both help_*_text and url
+  # have margins.
+  xpad="0"
   insert_centered_below "${lc}_help_left_text" "url" "${lc}_help_right_text"
   if echo "$rtol" | grep -q -w "$lc" ; then
     insert_centered_below 'hwid' "${lc}_model_text"
@@ -249,6 +253,7 @@ add_footer_with_url() {
     insert_centered_below "${lc}_model_text" 'hwid'
   fi
   echo "" >> "$yaml_file"
+  xpad="$old_xpad"
 }
 
 add_footer_without_url() {
