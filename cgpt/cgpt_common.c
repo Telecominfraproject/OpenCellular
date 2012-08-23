@@ -733,7 +733,9 @@ void UpdateCrc(GptData *gpt) {
   primary_header = (GptHeader*)gpt->primary_header;
   secondary_header = (GptHeader*)gpt->secondary_header;
 
-  if (gpt->modified & GPT_MODIFIED_ENTRIES1) {
+  if (gpt->modified & GPT_MODIFIED_ENTRIES1 &&
+      memcmp(primary_header, GPT_HEADER_SIGNATURE2,
+             GPT_HEADER_SIGNATURE_SIZE)) {
     primary_header->entries_crc32 =
         Crc32(gpt->primary_entries, TOTAL_ENTRIES_SIZE);
   }
@@ -785,6 +787,14 @@ int IsSynonymous(const GptHeader* a, const GptHeader* b) {
  * Note that CRC is NOT re-computed in this function.
  */
 uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries) {
+  /* If we have an alternate GPT header signature, don't overwrite
+   * the secondary GPT with the primary one as that might wipe the
+   * partition table. Also don't overwrite the primary one with the
+   * secondary one as that will stop Windows from booting. */
+  GptHeader* h = (GptHeader*)(gpt->primary_header);
+  if (!memcmp(h->signature, GPT_HEADER_SIGNATURE2, GPT_HEADER_SIGNATURE_SIZE))
+    return 0;
+
   if (valid_entries == MASK_BOTH) {
     if (memcmp(gpt->primary_entries, gpt->secondary_entries,
                TOTAL_ENTRIES_SIZE)) {

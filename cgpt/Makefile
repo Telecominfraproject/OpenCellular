@@ -24,6 +24,7 @@ ALL_SRCS = \
 	cgpt_repair.c \
 	cgpt_prioritize.c \
 	cgpt_find.c \
+	cgpt_legacy.c \
 	cmd_show.c \
 	cmd_repair.c \
 	cmd_create.c \
@@ -31,6 +32,7 @@ ALL_SRCS = \
 	cmd_boot.c \
 	cmd_find.c \
 	cmd_prioritize.c \
+	cmd_legacy.c \
 	cgpt_common.c
 
 LIB_CGPT_CC_SRCS = \

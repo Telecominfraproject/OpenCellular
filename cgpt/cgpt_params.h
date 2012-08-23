@@ -92,6 +92,11 @@ typedef struct CgptFindParams {
   int match_partnum;           // 0 for no match, 1-N for match
 } CgptFindParams;
 
+typedef struct CgptLegacyParams {
+  char *drive_name;
+  int efipart;
+} CgptLegacyParams;
+
 // create related methods.
 int cgpt_create(CgptCreateParams *params);
 
@@ -116,4 +121,8 @@ int cgpt_prioritize(CgptPrioritizeParams *params);
 
 // find related methods.
 void cgpt_find(CgptFindParams *params);
+
+// legacy related methods.
+int cgpt_legacy(CgptLegacyParams *params);
+
 #endif  // VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_

@@ -72,23 +72,35 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData* gptdata) {
  * Returns 0 if successful, 1 if error. */
 int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData* gptdata) {
 
+  int legacy = 0;
   uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
 
   if (gptdata->primary_header) {
+    GptHeader* h = (GptHeader*)(gptdata->primary_header);
+    legacy = !Memcmp(h->signature, GPT_HEADER_SIGNATURE2,
+             GPT_HEADER_SIGNATURE_SIZE);
     if (gptdata->modified & GPT_MODIFIED_HEADER1) {
-      VBDEBUG(("Updating GPT header 1\n"));
-      if (0 != VbExDiskWrite(disk_handle, 1, 1, gptdata->primary_header))
-        return 1;
+      if (legacy) {
+        VBDEBUG(("Not updating GPT header 1: legacy mode is enabled.\n"));
+      } else {
+        VBDEBUG(("Updating GPT header 1\n"));
+        if (0 != VbExDiskWrite(disk_handle, 1, 1, gptdata->primary_header))
+          return 1;
+      }
     }
     VbExFree(gptdata->primary_header);
   }
 
   if (gptdata->primary_entries) {
     if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
-      VBDEBUG(("Updating GPT entries 1\n"));
-      if (0 != VbExDiskWrite(disk_handle, 2, entries_sectors,
-                             gptdata->primary_entries))
-        return 1;
+      if (legacy) {
+        VBDEBUG(("Not updating GPT entries 1: legacy mode is enabled.\n"));
+      } else {
+        VBDEBUG(("Updating GPT entries 1\n"));
+        if (0 != VbExDiskWrite(disk_handle, 2, entries_sectors,
+                               gptdata->primary_entries))
+          return 1;
+      }
     }
     VbExFree(gptdata->primary_entries);
   }

@@ -45,7 +45,8 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors) {
 
   /* Make sure we're looking at a header of reasonable size before
    * attempting to calculate CRC. */
-  if (Memcmp(h->signature, GPT_HEADER_SIGNATURE, GPT_HEADER_SIGNATURE_SIZE))
+  if (Memcmp(h->signature, GPT_HEADER_SIGNATURE, GPT_HEADER_SIGNATURE_SIZE) &&
+      Memcmp(h->signature, GPT_HEADER_SIGNATURE2, GPT_HEADER_SIGNATURE_SIZE))
     return 1;
   if (h->revision != GPT_HEADER_REVISION)
     return 1;

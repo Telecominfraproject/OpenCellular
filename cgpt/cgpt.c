@@ -30,6 +30,7 @@ struct {
   {"find", cmd_find, "Locate a partition by its GUID"},
   {"prioritize", cmd_prioritize,
    "Reorder the priority of all kernel partitions"},
+  {"legacy", cmd_legacy, "Switch between GPT and Legacy GPT"},
 };
 
 void Usage(void) {

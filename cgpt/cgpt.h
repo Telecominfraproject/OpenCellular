@@ -154,6 +154,7 @@ int cmd_add(int argc, char *argv[]);
 int cmd_boot(int argc, char *argv[]);
 int cmd_find(int argc, char *argv[]);
 int cmd_prioritize(int argc, char *argv[]);
+int cmd_legacy(int argc, char *argv[]);
 
 #define ARRAY_COUNT(array) (sizeof(array)/sizeof((array)[0]))
 const char *GptError(int errnum);
