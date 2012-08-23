@@ -30,6 +30,7 @@ static VbNvField nvfields[] = {
   {VBNV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},
   {VBNV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
   {VBNV_DEV_BOOT_USB, 0, 1, 0, "dev boot usb"},
+  {VBNV_DEV_BOOT_LEGACY, 0, 1, 0, "dev boot legacy"},
   {VBNV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
   {VBNV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
   {VBNV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},

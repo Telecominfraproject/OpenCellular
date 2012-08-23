@@ -235,6 +235,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
      * initially disabled if the user later transitions back into developer
      * mode. */
     VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
+    VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 0);
     VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 0);
 
     /* If we don't need the VGA option ROM but got it anyway, stop asking for

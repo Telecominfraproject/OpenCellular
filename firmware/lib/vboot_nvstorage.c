@@ -32,6 +32,7 @@
 #define DEV_FLAGS_OFFSET             4
 #define DEV_BOOT_USB_MASK               0x01
 #define DEV_BOOT_SIGNED_ONLY_MASK       0x02
+#define DEV_BOOT_LEGACY_MASK            0x04
 
 #define TPM_FLAGS_OFFSET             5
 #define TPM_CLEAR_OWNER_REQUEST         0x01
@@ -114,6 +115,10 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
 
     case VBNV_DEV_BOOT_USB:
       *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_USB_MASK ? 1 : 0);
+      return 0;
+
+    case VBNV_DEV_BOOT_LEGACY:
+      *dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_LEGACY_MASK ? 1 : 0);
       return 0;
 
     case VBNV_DEV_BOOT_SIGNED_ONLY:
@@ -208,6 +213,13 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
         raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_USB_MASK;
       else
         raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_USB_MASK;
+      break;
+
+    case VBNV_DEV_BOOT_LEGACY:
+      if (value)
+        raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_LEGACY_MASK;
+      else
+        raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_LEGACY_MASK;
       break;
 
     case VBNV_DEV_BOOT_SIGNED_ONLY:

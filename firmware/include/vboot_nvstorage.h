@@ -49,6 +49,8 @@ typedef enum VbNvParam {
   VBNV_KERNEL_FIELD,
   /* Allow booting from USB in developer mode.  0=no, 1=yes. */
   VBNV_DEV_BOOT_USB,
+  /* Allow booting of legacy OSes in developer mode.  0=no, 1=yes. */
+  VBNV_DEV_BOOT_LEGACY,
   /* Only boot Google-signed images in developer mode.  0=no, 1=yes. */
   VBNV_DEV_BOOT_SIGNED_ONLY,
   /* Set by userspace to request that RO firmware disable dev-mode on the next

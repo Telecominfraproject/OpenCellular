@@ -156,16 +156,19 @@ VbError_t VbBootNormal(VbCommonParams* cparams, LoadKernelParams* p) {
 VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   VbSharedDataHeader* shared = (VbSharedDataHeader*)cparams->shared_data_blob;
-  uint32_t allow_usb = 0;
+  uint32_t allow_usb = 0, allow_legacy = 0;
   VbAudioContext* audio = 0;
 
   VBDEBUG(("Entering %s()\n", __func__));
 
   /* Check if USB booting is allowed */
   VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
+  VbNvGet(&vnc, VBNV_DEV_BOOT_LEGACY, &allow_legacy);
   /* Handle GBB flag override */
   if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_USB)
     allow_usb = 1;
+  if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
+    allow_legacy = 1;
 
   /* Show the dev mode warning screen */
   VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
@@ -226,6 +229,20 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         /* Ctrl+D = dismiss warning; advance to timeout */
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+D; skip delay\n"));
         goto fallout;
+        break;
+      case 0x0c:
+        VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+L; Try legacy boot\n"));
+        /* If VbExLegacy() succeeds, it will never return.
+         * If it returns, beep.
+         */
+        if (allow_legacy)
+          VbExLegacy();
+        else
+          VBDEBUG(("VbBootDeveloper() - Legacy boot is disabled\n"));
+
+        VbExBeep(120, 400);
+        VbExSleepMs(120);
+        VbExBeep(120, 400);
         break;
       /* The Ctrl-Enter is special for Lumpy test purpose. */
       case VB_KEY_CTRL_ENTER:

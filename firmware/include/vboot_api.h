@@ -688,4 +688,7 @@ VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
                          void *outbuf, uint32_t *out_size);
 
 
+/* Execute legacy boot option */
+int VbExLegacy(void);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */
