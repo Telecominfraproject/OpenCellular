@@ -57,6 +57,8 @@ main() {
     # So, any time we find one, we set testfail=1 and continue.
     # When finished we will use testfail to determine our exit value.
     local testfail=0
+    # A buffer to include useful information that we dump when things fail.
+    local output
 
     if [[ $# -ne 1 ]] && [[ $# -ne 2 ]]; then
         usage
@@ -92,13 +94,26 @@ main() {
     eval "optional_kparams=(\${optional_kparams_$board[@]})"
     eval "optional_kparams_regex=(\${optional_kparams_regex_$board[@]})"
     eval "required_dmparams=(\"\${required_dmparams_$board[@]}\")"
+    output+="required_kparams=(\n"
+    output+="$(printf "\t'%s'\n" "${required_kparams[@]}")\n)\n"
+    output+="optional_kparams=(\n"
+    output+="$(printf "\t'%s'\n" "${optional_kparams[@]}")\n)\n"
+    output+="optional_kparams_regex=(\n"
+    output+="$(printf "\t'%s'\n" "${optional_kparams_regex[@]}")\n)\n"
+    output+="required_dmparams=(\n"
+    output+="$(printf "\t'%s'\n" "${required_dmparams[@]}")\n)\n"
 
     # Divide the dm params from the rest and process seperately.
     local kparams=$(dump_kernel_config "$kernelblob")
     local dmparams=$(get_dmparams "$kparams")
     local kparams_nodm=$(kparams_remove_dm "$kparams")
 
+    output+="\nkparams='${kparams}'\n"
+    output+="\ndmparams='${dmparams}'\n"
+    output+="\nkparams_nodm='${kparams_nodm}'\n"
+
     mangled_dmparams=$(dmparams_mangle "${dmparams}")
+    output+="\nmangled_dmparams='${mangled_dmparams}'\n"
     # Special-case handling of the dm= param:
     for expected_dmparams in "${required_dmparams[@]}"; do
       # Filter out all dynamic parameters.
@@ -144,6 +159,12 @@ main() {
     if [[ ! -z ${kparams_nodm// /} ]]; then
         echo "Unexpected kernel parameters found: $kparams_nodm"
         testfail=1
+    fi
+
+    if [[ ${testfail} -eq 1 ]]; then
+        echo "Debug output:"
+        printf '%b\n' "${output}"
+        echo "(actual error will be at the top of output)"
     fi
 
     exit $testfail
