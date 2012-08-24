@@ -130,8 +130,12 @@ main() {
         echo "Expected: ${required_dmparams[@]}"
     fi
 
+    # A byte that should not appear in the command line to use as a sed
+    # marker when doing regular expression replacements.
+    M=$'\001'
+
     # Ensure all other required params are present.
-    for param in ${required_kparams[@]}; do
+    for param in "${required_kparams[@]}"; do
         if [[ "$kparams_nodm" != *$param* ]]; then
             echo "Kernel parameters missing required value: $param"
             testfail=1
@@ -139,25 +143,29 @@ main() {
             # Remove matched params as we go. If all goes well, kparams_nodm
             # will be nothing left but whitespace by the end.
             param=$(escape_regexmetas "$param")
-            kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
+            kparams_nodm=$(echo " ${kparams_nodm} " |
+                           sed "s${M} ${param} ${M} ${M}")
         fi
     done
 
     # Check-off each of the allowed-but-optional params that were present.
-    for param in ${optional_kparams[@]}; do
+    for param in "${optional_kparams[@]}"; do
         param=$(escape_regexmetas "$param")
-        kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
+        kparams_nodm=$(echo " ${kparams_nodm} " |
+                       sed "s${M} ${param} ${M} ${M}")
     done
 
     # Check-off each of the allowed-but-optional params that were present.
-    for param in ${optional_kparams_regex[@]}; do
-        kparams_nodm=$(echo "$kparams_nodm" | sed "s/\b$param\b//")
+    for param in "${optional_kparams_regex[@]}"; do
+        kparams_nodm=$(echo " ${kparams_nodm} " |
+                       sed "s${M} ${param} ${M} ${M}")
     done
 
     # This section enforces the default-deny for any unexpected params
     # not already processed by one of the above loops.
     if [[ ! -z ${kparams_nodm// /} ]]; then
-        echo "Unexpected kernel parameters found: $kparams_nodm"
+        echo "Unexpected kernel parameters found:"
+        echo " $(echo "${kparams_nodm}" | sed -r 's:  +: :g')"
         testfail=1
     fi
 
