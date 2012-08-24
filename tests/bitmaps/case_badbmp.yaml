@@ -1,6 +1,6 @@
 # Invalid specification: requests missing image file.
 
-bmpblock: 1.2
+bmpblock: 2.0
 
 # These are the individual images which are layered to produce a screen layout.
 images:
