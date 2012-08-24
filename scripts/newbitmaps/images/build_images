@@ -81,6 +81,12 @@ main() {
       background_scale_param="-scale 1366x768!"
       ;;
 
+    n1366usb )
+      # Similar to n1366, and can only boot recovery by USB.
+      background_scale_param="-scale 1366x768!"
+      replace_files="insert=insert_usb BadSD=dummy"
+      ;;
+
     n1366usb2 )
       # Similar to n1366, and can only boot recovery by SD card or USB2.
       background_scale_param="-scale 1366x768!"
