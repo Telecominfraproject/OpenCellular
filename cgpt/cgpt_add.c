@@ -297,7 +297,7 @@ int cgpt_add(CgptAddParams *params) {
   if (params->set_begin)
     entry->starting_lba = params->begin;
   if (params->set_size)
-    entry->ending_lba = params->begin + params->size - 1;
+    entry->ending_lba = entry->starting_lba + params->size - 1;
   if (params->set_type)
     memcpy(&entry->type, &params->type_guid, sizeof(Guid));
   if (params->set_unique)
@@ -323,7 +323,7 @@ int cgpt_add(CgptAddParams *params) {
   if (0 != CheckEntries((GptEntry*)drive.gpt.primary_entries,
                         (GptHeader*)drive.gpt.primary_header)) {
     memcpy(entry, &backup, sizeof(*entry));
-    Error("At least a parameter is not allowed:\n");
+    Error("At least one parameter is not allowed:\n");
     Error(DumpCgptAddParams(params));
     goto bad;
   }

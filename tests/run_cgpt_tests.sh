@@ -105,6 +105,31 @@ Y=$($CGPT show -s -i $RANDOM_NUM ${DEV})
 [ "$X $Y" = "$RANDOM_START $RANDOM_SIZE" ] || error
 
 
+echo "Change the beginning..."
+DATA_START=$((DATA_START + 10))
+$CGPT add -i 1 -b ${DATA_START} ${DEV} || error
+X=$($CGPT show -b -i 1 ${DEV})
+[ "$X" = "$DATA_START" ] || error
+
+echo "Change the size..."
+DATA_SIZE=$((DATA_SIZE + 10))
+$CGPT add -i 1 -s ${DATA_SIZE} ${DEV} || error
+X=$($CGPT show -s -i 1 ${DEV})
+[ "$X" = "$DATA_SIZE" ] || error
+
+echo "Change the type..."
+$CGPT add -i 1 -t reserved ${DEV} || error
+X=$($CGPT show -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
+[ "$X" = "$FUTURE_GUID" ] || error
+# arbitrary value
+$CGPT add -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
+X=$($CGPT show -t -i 1 ${DEV})
+[ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
+$CGPT add -i 1 -t data ${DEV} || error
+X=$($CGPT show -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
+[ "$X" = "$DATA_GUID" ] || error
+
+
 echo "Set the boot partition.."
 $CGPT boot -i ${KERN_NUM} ${DEV} >/dev/null
 
