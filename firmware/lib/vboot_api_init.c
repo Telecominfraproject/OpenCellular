@@ -56,6 +56,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
     shared->flags |= VBSD_BOOT_REC_SWITCH_ON;
   if (iparams->flags & VB_INIT_FLAG_WP_ENABLED)
     shared->flags |= VBSD_BOOT_FIRMWARE_WP_ENABLED;
+  if (iparams->flags & VB_INIT_FLAG_SW_WP_ENABLED)
+    shared->flags |= VBSD_BOOT_FIRMWARE_SW_WP_ENABLED;
   if (iparams->flags & VB_INIT_FLAG_S3_RESUME)
     shared->flags |= VBSD_BOOT_S3_RESUME;
   if (iparams->flags & VB_INIT_FLAG_RO_NORMAL_SUPPORT)

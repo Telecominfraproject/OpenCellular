@@ -237,6 +237,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_EC_SOFTWARE_SYNC           0x00000800
 /* VbInit() was told that the EC firmware is slow to update */
 #define VBSD_EC_SLOW_UPDATE             0x00001000
+/* Firmware software write protect was enabled at boot time */
+#define VBSD_BOOT_FIRMWARE_SW_WP_ENABLED 0x00002000
 
 /* Supported flags by header version.  It's ok to add new flags while keeping
  * struct version 2 as long as flag-NOT-present is the correct value for

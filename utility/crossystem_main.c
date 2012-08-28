@@ -70,6 +70,8 @@ const Param sys_param_list[] = {
   {"ro_fwid", IS_STRING, "Read-only firmware ID"},
   {"savedmem_base", 0, "RAM debug data area physical address", "0x%08x"},
   {"savedmem_size", 0, "RAM debug data area size in bytes"},
+  {"sw_wpsw_boot", 0,
+   "Firmware write protect software setting enabled at boot"},
   {"tpm_fwver", 0, "Firmware version stored in TPM", "0x%08x"},
   {"tpm_kernver", 0, "Kernel version stored in TPM", "0x%08x"},
   {"tried_fwb", 0, "Tried firmware B before A this boot"},

@@ -144,6 +144,12 @@ static void VbInitTest(void) {
   TEST_EQ(shared->flags, VBSD_BOOT_FIRMWARE_WP_ENABLED, "  shared flags WP");
 
   ResetMocks();
+  iparams.flags = VB_INIT_FLAG_SW_WP_ENABLED;
+  TestVbInit(0, 0, "Flags test SW WP");
+  TEST_EQ(shared->flags, VBSD_BOOT_FIRMWARE_SW_WP_ENABLED,
+          "  shared flags SW WP");
+
+  ResetMocks();
   iparams.flags = VB_INIT_FLAG_RO_NORMAL_SUPPORT;
   TestVbInit(0, 0, "  flags test RO normal");
   TEST_EQ(shared->flags, VBSD_BOOT_RO_NORMAL_SUPPORT,
