@@ -86,6 +86,38 @@ is_the_same_binary_file() {
   [ "$hash1" = "$hash2" ]
 }
 
+# Extract firmware body section from SRC_FD and truncate it to its body size
+extract_firmware_image() {
+  local label="$1"
+  local root_key="$2"
+  local vblock_offset="$3"
+  local vblock_size="$4"
+  local vblock_image="$5"
+  local fw_offset="$6"
+  local fw_size="$7"
+  local fw_image="$8"
+  local fw_body_size=""
+
+  dd if="${SRC_FD}" of="${vblock_image}" skip="${vblock_offset}" bs=1 \
+    count="${vblock_size}" 2>/dev/null
+  dd if="${SRC_FD}" of="${fw_image}" skip="${fw_offset}" bs=1 \
+    count="${fw_size}" 2>/dev/null
+  fw_body_size="$(vbutil_firmware \
+    --verify "${vblock_image}" \
+    --signpubkey "${root_key}" \
+    --fv "${fw_image}" |
+    grep "Firmware body size:" |
+    sed 's/.*: *//')" || fw_body_size="${fw_size}"
+  if [ "${fw_body_size}" -gt "${fw_size}" ]; then
+    echo -n "Firmware ${label} body size exceeds its section: "
+    echo    "${fw_body_size} > ${fw_size}"
+    return 1
+  elif [ "${fw_body_size}" -lt "${fw_size}" ]; then
+    dd if="${SRC_FD}" of="${fw_image}" skip="${fw_offset}" bs=1 \
+      count="${fw_body_size}" 2>/dev/null
+  fi
+}
+
 if [ -z "$VERSION" ]; then
   VERSION=1
 fi
@@ -123,19 +155,23 @@ done
 temp_fwimage_a=$(make_temp_file)
 temp_fwimage_b=$(make_temp_file)
 temp_out_vb=$(make_temp_file)
+temp_root_key=$(make_temp_file)
+
+echo "Reading Root Key from GBB"
+gbb_utility -g --rootkey="$temp_root_key" "${SRC_FD}"
 
 echo "Extracting Firmware A and B"
-dd if="${SRC_FD}" of="${temp_fwimage_a}" skip="${fwA_offset}" bs=1 \
-  count="${fwA_size}" 2>/dev/null
-dd if="${SRC_FD}" of="${temp_fwimage_b}" skip="${fwB_offset}" bs=1 \
-  count="${fwB_size}" 2>/dev/null
+extract_firmware_image "A" "${temp_root_key}" \
+  "${fwA_vblock_offset}" "${fwA_vblock_size}" "${temp_out_vb}" \
+  "${fwA_offset}" "${fwA_size}" "${temp_fwimage_a}"
+extract_firmware_image "B" "${temp_root_key}" \
+  "${fwB_vblock_offset}" "${fwB_vblock_size}" "${temp_out_vb}" \
+  "${fwB_offset}" "${fwB_size}" "${temp_fwimage_b}"
 
 echo "Determining preamble flag from existing firmware"
 if [ -n "$PREAMBLE_FLAG" ]; then
   PREAMBLE_FLAG="--flag $PREAMBLE_FLAG"
 else
-  temp_root_key=$(make_temp_file)
-  gbb_utility -g --rootkey="$temp_root_key" "${SRC_FD}"
   dd if="${SRC_FD}" of="${temp_out_vb}" skip="${fwA_vblock_offset}" bs=1 \
     count="${fwA_vblock_size}" 2>/dev/null
   flag="$(vbutil_firmware \
