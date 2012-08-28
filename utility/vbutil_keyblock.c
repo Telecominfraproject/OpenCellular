@@ -115,7 +115,7 @@ static int Pack(const char* outfile, const char* datapubkey,
                                       flags,
                                       external_signer);
     } else {
-      signing_key = PrivateKeyReadPem(signprivate, pem_algorithm);
+      signing_key = PrivateKeyReadPem(signprivate_pem, pem_algorithm);
       if (!signing_key) {
         fprintf(stderr, "vbutil_keyblock: Error reading signing key.\n");
         return 1;
