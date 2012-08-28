@@ -260,6 +260,9 @@ add_footer_without_url() {
   local lc=$1
   set_centered_y_percent "white_bg" 80
   insert_centered_below "divider_btm"
+  # For some locales like th, we need to prevent text overlapping divider.
+  # Doubling with ypad seems like a good idea.
+  move_pos_down $ypad
   if echo "$rtol" | grep -q -w "$lc" ; then
     insert_centered_below 'hwid' "${lc}_model_text"
   else
