@@ -655,6 +655,14 @@ VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size);
  * Subsequent calls to VbExEcUpdateRW() this boot will fail. */
 VbError_t VbExEcProtectRW(void);
 
+/* Args to VbExProtectFlash() */
+enum VbProtectFlash_t { VBPROTECT_RW_A, VBPROTECT_RW_B, VBPROTECT_RW_DEVKEY };
+
+/* Lock a section of the BIOS flash address space to prevent updates until the
+ * host is rebooted. Subsequent attempts to erase or modify the specified BIOS
+ * image will fail. If this function is called more than once each call should
+ * be cumulative. */
+VbError_t VbExProtectFlash(enum VbProtectFlash_t region);
 
 /*****************************************************************************/
 /* Misc */
