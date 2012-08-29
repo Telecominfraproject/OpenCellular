@@ -900,7 +900,7 @@ static int setup_encrypted(int mode)
 	}
 	if (mount(dmcrypt_dev, encrypted_mount, kEncryptedFSType,
 		  MS_NODEV | MS_NOEXEC | MS_NOSUID | MS_RELATIME,
-		  "discard")) {
+		  "discard,commit=600")) {
 		PERROR("mount(%s,%s)", dmcrypt_dev, encrypted_mount);
 		goto dm_cleanup;
 	}
