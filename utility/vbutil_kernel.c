@@ -6,8 +6,11 @@
  */
 
 #include <errno.h>
+#include <fcntl.h>
 #include <getopt.h>
 #include <inttypes.h>  /* For PRIu64 */
+#include <sys/ioctl.h>
+#include <linux/fs.h>  /* For BLKGETSIZE64 */
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -352,12 +355,23 @@ static uint8_t* ReadOldBlobFromFileOrDie(const char *filename,
   uint8_t* buf;
   uint8_t* kernel_blob_data;
   uint64_t kernel_blob_size;
+  uint64_t file_size = 0;
 
   if (0 != stat(filename, &statbuf))
     Fatal("Unable to stat %s: %s\n", filename, strerror(errno));
 
-  Debug("%s size is 0x%" PRIx64 "\n", filename, statbuf.st_size);
-  if (statbuf.st_size < opt_pad)
+  if (S_ISBLK(statbuf.st_mode)) {
+    int fd;
+
+    if ((fd = open(filename, O_RDONLY)) >= 0) {
+      ioctl(fd, BLKGETSIZE64, &file_size);
+      close(fd);
+    }
+  } else {
+    file_size = statbuf.st_size;
+  }
+  Debug("%s size is 0x%" PRIx64 "\n", filename, file_size);
+  if (file_size < opt_pad)
     Fatal("%s is too small to be a valid kernel blob\n");
 
   Debug("Reading %s\n", filename);
@@ -373,7 +387,7 @@ static uint8_t* ReadOldBlobFromFileOrDie(const char *filename,
   key_block = (VbKeyBlockHeader*)buf;
   Debug("Keyblock is 0x%" PRIx64 " bytes\n", key_block->key_block_size);
   now += key_block->key_block_size;
-  if (now > statbuf.st_size)
+  if (now > file_size)
     Fatal("key_block_size advances past the end of the blob\n");
   if (now > opt_pad)
     Fatal("key_block_size advances past %" PRIu64 " byte padding\n",
@@ -386,7 +400,7 @@ static uint8_t* ReadOldBlobFromFileOrDie(const char *filename,
   preamble = (VbKernelPreambleHeader*)(buf + now);
   Debug("Preamble is 0x%" PRIx64 " bytes\n", preamble->preamble_size);
   now += preamble->preamble_size;
-  if (now > statbuf.st_size)
+  if (now > file_size)
     Fatal("preamble_size advances past the end of the blob\n");
   if (now > opt_pad)
     Fatal("preamble_size advances past %" PRIu64 " byte padding\n",
@@ -407,7 +421,7 @@ static uint8_t* ReadOldBlobFromFileOrDie(const char *filename,
           strerror(errno));
 
   /* Sanity check */
-  kernel_blob_size = statbuf.st_size - now;
+  kernel_blob_size = file_size - now;
   if (!kernel_blob_size)
     Fatal("No kernel blob found\n");
   if (kernel_blob_size < preamble->body_signature.data_size)
