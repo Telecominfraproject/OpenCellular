@@ -273,8 +273,9 @@ fallout:
   return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
 
-/* Delay between disk checks in recovery mode */
-#define REC_DELAY_INCREMENT 250
+/* Delay in recovery mode */
+#define REC_DISK_DELAY 1000     /* Check disks every 1s */
+#define REC_KEY_DELAY  20       /* Check keys every 20ms */
 
 /* Handle a recovery-mode boot */
 VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
@@ -312,18 +313,18 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 
       /* Scan keyboard more frequently than media, since x86 platforms
        * don't like to scan USB too rapidly. */
-      for (i = 0; i < 4; i++) {
+      for (i = 0; i < REC_DISK_DELAY; i += REC_KEY_DELAY) {
         VbCheckDisplayKey(cparams, VbExKeyboardRead(), &vnc);
         if (VbExIsShutdownRequested())
           return VBERROR_SHUTDOWN_REQUESTED;
-        VbExSleepMs(REC_DELAY_INCREMENT);
+        VbExSleepMs(REC_KEY_DELAY);
       }
     }
   }
 
   /* Loop and wait for a recovery image */
   while (1) {
-    VBDEBUG(("VbBootRecovery() attempting to load kernel\n"));
+    VBDEBUG(("VbBootRecovery() attempting to load kernel2\n"));
     retval = VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE);
 
     /* Clear recovery requests from failed kernel loading, since we're
@@ -340,7 +341,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
 
     /* Scan keyboard more frequently than media, since x86 platforms don't like
      * to scan USB too rapidly. */
-    for (i = 0; i < 4; i++) {
+    for (i = 0; i < REC_DISK_DELAY; i += REC_KEY_DELAY) {
       key = VbExKeyboardRead();
       /* We might want to enter dev-mode from the Insert screen if... */
       if (key == 0x04 &&                /* user pressed Ctrl-D */
@@ -370,7 +371,7 @@ VbError_t VbBootRecovery(VbCommonParams* cparams, LoadKernelParams* p) {
         VbCheckDisplayKey(cparams, key, &vnc);
       if (VbExIsShutdownRequested())
         return VBERROR_SHUTDOWN_REQUESTED;
-      VbExSleepMs(REC_DELAY_INCREMENT);
+      VbExSleepMs(REC_KEY_DELAY);
     }
   }
 
