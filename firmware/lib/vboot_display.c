@@ -161,7 +161,7 @@ static void VbRenderTextAtPos(char *text, int right_to_left,
 VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
                                  VbNvContext *vncptr) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
-  uint8_t* bmpfv = NULL;
+  static uint8_t* bmpfv;
   void* fullimage = NULL;
   BmpBlockHeader* hdr;
   ScreenLayout* layout;
@@ -187,8 +187,10 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
   }
 
   /* Copy bitmap data from GBB into RAM for speed */
-  bmpfv = (uint8_t*)VbExMalloc(gbb->bmpfv_size);
-  Memcpy(bmpfv, ((uint8_t*)gbb) + gbb->bmpfv_offset, gbb->bmpfv_size);
+  if (!bmpfv) {
+    bmpfv = (uint8_t*)VbExMalloc(gbb->bmpfv_size);
+    Memcpy(bmpfv, ((uint8_t*)gbb) + gbb->bmpfv_offset, gbb->bmpfv_size);
+  }
 
   /* Sanity-check the bitmap block header */
   hdr = (BmpBlockHeader *)bmpfv;
@@ -341,8 +343,6 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
 VbDisplayScreenFromGBB_exit:
 
   VBDEBUG(("leaving VbDisplayScreenFromGBB() with %d\n",retval));
-  /* Free the bitmap data copy */
-  VbExFree(bmpfv);
   return retval;
 }
 
