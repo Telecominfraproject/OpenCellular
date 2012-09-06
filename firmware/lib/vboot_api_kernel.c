@@ -193,7 +193,6 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         if (!(gbb->flags & GBB_FLAG_ENTER_TRIGGERS_TONORM))
           break;
       case ' ':
-      case 0x1B:
         /* See if we should disable the virtual dev-mode switch. */
         VBDEBUG(("%s shared->flags=0x%x\n", __func__, shared->flags));
         if (shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
@@ -217,7 +216,7 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
           }
         } else {
           /* No virtual dev-mode switch, so go directly to recovery mode */
-          VBDEBUG(("VbBootDeveloper() - user pressed ENTER/SPACE/ESC\n"));
+          VBDEBUG(("%s() - going to recovery\n", __func__));
           VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_SCREEN);
           VbAudioClose(audio);
           return VBERROR_LOAD_KERNEL_RECOVERY;
