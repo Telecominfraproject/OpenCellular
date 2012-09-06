@@ -114,4 +114,120 @@ function make_keyblock {
     --signpubkey "${signkey}.vbpubk"
 }
 
+# File to read current versions from.
+VERSION_FILE="key.versions"
 
+# ARGS: <VERSION_TYPE>
+get_version() {
+  awk -F= '/^'$1'\>/ { print $NF }' ${2:-${VERSION_FILE}}
+}
+
+# Loads the current versions prints them to stdout and sets the global version
+# variables: CURR_FIRMKEY_VER CURR_FIRM_VER CURR_KERNKEY_VER CURR_KERN_VER
+load_current_versions() {
+  if [[ ! -f ${VERSION_FILE} ]]; then
+    return 1
+  fi
+  CURR_FIRMKEY_VER=$(get_version "firmware_key_version")
+  # Firmware version is the kernel subkey version.
+  CURR_FIRM_VER=$(get_version "firmware_version")
+  # Kernel data key version is the kernel key version.
+  CURR_KERNKEY_VER=$(get_version "kernel_key_version")
+  CURR_KERN_VER=$(get_version "kernel_version")
+
+  cat <<EOF
+Current Firmware key version: ${CURR_FIRMKEY_VER}
+Current Firmware version: ${CURR_FIRM_VER}
+Current Kernel key version: ${CURR_KERNKEY_VER}
+Current Kernel version: ${CURR_KERN_VER}
+EOF
+}
+
+# Make backups of existing kernel subkeys and keyblocks that will be revved.
+# Backup format:
+# for keyblocks: <keyblock_name>.v<datakey version>.v<subkey version>.keyblock
+# Args: SUBKEY_VERSION DATAKEY_VERSION
+backup_existing_kernel_keyblock() {
+  if [[ ! -e kernel.keyblock ]]; then
+    return
+  fi
+  mv --no-clobber kernel.{keyblock,"v$2.v$1.keyblock"}
+}
+
+# Make backups of existing kernel subkeys and keyblocks that will be revved.
+# Backup format:
+# for keys: <key_name>.v<version>.vb{pub|priv}k
+# for keyblocks: <keyblock_name>.v<datakey version>.v<subkey version>.keyblock
+# Args: SUBKEY_VERSION DATAKEY_VERSION
+backup_existing_kernel_subkeys() {
+  local subkey_ver=$1
+  local datakey_ver=$2
+  # --no-clobber to prevent accidentally overwriting existing
+  # backups.
+  mv --no-clobber kernel_subkey.{vbprivk,"v${subkey_ver}.vbprivk"}
+  mv --no-clobber kernel_subkey.{vbpubk,"v${subkey_ver}.vbpubk"}
+  backup_existing_kernel_keyblock ${subkey_ver} ${datakey_ver}
+}
+
+# Make backups of existing kernel data keys and keyblocks that will be revved.
+# Backup format:
+# for keys: <key_name>.v<version>.vb{pub|priv}k
+# for keyblocks: <keyblock_name>.v<datakey version>.v<subkey version>.keyblock
+# Args: SUBKEY_VERSION DATAKEY_VERSION
+backup_existing_kernel_data_keys() {
+  local subkey_ver=$1
+  local datakey_ver=$2
+  # --no-clobber to prevent accidentally overwriting existing
+  # backups.
+  mv --no-clobber kernel_data_key.{vbprivk,"v${datakey_ver}.vbprivk"}
+  mv --no-clobber kernel_data_key.{vbpubk,"v${datakey_ver}.vbpubk"}
+  backup_existing_kernel_keyblock ${subkey_ver} ${datakey_ver}
+}
+
+# Make backups of existing firmware keys and keyblocks that will be revved.
+# Backup format:
+# for keys: <key_name>.v<version>.vb{pub|priv}k
+# for keyblocks: <keyblock_name>.v<datakey version>.v<subkey version>.keyblock
+# Args: SUBKEY_VERSION DATAKEY_VERSION
+backup_existing_firmware_keys() {
+  local subkey_ver=$1
+  local datakey_ver=$2
+  mv --no-clobber firmware_data_key.{vbprivk,"v${subkey_ver}.vbprivk"}
+  mv --no-clobber firmware_data_key.{vbpubk,"v${subkey_ver}.vbpubk"}
+  mv --no-clobber firmware.{keyblock,"v${datakey_ver}.v${subkey_ver}.keyblock"}
+}
+
+
+# Write new key version file with the updated key versions.
+# Args: FIRMWARE_KEY_VERSION FIRMWARE_VERSION KERNEL_KEY_VERSION
+#       KERNEL_VERSION
+write_updated_version_file() {
+  local firmware_key_version=$1
+  local firmware_version=$2
+  local kernel_key_version=$3
+  local kernel_version=$4
+
+  cat > ${VERSION_FILE} <<EOF
+firmware_key_version=${firmware_key_version}
+firmware_version=${firmware_version}
+kernel_key_version=${kernel_key_version}
+kernel_version=${kernel_version}
+EOF
+}
+
+# Returns the incremented version number of the passed in key from the version
+# file.  The options are "firmware_key_version", "firmware_version",
+# "kernel_key_version", or "kernel_version".
+# ARGS: KEY_DIR <key_name>
+increment_version() {
+  local key_dir=$1
+  local VERSION_FILE="${key_dir}/${VERSION_FILE}"
+  local old_version=$(get_version $2)
+  local new_version=$(( ${old_version} + 1 ))
+
+  if [[ ${new_version} -gt 0xffff ]]; then
+    echo "Version overflow!" >&2
+    return 1
+  fi
+  echo ${new_version}
+}
