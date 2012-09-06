@@ -42,6 +42,12 @@ CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 
 ifeq ($(FIRMWARE_ARCH),i386)
 CFLAGS += -DUNROLL_LOOPS
+
+# Workaround for coreboot on x86, which will power off asynchronously
+# without giving us a chance to react. This is not an example of the Right
+# Way to do things. See chrome-os-partner:7689, and the commit message
+# that made this change.
+CFLAGS += -DRANDOM_POWER_OFF
 endif
 
 INCLUDES = \
