@@ -7,10 +7,22 @@
 # Used when revving versions for a firmware update.
 
 # Load common constants and variables.
-. "$(dirname "$0")/common.sh"
+. "${0%/*}"/common.sh
 
 # Abort on errors.
 set -e
+
+if [ $# -ne 1 ]; then
+  cat <<EOF
+Usage: $0 <keyset directory>
+
+Increments the kernel subkey, data key and firmware version in the
+specified keyset.
+EOF
+  exit 1
+fi
+
+KEY_DIR=$1
 
 # File to read current versions from.
 VERSION_FILE="key.versions"
@@ -24,19 +36,19 @@ get_version() {
 
 # Make backups of existing keys and keyblocks that will be revved.
 # Backup format:
-# for keys: <key_name>.v<version>
-# for keyblocks: <keyblock_name>.v<datakey version>.v<subkey version>
+# for keys: <key_name>.v<version>.vb{pub|priv}k
+# for keyblocks: <keyblock_name>.v<datakey version>.v<subkey version>.keyblock
 # Args: SUBKEY_VERSION DATAKEY_VERSION
 backup_existing_kernel_keys() {
   subkey_version=$1
   datakey_version=$2
   # --no-clobber to prevent accidentally overwriting existing
   # backups.
-  mv --no-clobber kernel_subkey.vbprivk{,".v${subkey_version}"}
-  mv --no-clobber kernel_subkey.vbpubk{,".v${subkey_version}"}
-  mv --no-clobber kernel_data_key.vbprivk{,".v${datakey_version}"}
-  mv --no-clobber kernel_data_key.vbpubk{,".v${datakey_version}"}
-  mv --no-clobber kernel.keyblock{,".v${datakey_version}.v${subkey_version}"}
+  mv --no-clobber kernel_subkey.{vbprivk,"v${subkey_version}.vbprivk"}
+  mv --no-clobber kernel_subkey.{vbpubk,"v${subkey_version}.vbpubk"}
+  mv --no-clobber kernel_data_key.{vbprivk,"v${datakey_version}.vbprivk"}
+  mv --no-clobber kernel_data_key.{vbpubk,"v${datakey_version}.vbpubk"}
+  mv --no-clobber kernel.{keyblock,"v${datakey_version}.v${subkey_version}.keyblock"}
 }
 
 # Write new key version file with the updated key versions.
@@ -57,6 +69,8 @@ EOF
   
 
 main() {
+  local key_dir=$1
+  cd "${key_dir}"
   current_fkey_version=$(get_version "firmware_key_version")
   # Firmware version is the kernel subkey version.
   current_ksubkey_version=$(get_version "firmware_version")
