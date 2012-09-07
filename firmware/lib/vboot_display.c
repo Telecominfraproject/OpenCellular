@@ -188,8 +188,12 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
 
   /* Copy bitmap data from GBB into RAM for speed */
   if (!bmpfv) {
+#ifdef COPY_BMP_DATA
     bmpfv = (uint8_t*)VbExMalloc(gbb->bmpfv_size);
     Memcpy(bmpfv, ((uint8_t*)gbb) + gbb->bmpfv_offset, gbb->bmpfv_size);
+#else
+    bmpfv = ((uint8_t *)gbb) + gbb->bmpfv_offset;
+#endif
   }
 
   /* Sanity-check the bitmap block header */
