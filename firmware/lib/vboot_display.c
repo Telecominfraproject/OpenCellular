@@ -210,28 +210,28 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
    * here is awful. */
   switch (screen) {
   case VB_SCREEN_DEVELOPER_WARNING:
-    screen_index = 0;
+    screen_index = SCREEN_DEVELOPER_WARNING;
     break;
   case VB_SCREEN_RECOVERY_REMOVE:
-    screen_index = 1;
+    screen_index = SCREEN_RECOVERY_REMOVE;
     break;
   case VB_SCREEN_RECOVERY_NO_GOOD:
-    screen_index = 2;
+    screen_index = SCREEN_RECOVERY_NO_GOOD;
     break;
   case VB_SCREEN_RECOVERY_INSERT:
-    screen_index = 3;
+    screen_index = SCREEN_RECOVERY_INSERT;
     break;
   case VB_SCREEN_RECOVERY_TO_DEV:
-    screen_index = 4;
+    screen_index = SCREEN_RECOVERY_TO_DEV;
     break;
   case VB_SCREEN_DEVELOPER_TO_NORM:
-    screen_index = 5;
+    screen_index = SCREEN_DEVELOPER_TO_NORM;
     break;
   case VB_SCREEN_WAIT:
-    screen_index = 6;
+    screen_index = SCREEN_WAIT;
     break;
   case VB_SCREEN_TO_NORM_CONFIRMED:
-    screen_index = 7;
+    screen_index = SCREEN_TO_NORM_CONFIRMED;
     break;
   case VB_SCREEN_BLANK:
   case VB_SCREEN_DEVELOPER_EGG:
