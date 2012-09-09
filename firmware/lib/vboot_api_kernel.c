@@ -74,7 +74,7 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
     if (512 != disk_info[i].bytes_per_lba || /* cgptlib restriction */
         32 > disk_info[i].lba_count ||       /* ditto */
         get_info_flags != disk_info[i].flags) { /* got only what we asked for */
-      VBDEBUG(("  skipping: bytes_per_lba=%Ld lba_count=%Ld flags=0x%x\n",
+      VBDEBUG(("  skipping: bytes_per_lba=%lld lba_count=%lld flags=0x%x\n",
                disk_info[i].bytes_per_lba, disk_info[i].lba_count,
                disk_info[i].flags));
       continue;
