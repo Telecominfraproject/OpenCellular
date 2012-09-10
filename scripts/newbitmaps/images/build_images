@@ -84,7 +84,7 @@ main() {
     n1366usb )
       # Similar to n1366, and can only boot recovery by USB.
       background_scale_param="-scale 1366x768!"
-      replace_files="insert=insert_usb BadSD=dummy"
+      replace_files="insert=insert_usb BadSD=dummy RemoveDevices=RemoveUSB"
       ;;
 
     n1366usb2 )
@@ -114,8 +114,7 @@ main() {
       # not not able to recover from card reader.)
       scale_param="-scale 75%x100%"
       background_scale_param="-scale 1024x768!"
-      replace_files="insert=insert_usb BadSD=dummy"
-      # TODO(hungte) Revise bitmaps so there's no SD card images.
+      replace_files="insert=insert_usb BadSD=dummy RemoveDevices=RemoveUSB"
       ;;
 
     s1024usb2 )
