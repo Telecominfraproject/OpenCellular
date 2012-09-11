@@ -66,6 +66,8 @@ main() {
   local scale_param="" background_scale_param="" replace_files=""
   local base locale X
 
+  # TODO(hungte) Derive and calculate profile params automatically.
+
   # Currently we use image resources originally designed for 1366x768, and
   # re-scale to different aspects on demand.
   case "$profile" in
@@ -124,7 +126,18 @@ main() {
       replace_files="insert=insert_sd_usb2"
       ;;
 
-    # TODO(hungte) Add 1280x1024 (0x11A) profiles.
+    s1280a8x5 )
+      # Similar to s1024, using VESA graphics mode 1280x1024 (0x011A), and
+      # adjusted for aspect ratio 8x5 panels.
+      background_scale_param="-scale 1280x1024!"
+      scale_param="-scale 94%x119%"  # 119% = 133% * (1.6 / 1.78)
+      ;;
+
+    s1280x850a8x5 )
+      # Similar to s1280a8x5, using graphics mode 1280x850.
+      background_scale_param="-scale 1280x850!"
+      scale_param="-scale 94%x99%" # 99% = 110% * (1.6 / 1.78)
+      ;;
 
     * )
       die "Sorry, unknown profile $profile."

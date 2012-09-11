@@ -11,6 +11,7 @@
 # this occasional need.
 
 TARGETS=std n1366usb n1366usb2 s800 s1024 s1024usb s1024usb2
+TARGETS+=s1280a8x5 s1280x850a8x5
 
 # To generate all locales, make from top level.
 LOCALES=en
