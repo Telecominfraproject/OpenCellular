@@ -5,11 +5,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <linux/fs.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
 #include <sys/ioctl.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <netinet/in.h>
@@ -18,6 +20,8 @@
 #include "vboot_nvstorage.h"
 #include "host_common.h"
 #include "crossystem_arch.h"
+
+#define MOSYS_PATH "/usr/sbin/mosys"
 
 /* Base name for firmware FDT files */
 #define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
@@ -253,7 +257,98 @@ out:
   return ret;
 }
 
-int VbReadNvStorage(VbNvContext* vnc) {
+static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
+  int status, mosys_to_crossystem[2];
+  pid_t pid;
+  ssize_t n;
+
+  if (pipe(mosys_to_crossystem) < 0) {
+    VBDEBUG(("pipe() error\n"));
+    return -1;
+  }
+
+  if ((pid = fork()) < 0) {
+    VBDEBUG(("fork() error\n"));
+    close(mosys_to_crossystem[0]);
+    close(mosys_to_crossystem[1]);
+    return -1;
+  } else if (!pid) {  /* Child */
+    close(mosys_to_crossystem[0]);
+    /* Redirect pipe's write-end to mosys' stdout */
+    if (STDOUT_FILENO != mosys_to_crossystem[1]) {
+      if (dup2(mosys_to_crossystem[1], STDOUT_FILENO) != STDOUT_FILENO) {
+        VBDEBUG(("stdout dup2() failed (mosys)\n"));
+        close(mosys_to_crossystem[1]);
+        exit(1);
+      }
+    }
+    /* Execute mosys */
+    execv(MOSYS_PATH, argv);
+    /* We shouldn't be here; exit now! */
+    VBDEBUG(("execv() of mosys failed\n"));
+    close(mosys_to_crossystem[1]);
+    exit(1);
+  } else {  /* Parent */
+    close(mosys_to_crossystem[1]);
+    if (bufsize) {
+      bufsize--;  /* Reserve 1 byte for '\0' */
+      while ((n = read(mosys_to_crossystem[0], buf, bufsize)) > 0) {
+        buf += n;
+        bufsize -= n;
+      }
+      *buf = '\0';
+    } else {
+      n = 0;
+    }
+    close(mosys_to_crossystem[0]);
+    if (n < 0)
+      VBDEBUG(("read() error while reading output from mosys\n"));
+    if (waitpid(pid, &status, 0) < 0 || status) {
+      VBDEBUG(("waitpid() or mosys error\n"));
+      fprintf(stderr, "waitpid() or mosys error\n");
+      return -1;
+    }
+    if (n < 0)
+      return -1;
+  }
+  return 0;
+}
+
+static int VbReadNvStorage_mkbp(VbNvContext* vnc) {
+  char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
+  char * const argv[] = {
+    MOSYS_PATH, "nvram", "vboot", "read", NULL
+  };
+  char hexdigit[3];
+  int i;
+
+  if (ExecuteMosys(argv, hexstring, sizeof(hexstring)))
+    return -1;
+  hexdigit[2] = '\0';
+  for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
+    hexdigit[0] = hexstring[i * 2];
+    hexdigit[1] = hexstring[i * 2 + 1];
+    vnc->raw[i] = strtol(hexdigit, NULL, 16);
+  }
+  return 0;
+}
+
+static int VbWriteNvStorage_mkbp(VbNvContext* vnc) {
+  char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
+  char * const argv[] = {
+    MOSYS_PATH, "nvram", "vboot", "write", hexstring, NULL
+  };
+  int i;
+
+  for (i = 0; i < VBNV_BLOCK_SIZE; i++)
+    snprintf(hexstring + i * 2, 3, "%02x", vnc->raw[i]);
+  hexstring[sizeof(hexstring) - 1] = '\0';
+  if (ExecuteMosys(argv, NULL, 0))
+    return -1;
+  return 0;
+}
+
+static int VbReadNvStorage_disk(VbNvContext* vnc) {
   int nvctx_fd = -1;
   uint8_t sector[SECTOR_SIZE];
   int rv = -1;
@@ -294,7 +389,7 @@ out:
   return rv;
 }
 
-int VbWriteNvStorage(VbNvContext* vnc) {
+static int VbWriteNvStorage_disk(VbNvContext* vnc) {
   int nvctx_fd = -1;
   uint8_t sector[SECTOR_SIZE];
   int rv = -1;
@@ -347,6 +442,26 @@ int VbWriteNvStorage(VbNvContext* vnc) {
     close(nvctx_fd);
 
   return rv;
+}
+
+int VbReadNvStorage(VbNvContext* vnc) {
+  char *media = ReadFdtString("nonvolatile-context-storage");
+  /* Default to disk for older firmware which does not provide storage type */
+  if (!media || !strcmp(media, "disk"))
+    return VbReadNvStorage_disk(vnc);
+  if (!strcmp(media, "mkbp"))
+    return VbReadNvStorage_mkbp(vnc);
+  return -1;
+}
+
+int VbWriteNvStorage(VbNvContext* vnc) {
+  char *media = ReadFdtString("nonvolatile-context-storage");
+  /* Default to disk for older firmware which does not provide storage type */
+  if (!media || !strcmp(media, "disk"))
+    return VbWriteNvStorage_disk(vnc);
+  if (!strcmp(media, "mkbp"))
+    return VbWriteNvStorage_mkbp(vnc);
+  return -1;
 }
 
 VbSharedDataHeader *VbSharedDataRead(void) {
