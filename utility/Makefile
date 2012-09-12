@@ -42,6 +42,7 @@ TARGET_NAMES = $(AU_TARGETS) \
 		dev_make_keypair \
 		dev_sign_file \
 		dev_debug_vboot \
+		enable_dev_usb_boot \
 		vbutil_what_keys
 
 ifeq ($(MINIMAL),)
@@ -162,6 +163,10 @@ ${BUILD_ROOT}/dev_make_keypair: dev_make_keypair
 	chmod +x $@
 
 ${BUILD_ROOT}/dev_debug_vboot: dev_debug_vboot
+	cp -f $< $@
+	chmod +x $@
+
+${BUILD_ROOT}/enable_dev_usb_boot: enable_dev_usb_boot
 	cp -f $< $@
 	chmod +x $@
 

@@ -1,0 +1,38 @@
+#!/bin/sh
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+alert() {
+  echo "$*" >&2
+}
+
+die() {
+  alert "ERROR: $*"
+  exit 1
+}
+
+case "$(crossystem fwid 2>/dev/null || true)" in
+  Mario.* )
+    die "Sorry, your platform does not support booting from USB."
+    ;;
+
+  Alex.* | ZGB.* )
+    # For these legacy platforms, we need to re-flash firmware to get USB boot.
+    chromeos-firmwareupdate --mode=todev || die "Failed to enable USB boot."
+    ;;
+
+  "" )
+    die "Sorry, your firmware does not look like ChromeOS firmware."
+    ;;
+
+  * )
+    crossystem dev_boot_usb=1 2>/dev/null || die "Failed to enable USB boot."
+    echo "
+    SUCCESS: Booting any self-signed kernel from SSD/USB/SDCard slot is enabled.
+
+    Insert bootable media into USB / SDCard slot and press Ctrl-U in developer
+    screen to boot your self-signed image.
+    "
+    ;;
+esac
