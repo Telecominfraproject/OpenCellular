@@ -27,7 +27,8 @@ Usage: $PROG <type> input_image /path/to/keys/dir [output_image] [version_file]
 where <type> is one of:
              ssd  (sign an SSD image)
              recovery (sign a USB recovery image)
-             install (sign a factory install image)
+             factory (sign a factory install image)
+             install (old alias to "factory")
              firmware (sign a firmware image)
              usb  (sign an image to boot directly from USB)
              verify (verify an image including rootfs hashes)
@@ -628,7 +629,7 @@ elif [ "${TYPE}" == "recovery" ]; then
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     2
   sign_for_recovery ${OUTPUT_IMAGE}
-elif [ "${TYPE}" == "install" ]; then
+elif [ "${TYPE}" == "factory" ] || [ "${TYPE}" == "install" ]; then
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   resign_firmware_payload ${OUTPUT_IMAGE}
   update_rootfs_hash ${OUTPUT_IMAGE} \
