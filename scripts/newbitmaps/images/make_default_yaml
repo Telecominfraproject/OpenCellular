@@ -228,14 +228,16 @@ add_centered() {
 }
 
 add_header() {
-  local lc=$1
+  local lc="$1"
   set_centered_y_percent "white_bg" 17
   add_centered_below "divider_top"
   move_pos_left $(expr $(get_width "divider_top") / 2 )
   move_pos_up $ypad
   add_right_above "chrome_logo"
   move_pos_right $(get_width "divider_top")
-  add_left_above "arrow_left" "${lc}_language_text" "arrow_right"
+  if [ -n "$lc" ]; then
+    add_left_above "arrow_left" "${lc}_language_text" "arrow_right"
+  fi
 }
 
 add_footer_with_url() {
@@ -440,7 +442,9 @@ EOF2
     echo "  ${lc}_update:" >> "$yaml_file"
     reset_pos
     add_right_below "white_bg"
-    add_header ${lc}
+    # Currently WAIT screen does not accept any keyboard input, so we don't
+    # display language on menubar.
+    add_header ""
     set_centered_y_percent "white_bg" 50
     add_centered "${lc}_update_text"
     add_footer_without_url ${lc}
