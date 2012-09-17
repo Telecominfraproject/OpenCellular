@@ -28,6 +28,7 @@ GBBFLAGS_DESCRIPTION="
   GBB_FLAG_FORCE_DEV_SWITCH_ON        0x00000008
   GBB_FLAG_FORCE_DEV_BOOT_USB         0x00000010
   GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK  0x00000020
+  GBB_FLAG_ENTER_TRIGGERS_TONORM      0x00000040
 
   To get a developer-friendly device, try 0x11 (short_delay + boot_usb).
   For factory-related tests (always DEV), try 0x39.
