@@ -29,6 +29,7 @@ where <type> is one of:
              recovery (sign a USB recovery image)
              factory (sign a factory install image)
              install (old alias to "factory")
+             update_payload (sign a delta update hash)
              firmware (sign a firmware image)
              usb  (sign an image to boot directly from USB)
              verify (verify an image including rootfs hashes)
@@ -338,6 +339,33 @@ sign_firmware() {
   echo "Signed firmware image output to ${image}"
 }
 
+# Sign a delta update payload (usually created by paygen).
+# Args: INPUT_IMAGE KEY_DIR OUTPUT_IMAGE
+sign_update_payload() {
+  local image=$1
+  local key_dir=$2
+  local output=$3
+  local key_size key_file="${key_dir}/update_key.pem"
+  local algo algos=(
+    # Maps key size to verified boot's algorithm id (for pad_digest_utility).
+    # Hashing algorithm is always SHA-256.
+    [1024]=1
+    [2048]=4
+    [4096]=7
+    [8192]=10
+  )
+
+  key_size=$(openssl rsa -text -noout -in "${key_file}" | \
+    sed -n -r '1{s/Private-Key: \(([0-9]*) bit\)/\1/p}')
+  algo=${algos[${key_size}]}
+  if [[ -z ${algo} ]]; then
+    die "Unknown algorithm specified by key_size=${key_size}"
+  fi
+
+  pad_digest_utility ${algo} "${image}" | \
+    openssl rsautl -sign -pkcs -inkey "${key_file}" -out "${output}"
+}
+
 # Re-sign the firmware AU payload inside the image rootfs with a new keys.
 # Args: IMAGE
 resign_firmware_payload() {
@@ -640,6 +668,8 @@ elif [ "${TYPE}" == "factory" ] || [ "${TYPE}" == "install" ]; then
 elif [ "${TYPE}" == "firmware" ]; then
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   sign_firmware ${OUTPUT_IMAGE} ${KEY_DIR} ${FIRMWARE_VERSION}
+elif [ "${TYPE}" == "update_payload" ]; then
+  sign_update_payload ${INPUT_IMAGE} ${KEY_DIR} ${OUTPUT_IMAGE}
 else
   echo "Invalid type ${TYPE}"
   exit 1
