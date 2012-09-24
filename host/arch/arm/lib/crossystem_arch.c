@@ -34,6 +34,8 @@
 /* Base name for GPIO files */
 #define GPIO_BASE_PATH "/sys/class/gpio"
 #define GPIO_EXPORT_PATH GPIO_BASE_PATH "/export"
+/* Name of NvStorage type property */
+#define FDT_NVSTORAGE_TYPE_PROP "nonvolatile-context-storage"
 /* Errors */
 #define E_FAIL      -1
 #define E_FILEOP    -2
@@ -102,6 +104,24 @@ static int ReadFdtInt(const char *property) {
   return value;
 }
 
+static void GetFdtPropertyPath(const char *property, char *path, size_t size) {
+  if (property[0] == '/')
+    StrCopy(path, property, size);
+  else
+    snprintf(path, size, FDT_BASE_PATH "/%s", property);
+}
+
+static int FdtPropertyExist(const char *property) {
+  char filename[FNAME_SIZE];
+  struct stat file_status;
+
+  GetFdtPropertyPath(property, filename, sizeof(filename));
+  if (!stat(filename, &file_status))
+    return 1; // It exists!
+  else
+    return 0; // It does not exist or some error happened.
+}
+
 static int ReadFdtBlock(const char *property, void **block, size_t *size) {
   char filename[FNAME_SIZE];
   FILE *file;
@@ -111,10 +131,7 @@ static int ReadFdtBlock(const char *property, void **block, size_t *size) {
   if (!block)
     return E_FAIL;
 
-  if (property[0] == '/')
-    StrCopy(filename, property, sizeof(filename));
-  else
-    snprintf(filename, sizeof(filename), FDT_BASE_PATH "/%s", property);
+  GetFdtPropertyPath(property, filename, sizeof(filename));
   file = fopen(filename, "rb");
   if (!file) {
     fprintf(stderr, "Unable to open FDT property %s\n", property);
@@ -445,9 +462,12 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc) {
 }
 
 int VbReadNvStorage(VbNvContext* vnc) {
-  char *media = ReadFdtString("nonvolatile-context-storage");
   /* Default to disk for older firmware which does not provide storage type */
-  if (!media || !strcmp(media, "disk"))
+  char *media;
+  if (!FdtPropertyExist(FDT_NVSTORAGE_TYPE_PROP))
+    return VbReadNvStorage_disk(vnc);
+  media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
+  if (!strcmp(media, "disk"))
     return VbReadNvStorage_disk(vnc);
   if (!strcmp(media, "mkbp"))
     return VbReadNvStorage_mkbp(vnc);
@@ -455,9 +475,12 @@ int VbReadNvStorage(VbNvContext* vnc) {
 }
 
 int VbWriteNvStorage(VbNvContext* vnc) {
-  char *media = ReadFdtString("nonvolatile-context-storage");
   /* Default to disk for older firmware which does not provide storage type */
-  if (!media || !strcmp(media, "disk"))
+  char *media;
+  if (!FdtPropertyExist(FDT_NVSTORAGE_TYPE_PROP))
+    return VbWriteNvStorage_disk(vnc);
+  media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
+  if (!strcmp(media, "disk"))
     return VbWriteNvStorage_disk(vnc);
   if (!strcmp(media, "mkbp"))
     return VbWriteNvStorage_mkbp(vnc);
