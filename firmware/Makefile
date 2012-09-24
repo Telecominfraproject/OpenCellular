@@ -1,4 +1,4 @@
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -47,7 +47,7 @@ CFLAGS += -DUNROLL_LOOPS
 # without giving us a chance to react. This is not an example of the Right
 # Way to do things. See chrome-os-partner:7689, and the commit message
 # that made this change.
-CFLAGS += -DRANDOM_POWER_OFF
+CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
 
 # On x86 we don't actually read the GBB data into RAM until it is needed.
 # Therefore it makes sense to cache it rather than reading it each time.

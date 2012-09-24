@@ -642,7 +642,7 @@ VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
     VBDEBUG(("VbCheckDisplayKey() - change localization to %d\n", (int)loc));
     VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, loc);
 
-#ifdef RANDOM_POWER_OFF
+#ifdef SAVE_LOCALE_IMMEDIATELY
     VbNvTeardown(vncptr);               /* really only computes checksum */
     if (vncptr->raw_changed)
       VbExNvStorageWrite(vncptr->raw);
