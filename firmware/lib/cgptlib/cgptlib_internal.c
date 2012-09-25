@@ -126,7 +126,7 @@ int CheckEntries(GptEntry* entries, GptHeader* h) {
   crc32 = Crc32((const uint8_t *)entries,
                 h->size_of_entry * h->number_of_entries);
   if (crc32 != h->entries_crc32)
-    return 1;
+    return GPT_ERROR_CRC_CORRUPTED;
 
   /* Check all entries. */
   for (i = 0, entry = entries; i < h->number_of_entries; i++, entry++) {
@@ -140,7 +140,7 @@ int CheckEntries(GptEntry* entries, GptHeader* h) {
     if ((entry->starting_lba < h->first_usable_lba) ||
         (entry->ending_lba > h->last_usable_lba) ||
         (entry->ending_lba < entry->starting_lba))
-      return 1;
+      return GPT_ERROR_OUT_OF_REGION;
 
     /* Entry must not overlap other entries. */
     for (i2 = 0, e2 = entries; i2 < h->number_of_entries; i2++, e2++) {
@@ -149,14 +149,14 @@ int CheckEntries(GptEntry* entries, GptHeader* h) {
 
       if ((entry->starting_lba >= e2->starting_lba) &&
           (entry->starting_lba <= e2->ending_lba))
-        return 1;
+        return GPT_ERROR_START_LBA_OVERLAP;
       if ((entry->ending_lba >= e2->starting_lba) &&
           (entry->ending_lba <= e2->ending_lba))
-        return 1;
+        return GPT_ERROR_END_LBA_OVERLAP;
 
       /* UniqueGuid field must be unique. */
       if (0 == Memcmp(&entry->unique, &e2->unique, sizeof(Guid)))
-        return 1;
+        return GPT_ERROR_DUP_GUID;
     }
   }
 
@@ -356,4 +356,50 @@ void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest) {
   GptEntry* entries = (GptEntry*)gpt->primary_entries;
   GptEntry* e = entries + gpt->current_kernel;
   Memcpy(dest, &e->unique, sizeof(Guid));
+}
+
+
+const char* GptErrorText(int error_code)
+{
+  switch(error_code) {
+  case GPT_SUCCESS:
+    return "none";
+
+  case GPT_ERROR_NO_VALID_KERNEL:
+    return "Invalid kernel";
+
+  case GPT_ERROR_INVALID_HEADERS:
+    return "Invalid headers";
+
+  case GPT_ERROR_INVALID_ENTRIES:
+    return "Invalid entries";
+
+  case GPT_ERROR_INVALID_SECTOR_SIZE:
+    return "Invalid sector size";
+
+  case GPT_ERROR_INVALID_SECTOR_NUMBER:
+    return "Invalid sector number";
+
+  case GPT_ERROR_INVALID_UPDATE_TYPE:
+    return "Invalid update type";
+
+  case GPT_ERROR_CRC_CORRUPTED:
+    return "Entries' crc corrupted";
+
+  case GPT_ERROR_OUT_OF_REGION:
+    return "Entry outside of valid region";
+
+  case GPT_ERROR_START_LBA_OVERLAP:
+    return "Starting LBA overlaps";
+
+  case GPT_ERROR_END_LBA_OVERLAP:
+    return "Ending LBA overlaps";
+
+  case GPT_ERROR_DUP_GUID:
+    return "Duplicated GUID";
+
+  default:
+    break;
+  };
+  return "Unknown";
 }

@@ -5,7 +5,6 @@
 
 #include <string.h>
 
-#include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "cgptlib_test.h"
 #include "crc32.h"
@@ -576,8 +575,8 @@ static int EntriesCrcTest() {
   EXPECT(0 == CheckEntries(e2, h1));
   gpt->primary_entries[0] ^= 0xa5;  /* just XOR a non-zero value */
   gpt->secondary_entries[TOTAL_ENTRIES_SIZE-1] ^= 0x5a;
-  EXPECT(1 == CheckEntries(e1, h1));
-  EXPECT(1 == CheckEntries(e2, h1));
+  EXPECT(GPT_ERROR_CRC_CORRUPTED == CheckEntries(e1, h1));
+  EXPECT(GPT_ERROR_CRC_CORRUPTED == CheckEntries(e2, h1));
 
   return TEST_OK;
 }
@@ -598,19 +597,19 @@ static int ValidEntryTest() {
   BuildTestGptData(gpt);
   e1[0].starting_lba = h1->first_usable_lba - 1;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckEntries(e1, h1));
+  EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
   /* error case: entry.EndingLBA > header.LastUsableLBA */
   BuildTestGptData(gpt);
   e1[2].ending_lba = h1->last_usable_lba + 1;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckEntries(e1, h1));
+  EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
   /* error case: entry.StartingLBA > entry.EndingLBA */
   BuildTestGptData(gpt);
   e1[3].starting_lba = e1[3].ending_lba + 1;
   RefreshCrc32(gpt);
-  EXPECT(1 == CheckEntries(e1, h1));
+  EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
   /* case: non active entry should be ignored. */
   BuildTestGptData(gpt);
@@ -638,30 +637,36 @@ static int OverlappedPartitionTest() {
       uint64_t ending_lba;
     } entries[16];  /* enough for testing. */
   } cases[] = {
-    {0, {{0, 100, 199}}},
-    {0, {{1, 100, 199}}},
-    {0, {{1, 100, 150}, {1, 200, 250}, {1, 300, 350}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 100, 100}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 299, 299}}},
-    {0, {{1, 300, 399}, {1, 200, 299}, {1, 100, 199}}},
-    {1, {{1, 100, 199}, {1, 199, 299}, {1, 299, 399}}},
-    {1, {{1, 100, 199}, {1, 200, 299}, {1, 75, 399}}},
-    {1, {{1, 100, 199}, {1, 75, 250}, {1, 200, 299}}},
-    {1, {{1, 75, 150}, {1, 100, 199}, {1, 200, 299}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {1, 100, 399}}},
-    {0, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {0, 100, 399}}},
-    {1, {{1, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400}}},
-    {1, {{0, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400}}},
-    {0, {{1, 200, 300}, {1, 100, 199}, {0, 100, 400}, {0, 300, 400}}},
-    {1, {{1, 200, 299}, {1, 100, 199}, {1, 199, 199}}},
-    {0, {{1, 200, 299}, {0, 100, 199}, {1, 199, 199}}},
-    {0, {{1, 200, 299}, {1, 100, 199}, {0, 199, 199}}},
-    {1, {{1, 199, 199}, {1, 200, 200}, {1, 201, 201}, {1, 202, 202},
-         {1, 203, 203}, {1, 204, 204}, {1, 205, 205}, {1, 206, 206},
-         {1, 207, 207}, {1, 208, 208}, {1, 199, 199}}},
-    {0, {{1, 199, 199}, {1, 200, 200}, {1, 201, 201}, {1, 202, 202},
-         {1, 203, 203}, {1, 204, 204}, {1, 205, 205}, {1, 206, 206},
-         {1, 207, 207}, {1, 208, 208}, {0, 199, 199}}},
+    {GPT_SUCCESS, {{0, 100, 199}}},
+    {GPT_SUCCESS, {{1, 100, 199}}},
+    {GPT_SUCCESS, {{1, 100, 150}, {1, 200, 250}, {1, 300, 350}}},
+    {GPT_ERROR_START_LBA_OVERLAP,
+     {{1, 200, 299}, {1, 100, 199}, {1, 100, 100}}},
+    {GPT_ERROR_END_LBA_OVERLAP, {{1, 200, 299}, {1, 100, 199}, {1, 299, 299}}},
+    {GPT_SUCCESS, {{1, 300, 399}, {1, 200, 299}, {1, 100, 199}}},
+    {GPT_ERROR_END_LBA_OVERLAP, {{1, 100, 199}, {1, 199, 299}, {1, 299, 399}}},
+    {GPT_ERROR_START_LBA_OVERLAP, {{1, 100, 199}, {1, 200, 299}, {1, 75, 399}}},
+    {GPT_ERROR_START_LBA_OVERLAP, {{1, 100, 199}, {1, 75, 250}, {1, 200, 299}}},
+    {GPT_ERROR_END_LBA_OVERLAP, {{1, 75, 150}, {1, 100, 199}, {1, 200, 299}}},
+    {GPT_ERROR_START_LBA_OVERLAP,
+     {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {1, 100, 399}}},
+    {GPT_SUCCESS, {{1, 200, 299}, {1, 100, 199}, {1, 300, 399}, {0, 100, 399}}},
+    {GPT_ERROR_START_LBA_OVERLAP,
+     {{1, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400}}},
+    {GPT_ERROR_START_LBA_OVERLAP,
+     {{0, 200, 300}, {1, 100, 200}, {1, 100, 400}, {1, 300, 400}}},
+    {GPT_SUCCESS, {{1, 200, 300}, {1, 100, 199}, {0, 100, 400}, {0, 300, 400}}},
+    {GPT_ERROR_END_LBA_OVERLAP,
+     {{1, 200, 299}, {1, 100, 199}, {1, 199, 199}}},
+    {GPT_SUCCESS, {{1, 200, 299}, {0, 100, 199}, {1, 199, 199}}},
+    {GPT_SUCCESS, {{1, 200, 299}, {1, 100, 199}, {0, 199, 199}}},
+    {GPT_ERROR_START_LBA_OVERLAP,
+     {{1, 199, 199}, {1, 200, 200}, {1, 201, 201}, {1, 202, 202},
+      {1, 203, 203}, {1, 204, 204}, {1, 205, 205}, {1, 206, 206},
+      {1, 207, 207}, {1, 208, 208}, {1, 199, 199}}},
+    {GPT_SUCCESS, {{1, 199, 199}, {1, 200, 200}, {1, 201, 201}, {1, 202, 202},
+                   {1, 203, 203}, {1, 204, 204}, {1, 205, 205}, {1, 206, 206},
+                   {1, 207, 207}, {1, 208, 208}, {0, 199, 199}}},
   };
 
 
@@ -1147,22 +1152,22 @@ static int DuplicateUniqueGuidTest() {
       uint32_t unique_guid;
     } entries[16];   /* enough for testing. */
   } cases[] = {
-    {0, {{100, 109, 1, 1},
+    {GPT_SUCCESS, {{100, 109, 1, 1},
          {110, 119, 2, 2},
          {120, 129, 3, 3},
          {130, 139, 4, 4},
       }},
-    {0, {{100, 109, 1, 1},
+    {GPT_SUCCESS, {{100, 109, 1, 1},
          {110, 119, 1, 2},
          {120, 129, 2, 3},
          {130, 139, 2, 4},
       }},
-    {1, {{100, 109, 1, 1},
+    {GPT_ERROR_DUP_GUID, {{100, 109, 1, 1},
          {110, 119, 2, 2},
          {120, 129, 3, 1},
          {130, 139, 4, 4},
       }},
-    {1, {{100, 109, 1, 1},
+    {GPT_ERROR_DUP_GUID, {{100, 109, 1, 1},
          {110, 119, 1, 2},
          {120, 129, 2, 3},
          {130, 139, 2, 2},
