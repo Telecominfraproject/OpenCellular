@@ -260,6 +260,9 @@ VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p) {
         VBDEBUG(("VbBootDeveloper() - user pressed Ctrl+U; try USB\n"));
         if (!allow_usb) {
           VBDEBUG(("VbBootDeveloper() - USB booting is disabled\n"));
+          VbExDisplayDebugInfo("WARNING: Booting from external media (USB/SD) "
+                               "has not been enabled. Refer to the "
+                               "developer-mode documentation for details.\n");
           VbExBeep(120, 400);
           VbExSleepMs(120);
           VbExBeep(120, 400);
