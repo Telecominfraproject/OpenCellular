@@ -595,7 +595,12 @@ int VbGetArchPropertyInt(const char* name) {
 
   /* Switch positions */
   if (!strcasecmp(name,"devsw_cur")) {
-    value = ReadGpio(GPIO_SIGNAL_TYPE_DEV);
+    /* Systems with virtual developer switches return at-boot value */
+    int flags = VbGetSystemPropertyInt("vdat_flags");
+    if ((flags != -1) && (flags & VBSD_HONOR_VIRT_DEV_SWITCH))
+      value = VbGetSystemPropertyInt("devsw_boot");
+    else
+      value = ReadGpio(GPIO_SIGNAL_TYPE_DEV);
   } else if (!strcasecmp(name,"recoverysw_cur")) {
     value = ReadGpio(GPIO_SIGNAL_TYPE_RECOVERY);
   } else if (!strcasecmp(name,"wpsw_cur")) {
