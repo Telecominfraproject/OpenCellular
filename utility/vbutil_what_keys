@@ -6,113 +6,206 @@
 if [ -z "$*" ]; then
   cat <<EOF 1>&2
 
-Usage:  vbutil_what_keys IMAGE [IMAGE...]
+Usage:  vbutil_what_keys [-v|-V] IMAGE [IMAGE...]
 
 Given a ChromiumOS disk (or BIOS) image, try to figure out how it's signed.
 Note that this does not verify the signature, it just reports which keyblock
 was used to create the signature.
+
+With the -v option, it will attempt to mount any rootfs partitions from disk
+images (using sudo), extract the BIOS from /usr/sbin/chromeos-firmwareupdate,
+and process it as well. Use -V to display the shellball -V message too.
+that.
 
 EOF
   exit 1
 fi
 
 
-# We'll look up the known kernel.keyblock and recovery_kernel.keyblock sha1sums
-# right here. Obtain them by running this script on images you know have been
-# signed correctly (since the keys themselves are inside the HSM).
+# We'll look up the known sha1sums right here. Obtain them by running this
+# script on images you know have been signed correctly (since the keys
+# themselves are inside the HSM).
+#
+# KERNEL keys
 #
 # e78ce746a037837155388a1096212ded04fb86eb  recovery dev-key
 # d6170aa480136f1f29cf339a5ab1b960585fa444    normal dev-key
 #
-# 20f3e8b77da6577706c91feefb203f98ee20d479  recovery ZGB MP
-# 7b7ae8652775ad7305f565161b3acc00fcc8ea22    normal ZGB MP
-#
 # 03172b08f0b99172c73d947f51e8ca23d418bcbf  recovery Alex MP
 # af24e46b6c3805869616e71c002c9a2a847ad266    normal Alex MP
 #
-# f6fadd7e31eebf4bcc4eb8d2dd512e3a2313627f  recovery Cr-48 MP
-# a1454fcecb98a6f33b38638564bdfc20161a7b04    normal Cr-48 MP
+# 934e38b44b11eb892d1edc32cb3ba87c558232d9  recovery Butterfly Pre-MP
+# 24fcff70ef3d834451384452bd9bc64c4d01c559    normal Butterfly Pre-MP
 #
-# de11a604715a920d7371ceefda75a5b1b062443f recovery Tegra2-Kaen PVT
-# 5c626cd8a684e470e74d3ceaf518aae745fe15dc   normal Tegra2-Kaen PVT
+# 10d73c2b24b35c0ea387babd72e9b242f2d79c9f  recovery Kiev MP
+# f82f08a5953b688b078f465731f1077fdf0d97cf    normal Kiev MP
 #
-# cb45bc04a932e4bcac41b44d31afd9516ca0fe24 recovery Lumpy PVT
-# fa55cba16857a49270fb1561f87343c00959eb19   normal Lumpy PVT
+# e8c4e66b00df5468e4d7ec9757347842cfd6c1da  recovery Link MP
+# d5927774fc14bb18a38c27fef47a36517a089d04    normal Link MP
 #
-# 057a03c1526a1be7f42d29095c5a583231a75b35 recovery Stumpy PVT
-# 04dd63e835c979b57f87fd74e99af68e0cd39ad7   normal Stumpy PVT
+# 93e0ecffb36199071a3d995f6726770e799dcd0e  recovery Link Pre-MP
+# 7cb50f352af15f807f4bf3eaaede62d2f9c70d27    normal Link Pre-MP
 #
-# 6f6d6df4e328633904990cf8c60baa18b8cf6fc7 recovery Stumpy MP
-# de0b76af3caa55a8e7aa34c805e4248ad03b18e7   normal Stumpy MP
+# 49d40533b0812d3f31232c5eedd47e7e11acc293  recovery Lumpy MP
+# cc887372ac2d1c415eac93fc11e753629c387358    normal Lumpy MP v2
+#
+# cb45bc04a932e4bcac41b44d31afd9516ca0fe24  recovery Lumpy PVT
+# fa55cba16857a49270fb1561f87343c00959eb19    normal Lumpy PVT
+#
+# f6fadd7e31eebf4bcc4eb8d2dd512e3a2313627f  recovery Mario MP
+# a1454fcecb98a6f33b38638564bdfc20161a7b04    normal Mario MP v2
+#
+# cfa1a4a784a90cc7c1df6859fa226b89e6afbeb5  recovery Parrot MP
+# 8975d168123d5cfc7cebf674627958445f0d2a52    normal Parrot MP v2
+#
+# f32b5f6b6cfb6d77136ac0d8ed0cdf67e6df7b91  recovery Snow MP
+# c5120666c642f031e76edab8a2b45dd32232f80d    normal Snow MP v2
+#
+# fa4497f70968a1820ceb0ac4364d8e9ec0abc0b2  recovery Stout MP
+# 09cb9b45c2cd4ca674861fe484aa758ba5568be0    normal Stout MP
+#
+# 6f6d6df4e328633904990cf8c60baa18b8cf6fc7  recovery Stumpy MP
+# de0b76af3caa55a8e7aa34c805e4248ad03b18e7    normal Stumpy MP
+# f7e48006982a0ad4a41c0ca6610f062adb0eec44    normal Stumpy MP v2
+#
+# 057a03c1526a1be7f42d29095c5a583231a75b35  recovery Stumpy PVT
+# 04dd63e835c979b57f87fd74e99af68e0cd39ad7    normal Stumpy PVT
+#
+# de11a604715a920d7371ceefda75a5b1b062443f  recovery Tegra2-Kaen PVT
+# 5c626cd8a684e470e74d3ceaf518aae745fe15dc    normal Tegra2-Kaen PVT
+#
+# 20f3e8b77da6577706c91feefb203f98ee20d479  recovery ZGB MP
+# 7b7ae8652775ad7305f565161b3acc00fcc8ea22    normal ZGB MP v2
+#
+#
+# FIRMWARE keys
+#
+# BTW, the default H2C HWIDs are fixed for each platform:
 
-# And here are values for BIOS components.
-#
-# The default H2C HWIDs are fixed for each platform
 # {97A1FBD6-FDE1-4FC5-BB81-286608B90FCE}    Alex H2C
-# {9D799111-A88A-439E-9E1F-FBBB41B00A9A}    Cr-48 H2C
+# {9D799111-A88A-439E-9E1F-FBBB41B00A9A}    Mario H2C
 # {24B107F2-BA6A-4EBD-8CDD-E768438CE0F0}    Stumpy H2C
 # {FA42644C-CF3A-4692-A9D3-1A667CB232E9}    ZGB H2C
-
-# The first line is the recovery key, the second is the root key
 #
-# c14bd720b70d97394257e3e826bd8f43de48d4ed  dev-key
-# b11d74edd286c144e1135b49e7f0bc20cf041f10  dev-key
 #
-# 5c5776bf7574e5601c25042e0748b6844cfdd1dc  Alex MP
-# 00f77be2a0c013343db84fc6259da09e558b8318  Alex MP
+# b11d74edd286c144e1135b49e7f0bc20cf041f10      root dev-key
+# c14bd720b70d97394257e3e826bd8f43de48d4ed  recovery dev-key
 #
-# ebcac421fbf411bee99ee90672a3add17f5a967b  Lumpy PVT
-# c9fc61f331b34e00a148e657bde5fb6b0b576c0a  Lumpy PVT
+# 00f77be2a0c013343db84fc6259da09e558b8318      root Alex MP
+# 5c5776bf7574e5601c25042e0748b6844cfdd1dc  recovery Alex MP
 #
-# 5d0d163b824cab5ae4f23fb2cc012e2a4124f4fe  Cr-48 MP
-# 541f467a7d8747f55ae9087ee4e34155f5ee3cd7  Cr-48 MP
+# 12a2c88b58cbd9eef6b777a3af440f611ea4f561      root Butterfly Pre-MP
+# 8a22e18a91e89f46f1f59b44a7887ab3821cb18d  recovery Butterfly Pre-MP
 #
-# 8540f56f87d91c5403704c960c1f385705201e20  Stumpy PVT
-# 06939c65797eadfe6be1b3343a2e339800a34108  Stumpy PVT
+# 4c5067795ddbbf100d19f9ba08928af1c1ef37c6      root Kiev MP
+# d81c751df76a7d53a6d3c2f58987562c87416735  recovery Kiev MP
 #
-# 9bd99a594c45b6739899a17ec29ac2289ee75463  ZGB MP
-# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac  ZGB MP
+# 9c138273527db0a0797233e2345ee39e46c0df95      root Kiev PreMP
+# 02601fcbcac953f043a53eac6fed7a5367a7189c  recovery Kiev PreMP
 #
-# 37e7bad73449f782f280b1668fed48d1132137fa  Stumpy MP
-# 4ec4ba0a746b37b1c6286ab807c2a5b1e7ab4ab0  Stumpy MP
+# 7b5c520ceabce86f13e02b7ca363cfb509fc5b98      root Link MP
+# 7e74cd6d66f361da068c0419d2e0946b4d091e1c  recovery Link MP
 #
-# 02601fcbcac953f043a53eac6fed7a5367a7189c  Kiev PreMP
-# 9c138273527db0a0797233e2345ee39e46c0df95  Kiev PreMP
+# e63058bf4b86b6fb1f148bc7acea9c71fe51675f      root Link Pre-MP
+# 08b2d19bc87d05d860a1c274f874bc9fa9ab7dfb  recovery Link Pre-MP
 #
-# d81c751df76a7d53a6d3c2f58987562c87416735  Kiev MP
-# 4c5067795ddbbf100d19f9ba08928af1c1ef37c6  Kiev MP
+# 4e92f07efd4a920c4e4f1ed97cf47b7b04ee1428      root Lumpy MP
+# 0d800afb53cdd05dd849addee0143ca1d96e893c  recovery Lumpy MP
+#
+# c9fc61f331b34e00a148e657bde5fb6b0b576c0a      root Lumpy PVT
+# ebcac421fbf411bee99ee90672a3add17f5a967b  recovery Lumpy PVT
+#
+# 541f467a7d8747f55ae9087ee4e34155f5ee3cd7      root Mario MP
+# 5d0d163b824cab5ae4f23fb2cc012e2a4124f4fe  recovery Mario MP
+#
+# (See http://crosbug.com/p/14846)              root Parrot MP
+# 7f03c648d2bb4ab3979cb87633da51ed90267f03  recovery Parrot MP
+#
+# a026a7a4a0bf0fa32d6b7aa90a80d5ef01a3b799      root Snow MP
+# 13b0ddf343bb0c325b178e5be138d4969a9e02be  recovery Snow MP
+#
+# 952dd6852c11fd8b36b4fb88f3335ecae722e0e6      root Stout MP
+# 5cb31faf8c524672a15fd4628c585af79eca0247  recovery Stout MP
+#
+# 4ec4ba0a746b37b1c6286ab807c2a5b1e7ab4ab0      root Stumpy MP
+# 37e7bad73449f782f280b1668fed48d1132137fa  recovery Stumpy MP
+#
+# 06939c65797eadfe6be1b3343a2e339800a34108      root Stumpy PVT
+# 8540f56f87d91c5403704c960c1f385705201e20  recovery Stumpy PVT
+#
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root ZGB MP
+# 9bd99a594c45b6739899a17ec29ac2289ee75463  recovery ZGB MP
 
 set -o pipefail
 
-TMPFILE=$(mktemp /tmp/keyblock_XXXXXXXXX)
-trap "rm -f $TMPFILE" EXIT
+# args?
+unpack_it=
+verbose=
+if [ "${1:-}" = "-v" ]; then
+  unpack_it=yes
+  shift
+fi
+if [ "${1:-}" = "-V" ]; then
+  unpack_it=yes
+  verbose=yes
+  shift
+fi
 
+# clean up on exit
+cleanup() {
+  [ -n "${CLEAN_UM:-}" ] && sudo umount $CLEAN_UM
+  [ -n "${CLEAN_RM:-}" ] && rm -rf $CLEAN_RM
+}
+trap cleanup EXIT
+
+# temp stuff
+TMPFILE=$(mktemp /tmp/keyblock_XXXXXXXXX)
+CLEAN_RM="$TMPFILE"
+if [ -n "$unpack_it" ]; then
+  TMPMNT=$(mktemp -d /tmp/mountdir_XXXXXXXXX)
+  TMPDIR=$(mktemp -d /tmp/extractdir_XXXXXXXXX)
+  CLEAN_RM="$CLEAN_RM $TMPDIR $TMPMNT"
+fi
+
+
+showbios() {
+  local file="$1" space="$2"
+  local hwid matchh rootkey matchn recoverykey matchr
+
+  hwid=$(gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || return
+  matchh=$(grep "$hwid" "$0" 2>/dev/null | sed -e 's/^# //')
+
+  gbb_utility --rootkey="$TMPFILE" "$file" >/dev/null
+  rootkey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+    sed -e 's/^.*: *//')
+  matchn=$(grep "$rootkey" "$0" 2>/dev/null | \
+    sed -e 's/^# //' | sed -e 's/ \+root /  /')
+
+  gbb_utility --recoverykey="$TMPFILE" "$file" >/dev/null
+  recoverykey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+    sed -e 's/^.*: *//')
+  matchr=$(grep "$recoverykey" "$0" 2>/dev/null | \
+    sed -e 's/^# //' | sed -e 's/ \+recovery /  /')
+
+  echo "$space  hwid:          ${matchh:-$hwid}"
+  echo "$space  root key:      ${matchn:-$rootkey}"
+  echo "$space  recovery key:  ${matchr:-$recoverykey}"
+}
+
+
+
+# handle one input file
 dofile() {
   file="$1"
   size=$(stat -c %s "$file")
 
   if [ -f "$file" ] && [ "$size" -le 8388608 ]; then
-    echo "BIOS: $file"
+    echo -e "\nBIOS: $file"
 
-    hwid=$(gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || continue;
-    match1=$(grep "$hwid" "$0" 2>/dev/null | sed -e 's/^# //')
-
-    gbb_utility --recoverykey="$TMPFILE" "$file" >/dev/null
-    recoverykey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
-      sed -e 's/^.*: *//')
-    match2=$(grep "$recoverykey" "$0" 2>/dev/null | sed -e 's/^# //')
-
-    gbb_utility --rootkey="$TMPFILE" "$file" >/dev/null
-    rootkey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
-      sed -e 's/^.*: *//')
-    match3=$(grep "$rootkey" "$0" 2>/dev/null |  sed -e 's/^# //')
-
-    echo "  hwid:          ${match1:-$hwid}"
-    echo "  recovery key:  ${match2:-$recoverykey}"
-    echo "  root key:      ${match3:-$rootkey}"
+    showbios "$file" ""
 
   else
-    echo "IMAGE: $file"
+    echo -e "\nIMAGE: $file"
 
     for pnum in $(cgpt find -n -t kernel "$file" 2>/dev/null); do
 
@@ -135,10 +228,34 @@ dofile() {
           flags=""
         fi
 
-        echo "  part $pnum:    ${match:-$psum} ($flags)"
+        echo "  part $pnum kernel:   ${match:-$psum} ($flags)"
       fi
 
     done
+
+    if [ -n "$unpack_it" ]; then
+      for pnum in $(cgpt find -n -t rootfs "$file" 2>/dev/null); do
+
+        psize=$(cgpt show -s -i "$pnum" "$file")
+        if [ "$psize" -ge 128 ]; then
+
+          pstart=$(cgpt show -b -i "$pnum" "$file")
+
+          echo "  part $pnum shellball:"
+          sudo mount -o loop,ro,offset=$(( $pstart * 512 )) "$file" "$TMPMNT"
+          CLEAN_UM="$TMPMNT"
+          [ -n "$verbose" ] && "$TMPMNT/usr/sbin/chromeos-firmwareupdate" -V
+          "$TMPMNT/usr/sbin/chromeos-firmwareupdate" \
+            --sb_extract "$TMPDIR" > /dev/null
+          sudo umount "$TMPMNT"
+          CLEAN_UM=
+
+          showbios "$TMPDIR/bios.bin" "  "
+        fi
+
+      done
+    fi
+
   fi
 }
 
@@ -147,3 +264,4 @@ for file in "$@"; do
   dofile $file
 done
 
+echo ""
