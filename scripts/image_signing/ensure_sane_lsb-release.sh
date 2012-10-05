@@ -125,7 +125,7 @@ main() {
   fi
   # Either way, load test-expectations data from config.
   echo -n "Loading config from $configfile... "
-  . "$configfile"
+  . "$configfile" || return 1
   echo "Done."
 
   local rootfs=$(make_temp_dir)

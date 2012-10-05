@@ -75,7 +75,7 @@ main() {
         configfile="$2"
     fi
     # Either way, load test-expectations data from config.
-    . "$configfile"
+    . "$configfile" || return 1
 
     local kernelblob=$(make_temp_file)
     # TODO(jimhebert): Perform the kernel security tests on both the kernel

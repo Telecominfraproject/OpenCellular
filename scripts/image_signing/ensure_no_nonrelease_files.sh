@@ -35,7 +35,7 @@ main() {
         configfile="$2"
     fi
     # Either way, load test-expectations data from config.
-    . "$configfile"
+    . "$configfile" || return 1
 
     local rootfs=$(make_temp_dir)
     mount_image_partition_ro "$image" 3 "$rootfs"
