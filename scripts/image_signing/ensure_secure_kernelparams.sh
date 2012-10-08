@@ -39,6 +39,12 @@ dmparams_mangle() {
   if [[ $dmparams != *MAGIC_HASH* ]]; then
     dmparams=$(echo $dmparams | sed 's/sha1 [0-9a-fA-F]*/sha1 MAGIC_HASH/')
   fi
+  # If we have bootcache enabled, replace its copy of the root_hexdigest
+  # with MAGIC_HASH. The parameter is positional.
+  if [[ $dmparams == *bootcache* ]]; then
+    dmparams=$(echo $dmparams |
+      sed -r 's/(bootcache %U\+1 [0-9]+) [0-9a-fA-F]+/\1 MAGIC_HASH/')
+  fi
   echo $dmparams
 }
 
@@ -90,12 +96,15 @@ main() {
     # turn e.g. x86-foo as a well as x86-foo-pvtkeys into x86_foo.
     local board=$(grep CHROMEOS_RELEASE_BOARD= "$rootfs/etc/lsb-release" | \
                   cut -d = -f 2 | cut -d - -f 1,2 --output-delimiter=_)
-    eval "required_kparams=(\${required_kparams_$board[@]})"
-    eval "optional_kparams=(\${optional_kparams_$board[@]})"
-    eval "optional_kparams_regex=(\${optional_kparams_regex_$board[@]})"
+    eval "required_kparams=(\"\${required_kparams_$board[@]}\")"
+    eval "required_kparams_regex=(\"\${required_kparams_regex_$board[@]}\")"
+    eval "optional_kparams=(\"\${optional_kparams_$board[@]}\")"
+    eval "optional_kparams_regex=(\"\${optional_kparams_regex_$board[@]}\")"
     eval "required_dmparams=(\"\${required_dmparams_$board[@]}\")"
     output+="required_kparams=(\n"
     output+="$(printf "\t'%s'\n" "${required_kparams[@]}")\n)\n"
+    output+="required_kparams_regex=(\n"
+    output+="$(printf "\t'%s'\n" "${required_kparams_regex[@]}")\n)\n"
     output+="optional_kparams=(\n"
     output+="$(printf "\t'%s'\n" "${optional_kparams[@]}")\n)\n"
     output+="optional_kparams_regex=(\n"
@@ -143,6 +152,19 @@ main() {
             # Remove matched params as we go. If all goes well, kparams_nodm
             # will be nothing left but whitespace by the end.
             param=$(escape_regexmetas "$param")
+            kparams_nodm=$(echo " ${kparams_nodm} " |
+                           sed "s${M} ${param} ${M} ${M}")
+        fi
+    done
+
+    # Ensure all other required regex params are present.
+    for param in "${required_kparams_regex[@]}"; do
+        if [[ "$kparams_nodm" != *$param* ]]; then
+            echo "Kernel parameters missing required value: $param"
+            testfail=1
+        else
+            # Remove matched params as we go. If all goes well, kparams_nodm
+            # will be nothing left but whitespace by the end.
             kparams_nodm=$(echo " ${kparams_nodm} " |
                            sed "s${M} ${param} ${M} ${M}")
         fi
