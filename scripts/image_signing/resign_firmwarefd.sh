@@ -68,7 +68,7 @@ DEV_FIRMWARE_DATAKEY=$5
 DEV_FIRMWARE_KEYBLOCK=$6
 KERNEL_SUBKEY=$7
 VERSION=$8
-# This is the --flag in vbutil_firmware. It currently has only two values:
+# This is the --flags in vbutil_firmware. It currently has only two values:
 # 0 for RW-NORMAL firmware, and 1 for RO-NORMAL firmware (search "two_stop
 # firmware" for more information).
 PREAMBLE_FLAG=$9
@@ -170,7 +170,7 @@ extract_firmware_image "B" "${temp_root_key}" \
 
 echo "Determining preamble flag from existing firmware"
 if [ -n "$PREAMBLE_FLAG" ]; then
-  PREAMBLE_FLAG="--flag $PREAMBLE_FLAG"
+  PREAMBLE_FLAG="--flags $PREAMBLE_FLAG"
 else
   dd if="${SRC_FD}" of="${temp_out_vb}" skip="${fwA_vblock_offset}" bs=1 \
     count="${fwA_vblock_size}" 2>/dev/null
@@ -180,7 +180,7 @@ else
     --fv "${temp_fwimage_a}" |
     grep "Preamble flags:" |
     sed 's/.*: *//')" || flag=""
-  [ -z "$flag" ] || PREAMBLE_FLAG="--flag $flag"
+  [ -z "$flag" ] || PREAMBLE_FLAG="--flags $flag"
 fi
 echo "Using firmware preamble flag: $PREAMBLE_FLAG"
 
