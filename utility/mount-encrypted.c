@@ -128,7 +128,7 @@ static void tpm_init(void)
 		setenv("TPM_DEVICE_PATH", kNullDev, 1);
 	}
 	TlclLibInit();
-	DEBUG("TPM %s", has_tpm ? "Ready" : "not available");
+	INFO("TPM %s", has_tpm ? "ready" : "not available");
 }
 
 /* Returns TPM result status code, and on TPM_SUCCESS, stores ownership
@@ -139,7 +139,10 @@ static uint32_t tpm_owned(uint8_t *owned)
 	uint32_t result;
 
 	DEBUG("Reading TPM Ownership Flag");
-	result = TlclGetOwnership(owned);
+	if (!has_tpm)
+		result = TPM_E_NO_DEVICE;
+	else
+		result = TlclGetOwnership(owned);
 	DEBUG("TPM Ownership Flag returned: %s", result ? "FAIL" : "ok");
 
 	return result;
@@ -244,7 +247,10 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
 	}
 
 	DEBUG("Reading NVRAM area 0x%x (size %u)", index, size);
-	result = TlclRead(index, buffer, size);
+	if (!has_tpm)
+		result = TPM_E_NO_DEVICE;
+	else
+		result = TlclRead(index, buffer, size);
 	DEBUG("NVRAM read returned: %s", result == TPM_SUCCESS ? "ok"
 							       : "FAIL");
 
@@ -252,6 +258,10 @@ _read_nvram(uint8_t *buffer, size_t len, uint32_t index, uint32_t size)
 }
 
 /*
+ * TPM cases:
+ *  - does not exist at all (disabled in test firmware or non-chrome device).
+ *  - exists (below).
+ *
  * TPM ownership cases:
  *  - unowned (OOBE):
  *    - expect modern lockbox (no migration allowed).
