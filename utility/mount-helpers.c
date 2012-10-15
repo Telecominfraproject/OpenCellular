@@ -19,7 +19,6 @@
 #include <math.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <sys/statvfs.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/mount.h>
@@ -99,17 +98,17 @@ int runcmd(const gchar *argv[], gchar **output)
 
 int same_vfs(const char *mnt_a, const char *mnt_b)
 {
-	struct statvfs stat_a, stat_b;
+	struct stat stat_a, stat_b;
 
-	if (statvfs(mnt_a, &stat_a)) {
-		PERROR("statvfs(%s)", mnt_a);
+	if (lstat(mnt_a, &stat_a)) {
+		PERROR("lstat(%s)", mnt_a);
 		exit(1);
 	}
-	if (statvfs(mnt_b, &stat_b)) {
-		PERROR("statvfs(%s)", mnt_b);
+	if (lstat(mnt_b, &stat_b)) {
+		PERROR("lstat(%s)", mnt_b);
 		exit(1);
 	}
-	return (stat_a.f_fsid == stat_b.f_fsid);
+	return (stat_a.st_dev == stat_b.st_dev);
 }
 
 /* Returns allocated string that holds [length]*2 + 1 characters. */
