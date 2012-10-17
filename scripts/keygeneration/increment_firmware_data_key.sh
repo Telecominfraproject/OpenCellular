@@ -24,9 +24,10 @@ fi
 KEY_DIR=$1
 
 main() {
-  load_current_versions
+  load_current_versions "${KEY_DIR}"
   new_firmkey_ver=$(increment_version "${KEY_DIR}" "firmware_key_version")
 
+  cd "${KEY_DIR}"
   backup_existing_firmware_keys ${CURR_FIRM_VER} ${CURR_FIRMKEY_VER}
 
   cat <<EOF

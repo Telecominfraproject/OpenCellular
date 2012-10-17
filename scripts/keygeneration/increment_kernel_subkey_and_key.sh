@@ -25,10 +25,11 @@ fi
 KEY_DIR=$1
 
 main() {
-  load_current_versions
+  load_current_versions "${KEY_DIR}"
   new_kernkey_ver=$(increment_version "${KEY_DIR}" "kernel_key_version")
   new_firm_ver=$(increment_version "${KEY_DIR}" "firmware_version")
 
+  cd "${KEY_DIR}"
   backup_existing_kernel_subkeys ${CURR_FIRM_VER} ${CURR_KERNKEY_VER}
   backup_existing_kernel_data_keys ${CURR_FIRM_VER} ${CURR_KERNKEY_VER}
 

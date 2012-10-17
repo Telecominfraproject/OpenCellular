@@ -24,9 +24,10 @@ fi
 KEY_DIR=$1
 
 main() {
-  load_current_versions
+  load_current_versions "${KEY_DIR}"
   new_kernkey_ver=$(increment_version "${KEY_DIR}" "kernel_key_version")
 
+  cd "${KEY_DIR}"
   backup_existing_kernel_data_keys ${CURR_FIRM_VER} ${CURR_KERNKEY_VER}
 
   cat <<EOF

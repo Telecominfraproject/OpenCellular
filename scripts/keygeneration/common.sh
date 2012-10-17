@@ -125,6 +125,8 @@ get_version() {
 # Loads the current versions prints them to stdout and sets the global version
 # variables: CURR_FIRMKEY_VER CURR_FIRM_VER CURR_KERNKEY_VER CURR_KERN_VER
 load_current_versions() {
+  local key_dir=$1
+  local VERSION_FILE="${key_dir}/${VERSION_FILE}"
   if [[ ! -f ${VERSION_FILE} ]]; then
     return 1
   fi
