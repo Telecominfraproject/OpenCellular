@@ -485,6 +485,8 @@ static const char *RecoveryReasonString(uint8_t code) {
     return "Test error from LoadKernel()";
   case VBNV_RECOVERY_RW_NO_DISK:
     return "No bootable disk found";
+  case VBNV_RECOVERY_TPM_E_FAIL:
+    return "TPM error that was not fixed by reboot";
   case VBNV_RECOVERY_RW_UNSPECIFIED:
     return "Unspecified/unknown error in RW firmware";
   case VBNV_RECOVERY_KE_DM_VERITY:

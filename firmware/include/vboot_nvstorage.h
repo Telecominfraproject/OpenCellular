@@ -136,6 +136,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RW_TEST_LK      0x47
 /* No bootable disk found */
 #define VBNV_RECOVERY_RW_NO_DISK      0x48
+/* Rebooting did not correct TPM_E_FAIL or TPM_E_FAILEDSELFTEST  */
+#define VBNV_RECOVERY_TPM_E_FAIL      0x49
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */
