@@ -390,7 +390,10 @@ resign_firmware_payload() {
     return; }
   echo "Found a valid firmware update shellball."
 
-  sign_firmware ${shellball_dir}/bios.bin ${KEY_DIR} ${FIRMWARE_VERSION}
+  local image_file
+  for image_file in "${shellball_dir}"/bios*.bin; do
+    sign_firmware "${image_file}" ${KEY_DIR} ${FIRMWARE_VERSION}
+  done
 
   local signer_notes="${shellball_dir}/VERSION.signer"
   echo "" >"$signer_notes"
