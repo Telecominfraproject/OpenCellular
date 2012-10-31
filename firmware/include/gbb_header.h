@@ -53,7 +53,8 @@
 #define GBB_FLAG_ENTER_TRIGGERS_TONORM    0x00000040
 /* Allow booting Legacy OSes in dev mode even if dev_boot_legacy=0. */
 #define GBB_FLAG_FORCE_DEV_BOOT_LEGACY    0x00000080
-
+/* Allow booting using alternate keys for FAFT servo testing */
+#define GBB_FLAG_FAFT_KEY_OVERIDE         0x00000100
 
 #ifdef __cplusplus
 extern "C" {
