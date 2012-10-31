@@ -29,6 +29,8 @@ convert_to_bmp3() {
   output="${output%.*}.bmp"
   mkdir -p "$folder"
 
+  # TODO(hungte) Use PIL to replace ImageMagic.
+
   # When input has Alpha channel, we need to fill the background properly
   # otherwise ImageMagick will fill it with black.  The operation (-flatten) is
   # so slow so we only want to do that if the input source really has
@@ -56,9 +58,10 @@ convert_to_bmp3() {
   # TODO(hungte) Find a better way to decide if PIL is required. Unfortunately,
   # ImageMagic identify "%z" is not always what we're looking for...
   local fn="$folder/$output"
-  local param="'P', dither=None"
-  param="$param, palette=(Image.ADAPTIVE if z.mode != '1' else Image.NEAREST)"
-  python -c "import Image; z = Image.open('$fn'); z.convert($param).save('$fn')"
+  # Converting from '1' to 'P' may be not supported by PIL, so converting to
+  # 'RGB' mode first is required.
+  local param="convert('RGB').convert('P', dither=None, palette=Image.ADAPTIVE)"
+  python -c "import Image;Image.open('$fn').$param.save('$fn')"
 }
 
 main() {

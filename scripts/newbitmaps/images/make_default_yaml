@@ -1,9 +1,10 @@
 #!/bin/bash -eu
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
 # Generate a new DEFAULT.yaml file using hwid_placeholder.bmp as a placeholder.
+# To speed up more, invoke this script by dash instead of bash.
 #
 yaml_file="DEFAULT.yaml"
 
@@ -43,19 +44,19 @@ reset_pos() {
 }
 
 move_pos_up() {
-  cur_y=$(expr $cur_y - $1 )
+  cur_y=$((cur_y - $1))
 }
 
 move_pos_down() {
-  cur_y=$(expr $cur_y + $1 )
+  cur_y=$((cur_y + $1))
 }
 
 move_pos_left() {
-  cur_x=$(expr $cur_x - $1 )
+  cur_x=$((cur_x - $1))
 }
 
 move_pos_right() {
-  cur_x=$(expr $cur_x + $1 )
+  cur_x=$((cur_x + $1))
 }
 
 # Move insert location to the vertical midline of a specified image.
@@ -64,29 +65,41 @@ move_pos_right() {
 # 80% towards the bottom. Assumes image was inserted at 0,0 so only good
 # for the background image.
 set_centered_y_percent() {
-  cur_x=$(expr $(get_width $1) / 2 )
-  cur_y=$(expr $(get_height $1) \* $2 / 100 )
+  cur_x=$(($(get_width $1) / 2))
+  cur_y=$(($(get_height $1) * $2 / 100))
 }
 
-# Return width of a .bmp file specified by a variable.
+# Define and cache image information. This function can't be executed inside
+# sub-shell.
+define_image() {
+  local image_name="$1"
+  local file_name="$2"
+  local w="$(identify -format "%[fx:w]" "$file_name")"
+  local h="$(identify -format "%[fx:h]" "$file_name")"
+  eval "export cache_w_$image_name=$w"
+  eval "export cache_h_$image_name=$h"
+  eval "export $image_name=$file_name"
+  # For Yaml format registration -- indent with two leading space.
+  echo "  $image_name: $file_name"
+}
+
+# Return width of an image (must be already processed by define_image).
 get_width() {
-  local filename="$(eval "echo \$$1")"
-  identify -format "%[fx:w]" "$filename"
+  eval echo "\$cache_w_$1"
 }
 
 # Return the width of a list of images.
 total_width() {
-  local width=$(expr 0 - $xpad)
+  local width=$((0 - xpad))
   for filename in "$@"; do
-    width=$(expr $width + $(get_width ${filename}) + $xpad)
+    width=$((width + $(get_width ${filename}) + xpad))
   done
   echo $width
 }
 
-# Return height of a .bmp file specified by a variable.
+# Return height of an image (must be already processed by define_image).
 get_height() {
-  local filename="$(eval "echo \$${1}")"
-  identify -format "%[fx:h]" "$filename"
+  eval echo "\$cache_h_$1"
 }
 
 # Returns the max height of a list of images.
@@ -94,7 +107,7 @@ get_max_height() {
   local max_height=0
   local height
   for filename in $@; do
-    height=$(get_height ${filename})
+    height="$(get_height ${filename})"
     [ $max_height -gt $height ] || max_height=$height
   done
   echo $max_height
@@ -112,12 +125,12 @@ guess_locale() {
   for lc in $locales; do
     case "$1" in
       *[_-]${lc}_* )
-        matches=$(expr $matches + 1)
+        matches=$((matches + 1))
         islc=$lc
         ;;
     esac
   done
-  if (( $matches != 1 )); then
+  if [ "$matches" != 1 ]; then
     islc='en'
   fi
 
@@ -135,29 +148,31 @@ guess_locale() {
 # Add a list of images at provided location.
 # Images of different heights are added centered on the tallest image.
 add_images() {
-  local x=$1
-  local y=$2
-  local files=${@:3}
-  local max_height=$(get_max_height $files)
+  local x="$1"
+  local y="$2"
+  shift
+  shift
+  local files="$*"
+  local max_height="$(get_max_height $files)"
 
   for fname in $files; do
-    tmp_y=$(echo $( expr $y + "(" $max_height - $(get_height $fname) ")" / 2 ) )
+    tmp_y=$((y + (max_height - $(get_height $fname)) / 2))
     if [ "$fname" = "th_model_text" ]; then
-      tmp_y=$(expr $y - 9)
+      tmp_y=$((y - 9))
     fi
     echo "    - [$x, $tmp_y, $fname]" >> "$yaml_file"
-    x=$(expr $x + $(get_width $fname) + $xpad)
+    x=$((x + $(get_width $fname) + xpad))
   done
 }
 
 add_centered_below() {
-  local images=$@
+  local images="$*"
   local width
   local height
   local x
 
   width=$(total_width $images)
-  x=$(expr $cur_x - $width / 2)
+  x=$((cur_x - width / 2))
 
   add_images $x $cur_y $images
 }
@@ -165,28 +180,28 @@ add_centered_below() {
 # This adds a list of images and updates the insert location
 # below the new images with a padding of $ypad.
 insert_centered_below() {
-  local images=$@
+  local images="$*"
   local width
   local height
   local x
 
   width=$(total_width $images)
-  x=$(expr $cur_x - $width / 2)
+  x=$((cur_x - width / 2))
 
   add_images $x $cur_y $images
 
   height=$(get_max_height $images)
-  move_pos_down $(expr $height + $ypad)
+  move_pos_down $((height + ypad))
 }
 
 add_right_above() {
-  local images=$@
+  local images="$*"
   local height
   local x
   local y
 
   height=$(get_max_height $images)
-  y=$(expr $cur_y - $height)
+  y=$((cur_y - height))
 
   add_images $cur_x $y $images
 }
@@ -196,33 +211,33 @@ add_right_below() {
 }
 
 add_left_above() {
-  local images=$@
+  local images="$*"
   local width
   local height
   local x
   local y
 
   height=$(get_max_height $images)
-  y=$(expr $cur_y - $height)
+  y=$((cur_y - height))
 
   width=$(total_width $images)
-  x=$(expr $cur_x - $width)
+  x=$((cur_x - width))
 
   add_images $x $y $images
 }
 
 add_centered() {
-  local images=$@
+  local images="$*"
   local width
   local height
   local x
   local y
 
   height=$(get_max_height $images)
-  y=$(expr $cur_y - $height / 2)
+  y=$((cur_y - height / 2))
 
   width=$(total_width $images)
-  x=$(expr $cur_x - $width / 2)
+  x=$((cur_x - width / 2))
 
   add_images $x $y $images
 }
@@ -231,7 +246,7 @@ add_header() {
   local lc="$1"
   set_centered_y_percent "white_bg" 17
   add_centered_below "divider_top"
-  move_pos_left $(expr $(get_width "divider_top") / 2 )
+  move_pos_left $(($(get_width "divider_top") / 2 ))
   move_pos_up $ypad
   add_right_above "chrome_logo"
   move_pos_right $(get_width "divider_top")
@@ -278,24 +293,6 @@ add_footer_without_url() {
 for hwid_bmp in hwid_placeholder.bmp; do
   echo "$yaml_file"
 
-  # Global variables matching the yaml definitions
-  arrow_left='arrow_left.bmp'
-  arrow_right='arrow_right.bmp'
-  chrome_logo='chrome_logo.bmp'
-  divider_btm='divider_btm.bmp'
-  divider_top='divider_top.bmp'
-  url='Url.bmp'
-  white_bg='Background_white.bmp'
-
-  asset_BadSD='BadSD.bmp'
-  asset_BadUSB='BadUSB.bmp'
-  asset_RemoveDevices='RemoveDevices.bmp'
-  asset_VerificationOff='VerificationOff.bmp'
-  asset_VerificationOn='VerificationOn.bmp'
-  asset_Warning='Warning.bmp'
-
-  hwid=$hwid_bmp
-
   # List the images. The major difference is the HWID.
   cat >"$yaml_file" <<EOF1
 bmpblock: 2.0
@@ -306,68 +303,45 @@ images:
 
   # We must specify a font blob to use to render the HWID
   \$HWID:                  hwid_fonts.bin
-
-  # This URL never changes
-  url:                    $(eval echo \$url)
-
-  # Various UI elements
-  arrow_left:             $(eval echo \$arrow_left)
-  arrow_right:            $(eval echo \$arrow_right)
-  chrome_logo:            $(eval echo \$chrome_logo)
-  divider_btm:            $(eval echo \$divider_btm)
-  divider_top:            $(eval echo \$divider_top)
-  white_bg:               $(eval echo \$white_bg)
-
-  asset_BadSD:            $(eval echo \$asset_BadSD)
-  asset_BadUSB:           $(eval echo \$asset_BadUSB)
-  asset_RemoveDevices:    $(eval echo \$asset_RemoveDevices)
-  asset_VerificationOff:  $(eval echo \$asset_VerificationOff)
-  asset_VerificationOn:   $(eval echo \$asset_VerificationOn)
-  asset_Warning:          $(eval echo \$asset_Warning)
-
-  # The following strings must be approved by the localization people
 EOF1
 
+  # Global variables matching the yaml definitions
+  {
+    define_image url                    Url.bmp
+    define_image arrow_left             arrow_left.bmp
+    define_image arrow_right            arrow_right.bmp
+    define_image chrome_logo            chrome_logo.bmp
+    define_image divider_btm            divider_btm.bmp
+    define_image divider_top            divider_top.bmp
+    define_image white_bg               Background_white.bmp
+    define_image asset_BadSD            BadSD.bmp
+    define_image asset_BadUSB           BadUSB.bmp
+    define_image asset_RemoveDevices    RemoveDevices.bmp
+    define_image asset_VerificationOff  VerificationOff.bmp
+    define_image asset_VerificationOn   VerificationOn.bmp
+    define_image asset_Warning          Warning.bmp
+  } >>"$yaml_file"
+
+  # A virtual entry that is not really included in Yaml file.
+  define_image hwid                   "$hwid_bmp" >/dev/null
 
   # Enumerate the bitmaps for each locale-specific string.
   for lc in $locales; do
-    # Locale-specific variables matching those in the yaml file.
-    eval "${lc}_model_text=${localedir}/$lc/model.bmp"
-    eval "${lc}_devmode_text=${localedir}/$lc/devmode.bmp"
-    eval "${lc}_remove_text=${localedir}/$lc/remove.bmp"
-    eval "${lc}_yuck_text=${localedir}/$lc/yuck.bmp"
-    eval "${lc}_insert_text=${localedir}/$lc/insert.bmp"
-    eval "${lc}_language_text=${localedir}/$lc/language.bmp"
-    eval "${lc}_for_help_text=${localedir}/$lc/for_help.bmp"
-    eval "${lc}_help_left_text=${localedir}/$lc/for_help_left.bmp"
-    eval "${lc}_help_right_text=${localedir}/$lc/for_help_right.bmp"
-    eval "${lc}_todev_text=${localedir}/$lc/todev.bmp"
-    eval "${lc}_tonorm_text=${localedir}/$lc/tonorm.bmp"
-    eval "${lc}_verif_off_text=${localedir}/$lc/verif_off.bmp"
-    eval "${lc}_verif_on_text=${localedir}/$lc/verif_on.bmp"
-    eval "${lc}_reboot_erase_text=${localedir}/$lc/reboot_erase.bmp"
-    eval "${lc}_back_help_text=${localedir}/$lc/back_help.bmp"
-    eval "${lc}_update_text=${localedir}/$lc/update.bmp"
-
-    cat >>"$yaml_file" <<EOF2
-  ${lc}_model_text:       $(eval echo \$${lc}_model_text)
-  ${lc}_devmode_text:     $(eval echo \$${lc}_devmode_text)
-  ${lc}_remove_text:      $(eval echo \$${lc}_remove_text)
-  ${lc}_yuck_text:        $(eval echo \$${lc}_yuck_text)
-  ${lc}_insert_text:      $(eval echo \$${lc}_insert_text)
-  ${lc}_language_text:    $(eval echo \$${lc}_language_text)
-  ${lc}_help_left_text:   $(eval echo \$${lc}_help_left_text)
-  ${lc}_help_right_text:  $(eval echo \$${lc}_help_right_text)
-  ${lc}_todev_text:       $(eval echo \$${lc}_todev_text)
-  ${lc}_tonorm_text:      $(eval echo \$${lc}_tonorm_text)
-  ${lc}_verif_off_text:   $(eval echo \$${lc}_verif_off_text)
-  ${lc}_verif_on_text:    $(eval echo \$${lc}_verif_on_text)
-  ${lc}_update_text:      $(eval echo \$${lc}_update_text)
-  ${lc}_reboot_erase_text: $(eval echo \$${lc}_reboot_erase_text)
-
-EOF2
-
-  done
+    define_image ${lc}_model_text       ${localedir}/$lc/model.bmp
+    define_image ${lc}_devmode_text     ${localedir}/$lc/devmode.bmp
+    define_image ${lc}_remove_text      ${localedir}/$lc/remove.bmp
+    define_image ${lc}_yuck_text        ${localedir}/$lc/yuck.bmp
+    define_image ${lc}_insert_text      ${localedir}/$lc/insert.bmp
+    define_image ${lc}_language_text    ${localedir}/$lc/language.bmp
+    define_image ${lc}_help_left_text   ${localedir}/$lc/for_help_left.bmp
+    define_image ${lc}_help_right_text  ${localedir}/$lc/for_help_right.bmp
+    define_image ${lc}_todev_text       ${localedir}/$lc/todev.bmp
+    define_image ${lc}_tonorm_text      ${localedir}/$lc/tonorm.bmp
+    define_image ${lc}_verif_off_text   ${localedir}/$lc/verif_off.bmp
+    define_image ${lc}_verif_on_text    ${localedir}/$lc/verif_on.bmp
+    define_image ${lc}_reboot_erase_text ${localedir}/$lc/reboot_erase.bmp
+    define_image ${lc}_update_text      ${localedir}/$lc/update.bmp
+  done >>"$yaml_file"
 
   # List the screens. We need to composite four screens for each locale.
   echo "screens:" >> "$yaml_file"
