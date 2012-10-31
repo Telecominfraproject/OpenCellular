@@ -1,0 +1,3 @@
+OS Chrome tiada atau rosak.
+Sila masukkan batang USB pemulihan.
+(perhatian: port USB biru TIDAK akan berfungsi untuk pemulihan)

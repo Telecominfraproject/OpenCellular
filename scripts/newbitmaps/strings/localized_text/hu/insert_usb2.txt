@@ -1,0 +1,3 @@
+A Chrome OS nincs telepítve vagy hibás.
+Helyezzen be egy helyreállítási USB-tárat.
+(megjegyzés: a kék USB-csatlakozó NEM használható helyreállításhoz)

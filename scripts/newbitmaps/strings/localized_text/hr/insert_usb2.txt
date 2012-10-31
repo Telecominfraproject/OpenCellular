@@ -1,0 +1,3 @@
+OS Chrome nedostaje ili je oštećen.
+Umetnite USB memorijski uređaj za oporavak.
+(napomena: plavi USB priključak NE funkcionira za oporavak)

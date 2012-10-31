@@ -1,0 +1,3 @@
+Chrome OS saknas eller är skadat.
+Anslut ett USB-minne för återställning.
+(Obs! Den blå USB-porten kan INTE användas för återställning)

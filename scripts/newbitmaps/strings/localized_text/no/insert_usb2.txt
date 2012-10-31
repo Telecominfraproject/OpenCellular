@@ -1,0 +1,3 @@
+Chrome OS mangler eller er skadet.
+Sett inn en USB-minnepinne for gjenoppretting.
+(merk: den blå USB-inngangen kan IKKE brukes for gjenoppretting)

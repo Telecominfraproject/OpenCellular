@@ -1,0 +1,3 @@
+Chrome-käyttöjärjestelmä puuttuu tai on vioittunut.
+Yhdistä palautustiedot sisältävä USB-muisti.
+(huomaa: sinistä USB-porttia EI voi käyttää palauttamiseen)

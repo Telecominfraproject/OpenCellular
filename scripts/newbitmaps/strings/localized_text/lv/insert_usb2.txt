@@ -1,0 +1,3 @@
+Trūkst operētājsistēmas Chrome OS, vai tā ir bojāta.
+Lūdzu, ievietojiet atkopšanas USB atmiņas ierīci.
+(Piezīme. Zilā USB pieslēgvieta NEDARBOJAS atkopšanai.)
