@@ -453,7 +453,7 @@ EOF2
     echo "  ${lc}_tonorm_confirm:" >> "$yaml_file"
     reset_pos
     add_right_below "white_bg"
-    add_header ${lc}
+    add_header ""
     set_centered_y_percent "white_bg" 30
     insert_centered_below "asset_VerificationOn"
     insert_centered_below "${lc}_verif_on_text"
