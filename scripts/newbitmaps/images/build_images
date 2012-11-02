@@ -14,54 +14,23 @@ BACKGROUND_IMAGE=Background_white.png
 # Output file name.
 BMPBLK_OUTPUT="bmpblock.bin"
 
+SCRIPT_BASE="$(dirname $(readlink -f "$0"))"
+
 die() {
   echo "ERROR: $*" >&2
   exit 1
 }
 
 convert_to_bmp3() {
-  local input="$1"
-  local folder="$2"
-  local param="$3"
-  local output="$(basename "$input")"
+  local folder="$1"
+  local param="$2"
+  shift
+  shift
 
-  # Always output as .bmp
-  output="${output%.*}.bmp"
-  mkdir -p "$folder"
+  # convert_to_bmp3.py takes '--scale' while ImageMagic takes '-scale'.
+  [ -n "$param" ] && param="-$param"
 
-  # TODO(hungte) Use PIL to replace ImageMagic.
-
-  # When input has Alpha channel, we need to fill the background properly
-  # otherwise ImageMagick will fill it with black.  The operation (-flatten) is
-  # so slow so we only want to do that if the input source really has
-  # transparency.
-  if [ "$#" -gt 3 ]; then
-    flatten="$4"
-  else
-    # Auto-detect
-    if [ "$(identify -format "%A" "$input")" = "True" ]; then
-      flatten="-background $BACKGROUND_COLOR -flatten"
-    else
-      flatten=""
-    fi
-  fi
-
-  echo "$input -> $folder/$output $flatten"
-  convert "$input" $flatten \
-    -compress none -alpha off -colors 256 \
-    $param "BMP3:$folder/$output"
-
-  # ImageMagic quantization may choose arbitrary color depth, even if we assign
-  # -depth or -colors; so a single-color background may become 1 bit per pixel
-  # after convertion. To workaround that, we use Python Image Library which
-  # always generates 8bpp BMP file.
-  # TODO(hungte) Find a better way to decide if PIL is required. Unfortunately,
-  # ImageMagic identify "%z" is not always what we're looking for...
-  local fn="$folder/$output"
-  # Converting from '1' to 'P' may be not supported by PIL, so converting to
-  # 'RGB' mode first is required.
-  local param="convert('RGB').convert('P', dither=None, palette=Image.ADAPTIVE)"
-  python -c "import Image;Image.open('$fn').$param.save('$fn')"
+  $SCRIPT_BASE/convert_to_bmp3.py $param --outdir "$folder" "$@"
 }
 
 main() {
@@ -163,9 +132,9 @@ main() {
   # Url.bmp by <span foreground="blue">http://</span>.
   for X in *.png assets/*.png; do
     if [ "$X" = "$BACKGROUND_IMAGE" ]; then
-      convert_to_bmp3 "$X" "$output" "$background_scale_param"
+      convert_to_bmp3 "$output" "$background_scale_param" "$X"
     else
-      convert_to_bmp3 "$X" "$output" "$scale_param"
+      convert_to_bmp3 "$output" "$scale_param" "$X"
     fi
   done
 
@@ -174,9 +143,7 @@ main() {
   # speed up.
   echo "Preparing common strings..."
   base="../strings"
-  for X in $base/*.png; do
-    convert_to_bmp3 "$X" "$output" "$scale_param" ""
-  done
+  convert_to_bmp3 "$output" "$scale_param" $base/*.png
 
   echo "Preparing localized messages... $LOCALES"
   base="../strings/localized_text"
@@ -191,9 +158,7 @@ main() {
   fi
   for locale in $LOCALES; do
     # Prepare all locales.
-    for X in $base/$locale/*.png; do
-      convert_to_bmp3 "$X" "$output/locale/$locale" "$scale_param" ""
-    done
+    convert_to_bmp3 "$output/locale/$locale" "$scale_param" $base/$locale/*.png
   done
 
   if [ -n "$replace_files" ]; then
@@ -210,9 +175,7 @@ main() {
 
   echo "Preparing fonts..."
   base="../strings/font"
-  for X in $base/*.png; do
-    convert_to_bmp3 "$X" "$output/font" "$scale_param" ""
-  done
+  convert_to_bmp3 "$output/font" "$scale_param" $base/*.png
   bmpblk_font --outfile "$output/hwid_fonts.bin" "$output"/font/*.bmp
 
   # Create YAML file.
