@@ -1,2 +1,3 @@
 El Sistema operativo de Chrome no se encuentra o está dañado.
-Inserta un dispositivo de memoria USB de recuperación en alguno de los cuatro puertos de la parte de ATRÁS del dispositivo.
+Inserta un dispositivo de memoria USB de recuperación en alguno de los cuatro
+puertos de la parte de ATRÁS del dispositivo.
