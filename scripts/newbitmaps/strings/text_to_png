@@ -98,7 +98,7 @@ for txtfile in $*; do
     --hinting=full \
     --background="$bgcolor" --foreground="$color" \
     --font="$font $pointsize" --dpi 72 \
-    --margin=$margin \
+    --margin="$margin" \
     --align="$align" \
     $params $file_opt \
     --output "$pngfile" \

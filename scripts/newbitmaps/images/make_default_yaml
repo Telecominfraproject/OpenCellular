@@ -74,8 +74,10 @@ set_centered_y_percent() {
 define_image() {
   local image_name="$1"
   local file_name="$2"
-  local w="$(identify -format "%[fx:w]" "$file_name")"
-  local h="$(identify -format "%[fx:h]" "$file_name")"
+  local script="import Image;s = Image.open('$file_name').size;print s[0],s[1]"
+  local image_size="$(python -c "$script")"
+  local w="${image_size%% *}"
+  local h="${image_size##* }"
   eval "export cache_w_$image_name=$w"
   eval "export cache_h_$image_name=$h"
   eval "export $image_name=$file_name"

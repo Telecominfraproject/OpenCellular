@@ -34,13 +34,8 @@ main() {
   done
 
   echo "Converting glyph images..."
-  "$SCRIPT_DIR/text_to_png"  --margin=0 --font="$FONT" --color="$COLOR" \
-    "$output/*.txt"
-
-  echo "Adding vertical margin to images..."
-  for i in $output/*.png; do
-    convert $i -bordercolor white -border 0x$MARGIN $i
-  done
+  "$SCRIPT_DIR/text_to_png" --font="$FONT" --color="$COLOR" \
+    --margin="$MARGIN 0" "$output/*.txt"
 }
 
 set -e

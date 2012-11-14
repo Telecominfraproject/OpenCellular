@@ -23,7 +23,7 @@ default: outside_chroot strings images
 
 outside_chroot:
 	@if [ -e /etc/debian_chroot ]; then \
-		echo "ImageMagick is too complex to build inside the chroot."; \
+		echo "PIL color quantization is broken inside the chroot."; \
 		echo "You must be outside the chroot to do this"; \
 		echo "(and you probably shouldn't be doing it anyway)."; \
 		exit 1; \

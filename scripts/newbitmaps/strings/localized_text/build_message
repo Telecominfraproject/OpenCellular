@@ -17,7 +17,7 @@ die() {
 
 get_width() {
   local input="$1"
-  identify -format "%w" "$input"
+  python -c "import Image; print Image.open('$input').size[0]"
 }
 
 do_locale() {
