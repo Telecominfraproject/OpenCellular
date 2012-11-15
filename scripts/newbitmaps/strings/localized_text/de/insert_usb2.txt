@@ -1,3 +1,0 @@
-Chrome OS fehlt oder ist beschädigt.
-Stecken Sie einen Wiederherstellungs-USB-Stick ein.
-Hinweis: Der blaue USB-Anschluss funktioniert für die Wiederherstellung NICHT.

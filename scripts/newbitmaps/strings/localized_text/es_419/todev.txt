@@ -1,4 +1,0 @@
-Para DESACTIVAR la verificación del SO, presiona ENTER.
-Tu sistema se reiniciará y se borrarán los datos locales.
-
-Para volver atrás, presiona ESC.

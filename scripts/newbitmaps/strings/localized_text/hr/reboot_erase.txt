@@ -1,1 +1,0 @@
-Sustav će se ponovo pokrenuti i lokalni će podaci biti obrisani.

@@ -1,4 +1,0 @@
-Pour DÉSACTIVER la vérification du système d'exploitation, appuyez sur ENTRÉE.
-Votre système va redémarrer et les données locales vont être effacées.
-
-Pour annuler, appuyez sur ÉCHAP.

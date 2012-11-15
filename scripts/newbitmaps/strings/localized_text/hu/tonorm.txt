@@ -1,4 +1,0 @@
-Nyomja meg az ENTER billentyűt OS-ellenőrzés bekapcsolásának megerősítéséhez.
-A rendszer újraindul, és a helyi adatok törlődnek.
-
-A visszalépéshez nyomja meg az ESC billentyűt.

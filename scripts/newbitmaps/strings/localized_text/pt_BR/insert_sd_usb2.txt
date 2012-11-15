@@ -1,3 +1,0 @@
-O Chrome OS está ausente ou danificado.
-Insira um cartão SD ou USB de recuperação.
-(observação: a porta USB azul NÃO funciona para recuperação)

@@ -1,4 +1,0 @@
-Lai IZSLĒGTU OS verifikāciju, nospiediet taustiņu ENTER.
-Sistēma tiks atsāknēta, un vietējie dati tiks dzēsti.
-
-Lai atgrieztos, nospiediet taustiņu ESC.

@@ -1,3 +1,0 @@
-Chrome OS eksik veya hasarlı.
-Lütfen bir kurtarma USB çubuğu yerleştirin.
-(not: kurtarma işleminde mavi USB bağlantı noktası KULLANILMAZ)

@@ -1,4 +1,0 @@
-Stlačením klávesu ENTER potvrdíte, že chcete zapnúť verifikáciu OS.
-Systém sa reštartuje a miestne údaje sa vymažú.
-
-Ak sa chcete vrátiť späť, stlačte kláves ESC.

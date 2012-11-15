@@ -1,4 +1,0 @@
-Chrome OS is missing or damaged.
-Please connect a recovery device.
-$BIG: $URL
-Model: $MODEL

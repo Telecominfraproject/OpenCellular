@@ -1,4 +1,0 @@
-Per DISATTIVARE la verifica del sistema operativo, premi INVIO.
-Il sistema verrà riavviato e i dati locali verranno cancellati.
-
-Per tornare indietro, premi ESC.

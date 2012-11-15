@@ -1,4 +1,0 @@
-Naciśnij ENTER, by potwierdzić, że chcesz włączyć sprawdzanie systemu operacyjnego.
-System uruchomi się ponownie, a dane lokalne zostaną usunięte.
-
-Aby zrezygnować, naciśnij ESC.

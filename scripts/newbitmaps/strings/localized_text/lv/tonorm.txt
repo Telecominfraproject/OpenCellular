@@ -1,4 +1,0 @@
-Nospiediet taustiņu ENTER, lai apstiprinātu, ka vēlaties ieslēgt OS verifikāciju.
-Sistēma tiks atsāknēta, un vietējie dati tiks dzēsti.
-
-Lai atgrieztos, nospiediet taustiņu ESC.

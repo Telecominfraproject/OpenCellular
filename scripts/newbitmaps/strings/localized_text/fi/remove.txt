@@ -1,1 +1,0 @@
-Aloita palautus poistamalla kaikki ulkoiset laitteet.

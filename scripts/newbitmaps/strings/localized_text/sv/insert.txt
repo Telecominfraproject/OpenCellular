@@ -1,2 +1,0 @@
-Chrome OS saknas eller är skadat.
-Anslut ett USB-minne eller SD-kort för återställning.

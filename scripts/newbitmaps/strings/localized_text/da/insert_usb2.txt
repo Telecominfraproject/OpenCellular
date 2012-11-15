@@ -1,3 +1,0 @@
-Chrome OS mangler eller er beskadiget.
-Indsæt en USB-nøgle til genoprettelse.
-(bemærk, at den blå USB-port IKKE kan bruges til genoprettelse)

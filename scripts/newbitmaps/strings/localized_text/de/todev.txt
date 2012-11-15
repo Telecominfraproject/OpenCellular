@@ -1,4 +1,0 @@
-Drücken Sie die Eingabetaste, um die OS-Bestätigung auszuschalten.
-Ihr System wird neu gestartet und lokale Daten werden gelöscht.
-
-Um zurückzugehen, drücken Sie die Esc-Taste.

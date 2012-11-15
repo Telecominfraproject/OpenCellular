@@ -1,4 +1,0 @@
-OS-i kinnitamise sisselülitamise kinnitamiseks vajutage sisestusklahvi ENTER.
-Teie süsteem lähtestatakse ja kohalikud andmed kustutatakse.
-
-Tagasi minemiseks vajutage paoklahvi ESC.

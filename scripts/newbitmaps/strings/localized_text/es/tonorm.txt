@@ -1,4 +1,0 @@
-Pulsa INTRO para confirmar que quieres ACTIVAR la verificación de Chrome OS.
-Se reiniciará el sistema y se borrarán los datos locales.
-
-Para volver atrás, pulsa ESC.

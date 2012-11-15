@@ -1,3 +1,0 @@
-Falta Chrome OS o bé està malmès.
-Inseriu un llapis USB o bé una targeta SD de recuperació.
-(nota: el port USB de color blau NO funcionarà per a la recuperació)

@@ -1,3 +1,0 @@
-Chrome OS ontbreekt of is beschadigd.
-Plaats een herstel-USB-stick of herstel-SD-kaart.
-(opmerking: de blauwe USB-poort werkt NIET voor herstel)

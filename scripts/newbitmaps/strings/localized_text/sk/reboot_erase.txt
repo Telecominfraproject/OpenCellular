@@ -1,1 +1,0 @@
-Systém sa reštartuje a miestne údaje sa vymažú.

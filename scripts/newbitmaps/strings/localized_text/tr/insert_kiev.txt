@@ -1,2 +1,0 @@
-Chrome OS eksik veya hasarlı.
-Lütfen cihazın ARKASINDAKİ 4 bağlantı noktasından birine bir USB çubuk yerleştirin.

@@ -1,4 +1,0 @@
-Tekan ENTER untuk mengonfirmasi bahwa Anda ingin mengaktifkan verifikasi OS.
-Sistem Anda akan dinyalakan ulang dan data lokal akan dihapus.
-
-Untuk kembali, tekan ESC.

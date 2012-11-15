@@ -1,4 +1,0 @@
-Prima ENTER para confirmar que pretende ativar a confirmação do SO.
-O sistema irá reiniciar e os dados locais serão apagados.
-
-Para retroceder, prima ESC.

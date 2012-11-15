@@ -1,3 +1,0 @@
-The device you inserted does not contain Chrome OS. Try another?
-$BIG: $URL
-Model: $MODEL

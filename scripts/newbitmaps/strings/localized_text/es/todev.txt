@@ -1,4 +1,0 @@
-Para DESACTIVARLA, pulsa INTRO.
-Se reiniciará el sistema y se borrarán los datos locales.
-
-Para volver atrás, pulsa ESC.

@@ -1,1 +1,0 @@
-Hệ thống của bạn sẽ khởi động lại và dữ liệu cục bộ sẽ bị xóa.

@@ -1,2 +1,0 @@
-Chrome OS fehlt oder ist beschädigt.
-Stecken Sie einen Wiederherstellungs-USB-Stick bzw. eine Wiederherstellungs-SD-Karte ein.

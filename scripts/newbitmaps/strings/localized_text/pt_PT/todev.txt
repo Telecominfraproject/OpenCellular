@@ -1,4 +1,0 @@
-Para definir a confirmação do SO como DESATIVADA, prima ENTER.
-O sistema irá reiniciar e os dados locais serão apagados.
-
-Para retroceder, prima ESC.

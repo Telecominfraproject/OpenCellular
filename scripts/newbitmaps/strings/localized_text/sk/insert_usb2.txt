@@ -1,3 +1,0 @@
-Systém OS Chrome chýba alebo je poškodený.
-Vložte kľúč USB na obnovenie.
-(poznámka: modrý port USB NIE JE MOŽNÉ použiť na obnovenie)

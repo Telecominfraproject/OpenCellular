@@ -1,4 +1,0 @@
-Appuyez sur ENTRÉE pour confirmer que vous souhaitez activer la vérification du système d'exploitation.
-Votre système va redémarrer et les données locales vont être effacées.
-
-Pour annuler, appuyez sur ÉCHAP.

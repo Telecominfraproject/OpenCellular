@@ -1,2 +1,0 @@
-Chrome OS puudub või on kahjustatud.
-Sisestage taastamiseks mõeldud USB-mälupulk või SD-kaart.

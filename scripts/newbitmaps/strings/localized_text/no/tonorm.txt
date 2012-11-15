@@ -1,4 +1,0 @@
-Trykk på ENTER for å bekrefte at du vil slå på OS-verifisering.
-Systemet ditt kommer til å starte på nytt og lokal data blir tømt.
-
-Trykk på ESC for å gå tilbake.

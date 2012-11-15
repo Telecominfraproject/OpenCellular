@@ -1,4 +1,0 @@
-Pressione "ENTER" para confirmar que você deseja ativar a verificação do sistema operacional.
-Seu sistema será reiniciado, e os dados locais serão removidos.
-
-Para voltar, pressione a tecla "ESC".
