@@ -89,7 +89,7 @@ int GptNextKernelEntry(GptData* gpt, uint64_t* start_sector, uint64_t* size) {
     return GPT_ERROR_NO_VALID_KERNEL;
   }
 
-  VBDEBUG(("GptNextKernelEntry likes that one\n"));
+  VBDEBUG(("GptNextKernelEntry likes partition %d\n", new_kernel+1));
   e = entries + new_kernel;
   *start_sector = e->starting_lba;
   *size = e->ending_lba - e->starting_lba + 1;

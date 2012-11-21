@@ -415,7 +415,7 @@ static const char *RecoveryReasonString(uint8_t code) {
     return "RW firmware failed signature check";
   case VBNV_RECOVERY_RO_S3_RESUME:
     return "S3 resume failed";
-  case VBNV_RECOVERY_RO_TPM_ERROR:
+  case VBNV_RECOVERY_DEP_RO_TPM_ERROR:
     return "TPM error in read-only firmware";
   case VBNV_RECOVERY_RO_SHARED_DATA:
     return "Shared data error in read-only firmware";
@@ -457,7 +457,7 @@ static const char *RecoveryReasonString(uint8_t code) {
     return "EC software sync error";
   case VBNV_RECOVERY_EC_UNKNOWN_IMAGE:
     return "EC software sync unable to determine active EC image";
-  case VBNV_RECOVERY_EC_HASH:
+  case VBNV_RECOVERY_DEP_EC_HASH:
     return "EC software sync error obtaining EC image hash";
   case VBNV_RECOVERY_EC_EXPECTED_IMAGE:
     return "EC software sync error obtaining expected EC image from BIOS";
@@ -475,7 +475,7 @@ static const char *RecoveryReasonString(uint8_t code) {
     return "No OS kernel detected (or kernel rollback attempt?)";
   case VBNV_RECOVERY_RW_INVALID_OS:
     return "OS kernel failed signature check";
-  case VBNV_RECOVERY_RW_TPM_ERROR:
+  case VBNV_RECOVERY_DEP_RW_TPM_ERROR:
     return "TPM error in rewritable firmware";
   case VBNV_RECOVERY_RW_DEV_MISMATCH:
     return "RW firmware in dev mode, but dev switch is off";
@@ -483,10 +483,34 @@ static const char *RecoveryReasonString(uint8_t code) {
     return "Shared data error in rewritable firmware";
   case VBNV_RECOVERY_RW_TEST_LK:
     return "Test error from LoadKernel()";
-  case VBNV_RECOVERY_RW_NO_DISK:
+  case VBNV_RECOVERY_DEP_RW_NO_DISK:
     return "No bootable disk found";
   case VBNV_RECOVERY_TPM_E_FAIL:
     return "TPM error that was not fixed by reboot";
+  case VBNV_RECOVERY_RO_TPM_S_ERROR:
+    return "TPM setup error in read-only firmware";
+  case VBNV_RECOVERY_RO_TPM_W_ERROR:
+    return "TPM write error in read-only firmware";
+  case VBNV_RECOVERY_RO_TPM_L_ERROR:
+    return "TPM lock error in read-only firmware";
+  case VBNV_RECOVERY_RO_TPM_U_ERROR:
+    return "TPM update error in read-only firmware";
+  case VBNV_RECOVERY_RW_TPM_R_ERROR:
+    return "TPM read error in rewritable firmware";
+  case VBNV_RECOVERY_RW_TPM_W_ERROR:
+    return "TPM write error in rewritable firmware";
+  case VBNV_RECOVERY_RW_TPM_L_ERROR:
+    return "TPM lock error in rewritable firmware";
+  case VBNV_RECOVERY_EC_HASH_FAILED:
+    return "EC software sync unable to get EC image hash";
+  case VBNV_RECOVERY_EC_HASH_SIZE:
+    return "EC software sync invalid image hash size";
+  case VBNV_RECOVERY_LK_UNSPECIFIED:
+    return "Unspecified error while trying to load kernel";
+  case VBNV_RECOVERY_RW_NO_DISK:
+    return "No bootable storage device in system";
+  case VBNV_RECOVERY_RW_NO_KERNEL:
+    return "No bootable kernel found on disk";
   case VBNV_RECOVERY_RW_UNSPECIFIED:
     return "Unspecified/unknown error in RW firmware";
   case VBNV_RECOVERY_KE_DM_VERITY:

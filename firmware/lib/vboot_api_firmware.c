@@ -62,7 +62,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
       VBPERFEND("VB_TPMU");
       if (0 != tpm_status) {
         VBDEBUG(("Unable to write firmware version to TPM.\n"));
-        VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
+        VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_W_ERROR);
         retval = VBERROR_TPM_WRITE_FIRMWARE;
         goto VbSelectFirmware_exit;
       }
@@ -74,7 +74,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
     VBPERFEND("VB_TPML");
     if (0 != tpm_status) {
       VBDEBUG(("Unable to lock firmware version in TPM.\n"));
-      VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
+      VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_L_ERROR);
       retval = VBERROR_TPM_LOCK_FIRMWARE;
       goto VbSelectFirmware_exit;
     }
@@ -86,7 +86,7 @@ VbError_t VbSelectFirmware(VbCommonParams* cparams,
   if (0 != tpm_status) {
     VBDEBUG(("Unable to update the TPM with boot mode information.\n"));
     if (!is_rec) {
-      VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
+      VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_U_ERROR);
       retval = VBERROR_TPM_SET_BOOT_MODE_STATE;
       goto VbSelectFirmware_exit;
     }

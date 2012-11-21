@@ -207,7 +207,7 @@ static void VbSelectFirmwareTest(void) {
   ResetMocks();
   mock_lf_tpm_version = 0x30005;
   mock_rfw_retval = TPM_E_IOERROR;
-  TestVbSf(VBERROR_TPM_WRITE_FIRMWARE, VBNV_RECOVERY_RO_TPM_ERROR,
+  TestVbSf(VBERROR_TPM_WRITE_FIRMWARE, VBNV_RECOVERY_RO_TPM_W_ERROR,
            "TPM version update failure");
 
   /* If no change to TPM version, RollbackFirmwareWrite() not called */
@@ -221,7 +221,7 @@ static void VbSelectFirmwareTest(void) {
   /* Check errors from SetTPMBootModeState() */
   ResetMocks();
   mock_stbms_retval = TPM_E_IOERROR;
-  TestVbSf(VBERROR_TPM_SET_BOOT_MODE_STATE, VBNV_RECOVERY_RO_TPM_ERROR,
+  TestVbSf(VBERROR_TPM_SET_BOOT_MODE_STATE, VBNV_RECOVERY_RO_TPM_U_ERROR,
            "TPM set boot mode state failure");
   ResetMocks();
   mock_stbms_retval = TPM_E_IOERROR;
@@ -231,7 +231,7 @@ static void VbSelectFirmwareTest(void) {
   /* Handle RollbackFirmwareLock() errors */
   ResetMocks();
   mock_rfl_retval = TPM_E_IOERROR;
-  TestVbSf(VBERROR_TPM_LOCK_FIRMWARE, VBNV_RECOVERY_RO_TPM_ERROR,
+  TestVbSf(VBERROR_TPM_LOCK_FIRMWARE, VBNV_RECOVERY_RO_TPM_L_ERROR,
            "TPM lock firmware failure");
 }
 

@@ -154,7 +154,7 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   uint32_t require_official_os = 0;
 
   VbError_t retval = VBERROR_UNKNOWN;
-  int recovery = VBNV_RECOVERY_RO_UNSPECIFIED;
+  int recovery = VBNV_RECOVERY_LK_UNSPECIFIED;
 
   /* Sanity Checks */
   if (!params ||

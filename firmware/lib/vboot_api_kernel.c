@@ -92,9 +92,9 @@ uint32_t VbTryLoadKernel(VbCommonParams* cparams, LoadKernelParams* p,
       break;
   }
 
-  /* If we didn't succeed, don't return a disk handle */
+  /* If we didn't find any good kernels, don't return a disk handle. */
   if (VBERROR_SUCCESS != retval) {
-    VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_DISK);
+    VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_KERNEL);
     p->disk_handle = NULL;
   }
 
@@ -499,13 +499,13 @@ VbError_t VbEcSoftwareSync(VbCommonParams* cparams) {
   rv = VbExEcHashRW(&ec_hash, &ec_hash_size);
   if (rv) {
       VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() returned %d\n", rv));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH);
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_FAILED);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
   if (ec_hash_size != SHA256_DIGEST_SIZE) {
-      VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() returned wrong size %d\n",
-               ec_hash_size));
-      VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH);
+      VBDEBUG(("VbEcSoftwareSync() - VbExEcHashRW() says size %d, not %d\n",
+               ec_hash_size, SHA256_DIGEST_SIZE));
+      VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_SIZE);
       return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
   }
 
@@ -639,7 +639,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   if (0 != tpm_status) {
     VBDEBUG(("Unable to get kernel versions from TPM\n"));
     if (!shared->recovery_reason) {
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
+      VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_R_ERROR);
       retval = VBERROR_TPM_READ_KERNEL;
       goto VbSelectAndLoadKernel_exit;
     }
@@ -729,7 +729,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
         tpm_status = RollbackKernelWrite(shared->kernel_version_tpm);
         if (0 != tpm_status) {
           VBDEBUG(("Error writing kernel versions to TPM.\n"));
-          VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
+          VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_W_ERROR);
           retval = VBERROR_TPM_WRITE_KERNEL;
           goto VbSelectAndLoadKernel_exit;
         }
@@ -753,7 +753,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams* cparams,
   if (0 != tpm_status) {
     VBDEBUG(("Error locking kernel versions.\n"));
     if (!shared->recovery_reason) {
-      VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_ERROR);
+      VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_L_ERROR);
       retval = VBERROR_TPM_LOCK_KERNEL;
       goto VbSelectAndLoadKernel_exit;
     }

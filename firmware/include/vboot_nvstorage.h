@@ -81,8 +81,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RO_INVALID_RW   0x03
 /* S3 resume failed */
 #define VBNV_RECOVERY_RO_S3_RESUME    0x04
-/* TPM error in read-only firmware */
-#define VBNV_RECOVERY_RO_TPM_ERROR    0x05
+/* TPM error in read-only firmware (deprecated) */
+#define VBNV_RECOVERY_DEP_RO_TPM_ERROR    0x05
 /* Shared data error in read-only firmware */
 #define VBNV_RECOVERY_RO_SHARED_DATA  0x06
 /* Test error from S3Resume() */
@@ -107,8 +107,8 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_EC_SOFTWARE_SYNC 0x22
 /* EC software sync - unable to determine active EC image */
 #define VBNV_RECOVERY_EC_UNKNOWN_IMAGE 0x23
-/* EC software sync - error obtaining EC image hash */
-#define VBNV_RECOVERY_EC_HASH         0x24
+/* EC software sync - error obtaining EC image hash (deprecated) */
+#define VBNV_RECOVERY_DEP_EC_HASH         0x24
 /* EC software sync - error obtaining expected EC image */
 #define VBNV_RECOVERY_EC_EXPECTED_IMAGE 0x25
 /* EC software sync - error updating EC */
@@ -126,18 +126,42 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_RW_NO_OS        0x42
 /* OS kernel failed signature check */
 #define VBNV_RECOVERY_RW_INVALID_OS   0x43
-/* TPM error in rewritable firmware */
-#define VBNV_RECOVERY_RW_TPM_ERROR    0x44
+/* TPM error in rewritable firmware (deprecated) */
+#define VBNV_RECOVERY_DEP_RW_TPM_ERROR    0x44
 /* RW firmware in dev mode, but dev switch is off */
 #define VBNV_RECOVERY_RW_DEV_MISMATCH 0x45
 /* Shared data error in rewritable firmware */
 #define VBNV_RECOVERY_RW_SHARED_DATA  0x46
 /* Test error from LoadKernel() */
 #define VBNV_RECOVERY_RW_TEST_LK      0x47
-/* No bootable disk found */
-#define VBNV_RECOVERY_RW_NO_DISK      0x48
+/* No bootable disk found (deprecated)*/
+#define VBNV_RECOVERY_DEP_RW_NO_DISK      0x48
 /* Rebooting did not correct TPM_E_FAIL or TPM_E_FAILEDSELFTEST  */
 #define VBNV_RECOVERY_TPM_E_FAIL      0x49
+/* TPM setup error in read-only firmware */
+#define VBNV_RECOVERY_RO_TPM_S_ERROR  0x50
+/* TPM write error in read-only firmware */
+#define VBNV_RECOVERY_RO_TPM_W_ERROR  0x51
+/* TPM lock error in read-only firmware */
+#define VBNV_RECOVERY_RO_TPM_L_ERROR  0x52
+/* TPM update error in read-only firmware */
+#define VBNV_RECOVERY_RO_TPM_U_ERROR  0x53
+/* TPM read error in rewritable firmware */
+#define VBNV_RECOVERY_RW_TPM_R_ERROR  0x54
+/* TPM write error in rewritable firmware */
+#define VBNV_RECOVERY_RW_TPM_W_ERROR  0x55
+/* TPM lock error in rewritable firmware */
+#define VBNV_RECOVERY_RW_TPM_L_ERROR  0x56
+/* EC software sync unable to get EC image hash */
+#define VBNV_RECOVERY_EC_HASH_FAILED  0x57
+/* EC software sync invalid image hash size */
+#define VBNV_RECOVERY_EC_HASH_SIZE    0x58
+/* Unspecified error while trying to load kernel */
+#define VBNV_RECOVERY_LK_UNSPECIFIED  0x59
+/* No bootable storage device in system */
+#define VBNV_RECOVERY_RW_NO_DISK      0x5A
+/* No bootable kernel found on disk */
+#define VBNV_RECOVERY_RW_NO_KERNEL    0x5B
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */

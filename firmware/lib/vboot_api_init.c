@@ -172,7 +172,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
       }
 
       if (!recovery) {
-        VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_ERROR);
+        VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_S_ERROR);
         retval = VBERROR_TPM_FIRMWARE_SETUP;
         goto VbInit_exit;
       }

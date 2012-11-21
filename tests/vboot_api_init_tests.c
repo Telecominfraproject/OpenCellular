@@ -327,7 +327,7 @@ static void VbInitTestTPM(void) {
   ResetMocks();
   mock_rfs_retval = TPM_E_IOERROR;
   mock_tpm_version = 0x20002;
-  TestVbInit(VBERROR_TPM_FIRMWARE_SETUP, VBNV_RECOVERY_RO_TPM_ERROR,
+  TestVbInit(VBERROR_TPM_FIRMWARE_SETUP, VBNV_RECOVERY_RO_TPM_S_ERROR,
            "Rollback TPM setup error - not in recovery");
   TEST_EQ(shared->fw_version_tpm, 0, "  shared fw_version_tpm not set");
   ResetMocks();
