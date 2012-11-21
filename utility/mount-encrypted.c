@@ -301,7 +301,8 @@ static int get_nvram_key(uint8_t *digest, int *migrate)
 	/* Ignore unowned TPM's NVRAM area. */
 	result = tpm_owned(&owned);
 	if (result != TPM_SUCCESS) {
-		INFO("Could not read TPM Permanent Flags.");
+		INFO("Could not read TPM Permanent Flags: error 0x%02x.",
+		     result);
 		return 0;
 	}
 	if (!owned) {
@@ -324,7 +325,7 @@ static int get_nvram_key(uint8_t *digest, int *migrate)
 		result = _read_nvram(value, sizeof(value), kLockboxIndex, size);
 		if (result != TPM_SUCCESS) {
 			/* No NVRAM area at all. */
-			INFO("No NVRAM area defined.");
+			INFO("No NVRAM area defined: error 0x%02x", result);
 			return 0;
 		}
 		/* Legacy NVRAM area. */
@@ -440,7 +441,7 @@ static int get_random_bytes_tpm(unsigned char *buffer, int wanted)
 		result = TlclGetRandom(buffer + (wanted - remaining),
 				       remaining, &size);
 		if (result != TPM_SUCCESS || size > remaining) {
-			ERROR("TPM GetRandom failed.");
+			ERROR("TPM GetRandom failed: error 0x%02x.", result);
 			return 0;
 		}
 		remaining -= size;
