@@ -453,10 +453,14 @@ static int get_random_bytes_tpm(unsigned char *buffer, int wanted)
 /* Returns 1 on success, 0 on failure. */
 static int get_random_bytes(unsigned char *buffer, int wanted)
 {
-	if (has_tpm)
-		return get_random_bytes_tpm(buffer, wanted);
-	else
-		return RAND_bytes(buffer, wanted);
+	if (has_tpm && get_random_bytes_tpm(buffer, wanted))
+		return 1;
+
+	if (RAND_bytes(buffer, wanted))
+		return 1;
+	SSL_ERROR("RAND_bytes");
+
+	return 0;
 }
 
 static char *choose_encryption_key(void)
@@ -464,7 +468,8 @@ static char *choose_encryption_key(void)
 	unsigned char rand_bytes[DIGEST_LENGTH];
 	unsigned char digest[DIGEST_LENGTH];
 
-	get_random_bytes(rand_bytes, sizeof(rand_bytes));
+	if (!get_random_bytes(rand_bytes, sizeof(rand_bytes)))
+		ERROR("No entropy source found -- using uninitialized stack");
 
 	SHA256(rand_bytes, DIGEST_LENGTH, digest);
 	debug_dump_hex("encryption key", digest, DIGEST_LENGTH);
