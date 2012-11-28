@@ -38,6 +38,7 @@ static value_data const values[] = {
 	{ token_block_size_log2,     "BlockSize     = 0x%08x;\n" },
 	{ token_page_size_log2,      "PageSize      = 0x%08x;\n" },
 	{ token_partition_size,      "PartitionSize = 0x%08x;\n" },
+	{ token_odm_data,            "OdmData       = 0x%08x;\n\n" },
 	{ token_bootloader_used,     "# Bootloader used       = %d;\n" },
 	{ token_bootloaders_max,     "# Bootloaders max       = %d;\n" },
 	{ token_bct_size,            "# BCT size              = %d;\n" },
