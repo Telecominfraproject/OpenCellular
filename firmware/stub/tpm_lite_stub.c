@@ -33,6 +33,22 @@
 /* The file descriptor for the TPM device.
  */
 static int tpm_fd = -1;
+/* If the library should exit during an OS-level TPM failure.
+ */
+static int exit_on_failure = 1;
+
+/* Similar to VbExError, only handle the non-exit case.
+ */
+static VbError_t DoError(VbError_t result, const char* format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  fprintf(stderr, "ERROR: ");
+  vfprintf(stderr, format, ap);
+  va_end(ap);
+  if (exit_on_failure)
+    exit(1);
+  return result;
+}
 
 
 /* Print |n| bytes from array |a|, with newlines.
@@ -53,32 +69,40 @@ POSSIBLY_UNUSED static void PrintBytes(const uint8_t* a, int n) {
 
 /* Executes a command on the TPM.
  */
-static void TpmExecute(const uint8_t *in, const uint32_t in_len,
+static VbError_t TpmExecute(const uint8_t *in, const uint32_t in_len,
                 uint8_t *out, uint32_t *pout_len) {
   uint8_t response[TPM_MAX_COMMAND_SIZE];
   if (in_len <= 0) {
-    VbExError("invalid command length %d for command 0x%x\n", in_len, in[9]);
+    return DoError(TPM_E_INPUT_TOO_SMALL,
+                   "invalid command length %d for command 0x%x\n",
+                   in_len, in[9]);
   } else if (tpm_fd < 0) {
-    VbExError("the TPM device was not opened.  Forgot to call TlclLibInit?\n");
+    return DoError(TPM_E_NO_DEVICE,
+                   "the TPM device was not opened.  " \
+                   "Forgot to call TlclLibInit?\n");
   } else {
     int n = write(tpm_fd, in, in_len);
     if (n != in_len) {
-      VbExError("write failure to TPM device: %s\n", strerror(errno));
+      return DoError(TPM_E_WRITE_FAILURE,
+                     "write failure to TPM device: %s\n", strerror(errno));
     }
     n = read(tpm_fd, response, sizeof(response));
     if (n == 0) {
-      VbExError("null read from TPM device\n");
+      return DoError(TPM_E_READ_EMPTY, "null read from TPM device\n");
     } else if (n < 0) {
-      VbExError("read failure from TPM device: %s\n", strerror(errno));
+      return DoError(TPM_E_READ_FAILURE, "read failure from TPM device: %s\n",
+                     strerror(errno));
     } else {
       if (n > *pout_len) {
-        VbExError("TPM response too long for output buffer\n");
+        return DoError(TPM_E_RESPONSE_TOO_LARGE,
+                       "TPM response too long for output buffer\n");
       } else {
         *pout_len = n;
         Memcpy(out, response, n);
       }
     }
   }
+  return VBERROR_SUCCESS;
 }
 
 
@@ -101,6 +125,9 @@ POSSIBLY_UNUSED static INLINE int TpmResponseSize(const uint8_t* buffer) {
 
 
 VbError_t VbExTpmInit(void) {
+  char *no_exit = getenv("TPM_NO_EXIT");
+  if (no_exit)
+    exit_on_failure = !atoi(no_exit);
   return VbExTpmOpen();
 }
 
@@ -127,8 +154,8 @@ VbError_t VbExTpmOpen(void) {
 
   tpm_fd = open(device_path, O_RDWR);
   if (tpm_fd < 0) {
-    VbExError("TPM: Cannot open TPM device %s: %s\n",
-              device_path, strerror(errno));
+    return DoError(TPM_E_NO_DEVICE, "TPM: Cannot open TPM device %s: %s\n",
+                   device_path, strerror(errno));
   }
 
   return VBERROR_SUCCESS;
@@ -157,10 +184,13 @@ VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
 #ifndef NDEBUG
   int tag, response_tag;
 #endif
+  VbError_t result;
 
   struct timeval before, after;
   gettimeofday(&before, NULL);
-  TpmExecute(request, request_length, response, response_length);
+  result = TpmExecute(request, request_length, response, response_length);
+  if (result != VBERROR_SUCCESS)
+    return result;
   gettimeofday(&after, NULL);
 
 #ifdef VBOOT_DEBUG

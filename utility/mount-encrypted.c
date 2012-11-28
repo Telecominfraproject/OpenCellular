@@ -113,21 +113,12 @@ static int has_tpm = 0;
 
 static void tpm_init(void)
 {
-	int tpm;
+	uint32_t result;
 
 	DEBUG("Opening TPM");
-	tpm = open(kTpmDev, O_RDWR);
-	if (tpm >= 0) {
-		has_tpm = 1;
-		close(tpm);
-	}
-	else {
-		/* TlclLibInit does not fail, it exits, so instead,
-		 * have it open /dev/null if the TPM is not available.
-		 */
-		setenv("TPM_DEVICE_PATH", kNullDev, 1);
-	}
-	TlclLibInit();
+	setenv("TPM_NO_EXIT", "1", 1);
+	result = TlclLibInit();
+	has_tpm = (result == TPM_SUCCESS);
 	INFO("TPM %s", has_tpm ? "ready" : "not available");
 }
 

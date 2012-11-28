@@ -38,6 +38,10 @@
 #define TPM_E_COMMUNICATION_ERROR    ((uint32_t)0x00005004)  /* vboot local */
 #define TPM_E_RESPONSE_TOO_LARGE     ((uint32_t)0x00005005)  /* vboot local */
 #define TPM_E_NO_DEVICE              ((uint32_t)0x00005006)  /* vboot local */
+#define TPM_E_INPUT_TOO_SMALL        ((uint32_t)0x00005007)  /* vboot local */
+#define TPM_E_WRITE_FAILURE          ((uint32_t)0x00005008)  /* vboot local */
+#define TPM_E_READ_EMPTY             ((uint32_t)0x00005009)  /* vboot local */
+#define TPM_E_READ_FAILURE           ((uint32_t)0x0000500a)  /* vboot local */
 
 #define TPM_NV_INDEX0 ((uint32_t)0x00000000)
 #define TPM_NV_INDEX_LOCK ((uint32_t)0xffffffff)

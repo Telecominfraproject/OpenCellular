@@ -67,7 +67,7 @@ static uint32_t TlclSendReceiveNoRetry(const uint8_t* request,
     /* Communication with TPM failed, so response is garbage */
     VBDEBUG(("TPM: command 0x%x send/receive failed: 0x%x\n",
              TpmCommandCode(request), result));
-    return TPM_E_COMMUNICATION_ERROR;
+    return result;
   }
   /* Otherwise, use the result code from the response */
   result = TpmReturnCode(response);
