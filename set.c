@@ -192,7 +192,7 @@ int context_set_value(build_image_context *context,
 		break;
 
 	case token_pre_bct_pad_blocks:
-		if (context->bct_init != NULL) {
+		if (context->bct_init) {
 			printf("Error: Too late to pre-BCT pad.\n");
 			return 1;
 		}

@@ -374,8 +374,6 @@ write_bootloaders(build_image_context *context)
 	u_int32_t  pagesremaining;
 	u_int32_t  virtual_blk;
 	u_int32_t  pages_per_blk;
-	u_int32_t  min_offset;
-	u_int32_t  max_offset;
 	u_int32_t  bl_0_version;
 	u_int32_t  bl_used;
 	u_int8_t  *hash_buffer;
@@ -481,9 +479,6 @@ write_bootloaders(build_image_context *context)
 			/* Update the bad block table with relative
 			  * bad blocks.
 			  */
-			min_offset = virtual_blk * context->block_size;
-			max_offset = min_offset + context->block_size;
-
 			if (virtual_blk == 0) {
 				set_bl_data(context,
 					bl_instance,
@@ -736,8 +731,6 @@ find_new_bct_blk(build_image_context *context)
 int
 begin_update(build_image_context *context)
 {
-	u_int32_t pages_per_bct;
-	u_int32_t pages_per_blk;
 	u_int32_t hash_size;
 	u_int32_t reserved_size;
 	u_int32_t reserved_offset;
@@ -772,9 +765,6 @@ begin_update(build_image_context *context)
 	g_bct_parse_interf->set_value(token_odm_data,
 			context->odm_data, context->bct);
 
-	pages_per_bct = iceil_log2(context->bct_size, context->page_size_log2);
-	pages_per_blk = (1 << (context->block_size_log2
-		- context->page_size_log2));
 	/* Initialize the bad block table field. */
 	g_bct_parse_interf->init_bad_block_table(context);
 	/* Fill the reserved data w/the padding pattern. */
