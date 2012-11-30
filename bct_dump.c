@@ -33,12 +33,12 @@ typedef struct {
 	char const * message;
 } value_data;
 
-static value_data const	values[] = {
+static value_data const values[] = {
 	{ token_boot_data_version,   "Version       = 0x%08x;\n" },
-	{ token_block_size_log2,	    "BlockSize     = 0x%08x;\n" },
+	{ token_block_size_log2,     "BlockSize     = 0x%08x;\n" },
 	{ token_page_size_log2,      "PageSize      = 0x%08x;\n" },
-	{ token_partition_size,	    "PartitionSize = 0x%08x;\n" },
-	{ token_bootloader_used,	    "# Bootloader used       = %d;\n" },
+	{ token_partition_size,      "PartitionSize = 0x%08x;\n" },
+	{ token_bootloader_used,     "# Bootloader used       = %d;\n" },
 	{ token_bootloaders_max,     "# Bootloaders max       = %d;\n" },
 	{ token_bct_size,            "# BCT size              = %d;\n" },
 	{ token_hash_size,           "# Hash size             = %d;\n" },
@@ -47,7 +47,7 @@ static value_data const	values[] = {
 	{ token_max_bct_search_blks, "# Max BCT search blocks = %d;\n" },
 };
 
-static value_data const	bl_values[] = {
+static value_data const bl_values[] = {
 	{ token_bl_version,     "Version      = 0x%08x;\n" },
 	{ token_bl_start_blk,   "Start block  = %d;\n" },
 	{ token_bl_start_page,  "Start page   = %d;\n" },
