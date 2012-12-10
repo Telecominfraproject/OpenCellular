@@ -749,6 +749,7 @@ static int setup_encrypted(int mode)
 	int sparsefd;
 	struct statvfs stateful_statbuf;
 	uint64_t blocks_min, blocks_max;
+	int valid_keyfile = 0;
 
 	/* Use the "system key" to decrypt the "encryption key" stored in
 	 * the stateful partition.
@@ -766,6 +767,7 @@ static int setup_encrypted(int mode)
 		 * so migration is finished.
 		 */
 		migrate_allowed = 0;
+		valid_keyfile = 1;
 	} else {
 		uint8_t useless_key[DIGEST_LENGTH];
 		sha256((char *)kStaticKeyFinalizationNeeded, useless_key);
@@ -976,11 +978,16 @@ static int setup_encrypted(int mode)
 			needs_finalization(encryption_key);
 	} else {
 		/* If we're not rebuilding and we have a sane system
-		 * key, then we must have finalized. Force any required
-		 * clean up.
+		 * key, then we must either need finalization (if we
+		 * failed to finalize in Cryptohome), or we have already
+		 * finalized, but maybe failed to clean up.
 		 */
-		if (has_system_key)
-			finalized();
+		if (has_system_key) {
+			if (!valid_keyfile)
+				finalize(system_key, encryption_key);
+			else
+				finalized();
+		}
 	}
 
 	free(lodev);
