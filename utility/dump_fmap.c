@@ -22,6 +22,7 @@ enum { FMT_NORMAL, FMT_PRETTY, FMT_FLASHROM, FMT_HUMAN };
 /* global variables */
 static int opt_extract = 0;
 static int opt_format = FMT_NORMAL;
+static int opt_overlap = 0;
 static char *progname;
 static void *base_of_rom;
 static int opt_gaps = 0;
@@ -314,7 +315,10 @@ static int human_fmap(void *p)
                all_nodes[i].start, all_nodes[i].end);
         printf("  %s: 0x%x - 0x%x\n", all_nodes[j].name,
                all_nodes[j].start, all_nodes[j].end);
-        errorcnt++;
+        if (opt_overlap < 2) {
+          printf("Use more -h args to ignore this error\n");
+          errorcnt++;
+        }
         continue;
       }
       if (encloses(j, i) && all_nodes[j].size < all_nodes[k].size)
@@ -378,6 +382,7 @@ int main(int argc, char *argv[])
       /* fallthrough */
     case 'h':
       opt_format = FMT_HUMAN;
+      opt_overlap++;
       break;
     case '?':
       fprintf(stderr, "%s: unrecognized switch: -%c\n",
