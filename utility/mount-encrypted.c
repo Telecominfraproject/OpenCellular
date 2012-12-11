@@ -115,33 +115,14 @@ static int tpm_init_called = 0;
 static void tpm_init(void)
 {
 	uint32_t result;
-	struct timespec delay;
-	int retries;
 
 	if (tpm_init_called)
 		return;
 
 	DEBUG("Opening TPM");
+
 	setenv("TPM_NO_EXIT", "1", 1);
-
-	/* Retry TPM opening for 5 seconds (500 10ms sleeps). */
-	for (retries = 0; retries < 500; ++ retries) {
-		errno = 0;
-		result = TlclLibInit();
-		if (result == TPM_SUCCESS)
-			break;
-
-		INFO("Could not open TPM: error 0x%02x (%s).", result,
-		     strerror(errno));
-		/* Assume ENOENT will never recover */
-		if (errno == ENOENT)
-			break;
-
-		/* Stall 10ms until TPM comes back. */
-		delay.tv_sec = 0;
-		delay.tv_nsec = 10000000;
-		nanosleep(&delay, NULL);
-	}
+	result = TlclLibInit();
 
 	tpm_init_called = 1;
 	has_tpm = (result == TPM_SUCCESS);

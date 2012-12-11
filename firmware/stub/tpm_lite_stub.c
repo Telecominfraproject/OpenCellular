@@ -21,9 +21,13 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #define TPM_DEVICE_PATH "/dev/tpm0"
+/* Retry failed open()s for 5 seconds in 10ms polling intervals. */
+#define OPEN_RETRY_DELAY_NS (10 * 1000 * 1000)
+#define OPEN_RETRY_MAX_NUM  500
 
 /* TODO: these functions should pass errors back rather than returning void */
 /* TODO: if the only callers to these are just wrappers, should just
@@ -143,6 +147,8 @@ VbError_t VbExTpmClose(void) {
 
 VbError_t VbExTpmOpen(void) {
   char* device_path;
+  struct timespec delay;
+  int retries, saved_errno;
 
   if (tpm_fd >= 0)
     return VBERROR_SUCCESS;  /* Already open */
@@ -152,13 +158,25 @@ VbError_t VbExTpmOpen(void) {
     device_path = TPM_DEVICE_PATH;
   }
 
-  tpm_fd = open(device_path, O_RDWR);
-  if (tpm_fd < 0) {
-    return DoError(TPM_E_NO_DEVICE, "TPM: Cannot open TPM device %s: %s\n",
-                   device_path, strerror(errno));
-  }
+  /* Retry TPM opens on EBUSY failures. */
+  for (retries = 0; retries < OPEN_RETRY_MAX_NUM; ++ retries) {
+    errno = 0;
+    tpm_fd = open(device_path, O_RDWR);
+    saved_errno = errno;
+    if (tpm_fd >= 0)
+      return VBERROR_SUCCESS;
+    if (saved_errno != EBUSY)
+      break;
 
-  return VBERROR_SUCCESS;
+    VBDEBUG(("TPM: retrying %s: %s\n", device_path, strerror(errno)));
+
+     /* Stall until TPM comes back. */
+     delay.tv_sec = 0;
+     delay.tv_nsec = OPEN_RETRY_DELAY_NS;
+     nanosleep(&delay, NULL);
+  }
+  return DoError(TPM_E_NO_DEVICE, "TPM: Cannot open TPM device %s: %s\n",
+                 device_path, strerror(saved_errno));
 }
 
 
