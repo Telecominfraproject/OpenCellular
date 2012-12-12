@@ -41,12 +41,33 @@ If you are signing an image, you must specify an [output_image] and
 optionally, a [version_file].
 
 EOF
+  if [[ $# -gt 0 ]]; then
+    error "$*"
+    exit 1
+  fi
+  exit 0
 }
 
-if [ $# -lt 3 ] || [ $# -gt 5 ]; then
-  usage
-  exit 1
-fi
+# Verify we have as many arguments as we expect, else show usage & quit.
+# Usage:
+#  check_argc <number args> <exact number>
+#  check_argc <number args> <lower bound> <upper bound>
+check_argc() {
+  case $# in
+  2)
+    if [[ $1 -ne $2 ]]; then
+      usage "command takes exactly $2 args"
+    fi
+    ;;
+  3)
+    if [[ $1 -lt $2 || $1 -gt $3 ]]; then
+      usage "command takes $2 to $3 args"
+    fi
+    ;;
+  *)
+    die "check_argc: incorrect number of arguments"
+  esac
+}
 
 # Abort on errors.
 set -e
@@ -610,16 +631,30 @@ sign_for_factory_install() {
 }
 
 # Verification
-if [ "${TYPE}" == "verify" ]; then
+case ${TYPE} in
+dump_config)
+  check_argc $# 2
+  for partnum in 2 4; do
+    echo "kernel config in partition number ${partnum}:"
+    grab_kernel_config "${INPUT_IMAGE}" ${partnum}
+    echo
+  done
+  exit 0
+  ;;
+verify)
+  check_argc $# 2
   verify_image
   exit 0
-fi
-
-# Signing requires an output image name
-if [ -z "${OUTPUT_IMAGE}" ]; then
-  usage
-  exit 1
-fi
+  ;;
+*)
+  # All other signing commands take 4 to 5 args.
+  if [ -z "${OUTPUT_IMAGE}" ]; then
+    # Friendlier message.
+    usage "Missing output image name"
+  fi
+  check_argc $# 4 5
+  ;;
+esac
 
 # If a version file was specified, read the firmware and kernel
 # versions from there.
