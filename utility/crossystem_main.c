@@ -66,6 +66,7 @@ const Param sys_param_list[] = {
   {"platform_family", IS_STRING, "Platform family type"},
   {"recovery_reason", 0, "Recovery mode reason for current boot"},
   {"recovery_request", CAN_WRITE, "Recovery mode request (writable)"},
+  {"recovery_subcode", CAN_WRITE, "Recovery reason subcode (writable)"},
   {"recoverysw_boot", 0, "Recovery switch position at boot"},
   {"recoverysw_cur", 0, "Recovery switch current position"},
   {"recoverysw_ec_boot", 0, "Recovery switch position at EC boot"},

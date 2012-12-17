@@ -38,6 +38,8 @@
 #define TPM_CLEAR_OWNER_REQUEST         0x01
 #define TPM_CLEAR_OWNER_DONE            0x02
 
+#define RECOVERY_SUBCODE_OFFSET      6
+
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
 
@@ -100,6 +102,10 @@ int VbNvGet(VbNvContext* context, VbNvParam param, uint32_t* dest) {
 
     case VBNV_RECOVERY_REQUEST:
       *dest = raw[RECOVERY_OFFSET];
+      return 0;
+
+    case VBNV_RECOVERY_SUBCODE:
+      *dest = raw[RECOVERY_SUBCODE_OFFSET];
       return 0;
 
     case VBNV_LOCALIZATION_INDEX:
@@ -192,6 +198,10 @@ int VbNvSet(VbNvContext* context, VbNvParam param, uint32_t value) {
       if (value > 0xFF)
         value = VBNV_RECOVERY_LEGACY;
       raw[RECOVERY_OFFSET] = (uint8_t)value;
+      break;
+
+    case VBNV_RECOVERY_SUBCODE:
+      raw[RECOVERY_SUBCODE_OFFSET] = (uint8_t)value;
       break;
 
     case VBNV_LOCALIZATION_INDEX:

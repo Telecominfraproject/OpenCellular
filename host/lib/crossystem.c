@@ -427,6 +427,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY);
   } else if (!strcasecmp(name,"oprom_needed")) {
     value = VbGetNvStorage(VBNV_OPROM_NEEDED);
+  } else if (!strcasecmp(name,"recovery_subcode")) {
+    value = VbGetNvStorage(VBNV_RECOVERY_SUBCODE);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
@@ -501,6 +503,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_KERNEL_SETTINGS_RESET, 0);
   } else if (!strcasecmp(name,"recovery_request")) {
     return VbSetNvStorage(VBNV_RECOVERY_REQUEST, value);
+  } else if (!strcasecmp(name,"recovery_subcode")) {
+    return VbSetNvStorage(VBNV_RECOVERY_SUBCODE, value);
   } else if (!strcasecmp(name,"dbg_reset")) {
     return VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value);
   } else if (!strcasecmp(name,"disable_dev_request")) {

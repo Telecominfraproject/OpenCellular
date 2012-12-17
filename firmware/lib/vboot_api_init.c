@@ -153,7 +153,8 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
                                        &is_virt_dev, &tpm_version);
     VBPERFEND("VB_TPMI");
     if (0 != tpm_status) {
-      VBDEBUG(("Unable to setup TPM and read firmware version.\n"));
+      VBDEBUG(("Unable to setup TPM and read firmware version (0x%x)\n",
+                tpm_status));
 
       if (TPM_E_MUST_REBOOT == tpm_status) {
         /* TPM wants to reboot into the same mode we're in now */
@@ -173,6 +174,7 @@ VbError_t VbInit(VbCommonParams* cparams, VbInitParams* iparams) {
 
       if (!recovery) {
         VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, VBNV_RECOVERY_RO_TPM_S_ERROR);
+        VbNvSet(&vnc, VBNV_RECOVERY_SUBCODE, tpm_status);
         retval = VBERROR_TPM_FIRMWARE_SETUP;
         goto VbInit_exit;
       }
