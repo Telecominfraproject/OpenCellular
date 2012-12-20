@@ -129,5 +129,7 @@ endif
 include ../build.mk
 
 $(FWLIB) : $(LIB_OBJS)
-	rm -f $@
-	ar qc $@ $^
+	@printf "    RM            $(@))\n"
+	$(Q)rm -f $@
+	@printf "    AR            $(@))\n"
+	$(Q)ar qc $@ $^

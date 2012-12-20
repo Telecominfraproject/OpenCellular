@@ -15,9 +15,11 @@ ALL_DEPS = $(ALL_OBJS:%.o=%.o.d)
 all: ${ALL_OBJS}
 
 ${BUILD_ROOT}/%.o : %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
+	@printf "    CC            $(subst $(BUILD_ROOT)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
 
 ${BUILD_ROOT}/%.o : %.cc
-	$(CXX) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
+	@printf "    CXX           $(subst $(BUILD_ROOT)/,,$(@))\n"
+	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -MMD -MF $@.d -c -o $@ $<
 
 -include ${ALL_DEPS}

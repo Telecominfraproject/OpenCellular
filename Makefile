@@ -2,8 +2,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+ifneq ($(V),1)
+Q := @
+endif
+
 export FIRMWARE_ARCH
 export MOCK_TPM
+export Q
 
 # This Makefile normally builds in a 'build' subdir, but use
 #
@@ -97,7 +102,7 @@ SUBDIRS = firmware
 endif
 
 all:
-	set -e; \
+	$(Q)set -e; \
 	for d in $(shell find ${SUBDIRS} -name '*.c' -exec  dirname {} \; |\
 		 sort -u); do \
 		newdir=${BUILD}/$$d; \
@@ -111,32 +116,32 @@ all:
 	done
 
 libcgpt_cc:
-	mkdir -p ${BUILD}/cgpt ${BUILD}/firmware/lib/cgptlib ${BUILD}/firmware/stub
-	$(MAKE) -C cgpt libcgpt_cc
+	$(Q)mkdir -p ${BUILD}/cgpt ${BUILD}/firmware/lib/cgptlib ${BUILD}/firmware/stub
+	$(Q)$(MAKE) -C cgpt libcgpt_cc
 
 cgptmanager_tests: libcgpt_cc
-	mkdir -p ${BUILD}/tests
-	$(MAKE) -C tests cgptmanager_tests
+	$(Q)mkdir -p ${BUILD}/tests
+	$(Q)$(MAKE) -C tests cgptmanager_tests
 
 libdump_kernel_config:
-	mkdir -p ${BUILD}/utility
-	$(MAKE) -C utility $(DUMPKERNELCONFIGLIB)
+	$(Q)mkdir -p ${BUILD}/utility
+	$(Q)$(MAKE) -C utility $(DUMPKERNELCONFIGLIB)
 
 clean:
-	/bin/rm -rf ${BUILD}
+	$(Q)/bin/rm -rf ${BUILD}
 
 install:
-	$(MAKE) -C utility install
-	$(MAKE) -C cgpt install
+	$(Q)$(MAKE) -C utility install
+	$(Q)$(MAKE) -C cgpt install
 
 runtests:
-	$(MAKE) -C tests runtests
+	$(Q)$(MAKE) -C tests runtests
 
 runcgptmanagertests:
-	$(MAKE) -C tests runcgptmanagertests
+	$(Q)$(MAKE) -C tests runcgptmanagertests
 
 rbtest:
-	$(MAKE) -C tests rbtest
+	$(Q)$(MAKE) -C tests rbtest
 
 runbmptests:
-	$(MAKE) -C tests runbmptests
+	$(Q)$(MAKE) -C tests runbmptests
