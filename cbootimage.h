@@ -38,6 +38,9 @@
 #define NVBOOT_BAD_BLOCK_TABLE_SIZE 4096
 #define NV_MAX(a, b) (((a) > (b)) ? (a) : (b))
 
+#define BOOTDATA_VERSION_T20		NVBOOT_BOOTDATA_VERSION(0x2, 0x1)
+#define BOOTDATA_VERSION_T30		NVBOOT_BOOTDATA_VERSION(0x3, 0x1)
+
 /*
  * Enumerations
  */

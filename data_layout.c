@@ -28,7 +28,6 @@
 #include "set.h"
 #include "context.h"
 #include "parse.h"
-#include "t20/nvboot_bct_t20.h"
 #include <sys/param.h>
 
 typedef struct blk_data_rec
@@ -309,14 +308,14 @@ fail:
 
 #define SET_BL_FIELD(instance, field, value)                \
 do {                                                        \
-	g_bct_parse_interf->setbl_param(instance,           \
+	g_soc_config->setbl_param(instance,           \
 		token_bl_##field,                           \
 			&(value),                           \
 			context->bct);                      \
 } while (0);
 
 #define GET_BL_FIELD(instance, field, ptr)                  \
-g_bct_parse_interf->getbl_param(instance,                   \
+g_soc_config->getbl_param(instance,                   \
 		token_bl_##field,                           \
 			ptr,                                \
 			context->bct);
@@ -387,9 +386,9 @@ write_bootloaders(build_image_context *context)
 	pages_per_blk = 1 << (context->block_size_log2
 			- context->page_size_log2);
 
-	g_bct_parse_interf->get_value(token_hash_size,
+	g_soc_config->get_value(token_hash_size,
 			&hash_size, context->bct);
-	g_bct_parse_interf->get_value(token_bootloaders_max,
+	g_soc_config->get_value(token_bootloaders_max,
 			&bootloaders_max, context->bct);
 
 	hash_buffer = malloc(hash_size);
@@ -408,7 +407,7 @@ write_bootloaders(build_image_context *context)
 	 * a BL in the device.
 	 */
 	GET_BL_FIELD(0, version, &bl_0_version);
-	g_bct_parse_interf->get_value(token_bootloader_used,
+	g_soc_config->get_value(token_bootloader_used,
 			&bl_used, context->bct);
 	for (bl_instance = 0; bl_instance < bl_used; bl_instance++) {
 		u_int32_t bl_version;
@@ -438,11 +437,11 @@ write_bootloaders(build_image_context *context)
 		COPY_BL_FIELD(inst_from, inst_to, entry_point);
 		COPY_BL_FIELD(inst_from, inst_to, attribute);
 
-		g_bct_parse_interf->getbl_param(inst_from,
+		g_soc_config->getbl_param(inst_from,
 			token_bl_crypto_hash,
 			(u_int32_t*)hash_buffer,
 			context->bct);
-		g_bct_parse_interf->setbl_param(inst_to,
+		g_soc_config->setbl_param(inst_to,
 			token_bl_crypto_hash,
 			(u_int32_t*)hash_buffer,
 			context->bct);
@@ -520,7 +519,7 @@ write_bootloaders(build_image_context *context)
 		sign_data_block(buffer,
 				bl_actual_size,
 				hash_buffer);
-		g_bct_parse_interf->setbl_param(bl_instance,
+		g_soc_config->setbl_param(bl_instance,
 				token_bl_crypto_hash,
 				(u_int32_t*)hash_buffer,
 				context->bct);
@@ -555,7 +554,7 @@ write_bootloaders(build_image_context *context)
 		free(buffer);
 	}
 
-	g_bct_parse_interf->set_value(token_bootloader_used,
+	g_soc_config->set_value(token_bootloader_used,
 			context->redundancy + bl_move_count,
 			context->bct);
 
@@ -585,7 +584,7 @@ write_bootloaders(build_image_context *context)
 				load_addr,
 				entry_point);
 
-			g_bct_parse_interf->getbl_param(i,
+			g_soc_config->getbl_param(i,
 				token_bl_crypto_hash,
 				(u_int32_t*)hash_buffer,
 				context->bct);
@@ -599,6 +598,7 @@ write_bootloaders(build_image_context *context)
 	free(bl_storage);
 	free(hash_buffer);
 	return 0;
+
 fail:
 	/* Cleanup. */
 	free(buffer);
@@ -611,16 +611,16 @@ fail:
 void
 update_context(struct build_image_context_rec *context)
 {
-	g_bct_parse_interf->get_value(token_partition_size,
+	g_soc_config->get_value(token_partition_size,
 			&context->partition_size,
 			context->bct);
-	g_bct_parse_interf->get_value(token_page_size_log2,
+	g_soc_config->get_value(token_page_size_log2,
 			&context->page_size_log2,
 			context->bct);
-	g_bct_parse_interf->get_value(token_block_size_log2,
+	g_soc_config->get_value(token_block_size_log2,
 			&context->block_size_log2,
 			context->bct);
-	g_bct_parse_interf->get_value(token_odm_data,
+	g_soc_config->get_value(token_odm_data,
 			&context->odm_data,
 			context->bct);
 
@@ -665,7 +665,6 @@ read_bct_file(struct build_image_context_rec *context)
 	u_int8_t  *bct_storage; /* Holds the Bl after reading */
 	u_int32_t  bct_actual_size; /* In bytes */
 	file_type bct_filetype = file_type_bct;
-	nvboot_config_table *bct = NULL;
 	int err = 0;
 
 	if (read_from_image(context->bct_filename,
@@ -685,18 +684,13 @@ read_bct_file(struct build_image_context_rec *context)
 	memcpy(context->bct, bct_storage, context->bct_size);
 	free(bct_storage);
 
-	bct = (nvboot_config_table *)(context->bct);
-	if (bct->boot_data_version == NVBOOT_BOOTDATA_VERSION(3, 1)) {
-		t30_get_cbootimage_interf(g_bct_parse_interf);
-		context->boot_data_version =
-				NVBOOT_BOOTDATA_VERSION(3, 1);
-	}
-	else {
-		t20_get_cbootimage_interf(g_bct_parse_interf);
-		context->boot_data_version =
-				NVBOOT_BOOTDATA_VERSION(2, 1);
-	}
-	return err;
+	/* get proper soc_config pointer by polling each supported chip */
+	if (if_bct_is_t20_get_soc_config(context, &g_soc_config))
+		return 0;
+	if (if_bct_is_t30_get_soc_config(context, &g_soc_config))
+		return 0;
+
+	return ENODATA;
 }
 /*
  * Update the next_bct_blk and make it point to the next
@@ -711,7 +705,7 @@ find_new_bct_blk(build_image_context *context)
 
 	assert(context);
 
-	g_bct_parse_interf->get_value(token_max_bct_search_blks,
+	g_soc_config->get_value(token_max_bct_search_blks,
 			&max_bct_search_blks, context->bct);
 
 	if (context->next_bct_blk > max_bct_search_blks) {
@@ -744,29 +738,29 @@ begin_update(build_image_context *context)
 		u_int32_t block_size_log2;
 		u_int32_t page_size_log2;
 
-		g_bct_parse_interf->get_value(token_block_size_log2,
+		g_soc_config->get_value(token_block_size_log2,
 			&block_size_log2, context->bct);
-		g_bct_parse_interf->get_value(token_page_size_log2,
+		g_soc_config->get_value(token_page_size_log2,
 			&page_size_log2, context->bct);
 
 		printf("begin_update(): bct data: b=%d p=%d\n",
 			block_size_log2, page_size_log2);
 	}
 
-	g_bct_parse_interf->set_value(token_boot_data_version,
+	g_soc_config->set_value(token_boot_data_version,
 			context->boot_data_version, context->bct);
-	g_bct_parse_interf->get_value(token_hash_size,
+	g_soc_config->get_value(token_hash_size,
 			&hash_size, context->bct);
-	g_bct_parse_interf->get_value(token_reserved_size,
+	g_soc_config->get_value(token_reserved_size,
 			&reserved_size, context->bct);
-	g_bct_parse_interf->get_value(token_reserved_offset,
+	g_soc_config->get_value(token_reserved_offset,
 			&reserved_offset, context->bct);
 	/* Set the odm data */
-	g_bct_parse_interf->set_value(token_odm_data,
+	g_soc_config->set_value(token_odm_data,
 			context->odm_data, context->bct);
 
 	/* Initialize the bad block table field. */
-	g_bct_parse_interf->init_bad_block_table(context);
+	g_soc_config->init_bad_block_table(context);
 	/* Fill the reserved data w/the padding pattern. */
 	write_padding(context->bct + reserved_offset, reserved_size);
 

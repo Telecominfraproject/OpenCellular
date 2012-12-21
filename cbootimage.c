@@ -32,11 +32,10 @@
 /*
  * Global data
  */
-int enable_debug                = 0;
+int enable_debug;
+static int help_only; // Only print help & exit
+cbootimage_soc_config * g_soc_config;
 
-static int help_only            = 0; // Only print help & exit
-
-bct_parse_interface *g_bct_parse_interf;
 /*
  * Function prototypes
  */
@@ -64,14 +63,14 @@ usage(void)
 {
 	printf("Usage: cbootimage [options] configfile imagename\n");
 	printf("    options:\n");
-	printf("    -h, --help, -?  Display this message.\n");
-	printf("    -d, --debug     Output debugging information.\n");
-	printf("    -gbct               Generate the new bct file.\n");
-	printf("    -o<ODM_DATA>       Specify the odm_data(in hex).\n");
-	printf("    [-t20|-t25|-t30]   Select one of the possible\n");
-	printf("                       target devices, -t20 if unspecified\n");
-	printf("    configfile      File with configuration information\n");
-	printf("    imagename       Output image name\n");
+	printf("    -h, --help, -?        Display this message.\n");
+	printf("    -d, --debug           Output debugging information.\n");
+	printf("    -gbct                 Generate the new bct file.\n");
+	printf("    -o<ODM_DATA>          Specify the odm_data(in hex).\n");
+	printf("    [-t20|-t30]           Select one of the possible target devices,\n");
+	printf("                          -t20 if unspecified.\n");
+	printf("    configfile            File with configuration information\n");
+	printf("    imagename             Output image name\n");
 }
 
 static int
@@ -80,15 +79,6 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 	int c;
 
 	context->generate_bct = 0;
-
-	g_bct_parse_interf = malloc(sizeof(bct_parse_interface));
-	if (g_bct_parse_interf == NULL) {
-		printf("Insufficient memory to proceed.\n");
-		return -EINVAL;
-	}
-	/* Make the default interface to t20. */
-	t20_get_cbootimage_interf(g_bct_parse_interf);
-	context->boot_data_version = NVBOOT_BOOTDATA_VERSION(2, 1);
 
 	while ((c = getopt_long(argc, argv, "hdg:t:o:", cbootcmd, NULL)) != -1) {
 		switch (c) {
@@ -109,16 +99,11 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 			}
 			break;
 		case 't':
-			if (!(strcasecmp("20", optarg)
-				&& strcasecmp("25", optarg))) {
-				/* Assign the interface based on the chip. */
-				t20_get_cbootimage_interf(g_bct_parse_interf);
-				context->boot_data_version =
-					NVBOOT_BOOTDATA_VERSION(2, 1);
-			} else if (!(strcasecmp("30", optarg))) {
-				t30_get_cbootimage_interf(g_bct_parse_interf);
-				context->boot_data_version =
-					NVBOOT_BOOTDATA_VERSION(3, 1);
+			/* Assign the soc_config based on the chip. */
+			if (!strcasecmp("20", optarg)) {
+				t20_get_soc_config(context, &g_soc_config);
+			} else if (!strcasecmp("30", optarg)) {
+				t30_get_soc_config(context, &g_soc_config);
 			} else {
 				printf("Unsupported chipname!\n");
 				usage();
@@ -136,6 +121,11 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 		usage();
 		return -EINVAL;
 	}
+
+	/* If SoC is not specified, make the default soc_config to t20. */
+	if (!context->boot_data_version)
+		t20_get_soc_config(context, &g_soc_config);
+
 	/* Open the configuration file. */
 	context->config_file = fopen(argv[optind], "r");
 	if (context->config_file == NULL) {
@@ -161,12 +151,12 @@ main(int argc, char *argv[])
 	if (process_command_line(argc, argv, &context) != 0)
 		return -EINVAL;
 
-	assert(g_bct_parse_interf != NULL);
+	assert(g_soc_config != NULL);
 
 	if (help_only)
 		return 1;
 
-	g_bct_parse_interf->get_value(token_bct_size,
+	g_soc_config->get_value(token_bct_size,
 					&context.bct_size,
 					context.bct);
 
@@ -235,9 +225,5 @@ main(int argc, char *argv[])
 
 	/* Clean up memory. */
 	cleanup_context(&context);
-	if (g_bct_parse_interf) {
-		free(g_bct_parse_interf);
-		g_bct_parse_interf = NULL;
-	}
 	return e;
 }

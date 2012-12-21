@@ -23,8 +23,8 @@
  * Note that PLLM is used by EMC.
  */
 
-#ifndef INCLUDED_NVBOOT_SDRAM_PARAM_H
-#define INCLUDED_NVBOOT_SDRAM_PARAM_H
+#ifndef INCLUDED_NVBOOT_SDRAM_PARAM_T30_H
+#define INCLUDED_NVBOOT_SDRAM_PARAM_T30_H
 
 #define NVBOOT_BCT_SDRAM_ARB_CONFIG_WORDS 27
 
@@ -564,5 +564,5 @@ typedef struct nvboot_sdram_params_rec {
 
 	/* End of generated code by warmboot_code_gen */
 } nvboot_sdram_params;
-#endif /* #ifndef INCLUDED_NVBOOT_SDRAM_PARAM_H */
+#endif /* #ifndef INCLUDED_NVBOOT_SDRAM_PARAM_T30_H */
 

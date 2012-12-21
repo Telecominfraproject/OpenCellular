@@ -405,7 +405,7 @@ parse_array(build_image_context *context, parse_token token, char *rest)
 	case token_dev_type:
 		rest = parse_enum(context,
 				rest,
-				s_devtype_table_t20,
+				g_soc_config->devtype_table,
 				&value);
 		break;
 
@@ -444,13 +444,13 @@ set_array(build_image_context *context,
 
 	switch (token) {
 	case token_attribute:
-		err = g_bct_parse_interf->setbl_param(index,
+		err = g_soc_config->setbl_param(index,
 					token_bl_attribute,
 					&value,
 					context->bct);
 		break;
 	case token_dev_type:
-		err = g_bct_parse_interf->set_dev_param(context,
+		err = g_soc_config->set_dev_param(context,
 						index,
 						token_dev_type,
 						value);
@@ -509,7 +509,9 @@ parse_bct_file(build_image_context *context, parse_token token, char *rest)
 	/* Parsing has finished - set the bctfile */
 	context->bct_filename = filename;
 	/* Read the bct file to buffer */
-	read_bct_file(context);
+	if (read_bct_file(context))
+		return 1;
+
 	update_context(context);
 	return 0;
 }
@@ -544,16 +546,11 @@ parse_dev_param(build_image_context *context, parse_token token, char *rest)
 	u_int32_t value;
 	field_item *field;
 	u_int32_t index;
-	parse_subfield_item *device_type_table;
 	parse_subfield_item *device_item = NULL;
 
 	assert(context != NULL);
 	assert(rest != NULL);
 
-	if (context->boot_data_version == NVBOOT_BOOTDATA_VERSION(3, 1))
-		device_type_table = s_device_type_table_t30;
-	else
-		device_type_table = s_device_type_table_t20;
 	/* Parse the index. */
 	rest = parse_u32(rest, &index);
 	if (rest == NULL)
@@ -570,16 +567,16 @@ parse_dev_param(build_image_context *context, parse_token token, char *rest)
 	rest++;
 
 	/* Parse the device name. */
-	for (i = 0; device_type_table[i].prefix != NULL; i++) {
-		if (!strncmp(device_type_table[i].prefix,
-			rest, strlen(device_type_table[i].prefix))) {
+	for (i = 0; g_soc_config->device_type_table[i].prefix != NULL; i++) {
+		if (!strncmp(g_soc_config->device_type_table[i].prefix,
+			rest, strlen(g_soc_config->device_type_table[i].prefix))) {
 
-			device_item = &(device_type_table[i]);
-			rest = rest + strlen(device_type_table[i].prefix);
+			device_item = &(g_soc_config->device_type_table[i]);
+			rest = rest + strlen(g_soc_config->device_type_table[i].prefix);
 
 			/* Parse the field name. */
 			rest = parse_field_name(rest,
-				device_type_table[i].field_table,
+					g_soc_config->device_type_table[i].field_table,
 				&field);
 			if (rest == NULL)
 				return 1;
@@ -635,10 +632,8 @@ parse_sdram_param(build_image_context *context, parse_token token, char *rest)
 	rest++;
 
 	/* Parse the field name. */
-	if (context->boot_data_version == NVBOOT_BOOTDATA_VERSION(3, 1))
-		rest = parse_field_name(rest, s_sdram_field_table_t30, &field);
-	else
-		rest = parse_field_name(rest, s_sdram_field_table_t20, &field);
+	rest = parse_field_name(rest, g_soc_config->sdram_field_table, &field);
+
 	if (rest == NULL)
 		return 1;
 
@@ -653,7 +648,7 @@ parse_sdram_param(build_image_context *context, parse_token token, char *rest)
 		return 1;
 
 	/* Store the result. */
-	return g_bct_parse_interf->set_sdram_param(context,
+	return g_soc_config->set_sdram_param(context,
 						index,
 						field->token,
 						value);

@@ -640,16 +640,45 @@ void t20_init_bad_block_table(build_image_context *context)
 					table->virtual_blk_size_log2);
 }
 
-void t20_get_cbootimage_interf(bct_parse_interface *cbootimage_bct_interf)
+cbootimage_soc_config tegra20_config = {
+	.init_bad_block_table		= t20_init_bad_block_table,
+	.set_dev_param				= t20_set_dev_param,
+	.get_dev_param				= t20_get_dev_param,
+	.set_sdram_param			= t20_set_sdram_param,
+	.get_sdram_param			= t20_get_sdram_param,
+	.setbl_param				= t20_setbl_param,
+	.getbl_param				= t20_getbl_param,
+	.set_value					= t20_bct_set_value,
+	.get_value					= t20_bct_get_value,
+	.set_data					= t20_bct_set_data,
+
+	.devtype_table				= s_devtype_table_t20,
+	.sdmmc_data_width_table		= s_sdmmc_data_width_table_t20,
+	.spi_clock_source_table		= s_spi_clock_source_table_t20,
+	.nvboot_memory_type_table	= s_nvboot_memory_type_table_t20,
+	.sdram_field_table			= s_sdram_field_table_t20,
+	.nand_table					= s_nand_table_t20,
+	.sdmmc_table				= s_sdmmc_table_t20,
+	.spiflash_table				= s_spiflash_table_t20,
+	.device_type_table			= s_device_type_table_t20,
+};
+
+void t20_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config)
 {
-	cbootimage_bct_interf->init_bad_block_table = t20_init_bad_block_table;
-	cbootimage_bct_interf->set_dev_param = t20_set_dev_param;
-	cbootimage_bct_interf->get_dev_param = t20_get_dev_param;
-	cbootimage_bct_interf->set_sdram_param = t20_set_sdram_param;
-	cbootimage_bct_interf->get_sdram_param = t20_get_sdram_param;
-	cbootimage_bct_interf->setbl_param = t20_setbl_param;
-	cbootimage_bct_interf->getbl_param = t20_getbl_param;
-	cbootimage_bct_interf->set_value = t20_bct_set_value;
-	cbootimage_bct_interf->get_value = t20_bct_get_value;
-	cbootimage_bct_interf->set_data = t20_bct_set_data;
+	context->boot_data_version = BOOTDATA_VERSION_T20;
+	*soc_config = &tegra20_config;
+}
+
+int if_bct_is_t20_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config)
+{
+	nvboot_config_table * bct = (nvboot_config_table *) context->bct;
+
+	if (bct->boot_data_version == BOOTDATA_VERSION_T20)
+	{
+		t20_get_soc_config(context, soc_config);
+		return 1;
+	}
+	return 0;
 }

@@ -416,10 +416,10 @@ typedef struct
 } parse_item;
 
 /*
- * Set of function pointers to be used to access the different hardware
+ * Set of function pointers and table pointers to be used to access the different hardware
  * interface for setting/getting bct information.
  */
-typedef struct bct_parse_interface_rec {
+typedef struct cbootimage_soc_config_rec {
 	/*
 	 * Set device parameters in bct according to the value listed
 	 *
@@ -541,11 +541,30 @@ typedef struct bct_parse_interface_rec {
 			u_int8_t *bct);
 
 	void (*init_bad_block_table)(build_image_context *context);
-} bct_parse_interface;
+
+	enum_item *devtype_table;
+	enum_item *sdmmc_data_width_table;
+	enum_item *spi_clock_source_table;
+	enum_item *nvboot_memory_type_table;
+	field_item *sdram_field_table;
+	field_item *nand_table;
+	field_item *sdmmc_table;
+	field_item *spiflash_table;
+	parse_subfield_item *device_type_table;
+} cbootimage_soc_config;
 
 void process_config_file(build_image_context *context, u_int8_t simple_parse);
-void t20_get_cbootimage_interf(bct_parse_interface *cbootimage_bct_interf);
-void t30_get_cbootimage_interf(bct_parse_interface *cbootimage_bct_interf);
+
+void t30_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
+void t20_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
+
+int if_bct_is_t30_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
+int if_bct_is_t20_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
+
 int
 t30_get_dev_param(build_image_context *context,
 	u_int32_t index,
@@ -593,14 +612,21 @@ u_int32_t iceil_log2(u_int32_t a, u_int32_t b);
 /* Returns the smallest power of 2 >= a */
 u_int32_t ceil_log2(u_int32_t a);
 
-extern bct_parse_interface *g_bct_parse_interf;
+extern cbootimage_soc_config *g_soc_config;
+
 /*
  * Provide access to enum and field tables.  These tables are useful when
  * pretty printing a BCT file using bct_dump.
  */
 extern enum_item s_devtype_table_t20[];
+extern enum_item s_devtype_table_t30[];
+
 extern enum_item s_sdmmc_data_width_table_t20[];
+extern enum_item s_sdmmc_data_width_table_t30[];
+
 extern enum_item s_spi_clock_source_table_t20[];
+extern enum_item s_spi_clock_source_table_t30[];
+
 extern enum_item s_nvboot_memory_type_table_t20[];
 extern enum_item s_nvboot_memory_type_table_t30[];
 extern field_item s_sdram_field_table_t20[];
@@ -610,7 +636,9 @@ extern field_item s_nand_table_t30[];
 extern field_item s_sdmmc_table_t20[];
 extern field_item s_sdmmc_table_t30[];
 extern field_item s_spiflash_table_t20[];
-extern parse_subfield_item s_device_type_table_t30[];
+extern field_item s_spiflash_table_t30[];
+
 extern parse_subfield_item s_device_type_table_t20[];
+extern parse_subfield_item s_device_type_table_t30[];
 
 #endif /* #ifndef INCLUDED_PARSE_H */

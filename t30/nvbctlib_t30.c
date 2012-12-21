@@ -847,16 +847,45 @@ void t30_init_bad_block_table(build_image_context *context)
 					table->virtual_blk_size_log2);
 }
 
-void t30_get_cbootimage_interf(bct_parse_interface *cbootimage_bct_interf)
+cbootimage_soc_config tegra30_config = {
+	.init_bad_block_table		= t30_init_bad_block_table,
+	.set_dev_param				= t30_set_dev_param,
+	.get_dev_param				= t30_get_dev_param,
+	.set_sdram_param			= t30_set_sdram_param,
+	.get_sdram_param			= t30_get_sdram_param,
+	.setbl_param				= t30_setbl_param,
+	.getbl_param				= t30_getbl_param,
+	.set_value					= t30_bct_set_value,
+	.get_value					= t30_bct_get_value,
+	.set_data					= t30_bct_set_data,
+
+	.devtype_table				= s_devtype_table_t30,
+	.sdmmc_data_width_table		= s_sdmmc_data_width_table_t30,
+	.spi_clock_source_table		= s_spi_clock_source_table_t30,
+	.nvboot_memory_type_table	= s_nvboot_memory_type_table_t30,
+	.sdram_field_table			= s_sdram_field_table_t30,
+	.nand_table					= s_nand_table_t30,
+	.sdmmc_table				= s_sdmmc_table_t30,
+	.spiflash_table				= s_spiflash_table_t30,
+	.device_type_table			= s_device_type_table_t30,
+};
+
+void t30_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config)
 {
-	cbootimage_bct_interf->init_bad_block_table = t30_init_bad_block_table;
-	cbootimage_bct_interf->set_dev_param = t30_set_dev_param;
-	cbootimage_bct_interf->get_dev_param = t30_get_dev_param;
-	cbootimage_bct_interf->set_sdram_param = t30_set_sdram_param;
-	cbootimage_bct_interf->get_sdram_param = t30_get_sdram_param;
-	cbootimage_bct_interf->setbl_param = t30_setbl_param;
-	cbootimage_bct_interf->getbl_param = t30_getbl_param;
-	cbootimage_bct_interf->set_value = t30_bct_set_value;
-	cbootimage_bct_interf->get_value = t30_bct_get_value;
-	cbootimage_bct_interf->set_data = t30_bct_set_data;
+	context->boot_data_version = BOOTDATA_VERSION_T30;
+	*soc_config = &tegra30_config;
+}
+
+int if_bct_is_t30_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config)
+{
+	nvboot_config_table * bct = (nvboot_config_table *) context->bct;
+
+	if (bct->boot_data_version == BOOTDATA_VERSION_T30)
+	{
+		t30_get_soc_config(context, soc_config);
+		return 1;
+	}
+	return 0;
 }

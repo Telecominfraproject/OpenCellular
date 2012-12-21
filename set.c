@@ -151,7 +151,7 @@ int context_set_value(build_image_context *context,
 		}
 		context->pages_per_blk= 1 << (context->block_size_log2- 
 				context->page_size_log2);
-		g_bct_parse_interf->set_value(token_block_size_log2,
+		g_soc_config->set_value(token_block_size_log2,
 			context->block_size_log2, context->bct);
 		break;
 
@@ -162,7 +162,7 @@ int context_set_value(build_image_context *context,
 		}
 
 		context->partition_size= value;
-		g_bct_parse_interf->set_value(token_partition_size,
+		g_soc_config->set_value(token_partition_size,
 			value, context->bct);
 		break;
 
@@ -172,7 +172,7 @@ int context_set_value(build_image_context *context,
 		context->pages_per_blk= 1 << (context->block_size_log2- 
 			context->page_size_log2);
 
-		g_bct_parse_interf->set_value(token_page_size_log2,
+		g_soc_config->set_value(token_page_size_log2,
 			context->page_size_log2, context->bct);
 		break;
 	case token_redundancy:

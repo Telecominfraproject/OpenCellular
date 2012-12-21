@@ -17,8 +17,8 @@
  * project.
  */
 
-#ifndef INCLUDED_NVBOOT_BCT_H
-#define INCLUDED_NVBOOT_BCT_H
+#ifndef INCLUDED_NVBOOT_BCT_T30_H
+#define INCLUDED_NVBOOT_BCT_T30_H
 
 #include <sys/types.h>
 #include "nvboot_sdram_param_t30.h"
@@ -376,4 +376,4 @@ typedef struct nvboot_config_table_rec {
 	u_int8_t enable_fail_back;
 	u_int8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
 } nvboot_config_table;
-#endif /* #ifndef INCLUDED_NVBOOT_BCT_H */
+#endif /* #ifndef INCLUDED_NVBOOT_BCT_T30_H */

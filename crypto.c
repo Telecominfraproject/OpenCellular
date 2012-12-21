@@ -267,15 +267,15 @@ sign_bct(build_image_context *context,
 
 	assert(bct != NULL);
 
-	if (g_bct_parse_interf->get_value(token_hash_size,
+	if (g_soc_config->get_value(token_hash_size,
 					&hash_size,
 					bct) != 0)
 		return -ENODATA;
-	if (g_bct_parse_interf->get_value(token_crypto_offset,
+	if (g_soc_config->get_value(token_crypto_offset,
 	 	 	 	 	&Offset,
 					bct) != 0)
 		return -ENODATA;
-	if (g_bct_parse_interf->get_value(token_crypto_length,
+	if (g_soc_config->get_value(token_crypto_length,
 					&length,
 					bct) != 0)
 		return -ENODATA;
@@ -286,7 +286,7 @@ sign_bct(build_image_context *context,
 	e = sign_data_block(bct + Offset, length, hash_buffer);
 	if (e != 0)
 		goto fail;
-	e = g_bct_parse_interf->set_data(token_crypto_hash,
+	e = g_soc_config->set_data(token_crypto_hash,
 						hash_buffer,
 						hash_size,
 						bct);

@@ -24,9 +24,8 @@
 #include "t20/nvboot_bct_t20.h"
 #include <string.h>
 
-int enable_debug = 0;
-
-bct_parse_interface *g_bct_parse_interf;
+int enable_debug;
+cbootimage_soc_config * g_soc_config;
 
 typedef struct {
 	parse_token id;
@@ -139,7 +138,6 @@ int main(int argc, char *argv[])
 	u_int32_t parameters_used;
 	u_int32_t sdram_used;
 	nvboot_dev_type type;
-	nvboot_config_table *bct = NULL;
 	u_int32_t data;
 	int i;
 	int j;
@@ -148,22 +146,15 @@ int main(int argc, char *argv[])
 		usage();
 
 	memset(&context, 0, sizeof(build_image_context));
-
-	g_bct_parse_interf = malloc(sizeof(bct_parse_interface));
-	if (g_bct_parse_interf == NULL) {
-		printf("Insufficient memory to proceed.\n");
-		return -EINVAL;
-	}
-
 	context.bct_filename = argv[1];
 
 	e = read_bct_file(&context);
 	if (e != 0)
 		return e;
-	bct = (nvboot_config_table *)(context.bct);
+
 	/* Display root values */
 	for (i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
-		e = g_bct_parse_interf->get_value(values[i].id,
+		e = g_soc_config->get_value(values[i].id,
 						&data,
 						context.bct);
 
@@ -177,7 +168,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Display bootloader values */
-	e = g_bct_parse_interf->get_value(token_bootloader_used,
+	e = g_soc_config->get_value(token_bootloader_used,
 				     &bootloaders_used,
 				     context.bct);
 
@@ -192,7 +183,7 @@ int main(int argc, char *argv[])
 
 		for (i = 0; i < bootloaders_used; ++i) {
 			for (j = 0; j < bl_count; ++j) {
-				e = g_bct_parse_interf->getbl_param(i,
+				e = g_soc_config->getbl_param(i,
 							       bl_values[j].id,
 							       &data,
 							       context.bct);
@@ -207,7 +198,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Display flash device parameters */
-	e = g_bct_parse_interf->get_value(token_num_param_sets,
+	e = g_soc_config->get_value(token_num_param_sets,
 				     &parameters_used,
 				     context.bct);
 
@@ -216,36 +207,28 @@ int main(int argc, char *argv[])
 		char const * prefix = NULL;
 		field_item const * item;
 
-		e = g_bct_parse_interf->get_dev_param(&context,
+		e = g_soc_config->get_dev_param(&context,
 							i,
 							token_dev_type,
 							&type);
 		printf("\n"
 		       "DevType[%d] = ", i);
-		display_enum_value(&context, s_devtype_table_t20, type);
+		display_enum_value(&context, g_soc_config->devtype_table, type);
 		printf(";\n");
 
 		switch (type) {
 			case nvboot_dev_type_spi:
-				device_field_table = s_spiflash_table_t20;
+				device_field_table = g_soc_config->spiflash_table;
 				prefix = "SpiFlashParams";
 				break;
 
 			case nvboot_dev_type_sdmmc:
-				if (bct->boot_data_version ==
-					NVBOOT_BOOTDATA_VERSION(3, 1))
-					device_field_table = s_sdmmc_table_t30;
-				else
-					device_field_table = s_sdmmc_table_t20;
+				device_field_table = g_soc_config->sdmmc_table;
 				prefix = "SdmmcParams";
 				break;
 
 			case nvboot_dev_type_nand:
-				if (bct->boot_data_version ==
-					NVBOOT_BOOTDATA_VERSION(3, 1))
-					device_field_table = s_nand_table_t30;
-				else
-					device_field_table = s_nand_table_t20;
+				device_field_table = g_soc_config->nand_table;
 				prefix = "NandParams";
 				break;
 
@@ -261,7 +244,7 @@ int main(int argc, char *argv[])
 		int width = max_width(device_field_table);
 
 		for (item = device_field_table; item->name != NULL; ++item) {
-			g_bct_parse_interf->get_dev_param(&context,
+			g_soc_config->get_dev_param(&context,
 							i,
 							item->token,
 							&data);
@@ -278,25 +261,19 @@ int main(int argc, char *argv[])
 	}
 
 	/* Display SDRAM parameters */
-	e = g_bct_parse_interf->get_value(token_num_sdram_sets,
+	e = g_soc_config->get_value(token_num_sdram_sets,
 				     &sdram_used,
 				     context.bct);
 
 	for (i = 0; (e == 0) && (i < sdram_used); ++i) {
-		field_item const *s_sdram_field_table;
 		field_item const *item;
 
 		printf("\n");
 
-		if (bct->boot_data_version == NVBOOT_BOOTDATA_VERSION(3, 1))
-			s_sdram_field_table = s_sdram_field_table_t30;
-		else
-			s_sdram_field_table = s_sdram_field_table_t20;
+		int width = max_width(g_soc_config->sdram_field_table);
 
-		int width = max_width(s_sdram_field_table);
-
-		for (item = s_sdram_field_table; item->name != NULL; ++item) {
-			e = g_bct_parse_interf ->get_sdram_param(&context,
+		for (item = g_soc_config->sdram_field_table; item->name != NULL; ++item) {
+			e = g_soc_config->get_sdram_param(&context,
 								i,
 								item->token,
 								&data);
