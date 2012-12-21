@@ -28,8 +28,10 @@ CBOOTIMAGE_C_FILES += crypto.c
 CBOOTIMAGE_C_FILES += aes_ref.c
 CBOOTIMAGE_C_FILES += context.c
 CBOOTIMAGE_C_FILES += parse.c
+CBOOTIMAGE_C_FILES += t114/parse_t114.c
 CBOOTIMAGE_C_FILES += t30/parse_t30.c
 CBOOTIMAGE_C_FILES += t20/parse_t20.c
+CBOOTIMAGE_C_FILES += t114/nvbctlib_t114.c
 CBOOTIMAGE_C_FILES += t30/nvbctlib_t30.c
 CBOOTIMAGE_C_FILES += t20/nvbctlib_t20.c
 
@@ -49,8 +51,10 @@ BCT_DUMP_C_FILES += crypto.c
 BCT_DUMP_C_FILES += aes_ref.c
 BCT_DUMP_C_FILES += context.c
 BCT_DUMP_C_FILES += parse.c
+BCT_DUMP_C_FILES += t114/parse_t114.c
 BCT_DUMP_C_FILES += t30/parse_t30.c
 BCT_DUMP_C_FILES += t20/parse_t20.c
+BCT_DUMP_C_FILES += t114/nvbctlib_t114.c
 BCT_DUMP_C_FILES += t30/nvbctlib_t30.c
 BCT_DUMP_C_FILES += t20/nvbctlib_t20.c
 

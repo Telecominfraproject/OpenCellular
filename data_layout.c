@@ -689,6 +689,8 @@ read_bct_file(struct build_image_context_rec *context)
 		return 0;
 	if (if_bct_is_t30_get_soc_config(context, &g_soc_config))
 		return 0;
+	if (if_bct_is_t114_get_soc_config(context, &g_soc_config))
+		return 0;
 
 	return ENODATA;
 }
