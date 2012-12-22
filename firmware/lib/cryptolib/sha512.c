@@ -150,17 +150,17 @@ static const uint64_t sha512_k[80] = {
 /* SHA-512 implementation */
 
 void SHA512_init(SHA512_CTX *ctx) {
-#ifndef UNROLL_LOOPS
-    int i;
-    for (i = 0; i < 8; i++) {
-        ctx->h[i] = sha512_h0[i];
-    }
-#else
+#ifdef UNROLL_LOOPS_SHA512
     ctx->h[0] = sha512_h0[0]; ctx->h[1] = sha512_h0[1];
     ctx->h[2] = sha512_h0[2]; ctx->h[3] = sha512_h0[3];
     ctx->h[4] = sha512_h0[4]; ctx->h[5] = sha512_h0[5];
     ctx->h[6] = sha512_h0[6]; ctx->h[7] = sha512_h0[7];
-#endif /* !UNROLL_LOOPS */
+#else
+    int i;
+
+    for (i = 0; i < 8; i++)
+        ctx->h[i] = sha512_h0[i];
+#endif /* UNROLL_LOOPS_SHA512 */
 
     ctx->len = 0;
     ctx->tot_len = 0;
@@ -178,37 +178,7 @@ static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
   for (i = 0; i < (int) block_nb; i++) {
     sub_block = message + (i << 7);
 
-#ifndef UNROLL_LOOPS
-    for (j = 0; j < 16; j++) {
-      PACK64(&sub_block[j << 3], &w[j]);
-    }
-
-    for (j = 16; j < 80; j++) {
-      SHA512_SCR(j);
-    }
-
-    for (j = 0; j < 8; j++) {
-      wv[j] = ctx->h[j];
-    }
-
-    for (j = 0; j < 80; j++) {
-      t1 = wv[7] + SHA512_F2(wv[4]) + CH(wv[4], wv[5], wv[6])
-          + sha512_k[j] + w[j];
-      t2 = SHA512_F1(wv[0]) + MAJ(wv[0], wv[1], wv[2]);
-      wv[7] = wv[6];
-      wv[6] = wv[5];
-      wv[5] = wv[4];
-      wv[4] = wv[3] + t1;
-      wv[3] = wv[2];
-      wv[2] = wv[1];
-      wv[1] = wv[0];
-      wv[0] = t1 + t2;
-    }
-
-    for (j = 0; j < 8; j++) {
-      ctx->h[j] += wv[j];
-    }
-#else
+#ifdef UNROLL_LOOPS_SHA512
     PACK64(&sub_block[  0], &w[ 0]); PACK64(&sub_block[  8], &w[ 1]);
     PACK64(&sub_block[ 16], &w[ 2]); PACK64(&sub_block[ 24], &w[ 3]);
     PACK64(&sub_block[ 32], &w[ 4]); PACK64(&sub_block[ 40], &w[ 5]);
@@ -257,7 +227,36 @@ static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
     ctx->h[2] += wv[2]; ctx->h[3] += wv[3];
     ctx->h[4] += wv[4]; ctx->h[5] += wv[5];
     ctx->h[6] += wv[6]; ctx->h[7] += wv[7];
-#endif /* !UNROLL_LOOPS */
+#else
+    for (j = 0; j < 16; j++) {
+      PACK64(&sub_block[j << 3], &w[j]);
+    }
+
+    for (j = 16; j < 80; j++) {
+      SHA512_SCR(j);
+    }
+
+    for (j = 0; j < 8; j++) {
+      wv[j] = ctx->h[j];
+    }
+
+    for (j = 0; j < 80; j++) {
+      t1 = wv[7] + SHA512_F2(wv[4]) + CH(wv[4], wv[5], wv[6])
+          + sha512_k[j] + w[j];
+      t2 = SHA512_F1(wv[0]) + MAJ(wv[0], wv[1], wv[2]);
+      wv[7] = wv[6];
+      wv[6] = wv[5];
+      wv[5] = wv[4];
+      wv[4] = wv[3] + t1;
+      wv[3] = wv[2];
+      wv[2] = wv[1];
+      wv[1] = wv[0];
+      wv[0] = t1 + t2;
+    }
+
+    for (j = 0; j < 8; j++)
+      ctx->h[j] += wv[j];
+#endif /* UNROLL_LOOPS_SHA512 */
   }
 }
 
@@ -301,7 +300,7 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
     unsigned int pm_len;
     unsigned int len_b;
 
-#ifndef UNROLL_LOOPS
+#ifndef UNROLL_LOOPS_SHA512
     int i;
 #endif
 
@@ -317,11 +316,7 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
 
     SHA512_transform(ctx, ctx->block, block_nb);
 
-#ifndef UNROLL_LOOPS
-    for (i = 0 ; i < 8; i++) {
-        UNPACK64(ctx->h[i], &ctx->buf[i << 3]);
-    }
-#else
+#ifdef UNROLL_LOOPS_SHA512
     UNPACK64(ctx->h[0], &ctx->buf[ 0]);
     UNPACK64(ctx->h[1], &ctx->buf[ 8]);
     UNPACK64(ctx->h[2], &ctx->buf[16]);
@@ -330,7 +325,10 @@ uint8_t* SHA512_final(SHA512_CTX* ctx)
     UNPACK64(ctx->h[5], &ctx->buf[40]);
     UNPACK64(ctx->h[6], &ctx->buf[48]);
     UNPACK64(ctx->h[7], &ctx->buf[56]);
-#endif /* !UNROLL_LOOPS */
+#else
+    for (i = 0 ; i < 8; i++)
+        UNPACK64(ctx->h[i], &ctx->buf[i << 3]);
+#endif /* UNROLL_LOOPS_SHA512 */
 
     return ctx->buf;
 }
