@@ -12,8 +12,13 @@
 # Load common constants and variables for tests.
 . "$(dirname "$0")/common.sh"
 
-# all algs
-algs="0 1 2 3 4 5 6 7 8 9 10 11"
+if [ "${1:---some}" == "--all" ] ; then
+    # all algs
+    algs="0 1 2 3 4 5 6 7 8 9 10 11"
+else
+    # just the algs we use
+    algs="4 7 11"
+fi
 
 # output directories
 PREAMBLE_DIR="${SCRIPT_DIR}/preamble_tests"

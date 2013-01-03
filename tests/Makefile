@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -151,7 +151,6 @@ runcryptotests:
 	${BUILD_ROOT}/rsa_utility_tests
 	${BUILD_ROOT}/sha_tests
 	./run_vboot_common_tests.sh
-	./run_vboot_ec_tests.sh
 
 # Run other misc tests
 runmisctests:
@@ -165,9 +164,12 @@ runmisctests:
 	${BUILD_ROOT}/vboot_api_firmware_tests
 	${BUILD_ROOT}/vboot_firmware_tests
 
-#This will exercise vbutil_kernel and vbutil_firmware
-runfuzztests:
+# Generate test cases for fuzzing
+genfuzztestcases:
 	./gen_fuzz_test_cases.sh
+
+# This will exercise vbutil_kernel and vbutil_firmware
+runfuzztests: genfuzztestcases
 	./run_preamble_tests.sh
 	./run_vbutil_kernel_arg_tests.sh
 
@@ -182,7 +184,16 @@ runsoundtests:
 ALLTESTS=runcgpttests runcryptotests runmisctests runfuzztests \
 	runbmptests runsoundtests
 
+# Run a subset of tests
 runtests: genkeys ${ALLTESTS}
+
+# Run long tests, including all permutations of encryption keys (instead of
+# just the ones we use) and tests of currently-unused code (e.g. vboot_ec)
+runlongtests: genkeys genfuzztestcases
+	./run_vboot_common_tests.sh --all
+	./run_vbutil_tests.sh --all
+	./run_preamble_tests.sh --all
+	./run_vboot_ec_tests.sh
 
 # TODO: tests to run when ported to new API
 #	./run_image_verification_tests.sh
