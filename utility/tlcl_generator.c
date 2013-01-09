@@ -54,7 +54,7 @@ typedef struct Command {
  * added at increasing offsets.
  */
 static void AddVisibleField(Command* cmd, const char* name, int offset) {
-  Field* fld = (Field*) malloc(sizeof(Field));
+  Field* fld = (Field*) calloc(1, sizeof(Field));
   if (cmd->fields != NULL) {
     assert(offset > fn->offset);
   }
@@ -70,7 +70,7 @@ static void AddVisibleField(Command* cmd, const char* name, int offset) {
  */
 static void AddInitializedField(Command* cmd, int offset,
                                 int size, uint32_t value) {
-  Field* fld = (Field*) malloc(sizeof(Field));
+  Field* fld = (Field*) calloc(1, sizeof(Field));
   fld->next = cmd->fields;
   cmd->fields = fld;
   fld->name = NULL;
@@ -83,7 +83,7 @@ static void AddInitializedField(Command* cmd, int offset,
 /* Create a structure representing a TPM command datagram.
  */
 Command* newCommand(TPM_COMMAND_CODE code, int size) {
-  Command* cmd = (Command*) malloc(sizeof(Command));
+  Command* cmd = (Command*) calloc(1, sizeof(Command));
   cmd->size = size;
   AddInitializedField(cmd, 0, sizeof(TPM_TAG), TPM_TAG_RQU_COMMAND);
   AddInitializedField(cmd, sizeof(TPM_TAG), sizeof(uint32_t), size);
@@ -523,8 +523,8 @@ static void FreeFields(Field* fld) {
 static void FreeCommands(Command* cmd) {
   if (cmd != NULL) {
     Command* next_command = cmd->next;
-    free(cmd);
     FreeFields(cmd->fields);
+    free(cmd);
     FreeCommands(next_command);
   }
 }
