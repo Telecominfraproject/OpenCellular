@@ -317,6 +317,48 @@ static uint32_t HandlerGetSTClearFlags(void) {
 }
 
 
+static uint32_t HandlerSendRaw(void) {
+  uint8_t request[4096];
+  uint8_t response[4096];
+  uint32_t result;
+  int size;
+  int i;
+  if (nargs == 2) {
+    fprintf(stderr, "usage: tpmc sendraw <hex byte 0> ... <hex byte N>\n");
+    exit(OTHER_ERROR);
+  }
+  for (i = 0; i < nargs - 2 && i < sizeof(request); i++) {
+    if (HexStringToUint8(args[2 + i], &request[i]) != 0) {
+      fprintf(stderr, "bad byte value \"%s\"\n", args[2 + i]);
+      exit(OTHER_ERROR);
+    }
+  }
+  size = TlclPacketSize(request);
+  if (size != i) {
+    fprintf(stderr, "bad request: size field is %d, but packet has %d bytes\n",
+            size, i);
+    exit(OTHER_ERROR);
+  }
+  bzero(response, sizeof(response));
+  result = TlclSendReceive(request, response, sizeof(response));
+  if (result != 0) {
+    fprintf(stderr, "request failed with code %d\n", result);
+  }
+  size = TlclPacketSize(response);
+  if (size < 10 || size > sizeof(response)) {
+    fprintf(stderr, "unexpected response size %d\n", size);
+    exit(OTHER_ERROR);
+  }
+  for (i = 0; i < size; i++) {
+    printf("0x%02x ", response[i]);
+    if (i == size - 1 || (i + 1) % 8 == 0) {
+      printf("\n");
+    }
+  }
+  return result;
+}
+
+
 /* Table of TPM commands.
  */
 command_record command_table[] = {
@@ -363,6 +405,8 @@ command_record command_table[] = {
     HandlerGetSTClearFlags },
   { "resume", "res", "execute TPM_Startup(ST_STATE)", TlclResume },
   { "savestate", "save", "execute TPM_SaveState", TlclSaveState },
+  { "sendraw", "raw", "send a raw request and print raw response",
+    HandlerSendRaw },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);

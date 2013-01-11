@@ -33,6 +33,11 @@ POSSIBLY_UNUSED static INLINE int TpmCommandSize(const uint8_t* buffer) {
   return (int) size;
 }
 
+/* Gets the size field of a TPM request or response. */
+int TlclPacketSize(const uint8_t* packet) {
+  return TpmCommandSize(packet);
+}
+
 /* Gets the code field of a TPM command. */
 static INLINE int TpmCommandCode(const uint8_t* buffer) {
   uint32_t code;
@@ -93,8 +98,8 @@ static uint32_t TlclSendReceiveNoRetry(const uint8_t* request,
 /* Sends a TPM command and gets a response.  Returns 0 if success or the TPM
  * error code if error. In the firmware, waits for the self test to complete
  * if needed. In the host, reports the first error without retries. */
-static uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
-                                int max_length) {
+uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
+                         int max_length) {
   uint32_t result = TlclSendReceiveNoRetry(request, response, max_length);
   /* When compiling for the firmware, hide command failures due to the self
    * test not having run or completed. */

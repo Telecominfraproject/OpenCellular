@@ -33,6 +33,19 @@ void TlclLog(char* format, ...);
  */
 void TlclSetLogLevel(int level);
 
+/* Low-level operations */
+
+/* Performs a raw TPM request/response transaction.
+ */
+uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
+                         int max_length);
+
+/* Returns the size of a TPM request or response packet.
+ */
+int TlclPacketSize(const uint8_t* packet);
+
+/* Commands */
+
 /* Sends a TPM_Startup(ST_CLEAR).  The TPM error code is returned (0
  * for success).
  */
