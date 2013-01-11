@@ -17,7 +17,7 @@
 #define offsetof(A,B) __builtin_offsetof(A,B)
 #endif
 
-#ifdef ROLLBACK_UNITTEST
+#ifdef FOR_TEST
 /* Compiling for unit test, so we need the real implementations of
  * rollback functions.  The unit test mocks the underlying tlcl
  * functions, so this is ok to run on the host. */

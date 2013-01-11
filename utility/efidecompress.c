@@ -1008,7 +1008,7 @@ Returns:
 }
 
 
-#ifdef STANDALONE
+#ifndef FOR_LIBRARY
 int main(int argc, char *argv[])
 {
   char *progname;
@@ -1159,4 +1159,4 @@ done1:
 
   return retval;
 }
-#endif // STANDALONE
+#endif // FOR_LIBRARY

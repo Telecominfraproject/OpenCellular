@@ -40,6 +40,10 @@ struct VbAudioContext {
   uint64_t last_time;
 };
 
+#ifdef FOR_TEST
+#define CUSTOM_MUSIC
+#endif
+
 #ifdef CUSTOM_MUSIC
 void *VbExGetMusicPtr(void);
 uint32_t VbExMaxMusicSize(void);

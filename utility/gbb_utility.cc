@@ -475,7 +475,7 @@ bool GoogleBinaryBlockUtil::set_recovery_key(const string &value) {
 
 }  // namespace vboot_reference
 
-#ifdef WITH_UTIL_MAIN
+#ifndef FOR_LIBRARY
 
 ///////////////////////////////////////////////////////////////////////
 // command line utilities
@@ -870,4 +870,4 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-#endif  // WITH_UTIL_MAIN
+#endif  // FOR_LIBRARY

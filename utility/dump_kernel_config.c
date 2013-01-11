@@ -5,84 +5,99 @@
  * Exports the kernel commandline from a given partition/image.
  */
 
+
+#include <getopt.h>
 #include <stdio.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 #include "dump_kernel_config.h"
-#include "host_common.h"
 #include "kernel_blob.h"
 #include "vboot_api.h"
 
-uint8_t* find_kernel_config(uint8_t* blob, uint64_t blob_size,
-                            uint64_t kernel_body_load_address) {
+enum {
+  OPT_KLOADADDR = 1000,
+};
 
-  VbKeyBlockHeader* key_block;
-  VbKernelPreambleHeader* preamble;
-  uint32_t now = 0;
-  uint32_t offset = 0;
+static struct option long_opts[] = {
+  { "kloadaddr", 1, NULL, OPT_KLOADADDR },
+  { NULL, 0, NULL, 0 }
+};
 
-  /* Skip the key block */
-  key_block = (VbKeyBlockHeader*)blob;
-  now += key_block->key_block_size;
-  if (now + blob > blob + blob_size) {
-    VbExError("key_block_size advances past the end of the blob\n");
-    return NULL;
-  }
-
-  /* Open up the preamble */
-  preamble = (VbKernelPreambleHeader*)(blob + now);
-  now += preamble->preamble_size;
-  if (now + blob > blob + blob_size) {
-    VbExError("preamble_size advances past the end of the blob\n");
-    return NULL;
-  }
-
-  /* Read body_load_address from preamble if no kernel_body_load_address */
-  if (kernel_body_load_address == CROS_NO_ENTRY_ADDR)
-    kernel_body_load_address = preamble->body_load_address;
-
-  /* The x86 kernels have a pointer to the kernel commandline in the zeropage
-   * table, but that's irrelevant for ARM. Both types keep the config blob in
-   * the same place, so just go find it. */
-  offset = preamble->bootloader_address -
-    (kernel_body_load_address + CROS_PARAMS_SIZE +
-     CROS_CONFIG_SIZE) + now;
-  if (offset > blob_size) {
-    VbExError("params are outside of the memory blob: %x\n", offset);
-    return NULL;
-  }
-  return blob + offset;
+/* Print help and return error */
+static int PrintHelp(void) {
+  puts("dump_kernel_config - Prints the kernel command line\n"
+       "\n"
+       "Usage:  dump_kernel_config [--kloadaddr <ADDRESS>] "
+       "<image/blockdevice>\n"
+       "\n"
+       "");
+  return 1;
 }
 
-void* MapFile(const char* filename, size_t *size) {
-  FILE* f;
-  uint8_t* buf;
-  long file_size = 0;
+int main(int argc, char* argv[]) {
+  uint8_t* blob;
+  size_t blob_size;
+  char* infile = NULL;
+  uint8_t *config = NULL;
+  uint64_t kernel_body_load_address = CROS_NO_ENTRY_ADDR;
+  int parse_error = 0;
+  char *e;
+  int i;
 
-  f = fopen(filename, "rb");
-  if (!f) {
-    VBDEBUG(("Unable to open file %s\n", filename));
-    return NULL;
+  while (((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) &&
+         !parse_error) {
+    switch (i) {
+      default:
+      case '?':
+        /* Unhandled option */
+        parse_error = 1;
+        break;
+
+      case 0:
+        /* silently handled option */
+        break;
+
+      case OPT_KLOADADDR:
+        kernel_body_load_address = strtoul(optarg, &e, 0);
+        if (!*optarg || (e && *e)) {
+          fprintf(stderr, "Invalid --kloadaddr\n");
+          parse_error = 1;
+        }
+        break;
+    }
   }
 
-  fseek(f, 0, SEEK_END);
-  file_size = ftell(f);
-  rewind(f);
+  if (optind >= argc) {
+    fprintf(stderr, "Expected argument after options\n");
+    parse_error = 1;
+  } else
+    infile = argv[optind];
 
-  if (file_size <= 0) {
-    fclose(f);
-    return NULL;
-  }
-  *size = (size_t) file_size;
+  if (parse_error)
+    return PrintHelp();
 
-  /* Uses a host primitive as this is not meant for firmware use. */
-  buf = mmap(NULL, *size, PROT_READ, MAP_PRIVATE, fileno(f), 0);
-  if (buf == MAP_FAILED) {
-    VbExError("Failed to mmap the file %s\n", filename);
-    fclose(f);
-    return NULL;
+  if (!infile || !*infile) {
+    VbExError("Must specify filename\n");
+    return 1;
   }
 
-  fclose(f);
-  return buf;
+  /* Map the kernel image blob. */
+  blob = MapFile(infile, &blob_size);
+  if (!blob) {
+    VbExError("Error reading input file\n");
+    return 1;
+  }
+
+  config = find_kernel_config(blob, (uint64_t)blob_size,
+                              kernel_body_load_address);
+  if (!config) {
+    VbExError("Error parsing input file\n");
+    munmap(blob, blob_size);
+    return 1;
+  }
+
+  printf("%.*s", CROS_CONFIG_SIZE, config);
+  munmap(blob, blob_size);
+  return 0;
 }

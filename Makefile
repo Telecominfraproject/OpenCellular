@@ -442,42 +442,17 @@ utils_install : $(UTIL_BINS) $(UTIL_SCRIPTS)
 	chmod a+rx $(patsubst utility/%,$(DESTDIR)/%,$(UTIL_SCRIPTS))
 
 ${BUILD}/utility/dump_kernel_config : LIBS += $(DUMPKERNELCONFIGLIB)
-${BUILD}/utility/dump_kernel_config : $$(LIBS) \
-		${BUILD}/utility/dump_kernel_config_main.o
-	@printf "    LDdkc         $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(LD) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LIBS)
-
-# TODO: these build as both standalone utils and libs.  Make standalone the
-# default so this is less crufty.
-${BUILD}/utility/eficompress.o : CFLAGS += -DSTANDALONE
-${BUILD}/utility/efidecompress.o : CFLAGS += -DSTANDALONE
-
-${BUILD}/utility/eficompress_lib.o : utility/eficompress.c
-	@printf "    CC            $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
-${BUILD}/utility/efidecompress_lib.o : utility/efidecompress.c
-	@printf "    CC            $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 # GBB utility needs C++ linker
 ${BUILD}/utility/gbb_utility : LD = $(CXX)
-${BUILD}/utility/gbb_utility : CFLAGS += -DWITH_UTIL_MAIN
-
-${BUILD}/utility/crossystem : ${BUILD}/utility/crossystem_main.o $$(LIBS)
-	@printf "    LDcr          $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(LD) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LIBS) $(LDLIBS)
-
-# TODO: Why isn't this the default?  It's the only time this file is compiled.
-# (gbb_utility, too)
-${BUILD}/utility/bmpblk_utility.o : CFLAGS += -DWITH_UTIL_MAIN
 
 ${BUILD}/utility/bmpblk_utility : LD = $(CXX)
 ${BUILD}/utility/bmpblk_utility : LDLIBS = -llzma -lyaml
 ${BUILD}/utility/bmpblk_utility : OBJS = \
 	${BUILD}/utility/bmpblk_util.o \
 	${BUILD}/utility/image_types.o \
-	${BUILD}/utility/eficompress_lib.o \
-	${BUILD}/utility/efidecompress_lib.o
+	${BUILD}/utility/eficompress_for_lib.o \
+	${BUILD}/utility/efidecompress_for_lib.o
 
 ${BUILD}/utility/bmpblk_font: OBJS += ${BUILD}/utility/image_types.o
 
@@ -539,10 +514,11 @@ update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 
 # -----------------------------------------------------------------------------
 # Library to dump kernel config
+# Used by platform/installer
 
 libdump_kernel_config: $(DUMPKERNELCONFIGLIB)
 
-$(DUMPKERNELCONFIGLIB) : ${BUILD}/utility/dump_kernel_config.o
+$(DUMPKERNELCONFIGLIB) : ${BUILD}/utility/dump_kernel_config_lib.o
 	@printf "    RM            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)rm -f $@
 	@printf "    AR            $(subst $(BUILD)/,,$(@))\n"
@@ -586,23 +562,24 @@ TEST_NAMES += CgptManagerTests
 endif
 
 TLCL_TEST_NAMES = \
-	earlyextend \
-	earlynvram \
-        earlynvram2 \
-	enable \
-	fastenable \
-	globallock \
-        redefine_unowned \
-        spaceperm \
-	testsetup \
-	timing \
-        writelimit
-TEST_NAMES += $(addprefix tpm_lite/tpmtest_,$(TLCL_TEST_NAMES))
+	tpmtest_earlyextend \
+	tpmtest_earlynvram \
+        tpmtest_earlynvram2 \
+	tpmtest_enable \
+	tpmtest_fastenable \
+	tpmtest_globallock \
+        tpmtest_redefine_unowned \
+        tpmtest_spaceperm \
+	tpmtest_testsetup \
+	tpmtest_timing \
+        tpmtest_writelimit
+TEST_NAMES += $(addprefix tpm_lite/,$(TLCL_TEST_NAMES))
 
 TEST_BINS = $(addprefix ${BUILD}/tests/,$(TEST_NAMES))
 ALL_DEPS += $(addsuffix .d,${TEST_BINS})
 
 tests : $(TEST_BINS)
+.PHONY: tests
 
 ${TEST_LIB}: \
 		${BUILD}/tests/test_common.o \
@@ -613,42 +590,23 @@ ${TEST_LIB}: \
 	@printf "    AR            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)ar qc $@ $^
 
-# Compile rollback_index.c for unit test, so it uses the same implementation
-# as it does in the firmware.
-${BUILD}/tests/rollback_index_for_test.o : CFLAGS += -DROLLBACK_UNITTEST
-${BUILD}/tests/rollback_index_for_test.o : firmware/lib/rollback_index.c
-	@printf "    CC            $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
-
 ${BUILD}/tests/rollback_index2_tests: OBJS += \
-		${BUILD}/tests/rollback_index_for_test.o
-
-${BUILD}/tests/vboot_audio_for_test.o : CFLAGS += -DCUSTOM_MUSIC
-${BUILD}/tests/vboot_audio_for_test.o : firmware/lib/vboot_audio.c
-	@printf "    CC            $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+	${BUILD}/firmware/lib/rollback_index_for_test.o
 
 ${BUILD}/tests/vboot_audio_tests: OBJS += \
-	${BUILD}/tests/vboot_audio_for_test.o \
+	${BUILD}/firmware/lib/vboot_audio_for_test.o
 
 cgptmanager_tests: ${BUILD}/tests/CgptManagerTests
 
-${BUILD}/tests/CgptManagerTests : CFLAGS += -DWITH_UTIL_MAIN $(PC_CFLAGS)
+${BUILD}/tests/CgptManagerTests : CFLAGS += $(PC_CFLAGS)
 ${BUILD}/tests/CgptManagerTests : LD = $(CXX)
 ${BUILD}/tests/CgptManagerTests : LDLIBS += -lgtest -lgflags $(PC_LDLIBS)
 ${BUILD}/tests/CgptManagerTests : LIBS = $(CGPTLIB)
 
-${BUILD}/tests/rollback_index_test.o : INCLUDES += -I/usr/include
+${BUILD}/tests/rollback_index_test : INCLUDES += -I/usr/include
 ${BUILD}/tests/rollback_index_test : LIBS += -ltlcl
 
-# TPM tests have special naming
-# TODO: rename .c files to match test names
 ${BUILD}/tests/tpm_lite/tpmtest_% : OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
-${BUILD}/tests/tpm_lite/tpmtest_% : ${BUILD}/tests/tpm_lite/%.o $$(OBJS) \
-		$$(LIBS)
-	@printf "    LDtpm         $(subst $(BUILD)/,,$(@))\n"
-	$(Q)$(CC) $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(OBJS) -o $@ \
-		$(LIBS) $(LDLIBS)
 
 # TODO: port these tests to new API, if not already eqivalent
 # functionality in other tests.  These don't even compile at present.
@@ -744,6 +702,18 @@ ${BUILD}/%.o : %.c
 	@printf "    CC            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
+# Rules to recompile a single source file for library and test
+# TODO: is there a tidier way to do this?
+${BUILD}/%_for_lib.o : CFLAGS += -DFOR_LIBRARY
+${BUILD}/%_for_lib.o : %.c
+	@printf "    CC-for-lib    $(subst $(BUILD)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+${BUILD}/%_for_test.o : CFLAGS += -DFOR_TEST
+${BUILD}/%_for_test.o : %.c
+	@printf "    CC-for-test   $(subst $(BUILD)/,,$(@))\n"
+	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
+
+# TODO: C++ files don't belong in vboot reference at all.  Convert to C.
 ${BUILD}/%.o : %.cc
 	@printf "    CXX           $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $<

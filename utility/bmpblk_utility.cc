@@ -630,7 +630,7 @@ namespace vboot_reference {
 
 }  // namespace vboot_reference
 
-#ifdef WITH_UTIL_MAIN
+#ifndef FOR_LIBRARY
 
   //////////////////////////////////////////////////////////////////////////////
   // Command line utilities.
@@ -772,4 +772,4 @@ namespace vboot_reference {
     return 0;
   }
 
-#endif  // WITH_UTIL_MAIN
+#endif // FOR_LIBRARY
