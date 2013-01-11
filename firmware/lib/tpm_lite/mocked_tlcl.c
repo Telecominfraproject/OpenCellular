@@ -12,6 +12,10 @@ uint32_t TlclLibInit(void) {
   return VbExTpmInit();
 }
 
+uint32_t TlclLibClose(void) {
+  return TPM_SUCCESS;
+}
+
 uint32_t TlclStartup(void) {
   return TPM_SUCCESS;
 }
