@@ -133,19 +133,24 @@ _dir_create := $(foreach d, \
 	$(shell [ -d $(BUILD)/$(d) ] || mkdir -p $(BUILD)/$(d)))
 
 # First target
+.PHONY: all
 all: fwlib $(if $(FIRMWARE_ARCH),,host_stuff)
 
 # Host targets
+.PHONY: host_stuff
 host_stuff: fwlib hostlib cgpt utils tests
 
+.PHONY: clean
 clean:
 	$(Q)/bin/rm -rf ${BUILD}
 
+.PHONY: install
 install: cgpt_install utils_install
 
 # Coverage
 COV_INFO = $(BUILD)/coverage.info
 #coverage: runtests
+.PHONY: coverage
 coverage:
 	rm -f $(COV_INFO)*
 	lcov --capture --directory . --base-directory . -o $(COV_INFO).1
@@ -169,7 +174,7 @@ coverage:
 # TPM_BLOCKING_CONTINUESELFTEST is defined if TPM_ContinueSelfTest blocks until
 # the self test has completed.
 
-$(FWLIB) : CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
+$(FWLIB): CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 
 # TPM_MANUAL_SELFTEST is defined if the self test must be started manually
 # (with a call to TPM_ContinueSelfTest) instead of starting automatically at
@@ -182,18 +187,18 @@ $(FWLIB) : CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 
 ifeq ($(FIRMWARE_ARCH),i386)
 # Unrolling loops in cryptolib makes it faster
-$(FWLIB) : CFLAGS += -DUNROLL_LOOPS
+$(FWLIB): CFLAGS += -DUNROLL_LOOPS
 
 # Workaround for coreboot on x86, which will power off asynchronously
 # without giving us a chance to react. This is not an example of the Right
 # Way to do things. See chrome-os-partner:7689, and the commit message
 # that made this change.
-$(FWLIB) : CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
+$(FWLIB): CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
 
 # On x86 we don't actually read the GBB data into RAM until it is needed.
 # Therefore it makes sense to cache it rather than reading it each time.
 # Enable this feature.
-$(FWLIB) : CFLAGS += -DCOPY_BMP_DATA
+$(FWLIB): CFLAGS += -DCOPY_BMP_DATA
 endif
 
 ifeq ($(FIRMWARE_ARCH),)
@@ -201,7 +206,7 @@ $(warning FIRMWARE_ARCH not defined; assuming local compile)
 
 # Disable rollback TPM when compiling locally, since otherwise
 # load_kernel_test attempts to talk to the TPM.
-$(FWLIB) : CFLAGS += -DDISABLE_ROLLBACK_TPM
+$(FWLIB): CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
 # find lib -iname '*.c' | sort
@@ -254,16 +259,17 @@ endif
 FWLIB_OBJS = $(FWLIB_SRCS:%.c=${BUILD}/%.o)
 ALL_OBJS += ${FWLIB_OBJS}
 
+.PHONY: fwlib
 ifeq ($(FIRMWARE_ARCH),)
 # Link test ensures firmware lib doesn't rely on outside libraries
-${BUILD}/firmware/linktest/main : LIBS = $(FWLIB)
+${BUILD}/firmware/linktest/main: LIBS = $(FWLIB)
 
-fwlib : ${BUILD}/firmware/linktest/main
+fwlib: ${BUILD}/firmware/linktest/main
 else
-fwlib : $(FWLIB)
+fwlib: $(FWLIB)
 endif
 
-$(FWLIB) : $(FWLIB_OBJS)
+$(FWLIB): $(FWLIB_OBJS)
 	@printf "    RM            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)rm -f $@
 	@printf "    AR            $(subst $(BUILD)/,,$(@))\n"
@@ -272,9 +278,10 @@ $(FWLIB) : $(FWLIB_OBJS)
 # -----------------------------------------------------------------------------
 # Host library
 
-hostlib : $(HOSTLIB) ${BUILD}/host/linktest/main
+.PHONY: hostlib
+hostlib: $(HOSTLIB) ${BUILD}/host/linktest/main
 
-${BUILD}/host/% ${HOSTLIB} : INCLUDES += \
+${BUILD}/host/% ${HOSTLIB}: INCLUDES += \
 	-Ihost/include\
 	-Ihost/arch/$(ARCH)/include
 
@@ -294,7 +301,7 @@ HOSTLIB_OBJS = $(HOSTLIB_SRCS:%.c=${BUILD}/%.o)
 ALL_OBJS += ${HOSTLIB_OBJS}
 
 # TODO: better way to make .a than duplicating this recipe each time?
-$(HOSTLIB) : $(HOSTLIB_OBJS) $(FWLIB_OBJS)
+$(HOSTLIB): $(HOSTLIB_OBJS) $(FWLIB_OBJS)
 	@printf "    RM            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)rm -f $@
 	@printf "    AR            $(subst $(BUILD)/,,$(@))\n"
@@ -350,25 +357,27 @@ CGPTLIB_OBJS = $(filter %.o, \
 	$(CGPTLIB_SRCS:%.cc=${BUILD}/%.o))
 ALL_OBJS += $(CGPTLIB_OBJS)
 
-cgpt : $(CGPT)
 .PHONY: cgpt
+cgpt: $(CGPT)
 
-libcgpt_cc : $(CGPTLIB)
+.PHONY: libcgpt_cc
+libcgpt_cc: $(CGPTLIB)
 
-$(CGPTLIB) : INCLUDES += -Ifirmware/lib/cgptlib/include
-$(CGPTLIB) : $(CGPTLIB_OBJS)
+$(CGPTLIB): INCLUDES += -Ifirmware/lib/cgptlib/include
+$(CGPTLIB): $(CGPTLIB_OBJS)
 	@printf "    RM            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)rm -f $@
 	@printf "    AR            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)ar qc $@ $^
 
-$(CGPT) : INCLUDES += -Ifirmware/lib/cgptlib/include
-$(CGPT) : LDLIBS = -luuid
-$(CGPT) : LDFLAGS += -static
-$(CGPT) : $(CGPT_OBJS) $$(LIBS)
+$(CGPT): INCLUDES += -Ifirmware/lib/cgptlib/include
+$(CGPT): LDLIBS = -luuid
+$(CGPT): LDFLAGS += -static
+$(CGPT): $(CGPT_OBJS) $$(LIBS)
 	@printf "    LDcgpt        $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(LD) -o $(CGPT) $(CFLAGS) $(LDFLAGS) $^ $(LIBS) $(LDLIBS)
 
+.PHONY: cgpt_install
 cgpt_install: $(CGPT)
 	mkdir -p $(DESTDIR)
 	cp -f $^ $(DESTDIR)
@@ -377,19 +386,19 @@ cgpt_install: $(CGPT)
 # -----------------------------------------------------------------------------
 # Utilities
 
-${BUILD}/utility/% : INCLUDES += -Ihost/include -Iutility/include
-${BUILD}/utility/% : CFLAGS += $(PC_CFLAGS)
+${BUILD}/utility/%: INCLUDES += -Ihost/include -Iutility/include
+${BUILD}/utility/%: CFLAGS += $(PC_CFLAGS)
 
 AU_NAMES = \
 	crossystem \
 	dump_fmap \
 	gbb_utility
-AU_BINS := $(addprefix ${BUILD}/utility/,$(AU_NAMES))
+AU_BINS:= $(addprefix ${BUILD}/utility/,$(AU_NAMES))
 
 # Utilities for auto-update toolkits must be statically linked, and don't
 # use the crypto libs.
-${AU_BINS} : LDFLAGS += -static
-${AU_BINS} : CRYPTO_LIBS =
+${AU_BINS}: LDFLAGS += -static
+${AU_BINS}: CRYPTO_LIBS =
 
 # Scripts to install
 UTIL_SCRIPTS = \
@@ -429,26 +438,28 @@ endif
 UTIL_BINS = $(addprefix ${BUILD}/utility/,$(UTIL_NAMES))
 ALL_DEPS += $(addsuffix .d,${UTIL_BINS})
 
-utils : $(UTIL_BINS) $(UTIL_SCRIPTS)
+.PHONY: utils
+utils: $(UTIL_BINS) $(UTIL_SCRIPTS)
 # TODO: change ebuild to pull scripts directly out of utility dir
 	$(Q)cp -f $(UTIL_SCRIPTS) $(BUILD)/utility
 	$(Q)chmod a+rx $(patsubst %,$(BUILD)/%,$(UTIL_SCRIPTS))
 
-utils_install : $(UTIL_BINS) $(UTIL_SCRIPTS)
+.PHONY: utils_install
+utils_install: $(UTIL_BINS) $(UTIL_SCRIPTS)
 	mkdir -p $(DESTDIR)
 	cp -f $(UTIL_BINS) $(DESTDIR)
 	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(UTIL_NAMES))
 	cp -f $(UTIL_SCRIPTS) $(DESTDIR)
 	chmod a+rx $(patsubst utility/%,$(DESTDIR)/%,$(UTIL_SCRIPTS))
 
-${BUILD}/utility/dump_kernel_config : LIBS += $(DUMPKERNELCONFIGLIB)
+${BUILD}/utility/dump_kernel_config: LIBS += $(DUMPKERNELCONFIGLIB)
 
 # GBB utility needs C++ linker
-${BUILD}/utility/gbb_utility : LD = $(CXX)
+${BUILD}/utility/gbb_utility: LD = $(CXX)
 
-${BUILD}/utility/bmpblk_utility : LD = $(CXX)
-${BUILD}/utility/bmpblk_utility : LDLIBS = -llzma -lyaml
-${BUILD}/utility/bmpblk_utility : OBJS = \
+${BUILD}/utility/bmpblk_utility: LD = $(CXX)
+${BUILD}/utility/bmpblk_utility: LDLIBS = -llzma -lyaml
+${BUILD}/utility/bmpblk_utility: OBJS = \
 	${BUILD}/utility/bmpblk_util.o \
 	${BUILD}/utility/image_types.o \
 	${BUILD}/utility/eficompress_for_lib.o \
@@ -499,12 +510,13 @@ endif
 # -----------------------------------------------------------------------------
 # Utility to generate TLCL structure definition header file.
 
-${BUILD}/utility/tlcl_generator : CFLAGS += -fpack-struct
-${BUILD}/utility/tlcl_generator : LIBS =
+${BUILD}/utility/tlcl_generator: CFLAGS += -fpack-struct
+${BUILD}/utility/tlcl_generator: LIBS =
 
 STRUCTURES_TMP=${BUILD}/tlcl_structures.tmp
 STRUCTURES_SRC=firmware/lib/tpm_lite/include/tlcl_structures.h
 
+.PHONY: update_tlcl_structures
 update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 	@printf "    Rebuilding TLCL structures\n"
 	$(Q)${BUILD}/utility/tlcl_generator > $(STRUCTURES_TMP)
@@ -516,9 +528,10 @@ update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 # Library to dump kernel config
 # Used by platform/installer
 
+.PHONY: libdump_kernel_config
 libdump_kernel_config: $(DUMPKERNELCONFIGLIB)
 
-$(DUMPKERNELCONFIGLIB) : ${BUILD}/utility/dump_kernel_config_lib.o
+$(DUMPKERNELCONFIGLIB): ${BUILD}/utility/dump_kernel_config_lib.o
 	@printf "    RM            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)rm -f $@
 	@printf "    AR            $(subst $(BUILD)/,,$(@))\n"
@@ -528,10 +541,10 @@ $(DUMPKERNELCONFIGLIB) : ${BUILD}/utility/dump_kernel_config_lib.o
 # Tests
 
 # Allow multiple definitions, so tests can mock functions from other libraries
-${BUILD}/tests/% : CFLAGS += -Xlinker --allow-multiple-definition
-${BUILD}/tests/% : INCLUDES += -Ihost/include
-${BUILD}/tests/% : LDLIBS += -lrt -luuid
-${BUILD}/tests/% : LIBS += $(TEST_LIB)
+${BUILD}/tests/%: CFLAGS += -Xlinker --allow-multiple-definition
+${BUILD}/tests/%: INCLUDES += -Ihost/include
+${BUILD}/tests/%: LDLIBS += -lrt -luuid
+${BUILD}/tests/%: LIBS += $(TEST_LIB)
 
 TEST_NAMES = \
 	cgptlib_test \
@@ -578,8 +591,8 @@ TEST_NAMES += $(addprefix tpm_lite/,$(TLCL_TEST_NAMES))
 TEST_BINS = $(addprefix ${BUILD}/tests/,$(TEST_NAMES))
 ALL_DEPS += $(addsuffix .d,${TEST_BINS})
 
-tests : $(TEST_BINS)
 .PHONY: tests
+tests: $(TEST_BINS)
 
 ${TEST_LIB}: \
 		${BUILD}/tests/test_common.o \
@@ -596,17 +609,18 @@ ${BUILD}/tests/rollback_index2_tests: OBJS += \
 ${BUILD}/tests/vboot_audio_tests: OBJS += \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 
+.PHONY: cgptmanager_tests
 cgptmanager_tests: ${BUILD}/tests/CgptManagerTests
 
-${BUILD}/tests/CgptManagerTests : CFLAGS += $(PC_CFLAGS)
-${BUILD}/tests/CgptManagerTests : LD = $(CXX)
-${BUILD}/tests/CgptManagerTests : LDLIBS += -lgtest -lgflags $(PC_LDLIBS)
-${BUILD}/tests/CgptManagerTests : LIBS = $(CGPTLIB)
+${BUILD}/tests/CgptManagerTests: CFLAGS += $(PC_CFLAGS)
+${BUILD}/tests/CgptManagerTests: LD = $(CXX)
+${BUILD}/tests/CgptManagerTests: LDLIBS += -lgtest -lgflags $(PC_LDLIBS)
+${BUILD}/tests/CgptManagerTests: LIBS = $(CGPTLIB)
 
-${BUILD}/tests/rollback_index_test : INCLUDES += -I/usr/include
-${BUILD}/tests/rollback_index_test : LIBS += -ltlcl
+${BUILD}/tests/rollback_index_test: INCLUDES += -I/usr/include
+${BUILD}/tests/rollback_index_test: LIBS += -ltlcl
 
-${BUILD}/tests/tpm_lite/tpmtest_% : OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
+${BUILD}/tests/tpm_lite/tpmtest_%: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 
 # TODO: port these tests to new API, if not already eqivalent
 # functionality in other tests.  These don't even compile at present.
@@ -629,21 +643,26 @@ ${BUILD}/tests/tpm_lite/tpmtest_% : OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 # Targets to run tests
 
 # Frequently-run tests
-runtests : runbmptests runcgpttests runfuzztests runmisctests
+.PHONY: runtests
+runtests: runbmptests runcgpttests runfuzztests runmisctests
 
 # Generate test keys
+.PHONY: genkeys
 genkeys:
 	tests/gen_test_keys.sh
 
 # Generate test cases for fuzzing
+.PHONY: genfuzztestcases
 genfuzztestcases:
 	tests/gen_fuzz_test_cases.sh
 
+.PHONY: runbmptests
 runbmptests: utils
 	cd tests/bitmaps && BMPBLK=${BUILD}/utility/bmpblk_utility \
 		./TestBmpBlock.py -v
 
-runcgpttests : cgpt tests
+.PHONY: runcgpttests
+runcgpttests: cgpt tests
 	${BUILD}/tests/cgptlib_test
 	tests/run_cgpt_tests.sh ${BUILD}/cgpt/cgpt
 ifneq ($(IN_CHROOT),)
@@ -651,11 +670,13 @@ ifneq ($(IN_CHROOT),)
 endif
 
 # Exercise vbutil_kernel and vbutil_firmware
+.PHONY: runfuzztests
 runfuzztests: genfuzztestcases utils tests
 	tests/run_preamble_tests.sh
 	tests/run_vbutil_kernel_arg_tests.sh
 
-runmisctests : tests utils
+.PHONY: runmisctests
+runmisctests: tests utils
 	${BUILD}/tests/rollback_index2_tests
 	${BUILD}/tests/rsa_utility_tests
 	${BUILD}/tests/sha_tests
@@ -675,7 +696,8 @@ runmisctests : tests utils
 # Run long tests, including all permutations of encryption keys (instead of
 # just the ones we use) and tests of currently-unused code (e.g. vboot_ec).
 # Not run by automated build.
-runlongtests : genkeys genfuzztestcases tests utils
+.PHONY: runlongtests
+runlongtests: genkeys genfuzztestcases tests utils
 	tests/run_preamble_tests.sh --all
 	tests/run_vboot_common_tests.sh --all
 	tests/run_vboot_ec_tests.sh
@@ -693,28 +715,28 @@ runlongtests : genkeys genfuzztestcases tests utils
 # -----------------------------------------------------------------------------
 # Build rules
 
-${BUILD}/% : ${BUILD}/%.o $$(OBJS) $$(LIBS)
+${BUILD}/%: ${BUILD}/%.o $$(OBJS) $$(LIBS)
 	@printf "    LD            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(LD) $(CFLAGS) $(INCLUDES) $(LDFLAGS) $< $(OBJS) -o $@ \
 		$(LIBS) $(LDLIBS)
 
-${BUILD}/%.o : %.c
+${BUILD}/%.o: %.c
 	@printf "    CC            $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 # Rules to recompile a single source file for library and test
 # TODO: is there a tidier way to do this?
-${BUILD}/%_for_lib.o : CFLAGS += -DFOR_LIBRARY
-${BUILD}/%_for_lib.o : %.c
+${BUILD}/%_for_lib.o: CFLAGS += -DFOR_LIBRARY
+${BUILD}/%_for_lib.o: %.c
 	@printf "    CC-for-lib    $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
-${BUILD}/%_for_test.o : CFLAGS += -DFOR_TEST
-${BUILD}/%_for_test.o : %.c
+${BUILD}/%_for_test.o: CFLAGS += -DFOR_TEST
+${BUILD}/%_for_test.o: %.c
 	@printf "    CC-for-test   $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 # TODO: C++ files don't belong in vboot reference at all.  Convert to C.
-${BUILD}/%.o : %.cc
+${BUILD}/%.o: %.cc
 	@printf "    CXX           $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(CXX) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
