@@ -15,6 +15,7 @@ BUILD ?= $(shell pwd)/build
 
 # Target for 'make install'
 DESTDIR ?= /usr/bin
+INSTALL ?= install
 
 # Provide default CC and CFLAGS for firmware builds; if you have any -D flags,
 # please add them after this point (e.g., -DVBOOT_DEBUG).
@@ -377,11 +378,13 @@ $(CGPT): $(CGPT_OBJS) $$(LIBS)
 	@printf "    LDcgpt        $(subst $(BUILD)/,,$(@))\n"
 	$(Q)$(LD) -o $(CGPT) $(CFLAGS) $(LDFLAGS) $^ $(LIBS) $(LDLIBS)
 
+C_DESTDIR = $(DESTDIR)
+
 .PHONY: cgpt_install
 cgpt_install: $(CGPT)
-	mkdir -p $(DESTDIR)
-	cp -f $^ $(DESTDIR)
-	chmod a+rx $(patsubst ${BUILD}/cgpt/%,$(DESTDIR)/%,$^)
+	@printf "    INSTALL       CGPT\n"
+	${Q}mkdir -p $(C_DESTDIR)
+	${Q}$(INSTALL) -t $(C_DESTDIR) $^
 
 # -----------------------------------------------------------------------------
 # Utilities
@@ -444,13 +447,13 @@ utils: $(UTIL_BINS) $(UTIL_SCRIPTS)
 	$(Q)cp -f $(UTIL_SCRIPTS) $(BUILD)/utility
 	$(Q)chmod a+rx $(patsubst %,$(BUILD)/%,$(UTIL_SCRIPTS))
 
+U_DESTDIR = $(DESTDIR)
+
 .PHONY: utils_install
 utils_install: $(UTIL_BINS) $(UTIL_SCRIPTS)
-	mkdir -p $(DESTDIR)
-	cp -f $(UTIL_BINS) $(DESTDIR)
-	chmod a+rx $(patsubst %,$(DESTDIR)/%,$(UTIL_NAMES))
-	cp -f $(UTIL_SCRIPTS) $(DESTDIR)
-	chmod a+rx $(patsubst utility/%,$(DESTDIR)/%,$(UTIL_SCRIPTS))
+	@printf "    INSTALL       UTILS\n"
+	${Q}mkdir -p $(U_DESTDIR)
+	${Q}$(INSTALL) -t $(U_DESTDIR) $^
 
 ${BUILD}/utility/dump_kernel_config: LIBS += $(DUMPKERNELCONFIGLIB)
 
