@@ -41,6 +41,7 @@
 #define ENCRYPTED_MNT STATEFUL_MNT "/encrypted"
 #define BUF_SIZE 1024
 #define PROP_SIZE 64
+#define LOCKBOX_SIZE_MAX 0x45
 
 static const gchar * const kKernelCmdline = "/proc/cmdline";
 static const gchar * const kKernelCmdlineOption = " encrypted-stateful-key=";
@@ -48,11 +49,12 @@ static const gchar * const kEncryptedFSType = "ext4";
 static const gchar * const kCryptDevName = "encstateful";
 static const gchar * const kTpmDev = "/dev/tpm0";
 static const gchar * const kNullDev = "/dev/null";
+static const gchar * const kNvramExport = "/tmp/lockbox.nvram";
 static const float kSizePercent = 0.3;
 static const float kMigrationSizeMultiplier = 1.1;
 static const uint32_t kLockboxIndex = 0x20000004;
 static const uint32_t kLockboxSizeV1 = 0x2c;
-static const uint32_t kLockboxSizeV2 = 0x45;
+static const uint32_t kLockboxSizeV2 = LOCKBOX_SIZE_MAX;
 static const uint32_t kLockboxSaltOffset = 0x5;
 static const uint64_t kSectorSize = 512;
 static const uint64_t kExt4BlockSize = 4096;
@@ -111,6 +113,8 @@ static gchar *dmcrypt_name = NULL;
 static gchar *dmcrypt_dev = NULL;
 static int has_tpm = 0;
 static int tpm_init_called = 0;
+static uint8_t nvram_data[LOCKBOX_SIZE_MAX];
+static uint32_t nvram_size = 0;
 
 static void tpm_init(void)
 {
@@ -350,6 +354,12 @@ static int get_nvram_key(uint8_t *digest, int *migrate)
 	if (bytes_ored == 0x0 || bytes_anded == 0xff) {
 		INFO("NVRAM area has been defined but not written.");
 		return 0;
+	}
+
+	/* "Export" nvram data for use after the helper. */
+	if (size <= sizeof(nvram_data)) {
+		nvram_size = size;
+		memcpy(nvram_data, value, size);
 	}
 
 	/* Choose random bytes to use based on NVRAM version. */
@@ -1271,6 +1281,25 @@ fail:
 	exit(1);
 }
 
+/* Exports NVRAM contents to tmpfs for use by install attributes */
+void nvram_export(uint8_t *data, uint32_t size)
+{
+	int fd;
+	DEBUG("Export NVRAM contents");
+	if (!size || !data)
+		return;
+	fd = open(kNvramExport, O_WRONLY|O_CREAT|O_EXCL, S_IRUSR|S_IWUSR);
+	if (fd < 0) {
+		perror("open(nvram_export)");
+		return;
+	}
+	if (write(fd, data, size) != size) {
+		/* Don't leave broken files around */
+		unlink(kNvramExport);
+	}
+	close(fd);
+}
+
 int main(int argc, char *argv[])
 {
 	int okay;
@@ -1300,6 +1329,9 @@ int main(int argc, char *argv[])
 
 	okay = setup_encrypted(mode);
 	/* If we fail, let chromeos_startup handle the stateful wipe. */
+
+	if (okay)
+		nvram_export(nvram_data, nvram_size);
 
 	INFO_DONE("Done.");
 
