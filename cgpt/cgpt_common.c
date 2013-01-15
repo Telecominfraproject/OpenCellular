@@ -269,12 +269,7 @@ int DriveClose(struct drive *drive, int update_as_needed) {
     }
   }
 
-  // Sync early!
-  fsync(drive->fd);
-  syncfs(drive->fd);
-
   close(drive->fd);
-  sync();
 
   if (drive->gpt.primary_header)
     free(drive->gpt.primary_header);
