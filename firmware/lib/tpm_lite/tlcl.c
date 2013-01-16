@@ -224,7 +224,7 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length) {
 }
 
 uint32_t TlclPCRRead(uint32_t index, void* data, uint32_t length) {
-  struct s_tpm_nv_read_cmd cmd;
+  struct s_tpm_pcr_read_cmd cmd;
   uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
   uint32_t result;
 
