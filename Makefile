@@ -12,6 +12,7 @@ endif
 #
 # to put the output somewhere else
 BUILD ?= $(shell pwd)/build
+export BUILD
 
 # Target for 'make install'
 DESTDIR ?= /usr/bin
@@ -39,8 +40,7 @@ CFLAGS ?= -march=armv5 \
 	-fno-common -ffixed-r8 \
 	-mfloat-abi=hard -marm -mabi=aapcs-linux -mno-thumb-interwork \
 	$(COMMON_FLAGS)
-endif
-ifeq ($(FIRMWARE_ARCH), i386)
+else ifeq ($(FIRMWARE_ARCH), i386)
 CC ?= i686-pc-linux-gnu-gcc
 # Drop -march=i386 to permit use of SSE instructions
 CFLAGS ?= \
@@ -48,15 +48,69 @@ CFLAGS ?= \
 	-fomit-frame-pointer -fno-toplevel-reorder -fno-dwarf2-cfi-asm \
 	-mpreferred-stack-boundary=2 -mregparm=3 \
 	$(COMMON_FLAGS)
-endif
-ifeq ($(FIRMWARE_ARCH), x86_64)
+else ifeq ($(FIRMWARE_ARCH), x86_64)
 CFLAGS ?= $(COMMON_FLAGS) \
 	-fvisibility=hidden -fno-strict-aliasing -fomit-frame-pointer
+else
+$(info FIRMWARE_ARCH not defined; assuming local compile.)
 endif
 
-# Fix compiling directly on host (outside of emake)
+# Architecture detection
+HOST_ARCH ?= $(shell uname -m)
+
+# Pick a sane target architecture if none defined (building outside emake)
 ifeq ($(ARCH),)
-ARCH = amd64
+  ARCH := $(HOST_ARCH)
+  ifeq ($(ARCH), x86_64)
+    ARCH := amd64
+  endif
+endif
+
+# Determine QEMU architecture needed, if any
+ifeq ($(ARCH),$(HOST_ARCH))
+  # Same architecture; no need for QEMU
+  QEMU_ARCH :=
+else ifeq ($(HOST_ARCH)-$(ARCH),x86_64-i386)
+  # 64-bit host can run 32-bit targets directly
+  QEMU_ARCH :=
+else ifeq ($(HOST_ARCH)-$(ARCH),x86_64-amd64)
+  # 64-bit host can run 64-bit directly
+  QEMU_ARCH :=
+else ifeq ($(ARCH),amd64)
+  QEMU_ARCH := x86_64
+else
+  QEMU_ARCH := $(ARCH)
+endif
+
+# The top of the chroot for qemu must be passed in via the SYSROOT environment
+# variable.  In the Chromium OS chroot, this is done automatically by the
+# ebuild.
+
+# If SYSROOT is not defined, disable QEMU testing
+# TODO: which probably means attempting to test should simply fail
+ifneq ($(QEMU_ARCH),)
+  ifeq ($(SYSROOT),)
+    $(warning SYSROOT must be set to the top of the target-specific root \
+when cross-compiling for qemu-based tests to run properly.)
+    QEMU_ARCH :=
+  endif
+endif
+
+ifeq ($(QEMU_ARCH),)
+  # Path to build output for running tests is same as for building
+  BUILD_RUN = $(BUILD)
+else
+  $(info Using qemu for testing.)
+  # Path to build output for running tests is different in the chroot
+  BUILD_RUN = $(subst $(SYSROOT),,$(BUILD))
+
+  QEMU_BIN = qemu-$(QEMU_ARCH)
+  QEMU_OPTS = -drop-ld-preload \
+	-E LD_LIBRARY_PATH=/lib64:/lib:/usr/lib64:/usr/lib \
+	-E HOME=$(HOME) \
+	-E BUILD=$(BUILD_RUN)
+  QEMU_CMD = sudo chroot $(SYSROOT) $(BUILD_RUN)/$(QEMU_BIN) $(QEMU_OPTS) --
+  RUNTEST = $(QEMU_CMD)
 endif
 
 # Some things only compile inside the Chromium OS chroot
@@ -86,6 +140,7 @@ endif
 CFLAGS += -MMD -MF $@.d
 
 # Code coverage
+# Run like this: COV=1 make runtests coverage
 ifneq (${COV},)
 #COV_FLAGS = -O0 -fprofile-arcs -ftest-coverage
 COV_FLAGS = -O0 --coverage
@@ -149,6 +204,7 @@ clean:
 install: cgpt_install utils_install
 
 # Coverage
+# TODO: only if COV=1
 COV_INFO = $(BUILD)/coverage.info
 #coverage: runtests
 .PHONY: coverage
@@ -203,8 +259,6 @@ $(FWLIB): CFLAGS += -DCOPY_BMP_DATA
 endif
 
 ifeq ($(FIRMWARE_ARCH),)
-$(warning FIRMWARE_ARCH not defined; assuming local compile)
-
 # Disable rollback TPM when compiling locally, since otherwise
 # load_kernel_test attempts to talk to the TPM.
 $(FWLIB): CFLAGS += -DDISABLE_ROLLBACK_TPM
@@ -646,12 +700,34 @@ ${BUILD}/tests/tpm_lite/tpmtest_%: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 # Targets to run tests
 
 # Frequently-run tests
+TEST_TARGETS = runcgpttests runmisctests
+
+ifeq ($(MINIMAL),)
+# Bitmap utility isn't compiled for minimal variant
+TEST_TARGETS += runbmptests
+# Scripts don't work under qemu testing
+# TODO: convert scripts to makefile so they can be called directly
+TEST_TARGETS += runtestscripts
+endif
+
+# Qemu setup for cross-compiled tests.  Need to copy qemu binary into the
+# sysroot.
+ifneq ($(QEMU_ARCH),)
+TEST_SETUP += qemu_install
+
+.PHONY: qemu_install
+qemu_install:
+	@printf "    Copying qemu binary.\n"
+	$(Q)cp -fu /usr/bin/$(QEMU_BIN) $(BUILD)/$(QEMU_BIN)
+	$(Q)chmod a+rx $(BUILD)/$(QEMU_BIN)
+endif
+
 .PHONY: runtests
-runtests: runbmptests runcgpttests runfuzztests runmisctests
+runtests: $(TEST_TARGETS)
 
 # Generate test keys
 .PHONY: genkeys
-genkeys:
+genkeys: utils
 	tests/gen_test_keys.sh
 
 # Generate test cases for fuzzing
@@ -660,47 +736,46 @@ genfuzztestcases: utils
 	tests/gen_fuzz_test_cases.sh
 
 .PHONY: runbmptests
-runbmptests: utils
-	cd tests/bitmaps && BMPBLK=${BUILD}/utility/bmpblk_utility \
+runbmptests: $(TEST_SETUP) utils
+	cd tests/bitmaps && BMPBLK=$(BUILD_RUN)/utility/bmpblk_utility \
 		./TestBmpBlock.py -v
 
 .PHONY: runcgpttests
-runcgpttests: cgpt tests
-	${BUILD}/tests/cgptlib_test
-	tests/run_cgpt_tests.sh ${BUILD}/cgpt/cgpt
+runcgpttests: $(TEST_SETUP) cgpt tests
+	$(RUNTEST) $(BUILD_RUN)/tests/cgptlib_test
 ifneq ($(IN_CHROOT),)
-	${BUILD}/tests/CgptManagerTests --v=1
+	$(RUNTEST) $(BUILD_RUN)/tests/CgptManagerTests --v=1
 endif
 
-# Exercise vbutil_kernel and vbutil_firmware
-.PHONY: runfuzztests
-runfuzztests: genfuzztestcases utils tests
+.PHONY: runtestscripts
+runtestscripts: $(TEST_SETUP) genfuzztestcases utils tests
+	tests/run_cgpt_tests.sh $(BUILD_RUN)/cgpt/cgpt
 	tests/run_preamble_tests.sh
-	tests/run_vbutil_kernel_arg_tests.sh
-
-.PHONY: runmisctests
-runmisctests: tests utils
-	${BUILD}/tests/rollback_index2_tests
-	${BUILD}/tests/rsa_utility_tests
-	${BUILD}/tests/sha_tests
-	${BUILD}/tests/stateful_util_tests
-	${BUILD}/tests/tpm_bootmode_tests
-	${BUILD}/tests/utility_string_tests
-	${BUILD}/tests/utility_tests
-	${BUILD}/tests/vboot_api_devmode_tests
-	${BUILD}/tests/vboot_api_init_tests
-	${BUILD}/tests/vboot_api_firmware_tests
-	${BUILD}/tests/vboot_audio_tests
-	${BUILD}/tests/vboot_firmware_tests
 	tests/run_rsa_tests.sh
 	tests/run_vboot_common_tests.sh
+	tests/run_vbutil_kernel_arg_tests.sh
 	tests/run_vbutil_tests.sh
+
+.PHONY: runmisctests
+runmisctests: $(TEST_SETUP) tests utils
+	$(RUNTEST) $(BUILD_RUN)/tests/rollback_index2_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/rsa_utility_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/sha_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/stateful_util_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/tpm_bootmode_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/utility_string_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/utility_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/vboot_api_devmode_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/vboot_api_init_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/vboot_api_firmware_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/vboot_audio_tests
+	$(RUNTEST) $(BUILD_RUN)/tests/vboot_firmware_tests
 
 # Run long tests, including all permutations of encryption keys (instead of
 # just the ones we use) and tests of currently-unused code (e.g. vboot_ec).
 # Not run by automated build.
 .PHONY: runlongtests
-runlongtests: genkeys genfuzztestcases tests utils
+runlongtests: $(TEST_SETUP) genkeys genfuzztestcases tests utils
 	tests/run_preamble_tests.sh --all
 	tests/run_vboot_common_tests.sh --all
 	tests/run_vboot_ec_tests.sh

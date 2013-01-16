@@ -13,7 +13,7 @@ set -e
 
 # Use a different directory for fuzzing test cases.
 TESTKEY_DIR=${TESTKEY_DIR:-$(realpath  ${SCRIPT_DIR}/../tests/testkeys)}
-TESTCASE_DIR="$(realpath ${SCRIPT_DIR}/../build)"/fuzz_testcases
+TESTCASE_DIR=${BUILD_DIR}/fuzz_testcases
 TEST_IMAGE_FILE=${TESTCASE_DIR}/testimage
 TEST_IMAGE_SIZE=500000
 TEST_BOOTLOADER_FILE=${TESTCASE_DIR}/testbootloader

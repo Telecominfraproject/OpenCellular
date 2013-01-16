@@ -8,7 +8,7 @@
 SCRIPT_DIR=$(dirname $(readlink -f "$0"))
 
 ROOT_DIR="$(dirname ${SCRIPT_DIR})"
-BUILD_DIR="${ROOT_DIR}/build"
+BUILD_DIR="${BUILD}"
 UTIL_DIR="${BUILD_DIR}/utility"
 TEST_DIR="${BUILD_DIR}/tests"
 TESTKEY_DIR=${SCRIPT_DIR}/testkeys
@@ -16,7 +16,7 @@ TESTCASE_DIR=${SCRIPT_DIR}/testcases
 TESTKEY_SCRATCH_DIR=${TEST_DIR}/testkeys
 
 if [ ! -d ${TESTKEY_SCRATCH_DIR} ]; then
-    mkdir ${TESTKEY_SCRATCH_DIR}
+    mkdir -p ${TESTKEY_SCRATCH_DIR}
 fi
 
 # Color output encodings.

@@ -11,8 +11,6 @@
 
 set -e
 
-PATH="$(dirname "$0")/../build/utility:${PATH}"
-
 sha_types=( 1 256 512 )
 
 # Generate RSA test keys of various lengths.
@@ -40,14 +38,14 @@ function generate_keys {
     do
       alg=$((${key_index} * 3 + ${alg_index}))
   # wrap the public key
-      vbutil_key \
+      ${UTIL_DIR}/vbutil_key \
         --pack "${key_base}.sha${sha_type}.vbpubk" \
         --key "${key_base}.keyb" \
         --version 1 \
         --algorithm ${alg}
 
   # wrap the private key
-      vbutil_key \
+      ${UTIL_DIR}/vbutil_key \
         --pack "${key_base}.sha${sha_type}.vbprivk" \
         --key "${key_base}.pem" \
         --algorithm ${alg}
