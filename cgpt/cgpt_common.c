@@ -269,6 +269,11 @@ int DriveClose(struct drive *drive, int update_as_needed) {
     }
   }
 
+  // Sync early! Only sync file descriptor here, and leave the whole system sync
+  // outside cgpt because whole system sync would trigger tons of disk accesses
+  // and timeout tests.
+  fsync(drive->fd);
+
   close(drive->fd);
 
   if (drive->gpt.primary_header)
