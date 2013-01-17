@@ -702,7 +702,7 @@ void process_config_file(build_image_context *context, u_int8_t simple_parse)
 {
 	char buffer[MAX_BUFFER];
 	int  space = 0;
-	char current;
+	int current;
 	u_int8_t c_eol_comment_start = 0; /* True after first slash */
 	u_int8_t comment = 0;
 	u_int8_t string = 0;
