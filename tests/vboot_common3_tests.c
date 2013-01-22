@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "cryptolib.h"
 #include "file_keys.h"
@@ -254,56 +255,107 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
   free(hdr);
 }
 
+int test_permutation(int signing_key_algorithm, int data_key_algorithm,
+		     const char *keys_dir)
+{
+	char filename[1024];
+	int signing_rsa_len = siglen_map[signing_key_algorithm] * 8;;
+	int data_rsa_len = siglen_map[data_key_algorithm] * 8;;
 
-int main(int argc, char* argv[]) {
-  VbPrivateKey* signing_private_key = NULL;
-  VbPublicKey* signing_public_key = NULL;
-  int signing_key_algorithm;
+	VbPrivateKey* signing_private_key = NULL;
+	VbPublicKey* signing_public_key = NULL;
+	VbPublicKey* data_public_key = NULL;
 
-  VbPublicKey* data_public_key = NULL;
-  int data_key_algorithm;
+	printf("***Testing signing algorithm: %s\n",
+	       algo_strings[signing_key_algorithm]);
+	printf("***With data key algorithm: %s\n",
+	       algo_strings[data_key_algorithm]);
 
-  int error_code = 0;
+	sprintf(filename, "%s/key_rsa%d.pem", keys_dir, signing_rsa_len);
+	signing_private_key = PrivateKeyReadPem(filename,
+						signing_key_algorithm);
+	if (!signing_private_key) {
+		fprintf(stderr, "Error reading signing_private_key: %s\n",
+			filename);
+		return 1;
+	}
 
-  if(argc != 7) {
-    fprintf(stderr, "Usage: %s <signing_key_algorithm> <data_key_algorithm>"
-            " <signing key> <processed signing pubkey>"
-            " <data key> <processed data pubkey>\n", argv[0]);
-    return -1;
-  }
+	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, signing_rsa_len);
+	signing_public_key = PublicKeyReadKeyb(filename,
+					       signing_key_algorithm, 1);
+	if (!signing_public_key) {
+		fprintf(stderr, "Error reading signing_public_key: %s\n",
+			filename);
+		return 1;
+	}
 
-  /* Read verification keys and create a test image. */
-  signing_key_algorithm = atoi(argv[1]);
-  data_key_algorithm = atoi(argv[2]);
+	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, data_rsa_len);
+	data_public_key = PublicKeyReadKeyb(filename,
+					       data_key_algorithm, 1);
+	if (!data_public_key) {
+		fprintf(stderr, "Error reading data_public_key: %s\n",
+			filename);
+		return 1;
+	}
 
-  signing_private_key = PrivateKeyReadPem(argv[3], signing_key_algorithm);
-  if (!signing_private_key) {
-    fprintf(stderr, "Error reading signing_private_key");
-    return 1;
-  }
+	KeyBlockVerifyTest(signing_public_key, signing_private_key,
+			   data_public_key);
+	VerifyFirmwarePreambleTest(signing_public_key, signing_private_key,
+				   data_public_key);
 
-  signing_public_key = PublicKeyReadKeyb(argv[4], signing_key_algorithm, 1);
-  if (!signing_public_key) {
-    fprintf(stderr, "Error reading signing_public_key");
-    return 1;
-  }
+	if (signing_public_key)
+		free(signing_public_key);
+	if (signing_private_key)
+		free(signing_private_key);
+	if (data_public_key)
+		free(data_public_key);
 
-  data_public_key = PublicKeyReadKeyb(argv[6], data_key_algorithm, 1);
-  if (!data_public_key) {
-    fprintf(stderr, "Error reading data_public_key");
-    return 1;
-  }
+	return 0;
+}
 
-  KeyBlockVerifyTest(signing_public_key, signing_private_key, data_public_key);
-  VerifyFirmwarePreambleTest(signing_public_key, signing_private_key,
-                             data_public_key);
+struct test_perm
+{
+	int signing_algorithm;
+	int data_key_algorithm;
+};
 
-  if (signing_public_key)
-    free(signing_public_key);
-  if (signing_private_key)
-    free(signing_private_key);
-  if (data_public_key)
-    free(data_public_key);
+/*
+ * Permutations of signing and data key algorithms in active use:
+ * 7 (rsa4096 sha256) - 4 (rsa2048 sha256)
+ * 11 (rsa8192 sha512) - 4 (rsa2048 sha256)
+ * 11 (rsa8192 sha512) - 7 (rsa4096 sha256)
+ */
+const struct test_perm test_perms[] = {{7, 4}, {11, 4}, {11, 7}};
 
-  return error_code;
+int main(int argc, char* argv[])
+{
+	if (argc == 2) {
+		/* Test only the algorithms we use */
+		int i;
+
+		for (i = 0; i < ARRAY_SIZE(test_perms); i++) {
+			if (test_permutation(test_perms[i].signing_algorithm,
+					     test_perms[i].data_key_algorithm,
+					     argv[1]))
+				return 1;
+		}
+
+	} else if (argc == 3 && !strcasecmp(argv[2], "--all")) {
+		/* Test all the algorithms */
+		int sign_alg, data_alg;
+
+		for (sign_alg = 0; sign_alg < kNumAlgorithms; sign_alg++) {
+			for (data_alg = 0; data_alg < kNumAlgorithms;
+			     data_alg++) {
+				if (test_permutation(sign_alg, data_alg,
+						     argv[1]))
+					return 1;
+			}
+		}
+	} else {
+		fprintf(stderr,	"Usage: %s <keys_dir> [--all]",	argv[0]);
+		return -1;
+	}
+
+	return gTestSuccess ? 0 : 255;
 }

@@ -36,8 +36,8 @@
 # changed or appended. They must be defined before being used anywhere.
 
 # we should only run pwd once, not every time we refer to ${BUILD}.
-_whereami := $(shell pwd)
-BUILD ?= $(_whereami)/build
+SRCDIR := $(shell pwd)
+BUILD ?= $(SRCDIR)/build
 export BUILD
 
 # Target for 'make install'
@@ -152,21 +152,21 @@ endif
 ifeq (${QEMU_ARCH},)
   # Path to build output for running tests is same as for building
   BUILD_RUN = ${BUILD}
+  SRC_RUN = ${SRCDIR}
 else
   $(info Using qemu for testing.)
   # Path to build output for running tests is different in the chroot
   BUILD_RUN = $(subst ${SYSROOT},,${BUILD})
+  SRC_RUN = $(subst ${SYSROOT},,${SRCDIR})
 
   QEMU_BIN = qemu-${QEMU_ARCH}
-  QEMU_OPTS = -drop-ld-preload \
-	-E LD_LIBRARY_PATH=/lib64:/lib:/usr/lib64:/usr/lib \
-	-E HOME=${HOME} \
-	-E BUILD=${BUILD_RUN}
-  QEMU_CMD = sudo chroot ${SYSROOT} ${BUILD_RUN}/${QEMU_BIN} ${QEMU_OPTS} --
-  RUNTEST = ${QEMU_CMD}
+  QEMU_RUN = ${BUILD_RUN}/${QEMU_BIN}
+  export QEMU_RUN
+
+  RUNTEST = tests/test_using_qemu.sh
 endif
 
-
+export BUILD_RUN
 
 # Some things only compile inside the Chromium OS chroot.
 # TODO: Those things should be in their own repo, not part of vboot_reference
@@ -465,6 +465,8 @@ TEST_NAMES += ${TLCL_TEST_NAMES}
 TEST_BINS = $(addprefix ${BUILD}/tests/,${TEST_NAMES})
 ALL_DEPS += $(addsuffix .d,${TEST_BINS})
 
+# Directory containing test keys
+TEST_KEYS = ${SRC_RUN}/tests/testkeys
 
 # ----------------------------------------------------------------------------
 # TODO: why not make this include *all* the cgpt files, and simply have
@@ -930,7 +932,6 @@ runtestscripts: test_setup genfuzztestcases
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt
 	tests/run_preamble_tests.sh
 	tests/run_rsa_tests.sh
-	tests/run_vboot_common_tests.sh
 	tests/run_vbutil_kernel_arg_tests.sh
 	tests/run_vbutil_tests.sh
 
@@ -947,6 +948,9 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_init_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_firmware_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_audio_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_firmware_tests
 
 .PHONY: runfutiltests
@@ -959,8 +963,9 @@ runfutiltests: test_setup install
 # Not run by automated build.
 .PHONY: runlongtests
 runlongtests: test_setup genkeys genfuzztestcases
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS} --all
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS} --all
 	tests/run_preamble_tests.sh --all
-	tests/run_vboot_common_tests.sh --all
 	tests/run_vboot_ec_tests.sh
 	tests/run_vbutil_tests.sh --all
 
