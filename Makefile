@@ -52,6 +52,29 @@ ifeq (${V},)
 Q := @
 endif
 
+# Architecture detection
+_machname := $(shell uname -m)
+HOST_ARCH ?= ${_machname}
+
+# ARCH and/or FIRMWARE_ARCH are defined by the Chromium OS ebuild.
+# Pick a sane target architecture if none is defined.
+ifeq (${ARCH},)
+  ARCH := ${HOST_ARCH}
+else ifeq (${ARCH},i386)
+  override ARCH := x86
+else ifeq (${ARCH},amd64)
+  override ARCH := x86_64
+endif
+
+# FIRMWARE_ARCH is only defined by the Chromium OS ebuild if compiling
+# for a firmware target (such as u-boot or depthcharge). It must map
+# to the same consistent set of architectures as the host.
+ifeq (${FIRMWARE_ARCH},i386)
+  override FIRMWARE_ARCH := x86
+else ifeq (${FIRMWARE_ARCH},amd64)
+  override FIRMWARE_ARCH := x86_64
+endif
+
 # Provide default CC and CFLAGS for firmware builds; if you have any -D flags,
 # please add them after this point (e.g., -DVBOOT_DEBUG).
 #
@@ -75,7 +98,7 @@ CFLAGS ?= -march=armv5 \
 	-fno-common -ffixed-r8 \
 	-mfloat-abi=hard -marm -mabi=aapcs-linux -mno-thumb-interwork \
 	${COMMON_FLAGS}
-else ifeq (${FIRMWARE_ARCH}, i386)
+else ifeq (${FIRMWARE_ARCH}, x86)
 CC ?= i686-pc-linux-gnu-gcc
 # Drop -march=i386 to permit use of SSE instructions
 CFLAGS ?= \
@@ -116,32 +139,13 @@ LD = ${CC}
 CXX ?= g++ # HEY: really?
 PKG_CONFIG ?= pkg-config
 
-# Architecture detection. If we're cross-compiling, we may need to run unit
-# tests inside QEMU.
-_machname := $(shell uname -m)
-HOST_ARCH ?= ${_machname}
-
-# Note: ARCH is defined by the Chromium OS ebuild. Pick a sane target
-# architecture if none is defined.
-ifeq (${ARCH},)
-  ARCH := ${HOST_ARCH}
-  ifeq (${ARCH}, x86_64)
-    ARCH := amd64
-  endif
-endif
-
 # Determine QEMU architecture needed, if any
 ifeq (${ARCH},${HOST_ARCH})
   # Same architecture; no need for QEMU
   QEMU_ARCH :=
-else ifeq (${HOST_ARCH}-${ARCH},x86_64-i386)
+else ifeq (${HOST_ARCH}-${ARCH},x86_64-x86)
   # 64-bit host can run 32-bit targets directly
   QEMU_ARCH :=
-else ifeq (${HOST_ARCH}-${ARCH},x86_64-amd64)
-  # 64-bit host can run 64-bit directly
-  QEMU_ARCH :=
-else ifeq (${ARCH},amd64)
-  QEMU_ARCH := x86_64
 else
   QEMU_ARCH := ${ARCH}
 endif
