@@ -414,7 +414,6 @@ TEST_NAMES = \
 	tpm_bootmode_tests \
 	utility_string_tests \
 	utility_tests \
-	vboot_nvstorage_test \
 	vboot_api_init_tests \
 	vboot_api_devmode_tests \
 	vboot_api_firmware_tests \
@@ -424,7 +423,8 @@ TEST_NAMES = \
 	vboot_common2_tests \
 	vboot_common3_tests \
 	vboot_ec_tests \
-	vboot_firmware_tests
+	vboot_firmware_tests \
+	vboot_nvstorage_test
 
 # Grrr
 ifneq (${IN_CHROOT},)
@@ -946,6 +946,7 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_firmware_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_nvstorage_test
 
 .PHONY: runfutiltests
 runfutiltests: DESTDIR := ${TEST_INSTALL_DIR}

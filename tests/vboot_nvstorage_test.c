@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -35,6 +35,7 @@ static VbNvField nvfields[] = {
   {VBNV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
   {VBNV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
   {VBNV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
+  {VBNV_OPROM_NEEDED, 0, 1, 0, "oprom needed"},
   {0, 0, 0, 0, NULL}
 };
 
@@ -102,6 +103,25 @@ static void VbNvStorageTest(void) {
   /* That should have changed the CRC */
   TEST_NEQ(c.raw[15], goodcrc, "VbNvTeardown() CRC changed due to flags clear");
 
+  /* Test explicitly setting the reset flags again */
+  VbNvSetup(&c);
+  VbNvSet(&c, VBNV_FIRMWARE_SETTINGS_RESET, 1);
+  VbNvGet(&c, VBNV_FIRMWARE_SETTINGS_RESET, &data);
+  TEST_EQ(data, 1, "Firmware settings forced reset");
+  VbNvSet(&c, VBNV_FIRMWARE_SETTINGS_RESET, 0);
+
+  VbNvSet(&c, VBNV_KERNEL_SETTINGS_RESET, 1);
+  VbNvGet(&c, VBNV_KERNEL_SETTINGS_RESET, &data);
+  TEST_EQ(data, 1, "Kernel settings forced reset");
+  VbNvSet(&c, VBNV_KERNEL_SETTINGS_RESET, 0);
+  VbNvTeardown(&c);
+
+  /* Get/set an invalid field */
+  VbNvSetup(&c);
+  TEST_EQ(VbNvGet(&c, -1, &data), 1, "Get invalid setting");
+  TEST_EQ(VbNvSet(&c, -1, 0), 1, "Set invalid setting");
+  VbNvTeardown(&c);
+
   /* Test other fields */
   VbNvSetup(&c);
   for (vnf = nvfields; vnf->desc; vnf++) {
@@ -134,6 +154,19 @@ static void VbNvStorageTest(void) {
   TEST_EQ(c.regenerate_crc, 0, "No regen CRC if data not changed");
   VbNvTeardown(&c);
   TEST_EQ(c.raw_changed, 0, "No raw change if data not changed");
+
+  /* Test out-of-range fields mapping to defaults */
+  VbNvSetup(&c);
+  VbNvSet(&c, VBNV_TRY_B_COUNT, 16);
+  VbNvGet(&c, VBNV_TRY_B_COUNT, &data);
+  TEST_EQ(data, 15, "Try b count out of range");
+  VbNvSet(&c, VBNV_RECOVERY_REQUEST, 0x101);
+  VbNvGet(&c, VBNV_RECOVERY_REQUEST, &data);
+  TEST_EQ(data, VBNV_RECOVERY_LEGACY, "Recovery request out of range");
+  VbNvSet(&c, VBNV_LOCALIZATION_INDEX, 0x102);
+  VbNvGet(&c, VBNV_LOCALIZATION_INDEX, &data);
+  TEST_EQ(data, 0, "Localization index out of range");
+  VbNvTeardown(&c);
 }
 
 
