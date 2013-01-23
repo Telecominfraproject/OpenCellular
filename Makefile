@@ -405,6 +405,7 @@ ALL_OBJS += ${TESTLIB_OBJS}
 TEST_NAMES = \
 	cgptlib_test \
 	rollback_index2_tests \
+	rollback_index3_tests \
 	rsa_padding_test \
 	rsa_utility_tests \
 	rsa_verify_benchmark \
@@ -932,6 +933,7 @@ runtestscripts: test_setup genfuzztestcases
 .PHONY: runmisctests
 runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index2_tests
+	${RUNTEST} ${BUILD_RUN}/tests/rollback_index3_tests
 	${RUNTEST} ${BUILD_RUN}/tests/rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/sha_tests
 	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
