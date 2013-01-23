@@ -103,11 +103,12 @@ endif
 # Create / use dependency files
 CFLAGS += -MMD -MF $@.d
 
-# Code coverage. Run like this:  COV=1 make runtests coverage
+# Code coverage
 ifneq (${COV},)
-COV_FLAGS = -O0 --coverage
-CFLAGS += ${COV_FLAGS}
-LDFLAGS += ${COV_FLAGS}
+  COV_FLAGS = -O0 --coverage
+  CFLAGS += ${COV_FLAGS}
+  LDFLAGS += ${COV_FLAGS}
+  COV_INFO = ${BUILD}/coverage.info
 endif
 
 # And a few more default utilities
@@ -505,7 +506,7 @@ _dir_create := $(foreach d, \
 
 # Default target.
 .PHONY: all
-all: fwlib $(if ${FIRMWARE_ARCH},,host_stuff)
+all: fwlib $(if ${FIRMWARE_ARCH},,host_stuff) $(if ${COV},coverage)
 
 # Host targets
 .PHONY: host_stuff
@@ -521,17 +522,6 @@ clean:
 
 .PHONY: install
 install: cgpt_install utils_install futil_install
-
-# Coverage
-# TODO: only if COV=1
-# HEY - depend on runtests?
-COV_INFO = ${BUILD}/coverage.info
-.PHONY: coverage
-coverage:
-	rm -f ${COV_INFO}*
-	lcov --capture --directory . --base-directory . -o ${COV_INFO}.1
-	lcov --remove ${COV_INFO}.1 '/usr/*' -o ${COV_INFO}
-	genhtml ${COV_INFO} --output-directory ${BUILD}/coverage
 
 # Don't delete intermediate object files
 .SECONDARY:
@@ -977,4 +967,30 @@ runlongtests: test_setup genkeys genfuzztestcases
 #	# Rollback Tests
 #	${BUILD}/tests/firmware_rollback_tests
 #	${BUILD}/tests/kernel_rollback_tests
+
+# Code coverage
+.PHONY: coverage_init
+coverage_init: test_setup
+	rm -f ${COV_INFO}*
+	lcov -c -i -d . -b . -o ${COV_INFO}.initial
+
+.PHONY: coverage_html
+coverage_html:
+	lcov -c -d . -b . -o ${COV_INFO}.tests
+	lcov -a ${COV_INFO}.initial -a ${COV_INFO}.tests -o ${COV_INFO}.total
+	lcov -r ${COV_INFO}.total '/usr/*' '*/linktest/*' -o ${COV_INFO}.local
+	genhtml ${COV_INFO}.local -o ${BUILD}/coverage
+
+# Generate addtional coverage stats just for firmware subdir, because the
+# per-directory stats for the whole project don't include their own subdirs.
+	lcov -e ${COV_INFO}.local '${SRCDIR}/firmware/*' \
+		-o ${COV_INFO}.firmware
+
+.PHONY: coverage
+ifeq (${COV},)
+coverage:
+	$(error Build coverage like this: make clean && COV=1 make)
+else
+coverage: coverage_init runtests coverage_html
+endif
 
