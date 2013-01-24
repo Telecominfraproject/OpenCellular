@@ -402,8 +402,7 @@ static void FillInSha1Sum(char *outbuf, VbPublicKey* key) {
   VbExFree(digest);
 }
 
-
-static const char *RecoveryReasonString(uint8_t code) {
+const char *RecoveryReasonString(uint8_t code) {
   switch(code) {
   case VBNV_RECOVERY_NOT_REQUESTED:
     return "Recovery not requested";

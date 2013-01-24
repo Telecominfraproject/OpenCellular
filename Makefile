@@ -422,6 +422,7 @@ TEST_NAMES = \
 	vboot_common_tests \
 	vboot_common2_tests \
 	vboot_common3_tests \
+	vboot_display_tests \
 	vboot_firmware_tests \
 	vboot_nvstorage_test
 
@@ -942,6 +943,7 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_display_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_firmware_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_nvstorage_test
 
@@ -951,7 +953,7 @@ runfutiltests: test_setup install
 	@echo "$@ passed"
 
 # Run long tests, including all permutations of encryption keys (instead of
-# just the ones we use) and tests of currently-unused code (e.g. vboot_ec).
+# just the ones we use) and tests of currently-unused code.
 # Not run by automated build.
 .PHONY: runlongtests
 runlongtests: test_setup genkeys genfuzztestcases

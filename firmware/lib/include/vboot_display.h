@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -18,6 +18,9 @@ VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen, int force,
 VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr);
 VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
                             VbNvContext *vncptr);
+
+/* Internal functions, for unit testing */
+const char *RecoveryReasonString(uint8_t code);
 
 #endif /* VBOOT_REFERENCE_VBOOT_DISPLAY_H_ */
 
