@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -88,6 +88,15 @@ uint32_t HeaderCrc(GptHeader* h);
  *
  * Returns 0 if entries are valid, 1 if invalid. */
 int CheckEntries(GptEntry* entries, GptHeader* h);
+
+/* Return 0 if the GptHeaders are the same for all fields which don't
+ * differ between the primary and secondary headers - that is, all
+ * fields other than:
+ *
+ * my_lba
+ * alternate_lba
+ * entries_lba */
+int HeaderFieldsSame(GptHeader *h1, GptHeader *h2);
 
 /* Check GptData, headers, entries.
  *

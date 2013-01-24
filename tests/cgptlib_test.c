@@ -216,6 +216,8 @@ static int TestBuildTestGptData(void)
 	gpt = GetEmptyGptData();
 	BuildTestGptData(gpt);
 	EXPECT(GPT_SUCCESS == GptInit(gpt));
+	gpt->sector_bytes = 0;
+	EXPECT(GPT_ERROR_INVALID_SECTOR_SIZE == GptInit(gpt));
 	return TEST_OK;
 }
 
@@ -281,6 +283,59 @@ static int HeaderCrcTest(void)
 	return TEST_OK;
 }
 
+/* Test if header-same comparison works. */
+static int HeaderSameTest(void)
+{
+	GptData *gpt = GetEmptyGptData();
+	GptHeader *h1 = (GptHeader *)gpt->primary_header;
+	GptHeader *h2 = (GptHeader *)gpt->secondary_header;
+	GptHeader h3;
+
+	EXPECT(0 == HeaderFieldsSame(h1, h2));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.signature[0] ^= 0xba;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.revision++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.size++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.reserved_zero++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.first_usable_lba++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.last_usable_lba++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.disk_uuid.u.raw[0] ^= 0xba;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.number_of_entries++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.size_of_entry++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	Memcpy(&h3, h2, sizeof(h3));
+	h3.entries_crc32++;
+	EXPECT(1 == HeaderFieldsSame(h1, &h3));
+
+	return TEST_OK;
+}
+
 /* Test if signature ("EFI PART") is checked. */
 static int SignatureTest(void)
 {
@@ -288,6 +343,8 @@ static int SignatureTest(void)
 	GptHeader *h1 = (GptHeader *)gpt->primary_header;
 	GptHeader *h2 = (GptHeader *)gpt->secondary_header;
 	int i;
+
+	EXPECT(1 == CheckHeader(NULL, 0, gpt->drive_sectors));
 
 	for (i = 0; i < 8; ++i) {
 		BuildTestGptData(gpt);
@@ -734,6 +791,8 @@ static int SanityCheckTest(void)
 {
 	GptData *gpt = GetEmptyGptData();
 	GptHeader *h1 = (GptHeader *)gpt->primary_header;
+	GptEntry *e1 = (GptEntry *)gpt->primary_entries;
+	uint8_t *tempptr;
 
 	/* Unmodified test data is completely sane */
 	BuildTestGptData(gpt);
@@ -746,6 +805,11 @@ static int SanityCheckTest(void)
 	EXPECT(MASK_BOTH == gpt->valid_headers);
 	EXPECT(MASK_BOTH == gpt->valid_entries);
 	EXPECT(0 == gpt->modified);
+
+	/* Invalid sector size should fail */
+	BuildTestGptData(gpt);
+	gpt->sector_bytes = 1024;
+	EXPECT(GPT_ERROR_INVALID_SECTOR_SIZE == GptSanityCheck(gpt));
 
 	/* Modify headers */
 	BuildTestGptData(gpt);
@@ -834,6 +898,22 @@ static int SanityCheckTest(void)
 	EXPECT(MASK_BOTH == gpt->valid_headers);
 	EXPECT(MASK_BOTH == gpt->valid_entries);
 	EXPECT(GPT_MODIFIED_ENTRIES2 == gpt->modified);
+
+	/*
+	 * Modify entries and recompute CRCs, then make both primary and
+	 * secondary entry pointers use the secondary data.  The primary
+	 * header will have the wrong entries CRC, so we should fall back
+	 * to the secondary header.
+	 */
+	BuildTestGptData(gpt);
+	e1->starting_lba++;
+	RefreshCrc32(gpt);
+	tempptr = gpt->primary_entries;
+	gpt->primary_entries = gpt->secondary_entries;
+	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+	EXPECT(MASK_SECONDARY == gpt->valid_headers);
+	EXPECT(MASK_BOTH == gpt->valid_entries);
+	gpt->primary_entries = tempptr;
 
 	/* Modify both header and entries */
 	BuildTestGptData(gpt);
@@ -1167,6 +1247,15 @@ static int GptUpdateTest(void)
 	EXPECT(0 == GetEntryPriority(e + KERNEL_X));
 	EXPECT(0 == GetEntryTries(e + KERNEL_X));
 
+	/* Can't update if entry isn't a kernel, or there isn't an entry */
+	Memcpy(&e[KERNEL_X].type, &guid_rootfs, sizeof(guid_rootfs));
+	EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
+	       GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
+	gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+	EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
+	       GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
+
+
 	return TEST_OK;
 }
 
@@ -1247,6 +1336,41 @@ static int DuplicateUniqueGuidTest(void)
 	return TEST_OK;
 }
 
+/* Test getting the current kernel GUID */
+static int GetKernelGuidTest(void)
+{
+	GptData *gpt = GetEmptyGptData();
+	GptEntry *e = (GptEntry *)gpt->primary_entries;
+	Guid g;
+
+	BuildTestGptData(gpt);
+	gpt->current_kernel = 0;
+	GetCurrentKernelUniqueGuid(gpt, &g);
+	EXPECT(!Memcmp(&g, &e[0].unique, sizeof(Guid)));
+	gpt->current_kernel = 1;
+	GetCurrentKernelUniqueGuid(gpt, &g);
+	EXPECT(!Memcmp(&g, &e[1].unique, sizeof(Guid)));
+
+	return TEST_OK;
+}
+
+/* Test getting GPT error text strings */
+static int ErrorTextTest(void)
+{
+	int i;
+
+	/* Known errors are not unknown */
+	for (i = 0; i < GPT_ERROR_COUNT; i++) {
+		EXPECT(GptErrorText(i));
+		EXPECT(strcmp(GptErrorText(i), "Unknown"));
+	}
+
+	/* But other error values are */
+	EXPECT(!strcmp(GptErrorText(GPT_ERROR_COUNT), "Unknown"));
+
+	return TEST_OK;
+}
+
 /* disable MSVC warnings on unused arguments */
 __pragma(warning (disable: 4100))
 
@@ -1263,6 +1387,7 @@ int main(int argc, char *argv[])
 		{ TEST_CASE(TestBuildTestGptData), },
 		{ TEST_CASE(ParameterTests), },
 		{ TEST_CASE(HeaderCrcTest), },
+		{ TEST_CASE(HeaderSameTest), },
 		{ TEST_CASE(SignatureTest), },
 		{ TEST_CASE(RevisionTest), },
 		{ TEST_CASE(SizeTest), },
@@ -1286,6 +1411,8 @@ int main(int argc, char *argv[])
 		{ TEST_CASE(UpdateInvalidKernelTypeTest), },
 		{ TEST_CASE(DuplicateUniqueGuidTest), },
 		{ TEST_CASE(TestCrc32TestVectors), },
+		{ TEST_CASE(GetKernelGuidTest), },
+		{ TEST_CASE(ErrorTextTest), },
 	};
 
 	for (i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); ++i) {
