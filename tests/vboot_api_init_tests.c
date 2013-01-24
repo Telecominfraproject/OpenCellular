@@ -29,6 +29,8 @@ static GoogleBinaryBlockHeader gbb;
 static int mock_virt_dev_sw;
 static uint32_t mock_tpm_version;
 static uint32_t mock_rfs_retval;
+static int rfs_clear_tpm_request;
+static int rfs_disable_dev_request;
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
@@ -59,6 +61,9 @@ static void ResetMocks(void)
 	mock_virt_dev_sw = 0;
 	mock_tpm_version = 0x10001;
 	mock_rfs_retval = 0;
+
+	rfs_clear_tpm_request = 0;
+	rfs_disable_dev_request = 0;
 }
 
 /****************************************************************************/
@@ -100,6 +105,9 @@ uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
                                /* two outputs on success */
                                int *is_virt_dev, uint32_t *version)
 {
+	rfs_clear_tpm_request = clear_tpm_owner_request;
+	rfs_disable_dev_request = disable_dev_request;
+
 	*is_virt_dev = mock_virt_dev_sw;
 	*version = mock_tpm_version;
 	return mock_rfs_retval;
@@ -158,19 +166,29 @@ static void VbInitTest(void)
 	iparams.flags = VB_INIT_FLAG_WP_ENABLED;
 	TestVbInit(0, 0, "Flags test WP");
 	TEST_EQ(shared->flags, VBSD_BOOT_FIRMWARE_WP_ENABLED,
-		"  shared flags WP");
+		"  shared flags");
 
 	ResetMocks();
 	iparams.flags = VB_INIT_FLAG_SW_WP_ENABLED;
 	TestVbInit(0, 0, "Flags test SW WP");
 	TEST_EQ(shared->flags, VBSD_BOOT_FIRMWARE_SW_WP_ENABLED,
-		"  shared flags SW WP");
+		"  shared flags");
 
 	ResetMocks();
 	iparams.flags = VB_INIT_FLAG_RO_NORMAL_SUPPORT;
 	TestVbInit(0, 0, "  flags test RO normal");
 	TEST_EQ(shared->flags, VBSD_BOOT_RO_NORMAL_SUPPORT,
-		"  shared flags RO normal");
+		"  shared flags");
+
+	ResetMocks();
+	iparams.flags = VB_INIT_FLAG_EC_SOFTWARE_SYNC;
+	TestVbInit(0, 0, "  flags test EC software sync");
+	TEST_EQ(shared->flags, VBSD_EC_SOFTWARE_SYNC, "  shared flags");
+
+	ResetMocks();
+	iparams.flags = VB_INIT_FLAG_EC_SLOW_UPDATE;
+	TestVbInit(0, 0, "  flags test EC slow update");
+	TEST_EQ(shared->flags, VBSD_EC_SLOW_UPDATE, "  shared flags");
 
 	/* S3 resume */
 	ResetMocks();
@@ -256,6 +274,67 @@ static void VbInitTest(void)
 		VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
 	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 
+	/* Developer mode when option ROM matters and isn't loaded */
+	ResetMocks();
+	iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON |
+		VB_INIT_FLAG_OPROM_MATTERS;
+	TestVbInit(VBERROR_VGA_OPROM_MISMATCH, 0, "Dev mode need oprom");
+	VbNvGet(&vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 1, "  oprom requested");
+
+	/* Developer mode when option ROM matters and is already loaded */
+	ResetMocks();
+	iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON |
+		VB_INIT_FLAG_OPROM_MATTERS | VB_INIT_FLAG_OPROM_LOADED;
+	TestVbInit(0, 0, "Dev mode has oprom");
+
+	/* Normal mode when option ROM matters and is loaded */
+	ResetMocks();
+	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+	VbNvTeardown(&vnc);
+	iparams.flags = VB_INIT_FLAG_OPROM_MATTERS | VB_INIT_FLAG_OPROM_LOADED;
+	TestVbInit(VBERROR_VGA_OPROM_MISMATCH, 0, "Normal mode with oprom");
+	VbNvGet(&vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 0, "  oprom not requested");
+
+	/* Option ROMs can be forced by GBB flag */
+	ResetMocks();
+	gbb.flags = GBB_FLAG_LOAD_OPTION_ROMS;
+	TestVbInit(0, 0, "GBB load option ROMs");
+	TEST_EQ(iparams.out_flags, VB_INIT_OUT_ENABLE_OPROM, "  out flags");
+
+	/* If requiring signed only, don't enable alternate OS by default */
+	ResetMocks();
+	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
+	VbNvTeardown(&vnc);
+	iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON;
+	TestVbInit(0, 0, "Dev signed only");
+	TEST_EQ(iparams.out_flags,
+		VB_INIT_OUT_CLEAR_RAM |
+		VB_INIT_OUT_ENABLE_DISPLAY |
+		VB_INIT_OUT_ENABLE_USB_STORAGE |
+		VB_INIT_OUT_ENABLE_DEVELOPER, "  out flags");
+
+	/* But that can be overridden by the GBB */
+	ResetMocks();
+	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
+	VbNvTeardown(&vnc);
+	iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON;
+	gbb.flags = GBB_FLAG_ENABLE_ALTERNATE_OS;
+	TestVbInit(0, 0, "Force option ROMs via GBB");
+	TEST_EQ(iparams.out_flags,
+		VB_INIT_OUT_CLEAR_RAM |
+		VB_INIT_OUT_ENABLE_DISPLAY |
+		VB_INIT_OUT_ENABLE_USB_STORAGE |
+		VB_INIT_OUT_ENABLE_DEVELOPER |
+		VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
+
+	/* The GBB override is ignored in normal mode */
+	ResetMocks();
+	gbb.flags = GBB_FLAG_ENABLE_ALTERNATE_OS;
+	TestVbInit(0, 0, "Normal mode ignores forcing option ROMs via GBB");
+	TEST_EQ(iparams.out_flags, 0, "  out flags");
+
 	/* Recovery mode from NV storage */
 	ResetMocks();
 	VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, 123);
@@ -331,6 +410,8 @@ static void VbInitTest(void)
 
 static void VbInitTestTPM(void)
 {
+	uint32_t u;
+
 	/* Rollback setup needs to reboot */
 	ResetMocks();
 	mock_rfs_retval = TPM_E_MUST_REBOOT;
@@ -365,14 +446,20 @@ static void VbInitTestTPM(void)
 
 	/* Virtual developer switch, but not enabled. */
 	ResetMocks();
+	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
+	VbNvTeardown(&vnc);
 	iparams.flags = VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
 	TestVbInit(0, 0, "TPM Dev mode off");
 	TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
 	TEST_EQ(iparams.out_flags, 0, "  out flags");
 	TEST_EQ(shared->flags, VBSD_HONOR_VIRT_DEV_SWITCH, "  shared flags");
+	VbNvGet(&vnc, VBNV_DISABLE_DEV_REQUEST, &u);
+	TEST_EQ(u, 0, "  disable dev request");
 
 	/* Virtual developer switch, enabled. */
 	ResetMocks();
+	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
+	VbNvTeardown(&vnc);
 	iparams.flags = VB_INIT_FLAG_VIRTUAL_DEV_SWITCH;
 	mock_virt_dev_sw = 1;
 	TestVbInit(0, 0, "TPM Dev mode on");
@@ -386,6 +473,11 @@ static void VbInitTestTPM(void)
 	TEST_EQ(shared->flags,
 		VBSD_BOOT_DEV_SWITCH_ON | VBSD_HONOR_VIRT_DEV_SWITCH,
 		"  shared flags");
+	/* Disable-request doesn't get cleared because dev mode is still on */
+	VbNvGet(&vnc, VBNV_DISABLE_DEV_REQUEST, &u);
+	TEST_EQ(u, 1, "  disable dev request");
+	/* Disable request was passed on to RollbackFirmwareSetup() */
+	TEST_EQ(rfs_disable_dev_request, 1, "  rfs disable dev");
 
 	/* Ignore virtual developer switch, even though enabled. */
 	ResetMocks();
@@ -407,6 +499,17 @@ static void VbInitTestTPM(void)
 		VB_INIT_OUT_ENABLE_DEVELOPER |
 		VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
 	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+
+	/* Check TPM owner clear request */
+	ResetMocks();
+	VbNvSet(&vnc, VBNV_CLEAR_TPM_OWNER_REQUEST, 1);
+	VbNvTeardown(&vnc);
+	TestVbInit(0, 0, "TPM clear owner");
+	VbNvGet(&vnc, VBNV_CLEAR_TPM_OWNER_REQUEST, &u);
+	TEST_EQ(u, 0, "  tpm clear request");
+	VbNvGet(&vnc, VBNV_CLEAR_TPM_OWNER_DONE, &u);
+	TEST_EQ(u, 1, "  tpm clear request");
+	TEST_EQ(rfs_clear_tpm_request, 1, "rfs tpm clear request");
 }
 
 /* disable MSVC warnings on unused arguments */
