@@ -87,25 +87,12 @@ int VerifyData(const uint8_t* data, uint64_t size, const VbSignature* sig,
 int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
                  const RSAPublicKey* key);
 
-/* Uses [key] algorithm to hash [data], then compares that to the expected
- * [hash]. Returns 0 if they're equal, non-zero if error. */
-int EqualData(const uint8_t* data, uint64_t size, const VbSignature *hash,
-              const RSAPublicKey* key);
-
 /* Checks the sanity of a key block of size [size] bytes, using public
  * key [key].  If hash_only is non-zero, uses only the block checksum
  * to verify the key block.  Header fields are also checked for
  * sanity.  Does not verify key index or key block flags. */
 int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                    const VbPublicKey *key, int hash_only);
-
-
-/* Checks the sanity of an EC preamble of size [size] bytes,
- * using public key [key].
- *
- * Returns VBOOT_SUCCESS if successful. */
-int VerifyECPreamble(const VbECPreambleHeader* preamble,
-                     uint64_t size, const RSAPublicKey* key);
 
 
 /* Checks the sanity of a firmware preamble of size [size] bytes,

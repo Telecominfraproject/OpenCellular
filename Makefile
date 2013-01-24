@@ -347,7 +347,6 @@ UTIL_NAMES = ${UTIL_NAMES_STATIC} \
 	signature_digest_utility \
 	tpm_init_temp_fix \
 	tpmc \
-	vbutil_ec \
 	vbutil_firmware \
 	vbutil_kernel \
 	vbutil_key \
@@ -423,7 +422,6 @@ TEST_NAMES = \
 	vboot_common_tests \
 	vboot_common2_tests \
 	vboot_common3_tests \
-	vboot_ec_tests \
 	vboot_firmware_tests \
 	vboot_nvstorage_test
 
@@ -805,7 +803,6 @@ ${BUILD}/utility/dumpRSAPublicKey: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/dev_sign_file: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/utility/vbutil_ec: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_firmware: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_kernel: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_key: LDLIBS += ${CRYPTO_LIBS}
@@ -814,8 +811,6 @@ ${BUILD}/utility/vbutil_keyblock: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vboot_ec_tests: LDLIBS += ${CRYPTO_LIBS}
-
 
 ${BUILD}/utility/bmpblk_utility: LD = ${CXX}
 ${BUILD}/utility/bmpblk_utility: LDLIBS = -llzma -lyaml
@@ -963,7 +958,6 @@ runlongtests: test_setup genkeys genfuzztestcases
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS} --all
 	tests/run_preamble_tests.sh --all
-	tests/run_vboot_ec_tests.sh
 	tests/run_vbutil_tests.sh --all
 
 # TODO: tests to run when ported to new API
