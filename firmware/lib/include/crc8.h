@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -8,6 +8,6 @@
 #define VBOOT_REFERENCE_CRC8_H_
 #include "sysincludes.h"
 
-uint8_t Crc8(const void* data, int len);
+uint8_t Crc8(const void *data, int len);
 
 #endif /* VBOOT_REFERENCE_CRC8_H_ */

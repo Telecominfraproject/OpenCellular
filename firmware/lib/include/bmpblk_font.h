@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -45,20 +45,22 @@ __pragma(pack(push, 1))  /* Support packing for MSVC. */
 #define FONT_SIGNATURE_SIZE 4
 
 typedef struct FontArrayHeader {
-  uint8_t  signature[FONT_SIGNATURE_SIZE];
-  uint32_t num_entries;                 /* Number of chars encoded here. */
+	uint8_t  signature[FONT_SIGNATURE_SIZE];
+	uint32_t num_entries;  /* Number of chars encoded here. */
 } __attribute__((packed)) FontArrayHeader;
 
 typedef struct FontArrayEntryHeader {
-  uint32_t ascii;                       /* What to show. Could even be UTF? */
-  ImageInfo info;                       /* Describes the bitmap. */
-  /* The image to use follows immediately, NOT compressed. It's uncompressed
-   * because each glyph is only a few hundred bytes, but they have much in
-   * common (colormaps, for example). When we add the whole font blob to the
-   * bmpblk, it will be compressed as a single item there.
-  */
-} __attribute__((packed)) FontArrayEntryHeader;
+	uint32_t ascii;  /* What to show. Could even be UTF? */
+	ImageInfo info;  /* Describes the bitmap. */
 
+	/*
+	 * The image to use follows immediately, NOT compressed. It's
+	 * uncompressed because each glyph is only a few hundred bytes, but
+	 * they have much in common (colormaps, for example). When we add the
+	 * whole font blob to the bmpblk, it will be compressed as a single
+	 * item there.
+	 */
+} __attribute__((packed)) FontArrayEntryHeader;
 
 __pragma(pack(pop)) /* Support packing for MSVC. */
 

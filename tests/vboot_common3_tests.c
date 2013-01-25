@@ -16,267 +16,273 @@
 #include "vboot_common.h"
 
 
-static void ReChecksumKeyBlock(VbKeyBlockHeader *h) {
-  uint8_t* newchk = DigestBuf((const uint8_t*)h,
-                              h->key_block_checksum.data_size,
-                              SHA512_DIGEST_ALGORITHM);
-  Memcpy(GetSignatureData(&h->key_block_checksum), newchk, SHA512_DIGEST_SIZE);
-  free(newchk);
+static void ReChecksumKeyBlock(VbKeyBlockHeader *h)
+{
+	uint8_t *newchk = DigestBuf((const uint8_t *)h,
+				    h->key_block_checksum.data_size,
+				    SHA512_DIGEST_ALGORITHM);
+	Memcpy(GetSignatureData(&h->key_block_checksum), newchk,
+	       SHA512_DIGEST_SIZE);
+	free(newchk);
 }
 
+static void KeyBlockVerifyTest(const VbPublicKey *public_key,
+                               const VbPrivateKey *private_key,
+                               const VbPublicKey *data_key)
+{
+	VbKeyBlockHeader *hdr;
+	VbKeyBlockHeader *h;
+	unsigned hsize;
 
-static void KeyBlockVerifyTest(const VbPublicKey* public_key,
-                               const VbPrivateKey* private_key,
-                               const VbPublicKey* data_key) {
+	hdr = KeyBlockCreate(data_key, private_key, 0x1234);
+	TEST_NEQ((size_t)hdr, 0, "KeyBlockVerify() prerequisites");
+	if (!hdr)
+		return;
+	hsize = (unsigned) hdr->key_block_size;
+	h = (VbKeyBlockHeader *)malloc(hsize + 1024);
 
-  VbKeyBlockHeader *hdr;
-  VbKeyBlockHeader *h;
-  unsigned hsize;
+	TEST_EQ(KeyBlockVerify(hdr, hsize, NULL, 1), 0,
+		"KeyBlockVerify() ok using checksum");
+	TEST_EQ(KeyBlockVerify(hdr, hsize, public_key, 0), 0,
+		"KeyBlockVerify() ok using key");
+	TEST_NEQ(KeyBlockVerify(hdr, hsize, NULL, 0), 0,
+		 "KeyBlockVerify() missing key");
 
-  hdr = KeyBlockCreate(data_key, private_key, 0x1234);
-  TEST_NEQ((size_t)hdr, 0, "KeyBlockVerify() prerequisites");
-  if (!hdr)
-    return;
-  hsize = (unsigned) hdr->key_block_size;
-  h = (VbKeyBlockHeader*)malloc(hsize + 1024);
+	TEST_NEQ(KeyBlockVerify(hdr, hsize - 1, NULL, 1), 0,
+		 "KeyBlockVerify() size--");
+	TEST_EQ(KeyBlockVerify(hdr, hsize + 1, NULL, 1), 0,
+		"KeyBlockVerify() size++");
 
-  TEST_EQ(KeyBlockVerify(hdr, hsize, NULL, 1), 0,
-          "KeyBlockVerify() ok using checksum");
-  TEST_EQ(KeyBlockVerify(hdr, hsize, public_key, 0), 0,
-          "KeyBlockVerify() ok using key");
-  TEST_NEQ(KeyBlockVerify(hdr, hsize, NULL, 0), 0,
-           "KeyBlockVerify() missing key");
+	Memcpy(h, hdr, hsize);
+	h->magic[0] &= 0x12;
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() magic");
 
-  TEST_NEQ(KeyBlockVerify(hdr, hsize - 1, NULL, 1), 0,
-           "KeyBlockVerify() size--");
-  TEST_EQ(KeyBlockVerify(hdr, hsize + 1, NULL, 1), 0,
-          "KeyBlockVerify() size++");
+	/* Care about major version but not minor */
+	Memcpy(h, hdr, hsize);
+	h->header_version_major++;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() major++");
 
-  Memcpy(h, hdr, hsize);
-  h->magic[0] &= 0x12;
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() magic");
+	Memcpy(h, hdr, hsize);
+	h->header_version_major--;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() major--");
 
-  /* Care about major version but not minor */
-  Memcpy(h, hdr, hsize);
-  h->header_version_major++;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() major++");
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor++;
+	ReChecksumKeyBlock(h);
+	TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		"KeyBlockVerify() minor++");
 
-  Memcpy(h, hdr, hsize);
-  h->header_version_major--;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() major--");
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor--;
+	ReChecksumKeyBlock(h);
+	TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		"KeyBlockVerify() minor--");
 
-  Memcpy(h, hdr, hsize);
-  h->header_version_minor++;
-  ReChecksumKeyBlock(h);
-  TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() minor++");
+	/* Check hash */
+	Memcpy(h, hdr, hsize);
+	h->key_block_checksum.sig_offset = hsize;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() checksum off end");
 
-  Memcpy(h, hdr, hsize);
-  h->header_version_minor--;
-  ReChecksumKeyBlock(h);
-  TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0, "KeyBlockVerify() minor--");
+	Memcpy(h, hdr, hsize);
+	h->key_block_checksum.sig_size /= 2;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() checksum too small");
 
-  /* Check hash */
-  Memcpy(h, hdr, hsize);
-  h->key_block_checksum.sig_offset = hsize;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
-           "KeyBlockVerify() checksum off end");
+	Memcpy(h, hdr, hsize);
+	GetPublicKeyData(&h->data_key)[0] ^= 0x34;
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() checksum mismatch");
 
-  Memcpy(h, hdr, hsize);
-  h->key_block_checksum.sig_size /= 2;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
-           "KeyBlockVerify() checksum too small");
+	/* Check signature */
+	Memcpy(h, hdr, hsize);
+	h->key_block_signature.sig_offset = hsize;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
+		 "KeyBlockVerify() sig off end");
 
-  Memcpy(h, hdr, hsize);
-  GetPublicKeyData(&h->data_key)[0] ^= 0x34;
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
-           "KeyBlockVerify() checksum mismatch");
+	Memcpy(h, hdr, hsize);
+	h->key_block_signature.sig_size--;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
+		 "KeyBlockVerify() sig too small");
 
-  /* Check signature */
-  Memcpy(h, hdr, hsize);
-  h->key_block_signature.sig_offset = hsize;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
-           "KeyBlockVerify() sig off end");
+	Memcpy(h, hdr, hsize);
+	GetPublicKeyData(&h->data_key)[0] ^= 0x34;
+	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
+		 "KeyBlockVerify() sig mismatch");
 
-  Memcpy(h, hdr, hsize);
-  h->key_block_signature.sig_size--;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
-           "KeyBlockVerify() sig too small");
+	Memcpy(h, hdr, hsize);
+	h->key_block_checksum.data_size = h->key_block_size + 1;
+	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 1), 0,
+		 "KeyBlockVerify() checksum data past end of block");
 
-  Memcpy(h, hdr, hsize);
-  GetPublicKeyData(&h->data_key)[0] ^= 0x34;
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
-           "KeyBlockVerify() sig mismatch");
+	/* Check that we signed header and data key */
+	Memcpy(h, hdr, hsize);
+	h->key_block_checksum.data_size = 4;
+	h->data_key.key_offset = 0;
+	h->data_key.key_size = 0;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() didn't sign header");
 
-  Memcpy(h, hdr, hsize);
-  //ReChecksumKeyBlock(h);
-  h->key_block_checksum.data_size = h->key_block_size + 1;
-  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 1), 0,
-           "KeyBlockVerify() checksum data past end of block");
+	Memcpy(h, hdr, hsize);
+	h->data_key.key_offset = hsize;
+	ReChecksumKeyBlock(h);
+	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
+		 "KeyBlockVerify() data key off end");
 
-  /* Check that we signed header and data key */
-  Memcpy(h, hdr, hsize);
-  h->key_block_checksum.data_size = 4;
-  h->data_key.key_offset = 0;
-  h->data_key.key_size = 0;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
-           "KeyBlockVerify() didn't sign header");
+	/* Corner cases for error checking */
+	TEST_NEQ(KeyBlockVerify(NULL, 4, NULL, 1), 0,
+		 "KeyBlockVerify size too small");
 
-  Memcpy(h, hdr, hsize);
-  h->data_key.key_offset = hsize;
-  ReChecksumKeyBlock(h);
-  TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
-           "KeyBlockVerify() data key off end");
+	/*
+	 * TODO: verify parser can support a bigger header (i.e., one where
+	 * data_key.key_offset is bigger than expected).
+	 */
 
-  /* Corner cases for error checking */
-  TEST_NEQ(KeyBlockVerify(NULL, 4, NULL, 1), 0,
-	  "KeyBlockVerify size too small");
-
-  /* TODO: verify parser can support a bigger header (i.e., one where
-   * data_key.key_offset is bigger than expected). */
-
-  free(h);
-  free(hdr);
+	free(h);
+	free(hdr);
 }
 
+static void ReSignFirmwarePreamble(VbFirmwarePreambleHeader *h,
+                                   const VbPrivateKey *key)
+{
+	VbSignature *sig = CalculateSignature(
+		      (const uint8_t *)h, h->preamble_signature.data_size, key);
 
-static void ReSignFirmwarePreamble(VbFirmwarePreambleHeader* h,
-                                   const VbPrivateKey* key) {
-  VbSignature *sig = CalculateSignature((const uint8_t*)h,
-                                        h->preamble_signature.data_size, key);
-
-  SignatureCopy(&h->preamble_signature, sig);
-  free(sig);
+	SignatureCopy(&h->preamble_signature, sig);
+	free(sig);
 }
 
+static void VerifyFirmwarePreambleTest(const VbPublicKey *public_key,
+                                       const VbPrivateKey *private_key,
+                                       const VbPublicKey *kernel_subkey)
+{
+	VbFirmwarePreambleHeader *hdr;
+	VbFirmwarePreambleHeader *h;
+	RSAPublicKey *rsa;
+	unsigned hsize;
 
-static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
-                                       const VbPrivateKey* private_key,
-                                       const VbPublicKey* kernel_subkey) {
+	/* Create a dummy signature */
+	VbSignature* body_sig = SignatureAlloc(56, 78);
 
-  VbFirmwarePreambleHeader* hdr;
-  VbFirmwarePreambleHeader* h;
-  RSAPublicKey* rsa;
-  unsigned hsize;
+	rsa = PublicKeyToRSA(public_key);
+	hdr = CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig,
+				     private_key, 0x5678);
+	TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble() prerequisites");
+	if (!hdr)
+		return;
+	hsize = (unsigned) hdr->preamble_size;
+	h = (VbFirmwarePreambleHeader *)malloc(hsize + 16384);
 
-  /* Create a dummy signature */
-  VbSignature* body_sig = SignatureAlloc(56, 78);
+	TEST_EQ(VerifyFirmwarePreamble(hdr, hsize, rsa), 0,
+		"VerifyFirmwarePreamble() ok using key");
+	TEST_NEQ(VerifyFirmwarePreamble(hdr, 4, rsa), 0,
+		 "VerifyFirmwarePreamble() size tiny");
+	TEST_NEQ(VerifyFirmwarePreamble(hdr, hsize - 1, rsa), 0,
+		 "VerifyFirmwarePreamble() size--");
+	TEST_EQ(VerifyFirmwarePreamble(hdr, hsize + 1, rsa), 0,
+		"VerifyFirmwarePreamble() size++");
 
-  rsa = PublicKeyToRSA(public_key);
-  hdr = CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig, private_key,
-                               0x5678);
-  TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble() prerequisites");
-  if (!hdr)
-    return;
-  hsize = (unsigned) hdr->preamble_size;
-  h = (VbFirmwarePreambleHeader*)malloc(hsize + 16384);
+	/* Care about major version but not minor */
+	Memcpy(h, hdr, hsize);
+	h->header_version_major++;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() major++");
 
-  TEST_EQ(VerifyFirmwarePreamble(hdr, hsize, rsa), 0,
-          "VerifyFirmwarePreamble() ok using key");
-  TEST_NEQ(VerifyFirmwarePreamble(hdr, 4, rsa), 0,
-           "VerifyFirmwarePreamble() size tiny");
-  TEST_NEQ(VerifyFirmwarePreamble(hdr, hsize - 1, rsa), 0,
-           "VerifyFirmwarePreamble() size--");
-  TEST_EQ(VerifyFirmwarePreamble(hdr, hsize + 1, rsa), 0,
-           "VerifyFirmwarePreamble() size++");
+	Memcpy(h, hdr, hsize);
+	h->header_version_major--;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() major--");
 
-  /* Care about major version but not minor */
-  Memcpy(h, hdr, hsize);
-  h->header_version_major++;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() major++");
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor++;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		"VerifyFirmwarePreamble() minor++");
 
-  Memcpy(h, hdr, hsize);
-  h->header_version_major--;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() major--");
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor--;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		"VerifyFirmwarePreamble() minor--");
 
-  Memcpy(h, hdr, hsize);
-  h->header_version_minor++;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-          "VerifyFirmwarePreamble() minor++");
+	/* Check signature */
+	Memcpy(h, hdr, hsize);
+	h->preamble_signature.sig_offset = hsize;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() sig off end");
 
-  Memcpy(h, hdr, hsize);
-  h->header_version_minor--;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-          "VerifyFirmwarePreamble() minor--");
+	Memcpy(h, hdr, hsize);
+	h->preamble_signature.sig_size--;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() sig too small");
 
-  /* Check signature */
-  Memcpy(h, hdr, hsize);
-  h->preamble_signature.sig_offset = hsize;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() sig off end");
+	Memcpy(h, hdr, hsize);
+	GetPublicKeyData(&h->kernel_subkey)[0] ^= 0x34;
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() sig mismatch");
 
-  Memcpy(h, hdr, hsize);
-  h->preamble_signature.sig_size--;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() sig too small");
+	/* Check that we signed header, kernel subkey, and body sig */
+	Memcpy(h, hdr, hsize);
+	h->preamble_signature.data_size = 4;
+	h->kernel_subkey.key_offset = 0;
+	h->kernel_subkey.key_size = 0;
+	h->body_signature.sig_offset = 0;
+	h->body_signature.sig_size = 0;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() didn't sign header");
 
-  Memcpy(h, hdr, hsize);
-  GetPublicKeyData(&h->kernel_subkey)[0] ^= 0x34;
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() sig mismatch");
+	Memcpy(h, hdr, hsize);
+	h->kernel_subkey.key_offset = hsize;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() kernel subkey off end");
 
-  /* Check that we signed header, kernel subkey, and body sig */
-  Memcpy(h, hdr, hsize);
-  h->preamble_signature.data_size = 4;
-  h->kernel_subkey.key_offset = 0;
-  h->kernel_subkey.key_size = 0;
-  h->body_signature.sig_offset = 0;
-  h->body_signature.sig_size = 0;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() didn't sign header");
+	Memcpy(h, hdr, hsize);
+	h->body_signature.sig_offset = hsize;
+	ReSignFirmwarePreamble(h, private_key);
+	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
+		 "VerifyFirmwarePreamble() body sig off end");
 
-  Memcpy(h, hdr, hsize);
-  h->kernel_subkey.key_offset = hsize;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() kernel subkey off end");
+	/* Check that we return flags properly for new and old structs */
+	Memcpy(h, hdr, hsize);
+	TEST_EQ(VbGetFirmwarePreambleFlags(h), 0x5678,
+		"VbGetFirmwarePreambleFlags() v2.1");
+	h->header_version_minor = 0;
+	TEST_EQ(VbGetFirmwarePreambleFlags(h), 0,
+		"VbGetFirmwarePreambleFlags() v2.0");
 
-  Memcpy(h, hdr, hsize);
-  h->body_signature.sig_offset = hsize;
-  ReSignFirmwarePreamble(h, private_key);
-  TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-           "VerifyFirmwarePreamble() body sig off end");
+	/* TODO: verify with extra padding at end of header. */
 
-  /* Check that we return flags properly for new and old structs */
-  Memcpy(h, hdr, hsize);
-  TEST_EQ(VbGetFirmwarePreambleFlags(h), 0x5678,
-          "VbGetFirmwarePreambleFlags() v2.1");
-  h->header_version_minor = 0;
-  TEST_EQ(VbGetFirmwarePreambleFlags(h), 0,
-          "VbGetFirmwarePreambleFlags() v2.0");
-
-  /* TODO: verify with extra padding at end of header. */
-
-  free(h);
-  RSAPublicKeyFree(rsa);
-  free(hdr);
+	free(h);
+	RSAPublicKeyFree(rsa);
+	free(hdr);
 }
 
 int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		     const char *keys_dir)
 {
 	char filename[1024];
-	int signing_rsa_len = siglen_map[signing_key_algorithm] * 8;;
-	int data_rsa_len = siglen_map[data_key_algorithm] * 8;;
+	int signing_rsa_len = siglen_map[signing_key_algorithm] * 8;
+	int data_rsa_len = siglen_map[data_key_algorithm] * 8;
 
-	VbPrivateKey* signing_private_key = NULL;
-	VbPublicKey* signing_public_key = NULL;
-	VbPublicKey* data_public_key = NULL;
+	VbPrivateKey *signing_private_key = NULL;
+	VbPublicKey *signing_public_key = NULL;
+	VbPublicKey *data_public_key = NULL;
 
 	printf("***Testing signing algorithm: %s\n",
 	       algo_strings[signing_key_algorithm]);
@@ -339,7 +345,7 @@ struct test_perm
  */
 const struct test_perm test_perms[] = {{7, 4}, {11, 4}, {11, 7}};
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	if (argc == 2) {
 		/* Test only the algorithms we use */

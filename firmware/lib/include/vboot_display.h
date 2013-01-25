@@ -11,12 +11,12 @@
 #include "vboot_api.h"
 #include "vboot_nvstorage.h"
 
-VbError_t VbDisplayScreenFromGBB(VbCommonParams* cparams, uint32_t screen,
+VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
                                  VbNvContext *vncptr);
-VbError_t VbDisplayScreen(VbCommonParams* cparams, uint32_t screen, int force,
+VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen, int force,
                           VbNvContext *vncptr);
-VbError_t VbDisplayDebugInfo(VbCommonParams* cparams, VbNvContext *vncptr);
-VbError_t VbCheckDisplayKey(VbCommonParams* cparams, uint32_t key,
+VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr);
+VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
                             VbNvContext *vncptr);
 
 /* Internal functions, for unit testing */

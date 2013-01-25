@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -6,488 +6,496 @@
  * (Firmware portion)
  */
 
-
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "utility.h"
 
-
-char* kVbootErrors[VBOOT_ERROR_MAX] = {
-  "Success.",
-  "Key block invalid.",
-  "Key block signature failed.",
-  "Key block hash failed.",
-  "Public key invalid.",
-  "Preamble invalid.",
-  "Preamble signature check failed.",
-  "Shared data invalid."
+const char *kVbootErrors[VBOOT_ERROR_MAX] = {
+	"Success.",
+	"Key block invalid.",
+	"Key block signature failed.",
+	"Key block hash failed.",
+	"Public key invalid.",
+	"Preamble invalid.",
+	"Preamble signature check failed.",
+	"Shared data invalid."
 };
 
-
-uint64_t OffsetOf(const void *base, const void *ptr) {
-  return (uint64_t)(size_t)ptr - (uint64_t)(size_t)base;
+uint64_t OffsetOf(const void *base, const void *ptr)
+{
+	return (uint64_t)(size_t)ptr - (uint64_t)(size_t)base;
 }
-
 
 /* Helper functions to get data pointed to by a public key or signature. */
-uint8_t* GetPublicKeyData(VbPublicKey* key) {
-  return (uint8_t*)key + key->key_offset;
+
+uint8_t *GetPublicKeyData(VbPublicKey *key)
+{
+	return (uint8_t *)key + key->key_offset;
 }
 
-const uint8_t* GetPublicKeyDataC(const VbPublicKey* key) {
-  return (const uint8_t*)key + key->key_offset;
+const uint8_t *GetPublicKeyDataC(const VbPublicKey *key)
+{
+	return (const uint8_t *)key + key->key_offset;
 }
 
-uint8_t* GetSignatureData(VbSignature* sig) {
-  return (uint8_t*)sig + sig->sig_offset;
+uint8_t *GetSignatureData(VbSignature *sig)
+{
+	return (uint8_t *)sig + sig->sig_offset;
 }
 
-const uint8_t* GetSignatureDataC(const VbSignature* sig) {
-  return (const uint8_t*)sig + sig->sig_offset;
+const uint8_t *GetSignatureDataC(const VbSignature *sig)
+{
+	return (const uint8_t *)sig + sig->sig_offset;
 }
 
+/*
+ * Helper functions to verify the data pointed to by a subfield is inside
+ * the parent data.  Returns 0 if inside, 1 if error.
+ */
 
-/* Helper functions to verify the data pointed to by a subfield is inside
- * the parent data.  Returns 0 if inside, 1 if error. */
-int VerifyMemberInside(const void* parent, uint64_t parent_size,
-                       const void* member, uint64_t member_size,
+int VerifyMemberInside(const void *parent, uint64_t parent_size,
+                       const void *member, uint64_t member_size,
                        uint64_t member_data_offset,
-                       uint64_t member_data_size) {
-  uint64_t end = OffsetOf(parent, member);
+                       uint64_t member_data_size)
+{
+	uint64_t end = OffsetOf(parent, member);
 
-  if (end > parent_size)
-    return 1;
+	if (end > parent_size)
+		return 1;
 
-  if (UINT64_MAX - end < member_size)
-    return 1;  /* Detect wraparound in integer math */
-  if (end + member_size > parent_size)
-    return 1;
+	if (UINT64_MAX - end < member_size)
+		return 1;  /* Detect wraparound in integer math */
+	if (end + member_size > parent_size)
+		return 1;
 
-  if (UINT64_MAX - end < member_data_offset)
-    return 1;
-  end += member_data_offset;
-  if (end > parent_size)
-    return 1;
+	if (UINT64_MAX - end < member_data_offset)
+		return 1;
+	end += member_data_offset;
+	if (end > parent_size)
+		return 1;
 
-  if (UINT64_MAX - end < member_data_size)
-    return 1;
-  if (end + member_data_size > parent_size)
-    return 1;
+	if (UINT64_MAX - end < member_data_size)
+		return 1;
+	if (end + member_data_size > parent_size)
+		return 1;
 
-  return 0;
+	return 0;
 }
 
-
-int VerifyPublicKeyInside(const void* parent, uint64_t parent_size,
-                          const VbPublicKey* key) {
-  return VerifyMemberInside(parent, parent_size,
-                            key, sizeof(VbPublicKey),
-                            key->key_offset, key->key_size);
+int VerifyPublicKeyInside(const void *parent, uint64_t parent_size,
+                          const VbPublicKey *key)
+{
+	return VerifyMemberInside(parent, parent_size,
+				  key, sizeof(VbPublicKey),
+				  key->key_offset, key->key_size);
 }
 
-
-int VerifySignatureInside(const void* parent, uint64_t parent_size,
-                          const VbSignature* sig) {
-  return VerifyMemberInside(parent, parent_size,
-                            sig, sizeof(VbSignature),
-                            sig->sig_offset, sig->sig_size);
+int VerifySignatureInside(const void *parent, uint64_t parent_size,
+                          const VbSignature *sig)
+{
+	return VerifyMemberInside(parent, parent_size,
+				  sig, sizeof(VbSignature),
+				  sig->sig_offset, sig->sig_size);
 }
 
-
-void PublicKeyInit(VbPublicKey* key, uint8_t* key_data, uint64_t key_size) {
-  key->key_offset = OffsetOf(key, key_data);
-  key->key_size = key_size;
-  key->algorithm = kNumAlgorithms; /* Key not present yet */
-  key->key_version = 0;
+void PublicKeyInit(VbPublicKey *key, uint8_t *key_data, uint64_t key_size)
+{
+	key->key_offset = OffsetOf(key, key_data);
+	key->key_size = key_size;
+	key->algorithm = kNumAlgorithms; /* Key not present yet */
+	key->key_version = 0;
 }
 
+int PublicKeyCopy(VbPublicKey *dest, const VbPublicKey *src)
+{
+	if (dest->key_size < src->key_size)
+		return 1;
 
-int PublicKeyCopy(VbPublicKey* dest, const VbPublicKey* src) {
-  if (dest->key_size < src->key_size)
-    return 1;
-
-  dest->key_size = src->key_size;
-  dest->algorithm = src->algorithm;
-  dest->key_version = src->key_version;
-  Memcpy(GetPublicKeyData(dest), GetPublicKeyDataC(src), src->key_size);
-  return 0;
+	dest->key_size = src->key_size;
+	dest->algorithm = src->algorithm;
+	dest->key_version = src->key_version;
+	Memcpy(GetPublicKeyData(dest), GetPublicKeyDataC(src), src->key_size);
+	return 0;
 }
 
+RSAPublicKey *PublicKeyToRSA(const VbPublicKey *key)
+{
+	RSAPublicKey *rsa;
+	uint64_t key_size;
 
-RSAPublicKey* PublicKeyToRSA(const VbPublicKey* key) {
-  RSAPublicKey *rsa;
-  uint64_t key_size;
+	if (kNumAlgorithms <= key->algorithm) {
+		VBDEBUG(("Invalid algorithm.\n"));
+		return NULL;
+	}
+	if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
+	    key_size != key->key_size) {
+		VBDEBUG(("Wrong key size for algorithm\n"));
+		return NULL;
+	}
 
-  if (kNumAlgorithms <= key->algorithm) {
-    VBDEBUG(("Invalid algorithm.\n"));
-    return NULL;
-  }
-  if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
-      key_size != key->key_size) {
-    VBDEBUG(("Wrong key size for algorithm\n"));
-    return NULL;
-  }
+	rsa = RSAPublicKeyFromBuf(GetPublicKeyDataC(key), key->key_size);
+	if (!rsa)
+		return NULL;
 
-  rsa = RSAPublicKeyFromBuf(GetPublicKeyDataC(key), key->key_size);
-  if (!rsa)
-    return NULL;
-
-  rsa->algorithm = (unsigned int)key->algorithm;
-  return rsa;
+	rsa->algorithm = (unsigned int)key->algorithm;
+	return rsa;
 }
 
+int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
+               const RSAPublicKey *key)
+{
+	if (sig->sig_size != siglen_map[key->algorithm]) {
+		VBDEBUG(("Wrong signature size for algorithm.\n"));
+		return 1;
+	}
+	if (sig->data_size > size) {
+		VBDEBUG(("Data buffer smaller than length of signed data.\n"));
+		return 1;
+	}
 
-int VerifyData(const uint8_t* data, uint64_t size, const VbSignature *sig,
-               const RSAPublicKey* key) {
+	if (!RSAVerifyBinary_f(NULL, key, data, sig->data_size,
+			       GetSignatureDataC(sig), key->algorithm))
+		return 1;
 
-  if (sig->sig_size != siglen_map[key->algorithm]) {
-    VBDEBUG(("Wrong signature size for algorithm.\n"));
-    return 1;
-  }
-  if (sig->data_size > size) {
-    VBDEBUG(("Data buffer smaller than length of signed data.\n"));
-    return 1;
-  }
-
-  if (!RSAVerifyBinary_f(NULL, key, data, sig->data_size,
-                         GetSignatureDataC(sig), key->algorithm))
-    return 1;
-
-  return 0;
+	return 0;
 }
 
+int VerifyDigest(const uint8_t *digest, const VbSignature *sig,
+                 const RSAPublicKey *key)
+{
+	if (sig->sig_size != siglen_map[key->algorithm]) {
+		VBDEBUG(("Wrong signature size for algorithm.\n"));
+		return 1;
+	}
 
-int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
-                 const RSAPublicKey* key) {
+	if (!RSAVerifyBinaryWithDigest_f(NULL, key, digest,
+					 GetSignatureDataC(sig),
+					 key->algorithm))
+		return 1;
 
-  if (sig->sig_size != siglen_map[key->algorithm]) {
-    VBDEBUG(("Wrong signature size for algorithm.\n"));
-    return 1;
-  }
-
-  if (!RSAVerifyBinaryWithDigest_f(NULL, key, digest,
-                         GetSignatureDataC(sig), key->algorithm))
-    return 1;
-
-  return 0;
+	return 0;
 }
 
+int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
+                   const VbPublicKey *key, int hash_only)
+{
+	const VbSignature *sig;
 
-int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
-                   const VbPublicKey *key, int hash_only) {
+	/* Sanity checks before attempting signature of data */
+	if(size < sizeof(VbKeyBlockHeader)) {
+		VBDEBUG(("Not enough space for key block header.\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
+	if (SafeMemcmp(block->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE)) {
+		VBDEBUG(("Not a valid verified boot key block.\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
+	if (block->header_version_major != KEY_BLOCK_HEADER_VERSION_MAJOR) {
+		VBDEBUG(("Incompatible key block header version.\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
+	if (size < block->key_block_size) {
+		VBDEBUG(("Not enough data for key block.\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
+	if (!hash_only && !key) {
+		VBDEBUG(("Missing required public key.\n"));
+		return VBOOT_PUBLIC_KEY_INVALID;
+	}
 
-  const VbSignature* sig;
+	/*
+	 * Check signature or hash, depending on the hash_only parameter. Note
+	 * that we don't require a key even if the keyblock has a signature,
+	 * because the caller may not care if the keyblock itself is signed
+	 * (for example, booting a Google-signed kernel in developer mode).
+	 */
+	if (hash_only) {
+		/* Check hash */
+		uint8_t *header_checksum = NULL;
+		int rv;
 
-  /* Sanity checks before attempting signature of data */
-  if(size < sizeof(VbKeyBlockHeader)) {
-    VBDEBUG(("Not enough space for key block header.\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-  if (SafeMemcmp(block->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE)) {
-    VBDEBUG(("Not a valid verified boot key block.\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-  if (block->header_version_major != KEY_BLOCK_HEADER_VERSION_MAJOR) {
-    VBDEBUG(("Incompatible key block header version.\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-  if (size < block->key_block_size) {
-    VBDEBUG(("Not enough data for key block.\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-  if (!hash_only && !key) {
-    VBDEBUG(("Missing required public key.\n"));
-    return VBOOT_PUBLIC_KEY_INVALID;
-  }
+		sig = &block->key_block_checksum;
 
-  /* Check signature or hash, depending on the hash_only parameter. Note that
-   * we don't require a key even if the keyblock has a signature, because the
-   * caller may not care if the keyblock itself is signed (for example, booting
-   * a Google-signed kernel in developer mode).
-   */
-  if (hash_only) {
-    /* Check hash */
-    uint8_t* header_checksum = NULL;
-    int rv;
+		if (VerifySignatureInside(block, block->key_block_size, sig)) {
+			VBDEBUG(("Key block hash off end of block\n"));
+			return VBOOT_KEY_BLOCK_INVALID;
+		}
+		if (sig->sig_size != SHA512_DIGEST_SIZE) {
+			VBDEBUG(("Wrong hash size for key block.\n"));
+			return VBOOT_KEY_BLOCK_INVALID;
+		}
 
-    sig = &block->key_block_checksum;
+		/* Make sure advertised signature data sizes are sane. */
+		if (block->key_block_size < sig->data_size) {
+			VBDEBUG(("Signature calculated past end of block\n"));
+			return VBOOT_KEY_BLOCK_INVALID;
+		}
 
-    if (VerifySignatureInside(block, block->key_block_size, sig)) {
-      VBDEBUG(("Key block hash off end of block\n"));
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
-    if (sig->sig_size != SHA512_DIGEST_SIZE) {
-      VBDEBUG(("Wrong hash size for key block.\n"));
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
+		VBDEBUG(("Checking key block hash only...\n"));
+		header_checksum = DigestBuf((const uint8_t *)block,
+					    sig->data_size,
+					    SHA512_DIGEST_ALGORITHM);
+		rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
+				SHA512_DIGEST_SIZE);
+		VbExFree(header_checksum);
+		if (rv) {
+			VBDEBUG(("Invalid key block hash.\n"));
+			return VBOOT_KEY_BLOCK_HASH;
+		}
+	} else {
+		/* Check signature */
+		RSAPublicKey *rsa;
+		int rv;
 
-    /* Make sure advertised signature data sizes are sane. */
-    if (block->key_block_size < sig->data_size) {
-      VBDEBUG(("Signature calculated past end of the block\n"));
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
+		sig = &block->key_block_signature;
 
-    VBDEBUG(("Checking key block hash only...\n"));
-    header_checksum = DigestBuf((const uint8_t*)block, sig->data_size,
-                                SHA512_DIGEST_ALGORITHM);
-    rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
-                    SHA512_DIGEST_SIZE);
-    VbExFree(header_checksum);
-    if (rv) {
-      VBDEBUG(("Invalid key block hash.\n"));
-      return VBOOT_KEY_BLOCK_HASH;
-    }
-  } else {
-    /* Check signature */
-    RSAPublicKey* rsa;
-    int rv;
+		if (VerifySignatureInside(block, block->key_block_size, sig)) {
+			VBDEBUG(("Key block signature off end of block\n"));
+			return VBOOT_KEY_BLOCK_INVALID;
+		}
 
-    sig = &block->key_block_signature;
+		rsa = PublicKeyToRSA(key);
+		if (!rsa) {
+			VBDEBUG(("Invalid public key\n"));
+			return VBOOT_PUBLIC_KEY_INVALID;
+		}
 
-    if (VerifySignatureInside(block, block->key_block_size, sig)) {
-      VBDEBUG(("Key block signature off end of block\n"));
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
+		/* Make sure advertised signature data sizes are sane. */
+		if (block->key_block_size < sig->data_size) {
+			VBDEBUG(("Signature calculated past end of block\n"));
+			RSAPublicKeyFree(rsa);
+			return VBOOT_KEY_BLOCK_INVALID;
+		}
 
-    rsa = PublicKeyToRSA(key);
-    if (!rsa) {
-      VBDEBUG(("Invalid public key\n"));
-      return VBOOT_PUBLIC_KEY_INVALID;
-    }
+		VBDEBUG(("Checking key block signature...\n"));
+		rv = VerifyData((const uint8_t *)block, size, sig, rsa);
+		RSAPublicKeyFree(rsa);
+		if (rv) {
+			VBDEBUG(("Invalid key block signature.\n"));
+			return VBOOT_KEY_BLOCK_SIGNATURE;
+		}
+	}
 
-    /* Make sure advertised signature data sizes are sane. */
-    if (block->key_block_size < sig->data_size) {
-      VBDEBUG(("Signature calculated past end of the block\n"));
-      RSAPublicKeyFree(rsa);
-      return VBOOT_KEY_BLOCK_INVALID;
-    }
+	/* Verify we signed enough data */
+	if (sig->data_size < sizeof(VbKeyBlockHeader)) {
+		VBDEBUG(("Didn't sign enough data\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
 
-    VBDEBUG(("Checking key block signature...\n"));
-    rv = VerifyData((const uint8_t*)block, size, sig, rsa);
-    RSAPublicKeyFree(rsa);
-    if (rv) {
-      VBDEBUG(("Invalid key block signature.\n"));
-      return VBOOT_KEY_BLOCK_SIGNATURE;
-    }
-  }
+	/* Verify data key is inside the block and inside signed data */
+	if (VerifyPublicKeyInside(block, block->key_block_size,
+				  &block->data_key)) {
+		VBDEBUG(("Data key off end of key block\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
+	if (VerifyPublicKeyInside(block, sig->data_size, &block->data_key)) {
+		VBDEBUG(("Data key off end of signed data\n"));
+		return VBOOT_KEY_BLOCK_INVALID;
+	}
 
-  /* Verify we signed enough data */
-  if (sig->data_size < sizeof(VbKeyBlockHeader)) {
-    VBDEBUG(("Didn't sign enough data\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-
-  /* Verify data key is inside the block and inside signed data */
-  if (VerifyPublicKeyInside(block, block->key_block_size, &block->data_key)) {
-    VBDEBUG(("Data key off end of key block\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-  if (VerifyPublicKeyInside(block, sig->data_size, &block->data_key)) {
-    VBDEBUG(("Data key off end of signed data\n"));
-    return VBOOT_KEY_BLOCK_INVALID;
-  }
-
-  /* Success */
-  return VBOOT_SUCCESS;
+	/* Success */
+	return VBOOT_SUCCESS;
 }
 
-int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader* preamble,
-                           uint64_t size, const RSAPublicKey* key) {
+int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader *preamble,
+                           uint64_t size, const RSAPublicKey *key)
+{
+	const VbSignature *sig = &preamble->preamble_signature;
 
-  const VbSignature* sig = &preamble->preamble_signature;
+	/* Sanity checks before attempting signature of data */
+	if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE) {
+		VBDEBUG(("Not enough data for preamble header 2.0.\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
+	if (preamble->header_version_major !=
+	    FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR) {
+		VBDEBUG(("Incompatible firmware preamble header version.\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
+	if (size < preamble->preamble_size) {
+		VBDEBUG(("Not enough data for preamble.\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Sanity checks before attempting signature of data */
-  if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE) {
-    VBDEBUG(("Not enough data for preamble header 2.0.\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-  if (preamble->header_version_major !=
-      FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR) {
-    VBDEBUG(("Incompatible firmware preamble header version.\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-  if (size < preamble->preamble_size) {
-    VBDEBUG(("Not enough data for preamble.\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	/* Check signature */
+	if (VerifySignatureInside(preamble, preamble->preamble_size, sig)) {
+		VBDEBUG(("Preamble signature off end of preamble\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Check signature */
-  if (VerifySignatureInside(preamble, preamble->preamble_size, sig)) {
-    VBDEBUG(("Preamble signature off end of preamble\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	/* Make sure advertised signature data sizes are sane. */
+	if (preamble->preamble_size < sig->data_size) {
+		VBDEBUG(("Signature calculated past end of the block\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Make sure advertised signature data sizes are sane. */
-  if (preamble->preamble_size < sig->data_size) {
-    VBDEBUG(("Signature calculated past end of the block\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	if (VerifyData((const uint8_t *)preamble, size, sig, key)) {
+		VBDEBUG(("Preamble signature validation failed\n"));
+		return VBOOT_PREAMBLE_SIGNATURE;
+	}
 
-  if (VerifyData((const uint8_t*)preamble, size, sig, key)) {
-    VBDEBUG(("Preamble signature validation failed\n"));
-    return VBOOT_PREAMBLE_SIGNATURE;
-  }
+	/* Verify we signed enough data */
+	if (sig->data_size < sizeof(VbFirmwarePreambleHeader)) {
+		VBDEBUG(("Didn't sign enough data\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Verify we signed enough data */
-  if (sig->data_size < sizeof(VbFirmwarePreambleHeader)) {
-    VBDEBUG(("Didn't sign enough data\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	/* Verify body signature is inside the signed data */
+	if (VerifySignatureInside(preamble, sig->data_size,
+				  &preamble->body_signature)) {
+		VBDEBUG(("Firmware body signature off end of preamble\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Verify body signature is inside the signed data */
-  if (VerifySignatureInside(preamble, sig->data_size,
-                            &preamble->body_signature)) {
-    VBDEBUG(("Firmware body signature off end of preamble\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	/* Verify kernel subkey is inside the signed data */
+	if (VerifyPublicKeyInside(preamble, sig->data_size,
+				  &preamble->kernel_subkey)) {
+		VBDEBUG(("Kernel subkey off end of preamble\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Verify kernel subkey is inside the signed data */
-  if (VerifyPublicKeyInside(preamble, sig->data_size,
-                            &preamble->kernel_subkey)) {
-    VBDEBUG(("Kernel subkey off end of preamble\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	/*
+	 * If the preamble header version is at least 2.1, verify we have space
+	 * for the added fields from 2.1.
+	 */
+	if (preamble->header_version_minor >= 1) {
+		if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE) {
+			VBDEBUG(("Not enough data for preamble header 2.1.\n"));
+			return VBOOT_PREAMBLE_INVALID;
+		}
+	}
 
-  /* If the preamble header version is at least 2.1, verify we have
-   * space for the added fields from 2.1. */
-  if (preamble->header_version_minor >= 1) {
-    if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE) {
-      VBDEBUG(("Not enough data for preamble header 2.1.\n"));
-      return VBOOT_PREAMBLE_INVALID;
-    }
-  }
-
-  /* Success */
-  return VBOOT_SUCCESS;
+	/* Success */
+	return VBOOT_SUCCESS;
 }
 
+uint32_t VbGetFirmwarePreambleFlags(const VbFirmwarePreambleHeader *preamble)
+{
+	if (preamble->header_version_minor < 1) {
+		/*
+		 * Old structure; return default flags.  (Note that we don't
+		 * need to check header_version_major; if that's not 2 then
+		 * VerifyFirmwarePreamble() would have already failed.
+		 */
+		return 0;
+	}
 
-uint32_t VbGetFirmwarePreambleFlags(const VbFirmwarePreambleHeader* preamble) {
-  if (preamble->header_version_minor < 1) {
-    /* Old structure; return default flags.  (Note that we don't need
-     * to check header_version_major; if that's not 2 then
-     * VerifyFirmwarePreamble() would have already failed. */
-    return 0;
-  }
-
-  return preamble->flags;
+	return preamble->flags;
 }
 
+int VerifyKernelPreamble(const VbKernelPreambleHeader *preamble,
+                         uint64_t size, const RSAPublicKey *key)
+{
+	const VbSignature *sig = &preamble->preamble_signature;
 
-int VerifyKernelPreamble(const VbKernelPreambleHeader* preamble,
-                         uint64_t size, const RSAPublicKey* key) {
+	/* Sanity checks before attempting signature of data */
+	if(size < sizeof(VbKernelPreambleHeader)) {
+		VBDEBUG(("Not enough data for preamble header.\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
+	if (preamble->header_version_major !=
+	    KERNEL_PREAMBLE_HEADER_VERSION_MAJOR) {
+		VBDEBUG(("Incompatible kernel preamble header version.\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
+	if (size < preamble->preamble_size) {
+		VBDEBUG(("Not enough data for preamble.\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  const VbSignature* sig = &preamble->preamble_signature;
+	/* Check signature */
+	if (VerifySignatureInside(preamble, preamble->preamble_size, sig)) {
+		VBDEBUG(("Preamble signature off end of preamble\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
+	if (VerifyData((const uint8_t *)preamble, size, sig, key)) {
+		VBDEBUG(("Preamble signature validation failed\n"));
+		return VBOOT_PREAMBLE_SIGNATURE;
+	}
 
-  /* Sanity checks before attempting signature of data */
-  if(size < sizeof(VbKernelPreambleHeader)) {
-    VBDEBUG(("Not enough data for preamble header.\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-  if (preamble->header_version_major != KERNEL_PREAMBLE_HEADER_VERSION_MAJOR) {
-    VBDEBUG(("Incompatible kernel preamble header version.\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-  if (size < preamble->preamble_size) {
-    VBDEBUG(("Not enough data for preamble.\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
+	/* Verify we signed enough data */
+	if (sig->data_size < sizeof(VbKernelPreambleHeader)) {
+		VBDEBUG(("Didn't sign enough data\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Check signature */
-  if (VerifySignatureInside(preamble, preamble->preamble_size, sig)) {
-    VBDEBUG(("Preamble signature off end of preamble\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-  if (VerifyData((const uint8_t*)preamble, size, sig, key)) {
-    VBDEBUG(("Preamble signature validation failed\n"));
-    return VBOOT_PREAMBLE_SIGNATURE;
-  }
+	/* Verify body signature is inside the signed data */
+	if (VerifySignatureInside(preamble, sig->data_size,
+				  &preamble->body_signature)) {
+		VBDEBUG(("Kernel body signature off end of preamble\n"));
+		return VBOOT_PREAMBLE_INVALID;
+	}
 
-  /* Verify we signed enough data */
-  if (sig->data_size < sizeof(VbKernelPreambleHeader)) {
-    VBDEBUG(("Didn't sign enough data\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-
-  /* Verify body signature is inside the signed data */
-  if (VerifySignatureInside(preamble, sig->data_size,
-                            &preamble->body_signature)) {
-    VBDEBUG(("Kernel body signature off end of preamble\n"));
-    return VBOOT_PREAMBLE_INVALID;
-  }
-
-  /* Success */
-  return VBOOT_SUCCESS;
+	/* Success */
+	return VBOOT_SUCCESS;
 }
 
+int VbSharedDataInit(VbSharedDataHeader *header, uint64_t size)
+{
+	VBDEBUG(("VbSharedDataInit, %d bytes, header %d bytes\n", (int)size,
+		 sizeof(VbSharedDataHeader)));
 
-int VbSharedDataInit(VbSharedDataHeader* header, uint64_t size) {
+	if (size < sizeof(VbSharedDataHeader)) {
+		VBDEBUG(("Not enough data for header.\n"));
+		return VBOOT_SHARED_DATA_INVALID;
+	}
+	if (size < VB_SHARED_DATA_MIN_SIZE) {
+		VBDEBUG(("Shared data buffer too small.\n"));
+		return VBOOT_SHARED_DATA_INVALID;
+	}
 
-  VBDEBUG(("VbSharedDataInit, %d bytes, header %d bytes\n", (int)size,
-           sizeof(VbSharedDataHeader)));
+	if (!header)
+		return VBOOT_SHARED_DATA_INVALID;
 
-  if (size < sizeof(VbSharedDataHeader)) {
-    VBDEBUG(("Not enough data for header.\n"));
-    return VBOOT_SHARED_DATA_INVALID;
-  }
-  if (size < VB_SHARED_DATA_MIN_SIZE) {
-    VBDEBUG(("Shared data buffer too small.\n"));
-    return VBOOT_SHARED_DATA_INVALID;
-  }
+	/* Zero the header */
+	Memset(header, 0, sizeof(VbSharedDataHeader));
 
-  if (!header)
-    return VBOOT_SHARED_DATA_INVALID;
+	/* Initialize fields */
+	header->magic = VB_SHARED_DATA_MAGIC;
+	header->struct_version = VB_SHARED_DATA_VERSION;
+	header->struct_size = sizeof(VbSharedDataHeader);
+	header->data_size = size;
+	header->data_used = sizeof(VbSharedDataHeader);
+	header->firmware_index = 0xFF;
 
-  /* Zero the header */
-  Memset(header, 0, sizeof(VbSharedDataHeader));
-
-  /* Initialize fields */
-  header->magic = VB_SHARED_DATA_MAGIC;
-  header->struct_version = VB_SHARED_DATA_VERSION;
-  header->struct_size = sizeof(VbSharedDataHeader);
-  header->data_size = size;
-  header->data_used = sizeof(VbSharedDataHeader);
-  header->firmware_index = 0xFF;
-
-  /* Success */
-  return VBOOT_SUCCESS;
+	/* Success */
+	return VBOOT_SUCCESS;
 }
 
+uint64_t VbSharedDataReserve(VbSharedDataHeader *header, uint64_t size)
+{
+	uint64_t offs = header->data_used;
 
-uint64_t VbSharedDataReserve(VbSharedDataHeader* header, uint64_t size) {
-  uint64_t offs = header->data_used;
+	VBDEBUG(("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs));
 
-  VBDEBUG(("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs));
-
-  if (!header || size > header->data_size - header->data_used) {
-    VBDEBUG(("VbSharedData buffer out of space.\n"));
-    return 0;  /* Not initialized, or not enough space left. */
-  }
-  header->data_used += size;
-  return offs;
+	if (!header || size > header->data_size - header->data_used) {
+		VBDEBUG(("VbSharedData buffer out of space.\n"));
+		return 0;  /* Not initialized, or not enough space left. */
+	}
+	header->data_used += size;
+	return offs;
 }
 
+int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
+{
+	VbPublicKey *kdest = &header->kernel_subkey;
 
-int VbSharedDataSetKernelKey(VbSharedDataHeader* header,
-                             const VbPublicKey* src) {
+	if (!header)
+		return VBOOT_SHARED_DATA_INVALID;
 
-  VbPublicKey *kdest = &header->kernel_subkey;
+	/* Attempt to allocate space for key, if it hasn't been allocated yet */
+	if (!header->kernel_subkey_data_offset) {
+		header->kernel_subkey_data_offset =
+			VbSharedDataReserve(header, src->key_size);
+		if (!header->kernel_subkey_data_offset)
+			return VBOOT_SHARED_DATA_INVALID;
+		header->kernel_subkey_data_size = src->key_size;
+	}
 
-  if (!header)
-    return VBOOT_SHARED_DATA_INVALID;
+	/* Copy the kernel sign key blob into the destination buffer */
+	PublicKeyInit(kdest,
+		      (uint8_t *)header + header->kernel_subkey_data_offset,
+		      header->kernel_subkey_data_size);
 
-  /* Attempt to allocate space for the key, if it hasn't been allocated yet */
-  if (!header->kernel_subkey_data_offset) {
-    header->kernel_subkey_data_offset = VbSharedDataReserve(header,
-                                                          src->key_size);
-    if (!header->kernel_subkey_data_offset)
-      return VBOOT_SHARED_DATA_INVALID;
-    header->kernel_subkey_data_size = src->key_size;
-  }
-
-  /* Copy the kernel sign key blob into the destination buffer */
-  PublicKeyInit(kdest, (uint8_t*)header + header->kernel_subkey_data_offset,
-                header->kernel_subkey_data_size);
-
-  return PublicKeyCopy(kdest, src);
+	return PublicKeyCopy(kdest, src);
 }
