@@ -545,7 +545,7 @@ ALL_DEPS += ${ALL_OBJS:%.o=%.o.d}
 # TPM_BLOCKING_CONTINUESELFTEST is defined if TPM_ContinueSelfTest blocks until
 # the self test has completed.
 
-${FWLIB}: CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
+${FWLIB_OBJS}: CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 
 # TPM_MANUAL_SELFTEST is defined if the self test must be started manually
 # (with a call to TPM_ContinueSelfTest) instead of starting automatically at
@@ -558,24 +558,24 @@ ${FWLIB}: CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 
 ifeq (${FIRMWARE_ARCH},i386)
 # Unrolling loops in cryptolib makes it faster
-${FWLIB}: CFLAGS += -DUNROLL_LOOPS
+${FWLIB_OBJS}: CFLAGS += -DUNROLL_LOOPS
 
 # Workaround for coreboot on x86, which will power off asynchronously
 # without giving us a chance to react. This is not an example of the Right
 # Way to do things. See chrome-os-partner:7689, and the commit message
 # that made this change.
-${FWLIB}: CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
+${FWLIB_OBJS}: CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
 
 # On x86 we don't actually read the GBB data into RAM until it is needed.
 # Therefore it makes sense to cache it rather than reading it each time.
 # Enable this feature.
-${FWLIB}: CFLAGS += -DCOPY_BMP_DATA
+${FWLIB_OBJS}: CFLAGS += -DCOPY_BMP_DATA
 endif
 
 ifeq (${FIRMWARE_ARCH},)
 # Disable rollback TPM when compiling locally, since otherwise
 # load_kernel_test attempts to talk to the TPM.
-${FWLIB}: CFLAGS += -DDISABLE_ROLLBACK_TPM
+${FWLIB_OBJS}: CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
 .PHONY: fwlib
