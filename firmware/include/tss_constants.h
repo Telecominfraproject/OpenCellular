@@ -1,9 +1,9 @@
-/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Some TPM constants and type definitions for standalone compilation for use in
- * the firmware
+ * Some TPM constants and type definitions for standalone compilation for use
+ * in the firmware
  */
 
 #ifndef VBOOT_REFERENCE_TSS_CONSTANTS_H_
@@ -63,36 +63,36 @@ typedef uint16_t TPM_STRUCTURE_TAG;
 
 typedef struct tdTPM_PERMANENT_FLAGS
 {
-    TPM_STRUCTURE_TAG tag;
-    TSS_BOOL disable;
-    TSS_BOOL ownership;
-    TSS_BOOL deactivated;
-    TSS_BOOL readPubek;
-    TSS_BOOL disableOwnerClear;
-    TSS_BOOL allowMaintenance;
-    TSS_BOOL physicalPresenceLifetimeLock;
-    TSS_BOOL physicalPresenceHWEnable;
-    TSS_BOOL physicalPresenceCMDEnable;
-    TSS_BOOL CEKPUsed;
-    TSS_BOOL TPMpost;
-    TSS_BOOL TPMpostLock;
-    TSS_BOOL FIPS;
-    TSS_BOOL Operator;
-    TSS_BOOL enableRevokeEK;
-    TSS_BOOL nvLocked;
-    TSS_BOOL readSRKPub;
-    TSS_BOOL tpmEstablished;
-    TSS_BOOL maintenanceDone;
-    TSS_BOOL disableFullDALogicInfo;
+	TPM_STRUCTURE_TAG tag;
+	TSS_BOOL disable;
+	TSS_BOOL ownership;
+	TSS_BOOL deactivated;
+	TSS_BOOL readPubek;
+	TSS_BOOL disableOwnerClear;
+	TSS_BOOL allowMaintenance;
+	TSS_BOOL physicalPresenceLifetimeLock;
+	TSS_BOOL physicalPresenceHWEnable;
+	TSS_BOOL physicalPresenceCMDEnable;
+	TSS_BOOL CEKPUsed;
+	TSS_BOOL TPMpost;
+	TSS_BOOL TPMpostLock;
+	TSS_BOOL FIPS;
+	TSS_BOOL Operator;
+	TSS_BOOL enableRevokeEK;
+	TSS_BOOL nvLocked;
+	TSS_BOOL readSRKPub;
+	TSS_BOOL tpmEstablished;
+	TSS_BOOL maintenanceDone;
+	TSS_BOOL disableFullDALogicInfo;
 } TPM_PERMANENT_FLAGS;
 
 typedef struct tdTPM_STCLEAR_FLAGS{
-  TPM_STRUCTURE_TAG tag;
-  TSS_BOOL deactivated;
-  TSS_BOOL disableForceClear;
-  TSS_BOOL physicalPresence;
-  TSS_BOOL physicalPresenceLock;
-  TSS_BOOL bGlobalLock;
+	TPM_STRUCTURE_TAG tag;
+	TSS_BOOL deactivated;
+	TSS_BOOL disableForceClear;
+	TSS_BOOL physicalPresence;
+	TSS_BOOL physicalPresenceLock;
+	TSS_BOOL bGlobalLock;
 } TPM_STCLEAR_FLAGS;
 
 #endif  /* VBOOT_REFERENCE_TSS_CONSTANTS_H_ */
