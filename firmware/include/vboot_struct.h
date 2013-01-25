@@ -94,52 +94,6 @@ typedef struct VbKeyBlockHeader {
 
 /****************************************************************************/
 
-#define EC_PREAMBLE_HEADER_VERSION_MAJOR 1
-#define EC_PREAMBLE_HEADER_VERSION_MINOR 0
-
-/* Flags for VbECPreambleHeader.flags */
-
-/*
- * Use the normal boot path from the read-only firmware, instead of verifying
- * the body signature.
- */
-#define VB_EC_PREAMBLE_USE_RO_NORMAL 0x00000001
-
-/*
- * Premable block for EC rewritable firmware, version 1.0.
- *
- * The firmware preamble header should be followed by:
- *   1) The signature data for the firmware body, pointed to by
- *      body_signature.sig_offset.
- *   2) The signature data for (header + body signature data), pointed
- *      to by preamble_signature.sig_offset.
- */
-typedef struct VbECPreambleHeader {
-	/*
-	 * Size of this preamble, including keys, signatures, and padding, in
-	 * bytes
-	 */
-	uint64_t preamble_size;
-	/* Signature for this preamble (header + * body signature) */
-	VbSignature preamble_signature;
-	/* Version of this header format */
-	uint32_t header_version_major;
-	/* Version of this header format */
-	uint32_t header_version_minor;
-	/* Firmware version */
-	uint64_t firmware_version;
-	/* Digest for the firmware body */
-	VbSignature body_digest;
-	/* Flags; see VB_EC_PREAMBLE_* */
-	uint32_t flags;
-	/* Human-readable ASCII, null-padded */
-	char name[128];
-} __attribute__((packed)) VbECPreambleHeader;
-
-#define EXPECTED_VB_EC_PREAMBLE_HEADER1_0_SIZE 76
-
-/****************************************************************************/
-
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 1
 
