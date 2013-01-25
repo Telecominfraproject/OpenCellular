@@ -100,6 +100,15 @@ static void VerifyHelperFunctions(void)
 			"MemberInside data before parent");
 		TEST_EQ(VerifyMemberInside(p, 20, p, 4, 4, 17), 1,
 			"MemberInside data too big");
+		TEST_EQ(VerifyMemberInside(p, (uint64_t)-1,
+					   p+(uint64_t)-10, 12, 5, 0), 1,
+			"MemberInside wraparound 1");
+		TEST_EQ(VerifyMemberInside(p, (uint64_t)-1,
+					   p+(uint64_t)-10, 5, 12, 0), 1,
+			"MemberInside wraparound 2");
+		TEST_EQ(VerifyMemberInside(p, (uint64_t)-1,
+					   p+(uint64_t)-10, 5, 0, 12), 1,
+			"MemberInside wraparound 3");
 	}
 
 	{
@@ -214,6 +223,9 @@ static void VbSharedDataTest(void)
 	TEST_EQ(d->lk_call_count, 0, "VbSharedDataInit lk_call_count");
 	TEST_EQ(d->kernel_version_lowest, 0,
 		"VbSharedDataInit kernel_version_lowest");
+
+	TEST_NEQ(VBOOT_SUCCESS, VbSharedDataSetKernelKey(NULL, NULL),
+		 "VbSharedDataSetKernelKey null");
 }
 
 /* disable MSVC warnings on unused arguments */

@@ -96,6 +96,9 @@ static void VerifyDigestTest(const VbPublicKey *public_key,
 	GetSignatureData(sig)[0] ^= 0x5A;
 	TEST_EQ(VerifyDigest(digest, sig, rsa), 1, "VerifyDigest() wrong sig");
 
+	sig->sig_size = 1;
+	TEST_EQ(VerifyDigest(digest, sig, rsa), 1, "VerifyDigest() sig size");
+
 	RSAPublicKeyFree(rsa);
 	free(sig);
 	free(digest);
@@ -135,6 +138,8 @@ static void VerifyKernelPreambleTest(const VbPublicKey *public_key,
 		"VerifyKernelPreamble() ok using key");
 	TEST_NEQ(VerifyKernelPreamble(hdr, hsize - 1, rsa), 0,
 		 "VerifyKernelPreamble() size--");
+	TEST_NEQ(VerifyKernelPreamble(hdr, 4, rsa), 0,
+		 "VerifyKernelPreamble() size tiny");
 	TEST_EQ(VerifyKernelPreamble(hdr, hsize + 1, rsa), 0,
 		"VerifyKernelPreamble() size++");
 

@@ -113,6 +113,12 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
   TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
            "KeyBlockVerify() sig mismatch");
 
+  Memcpy(h, hdr, hsize);
+  //ReChecksumKeyBlock(h);
+  h->key_block_checksum.data_size = h->key_block_size + 1;
+  TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 1), 0,
+           "KeyBlockVerify() checksum data past end of block");
+
   /* Check that we signed header and data key */
   Memcpy(h, hdr, hsize);
   h->key_block_checksum.data_size = 4;
@@ -127,6 +133,10 @@ static void KeyBlockVerifyTest(const VbPublicKey* public_key,
   ReChecksumKeyBlock(h);
   TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
            "KeyBlockVerify() data key off end");
+
+  /* Corner cases for error checking */
+  TEST_NEQ(KeyBlockVerify(NULL, 4, NULL, 1), 0,
+	  "KeyBlockVerify size too small");
 
   /* TODO: verify parser can support a bigger header (i.e., one where
    * data_key.key_offset is bigger than expected). */
@@ -169,6 +179,8 @@ static void VerifyFirmwarePreambleTest(const VbPublicKey* public_key,
 
   TEST_EQ(VerifyFirmwarePreamble(hdr, hsize, rsa), 0,
           "VerifyFirmwarePreamble() ok using key");
+  TEST_NEQ(VerifyFirmwarePreamble(hdr, 4, rsa), 0,
+           "VerifyFirmwarePreamble() size tiny");
   TEST_NEQ(VerifyFirmwarePreamble(hdr, hsize - 1, rsa), 0,
            "VerifyFirmwarePreamble() size--");
   TEST_EQ(VerifyFirmwarePreamble(hdr, hsize + 1, rsa), 0,
