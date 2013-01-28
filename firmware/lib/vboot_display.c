@@ -16,10 +16,7 @@
 static uint32_t disp_current_screen = VB_SCREEN_BLANK;
 static uint32_t disp_width = 0, disp_height = 0;
 
-
-/* Get the number of localizations in the GBB bitmap data. */
-static VbError_t VbGetLocalizationCount(VbCommonParams* cparams,
-                                        uint32_t* count) {
+VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   BmpBlockHeader* hdr;
 
@@ -47,10 +44,7 @@ static VbError_t VbGetLocalizationCount(VbCommonParams* cparams,
   return VBERROR_SUCCESS;
 }
 
-
-
-/* Return a fixed string representing the HWID */
-static char *VbHWID(VbCommonParams* cparams) {
+char *VbHWID(VbCommonParams *cparams) {
   GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)cparams->gbb_data;
   if (0 == gbb->hwid_size ||
       gbb->hwid_offset > cparams->gbb_size ||

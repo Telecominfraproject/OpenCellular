@@ -20,7 +20,21 @@ VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
                             VbNvContext *vncptr);
 
 /* Internal functions, for unit testing */
+
+/**
+ * Return a description of the recovery reason code.
+ */
 const char *RecoveryReasonString(uint8_t code);
+
+/**
+ * Return a fixed string representing the HWID.
+ */
+char *VbHWID(VbCommonParams *cparams);
+
+/**
+ * Get the number of localizations in the GBB bitmap data.
+ */
+VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count);
 
 #endif /* VBOOT_REFERENCE_VBOOT_DISPLAY_H_ */
 
