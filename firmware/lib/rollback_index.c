@@ -18,9 +18,11 @@
 #endif
 
 #ifdef FOR_TEST
-/* Compiling for unit test, so we need the real implementations of
+/*
+ * Compiling for unit test, so we need the real implementations of
  * rollback functions.  The unit test mocks the underlying tlcl
- * functions, so this is ok to run on the host. */
+ * functions, so this is ok to run on the host.
+ */
 #undef CHROMEOS_ENVIRONMENT
 #undef DISABLE_ROLLBACK_TPM
 #endif
@@ -30,13 +32,14 @@ static int g_rollback_recovery_mode = 0;
 /* disable MSVC warning on const logical expression (as in } while(0);) */
 __pragma(warning (disable: 4127))
 
-#define RETURN_ON_FAILURE(tpm_command) do {             \
-    uint32_t result;                                    \
-    if ((result = (tpm_command)) != TPM_SUCCESS) {      \
-      VBDEBUG(("Rollback: %08x returned by " #tpm_command "\n", (int)result)); \
-      return result;                                    \
-    }                                                   \
-  } while (0)
+#define RETURN_ON_FAILURE(tpm_command) do {				\
+		uint32_t result;					\
+		if ((result = (tpm_command)) != TPM_SUCCESS) {		\
+			VBDEBUG(("Rollback: %08x returned by " #tpm_command \
+				 "\n", (int)result));			\
+			return result;					\
+		}							\
+	} while (0)
 
 
 uint32_t TPMClearAndReenable(void)
