@@ -157,8 +157,7 @@ VbError_t LoadKernel(LoadKernelParams* params) {
   int recovery = VBNV_RECOVERY_LK_UNSPECIFIED;
 
   /* Sanity Checks */
-  if (!params ||
-      !params->bytes_per_lba ||
+  if (!params->bytes_per_lba ||
       !params->ending_lba) {
     VBDEBUG(("LoadKernel() called with invalid params\n"));
     retval = VBERROR_INVALID_PARAMETER;
@@ -210,27 +209,26 @@ VbError_t LoadKernel(LoadKernelParams* params) {
     kernel_subkey = &shared->kernel_subkey;
   }
 
-  do {
     /* Read GPT data */
     gpt.sector_bytes = (uint32_t)blba;
     gpt.drive_sectors = params->ending_lba + 1;
     if (0 != AllocAndReadGptData(params->disk_handle, &gpt)) {
       VBDEBUG(("Unable to read GPT data\n"));
       shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;
-      break;
+      goto bad_gpt;
     }
 
     /* Initialize GPT library */
     if (GPT_SUCCESS != GptInit(&gpt)) {
       VBDEBUG(("Error parsing GPT\n"));
       shcall->check_result = VBSD_LKC_CHECK_GPT_PARSE_ERROR;
-      break;
+      goto bad_gpt;
     }
 
     /* Allocate kernel header buffers */
     kbuf = (uint8_t*)VbExMalloc(KBUF_SIZE);
     if (!kbuf)
-      break;
+      goto bad_gpt;
 
     /* Loop over candidate kernel partitions */
     while (GPT_SUCCESS == GptNextKernelEntry(&gpt, &part_start, &part_size)) {
@@ -516,7 +514,8 @@ VbError_t LoadKernel(LoadKernelParams* params) {
 
 
     } /* while(GptNextKernelEntry) */
-  } while(0);
+
+  bad_gpt:
 
   /* Free kernel buffer */
   if (kbuf)

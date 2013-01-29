@@ -425,6 +425,7 @@ TEST_NAMES = \
 	vboot_common3_tests \
 	vboot_display_tests \
 	vboot_firmware_tests \
+	vboot_kernel_tests \
 	vboot_nvstorage_test
 
 # Grrr
@@ -952,6 +953,7 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_display_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_firmware_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_nvstorage_test
 
 .PHONY: runfutiltests
@@ -993,7 +995,8 @@ coverage_html:
 
 # Generate addtional coverage stats just for firmware subdir, because the
 # per-directory stats for the whole project don't include their own subdirs.
-	lcov -e ${COV_INFO}.local '${SRCDIR}/firmware/*' \
+	lcov -r ${COV_INFO}.local '*/stub/*' -o ${COV_INFO}.nostub
+	lcov -e ${COV_INFO}.nostub '${SRCDIR}/firmware/*' \
 		-o ${COV_INFO}.firmware
 
 .PHONY: coverage
