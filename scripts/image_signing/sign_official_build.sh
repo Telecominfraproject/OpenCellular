@@ -129,7 +129,7 @@ get_dmparams_from_config() {
 get_hash_from_config() {
   local kernel_config=$1
   local dm_config=$(get_dmparams_from_config "${kernel_config}")
-  local vroot_dev=$(get_dm_args "${dm_config}" vroot)
+  local vroot_dev=$(get_dm_slave "${dm_config}" vroot)
   if is_old_verity_argv "${vroot_dev}"; then
     echo ${vroot_dev} | cut -f9 -d ' '
   else
