@@ -411,6 +411,7 @@ TEST_NAMES = \
 	sha_benchmark \
 	sha_tests \
 	stateful_util_tests \
+	tlcl_tests \
 	tpm_bootmode_tests \
 	utility_string_tests \
 	utility_tests \
@@ -838,6 +839,11 @@ ${BUILD}/tests/rollback_index2_tests: OBJS += \
 ${BUILD}/tests/rollback_index2_tests: \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 
+${BUILD}/tests/tlcl_tests: OBJS += \
+	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
+${BUILD}/tests/tlcl_tests: \
+	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
+
 ${BUILD}/tests/vboot_audio_tests: OBJS += \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 ${BUILD}/tests/vboot_audio_tests: \
@@ -933,6 +939,7 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/sha_tests
 	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
+	${RUNTEST} ${BUILD_RUN}/tests/tlcl_tests
 	${RUNTEST} ${BUILD_RUN}/tests/tpm_bootmode_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_string_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_tests

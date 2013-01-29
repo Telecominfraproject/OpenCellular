@@ -21,6 +21,11 @@
 #include "utility.h"
 #include "vboot_api.h"
 
+#ifdef FOR_TEST
+/* Allow unit testing implementation of TlclSendReceive() */
+#undef CHROMEOS_ENVIRONMENT
+#endif
+
 /* Sets the size field of a TPM command. */
 static INLINE void SetTpmCommandSize(uint8_t* buffer, uint32_t size) {
   ToTpmUint32(buffer + sizeof(uint16_t), size);
