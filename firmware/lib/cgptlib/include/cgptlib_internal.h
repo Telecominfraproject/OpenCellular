@@ -10,13 +10,15 @@
 #include "cgptlib.h"
 #include "gpt.h"
 
-/* If gpt->current_kernel is this value, means either:
+/*
+ * If gpt->current_kernel is this value, means either:
  *   1. an initial value before scanning GPT entries,
  *   2. after scanning, no any valid kernel is found.
  */
 #define CGPT_KERNEL_ENTRY_NOT_FOUND (-1)
 
-/* Bit definitions and masks for GPT attributes.
+/*
+ * Bit definitions and masks for GPT attributes.
  *
  *  63-61  -- (reserved)
  *     60  -- read-only
@@ -55,80 +57,107 @@
 /* Defines GPT sizes */
 #define GPT_PMBR_SECTOR 1  /* size (in sectors) of PMBR */
 #define GPT_HEADER_SECTOR 1
-#define GPT_ENTRIES_SECTORS 32  /* assume sector size if 512 bytes, then
-                                 *  (TOTAL_ENTRIES_SIZE / 512) = 32 */
+/*
+ * Entries sectors assumes sector size if 512 bytes; then (TOTAL_ENTRIES_SIZE /
+ * 512) = 32
+ */
+#define GPT_ENTRIES_SECTORS 32
 
-/* alias name of index in internal array for primary and secondary header and
- * entries. */
+/*
+ * Alias name of index in internal array for primary and secondary header and
+ * entries.
+ */
 enum {
-  /* constants for index */
-  PRIMARY = 0,
-  SECONDARY = 1,
-  ANY_VALID = 9999,  /* accept any between primary and secondary */
+	/* constants for index */
+	PRIMARY = 0,
+	SECONDARY = 1,
+	ANY_VALID = 9999,  /* accept any between primary and secondary */
 
-  /* constants for bit mask */
-  MASK_NONE = 0,
-  MASK_PRIMARY = 1,
-  MASK_SECONDARY = 2,
-  MASK_BOTH = 3,
+	/* constants for bit mask */
+	MASK_NONE = 0,
+	MASK_PRIMARY = 1,
+	MASK_SECONDARY = 2,
+	MASK_BOTH = 3,
 };
 
-/* Verify GptData parameters are sane. */
+/**
+ * Verify GptData parameters are sane.
+ */
 int CheckParameters(GptData* gpt);
 
-/* Check header fields.
+/**
+ * Check header fields.
  *
- * Returns 0 if header is valid, 1 if invalid. */
-int CheckHeader(GptHeader* h, int is_secondary, uint64_t drive_sectors);
+ * Returns 0 if header is valid, 1 if invalid.
+ */
+int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors);
 
-/* Calculate and return the header CRC. */
-uint32_t HeaderCrc(GptHeader* h);
+/**
+ * Calculate and return the header CRC.
+ */
+uint32_t HeaderCrc(GptHeader *h);
 
-/* Check entries.
+/**
+ * Check entries.
  *
- * Returns 0 if entries are valid, 1 if invalid. */
-int CheckEntries(GptEntry* entries, GptHeader* h);
+ * Returns 0 if entries are valid, 1 if invalid.
+ */
+int CheckEntries(GptEntry *entries, GptHeader *h);
 
-/* Return 0 if the GptHeaders are the same for all fields which don't
- * differ between the primary and secondary headers - that is, all
- * fields other than:
+/**
+ * Return 0 if the GptHeaders are the same for all fields which don't differ
+ * between the primary and secondary headers - that is, all fields other than:
  *
  * my_lba
  * alternate_lba
- * entries_lba */
+ * entries_lba
+ */
 int HeaderFieldsSame(GptHeader *h1, GptHeader *h2);
 
-/* Check GptData, headers, entries.
+/**
+ * Check GptData, headers, entries.
  *
  * If successful, sets gpt->valid_headers and gpt->valid_entries and returns
  * GPT_SUCCESS.
  *
- * On error, returns a GPT_ERROR_* return code. */
-int GptSanityCheck(GptData* gpt);
+ * On error, returns a GPT_ERROR_* return code.
+ */
+int GptSanityCheck(GptData *gpt);
 
-/* Repairs GPT data by copying from one set of valid headers/entries to the
+/**
+ * Repair GPT data by copying from one set of valid headers/entries to the
  * other.  Assumes GptSanityCheck() has been run to determine which headers
- * and/or entries are already valid. */
-void GptRepair(GptData* gpt);
+ * and/or entries are already valid.
+ */
+void GptRepair(GptData *gpt);
 
 /* Getters and setters for partition attribute fields. */
-int GetEntrySuccessful(const GptEntry* e);
-int GetEntryPriority(const GptEntry* e);
-int GetEntryTries(const GptEntry* e);
-void SetEntrySuccessful(GptEntry* e, int successful);
-void SetEntryPriority(GptEntry* e, int priority);
-void SetEntryTries(GptEntry* e, int tries);
 
-/* Return 1 if the entry is unused, 0 if it is used. */
-int IsUnusedEntry(const GptEntry* e);
+int GetEntrySuccessful(const GptEntry *e);
+int GetEntryPriority(const GptEntry *e);
+int GetEntryTries(const GptEntry *e);
+void SetEntrySuccessful(GptEntry *e, int successful);
+void SetEntryPriority(GptEntry *e, int priority);
+void SetEntryTries(GptEntry *e, int tries);
 
-/* Returns 1 if the entry is a Chrome OS kernel partition, else 0. */
-int IsKernelEntry(const GptEntry* e);
+/**
+ * Return 1 if the entry is unused, 0 if it is used.
+ */
+int IsUnusedEntry(const GptEntry *e);
 
-/* Copies the current kernel partition's UniquePartitionGuid to the dest */
+/**
+ * Return 1 if the entry is a Chrome OS kernel partition, else 0.
+ */
+int IsKernelEntry(const GptEntry *e);
+
+/**
+ * Copy the current kernel partition's UniquePartitionGuid to the dest.
+ */
 void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest);
 
-/* Returns a pointer to text describing the passed in error */
-const char* GptErrorText(int error_code);
+/**
+ * Return a pointer to text describing the passed in error.
+ */
+const char *GptErrorText(int error_code);
 
 #endif /* VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_ */
