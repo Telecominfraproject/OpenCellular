@@ -181,6 +181,19 @@ VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
   return VBERROR_SUCCESS;
 }
 
+/**
+ * Read the SHA-256 hash of the expected contents of the EC image associated
+ * with the main firmware specified by the "select" argument.
+ */
+VbError_t VbExEcGetExpectedRWHash(enum VbSelectFirmware_t select,
+				  const uint8_t **hash, int *hash_size) {
+  static const uint8_t fake_hash[32] = {1, 2, 3, 4};
+
+  *hash = fake_hash;
+  *hash_size = sizeof(fake_hash);
+  return VBERROR_SUCCESS;
+}
+
 VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size) {
   return VBERROR_SUCCESS;
 }

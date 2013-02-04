@@ -555,12 +555,14 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 	int in_rw = 0;
 	int rv;
-	const uint8_t *ec_hash;
+	const uint8_t *ec_hash = NULL;
 	int ec_hash_size;
-	const uint8_t *expected;
+	const uint8_t *rw_hash = NULL;
+	int rw_hash_size;
+	const uint8_t *expected = NULL;
 	int expected_size;
 	uint8_t expected_hash[SHA256_DIGEST_SIZE];
-	int need_update;
+	int need_update = 0;
 	int i;
 
 	/* Determine whether the EC is in RO or RW */
@@ -660,29 +662,87 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	VBDEBUG(("\n"));
 
 	/*
-	 * Get expected EC-RW code. Note that we've already checked for
+	 * Get expected EC-RW hash. Note that we've already checked for
 	 * RO_NORMAL, so we know that the BIOS must be RW-A or RW-B, and
 	 * therefore the EC must match.
 	 */
-	rv = VbExEcGetExpectedRW(shared->firmware_index ?
+	rv = VbExEcGetExpectedRWHash(shared->firmware_index ?
 				 VB_SELECT_FIRMWARE_B : VB_SELECT_FIRMWARE_A,
-				 &expected, &expected_size);
-	if (rv) {
+				 &rw_hash, &rw_hash_size);
+
+	if (rv == VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE) {
+		/*
+		 * BIOS has verified EC image but doesn't have a precomputed
+		 * hash for it, so we must compute the hash ourselves.
+		 */
+		rw_hash = NULL;
+	} else if (rv) {
+		VBDEBUG(("VbEcSoftwareSync() - "
+			 "VbExEcGetExpectedRWHash() returned %d\n", rv));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_HASH);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	} else if (rw_hash_size != SHA256_DIGEST_SIZE) {
+		VBDEBUG(("VbEcSoftwareSync() - "
+			 "VbExEcGetExpectedRWHash() says size %d, not %d\n",
+			 rw_hash_size, SHA256_DIGEST_SIZE));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_HASH);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	} else {
+		VBDEBUG(("Expected hash:"));
+		for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+			VBDEBUG(("%02x", rw_hash[i]));
+		VBDEBUG(("\n"));
+
+		need_update = SafeMemcmp(ec_hash, rw_hash, SHA256_DIGEST_SIZE);
+	}
+
+	/*
+	 * Get expected EC-RW image if we're sure we need to update (because the
+	 * expected hash didn't match the EC) or we still don't know (because
+	 * there was no expected hash and we need the image to compute one
+	 * ourselves).
+	 */
+	if (need_update || !rw_hash) {
+		/* Get expected EC-RW image */
+		rv = VbExEcGetExpectedRW(shared->firmware_index ?
+					 VB_SELECT_FIRMWARE_B :
+					 VB_SELECT_FIRMWARE_A,
+					 &expected, &expected_size);
+		if (rv) {
+			VBDEBUG(("VbEcSoftwareSync() - "
+				 "VbExEcGetExpectedRW() returned %d\n", rv));
+			VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_IMAGE);
+			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		}
+		VBDEBUG(("VbEcSoftwareSync() - expected len = %d\n",
+			 expected_size));
+
+		/* Hash expected image */
+		internal_SHA256(expected, expected_size, expected_hash);
+		VBDEBUG(("Computed hash of expected image:"));
+		for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+			VBDEBUG(("%02x", expected_hash[i]));
+		VBDEBUG(("\n"));
+	}
+
+	if (!rw_hash) {
+		/*
+		 * BIOS didn't have expected EC hash, so check if we need
+		 * update by comparing EC hash to the one we just computed.
+		 */
+		need_update = SafeMemcmp(ec_hash, expected_hash,
+					 SHA256_DIGEST_SIZE);
+	} else if (need_update &&
+		   SafeMemcmp(rw_hash, expected_hash, SHA256_DIGEST_SIZE)) {
+		/*
+		 * We need to update, but the expected EC image doesn't match
+		 * the expected EC hash we were given.
+		 */
 		VBDEBUG(("VbEcSoftwareSync() - "
 			 "VbExEcGetExpectedRW() returned %d\n", rv));
-		VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_IMAGE);
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_MISMATCH);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
-	VBDEBUG(("VbEcSoftwareSync() - expected len = %d\n", expected_size));
-
-	/* Hash expected code */
-	internal_SHA256(expected, expected_size, expected_hash);
-	VBDEBUG(("Expected hash:"));
-	for (i = 0; i < SHA256_DIGEST_SIZE; i++)
-		VBDEBUG(("%02x", expected_hash[i]));
-	VBDEBUG(("\n"));
-
-	need_update = SafeMemcmp(ec_hash, expected_hash, SHA256_DIGEST_SIZE);
 
 	/*
 	 * TODO: GBB flag to override whether we need update; needed for EC
@@ -692,7 +752,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	if (in_rw) {
 		if (need_update) {
 			/*
-			 * EC is running the wrong RW code.  Reboot the EC to
+			 * EC is running the wrong RW image.  Reboot the EC to
 			 * RO so we can update it on the next boot.
 			 */
 			VBDEBUG(("VbEcSoftwareSync() - "
@@ -747,7 +807,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
-	/* Tell EC to jump to its RW code */
+	/* Tell EC to jump to its RW image */
 	VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
 	rv = VbExEcJumpToRW();
 	if (rv != VBERROR_SUCCESS) {

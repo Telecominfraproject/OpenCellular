@@ -142,6 +142,10 @@ typedef enum VbNvParam {
 #define VBNV_RECOVERY_EC_JUMP_RW      0x27
 /* EC software sync - unable to protect / unprotect EC-RW */
 #define VBNV_RECOVERY_EC_PROTECT      0x28
+/* EC software sync - error obtaining expected EC hash */
+#define VBNV_RECOVERY_EC_EXPECTED_HASH 0x29
+/* EC software sync - expected EC image doesn't match hash */
+#define VBNV_RECOVERY_EC_HASH_MISMATCH 0x2A
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /*

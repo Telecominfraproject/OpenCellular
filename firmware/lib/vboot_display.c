@@ -497,6 +497,12 @@ const char *RecoveryReasonString(uint8_t code)
 	case VBNV_RECOVERY_EC_EXPECTED_IMAGE:
 		return "EC software sync error "
 			"obtaining expected EC image from BIOS";
+	case VBNV_RECOVERY_EC_EXPECTED_HASH:
+		return "EC software sync error "
+			"obtaining expected EC hash from BIOS";
+	case VBNV_RECOVERY_EC_HASH_MISMATCH:
+		return "EC software sync error "
+			"comparing expected EC hash and image";
 	case VBNV_RECOVERY_EC_UPDATE:
 		return "EC software sync error updating EC";
 	case VBNV_RECOVERY_EC_JUMP_RW:
