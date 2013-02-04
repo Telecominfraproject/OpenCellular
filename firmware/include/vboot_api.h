@@ -105,7 +105,11 @@ enum VbErrorPredefined_t {
 	/* Need VGA and don't have it, or vice-versa */
 	VBERROR_VGA_OPROM_MISMATCH            = 0x10021,
 	/* Need EC to reboot to read-only code */
-	VBERROR_EC_REBOOT_TO_RO_REQUIRED      = 0x10022
+	VBERROR_EC_REBOOT_TO_RO_REQUIRED      = 0x10022,
+
+	/* VbExEcGetExpectedRWHash() may return the following codes */
+	/* Compute expected RW hash from the EC image; BIOS doesn't have it */
+	VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE = 0x20000,
 };
 
 
@@ -753,6 +757,13 @@ VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size);
  */
 VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
                               const uint8_t **image, int *image_size);
+
+/**
+ * Read the SHA-256 hash of the expected contents of the EC image associated
+ * with the main firmware specified by the "select" argument.
+ */
+VbError_t VbExEcGetExpectedRWHash(enum VbSelectFirmware_t select,
+		       const uint8_t **hash, int *hash_size);
 
 /**
  * Update the EC rewritable image.
