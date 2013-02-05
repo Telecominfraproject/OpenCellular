@@ -945,8 +945,9 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/utility_string_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_devmode_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_init_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_firmware_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_init_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_audio_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}

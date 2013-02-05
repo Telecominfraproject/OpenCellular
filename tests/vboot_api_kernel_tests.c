@@ -163,7 +163,7 @@ test_case_t test[] = {
 		.diskgetinfo_return_val = VBERROR_SUCCESS,
 		.loadkernel_return_val = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
 
-		.expected_recovery_request_val = VBNV_RECOVERY_RW_NO_DISK,
+		.expected_recovery_request_val = VBNV_RECOVERY_RW_NO_KERNEL,
 		.expected_to_find_disk = DONT_CARE,
 		.expected_to_load_disk = 0,
 		.expected_return_val = 1
@@ -209,31 +209,6 @@ int is_nonzero(const void *vptr, size_t count)
 	return 0;
 }
 
-int CheckResults(void)
-{
-	VBDEBUG(("%s()\n", __FUNCTION__));
-	VBDEBUG(("  recovery_request: %x %x\n",
-		 t->expected_recovery_request_val, got_recovery_request_val));
-	VBDEBUG(("  find_disk: (%s) (%s)\n",
-		 (t->expected_to_find_disk == DONT_CARE
-		  ? "DONT CARE"
-		  : t->expected_to_find_disk),
-		 got_find_disk));
-	VBDEBUG(("  load_disk: (%s) (%s)\n",
-		 (t->expected_to_load_disk == DONT_CARE
-		  ? "DONT CARE"
-		  : t->expected_to_load_disk),
-		 got_load_disk));
-	VBDEBUG(("  return_val: %x %x\n",
-		 t->expected_return_val, got_return_val));
-	return (t->expected_recovery_request_val == got_recovery_request_val &&
-		(t->expected_to_find_disk == DONT_CARE ||
-		 t->expected_to_find_disk == got_find_disk) &&
-		(t->expected_to_load_disk == DONT_CARE ||
-		 t->expected_to_load_disk == got_load_disk) &&
-		t->expected_return_val == got_return_val);
-}
-
 /****************************************************************************/
 /* Mocked verification functions */
 
@@ -247,7 +222,7 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 
 	*infos_ptr = mock_disks;
 
-	for(i=0; i<MAX_TEST_DISKS; i++) {
+	for(i = 0; i < MAX_TEST_DISKS; i++) {
 		if (is_nonzero(&t->disks_to_provide[i],
 			       sizeof(t->disks_to_provide[i]))) {
 			mock_disks[num_disks].bytes_per_lba =
@@ -320,14 +295,19 @@ static void VbTryLoadKernelTest(void)
 	int i;
 	int num_tests =  sizeof(test) / sizeof(test[0]);
 
-	for (i=0; i<num_tests; i++) {
-		VBDEBUG(("STARTING %s ...\n", test[i].name));
+	for (i = 0; i < num_tests; i++) {
+		printf("Test case: %s ...\n", test[i].name);
 		ResetMocks(i);
-		got_return_val = VbTryLoadKernel(0, &lkparams,
-						 test[i].want_flags);
-		VBDEBUG(("VbTryLoadKernel(): got_return_val = 0x%x\n",
-			 got_return_val));
-		TEST_TRUE(CheckResults(), test[i].name);
+		TEST_EQ(VbTryLoadKernel(0, &lkparams, test[i].want_flags),
+			t->expected_return_val, "  return value");
+		TEST_EQ(got_recovery_request_val,
+			t->expected_recovery_request_val, "  recovery_request");
+		if (t->expected_to_find_disk != DONT_CARE) {
+			TEST_PTR_EQ(got_find_disk, t->expected_to_find_disk,
+				    "  find disk");
+			TEST_PTR_EQ(got_load_disk, t->expected_to_load_disk,
+				    "  load disk");
+		}
 	}
 }
 
