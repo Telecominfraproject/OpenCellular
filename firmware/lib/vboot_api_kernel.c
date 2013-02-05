@@ -28,7 +28,7 @@ VbNvContext *VbApiKernelGetVnc(void)
 #endif
 
 /**
- * Set recovery request
+ * Set recovery request (called from vboot_api_kernel.c functions only)
  */
 static void VbSetRecoveryRequest(uint32_t recovery_request)
 {
@@ -125,17 +125,7 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 
 #define CONFIRM_KEY_DELAY 20  /* Check confirm screen keys every 20ms */
 
-/**
- * Ask the user to confirm something.
- *
- * We should display whatever the question is first, then call this. ESC is
- * always "no", ENTER is always "yes", and we'll specify what SPACE means. We
- * don't return until one of those keys is pressed, or until asked to shut
- * down.
- *
- * Returns: 1=yes, 0=no, -1 = shutdown.
- */
-static int VbUserConfirms(VbCommonParams *cparams, int space_means_no)
+int VbUserConfirms(VbCommonParams *cparams, int space_means_no)
 {
 	uint32_t key;
 
@@ -171,9 +161,6 @@ static int VbUserConfirms(VbCommonParams *cparams, int space_means_no)
 	return -1;
 }
 
-/**
- * Handle a normal boot.
- */
 VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
 {
 	/* Boot from fixed disk only */
@@ -181,9 +168,6 @@ VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
 	return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
 
-/**
- * Handle a developer-mode boot.
- */
 VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 {
 	GoogleBinaryBlockHeader *gbb =
@@ -320,11 +304,11 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 			VbExBeep(120, 400);
 			break;
 
-      case VB_KEY_CTRL_ENTER:
-	      /*
-	       * The Ctrl-Enter is special for Lumpy test purpose; fall through
-	       * to Ctrl+U handler.
-	       */
+		case VB_KEY_CTRL_ENTER:
+			/*
+			 * The Ctrl-Enter is special for Lumpy test purpose;
+			 * fall through to Ctrl+U handler.
+			 */
 		case 0x15:
 			/* Ctrl+U = try USB boot, or beep if failure */
 			VBDEBUG(("VbBootDeveloper() - "
@@ -393,9 +377,6 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 #define REC_DISK_DELAY 1000     /* Check disks every 1s */
 #define REC_KEY_DELAY  20       /* Check keys every 20ms */
 
-/**
- * Handle a recovery-mode boot.
- */
 VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 {
 	VbSharedDataHeader *shared =

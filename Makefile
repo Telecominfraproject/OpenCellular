@@ -419,6 +419,9 @@ TEST_NAMES = \
 	vboot_api_devmode_tests \
 	vboot_api_firmware_tests \
 	vboot_api_kernel_tests \
+	vboot_api_kernel2_tests \
+	vboot_api_kernel3_tests \
+	vboot_api_kernel4_tests \
 	vboot_audio_tests \
 	vboot_common_tests \
 	vboot_common2_tests \
@@ -948,6 +951,9 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_firmware_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_init_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel2_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel3_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel4_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_audio_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}

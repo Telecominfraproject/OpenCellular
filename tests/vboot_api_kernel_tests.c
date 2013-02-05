@@ -15,7 +15,7 @@
 #include "test_common.h"
 #include "utility.h"
 #include "vboot_api.h"
-
+#include "vboot_kernel.h"
 
 #define MAX_TEST_DISKS 10
 #define DEFAULT_COUNT -1
@@ -285,10 +285,6 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 }
 
 /****************************************************************************/
-
-/* This is not declared in any headers, so declare it here. */
-uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
-                         uint32_t get_info_flags);
 
 static void VbTryLoadKernelTest(void)
 {
