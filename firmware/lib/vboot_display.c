@@ -68,19 +68,19 @@ char *VbHWID(VbCommonParams *cparams)
  */
 typedef FontArrayHeader VbFont_t;
 
-static VbFont_t *VbInternalizeFontData(FontArrayHeader *fonthdr)
+VbFont_t *VbInternalizeFontData(FontArrayHeader *fonthdr)
 {
 	/* Just return the raw data pointer for now. */
 	return (VbFont_t *)fonthdr;
 }
 
-static void VbDoneWithFontForNow(VbFont_t *ptr)
+void VbDoneWithFontForNow(VbFont_t *ptr)
 {
 	/* Nothing. */
 }
 
-static ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
-                                  void **bufferptr, uint32_t *buffersize)
+ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
+			   void **bufferptr, uint32_t *buffersize)
 {
 	uint8_t *ptr, *firstptr;
 	uint32_t max;
@@ -120,11 +120,8 @@ static ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
 	return &(entry->info);
 }
 
-/**
- * Try to display the specified text at a particular position.
- */
-static void VbRenderTextAtPos(char *text, int right_to_left,
-                              uint32_t x, uint32_t y, VbFont_t *font)
+void VbRenderTextAtPos(char *text, int right_to_left,
+		       uint32_t x, uint32_t y, VbFont_t *font)
 {
 	int i;
 	ImageInfo *image_info = 0;

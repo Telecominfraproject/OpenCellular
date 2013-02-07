@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bmpblk_font.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "test_common.h"
@@ -148,6 +149,7 @@ static void DisplayKeyTest(void)
 	TEST_NEQ(*debug_info, '\0', "DisplayKey tab = display");
 
 	/* Toggle localization */
+	ResetMocks();
 	VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, 0);
 	VbNvTeardown(&vnc);
 	VbCheckDisplayKey(&cparams, VB_KEY_DOWN, &vnc);
@@ -164,6 +166,7 @@ static void DisplayKeyTest(void)
 	TEST_EQ(u, 0, "DisplayKey up");
 
 	/* Reset localization if localization count is invalid */
+	ResetMocks();
 	VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, 1);
 	VbNvTeardown(&vnc);
 	bhdr->signature[0] ^= 0x5a;
@@ -173,14 +176,59 @@ static void DisplayKeyTest(void)
 
 }
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
+static void FontTest(void)
+{
+	FontArrayHeader h;
+	FontArrayEntryHeader eh[3] = {
+		{
+			.ascii = 'A',
+			.info.original_size = 10,
+		},
+		{
+			.ascii = 'B',
+			.info.original_size = 20,
+		},
+		{
+			.ascii = 'C',
+			.info.original_size = 30,
+		},
+	};
+	FontArrayEntryHeader *eptr;
+	uint8_t buf[sizeof(h) + sizeof(eh)];
+	VbFont_t *fptr;
+	void *bufferptr;
+	uint32_t buffersize;
 
-int main(int argc, char* argv[])
+	/* Create font data */
+	h.num_entries = ARRAY_SIZE(eh);
+	Memcpy(buf, &h, sizeof(h));
+	eptr = (FontArrayEntryHeader *)(buf + sizeof(h));
+	Memcpy(eptr, eh, sizeof(eh));
+
+	fptr = VbInternalizeFontData((FontArrayHeader *)buf);
+	TEST_PTR_EQ(fptr, buf, "Internalize");
+
+	TEST_PTR_EQ(VbFindFontGlyph(fptr, 'B', &bufferptr, &buffersize),
+		    &eptr[1].info, "Glyph found");
+	TEST_EQ(buffersize, eptr[1].info.original_size, "  size");
+	TEST_PTR_EQ(VbFindFontGlyph(fptr, 'X', &bufferptr, &buffersize),
+		    &eptr[0].info, "Glyph not found");
+	TEST_EQ(buffersize, eptr[0].info.original_size, "  size");
+
+	/* Test invalid rendering params */
+	VbRenderTextAtPos(NULL, 0, 0, 0, fptr);
+	VbRenderTextAtPos("ABC", 0, 0, 0, NULL);
+
+	VbDoneWithFontForNow(fptr);
+
+}
+
+int main(void)
 {
 	DebugInfoTest();
 	LocalizationTest();
 	DisplayKeyTest();
+	FontTest();
 
 	return gTestSuccess ? 0 : 255;
 }

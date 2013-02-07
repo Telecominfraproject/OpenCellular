@@ -8,6 +8,7 @@
 #ifndef VBOOT_REFERENCE_VBOOT_DISPLAY_H_
 #define VBOOT_REFERENCE_VBOOT_DISPLAY_H_
 
+#include "bmpblk_font.h"
 #include "vboot_api.h"
 #include "vboot_nvstorage.h"
 
@@ -20,6 +21,21 @@ VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
                             VbNvContext *vncptr);
 
 /* Internal functions, for unit testing */
+
+typedef FontArrayHeader VbFont_t;
+
+VbFont_t *VbInternalizeFontData(FontArrayHeader *fonthdr);
+
+void VbDoneWithFontForNow(VbFont_t *ptr);
+
+ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
+			   void **bufferptr, uint32_t *buffersize);
+
+/**
+ * Try to display the specified text at a particular position.
+ */
+void VbRenderTextAtPos(char *text, int right_to_left,
+		       uint32_t x, uint32_t y, VbFont_t *font);
 
 /**
  * Return a description of the recovery reason code.
