@@ -35,6 +35,7 @@ static int ec_run_image;
 static int update_retval;
 static int ec_updated;
 static int get_expected_retval;
+static int shutdown_request_calls_left;
 
 static uint8_t mock_ec_hash[32];
 static int mock_ec_hash_size;
@@ -79,6 +80,7 @@ static void ResetMocks(void)
 	update_retval = VBERROR_SUCCESS;
 	run_retval = VBERROR_SUCCESS;
 	get_expected_retval = VBERROR_SUCCESS;
+	shutdown_request_calls_left = -1;
 
 	Memset(mock_ec_hash, 0, sizeof(mock_ec_hash));
 	mock_ec_hash[0] = 42;
@@ -98,6 +100,16 @@ static void ResetMocks(void)
 }
 
 /* Mock functions */
+
+uint32_t VbExIsShutdownRequested(void)
+{
+	if (shutdown_request_calls_left == 0)
+		return 1;
+	else if (shutdown_request_calls_left > 0)
+		shutdown_request_calls_left--;
+
+	return 0;
+}
 
 int VbExTrustEC(void)
 {
@@ -232,6 +244,11 @@ static void VbSoftwareSyncTest(void)
 	test_ssync(VBERROR_SIMULATED,
 		   VBNV_RECOVERY_EC_PROTECT, "Protect error");
 
+	ResetMocks();
+	shared->flags |= VBSD_LF_USE_RO_NORMAL;
+	shutdown_request_calls_left = 0;
+	test_ssync(VBERROR_SHUTDOWN_REQUESTED, 0, "AP-RO shutdown requested");
+
 	/* Calculate hashes */
 	ResetMocks();
 	mock_ec_hash_size = 0;
@@ -325,6 +342,16 @@ static void VbSoftwareSyncTest(void)
 	protect_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_SIMULATED,
 		   VBNV_RECOVERY_EC_PROTECT, "Protect error");
+
+	ResetMocks();
+	shutdown_request_calls_left = 0;
+	test_ssync(VBERROR_SHUTDOWN_REQUESTED, 0,
+		   "AP-RW, EC-RO -> EC-RW shutdown requested");
+
+	ResetMocks();
+	mock_in_rw = 1;
+	shutdown_request_calls_left = 0;
+	test_ssync(VBERROR_SHUTDOWN_REQUESTED, 0, "AP-RW shutdown requested");
 }
 
 int main(void)
