@@ -68,3 +68,7 @@ bct_dump: $(BCT_DUMP_OBJS)
 #
 clean:
 	rm -f $(CBOOTIMAGE_OBJS) $(BCT_DUMP_OBJS) *~ $(TARGETS)
+
+install: cbootimage bct_dump
+	install -D -m 755 cbootimage $(DESTDIR)/usr/bin
+	install -D -m 755 bct_dump $(DESTDIR)/usr/bin
