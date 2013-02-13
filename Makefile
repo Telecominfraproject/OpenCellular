@@ -35,14 +35,26 @@
 # Our convention is that we only use := for variables that will never be
 # changed or appended. They must be defined before being used anywhere.
 
-# we should only run pwd once, not every time we refer to ${BUILD}.
+# We should only run pwd once, not every time we refer to ${BUILD}.
 SRCDIR := $(shell pwd)
 BUILD ?= $(SRCDIR)/build
 export BUILD
 
-# Target for 'make install'
-DESTDIR ?= /usr/bin
+# Stuff for 'make install'
 INSTALL ?= install
+DESTDIR ?= /usr/local/bin
+
+ifeq (${MINIMAL},)
+# Host install just puts everything in one place
+UB_DIR=${DESTDIR}
+SB_DIR=${DESTDIR}
+VB_DIR=${DESTDIR}
+else
+# Target install puts things into DESTDIR subdirectories
+UB_DIR=${DESTDIR}/usr/bin
+SB_DIR=${DESTDIR}/sbin
+VB_DIR=${DESTDIR}/usr/share/vboot/bin
+endif
 
 # Where to install the (exportable) executables for testing?
 TEST_INSTALL_DIR = ${BUILD}/install_for_test
@@ -322,15 +334,17 @@ CGPT_SRCS = \
 CGPT_OBJS = ${CGPT_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${CGPT_OBJS}
 
-C_DESTDIR = ${DESTDIR}
-
 
 # Scripts to install directly (not compiled)
 UTIL_SCRIPTS = \
 	utility/dev_debug_vboot \
-	utility/dev_make_keypair \
 	utility/enable_dev_usb_boot \
 	utility/vbutil_what_keys
+
+ifeq (${MINIMAL},)
+UTIL_SCRIPTS += \
+	utility/dev_make_keypair
+endif
 
 # These utilities should be linked statically.
 UTIL_NAMES_STATIC = \
@@ -342,34 +356,48 @@ UTIL_NAMES = ${UTIL_NAMES_STATIC} \
 	dev_sign_file \
 	dump_kernel_config \
 	dumpRSAPublicKey \
-	load_kernel_test \
-	pad_digest_utility \
-	signature_digest_utility \
 	tpm_init_temp_fix \
 	tpmc \
 	vbutil_firmware \
 	vbutil_kernel \
 	vbutil_key \
 	vbutil_keyblock \
-	verify_data
-
-ifneq (${IN_CHROOT},)
-UTIL_NAMES += mount-encrypted
-endif
 
 ifeq (${MINIMAL},)
 UTIL_NAMES += \
 	bmpblk_font \
 	bmpblk_utility \
 	eficompress \
-	efidecompress
+	efidecompress \
+	load_kernel_test \
+	pad_digest_utility \
+	signature_digest_utility \
+	verify_data
 endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/utility/,${UTIL_NAMES_STATIC})
 UTIL_BINS = $(addprefix ${BUILD}/utility/,${UTIL_NAMES})
+ifneq (${IN_CHROOT},)
+UTIL_SBINS = $(addprefix ${BUILD}/utility/,mount-encrypted)
+endif
+
 ALL_DEPS += $(addsuffix .d,${UTIL_BINS})
 
-U_DESTDIR = ${DESTDIR}
+
+# Scripts for signing stuff.
+SIGNING_SCRIPTS = \
+	utility/tpm-nvsize \
+	utility/chromeos-tpm-recovery
+
+# These go in a different place.
+SIGNING_SCRIPTS_DEV = \
+	scripts/image_signing/resign_firmwarefd.sh \
+	scripts/image_signing/make_dev_firmware.sh \
+	scripts/image_signing/make_dev_ssd.sh \
+	scripts/image_signing/set_gbb_flags.sh
+
+# Installed, but not made executable.
+SIGNING_COMMON = scripts/image_signing/common_minimal.sh
 
 
 # The unified firmware utility will eventually replace all the others
@@ -384,8 +412,6 @@ FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o}
 
 ALL_DEPS += $(addsuffix .d,${FUTIL_BIN})
 ALL_OBJS += ${FUTIL_OBJS}
-
-F_DESTDIR = ${DESTDIR}
 
 
 # Library of handy test functions.
@@ -530,7 +556,7 @@ clean:
 	${Q}/bin/rm -rf ${BUILD}
 
 .PHONY: install
-install: cgpt_install utils_install futil_install
+install: cgpt_install utils_install signing_install futil_install
 
 # Don't delete intermediate object files
 .SECONDARY:
@@ -626,8 +652,8 @@ ${CGPT}: ${CGPT_OBJS} ${LIBS}
 .PHONY: cgpt_install
 cgpt_install: ${CGPT}
 	@printf "    INSTALL       CGPT\n"
-	${Q}mkdir -p ${C_DESTDIR}
-	${Q}${INSTALL} -t ${C_DESTDIR} $^
+	${Q}mkdir -p ${UB_DIR}
+	${Q}${INSTALL} -t ${UB_DIR} $^
 
 # ----------------------------------------------------------------------------
 # Utilities
@@ -639,16 +665,32 @@ ${BUILD}/utility/%: INCLUDES += -Ihost/include -Iutility/include
 ${UTIL_BINS_STATIC}: LDFLAGS += -static
 
 .PHONY: utils
-utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
-# TODO: change ebuild to pull scripts directly out of utility dir
+utils: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_SBINS}
 	${Q}cp -f ${UTIL_SCRIPTS} ${BUILD}/utility
 	${Q}chmod a+rx $(patsubst %,${BUILD}/%,${UTIL_SCRIPTS})
 
 .PHONY: utils_install
-utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
+utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_SBINS}
 	@printf "    INSTALL       UTILS\n"
-	${Q}mkdir -p ${U_DESTDIR}
-	${Q}${INSTALL} -t ${U_DESTDIR} $^
+	${Q}mkdir -p ${UB_DIR}
+	${Q}${INSTALL} -t ${UB_DIR} ${UTIL_BINS} ${UTIL_SCRIPTS}
+ifneq (${UTIL_SBINS},)
+	${Q}mkdir -p ${SB_DIR}
+	${Q}${INSTALL} -t ${SB_DIR} ${UTIL_SBINS}
+endif
+
+
+# And some signing stuff for the target
+.PHONY: signing_install
+signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
+ifneq (${MINIMAL},)
+	@printf "    INSTALL       SIGNING\n"
+	${Q}mkdir -p ${UB_DIR}
+	${Q}${INSTALL} -t ${UB_DIR} ${SIGNING_SCRIPTS}
+	${Q}mkdir -p ${VB_DIR}
+	${Q}${INSTALL} -t ${VB_DIR} ${SIGNING_SCRIPTS_DEV}
+	${Q}${INSTALL} -t ${VB_DIR} -m 'u=rw,go=r,a-s' ${SIGNING_COMMON}
+endif
 
 # ----------------------------------------------------------------------------
 # new Firmware Utility
@@ -663,8 +705,8 @@ ${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS}
 .PHONY: futil_install
 futil_install: ${FUTIL_BIN}
 	@printf "    INSTALL       futility\n"
-	${Q}mkdir -p ${F_DESTDIR}
-	${Q}${INSTALL} -t ${F_DESTDIR} $^
+	${Q}mkdir -p ${UB_DIR}
+	${Q}${INSTALL} -t ${UB_DIR} $^
 
 
 # ----------------------------------------------------------------------------
