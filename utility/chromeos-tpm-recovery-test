@@ -30,7 +30,7 @@ if [ "$test_kind" = "fake" ]; then
   ctr=../chromeos-tpm-recovery
   tpmc=./tpmc
 else
-  ctr=/usr/sbin/chromeos-tpm-recovery
+  ctr=chromeos-tpm-recovery
   tpmc=tpmc
 fi
 
