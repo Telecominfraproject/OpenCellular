@@ -1063,6 +1063,12 @@ static int shutdown(void)
 		}
 	}
 
+	/*
+	 * Force syncs to make sure we don't tickle racey/buggy kernel
+	 * routines that might be causing crosbug.com/p/17610.
+	 */
+	sync();
+
 	/* Optionally run fsck on the device after umount. */
 	if (getenv("MOUNT_ENCRYPTED_FSCK")) {
 		char *cmd;
@@ -1081,12 +1087,15 @@ static int shutdown(void)
 	INFO("Removing %s.", dmcrypt_dev);
 	if (!dm_teardown(dmcrypt_dev))
 		ERROR("dm_teardown(%s)", dmcrypt_dev);
+	sync();
 
 	INFO("Unlooping %s (named %s).", block_path, dmcrypt_name);
 	if (!loop_detach_name(dmcrypt_name)) {
 		ERROR("loop_detach_name(%s)", dmcrypt_name);
 		return EXIT_FAILURE;
 	}
+	sync();
+
 	return EXIT_SUCCESS;
 }
 
