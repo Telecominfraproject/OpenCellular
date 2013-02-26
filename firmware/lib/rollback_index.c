@@ -42,11 +42,11 @@ static int g_rollback_recovery_mode = 0;
 __pragma(warning (disable: 4127))
 
 #define RETURN_ON_FAILURE(tpm_command) do {				\
-		uint32_t result;					\
-		if ((result = (tpm_command)) != TPM_SUCCESS) {		\
+		uint32_t result_;					\
+		if ((result_ = (tpm_command)) != TPM_SUCCESS) {		\
 			VBDEBUG(("Rollback: %08x returned by " #tpm_command \
-				 "\n", (int)result));			\
-			return result;					\
+				 "\n", (int)result_));			\
+			return result_;					\
 		}							\
 	} while (0)
 
