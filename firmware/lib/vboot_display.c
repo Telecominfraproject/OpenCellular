@@ -46,7 +46,7 @@ VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count)
 	return VBERROR_SUCCESS;
 }
 
-char *VbHWID(VbCommonParams *cparams)
+const char *VbHWID(VbCommonParams *cparams)
 {
 	GoogleBinaryBlockHeader *gbb =
 		(GoogleBinaryBlockHeader *)cparams->gbb_data;
@@ -120,7 +120,7 @@ ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
 	return &(entry->info);
 }
 
-void VbRenderTextAtPos(char *text, int right_to_left,
+void VbRenderTextAtPos(const char *text, int right_to_left,
 		       uint32_t x, uint32_t y, VbFont_t *font)
 {
 	int i;
@@ -182,7 +182,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	uint32_t offset;
 	uint32_t i;
 	VbFont_t *font;
-	char *text_to_show;
+	const char *text_to_show;
 	int rtol = 0;
 	char outbuf[OUTBUF_LEN] = "";
 	uint32_t used = 0;

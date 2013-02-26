@@ -34,7 +34,7 @@ ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
 /**
  * Try to display the specified text at a particular position.
  */
-void VbRenderTextAtPos(char *text, int right_to_left,
+void VbRenderTextAtPos(const char *text, int right_to_left,
 		       uint32_t x, uint32_t y, VbFont_t *font);
 
 /**
@@ -45,7 +45,7 @@ const char *RecoveryReasonString(uint8_t code);
 /**
  * Return a fixed string representing the HWID.
  */
-char *VbHWID(VbCommonParams *cparams);
+const char *VbHWID(VbCommonParams *cparams);
 
 /**
  * Get the number of localizations in the GBB bitmap data.
