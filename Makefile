@@ -194,7 +194,7 @@ endif
 
 # TODO: Move to separate repo.
 ifneq (${IN_CHROOT},)
-PC_BASE_VER ?= 125070
+PC_BASE_VER ?= 180609
 PC_DEPS := libchrome-${PC_BASE_VER}
 PC_CFLAGS := $(shell ${PKG_CONFIG} --cflags ${PC_DEPS})
 PC_LDLIBS := $(shell ${PKG_CONFIG} --libs ${PC_DEPS})
