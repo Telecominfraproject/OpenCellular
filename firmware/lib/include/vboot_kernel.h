@@ -12,7 +12,6 @@
 #include "cgptlib.h"
 #include "load_firmware_fw.h"
 #include "vboot_api.h"
-#include "vboot_kernel.h"
 
 /**
  * Allocate and read GPT data from the drive.  The sector_bytes and

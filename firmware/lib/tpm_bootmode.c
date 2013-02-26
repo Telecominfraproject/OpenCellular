@@ -96,7 +96,8 @@ const uint8_t kBootInvalidSHA1Digest[] = {
  * Given the boot state, return the correct SHA1 digest index for TPMExtend
  * in kBootStateSHA1Digests[].
  */
-int GetBootStateIndex(int dev_mode, int rec_mode, uint64_t keyblock_flags)
+static int GetBootStateIndex(int dev_mode, int rec_mode,
+                             uint64_t keyblock_flags)
 {
 	int index = 0;
 

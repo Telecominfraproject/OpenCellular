@@ -17,6 +17,15 @@
 #define offsetof(A,B) __builtin_offsetof(A,B)
 #endif
 
+/*
+ * Provide protoypes for functions not in the header file. These prototypes
+ * fix -Wmissing-prototypes warnings.
+ */
+uint32_t ReadSpaceFirmware(RollbackSpaceFirmware *rsf);
+uint32_t WriteSpaceFirmware(RollbackSpaceFirmware *rsf);
+uint32_t ReadSpaceKernel(RollbackSpaceKernel *rsk);
+uint32_t WriteSpaceKernel(RollbackSpaceKernel *rsk);
+
 #ifdef FOR_TEST
 /*
  * Compiling for unit test, so we need the real implementations of
