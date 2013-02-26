@@ -228,12 +228,16 @@ endif
 # Firmware library. TODO: Do we still need to export this?
 FWLIB = ${BUILD}/vboot_fw.a
 
-# find lib -iname '*.c' | sort
-FWLIB_SRCS = \
-	firmware/lib/cgptlib/cgptlib.c \
-	firmware/lib/cgptlib/cgptlib_internal.c \
-	firmware/lib/cgptlib/crc32.c \
+# Firmware library sources needed by VbInit() call
+VBINIT_SRCS = \
 	firmware/lib/crc8.c \
+	firmware/lib/utility.c \
+	firmware/lib/vboot_api_init.c \
+	firmware/lib/vboot_common_init.c \
+	firmware/lib/vboot_nvstorage.c \
+
+# Additional firmware library sources needed by VbSelectFirmware() call
+VBSF_SRCS = \
 	firmware/lib/cryptolib/padding.c \
 	firmware/lib/cryptolib/rsa.c \
 	firmware/lib/cryptolib/rsa_utility.c \
@@ -242,39 +246,59 @@ FWLIB_SRCS = \
 	firmware/lib/cryptolib/sha512.c \
 	firmware/lib/cryptolib/sha_utility.c \
 	firmware/lib/stateful_util.c \
-	firmware/lib/utility.c \
-	firmware/lib/utility_string.c \
-	firmware/lib/vboot_api_init.c \
 	firmware/lib/vboot_api_firmware.c \
+	firmware/lib/vboot_common.c \
+	firmware/lib/vboot_firmware.c
+
+# Additional firmware library sources needed by VbSelectAndLoadKernel() call
+VBSLK_SRCS = \
+	firmware/lib/cgptlib/cgptlib.c \
+	firmware/lib/cgptlib/cgptlib_internal.c \
+	firmware/lib/cgptlib/crc32.c \
+	firmware/lib/utility_string.c \
 	firmware/lib/vboot_api_kernel.c \
 	firmware/lib/vboot_audio.c \
-	firmware/lib/vboot_common.c \
 	firmware/lib/vboot_display.c \
-	firmware/lib/vboot_firmware.c \
-	firmware/lib/vboot_kernel.c \
-	firmware/lib/vboot_nvstorage.c
+	firmware/lib/vboot_kernel.c
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
-FWLIB_SRCS += \
+VBINIT_SRCS += \
 	firmware/lib/rollback_index.c \
-	firmware/lib/tpm_bootmode.c \
 	firmware/lib/tpm_lite/tlcl.c
+
+VBSF_SRCS += \
+	firmware/lib/tpm_bootmode.c
 else
-FWLIB_SRCS += \
+VBINIT_SRCS += \
 	firmware/lib/mocked_rollback_index.c \
-	firmware/lib/mocked_tpm_bootmode.c \
 	firmware/lib/tpm_lite/mocked_tlcl.c
+
+VBSF_SRCS += \
+	firmware/lib/mocked_tpm_bootmode.c
 endif
 
 ifeq (${FIRMWARE_ARCH},)
 # Include BIOS stubs in the firmware library when compiling for host
-FWLIB_SRCS += \
+# TODO: split out other stub funcs too
+VBINIT_SRCS += \
 	firmware/stub/tpm_lite_stub.c \
 	firmware/stub/utility_stub.c \
+	firmware/stub/vboot_api_stub_init.c
+
+VBSF_SRCS += \
+	firmware/stub/vboot_api_stub_sf.c
+
+VBSLK_SRCS += \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c
 endif
+
+VBSF_SRCS += ${VBINIT_SRCS}
+FWLIB_SRCS += ${VBSF_SRCS} ${VBSLK_SRCS}
+
+VBINIT_OBJS = ${VBINIT_SRCS:%.c=${BUILD}/%.o}
+VBSF_OBJS = ${VBSF_SRCS:%.c=${BUILD}/%.o}
 
 FWLIB_OBJS = ${FWLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${FWLIB_OBJS}
@@ -297,7 +321,6 @@ HOSTLIB_SRCS = \
 
 HOSTLIB_OBJS = ${HOSTLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${HOSTLIB_OBJS}
-
 
 # Link with hostlib by default
 LIBS = $(HOSTLIB)
@@ -610,8 +633,20 @@ ifeq (${FIRMWARE_ARCH},)
 ${FWLIB_OBJS}: CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
+# Link tests
+${BUILD}/firmware/linktest/main_vbinit: LIBS =
+${BUILD}/firmware/linktest/main_vbinit: OBJS = ${VBINIT_OBJS}
+${BUILD}/firmware/linktest/main_vbsf: LIBS =
+${BUILD}/firmware/linktest/main_vbsf: OBJS = ${VBSF_OBJS}
+
+.phony: fwlinktest
+fwlinktest: ${FWLIB} \
+	${BUILD}/firmware/linktest/main_vbinit \
+	${BUILD}/firmware/linktest/main_vbsf \
+	${BUILD}/firmware/linktest/main
+
 .PHONY: fwlib
-fwlib: ${FWLIB} $(if ${FIRMWARE_ARCH},,${BUILD}/firmware/linktest/main)
+fwlib: ${FWLIB} $(if ${FIRMWARE_ARCH},,fwlinktest)
 
 ${FWLIB}: ${FWLIB_OBJS}
 	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
