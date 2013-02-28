@@ -185,29 +185,8 @@ endif
 
 export BUILD_RUN
 
-# Some things only compile inside the Chromium OS chroot.
-# TODO: Those things should be in their own repo, not part of vboot_reference
-# TODO: Is there a better way to detect this?
-ifneq (${CROS_WORKON_SRCROOT},)
-IN_CHROOT := yes
-endif
-
-# TODO: Move to separate repo.
-ifneq (${IN_CHROOT},)
-PC_BASE_VER ?= 180609
-PC_DEPS := libchrome-${PC_BASE_VER}
-PC_CFLAGS := $(shell ${PKG_CONFIG} --cflags ${PC_DEPS})
-PC_LDLIBS := $(shell ${PKG_CONFIG} --libs ${PC_DEPS})
-endif
-
-
 ##############################################################################
 # Now we need to describe everything we might want or need to build
-
-# TODO: This should go in its own repo.
-AU_CGPTLIB = ${BUILD}/cgpt/libcgpt-cc.a
-# This is just ... Gah. There's no good place for it.
-DUMPKERNELCONFIGLIB = ${BUILD}/libdump_kernel_config.a
 
 # Everything wants these headers.
 INCLUDES += \
@@ -308,6 +287,13 @@ ALL_OBJS += ${FWLIB_OBJS}
 HOSTLIB = ${BUILD}/libvboot_host.a
 
 HOSTLIB_SRCS = \
+	cgpt/cgpt_create.c \
+	cgpt/cgpt_add.c \
+	cgpt/cgpt_boot.c \
+	cgpt/cgpt_show.c \
+	cgpt/cgpt_repair.c \
+	cgpt/cgpt_prioritize.c \
+	cgpt/cgpt_common.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
 	host/lib/file_keys.c \
@@ -317,7 +303,8 @@ HOSTLIB_SRCS = \
 	host/lib/host_keyblock.c \
 	host/lib/host_misc.c \
 	host/lib/host_signature.c \
-	host/lib/signature_digest.c
+	host/lib/signature_digest.c \
+	utility/dump_kernel_config_lib.c
 
 HOSTLIB_OBJS = ${HOSTLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${HOSTLIB_OBJS}
@@ -328,6 +315,25 @@ LIBS = $(HOSTLIB)
 # Might need this too.
 CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
 
+# Sigh. For historical reasons, the autoupdate installer must sometimes be a
+# 32-bit executable, even when everything else is 64-bit. But it only needs a
+# few functions, so let's just build those.
+TINYHOSTLIB = ${BUILD}/libtinyvboot_host.a
+
+TINYHOSTLIB_SRCS = \
+	cgpt/cgpt_create.c \
+	cgpt/cgpt_add.c \
+	cgpt/cgpt_boot.c \
+	cgpt/cgpt_show.c \
+	cgpt/cgpt_repair.c \
+	cgpt/cgpt_prioritize.c \
+	cgpt/cgpt_common.c \
+	utility/dump_kernel_config_lib.c \
+	firmware/lib/cgptlib/crc32.c \
+	firmware/lib/cgptlib/cgptlib_internal.c \
+	firmware/stub/utility_stub.c
+
+TINYHOSTLIB_OBJS = ${TINYHOSTLIB_SRCS:%.c=${BUILD}/%.o}
 
 # ----------------------------------------------------------------------------
 # Now for the userspace binaries
@@ -476,11 +482,6 @@ TEST_NAMES = \
 	vboot_kernel_tests \
 	vboot_nvstorage_test
 
-# Grrr
-ifneq (${IN_CHROOT},)
-TEST_NAMES += CgptManagerTests
-endif
-
 # TODO: port these tests to new API, if not already eqivalent
 # functionality in other tests.  These don't even compile at present.
 #
@@ -523,29 +524,6 @@ ALL_DEPS += $(addsuffix .d,${TEST_BINS})
 # Directory containing test keys
 TEST_KEYS = ${SRC_RUN}/tests/testkeys
 
-# ----------------------------------------------------------------------------
-# TODO: why not make this include *all* the cgpt files, and simply have
-# cgpt link against it?
-# TODO: CgptManager.cc should move to the installer project.  Shouldn't be
-# in libcgpt-cc.a.
-AU_CGPTLIB_SRCS = \
-	cgpt/CgptManager.cc \
-	cgpt/cgpt_create.c \
-	cgpt/cgpt_add.c \
-	cgpt/cgpt_boot.c \
-	cgpt/cgpt_show.c \
-	cgpt/cgpt_repair.c \
-	cgpt/cgpt_prioritize.c \
-	cgpt/cgpt_common.c \
-	firmware/lib/cgptlib/crc32.c \
-	firmware/lib/cgptlib/cgptlib_internal.c \
-	firmware/stub/utility_stub.c
-
-AU_CGPTLIB_OBJS = $(filter %.o, \
-	${AU_CGPTLIB_SRCS:%.c=${BUILD}/%.o} \
-	${AU_CGPTLIB_SRCS:%.cc=${BUILD}/%.o})
-ALL_OBJS += ${AU_CGPTLIB_OBJS}
-
 
 ##############################################################################
 # Finally, some targets. High-level ones first.
@@ -565,10 +543,6 @@ all: fwlib $(if ${FIRMWARE_ARCH},,host_stuff) $(if ${COV},coverage)
 # Host targets
 .PHONY: host_stuff
 host_stuff: hostlib cgpt utils futil tests
-
-# AU targets
-.PHONY: au_stuff
-au_stuff: libcgpt_cc libdump_kernel_config cgptmanager_tests
 
 .PHONY: clean
 clean:
@@ -667,6 +641,18 @@ ${HOSTLIB}: ${HOSTLIB_OBJS} ${FWLIB_OBJS}
 	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
+
+# Ugh. This is a very cut-down version of HOSTLIB just for the installer.
+.PHONY: tinyhostlib
+tinyhostlib: ${TINYHOSTLIB}
+	${Q}cp -f ${TINYHOSTLIB} ${HOSTLIB}
+
+${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
+	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
+	${Q}rm -f $@
+	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
+	${Q}ar qc $@ $^
+
 # ----------------------------------------------------------------------------
 # CGPT library and utility
 
@@ -752,32 +738,6 @@ update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 		  cp ${STRUCTURES_TMP} ${STRUCTURES_SRC} )
 
 # ----------------------------------------------------------------------------
-# Library to dump kernel config
-# Used by platform/installer, as well as standalone utility.
-
-.PHONY: libdump_kernel_config
-libdump_kernel_config: ${DUMPKERNELCONFIGLIB}
-
-${DUMPKERNELCONFIGLIB}: ${BUILD}/utility/dump_kernel_config_lib.o
-	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
-	${Q}rm -f $@
-	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
-	${Q}ar qc $@ $^
-
-# ----------------------------------------------------------------------------
-# And this thing.
-
-.PHONY: libcgpt_cc
-libcgpt_cc: ${AU_CGPTLIB}
-
-${AU_CGPTLIB}: INCLUDES += -Ifirmware/lib/cgptlib/include
-${AU_CGPTLIB}: ${AU_CGPTLIB_OBJS}
-	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
-	${Q}rm -f $@
-	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
-	${Q}ar qc $@ $^
-
-# ----------------------------------------------------------------------------
 # Tests
 
 .PHONY: tests
@@ -826,10 +786,6 @@ ${BUILD}/%.o: %.cc
 
 # Linktest ensures firmware lib doesn't rely on outside libraries
 ${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
-
-# Specific dependency here.
-${BUILD}/utility/dump_kernel_config: LIBS += ${DUMPKERNELCONFIGLIB}
-${BUILD}/utility/dump_kernel_config: ${DUMPKERNELCONFIGLIB}
 
 # GBB utility needs C++ linker. TODO: It shouldn't.
 ${BUILD}/utility/gbb_utility: LD = ${CXX}
@@ -882,15 +838,6 @@ ${BUILD}/tests/vboot_audio_tests: OBJS += \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 ${BUILD}/tests/vboot_audio_tests: \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
-
-.PHONY: cgptmanager_tests
-cgptmanager_tests: ${BUILD}/tests/CgptManagerTests
-
-${BUILD}/tests/CgptManagerTests: CFLAGS += ${PC_CFLAGS}
-${BUILD}/tests/CgptManagerTests: LD = ${CXX}
-${BUILD}/tests/CgptManagerTests: LDLIBS += -lgtest -lgflags ${PC_LDLIBS}
-${BUILD}/tests/CgptManagerTests: LIBS = ${AU_CGPTLIB}
-${BUILD}/tests/CgptManagerTests: ${AU_CGPTLIB}
 
 ${BUILD}/tests/rollback_index_test: INCLUDES += -I/usr/include
 ${BUILD}/tests/rollback_index_test: LIBS += -ltlcl
@@ -953,10 +900,6 @@ runbmptests: test_setup
 .PHONY: runcgpttests
 runcgpttests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/cgptlib_test
-# HEY - elsewhere
-ifneq (${IN_CHROOT},)
-	${RUNTEST} ${BUILD_RUN}/tests/CgptManagerTests --v=1
-endif
 
 .PHONY: runtestscripts
 runtestscripts: test_setup genfuzztestcases
