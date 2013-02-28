@@ -305,7 +305,7 @@ ALL_OBJS += ${FWLIB_OBJS}
 
 
 # Library to build the utilities. "HOST" mostly means "userspace".
-HOSTLIB = ${BUILD}/vboot_host.a
+HOSTLIB = ${BUILD}/libvboot_host.a
 
 HOSTLIB_SRCS = \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
@@ -400,10 +400,6 @@ endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/utility/,${UTIL_NAMES_STATIC})
 UTIL_BINS = $(addprefix ${BUILD}/utility/,${UTIL_NAMES})
-ifneq (${IN_CHROOT},)
-UTIL_SBINS = $(addprefix ${BUILD}/utility/,mount-encrypted)
-endif
-
 ALL_DEPS += $(addsuffix .d,${UTIL_BINS})
 
 
@@ -700,20 +696,15 @@ ${BUILD}/utility/%: INCLUDES += -Ihost/include -Iutility/include
 ${UTIL_BINS_STATIC}: LDFLAGS += -static
 
 .PHONY: utils
-utils: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_SBINS}
+utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 	${Q}cp -f ${UTIL_SCRIPTS} ${BUILD}/utility
 	${Q}chmod a+rx $(patsubst %,${BUILD}/%,${UTIL_SCRIPTS})
 
 .PHONY: utils_install
-utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_SBINS}
+utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
 	@printf "    INSTALL       UTILS\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${UTIL_BINS} ${UTIL_SCRIPTS}
-ifneq (${UTIL_SBINS},)
-	${Q}mkdir -p ${SB_DIR}
-	${Q}${INSTALL} -t ${SB_DIR} ${UTIL_SBINS}
-endif
-
 
 # And some signing stuff for the target
 .PHONY: signing_install
@@ -743,44 +734,6 @@ futil_install: ${FUTIL_BIN}
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} $^
 
-
-# ----------------------------------------------------------------------------
-# Mount-encrypted utility for cryptohome
-
-# TODO: mount-encrypted should move to cryptohome and just link against
-# vboot-host.a for tlcl and crossystem.
-
-# The embedded libcrypto conflicts with the shipped openssl,
-# so mount-* builds without the common CFLAGS (and those includes).
-
-${BUILD}/utility/mount-helpers.o: \
-		utility/mount-helpers.c \
-		utility/mount-helpers.h \
-		utility/mount-encrypted.h
-	@printf "    CCm-e         $(subst ${BUILD}/,,$@)\n"
-	${Q}${CC} -Wall -Werror -O2 -D_FORTIFY_SOURCE=2 -fstack-protector \
-		${COV_FLAGS} \
-		$(shell ${PKG_CONFIG} --cflags glib-2.0 openssl) \
-		-c $< -o $@
-
-${BUILD}/utility/mount-encrypted: \
-		utility/mount-encrypted.c \
-		utility/mount-encrypted.h \
-		${BUILD}/utility/mount-helpers.o ${LIBS}
-	@printf "    CCm-exe       $(subst ${BUILD}/,,$@)\n"
-	${Q}${CC} -Wall -Werror -O2 -D_FORTIFY_SOURCE=2 -fstack-protector \
-		$(shell ${PKG_CONFIG} --cflags glib-2.0 openssl) \
-		-Ifirmware/include \
-		-Ihost/include \
-		${COV_FLAGS} \
-		${LDFLAGS} \
-		$< -o $@ \
-		${BUILD}/utility/mount-helpers.o ${LIBS} \
-		$(shell ${PKG_CONFIG} --libs glib-2.0 openssl) \
-		-lm
-ifneq (${COV},)
-	${Q}mv -f mount-encrypted.gcno ${BUILD}/utility
-endif
 
 # ----------------------------------------------------------------------------
 # Utility to generate TLCL structure definition header file.
