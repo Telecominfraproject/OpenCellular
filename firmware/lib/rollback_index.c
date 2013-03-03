@@ -606,7 +606,7 @@ uint32_t RollbackFirmwareLock(void)
 uint32_t RollbackKernelRead(uint32_t* version)
 {
 	RollbackSpaceKernel rsk;
-	uint32_t perms;
+	uint32_t perms, uid;
 
 	/*
 	 * Read the kernel space and verify its permissions.  If the kernel
@@ -618,21 +618,24 @@ uint32_t RollbackKernelRead(uint32_t* version)
 	 */
 	RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
 	RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_NV_INDEX, &perms));
-	if (TPM_NV_PER_PPWRITE != perms || ROLLBACK_SPACE_KERNEL_UID != rsk.uid)
+	Memcpy(&uid, &rsk.uid, sizeof(uid));
+	if (TPM_NV_PER_PPWRITE != perms || ROLLBACK_SPACE_KERNEL_UID != uid)
 		return TPM_E_CORRUPTED_STATE;
 
-	*version = rsk.kernel_versions;
-	VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)rsk.kernel_versions));
+	Memcpy(version, &rsk.kernel_versions, sizeof(*version));
+	VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)*version));
 	return TPM_SUCCESS;
 }
 
 uint32_t RollbackKernelWrite(uint32_t version)
 {
 	RollbackSpaceKernel rsk;
+	uint32_t old_version;
 	RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
+	Memcpy(&old_version, &rsk.kernel_versions, sizeof(old_version));
 	VBDEBUG(("TPM: RollbackKernelWrite %x --> %x\n",
-		 (int)rsk.kernel_versions, (int)version));
-	rsk.kernel_versions = version;
+		 (int)old_version, (int)version));
+	Memcpy(&rsk.kernel_versions, &version, sizeof(version));
 	return WriteSpaceKernel(&rsk);
 }
 
