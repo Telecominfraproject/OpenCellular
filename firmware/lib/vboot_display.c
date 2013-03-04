@@ -66,7 +66,6 @@ const char *VbHWID(VbCommonParams *cparams)
  * in-memory font structure distinct from the in-flash version.  We'll do that
  * Real Soon Now. Until then, we just repeat the same linear search every time.
  */
-typedef FontArrayHeader VbFont_t;
 
 VbFont_t *VbInternalizeFontData(FontArrayHeader *fonthdr)
 {
@@ -366,11 +365,11 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	 */
 	if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1 &&
 	    (gbb->flags != 0)) {
-		used += Strncat(outbuf + used, "gbb.flags is nonzero: 0x",
+		used += StrnAppend(outbuf + used, "gbb.flags is nonzero: 0x",
 				OUTBUF_LEN - used);
 		used += Uint64ToString(outbuf + used, OUTBUF_LEN - used,
 				       gbb->flags, 16, 8);
-		used += Strncat(outbuf + used, "\n", OUTBUF_LEN - used);
+		used += StrnAppend(outbuf + used, "\n", OUTBUF_LEN - used);
 		(void)VbExDisplayDebugInfo(outbuf);
 	}
 
@@ -581,98 +580,98 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	VbDisplayScreen(cparams, disp_current_screen, 1, vncptr);
 
 	/* Add hardware ID */
-	used += Strncat(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
 	if (0 == gbb->hwid_size ||
 	    gbb->hwid_offset > cparams->gbb_size ||
 	    gbb->hwid_offset + gbb->hwid_size > cparams->gbb_size) {
 		VBDEBUG(("VbDisplayDebugInfo(): invalid hwid offset/size\n"));
-		used += Strncat(buf + used,
+		used += StrnAppend(buf + used,
 				"(INVALID)", DEBUG_INFO_SIZE - used);
   } else {
-		used += Strncat(buf + used,
+		used += StrnAppend(buf + used,
 				(char *)((uint8_t *)gbb + gbb->hwid_offset),
 				DEBUG_INFO_SIZE - used);
   }
 
 	/* Add recovery reason */
-	used += Strncat(buf + used,
+	used += StrnAppend(buf + used,
 			"\nrecovery_reason: 0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 			       shared->recovery_reason, 16, 2);
-	used += Strncat(buf + used, "  ", DEBUG_INFO_SIZE - used);
-	used += Strncat(buf + used,
+	used += StrnAppend(buf + used, "  ", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used,
 			RecoveryReasonString(shared->recovery_reason),
 			DEBUG_INFO_SIZE - used);
 
 	/* Add VbSharedData flags */
-	used += Strncat(buf + used, "\nVbSD.flags: 0x", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\nVbSD.flags: 0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 			       shared->flags, 16, 8);
 
 	/* Add raw contents of VbNvStorage */
-	used += Strncat(buf + used, "\nVbNv.raw:", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\nVbNv.raw:", DEBUG_INFO_SIZE - used);
 	for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
-		used += Strncat(buf + used, " ", DEBUG_INFO_SIZE - used);
+		used += StrnAppend(buf + used, " ", DEBUG_INFO_SIZE - used);
 		used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 				       vncptr->raw[i], 16, 2);
 	}
 
 	/* Add dev_boot_usb flag */
 	VbNvGet(vncptr, VBNV_DEV_BOOT_USB, &i);
-	used += Strncat(buf + used, "\ndev_boot_usb: ", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\ndev_boot_usb: ", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add dev_boot_legacy flag */
 	VbNvGet(vncptr, VBNV_DEV_BOOT_LEGACY, &i);
-	used += Strncat(buf + used,
+	used += StrnAppend(buf + used,
 			"\ndev_boot_legacy: ", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add dev_boot_signed_only flag */
 	VbNvGet(vncptr, VBNV_DEV_BOOT_SIGNED_ONLY, &i);
-	used += Strncat(buf + used, "\ndev_boot_signed_only: ",
+	used += StrnAppend(buf + used, "\ndev_boot_signed_only: ",
 			DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add TPM versions */
-	used += Strncat(buf + used, "\nTPM: fwver=0x", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\nTPM: fwver=0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 			       shared->fw_version_tpm, 16, 8);
-	used += Strncat(buf + used, " kernver=0x", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, " kernver=0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 			       shared->kernel_version_tpm, 16, 8);
 
 	/* Add GBB flags */
-	used += Strncat(buf + used, "\ngbb.flags: 0x", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\ngbb.flags: 0x", DEBUG_INFO_SIZE - used);
 	if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1) {
 		used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 				       gbb->flags, 16, 8);
 	} else {
-		used += Strncat(buf + used,
+		used += StrnAppend(buf + used,
 				"0 (default)", DEBUG_INFO_SIZE - used);
 	}
 
 	/* Add sha1sum for Root & Recovery keys */
 	FillInSha1Sum(sha1sum,
 		(VbPublicKey *)((uint8_t *)gbb + gbb->rootkey_offset));
-	used += Strncat(buf + used, "\ngbb.rootkey: ", DEBUG_INFO_SIZE - used);
-	used += Strncat(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\ngbb.rootkey: ", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
 	FillInSha1Sum(sha1sum,
 		(VbPublicKey *)((uint8_t *)gbb + gbb->recovery_key_offset));
-	used += Strncat(buf + used,
+	used += StrnAppend(buf + used,
 			"\ngbb.recovery_key: ", DEBUG_INFO_SIZE - used);
-	used += Strncat(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
 
 	/* If we're in dev-mode, show the kernel subkey that we expect, too. */
 	if (0 == shared->recovery_reason) {
 		FillInSha1Sum(sha1sum, &shared->kernel_subkey);
-		used += Strncat(buf + used,
+		used += StrnAppend(buf + used,
 				"\nkernel_subkey: ", DEBUG_INFO_SIZE - used);
-		used += Strncat(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
+		used += StrnAppend(buf + used, sha1sum, DEBUG_INFO_SIZE - used);
 	}
 
 	/* Make sure we finish with a newline */
-	used += Strncat(buf + used, "\n", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used, "\n", DEBUG_INFO_SIZE - used);
 
 	/* TODO: add more interesting data:
 	 * - Information on current disks */

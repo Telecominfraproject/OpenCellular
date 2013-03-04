@@ -331,6 +331,7 @@ TINYHOSTLIB_SRCS = \
 	utility/dump_kernel_config_lib.c \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
+	firmware/lib/utility_string.c \
 	firmware/stub/utility_stub.c
 
 TINYHOSTLIB_OBJS = ${TINYHOSTLIB_SRCS:%.c=${BUILD}/%.o}

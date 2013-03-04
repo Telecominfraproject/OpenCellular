@@ -52,11 +52,11 @@ uint32_t Uint64ToString(char *buf, uint32_t bufsize, uint64_t value,
 	return usedsize - 1;
 }
 
-uint32_t Strncat(char *dest, const char *src, uint32_t destlen)
+uint32_t StrnAppend(char *dest, const char *src, uint32_t destlen)
 {
 	uint32_t used = 0;
 
-	if (!dest || !src)
+	if (!dest || !src || !destlen)
 		return 0;
 
 	/* Skip past existing string in destination.*/

@@ -19,38 +19,38 @@ static void StrncatTest(void) {
   char dest[128];
 
   /* Null inputs */
-  TEST_EQ(0, Strncat(dest, NULL, sizeof(dest)), "Strncat('', null)");
-  TEST_EQ(0, Strncat(NULL, "Hey!", sizeof(dest)), "Strncat(null, '')");
+  TEST_EQ(0, StrnAppend(dest, NULL, sizeof(dest)), "StrnAppend('', null)");
+  TEST_EQ(0, StrnAppend(NULL, "Hey!", sizeof(dest)), "StrnAppend(null, '')");
 
   /* Empty <-- empty */
   *dest = 0;
-  TEST_EQ(0, Strncat(dest, "", sizeof(dest)), "Strncat('', '')");
-  TEST_EQ(0, strcmp(dest, ""), "Strncat('', '') result");
+  TEST_EQ(0, StrnAppend(dest, "", sizeof(dest)), "StrnAppend('', '')");
+  TEST_EQ(0, strcmp(dest, ""), "StrnAppend('', '') result");
 
   /* Nonempty <-- empty */
   strcpy(dest, "Bob");
-  TEST_EQ(3, Strncat(dest, "", sizeof(dest)), "Strncat(B, '')");
-  TEST_EQ(0, strcmp(dest, "Bob"), "Strncat(B, '') result");
+  TEST_EQ(3, StrnAppend(dest, "", sizeof(dest)), "StrnAppend(B, '')");
+  TEST_EQ(0, strcmp(dest, "Bob"), "StrnAppend(B, '') result");
 
   /* Empty <-- nonempty */
   *dest = 0;
-  TEST_EQ(5, Strncat(dest, "Alice", sizeof(dest)), "Strncat('', A)");
-  TEST_EQ(0, strcmp(dest, "Alice"), "Strncat('', A) result");
+  TEST_EQ(5, StrnAppend(dest, "Alice", sizeof(dest)), "StrnAppend('', A)");
+  TEST_EQ(0, strcmp(dest, "Alice"), "StrnAppend('', A) result");
 
   /* Nonempty <-- nonempty */
   strcpy(dest, "Tigre");
-  TEST_EQ(10, Strncat(dest, "Bunny", sizeof(dest)), "Strncat(T, B)");
-  TEST_EQ(0, strcmp(dest, "TigreBunny"), "Strncat(T, B) result");
+  TEST_EQ(10, StrnAppend(dest, "Bunny", sizeof(dest)), "StrnAppend(T, B)");
+  TEST_EQ(0, strcmp(dest, "TigreBunny"), "StrnAppend(T, B) result");
 
   /* Test clipping */
   strcpy(dest, "YesI");
-  TEST_EQ(7, Strncat(dest, "Can't", 8), "Strncat(Y, over)");
-  TEST_EQ(0, strcmp(dest, "YesICan"), "Strncat(Y, over) result");
+  TEST_EQ(7, StrnAppend(dest, "Can't", 8), "StrnAppend(Y, over)");
+  TEST_EQ(0, strcmp(dest, "YesICan"), "StrnAppend(Y, over) result");
 
   /* Test clipping if dest already overflows its claimed length */
   strcpy(dest, "BudgetDeficit");
-  TEST_EQ(6, Strncat(dest, "Spending", 7), "Strncat(over, over)");
-  TEST_EQ(0, strcmp(dest, "Budget"), "Strncat(over, over) result");
+  TEST_EQ(6, StrnAppend(dest, "Spending", 7), "StrnAppend(over, over)");
+  TEST_EQ(0, strcmp(dest, "Budget"), "StrnAppend(over, over) result");
 }
 
 

@@ -118,7 +118,7 @@ uint32_t Uint64ToString(char *buf, uint32_t bufsize, uint64_t value,
  * null-terminated if <destlen> > 0.  Returns the number of characters used in
  * <dest>, not counting the terminating null.
  */
-uint32_t Strncat(char *dest, const char *src, uint32_t destlen);
+uint32_t StrnAppend(char *dest, const char *src, uint32_t destlen);
 
 /* Ensure that only our stub implementations are used, not standard C */
 #ifndef _STUB_IMPLEMENTATION_
