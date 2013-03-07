@@ -412,9 +412,16 @@ command_record command_table[] = {
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);
 
 int main(int argc, char* argv[]) {
+  char *progname;
+  progname = strrchr(argv[0], '/');
+  if (progname)
+    progname++;
+  else
+    progname = argv[0];
+
   if (argc < 2) {
     fprintf(stderr, "usage: %s <TPM command> [args]\n   or: %s help\n",
-            argv[0], argv[0]);
+            progname, progname);
     return OTHER_ERROR;
   } else {
     command_record* c;
@@ -439,7 +446,7 @@ int main(int argc, char* argv[]) {
     }
 
     /* No command matched. */
-    fprintf(stderr, "%s: unknown command: %s\n", argv[0], cmd);
+    fprintf(stderr, "%s: unknown command: %s\n", progname, cmd);
     return OTHER_ERROR;
   }
 }

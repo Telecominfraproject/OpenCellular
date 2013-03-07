@@ -141,9 +141,15 @@ int main(int argc, char* argv[]) {
   X509* cert = NULL;
   RSA* pubkey = NULL;
   EVP_PKEY* key;
+  char *progname;
 
   if (argc != 3 || (strcmp(argv[1], "-cert") && strcmp(argv[1], "-pub"))) {
-    fprintf(stderr, "Usage: %s <-cert | -pub> <file>\n", argv[0]);
+    progname = strrchr(argv[0], '/');
+    if (progname)
+      progname++;
+    else
+      progname = argv[0];
+    fprintf(stderr, "Usage: %s <-cert | -pub> <file>\n", progname);
     return -1;
   }
 

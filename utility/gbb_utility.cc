@@ -486,6 +486,11 @@ using vboot_reference::GoogleBinaryBlockUtil;
 
 // utility function: provide usage of this utility and exit.
 static void usagehelp_exit(const char *prog_name) {
+  const char *basename = strrchr(prog_name, '/');
+  if (basename)
+    basename++;
+  else
+    basename = prog_name;
   fprintf(stderr,
     "Utility to manage Google Binary Block (GBB)\n"
     "Usage: %s [-g|-s|-c] [OPTIONS] bios_file [output_file]\n"
@@ -516,7 +521,7 @@ static void usagehelp_exit(const char *prog_name) {
     "  %s -g bios.bin\n"
     "  %s --set --hwid='New Model' -k key.bin bios.bin newbios.bin\n"
     "  %s -c 0x100,0x1000,0x03DE80,0x1000 gbb.blob\n",
-    prog_name, prog_name, prog_name, prog_name);
+    basename, basename, basename, basename);
   exit(1);
 }
 

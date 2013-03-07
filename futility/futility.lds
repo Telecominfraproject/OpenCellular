@@ -4,4 +4,11 @@
  * found in the LICENSE file.
  */
 
-/* Nothing to see here. Move along... */
+SECTIONS
+{
+  .rodata : {
+    __futil_cmds_start = .;
+    *(SORT(.futil_cmds.*));
+    __futil_cmds_end = .;
+  }
+}
