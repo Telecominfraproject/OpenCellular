@@ -15,8 +15,6 @@
 #ifndef VBOOT_REFERENCE_SYSINCLUDES_H_
 #define VBOOT_REFERENCE_SYSINCLUDES_H_
 
-#ifdef CHROMEOS_ENVIRONMENT
-
 #include <inttypes.h>  /* For PRIu64 */
 #include <stddef.h>
 #include <stdint.h>
@@ -35,20 +33,12 @@
 #define INLINE inline
 #endif
 
-#else
-#include "biosincludes.h"
-#endif
-
 #ifndef _MSC_VER
 #define __pragma(...)
 #endif
 
-#if defined (CHROMEOS_ENVIRONMENT) || defined (TARGET_TEST_MODE)
-
 /* 64-bit operations, for platforms where they need to be function calls */
 #define UINT64_RSHIFT(v, shiftby) (((uint64_t)(v)) >> (shiftby))
 #define UINT64_MULT32(v, multby)  (((uint64_t)(v)) * ((uint32_t)(multby)))
-
-#endif
 
 #endif  /* VBOOT_REFERENCE_SYSINCLUDES_H_ */
