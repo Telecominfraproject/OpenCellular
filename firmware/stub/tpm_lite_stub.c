@@ -57,7 +57,7 @@ static VbError_t DoError(VbError_t result, const char* format, ...) {
 
 /* Print |n| bytes from array |a|, with newlines.
  */
-POSSIBLY_UNUSED static void PrintBytes(const uint8_t* a, int n) {
+__attribute__((unused)) static void PrintBytes(const uint8_t* a, int n) {
   int i;
   for (i = 0; i < n; i++) {
     VBDEBUG(("%02x ", a[i]));
@@ -112,7 +112,8 @@ static VbError_t TpmExecute(const uint8_t *in, const uint32_t in_len,
 
 /* Gets the tag field of a TPM command.
  */
-POSSIBLY_UNUSED static INLINE int TpmTag(const uint8_t* buffer) {
+__attribute__((unused))
+static inline int TpmTag(const uint8_t* buffer) {
   uint16_t tag;
   FromTpmUint16(buffer, &tag);
   return (int) tag;
@@ -121,7 +122,8 @@ POSSIBLY_UNUSED static INLINE int TpmTag(const uint8_t* buffer) {
 
 /* Gets the size field of a TPM command.
  */
-POSSIBLY_UNUSED static INLINE int TpmResponseSize(const uint8_t* buffer) {
+__attribute__((unused))
+static inline int TpmResponseSize(const uint8_t* buffer) {
   uint32_t size;
   FromTpmUint32(buffer + sizeof(uint16_t), &size);
   return (int) size;

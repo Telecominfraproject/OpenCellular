@@ -130,15 +130,12 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 		}
 
 		/* Verify the key block */
-		VBPERFSTART("VB_VKB");
 		if ((0 != KeyBlockVerify(key_block, vblock_size,
 					 root_key, 0))) {
 			VBDEBUG(("Key block verification failed.\n"));
 			*check_result = VBSD_LF_CHECK_VERIFY_KEYBLOCK;
-			VBPERFEND("VB_VKB");
 			continue;
 		}
-		VBPERFEND("VB_VKB");
 
 		/* Check for rollback of key version. */
 		key_version = key_block->data_key.key_version;
@@ -169,7 +166,6 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 		}
 
 		/* Verify the preamble, which follows the key block. */
-		VBPERFSTART("VB_VPB");
 		preamble = (VbFirmwarePreambleHeader *)
 			((uint8_t *)key_block + key_block->key_block_size);
 		if ((0 != VerifyFirmwarePreamble(
@@ -179,10 +175,8 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 			VBDEBUG(("Preamble verfication failed.\n"));
 			*check_result = VBSD_LF_CHECK_VERIFY_PREAMBLE;
 			RSAPublicKeyFree(data_key);
-			VBPERFEND("VB_VPB");
 			continue;
 		}
-		VBPERFEND("VB_VPB");
 
 		/* Check for rollback of firmware version. */
 		combined_version = (uint32_t)((key_version << 16) |
@@ -230,7 +224,6 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 			VbError_t rv;
 
 			/* Read the firmware data */
-			VBPERFSTART("VB_RFD");
 			DigestInit(&lfi->body_digest_context,
 				   data_key->algorithm);
 			lfi->body_size_accum = 0;
@@ -243,7 +236,6 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 					 "index %d\n", index));
 				*check_result = VBSD_LF_CHECK_GET_FW_BODY;
 				RSAPublicKeyFree(data_key);
-				VBPERFEND("VB_RFD");
 				continue;
 			}
 			if (lfi->body_size_accum !=
@@ -253,13 +245,10 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 					 (int)preamble->body_signature.data_size));
 				*check_result = VBSD_LF_CHECK_HASH_WRONG_SIZE;
 				RSAPublicKeyFree(data_key);
-				VBPERFEND("VB_RFD");
 				continue;
 			}
-			VBPERFEND("VB_RFD");
 
 			/* Verify firmware data */
-			VBPERFSTART("VB_VFD");
 			body_digest = DigestFinal(&lfi->body_digest_context);
 			if (0 != VerifyDigest(body_digest,
 					      &preamble->body_signature,
@@ -268,11 +257,9 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 				*check_result = VBSD_LF_CHECK_VERIFY_BODY;
 				RSAPublicKeyFree(data_key);
 				VbExFree(body_digest);
-				VBPERFEND("VB_VFD");
 				continue;
 			}
 			VbExFree(body_digest);
-			VBPERFEND("VB_VFD");
 		}
 
 		/* Done with the data key, so can free it now */

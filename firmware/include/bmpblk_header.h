@@ -47,8 +47,6 @@
 
 #include "sysincludes.h"
 
-__pragma(pack(push, 1))  /* Support packing for MSVC. */
-
 #define BMPBLOCK_SIGNATURE      "$BMP"
 #define BMPBLOCK_SIGNATURE_SIZE (4)
 
@@ -148,7 +146,5 @@ typedef enum Compression {
  */
 #define RENDER_HWID       "$HWID"
 #define RENDER_HWID_RTOL  "$HWID.rtol"
-
-__pragma(pack(pop)) /* Support packing for MSVC. */
 
 #endif  /* VBOOT_REFERENCE_BMPBLK_HEADER_H_ */

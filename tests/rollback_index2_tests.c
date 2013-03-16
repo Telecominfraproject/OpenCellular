@@ -973,9 +973,6 @@ static void RollbackS3ResumeTest(void)
 		"RollbackS3Resume() other error");
 }
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 int main(int argc, char* argv[])
 {
 	CrcTestFirmware();

@@ -247,7 +247,7 @@ uint8_t* SHA1_final(SHA1_CTX *ctx) {
     SHA1_update(ctx, (uint8_t*)"\0", 1);
   }
   for (i = 0; i < 8; ++i) {
-    uint8_t tmp = (uint8_t)UINT64_RSHIFT(cnt, (7 - i) * 8);
+    uint8_t tmp = (uint8_t)((uint64_t)cnt >> ((7 - i) * 8));
     SHA1_update(ctx, &tmp, 1);
   }
 

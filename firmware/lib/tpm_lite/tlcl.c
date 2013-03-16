@@ -27,12 +27,13 @@
 #endif
 
 /* Sets the size field of a TPM command. */
-static INLINE void SetTpmCommandSize(uint8_t* buffer, uint32_t size) {
+static inline void SetTpmCommandSize(uint8_t* buffer, uint32_t size) {
   ToTpmUint32(buffer + sizeof(uint16_t), size);
 }
 
 /* Gets the size field of a TPM command. */
-POSSIBLY_UNUSED static INLINE int TpmCommandSize(const uint8_t* buffer) {
+__attribute__((unused))
+static inline int TpmCommandSize(const uint8_t* buffer) {
   uint32_t size;
   FromTpmUint32(buffer + sizeof(uint16_t), &size);
   return (int) size;
@@ -44,14 +45,14 @@ int TlclPacketSize(const uint8_t* packet) {
 }
 
 /* Gets the code field of a TPM command. */
-static INLINE int TpmCommandCode(const uint8_t* buffer) {
+static inline int TpmCommandCode(const uint8_t* buffer) {
   uint32_t code;
   FromTpmUint32(buffer + sizeof(uint16_t) + sizeof(uint32_t), &code);
   return code;
 }
 
 /* Gets the return code field of a TPM result. */
-static INLINE int TpmReturnCode(const uint8_t* buffer) {
+static inline int TpmReturnCode(const uint8_t* buffer) {
   return TpmCommandCode(buffer);
 }
 

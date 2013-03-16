@@ -62,10 +62,8 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 
 		/* Update TPM if necessary */
 		if (shared->fw_version_tpm_start < shared->fw_version_tpm) {
-			VBPERFSTART("VB_TPMU");
 			tpm_status =
 				RollbackFirmwareWrite(shared->fw_version_tpm);
-			VBPERFEND("VB_TPMU");
 			if (0 != tpm_status) {
 				VBDEBUG(("Can't write FW version to TPM.\n"));
 				VbNvSet(&vnc, VBNV_RECOVERY_REQUEST,
@@ -76,9 +74,7 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 		}
 
 		/* Lock firmware versions in TPM */
-		VBPERFSTART("VB_TPML");
 		tpm_status = RollbackFirmwareLock();
-		VBPERFEND("VB_TPML");
 		if (0 != tpm_status) {
 			VBDEBUG(("Unable to lock firmware version in TPM.\n"));
 			VbNvSet(&vnc, VBNV_RECOVERY_REQUEST,

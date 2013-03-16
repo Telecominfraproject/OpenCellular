@@ -39,8 +39,6 @@
 
 #include "bmpblk_header.h"
 
-__pragma(pack(push, 1))  /* Support packing for MSVC. */
-
 #define FONT_SIGNATURE      "FONT"
 #define FONT_SIGNATURE_SIZE 4
 
@@ -61,7 +59,5 @@ typedef struct FontArrayEntryHeader {
 	 * item there.
 	 */
 } __attribute__((packed)) FontArrayEntryHeader;
-
-__pragma(pack(pop)) /* Support packing for MSVC. */
 
 #endif  /* VBOOT_REFERENCE_BMPBLK_FONT_H_ */

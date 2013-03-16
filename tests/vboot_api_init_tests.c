@@ -512,9 +512,6 @@ static void VbInitTestTPM(void)
 	TEST_EQ(rfs_clear_tpm_request, 1, "rfs tpm clear request");
 }
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 int main(int argc, char *argv[])
 {
 	VbInitTest();

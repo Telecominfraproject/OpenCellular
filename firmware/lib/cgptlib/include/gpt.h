@@ -12,8 +12,6 @@
 
 #include "sysincludes.h"
 
-__pragma(pack(push,1)) /* Support packing for MSVC. */
-
 #define GPT_HEADER_SIGNATURE  "EFI PART"
 #define GPT_HEADER_SIGNATURE2 "CHROMEOS"
 #define GPT_HEADER_SIGNATURE_SIZE sizeof(GPT_HEADER_SIGNATURE)
@@ -113,7 +111,5 @@ typedef struct {
 } __attribute__((packed)) GptEntry;
 
 #define GPTENTRY_EXPECTED_SIZE 128
-
-__pragma(pack(pop)) /* Support packing for MSVC. */
 
 #endif  /* VBOOT_REFERENCE_CGPTLIB_GPT_H_ */

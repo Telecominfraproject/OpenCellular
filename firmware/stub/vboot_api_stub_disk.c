@@ -15,9 +15,6 @@
 
 #include "vboot_api.h"
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 
 VbError_t VbExDiskGetInfo(VbDiskInfo** infos_ptr, uint32_t* count,
                           uint32_t disk_flags) {

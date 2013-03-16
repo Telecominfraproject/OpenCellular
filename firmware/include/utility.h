@@ -20,23 +20,6 @@
 #define VBDEBUG(params)
 #endif
 
-#ifndef VBOOT_PERFORMANCE
-/*
- * Define performance macros as nothing.  If you enable VBOOT_PERFORMANCE,
- * you must define these macros in your platform's biosincludes.h.
- *
- * Intended usage for using a performance counter called 'foo':
- *
- * VBPERFSTART("foo")
- * ...code to be tested...
- * VBPERFEND("foo")
- *
- * Names should be <= 8 characters to be compatible with all platforms.
- */
-#define VBPERFSTART(name)
-#define VBPERFEND(name)
-#endif
-
 #ifdef VBOOT_DEBUG
 #define VbAssert(expr) do { if (!(expr)) { \
     VbExError("assert fail: %s at %s:%d\n", \

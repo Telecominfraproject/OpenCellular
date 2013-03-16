@@ -38,9 +38,6 @@ uint32_t WriteSpaceKernel(RollbackSpaceKernel *rsk);
 
 static int g_rollback_recovery_mode = 0;
 
-/* disable MSVC warning on const logical expression (as in } while(0);) */
-__pragma(warning (disable: 4127))
-
 #define RETURN_ON_FAILURE(tpm_command) do {				\
 		uint32_t result_;					\
 		if ((result_ = (tpm_command)) != TPM_SUCCESS) {		\
@@ -483,9 +480,6 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
 	VBDEBUG(("TPM: SetupTPM() succeeded\n"));
 	return TPM_SUCCESS;
 }
-
-/* Disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
 
 
 #ifdef DISABLE_ROLLBACK_TPM

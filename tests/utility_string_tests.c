@@ -80,33 +80,30 @@ static void Uint64ToStringTest(void) {
   TestU64ToS(0x9A, 2, 0, "10011010");
   TestU64ToS(0x71, 2, 12, "000001110001");
   TestU64ToS(
-      ~UINT64_C(0), 2, 0,
+      ~0ULL, 2, 0,
       "1111111111111111111111111111111111111111111111111111111111111111");
 
   /* Decimal */
   TestU64ToS(0, 10, 0, "0");
   TestU64ToS(12345, 10, 0, "12345");
   TestU64ToS(67890, 10, 8, "00067890");
-  TestU64ToS(~UINT64_C(0), 10, 0, "18446744073709551615");
+  TestU64ToS(~0ULL, 10, 0, "18446744073709551615");
 
   /* Hex */
   TestU64ToS(0, 16, 0, "0");
   TestU64ToS(0x12345678, 16, 0, "12345678");
   TestU64ToS(0x9ABCDEF, 16, 8, "09abcdef");
-  TestU64ToS(~UINT64_C(0), 16, 0, "ffffffffffffffff");
+  TestU64ToS(~0ULL, 16, 0, "ffffffffffffffff");
 
   /* Zero pad corner cases */
   /* Don't pad if over length */
-  TestU64ToS(UINT64_C(0x1234567890), 16, 8, "1234567890");
+  TestU64ToS(0x1234567890ULL, 16, 8, "1234567890");
   /* Fail if padding won't fit in buffer */
   TEST_EQ(0, Uint64ToString(dest, 8, 123, 10, 8), "Uint64ToString bad pad");
   TEST_EQ(0, strcmp(dest, ""), "Uint64ToString bad pad result");
 
 }
 
-
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
 
 int main(int argc, char* argv[]) {
   int error_code = 0;

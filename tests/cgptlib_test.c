@@ -1371,9 +1371,6 @@ static int ErrorTextTest(void)
 	return TEST_OK;
 }
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 int main(int argc, char *argv[])
 {
 	int i;

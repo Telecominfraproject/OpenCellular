@@ -15,9 +15,6 @@
 
 #include "vboot_api.h"
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 void *VbExMalloc(size_t size)
 {
 	void *p = malloc(size);

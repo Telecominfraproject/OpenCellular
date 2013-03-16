@@ -11,8 +11,6 @@
 
 #include "sysincludes.h"
 
-__pragma(pack(push, 1)) /* Support packing for MSVC. */
-
 /* Public key data */
 typedef struct VbPublicKey {
 	/* Offset of key data from start of this struct */
@@ -47,10 +45,10 @@ typedef struct VbSignature {
 
 /* Flags for key_block_flags */
 /* The following flags set where the key is valid */
-#define KEY_BLOCK_FLAG_DEVELOPER_0  UINT64_C(0x01)  /* Developer switch off */
-#define KEY_BLOCK_FLAG_DEVELOPER_1  UINT64_C(0x02)  /* Developer switch on */
-#define KEY_BLOCK_FLAG_RECOVERY_0   UINT64_C(0x04)  /* Not recovery mode */
-#define KEY_BLOCK_FLAG_RECOVERY_1   UINT64_C(0x08)  /* Recovery mode */
+#define KEY_BLOCK_FLAG_DEVELOPER_0  (0x01ULL) /* Developer switch off */
+#define KEY_BLOCK_FLAG_DEVELOPER_1  (0x02ULL) /* Developer switch on */
+#define KEY_BLOCK_FLAG_RECOVERY_0   (0x04ULL) /* Not recovery mode */
+#define KEY_BLOCK_FLAG_RECOVERY_1   (0x08ULL) /* Recovery mode */
 
 /*
  * Key block, containing the public key used to sign some other chunk of data.
@@ -504,7 +502,5 @@ typedef struct VbSharedDataHeader {
 #define VB_SHARED_DATA_HEADER_SIZE_V2 1096
 
 #define VB_SHARED_DATA_VERSION 2      /* Version for struct_version */
-
-__pragma(pack(pop)) /* Support packing for MSVC. */
 
 #endif  /* VBOOT_REFERENCE_VBOOT_STRUCT_H_ */

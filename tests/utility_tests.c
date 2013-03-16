@@ -19,8 +19,8 @@
 /* Test utility.h and sysincludes.h macros */
 static void MacrosTest(void) {
   int64_t a = -10, b = -20;
-  uint64_t u = UINT64_C(0xABCD00000000);
-  uint64_t v = UINT64_C(0xABCD000000);
+  uint64_t u = (0xABCD00000000ULL);
+  uint64_t v = (0xABCD000000ULL);
 
   TEST_EQ(CombineUint16Pair(1, 2), 0x00010002, "CombineUint16Pair");
   TEST_EQ(CombineUint16Pair(0xFFFE, 0xFFFF), 0xFFFEFFFF,
@@ -37,13 +37,13 @@ static void MacrosTest(void) {
   TEST_EQ(Min(b, a), b, "Min uint64 2");
   TEST_EQ(Min(b, b), b, "Min uint64 same");
 
-  TEST_EQ(UINT64_RSHIFT(u, 8), v, "UINT64_RSHIFT 8");
-  TEST_EQ(UINT64_RSHIFT(u, 0), u, "UINT64_RSHIFT 0");
-  TEST_EQ(UINT64_RSHIFT(u, 36), UINT64_C(0xABC), "UINT64_RSHIFT 36");
+  TEST_EQ(u >> 8, v, "uint64_t >> 8");
+  TEST_EQ(u >> 0, u, "uint64_t >> 0");
+  TEST_EQ(u >> 36, (uint64_t)0xABC, "uint64_t >> 36");
 
-  TEST_EQ(UINT64_MULT32(v, 0), 0, "UINT64_MULT32 0");
-  TEST_EQ(UINT64_MULT32(v, 1), v, "UINT64_MULT32 1");
-  TEST_EQ(UINT64_MULT32(v, 256), u, "UINT64_MULT32 256");
+  TEST_EQ(v * (uint32_t)0, 0, "uint64_t * uint32_t 0");
+  TEST_EQ(v * (uint32_t)1, v, "uint64_t * uint32_t 1");
+  TEST_EQ(v * (uint32_t)256, u, "uint64_t * uint32_t 256");
 }
 
 
@@ -61,9 +61,6 @@ static void SafeMemcmpTest(void) {
   TEST_EQ(1, SafeMemcmp("APPLE", "APPLe", 5), "SafeMemcmp() unequal 2");
 }
 
-
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
 
 int main(int argc, char* argv[]) {
   int error_code = 0;

@@ -228,9 +228,6 @@ static void VbSharedDataTest(void)
 		 "VbSharedDataSetKernelKey null");
 }
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 int main(int argc, char* argv[])
 {
 	StructPackingTest();

@@ -15,9 +15,6 @@
 
 #include "vboot_api.h"
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 /* U-Boot's printf uses '%L' for uint64_t. gcc uses '%l'. */
 #define MAX_FMT 255
 static char fmtbuf[MAX_FMT+1];

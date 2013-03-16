@@ -140,9 +140,6 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	return 0;
 }
 
-/* disable MSVC warning on const logical expression (as in } while(0);) */
-__pragma(warning(disable: 4127))
-
 VbError_t LoadKernel(LoadKernelParams *params)
 {
 	VbSharedDataHeader *shared =
@@ -486,16 +483,13 @@ VbError_t LoadKernel(LoadKernelParams *params)
 		}
 
 		/* Read the kernel data */
-		VBPERFSTART("VB_RKD");
 		if (0 != VbExDiskRead(params->disk_handle,
 				      part_start + body_offset_sectors,
 				      body_sectors, params->kernel_buffer)) {
 			VBDEBUG(("Unable to read kernel data.\n"));
-			VBPERFEND("VB_RKD");
 			shpart->check_result = VBSD_LKP_CHECK_READ_DATA;
 			goto bad_kernel;
 		}
-		VBPERFEND("VB_RKD");
 
 		/* Verify kernel data */
 		if (0 != VerifyData((const uint8_t *)params->kernel_buffer,

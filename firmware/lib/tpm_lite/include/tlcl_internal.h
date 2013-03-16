@@ -22,8 +22,8 @@
  * command buffer.  FromTpmTYPE gets a value of type TYPE from a TPM command
  * buffer into a variable.
  */
-POSSIBLY_UNUSED
-static INLINE void ToTpmUint32(uint8_t *buffer, uint32_t x) {
+__attribute__((unused))
+static inline void ToTpmUint32(uint8_t *buffer, uint32_t x) {
   buffer[0] = (uint8_t)(x >> 24);
   buffer[1] = (uint8_t)((x >> 16) & 0xff);
   buffer[2] = (uint8_t)((x >> 8) & 0xff);
@@ -33,8 +33,8 @@ static INLINE void ToTpmUint32(uint8_t *buffer, uint32_t x) {
 /*
  * See comment for above function.
  */
-POSSIBLY_UNUSED
-static INLINE void FromTpmUint32(const uint8_t *buffer, uint32_t *x) {
+__attribute__((unused))
+static inline void FromTpmUint32(const uint8_t *buffer, uint32_t *x) {
   *x = ((buffer[0] << 24) |
         (buffer[1] << 16) |
         (buffer[2] << 8) |
@@ -44,8 +44,8 @@ static INLINE void FromTpmUint32(const uint8_t *buffer, uint32_t *x) {
 /*
  * See comment for above function.
  */
-POSSIBLY_UNUSED
-static INLINE void ToTpmUint16(uint8_t *buffer, uint16_t x) {
+__attribute__((unused))
+static inline void ToTpmUint16(uint8_t *buffer, uint16_t x) {
   buffer[0] = (uint8_t)(x >> 8);
   buffer[1] = (uint8_t)(x & 0xff);
 }
@@ -53,8 +53,8 @@ static INLINE void ToTpmUint16(uint8_t *buffer, uint16_t x) {
 /*
  * See comment for above function.
  */
-POSSIBLY_UNUSED
-static INLINE void FromTpmUint16(const uint8_t *buffer, uint16_t *x) {
+__attribute__((unused))
+static inline void FromTpmUint16(const uint8_t *buffer, uint16_t *x) {
   *x = (buffer[0] << 8) | buffer[1];
 }
 

@@ -167,7 +167,6 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		VbNvGet(&vnc, VBNV_CLEAR_TPM_OWNER_REQUEST,
 			&clear_tpm_owner_request);
 
-		VBPERFSTART("VB_TPMI");
 		/*
 		 * Initialize the TPM. If the developer mode state has changed
 		 * since the last boot, we need to clear TPM ownership. If the
@@ -179,7 +178,6 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 						   clear_tpm_owner_request,
 						   /* two outputs on success */
 						   &is_virt_dev, &tpm_version);
-		VBPERFEND("VB_TPMI");
 
 		if (0 != tpm_status) {
 			VBDEBUG(("Unable to setup TPM and read "

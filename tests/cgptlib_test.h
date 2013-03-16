@@ -18,9 +18,6 @@ typedef int (*test_func)();
 
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
-/* disable MSVC warning on const logical expression (as in } while(0);) */
-__pragma(warning (disable: 4127))
-
 #define EXPECT(expr) \
   do { \
     if (!(expr)) { \

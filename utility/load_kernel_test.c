@@ -131,12 +131,13 @@ int main(int argc, char* argv[]) {
     fprintf(stderr, "usage: %s [options] <drive_image> [<sign_key>]\n",
             argv[0]);
     fprintf(stderr, "\noptions:\n");
+    /* These cases are because uint64_t isn't necessarily the same as ULL. */
     fprintf(stderr, "  -b NUM     boot flag bits (default %" PRIu64 "):\n",
-            BOOT_FLAG_RECOVERY);
+            (uint64_t)BOOT_FLAG_RECOVERY);
     fprintf(stderr, "               %" PRIu64 " = developer mode on\n",
-            BOOT_FLAG_DEVELOPER);
+            (uint64_t)BOOT_FLAG_DEVELOPER);
     fprintf(stderr, "               %" PRIu64 " = recovery mode on\n",
-            BOOT_FLAG_RECOVERY);
+            (uint64_t)BOOT_FLAG_RECOVERY);
     return 1;
   }
 

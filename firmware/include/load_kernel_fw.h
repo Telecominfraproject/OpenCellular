@@ -17,9 +17,9 @@
 
 /* Boot flags for LoadKernel().boot_flags */
 /* Developer switch is on */
-#define BOOT_FLAG_DEVELOPER UINT64_C(0x01)
+#define BOOT_FLAG_DEVELOPER (0x01ULL)
 /* In recovery mode */
-#define BOOT_FLAG_RECOVERY  UINT64_C(0x02)
+#define BOOT_FLAG_RECOVERY  (0x02ULL)
 
 typedef struct LoadKernelParams {
 	/* Inputs to LoadKernel() */

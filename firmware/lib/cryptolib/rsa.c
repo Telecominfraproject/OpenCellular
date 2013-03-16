@@ -39,14 +39,14 @@ static void montMulAdd(const RSAPublicKey *key,
                        uint32_t* c,
                        const uint32_t a,
                        const uint32_t* b) {
-  uint64_t A = UINT64_MULT32(a, b[0]) + c[0];
+  uint64_t A = (uint64_t)a * b[0] + c[0];
   uint32_t d0 = (uint32_t)A * key->n0inv;
-  uint64_t B = UINT64_MULT32(d0, key->n[0]) + (uint32_t)A;
+  uint64_t B = (uint64_t)d0 * key->n[0] + (uint32_t)A;
   uint32_t i;
 
   for (i = 1; i < key->len; ++i) {
-    A = (A >> 32) + UINT64_MULT32(a, b[i]) + c[i];
-    B = (B >> 32) + UINT64_MULT32(d0, key->n[i]) + (uint32_t)A;
+    A = (A >> 32) + (uint64_t)a * b[i] + c[i];
+    B = (B >> 32) + (uint64_t)d0 * key->n[i] + (uint32_t)A;
     c[i - 1] = (uint32_t)B;
   }
 

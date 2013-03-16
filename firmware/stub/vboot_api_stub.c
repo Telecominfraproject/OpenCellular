@@ -15,9 +15,6 @@
 
 #include "vboot_api.h"
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 void VbExSleepMs(uint32_t msec)
 {
 }

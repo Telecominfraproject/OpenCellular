@@ -14,9 +14,6 @@
 #include "rollback_index.h"
 #include "test_common.h"
 
-/* disable MSVC warnings on unused arguments */
-__pragma(warning (disable: 4100))
-
 int main(int argc, char* argv[])
 {
 	int is_virt_dev;

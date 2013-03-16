@@ -18,8 +18,6 @@
 
 /* Structure definitions for TPM spaces */
 
-__pragma(pack(push, 1)) /* Support packing for MSVC. */
-
 /* Kernel space - KERNEL_NV_INDEX, locked with physical presence. */
 #define ROLLBACK_SPACE_KERNEL_VERSION 2
 #define ROLLBACK_SPACE_KERNEL_UID 0x4752574C  /* 'GRWL' */
@@ -67,8 +65,6 @@ typedef struct RollbackSpaceFirmware {
 	/* Checksum (v2 and later only) */
 	uint8_t crc8;
 } __attribute__((packed)) RollbackSpaceFirmware;
-
-__pragma(pack(pop)) /* Support packing for MSVC. */
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 

@@ -57,16 +57,16 @@
     *((str) + 0) = (uint8_t) ((x) >> 24);       \
   }
 
-#define UNPACK64(x, str)                        \
-  {                                             \
-    *((str) + 7) = (uint8_t) x;                 \
-    *((str) + 6) = (uint8_t) UINT64_RSHIFT(x,  8); \
-    *((str) + 5) = (uint8_t) UINT64_RSHIFT(x, 16); \
-    *((str) + 4) = (uint8_t) UINT64_RSHIFT(x, 24); \
-    *((str) + 3) = (uint8_t) UINT64_RSHIFT(x, 32); \
-    *((str) + 2) = (uint8_t) UINT64_RSHIFT(x, 40); \
-    *((str) + 1) = (uint8_t) UINT64_RSHIFT(x, 48); \
-    *((str) + 0) = (uint8_t) UINT64_RSHIFT(x, 56); \
+#define UNPACK64(x, str)                          \
+  {                                               \
+    *((str) + 7) = (uint8_t) x;                   \
+    *((str) + 6) = (uint8_t) ((uint64_t)x >> 8);  \
+    *((str) + 5) = (uint8_t) ((uint64_t)x >> 16); \
+    *((str) + 4) = (uint8_t) ((uint64_t)x >> 24); \
+    *((str) + 3) = (uint8_t) ((uint64_t)x >> 32); \
+    *((str) + 2) = (uint8_t) ((uint64_t)x >> 40); \
+    *((str) + 1) = (uint8_t) ((uint64_t)x >> 48); \
+    *((str) + 0) = (uint8_t) ((uint64_t)x >> 56); \
   }
 
 #define PACK64(str, x)                          \
