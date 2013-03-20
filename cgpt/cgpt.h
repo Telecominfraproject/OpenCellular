@@ -13,6 +13,7 @@
 #include "endian.h"
 #include "gpt.h"
 #include "cgptlib.h"
+#include "mtdlib.h"
 
 
 struct legacy_partition {
@@ -45,7 +46,9 @@ void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen);
 struct drive {
   int fd;           /* file descriptor */
   uint64_t size;    /* total size (in bytes) */
+  int is_mtd;
   GptData gpt;
+  MtdData mtd;
   struct pmbr pmbr;
 };
 
@@ -54,6 +57,52 @@ struct drive {
 int DriveOpen(const char *drive_path, struct drive *drive, int mode);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
+
+/* Loads sectors from 'drive'.
+ * *buf is pointed to an allocated memory when returned, and should be
+ * freed.
+ *
+ *   drive -- open drive.
+ *   buf -- pointer to buffer pointer
+ *   sector -- offset of starting sector (in sectors)
+ *   sector_bytes -- bytes per sector
+ *   sector_count -- number of sectors to load
+ *
+ * Returns CGPT_OK for successful. Aborts if any error occurs.
+ */
+int Load(struct drive *drive, uint8_t **buf,
+                const uint64_t sector,
+                const uint64_t sector_bytes,
+                const uint64_t sector_count);
+
+/* Saves sectors to 'drive'.
+ *
+ *   drive -- open drive
+ *   buf -- pointer to buffer
+ *   sector -- starting sector offset
+ *   sector_bytes -- bytes per sector
+ *   sector_count -- number of sector to save
+ *
+ * Returns CGPT_OK for successful, CGPT_FAILED for failed.
+ */
+int Save(struct drive *drive, const uint8_t *buf,
+                const uint64_t sector,
+                const uint64_t sector_bytes,
+                const uint64_t sector_count);
+
+
+/* GUID conversion functions. Accepted format:
+ *
+ *   "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+ *
+ * At least GUID_STRLEN bytes should be reserved in 'str' (included the tailing
+ * '\0').
+ */
+#define GUID_STRLEN 37
+int StrToGuid(const char *str, Guid *guid);
+void GuidToStr(const Guid *guid, char *str, unsigned int buflen);
+int GuidEqual(const Guid *guid1, const Guid *guid2);
+int IsZero(const Guid *guid);
 
 /* Constant global type values to compare against */
 extern const Guid guid_chromeos_firmware;

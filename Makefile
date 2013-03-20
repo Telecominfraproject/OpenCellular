@@ -321,6 +321,8 @@ HOSTLIB_SRCS = \
 	cgpt/cgpt_repair.c \
 	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_common.c \
+	cgpt/flash_ts_drv.c \
+	firmware/lib/flash_ts.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
 	host/lib/file_keys.c \
@@ -352,6 +354,8 @@ TINYHOSTLIB_SRCS = \
 	cgpt/cgpt_repair.c \
 	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_common.c \
+	cgpt/flash_ts_drv.c \
+	firmware/lib/flash_ts.c \
 	utility/dump_kernel_config_lib.c \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
@@ -383,7 +387,9 @@ CGPT_SRCS = \
 	cgpt/cmd_legacy.c \
 	cgpt/cmd_prioritize.c \
 	cgpt/cmd_repair.c \
-	cgpt/cmd_show.c
+	cgpt/cmd_show.c \
+	cgpt/flash_ts_drv.c \
+	firmware/lib/flash_ts.c
 
 CGPT_OBJS = ${CGPT_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${CGPT_OBJS}

@@ -23,6 +23,7 @@
 #include "cgpt.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
+#include "flash_ts.h"
 #include "vboot_host.h"
 
 void Error(const char *format, ...) {
@@ -44,24 +45,13 @@ int CheckValid(const struct drive *drive) {
   return CGPT_OK;
 }
 
-/* Loads sectors from 'fd'.
- * *buf is pointed to an allocated memory when returned, and should be
- * freed by cgpt_close().
- *
- *   fd -- file descriptot.
- *   buf -- pointer to buffer pointer
- *   sector -- offset of starting sector (in sectors)
- *   sector_bytes -- bytes per sector
- *   sector_count -- number of sectors to load
- *
- * Returns CGPT_OK for successful. Aborts if any error occurs.
- */
-static int Load(const int fd, uint8_t **buf,
+int Load(struct drive *drive, uint8_t **buf,
                 const uint64_t sector,
                 const uint64_t sector_bytes,
                 const uint64_t sector_count) {
   int count;  /* byte count to read */
   int nread;
+  int fd = drive->fd;
 
   require(buf);
   if (!sector_count || !sector_bytes) {
@@ -121,22 +111,13 @@ int WritePMBR(struct drive *drive) {
   return CGPT_OK;
 }
 
-/* Saves sectors to 'fd'.
- *
- *   fd -- file descriptot.
- *   buf -- pointer to buffer
- *   sector -- starting sector offset
- *   sector_bytes -- bytes per sector
- *   sector_count -- number of sector to save
- *
- * Returns CGPT_OK for successful, CGPT_FAILED for failed.
- */
-static int Save(const int fd, const uint8_t *buf,
+int Save(struct drive *drive, const uint8_t *buf,
                 const uint64_t sector,
                 const uint64_t sector_bytes,
                 const uint64_t sector_count) {
   int count;  /* byte count to write */
   int nwrote;
+  int fd = drive->fd;
 
   require(buf);
   count = sector_bytes * sector_count;
@@ -151,6 +132,204 @@ static int Save(const int fd, const uint8_t *buf,
   return CGPT_OK;
 }
 
+static int get_hex_char_value(char ch) {
+  if (ch >= '0' && ch <= '9') {
+    return ch - '0';
+  }
+  if (ch >= 'a' && ch <= 'f') {
+    return ch - 'a' + 10;
+  }
+  if (ch >= 'A' && ch <= 'F') {
+    return ch - 'A' + 10;
+  }
+  return -1;
+}
+
+int FlashGet(const char *key, uint8_t *data, uint32_t *bufsz) {
+  char *hex = (char*)malloc(*bufsz * 2);
+  char *read;
+  uint32_t written = 0;
+
+  flash_ts_get(key, hex, *bufsz * 2);
+
+  /* Hex -> binary */
+  for (read = hex; read < hex + *bufsz * 2 && *read != '\0'; read += 2) {
+    int c0, c1;
+    c0 = get_hex_char_value(read[0]);
+    c1 = get_hex_char_value(read[1]);
+    if (c0 < 0 || c1 < 0) {
+      free(hex);
+      return -1;
+    }
+
+    data[written++] = (c0 << 4) + c1;
+  }
+  *bufsz = written;
+  free(hex);
+  return 0;
+}
+
+int FlashSet(const char *key, const uint8_t *data, uint32_t bufsz) {
+  char *hex = (char*)malloc(bufsz * 2 + 1);
+  const char *hex_chars = "0123456789ABCDEF";
+  int ret;
+  uint32_t i;
+
+  /* Binary -> hex, we need some encoding because FTS only stores C strings */
+  for (i = 0; i < bufsz; i++) {
+    hex[i * 2] = hex_chars[data[i] >> 4];
+    hex[i * 2 + 1] = hex_chars[data[i] & 0xF];
+  }
+  /* Buffer must be NUL-terminated. */
+  hex[bufsz * 2] = '\0';
+  ret = flash_ts_set(key, hex);
+  free(hex);
+  return ret;
+}
+
+int MtdLoad(struct drive *drive, int sector_bytes) {
+  int ret;
+  uint32_t old_crc, new_crc;
+  uint32_t sz;
+  MtdData *mtd = &drive->mtd;
+
+  mtd->sector_bytes = sector_bytes;
+
+  ret = flash_ts_init(mtd->fts_block_offset,
+                      mtd->fts_block_size,
+                      mtd->flash_page_bytes,
+                      mtd->flash_block_bytes,
+                      mtd->sector_bytes, /* Needed for Load() and Save() */
+                      drive);
+  if (ret)
+    return ret;
+
+  memset(&mtd->primary, 0, sizeof(mtd->primary));
+  sz = sizeof(mtd->primary);
+  ret = FlashGet(MTD_DRIVE_SIGNATURE, (uint8_t *)&mtd->primary, &sz);
+  if (ret)
+    return ret;
+
+  /* Read less than expected */
+  if (sz < MTD_DRIVE_V1_SIZE)
+    return -1;
+
+  if (memcmp(mtd->primary.signature, MTD_DRIVE_SIGNATURE,
+             sizeof(mtd->primary.signature))) {
+    return -1;
+  }
+
+  old_crc = mtd->primary.crc32;
+  mtd->primary.crc32 = 0;
+  new_crc = Crc32(&mtd->primary, MTD_DRIVE_V1_SIZE);
+  mtd->primary.crc32 = old_crc;
+
+  if (old_crc != new_crc) {
+    return -1;
+  }
+
+  mtd->current_kernel = -1;
+  mtd->current_priority = 0;
+  mtd->modified = 0;
+  return 0;
+}
+
+int MtdSave(struct drive *drive) {
+  MtdData *mtd = &drive->mtd;
+
+  mtd->primary.crc32 = 0;
+  mtd->primary.crc32 = Crc32(&mtd->primary, MTD_DRIVE_V1_SIZE);
+
+  return FlashSet(MTD_DRIVE_SIGNATURE, (uint8_t *)&mtd->primary,
+                  sizeof(mtd->primary));
+}
+
+int GptLoad(struct drive *drive, uint32_t sector_bytes) {
+  drive->gpt.sector_bytes = sector_bytes;
+  if (drive->size % drive->gpt.sector_bytes) {
+    Error("Media size (%llu) is not a multiple of sector size(%d)\n",
+          (long long unsigned int)drive->size, drive->gpt.sector_bytes);
+    return -1;
+  }
+  drive->gpt.drive_sectors = drive->size / drive->gpt.sector_bytes;
+
+  // Read the data.
+  if (CGPT_OK != Load(drive, &drive->gpt.primary_header,
+                      GPT_PMBR_SECTOR,
+                      drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+    return -1;
+  }
+  if (CGPT_OK != Load(drive, &drive->gpt.secondary_header,
+                      drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
+                      drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+    return -1;
+  }
+  if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
+                      GPT_PMBR_SECTOR + GPT_HEADER_SECTOR,
+                      drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+    return -1;
+  }
+  if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
+                      drive->gpt.drive_sectors - GPT_HEADER_SECTOR
+                      - GPT_ENTRIES_SECTORS,
+                      drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+    return -1;
+  }
+  return 0;
+}
+
+int GptSave(struct drive *drive) {
+  int errors = 0;
+  if (drive->gpt.modified & GPT_MODIFIED_HEADER1) {
+    if (CGPT_OK != Save(drive, drive->gpt.primary_header,
+                        GPT_PMBR_SECTOR,
+                        drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+      errors++;
+      Error("Cannot write primary header: %s\n", strerror(errno));
+    }
+  }
+
+  if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
+    if(CGPT_OK != Save(drive, drive->gpt.secondary_header,
+                       drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
+                       drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+      errors++;
+      Error("Cannot write secondary header: %s\n", strerror(errno));
+    }
+  }
+  if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
+    if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
+                        GPT_PMBR_SECTOR + GPT_HEADER_SECTOR,
+                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+      errors++;
+      Error("Cannot write primary entries: %s\n", strerror(errno));
+    }
+  }
+  if (drive->gpt.modified & GPT_MODIFIED_ENTRIES2) {
+    if (CGPT_OK != Save(drive, drive->gpt.secondary_entries,
+                        drive->gpt.drive_sectors - GPT_HEADER_SECTOR
+                        - GPT_ENTRIES_SECTORS,
+                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+      errors++;
+      Error("Cannot write secondary entries: %s\n", strerror(errno));
+    }
+  }
+
+  if (drive->gpt.primary_header)
+    free(drive->gpt.primary_header);
+  drive->gpt.primary_header = 0;
+  if (drive->gpt.primary_entries)
+    free(drive->gpt.primary_entries);
+  drive->gpt.primary_entries = 0;
+  if (drive->gpt.secondary_header)
+    free(drive->gpt.secondary_header);
+  drive->gpt.secondary_header = 0;
+  if (drive->gpt.secondary_entries)
+    free(drive->gpt.secondary_entries);
+  drive->gpt.secondary_entries = 0;
+  return errors ? -1 : 0;
+}
+
 
 // Opens a block device or file, loads raw GPT data from it.
 // mode should be O_RDONLY or O_RDWR
@@ -159,6 +338,8 @@ static int Save(const int fd, const uint8_t *buf,
 // Returns CGPT_OK if success and information are stored in 'drive'. */
 int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
   struct stat stat;
+  uint32_t sector_bytes;
+  int is_mtd = 0;
 
   require(drive_path);
   require(drive);
@@ -166,6 +347,7 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
   // Clear struct for proper error handling.
   memset(drive, 0, sizeof(struct drive));
 
+  drive->is_mtd = is_mtd;
   drive->fd = open(drive_path, mode | O_LARGEFILE | O_NOFOLLOW);
   if (drive->fd == -1) {
     Error("Can't open %s: %s\n", drive_path, strerror(errno));
@@ -181,43 +363,24 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
       Error("Can't read drive size from %s: %s\n", drive_path, strerror(errno));
       goto error_close;
     }
-    if (ioctl(drive->fd, BLKSSZGET, &drive->gpt.sector_bytes) < 0) {
+    if (ioctl(drive->fd, BLKSSZGET, &sector_bytes) < 0) {
       Error("Can't read sector size from %s: %s\n",
             drive_path, strerror(errno));
       goto error_close;
     }
   } else {
-    drive->gpt.sector_bytes = 512;  /* bytes */
+    sector_bytes = 512;  /* bytes */
     drive->size = stat.st_size;
   }
-  if (drive->size % drive->gpt.sector_bytes) {
-    Error("Media size (%llu) is not a multiple of sector size(%d)\n",
-          (long long unsigned int)drive->size, drive->gpt.sector_bytes);
-    goto error_close;
-  }
-  drive->gpt.drive_sectors = drive->size / drive->gpt.sector_bytes;
 
-  // Read the data.
-  if (CGPT_OK != Load(drive->fd, &drive->gpt.primary_header,
-                      GPT_PMBR_SECTOR,
-                      drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
-    goto error_close;
-  }
-  if (CGPT_OK != Load(drive->fd, &drive->gpt.secondary_header,
-                      drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
-                      drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
-    goto error_close;
-  }
-  if (CGPT_OK != Load(drive->fd, &drive->gpt.primary_entries,
-                      GPT_PMBR_SECTOR + GPT_HEADER_SECTOR,
-                      drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
-        goto error_close;
-  }
-  if (CGPT_OK != Load(drive->fd, &drive->gpt.secondary_entries,
-                      drive->gpt.drive_sectors - GPT_HEADER_SECTOR
-                      - GPT_ENTRIES_SECTORS,
-                      drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
-    goto error_close;
+  if (is_mtd) {
+    if (MtdLoad(drive, sector_bytes)) {
+      goto error_close;
+    }
+  } else {
+    if (GptLoad(drive, sector_bytes)) {
+      goto error_close;
+    }
   }
 
   // We just load the data. Caller must validate it.
@@ -233,38 +396,13 @@ int DriveClose(struct drive *drive, int update_as_needed) {
   int errors = 0;
 
   if (update_as_needed) {
-    if (drive->gpt.modified & GPT_MODIFIED_HEADER1) {
-      if (CGPT_OK != Save(drive->fd, drive->gpt.primary_header,
-                          GPT_PMBR_SECTOR,
-                          drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+    if (drive->is_mtd) {
+      if (MtdSave(drive)) {
         errors++;
-        Error("Cannot write primary header: %s\n", strerror(errno));
       }
-    }
-
-    if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
-      if(CGPT_OK != Save(drive->fd, drive->gpt.secondary_header,
-                         drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
-                         drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+    } else {
+      if (GptSave(drive)) {
         errors++;
-        Error("Cannot write secondary header: %s\n", strerror(errno));
-      }
-    }
-    if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
-      if (CGPT_OK != Save(drive->fd, drive->gpt.primary_entries,
-                          GPT_PMBR_SECTOR + GPT_HEADER_SECTOR,
-                          drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
-        errors++;
-        Error("Cannot write primary entries: %s\n", strerror(errno));
-      }
-    }
-    if (drive->gpt.modified & GPT_MODIFIED_ENTRIES2) {
-      if (CGPT_OK != Save(drive->fd, drive->gpt.secondary_entries,
-                          drive->gpt.drive_sectors - GPT_HEADER_SECTOR
-                          - GPT_ENTRIES_SECTORS,
-                          drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
-        errors++;
-        Error("Cannot write secondary entries: %s\n", strerror(errno));
       }
     }
   }
@@ -275,19 +413,6 @@ int DriveClose(struct drive *drive, int update_as_needed) {
   fsync(drive->fd);
 
   close(drive->fd);
-
-  if (drive->gpt.primary_header)
-    free(drive->gpt.primary_header);
-  drive->gpt.primary_header = 0;
-  if (drive->gpt.primary_entries)
-    free(drive->gpt.primary_entries);
-  drive->gpt.primary_entries = 0;
-  if (drive->gpt.secondary_header)
-    free(drive->gpt.secondary_header);
-  drive->gpt.secondary_header = 0;
-  if (drive->gpt.secondary_entries)
-    free(drive->gpt.secondary_entries);
-  drive->gpt.secondary_entries = 0;
 
   return errors ? CGPT_FAILED : CGPT_OK;
 }

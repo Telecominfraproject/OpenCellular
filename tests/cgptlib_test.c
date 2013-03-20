@@ -5,13 +5,17 @@
 
 #include <string.h>
 
+#include "../cgpt/cgpt.h"
 #include "cgptlib_internal.h"
 #include "cgptlib_test.h"
 #include "crc32.h"
 #include "crc32_test.h"
+#include "errno.h"
+#include "flash_ts.h"
 #include "gpt.h"
 #include "mtdlib.h"
 #include "test_common.h"
+#define _STUB_IMPLEMENTATION_
 #include "utility.h"
 
 /*
@@ -45,6 +49,15 @@
 static const Guid guid_zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
 static const Guid guid_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
 static const Guid guid_rootfs = GPT_ENT_TYPE_CHROMEOS_ROOTFS;
+
+// cgpt_common.c requires these be defined if linked in.
+const char *progname = "CGPT-TEST";
+const char *command = "TEST";
+
+// Ramdisk for flash ts testing.
+static uint8_t *nand_drive = NULL;
+static uint32_t nand_drive_sz;
+static uint8_t *nand_bad_block_map = NULL;
 
 /*
  * Copy a random-for-this-program-only Guid into the dest. The num parameter
@@ -1747,6 +1760,177 @@ static int ErrorTextTest(void)
 	return TEST_OK;
 }
 
+int nand_read_page(const nand_geom *nand, int page, void *buf, int size) {
+  uint32_t ofs = page * nand->szofpg;
+  uint32_t sz = size;
+  if (ofs + sz > nand_drive_sz) {
+    return -1;
+  }
+  Memcpy(buf, nand_drive + ofs, sz);
+  return 0;
+}
+
+int nand_write_page(const nand_geom *nand, int page,
+                    const void *buf, int size) {
+  uint32_t ofs = page * nand->szofpg;
+  uint32_t sz = size;
+  uint32_t i;
+  if (ofs + sz > nand_drive_sz) {
+    return -1;
+  }
+  for (i = 0; i < sz; i++) {
+    if (nand_drive[ofs + i] != 0xff) {
+      return -1;
+    }
+  }
+  Memcpy(nand_drive + ofs, buf, sz);
+  return 0;
+}
+
+int nand_erase_block(const nand_geom *nand, int block) {
+  uint32_t ofs = block * nand->szofblk;
+  uint32_t sz = nand->szofblk;
+  if (ofs + sz > nand_drive_sz) {
+    return -1;
+  }
+  if (!--nand_bad_block_map[block]) {
+    return -1;
+  }
+  Memset(nand_drive + ofs, 0xFF, sz);
+  return 0;
+}
+
+int nand_is_bad_block(const nand_geom *nand, int block) {
+  return nand_bad_block_map[block] == 0;
+}
+
+
+static void nand_make_ramdisk() {
+  if (nand_drive) {
+    free(nand_drive);
+  }
+  if (nand_bad_block_map) {
+    free(nand_bad_block_map);
+  }
+  nand_drive_sz = 1024 * 1024 * 16;
+  nand_drive = (uint8_t *)malloc(nand_drive_sz);
+  nand_bad_block_map = (uint8_t *)malloc(nand_drive_sz / 512);
+  Memset(nand_drive, 0xff, nand_drive_sz);
+  Memset(nand_bad_block_map, 0xff, nand_drive_sz / 512);
+}
+
+static int MtdFtsTest() {
+  int MtdLoad(struct drive *drive, int sector_bytes);
+  int MtdSave(struct drive *drive);
+  int FlashGet(const char *key, uint8_t *data, uint32_t *bufsz);
+  int FlashSet(const char *key, const uint8_t *data, uint32_t bufsz);
+
+  int i, j, err;
+
+  struct {
+    int result;
+    unsigned int offset, size, block_size_bytes, page_size_bytes;
+  } cases[] = {
+    { 0, 1, 2, 1024 * 1024, 1024 * 4 },
+    { 0, 1, 2, 1024 * 1024, 1024 * 16 },
+
+    /* Failure cases, non-power-of-2 */
+    { -ENODEV, 1, 2, 5000000, 1024 * 16 },
+    { -ENODEV, 1, 2, 1024 * 1024, 65535 },
+
+    /* Page > block */
+    { -ENODEV, 1, 2, 1024 * 16, 1024 * 1024 },
+  };
+
+
+  /* Check if the FTS store works */
+  for (i = 0; i < ARRAY_SIZE(cases); i++) {
+    nand_make_ramdisk();
+    EXPECT(cases[i].result == flash_ts_init(cases[i].offset, cases[i].size,
+                                            cases[i].page_size_bytes,
+                                            cases[i].block_size_bytes, 512, 0));
+
+    if (cases[i].result == 0) {
+      /* We should have a working FTS store now */
+      char buffer[64];
+      uint8_t blob[256], blob_read[256];
+      uint32_t sz = sizeof(blob_read);
+      struct drive drive;
+
+      /* Test the low level API */
+      EXPECT(0 == flash_ts_set("some_key", "some value"));
+      flash_ts_get("some_key", buffer, sizeof(buffer));
+      EXPECT(0 == strcmp(buffer, "some value"));
+
+      /* Check overwrite */
+      EXPECT(0 == flash_ts_set("some_key", "some other value"));
+      flash_ts_get("some_key", buffer, sizeof(buffer));
+      EXPECT(0 == strcmp(buffer, "some other value"));
+
+      /* Check delete */
+      EXPECT(0 == flash_ts_set("some_key", ""));
+
+      /* Verify that re-initialization pulls the right record. */
+      flash_ts_init(cases[i].offset, cases[i].size, cases[i].page_size_bytes,
+                    cases[i].block_size_bytes, 512, 0);
+      flash_ts_get("some_key", buffer, sizeof(buffer));
+      EXPECT(0 == strcmp(buffer, ""));
+
+      /* Fill up the disk, eating all erase cycles */
+      for (j = 0; j < nand_drive_sz / 512; j++) {
+        nand_bad_block_map[j] = 2;
+      }
+      for (j = 0; j < 999999; j++) {
+        char str[32];
+        sprintf(str, "%d", j);
+        err = flash_ts_set("some_new_key", str);
+        if (err) {
+          EXPECT(err == -ENOMEM);
+          break;
+        }
+
+        /* Make sure we can figure out where the latest is. */
+        flash_ts_init(cases[i].offset, cases[i].size, cases[i].page_size_bytes,
+                      cases[i].block_size_bytes, 512, 0);
+        flash_ts_get("some_new_key", buffer, sizeof(buffer));
+        EXPECT(0 == strcmp(buffer, str));
+      }
+      EXPECT(j < 999999);
+
+      /* We need our drive back. */
+      nand_make_ramdisk();
+      flash_ts_init(cases[i].offset, cases[i].size, cases[i].page_size_bytes,
+                    cases[i].block_size_bytes, 512, 0);
+
+
+      for (j = 0; j < 256; j++) {
+        blob[j] = j;
+      }
+
+      /* Hex conversion / blob storage */
+      EXPECT(0 == FlashSet("some_blob", blob, sizeof(blob)));
+      EXPECT(0 == FlashGet("some_blob", blob_read, &sz));
+      EXPECT(sz == sizeof(blob_read));
+      EXPECT(0 == Memcmp(blob, blob_read, sizeof(blob)));
+
+      BuildTestMtdData(&drive.mtd);
+      drive.mtd.flash_block_bytes = cases[i].block_size_bytes;
+      drive.mtd.flash_page_bytes = cases[i].page_size_bytes;
+      drive.mtd.fts_block_offset = cases[i].offset;
+      drive.mtd.fts_block_size = cases[i].size;
+      drive.mtd.sector_bytes = 512;
+      drive.mtd.drive_sectors = nand_drive_sz / 512;
+
+      /* MTD-level API */
+      EXPECT(0 == MtdSave(&drive));
+      Memset(&drive.mtd.primary, 0, sizeof(drive.mtd.primary));
+      EXPECT(0 == MtdLoad(&drive, 512));
+    }
+  }
+
+  return TEST_OK;
+}
+
 int main(int argc, char *argv[])
 {
 	int i;
@@ -1793,6 +1977,7 @@ int main(int argc, char *argv[])
 		{ TEST_CASE(TestCrc32TestVectors), },
 		{ TEST_CASE(GetKernelGuidTest), },
 		{ TEST_CASE(ErrorTextTest), },
+		{ TEST_CASE(MtdFtsTest), },
 	};
 
 	for (i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); ++i) {
