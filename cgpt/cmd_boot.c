@@ -81,5 +81,5 @@ int cmd_boot(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_boot(&params);
+  return CgptBoot(&params);
 }

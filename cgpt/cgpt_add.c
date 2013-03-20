@@ -83,7 +83,7 @@ static void set_entry_attributes(struct drive drive,
 
 // Set the attributes such as is_successful, num_tries_left, priority, etc.
 // from the given values in params.
-int cgpt_set_attributes(CgptAddParams *params) {
+int CgptSetAttributes(CgptAddParams *params) {
   struct drive drive;
 
   int gpt_retval;
@@ -144,7 +144,7 @@ bad:
 // guids of the partitions, etc. Input is the partition number or the
 // unique id of the partition. Output is populated in the respective
 // fields of params.
-int cgpt_get_partition_details(CgptAddParams *params) {
+int CgptGetPartitionDetails(CgptAddParams *params) {
   struct drive drive;
 
   int gpt_retval;
@@ -227,7 +227,7 @@ bad:
 }
 
 
-int cgpt_add(CgptAddParams *params) {
+int CgptAdd(CgptAddParams *params) {
   struct drive drive;
 
   int gpt_retval;
@@ -266,7 +266,7 @@ int cgpt_add(CgptAddParams *params) {
     // Find next empty partition.
     for (index = 0; index < max_part; index++) {
       entry = GetEntry(&drive.gpt, PRIMARY, index);
-      if (IsZero(&entry->type)) {
+      if (GuidIsZero(&entry->type)) {
         params->partition = index + 1;
         break;
       }
@@ -279,12 +279,12 @@ int cgpt_add(CgptAddParams *params) {
   memcpy(&backup, entry, sizeof(backup));
 
   // New partitions must specify type, begin, and size.
-  if (IsZero(&entry->type)) {
+  if (GuidIsZero(&entry->type)) {
     if (!params->set_begin || !params->set_size || !params->set_type) {
       Error("-t, -b, and -s options are required for new partitions\n");
       goto bad;
     }
-    if (IsZero(&params->type_guid)) {
+    if (GuidIsZero(&params->type_guid)) {
       Error("New partitions must have a type other than \"unused\"\n");
       goto bad;
     }

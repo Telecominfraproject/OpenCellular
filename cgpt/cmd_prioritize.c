@@ -103,5 +103,5 @@ int cmd_prioritize(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_prioritize(&params);
+  return CgptPrioritize(&params);
 }

@@ -108,5 +108,5 @@ int cmd_show(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_show(&params);
+  return CgptShow(&params);
 }

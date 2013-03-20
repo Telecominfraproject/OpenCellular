@@ -92,7 +92,7 @@ static void SortGroups(group_list_t *gl) {
   }
 }
 
-int cgpt_prioritize(CgptPrioritizeParams *params) {
+int CgptPrioritize(CgptPrioritizeParams *params) {
   struct drive drive;
 
   int priority;

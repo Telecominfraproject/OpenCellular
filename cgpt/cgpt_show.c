@@ -158,14 +158,14 @@ void EntriesDetails(GptData *gpt, const int secondary, int raw) {
     GptEntry *entry;
     entry = GetEntry(gpt, secondary, i);
 
-    if (IsZero(&entry->type))
+    if (GuidIsZero(&entry->type))
       continue;
 
     EntryDetails(entry, i, raw);
   }
 }
 
-int cgpt_get_num_non_empty_partitions(CgptShowParams *params) {
+int CgptGetNumNonEmptyPartitions(CgptShowParams *params) {
   struct drive drive;
   int gpt_retval;
   int retval;
@@ -188,7 +188,7 @@ int cgpt_get_num_non_empty_partitions(CgptShowParams *params) {
   int i;
   for(i = 0; i < numEntries; i++) {
       GptEntry *entry = GetEntry(&drive.gpt, ANY_VALID, i);
-      if (IsZero(&entry->type))
+      if (GuidIsZero(&entry->type))
         continue;
 
       params->num_partitions++;
@@ -201,7 +201,7 @@ done:
   return retval;
 }
 
-int cgpt_show(CgptShowParams *params) {
+int CgptShow(CgptShowParams *params) {
   struct drive drive;
   int gpt_retval;
 
@@ -275,7 +275,7 @@ int cgpt_show(CgptShowParams *params) {
     for (i = 0; i < GetNumberOfEntries(&drive.gpt); ++i) {
       entry = GetEntry(&drive.gpt, ANY_VALID, i);
 
-      if (IsZero(&entry->type))
+      if (GuidIsZero(&entry->type))
         continue;
 
       if (!params->numeric && CGPT_OK == ResolveType(&entry->type, type)) {

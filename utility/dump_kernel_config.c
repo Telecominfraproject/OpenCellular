@@ -83,13 +83,13 @@ int main(int argc, char* argv[]) {
   }
 
   /* Map the kernel image blob. */
-  blob = MapFile(infile, &blob_size);
+  blob = MMapFile(infile, &blob_size);
   if (!blob) {
     VbExError("Error reading input file\n");
     return 1;
   }
 
-  config = find_kernel_config(blob, (uint64_t)blob_size,
+  config = FindKernelConfig(blob, (uint64_t)blob_size,
                               kernel_body_load_address);
   if (!config) {
     VbExError("Error parsing input file\n");

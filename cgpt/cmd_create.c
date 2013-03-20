@@ -63,5 +63,5 @@ int cmd_create(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_create(&params);
+  return CgptCreate(&params);
 }

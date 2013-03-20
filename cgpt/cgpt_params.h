@@ -47,7 +47,7 @@ typedef struct CgptShowParams {
   int single_item;
   int debug;
 
-  // This is filled in by the relevant methods in cgpt_show.c
+  // This is filled in by the relevant methods in CgptShow.c
   int num_partitions;
 } CgptShowParams;
 
@@ -98,31 +98,31 @@ typedef struct CgptLegacyParams {
 } CgptLegacyParams;
 
 // create related methods.
-int cgpt_create(CgptCreateParams *params);
+int CgptCreate(CgptCreateParams *params);
 
 // add/attribute/details related methods
-int cgpt_add(CgptAddParams *params);
-int cgpt_set_attributes(CgptAddParams *params);
-int cgpt_get_partition_details(CgptAddParams *params);
+int CgptAdd(CgptAddParams *params);
+int CgptSetAttributes(CgptAddParams *params);
+int CgptGetPartitionDetails(CgptAddParams *params);
 
 // boot related methods.
-int cgpt_boot(CgptBootParams *params);
-int cgpt_get_boot_partition_number(CgptBootParams *params);
+int CgptBoot(CgptBootParams *params);
+int CgptGetBootPartitionNumber(CgptBootParams *params);
 
 // show/get related methods.
-int cgpt_show(CgptShowParams *params);
-int cgpt_get_num_non_empty_partitions(CgptShowParams *params);
+int CgptShow(CgptShowParams *params);
+int CgptGetNumNonEmptyPartitions(CgptShowParams *params);
 
 // repair related methods.
-int cgpt_repair(CgptRepairParams *params);
+int CgptRepair(CgptRepairParams *params);
 
 // priority related methods.
-int cgpt_prioritize(CgptPrioritizeParams *params);
+int CgptPrioritize(CgptPrioritizeParams *params);
 
 // find related methods.
-void cgpt_find(CgptFindParams *params);
+void CgptFind(CgptFindParams *params);
 
 // legacy related methods.
-int cgpt_legacy(CgptLegacyParams *params);
+int CgptLegacy(CgptLegacyParams *params);
 
 #endif  // VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_

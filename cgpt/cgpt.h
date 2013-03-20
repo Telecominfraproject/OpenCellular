@@ -78,7 +78,7 @@ int CheckValid(const struct drive *drive);
 int StrToGuid(const char *str, Guid *guid);
 void GuidToStr(const Guid *guid, char *str, unsigned int buflen);
 int GuidEqual(const Guid *guid1, const Guid *guid2);
-int IsZero(const Guid *guid);
+int GuidIsZero(const Guid *guid);
 
 /* Constant global type values to compare against */
 extern const Guid guid_chromeos_firmware;

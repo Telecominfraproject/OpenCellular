@@ -872,13 +872,13 @@ int GuidEqual(const Guid *guid1, const Guid *guid2) {
   return (0 == memcmp(guid1, guid2, sizeof(Guid)));
 }
 
-int IsZero(const Guid *gp) {
+int GuidIsZero(const Guid *gp) {
   return GuidEqual(gp, &guid_unused);
 }
 
 void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen) {
   char buf[GUID_STRLEN];
-  if (IsZero(&pmbr->boot_guid)) {
+  if (GuidIsZero(&pmbr->boot_guid)) {
     require(snprintf(str, buflen, "PMBR") < buflen);
   } else {
     GuidToStr(&pmbr->boot_guid, buf, sizeof(buf));

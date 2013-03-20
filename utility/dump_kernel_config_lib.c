@@ -13,7 +13,7 @@
 #include "kernel_blob.h"
 #include "vboot_api.h"
 
-uint8_t* find_kernel_config(uint8_t* blob, uint64_t blob_size,
+uint8_t* FindKernelConfig(uint8_t* blob, uint64_t blob_size,
                             uint64_t kernel_body_load_address) {
 
   VbKeyBlockHeader* key_block;
@@ -54,7 +54,7 @@ uint8_t* find_kernel_config(uint8_t* blob, uint64_t blob_size,
   return blob + offset;
 }
 
-void* MapFile(const char* filename, size_t *size) {
+void* MMapFile(const char* filename, size_t *size) {
   FILE* f;
   uint8_t* buf;
   long file_size = 0;

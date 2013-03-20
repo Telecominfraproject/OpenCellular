@@ -169,5 +169,5 @@ int cmd_add(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_add(&params);
+  return CgptAdd(&params);
 }

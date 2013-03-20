@@ -58,5 +58,5 @@ int cmd_repair(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_repair(&params);
+  return CgptRepair(&params);
 }

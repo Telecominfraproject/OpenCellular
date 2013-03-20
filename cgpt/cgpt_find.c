@@ -105,7 +105,7 @@ static int do_search(CgptFindParams *params, char *fileName) {
   for (i = 0; i < GetNumberOfEntries(&drive.gpt); ++i) {
     entry = GetEntry(&drive.gpt, ANY_VALID, i);
 
-    if (IsZero(&entry->type))
+    if (GuidIsZero(&entry->type))
       continue;
 
     int found = 0;
@@ -213,7 +213,7 @@ static int scan_real_devs(CgptFindParams *params) {
 }
 
 
-void cgpt_find(CgptFindParams *params) {
+void CgptFind(CgptFindParams *params) {
   if (params == NULL)
     return;
 

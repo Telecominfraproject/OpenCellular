@@ -63,5 +63,5 @@ int cmd_legacy(int argc, char *argv[]) {
 
   params.drive_name = argv[optind];
 
-  return cgpt_legacy(&params);
+  return CgptLegacy(&params);
 }

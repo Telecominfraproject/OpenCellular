@@ -9,7 +9,7 @@
 #include "cgptlib_internal.h"
 #include "cgpt_params.h"
 
-int cgpt_legacy(CgptLegacyParams *params) {
+int CgptLegacy(CgptLegacyParams *params) {
   struct drive drive;
   GptHeader *h1, *h2;
 

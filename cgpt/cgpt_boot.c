@@ -13,7 +13,7 @@
 #include "endian.h"
 
 
-int cgpt_get_boot_partition_number(CgptBootParams *params) {
+int CgptGetBootPartitionNumber(CgptBootParams *params) {
   struct drive drive;
   int gpt_retval= 0;
   int retval;
@@ -62,7 +62,7 @@ done:
 }
 
 
-int cgpt_boot(CgptBootParams *params) {
+int CgptBoot(CgptBootParams *params) {
   struct drive drive;
   int retval = 1;
   int gpt_retval= 0;

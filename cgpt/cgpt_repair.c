@@ -9,7 +9,7 @@
 #include "cgptlib_internal.h"
 #include "cgpt_params.h"
 
-int cgpt_repair(CgptRepairParams *params) {
+int CgptRepair(CgptRepairParams *params) {
   struct drive drive;
 
   if (params == NULL)

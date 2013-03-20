@@ -9,7 +9,7 @@
 #include "cgptlib_internal.h"
 #include "cgpt_params.h"
 
-int cgpt_create(CgptCreateParams *params) {
+int CgptCreate(CgptCreateParams *params) {
   struct drive drive;
 
   if (params == NULL)

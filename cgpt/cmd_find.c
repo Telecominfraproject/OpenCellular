@@ -153,10 +153,10 @@ int cmd_find(int argc, char *argv[]) {
   if (optind < argc) {
     for (i=optind; i<argc; i++) {
       params.drive_name = argv[i];
-      cgpt_find(&params);
+      CgptFind(&params);
       }
   } else {
-      cgpt_find(&params);
+      CgptFind(&params);
   }
 
   if (params.oneonly && params.hits != 1) {
