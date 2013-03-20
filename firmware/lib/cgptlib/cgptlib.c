@@ -114,10 +114,9 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size)
 
 int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
 {
-	GptHeader *header = (GptHeader *)gpt->primary_header;
 	GptEntry *entries = (GptEntry *)gpt->primary_entries;
 	GptEntry *e = entries + gpt->current_kernel;
-	uint16_t previous_attr = e->attrs.fields.gpt_att;
+	int modified = 0;
 
 	if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND)
 		return GPT_ERROR_INVALID_UPDATE_TYPE;
@@ -138,6 +137,7 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
 		tries = GetEntryTries(e);
 		if (tries > 1) {
 			/* Still have tries left */
+			modified = 1;
 			SetEntryTries(e, tries - 1);
 			break;
 		}
@@ -150,9 +150,9 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
 			 * Only clear tries and priority if the successful bit
 			 * is not set.
 			 */
-			e->attrs.fields.gpt_att = previous_attr &
-				~(CGPT_ATTRIBUTE_TRIES_MASK |
-				  CGPT_ATTRIBUTE_PRIORITY_MASK);
+			modified = 1;
+			SetEntryTries(e, 0);
+			SetEntryPriority(e, 0);
 		}
 		break;
 	}
@@ -160,25 +160,9 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
 		return GPT_ERROR_INVALID_UPDATE_TYPE;
 	}
 
-	/* If no change to attributes, we're done */
-	if (e->attrs.fields.gpt_att == previous_attr)
-		return GPT_SUCCESS;
-
-	/* Update the CRCs */
-	header->entries_crc32 = Crc32((const uint8_t *)entries,
-				      header->size_of_entry *
-				      header->number_of_entries);
-	header->header_crc32 = HeaderCrc(header);
-	gpt->modified |= GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1;
-
-	/*
-	 * Use the repair function to update the other copy of the GPT.  This
-	 * is a tad inefficient, but is much faster than the disk I/O to update
-	 * the GPT on disk so it doesn't matter.
-	 */
-	gpt->valid_headers = MASK_PRIMARY;
-	gpt->valid_entries = MASK_PRIMARY;
-	GptRepair(gpt);
+	if (modified) {
+		GptModified(gpt);
+	}
 
 	return GPT_SUCCESS;
 }

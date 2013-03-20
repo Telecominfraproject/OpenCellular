@@ -10,6 +10,7 @@
 #include "crc32.h"
 #include "crc32_test.h"
 #include "gpt.h"
+#include "mtdlib.h"
 #include "test_common.h"
 #include "utility.h"
 
@@ -127,6 +128,13 @@ static GptData *GetEmptyGptData(void)
 	return &gpt;
 }
 
+static MtdData *GetEmptyMtdData() {
+	static MtdData mtd;
+	Memset(&mtd, 0, sizeof(mtd));
+	mtd.current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+	return &mtd;
+}
+
 /*
  * Fill in most of fields and creates the layout described in the top of this
  * file. Before calling this function, primary/secondary header/entries must
@@ -193,6 +201,49 @@ static void BuildTestGptData(GptData *gpt)
 	RefreshCrc32(gpt);
 }
 
+static void BuildTestMtdData(MtdData *mtd) {
+	MtdDiskPartition *partitions;
+
+	mtd->sector_bytes = DEFAULT_SECTOR_SIZE;
+	mtd->drive_sectors = DEFAULT_DRIVE_SECTORS;
+	mtd->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+	mtd->modified = 0;
+	Memset(&mtd->primary, 0, sizeof(mtd->primary));
+
+	Memcpy(mtd->primary.signature, MTD_DRIVE_SIGNATURE,
+		sizeof(mtd->primary.signature));
+	mtd->primary.first_lba = 32;
+	mtd->primary.last_lba = DEFAULT_DRIVE_SECTORS - 1;
+	mtd->primary.size = MTD_DRIVE_V1_SIZE;
+
+	/* These values are not used directly by the library, but they are checked */
+	mtd->flash_page_bytes = mtd->sector_bytes * 8;
+	mtd->flash_block_bytes = mtd->flash_page_bytes * 8;
+	mtd->fts_block_offset = 1;
+	mtd->fts_block_size = 1;
+
+	partitions = &mtd->primary.partitions[0];
+	partitions[0].starting_lba = 34;
+	partitions[0].ending_lba = 133;
+	partitions[0].flags =
+		MTD_PARTITION_TYPE_CHROMEOS_KERNEL << MTD_ATTRIBUTE_TYPE_OFFSET;
+	partitions[1].starting_lba = 134;
+	partitions[1].ending_lba = 232;
+	partitions[1].flags =
+		MTD_PARTITION_TYPE_CHROMEOS_ROOTFS << MTD_ATTRIBUTE_TYPE_OFFSET;
+	partitions[2].starting_lba = 234;
+	partitions[2].ending_lba = 331;
+	partitions[2].flags =
+		MTD_PARTITION_TYPE_CHROMEOS_KERNEL << MTD_ATTRIBUTE_TYPE_OFFSET;
+	partitions[3].starting_lba = 334;
+	partitions[3].ending_lba = 430;
+	partitions[3].flags =
+		MTD_PARTITION_TYPE_CHROMEOS_ROOTFS << MTD_ATTRIBUTE_TYPE_OFFSET;
+
+	mtd->primary.crc32 = 0;
+	mtd->primary.crc32 = Crc32(&mtd->primary, MTD_DRIVE_V1_SIZE);
+}
+
 
 /*
  * Test if the structures are the expected size; if this fails, struct packing
@@ -204,6 +255,8 @@ static int StructSizeTest(void)
 	EXPECT(GUID_EXPECTED_SIZE == sizeof(Guid));
 	EXPECT(GPTHEADER_EXPECTED_SIZE == sizeof(GptHeader));
 	EXPECT(GPTENTRY_EXPECTED_SIZE == sizeof(GptEntry));
+	EXPECT(MTDENTRY_EXPECTED_SIZE == sizeof(MtdDiskPartition));
+	EXPECT(MTDLAYOUT_EXPECTED_SIZE == sizeof(MtdDiskLayout));
 	return TEST_OK;
 }
 
@@ -221,15 +274,26 @@ static int TestBuildTestGptData(void)
 	return TEST_OK;
 }
 
+static int TestBuildTestMtdData() {
+	MtdData *mtd = GetEmptyMtdData();
+
+	BuildTestMtdData(mtd);
+	EXPECT(GPT_SUCCESS == MtdInit(mtd));
+	return TEST_OK;
+}
+
 /*
  * Test if wrong sector_bytes or drive_sectors is detected by GptInit().
  * Currently we only support 512 bytes per sector.  In the future, we may
  * support other sizes.  A too small drive_sectors should be rejected by
  * GptInit().
+ * For MtdInit(), additionally test various flash geometries to verify
+ * that only valid ones are accepted.
  */
 static int ParameterTests(void)
 {
 	GptData *gpt;
+	MtdData *mtd;
 	struct {
 		uint32_t sector_bytes;
 		uint64_t drive_sectors;
@@ -243,6 +307,32 @@ static int ParameterTests(void)
 		 GPT_ENTRIES_SECTORS * 2, GPT_SUCCESS},
 		{4096, DEFAULT_DRIVE_SECTORS, GPT_ERROR_INVALID_SECTOR_SIZE},
 	};
+	struct {
+		uint32_t sector_bytes;
+		uint32_t drive_sectors;
+		uint32_t flash_page_bytes;
+		uint32_t flash_block_bytes;
+		int expected_retval;
+	} mtdcases[] = {
+		{512, DEFAULT_DRIVE_SECTORS, 8*512,
+			8*512, GPT_SUCCESS},
+		{510, DEFAULT_DRIVE_SECTORS, 8*512,
+			8*512, GPT_ERROR_INVALID_SECTOR_SIZE},
+		{512, DEFAULT_DRIVE_SECTORS, 8*512,
+			8*512, GPT_SUCCESS},
+		{512, DEFAULT_DRIVE_SECTORS, 512,
+			8*512, GPT_SUCCESS},
+		{512, DEFAULT_DRIVE_SECTORS, 8*512,
+			10*512, GPT_ERROR_INVALID_FLASH_GEOMETRY},
+		{512, DEFAULT_DRIVE_SECTORS, 3*512,
+			9*512, GPT_SUCCESS},
+		{512, DEFAULT_DRIVE_SECTORS, 8*512,
+			6*512, GPT_ERROR_INVALID_FLASH_GEOMETRY},
+		{512, DEFAULT_DRIVE_SECTORS, 256,
+			6*512, GPT_ERROR_INVALID_FLASH_GEOMETRY},
+		{512, DEFAULT_DRIVE_SECTORS, 512,
+			6*512 + 256, GPT_ERROR_INVALID_FLASH_GEOMETRY},
+	};
 	int i;
 
 	gpt = GetEmptyGptData();
@@ -251,6 +341,19 @@ static int ParameterTests(void)
 		gpt->sector_bytes = cases[i].sector_bytes;
 		gpt->drive_sectors = cases[i].drive_sectors;
 		EXPECT(cases[i].expected_retval == CheckParameters(gpt));
+	}
+
+	mtd = GetEmptyMtdData();
+	for (i = 0; i < ARRAY_SIZE(cases); ++i) {
+		BuildTestMtdData(mtd);
+		mtd->sector_bytes = mtdcases[i].sector_bytes;
+		mtd->drive_sectors = mtdcases[i].drive_sectors;
+		mtd->flash_block_bytes = mtdcases[i].flash_block_bytes;
+		mtd->flash_page_bytes = mtdcases[i].flash_page_bytes;
+		if(mtdcases[i].expected_retval != MtdCheckParameters(mtd)) {
+			printf("i=%d\n",i);
+		}
+		EXPECT(mtdcases[i].expected_retval == MtdCheckParameters(mtd));
 	}
 
 	return TEST_OK;
@@ -682,6 +785,9 @@ static int ValidEntryTest(void)
 	GptData *gpt = GetEmptyGptData();
 	GptHeader *h1 = (GptHeader *)gpt->primary_header;
 	GptEntry *e1 = (GptEntry *)(gpt->primary_entries);
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskLayout *mh = &mtd->primary;
+	MtdDiskPartition *me = mh->partitions;
 
 	/* error case: entry.StartingLBA < header.FirstUsableLBA */
 	BuildTestGptData(gpt);
@@ -689,11 +795,23 @@ static int ValidEntryTest(void)
 	RefreshCrc32(gpt);
 	EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
+	BuildTestMtdData(mtd);
+	if (mh->first_lba > 0) {
+		me[0].starting_lba = mh->first_lba - 1;
+		mh->crc32 = MtdHeaderCrc(mh);
+		EXPECT(GPT_ERROR_OUT_OF_REGION == MtdCheckEntries(me, mh));
+	}
+
 	/* error case: entry.EndingLBA > header.LastUsableLBA */
 	BuildTestGptData(gpt);
 	e1[2].ending_lba = h1->last_usable_lba + 1;
 	RefreshCrc32(gpt);
 	EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
+
+	BuildTestMtdData(mtd);
+	me[0].ending_lba = mh->last_lba + 1;
+	mh->crc32 = MtdHeaderCrc(mh);
+	EXPECT(GPT_ERROR_OUT_OF_REGION == MtdCheckEntries(me, mh));
 
 	/* error case: entry.StartingLBA > entry.EndingLBA */
 	BuildTestGptData(gpt);
@@ -701,12 +819,23 @@ static int ValidEntryTest(void)
 	RefreshCrc32(gpt);
 	EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
+	BuildTestMtdData(mtd);
+	me[0].starting_lba = me[0].ending_lba + 1;
+	mh->crc32 = MtdHeaderCrc(mh);
+	EXPECT(GPT_ERROR_OUT_OF_REGION == MtdCheckEntries(me, mh));
+
 	/* case: non active entry should be ignored. */
 	BuildTestGptData(gpt);
 	Memset(&e1[1].type, 0, sizeof(e1[1].type));
 	e1[1].starting_lba = e1[1].ending_lba + 1;
 	RefreshCrc32(gpt);
 	EXPECT(0 == CheckEntries(e1, h1));
+
+	BuildTestMtdData(mtd);
+	me[0].flags = 0;
+	me[0].starting_lba = me[0].ending_lba + 1;
+	mh->crc32 = MtdHeaderCrc(mh);
+	EXPECT(GPT_SUCCESS == MtdCheckEntries(me, mh));
 
 	return TEST_OK;
 }
@@ -716,6 +845,9 @@ static int OverlappedPartitionTest(void) {
 	GptData *gpt = GetEmptyGptData();
 	GptHeader *h = (GptHeader *)gpt->primary_header;
 	GptEntry *e = (GptEntry *)gpt->primary_entries;
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskLayout *mh = &mtd->primary;
+	MtdDiskPartition *me = mh->partitions;
 	int i, j;
 
 	struct {
@@ -768,20 +900,29 @@ static int OverlappedPartitionTest(void) {
 
 	for (i = 0; i < ARRAY_SIZE(cases); ++i) {
 		BuildTestGptData(gpt);
+		BuildTestMtdData(mtd);
+		Memset(mh->partitions, 0, sizeof(mh->partitions));
 		ZeroEntries(gpt);
 		for(j = 0; j < ARRAY_SIZE(cases[0].entries); ++j) {
 			if (!cases[i].entries[j].starting_lba)
 				break;
 
-			if (cases[i].entries[j].active)
+			if (cases[i].entries[j].active) {
 				Memcpy(&e[j].type, &guid_kernel, sizeof(Guid));
+				me[j].flags =
+					MTD_PARTITION_TYPE_CHROMEOS_KERNEL << MTD_ATTRIBUTE_TYPE_OFFSET;
+			}
 			SetGuid(&e[j].unique, j);
 			e[j].starting_lba = cases[i].entries[j].starting_lba;
 			e[j].ending_lba = cases[i].entries[j].ending_lba;
+			me[j].starting_lba = cases[i].entries[j].starting_lba;
+			me[j].ending_lba = cases[i].entries[j].ending_lba;
+
 		}
 		RefreshCrc32(gpt);
 
 		EXPECT(cases[i].overlapped == CheckEntries(e, h));
+		EXPECT(cases[i].overlapped == MtdCheckEntries(me, mh));
 	}
 	return TEST_OK;
 }
@@ -988,6 +1129,8 @@ static int EntryAttributeGetSetTest(void)
 {
 	GptData *gpt = GetEmptyGptData();
 	GptEntry *e = (GptEntry *)(gpt->primary_entries);
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskPartition *m = &mtd->primary.partitions[0];
 
 	e->attrs.whole = 0x0000000000000000ULL;
 	SetEntrySuccessful(e, 1);
@@ -998,6 +1141,15 @@ static int EntryAttributeGetSetTest(void)
 	EXPECT(0xFEFFFFFFFFFFFFFFULL == e->attrs.whole);
 	EXPECT(0 == GetEntrySuccessful(e));
 
+	m->flags = 0;
+	MtdSetEntrySuccessful(m, 1);
+	EXPECT(0x00000100 == m->flags);
+	EXPECT(1 == MtdGetEntrySuccessful(m));
+	m->flags = ~0;
+	MtdSetEntrySuccessful(m, 0);
+	EXPECT(0xFFFFFEFF == m->flags);
+	EXPECT(0 == MtdGetEntrySuccessful(m));
+
 	e->attrs.whole = 0x0000000000000000ULL;
 	SetEntryTries(e, 15);
 	EXPECT(15 == GetEntryTries(e));
@@ -1007,6 +1159,15 @@ static int EntryAttributeGetSetTest(void)
 	EXPECT(0xFF0FFFFFFFFFFFFFULL == e->attrs.whole);
 	EXPECT(0 == GetEntryTries(e));
 
+	m->flags = 0;
+	MtdSetEntryTries(m, 15);
+	EXPECT(0x000000F0 == m->flags);
+	EXPECT(15 == MtdGetEntryTries(m));
+	m->flags = ~0;
+	MtdSetEntryTries(m, 0);
+	EXPECT(0xFFFFFF0F == m->flags);
+	EXPECT(0 == MtdGetEntryTries(m));
+
 	e->attrs.whole = 0x0000000000000000ULL;
 	SetEntryPriority(e, 15);
 	EXPECT(0x000F000000000000ULL == e->attrs.whole);
@@ -1015,6 +1176,15 @@ static int EntryAttributeGetSetTest(void)
 	SetEntryPriority(e, 0);
 	EXPECT(0xFFF0FFFFFFFFFFFFULL == e->attrs.whole);
 	EXPECT(0 == GetEntryPriority(e));
+
+	m->flags = 0;
+	MtdSetEntryPriority(m, 15);
+	EXPECT(0x0000000F == m->flags);
+	EXPECT(15 == MtdGetEntryPriority(m));
+	m->flags = ~0;
+	MtdSetEntryPriority(m, 0);
+	EXPECT(0xFFFFFFF0 == m->flags);
+	EXPECT(0 == MtdGetEntryPriority(m));
 
 	e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
 	EXPECT(1 == GetEntrySuccessful(e));
@@ -1055,6 +1225,11 @@ static void FreeEntry(GptEntry *e)
 	Memset(&e->type, 0, sizeof(Guid));
 }
 
+static void MtdFreeEntry(MtdDiskPartition *e)
+{
+	MtdSetEntryType(e, MTD_PARTITION_TYPE_UNUSED);
+}
+
 /* Set up an entry. */
 static void FillEntry(GptEntry *e, int is_kernel,
                       int priority, int successful, int tries)
@@ -1063,6 +1238,16 @@ static void FillEntry(GptEntry *e, int is_kernel,
 	SetEntryPriority(e, priority);
 	SetEntrySuccessful(e, successful);
 	SetEntryTries(e, tries);
+}
+
+static void MtdFillEntry(MtdDiskPartition *e, int is_kernel,
+                      int priority, int successful, int tries)
+{
+	MtdSetEntryType(e, is_kernel ? MTD_PARTITION_TYPE_CHROMEOS_KERNEL :
+									MTD_PARTITION_TYPE_CHROMEOS_FIRMWARE);
+	MtdSetEntryPriority(e, priority);
+	MtdSetEntrySuccessful(e, successful);
+	MtdSetEntryTries(e, tries);
 }
 
 /*
@@ -1080,6 +1265,20 @@ static int NoValidKernelEntryTest(void)
 	RefreshCrc32(gpt);
 	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
 	       GptNextKernelEntry(gpt, NULL, NULL));
+
+	return TEST_OK;
+}
+
+static int MtdNoValidKernelEntryTest(void)
+{
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskPartition *e1 = mtd->primary.partitions;
+
+	BuildTestMtdData(mtd);
+	MtdSetEntryPriority(e1 + KERNEL_A, 0);
+	MtdFreeEntry(e1 + KERNEL_B);
+	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
+	       MtdNextKernelEntry(mtd, NULL, NULL));
 
 	return TEST_OK;
 }
@@ -1167,6 +1366,169 @@ static int GetNextTriesTest(void)
 	EXPECT(KERNEL_A == gpt->current_kernel);
 	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
 	       GptNextKernelEntry(gpt, &start, &size));
+
+	return TEST_OK;
+}
+
+static int MtdGetNextNormalTest(void)
+{
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskPartition *e1 = mtd->primary.partitions;
+	uint64_t start, size;
+
+	/* Normal case - both kernels successful */
+	BuildTestMtdData(mtd);
+	MtdFillEntry(e1 + KERNEL_A, 1, 2, 1, 0);
+	MtdFillEntry(e1 + KERNEL_B, 1, 2, 1, 0);
+	mtd->primary.crc32 = MtdHeaderCrc(&mtd->primary);
+	MtdInit(mtd);
+
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_A == mtd->current_kernel);
+	EXPECT(34 == start);
+	EXPECT(100 == size);
+
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_B == mtd->current_kernel);
+	EXPECT(134 == start);
+	EXPECT(99 == size);
+
+	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
+	       MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(-1 == mtd->current_kernel);
+
+	/* Call as many times as you want; you won't get another kernel... */
+	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
+	       MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(-1 == mtd->current_kernel);
+
+	return TEST_OK;
+}
+
+static int MtdGetNextPrioTest(void)
+{
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskPartition *e1 = mtd->primary.partitions;
+	uint64_t start, size;
+
+	/* Priority 3, 4, 0, 4 - should boot order B, Y, A */
+	BuildTestMtdData(mtd);
+	MtdFillEntry(e1 + KERNEL_A, 1, 3, 1, 0);
+	MtdFillEntry(e1 + KERNEL_B, 1, 4, 1, 0);
+	MtdFillEntry(e1 + KERNEL_X, 1, 0, 1, 0);
+	MtdFillEntry(e1 + KERNEL_Y, 1, 4, 1, 0);
+	mtd->primary.crc32 = MtdHeaderCrc(&mtd->primary);
+	MtdInit(mtd);
+
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_B == mtd->current_kernel);
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_Y == mtd->current_kernel);
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_A == mtd->current_kernel);
+	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
+	       MtdNextKernelEntry(mtd, &start, &size));
+
+	return TEST_OK;
+}
+
+static int MtdGetNextTriesTest(void)
+{
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskPartition *e1 = mtd->primary.partitions;
+	uint64_t start, size;
+
+	/* Tries=nonzero is attempted just like success, but tries=0 isn't */
+	BuildTestMtdData(mtd);
+	MtdFillEntry(e1 + KERNEL_A, 1, 2, 1, 0);
+	MtdFillEntry(e1 + KERNEL_B, 1, 3, 0, 0);
+	MtdFillEntry(e1 + KERNEL_X, 1, 4, 0, 1);
+	MtdFillEntry(e1 + KERNEL_Y, 1, 0, 0, 5);
+	mtd->primary.crc32 = MtdHeaderCrc(&mtd->primary);
+	MtdInit(mtd);
+
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_X == mtd->current_kernel);
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_A == mtd->current_kernel);
+	EXPECT(GPT_ERROR_NO_VALID_KERNEL ==
+	       MtdNextKernelEntry(mtd, &start, &size));
+
+	return TEST_OK;
+}
+
+static int MtdUpdateTest() {
+	MtdData *mtd = GetEmptyMtdData();
+	MtdDiskPartition *e = &mtd->primary.partitions[0];
+	uint64_t start, size;
+
+	BuildTestMtdData(mtd);
+
+	/* Tries=nonzero is attempted just like success, but tries=0 isn't */
+	MtdFillEntry(e + KERNEL_A, 1, 4, 1, 0);
+	MtdFillEntry(e + KERNEL_B, 1, 3, 0, 2);
+	MtdFillEntry(e + KERNEL_X, 1, 2, 0, 2);
+	mtd->primary.crc32 = MtdHeaderCrc(&mtd->primary);
+	mtd->modified = 0;
+	EXPECT(GPT_SUCCESS == MtdInit(mtd));
+
+	/* Successful kernel */
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_A == mtd->current_kernel);
+	EXPECT(1 == MtdGetEntrySuccessful(e + KERNEL_A));
+	EXPECT(4 == MtdGetEntryPriority(e + KERNEL_A));
+	EXPECT(0 == MtdGetEntryTries(e + KERNEL_A));
+	/* Trying successful kernel changes nothing */
+	EXPECT(GPT_SUCCESS == MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_TRY));
+	EXPECT(1 == MtdGetEntrySuccessful(e + KERNEL_A));
+	EXPECT(4 == MtdGetEntryPriority(e + KERNEL_A));
+	EXPECT(0 == MtdGetEntryTries(e + KERNEL_A));
+	EXPECT(0 == mtd->modified);
+	/* Marking it bad also does not update it. */
+	EXPECT(GPT_SUCCESS == MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_BAD));
+	EXPECT(1 == MtdGetEntrySuccessful(e + KERNEL_A));
+	EXPECT(4 == MtdGetEntryPriority(e + KERNEL_A));
+	EXPECT(0 == MtdGetEntryTries(e + KERNEL_A));
+	EXPECT(0 == mtd->modified);
+
+	/* Kernel with tries */
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_B == mtd->current_kernel);
+	EXPECT(0 == MtdGetEntrySuccessful(e + KERNEL_B));
+	EXPECT(3 == MtdGetEntryPriority(e + KERNEL_B));
+	EXPECT(2 == MtdGetEntryTries(e + KERNEL_B));
+	/* Marking it bad clears it */
+	EXPECT(GPT_SUCCESS == MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_BAD));
+	EXPECT(0 == MtdGetEntrySuccessful(e + KERNEL_B));
+	EXPECT(0 == MtdGetEntryPriority(e + KERNEL_B));
+	EXPECT(0 == MtdGetEntryTries(e + KERNEL_B));
+	/* And that's caused the mtd to need updating */
+	EXPECT(1 == mtd->modified);
+
+	/* Another kernel with tries */
+	EXPECT(GPT_SUCCESS == MtdNextKernelEntry(mtd, &start, &size));
+	EXPECT(KERNEL_X == mtd->current_kernel);
+	EXPECT(0 == MtdGetEntrySuccessful(e + KERNEL_X));
+	EXPECT(2 == MtdGetEntryPriority(e + KERNEL_X));
+	EXPECT(2 == MtdGetEntryTries(e + KERNEL_X));
+	/* Trying it uses up a try */
+	EXPECT(GPT_SUCCESS == MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_TRY));
+	EXPECT(0 == MtdGetEntrySuccessful(e + KERNEL_X));
+	EXPECT(2 == MtdGetEntryPriority(e + KERNEL_X));
+	EXPECT(1 == MtdGetEntryTries(e + KERNEL_X));
+	/* Trying it again marks it inactive */
+	EXPECT(GPT_SUCCESS == MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_TRY));
+	EXPECT(0 == MtdGetEntrySuccessful(e + KERNEL_X));
+	EXPECT(0 == MtdGetEntryPriority(e + KERNEL_X));
+	EXPECT(0 == MtdGetEntryTries(e + KERNEL_X));
+
+	/* Can't update if entry isn't a kernel, or there isn't an entry */
+	MtdSetEntryType(e + KERNEL_X, MTD_PARTITION_TYPE_UNUSED);
+	EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
+	       MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_BAD));
+	mtd->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
+	EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
+	       MtdUpdateKernelEntry(mtd, GPT_UPDATE_ENTRY_BAD));
 
 	return TEST_OK;
 }
@@ -1277,6 +1639,20 @@ static int UpdateInvalidKernelTypeTest(void)
 	return TEST_OK;
 }
 
+static int MtdUpdateInvalidKernelTypeTest(void)
+{
+	MtdData *mtd = GetEmptyMtdData();
+
+	BuildTestMtdData(mtd);
+	/* anything, but not CGPT_KERNEL_ENTRY_NOT_FOUND */
+	mtd->current_kernel = 0;
+	/* any invalid update_type value */
+	EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
+	       MtdUpdateKernelEntry(mtd, 99));
+
+	return TEST_OK;
+}
+
 /* Test duplicate UniqueGuids can be detected. */
 static int DuplicateUniqueGuidTest(void)
 {
@@ -1382,6 +1758,7 @@ int main(int argc, char *argv[])
 	} test_cases[] = {
 		{ TEST_CASE(StructSizeTest), },
 		{ TEST_CASE(TestBuildTestGptData), },
+		{ TEST_CASE(TestBuildTestMtdData), },
 		{ TEST_CASE(ParameterTests), },
 		{ TEST_CASE(HeaderCrcTest), },
 		{ TEST_CASE(HeaderSameTest), },
@@ -1399,13 +1776,19 @@ int main(int argc, char *argv[])
 		{ TEST_CASE(OverlappedPartitionTest), },
 		{ TEST_CASE(SanityCheckTest), },
 		{ TEST_CASE(NoValidKernelEntryTest), },
+		{ TEST_CASE(MtdNoValidKernelEntryTest), },
 		{ TEST_CASE(EntryAttributeGetSetTest), },
 		{ TEST_CASE(EntryTypeTest), },
 		{ TEST_CASE(GetNextNormalTest), },
 		{ TEST_CASE(GetNextPrioTest), },
 		{ TEST_CASE(GetNextTriesTest), },
+		{ TEST_CASE(MtdGetNextNormalTest), },
+		{ TEST_CASE(MtdGetNextPrioTest), },
+		{ TEST_CASE(MtdGetNextTriesTest), },
 		{ TEST_CASE(GptUpdateTest), },
+		{ TEST_CASE(MtdUpdateTest), },
 		{ TEST_CASE(UpdateInvalidKernelTypeTest), },
+		{ TEST_CASE(MtdUpdateInvalidKernelTypeTest), },
 		{ TEST_CASE(DuplicateUniqueGuidTest), },
 		{ TEST_CASE(TestCrc32TestVectors), },
 		{ TEST_CASE(GetKernelGuidTest), },

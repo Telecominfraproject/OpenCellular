@@ -375,6 +375,27 @@ void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest)
 	Memcpy(dest, &e->unique, sizeof(Guid));
 }
 
+void GptModified(GptData *gpt) {
+	GptHeader *header = (GptHeader *)gpt->primary_header;
+
+	/* Update the CRCs */
+	header->entries_crc32 = Crc32(gpt->primary_entries,
+				      header->size_of_entry *
+				      header->number_of_entries);
+	header->header_crc32 = HeaderCrc(header);
+	gpt->modified |= GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1;
+
+	/*
+	 * Use the repair function to update the other copy of the GPT.  This
+	 * is a tad inefficient, but is much faster than the disk I/O to update
+	 * the GPT on disk so it doesn't matter.
+	 */
+	gpt->valid_headers = MASK_PRIMARY;
+	gpt->valid_entries = MASK_PRIMARY;
+	GptRepair(gpt);
+}
+
+
 const char *GptErrorText(int error_code)
 {
 	switch(error_code) {
@@ -413,6 +434,12 @@ const char *GptErrorText(int error_code)
 
 	case GPT_ERROR_DUP_GUID:
 		return "Duplicated GUID";
+
+	case GPT_ERROR_INVALID_FLASH_GEOMETRY:
+		return "Invalid flash geometry";
+
+	case GPT_ERROR_NO_SUCH_ENTRY:
+		return "No entry found";
 
 	default:
 		break;

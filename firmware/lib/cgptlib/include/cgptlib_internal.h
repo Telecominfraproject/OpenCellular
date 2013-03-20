@@ -131,6 +131,12 @@ int GptSanityCheck(GptData *gpt);
  */
 void GptRepair(GptData *gpt);
 
+/**
+ * Called when the primary entries are modified and the CRCs need to be
+ * recalculated and propagated to the secondary entries
+ */
+void GptModified(GptData *gpt);
+
 /* Getters and setters for partition attribute fields. */
 
 int GetEntrySuccessful(const GptEntry *e);
