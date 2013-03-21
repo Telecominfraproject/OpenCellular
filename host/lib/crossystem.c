@@ -129,6 +129,7 @@ int VbGetCrosDebug(void) {
   FILE* f = NULL;
   char buf[4096] = "";
   char *t, *saveptr;
+  const char *delimiters = " \r\n";
 
   /* If the currently running system specifies its debug status, use
    * that in preference to other indicators. */
@@ -138,7 +139,8 @@ int VbGetCrosDebug(void) {
       buf[0] = 0;
     fclose(f);
   }
-  for (t = strtok_r(buf, " ", &saveptr); t; t=strtok_r(NULL, " ", &saveptr)) {
+  for (t = strtok_r(buf, delimiters, &saveptr); t;
+       t = strtok_r(NULL, delimiters, &saveptr)) {
     if (0 == strcmp(t, "cros_debug"))
       return 1;
     else if (0 == strcmp(t, "cros_nodebug"))
