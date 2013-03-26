@@ -71,6 +71,13 @@ ifeq (${V},)
 Q := @
 endif
 
+# Quiet? Use QUIET=1
+ifeq ($(QUIET),)
+PRINTF := printf
+else
+PRINTF := :
+endif
+
 # Architecture detection
 _machname := $(shell uname -m)
 HOST_ARCH ?= ${_machname}
@@ -640,9 +647,9 @@ fwlinktest: ${FWLIB} \
 fwlib: ${FWLIB} $(if ${FIRMWARE_ARCH},,fwlinktest)
 
 ${FWLIB}: ${FWLIB_OBJS}
-	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 # ----------------------------------------------------------------------------
@@ -657,9 +664,9 @@ ${BUILD}/host/% ${HOSTLIB}: INCLUDES += \
 
 # TODO: better way to make .a than duplicating this recipe each time?
 ${HOSTLIB}: ${HOSTLIB_OBJS} ${FWLIB_OBJS}
-	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 
@@ -669,9 +676,9 @@ tinyhostlib: ${TINYHOSTLIB}
 	${Q}cp -f ${TINYHOSTLIB} ${HOSTLIB}
 
 ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
-	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 # ----------------------------------------------------------------------------
@@ -684,12 +691,12 @@ ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
 
 ${CGPT}: ${CGPT_OBJS} ${LIBS}
-	@printf "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o ${CGPT} ${CFLAGS} $^ ${LDFLAGS} ${LDLIBS}
 
 .PHONY: cgpt_install
 cgpt_install: ${CGPT}
-	@printf "    INSTALL       CGPT\n"
+	@$(PRINTF) "    INSTALL       CGPT\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} $^
 
@@ -709,14 +716,14 @@ utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 
 .PHONY: utils_install
 utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
-	@printf "    INSTALL       UTILS\n"
+	@$(PRINTF) "    INSTALL       UTILS\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${UTIL_BINS} ${UTIL_SCRIPTS}
 
 # And some signing stuff for the target
 .PHONY: signing_install
 signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
-	@printf "    INSTALL       SIGNING\n"
+	@$(PRINTF) "    INSTALL       SIGNING\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${SIGNING_SCRIPTS}
 	${Q}${INSTALL} -t ${UB_DIR} ${SIGNING_SCRIPTS_DEV}
@@ -734,12 +741,12 @@ endif
 futil: ${FUTIL_BIN}
 
 ${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS}
-	@printf "    LD            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} $^ ${LDFLAGS} ${LDLIBS}
 
 .PHONY: futil_install
 futil_install: ${FUTIL_BIN}
-	@printf "    INSTALL       futility\n"
+	@$(PRINTF) "    INSTALL       futility\n"
 	${Q}mkdir -p ${F_DIR}
 	${Q}${INSTALL} -t ${F_DIR} ${FUTIL_BIN}
 	${Q}for prog in ${FUTIL_OLD}; do \
@@ -755,7 +762,7 @@ STRUCTURES_SRC=firmware/lib/tpm_lite/include/tlcl_structures.h
 
 .PHONY: update_tlcl_structures
 update_tlcl_structures: ${BUILD}/utility/tlcl_generator
-	@printf "    Rebuilding TLCL structures\n"
+	@$(PRINTF) "    Rebuilding TLCL structures\n"
 	${Q}${BUILD}/utility/tlcl_generator > ${STRUCTURES_TMP}
 	${Q}cmp -s ${STRUCTURES_TMP} ${STRUCTURES_SRC} || \
 		( echo "%% Updating structures.h %%" && \
@@ -770,9 +777,9 @@ tests: ${TEST_BINS}
 ${TEST_BINS}: ${TESTLIB}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
-	@printf "    RM            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@printf "    AR            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 
@@ -781,28 +788,28 @@ ${TESTLIB}: ${TESTLIB_OBJS}
 # rules for specific targets.
 
 ${BUILD}/%: ${BUILD}/%.o ${OBJS} ${LIBS}
-	@printf "    LD            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} $< ${OBJS} ${LIBS} ${LDFLAGS} ${LDLIBS}
 
 ${BUILD}/%.o: %.c
-	@printf "    CC            $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    CC            $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 # Rules to recompile a single source file for library and test
 # TODO: is there a tidier way to do this?
 ${BUILD}/%_for_lib.o: CFLAGS += -DFOR_LIBRARY
 ${BUILD}/%_for_lib.o: %.c
-	@printf "    CC-for-lib    $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    CC-for-lib    $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 ${BUILD}/%_for_test.o: CFLAGS += -DFOR_TEST
 ${BUILD}/%_for_test.o: %.c
-	@printf "    CC-for-test   $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    CC-for-test   $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 # TODO: C++ files don't belong in vboot reference at all.  Convert to C.
 ${BUILD}/%.o: %.cc
-	@printf "    CXX           $(subst ${BUILD}/,,$@)\n"
+	@$(PRINTF) "    CXX           $(subst ${BUILD}/,,$@)\n"
 	${Q}${CXX} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 # ----------------------------------------------------------------------------
@@ -902,7 +909,7 @@ ifeq (${SYSROOT},)
 	$(error SYSROOT must be set to the top of the target-specific root \
 when cross-compiling for qemu-based tests to run properly.)
 endif
-	@printf "    Copying qemu binary.\n"
+	@$(PRINTF) "    Copying qemu binary.\n"
 	${Q}cp -fu /usr/bin/${QEMU_BIN} ${BUILD}/${QEMU_BIN}
 	${Q}chmod a+rx ${BUILD}/${QEMU_BIN}
 endif
