@@ -92,21 +92,30 @@ int SupportedType(const char *name, Guid *type);
 void PrintTypes(void);
 void EntryDetails(GptEntry *entry, uint32_t index, int raw);
 
-uint32_t GetNumberOfEntries(const GptData *gpt);
+uint32_t GetNumberOfEntries(const struct drive *drive);
 GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index);
-void SetPriority(GptData *gpt, int secondary, uint32_t entry_index,
+void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority);
-int GetPriority(GptData *gpt, int secondary, uint32_t entry_index);
-void SetTries(GptData *gpt, int secondary, uint32_t entry_index, int tries);
-int GetTries(GptData *gpt, int secondary, uint32_t entry_index);
-void SetSuccessful(GptData *gpt, int secondary, uint32_t entry_index,
+int GetPriority(struct drive *drive, int secondary, uint32_t entry_index);
+void SetTries(struct drive *drive, int secondary, uint32_t entry_index,
+              int tries);
+int GetTries(struct drive *drive, int secondary, uint32_t entry_index);
+void SetSuccessful(struct drive *drive, int secondary, uint32_t entry_index,
                    int success);
-int GetSuccessful(GptData *gpt, int secondary, uint32_t entry_index);
+int GetSuccessful(struct drive *drive, int secondary, uint32_t entry_index);
+
+void SetRaw(struct drive *drive, int secondary, uint32_t entry_index,
+           uint32_t raw);
+
+void UpdateAllEntries(struct drive *drive);
 
 uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers);
 uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries);
 void UpdateCrc(GptData *gpt);
 int IsSynonymous(const GptHeader* a, const GptHeader* b);
+
+int IsUnused(struct drive *drive, int secondary, uint32_t index);
+int IsKernel(struct drive *drive, int secondary, uint32_t index);
 
 // For usage and error messages.
 extern const char* progname;

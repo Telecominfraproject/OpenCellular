@@ -102,7 +102,7 @@ static int do_search(CgptFindParams *params, char *fileName) {
     return 0;
   }
 
-  for (i = 0; i < GetNumberOfEntries(&drive.gpt); ++i) {
+  for (i = 0; i < GetNumberOfEntries(&drive); ++i) {
     entry = GetEntry(&drive.gpt, ANY_VALID, i);
 
     if (GuidIsZero(&entry->type))

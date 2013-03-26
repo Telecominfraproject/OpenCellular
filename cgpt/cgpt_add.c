@@ -64,32 +64,113 @@ static const char* DumpCgptAddParams(const CgptAddParams *params) {
   return buf;
 }
 
-// This is an internal helper function which assumes no NULL args are passed.
-// It sets the given attribute values for a single entry at the given index.
-static void set_entry_attributes(struct drive drive,
-                                 GptEntry *entry,
+// This is the implementation-specific helper function.
+static int GptSetEntryAttributes(struct drive *drive,
                                  uint32_t index,
                                  CgptAddParams *params) {
+  GptEntry *entry;
+
+  entry = GetEntry(&drive->gpt, PRIMARY, index);
+  if (params->set_begin)
+    entry->starting_lba = params->begin;
+  if (params->set_size)
+    entry->ending_lba = entry->starting_lba + params->size - 1;
+  if (params->set_unique) {
+    memcpy(&entry->unique, &params->unique_guid, sizeof(Guid));
+  } else if (GuidIsZero(&entry->type)) {
+    if (!uuid_generator) {
+      Error("Unable to generate new GUID. uuid_generator not set.\n");
+      return -1;
+    }
+    (*uuid_generator)((uint8_t *)&entry->unique);
+  }
+  if (params->set_type)
+    memcpy(&entry->type, &params->type_guid, sizeof(Guid));
+  if (params->label) {
+    if (CGPT_OK != UTF8ToUTF16((uint8_t *)params->label, entry->name,
+                               sizeof(entry->name) / sizeof(entry->name[0]))) {
+      Error("The label cannot be converted to UTF16.\n");
+      return -1;
+    }
+  }
+  return 0;
+}
+
+// This is an internal helper function which assumes no NULL args are passed.
+// It sets the given attribute values for a single entry at the given index.
+static int SetEntryAttributes(struct drive *drive,
+                              uint32_t index,
+                              CgptAddParams *params) {
   if (params->set_raw) {
-    entry->attrs.fields.gpt_att = params->raw_value;
+    SetRaw(drive, PRIMARY, index, params->raw_value);
   } else {
     if (params->set_successful)
-      SetSuccessful(&drive.gpt, PRIMARY, index, params->successful);
+      SetSuccessful(drive, PRIMARY, index, params->successful);
     if (params->set_tries)
-      SetTries(&drive.gpt, PRIMARY, index, params->tries);
+      SetTries(drive, PRIMARY, index, params->tries);
     if (params->set_priority)
-      SetPriority(&drive.gpt, PRIMARY, index, params->priority);
+      SetPriority(drive, PRIMARY, index, params->priority);
+  }
+
+  // New partitions must specify type, begin, and size.
+  if (IsUnused(drive, PRIMARY, index)) {
+    if (!params->set_begin || !params->set_size || !params->set_type) {
+      Error("-t, -b, and -s options are required for new partitions\n");
+      return -1;
+    }
+    if (GuidIsZero(&params->type_guid)) {
+      Error("New partitions must have a type other than \"unused\"\n");
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+static int CgptCheckAddValidity(struct drive *drive) {
+  int gpt_retval;
+  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive->gpt))) {
+    Error("GptSanityCheck() returned %d: %s\n",
+          gpt_retval, GptError(gpt_retval));
+    return -1;
+  }
+
+  if (((drive->gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
+      ((drive->gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
+    Error("one of the GPT header/entries is invalid.\n"
+          "please run 'cgpt repair' before adding anything.\n");
+    return -1;
+  }
+  return 0;
+}
+
+static int CgptGetUnusedPartition(struct drive *drive, uint32_t *index,
+                                  CgptAddParams *params) {
+  uint32_t i;
+  uint32_t max_part = GetNumberOfEntries(drive);
+  if (params->partition) {
+    if (params->partition > max_part) {
+      Error("invalid partition number: %d\n", params->partition);
+      return -1;
+    }
+    *index = params->partition - 1;
+    return 0;
+  } else {
+    // Find next empty partition.
+    for (i = 0; i < max_part; i++) {
+      if (IsUnused(drive, PRIMARY, i)) {
+        params->partition = i + 1;
+        *index = i;
+        return 0;
+      }
+    }
+    Error("no unused partitions available\n");
+    return -1;
   }
 }
 
-// Set the attributes such as is_successful, num_tries_left, priority, etc.
-// from the given values in params.
 int CgptSetAttributes(CgptAddParams *params) {
   struct drive drive;
-
-  int gpt_retval;
-  GptEntry *entry;
-  uint32_t index;
 
   if (params == NULL)
     return CGPT_FAILED;
@@ -97,41 +178,19 @@ int CgptSetAttributes(CgptAddParams *params) {
   if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
-  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
-    Error("GptSanityCheck() returned %d: %s\n",
-          gpt_retval, GptError(gpt_retval));
+  if (CgptCheckAddValidity(&drive)) {
     goto bad;
   }
 
-  if (((drive.gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
-      ((drive.gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
-    Error("one of the GPT header/entries is invalid.\n"
-          "please run 'cgpt repair' before adding anything.\n");
-    goto bad;
-  }
-
-  if (params->partition == 0) {
+  if (params->partition == 0 ||
+      params->partition >= GetNumberOfEntries(&drive)) {
     Error("invalid partition number: %d\n", params->partition);
     goto bad;
   }
 
-  uint32_t max_part = GetNumberOfEntries(&drive.gpt);
-  if (params->partition > max_part) {
-    Error("invalid partition number: %d\n", params->partition);
-    goto bad;
-  }
+  SetEntryAttributes(&drive, params->partition - 1, params);
 
-  index = params->partition - 1;
-  entry = GetEntry(&drive.gpt, PRIMARY, index);
-
-  set_entry_attributes(drive, entry, index, params);
-
-  RepairEntries(&drive.gpt, MASK_PRIMARY);
-  RepairHeader(&drive.gpt, MASK_PRIMARY);
-
-  drive.gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
-                         GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
-  UpdateCrc(&drive.gpt);
+  UpdateAllEntries(&drive);
 
   // Write it all out.
   return DriveClose(&drive, 1);
@@ -147,79 +206,57 @@ bad:
 // fields of params.
 int CgptGetPartitionDetails(CgptAddParams *params) {
   struct drive drive;
-
-  int gpt_retval;
-  GptEntry *entry;
-  uint32_t index;
   int result = CGPT_FAILED;
+  int index;
 
   if (params == NULL)
-    return result;
+    return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR)) {
-    Error("Unable to open drive: %s\n", params->drive_name);
-    return result;
-  }
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
+    return CGPT_FAILED;
 
-  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
-    Error("GptSanityCheck() returned %d: %s\n",
-          gpt_retval, GptError(gpt_retval));
+  if (CgptCheckAddValidity(&drive)) {
     goto bad;
   }
 
-  if (((drive.gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
-      ((drive.gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
-    Error("one of the GPT header/entries is invalid.\n"
-          "please run 'cgpt repair' before adding anything.\n");
-    goto bad;
-  }
-
-  uint32_t max_part = GetNumberOfEntries(&drive.gpt);
-
-  if (params->partition) {
-    if (params->partition > max_part) {
+  int max_part = GetNumberOfEntries(&drive);
+  if (params->partition > 0) {
+    if (params->partition >= max_part) {
       Error("invalid partition number: %d\n", params->partition);
       goto bad;
     }
-
-    // A valid partition number has been specified, so get the entry directly.
-    index = params->partition - 1;
-    entry = GetEntry(&drive.gpt, PRIMARY, index);
   } else {
-    // Partition number is not specified, try looking up by the unique id.
     if (!params->set_unique) {
       Error("either partition or unique_id must be specified\n");
       goto bad;
     }
-
-    // A unique id is specified. find the entry that matches it.
     for (index = 0; index < max_part; index++) {
-      entry = GetEntry(&drive.gpt, PRIMARY, index);
+      GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
       if (GuidEqual(&entry->unique, &params->unique_guid)) {
         params->partition = index + 1;
         break;
       }
     }
-
     if (index >= max_part) {
       Error("no partitions with the given unique id available\n");
       goto bad;
     }
   }
+  index = params->partition - 1;
 
-  // At this point, irrespective of whether a partition number is specified
-  // or a unique id is specified, we have valid non-null values for all these:
-  // index, entry, params->partition.
+  {
+    // GPT-specific code
+    GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
+    params->begin = entry->starting_lba;
+    params->size =  entry->ending_lba - entry->starting_lba + 1;
+    memcpy(&params->type_guid, &entry->type, sizeof(Guid));
+    memcpy(&params->unique_guid, &entry->unique, sizeof(Guid));
+    params->raw_value = entry->attrs.fields.gpt_att;
+  }
 
-  params->begin = entry->starting_lba;
-  params->size =  entry->ending_lba - entry->starting_lba + 1;
-  memcpy(&params->type_guid, &entry->type, sizeof(Guid));
-  memcpy(&params->unique_guid, &entry->unique, sizeof(Guid));
-
-  params->raw_value = entry->attrs.fields.gpt_att;
-  params->successful = GetSuccessful(&drive.gpt, PRIMARY, index);
-  params->tries = GetTries(&drive.gpt, PRIMARY, index);
-  params->priority = GetPriority(&drive.gpt, PRIMARY, index);
+  params->successful = GetSuccessful(&drive, PRIMARY, index);
+  params->tries = GetTries(&drive, PRIMARY, index);
+  params->priority = GetPriority(&drive, PRIMARY, index);
   result = CGPT_OK;
 
 bad:
@@ -227,11 +264,9 @@ bad:
   return result;
 }
 
-
 int CgptAdd(CgptAddParams *params) {
   struct drive drive;
 
-  int gpt_retval;
   GptEntry *entry, backup;
   uint32_t index;
   int rv;
@@ -242,85 +277,24 @@ int CgptAdd(CgptAddParams *params) {
   if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
-  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
-    Error("GptSanityCheck() returned %d: %s\n",
-          gpt_retval, GptError(gpt_retval));
+  if (CgptCheckAddValidity(&drive)) {
     goto bad;
   }
 
-  if (((drive.gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
-      ((drive.gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
-    Error("one of the GPT header/entries is invalid.\n"
-          "please run 'cgpt repair' before adding anything.\n");
+  if (CgptGetUnusedPartition(&drive, &index, params)) {
     goto bad;
   }
 
-  uint32_t max_part = GetNumberOfEntries(&drive.gpt);
-  if (params->partition) {
-    if (params->partition > max_part) {
-      Error("invalid partition number: %d\n", params->partition);
-      goto bad;
-    }
-    index = params->partition - 1;
-    entry = GetEntry(&drive.gpt, PRIMARY, index);
-  } else {
-    // Find next empty partition.
-    for (index = 0; index < max_part; index++) {
-      entry = GetEntry(&drive.gpt, PRIMARY, index);
-      if (GuidIsZero(&entry->type)) {
-        params->partition = index + 1;
-        break;
-      }
-    }
-    if (index >= max_part) {
-      Error("no unused partitions available\n");
-      goto bad;
-    }
-  }
+  entry = GetEntry(&drive.gpt, PRIMARY, index);
   memcpy(&backup, entry, sizeof(backup));
 
-  // New partitions must specify type, begin, and size.
-  if (GuidIsZero(&entry->type)) {
-    if (!params->set_begin || !params->set_size || !params->set_type) {
-      Error("-t, -b, and -s options are required for new partitions\n");
-      goto bad;
-    }
-    if (GuidIsZero(&params->type_guid)) {
-      Error("New partitions must have a type other than \"unused\"\n");
-      goto bad;
-    }
-    if (!params->set_unique)
-      if (!uuid_generator) {
-        Error("Unable to generate new GUID. uuid_generator not set.\n");
-        goto bad;
-      }
-      (*uuid_generator)((uint8_t *)&entry->unique);
+  if (SetEntryAttributes(&drive, index, params) ||
+      GptSetEntryAttributes(&drive, index, params)) {
+    memcpy(entry, &backup, sizeof(*entry));
+    goto bad;
   }
 
-  if (params->set_begin)
-    entry->starting_lba = params->begin;
-  if (params->set_size)
-    entry->ending_lba = entry->starting_lba + params->size - 1;
-  if (params->set_type)
-    memcpy(&entry->type, &params->type_guid, sizeof(Guid));
-  if (params->set_unique)
-    memcpy(&entry->unique, &params->unique_guid, sizeof(Guid));
-  if (params->label) {
-    if (CGPT_OK != UTF8ToUTF16((uint8_t *)params->label, entry->name,
-                               sizeof(entry->name) / sizeof(entry->name[0]))) {
-      Error("The label cannot be converted to UTF16.\n");
-      goto bad;
-    }
-  }
-
-  set_entry_attributes(drive, entry, index, params);
-
-  RepairEntries(&drive.gpt, MASK_PRIMARY);
-  RepairHeader(&drive.gpt, MASK_PRIMARY);
-
-  drive.gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
-                         GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
-  UpdateCrc(&drive.gpt);
+  UpdateAllEntries(&drive);
 
   rv = CheckEntries((GptEntry*)drive.gpt.primary_entries,
                     (GptHeader*)drive.gpt.primary_header);

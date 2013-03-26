@@ -621,33 +621,29 @@ void PrintTypes(void) {
   printf("\n");
 }
 
-uint32_t GetNumberOfEntries(const GptData *gpt) {
-  GptHeader *header = 0;
+GptHeader* GetGptHeader(const GptData *gpt) {
   if (gpt->valid_headers & MASK_PRIMARY)
-    header = (GptHeader*)gpt->primary_header;
+    return (GptHeader*)gpt->primary_header;
   else if (gpt->valid_headers & MASK_SECONDARY)
-    header = (GptHeader*)gpt->secondary_header;
+    return (GptHeader*)gpt->secondary_header;
   else
+    return 0;
+}
+
+uint32_t GetNumberOfEntries(const struct drive *drive) {
+  GptHeader *header = GetGptHeader(&drive->gpt);
+  if (!header)
     return 0;
   return header->number_of_entries;
 }
 
-static uint32_t GetSizeOfEntries(const GptData *gpt) {
-  GptHeader *header = 0;
-  if (gpt->valid_headers & MASK_PRIMARY)
-    header = (GptHeader*)gpt->primary_header;
-  else if (gpt->valid_headers & MASK_SECONDARY)
-    header = (GptHeader*)gpt->secondary_header;
-  else
-    return 0;
-  return header->size_of_entry;
-}
 
 GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
+  GptHeader *header = GetGptHeader(gpt);
   uint8_t *entries;
-  uint32_t stride = GetSizeOfEntries(gpt);
+  uint32_t stride = header->size_of_entry;
   require(stride);
-  require(entry_index < GetNumberOfEntries(gpt));
+  require(entry_index < header->number_of_entries);
 
   if (secondary == PRIMARY) {
     entries = gpt->primary_entries;
@@ -666,52 +662,75 @@ GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
   return (GptEntry*)(&entries[stride * entry_index]);
 }
 
-void SetPriority(GptData *gpt, int secondary, uint32_t entry_index,
+void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority) {
   GptEntry *entry;
-  entry = GetEntry(gpt, secondary, entry_index);
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
   require(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
-  entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_PRIORITY_MASK;
-  entry->attrs.fields.gpt_att |= priority << CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+  SetEntryPriority(entry, priority);
 }
 
-int GetPriority(GptData *gpt, int secondary, uint32_t entry_index) {
+int GetPriority(struct drive *drive, int secondary, uint32_t entry_index) {
   GptEntry *entry;
-  entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
-      CGPT_ATTRIBUTE_PRIORITY_OFFSET;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntryPriority(entry);
 }
 
-void SetTries(GptData *gpt, int secondary, uint32_t entry_index, int tries) {
+void SetTries(struct drive *drive, int secondary, uint32_t entry_index,
+              int tries) {
   GptEntry *entry;
-  entry = GetEntry(gpt, secondary, entry_index);
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
   require(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
-  entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_TRIES_MASK;
-  entry->attrs.fields.gpt_att |= tries << CGPT_ATTRIBUTE_TRIES_OFFSET;
+  SetEntryTries(entry, tries);
 }
 
-int GetTries(GptData *gpt, int secondary, uint32_t entry_index) {
+int GetTries(struct drive *drive, int secondary, uint32_t entry_index) {
   GptEntry *entry;
-  entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_TRIES_MASK) >>
-      CGPT_ATTRIBUTE_TRIES_OFFSET;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntryTries(entry);
 }
 
-void SetSuccessful(GptData *gpt, int secondary, uint32_t entry_index,
+void SetSuccessful(struct drive *drive, int secondary, uint32_t entry_index,
                    int success) {
   GptEntry *entry;
-  entry = GetEntry(gpt, secondary, entry_index);
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
 
   require(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
-  entry->attrs.fields.gpt_att &= ~CGPT_ATTRIBUTE_SUCCESSFUL_MASK;
-  entry->attrs.fields.gpt_att |= success << CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
+  SetEntrySuccessful(entry, success);
 }
 
-int GetSuccessful(GptData *gpt, int secondary, uint32_t entry_index) {
+int GetSuccessful(struct drive *drive, int secondary, uint32_t entry_index) {
   GptEntry *entry;
-  entry = GetEntry(gpt, secondary, entry_index);
-  return (entry->attrs.fields.gpt_att & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
-         CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntrySuccessful(entry);
+}
+
+void SetRaw(struct drive *drive, int secondary, uint32_t entry_index,
+           uint32_t raw) {
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  entry->attrs.fields.gpt_att = (uint16_t)raw;
+}
+
+void UpdateAllEntries(struct drive *drive) {
+  RepairEntries(&drive->gpt, MASK_PRIMARY);
+  RepairHeader(&drive->gpt, MASK_PRIMARY);
+
+  drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
+                         GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
+  UpdateCrc(&drive->gpt);
+}
+
+int IsUnused(struct drive *drive, int secondary, uint32_t index) {
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, index);
+  return GuidIsZero(&entry->type);
+}
+
+int IsKernel(struct drive *drive, int secondary, uint32_t index) {
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, index);
+  return GuidEqual(&entry->type, &guid_chromeos_kernel);
 }
 
 
