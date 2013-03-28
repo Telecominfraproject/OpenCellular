@@ -697,19 +697,37 @@ const Guid guid_chromeos_reserved = GPT_ENT_TYPE_CHROMEOS_RESERVED;
 const Guid guid_efi =               GPT_ENT_TYPE_EFI;
 const Guid guid_unused =            GPT_ENT_TYPE_UNUSED;
 
-static struct {
+const static struct {
   const Guid *type;
   char *name;
   char *description;
+  int mtd_type;
 } supported_types[] = {
-  {&guid_chromeos_firmware, "firmware", "ChromeOS firmware"},
-  {&guid_chromeos_kernel, "kernel", "ChromeOS kernel"},
-  {&guid_chromeos_rootfs, "rootfs", "ChromeOS rootfs"},
-  {&guid_linux_data, "data", "Linux data"},
-  {&guid_chromeos_reserved, "reserved", "ChromeOS reserved"},
-  {&guid_efi, "efi", "EFI System Partition"},
-  {&guid_unused, "unused", "Unused (nonexistent) partition"},
+  {&guid_chromeos_firmware, "firmware", "ChromeOS firmware",
+    MTD_PARTITION_TYPE_CHROMEOS_FIRMWARE},
+  {&guid_chromeos_kernel, "kernel", "ChromeOS kernel",
+    MTD_PARTITION_TYPE_CHROMEOS_KERNEL},
+  {&guid_chromeos_rootfs, "rootfs", "ChromeOS rootfs",
+    MTD_PARTITION_TYPE_CHROMEOS_ROOTFS},
+  {&guid_linux_data, "data", "Linux data",
+    MTD_PARTITION_TYPE_LINUX_DATA},
+  {&guid_chromeos_reserved, "reserved", "ChromeOS reserved",
+    MTD_PARTITION_TYPE_CHROMEOS_RESERVED},
+  {&guid_efi, "efi", "EFI System Partition",
+    MTD_PARTITION_TYPE_EFI},
+  {&guid_unused, "unused", "Unused (nonexistent) partition",
+    MTD_PARTITION_TYPE_UNUSED},
 };
+
+int LookupMtdTypeForGuid(const Guid *type) {
+  int i;
+  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
+    if (!memcmp(type, supported_types[i].type, sizeof(Guid))) {
+      return supported_types[i].mtd_type;
+    }
+  }
+  return MTD_PARTITION_TYPE_OTHER;
+}
 
 /* Resolves human-readable GPT type.
  * Returns CGPT_OK if found.
@@ -756,6 +774,9 @@ GptHeader* GetGptHeader(const GptData *gpt) {
 }
 
 uint32_t GetNumberOfEntries(const struct drive *drive) {
+  if (drive->is_mtd)
+    return MTD_MAX_PARTITIONS;
+
   GptHeader *header = GetGptHeader(&drive->gpt);
   if (!header)
     return 0;
@@ -787,75 +808,130 @@ GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
   return (GptEntry*)(&entries[stride * entry_index]);
 }
 
+MtdDiskPartition* MtdGetEntry(MtdData *mtd, int secondary, uint32_t index) {
+  if (index >= MTD_MAX_PARTITIONS)
+    return NULL;
+  return &mtd->primary.partitions[index];
+}
+
 void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
   require(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
-  SetEntryPriority(entry, priority);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    MtdSetEntryPriority(e, priority);
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    SetEntryPriority(entry, priority);
+  }
 }
 
 int GetPriority(struct drive *drive, int secondary, uint32_t entry_index) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
-  return GetEntryPriority(entry);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    return MtdGetEntryPriority(e);
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    return GetEntryPriority(entry);
+  }
 }
 
 void SetTries(struct drive *drive, int secondary, uint32_t entry_index,
               int tries) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
   require(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
-  SetEntryTries(entry, tries);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    MtdSetEntryTries(e, tries);
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    SetEntryTries(entry, tries);
+  }
 }
 
 int GetTries(struct drive *drive, int secondary, uint32_t entry_index) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
-  return GetEntryTries(entry);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    return MtdGetEntryTries(e);
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    return GetEntryTries(entry);
+  }
 }
 
 void SetSuccessful(struct drive *drive, int secondary, uint32_t entry_index,
                    int success) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
-
   require(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
-  SetEntrySuccessful(entry, success);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    MtdSetEntrySuccessful(e, success);
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    SetEntrySuccessful(entry, success);
+  }
 }
 
 int GetSuccessful(struct drive *drive, int secondary, uint32_t entry_index) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
-  return GetEntrySuccessful(entry);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    return MtdGetEntrySuccessful(e);
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    return GetEntrySuccessful(entry);
+  }
 }
 
 void SetRaw(struct drive *drive, int secondary, uint32_t entry_index,
-           uint32_t raw) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, entry_index);
-  entry->attrs.fields.gpt_att = (uint16_t)raw;
+            uint32_t raw) {
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
+    e->flags = raw;
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, entry_index);
+    entry->attrs.fields.gpt_att = (uint16_t)raw;
+  }
 }
 
 void UpdateAllEntries(struct drive *drive) {
-  RepairEntries(&drive->gpt, MASK_PRIMARY);
-  RepairHeader(&drive->gpt, MASK_PRIMARY);
+  if (drive->is_mtd) {
+    drive->mtd.modified = 1;
+    drive->mtd.primary.crc32 = MtdHeaderCrc(&drive->mtd.primary);
+  } else {
+    RepairEntries(&drive->gpt, MASK_PRIMARY);
+    RepairHeader(&drive->gpt, MASK_PRIMARY);
 
-  drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
-                         GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
-  UpdateCrc(&drive->gpt);
+    drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
+                           GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
+    UpdateCrc(&drive->gpt);
+  }
 }
 
 int IsUnused(struct drive *drive, int secondary, uint32_t index) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, index);
-  return GuidIsZero(&entry->type);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, index);
+    return MtdGetEntryType(e) == MTD_PARTITION_TYPE_UNUSED;
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, index);
+    return GuidIsZero(&entry->type);
+  }
 }
 
 int IsKernel(struct drive *drive, int secondary, uint32_t index) {
-  GptEntry *entry;
-  entry = GetEntry(&drive->gpt, secondary, index);
-  return GuidEqual(&entry->type, &guid_chromeos_kernel);
+  if (drive->is_mtd) {
+    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, index);
+    return MtdGetEntryType(e) == MTD_PARTITION_TYPE_CHROMEOS_KERNEL;
+  } else {
+    GptEntry *entry;
+    entry = GetEntry(&drive->gpt, secondary, index);
+    return GuidEqual(&entry->type, &guid_chromeos_kernel);
+  }
 }
 
 

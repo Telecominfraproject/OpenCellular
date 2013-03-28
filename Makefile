@@ -322,6 +322,7 @@ HOSTLIB_SRCS = \
 	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_common.c \
 	cgpt/flash_ts_drv.c \
+	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/flash_ts.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
@@ -355,6 +356,7 @@ TINYHOSTLIB_SRCS = \
 	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_common.c \
 	cgpt/flash_ts_drv.c \
+	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/flash_ts.c \
 	utility/dump_kernel_config_lib.c \
 	firmware/lib/cgptlib/crc32.c \

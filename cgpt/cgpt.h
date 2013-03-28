@@ -143,6 +143,8 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw);
 
 uint32_t GetNumberOfEntries(const struct drive *drive);
 GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index);
+MtdDiskPartition *MtdGetEntry(MtdData *mtd, int secondary, uint32_t index);
+
 void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority);
 int GetPriority(struct drive *drive, int secondary, uint32_t entry_index);
@@ -165,6 +167,7 @@ int IsSynonymous(const GptHeader* a, const GptHeader* b);
 
 int IsUnused(struct drive *drive, int secondary, uint32_t index);
 int IsKernel(struct drive *drive, int secondary, uint32_t index);
+int LookupMtdTypeForGuid(const Guid *type);
 
 // For usage and error messages.
 extern const char* progname;

@@ -55,6 +55,7 @@
 #define MTD_PARTITION_TYPE_CHROMEOS_FLAGSTORE 5
 #define MTD_PARTITION_TYPE_LINUX_DATA         6
 #define MTD_PARTITION_TYPE_EFI                7
+#define MTD_PARTITION_TYPE_OTHER              8
 
 /* This is mostly arbitrary at the moment, but gives a little room to expand. */
 #define MTD_MAX_PARTITIONS 16
