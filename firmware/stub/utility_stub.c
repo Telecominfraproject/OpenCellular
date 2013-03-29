@@ -6,6 +6,8 @@
  * equivalents.
  */
 
+#include <stdint.h>
+
 #define _STUB_IMPLEMENTATION_
 #include "utility.h"
 

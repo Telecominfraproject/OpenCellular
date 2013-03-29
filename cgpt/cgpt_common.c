@@ -6,8 +6,6 @@
  * files for more details.
  */
 
-#include "cgpt.h"
-
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -22,8 +20,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "cgpt.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
+#include "vboot_host.h"
 
 void Error(const char *format, ...) {
   va_list ap;

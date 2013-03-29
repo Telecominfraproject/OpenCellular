@@ -35,6 +35,8 @@
  * SUCH DAMAGE.
  */
 
+#include "sysincludes.h"
+
 #include "cryptolib.h"
 #include "utility.h"
 

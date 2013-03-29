@@ -5,6 +5,7 @@
  * Tests for vboot_api_kernel, part 4 - select and load kernel
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

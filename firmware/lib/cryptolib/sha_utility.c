@@ -5,6 +5,8 @@
  * Utility functions for message digest functions.
  */
 
+#include "sysincludes.h"
+
 #include "cryptolib.h"
 #include "utility.h"
 #include "vboot_api.h"

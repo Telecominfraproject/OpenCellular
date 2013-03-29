@@ -2,14 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cgpt.h"
-
 #include <string.h>
 
-#include "cgptlib_internal.h"
-#include "cgpt_params.h"
 #define _STUB_IMPLEMENTATION_
+
+#include "cgpt.h"
+#include "cgpt_params.h"
+#include "cgptlib_internal.h"
 #include "utility.h"
+#include "vboot_host.h"
 
 static const char* DumpCgptAddParams(const CgptAddParams *params) {
   static char buf[256];

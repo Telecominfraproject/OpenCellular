@@ -8,8 +8,8 @@
 #include <unistd.h>
 
 #include "cgpt.h"
-#include "cgpt_params.h"
 #include "cgptlib_internal.h"
+#include "vboot_host.h"
 
 #define BUFSIZE 1024
 // FIXME: currently we only support 512-byte sectors.

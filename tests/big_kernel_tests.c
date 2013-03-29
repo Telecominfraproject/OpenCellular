@@ -6,6 +6,7 @@
  * is a quick and dirty test for detecting integer overflow issues.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

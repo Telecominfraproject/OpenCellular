@@ -5,6 +5,7 @@
  * Tests for vboot_api_init
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

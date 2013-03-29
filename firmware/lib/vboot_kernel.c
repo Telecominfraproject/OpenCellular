@@ -6,6 +6,7 @@
  * (Firmware portion)
  */
 
+#include "sysincludes.h"
 
 #include "cgptlib.h"
 #include "cgptlib_internal.h"

@@ -5,6 +5,8 @@
  * Implementations of stateful memory operations.
  */
 
+#include "sysincludes.h"
+
 #include "stateful_util.h"
 #include "utility.h"
 

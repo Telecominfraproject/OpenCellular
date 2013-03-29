@@ -5,8 +5,9 @@
  * Functions for updating the TPM state with the status of boot path.
  */
 
-#include "tpm_bootmode.h"
+#include "sysincludes.h"
 
+#include "tpm_bootmode.h"
 #include "tss_constants.h"
 
 const char* kBootStateSHA1Digests[] = {

@@ -5,6 +5,8 @@
  * Delay/beep functions used in dev-mode kernel selection.
  */
 
+#include "sysincludes.h"
+
 #include "crc32.h"
 #include "gbb_header.h"
 #include "utility.h"

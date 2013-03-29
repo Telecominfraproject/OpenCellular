@@ -6,6 +6,8 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <lzma.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -15,7 +17,7 @@
 
 #include "bmpblk_util.h"
 #include "eficompress.h"
-
+#include "vboot_api.h"
 
 // Returns pointer to buffer containing entire file, sets length.
 static void *read_entire_file(const char *filename, size_t *length) {

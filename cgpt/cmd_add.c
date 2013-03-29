@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cgpt.h"
-
 #include <getopt.h>
 #include <string.h>
 
-#include "cgpt_params.h"
+#include "cgpt.h"
+#include "vboot_host.h"
 
 static void Usage(void)
 {

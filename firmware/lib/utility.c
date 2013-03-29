@@ -6,6 +6,7 @@
  */
 
 #include "sysincludes.h"
+
 #include "utility.h"
 
 int SafeMemcmp(const void *s1, const void *s2, size_t n) {

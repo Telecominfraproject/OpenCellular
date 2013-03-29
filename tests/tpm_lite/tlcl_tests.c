@@ -6,6 +6,8 @@
 /* Shared code for tests.
  */
 
+#include "sysincludes.h"
+
 #include "tlcl.h"
 #include "tlcl_tests.h"
 

@@ -160,6 +160,9 @@ endif
 # Create / use dependency files
 CFLAGS += -MMD -MF $@.d
 
+# These are required to access large disks and files on 32-bit systems.
+CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+
 # Code coverage
 ifneq (${COV},)
   COV_FLAGS = -O0 --coverage
@@ -659,8 +662,9 @@ ${FWLIB}: ${FWLIB_OBJS}
 hostlib: ${HOSTLIB} ${BUILD}/host/linktest/main
 
 ${BUILD}/host/% ${HOSTLIB}: INCLUDES += \
-	-Ihost/include\
-	-Ihost/arch/${ARCH}/include
+	-Ihost/include \
+	-Ihost/arch/${ARCH}/include \
+	-Ihost/lib/include
 
 # TODO: better way to make .a than duplicating this recipe each time?
 ${HOSTLIB}: ${HOSTLIB_OBJS} ${FWLIB_OBJS}
@@ -687,6 +691,8 @@ ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
 .PHONY: cgpt
 cgpt: ${CGPT}
 
+${CGPT_OBJS}: INCLUDES += -Ihost/include
+
 ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
 
@@ -704,7 +710,10 @@ cgpt_install: ${CGPT}
 # Utilities
 
 # These have their own headers too.
-${BUILD}/utility/%: INCLUDES += -Ihost/include -Iutility/include
+${BUILD}/utility/%: INCLUDES += \
+	-Ihost/include \
+	-Ihost/lib/include \
+	-Iutility/include
 
 # Utilities for auto-update toolkits must be statically linked.
 ${UTIL_BINS_STATIC}: LDFLAGS += -static
@@ -855,7 +864,7 @@ ${BUILD}/utility/bmpblk_font: ${BUILD}/utility/image_types.o
 
 # Allow multiple definitions, so tests can mock functions from other libraries
 ${BUILD}/tests/%: CFLAGS += -Xlinker --allow-multiple-definition
-${BUILD}/tests/%: INCLUDES += -Ihost/include
+${BUILD}/tests/%: INCLUDES += -Ihost/include -Ihost/lib/include
 ${BUILD}/tests/%: LDLIBS += -lrt -luuid
 ${BUILD}/tests/%: LIBS += ${TESTLIB}
 

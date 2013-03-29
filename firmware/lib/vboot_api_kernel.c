@@ -5,6 +5,8 @@
  * High-level firmware wrapper API - entry points for kernel selection
  */
 
+#include "sysincludes.h"
+
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"

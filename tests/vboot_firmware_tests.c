@@ -5,6 +5,7 @@
  * Tests for vboot_firmware library.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

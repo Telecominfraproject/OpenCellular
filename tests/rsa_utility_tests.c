@@ -4,6 +4,7 @@
  */
 
 
+#include <stdint.h>
 #include <stdio.h>
 
 #define _STUB_IMPLEMENTATION_

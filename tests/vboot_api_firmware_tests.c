@@ -5,6 +5,7 @@
  * Tests for vboot_api_firmware
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

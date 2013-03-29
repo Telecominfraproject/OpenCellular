@@ -5,6 +5,7 @@
  * Timing benchmark for verifying a firmware image.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

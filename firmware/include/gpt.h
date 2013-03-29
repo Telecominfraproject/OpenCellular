@@ -9,8 +9,7 @@
  */
 #ifndef VBOOT_REFERENCE_CGPTLIB_GPT_H_
 #define VBOOT_REFERENCE_CGPTLIB_GPT_H_
-
-#include "sysincludes.h"
+#include <stdint.h>
 
 #define GPT_HEADER_SIGNATURE  "EFI PART"
 #define GPT_HEADER_SIGNATURE2 "CHROMEOS"

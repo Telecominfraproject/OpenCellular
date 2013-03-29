@@ -5,6 +5,8 @@
  * Display functions used in kernel selection.
  */
 
+#include "sysincludes.h"
+
 #include "bmpblk_font.h"
 #include "gbb_header.h"
 #include "utility.h"

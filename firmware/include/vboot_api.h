@@ -21,9 +21,7 @@
 
 #ifndef VBOOT_REFERENCE_VBOOT_API_H_
 #define VBOOT_REFERENCE_VBOOT_API_H_
-
-#include "sysincludes.h"
-#include "bmpblk_header.h"
+#include <stdint.h>
 
 /*****************************************************************************/
 /* Error codes */
@@ -813,6 +811,14 @@ uint32_t VbExIsShutdownRequested(void);
 VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
                          uint32_t compression_type,
                          void *outbuf, uint32_t *out_size);
+
+/* Constants for compression_type */
+enum {
+	COMPRESS_NONE = 0,
+	COMPRESS_EFIv1,           /* The x86 BIOS only supports this */
+	COMPRESS_LZMA1,           /* The ARM BIOS supports LZMA1 */
+	MAX_COMPRESS,
+};
 
 /**
  * Execute legacy boot option.

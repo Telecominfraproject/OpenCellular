@@ -5,6 +5,7 @@
  * Tests for vboot_api_kernel, part 3 - software sync
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -5,6 +5,7 @@
  * Tests for firmware vboot_common.c
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

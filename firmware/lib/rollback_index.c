@@ -6,6 +6,8 @@
  * stored in the TPM NVRAM.
  */
 
+#include "sysincludes.h"
+
 #include "crc8.h"
 #include "rollback_index.h"
 #include "tlcl.h"

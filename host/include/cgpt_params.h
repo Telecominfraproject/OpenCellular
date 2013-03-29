@@ -1,15 +1,17 @@
-// Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+// Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #ifndef VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_
 #define VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_
+#include <stdint.h>
 
-#include "cgpt.h"
+#include "gpt.h"
 
-// This file defines the internal methods that use the user-mode cgpt programatically.
-// This is the interface for the callers such as the cgpt tool or the C++ post installer
-// executable.
+enum {
+  CGPT_OK = 0,
+  CGPT_FAILED,
+};
 
 typedef struct CgptCreateParams {
   char *drive_name;
@@ -46,8 +48,6 @@ typedef struct CgptShowParams {
   uint32_t partition;
   int single_item;
   int debug;
-
-  // This is filled in by the relevant methods in CgptShow.c
   int num_partitions;
 } CgptShowParams;
 
@@ -65,7 +65,6 @@ typedef struct CgptBootParams {
 
 typedef struct CgptPrioritizeParams {
   char *drive_name;
-
   uint32_t set_partition;
   int set_friends;
   int max_priority;
@@ -74,7 +73,6 @@ typedef struct CgptPrioritizeParams {
 
 typedef struct CgptFindParams {
   char *drive_name;
-
   int verbose;
   int set_unique;
   int set_type;
@@ -89,40 +87,12 @@ typedef struct CgptFindParams {
   Guid type_guid;
   char *label;
   int hits;
-  int match_partnum;           // 0 for no match, 1-N for match
+  int match_partnum;           /* 1-based; 0 means no match */
 } CgptFindParams;
 
 typedef struct CgptLegacyParams {
   char *drive_name;
   int efipart;
 } CgptLegacyParams;
-
-// create related methods.
-int CgptCreate(CgptCreateParams *params);
-
-// add/attribute/details related methods
-int CgptAdd(CgptAddParams *params);
-int CgptSetAttributes(CgptAddParams *params);
-int CgptGetPartitionDetails(CgptAddParams *params);
-
-// boot related methods.
-int CgptBoot(CgptBootParams *params);
-int CgptGetBootPartitionNumber(CgptBootParams *params);
-
-// show/get related methods.
-int CgptShow(CgptShowParams *params);
-int CgptGetNumNonEmptyPartitions(CgptShowParams *params);
-
-// repair related methods.
-int CgptRepair(CgptRepairParams *params);
-
-// priority related methods.
-int CgptPrioritize(CgptPrioritizeParams *params);
-
-// find related methods.
-void CgptFind(CgptFindParams *params);
-
-// legacy related methods.
-int CgptLegacy(CgptLegacyParams *params);
 
 #endif  // VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_

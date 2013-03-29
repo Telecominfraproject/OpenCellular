@@ -7,6 +7,7 @@
 
 #ifndef VBOOT_REFERENCE_NVSTORAGE_H_
 #define VBOOT_REFERENCE_NVSTORAGE_H_
+#include <stdint.h>
 
 #define VBNV_BLOCK_SIZE 16  /* Size of NV storage block in bytes */
 

@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "cgpt.h"
-
 #define __STDC_FORMAT_MACROS
 #include <getopt.h>
 #include <inttypes.h>
 #include <string.h>
-#include "cgpt_params.h"
+
+#include "cgpt.h"
+#include "vboot_host.h"
 
 static void Usage(void)
 {

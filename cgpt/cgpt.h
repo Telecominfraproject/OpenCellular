@@ -5,11 +5,6 @@
 #ifndef VBOOT_REFERENCE_UTILITY_CGPT_CGPT_H_
 #define VBOOT_REFERENCE_UTILITY_CGPT_CGPT_H_
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
-#define _FILE_OFFSET_BITS 64
 #include <fcntl.h>
 #include <features.h>
 #include <stdint.h>
@@ -18,13 +13,6 @@
 #include "endian.h"
 #include "gpt.h"
 #include "cgptlib.h"
-
-
-// Just for clarity
-enum {
-  CGPT_OK = 0,
-  CGPT_FAILED,
-};
 
 
 struct legacy_partition {
@@ -66,19 +54,6 @@ struct drive {
 int DriveOpen(const char *drive_path, struct drive *drive, int mode);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
-
-/* GUID conversion functions. Accepted format:
- *
- *   "C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
- *
- * At least GUID_STRLEN bytes should be reserved in 'str' (included the tailing
- * '\0').
- */
-#define GUID_STRLEN 37
-int StrToGuid(const char *str, Guid *guid);
-void GuidToStr(const Guid *guid, char *str, unsigned int buflen);
-int GuidEqual(const Guid *guid1, const Guid *guid2);
-int GuidIsZero(const Guid *guid);
 
 /* Constant global type values to compare against */
 extern const Guid guid_chromeos_firmware;

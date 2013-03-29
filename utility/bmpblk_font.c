@@ -7,6 +7,7 @@
 #include <getopt.h>
 #include <limits.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +18,7 @@
 
 #include "bmpblk_font.h"
 #include "image_types.h"
+#include "vboot_api.h"
 
 static char *progname;
 

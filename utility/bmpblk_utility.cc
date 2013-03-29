@@ -5,18 +5,20 @@
 // Utility for manipulating firmware screen block (BMPBLOCK) in GBB.
 //
 
-#include "bmpblk_utility.h"
-#include "image_types.h"
-
 #include <assert.h>
 #include <errno.h>
 #include <getopt.h>
 #include <lzma.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <yaml.h>
+
+#include "bmpblk_utility.h"
+#include "image_types.h"
+#include "vboot_api.h"
 
 extern "C" {
 #include "eficompress.h"

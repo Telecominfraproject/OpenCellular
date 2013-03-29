@@ -5,9 +5,10 @@
  * Functions for updating the TPM state with the status of boot path.
  */
 
-#include "tpm_bootmode.h"
+#include "sysincludes.h"
 
 #include "tlcl.h"
+#include "tpm_bootmode.h"
 #include "utility.h"
 #include "vboot_api.h"
 

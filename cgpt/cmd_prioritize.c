@@ -8,7 +8,8 @@
 #include <string.h>
 #include <uuid/uuid.h>
 
-#include "cgpt_params.h"
+#include "cgpt.h"
+#include "vboot_host.h"
 
 static void Usage(void)
 {

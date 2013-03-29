@@ -5,6 +5,7 @@
  * Tests for TPM lite library
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

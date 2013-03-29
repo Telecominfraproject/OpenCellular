@@ -5,6 +5,7 @@
  * Tests for checking firmware rollback-prevention logic.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

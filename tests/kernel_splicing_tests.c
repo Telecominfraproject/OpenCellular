@@ -5,6 +5,7 @@
  * Splicing tests for the kernel image verification library.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

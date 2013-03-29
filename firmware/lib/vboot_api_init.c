@@ -5,6 +5,8 @@
  * High-level firmware wrapper API - entry points for init, firmware selection
  */
 
+#include "sysincludes.h"
+
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "rollback_index.h"

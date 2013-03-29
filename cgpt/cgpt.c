@@ -6,12 +6,13 @@
  * files for more details.
  */
 
-#include "cgpt.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
+
+#include "cgpt.h"
+#include "vboot_host.h"
 
 const char* progname;
 const char* command;

@@ -6,6 +6,8 @@
  * (Firmware portion)
  */
 
+#include "sysincludes.h"
+
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "utility.h"

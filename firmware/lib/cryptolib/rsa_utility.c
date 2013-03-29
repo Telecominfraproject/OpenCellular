@@ -5,6 +5,8 @@
  * Implementation of RSA utility functions.
  */
 
+#include "sysincludes.h"
+
 #include "cryptolib.h"
 #include "stateful_util.h"
 #include "utility.h"

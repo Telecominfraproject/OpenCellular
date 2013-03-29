@@ -41,11 +41,9 @@
  *  |        List of locale names             |
  *  +-----------------------------------------+
  */
-
 #ifndef VBOOT_REFERENCE_BMPBLK_HEADER_H_
 #define VBOOT_REFERENCE_BMPBLK_HEADER_H_
-
-#include "sysincludes.h"
+#include <stdint.h>
 
 #define BMPBLOCK_SIGNATURE      "$BMP"
 #define BMPBLOCK_SIGNATURE_SIZE (4)
@@ -129,14 +127,6 @@ typedef enum ImageFormat {
 	FORMAT_BMP,
 	FORMAT_FONT,
 } ImageFormat;
-
-/* Constants for ImageInfo.compression */
-typedef enum Compression {
-	COMPRESS_NONE = 0,
-	COMPRESS_EFIv1,           /* The x86 BIOS only supports this */
-	COMPRESS_LZMA1,           /* The ARM BIOS supports LZMA1 */
-	MAX_COMPRESS,
-} Compression;
 
 /*
  * These magic image names can be used in the .yaml file to indicate that the

@@ -11,9 +11,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "dump_kernel_config.h"
-#include "kernel_blob.h"
-#include "vboot_api.h"
+#include "vboot_host.h"
 
 enum {
   OPT_KLOADADDR = 1000,
@@ -76,7 +74,7 @@ int main(int argc, char* argv[]) {
     return PrintHelp();
 
   if (!infile || !*infile) {
-    VbExError("Must specify filename\n");
+    fprintf(stderr, "Must specify filename\n");
     return 1;
   }
 

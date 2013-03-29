@@ -5,6 +5,7 @@
  * Tests for kernel image library.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

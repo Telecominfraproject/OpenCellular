@@ -5,6 +5,8 @@
 
 /* Non-volatile storage routines.
  */
+#include "sysincludes.h"
+
 
 #include "crc8.h"
 #include "utility.h"

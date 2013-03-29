@@ -6,6 +6,8 @@
  * equivalents.
  */
 
+#include <stdint.h>
+
 #define _STUB_IMPLEMENTATION_
 #include "tlcl.h"
 #include "tlcl_internal.h"
@@ -23,6 +25,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+
 
 #define TPM_DEVICE_PATH "/dev/tpm0"
 /* Retry failed open()s for 5 seconds in 10ms polling intervals. */

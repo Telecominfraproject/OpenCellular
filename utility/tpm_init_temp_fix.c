@@ -17,6 +17,7 @@
  * "success" when everything worked.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <syslog.h>
 

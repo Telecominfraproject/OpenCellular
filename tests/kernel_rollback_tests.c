@@ -5,6 +5,7 @@
  * Tests for checking kernel rollback-prevention logic.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

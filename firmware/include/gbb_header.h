@@ -4,11 +4,9 @@
  *
  * Data structure of Google Binary Block (GBB)
  */
-
 #ifndef VBOOT_REFERENCE_GBB_HEADER_H_
 #define VBOOT_REFERENCE_GBB_HEADER_H_
-
-#include "sysincludes.h"
+#include <stdint.h>
 
 #define GBB_HEADER_SIZE    128
 

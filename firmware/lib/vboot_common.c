@@ -6,6 +6,8 @@
  * (Firmware portion)
  */
 
+#include "sysincludes.h"
+
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "utility.h"

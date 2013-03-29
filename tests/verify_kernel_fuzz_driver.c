@@ -5,6 +5,7 @@
  * Utility for aiding fuzz testing of kernel image verification code.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 
 #include "file_keys.h"

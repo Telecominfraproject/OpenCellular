@@ -3,6 +3,8 @@
  * found in the LICENSE file.
  */
 
+#include "sysincludes.h"
+
 #include "cgptlib.h"
 #include "load_firmware_fw.h"
 #include "load_kernel_fw.h"

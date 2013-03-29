@@ -9,10 +9,10 @@
 #include <string.h>
 #include <sys/mman.h>
 
-#include "dump_kernel_config.h"
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "vboot_api.h"
+#include "vboot_host.h"
 
 static uint8_t* GetKernelConfig(uint8_t* blob, size_t blob_size,
                                 uint64_t kernel_body_load_address) {

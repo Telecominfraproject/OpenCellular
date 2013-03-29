@@ -5,6 +5,7 @@
  * Tests for do-nothing rollback_index functions with disabled TPM
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

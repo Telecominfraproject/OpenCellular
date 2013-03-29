@@ -9,7 +9,6 @@
 #ifndef VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 #define VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 
-#include "sysincludes.h"
 #include "vboot_api.h"
 #include "vboot_nvstorage.h"
 

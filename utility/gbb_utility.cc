@@ -5,10 +5,9 @@
 // Utility for manipulating Google Binary Block (GBB)
 //
 
-#include "gbb_utility.h"
-
 #include <assert.h>
 #include <getopt.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +15,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+
+#include "gbb_utility.h"
 
 using std::string;
 

@@ -8,6 +8,8 @@
  * support multiple RSA key lengths and hash digest algorithms.
  */
 
+#include "sysincludes.h"
+
 #include "cryptolib.h"
 #include "vboot_api.h"
 #include "utility.h"

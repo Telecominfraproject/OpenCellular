@@ -5,6 +5,8 @@
  * arrays corresponding to various combinations of algorithms for RSA signatures.
  */
 
+#include "sysincludes.h"
+
 #include "cryptolib.h"
 
 

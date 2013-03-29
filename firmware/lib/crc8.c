@@ -3,6 +3,8 @@
  * found in the LICENSE file.
  */
 
+#include "sysincludes.h"
+
 #include "crc8.h"
 
 /**

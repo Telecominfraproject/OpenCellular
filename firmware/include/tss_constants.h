@@ -5,11 +5,9 @@
  * Some TPM constants and type definitions for standalone compilation for use
  * in the firmware
  */
-
 #ifndef VBOOT_REFERENCE_TSS_CONSTANTS_H_
 #define VBOOT_REFERENCE_TSS_CONSTANTS_H_
-
-#include "sysincludes.h"
+#include <stdint.h>
 
 #define TPM_MAX_COMMAND_SIZE 4096
 #define TPM_LARGE_ENOUGH_COMMAND_SIZE 256  /* saves space in the firmware */

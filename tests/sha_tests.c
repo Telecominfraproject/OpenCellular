@@ -5,6 +5,7 @@
 
 /* FIPS 180-2 Tests for message digest functions. */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

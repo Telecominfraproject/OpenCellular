@@ -39,6 +39,8 @@
 /*      polynomial $edb88320                                              */
 /*                                                                        */
 /*  --------------------------------------------------------------------  */
+#include "sysincludes.h"
+
 #include "crc32.h"
 
 static uint32_t crc32_tab[] = {

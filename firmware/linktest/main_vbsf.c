@@ -3,6 +3,8 @@
  * found in the LICENSE file.
  */
 
+#include "sysincludes.h"
+
 #include "vboot_api.h"
 
 int main(void)

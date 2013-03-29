@@ -5,6 +5,7 @@
  * Tests for tpm_bootmode functions
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

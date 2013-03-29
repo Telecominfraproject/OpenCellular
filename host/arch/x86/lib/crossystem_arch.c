@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <linux/nvram.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -14,10 +15,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "host_common.h"
-
 #include "crossystem.h"
 #include "crossystem_arch.h"
+#include "host_common.h"
 #include "utility.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"

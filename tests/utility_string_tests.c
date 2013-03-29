@@ -5,6 +5,7 @@
  * Tests for string utility functions.
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

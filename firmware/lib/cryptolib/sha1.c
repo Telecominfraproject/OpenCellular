@@ -6,6 +6,8 @@
  * Open Source Project (platorm/system/core.git/libmincrypt/sha.c
  */
 
+#include "sysincludes.h"
+
 #include "cryptolib.h"
 #include "utility.h"
 

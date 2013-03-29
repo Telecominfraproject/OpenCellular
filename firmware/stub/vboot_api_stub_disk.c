@@ -5,6 +5,8 @@
  * Stub implementations of disk APIs.
  */
 
+#include <stdint.h>
+
 #define _STUB_IMPLEMENTATION_
 
 #include <stdarg.h>
