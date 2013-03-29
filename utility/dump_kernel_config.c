@@ -36,11 +36,9 @@ static int PrintHelp(void) {
 }
 
 int main(int argc, char* argv[]) {
-  uint8_t* blob;
-  size_t blob_size;
-  char* infile = NULL;
-  uint8_t *config = NULL;
-  uint64_t kernel_body_load_address = CROS_NO_ENTRY_ADDR;
+  char *infile = NULL;
+  char *config = NULL;
+  uint64_t kernel_body_load_address = USE_PREAMBLE_LOAD_ADDR;
   int parse_error = 0;
   char *e;
   int i;
@@ -82,22 +80,12 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  /* Map the kernel image blob. */
-  blob = MMapFile(infile, &blob_size);
-  if (!blob) {
-    VbExError("Error reading input file\n");
+  config = FindKernelConfig(infile, kernel_body_load_address);
+  if (!config)
     return 1;
-  }
 
-  config = FindKernelConfig(blob, (uint64_t)blob_size,
-                              kernel_body_load_address);
-  if (!config) {
-    VbExError("Error parsing input file\n");
-    munmap(blob, blob_size);
-    return 1;
-  }
+  printf("%s", config);
 
-  printf("%.*s", CROS_CONFIG_SIZE, config);
-  munmap(blob, blob_size);
+  free(config);
   return 0;
 }

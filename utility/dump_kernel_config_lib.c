@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <sys/mman.h>
 
 #include "dump_kernel_config.h"
@@ -13,8 +14,8 @@
 #include "kernel_blob.h"
 #include "vboot_api.h"
 
-uint8_t* FindKernelConfig(uint8_t* blob, uint64_t blob_size,
-                            uint64_t kernel_body_load_address) {
+static uint8_t* GetKernelConfig(uint8_t* blob, size_t blob_size,
+                                uint64_t kernel_body_load_address) {
 
   VbKeyBlockHeader* key_block;
   VbKernelPreambleHeader* preamble;
@@ -38,7 +39,7 @@ uint8_t* FindKernelConfig(uint8_t* blob, uint64_t blob_size,
   }
 
   /* Read body_load_address from preamble if no kernel_body_load_address */
-  if (kernel_body_load_address == CROS_NO_ENTRY_ADDR)
+  if (kernel_body_load_address == USE_PREAMBLE_LOAD_ADDR)
     kernel_body_load_address = preamble->body_load_address;
 
   /* The x86 kernels have a pointer to the kernel commandline in the zeropage
@@ -54,7 +55,7 @@ uint8_t* FindKernelConfig(uint8_t* blob, uint64_t blob_size,
   return blob + offset;
 }
 
-void* MMapFile(const char* filename, size_t *size) {
+static void* MMapFile(const char* filename, size_t *size) {
   FILE* f;
   uint8_t* buf;
   long file_size = 0;
@@ -85,4 +86,34 @@ void* MMapFile(const char* filename, size_t *size) {
 
   fclose(f);
   return buf;
+}
+
+
+char *FindKernelConfig(const char *infile, uint64_t kernel_body_load_address)
+{
+  uint8_t* blob;
+  size_t blob_size;
+  uint8_t *config = NULL;
+  char *newstr = NULL;
+
+  blob = MMapFile(infile, &blob_size);
+  if (!blob) {
+    VbExError("Error reading input file\n");
+    return 0;
+  }
+
+  config = GetKernelConfig(blob, blob_size, kernel_body_load_address);
+  if (!config) {
+    VbExError("Error parsing input file\n");
+    munmap(blob, blob_size);
+    return 0;
+  }
+
+  newstr = strndup((char *)config, CROS_CONFIG_SIZE);
+  if (!newstr)
+    VbExError("Can't allocate new string\n");
+
+  munmap(blob, blob_size);
+
+  return newstr;
 }
