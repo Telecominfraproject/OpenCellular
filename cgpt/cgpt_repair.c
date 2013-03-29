@@ -18,6 +18,12 @@ int CgptRepair(CgptRepairParams *params) {
   if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
+  if (drive.is_mtd) {
+    // Nothing to do
+    DriveClose(&drive, 0);
+    return 0;
+  }
+
   int gpt_retval = GptSanityCheck(&drive.gpt);
   if (params->verbose)
     printf("GptSanityCheck() returned %d: %s\n",

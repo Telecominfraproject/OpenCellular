@@ -18,6 +18,13 @@ int CgptLegacy(CgptLegacyParams *params) {
   if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
+  if (drive.is_mtd) {
+    // This command requires GPT mode.
+    Error("'legacy' command unsupported in MTD mode\n");
+    DriveClose(&drive, 0);
+    return CGPT_FAILED;
+  }
+
   h1 = (GptHeader *)drive.gpt.primary_header;
   h2 = (GptHeader *)drive.gpt.secondary_header;
   if (params->efipart) {
