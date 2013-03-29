@@ -26,6 +26,10 @@
 #include "flash_ts.h"
 #include "vboot_host.h"
 
+struct nand_layout nand = {
+  0, 0, 0, 0, 0
+};
+
 void Error(const char *format, ...) {
   va_list ap;
   va_start(ap, format);
@@ -339,7 +343,7 @@ int GptSave(struct drive *drive) {
 int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
   struct stat stat;
   uint32_t sector_bytes;
-  int is_mtd = 0;
+  int is_mtd = nand.enabled;
 
   require(drive_path);
   require(drive);
@@ -374,6 +378,10 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
   }
 
   if (is_mtd) {
+    drive->mtd.fts_block_offset = nand.fts_block_offset;
+    drive->mtd.fts_block_size = nand.fts_block_size;
+    drive->mtd.flash_page_bytes = nand.bytes_per_page;
+    drive->mtd.flash_block_bytes = nand.pages_per_block * nand.bytes_per_page;
     if (MtdLoad(drive, sector_bytes)) {
       goto error_close;
     }

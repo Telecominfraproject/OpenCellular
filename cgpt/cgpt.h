@@ -52,6 +52,11 @@ struct drive {
   struct pmbr pmbr;
 };
 
+struct nand_layout {
+  int enabled;
+  int bytes_per_page, pages_per_block, fts_block_offset, fts_block_size;
+};
+
 
 /* mode should be O_RDONLY or O_RDWR */
 int DriveOpen(const char *drive_path, struct drive *drive, int mode);
