@@ -21,7 +21,7 @@
 // These match the linux driver
 #define FLASH_TS_MAGIC    0x53542a46
 
-#define FLASH_TS_HEADER_SIZE 24
+#define FLASH_TS_HEADER_SIZE 16
 #define FLASH_TS_MAX_SIZE 16384
 #define FLASH_TS_MAX_ELEMENT_SIZE (FLASH_TS_MAX_SIZE - FLASH_TS_HEADER_SIZE)
 
@@ -121,6 +121,7 @@ static void flash_ts_scan_partition(flash_ts_state *ts) {
         }
 
         // It's good & newer than our current version
+        VBDEBUG(("Found good version %d\n", ts->temp.version));
         ts->current_block = block;
         Memcpy(&ts->current, &ts->temp, sizeof(ts->current));
       }
@@ -344,7 +345,7 @@ int flash_ts_set(const char *key, const char *value) {
 
     if (ts->length + keylen + 1 + value_len + 1 > FLASH_TS_MAX_ELEMENT_SIZE) {
       // Not enough space, restore previous
-      VBDEBUG(("Not enough space to write %d data bytes\n", value_len));
+      VBDEBUG(("Not enough space to write %d data bytes\n", (int)value_len));
       Memcpy(&state.current, &state.temp, sizeof(state.temp));
       return -1;
     }

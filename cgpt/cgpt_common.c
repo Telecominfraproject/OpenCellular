@@ -193,11 +193,11 @@ int FlashSet(const char *key, const uint8_t *data, uint32_t bufsz) {
 
 int MtdLoad(struct drive *drive, int sector_bytes) {
   int ret;
-  uint32_t old_crc, new_crc;
   uint32_t sz;
   MtdData *mtd = &drive->mtd;
 
   mtd->sector_bytes = sector_bytes;
+  mtd->drive_sectors = drive->size / mtd->sector_bytes;
 
   ret = flash_ts_init(mtd->fts_block_offset,
                       mtd->fts_block_size,
@@ -216,21 +216,7 @@ int MtdLoad(struct drive *drive, int sector_bytes) {
 
   /* Read less than expected */
   if (sz < MTD_DRIVE_V1_SIZE)
-    return -1;
-
-  if (memcmp(mtd->primary.signature, MTD_DRIVE_SIGNATURE,
-             sizeof(mtd->primary.signature))) {
-    return -1;
-  }
-
-  old_crc = mtd->primary.crc32;
-  mtd->primary.crc32 = 0;
-  new_crc = Crc32(&mtd->primary, MTD_DRIVE_V1_SIZE);
-  mtd->primary.crc32 = old_crc;
-
-  if (old_crc != new_crc) {
-    return -1;
-  }
+    memset(&mtd->primary, 0, sizeof(mtd->primary));
 
   mtd->current_kernel = -1;
   mtd->current_priority = 0;
@@ -240,6 +226,9 @@ int MtdLoad(struct drive *drive, int sector_bytes) {
 
 int MtdSave(struct drive *drive) {
   MtdData *mtd = &drive->mtd;
+
+  if (!mtd->modified)
+    return 0;
 
   mtd->primary.crc32 = 0;
   mtd->primary.crc32 = Crc32(&mtd->primary, MTD_DRIVE_V1_SIZE);
@@ -735,6 +724,16 @@ int LookupMtdTypeForGuid(const Guid *type) {
     }
   }
   return MTD_PARTITION_TYPE_OTHER;
+}
+
+const Guid *LookupGuidForMtdType(int type) {
+  int i;
+  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
+    if (supported_types[i].mtd_type == type) {
+      return supported_types[i].type;
+    }
+  }
+  return NULL;
 }
 
 /* Resolves human-readable GPT type.

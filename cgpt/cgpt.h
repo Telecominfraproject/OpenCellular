@@ -145,6 +145,7 @@ int ResolveType(const Guid *type, char *buf);
 int SupportedType(const char *name, Guid *type);
 void PrintTypes(void);
 void EntryDetails(GptEntry *entry, uint32_t index, int raw);
+void MtdEntryDetails(MtdDiskPartition *entry, uint32_t index, int raw);
 
 uint32_t GetNumberOfEntries(const struct drive *drive);
 GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index);
@@ -173,6 +174,7 @@ int IsSynonymous(const GptHeader* a, const GptHeader* b);
 int IsUnused(struct drive *drive, int secondary, uint32_t index);
 int IsKernel(struct drive *drive, int secondary, uint32_t index);
 int LookupMtdTypeForGuid(const Guid *type);
+const Guid *LookupGuidForMtdType(int type);
 
 // For usage and error messages.
 extern const char* progname;

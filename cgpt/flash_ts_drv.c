@@ -20,9 +20,6 @@ inline int page_to_sector(const nand_geom *nand, int page) {
 int nand_read_page(const nand_geom *nand, int page, void *buf, int size) {
   uint8_t *page_buff;
 
-  if (size > nand->szofpg) {
-    return -1;
-  }
   if (Load((struct drive *)nand->user, &page_buff,
            page_to_sector(nand, page), nand->szofsector,
            (size + nand->szofsector - 1) / nand->szofsector)) {
@@ -37,22 +34,21 @@ int nand_read_page(const nand_geom *nand, int page, void *buf, int size) {
 }
 
 int nand_write_page(const nand_geom *nand,
-                    int page, const void *buf, int size) {
+                    int page, const void *buf, int buf_size) {
   void *page_buff;
   int ret;
+  int sectors = (buf_size + nand->szofsector - 1) / nand->szofsector;
+  int size = nand->szofsector * sectors;
 
-  if (size > nand->szofpg) {
-    return -1;
-  }
-  page_buff  = malloc(nand->szofpg);
+  page_buff  = malloc(size);
   if (!page_buff)
     return -1;
 
-  memset(page_buff, 0xff, nand->szofpg);
-  memcpy(page_buff, buf, size < nand->szofpg ? size : nand->szofpg);
+  memset(page_buff, 0xff, size);
+  memcpy(page_buff, buf, buf_size);
 
   ret = Save((struct drive *)nand->user, page_buff, page_to_sector(nand, page),
-             nand->szofsector, nand->szofpg / nand->szofsector);
+             nand->szofsector, sectors);
   free(page_buff);
   return ret;
 }
