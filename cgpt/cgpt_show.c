@@ -49,22 +49,37 @@ static void RawDump(const uint8_t *memory, const int size,
 #define PARTITION_FMT  "%12d%12d%8d  %s\n"
 #define PARTITION_MORE "%12s%12s%8s  %s%s\n", "", "", ""
 
-static void HeaderDetails(GptHeader *header, GptEntry *entries,
-                          const char *indent, int raw) {
-  int i;
-
+void PrintSignature(const char *indent, const char *sig, size_t n, int raw) {
+  size_t i;
   printf("%sSig: ", indent);
   if (!raw) {
     printf("[");
-    for (i = 0; i < sizeof(header->signature); ++i)
-      printf("%c", header->signature[i]);
+    for (i = 0; i < n; ++i)
+      printf("%c", sig[i]);
     printf("]");
   } else {
-    char buf[BUFFER_SIZE(sizeof(header->signature))];
-    RawDump((uint8_t *)header->signature, sizeof(header->signature), buf, 1);
+    char *buf = malloc(BUFFER_SIZE(n));
+    RawDump((uint8_t *)sig, n, buf, 1);
     printf("%s", buf);
+    free(buf);
   }
   printf("\n");
+}
+
+void MtdHeaderDetails(MtdDiskLayout *header, const char *indent, int raw) {
+  PrintSignature(indent, (char*)header->signature, sizeof(header->signature),
+    raw);
+
+  printf("%sSize: %d\n", indent, header->size);
+  printf("%sCRC: 0x%08x %s\n", indent, header->crc32,
+         (MtdHeaderCrc(header) != header->crc32) ? "(INVALID)" : "");
+  printf("%sFirst LBA: %u\n", indent, header->first_lba);
+  printf("%sLast LBA: %u\n", indent, header->last_lba);
+}
+
+static void HeaderDetails(GptHeader *header, GptEntry *entries,
+                          const char *indent, int raw) {
+  PrintSignature(indent, header->signature, sizeof(header->signature), raw);
 
   printf("%sRev: 0x%08x\n", indent, header->revision);
   printf("%sSize: %d\n", indent, header->size);
@@ -90,6 +105,26 @@ static void HeaderDetails(GptHeader *header, GptEntry *entries,
                                             header->number_of_entries)
              ? "INVALID" : ""
          );
+}
+
+void MtdEntryDetails(MtdDiskPartition *entry, uint32_t index, int raw) {
+  const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
+  char buf[256];                   // scratch buffer for formatting output
+  if (guid) {
+    ResolveType(guid, buf);
+  } else {
+    snprintf(buf, sizeof(buf), "MTD partition type %d", MtdGetEntryType(entry));
+  }
+
+  if (!raw) {
+    printf(PARTITION_FMT, (int)entry->starting_lba,
+           (int)(entry->ending_lba - entry->starting_lba + 1),
+           index+1, buf);
+  } else {
+    printf(PARTITION_FMT, (int)entry->starting_lba,
+           (int)(entry->ending_lba - entry->starting_lba + 1),
+           index+1, buf);
+  }
 }
 
 void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
@@ -149,6 +184,17 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
   }
 }
 
+void MtdEntriesDetails(struct drive *drive, int secondary, int raw) {
+  uint32_t i;
+
+  for (i = 0; i < GetNumberOfEntries(drive); ++i) {
+    MtdDiskPartition *entry;
+    entry = MtdGetEntry(&drive->mtd, secondary, i);
+    if (IsUnused(drive, secondary, i))
+      continue;
+    MtdEntryDetails(entry, i, raw);
+  }
+}
 
 void EntriesDetails(struct drive *drive, const int secondary, int raw) {
   uint32_t i;
@@ -200,17 +246,86 @@ done:
   return retval;
 }
 
-int CgptShow(CgptShowParams *params) {
-  struct drive drive;
+int MtdShow(struct drive *drive, CgptShowParams *params) {
+  if (params->partition) {                      // show single partition
+    if (params->partition > GetNumberOfEntries(drive)) {
+      Error("invalid partition number: %d\n", params->partition);
+      return CGPT_FAILED;
+    }
+
+    uint32_t index = params->partition - 1;
+    MtdDiskPartition *entry = MtdGetEntry(&drive->mtd, ANY_VALID, index);
+    char buf[256];                      // scratch buffer for string conversion
+    const Guid *guid;
+
+    if (params->single_item) {
+      switch(params->single_item) {
+      case 'b':
+        printf("%u\n", entry->starting_lba);
+        break;
+      case 's':
+        printf("%u\n", entry->ending_lba - entry->starting_lba + 1);
+        break;
+      case 't':
+        guid = LookupGuidForMtdType(MtdGetEntryType(entry));
+        GuidToStr(guid, buf, sizeof(buf));
+        printf("%s\n", buf);
+        break;
+      case 'S':
+        printf("%d\n", GetSuccessful(drive, ANY_VALID, index));
+        break;
+      case 'T':
+        printf("%d\n", GetTries(drive, ANY_VALID, index));
+        break;
+      case 'P':
+        printf("%d\n", GetPriority(drive, ANY_VALID, index));
+        break;
+      case 'A':
+        printf("0x%x\n", entry->flags);
+        break;
+      }
+    } else {
+      printf(TITLE_FMT, "start", "size", "part", "contents");
+      MtdEntryDetails(entry, index, params->numeric);
+    }
+  } else if (params->quick) {                   // show all partitions, quickly
+    uint32_t i;
+    char type[GUID_STRLEN];
+
+    for (i = 0; i < GetNumberOfEntries(drive); ++i) {
+      MtdDiskPartition *entry = MtdGetEntry(&drive->mtd, ANY_VALID, i);
+      const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
+
+      if (IsUnused(drive, ANY_VALID, i))
+        continue;
+
+      if (!params->numeric && guid) {
+        ResolveType(guid, type);
+      } else {
+        snprintf(type, sizeof(type), "MTD partition type %d",
+                 MtdGetEntryType(entry));
+      }
+      printf(PARTITION_FMT, (int)entry->starting_lba,
+             (int)(entry->ending_lba - entry->starting_lba + 1),
+             i+1, type);
+    }
+  } else {                              // show all partitions
+    if (params->debug || params->verbose) {
+      char indent[64];
+
+      require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
+      MtdHeaderDetails(&drive->mtd.primary, indent, 0);
+    }
+
+    MtdEntriesDetails(drive, PRIMARY, params->numeric);
+  }
+
+  return CGPT_OK;
+}
+
+int GptShow(struct drive *drive, CgptShowParams *params) {
   int gpt_retval;
-
-  if (params == NULL)
-    return CGPT_FAILED;
-
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
-    return CGPT_FAILED;
-
-  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
+  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive->gpt))) {
     Error("GptSanityCheck() returned %d: %s\n",
           gpt_retval, GptError(gpt_retval));
     return CGPT_FAILED;
@@ -218,13 +333,13 @@ int CgptShow(CgptShowParams *params) {
 
   if (params->partition) {                      // show single partition
 
-    if (params->partition > GetNumberOfEntries(&drive)) {
+    if (params->partition > GetNumberOfEntries(drive)) {
       Error("invalid partition number: %d\n", params->partition);
       return CGPT_FAILED;
     }
 
     uint32_t index = params->partition - 1;
-    GptEntry *entry = GetEntry(&drive.gpt, ANY_VALID, index);
+    GptEntry *entry = GetEntry(&drive->gpt, ANY_VALID, index);
     char buf[256];                      // scratch buffer for string conversion
 
     if (params->single_item) {
@@ -254,13 +369,13 @@ int CgptShow(CgptShowParams *params) {
         printf("%s\n", buf);
         break;
       case 'S':
-        printf("%d\n", GetSuccessful(&drive, ANY_VALID, index));
+        printf("%d\n", GetSuccessful(drive, ANY_VALID, index));
         break;
       case 'T':
-        printf("%d\n", GetTries(&drive, ANY_VALID, index));
+        printf("%d\n", GetTries(drive, ANY_VALID, index));
         break;
       case 'P':
-        printf("%d\n", GetPriority(&drive, ANY_VALID, index));
+        printf("%d\n", GetPriority(drive, ANY_VALID, index));
         break;
       case 'A':
         printf("0x%x\n", entry->attrs.fields.gpt_att);
@@ -276,8 +391,8 @@ int CgptShow(CgptShowParams *params) {
     GptEntry *entry;
     char type[GUID_STRLEN];
 
-    for (i = 0; i < GetNumberOfEntries(&drive); ++i) {
-      entry = GetEntry(&drive.gpt, ANY_VALID, i);
+    for (i = 0; i < GetNumberOfEntries(drive); ++i) {
+      entry = GetEntry(&drive->gpt, ANY_VALID, i);
 
       if (GuidIsZero(&entry->type))
         continue;
@@ -293,17 +408,17 @@ int CgptShow(CgptShowParams *params) {
   } else {                              // show all partitions
     GptEntry *entries;
 
-    if (CGPT_OK != ReadPMBR(&drive)) {
+    if (CGPT_OK != ReadPMBR(drive)) {
       Error("Unable to read PMBR\n");
       return CGPT_FAILED;
     }
 
     printf(TITLE_FMT, "start", "size", "part", "contents");
     char buf[256];                      // buffer for formatted PMBR content
-    PMBRToStr(&drive.pmbr, buf, sizeof(buf)); // will exit if buf is too small
+    PMBRToStr(&drive->pmbr, buf, sizeof(buf)); // will exit if buf is too small
     printf(GPT_FMT, 0, GPT_PMBR_SECTOR, "", buf);
 
-    if (drive.gpt.valid_headers & MASK_PRIMARY) {
+    if (drive->gpt.valid_headers & MASK_PRIMARY) {
       printf(GPT_FMT, (int)GPT_PMBR_SECTOR,
              (int)GPT_HEADER_SECTOR, "", "Pri GPT header");
     } else {
@@ -312,30 +427,30 @@ int CgptShow(CgptShowParams *params) {
     }
 
     if (params->debug ||
-        ((drive.gpt.valid_headers & MASK_PRIMARY) && params->verbose)) {
+        ((drive->gpt.valid_headers & MASK_PRIMARY) && params->verbose)) {
       GptHeader *header;
       char indent[64];
 
       require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
-      header = (GptHeader*)drive.gpt.primary_header;
-      entries = (GptEntry*)drive.gpt.primary_entries;
+      header = (GptHeader*)drive->gpt.primary_header;
+      entries = (GptEntry*)drive->gpt.primary_entries;
       HeaderDetails(header, entries, indent, params->numeric);
     }
 
     printf(GPT_FMT, (int)(GPT_PMBR_SECTOR + GPT_HEADER_SECTOR),
            (int)GPT_ENTRIES_SECTORS,
-           drive.gpt.valid_entries & MASK_PRIMARY ? "" : "INVALID",
+           drive->gpt.valid_entries & MASK_PRIMARY ? "" : "INVALID",
            "Pri GPT table");
 
     if (params->debug ||
-        (drive.gpt.valid_entries & MASK_PRIMARY))
-      EntriesDetails(&drive, PRIMARY, params->numeric);
+        (drive->gpt.valid_entries & MASK_PRIMARY))
+      EntriesDetails(drive, PRIMARY, params->numeric);
 
     /****************************** Secondary *************************/
-    printf(GPT_FMT, (int)(drive.gpt.drive_sectors - GPT_HEADER_SECTOR -
+    printf(GPT_FMT, (int)(drive->gpt.drive_sectors - GPT_HEADER_SECTOR -
                           GPT_ENTRIES_SECTORS),
            (int)GPT_ENTRIES_SECTORS,
-           drive.gpt.valid_entries & MASK_SECONDARY ? "" : "INVALID",
+           drive->gpt.valid_entries & MASK_SECONDARY ? "" : "INVALID",
            "Sec GPT table");
     /* We show secondary table details if any of following is true.
      *   1. in debug mode.
@@ -343,15 +458,15 @@ int CgptShow(CgptShowParams *params) {
      *   3. secondary is not identical to promary.
      */
     if (params->debug ||
-        ((drive.gpt.valid_entries & MASK_SECONDARY) &&
-         (!(drive.gpt.valid_entries & MASK_PRIMARY) ||
-          memcmp(drive.gpt.primary_entries, drive.gpt.secondary_entries,
+        ((drive->gpt.valid_entries & MASK_SECONDARY) &&
+         (!(drive->gpt.valid_entries & MASK_PRIMARY) ||
+          memcmp(drive->gpt.primary_entries, drive->gpt.secondary_entries,
                  TOTAL_ENTRIES_SIZE)))) {
-      EntriesDetails(&drive, SECONDARY, params->numeric);
+      EntriesDetails(drive, SECONDARY, params->numeric);
     }
 
-    if (drive.gpt.valid_headers & MASK_SECONDARY)
-      printf(GPT_FMT, (int)(drive.gpt.drive_sectors - GPT_HEADER_SECTOR),
+    if (drive->gpt.valid_headers & MASK_SECONDARY)
+      printf(GPT_FMT, (int)(drive->gpt.drive_sectors - GPT_HEADER_SECTOR),
              (int)GPT_HEADER_SECTOR, "", "Sec GPT header");
     else
       printf(GPT_FMT, (int)GPT_PMBR_SECTOR,
@@ -362,23 +477,43 @@ int CgptShow(CgptShowParams *params) {
      *   3. secondary is not synonymous to primary.
      */
     if (params->debug ||
-        ((drive.gpt.valid_headers & MASK_SECONDARY) &&
-         (!(drive.gpt.valid_headers & MASK_PRIMARY) ||
-          !IsSynonymous((GptHeader*)drive.gpt.primary_header,
-                        (GptHeader*)drive.gpt.secondary_header)) &&
+        ((drive->gpt.valid_headers & MASK_SECONDARY) &&
+         (!(drive->gpt.valid_headers & MASK_PRIMARY) ||
+          !IsSynonymous((GptHeader*)drive->gpt.primary_header,
+                        (GptHeader*)drive->gpt.secondary_header)) &&
          params->verbose)) {
       GptHeader *header;
       char indent[64];
 
       require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
-      header = (GptHeader*)drive.gpt.secondary_header;
-      entries = (GptEntry*)drive.gpt.secondary_entries;
+      header = (GptHeader*)drive->gpt.secondary_header;
+      entries = (GptEntry*)drive->gpt.secondary_entries;
       HeaderDetails(header, entries, indent, params->numeric);
     }
   }
 
-  CheckValid(&drive);
-  DriveClose(&drive, 0);
+  CheckValid(drive);
 
+  return CGPT_OK;
+}
+
+int CgptShow(CgptShowParams *params) {
+  struct drive drive;
+
+  if (params == NULL)
+    return CGPT_FAILED;
+
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
+    return CGPT_FAILED;
+
+  if (drive.is_mtd) {
+    if (MtdShow(&drive, params))
+      return CGPT_FAILED;
+  } else {
+    if (GptShow(&drive, params))
+      return CGPT_FAILED;
+  }
+
+  DriveClose(&drive, 0);
   return CGPT_OK;
 }
