@@ -96,6 +96,22 @@ static int GptSetEntryAttributes(struct drive *drive,
   return 0;
 }
 
+static int MtdSetEntryAttributes(struct drive *drive,
+                                 uint32_t index,
+                                 CgptAddParams *params) {
+  MtdDiskPartition *entry;
+
+  entry = MtdGetEntry(&drive->mtd, PRIMARY, index);
+  if (params->set_begin)
+    entry->starting_lba = params->begin;
+  if (params->set_size)
+    entry->ending_lba = entry->starting_lba + params->size - 1;
+  if (params->set_type)
+    MtdSetEntryType(entry, LookupMtdTypeForGuid(&params->type_guid));
+
+  return 0;
+}
+
 // This is an internal helper function which assumes no NULL args are passed.
 // It sets the given attribute values for a single entry at the given index.
 static int SetEntryAttributes(struct drive *drive,
@@ -128,18 +144,25 @@ static int SetEntryAttributes(struct drive *drive,
 }
 
 static int CgptCheckAddValidity(struct drive *drive) {
-  int gpt_retval;
-  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive->gpt))) {
-    Error("GptSanityCheck() returned %d: %s\n",
-          gpt_retval, GptError(gpt_retval));
-    return -1;
-  }
+  if (drive->is_mtd) {
+    if (drive->mtd.primary.crc32 != MtdHeaderCrc(&drive->mtd.primary)) {
+      Error("MTD header CRC is invalid\n");
+      return -1;
+    }
+  } else {
+    int gpt_retval;
+    if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive->gpt))) {
+      Error("GptSanityCheck() returned %d: %s\n",
+            gpt_retval, GptError(gpt_retval));
+      return -1;
+    }
 
-  if (((drive->gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
-      ((drive->gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
-    Error("one of the GPT header/entries is invalid.\n"
-          "please run 'cgpt repair' before adding anything.\n");
-    return -1;
+    if (((drive->gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
+        ((drive->gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
+      Error("one of the GPT header/entries is invalid.\n"
+            "please run 'cgpt repair' before adding anything.\n");
+      return -1;
+    }
   }
   return 0;
 }
@@ -230,6 +253,10 @@ int CgptGetPartitionDetails(CgptAddParams *params) {
       Error("either partition or unique_id must be specified\n");
       goto bad;
     }
+    if (drive.is_mtd) {
+      Error("MTD partitions cannot be specified by unique_id\n");
+      goto bad;
+    }
     for (index = 0; index < max_part; index++) {
       GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
       if (GuidEqual(&entry->unique, &params->unique_guid)) {
@@ -244,7 +271,18 @@ int CgptGetPartitionDetails(CgptAddParams *params) {
   }
   index = params->partition - 1;
 
-  {
+  if(drive.is_mtd) {
+    MtdDiskPartition *entry = MtdGetEntry(&drive.mtd, PRIMARY, index);
+    uint64_t start_lba, end_lba;
+    const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
+    memcpy(&params->type_guid, guid, sizeof(params->type_guid));
+    memset(&params->unique_guid, 0, sizeof(params->unique_guid));
+    start_lba = entry->starting_lba;
+    end_lba = entry->ending_lba;
+    params->begin = start_lba;
+    params->size = end_lba - start_lba + 1;
+    params->raw_value = entry->flags;
+  } else {
     // GPT-specific code
     GptEntry *entry = GetEntry(&drive.gpt, PRIMARY, index);
     params->begin = entry->starting_lba;
@@ -264,12 +302,54 @@ bad:
   return result;
 }
 
+int GptAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
+  GptEntry *entry, backup;
+  int rv;
+
+  entry = GetEntry(&drive->gpt, PRIMARY, index);
+  memcpy(&backup, entry, sizeof(backup));
+
+  if (SetEntryAttributes(drive, index, params) ||
+      GptSetEntryAttributes(drive, index, params)) {
+    memcpy(entry, &backup, sizeof(*entry));
+    return -1;
+  }
+
+  UpdateAllEntries(drive);
+
+  rv = CheckEntries((GptEntry*)drive->gpt.primary_entries,
+                    (GptHeader*)drive->gpt.primary_header);
+
+  if (0 != rv) {
+    // If the modified entry is illegal, recover it and return error.
+    memcpy(entry, &backup, sizeof(*entry));
+    Error("%s\n", GptErrorText(rv));
+    Error(DumpCgptAddParams(params));
+    return -1;
+  }
+
+  return 0;
+}
+
+int MtdAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
+  MtdDiskPartition *entry, backup;
+  entry = MtdGetEntry(&drive->mtd, PRIMARY, index);
+  memcpy(&backup, entry, sizeof(backup));
+
+  if (SetEntryAttributes(drive, index, params) ||
+      MtdSetEntryAttributes(drive, index, params)) {
+    memcpy(entry, &backup, sizeof(*entry));
+    return -1;
+  }
+
+  UpdateAllEntries(drive);
+
+  return 0;
+}
+
 int CgptAdd(CgptAddParams *params) {
   struct drive drive;
-
-  GptEntry *entry, backup;
   uint32_t index;
-  int rv;
 
   if (params == NULL)
     return CGPT_FAILED;
@@ -285,26 +365,12 @@ int CgptAdd(CgptAddParams *params) {
     goto bad;
   }
 
-  entry = GetEntry(&drive.gpt, PRIMARY, index);
-  memcpy(&backup, entry, sizeof(backup));
-
-  if (SetEntryAttributes(&drive, index, params) ||
-      GptSetEntryAttributes(&drive, index, params)) {
-    memcpy(entry, &backup, sizeof(*entry));
-    goto bad;
-  }
-
-  UpdateAllEntries(&drive);
-
-  rv = CheckEntries((GptEntry*)drive.gpt.primary_entries,
-                    (GptHeader*)drive.gpt.primary_header);
-
-  if (0 != rv) {
-    // If the modified entry is illegal, recover it and return error.
-    memcpy(entry, &backup, sizeof(*entry));
-    Error("%s\n", GptErrorText(rv));
-    Error(DumpCgptAddParams(params));
-    goto bad;
+  if (drive.is_mtd) {
+    if (MtdAdd(&drive, params, index))
+      goto bad;
+  } else {
+    if (GptAdd(&drive, params, index))
+      goto bad;
   }
 
   // Write it all out.
