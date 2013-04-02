@@ -997,6 +997,7 @@ runcgpttests: test_setup
 .PHONY: runtestscripts
 runtestscripts: test_setup genfuzztestcases
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt
+	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt -N=512,32,1,3
 	tests/run_preamble_tests.sh
 	tests/run_rsa_tests.sh
 	tests/run_vbutil_kernel_arg_tests.sh

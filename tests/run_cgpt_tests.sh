@@ -12,6 +12,9 @@
 CGPT=$(readlink -f "$1")
 [ -x "$CGPT" ] || error "Can't execute $CGPT"
 
+MTD="${2:-}"
+CGPT="${CGPT} ${MTD}"
+
 # Run tests in a dedicated directory for easy cleanup or debugging.
 DIR="${TEST_DIR}/cgpt_test_dir"
 [ -d "$DIR" ] || mkdir -p "$DIR"
@@ -122,22 +125,25 @@ $CGPT add -i 1 -t reserved ${DEV} || error
 X=$($CGPT show -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
 [ "$X" = "$FUTURE_GUID" ] || error
 # arbitrary value
-$CGPT add -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
-X=$($CGPT show -t -i 1 ${DEV})
-[ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
+if [ -z "$MTD" ]; then
+  $CGPT add -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
+  X=$($CGPT show -t -i 1 ${DEV})
+  [ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
+fi
 $CGPT add -i 1 -t data ${DEV} || error
 X=$($CGPT show -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
 [ "$X" = "$DATA_GUID" ] || error
 
 
-echo "Set the boot partition.."
-$CGPT boot -i ${KERN_NUM} ${DEV} >/dev/null
+if [ -z "$MTD" ]; then
+  echo "Set the boot partition.."
+  $CGPT boot -i ${KERN_NUM} ${DEV} >/dev/null
 
-echo "Check the PMBR's idea of the boot partition..."
-X=$($CGPT boot ${DEV})
-Y=$($CGPT show -u -i $KERN_NUM $DEV)
-[ "$X" = "$Y" ] || error
-
+  echo "Check the PMBR's idea of the boot partition..."
+  X=$($CGPT boot ${DEV})
+  Y=$($CGPT show -u -i $KERN_NUM $DEV)
+  [ "$X" = "$Y" ] || error
+fi
 
 echo "Test the cgpt prioritize command..."
 
@@ -169,7 +175,6 @@ assert_pri() {
   [ "$actual" = "$expected" ] || \
     error 1 "expected priority \"$expected\", actual priority \"$actual\""
 }
-
 
 # no kernels at all. This should do nothing.
 $CGPT create ${DEV}
@@ -248,15 +253,17 @@ make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
 $CGPT prioritize -P 1 -i 3 ${DEV}
 assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 1 1
 
-# squish if we try to go too high
-make_pri   15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0
-$CGPT prioritize -i 3 ${DEV}
-assert_pri 14 14 15 13 12 12 11 11 10 10  9  9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 0
-$CGPT prioritize -i 5 ${DEV}
-assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
-# but if I bring friends I don't have to squish
-$CGPT prioritize -i 1 -f ${DEV}
-assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+if [ -z "$MTD" ]; then # MTD doesn't support this many partitions
+  # squish if we try to go too high
+  make_pri   15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0
+  $CGPT prioritize -i 3 ${DEV}
+  assert_pri 14 14 15 13 12 12 11 11 10 10  9  9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 0
+  $CGPT prioritize -i 5 ${DEV}
+  assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+  # but if I bring friends I don't have to squish
+  $CGPT prioritize -i 1 -f ${DEV}
+  assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+fi
 
 
 # Now make sure that we don't need write access if we're just looking.
@@ -276,7 +283,9 @@ $CGPT boot -b fake_mbr.bin ${DEV} 2>/dev/null && error
 $CGPT boot -i 2 ${DEV} 2>/dev/null && error
 
 # These should pass
-$CGPT boot ${DEV} >/dev/null
+if [ -z "$MTD" ]; then
+  $CGPT boot ${DEV} >/dev/null
+fi
 $CGPT show ${DEV} >/dev/null
 $CGPT find -t kernel ${DEV} >/dev/null
 
