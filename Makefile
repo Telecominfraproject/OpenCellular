@@ -334,9 +334,6 @@ HOSTLIB_SRCS = \
 HOSTLIB_OBJS = ${HOSTLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${HOSTLIB_OBJS}
 
-# Link with hostlib by default
-LIBS = $(HOSTLIB)
-
 # Might need this too.
 CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
 
@@ -634,11 +631,13 @@ ifeq (${FIRMWARE_ARCH},)
 ${FWLIB_OBJS}: CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
-# Link tests
-${BUILD}/firmware/linktest/main_vbinit: LIBS =
+# Linktest ensures firmware lib doesn't rely on outside libraries
+${BUILD}/firmware/linktest/main_vbinit: ${VBINIT_OBJS}
 ${BUILD}/firmware/linktest/main_vbinit: OBJS = ${VBINIT_OBJS}
-${BUILD}/firmware/linktest/main_vbsf: LIBS =
+${BUILD}/firmware/linktest/main_vbsf: ${VBSF_OBJS}
 ${BUILD}/firmware/linktest/main_vbsf: OBJS = ${VBSF_OBJS}
+${BUILD}/firmware/linktest/main: ${FWLIB}
+${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
 
 .phony: fwlinktest
 fwlinktest: ${FWLIB} \
@@ -647,7 +646,7 @@ fwlinktest: ${FWLIB} \
 	${BUILD}/firmware/linktest/main
 
 .PHONY: fwlib
-fwlib: ${FWLIB} $(if ${FIRMWARE_ARCH},,fwlinktest)
+fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
 
 ${FWLIB}: ${FWLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
@@ -658,8 +657,13 @@ ${FWLIB}: ${FWLIB_OBJS}
 # ----------------------------------------------------------------------------
 # Host library
 
+
+# Link tests
+${BUILD}/host/linktest/main: ${HOSTLIB}
+${BUILD}/host/linktest/main: LIBS = ${HOSTLIB}
+
 .PHONY: hostlib
-hostlib: ${HOSTLIB} ${BUILD}/host/linktest/main
+hostlib: ${BUILD}/host/linktest/main
 
 ${BUILD}/host/% ${HOSTLIB}: INCLUDES += \
 	-Ihost/include \
@@ -696,7 +700,7 @@ ${CGPT_OBJS}: INCLUDES += -Ihost/include
 ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
 
-${CGPT}: ${CGPT_OBJS} ${LIBS}
+${CGPT}: ${CGPT_OBJS} ${HOSTLIB}
 	@$(PRINTF) "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o ${CGPT} ${CFLAGS} $^ ${LDFLAGS} ${LDLIBS}
 
@@ -718,10 +722,14 @@ ${BUILD}/utility/%: INCLUDES += \
 # Utilities for auto-update toolkits must be statically linked.
 ${UTIL_BINS_STATIC}: LDFLAGS += -static
 
+
 .PHONY: utils
 utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 	${Q}cp -f ${UTIL_SCRIPTS} ${BUILD}/utility
 	${Q}chmod a+rx $(patsubst %,${BUILD}/%,${UTIL_SCRIPTS})
+
+${UTIL_BINS} ${UTIL_BINS_STATIC}: ${HOSTLIB}
+${UTIL_BINS} ${UTIL_BINS_STATIC}: LIBS = ${HOSTLIB}
 
 .PHONY: utils_install
 utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
@@ -783,7 +791,8 @@ update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 .PHONY: tests
 tests: ${TEST_BINS}
 
-${TEST_BINS}: ${TESTLIB}
+${TEST_BINS}: ${HOSTLIB} ${TESTLIB}
+${TEST_BINS}: LIBS = ${HOSTLIB} ${TESTLIB}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
@@ -823,9 +832,6 @@ ${BUILD}/%.o: %.cc
 
 # ----------------------------------------------------------------------------
 # Here are the special tweaks to the generic rules.
-
-# Linktest ensures firmware lib doesn't rely on outside libraries
-${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
 
 # GBB utility needs C++ linker. TODO: It shouldn't.
 ${BUILD}/utility/gbb_utility: LD = ${CXX}
@@ -924,7 +930,7 @@ endif
 endif
 
 .PHONY: runtests
-runtests: test_targets
+runtests: test_setup test_targets
 
 # Generate test keys
 .PHONY: genkeys
