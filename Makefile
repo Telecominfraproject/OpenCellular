@@ -305,7 +305,8 @@ VBINIT_OBJS = ${VBINIT_SRCS:%.c=${BUILD}/%.o}
 VBSF_OBJS = ${VBSF_SRCS:%.c=${BUILD}/%.o}
 
 FWLIB_OBJS = ${FWLIB_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${FWLIB_OBJS}
+
+ALL_OBJS += ${FWLIB_OBJS} ${VBINIT_OBJS} ${VBSF_OBJS}
 
 
 # Library to build the utilities. "HOST" mostly means "userspace".
@@ -429,7 +430,7 @@ endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/utility/,${UTIL_NAMES_STATIC})
 UTIL_BINS = $(addprefix ${BUILD}/utility/,${UTIL_NAMES})
-ALL_DEPS += $(addsuffix .d,${UTIL_BINS})
+ALL_OBJS += $(addsuffix .o,${UTIL_BINS} ${UTIL_BINS_STATIC})
 
 
 # Scripts for signing stuff.
@@ -463,7 +464,6 @@ FUTIL_LDS = futility/futility.lds
 
 FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o}
 
-ALL_DEPS += $(addsuffix .d,${FUTIL_BIN})
 ALL_OBJS += ${FUTIL_OBJS}
 
 
@@ -547,7 +547,7 @@ TLCL_TEST_BINS = $(addprefix ${BUILD}/tests/,${TLCL_TEST_NAMES})
 TEST_NAMES += ${TLCL_TEST_NAMES}
 
 TEST_BINS = $(addprefix ${BUILD}/tests/,${TEST_NAMES})
-ALL_DEPS += $(addsuffix .d,${TEST_BINS})
+ALL_OBJS += $(addsuffix .o,${TEST_BINS})
 
 # Directory containing test keys
 TEST_KEYS = ${SRC_RUN}/tests/testkeys
@@ -582,11 +582,6 @@ install: cgpt_install utils_install signing_install futil_install
 # Don't delete intermediate object files
 .SECONDARY:
 
-# TODO: I suspect this is missing some object files.  Make a temp
-# target which cleans all known obj/exe's and see what's left; those
-# are the files which need deps.
-ALL_DEPS += ${ALL_OBJS:%.o=%.o.d}
--include ${ALL_DEPS}
 
 # ----------------------------------------------------------------------------
 # Firmware library
@@ -634,10 +629,13 @@ endif
 # Linktest ensures firmware lib doesn't rely on outside libraries
 ${BUILD}/firmware/linktest/main_vbinit: ${VBINIT_OBJS}
 ${BUILD}/firmware/linktest/main_vbinit: OBJS = ${VBINIT_OBJS}
+ALL_OBJS += ${BUILD}/firmware/linktest/main_vbinit.o
 ${BUILD}/firmware/linktest/main_vbsf: ${VBSF_OBJS}
 ${BUILD}/firmware/linktest/main_vbsf: OBJS = ${VBSF_OBJS}
+ALL_OBJS += ${BUILD}/firmware/linktest/main_vbsf.o
 ${BUILD}/firmware/linktest/main: ${FWLIB}
 ${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
+ALL_OBJS += ${BUILD}/firmware/linktest/main.o
 
 .phony: fwlinktest
 fwlinktest: ${FWLIB} \
@@ -661,6 +659,7 @@ ${FWLIB}: ${FWLIB_OBJS}
 # Link tests
 ${BUILD}/host/linktest/main: ${HOSTLIB}
 ${BUILD}/host/linktest/main: LIBS = ${HOSTLIB}
+ALL_OBJS += ${BUILD}/host/linktest/main.o
 
 .PHONY: hostlib
 hostlib: ${BUILD}/host/linktest/main
@@ -862,11 +861,14 @@ BMPBLK_UTILITY_DEPS = \
 	${BUILD}/utility/image_types.o \
 	${BUILD}/utility/eficompress_for_lib.o \
 	${BUILD}/utility/efidecompress_for_lib.o
+
 ${BUILD}/utility/bmpblk_utility: OBJS = ${BMPBLK_UTILITY_DEPS}
 ${BUILD}/utility/bmpblk_utility: ${BMPBLK_UTILITY_DEPS}
+ALL_OBJS += ${BMPBLK_UTILITY_DEPS}
 
 ${BUILD}/utility/bmpblk_font: OBJS += ${BUILD}/utility/image_types.o
 ${BUILD}/utility/bmpblk_font: ${BUILD}/utility/image_types.o
+ALL_OBJS += ${BUILD}/utility/image_types.o
 
 # Allow multiple definitions, so tests can mock functions from other libraries
 ${BUILD}/tests/%: CFLAGS += -Xlinker --allow-multiple-definition
@@ -878,22 +880,26 @@ ${BUILD}/tests/rollback_index2_tests: OBJS += \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 ${BUILD}/tests/rollback_index2_tests: \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
+ALL_OBJS += ${BUILD}/firmware/lib/rollback_index_for_test.o
 
 ${BUILD}/tests/tlcl_tests: OBJS += \
 	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
 ${BUILD}/tests/tlcl_tests: \
 	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
+ALL_OBJS += ${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
 
 ${BUILD}/tests/vboot_audio_tests: OBJS += \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 ${BUILD}/tests/vboot_audio_tests: \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
+ALL_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
 
 ${BUILD}/tests/rollback_index_test: INCLUDES += -I/usr/include
 ${BUILD}/tests/rollback_index_test: LIBS += -ltlcl
 
 ${TLCL_TEST_BINS}: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ${TLCL_TEST_BINS}: ${BUILD}/tests/tpm_lite/tlcl_tests.o
+ALL_OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 
 ##############################################################################
 # Targets that exist just to run tests
@@ -1036,3 +1042,7 @@ coverage:
 else
 coverage: coverage_init runtests coverage_html
 endif
+
+# Include generated dependencies
+ALL_DEPS += ${ALL_OBJS:%.o=%.o.d}
+-include ${ALL_DEPS}
