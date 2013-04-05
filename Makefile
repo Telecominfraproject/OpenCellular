@@ -401,35 +401,35 @@ endif
 
 # These utilities should be linked statically.
 UTIL_NAMES_STATIC = \
-	crossystem \
-	dump_fmap \
-	gbb_utility
+	utility/crossystem \
+	utility/dump_fmap \
+	utility/gbb_utility
 
 UTIL_NAMES = ${UTIL_NAMES_STATIC} \
-	dev_sign_file \
-	dump_kernel_config \
-	dumpRSAPublicKey \
-	tpm_init_temp_fix \
-	tpmc \
-	vbutil_firmware \
-	vbutil_kernel \
-	vbutil_key \
-	vbutil_keyblock \
+	utility/dev_sign_file \
+	utility/dump_kernel_config \
+	utility/dumpRSAPublicKey \
+	utility/tpm_init_temp_fix \
+	utility/tpmc \
+	utility/vbutil_firmware \
+	utility/vbutil_kernel \
+	utility/vbutil_key \
+	utility/vbutil_keyblock \
 
 ifeq (${MINIMAL},)
 UTIL_NAMES += \
-	bmpblk_font \
-	bmpblk_utility \
-	eficompress \
-	efidecompress \
-	load_kernel_test \
-	pad_digest_utility \
-	signature_digest_utility \
-	verify_data
+	utility/bmpblk_font \
+	utility/bmpblk_utility \
+	utility/eficompress \
+	utility/efidecompress \
+	utility/load_kernel_test \
+	utility/pad_digest_utility \
+	utility/signature_digest_utility \
+	utility/verify_data
 endif
 
-UTIL_BINS_STATIC := $(addprefix ${BUILD}/utility/,${UTIL_NAMES_STATIC})
-UTIL_BINS = $(addprefix ${BUILD}/utility/,${UTIL_NAMES})
+UTIL_BINS_STATIC := $(addprefix ${BUILD}/,${UTIL_NAMES_STATIC})
+UTIL_BINS = $(addprefix ${BUILD}/,${UTIL_NAMES})
 ALL_OBJS += $(addsuffix .o,${UTIL_BINS} ${UTIL_BINS_STATIC})
 
 
@@ -481,34 +481,35 @@ ALL_OBJS += ${TESTLIB_OBJS}
 
 # And some compiled tests.
 TEST_NAMES = \
-	cgptlib_test \
-	rollback_index2_tests \
-	rollback_index3_tests \
-	rsa_padding_test \
-	rsa_utility_tests \
-	rsa_verify_benchmark \
-	sha_benchmark \
-	sha_tests \
-	stateful_util_tests \
-	tlcl_tests \
-	tpm_bootmode_tests \
-	utility_string_tests \
-	utility_tests \
-	vboot_api_init_tests \
-	vboot_api_devmode_tests \
-	vboot_api_firmware_tests \
-	vboot_api_kernel_tests \
-	vboot_api_kernel2_tests \
-	vboot_api_kernel3_tests \
-	vboot_api_kernel4_tests \
-	vboot_audio_tests \
-	vboot_common_tests \
-	vboot_common2_tests \
-	vboot_common3_tests \
-	vboot_display_tests \
-	vboot_firmware_tests \
-	vboot_kernel_tests \
-	vboot_nvstorage_test
+	tests/cgptlib_test \
+	tests/rollback_index2_tests \
+	tests/rollback_index3_tests \
+	tests/rsa_padding_test \
+	tests/rsa_utility_tests \
+	tests/rsa_verify_benchmark \
+	tests/sha_benchmark \
+	tests/sha_tests \
+	tests/stateful_util_tests \
+	tests/tlcl_tests \
+	tests/tpm_bootmode_tests \
+	tests/utility_string_tests \
+	tests/utility_tests \
+	tests/vboot_api_init_tests \
+	tests/vboot_api_devmode_tests \
+	tests/vboot_api_firmware_tests \
+	tests/vboot_api_kernel_tests \
+	tests/vboot_api_kernel2_tests \
+	tests/vboot_api_kernel3_tests \
+	tests/vboot_api_kernel4_tests \
+	tests/vboot_audio_tests \
+	tests/vboot_common_tests \
+	tests/vboot_common2_tests \
+	tests/vboot_common3_tests \
+	tests/vboot_display_tests \
+	tests/vboot_firmware_tests \
+	tests/vboot_kernel_tests \
+	tests/vboot_nvstorage_test \
+	tests/futility/test_not_really
 
 # TODO: port these tests to new API, if not already eqivalent
 # functionality in other tests.  These don't even compile at present.
@@ -529,24 +530,23 @@ TEST_NAMES = \
 #               utility/load_firmware_test
 
 # And a few more...
-TLCL_TESTS = \
-	tpmtest_earlyextend \
-	tpmtest_earlynvram \
-        tpmtest_earlynvram2 \
-	tpmtest_enable \
-	tpmtest_fastenable \
-	tpmtest_globallock \
-        tpmtest_redefine_unowned \
-        tpmtest_spaceperm \
-	tpmtest_testsetup \
-	tpmtest_timing \
-        tpmtest_writelimit
-TLCL_TEST_NAMES = $(addprefix tpm_lite/,${TLCL_TESTS})
-TLCL_TEST_BINS = $(addprefix ${BUILD}/tests/,${TLCL_TEST_NAMES})
+TLCL_TEST_NAMES = \
+	tests/tpm_lite/tpmtest_earlyextend \
+	tests/tpm_lite/tpmtest_earlynvram \
+        tests/tpm_lite/tpmtest_earlynvram2 \
+	tests/tpm_lite/tpmtest_enable \
+	tests/tpm_lite/tpmtest_fastenable \
+	tests/tpm_lite/tpmtest_globallock \
+        tests/tpm_lite/tpmtest_redefine_unowned \
+        tests/tpm_lite/tpmtest_spaceperm \
+	tests/tpm_lite/tpmtest_testsetup \
+	tests/tpm_lite/tpmtest_timing \
+        tests/tpm_lite/tpmtest_writelimit
 
 TEST_NAMES += ${TLCL_TEST_NAMES}
 
-TEST_BINS = $(addprefix ${BUILD}/tests/,${TEST_NAMES})
+# Finally
+TEST_BINS = $(addprefix ${BUILD}/,${TEST_NAMES})
 ALL_OBJS += $(addsuffix .o,${TEST_BINS})
 
 # Directory containing test keys
@@ -791,6 +791,7 @@ update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 tests: ${TEST_BINS}
 
 ${TEST_BINS}: ${HOSTLIB} ${TESTLIB}
+${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${HOSTLIB} ${TESTLIB}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
@@ -897,6 +898,7 @@ ALL_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
 ${BUILD}/tests/rollback_index_test: INCLUDES += -I/usr/include
 ${BUILD}/tests/rollback_index_test: LIBS += -ltlcl
 
+TLCL_TEST_BINS = $(addprefix ${BUILD}/,${TLCL_TEST_NAMES})
 ${TLCL_TEST_BINS}: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ${TLCL_TEST_BINS}: ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ALL_OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
@@ -995,7 +997,8 @@ runmisctests: test_setup
 .PHONY: runfutiltests
 runfutiltests: override DESTDIR = ${TEST_INSTALL_DIR}
 runfutiltests: test_setup install
-	futility/tests/run_futility_tests.sh ${DESTDIR}
+	tests/futility/run_test_scripts.sh ${DESTDIR}
+	${RUNTEST} ${BUILD_RUN}/tests/futility/test_not_really
 
 # Run long tests, including all permutations of encryption keys (instead of
 # just the ones we use) and tests of currently-unused code.

@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/bin/bash -eu
 # Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
 # Load common constants and variables.
-. "$(dirname "$0")/common.sh"
+SCRIPTDIR=$(dirname $(readlink -f "$0"))
+. "$SCRIPTDIR/common.sh"
 
-# Where are the programs I'm testing against?
+# Mandatory arg is the path to the futility executable to test.
 [ -z "${1:-}" ] && error "Directory argument is required"
 BINDIR="$1"
 shift
@@ -14,25 +15,44 @@ shift
 FUTILITY="$BINDIR/futility"
 OLDDIR="$BINDIR/old_bins"
 
-BUILD=$(dirname "${BINDIR}")
+
+# The Makefile should export the $BUILD directory, but if it's not just warn
+# and guess (mostly so we can run the script manually).
+if [ -z "${BUILD:-}" ]; then
+  BUILD=$(dirname "${BINDIR}")
+  yellow "Assuming \$BUILD=$BUILD"
+fi
+OUTDIR="${BUILD}/tests/futility_test_results"
+[ -d "$OUTDIR" ] || mkdir -p "$OUTDIR"
+
+
+# Let each test know where to find things...
+export FUTILITY
+export SCRIPTDIR
+export OUTDIR
+
+# These are the scripts to run. Binaries are invoked directly by the Makefile.
+TESTS="${SCRIPTDIR}/test_not_really.sh"
+
+
+# Get ready...
+pass=0
+progs=0
+
+##############################################################################
+# But first, we'll just test the wrapped functions. This will go away when
+# everything is built in (chromium:196079).
 
 # Here are the old programs to be wrapped
-# FIXME(chromium-os:37062): There are others besides these.
 # FIXME: dev_debug_vboot isn't tested right now.
 PROGS=${*:-cgpt crossystem dev_sign_file dumpRSAPublicKey
            dump_fmap dump_kernel_config enable_dev_usb_boot gbb_utility
            tpm_init_temp_fix tpmc vbutil_firmware vbutil_kernel vbutil_key
            vbutil_keyblock vbutil_what_keys}
 
-# Get ready
-pass=0
-progs=0
-pwd
-OUTDIR="${BUILD}/tests/futility_test_dir"
-[ -d "$OUTDIR" ] || mkdir -p "$OUTDIR"
-
 # For now just compare results of invoking each program with no args.
 # FIXME(chromium-os:37062): Create true rigorous tests for every program.
+echo "-- old_bins --"
 for i in $PROGS; do
   : $(( progs++ ))
 
@@ -68,7 +88,34 @@ for i in $PROGS; do
   fi
 done
 
-# done
+
+##############################################################################
+# Invoke the scripts that test the builtin functions.
+
+echo "-- builtin --"
+for i in $TESTS; do
+  j=${i##*/}
+
+  : $(( progs++ ))
+
+  echo -n "$j ... "
+  rm -f "${OUTDIR}/$j."*
+  rc=$("$i" "$FUTILITY" 1>"${OUTDIR}/$j.stdout" \
+       2>"${OUTDIR}/$j.stderr" || echo "$?")
+  echo "${rc:-0}" > "${OUTDIR}/$j.return"
+  if [ ! "$rc" ]; then
+    green "passed"
+    : $(( pass++ ))
+    rm -f ${OUTDIR}/$i.{stdout,stderr,return}
+  else
+    red "failed"
+  fi
+
+done
+
+##############################################################################
+# How'd we do?
+
 if [ "$pass" -eq "$progs" ]; then
   green "Success: $pass / $progs passed"
   exit 0
