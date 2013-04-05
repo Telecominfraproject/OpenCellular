@@ -17,5 +17,4 @@ static int do_something(int argc, char *argv[])
   return 0;
 }
 
-DECLARE_FUTIL_COMMAND(foo, do_something, "invoke a foo");
-DECLARE_FUTIL_COMMAND(bar, do_something, "go to bar");
+DECLARE_FUTIL_COMMAND(hey, do_something, "shout");

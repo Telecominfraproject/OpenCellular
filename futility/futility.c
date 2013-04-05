@@ -17,6 +17,7 @@
 #include "futility.h"
 
 #define MYNAME "futility"
+#define MYNAME_S MYNAME "_s"
 #ifdef OLDDIR
 #define XSTR(A) STR(A)
 #define STR(A) #A
@@ -65,18 +66,18 @@ static int help(int argc, char *argv[])
   printf("The following commands are built-in:\n");
 
   for (cmd = futil_cmds_start(); cmd < futil_cmds_end(); cmd++)
-    printf("  %-20s %s\n",
-           cmd->name, cmd->shorthelp);
-
+    printf("  %-20s %s\n", cmd->name, cmd->shorthelp);
   printf("\n");
 
-  printf("FYI, you added these args that I'm ignoring:\n");
-  for (i = 0; i < argc; i++)
-    printf("argv[%d] = %s\n", i, argv[i]);
+  if (argc) {
+    printf("FYI, you added these args that I'm ignoring:\n");
+    for (i = 0; i < argc; i++)
+      printf("argv[%d] = %s\n", i, argv[i]);
+  }
 
   return 0;
 }
-DECLARE_FUTIL_COMMAND(help, help, "Show a bit of help");
+DECLARE_FUTIL_COMMAND(help, help, "show a bit of help");
 
 
 /******************************************************************************/
@@ -219,9 +220,9 @@ int main(int argc, char *argv[], char *envp[])
     progname = argv[0];
 
   /* Invoked directly by name */
-  if (0 == strcmp(progname, MYNAME)) {
+  if (0 == strcmp(progname, MYNAME) || 0 == strcmp(progname, MYNAME_S)) {
     if (argc < 2) {                     /* must have an argument */
-      fputs(usage, stderr);
+      help(0, 0);
       exit(1);
     }
 

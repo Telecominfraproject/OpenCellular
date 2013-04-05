@@ -451,17 +451,24 @@ SIGNING_COMMON = scripts/image_signing/common_minimal.sh
 
 # The unified firmware utility will eventually replace all the others
 FUTIL_BIN = ${BUILD}/futility/futility
+# But we still need both static (tiny) and dynamic (with openssl) versions.
+FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 
 # These are the others it will replace.
 FUTIL_OLD = $(notdir ${CGPT} ${UTIL_BINS} ${UTIL_SCRIPTS} \
 		${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV})
 
-FUTIL_SRCS = \
+FUTIL_STATIC_SRCS = \
 	futility/futility.c \
 	futility/cmd_foo.c
 
+FUTIL_SRCS = \
+	$(FUTIL_STATIC_SRCS) \
+	futility/cmd_hey.c
+
 FUTIL_LDS = futility/futility.lds
 
+FUTIL_STATIC_OBJS = ${FUTIL_STATIC_SRCS:%.c=${BUILD}/%.o}
 FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o}
 
 ALL_OBJS += ${FUTIL_OBJS}
@@ -701,7 +708,7 @@ ${CGPT}: LDLIBS += -luuid
 
 ${CGPT}: ${CGPT_OBJS} ${HOSTLIB}
 	@$(PRINTF) "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
-	${Q}${LD} -o ${CGPT} ${CFLAGS} $^ ${LDFLAGS} ${LDLIBS}
+	${Q}${LD} -o ${CGPT} ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
 .PHONY: cgpt_install
 cgpt_install: ${CGPT}
@@ -754,17 +761,21 @@ endif
 # new Firmware Utility
 
 .PHONY: futil
-futil: ${FUTIL_BIN}
+futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
+
+${FUTIL_STATIC_BIN}: ${FUTIL_LDS} ${FUTIL_STATIC_OBJS}
+	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
+	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS}
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
-	${Q}${LD} -o $@ ${CFLAGS} $^ ${LDFLAGS} ${LDLIBS}
+	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
 .PHONY: futil_install
 futil_install: ${FUTIL_BIN}
 	@$(PRINTF) "    INSTALL       futility\n"
 	${Q}mkdir -p ${F_DIR}
-	${Q}${INSTALL} -t ${F_DIR} ${FUTIL_BIN}
+	${Q}${INSTALL} -t ${F_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
 	${Q}for prog in ${FUTIL_OLD}; do \
 		ln -sf futility "${F_DIR}/$$prog"; done
 
@@ -807,7 +818,7 @@ ${TESTLIB}: ${TESTLIB_OBJS}
 
 ${BUILD}/%: ${BUILD}/%.o ${OBJS} ${LIBS}
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
-	${Q}${LD} -o $@ ${CFLAGS} $< ${OBJS} ${LIBS} ${LDFLAGS} ${LDLIBS}
+	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $< ${OBJS} ${LIBS} ${LDLIBS}
 
 ${BUILD}/%.o: %.c
 	@$(PRINTF) "    CC            $(subst ${BUILD}/,,$@)\n"
@@ -839,6 +850,7 @@ ${BUILD}/utility/gbb_utility: LD = ${CXX}
 # Because we play some clever linker script games to add new commands without
 # changing any header files, futility must be linked with ld.bfd, not gold.
 ${FUTIL_BIN}: LDFLAGS += -fuse-ld=bfd
+${FUTIL_STATIC_BIN}: LDFLAGS += -fuse-ld=bfd
 
 # Some utilities need external crypto functions
 ${BUILD}/utility/dumpRSAPublicKey: LDLIBS += ${CRYPTO_LIBS}
