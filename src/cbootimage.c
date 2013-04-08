@@ -21,6 +21,7 @@
  * cbootimage.c - Implementation of the cbootimage tool.
  */
 
+#include <strings.h>
 #include "cbootimage.h"
 #include "crypto.h"
 #include "data_layout.h"

@@ -24,6 +24,7 @@
 #ifndef INCLUDED_BUILDIMAGE_H
 #define INCLUDED_BUILDIMAGE_H
 
+#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
