@@ -28,11 +28,12 @@ OUTDIR="${BUILD}/tests/futility_test_results"
 
 # Let each test know where to find things...
 export FUTILITY
+export OLDDIR
 export SCRIPTDIR
 export OUTDIR
 
 # These are the scripts to run. Binaries are invoked directly by the Makefile.
-TESTS="${SCRIPTDIR}/test_not_really.sh"
+TESTS="${SCRIPTDIR}/test_dump_fmap.sh"
 
 
 # Get ready...
@@ -46,7 +47,7 @@ progs=0
 # Here are the old programs to be wrapped
 # FIXME: dev_debug_vboot isn't tested right now.
 PROGS=${*:-cgpt crossystem dev_sign_file dumpRSAPublicKey
-           dump_fmap dump_kernel_config enable_dev_usb_boot gbb_utility
+           dump_kernel_config enable_dev_usb_boot gbb_utility
            tpm_init_temp_fix tpmc vbutil_firmware vbutil_kernel vbutil_key
            vbutil_keyblock vbutil_what_keys}
 

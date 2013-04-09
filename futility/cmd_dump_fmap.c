@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+ * Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -16,6 +16,7 @@
 #include <unistd.h>
 
 #include "fmap.h"
+#include "futility.h"
 
 enum { FMT_NORMAL, FMT_PRETTY, FMT_FLASHROM, FMT_HUMAN };
 
@@ -350,7 +351,7 @@ static int human_fmap(void *p)
 /* End of human-reable stuff */
 /****************************************************************************/
 
-int main(int argc, char *argv[])
+static int do_dump_fmap(int argc, char *argv[])
 {
   int c;
   int errorcnt = 0;
@@ -470,3 +471,6 @@ int main(int argc, char *argv[])
 
   return retval;
 }
+
+DECLARE_FUTIL_COMMAND(dump_fmap, do_dump_fmap,
+                      "Display FMAP contents from a firmware image");

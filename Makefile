@@ -402,7 +402,6 @@ endif
 # These utilities should be linked statically.
 UTIL_NAMES_STATIC = \
 	utility/crossystem \
-	utility/dump_fmap \
 	utility/gbb_utility
 
 UTIL_NAMES = ${UTIL_NAMES_STATIC} \
@@ -455,11 +454,18 @@ FUTIL_BIN = ${BUILD}/futility/futility
 FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 
 # These are the others it will replace.
-FUTIL_OLD = $(notdir ${CGPT} ${UTIL_BINS} ${UTIL_SCRIPTS} \
-		${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV})
+FUTIL_OLD = bmpblk_font bmpblk_utility cgpt chromeos-tpm-recovery crossystem \
+	dev_debug_vboot dev_make_keypair dev_sign_file dumpRSAPublicKey \
+	dump_fmap dump_kernel_config eficompress efidecompress \
+	enable_dev_usb_boot gbb_utility load_kernel_test \
+	make_dev_firmware.sh make_dev_ssd.sh pad_digest_utility \
+	resign_firmwarefd.sh set_gbb_flags.sh signature_digest_utility \
+	tpm-nvsize tpm_init_temp_fix tpmc vbutil_firmware vbutil_kernel \
+	vbutil_key vbutil_keyblock vbutil_what_keys verify_data
 
 FUTIL_STATIC_SRCS = \
 	futility/futility.c \
+	futility/cmd_dump_fmap.c \
 	futility/cmd_foo.c
 
 FUTIL_SRCS = \
@@ -778,6 +784,14 @@ futil_install: ${FUTIL_BIN}
 	${Q}${INSTALL} -t ${F_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
 	${Q}for prog in ${FUTIL_OLD}; do \
 		ln -sf futility "${F_DIR}/$$prog"; done
+
+# TODO(wfrichar): This will need some refactoring (crbug.com/228932)
+${BUILD}/futility/% ${HOSTLIB}: INCLUDES += \
+	-Ihost/include \
+	-Ihost/arch/${ARCH}/include \
+	-Ihost/lib/include
+${FUTIL_STATIC_BIN} ${FUTIL_BIN}: ${HOSTLIB}
+${FUTIL_STATIC_BIN} ${FUTIL_BIN}: LIBS = ${HOSTLIB}
 
 # ----------------------------------------------------------------------------
 # Utility to generate TLCL structure definition header file.
