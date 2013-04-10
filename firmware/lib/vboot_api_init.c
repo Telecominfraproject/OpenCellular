@@ -222,7 +222,8 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 			}
 		}
 
-		/* TPM setup succeeded. What did we learn? */
+		/* TPM setup succeeded, or we're in recovery mode and ignoring
+		 * errors. What did we learn? */
 		shared->fw_version_tpm_start = tpm_version;
 		shared->fw_version_tpm = tpm_version;
 		if (is_hw_dev || (has_virt_dev_switch && is_virt_dev)) {
