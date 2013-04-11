@@ -271,8 +271,7 @@ static int ImportVmlinuzFile(const char *vmlinuz_file, arch_t arch,
   uint64_t kernel_size;
   uint64_t kernel32_start = 0;
   uint64_t kernel32_size = 0;
-  struct linux_kernel_header* lh = 0;
-  struct linux_kernel_params* params = 0;
+  struct linux_kernel_params *params = NULL, *lh = NULL;
 
   /* Read the kernel */
   Debug("Reading %s\n", vmlinuz_file);
@@ -298,7 +297,7 @@ static int ImportVmlinuzFile(const char *vmlinuz_file, arch_t arch,
 
   /* The first part of the x86 vmlinuz is a header, followed by a real-mode
    * boot stub.  We only want the 32-bit part. */
-  lh = (struct linux_kernel_header *)kernel_buf;
+  lh = (struct linux_kernel_params *)kernel_buf;
   kernel32_start = (lh->setup_sects + 1) << 9;
   if (kernel32_start >= kernel_size)
     Fatal("Malformed kernel\n");
@@ -318,7 +317,8 @@ static int ImportVmlinuzFile(const char *vmlinuz_file, arch_t arch,
    * tweak a few fields for our purposes */
   params = (struct linux_kernel_params *)(g_param_data);
   Memcpy(&(params->setup_sects), &(lh->setup_sects),
-         sizeof(*lh) - offsetof(struct linux_kernel_header, setup_sects));
+         offsetof(struct linux_kernel_params, e820_entries)
+         - offsetof(struct linux_kernel_params, setup_sects));
   params->boot_flag = 0;
   params->ramdisk_image = 0; /* we don't support initrd */
   params->ramdisk_size = 0;
@@ -329,6 +329,9 @@ static int ImportVmlinuzFile(const char *vmlinuz_file, arch_t arch,
     roundup(kernel32_size, CROS_ALIGN) +
     find_cmdline_start((char *)g_config_data, g_config_size);
   Debug(" cmdline_addr=0x%x\n", params->cmd_line_ptr);
+  Debug(" version=0x%x\n", params->version);
+  Debug(" kernel_alignment=0x%x\n", params->kernel_alignment);
+  Debug(" relocatable_kernel=0x%x\n", params->relocatable_kernel);
   /* A fake e820 memory map with 2 entries */
   params->n_e820_entry = 2;
   params->e820_entries[0].start_addr = 0x00000000;
