@@ -12,9 +12,9 @@
   Here's a structure to define the commands that futility implements.
  */
 typedef struct {
-  const char const * name;
+  const char * const name;
   int (*handler)(int argc, char **argv);
-  const char const * shorthelp;
+  const char * const shorthelp;
 } __attribute__ ((aligned (16))) futil_cmd_t ; /* align for x86_64 ABI */
 
 /*
