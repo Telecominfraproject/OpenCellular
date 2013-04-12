@@ -154,10 +154,10 @@ main(int argc, char *argv[])
 	if (process_command_line(argc, argv, &context) != 0)
 		return -EINVAL;
 
-	assert(g_soc_config != NULL);
-
 	if (help_only)
 		return 1;
+
+	assert(g_soc_config != NULL);
 
 	g_soc_config->get_value(token_bct_size,
 					&context.bct_size,
