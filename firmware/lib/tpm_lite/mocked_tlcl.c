@@ -153,3 +153,16 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size) {
   Memset(data, '\x9', *size);
   return TPM_SUCCESS;
 }
+
+int TlclPacketSize(const uint8_t* packet)
+{
+  uint32_t size;
+  FromTpmUint32(packet + sizeof(uint16_t), &size);
+  return (int) size;
+}
+
+uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
+                         int max_length)
+{
+  return TPM_SUCCESS;
+}
