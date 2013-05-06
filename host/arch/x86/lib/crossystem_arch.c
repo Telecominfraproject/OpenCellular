@@ -553,7 +553,8 @@ static int ReadGpio(int signal_type) {
     return -1;
   if ((0 != strcmp(controller_name, "NM10")) &&
       (0 != strcmp(controller_name, "CougarPoint")) &&
-      (0 != strcmp(controller_name, "PantherPoint")))
+      (0 != strcmp(controller_name, "PantherPoint")) &&
+      (0 != strcmp(controller_name, "LynxPoint")))
     return -1;
 
   /* Modify GPIO number by driver's offset */
