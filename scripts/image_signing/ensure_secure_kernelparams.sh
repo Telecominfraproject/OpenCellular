@@ -43,7 +43,7 @@ dmparams_mangle() {
   # with MAGIC_HASH. The parameter is positional.
   if [[ $dmparams == *bootcache* ]]; then
     dmparams=$(echo $dmparams |
-      sed -r 's/(bootcache %U\+1 [0-9]+) [0-9a-fA-F]+/\1 MAGIC_HASH/')
+      sed -r 's:(bootcache (PARTUUID=)?%U(/PARTNROFF=|\+)1 [0-9]+) [0-9a-fA-F]+:\1 MAGIC_HASH:')
   fi
   echo $dmparams
 }
