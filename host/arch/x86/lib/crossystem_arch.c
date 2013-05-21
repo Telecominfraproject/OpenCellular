@@ -105,6 +105,8 @@ const PlatformFamily platform_family_array[] = {
   {0x8086, 0x0100, "SandyBridge"}, /* desktop */
   {0x8086, 0x0154, "IvyBridge"},   /* mobile */
   {0x8086, 0x0150, "IvyBridge"},   /* desktop */
+  {0x8086, 0x0a04, "Haswell"},     /* ult */
+  {0x8086, 0x0c04, "Haswell"},     /* mobile */
   /* Terminate with NULL entry */
   {0, 0, 0}
 };
