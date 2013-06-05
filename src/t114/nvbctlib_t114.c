@@ -116,6 +116,11 @@ t114_set_dev_param(build_image_context *context,
 	CASE_SET_DEV_PARAM(sdmmc, max_power_class_supported);
 	CASE_SET_DEV_PARAM(sdmmc, multi_page_support);
 
+	CASE_SET_DEV_PARAM(spiflash, clock_source);
+	CASE_SET_DEV_PARAM(spiflash, clock_divider);
+	CASE_SET_DEV_PARAM(spiflash, read_command_type_fast);
+	CASE_SET_DEV_PARAM(spiflash, page_size_2k_or_16k);
+
 	case token_dev_type:
 		bct->dev_type[index] = value;
 		break;
@@ -144,6 +149,11 @@ t114_get_dev_param(build_image_context *context,
 	CASE_GET_DEV_PARAM(sdmmc, data_width);
 	CASE_GET_DEV_PARAM(sdmmc, max_power_class_supported);
 	CASE_GET_DEV_PARAM(sdmmc, multi_page_support);
+
+	CASE_GET_DEV_PARAM(spiflash, clock_source);
+	CASE_GET_DEV_PARAM(spiflash, clock_divider);
+	CASE_GET_DEV_PARAM(spiflash, read_command_type_fast);
+	CASE_GET_DEV_PARAM(spiflash, page_size_2k_or_16k);
 
 	case token_dev_type:
 		*value = bct->dev_type[index];
@@ -955,8 +965,11 @@ t114_bct_get_value(parse_token id, u_int32_t *data, u_int8_t *bct)
 	CASE_GET_CONST(max_bct_search_blks, NVBOOT_MAX_BCT_SEARCH_BLOCKS);
 
 	CASE_GET_CONST_PREFIX(dev_type_sdmmc, nvboot);
+	CASE_GET_CONST_PREFIX(dev_type_spi, nvboot);
 	CASE_GET_CONST_PREFIX(sdmmc_data_width_4bit, nvboot);
 	CASE_GET_CONST_PREFIX(sdmmc_data_width_8bit, nvboot);
+	CASE_GET_CONST_PREFIX(spi_clock_source_pllp_out0, nvboot);
+	CASE_GET_CONST_PREFIX(spi_clock_source_clockm, nvboot);
 
 	CASE_GET_CONST_PREFIX(memory_type_none, nvboot);
 	CASE_GET_CONST_PREFIX(memory_type_ddr, nvboot);
@@ -1060,12 +1073,12 @@ cbootimage_soc_config tegra114_config = {
 
 	.devtype_table				= s_devtype_table_t114,
 	.sdmmc_data_width_table		= s_sdmmc_data_width_table_t114,
-	.spi_clock_source_table		= 0,
+	.spi_clock_source_table		= s_spi_clock_source_table_t114,
 	.nvboot_memory_type_table	= s_nvboot_memory_type_table_t114,
 	.sdram_field_table			= s_sdram_field_table_t114,
 	.nand_table					= 0,
 	.sdmmc_table				= s_sdmmc_table_t114,
-	.spiflash_table				= 0,
+	.spiflash_table				= s_spiflash_table_t114,
 	.device_type_table			= s_device_type_table_t114,
 };
 

@@ -26,7 +26,9 @@
 
 enum_item s_devtype_table_t114[] = {
 	{ "NvBootDevType_Sdmmc", nvboot_dev_type_sdmmc },
+	{ "NvBootDevType_Spi", nvboot_dev_type_spi },
 	{ "Sdmmc", nvboot_dev_type_sdmmc },
+	{ "Spi", nvboot_dev_type_spi },
 	{ NULL, 0 }
 };
 
@@ -41,6 +43,16 @@ enum_item s_sdmmc_data_width_table_t114[] = {
 	},
 	{ "4Bit", nvboot_sdmmc_data_width_4bit },
 	{ "8Bit", nvboot_sdmmc_data_width_8bit },
+	{ NULL, 0 }
+};
+
+enum_item s_spi_clock_source_table_t114[] = {
+	{ "NvBootSpiClockSource_PllPOut0", nvboot_spi_clock_source_pllp_out0 },
+	{ "NvBootSpiClockSource_ClockM", nvboot_spi_clock_source_clockm },
+	{ "ClockSource_PllPOut0", nvboot_spi_clock_source_pllp_out0 },
+	{ "ClockSource_ClockM", nvboot_spi_clock_source_clockm },
+	{ "PllPOut0", nvboot_spi_clock_source_pllp_out0 },
+	{ "ClockM", nvboot_spi_clock_source_clockm },
 	{ NULL, 0 }
 };
 
@@ -398,8 +410,21 @@ field_item s_sdmmc_table_t114[] = {
 	{ NULL, 0, 0, NULL }
 };
 
+field_item s_spiflash_table_t114[] = {
+	{ "ReadCommandTypeFast",        TOKEN(spiflash_read_command_type_fast) },
+	{ "PageSize2kor16k",            TOKEN(spiflash_page_size_2k_or_16k) },
+	{ "ClockDivider",               TOKEN(spiflash_clock_divider) },
+	{ "ClockSource",
+	  token_spiflash_clock_source,
+	  field_type_enum,
+	  s_spi_clock_source_table_t114 },
+	{ NULL, 0, 0, NULL }
+};
+
 parse_subfield_item s_device_type_table_t114[] = {
 	{ "SdmmcParams.", token_sdmmc_params,
 		s_sdmmc_table_t114, t114_set_dev_param },
+	{ "SpiFlashParams.", token_spiflash_params,
+		s_spiflash_table_t114, t114_set_dev_param },
 	{ NULL, 0, NULL }
 };

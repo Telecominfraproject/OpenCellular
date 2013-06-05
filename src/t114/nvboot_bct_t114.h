@@ -207,6 +207,49 @@ typedef struct nvboot_sdmmc_params_rec {
 	u_int8_t multi_page_support;
 } nvboot_sdmmc_params;
 
+typedef enum {
+	/* Specifies SPI clock source to be PLLP. */
+	nvboot_spi_clock_source_pllp_out0 = 0,
+
+	/* Specifies SPI clock source to be ClockM. */
+	nvboot_spi_clock_source_clockm = 6,
+
+	nvboot_spi_clock_source_num,
+	nvboot_spi_clock_source_force32 = 0x7FFFFFF
+} nvboot_spi_clock_source;
+
+/**
+ * Defines the parameters SPI FLASH devices.
+ */
+typedef struct nvboot_spiflash_params_rec {
+	/**
+	 * Specifies the clock source to use.
+	 */
+	u_int32_t clock_source;
+
+	/**
+	 * Specifes the clock divider to use.
+	 * The value is a 7-bit value based on an input clock of 432Mhz.
+	 * Divider = (432+ DesiredFrequency-1)/DesiredFrequency;
+	 * Typical values:
+	 *     NORMAL_READ at 20MHz: 22
+	 *     FAST_READ   at 33MHz: 14
+	 *     FAST_READ   at 40MHz: 11
+	 *     FAST_READ   at 50MHz:  9
+	 */
+	u_int8_t clock_divider;
+
+	/**
+	 * Specifies the type of command for read operations.
+	 * NV_FALSE specifies a NORMAL_READ Command
+	 * NV_TRUE  specifies a FAST_READ   Command
+	 */
+	u_int8_t read_command_type_fast;
+
+	/* 0 = 2k page size, 1 = 16K page size */
+	u_int8_t page_size_2k_or_16k;
+} nvboot_spiflash_params;
+
 /**
 * Defines the union of the parameters required by each device.
 */
@@ -214,6 +257,8 @@ typedef union {
 	u_int8_t size[64];
 	/* Specifies optimized parameters for eMMC and eSD */
 	nvboot_sdmmc_params sdmmc_params;
+	/* Specifies optimized parameters for SPI NOR */
+	nvboot_spiflash_params spiflash_params;
 } nvboot_dev_params;
 
 /**
@@ -225,6 +270,9 @@ typedef union {
 typedef enum {
 	/* Specifies a default (unset) value. */
 	nvboot_dev_type_none = 0,
+
+	/* Specifies SPI NOR. */
+	nvboot_dev_type_spi = 3,
 
 	/* Specifies SDMMC (either eMMC or eSD). */
 	nvboot_dev_type_sdmmc = 4,

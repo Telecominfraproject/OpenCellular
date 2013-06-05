@@ -120,6 +120,7 @@ typedef enum
 	token_sdmmc_sd_controller,
 	token_sdmmc_max_power_class_supported,
 	token_spiflash_read_command_type_fast,
+	token_spiflash_page_size_2k_or_16k,
 	token_spiflash_clock_source,
 	token_spiflash_clock_divider,
 	token_sdmmc_data_width_4bit,
@@ -790,6 +791,7 @@ extern enum_item s_sdmmc_data_width_table_t114[];
 
 extern enum_item s_spi_clock_source_table_t20[];
 extern enum_item s_spi_clock_source_table_t30[];
+extern enum_item s_spi_clock_source_table_t114[];
 
 extern enum_item s_nvboot_memory_type_table_t20[];
 extern enum_item s_nvboot_memory_type_table_t30[];
@@ -808,6 +810,7 @@ extern field_item s_sdmmc_table_t114[];
 
 extern field_item s_spiflash_table_t20[];
 extern field_item s_spiflash_table_t30[];
+extern field_item s_spiflash_table_t114[];
 
 extern parse_subfield_item s_device_type_table_t20[];
 extern parse_subfield_item s_device_type_table_t30[];
