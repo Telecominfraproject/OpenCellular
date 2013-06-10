@@ -245,10 +245,11 @@ static void VbSoftwareSyncTest(void)
 	test_ssync(VBERROR_SIMULATED,
 		   VBNV_RECOVERY_EC_PROTECT, "Protect error");
 
+	/* No longer check for shutdown requested */
 	ResetMocks();
 	shared->flags |= VBSD_LF_USE_RO_NORMAL;
 	shutdown_request_calls_left = 0;
-	test_ssync(VBERROR_SHUTDOWN_REQUESTED, 0, "AP-RO shutdown requested");
+	test_ssync(0, 0, "AP-RO shutdown requested");
 
 	/* Calculate hashes */
 	ResetMocks();
@@ -344,15 +345,16 @@ static void VbSoftwareSyncTest(void)
 	test_ssync(VBERROR_SIMULATED,
 		   VBNV_RECOVERY_EC_PROTECT, "Protect error");
 
+	/* No longer check for shutdown requested */
 	ResetMocks();
 	shutdown_request_calls_left = 0;
-	test_ssync(VBERROR_SHUTDOWN_REQUESTED, 0,
+	test_ssync(0, 0,
 		   "AP-RW, EC-RO -> EC-RW shutdown requested");
 
 	ResetMocks();
 	mock_in_rw = 1;
 	shutdown_request_calls_left = 0;
-	test_ssync(VBERROR_SHUTDOWN_REQUESTED, 0, "AP-RW shutdown requested");
+	test_ssync(0, 0, "AP-RW shutdown requested");
 }
 
 int main(void)

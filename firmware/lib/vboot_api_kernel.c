@@ -609,18 +609,6 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		}
 
 		VBDEBUG(("VbEcSoftwareSync() in RO-Normal; EC-RO\n"));
-
-		/*
-		 * If shutdown is requested, just power the AP back off.  This
-		 * covers the case where the lid is closed when then system
-		 * boots.
-		 */
-		if (VbExIsShutdownRequested()) {
-			VBDEBUG(("VbEcSoftwareSync() "
-				 "sees shutdown-requested\n"));
-			return VBERROR_SHUTDOWN_REQUESTED;
-		}
-
 		return VBERROR_SUCCESS;
 	}
 
@@ -745,18 +733,6 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		}
 
 		VBDEBUG(("VbEcSoftwareSync() in EC-RW and it matches\n"));
-
-		/*
-		 * If shutdown is requested, just power the AP back off.  This
-		 * covers the case where the lid is closed when then system
-		 * boots.
-		 */
-		if (VbExIsShutdownRequested()) {
-			VBDEBUG(("VbEcSoftwareSync() "
-				 "sees shutdown-requested\n"));
-			return VBERROR_SHUTDOWN_REQUESTED;
-		}
-
 		return VBERROR_SUCCESS;
 	}
 
@@ -814,16 +790,6 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	}
 
 	VBDEBUG(("VbEcSoftwareSync() in RW; done\n"));
-
-	/*
-	 * If shutdown is requested, just power the AP back off.  This covers
-	 * the case where the lid is closed when then system boots.
-	 */
-	if (VbExIsShutdownRequested()) {
-		VBDEBUG(("VbEcSoftwareSync() sees shutdown-requested\n"));
-		return VBERROR_SHUTDOWN_REQUESTED;
-	}
-
 	return VBERROR_SUCCESS;
 }
 
