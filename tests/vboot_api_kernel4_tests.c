@@ -155,6 +155,12 @@ static void VbSlkTest(void)
 	ecsync_retval = VBERROR_SIMULATED;
 	test_slk(0, 0, "EC sync not done");
 
+	ResetMocks();
+	shared->flags |= VBSD_EC_SOFTWARE_SYNC;
+	gbb.flags |= GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC;
+	ecsync_retval = VBERROR_SIMULATED;
+	test_slk(0, 0, "EC sync disabled by GBB");
+
 	/* Rollback kernel version */
 	ResetMocks();
 	rkr_retval = 123;

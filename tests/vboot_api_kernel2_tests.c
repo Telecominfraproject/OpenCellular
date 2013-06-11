@@ -220,6 +220,12 @@ static void VbBootDevTest(void)
 	TEST_EQ(u, 0, "  recovery reason");
 	TEST_EQ(audio_looping_calls_left, 0, "  used up audio");
 
+	/* Proceed to legacy after timeout if GBB flag set */
+	ResetMocks();
+	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY;
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
+
 	/* Up arrow is uninteresting / passed to VbCheckDisplayKey() */
 	ResetMocks();
 	mock_keypress[0] = VB_KEY_UP;
@@ -313,6 +319,14 @@ static void VbBootDevTest(void)
 	VbNvGet(VbApiKernelGetVnc(), VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, 0, "  recovery reason");
 	TEST_NEQ(audio_looping_calls_left, 0, "  aborts audio");
+	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
+
+	/* Ctrl+D doesn't boot legacy even if GBB flag is set */
+	ResetMocks();
+	mock_keypress[0] = 0x04;
+	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY;
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Ctrl+D");
+	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
 	/* Ctrl+L tries legacy boot mode only if enabled */
 	ResetMocks();

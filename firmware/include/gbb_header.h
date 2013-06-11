@@ -58,6 +58,10 @@
 #define GBB_FLAG_FORCE_DEV_BOOT_LEGACY    0x00000080
 /* Allow booting using alternate keys for FAFT servo testing */
 #define GBB_FLAG_FAFT_KEY_OVERIDE         0x00000100
+/* Disable EC software sync */
+#define GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC 0x00000200
+/* Default to booting legacy OS when dev screen times out */
+#define GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY  0x00000400
 
 #ifdef __cplusplus
 extern "C" {

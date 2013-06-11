@@ -177,7 +177,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 		(GoogleBinaryBlockHeader *)cparams->gbb_data;
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	uint32_t allow_usb = 0, allow_legacy = 0;
+	uint32_t allow_usb = 0, allow_legacy = 0, ctrl_d_pressed = 0;
 	VbAudioContext *audio = 0;
 
 	VBDEBUG(("Entering %s()\n", __func__));
@@ -287,6 +287,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 			/* Ctrl+D = dismiss warning; advance to timeout */
 			VBDEBUG(("VbBootDeveloper() - "
 				 "user pressed Ctrl+D; skip delay\n"));
+			ctrl_d_pressed = 1;
 			goto fallout;
 			break;
 		case 0x0c:
@@ -370,6 +371,19 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	} while(VbAudioLooping(audio));
 
  fallout:
+
+	/* If defaulting to legacy boot, try that unless Ctrl+D was pressed */
+	if ((gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) &&
+	    !ctrl_d_pressed) {
+		VBDEBUG(("VbBootDeveloper() - defaulting to legacy\n"));
+		VbExLegacy();
+
+		/* If that fails, beep and fall through to fixed disk */
+		VbExBeep(120, 400);
+		VbExSleepMs(120);
+		VbExBeep(120, 400);
+	}
+
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VBDEBUG(("VbBootDeveloper() - trying fixed disk\n"));
 	VbAudioClose(audio);
@@ -798,6 +812,8 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
+	GoogleBinaryBlockHeader *gbb =
+		(GoogleBinaryBlockHeader *)cparams->gbb_data;
 	VbError_t retval = VBERROR_SUCCESS;
 	LoadKernelParams p;
 	uint32_t tpm_status = 0;
@@ -816,7 +832,8 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
 	/* Do EC software sync if necessary */
-	if (shared->flags & VBSD_EC_SOFTWARE_SYNC) {
+	if ((shared->flags & VBSD_EC_SOFTWARE_SYNC) &&
+	    !(gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)) {
 		retval = VbEcSoftwareSync(cparams);
 		if (retval != VBERROR_SUCCESS)
 			goto VbSelectAndLoadKernel_exit;
