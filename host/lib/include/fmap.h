@@ -15,6 +15,7 @@
 #define FMAP_SIGNATURE "__FMAP__"
 #define FMAP_SIGNATURE_SIZE 8
 #define FMAP_SEARCH_STRIDE 4
+#define FMAP_VER_MAJOR 1
 typedef struct _FmapHeader {
   char        fmap_signature[FMAP_SIGNATURE_SIZE]; /* avoiding endian issues */
   uint8_t     fmap_ver_major;

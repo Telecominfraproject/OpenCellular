@@ -12,10 +12,15 @@
 const char* FmapFind(const char* ptr, size_t size)
 {
   size_t i;
-  for (i=0; i<size; i += FMAP_SEARCH_STRIDE) {
-    if (0 == strncmp(ptr, FMAP_SIGNATURE, FMAP_SIGNATURE_SIZE))
+  FmapHeader *fmap_header;
+  for (i=0; i<size; i += FMAP_SEARCH_STRIDE, ptr += FMAP_SEARCH_STRIDE) {
+    if (0 != strncmp(ptr, FMAP_SIGNATURE, FMAP_SIGNATURE_SIZE))
+      continue;
+    // Image may have multiple signatures (ex, in code that handles FMAP itself)
+    // so we do want to check at least major version.
+    fmap_header = (FmapHeader *)ptr;
+    if (fmap_header->fmap_ver_major == FMAP_VER_MAJOR)
       return ptr;
-    ptr += FMAP_SEARCH_STRIDE;
   }
   return NULL;
 }
