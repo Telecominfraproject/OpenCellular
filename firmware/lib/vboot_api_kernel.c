@@ -595,7 +595,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	 */
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
-			 "VbEcEcRunningRW() returned %d\n", rv));
+			 "VbExEcRunningRW() returned %d\n", rv));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_UNKNOWN_IMAGE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
