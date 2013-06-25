@@ -60,8 +60,8 @@ int MtdCreate(struct drive *drive, CgptCreateParams *params) {
     // Prep basic parameters
     memcpy(h->signature, MTD_DRIVE_SIGNATURE, sizeof(h->signature));
     h->size = sizeof(*h);
-    h->first_lba = 0;
-    h->last_lba = drive->mtd.drive_sectors - 1;
+    h->first_offset = 0;
+    h->last_offset = (drive->mtd.drive_sectors * drive->mtd.sector_bytes) - 1;
     h->crc32 = MtdHeaderCrc(h);
   }
 

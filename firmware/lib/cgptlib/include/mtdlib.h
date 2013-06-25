@@ -63,10 +63,9 @@
 
 
 typedef struct {
-  uint32_t starting_lba;
-  uint32_t ending_lba;
+  uint64_t starting_offset;
+  uint64_t ending_offset;
   uint32_t flags;
-  uint32_t reserved;
 } __attribute__((packed)) MtdDiskPartition;
 
 typedef struct {
@@ -77,15 +76,15 @@ typedef struct {
    */
   uint32_t crc32;
   uint32_t size;
-  uint32_t first_lba;
-  uint32_t last_lba;
+  uint64_t first_offset;
+  uint64_t last_offset;
   MtdDiskPartition partitions[MTD_MAX_PARTITIONS];
 } __attribute__((packed)) MtdDiskLayout;
 
-#define MTD_DRIVE_V1_SIZE (24 + 16*16)
+#define MTD_DRIVE_V1_SIZE (32 + 16*20)
 
-#define MTDENTRY_EXPECTED_SIZE (16)
-#define MTDLAYOUT_EXPECTED_SIZE (24 + 16 * MTDENTRY_EXPECTED_SIZE)
+#define MTDENTRY_EXPECTED_SIZE (20)
+#define MTDLAYOUT_EXPECTED_SIZE (32 + 16 * MTDENTRY_EXPECTED_SIZE)
 
 
 typedef struct {
@@ -134,6 +133,12 @@ void MtdSetEntrySuccessful(MtdDiskPartition *e, int successful) ;
 void MtdSetEntryPriority(MtdDiskPartition *e, int priority);
 void MtdSetEntryTries(MtdDiskPartition *e, int tries);
 void MtdSetEntryType(MtdDiskPartition *e, int type);
+
+void MtdGetPartitionSize(const MtdDiskPartition *e,
+                         uint64_t *start, uint64_t *end, uint64_t *size);
+
+void MtdGetPartitionSizeInSectors(const MtdDiskPartition *e, uint64_t *start,
+                                  uint64_t *end, uint64_t *size);
 
 void MtdModified(MtdData *mtd);
 int MtdGptInit(MtdData *mtd);

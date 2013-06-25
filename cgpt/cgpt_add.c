@@ -103,9 +103,14 @@ static int MtdSetEntryAttributes(struct drive *drive,
 
   entry = MtdGetEntry(&drive->mtd, PRIMARY, index);
   if (params->set_begin)
-    entry->starting_lba = params->begin;
-  if (params->set_size)
-    entry->ending_lba = entry->starting_lba + params->size - 1;
+    memcpy(&entry->starting_offset, &params->begin, sizeof(params->begin));
+  if (params->set_size) {
+    uint64_t start;
+    uint64_t end;
+    MtdGetPartitionSize(entry, &start, NULL, NULL);
+    end = start + params->size - 1;
+    memcpy(&entry->ending_offset, &end, sizeof(end));
+  }
   if (params->set_type)
     MtdSetEntryType(entry, LookupMtdTypeForGuid(&params->type_guid));
 
@@ -273,14 +278,10 @@ int CgptGetPartitionDetails(CgptAddParams *params) {
 
   if(drive.is_mtd) {
     MtdDiskPartition *entry = MtdGetEntry(&drive.mtd, PRIMARY, index);
-    uint64_t start_lba, end_lba;
     const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
     memcpy(&params->type_guid, guid, sizeof(params->type_guid));
     memset(&params->unique_guid, 0, sizeof(params->unique_guid));
-    start_lba = entry->starting_lba;
-    end_lba = entry->ending_lba;
-    params->begin = start_lba;
-    params->size = end_lba - start_lba + 1;
+    MtdGetPartitionSizeInSectors(entry, &params->begin, NULL, &params->size);
     params->raw_value = entry->flags;
   } else {
     // GPT-specific code

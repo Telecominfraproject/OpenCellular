@@ -150,13 +150,13 @@ static int mtd_match_type_to_guid(const MtdDiskPartition *e, const Guid *guid) {
 
 static int mtd_match_content(CgptFindParams *params, struct drive *drive,
                              MtdDiskPartition *entry) {
-  uint64_t part_size;
+  uint64_t start, part_size;
 
   if (!params->matchlen)
     return 1;
 
   // Ensure that the region we want to match against is inside the partition.
-  part_size = LBA_SIZE * (entry->ending_lba - entry->starting_lba + 1);
+  MtdGetPartitionSize(entry, &start, NULL, &part_size);
   if (params->matchoffset + params->matchlen > part_size) {
     return 0;
   }
@@ -164,7 +164,7 @@ static int mtd_match_content(CgptFindParams *params, struct drive *drive,
   // Read the partition data.
   if (!FillBuffer(params,
                   drive->fd,
-                  (LBA_SIZE * entry->starting_lba) + params->matchoffset,
+                  start + params->matchoffset,
                   params->matchlen)) {
     Error("unable to read partition data\n");
     return 0;

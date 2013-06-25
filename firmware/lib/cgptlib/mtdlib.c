@@ -11,6 +11,8 @@
 #include "utility.h"
 #include "vboot_api.h"
 
+const int kSectorShift = 9; /* 512 bytes / sector. */
+
 int MtdInit(MtdData *mtd) {
   int ret;
 
@@ -85,8 +87,8 @@ static void SetBitfield(MtdDiskPartition *e,
   e->flags = (e->flags & ~mask) | ((v << offset) & mask);
 }
 void MtdSetEntrySuccessful(MtdDiskPartition *e, int successful) {
-  SetBitfield(e, MTD_ATTRIBUTE_SUCCESSFUL_OFFSET, MTD_ATTRIBUTE_SUCCESSFUL_MASK,
-              successful);
+  SetBitfield(e, MTD_ATTRIBUTE_SUCCESSFUL_OFFSET,
+              MTD_ATTRIBUTE_SUCCESSFUL_MASK, successful);
 }
 void MtdSetEntryPriority(MtdDiskPartition *e, int priority) {
   SetBitfield(e, MTD_ATTRIBUTE_PRIORITY_OFFSET, MTD_ATTRIBUTE_PRIORITY_MASK,
@@ -116,31 +118,36 @@ int MtdCheckEntries(MtdDiskPartition *entries, MtdDiskLayout *h) {
       if (i != j) {
         MtdDiskPartition *entry = entries + i;
         MtdDiskPartition *e2 = entries + j;
+        uint64_t start, end;
+        uint64_t other_start, other_end;
 
         if (!MtdIsPartitionValid(entry) || !MtdIsPartitionValid(e2))
           continue;
 
-        if((entry->starting_lba == 0 && entry->ending_lba == 0) ||
-           (e2->starting_lba == 0 && e2->ending_lba == 0)) {
+        MtdGetPartitionSize(entry, &start, &end, NULL);
+        MtdGetPartitionSize(e2, &other_start, &other_end, NULL);
+
+        if((start == 0 && end == 0) ||
+           (other_start == 0 && other_end == 0)) {
           continue;
         }
 
-        if (entry->ending_lba > h->last_lba) {
+        if (end > h->last_offset) {
           return GPT_ERROR_OUT_OF_REGION;
         }
-        if (entry->starting_lba < h->first_lba) {
+        if (start < h->first_offset) {
           return GPT_ERROR_OUT_OF_REGION;
         }
-        if (entry->starting_lba > entry->ending_lba) {
+        if (start > end) {
           return GPT_ERROR_OUT_OF_REGION;
         }
 
-        if ((entry->starting_lba >= e2->starting_lba) &&
-            (entry->starting_lba <= e2->ending_lba)) {
+        if ((start >= other_start) &&
+            (start <= other_end)) {
           return GPT_ERROR_START_LBA_OVERLAP;
         }
-        if ((entry->ending_lba >= e2->starting_lba) &&
-            (entry->ending_lba <= e2->ending_lba)) {
+        if ((end >= other_start) &&
+            (end <= other_end)) {
           return GPT_ERROR_END_LBA_OVERLAP;
         }
       }
@@ -162,8 +169,8 @@ int MtdSanityCheck(MtdData *disk) {
     return GPT_ERROR_INVALID_HEADERS;
   }
 
-  if (disk->primary.first_lba > disk->primary.last_lba ||
-      disk->primary.last_lba > disk->drive_sectors) {
+  if (disk->primary.first_offset > disk->primary.last_offset ||
+      disk->primary.last_offset > disk->drive_sectors * disk->sector_bytes) {
     return GPT_ERROR_INVALID_SECTOR_NUMBER;
   }
 
@@ -196,6 +203,31 @@ uint32_t MtdHeaderCrc(MtdDiskLayout *h) {
   return crc32;
 }
 
+void MtdGetPartitionSize(const MtdDiskPartition *e,
+                         uint64_t *start, uint64_t *end, uint64_t *size) {
+  uint64_t start_tmp, end_tmp;
+  if (!start)
+    start = &start_tmp;
+  if (!end)
+    end = &end_tmp;
+
+  Memcpy(start, &e->starting_offset, sizeof(e->starting_offset));
+  Memcpy(end, &e->ending_offset, sizeof(e->ending_offset));
+  if (size) {
+    *size = *end - *start + 1;
+  }
+}
+
+void MtdGetPartitionSizeInSectors(const MtdDiskPartition *e, uint64_t *start,
+                                  uint64_t *end, uint64_t *size) {
+  MtdGetPartitionSize(e, start, end, size);
+  if (start)
+    *start >>= kSectorShift;
+  if (end)
+    *end >>= kSectorShift;
+  if (size)
+    *size >>= kSectorShift;
+}
 
 
 int MtdNextKernelEntry(MtdData *mtd, uint64_t *start_sector, uint64_t *size)
@@ -218,18 +250,17 @@ int MtdNextKernelEntry(MtdData *mtd, uint64_t *start_sector, uint64_t *size)
       e = entries + i;
       if (!MtdIsKernelEntry(e))
         continue;
-      VBDEBUG(("GptNextKernelEntry looking at same prio "
+      VBDEBUG(("MtdNextKernelEntry looking at same prio "
          "partition %d\n", i+1));
-      VBDEBUG(("GptNextKernelEntry s%d t%d p%d\n",
+      VBDEBUG(("MtdNextKernelEntry s%d t%d p%d\n",
          MtdGetEntrySuccessful(e), MtdGetEntryTries(e),
          MtdGetEntryPriority(e)));
       if (!(MtdGetEntrySuccessful(e) || MtdGetEntryTries(e)))
         continue;
       if (MtdGetEntryPriority(e) == mtd->current_priority) {
+        MtdGetPartitionSizeInSectors(e, start_sector, NULL, size);
         mtd->current_kernel = i;
-        *start_sector = e->starting_lba;
-        *size = e->ending_lba - e->starting_lba + 1;
-        VBDEBUG(("GptNextKernelEntry likes it\n"));
+        VBDEBUG(("MtdNextKernelEntry likes it\n"));
         return GPT_SUCCESS;
       }
     }
@@ -243,9 +274,9 @@ int MtdNextKernelEntry(MtdData *mtd, uint64_t *start_sector, uint64_t *size)
     int current_prio = MtdGetEntryPriority(e);
     if (!MtdIsKernelEntry(e))
       continue;
-    VBDEBUG(("GptNextKernelEntry looking at new prio "
+    VBDEBUG(("MtdNextKernelEntry looking at new prio "
        "partition %d\n", i+1));
-    VBDEBUG(("GptNextKernelEntry s%d t%d p%d\n",
+    VBDEBUG(("MtdNextKernelEntry s%d t%d p%d\n",
        MtdGetEntrySuccessful(e), MtdGetEntryTries(e),
        MtdGetEntryPriority(e)));
     if (!(MtdGetEntrySuccessful(e) || MtdGetEntryTries(e)))
@@ -269,14 +300,14 @@ int MtdNextKernelEntry(MtdData *mtd, uint64_t *start_sector, uint64_t *size)
   mtd->current_priority = new_prio;
 
   if (CGPT_KERNEL_ENTRY_NOT_FOUND == new_kernel) {
-    VBDEBUG(("GptNextKernelEntry no more kernels\n"));
+    VBDEBUG(("MtdNextKernelEntry no more kernels\n"));
     return GPT_ERROR_NO_VALID_KERNEL;
   }
 
-  VBDEBUG(("GptNextKernelEntry likes partition %d\n", new_kernel + 1));
+  VBDEBUG(("MtdNextKernelEntry likes partition %d\n", new_kernel + 1));
   e = entries + new_kernel;
-  *start_sector = e->starting_lba;
-  *size = e->ending_lba - e->starting_lba + 1;
+  MtdGetPartitionSizeInSectors(e, start_sector, NULL, size);
+
   return GPT_SUCCESS;
 }
 

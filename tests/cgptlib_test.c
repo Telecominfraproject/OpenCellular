@@ -225,8 +225,8 @@ static void BuildTestMtdData(MtdData *mtd) {
 
 	Memcpy(mtd->primary.signature, MTD_DRIVE_SIGNATURE,
 		sizeof(mtd->primary.signature));
-	mtd->primary.first_lba = 32;
-	mtd->primary.last_lba = DEFAULT_DRIVE_SECTORS - 1;
+	mtd->primary.first_offset = 32 * DEFAULT_SECTOR_SIZE;
+	mtd->primary.last_offset = DEFAULT_DRIVE_SECTORS * DEFAULT_SECTOR_SIZE - 1;
 	mtd->primary.size = MTD_DRIVE_V1_SIZE;
 
 	/* These values are not used directly by the library, but they are checked */
@@ -236,20 +236,20 @@ static void BuildTestMtdData(MtdData *mtd) {
 	mtd->fts_block_size = 1;
 
 	partitions = &mtd->primary.partitions[0];
-	partitions[0].starting_lba = 34;
-	partitions[0].ending_lba = 133;
+	partitions[0].starting_offset = 34 * DEFAULT_SECTOR_SIZE;
+	partitions[0].ending_offset = 134 * DEFAULT_SECTOR_SIZE - 1;
 	partitions[0].flags =
 		MTD_PARTITION_TYPE_CHROMEOS_KERNEL << MTD_ATTRIBUTE_TYPE_OFFSET;
-	partitions[1].starting_lba = 134;
-	partitions[1].ending_lba = 232;
+	partitions[1].starting_offset = 134 * DEFAULT_SECTOR_SIZE;
+	partitions[1].ending_offset = 233 * DEFAULT_SECTOR_SIZE - 1;
 	partitions[1].flags =
 		MTD_PARTITION_TYPE_CHROMEOS_ROOTFS << MTD_ATTRIBUTE_TYPE_OFFSET;
-	partitions[2].starting_lba = 234;
-	partitions[2].ending_lba = 331;
+	partitions[2].starting_offset = 234 * DEFAULT_SECTOR_SIZE;
+	partitions[2].ending_offset = 332 * DEFAULT_SECTOR_SIZE - 1;
 	partitions[2].flags =
 		MTD_PARTITION_TYPE_CHROMEOS_KERNEL << MTD_ATTRIBUTE_TYPE_OFFSET;
-	partitions[3].starting_lba = 334;
-	partitions[3].ending_lba = 430;
+	partitions[3].starting_offset = 334 * DEFAULT_SECTOR_SIZE;
+	partitions[3].ending_offset = 431 * DEFAULT_SECTOR_SIZE - 1;
 	partitions[3].flags =
 		MTD_PARTITION_TYPE_CHROMEOS_ROOTFS << MTD_ATTRIBUTE_TYPE_OFFSET;
 
@@ -809,8 +809,8 @@ static int ValidEntryTest(void)
 	EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
 	BuildTestMtdData(mtd);
-	if (mh->first_lba > 0) {
-		me[0].starting_lba = mh->first_lba - 1;
+	if (mh->first_offset > 0) {
+		me[0].starting_offset = mh->first_offset - 1;
 		mh->crc32 = MtdHeaderCrc(mh);
 		EXPECT(GPT_ERROR_OUT_OF_REGION == MtdCheckEntries(me, mh));
 	}
@@ -822,7 +822,7 @@ static int ValidEntryTest(void)
 	EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
 	BuildTestMtdData(mtd);
-	me[0].ending_lba = mh->last_lba + 1;
+	me[0].ending_offset = mh->last_offset + 1;
 	mh->crc32 = MtdHeaderCrc(mh);
 	EXPECT(GPT_ERROR_OUT_OF_REGION == MtdCheckEntries(me, mh));
 
@@ -833,7 +833,7 @@ static int ValidEntryTest(void)
 	EXPECT(GPT_ERROR_OUT_OF_REGION == CheckEntries(e1, h1));
 
 	BuildTestMtdData(mtd);
-	me[0].starting_lba = me[0].ending_lba + 1;
+	me[0].starting_offset = me[0].ending_offset + 1;
 	mh->crc32 = MtdHeaderCrc(mh);
 	EXPECT(GPT_ERROR_OUT_OF_REGION == MtdCheckEntries(me, mh));
 
@@ -846,7 +846,7 @@ static int ValidEntryTest(void)
 
 	BuildTestMtdData(mtd);
 	me[0].flags = 0;
-	me[0].starting_lba = me[0].ending_lba + 1;
+	me[0].starting_offset = me[0].ending_offset + 1;
 	mh->crc32 = MtdHeaderCrc(mh);
 	EXPECT(GPT_SUCCESS == MtdCheckEntries(me, mh));
 
@@ -928,8 +928,10 @@ static int OverlappedPartitionTest(void) {
 			SetGuid(&e[j].unique, j);
 			e[j].starting_lba = cases[i].entries[j].starting_lba;
 			e[j].ending_lba = cases[i].entries[j].ending_lba;
-			me[j].starting_lba = cases[i].entries[j].starting_lba;
-			me[j].ending_lba = cases[i].entries[j].ending_lba;
+			me[j].starting_offset = cases[i].entries[j].starting_lba *
+			    DEFAULT_SECTOR_SIZE;
+			me[j].ending_offset = cases[i].entries[j].ending_lba *
+			    DEFAULT_SECTOR_SIZE;
 
 		}
 		RefreshCrc32(gpt);

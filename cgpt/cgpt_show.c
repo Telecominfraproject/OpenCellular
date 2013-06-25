@@ -73,8 +73,10 @@ void MtdHeaderDetails(MtdDiskLayout *header, const char *indent, int raw) {
   printf("%sSize: %d\n", indent, header->size);
   printf("%sCRC: 0x%08x %s\n", indent, header->crc32,
          (MtdHeaderCrc(header) != header->crc32) ? "(INVALID)" : "");
-  printf("%sFirst LBA: %u\n", indent, header->first_lba);
-  printf("%sLast LBA: %u\n", indent, header->last_lba);
+  printf("%sFirst LBA: %llu\n", indent,
+    (unsigned long long)header->first_offset);
+  printf("%sLast LBA: %llu\n", indent,
+    (unsigned long long)header->last_offset);
 }
 
 static void HeaderDetails(GptHeader *header, GptEntry *entries,
@@ -110,20 +112,19 @@ static void HeaderDetails(GptHeader *header, GptEntry *entries,
 void MtdEntryDetails(MtdDiskPartition *entry, uint32_t index, int raw) {
   const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
   char buf[256];                   // scratch buffer for formatting output
+  uint64_t start, size;
   if (guid) {
     ResolveType(guid, buf);
   } else {
     snprintf(buf, sizeof(buf), "MTD partition type %d", MtdGetEntryType(entry));
   }
 
+  MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
+
   if (!raw) {
-    printf(PARTITION_FMT, (int)entry->starting_lba,
-           (int)(entry->ending_lba - entry->starting_lba + 1),
-           index+1, buf);
+    printf(PARTITION_FMT, (int)start, (int)size, index+1, buf);
   } else {
-    printf(PARTITION_FMT, (int)entry->starting_lba,
-           (int)(entry->ending_lba - entry->starting_lba + 1),
-           index+1, buf);
+    printf(PARTITION_FMT, (int)start, (int)size, index+1, buf);
   }
 }
 
@@ -257,14 +258,17 @@ int MtdShow(struct drive *drive, CgptShowParams *params) {
     MtdDiskPartition *entry = MtdGetEntry(&drive->mtd, ANY_VALID, index);
     char buf[256];                      // scratch buffer for string conversion
     const Guid *guid;
+    uint64_t start, size;
+
+    MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
 
     if (params->single_item) {
       switch(params->single_item) {
       case 'b':
-        printf("%u\n", entry->starting_lba);
+        printf("%u\n", (int)start);
         break;
       case 's':
-        printf("%u\n", entry->ending_lba - entry->starting_lba + 1);
+        printf("%u\n", (int)size);
         break;
       case 't':
         guid = LookupGuidForMtdType(MtdGetEntryType(entry));
@@ -295,6 +299,9 @@ int MtdShow(struct drive *drive, CgptShowParams *params) {
     for (i = 0; i < GetNumberOfEntries(drive); ++i) {
       MtdDiskPartition *entry = MtdGetEntry(&drive->mtd, ANY_VALID, i);
       const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
+      uint64_t start, size;
+
+      MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
 
       if (IsUnused(drive, ANY_VALID, i))
         continue;
@@ -305,9 +312,7 @@ int MtdShow(struct drive *drive, CgptShowParams *params) {
         snprintf(type, sizeof(type), "MTD partition type %d",
                  MtdGetEntryType(entry));
       }
-      printf(PARTITION_FMT, (int)entry->starting_lba,
-             (int)(entry->ending_lba - entry->starting_lba + 1),
-             i+1, type);
+      printf(PARTITION_FMT, (int)start, (int)size, i+1, type);
     }
   } else {                              // show all partitions
     if (params->debug || params->verbose) {
