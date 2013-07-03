@@ -692,6 +692,7 @@ echo "Using kernel version: ${KERNEL_VERSION}"
 if [ "${TYPE}" == "ssd" ]; then
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   resign_firmware_payload ${OUTPUT_IMAGE}
+  "${SCRIPT_DIR}/strip_boot_from_image.sh" --image "${OUTPUT_IMAGE}"
   update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/kernel.keyblock \
     ${KEY_DIR}/kernel_data_key.vbprivk \
@@ -700,6 +701,7 @@ if [ "${TYPE}" == "ssd" ]; then
 elif [ "${TYPE}" == "usb" ]; then
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   resign_firmware_payload ${OUTPUT_IMAGE}
+  "${SCRIPT_DIR}/strip_boot_from_image.sh" --image "${OUTPUT_IMAGE}"
   update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
     ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
@@ -708,6 +710,7 @@ elif [ "${TYPE}" == "usb" ]; then
 elif [ "${TYPE}" == "recovery" ]; then
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   resign_firmware_payload ${OUTPUT_IMAGE}
+  "${SCRIPT_DIR}/strip_boot_from_image.sh" --image "${OUTPUT_IMAGE}"
   # Both kernel command lines must have the correct rootfs hash
   update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/recovery_kernel.keyblock \
@@ -721,6 +724,8 @@ elif [ "${TYPE}" == "recovery" ]; then
 elif [ "${TYPE}" == "factory" ] || [ "${TYPE}" == "install" ]; then
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   resign_firmware_payload ${OUTPUT_IMAGE}
+  # We do NOT strip /boot for factory, since some factory images need it
+  # to boot EFI. crosbug.com/260512 would obsolete this requirement.
   update_rootfs_hash ${OUTPUT_IMAGE} \
     ${KEY_DIR}/installer_kernel.keyblock \
     ${KEY_DIR}/installer_kernel_data_key.vbprivk \
