@@ -54,6 +54,7 @@ struct drive {
 
 struct nand_layout {
   int enabled;
+  int use_host_ioctl; /* Use ioctl() on /dev/fts to read/write. */
   int bytes_per_page, pages_per_block, fts_block_offset, fts_block_size;
 };
 
@@ -62,6 +63,8 @@ struct nand_layout {
 int DriveOpen(const char *drive_path, struct drive *drive, int mode);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
+
+void TryInitMtd(void);
 
 /* Loads sectors from 'drive'.
  * *buf is pointed to an allocated memory when returned, and should be

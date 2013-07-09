@@ -24,6 +24,7 @@
 #include "cgptlib_internal.h"
 #include "crc32.h"
 #include "flash_ts.h"
+#include "flash_ts_api.h"
 #include "vboot_host.h"
 
 struct nand_layout nand = {
@@ -149,12 +150,40 @@ static int get_hex_char_value(char ch) {
   return -1;
 }
 
+void TryInitMtd(void) {
+  static int already_inited = 0;
+  if (nand.enabled || already_inited)
+    return;
+
+  already_inited = 1;
+
+  /* If we're running on the live system, we can just use /dev/fts and not
+   * actually need the specific parameters.
+   */
+  if (!access(FTS_DEVICE, R_OK | W_OK)) {
+    nand.enabled = 1;
+    nand.use_host_ioctl = 1;
+  }
+}
+
 int FlashGet(const char *key, uint8_t *data, uint32_t *bufsz) {
   char *hex = (char*)malloc(*bufsz * 2);
   char *read;
   uint32_t written = 0;
 
-  flash_ts_get(key, hex, *bufsz * 2);
+  if (nand.use_host_ioctl) {
+    struct flash_ts_io_req req;
+    strncpy(req.key, key, sizeof(req.key));
+    int fd = open("/dev/fts", O_RDWR);
+    if (fd < 0)
+      return -1;
+    if (ioctl(fd, FLASH_TS_IO_GET, &req))
+      return -1;
+    strncpy(hex, req.val, *bufsz * 2);
+    close(fd);
+  } else {
+    flash_ts_get(key, hex, *bufsz * 2);
+  }
 
   /* Hex -> binary */
   for (read = hex; read < hex + *bufsz * 2 && *read != '\0'; read += 2) {
@@ -186,6 +215,19 @@ int FlashSet(const char *key, const uint8_t *data, uint32_t bufsz) {
   }
   /* Buffer must be NUL-terminated. */
   hex[bufsz * 2] = '\0';
+  if (nand.use_host_ioctl) {
+    struct flash_ts_io_req req;
+    strncpy(req.key, key, sizeof(req.key));
+    strncpy(req.val, hex, sizeof(req.val));
+    free(hex);
+    int fd = open("/dev/fts", O_RDWR);
+    if (fd < 0)
+      return -1;
+    if (ioctl(fd, FLASH_TS_IO_SET, &req))
+      return -1;
+    close(fd);
+    return 0;
+  }
   ret = flash_ts_set(key, hex);
   free(hex);
   return ret;
@@ -199,12 +241,14 @@ int MtdLoad(struct drive *drive, int sector_bytes) {
   mtd->sector_bytes = sector_bytes;
   mtd->drive_sectors = drive->size / mtd->sector_bytes;
 
-  ret = flash_ts_init(mtd->fts_block_offset,
-                      mtd->fts_block_size,
-                      mtd->flash_page_bytes,
-                      mtd->flash_block_bytes,
-                      mtd->sector_bytes, /* Needed for Load() and Save() */
-                      drive);
+  if (!nand.use_host_ioctl) {
+    ret = flash_ts_init(mtd->fts_block_offset,
+                        mtd->fts_block_size,
+                        mtd->flash_page_bytes,
+                        mtd->flash_block_bytes,
+                        mtd->sector_bytes, /* Needed for Load() and Save() */
+                        drive);
+  }
   if (ret)
     return ret;
 

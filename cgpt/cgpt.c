@@ -118,6 +118,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  TryInitMtd();
+
   if (argc < 2) {
     Usage();
     return CGPT_FAILED;
