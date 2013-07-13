@@ -154,7 +154,7 @@ set_dm_slave() {
   local device=$2
   local slave=$3
   echo $(echo "${dm}" |
-    sed -nre "s/(.*${devcie}[^,]*,)([^,]*)(.*)/\1${slave}\3/p")
+    sed -nre "s#(.*${device}[^,]*,)([^,]*)(.*)#\1${slave}\3#p")
 }
 
 CALCULATED_KERNEL_CONFIG=
