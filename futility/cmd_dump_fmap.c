@@ -79,6 +79,30 @@ static int dump_fmap(const void *ptr, int argc, char *argv[])
       printf("area_size:       0x%08x (%d)\n", ah->area_size, ah->area_size);
       printf("area_name:       %s\n", buf);
     }
+
+    if (opt_extract) {
+      char *s;
+      for (s = buf; *s; s++)
+        if (*s == ' ')
+          *s = '_';
+      FILE *fp = fopen(buf,"wb");
+      if (!fp) {
+        fprintf(stderr, "%s: can't open %s: %s\n",
+                progname, buf, strerror(errno));
+        retval = 1;
+      } else {
+        if (ah->area_size &&
+            1 != fwrite(base_of_rom + ah->area_offset, ah->area_size, 1, fp)) {
+          fprintf(stderr, "%s: can't write %s: %s\n",
+                  progname, buf, strerror(errno));
+          retval = 1;
+        } else {
+          if (FMT_NORMAL == opt_format)
+            printf("saved as \"%s\"\n", buf);
+        }
+        fclose(fp);
+      }
+    }
   }
 
   return retval;
@@ -327,35 +351,6 @@ static int human_fmap(void *p)
 /* End of human-reable stuff */
 /****************************************************************************/
 
-/**
- * Extract components from an image and write them to separate files
- *
- * This uses flashrom so that we don't repeat the FMAP code
- */
-static int extract_components(const char *fname)
-{
-  static char *flashrom = "/usr/sbin/flashrom";
-  char image_arg[256];
-  char * const argv[] = {
-    flashrom,
-    "-p",
-    image_arg,
-    "-x",
-    "--ignore-lock",
-    "-V",
-    NULL,
-  };
-
-  snprintf(image_arg, sizeof(image_arg),
-           "dummy:emulate=VARIABLE_SIZE,size=auto,image=%s",
-           fname);
-
-  if (execv(flashrom, argv))
-      fprintf(stderr, "%s: Cannot run flashrom\n", progname);
-
-  return 1;
-}
-
 static int do_dump_fmap(int argc, char *argv[])
 {
   int c;
@@ -428,11 +423,6 @@ static int do_dump_fmap(int argc, char *argv[])
             argv[optind],
             strerror(errno));
     return 1;
-  }
-
-  if (opt_extract) {
-    retval = extract_components(argv[optind]);
-    return retval;
   }
 
   fd = open(argv[optind], O_RDONLY);
