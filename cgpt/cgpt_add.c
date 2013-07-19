@@ -102,13 +102,15 @@ static int MtdSetEntryAttributes(struct drive *drive,
   MtdDiskPartition *entry;
 
   entry = MtdGetEntry(&drive->mtd, PRIMARY, index);
-  if (params->set_begin)
-    memcpy(&entry->starting_offset, &params->begin, sizeof(params->begin));
+  if (params->set_begin) {
+    uint64_t start = params->begin * drive->mtd.sector_bytes;
+    memcpy(&entry->starting_offset, &start, sizeof(params->begin));
+  }
   if (params->set_size) {
     uint64_t start;
     uint64_t end;
     MtdGetPartitionSize(entry, &start, NULL, NULL);
-    end = start + params->size - 1;
+    end = start + params->size * drive->mtd.sector_bytes - 1;
     memcpy(&entry->ending_offset, &end, sizeof(end));
   }
   if (params->set_type)

@@ -73,9 +73,9 @@ void MtdHeaderDetails(MtdDiskLayout *header, const char *indent, int raw) {
   printf("%sSize: %d\n", indent, header->size);
   printf("%sCRC: 0x%08x %s\n", indent, header->crc32,
          (MtdHeaderCrc(header) != header->crc32) ? "(INVALID)" : "");
-  printf("%sFirst LBA: %llu\n", indent,
+  printf("%sFirst offset: %llu\n", indent,
     (unsigned long long)header->first_offset);
-  printf("%sLast LBA: %llu\n", indent,
+  printf("%sLast offset: %llu\n", indent,
     (unsigned long long)header->last_offset);
 }
 

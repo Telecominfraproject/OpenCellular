@@ -14,6 +14,7 @@ static void Usage(void)
          "Create or reset an empty GPT.\n\n"
          "Options:\n"
          "  -z           Zero the sectors of the GPT table and entries\n"
+         "  -s           Size (in byes) of the disk (MTD only)\n"
          "\n", progname);
 }
 
@@ -23,14 +24,18 @@ int cmd_create(int argc, char *argv[]) {
 
   int c;
   int errorcnt = 0;
+  char *e = 0;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hz")) != -1)
+  while ((c=getopt(argc, argv, ":hzs:")) != -1)
   {
     switch (c)
     {
     case 'z':
       params.zap = 1;
+      break;
+    case 's':
+      params.size = strtoull(optarg, &e, 0);
       break;
 
     case 'h':
