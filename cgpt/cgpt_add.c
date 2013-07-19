@@ -203,7 +203,6 @@ int CgptSetAttributes(CgptAddParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  TryInitMtd();
   if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 
@@ -241,7 +240,6 @@ int CgptGetPartitionDetails(CgptAddParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  TryInitMtd();
   if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
     return CGPT_FAILED;
 

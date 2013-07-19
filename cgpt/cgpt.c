@@ -18,8 +18,6 @@ const char* progname;
 const char* command;
 void (*uuid_generator)(uint8_t* buffer);
 
-extern struct nand_layout nand;
-
 struct {
   const char *name;
   int (*fp)(int argc, char *argv[]);
@@ -54,33 +52,37 @@ static int is_pow2(size_t v) {
 }
 
 static int parse_nand_option(const char *arg) {
+  int bytes_per_page, pages_per_block, fts_block_offset, fts_block_size;
+
   if ('=' != arg[0])
     return -1;
 
   arg++;
-  nand.bytes_per_page = atoi(arg);
+  bytes_per_page = atoi(arg);
   arg = strchr(arg, ',');
   if (!arg)
     return -1;
 
   arg++;
-  nand.pages_per_block = atoi(arg);
+  pages_per_block = atoi(arg);
   arg = strchr(arg, ',');
   if (!arg)
     return -1;
 
   arg++;
-  nand.fts_block_offset = atoi(arg);
+  fts_block_offset = atoi(arg);
   arg = strchr(arg, ',');
   if (!arg)
     return -1;
 
   arg++;
-  nand.fts_block_size = atoi(arg);
-  if (nand.fts_block_size == 0 || !is_pow2(nand.pages_per_block) ||
-    !is_pow2(nand.bytes_per_page) || nand.bytes_per_page < 512) {
+  fts_block_size = atoi(arg);
+  if (fts_block_size == 0 || !is_pow2(pages_per_block) ||
+      !is_pow2(bytes_per_page) || bytes_per_page < 512) {
     return -1;
   }
+  EnableNandImage(bytes_per_page, pages_per_block, fts_block_offset,
+                  fts_block_size);
   return 0;
 }
 
@@ -98,12 +100,10 @@ int main(int argc, char *argv[]) {
     progname = argv[0];
 
 
-  memset(&nand, 0, sizeof(nand));
   for (i = 1; i < argc; ++i) {
     if (0 == strncmp(argv[i], "-N", 2)) {
       if (!parse_nand_option(argv[i] + 2)) {
         int j;
-        nand.enabled = 1;
 
         // Remove it form the list.
         for (j = i; j < argc - 1; j++)
@@ -117,8 +117,6 @@ int main(int argc, char *argv[]) {
       return CGPT_FAILED;
     }
   }
-
-  TryInitMtd();
 
   if (argc < 2) {
     Usage();

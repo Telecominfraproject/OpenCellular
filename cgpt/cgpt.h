@@ -58,13 +58,14 @@ struct nand_layout {
   int bytes_per_page, pages_per_block, fts_block_offset, fts_block_size;
 };
 
+/* Write a NAND/MTD image instead of GPT. */
+void EnableNandImage(int bytes_per_page, int pages_per_block,
+                     int fts_block_offset, int fts_block_size);
 
 /* mode should be O_RDONLY or O_RDWR */
 int DriveOpen(const char *drive_path, struct drive *drive, int mode);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
-
-void TryInitMtd(void);
 
 /* Loads sectors from 'drive'.
  * *buf is pointed to an allocated memory when returned, and should be
