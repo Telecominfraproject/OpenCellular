@@ -38,8 +38,6 @@ uint32_t WriteSpaceKernel(RollbackSpaceKernel *rsk);
 #undef DISABLE_ROLLBACK_TPM
 #endif
 
-static int g_rollback_recovery_mode = 0;
-
 #define RETURN_ON_FAILURE(tpm_command) do {				\
 		uint32_t result_;					\
 		if ((result_ = (tpm_command)) != TPM_SUCCESS) {		\
@@ -355,10 +353,6 @@ uint32_t SetupTPM(int recovery_mode, int developer_mode,
 
 	VBDEBUG(("TPM: SetupTPM(r%d, d%d)\n", recovery_mode, developer_mode));
 
-	/* Global variables are usable in recovery mode */
-	if (recovery_mode)
-		g_rollback_recovery_mode = 1;
-
 	RETURN_ON_FAILURE(TlclLibInit());
 
 #ifdef TEGRA_SOFT_REBOOT_WORKAROUND
@@ -540,7 +534,7 @@ uint32_t RollbackKernelWrite(uint32_t version)
 	return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelLock(void)
+uint32_t RollbackKernelLock(int recovery_mode)
 {
 	return TPM_SUCCESS;
 }
@@ -635,9 +629,9 @@ uint32_t RollbackKernelWrite(uint32_t version)
 	return WriteSpaceKernel(&rsk);
 }
 
-uint32_t RollbackKernelLock(void)
+uint32_t RollbackKernelLock(int recovery_mode)
 {
-	if (g_rollback_recovery_mode)
+	if (recovery_mode)
 		return TPM_SUCCESS;
 	else
 		return TlclLockPhysicalPresence();

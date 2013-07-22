@@ -938,19 +938,19 @@ static void RollbackKernelTest(void)
 
 	/* Test lock (recovery off) */
 	ResetMocks(0, 0);
-	TEST_EQ(RollbackKernelLock(), 0, "RollbackKernelLock()");
+	TEST_EQ(RollbackKernelLock(0), 0, "RollbackKernelLock()");
 	TEST_STR_EQ(mock_calls,
 		    "TlclLockPhysicalPresence()\n",
 		    "tlcl calls");
 
 	ResetMocks(1, TPM_E_IOERROR);
-	TEST_EQ(RollbackKernelLock(), TPM_E_IOERROR,
+	TEST_EQ(RollbackKernelLock(0), TPM_E_IOERROR,
 		"RollbackKernelLock() error");
 
 	/* Test lock with recovery on; shouldn't lock PP */
 	SetupTPM(1, 0, 0, 0, &rsf);
 	ResetMocks(0, 0);
-	TEST_EQ(RollbackKernelLock(), 0, "RollbackKernelLock() in recovery");
+	TEST_EQ(RollbackKernelLock(1), 0, "RollbackKernelLock() in recovery");
 	TEST_STR_EQ(mock_calls, "", "no tlcl calls");
 }
 

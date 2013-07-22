@@ -36,7 +36,7 @@ int main(void)
   RollbackFirmwareLock();
   RollbackKernelRead(0);
   RollbackKernelWrite(0);
-  RollbackKernelLock();
+  RollbackKernelLock(0);
 
   /* tpm_bootmode.c */
   SetTPMBootModeState(0, 0, 0);

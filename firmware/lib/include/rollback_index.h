@@ -117,7 +117,7 @@ uint32_t RollbackKernelWrite(uint32_t version);
 /**
  * Lock must be called.  Internally, it's ignored in recovery mode.
  */
-uint32_t RollbackKernelLock(void);
+uint32_t RollbackKernelLock(int recovery_mode);
 
 /****************************************************************************/
 

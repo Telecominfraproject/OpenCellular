@@ -970,7 +970,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	       sizeof(kparams->partition_guid));
 
 	/* Lock the kernel versions.  Ignore errors in recovery mode. */
-	tpm_status = RollbackKernelLock();
+	tpm_status = RollbackKernelLock(shared->recovery_reason);
 	if (0 != tpm_status) {
 		VBDEBUG(("Error locking kernel versions.\n"));
 		if (!shared->recovery_reason) {

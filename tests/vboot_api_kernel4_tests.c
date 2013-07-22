@@ -94,7 +94,7 @@ uint32_t RollbackKernelWrite(uint32_t version)
 	return rkw_retval;
 }
 
-uint32_t RollbackKernelLock(void)
+uint32_t RollbackKernelLock(int recovery_mode)
 {
 	return rkl_retval;
 }
