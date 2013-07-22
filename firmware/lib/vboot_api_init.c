@@ -175,7 +175,9 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		 * TPM space is initialized by this call, the virtual
 		 * dev-switch will be disabled by default)
 		 */
-		tpm_status = RollbackFirmwareSetup(recovery, is_hw_dev,
+		VBDEBUG(("TPM: Call RollbackFirmwareSetup(r%d, d%d)\n",
+			recovery, is_hw_dev));
+		tpm_status = RollbackFirmwareSetup(is_hw_dev,
 						   disable_dev_request,
 						   clear_tpm_owner_request,
 						   /* two outputs on success */

@@ -83,7 +83,7 @@ uint32_t RollbackS3Resume(void);
 /**
  * This must be called.
  */
-uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+uint32_t RollbackFirmwareSetup(int is_hw_dev,
                                int disable_dev_request,
                                int clear_tpm_owner_request,
                                /* two outputs on success */
@@ -161,9 +161,8 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware *rsf,
  * Start the TPM and establish the root of trust for the anti-rollback
  * mechanism.
  */
-uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  int disable_dev_request, int clear_tpm_owner_request,
-                  RollbackSpaceFirmware *rsf);
+uint32_t SetupTPM(int developer_mode, int disable_dev_request,
+                  int clear_tpm_owner_request, RollbackSpaceFirmware *rsf);
 
 /**
  * Utility function to turn the virtual dev-mode flag on or off. 0=off, 1=on.

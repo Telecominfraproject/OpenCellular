@@ -341,17 +341,14 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware *rsf,
  * to the TPM flashram at every reboot or wake-up, because of concerns about
  * the durability of the NVRAM.
  */
-uint32_t SetupTPM(int recovery_mode, int developer_mode,
-                  int disable_dev_request, int clear_tpm_owner_request,
-                  RollbackSpaceFirmware* rsf)
+uint32_t SetupTPM(int developer_mode, int disable_dev_request,
+                  int clear_tpm_owner_request, RollbackSpaceFirmware* rsf)
 {
 	uint8_t in_flags;
 	uint8_t disable;
 	uint8_t deactivated;
 	uint32_t result;
 	uint32_t versions;
-
-	VBDEBUG(("TPM: SetupTPM(r%d, d%d)\n", recovery_mode, developer_mode));
 
 	RETURN_ON_FAILURE(TlclLibInit());
 
@@ -494,7 +491,7 @@ uint32_t RollbackS3Resume(void)
 	return TPM_SUCCESS;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+uint32_t RollbackFirmwareSetup(int is_hw_dev,
                                int disable_dev_request,
                                int clear_tpm_owner_request,
                                int *is_virt_dev, uint32_t *version)
@@ -556,7 +553,7 @@ uint32_t RollbackS3Resume(void)
 	return result;
 }
 
-uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
+uint32_t RollbackFirmwareSetup(int is_hw_dev,
                                int disable_dev_request,
                                int clear_tpm_owner_request,
                                int *is_virt_dev, uint32_t *version)
@@ -566,8 +563,7 @@ uint32_t RollbackFirmwareSetup(int recovery_mode, int is_hw_dev,
 	/* Set version to 0 in case we fail */
 	*version = 0;
 
-	RETURN_ON_FAILURE(SetupTPM(recovery_mode, is_hw_dev,
-				   disable_dev_request,
+	RETURN_ON_FAILURE(SetupTPM(is_hw_dev, disable_dev_request,
 				   clear_tpm_owner_request, &rsf));
 	Memcpy(version, &rsf.fw_versions, sizeof(*version));
 	*is_virt_dev = (rsf.flags & FLAG_VIRTUAL_DEV_MODE_ON) ? 1 : 0;
