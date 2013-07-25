@@ -111,45 +111,66 @@ static void HeaderDetails(GptHeader *header, GptEntry *entries,
 
 void MtdEntryDetails(MtdDiskPartition *entry, uint32_t index, int raw) {
   const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
-  char buf[256];                   // scratch buffer for formatting output
+  char type[256];
+  char contents[256];
+  char name[sizeof(entry->label) + 1];
   uint64_t start, size;
   if (guid) {
-    ResolveType(guid, buf);
+    ResolveType(guid, type);
   } else {
-    snprintf(buf, sizeof(buf), "MTD partition type %d", MtdGetEntryType(entry));
+    snprintf(type, sizeof(type), "MTD partition type %d",
+             MtdGetEntryType(entry));
   }
 
   MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
 
-  if (!raw) {
-    printf(PARTITION_FMT, (int)start, (int)size, index+1, buf);
+  // Provide a NUL if we are at maximum size.
+  name[sizeof(name)-1] = '\0';
+  memcpy(name, entry->label, sizeof(entry->label));
+  require(snprintf(contents, sizeof(contents),
+                   "Label: \"%s\"", name) < sizeof(contents));
+
+  printf(PARTITION_FMT, (int)start, (int)size, index+1, contents);
+  printf(PARTITION_MORE, "Type: ", type);
+
+  if (raw && MtdGetEntryType(entry) == MTD_PARTITION_TYPE_CHROMEOS_KERNEL) {
+    int tries = MtdGetEntryTries(entry);
+    int successful = MtdGetEntrySuccessful(entry);
+    int priority = MtdGetEntryPriority(entry);
+    require(snprintf(contents, sizeof(contents),
+                     "priority=%d tries=%d successful=%d",
+                     priority, tries, successful) < sizeof(contents));
+    printf(PARTITION_MORE, "Attr: ", contents);
   } else {
-    printf(PARTITION_FMT, (int)start, (int)size, index+1, buf);
+    require(snprintf(contents, sizeof(contents),
+                     "[%x]", entry->flags) < sizeof(contents));
+    printf(PARTITION_MORE, "Attr: ", contents);
   }
 }
 
 void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
   char contents[256];                   // scratch buffer for formatting output
   uint8_t label[GPT_PARTNAME_LEN];
+  char type[GUID_STRLEN], unique[GUID_STRLEN];
+
+  UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
+              label, sizeof(label));
+  require(snprintf(contents, sizeof(contents),
+                   "Label: \"%s\"", label) < sizeof(contents));
+  printf(PARTITION_FMT, (int)entry->starting_lba,
+         (int)(entry->ending_lba - entry->starting_lba + 1),
+         index+1, contents);
+
+  if (!raw && CGPT_OK == ResolveType(&entry->type, type)) {
+    printf(PARTITION_MORE, "Type: ", type);
+  } else {
+    GuidToStr(&entry->type, type, GUID_STRLEN);
+    printf(PARTITION_MORE, "Type: ", type);
+  }
+  GuidToStr(&entry->unique, unique, GUID_STRLEN);
+  printf(PARTITION_MORE, "UUID: ", unique);
 
   if (!raw) {
-    char type[GUID_STRLEN], unique[GUID_STRLEN];
-
-    UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
-                label, sizeof(label));
-    require(snprintf(contents, sizeof(contents),
-                     "Label: \"%s\"", label) < sizeof(contents));
-    printf(PARTITION_FMT, (int)entry->starting_lba,
-           (int)(entry->ending_lba - entry->starting_lba + 1),
-           index+1, contents);
-    if (CGPT_OK == ResolveType(&entry->type, type)) {
-      printf(PARTITION_MORE, "Type: ", type);
-    } else {
-      GuidToStr(&entry->type, type, GUID_STRLEN);
-      printf(PARTITION_MORE, "Type: ", type);
-    }
-    GuidToStr(&entry->unique, unique, GUID_STRLEN);
-    printf(PARTITION_MORE, "UUID: ", unique);
     if (GuidEqual(&guid_chromeos_kernel, &entry->type)) {
       int tries = (entry->attrs.fields.gpt_att &
                    CGPT_ATTRIBUTE_TRIES_MASK) >>
@@ -166,19 +187,6 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
       printf(PARTITION_MORE, "Attr: ", contents);
     }
   } else {
-    char type[GUID_STRLEN], unique[GUID_STRLEN];
-
-    UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
-                label, sizeof(label));
-    require(snprintf(contents, sizeof(contents),
-                     "Label: \"%s\"", label) < sizeof(contents));
-    printf(PARTITION_FMT, (int)entry->starting_lba,
-           (int)(entry->ending_lba - entry->starting_lba + 1),
-           index+1, contents);
-    GuidToStr(&entry->type, type, GUID_STRLEN);
-    printf(PARTITION_MORE, "Type: ", type);
-    GuidToStr(&entry->unique, unique, GUID_STRLEN);
-    printf(PARTITION_MORE, "UUID: ", unique);
     require(snprintf(contents, sizeof(contents),
                      "[%x]", entry->attrs.fields.gpt_att) < sizeof(contents));
     printf(PARTITION_MORE, "Attr: ", contents);
@@ -321,7 +329,7 @@ int MtdShow(struct drive *drive, CgptShowParams *params) {
       require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
       MtdHeaderDetails(&drive->mtd.primary, indent, 0);
     }
-
+    printf(TITLE_FMT, "start", "size", "part", "contents");
     MtdEntriesDetails(drive, PRIMARY, params->numeric);
   }
 

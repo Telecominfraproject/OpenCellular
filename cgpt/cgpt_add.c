@@ -113,6 +113,9 @@ static int MtdSetEntryAttributes(struct drive *drive,
   }
   if (params->set_type)
     MtdSetEntryType(entry, LookupMtdTypeForGuid(&params->type_guid));
+  if (params->label) {
+    strncpy(entry->label, params->label, sizeof(entry->label));
+  }
 
   return 0;
 }
