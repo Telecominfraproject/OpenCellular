@@ -7,6 +7,7 @@
 
 #include "sysincludes.h"
 
+#include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "rollback_index.h"
@@ -27,6 +28,9 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 	int is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
 	uint32_t tpm_status = 0;
 
+	cparams->gbb = NULL;
+	cparams->bmp = NULL;
+
 	/* Start timer */
 	shared->timer_vb_select_firmware_enter = VbExGetTimer();
 
@@ -44,6 +48,11 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 		/* Go directly to recovery mode */
 		fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;
 	} else {
+		cparams->gbb = VbExMalloc(sizeof(*cparams->gbb));
+		retval = VbGbbReadHeader_static(cparams, cparams->gbb);
+		if (VBERROR_SUCCESS != retval)
+			goto VbSelectFirmware_exit;
+
 		/* Chain to LoadFirmware() */
 		retval = LoadFirmware(cparams, fparams, &vnc);
 
@@ -106,6 +115,11 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 	retval = VBERROR_SUCCESS;
 
  VbSelectFirmware_exit:
+
+	if (cparams->gbb) {
+		VbExFree(cparams->gbb);
+		cparams->gbb = NULL;
+	}
 
 	/* Save NV storage */
 	VbNvTeardown(&vnc);

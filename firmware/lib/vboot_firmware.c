@@ -8,6 +8,8 @@
 
 #include "sysincludes.h"
 
+#include "region.h"
+#include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "utility.h"
@@ -41,9 +43,8 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	GoogleBinaryBlockHeader *gbb =
-		(GoogleBinaryBlockHeader *)cparams->gbb_data;
-	VbPublicKey *root_key;
+	GoogleBinaryBlockHeader *gbb = cparams->gbb;
+	VbPublicKey *root_key = NULL;
 	VbLoadFirmwareInternal *lfi;
 
 	uint32_t try_b_count;
@@ -62,12 +63,12 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 	VBDEBUG(("LoadFirmware started...\n"));
 
 	/* Must have a root key from the GBB */
-	if (!gbb) {
+	retval = VbGbbReadRootKey(cparams, &root_key);
+	if (retval) {
 		VBDEBUG(("No GBB\n"));
 		retval = VBERROR_INVALID_GBB;
 		goto LoadFirmwareExit;
 	}
-	root_key = (VbPublicKey *)((uint8_t *)gbb + gbb->rootkey_offset);
 
 	/* Parse flags */
 	is_dev = (shared->flags & VBSD_BOOT_DEV_SWITCH_ON ? 1 : 0);
@@ -345,6 +346,8 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 	}
 
  LoadFirmwareExit:
+	VbExFree(root_key);
+
 	/* Store recovery request, if any */
 	VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
 		recovery : VBNV_RECOVERY_NOT_REQUESTED);

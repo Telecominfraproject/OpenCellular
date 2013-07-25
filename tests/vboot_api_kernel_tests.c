@@ -269,7 +269,7 @@ VbError_t VbExDiskFreeInfo(VbDiskInfo *infos,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t LoadKernel(LoadKernelParams *params)
+VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 {
 	got_find_disk = (const char *)params->disk_handle;
 	VBDEBUG(("%s(%d): got_find_disk = %s\n", __FUNCTION__,

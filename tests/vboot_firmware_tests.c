@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "gbb_header.h"
 #include "host_common.h"
@@ -33,13 +34,20 @@ static uint8_t* digest_returned;
 static uint8_t* digest_expect_ptr;
 static int hash_fw_index;
 
+#define TEST_KEY_DATA	\
+	"Test contents for the root key this should be 64 chars long."
+
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
+  VbPublicKey *root_key;
+  uint8_t *root_key_data;
   int i;
 
   Memset(&cparams, 0, sizeof(cparams));
   cparams.shared_data_blob = shared_data;
   cparams.gbb_data = gbb_data;
+  cparams.gbb_size = sizeof(gbb_data);
+  cparams.gbb = gbb;
 
   Memset(&fparams, 0, sizeof(fparams));
   fparams.verification_block_A = vblock;
@@ -75,6 +83,14 @@ static void ResetMocks(void) {
 
   Memset(&gbb_data, 0, sizeof(gbb_data));
   gbb->rootkey_offset = sizeof(GoogleBinaryBlockHeader);
+  root_key = (VbPublicKey *)(gbb_data + gbb->rootkey_offset);
+  root_key_data = (uint8_t *)(root_key + 1);
+  strcpy((char *)root_key_data, TEST_KEY_DATA);
+  PublicKeyInit(root_key, (uint8_t *)root_key_data, sizeof(TEST_KEY_DATA));
+
+  gbb->major_version = GBB_MAJOR_VER;
+  gbb->minor_version = GBB_MINOR_VER;
+  gbb->flags = 0;
 
   Memset(&data_key, 0, sizeof(data_key));
 
@@ -91,7 +107,13 @@ int KeyBlockVerify(const VbKeyBlockHeader* block, uint64_t size,
                    const VbPublicKey *key, int hash_only) {
 
   TEST_EQ(hash_only, 0, "  Don't verify firmware with hash");
-  TEST_PTR_EQ(key, gbb_data + gbb->rootkey_offset, "  Verify with root key");
+
+  /*
+   * We cannot check the address of key, since it will be allocated. We
+   * check the contents instead.
+   */
+  TEST_STR_EQ((char *)GetPublicKeyDataC(key), TEST_KEY_DATA,
+              "  Verify with root key");
   TEST_NEQ(block==vblock || block==vblock+1, 0, "  Verify a valid key block");
 
   /* Mock uses header_version_major to hold return value */
