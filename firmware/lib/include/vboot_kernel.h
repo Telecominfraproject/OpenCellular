@@ -11,6 +11,7 @@
 
 #include "cgptlib.h"
 #include "load_firmware_fw.h"
+#include "load_kernel_fw.h"
 #include "vboot_api.h"
 
 /**
@@ -31,6 +32,11 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata);
  * Accessors for unit tests only.
  */
 VbNvContext *VbApiKernelGetVnc(void);
+
+/**
+ * Exported for unit tests only - frees memory used by VbSelectAndLoadKernel()
+ */
+void VbApiKernelFree(VbCommonParams *cparams);
 
 /**
  * Try to load a kernel.

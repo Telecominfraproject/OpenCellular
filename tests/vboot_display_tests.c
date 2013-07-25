@@ -13,9 +13,11 @@
 #include "bmpblk_font.h"
 #include "gbb_header.h"
 #include "host_common.h"
+#include "region.h"
 #include "test_common.h"
 #include "vboot_common.h"
 #include "vboot_display.h"
+#include "vboot_kernel.h"
 #include "vboot_nvstorage.h"
 
 /* Mock data */
@@ -59,6 +61,20 @@ static void ResetMocks(void)
 	cparams.gbb_data = gbb;
 	cparams.gbb_size = sizeof(gbb_data);
 
+	/*
+	 * Note, VbApiKernelFree() expects this to be allocated by
+	 * VbExMalloc(), so we cannot just assign it staticly.
+	 */
+	cparams.gbb = VbExMalloc(sizeof(*gbb));
+	gbb->header_size = sizeof(*gbb);
+	gbb->rootkey_offset = gbb_used;
+	gbb->rootkey_size = 64;
+	gbb_used += 64;
+	gbb->recovery_key_offset = gbb_used;
+	gbb->recovery_key_size = 64;
+	gbb_used += 64;
+	memcpy(cparams.gbb, gbb, sizeof(*gbb));
+
 	Memset(&vnc, 0, sizeof(vnc));
 	VbNvSetup(&vnc);
 	VbNvTeardown(&vnc);                   /* So CRC gets generated */
@@ -81,6 +97,7 @@ VbError_t VbExDisplayDebugInfo(const char *info_str)
 /* Test displaying debug info */
 static void DebugInfoTest(void)
 {
+	char hwid[VB_REGION_HWID_LEN];
 	int i;
 
 	/* Recovery string should be non-null for any code */
@@ -89,28 +106,39 @@ static void DebugInfoTest(void)
 
 	/* HWID should come from the gbb */
 	ResetMocks();
-	TEST_EQ(strcmp(VbHWID(&cparams), "Test HWID"), 0, "HWID");
+	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	TEST_EQ(strcmp(hwid, "Test HWID"), 0, "HWID");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
 	cparams.gbb_size = 0;
-	TEST_EQ(strcmp(VbHWID(&cparams), "{INVALID}"), 0, "HWID bad gbb");
+	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID bad gbb");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	gbb->hwid_size = 0;
-	TEST_EQ(strcmp(VbHWID(&cparams), "{INVALID}"), 0, "HWID missing");
+	cparams.gbb->hwid_size = 0;
+	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID missing");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	gbb->hwid_offset = cparams.gbb_size + 1;
-	TEST_EQ(strcmp(VbHWID(&cparams), "{INVALID}"), 0, "HWID past end");
+	cparams.gbb->hwid_offset = cparams.gbb_size + 1;
+	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID past end");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	gbb->hwid_size = cparams.gbb_size;
-	TEST_EQ(strcmp(VbHWID(&cparams), "{INVALID}"), 0, "HWID overflow");
+	cparams.gbb->hwid_size = cparams.gbb_size;
+	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID overflow");
+	VbApiKernelFree(&cparams);
 
 	/* Display debug info */
 	ResetMocks();
 	VbDisplayDebugInfo(&cparams, &vnc);
 	TEST_NEQ(*debug_info, '\0', "Some debug info was displayed");
+	VbApiKernelFree(&cparams);
 }
 
 /* Test localization */
@@ -119,21 +147,23 @@ static void LocalizationTest(void)
 	uint32_t count = 6;
 
 	ResetMocks();
-	gbb->bmpfv_size = 0;
+	cparams.gbb->bmpfv_size = 0;
 	TEST_EQ(VbGetLocalizationCount(&cparams, &count),
 		VBERROR_INVALID_GBB, "VbGetLocalizationCount bad gbb");
 	TEST_EQ(count, 0, "  count");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
 	bhdr->signature[0] ^= 0x5a;
 	TEST_EQ(VbGetLocalizationCount(&cparams, &count),
 		VBERROR_INVALID_BMPFV, "VbGetLocalizationCount bad bmpfv");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
 	TEST_EQ(VbGetLocalizationCount(&cparams, &count), 0,
 		"VbGetLocalizationCount()");
 	TEST_EQ(count, 3, "  count");
-
+	VbApiKernelFree(&cparams);
 }
 
 /* Test display key checking */
@@ -144,10 +174,12 @@ static void DisplayKeyTest(void)
 	ResetMocks();
 	VbCheckDisplayKey(&cparams, 'q', &vnc);
 	TEST_EQ(*debug_info, '\0', "DisplayKey q = does nothing");
+	VbApiKernelFree(&cparams);
 
 	ResetMocks();
 	VbCheckDisplayKey(&cparams, '\t', &vnc);
 	TEST_NEQ(*debug_info, '\0', "DisplayKey tab = display");
+	VbApiKernelFree(&cparams);
 
 	/* Toggle localization */
 	ResetMocks();
@@ -165,6 +197,7 @@ static void DisplayKeyTest(void)
 	VbCheckDisplayKey(&cparams, VB_KEY_UP, &vnc);
 	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
 	TEST_EQ(u, 0, "DisplayKey up");
+	VbApiKernelFree(&cparams);
 
 	/* Reset localization if localization count is invalid */
 	ResetMocks();
@@ -174,7 +207,7 @@ static void DisplayKeyTest(void)
 	VbCheckDisplayKey(&cparams, VB_KEY_UP, &vnc);
 	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
 	TEST_EQ(u, 0, "DisplayKey invalid");
-
+	VbApiKernelFree(&cparams);
 }
 
 static void FontTest(void)

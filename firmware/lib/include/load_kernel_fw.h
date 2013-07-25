@@ -74,7 +74,7 @@ typedef struct LoadKernelParams {
  * Returns VBERROR_SUCCESS if successful.  If unsuccessful, sets a recovery
  * reason via VbNvStorage and returns an error code.
  */
-VbError_t LoadKernel(LoadKernelParams *params);
+VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams);
 
 /*
  * The bootloader is loaded using the EFI LoadImage() and StartImage() calls.

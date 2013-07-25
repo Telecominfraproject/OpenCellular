@@ -239,6 +239,7 @@ VBINIT_SRCS = \
 	firmware/lib/vboot_api_init.c \
 	firmware/lib/vboot_common_init.c \
 	firmware/lib/vboot_nvstorage.c \
+	firmware/lib/region-init.c \
 
 # Additional firmware library sources needed by VbSelectFirmware() call
 VBSF_SRCS = \
@@ -252,7 +253,8 @@ VBSF_SRCS = \
 	firmware/lib/stateful_util.c \
 	firmware/lib/vboot_api_firmware.c \
 	firmware/lib/vboot_common.c \
-	firmware/lib/vboot_firmware.c
+	firmware/lib/vboot_firmware.c \
+	firmware/lib/region-fw.c \
 
 # Additional firmware library sources needed by VbSelectAndLoadKernel() call
 VBSLK_SRCS = \
@@ -264,7 +266,8 @@ VBSLK_SRCS = \
 	firmware/lib/vboot_api_kernel.c \
 	firmware/lib/vboot_audio.c \
 	firmware/lib/vboot_display.c \
-	firmware/lib/vboot_kernel.c
+	firmware/lib/vboot_kernel.c \
+	firmware/lib/region-kernel.c \
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
@@ -289,7 +292,8 @@ ifeq (${FIRMWARE_ARCH},)
 VBINIT_SRCS += \
 	firmware/stub/tpm_lite_stub.c \
 	firmware/stub/utility_stub.c \
-	firmware/stub/vboot_api_stub_init.c
+	firmware/stub/vboot_api_stub_init.c \
+	firmware/stub/vboot_api_stub_region.c
 
 VBSF_SRCS += \
 	firmware/stub/vboot_api_stub_sf.c
@@ -533,6 +537,10 @@ TEST_NAMES = \
 	tests/vboot_nvstorage_test \
 	tests/futility/test_not_really
 
+ifdef REGION_READ
+TEST_NAMES += tests/vboot_region_tests
+endif
+
 # TODO: port these tests to new API, if not already eqivalent
 # functionality in other tests.  These don't even compile at present.
 #
@@ -640,6 +648,10 @@ ${FWLIB_OBJS}: CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
 # Therefore it makes sense to cache it rather than reading it each time.
 # Enable this feature.
 ${FWLIB_OBJS}: CFLAGS += -DCOPY_BMP_DATA
+endif
+
+ifdef REGION_READ
+${FWLIB_OBJS}: CFLAGS += -DREGION_READ
 endif
 
 ifeq (${FIRMWARE_ARCH},)

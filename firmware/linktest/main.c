@@ -27,7 +27,7 @@ int main(void)
   LoadFirmware(0, 0, 0);
 
   /* load_kernel_fw.h */
-  LoadKernel(0);
+  LoadKernel(0, 0);
 
   /* rollback_index.h */
   RollbackS3Resume();
