@@ -36,7 +36,8 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 	uint32_t clear_tpm_owner_request = 0;
 	int is_dev = 0;
 
-	VBDEBUG(("VbInit() input flags 0x%x\n", iparams->flags));
+	VBDEBUG(("VbInit() input flags 0x%x gbb flags 0x%x\n", iparams->flags,
+		gbb->flags));
 
 	/* Initialize output flags */
 	iparams->out_flags = 0;
