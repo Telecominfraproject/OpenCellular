@@ -153,6 +153,6 @@ uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
 	result = TlclExtend(BOOT_MODE_PCR, in_digest, out_digest);
 	VBDEBUG(("TPM: SetTPMBootModeState boot mode PCR out_digest "
 		 "%02x %02x %02x %02x\n",
-		 out_digest, out_digest+1, out_digest+2, out_digest+3));
+		 out_digest[0], out_digest[1], out_digest[2], out_digest[3]));
 	return result;
 }

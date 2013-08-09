@@ -145,7 +145,7 @@ int VbUserConfirms(VbCommonParams *cparams, int space_means_no)
 			return 1;
 			break;
 		case ' ':
-			VBDEBUG(("%s() - Space (%s)\n", __func__,
+			VBDEBUG(("%s() - Space (%d)\n", __func__,
 				 space_means_no));
 			if (space_means_no)
 				return 0;

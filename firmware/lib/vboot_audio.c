@@ -69,7 +69,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	uint32_t this_msecs, on_msecs, total_msecs;
 	uint32_t count;
 
-	VBDEBUG(("VbGetDevMusicNotes: use_short is %d, hdr is %lx, "
+	VBDEBUG(("VbGetDevMusicNotes: use_short is %d, hdr is %p, "
 		 "maxsize is %d\n", use_short, hdr, maxsize));
 
 	if (use_short) {
@@ -112,7 +112,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	if ((sizeof(VbDevMusicNote) > UINT_MAX / hdr->count) ||
 	    (sizeof(hdr->count) >
 	     UINT_MAX - hdr->count * sizeof(VbDevMusicNote))) {
-		VBDEBUG(("VbGetDevMusicNotes: count=%d, just isn't right\n"));
+		VBDEBUG(("VbGetDevMusicNotes: count=%d, just isn't right\n",
+			 hdr->count));
 		goto nope;
 	}
 
@@ -127,7 +128,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 		goto nope;
 	}
 
-	VBDEBUG(("VbGetDevMusicNotes: custom notes struct at %lx\n", hdr));
+	VBDEBUG(("VbGetDevMusicNotes: custom notes struct at %p\n", hdr));
 
 	/*
 	 * Measure the audible sound up to the first 22 seconds, being careful
@@ -148,7 +149,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	}
 
 	/* We require at least one second of noise in the first 22 seconds */
-	VBDEBUG(("VbGetDevMusicNotes:   with %ld msecs of sound to begin\n",
+	VBDEBUG(("VbGetDevMusicNotes:   with %d msecs of sound to begin\n",
 		 on_msecs));
 	if (on_msecs < REQUIRED_NOISE_TIME)
 		goto nope;
@@ -157,7 +158,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	 * We'll also require that the total time be less than a minute. No
 	 * real reason, it just gives us less to worry about.
 	 */
-	VBDEBUG(("VbGetDevMusicNotes:   lasting %ld msecs\n", total_msecs));
+	VBDEBUG(("VbGetDevMusicNotes:   lasting %d msecs\n", total_msecs));
 	if (total_msecs > MAX_CUSTOM_DELAY) {
 		goto nope;
 	}
@@ -183,7 +184,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 		notebuf[hdr->count].msec = this_msecs;
 		notebuf[hdr->count].frequency = 0;
 		count++;
-		VBDEBUG(("VbGetDevMusicNotes:   adding %ld msecs of silence\n",
+		VBDEBUG(("VbGetDevMusicNotes:   adding %d msecs of silence\n",
 			 this_msecs));
 	}
 
