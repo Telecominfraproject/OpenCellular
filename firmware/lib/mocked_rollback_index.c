@@ -48,7 +48,7 @@ uint32_t RollbackFirmwareWrite(uint32_t version) {
 }
 
 
-uint32_t RollbackFirmwareLock(int recovery_mode) {
+uint32_t RollbackFirmwareLock(void) {
   return TPM_SUCCESS;
 }
 
@@ -64,6 +64,6 @@ uint32_t RollbackKernelWrite(uint32_t version) {
 }
 
 
-uint32_t RollbackKernelLock(void) {
+uint32_t RollbackKernelLock(int recovery_mode) {
   return TPM_SUCCESS;
 }
