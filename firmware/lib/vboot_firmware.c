@@ -209,11 +209,13 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 		}
 
 		/* Handle preamble flag for using the RO normal/dev code path */
+		VBDEBUG(("Preamble flags %#x\n", VbGetFirmwarePreambleFlags(preamble)));
 		if (VbGetFirmwarePreambleFlags(preamble) &
 		    VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
 
 			/* Fail if calling firmware doesn't support RO normal */
 			if (!(shared->flags & VBSD_BOOT_RO_NORMAL_SUPPORT)) {
+				VBDEBUG(("No RO normal support.\n"));
 				*check_result = VBSD_LF_CHECK_NO_RO_NORMAL;
 				RSAPublicKeyFree(data_key);
 				continue;
@@ -351,8 +353,10 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 	 * recovery was not previously requested. */
 	if (!(shared->flags & VBSD_BOOT_RO_NORMAL_SUPPORT) &&
 	    VBNV_RECOVERY_NOT_REQUESTED == shared->recovery_reason &&
-	    VBERROR_SUCCESS != retval)
+	    VBERROR_SUCCESS != retval) {
+		VBDEBUG(("RO normal but we got an error.\n"));
 		shared->recovery_reason = recovery;
+	}
 
 	return retval;
 }

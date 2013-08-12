@@ -146,8 +146,14 @@ RSAPublicKey *PublicKeyToRSA(const VbPublicKey *key)
 int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
                const RSAPublicKey *key)
 {
+	VBDEBUG(("   - sig_size=%d, expecting %d for algorithm %d\n",
+		 (unsigned)sig->sig_size, siglen_map[key->algorithm],
+		 key->algorithm));
 	if (sig->sig_size != siglen_map[key->algorithm]) {
-		VBDEBUG(("Wrong signature size for algorithm.\n"));
+		VBDEBUG(("Wrong data signature size for algorithm, "
+			 "sig_size=%d, expected %d for algorithm %d.\n",
+			 (int)sig->sig_size, siglen_map[key->algorithm],
+			 key->algorithm));
 		return 1;
 	}
 	if (sig->data_size > size) {
@@ -166,7 +172,7 @@ int VerifyDigest(const uint8_t *digest, const VbSignature *sig,
                  const RSAPublicKey *key)
 {
 	if (sig->sig_size != siglen_map[key->algorithm]) {
-		VBDEBUG(("Wrong signature size for algorithm.\n"));
+		VBDEBUG(("Wrong digest signature size for algorithm.\n"));
 		return 1;
 	}
 
@@ -304,6 +310,7 @@ int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader *preamble,
 {
 	const VbSignature *sig = &preamble->preamble_signature;
 
+	VBDEBUG(("Verifying preamble.\n"));
 	/* Sanity checks before attempting signature of data */
 	if(size < EXPECTED_VBFIRMWAREPREAMBLEHEADER2_0_SIZE) {
 		VBDEBUG(("Not enough data for preamble header 2.0.\n"));
@@ -449,6 +456,9 @@ uint64_t VbSharedDataReserve(VbSharedDataHeader *header, uint64_t size)
 int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 {
 	VbPublicKey *kdest = &header->kernel_subkey;
+
+	VBDEBUG(("Saving kernel subkey to shared data: size %d, algo %d\n",
+		 siglen_map[src->algorithm], (int)src->algorithm));
 
 	if (!header)
 		return VBOOT_SHARED_DATA_INVALID;

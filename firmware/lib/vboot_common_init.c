@@ -15,7 +15,7 @@
 int VbSharedDataInit(VbSharedDataHeader *header, uint64_t size)
 {
 	VBDEBUG(("VbSharedDataInit, %d bytes, header %d bytes\n", (int)size,
-		 sizeof(VbSharedDataHeader)));
+		 (int)sizeof(VbSharedDataHeader)));
 
 	if (size < sizeof(VbSharedDataHeader)) {
 		VBDEBUG(("Not enough data for header.\n"));

@@ -294,17 +294,6 @@ VbError_t LoadKernel(LoadKernelParams *params)
 			goto bad_kernel;
 		}
 
-#if defined(CONFIG_SANDBOX)
-		/* Silence compiler warnings */
-		combined_version = 0;
-		body_offset = body_offset;
-		body_offset_sectors = body_offset_sectors;
-		body_sectors = body_sectors;
-		kernel_subkey = kernel_subkey;
-		key_block = key_block;
-		key_version = key_version;
-		preamble = preamble;
-#else
 		/* Verify the key block. */
 		key_block = (VbKeyBlockHeader*)kbuf;
 		if (0 != KeyBlockVerify(key_block, KBUF_SIZE,
@@ -504,7 +493,6 @@ VbError_t LoadKernel(LoadKernelParams *params)
 		/* Done with the kernel signing key, so can free it now */
 		RSAPublicKeyFree(data_key);
 		data_key = NULL;
-#endif
 
 		/*
 		 * If we're still here, the kernel is valid.  Save the first
@@ -528,13 +516,8 @@ VbError_t LoadKernel(LoadKernelParams *params)
 		 * size, or the dest should be a struct, so we know it's big
 		 * enough.
 		 */
-#if defined(CONFIG_SANDBOX)
-		params->bootloader_address = 0;
-		params->bootloader_size = 0;
-#else
 		params->bootloader_address = preamble->bootloader_address;
 		params->bootloader_size = preamble->bootloader_size;
-#endif
 
 		/* Update GPT to note this is the kernel we're trying */
 		GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_TRY);

@@ -221,7 +221,8 @@ VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 	VbExSleepMs(10);
 	b = VbExGetTimer();
 	ticks_per_msec = (b - a) / 10ULL ;
-	VBDEBUG(("VbAudioOpen() - ticks_per_msec is %llu\n", ticks_per_msec));
+	VBDEBUG(("VbAudioOpen() - ticks_per_msec is %" PRIu64 "\n",
+		ticks_per_msec));
 
 	/* Initialize */
 	Memset(audio, 0, sizeof(*audio));
@@ -259,10 +260,6 @@ int VbAudioLooping(VbAudioContext *audio)
 	uint16_t freq = audio->current_frequency;
 	uint16_t msec = 0;
 	int looping = 1;
-
-#if defined(CONFIG_SANDBOX)
-	return 0;
-#endif
 
 	now = VbExGetTimer();
 	while (audio->next_note < audio->note_count &&
