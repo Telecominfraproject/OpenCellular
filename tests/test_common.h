@@ -50,4 +50,7 @@ int TEST_FALSE(int result, const char* testname);
 #define COL_RED "\x1b[0;31m"
 #define COL_STOP "\x1b[m"
 
+/* Check that all memory allocations were freed */
+int vboot_api_stub_check_memory(void);
+
 #endif  /* VBOOT_REFERENCE_TEST_COMMON_H_ */

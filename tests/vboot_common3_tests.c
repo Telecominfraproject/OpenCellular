@@ -24,7 +24,7 @@ static void ReChecksumKeyBlock(VbKeyBlockHeader *h)
 				    SHA512_DIGEST_ALGORITHM);
 	Memcpy(GetSignatureData(&h->key_block_checksum), newchk,
 	       SHA512_DIGEST_SIZE);
-	free(newchk);
+	VbExFree(newchk);
 }
 
 static void KeyBlockVerifyTest(const VbPublicKey *public_key,
@@ -375,6 +375,9 @@ int main(int argc, char *argv[])
 		fprintf(stderr,	"Usage: %s <keys_dir> [--all]",	argv[0]);
 		return -1;
 	}
+
+	if (vboot_api_stub_check_memory())
+		return 255;
 
 	return gTestSuccess ? 0 : 255;
 }

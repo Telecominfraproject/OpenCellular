@@ -451,6 +451,8 @@ int main(int argc, char* argv[]) {
 
   LoadFirmwareTest();
 
+  if (vboot_api_stub_check_memory())
+    error_code = 255;
   if (!gTestSuccess)
     error_code = 255;
 

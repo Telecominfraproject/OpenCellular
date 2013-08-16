@@ -102,7 +102,7 @@ static void VerifyDigestTest(const VbPublicKey *public_key,
 
 	RSAPublicKeyFree(rsa);
 	free(sig);
-	free(digest);
+	VbExFree(digest);
 }
 
 static void ReSignKernelPreamble(VbKernelPreambleHeader *h,
@@ -276,6 +276,9 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Usage: %s <keys_dir> [--all]", argv[0]);
 		return -1;
 	}
+
+	if (vboot_api_stub_check_memory())
+		return 255;
 
 	return gTestSuccess ? 0 : 255;
 }

@@ -328,6 +328,8 @@ int main(int argc, char* argv[]) {
 
   if (!gTestSuccess)
     error_code = 255;
+  if (vboot_api_stub_check_memory())
+    error_code = 255;
 
   return error_code;
 }
