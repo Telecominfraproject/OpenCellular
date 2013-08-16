@@ -147,7 +147,7 @@ VbKeyBlockHeader* KeyBlockRead(const char* filename) {
   /* Verify the hash of the key block, since we can do that without
    * the public signing key. */
   if (0 != KeyBlockVerify(block, file_size, NULL, 1)) {
-    VBDEBUG(("Invalid key block file: filename\n", filename));
+    VBDEBUG(("Invalid key block file: %s\n", filename));
     free(block);
     return NULL;
   }

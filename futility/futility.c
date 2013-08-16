@@ -108,7 +108,8 @@ static void log_str(char *str)
       return;
   }
 
-  write(log_fd, "\n", 1);
+  if (write(log_fd, "\n", 1) < 0)
+    return;
 }
 
 static void log_close(void)

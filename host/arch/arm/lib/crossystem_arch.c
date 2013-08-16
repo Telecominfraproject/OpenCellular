@@ -90,7 +90,10 @@ static int ReadFdtValue(const char *property, int *value) {
     return E_FILEOP;
   }
 
-  fread(&data, 1, sizeof(data), file);
+  if (fread(&data, 1, sizeof(data), file) != sizeof(data)) {
+    fprintf(stderr, "Unable to read FDT property %s\n", property);
+    return E_FILEOP;
+  }
   fclose(file);
 
   if (value)

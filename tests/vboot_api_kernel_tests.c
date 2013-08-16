@@ -234,7 +234,8 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 				t->disks_to_provide[i].flags;
 			mock_disks[num_disks].handle = (VbExDiskHandle_t)
 				t->disks_to_provide[i].diskname;
-			VBDEBUG(("  mock_disk[%d] %lld %lld 0x%x %s\n", i,
+			VBDEBUG(("  mock_disk[%d] %" PRIu64 " %" PRIu64
+				 " 0x%x %s\n", i,
 				 mock_disks[num_disks].bytes_per_lba,
 				 mock_disks[num_disks].lba_count,
 				 mock_disks[num_disks].flags,
@@ -253,7 +254,7 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 	else
 		*count = num_disks;
 
-	VBDEBUG(("  *count=%lld\n", *count));
+	VBDEBUG(("  *count=%" PRIu32 "\n", *count));
 	VBDEBUG(("  return 0x%x\n", t->diskgetinfo_return_val));
 
 	return t->diskgetinfo_return_val;
