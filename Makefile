@@ -139,6 +139,7 @@ else
 # FIRMWARE_ARCH not defined; assuming local compile.
 CC ?= gcc
 CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall -Werror # HEY: always want last two?
+CFLAGS += ${DEBUG_FLAGS}
 endif
 
 ifneq (${OLDDIR},)
