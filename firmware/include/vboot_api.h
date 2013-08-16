@@ -266,7 +266,8 @@ enum VbSelectFirmware_t {
 	VB_SELECT_FIRMWARE_A = 1,
 	VB_SELECT_FIRMWARE_B = 2,
 	/* Read only firmware for normal or developer path. */
-	VB_SELECT_FIRMWARE_READONLY = 3
+	VB_SELECT_FIRMWARE_READONLY = 3,
+        VB_SELECT_FIRMWARE_COUNT,
 };
 
 /* Data only used by VbSelectFirmware() */
