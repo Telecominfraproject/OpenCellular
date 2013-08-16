@@ -100,7 +100,7 @@ static int ReadFdtValue(const char *property, int *value) {
 }
 
 static int ReadFdtInt(const char *property) {
-  int value;
+  int value = 0;
   if (ReadFdtValue(property, &value))
     return E_FAIL;
   return value;

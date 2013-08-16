@@ -80,11 +80,20 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 {
 	int legacy = 0;
 	uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+	int ret = 1;
 
 	if (gptdata->primary_header) {
 		GptHeader *h = (GptHeader *)(gptdata->primary_header);
-		legacy = !Memcmp(h->signature, GPT_HEADER_SIGNATURE2,
-				 GPT_HEADER_SIGNATURE_SIZE);
+
+		/*
+		 * Avoid even looking at this data if we don't need to. We
+		 * may in fact not have read it from disk if the read failed,
+		 * and this avoids a valgrind complaint.
+		 */
+		if (gptdata->modified) {
+			legacy = !Memcmp(h->signature, GPT_HEADER_SIGNATURE2,
+					GPT_HEADER_SIGNATURE_SIZE);
+		}
 		if (gptdata->modified & GPT_MODIFIED_HEADER1) {
 			if (legacy) {
 				VBDEBUG(("Not updating GPT header 1: "
@@ -93,10 +102,9 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 				VBDEBUG(("Updating GPT header 1\n"));
 				if (0 != VbExDiskWrite(disk_handle, 1, 1,
 						       gptdata->primary_header))
-					return 1;
+					goto fail;
 			}
 		}
-		VbExFree(gptdata->primary_header);
 	}
 
 	if (gptdata->primary_entries) {
@@ -109,10 +117,9 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 				if (0 != VbExDiskWrite(disk_handle, 2,
 						entries_sectors,
 						gptdata->primary_entries))
-					return 1;
+					goto fail;
 			}
 		}
-		VbExFree(gptdata->primary_entries);
 	}
 
 	if (gptdata->secondary_entries) {
@@ -121,9 +128,8 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 			if (0 != VbExDiskWrite(disk_handle,
 				gptdata->drive_sectors - entries_sectors - 1,
 				entries_sectors, gptdata->secondary_entries))
-				return 1;
+				goto fail;
 		}
-		VbExFree(gptdata->secondary_entries);
 	}
 
 	if (gptdata->secondary_header) {
@@ -132,13 +138,25 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 			if (0 != VbExDiskWrite(disk_handle,
 					       gptdata->drive_sectors - 1, 1,
 					       gptdata->secondary_header))
-				return 1;
+				goto fail;
 		}
-		VbExFree(gptdata->secondary_header);
 	}
 
+	ret = 0;
+
+fail:
+	/* Avoid leaking memory on disk write failure */
+	if (gptdata->primary_header)
+		VbExFree(gptdata->primary_header);
+	if (gptdata->primary_entries)
+		VbExFree(gptdata->primary_entries);
+	if (gptdata->secondary_entries)
+		VbExFree(gptdata->secondary_entries);
+	if (gptdata->secondary_header)
+		VbExFree(gptdata->secondary_header);
+
 	/* Success */
-	return 0;
+	return ret;
 }
 
 VbError_t LoadKernel(LoadKernelParams *params)
