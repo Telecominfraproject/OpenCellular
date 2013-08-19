@@ -1,3 +1,5 @@
+AUTOMAKE_OPTIONS = subdir-objects
+
 AM_CFLAGS = -Wall -std=c99
 
 bin_PROGRAMS = cbootimage bct_dump
