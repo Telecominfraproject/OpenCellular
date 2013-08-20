@@ -329,7 +329,7 @@ sanity_check_live_firmware() {
   local bios_image="$(make_temp_file)"
   local rootkey_file="$(make_temp_file)"
   echo "INFO: checking system firmware..."
-  sudo flashrom -p internal:bus=spi -i GBB -r "$bios_image" >/dev/null 2>&1
+  sudo flashrom -p host -i GBB -r "$bios_image" >/dev/null 2>&1
   gbb_utility -g --rootkey="$rootkey_file" "$bios_image" >/dev/null 2>&1
   if [ ! -s "$rootkey_file" ]; then
     debug_msg "failed to read root key from system firmware..."

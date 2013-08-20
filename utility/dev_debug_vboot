@@ -260,7 +260,7 @@ devs=$(awk '/(mmcblk[0-9])$|(sd[a-z])$/ {print "/dev/"$4}' /proc/partitions)
 for d in $devs; do
   log cgpt show $d
 done
-log flashrom -V -p internal:bus=spi --wp-status
+log flashrom -V -p host --wp-status
 tpm_fwver=$(crossystem tpm_fwver) || tpm_fwver="UNKNOWN"
 tpm_kernver=$(crossystem tpm_kernver) || tpm_kernver="UNKNOWN"
 set -e
@@ -273,14 +273,14 @@ if [ -n "${OPT_BIOS}" ]; then
   fix_old_names
 else
   # Read it from the flash
-  if log flashrom -p internal:bus=spi -r bios.rom ; then
+  if log flashrom -p host -r bios.rom ; then
     # If we can read the whole BIOS at once, great.
     log dump_fmap -x bios.rom
     fix_old_names
   else
     # Otherwise pull just the components we want (implying new-style names)
     info "  ...individually..."
-    log flashrom -p internal:bus=spi -r /dev/null \
+    log flashrom -p host -r /dev/null \
       -i"GBB":GBB \
       -i"VBLOCK_A":VBLOCK_A \
       -i"VBLOCK_B":VBLOCK_B \

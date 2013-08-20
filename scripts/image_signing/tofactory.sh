@@ -40,8 +40,8 @@ eval set -- "$FLAGS_ARGV"
 set -e
 
 # Flashrom commands with device overrides
-FLASHROM_BIOS="flashrom -p internal:bus=spi"
-FLASHROM_EC="flashrom -p internal:bus=lpc"
+FLASHROM_BIOS="flashrom -p host"
+FLASHROM_EC="flashrom -p ec"
 
 # A log file to keep the output results of executed command
 EXEC_LOG="$(make_temp_file)"

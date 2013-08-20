@@ -43,7 +43,7 @@ FLAGS_HELP="Changes ChromeOS Firmware GBB Flags value.
   Usage: $0 [option_flags] GBB_FLAGS_VALUE
   $GBBFLAGS_DESCRIPTION"
 
-FLASHROM_COMMON_OPT="-p internal:bus=spi"
+FLASHROM_COMMON_OPT="-p host"
 FLASHROM_READ_OPT="$FLASHROM_COMMON_OPT -i GBB -r"
 FLASHROM_WRITE_OPT="$FLASHROM_COMMON_OPT -i GBB --fast-verify -w"
 
