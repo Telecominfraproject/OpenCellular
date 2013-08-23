@@ -280,7 +280,7 @@ sign_bct(build_image_context *context,
 					bct) != 0)
 		return -ENODATA;
 
-	hash_buffer = malloc(hash_size);
+	hash_buffer = calloc(1, hash_size);
 	if (hash_buffer == NULL)
 		return -ENOMEM;
 	e = sign_data_block(bct + Offset, length, hash_buffer);

@@ -391,7 +391,7 @@ write_bootloaders(build_image_context *context)
 	g_soc_config->get_value(token_bootloaders_max,
 			&bootloaders_max, context->bct);
 
-	hash_buffer = malloc(hash_size);
+	hash_buffer = calloc(1, hash_size);
 	if (hash_buffer == NULL)
 		return -ENOMEM;
 
