@@ -160,6 +160,17 @@ typedef enum
 	token_pllm_kcp,
 	token_pllm_kvco,
 	token_emc_bct_spare0,
+	token_emc_bct_spare1,
+	token_emc_bct_spare2,
+	token_emc_bct_spare3,
+	token_emc_bct_spare4,
+	token_emc_bct_spare5,
+	token_emc_bct_spare6,
+	token_emc_bct_spare7,
+	token_emc_bct_spare8,
+	token_emc_bct_spare9,
+	token_emc_bct_spare10,
+	token_emc_bct_spare11,
 	token_emc_clock_divider,
 	token_emc_auto_cal_interval,
 	token_emc_auto_cal_config,
@@ -185,16 +196,21 @@ typedef enum
 	token_emc_wdv,
 	token_emc_wdv_mask,
 	token_emc_quse,
+	token_emc_quse_width,
 	token_emc_ibdly,
 	token_emc_einput,
 	token_emc_einput_duration,
 	token_emc_puterm_extra,
+	token_emc_puterm_width,
+	token_emc_puterm_adj,
 	token_emc_cdb_cntl1,
 	token_emc_cdb_cntl2,
+	token_emc_cdb_cntl3,
 	token_emc_qrst,
 	token_emc_qsafe,
 	token_emc_rdv,
 	token_emc_rdv_mask,
+	token_emc_qpop,
 	token_emc_refresh,
 	token_emc_burst_refresh_num,
 	token_emc_pdex2wr,
@@ -230,6 +246,7 @@ typedef enum
 	token_mc_emem_cfg,
 	token_emc_cfg,
 	token_emc_cfg2,
+	token_emc_cfg_pipe,
 	token_emc_dbg,
 	token_emc_cfg_dig_dll,
 	token_emc_cfg_dig_dll_period,
@@ -308,6 +325,14 @@ typedef enum
 	token_emc_dll_xform_dqs5,
 	token_emc_dll_xform_dqs6,
 	token_emc_dll_xform_dqs7,
+	token_emc_dll_xform_dqs8,
+	token_emc_dll_xform_dqs9,
+	token_emc_dll_xform_dqs10,
+	token_emc_dll_xform_dqs11,
+	token_emc_dll_xform_dqs12,
+	token_emc_dll_xform_dqs13,
+	token_emc_dll_xform_dqs14,
+	token_emc_dll_xform_dqs15,
 	token_emc_dll_xform_quse0,
 	token_emc_dll_xform_quse1,
 	token_emc_dll_xform_quse2,
@@ -319,6 +344,17 @@ typedef enum
 	token_emc_dll_xform_addr0,
 	token_emc_dll_xform_addr1,
 	token_emc_dll_xform_addr2,
+	token_emc_dll_xform_addr3,
+	token_emc_dll_xform_addr4,
+	token_emc_dll_xform_addr5,
+	token_emc_dll_xform_quse8,
+	token_emc_dll_xform_quse9,
+	token_emc_dll_xform_quse10,
+	token_emc_dll_xform_quse11,
+	token_emc_dll_xform_quse12,
+	token_emc_dll_xform_quse13,
+	token_emc_dll_xform_quse14,
+	token_emc_dll_xform_quse15,
 	token_emc_dli_trim_tx_dqs0,
 	token_emc_dli_trim_tx_dqs1,
 	token_emc_dli_trim_tx_dqs2,
@@ -327,10 +363,22 @@ typedef enum
 	token_emc_dli_trim_tx_dqs5,
 	token_emc_dli_trim_tx_dqs6,
 	token_emc_dli_trim_tx_dqs7,
+	token_emc_dli_trim_tx_dqs8,
+	token_emc_dli_trim_tx_dqs9,
+	token_emc_dli_trim_tx_dqs10,
+	token_emc_dli_trim_tx_dqs11,
+	token_emc_dli_trim_tx_dqs12,
+	token_emc_dli_trim_tx_dqs13,
+	token_emc_dli_trim_tx_dqs14,
+	token_emc_dli_trim_tx_dqs15,
 	token_emc_dll_xform_dq0,
 	token_emc_dll_xform_dq1,
 	token_emc_dll_xform_dq2,
 	token_emc_dll_xform_dq3,
+	token_emc_dll_xform_dq4,
+	token_emc_dll_xform_dq5,
+	token_emc_dll_xform_dq6,
+	token_emc_dll_xform_dq7,
 	token_emc_zcal_interval,
 	token_emc_zcal_init_dev0,
 	token_emc_zcal_init_dev1,
@@ -349,32 +397,42 @@ typedef enum
 	token_emc_warm_boot_emr3,
 	token_emc_warm_boot_mrs_extra,
 	token_emc_clken_override,
+	token_mc_dis_extra_snap_levels,
 	token_emc_extra_refresh_num,
 	token_emc_clken_override_allwarm_boot,
 	token_mc_clken_override_allwarm_boot,
 	token_emc_cfg_dig_dll_period_warm_boot,
 	token_pmc_vddp_sel,
+	token_pmc_vddp_sel_wait,
 	token_pmc_ddr_cfg,
 	token_pmc_io_dpd_req,
 	token_pmc_io_dpd2_req,
+	token_pmc_io_dpd3_req,
+	token_pmc_io_dpd3_req_wait,
 	token_pmc_reg_short,
 	token_pmc_eno_vtt_gen,
 	token_pmc_no_io_power,
+	token_pmc_por_dpd_ctrl_wait,
 	token_emc_xm2cmd_pad_ctrl,
 	token_emc_xm2cmd_pad_ctrl2,
 	token_emc_xm2cmd_pad_ctrl3,
 	token_emc_xm2cmd_pad_ctrl4,
+	token_emc_xm2cmd_pad_ctrl5,
 	token_emc_xm2dqs_pad_ctrl,
 	token_emc_xm2dqs_pad_ctrl2,
 	token_emc_xm2dqs_pad_ctrl3,
 	token_emc_xm2dqs_pad_ctrl4,
+	token_emc_xm2dqs_pad_ctrl5,
+	token_emc_xm2dqs_pad_ctrl6,
 	token_emc_xm2dq_pad_ctrl,
 	token_emc_xm2dq_pad_ctrl2,
+	token_emc_xm2dq_pad_ctrl3,
 	token_emc_xm2clk_pad_ctrl,
 	token_emc_xm2clk_pad_ctrl2,
 	token_emc_xm2comp_pad_ctrl,
 	token_emc_xm2vttgen_pad_ctrl,
 	token_emc_xm2vttgen_pad_ctrl2,
+	token_emc_xm2vttgen_pad_ctrl3,
 	token_emc_xm2quse_pad_ctrl,
 	token_emc_acpd_control,
 	token_emc_swizzle_rank0_byte_cfg,
@@ -394,6 +452,7 @@ typedef enum
 	token_emc_addr_swizzle_stack3,
 	token_emc_dsr_vttgen_drv,
 	token_emc_txdsrvttgen,
+	token_emc_bgbias_ctl0,
 	token_mc_emem_adr_cfg,
 	token_mc_emem_adr_cfg_dev0,
 	token_mc_emem_adr_cfg_dev1,
@@ -402,6 +461,7 @@ typedef enum
 	token_mc_emem_adr_cfg_bank_mask0,
 	token_mc_emem_adr_cfg_bank_mask1,
 	token_mc_emem_adr_cfg_bank_mask2,
+	token_mc_emem_adr_cfg_bank_swizzle3,
 	token_mc_emem_arb_cfg,
 	token_mc_emem_arb_outstanding_req,
 	token_mc_emem_arb_timing_rcd,
@@ -422,13 +482,21 @@ typedef enum
 	token_mc_emem_arb_misc1,
 	token_mc_emem_arb_ring1_throttle,
 	token_mc_emem_arb_override,
+	token_mc_emem_arb_override1,
 	token_mc_emem_arb_rsv,
 	token_mc_clken_override,
 	token_mc_emc_reg_mode,
+	token_mc_stat_control,
+	token_mc_display_snap_ring,
 	token_mc_video_protect_bom,
+	token_mc_video_protect_bom_adr_hi,
 	token_mc_video_protect_size_mb,
 	token_mc_video_protect_vpr_override,
+	token_mc_video_protect_vpr_override1,
+	token_mc_video_protect_gpu_override0,
+	token_mc_video_protect_gpu_override1,
 	token_mc_sec_carveout_bom,
+	token_mc_sec_carveout_adr_hi,
 	token_mc_sec_carveout_size_mb,
 	token_mc_video_protect_write_access,
 	token_mc_sec_carveout_protect_write_access,
@@ -499,6 +567,10 @@ typedef enum
 	token_ch1_emc_xm2_dqs_pad_ctrl,
 	token_ch1_emc_xm2_dqs_pad_ctrl3,
 	token_ch1_emc_xm2_dqs_pad_ctrl4,
+	token_mc_mts_carveout_bom,
+	token_mc_mts_carveout_adr_hi,
+	token_mc_mts_carveout_size_mb,
+	token_mc_mts_carveout_reg_ctrl,
 
 	token_force32 = 0x7fffffff
 } parse_token;
@@ -693,6 +765,8 @@ typedef struct cbootimage_soc_config_rec {
 
 void process_config_file(build_image_context *context, u_int8_t simple_parse);
 
+void t124_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
 void t114_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 void t30_get_soc_config(build_image_context *context,
@@ -700,6 +774,8 @@ void t30_get_soc_config(build_image_context *context,
 void t20_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 
+int if_bct_is_t124_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
 int if_bct_is_t114_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 int if_bct_is_t30_get_soc_config(build_image_context *context,
@@ -707,6 +783,26 @@ int if_bct_is_t30_get_soc_config(build_image_context *context,
 int if_bct_is_t20_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 
+int
+t124_get_dev_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t *value);
+int
+t124_set_dev_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t value);
+int
+t124_get_sdram_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t *value);
+int
+t124_set_sdram_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t value);
 int
 t114_get_dev_param(build_image_context *context,
 	u_int32_t index,
@@ -784,22 +880,27 @@ extern cbootimage_soc_config *g_soc_config;
 extern enum_item s_devtype_table_t20[];
 extern enum_item s_devtype_table_t30[];
 extern enum_item s_devtype_table_t114[];
+extern enum_item s_devtype_table_t124[];
 
 extern enum_item s_sdmmc_data_width_table_t20[];
 extern enum_item s_sdmmc_data_width_table_t30[];
 extern enum_item s_sdmmc_data_width_table_t114[];
+extern enum_item s_sdmmc_data_width_table_t124[];
 
 extern enum_item s_spi_clock_source_table_t20[];
 extern enum_item s_spi_clock_source_table_t30[];
 extern enum_item s_spi_clock_source_table_t114[];
+extern enum_item s_spi_clock_source_table_t124[];
 
 extern enum_item s_nvboot_memory_type_table_t20[];
 extern enum_item s_nvboot_memory_type_table_t30[];
 extern enum_item s_nvboot_memory_type_table_t114[];
+extern enum_item s_nvboot_memory_type_table_t124[];
 
 extern field_item s_sdram_field_table_t20[];
 extern field_item s_sdram_field_table_t30[];
 extern field_item s_sdram_field_table_t114[];
+extern field_item s_sdram_field_table_t124[];
 
 extern field_item s_nand_table_t20[];
 extern field_item s_nand_table_t30[];
@@ -807,13 +908,16 @@ extern field_item s_nand_table_t30[];
 extern field_item s_sdmmc_table_t20[];
 extern field_item s_sdmmc_table_t30[];
 extern field_item s_sdmmc_table_t114[];
+extern field_item s_sdmmc_table_t124[];
 
 extern field_item s_spiflash_table_t20[];
 extern field_item s_spiflash_table_t30[];
 extern field_item s_spiflash_table_t114[];
+extern field_item s_spiflash_table_t124[];
 
 extern parse_subfield_item s_device_type_table_t20[];
 extern parse_subfield_item s_device_type_table_t30[];
 extern parse_subfield_item s_device_type_table_t114[];
+extern parse_subfield_item s_device_type_table_t124[];
 
 #endif /* #ifndef INCLUDED_PARSE_H */

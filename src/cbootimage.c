@@ -68,7 +68,8 @@ usage(void)
 	printf("    -d, --debug           Output debugging information.\n");
 	printf("    -gbct                 Generate the new bct file.\n");
 	printf("    -o<ODM_DATA>          Specify the odm_data(in hex).\n");
-	printf("    [-t20|-t30|-t114]     Select one of the possible target devices,\n");
+	printf("    [-t20|-t30|-t114|-t124]\n");
+	printf("                          Select one of the possible target devices,\n");
 	printf("                          -t20 if unspecified.\n");
 	printf("    configfile            File with configuration information\n");
 	printf("    imagename             Output image name\n");
@@ -107,6 +108,8 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 				t30_get_soc_config(context, &g_soc_config);
 			} else if (!strcasecmp("114", optarg)) {
 				t114_get_soc_config(context, &g_soc_config);
+			} else if (!strcasecmp("124", optarg)) {
+				t124_get_soc_config(context, &g_soc_config);
 			} else {
 				printf("Unsupported chipname!\n");
 				usage();
