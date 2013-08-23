@@ -19,7 +19,7 @@
 #include "tpm_error_messages.h"
 #include "tss_constants.h"
 
-#define OTHER_ERROR 255
+#define OTHER_ERROR 255  /* OTHER_ERROR must be the largest uint8_t value. */
 
 typedef struct command_record {
   const char* name;
@@ -61,9 +61,11 @@ int HexStringToUint8(const char* string, uint8_t* value) {
 
 /* TPM error check and reporting.  Returns 0 if |result| is 0 (TPM_SUCCESS).
  * Otherwise looks up a TPM error in the error table and prints the error if
- * found.
+ * found.  Then returns min(result, OTHER_ERROR) since some error codes, such
+ * as TPM_E_RETRY, do not fit in a byte.
  */
-uint32_t ErrorCheck(uint32_t result, const char* cmd) {
+uint8_t ErrorCheck(uint32_t result, const char* cmd) {
+  uint8_t exit_code = result > OTHER_ERROR ? OTHER_ERROR : result;
   if (result == 0) {
     return 0;
   } else {
@@ -74,11 +76,11 @@ uint32_t ErrorCheck(uint32_t result, const char* cmd) {
       if (tpm_error_table[i].code == result) {
         fprintf(stderr, "%s\n%s\n", tpm_error_table[i].name,
                 tpm_error_table[i].description);
-        return result;
+        return exit_code;
       }
     }
     fprintf(stderr, "the TPM error code is unknown to this program\n");
-    return result;
+    return exit_code;
   }
 }
 
