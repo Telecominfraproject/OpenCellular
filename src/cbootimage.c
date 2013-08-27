@@ -48,6 +48,7 @@ struct option cbootcmd[] = {
 	{"generate", 1, NULL, 'g'},
 	{"tegra", 1, NULL, 't'},
 	{"odmdata", 1, NULL, 'o'},
+	{"soc", 1, NULL, 's'},
 	{0, 0, 0, 0},
 };
 
@@ -68,9 +69,12 @@ usage(void)
 	printf("    -d, --debug           Output debugging information.\n");
 	printf("    -gbct                 Generate the new bct file.\n");
 	printf("    -o<ODM_DATA>          Specify the odm_data(in hex).\n");
-	printf("    [-t20|-t30|-t114|-t124]\n");
-	printf("                          Select one of the possible target devices,\n");
-	printf("                          -t20 if unspecified.\n");
+	printf("    -t|--tegra NN         Select target device. Must be one of:\n");
+	printf("                          20, 30, 114, 124.\n");
+	printf("                          Default: 20. This option is deprecated\n");
+	printf("    -s|--soc tegraNN      Select target device. Must be one of:\n");
+	printf("                          tegra20, tegra30, tegra114, tegra124.\n");
+	printf("                          Default: tegra20.\n");
 	printf("    configfile            File with configuration information\n");
 	printf("    imagename             Output image name\n");
 }
@@ -82,7 +86,7 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 
 	context->generate_bct = 0;
 
-	while ((c = getopt_long(argc, argv, "hdg:t:o:", cbootcmd, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "hdg:t:o:s:", cbootcmd, NULL)) != -1) {
 		switch (c) {
 		case 'h':
 			help_only = 1;
@@ -100,6 +104,14 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 				return -EINVAL;
 			}
 			break;
+		case 's':
+			if (strncmp("tegra", optarg, 5)) {
+				printf("Unsupported chipname!\n");
+				usage();
+				return -EINVAL;
+			}
+			optarg += 5;
+			/* Deliberate fall-through */
 		case 't':
 			/* Assign the soc_config based on the chip. */
 			if (!strcasecmp("20", optarg)) {
