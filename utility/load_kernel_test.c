@@ -27,7 +27,6 @@
 
 /* Global variables for stub functions */
 static LoadKernelParams lkp;
-static VbCommonParams cparams;
 static VbNvContext vnc;
 static FILE *image_file = NULL;
 
@@ -95,7 +94,6 @@ int main(int argc, char* argv[]) {
   Memset(&vnc, 0, sizeof(VbNvContext));
   VbNvSetup(&vnc);
   lkp.nv_context = &vnc;
-  Memset(&cparams, 0, sizeof(VbCommonParams));
 
   /* Parse options */
   opterr = 0;
@@ -159,7 +157,6 @@ int main(int argc, char* argv[]) {
   lkp.gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
   lkp.gbb_data = (void*)malloc(lkp.gbb_size);
   gbb = (GoogleBinaryBlockHeader*)lkp.gbb_data;
-  cparams.gbb = gbb;
   Memset(gbb, 0, lkp.gbb_size);
   Memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
   gbb->major_version = GBB_MAJOR_VER;
@@ -217,7 +214,7 @@ int main(int argc, char* argv[]) {
   lkp.kernel_buffer_size = KERNEL_BUFFER_SIZE;
 
   /* Call LoadKernel() */
-  rv = LoadKernel(&lkp, &cparams);
+  rv = LoadKernel(&lkp);
   printf("LoadKernel() returned %d\n", rv);
 
   if (VBERROR_SUCCESS == rv) {

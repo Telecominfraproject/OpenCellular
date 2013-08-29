@@ -10,8 +10,6 @@
 
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
-#include "region.h"
-#include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
 #include "utility.h"
@@ -161,14 +159,15 @@ fail:
 	return ret;
 }
 
-VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
+VbError_t LoadKernel(LoadKernelParams *params)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)params->shared_data_blob;
 	VbSharedDataKernelCall *shcall = NULL;
 	VbNvContext* vnc = params->nv_context;
-	VbPublicKey* kernel_subkey = NULL;
-	int free_kernel_subkey = 0;
+	GoogleBinaryBlockHeader* gbb =
+		(GoogleBinaryBlockHeader *)params->gbb_data;
+	VbPublicKey* kernel_subkey;
 	GptData gpt;
 	uint64_t part_start, part_size;
 	uint64_t blba;
@@ -234,10 +233,8 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	if (kBootRecovery == boot_mode) {
 		/* Use the recovery key to verify the kernel */
-		retval = VbGbbReadRecoveryKey(cparams, &kernel_subkey);
-		if (VBERROR_SUCCESS != retval)
-			goto LoadKernelExit;
-		free_kernel_subkey = 1;
+		kernel_subkey = (VbPublicKey*)
+			((uint8_t*)gbb + gbb->recovery_key_offset);
 	} else {
 		/* Use the kernel subkey passed from LoadFirmware(). */
 		kernel_subkey = &shared->kernel_subkey;
@@ -634,9 +631,6 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	/* Store how much shared data we used, if any */
 	params->shared_data_size = shared->data_used;
-
-	if (free_kernel_subkey)
-		VbExFree(kernel_subkey);
 
 	return retval;
 }

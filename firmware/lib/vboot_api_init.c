@@ -7,8 +7,6 @@
 
 #include "sysincludes.h"
 
-#include "region.h"
-#include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_firmware_fw.h"
 #include "rollback_index.h"
@@ -21,7 +19,8 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	GoogleBinaryBlockHeader gbb;
+	GoogleBinaryBlockHeader *gbb =
+		(GoogleBinaryBlockHeader *)cparams->gbb_data;
 	VbNvContext vnc;
 	VbError_t retval = VBERROR_SUCCESS;
 	uint32_t recovery = VBNV_RECOVERY_NOT_REQUESTED;
@@ -37,15 +36,11 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 	uint32_t clear_tpm_owner_request = 0;
 	int is_dev = 0;
 
+	VBDEBUG(("VbInit() input flags 0x%x gbb flags 0x%x\n", iparams->flags,
+		gbb->flags));
+
 	/* Initialize output flags */
 	iparams->out_flags = 0;
-
-	retval = VbGbbReadHeader_static(cparams, &gbb);
-	if (retval)
-		return retval;
-
-	VBDEBUG(("VbInit() input flags 0x%x gbb flags 0x%x\n", iparams->flags,
-		gbb.flags));
 
 	/* Set up NV storage */
 	VbExNvStorageRead(vnc.raw);
@@ -168,7 +163,7 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		VbNvGet(&vnc, VBNV_DISABLE_DEV_REQUEST, &disable_dev_request);
 
 		/* Allow GBB flag to override dev switch */
-		if (gbb.flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
+		if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON)
 			is_hw_dev = 1;
 
 		/* Have we been explicitly asked to clear the TPM owner? */
@@ -247,11 +242,11 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 	}
 
 	/* Allow BIOS to load arbitrary option ROMs? */
-	if (gbb.flags & GBB_FLAG_LOAD_OPTION_ROMS)
+	if (gbb->flags & GBB_FLAG_LOAD_OPTION_ROMS)
 		iparams->out_flags |= VB_INIT_OUT_ENABLE_OPROM;
 
 	/* Factory may need to boot custom OSes when the dev-switch is on */
-	if (is_dev && (gbb.flags & GBB_FLAG_ENABLE_ALTERNATE_OS))
+	if (is_dev && (gbb->flags & GBB_FLAG_ENABLE_ALTERNATE_OS))
 		iparams->out_flags |= VB_INIT_OUT_ENABLE_ALTERNATE_OS;
 
 	/* Set output flags */

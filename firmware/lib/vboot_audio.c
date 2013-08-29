@@ -208,7 +208,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
  */
 VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 {
-	GoogleBinaryBlockHeader *gbb = cparams->gbb;
+	GoogleBinaryBlockHeader* gbb =
+		(GoogleBinaryBlockHeader *)cparams->gbb_data;
 	VbAudioContext *audio = &au;
 	int use_short = 0;
 	uint64_t a, b;

@@ -104,14 +104,6 @@ enum VbErrorPredefined_t {
 	VBERROR_VGA_OPROM_MISMATCH            = 0x10021,
 	/* Need EC to reboot to read-only code */
 	VBERROR_EC_REBOOT_TO_RO_REQUIRED      = 0x10022,
-	/* Invalid region read parameters */
-	VBERROR_REGION_READ_INVALID           = 0x10023,
-	/* Cannot read from region */
-	VBERROR_REGION_READ_FAILED            = 0x10024,
-	/* Unsupported region type */
-	VBERROR_UNSUPPORTED_REGION            = 0x10025,
-	/* No image present (returned from VbGbbReadImage() for missing image) */
-	VBERROR_NO_IMAGE_PRESENT              = 0x10026,
 
 	/* VbExEcGetExpectedRWHash() may return the following codes */
 	/* Compute expected RW hash from the EC image; BIOS doesn't have it */
@@ -175,10 +167,6 @@ typedef struct VbCommonParams {
 	 * the stack.
 	 */
 	void *caller_context;
-
-	/* For internal use of Vboot - do not examine or modify! */
-	struct GoogleBinaryBlockHeader *gbb;
-	struct BmpBlockHeader *bmp;
 } VbCommonParams;
 
 /* Flags for VbInitParams.flags */
@@ -838,34 +826,5 @@ enum {
  * Execute legacy boot option.
  */
 int VbExLegacy(void);
-
-/* Regions for VbExRegionRead() */
-enum vb_firmware_region {
-	VB_REGION_GBB,	/* Google Binary Block - see gbbheader.h */
-
-	VB_REGION_COUNT,
-};
-
-/**
- * Read data from a region of the firmware image
- *
- * Vboot wants access to a region, to read data from it. This function
- * reads it (typically from the firmware image such as SPI flash) and
- * returns the data.
- *
- * cparams is passed so that the boot loader has some context for the
- * operation.
- *
- * @param cparams	Common parameters, e.g. use member caller_context
- *			to point to useful context data
- * @param region	Firmware region to read
- * @param offset	Start offset within region
- * @param size		Number of bytes to read
- * @param buf		Place to put data
- * @return VBERROR_... error, VBERROR_SUCCESS on success,
- */
-VbError_t VbExRegionRead(VbCommonParams *cparams,
-			 enum vb_firmware_region region, uint32_t offset,
-			 uint32_t size, void *buf);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */

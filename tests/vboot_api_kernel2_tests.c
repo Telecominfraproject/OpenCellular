@@ -49,7 +49,6 @@ static void ResetMocks(void)
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
 	cparams.gbb_data = &gbb;
-	cparams.gbb = &gbb;
 
 	Memset(&gbb, 0, sizeof(gbb));
 	gbb.major_version = GBB_MAJOR_VER;

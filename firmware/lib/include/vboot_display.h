@@ -43,6 +43,11 @@ void VbRenderTextAtPos(const char *text, int right_to_left,
 const char *RecoveryReasonString(uint8_t code);
 
 /**
+ * Return a fixed string representing the HWID.
+ */
+const char *VbHWID(VbCommonParams *cparams);
+
+/**
  * Get the number of localizations in the GBB bitmap data.
  */
 VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count);

@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "gbb_header.h"
 #include "host_common.h"
 #include "rollback_index.h"
 #include "test_common.h"
@@ -24,7 +23,6 @@
 /* Mock data */
 static VbCommonParams cparams;
 static VbSelectFirmwareParams fparams;
-static GoogleBinaryBlockHeader gbb;
 static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
@@ -50,11 +48,6 @@ static void ResetMocks(void) {
   cparams.shared_data_blob = shared_data;
 
   Memset(&fparams, 0, sizeof(fparams));
-
-  Memset(&gbb, 0, sizeof(gbb));
-  cparams.gbb_data = &gbb;
-  cparams.gbb_size = sizeof(gbb);
-  cparams.gbb = &gbb;
 
   Memset(&vnc, 0, sizeof(vnc));
   VbNvSetup(&vnc);
