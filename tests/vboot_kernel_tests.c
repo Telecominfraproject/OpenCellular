@@ -81,7 +81,7 @@ static void ResetMocks(void)
 	mock_data_key = (RSAPublicKey *)"TestDataKey";
 	mock_data_key_allocated = 0;
 
-	memset(gbb, 0, sizeof(gbb));
+	memset(gbb, 0, sizeof(*gbb));
 	gbb->major_version = GBB_MAJOR_VER;
 	gbb->minor_version = GBB_MINOR_VER;
 	gbb->flags = 0;
