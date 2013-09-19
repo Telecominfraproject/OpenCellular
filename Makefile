@@ -99,6 +99,8 @@ ifeq (${FIRMWARE_ARCH},i386)
   override FIRMWARE_ARCH := x86
 else ifeq (${FIRMWARE_ARCH},amd64)
   override FIRMWARE_ARCH := x86_64
+else ifeq (${FIRMWARE_ARCH},armv7)
+  override FIRMWARE_ARCH := arm
 endif
 
 # Provide default CC and CFLAGS for firmware builds; if you have any -D flags,
