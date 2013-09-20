@@ -340,6 +340,11 @@ static void VbSoftwareSyncTest(void)
 		   VBNV_RECOVERY_EC_JUMP_RW, "Jump to RW fail");
 
 	ResetMocks();
+	run_retval = VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
+		   0, "Jump to RW fail because locked");
+
+	ResetMocks();
 	protect_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_SIMULATED,
 		   VBNV_RECOVERY_EC_PROTECT, "Protect error");

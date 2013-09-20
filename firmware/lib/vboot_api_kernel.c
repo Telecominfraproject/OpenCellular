@@ -827,20 +827,23 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		}
 
 		rv = VbExEcUpdateRW(expected, expected_size);
-		if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
-			/*
-			 * Reboot required.  May need to unprotect RW before
-			 * updating, or may need to reboot after RW updated.
-			 * Either way, it's not an error requiring recovery
-			 * mode.
-			 */
-			VBDEBUG(("VbEcSoftwareSync() - "
-				 "VbExEcUpdateRW() needs reboot\n"));
-			return rv;
-		} else if (rv != VBERROR_SUCCESS) {
+
+		if (rv != VBERROR_SUCCESS) {
 			VBDEBUG(("VbEcSoftwareSync() - "
 				 "VbExEcUpdateRW() returned %d\n", rv));
-			VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
+
+			/*
+			 * The EC may know it needs a reboot.  It may need to
+			 * unprotect RW before updating, or may need to reboot
+			 * after RW updated.  Either way, it's not an error
+			 * requiring recovery mode.
+			 *
+			 * If we fail for any other reason, trigger recovery
+			 * mode.
+			 */
+			if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
+				VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
+
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
 
@@ -858,12 +861,24 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	/* Tell EC to jump to its RW image */
 	VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
 	rv = VbExEcJumpToRW();
+
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
 			 "VbExEcJumpToRW() returned %d\n", rv));
-		VbSetRecoveryRequest(VBNV_RECOVERY_EC_JUMP_RW);
+
+		/*
+		 * If the EC booted RO-normal and a previous AP boot has called
+		 * VbExEcStayInRO(), we need to reboot the EC to unlock the
+		 * ability to jump to the RW firmware.
+		 *
+		 * All other errors trigger recovery mode.
+		 */
+		if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
+			VbSetRecoveryRequest(VBNV_RECOVERY_EC_JUMP_RW);
+
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
+
 	VBDEBUG(("VbEcSoftwareSync() jumped to EC-RW\n"));
 
 	rv = VbExEcDisableJump();
