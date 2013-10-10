@@ -615,10 +615,10 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		if (rv != VBERROR_SUCCESS)
 			return rv;
 
-		rv = VbExEcStayInRO();
+		rv = VbExEcDisableJump();
 		if (rv != VBERROR_SUCCESS) {
 			VBDEBUG(("VbEcSoftwareSync() - "
-				 "VbExEcStayInRO() returned %d\n", rv));
+				 "VbExEcDisableJump() returned %d\n", rv));
 			VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
@@ -801,6 +801,15 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		VBDEBUG(("VbEcSoftwareSync() - "
 			 "VbExEcJumpToRW() returned %d\n", rv));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_JUMP_RW);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	}
+	VBDEBUG(("VbEcSoftwareSync() jumped to EC-RW\n"));
+
+	rv = VbExEcDisableJump();
+	if (rv != VBERROR_SUCCESS) {
+		VBDEBUG(("VbEcSoftwareSync() - "
+			"VbExEcDisableJump() returned %d\n", rv));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_SOFTWARE_SYNC);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 

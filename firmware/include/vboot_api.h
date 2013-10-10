@@ -752,11 +752,10 @@ VbError_t VbExEcRunningRW(int *in_rw);
 VbError_t VbExEcJumpToRW(void);
 
 /**
- * Tell the EC to stay in RO code until it reboots.  Subsequent calls to
- * VbExEcJumpToRW() this boot will fail.  Fails if the EC is not currently in
- * RO code.
+ * Tell the EC to refuse another jump until it reboots. Subsequent calls to
+ * VbExEcJumpToRW() in this boot will fail.
  */
-VbError_t VbExEcStayInRO(void);
+VbError_t VbExEcDisableJump(void);
 
 /**
  * Read the SHA-256 hash of the rewriteable EC image.

@@ -74,7 +74,7 @@ static void ResetMocks(void)
 	trust_ec = 0;
 	mock_in_rw = 0;
 	ec_protected = 0;
-	ec_run_image = -1;   /* 0 = RO, 1 = RW */
+	ec_run_image = 0;   /* 0 = RO, 1 = RW */
 	ec_updated = 0;
 	in_rw_retval = VBERROR_SUCCESS;
 	protect_retval = VBERROR_SUCCESS;
@@ -129,9 +129,8 @@ VbError_t VbExEcProtectRW(void)
 	return protect_retval;
 }
 
-VbError_t VbExEcStayInRO(void)
+VbError_t VbExEcDisableJump(void)
 {
-	ec_run_image = 0;
 	return run_retval;
 }
 

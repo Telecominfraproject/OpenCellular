@@ -91,7 +91,7 @@ VbError_t VbExEcRebootToRO(void)
 	return VBERROR_UNKNOWN;
 }
 
-VbError_t VbExEcStayInRO(void)
+VbError_t VbExEcDisableJump(void)
 {
 	return VBERROR_SUCCESS;
 }
