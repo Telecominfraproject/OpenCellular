@@ -50,6 +50,15 @@ typedef enum VdatIntField {
 } VdatIntField;
 
 
+/* Description of build options that may be specified on the
+ * kernel command line. */
+typedef enum VbBuildOption {
+  VB_BUILD_OPTION_UNKNOWN,
+  VB_BUILD_OPTION_DEBUG,
+  VB_BUILD_OPTION_NODEBUG
+} VbBuildOption;
+
+
 /* Masks for kern_nv usage by kernel. */
 #define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
 /* If you want to use the remaining currently-unused bits in kern_nv
@@ -122,17 +131,14 @@ VbSetNvCleanup:
   return retval;
 }
 
-
-/* Determine whether OS-level debugging should be allowed.  Passed the
- * destination and its size.  Returns 1 if yes, 0 if no, -1 if error. */
-int VbGetCrosDebug(void) {
+/* Find what build/debug status is specified on the kernel command
+ * line, if any. */
+static VbBuildOption VbScanBuildOption(void) {
   FILE* f = NULL;
   char buf[4096] = "";
   char *t, *saveptr;
   const char *delimiters = " \r\n";
 
-  /* If the currently running system specifies its debug status, use
-   * that in preference to other indicators. */
   f = fopen(KERNEL_CMDLINE_PATH, "r");
   if (NULL != f) {
     if (NULL == fgets(buf, sizeof(buf), f))
@@ -142,8 +148,31 @@ int VbGetCrosDebug(void) {
   for (t = strtok_r(buf, delimiters, &saveptr); t;
        t = strtok_r(NULL, delimiters, &saveptr)) {
     if (0 == strcmp(t, "cros_debug"))
-      return 1;
+      return VB_BUILD_OPTION_DEBUG;
     else if (0 == strcmp(t, "cros_nodebug"))
+      return VB_BUILD_OPTION_NODEBUG;
+  }
+
+  return VB_BUILD_OPTION_UNKNOWN;
+}
+
+
+/* Determine whether the running OS image was built for debugging.
+ * Returns 1 if yes, 0 if no or indeterminate. */
+int VbGetDebugBuild(void) {
+  return VB_BUILD_OPTION_DEBUG == VbScanBuildOption();
+}
+
+
+/* Determine whether OS-level debugging should be allowed.
+ * Returns 1 if yes, 0 if no or indeterminate. */
+int VbGetCrosDebug(void) {
+  /* If the currently running system specifies its debug status, use
+   * that in preference to other indicators. */
+  VbBuildOption option = VbScanBuildOption();
+  if (VB_BUILD_OPTION_DEBUG == option) {
+      return 1;
+  } else if (VB_BUILD_OPTION_NODEBUG == option) {
       return 0;
   }
 
@@ -435,6 +464,8 @@ int VbGetSystemPropertyInt(const char* name) {
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {
     value = VbGetCrosDebug();
+  } else if (!strcasecmp(name,"debug_build")) {
+    value = VbGetDebugBuild();
   } else if (!strcasecmp(name,"devsw_boot")) {
     value = GetVdatInt(VDAT_INT_DEVSW_BOOT);
   } else if (!strcasecmp(name,"devsw_virtual")) {
