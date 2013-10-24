@@ -6,6 +6,10 @@
 #ifndef VBOOT_REFERENCE_CROSSYSTEM_H_
 #define VBOOT_REFERENCE_CROSSYSTEM_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Reads a system property integer.
  *
  * Returns the property value, or -1 if error. */
@@ -27,5 +31,9 @@ int VbSetSystemPropertyInt(const char* name, int value);
  *
  * Returns 0 if success, -1 if error. */
 int VbSetSystemPropertyString(const char* name, const char* value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* VBOOT_REFERENCE__CROSSYSTEM_H_ */
