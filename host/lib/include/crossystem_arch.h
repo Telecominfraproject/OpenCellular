@@ -8,6 +8,8 @@
 #ifndef VBOOT_REFERENCE_CROSSYSTEM_ARCH_H_
 #define VBOOT_REFERENCE_CROSSYSTEM_ARCH_H_
 
+#include <stddef.h>
+
 #include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
@@ -76,7 +78,7 @@ int VbGetArchPropertyInt(const char* name);
  * will be truncated.
  *
  * Returns the passed buffer, or NULL if error. */
-const char* VbGetArchPropertyString(const char* name, char* dest, int size);
+const char* VbGetArchPropertyString(const char* name, char* dest, size_t size);
 
 /* Set an architecture-specific system property integer.
  *

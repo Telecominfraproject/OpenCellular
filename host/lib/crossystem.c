@@ -3,6 +3,7 @@
  * found in the LICENSE file.
  */
 
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -69,7 +70,7 @@ typedef enum VbBuildOption {
 
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start) {
-  char fwid[128];
+  char fwid[VB_MAX_STRING_PROPERTY];
   if (!VbGetSystemPropertyString("fwid", fwid, sizeof(fwid)))
     return 0;
 
@@ -492,7 +493,8 @@ int VbGetSystemPropertyInt(const char* name) {
 }
 
 
-const char* VbGetSystemPropertyString(const char* name, char* dest, int size) {
+const char* VbGetSystemPropertyString(const char* name, char* dest,
+                                      size_t size) {
   static const char unknown_string[] = "unknown";
 
   /* Check architecture-dependent properties first */

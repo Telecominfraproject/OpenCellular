@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <linux/fs.h>
 #include <sys/types.h>
@@ -533,7 +534,8 @@ int VbGetArchPropertyInt(const char* name) {
     return -1;
 }
 
-const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
+const char* VbGetArchPropertyString(const char* name, char* dest,
+                                    size_t size) {
   char *str = NULL;
   char *rv = NULL;
   char *prop = NULL;

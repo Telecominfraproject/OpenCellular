@@ -11,9 +11,6 @@
 
 #include "crossystem.h"
 
-/* Max length of a string parameter */
-#define MAX_STRING 8192
-
 /*
  * Call arch specific init, if provided, otherwise use the 'weak' stub.
  */
@@ -153,7 +150,7 @@ int SetParam(const Param* p, const char* value) {
  * Returns 0 if success (match), non-zero if error (mismatch). */
 int CheckParam(const Param* p, char* expect) {
   if (p->flags & IS_STRING) {
-    char buf[MAX_STRING];
+    char buf[VB_MAX_STRING_PROPERTY];
     const char* v = VbGetSystemPropertyString(p->name, buf, sizeof(buf));
     if (!v || 0 != strcmp(v, expect))
       return 1;
@@ -175,7 +172,7 @@ int CheckParam(const Param* p, char* expect) {
  * Returns 0 if success, non-zero if error. */
 int PrintParam(const Param* p) {
   if (p->flags & IS_STRING) {
-    char buf[MAX_STRING];
+    char buf[VB_MAX_STRING_PROPERTY];
     const char* v = VbGetSystemPropertyString(p->name, buf, sizeof(buf));
     if (!v)
       return 1;
@@ -197,7 +194,7 @@ int PrintParam(const Param* p) {
 int PrintAllParams(int force_all) {
   const Param* p;
   int retval = 0;
-  char buf[MAX_STRING];
+  char buf[VB_MAX_STRING_PROPERTY];
   const char* value;
 
   for (p = sys_param_list; p->name; p++) {

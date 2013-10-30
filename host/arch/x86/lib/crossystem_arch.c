@@ -7,6 +7,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <linux/nvram.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -671,7 +672,8 @@ int VbGetArchPropertyInt(const char* name) {
 }
 
 
-const char* VbGetArchPropertyString(const char* name, char* dest, int size) {
+const char* VbGetArchPropertyString(const char* name, char* dest,
+                                    size_t size) {
 
   if (!strcasecmp(name,"arch")) {
     return StrCopy(dest, "x86", size);
