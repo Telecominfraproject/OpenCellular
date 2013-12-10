@@ -499,7 +499,7 @@ static char* ReadPlatformFamilyString(char* dest, int size) {
  * we look for a directory named /sys/class/gpio/gpiochip<O>/. If there's not
  * exactly one match for that, we're SOL.
  */
-static int FindGpioChipOffset(int *offset) {
+static int FindGpioChipOffset(int *gpio_num, int *offset) {
   DIR *dir;
   struct dirent *ent;
   int match = 0;
@@ -520,6 +520,30 @@ static int FindGpioChipOffset(int *offset) {
 }
 
 
+struct GpioChipset {
+  const char *name;
+  int (*ChipOffsetAndGpioNumber)(int *gpio_num, int *chip_offset);
+};
+
+static const struct GpioChipset chipsets_supported[] = {
+  { "NM10", FindGpioChipOffset },
+  { "CougarPoint", FindGpioChipOffset },
+  { "PantherPoint", FindGpioChipOffset },
+  { "LynxPoint", FindGpioChipOffset },
+  { NULL },
+};
+
+static const struct GpioChipset *FindChipset(const char *name) {
+  const struct GpioChipset *chipset = &chipsets_supported[0];
+
+  while (chipset->name != NULL) {
+    if (!strcmp(name, chipset->name))
+      return chipset;
+    chipset++;
+  }
+  return NULL;
+}
+
 /* Read a GPIO of the specified signal type (see ACPI GPIO SignalType).
  *
  * Returns 1 if the signal is asserted, 0 if not asserted, or -1 if error. */
@@ -532,6 +556,7 @@ static int ReadGpio(int signal_type) {
   int controller_offset = 0;
   char controller_name[128];
   int value;
+  const struct GpioChipset *chipset;
 
   /* Scan GPIO.* to find a matching signal type */
   for (index = 0; ; index++) {
@@ -555,14 +580,12 @@ static int ReadGpio(int signal_type) {
   snprintf(name, sizeof(name), "%s.%d/GPIO.3", ACPI_GPIO_PATH, index);
   if (!ReadFileString(controller_name, sizeof(controller_name), name))
     return -1;
-  if ((0 != strcmp(controller_name, "NM10")) &&
-      (0 != strcmp(controller_name, "CougarPoint")) &&
-      (0 != strcmp(controller_name, "PantherPoint")) &&
-      (0 != strcmp(controller_name, "LynxPoint")))
+  chipset = FindChipset(controller_name);
+  if (chipset == NULL)
     return -1;
 
   /* Modify GPIO number by driver's offset */
-  if (!FindGpioChipOffset(&controller_offset))
+  if (!chipset->ChipOffsetAndGpioNumber(&controller_num, &controller_offset))
     return -1;
   controller_offset += controller_num;
 
