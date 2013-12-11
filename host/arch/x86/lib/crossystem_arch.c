@@ -519,6 +519,59 @@ static int FindGpioChipOffset(int *gpio_num, int *offset) {
   return (1 == match);
 }
 
+/* BayTrail has 3 sets of GPIO banks. It is expected the firmware exposes
+ * each bank of gpios using a UID in ACPI. Furthermore the gpio number exposed
+ * is relative to the bank. e.g. gpio 6 in the bank specified by UID 3 would
+ * be encoded as 0x2006.
+ *  UID | Bank Offset
+ *  ----+------------
+ *   1  | 0x0000
+ *   2  | 0x1000
+ *   3  | 0x2000
+ */
+static int BayTrailFindGpioChipOffset(int *gpio_num, int *offset) {
+  DIR *dir;
+  struct dirent *ent;
+  int expected_uid;
+  int match = 0;
+
+  /* Obtain relative GPIO number. */
+  if (*gpio_num >= 0x2000) {
+    *gpio_num -= 0x2000;
+    expected_uid = 3;
+  } else if (*gpio_num >= 0x1000) {
+    *gpio_num -= 0x1000;
+    expected_uid = 2;
+  } else if (*gpio_num >= 0x0000) {
+    *gpio_num -= 0x0000;
+    expected_uid = 1;
+  } else {
+    return 0;
+  }
+
+  dir = opendir(GPIO_BASE_PATH);
+  if (!dir) {
+    return 0;
+  }
+
+  while(0 != (ent = readdir(dir))) {
+    /* For every gpiochip entry determine uid. */
+    if (1 == sscanf(ent->d_name, "gpiochip%d", offset)) {
+      char uid_file[128];
+      snprintf(uid_file, sizeof(uid_file),
+               "%s/gpiochip%d/device/firmware_node/uid", GPIO_BASE_PATH,
+               *offset);
+      if (expected_uid == ReadFileInt(uid_file)) {
+        match++;
+        break;
+      }
+    }
+  }
+
+  closedir(dir);
+  return (1 == match);
+}
+
 
 struct GpioChipset {
   const char *name;
@@ -530,6 +583,7 @@ static const struct GpioChipset chipsets_supported[] = {
   { "CougarPoint", FindGpioChipOffset },
   { "PantherPoint", FindGpioChipOffset },
   { "LynxPoint", FindGpioChipOffset },
+  { "BayTrail", BayTrailFindGpioChipOffset },
   { NULL },
 };
 
