@@ -72,6 +72,10 @@ dump_cpuids() {
 
 move_microcode() {
     printf "Moving microcode...\n"
+
+    # Empty out the microcode include headers
+    for x in ../model_*/microcode.h; do echo > "$x"; done
+
     dump_cpuids | sort | while read N; do
         ID=$( echo $N | cut -d: -f1 )
 	F=$( echo $N | cut -d: -f2 )
@@ -79,16 +83,19 @@ move_microcode() {
 	if [ -d ../model_$ID ]; then
 	    echo "Model: $ID  Microcode: $F"
 	    mv $F ../model_$ID/$F
+	    echo "#include \"$F\"" >> ../model_$ID/microcode.h
 	else
 	    ID2=${ID%?}x
 	    if [ -d ../model_$ID2 ]; then
 	        echo "Model: $ID($ID2)  Microcode: $F (copied)"
 		mv $F ../model_$ID2/$F
+		echo "#include \"$F\"" >> ../model_$ID2/microcode.h
             else
 	        ID1=${ID%??}xx
 		if [ -d ../model_$ID1 ]; then
 	            echo "Model: $ID($ID1)  Microcode: $F (copied)"
 		    mv $F ../model_$ID1/$F
+		    echo "#include \"$F\"" >> ../model_$ID1/microcode.h
 		else
 	            echo "Model: $ID  Microcode: $F (erased)"
 		    rm -f $F
