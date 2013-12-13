@@ -392,8 +392,9 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 }
 
 /* Delay in recovery mode */
-#define REC_DISK_DELAY 1000     /* Check disks every 1s */
-#define REC_KEY_DELAY  20       /* Check keys every 20ms */
+#define REC_DISK_DELAY       1000     /* Check disks every 1s */
+#define REC_KEY_DELAY        20       /* Check keys every 20ms */
+#define REC_MEDIA_INIT_DELAY 500      /* Check removable media every 500ms */
 
 VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 {
@@ -416,7 +417,19 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 
 		VBDEBUG(("VbBootRecovery() forcing device removal\n"));
 
+		/* If no media is detected initially, delay and make one extra
+		 * attempt, in case devices appear later than expected. */
+		if (VBERROR_SUCCESS != VbExDiskGetInfo(&disk_info, &disk_count,
+						       VB_DISK_FLAG_REMOVABLE))
+			disk_count = 0;
+
+		VbExDiskFreeInfo(disk_info, NULL);
+		if (0 == disk_count)
+			VbExSleepMs(REC_MEDIA_INIT_DELAY);
+
 		while (1) {
+			disk_info = NULL;
+			disk_count = 0;
 			if (VBERROR_SUCCESS !=
 			    VbExDiskGetInfo(&disk_info, &disk_count,
 					    VB_DISK_FLAG_REMOVABLE))

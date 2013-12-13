@@ -419,6 +419,7 @@ static void VbBootRecTest(void)
 	shutdown_request_calls_left = 100;
 	mock_num_disks[0] = 1;
 	mock_num_disks[1] = 1;
+	mock_num_disks[2] = 1;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
 		"Remove");
@@ -453,6 +454,21 @@ static void VbBootRecTest(void)
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
 		"No remove in rec");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
+		"  insert screen");
+
+	/* Removal if no disk initially found, but found on second attempt */
+	ResetMocks();
+	shutdown_request_calls_left = 100;
+	mock_num_disks[0] = 0;
+	mock_num_disks[1] = 1;
+	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
+	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
+		"Remove");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_REMOVE,
+		"  remove screen");
+	TEST_EQ(screens_displayed[1], VB_SCREEN_BLANK,
+		"  blank screen");
+	TEST_EQ(screens_displayed[2], VB_SCREEN_RECOVERY_INSERT,
 		"  insert screen");
 
 	/* Bad disk count doesn't require removal */
