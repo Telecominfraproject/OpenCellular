@@ -132,7 +132,7 @@ CC ?= i686-pc-linux-gnu-gcc
 CFLAGS ?= \
 	-ffunction-sections -fvisibility=hidden -fno-strict-aliasing \
 	-fomit-frame-pointer -fno-toplevel-reorder -fno-dwarf2-cfi-asm \
-	-mpreferred-stack-boundary=2 -mregparm=3 \
+	-mpreferred-stack-boundary=2 \
 	${COMMON_FLAGS}
 else ifeq (${FIRMWARE_ARCH}, x86_64)
 CFLAGS ?= ${COMMON_FLAGS} \
