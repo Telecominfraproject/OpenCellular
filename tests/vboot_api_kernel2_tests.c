@@ -34,9 +34,12 @@ static int vbexlegacy_called;
 static int trust_ec;
 static int virtdev_set;
 static uint32_t virtdev_retval;
-
 static uint32_t mock_keypress[8];
+static uint32_t mock_keyflags[8];
 static uint32_t mock_keypress_count;
+static uint32_t mock_switches[8];
+static uint32_t mock_switches_count;
+static int mock_switches_are_stuck;
 static uint32_t screens_displayed[8];
 static uint32_t screens_count = 0;
 static uint32_t mock_num_disks[8];
@@ -81,7 +84,12 @@ static void ResetMocks(void)
 	screens_count = 0;
 
 	Memset(mock_keypress, 0, sizeof(mock_keypress));
+	Memset(mock_keyflags, 0, sizeof(mock_keyflags));
 	mock_keypress_count = 0;
+
+	Memset(mock_switches, 0, sizeof(mock_switches));
+	mock_switches_count = 0;
+	mock_switches_are_stuck = 0;
 
 	Memset(mock_num_disks, 0, sizeof(mock_num_disks));
 	mock_num_disks_count = 0;
@@ -101,8 +109,25 @@ uint32_t VbExIsShutdownRequested(void)
 
 uint32_t VbExKeyboardRead(void)
 {
-	if (mock_keypress_count < ARRAY_SIZE(mock_keypress))
+	return VbExKeyboardReadWithFlags(NULL);
+}
+
+uint32_t VbExKeyboardReadWithFlags(uint32_t *key_flags)
+{
+	if (mock_keypress_count < ARRAY_SIZE(mock_keypress)) {
+		if (key_flags != NULL)
+			*key_flags = mock_keyflags[mock_keypress_count];
 		return mock_keypress[mock_keypress_count++];
+	} else
+		return 0;
+}
+
+uint32_t VbExGetSwitches(uint32_t request_mask)
+{
+	if (mock_switches_are_stuck)
+		return mock_switches[0] & request_mask;
+	if (mock_switches_count < ARRAY_SIZE(mock_switches))
+		return mock_switches[mock_switches_count++] & request_mask;
 	else
 		return 0;
 }
@@ -190,12 +215,46 @@ static void VbUserConfirmsTest(void)
 	ResetMocks();
 	mock_keypress[0] = ' ';
 	shutdown_request_calls_left = 1;
-	TEST_EQ(VbUserConfirms(&cparams, 1), 0, "Space means no");
+	TEST_EQ(VbUserConfirms(&cparams, VB_CONFIRM_SPACE_MEANS_NO), 0,
+                "Space means no");
 
 	ResetMocks();
 	mock_keypress[0] = ' ';
 	shutdown_request_calls_left = 1;
 	TEST_EQ(VbUserConfirms(&cparams, 0), -1, "Space ignored");
+
+	ResetMocks();
+	mock_keypress[0] = '\r';
+	mock_keyflags[0] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	TEST_EQ(VbUserConfirms(&cparams, VB_CONFIRM_MUST_TRUST_KEYBOARD),
+		1, "Enter with trusted keyboard");
+
+	ResetMocks();
+	mock_keypress[0] = '\r';	/* untrusted */
+	mock_keypress[1] = ' ';
+	TEST_EQ(VbUserConfirms(&cparams,
+			       VB_CONFIRM_SPACE_MEANS_NO |
+			       VB_CONFIRM_MUST_TRUST_KEYBOARD),
+		0, "Untrusted keyboard");
+
+	ResetMocks();
+	mock_switches[0] = VB_INIT_FLAG_REC_BUTTON_PRESSED;
+	TEST_EQ(VbUserConfirms(&cparams,
+			       VB_CONFIRM_SPACE_MEANS_NO |
+			       VB_CONFIRM_MUST_TRUST_KEYBOARD),
+		1, "Recovery button");
+
+	ResetMocks();
+	mock_keypress[0] = '\r';
+	mock_keypress[1] = 'y';
+	mock_keypress[2] = 'z';
+	mock_keypress[3] = ' ';
+	mock_switches[0] = VB_INIT_FLAG_REC_BUTTON_PRESSED;
+	mock_switches_are_stuck = 1;
+	TEST_EQ(VbUserConfirms(&cparams,
+			       VB_CONFIRM_SPACE_MEANS_NO |
+			       VB_CONFIRM_MUST_TRUST_KEYBOARD),
+		0, "Recovery button stuck");
 
 	printf("...done.\n");
 }
@@ -529,6 +588,20 @@ static void VbBootRecTest(void)
 	TEST_NEQ(screens_displayed[1], VB_SCREEN_RECOVERY_TO_DEV,
 		 "  todev screen");
 
+	/* Ctrl+D ignored because the physical recovery switch is still pressed
+	 * and we don't like that.
+	 */
+	ResetMocks();
+	shared->flags = VBSD_BOOT_REC_SWITCH_ON;
+	trust_ec = 1;
+	shutdown_request_calls_left = 100;
+	mock_keypress[0] = 0x04;
+	mock_switches[0] = VB_INIT_FLAG_REC_BUTTON_PRESSED;
+	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
+		"Ctrl+D ignored if phys rec button is still pressed");
+	TEST_NEQ(screens_displayed[1], VB_SCREEN_RECOVERY_TO_DEV,
+		 "  todev screen");
+
 	/* Ctrl+D then space means don't enable */
 	ResetMocks();
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_REC_SWITCH_ON;
@@ -555,6 +628,7 @@ static void VbBootRecTest(void)
 	trust_ec = 1;
 	mock_keypress[0] = 0x04;
 	mock_keypress[1] = '\r';
+	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_TPM_REBOOT_REQUIRED,
 		"Ctrl+D todev confirm");
 	TEST_EQ(virtdev_set, 1, "  virtual dev mode on");
@@ -567,6 +641,7 @@ static void VbBootRecTest(void)
 	trust_ec = 1;
 	mock_keypress[0] = 0x04;
 	mock_keypress[1] = '\r';
+	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
 	virtdev_retval = VBERROR_SIMULATED;
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_TPM_SET_BOOT_MODE_STATE,
 		"Ctrl+D todev failure");

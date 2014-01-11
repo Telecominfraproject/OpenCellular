@@ -76,6 +76,8 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		shared->flags |= VBSD_EC_SOFTWARE_SYNC;
 	if (iparams->flags & VB_INIT_FLAG_EC_SLOW_UPDATE)
 		shared->flags |= VBSD_EC_SLOW_UPDATE;
+	if (iparams->flags & VB_INIT_FLAG_VIRTUAL_REC_SWITCH)
+		shared->flags |= VBSD_BOOT_REC_SWITCH_VIRTUAL;
 
 	is_s3_resume = (iparams->flags & VB_INIT_FLAG_S3_RESUME ? 1 : 0);
 

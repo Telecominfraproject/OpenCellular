@@ -44,6 +44,10 @@ void VbApiKernelFree(VbCommonParams *cparams);
 uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
                          uint32_t get_info_flags);
 
+/* Flags for VbUserConfirms() */
+#define VB_CONFIRM_MUST_TRUST_KEYBOARD (1 << 0)
+#define VB_CONFIRM_SPACE_MEANS_NO      (1 << 1)
+
 /**
  * Ask the user to confirm something.
  *
@@ -52,9 +56,13 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
  * don't return until one of those keys is pressed, or until asked to shut
  * down.
  *
+ * Additionally, in some situations we don't accept confirmations from an
+ * untrusted keyboard (such as a USB device).  In those cases, a recovery
+ * button press is needed for confirmation, instead of ENTER.
+ *
  * Returns: 1=yes, 0=no, -1 = shutdown.
  */
-int VbUserConfirms(VbCommonParams *cparams, int space_means_no);
+int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags);
 
 /**
  * Handle a normal boot.

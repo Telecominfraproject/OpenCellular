@@ -221,6 +221,11 @@ typedef struct VbCommonParams {
  * HW write protect. Both must be set for flash write protection to work.
  */
 #define VB_INIT_FLAG_SW_WP_ENABLED       0x00000800
+/*
+ * This platform does not have a physical recovery switch which, when present,
+ * can (and should) be used for additional physical presence checks.
+ */
+#define VB_INIT_FLAG_VIRTUAL_REC_SWITCH  0x00001000
 
 /*
  * Output flags for VbInitParams.out_flags.  Used to indicate potential boot
@@ -699,6 +704,14 @@ enum VbKeyCode_t {
 	VB_KEY_CTRL_ENTER = 0x104,
 };
 
+/* Flags for additional information.
+ * TODO(semenzato): consider adding flags for modifiers instead of
+ * making up some of the key codes above.
+ */
+enum VbKeyFlags_t {
+	VB_KEY_FLAG_TRUSTED_KEYBOARD = 1 << 0,
+};
+
 /**
  * Read the next keypress from the keyboard buffer.
  *
@@ -724,6 +737,16 @@ enum VbKeyCode_t {
  * It is not permitted to report a key as a multi-byte code (for example,
  * sending an arrow key as the sequence of keys '\x1b', '[', '1', 'A'). */
 uint32_t VbExKeyboardRead(void);
+
+/**
+ * Same as VbExKeyboardRead(), but return extra information.
+ */
+uint32_t VbExKeyboardReadWithFlags(uint32_t *flags_ptr);
+
+/**
+ * Return the current state of the switches specified in request_mask
+ */
+uint32_t VbExGetSwitches(uint32_t request_mask);
 
 /*****************************************************************************/
 /* Embedded controller (EC) */
