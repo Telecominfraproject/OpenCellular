@@ -54,6 +54,7 @@ typedef struct PlatformFamily {
 
 /* Array of platform family names, terminated with a NULL entry */
 const PlatformFamily platform_family_array[] = {
+  {"nvidia,tegra124", "Tegra5"},
   {"nvidia,tegra250", "Tegra2"},
   {"nvidia,tegra20", "Tegra2"},
   {"ti,omap4", "OMAP4"},
