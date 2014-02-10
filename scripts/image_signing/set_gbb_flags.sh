@@ -13,6 +13,7 @@ load_shflags || exit 1
 
 # DEFINE_string name default_value description flag
 DEFINE_string file "" "Path to firmware image. Default to system firmware." "f"
+DEFINE_boolean check_wp $FLAGS_TRUE "Check write protection states first." ""
 
 # Globals
 # ----------------------------------------------------------------------------
@@ -47,6 +48,24 @@ FLASHROM_COMMON_OPT="-p host"
 FLASHROM_READ_OPT="$FLASHROM_COMMON_OPT -i GBB -r"
 FLASHROM_WRITE_OPT="$FLASHROM_COMMON_OPT -i GBB --fast-verify -w"
 
+# Check write protection
+# ----------------------------------------------------------------------------
+check_write_protection() {
+  local ret=$FLAGS_TRUE
+  if ! crossystem "wpsw_boot?0"; then
+    echo "Hardware write protection must be disabled."
+    ret=$FLAGS_FALSE
+  fi
+  local wp_states="$(flashrom --wp-status 2>/dev/null | grep WP)"
+  local wp_disabled="$(echo "$wp_states" | grep "WP:.*is disabled.")"
+  local wp_zero_len="$(echo "$wp_states" | grep "WP:.*, len=0x00000000")"
+  if [ -z "$wp_disabled" -a -z "$wp_zero_len" ]; then
+    echo "Software write protection must be disabled."
+    ret=$FLAGS_FALSE
+  fi
+  return $ret
+}
+
 # Main
 # ----------------------------------------------------------------------------
 main() {
@@ -69,6 +88,14 @@ main() {
   gbb_utility -s --flags="$value" "$image_file"
 
   if [ -z "$FLAGS_file" ]; then
+    if [ "$FLAGS_check_wp" = "$FLAGS_TRUE" ]; then
+      if ! check_write_protection; then
+        echo ""
+        echo "WARNING: System GBB Flags are NOT changed!!!"
+        echo "ERROR: You must disable write protection before setting flags."
+        exit 1
+      fi
+    fi
     flashrom $FLASHROM_WRITE_OPT "$image_file"
   fi
 }
