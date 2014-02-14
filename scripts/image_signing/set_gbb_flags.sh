@@ -51,19 +51,20 @@ FLASHROM_WRITE_OPT="$FLASHROM_COMMON_OPT -i GBB --fast-verify -w"
 # Check write protection
 # ----------------------------------------------------------------------------
 check_write_protection() {
-  local ret=$FLAGS_TRUE
+  local hw_wp="" sw_wp=""
   if ! crossystem "wpsw_boot?0"; then
-    echo "Hardware write protection must be disabled."
-    ret=$FLAGS_FALSE
+    hw_wp="on"
   fi
   local wp_states="$(flashrom --wp-status 2>/dev/null | grep WP)"
   local wp_disabled="$(echo "$wp_states" | grep "WP:.*is disabled.")"
   local wp_zero_len="$(echo "$wp_states" | grep "WP:.*, len=0x00000000")"
   if [ -z "$wp_disabled" -a -z "$wp_zero_len" ]; then
-    echo "Software write protection must be disabled."
-    ret=$FLAGS_FALSE
+    sw_wp="on"
   fi
-  return $ret
+  if [ -n "$hw_wp" -a -n "$sw_wp" ]; then
+    return $FLAGS_FALSE
+  fi
+  return $FLAGS_TRUE
 }
 
 # Main
