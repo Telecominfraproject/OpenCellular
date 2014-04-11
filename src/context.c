@@ -31,12 +31,16 @@ cleanup_context(build_image_context *context)
 int
 init_context(build_image_context *context)
 {
+	u_int32_t value;
+
 	/* Set defaults */
 	context->memory = new_block_list();
 	context->next_bct_blk = 0; /* Default to block 0 */
-	context_set_value(context, token_redundancy, 1);
-	context_set_value(context, token_version, 1);
-	context_set_value(context, token_bct_copy, 2);
+	value = 1;
+	context_set_value(context, token_redundancy, &value);
+	context_set_value(context, token_version, &value);
+	value = 2;
+	context_set_value(context, token_bct_copy, &value);
 
 	return 0;
 }

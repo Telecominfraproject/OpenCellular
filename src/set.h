@@ -38,7 +38,7 @@ set_bootloader(build_image_context	*context,
 int
 context_set_value(build_image_context	*context,
 		parse_token	token,
-		u_int32_t	value);
+		void		*value);
 
 int
 read_from_image(char *filename,

@@ -59,22 +59,22 @@ case token_bl_##x:\
 #define CASE_GET_NVU32(id) \
 case token_##id:\
 	if (bct == NULL) return -ENODATA; \
-	*data = bct_ptr->id; \
+	*((u_int32_t *)data) = bct_ptr->id; \
 	break
 
 #define CASE_GET_CONST(id, val) \
 case token_##id:\
-	*data = val; \
+	*((u_int32_t *)data) = val; \
 	break
 
 #define CASE_GET_CONST_PREFIX(id, val_prefix) \
 case token_##id:\
-	*data = val_prefix##_##id; \
+	*((u_int32_t *)data) = val_prefix##_##id; \
 	break
 
 #define CASE_SET_NVU32(id) \
 case token_##id:\
-	bct_ptr->id = data; \
+	bct_ptr->id = *((u_int32_t *)data); \
 	break
 
 #define CASE_GET_DATA(id, size) \
@@ -901,7 +901,7 @@ t114_setbl_param(u_int32_t set,
 }
 
 int
-t114_bct_get_value(parse_token id, u_int32_t *data, u_int8_t *bct)
+t114_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 	nvboot_config_table  samplebct; /* Used for computing offsets. */
@@ -940,25 +940,25 @@ t114_bct_get_value(parse_token id, u_int32_t *data, u_int8_t *bct)
 		break;
 
 	case token_reserved_offset:
-		*data = (u_int8_t *)&(samplebct.reserved)
+		*((u_int32_t *)data) = (u_int8_t *)&(samplebct.reserved)
 				- (u_int8_t *)&samplebct;
 		break;
 
 	case token_bct_size:
-		*data = sizeof(nvboot_config_table);
+		*((u_int32_t *)data) = sizeof(nvboot_config_table);
 		break;
 
 	CASE_GET_CONST(hash_size, sizeof(nvboot_hash));
 
 	case token_crypto_offset:
 		/* Offset to region in BCT to encrypt & sign */
-		*data = (u_int8_t *)&(samplebct.random_aes_blk)
+		*((u_int32_t *)data) = (u_int8_t *)&(samplebct.random_aes_blk)
 				- (u_int8_t *)&samplebct;
 		break;
 
 	case token_crypto_length:
 		/* size of region in BCT to encrypt & sign */
-		*data = (u_int8_t *)bct_ptr + sizeof(nvboot_config_table)
+		*((u_int32_t *)data) = (u_int8_t *)bct_ptr + sizeof(nvboot_config_table)
 				- (u_int8_t *)&(bct_ptr->random_aes_blk);
 		break;
 
@@ -985,7 +985,7 @@ t114_bct_get_value(parse_token id, u_int32_t *data, u_int8_t *bct)
 }
 
 int
-t114_bct_set_value(parse_token id, u_int32_t data, u_int8_t *bct)
+t114_bct_set_value(parse_token id, void *data, u_int8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 

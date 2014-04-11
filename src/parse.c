@@ -482,7 +482,7 @@ static int parse_value_u32(build_image_context *context,
 	if (rest == NULL)
 		return 1;
 
-	return context_set_value(context, token, value);
+	return context_set_value(context, token, &value);
 }
 
 /*

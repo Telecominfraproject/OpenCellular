@@ -717,12 +717,12 @@ typedef struct cbootimage_soc_config_rec {
 	 * Set the specified bct value stored in context bct data structure.
 	 *
 	 * @param id  	The parse token value
-	 * @param data	Value to set
+	 * @param data	Pointer of value to set
 	 * @param bct 	Bct pointer
 	 * @return 0 and -ENODATA for success and failure
 	 */
 	int (*set_value)(parse_token id,
-			u_int32_t  data,
+			void *data,
 			u_int8_t *bct);
 	/*
 	 * Get the specified bct value or some constant value of clocks and
@@ -734,7 +734,7 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and -ENODATA for success and failure
 	 */
 	int (*get_value)(parse_token id,
-			u_int32_t *data,
+			void *data,
 			u_int8_t *bct);
 	/*
 	 * Set the bct crypto hash data.

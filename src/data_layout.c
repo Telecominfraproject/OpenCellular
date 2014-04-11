@@ -366,6 +366,7 @@ write_bootloaders(build_image_context *context)
 	u_int32_t current_blk;
 	u_int32_t current_page;
 	u_int32_t  pages_in_bl;
+	u_int32_t bootloader_used;
 	u_int8_t  *bl_storage; /* Holds the Bl after reading */
 	u_int8_t  *buffer;	/* Holds the Bl for writing */
 	u_int8_t  *src;	/* Scans through the Bl during writing */
@@ -554,8 +555,9 @@ write_bootloaders(build_image_context *context)
 		free(buffer);
 	}
 
+	bootloader_used = context->redundancy + bl_move_count;
 	g_soc_config->set_value(token_bootloader_used,
-			context->redundancy + bl_move_count,
+			&bootloader_used,
 			context->bct);
 
 	if (enable_debug) {
@@ -752,7 +754,7 @@ begin_update(build_image_context *context)
 	}
 
 	g_soc_config->set_value(token_boot_data_version,
-			context->boot_data_version, context->bct);
+			&(context->boot_data_version), context->bct);
 	g_soc_config->get_value(token_hash_size,
 			&hash_size, context->bct);
 	g_soc_config->get_value(token_reserved_size,
@@ -761,7 +763,7 @@ begin_update(build_image_context *context)
 			&reserved_offset, context->bct);
 	/* Set the odm data */
 	g_soc_config->set_value(token_odm_data,
-			context->odm_data, context->bct);
+			&(context->odm_data), context->bct);
 
 	/* Initialize the bad block table field. */
 	g_soc_config->init_bad_block_table(context);
