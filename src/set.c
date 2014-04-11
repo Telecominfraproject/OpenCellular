@@ -169,6 +169,11 @@ int context_set_value(build_image_context *context,
 	case token_page_size:
 		context->page_size = value;
 		context->page_size_log2 = log2(value);
+
+		if (value != (u_int32_t)(1 << context->page_size_log2)) {
+			printf("Error: Page size must be a power of 2.\n");
+			return 1;
+		}
 		context->pages_per_blk= 1 << (context->block_size_log2- 
 			context->page_size_log2);
 
