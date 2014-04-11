@@ -753,6 +753,13 @@ typedef struct cbootimage_soc_config_rec {
 			u_int8_t *bct);
 
 	/*
+	 * Get the BCT structure size
+	 *
+	 * @return BCT size
+	 */
+	int (*get_bct_size)();
+
+	/*
 	 * Check if the token is supported to dump
 	 *
 	 * @param id  	The parse token value

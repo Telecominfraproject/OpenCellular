@@ -43,6 +43,8 @@
 
 int
 read_from_image(char	*filename,
+		u_int32_t	offset,
+		u_int32_t	max_size,
 		u_int8_t	**image,
 		u_int32_t	*actual_size,
 		file_type	f_type)
@@ -57,6 +59,8 @@ read_from_image(char	*filename,
 		return result;
 	}
 
+	fseek(fp, offset, SEEK_SET);
+
 	if (stat(filename, &stats) != 0) {
 		printf("Error: Unable to query info on bootloader path %s\n",
 			filename);
@@ -64,14 +68,21 @@ read_from_image(char	*filename,
 		goto cleanup;
 	}
 
-	*actual_size  = (u_int32_t)stats.st_size;
-
-	if (f_type == file_type_bl && *actual_size > MAX_BOOTLOADER_SIZE) {
-		printf("Error: Bootloader file %s is too large.\n",
-			filename);
-		result = 1;
-		goto cleanup;
+	if (f_type == file_type_bl) {
+		if ((stats.st_size - offset) > max_size) {
+			printf("Error: Bootloader file %s is too large.\n",
+				filename);
+			result = 1;
+			goto cleanup;
+		}
+		*actual_size = (u_int32_t)stats.st_size;
+	} else {
+		if ((stats.st_size - offset) < max_size)
+			*actual_size = stats.st_size - offset;
+		else
+			*actual_size = max_size;
 	}
+
 	*image = malloc(*actual_size);
 	if (*image == NULL) {
 		result = 1;
@@ -80,7 +91,8 @@ read_from_image(char	*filename,
 
 	memset(*image, 0, *actual_size);
 
-	if (fread(*image, 1, (size_t)stats.st_size, fp) != stats.st_size) {
+	if (fread(*image, 1, (size_t)(*actual_size), fp) !=
+		(size_t)(*actual_size)) {
 		result = 1;
 		goto cleanup;
 	}

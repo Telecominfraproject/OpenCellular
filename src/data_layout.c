@@ -451,6 +451,8 @@ write_bootloaders(build_image_context *context)
 
 	/* Read the BL into memory. */
 	if (read_from_image(context->newbl_filename,
+		0,
+		MAX_BOOTLOADER_SIZE,
 		&bl_storage,
 		&bl_actual_size,
 		bl_filetype) == 1) {
@@ -670,12 +672,15 @@ read_bct_file(struct build_image_context_rec *context)
 	int err = 0;
 
 	if (read_from_image(context->bct_filename,
-		&bct_storage,
-		&bct_actual_size,
-		bct_filetype) == 1) {
+			0,
+			NVBOOT_CONFIG_TABLE_SIZE_MAX,
+			&bct_storage,
+			&bct_actual_size,
+			bct_filetype) == 1) {
 		printf("Error reading bct file %s.\n", context->bct_filename);
 		exit(1);
 	}
+
 	context->bct_size = bct_actual_size;
 	if (context->bct_init != 1)
 		err = init_bct(context);
@@ -686,18 +691,12 @@ read_bct_file(struct build_image_context_rec *context)
 	memcpy(context->bct, bct_storage, context->bct_size);
 	free(bct_storage);
 
-	/* get proper soc_config pointer by polling each supported chip */
-	if (if_bct_is_t20_get_soc_config(context, &g_soc_config))
-		return 0;
-	if (if_bct_is_t30_get_soc_config(context, &g_soc_config))
-		return 0;
-	if (if_bct_is_t114_get_soc_config(context, &g_soc_config))
-		return 0;
-	if (if_bct_is_t124_get_soc_config(context, &g_soc_config))
-		return 0;
+	if (!data_is_valid_bct(context))
+		return ENODATA;
 
-	return ENODATA;
+	return err;
 }
+
 /*
  * Update the next_bct_blk and make it point to the next
  * new blank block according to bct_copy given.
@@ -897,4 +896,51 @@ write_block_raw(build_image_context *context)
 
 	free(empty_blk);
 	return 0;
+}
+
+int write_data_block(FILE *fp, u_int32_t offset, u_int32_t size, u_int8_t *buffer)
+{
+	if (fseek(fp, offset, 0))
+		return -1;
+
+	return fwrite(buffer, 1, size, fp);
+}
+
+int data_is_valid_bct(build_image_context *context)
+{
+	/* get proper soc_config pointer by polling each supported chip */
+	if (if_bct_is_t20_get_soc_config(context, &g_soc_config))
+		return 1;
+	if (if_bct_is_t30_get_soc_config(context, &g_soc_config))
+		return 1;
+	if (if_bct_is_t114_get_soc_config(context, &g_soc_config))
+		return 1;
+	if (if_bct_is_t124_get_soc_config(context, &g_soc_config))
+		return 1;
+
+	return 0;
+}
+
+int get_bct_size_from_image(build_image_context *context)
+{
+	u_int8_t buffer[NVBOOT_CONFIG_TABLE_SIZE_MAX];
+	u_int32_t bct_size = 0;
+	FILE *fp;
+
+	fp = fopen(context->input_image_filename, "r");
+	if (!fp)
+		return ENODATA;
+
+	if (!fread(buffer, 1, NVBOOT_CONFIG_TABLE_SIZE_MAX, fp)) {
+		fclose(fp);
+		return ENODATA;
+	}
+
+	context->bct = buffer;
+	if (data_is_valid_bct(context) && g_soc_config->get_bct_size)
+		bct_size = g_soc_config->get_bct_size();
+
+	fclose(fp);
+	context->bct = 0;
+	return bct_size;
 }

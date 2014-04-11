@@ -852,6 +852,11 @@ t30_bct_set_data(parse_token id,
 	return 0;
 }
 
+int t30_get_bct_size()
+{
+	return sizeof(nvboot_config_table);
+}
+
 int t30_bct_token_supported(parse_token token)
 {
 	int index;
@@ -896,6 +901,7 @@ cbootimage_soc_config tegra30_config = {
 	.set_value					= t30_bct_set_value,
 	.get_value					= t30_bct_get_value,
 	.set_data					= t30_bct_set_data,
+	.get_bct_size				= t30_get_bct_size,
 	.token_supported			= t30_bct_token_supported,
 
 	.devtype_table				= s_devtype_table_t30,

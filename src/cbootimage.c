@@ -49,6 +49,7 @@ struct option cbootcmd[] = {
 	{"tegra", 1, NULL, 't'},
 	{"odmdata", 1, NULL, 'o'},
 	{"soc", 1, NULL, 's'},
+	{"update", 0, NULL, 'u'},
 	{0, 0, 0, 0},
 };
 
@@ -63,7 +64,7 @@ write_image_file(build_image_context *context)
 static void
 usage(void)
 {
-	printf("Usage: cbootimage [options] configfile imagename\n");
+	printf("Usage: cbootimage [options] configfile [inputimage] outputimage\n");
 	printf("    options:\n");
 	printf("    -h, --help, -?        Display this message.\n");
 	printf("    -d, --debug           Output debugging information.\n");
@@ -75,18 +76,23 @@ usage(void)
 	printf("    -s|--soc tegraNN      Select target device. Must be one of:\n");
 	printf("                          tegra20, tegra30, tegra114, tegra124.\n");
 	printf("                          Default: tegra20.\n");
+	printf("    -u|--update           Copy input image data and update bct\n");
+	printf("                          configs into new image file.\n");
+	printf("                          This feature is only for tegra114/124.\n");
 	printf("    configfile            File with configuration information\n");
-	printf("    imagename             Output image name\n");
+	printf("    inputimage            Input image name. This is required\n");
+	printf("                          if -u|--update option is used.\n");
+	printf("    outputimage           Output image name\n");
 }
 
 static int
 process_command_line(int argc, char *argv[], build_image_context *context)
 {
-	int c;
+	int c, num_filenames = 2;
 
 	context->generate_bct = 0;
 
-	while ((c = getopt_long(argc, argv, "hdg:t:o:s:", cbootcmd, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "hdg:t:o:s:u", cbootcmd, NULL)) != -1) {
 		switch (c) {
 		case 'h':
 			help_only = 1;
@@ -131,10 +137,14 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 		case 'o':
 			context->odm_data = strtoul(optarg, NULL, 16);
 			break;
+		case 'u':
+			context->update_image = 1;
+			num_filenames = 3;
+			break;
 		}
 	}
 
-	if (argc - optind != 2) {
+	if (argc - optind != num_filenames) {
 		printf("Missing configuration and/or image file name.\n");
 		usage();
 		return -EINVAL;
@@ -145,14 +155,26 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 		t20_get_soc_config(context, &g_soc_config);
 
 	/* Open the configuration file. */
-	context->config_file = fopen(argv[optind], "r");
+	context->config_file = fopen(argv[optind++], "r");
 	if (context->config_file == NULL) {
 		printf("Error opening config file.\n");
 		return -ENODATA;
 	}
 
+	/* Record the input image filename if update_image is necessary */
+	if (context->update_image)
+	{
+		if (context->boot_data_version != BOOTDATA_VERSION_T114 &&
+			context->boot_data_version != BOOTDATA_VERSION_T124) {
+			printf("Update image feature is only for Tegra114 and Tegra124.\n");
+			return -EINVAL;
+		}
+
+		context->input_image_filename = argv[optind++];
+	}
+
 	/* Record the output filename */
-	context->image_filename = argv[optind + 1];
+	context->output_image_filename = argv[optind++];
 
 	return 0;
 }
@@ -190,18 +212,69 @@ main(int argc, char *argv[])
 	}
 
 	/* Open the raw output file. */
-	context.raw_file = fopen(context.image_filename,
-		                 "w+");
+	context.raw_file = fopen(context.output_image_filename, "w+");
 	if (context.raw_file == NULL) {
 		printf("Error opening raw file %s.\n",
-			context.image_filename);
+			context.output_image_filename);
 		goto fail;
 	}
 
-	/* first, if we aren't generating the bct, read in config file */
-	if (context.generate_bct == 0) {
-		process_config_file(&context, 1);
+	/* Read the bct data from image if bct configs needs to be updated */
+	if (context.update_image) {
+		u_int32_t offset = 0, bct_size, actual_size;
+		u_int8_t *data_block;
+		struct stat stats;
+
+		if (stat(context.input_image_filename, &stats) != 0) {
+			printf("Error: Unable to query info on input file path %s\n",
+			context.input_image_filename);
+			goto fail;
+		}
+
+		/* Get BCT_SIZE from input image file  */
+		bct_size = get_bct_size_from_image(&context);
+		if (!bct_size) {
+			printf("Error: Invalid input image file %s\n",
+			context.input_image_filename);
+			goto fail;
+		}
+
+		while (stats.st_size > offset) {
+			/* Read a block of data into memory */
+			if (read_from_image(context.input_image_filename, offset, bct_size,
+					&data_block, &actual_size, file_type_bct)) {
+				printf("Error reading image file %s.\n", context.input_image_filename);
+				goto fail;
+			}
+
+			/* Check if memory data is valid BCT */
+			context.bct = data_block;
+			if (data_is_valid_bct(&context)) {
+				fseek(context.config_file, 0, SEEK_SET);
+				process_config_file(&context, 0);
+				e = sign_bct(&context, context.bct);
+				if (e != 0) {
+					printf("Signing BCT failed, error: %d.\n", e);
+					goto fail;
+				}
+			}
+
+			/* Write the block of data to file */
+			if (actual_size != write_data_block(context.raw_file, offset, actual_size, data_block)) {
+				printf("Error writing image file %s.\n", context.output_image_filename);
+				goto fail;
+			}
+
+			offset += bct_size;
+		}
+
+		printf("Image file %s has been successfully generated!\n",
+			context.output_image_filename);
+		goto fail;
 	}
+	/* If we aren't generating the bct, read in config file */
+	else if (context.generate_bct == 0)
+		process_config_file(&context, 1);
 	/* Generate the new bct file */
 	else {
 		/* Initialize the bct memory */
@@ -218,7 +291,7 @@ main(int argc, char *argv[])
 		fwrite(context.bct, 1, context.bct_size,
 			context.raw_file);
 		printf("New BCT file %s has been successfully generated!\n",
-			context.image_filename);
+			context.output_image_filename);
 		goto fail;
 	}
 
@@ -234,7 +307,7 @@ main(int argc, char *argv[])
 		printf("Error writing image file.\n");
 	else
 		printf("Image file %s has been successfully generated!\n",
-				context.image_filename);
+				context.output_image_filename);
 
  fail:
 	/* Close the file(s). */

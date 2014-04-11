@@ -1077,6 +1077,11 @@ t124_bct_set_data(parse_token id,
 	return 0;
 }
 
+int t124_get_bct_size()
+{
+	return sizeof(nvboot_config_table);
+}
+
 int t124_bct_token_supported(parse_token token)
 {
 	int index;
@@ -1121,6 +1126,7 @@ cbootimage_soc_config tegra124_config = {
 	.set_value					= t124_bct_set_value,
 	.get_value					= t124_bct_get_value,
 	.set_data					= t124_bct_set_data,
+	.get_bct_size				= t124_get_bct_size,
 	.token_supported			= t124_bct_token_supported,
 
 	.devtype_table				= s_devtype_table_t124,

@@ -42,6 +42,8 @@ context_set_value(build_image_context	*context,
 
 int
 read_from_image(char *filename,
+		u_int32_t	offset,
+		u_int32_t	max_size,
 		u_int8_t	**Image,
 		u_int32_t	*actual_size,
 		file_type	f_type);
