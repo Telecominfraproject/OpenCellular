@@ -45,6 +45,7 @@ set_array(build_image_context *context,
 			u_int32_t value);
 static char *parse_u32(char *str, u_int32_t *val);
 static char *parse_u8(char *str, u_int32_t *val);
+static char *parse_chipuid(char *str, u_int8_t *val);
 static char *parse_filename(char *str, char *name, int chars_remaining);
 static char *parse_enum(build_image_context *context,
 			char *str,
@@ -63,6 +64,10 @@ static int
 parse_bootloader(build_image_context *context, parse_token token, char *rest);
 static int
 parse_value_u32(build_image_context *context, parse_token token, char *rest);
+static int
+parse_value_chipuid(build_image_context *context,
+			parse_token token,
+			char *rest);
 static int
 parse_bct_file(build_image_context *context, parse_token token, char *rest);
 static char
@@ -102,6 +107,8 @@ static parse_item s_top_level_items[] = {
 	{ "Bctcopy=",       token_bct_copy,		parse_value_u32 },
 	{ "Version=",       token_version,		parse_value_u32 },
 	{ "OdmData=",       token_odm_data,		parse_value_u32 },
+	{ "ChipUid=",       token_unique_chip_id,	parse_value_chipuid },
+	{ "JtagCtrl=",	    token_secure_jtag_control,	parse_value_u32 },
 	{ NULL, 0, NULL } /* Must be last */
 };
 
@@ -165,6 +172,51 @@ parse_u8(char *str, u_int32_t *val)
 	return retval;
 }
 
+/*
+ * Parse the given string and transfer to chip uid.
+ *
+ * @param str		String to parse
+ * @param chipuid	Returns chip uid that was parsed
+ * @return the remainder of the string after the number was parsed
+ */
+static char *
+parse_chipuid(char *str, u_int8_t *chipuid)
+{
+	int byte_index = 0;
+	int paddings = 0;
+	char byte_str[3];
+
+	if (*str++ != '0')
+		return NULL;
+
+	if (*str++ != 'x')
+		return NULL;
+
+	paddings = strlen(str) % 2;
+	byte_index = strlen(str) / 2 + paddings;
+
+	if (byte_index > 16)
+		return NULL;
+
+	memset(chipuid, 0, 16);
+
+	while (*str != '\0' && byte_index > 0) {
+		char *endptr;
+
+		strncpy(byte_str, str, 2 - paddings);
+		byte_str[2 - paddings] = '\0';
+		str += 2 - paddings;
+
+		chipuid[byte_index - 1] = strtoul(byte_str, &endptr, 16);
+		if (*endptr)
+			return NULL;
+
+		byte_index--;
+		paddings = 0;
+	}
+
+	return str;
+}
 
 /*
  * Parse the given string and find the file name then
@@ -483,6 +535,30 @@ static int parse_value_u32(build_image_context *context,
 		return 1;
 
 	return context_set_value(context, token, &value);
+}
+
+/*
+ * General handler for setting chip uid in config files.
+ *
+ * @param context	The main context pointer
+ * @param token		The parse token value
+ * @param rest		String to parse
+ * @return 0 and 1 for success and failure
+ */
+static int parse_value_chipuid(build_image_context *context,
+			parse_token token,
+			char *rest)
+{
+	u_int8_t value[16];
+
+	assert(context != NULL);
+	assert(rest != NULL);
+
+	rest = parse_chipuid(rest, value);
+	if (rest == NULL)
+		return 1;
+
+	return context_set_value(context, token, value);
 }
 
 /*

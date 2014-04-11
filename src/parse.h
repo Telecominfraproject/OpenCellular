@@ -108,6 +108,8 @@ typedef enum
 	token_dev_type_spi,
 	token_num_sdram_sets,
 	token_pre_bct_pad_blocks,
+	token_unique_chip_id,
+	token_secure_jtag_control,
 
 	token_nand_clock_divider,
 	token_nand_nand_timing,

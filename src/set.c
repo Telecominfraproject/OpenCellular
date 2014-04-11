@@ -204,6 +204,18 @@ int context_set_value(build_image_context *context,
 		context->pre_bct_pad_blocks = *((u_int32_t *)value);
 		break;
 
+	case token_secure_jtag_control:
+		context->secure_jtag_control = *((u_int32_t *)value);
+		g_soc_config->set_value(token_secure_jtag_control,
+			value, context->bct);
+		break;
+
+	case token_unique_chip_id:
+		memcpy(context->unique_chip_id, value, 16);
+		g_soc_config->set_value(token_unique_chip_id,
+			value, context->bct);
+		break;
+
 	DEFAULT();
 	}
 

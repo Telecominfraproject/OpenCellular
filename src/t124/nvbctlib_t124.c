@@ -111,7 +111,9 @@ parse_token t124_root_token_list[] = {
 	token_hash_size,
 	token_crypto_offset,
 	token_crypto_length,
-	token_max_bct_search_blks
+	token_max_bct_search_blks,
+	token_unique_chip_id,
+	token_secure_jtag_control
 };
 
 int
@@ -941,6 +943,7 @@ t124_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 	CASE_GET_NVU32(num_sdram_sets);
 	CASE_GET_NVU32(bootloader_used);
 	CASE_GET_NVU32(odm_data);
+	CASE_GET_NVU32(secure_jtag_control);
 
 	case token_block_size:
 		if (bct == NULL)
@@ -965,6 +968,10 @@ t124_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 		memcpy(data,
 		&(bct_ptr->signature.crypto_hash),
 		sizeof(nvboot_hash));
+		break;
+
+	case token_unique_chip_id:
+		memcpy(data, &(bct_ptr->unique_chip_id), sizeof(nvboot_ecid));
 		break;
 
 	case token_reserved_offset:
@@ -1032,6 +1039,10 @@ t124_bct_set_value(parse_token id, void *data, u_int8_t *bct)
 	CASE_SET_NVU32(num_sdram_sets);
 	CASE_SET_NVU32(bootloader_used);
 	CASE_SET_NVU32(odm_data);
+	CASE_SET_NVU32(secure_jtag_control);
+	case token_unique_chip_id:
+		memcpy(&bct_ptr->unique_chip_id, data, sizeof(nvboot_ecid));
+		break;
 
 	default:
 		return -ENODATA;

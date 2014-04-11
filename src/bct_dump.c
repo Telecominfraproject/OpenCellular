@@ -29,6 +29,7 @@ cbootimage_soc_config * g_soc_config;
 
 static void format_u32_hex8(char const * message, void * data);
 static void format_u32(char const * message, void * data);
+static void format_chipuid(char const * message, void * data);
 
 typedef void (*format_function)(char const * message, void * data);
 
@@ -38,12 +39,21 @@ typedef struct {
 	format_function format;
 } value_data;
 
+typedef union {
+	u_int32_t val;
+	u_int8_t uid[16];
+} param_types;
+
+#define MAX_PARAM_SIZE sizeof(param_types)
+
 static value_data const values[] = {
 	{ token_boot_data_version,   "Version       = ", format_u32_hex8 },
 	{ token_block_size,          "BlockSize     = ", format_u32_hex8 },
 	{ token_page_size,           "PageSize      = ", format_u32_hex8 },
 	{ token_partition_size,      "PartitionSize = ", format_u32_hex8 },
 	{ token_odm_data,            "OdmData       = ", format_u32_hex8 },
+	{ token_secure_jtag_control, "JtagCtrl      = ", format_u32_hex8 },
+	{ token_unique_chip_id,      "ChipUid       = ", format_chipuid },
 	{ token_bootloader_used,     "# Bootloader used       = ", format_u32 },
 	{ token_bootloaders_max,     "# Bootloaders max       = ", format_u32 },
 	{ token_bct_size,            "# BCT size              = ", format_u32 },
@@ -72,6 +82,19 @@ static void format_u32_hex8(char const * message, void * data)
 static void format_u32(char const * message, void * data)
 {
 	printf("%s%d;\n", message, *((u_int32_t *) data));
+}
+
+static void format_chipuid(char const * message, void * data)
+{
+	u_int8_t *uid = (u_int8_t *)data;
+	int byte_index;
+	char uid_str[35] = "0x";
+	char *s = &uid_str[2];
+
+	for (byte_index = 15; byte_index >= 0; byte_index--, s += 2)
+		sprintf(s, "%02x", uid[byte_index]);
+
+	printf("%s%s;\n", message, uid_str);
 }
 
 /*****************************************************************************/
@@ -155,7 +178,7 @@ int main(int argc, char *argv[])
 	u_int32_t parameters_used;
 	u_int32_t sdram_used;
 	nvboot_dev_type type;
-	u_int32_t data;
+	param_types data;
 	int i;
 	int j;
 
@@ -174,12 +197,9 @@ int main(int argc, char *argv[])
 		if (!g_soc_config->token_supported(values[i].id))
 			continue;
 
-		e = g_soc_config->get_value(values[i].id,
-						&data,
-						context.bct);
-
-		if (e != 0)
-			data = -1;
+		e = g_soc_config->get_value(values[i].id, &data, context.bct);
+		if (e)
+			memset(&data, 0, MAX_PARAM_SIZE);
 
 		values[i].format(values[i].message, &data);
 	}
@@ -202,12 +222,12 @@ int main(int argc, char *argv[])
 			for (j = 0; j < bl_count; ++j) {
 				e = g_soc_config->getbl_param(i,
 							       bl_values[j].id,
-							       &data,
+							       &data.val,
 							       context.bct);
 				printf("# Bootloader[%d].", i);
 
-				if (e != 0)
-					data = -1;
+				if (e)
+					data.val = -1;
 
 				bl_values[j].format(bl_values[j].message, &data);
 			}
@@ -264,14 +284,14 @@ int main(int argc, char *argv[])
 			g_soc_config->get_dev_param(&context,
 							i,
 							item->token,
-							&data);
+							&data.val);
 			printf("DeviceParam[%d].%s.%-*s = ",
 			       i, prefix, width, item->name);
 
 			if (e != 0)
 				printf("<ERROR reading parameter (%d)>", e);
 			else
-				display_field_value(&context, item, data);
+				display_field_value(&context, item, data.val);
 
 			printf(";\n");
 		}
@@ -293,13 +313,13 @@ int main(int argc, char *argv[])
 			e = g_soc_config->get_sdram_param(&context,
 								i,
 								item->token,
-								&data);
+								&data.val);
 			printf("SDRAM[%d].%-*s = ", i, width, item->name);
 
 			if (e != 0)
 				printf("<ERROR reading parameter (%d)>", e);
 			else
-				display_field_value(&context, item, data);
+				display_field_value(&context, item, data.val);
 
 			printf(";\n");
 		}
