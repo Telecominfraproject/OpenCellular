@@ -101,8 +101,8 @@ default :                                           \
 
 parse_token t124_root_token_list[] = {
 	token_boot_data_version,
-	token_block_size_log2,
-	token_page_size_log2,
+	token_block_size,
+	token_page_size,
 	token_partition_size,
 	token_odm_data,
 	token_bootloader_used,
@@ -941,6 +941,18 @@ t124_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 	CASE_GET_NVU32(num_sdram_sets);
 	CASE_GET_NVU32(bootloader_used);
 	CASE_GET_NVU32(odm_data);
+
+	case token_block_size:
+		if (bct == NULL)
+			return -ENODATA;
+		*((u_int32_t *)data) = 1 << bct_ptr->block_size_log2;
+		break;
+
+	case token_page_size:
+		if (bct == NULL)
+			return -ENODATA;
+		*((u_int32_t *)data) = 1 << bct_ptr->page_size_log2;
+		break;
 
 	/*
 	 * Constants.

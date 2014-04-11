@@ -40,8 +40,8 @@ typedef struct {
 
 static value_data const values[] = {
 	{ token_boot_data_version,   "Version       = ", format_u32_hex8 },
-	{ token_block_size_log2,     "BlockSize     = ", format_u32_hex8 },
-	{ token_page_size_log2,      "PageSize      = ", format_u32_hex8 },
+	{ token_block_size,          "BlockSize     = ", format_u32_hex8 },
+	{ token_page_size,           "PageSize      = ", format_u32_hex8 },
 	{ token_partition_size,      "PartitionSize = ", format_u32_hex8 },
 	{ token_odm_data,            "OdmData       = ", format_u32_hex8 },
 	{ token_bootloader_used,     "# Bootloader used       = ", format_u32 },
@@ -180,9 +180,6 @@ int main(int argc, char *argv[])
 
 		if (e != 0)
 			data = -1;
-		else if (values[i].id == token_block_size_log2 ||
-			 values[i].id == token_page_size_log2)
-			data = 1 << data;
 
 		values[i].format(values[i].message, &data);
 	}
