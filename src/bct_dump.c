@@ -171,6 +171,9 @@ int main(int argc, char *argv[])
 
 	/* Display root values */
 	for (i = 0; i < sizeof(values) / sizeof(values[0]); ++i) {
+		if (!g_soc_config->token_supported(values[i].id))
+			continue;
+
 		e = g_soc_config->get_value(values[i].id,
 						&data,
 						context.bct);

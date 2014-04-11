@@ -750,6 +750,14 @@ typedef struct cbootimage_soc_config_rec {
 			u_int32_t  length,
 			u_int8_t *bct);
 
+	/*
+	 * Check if the token is supported to dump
+	 *
+	 * @param id  	The parse token value
+	 * @return 0 and 1 for unsupported and supported
+	 */
+	int (*token_supported)(parse_token id);
+
 	void (*init_bad_block_table)(build_image_context *context);
 
 	enum_item *devtype_table;

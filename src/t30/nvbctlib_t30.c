@@ -96,6 +96,21 @@ default :                                           \
 		token, __LINE__);                   \
 	return 1
 
+parse_token t30_root_token_list[] = {
+	token_boot_data_version,
+	token_block_size_log2,
+	token_page_size_log2,
+	token_partition_size,
+	token_odm_data,
+	token_bootloader_used,
+	token_bootloaders_max,
+	token_bct_size,
+	token_hash_size,
+	token_crypto_offset,
+	token_crypto_length,
+	token_max_bct_search_blks
+};
+
 int
 t30_set_dev_param(build_image_context *context,
 	u_int32_t index,
@@ -825,6 +840,17 @@ t30_bct_set_data(parse_token id,
 	return 0;
 }
 
+int t30_bct_token_supported(parse_token token)
+{
+	int index;
+
+	for (index = 0; index < ARRAY_SIZE(t30_root_token_list); index++)
+		if (t30_root_token_list[index] == token)
+			return 1;
+
+	return 0;
+}
+
 void t30_init_bad_block_table(build_image_context *context)
 {
 	u_int32_t bytes_per_entry;
@@ -858,6 +884,7 @@ cbootimage_soc_config tegra30_config = {
 	.set_value					= t30_bct_set_value,
 	.get_value					= t30_bct_get_value,
 	.set_data					= t30_bct_set_data,
+	.token_supported			= t30_bct_token_supported,
 
 	.devtype_table				= s_devtype_table_t30,
 	.sdmmc_data_width_table		= s_sdmmc_data_width_table_t30,
