@@ -192,7 +192,34 @@ main() {
   # valid so that we know keys and vbutil_firmware are all working fine.
 
   echo "Preparing new firmware image..."
-  debug_msg "Extract current HWID and rootkey"
+
+  debug_msg "Resign the firmware code (A/B) with new keys"
+  # Note resign_firmwarefd.sh needs the original rootkey to determine firmware
+  # body size, so we must resign image before changing GBB rootkey.
+
+  local unsigned_image="$(make_temp_file)"
+  local optional_opts=""
+  if [ -n "$FLAGS_preamble_flags" ]; then
+    # optional_opts: VERSION FLAGS
+    debug_msg "Setting new VERSION=1, FLAGS=$FLAGS_preamble_flags"
+    optional_opts="1 $FLAGS_preamble_flags"
+  fi
+  cp -f "$IMAGE" "$unsigned_image"
+  "$SCRIPT_BASE/resign_firmwarefd.sh" \
+    "$unsigned_image" \
+    "$IMAGE" \
+    "$firmware_prvkey" \
+    "$firmware_keyblock" \
+    "$dev_firmware_prvkey" \
+    "$dev_firmware_keyblock" \
+    "$kernel_sub_pubkey" \
+    $optional_opts >"$EXEC_LOG" 2>&1 ||
+    err_die "Failed to re-sign firmware. (message: $(cat "$EXEC_LOG"))"
+    if is_debug_mode; then
+      cat "$EXEC_LOG"
+    fi
+
+  debug_msg "Extract current HWID"
   local old_hwid
   old_hwid="$(gbb_utility --get --hwid "$IMAGE" 2>"$EXEC_LOG" |
               sed -rne 's/^hardware_id: (.*)$/\1/p')"
@@ -227,30 +254,6 @@ main() {
       "$IMAGE" >"$EXEC_LOG" 2>&1 ||
       echo "Warning: GBB flags ($old_gbb_flags -> $new_gbb_flags) can't be set."
   fi
-
-  debug_msg "Resign the firmware code (A/B) with new keys"
-  local unsigned_image="$(make_temp_file)"
-  local optional_opts=""
-  if [ -n "$FLAGS_preamble_flags" ]; then
-    # optional_opts: VERSION FLAGS
-    debug_msg "Setting new VERSION=1, FLAGS=$FLAGS_preamble_flags"
-    optional_opts="1 $FLAGS_preamble_flags"
-  fi
-  cp -f "$IMAGE" "$unsigned_image"
-  # TODO(hungte) derive kernel key and preamble flag from existing firmware
-  "$SCRIPT_BASE/resign_firmwarefd.sh" \
-    "$unsigned_image" \
-    "$IMAGE" \
-    "$firmware_prvkey" \
-    "$firmware_keyblock" \
-    "$dev_firmware_prvkey" \
-    "$dev_firmware_keyblock" \
-    "$kernel_sub_pubkey" \
-    $optional_opts >"$EXEC_LOG" 2>&1 ||
-    err_die "Failed to re-sign firmware. (message: $(cat "$EXEC_LOG"))"
-    if is_debug_mode; then
-      cat "$EXEC_LOG"
-    fi
 
   # TODO(hungte) compare if the image really needs to be changed.
 
