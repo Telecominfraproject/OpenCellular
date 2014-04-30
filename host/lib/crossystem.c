@@ -62,11 +62,12 @@ typedef enum VbBuildOption {
 
 /* Masks for kern_nv usage by kernel. */
 #define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
+#define KERN_NV_BLOCK_DEVMODE_FLAG  0x00000010
 /* If you want to use the remaining currently-unused bits in kern_nv
  * for something kernel-y, define a new field (the way we did for
  * fwupdate_tries).  Don't just modify kern_nv directly, because that
  * makes it too easy to accidentally corrupt other sub-fields. */
-#define KERN_NV_CURRENTLY_UNUSED    0xFFFFFFF0
+#define KERN_NV_CURRENTLY_UNUSED    0xFFFFFFE0
 
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start) {
@@ -449,6 +450,12 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
     if (value != -1)
       value &= KERN_NV_FWUPDATE_TRIES_MASK;
+  } else if (!strcasecmp(name,"block_devmode")) {
+    value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+    if (value != -1) {
+      value &= KERN_NV_BLOCK_DEVMODE_FLAG;
+      value = !!value;
+    }
   } else if (!strcasecmp(name,"loc_idx")) {
     value = VbGetNvStorage(VBNV_LOCALIZATION_INDEX);
   } else if (!strcasecmp(name,"dev_boot_usb")) {
@@ -557,6 +564,14 @@ int VbSetSystemPropertyInt(const char* name, int value) {
       return -1;
     kern_nv &= ~KERN_NV_FWUPDATE_TRIES_MASK;
     kern_nv |= (value & KERN_NV_FWUPDATE_TRIES_MASK);
+    return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
+  } else if (!strcasecmp(name,"block_devmode")) {
+    int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
+    if (kern_nv == -1)
+      return -1;
+    kern_nv &= ~KERN_NV_BLOCK_DEVMODE_FLAG;
+    if (value)
+	kern_nv |= KERN_NV_BLOCK_DEVMODE_FLAG;
     return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
   } else if (!strcasecmp(name,"loc_idx")) {
     return VbSetNvStorage(VBNV_LOCALIZATION_INDEX, value);
