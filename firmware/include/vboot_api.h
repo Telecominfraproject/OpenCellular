@@ -658,6 +658,15 @@ VbError_t VbExDisplayInit(uint32_t *width, uint32_t *height);
 VbError_t VbExDisplayBacklight(uint8_t enable);
 
 /**
+ * Sets the logical dimension to display.
+ *
+ * If the physical display is larger or smaller than given dimension, display
+ * provider may decide to scale or shift images (from VbExDisplayImage)to proper
+ * location.
+ */
+VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height);
+
+/**
  * Display a predefined screen; see VB_SCREEN_* for valid screens.
  *
  * This is a backup method of screen display, intended for use if the GBB does

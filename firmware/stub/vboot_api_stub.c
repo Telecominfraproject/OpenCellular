@@ -36,6 +36,11 @@ VbError_t VbExDisplayBacklight(uint8_t enable)
 	return VBERROR_SUCCESS;
 }
 
+VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height)
+{
+	return VBERROR_SUCCESS;
+}
+
 VbError_t VbExDisplayScreen(uint32_t screen_type)
 {
 	return VBERROR_SUCCESS;

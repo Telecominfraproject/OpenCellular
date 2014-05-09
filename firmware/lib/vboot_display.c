@@ -231,6 +231,22 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 
 		switch(image_info.format) {
 		case FORMAT_BMP:
+			if (i == 0) {
+				/**
+				 * In current version GBB bitmaps, first image
+				 * is always the background.
+				 */
+				ret = VbExDisplaySetDimension(
+						image_info.width,
+						image_info.height);
+				if (!ret) {
+					VBDEBUG(("VbExDisplaySetDimension"
+						 "(%d,%d): failed.\n",
+						 image_info.width,
+						 image_info.height));
+				}
+			}
+
 			retval = VbExDisplayImage(layout.images[i].x,
 						  layout.images[i].y,
 						  fullimage, inoutsize);
