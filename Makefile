@@ -280,6 +280,11 @@ VBSLK_SRCS = \
 # Firmware library source needed for smaller library 2
 FWLIB2_SRCS = \
 	firmware/2lib/2common.c \
+	firmware/2lib/2rsa.c \
+	firmware/2lib/2sha1.c \
+	firmware/2lib/2sha256.c \
+	firmware/2lib/2sha512.c \
+	firmware/2lib/2sha_utility.c \
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
@@ -559,6 +564,9 @@ endif
 ifneq (${VBOOT2},)
 TEST_NAMES += \
 	tests/vb2_common_tests \
+	tests/vb2_rsa_padding_tests \
+	tests/vb2_rsa_utility_tests \
+	tests/vb2_sha_tests \
 
 endif
 
@@ -1046,6 +1054,9 @@ runtestscripts: test_setup genfuzztestcases
 	tests/run_rsa_tests.sh
 	tests/run_vbutil_kernel_arg_tests.sh
 	tests/run_vbutil_tests.sh
+ifneq (${VBOOT2},)
+	tests/vb2_rsa_tests.sh
+endif
 
 .PHONY: runmisctests
 runmisctests: test_setup
@@ -1077,6 +1088,8 @@ runmisctests: test_setup
 .PHONY: run2tests
 run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_rsa_utility_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_sha_tests
 
 .PHONY: runfutiltests
 runfutiltests: override DESTDIR = ${TEST_INSTALL_DIR}
