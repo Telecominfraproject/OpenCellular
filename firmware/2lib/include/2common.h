@@ -9,6 +9,7 @@
 #define VBOOT_REFERENCE_VBOOT_2COMMON_H_
 
 #include "2return_codes.h"
+#include "2struct.h"
 
 struct vb2_public_key;
 
@@ -92,7 +93,7 @@ void *vb2_workbuf_realloc(struct vb2_workbuf *wb,
 void vb2_workbuf_free(struct vb2_workbuf *wb, uint32_t size);
 
 /* Check if a pointer is aligned on an align-byte boundary */
-#define vb_aligned(ptr, align) (!(((size_t)(ptr)) & ((align) - 1)))
+#define vb_aligned(ptr, align) (!(((uintptr_t)(ptr)) & ((align) - 1)))
 
 /**
  * Align a buffer and check its size.
