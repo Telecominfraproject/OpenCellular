@@ -22,6 +22,7 @@
 #ifndef VBOOT_REFERENCE_VBOOT_API_H_
 #define VBOOT_REFERENCE_VBOOT_API_H_
 #include <stdint.h>
+#include <stdlib.h>
 
 /*****************************************************************************/
 /* Error codes */
