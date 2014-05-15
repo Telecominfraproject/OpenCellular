@@ -55,7 +55,8 @@ enum {
 
 typedef enum {
   ARCH_ARM,
-  ARCH_X86 /* default */
+  ARCH_X86, /* default */
+  ARCH_MIPS
 } arch_t;
 
 static struct option long_opts[] = {
@@ -755,6 +756,8 @@ int main(int argc, char* argv[]) {
         arch = ARCH_X86;
       else if (!strcasecmp(optarg, "arm"))
         arch = ARCH_ARM;
+      else if (!strcasecmp(optarg, "mips"))
+        arch = ARCH_MIPS;
       else {
         fprintf(stderr, "Unknown architecture string: %s\n", optarg);
         parse_error = 1;
