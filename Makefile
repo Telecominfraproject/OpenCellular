@@ -568,6 +568,8 @@ endif
 ifneq (${VBOOT2},)
 TEST_NAMES += \
 	tests/vb2_common_tests \
+	tests/vb2_common2_tests \
+	tests/vb2_common3_tests \
 	tests/vb2_misc_tests \
 	tests/vb2_nvstorage_tests \
 	tests/vb2_rsa_padding_tests \
@@ -945,6 +947,8 @@ ${BUILD}/utility/vbutil_key: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_keyblock: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 
@@ -1095,6 +1099,8 @@ runmisctests: test_setup
 .PHONY: run2tests
 run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_nvstorage_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_rsa_utility_tests
@@ -1114,6 +1120,10 @@ runfutiltests: test_setup install
 runlongtests: test_setup genkeys genfuzztestcases
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS} --all
+ifneq (${VBOOT2},)
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS} --all
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS} --all
+endif
 	tests/run_preamble_tests.sh --all
 	tests/run_vbutil_tests.sh --all
 
