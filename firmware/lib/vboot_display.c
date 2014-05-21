@@ -239,11 +239,11 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 				ret = VbExDisplaySetDimension(
 						image_info.width,
 						image_info.height);
-				if (!ret) {
+				if (ret) {
 					VBDEBUG(("VbExDisplaySetDimension"
-						 "(%d,%d): failed.\n",
+						 "(%d,%d): failed (%#x).\n",
 						 image_info.width,
-						 image_info.height));
+						 image_info.height, ret));
 				}
 			}
 
