@@ -133,6 +133,19 @@ VbSetNvCleanup:
   return retval;
 }
 
+/*
+ * Set a param value, and try to flag it for persistent backup.
+ * It's okay if backup isn't supported. It's best-effort only.
+ */
+static int VbSetNvStorage_WithBackup(VbNvParam param, int value)
+{
+  int retval;
+  retval = VbSetNvStorage(param, value);
+  if (!retval)
+    VbSetNvStorage(VBNV_BACKUP_NVRAM_REQUEST, 1);
+  return retval;
+}
+
 /* Find what build/debug status is specified on the kernel command
  * line, if any. */
 static VbBuildOption VbScanBuildOption(void) {
@@ -458,6 +471,8 @@ int VbGetSystemPropertyInt(const char* name) {
     }
   } else if (!strcasecmp(name,"loc_idx")) {
     value = VbGetNvStorage(VBNV_LOCALIZATION_INDEX);
+  } else if (!strcasecmp(name,"backup_nvram_request")) {
+    value = VbGetNvStorage(VBNV_BACKUP_NVRAM_REQUEST);
   } else if (!strcasecmp(name,"dev_boot_usb")) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_USB);
   } else if (!strcasecmp(name,"dev_boot_legacy")) {
@@ -558,13 +573,18 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE, 0);
   } else if (!strcasecmp(name,"fwb_tries")) {
     return VbSetNvStorage(VBNV_TRY_B_COUNT, value);
+  } else if (!strcasecmp(name,"oprom_needed")) {
+    return VbSetNvStorage(VBNV_OPROM_NEEDED, value);
+  } else if (!strcasecmp(name,"backup_nvram_request")) {
+      /* Best-effort only, since it requires firmware and TPM support. */
+    return VbSetNvStorage(VBNV_BACKUP_NVRAM_REQUEST, value);
   } else if (!strcasecmp(name,"fwupdate_tries")) {
     int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
     if (kern_nv == -1)
       return -1;
     kern_nv &= ~KERN_NV_FWUPDATE_TRIES_MASK;
     kern_nv |= (value & KERN_NV_FWUPDATE_TRIES_MASK);
-    return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
+    return VbSetNvStorage_WithBackup(VBNV_KERNEL_FIELD, kern_nv);
   } else if (!strcasecmp(name,"block_devmode")) {
     int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
     if (kern_nv == -1)
@@ -572,17 +592,15 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     kern_nv &= ~KERN_NV_BLOCK_DEVMODE_FLAG;
     if (value)
 	kern_nv |= KERN_NV_BLOCK_DEVMODE_FLAG;
-    return VbSetNvStorage(VBNV_KERNEL_FIELD, kern_nv);
+    return VbSetNvStorage_WithBackup(VBNV_KERNEL_FIELD, kern_nv);
   } else if (!strcasecmp(name,"loc_idx")) {
-    return VbSetNvStorage(VBNV_LOCALIZATION_INDEX, value);
+    return VbSetNvStorage_WithBackup(VBNV_LOCALIZATION_INDEX, value);
   } else if (!strcasecmp(name,"dev_boot_usb")) {
-    return VbSetNvStorage(VBNV_DEV_BOOT_USB, value);
+    return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_USB, value);
   } else if (!strcasecmp(name,"dev_boot_legacy")) {
-    return VbSetNvStorage(VBNV_DEV_BOOT_LEGACY, value);
+    return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_LEGACY, value);
   } else if (!strcasecmp(name,"dev_boot_signed_only")) {
-    return VbSetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY, value);
-  } else if (!strcasecmp(name,"oprom_needed")) {
-    return VbSetNvStorage(VBNV_OPROM_NEEDED, value);
+    return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_SIGNED_ONLY, value);
   }
 
   return -1;

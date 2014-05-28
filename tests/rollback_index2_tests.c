@@ -520,6 +520,8 @@ static void OneTimeInitTest(void)
 		    "TlclForceClear()\n"
 		    "TlclSetEnable()\n"
 		    "TlclSetDeactivated(0)\n"
+		    /* backup space */
+		    "TlclDefineSpace(0x1009, 0x1, 16)\n"
 		    /* kernel space */
 		    "TlclDefineSpace(0x1008, 0x1, 13)\n"
 		    "TlclWrite(0x1008, 13)\n"
@@ -549,6 +551,8 @@ static void OneTimeInitTest(void)
 		    "TlclForceClear()\n"
 		    "TlclSetEnable()\n"
 		    "TlclSetDeactivated(0)\n"
+		    /* backup space */
+		    "TlclDefineSpace(0x1009, 0x1, 16)\n"
 		    /* kernel space */
 		    "TlclDefineSpace(0x1008, 0x1, 13)\n"
 		    "TlclWrite(0x1008, 13)\n"
@@ -570,6 +574,8 @@ static void OneTimeInitTest(void)
 		    "TlclForceClear()\n"
 		    "TlclSetEnable()\n"
 		    "TlclSetDeactivated(0)\n"
+		    /* backup space */
+		    "TlclDefineSpace(0x1009, 0x1, 16)\n"
 		    /* kernel space */
 		    "TlclDefineSpace(0x1008, 0x1, 13)\n"
 		    "TlclWrite(0x1008, 13)\n"
@@ -664,6 +670,8 @@ static void SetupTpmTest(void)
 		    "TlclForceClear()\n"
 		    "TlclSetEnable()\n"
 		    "TlclSetDeactivated(0)\n"
+		    /* backup space */
+		    "TlclDefineSpace(0x1009, 0x1, 16)\n"
 		    "TlclDefineSpace(0x1008, 0x1, 13)\n"
 		    "TlclWrite(0x1008, 13)\n"
 		    "TlclRead(0x1008, 13)\n"

@@ -36,6 +36,9 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 	uint32_t disable_dev_request = 0;
 	uint32_t clear_tpm_owner_request = 0;
 	int is_dev = 0;
+	uint32_t backup_requested = 0;
+	uint32_t backup_for_safety = 0;
+	int lost_nvram;
 
 	/* Initialize output flags */
 	iparams->out_flags = 0;
@@ -45,11 +48,12 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		return retval;
 
 	VBDEBUG(("VbInit() input flags 0x%x gbb flags 0x%x\n", iparams->flags,
-		gbb.flags));
+		 gbb.flags));
 
 	/* Set up NV storage */
 	VbExNvStorageRead(vnc.raw);
 	VbNvSetup(&vnc);
+	lost_nvram = vnc.regenerate_crc;
 
 	/* Initialize shared data structure */
 	if (0 != VbSharedDataInit(shared, cparams->shared_data_size)) {
@@ -184,7 +188,7 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		 * dev-switch will be disabled by default)
 		 */
 		VBDEBUG(("TPM: Call RollbackFirmwareSetup(r%d, d%d)\n",
-			recovery, is_hw_dev));
+			 recovery, is_hw_dev));
 		tpm_status = RollbackFirmwareSetup(is_hw_dev,
 						   disable_dev_request,
 						   clear_tpm_owner_request,
@@ -248,6 +252,17 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		}
 	}
 
+	/*
+	 * If the nvram state was lost, try to restore the bits we care about
+	 * from the backup in the TPM. It's okay if we can't, though.
+	 * Note: None of the bits that we back up should have been referenced
+	 * before this point. Otherwise, they'll just be overwritten here.
+	 * All the other bits will be unchanged from whatever has happened to
+	 * them since VbNvSetup() reinitialized the VbNvContext.
+	 */
+	if (lost_nvram)
+		RestoreNvFromBackup(&vnc);
+
 	/* Allow BIOS to load arbitrary option ROMs? */
 	if (gbb.flags & GBB_FLAG_LOAD_OPTION_ROMS)
 		iparams->out_flags |= VB_INIT_OUT_ENABLE_OPROM;
@@ -295,6 +310,14 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
 		VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 0);
 		VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 0);
+		/*
+		 * Back up any changes now, so these values can't be forgotten
+		 * by draining the battery. We really only care about these
+		 * three fields, but it's uncommon for any others to change so
+		 * this is an easier test than checking each one.
+		 */
+		if (vnc.regenerate_crc)
+			backup_for_safety = 1;
 
 		/*
 		 * If we don't need the VGA option ROM but got it anyway, stop
@@ -309,7 +332,15 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		}
 	}
 
- VbInit_exit:
+VbInit_exit:
+	/*
+	 * If we successfully backup the NV storage, it will clear the
+	 * VBNV_BACKUP_NVRAM_REQUEST field, so we want to do it before
+	 * calling VbNvTeardown(). It's okay if we can't backup, though.
+	 */
+	VbNvGet(&vnc, VBNV_BACKUP_NVRAM_REQUEST, &backup_requested);
+	if (backup_requested || backup_for_safety)
+		SaveNvToBackup(&vnc);
 
 	/* Tear down NV storage */
 	VbNvTeardown(&vnc);

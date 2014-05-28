@@ -32,6 +32,9 @@ static uint32_t mock_tpm_version;
 static uint32_t mock_rfs_retval;
 static int rfs_clear_tpm_request;
 static int rfs_disable_dev_request;
+static uint8_t backup_space[BACKUP_NV_SIZE];
+static int backup_write_called;
+static int backup_read_called;
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
@@ -52,6 +55,10 @@ static void ResetMocks(void)
 	Memset(&vnc, 0, sizeof(vnc));
 	VbNvSetup(&vnc);
 	VbNvTeardown(&vnc);                   /* So CRC gets generated */
+
+	Memset(backup_space, 0, sizeof(backup_space));
+	backup_write_called = 0;
+	backup_read_called = 0;
 
 	Memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -79,9 +86,23 @@ VbError_t VbExNvStorageRead(uint8_t *buf)
 
 VbError_t VbExNvStorageWrite(const uint8_t *buf)
 {
-	nv_write_called = 1;
+	nv_write_called++;
 	Memcpy(vnc.raw, buf, sizeof(vnc.raw));
 	return VBERROR_SUCCESS;
+}
+
+uint32_t RollbackBackupRead(uint8_t *raw)
+{
+	backup_read_called++;
+	Memcpy(raw, backup_space, sizeof(backup_space));
+	return TPM_SUCCESS;
+}
+
+uint32_t RollbackBackupWrite(uint8_t *raw)
+{
+	backup_write_called++;
+	Memcpy(backup_space, raw, sizeof(backup_space));
+	return TPM_SUCCESS;
 }
 
 uint64_t VbExGetTimer(void)
@@ -514,10 +535,233 @@ static void VbInitTestTPM(void)
 	TEST_EQ(rfs_clear_tpm_request, 1, "rfs tpm clear request");
 }
 
+static void VbInitTestBackup(void)
+{
+	VbNvContext tmp_vnc;
+	uint32_t u, nv_w, bu_r;
+
+	ResetMocks();
+	/* Normal mode call */
+	TestVbInit(0, 0, "normal mode, no backup");
+	TEST_EQ(shared->flags, 0, "  shared flags");
+	TEST_EQ(iparams.out_flags, 0, "  out flags");
+	TEST_EQ(nv_write_called, 0,
+		"  NV write not called since nothing changed");
+
+	ResetMocks();
+	/* Now set some params that should be backed up. */
+	VbNvSet(&vnc, VBNV_KERNEL_FIELD, 0xaabbccdd);
+	VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, 0xa5);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 1);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 1);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
+	/* and some that don't */
+	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+	VbNvSet(&vnc, VBNV_TRY_B_COUNT, 3);
+	/* Make sure they're clean */
+	VbNvTeardown(&vnc);
+	/* Normal mode call */
+	TestVbInit(0, 0, "normal mode, some backup");
+	TEST_EQ(shared->flags, 0, "  shared flags");
+	TEST_EQ(iparams.out_flags, 0, "  out flags");
+	TEST_EQ(nv_write_called, 1,
+		"  Write NV because things have changed");
+	/* Some fields should be unchanged */
+	VbNvGet(&vnc, VBNV_KERNEL_FIELD, &u);
+	TEST_EQ(u, 0xaabbccdd, "  NV kernel field");
+	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
+	TEST_EQ(u, 0xa5, "  NV localization index");
+	VbNvGet(&vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 1, "  NV oprom_needed");
+	VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
+	TEST_EQ(u, 3, "  NV try_b_count");
+	/* But normal mode should have cleared the DEV_BOOT flags */
+	VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &u);
+	TEST_EQ(u, 0, "  NV dev_boot_usb");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_LEGACY, &u);
+	TEST_EQ(u, 0, "  NV dev_boot_legacy");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
+	TEST_EQ(u, 0, "  NV dev_boot_signed_only");
+	/* So we should have written the backup */
+	TEST_EQ(backup_write_called, 1, "  Backup written once");
+	/* And the backup should reflect the persisent flags. */
+	Memset(&tmp_vnc, 0, sizeof(tmp_vnc));
+	TEST_EQ(0, RestoreNvFromBackup(&tmp_vnc), "read from backup");
+	VbNvGet(&tmp_vnc, VBNV_KERNEL_FIELD, &u);
+	TEST_EQ(u, 0xaabbccdd, "  BU kernel field");
+	VbNvGet(&tmp_vnc, VBNV_LOCALIZATION_INDEX, &u);
+	TEST_EQ(u, 0xa5, "  BU localization index");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_USB, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_usb");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_LEGACY, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_legacy");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_signed_only");
+	/* but not the others */
+	VbNvGet(&tmp_vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 0, "  BU oprom_needed");
+	VbNvGet(&tmp_vnc, VBNV_TRY_B_COUNT, &u);
+	TEST_EQ(u, 0, "  BU try_b_count");
+
+	/*
+	 * If we change one of the non-backed-up NVRAM params and try
+	 * again, we shouldn't need to backup again.
+	 */
+	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 0);
+	VbNvSet(&vnc, VBNV_TRY_B_COUNT, 2);
+	/* Make sure they're clean */
+	VbNvTeardown(&vnc);
+	/* Normal mode call */
+	TestVbInit(0, 0, "normal mode, expect no backup");
+	TEST_EQ(shared->flags, 0, "  shared flags");
+	TEST_EQ(iparams.out_flags, 0, "  out flags");
+	TEST_EQ(backup_write_called, 1, "  Backup still only written once");
+
+	/* Now switch to dev-mode. */
+	iparams.flags = VB_INIT_FLAG_DEV_SWITCH_ON;
+	TestVbInit(0, 0, "Dev mode on");
+	TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+	TEST_EQ(iparams.out_flags,
+		VB_INIT_OUT_CLEAR_RAM |
+		VB_INIT_OUT_ENABLE_DISPLAY |
+		VB_INIT_OUT_ENABLE_USB_STORAGE |
+		VB_INIT_OUT_ENABLE_DEVELOPER |
+		VB_INIT_OUT_ENABLE_ALTERNATE_OS, "  out flags");
+	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+	TEST_EQ(backup_write_called, 1, "  Still only one backup");
+
+	/* Now change some params that should be backed up. */
+	VbNvSet(&vnc, VBNV_KERNEL_FIELD, 0xdeadbeef);
+	VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, 0x5a);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 1);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 1);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
+	/* and some that don't */
+	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+	VbNvSet(&vnc, VBNV_TRY_B_COUNT, 4);
+	/* Make sure they're clean */
+	VbNvTeardown(&vnc);
+	TestVbInit(0, 0, "Dev mode on");
+	TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+	TEST_EQ(iparams.out_flags,
+		VB_INIT_OUT_CLEAR_RAM |
+		VB_INIT_OUT_ENABLE_DISPLAY |
+		VB_INIT_OUT_ENABLE_USB_STORAGE |
+		VB_INIT_OUT_ENABLE_DEVELOPER, "  out flags");
+	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+	TEST_EQ(backup_write_called, 1, "  Once more, one backup");
+
+	/* But if we explictly request a backup, they'll get saved. */
+	VbNvSet(&vnc, VBNV_BACKUP_NVRAM_REQUEST, 1);
+	VbNvTeardown(&vnc);
+	TestVbInit(0, 0, "Dev mode on");
+	TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+	TEST_EQ(iparams.out_flags,
+		VB_INIT_OUT_CLEAR_RAM |
+		VB_INIT_OUT_ENABLE_DISPLAY |
+		VB_INIT_OUT_ENABLE_USB_STORAGE |
+		VB_INIT_OUT_ENABLE_DEVELOPER, "  out flags");
+	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+	TEST_EQ(backup_write_called, 2, "  Two backups now");
+	VbNvGet(&vnc, VBNV_BACKUP_NVRAM_REQUEST, &u);
+	TEST_EQ(u, 0, "  backup_request cleared");
+	/* Quick check that the non-backed-up stuff is still valid */
+	VbNvGet(&vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 1, "  NV oprom_needed");
+	VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
+	TEST_EQ(u, 4, "  NV try_b_count");
+	/* But only the stuff we care about was backed up */
+	Memset(&tmp_vnc, 0, sizeof(tmp_vnc));
+	TEST_EQ(0, RestoreNvFromBackup(&tmp_vnc), "read from backup");
+	VbNvGet(&tmp_vnc, VBNV_KERNEL_FIELD, &u);
+	TEST_EQ(u, 0xdeadbeef, "  BU kernel field");
+	VbNvGet(&tmp_vnc, VBNV_LOCALIZATION_INDEX, &u);
+	TEST_EQ(u, 0x5a, "  BU localization index");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_USB, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_usb");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_LEGACY, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_legacy");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_signed_only");
+	/* but not the others */
+	VbNvGet(&tmp_vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 0, "  BU oprom_needed");
+	VbNvGet(&tmp_vnc, VBNV_TRY_B_COUNT, &u);
+	TEST_EQ(u, 0, "  BU try_b_count");
+
+	/* If we lose the NV storage, the backup bits will be restored */
+	vnc.raw[0] = 0;
+	bu_r = backup_read_called;
+	nv_w = nv_write_called;
+	TestVbInit(0, 0, "Dev mode on");
+	TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+	TEST_EQ(iparams.out_flags,
+		VB_INIT_OUT_CLEAR_RAM |
+		VB_INIT_OUT_ENABLE_DISPLAY |
+		VB_INIT_OUT_ENABLE_USB_STORAGE |
+		VB_INIT_OUT_ENABLE_DEVELOPER, "  out flags");
+	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
+	TEST_EQ(backup_write_called, 2, "  Still just two backups now");
+	TEST_EQ(backup_read_called, bu_r + 1, "  One more backup read");
+	TEST_EQ(nv_write_called, nv_w + 1, "  One more NV write");
+	/* The non-backed-up stuff is reset to defaults */
+	VbNvGet(&vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 0, "  NV oprom_needed");
+	VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
+	TEST_EQ(u, 0, "  NV try_b_count");
+	/* And the backed up stuff is restored */
+	VbNvGet(&vnc, VBNV_KERNEL_FIELD, &u);
+	TEST_EQ(u, 0xdeadbeef, "  BU kernel field");
+	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
+	TEST_EQ(u, 0x5a, "  BU localization index");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_usb");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_LEGACY, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_legacy");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_signed_only");
+
+	/*
+	 * But if we lose the NV storage and go back to normal mode at the same
+	 * time, then the DEV_BOOT_* flags will be cleared.
+	 */
+	vnc.raw[0] = 0;
+	bu_r = backup_read_called;
+	nv_w = nv_write_called;
+	iparams.flags = 0;
+	TestVbInit(0, 0, "Back to normal mode");
+	TEST_EQ(shared->recovery_reason, 0, "  recovery reason");
+	TEST_EQ(iparams.out_flags, 0, "  out flags");
+	TEST_EQ(shared->flags, 0, "  shared flags");
+	/* We read twice: once to restore, once for read-prior-to-write */
+	TEST_EQ(backup_read_called, bu_r + 2, "  Two more backup reads");
+	TEST_EQ(backup_write_called, 3, "  Backup write due clearing DEV_*");
+	TEST_EQ(nv_write_called, nv_w + 1, "  One more NV write");
+	/* The non-backed-up stuff is reset to defaults */
+	VbNvGet(&vnc, VBNV_OPROM_NEEDED, &u);
+	TEST_EQ(u, 0, "  NV oprom_needed");
+	VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
+	TEST_EQ(u, 0, "  NV try_b_count");
+	/* And the backed up stuff is restored */
+	VbNvGet(&vnc, VBNV_KERNEL_FIELD, &u);
+	TEST_EQ(u, 0xdeadbeef, "  BU kernel field");
+	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
+	TEST_EQ(u, 0x5a, "  BU localization index");
+	/* But not the DEV_BOOT_* flags */
+	VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_usb");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_LEGACY, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_legacy");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_signed_only");
+}
+
+
 int main(int argc, char *argv[])
 {
 	VbInitTest();
 	VbInitTestTPM();
+	VbInitTestBackup();
 
 	return gTestSuccess ? 0 : 255;
 }

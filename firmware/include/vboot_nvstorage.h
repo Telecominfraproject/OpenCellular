@@ -83,6 +83,8 @@ typedef enum VbNvParam {
 	VBNV_CLEAR_TPM_OWNER_DONE,
 	/* More details on recovery reason */
 	VBNV_RECOVERY_SUBCODE,
+	/* Request that NVRAM be backed up at next boot if possible. */
+	VBNV_BACKUP_NVRAM_REQUEST,
 } VbNvParam;
 
 /* Recovery reason codes for VBNV_RECOVERY_REQUEST */
@@ -259,5 +261,27 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest);
  * This may only be called between VbNvSetup() and VbNvTeardown().
  */
 int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value);
+
+/**
+ * Attempt to restore some fields of a lost VbNvContext from a backup area.
+ * The rest of the fields are unchanged, so they'd need to be set to their
+ * appropriate defaults by calling VbNvSetup() first (which is usually how we
+ * know the fields have been lost).
+ *
+ * Returns 0 if success, non-zero if error.
+ *
+ * This may only be called between VbNvSetup() and VbNvTeardown().
+ */
+int RestoreNvFromBackup(VbNvContext *vnc);
+
+/**
+ * Attempt to save some fields of the VbNvContext to a backup area.
+ *
+ * Returns 0 if success, non-zero if error. If it succeeds, it will clear the
+ * VBNV_BACKUP_NVRAM_REQUEST flag in the VbNvContext.
+ *
+ * This may only be called when the backup area is writable.
+ */
+int SaveNvToBackup(VbNvContext *vnc);
 
 #endif  /* VBOOT_REFERENCE_NVSTORAGE_H_ */

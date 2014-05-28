@@ -211,6 +211,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	if (localization >= hdr.number_of_localizations) {
 		localization = 0;
 		VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, localization);
+		VbNvSet(vncptr, VBNV_BACKUP_NVRAM_REQUEST, 1);
 	}
 
 	/* Display all bitmaps for the image */
@@ -641,6 +642,7 @@ VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
 		VBDEBUG(("VbCheckDisplayKey() - change localization to %d\n",
 			 (int)loc));
 		VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, loc);
+		VbNvSet(vncptr, VBNV_BACKUP_NVRAM_REQUEST, 1);
 
 #ifdef SAVE_LOCALE_IMMEDIATELY
 		VbNvTeardown(vncptr);  /* really only computes checksum */

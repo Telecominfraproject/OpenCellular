@@ -15,6 +15,13 @@
 #define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 #endif
 
+/* Test an important condition at compile time, not run time */
+#define _BA1_(cond, line) \
+	extern int __build_assertion_ ## line[1 - 2*!(cond)] \
+	__attribute__ ((unused))
+#define _BA0_(c, x) _BA1_(c, x)
+#define BUILD_ASSERT(cond) _BA0_(cond, __LINE__)
+
 /* Error Codes for all common functions. */
 enum {
 	VBOOT_SUCCESS = 0,

@@ -15,6 +15,10 @@
 /* TPM NVRAM location indices. */
 #define FIRMWARE_NV_INDEX               0x1007
 #define KERNEL_NV_INDEX                 0x1008
+/* This is just an opaque space for backup purposes */
+#define BACKUP_NV_INDEX                 0x1009
+#define BACKUP_NV_SIZE 16
+
 
 /* Structure definitions for TPM spaces */
 
@@ -66,6 +70,7 @@ typedef struct RollbackSpaceFirmware {
 	uint8_t crc8;
 } __attribute__((packed)) RollbackSpaceFirmware;
 
+
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
 /*
@@ -113,6 +118,16 @@ uint32_t RollbackKernelRead(uint32_t *version);
  * Write stored kernel version.
  */
 uint32_t RollbackKernelWrite(uint32_t version);
+
+/**
+ * Read backup data.
+ */
+uint32_t RollbackBackupRead(uint8_t *raw);
+
+/**
+ * Write backup data.
+ */
+uint32_t RollbackBackupWrite(uint8_t *raw);
 
 /**
  * Lock must be called.  Internally, it's ignored in recovery mode.

@@ -7,6 +7,7 @@
  */
 
 #include "sysincludes.h"
+#include "utility.h"
 
 #include "rollback_index.h"
 
@@ -66,4 +67,18 @@ uint32_t RollbackKernelWrite(uint32_t version) {
 
 uint32_t RollbackKernelLock(int recovery_mode) {
   return TPM_SUCCESS;
+}
+
+static uint8_t rollback_backup[BACKUP_NV_SIZE];
+
+uint32_t RollbackBackupRead(uint8_t *raw)
+{
+	Memcpy(raw, rollback_backup, BACKUP_NV_SIZE);
+	return TPM_SUCCESS;
+}
+
+uint32_t RollbackBackupWrite(uint8_t *raw)
+{
+	Memcpy(rollback_backup, raw, BACKUP_NV_SIZE);
+	return TPM_SUCCESS;
 }

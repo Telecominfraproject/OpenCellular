@@ -308,15 +308,22 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware *rsf,
 	Memcpy(rsf, &rsf_init, sizeof(RollbackSpaceFirmware));
 	Memcpy(rsk, &rsk_init, sizeof(RollbackSpaceKernel));
 
-	/* Defines and sets firmware and kernel spaces */
+	/* Define the backup space. No need to initialize it, though. */
+	RETURN_ON_FAILURE(SafeDefineSpace(
+			BACKUP_NV_INDEX, TPM_NV_PER_PPWRITE, BACKUP_NV_SIZE));
+
+	/* Define and initialize the kernel space */
 	RETURN_ON_FAILURE(SafeDefineSpace(KERNEL_NV_INDEX, TPM_NV_PER_PPWRITE,
 					  sizeof(RollbackSpaceKernel)));
 	RETURN_ON_FAILURE(WriteSpaceKernel(rsk));
+
+	/* Do the firmware space last, so we retry if we don't get this far. */
 	RETURN_ON_FAILURE(SafeDefineSpace(
 			FIRMWARE_NV_INDEX,
 			TPM_NV_PER_GLOBALLOCK | TPM_NV_PER_PPWRITE,
 			sizeof(RollbackSpaceFirmware)));
 	RETURN_ON_FAILURE(WriteSpaceFirmware(rsf));
+
 	return TPM_SUCCESS;
 }
 
@@ -531,6 +538,16 @@ uint32_t RollbackKernelWrite(uint32_t version)
 	return TPM_SUCCESS;
 }
 
+uint32_t RollbackBackupRead(uint8_t *raw)
+{
+	return TPM_SUCCESS;
+}
+
+uint32_t RollbackBackupWrite(uint8_t *raw)
+{
+	return TPM_SUCCESS;
+}
+
 uint32_t RollbackKernelLock(int recovery_mode)
 {
 	return TPM_SUCCESS;
@@ -623,6 +640,29 @@ uint32_t RollbackKernelWrite(uint32_t version)
 		 (int)old_version, (int)version));
 	Memcpy(&rsk.kernel_versions, &version, sizeof(version));
 	return WriteSpaceKernel(&rsk);
+}
+
+/*
+ * We don't really care whether the TPM owner has been messing with this or
+ * not. We lock it along with the Kernel space just to avoid problems, but it's
+ * only useful in dev-mode and only when the battery has been drained
+ * completely. There aren't any security issues. It's just in the TPM because
+ * we don't have any other place to keep it.
+ */
+uint32_t RollbackBackupRead(uint8_t *raw)
+{
+	uint32_t r;
+	r = TlclRead(BACKUP_NV_INDEX, raw, BACKUP_NV_SIZE);
+	VBDEBUG(("TPM: %s returning 0x%x\n", __func__, r));
+	return r;
+}
+
+uint32_t RollbackBackupWrite(uint8_t *raw)
+{
+	uint32_t r;
+	r = TlclWrite(BACKUP_NV_INDEX, raw, BACKUP_NV_SIZE);
+	VBDEBUG(("TPM: %s returning 0x%x\n", __func__, r));
+	return r;
 }
 
 uint32_t RollbackKernelLock(int recovery_mode)
