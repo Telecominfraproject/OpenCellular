@@ -455,13 +455,17 @@ uint64_t VbSharedDataReserve(VbSharedDataHeader *header, uint64_t size)
 
 int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 {
-	VbPublicKey *kdest = &header->kernel_subkey;
-
-	VBDEBUG(("Saving kernel subkey to shared data: size %d, algo %d\n",
-		 siglen_map[src->algorithm], (int)src->algorithm));
+	VbPublicKey *kdest;
 
 	if (!header)
 		return VBOOT_SHARED_DATA_INVALID;
+	if (!src)
+		return VBOOT_PUBLIC_KEY_INVALID;
+
+	kdest = &header->kernel_subkey;
+
+	VBDEBUG(("Saving kernel subkey to shared data: size %d, algo %d\n",
+		 siglen_map[src->algorithm], (int)src->algorithm));
 
 	/* Attempt to allocate space for key, if it hasn't been allocated yet */
 	if (!header->kernel_subkey_data_offset) {
