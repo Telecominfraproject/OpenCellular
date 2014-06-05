@@ -79,6 +79,7 @@ static void nv_storage_test(void)
 		"vb2_nv_init() status changed");
 	test_changed(&c, 1, "vb2_nv_init() reset changed");
 	goodcrc = c.nvdata[15];
+	TEST_SUCC(vb2_nv_check_crc(&c), "vb2_nv_check_crc() good");
 
 	/* Another init should not cause further changes */
 	c.flags = 0;
@@ -90,6 +91,8 @@ static void nv_storage_test(void)
 
 	/* Perturbing the header should force defaults */
 	c.nvdata[0] ^= 0x40;
+	TEST_EQ(vb2_nv_check_crc(&c),
+		VB2_ERROR_NV_HEADER, "vb2_nv_check_crc() bad header");
 	vb2_nv_init(&c);
 	TEST_EQ(c.nvdata[0], 0x70, "vb2_nv_init() reset header byte again");
 	test_changed(&c, 1, "vb2_nv_init() corrupt changed");
@@ -98,6 +101,8 @@ static void nv_storage_test(void)
 	/* So should perturbing some other byte */
 	TEST_EQ(c.nvdata[11], 0, "Kernel byte starts at 0");
 	c.nvdata[11] = 12;
+	TEST_EQ(vb2_nv_check_crc(&c),
+		VB2_ERROR_NV_CRC, "vb2_nv_check_crc() bad CRC");
 	vb2_nv_init(&c);
 	TEST_EQ(c.nvdata[11], 0, "vb2_nv_init() reset kernel byte");
 	test_changed(&c, 1, "vb2_nv_init() corrupt elsewhere changed");

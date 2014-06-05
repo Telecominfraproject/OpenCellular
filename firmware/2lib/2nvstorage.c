@@ -82,11 +82,11 @@ int vb2_nv_check_crc(const struct vb2_context *ctx)
 	/* Check header */
 	if (VB2_NV_HEADER_SIGNATURE !=
 	    (p[VB2_NV_OFFS_HEADER] & VB2_NV_HEADER_MASK))
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_NV_HEADER;
 
 	/* Check CRC */
 	if (vb2_crc8(p, VB2_NV_OFFS_CRC) != p[VB2_NV_OFFS_CRC])
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_NV_CRC;
 
 	return VB2_SUCCESS;
 }

@@ -286,7 +286,7 @@ int vb2_check_padding(uint8_t *sig, int algorithm)
 		tail_size = sizeof(sha512_tail);
 		break;
 	default:
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_RSA_PADDING_ALGORITHM;
 	}
 
 	/* First 2 bytes are always 0x00 0x01 */
@@ -303,7 +303,7 @@ int vb2_check_padding(uint8_t *sig, int algorithm)
 	 */
 	result |= vb2_safe_memcmp(sig, tail, tail_size);
 
-	return result ? VB2_ERROR_BAD_SIGNATURE : VB2_SUCCESS;
+	return result ? VB2_ERROR_RSA_PADDING : VB2_SUCCESS;
 }
 
 int vb2_verify_digest(const struct vb2_public_key *key,
@@ -318,22 +318,22 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 	int rv;
 
 	if (!key || !sig || !digest)
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_RSA_VERIFY_PARAM;
 
 	if (key->algorithm >= VB2_ALG_COUNT) {
 		VB2_DEBUG("Invalid signature type!\n");
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_RSA_VERIFY_ALGORITHM;
 	}
 
 	/* Signature length should be same as key length */
 	if (key_bytes != vb2_rsa_sig_size(key->algorithm)) {
 		VB2_DEBUG("Signature is of incorrect length!\n");
-		return VB2_ERROR_BAD_SIGNATURE;
+		return VB2_ERROR_RSA_VERIFY_SIG_LEN;
 	}
 
 	workbuf32 = vb2_workbuf_alloc(&wblocal, 3 * key_bytes);
 	if (!workbuf32)
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_RSA_VERIFY_WORKBUF;
 
 	modpowF4(key, sig, workbuf32);
 
@@ -354,7 +354,7 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 
 	if (vb2_safe_memcmp(sig + pad_size, digest, key_bytes - pad_size)) {
 		VB2_DEBUG("Digest check failed!\n");
-		rv = VB2_ERROR_BAD_SIGNATURE;
+		rv = VB2_ERROR_RSA_VERIFY_DIGEST;
 	}
 
 	return rv;

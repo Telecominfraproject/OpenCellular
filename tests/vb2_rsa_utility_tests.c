@@ -72,7 +72,8 @@ static void test_utils(void)
 	/* Test padding check with bad algorithm */
 	Memcpy(sig, signatures[0], sizeof(sig));
 	TEST_EQ(vb2_check_padding(sig, VB2_ALG_COUNT),
-		VB2_ERROR_BAD_ALGORITHM, "vb2_check_padding() bad alg");
+		VB2_ERROR_RSA_PADDING_ALGORITHM,
+		"vb2_check_padding() bad alg");
 
 	/* Test safe memcmp */
 	TEST_EQ(vb2_safe_memcmp("foo", "foo", 3), 0, "vb2_safe_memcmp() good");

@@ -18,7 +18,7 @@ int vb2_secdata_check_crc(const struct vb2_context *ctx)
 
 	/* Verify CRC */
 	if (sec->crc8 != vb2_crc8(sec, offsetof(struct vb2_secdata, crc8)))
-		return VB2_ERROR_BAD_SECDATA;
+		return VB2_ERROR_SECDATA_CRC;
 
 	return VB2_SUCCESS;
 }
@@ -47,7 +47,7 @@ int vb2_secdata_init(struct vb2_context *ctx)
 
 	/* Data must be new enough to have a CRC */
 	if (sec->struct_version < 2)
-		return VB2_ERROR_BAD_SECDATA;
+		return VB2_ERROR_SECDATA_VERSION;
 
 	rv = vb2_secdata_check_crc(ctx);
 	if (rv)
@@ -76,7 +76,7 @@ int vb2_secdata_get(struct vb2_context *ctx,
 		return VB2_SUCCESS;
 
 	default:
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_SECDATA_GET_PARAM;
 	}
 }
 
@@ -95,7 +95,7 @@ int vb2_secdata_set(struct vb2_context *ctx,
 	case VB2_SECDATA_FLAGS:
 		/* Make sure flags is in valid range */
 		if (value > 0xff)
-			return VB2_ERROR_UNKNOWN;
+			return VB2_ERROR_SECDATA_SET_FLAGS;
 
 		sec->flags = value;
 		break;
@@ -105,7 +105,7 @@ int vb2_secdata_set(struct vb2_context *ctx,
 		break;
 
 	default:
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_SECDATA_SET_PARAM;
 	}
 
 	/* Regenerate CRC */

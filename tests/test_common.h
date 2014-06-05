@@ -42,6 +42,10 @@ int TEST_TRUE(int result, const char* testname);
  * Also update the global gTestSuccess flag if test fails. */
 int TEST_FALSE(int result, const char* testname);
 
+/* Return 1 if result is 0 (VB_ERROR_SUCCESS / VB2_SUCCESS), else return 0.
+ * Also update the global gTestSuccess flag if test fails. */
+int TEST_SUCC(int result, const char* testname);
+
 /* ANSI Color coding sequences.
  *
  * Don't use \e as MSC does not recognize it as a valid escape sequence.

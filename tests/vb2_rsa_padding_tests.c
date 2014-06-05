@@ -51,8 +51,8 @@ static void test_signatures(const struct vb2_public_key *key)
 
 	/* The first test signature is valid. */
 	Memcpy(sig, signatures[0], sizeof(sig));
-	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		0, "RSA Padding Test valid sig");
+	TEST_SUCC(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		  "RSA Padding Test valid sig");
 
 	/* All other signatures should fail verification. */
 	unexpected_success = 0;
@@ -79,37 +79,40 @@ static void test_verify_digest(struct vb2_public_key *key) {
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	Memcpy(sig, signatures[0], sizeof(sig));
-	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		0, "vb2_verify_digest() good");
+	TEST_SUCC(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		  "vb2_verify_digest() good");
 
 	Memcpy(sig, signatures[0], sizeof(sig));
 	vb2_workbuf_init(&wb, workbuf, sizeof(sig) * 3 - 1);
-	TEST_NEQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		 0, "vb2_verify_digest() small workbuf");
+	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		VB2_ERROR_RSA_VERIFY_WORKBUF,
+		"vb2_verify_digest() small workbuf");
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	key->algorithm += VB2_ALG_COUNT;
 	Memcpy(sig, signatures[0], sizeof(sig));
-	TEST_NEQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		 0, "vb2_verify_digest() bad key alg");
+	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		VB2_ERROR_RSA_VERIFY_ALGORITHM,
+		"vb2_verify_digest() bad key alg");
 	key->algorithm -= VB2_ALG_COUNT;
 
 	key->arrsize *= 2;
 	Memcpy(sig, signatures[0], sizeof(sig));
-	TEST_NEQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		 0, "vb2_verify_digest() bad key len");
+	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		VB2_ERROR_RSA_VERIFY_SIG_LEN,
+		"vb2_verify_digest() bad sig len");
 	key->arrsize /= 2;
 
 	/* Corrupt the signature near start and end */
 	Memcpy(sig, signatures[0], sizeof(sig));
 	sig[3] ^= 0x42;
-	TEST_NEQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		 0, "vb2_verify_digest() bad sig");
+	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		VB2_ERROR_RSA_PADDING, "vb2_verify_digest() bad sig");
 
 	Memcpy(sig, signatures[0], sizeof(sig));
 	sig[RSA1024NUMBYTES - 3] ^= 0x56;
-	TEST_NEQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
-		 0, "vb2_verify_digest() bad sig end");
+	TEST_EQ(vb2_verify_digest(key, sig, test_message_sha1_hash, &wb),
+		VB2_ERROR_RSA_PADDING, "vb2_verify_digest() bad sig end");
 }
 
 int main(int argc, char *argv[])

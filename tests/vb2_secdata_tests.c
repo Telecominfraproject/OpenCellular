@@ -40,58 +40,66 @@ static void secdata_test(void)
 
 	/* Blank data is invalid */
 	memset(c.secdata, 0xa6, sizeof(c.secdata));
-	TEST_NEQ(vb2_secdata_check_crc(&c), 0, "Check blank CRC");
-	TEST_NEQ(vb2_secdata_init(&c), 0, "Init blank CRC");
+	TEST_EQ(vb2_secdata_check_crc(&c),
+		VB2_ERROR_SECDATA_CRC, "Check blank CRC");
+	TEST_EQ(vb2_secdata_init(&c),
+		 VB2_ERROR_SECDATA_CRC, "Init blank CRC");
 
 	/* Create good data */
-	TEST_EQ(vb2_secdata_create(&c), 0, "Create");
-	TEST_EQ(vb2_secdata_check_crc(&c), 0, "Check created CRC");
-	TEST_EQ(vb2_secdata_init(&c), 0, "Init created CRC");
+	TEST_SUCC(vb2_secdata_create(&c), "Create");
+	TEST_SUCC(vb2_secdata_check_crc(&c), "Check created CRC");
+	TEST_SUCC(vb2_secdata_init(&c), "Init created CRC");
 	test_changed(&c, 1, "Create changes data");
 
 	/* Now corrupt it */
 	c.secdata[2]++;
-	TEST_NEQ(vb2_secdata_check_crc(&c), 0, "Check invalid CRC");
-	TEST_NEQ(vb2_secdata_init(&c), 0, "Init invalid CRC");
+	TEST_EQ(vb2_secdata_check_crc(&c),
+		VB2_ERROR_SECDATA_CRC, "Check invalid CRC");
+	TEST_EQ(vb2_secdata_init(&c),
+		 VB2_ERROR_SECDATA_CRC, "Init invalid CRC");
 
 	/* Version 1 didn't have a CRC, so init should reject it */
 	vb2_secdata_create(&c);
 	s->struct_version = 1;
-	TEST_NEQ(vb2_secdata_init(&c), 0, "Init old version");
+	TEST_EQ(vb2_secdata_init(&c),
+		VB2_ERROR_SECDATA_VERSION, "Init old version");
 
 	vb2_secdata_create(&c);
 	c.flags = 0;
 
 	/* Read/write flags */
-	TEST_EQ(vb2_secdata_get(&c, VB2_SECDATA_FLAGS, &v), 0, "Get flags");
+	TEST_SUCC(vb2_secdata_get(&c, VB2_SECDATA_FLAGS, &v), "Get flags");
 	TEST_EQ(v, 0, "Flags created 0");
 	test_changed(&c, 0, "Get doesn't change data");
-	TEST_EQ(vb2_secdata_set(&c, VB2_SECDATA_FLAGS, 0x12), 0, "Set flags");
+	TEST_SUCC(vb2_secdata_set(&c, VB2_SECDATA_FLAGS, 0x12), "Set flags");
 	test_changed(&c, 1, "Set changes data");
-	TEST_EQ(vb2_secdata_set(&c, VB2_SECDATA_FLAGS, 0x12), 0, "Set flags 2");
+	TEST_SUCC(vb2_secdata_set(&c, VB2_SECDATA_FLAGS, 0x12), "Set flags 2");
 	test_changed(&c, 0, "Set again doesn't change data");
-	TEST_EQ(vb2_secdata_get(&c, VB2_SECDATA_FLAGS, &v), 0, "Get flags 2");
+	TEST_SUCC(vb2_secdata_get(&c, VB2_SECDATA_FLAGS, &v), "Get flags 2");
 	TEST_EQ(v, 0x12, "Flags changed");
-	TEST_NEQ(vb2_secdata_set(&c, VB2_SECDATA_FLAGS, 0x100), 0, "Bad flags");
+	TEST_EQ(vb2_secdata_set(&c, VB2_SECDATA_FLAGS, 0x100),
+		VB2_ERROR_SECDATA_SET_FLAGS, "Bad flags");
 
 	/* Read/write versions */
-	TEST_EQ(vb2_secdata_get(&c, VB2_SECDATA_VERSIONS, &v),
-		0, "Get versions");
+	TEST_SUCC(vb2_secdata_get(&c, VB2_SECDATA_VERSIONS, &v),
+		  "Get versions");
 	TEST_EQ(v, 0, "Versions created 0");
 	test_changed(&c, 0, "Get doesn't change data");
-	TEST_EQ(vb2_secdata_set(&c, VB2_SECDATA_VERSIONS, 0x123456ff),
-		0, "Set versions");
+	TEST_SUCC(vb2_secdata_set(&c, VB2_SECDATA_VERSIONS, 0x123456ff),
+		  "Set versions");
 	test_changed(&c, 1, "Set changes data");
-	TEST_EQ(vb2_secdata_set(&c, VB2_SECDATA_VERSIONS, 0x123456ff),
-		0, "Set versions 2");
+	TEST_SUCC(vb2_secdata_set(&c, VB2_SECDATA_VERSIONS, 0x123456ff),
+		  "Set versions 2");
 	test_changed(&c, 0, "Set again doesn't change data");
-	TEST_EQ(vb2_secdata_get(&c, VB2_SECDATA_VERSIONS, &v), 0,
-		"Get versions 2");
+	TEST_SUCC(vb2_secdata_get(&c, VB2_SECDATA_VERSIONS, &v),
+		  "Get versions 2");
 	TEST_EQ(v, 0x123456ff, "Versions changed");
 
 	/* Invalid field fails */
-	TEST_NEQ(vb2_secdata_get(&c, -1, &v), 0, "Get invalid");
-	TEST_NEQ(vb2_secdata_set(&c, -1, 456), 0, "Set invalid");
+	TEST_EQ(vb2_secdata_get(&c, -1, &v),
+		VB2_ERROR_SECDATA_GET_PARAM, "Get invalid");
+	TEST_EQ(vb2_secdata_set(&c, -1, 456),
+		VB2_ERROR_SECDATA_SET_PARAM, "Set invalid");
 	test_changed(&c, 0, "Set invalid field doesn't change data");
 }
 

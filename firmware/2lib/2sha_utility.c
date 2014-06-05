@@ -72,7 +72,7 @@ int vb2_digest_init(struct vb2_digest_context *dc, uint32_t algorithm)
 		return VB2_SUCCESS;
 #endif
 	default:
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_SHA_INIT_ALGORITHM;
 	}
 }
 
@@ -97,7 +97,7 @@ int vb2_digest_extend(struct vb2_digest_context *dc,
 		return VB2_SUCCESS;
 #endif
 	default:
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_SHA_EXTEND_ALGORITHM;
 	}
 }
 
@@ -106,7 +106,7 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 			uint32_t digest_size)
 {
 	if (digest_size < vb2_digest_size(dc->algorithm))
-		return VB2_ERROR_BUFFER_TOO_SMALL;
+		return VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE;
 
 	switch (vb2_hash_alg(dc->algorithm)) {
 #if VB2_SUPPORT_SHA1
@@ -125,6 +125,6 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 		return VB2_SUCCESS;
 #endif
 	default:
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_SHA_FINALIZE_ALGORITHM;
 	}
 }
