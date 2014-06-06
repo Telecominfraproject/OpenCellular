@@ -28,9 +28,9 @@ int vb2_init_context(struct vb2_context *ctx)
 	 * store a recovery reason.
 	 */
 	if (ctx->workbuf_size < sizeof(*sd))
-		return VB2_ERROR_WORKBUF_TOO_SMALL;
+		return VB2_ERROR_INITCTX_WORKBUF_SMALL;
 	if (!vb_aligned(ctx->workbuf, sizeof(uint32_t)))
-		return VB2_ERROR_BUFFER_UNALIGNED;
+		return VB2_ERROR_INITCTX_WORKBUF_ALIGN;
 
 	/* Initialize the shared data at the start of the work buffer */
 	memset(sd, 0, sizeof(*sd));

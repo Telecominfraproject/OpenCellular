@@ -26,24 +26,26 @@ static void misc_test(void)
 		.workbuf_size = sizeof(workbuf),
 	};
 
-	TEST_EQ(vb2_init_context(&c), 0, "Init context good");
+	TEST_SUCC(vb2_init_context(&c), "Init context good");
 	TEST_EQ(c.workbuf_used, sizeof(struct vb2_shared_data),
 		"Init vbsd");
 
 	/* Don't re-init if used is non-zero */
 	c.workbuf_used = 200;
-	TEST_EQ(vb2_init_context(&c), 0, "Re-init context good");
+	TEST_SUCC(vb2_init_context(&c), "Re-init context good");
 	TEST_EQ(c.workbuf_used, 200, "Didn't re-init");
 
 	/* Handle workbuf errors */
 	c.workbuf_used = 0;
 	c.workbuf_size = sizeof(struct vb2_shared_data) - 1;
-	TEST_NEQ(vb2_init_context(&c), 0, "Init too small");
+	TEST_EQ(vb2_init_context(&c),
+		VB2_ERROR_INITCTX_WORKBUF_SMALL, "Init too small");
 	c.workbuf_size = sizeof(workbuf);
 
 	/* Handle workbuf unaligned */
 	c.workbuf++;
-	TEST_NEQ(vb2_init_context(&c), 0, "Init unaligned");
+	TEST_EQ(vb2_init_context(&c),
+		VB2_ERROR_INITCTX_WORKBUF_ALIGN, "Init unaligned");
 }
 
 int main(int argc, char* argv[])

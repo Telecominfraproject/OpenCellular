@@ -175,25 +175,25 @@ int vb2_unpack_key(struct vb2_public_key *key,
 
 	if (packed_key->algorithm >= VB2_ALG_COUNT) {
 		VB2_DEBUG("Invalid algorithm.\n");
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_UNPACK_KEY_ALGORITHM;
 	}
 
 	expected_key_size = vb2_packed_key_size(packed_key->algorithm);
 	if (!expected_key_size || expected_key_size != packed_key->key_size) {
 		VB2_DEBUG("Wrong key size for algorithm\n");
-		return VB2_ERROR_BAD_KEY;
+		return VB2_ERROR_UNPACK_KEY_SIZE;
 	}
 
 	/* Make sure source buffer is 32-bit aligned */
 	buf32 = (const uint32_t *)vb2_packed_key_data(packed_key);
 	if (!vb_aligned(buf32, sizeof(uint32_t)))
-		return VB2_ERROR_BUFFER_UNALIGNED;
+		return VB2_ERROR_UNPACK_KEY_ALIGN;
 
 	/* Sanity check key array size */
 	key->arrsize = buf32[0];
 	if (key->arrsize * sizeof(uint32_t) !=
 	    vb2_rsa_sig_size(packed_key->algorithm))
-		return VB2_ERROR_BAD_KEY;
+		return VB2_ERROR_UNPACK_KEY_ARRAY_SIZE;
 
 	key->n0inv = buf32[1];
 
@@ -219,31 +219,31 @@ int vb2_verify_data(const uint8_t *data,
 	int rv;
 
 	if (key->algorithm >= VB2_ALG_COUNT)
-		return VB2_ERROR_BAD_ALGORITHM;
+		return VB2_ERROR_VDATA_ALGORITHM;
 
 	if (sig->sig_size != vb2_rsa_sig_size(key->algorithm)) {
 		VB2_DEBUG("Wrong data signature size for algorithm, "
 			 "sig_size=%d, expected %d for algorithm %d.\n",
 			 (int)sig->sig_size, vb2_rsa_sig_size(key->algorithm),
 			 key->algorithm);
-		return VB2_ERROR_BAD_SIGNATURE;
+		return VB2_ERROR_VDATA_SIG_SIZE;
 	}
 
 	if (sig->data_size > size) {
 		VB2_DEBUG("Data buffer smaller than length of signed data.\n");
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_VDATA_NOT_ENOUGH_DATA;
 	}
 
 	/* Digest goes at start of work buffer */
 	digest_size = vb2_digest_size(key->algorithm);
 	digest = vb2_workbuf_alloc(&wblocal, digest_size);
 	if (!digest)
-		return VB2_ERROR_WORKBUF_TOO_SMALL;
+		return VB2_ERROR_VDATA_WORKBUF_DIGEST;
 
 	/* Hashing requires temp space for the context */
 	dc = vb2_workbuf_alloc(&wblocal, sizeof(*dc));
 	if (!dc)
-		return VB2_ERROR_WORKBUF_TOO_SMALL;
+		return VB2_ERROR_VDATA_WORKBUF_HASHING;
 
 	rv = vb2_digest_init(dc, key->algorithm);
 	if (rv)
@@ -274,19 +274,19 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 	/* Sanity checks before attempting signature of data */
 	if(size < sizeof(*block)) {
 		VB2_DEBUG("Not enough space for key block header.\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_TOO_SMALL_FOR_HEADER;
 	}
 	if (memcmp(block->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE)) {
 		VB2_DEBUG("Not a valid verified boot key block.\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_MAGIC;
 	}
 	if (block->header_version_major != KEY_BLOCK_HEADER_VERSION_MAJOR) {
 		VB2_DEBUG("Incompatible key block header version.\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_HEADER_VERSION;
 	}
 	if (size < block->keyblock_size) {
 		VB2_DEBUG("Not enough data for key block.\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_SIZE;
 	}
 
 	/* Check signature */
@@ -294,38 +294,38 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 
 	if (vb2_verify_signature_inside(block, block->keyblock_size, sig)) {
 		VB2_DEBUG("Key block signature off end of block\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_SIG_OUTSIDE;
 	}
 
 	/* Make sure advertised signature data sizes are sane. */
 	if (block->keyblock_size < sig->data_size) {
 		VB2_DEBUG("Signature calculated past end of block\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH;
 	}
 
 	VB2_DEBUG("Checking key block signature...\n");
 	rv = vb2_verify_data((const uint8_t *)block, size, sig, key, wb);
 	if (rv) {
 		VB2_DEBUG("Invalid key block signature.\n");
-		return VB2_ERROR_BAD_SIGNATURE;
+		return VB2_ERROR_KEYBLOCK_SIG_INVALID;
 	}
 
 	/* Verify we signed enough data */
 	if (sig->data_size < sizeof(struct vb2_keyblock)) {
 		VB2_DEBUG("Didn't sign enough data\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_SIGNED_TOO_LITTLE;
 	}
 
 	/* Verify data key is inside the block and inside signed data */
 	if (vb2_verify_packed_key_inside(block, block->keyblock_size,
 					 &block->data_key)) {
 		VB2_DEBUG("Data key off end of key block\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_DATA_KEY_OUTSIDE;
 	}
 	if (vb2_verify_packed_key_inside(block, sig->data_size,
 					 &block->data_key)) {
 		VB2_DEBUG("Data key off end of signed data\n");
-		return VB2_ERROR_BAD_KEYBLOCK;
+		return VB2_ERROR_KEYBLOCK_DATA_KEY_UNSIGNED;
 	}
 
 	/* Success */
@@ -344,60 +344,60 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 	/* Sanity checks before attempting signature of data */
 	if(size < EXPECTED_VB2FIRMWAREPREAMBLEHEADER2_1_SIZE) {
 		VB2_DEBUG("Not enough data for preamble header 2.1.\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER;
 	}
 	if (preamble->header_version_major !=
 	    FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR) {
 		VB2_DEBUG("Incompatible firmware preamble header version.\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_HEADER_VERSION;
 	}
 
 	if (preamble->header_version_minor < 1) {
 		VB2_DEBUG("Only preamble header 2.1+ supported\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_HEADER_OLD;
 	}
 
 	if (size < preamble->preamble_size) {
 		VB2_DEBUG("Not enough data for preamble.\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_SIZE;
 	}
 
 	/* Check signature */
 	if (vb2_verify_signature_inside(preamble, preamble->preamble_size,
 					sig)) {
 		VB2_DEBUG("Preamble signature off end of preamble\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_SIG_OUTSIDE;
 	}
 
 	/* Make sure advertised signature data sizes are sane. */
 	if (preamble->preamble_size < sig->data_size) {
 		VB2_DEBUG("Signature calculated past end of the block\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_SIGNED_TOO_MUCH;
 	}
 
 	if (vb2_verify_data((const uint8_t *)preamble, size, sig, key, wb)) {
 		VB2_DEBUG("Preamble signature validation failed\n");
-		return VB2_ERROR_BAD_SIGNATURE;
+		return VB2_ERROR_PREAMBLE_SIG_INVALID;
 	}
 
 	/* Verify we signed enough data */
 	if (sig->data_size < sizeof(struct vb2_fw_preamble)) {
 		VB2_DEBUG("Didn't sign enough data\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_SIGNED_TOO_LITTLE;
 	}
 
 	/* Verify body signature is inside the signed data */
 	if (vb2_verify_signature_inside(preamble, sig->data_size,
 					&preamble->body_signature)) {
 		VB2_DEBUG("Firmware body signature off end of preamble\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_BODY_SIG_OUTSIDE;
 	}
 
 	/* Verify kernel subkey is inside the signed data */
 	if (vb2_verify_packed_key_inside(preamble, sig->data_size,
 					 &preamble->kernel_subkey)) {
 		VB2_DEBUG("Kernel subkey off end of preamble\n");
-		return VB2_ERROR_BAD_PREAMBLE;
+		return VB2_ERROR_PREAMBLE_KERNEL_SUBKEY_OUTSIDE;
 	}
 
 	/* Success */

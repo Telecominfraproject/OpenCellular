@@ -5,9 +5,11 @@
  * Tests for firmware image library.
  */
 
-#include <stdint.h>
 #include <stdio.h>
-#include <string.h>
+
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2rsa.h"
 
 #include "file_keys.h"
 #include "host_common.h"
@@ -16,9 +18,6 @@
 #include "host_signature.h"
 #include "vboot_common.h"
 #include "test_common.h"
-
-#include "2common.h"
-#include "2rsa.h"
 
 static void resign_keyblock(struct vb2_keyblock *h, const VbPrivateKey *key)
 {
@@ -44,9 +43,9 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	/* Unpack public key */
-	TEST_EQ(vb2_unpack_key(&key, (uint8_t *)public_key,
-			       public_key->key_offset + public_key->key_size),
-		0, "vb2_verify_keyblock public key");
+	TEST_SUCC(vb2_unpack_key(&key, (uint8_t *)public_key,
+				 public_key->key_offset + public_key->key_size),
+		  "vb2_verify_keyblock public key");
 
 	hdr = (struct vb2_keyblock *)
 		KeyBlockCreate(data_key, private_key, 0x1234);
@@ -57,69 +56,76 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 	h = (struct vb2_keyblock *)malloc(hsize + 2048);
 
 	Memcpy(h, hdr, hsize);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		0, "vb2_verify_keyblock() ok using key");
+	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
+		  "vb2_verify_keyblock() ok using key");
 
 	Memcpy(h, hdr, hsize);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize - 1, &key, &wb),
-		 0, "vb2_verify_keyblock() size--");
+	TEST_EQ(vb2_verify_keyblock(h, hsize - 1, &key, &wb),
+		VB2_ERROR_KEYBLOCK_SIZE, "vb2_verify_keyblock() size--");
 
+	/* Buffer is allowed to be bigger than keyblock */
 	Memcpy(h, hdr, hsize);
-	TEST_EQ(vb2_verify_keyblock(h, hsize + 1, &key, &wb),
-		0, "vb2_verify_keyblock() size++");
+	TEST_SUCC(vb2_verify_keyblock(h, hsize + 1, &key, &wb),
+		  "vb2_verify_keyblock() size++");
 
 	Memcpy(h, hdr, hsize);
 	h->magic[0] &= 0x12;
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() magic");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_MAGIC, "vb2_verify_keyblock() magic");
 
 	/* Care about major version but not minor */
 	Memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	resign_keyblock(h, private_key);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() major++");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
+		"vb2_verify_keyblock() major++");
 
 	Memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	resign_keyblock(h, private_key);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() major--");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
+		"vb2_verify_keyblock() major--");
 
 	Memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		0, "vb2_verify_keyblock() minor++");
+	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
+		  "vb2_verify_keyblock() minor++");
 
 	Memcpy(h, hdr, hsize);
 	h->header_version_minor--;
 	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		0, "vb2_verify_keyblock() minor--");
+	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
+		  "vb2_verify_keyblock() minor--");
 
 	/* Check signature */
 	Memcpy(h, hdr, hsize);
 	h->keyblock_signature.sig_offset = hsize;
 	resign_keyblock(h, private_key);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() sig off end");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_SIG_OUTSIDE,
+		"vb2_verify_keyblock() sig off end");
 
 	Memcpy(h, hdr, hsize);
 	h->keyblock_signature.sig_size--;
 	resign_keyblock(h, private_key);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() sig too small");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_SIG_INVALID,
+		"vb2_verify_keyblock() sig too small");
 
 	Memcpy(h, hdr, hsize);
 	((uint8_t *)vb2_packed_key_data(&h->data_key))[0] ^= 0x34;
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() sig mismatch");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_SIG_INVALID,
+		"vb2_verify_keyblock() sig mismatch");
 
 	Memcpy(h, hdr, hsize);
 	h->keyblock_signature.data_size = h->keyblock_size + 1;
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() sig data past end of block");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH,
+		"vb2_verify_keyblock() sig data past end of block");
 
 	/* Check that we signed header and data key */
 	Memcpy(h, hdr, hsize);
@@ -127,18 +133,21 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 	h->data_key.key_offset = 0;
 	h->data_key.key_size = 0;
 	resign_keyblock(h, private_key);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() didn't sign header");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_SIGNED_TOO_LITTLE,
+		"vb2_verify_keyblock() didn't sign header");
 
 	Memcpy(h, hdr, hsize);
 	h->data_key.key_offset = hsize;
 	resign_keyblock(h, private_key);
-	TEST_NEQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		 0, "vb2_verify_keyblock() data key off end");
+	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+		VB2_ERROR_KEYBLOCK_DATA_KEY_OUTSIDE,
+		"vb2_verify_keyblock() data key off end");
 
 	/* Corner cases for error checking */
-	TEST_NEQ(vb2_verify_keyblock(NULL, 4, &key, &wb),
-		 0, "vb2_verify_keyblock size too small");
+	TEST_EQ(vb2_verify_keyblock(NULL, 4, &key, &wb),
+		VB2_ERROR_KEYBLOCK_TOO_SMALL_FOR_HEADER,
+		"vb2_verify_keyblock size too small");
 
 	/*
 	 * TODO: verify parser can support a bigger header (i.e., one where
@@ -175,9 +184,9 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 	/* Create a dummy signature */
 	VbSignature *body_sig = SignatureAlloc(56, 78);
 
-	TEST_EQ(vb2_unpack_key(&rsa, (uint8_t *)public_key,
-			       public_key->key_offset + public_key->key_size),
-		0, "vb2_verify_fw_preamble() prereq key");
+	TEST_SUCC(vb2_unpack_key(&rsa, (uint8_t *)public_key,
+				 public_key->key_offset + public_key->key_size),
+		  "vb2_verify_fw_preamble() prereq key");
 
 	hdr = (struct vb2_fw_preamble *)
 		CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig,
@@ -190,63 +199,72 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 	h = (struct vb2_fw_preamble *)malloc(hsize + 16384);
 
 	Memcpy(h, hdr, hsize);
-	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		0, "vb2_verify_fw_preamble() ok using key");
+	TEST_SUCC(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		  "vb2_verify_fw_preamble() ok using key");
 
 	Memcpy(h, hdr, hsize);
-	TEST_NEQ(vb2_verify_fw_preamble(h, 4, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() size tiny");
+	TEST_EQ(vb2_verify_fw_preamble(h, 4, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER,
+		"vb2_verify_fw_preamble() size tiny");
 
 	Memcpy(h, hdr, hsize);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize - 1, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() size--");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize - 1, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIZE,
+		"vb2_verify_fw_preamble() size--");
 
+	/* Buffer is allowed to be bigger than preamble */
 	Memcpy(h, hdr, hsize);
-	TEST_EQ(vb2_verify_fw_preamble(h, hsize + 1, &rsa, &wb),
-		0, "vb2_verify_fw_preamble() size++");
+	TEST_SUCC(vb2_verify_fw_preamble(h, hsize + 1, &rsa, &wb),
+		  "vb2_verify_fw_preamble() size++");
 
 	/* Care about major version but not minor */
 	Memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() major++");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_HEADER_VERSION
+		, "vb2_verify_fw_preamble() major++");
 
 	Memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() major--");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_HEADER_VERSION,
+		"vb2_verify_fw_preamble() major--");
 
 	Memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	resign_fw_preamble(h, private_key);
-	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		0, "vb2_verify_fw_preamble() minor++");
+	TEST_SUCC(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		  "vb2_verify_fw_preamble() minor++");
 
 	Memcpy(h, hdr, hsize);
 	h->header_version_minor--;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() 2.0 not supported");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_HEADER_OLD,
+		"vb2_verify_fw_preamble() 2.0 not supported");
 
 	/* Check signature */
 	Memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_offset = hsize;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() sig off end");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIG_OUTSIDE,
+		"vb2_verify_fw_preamble() sig off end");
 
 	Memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_size--;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() sig too small");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIG_INVALID,
+		"vb2_verify_fw_preamble() sig too small");
 
 	Memcpy(h, hdr, hsize);
 	((uint8_t *)vb2_packed_key_data(&h->kernel_subkey))[0] ^= 0x34;
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() sig mismatch");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIG_INVALID,
+		"vb2_verify_fw_preamble() sig mismatch");
 
 	/* Check that we signed header, kernel subkey, and body sig */
 	Memcpy(h, hdr, hsize);
@@ -256,20 +274,23 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 	h->body_signature.sig_offset = 0;
 	h->body_signature.sig_size = 0;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() didn't sign header");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIGNED_TOO_LITTLE,
+		"vb2_verify_fw_preamble() didn't sign header");
 
 	Memcpy(h, hdr, hsize);
 	h->kernel_subkey.key_offset = hsize;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() kernel subkey off end");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_KERNEL_SUBKEY_OUTSIDE,
+		"vb2_verify_fw_preamble() kernel subkey off end");
 
 	Memcpy(h, hdr, hsize);
 	h->body_signature.sig_offset = hsize;
 	resign_fw_preamble(h, private_key);
-	TEST_NEQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
-		 0, "vb2_verify_fw_preamble() body sig off end");
+	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_BODY_SIG_OUTSIDE,
+		"vb2_verify_fw_preamble() body sig off end");
 
 	/* TODO: verify with extra padding at end of header. */
 

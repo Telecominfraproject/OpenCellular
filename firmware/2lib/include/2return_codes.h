@@ -125,6 +125,114 @@ enum vb2_return_code {
 	/* Member data outside parent in vb2_verify_member_inside() */
 	VB2_ERROR_INSIDE_DATA_OUTSIDE,
 
+	/* Bad algorithm in vb2_unpack_key() */
+	VB2_ERROR_UNPACK_KEY_ALGORITHM,
+
+	/* Bad key size in vb2_unpack_key() */
+	VB2_ERROR_UNPACK_KEY_SIZE,
+
+	/* Bad key alignment in vb2_unpack_key() */
+	VB2_ERROR_UNPACK_KEY_ALIGN,
+
+	/* Bad key array size in vb2_unpack_key() */
+	VB2_ERROR_UNPACK_KEY_ARRAY_SIZE,
+
+	/* Bad algorithm in vb2_verify_data() */
+	VB2_ERROR_VDATA_ALGORITHM,
+
+	/* Incorrect signature size for algorithm in vb2_verify_data() */
+	VB2_ERROR_VDATA_SIG_SIZE,
+
+	/* Data smaller than length of signed data in vb2_verify_data() */
+	VB2_ERROR_VDATA_NOT_ENOUGH_DATA,
+
+	/* Not enough work buffer for digest in vb2_verify_data() */
+	VB2_ERROR_VDATA_WORKBUF_DIGEST,
+
+	/* Not enough work buffer for hash temp data in vb2_verify_data() */
+	VB2_ERROR_VDATA_WORKBUF_HASHING,
+
+        /**********************************************************************
+	 * Keyblock verification errors (all in vb2_verify_keyblock())
+	 */
+	VB2_ERROR_KEYBLOCK = VB2_ERROR_BASE + 0x060000,
+
+	/* Data buffer too small for header */
+	VB2_ERROR_KEYBLOCK_TOO_SMALL_FOR_HEADER,
+
+	/* Magic number not present */
+	VB2_ERROR_KEYBLOCK_MAGIC,
+
+	/* Header version incompatible */
+	VB2_ERROR_KEYBLOCK_HEADER_VERSION,
+
+	/* Data buffer too small for keyblock */
+	VB2_ERROR_KEYBLOCK_SIZE,
+
+	/* Signature data offset outside keyblock */
+	VB2_ERROR_KEYBLOCK_SIG_OUTSIDE,
+
+	/* Signature signed more data than size of keyblock */
+	VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH,
+
+	/* Signature signed less data than size of keyblock header */
+	VB2_ERROR_KEYBLOCK_SIGNED_TOO_LITTLE,
+
+	/* Signature invalid */
+	VB2_ERROR_KEYBLOCK_SIG_INVALID,
+
+	/* Data key outside keyblock */
+	VB2_ERROR_KEYBLOCK_DATA_KEY_OUTSIDE,
+
+	/* Data key outside signed part of keyblock */
+	VB2_ERROR_KEYBLOCK_DATA_KEY_UNSIGNED,
+
+        /**********************************************************************
+	 * Preamble verification errors (all in vb2_verify_preamble())
+	 */
+	VB2_ERROR_PREAMBLE = VB2_ERROR_BASE + 0x070000,
+
+	/* Preamble data too small to contain header */
+	VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER,
+
+	/* Header version incompatible */
+	VB2_ERROR_PREAMBLE_HEADER_VERSION,
+
+	/* Header version too old */
+	VB2_ERROR_PREAMBLE_HEADER_OLD,
+
+	/* Data buffer too small for preamble */
+	VB2_ERROR_PREAMBLE_SIZE,
+
+	/* Signature data offset outside preamble */
+	VB2_ERROR_PREAMBLE_SIG_OUTSIDE,
+
+	/* Signature signed more data than size of preamble */
+	VB2_ERROR_PREAMBLE_SIGNED_TOO_MUCH,
+
+	/* Signature signed less data than size of preamble header */
+	VB2_ERROR_PREAMBLE_SIGNED_TOO_LITTLE,
+
+	/* Signature invalid */
+	VB2_ERROR_PREAMBLE_SIG_INVALID,
+
+	/* Body signature outside preamble */
+	VB2_ERROR_PREAMBLE_BODY_SIG_OUTSIDE,
+
+	/* Kernel subkey outside preamble */
+	VB2_ERROR_PREAMBLE_KERNEL_SUBKEY_OUTSIDE,
+
+        /**********************************************************************
+	 * Misc higher-level code errors
+	 */
+	VB2_ERROR_MISC = VB2_ERROR_BASE + 0x080000,
+
+	/* Work buffer too small in vb2_init_context() */
+	VB2_ERROR_INITCTX_WORKBUF_SMALL,
+
+	/* Work buffer unaligned in vb2_init_context() */
+	VB2_ERROR_INITCTX_WORKBUF_ALIGN,
+
         /**********************************************************************
 	 * TODO: errors which must still be made specific
 	 */

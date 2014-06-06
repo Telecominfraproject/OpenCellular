@@ -33,40 +33,40 @@ static void test_unpack_key(const VbPublicKey *orig_key)
 	uint32_t size = key2->key_offset + key2->key_size;
 
 	PublicKeyCopy(key, orig_key);
-	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
-		0, "vb2_unpack_key() ok");
+	TEST_SUCC(vb2_unpack_key(&rsa, buf, size), "vb2_unpack_key() ok");
 
 	TEST_EQ(rsa.algorithm, key2->algorithm, "vb2_unpack_key() algorithm");
 
 	PublicKeyCopy(key, orig_key);
 	key2->algorithm = VB2_ALG_COUNT;
-	TEST_NEQ(vb2_unpack_key(&rsa, buf, size),
-		 0, "vb2_unpack_key() invalid algorithm");
+	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
+		VB2_ERROR_UNPACK_KEY_ALGORITHM,
+		"vb2_unpack_key() invalid algorithm");
 
 	PublicKeyCopy(key, orig_key);
 	key2->key_size--;
-	TEST_NEQ(vb2_unpack_key(&rsa, buf, size),
-		 0, "vb2_unpack_key() invalid size");
+	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
+		VB2_ERROR_UNPACK_KEY_SIZE,
+		"vb2_unpack_key() invalid size");
 	key2->key_size++;
 
 	PublicKeyCopy(key, orig_key);
 	key2->key_offset++;
-	TEST_NEQ(vb2_unpack_key(&rsa, buf, size + 1),
-		 0, "vb2_unpack_key() unaligned data");
+	TEST_EQ(vb2_unpack_key(&rsa, buf, size + 1),
+		VB2_ERROR_UNPACK_KEY_ALIGN,
+		"vb2_unpack_key() unaligned data");
 	key2->key_offset--;
 
 	PublicKeyCopy(key, orig_key);
 	*(uint32_t *)(buf + key2->key_offset) /= 2;
-	TEST_NEQ(vb2_unpack_key(&rsa, buf, size),
-		 0, "vb2_unpack_key() invalid key array size");
-
-	PublicKeyCopy(key, orig_key);
-	TEST_NEQ(vb2_unpack_key(&rsa, buf, size - 1),
-		 0, "vb2_unpack_key() buffer too small");
-
-	PublicKeyCopy(key, orig_key);
 	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
-		0, "vb2_unpack_key() ok2");
+		VB2_ERROR_UNPACK_KEY_ARRAY_SIZE,
+		"vb2_unpack_key() invalid key array size");
+
+	PublicKeyCopy(key, orig_key);
+	TEST_EQ(vb2_unpack_key(&rsa, buf, size - 1),
+		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		"vb2_unpack_key() buffer too small");
 
 	free(key);
 }
