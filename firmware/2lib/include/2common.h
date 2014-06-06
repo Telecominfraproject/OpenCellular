@@ -151,10 +151,10 @@ uint8_t *vb2_signature_data(struct vb2_signature *sig);
  * @param member_data_size	Size of member data in bytes
  * @return VB2_SUCCESS, or non-zero if error.
  */
-int vb2_verify_member_inside(const void *parent, uint32_t parent_size,
-			     const void *member, uint32_t member_size,
-			     uint32_t member_data_offset,
-			     uint32_t member_data_size);
+int vb2_verify_member_inside(const void *parent, size_t parent_size,
+			     const void *member, size_t member_size,
+			     ptrdiff_t member_data_offset,
+			     size_t member_data_size);
 
 /**
  * Verify a signature is fully contained in its parent data

@@ -20,14 +20,14 @@ int vb2_align(uint8_t **ptr, uint32_t *size, uint32_t align, uint32_t want_size)
 		offs = align - offs;
 
 		if (*size < offs)
-			return VB2_ERROR_BUFFER_TOO_SMALL;
+			return VB2_ERROR_ALIGN_BIGGER_THAN_SIZE;
 
 		*ptr += offs;
 		*size -= offs;
 	}
 
 	if (*size < want_size)
-		return VB2_ERROR_BUFFER_TOO_SMALL;
+		return VB2_ERROR_ALIGN_SIZE;
 
 	return VB2_SUCCESS;
 }
@@ -106,10 +106,10 @@ ptrdiff_t vb2_offset_of(const void *base, const void *ptr)
 	return (uintptr_t)ptr - (uintptr_t)base;
 }
 
-int vb2_verify_member_inside(const void *parent, uint32_t parent_size,
-			     const void *member, uint32_t member_size,
-			     uint32_t member_data_offset,
-			     uint32_t member_data_size)
+int vb2_verify_member_inside(const void *parent, size_t parent_size,
+			     const void *member, size_t member_size,
+			     ptrdiff_t member_data_offset,
+			     size_t member_data_size)
 {
 	const size_t psize = (size_t)parent_size;
 	const uintptr_t parent_end = (uintptr_t)parent + parent_size;
@@ -120,23 +120,22 @@ int vb2_verify_member_inside(const void *parent, uint32_t parent_size,
 
 	/* Make sure parent doesn't wrap */
 	if (parent_end < (uintptr_t)parent)
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_INSIDE_PARENT_WRAPS;
 
 	/*
 	 * Make sure the member is fully contained in the parent and doesn't
 	 * wrap.  Use >, not >=, since member_size = 0 is possible.
 	 */
 	if (member_end_offs < member_offs)
-		return VB2_ERROR_UNKNOWN;
-	if (member_offs > psize || member_end_offs > psize)
-		return VB2_ERROR_UNKNOWN;
-
+		return VB2_ERROR_INSIDE_MEMBER_WRAPS;
+	if (member_offs < 0 || member_offs > psize || member_end_offs > psize)
+		return VB2_ERROR_INSIDE_MEMBER_OUTSIDE;
 
 	/* Make sure parent fully contains member data */
 	if (data_end_offs < data_offs)
-		return VB2_ERROR_UNKNOWN;
-	if (data_offs > psize || data_end_offs > psize)
-		return VB2_ERROR_UNKNOWN;
+		return VB2_ERROR_INSIDE_DATA_WRAPS;
+	if (data_offs < 0 || data_offs > psize || data_end_offs > psize)
+		return VB2_ERROR_INSIDE_DATA_OUTSIDE;
 
 	return VB2_SUCCESS;
 }

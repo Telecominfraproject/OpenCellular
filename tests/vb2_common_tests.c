@@ -23,27 +23,30 @@ static void test_align(void)
 	p0 = (uint8_t *)buf;
 	ptr = p0;
 	size = 16;
-	TEST_EQ(vb2_align(&ptr, &size, 4, 16), 0, "vb2_align() aligned");
+	TEST_SUCC(vb2_align(&ptr, &size, 4, 16), "vb2_align() aligned");
 	TEST_EQ(vb2_offset_of(p0, ptr), 0, "ptr");
 	TEST_EQ(size, 16, "  size");
-	TEST_NEQ(vb2_align(&ptr, &size, 4, 17), 0, "vb2_align() small");
+	TEST_EQ(vb2_align(&ptr, &size, 4, 17),
+		VB2_ERROR_ALIGN_SIZE, "vb2_align() small");
 
 	/* Offset */
 	ptr = p0 + 1;
 	size = 15;
-	TEST_EQ(vb2_align(&ptr, &size, 4, 12), 0, "vb2_align() offset");
+	TEST_SUCC(vb2_align(&ptr, &size, 4, 12), "vb2_align() offset");
 	TEST_EQ(vb2_offset_of(p0, ptr), 4, "ptr");
 	TEST_EQ(size, 12, "  size");
 
 	/* Offset, now too small */
 	ptr = p0 + 1;
 	size = 15;
-	TEST_NEQ(vb2_align(&ptr, &size, 4, 15), 0, "vb2_align() offset small");
+	TEST_EQ(vb2_align(&ptr, &size, 4, 15),
+		VB2_ERROR_ALIGN_SIZE, "vb2_align() offset small");
 
 	/* Offset, too small even to align */
 	ptr = p0 + 1;
 	size = 1;
-	TEST_NEQ(vb2_align(&ptr, &size, 4, 1), 0, "vb2_align() offset tiny");
+	TEST_EQ(vb2_align(&ptr, &size, 4, 1),
+		VB2_ERROR_ALIGN_BIGGER_THAN_SIZE, "vb2_align() offset tiny");
 }
 
 /**
@@ -149,69 +152,79 @@ static void test_helper_functions(void)
 
 	{
 		uint8_t *p = (uint8_t *)test_helper_functions;
-		TEST_EQ(vb2_verify_member_inside(p, 20, p, 6, 11, 3), 0,
-			"MemberInside ok 1");
-		TEST_EQ(vb2_verify_member_inside(p, 20, p+4, 4, 8, 4), 0,
-			"MemberInside ok 2");
-		TEST_NEQ(vb2_verify_member_inside(p, 20, p-4, 4, 8, 4), 0,
-			 "MemberInside member before parent");
-		TEST_NEQ(vb2_verify_member_inside(p, 20, p+20, 4, 8, 4), 0,
-			 "MemberInside member after parent");
-		TEST_NEQ(vb2_verify_member_inside(p, 20, p, 21, 0, 0), 0,
-			 "MemberInside member too big");
-		TEST_NEQ(vb2_verify_member_inside(p, 20, p, 4, 21, 0), 0,
-			 "MemberInside data after parent");
-		TEST_NEQ(vb2_verify_member_inside(p, 20, p, 4, UINT32_MAX, 0),
-			 0, "MemberInside data before parent");
-		TEST_NEQ(vb2_verify_member_inside(p, 20, p, 4, 4, 17), 0,
-			 "MemberInside data too big");
-		TEST_NEQ(vb2_verify_member_inside(p, UINT32_MAX,
-						  p+UINT32_MAX-9, 12, 5, 0), 0,
-			 "MemberInside wraparound 1");
-		TEST_NEQ(vb2_verify_member_inside(p, UINT32_MAX,
-						  p+UINT32_MAX-9, 5, 12, 0), 0,
-			 "MemberInside wraparound 2");
-		TEST_NEQ(vb2_verify_member_inside(p, UINT32_MAX,
-						  p+UINT32_MAX-9, 5, 0, 12), 0,
-			 "MemberInside wraparound 3");
+		TEST_SUCC(vb2_verify_member_inside(p, 20, p, 6, 11, 3),
+			  "MemberInside ok 1");
+		TEST_SUCC(vb2_verify_member_inside(p, 20, p+4, 4, 8, 4),
+			  "MemberInside ok 2");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p-4, 4, 8, 4),
+			VB2_ERROR_INSIDE_MEMBER_OUTSIDE,
+			"MemberInside member before parent");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p+20, 4, 8, 4),
+			VB2_ERROR_INSIDE_MEMBER_OUTSIDE,
+			"MemberInside member after parent");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 21, 0, 0),
+			VB2_ERROR_INSIDE_MEMBER_OUTSIDE,
+			"MemberInside member too big");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, 21, 0),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"MemberInside data after parent");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, SIZE_MAX, 0),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"MemberInside data before parent");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, 4, 17),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"MemberInside data too big");
+		TEST_EQ(vb2_verify_member_inside(p, -8, p, 12, 0, 0),
+			VB2_ERROR_INSIDE_PARENT_WRAPS,
+			"MemberInside wraparound 1");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, -8, 0, 0),
+			VB2_ERROR_INSIDE_MEMBER_WRAPS,
+			"MemberInside wraparound 2");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, 0, -8),
+			VB2_ERROR_INSIDE_DATA_WRAPS,
+			"MemberInside wraparound 3");
 	}
 
 	{
 		struct vb2_packed_key k = {.key_offset = sizeof(k),
 					   .key_size = 128};
-		TEST_EQ(vb2_verify_packed_key_inside(&k, sizeof(k)+128, &k), 0,
-			"PublicKeyInside ok 1");
-		TEST_EQ(vb2_verify_packed_key_inside(&k - 1,
-						     2*sizeof(k)+128, &k),
-			0, "PublicKeyInside ok 2");
-		TEST_NEQ(vb2_verify_packed_key_inside(&k, 128, &k), 0,
-			 "PublicKeyInside key too big");
+		TEST_SUCC(vb2_verify_packed_key_inside(&k, sizeof(k)+128, &k),
+			  "PublicKeyInside ok 1");
+		TEST_SUCC(vb2_verify_packed_key_inside(&k - 1,
+						       2*sizeof(k)+128, &k),
+			  "PublicKeyInside ok 2");
+		TEST_EQ(vb2_verify_packed_key_inside(&k, 128, &k),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"PublicKeyInside key too big");
 	}
 
 	{
 		struct vb2_packed_key k = {.key_offset = 100,
 					   .key_size = 4};
-		TEST_NEQ(vb2_verify_packed_key_inside(&k, 99, &k), 0,
-			 "PublicKeyInside offset too big");
+		TEST_EQ(vb2_verify_packed_key_inside(&k, 99, &k),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"PublicKeyInside offset too big");
 	}
 
 	{
 		struct vb2_signature s = {.sig_offset = sizeof(s),
 					  .sig_size = 128};
-		TEST_EQ(vb2_verify_signature_inside(&s, sizeof(s)+128, &s), 0,
+		TEST_SUCC(vb2_verify_signature_inside(&s, sizeof(s)+128, &s),
 			"SignatureInside ok 1");
-		TEST_EQ(vb2_verify_signature_inside(&s - 1,
-						    2*sizeof(s)+128, &s),
-			0, "SignatureInside ok 2");
-		TEST_NEQ(vb2_verify_signature_inside(&s, 128, &s), 0,
-			 "SignatureInside sig too big");
+		TEST_SUCC(vb2_verify_signature_inside(&s - 1,
+						      2*sizeof(s)+128, &s),
+			  "SignatureInside ok 2");
+		TEST_EQ(vb2_verify_signature_inside(&s, 128, &s),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"SignatureInside sig too big");
 	}
 
 	{
 		struct vb2_signature s = {.sig_offset = 100,
 					  .sig_size = 4};
-		TEST_NEQ(vb2_verify_signature_inside(&s, 99, &s), 0,
-			 "SignatureInside offset too big");
+		TEST_EQ(vb2_verify_signature_inside(&s, 99, &s),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"SignatureInside offset too big");
 	}
 }
 

@@ -100,6 +100,32 @@ enum vb2_return_code {
 	VB2_ERROR_SECDATA_SET_FLAGS,
 
         /**********************************************************************
+	 * Common code errors
+	 */
+	VB2_ERROR_COMMON = VB2_ERROR_BASE + 0x050000,
+
+	/* Buffer is smaller than alignment offset in vb2_align() */
+	VB2_ERROR_ALIGN_BIGGER_THAN_SIZE,
+
+	/* Buffer is smaller than request in vb2_align() */
+	VB2_ERROR_ALIGN_SIZE,
+
+	/* Parent wraps around in vb2_verify_member_inside() */
+	VB2_ERROR_INSIDE_PARENT_WRAPS,
+
+	/* Member wraps around in vb2_verify_member_inside() */
+	VB2_ERROR_INSIDE_MEMBER_WRAPS,
+
+	/* Member outside parent in vb2_verify_member_inside() */
+	VB2_ERROR_INSIDE_MEMBER_OUTSIDE,
+
+	/* Member data wraps around in vb2_verify_member_inside() */
+	VB2_ERROR_INSIDE_DATA_WRAPS,
+
+	/* Member data outside parent in vb2_verify_member_inside() */
+	VB2_ERROR_INSIDE_DATA_OUTSIDE,
+
+        /**********************************************************************
 	 * TODO: errors which must still be made specific
 	 */
 	VB2_ERROR_TODO = VB2_ERROR_BASE + 0xff0000,
