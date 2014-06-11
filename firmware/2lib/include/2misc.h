@@ -10,6 +10,8 @@
 
 #include "2api.h"
 
+struct vb2_gbb_header;
+
 /**
  * Get the shared data pointer from the vboot context
  *
@@ -19,6 +21,39 @@
 static __inline struct vb2_shared_data *vb2_get_sd(struct vb2_context *ctx) {
 	return (struct vb2_shared_data *)ctx->workbuf;
 }
+
+/**
+ * Initialize a work buffer from the vboot context.
+ *
+ * This sets the work buffer to the unused portion of the context work buffer.
+ *
+ * @param ctx		Vboot context
+ * @param wb		Work buffer to initialize
+ */
+void vb2_workbuf_from_ctx(struct vb2_context *ctx, struct vb2_workbuf *wb);
+
+/**
+ * Read the GBB header.
+ *
+ * @param ctx		Vboot context
+ * @param gbb		Destination for header
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_read_gbb_header(struct vb2_context *ctx, struct vb2_gbb_header *gbb);
+
+/**
+ * Handle vboot failure.
+ *
+ * If the failure occurred after choosing a firmware slot, and the other
+ * firmware slot is not known-bad, try the other firmware slot after reboot.
+ *
+ * If the failure occurred before choosing a firmware slot, or both slots have
+ * failed in successive boots, request recovery.
+ *
+ * @param reason	Recovery reason
+ * @param subcode	Recovery subcode
+ */
+void vb2_fail(struct vb2_context *ctx, uint8_t reason, uint8_t subcode);
 
 /**
  * Set up the verified boot context data, if not already set up.
@@ -31,5 +66,50 @@ static __inline struct vb2_shared_data *vb2_get_sd(struct vb2_context *ctx) {
  * @return VB2_SUCCESS, or error code on error.
  */
 int vb2_init_context(struct vb2_context *ctx);
+
+/**
+ * Check for recovery reasons we can determine early in the boot process.
+ *
+ * On exit, check ctx->flags for VB2_CONTEXT_RECOVERY_MODE; if present, jump to
+ * the recovery path instead of continuing with normal boot.  This is the only
+ * direct path to recovery mode.  All other errors later in the boot process
+ * should induce a reboot instead of jumping to recovery, so that recovery mode
+ * starts from a consistent firmware state.
+ *
+ * @param ctx		Vboot context
+ */
+void vb2_check_recovery(struct vb2_context *ctx);
+
+/**
+ * Parse the GBB header.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2_fw_parse_gbb(struct vb2_context *ctx);
+
+/**
+ * Check developer switch position.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2_check_dev_switch(struct vb2_context *ctx);
+
+/**
+ * Check if we need to clear the TPM owner.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2_check_tpm_clear(struct vb2_context *ctx);
+
+/**
+ * Decide which firmware slot to try this boot.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2_select_fw_slot(struct vb2_context *ctx);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2MISC_H_ */

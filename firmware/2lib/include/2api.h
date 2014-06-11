@@ -143,4 +143,44 @@ struct vb2_context {
 	uint32_t workbuf_used;
 };
 
+enum vb2_resource_index {
+
+	/* Google binary block */
+	VB2_RES_GBB,
+
+	/*
+	 * Verified boot block (keyblock+preamble).  Use VB2_CONTEXT_FW_SLOT_B
+	 * to determine whether this refers to slot A or slot B; vboot will
+	 * set that flag to the proper state before reading the vblock.
+	 */
+	VB2_RES_FW_VBLOCK,
+};
+
+/*****************************************************************************/
+/* APIs provided by the caller to verified boot */
+
+/**
+ * Clear the TPM owner.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2ex_tpm_clear_owner(struct vb2_context *ctx);
+
+/**
+ * Read a verified boot resource.
+ *
+ * @param ctx		Vboot context
+ * @param index		Resource index to read
+ * @param offset	Byte offset within resource to start at
+ * @param buf		Destination for data
+ * @param size		Amount of data to read
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2ex_read_resource(struct vb2_context *ctx,
+			enum vb2_resource_index index,
+			uint32_t offset,
+			void *buf,
+			uint32_t size);
+
 #endif  /* VBOOT_2_API_H_ */
