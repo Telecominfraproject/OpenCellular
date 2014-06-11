@@ -279,6 +279,7 @@ VBSLK_SRCS = \
 
 # Firmware library source needed for smaller library 2
 FWLIB2_SRCS = \
+	firmware/2lib/2api.c \
 	firmware/2lib/2common.c \
 	firmware/2lib/2crc8.c \
 	firmware/2lib/2misc.c \
@@ -466,6 +467,12 @@ UTIL_NAMES += \
 	utility/pad_digest_utility \
 	utility/signature_digest_utility \
 	utility/verify_data
+
+ifneq (${VBOOT2},)
+UTIL_NAMES += \
+	utility/vb2_verify_fw
+endif
+
 endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/,${UTIL_NAMES_STATIC})
@@ -571,6 +578,7 @@ endif
 
 ifneq (${VBOOT2},)
 TEST_NAMES += \
+	tests/vb2_api_tests \
 	tests/vb2_common_tests \
 	tests/vb2_common2_tests \
 	tests/vb2_common3_tests \
@@ -1103,6 +1111,7 @@ runmisctests: test_setup
 
 .PHONY: run2tests
 run2tests: test_setup
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_api_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}

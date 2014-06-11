@@ -25,6 +25,9 @@ enum vb2_return_code {
 	/* Unknown / unspecified error */
 	VB2_ERROR_UNKNOWN = VB2_ERROR_BASE + 1,
 
+	/* Mock error for testing */
+	VB2_ERROR_MOCK,
+
         /**********************************************************************
 	 * SHA errors
 	 */
@@ -307,8 +310,11 @@ enum vb2_return_code {
 	/* Uninitialized work area in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_WORKBUF,
 
-	/* Wrong amount of data hashed in vb2api_extend_hash() */
+	/* Wrong amount of data hashed in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_SIZE,
+
+	/* Work buffer too small in vb2api_check_hash() */
+	VB2_ERROR_API_CHECK_HASH_WORKBUF_DIGEST,
 
 	/* Bag tag in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_TAG,
@@ -318,12 +324,6 @@ enum vb2_return_code {
 
 	/* Siganature size mismatch in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_SIG_SIZE,
-
-	/* Preamble not present in vb2api_get_kernel_subkey() */
-	VB2_ERROR_API_KERNEL_SUBKEY_PREAMBLE,
-
-	/* Destination buffer too small in vb2api_get_kernel_subkey() */
-	VB2_ERROR_API_KERNEL_SUBKEY_DEST_SIZE,
 
 	/* Phase one needs recovery mode */
 	VB2_ERROR_API_PHASE1_RECOVERY,
