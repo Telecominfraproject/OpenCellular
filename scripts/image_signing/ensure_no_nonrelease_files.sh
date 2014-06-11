@@ -48,17 +48,15 @@ main() {
         fi
     done
 
-    # Some things which used to be flag-files, checked-for by this
-    # test, are now tracked as use-flags.
-    local useflag_path="$rootfs/etc/session_manager_use_flags.txt"
-    for prefix in dangerous_ test_; do
-        local matches=$(grep "^$prefix" "$useflag_path")
-        if [ -n "$matches" ]; then
-            echo "FAIL: Found non-release use flags in $useflag_path:"
-            echo "$matches"
-            testfail=1
-        fi
-    done
+    # Verify that session_manager isn't configured to pass additional
+    # environment variables or command-line arguments to Chrome.
+    local config_path="$rootfs/etc/chrome_dev.conf"
+    local matches=$(grep "^[^#]" "${config_path}")
+    if [ -n "$matches" ]; then
+        echo "FAIL: Found commands in $config_path:"
+        echo "$matches"
+        testfail=1
+    fi
 
     exit $testfail
 }
