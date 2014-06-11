@@ -575,6 +575,7 @@ TEST_NAMES += \
 	tests/vb2_common2_tests \
 	tests/vb2_common3_tests \
 	tests/vb2_misc_tests \
+	tests/vb2_misc2_tests \
 	tests/vb2_nvstorage_tests \
 	tests/vb2_rsa_padding_tests \
 	tests/vb2_rsa_utility_tests \
@@ -1106,6 +1107,7 @@ run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_nvstorage_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_secdata_tests

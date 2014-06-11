@@ -112,4 +112,24 @@ int vb2_check_tpm_clear(struct vb2_context *ctx);
  */
 int vb2_select_fw_slot(struct vb2_context *ctx);
 
+/**
+ * Verify the firmware keyblock using the root key.
+ *
+ * After this call, the data key is stored in the work buffer.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2_verify_fw_keyblock(struct vb2_context *ctx);
+
+/**
+ * Verify the firmware preamble using the data subkey from the keyblock.
+ *
+ * After this call, the preamble is stored in the work buffer.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2_verify_fw_preamble2(struct vb2_context *ctx);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_2MISC_H_ */
