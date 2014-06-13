@@ -365,17 +365,18 @@ repack_firmware_bundle() {
 }
 
 # Sign a firmware in-place with the given keys.
-# Args: FIRMWARE_IMAGE KEY_DIR FIRMWARE_VERSION
+# Args: FIRMWARE_IMAGE KEY_DIR FIRMWARE_VERSION [LOEM_OUTPUT_DIR]
 sign_firmware() {
   local image=$1
   local key_dir=$2
   local firmware_version=$3
+  local loem_output_dir=${4:-}
 
   local temp_firmware=$(make_temp_file)
   # Resign the firmware with new keys, also replacing the root and recovery
   # public keys in the GBB.
-  ${SCRIPT_DIR}/sign_firmware.sh ${image} ${key_dir} ${temp_firmware} \
-    ${firmware_version}
+  "${SCRIPT_DIR}/sign_firmware.sh" "${image}" "${key_dir}" "${temp_firmware}" \
+    "${firmware_version}" "${loem_output_dir}"
   # Note: Although sign_firmware.sh may correctly handle specifying the same
   # output file as the input file, we do not want to rely on it correctly
   # handing that. Hence, the use of a temporary file.
@@ -434,9 +435,18 @@ resign_firmware_payload() {
     return; }
   echo "Found a valid firmware update shellball."
 
-  local image_file
+  local image_file sign_args=() loem_sfx loem_output_dir
   for image_file in "${shellball_dir}"/bios*.bin; do
-    sign_firmware "${image_file}" ${KEY_DIR} ${FIRMWARE_VERSION}
+    if [[ -e "${KEY_DIR}/loem.ini" ]]; then
+      # Extract the extended details from "bios.bin" and use that in the
+      # subdir for the keyset.
+      loem_sfx=$(sed -r 's:.*/bios([^/]*)[.]bin$:\1:' <<<"${image_file}")
+      loem_output_dir="${shellball_dir}/keyset${loem_sfx}"
+      sign_args=( "${loem_output_dir}" )
+      mkdir -p "${loem_output_dir}"
+    fi
+    sign_firmware "${image_file}" "${KEY_DIR}" "${FIRMWARE_VERSION}" \
+      "${sign_args[@]}"
   done
 
   local signer_notes="${shellball_dir}/VERSION.signer"
@@ -732,6 +742,10 @@ elif [ "${TYPE}" == "factory" ] || [ "${TYPE}" == "install" ]; then
     2
   sign_for_factory_install ${OUTPUT_IMAGE}
 elif [ "${TYPE}" == "firmware" ]; then
+  if [[ -e "${KEY_DIR}/loem.ini" ]]; then
+    echo "LOEM signing not implemented yet for firmware images"
+    exit 1
+  fi
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   sign_firmware ${OUTPUT_IMAGE} ${KEY_DIR} ${FIRMWARE_VERSION}
 elif [ "${TYPE}" == "update_payload" ]; then

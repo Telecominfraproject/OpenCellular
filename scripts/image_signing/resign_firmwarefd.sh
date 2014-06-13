@@ -48,9 +48,10 @@
 set -e
 
 # Check arguments
-if [ $# -lt 7 ] || [ $# -gt 9 ]; then
-  echo "Usage: $PROG src_fd dst_fd firmware_datakey firmware_keyblock"\
-   "dev_firmware_datakey dev_firmware_keyblock kernel_subkey [version [flag]]"
+if [ $# -lt 7 ] || [ $# -gt 11 ]; then
+  echo "Usage: $PROG src_fd dst_fd firmware_datakey firmware_keyblock" \
+    "dev_firmware_datakey dev_firmware_keyblock kernel_subkey [version]" \
+    "[flag] [loem_output_dir] [loemid]" \
   exit 1
 fi
 
@@ -72,6 +73,8 @@ VERSION=$8
 # 0 for RW-NORMAL firmware, and 1 for RO-NORMAL firmware (search "two_stop
 # firmware" for more information).
 PREAMBLE_FLAG=$9
+LOEM_OUTPUT_DIR=${10}
+LOEMID=${11}
 
 # Disables using developer keyblocks
 disable_dev_keyblock() {
@@ -201,10 +204,14 @@ vbutil_firmware \
   --fv "${temp_fwimage_a}" \
   --kernelkey "${KERNEL_SUBKEY}"
 
-# Create a copy of the input image and put in the new vblock for firmware A
-cp "${SRC_FD}" "${DST_FD}"
-dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
-  count="${fwA_vblock_size}" conv=notrunc 2>/dev/null
+if [ -z "${LOEMID}" ]; then
+  # Create a copy of the input image and put in the new vblock for firmware A
+  cp "${SRC_FD}" "${DST_FD}"
+  dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
+    count="${fwA_vblock_size}" conv=notrunc 2>/dev/null
+else
+  cp "${temp_out_vb}" "${LOEM_OUTPUT_DIR}/vblock_A.${LOEMID}"
+fi
 
 echo "Re-calculating Firmware B vblock"
 vbutil_firmware \
@@ -216,8 +223,12 @@ vbutil_firmware \
   --fv "${temp_fwimage_b}" \
   --kernelkey "${KERNEL_SUBKEY}"
 
-# Destination image has already been created.
-dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
-  count="${fwB_vblock_size}" conv=notrunc 2>/dev/null
+if [[ -z ${LOEMID} ]]; then
+  # Destination image has already been created.
+  dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
+    count="${fwB_vblock_size}" conv=notrunc 2>/dev/null
+else
+  cp "${temp_out_vb}" "${LOEM_OUTPUT_DIR}/vblock_A.${LOEMID}"
+fi
 
 echo "New signed image was output to ${DST_FD}"
