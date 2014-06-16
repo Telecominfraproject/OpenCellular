@@ -117,9 +117,9 @@ function make_keyblock {
 # File to read current versions from.
 VERSION_FILE="key.versions"
 
-# ARGS: <VERSION_TYPE>
+# ARGS: <VERSION_TYPE> [VERSION_FILE]
 get_version() {
-  awk -F= '/^'$1'\>/ { print $NF }' ${2:-${VERSION_FILE}}
+  awk -F= '/^'$1'\>/ { print $NF }' "${2:-${VERSION_FILE}}"
 }
 
 # Loads the current versions prints them to stdout and sets the global version

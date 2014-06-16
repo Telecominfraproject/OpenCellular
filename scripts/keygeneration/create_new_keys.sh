@@ -16,16 +16,6 @@ if [ $# -eq 1 ] && [ $1 = "--devkeyblock" ]; then
   DEV_KEYBLOCK_FLAG=1
 fi
 
-# File to read current versions from.
-VERSION_FILE="key.versions"
-
-# ARGS: <version_type>
-get_version() {
-  local version_type=$1
-  version=$(sed -n "s#^${version_type}=\(.*\)#\1#pg" ${VERSION_FILE})
-  echo $version
-}
-
 if [ ! -e "${VERSION_FILE}" ]; then
   echo "No version file found. Creating default ${VERSION_FILE}."
   printf '%s_version=1\n' {firmware,kernel}{_key,} > "${VERSION_FILE}"
