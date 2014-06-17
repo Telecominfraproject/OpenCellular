@@ -26,6 +26,24 @@ EOF
   exit 1
 }
 
+gbb_update() {
+  local in_firmware="$1"
+  local key_dir="$2"
+  local out_firmware="$3"
+  local rootkey="$4"
+
+  # Replace the root and recovery key in the Google Binary Block of the
+  # firmware.  Note: This needs to happen after calling resign_firmwarefd.sh
+  # since it needs to be able to verify the firmware using the root key to
+  # determine the preamble flags.
+  gbb_utility \
+    -s \
+    --recoverykey="${key_dir}/recovery_key.vbpubk" \
+    --rootkey="${rootkey}" \
+    "${in_firmware}" \
+    "${out_firmware}"
+}
+
 # Sign a single firmware image.
 # ARGS: [loem_key] [loemid]
 sign_one() {
@@ -45,26 +63,14 @@ sign_one() {
     "" \
     "${loem_output_dir}" \
     "${loemid}"
-
-  # Replace the root and recovery key in the Google Binary Block of the
-  # firmware.  Note: This needs to happen after calling resign_firmwarefd.sh
-  # since it needs to be able to verify the firmware using the root key to
-  # determine the preamble flags.
-  local rootkey="${key_dir}/root_key${loem_key}.vbpubk"
-  local gbb_args=( -s --recoverykey="${key_dir}/recovery_key.vbpubk" )
-  if [[ -z ${loemid} ]]; then
-    gbb_args+=( --rootkey="${rootkey}" "${temp_fw}" )
-  else
-    gbb_args+=( "${in_firmware}" )
-    cp "${rootkey}" "${loem_output_dir}/rootkey.${loemid}"
-  fi
-  gbb_utility "${gbb_args[@]}" "${out_firmware}"
 }
 
 # Process all the keysets in the loem.ini file.
 sign_loems() {
   local line loem_section=false loem_index loemid
+  local rootkey
 
+  rm -f "${out_firmware}"
   while read line; do
     # Find the [loem] section.
     if ! ${loem_section}; then
@@ -84,6 +90,13 @@ sign_loems() {
 
     echo "### Processing LOEM ${loem_index} ${loemid}"
     sign_one ".loem${loem_index}" "${loemid}"
+
+    rootkey="${key_dir}/root_key.loem${loem_index}.vbpubk"
+    cp "${rootkey}" "${loem_output_dir}/rootkey.${loemid}"
+
+    if [[ ! -e ${out_firmware} ]]; then
+      gbb_update "${temp_fw}" "${key_dir}" "${out_firmware}" "${rootkey}"
+    fi
     echo
   done <"${key_dir}/loem.ini"
 }
@@ -108,6 +121,8 @@ main() {
     sign_loems
   else
     sign_one
+    gbb_update "${temp_fw}" "${key_dir}" "${out_firmware}" \
+      "${key_dir}/root_key.vbpubk"
   fi
 }
 main "$@"

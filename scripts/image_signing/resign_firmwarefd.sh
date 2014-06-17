@@ -204,12 +204,11 @@ vbutil_firmware \
   --fv "${temp_fwimage_a}" \
   --kernelkey "${KERNEL_SUBKEY}"
 
-if [ -z "${LOEMID}" ]; then
-  # Create a copy of the input image and put in the new vblock for firmware A
-  cp "${SRC_FD}" "${DST_FD}"
-  dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
-    count="${fwA_vblock_size}" conv=notrunc 2>/dev/null
-else
+# Create a copy of the input image and put in the new vblock for firmware A
+cp "${SRC_FD}" "${DST_FD}"
+dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwA_vblock_offset}" bs=1 \
+  count="${fwA_vblock_size}" conv=notrunc 2>/dev/null
+if [ -n "${LOEMID}" ]; then
   cp "${temp_out_vb}" "${LOEM_OUTPUT_DIR}/vblock_A.${LOEMID}"
 fi
 
@@ -223,11 +222,10 @@ vbutil_firmware \
   --fv "${temp_fwimage_b}" \
   --kernelkey "${KERNEL_SUBKEY}"
 
-if [[ -z ${LOEMID} ]]; then
-  # Destination image has already been created.
-  dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
-    count="${fwB_vblock_size}" conv=notrunc 2>/dev/null
-else
+# Destination image has already been created.
+dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
+  count="${fwB_vblock_size}" conv=notrunc 2>/dev/null
+if [ -n "${LOEMID}" ]; then
   cp "${temp_out_vb}" "${LOEM_OUTPUT_DIR}/vblock_A.${LOEMID}"
 fi
 
