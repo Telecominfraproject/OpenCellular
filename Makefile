@@ -1080,6 +1080,7 @@ runtestscripts: test_setup genfuzztestcases
 	tests/run_vbutil_tests.sh
 ifneq (${VBOOT2},)
 	tests/vb2_rsa_tests.sh
+	tests/vb2_firmware_tests.sh
 endif
 
 .PHONY: runmisctests

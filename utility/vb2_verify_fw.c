@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	if (rv) {
 		printf("Phase 1 wants recovery mode.\n");
 		save_if_needed(&ctx);
-		return 0;
+		return rv;
 	}
 
 	/* Determine which firmware slot to boot */
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 	if (rv) {
 		printf("Phase 2 wants reboot.\n");
 		save_if_needed(&ctx);
-		return 0;
+		return rv;
 	}
 
 	/* Try that slot */
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 	if (rv) {
 		printf("Phase 3 wants reboot.\n");
 		save_if_needed(&ctx);
-		return 0;
+		return rv;
 	}
 
 	/* Verify body */
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 	save_if_needed(&ctx);
 	if (rv) {
 		printf("Phase 4 wants reboot.\n");
-		return 0;
+		return rv;
 	}
 
 	printf("Yaay!\n");
