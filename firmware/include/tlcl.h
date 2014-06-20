@@ -28,16 +28,6 @@ uint32_t TlclLibInit(void);
  */
 uint32_t TlclLibClose(void);
 
-/**
- * Log to stdout.  Arguments like printf.
- */
-void TlclLog(char *format, ...);
-
-/**
- * Set the log level.  0 is quietest.
- */
-void TlclSetLogLevel(int level);
-
 /* Low-level operations */
 
 /**
