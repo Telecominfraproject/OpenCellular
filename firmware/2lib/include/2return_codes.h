@@ -336,6 +336,9 @@ enum vb2_return_code {
 	 */
 	VB2_ERROR_EX = VB2_ERROR_BASE + 0x0a0000,
 
+	/* Read resource not implemented */
+	VB2_ERROR_EX_READ_RESOURCE_UNIMPLEMENTED,
+
 	/* Resource index not found */
 	VB2_ERROR_EX_READ_RESOURCE_INDEX,
 
@@ -344,6 +347,9 @@ enum vb2_return_code {
 
 	/* TPM clear owner failed */
 	VB2_ERROR_EX_TPM_CLEAR_OWNER,
+
+	/* TPM clear owner not implemented */
+	VB2_ERROR_EX_TPM_CLEAR_OWNER_UNIMPLEMENTED,
 
         /**********************************************************************
 	 * Highest non-zero error generated inside vboot library.  Note that

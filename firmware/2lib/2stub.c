@@ -10,7 +10,7 @@
 
 int vb2ex_tpm_clear_owner(struct vb2_context *ctx)
 {
-	return VB2_SUCCESS;
+	return VB2_ERROR_EX_TPM_CLEAR_OWNER_UNIMPLEMENTED;
 }
 
 int vb2ex_read_resource(struct vb2_context *ctx,
@@ -19,5 +19,5 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 			void *buf,
 			uint32_t size)
 {
-	return VB2_SUCCESS;
+	return VB2_ERROR_EX_READ_RESOURCE_UNIMPLEMENTED;
 }
