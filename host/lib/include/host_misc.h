@@ -43,7 +43,4 @@ int ReadFileBit(const char* filename, int bitmask);
  * Returns 0 if success, 1 if error. */
 int WriteFile(const char* filename, const void *data, uint64_t size);
 
-/* Prints the sha1sum of the given VbPublicKey to stdout. */
-void PrintPubKeySha1Sum(VbPublicKey* key);
-
 #endif  /* VBOOT_REFERENCE_HOST_MISC_H_ */

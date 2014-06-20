@@ -237,7 +237,9 @@ else
 INCLUDES += -Ifirmware/arch/${FIRMWARE_ARCH}/include
 endif
 
-# Firmware library. TODO: Do we still need to export this?
+# Firmware library, used by the other firmware components (depthcharge,
+# coreboot, etc.). It doesn't need exporting to some other place; they'll build
+# this source tree locally and link to it directly.
 FWLIB = ${BUILD}/vboot_fw.a
 
 # Smaller firmware library. TODO: Do we still need to export this?
@@ -252,6 +254,7 @@ VBINIT_SRCS = \
 	firmware/lib/vboot_api_init.c \
 	firmware/lib/vboot_common_init.c \
 	firmware/lib/vboot_nvstorage.c \
+	firmware/lib/vboot_nvstorage_rollback.c \
 	firmware/lib/region-init.c \
 
 # Additional firmware library sources needed by VbSelectFirmware() call
@@ -348,10 +351,10 @@ endif
 
 ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2_OBJS} ${VBINIT_OBJS} ${VBSF_OBJS}
 
-# Library to build the utilities. "HOST" mostly means "userspace".
-HOSTLIB = ${BUILD}/libvboot_host.a
+# Intermediate library for the vboot_reference utilities to link against.
+UTILLIB = ${BUILD}/libvboot_util.a
 
-HOSTLIB_SRCS = \
+UTILLIB_SRCS = \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_add.c \
 	cgpt/cgpt_boot.c \
@@ -370,15 +373,43 @@ HOSTLIB_SRCS = \
 	host/lib/host_key.c \
 	host/lib/host_keyblock.c \
 	host/lib/host_misc.c \
+	host/lib/util_misc.c \
 	host/lib/host_signature.c \
 	host/lib/signature_digest.c \
 	utility/dump_kernel_config_lib.c
 
+UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS += ${UTILLIB_OBJS}
+
+# Externally exported library for some target userspace apps to link with
+# (cryptohome, updater, etc.)
+HOSTLIB = ${BUILD}/libvboot_host.a
+
+HOSTLIB_SRCS = \
+	cgpt/cgpt_add.c \
+	cgpt/cgpt_boot.c \
+	cgpt/cgpt_common.c \
+	cgpt/cgpt_create.c \
+	cgpt/cgpt_prioritize.c \
+	cgpt/flash_ts_drv.c \
+	firmware/lib/cgptlib/cgptlib_internal.c \
+	firmware/lib/cgptlib/crc32.c \
+	firmware/lib/cgptlib/mtdlib.c \
+	firmware/lib/crc8.c \
+	firmware/lib/flash_ts.c \
+	firmware/lib/tpm_lite/tlcl.c \
+	firmware/lib/utility_string.c \
+	firmware/lib/vboot_nvstorage.c \
+	firmware/stub/tpm_lite_stub.c \
+	firmware/stub/utility_stub.c \
+	firmware/stub/vboot_api_stub_init.c \
+	host/arch/${ARCH}/lib/crossystem_arch.c \
+	host/lib/crossystem.c \
+	host/lib/host_misc.c \
+	utility/dump_kernel_config_lib.c
+
 HOSTLIB_OBJS = ${HOSTLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${HOSTLIB_OBJS}
-
-# Might need this too.
-CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
 
 # Sigh. For historical reasons, the autoupdate installer must sometimes be a
 # 32-bit executable, even when everything else is 64-bit. But it only needs a
@@ -386,21 +417,19 @@ CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
 TINYHOSTLIB = ${BUILD}/libtinyvboot_host.a
 
 TINYHOSTLIB_SRCS = \
-	cgpt/cgpt_create.c \
 	cgpt/cgpt_add.c \
 	cgpt/cgpt_boot.c \
-	cgpt/cgpt_show.c \
-	cgpt/cgpt_repair.c \
-	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_common.c \
+	cgpt/cgpt_create.c \
+	cgpt/cgpt_prioritize.c \
 	cgpt/flash_ts_drv.c \
+	firmware/lib/cgptlib/cgptlib_internal.c \
+	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/flash_ts.c \
-	utility/dump_kernel_config_lib.c \
-	firmware/lib/cgptlib/crc32.c \
-	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/utility_string.c \
-	firmware/stub/utility_stub.c
+	firmware/stub/utility_stub.c \
+	utility/dump_kernel_config_lib.c
 
 TINYHOSTLIB_OBJS = ${TINYHOSTLIB_SRCS:%.c=${BUILD}/%.o}
 
@@ -657,7 +686,7 @@ all: fwlib $(if ${VBOOT2},fwlib2) $(if ${FIRMWARE_ARCH},,host_stuff) \
 
 # Host targets
 .PHONY: host_stuff
-host_stuff: hostlib cgpt utils futil tests
+host_stuff: utillib cgpt utils futil hostlib tests
 
 .PHONY: clean
 clean:
@@ -754,24 +783,43 @@ ${FWLIB2}: ${FWLIB2_OBJS}
 	${Q}ar qc $@ $^
 
 # ----------------------------------------------------------------------------
-# Host library
+# Host library(s)
 
-
-# Link tests
-${BUILD}/host/linktest/main: ${HOSTLIB}
-${BUILD}/host/linktest/main: LIBS = ${HOSTLIB}
-ALL_OBJS += ${BUILD}/host/linktest/main.o
-
-.PHONY: hostlib
-hostlib: ${BUILD}/host/linktest/main
-
-${BUILD}/host/% ${HOSTLIB}: INCLUDES += \
+# Link tests for local utilities
+${BUILD}/host/linktest/main: ${UTILLIB}
+${BUILD}/host/linktest/main: INCLUDES += \
 	-Ihost/include \
 	-Ihost/arch/${ARCH}/include \
 	-Ihost/lib/include
+${BUILD}/host/linktest/main: LIBS = ${UTILLIB}
+ALL_OBJS += ${BUILD}/host/linktest/main.o
+
+.PHONY: utillib
+utillib: ${UTILLIB} \
+	${BUILD}/host/linktest/main
 
 # TODO: better way to make .a than duplicating this recipe each time?
-${HOSTLIB}: ${HOSTLIB_OBJS} ${FWLIB_OBJS} $(if ${VBOOT2},${FWLIB2_OBJS})
+${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} $(if ${VBOOT2},${FWLIB2_OBJS})
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	${Q}rm -f $@
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	${Q}ar qc $@ $^
+
+
+# Link tests for external repos
+${BUILD}/host/linktest/extern: ${HOSTLIB}
+${BUILD}/host/linktest/extern: INCLUDES += -Ihost/include
+${BUILD}/host/linktest/extern: LIBS = ${HOSTLIB}
+${BUILD}/host/linktest/extern: LDLIBS += -static
+ALL_OBJS += ${BUILD}/host/linktest/extern.o
+
+.PHONY: hostlib
+hostlib: ${HOSTLIB} \
+	${BUILD}/host/linktest/extern
+
+# TODO: better way to make .a than duplicating this recipe each time?
+${HOSTLIB}: INCLUDES += -Ihost/include -Ihost/lib/include
+${HOSTLIB}: ${HOSTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -783,6 +831,7 @@ ${HOSTLIB}: ${HOSTLIB_OBJS} ${FWLIB_OBJS} $(if ${VBOOT2},${FWLIB2_OBJS})
 tinyhostlib: ${TINYHOSTLIB}
 	${Q}cp -f ${TINYHOSTLIB} ${HOSTLIB}
 
+${TINYHOSTLIB}: INCLUDES += -Ihost/include -Ihost/lib/include
 ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
@@ -800,7 +849,7 @@ ${CGPT_OBJS}: INCLUDES += -Ihost/include
 ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
 
-${CGPT}: ${CGPT_OBJS} ${HOSTLIB}
+${CGPT}: ${CGPT_OBJS} ${UTILLIB}
 	@$(PRINTF) "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o ${CGPT} ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -828,8 +877,8 @@ utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 	${Q}cp -f ${UTIL_SCRIPTS} ${BUILD}/utility
 	${Q}chmod a+rx $(patsubst %,${BUILD}/%,${UTIL_SCRIPTS})
 
-${UTIL_BINS} ${UTIL_BINS_STATIC}: ${HOSTLIB}
-${UTIL_BINS} ${UTIL_BINS_STATIC}: LIBS = ${HOSTLIB}
+${UTIL_BINS} ${UTIL_BINS_STATIC}: ${UTILLIB}
+${UTIL_BINS} ${UTIL_BINS_STATIC}: LIBS = ${UTILLIB}
 
 .PHONY: utils_install
 utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
@@ -874,12 +923,12 @@ futil_install: ${FUTIL_BIN}
 		ln -sf futility "${F_DIR}/$$prog"; done
 
 # TODO(wfrichar): This will need some refactoring (crbug.com/228932)
-${BUILD}/futility/% ${HOSTLIB}: INCLUDES += \
+${BUILD}/futility/% ${UTILLIB}: INCLUDES += \
 	-Ihost/include \
 	-Ihost/arch/${ARCH}/include \
 	-Ihost/lib/include
-${FUTIL_STATIC_BIN} ${FUTIL_BIN}: ${HOSTLIB}
-${FUTIL_STATIC_BIN} ${FUTIL_BIN}: LIBS = ${HOSTLIB}
+${FUTIL_STATIC_BIN} ${FUTIL_BIN}: ${UTILLIB}
+${FUTIL_STATIC_BIN} ${FUTIL_BIN}: LIBS = ${UTILLIB}
 
 # ----------------------------------------------------------------------------
 # Utility to generate TLCL structure definition header file.
@@ -903,9 +952,9 @@ update_tlcl_structures: ${BUILD}/utility/tlcl_generator
 .PHONY: tests
 tests: ${TEST_BINS}
 
-${TEST_BINS}: ${HOSTLIB} ${TESTLIB}
+${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
-${TEST_BINS}: LIBS = ${HOSTLIB} ${TESTLIB}
+${TEST_BINS}: LIBS = ${UTILLIB} ${TESTLIB}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
@@ -955,6 +1004,8 @@ ${FUTIL_BIN}: LDFLAGS += -fuse-ld=bfd
 ${FUTIL_STATIC_BIN}: LDFLAGS += -fuse-ld=bfd
 
 # Some utilities need external crypto functions
+CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
+
 ${BUILD}/utility/dumpRSAPublicKey: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
@@ -1156,6 +1207,9 @@ endif
 #	# Rollback Tests
 #	${BUILD}/tests/firmware_rollback_tests
 #	${BUILD}/tests/kernel_rollback_tests
+
+.PHONY: runalltests
+runalltests: runtests runfutiltests runlongtests
 
 # Code coverage
 .PHONY: coverage_init

@@ -14,6 +14,7 @@
 
 #include "cryptolib.h"
 #include "host_common.h"
+#include "util_misc.h"
 #include "vboot_common.h"
 
 

@@ -1162,6 +1162,42 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
   return 0;
 }
 
+int CgptGetNumNonEmptyPartitions(CgptShowParams *params) {
+  struct drive drive;
+  int gpt_retval;
+  int retval;
+
+  if (params == NULL)
+    return CGPT_FAILED;
+
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
+    return CGPT_FAILED;
+
+  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
+    Error("GptSanityCheck() returned %d: %s\n",
+          gpt_retval, GptError(gpt_retval));
+    retval = CGPT_FAILED;
+    goto done;
+  }
+
+  params->num_partitions = 0;
+  int numEntries = GetNumberOfEntries(&drive);
+  int i;
+  for(i = 0; i < numEntries; i++) {
+      GptEntry *entry = GetEntry(&drive.gpt, ANY_VALID, i);
+      if (GuidIsZero(&entry->type))
+        continue;
+
+      params->num_partitions++;
+  }
+
+  retval = CGPT_OK;
+
+done:
+  DriveClose(&drive, 0);
+  return retval;
+}
+
 int GuidEqual(const Guid *guid1, const Guid *guid2) {
   return (0 == memcmp(guid1, guid2, sizeof(Guid)));
 }

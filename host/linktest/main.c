@@ -2,6 +2,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+/*
+ * This tests for the presence of functions used by vboot_reference utilities.
+ */
+
 #include <stdio.h>
 
 #include "host_common.h"
