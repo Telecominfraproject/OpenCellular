@@ -33,11 +33,10 @@ int GptCreate(struct drive *drive, CgptCreateParams *params) {
     h->alternate_lba = drive->gpt.drive_sectors - 1;
     h->first_usable_lba = 1 + 1 + GPT_ENTRIES_SECTORS;
     h->last_usable_lba = drive->gpt.drive_sectors - 1 - GPT_ENTRIES_SECTORS - 1;
-    if (!uuid_generator) {
-      Error("Unable to generate new GUID. uuid_generator not set.\n");
+    if (CGPT_OK != GenerateGuid(&h->disk_uuid)) {
+      Error("Unable to generate new GUID.\n");
       return -1;
     }
-    (*uuid_generator)((uint8_t *)&h->disk_uuid);
     h->entries_lba = 2;
     h->number_of_entries = 128;
     h->size_of_entry = sizeof(GptEntry);

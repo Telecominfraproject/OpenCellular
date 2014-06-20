@@ -10,11 +10,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "endian.h"
-#include "gpt.h"
+#include "cgpt_endian.h"
 #include "cgptlib.h"
+#include "gpt.h"
 #include "mtdlib.h"
-
 
 struct legacy_partition {
   uint8_t  status;
@@ -180,18 +179,18 @@ int IsKernel(struct drive *drive, int secondary, uint32_t index);
 int LookupMtdTypeForGuid(const Guid *type);
 const Guid *LookupGuidForMtdType(int type);
 
-// For usage and error messages.
-extern const char* progname;
-extern const char* command;
-void Error(const char *format, ...);
+// Optional. Applications that need this must provide an implementation.
+//
+// Explanation:
+//   Some external utilities need to manipulate the GPT, but don't create new
+//   partitions from scratch. The cgpt executable uses libuuid to provide this
+//   functionality, but we don't want to have to build or install a separate
+//   instance of that library just for the 32-bit static post-install tool,
+//   which doesn't need this function.
+int GenerateGuid(Guid *newguid);
 
-// The code paths that require uuid_generate are not used currently in
-// libcgpt-cc.a so using this method would create an unnecessary dependency
-// on libuuid which then requires us to build it for 32-bit for the static
-// post-installer. So, we just expose this function pointer which should be
-// set to uuid_generate in case of the cgpt binary and can be null or some
-// no-op method in case of ilbcgpt-cc.a.
-extern void (*uuid_generator)(uint8_t* buffer);
+// For usage and error messages.
+void Error(const char *format, ...);
 
 // Command functions.
 int cmd_show(int argc, char *argv[]);

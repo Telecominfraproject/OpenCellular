@@ -78,11 +78,10 @@ static int GptSetEntryAttributes(struct drive *drive,
   if (params->set_unique) {
     memcpy(&entry->unique, &params->unique_guid, sizeof(Guid));
   } else if (GuidIsZero(&entry->type)) {
-    if (!uuid_generator) {
-      Error("Unable to generate new GUID. uuid_generator not set.\n");
-      return -1;
+	  if (CGPT_OK != GenerateGuid(&entry->unique)) {
+		  Error("Unable to generate new GUID.\n");
+		  return -1;
     }
-    (*uuid_generator)((uint8_t *)&entry->unique);
   }
   if (params->set_type)
     memcpy(&entry->type, &params->type_guid, sizeof(Guid));

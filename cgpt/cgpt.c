@@ -15,8 +15,13 @@
 #include "vboot_host.h"
 
 const char* progname;
-const char* command;
-void (*uuid_generator)(uint8_t* buffer);
+
+int GenerateGuid(Guid *newguid)
+{
+  /* From libuuid */
+  uuid_generate(newguid->u.raw);
+  return CGPT_OK;
+}
 
 struct {
   const char *name;
@@ -90,8 +95,7 @@ int main(int argc, char *argv[]) {
   int i;
   int match_count = 0;
   int match_index = 0;
-
-  uuid_generator = uuid_generate;
+  char* command;
 
   progname = strrchr(argv[0], '/');
   if (progname)

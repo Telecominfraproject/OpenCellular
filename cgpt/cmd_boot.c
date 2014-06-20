@@ -8,6 +8,8 @@
 #include "cgpt.h"
 #include "vboot_host.h"
 
+extern const char* progname;
+
 static void Usage(void)
 {
   printf("\nUsage: %s boot [OPTIONS] DRIVE\n\n"

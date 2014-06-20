@@ -10,7 +10,6 @@
 #include "cgpt.h"
 #include "cgpt_params.h"
 #include "cgptlib_internal.h"
-#include "endian.h"
 #include "vboot_host.h"
 
 int CgptGetBootPartitionNumber(CgptBootParams *params) {

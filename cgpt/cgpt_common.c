@@ -41,17 +41,16 @@ void EnableNandImage(int bytes_per_page, int pages_per_block,
 void Error(const char *format, ...) {
   va_list ap;
   va_start(ap, format);
-  fprintf(stderr, "ERROR: %s %s: ", progname, command);
+  fprintf(stderr, "ERROR: ");
   vfprintf(stderr, format, ap);
   va_end(ap);
 }
 
-
 int CheckValid(const struct drive *drive) {
   if ((drive->gpt.valid_headers != MASK_BOTH) ||
       (drive->gpt.valid_entries != MASK_BOTH)) {
-    fprintf(stderr, "\nWARNING: one of the GPT header/entries is invalid, "
-           "please run '%s repair'\n", progname);
+	  fprintf(stderr,
+		  "\nWARNING: one of the GPT header/entries is invalid\n\n");
     return CGPT_FAILED;
   }
   return CGPT_OK;
@@ -1180,3 +1179,7 @@ void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen) {
     require(snprintf(str, buflen, "PMBR (Boot GUID: %s)", buf) < buflen);
   }
 }
+
+/* Optional */
+int __GenerateGuid(Guid *newguid) { return CGPT_FAILED; };
+int GenerateGuid(Guid *newguid) __attribute__((weak, alias("__GenerateGuid")));
