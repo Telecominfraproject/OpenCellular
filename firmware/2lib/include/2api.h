@@ -372,4 +372,5 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 			void *buf,
 			uint32_t size);
 
+void vb2ex_printf(const char *func, const char *fmt, ...);
 #endif  /* VBOOT_2_API_H_ */

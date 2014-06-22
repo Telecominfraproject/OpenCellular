@@ -8,6 +8,7 @@
 #ifndef VBOOT_REFERENCE_VBOOT_2COMMON_H_
 #define VBOOT_REFERENCE_VBOOT_2COMMON_H_
 
+#include "2api.h"
 #include "2return_codes.h"
 #include "2sha.h"
 #include "2struct.h"
@@ -23,13 +24,16 @@ struct vb2_public_key;
 #endif
 
 /*
- * Debug output.  Defaults to printf(), but can be overridden on a per-platform
- * basis.
+ * Debug output. printf() for tests. otherwise, it's platform-dependent.
  */
-#if defined(VBOOT_DEBUG) && !defined(VB2_DEBUG)
-#define VB2_DEBUG(format, args...) printf(format, ## args)
+#if defined(VBOOT_DEBUG)
+#  if defined(FOR_TEST)
+#    define VB2_DEBUG(format, args...) printf(format, ## args)
+#  else
+#    define VB2_DEBUG(format, args...) vb2ex_printf(__func__, format, ## args)
+#  endif
 #else
-#define VB2_DEBUG(format, args...)
+#  define VB2_DEBUG(format, args...)
 #endif
 
 /* Alignment for work buffer pointers/allocations */
