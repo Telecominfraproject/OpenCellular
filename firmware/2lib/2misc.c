@@ -95,6 +95,7 @@ void vb2_fail(struct vb2_context *ctx, uint8_t reason, uint8_t subcode)
 	 * If recovery is already requested, it's a more specific error code
 	 * than later code is providing and we shouldn't overwrite it.
 	 */
+	VB2_DEBUG("Both slots are bad. Need recovery\n");
 	if (!vb2_nv_get(ctx, VB2_NV_RECOVERY_REQUEST)) {
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, reason);
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_SUBCODE, subcode);

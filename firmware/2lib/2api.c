@@ -291,5 +291,8 @@ int vb2api_check_hash(struct vb2_context *ctx)
 			       vb2_signature_data(&pre->body_signature),
 			       digest,
 			       &wb);
+	if (rv)
+		vb2_fail(ctx, VB2_RECOVERY_RO_INVALID_RW, rv);
+
 	return rv;
 }
