@@ -23,6 +23,14 @@ static __inline struct vb2_shared_data *vb2_get_sd(struct vb2_context *ctx) {
 }
 
 /**
+ * Validate gbb signature (the magic number)
+ *
+ * @param sig	pointer to the signature bytes to validate
+ * @return VB2_SUCCESS if valid or VB2_ERROR_GBB_MAGIC otherwise.
+ */
+int vb2_validate_gbb_signature(uint8_t *sig);
+
+/**
  * Initialize a work buffer from the vboot context.
  *
  * This sets the work buffer to the unused portion of the context work buffer.

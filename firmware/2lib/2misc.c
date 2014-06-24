@@ -14,6 +14,17 @@
 #include "2sha.h"
 #include "2rsa.h"
 
+int vb2_validate_gbb_signature(uint8_t *sig) {
+	const static uint8_t sig_xor[VB2_GBB_SIGNATURE_SIZE] =
+			VB2_GBB_XOR_SIGNATURE;
+	int i;
+	for (i = 0; i < VB2_GBB_SIGNATURE_SIZE; i++) {
+		if (sig[i] != (sig_xor[i] ^ VB2_GBB_XOR_CHARS[i]))
+			return VB2_ERROR_GBB_MAGIC;
+	}
+	return VB2_SUCCESS;
+}
+
 void vb2_workbuf_from_ctx(struct vb2_context *ctx, struct vb2_workbuf *wb)
 {
 	vb2_workbuf_init(wb, ctx->workbuf + ctx->workbuf_used,
@@ -22,8 +33,6 @@ void vb2_workbuf_from_ctx(struct vb2_context *ctx, struct vb2_workbuf *wb)
 
 int vb2_read_gbb_header(struct vb2_context *ctx, struct vb2_gbb_header *gbb)
 {
-	static const uint8_t expect_sig[VB2_GBB_SIGNATURE_SIZE] =
-		VB2_GBB_SIGNATURE;
 	int rv;
 
 	/* Read the entire header */
@@ -32,8 +41,9 @@ int vb2_read_gbb_header(struct vb2_context *ctx, struct vb2_gbb_header *gbb)
 		return rv;
 
 	/* Make sure it's really a GBB */
-	if (memcmp(gbb->signature, expect_sig, sizeof(expect_sig)))
-		return VB2_ERROR_GBB_MAGIC;
+	rv = vb2_validate_gbb_signature(gbb->signature);
+	if (rv)
+		return rv;
 
 	/* Check for compatible version */
 	if (gbb->major_version != VB2_GBB_MAJOR_VER)

@@ -301,9 +301,14 @@ struct vb2_shared_data {
 
 /****************************************************************************/
 
-/* Signature at start of the GBB */
+/* Signature at start of the GBB
+ * Note that if you compile in the signature as is, you are likely to break any
+ * tools that search for the signature. */
 #define VB2_GBB_SIGNATURE "$GBB"
 #define VB2_GBB_SIGNATURE_SIZE 4
+#define VB2_GBB_XOR_CHARS "****"
+/* TODO: can we write a macro to produce this at compile time? */
+#define VB2_GBB_XOR_SIGNATURE { 0x0e, 0x6d, 0x68, 0x68 }
 
 /* VB2 GBB struct version */
 #define VB2_GBB_MAJOR_VER      1
