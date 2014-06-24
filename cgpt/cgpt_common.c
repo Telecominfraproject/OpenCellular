@@ -156,7 +156,7 @@ static int get_hex_char_value(char ch) {
   return -1;
 }
 
-int TryInitMtd(const char *dev) {
+static int TryInitMtd(const char *dev) {
   static int already_inited = 0;
   if (already_inited)
     return nand.use_host_ioctl;
@@ -298,7 +298,7 @@ int MtdSave(struct drive *drive) {
                   sizeof(mtd->primary));
 }
 
-int GptLoad(struct drive *drive, uint32_t sector_bytes) {
+static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   drive->gpt.sector_bytes = sector_bytes;
   if (drive->size % drive->gpt.sector_bytes) {
     Error("Media size (%llu) is not a multiple of sector size(%d)\n",
@@ -332,7 +332,7 @@ int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   return 0;
 }
 
-int GptSave(struct drive *drive) {
+static int GptSave(struct drive *drive) {
   int errors = 0;
   if (drive->gpt.modified & GPT_MODIFIED_HEADER1) {
     if (CGPT_OK != Save(drive, drive->gpt.primary_header,
@@ -838,7 +838,7 @@ void PrintTypes(void) {
   printf("\n");
 }
 
-GptHeader* GetGptHeader(const GptData *gpt) {
+static GptHeader* GetGptHeader(const GptData *gpt) {
   if (gpt->valid_headers & MASK_PRIMARY)
     return (GptHeader*)gpt->primary_header;
   else if (gpt->valid_headers & MASK_SECONDARY)

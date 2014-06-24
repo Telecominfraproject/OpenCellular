@@ -66,7 +66,8 @@ void PrintSignature(const char *indent, const char *sig, size_t n, int raw) {
   printf("\n");
 }
 
-void MtdHeaderDetails(MtdDiskLayout *header, const char *indent, int raw) {
+static void MtdHeaderDetails(MtdDiskLayout *header, const char *indent,
+			     int raw) {
   PrintSignature(indent, (char*)header->signature, sizeof(header->signature),
     raw);
 
@@ -300,7 +301,7 @@ int MtdShow(struct drive *drive, CgptShowParams *params) {
   return CGPT_OK;
 }
 
-int GptShow(struct drive *drive, CgptShowParams *params) {
+static int GptShow(struct drive *drive, CgptShowParams *params) {
   int gpt_retval;
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive->gpt))) {
     Error("GptSanityCheck() returned %d: %s\n",

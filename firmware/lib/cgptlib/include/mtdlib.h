@@ -123,17 +123,10 @@ typedef struct {
 
 
 /* APIs are documented in cgptlib.h & cgptlib_internal.h */
-int MtdInit(MtdData *mtd);
-int MtdCheckParameters(MtdData *mtd);
-
-int MtdNextKernelEntry(MtdData *gpt, uint64_t *start_sector, uint64_t *size);
-int MtdUpdateKernelEntry(MtdData *gpt, uint32_t update_type);
-
 int MtdGetEntryPriority(const MtdDiskPartition *e);
 int MtdGetEntryTries(const MtdDiskPartition *e);
 int MtdGetEntrySuccessful(const MtdDiskPartition *e);
 int MtdGetEntryType(const MtdDiskPartition *e);
-int MtdIsKernelEntry(const MtdDiskPartition *e);
 void MtdSetEntrySuccessful(MtdDiskPartition *e, int successful) ;
 void MtdSetEntryPriority(MtdDiskPartition *e, int priority);
 void MtdSetEntryTries(MtdDiskPartition *e, int tries);
@@ -145,15 +138,8 @@ void MtdGetPartitionSize(const MtdDiskPartition *e,
 void MtdGetPartitionSizeInSectors(const MtdDiskPartition *e, uint64_t *start,
                                   uint64_t *end, uint64_t *size);
 
-void MtdModified(MtdData *mtd);
 int MtdGptInit(MtdData *mtd);
-int MtdIsPartitionValid(const MtdDiskPartition *part);
-int MtdCheckEntries(MtdDiskPartition *entries, MtdDiskLayout *h);
-int MtdSanityCheck(MtdData *disk);
-void MtdRepair(MtdData *gpt);
-void MtdGetCurrentKernelUniqueGuid(MtdData *gpt, void *dest);
 uint32_t MtdHeaderCrc(MtdDiskLayout *h);
-
 
 #endif
 

@@ -307,7 +307,7 @@ bad:
   return result;
 }
 
-int GptAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
+static int GptAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
   GptEntry *entry, backup;
   int rv;
 
@@ -336,7 +336,7 @@ int GptAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
   return 0;
 }
 
-int MtdAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
+static int MtdAdd(struct drive *drive, CgptAddParams *params, uint32_t index) {
   MtdDiskPartition *entry, backup;
   entry = MtdGetEntry(&drive->mtd, PRIMARY, index);
   memcpy(&backup, entry, sizeof(backup));

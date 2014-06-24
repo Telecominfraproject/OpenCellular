@@ -6,14 +6,15 @@
 #include <string.h>
 
 #include "../cgpt/cgpt.h"
+#include "../cgpt/flash_ts.h"
 #include "cgptlib_internal.h"
 #include "cgptlib_test.h"
 #include "crc32.h"
 #include "crc32_test.h"
 #include "errno.h"
-#include "flash_ts.h"
 #include "gpt.h"
 #include "mtdlib.h"
+#include "mtdlib_unused.h"
 #include "test_common.h"
 #define _STUB_IMPLEMENTATION_
 #include "utility.h"

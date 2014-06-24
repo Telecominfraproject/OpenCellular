@@ -9,7 +9,7 @@
 #include "cgptlib_internal.h"
 #include "vboot_host.h"
 
-int GptCreate(struct drive *drive, CgptCreateParams *params) {
+static int GptCreate(struct drive *drive, CgptCreateParams *params) {
   // Erase the data
   memset(drive->gpt.primary_header, 0,
          drive->gpt.sector_bytes * GPT_HEADER_SECTOR);
@@ -50,7 +50,7 @@ int GptCreate(struct drive *drive, CgptCreateParams *params) {
   return 0;
 }
 
-int MtdCreate(struct drive *drive, CgptCreateParams *params) {
+static int MtdCreate(struct drive *drive, CgptCreateParams *params) {
   MtdDiskLayout *h = &drive->mtd.primary;
   memset(h, 0, sizeof(*h));
   drive->mtd.modified = 1;
