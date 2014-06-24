@@ -17,6 +17,10 @@
 /*
  * Constants for NV storage.  We use this rather than structs and bitfields so
  * the data format is consistent across platforms and compilers.
+ *
+ * These constants must match the equivalent constants in 2lib/2nvstorage.c.
+ * (We currently don't share a common header file because we're tring to keep
+ * the two libs independent, and we hope to deprecate this one.)
  */
 #define HEADER_OFFSET                0
 #define HEADER_MASK                     0xC0
@@ -44,6 +48,11 @@
 #define TPM_CLEAR_OWNER_DONE            0x02
 
 #define RECOVERY_SUBCODE_OFFSET      6
+
+#define BOOT2_OFFSET                 7
+#define BOOT2_RESULT_MASK               0x03
+#define BOOT2_TRIED                     0x04
+#define BOOT2_TRY_NEXT                  0x08
 
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
@@ -103,6 +112,7 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 		return 0;
 
 	case VBNV_TRY_B_COUNT:
+	case VBNV_FW_TRY_COUNT:
 		*dest = raw[BOOT_OFFSET] & BOOT_TRY_B_COUNT_MASK;
 		return 0;
 
@@ -159,6 +169,18 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 		*dest = (raw[BOOT_OFFSET] & BOOT_BACKUP_NVRAM ? 1 : 0);
 		return 0;
 
+	case VBNV_FW_TRY_NEXT:
+		*dest = (raw[BOOT2_OFFSET] & BOOT2_TRY_NEXT ? 1 : 0);
+		return 0;
+
+	case VBNV_FW_TRIED:
+		*dest = (raw[BOOT2_OFFSET] & BOOT2_TRIED ? 1 : 0);
+		return 0;
+
+	case VBNV_FW_RESULT:
+		*dest = raw[BOOT2_OFFSET] & BOOT2_RESULT_MASK;
+		return 0;
+
 	default:
 		return 1;
 	}
@@ -196,6 +218,7 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 		break;
 
 	case VBNV_TRY_B_COUNT:
+	case VBNV_FW_TRY_COUNT:
 		/* Clip to valid range. */
 		if (value > BOOT_TRY_B_COUNT_MASK)
 			value = BOOT_TRY_B_COUNT_MASK;
@@ -289,6 +312,28 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 			raw[BOOT_OFFSET] &= ~BOOT_BACKUP_NVRAM;
 		break;
 
+	case VBNV_FW_TRY_NEXT:
+		if (value)
+			raw[BOOT2_OFFSET] |= BOOT2_TRY_NEXT;
+		else
+			raw[BOOT2_OFFSET] &= ~BOOT2_TRY_NEXT;
+		break;
+
+	case VBNV_FW_TRIED:
+		if (value)
+			raw[BOOT2_OFFSET] |= BOOT2_TRIED;
+		else
+			raw[BOOT2_OFFSET] &= ~BOOT2_TRIED;
+		break;
+
+	case VBNV_FW_RESULT:
+		/* Map out of range values to unknown */
+		if (value > BOOT2_RESULT_MASK)
+			value = VBNV_FW_RESULT_UNKNOWN;
+
+		raw[BOOT2_OFFSET] &= ~BOOT2_RESULT_MASK;
+		raw[BOOT2_OFFSET] |= (uint8_t)value;
+		break;
 
 	default:
 		return 1;

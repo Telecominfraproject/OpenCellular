@@ -60,6 +60,7 @@ typedef enum VbBuildOption {
   VB_BUILD_OPTION_NODEBUG
 } VbBuildOption;
 
+static const char *fw_results[] = {"unknown", "trying", "success", "failure"};
 
 /* Masks for kern_nv usage by kernel. */
 #define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
@@ -464,6 +465,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_TRY_B_COUNT);
   } else if (!strcasecmp(name,"fw_vboot2")) {
     value = GetVdatInt(VDAT_INT_FW_BOOT2);
+  } else if (!strcasecmp(name,"fw_try_count")) {
+    value = VbGetNvStorage(VBNV_FW_TRY_COUNT);
   } else if (!strcasecmp(name,"fwupdate_tries")) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
     if (value != -1)
@@ -547,6 +550,16 @@ const char* VbGetSystemPropertyString(const char* name, char* dest,
     return GetVdatString(dest, size, VDAT_STRING_LOAD_KERNEL_DEBUG);
   } else if (!strcasecmp(name, "ddr_type")) {
     return unknown_string;
+  } else if (!strcasecmp(name, "fw_try_next")) {
+    return VbGetNvStorage(VBNV_FW_TRY_NEXT) ? "B" : "A";
+  } else if (!strcasecmp(name, "fw_tried")) {
+    return VbGetNvStorage(VBNV_FW_TRIED) ? "B" : "A";
+  } else if (!strcasecmp(name, "fw_result")) {
+    int v = VbGetNvStorage(VBNV_FW_RESULT);
+    if (v < ARRAY_SIZE(fw_results))
+      return fw_results[v];
+    else
+      return "unknown";
   }
 
   return NULL;
@@ -578,6 +591,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE, 0);
   } else if (!strcasecmp(name,"fwb_tries")) {
     return VbSetNvStorage(VBNV_TRY_B_COUNT, value);
+  } else if (!strcasecmp(name,"fw_try_count")) {
+    return VbSetNvStorage(VBNV_FW_TRY_COUNT, value);
   } else if (!strcasecmp(name,"oprom_needed")) {
     return VbSetNvStorage(VBNV_OPROM_NEEDED, value);
   } else if (!strcasecmp(name,"backup_nvram_request")) {
@@ -614,5 +629,26 @@ int VbSetSystemPropertyInt(const char* name, int value) {
 
 int VbSetSystemPropertyString(const char* name, const char* value) {
   /* Chain to architecture-dependent properties */
-  return VbSetArchPropertyString(name, value);
+  if (0 == VbSetArchPropertyString(name, value))
+    return 0;
+
+  if (!strcasecmp(name, "fw_try_next")) {
+    if (!strcasecmp(value, "A"))
+      return VbSetNvStorage(VBNV_FW_TRY_NEXT, 0);
+    else if (!strcasecmp(value, "B"))
+      return VbSetNvStorage(VBNV_FW_TRY_NEXT, 1);
+    else
+      return -1;
+
+  } else if (!strcasecmp(name, "fw_result")) {
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(fw_results); i++) {
+      if (!strcasecmp(value, fw_results[i]))
+	return VbSetNvStorage(VBNV_FW_RESULT, i);
+    }
+    return -1;
+  }
+
+  return -1;
 }

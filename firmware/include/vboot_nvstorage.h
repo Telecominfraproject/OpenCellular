@@ -45,8 +45,14 @@ typedef enum VbNvParam {
 	/*
 	 * Number of times to try booting RW firmware slot B before slot A.
 	 * Valid range: 0-15.
+	 *
+	 * Vboot2: Number of times to try the firmware in VBNV_FW_TRY_NEXT.
+	 *
+	 * These refer to the same field, but have different enum values so
+	 * case statement don't complain about duplicates.
 	 */
 	VBNV_TRY_B_COUNT,
+	VBNV_FW_TRY_COUNT,
 	/*
 	 * Request recovery mode on next boot; see VBNB_RECOVERY_* below for
 	 * currently defined reason codes.  8-bit value.
@@ -85,7 +91,32 @@ typedef enum VbNvParam {
 	VBNV_RECOVERY_SUBCODE,
 	/* Request that NVRAM be backed up at next boot if possible. */
 	VBNV_BACKUP_NVRAM_REQUEST,
+
+	/* Vboot2: Firmware slot to try next.  0=A, 1=B */
+	VBNV_FW_TRY_NEXT,
+	/* Vboot2: Firmware slot tried this boot (0=A, 1=B) */
+	VBNV_FW_TRIED,
+	/* Vboot2: Result of trying that firmware (see vb2_fw_result) */
+	VBNV_FW_RESULT,
+
+
 } VbNvParam;
+
+/* Result of trying the firmware in VBNV_FW_TRIED */
+typedef enum VbFwResult {
+	/* Unknown */
+	VBNV_FW_RESULT_UNKNOWN = 0,
+
+	/* Trying a new slot, but haven't reached success/failure */
+	VBNV_FW_RESULT_TRYING = 1,
+
+	/* Successfully booted to the OS */
+	VBNV_FW_RESULT_SUCCESS = 2,
+
+	/* Known failure */
+	VBNV_FW_RESULT_FAILURE = 3,
+
+} VbFwResult;
 
 /* Recovery reason codes for VBNV_RECOVERY_REQUEST */
 /* Recovery not requested. */

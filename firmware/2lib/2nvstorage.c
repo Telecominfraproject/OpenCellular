@@ -15,6 +15,11 @@
  * Constants for NV storage.  We use this rather than structs and bitfields so
  * the data format is consistent across platforms and compilers.  Total NV
  * storage size is VB2_NVDATA_SIZE = 16 bytes.
+ *
+ * These constants must match the equivalent constants in
+ * lib/vboot_nvstorage.c.  (We currently don't share a common header file
+ * because we're tring to keep the two libs independent, and we hope to
+ * deprecate that one.)
  */
 
 enum vb2_nv_offset {
