@@ -40,14 +40,15 @@ enum vb2_nv_offset {
 
 /* Fields in VB2_NV_OFFS_BOOT */
 #define VB2_NV_BOOT_TRY_COUNT_MASK             0x0f
-#define VB2_NV_BOOT_TRY_NEXT                   0x10
+#define VB2_NV_BOOT_BACKUP_NVRAM               0x10
 #define VB2_NV_BOOT_OPROM_NEEDED               0x20
 #define VB2_NV_BOOT_DISABLE_DEV                0x40
 #define VB2_NV_BOOT_DEBUG_RESET                0x80
 
-/* Fields in VB2_NV_OFFS_BOOT2 (unused = 0xf8) */
+/* Fields in VB2_NV_OFFS_BOOT2 (unused = 0xf0) */
 #define VB2_NV_BOOT2_RESULT_MASK               0x03
 #define VB2_NV_BOOT2_TRIED                     0x04
+#define VB2_NV_BOOT2_TRY_NEXT                  0x08
 
 /* Fields in VB2_NV_OFFS_DEV (unused = 0xf8) */
 #define VB2_NV_DEV_FLAG_USB                    0x01
@@ -139,7 +140,7 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 		return GETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_DEBUG_RESET);
 
 	case VB2_NV_TRY_NEXT:
-		return GETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_TRY_NEXT);
+		return GETBIT(VB2_NV_OFFS_BOOT2, VB2_NV_BOOT2_TRY_NEXT);
 
 	case VB2_NV_TRY_COUNT:
 		return p[VB2_NV_OFFS_BOOT] & VB2_NV_BOOT_TRY_COUNT_MASK;
@@ -179,6 +180,9 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 
 	case VB2_NV_OPROM_NEEDED:
 		return GETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_OPROM_NEEDED);
+
+	case VB2_NV_BACKUP_NVRAM_REQUEST:
+		return GETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_BACKUP_NVRAM);
 
 	case VB2_NV_CLEAR_TPM_OWNER_REQUEST:
 		return GETBIT(VB2_NV_OFFS_TPM, VB2_NV_TPM_CLEAR_OWNER_REQUEST);
@@ -228,7 +232,7 @@ void vb2_nv_set(struct vb2_context *ctx,
 		break;
 
 	case VB2_NV_TRY_NEXT:
-		SETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_TRY_NEXT);
+		SETBIT(VB2_NV_OFFS_BOOT2, VB2_NV_BOOT2_TRY_NEXT);
 		break;
 
 	case VB2_NV_TRY_COUNT:
@@ -300,6 +304,10 @@ void vb2_nv_set(struct vb2_context *ctx,
 
 	case VB2_NV_OPROM_NEEDED:
 		SETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_OPROM_NEEDED);
+		break;
+
+	case VB2_NV_BACKUP_NVRAM_REQUEST:
+		SETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_BACKUP_NVRAM);
 		break;
 
 	case VB2_NV_CLEAR_TPM_OWNER_REQUEST:

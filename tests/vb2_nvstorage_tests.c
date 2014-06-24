@@ -45,6 +45,7 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
 	{VB2_NV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
 	{VB2_NV_OPROM_NEEDED, 0, 1, 0, "oprom needed"},
+	{VB2_NV_BACKUP_NVRAM_REQUEST, 0, 1, 0, "backup nvram request"},
 	{0, 0, 0, 0, NULL}
 };
 

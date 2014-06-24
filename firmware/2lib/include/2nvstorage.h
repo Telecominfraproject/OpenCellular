@@ -68,6 +68,8 @@ enum vb2_nv_param {
 	VB2_NV_CLEAR_TPM_OWNER_DONE,
 	/* More details on recovery reason */
 	VB2_NV_RECOVERY_SUBCODE,
+	/* Request that NVRAM be backed up at next boot if possible. */
+	VB2_NV_BACKUP_NVRAM_REQUEST,
 	/* Firmware slot tried this boot (0=A, 1=B) */
 	VB2_NV_FW_TRIED,
 	/* Result of trying that firmware (see vb2_fw_result) */
