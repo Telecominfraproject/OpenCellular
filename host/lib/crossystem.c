@@ -47,7 +47,8 @@ typedef enum VdatIntField {
   VDAT_INT_TRIED_FIRMWARE_B,         /* Tried firmware B due to fwb_tries */
   VDAT_INT_KERNEL_KEY_VERIFIED,      /* Kernel key verified using
                                       * signature, not just hash */
-  VDAT_INT_RECOVERY_REASON           /* Recovery reason for current boot */
+  VDAT_INT_RECOVERY_REASON,          /* Recovery reason for current boot */
+  VDAT_INT_FW_BOOT2                  /* Firmware selection by vboot2 */
 } VdatIntField;
 
 
@@ -395,6 +396,8 @@ int GetVdatInt(VdatIntField field) {
     case VDAT_INT_KERNEL_VERSION_TPM:
       value = (int)sh->kernel_version_tpm;
       break;
+    case VDAT_INT_FW_BOOT2:
+      value = (sh->flags & VBSD_BOOT_FIRMWARE_VBOOT2 ? 1 : 0);
     default:
       break;
   }
@@ -459,6 +462,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE);
   } else if (!strcasecmp(name,"fwb_tries")) {
     value = VbGetNvStorage(VBNV_TRY_B_COUNT);
+  } else if (!strcasecmp(name,"fw_vboot2")) {
+    value = GetVdatInt(VDAT_INT_FW_BOOT2);
   } else if (!strcasecmp(name,"fwupdate_tries")) {
     value = VbGetNvStorage(VBNV_KERNEL_FIELD);
     if (value != -1)

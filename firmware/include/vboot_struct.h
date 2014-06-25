@@ -236,31 +236,33 @@ typedef struct VbKernelPreambleHeader {
  * the firmware.  If this flag is not present, it just used the hash of the
  * kernel keyblock.
  */
-#define VBSD_KERNEL_KEY_VERIFIED        0x00000002
+#define VBSD_KERNEL_KEY_VERIFIED         0x00000002
 /* LoadFirmware() was told the developer switch was on */
-#define VBSD_LF_DEV_SWITCH_ON           0x00000004
+#define VBSD_LF_DEV_SWITCH_ON            0x00000004
 /* LoadFirmware() is requesting the read only normal/dev code path */
-#define VBSD_LF_USE_RO_NORMAL           0x00000008
+#define VBSD_LF_USE_RO_NORMAL            0x00000008
 /* Developer switch was enabled at boot time */
-#define VBSD_BOOT_DEV_SWITCH_ON         0x00000010
+#define VBSD_BOOT_DEV_SWITCH_ON          0x00000010
 /* Recovery switch was enabled at boot time */
-#define VBSD_BOOT_REC_SWITCH_ON         0x00000020
+#define VBSD_BOOT_REC_SWITCH_ON          0x00000020
 /* Firmware write protect was enabled at boot time */
-#define VBSD_BOOT_FIRMWARE_WP_ENABLED   0x00000040
+#define VBSD_BOOT_FIRMWARE_WP_ENABLED    0x00000040
 /* Boot is a S3->S0 resume, not a S5->S0 normal boot */
-#define VBSD_BOOT_S3_RESUME             0x00000100
+#define VBSD_BOOT_S3_RESUME              0x00000100
 /* Read-only firmware supports the normal/developer code path */
-#define VBSD_BOOT_RO_NORMAL_SUPPORT     0x00000200
+#define VBSD_BOOT_RO_NORMAL_SUPPORT      0x00000200
 /* VbInit() was told that the system has a virtual dev-switch */
-#define VBSD_HONOR_VIRT_DEV_SWITCH      0x00000400
+#define VBSD_HONOR_VIRT_DEV_SWITCH       0x00000400
 /* VbInit() was told the system supports EC software sync */
-#define VBSD_EC_SOFTWARE_SYNC           0x00000800
+#define VBSD_EC_SOFTWARE_SYNC            0x00000800
 /* VbInit() was told that the EC firmware is slow to update */
-#define VBSD_EC_SLOW_UPDATE             0x00001000
+#define VBSD_EC_SLOW_UPDATE              0x00001000
 /* Firmware software write protect was enabled at boot time */
 #define VBSD_BOOT_FIRMWARE_SW_WP_ENABLED 0x00002000
 /* VbInit() was told that the recovery button is a virtual one */
 #define VBSD_BOOT_REC_SWITCH_VIRTUAL     0x00004000
+/* Firmware used vboot2 for firmware selection */
+#define VBSD_BOOT_FIRMWARE_VBOOT2        0x00008000
 
 /*
  * Supported flags by header version.  It's ok to add new flags while keeping
