@@ -162,6 +162,11 @@ endif
 # Create / use dependency files
 CFLAGS += -MMD -MF $@.d
 
+ifeq (${FIRMWARE_ARCH},)
+# Creates position independent code for non firmware target.
+CFLAGS += -fPIE
+endif
+
 # These are required to access large disks and files on 32-bit systems.
 CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
 
