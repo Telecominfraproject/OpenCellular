@@ -20,5 +20,5 @@ Kaveri  generic Baseline VBIOS 100
 Spectre A11 0x1304  105-c45300-000  AMDSpectreGenericVbios.100    12/05/13,16:27:24 984074@15.41.0.0  ATOMBuild #279841
 
 Changes include:
-no change, update the Vbios bring up revisio number 0xx to production revision number 100. 
+no change, update the Vbios bring up revisio number 0xx to production revision number 100.
 
