@@ -27,4 +27,10 @@ cd "$OUTDIR"  # TODO: we really need a directory argument for dump_fmap.
 if "$FUTILITY" dump_fmap -x "${SCRIPTDIR}/data_fmap.bin" FMAP ; then
   echo Wait, that was supposed to fail. 1>&2
   exit 1
+else
+  rm -f FMAP
 fi
+
+# cleanup
+rm -f "$TMP"
+exit 0

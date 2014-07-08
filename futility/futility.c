@@ -200,6 +200,10 @@ static void log_args(int argc, char *argv[])
 /******************************************************************************/
 /* Here we go */
 
+#ifdef COVERAGE
+void __gcov_flush(void);
+#endif
+
 int main(int argc, char *argv[], char *envp[])
 {
   char *progname;
@@ -278,6 +282,10 @@ int main(int argc, char *argv[], char *envp[])
   }
 
   fflush(0);
+#ifdef COVERAGE
+  /* Write gcov data prior to exec. */
+  __gcov_flush();
+#endif
   execve(oldname, argv, envp);
 
   fprintf(stderr, "%s failed to exec %s: %s\n", MYNAME,

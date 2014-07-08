@@ -7,7 +7,7 @@
 SCRIPTDIR=$(dirname $(readlink -f "$0"))
 . "$SCRIPTDIR/common.sh"
 
-# Mandatory arg is the path to the futility executable to test.
+# Mandatory arg is the directory where futility is installed.
 [ -z "${1:-}" ] && error "Directory argument is required"
 BINDIR="$1"
 shift
@@ -33,7 +33,10 @@ export SCRIPTDIR
 export OUTDIR
 
 # These are the scripts to run. Binaries are invoked directly by the Makefile.
-TESTS="${SCRIPTDIR}/test_dump_fmap.sh"
+TESTS="
+${SCRIPTDIR}/test_main.sh
+${SCRIPTDIR}/test_dump_fmap.sh
+"
 
 
 # Get ready...
@@ -45,14 +48,14 @@ progs=0
 # everything is built in (chromium:196079).
 
 # Here are the old programs to be wrapped
-# FIXME: dev_debug_vboot isn't tested right now.
+# TODO(crbug.com/224734): dev_debug_vboot isn't tested right now.
 PROGS=${*:-cgpt crossystem dev_sign_file dumpRSAPublicKey
            dump_kernel_config enable_dev_usb_boot gbb_utility
            tpm_init_temp_fix tpmc vbutil_firmware vbutil_kernel vbutil_key
            vbutil_keyblock vbutil_what_keys}
 
 # For now just compare results of invoking each program with no args.
-# FIXME(chromium-os:37062): Create true rigorous tests for every program.
+# TODO: Create true rigorous tests for every program.
 echo "-- old_bins --"
 for i in $PROGS; do
   : $(( progs++ ))
@@ -89,6 +92,12 @@ for i in $PROGS; do
   fi
 done
 
+# How many wrapped executables are left to incorporate? Did we check them all?
+xprogs=$(find ${OLDDIR} -type f -perm /111 | wc -l)
+if [ $xprogs -gt 0 ]; then
+  yellow "${progs}/${xprogs} wrapped executables tested"
+fi
+
 
 ##############################################################################
 # Invoke the scripts that test the builtin functions.
@@ -107,7 +116,7 @@ for i in $TESTS; do
   if [ ! "$rc" ]; then
     green "passed"
     : $(( pass++ ))
-    rm -f ${OUTDIR}/$i.{stdout,stderr,return}
+    rm -f ${OUTDIR}/$j.{stdout,stderr,return}
   else
     red "failed"
   fi
