@@ -232,7 +232,7 @@ INCLUDES += \
 # If we're not building for a specific target, just stub out things like the
 # TPM commands and various external functions that are provided by the BIOS.
 ifeq (${FIRMWARE_ARCH},)
-INCLUDES += -Ifirmware/stub/include
+INCLUDES += -Ifirmware/stub/include -Ihost/include -Ihost/lib/include
 else
 INCLUDES += -Ifirmware/arch/${FIRMWARE_ARCH}/include
 endif
@@ -787,10 +787,6 @@ ${FWLIB2}: ${FWLIB2_OBJS}
 
 # Link tests for local utilities
 ${BUILD}/host/linktest/main: ${UTILLIB}
-${BUILD}/host/linktest/main: INCLUDES += \
-	-Ihost/include \
-	-Ihost/arch/${ARCH}/include \
-	-Ihost/lib/include
 ${BUILD}/host/linktest/main: LIBS = ${UTILLIB}
 ALL_OBJS += ${BUILD}/host/linktest/main.o
 
@@ -808,7 +804,6 @@ ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} $(if ${VBOOT2},${FWLIB2_OBJS})
 
 # Link tests for external repos
 ${BUILD}/host/linktest/extern: ${HOSTLIB}
-${BUILD}/host/linktest/extern: INCLUDES += -Ihost/include
 ${BUILD}/host/linktest/extern: LIBS = ${HOSTLIB}
 ${BUILD}/host/linktest/extern: LDLIBS += -static
 ALL_OBJS += ${BUILD}/host/linktest/extern.o
@@ -818,7 +813,6 @@ hostlib: ${HOSTLIB} \
 	${BUILD}/host/linktest/extern
 
 # TODO: better way to make .a than duplicating this recipe each time?
-${HOSTLIB}: INCLUDES += -Ihost/include -Ihost/lib/include
 ${HOSTLIB}: ${HOSTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
@@ -831,7 +825,6 @@ ${HOSTLIB}: ${HOSTLIB_OBJS}
 tinyhostlib: ${TINYHOSTLIB}
 	${Q}cp -f ${TINYHOSTLIB} ${HOSTLIB}
 
-${TINYHOSTLIB}: INCLUDES += -Ihost/include -Ihost/lib/include
 ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
@@ -843,8 +836,6 @@ ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
 
 .PHONY: cgpt
 cgpt: ${CGPT}
-
-${CGPT_OBJS}: INCLUDES += -Ihost/include
 
 ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
@@ -863,10 +854,10 @@ cgpt_install: ${CGPT}
 # Utilities
 
 # These have their own headers too.
-${BUILD}/utility/%: INCLUDES += \
-	-Ihost/include \
-	-Ihost/lib/include \
-	-Iutility/include
+${BUILD}/utility/%: INCLUDES += -Iutility/include
+
+${UTIL_BINS} ${UTIL_BINS_STATIC}: ${UTILLIB}
+${UTIL_BINS} ${UTIL_BINS_STATIC}: LIBS = ${UTILLIB}
 
 # Utilities for auto-update toolkits must be statically linked.
 ${UTIL_BINS_STATIC}: LDFLAGS += -static
@@ -876,9 +867,6 @@ ${UTIL_BINS_STATIC}: LDFLAGS += -static
 utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 	${Q}cp -f ${UTIL_SCRIPTS} ${BUILD}/utility
 	${Q}chmod a+rx $(patsubst %,${BUILD}/%,${UTIL_SCRIPTS})
-
-${UTIL_BINS} ${UTIL_BINS_STATIC}: ${UTILLIB}
-${UTIL_BINS} ${UTIL_BINS_STATIC}: LIBS = ${UTILLIB}
 
 .PHONY: utils_install
 utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
@@ -906,11 +894,11 @@ endif
 .PHONY: futil
 futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
-${FUTIL_STATIC_BIN}: ${FUTIL_LDS} ${FUTIL_STATIC_OBJS}
+${FUTIL_STATIC_BIN}: ${FUTIL_LDS} ${FUTIL_STATIC_OBJS} ${UTILLIB}
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
-${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS}
+${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS} ${UTILLIB}
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -921,14 +909,6 @@ futil_install: ${FUTIL_BIN}
 	${Q}${INSTALL} -t ${F_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
 	${Q}for prog in ${FUTIL_OLD}; do \
 		ln -sf futility "${F_DIR}/$$prog"; done
-
-# TODO(wfrichar): This will need some refactoring (crbug.com/228932)
-${BUILD}/futility/% ${UTILLIB}: INCLUDES += \
-	-Ihost/include \
-	-Ihost/arch/${ARCH}/include \
-	-Ihost/lib/include
-${FUTIL_STATIC_BIN} ${FUTIL_BIN}: ${UTILLIB}
-${FUTIL_STATIC_BIN} ${FUTIL_BIN}: LIBS = ${UTILLIB}
 
 # ----------------------------------------------------------------------------
 # Utility to generate TLCL structure definition header file.
@@ -1044,7 +1024,6 @@ ALL_OBJS += ${BUILD}/utility/image_types.o
 
 # Allow multiple definitions, so tests can mock functions from other libraries
 ${BUILD}/tests/%: CFLAGS += -Xlinker --allow-multiple-definition
-${BUILD}/tests/%: INCLUDES += -Ihost/include -Ihost/lib/include
 ${BUILD}/tests/%: LDLIBS += -lrt -luuid
 ${BUILD}/tests/%: LIBS += ${TESTLIB}
 
