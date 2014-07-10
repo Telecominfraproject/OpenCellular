@@ -433,8 +433,6 @@ static int do_dump_fmap(int argc, char *argv[])
             strerror(errno));
     return 1;
   }
-  if (FMT_NORMAL == opt_format)
-    printf("opened %s\n", argv[optind]);
 
   base_of_rom = mmap(0, sb.st_size, PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
   if (base_of_rom == (char*)-1) {

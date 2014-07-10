@@ -240,8 +240,6 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  printf("opened %s\n", image_path);
-
   fmap = FmapFind((char*) base_of_rom, rom_size);
 
   retval = DriveLoadFirmware(base_of_rom, fmap, boot_flags);

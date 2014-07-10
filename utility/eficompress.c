@@ -1651,7 +1651,6 @@ int main(int argc, char *argv[])
             strerror(errno));
     exit(1);
   }
-  printf("opened %s\n", infile);
 
   // read input file into buffer
   uint8_t *ibuf = malloc(isize);
@@ -1702,7 +1701,6 @@ int main(int argc, char *argv[])
             strerror(errno));
     goto done3;
   }
-  printf("opened %s\n", outfile);
 
   if (1 != fwrite(obuf, osize, 1, ofp)) {
     fprintf(stderr, "%s: can't write %d bytes: %s\n",
