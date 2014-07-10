@@ -26,6 +26,7 @@ static int opt_format = FMT_NORMAL;
 static int opt_overlap = 0;
 static char *progname;
 static void *base_of_rom;
+static size_t size_of_rom;
 static int opt_gaps = 0;
 
 
@@ -90,18 +91,22 @@ static int dump_fmap(const void *ptr, int argc, char *argv[])
         fprintf(stderr, "%s: can't open %s: %s\n",
                 progname, buf, strerror(errno));
         retval = 1;
+      } else if (!ah->area_size) {
+	fprintf(stderr, "%s: section %s has zero size\n", progname, buf);
+      } else if (ah->area_offset + ah->area_size > size_of_rom) {
+	fprintf(stderr, "%s: section %s is larger than the image\n",
+		progname, buf);
+	retval = 1;
+      } else if (1 != fwrite(base_of_rom + ah->area_offset,
+			     ah->area_size, 1, fp)) {
+	fprintf(stderr, "%s: can't write %s: %s\n",
+		progname, buf, strerror(errno));
+	retval = 1;
       } else {
-        if (ah->area_size &&
-            1 != fwrite(base_of_rom + ah->area_offset, ah->area_size, 1, fp)) {
-          fprintf(stderr, "%s: can't write %s: %s\n",
-                  progname, buf, strerror(errno));
-          retval = 1;
-        } else {
-          if (FMT_NORMAL == opt_format)
-            printf("saved as \"%s\"\n", buf);
-        }
-        fclose(fp);
+	if (FMT_NORMAL == opt_format)
+	  printf("saved as \"%s\"\n", buf);
       }
+      fclose(fp);
     }
   }
 
@@ -444,8 +449,9 @@ static int do_dump_fmap(int argc, char *argv[])
     return 1;
   }
   close(fd);                            /* done with this now */
+  size_of_rom = sb.st_size;
 
-  fmap = FmapFind((char*) base_of_rom, sb.st_size);
+  fmap = FmapFind((char*) base_of_rom, size_of_rom);
   if (fmap) {
     switch (opt_format) {
     case FMT_HUMAN:
