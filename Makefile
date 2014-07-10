@@ -686,7 +686,7 @@ all: fwlib $(if ${VBOOT2},fwlib2) $(if ${FIRMWARE_ARCH},,host_stuff) \
 
 # Host targets
 .PHONY: host_stuff
-host_stuff: utillib cgpt utils futil hostlib tests
+host_stuff: utillib hostlib cgpt utils futil tests
 
 .PHONY: clean
 clean:
