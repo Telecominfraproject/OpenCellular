@@ -7,8 +7,9 @@
 SECTIONS
 {
   .rodata : {
-    __futil_cmds_start = .;
+    . = ALIGN(32);
+    futil_cmds = .;                           /* Create the list of commands */
     *(SORT(.futil_cmds.*));
-    __futil_cmds_end = .;
+    QUAD(0);                                  /* Null-terminated */
   }
 }

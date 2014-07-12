@@ -56,17 +56,17 @@ must be located in a directory named \"" SUBDIR "\" underneath\n\
 the " MYNAME " executable.\n\
 \n";
 
-static int help(int argc, char *argv[])
+static int do_help(int argc, char *argv[])
 {
-  futil_cmd_t *cmd;
+  struct futil_cmd_t **cmd;
   int i;
 
   fputs(usage, stdout);
 
   printf("The following commands are built-in:\n");
 
-  for (cmd = futil_cmds_start(); cmd < futil_cmds_end(); cmd++)
-    printf("  %-20s %s\n", cmd->name, cmd->shorthelp);
+  for (cmd = futil_cmds; *cmd; cmd++)
+    printf("  %-20s %s\n", (*cmd)->name, (*cmd)->shorthelp);
   printf("\n");
 
   if (argc) {
@@ -77,7 +77,7 @@ static int help(int argc, char *argv[])
 
   return 0;
 }
-DECLARE_FUTIL_COMMAND(help, help, "show a bit of help");
+DECLARE_FUTIL_COMMAND(help, do_help, "show a bit of help");
 
 
 /******************************************************************************/
@@ -209,7 +209,7 @@ int main(int argc, char *argv[], char *envp[])
   pid_t myproc;
   ssize_t r;
   char *s;
-  futil_cmd_t *cmd;
+  struct futil_cmd_t **cmd;
 
   log_args(argc, argv);
 
@@ -223,7 +223,7 @@ int main(int argc, char *argv[], char *envp[])
   /* Invoked directly by name */
   if (0 == strcmp(progname, MYNAME) || 0 == strcmp(progname, MYNAME_S)) {
     if (argc < 2) {                     /* must have an argument */
-      help(0, 0);
+      do_help(0, 0);
       exit(1);
     }
 
@@ -240,9 +240,9 @@ int main(int argc, char *argv[], char *envp[])
   }
 
   /* See if it's asking for something we know how to do ourselves */
-  for (cmd = futil_cmds_start(); cmd < futil_cmds_end(); cmd++)
-    if (0 == strcmp(cmd->name, progname))
-      return cmd->handler(argc, argv);
+  for (cmd = futil_cmds; *cmd; cmd++)
+    if (0 == strcmp((*cmd)->name, progname))
+      return (*cmd)->handler(argc, argv);
 
   /* Nope, it must be wrapped */
 
