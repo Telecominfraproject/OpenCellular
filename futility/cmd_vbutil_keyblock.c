@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "cryptolib.h"
+#include "futility.h"
 #include "host_common.h"
 #include "util_misc.h"
 #include "vboot_common.h"
@@ -213,7 +214,7 @@ static int Unpack(const char* infile, const char* datapubkey,
 }
 
 
-int main(int argc, char* argv[]) {
+int do_vbutil_keyblock(int argc, char* argv[]) {
 
   char* filename = NULL;
   char* datapubkey = NULL;
@@ -323,3 +324,6 @@ int main(int argc, char* argv[]) {
       return PrintHelp(progname);
   }
 }
+
+DECLARE_FUTIL_COMMAND(vbutil_keyblock, do_vbutil_keyblock,
+		      "Verified boot key block utility");

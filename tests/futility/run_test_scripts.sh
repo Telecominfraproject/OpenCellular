@@ -52,7 +52,7 @@ progs=0
 PROGS=${*:-cgpt crossystem dev_sign_file dumpRSAPublicKey
            dump_kernel_config enable_dev_usb_boot gbb_utility
            tpm_init_temp_fix tpmc vbutil_firmware vbutil_kernel
-           vbutil_keyblock vbutil_what_keys}
+           vbutil_what_keys}
 
 # For now just compare results of invoking each program with no args.
 # TODO: Create true rigorous tests for every program.

@@ -487,8 +487,7 @@ UTIL_NAMES = ${UTIL_NAMES_STATIC} \
 	utility/tpm_init_temp_fix \
 	utility/tpmc \
 	utility/vbutil_firmware \
-	utility/vbutil_kernel \
-	utility/vbutil_keyblock \
+	utility/vbutil_kernel
 
 ifeq (${MINIMAL},)
 UTIL_NAMES += \
@@ -552,6 +551,7 @@ FUTIL_STATIC_SRCS = \
 FUTIL_SRCS = \
 	$(FUTIL_STATIC_SRCS) \
 	futility/cmd_vbutil_key.c \
+	futility/cmd_vbutil_keyblock.c \
 	futility/cmd_hey.c
 
 FUTIL_LDS = futility/futility.lds
@@ -997,7 +997,6 @@ ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/dev_sign_file: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_firmware: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_kernel: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/utility/vbutil_keyblock: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
