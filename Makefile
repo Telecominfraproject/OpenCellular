@@ -488,7 +488,6 @@ UTIL_NAMES = ${UTIL_NAMES_STATIC} \
 	utility/tpmc \
 	utility/vbutil_firmware \
 	utility/vbutil_kernel \
-	utility/vbutil_key \
 	utility/vbutil_keyblock \
 
 ifeq (${MINIMAL},)
@@ -535,7 +534,7 @@ FUTIL_BIN = ${BUILD}/futility/futility
 # But we still need both static (tiny) and dynamic (with openssl) versions.
 FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 
-# These are the others it will replace.
+# These are the executables to be replaced with symlinks.
 FUTIL_OLD = bmpblk_font bmpblk_utility cgpt chromeos-tpm-recovery crossystem \
 	dev_debug_vboot dev_make_keypair dev_sign_file dumpRSAPublicKey \
 	dump_fmap dump_kernel_config eficompress efidecompress \
@@ -552,6 +551,7 @@ FUTIL_STATIC_SRCS = \
 
 FUTIL_SRCS = \
 	$(FUTIL_STATIC_SRCS) \
+	futility/cmd_vbutil_key.c \
 	futility/cmd_hey.c
 
 FUTIL_LDS = futility/futility.lds
@@ -902,6 +902,7 @@ ${FUTIL_STATIC_BIN}: ${FUTIL_LDS} ${FUTIL_STATIC_OBJS} ${UTILLIB}
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
+${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
 ${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS} ${UTILLIB}
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
@@ -996,7 +997,6 @@ ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/dev_sign_file: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_firmware: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_kernel: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/utility/vbutil_key: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/vbutil_keyblock: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}

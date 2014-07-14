@@ -13,6 +13,7 @@
 #include <string.h>
 
 #include "cryptolib.h"
+#include "futility.h"
 #include "host_common.h"
 #include "util_misc.h"
 #include "vboot_common.h"
@@ -52,8 +53,10 @@ static int PrintHelp(char *progname) {
           "  Required parameters:\n"
           "    --key <infile>              RSA key file (.keyb or .pem)\n"
           "    --version <number>          Key version number "
-          "(required for .keyb, ignored for .pem)\n"
-          "    --algorithm <number>        Signing algorithm to use with key:\n",
+          "(required for .keyb,\n"
+	  "                                  ignored for .pem)\n"
+          "    --algorithm <number>        "
+	  "Signing algorithm to use with key:\n",
           progname);
 
   for (i = 0; i < kNumAlgorithms; i++) {
@@ -160,7 +163,7 @@ static int Unpack(const char *infile, const char *outfile) {
 }
 
 
-int main(int argc, char* argv[]) {
+int do_vbutil_key(int argc, char* argv[]) {
 
   char *infile = NULL;
   char *outfile = NULL;
@@ -234,3 +237,6 @@ int main(int argc, char* argv[]) {
       return PrintHelp(progname);
   }
 }
+
+DECLARE_FUTIL_COMMAND(vbutil_key, do_vbutil_key,
+		      "Wraps RSA keys with vboot headers");
