@@ -23,7 +23,7 @@ function generate_test_signatures {
     do
       openssl dgst -${hashalgo} -binary ${TEST_FILE} > \
         ${TEST_FILE}.${hashalgo}.digest
-      ${UTIL_DIR}/signature_digest_utility $algorithmcounter  \
+      ${BIN_DIR}/signature_digest_utility $algorithmcounter  \
         ${TEST_FILE} | openssl rsautl \
         -sign -pkcs -inkey ${TESTKEY_DIR}/key_rsa${keylen}.pem \
         > ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig

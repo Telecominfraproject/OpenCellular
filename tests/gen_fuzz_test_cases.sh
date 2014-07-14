@@ -26,19 +26,19 @@ function generate_fuzzing_images {
   echo "Generating key blocks..."
   # Firmware key block - RSA8192/SHA512 root key, RSA4096/SHA512 firmware
   # signing key.
-  ${UTIL_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/firmware.keyblock \
+  ${BIN_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/firmware.keyblock \
     --datapubkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
     --signprivate ${TESTKEY_DIR}/key_rsa8192.sha1.vbprivk
 
   # Kernel key block - RSA4096/SHA512 kernel signing subkey, RSA4096/SHA512
   # kernel signing key.
-  ${UTIL_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/kernel.keyblock \
+  ${BIN_DIR}/vbutil_keyblock --pack ${TESTCASE_DIR}/kernel.keyblock \
     --datapubkey ${TESTKEY_DIR}/key_rsa4096.sha512.vbpubk \
     --signprivate ${TESTKEY_DIR}/key_rsa4096.sha1.vbprivk \
     --flags 15
 
   echo "Generating signed firmware test image..."
-  ${UTIL_DIR}/vbutil_firmware \
+  ${BIN_DIR}/vbutil_firmware \
     --vblock ${TESTCASE_DIR}/firmware.vblock \
     --keyblock ${TESTCASE_DIR}/firmware.keyblock\
     --signprivate ${TESTKEY_DIR}/key_rsa4096.sha256.vbprivk \
@@ -49,7 +49,7 @@ function generate_fuzzing_images {
   cp ${TESTKEY_DIR}/key_rsa8192.sha512.vbpubk ${TESTCASE_DIR}/root_key.vbpubk
 
   echo "Generating signed kernel test image..."
-  ${UTIL_DIR}/vbutil_kernel \
+  ${BIN_DIR}/vbutil_kernel \
     --pack ${TESTCASE_DIR}/kernel.vblock.image \
     --keyblock ${TESTCASE_DIR}/kernel.keyblock \
     --signprivate ${TESTKEY_DIR}/key_rsa4096.sha256.vbprivk \

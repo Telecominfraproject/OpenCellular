@@ -21,7 +21,7 @@ function test_signatures {
     for hashalgo in ${hash_algos[@]}
     do
       echo -e "For ${COL_YELLOW}RSA-$keylen and $hashalgo${COL_STOP}:"
-      ${UTIL_DIR}/verify_data $algorithmcounter \
+      ${BIN_DIR}/verify_data $algorithmcounter \
         ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
         ${TEST_FILE}.rsa${keylen}_${hashalgo}.sig \
         ${TEST_FILE}

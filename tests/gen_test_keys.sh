@@ -30,7 +30,7 @@ function generate_keys {
       -out ${key_base}.crt
 
     # Generate pre-processed key for use by RSA signature verification code.
-    ${UTIL_DIR}/dumpRSAPublicKey -cert ${key_base}.crt \
+    ${BIN_DIR}/dumpRSAPublicKey -cert ${key_base}.crt \
       > ${key_base}.keyb
 
     alg_index=0
@@ -38,14 +38,14 @@ function generate_keys {
     do
       alg=$((${key_index} * 3 + ${alg_index}))
   # wrap the public key
-      ${UTIL_DIR}/vbutil_key \
+      ${BIN_DIR}/vbutil_key \
         --pack "${key_base}.sha${sha_type}.vbpubk" \
         --key "${key_base}.keyb" \
         --version 1 \
         --algorithm ${alg}
 
   # wrap the private key
-      ${UTIL_DIR}/vbutil_key \
+      ${BIN_DIR}/vbutil_key \
         --pack "${key_base}.sha${sha_type}.vbprivk" \
         --key "${key_base}.pem" \
         --algorithm ${alg}

@@ -24,24 +24,24 @@ echo 'This is a test firmware body.  This is only a test.  Lalalalala' \
     > body.test
 
 # Pack keys using original vboot utilities
-${UTIL_DIR}/vbutil_key --pack rootkey.test \
+${BIN_DIR}/vbutil_key --pack rootkey.test \
     --key ${TESTKEY_DIR}/key_rsa8192.keyb --algorithm 11
-${UTIL_DIR}/vbutil_key --pack fwsubkey.test \
+${BIN_DIR}/vbutil_key --pack fwsubkey.test \
     --key ${TESTKEY_DIR}/key_rsa4096.keyb --algorithm 7
-${UTIL_DIR}/vbutil_key --pack kernkey.test \
+${BIN_DIR}/vbutil_key --pack kernkey.test \
     --key ${TESTKEY_DIR}/key_rsa2048.keyb --algorithm 4
 
 # Create a GBB with the root key
-${UTIL_DIR}/gbb_utility -c 128,2400,0,0 gbb.test
-${UTIL_DIR}/gbb_utility gbb.test -s --hwid='Test GBB' --rootkey=rootkey.test
+${BIN_DIR}/gbb_utility -c 128,2400,0,0 gbb.test
+${BIN_DIR}/gbb_utility gbb.test -s --hwid='Test GBB' --rootkey=rootkey.test
 
 # Keyblock with firmware subkey is signed by root key
-${UTIL_DIR}/vbutil_keyblock --pack keyblock.test \
+${BIN_DIR}/vbutil_keyblock --pack keyblock.test \
     --datapubkey fwsubkey.test \
     --signprivate ${TESTKEY_DIR}/key_rsa8192.sha512.vbprivk
 
 # Firmware preamble is signed with the firmware subkey
-${UTIL_DIR}/vbutil_firmware \
+${BIN_DIR}/vbutil_firmware \
     --vblock vblock.test \
     --keyblock keyblock.test \
     --signprivate ${TESTKEY_DIR}/key_rsa4096.sha256.vbprivk \
@@ -52,6 +52,6 @@ ${UTIL_DIR}/vbutil_firmware \
 echo 'Verifying test firmware using vb2_verify_fw'
 
 # Verify the firmware using vboot2 utility
-${UTIL_DIR}/vb2_verify_fw gbb.test vblock.test body.test
+${BIN_DIR}/vb2_verify_fw gbb.test vblock.test body.test
 
 happy 'vb2_verify_fw succeeded'
