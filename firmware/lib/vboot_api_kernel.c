@@ -534,7 +534,7 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 			    shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
 			    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
 			    (shared->flags & VBSD_BOOT_REC_SWITCH_ON) &&
-			    VbExTrustEC()) {
+			    VbExTrustEC(0)) {
                                 if (!(shared->flags &
 				      VBSD_BOOT_REC_SWITCH_VIRTUAL) &&
 				    VbExGetSwitches(
@@ -596,9 +596,9 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 /**
  * Wrapper around VbExEcProtectRW() which sets recovery reason on error.
  */
-static VbError_t EcProtectRW(void)
+static VbError_t EcProtectRW(int devidx)
 {
-	int rv = VbExEcProtectRW();
+	int rv = VbExEcProtectRW(devidx);
 
 	if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
 		VBDEBUG(("VbExEcProtectRW() needs reboot\n"));
@@ -609,7 +609,7 @@ static VbError_t EcProtectRW(void)
 	return rv;
 }
 
-VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
+VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -626,7 +626,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	int i;
 
 	/* Determine whether the EC is in RO or RW */
-	rv = VbExEcRunningRW(&in_rw);
+	rv = VbExEcRunningRW(devidx, &in_rw);
 
 	if (shared->recovery_reason) {
 		/* Recovery mode; just verify the EC is in RO code */
@@ -672,11 +672,11 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 		}
 
 		/* Protect the RW flash and stay in EC-RO */
-		rv = EcProtectRW();
+		rv = EcProtectRW(devidx);
 		if (rv != VBERROR_SUCCESS)
 			return rv;
 
-		rv = VbExEcDisableJump();
+		rv = VbExEcDisableJump(devidx);
 		if (rv != VBERROR_SUCCESS) {
 			VBDEBUG(("VbEcSoftwareSync() - "
 				 "VbExEcDisableJump() returned %d\n", rv));
@@ -689,7 +689,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	}
 
 	/* Get hash of EC-RW */
-	rv = VbExEcHashRW(&ec_hash, &ec_hash_size);
+	rv = VbExEcHashRW(devidx, &ec_hash, &ec_hash_size);
 	if (rv) {
 		VBDEBUG(("VbEcSoftwareSync() - "
 			 "VbExEcHashRW() returned %d\n", rv));
@@ -714,7 +714,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	 * RO_NORMAL, so we know that the BIOS must be RW-A or RW-B, and
 	 * therefore the EC must match.
 	 */
-	rv = VbExEcGetExpectedRWHash(shared->firmware_index ?
+	rv = VbExEcGetExpectedRWHash(devidx, shared->firmware_index ?
 				 VB_SELECT_FIRMWARE_B : VB_SELECT_FIRMWARE_A,
 				 &rw_hash, &rw_hash_size);
 
@@ -752,7 +752,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	 */
 	if (need_update || !rw_hash) {
 		/* Get expected EC-RW image */
-		rv = VbExEcGetExpectedRW(shared->firmware_index ?
+		rv = VbExEcGetExpectedRW(devidx, shared->firmware_index ?
 					 VB_SELECT_FIRMWARE_B :
 					 VB_SELECT_FIRMWARE_A,
 					 &expected, &expected_size);
@@ -826,7 +826,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 			VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, &vnc);
 		}
 
-		rv = VbExEcUpdateRW(expected, expected_size);
+		rv = VbExEcUpdateRW(devidx, expected, expected_size);
 
 		if (rv != VBERROR_SUCCESS) {
 			VBDEBUG(("VbEcSoftwareSync() - "
@@ -854,13 +854,13 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 	}
 
 	/* Protect EC-RW flash */
-	rv = EcProtectRW();
+	rv = EcProtectRW(devidx);
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
 	/* Tell EC to jump to its RW image */
 	VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
-	rv = VbExEcJumpToRW();
+	rv = VbExEcJumpToRW(devidx);
 
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
@@ -881,7 +881,7 @@ VbError_t VbEcSoftwareSync(VbCommonParams *cparams)
 
 	VBDEBUG(("VbEcSoftwareSync() jumped to EC-RW\n"));
 
-	rv = VbExEcDisableJump();
+	rv = VbExEcDisableJump(devidx);
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
 			"VbExEcDisableJump() returned %d\n", rv));
@@ -938,7 +938,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	/* Do EC software sync if necessary */
 	if ((shared->flags & VBSD_EC_SOFTWARE_SYNC) &&
 	    !(cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)) {
-		retval = VbEcSoftwareSync(cparams);
+		retval = VbEcSoftwareSync(0, cparams);
 		if (retval != VBERROR_SUCCESS)
 			goto VbSelectAndLoadKernel_exit;
 	}

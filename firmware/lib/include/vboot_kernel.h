@@ -80,8 +80,8 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p);
 VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p);
 
 /**
- * Sync EC firmware to expected version.
+ * Sync EC device <devidx> firmware to expected version.
  */
-VbError_t VbEcSoftwareSync(VbCommonParams *cparams);
+VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */

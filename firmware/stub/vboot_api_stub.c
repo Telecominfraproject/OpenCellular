@@ -84,36 +84,36 @@ VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
 	return VBERROR_SUCCESS;
 }
 
-int VbExTrustEC(void)
+int VbExTrustEC(int devidx)
 {
 	return 1;
 }
 
-VbError_t VbExEcRunningRW(int *in_rw)
+VbError_t VbExEcRunningRW(int devidx, int *in_rw)
 {
 	*in_rw = 0;
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcJumpToRW(void)
+VbError_t VbExEcJumpToRW(int devidx)
 {
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcRebootToRO(void)
+VbError_t VbExEcRebootToRO(int devidx)
 {
 	/* Nothing to reboot, so all we can do is return failure. */
 	return VBERROR_UNKNOWN;
 }
 
-VbError_t VbExEcDisableJump(void)
+VbError_t VbExEcDisableJump(int devidx)
 {
 	return VBERROR_SUCCESS;
 }
 
 #define SHA256_HASH_SIZE 32
 
-VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size)
+VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size)
 {
 	static const uint8_t fake_hash[32] = {1, 2, 3, 4};
 
@@ -122,7 +122,7 @@ VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
+VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
                               const uint8_t **image, int *image_size)
 {
 	static uint8_t fake_image[64] = {5, 6, 7, 8};
@@ -131,7 +131,7 @@ VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcGetExpectedRWHash(enum VbSelectFirmware_t select,
+VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
 				  const uint8_t **hash, int *hash_size)
 {
 	static const uint8_t fake_hash[32] = {1, 2, 3, 4};
@@ -141,12 +141,12 @@ VbError_t VbExEcGetExpectedRWHash(enum VbSelectFirmware_t select,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size)
+VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size)
 {
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcProtectRW(void)
+VbError_t VbExEcProtectRW(int devidx)
 {
 	return VBERROR_SUCCESS;
 }

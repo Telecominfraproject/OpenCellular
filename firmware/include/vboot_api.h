@@ -761,13 +761,19 @@ uint32_t VbExGetSwitches(uint32_t request_mask);
 /*****************************************************************************/
 /* Embedded controller (EC) */
 
+/*
+ * All these functions take a devidx parameter, which indicates which embedded
+ * processor the call applies to.  At present, only devidx=0 is valid, but
+ * upcoming CLs will add support for multiple devices.
+ */
+
 /**
  * This is called only if the system implements a keyboard-based (virtual)
  * developer switch. It must return true only if the system has an embedded
  * controller which is provably running in its RO firmware at the time the
  * function is called.
  */
-int VbExTrustEC(void);
+int VbExTrustEC(int devidx);
 
 /**
  * Check if the EC is currently running rewritable code.
@@ -775,50 +781,53 @@ int VbExTrustEC(void);
  * If the EC is in RO code, sets *in_rw=0.
  * If the EC is in RW code, sets *in_rw non-zero.
  * If the current EC image is unknown, returns error. */
-VbError_t VbExEcRunningRW(int *in_rw);
+VbError_t VbExEcRunningRW(int devidx, int *in_rw);
 
 /**
  * Request the EC jump to its rewritable code.  If successful, returns when the
  * EC has booting its RW code far enough to respond to subsequent commands.
  * Does nothing if the EC is already in its rewritable code.
  */
-VbError_t VbExEcJumpToRW(void);
+VbError_t VbExEcJumpToRW(int devidx);
 
 /**
  * Tell the EC to refuse another jump until it reboots. Subsequent calls to
  * VbExEcJumpToRW() in this boot will fail.
  */
-VbError_t VbExEcDisableJump(void);
+VbError_t VbExEcDisableJump(int devidx);
 
 /**
  * Read the SHA-256 hash of the rewriteable EC image.
  */
-VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size);
+VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size);
 
 /**
  * Get the expected contents of the EC image associated with the main firmware
  * specified by the "select" argument.
  */
-VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
+VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
                               const uint8_t **image, int *image_size);
 
 /**
  * Read the SHA-256 hash of the expected contents of the EC image associated
  * with the main firmware specified by the "select" argument.
  */
-VbError_t VbExEcGetExpectedRWHash(enum VbSelectFirmware_t select,
+VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
 		       const uint8_t **hash, int *hash_size);
 
 /**
  * Update the EC rewritable image.
  */
-VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size);
+VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size);
 
 /**
  * Lock the EC code to prevent updates until the EC is rebooted.
  * Subsequent calls to VbExEcUpdateRW() this boot will fail.
  */
-VbError_t VbExEcProtectRW(void);
+VbError_t VbExEcProtectRW(int devidx);
+
+/*****************************************************************************/
+/* Misc */
 
 /* Args to VbExProtectFlash() */
 enum VbProtectFlash_t { VBPROTECT_RW_A, VBPROTECT_RW_B, VBPROTECT_RW_DEVKEY };
@@ -830,9 +839,6 @@ enum VbProtectFlash_t { VBPROTECT_RW_A, VBPROTECT_RW_B, VBPROTECT_RW_DEVKEY };
  * be cumulative.
  */
 VbError_t VbExProtectFlash(enum VbProtectFlash_t region);
-
-/*****************************************************************************/
-/* Misc */
 
 /**
  * Check if the firmware needs to shut down the system.

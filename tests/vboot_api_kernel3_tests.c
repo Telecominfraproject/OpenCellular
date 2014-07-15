@@ -112,42 +112,42 @@ uint32_t VbExIsShutdownRequested(void)
 	return 0;
 }
 
-int VbExTrustEC(void)
+int VbExTrustEC(int devidx)
 {
 	return trust_ec;
 }
 
-VbError_t VbExEcRunningRW(int *in_rw)
+VbError_t VbExEcRunningRW(int devidx, int *in_rw)
 {
 	*in_rw = mock_in_rw;
 	return in_rw_retval;
 }
 
-VbError_t VbExEcProtectRW(void)
+VbError_t VbExEcProtectRW(int devidx)
 {
 	ec_protected = 1;
 	return protect_retval;
 }
 
-VbError_t VbExEcDisableJump(void)
+VbError_t VbExEcDisableJump(int devidx)
 {
 	return run_retval;
 }
 
-VbError_t VbExEcJumpToRW(void)
+VbError_t VbExEcJumpToRW(int devidx)
 {
 	ec_run_image = 1;
 	return run_retval;
 }
 
-VbError_t VbExEcHashRW(const uint8_t **hash, int *hash_size)
+VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size)
 {
 	*hash = mock_ec_hash;
 	*hash_size = mock_ec_hash_size;
 	return mock_ec_hash_size ? VBERROR_SUCCESS : VBERROR_SIMULATED;
 }
 
-VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
+VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
                               const uint8_t **image, int *image_size)
 {
 	static uint8_t fake_image[64] = {5, 6, 7, 8};
@@ -156,7 +156,7 @@ VbError_t VbExEcGetExpectedRW(enum VbSelectFirmware_t select,
 	return get_expected_retval;
 }
 
-VbError_t VbExEcGetExpectedRWHash(enum VbSelectFirmware_t select,
+VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
 				  const uint8_t **hash, int *hash_size)
 {
 	*hash = want_ec_hash;
@@ -174,7 +174,7 @@ uint8_t *internal_SHA256(const uint8_t *data, uint64_t len, uint8_t *digest)
 	return digest;
 }
 
-VbError_t VbExEcUpdateRW(const uint8_t *image, int image_size)
+VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size)
 {
 	ec_updated = 1;
 	return update_retval;
@@ -193,7 +193,7 @@ static void test_ssync(VbError_t retval, int recovery_reason, const char *desc)
 {
 	uint32_t u;
 
-	TEST_EQ(VbEcSoftwareSync(&cparams), retval, desc);
+	TEST_EQ(VbEcSoftwareSync(0, &cparams), retval, desc);
 	VbNvGet(VbApiKernelGetVnc(), VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, recovery_reason, "  recovery reason");
 }

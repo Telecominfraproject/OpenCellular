@@ -158,7 +158,7 @@ VbError_t VbExDiskFreeInfo(VbDiskInfo *infos,
 	return VBERROR_SUCCESS;
 }
 
-int VbExTrustEC(void)
+int VbExTrustEC(int devidx)
 {
 	return trust_ec;
 }
