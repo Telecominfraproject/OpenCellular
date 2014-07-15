@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "cryptolib.h"
+#include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "vboot_common.h"
@@ -273,7 +274,7 @@ static int Verify(const char* filename, const char* vblock_file,
 }
 
 
-int main(int argc, char* argv[]) {
+int do_dev_sign_file(int argc, char* argv[]) {
   char* filename = NULL;
   char* keyblock_file = NULL;
   char* signprivate_file = NULL;
@@ -353,3 +354,6 @@ int main(int argc, char* argv[]) {
   /* NOTREACHED */
   return 1;
 }
+
+DECLARE_FUTIL_COMMAND(dev_sign_file, do_dev_sign_file,
+		      "Sign or verify dev-mode files (DEPRECATED)");

@@ -1,4 +1,4 @@
-# Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
+# Copyright 2013 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -43,23 +43,17 @@ export BUILD
 # Stuff for 'make install'
 INSTALL = install
 DESTDIR = /usr/local/bin
-OLDDIR = old_bins
 
 # Where exactly do the pieces go?
-#  FT_DIR = futility target directory - where it will be on the target
-#  F_DIR  = futility install directory - where it gets put right now
-#  UB_DIR = userspace binary directory for futility's exec() targets
-#  VB_DIR = target vboot directory - for dev-mode-only helpers, keys, etc.
+#  UB_DIR = utility binary directory
+#  VB_DIR = vboot binary directory for dev-mode-only scripts
 ifeq (${MINIMAL},)
-# Host install just puts everything in one place
-FT_DIR=${DESTDIR}
-F_DIR=${DESTDIR}
-UB_DIR=${DESTDIR}/${OLDDIR}
+# Host install just puts everything where it's told
+UB_DIR=${DESTDIR}
+VB_DIR=${DESTDIR}
 else
-# Target install puts things into DESTDIR subdirectories
-FT_DIR=/usr/bin
-F_DIR=${DESTDIR}${FT_DIR}
-UB_DIR=${F_DIR}/${OLDDIR}
+# Target install puts things into subdirectories under DESTDIR
+UB_DIR=${DESTDIR}/usr/bin
 VB_DIR=${DESTDIR}/usr/share/vboot/bin
 endif
 
@@ -141,10 +135,6 @@ else
 # FIRMWARE_ARCH not defined; assuming local compile.
 CC ?= gcc
 CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall -Werror ${DEBUG_FLAGS}
-endif
-
-ifneq (${OLDDIR},)
-CFLAGS += -DOLDDIR=${OLDDIR}
 endif
 
 ifneq (${DEBUG},)
@@ -365,6 +355,7 @@ UTILLIB_SRCS = \
 	cgpt/flash_ts.c \
 	cgpt/flash_ts_drv.c \
 	firmware/lib/cgptlib/mtdlib.c \
+	futility/dump_kernel_config_lib.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
 	host/lib/file_keys.c \
@@ -375,8 +366,7 @@ UTILLIB_SRCS = \
 	host/lib/host_misc.c \
 	host/lib/util_misc.c \
 	host/lib/host_signature.c \
-	host/lib/signature_digest.c \
-	utility/dump_kernel_config_lib.c
+	host/lib/signature_digest.c
 
 UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${UTILLIB_OBJS}
@@ -403,10 +393,10 @@ HOSTLIB_SRCS = \
 	firmware/stub/tpm_lite_stub.c \
 	firmware/stub/utility_stub.c \
 	firmware/stub/vboot_api_stub_init.c \
+	futility/dump_kernel_config_lib.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
-	host/lib/host_misc.c \
-	utility/dump_kernel_config_lib.c
+	host/lib/host_misc.c
 
 HOSTLIB_OBJS = ${HOSTLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${HOSTLIB_OBJS}
@@ -429,7 +419,7 @@ TINYHOSTLIB_SRCS = \
 	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/utility_string.c \
 	firmware/stub/utility_stub.c \
-	utility/dump_kernel_config_lib.c
+	futility/dump_kernel_config_lib.c
 
 TINYHOSTLIB_OBJS = ${TINYHOSTLIB_SRCS:%.c=${BUILD}/%.o}
 
@@ -477,22 +467,18 @@ endif
 
 # These utilities should be linked statically.
 UTIL_NAMES_STATIC = \
-	utility/crossystem \
-	utility/gbb_utility
+	utility/crossystem
 
 UTIL_NAMES = ${UTIL_NAMES_STATIC} \
-	utility/dev_sign_file \
-	utility/dump_kernel_config \
-	utility/dumpRSAPublicKey \
 	utility/tpm_init_temp_fix \
-	utility/tpmc \
-	utility/vbutil_firmware \
-	utility/vbutil_kernel
+	utility/tpmc
 
+# TODO: Do we still need eficompress and efidecompress for anything?
 ifeq (${MINIMAL},)
 UTIL_NAMES += \
 	utility/bmpblk_font \
 	utility/bmpblk_utility \
+	utility/dumpRSAPublicKey \
 	utility/eficompress \
 	utility/efidecompress \
 	utility/load_kernel_test \
@@ -533,50 +519,32 @@ FUTIL_BIN = ${BUILD}/futility/futility
 # But we still need both static (tiny) and dynamic (with openssl) versions.
 FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 
-# These are the executables to be replaced with symlinks.
-FUTIL_OLD = \
-	bmpblk_font \
-	bmpblk_utility \
-	cgpt \
-	chromeos-tpm-recovery \
-	crossystem \
-	dev_debug_vboot \
-	dev_make_keypair \
+# These are the executables that are now built in to futility. We'll create
+# symlinks for these so the old names will still work.
+# TODO: Do we still need dev_sign_file for anything?
+FUTIL_BUILTIN = \
 	dev_sign_file \
-	dumpRSAPublicKey \
 	dump_fmap \
 	dump_kernel_config \
-	eficompress \
-	efidecompress \
-	enable_dev_usb_boot \
 	gbb_utility \
-	load_kernel_test \
-	make_dev_firmware.sh \
-	make_dev_ssd.sh \
-	pad_digest_utility \
-	resign_firmwarefd.sh \
-	set_gbb_flags.sh \
-	signature_digest_utility \
-	tpm-nvsize \
-	tpm_init_temp_fix \
-	tpmc \
 	vbutil_firmware \
 	vbutil_kernel \
 	vbutil_key \
-	vbutil_keyblock \
-	vbutil_what_keys \
-	verify_data
+	vbutil_keyblock
 
 FUTIL_STATIC_SRCS = \
 	futility/futility.c \
 	futility/cmd_dump_fmap.c \
-	futility/cmd_foo.c
+	futility/cmd_gbb_utility.c
 
 FUTIL_SRCS = \
 	$(FUTIL_STATIC_SRCS) \
+	futility/cmd_dev_sign_file.c \
+	futility/cmd_dump_kernel_config.c \
+	futility/cmd_vbutil_firmware.c \
+	futility/cmd_vbutil_kernel.c \
 	futility/cmd_vbutil_key.c \
-	futility/cmd_vbutil_keyblock.c \
-	futility/cmd_hey.c
+	futility/cmd_vbutil_keyblock.c
 
 FUTIL_LDS = futility/futility.lds
 
@@ -628,6 +596,7 @@ TEST_NAMES = \
 	tests/vboot_firmware_tests \
 	tests/vboot_kernel_tests \
 	tests/vboot_nvstorage_test \
+	tests/futility/binary_editor \
 	tests/futility/test_not_really
 
 ifdef REGION_READ
@@ -906,15 +875,10 @@ utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
 .PHONY: signing_install
 signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
 	@$(PRINTF) "    INSTALL       SIGNING\n"
-	${Q}mkdir -p ${UB_DIR}
+	${Q}mkdir -p ${UB_DIR} ${VB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${SIGNING_SCRIPTS}
-	${Q}${INSTALL} -t ${UB_DIR} ${SIGNING_SCRIPTS_DEV}
-	${Q}${INSTALL} -t ${UB_DIR} -m 'u=rw,go=r,a-s' ${SIGNING_COMMON}
-ifneq (${VB_DIR},)
-	${Q}mkdir -p ${VB_DIR}
-	${Q}for prog in $(notdir ${SIGNING_SCRIPTS_DEV}); do \
-		ln -sf "${FT_DIR}/futility" "${VB_DIR}/$$prog"; done
-endif
+	${Q}${INSTALL} -t ${VB_DIR} ${SIGNING_SCRIPTS_DEV}
+	${Q}${INSTALL} -t ${VB_DIR} -m 'u=rw,go=r,a-s' ${SIGNING_COMMON}
 
 # ----------------------------------------------------------------------------
 # new Firmware Utility
@@ -934,10 +898,10 @@ ${FUTIL_BIN}: ${FUTIL_LDS} ${FUTIL_OBJS} ${UTILLIB}
 .PHONY: futil_install
 futil_install: ${FUTIL_BIN}
 	@$(PRINTF) "    INSTALL       futility\n"
-	${Q}mkdir -p ${F_DIR}
-	${Q}${INSTALL} -t ${F_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
-	${Q}for prog in ${FUTIL_OLD}; do \
-		ln -sf futility "${F_DIR}/$$prog"; done
+	${Q}mkdir -p ${UB_DIR}
+	${Q}${INSTALL} -t ${UB_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
+	${Q}for prog in ${FUTIL_BUILTIN}; do \
+		ln -sf futility "${UB_DIR}/$$prog"; done
 
 # ----------------------------------------------------------------------------
 # Utility to generate TLCL structure definition header file.
@@ -1004,9 +968,6 @@ ${BUILD}/%.o: %.cc
 # ----------------------------------------------------------------------------
 # Here are the special tweaks to the generic rules.
 
-# GBB utility needs C++ linker. TODO: It shouldn't.
-${BUILD}/utility/gbb_utility: LD = ${CXX}
-
 # Because we play some clever linker script games to add new commands without
 # changing any header files, futility must be linked with ld.bfd, not gold.
 ${FUTIL_BIN}: LDFLAGS += -fuse-ld=bfd
@@ -1018,9 +979,6 @@ CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
 ${BUILD}/utility/dumpRSAPublicKey: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/utility/dev_sign_file: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/utility/vbutil_firmware: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/utility/vbutil_kernel: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}

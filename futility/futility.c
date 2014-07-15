@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
+ * Copyright 2013 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
@@ -18,13 +18,6 @@
 
 #define MYNAME "futility"
 #define MYNAME_S MYNAME "_s"
-#ifdef OLDDIR
-#define XSTR(A) STR(A)
-#define STR(A) #A
-#define SUBDIR XSTR(OLDDIR)
-#else
-#define SUBDIR "old_bins"
-#endif
 
 /* File to use for logging, if present */
 #define LOGFILE "/tmp/futility.log"
@@ -39,21 +32,15 @@ static const char * const usage= "\n\
 Usage: " MYNAME " PROGRAM|COMMAND [args...]\n\
 \n\
 This is the unified firmware utility, which will eventually replace\n\
-all the distinct userspace tools formerly produced by the\n\
+most of the distinct verified boot tools formerly produced by the\n\
 vboot_reference package.\n\
 \n\
-When symlinked under the name of one of those previous tools, it can\n\
-do one of two things: either it will fully implement the original\n\
-behavior, or (until that functionality is complete) it will just exec\n\
-the original binary.\n\
+When symlinked under the name of one of those previous tools, should\n\
+fully implement the original behavior. It can also be invoked directly\n\
+as " MYNAME ", followed by the original name as the first argument.\n\
 \n\
-In either case it can append some usage information to " LOGFILE "\n\
-to help improve coverage and correctness.\n\
-\n\
-If you invoke it directly instead of via a symlink, it requires one\n\
-argument, which is the name of the old binary to exec. That binary\n\
-must be located in a directory named \"" SUBDIR "\" underneath\n\
-the " MYNAME " executable.\n\
+In either case it will append some usage information to " LOGFILE "\n\
+(iff that file exists), to help improve coverage and correctness.\n\
 \n";
 
 static int do_help(int argc, char *argv[])
@@ -63,7 +50,7 @@ static int do_help(int argc, char *argv[])
 
   fputs(usage, stdout);
 
-  printf("The following commands are built-in:\n");
+  printf("The following commands are built-in:\n\n");
 
   for (cmd = futil_cmds; *cmd; cmd++)
     printf("  %-20s %s\n", (*cmd)->name, (*cmd)->shorthelp);
@@ -77,16 +64,19 @@ static int do_help(int argc, char *argv[])
 
   return 0;
 }
-DECLARE_FUTIL_COMMAND(help, do_help, "show a bit of help");
+DECLARE_FUTIL_COMMAND(help, do_help,
+		      "Show a bit of help (you're looking at it)");
 
-/* Deprecated functions can't be invoked through symlinks. */
+/*
+ * These are built-in functions that we'd like to abandon completely someday.
+ * TODO: If no one complains, get rid of them.
+ */
 static char *dep_cmds[] = {
-  "eficompress",
-  "efidecompress",
+  "dev_sign_file",
 };
 
 static const char * const dep_usage= "\n\
-The program \"%s\" is deprecated.\n\
+The program \"%s\" is deprecated and may go away soon.\n\
 \n\
 If you feel this is in error, please open a bug at\n\
 \n\
@@ -223,25 +213,21 @@ static void log_args(int argc, char *argv[])
 /******************************************************************************/
 /* Here we go */
 
-#ifdef COVERAGE
-void __gcov_flush(void);
-#endif
-
 int main(int argc, char *argv[], char *envp[])
 {
-  char *progname;
+  char *fullname, *progname;
   char truename[PATH_MAX];
-  char oldname[PATH_MAX];
   char buf[80];
   pid_t myproc;
   ssize_t r;
-  char *s;
   struct futil_cmd_t **cmd;
   int i;
+  int via_symlink = 0;
 
   log_args(argc, argv);
 
   /* How were we invoked? */
+  fullname = strdup(argv[0]);
   progname = strrchr(argv[0], '/');
   if (progname)
     progname++;
@@ -259,18 +245,18 @@ int main(int argc, char *argv[], char *envp[])
     argc--;
     argv++;
 
-    /* So now what name do we want to invoke? */
+    /* So now what function do we want to invoke? */
     progname = strrchr(argv[0], '/');
     if (progname)
       progname++;
     else
       progname = argv[0];
   } else {	      /* Invoked by symlink */
-
-	  /* Block any deprecated functions. */
-	  for (i = 0; i < ARRAY_SIZE(dep_cmds); i++)
-		  if (0 == strcmp(dep_cmds[i], progname))
-			  deprecated(progname);
+    via_symlink = 1;
+    /* Block any deprecated functions. */
+    for (i = 0; i < ARRAY_SIZE(dep_cmds); i++)
+      if (0 == strcmp(dep_cmds[i], progname))
+	deprecated(progname);
   }
 
   /* See if it's asking for something we know how to do ourselves */
@@ -278,9 +264,14 @@ int main(int argc, char *argv[], char *envp[])
     if (0 == strcmp((*cmd)->name, progname))
       return (*cmd)->handler(argc, argv);
 
-  /* Nope, it must be wrapped */
+  /* Nope */
+  if (!via_symlink) {
+    do_help(0, 0);
+    exit(1);
+  }
 
-  /* The old binaries live under the true executable. Find out where that is. */
+  /* Complain about bogus symlink */
+
   myproc = getpid();
   snprintf(buf, sizeof(buf), "/proc/%d/exe", myproc);
   r = readlink(buf, truename, PATH_MAX - 1);
@@ -288,37 +279,18 @@ int main(int argc, char *argv[], char *envp[])
     fprintf(stderr, "%s is lost: %s => %s: %s\n", MYNAME, argv[0],
             buf, strerror(errno));
     exit(1);
-  } else if (r == PATH_MAX - 1) {
-    /* Yes, it might _just_ fit, but we'll count that as wrong anyway. We can't
-     * determine the right size using the example in the readlink manpage,
-     * because the /proc symlink returns an st_size of 0. */
-    fprintf(stderr, "%s is too long: %s => %s\n", MYNAME, argv[0], buf);
-    exit(1);
   }
-
   truename[r] = '\0';
-  s = strrchr(truename, '/');           /* Find the true directory */
-  if (s) {
-    *s = '\0';
-  } else {                              /* I don't think this can happen */
-    fprintf(stderr, "%s says %s doesn't make sense\n", MYNAME, truename);
-    exit(1);
-  }
-  /* If the old binary path doesn't fit, just give up. */
-  r = snprintf(oldname, PATH_MAX, "%s/%s/%s", truename, SUBDIR, progname);
-  if (r >= PATH_MAX) {
-    fprintf(stderr, "%s/%s/%s is too long\n", truename, SUBDIR, progname);
-    exit(1);
-  }
 
-  fflush(0);
-#ifdef COVERAGE
-  /* Write gcov data prior to exec. */
-  __gcov_flush();
-#endif
-  execve(oldname, argv, envp);
-
-  fprintf(stderr, "%s failed to exec %s: %s\n", MYNAME,
-          oldname, strerror(errno));
+  fprintf(stderr, "\n\
+The program\n\n  %s\n\nis a symlink to\n\n  %s\n\
+\n\
+However, " MYNAME " doesn't know how to implement that function.\n\
+\n\
+This is probably an error in your installation. If the problem persists\n\
+after a fresh checkout/build/install, please open a bug at\n\
+\n\
+  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n\
+\n", fullname, truename);
   return 1;
 }

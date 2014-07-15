@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+/* Copyright 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -11,6 +11,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include "futility.h"
 #include "vboot_host.h"
 
 enum {
@@ -33,7 +34,7 @@ static int PrintHelp(void) {
   return 1;
 }
 
-int main(int argc, char* argv[]) {
+int do_dump_kernel_config(int argc, char* argv[]) {
   char *infile = NULL;
   char *config = NULL;
   uint64_t kernel_body_load_address = USE_PREAMBLE_LOAD_ADDR;
@@ -87,3 +88,6 @@ int main(int argc, char* argv[]) {
   free(config);
   return 0;
 }
+
+DECLARE_FUTIL_COMMAND(dump_kernel_config, do_dump_kernel_config,
+		      "Prints the kernel command line");

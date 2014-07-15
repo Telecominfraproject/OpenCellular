@@ -1,4 +1,4 @@
-/* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+/* Copyright 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -13,6 +13,7 @@
 #include <unistd.h>
 
 #include "cryptolib.h"
+#include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "util_misc.h"
@@ -290,7 +291,7 @@ static int Verify(const char* infile, const char* signpubkey,
 }
 
 
-int main(int argc, char* argv[]) {
+int do_vbutil_firmware(int argc, char* argv[]) {
 
   char* filename = NULL;
   char* key_block_file = NULL;
@@ -371,3 +372,6 @@ int main(int argc, char* argv[]) {
       return PrintHelp();
   }
 }
+
+DECLARE_FUTIL_COMMAND(vbutil_firmware, do_vbutil_firmware,
+		      "Verified boot firmware utility");

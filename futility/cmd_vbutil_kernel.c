@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+/* Copyright 2012 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "cryptolib.h"
+#include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "util_misc.h"
@@ -211,21 +212,21 @@ static unsigned int find_cmdline_start(char *input, unsigned int max_len) {
 /* Here are globals containing all the bits & pieces I'm working on. */
 
 /* The individual parts that go into the kernel blob */
-uint8_t *g_kernel_data;
-uint64_t g_kernel_size;
-uint8_t *g_param_data;
-uint64_t g_param_size;
-uint8_t *g_config_data;
-uint64_t g_config_size;
-uint8_t *g_bootloader_data;
-uint64_t g_bootloader_size;
-uint64_t g_bootloader_address;
+static uint8_t *g_kernel_data;
+static uint64_t g_kernel_size;
+static uint8_t *g_param_data;
+static uint64_t g_param_size;
+static uint8_t *g_config_data;
+static uint64_t g_config_size;
+static uint8_t *g_bootloader_data;
+static uint64_t g_bootloader_size;
+static uint64_t g_bootloader_address;
 
 
 /* The individual parts of the verification blob (including the data that
  * immediately follows the headers) */
-VbKeyBlockHeader* g_keyblock;
-VbKernelPreambleHeader* g_preamble;
+static VbKeyBlockHeader* g_keyblock;
+static VbKernelPreambleHeader* g_preamble;
 
 /****************************************************************************/
 
@@ -695,7 +696,7 @@ static int Verify(uint8_t* kernel_blob,
 
 /****************************************************************************/
 
-int main(int argc, char* argv[]) {
+int do_vbutil_kernel(int argc, char* argv[]) {
   char* filename = NULL;
   char* oldfile = NULL;
   char* keyblock_file = NULL;
@@ -966,3 +967,6 @@ int main(int argc, char* argv[]) {
   fprintf(stderr, "You must specify a mode: --pack, --repack or --verify\n");
   return PrintHelp(progname);
 }
+
+DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel,
+		      "Verified boot kernel utility");
