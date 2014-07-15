@@ -1,0 +1,45 @@
+
+                        Release Notes for
+                        -----------------
+             Mullins Platform Initialization (MullinsPI)
+
+
+=============================================================================
+
+Version:  1.0.0.3                             Release Date: May 2014
+File:     MullinsPI_1.0.0.3.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                             PID#
+- BIOS and Kernel Developer's Guide Family 16h Models 30h-3Fh (Mullins) rev3.00 (#52740)
+- AGESA Arch2008 Interface Specification, Revision v2.20                        (#44065)
+
+=============================================================================
+
+=============================================================================
+
+Version:  1.0.0.2                             Release Date: March 2014
+File:     MullinsPI_1.0.0.2.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     	PID#
+- BIOS and Kernel Developer's Guide Family 16h Models 30h-3Fh (Mullins) rev1.04	(#52740)
+- AGESA Arch2008 Interface Specification, Revision v2.20                        (#44065)
+
+=============================================================================
+
+=============================================================================
+
+Version:  1.0.0.0                             Release Date: February 2014
+File:     MullinsPI_1.0.0.0.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     	PID#
+- BIOS and Kernel Developer's Guide Family 16h Models 30h-3Fh (Mullins) rev1.03	(#52740)
+- AGESA Arch2008 Interface Specification, Revision v2.20                        (#44065)
+
+=============================================================================
+
