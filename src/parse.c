@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -63,6 +63,8 @@ parse_array(build_image_context *context, parse_token token, char *rest);
 static int
 parse_bootloader(build_image_context *context, parse_token token, char *rest);
 static int
+parse_mts_image(build_image_context *context, parse_token token, char *rest);
+static int
 parse_value_u32(build_image_context *context, parse_token token, char *rest);
 static int
 parse_value_chipuid(build_image_context *context,
@@ -87,6 +89,8 @@ static parse_item parse_simple_items[] =
 	{ "BootLoader=",    token_bootloader,		parse_bootloader },
 	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
 	{ "Bctcopy=",       token_bct_copy,		parse_value_u32 },
+	{ "MtsPreboot=",    token_mts_preboot,		parse_mts_image},
+	{ "Mts=",           token_mts,			parse_mts_image},
 	{ "Version=",       token_version,		parse_value_u32 },
 	{ "PreBctPadBlocks=", token_pre_bct_pad_blocks,	parse_value_u32 },
 	{ NULL, 0, NULL } /* Must be last */
@@ -105,6 +109,8 @@ static parse_item s_top_level_items[] = {
 	{ "BootLoader=",    token_bootloader,		parse_bootloader },
 	{ "Redundancy=",    token_redundancy,		parse_value_u32 },
 	{ "Bctcopy=",       token_bct_copy,		parse_value_u32 },
+	{ "MtsPreboot=",    token_mts_preboot,		parse_mts_image},
+	{ "Mts=",           token_mts,			parse_mts_image},
 	{ "Version=",       token_version,		parse_value_u32 },
 	{ "OdmData=",       token_odm_data,		parse_value_u32 },
 	{ "ChipUid=",       token_unique_chip_id,	parse_value_chipuid },
@@ -415,6 +421,61 @@ static int parse_bootloader(build_image_context *context,
 
 	/* Parsing has finished - set the bootloader */
 	return set_bootloader(context, filename, load_addr, entry_point);
+}
+
+/*
+ * Parse the given string and find the MTS file name, load address and
+ * entry point information then call set_mts_image function.
+ *
+ * @param context	The main context pointer
+ * @param token  	The parse token value
+ * @param rest   	String to parse
+ * @return 0 and 1 for success and failure
+ */
+static int parse_mts_image(build_image_context *context,
+			parse_token token,
+			char *rest)
+{
+	char filename[MAX_BUFFER];
+	char e_state[MAX_STR_LEN];
+	u_int32_t load_addr;
+	u_int32_t entry_point;
+
+	assert(context != NULL);
+	assert(rest != NULL);
+
+	if (context->generate_bct != 0)
+		return 0;
+	/* Parse the file name. */
+	rest = parse_filename(rest, filename, MAX_BUFFER);
+	if (rest == NULL)
+		return 1;
+
+	PARSE_COMMA(1);
+
+	/* Parse the load address. */
+	rest = parse_u32(rest, &load_addr);
+	if (rest == NULL)
+		return 1;
+
+	PARSE_COMMA(1);
+
+	/* Parse the entry point. */
+	rest = parse_u32(rest, &entry_point);
+	if (rest == NULL)
+		return 1;
+
+	PARSE_COMMA(1);
+
+	/* Parse the end state. */
+	rest = parse_end_state(rest, e_state, MAX_STR_LEN);
+	if (rest == NULL)
+		return 1;
+	if (strncmp(e_state, "Complete", strlen("Complete")))
+		return 1;
+
+	/* Parsing has finished - set the bootloader */
+	return set_mts_image(context, filename, load_addr, entry_point);
 }
 
 /*

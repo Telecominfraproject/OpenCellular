@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -123,6 +123,26 @@ set_bootloader(build_image_context	*context,
 	return update_bl(context);
 }
 
+/*
+ * Processes commands to set a MTS image.
+ *
+ * @param context    	The main context pointer
+ * @param filename   	The file name of MTS image
+ * @param load_addr  	The load address value for MTS image
+ * @param entry_point	The entry point value for MTS image
+ * @return 0 and 1 for success and failure
+ */
+int
+set_mts_image(build_image_context	*context,
+		char	*filename,
+		u_int32_t	load_addr,
+		u_int32_t	entry_point)
+{
+	context->mts_filename = filename;
+	context->mts_load_addr = load_addr;
+	context->mts_entry_point = entry_point;
+	return update_mts_image(context);
+}
 #define DEFAULT()                                                     \
 	default:                                                      \
 		printf("Unexpected token %d at line %d\n",            \

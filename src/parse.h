@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -41,6 +41,8 @@ typedef enum
 	token_none = 0,
 	token_attribute,
 	token_bootloader,
+	token_mts_preboot,
+	token_mts,
 	token_block_size,
 	token_page_size,
 	token_partition_size,
@@ -574,6 +576,17 @@ typedef enum
 	token_mc_mts_carveout_size_mb,
 	token_mc_mts_carveout_reg_ctrl,
 
+	token_mts_info_version,
+	token_mts_info_start_blk,
+	token_mts_info_start_page,
+	token_mts_info_length,
+	token_mts_info_load_addr,
+	token_mts_info_entry_point,
+	token_mts_info_attribute,
+
+	token_mts_used,
+	token_mts_max,
+
 	token_force32 = 0x7fffffff
 } parse_token;
 
@@ -760,6 +773,35 @@ typedef struct cbootimage_soc_config_rec {
 	int (*get_bct_size)();
 
 	/*
+	 * Set MTS infomation in bct according to the value listed
+	 * in config file.
+	 *
+	 * @param context	The main context pointer
+	 * @param index  	The mts_info index in bct field
+	 * @param token  	The parse token value
+	 * @param value  	Value to set
+	 * @return 0 and 1 for success and failure
+	 */
+	int (*set_mts_info)(build_image_context *context,
+			u_int32_t index,
+			parse_token token,
+			u_int32_t value);
+	/*
+	 * Get the specified MTS information from bct data stored
+	 * in context.
+	 *
+	 * @param context	The main context pointer
+	 * @param index  	The mts_info index in bct field
+	 * @param token  	The parse token value
+	 * @param value  	Return value get from bct field
+	 * @return 0 and 1 for success and failure
+	 */
+	int (*get_mts_info)(build_image_context *context,
+			u_int32_t index,
+			parse_token token,
+			u_int32_t *value);
+
+	/*
 	 * Check if the token is supported to dump
 	 *
 	 * @param id  	The parse token value
@@ -782,6 +824,8 @@ typedef struct cbootimage_soc_config_rec {
 
 void process_config_file(build_image_context *context, u_int8_t simple_parse);
 
+void t132_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
 void t124_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 void t114_get_soc_config(build_image_context *context,
@@ -791,6 +835,8 @@ void t30_get_soc_config(build_image_context *context,
 void t20_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 
+int if_bct_is_t132_get_soc_config(build_image_context *context,
+	cbootimage_soc_config **soc_config);
 int if_bct_is_t124_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 int if_bct_is_t114_get_soc_config(build_image_context *context,
@@ -799,6 +845,27 @@ int if_bct_is_t30_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
 int if_bct_is_t20_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
+
+int
+t132_get_dev_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t *value);
+int
+t132_set_dev_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t value);
+int
+t132_get_sdram_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t *value);
+int
+t132_set_sdram_param(build_image_context *context,
+	u_int32_t index,
+	parse_token token,
+	u_int32_t value);
 
 int
 t124_get_dev_param(build_image_context *context,
@@ -898,26 +965,31 @@ extern enum_item s_devtype_table_t20[];
 extern enum_item s_devtype_table_t30[];
 extern enum_item s_devtype_table_t114[];
 extern enum_item s_devtype_table_t124[];
+extern enum_item s_devtype_table_t132[];
 
 extern enum_item s_sdmmc_data_width_table_t20[];
 extern enum_item s_sdmmc_data_width_table_t30[];
 extern enum_item s_sdmmc_data_width_table_t114[];
 extern enum_item s_sdmmc_data_width_table_t124[];
+extern enum_item s_sdmmc_data_width_table_t132[];
 
 extern enum_item s_spi_clock_source_table_t20[];
 extern enum_item s_spi_clock_source_table_t30[];
 extern enum_item s_spi_clock_source_table_t114[];
 extern enum_item s_spi_clock_source_table_t124[];
+extern enum_item s_spi_clock_source_table_t132[];
 
 extern enum_item s_nvboot_memory_type_table_t20[];
 extern enum_item s_nvboot_memory_type_table_t30[];
 extern enum_item s_nvboot_memory_type_table_t114[];
 extern enum_item s_nvboot_memory_type_table_t124[];
+extern enum_item s_nvboot_memory_type_table_t132[];
 
 extern field_item s_sdram_field_table_t20[];
 extern field_item s_sdram_field_table_t30[];
 extern field_item s_sdram_field_table_t114[];
 extern field_item s_sdram_field_table_t124[];
+extern field_item s_sdram_field_table_t132[];
 
 extern field_item s_nand_table_t20[];
 extern field_item s_nand_table_t30[];
@@ -926,15 +998,18 @@ extern field_item s_sdmmc_table_t20[];
 extern field_item s_sdmmc_table_t30[];
 extern field_item s_sdmmc_table_t114[];
 extern field_item s_sdmmc_table_t124[];
+extern field_item s_sdmmc_table_t132[];
 
 extern field_item s_spiflash_table_t20[];
 extern field_item s_spiflash_table_t30[];
 extern field_item s_spiflash_table_t114[];
 extern field_item s_spiflash_table_t124[];
+extern field_item s_spiflash_table_t132[];
 
 extern parse_subfield_item s_device_type_table_t20[];
 extern parse_subfield_item s_device_type_table_t30[];
 extern parse_subfield_item s_device_type_table_t114[];
 extern parse_subfield_item s_device_type_table_t124[];
+extern parse_subfield_item s_device_type_table_t132[];
 
 #endif /* #ifndef INCLUDED_PARSE_H */

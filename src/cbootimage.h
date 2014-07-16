@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -44,8 +44,11 @@
 #define BOOTDATA_VERSION_T30		NVBOOT_BOOTDATA_VERSION(0x3, 0x1)
 #define BOOTDATA_VERSION_T114		NVBOOT_BOOTDATA_VERSION(0x35, 0x1)
 #define BOOTDATA_VERSION_T124		NVBOOT_BOOTDATA_VERSION(0x40, 0x1)
+#define BOOTDATA_VERSION_T132		NVBOOT_BOOTDATA_VERSION(0x13, 0x1)
 
-#define NVBOOT_CONFIG_TABLE_SIZE_MAX 8192
+#define MAX_MTS_SIZE (4 * 1024 * 1024)
+
+#define NVBOOT_CONFIG_TABLE_SIZE_MAX 8704
 
 /*
  * Enumerations
@@ -55,6 +58,7 @@ typedef enum
 {
 	file_type_bl = 0,
 	file_type_bct,
+	file_type_mts,
 } file_type;
 
 /*
@@ -93,6 +97,11 @@ typedef struct build_image_context_rec
 	u_int32_t newbl_attr;
 	u_int8_t generate_bct;
 	u_int8_t *bct;
+
+	char *mts_filename;
+	u_int32_t mts_load_addr;
+	u_int32_t mts_entry_point;
+	u_int32_t mts_attr;
 
 	char *bct_filename;
 	u_int32_t last_blk;

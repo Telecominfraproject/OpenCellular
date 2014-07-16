@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -75,7 +75,7 @@ set_bl_data(build_image_context *context,
 			u_int32_t start_page,
 			u_int32_t length);
 
-static int write_bootloaders(build_image_context *context);
+static int write_image(build_image_context *context, file_type image_type);
 
 static void find_new_bct_blk(build_image_context *context);
 static int finish_update(build_image_context *context);
@@ -306,25 +306,76 @@ fail:
 	return err;
 }
 
-#define SET_BL_FIELD(instance, field, value)                \
-do {                                                        \
-	g_soc_config->setbl_param(instance,           \
-		token_bl_##field,                           \
-			&(value),                           \
-			context->bct);                      \
+#define SET_BL_FIELD(instance, field, value)   \
+do {                                           \
+    g_soc_config->setbl_param(instance,        \
+        token_bl_##field,                      \
+        &(value),                              \
+        context->bct);                         \
 } while (0);
 
-#define GET_BL_FIELD(instance, field, ptr)                  \
-g_soc_config->getbl_param(instance,                   \
-		token_bl_##field,                           \
-			ptr,                                \
-			context->bct);
+#define GET_BL_FIELD(instance, field, ptr)     \
+g_soc_config->getbl_param(instance,            \
+        token_bl_##field,                      \
+        ptr,                                   \
+        context->bct);
 
-#define COPY_BL_FIELD(from, to, field)                      \
-do {                                                        \
-	u_int32_t v;                                        \
-	GET_BL_FIELD(from, field, &v);                      \
-	SET_BL_FIELD(to,   field,  v);                      \
+#define COPY_BL_FIELD(from, to, field)         \
+do {                                           \
+    u_int32_t v;                               \
+    GET_BL_FIELD(from, field, &v);             \
+    SET_BL_FIELD(to,   field,  v);             \
+} while (0);
+
+#define SET_MTS_FIELD(instance, field, value)   \
+do {                                            \
+    g_soc_config->set_mts_info(context,         \
+    instance,                                   \
+    token_mts_info_##field,                     \
+    value);                                     \
+} while (0);
+
+#define GET_MTS_FIELD(instance, field, ptr)     \
+g_soc_config->get_mts_info(context,             \
+        instance,                               \
+        token_mts_info_##field,                 \
+        ptr);
+
+#define COPY_MTS_FIELD(from, to, field)         \
+do {                                            \
+    u_int32_t v;                                \
+    GET_MTS_FIELD(from, field, &v);             \
+    SET_MTS_FIELD(to,   field,  v);             \
+} while (0);
+
+#define SET_FIELD(is_bl, instance, field, value)\
+do {                                            \
+    if (is_bl) {                                \
+        SET_BL_FIELD(instance, field,value);    \
+    }                                           \
+    else {                                      \
+        SET_MTS_FIELD(instance, field, value);  \
+    }                                           \
+} while (0);
+
+#define GET_FIELD(is_bl, instance, field, ptr)  \
+do {                                            \
+    if (is_bl) {                                \
+        GET_BL_FIELD(instance, field, ptr);     \
+    }                                           \
+    else {                                      \
+        GET_MTS_FIELD(instance, field, ptr);    \
+    }                                           \
+} while (0);
+
+#define COPY_FIELD(is_bl, from, to, field)      \
+do {                                            \
+    if (is_bl) {                                \
+        COPY_BL_FIELD(from, to, field);         \
+    }                                           \
+    else {                                      \
+        COPY_MTS_FIELD(from, to, field);        \
+    }                                           \
 } while (0);
 
 static void
@@ -345,130 +396,170 @@ set_bl_data(build_image_context *context,
 	SET_BL_FIELD(instance, attribute, context->newbl_attr);
 }
 
+static void
+set_mts_data(build_image_context *context,
+		u_int32_t instance,
+		u_int32_t start_blk,
+		u_int32_t start_page,
+		u_int32_t length)
+{
+	assert(context);
+
+	SET_MTS_FIELD(instance, version, context->version);
+	SET_MTS_FIELD(instance, start_blk, start_blk);
+	SET_MTS_FIELD(instance, start_page, start_page);
+	SET_MTS_FIELD(instance, length, length);
+	SET_MTS_FIELD(instance, load_addr, context->mts_load_addr);
+	SET_MTS_FIELD(instance, entry_point, context->mts_entry_point);
+	SET_MTS_FIELD(instance, attribute, context->mts_attr);
+}
+
+#define SET_DATA(is_bl, context, instance, start_blk, start_page, length) \
+do {                                                                      \
+    if (is_bl)                                                            \
+        set_bl_data(context, instance, start_blk, start_page, length);    \
+    else                                                                  \
+        set_mts_data(context, instance, start_blk, start_page, length);   \
+} while (0);
+
 /*
- * Load the bootloader image then update it with the information
- * from config file.
- * In the interest of expediency, all BL's allocated from bottom to top start
- * at page 0 of a block, and all BL's allocated from top to bottom end at
- * the end of a block.
+ * Load the image then update it with the information from config file.
+ * In the interest of expediency, all image's allocated from bottom to top
+ * start at page 0 of a block, and all image's allocated from top to bottom
+ * end at the end of a block.
  *
- * @param context		The main context pointer
+ * @param context      The main context pointer
+ * @param image_type   The image type. Can be file_type_bl or file_type_mts
+ *                     only right now
  * @return 0 for success
  */
 static int
-write_bootloaders(build_image_context *context)
+write_image(build_image_context *context, file_type image_type)
 {
-	u_int32_t i;
-	u_int32_t j;
-	u_int32_t bl_instance;
-	u_int32_t bl_move_count = 0;
-	u_int32_t bl_move_remaining;
+	u_int32_t i, j;
+	u_int32_t image_instance;
+	u_int32_t image_move_count = 0;
+	u_int32_t image_move_remaining;
 	u_int32_t current_blk;
 	u_int32_t current_page;
-	u_int32_t  pages_in_bl;
-	u_int32_t bootloader_used;
-	u_int8_t  *bl_storage; /* Holds the Bl after reading */
-	u_int8_t  *buffer;	/* Holds the Bl for writing */
-	u_int8_t  *src;	/* Scans through the Bl during writing */
-	u_int32_t  bl_actual_size; /* In bytes */
+	u_int32_t pages_in_image;
+	u_int32_t image_used;
+	u_int8_t  *image_storage; /* Holds the image after reading */
+	u_int8_t  *buffer;	/* Holds the image for writing */
+	u_int8_t  *src;	/* Scans through the image during writing */
+	u_int32_t  image_actual_size; /* In bytes */
 	u_int32_t  pagesremaining;
 	u_int32_t  virtual_blk;
 	u_int32_t  pages_per_blk;
-	u_int32_t  bl_0_version;
-	u_int32_t  bl_used;
+	u_int32_t  image_version;
 	u_int8_t  *hash_buffer;
 	u_int32_t  hash_size;
-	u_int32_t  bootloaders_max;
-	file_type bl_filetype = file_type_bl;
-	int err = 0;
+	u_int32_t  image_max;
+	parse_token token;
+	int err = 0, is_bl;
 
 	assert(context);
+
+	/* Only support bootloader and mts image right now */
+	if (image_type == file_type_bl) {
+		is_bl = 1;
+	}
+	else if (image_type == file_type_mts) {
+		is_bl = 0;
+	}
+	else {
+		printf("Not supported image type!\n");
+		return -EINVAL;
+	}
 
 	pages_per_blk = 1 << (context->block_size_log2
 			- context->page_size_log2);
 
 	g_soc_config->get_value(token_hash_size,
 			&hash_size, context->bct);
-	g_soc_config->get_value(token_bootloaders_max,
-			&bootloaders_max, context->bct);
+	token = is_bl ? token_bootloaders_max : token_mts_max;
+	g_soc_config->get_value(token, &image_max, context->bct);
 
 	hash_buffer = calloc(1, hash_size);
 	if (hash_buffer == NULL)
 		return -ENOMEM;
 
 	if (enable_debug) {
-		printf("write_bootloaders()\n");
+		printf("writing %s\n", is_bl ? "bootloader" : "mts image");
 		printf("  redundancy = %d\n", context->redundancy);
 	}
 
-	/* Make room for the Bl(s) in the BCT. */
+	/* Make room for the image in the BCT. */
 
 	/* Determine how many to move.
-	 * Note that this code will count Bl[0] only if there is already
-	 * a BL in the device.
+	 * Note that this code will count Mts[0] only if there is already
+	 * a mts in the device.
 	 */
-	GET_BL_FIELD(0, version, &bl_0_version);
-	g_soc_config->get_value(token_bootloader_used,
-			&bl_used, context->bct);
-	for (bl_instance = 0; bl_instance < bl_used; bl_instance++) {
-		u_int32_t bl_version;
-		GET_BL_FIELD(bl_instance, version, &bl_version);
-		if (bl_version == bl_0_version)
-			bl_move_count++;
+	GET_FIELD(is_bl, 0, version, &image_version);
+	token = is_bl ? token_bootloader_used : token_mts_used;
+	g_soc_config->get_value(token, &image_used, context->bct);
+	for (image_instance = 0; image_instance < image_used; image_instance++) {
+		u_int32_t tmp;
+		GET_FIELD(is_bl, image_instance, version, &tmp);
+		if (tmp == image_version)
+			image_move_count++;
 	}
 
-	/* Adjust the move count, if needed, to avoid overflowing the BL table.
+	/* Adjust the move count, if needed, to avoid overflowing the mts table.
 	 * This can happen due to too much redundancy.
 	 */
-	bl_move_count = MIN(bl_move_count,
-			bootloaders_max - context->redundancy);
+	image_move_count = MIN(image_move_count, image_max - context->redundancy);
 
-	/* Move the Bl entries down. */
-	bl_move_remaining = bl_move_count;
-	while (bl_move_remaining > 0) {
-		u_int32_t  inst_from = bl_move_remaining - 1;
+	/* Move the mts entries down. */
+	image_move_remaining = image_move_count;
+	while (image_move_remaining > 0) {
+		u_int32_t  inst_from = image_move_remaining - 1;
 		u_int32_t  inst_to   =
-			bl_move_remaining + context->redundancy - 1;
+			image_move_remaining + context->redundancy - 1;
 
-		COPY_BL_FIELD(inst_from, inst_to, version);
-		COPY_BL_FIELD(inst_from, inst_to, start_blk);
-		COPY_BL_FIELD(inst_from, inst_to, start_page);
-		COPY_BL_FIELD(inst_from, inst_to, length);
-		COPY_BL_FIELD(inst_from, inst_to, load_addr);
-		COPY_BL_FIELD(inst_from, inst_to, entry_point);
-		COPY_BL_FIELD(inst_from, inst_to, attribute);
+		COPY_FIELD(is_bl, inst_from, inst_to, version);
+		COPY_FIELD(is_bl, inst_from, inst_to, start_blk);
+		COPY_FIELD(is_bl, inst_from, inst_to, start_page);
+		COPY_FIELD(is_bl, inst_from, inst_to, length);
+		COPY_FIELD(is_bl, inst_from, inst_to, load_addr);
+		COPY_FIELD(is_bl, inst_from, inst_to, entry_point);
+		COPY_FIELD(is_bl, inst_from, inst_to, attribute);
 
-		g_soc_config->getbl_param(inst_from,
-			token_bl_crypto_hash,
-			(u_int32_t*)hash_buffer,
-			context->bct);
-		g_soc_config->setbl_param(inst_to,
-			token_bl_crypto_hash,
-			(u_int32_t*)hash_buffer,
-			context->bct);
-		bl_move_remaining--;
+		if (is_bl) {
+			g_soc_config->getbl_param(inst_from,
+				token_bl_crypto_hash,
+				(u_int32_t*)hash_buffer,
+				context->bct);
+			g_soc_config->setbl_param(inst_to,
+				token_bl_crypto_hash,
+				(u_int32_t*)hash_buffer,
+				context->bct);
+		}
+
+		image_move_remaining--;
 	}
 
-	/* Read the BL into memory. */
-	if (read_from_image(context->newbl_filename,
+	/* Read the image into memory. */
+	if (read_from_image(
+		is_bl ? context->newbl_filename : context->mts_filename,
 		0,
-		MAX_BOOTLOADER_SIZE,
-		&bl_storage,
-		&bl_actual_size,
-		bl_filetype) == 1) {
-		printf("Error reading Bootloader %s.\n",
-			context->newbl_filename);
+		is_bl ? MAX_BOOTLOADER_SIZE : MAX_MTS_SIZE,
+		&image_storage,
+		&image_actual_size,
+		image_type) == 1) {
+		printf("Error reading image %s.\n",
+			is_bl ? context->newbl_filename : context->mts_filename);
 		exit(1);
 	}
 
-	pages_in_bl = iceil_log2(bl_actual_size, context->page_size_log2);
+	pages_in_image = iceil_log2(image_actual_size, context->page_size_log2);
 
 	current_blk = context->next_bct_blk;
 	current_page  = 0;
-	for (bl_instance = 0; bl_instance < context->redundancy;
-					bl_instance++) {
+	for (image_instance = 0; image_instance < context->redundancy;
+					image_instance++) {
 
-		pagesremaining = pages_in_bl;
+		pagesremaining = pages_in_image;
 		/* Advance to the next block if needed. */
 		if (current_page > 0) {
 			current_blk++;
@@ -482,11 +573,12 @@ write_bootloaders(build_image_context *context)
 			  * bad blocks.
 			  */
 			if (virtual_blk == 0) {
-				set_bl_data(context,
-					bl_instance,
+				SET_DATA(is_bl,
+					context,
+					image_instance,
 					current_blk,
 					current_page,
-					bl_actual_size);
+					image_actual_size);
 			}
 
 			if (pagesremaining > pages_per_blk) {
@@ -501,31 +593,37 @@ write_bootloaders(build_image_context *context)
 	}
 
 	/* Scan forwards to write each copy. */
-	for (bl_instance = 0; bl_instance < context->redundancy;
-					bl_instance++) {
+	for (image_instance = 0; image_instance < context->redundancy;
+					image_instance++) {
 
 		/* Create a local copy of the BCT data */
-		buffer = malloc(pages_in_bl * context->page_size);
+		buffer = malloc(pages_in_image * context->page_size);
 		if (buffer == NULL)
 			return -ENOMEM;
 
-		memset(buffer, 0, pages_in_bl * context->page_size);
-		memcpy(buffer, bl_storage, bl_actual_size);
-		insert_padding(buffer, bl_actual_size);
+		memset(buffer, 0, pages_in_image * context->page_size);
+		memcpy(buffer, image_storage, image_actual_size);
 
-		pagesremaining = pages_in_bl;
+		insert_padding(buffer, image_actual_size);
 
-		GET_BL_FIELD(bl_instance, start_blk, &current_blk);
-		GET_BL_FIELD(bl_instance, start_page,  &current_page);
+		pagesremaining = pages_in_image;
 
-		/* Encrypt and compute hash */
-		sign_data_block(buffer,
-				bl_actual_size,
-				hash_buffer);
-		g_soc_config->setbl_param(bl_instance,
-				token_bl_crypto_hash,
-				(u_int32_t*)hash_buffer,
-				context->bct);
+		if (is_bl) {
+			GET_BL_FIELD(image_instance, start_blk, &current_blk);
+			GET_BL_FIELD(image_instance, start_page,  &current_page);
+
+			/* Encrypt and compute hash */
+			sign_data_block(buffer,
+					image_actual_size,
+					hash_buffer);
+			g_soc_config->setbl_param(image_instance,
+					token_bl_crypto_hash,
+					(u_int32_t*)hash_buffer,
+					context->bct);
+		}
+
+		GET_FIELD(is_bl, image_instance, start_blk, &current_blk);
+		GET_FIELD(is_bl, image_instance, start_page,  &current_page);
 
 		/* Write the BCT data to the storage device,
 		 * picking up ECC errors
@@ -558,13 +656,12 @@ write_bootloaders(build_image_context *context)
 		free(buffer);
 	}
 
-	bootloader_used = context->redundancy + bl_move_count;
-	g_soc_config->set_value(token_bootloader_used,
-			&bootloader_used,
-			context->bct);
+	image_used = context->redundancy + image_move_count;
+	token = is_bl ? token_bootloader_used : token_mts_used;
+	g_soc_config->set_value(token, &image_used, context->bct);
 
 	if (enable_debug) {
-		for (i = 0; i < bootloaders_max; i++) {
+		for (i = 0; i < image_max; i++) {
 			u_int32_t version;
 			u_int32_t start_blk;
 			u_int32_t start_page;
@@ -572,15 +669,16 @@ write_bootloaders(build_image_context *context)
 			u_int32_t load_addr;
 			u_int32_t entry_point;
 
-			GET_BL_FIELD(i, version,     &version);
-			GET_BL_FIELD(i, start_blk,  &start_blk);
-			GET_BL_FIELD(i, start_page,   &start_page);
-			GET_BL_FIELD(i, length,      &length);
-			GET_BL_FIELD(i, load_addr, &load_addr);
-			GET_BL_FIELD(i, entry_point,  &entry_point);
+			GET_FIELD(is_bl, i, version,     &version);
+			GET_FIELD(is_bl, i, start_blk,  &start_blk);
+			GET_FIELD(is_bl, i, start_page,   &start_page);
+			GET_FIELD(is_bl, i, length,      &length);
+			GET_FIELD(is_bl, i, load_addr, &load_addr);
+			GET_FIELD(is_bl, i, entry_point,  &entry_point);
 
-			printf("%sBL[%d]: %d %04d %04d %04d 0x%08x 0x%08x k=",
-				i < bl_used ? "  " : "**",
+			printf("%s%s[%d]: %d %04d %04d %04d 0x%08x 0x%08x\n",
+				i < image_used ? "  " : "**",
+				is_bl ? "BL" : "MTS",
 				i,
 				version,
 				start_blk,
@@ -588,28 +686,29 @@ write_bootloaders(build_image_context *context)
 				length,
 				load_addr,
 				entry_point);
-
-			g_soc_config->getbl_param(i,
-				token_bl_crypto_hash,
-				(u_int32_t*)hash_buffer,
-				context->bct);
-			for (j = 0; j < hash_size / 4; j++) {
-				printf("%08x",
-					*((u_int32_t*)(hash_buffer + 4*j)));
+			if (is_bl) {
+				g_soc_config->getbl_param(i,
+					token_bl_crypto_hash,
+					(u_int32_t*)hash_buffer,
+					context->bct);
+				for (j = 0; j < hash_size / 4; j++) {
+					printf("%08x",
+						*((u_int32_t*)(hash_buffer + 4*j)));
+				}
+				printf("\n");
 			}
-			printf("\n");
 		}
 	}
-	free(bl_storage);
+	free(image_storage);
 	free(hash_buffer);
 	return 0;
 
 fail:
 	/* Cleanup. */
 	free(buffer);
-	free(bl_storage);
+	free(image_storage);
 	free(hash_buffer);
-	printf("Write bootloader failed, error: %d.\n", err);
+	printf("Write image failed, error: %d.\n", err);
 	return err;
 }
 
@@ -825,7 +924,22 @@ update_bl(build_image_context *context)
 
 	if (begin_update(context) != 0)
 		return 1;
-	if (write_bootloaders(context) != 0)
+	if (write_image(context, file_type_bl) != 0)
+		return 1;
+	if (finish_update(context) != 0)
+		return 1;
+	return 0;
+}
+
+int
+update_mts_image(build_image_context *context)
+{
+	if (enable_debug)
+		printf("**update_mts()\n");
+
+	if (begin_update(context) != 0)
+		return 1;
+	if (write_image(context, file_type_mts) != 0)
 		return 1;
 	if (finish_update(context) != 0)
 		return 1;
@@ -917,6 +1031,8 @@ int data_is_valid_bct(build_image_context *context)
 	if (if_bct_is_t114_get_soc_config(context, &g_soc_config))
 		return 1;
 	if (if_bct_is_t124_get_soc_config(context, &g_soc_config))
+		return 1;
+	if (if_bct_is_t132_get_soc_config(context, &g_soc_config))
 		return 1;
 
 	return 0;

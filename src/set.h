@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -31,6 +31,12 @@
 
 int
 set_bootloader(build_image_context	*context,
+		char	*filename,
+		u_int32_t	load_addr,
+		u_int32_t	entry_point);
+
+int
+set_mts_image(build_image_context	*context,
 		char	*filename,
 		u_int32_t	load_addr,
 		u_int32_t	entry_point);
