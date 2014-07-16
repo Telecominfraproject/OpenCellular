@@ -552,8 +552,9 @@ write_bootloaders(build_image_context *context)
 				current_blk++;
 				virtual_blk++;
 			}
-			context->last_bl_blk = current_blk;
+			context->last_blk = current_blk;
 		}
+		context->next_bct_blk = context->last_blk + 1;
 		free(buffer);
 	}
 
