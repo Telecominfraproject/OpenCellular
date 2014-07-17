@@ -226,7 +226,7 @@ vbutil_firmware \
 dd if="${temp_out_vb}" of="${DST_FD}" seek="${fwB_vblock_offset}" bs=1 \
   count="${fwB_vblock_size}" conv=notrunc 2>/dev/null
 if [ -n "${LOEMID}" ]; then
-  cp "${temp_out_vb}" "${LOEM_OUTPUT_DIR}/vblock_A.${LOEMID}"
+  cp "${temp_out_vb}" "${LOEM_OUTPUT_DIR}/vblock_B.${LOEMID}"
 fi
 
 echo "New signed image was output to ${DST_FD}"
