@@ -534,14 +534,38 @@ FUTIL_BIN = ${BUILD}/futility/futility
 FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 
 # These are the executables to be replaced with symlinks.
-FUTIL_OLD = bmpblk_font bmpblk_utility cgpt chromeos-tpm-recovery crossystem \
-	dev_debug_vboot dev_make_keypair dev_sign_file dumpRSAPublicKey \
-	dump_fmap dump_kernel_config eficompress efidecompress \
-	enable_dev_usb_boot gbb_utility load_kernel_test \
-	make_dev_firmware.sh make_dev_ssd.sh pad_digest_utility \
-	resign_firmwarefd.sh set_gbb_flags.sh signature_digest_utility \
-	tpm-nvsize tpm_init_temp_fix tpmc vbutil_firmware vbutil_kernel \
-	vbutil_key vbutil_keyblock vbutil_what_keys verify_data
+FUTIL_OLD = \
+	bmpblk_font \
+	bmpblk_utility \
+	cgpt \
+	chromeos-tpm-recovery \
+	crossystem \
+	dev_debug_vboot \
+	dev_make_keypair \
+	dev_sign_file \
+	dumpRSAPublicKey \
+	dump_fmap \
+	dump_kernel_config \
+	eficompress \
+	efidecompress \
+	enable_dev_usb_boot \
+	gbb_utility \
+	load_kernel_test \
+	make_dev_firmware.sh \
+	make_dev_ssd.sh \
+	pad_digest_utility \
+	resign_firmwarefd.sh \
+	set_gbb_flags.sh \
+	signature_digest_utility \
+	tpm-nvsize \
+	tpm_init_temp_fix \
+	tpmc \
+	vbutil_firmware \
+	vbutil_kernel \
+	vbutil_key \
+	vbutil_keyblock \
+	vbutil_what_keys \
+	verify_data
 
 FUTIL_STATIC_SRCS = \
 	futility/futility.c \

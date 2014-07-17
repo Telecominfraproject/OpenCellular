@@ -35,4 +35,18 @@ struct futil_cmd_t {
 /* This is the list of pointers to all commands. */
 extern struct futil_cmd_t *futil_cmds[];
 
+/* Size of an array */
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+#endif
+
+/* Test an important condition at compile time, not run time */
+#ifndef BUILD_ASSERT
+#define _BA1_(cond, line) \
+        extern int __build_assertion_ ## line[1 - 2*!(cond)] \
+        __attribute__ ((unused))
+#define _BA0_(c, x) _BA1_(c, x)
+#define BUILD_ASSERT(cond) _BA0_(cond, __LINE__)
+#endif
+
 #endif /* VBOOT_REFERENCE_FUTILITY_H_ */

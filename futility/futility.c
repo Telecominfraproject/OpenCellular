@@ -79,6 +79,29 @@ static int do_help(int argc, char *argv[])
 }
 DECLARE_FUTIL_COMMAND(help, do_help, "show a bit of help");
 
+/* Deprecated functions can't be invoked through symlinks. */
+static char *dep_cmds[] = {
+  "eficompress",
+  "efidecompress",
+};
+
+static const char * const dep_usage= "\n\
+The program \"%s\" is deprecated.\n\
+\n\
+If you feel this is in error, please open a bug at\n\
+\n\
+  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n\
+\n\
+In the meantime, you may continue to use the program by invoking it as\n\
+\n\
+  " MYNAME " %s [...]\n\
+\n";
+
+static void deprecated(const char *depname)
+{
+  fprintf(stderr, dep_usage, depname, depname);
+  exit(1);
+}
 
 /******************************************************************************/
 /* Logging stuff */
@@ -214,6 +237,7 @@ int main(int argc, char *argv[], char *envp[])
   ssize_t r;
   char *s;
   struct futil_cmd_t **cmd;
+  int i;
 
   log_args(argc, argv);
 
@@ -241,6 +265,12 @@ int main(int argc, char *argv[], char *envp[])
       progname++;
     else
       progname = argv[0];
+  } else {	      /* Invoked by symlink */
+
+	  /* Block any deprecated functions. */
+	  for (i = 0; i < ARRAY_SIZE(dep_cmds); i++)
+		  if (0 == strcmp(dep_cmds[i], progname))
+			  deprecated(progname);
   }
 
   /* See if it's asking for something we know how to do ourselves */
