@@ -625,6 +625,8 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	int need_update = 0;
 	int i;
 
+	VBDEBUG(("VbEcSoftwareSync(devidx=%d)\n", devidx));
+
 	/* Determine whether the EC is in RO or RW */
 	rv = VbExEcRunningRW(devidx, &in_rw);
 
@@ -861,7 +863,6 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	/* Tell EC to jump to its RW image */
 	VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
 	rv = VbExEcJumpToRW(devidx);
-
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
 			 "VbExEcJumpToRW() returned %d\n", rv));
@@ -941,6 +942,13 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		retval = VbEcSoftwareSync(0, cparams);
 		if (retval != VBERROR_SUCCESS)
 			goto VbSelectAndLoadKernel_exit;
+
+#ifdef PD_SYNC
+		retval = VbEcSoftwareSync(1, cparams);
+		if (retval != VBERROR_SUCCESS)
+			goto VbSelectAndLoadKernel_exit;
+#endif
+
 	}
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */

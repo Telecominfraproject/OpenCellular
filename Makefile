@@ -149,6 +149,10 @@ ifneq (${FORCE_LOGGING_ON},)
 CFLAGS += -DFORCE_LOGGING_ON=${FORCE_LOGGING_ON}
 endif
 
+ifneq (${PD_SYNC},)
+CFLAGS += -DPD_SYNC
+endif
+
 # Create / use dependency files
 CFLAGS += -MMD -MF $@.d
 
