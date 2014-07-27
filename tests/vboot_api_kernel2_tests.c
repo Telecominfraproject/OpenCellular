@@ -45,6 +45,8 @@ static uint32_t screens_count = 0;
 static uint32_t mock_num_disks[8];
 static uint32_t mock_num_disks_count;
 
+extern enum VbEcBootMode_t VbGetMode(void);
+
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
 {
@@ -262,7 +264,9 @@ static void VbUserConfirmsTest(void)
 static void VbBootTest(void)
 {
 	ResetMocks();
+	VbExEcEnteringMode(0, VB_EC_NORMAL);
 	TEST_EQ(VbBootNormal(&cparams, &lkp), 1002, "VbBootNormal()");
+	TEST_EQ(VbGetMode(), VB_EC_NORMAL, "vboot_mode normal");
 }
 
 static void VbBootDevTest(void)
@@ -273,7 +277,9 @@ static void VbBootDevTest(void)
 
 	/* Proceed after timeout */
 	ResetMocks();
+	VbExEcEnteringMode(0, VB_EC_DEVELOPER);
 	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(VbGetMode(), VB_EC_DEVELOPER, "vboot_mode developer");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING,
 		"  warning screen");
 	VbNvGet(VbApiKernelGetVnc(), VBNV_RECOVERY_REQUEST, &u);
@@ -448,8 +454,11 @@ static void VbBootRecTest(void)
 	/* Shutdown requested in loop */
 	ResetMocks();
 	shutdown_request_calls_left = 10;
+	VbExEcEnteringMode(0, VB_EC_RECOVERY);
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
 		"Shutdown requested");
+	TEST_EQ(VbGetMode(), VB_EC_RECOVERY, "vboot_mode recovery");
+
 	VbNvGet(VbApiKernelGetVnc(), VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, 0, "  recovery reason");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_BLANK,

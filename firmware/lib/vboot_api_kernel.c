@@ -1012,15 +1012,18 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		/* Recovery boot */
 		p.boot_flags |= BOOT_FLAG_RECOVERY;
 		retval = VbBootRecovery(cparams, &p);
+		VbExEcEnteringMode(0, VB_EC_RECOVERY);
 		VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0, &vnc);
 
 	} else if (p.boot_flags & BOOT_FLAG_DEVELOPER) {
 		/* Developer boot */
 		retval = VbBootDeveloper(cparams, &p);
+		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
 		VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0, &vnc);
 
 	} else {
 		/* Normal boot */
+		VbExEcEnteringMode(0, VB_EC_NORMAL);
 		retval = VbBootNormal(cparams, &p);
 
 		if ((1 == shared->firmware_index) &&

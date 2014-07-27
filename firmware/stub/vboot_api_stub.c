@@ -17,6 +17,8 @@
 
 #include "vboot_api.h"
 
+static enum VbEcBootMode_t vboot_mode;
+
 void VbExSleepMs(uint32_t msec)
 {
 }
@@ -149,6 +151,17 @@ VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size)
 VbError_t VbExEcProtectRW(int devidx)
 {
 	return VBERROR_SUCCESS;
+}
+
+VbError_t VbExEcEnteringMode(int devidx, enum VbEcBootMode_t mode)
+{
+	vboot_mode = mode;
+	return VBERROR_SUCCESS;
+}
+
+enum VbEcBootMode_t VbGetMode(void)
+{
+	return vboot_mode;
 }
 
 int VbExLegacy(void)

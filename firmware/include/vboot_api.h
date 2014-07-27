@@ -826,6 +826,13 @@ VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size);
  */
 VbError_t VbExEcProtectRW(int devidx);
 
+/**
+ * Info the EC of the boot mode selected by the AP.
+ * mode: Normal, Developer, or Recovery
+ */
+enum VbEcBootMode_t {VB_EC_NORMAL, VB_EC_DEVELOPER, VB_EC_RECOVERY };
+VbError_t VbExEcEnteringMode(int devidx, enum VbEcBootMode_t mode);
+
 /*****************************************************************************/
 /* Misc */
 
