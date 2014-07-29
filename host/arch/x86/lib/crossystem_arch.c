@@ -583,6 +583,7 @@ static const struct GpioChipset chipsets_supported[] = {
   { "CougarPoint", FindGpioChipOffset },
   { "PantherPoint", FindGpioChipOffset },
   { "LynxPoint", FindGpioChipOffset },
+  { "PCH-LP", FindGpioChipOffset },
   { "BayTrail", BayTrailFindGpioChipOffset },
   { NULL },
 };
