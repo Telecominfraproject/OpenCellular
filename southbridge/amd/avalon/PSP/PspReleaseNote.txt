@@ -1,0 +1,19 @@
+//----------------------------------------------------------------------------
+// PSP FW Delivery Release Note
+//
+// Copyright 2014, Advanced Micro Devices, Inc.
+// Image Version number: PSP BootLoader: 00.01.01.1D, PSP SecureOS: 00.01.01.1D
+// Date:   5/01/2014
+//----------------------------------------------------------------------------
+
+Files:
+    PspBootLoader.Bypass.sbin - PSP bootloader with HVB bypass enabled
+	PspRecovery.sbin       - PSP recovery BootLoader
+	PspSecureOs.sbin       - PSP secure OS, signed with production key version
+	PspNvram.bin           - NV storage pattern used to populate the SPI-ROM.
+
+Features and fixes:
+
+- Fix the Flash Utility backward compatibility issue.
+
+
