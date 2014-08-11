@@ -62,6 +62,8 @@
 #define GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC 0x00000200
 /* Default to booting legacy OS when dev screen times out */
 #define GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY  0x00000400
+/* Disable PD software sync */
+#define GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC 0x00000800
 
 #ifdef __cplusplus
 extern "C" {

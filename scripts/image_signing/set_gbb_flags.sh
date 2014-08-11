@@ -34,6 +34,7 @@ GBBFLAGS_DESCRIPTION="
   GBB_FLAG_FAFT_KEY_OVERIDE           0x00000100
   GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC   0x00000200
   GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY    0x00000400
+  GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC   0x00000800
 
   To get a developer-friendly device, try 0x11 (short_delay + boot_usb).
   For factory-related tests (always DEV), try 0x39.

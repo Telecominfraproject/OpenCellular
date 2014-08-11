@@ -362,6 +362,9 @@ enum vb2_gbb_flag {
 
 	/* Default to booting legacy OS when dev screen times out */
 	VB2_GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY = (1 << 10),
+
+	/* Disable PD software sync */
+	VB2_GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC = (1 << 11),
 };
 
 struct vb2_gbb_header {

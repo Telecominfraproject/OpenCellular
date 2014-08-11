@@ -944,11 +944,13 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 			goto VbSelectAndLoadKernel_exit;
 
 #ifdef PD_SYNC
-		retval = VbEcSoftwareSync(1, cparams);
-		if (retval != VBERROR_SUCCESS)
-			goto VbSelectAndLoadKernel_exit;
+		if (!(cparams->gbb->flags &
+		      GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
+			retval = VbEcSoftwareSync(1, cparams);
+			if (retval != VBERROR_SUCCESS)
+				goto VbSelectAndLoadKernel_exit;
+		}
 #endif
-
 	}
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
