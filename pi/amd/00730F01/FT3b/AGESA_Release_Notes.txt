@@ -3,6 +3,22 @@
                         -----------------
              Mullins Platform Initialization (MullinsPI)
 
+=============================================================================
+
+coreboot usage information:
+
+	    AGESA source (binary PI)  --->
+	(3rdparty/pi/amd/00730F01) AGESA PI directory path
+	(FT3b/AGESA.bin) AGESA PI binary file name
+	(0xFFE00000) AGESA PI binary address in ROM
+
+	config MMCONF_BASE_ADDRESS
+		hex
+		default 0xF8000000
+
+	config MMCONF_BUS_NUMBER
+		int
+		default 64
 
 =============================================================================
 
