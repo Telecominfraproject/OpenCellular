@@ -36,7 +36,7 @@ enum {
   OPT_VBLOCK,
 };
 
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   {"sign", 1, 0,                      OPT_MODE_SIGN               },
   {"verify", 1, 0,                    OPT_MODE_VERIFY             },
   {"keyblock", 1, 0,                  OPT_KEYBLOCK                },
@@ -274,7 +274,7 @@ static int Verify(const char* filename, const char* vblock_file,
 }
 
 
-int do_dev_sign_file(int argc, char* argv[]) {
+static int do_dev_sign_file(int argc, char* argv[]) {
   char* filename = NULL;
   char* keyblock_file = NULL;
   char* signprivate_file = NULL;

@@ -31,7 +31,7 @@ enum {
   OPT_FLAGS,
 };
 
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   {"pack", 1, 0,                      OPT_MODE_PACK               },
   {"unpack", 1, 0,                    OPT_MODE_UNPACK             },
   {"datapubkey", 1, 0,                OPT_DATAPUBKEY              },
@@ -214,7 +214,7 @@ static int Unpack(const char* infile, const char* datapubkey,
 }
 
 
-int do_vbutil_keyblock(int argc, char* argv[]) {
+static int do_vbutil_keyblock(int argc, char* argv[]) {
 
   char* filename = NULL;
   char* datapubkey = NULL;

@@ -45,7 +45,7 @@ In either case it will append some usage information to " LOGFILE "\n\
 
 static int do_help(int argc, char *argv[])
 {
-  struct futil_cmd_t **cmd;
+  const struct futil_cmd_t * const *cmd;
   int i;
 
   fputs(usage, stdout);
@@ -71,7 +71,7 @@ DECLARE_FUTIL_COMMAND(help, do_help,
  * These are built-in functions that we'd like to abandon completely someday.
  * TODO: If no one complains, get rid of them.
  */
-static char *dep_cmds[] = {
+static const char * const dep_cmds[] = {
   "dev_sign_file",
 };
 
@@ -220,7 +220,7 @@ int main(int argc, char *argv[], char *envp[])
   char buf[80];
   pid_t myproc;
   ssize_t r;
-  struct futil_cmd_t **cmd;
+  const struct futil_cmd_t * const *cmd;
   int i;
   int via_symlink = 0;
 

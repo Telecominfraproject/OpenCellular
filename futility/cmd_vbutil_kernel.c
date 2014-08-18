@@ -61,7 +61,7 @@ typedef enum {
   ARCH_MIPS
 } arch_t;
 
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   {"pack", 1, 0,                      OPT_MODE_PACK               },
   {"repack", 1, 0,                    OPT_MODE_REPACK             },
   {"verify", 1, 0,                    OPT_MODE_VERIFY             },
@@ -696,7 +696,7 @@ static int Verify(uint8_t* kernel_blob,
 
 /****************************************************************************/
 
-int do_vbutil_kernel(int argc, char* argv[]) {
+static int do_vbutil_kernel(int argc, char* argv[]) {
   char* filename = NULL;
   char* oldfile = NULL;
   char* keyblock_file = NULL;

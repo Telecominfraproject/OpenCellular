@@ -33,7 +33,7 @@ enum {
   OPT_FLAGS,
 };
 
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   {"vblock", 1, 0,                    OPT_MODE_VBLOCK             },
   {"verify", 1, 0,                    OPT_MODE_VERIFY             },
   {"keyblock", 1, 0,                  OPT_KEYBLOCK                },
@@ -291,7 +291,7 @@ static int Verify(const char* infile, const char* signpubkey,
 }
 
 
-int do_vbutil_firmware(int argc, char* argv[]) {
+static int do_vbutil_firmware(int argc, char* argv[]) {
 
   char* filename = NULL;
   char* key_block_file = NULL;

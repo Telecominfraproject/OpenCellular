@@ -18,7 +18,7 @@ enum {
   OPT_KLOADADDR = 1000,
 };
 
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   { "kloadaddr", 1, NULL, OPT_KLOADADDR },
   { NULL, 0, NULL, 0 }
 };
@@ -34,7 +34,7 @@ static int PrintHelp(void) {
   return 1;
 }
 
-int do_dump_kernel_config(int argc, char* argv[]) {
+static int do_dump_kernel_config(int argc, char* argv[]) {
   char *infile = NULL;
   char *config = NULL;
   uint64_t kernel_body_load_address = USE_PREAMBLE_LOAD_ADDR;

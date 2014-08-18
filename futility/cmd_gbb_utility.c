@@ -53,7 +53,7 @@ static void help_and_quit(const char *prog) {
 }
 
 /* Command line options */
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   /* name    hasarg *flag val */
   {"get",         0,   NULL, 'g' },
   {"set",         0,   NULL, 's' },

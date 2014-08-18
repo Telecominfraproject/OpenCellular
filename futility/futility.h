@@ -11,7 +11,7 @@
 /* Here's a structure to define the commands that futility implements. */
 struct futil_cmd_t {
   const char * const name;
-  int (*handler)(int argc, char **argv);
+  int (*const handler)(int argc, char **argv);
   const char * const shorthelp;
 };
 
@@ -23,17 +23,17 @@ struct futil_cmd_t {
  * to them without explictly declaring every function in a header somewhere.
  */
 #define DECLARE_FUTIL_COMMAND(NAME, HANDLER, SHORTHELP)           \
-        static struct futil_cmd_t cmd_##NAME = {		  \
+        static const struct futil_cmd_t __cmd_##NAME = {          \
                 .name = #NAME,                                    \
                 .handler = HANDLER,                               \
                 .shorthelp = SHORTHELP                            \
-        };							  \
-        const struct futil_cmd_t *__cmd_ptr_##NAME		  \
-        __attribute__((section(".futil_cmds." #NAME)))		  \
-          = &cmd_##NAME
+        };                                                        \
+        const struct futil_cmd_t * const __cmd_ptr_##NAME         \
+        __attribute__((section(".futil_cmds." #NAME)))            \
+          = &__cmd_##NAME
 
 /* This is the list of pointers to all commands. */
-extern struct futil_cmd_t *futil_cmds[];
+extern const struct futil_cmd_t * const futil_cmds[];
 
 /* Size of an array */
 #ifndef ARRAY_SIZE

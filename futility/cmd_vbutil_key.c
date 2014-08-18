@@ -29,7 +29,7 @@ enum {
   OPT_COPYTO,
 };
 
-static struct option long_opts[] = {
+static const struct option long_opts[] = {
   {"key", 1, 0,                       OPT_INKEY                   },
   {"version", 1, 0,                   OPT_KEY_VERSION             },
   {"algorithm", 1, 0,                 OPT_ALGORITHM               },
@@ -163,7 +163,7 @@ static int Unpack(const char *infile, const char *outfile) {
 }
 
 
-int do_vbutil_key(int argc, char* argv[]) {
+static int do_vbutil_key(int argc, char* argv[]) {
 
   char *infile = NULL;
   char *outfile = NULL;
