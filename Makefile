@@ -490,11 +490,6 @@ UTIL_NAMES += \
 	utility/signature_digest_utility \
 	utility/verify_data
 
-ifneq (${VBOOT2},)
-UTIL_NAMES += \
-	utility/vb2_verify_fw
-endif
-
 endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/,${UTIL_NAMES_STATIC})
@@ -549,6 +544,11 @@ FUTIL_SRCS = \
 	futility/cmd_vbutil_kernel.c \
 	futility/cmd_vbutil_key.c \
 	futility/cmd_vbutil_keyblock.c
+
+ifneq (${VBOOT2},)
+FUTIL_SRCS += \
+	futility/cmd_vb2_verify_fw.c
+endif
 
 FUTIL_LDS = futility/futility.lds
 

@@ -12,22 +12,6 @@ cd "$OUTDIR"
 # No args returns nonzero exit code
 "$FUTILITY" && false
 
-# Make sure all built-in commands are listed and have help
-expected=\
-'dev_sign_file
-dump_fmap
-dump_kernel_config
-gbb_utility
-help
-vbutil_firmware
-vbutil_kernel
-vbutil_key
-vbutil_keyblock'
-got=$("$FUTILITY" help |
-  egrep '^[[:space:]]+[^[:space:]]+[[:space:]]+[^[:space:]]+' |
-  awk '{print $1}')
-[ "$expected" = "$got" ]
-
 # It's weird but okay if the command is a full path.
 "$FUTILITY" /fake/path/to/help  > "$TMP"
 grep Usage "$TMP"

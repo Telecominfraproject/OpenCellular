@@ -11,6 +11,7 @@
 
 #include "2sysincludes.h"
 #include "2api.h"
+#include "futility.h"
 
 const char *progname = "vb2_verify_fw";
 
@@ -133,11 +134,17 @@ int hash_body(struct vb2_context *ctx)
 	return VB2_SUCCESS;
 }
 
-int main(int argc, char *argv[])
+int do_vb2_verify_fw(int argc, char *argv[])
 {
 	struct vb2_context ctx;
 	uint8_t workbuf[16384];
 	int rv;
+
+	progname = strrchr(argv[0], '/');
+	if (progname)
+		progname++;
+	else
+		progname = argv[0];
 
 	if (argc < 4) {
 		fprintf(stderr,
@@ -207,3 +214,6 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+DECLARE_FUTIL_COMMAND(vb2_verify_fw, do_vb2_verify_fw,
+		      "Verifies firmware using vboot2 library");

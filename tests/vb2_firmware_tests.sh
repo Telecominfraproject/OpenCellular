@@ -52,6 +52,6 @@ ${BIN_DIR}/vbutil_firmware \
 echo 'Verifying test firmware using vb2_verify_fw'
 
 # Verify the firmware using vboot2 utility
-${BIN_DIR}/vb2_verify_fw gbb.test vblock.test body.test
+${BIN_DIR}/futility vb2_verify_fw gbb.test vblock.test body.test
 
 happy 'vb2_verify_fw succeeded'
