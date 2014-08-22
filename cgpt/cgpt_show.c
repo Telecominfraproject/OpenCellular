@@ -415,7 +415,8 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
       HeaderDetails(header, entries, indent, params->numeric);
     }
 
-    printf(GPT_FMT, (int)(GPT_PMBR_SECTOR + GPT_HEADER_SECTOR),
+    GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
+    printf(GPT_FMT, (int)primary_header->entries_lba,
            (int)GPT_ENTRIES_SECTORS,
            drive->gpt.valid_entries & MASK_PRIMARY ? "" : "INVALID",
            "Pri GPT table");
@@ -425,8 +426,8 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
       EntriesDetails(drive, PRIMARY, params->numeric);
 
     /****************************** Secondary *************************/
-    printf(GPT_FMT, (int)(drive->gpt.drive_sectors - GPT_HEADER_SECTOR -
-                          GPT_ENTRIES_SECTORS),
+    GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
+    printf(GPT_FMT, (int)secondary_header->entries_lba,
            (int)GPT_ENTRIES_SECTORS,
            drive->gpt.valid_entries & MASK_SECONDARY ? "" : "INVALID",
            "Sec GPT table");

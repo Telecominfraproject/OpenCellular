@@ -88,14 +88,14 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors)
 	 * secondary is at the end of the drive, preceded by its entries.
 	 */
 	if (is_secondary) {
-		if (h->my_lba != drive_sectors - 1)
+		if (h->my_lba != drive_sectors - GPT_HEADER_SECTOR)
 			return 1;
 		if (h->entries_lba != h->my_lba - GPT_ENTRIES_SECTORS)
 			return 1;
 	} else {
-		if (h->my_lba != 1)
+		if (h->my_lba != GPT_PMBR_SECTOR)
 			return 1;
-		if (h->entries_lba != h->my_lba + 1)
+		if (h->entries_lba < h->my_lba + 1)
 			return 1;
 	}
 
@@ -104,6 +104,7 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors)
 	 * LastUsableLBA must be before the start of the secondary GPT table
 	 * array.  FirstUsableLBA <= LastUsableLBA.
 	 */
+	/* TODO(namnguyen): Also check for padding between header & entries. */
 	if (h->first_usable_lba < 2 + GPT_ENTRIES_SECTORS)
 		return 1;
 	if (h->last_usable_lba >= drive_sectors - 1 - GPT_ENTRIES_SECTORS)
@@ -295,8 +296,8 @@ void GptRepair(GptData *gpt)
 	if (MASK_PRIMARY == gpt->valid_headers) {
 		/* Primary is good, secondary is bad */
 		Memcpy(header2, header1, sizeof(GptHeader));
-		header2->my_lba = gpt->drive_sectors - 1;
-		header2->alternate_lba = 1;
+		header2->my_lba = gpt->drive_sectors - GPT_HEADER_SECTOR;
+		header2->alternate_lba = GPT_PMBR_SECTOR;  /* Second sector. */
 		header2->entries_lba = header2->my_lba - GPT_ENTRIES_SECTORS;
 		header2->header_crc32 = HeaderCrc(header2);
 		gpt->modified |= GPT_MODIFIED_HEADER2;
@@ -304,8 +305,9 @@ void GptRepair(GptData *gpt)
 	else if (MASK_SECONDARY == gpt->valid_headers) {
 		/* Secondary is good, primary is bad */
 		Memcpy(header1, header2, sizeof(GptHeader));
-		header1->my_lba = 1;
-		header1->alternate_lba = gpt->drive_sectors - 1;
+		header1->my_lba = GPT_PMBR_SECTOR;  /* Second sector. */
+		header1->alternate_lba = gpt->drive_sectors - GPT_HEADER_SECTOR;
+		/* TODO (namnguyen): Preserve (header, entries) padding. */
 		header1->entries_lba = header1->my_lba + 1;
 		header1->header_crc32 = HeaderCrc(header1);
 		gpt->modified |= GPT_MODIFIED_HEADER1;

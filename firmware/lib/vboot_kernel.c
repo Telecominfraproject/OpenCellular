@@ -59,15 +59,17 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	/* Read data from the drive, skipping the protective MBR */
 	if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header))
 		return 1;
-	if (0 != VbExDiskRead(disk_handle, 2, entries_sectors,
-			      gptdata->primary_entries))
+	GptHeader* primary_header = (GptHeader*)gptdata->primary_header;
+	if (0 != VbExDiskRead(disk_handle, primary_header->entries_lba,
+			      entries_sectors, gptdata->primary_entries))
 		return 1;
-	if (0 != VbExDiskRead(disk_handle,
-			      gptdata->drive_sectors - entries_sectors - 1,
-			      entries_sectors, gptdata->secondary_entries))
-		return 1;
+
 	if (0 != VbExDiskRead(disk_handle, gptdata->drive_sectors - 1, 1,
 			      gptdata->secondary_header))
+		return 1;
+	GptHeader* secondary_header = (GptHeader*)gptdata->secondary_header;
+	if (0 != VbExDiskRead(disk_handle, secondary_header->entries_lba,
+			      entries_sectors, gptdata->secondary_entries))
 		return 1;
 
 	return 0;
@@ -84,8 +86,14 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
 	int ret = 1;
 
+	/*
+	 * TODO(namnguyen): Preserve padding between primary GPT header and
+	 * its entries.
+	 */
+	uint64_t entries_lba = GPT_PMBR_SECTOR + GPT_HEADER_SECTOR;
 	if (gptdata->primary_header) {
 		GptHeader *h = (GptHeader *)(gptdata->primary_header);
+		entries_lba = h->entries_lba;
 
 		/*
 		 * Avoid even looking at this data if we don't need to. We
@@ -116,7 +124,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 					 "legacy mode is enabled.\n"));
 			} else {
 				VBDEBUG(("Updating GPT entries 1\n"));
-				if (0 != VbExDiskWrite(disk_handle, 2,
+				if (0 != VbExDiskWrite(disk_handle, entries_lba,
 						entries_sectors,
 						gptdata->primary_entries))
 					goto fail;
@@ -124,22 +132,26 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		}
 	}
 
-	if (gptdata->secondary_entries) {
-		if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
-			VBDEBUG(("Updating GPT header 2\n"));
-			if (0 != VbExDiskWrite(disk_handle,
-				gptdata->drive_sectors - entries_sectors - 1,
-				entries_sectors, gptdata->secondary_entries))
-				goto fail;
-		}
-	}
-
+	entries_lba = (gptdata->drive_sectors - entries_sectors -
+		GPT_HEADER_SECTOR);
 	if (gptdata->secondary_header) {
+		GptHeader *h = (GptHeader *)(gptdata->secondary_header);
+		entries_lba = h->entries_lba;
 		if (gptdata->modified & GPT_MODIFIED_HEADER2) {
 			VBDEBUG(("Updating GPT entries 2\n"));
 			if (0 != VbExDiskWrite(disk_handle,
 					       gptdata->drive_sectors - 1, 1,
 					       gptdata->secondary_header))
+				goto fail;
+		}
+	}
+
+	if (gptdata->secondary_entries) {
+		if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
+			VBDEBUG(("Updating GPT header 2\n"));
+			if (0 != VbExDiskWrite(disk_handle,
+				entries_lba, entries_sectors,
+				gptdata->secondary_entries))
 				goto fail;
 		}
 	}

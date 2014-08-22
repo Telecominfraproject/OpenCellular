@@ -29,15 +29,16 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     memcpy(h->signature, GPT_HEADER_SIGNATURE, GPT_HEADER_SIGNATURE_SIZE);
     h->revision = GPT_HEADER_REVISION;
     h->size = sizeof(GptHeader);
-    h->my_lba = 1;
-    h->alternate_lba = drive->gpt.drive_sectors - 1;
-    h->first_usable_lba = 1 + 1 + GPT_ENTRIES_SECTORS;
-    h->last_usable_lba = drive->gpt.drive_sectors - 1 - GPT_ENTRIES_SECTORS - 1;
+    h->my_lba = GPT_PMBR_SECTOR;  /* The second sector on drive. */
+    h->alternate_lba = drive->gpt.drive_sectors - GPT_HEADER_SECTOR;
+    h->entries_lba = h->my_lba + GPT_HEADER_SECTOR + params->padding;
+    h->first_usable_lba = h->entries_lba + GPT_ENTRIES_SECTORS;
+    h->last_usable_lba = (drive->gpt.drive_sectors - GPT_HEADER_SECTOR -
+                          GPT_ENTRIES_SECTORS - 1);
     if (CGPT_OK != GenerateGuid(&h->disk_uuid)) {
       Error("Unable to generate new GUID.\n");
       return -1;
     }
-    h->entries_lba = 2;
     h->number_of_entries = 128;
     h->size_of_entry = sizeof(GptEntry);
 

@@ -17,6 +17,7 @@ typedef struct CgptCreateParams {
   char *drive_name;
   int zap;
   uint64_t size;
+  uint64_t padding;
 } CgptCreateParams;
 
 typedef struct CgptAddParams {

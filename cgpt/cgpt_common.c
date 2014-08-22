@@ -318,14 +318,15 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
                       drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
     return -1;
   }
+  GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
   if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
-                      GPT_PMBR_SECTOR + GPT_HEADER_SECTOR,
+                      primary_header->entries_lba,
                       drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
     return -1;
   }
+  GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
   if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
-                      drive->gpt.drive_sectors - GPT_HEADER_SECTOR
-                      - GPT_ENTRIES_SECTORS,
+                      secondary_header->entries_lba,
                       drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
     return -1;
   }
@@ -351,18 +352,19 @@ static int GptSave(struct drive *drive) {
       Error("Cannot write secondary header: %s\n", strerror(errno));
     }
   }
+  GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
   if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
     if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
-                        GPT_PMBR_SECTOR + GPT_HEADER_SECTOR,
+                        primary_header->entries_lba,
                         drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
       errors++;
       Error("Cannot write primary entries: %s\n", strerror(errno));
     }
   }
+  GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
   if (drive->gpt.modified & GPT_MODIFIED_ENTRIES2) {
     if (CGPT_OK != Save(drive, drive->gpt.secondary_entries,
-                        drive->gpt.drive_sectors - GPT_HEADER_SECTOR
-                        - GPT_ENTRIES_SECTORS,
+                        secondary_header->entries_lba,
                         drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
       errors++;
       Error("Cannot write secondary entries: %s\n", strerror(errno));
@@ -1155,6 +1157,7 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
     memcpy(primary_header, secondary_header, sizeof(GptHeader));
     primary_header->my_lba = GPT_PMBR_SECTOR;  /* the second sector on drive */
     primary_header->alternate_lba = secondary_header->my_lba;
+    /* TODO (namnguyen): Preserve (header, entries) padding space. */
     primary_header->entries_lba = primary_header->my_lba + GPT_HEADER_SECTOR;
     return GPT_MODIFIED_HEADER1;
   }

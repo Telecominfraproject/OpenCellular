@@ -139,6 +139,14 @@ VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
 
 	/* Keep valgrind happy */
 	Memset(buffer, '\0', lba_count);
+	/* Fix up entries_lba in GPT header. */
+	if (lba_start == 1 || lba_start == 1024 - 1) {
+		GptHeader* h = (GptHeader*)buffer;
+		if (lba_start == 1)
+			h->entries_lba = 1 + 1;
+		else
+			h->entries_lba = (1024 - 1 - 32);
+	}
 	return VBERROR_SUCCESS;
 }
 
@@ -245,8 +253,8 @@ static void ReadWriteGptTest(void)
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead");
 	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
 		   "VbExDiskRead(h, 2, 32)\n"
-		   "VbExDiskRead(h, 991, 32)\n"
-		   "VbExDiskRead(h, 1023, 1)\n");
+		   "VbExDiskRead(h, 1023, 1)\n"
+		   "VbExDiskRead(h, 991, 32)\n");
 	ResetCallLog();
 	/*
 	 * Valgrind complains about access to uninitialized memory here, so
@@ -262,6 +270,8 @@ static void ReadWriteGptTest(void)
 	g.modified |= GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1;
 	ResetCallLog();
 	Memset(g.primary_header, '\0', g.sector_bytes);
+	h = (GptHeader*)g.primary_header;
+	h->entries_lba = 2;
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod 1");
 	TEST_CALLS("VbExDiskWrite(h, 1, 1)\n"
 		   "VbExDiskWrite(h, 2, 32)\n");
@@ -272,11 +282,15 @@ static void ReadWriteGptTest(void)
 	g.modified = -1;
 	ResetCallLog();
 	Memset(g.primary_header, '\0', g.sector_bytes);
+	h = (GptHeader*)g.primary_header;
+	h->entries_lba = 2;
+	h = (GptHeader*)g.secondary_header;
+	h->entries_lba = 991;
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod all");
 	TEST_CALLS("VbExDiskWrite(h, 1, 1)\n"
 		   "VbExDiskWrite(h, 2, 32)\n"
-		   "VbExDiskWrite(h, 991, 32)\n"
-		   "VbExDiskWrite(h, 1023, 1)\n");
+		   "VbExDiskWrite(h, 1023, 1)\n"
+		   "VbExDiskWrite(h, 991, 32)\n");
 
 	/* If legacy signature, don't modify GPT header/entries 1 */
 	ResetMocks();
@@ -286,8 +300,8 @@ static void ReadWriteGptTest(void)
 	g.modified = -1;
 	ResetCallLog();
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod all");
-	TEST_CALLS("VbExDiskWrite(h, 991, 32)\n"
-		   "VbExDiskWrite(h, 1023, 1)\n");
+	TEST_CALLS("VbExDiskWrite(h, 1023, 1)\n"
+		   "VbExDiskWrite(h, 991, 32)\n");
 
 	/* Error reading */
 	ResetMocks();
@@ -327,6 +341,8 @@ static void ReadWriteGptTest(void)
 	AllocAndReadGptData(handle, &g);
 	g.modified = -1;
 	Memset(g.primary_header, '\0', g.sector_bytes);
+	h = (GptHeader*)g.primary_header;
+	h->entries_lba = 2;
 	TEST_NEQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree disk fail");
 
 	ResetMocks();

@@ -699,7 +699,15 @@ static int MyLbaTest(void)
 	h1->entries_lba++;
 	h2->entries_lba++;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors));
+	/*
+	 * We support a padding between primary GPT header and its entries. So
+	 * this still passes.
+	 */
+	EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors));
+	/*
+	 * But the secondary table should fail because it would overlap the
+	 * header, which is now lying after its entry array.
+	 */
 	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors));
 
 	BuildTestGptData(gpt);

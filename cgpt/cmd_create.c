@@ -17,6 +17,8 @@ static void Usage(void)
          "Options:\n"
          "  -z           Zero the sectors of the GPT table and entries\n"
          "  -s           Size (in byes) of the disk (MTD only)\n"
+         "  -p           Size (in blocks) of the disk to pad between the\n"
+         "               primary GPT header and its entries, default 0\n"
          "\n", progname);
 }
 
@@ -29,7 +31,7 @@ int cmd_create(int argc, char *argv[]) {
   char *e = 0;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hzs:")) != -1)
+  while ((c=getopt(argc, argv, ":hzsp:")) != -1)
   {
     switch (c)
     {
@@ -38,6 +40,9 @@ int cmd_create(int argc, char *argv[]) {
       break;
     case 's':
       params.size = strtoull(optarg, &e, 0);
+      break;
+    case 'p':
+      params.padding = strtoull(optarg, &e, 0);
       break;
 
     case 'h':
