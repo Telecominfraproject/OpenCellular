@@ -10,9 +10,9 @@
 
 /* Here's a structure to define the commands that futility implements. */
 struct futil_cmd_t {
-  const char * const name;
-  int (*const handler)(int argc, char **argv);
-  const char * const shorthelp;
+	const char *const name;
+	int (*const handler) (int argc, char **argv);
+	const char *const shorthelp;
 };
 
 /*
@@ -33,7 +33,7 @@ struct futil_cmd_t {
           = &__cmd_##NAME
 
 /* This is the list of pointers to all commands. */
-extern const struct futil_cmd_t * const futil_cmds[];
+extern const struct futil_cmd_t *const futil_cmds[];
 
 /* Size of an array */
 #ifndef ARRAY_SIZE
