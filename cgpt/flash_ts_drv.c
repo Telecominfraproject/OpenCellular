@@ -6,12 +6,12 @@
  * files for more details.
  */
 
-#include "flash_ts.h"
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
 
+#include "flash_ts.h"
 #include "cgpt.h"
-#include "errno.h"
-#include "stdio.h"
-#include "string.h"
 
 inline int page_to_sector(const nand_geom *nand, int page) {
   return page * (nand->szofpg / nand->szofsector);

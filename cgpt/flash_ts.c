@@ -13,9 +13,10 @@
 
 #include "flash_ts.h"
 
-#include "errno.h"
-#include "stdio.h"
-#include "string.h"
+#include <errno.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "utility.h"
 
 // These match the linux driver

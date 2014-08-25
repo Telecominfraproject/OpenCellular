@@ -3,6 +3,7 @@
  * found in the LICENSE file.
  */
 
+#include <errno.h>
 #include <string.h>
 
 #include "../cgpt/cgpt.h"
@@ -11,7 +12,6 @@
 #include "cgptlib_test.h"
 #include "crc32.h"
 #include "crc32_test.h"
-#include "errno.h"
 #include "gpt.h"
 #include "mtdlib.h"
 #include "mtdlib_unused.h"
