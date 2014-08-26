@@ -226,7 +226,7 @@ INCLUDES += \
 # If we're not building for a specific target, just stub out things like the
 # TPM commands and various external functions that are provided by the BIOS.
 ifeq (${FIRMWARE_ARCH},)
-INCLUDES += -Ifirmware/stub/include -Ihost/include -Ihost/lib/include
+INCLUDES += -Ihost/include -Ihost/lib/include
 else
 INCLUDES += -Ifirmware/arch/${FIRMWARE_ARCH}/include
 endif
@@ -681,6 +681,13 @@ install_for_test: install
 # Don't delete intermediate object files
 .SECONDARY:
 
+.PHONY: tags TAGS
+tags TAGS: ${CGPT_SRCS} ${FUTIL_SRCS} ${UTILLIB_SRCS} ${FWLIB_SRCS} \
+		$(if ${VBOOT2},${FWLIB2_SRCS}) \
+		$(wildcard $(patsubst -I%,%/*.h,${INCLUDES}))
+	${Q}\rm -f cscope.* TAGS
+	${Q}echo $^ | tr ' ' '\012' > cscope.files
+	${Q}$(if $(shell which etags 2>/dev/null),etags $^,echo "no etags")
 
 # ----------------------------------------------------------------------------
 # Firmware library
