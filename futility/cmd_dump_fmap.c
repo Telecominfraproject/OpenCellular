@@ -30,13 +30,12 @@ static size_t size_of_rom;
 static int opt_gaps = 0;
 
 /* Return 0 if successful */
-static int dump_fmap(const void *ptr, int argc, char *argv[])
+static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 {
 	int i, retval = 0;
 	char buf[80];		/* DWR: magic number */
-	const FmapHeader *fmh = (const FmapHeader *)ptr;
-	const FmapAreaHeader *ah =
-	    (const FmapAreaHeader *)(ptr + sizeof(FmapHeader));
+	const FmapAreaHeader *ah;
+	ah = (const FmapAreaHeader *) (fmh + 1);
 
 	if (FMT_NORMAL == opt_format) {
 		snprintf(buf, FMAP_SIGNATURE_SIZE + 1, "%s",
@@ -260,14 +259,12 @@ static void add_child(node_t * p, int n)
 		}
 }
 
-static int human_fmap(void *p)
+static int human_fmap(const FmapHeader *fmh)
 {
-	FmapHeader *fmh;
 	FmapAreaHeader *ah;
 	int i, j, errorcnt = 0;
 	int numnodes;
 
-	fmh = (FmapHeader *) p;
 	ah = (FmapAreaHeader *) (fmh + 1);
 
 	/* The challenge here is to generate a directed graph from the
@@ -384,7 +381,7 @@ static int do_dump_fmap(int argc, char *argv[])
 	int errorcnt = 0;
 	struct stat sb;
 	int fd;
-	const char *fmap;
+	const FmapHeader *fmap;
 	int retval = 1;
 
 	progname = strrchr(argv[0], '/');
@@ -457,15 +454,15 @@ static int do_dump_fmap(int argc, char *argv[])
 	close(fd);		/* done with this now */
 	size_of_rom = sb.st_size;
 
-	fmap = FmapFind((char *)base_of_rom, size_of_rom);
+	fmap = fmap_find(base_of_rom, size_of_rom);
 	if (fmap) {
 		switch (opt_format) {
 		case FMT_HUMAN:
-			retval = human_fmap((void *)fmap);
+			retval = human_fmap(fmap);
 			break;
 		case FMT_NORMAL:
 			printf("hit at 0x%08x\n",
-			       (uint32_t) (fmap - (char *)base_of_rom));
+			       (uint32_t) ((char *)fmap - (char *)base_of_rom));
 			/* fallthrough */
 		default:
 			retval =

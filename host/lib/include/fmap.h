@@ -34,15 +34,16 @@ typedef struct _FmapAreaHeader {
 } __attribute__((packed)) FmapAreaHeader;
 
 
-/* Scan firmware image, pointed by [ptr] with length [size], for fmap header.
- * Return pointer to fmap header, or NULL if not found.
- */
-const char* FmapFind(const char *ptr, size_t size);
+/* Find and point to the FMAP header within the buffer */
+FmapHeader *fmap_find(uint8_t *ptr, size_t size);
 
-/* Look up fmap area by name, that is, strcmp(fh->fmap_name, name) == 0.
- * Return index of fmap area, that is, ah[returned_index],
- * or -1 if not found. */
-int FmapAreaIndex(const FmapHeader* fh, const FmapAreaHeader* ah,
-		const char* name);
+/* Search for an area by name, return pointer to its beginning */
+uint8_t *fmap_find_by_name(uint8_t *ptr, size_t size,
+			   /* optional, will call fmap_find() if NULL */
+			   FmapHeader *fmap,
+			   /* The area name to search for */
+			   const char *name,
+			   /* optional, return pointer to entry if not NULL */
+			   FmapAreaHeader **ah);
 
 #endif  /* __FMAP_H__ */
