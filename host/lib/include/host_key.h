@@ -52,6 +52,8 @@ VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
  * Returns NULL if error. */
 VbPublicKey* PublicKeyRead(const char* filename);
 
+/* Return true if the public key struct appears correct. */
+int PublicKeyLooksOkay(VbPublicKey *key, uint64_t file_size);
 
 /* Read a public key from a .keyb file.  Caller owns the returned
  * pointer, and must free it with Free().

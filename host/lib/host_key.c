@@ -201,39 +201,45 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
 }
 
 
+int PublicKeyLooksOkay(VbPublicKey *key, uint64_t file_size)
+{
+  uint64_t key_size;
+
+  /* Sanity-check key data */
+  if (0 != VerifyPublicKeyInside(key, file_size, key)) {
+    VBDEBUG(("PublicKeyRead() not a VbPublicKey\n"));
+    return 0;
+  }
+  if (key->algorithm >= kNumAlgorithms) {
+    VBDEBUG(("PublicKeyRead() invalid algorithm\n"));
+    return 0;
+  }
+  if (key->key_version > 0xFFFF) {
+    VBDEBUG(("PublicKeyRead() invalid version\n"));
+    return 0;  /* Currently, TPM only supports 16-bit version */
+  }
+  if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
+      key_size != key->key_size) {
+    VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
+    return 0;
+  }
+
+  /* Success */
+  return 1;
+}
+
+
+
 VbPublicKey* PublicKeyRead(const char* filename) {
   VbPublicKey* key;
   uint64_t file_size;
-  uint64_t key_size;
 
   key = (VbPublicKey*)ReadFile(filename, &file_size);
   if (!key)
     return NULL;
 
-  do {
-    /* Sanity-check key data */
-    if (0 != VerifyPublicKeyInside(key, file_size, key)) {
-      VBDEBUG(("PublicKeyRead() not a VbPublicKey\n"));
-      break;
-    }
-    if (key->algorithm >= kNumAlgorithms) {
-      VBDEBUG(("PublicKeyRead() invalid algorithm\n"));
-      break;
-    }
-    if (key->key_version > 0xFFFF) {
-      VBDEBUG(("PublicKeyRead() invalid version\n"));
-      break;  /* Currently, TPM only supports 16-bit version */
-    }
-    if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
-        key_size != key->key_size) {
-      VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
-      break;
-    }
-
-    /* Success */
-    return key;
-
-  } while(0);
+  if (PublicKeyLooksOkay(key, file_size))
+      return key;
 
   /* Error */
   free(key);
