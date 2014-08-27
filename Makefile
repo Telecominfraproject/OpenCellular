@@ -623,24 +623,6 @@ TEST_NAMES += \
 
 endif
 
-# TODO: port these tests to new API, if not already eqivalent
-# functionality in other tests.  These don't even compile at present.
-#
-#		big_firmware_tests
-#		big_kernel_tests
-#		firmware_image_tests
-#		firmware_rollback_tests
-#		firmware_splicing_tests
-#		firmware_verify_benchmark
-#		kernel_image_tests
-#		kernel_rollback_tests
-#		kernel_splicing_tests
-#		kernel_verify_benchmark
-#		rollback_index_test
-#		verify_firmware_fuzz_driver
-#		verify_kernel_fuzz_driver
-#               utility/load_firmware_test
-
 # And a few more...
 TLCL_TEST_NAMES = \
 	tests/tpm_lite/tpmtest_earlyextend \
@@ -1034,9 +1016,6 @@ ${BUILD}/tests/vboot_audio_tests: \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 ALL_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
 
-${BUILD}/tests/rollback_index_test: INCLUDES += -I/usr/include
-${BUILD}/tests/rollback_index_test: LIBS += -ltlcl
-
 TLCL_TEST_BINS = $(addprefix ${BUILD}/,${TLCL_TEST_NAMES})
 ${TLCL_TEST_BINS}: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ${TLCL_TEST_BINS}: ${BUILD}/tests/tpm_lite/tlcl_tests.o
@@ -1170,14 +1149,9 @@ endif
 	tests/run_preamble_tests.sh --all
 	tests/run_vbutil_tests.sh --all
 
-# TODO: tests to run when ported to new API
-#	./run_image_verification_tests.sh
-#	# Splicing tests
-#	${BUILD}/tests/firmware_splicing_tests
-#	${BUILD}/tests/kernel_splicing_tests
-#	# Rollback Tests
-#	${BUILD}/tests/firmware_rollback_tests
-#	${BUILD}/tests/kernel_rollback_tests
+# TODO: There were a number of ancient tests that hadn't been run in years.
+# They were removed with https://chromium-review.googlesource.com/#/c/214610/
+# Some day it might be nice to see what they were supposed to do.
 
 .PHONY: runalltests
 runalltests: runtests runfutiltests runlongtests
