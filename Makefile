@@ -228,8 +228,6 @@ INCLUDES += \
 # TPM commands and various external functions that are provided by the BIOS.
 ifeq (${FIRMWARE_ARCH},)
 INCLUDES += -Ihost/include -Ihost/lib/include
-else
-INCLUDES += -Ifirmware/arch/${FIRMWARE_ARCH}/include
 endif
 
 # Firmware library, used by the other firmware components (depthcharge,
