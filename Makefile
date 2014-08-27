@@ -543,7 +543,8 @@ FUTIL_SRCS = \
 	futility/cmd_vbutil_firmware.c \
 	futility/cmd_vbutil_kernel.c \
 	futility/cmd_vbutil_key.c \
-	futility/cmd_vbutil_keyblock.c
+	futility/cmd_vbutil_keyblock.c \
+	futility/cmd_verify_kernel.c
 
 ifneq (${VBOOT2},)
 FUTIL_SRCS += \
@@ -1086,6 +1087,7 @@ runcgpttests: test_setup
 
 .PHONY: runtestscripts
 runtestscripts: test_setup genfuzztestcases
+	tests/load_kernel_tests.sh
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt -N=512,32,1,3
 	tests/run_preamble_tests.sh
