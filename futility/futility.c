@@ -16,7 +16,6 @@
 
 #include "futility.h"
 
-#define MYNAME "futility"
 #define MYNAME_S MYNAME "_s"
 
 /* File to use for logging, if present */

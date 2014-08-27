@@ -14,7 +14,10 @@ FmapHeader *fmap_find(uint8_t *ptr, size_t size)
 {
 	size_t i;
 	FmapHeader *fmap_header;
-	for (i=0; i<size; i += FMAP_SEARCH_STRIDE, ptr += FMAP_SEARCH_STRIDE) {
+	size_t lim = size - sizeof(FmapHeader);
+	for (i = 0;
+	     i <= lim;
+	     i += FMAP_SEARCH_STRIDE, ptr += FMAP_SEARCH_STRIDE) {
 		if (0 != memcmp(ptr, FMAP_SIGNATURE, FMAP_SIGNATURE_SIZE))
 			continue;
 		fmap_header = (FmapHeader *)ptr;

@@ -74,48 +74,6 @@ static char *short_opts = ":gsc:o:k:b:R:r:h:i:L:f:";
 
 static int errorcnt;
 
-static int ValidGBB(GoogleBinaryBlockHeader * gbb, size_t maxlen)
-{
-	uint32_t i;
-	char *s;
-
-	if (gbb->major_version != GBB_MAJOR_VER)
-		goto bad;
-	if (gbb->header_size != GBB_HEADER_SIZE || gbb->header_size > maxlen)
-		goto bad;
-	if (gbb->hwid_offset < GBB_HEADER_SIZE)
-		goto bad;
-	if (gbb->hwid_offset + gbb->hwid_size > maxlen)
-		goto bad;
-	if (gbb->hwid_size) {
-		/* Make sure the HWID is null-terminated (ASCII, not unicode) */
-		s = (char *)((char *)gbb + gbb->hwid_offset);
-		for (i = 0; i < gbb->hwid_size; i++)
-			if (*s++ == '\0')
-				break;
-		if (i >= gbb->hwid_size)
-			goto bad;
-	}
-	if (gbb->rootkey_offset < GBB_HEADER_SIZE)
-		goto bad;
-	if (gbb->rootkey_offset + gbb->rootkey_size > maxlen)
-		goto bad;
-	if (gbb->bmpfv_offset < GBB_HEADER_SIZE)
-		goto bad;
-	if (gbb->bmpfv_offset + gbb->bmpfv_size > maxlen)
-		goto bad;
-	if (gbb->recovery_key_offset < GBB_HEADER_SIZE)
-		goto bad;
-	if (gbb->recovery_key_offset + gbb->recovery_key_size > maxlen)
-		goto bad;
-
-	return 1;
-
-bad:
-	errorcnt++;
-	return 0;
-}
-
 #define GBB_SEARCH_STRIDE 4
 GoogleBinaryBlockHeader *FindGbbHeader(uint8_t * ptr, size_t size)
 {
@@ -129,7 +87,7 @@ GoogleBinaryBlockHeader *FindGbbHeader(uint8_t * ptr, size_t size)
 
 		/* Found something. See if it's any good. */
 		tmp = (GoogleBinaryBlockHeader *) (ptr + i);
-		if (ValidGBB(tmp, size - i))
+		if (futil_valid_gbb_header(tmp, size - i, NULL))
 			if (!count++)
 				gbb_header = tmp;
 	}

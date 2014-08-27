@@ -9,7 +9,6 @@
 #define VBOOT_REFERENCE_HOST_KEY_H_
 
 #include "cryptolib.h"
-#include "utility.h"
 #include "vboot_struct.h"
 
 
