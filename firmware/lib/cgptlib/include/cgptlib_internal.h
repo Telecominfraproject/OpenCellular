@@ -55,8 +55,8 @@
 #define MAX_NUMBER_OF_ENTRIES 512
 
 /* Defines GPT sizes */
-#define GPT_PMBR_SECTOR 1  /* size (in sectors) of PMBR */
-#define GPT_HEADER_SECTOR 1
+#define GPT_PMBR_SECTORS 1  /* size (in sectors) of PMBR */
+#define GPT_HEADER_SECTORS 1
 /*
  * Entries sectors assumes sector size if 512 bytes; then (TOTAL_ENTRIES_SIZE /
  * 512) = 32

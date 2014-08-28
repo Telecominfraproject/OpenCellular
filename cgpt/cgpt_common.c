@@ -309,13 +309,13 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
 
   // Read the data.
   if (CGPT_OK != Load(drive, &drive->gpt.primary_header,
-                      GPT_PMBR_SECTOR,
-                      drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+                      GPT_PMBR_SECTORS,
+                      drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
     return -1;
   }
   if (CGPT_OK != Load(drive, &drive->gpt.secondary_header,
-                      drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
-                      drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+                      drive->gpt.drive_sectors - GPT_PMBR_SECTORS,
+                      drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
     return -1;
   }
   GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
@@ -337,8 +337,8 @@ static int GptSave(struct drive *drive) {
   int errors = 0;
   if (drive->gpt.modified & GPT_MODIFIED_HEADER1) {
     if (CGPT_OK != Save(drive, drive->gpt.primary_header,
-                        GPT_PMBR_SECTOR,
-                        drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+                        GPT_PMBR_SECTORS,
+                        drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
       errors++;
       Error("Cannot write primary header: %s\n", strerror(errno));
     }
@@ -346,8 +346,8 @@ static int GptSave(struct drive *drive) {
 
   if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
     if(CGPT_OK != Save(drive, drive->gpt.secondary_header,
-                       drive->gpt.drive_sectors - GPT_PMBR_SECTOR,
-                       drive->gpt.sector_bytes, GPT_HEADER_SECTOR)) {
+                       drive->gpt.drive_sectors - GPT_PMBR_SECTORS,
+                       drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
       errors++;
       Error("Cannot write secondary header: %s\n", strerror(errno));
     }
@@ -1155,10 +1155,10 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
     return GPT_MODIFIED_HEADER2;
   } else if (valid_headers == MASK_SECONDARY) {
     memcpy(primary_header, secondary_header, sizeof(GptHeader));
-    primary_header->my_lba = GPT_PMBR_SECTOR;  /* the second sector on drive */
+    primary_header->my_lba = GPT_PMBR_SECTORS;  /* the second sector on drive */
     primary_header->alternate_lba = secondary_header->my_lba;
     /* TODO (namnguyen): Preserve (header, entries) padding space. */
-    primary_header->entries_lba = primary_header->my_lba + GPT_HEADER_SECTOR;
+    primary_header->entries_lba = primary_header->my_lba + GPT_HEADER_SECTORS;
     return GPT_MODIFIED_HEADER1;
   }
 

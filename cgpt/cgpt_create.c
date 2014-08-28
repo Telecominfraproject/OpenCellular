@@ -12,9 +12,9 @@
 static int GptCreate(struct drive *drive, CgptCreateParams *params) {
   // Erase the data
   memset(drive->gpt.primary_header, 0,
-         drive->gpt.sector_bytes * GPT_HEADER_SECTOR);
+         drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
   memset(drive->gpt.secondary_header, 0,
-         drive->gpt.sector_bytes * GPT_HEADER_SECTOR);
+         drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
   memset(drive->gpt.primary_entries, 0,
          drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
   memset(drive->gpt.secondary_entries, 0,
@@ -29,11 +29,11 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     memcpy(h->signature, GPT_HEADER_SIGNATURE, GPT_HEADER_SIGNATURE_SIZE);
     h->revision = GPT_HEADER_REVISION;
     h->size = sizeof(GptHeader);
-    h->my_lba = GPT_PMBR_SECTOR;  /* The second sector on drive. */
-    h->alternate_lba = drive->gpt.drive_sectors - GPT_HEADER_SECTOR;
-    h->entries_lba = h->my_lba + GPT_HEADER_SECTOR + params->padding;
+    h->my_lba = GPT_PMBR_SECTORS;  /* The second sector on drive. */
+    h->alternate_lba = drive->gpt.drive_sectors - GPT_HEADER_SECTORS;
+    h->entries_lba = h->my_lba + GPT_HEADER_SECTORS + params->padding;
     h->first_usable_lba = h->entries_lba + GPT_ENTRIES_SECTORS;
-    h->last_usable_lba = (drive->gpt.drive_sectors - GPT_HEADER_SECTOR -
+    h->last_usable_lba = (drive->gpt.drive_sectors - GPT_HEADER_SECTORS -
                           GPT_ENTRIES_SECTORS - 1);
     if (CGPT_OK != GenerateGuid(&h->disk_uuid)) {
       Error("Unable to generate new GUID.\n");

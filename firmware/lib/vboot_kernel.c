@@ -90,7 +90,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	 * TODO(namnguyen): Preserve padding between primary GPT header and
 	 * its entries.
 	 */
-	uint64_t entries_lba = GPT_PMBR_SECTOR + GPT_HEADER_SECTOR;
+	uint64_t entries_lba = GPT_PMBR_SECTORS + GPT_HEADER_SECTORS;
 	if (gptdata->primary_header) {
 		GptHeader *h = (GptHeader *)(gptdata->primary_header);
 		entries_lba = h->entries_lba;
@@ -133,7 +133,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	}
 
 	entries_lba = (gptdata->drive_sectors - entries_sectors -
-		GPT_HEADER_SECTOR);
+		GPT_HEADER_SECTORS);
 	if (gptdata->secondary_header) {
 		GptHeader *h = (GptHeader *)(gptdata->secondary_header);
 		entries_lba = h->entries_lba;

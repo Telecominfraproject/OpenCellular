@@ -394,14 +394,14 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
     printf(TITLE_FMT, "start", "size", "part", "contents");
     char buf[256];                      // buffer for formatted PMBR content
     PMBRToStr(&drive->pmbr, buf, sizeof(buf)); // will exit if buf is too small
-    printf(GPT_FMT, 0, GPT_PMBR_SECTOR, "", buf);
+    printf(GPT_FMT, 0, GPT_PMBR_SECTORS, "", buf);
 
     if (drive->gpt.valid_headers & MASK_PRIMARY) {
-      printf(GPT_FMT, (int)GPT_PMBR_SECTOR,
-             (int)GPT_HEADER_SECTOR, "", "Pri GPT header");
+      printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
+             (int)GPT_HEADER_SECTORS, "", "Pri GPT header");
     } else {
-      printf(GPT_FMT, (int)GPT_PMBR_SECTOR,
-             (int)GPT_HEADER_SECTOR, "INVALID", "Pri GPT header");
+      printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
+             (int)GPT_HEADER_SECTORS, "INVALID", "Pri GPT header");
     }
 
     if (params->debug ||
@@ -445,11 +445,11 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
     }
 
     if (drive->gpt.valid_headers & MASK_SECONDARY)
-      printf(GPT_FMT, (int)(drive->gpt.drive_sectors - GPT_HEADER_SECTOR),
-             (int)GPT_HEADER_SECTOR, "", "Sec GPT header");
+      printf(GPT_FMT, (int)(drive->gpt.drive_sectors - GPT_HEADER_SECTORS),
+             (int)GPT_HEADER_SECTORS, "", "Sec GPT header");
     else
-      printf(GPT_FMT, (int)GPT_PMBR_SECTOR,
-             (int)GPT_HEADER_SECTOR, "INVALID", "Sec GPT header");
+      printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
+             (int)GPT_HEADER_SECTORS, "INVALID", "Sec GPT header");
     /* We show secondary header if any of following is true:
      *   1. in debug mode.
      *   2. only secondary is valid.
