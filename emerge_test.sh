@@ -11,6 +11,7 @@
 # Required ebuilds:
 TEST_EBUILDS="
   sys-boot/chromeos-bootimage
+  sys-boot/chromeos-u-boot
   sys-boot/coreboot
   sys-boot/depthcharge
   chromeos-base/chromeos-cryptohome

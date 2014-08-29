@@ -23,14 +23,11 @@ struct futil_cmd_t {
  * to them without explictly declaring every function in a header somewhere.
  */
 #define DECLARE_FUTIL_COMMAND(NAME, HANDLER, SHORTHELP)           \
-        static const struct futil_cmd_t __cmd_##NAME = {          \
+        const struct futil_cmd_t __cmd_##NAME = {                 \
                 .name = #NAME,                                    \
                 .handler = HANDLER,                               \
                 .shorthelp = SHORTHELP                            \
-        };                                                        \
-        const struct futil_cmd_t * const __cmd_ptr_##NAME         \
-        __attribute__((section(".futil_cmds." #NAME)))            \
-          = &__cmd_##NAME
+        };
 
 /* This is the list of pointers to all commands. */
 extern const struct futil_cmd_t *const futil_cmds[];
