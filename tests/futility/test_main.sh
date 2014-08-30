@@ -36,5 +36,5 @@ if grep deprecated ${TMP}.outmsg2; then false; fi
 
 
 # cleanup
-rm -f ${TMP}*
+rm -f ${TMP}* ./dev_sign_file
 exit 0

@@ -19,15 +19,23 @@ FUTILITY="$BINDIR/futility"
 # and guess (mostly so we can run the script manually).
 if [ -z "${BUILD:-}" ]; then
   BUILD=$(dirname "${BINDIR}")
-  yellow "Assuming \$BUILD=$BUILD"
+  yellow "Assuming BUILD=$BUILD"
+fi
+# Same for $SRCDIR
+if [ -z "${SRCDIR:-}" ]; then
+  SRCDIR=$(readlink -f "${SCRIPTDIR}/../..")
+  yellow "Assuming SRCDIR=$SRCDIR"
 fi
 OUTDIR="${BUILD}/tests/futility_test_results"
 [ -d "$OUTDIR" ] || mkdir -p "$OUTDIR"
 
 
 # Let each test know where to find things...
+export BUILD
+export SRCDIR
 export FUTILITY
 export SCRIPTDIR
+export BINDIR
 export OUTDIR
 
 # These are the scripts to run. Binaries are invoked directly by the Makefile.
@@ -35,6 +43,7 @@ TESTS="
 ${SCRIPTDIR}/test_main.sh
 ${SCRIPTDIR}/test_dump_fmap.sh
 ${SCRIPTDIR}/test_gbb_utility.sh
+${SCRIPTDIR}/test_resign_firmware.sh
 "
 
 
@@ -45,6 +54,9 @@ progs=0
 ##############################################################################
 # Invoke the scripts that test the builtin functions.
 
+# Let the test scripts use >&3 to indicate progress
+exec 3>&1
+
 echo "-- builtin --"
 for i in $TESTS; do
   j=${i##*/}
@@ -52,7 +64,7 @@ for i in $TESTS; do
   : $(( progs++ ))
 
   echo -n "$j ... "
-  rm -f "${OUTDIR}/$j."*
+  rm -rf "${OUTDIR}/$j."*
   rc=$("$i" "$FUTILITY" 1>"${OUTDIR}/$j.stdout" \
        2>"${OUTDIR}/$j.stderr" || echo "$?")
   echo "${rc:-0}" > "${OUTDIR}/$j.return"

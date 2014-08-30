@@ -37,6 +37,7 @@
 
 # We should only run pwd once, not every time we refer to ${BUILD}.
 SRCDIR := $(shell pwd)
+export SRCDIR
 BUILD = $(SRCDIR)/build
 export BUILD
 
