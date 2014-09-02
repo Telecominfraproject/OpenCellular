@@ -548,6 +548,7 @@ FUTIL_SRCS = \
 	futility/cmd_vbutil_keyblock.c \
 	futility/cmd_verify_kernel.c \
 	futility/cmd_show.c \
+	futility/cmd_sign.c \
 	futility/traversal.c
 
 ifneq (${VBOOT2},)

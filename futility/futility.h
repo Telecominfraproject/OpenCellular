@@ -71,4 +71,11 @@ int futil_looks_like_gbb(GoogleBinaryBlockHeader *gbb, uint32_t len);
 int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
 			   uint32_t *maxlen);
 
+/* Copies a file or dies with an error message */
+void copy_file_or_die(const char *infile, const char *outfile);
+
+/* Wrapper for mmap/munmap. Returns 0 on success. Skips stupidly large files. */
+int map_it(int fd, int writeable, void **buf, uint32_t *len);
+int unmap_it(int fd, int writeable, void *buf, uint32_t len);
+
 #endif /* VBOOT_REFERENCE_FUTILITY_H_ */

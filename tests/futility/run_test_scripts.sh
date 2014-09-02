@@ -46,7 +46,6 @@ ${SCRIPTDIR}/test_gbb_utility.sh
 ${SCRIPTDIR}/test_resign_firmware.sh
 "
 
-
 # Get ready...
 pass=0
 progs=0

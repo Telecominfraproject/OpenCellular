@@ -166,7 +166,7 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 
 	bmp = (BmpBlockHeader *)(buf + gbb->bmpfv_offset);
 	if (0 != memcmp(bmp, BMPBLOCK_SIGNATURE, BMPBLOCK_SIGNATURE_SIZE)) {
-		retval = 1;
+		/* We don't support old formats, so it's not always an error */
 		printf("  BmpBlock:              <invalid>\n");
 	} else {
 		printf("  BmpBlock:\n");
@@ -461,7 +461,7 @@ static int do_show(int argc, char *argv[])
 		state.in_filename = infile ? infile : "<none>";
 		state.op = FUTIL_OP_SHOW;
 
-		errorcnt += futil_traverse(ifd, &state);
+		errorcnt += futil_traverse(ifd, &state, 0);
 
 		if (close(ifd)) {
 			errorcnt++;

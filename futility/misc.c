@@ -4,8 +4,16 @@
  * found in the LICENSE file.
  */
 
+#include <errno.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "gbb_header.h"
 
@@ -87,4 +95,121 @@ int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
 
 	/* Seems legit... */
 	return 1;
+}
+
+
+/*
+ * TODO: All sorts of race conditions likely here, and everywhere this is used.
+ * Do we care? If so, fix it.
+ */
+void copy_file_or_die(const char *infile, const char *outfile)
+{
+	pid_t pid;
+	int status;
+
+	pid = fork();
+
+	if (pid < 0) {
+		fprintf(stderr, "Couldn't fork /bin/cp process: %s\n",
+			strerror(errno));
+		exit(1);
+	}
+
+	/* child */
+	if (!pid) {
+		execl("/bin/cp", "/bin/cp", infile, outfile, NULL);
+		fprintf(stderr, "Child couldn't exec /bin/cp: %s\n",
+			strerror(errno));
+		exit(1);
+	}
+
+	/* parent - wait for child to finish */
+	if (wait(&status) == -1) {
+		fprintf(stderr,
+			"Couldn't wait for /bin/cp process to exit: %s\n",
+			strerror(errno));
+		exit(1);
+	}
+
+	if (WIFEXITED(status)) {
+		status = WEXITSTATUS(status);
+		/* zero is normal exit */
+		if (!status)
+			return;
+		fprintf(stderr, "/bin/cp exited with status %d\n", status);
+		exit(1);
+	}
+
+	if (WIFSIGNALED(status))
+	{
+		status = WTERMSIG(status);
+		fprintf(stderr, "/bin/cp was killed with signal %d\n", status);
+		exit(1);
+	}
+
+	fprintf(stderr, "I have no idea what just happened\n");
+	exit(1);
+}
+
+
+int map_it(int fd, int writeable, void **buf, uint32_t *len)
+{
+	struct stat sb;
+	void *mmap_ptr;
+	uint32_t reasonable_len;
+
+	if (0 != fstat(fd, &sb)) {
+		fprintf(stderr, "Can't stat input file: %s\n",
+			strerror(errno));
+		return 1;
+	}
+
+	if (!S_ISREG(sb.st_mode)) {
+		fprintf(stderr, "Block devices are not yet supported\n");
+		return 1;
+	}
+
+	/* If the image is larger than 2^32 bytes, it's wrong. */
+	if (sb.st_size < 0 || sb.st_size > UINT32_MAX) {
+		fprintf(stderr, "Image size is unreasonable\n");
+		return 1;
+	}
+	reasonable_len = (uint32_t)sb.st_size;
+
+	if (writeable)
+		mmap_ptr = mmap(0, sb.st_size,
+				PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	else
+		mmap_ptr = mmap(0, sb.st_size,
+				PROT_READ, MAP_PRIVATE, fd, 0);
+
+	if (mmap_ptr == (void *)-1) {
+		fprintf(stderr, "Can't mmap %s file: %s\n",
+			writeable ? "output" : "input",
+			strerror(errno));
+		return 1;
+	}
+
+	*buf = mmap_ptr;
+	*len = reasonable_len;
+	return 0;
+}
+
+int unmap_it(int fd, int writeable, void *buf, uint32_t len)
+{
+	int errorcnt = 0;
+
+	if (writeable &&
+	    (0 != msync(buf, len, MS_SYNC|MS_INVALIDATE))) {
+		fprintf(stderr, "msync failed: %s\n", strerror(errno));
+		errorcnt++;
+	}
+
+	if (0 != munmap(buf, len)) {
+		fprintf(stderr, "Can't munmap pointer: %s\n",
+			strerror(errno));
+		errorcnt++;
+	}
+
+	return errorcnt;
 }

@@ -53,18 +53,30 @@ for infile in $INFILES; do
   #   loem_output_dir        (optional: dir for copy of new vblocks)
   #   loemid                 (optional: copy new vblocks using this name)
   #
-  ${BINDIR}/resign_firmwarefd.sh \
-    ${infile} \
-    ${outfile} \
-    ${KEYDIR}/firmware_data_key.vbprivk \
-    ${KEYDIR}/firmware.keyblock \
-    ${KEYDIR}/dev_firmware_data_key.vbprivk \
-    ${KEYDIR}/dev_firmware.keyblock \
-    ${KEYDIR}/kernel_subkey.vbpubk \
-    14 \
-    9 \
-    ${loemdir} \
-    ${loemid}
+  #OLD  ${BINDIR}/resign_firmwarefd.sh \
+  #OLD    ${infile} \
+  #OLD    ${outfile} \
+  #OLD    ${KEYDIR}/firmware_data_key.vbprivk \
+  #OLD    ${KEYDIR}/firmware.keyblock \
+  #OLD    ${KEYDIR}/dev_firmware_data_key.vbprivk \
+  #OLD    ${KEYDIR}/dev_firmware.keyblock \
+  #OLD    ${KEYDIR}/kernel_subkey.vbpubk \
+  #OLD    14 \
+  #OLD    9 \
+  #OLD    ${loemdir} \
+  #OLD    ${loemid}
+
+  ${FUTILITY} sign \
+    -s ${KEYDIR}/firmware_data_key.vbprivk \
+    -b ${KEYDIR}/firmware.keyblock \
+    -S ${KEYDIR}/dev_firmware_data_key.vbprivk \
+    -B ${KEYDIR}/dev_firmware.keyblock \
+    -k ${KEYDIR}/kernel_subkey.vbpubk \
+    -v 14 \
+    -f 9 \
+    -d ${loemdir} \
+    -l ${loemid} \
+    ${infile} ${outfile}
 
   # check the firmware version and preamble flags
   m=$(${FUTILITY} show ${outfile} | \

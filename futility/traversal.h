@@ -24,6 +24,7 @@ enum futil_file_type {
 /* What are we trying to accomplish? */
 enum futil_op_type {
 	FUTIL_OP_SHOW,
+	FUTIL_OP_SIGN,
 
 	NUM_FUTIL_OPS
 };
@@ -77,7 +78,8 @@ struct futil_traverse_state_s {
  * Traverse the input file using the provided state
  * Return nonzero (but no details) if there were any errors.
  */
-int futil_traverse(int ifd, struct futil_traverse_state_s *state);
+int futil_traverse(int ifd, struct futil_traverse_state_s *state,
+		   int writeable);
 
 /* These are invoked by the traversal. They also return nonzero on error. */
 int futil_cb_show_begin(struct futil_traverse_state_s *state);
@@ -86,5 +88,13 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state);
 int futil_cb_show_keyblock(struct futil_traverse_state_s *state);
 int futil_cb_show_fw_main(struct futil_traverse_state_s *state);
 int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state);
+
+int futil_cb_sign_bogus(struct futil_traverse_state_s *state);
+int futil_cb_sign_notyet(struct futil_traverse_state_s *state);
+int futil_cb_sign_fw_main(struct futil_traverse_state_s *state);
+int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state);
+int futil_cb_sign_begin(struct futil_traverse_state_s *state);
+int futil_cb_sign_end(struct futil_traverse_state_s *state);
+
 
 #endif /* VBOOT_REFERENCE_FUTILITY_TRAVERSAL_H_ */

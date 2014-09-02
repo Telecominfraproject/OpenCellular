@@ -8,14 +8,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
 
 #include "fmap.h"
 #include "futility.h"
 #include "gbb_header.h"
+#include "host_common.h"
 #include "host_key.h"
 #include "traversal.h"
 
@@ -38,9 +36,27 @@ static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) =
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_show_funcs) == NUM_CB_COMPONENTS);
 
+/* FUTIL_OP_SIGN */
+static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) =
+{
+	futil_cb_sign_begin,		/* CB_BEGIN_TRAVERSAL */
+	futil_cb_sign_end,		/* CB_END_TRAVERSAL */
+	NULL,				/* CB_FMAP_GBB */
+	futil_cb_sign_fw_preamble,	/* CB_FMAP_VBLOCK_A */
+	futil_cb_sign_fw_preamble,	/* CB_FMAP_VBLOCK_B */
+	futil_cb_sign_fw_main,     	/* CB_FMAP_FW_MAIN_A */
+	futil_cb_sign_fw_main,     	/* CB_FMAP_FW_MAIN_B */
+	futil_cb_sign_bogus,      	/* CB_PUBKEY */
+	futil_cb_sign_notyet,      	/* CB_KEYBLOCK */
+	futil_cb_sign_bogus,		/* CB_GBB */
+	futil_cb_sign_fw_preamble,	/* CB_FW_PREAMBLE */
+};
+BUILD_ASSERT(ARRAY_SIZE(cb_sign_funcs) == NUM_CB_COMPONENTS);
+
 static int (* const * const cb_func[])(struct futil_traverse_state_s *state) =
 {
 	cb_show_funcs,
+	cb_sign_funcs,
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_func) == NUM_FUTIL_OPS);
 
@@ -49,6 +65,11 @@ static int invoke_callback(struct futil_traverse_state_s *state,
 			   enum futil_cb_component c, const char *name,
 			   uint32_t offset, uint8_t *buf, uint32_t len)
 {
+
+	VBDEBUG(("%s: name \"%s\" op %d component %d"
+		" offset=0x%08x len=0x%08x, buf=%p\n",
+		 __func__, name, state->op, c, offset, len, buf));
+
 	if (c < 0 || c >= NUM_CB_COMPONENTS) {
 		fprintf(stderr, "Invalid component %d\n", c);
 		return 1;
@@ -242,11 +263,11 @@ static int traverse_buffer(uint8_t *buf, uint32_t len,
 	return retval;
 }
 
-int futil_traverse(int ifd, struct futil_traverse_state_s *state)
+int futil_traverse(int ifd, struct futil_traverse_state_s *state,
+		   int writeable)
 {
-	struct stat sb;
-	void *mmap_ptr;
-	uint32_t reasonable_len;
+	void *mmap_ptr = 0;
+	uint32_t len;
 	int errorcnt = 0;
 
 	if (state->op < 0 || state->op >= NUM_FUTIL_OPS) {
@@ -254,38 +275,12 @@ int futil_traverse(int ifd, struct futil_traverse_state_s *state)
 		return 1;
 	}
 
-	if (0 != fstat(ifd, &sb)) {
-		fprintf(stderr, "Can't stat input file: %s\n",
-			strerror(errno));
+	if (0 != map_it(ifd, writeable, &mmap_ptr, &len))
 		return 1;
-	}
 
-	if (!S_ISREG(sb.st_mode)) {
-		fprintf(stderr, "Block devices are not yet supported\n");
-		return 1;
-	}
+	errorcnt |= traverse_buffer(mmap_ptr, len, state);
 
-	/* If the image is larger than 2^32 bytes, it's wrong. */
-	if (sb.st_size < 0 || sb.st_size > UINT32_MAX) {
-		fprintf(stderr, "Image size is unreasonable\n");
-		return 1;
-	}
-	reasonable_len = (uint32_t)sb.st_size;
-
-	mmap_ptr = mmap(0, sb.st_size, PROT_READ, MAP_PRIVATE, ifd, 0);
-	if (mmap_ptr == (void *)-1) {
-		fprintf(stderr, "Can't mmap input file: %s\n",
-			strerror(errno));
-		return 1;
-	}
-
-	errorcnt += traverse_buffer(mmap_ptr, reasonable_len, state);
-
-	if (0 != munmap(mmap_ptr, sb.st_size)) {
-		fprintf(stderr, "Can't munmap pointer: %s\n",
-			strerror(errno));
-		errorcnt++;
-	}
+	errorcnt |= unmap_it(ifd, writeable, mmap_ptr, len);
 
 	return errorcnt;
 }
