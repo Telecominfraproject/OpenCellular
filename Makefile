@@ -542,6 +542,7 @@ FUTIL_SRCS = \
 	$(FUTIL_STATIC_SRCS) \
 	futility/cmd_dev_sign_file.c \
 	futility/cmd_dump_kernel_config.c \
+	futility/cmd_load_fmap.c \
 	futility/cmd_vbutil_firmware.c \
 	futility/cmd_vbutil_kernel.c \
 	futility/cmd_vbutil_key.c \
