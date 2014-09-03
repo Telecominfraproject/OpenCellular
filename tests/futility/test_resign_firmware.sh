@@ -21,6 +21,15 @@ ${SCRIPTDIR}/data/bios_peppy_mp.bin
 ${SCRIPTDIR}/data/bios_zgb_mp.bin
 "
 
+# We also want to test that we can sign an image without any valid firmware
+# preambles. That one won't be able to tell how much of the FW_MAIN region is
+# the valid firmware, so it'll have to sign the entire region.
+GOOD_VBLOCKS=${SCRIPTDIR}/data/bios_peppy_mp.bin
+ONEMORE=bios_peppy_mp_no_vblock.bin
+cp ${GOOD_VBLOCKS} ${ONEMORE}
+${FUTILITY} load_fmap ${ONEMORE} VBLOCK_A:/dev/urandom VBLOCK_B:/dev/zero
+INFILES="${INFILES} ${ONEMORE}"
+
 count=0
 for infile in $INFILES; do
 
@@ -97,6 +106,26 @@ for infile in $INFILES; do
 
 done
 
+# Make sure that the BIOS with the good vblocks signed the right size.
+GOOD_OUT=${TMP}.${GOOD_VBLOCKS##*/}.new
+MORE_OUT=${TMP}.${ONEMORE##*/}.new
+
+${FUTILITY} show ${GOOD_OUT} \
+  | awk '/Firmware body size:/ {print $4}' > ${TMP}.good.body
+${FUTILITY} dump_fmap -p ${GOOD_OUT} \
+  | awk '/FW_MAIN_/ {print $3}' > ${TMP}.good.fw_main
+# This should fail because they're different
+if cmp ${TMP}.good.body ${TMP}.good.fw_main; then false; fi
+
+# Make sure that the BIOS with the bad vblocks signed the whole fw body
+${FUTILITY} show ${MORE_OUT} \
+  | awk '/Firmware body size:/ {print $4}' > ${TMP}.onemore.body
+${FUTILITY} dump_fmap -p ${MORE_OUT} \
+  | awk '/FW_MAIN_/ {print $3}' > ${TMP}.onemore.fw_main
+# These should match
+cmp ${TMP}.onemore.body ${TMP}.onemore.fw_main
+cmp ${TMP}.onemore.body ${TMP}.good.fw_main
+
 # cleanup
-rm -rf ${TMP}*
+rm -rf ${TMP}* ${ONEMORE}
 exit 0

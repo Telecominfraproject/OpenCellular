@@ -76,21 +76,37 @@ int futil_cb_sign_fw_main(struct futil_traverse_state_s *state)
 int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
-	struct cb_area_s *fw_body_area = 0;
+	uint32_t len = state->my_area->len;
 
 	/* We don't (yet) handle standalone VBLOCKs */
 	if (state->component == CB_FW_PREAMBLE)
 		return futil_cb_sign_notyet(state);
 
-	/*
-	 * We've already checked the Keyblock hash and taken a look at the
-	 * preamble or we wouldn't be here.
-	 */
 
+	/*
+	 * If we have a valid keyblock and fw_preamble, then we can use them to
+	 * determine the size of the firmware body. Otherwise, we'll have to
+	 * just sign the whole region.
+	 */
+	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
+		fprintf(stderr, "Warning: %s keyblock is invalid. "
+			"Signing the entire FW FMAP region...\n",
+		       state->name);
+		goto whatever;
+	}
+
+	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
+	if (!rsa) {
+		fprintf(stderr, "Warning: %s public key is invalid. "
+			"Signing the entire FW FMAP region...\n",
+			state->name);
+		goto whatever;
+	}
 	uint32_t more = key_block->key_block_size;
 	VbFirmwarePreambleHeader *preamble =
 		(VbFirmwarePreambleHeader *)(state->my_area->buf + more);
 	uint32_t fw_size = preamble->body_signature.data_size;
+	struct cb_area_s *fw_body_area = 0;
 
 	switch (state->component) {
 	case CB_FMAP_VBLOCK_A:
@@ -111,8 +127,11 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	}
 
 	/* Update the firmware size */
+	fprintf(stderr, "HEY: set FW size from %d to %d\n",
+		fw_body_area->len, fw_size);
 	fw_body_area->len = fw_size;
 
+whatever:
 	state->my_area->_flags |= AREA_IS_VALID;
 
 	return 0;
