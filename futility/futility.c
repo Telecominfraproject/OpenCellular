@@ -99,7 +99,7 @@ static void deprecated(const char *depname)
 static int log_fd = -1;
 
 /* Write the string and a newline. Silently give up on errors */
-static void log_str(char *str)
+static void log_str(char *prefix, char *str)
 {
 	int len, done, n;
 
@@ -108,6 +108,15 @@ static void log_str(char *str)
 
 	if (!str)
 		str = "(NULL)";
+
+	if (prefix && *prefix) {
+		len = strlen(prefix);
+		for (done = 0; done < len; done += n) {
+			n = write(log_fd, prefix + done, len - done);
+			if (n < 0)
+				return;
+		}
+	}
 
 	len = strlen(str);
 	if (len == 0) {
@@ -176,35 +185,58 @@ static void log_open(void)
 		log_close();
 }
 
-#define CALLER_PREFIX "CALLER:"
 static void log_args(int argc, char *argv[])
 {
 	int i;
 	ssize_t r;
 	pid_t parent;
 	char buf[80];
-	char str_caller[PATH_MAX + sizeof(CALLER_PREFIX)] = CALLER_PREFIX;
-	char *truename = str_caller + sizeof(CALLER_PREFIX) - 1;
-	/* Note: truename starts on the \0 from CALLER_PREFIX, so we can write
-	 * PATH_MAX chars into truename and still append a \0 at the end. */
+	FILE *fp;
+	char caller_buf[PATH_MAX];
 
 	log_open();
 
 	/* delimiter */
-	log_str("##### HEY #####");
+	log_str(NULL, "##### HEY #####");
 
 	/* Can we tell who called us? */
 	parent = getppid();
 	snprintf(buf, sizeof(buf), "/proc/%d/exe", parent);
-	r = readlink(buf, truename, PATH_MAX);
+	r = readlink(buf, caller_buf, sizeof(caller_buf) - 1);
 	if (r >= 0) {
-		truename[r] = '\0';
-		log_str(str_caller);
+		caller_buf[r] = '\0';
+		log_str("CALLER:", caller_buf);
+	}
+
+	/* From where? */
+	snprintf(buf, sizeof(buf), "/proc/%d/cwd", parent);
+	r = readlink(buf, caller_buf, sizeof(caller_buf) - 1);
+	if (r >= 0) {
+		caller_buf[r] = '\0';
+		log_str("DIR:", caller_buf);
+	}
+
+	/* And maybe the args? */
+	snprintf(buf, sizeof(buf), "/proc/%d/cmdline", parent);
+	fp = fopen(buf, "r");
+	if (fp) {
+		memset(caller_buf, 0, sizeof(caller_buf));
+		r = fread(caller_buf, 1, sizeof(caller_buf) - 1, fp);
+		if (r > 0) {
+			char *s = caller_buf;
+			for (i = 0; i < r && *s; ) {
+				log_str("CMDLINE:", s);
+				while (i < r && *s)
+					i++, s++;
+				i++, s++;
+			}
+		}
+		fclose(fp);
 	}
 
 	/* Now log the stuff about ourselves */
 	for (i = 0; i < argc; i++)
-		log_str(argv[i]);
+		log_str(NULL, argv[i]);
 
 	log_close();
 }

@@ -17,24 +17,28 @@ cd "$OUTDIR"
 grep Usage "$TMP"
 
 # Make sure logging does something.
-# Note: This will zap any existing log file. Too bad.
 LOG="/tmp/futility.log"
-rm -f "$LOG"
-touch "$LOG"
+[ -f ${LOG} ] && mv ${LOG} ${LOG}.backup
+touch ${LOG}
 "$FUTILITY" help
-grep "$FUTILITY" "$LOG"
-rm "$LOG"
+grep "$FUTILITY" ${LOG}
+rm -f ${LOG}
+[ -f ${LOG}.backup ] && mv ${LOG}.backup ${LOG}
 
 # Make sure deprecated functions fail via symlink
-ln -sf "$FUTILITY" dev_sign_file
-if ./dev_sign_file 2>${TMP}.outmsg ; then false; fi
-grep deprecated ${TMP}.outmsg
-# They may still fail when invoked through futility (this one does),
-# but with a different error message.
-"$FUTILITY" dev_sign_file 1>${TMP}.outmsg2 2>&1 || true
-if grep deprecated ${TMP}.outmsg2; then false; fi
+DEPRECATED="dev_sign_file"
 
+for i in $DEPRECATED; do
+  ln -sf "$FUTILITY" $i
+  if ./$i 2>${TMP}.outmsg ; then false; fi
+  grep deprecated ${TMP}.outmsg
+  # They may still fail when invoked through futility
+  # but with a different error message.
+  "$FUTILITY" $i 1>${TMP}.outmsg2 2>&1 || true
+  if grep deprecated ${TMP}.outmsg2; then false; fi
+  rm -f $i
+done
 
 # cleanup
-rm -f ${TMP}* ./dev_sign_file
+rm -f ${TMP}*
 exit 0
