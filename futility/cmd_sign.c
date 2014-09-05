@@ -40,6 +40,7 @@ struct local_data_s {
 	VbKeyBlockHeader *devkeyblock;
 	uint32_t version;
 	uint32_t flags;
+	int flags_specified;
 	char *loemdir;
 	char *loemid;
 } option = {
@@ -111,7 +112,7 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	case CB_FMAP_VBLOCK_A:
 		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_A];
 		/* Preserve the flags if they're not specified */
-		if (!option.flags)
+		if (!option.flags_specified)
 			option.flags = preamble->flags;
 		break;
 	case CB_FMAP_VBLOCK_B:
@@ -129,8 +130,6 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	}
 
 	/* Update the firmware size */
-	fprintf(stderr, "HEY: set FW size from %d to %d\n",
-		fw_body_area->len, fw_size);
 	fw_body_area->len = fw_size;
 
 whatever:
@@ -376,12 +375,14 @@ static int do_sign(int argc, char *argv[])
 			break;
 
 		case 'f':
+			option.flags_specified = 1;
 			option.flags = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
 					"Invalid --flags \"%s\"\n", optarg);
 				errorcnt++;
 			}
+			break;
 		case 'd':
 			option.loemdir = optarg;
 			break;

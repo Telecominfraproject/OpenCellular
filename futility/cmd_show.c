@@ -113,7 +113,7 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 	       state->component == CB_GBB ? state->in_filename : state->name);
 	printf("  Version:               %d.%d\n",
 	       gbb->major_version, gbb->minor_version);
-	printf("  Flags:                 0x08%x\n", gbb->flags);
+	printf("  Flags:                 0x%08x\n", gbb->flags);
 	printf("  Regions:                 offset       size\n");
 	printf("    hwid                 0x%08x   0x%08x\n",
 	       gbb->hwid_offset, gbb->hwid_size);

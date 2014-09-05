@@ -67,7 +67,7 @@ for infile in $INFILES; do
   #OLD    ${KEYDIR}/dev_firmware.keyblock \
   #OLD    ${KEYDIR}/kernel_subkey.vbpubk \
   #OLD    14 \
-  #OLD    9 \
+  #OLD    8 \
   #OLD    ${loemdir} \
   #OLD    ${loemid}
 
