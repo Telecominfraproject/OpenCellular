@@ -166,8 +166,9 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 
 	bmp = (BmpBlockHeader *)(buf + gbb->bmpfv_offset);
 	if (0 != memcmp(bmp, BMPBLOCK_SIGNATURE, BMPBLOCK_SIGNATURE_SIZE)) {
-		/* We don't support old formats, so it's not always an error */
 		printf("  BmpBlock:              <invalid>\n");
+		/* We don't support old formats, so it's not always an error */
+		/* TODO: Add a --strict option to make this fatal? */
 	} else {
 		printf("  BmpBlock:\n");
 		printf("    Version:             %d.%d\n",
@@ -332,7 +333,8 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 	if (!fv_data) {
 		printf("No firmware body available to verify.\n");
-		return 1;
+		/* TODO: Add a --strict option to make this fatal? */
+		return 0;
 	}
 
 	if (VBOOT_SUCCESS !=
@@ -350,7 +352,8 @@ done:
 			printf("Body verification succeeded.\n");
 		state->my_area->_flags |= AREA_IS_VALID;
 	} else {
-		printf("Body seems legit, but the signature is unverified.\n");
+		printf("Seems legit, but the signature is unverified.\n");
+		/* TODO: Add a --strict option to make this fatal? */
 	}
 
 	return 0;

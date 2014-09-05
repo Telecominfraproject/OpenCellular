@@ -44,10 +44,6 @@ for infile in $INFILES; do
 
   mkdir -p ${loemdir}
 
-  # grep for existing sha1sums (skipping root & recovery keys)
-  ${FUTILITY} show ${infile} | grep sha1sum \
-    | sed -e 's/.*: \+//' | tail -n 4 > ${TMP}.${base}.sha.orig
-
   # resign_firmwarefd.sh works on BIOS image files. The args are:
   #
   #   infile
@@ -82,14 +78,14 @@ for infile in $INFILES; do
     -B ${KEYDIR}/dev_firmware.keyblock \
     -k ${KEYDIR}/kernel_subkey.vbpubk \
     -v 14 \
-    -f 9 \
+    -f 8 \
     -d ${loemdir} \
     -l ${loemid} \
     ${infile} ${outfile}
 
   # check the firmware version and preamble flags
   m=$(${FUTILITY} show ${outfile} | \
-    egrep 'Firmware version: +14$|Preamble flags: +9$' | wc -l)
+    egrep 'Firmware version: +14$|Preamble flags: +8$' | wc -l)
   [ "$m" = "4" ]
 
   # check the sha1sums
@@ -125,6 +121,43 @@ ${FUTILITY} dump_fmap -p ${MORE_OUT} \
 # These should match
 cmp ${TMP}.onemore.body ${TMP}.onemore.fw_main
 cmp ${TMP}.onemore.body ${TMP}.good.fw_main
+
+
+# Sign the last one again but don't specify the version or the preamble flags.
+# The version should default to 1, but the preamble flags should be preserved.
+: $(( count++ ))
+echo -n "$count " 1>&3
+
+${FUTILITY} sign \
+  -s ${KEYDIR}/firmware_data_key.vbprivk \
+  -b ${KEYDIR}/firmware.keyblock \
+  -S ${KEYDIR}/dev_firmware_data_key.vbprivk \
+  -B ${KEYDIR}/dev_firmware.keyblock \
+  -k ${KEYDIR}/kernel_subkey.vbpubk \
+  ${MORE_OUT} ${MORE_OUT}.2
+
+m=$(${FUTILITY} show ${MORE_OUT}.2 | \
+  egrep 'Firmware version: +1$|Preamble flags: +8$' | wc -l)
+[ "$m" = "4" ]
+
+
+# If the original preamble is not present, the preamble flags should be zero.
+: $(( count++ ))
+echo -n "$count " 1>&3
+
+${FUTILITY} load_fmap ${MORE_OUT} VBLOCK_A:/dev/urandom VBLOCK_B:/dev/zero
+${FUTILITY} sign \
+  -s ${KEYDIR}/firmware_data_key.vbprivk \
+  -b ${KEYDIR}/firmware.keyblock \
+  -S ${KEYDIR}/dev_firmware_data_key.vbprivk \
+  -B ${KEYDIR}/dev_firmware.keyblock \
+  -k ${KEYDIR}/kernel_subkey.vbpubk \
+  ${MORE_OUT} ${MORE_OUT}.3
+
+m=$(${FUTILITY} show ${MORE_OUT}.3 | \
+  egrep 'Firmware version: +1$|Preamble flags: +0$' | wc -l)
+[ "$m" = "4" ]
+
 
 # cleanup
 rm -rf ${TMP}* ${ONEMORE}

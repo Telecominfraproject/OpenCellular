@@ -82,7 +82,6 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	if (state->component == CB_FW_PREAMBLE)
 		return futil_cb_sign_notyet(state);
 
-
 	/*
 	 * If we have a valid keyblock and fw_preamble, then we can use them to
 	 * determine the size of the firmware body. Otherwise, we'll have to
@@ -111,6 +110,9 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	switch (state->component) {
 	case CB_FMAP_VBLOCK_A:
 		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_A];
+		/* Preserve the flags if they're not specified */
+		if (!option.flags)
+			option.flags = preamble->flags;
 		break;
 	case CB_FMAP_VBLOCK_B:
 		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_B];
@@ -287,15 +289,18 @@ static const char usage[] = "\n"
 	"                                     DEV public firmware data key\n"
 	"\n"
 	"Optional OPTIONS:\n"
-	"  -v|--version     NUM             The firmware version number (%d)\n"
-	"  -f|--flags       NUM             The preamble flags value (%d)\n"
+	"  -v|--version     NUM             The firmware version number"
+	" (default %d)\n"
+	"  -f|--flags       NUM             The preamble flags value"
+	" (default is\n"
+	"                                     unchanged, or 0 if unknown)\n"
 	"  -d|--loemdir     DIR             Local OEM output vblock directory\n"
 	"  -l|--loemid      STRING          Local OEM vblock suffix\n"
 	"\n";
 
 static void help_and_quit(const char *prog)
 {
-	fprintf(stderr, usage, prog, option.version, option.flags);
+	fprintf(stderr, usage, prog, option.version);
 	exit(1);
 }
 
