@@ -244,7 +244,7 @@ trap cleanup EXIT
 
 
 # Make sure we have the programs we need
-need="vbutil_key vbutil_keyblock vbutil_kernel vbutil_firmware"
+need="futility"
 [ -z "${OPT_BIOS}" ] && need="$need flashrom"
 [ -z "${OPT_KERNEL}" ] && need="$need cgpt"
 require_utils $need
@@ -269,13 +269,13 @@ set -e
 info "Extracting BIOS components..."
 if [ -n "${OPT_BIOS}" ]; then
   # If we've already got a file, just extract everything.
-  log dump_fmap -x "${OPT_BIOS}"
+  log futility dump_fmap -x "${OPT_BIOS}"
   fix_old_names
 else
   # Read it from the flash
   if log flashrom -p host -r bios.rom ; then
     # If we can read the whole BIOS at once, great.
-    log dump_fmap -x bios.rom
+    log futility dump_fmap -x bios.rom
     fix_old_names
   else
     # Otherwise pull just the components we want (implying new-style names)
@@ -290,22 +290,25 @@ else
 fi
 
 info "Pulling root and recovery keys from GBB..."
-log gbb_utility -g --rootkey rootkey.vbpubk --recoverykey recoverykey.vbpubk \
+log futility gbb_utility -g --rootkey rootkey.vbpubk \
+  --recoverykey recoverykey.vbpubk \
   "GBB" || logdie "Unable to extract keys from GBB"
-log vbutil_key --unpack rootkey.vbpubk
-log vbutil_key --unpack recoverykey.vbpubk
-vbutil_key --unpack rootkey.vbpubk |
+log futility vbutil_key --unpack rootkey.vbpubk
+log futility vbutil_key --unpack recoverykey.vbpubk
+futility vbutil_key --unpack rootkey.vbpubk |
   grep -q b11d74edd286c144e1135b49e7f0bc20cf041f10 &&
   info "  Looks like dev-keys"
 # Okay if one of the firmware verifications fails
 set +e
 for fw in A B; do
   infon "Verify firmware ${fw} with root key: "
-  log vbutil_firmware --verify "VBLOCK_${fw}" --signpubkey rootkey.vbpubk \
+  log futility vbutil_firmware --verify "VBLOCK_${fw}" \
+    --signpubkey rootkey.vbpubk \
     --fv "FW_MAIN_${fw}" --kernelkey "kern_subkey_${fw}.vbpubk" ; result
   if [ "${LAST_RESULT}" = "0" ]; then
     # rerun to get version numbers
-    vbutil_firmware --verify "VBLOCK_${fw}" --signpubkey rootkey.vbpubk \
+    futility vbutil_firmware --verify "VBLOCK_${fw}" \
+      --signpubkey rootkey.vbpubk \
       --fv "FW_MAIN_${fw}" > tmp.txt
     ver=$(format_as_tpm_version tmp.txt)
     info "  TPM=${tpm_fwver}, this=${ver}"
@@ -340,17 +343,17 @@ for kname in ${kernparts}; do
   fi
 
   infon "Kernel ${kname}: "
-  log vbutil_keyblock --unpack "${kfile}" ; result
+  log futility vbutil_keyblock --unpack "${kfile}" ; result
   if [ "${LAST_RESULT}" != "0" ]; then
     loghead od -Ax -tx1 "${kfile}"
   else
     # Test each kernel with each key
     for key in kern_subkey_A.vbpubk kern_subkey_B.vbpubk recoverykey.vbpubk; do
       infon "  Verify ${kname} with $key: "
-      log vbutil_kernel --verify "${kfile}" --signpubkey "$key" ; result
+      log futility vbutil_kernel --verify "${kfile}" --signpubkey "$key" ; result
       if [ "${LAST_RESULT}" = "0" ]; then
         # rerun to get version numbers
-        vbutil_kernel --verify "${kfile}" --signpubkey "$key" > tmp.txt
+        futility vbutil_kernel --verify "${kfile}" --signpubkey "$key" > tmp.txt
         ver=$(format_as_tpm_version tmp.txt)
         info "    TPM=${tpm_kernver} this=${ver}"
       fi

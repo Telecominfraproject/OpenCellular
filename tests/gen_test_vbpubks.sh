@@ -15,7 +15,7 @@ function generate_vpubks {
   do
     for hashalgo in ${hash_algos[@]}
     do
-      ${BIN_DIR}/vbutil_key --pack \
+      ${FUTILITY} vbutil_key --pack \
         --in ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
         --out ${TESTKEY_DIR}/key_rsa${keylen}.${hashalgo}.vbpubk \
         --version 1 \

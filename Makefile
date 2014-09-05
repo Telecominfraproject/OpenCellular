@@ -520,7 +520,7 @@ FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 # These are the executables that are now built in to futility. We'll create
 # symlinks for these so the old names will still work.
 # TODO: Do we still need dev_sign_file for anything?
-FUTIL_BUILTIN = \
+FUTIL_SYMLINKS = \
 	dev_sign_file \
 	dump_fmap \
 	dump_kernel_config \
@@ -901,7 +901,7 @@ futil_install: ${FUTIL_BIN}
 	@$(PRINTF) "    INSTALL       futility\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
-	${Q}for prog in ${FUTIL_BUILTIN}; do \
+	${Q}for prog in ${FUTIL_SYMLINKS}; do \
 		ln -sf futility "${UB_DIR}/$$prog"; done
 
 # ----------------------------------------------------------------------------

@@ -41,7 +41,8 @@ for d in $algs; do
       fi
       : $(( tests++ ))
       echo -n "${what} fw_${d}_${r}.vblock with root_${rr}.vbpubk ... "
-      "${BIN_DIR}/vbutil_firmware" --verify "${V2DIR}/fw_${d}_${r}.vblock" \
+      "${FUTILITY}" vbutil_firmware \
+        --verify "${V2DIR}/fw_${d}_${r}.vblock" \
         --signpubkey "${DATADIR}/root_${rr}.vbpubk" \
         --fv "${DATADIR}/FWDATA" >/dev/null 2>&1
       if [ "$?" "$cmp" 0 ]; then
@@ -68,7 +69,8 @@ for d in $algs; do
       fi
       : $(( tests++ ))
       echo -n "${what} kern_${d}_${r}.vblock with root_${rr}.vbpubk ... "
-      "${BIN_DIR}/vbutil_kernel" --verify "${V2DIR}/kern_${d}_${r}.vblock" \
+      "${FUTILITY}" vbutil_kernel \
+        --verify "${V2DIR}/kern_${d}_${r}.vblock" \
         --signpubkey "${DATADIR}/root_${rr}.vbpubk" >/dev/null 2>&1
       if [ "$?" "$cmp" 0 ]; then
         echo -e "${COL_RED}FAILED${COL_STOP}"
@@ -86,7 +88,7 @@ for d in $algs; do
   for r in $algs; do
       : $(( tests++ ))
       echo -n "verify kern_${d}_${r}.vblock with hash only ... "
-      "${BIN_DIR}/vbutil_kernel" \
+      "${FUTILITY}" vbutil_kernel \
           --verify "${V2DIR}/kern_${d}_${r}.vblock" >/dev/null 2>&1
       if [ "$?" -ne 0 ]; then
         echo -e "${COL_RED}FAILED${COL_STOP}"

@@ -56,14 +56,14 @@ function make_pair {
   dumpRSAPublicKey -cert "${base}_${len}.crt" > "${base}_${len}.keyb"
 
   # wrap the public key
-  vbutil_key \
+  futility vbutil_key \
     --pack "${base}.vbpubk" \
     --key "${base}_${len}.keyb" \
     --version 1 \
     --algorithm $alg
 
   # wrap the private key
-  vbutil_key \
+  futility vbutil_key \
     --pack "${base}.vbprivk" \
     --key "${base}_${len}.pem" \
     --algorithm $alg
@@ -79,4 +79,5 @@ make_pair "$1" "${2:-4}"
 # won't be signed, just checksummed. Developer kernels can only be run in
 # non-recovery mode with the developer switch enabled, but it won't hurt us to
 # turn on all the flags bits anyway.
-vbutil_keyblock --pack "$1.keyblock" --datapubkey "$1.vbpubk" --flags 15
+futility vbutil_keyblock --pack "$1.keyblock" \
+  --datapubkey "$1.vbpubk" --flags 15

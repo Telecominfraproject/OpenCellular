@@ -38,14 +38,14 @@ function generate_keys {
     do
       alg=$((${key_index} * 3 + ${alg_index}))
   # wrap the public key
-      ${BIN_DIR}/vbutil_key \
+      ${FUTILITY} vbutil_key \
         --pack "${key_base}.sha${sha_type}.vbpubk" \
         --key "${key_base}.keyb" \
         --version 1 \
         --algorithm ${alg}
 
   # wrap the private key
-      ${BIN_DIR}/vbutil_key \
+      ${FUTILITY} vbutil_key \
         --pack "${key_base}.sha${sha_type}.vbprivk" \
         --key "${key_base}.pem" \
         --algorithm ${alg}

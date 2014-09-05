@@ -18,7 +18,7 @@ function test_vbutil_key_single {
 
     echo -e "For signing key ${COL_YELLOW}RSA-$keylen/$hashalgo${COL_STOP}:"
     # Pack the key
-    ${BIN_DIR}/vbutil_key \
+    ${FUTILITY} vbutil_key \
         --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algonum}.vbpubk \
         --key ${TESTKEY_DIR}/key_rsa${keylen}.keyb \
         --version 1 \
@@ -30,7 +30,7 @@ function test_vbutil_key_single {
 
     # Unpack the key
     # TODO: should verify we get the same key back out?
-    ${BIN_DIR}/vbutil_key \
+    ${FUTILITY} vbutil_key \
         --unpack ${TESTKEY_SCRATCH_DIR}/key_alg${algonum}.vbpubk
     if [ $? -ne 0 ]
     then
@@ -75,7 +75,7 @@ ${datahashalgo}${COL_STOP}"
           rm -f ${keyblockfile}
 
           # Wrap private key
-          ${BIN_DIR}/vbutil_key \
+          ${FUTILITY} vbutil_key \
             --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algonum}.vbprivk \
             --key ${TESTKEY_DIR}/key_rsa${signing_keylen}.pem \
             --algorithm $signing_algonum
@@ -86,7 +86,7 @@ ${datahashalgo}${COL_STOP}"
           fi
 
           # Wrap public key
-          ${BIN_DIR}/vbutil_key \
+          ${FUTILITY} vbutil_key \
             --pack ${TESTKEY_SCRATCH_DIR}/key_alg${algonum}.vbpubk \
             --key ${TESTKEY_DIR}/key_rsa${signing_keylen}.keyb \
             --algorithm $signing_algonum
@@ -97,7 +97,7 @@ ${datahashalgo}${COL_STOP}"
           fi
 
           # Pack
-          ${BIN_DIR}/vbutil_keyblock --pack ${keyblockfile} \
+          ${FUTILITY} vbutil_keyblock --pack ${keyblockfile} \
             --datapubkey \
               ${TESTKEY_SCRATCH_DIR}/key_alg${data_algonum}.vbpubk \
             --signprivate \
@@ -109,7 +109,7 @@ ${datahashalgo}${COL_STOP}"
           fi
 
           # Unpack
-          ${BIN_DIR}/vbutil_keyblock --unpack ${keyblockfile} \
+          ${FUTILITY} vbutil_keyblock --unpack ${keyblockfile} \
             --datapubkey \
             ${TESTKEY_SCRATCH_DIR}/key_alg${data_algonum}.vbpubk2 \
             --signpubkey \
@@ -134,7 +134,7 @@ ${datahashalgo}${COL_STOP}"
 external signer.${COL_STOP}"
           # Pack using external signer
           # Pack
-          ${BIN_DIR}/vbutil_keyblock --pack ${keyblockfile} \
+          ${FUTILITY} vbutil_keyblock --pack ${keyblockfile} \
             --datapubkey \
               ${TESTKEY_SCRATCH_DIR}/key_alg${data_algonum}.vbpubk \
             --signprivate_pem \
@@ -149,7 +149,7 @@ external signer.${COL_STOP}"
           fi
 
           # Unpack
-          ${BIN_DIR}/vbutil_keyblock --unpack ${keyblockfile} \
+          ${FUTILITY} vbutil_keyblock --unpack ${keyblockfile} \
             --datapubkey \
             ${TESTKEY_SCRATCH_DIR}/key_alg${data_algonum}.vbpubk2 \
             --signpubkey \

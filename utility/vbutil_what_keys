@@ -75,16 +75,16 @@ showbios() {
   local file="$1" space="$2"
   local hwid matchh rootkey matchn recoverykey matchr
 
-  hwid=$(gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || return
+  hwid=$(futility gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || return
   matchh=$(grep "$hwid" "$0" 2>/dev/null | sed -e 's/^# //')
 
-  gbb_utility --rootkey="$TMPFILE" "$file" >/dev/null
-  rootkey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+  futility gbb_utility --rootkey="$TMPFILE" "$file" >/dev/null
+  rootkey=$(futility vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
     sed -e 's/^.*: *//')
   matchn=$(greppy "$rootkey")
 
-  gbb_utility --recoverykey="$TMPFILE" "$file" >/dev/null
-  recoverykey=$(vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+  futility gbb_utility --recoverykey="$TMPFILE" "$file" >/dev/null
+  recoverykey=$(futility vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
     sed -e 's/^.*: *//')
   matchr=$(greppy "$recoverykey")
 
@@ -116,12 +116,12 @@ dofile() {
         pstart=$(cgpt show -b -i "$pnum" "$file")
         dd if="$file" of="$TMPFILE" bs=512 count=128 skip="$pstart" 2>/dev/null
 
-        psum=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+        psum=$(futility vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
           grep sha1sum | sed -e 's/^.*: *//')
 
         if [ -n "$psum" ]; then
           match=$(greppy "$psum")
-          flags=$(vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+          flags=$(futility vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
             grep Flags: | sed -e 's/^.*:[ 0-9]*//')
         else
           match=""

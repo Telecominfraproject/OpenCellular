@@ -44,7 +44,8 @@ while [ "$k" -lt "${#KERN_VALS[*]}" ]; do
   while [ "$b" -lt "${#BOOT_VALS[*]}" ]; do
     echo -n "pack kern_${k}_${b}.vblock ... "
     : $(( tests++ ))
-      "${BIN_DIR}/vbutil_kernel" --pack "${TMPDIR}/kern_${k}_${b}.vblock" \
+      "${FUTILITY}" vbutil_kernel \
+        --pack "${TMPDIR}/kern_${k}_${b}.vblock" \
         --keyblock "${KEYBLOCK}" \
         --signprivate "${SIGNPRIVATE}" \
         --version 1 \
@@ -68,7 +69,7 @@ for v in ${TMPDIR}/kern_*.vblock; do
   : $(( tests++ ))
   vv=$(basename "$v")
   echo -n "verify $vv ... "
-  "${BIN_DIR}/vbutil_kernel" --verify "$v" >/dev/null
+  "${FUTILITY}" vbutil_kernel --verify "$v" >/dev/null
   if [ "$?" -ne 0 ]; then
     echo -e "${COL_RED}FAILED${COL_STOP}"
     : $(( errs++ ))
@@ -77,7 +78,7 @@ for v in ${TMPDIR}/kern_*.vblock; do
   fi
   : $(( tests++ ))
   echo -n "verify $vv signed ... "
-  "${BIN_DIR}/vbutil_kernel" --verify "$v" \
+  "${FUTILITY}" vbutil_kernel --verify "$v" \
     --signpubkey "${SIGNPUBLIC}" >/dev/null
   if [ "$?" -ne 0 ]; then
     echo -e "${COL_RED}FAILED${COL_STOP}"
@@ -99,7 +100,7 @@ USB_SIGNPRIVATE="${DEVKEYS}/recovery_kernel_data_key.vbprivk"
 USB_SIGNPUBKEY="${DEVKEYS}/recovery_key.vbpubk"
 echo -n "pack USB kernel ... "
 : $(( tests++ ))
-"${BIN_DIR}/vbutil_kernel" \
+"${FUTILITY}" vbutil_kernel \
   --pack "${USB_KERN}" \
   --keyblock "${USB_KEYBLOCK}" \
   --signprivate "${USB_SIGNPRIVATE}" \
@@ -118,7 +119,7 @@ fi
 # And verify it.
 echo -n "verify USB kernel ... "
 : $(( tests++ ))
-"${BIN_DIR}/vbutil_kernel" \
+"${FUTILITY}" vbutil_kernel \
   --verify "${USB_KERN}" \
   --signpubkey "${USB_SIGNPUBKEY}" >/dev/null
 if [ "$?" -ne 0 ]; then
@@ -138,7 +139,7 @@ SSD_SIGNPRIVATE="${DEVKEYS}/kernel_data_key.vbprivk"
 SSD_SIGNPUBKEY="${DEVKEYS}/kernel_subkey.vbpubk"
 echo -n "repack to SSD kernel ... "
 : $(( tests++ ))
-"${BIN_DIR}/vbutil_kernel" \
+"${FUTILITY}" vbutil_kernel \
   --repack "${SSD_KERN}" \
   --vblockonly \
   --keyblock "${SSD_KEYBLOCK}" \
@@ -158,7 +159,7 @@ dd if="${USB_KERN}" bs=65536 skip=1 >> $tempfile 2>/dev/null
 
 echo -n "verify SSD kernel ... "
 : $(( tests++ ))
-"${BIN_DIR}/vbutil_kernel" \
+"${FUTILITY}" vbutil_kernel \
   --verify "$tempfile" \
   --signpubkey "${SSD_SIGNPUBKEY}" >/dev/null
 if [ "$?" -ne 0 ]; then
@@ -170,7 +171,7 @@ fi
 
 # Finally make sure that the kernel command line stays good.
 orig=$(cat "${CONFIG}" | tr '\012' ' ')
-packed=$("${BIN_DIR}/dump_kernel_config" "${USB_KERN}")
+packed=$("${FUTILITY}" dump_kernel_config "${USB_KERN}")
 echo -n "check USB kernel config ..."
 : $(( tests++ ))
 if [ "$orig" != "$packed" ]; then
@@ -180,7 +181,7 @@ else
   echo -e "${COL_GREEN}PASSED${COL_STOP}"
 fi
 
-repacked=$("${BIN_DIR}/dump_kernel_config" "${tempfile}")
+repacked=$("${FUTILITY}" dump_kernel_config "${tempfile}")
 echo -n "check SSD kernel config ..."
 : $(( tests++ ))
 if [ "$orig" != "$packed" ]; then

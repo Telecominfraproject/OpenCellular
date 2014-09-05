@@ -25,18 +25,18 @@ dd if=/dev/urandom bs=16384 count=1 of="dummy_bootloader.bin"
 dd if=/dev/urandom bs=32768 count=1 of="dummy_kernel.bin"
 
 # Pack kernel data key using original vboot utilities.
-${BIN_DIR}/vbutil_key --pack datakey.test \
+${FUTILITY} vbutil_key --pack datakey.test \
     --key ${TESTKEY_DIR}/key_rsa2048.keyb --algorithm 4
 
 # Keyblock with kernel data key is signed by kernel subkey
 # Flags=5 means dev=0 rec=0
-${BIN_DIR}/vbutil_keyblock --pack keyblock.test \
+${FUTILITY} vbutil_keyblock --pack keyblock.test \
     --datapubkey datakey.test \
     --flags 5 \
     --signprivate ${SCRIPT_DIR}/devkeys/kernel_subkey.vbprivk
 
 # Kernel preamble is signed with the kernel data key
-${BIN_DIR}/futility vbutil_kernel \
+${FUTILITY} vbutil_kernel \
     --pack "kernel.test" \
     --keyblock "keyblock.test" \
     --signprivate ${TESTKEY_DIR}/key_rsa2048.sha256.vbprivk \
@@ -46,10 +46,10 @@ ${BIN_DIR}/futility vbutil_kernel \
     --bootloader "dummy_bootloader.bin" \
     --config "dummy_config.txt"
 
-echo 'Verifying test kernel using vbutil_kernel'
+echo 'Verifying test kernel'
 
 # Verify the kernel
-${BIN_DIR}/futility vbutil_kernel \
+${FUTILITY} vbutil_kernel \
     --verify "kernel.test" \
     --signpubkey ${SCRIPT_DIR}/devkeys/kernel_subkey.vbpubk
 
@@ -67,7 +67,7 @@ dd if=kernel.test of=disk.test bs=512 seek=64 conv=notrunc
 
 # And verify it using futility
 echo 'Verifying test disk image'
-${BIN_DIR}/futility verify_kernel disk.test \
+${FUTILITY} verify_kernel disk.test \
     ${SCRIPT_DIR}/devkeys/kernel_subkey.vbpubk
 
 happy 'Image verification succeeded'
