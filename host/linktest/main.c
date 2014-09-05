@@ -47,7 +47,6 @@ int main(void)
   BufferFromFile(0, 0);
   RSAPublicKeyFromFile(0);
   DigestFile(0, 0);
-  SignatureFile(0, 0, 0);
 
   /* signature_digest.h */
   PrependDigestInfo(0, 0);

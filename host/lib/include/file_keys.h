@@ -31,13 +31,4 @@ RSAPublicKey* RSAPublicKeyFromFile(const char* input_file);
  */
 uint8_t* DigestFile(char* input_file, int sig_algorithm);
 
-/* Helper function to invoke external program to calculate signature on
- * [input_file] using private key [key_file] and signature algorithm
- * [algorithm].
- *
- * Returns the signature. Caller owns the buffer and must Free() it.
- */
-uint8_t* SignatureFile(const char* input_file, const char* key_file,
-                       unsigned int algorithm);
-
 #endif  /* VBOOT_REFERENCE_FILE_KEYS_H_ */
