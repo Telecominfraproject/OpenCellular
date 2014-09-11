@@ -9,7 +9,7 @@ SCRIPT_DIR=$(dirname $(readlink -f "$0"))
 
 ROOT_DIR="$(dirname ${SCRIPT_DIR})"
 BUILD_DIR="${BUILD}"
-BIN_DIR="${BUILD_DIR}/install_for_test"
+BIN_DIR=${BUILD_DIR}/install_for_test/bin
 FUTILITY=${BIN_DIR}/futility
 TEST_DIR="${BUILD_DIR}/tests"
 TESTKEY_DIR=${SCRIPT_DIR}/testkeys

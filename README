@@ -65,7 +65,7 @@ The commands are the more-or-less expected ones:
 
   make
   make runtests
-  make install [ DESTDIR=/usr/local/bin ]
+  make install [ DESTDIR=/usr/local ]
 
 
 

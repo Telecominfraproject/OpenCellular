@@ -43,17 +43,17 @@ export BUILD
 
 # Stuff for 'make install'
 INSTALL = install
-DESTDIR = /usr/local/bin
+DESTDIR = /usr/local
 
 # Where exactly do the pieces go?
 #  UB_DIR = utility binary directory
 #  VB_DIR = vboot binary directory for dev-mode-only scripts
 ifeq (${MINIMAL},)
 # Host install just puts everything where it's told
-UB_DIR=${DESTDIR}
-VB_DIR=${DESTDIR}
+UB_DIR=${DESTDIR}/bin
+VB_DIR=${DESTDIR}/bin
 else
-# Target install puts things into subdirectories under DESTDIR
+# Target install puts things into different places
 UB_DIR=${DESTDIR}/usr/bin
 VB_DIR=${DESTDIR}/usr/share/vboot/bin
 endif
@@ -897,7 +897,7 @@ ${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB}
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
 .PHONY: futil_install
-futil_install: ${FUTIL_BIN}
+futil_install: ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
 	@$(PRINTF) "    INSTALL       futility\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
@@ -1173,7 +1173,7 @@ run2tests: test_setup
 
 .PHONY: runfutiltests
 runfutiltests: test_setup
-	tests/futility/run_test_scripts.sh ${TEST_INSTALL_DIR}
+	tests/futility/run_test_scripts.sh ${TEST_INSTALL_DIR}/bin
 	${RUNTEST} ${BUILD_RUN}/tests/futility/test_not_really
 
 # Run long tests, including all permutations of encryption keys (instead of
