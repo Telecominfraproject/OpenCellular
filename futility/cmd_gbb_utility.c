@@ -300,6 +300,9 @@ static int read_from_file(const char *msg, const char *filename,
 		goto done_close;
 	}
 
+	/* Wipe existing data. */
+	memset(start, 0, size);
+
 	/* It's okay if we read less than size. That's just the max. */
 	count = fread(start, 1, size, fp);
 	if (ferror(fp)) {
@@ -526,6 +529,9 @@ static int do_gbb_utility(int argc, char *argv[])
 					gbb->hwid_size);
 				errorcnt++;
 			} else {
+				/* Wipe data before writing new value. */
+				memset(gbb_base + gbb->hwid_offset, 0,
+				       gbb->hwid_size);
 				strcpy((char *)(gbb_base + gbb->hwid_offset),
 				       opt_hwid);
 			}
