@@ -474,6 +474,7 @@ UTIL_NAMES_STATIC = \
 
 UTIL_NAMES = ${UTIL_NAMES_STATIC} \
 	utility/tpm_init_temp_fix \
+	utility/dumpRSAPublicKey \
 	utility/tpmc
 
 # TODO: Do we still need eficompress and efidecompress for anything?
@@ -481,7 +482,6 @@ ifeq (${MINIMAL},)
 UTIL_NAMES += \
 	utility/bmpblk_font \
 	utility/bmpblk_utility \
-	utility/dumpRSAPublicKey \
 	utility/eficompress \
 	utility/efidecompress \
 	utility/load_kernel_test \
