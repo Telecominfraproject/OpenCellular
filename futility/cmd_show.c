@@ -39,7 +39,7 @@ static struct local_data_s {
 
 static void show_key(VbPublicKey *pubkey, const char *sp)
 {
-	printf("%sAlgorithm:           %" PRIu64 " %s\n", sp,pubkey->algorithm,
+	printf("%sAlgorithm:           %" PRIu64 " %s\n", sp, pubkey->algorithm,
 	       (pubkey->algorithm < kNumAlgorithms ?
 		algo_strings[pubkey->algorithm] : "(invalid)"));
 	printf("%sKey Version:         %" PRIu64 "\n", sp, pubkey->key_version);
@@ -51,11 +51,14 @@ static void show_key(VbPublicKey *pubkey, const char *sp)
 static void show_keyblock(VbKeyBlockHeader *key_block, const char *name,
 			  int sign_key, int good_sig)
 {
-	printf("Key block:               %s\n", name);
-	printf("  Size:                  %" PRIu64 "\n",
+	if (name)
+		printf("Key block:               %s\n", name);
+	else
+		printf("Key block:\n");
+	printf("  Signature:             %s\n",
+	       sign_key ? (good_sig ? "valid" : "invalid") : "ignored");
+	printf("  Size:                  0x%" PRIx64 "\n",
 	       key_block->key_block_size);
-	printf("  Signature              %s\n",
-	       sign_key ? (good_sig ? "valid" : "invalid" ) : "ignored");
 	printf("  Flags:                 %" PRIu64 " ",
 	       key_block->key_block_flags);
 	if (key_block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
@@ -282,7 +285,7 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
 	if (!rsa) {
-		VbExError("Error parsing data key in %s\n", state->name);
+		fprintf(stderr, "Error parsing data key in %s\n", state->name);
 		return 1;
 	}
 	uint32_t more = key_block->key_block_size;
@@ -296,7 +299,7 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 	}
 
 	uint32_t flags = VbGetFirmwarePreambleFlags(preamble);
-	printf("Preamble:\n");
+	printf("Firmware Preamble:\n");
 	printf("  Size:                  %" PRIu64 "\n",
 	       preamble->preamble_size);
 	printf("  Header version:        %" PRIu32 ".%" PRIu32 "\n",
@@ -319,14 +322,13 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 
 	if (flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
-		printf ("Preamble requests USE_RO_NORMAL;"
-			" skipping body verification.\n");
+		printf("Preamble requests USE_RO_NORMAL;"
+		       " skipping body verification.\n");
 		goto done;
 	}
 
 	/* We'll need to get the firmware body from somewhere... */
-	if (fw_body_area && (fw_body_area->_flags & AREA_IS_VALID))
-	{
+	if (fw_body_area && (fw_body_area->_flags & AREA_IS_VALID)) {
 		fv_data = fw_body_area->buf;
 		fv_size = fw_body_area->len;
 	}
@@ -339,7 +341,7 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 	if (VBOOT_SUCCESS !=
 	    VerifyData(fv_data, fv_size, &preamble->body_signature, rsa)) {
-		VbExError("Error verifying firmware body.\n");
+		fprintf(stderr, "Error verifying firmware body.\n");
 		return 1;
 	}
 
@@ -378,18 +380,26 @@ int futil_cb_show_begin(struct futil_traverse_state_s *state)
 	return 0;
 }
 
-static void help_and_quit(const char *prog)
+static const char usage[] = "\n"
+	"Usage:  " MYNAME " %s [OPTIONS] FILE\n"
+	"\n"
+	"Where FILE could be a\n"
+	"\n"
+	"  public key (.vbpubk)\n"
+	"  keyblock (.keyblock)\n"
+	"  firmware preamble signature (VBLOCK_A/B)\n"
+	"  firmware image (bios.bin)\n"
+	"  kernel partition (/dev/sda2, /dev/mmcblk0p2)\n"
+	"\n"
+	"Options:\n"
+	"  -k|--publickey FILE   Use this public key for validation\n"
+	"  -f|--fv FILE|OFFSET   Verify this payload (FW_MAIN_A/B, or\n"
+	"                          kernel vblock padding size)\n"
+	"\n";
+
+static void print_help(const char *prog)
 {
-	fprintf(stderr, "\n"
-		"Usage:  " MYNAME " %s [OPTIONS] FILE\n"
-		"\n"
-		"Display the contents of the given FILE\n"
-		"\n"
-		"Options:\n"
-		"  -k|--publickey FILE    Use this public key for validation\n"
-		"  -f|--fv FILE           Use this firmware blob where needed\n"
-		"\n", prog);
-	exit(1);
+	printf(usage, prog);
 }
 
 static const struct option long_opts[] = {
@@ -437,17 +447,22 @@ static int do_show(int argc, char *argv[])
 			fprintf(stderr, "Missing argument to -%c\n", optopt);
 			errorcnt++;
 			break;
+		case 0:				/* handled option */
+			break;
 		default:
 			DIE;
 		}
 	}
 
-	if (errorcnt)
-		help_and_quit(argv[0]);
+	if (errorcnt) {
+		print_help(argv[0]);
+		return 1;
+	}
 
 	if (argc - optind < 1) {
 		fprintf(stderr, "ERROR: missing input filename\n");
-		help_and_quit(argv[0]);
+		print_help(argv[0]);
+		return 1;
 	}
 
 	for (i = optind; i < argc; i++) {
@@ -481,4 +496,6 @@ static int do_show(int argc, char *argv[])
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(show, do_show, "Display what we know about a file");
+DECLARE_FUTIL_COMMAND(show, do_show,
+		      "Display the content of various binary components",
+		      print_help);

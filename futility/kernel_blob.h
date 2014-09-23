@@ -56,7 +56,8 @@ struct linux_kernel_params {
 	uint8_t relocatable_kernel;		/* 234 */
 	uint8_t min_alignment;			/* 235 */
 	uint8_t pad6[0x2d0 - 0x236];
-	struct linux_kernel_e820entry e820_entries[E820_ENTRY_MAX]; /* 2d0-cd0 */
+	struct linux_kernel_e820entry
+		e820_entries[E820_ENTRY_MAX];	/* 2d0-cd0 */
 } __attribute__ ((packed));
 
 #endif /* VBOOT_REFERENCE_KERNEL_BLOB_H_ */

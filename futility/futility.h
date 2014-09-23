@@ -18,21 +18,17 @@ struct futil_cmd_t {
 	const char *const name;
 	int (*const handler) (int argc, char **argv);
 	const char *const shorthelp;
+	void (*longhelp) (const char *cmd);
 };
 
-/*
- * Macro to define a command.
- *
- * This defines the struct, then puts a pointer to it in a separate section.
- * We'll have a linker script to gather the pointers up later, so we can refer
- * to them without explictly declaring every function in a header somewhere.
- */
-#define DECLARE_FUTIL_COMMAND(NAME, HANDLER, SHORTHELP)           \
-        const struct futil_cmd_t __cmd_##NAME = {                 \
-                .name = #NAME,                                    \
-                .handler = HANDLER,                               \
-                .shorthelp = SHORTHELP                            \
-        };
+/* Macro to define a command */
+#define DECLARE_FUTIL_COMMAND(NAME, HANDLER, SHORTHELP, LONGHELP) \
+	const struct futil_cmd_t __cmd_##NAME = {                 \
+		.name = #NAME,                                    \
+		.handler = HANDLER,                               \
+		.shorthelp = SHORTHELP,				  \
+		.longhelp =  LONGHELP,				  \
+	}
 
 /* This is the list of pointers to all commands. */
 extern const struct futil_cmd_t *const futil_cmds[];
@@ -45,8 +41,8 @@ extern const struct futil_cmd_t *const futil_cmds[];
 /* Test an important condition at compile time, not run time */
 #ifndef BUILD_ASSERT
 #define _BA1_(cond, line) \
-        extern int __build_assertion_ ## line[1 - 2*!(cond)] \
-        __attribute__ ((unused))
+	extern int __build_assertion_ ## line[1 - 2*!(cond)]	\
+	__attribute__ ((unused))
 #define _BA0_(c, x) _BA1_(c, x)
 #define BUILD_ASSERT(cond) _BA0_(cond, __LINE__)
 #endif

@@ -14,7 +14,7 @@
 #include "vboot_api.h"
 #include "vboot_host.h"
 
-static uint8_t *GetKernelConfig(uint8_t * blob, size_t blob_size,
+static uint8_t *GetKernelConfig(uint8_t *blob, size_t blob_size,
 				uint64_t kernel_body_load_address)
 {
 
@@ -58,7 +58,7 @@ static uint8_t *GetKernelConfig(uint8_t * blob, size_t blob_size,
 	return blob + offset;
 }
 
-static void *MMapFile(const char *filename, size_t * size)
+static void *MMapFile(const char *filename, size_t *size)
 {
 	FILE *f;
 	uint8_t *buf;

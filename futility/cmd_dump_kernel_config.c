@@ -23,13 +23,10 @@ static const struct option long_opts[] = {
 };
 
 /* Print help and return error */
-static int PrintHelp(void)
+static void PrintHelp(const char *progname)
 {
-	puts("dump_kernel_config - Prints the kernel command line\n"
-	     "\n"
-	     "Usage:  dump_kernel_config [--kloadaddr <ADDRESS>] "
-	     "<image/blockdevice>\n" "\n" "");
-	return 1;
+	printf("\nUsage:  " MYNAME " %s [--kloadaddr ADDRESS] "
+	       "KERNEL_PARTITION\n\n", progname);
 }
 
 static int do_dump_kernel_config(int argc, char *argv[])
@@ -70,8 +67,10 @@ static int do_dump_kernel_config(int argc, char *argv[])
 	} else
 		infile = argv[optind];
 
-	if (parse_error)
-		return PrintHelp();
+	if (parse_error) {
+		PrintHelp(argv[0]);
+		return 1;
+	}
 
 	if (!infile || !*infile) {
 		fprintf(stderr, "Must specify filename\n");
@@ -89,4 +88,5 @@ static int do_dump_kernel_config(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(dump_kernel_config, do_dump_kernel_config,
-		      "Prints the kernel command line");
+		      "Prints the kernel command line",
+		      PrintHelp);

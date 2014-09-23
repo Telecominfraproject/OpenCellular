@@ -13,8 +13,6 @@
 #include "2api.h"
 #include "futility.h"
 
-const char *progname = "vb2_verify_fw";
-
 const char *gbb_fname;
 const char *vblock_fname;
 const char *body_fname;
@@ -34,7 +32,7 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 	int got_size;
 
 	/* Get the filename for the resource */
-	switch(index) {
+	switch (index) {
 	case VB2_RES_GBB:
 		fname = gbb_fname;
 		break;
@@ -72,7 +70,7 @@ int vb2ex_tpm_clear_owner(struct vb2_context *ctx)
 /**
  * Save non-volatile and/or secure data if needed.
  */
-void save_if_needed(struct vb2_context *ctx)
+static void save_if_needed(struct vb2_context *ctx)
 {
 
 	if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
@@ -89,7 +87,7 @@ void save_if_needed(struct vb2_context *ctx)
 /**
  * Verify firmware body
  */
-int hash_body(struct vb2_context *ctx)
+static int hash_body(struct vb2_context *ctx)
 {
 	uint32_t expect_size;
 	uint8_t block[8192];
@@ -134,21 +132,19 @@ int hash_body(struct vb2_context *ctx)
 	return VB2_SUCCESS;
 }
 
-int do_vb2_verify_fw(int argc, char *argv[])
+static void print_help(const char *progname)
+{
+	printf("Usage: %s <gbb> <vblock> <body>\n", progname);
+}
+
+static int do_vb2_verify_fw(int argc, char *argv[])
 {
 	struct vb2_context ctx;
 	uint8_t workbuf[16384];
 	int rv;
 
-	progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
-
 	if (argc < 4) {
-		fprintf(stderr,
-			"usage: %s <gbb> <vblock> <body>\n", progname);
+		print_help(argv[0]);
 		return 1;
 	}
 
@@ -216,4 +212,5 @@ int do_vb2_verify_fw(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(vb2_verify_fw, do_vb2_verify_fw,
-		      "Verifies firmware using vboot2 library");
+		      "Verifies firmware using vboot2 library",
+		      print_help);

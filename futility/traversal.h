@@ -59,7 +59,7 @@ struct cb_area_s {
 
 /* What do we know at this point in time? */
 struct futil_traverse_state_s {
-	/* These two should be initialized by the caller */
+	/* These two should be initialized by the caller as needed */
 	const char *in_filename;
 	enum futil_op_type op;
 	/* Current activity during traversal */

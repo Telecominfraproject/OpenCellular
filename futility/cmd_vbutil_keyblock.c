@@ -44,9 +44,8 @@ static const struct option long_opts[] = {
 };
 
 static const char usage[] =
-	"Verified boot key block utility\n"
 	"\n"
-	"Usage:  %s <--pack|--unpack> <file> [OPTIONS]\n"
+	"Usage:  " MYNAME " %s <--pack|--unpack> <file> [OPTIONS]\n"
 	"\n"
 	"For '--pack <file>', required OPTIONS are:\n"
 	"  --datapubkey <file>         Data public key in .vbpubk format\n"
@@ -70,13 +69,11 @@ static const char usage[] =
 	"        Signing public key in .vbpubk format. This is required to\n"
 	"                                verify a signed keyblock.\n"
 	"  --datapubkey <file>"
-	"        Write the data public key to this file.\n";
+	"        Write the data public key to this file.\n\n";
 
-/* Print help and return error */
-static int PrintHelp(char *progname)
+static void print_help(const char *progname)
 {
-	fprintf(stderr, usage, progname);
-	return 1;
+	printf(usage, progname);
 }
 
 /* Pack a .keyblock */
@@ -240,12 +237,6 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 	char *e;
 	int i;
 
-	char *progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
-
 	while ((i = getopt_long(argc, argv, "", long_opts, NULL)) != -1) {
 		switch (i) {
 		case '?':
@@ -321,8 +312,10 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 		parse_error = 1;
 	}
 
-	if (parse_error)
-		return PrintHelp(progname);
+	if (parse_error) {
+		print_help(argv[0]);
+		return 1;
+	}
 
 	switch (mode) {
 	case OPT_MODE_PACK:
@@ -333,9 +326,11 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 		return Unpack(filename, datapubkey, signpubkey);
 	default:
 		printf("Must specify a mode.\n");
-		return PrintHelp(progname);
+		print_help(argv[0]);
+		return 1;
 	}
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_keyblock, do_vbutil_keyblock,
-		      "Verified boot key block utility");
+		      "Creates, signs, and verifies a keyblock",
+		      print_help);

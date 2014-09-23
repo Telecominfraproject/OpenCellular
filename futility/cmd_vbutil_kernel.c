@@ -28,9 +28,9 @@
 #include "vboot_common.h"
 
 /* Global opts */
-static int opt_debug = 0;
-static int opt_verbose = 0;
-static int opt_vblockonly = 0;
+static int opt_debug;
+static int opt_verbose;
+static int opt_vblockonly;
 static uint64_t opt_pad = 65536;
 
 /* Command line options */
@@ -85,9 +85,8 @@ static const struct option long_opts[] = {
 
 
 static const char usage[] =
-	"This program creates, signs, and verifies the kernel blob\n"
 	"\n"
-	"Usage:  %s --pack <file> [PARAMETERS]\n"
+	"Usage:  " MYNAME " %s --pack <file> [PARAMETERS]\n"
 	"\n"
 	"  Required parameters:\n"
 	"    --keyblock <file>         Key block in .keyblock format\n"
@@ -104,7 +103,7 @@ static const char usage[] =
 	"    --pad <number>            Verification padding size in bytes\n"
 	"    --vblockonly              Emit just the verification blob\n"
 	"\nOR\n\n"
-	"Usage:  %s --repack <file> [PARAMETERS]\n"
+	"Usage:  " MYNAME " %s --repack <file> [PARAMETERS]\n"
 	"\n"
 	"  Required parameters:\n"
 	"    --signprivate <file>      Private key to sign kernel data,\n"
@@ -120,7 +119,7 @@ static const char usage[] =
 	"    --pad <number>            Verification blob size in bytes\n"
 	"    --vblockonly              Emit just the verification blob\n"
 	"\nOR\n\n"
-	"Usage:  %s --verify <file> [PARAMETERS]\n"
+	"Usage:  " MYNAME " %s --verify <file> [PARAMETERS]\n"
 	"\n"
 	"  Optional:\n"
 	"    --signpubkey <file>"
@@ -136,10 +135,9 @@ static const char usage[] =
 
 
 /* Print help and return error */
-static int PrintHelp(char *progname)
+static void print_help(const char *progname)
 {
-	fprintf(stderr, usage, progname, progname, progname);
-	return 1;
+	printf(usage, progname, progname, progname);
 }
 
 static void Debug(const char *format, ...)
@@ -165,7 +163,7 @@ static void Fatal(const char *format, ...)
 }
 
 /* Return an explanation when fread() fails. */
-static const char *error_fread(FILE * fp)
+static const char *error_fread(FILE *fp)
 {
 	const char *retval = "beats me why";
 	if (feof(fp))
@@ -238,7 +236,7 @@ static VbKernelPreambleHeader *g_preamble;
  * Return the buffer contaning the line on success (and set the line length
  * using the passed in parameter), or NULL in case something goes wrong.
  */
-static uint8_t *ReadConfigFile(const char *config_file, uint64_t * config_size)
+static uint8_t *sReadConfigFile(const char *config_file, uint64_t *config_size)
 {
 	uint8_t *config_buf;
 	int ii;
@@ -252,16 +250,15 @@ static uint8_t *ReadConfigFile(const char *config_file, uint64_t * config_size)
 	}
 
 	/* Replace newlines with spaces */
-	for (ii = 0; ii < *config_size; ii++) {
-		if ('\n' == config_buf[ii]) {
+	for (ii = 0; ii < *config_size; ii++)
+		if ('\n' == config_buf[ii])
 			config_buf[ii] = ' ';
-		}
-	}
+
 	return config_buf;
 }
 
 /* Offset of kernel command line string from start of packed kernel blob */
-static uint64_t CmdLineOffset(VbKernelPreambleHeader * preamble)
+static uint64_t CmdLineOffset(VbKernelPreambleHeader *preamble)
 {
 	return preamble->bootloader_address - preamble->body_load_address -
 	    CROS_CONFIG_SIZE - CROS_PARAMS_SIZE;
@@ -355,7 +352,7 @@ static int ImportVmlinuzFile(const char *vmlinuz_file, arch_t arch,
 /* This returns just the kernel blob, with the verification blob separated
  * and copied to new memory in g_keyblock and g_preamble. */
 static uint8_t *ReadOldBlobFromFileOrDie(const char *filename,
-					 uint64_t * size_ptr)
+					 uint64_t *size_ptr)
 {
 	FILE *fp = NULL;
 	struct stat statbuf;
@@ -371,9 +368,8 @@ static uint8_t *ReadOldBlobFromFileOrDie(const char *filename,
 		Fatal("Unable to stat %s: %s\n", filename, strerror(errno));
 
 	if (S_ISBLK(statbuf.st_mode)) {
-		int fd;
-
-		if ((fd = open(filename, O_RDONLY)) >= 0) {
+		int fd = open(filename, O_RDONLY);
+		if (fd >= 0) {
 			ioctl(fd, BLKGETSIZE64, &file_size);
 			close(fd);
 		}
@@ -460,7 +456,7 @@ static uint8_t *ReadOldBlobFromFileOrDie(const char *filename,
 
 /* Split a kernel blob into separate g_kernel, g_param, g_config, and
  * g_bootloader parts. */
-static void UnpackKernelBlob(uint8_t * kernel_blob_data,
+static void UnpackKernelBlob(uint8_t *kernel_blob_data,
 			     uint64_t kernel_blob_size)
 {
 
@@ -498,8 +494,8 @@ static void UnpackKernelBlob(uint8_t * kernel_blob_data,
 
 /****************************************************************************/
 
-static uint8_t *CreateKernelBlob(uint64_t kernel_body_load_address,
-				 arch_t arch, uint64_t * size_ptr)
+static uint8_t *CreateKernBlob(uint64_t kernel_body_load_address,
+			       arch_t arch, uint64_t *size_ptr)
 {
 	uint8_t *kern_blob;
 	uint64_t kern_blob_size;
@@ -525,9 +521,8 @@ static uint8_t *CreateKernelBlob(uint64_t kernel_body_load_address,
 	now += CROS_CONFIG_SIZE;
 
 	Debug("params goes at kern_blob+0x%" PRIx64 "\n", now);
-	if (g_param_size) {
+	if (g_param_size)
 		Memcpy(kern_blob + now, g_param_data, g_param_size);
-	}
 	now += CROS_PARAMS_SIZE;
 
 	Debug("bootloader goes at kern_blob+0x%" PRIx64 "\n", now);
@@ -547,10 +542,11 @@ static uint8_t *CreateKernelBlob(uint64_t kernel_body_load_address,
 }
 
 static int Pack(const char *outfile,
-		uint8_t * kernel_blob,
+		uint8_t *kernel_blob,
 		uint64_t kernel_size,
 		int version,
-		uint64_t kernel_body_load_address, VbPrivateKey * signpriv_key)
+		uint64_t kernel_body_load_address,
+		VbPrivateKey *signpriv_key)
 {
 	VbSignature *body_sig;
 	FILE *f;
@@ -611,10 +607,11 @@ static int Pack(const char *outfile,
 	return 0;
 }
 
-static int Verify(uint8_t * kernel_blob,
+static int Verify(uint8_t *kernel_blob,
 		  uint64_t kernel_size,
-		  VbPublicKey * signpub_key,
-		  const char *keyblock_outfile, uint64_t min_version)
+		  VbPublicKey *signpub_key,
+		  const char *keyblock_outfile,
+		  uint64_t min_version)
 {
 	VbPublicKey *data_key;
 	RSAPublicKey *rsa;
@@ -737,12 +734,6 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	uint8_t *kernel_blob = NULL;
 	uint64_t kernel_size = 0;
 
-	char *progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
-
 	while (((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) &&
 	       !parse_error) {
 		switch (i) {
@@ -855,8 +846,10 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		}
 	}
 
-	if (parse_error)
-		return PrintHelp(progname);
+	if (parse_error) {
+		print_help(argv[0]);
+		return 1;
+	}
 
 	switch (mode) {
 	case OPT_MODE_PACK:
@@ -882,7 +875,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (config_file) {
 			Debug("Reading %s\n", config_file);
 			g_config_data =
-			    ReadConfigFile(config_file, &g_config_size);
+			    sReadConfigFile(config_file, &g_config_size);
 			if (!g_config_data)
 				Fatal("Error reading config file.\n");
 		}
@@ -904,8 +897,8 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		/* Do it */
 
-		kernel_blob = CreateKernelBlob(kernel_body_load_address, arch,
-					       &kernel_size);
+		kernel_blob = CreateKernBlob(kernel_body_load_address, arch,
+					     &kernel_size);
 
 		return Pack(filename, kernel_blob, kernel_size,
 			    version, kernel_body_load_address, signpriv_key);
@@ -949,7 +942,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 				free(g_config_data);
 			Debug("Reading %s\n", config_file);
 			g_config_data =
-			    ReadConfigFile(config_file, &g_config_size);
+			    sReadConfigFile(config_file, &g_config_size);
 			if (!g_config_data)
 				Fatal("Error reading config file.\n");
 		}
@@ -965,8 +958,8 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		/* Put it back together */
 
-		kernel_blob = CreateKernelBlob(kernel_body_load_address, arch,
-					       &kernel_size);
+		kernel_blob = CreateKernBlob(kernel_body_load_address, arch,
+					     &kernel_size);
 
 		return Pack(filename, kernel_blob, kernel_size,
 			    version, kernel_body_load_address, signpriv_key);
@@ -991,8 +984,10 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 	fprintf(stderr,
 		"You must specify a mode: --pack, --repack or --verify\n");
-	return PrintHelp(progname);
+	print_help(argv[0]);
+	return 1;
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel,
-		      "Verified boot kernel utility");
+		      "Creates, signs, and verifies the kernel blob",
+		      print_help);

@@ -26,7 +26,7 @@ static LoadKernelParams params;
 static VbCommonParams cparams;
 
 VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
-                       uint64_t lba_count, void *buffer)
+		       uint64_t lba_count, void *buffer)
 {
 	if (handle != (VbExDiskHandle_t)1)
 		return VBERROR_UNKNOWN;
@@ -40,7 +40,7 @@ VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
 }
 
 VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
-                        uint64_t lba_count, const void *buffer)
+			uint64_t lba_count, const void *buffer)
 {
 	if (handle != (VbExDiskHandle_t)1)
 		return VBERROR_UNKNOWN;
@@ -53,21 +53,20 @@ VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
 	return VBERROR_SUCCESS;
 }
 
-int do_verify_kernel(int argc, char *argv[])
+static void print_help(const char *progname)
+{
+	printf("\nUsage: " MYNAME " %s <disk_image> <kernel.vbpubk>\n\n",
+	       progname);
+}
+
+static int do_verify_kernel(int argc, char *argv[])
 {
 	VbPublicKey *kernkey;
 	uint64_t disk_bytes = 0;
 	int rv;
 
-	const char *progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
-
 	if (argc < 3) {
-		fprintf(stderr,
-			"usage: %s <disk_image> <kernel.vbpubk>\n", progname);
+		print_help(argv[0]);
 		return 1;
 	}
 
@@ -138,4 +137,5 @@ int do_verify_kernel(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(verify_kernel, do_verify_kernel,
-		      "Verifies a kernel / disk image");
+		      "Verifies a kernel / disk image",
+		      print_help);

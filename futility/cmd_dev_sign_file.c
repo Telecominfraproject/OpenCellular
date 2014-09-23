@@ -24,7 +24,7 @@
 #include "vboot_common.h"
 
 /* Global opt */
-static int opt_debug = 0;
+static int opt_debug;
 
 /* Command line options */
 enum {
@@ -46,34 +46,30 @@ static const struct option long_opts[] = {
 };
 
 /* Print help and return error */
-static int PrintHelp(const char *progname)
+static void PrintHelp(const char *progname)
 {
-	fprintf(stderr,
-		"This is used to sign and verify developer-mode files\n");
-	fprintf(stderr,
-		"\n"
-		"Usage:  %s --sign <file> [PARAMETERS]\n"
-		"\n"
-		"  Required parameters:\n"
-		"    --keyblock <file>         Key block in .keyblock format\n"
-		"    --signprivate <file>"
-		"      Private key to sign file data, in .vbprivk format\n"
-		"    --vblock <file>"
-		"           Output signature in .vblock format\n"
-		"\n", progname);
-	fprintf(stderr,
-		"OR\n\n"
-		"Usage:  %s --verify <file> [PARAMETERS]\n"
-		"\n"
-		"  Required parameters:\n"
-		"    --vblock <file>"
-		"           Signature file in .vblock format\n"
-		"\n"
-		"  Optional parameters:\n"
-		"    --keyblock <file>"
-		"         Extract .keyblock to file if verification succeeds\n"
-		"\n", progname);
-	return 1;
+	printf("\n"
+	       "Usage:  " MYNAME " %s --sign <file> [PARAMETERS]\n"
+	       "\n"
+	       "  Required parameters:\n"
+	       "    --keyblock <file>         Key block in .keyblock format\n"
+	       "    --signprivate <file>"
+	       "      Private key to sign file data,\n"
+	       "        in .vbprivk format\n"
+	       "    --vblock <file>"
+	       "           Output signature in .vblock format\n"
+	       "\n", progname);
+	printf("OR\n\n"
+	       "Usage:  " MYNAME " %s --verify <file> [PARAMETERS]\n"
+	       "\n"
+	       "  Required parameters:\n"
+	       "    --vblock <file>"
+	       "           Signature file in .vblock format\n"
+	       "\n"
+	       "  Optional parameters:\n"
+	       "    --keyblock <file>"
+	       "         Extract .keyblock to file\n"
+	       "\n", progname);
 }
 
 static void Debug(const char *format, ...)
@@ -296,12 +292,6 @@ static int do_dev_sign_file(int argc, char *argv[])
 	int parse_error = 0;
 	int option_index;
 
-	char *progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
-
 	while ((option_index =
 		getopt_long(argc, argv, ":", long_opts, NULL)) != -1
 	       && !parse_error) {
@@ -342,14 +332,17 @@ static int do_dev_sign_file(int argc, char *argv[])
 		}
 	}
 
-	if (parse_error)
-		return PrintHelp(progname);
+	if (parse_error) {
+		PrintHelp(argv[0]);
+		return 1;
+	}
 
 	switch (mode) {
 	case OPT_MODE_SIGN:
 		if (!keyblock_file || !signprivate_file || !vblock_file) {
 			fprintf(stderr, "Some required options are missing\n");
-			return PrintHelp(progname);
+			PrintHelp(argv[0]);
+			return 1;
 		}
 		return Sign(filename, keyblock_file, signprivate_file,
 			    vblock_file);
@@ -357,13 +350,15 @@ static int do_dev_sign_file(int argc, char *argv[])
 	case OPT_MODE_VERIFY:
 		if (!vblock_file) {
 			fprintf(stderr, "Some required options are missing\n");
-			return PrintHelp(progname);
+			PrintHelp(argv[0]);
+			return 1;
 		}
 		return Verify(filename, vblock_file, keyblock_file);
 
 	default:
 		fprintf(stderr, "You must specify either --sign or --verify\n");
-		return PrintHelp(progname);
+		PrintHelp(argv[0]);
+		return 1;
 	}
 
 	/* NOTREACHED */
@@ -371,4 +366,5 @@ static int do_dev_sign_file(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(dev_sign_file, do_dev_sign_file,
-		      "Sign or verify dev-mode files (DEPRECATED)");
+		      "Sign or verify dev-mode files (DEPRECATED)",
+		      PrintHelp);

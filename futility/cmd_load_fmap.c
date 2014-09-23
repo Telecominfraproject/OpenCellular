@@ -41,8 +41,7 @@ static const char usage[] = "\n"
 
 static void help_and_quit(const char *prog)
 {
-	fprintf(stderr, usage, prog, prog);
-	exit(1);
+	printf(usage, prog, prog);
 }
 
 static const struct option long_opts[] = {
@@ -124,14 +123,17 @@ static int do_load_fmap(int argc, char *argv[])
 		}
 	}
 
-	if (errorcnt)
+	if (errorcnt) {
 		help_and_quit(argv[0]);
+		return 1;
+	}
 
 	if (argc - optind < 2) {
 		fprintf(stderr,
 			"You must specify an input file"
 			" and at least one AREA:file argument\n");
 		help_and_quit(argv[0]);
+		return 1;
 	}
 
 	infile = argv[optind++];
@@ -199,4 +201,5 @@ done_file:
 }
 
 DECLARE_FUTIL_COMMAND(load_fmap, do_load_fmap,
-		      "Replace the contents of specified FMAP areas");
+		      "Replace the contents of specified FMAP areas",
+		      help_and_quit);

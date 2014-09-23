@@ -16,85 +16,17 @@
 
 #include "futility.h"
 
-#define MYNAME_S MYNAME "_s"
+
+/******************************************************************************/
+/* Logging stuff */
 
 /* File to use for logging, if present */
 #define LOGFILE "/tmp/futility.log"
 
 /* Normally logging will only happen if the logfile already exists. Uncomment
  * this to force log file creation (and thus logging) always. */
+
 /* #define FORCE_LOGGING_ON */
-
-/******************************************************************************/
-
-static const char *const usage = "\n\
-Usage: " MYNAME " PROGRAM|COMMAND [args...]\n\
-\n\
-This is the unified firmware utility, which will eventually replace\n\
-most of the distinct verified boot tools formerly produced by the\n\
-vboot_reference package.\n\
-\n\
-When symlinked under the name of one of those previous tools, should\n\
-fully implement the original behavior. It can also be invoked directly\n\
-as " MYNAME ", followed by the original name as the first argument.\n\
-\n\
-In either case it will append some usage information to " LOGFILE "\n\
-(iff that file exists), to help improve coverage and correctness.\n\
-\n";
-
-static int do_help(int argc, char *argv[])
-{
-	const struct futil_cmd_t *const *cmd;
-	int i;
-
-	fputs(usage, stdout);
-
-	printf("The following commands are built-in:\n\n");
-
-	for (cmd = futil_cmds; *cmd; cmd++)
-		printf("  %-20s %s\n", (*cmd)->name, (*cmd)->shorthelp);
-	printf("\n");
-
-	if (argc) {
-		printf("FYI, you added these args that I'm ignoring:\n");
-		for (i = 0; i < argc; i++)
-			printf("argv[%d] = %s\n", i, argv[i]);
-	}
-
-	return 0;
-}
-
-DECLARE_FUTIL_COMMAND(help, do_help,
-		      "Show a bit of help (you're looking at it)");
-
-/*
- * These are built-in functions that we'd like to abandon completely someday.
- * TODO: If no one complains, get rid of them.
- */
-static const char *const dep_cmds[] = {
-	"dev_sign_file",
-};
-
-static const char *const dep_usage = "\n\
-The program \"%s\" is deprecated and may go away soon.\n\
-\n\
-If you feel this is in error, please open a bug at\n\
-\n\
-  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n\
-\n\
-In the meantime, you may continue to use the program by invoking it as\n\
-\n\
-  " MYNAME " %s [...]\n\
-\n";
-
-static void deprecated(const char *depname)
-{
-	fprintf(stderr, dep_usage, depname, depname);
-	exit(1);
-}
-
-/******************************************************************************/
-/* Logging stuff */
 
 static int log_fd = -1;
 
@@ -242,7 +174,98 @@ static void log_args(int argc, char *argv[])
 }
 
 /******************************************************************************/
+
+static const char *const usage = "\n"
+"Usage: " MYNAME " COMMAND [args...]\n"
+"\n"
+"This is the unified firmware utility, which will eventually replace\n"
+"most of the distinct verified boot tools formerly produced by the\n"
+"vboot_reference package.\n"
+"\n"
+"When symlinked under the name of one of those previous tools, it should\n"
+"fully implement the original behavior. It can also be invoked directly\n"
+"as " MYNAME ", followed by the original name as the first argument.\n"
+"\n";
+
+static void print_help(const char *cmd)
+{
+	puts(usage);
+}
+
+static const struct futil_cmd_t *find_command(const char *name)
+{
+	const struct futil_cmd_t *const *cmd;
+
+	for (cmd = futil_cmds; *cmd; cmd++)
+		if (0 == strcmp((*cmd)->name, name))
+			return *cmd;
+
+	return NULL;
+}
+
+static void list_commands(void)
+{
+	const struct futil_cmd_t *const *cmd;
+
+	for (cmd = futil_cmds; *cmd; cmd++)
+		printf("  %-20s %s\n", (*cmd)->name, (*cmd)->shorthelp);
+}
+
+static int do_help(int argc, char *argv[])
+{
+	const struct futil_cmd_t *cmd;
+
+	if (argc >= 2) {
+		cmd = find_command(argv[1]);
+		if (cmd) {
+			printf("\n%s - %s\n", argv[1], cmd->shorthelp);
+			cmd->longhelp(argv[1]);
+			return 0;
+		}
+	}
+
+	fputs(usage, stdout);
+
+	printf("The following commands are built-in:\n\n");
+	list_commands();
+	printf("\nUse \"" MYNAME " help COMMAND\" for more information.\n\n");
+
+	return 0;
+}
+
+DECLARE_FUTIL_COMMAND(help, do_help,
+		      "Show a bit of help (you're looking at it)",
+		      print_help);
+
+/*
+ * These are built-in functions that we'd like to abandon completely someday.
+ * TODO: If no one complains, get rid of them.
+ */
+static const char *const dep_cmds[] = {
+	"dev_sign_file",
+};
+
+static const char *const dep_usage = "\n"
+"The program \"%s\" is deprecated and may go away soon.\n"
+"\n"
+"If you feel this is in error, please open a bug at\n"
+"\n"
+"  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n"
+"\n"
+"In the meantime, you may continue to use the program by invoking it as\n"
+"\n" MYNAME " %s [...]\n"
+"\n";
+
+static void deprecated(const char *depname)
+{
+	fprintf(stderr, dep_usage, depname, depname);
+	exit(1);
+}
+
+/******************************************************************************/
 /* Here we go */
+
+#define MYNAME_S MYNAME "_s"
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -251,7 +274,7 @@ int main(int argc, char *argv[], char *envp[])
 	char buf[80];
 	pid_t myproc;
 	ssize_t r;
-	const struct futil_cmd_t *const *cmd;
+	const struct futil_cmd_t *cmd;
 	int i;
 	int via_symlink = 0;
 
@@ -267,6 +290,7 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* Invoked directly by name */
 	if (0 == strcmp(progname, MYNAME) || 0 == strcmp(progname, MYNAME_S)) {
+
 		if (argc < 2) {	/* must have an argument */
 			do_help(0, 0);
 			exit(1);
@@ -282,6 +306,10 @@ int main(int argc, char *argv[], char *envp[])
 			progname++;
 		else
 			progname = argv[0];
+		/* Oh, and treat "--foo" the same as "foo" */
+		while (*progname == '-')
+			progname++;
+
 	} else {		/* Invoked by symlink */
 		via_symlink = 1;
 		/* Block any deprecated functions. */
@@ -291,18 +319,26 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 	/* See if it's asking for something we know how to do ourselves */
-	for (cmd = futil_cmds; *cmd; cmd++)
-		if (0 == strcmp((*cmd)->name, progname))
-			return (*cmd)->handler(argc, argv);
+	cmd = find_command(progname);
+	if (cmd) {
+		/* Handle the "CMD --help" case ourselves */
+		if (2 == argc && 0 == strcmp(argv[1], "--help")) {
+			char *fake_argv[] = {"help",
+					     (char *)cmd->name,
+					     NULL};
+			return do_help(2, fake_argv);
+		} else {
+			return cmd->handler(argc, argv);
+		}
+	}
 
-	/* Nope */
+	/* Never heard of it */
 	if (!via_symlink) {
 		do_help(0, 0);
 		exit(1);
 	}
 
 	/* Complain about bogus symlink */
-
 	myproc = getpid();
 	snprintf(buf, sizeof(buf), "/proc/%d/exe", myproc);
 	r = readlink(buf, truename, PATH_MAX - 1);
@@ -313,15 +349,15 @@ int main(int argc, char *argv[], char *envp[])
 	}
 	truename[r] = '\0';
 
-	fprintf(stderr, "\n\
-The program\n\n  %s\n\nis a symlink to\n\n  %s\n\
-\n\
-However, " MYNAME " doesn't know how to implement that function.\n\
-\n\
-This is probably an error in your installation. If the problem persists\n\
-after a fresh checkout/build/install, please open a bug at\n\
-\n\
-  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n\
-\n", fullname, truename);
+	fprintf(stderr, "\n"
+"The program\n\n  %s\n\nis a symlink to\n\n  %s\n"
+"\n"
+"However, " MYNAME " doesn't know how to implement that function.\n"
+"\n"
+"This is probably an error in your installation. If the problem persists\n"
+"after a fresh checkout/build/install, please open a bug at\n"
+"\n"
+"  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n"
+"\n", fullname, truename);
 	return 1;
 }

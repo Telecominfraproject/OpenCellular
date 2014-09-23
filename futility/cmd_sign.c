@@ -73,7 +73,11 @@ int futil_cb_sign_fw_main(struct futil_traverse_state_s *state)
 	return 0;
 }
 
-
+/*
+ * This handles VBLOCK_A and VBLOCK_B while processing a BIOS image.
+ * We don't do any signing here. We just check to see if the VBLOCK
+ * area contains a firmware preamble.
+ */
 int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
@@ -91,7 +95,7 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
 		fprintf(stderr, "Warning: %s keyblock is invalid. "
 			"Signing the entire FW FMAP region...\n",
-		       state->name);
+			state->name);
 		goto whatever;
 	}
 
@@ -125,7 +129,7 @@ int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
 	if (fw_size > fw_body_area->len) {
 		fprintf(stderr,
 			"%s says the firmware is larger than we have\n",
-		       state->name);
+			state->name);
 		return 1;
 	}
 
@@ -297,10 +301,9 @@ static const char usage[] = "\n"
 	"  -l|--loemid      STRING          Local OEM vblock suffix\n"
 	"\n";
 
-static void help_and_quit(const char *prog)
+static void print_help(const char *prog)
 {
-	fprintf(stderr, usage, prog, option.version);
-	exit(1);
+	printf(usage, prog, option.version);
 }
 
 static const struct option long_opts[] = {
@@ -425,8 +428,10 @@ static int do_sign(int argc, char *argv[])
 		errorcnt++;
 	}
 
-	if (errorcnt)
-		help_and_quit(argv[0]);
+	if (errorcnt) {
+		print_help(argv[0]);
+		return 1;
+	}
 
 	switch (argc - optind) {
 	case 2:
@@ -442,11 +447,13 @@ static int do_sign(int argc, char *argv[])
 		break;
 	case 0:
 		fprintf(stderr, "ERROR: missing input filename\n");
-		help_and_quit(argv[0]);
+		print_help(argv[0]);
+		return 1;
 		break;
 	default:
 		fprintf(stderr, "ERROR: too many arguments left over\n");
-		help_and_quit(argv[0]);
+		print_help(argv[0]);
+		return 1;
 	}
 
 
@@ -479,4 +486,6 @@ static int do_sign(int argc, char *argv[])
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(sign, do_sign, "[Re]Sign a BIOS image");
+DECLARE_FUTIL_COMMAND(sign, do_sign,
+		      "[Re]Sign a BIOS image",
+		      print_help);

@@ -140,8 +140,7 @@ void copy_file_or_die(const char *infile, const char *outfile)
 		exit(1);
 	}
 
-	if (WIFSIGNALED(status))
-	{
+	if (WIFSIGNALED(status)) {
 		status = WTERMSIG(status);
 		fprintf(stderr, "/bin/cp was killed with signal %d\n", status);
 		exit(1);

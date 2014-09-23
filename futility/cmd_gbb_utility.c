@@ -18,10 +18,11 @@
 #include "futility.h"
 #include "gbb_header.h"
 
-static void help_and_quit(const char *prog)
+static void print_help(const char *prog)
 {
-	fprintf(stderr, "\n"
-		"Usage: %s [-g|-s|-c] [OPTIONS] bios_file [output_file]\n"
+	printf("\n"
+		"Usage:  " MYNAME " %s [-g|-s|-c] [OPTIONS] "
+	       "bios_file [output_file]\n"
 		"\n"
 		"GET MODE:\n"
 		"-g, --get   (default)\tGet (read) from bios_file, "
@@ -52,7 +53,6 @@ static void help_and_quit(const char *prog)
 		" bios.bin newbios.bin\n"
 		"  %s -c 0x100,0x1000,0x03DE80,0x1000 gbb.blob\n\n",
 		prog, prog, prog, prog);
-	exit(1);
 }
 
 /* Command line options */
@@ -75,7 +75,7 @@ static char *short_opts = ":gsc:o:k:b:R:r:h:i:L:f:";
 static int errorcnt;
 
 #define GBB_SEARCH_STRIDE 4
-GoogleBinaryBlockHeader *FindGbbHeader(uint8_t * ptr, size_t size)
+static GoogleBinaryBlockHeader *FindGbbHeader(uint8_t *ptr, size_t size)
 {
 	size_t i;
 	GoogleBinaryBlockHeader *tmp, *gbb_header = NULL;
@@ -105,7 +105,7 @@ GoogleBinaryBlockHeader *FindGbbHeader(uint8_t * ptr, size_t size)
 	}
 }
 
-static uint8_t *create_gbb(const char *desc, off_t * sizeptr)
+static uint8_t *create_gbb(const char *desc, off_t *sizeptr)
 {
 	char *str, *sizes, *param, *e = NULL;
 	size_t size = GBB_HEADER_SIZE;
@@ -177,7 +177,7 @@ static uint8_t *create_gbb(const char *desc, off_t * sizeptr)
 	return buf;
 }
 
-uint8_t *read_entire_file(const char *filename, off_t * sizeptr)
+static uint8_t *read_entire_file(const char *filename, off_t *sizeptr)
 {
 	FILE *fp = NULL;
 	uint8_t *buf = NULL;
@@ -232,7 +232,7 @@ fail:
 }
 
 static int write_to_file(const char *msg, const char *filename,
-			 uint8_t * start, size_t size)
+			 uint8_t *start, size_t size)
 {
 	FILE *fp;
 	int r = 0;
@@ -268,7 +268,7 @@ static int write_to_file(const char *msg, const char *filename,
 }
 
 static int read_from_file(const char *msg, const char *filename,
-			  uint8_t * start, uint32_t size)
+			  uint8_t *start, uint32_t size)
 {
 	FILE *fp;
 	struct stat sb;
@@ -419,15 +419,18 @@ static int do_gbb_utility(int argc, char *argv[])
 	}
 
 	/* Problems? */
-	if (errorcnt)
-		help_and_quit(argv[0]);
+	if (errorcnt) {
+		print_help(argv[0]);
+		return 1;
+	}
 
 	/* Now try to do something */
 	switch (mode) {
 	case DO_GET:
 		if (argc - optind < 1) {
 			fprintf(stderr, "\nERROR: missing input filename\n");
-			help_and_quit(argv[0]);
+			print_help(argv[0]);
+			return 1;
 		} else {
 			infile = argv[optind++];
 		}
@@ -475,7 +478,8 @@ static int do_gbb_utility(int argc, char *argv[])
 	case DO_SET:
 		if (argc - optind < 1) {
 			fprintf(stderr, "\nERROR: missing input filename\n");
-			help_and_quit(argv[0]);
+			print_help(argv[0]);
+			return 1;
 		}
 		infile = argv[optind++];
 		if (!outfile)
@@ -483,11 +487,13 @@ static int do_gbb_utility(int argc, char *argv[])
 
 		if (sel_hwid && !opt_hwid) {
 			fprintf(stderr, "\nERROR: missing new HWID value\n");
-			help_and_quit(argv[0]);
+			print_help(argv[0]);
+			return 1;
 		}
 		if (sel_flags && (!opt_flags || !*opt_flags)) {
 			fprintf(stderr, "\nERROR: missing new flags value\n");
-			help_and_quit(argv[0]);
+			print_help(argv[0]);
+			return 1;
 		}
 
 		/* With no args, we'll either copy it unchanged or do nothing */
@@ -576,7 +582,8 @@ static int do_gbb_utility(int argc, char *argv[])
 			if (argc - optind < 1) {
 				fprintf(stderr,
 					"\nERROR: missing output filename\n");
-				help_and_quit(argv[0]);
+				print_help(argv[0]);
+				return 1;
 			}
 			outfile = argv[optind++];
 		}
@@ -586,7 +593,8 @@ static int do_gbb_utility(int argc, char *argv[])
 			fprintf(stderr,
 				"\nERROR: unable to parse creation spec (%s)\n",
 				opt_create);
-			help_and_quit(argv[0]);
+			print_help(argv[0]);
+			return 1;
 		}
 		if (!errorcnt)
 			write_to_file("successfully created new GBB to:",
@@ -598,8 +606,9 @@ static int do_gbb_utility(int argc, char *argv[])
 		free(inbuf);
 	if (outbuf)
 		free(outbuf);
-	return ! !errorcnt;
+	return !!errorcnt;
 }
 
 DECLARE_FUTIL_COMMAND(gbb_utility, do_gbb_utility,
-		      "Utility to manage Google Binary Block (GBB)");
+		      "Manipulate the Google Binary Block (GBB)",
+		      print_help);

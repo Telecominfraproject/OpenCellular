@@ -1046,7 +1046,7 @@ ${FUTIL_CMD_LIST} ${FUTIL_STATIC_CMD_LIST}:
 	@$(PRINTF) "    GEN           $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@ $@_t $@_commands
 	${Q}mkdir -p ${BUILD}/gen
-	${Q}grep -hoRE '^DECLARE_FUTIL_COMMAND\([^,]+' $^ -R \
+	${Q}grep -hoRE '^DECLARE_FUTIL_COMMAND\([^,]+' $^ \
 		| sed 's/DECLARE_FUTIL_COMMAND(\(.*\)/_CMD(\1)/' \
 		| sort >>$@_commands
 	${Q}echo '#define _CMD(NAME) extern const struct' \

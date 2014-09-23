@@ -46,33 +46,32 @@ static const struct option long_opts[] = {
 };
 
 /* Print help and return error */
-static int PrintHelp(void)
+static void print_help(const char *prog)
 {
-
-	puts("vbutil_firmware - Verified boot key block utility\n"
-	     "\n"
-	     "Usage:  vbutil_firmware <--vblock|--verify> <file> [OPTIONS]\n"
-	     "\n"
-	     "For '--vblock <file>', required OPTIONS are:\n"
-	     "  --keyblock <file>           Key block in .keyblock format\n"
-	     "  --signprivate <file>"
-	     "        Signing private key in .vbprivk format\n"
-	     "  --version <number>          Firmware version\n"
-	     "  --fv <file>                 Firmware volume to sign\n"
-	     "  --kernelkey <file>          Kernel subkey in .vbpubk format\n"
-	     "optional OPTIONS are:\n"
-	     "  --flags <number>            Preamble flags (defaults to 0)\n"
-	     "\n"
-	     "For '--verify <file>', required OPTIONS are:\n"
-	     "  --signpubkey <file>"
-	     "         Signing public key in .vbpubk format\n"
-	     "  --fv <file>                 Firmware volume to verify\n"
-	     "\n"
-	     "For '--verify <file>', optional OPTIONS are:\n"
-	     "  --kernelkey <file>"
-	     "          Write the kernel subkey to this file\n"
-	     "");
-	return 1;
+	printf("\nUsage:  " MYNAME " %s <--vblock|--verify> <file> [OPTIONS]\n"
+	       "\n"
+	       "For '--vblock <file>', required OPTIONS are:\n"
+	       "\n"
+	       "  --keyblock <file>           Key block in .keyblock format\n"
+	       "  --signprivate <file>"
+	       "        Signing private key in .vbprivk format\n"
+	       "  --version <number>          Firmware version\n"
+	       "  --fv <file>                 Firmware volume to sign\n"
+	       "  --kernelkey <file>          Kernel subkey in .vbpubk format\n"
+	       "\n"
+	       "optional OPTIONS are:\n"
+	       "  --flags <number>            Preamble flags (defaults to 0)\n"
+	       "\n"
+	       "For '--verify <file>', required OPTIONS are:\n"
+	       "\n"
+	       "  --signpubkey <file>"
+	       "         Signing public key in .vbpubk format\n"
+	       "  --fv <file>                 Firmware volume to verify\n"
+	       "\n"
+	       "For '--verify <file>', optional OPTIONS are:\n"
+	       "  --kernelkey <file>"
+	       "          Write the kernel subkey to this file\n\n",
+	       prog);
 }
 
 /* Create a firmware .vblock */
@@ -368,8 +367,10 @@ static int do_vbutil_firmware(int argc, char *argv[])
 		}
 	}
 
-	if (parse_error)
-		return PrintHelp();
+	if (parse_error) {
+		print_help(argv[0]);
+		return 1;
+	}
 
 	switch (mode) {
 	case OPT_MODE_VBLOCK:
@@ -378,10 +379,12 @@ static int do_vbutil_firmware(int argc, char *argv[])
 	case OPT_MODE_VERIFY:
 		return Verify(filename, signpubkey, fv_file, kernelkey_file);
 	default:
-		printf("Must specify a mode.\n");
-		return PrintHelp();
+		fprintf(stderr, "Must specify a mode.\n");
+		print_help(argv[0]);
+		return 1;
 	}
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_firmware, do_vbutil_firmware,
-		      "Verified boot firmware utility");
+		      "Verified boot firmware utility",
+		      print_help);

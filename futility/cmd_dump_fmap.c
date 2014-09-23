@@ -21,13 +21,13 @@
 enum { FMT_NORMAL, FMT_PRETTY, FMT_FLASHROM, FMT_HUMAN };
 
 /* global variables */
-static int opt_extract = 0;
+static int opt_extract;
 static int opt_format = FMT_NORMAL;
-static int opt_overlap = 0;
+static int opt_overlap;
 static char *progname;
 static void *base_of_rom;
 static size_t size_of_rom;
-static int opt_gaps = 0;
+static int opt_gaps;
 
 /* Return 0 if successful */
 static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
@@ -61,9 +61,8 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 					found = 1;
 					break;
 				}
-			if (!found) {
+			if (!found)
 				continue;
-			}
 		}
 
 		switch (opt_format) {
@@ -123,12 +122,12 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 /****************************************************************************/
 /* Stuff for human-readable form */
 
-typedef struct dup_s {
+struct dup_s {
 	char *name;
 	struct dup_s *next;
-} dupe_t;
+};
 
-typedef struct node_s {
+struct node_s {
 	char *name;
 	uint32_t start;
 	uint32_t size;
@@ -136,15 +135,15 @@ typedef struct node_s {
 	struct node_s *parent;
 	int num_children;
 	struct node_s **child;
-	dupe_t *alias;
-} node_t;
+	struct dup_s *alias;
+};
 
-static node_t *all_nodes;
+static struct node_s *all_nodes;
 
-static void sort_nodes(int num, node_t * ary[])
+static void sort_nodes(int num, struct node_s *ary[])
 {
 	int i, j;
-	node_t *tmp;
+	struct node_s *tmp;
 
 	/* bubble-sort is quick enough with only a few entries */
 	for (i = 0; i < num; i++) {
@@ -179,10 +178,10 @@ static void empty(int indent, uint32_t start, uint32_t end, char *name)
 	gapcount++;
 }
 
-static void show(node_t * p, int indent, int show_first)
+static void show(struct node_s *p, int indent, int show_first)
 {
 	int i;
-	dupe_t *alias;
+	struct dup_s *alias;
 	if (show_first) {
 		line(indent, p->name, p->start, p->end, p->size, 0);
 		for (alias = p->alias; alias; alias = alias->next)
@@ -205,8 +204,8 @@ static void show(node_t * p, int indent, int show_first)
 
 static int overlaps(int i, int j)
 {
-	node_t *a = all_nodes + i;
-	node_t *b = all_nodes + j;
+	struct node_s *a = all_nodes + i;
+	struct node_s *b = all_nodes + j;
 
 	return ((a->start < b->start) && (b->start < a->end) &&
 		(b->start < a->end) && (a->end < b->end));
@@ -214,16 +213,16 @@ static int overlaps(int i, int j)
 
 static int encloses(int i, int j)
 {
-	node_t *a = all_nodes + i;
-	node_t *b = all_nodes + j;
+	struct node_s *a = all_nodes + i;
+	struct node_s *b = all_nodes + j;
 
 	return ((a->start <= b->start) && (a->end >= b->end));
 }
 
 static int duplicates(int i, int j)
 {
-	node_t *a = all_nodes + i;
-	node_t *b = all_nodes + j;
+	struct node_s *a = all_nodes + i;
+	struct node_s *b = all_nodes + j;
 
 	return ((a->start == b->start) && (a->end == b->end));
 }
@@ -231,9 +230,9 @@ static int duplicates(int i, int j)
 static void add_dupe(int i, int j, int numnodes)
 {
 	int k;
-	dupe_t *alias;
+	struct dup_s *alias;
 
-	alias = (dupe_t *) malloc(sizeof(dupe_t));
+	alias = (struct dup_s *) malloc(sizeof(struct dup_s));
 	alias->name = all_nodes[j].name;
 	alias->next = all_nodes[i].alias;
 	all_nodes[i].alias = alias;
@@ -241,12 +240,13 @@ static void add_dupe(int i, int j, int numnodes)
 		all_nodes[k] = all_nodes[k + 1];
 }
 
-static void add_child(node_t * p, int n)
+static void add_child(struct node_s *p, int n)
 {
 	int i;
 	if (p->num_children && !p->child) {
 		p->child =
-		    (struct node_s **)calloc(p->num_children, sizeof(node_t *));
+		    (struct node_s **)calloc(p->num_children,
+					     sizeof(struct node_s *));
 		if (!p->child) {
 			perror("calloc failed");
 			exit(1);
@@ -276,7 +276,8 @@ static int human_fmap(const FmapHeader *fmh)
 	numnodes = fmh->fmap_nareas;
 
 	/* plus one for the all-enclosing "root" */
-	all_nodes = (node_t *) calloc(numnodes + 1, sizeof(node_t));
+	all_nodes = (struct node_s *) calloc(numnodes + 1,
+					     sizeof(struct node_s));
 	if (!all_nodes) {
 		perror("calloc failed");
 		exit(1);
@@ -285,7 +286,8 @@ static int human_fmap(const FmapHeader *fmh)
 		char buf[FMAP_NAMELEN + 1];
 		strncpy(buf, ah[i].area_name, FMAP_NAMELEN);
 		buf[FMAP_NAMELEN] = '\0';
-		if (!(all_nodes[i].name = strdup(buf))) {
+		all_nodes[i].name = strdup(buf);
+		if (!all_nodes[i].name) {
 			perror("strdup failed");
 			exit(1);
 		}
@@ -364,16 +366,23 @@ static int human_fmap(const FmapHeader *fmh)
 /****************************************************************************/
 
 static const char usage[] =
-	"\nUsage:  %s [-x] [-p|-f|-h] FLASHIMAGE [NAME...]\n\n"
-	"Display (and extract with -x) the FMAP components from a BIOS image.\n"
-	"The -p option makes the output easier to parse by scripts.\n"
-	"The -f option emits the FMAP in the format used by flashrom.\n"
+	"\nUsage:  " MYNAME " %s [OPTIONS] FLASHIMAGE [NAME...]\n\n"
+	"Display (and extract) the FMAP components from a BIOS image.\n"
 	"\n"
-	"Specify one or more NAMEs to only print sections that exactly match.\n"
+	"Options:\n"
+	"  -p             Use a format easy to parse by scripts\n"
+	"  -f             Use the format expected by flashrom\n"
+	"  -h             Use a human-readable format\n"
+	"  -H             With -h, display any gaps\n"
+	"  -x             Extract the named sections from the file\n"
 	"\n"
-	"The -h option shows the whole FMAP in human-readable form.\n"
-	"  Use -H to also display any gaps.\n"
+	"Specify one or more NAMEs to dump only those sections.\n"
 	"\n";
+
+static void print_help(const char *name)
+{
+	printf(usage, name);
+}
 
 static int do_dump_fmap(int argc, char *argv[])
 {
@@ -384,11 +393,7 @@ static int do_dump_fmap(int argc, char *argv[])
 	const FmapHeader *fmap;
 	int retval = 1;
 
-	progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
+	progname = argv[0];
 
 	opterr = 0;		/* quiet, you */
 	while ((c = getopt(argc, argv, ":xpfhH")) != -1) {
@@ -426,7 +431,7 @@ static int do_dump_fmap(int argc, char *argv[])
 	}
 
 	if (errorcnt || optind >= argc) {
-		fprintf(stderr, usage, progname);
+		print_help(progname);
 		return 1;
 	}
 
@@ -481,4 +486,5 @@ static int do_dump_fmap(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(dump_fmap, do_dump_fmap,
-		      "Display FMAP contents from a firmware image");
+		      "Display FMAP contents from a firmware image",
+		      print_help);
