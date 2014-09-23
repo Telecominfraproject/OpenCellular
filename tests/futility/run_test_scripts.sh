@@ -45,6 +45,7 @@ ${SCRIPTDIR}/test_dump_fmap.sh
 ${SCRIPTDIR}/test_load_fmap.sh
 ${SCRIPTDIR}/test_gbb_utility.sh
 ${SCRIPTDIR}/test_resign_firmware.sh
+${SCRIPTDIR}/test_sign_kernel.sh
 "
 
 # Get ready...

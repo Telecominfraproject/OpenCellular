@@ -541,14 +541,16 @@ FUTIL_SRCS = \
 	futility/cmd_dev_sign_file.c \
 	futility/cmd_dump_kernel_config.c \
 	futility/cmd_load_fmap.c \
+	futility/cmd_show.c \
+	futility/cmd_sign.c \
 	futility/cmd_vbutil_firmware.c \
 	futility/cmd_vbutil_kernel.c \
+	futility/cmd_vbutil_kernel0.c \
 	futility/cmd_vbutil_key.c \
 	futility/cmd_vbutil_keyblock.c \
 	futility/cmd_verify_kernel.c \
-	futility/cmd_show.c \
-	futility/cmd_sign.c \
-	futility/traversal.c
+	futility/traversal.c \
+	futility/vb1_helper.c
 
 ifneq (${VBOOT2},)
 FUTIL_SRCS += \
