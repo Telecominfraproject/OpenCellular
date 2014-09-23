@@ -71,7 +71,7 @@ static int do_verify_kernel(int argc, char *argv[])
 	}
 
 	/* Load disk file */
-	/* TODO: better to nmap() in the long run */
+	/* TODO: is it better to mmap() in the long run? */
 	diskbuf = ReadFile(argv[1], &disk_bytes);
 	if (!diskbuf) {
 		fprintf(stderr, "Can't read disk file %s\n", argv[1]);

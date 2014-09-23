@@ -23,9 +23,6 @@
 #include "kernel_blob.h"
 #include "vboot_common.h"
 
-/* Global opt */
-static int opt_debug;
-
 /* Command line options */
 enum {
 	OPT_MODE_SIGN = 1000,
@@ -41,7 +38,7 @@ static const struct option long_opts[] = {
 	{"keyblock", 1, 0, OPT_KEYBLOCK},
 	{"signprivate", 1, 0, OPT_SIGNPRIVATE},
 	{"vblock", 1, 0, OPT_VBLOCK},
-	{"debug", 0, &opt_debug, 1},
+	{"debug", 0, &debugging_enabled, 1},
 	{NULL, 0, 0, 0}
 };
 
@@ -70,18 +67,6 @@ static void PrintHelp(const char *progname)
 	       "    --keyblock <file>"
 	       "         Extract .keyblock to file\n"
 	       "\n", progname);
-}
-
-static void Debug(const char *format, ...)
-{
-	if (!opt_debug)
-		return;
-
-	va_list ap;
-	va_start(ap, format);
-	fprintf(stderr, "DEBUG: ");
-	vfprintf(stderr, format, ap);
-	va_end(ap);
 }
 
 /* Sign a file. We'll reuse the same structs used to sign kernels, to avoid

@@ -92,7 +92,6 @@ static int do_load_fmap(int argc, char *argv[])
 {
 	char *infile = 0;
 	char *outfile = 0;
-	void *mmap_ptr = 0;
 	uint8_t *buf;
 	uint32_t len;
 	FmapHeader *fmap;
@@ -140,7 +139,7 @@ static int do_load_fmap(int argc, char *argv[])
 
 	/* okay, let's do it ... */
 	if (outfile)
-		copy_file_or_die(infile, outfile);
+		futil_copy_file_or_die(infile, outfile);
 	else
 		outfile = infile;
 
@@ -151,10 +150,9 @@ static int do_load_fmap(int argc, char *argv[])
 		return 1;
 	}
 
-	errorcnt |= map_it(fd, 1, &mmap_ptr, &len);
+	errorcnt |= futil_map_file(fd, MAP_RW, &buf, &len);
 	if (errorcnt)
 		goto done_file;
-	buf = (uint8_t *)mmap_ptr;
 
 	fmap = fmap_find(buf, len);
 	if (!fmap) {
@@ -187,7 +185,7 @@ static int do_load_fmap(int argc, char *argv[])
 	}
 
 done_map:
-	errorcnt |= unmap_it(fd, 1, mmap_ptr, len);
+	errorcnt |= futil_unmap_file(fd, 1, buf, len);
 
 done_file:
 

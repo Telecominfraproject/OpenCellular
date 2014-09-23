@@ -406,6 +406,7 @@ static const struct option long_opts[] = {
 	/* name    hasarg *flag val */
 	{"publickey", 1, 0, 'k'},
 	{"fv", 1, 0, 'f'},
+	{"debug",       0, &debugging_enabled, 1},
 	{NULL, 0, NULL, 0},
 };
 static char *short_opts = ":f:k:";
@@ -479,7 +480,7 @@ static int do_show(int argc, char *argv[])
 		state.in_filename = infile ? infile : "<none>";
 		state.op = FUTIL_OP_SHOW;
 
-		errorcnt += futil_traverse(ifd, &state, 0);
+		errorcnt += futil_traverse(ifd, &state, MAP_RO);
 
 		if (close(ifd)) {
 			errorcnt++;

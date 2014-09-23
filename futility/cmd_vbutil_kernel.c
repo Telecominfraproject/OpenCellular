@@ -28,7 +28,6 @@
 #include "vboot_common.h"
 
 /* Global opts */
-static int opt_debug;
 static int opt_verbose;
 static int opt_vblockonly;
 static uint64_t opt_pad = 65536;
@@ -54,12 +53,6 @@ enum {
 	OPT_MINVERSION,
 };
 
-typedef enum {
-	ARCH_ARM,
-	ARCH_X86,		/* default */
-	ARCH_MIPS
-} arch_t;
-
 static const struct option long_opts[] = {
 	{"pack", 1, 0, OPT_MODE_PACK},
 	{"repack", 1, 0, OPT_MODE_REPACK},
@@ -78,7 +71,7 @@ static const struct option long_opts[] = {
 	{"vblockonly", 0, 0, OPT_VBLOCKONLY},
 	{"pad", 1, 0, OPT_PAD},
 	{"verbose", 0, &opt_verbose, 1},
-	{"debug", 0, &opt_debug, 1},
+	{"debug", 0, &debugging_enabled, 1},
 	{NULL, 0, 0, 0}
 };
 
@@ -138,18 +131,6 @@ static const char usage[] =
 static void print_help(const char *progname)
 {
 	printf(usage, progname, progname, progname);
-}
-
-static void Debug(const char *format, ...)
-{
-	if (!opt_debug)
-		return;
-
-	va_list ap;
-	va_start(ap, format);
-	fprintf(stderr, "DEBUG: ");
-	vfprintf(stderr, format, ap);
-	va_end(ap);
 }
 
 static void Fatal(const char *format, ...)
@@ -266,7 +247,7 @@ static uint64_t CmdLineOffset(VbKernelPreambleHeader *preamble)
 
 /* This initializes g_vmlinuz and g_param from a standard vmlinuz file.
  * It returns 0 on error. */
-static int ImportVmlinuzFile(const char *vmlinuz_file, arch_t arch,
+static int ImportVmlinuzFile(const char *vmlinuz_file, enum arch_t arch,
 			     uint64_t kernel_body_load_address)
 {
 	uint8_t *kernel_buf;
@@ -495,7 +476,7 @@ static void UnpackKernelBlob(uint8_t *kernel_blob_data,
 /****************************************************************************/
 
 static uint8_t *CreateKernBlob(uint64_t kernel_body_load_address,
-			       arch_t arch, uint64_t *size_ptr)
+			       enum arch_t arch, uint64_t *size_ptr)
 {
 	uint8_t *kern_blob;
 	uint64_t kern_blob_size;
@@ -721,7 +702,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	char *vmlinuz_file = NULL;
 	char *bootloader_file = NULL;
 	char *config_file = NULL;
-	arch_t arch = ARCH_X86;
+	enum arch_t arch = ARCH_X86;
 	char *address_str = NULL;
 	uint64_t kernel_body_load_address = CROS_32BIT_ENTRY_ADDR;
 	int mode = 0;

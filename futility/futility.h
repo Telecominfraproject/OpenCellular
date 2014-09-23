@@ -9,6 +9,7 @@
 
 #include "vboot_common.h"
 #include "gbb_header.h"
+#include "host_key.h"
 
 /* This program */
 #define MYNAME "futility"
@@ -56,6 +57,9 @@ extern const struct futil_cmd_t *const futil_cmds[];
 	} while (0)
 #endif
 
+/* Debug output (off by default) */
+extern int debugging_enabled;
+void Debug(const char *format, ...);
 
 /* Returns true if this looks enough like a GBB header to proceed. */
 int futil_looks_like_gbb(GoogleBinaryBlockHeader *gbb, uint32_t len);
@@ -68,10 +72,20 @@ int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
 			   uint32_t *maxlen);
 
 /* Copies a file or dies with an error message */
-void copy_file_or_die(const char *infile, const char *outfile);
+void futil_copy_file_or_die(const char *infile, const char *outfile);
 
 /* Wrapper for mmap/munmap. Returns 0 on success. Skips stupidly large files. */
-int map_it(int fd, int writeable, void **buf, uint32_t *len);
-int unmap_it(int fd, int writeable, void *buf, uint32_t len);
+#define MAP_RO 0
+#define MAP_RW 1
+int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len);
+int futil_unmap_file(int fd, int writeable, uint8_t *buf, uint32_t len);
+
+/* The CPU architecture is occasionally important */
+enum arch_t {
+	ARCH_UNSPECIFIED,
+	ARCH_X86,
+	ARCH_ARM,
+	ARCH_MIPS
+};
 
 #endif /* VBOOT_REFERENCE_FUTILITY_H_ */

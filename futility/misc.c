@@ -5,17 +5,34 @@
  */
 
 #include <errno.h>
+#include <linux/fs.h>		/* For BLKGETSIZE64 */
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "futility.h"
 #include "gbb_header.h"
+
+int debugging_enabled;
+void Debug(const char *format, ...)
+{
+	if (!debugging_enabled)
+		return;
+
+	va_list ap;
+	va_start(ap, format);
+	fprintf(stderr, "DEBUG: ");
+	vfprintf(stderr, format, ap);
+	va_end(ap);
+}
 
 static int is_null_terminated(const char *s, int len)
 {
@@ -102,7 +119,7 @@ int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
  * TODO: All sorts of race conditions likely here, and everywhere this is used.
  * Do we care? If so, fix it.
  */
-void copy_file_or_die(const char *infile, const char *outfile)
+void futil_copy_file_or_die(const char *infile, const char *outfile)
 {
 	pid_t pid;
 	int status;
@@ -151,7 +168,7 @@ void copy_file_or_die(const char *infile, const char *outfile)
 }
 
 
-int map_it(int fd, int writeable, void **buf, uint32_t *len)
+int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len)
 {
 	struct stat sb;
 	void *mmap_ptr;
@@ -163,10 +180,8 @@ int map_it(int fd, int writeable, void **buf, uint32_t *len)
 		return 1;
 	}
 
-	if (!S_ISREG(sb.st_mode)) {
-		fprintf(stderr, "Block devices are not yet supported\n");
-		return 1;
-	}
+	if (S_ISBLK(sb.st_mode))
+		ioctl(fd, BLKGETSIZE64, &sb.st_size);
 
 	/* If the image is larger than 2^32 bytes, it's wrong. */
 	if (sb.st_size < 0 || sb.st_size > UINT32_MAX) {
@@ -180,7 +195,7 @@ int map_it(int fd, int writeable, void **buf, uint32_t *len)
 				PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 	else
 		mmap_ptr = mmap(0, sb.st_size,
-				PROT_READ, MAP_PRIVATE, fd, 0);
+				PROT_READ|PROT_WRITE, MAP_PRIVATE, fd, 0);
 
 	if (mmap_ptr == (void *)-1) {
 		fprintf(stderr, "Can't mmap %s file: %s\n",
@@ -189,22 +204,23 @@ int map_it(int fd, int writeable, void **buf, uint32_t *len)
 		return 1;
 	}
 
-	*buf = mmap_ptr;
+	*buf = (uint8_t *)mmap_ptr;
 	*len = reasonable_len;
 	return 0;
 }
 
-int unmap_it(int fd, int writeable, void *buf, uint32_t len)
+int futil_unmap_file(int fd, int writeable, uint8_t *buf, uint32_t len)
 {
+	void *mmap_ptr = buf;
 	int errorcnt = 0;
 
 	if (writeable &&
-	    (0 != msync(buf, len, MS_SYNC|MS_INVALIDATE))) {
+	    (0 != msync(mmap_ptr, len, MS_SYNC|MS_INVALIDATE))) {
 		fprintf(stderr, "msync failed: %s\n", strerror(errno));
 		errorcnt++;
 	}
 
-	if (0 != munmap(buf, len)) {
+	if (0 != munmap(mmap_ptr, len)) {
 		fprintf(stderr, "Can't munmap pointer: %s\n",
 			strerror(errno));
 		errorcnt++;

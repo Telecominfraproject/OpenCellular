@@ -266,7 +266,7 @@ static int traverse_buffer(uint8_t *buf, uint32_t len,
 int futil_traverse(int ifd, struct futil_traverse_state_s *state,
 		   int writeable)
 {
-	void *mmap_ptr = 0;
+	uint8_t *mmap_ptr = 0;
 	uint32_t len;
 	int errorcnt = 0;
 
@@ -275,12 +275,12 @@ int futil_traverse(int ifd, struct futil_traverse_state_s *state,
 		return 1;
 	}
 
-	if (0 != map_it(ifd, writeable, &mmap_ptr, &len))
+	if (0 != futil_map_file(ifd, writeable, &mmap_ptr, &len))
 		return 1;
 
 	errorcnt |= traverse_buffer(mmap_ptr, len, state);
 
-	errorcnt |= unmap_it(ifd, writeable, mmap_ptr, len);
+	errorcnt |= futil_unmap_file(ifd, writeable, mmap_ptr, len);
 
 	return errorcnt;
 }

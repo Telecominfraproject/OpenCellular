@@ -317,6 +317,7 @@ static const struct option long_opts[] = {
 	{"flags",       1, NULL, 'f'},
 	{"loemdir",     1, NULL, 'd'},
 	{"loemid",      1, NULL, 'l'},
+	{"debug",       0, &debugging_enabled, 1},
 	{NULL,          0, NULL, 0},
 };
 static char *short_opts = ":s:b:k:S:B:v:f:d:l:";
@@ -437,7 +438,7 @@ static int do_sign(int argc, char *argv[])
 	case 2:
 		infile = argv[optind++];
 		outfile = argv[optind++];
-		copy_file_or_die(infile, outfile);
+		futil_copy_file_or_die(infile, outfile);
 		break;
 	case 1:
 		/* Stomping right on it. Errors will leave it garbled. */
@@ -468,7 +469,7 @@ static int do_sign(int argc, char *argv[])
 	state.in_filename = outfile ? outfile : "<none>";
 	state.op = FUTIL_OP_SIGN;
 
-	errorcnt += futil_traverse(fd, &state, 1);
+	errorcnt += futil_traverse(fd, &state, MAP_RW);
 
 	if (close(fd)) {
 		errorcnt++;
