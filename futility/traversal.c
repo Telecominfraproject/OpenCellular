@@ -5,9 +5,12 @@
  */
 
 #include <errno.h>
+#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include "fmap.h"
@@ -20,25 +23,26 @@
 /* What functions do we invoke for a particular operation and component? */
 
 /* FUTIL_OP_SHOW */
-static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) =
-{
+static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_show_begin,		/* CB_BEGIN_TRAVERSAL */
 	NULL,				/* CB_END_TRAVERSAL */
 	futil_cb_show_gbb,		/* CB_FMAP_GBB */
 	futil_cb_show_fw_preamble,	/* CB_FMAP_VBLOCK_A */
 	futil_cb_show_fw_preamble,	/* CB_FMAP_VBLOCK_B */
-	futil_cb_show_fw_main,     	/* CB_FMAP_FW_MAIN_A */
-	futil_cb_show_fw_main,     	/* CB_FMAP_FW_MAIN_B */
-	futil_cb_show_key,      	/* CB_PUBKEY */
-	futil_cb_show_keyblock,      	/* CB_KEYBLOCK */
+	futil_cb_show_fw_main,		/* CB_FMAP_FW_MAIN_A */
+	futil_cb_show_fw_main,		/* CB_FMAP_FW_MAIN_B */
+	futil_cb_show_key,		/* CB_PUBKEY */
+	futil_cb_show_keyblock,		/* CB_KEYBLOCK */
 	futil_cb_show_gbb,		/* CB_GBB */
 	futil_cb_show_fw_preamble,	/* CB_FW_PREAMBLE */
+	NULL,				/* CB_KERN_PREAMBLE */
+	NULL,				/* CB_RAW_FIRMWARE */
+	NULL,				/* CB_RAW_KERNEL */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_show_funcs) == NUM_CB_COMPONENTS);
 
 /* FUTIL_OP_SIGN */
-static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) =
-{
+static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_sign_begin,		/* CB_BEGIN_TRAVERSAL */
 	futil_cb_sign_end,		/* CB_END_TRAVERSAL */
 	NULL,				/* CB_FMAP_GBB */
@@ -50,43 +54,17 @@ static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) =
 	futil_cb_sign_notyet,      	/* CB_KEYBLOCK */
 	futil_cb_sign_bogus,		/* CB_GBB */
 	futil_cb_sign_fw_preamble,	/* CB_FW_PREAMBLE */
+	NULL,				/* CB_KERN_PREAMBLE */
+	NULL,				/* CB_RAW_FIRMWARE */
+	NULL,				/* CB_RAW_KERNEL */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_sign_funcs) == NUM_CB_COMPONENTS);
 
-static int (* const * const cb_func[])(struct futil_traverse_state_s *state) =
-{
+static int (* const * const cb_func[])(struct futil_traverse_state_s *state) = {
 	cb_show_funcs,
 	cb_sign_funcs,
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_func) == NUM_FUTIL_OPS);
-
-
-static int invoke_callback(struct futil_traverse_state_s *state,
-			   enum futil_cb_component c, const char *name,
-			   uint32_t offset, uint8_t *buf, uint32_t len)
-{
-
-	VBDEBUG(("%s: name \"%s\" op %d component %d"
-		" offset=0x%08x len=0x%08x, buf=%p\n",
-		 __func__, name, state->op, c, offset, len, buf));
-
-	if (c < 0 || c >= NUM_CB_COMPONENTS) {
-		fprintf(stderr, "Invalid component %d\n", c);
-		return 1;
-	}
-
-	state->component = c;
-	state->name = name;
-	state->cb_area[c].offset = offset;
-	state->cb_area[c].buf = buf;
-	state->cb_area[c].len = len;
-	state->my_area = &state->cb_area[c];
-
-	if (cb_func[state->op][c])
-		return cb_func[state->op][c](state);
-
-	return 0;
-}
 
 /*
  * File types that don't need iterating can use a lookup table to determine the
@@ -99,10 +77,13 @@ static const struct {
 	{0,                NULL},		/* FILE_TYPE_UNKNOWN */
 	{CB_PUBKEY,        "VbPublicKey"},	/* FILE_TYPE_PUBKEY */
 	{CB_KEYBLOCK,      "VbKeyBlock"},	/* FILE_TYPE_KEYBLOCK */
-	{CB_FW_PREAMBLE,   "FW Preamble"},	/* FILE_TYPE_FIRMWARE */
+	{CB_FW_PREAMBLE,   "FW Preamble"},	/* FILE_TYPE_FW_PREAMBLE */
 	{CB_GBB,           "GBB"},		/* FILE_TYPE_GBB */
 	{0,                NULL},		/* FILE_TYPE_BIOS_IMAGE */
 	{0,                NULL},		/* FILE_TYPE_OLD_BIOS_IMAGE */
+	{CB_KERN_PREAMBLE, "Kernel Preamble"},	/* FILE_TYPE_KERN_PREAMBLE */
+	{CB_RAW_FIRMWARE,  "raw firmware"},	/* FILE_TYPE_RAW_FIRMWARE */
+	{CB_RAW_KERNEL,    "raw kernel"},	/* FILE_TYPE_RAW_KERNEL */
 };
 BUILD_ASSERT(ARRAY_SIZE(direct_callback) == NUM_FILE_TYPES);
 
@@ -135,16 +116,79 @@ static const struct bios_area_s old_bios_area[] = {
 	{0, 0}
 };
 
+
 static int has_all_areas(uint8_t *buf, uint32_t len, FmapHeader *fmap,
 			 const struct bios_area_s *area)
 {
-	// We must have all the expected areas
-	for ( ; area->name; area++)
+	/* We must have all the expected areas */
+	for (; area->name; area++)
 		if (!fmap_find_by_name(buf, len, fmap, area->name, 0))
 			return 0;
 
 	/* Found 'em all */
 	return 1;
+}
+
+const char * const futil_file_type_str[] = {
+	"FILE_TYPE_UNKNOWN",
+	"FILE_TYPE_PUBKEY",
+	"FILE_TYPE_KEYBLOCK",
+	"FILE_TYPE_FW_PREAMBLE",
+	"FILE_TYPE_GBB",
+	"FILE_TYPE_BIOS_IMAGE",
+	"FILE_TYPE_OLD_BIOS_IMAGE",
+	"FILE_TYPE_KERN_PREAMBLE",
+	"FILE_TYPE_RAW_FIRMWARE",
+	"FILE_TYPE_RAW_KERNEL",
+};
+BUILD_ASSERT(ARRAY_SIZE(futil_file_type_str) == NUM_FILE_TYPES);
+
+const char * const futil_cb_component_str[] = {
+	"CB_BEGIN_TRAVERSAL",
+	"CB_END_TRAVERSAL",
+	"CB_FMAP_GBB",
+	"CB_FMAP_VBLOCK_A",
+	"CB_FMAP_VBLOCK_B",
+	"CB_FMAP_FW_MAIN_A",
+	"CB_FMAP_FW_MAIN_B",
+	"CB_PUBKEY",
+	"CB_KEYBLOCK",
+	"CB_GBB",
+	"CB_FW_PREAMBLE",
+	"CB_KERN_PREAMBLE",
+	"CB_RAW_FIRMWARE",
+	"CB_RAW_KERNEL",
+};
+BUILD_ASSERT(ARRAY_SIZE(futil_cb_component_str) == NUM_CB_COMPONENTS);
+
+
+static int invoke_callback(struct futil_traverse_state_s *state,
+			   enum futil_cb_component c, const char *name,
+			   uint32_t offset, uint8_t *buf, uint32_t len)
+{
+	Debug("%s: name \"%s\" op %d component %s"
+	      " offset=0x%08x len=0x%08x, buf=%p\n",
+	      __func__, name, state->op, futil_cb_component_str[c],
+	      offset, len, buf);
+
+	if (c < 0 || c >= NUM_CB_COMPONENTS) {
+		fprintf(stderr, "Invalid component %d\n", c);
+		return 1;
+	}
+
+	state->component = c;
+	state->name = name;
+	state->cb_area[c].offset = offset;
+	state->cb_area[c].buf = buf;
+	state->cb_area[c].len = len;
+	state->my_area = &state->cb_area[c];
+
+	if (cb_func[state->op][c])
+		return cb_func[state->op][c](state);
+	else
+		Debug("<no callback registered>\n");
+
+	return 0;
 }
 
 static enum futil_file_type what_is_this(uint8_t *buf, uint32_t len)
@@ -153,6 +197,7 @@ static enum futil_file_type what_is_this(uint8_t *buf, uint32_t len)
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
 	GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)buf;
 	VbFirmwarePreambleHeader *fw_preamble;
+	VbKernelPreambleHeader *kern_preamble;
 	RSAPublicKey *rsa;
 	FmapHeader *fmap;
 
@@ -173,22 +218,27 @@ static enum futil_file_type what_is_this(uint8_t *buf, uint32_t len)
 		return FILE_TYPE_GBB;
 
 	if (VBOOT_SUCCESS == KeyBlockVerify(key_block, len, NULL, 1)) {
-		/* and firmware preamble too? */
-		fw_preamble = (VbFirmwarePreambleHeader *)
-			(buf + key_block->key_block_size);
-		uint32_t more = key_block->key_block_size;
 		rsa = PublicKeyToRSA(&key_block->data_key);
+		uint32_t more = key_block->key_block_size;
+
+		/* and firmware preamble too? */
+		fw_preamble = (VbFirmwarePreambleHeader *)(buf + more);
 		if (VBOOT_SUCCESS ==
 		    VerifyFirmwarePreamble(fw_preamble, len - more, rsa))
-			return FILE_TYPE_FIRMWARE;
+			return FILE_TYPE_FW_PREAMBLE;
+
+		/* or maybe kernel preamble? */
+		kern_preamble = (VbKernelPreambleHeader *)(buf + more);
+		if (VBOOT_SUCCESS ==
+		    VerifyKernelPreamble(kern_preamble, len - more, rsa))
+			return FILE_TYPE_KERN_PREAMBLE;
 
 		/* no, just keyblock */
 		return FILE_TYPE_KEYBLOCK;
 	}
 
-	if (PublicKeyLooksOkay(pubkey, len)) {
+	if (PublicKeyLooksOkay(pubkey, len))
 		return FILE_TYPE_PUBKEY;
-	}
 
 	return FILE_TYPE_UNKNOWN;
 }
@@ -213,7 +263,7 @@ static int traverse_buffer(uint8_t *buf, uint32_t len,
 	switch (type) {
 	case FILE_TYPE_PUBKEY:
 	case FILE_TYPE_KEYBLOCK:
-	case FILE_TYPE_FIRMWARE:
+	case FILE_TYPE_FW_PREAMBLE:
 	case FILE_TYPE_GBB:
 		retval |= invoke_callback(state,
 					  direct_callback[type].component,

@@ -10,16 +10,24 @@
 
 /* What type of things do I know how to handle? */
 enum futil_file_type {
-	FILE_TYPE_UNKNOWN = 0,
+	FILE_TYPE_UNKNOWN,
 	FILE_TYPE_PUBKEY,			/* 1 VbPublicKey */
 	FILE_TYPE_KEYBLOCK,			/* 2 VbKeyBlockHeader */
-	FILE_TYPE_FIRMWARE,			/* 3 VbFirmwarePreambleHeader */
+	FILE_TYPE_FW_PREAMBLE,			/* 3 VbFirmwarePreambleHeader */
 	FILE_TYPE_GBB,				/* 4 GoogleBinaryBlockHeader */
 	FILE_TYPE_BIOS_IMAGE,			/* 5 Chrome OS BIOS image */
 	FILE_TYPE_OLD_BIOS_IMAGE,		/* 6 Old Chrome OS BIOS image */
+	FILE_TYPE_KERN_PREAMBLE,		/* 7 VbKernelPreambleHeader */
+
+	/* These are FILE_TYPE_UNKNOWN, but we've been told more about them */
+	FILE_TYPE_RAW_FIRMWARE,			/* 8 FW_MAIN_A, etc. */
+	FILE_TYPE_RAW_KERNEL,			/* 9 vmlinuz, *.uimg, etc. */
 
 	NUM_FILE_TYPES
 };
+
+/* Names for them */
+extern const char * const futil_file_type_str[];
 
 /* What are we trying to accomplish? */
 enum futil_op_type {
@@ -45,9 +53,16 @@ enum futil_cb_component {
 	CB_KEYBLOCK,
 	CB_GBB,
 	CB_FW_PREAMBLE,
+	CB_KERN_PREAMBLE,
+	CB_RAW_FIRMWARE,
+	CB_RAW_KERNEL,
 
 	NUM_CB_COMPONENTS
 };
+
+/* Names for them */
+extern const char * const futil_cb_component_str[];
+
 
 /* Where is the component we're poking at? */
 struct cb_area_s {

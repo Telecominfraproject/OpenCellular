@@ -84,16 +84,19 @@ for infile in $INFILES; do
     ${infile} ${outfile}
 
   # check the firmware version and preamble flags
+  # TODO: verify
   m=$(${FUTILITY} show ${outfile} | \
     egrep 'Firmware version: +14$|Preamble flags: +8$' | wc -l)
   [ "$m" = "4" ]
 
   # check the sha1sums
+  # TODO: verify
   ${FUTILITY} show ${outfile} | grep sha1sum \
     | sed -e 's/.*: \+//' > ${TMP}.${base}.sha.new
   cmp ${SCRIPTDIR}/data_${base}_expect.txt ${TMP}.${base}.sha.new
 
   # and the LOEM stuff
+  # TODO: verify
   ${FUTILITY} show ${loemdir}/*.${loemid} | grep sha1sum \
     | sed -e 's/.*: \+//' > ${loemdir}/loem.sha.new
   # the vblocks don't have root or recovery keys
@@ -106,6 +109,7 @@ done
 GOOD_OUT=${TMP}.${GOOD_VBLOCKS##*/}.new
 MORE_OUT=${TMP}.${ONEMORE##*/}.new
 
+# TODO: verify
 ${FUTILITY} show ${GOOD_OUT} \
   | awk '/Firmware body size:/ {print $4}' > ${TMP}.good.body
 ${FUTILITY} dump_fmap -p ${GOOD_OUT} \
@@ -114,6 +118,7 @@ ${FUTILITY} dump_fmap -p ${GOOD_OUT} \
 if cmp ${TMP}.good.body ${TMP}.good.fw_main; then false; fi
 
 # Make sure that the BIOS with the bad vblocks signed the whole fw body
+# TODO: verify
 ${FUTILITY} show ${MORE_OUT} \
   | awk '/Firmware body size:/ {print $4}' > ${TMP}.onemore.body
 ${FUTILITY} dump_fmap -p ${MORE_OUT} \
@@ -136,6 +141,7 @@ ${FUTILITY} sign \
   -k ${KEYDIR}/kernel_subkey.vbpubk \
   ${MORE_OUT} ${MORE_OUT}.2
 
+# TODO: verify
 m=$(${FUTILITY} show ${MORE_OUT}.2 | \
   egrep 'Firmware version: +1$|Preamble flags: +8$' | wc -l)
 [ "$m" = "4" ]
@@ -154,6 +160,7 @@ ${FUTILITY} sign \
   -k ${KEYDIR}/kernel_subkey.vbpubk \
   ${MORE_OUT} ${MORE_OUT}.3
 
+# TODO: verify
 m=$(${FUTILITY} show ${MORE_OUT}.3 | \
   egrep 'Firmware version: +1$|Preamble flags: +0$' | wc -l)
 [ "$m" = "4" ]
