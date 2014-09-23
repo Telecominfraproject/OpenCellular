@@ -28,6 +28,10 @@ if "$FUTILITY" dump_fmap -x "${SCRIPTDIR}/data_fmap.bin" FMAP; then false; fi
 "$FUTILITY" dump_fmap -x "${SCRIPTDIR}/data_fmap.bin" SI_DESC > "$TMP"
 cmp "${SCRIPTDIR}/data_fmap_expect_x.txt" "$TMP"
 
+# Redirect dumping to a different place
+"$FUTILITY" dump_fmap -x "${SCRIPTDIR}/data_fmap.bin" SI_DESC:FOO > "$TMP"
+cmp "${SCRIPTDIR}/data_fmap_expect_x2.txt" "$TMP"
+cmp SI_DESC FOO
 
 # This FMAP has problems, and should fail.
 if "$FUTILITY" dump_fmap -h "${SCRIPTDIR}/data_fmap2.bin" > "$TMP"; then false; fi
@@ -41,5 +45,5 @@ cmp "${SCRIPTDIR}/data_fmap2_expect_hhH.txt" "$TMP"
 
 
 # cleanup
-rm -f ${TMP}* FMAP SI_DESC
+rm -f ${TMP}* FMAP SI_DESC FOO
 exit 0

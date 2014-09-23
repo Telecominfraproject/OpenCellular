@@ -36,6 +36,29 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 	char buf[80];		/* DWR: magic number */
 	const FmapAreaHeader *ah;
 	ah = (const FmapAreaHeader *) (fmh + 1);
+	char *extract_names[argc];
+	char *outname = 0;
+
+	if (opt_extract) {
+		/* prepare the filenames to write areas to */
+		memset(extract_names, 0, sizeof(extract_names));
+		for (i = 0; i < argc; i++) {
+			char *a = argv[i];
+			char *f = strchr(a, ':');
+			if (!f)
+				continue;
+			if (a == f || *(f+1) == '\0') {
+				fprintf(stderr,
+					"argument \"%s\" is bogus\n", a);
+				retval = 1;
+				continue;
+			}
+			*f++ = '\0';
+			extract_names[i] = f;
+		}
+		if (retval)
+			return retval;
+	}
 
 	if (FMT_NORMAL == opt_format) {
 		snprintf(buf, FMAP_SIGNATURE_SIZE + 1, "%s",
@@ -56,9 +79,11 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 
 		if (argc) {
 			int j, found = 0;
+			outname = NULL;
 			for (j = 0; j < argc; j++)
 				if (!strcmp(argv[j], buf)) {
 					found = 1;
+					outname = extract_names[j];
 					break;
 				}
 			if (!found)
@@ -86,13 +111,16 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 
 		if (opt_extract) {
 			char *s;
-			for (s = buf; *s; s++)
-				if (*s == ' ')
-					*s = '_';
-			FILE *fp = fopen(buf, "wb");
+			if (!outname) {
+				for (s = buf; *s; s++)
+					if (*s == ' ')
+						*s = '_';
+				outname = buf;
+			}
+			FILE *fp = fopen(outname, "wb");
 			if (!fp) {
 				fprintf(stderr, "%s: can't open %s: %s\n",
-					progname, buf, strerror(errno));
+					progname, outname, strerror(errno));
 				retval = 1;
 			} else if (!ah->area_size) {
 				fprintf(stderr,
@@ -110,7 +138,7 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 				retval = 1;
 			} else {
 				if (FMT_NORMAL == opt_format)
-					printf("saved as \"%s\"\n", buf);
+					printf("saved as \"%s\"\n", outname);
 			}
 			fclose(fp);
 		}
