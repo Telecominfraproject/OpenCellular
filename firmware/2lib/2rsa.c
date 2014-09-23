@@ -313,7 +313,7 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 {
 	struct vb2_workbuf wblocal = *wb;
 	uint32_t *workbuf32;
-	uint32_t key_bytes = key->arrsize * sizeof(uint32_t);
+	uint32_t key_bytes;
 	int pad_size;
 	int rv;
 
@@ -326,6 +326,7 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 	}
 
 	/* Signature length should be same as key length */
+	key_bytes = key->arrsize * sizeof(uint32_t);
 	if (key_bytes != vb2_rsa_sig_size(key->algorithm)) {
 		VB2_DEBUG("Signature is of incorrect length!\n");
 		return VB2_ERROR_RSA_VERIFY_SIG_LEN;
