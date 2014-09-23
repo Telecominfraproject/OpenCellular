@@ -316,6 +316,10 @@ int vb2_select_fw_slot(struct vb2_context *ctx)
 	sd->last_fw_slot = vb2_nv_get(ctx, VB2_NV_FW_TRIED);
 	sd->last_fw_result = vb2_nv_get(ctx, VB2_NV_FW_RESULT);
 
+	/* Save to the previous result fields in NV storage */
+	vb2_nv_set(ctx, VB2_NV_FW_PREV_TRIED, sd->last_fw_slot);
+	vb2_nv_set(ctx, VB2_NV_FW_PREV_RESULT, sd->last_fw_result);
+
 	/* Clear result, since we don't know what will happen this boot */
 	vb2_nv_set(ctx, VB2_NV_FW_RESULT, VB2_FW_RESULT_UNKNOWN);
 

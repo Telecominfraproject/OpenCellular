@@ -34,6 +34,8 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_TRY_COUNT, 0, 6, 15, "try B count"},
 	{VB2_NV_FW_TRIED, 0, 1, 0, "firmware tried"},
 	{VB2_NV_FW_RESULT, 0, 1, 2, "firmware result"},
+	{VB2_NV_FW_PREV_TRIED, 0, 1, 0, "firmware prev tried"},
+	{VB2_NV_FW_PREV_RESULT, 0, 1, 3, "firmware prev result"},
 	{VB2_NV_RECOVERY_REQUEST, 0, 0x42, 0xED, "recovery request"},
 	{VB2_NV_RECOVERY_SUBCODE, 0, 0x56, 0xAC, "recovery subcode"},
 	{VB2_NV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},

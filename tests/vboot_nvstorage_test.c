@@ -41,6 +41,8 @@ static VbNvField nvfields[] = {
   {VBNV_FW_TRY_NEXT, 0, 1, 0, "try next"},
   {VBNV_FW_TRIED, 0, 1, 0, "firmware tried"},
   {VBNV_FW_RESULT, VBNV_FW_RESULT_UNKNOWN, 1, 2, "firmware result"},
+  {VBNV_FW_PREV_TRIED, 0, 1, 0, "firmware prev tried"},
+  {VBNV_FW_PREV_RESULT, VBNV_FW_RESULT_UNKNOWN, 1, 3, "firmware prev result"},
   {0, 0, 0, 0, NULL}
 };
 

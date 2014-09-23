@@ -560,6 +560,14 @@ const char* VbGetSystemPropertyString(const char* name, char* dest,
       return fw_results[v];
     else
       return "unknown";
+  } else if (!strcasecmp(name, "fw_prev_tried")) {
+    return VbGetNvStorage(VBNV_FW_PREV_TRIED) ? "B" : "A";
+  } else if (!strcasecmp(name, "fw_prev_result")) {
+    int v = VbGetNvStorage(VBNV_FW_PREV_RESULT);
+    if (v < ARRAY_SIZE(fw_results))
+      return fw_results[v];
+    else
+      return "unknown";
   }
 
   return NULL;

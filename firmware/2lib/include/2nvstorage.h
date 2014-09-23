@@ -74,9 +74,13 @@ enum vb2_nv_param {
 	VB2_NV_FW_TRIED,
 	/* Result of trying that firmware (see vb2_fw_result) */
 	VB2_NV_FW_RESULT,
+	/* Firmware slot tried previous boot (0=A, 1=B) */
+	VB2_NV_FW_PREV_TRIED,
+	/* Result of trying that firmware (see vb2_fw_result) */
+	VB2_NV_FW_PREV_RESULT,
 };
 
-/* Result of trying the firmware in VB2_NV_FW_TRIED */
+/* Firmware result codes for VB2_NV_FW_RESULT and VB2_NV_FW_PREV_RESULT */
 enum vb2_fw_result {
 	/* Unknown */
 	VB2_FW_RESULT_UNKNOWN = 0,

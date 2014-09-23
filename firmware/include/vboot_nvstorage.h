@@ -98,7 +98,10 @@ typedef enum VbNvParam {
 	VBNV_FW_TRIED,
 	/* Vboot2: Result of trying that firmware (see vb2_fw_result) */
 	VBNV_FW_RESULT,
-
+	/* Firmware slot tried previous boot (0=A, 1=B) */
+	VBNV_FW_PREV_TRIED,
+	/* Result of trying that firmware (see vb2_fw_result) */
+	VBNV_FW_PREV_RESULT,
 
 } VbNvParam;
 

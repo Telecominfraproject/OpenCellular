@@ -450,6 +450,23 @@ static void select_slot_tests(void)
 	TEST_EQ(sd->fw_slot, 0, "selected A");
 	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "didn't choose B");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TRY_COUNT), 2, "tries decremented");
+
+	/* Tried/result get copied to the previous fields */
+	reset_common_data();
+	vb2_nv_set(&cc, VB2_NV_FW_TRIED, 0);
+	vb2_nv_set(&cc, VB2_NV_FW_RESULT, VB2_FW_RESULT_SUCCESS);
+	vb2_select_fw_slot(&cc);
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_PREV_TRIED), 0, "prev A");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_PREV_RESULT),	VB2_FW_RESULT_SUCCESS,
+		"prev success");
+
+	reset_common_data();
+	vb2_nv_set(&cc, VB2_NV_FW_TRIED, 1);
+	vb2_nv_set(&cc, VB2_NV_FW_RESULT, VB2_FW_RESULT_FAILURE);
+	vb2_select_fw_slot(&cc);
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_PREV_TRIED), 1, "prev B");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_PREV_RESULT),	VB2_FW_RESULT_FAILURE,
+		"prev failure");
 }
 
 int main(int argc, char* argv[])

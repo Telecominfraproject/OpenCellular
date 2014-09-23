@@ -31,7 +31,7 @@ enum vb2_nv_offset {
 	VB2_NV_OFFS_TPM = 5,
 	VB2_NV_OFFS_RECOVERY_SUBCODE = 6,
 	VB2_NV_OFFS_BOOT2 = 7,
-	/* Offsets 7-10 are currently unused */
+	/* Offsets 8-10 are currently unused */
 	VB2_NV_OFFS_KERNEL = 11, /* 11-14; field is 32 bits */
 	/* CRC must be last field */
 	VB2_NV_OFFS_CRC = 15
@@ -50,10 +50,13 @@ enum vb2_nv_offset {
 #define VB2_NV_BOOT_DISABLE_DEV                0x40
 #define VB2_NV_BOOT_DEBUG_RESET                0x80
 
-/* Fields in VB2_NV_OFFS_BOOT2 (unused = 0xf0) */
+/* Fields in VB2_NV_OFFS_BOOT2 (unused = 0x80) */
 #define VB2_NV_BOOT2_RESULT_MASK               0x03
 #define VB2_NV_BOOT2_TRIED                     0x04
 #define VB2_NV_BOOT2_TRY_NEXT                  0x08
+#define VB2_NV_BOOT2_PREV_RESULT_MASK          0x30
+#define VB2_NV_BOOT2_PREV_RESULT_SHIFT 4  /* Number of bits to shift result */
+#define VB2_NV_BOOT2_PREV_TRIED                0x40
 
 /* Fields in VB2_NV_OFFS_DEV (unused = 0xf8) */
 #define VB2_NV_DEV_FLAG_USB                    0x01
@@ -155,6 +158,13 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 
 	case VB2_NV_FW_RESULT:
 		return p[VB2_NV_OFFS_BOOT2] & VB2_NV_BOOT2_RESULT_MASK;
+
+	case VB2_NV_FW_PREV_TRIED:
+		return GETBIT(VB2_NV_OFFS_BOOT2, VB2_NV_BOOT2_PREV_TRIED);
+
+	case VB2_NV_FW_PREV_RESULT:
+		return (p[VB2_NV_OFFS_BOOT2] & VB2_NV_BOOT2_PREV_RESULT_MASK)
+			>> VB2_NV_BOOT2_PREV_RESULT_SHIFT;
 
 	case VB2_NV_RECOVERY_REQUEST:
 		return p[VB2_NV_OFFS_RECOVERY];
@@ -260,6 +270,20 @@ void vb2_nv_set(struct vb2_context *ctx,
 
 		p[VB2_NV_OFFS_BOOT2] &= ~VB2_NV_BOOT2_RESULT_MASK;
 		p[VB2_NV_OFFS_BOOT2] |= (uint8_t)value;
+		break;
+
+	case VB2_NV_FW_PREV_TRIED:
+		SETBIT(VB2_NV_OFFS_BOOT2, VB2_NV_BOOT2_PREV_TRIED);
+		break;
+
+	case VB2_NV_FW_PREV_RESULT:
+		/* Map out of range values to unknown */
+		if (value > VB2_NV_BOOT2_RESULT_MASK)
+			value = VB2_FW_RESULT_UNKNOWN;
+
+		p[VB2_NV_OFFS_BOOT2] &= ~VB2_NV_BOOT2_PREV_RESULT_MASK;
+		p[VB2_NV_OFFS_BOOT2] |=
+			(uint8_t)(value << VB2_NV_BOOT2_PREV_RESULT_SHIFT);
 		break;
 
 	case VB2_NV_RECOVERY_REQUEST:
