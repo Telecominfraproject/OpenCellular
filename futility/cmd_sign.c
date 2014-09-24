@@ -51,11 +51,16 @@ static struct local_data_s {
 	uint8_t *config_data;
 	uint64_t config_size;
 	enum arch_t arch;
+	int fv_specified;
 	uint32_t kloadaddr;
 	uint32_t padding;
 	int vblockonly;
 	char *outfile;
 	int create_new_outfile;
+	char *pem_signpriv;
+	int pem_algo_specified;
+	uint32_t pem_algo;
+	char *pem_external;
 } option = {
 	.version = 1,
 	.arch = ARCH_UNSPECIFIED,
@@ -77,8 +82,39 @@ static int no_opt_if(int expr, const char *optname)
 /* This wraps/signs a public key, producing a keyblock. */
 int futil_cb_sign_pubkey(struct futil_traverse_state_s *state)
 {
-	fprintf(stderr, "Don't know how to sign %s yet\n", state->name);
-	return 1;
+	VbPublicKey *data_key = (VbPublicKey *)state->my_area->buf;
+	VbKeyBlockHeader *vblock;
+
+	if (option.pem_signpriv) {
+		if (option.pem_external) {
+			/* External signing uses the PEM file directly. */
+			vblock = KeyBlockCreate_external(
+				data_key,
+				option.pem_signpriv,
+				option.pem_algo, option.flags,
+				option.pem_external);
+		} else {
+			option.signprivate = PrivateKeyReadPem(
+				option.pem_signpriv, option.pem_algo);
+			if (!option.signprivate) {
+				fprintf(stderr,
+					"Unable to read PEM signing key: %s\n",
+					strerror(errno));
+				return 1;
+			}
+			vblock = KeyBlockCreate(data_key, option.signprivate,
+						option.flags);
+		}
+	} else {
+		/* Not PEM. Should already have a signing key. */
+		vblock = KeyBlockCreate(data_key, option.signprivate,
+					option.flags);
+	}
+
+	/* Write it out */
+	return WriteSomeParts(option.outfile,
+			      vblock, vblock->key_block_size,
+			      NULL, 0);
 }
 
 /*
@@ -287,8 +323,36 @@ int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
 
 int futil_cb_sign_raw_firmware(struct futil_traverse_state_s *state)
 {
-	fprintf(stderr, "Don't know how to sign %s yet\n", state->name);
-	return 1;
+	VbSignature *body_sig;
+	VbFirmwarePreambleHeader *preamble;
+	int rv;
+
+	body_sig = CalculateSignature(state->my_area->buf, state->my_area->len,
+				      option.signprivate);
+	if (!body_sig) {
+		fprintf(stderr, "Error calculating body signature\n");
+		return 1;
+	}
+
+	preamble = CreateFirmwarePreamble(option.version,
+					  option.kernel_subkey,
+					  body_sig,
+					  option.signprivate,
+					  option.flags);
+	if (!preamble) {
+		fprintf(stderr, "Error creating firmware preamble.\n");
+		free(body_sig);
+		return 1;
+	}
+
+	rv = WriteSomeParts(option.outfile,
+			    option.keyblock, option.keyblock->key_block_size,
+			    preamble, preamble->preamble_size);
+
+	free(preamble);
+	free(body_sig);
+
+	return rv;
 }
 
 
@@ -446,9 +510,52 @@ static const char usage[] = "\n"
 	"\n"
 	"Where INFILE is a\n"
 	"\n"
+	"  public key (.vbpubk); OUTFILE is a keyblock\n"
+	"  raw firmware blob (FW_MAIN_A/B); OUTFILE is a VBLOCK_A/B\n"
 	"  complete firmware image (bios.bin)\n"
 	"  raw linux kernel; OUTFILE is a kernel partition image\n"
 	"  kernel partition image (/dev/sda2, /dev/mmcblk0p2)\n";
+
+static const char usage_pubkey[] = "\n"
+	"-----------------------------------------------------------------\n"
+	"To sign a public key / create a new keyblock:\n"
+	"\n"
+	"Required PARAMS:\n"
+	"  [--datapubkey]   INFILE          The public key to wrap\n"
+	"  [--outfile]      OUTFILE         The resulting keyblock\n"
+	"\n"
+	"Optional PARAMS:\n"
+	"  A private signing key, specified as either\n"
+	"    -s|--signprivate FILE.vbprivk  Signing key in .vbprivk format\n"
+	"  Or\n"
+	"    --pem_signpriv   FILE.pem      Signing key in PEM format...\n"
+	"    --pem_algo       NUM           AND the algorithm to use (0 - %d)\n"
+	"\n"
+	"  If a signing key is not given, the keyblock will not be signed (duh)."
+	"\n\n"
+	"And these, too:\n\n"
+	"  -f|--flags       NUM             Flags specifying use conditions\n"
+	"  --pem_external   PROGRAM"
+	"         External program to compute the signature\n"
+	"                                     (requires a PEM signing key)\n";
+
+static const char usage_fw_main[] = "\n"
+	"-----------------------------------------------------------------\n"
+	"To sign a raw firmware blob (FW_MAIN_A/B):\n"
+	"\n"
+	"Required PARAMS:\n"
+	"  -s|--signprivate FILE.vbprivk    The private firmware data key\n"
+	"  -b|--keyblock    FILE.keyblock   The keyblock containing the\n"
+	"                                     public firmware data key\n"
+	"  -k|--kernelkey   FILE.vbpubk     The public kernel subkey\n"
+	"  -v|--version     NUM             The firmware version number\n"
+	"  [--fv]           INFILE"
+	"          The raw firmware blob (FW_MAIN_A/B)\n"
+	"  [--outfile]      OUTFILE         Output VBLOCK_A/B\n"
+	"\n"
+	"Optional PARAMS:\n"
+	"  -f|--flags       NUM             The preamble flags value"
+	" (default is 0)\n";
 
 static const char usage_bios[] = "\n"
 	"-----------------------------------------------------------------\n"
@@ -528,6 +635,8 @@ static const char usage_old_kpart[] = "\n"
 static void print_help(const char *prog)
 {
 	printf(usage, prog);
+	printf(usage_pubkey, kNumAlgorithms - 1);
+	puts(usage_fw_main);
 	printf(usage_bios, option.version);
 	printf(usage_new_kpart, option.kloadaddr, option.padding);
 	printf(usage_old_kpart, option.padding);
@@ -542,6 +651,9 @@ enum no_short_opts {
 	OPT_ARCH,
 	OPT_KLOADADDR,
 	OPT_PADDING,
+	OPT_PEM_SIGNPRIV,
+	OPT_PEM_ALGO,
+	OPT_PEM_EXTERNAL,
 };
 
 static const struct option long_opts[] = {
@@ -565,6 +677,9 @@ static const struct option long_opts[] = {
 	{"arch",         1, NULL, OPT_ARCH},
 	{"kloadaddr",    1, NULL, OPT_KLOADADDR},
 	{"pad",          1, NULL, OPT_PADDING},
+	{"pem_signpriv", 1, NULL, OPT_PEM_SIGNPRIV},
+	{"pem_algo",     1, NULL, OPT_PEM_ALGO},
+	{"pem_external", 1, NULL, OPT_PEM_EXTERNAL},
 	{"vblockonly",   0, &option.vblockonly, 1},
 	{"debug",        0, &debugging_enabled, 1},
 	{NULL,           0, NULL, 0},
@@ -648,6 +763,9 @@ static int do_sign(int argc, char *argv[])
 		case 'l':
 			option.loemid = optarg;
 			break;
+		case OPT_FV:
+			option.fv_specified = 1;
+			/* fallthrough */
 		case OPT_INFILE:		/* aka "--vmlinuz" */
 			inout_file_count++;
 			infile = optarg;
@@ -711,6 +829,23 @@ static int do_sign(int argc, char *argv[])
 				errorcnt++;
 			}
 			break;
+		case OPT_PEM_SIGNPRIV:
+			option.pem_signpriv = optarg;
+			break;
+		case OPT_PEM_ALGO:
+			option.pem_algo_specified = 1;
+			option.pem_algo = strtoul(optarg, &e, 0);
+			if (!*optarg || (e && *e) ||
+			    (option.pem_algo >= kNumAlgorithms)) {
+				fprintf(stderr,
+					"Invalid --pem_algo \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_PEM_EXTERNAL:
+			option.pem_external = optarg;
+			break;
+
 		case '?':
 			if (optopt)
 				fprintf(stderr, "Unrecognized option: -%c\n",
@@ -752,6 +887,8 @@ static int do_sign(int argc, char *argv[])
 		if (option.bootloader_data || option.config_data
 		    || option.arch != ARCH_UNSPECIFIED)
 			type = FILE_TYPE_RAW_KERNEL;
+		else if (option.kernel_subkey || option.fv_specified)
+			type = FILE_TYPE_RAW_FIRMWARE;
 	}
 
 	/* Check the arguments for the type of thing we want to sign */
@@ -761,6 +898,28 @@ static int do_sign(int argc, char *argv[])
 			"Unable to determine the type of the input file\n");
 		errorcnt++;
 		goto done;
+	case FILE_TYPE_PUBKEY:
+		option.create_new_outfile = 1;
+		if (option.signprivate && option.pem_signpriv) {
+			fprintf(stderr,
+				"Only one of --signprivate and --pem_signpriv"
+				" can be specified\n");
+			errorcnt++;
+		}
+		if ((option.signprivate && option.pem_algo_specified) ||
+		    (option.pem_signpriv && !option.pem_algo_specified)) {
+			fprintf(stderr, "--pem_algo must be used with"
+				" --pem_signpriv\n");
+			errorcnt++;
+		}
+		if (option.pem_external && !option.pem_signpriv) {
+			fprintf(stderr, "--pem_external must be used with"
+				" --pem_signpriv\n");
+			errorcnt++;
+		}
+		/* We'll wait to read the PEM file, since the external signer
+		 * may want to read it instead. */
+		break;
 	case FILE_TYPE_KEYBLOCK:
 		fprintf(stderr, "Resigning a keyblock is kind of pointless.\n");
 		fprintf(stderr, "Just create a new one.\n");
@@ -785,6 +944,13 @@ static int do_sign(int argc, char *argv[])
 		errorcnt += no_opt_if(!option.signprivate, "signprivate");
 		if (option.vblockonly)
 			option.create_new_outfile = 1;
+		break;
+	case FILE_TYPE_RAW_FIRMWARE:
+		option.create_new_outfile = 1;
+		errorcnt += no_opt_if(!option.signprivate, "signprivate");
+		errorcnt += no_opt_if(!option.keyblock, "keyblock");
+		errorcnt += no_opt_if(!option.kernel_subkey, "kernelkey");
+		errorcnt += no_opt_if(!option.version_specified, "version");
 		break;
 	case FILE_TYPE_RAW_KERNEL:
 		option.create_new_outfile = 1;

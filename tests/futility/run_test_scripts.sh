@@ -45,6 +45,8 @@ ${SCRIPTDIR}/test_dump_fmap.sh
 ${SCRIPTDIR}/test_load_fmap.sh
 ${SCRIPTDIR}/test_gbb_utility.sh
 ${SCRIPTDIR}/test_show_kernel.sh
+${SCRIPTDIR}/test_sign_keyblocks.sh
+${SCRIPTDIR}/test_sign_fw_main.sh
 ${SCRIPTDIR}/test_sign_firmware.sh
 ${SCRIPTDIR}/test_sign_kernel.sh
 "
