@@ -147,6 +147,14 @@ try_arch () {
 
   cmp ${TMP}.blob2.${arch}.vb0 ${TMP}.blob2.${arch}.vb1
 
+  # and verify it the new way
+  dd bs=${padding} skip=1 if=${TMP}.blob2.${arch} of=${TMP}.blob2.${arch}.kb1
+  ${FUTILITY} verify --debug \
+    --pad ${padding} \
+    --publickey ${DEVKEYS}/recovery_key.vbpubk \
+    --fv ${TMP}.blob2.${arch}.kb1 \
+    ${TMP}.blob2.${arch}.vb1
+
   echo -n "5 " 1>&3
 
   dd bs=${padding} count=1 if=${TMP}.blob3.${arch} of=${TMP}.blob3.${arch}.vb0
@@ -175,6 +183,13 @@ try_arch () {
     ${TMP}.blob4.${arch}.vb1 \
 
   cmp ${TMP}.blob4.${arch}.vb0 ${TMP}.blob4.${arch}.vb1
+
+  dd bs=${padding} skip=1 if=${TMP}.blob4.${arch} of=${TMP}.blob4.${arch}.kb1
+  ${FUTILITY} verify --debug \
+    --pad ${padding} \
+    --publickey ${DEVKEYS}/kernel_subkey.vbpubk \
+    --fv ${TMP}.blob4.${arch}.kb1 \
+    ${TMP}.blob4.${arch}.vb1
 
   # Note: We specifically do not test repacking with a different --kloadaddr,
   # because the old way has a bug and does not update params->cmd_line_ptr to

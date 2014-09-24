@@ -175,6 +175,8 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 	bmp = (BmpBlockHeader *)(buf + gbb->bmpfv_offset);
 	if (0 != memcmp(bmp, BMPBLOCK_SIGNATURE, BMPBLOCK_SIGNATURE_SIZE)) {
 		printf("  BmpBlock:              <invalid>\n");
+		/* We don't support older BmpBlock formats, so we can't
+		 * be strict about this. */
 	} else {
 		printf("  BmpBlock:\n");
 		printf("    Version:             %d.%d\n",
@@ -198,6 +200,7 @@ int futil_cb_show_keyblock(struct futil_traverse_state_s *state)
 	VbKeyBlockHeader *block = (VbKeyBlockHeader *)state->my_area->buf;
 	VbPublicKey *sign_key = option.k;
 	int good_sig = 0;
+	int retval = 0;
 
 	/* Check the hash only first */
 	if (0 != KeyBlockVerify(block, state->my_area->len, NULL, 1)) {
@@ -210,11 +213,14 @@ int futil_cb_show_keyblock(struct futil_traverse_state_s *state)
 	    KeyBlockVerify(block, state->my_area->len, sign_key, 0))
 		good_sig = 1;
 
+	if (option.strict && (!sign_key || !good_sig))
+		retval = 1;
+
 	show_keyblock(block, state->in_filename, !!sign_key, good_sig);
 
 	state->my_area->_flags |= AREA_IS_VALID;
 
-	return 0;
+	return retval;
 }
 
 /*
@@ -244,6 +250,7 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 	uint64_t fv_size = option.fv_size;
 	struct cb_area_s *fw_body_area = 0;
 	int good_sig = 0;
+	int retval = 0;
 
 	/* Check the hash... */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
@@ -283,6 +290,9 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 		      ? state->in_filename : state->name,
 		      !!sign_key, good_sig);
 
+	if (option.strict && (!sign_key || !good_sig))
+		retval = 1;
+
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
 	if (!rsa) {
 		fprintf(stderr, "Error parsing data key in %s\n", state->name);
@@ -311,6 +321,8 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 	       kernel_subkey->algorithm,
 	       (kernel_subkey->algorithm < kNumAlgorithms ?
 		algo_strings[kernel_subkey->algorithm] : "(invalid)"));
+	if (kernel_subkey->algorithm >= kNumAlgorithms)
+		retval = 1;
 	printf("  Kernel key version:    %" PRIu64 "\n",
 	       kernel_subkey->key_version);
 	printf("  Kernel key sha1sum:    ");
@@ -335,6 +347,8 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 	if (!fv_data) {
 		printf("No firmware body available to verify.\n");
+		if (option.strict)
+			return 1;
 		return 0;
 	}
 
@@ -354,9 +368,11 @@ done:
 		state->my_area->_flags |= AREA_IS_VALID;
 	} else {
 		printf("Seems legit, but the signature is unverified.\n");
+		if (option.strict)
+			retval = 1;
 	}
 
-	return 0;
+	return retval;
 }
 
 int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
@@ -368,6 +384,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	uint8_t *kernel_blob = 0;
 	uint64_t kernel_size;
 	int good_sig = 0;
+	int retval = 0;
 
 	/* Check the hash... */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
@@ -382,6 +399,9 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 
 	printf("Kernel partition:        %s\n", state->in_filename);
 	show_keyblock(key_block, NULL, !!sign_key, good_sig);
+
+	if (option.strict && (!sign_key || !good_sig))
+		retval = 1;
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
 	if (!rsa) {
@@ -443,7 +463,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 
 	printf("Config:\n%s\n", kernel_blob + KernelCmdLineOffset(preamble));
 
-	return 0;
+	return retval;
 }
 
 int futil_cb_show_begin(struct futil_traverse_state_s *state)
@@ -474,6 +494,7 @@ static const char usage[] = "\n"
 	"\n"
 	"Where FILE could be a\n"
 	"\n"
+	"%s"
 	"  keyblock (.keyblock)\n"
 	"  firmware preamble signature (VBLOCK_A/B)\n"
 	"  firmware image (bios.bin)\n"
@@ -484,11 +505,19 @@ static const char usage[] = "\n"
 	"            Use this public key for validation\n"
 	"  -f|--fv          FILE            Verify this payload (FW_MAIN_A/B)\n"
 	"  --pad            NUM             Kernel vblock padding size\n"
+	"%s"
 	"\n";
 
 static void print_help(const char *prog)
 {
-	printf(usage, prog);
+	if (strcmp(prog, "verify"))
+		printf(usage, prog,
+		       "  public key (.vbpubk)\n",
+		       "  --strict                         "
+		       "Fail unless all signatures are valid\n");
+	else
+		printf(usage, prog, "",
+		       "\nIt will fail unless all signatures are valid\n");
 }
 
 static const struct option long_opts[] = {
@@ -496,6 +525,7 @@ static const struct option long_opts[] = {
 	{"publickey",   1, 0, 'k'},
 	{"fv",          1, 0, 'f'},
 	{"pad",         1, NULL, OPT_PADDING},
+	{"verify",      0, &option.strict, 1},
 	{"debug",       0, &debugging_enabled, 1},
 	{NULL, 0, NULL, 0},
 };
@@ -611,4 +641,14 @@ boo:
 
 DECLARE_FUTIL_COMMAND(show, do_show,
 		      "Display the content of various binary components",
+		      print_help);
+
+static int do_verify(int argc, char *argv[])
+{
+	option.strict = 1;
+	return do_show(argc, argv);
+}
+
+DECLARE_FUTIL_COMMAND(verify, do_verify,
+		      "Verify the signatures of various binary components",
 		      print_help);
