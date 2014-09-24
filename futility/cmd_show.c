@@ -417,6 +417,8 @@ static int do_show(int argc, char *argv[])
 	int ifd, i;
 	int errorcnt = 0;
 	struct futil_traverse_state_s state;
+	uint8_t *buf;
+	uint32_t buf_len;
 
 	opterr = 0;		/* quiet, you */
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
@@ -473,15 +475,24 @@ static int do_show(int argc, char *argv[])
 			errorcnt++;
 			fprintf(stderr, "Can't open %s: %s\n",
 				infile, strerror(errno));
-			return 1;
+			continue;
+		}
+
+		if (0 != futil_map_file(ifd, MAP_RO, &buf, &buf_len)) {
+			errorcnt++;
+			goto boo;
 		}
 
 		memset(&state, 0, sizeof(state));
 		state.in_filename = infile ? infile : "<none>";
 		state.op = FUTIL_OP_SHOW;
 
-		errorcnt += futil_traverse(ifd, &state, MAP_RO);
+		errorcnt += futil_traverse(buf, buf_len, &state,
+					   FILE_TYPE_UNKNOWN);
 
+		errorcnt += futil_unmap_file(ifd, MAP_RO, buf, buf_len);
+
+boo:
 		if (close(ifd)) {
 			errorcnt++;
 			fprintf(stderr, "Error when closing %s: %s\n",

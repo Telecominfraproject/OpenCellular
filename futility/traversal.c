@@ -191,7 +191,7 @@ static int invoke_callback(struct futil_traverse_state_s *state,
 	return 0;
 }
 
-static enum futil_file_type what_is_this(uint8_t *buf, uint32_t len)
+enum futil_file_type futil_what_file_type_buf(uint8_t *buf, uint32_t len)
 {
 	VbPublicKey *pubkey = (VbPublicKey *)buf;
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
@@ -243,16 +243,57 @@ static enum futil_file_type what_is_this(uint8_t *buf, uint32_t len)
 	return FILE_TYPE_UNKNOWN;
 }
 
-static int traverse_buffer(uint8_t *buf, uint32_t len,
-			   struct futil_traverse_state_s *state)
+enum futil_file_type futil_what_file_type(const char *filename)
+{
+	enum futil_file_type type;
+	int ifd;
+	uint8_t *buf;
+	uint32_t buf_len;
+
+	ifd = open(filename, O_RDONLY);
+	if (ifd < 0) {
+		fprintf(stderr, "Can't open %s: %s\n",
+			filename, strerror(errno));
+		exit(1);
+	}
+
+	if (0 != futil_map_file(ifd, MAP_RO, &buf, &buf_len)) {
+		close(ifd);
+		exit(1);
+	}
+
+	type = futil_what_file_type_buf(buf, buf_len);
+
+	if (0 != futil_unmap_file(ifd, MAP_RO, buf, buf_len)) {
+		close(ifd);
+		exit(1);
+	}
+
+	if (close(ifd)) {
+		fprintf(stderr, "Error when closing %s: %s\n",
+			filename, strerror(errno));
+		exit(1);
+	}
+
+	return type;
+}
+
+int futil_traverse(uint8_t *buf, uint32_t len,
+		   struct futil_traverse_state_s *state,
+		   enum futil_file_type type)
 {
 	FmapHeader *fmap;
 	FmapAreaHeader *ah = 0;
 	const struct bios_area_s *area;
-	enum futil_file_type type;
 	int retval = 0;
 
-	type = what_is_this(buf, len);
+	if (state->op < 0 || state->op >= NUM_FUTIL_OPS) {
+		fprintf(stderr, "Invalid op %d\n", state->op);
+		return 1;
+	}
+
+	if (type == FILE_TYPE_UNKNOWN)
+		type = futil_what_file_type_buf(buf, len);
 	state->in_type = type;
 
 	state->errors = retval;
@@ -265,6 +306,9 @@ static int traverse_buffer(uint8_t *buf, uint32_t len,
 	case FILE_TYPE_KEYBLOCK:
 	case FILE_TYPE_FW_PREAMBLE:
 	case FILE_TYPE_GBB:
+	case FILE_TYPE_KERN_PREAMBLE:
+	case FILE_TYPE_RAW_FIRMWARE:
+	case FILE_TYPE_RAW_KERNEL:
 		retval |= invoke_callback(state,
 					  direct_callback[type].component,
 					  direct_callback[type].name,
@@ -305,32 +349,12 @@ static int traverse_buffer(uint8_t *buf, uint32_t len,
 		break;
 
 	default:
+		Debug("%s:%d unhandled type %s\n", __FILE__, __LINE__,
+		      futil_file_type_str[type]);
 		retval = 1;
 	}
 
 	retval |= invoke_callback(state, CB_END_TRAVERSAL, "<end>",
 				  0, buf, len);
 	return retval;
-}
-
-int futil_traverse(int ifd, struct futil_traverse_state_s *state,
-		   int writeable)
-{
-	uint8_t *mmap_ptr = 0;
-	uint32_t len;
-	int errorcnt = 0;
-
-	if (state->op < 0 || state->op >= NUM_FUTIL_OPS) {
-		fprintf(stderr, "Invalid op %d\n", state->op);
-		return 1;
-	}
-
-	if (0 != futil_map_file(ifd, writeable, &mmap_ptr, &len))
-		return 1;
-
-	errorcnt |= traverse_buffer(mmap_ptr, len, state);
-
-	errorcnt |= futil_unmap_file(ifd, writeable, mmap_ptr, len);
-
-	return errorcnt;
 }

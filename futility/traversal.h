@@ -89,12 +89,26 @@ struct futil_traverse_state_s {
 	int errors;
 };
 
+
 /*
- * Traverse the input file using the provided state
- * Return nonzero (but no details) if there were any errors.
+ * This tries to match the buffer content to one of the known file types.
  */
-int futil_traverse(int ifd, struct futil_traverse_state_s *state,
-		   int writeable);
+enum futil_file_type futil_what_file_type_buf(uint8_t *buf, uint32_t len);
+
+/*
+ * This opens a file and tries to match it to one of the known file types. It
+ * fails only if it can't open and scan the file. It's not an error if it
+ * returns FILE_TYPE_UKNOWN.
+ */
+enum futil_file_type futil_what_file_type(const char *filename);
+
+/*
+ * Traverse the buffer using the provided state, which should be initialized
+ * before calling. Returns nonzero (but no details) if there were any errors.
+ */
+int futil_traverse(uint8_t *buf, uint32_t len,
+		   struct futil_traverse_state_s *state,
+		   enum futil_file_type type_hint);
 
 /* These are invoked by the traversal. They also return nonzero on error. */
 int futil_cb_show_begin(struct futil_traverse_state_s *state);
