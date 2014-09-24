@@ -35,7 +35,7 @@ static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_show_keyblock,		/* CB_KEYBLOCK */
 	futil_cb_show_gbb,		/* CB_GBB */
 	futil_cb_show_fw_preamble,	/* CB_FW_PREAMBLE */
-	NULL,				/* CB_KERN_PREAMBLE */
+	futil_cb_show_kernel_preamble,	/* CB_KERN_PREAMBLE */
 	NULL,				/* CB_RAW_FIRMWARE */
 	NULL,				/* CB_RAW_KERNEL */
 };
@@ -46,17 +46,17 @@ static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_sign_begin,		/* CB_BEGIN_TRAVERSAL */
 	futil_cb_sign_end,		/* CB_END_TRAVERSAL */
 	NULL,				/* CB_FMAP_GBB */
-	futil_cb_sign_fw_preamble,	/* CB_FMAP_VBLOCK_A */
-	futil_cb_sign_fw_preamble,	/* CB_FMAP_VBLOCK_B */
-	futil_cb_sign_fw_main,     	/* CB_FMAP_FW_MAIN_A */
-	futil_cb_sign_fw_main,     	/* CB_FMAP_FW_MAIN_B */
-	futil_cb_sign_bogus,      	/* CB_PUBKEY */
-	futil_cb_sign_notyet,      	/* CB_KEYBLOCK */
-	futil_cb_sign_bogus,		/* CB_GBB */
-	futil_cb_sign_fw_preamble,	/* CB_FW_PREAMBLE */
-	NULL,				/* CB_KERN_PREAMBLE */
-	NULL,				/* CB_RAW_FIRMWARE */
-	NULL,				/* CB_RAW_KERNEL */
+	futil_cb_sign_fw_vblock,	/* CB_FMAP_VBLOCK_A */
+	futil_cb_sign_fw_vblock,	/* CB_FMAP_VBLOCK_B */
+	futil_cb_sign_fw_main,		/* CB_FMAP_FW_MAIN_A */
+	futil_cb_sign_fw_main,		/* CB_FMAP_FW_MAIN_B */
+	futil_cb_sign_pubkey,		/* CB_PUBKEY */
+	NULL,				/* CB_KEYBLOCK */
+	NULL,				/* CB_GBB */
+	NULL,				/* CB_FW_PREAMBLE */
+	futil_cb_resign_kernel_part,	/* CB_KERN_PREAMBLE */
+	futil_cb_sign_raw_firmware,	/* CB_RAW_FIRMWARE */
+	futil_cb_create_kernel_part,	/* CB_RAW_KERNEL */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_sign_funcs) == NUM_CB_COMPONENTS);
 

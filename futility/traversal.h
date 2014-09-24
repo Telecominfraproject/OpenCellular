@@ -117,11 +117,14 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state);
 int futil_cb_show_keyblock(struct futil_traverse_state_s *state);
 int futil_cb_show_fw_main(struct futil_traverse_state_s *state);
 int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state);
+int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state);
 
-int futil_cb_sign_bogus(struct futil_traverse_state_s *state);
-int futil_cb_sign_notyet(struct futil_traverse_state_s *state);
+int futil_cb_sign_pubkey(struct futil_traverse_state_s *state);
 int futil_cb_sign_fw_main(struct futil_traverse_state_s *state);
-int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state);
+int futil_cb_sign_fw_vblock(struct futil_traverse_state_s *state);
+int futil_cb_sign_raw_firmware(struct futil_traverse_state_s *state);
+int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state);
+int futil_cb_create_kernel_part(struct futil_traverse_state_s *state);
 int futil_cb_sign_begin(struct futil_traverse_state_s *state);
 int futil_cb_sign_end(struct futil_traverse_state_s *state);
 

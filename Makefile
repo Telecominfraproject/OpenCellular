@@ -545,7 +545,6 @@ FUTIL_SRCS = \
 	futility/cmd_sign.c \
 	futility/cmd_vbutil_firmware.c \
 	futility/cmd_vbutil_kernel.c \
-	futility/cmd_vbutil_kernel0.c \
 	futility/cmd_vbutil_key.c \
 	futility/cmd_vbutil_keyblock.c \
 	futility/cmd_verify_kernel.c \

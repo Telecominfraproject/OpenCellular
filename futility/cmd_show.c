@@ -23,6 +23,7 @@
 #include "host_common.h"
 #include "traversal.h"
 #include "util_misc.h"
+#include "vb1_helper.h"
 #include "vboot_common.h"
 
 /* Local values for cb_area_s._flags */
@@ -33,9 +34,13 @@ enum callback_flags {
 /* Local structure for args, etc. */
 static struct local_data_s {
 	VbPublicKey *k;
-	uint8_t *f;
-	uint64_t f_size;
-} option;
+	uint8_t *fv;
+	uint64_t fv_size;
+	uint32_t padding;
+	int strict;
+} option = {
+	.padding = 65536,
+};
 
 static void show_key(VbPublicKey *pubkey, const char *sp)
 {
@@ -170,8 +175,6 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 	bmp = (BmpBlockHeader *)(buf + gbb->bmpfv_offset);
 	if (0 != memcmp(bmp, BMPBLOCK_SIGNATURE, BMPBLOCK_SIGNATURE_SIZE)) {
 		printf("  BmpBlock:              <invalid>\n");
-		/* We don't support old formats, so it's not always an error */
-		/* TODO: Add a --strict option to make this fatal? */
 	} else {
 		printf("  BmpBlock:\n");
 		printf("    Version:             %d.%d\n",
@@ -236,9 +239,9 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
 	uint32_t len = state->my_area->len;
-	VbPublicKey *sign_key = 0;
-	uint8_t *fv_data = 0;
-	uint64_t fv_size = 0;
+	VbPublicKey *sign_key = option.k;
+	uint8_t *fv_data = option.fv;
+	uint64_t fv_size = option.fv_size;
 	struct cb_area_s *fw_body_area = 0;
 	int good_sig = 0;
 
@@ -250,24 +253,21 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 	switch (state->component) {
 	case CB_FMAP_VBLOCK_A:
-		/* BIOS should have a rootkey in the GBB */
-		if (state->rootkey._flags & AREA_IS_VALID)
+		if (!sign_key && (state->rootkey._flags & AREA_IS_VALID))
+			/* BIOS should have a rootkey in the GBB */
 			sign_key = (VbPublicKey *)state->rootkey.buf;
 		/* And we should have already seen the firmware body */
 		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_A];
 		break;
 	case CB_FMAP_VBLOCK_B:
-		/* BIOS should have a rootkey in the GBB */
-		if (state->rootkey._flags & AREA_IS_VALID)
+		if (!sign_key && (state->rootkey._flags & AREA_IS_VALID))
+			/* BIOS should have a rootkey in the GBB */
 			sign_key = (VbPublicKey *)state->rootkey.buf;
 		/* And we should have already seen the firmware body */
 		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_B];
 		break;
 	case CB_FW_PREAMBLE:
-		/* We'll have to get a signature and body from elsewhere */
-		sign_key = option.k;
-		fv_data = option.f;
-		fv_size = option.f_size;
+		/* We have to provide a signature and body in the options. */
 		break;
 	default:
 		DIE;
@@ -335,7 +335,6 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 
 	if (!fv_data) {
 		printf("No firmware body available to verify.\n");
-		/* TODO: Add a --strict option to make this fatal? */
 		return 0;
 	}
 
@@ -355,8 +354,94 @@ done:
 		state->my_area->_flags |= AREA_IS_VALID;
 	} else {
 		printf("Seems legit, but the signature is unverified.\n");
-		/* TODO: Add a --strict option to make this fatal? */
 	}
+
+	return 0;
+}
+
+int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
+{
+
+	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
+	uint32_t len = state->my_area->len;
+	VbPublicKey *sign_key = option.k;
+	uint8_t *kernel_blob = 0;
+	uint64_t kernel_size;
+	int good_sig = 0;
+
+	/* Check the hash... */
+	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
+		printf("%s keyblock component is invalid\n", state->name);
+		return 1;
+	}
+
+	/* If we have a key, check the signature too */
+	if (sign_key && VBOOT_SUCCESS ==
+	    KeyBlockVerify(key_block, len, sign_key, 0))
+		good_sig = 1;
+
+	printf("Kernel partition:        %s\n", state->in_filename);
+	show_keyblock(key_block, NULL, !!sign_key, good_sig);
+
+	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
+	if (!rsa) {
+		fprintf(stderr, "Error parsing data key in %s\n", state->name);
+		return 1;
+	}
+	uint32_t more = key_block->key_block_size;
+	VbKernelPreambleHeader *preamble =
+		(VbKernelPreambleHeader *)(state->my_area->buf + more);
+
+	if (VBOOT_SUCCESS != VerifyKernelPreamble(preamble,
+						    len - more, rsa)) {
+		printf("%s is invalid\n", state->name);
+		return 1;
+	}
+
+	printf("Kernel Preamble:\n");
+	printf("  Size:                  0x%" PRIx64 "\n",
+	       preamble->preamble_size);
+	printf("  Header version:        %" PRIu32 ".%" PRIu32 "\n",
+	       preamble->header_version_major,
+	       preamble->header_version_minor);
+	printf("  Kernel version:        %" PRIu64 "\n",
+	       preamble->kernel_version);
+	printf("  Body load address:     0x%" PRIx64 "\n",
+	       preamble->body_load_address);
+	printf("  Body size:             0x%" PRIx64 "\n",
+	       preamble->body_signature.data_size);
+	printf("  Bootloader address:    0x%" PRIx64 "\n",
+	       preamble->bootloader_address);
+	printf("  Bootloader size:       0x%" PRIx64 "\n",
+	       preamble->bootloader_size);
+
+
+	/* Verify kernel body */
+	if (option.fv) {
+		/* It's in a separate file, which we've already read in */
+		kernel_blob = option.fv;
+		kernel_size = option.fv_size;
+	} else {
+		/* It should be at an offset within the input file. */
+		kernel_blob = state->my_area->buf + option.padding;
+		kernel_size = state->my_area->len - option.padding;
+	}
+
+	if (!kernel_blob) {
+		/* TODO: Is this always a failure? The preamble is okay. */
+		fprintf(stderr, "No kernel blob available to verify.\n");
+		return 1;
+	}
+
+	if (0 != VerifyData(kernel_blob, kernel_size,
+			    &preamble->body_signature, rsa)) {
+		fprintf(stderr, "Error verifying kernel body.\n");
+		return 1;
+	}
+
+	printf("Body verification succeeded.\n");
+
+	printf("Config:\n%s\n", kernel_blob + KernelCmdLineOffset(preamble));
 
 	return 0;
 }
@@ -380,21 +465,25 @@ int futil_cb_show_begin(struct futil_traverse_state_s *state)
 	return 0;
 }
 
+enum no_short_opts {
+	OPT_PADDING = 1000,
+};
+
 static const char usage[] = "\n"
 	"Usage:  " MYNAME " %s [OPTIONS] FILE\n"
 	"\n"
 	"Where FILE could be a\n"
 	"\n"
-	"  public key (.vbpubk)\n"
 	"  keyblock (.keyblock)\n"
 	"  firmware preamble signature (VBLOCK_A/B)\n"
 	"  firmware image (bios.bin)\n"
 	"  kernel partition (/dev/sda2, /dev/mmcblk0p2)\n"
 	"\n"
 	"Options:\n"
-	"  -k|--publickey FILE   Use this public key for validation\n"
-	"  -f|--fv FILE|OFFSET   Verify this payload (FW_MAIN_A/B, or\n"
-	"                          kernel vblock padding size)\n"
+	"  -k|--publickey   FILE"
+	"            Use this public key for validation\n"
+	"  -f|--fv          FILE            Verify this payload (FW_MAIN_A/B)\n"
+	"  --pad            NUM             Kernel vblock padding size\n"
 	"\n";
 
 static void print_help(const char *prog)
@@ -404,8 +493,9 @@ static void print_help(const char *prog)
 
 static const struct option long_opts[] = {
 	/* name    hasarg *flag val */
-	{"publickey", 1, 0, 'k'},
-	{"fv", 1, 0, 'f'},
+	{"publickey",   1, 0, 'k'},
+	{"fv",          1, 0, 'f'},
+	{"pad",         1, NULL, OPT_PADDING},
 	{"debug",       0, &debugging_enabled, 1},
 	{NULL, 0, NULL, 0},
 };
@@ -419,14 +509,16 @@ static int do_show(int argc, char *argv[])
 	struct futil_traverse_state_s state;
 	uint8_t *buf;
 	uint32_t buf_len;
+	char *e = 0;
 
 	opterr = 0;		/* quiet, you */
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
 		switch (i) {
 		case 'f':
-			option.f = ReadFile(optarg, &option.f_size);
-			if (!option.f) {
-				fprintf(stderr, "Error reading %s\n", optarg);
+			option.fv = ReadFile(optarg, &option.fv_size);
+			if (!option.fv) {
+				fprintf(stderr, "Error reading %s: %s\n",
+					optarg, strerror(errno));
 				errorcnt++;
 			}
 			break;
@@ -434,6 +526,14 @@ static int do_show(int argc, char *argv[])
 			option.k = PublicKeyRead(optarg);
 			if (!option.k) {
 				fprintf(stderr, "Error reading %s\n", optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_PADDING:
+			option.padding = strtoul(optarg, &e, 0);
+			if (!*optarg || (e && *e)) {
+				fprintf(stderr,
+					"Invalid --padding \"%s\"\n", optarg);
 				errorcnt++;
 			}
 			break;
@@ -490,6 +590,7 @@ static int do_show(int argc, char *argv[])
 		errorcnt += futil_traverse(buf, buf_len, &state,
 					   FILE_TYPE_UNKNOWN);
 
+
 		errorcnt += futil_unmap_file(ifd, MAP_RO, buf, buf_len);
 
 boo:
@@ -502,8 +603,8 @@ boo:
 
 	if (option.k)
 		free(option.k);
-	if (option.f)
-		free(option.f);
+	if (option.fv)
+		free(option.fv);
 
 	return !!errorcnt;
 }

@@ -22,8 +22,10 @@
 #include "futility.h"
 #include "gbb_header.h"
 #include "host_common.h"
+#include "kernel_blob.h"
 #include "traversal.h"
 #include "util_misc.h"
+#include "vb1_helper.h"
 #include "vboot_common.h"
 
 /* Local values for cb_area_s._flags */
@@ -32,37 +34,55 @@ enum callback_flags {
 };
 
 /* Local structure for args, etc. */
-struct local_data_s {
+static struct local_data_s {
 	VbPrivateKey *signprivate;
 	VbKeyBlockHeader *keyblock;
 	VbPublicKey *kernel_subkey;
 	VbPrivateKey *devsignprivate;
 	VbKeyBlockHeader *devkeyblock;
 	uint32_t version;
+	int version_specified;
 	uint32_t flags;
 	int flags_specified;
 	char *loemdir;
 	char *loemid;
+	uint8_t *bootloader_data;
+	uint64_t bootloader_size;
+	uint8_t *config_data;
+	uint64_t config_size;
+	enum arch_t arch;
+	uint32_t kloadaddr;
+	uint32_t padding;
+	int vblockonly;
+	char *outfile;
+	int create_new_outfile;
 } option = {
 	.version = 1,
+	.arch = ARCH_UNSPECIFIED,
+	.kloadaddr = CROS_32BIT_ENTRY_ADDR,
+	.padding = 65536,
 };
 
 
-int futil_cb_sign_bogus(struct futil_traverse_state_s *state)
+/* Helper to complain about invalid args. Returns num errors discovered */
+static int no_opt_if(int expr, const char *optname)
 {
-	fprintf(stderr, "Don't know how to sign %s\n", state->name);
-	return 1;
+	if (expr) {
+		fprintf(stderr, "Missing --%s option\n", optname);
+		return 1;
+	}
+	return 0;
 }
 
-int futil_cb_sign_notyet(struct futil_traverse_state_s *state)
+/* This wraps/signs a public key, producing a keyblock. */
+int futil_cb_sign_pubkey(struct futil_traverse_state_s *state)
 {
-	fprintf(stderr, "Signing %s is not yet implemented\n", state->name);
+	fprintf(stderr, "Don't know how to sign %s yet\n", state->name);
 	return 1;
 }
 
 /*
  * This handles FW_MAIN_A and FW_MAIN_B while processing a BIOS image.
- *
  * The data in state->my_area is just the RW firmware blob, so there's nothing
  * useful to show about it. We'll just mark it as present so when we encounter
  * corresponding VBLOCK area, we'll have this to verify.
@@ -78,14 +98,10 @@ int futil_cb_sign_fw_main(struct futil_traverse_state_s *state)
  * We don't do any signing here. We just check to see if the VBLOCK
  * area contains a firmware preamble.
  */
-int futil_cb_sign_fw_preamble(struct futil_traverse_state_s *state)
+int futil_cb_sign_fw_vblock(struct futil_traverse_state_s *state)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
 	uint32_t len = state->my_area->len;
-
-	/* We don't (yet) handle standalone VBLOCKs */
-	if (state->component == CB_FW_PREAMBLE)
-		return futil_cb_sign_notyet(state);
 
 	/*
 	 * If we have a valid keyblock and fw_preamble, then we can use them to
@@ -141,6 +157,140 @@ whatever:
 
 	return 0;
 }
+
+int futil_cb_create_kernel_part(struct futil_traverse_state_s *state)
+{
+	uint8_t *vmlinuz_data, *kblob_data, *vblock_data;
+	uint64_t vmlinuz_size, kblob_size, vblock_size;
+	int rv;
+
+	vmlinuz_data = state->my_area->buf;
+	vmlinuz_size = state->my_area->len;
+
+	kblob_data = CreateKernelBlob(
+		vmlinuz_data, vmlinuz_size,
+		option.arch, option.kloadaddr,
+		option.config_data, option.config_size,
+		option.bootloader_data, option.bootloader_size,
+		&kblob_size);
+	if (!kblob_data) {
+		fprintf(stderr, "Unable to create kernel blob\n");
+		return 1;
+	}
+	Debug("kblob_size = 0x%" PRIx64 "\n", kblob_size);
+
+	vblock_data = SignKernelBlob(kblob_data, kblob_size, option.padding,
+				     option.version, option.kloadaddr,
+				     option.keyblock, option.signprivate,
+				     &vblock_size);
+	if (!vblock_data) {
+		fprintf(stderr, "Unable to sign kernel blob\n");
+		free(kblob_data);
+		return 1;
+	}
+	Debug("vblock_size = 0x%" PRIx64 "\n", vblock_size);
+
+	/* We should be creating a completely new output file.
+	 * If not, something's wrong. */
+	if (!option.create_new_outfile)
+		DIE;
+
+	if (option.vblockonly)
+		rv = WriteSomeParts(option.outfile,
+				    vblock_data, vblock_size,
+				    NULL, 0);
+	else
+		rv = WriteSomeParts(option.outfile,
+				    vblock_data, vblock_size,
+				    kblob_data, kblob_size);
+
+	free(vblock_data);
+	free(kblob_data);
+	return rv;
+}
+
+int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
+{
+	uint8_t *kpart_data, *kblob_data, *vblock_data;
+	uint64_t kpart_size, kblob_size, vblock_size;
+	VbKeyBlockHeader *keyblock = NULL;
+	VbKernelPreambleHeader *preamble = NULL;
+	int rv = 0;
+
+	kpart_data = state->my_area->buf;
+	kpart_size = state->my_area->len;
+
+	/* Note: This just sets some static pointers. It doesn't malloc. */
+	kblob_data = UnpackKPart(kpart_data, kpart_size, option.padding,
+				 &keyblock, &preamble, &kblob_size);
+
+	if (!kblob_data) {
+		fprintf(stderr, "Unable to unpack kernel partition\n");
+		return 1;
+	}
+
+	/*
+	 * We don't let --kloadaddr change when resigning, because the original
+	 * vbutil_kernel program didn't do it right. Since obviously no one
+	 * ever noticed, we'll maintain bug-compatibility by just not allowing
+	 * it here either. To enable it, we'd need to update the zeropage
+	 * table's cmd_line_ptr as well as the preamble.
+	 */
+	option.kloadaddr = preamble->body_load_address;
+
+	/* Replace the config if asked */
+	if (option.config_data &&
+	    0 != UpdateKernelBlobConfig(kblob_data, kblob_size,
+					option.config_data,
+					option.config_size)) {
+		fprintf(stderr, "Unable to update config\n");
+		return 1;
+	}
+
+	/* Preserve the version unless a new one is given */
+	if (!option.version_specified)
+		option.version = preamble->kernel_version;
+
+	/* Replace the keyblock if asked */
+	if (option.keyblock)
+		keyblock = option.keyblock;
+
+	/* Compute the new signature */
+	vblock_data = SignKernelBlob(kblob_data, kblob_size, option.padding,
+				     option.version, option.kloadaddr,
+				     keyblock, option.signprivate,
+				     &vblock_size);
+	if (!vblock_data) {
+		fprintf(stderr, "Unable to sign kernel blob\n");
+		return 1;
+	}
+	Debug("vblock_size = 0x%" PRIx64 "\n", vblock_size);
+
+	if (option.vblockonly) {
+		/* If we're only writing the vblock, then we should be doing it
+		 * into a new file. */
+		rv = WriteSomeParts(option.outfile,
+				    vblock_data, vblock_size,
+				    NULL, 0);
+	} else {
+		/* If we're writing the whole thing, then the output is
+		 * the same size (and possibly the same file) as the input.
+		 * Either way, it's mmap'ed so modifications to the buffer
+		 * will get flushed to disk when we close the file. */
+		Memcpy(kpart_data, vblock_data, vblock_size);
+	}
+
+	free(vblock_data);
+	return rv;
+}
+
+
+int futil_cb_sign_raw_firmware(struct futil_traverse_state_s *state)
+{
+	fprintf(stderr, "Don't know how to sign %s yet\n", state->name);
+	return 1;
+}
+
 
 int futil_cb_sign_begin(struct futil_traverse_state_s *state)
 {
@@ -224,7 +374,8 @@ static int write_loem(const char *ab, struct cb_area_s *vblock)
 	return 0;
 }
 
-int futil_cb_sign_end(struct futil_traverse_state_s *state)
+/* This signs a full BIOS image after it's been traversed. */
+static int sign_bios_at_end(struct futil_traverse_state_s *state)
 {
 	struct cb_area_s *vblock_a = &state->cb_area[CB_FMAP_VBLOCK_A];
 	struct cb_area_s *vblock_b = &state->cb_area[CB_FMAP_VBLOCK_B];
@@ -275,23 +426,48 @@ int futil_cb_sign_end(struct futil_traverse_state_s *state)
 	return retval;
 }
 
+int futil_cb_sign_end(struct futil_traverse_state_s *state)
+{
+	switch (state->in_type) {
+	case FILE_TYPE_BIOS_IMAGE:
+	case FILE_TYPE_OLD_BIOS_IMAGE:
+		return sign_bios_at_end(state);
+
+	default:
+		/* Any other cleanup needed? */
+		break;
+	}
+
+	return state->errors;
+}
+
 static const char usage[] = "\n"
-	"Usage:  " MYNAME " %s [OPTIONS] FILE [OUTFILE]\n"
+	"Usage:  " MYNAME " %s [PARAMS] INFILE [OUTFILE]\n"
 	"\n"
-	"[Re]Sign the specified BIOS image\n"
+	"Where INFILE is a\n"
 	"\n"
-	"Required OPTIONS:\n"
+	"  complete firmware image (bios.bin)\n"
+	"  raw linux kernel; OUTFILE is a kernel partition image\n"
+	"  kernel partition image (/dev/sda2, /dev/mmcblk0p2)\n";
+
+static const char usage_bios[] = "\n"
+	"-----------------------------------------------------------------\n"
+	"To sign a complete firmware image (bios.bin):\n"
+	"\n"
+	"Required PARAMS:\n"
 	"  -s|--signprivate FILE.vbprivk    The private firmware data key\n"
 	"  -b|--keyblock    FILE.keyblock   The keyblock containing the\n"
 	"                                     public firmware data key\n"
 	"  -k|--kernelkey   FILE.vbpubk     The public kernel subkey\n"
+	"  [--infile]       INFILE          Input firmware image (modified\n"
+	"                                     in place if no OUTFILE given)\n"
 	"\n"
 	"These are required if the A and B firmware differ:\n"
 	"  -S|--devsign     FILE.vbprivk    The DEV private firmware data key\n"
 	"  -B|--devkeyblock FILE.keyblock   The keyblock containing the\n"
 	"                                     DEV public firmware data key\n"
 	"\n"
-	"Optional OPTIONS:\n"
+	"Optional PARAMS:\n"
 	"  -v|--version     NUM             The firmware version number"
 	" (default %d)\n"
 	"  -f|--flags       NUM             The preamble flags value"
@@ -299,39 +475,115 @@ static const char usage[] = "\n"
 	"                                     unchanged, or 0 if unknown)\n"
 	"  -d|--loemdir     DIR             Local OEM output vblock directory\n"
 	"  -l|--loemid      STRING          Local OEM vblock suffix\n"
+	"  [--outfile]      OUTFILE         Output firmware image\n";
+
+static const char usage_new_kpart[] = "\n"
+	"-----------------------------------------------------------------\n"
+	"To create a new kernel parition image (/dev/sda2, /dev/mmcblk0p2):\n"
+	"\n"
+	"Required PARAMS:\n"
+	"  -s|--signprivate FILE.vbprivk"
+	"    The private key to sign the kernel blob\n"
+	"  -b|--keyblock    FILE.keyblock   The keyblock containing the public\n"
+	"                                     key to verify the kernel blob\n"
+	"  -v|--version     NUM             The kernel version number\n"
+	"  --bootloader     FILE            Bootloader stub\n"
+	"  --config         FILE            The kernel commandline file\n"
+	"  --arch           ARCH            The CPU architecture (one of\n"
+	"                                     x86|amd64, arm|aarch64, mips)\n"
+	"  [--vmlinuz]      INFILE          Linux kernel bzImage file\n"
+	"  [--outfile]      OUTFILE         Output kernel partition or vblock\n"
+	"\n"
+	"Optional PARAMS:\n"
+	"  --kloadaddr      NUM"
+	"             RAM address to load the kernel body\n"
+	"                                     (default 0x%x)\n"
+	"  --pad            NUM             The vblock padding size in bytes\n"
+	"                                     (default 0x%x)\n"
+	" --vblockonly                      Emit just the vblock (requires a\n"
+	"                                     distinct outfile)\n";
+
+static const char usage_old_kpart[] = "\n"
+	"-----------------------------------------------------------------\n"
+	"To resign an existing kernel parition (/dev/sda2, /dev/mmcblk0p2):\n"
+	"\n"
+	"Required PARAMS:\n"
+	"  -s|--signprivate FILE.vbprivk"
+	"    The private key to sign the kernel blob\n"
+	"  [--infile]       INFILE          Input kernel partition (modified\n"
+	"                                     in place if no OUTFILE given)\n"
+	"\n"
+	"Optional PARAMS:\n"
+	"  -b|--keyblock    FILE.keyblock   The keyblock containing the public\n"
+	"                                     key to verify the kernel blob\n"
+	"  -v|--version     NUM             The kernel version number\n"
+	"  --config         FILE            The kernel commandline file\n"
+	"  --pad            NUM             The vblock padding size in bytes\n"
+	"                                     (default 0x%x)\n"
+	"  [--outfile]      OUTFILE         Output kernel partition or vblock\n"
+	"  --vblockonly                     Emit just the vblock (requires a\n"
+	"                                     distinct OUTFILE)\n"
 	"\n";
 
 static void print_help(const char *prog)
 {
-	printf(usage, prog, option.version);
+	printf(usage, prog);
+	printf(usage_bios, option.version);
+	printf(usage_new_kpart, option.kloadaddr, option.padding);
+	printf(usage_old_kpart, option.padding);
 }
+
+enum no_short_opts {
+	OPT_FV = 1000,
+	OPT_INFILE,			/* aka "--vmlinuz" */
+	OPT_OUTFILE,
+	OPT_BOOTLOADER,
+	OPT_CONFIG,
+	OPT_ARCH,
+	OPT_KLOADADDR,
+	OPT_PADDING,
+};
 
 static const struct option long_opts[] = {
 	/* name    hasarg *flag  val */
-	{"signprivate", 1, NULL, 's'},
-	{"keyblock",    1, NULL, 'b'},
-	{"kernelkey",   1, NULL, 'k'},
-	{"devsign",     1, NULL, 'S'},
-	{"devkeyblock", 1, NULL, 'B'},
-	{"version",     1, NULL, 'v'},
-	{"flags",       1, NULL, 'f'},
-	{"loemdir",     1, NULL, 'd'},
-	{"loemid",      1, NULL, 'l'},
-	{"debug",       0, &debugging_enabled, 1},
-	{NULL,          0, NULL, 0},
+	{"signprivate",  1, NULL, 's'},
+	{"keyblock",     1, NULL, 'b'},
+	{"kernelkey",    1, NULL, 'k'},
+	{"devsign",      1, NULL, 'S'},
+	{"devkeyblock",  1, NULL, 'B'},
+	{"version",      1, NULL, 'v'},
+	{"flags",        1, NULL, 'f'},
+	{"loemdir",      1, NULL, 'd'},
+	{"loemid",       1, NULL, 'l'},
+	{"fv",           1, NULL, OPT_FV},
+	{"infile",       1, NULL, OPT_INFILE},
+	{"datapubkey",   1, NULL, OPT_INFILE},	/* alias */
+	{"vmlinuz",      1, NULL, OPT_INFILE},	/* alias */
+	{"outfile",      1, NULL, OPT_OUTFILE},
+	{"bootloader",   1, NULL, OPT_BOOTLOADER},
+	{"config",       1, NULL, OPT_CONFIG},
+	{"arch",         1, NULL, OPT_ARCH},
+	{"kloadaddr",    1, NULL, OPT_KLOADADDR},
+	{"pad",          1, NULL, OPT_PADDING},
+	{"vblockonly",   0, &option.vblockonly, 1},
+	{"debug",        0, &debugging_enabled, 1},
+	{NULL,           0, NULL, 0},
 };
 static char *short_opts = ":s:b:k:S:B:v:f:d:l:";
 
 static int do_sign(int argc, char *argv[])
 {
 	char *infile = 0;
-	char *outfile = 0;
-	int fd, i;
+	int i;
+	int ifd = -1;
 	int errorcnt = 0;
 	struct futil_traverse_state_s state;
-	char *e = 0;
 	uint8_t *buf;
 	uint32_t buf_len;
+	char *e = 0;
+	enum futil_file_type type;
+	int inout_file_count = 0;
+	int mapping;
 
 	opterr = 0;		/* quiet, you */
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
@@ -372,6 +624,7 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case 'v':
+			option.version_specified = 1;
 			option.version = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
@@ -395,96 +648,233 @@ static int do_sign(int argc, char *argv[])
 		case 'l':
 			option.loemid = optarg;
 			break;
-
+		case OPT_INFILE:		/* aka "--vmlinuz" */
+			inout_file_count++;
+			infile = optarg;
+			break;
+		case OPT_OUTFILE:
+			inout_file_count++;
+			option.outfile = optarg;
+			break;
+		case OPT_BOOTLOADER:
+			option.bootloader_data = ReadFile(
+				optarg, &option.bootloader_size);
+			if (!option.bootloader_data) {
+				fprintf(stderr,
+					"Error reading bootloader file: %s\n",
+					strerror(errno));
+				errorcnt++;
+			}
+			Debug("bootloader file size=0x%" PRIx64 "\n",
+			      option.bootloader_size);
+			break;
+		case OPT_CONFIG:
+			option.config_data = ReadConfigFile(
+				optarg, &option.config_size);
+			if (!option.config_data) {
+				fprintf(stderr,
+					"Error reading config file: %s\n",
+					strerror(errno));
+				errorcnt++;
+			}
+			break;
+		case OPT_ARCH:
+			/* check the first 3 characters to also match x86_64 */
+			if ((!strncasecmp(optarg, "x86", 3)) ||
+			    (!strcasecmp(optarg, "amd64")))
+				option.arch = ARCH_X86;
+			else if ((!strcasecmp(optarg, "arm")) ||
+				 (!strcasecmp(optarg, "aarch64")))
+				option.arch = ARCH_ARM;
+			else if (!strcasecmp(optarg, "mips"))
+				option.arch = ARCH_MIPS;
+			else {
+				fprintf(stderr,
+					"Unknown architecture: \"%s\"\n",
+					optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_KLOADADDR:
+			option.kloadaddr = strtoul(optarg, &e, 0);
+			if (!*optarg || (e && *e)) {
+				fprintf(stderr,
+					"Invalid --kloadaddr \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_PADDING:
+			option.padding = strtoul(optarg, &e, 0);
+			if (!*optarg || (e && *e)) {
+				fprintf(stderr,
+					"Invalid --padding \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			break;
 		case '?':
 			if (optopt)
 				fprintf(stderr, "Unrecognized option: -%c\n",
 					optopt);
 			else
-				fprintf(stderr, "Unrecognized option\n");
+				fprintf(stderr, "Unrecognized option: %s\n",
+					argv[optind - 1]);
 			errorcnt++;
 			break;
 		case ':':
 			fprintf(stderr, "Missing argument to -%c\n", optopt);
 			errorcnt++;
 			break;
+		case 0:				/* handled option */
+			break;
 		default:
+			Debug("i=%d\n", i);
 			DIE;
 		}
 	}
 
-	if (!option.signprivate) {
+	/* If we don't have an input file already, we need one */
+	if (!infile) {
+		if (argc - optind <= 0) {
+			errorcnt++;
+			fprintf(stderr, "ERROR: missing input filename\n");
+			goto done;
+		} else {
+			inout_file_count++;
+			infile = argv[optind++];
+		}
+	}
+
+	/* What are we looking at? */
+	type = futil_what_file_type(infile);
+
+	/* We may be able to infer the type based on the other args */
+	if (type == FILE_TYPE_UNKNOWN) {
+		if (option.bootloader_data || option.config_data
+		    || option.arch != ARCH_UNSPECIFIED)
+			type = FILE_TYPE_RAW_KERNEL;
+	}
+
+	/* Check the arguments for the type of thing we want to sign */
+	switch (type) {
+	case FILE_TYPE_UNKNOWN:
 		fprintf(stderr,
-			"Missing required private firmware data key\n");
+			"Unable to determine the type of the input file\n");
 		errorcnt++;
-	}
-
-	if (!option.keyblock) {
-		fprintf(stderr,
-			"Missing required keyblock\n");
+		goto done;
+	case FILE_TYPE_KEYBLOCK:
+		fprintf(stderr, "Resigning a keyblock is kind of pointless.\n");
+		fprintf(stderr, "Just create a new one.\n");
 		errorcnt++;
-	}
-
-	if (!option.kernel_subkey) {
-		fprintf(stderr,
-			"Missing required kernel subkey\n");
-		errorcnt++;
-	}
-
-	if (errorcnt) {
-		print_help(argv[0]);
-		return 1;
-	}
-
-	switch (argc - optind) {
-	case 2:
-		infile = argv[optind++];
-		outfile = argv[optind++];
-		futil_copy_file_or_die(infile, outfile);
 		break;
-	case 1:
-		/* Stomping right on it. Errors will leave it garbled. */
-		/* TODO: Use a tempfile (mkstemp) for normal files. */
-		infile = argv[optind++];
-		outfile = infile;
+	case FILE_TYPE_FW_PREAMBLE:
+		fprintf(stderr,
+			"%s IS a signature. Sign the firmware instead\n",
+			infile);
 		break;
-	case 0:
-		fprintf(stderr, "ERROR: missing input filename\n");
-		print_help(argv[0]);
-		return 1;
+	case FILE_TYPE_GBB:
+		fprintf(stderr, "There's no way to sign a GBB\n");
+		errorcnt++;
+		break;
+	case FILE_TYPE_BIOS_IMAGE:
+	case FILE_TYPE_OLD_BIOS_IMAGE:
+		errorcnt += no_opt_if(!option.signprivate, "signprivate");
+		errorcnt += no_opt_if(!option.keyblock, "keyblock");
+		errorcnt += no_opt_if(!option.kernel_subkey, "kernelkey");
+		break;
+	case FILE_TYPE_KERN_PREAMBLE:
+		errorcnt += no_opt_if(!option.signprivate, "signprivate");
+		if (option.vblockonly)
+			option.create_new_outfile = 1;
+		break;
+	case FILE_TYPE_RAW_KERNEL:
+		option.create_new_outfile = 1;
+		errorcnt += no_opt_if(!option.signprivate, "signprivate");
+		errorcnt += no_opt_if(!option.keyblock, "keyblock");
+		errorcnt += no_opt_if(!option.version_specified, "version");
+		errorcnt += no_opt_if(!option.bootloader_data, "bootloader");
+		errorcnt += no_opt_if(!option.config_data, "config");
+		errorcnt += no_opt_if(option.arch == ARCH_UNSPECIFIED, "arch");
 		break;
 	default:
-		fprintf(stderr, "ERROR: too many arguments left over\n");
-		print_help(argv[0]);
-		return 1;
+		DIE;
 	}
 
-
-	fd = open(outfile, O_RDWR);
-	if (fd < 0) {
-		fprintf(stderr, "Can't open %s: %s\n",
-			outfile, strerror(errno));
-		return 1;
+	/* If we don't have an output file, we may need one */
+	if (!option.outfile) {
+		if (argc - optind > 0) {
+			/* We have an outfile arg, so use it. */
+			inout_file_count++;
+			option.outfile = argv[optind++];
+		} else {
+			if (option.create_new_outfile) {
+				/* A distinct outfile is required */
+				errorcnt++;
+				fprintf(stderr, "Missing output filename\n");
+				goto done;
+			} else {
+				/* We'll just modify the input file */
+				option.outfile = infile;
+			}
+		}
 	}
 
-	if (0 != futil_map_file(fd, MAP_RW, &buf, &buf_len)) {
+	Debug("type=%d\n", type);
+	Debug("option.create_new_outfile=%d\n", option.create_new_outfile);
+	Debug("inout_file_count=%d\n", inout_file_count);
+	Debug("infile=%s\n", infile);
+	Debug("option.outfile=%s\n", option.outfile);
+
+	if (argc - optind > 0) {
 		errorcnt++;
-		goto boo;
+		fprintf(stderr, "ERROR: too many arguments left over\n");
 	}
+
+	if (errorcnt)
+		goto done;
 
 	memset(&state, 0, sizeof(state));
-	state.in_filename = outfile ? outfile : "<none>";
 	state.op = FUTIL_OP_SIGN;
 
-	errorcnt += futil_traverse(buf, buf_len, &state, FILE_TYPE_UNKNOWN);
+	if (option.create_new_outfile) {
+		/* The input is read-only, the output is write-only. */
+		mapping = MAP_RO;
+		state.in_filename = infile;
+		ifd = open(infile, O_RDONLY);
+		if (ifd < 0) {
+			errorcnt++;
+			fprintf(stderr, "Can't open %s for reading: %s\n",
+				infile, strerror(errno));
+			goto done;
+		}
+	} else {
+		/* We'll read-modify-write the output file */
+		mapping = MAP_RW;
+		state.in_filename = option.outfile;
+		if (inout_file_count > 1)
+			futil_copy_file_or_die(infile, option.outfile);
+		ifd = open(option.outfile, O_RDWR);
+		if (ifd < 0) {
+			errorcnt++;
+			fprintf(stderr, "Can't open %s for writing: %s\n",
+				option.outfile, strerror(errno));
+			goto done;
+		}
+	}
 
-	errorcnt += futil_unmap_file(fd, MAP_RO, buf, buf_len);
-
-boo:
-	if (close(fd)) {
+	if (0 != futil_map_file(ifd, mapping, &buf, &buf_len)) {
 		errorcnt++;
-		fprintf(stderr, "Error when closing %s: %s\n",
-			outfile, strerror(errno));
+		goto done;
+	}
+
+	errorcnt += futil_traverse(buf, buf_len, &state, type);
+
+	errorcnt += futil_unmap_file(ifd, MAP_RW, buf, buf_len);
+
+done:
+	if (ifd >= 0 && close(ifd)) {
+		errorcnt++;
+		fprintf(stderr, "Error when closing ifd: %s\n",
+			strerror(errno));
 	}
 
 	if (option.signprivate)
@@ -494,9 +884,12 @@ boo:
 	if (option.kernel_subkey)
 		free(option.kernel_subkey);
 
+	if (errorcnt)
+		fprintf(stderr, "Use --help for usage instructions\n");
+
 	return !!errorcnt;
 }
 
 DECLARE_FUTIL_COMMAND(sign, do_sign,
-		      "[Re]Sign a BIOS image",
+		      "Sign / resign various binary components",
 		      print_help);
