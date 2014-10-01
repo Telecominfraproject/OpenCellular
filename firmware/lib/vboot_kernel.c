@@ -39,6 +39,7 @@ typedef enum BootMode {
 int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 {
 	uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+	int primary_valid = 0, secondary_valid = 0;
 
 	/* No data to be written yet */
 	gptdata->modified = 0;
@@ -56,23 +57,43 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	    gptdata->secondary_entries == NULL)
 		return 1;
 
-	/* Read data from the drive, skipping the protective MBR */
+	/* Read primary header from the drive, skipping the protective MBR */
 	if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header))
 		return 1;
-	GptHeader* primary_header = (GptHeader*)gptdata->primary_header;
-	if (0 != VbExDiskRead(disk_handle, primary_header->entries_lba,
-			      entries_sectors, gptdata->primary_entries))
-		return 1;
 
+	/* Only read primary GPT if the primary header is valid */
+	GptHeader* primary_header = (GptHeader*)gptdata->primary_header;
+	if (0 == CheckHeader(primary_header, 0, gptdata->drive_sectors)) {
+		primary_valid = 1;
+		if (0 != VbExDiskRead(disk_handle,
+				      primary_header->entries_lba,
+				      entries_sectors,
+				      gptdata->primary_entries))
+			return 1;
+	} else {
+		VBDEBUG(("Primary GPT header invalid!\n"));
+	}
+
+	/* Read secondary header from the end of the drive */
 	if (0 != VbExDiskRead(disk_handle, gptdata->drive_sectors - 1, 1,
 			      gptdata->secondary_header))
 		return 1;
-	GptHeader* secondary_header = (GptHeader*)gptdata->secondary_header;
-	if (0 != VbExDiskRead(disk_handle, secondary_header->entries_lba,
-			      entries_sectors, gptdata->secondary_entries))
-		return 1;
 
-	return 0;
+	/* Only read secondary GPT if the secondary header is valid */
+	GptHeader* secondary_header = (GptHeader*)gptdata->secondary_header;
+	if (0 == CheckHeader(secondary_header, 1, gptdata->drive_sectors)) {
+		secondary_valid = 1;
+		if (0 != VbExDiskRead(disk_handle,
+				      secondary_header->entries_lba,
+				      entries_sectors,
+				      gptdata->secondary_entries))
+			return 1;
+	} else {
+		VBDEBUG(("Secondary GPT header invalid!\n"));
+	}
+
+	/* Return 0 if least one GPT header was valid */
+	return (primary_valid || secondary_valid) ? 0 : 1;
 }
 
 /**

@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "cgptlib.h"
+#include "cgptlib_internal.h"
 #include "gbb_header.h"
 #include "gpt.h"
 #include "host_common.h"
@@ -23,6 +24,9 @@
 
 #define LOGCALL(fmt, args...) sprintf(call_log + strlen(call_log), fmt, ##args)
 #define TEST_CALLS(expect_log) TEST_STR_EQ(call_log, expect_log, "  calls")
+
+#define MOCK_SECTOR_SIZE  512
+#define MOCK_SECTOR_COUNT 1024
 
 /* Mock kernel partition */
 struct mock_part {
@@ -57,6 +61,43 @@ static LoadKernelParams lkp;
 static VbKeyBlockHeader kbh;
 static VbKernelPreambleHeader kph;
 static VbCommonParams cparams;
+static uint8_t mock_disk[MOCK_SECTOR_SIZE * MOCK_SECTOR_COUNT];
+static GptHeader *mock_gpt_primary =
+	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * 1];
+static GptHeader *mock_gpt_secondary =
+	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * (MOCK_SECTOR_COUNT - 1)];
+
+
+/**
+ * Prepare a valid GPT header that will pass CheckHeader() tests
+ */
+static void SetupGptHeader(GptHeader *h, int is_secondary)
+{
+	Memset(h, '\0', MOCK_SECTOR_SIZE);
+
+	/* "EFI PART" */
+	memcpy(h->signature, GPT_HEADER_SIGNATURE, GPT_HEADER_SIGNATURE_SIZE);
+	h->revision = GPT_HEADER_REVISION;
+	h->size = MIN_SIZE_OF_HEADER;
+
+	/* 16KB: 128 entries of 128 bytes */
+	h->size_of_entry = sizeof(GptEntry);
+	h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
+
+	/* Set LBA pointers for primary or secondary header */
+	if (is_secondary) {
+		h->my_lba = MOCK_SECTOR_COUNT - GPT_HEADER_SECTORS;
+		h->entries_lba = h->my_lba - GPT_ENTRIES_SECTORS;
+	} else {
+		h->my_lba = GPT_PMBR_SECTORS;
+		h->entries_lba = h->my_lba + 1;
+	}
+
+	h->first_usable_lba = 2 + GPT_ENTRIES_SECTORS;
+	h->last_usable_lba = MOCK_SECTOR_COUNT - 2 - GPT_ENTRIES_SECTORS;
+
+	h->header_crc32 = HeaderCrc(h);
+}
 
 static void ResetCallLog(void)
 {
@@ -69,6 +110,10 @@ static void ResetCallLog(void)
 static void ResetMocks(void)
 {
 	ResetCallLog();
+
+	memset(&mock_disk, 0, sizeof(mock_disk));
+	SetupGptHeader(mock_gpt_primary, 0);
+	SetupGptHeader(mock_gpt_secondary, 1);
 
 	disk_read_to_fail = -1;
 	disk_write_to_fail = -1;
@@ -137,16 +182,9 @@ VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
 	if ((int)lba_start == disk_read_to_fail)
 		return VBERROR_SIMULATED;
 
-	/* Keep valgrind happy */
-	Memset(buffer, '\0', lba_count);
-	/* Fix up entries_lba in GPT header. */
-	if (lba_start == 1 || lba_start == 1024 - 1) {
-		GptHeader* h = (GptHeader*)buffer;
-		if (lba_start == 1)
-			h->entries_lba = 1 + 1;
-		else
-			h->entries_lba = (1024 - 1 - 32);
-	}
+	memcpy(buffer, &mock_disk[lba_start * MOCK_SECTOR_SIZE],
+	       lba_count * MOCK_SECTOR_SIZE);
+
 	return VBERROR_SUCCESS;
 }
 
@@ -157,6 +195,9 @@ VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
 
 	if ((int)lba_start == disk_write_to_fail)
 		return VBERROR_SIMULATED;
+
+	memcpy(&mock_disk[lba_start * MOCK_SECTOR_SIZE], buffer,
+	       lba_count * MOCK_SECTOR_SIZE);
 
 	return VBERROR_SUCCESS;
 }
@@ -246,8 +287,9 @@ static void ReadWriteGptTest(void)
 	GptData g;
 	GptHeader *h;
 
-	g.sector_bytes = 512;
-	g.drive_sectors = 1024;
+	g.sector_bytes = MOCK_SECTOR_SIZE;
+	g.drive_sectors = MOCK_SECTOR_COUNT;
+	g.valid_headers = g.valid_entries = MASK_BOTH;
 
 	ResetMocks();
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead");
@@ -263,6 +305,105 @@ static void ReadWriteGptTest(void)
 	Memset(g.primary_header, '\0', g.sector_bytes);
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree");
 	TEST_CALLS("");
+
+	/*
+	 * Invalidate primary GPT header,
+	 * check that AllocAndReadGptData still succeeds
+	 */
+	ResetMocks();
+	Memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
+		"AllocAndRead primary invalid");
+	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.drive_sectors), 1,
+		"Primary header is invalid");
+	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.drive_sectors), 0,
+		"Secondary header is valid");
+	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
+		   "VbExDiskRead(h, 1023, 1)\n"
+		   "VbExDiskRead(h, 991, 32)\n");
+	WriteAndFreeGptData(handle, &g);
+
+	/*
+	 * Invalidate secondary GPT header,
+	 * check that AllocAndReadGptData still succeeds
+	 */
+	ResetMocks();
+	Memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
+		"AllocAndRead secondary invalid");
+	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.drive_sectors), 0,
+		"Primary header is valid");
+	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.drive_sectors), 1,
+		"Secondary header is invalid");
+	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
+		   "VbExDiskRead(h, 2, 32)\n"
+		   "VbExDiskRead(h, 1023, 1)\n");
+	WriteAndFreeGptData(handle, &g);
+
+	/*
+	 * Invalidate primary AND secondary GPT header,
+	 * check that AllocAndReadGptData fails.
+	 */
+	ResetMocks();
+	Memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
+	Memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
+	TEST_EQ(AllocAndReadGptData(handle, &g), 1,
+		"AllocAndRead primary and secondary invalid");
+	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.drive_sectors), 1,
+		"Primary header is invalid");
+	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.drive_sectors), 1,
+		"Secondary header is invalid");
+	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
+		   "VbExDiskRead(h, 1023, 1)\n");
+	WriteAndFreeGptData(handle, &g);
+
+	/*
+	 * Invalidate primary GPT header and check that it is
+	 * repaired by GptRepair().
+	 *
+	 * This would normally be called by LoadKernel()->GptInit()
+	 * but this callback is mocked in these tests.
+	 */
+	ResetMocks();
+	Memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
+		"Fix Primary GPT: AllocAndRead");
+	/* Call GptRepair() with input indicating secondary GPT is valid */
+	g.valid_headers = g.valid_entries = MASK_SECONDARY;
+	GptRepair(&g);
+	TEST_EQ(WriteAndFreeGptData(handle, &g), 0,
+		"Fix Primary GPT: WriteAndFreeGptData");
+	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
+		   "VbExDiskRead(h, 1023, 1)\n"
+		   "VbExDiskRead(h, 991, 32)\n"
+		   "VbExDiskWrite(h, 1, 1)\n"
+		   "VbExDiskWrite(h, 2, 32)\n");
+	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.drive_sectors), 0,
+		"Fix Primary GPT: Primary header is valid");
+
+	/*
+	 * Invalidate secondary GPT header and check that it can be
+	 * repaired by GptRepair().
+	 *
+	 * This would normally be called by LoadKernel()->GptInit()
+	 * but this callback is mocked in these tests.
+	 */
+	ResetMocks();
+	Memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
+		"Fix Secondary GPT: AllocAndRead");
+	/* Call GptRepair() with input indicating primary GPT is valid */
+	g.valid_headers = g.valid_entries = MASK_PRIMARY;
+	GptRepair(&g);
+	TEST_EQ(WriteAndFreeGptData(handle, &g), 0,
+		"Fix Secondary GPT: WriteAndFreeGptData");
+	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
+		   "VbExDiskRead(h, 2, 32)\n"
+		   "VbExDiskRead(h, 1023, 1)\n"
+		   "VbExDiskWrite(h, 1023, 1)\n"
+		   "VbExDiskWrite(h, 991, 32)\n");
+	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.drive_sectors), 0,
+		"Fix Secondary GPT: Secondary header is valid");
 
 	/* Data which is changed is written */
 	ResetMocks();
