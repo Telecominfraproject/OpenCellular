@@ -221,6 +221,8 @@ static void UnpackKernelBlob(uint8_t *kernel_blob_data)
 	/* Bootloader is at the end */
 	g_bootloader_size = g_preamble->bootloader_size;
 	g_bootloader_data = kernel_blob_data + now;
+	/* TODO: What to do if this is beyond the end of the blob? */
+
 	Debug("bootloader_size     = 0x%" PRIx64 "\n", g_bootloader_size);
 	Debug("bootloader_ofs      = 0x%" PRIx64 "\n", now);
 

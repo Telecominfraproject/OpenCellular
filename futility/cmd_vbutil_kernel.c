@@ -477,6 +477,7 @@ static int do_vbutil_kernel2(int argc, char *argv[])
 				Fatal("Error reading key block.\n");
 		}
 
+		/* Reuse previous body size */
 		vblock_data = SignKernelBlob(kblob_data, kblob_size, opt_pad,
 					     version, kernel_body_load_address,
 					     t_keyblock ? t_keyblock : keyblock,
@@ -526,6 +527,6 @@ static int do_vbutil_kernel2(int argc, char *argv[])
 	return 1;
 }
 
-DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel2,
+DECLARE_FUTIL_COMMAND(vbutil_kernel2, do_vbutil_kernel2,
 		      "Creates, signs, and verifies the kernel partition",
 		      print_help);
