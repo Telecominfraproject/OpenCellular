@@ -211,7 +211,7 @@ main(int argc, char *argv[])
 
 	if (enable_debug) {
 		/* Debugging information... */
-		printf("bct size: %d\n", e == 0 ? context.bct_size : -1);
+		printf("bct size: %d\n", context.bct_size);
 	}
 
 	/* Open the raw output file. */
