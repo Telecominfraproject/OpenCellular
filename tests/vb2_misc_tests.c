@@ -414,6 +414,7 @@ static void select_slot_tests(void)
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_RESULT),
 		VB2_FW_RESULT_UNKNOWN, "result unknown");
 	TEST_NEQ(sd->status & VB2_SD_STATUS_CHOSE_SLOT, 0, "chose slot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_TRIED), 0, "tried A");
 	TEST_EQ(sd->fw_slot, 0, "selected A");
 	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "didn't choose B");
 
@@ -424,6 +425,7 @@ static void select_slot_tests(void)
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_RESULT),
 		VB2_FW_RESULT_UNKNOWN, "result unknown");
 	TEST_NEQ(sd->status & VB2_SD_STATUS_CHOSE_SLOT, 0, "chose slot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_TRIED), 1, "tried B");
 	TEST_EQ(sd->fw_slot, 1, "selected B");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "ctx says choose B");
 
@@ -433,6 +435,7 @@ static void select_slot_tests(void)
 	TEST_SUCC(vb2_select_fw_slot(&cc), "select slot A out of tries");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TRY_NEXT), 1, "try B next");
 	TEST_NEQ(sd->status & VB2_SD_STATUS_CHOSE_SLOT, 0, "chose slot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_TRIED), 1, "tried B");
 	TEST_EQ(sd->fw_slot, 1, "selected B");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "ctx says choose B");
 
@@ -443,6 +446,7 @@ static void select_slot_tests(void)
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_RESULT),
 		VB2_FW_RESULT_TRYING, "result trying");
 	TEST_NEQ(sd->status & VB2_SD_STATUS_CHOSE_SLOT, 0, "chose slot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_TRIED), 0, "tried A");
 	TEST_EQ(sd->fw_slot, 0, "selected A");
 	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "didn't choose B");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TRY_COUNT), 2, "tries decremented");

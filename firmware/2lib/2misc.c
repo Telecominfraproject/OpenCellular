@@ -344,6 +344,9 @@ int vb2_select_fw_slot(struct vb2_context *ctx)
 		vb2_nv_set(ctx, VB2_NV_TRY_COUNT, tries - 1);
 	}
 
+	/* Store the slot we're trying */
+	vb2_nv_set(ctx, VB2_NV_FW_TRIED, sd->fw_slot);
+
 	/* Set context flag if we're using slot B */
 	if (sd->fw_slot)
 		ctx->flags |= VB2_CONTEXT_FW_SLOT_B;
