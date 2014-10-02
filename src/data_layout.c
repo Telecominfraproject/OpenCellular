@@ -1004,12 +1004,14 @@ write_block_raw(build_image_context *context)
 		{
 			size_t bytes = pages_to_write * context->page_size;
 
-			if (fwrite(data, 1, bytes, context->raw_file) != bytes)
+			if (fwrite(data, 1, bytes, context->raw_file) != bytes) {
+				if (empty_blk) free(empty_blk);
 				return -1;
+			}
 		}
 	}
 
-	free(empty_blk);
+	if (empty_blk) free(empty_blk);
 	return 0;
 }
 
