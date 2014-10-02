@@ -460,12 +460,12 @@ ALL_OBJS += ${CGPT_OBJS}
 # Scripts to install directly (not compiled)
 UTIL_SCRIPTS = \
 	utility/dev_debug_vboot \
-	utility/enable_dev_usb_boot \
-	utility/vbutil_what_keys
+	utility/enable_dev_usb_boot
 
 ifeq (${MINIMAL},)
 UTIL_SCRIPTS += \
-	utility/dev_make_keypair
+	utility/dev_make_keypair \
+	utility/vbutil_what_keys
 endif
 
 # These utilities should be linked statically.
