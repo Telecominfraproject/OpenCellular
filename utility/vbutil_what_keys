@@ -1,5 +1,5 @@
-#!/bin/bash -u
-# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+#!/bin/sh -u
+# Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
@@ -32,8 +32,6 @@ fi
 # {24B107F2-BA6A-4EBD-8CDD-E768438CE0F0}    Stumpy H2C
 # {FA42644C-CF3A-4692-A9D3-1A667CB232E9}    ZGB H2C
 
-
-set -o pipefail
 
 # args?
 unpack_it=
