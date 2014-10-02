@@ -1050,7 +1050,7 @@ int get_bct_size_from_image(build_image_context *context)
 	if (!fp)
 		return ENODATA;
 
-	if (!fread(buffer, 1, NVBOOT_CONFIG_TABLE_SIZE_MAX, fp)) {
+	if (fread(buffer, 1, NVBOOT_CONFIG_TABLE_SIZE_MAX, fp) != NVBOOT_CONFIG_TABLE_SIZE_MAX) {
 		fclose(fp);
 		return ENODATA;
 	}
