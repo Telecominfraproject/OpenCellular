@@ -499,7 +499,7 @@ namespace vboot_reference {
     config_.header.minor_version = minor_version_;
     config_.header.number_of_localizations = config_.localizations.size();
     config_.header.number_of_screenlayouts = config_.localizations[0].size();
-    // HEY: this is part of the yaml consistency check
+    // NOTE: this is part of the yaml consistency check
     for (unsigned int i = 1; i < config_.localizations.size(); ++i) {
       assert(config_.header.number_of_screenlayouts ==
              config_.localizations[i].size());

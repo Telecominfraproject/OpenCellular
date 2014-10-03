@@ -114,6 +114,57 @@ int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
 	return 1;
 }
 
+/* For GBB v1.2 and later, print the stored digest of the HWID (and whether
+ * it's correct). Return true if it is correct. */
+int print_hwid_digest(GoogleBinaryBlockHeader *gbb,
+		      const char *banner, const char *footer)
+{
+	printf("%s", banner);
+
+	/* There isn't one for v1.1 and earlier, so assume it's good. */
+	if (gbb->minor_version < 2) {
+		printf("<none>%s", footer);
+		return 1;
+	}
+
+	uint8_t *buf = (uint8_t *)gbb;
+	char *hwid_str = (char *)(buf + gbb->hwid_offset);
+	int is_valid = 0;
+	uint8_t* digest = DigestBuf(buf + gbb->hwid_offset,
+				    strlen(hwid_str),
+				    SHA256_DIGEST_ALGORITHM);
+	if (digest) {
+		int i;
+		is_valid = 1;
+		/* print it, comparing as we go */
+		for (i = 0; i < SHA256_DIGEST_SIZE; i++) {
+			printf("%02x", gbb->hwid_digest[i]);
+			if (gbb->hwid_digest[i] != digest[i])
+				is_valid = 0;
+		}
+		free(digest);
+	}
+
+	printf("   %s", is_valid ? "valid" : "<invalid>");
+	printf("%s", footer);
+	return is_valid;
+}
+
+/* For GBB v1.2 and later, update the hwid_digest field. */
+void update_hwid_digest(GoogleBinaryBlockHeader *gbb)
+{
+	/* There isn't one for v1.1 and earlier */
+	if (gbb->minor_version < 2)
+		return;
+
+	uint8_t *buf = (uint8_t *)gbb;
+	char *hwid_str = (char *)(buf + gbb->hwid_offset);
+	uint8_t* digest = DigestBuf(buf + gbb->hwid_offset,
+				    strlen(hwid_str),
+				    SHA256_DIGEST_ALGORITHM);
+	memcpy(gbb->hwid_digest, digest, SHA256_DIGEST_SIZE);
+	free(digest);
+}
 
 /*
  * TODO: All sorts of race conditions likely here, and everywhere this is used.

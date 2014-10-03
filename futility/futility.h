@@ -71,6 +71,14 @@ int futil_looks_like_gbb(GoogleBinaryBlockHeader *gbb, uint32_t len);
 int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
 			   uint32_t *maxlen);
 
+/* For GBB v1.2 and later, update the hwid_digest */
+void update_hwid_digest(GoogleBinaryBlockHeader *gbb);
+
+/* For GBB v1.2 and later, print the stored digest of the HWID (and whether
+ * it's correct). Return true if it is correct. */
+int print_hwid_digest(GoogleBinaryBlockHeader *gbb,
+		      const char *banner, const char *footer);
+
 /* Copies a file or dies with an error message */
 void futil_copy_file_or_die(const char *infile, const char *outfile);
 

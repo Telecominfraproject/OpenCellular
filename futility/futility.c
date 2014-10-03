@@ -129,7 +129,7 @@ static void log_args(int argc, char *argv[])
 	log_open();
 
 	/* delimiter */
-	log_str(NULL, "##### HEY #####");
+	log_str(NULL, "##### LOG #####");
 
 	/* Can we tell who called us? */
 	parent = getppid();

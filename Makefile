@@ -175,7 +175,7 @@ endif
 
 # And a few more default utilities
 LD = ${CC}
-CXX ?= g++ # HEY: really?
+CXX ?= g++
 PKG_CONFIG ?= pkg-config
 
 # Determine QEMU architecture needed, if any

@@ -141,8 +141,8 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 	}
 
 	printf("GBB content:\n");
-	printf("  HWID:                  %s\n",
-	       (const char *)(buf + gbb->hwid_offset));
+	printf("  HWID:                  %s\n", buf + gbb->hwid_offset);
+	print_hwid_digest(gbb, "     digest:             ", "\n");
 
 	pubkey = (VbPublicKey *)(buf + gbb->rootkey_offset);
 	if (PublicKeyLooksOkay(pubkey, gbb->rootkey_size)) {
