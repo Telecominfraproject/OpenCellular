@@ -577,7 +577,7 @@ TESTLIB_SRCS = \
 	tests/crc32_test.c
 
 TESTLIB_OBJS = ${TESTLIB_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${TESTLIB_OBJS}
+TEST_OBJS += ${TESTLIB_OBJS}
 
 
 # And some compiled tests.
@@ -651,7 +651,7 @@ TEST_NAMES += ${TLCL_TEST_NAMES}
 
 # Finally
 TEST_BINS = $(addprefix ${BUILD}/,${TEST_NAMES})
-ALL_OBJS += $(addsuffix .o,${TEST_BINS})
+TEST_OBJS += $(addsuffix .o,${TEST_BINS})
 
 # Directory containing test keys
 TEST_KEYS = ${SRC_RUN}/tests/testkeys
@@ -690,14 +690,6 @@ install_for_test: install
 
 # Don't delete intermediate object files
 .SECONDARY:
-
-.PHONY: tags TAGS
-tags TAGS: ${CGPT_SRCS} ${FUTIL_SRCS} ${UTILLIB_SRCS} ${FWLIB_SRCS} \
-		$(if ${VBOOT2},${FWLIB2_SRCS}) \
-		$(wildcard $(patsubst -I%,%/*.h,${INCLUDES}))
-	${Q}\rm -f cscope.* TAGS
-	${Q}echo $^ | tr ' ' '\012' > cscope.files
-	${Q}$(if $(shell which etags 2>/dev/null),etags $^,echo "no etags")
 
 # ----------------------------------------------------------------------------
 # Firmware library
@@ -750,13 +742,13 @@ endif
 # Linktest ensures firmware lib doesn't rely on outside libraries
 ${BUILD}/firmware/linktest/main_vbinit: ${VBINIT_OBJS}
 ${BUILD}/firmware/linktest/main_vbinit: OBJS = ${VBINIT_OBJS}
-ALL_OBJS += ${BUILD}/firmware/linktest/main_vbinit.o
+TEST_OBJS += ${BUILD}/firmware/linktest/main_vbinit.o
 ${BUILD}/firmware/linktest/main_vbsf: ${VBSF_OBJS}
 ${BUILD}/firmware/linktest/main_vbsf: OBJS = ${VBSF_OBJS}
-ALL_OBJS += ${BUILD}/firmware/linktest/main_vbsf.o
+TEST_OBJS += ${BUILD}/firmware/linktest/main_vbsf.o
 ${BUILD}/firmware/linktest/main: ${FWLIB}
 ${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
-ALL_OBJS += ${BUILD}/firmware/linktest/main.o
+TEST_OBJS += ${BUILD}/firmware/linktest/main.o
 
 .PHONY: fwlinktest
 fwlinktest: \
@@ -788,7 +780,7 @@ ${FWLIB2}: ${FWLIB2_OBJS}
 # Link tests for local utilities
 ${BUILD}/host/linktest/main: ${UTILLIB}
 ${BUILD}/host/linktest/main: LIBS = ${UTILLIB}
-ALL_OBJS += ${BUILD}/host/linktest/main.o
+TEST_OBJS += ${BUILD}/host/linktest/main.o
 
 .PHONY: utillib
 utillib: ${UTILLIB} \
@@ -806,7 +798,7 @@ ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} $(if ${VBOOT2},${FWLIB2_OBJS})
 ${BUILD}/host/linktest/extern: ${HOSTLIB}
 ${BUILD}/host/linktest/extern: LIBS = ${HOSTLIB}
 ${BUILD}/host/linktest/extern: LDLIBS += -static
-ALL_OBJS += ${BUILD}/host/linktest/extern.o
+TEST_OBJS += ${BUILD}/host/linktest/extern.o
 
 .PHONY: hostlib
 hostlib: ${HOSTLIB} \
@@ -1018,24 +1010,24 @@ ${BUILD}/tests/rollback_index2_tests: OBJS += \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 ${BUILD}/tests/rollback_index2_tests: \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
-ALL_OBJS += ${BUILD}/firmware/lib/rollback_index_for_test.o
+TEST_OBJS += ${BUILD}/firmware/lib/rollback_index_for_test.o
 
 ${BUILD}/tests/tlcl_tests: OBJS += \
 	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
 ${BUILD}/tests/tlcl_tests: \
 	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
-ALL_OBJS += ${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
+TEST_OBJS += ${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
 
 ${BUILD}/tests/vboot_audio_tests: OBJS += \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 ${BUILD}/tests/vboot_audio_tests: \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
-ALL_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
+TEST_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
 
 TLCL_TEST_BINS = $(addprefix ${BUILD}/,${TLCL_TEST_NAMES})
 ${TLCL_TEST_BINS}: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ${TLCL_TEST_BINS}: ${BUILD}/tests/tpm_lite/tlcl_tests.o
-ALL_OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
+TEST_OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 
 # ----------------------------------------------------------------------------
 # Here are the special rules that don't fit in the generic rules.
@@ -1228,4 +1220,24 @@ endif
 
 # Include generated dependencies
 ALL_DEPS += ${ALL_OBJS:%.o=%.o.d}
--include ${ALL_DEPS}
+TEST_DEPS += ${TEST_OBJS:%.o=%.o.d}
+
+# We want to use only relative paths in cscope.files, especially since the
+# paths inside and outside the chroot are different.
+SRCDIRPAT=$(subst /,\/,${SRCDIR}/)
+
+${BUILD}/cscope.files: test_setup
+	${Q}rm -f $@
+	${Q}cat ${ALL_DEPS} | tr -d ':\\' | tr ' ' '\012' | \
+		sed -e "s/${SRCDIRPAT}//" | \
+		egrep '\.[chS]$$' | sort | uniq > $@
+
+cmd_etags = etags -o ${BUILD}/TAGS $(shell cat ${BUILD}/cscope.files)
+cmd_ctags = ctags -o ${BUILD}/tags $(shell cat ${BUILD}/cscope.files)
+run_if_prog = $(if $(shell which $(1) 2>/dev/null),$(2),)
+
+.PHONY: tags TAGS xrefs
+tags TAGS xrefs: ${BUILD}/cscope.files
+	${Q}\rm -f ${BUILD}/tags ${BUILD}/TAGS
+	${Q}$(call run_if_prog,etags,${cmd_etags})
+	${Q}$(call run_if_prog,ctags,${cmd_ctags})
