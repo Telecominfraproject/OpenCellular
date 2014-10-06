@@ -321,7 +321,7 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 
 	Debug("kernel blob is at offset 0x%" PRIx64 "\n", now);
 	g_kernel_blob_data = kpart_data + now;
-	g_kernel_blob_size = kpart_size - now;
+	g_kernel_blob_size = preamble->body_signature.data_size;
 
 	/* Sanity check */
 	if (g_kernel_blob_size < preamble->body_signature.data_size)
