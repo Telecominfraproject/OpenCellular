@@ -51,7 +51,7 @@ main() {
     # Verify that session_manager isn't configured to pass additional
     # environment variables or command-line arguments to Chrome.
     local config_path="$rootfs/etc/chrome_dev.conf"
-    local matches=$(grep "^[^#]" "${config_path}")
+    local matches=$(grep -s "^[^#]" "${config_path}")
     if [ -n "$matches" ]; then
         echo "FAIL: Found commands in $config_path:"
         echo "$matches"
