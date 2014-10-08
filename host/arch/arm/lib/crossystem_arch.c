@@ -476,7 +476,7 @@ int VbReadNvStorage(VbNvContext* vnc) {
   media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
   if (!strcmp(media, "disk"))
     return VbReadNvStorage_disk(vnc);
-  if (!strcmp(media, "mkbp"))
+  if (!strcmp(media, "mkbp") || !strcmp(media, "flash"))
     return VbReadNvStorage_mkbp(vnc);
   return -1;
 }
@@ -489,7 +489,7 @@ int VbWriteNvStorage(VbNvContext* vnc) {
   media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
   if (!strcmp(media, "disk"))
     return VbWriteNvStorage_disk(vnc);
-  if (!strcmp(media, "mkbp"))
+  if (!strcmp(media, "mkbp") || !strcmp(media, "flash"))
     return VbWriteNvStorage_mkbp(vnc);
   return -1;
 }
