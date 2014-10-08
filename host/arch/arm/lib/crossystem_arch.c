@@ -338,7 +338,7 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
   return 0;
 }
 
-static int VbReadNvStorage_mkbp(VbNvContext* vnc) {
+static int VbReadNvStorage_mosys(VbNvContext* vnc) {
   char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
   char * const argv[] = {
     MOSYS_PATH, "nvram", "vboot", "read", NULL
@@ -357,7 +357,7 @@ static int VbReadNvStorage_mkbp(VbNvContext* vnc) {
   return 0;
 }
 
-static int VbWriteNvStorage_mkbp(VbNvContext* vnc) {
+static int VbWriteNvStorage_mosys(VbNvContext* vnc) {
   char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
   char * const argv[] = {
     MOSYS_PATH, "nvram", "vboot", "write", hexstring, NULL
@@ -477,7 +477,7 @@ int VbReadNvStorage(VbNvContext* vnc) {
   if (!strcmp(media, "disk"))
     return VbReadNvStorage_disk(vnc);
   if (!strcmp(media, "mkbp") || !strcmp(media, "flash"))
-    return VbReadNvStorage_mkbp(vnc);
+    return VbReadNvStorage_mosys(vnc);
   return -1;
 }
 
@@ -490,7 +490,7 @@ int VbWriteNvStorage(VbNvContext* vnc) {
   if (!strcmp(media, "disk"))
     return VbWriteNvStorage_disk(vnc);
   if (!strcmp(media, "mkbp") || !strcmp(media, "flash"))
-    return VbWriteNvStorage_mkbp(vnc);
+    return VbWriteNvStorage_mosys(vnc);
   return -1;
 }
 
