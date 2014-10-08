@@ -214,6 +214,8 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	int rec_switch, dev_switch;
 	BootMode boot_mode;
 	uint32_t require_official_os = 0;
+	uint32_t body_toread;
+	uint8_t *body_readptr;
 
 	VbError_t retval = VBERROR_UNKNOWN;
 	int recovery = VBNV_RECOVERY_LK_UNSPECIFIED;
@@ -304,11 +306,10 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		VbKeyBlockHeader *key_block;
 		VbKernelPreambleHeader *preamble;
 		RSAPublicKey *data_key = NULL;
+		VbExStream_t stream = NULL;
 		uint64_t key_version;
 		uint32_t combined_version;
 		uint64_t body_offset;
-		uint64_t body_offset_sectors;
-		uint64_t body_sectors;
 		int key_block_valid = 1;
 
 		VBDEBUG(("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
@@ -334,15 +335,15 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		/* Found at least one kernel partition. */
 		found_partitions++;
 
-		/* Read the first part of the kernel partition. */
-		if (part_size < kbuf_sectors) {
-			VBDEBUG(("Partition too small to hold kernel.\n"));
+		/* Set up the stream */
+		if (VbExStreamOpen(params->disk_handle,
+				   part_start, part_size, &stream)) {
+			VBDEBUG(("Partition error getting stream.\n"));
 			shpart->check_result = VBSD_LKP_CHECK_TOO_SMALL;
 			goto bad_kernel;
 		}
 
-		if (0 != VbExDiskRead(params->disk_handle, part_start,
-				      kbuf_sectors, kbuf)) {
+		if (0 != VbExStreamRead(stream, KBUF_SIZE, kbuf)) {
 			VBDEBUG(("Unable to read start of partition.\n"));
 			shpart->check_result = VBSD_LKP_CHECK_READ_START;
 			goto bad_kernel;
@@ -487,53 +488,79 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		 * one; we only needed to look at the versions to check for
 		 * rollback.  So skip to the next kernel preamble.
 		 */
-		if (-1 != good_partition)
+		if (-1 != good_partition) {
+			VbExStreamClose(stream);
+			stream = NULL;
 			continue;
+		}
 
-		/* Verify kernel body starts at multiple of sector size. */
 		body_offset = key_block->key_block_size +
 			preamble->preamble_size;
-		if (0 != body_offset % blba) {
-			VBDEBUG(("Kernel body not at multiple of "
-				 "sector size.\n"));
+
+		/*
+		 * Make sure the kernel starts at or before what we already
+		 * read into kbuf.
+		 *
+		 * We could deal with a larger offset by reading and discarding
+		 * the data in between the vblock and the kernel data.
+		 */
+		if (body_offset > KBUF_SIZE) {
 			shpart->check_result = VBSD_LKP_CHECK_BODY_OFFSET;
+			VBDEBUG(("Kernel body offset is %d > 64KB.\n",
+				 (int)body_offset));
 			goto bad_kernel;
 		}
-		body_offset_sectors = body_offset / blba;
 
-		body_sectors =
-			(preamble->body_signature.data_size + blba - 1) / blba;
 		if (!params->kernel_buffer) {
 			/* Get kernel load address and size from the header. */
 			params->kernel_buffer =
 				(void *)((long)preamble->body_load_address);
-			params->kernel_buffer_size = body_sectors * blba;
-		} else {
-			/* Verify kernel body fits in the buffer */
-			if (body_sectors * blba > params->kernel_buffer_size) {
-				VBDEBUG(("Kernel body doesn't "
-					 "fit in memory.\n"));
-				shpart->check_result =
-					VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
-				goto bad_kernel;
-			}
-		}
-
-		/* Verify kernel body fits in the partition */
-		if (body_offset_sectors + body_sectors > part_size) {
-			VBDEBUG(("Kernel body doesn't fit in partition.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_PART;
+			params->kernel_buffer_size =
+				preamble->body_signature.data_size;
+		} else if (preamble->body_signature.data_size >
+			   params->kernel_buffer_size) {
+			VBDEBUG(("Kernel body doesn't fit in memory.\n"));
+			shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
 			goto bad_kernel;
 		}
 
+		/*
+		 * Body signature data size is 64 bit and toread is 32 bit so
+		 * this could technically cause us to read less data.  That's
+		 * fine, because a 4 GB kernel is implausible, and if we did
+		 * have one that big, we'd simply read too little data and fail
+		 * to verify it.
+		 */
+		body_toread = preamble->body_signature.data_size;
+		body_readptr = params->kernel_buffer;
+
+		/*
+		 * If we've already read part of the kernel, copy that to the
+		 * beginning of the kernel buffer.
+		 */
+		if (body_offset < KBUF_SIZE) {
+			uint32_t body_copied = KBUF_SIZE - body_offset;
+
+			/* If the kernel is tiny, don't over-copy */
+			if (body_copied > body_toread)
+				body_copied = body_toread;
+
+			Memcpy(body_readptr, kbuf + body_offset, body_copied);
+			body_toread -= body_copied;
+			body_readptr += body_copied;
+		}
+
 		/* Read the kernel data */
-		if (0 != VbExDiskRead(params->disk_handle,
-				      part_start + body_offset_sectors,
-				      body_sectors, params->kernel_buffer)) {
+		if (body_toread &&
+		    0 != VbExStreamRead(stream, body_toread, body_readptr)) {
 			VBDEBUG(("Unable to read kernel data.\n"));
 			shpart->check_result = VBSD_LKP_CHECK_READ_DATA;
 			goto bad_kernel;
 		}
+
+		/* Close the stream; we're done with it */
+		VbExStreamClose(stream);
+		stream = NULL;
 
 		/* Verify kernel data */
 		if (0 != VerifyData((const uint8_t *)params->kernel_buffer,
@@ -603,6 +630,8 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	bad_kernel:
 		/* Handle errors parsing this kernel */
+		if (NULL != stream)
+			VbExStreamClose(stream);
 		if (NULL != data_key)
 			RSAPublicKeyFree(data_key);
 

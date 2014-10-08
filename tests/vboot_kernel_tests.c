@@ -153,6 +153,7 @@ static void ResetMocks(void)
 	lkp.ending_lba = 1023;
 	lkp.kernel_buffer = kernel_buffer;
 	lkp.kernel_buffer_size = sizeof(kernel_buffer);
+	lkp.disk_handle = (VbExDiskHandle_t)1;
 
 	memset(&kbh, 0, sizeof(kbh));
 	kbh.data_key.key_version = 2;
@@ -162,7 +163,7 @@ static void ResetMocks(void)
 	memset(&kph, 0, sizeof(kph));
 	kph.kernel_version = 1;
 	kph.preamble_size = 4096 - kbh.key_block_size;
-	kph.body_signature.data_size = 70000;
+	kph.body_signature.data_size = 70144;
 	kph.bootloader_address = 0xbeadd008;
 	kph.bootloader_size = 0x1234;
 
@@ -531,6 +532,12 @@ static void InvalidParamsTest(void)
 	gpt_init_fail = 1;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
 		"Bad GPT");
+
+	/* This causes the stream open call to fail */
+	ResetMocks();
+	lkp.disk_handle = NULL;
+	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
+		"Bad disk handle");
 }
 
 static void LoadKernelTest(void)
@@ -538,7 +545,9 @@ static void LoadKernelTest(void)
 	uint32_t u;
 
 	ResetMocks();
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "First kernel good");
+
+	u = LoadKernel(&lkp, &cparams);
+	TEST_EQ(u, 0, "First kernel good");
 	TEST_EQ(lkp.partition_number, 1, "  part num");
 	TEST_EQ(lkp.bootloader_address, 0xbeadd008, "  bootloader addr");
 	TEST_EQ(lkp.bootloader_size, 0x1234, "  bootloader size");
@@ -689,6 +698,11 @@ static void LoadKernelTest(void)
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
 		"Kernel body offset");
 
+	ResetMocks();
+	kph.preamble_size += 65536;
+	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
+		"Kernel body offset huge");
+
 	/* Check getting kernel load address from header */
 	ResetMocks();
 	kph.body_load_address = (size_t)kernel_buffer;
@@ -709,7 +723,11 @@ static void LoadKernelTest(void)
 		"Kernel too big for partition");
 
 	ResetMocks();
-	disk_read_to_fail = 108;
+	kph.body_signature.data_size = 8192;
+	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Kernel tiny");
+
+	ResetMocks();
+	disk_read_to_fail = 228;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
 		"Fail reading kernel data");
 
