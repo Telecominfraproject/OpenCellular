@@ -73,26 +73,25 @@ char* ReadFileString(char* dest, int size, const char* filename) {
 }
 
 
-int ReadFileInt(const char* filename) {
+int ReadFileInt(const char* filename, unsigned* value) {
   char buf[64];
-  int value;
   char* e = NULL;
 
   if (!ReadFileString(buf, sizeof(buf), filename))
     return -1;
 
   /* Convert to integer.  Allow characters after the int ("123 blah"). */
-  value = strtol(buf, &e, 0);
+  *value = (unsigned)strtoul(buf, &e, 0);
   if (e == buf)
     return -1;  /* No characters consumed, so conversion failed */
 
-  return value;
+  return 0;
 }
 
 
 int ReadFileBit(const char* filename, int bitmask) {
-  int value = ReadFileInt(filename);
-  if (value == -1)
+  unsigned value;
+  if (ReadFileInt(filename, &value) < 0)
     return -1;
   else return (value & bitmask ? 1 : 0);
 }

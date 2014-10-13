@@ -28,10 +28,10 @@ uint8_t* ReadFile(const char* filename, uint64_t* size);
  * Returns the destination, or NULL if error. */
 char* ReadFileString(char* dest, int size, const char* filename);
 
-/* Read an integer from a file.
+/* Read an unsigned integer from a file and save into passed pointer.
  *
- * Returns the parsed integer, or -1 if error. */
-int ReadFileInt(const char* filename);
+ * Returns 0 if success, -1 if error. */
+int ReadFileInt(const char* filename, unsigned* value);
 
 /* Check if a bit is set in a file which contains an integer.
  *

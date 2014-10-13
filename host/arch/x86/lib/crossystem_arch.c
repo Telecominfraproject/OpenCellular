@@ -120,7 +120,7 @@ static void VbFixCmosChecksum(FILE* file) {
 }
 
 
-static int VbCmosRead(int offs, size_t size, void *ptr) {
+static int VbCmosRead(unsigned offs, size_t size, void *ptr) {
   size_t res;
   FILE* f;
 
@@ -144,7 +144,7 @@ static int VbCmosRead(int offs, size_t size, void *ptr) {
 }
 
 
-static int VbCmosWrite(int offs, size_t size, const void *ptr) {
+static int VbCmosWrite(unsigned offs, size_t size, const void *ptr) {
   size_t res;
   FILE* f;
 
@@ -169,13 +169,14 @@ static int VbCmosWrite(int offs, size_t size, const void *ptr) {
 
 
 int VbReadNvStorage(VbNvContext* vnc) {
-  int offs;
+  unsigned offs, blksz;
 
   /* Get the byte offset from VBNV */
-  offs = ReadFileInt(ACPI_VBNV_PATH ".0");
-  if (offs == -1)
+  if (ReadFileInt(ACPI_VBNV_PATH ".0", &offs) < 0)
     return -1;
-  if (VBNV_BLOCK_SIZE > ReadFileInt(ACPI_VBNV_PATH ".1"))
+  if (ReadFileInt(ACPI_VBNV_PATH ".1", &blksz) < 0)
+    return -1;
+  if (VBNV_BLOCK_SIZE > blksz)
     return -1;  /* NV storage block is too small */
 
   if (0 != VbCmosRead(offs, VBNV_BLOCK_SIZE, vnc->raw))
@@ -186,16 +187,17 @@ int VbReadNvStorage(VbNvContext* vnc) {
 
 
 int VbWriteNvStorage(VbNvContext* vnc) {
-  int offs;
+  unsigned offs, blksz;
 
   if (!vnc->raw_changed)
     return 0;  /* Nothing changed, so no need to write */
 
   /* Get the byte offset from VBNV */
-  offs = ReadFileInt(ACPI_VBNV_PATH ".0");
-  if (offs == -1)
+  if (ReadFileInt(ACPI_VBNV_PATH ".0", &offs) < 0)
     return -1;
-  if (VBNV_BLOCK_SIZE > ReadFileInt(ACPI_VBNV_PATH ".1"))
+  if (ReadFileInt(ACPI_VBNV_PATH ".1", &blksz) < 0)
+    return -1;
+  if (VBNV_BLOCK_SIZE > blksz)
     return -1;  /* NV storage block is too small */
 
   if (0 != VbCmosWrite(offs, VBNV_BLOCK_SIZE, vnc->raw))
@@ -337,12 +339,11 @@ VbSharedDataHeader* VbSharedDataRead(void) {
  *
  * Returns 0 if the mask is clear in the field, 1 if set, or -1 if error. */
 static int VbGetCmosRebootField(uint8_t mask) {
-  int chnv;
+  unsigned chnv;
   uint8_t nvbyte;
 
   /* Get the byte offset from CHNV */
-  chnv = ReadFileInt(ACPI_CHNV_PATH);
-  if (chnv == -1)
+  if (ReadFileInt(ACPI_CHNV_PATH, &chnv) < 0)
     return -1;
 
   if (0 != VbCmosRead(chnv, 1, &nvbyte))
@@ -358,12 +359,11 @@ static int VbGetCmosRebootField(uint8_t mask) {
  *
  * Returns 0 if success, or -1 if error. */
 static int VbSetCmosRebootField(uint8_t mask, int value) {
-  int chnv;
+  unsigned chnv;
   uint8_t nvbyte;
 
   /* Get the byte offset from CHNV */
-  chnv = ReadFileInt(ACPI_CHNV_PATH);
-  if (chnv == -1)
+  if (ReadFileInt(ACPI_CHNV_PATH, &chnv) < 0)
     return -1;
 
   if (0 != VbCmosRead(chnv, 1, &nvbyte))
@@ -388,27 +388,31 @@ static int VbSetCmosRebootField(uint8_t mask, int value) {
  * Passed the destination and its size.  Returns the destination, or
  * NULL if error. */
 static const char* VbReadMainFwType(char* dest, int size) {
+  unsigned value;
 
   /* Try reading type from BINF.3 */
-  switch(ReadFileInt(ACPI_BINF_PATH ".3")) {
-    case BINF3_NETBOOT:
-      return StrCopy(dest, "netboot", size);
-    case BINF3_RECOVERY:
-      return StrCopy(dest, "recovery", size);
-    case BINF3_NORMAL:
-      return StrCopy(dest, "normal", size);
-    case BINF3_DEVELOPER:
-      return StrCopy(dest, "developer", size);
-    default:
-      break;  /* Fall through to legacy handling */
+  if (ReadFileInt(ACPI_BINF_PATH ".3", &value) == 0) {
+    switch(value) {
+      case BINF3_NETBOOT:
+        return StrCopy(dest, "netboot", size);
+      case BINF3_RECOVERY:
+        return StrCopy(dest, "recovery", size);
+      case BINF3_NORMAL:
+        return StrCopy(dest, "normal", size);
+      case BINF3_DEVELOPER:
+        return StrCopy(dest, "developer", size);
+      default:
+        break;  /* Fall through to legacy handling */
+    }
   }
 
   /* Fall back to BINF.0 for legacy systems like Mario. */
-  switch(ReadFileInt(ACPI_BINF_PATH ".0")) {
-    case -1:
-      /* Both BINF.0 and BINF.3 are missing, so this isn't Chrome OS
-       * firmware. */
-      return StrCopy(dest, "nonchrome", size);
+  if (ReadFileInt(ACPI_BINF_PATH ".0", &value) < 0)
+    /* Both BINF.0 and BINF.3 are missing, so this isn't Chrome OS
+     * firmware. */
+    return StrCopy(dest, "nonchrome", size);
+
+  switch(value) {
     case BINF0_NORMAL:
       return StrCopy(dest, "normal", size);
     case BINF0_DEVELOPER:
@@ -431,15 +435,16 @@ static const char* VbReadMainFwType(char* dest, int size) {
 
 /* Read the recovery reason.  Returns the reason code or -1 if error. */
 static int VbGetRecoveryReason(void) {
-  int value = -1;
+  unsigned value;
 
   /* Try reading type from BINF.4 */
-  value = ReadFileInt(ACPI_BINF_PATH ".4");
-  if (-1 != value)
+  if (ReadFileInt(ACPI_BINF_PATH ".4", &value) == 0)
     return value;
 
   /* Fall back to BINF.0 for legacy systems like Mario. */
-  switch(ReadFileInt(ACPI_BINF_PATH ".0")) {
+  if (ReadFileInt(ACPI_BINF_PATH ".0", &value) < 0)
+    return -1;
+  switch(value) {
     case BINF0_NORMAL:
     case BINF0_DEVELOPER:
       return VBNV_RECOVERY_NOT_REQUESTED;
@@ -500,7 +505,7 @@ static char* ReadPlatformFamilyString(char* dest, int size) {
  * we look for a directory named /sys/class/gpio/gpiochip<O>/. If there's not
  * exactly one match for that, we're SOL.
  */
-static int FindGpioChipOffset(int *gpio_num, int *offset) {
+static int FindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
   DIR *dir;
   struct dirent *ent;
   int match = 0;
@@ -511,7 +516,7 @@ static int FindGpioChipOffset(int *gpio_num, int *offset) {
   }
 
   while(0 != (ent = readdir(dir))) {
-    if (1 == sscanf(ent->d_name, "gpiochip%d", offset)) {
+    if (1 == sscanf(ent->d_name, "gpiochip%u", offset)) {
       match++;
     }
   }
@@ -530,10 +535,10 @@ static int FindGpioChipOffset(int *gpio_num, int *offset) {
  *   2  | 0x1000
  *   3  | 0x2000
  */
-static int BayTrailFindGpioChipOffset(int *gpio_num, int *offset) {
+static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
   DIR *dir;
   struct dirent *ent;
-  int expected_uid;
+  unsigned expected_uid;
   int match = 0;
 
   /* Obtain relative GPIO number. */
@@ -557,12 +562,15 @@ static int BayTrailFindGpioChipOffset(int *gpio_num, int *offset) {
 
   while(0 != (ent = readdir(dir))) {
     /* For every gpiochip entry determine uid. */
-    if (1 == sscanf(ent->d_name, "gpiochip%d", offset)) {
+    if (1 == sscanf(ent->d_name, "gpiochip%u", offset)) {
       char uid_file[128];
+      unsigned uid_value;
       snprintf(uid_file, sizeof(uid_file),
-               "%s/gpiochip%d/device/firmware_node/uid", GPIO_BASE_PATH,
+               "%s/gpiochip%u/device/firmware_node/uid", GPIO_BASE_PATH,
                *offset);
-      if (expected_uid == ReadFileInt(uid_file)) {
+      if (ReadFileInt(uid_file, &uid_value) < 0)
+        continue;
+      if (expected_uid == uid_value) {
         match++;
         break;
       }
@@ -576,7 +584,7 @@ static int BayTrailFindGpioChipOffset(int *gpio_num, int *offset) {
 
 struct GpioChipset {
   const char *name;
-  int (*ChipOffsetAndGpioNumber)(int *gpio_num, int *chip_offset);
+  int (*ChipOffsetAndGpioNumber)(unsigned *gpio_num, unsigned *chip_offset);
 };
 
 static const struct GpioChipset chipsets_supported[] = {
@@ -603,34 +611,36 @@ static const struct GpioChipset *FindChipset(const char *name) {
 /* Read a GPIO of the specified signal type (see ACPI GPIO SignalType).
  *
  * Returns 1 if the signal is asserted, 0 if not asserted, or -1 if error. */
-static int ReadGpio(int signal_type) {
+static int ReadGpio(unsigned signal_type) {
   char name[128];
   int index = 0;
-  int gpio_type;
-  int active_high;
-  int controller_num;
-  int controller_offset = 0;
+  unsigned gpio_type;
+  unsigned active_high;
+  unsigned controller_num;
+  unsigned controller_offset = 0;
   char controller_name[128];
-  int value;
+  unsigned value;
   const struct GpioChipset *chipset;
 
   /* Scan GPIO.* to find a matching signal type */
   for (index = 0; ; index++) {
     snprintf(name, sizeof(name), "%s.%d/GPIO.0", ACPI_GPIO_PATH, index);
-    gpio_type = ReadFileInt(name);
+    if (ReadFileInt(name, &gpio_type) < 0)
+      return -1;                  /* Ran out of GPIOs before finding a match */
     if (gpio_type == signal_type)
       break;
-    else if (gpio_type == -1)
-      return -1;                  /* Ran out of GPIOs before finding a match */
   }
 
   /* Read attributes and controller info for the GPIO */
   snprintf(name, sizeof(name), "%s.%d/GPIO.1", ACPI_GPIO_PATH, index);
-  active_high = ReadFileBit(name, 0x00000001);
+  if (ReadFileInt(name, &active_high) < 0)
+    return -1;
   snprintf(name, sizeof(name), "%s.%d/GPIO.2", ACPI_GPIO_PATH, index);
-  controller_num = ReadFileInt(name);
-  if (active_high == -1 || controller_num == -1)
-    return -1;                          /* Missing needed info */
+  if (ReadFileInt(name, &controller_num) < 0)
+    return -1;
+  /* Do not attempt to read GPIO that is set to -1 in ACPI */
+  if (controller_num == 0xFFFFFFFF)
+    return -1;
 
   /* Check for chipsets we recognize. */
   snprintf(name, sizeof(name), "%s.%d/GPIO.3", ACPI_GPIO_PATH, index);
@@ -648,22 +658,21 @@ static int ReadGpio(int signal_type) {
   /* Try reading the GPIO value */
   snprintf(name, sizeof(name), "%s/gpio%d/value",
            GPIO_BASE_PATH, controller_offset);
-  value = ReadFileInt(name);
-
-  if (value == -1) {
+  if (ReadFileInt(name, &value) < 0) {
     /* Try exporting the GPIO */
     FILE* f = fopen(GPIO_EXPORT_PATH, "wt");
     if (!f)
       return -1;
-    fprintf(f, "%d", controller_offset);
+    fprintf(f, "%u", controller_offset);
     fclose(f);
 
     /* Try re-reading the GPIO value */
-    value = ReadFileInt(name);
+    if (ReadFileInt(name, &value) < 0)
+      return -1;
   }
 
-  if (value == -1)
-    return -1;
+  /* Normalize the value read from the kernel in case it is not always 1. */
+  value = value ? 1 : 0;
 
   /* Compare the GPIO value with the active value and return 1 if match. */
   return (value == active_high ? 1 : 0);
@@ -674,8 +683,13 @@ int VbGetArchPropertyInt(const char* name) {
   int value = -1;
 
   /* Values from ACPI */
-  if (!strcasecmp(name,"fmap_base"))
-    value = ReadFileInt(ACPI_FMAP_PATH);
+  if (!strcasecmp(name,"fmap_base")) {
+    unsigned fmap_base;
+    if (ReadFileInt(ACPI_FMAP_PATH, &fmap_base) < 0)
+      return -1;
+    else
+      value = (int)fmap_base;
+  }
 
   /* Switch positions */
   if (!strcasecmp(name,"devsw_cur")) {
@@ -713,9 +727,17 @@ int VbGetArchPropertyInt(const char* name) {
   /* Saved memory is at a fixed location for all H2C BIOS.  If the CHSW
    * path exists in sysfs, it's a H2C BIOS. */
   if (!strcasecmp(name,"savedmem_base")) {
-    return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00F00000);
+    unsigned savedmem_base;
+    if (ReadFileInt(ACPI_CHSW_PATH, &savedmem_base) < 0)
+      return -1;
+    else
+      return 0x00F00000;
   } else if (!strcasecmp(name,"savedmem_size")) {
-    return (-1 == ReadFileInt(ACPI_CHSW_PATH) ? -1 : 0x00100000);
+    unsigned savedmem_size;
+    if (ReadFileInt(ACPI_CHSW_PATH, &savedmem_size) < 0)
+      return -1;
+    else
+      return 0x00100000;
   }
 
   /* NV storage values.  If unable to get from NV storage, fall back to the
@@ -738,14 +760,15 @@ int VbGetArchPropertyInt(const char* name) {
    * older systems where it's not, it was stored in a file in the
    * stateful partition. */
   if (!strcasecmp(name,"fwupdate_tries")) {
+    unsigned fwupdate_value;
     if (-1 != VbGetNvStorage(VBNV_KERNEL_FIELD))
       return -1;  /* NvStorage supported; fail through arch-specific
                    * implementation to normal implementation. */
-
     /* Read value from file; missing file means value=0. */
-    value = ReadFileInt(NEED_FWUPDATE_PATH);
-    if (-1 == value)
+    if (ReadFileInt(NEED_FWUPDATE_PATH, &fwupdate_value) < 0)
       value = 0;
+    else
+      value = (int)fwupdate_value;
   }
 
   return value;
@@ -754,6 +777,7 @@ int VbGetArchPropertyInt(const char* name) {
 
 const char* VbGetArchPropertyString(const char* name, char* dest,
                                     size_t size) {
+  unsigned value;
 
   if (!strcasecmp(name,"arch")) {
     return StrCopy(dest, "x86", size);
@@ -764,7 +788,9 @@ const char* VbGetArchPropertyString(const char* name, char* dest,
   } else if (!strcasecmp(name,"ro_fwid")) {
     return ReadFileString(dest, size, ACPI_BASE_PATH "/FRID");
   } else if (!strcasecmp(name,"mainfw_act")) {
-    switch(ReadFileInt(ACPI_BINF_PATH ".1")) {
+    if (ReadFileInt(ACPI_BINF_PATH ".1", &value) < 0)
+      return NULL;
+    switch(value) {
       case 0:
         return StrCopy(dest, "recovery", size);
       case 1:
@@ -777,7 +803,9 @@ const char* VbGetArchPropertyString(const char* name, char* dest,
   } else if (!strcasecmp(name,"mainfw_type")) {
     return VbReadMainFwType(dest, size);
   } else if (!strcasecmp(name,"ecfw_act")) {
-    switch(ReadFileInt(ACPI_BINF_PATH ".2")) {
+    if (ReadFileInt(ACPI_BINF_PATH ".2", &value) < 0)
+      return NULL;
+    switch(value) {
       case 0:
         return StrCopy(dest, "RO", size);
       case 1:
