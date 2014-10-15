@@ -21,6 +21,7 @@
 #define VBOOT_2_API_H_
 #include <stdint.h>
 
+#include "2fw_hash_tags.h"
 #include "2recovery_reasons.h"
 #include "2return_codes.h"
 
@@ -294,27 +295,11 @@ int vb2api_fw_phase2(struct vb2_context *ctx);
  */
 int vb2api_fw_phase3(struct vb2_context *ctx);
 
-/*
- * Tags for types of hashable data.
- *
- * TODO: These are the ones that vboot specifically knows about given the
- * current data structures.  In the future, I'd really like the vboot preamble
- * to contain an arbitrary list of tags and their hashes, so that we can hash
- * ram init, main RW body, EC-RW for software sync, etc. all separately.
- */
-enum vb2api_hash_tag {
-	/* Invalid hash tag; never present in table */
-	VB2_HASH_TAG_INVALID = 0,
-
-	/* Firmware body */
-	VB2_HASH_TAG_FW_BODY,
-};
-
 /**
  * Initialize hashing data for the specified tag.
  *
  * @param ctx		Vboot context
- * @param tag		Tag to start hashing
+ * @param tag		Tag to start hashing (enum vb2_hash_tag)
  * @param size		If non-null, expected size of data for tag will be
  *			stored here on output.
  * @return VB2_SUCCESS, or error code on error.
