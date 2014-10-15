@@ -27,7 +27,7 @@ struct vb2_packed_key {
 	uint32_t key_size;
 	uint32_t reserved1;
 
-	/* Signature algorithm used by the key */
+	/* Signature algorithm used by the key (enum vb2_crypto_algorithm) */
 	uint32_t algorithm;
 	uint32_t reserved2;
 
@@ -231,7 +231,10 @@ struct vb2_shared_data {
 	/* Flags from GBB header */
 	uint32_t gbb_flags;
 
-	/* Reason we are in recovery mode this boot, or 0 if we aren't */
+	/*
+	 * Reason we are in recovery mode this boot (enum vb2_nv_recovery), or
+	 * 0 if we aren't.
+	 */
 	uint32_t recovery_reason;
 
 	/* Firmware slot used last boot (0=A, 1=B) */

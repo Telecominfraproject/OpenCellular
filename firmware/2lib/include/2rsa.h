@@ -6,27 +6,9 @@
 #ifndef VBOOT_REFERENCE_2RSA_H_
 #define VBOOT_REFERENCE_2RSA_H_
 
+#include "2crypto.h"
+
 struct vb2_workbuf;
-
-/* Algorithms for crypto lib */
-enum vb2_crypto_algorithm {
-	VB2_ALG_RSA1024_SHA1 = 0,
-	VB2_ALG_RSA1024_SHA256,
-	VB2_ALG_RSA1024_SHA512,
-	VB2_ALG_RSA2048_SHA1,
-	VB2_ALG_RSA2048_SHA256,
-	VB2_ALG_RSA2048_SHA512,
-	VB2_ALG_RSA4096_SHA1,
-	VB2_ALG_RSA4096_SHA256,
-	VB2_ALG_RSA4096_SHA512,
-	VB2_ALG_RSA8192_SHA1,
-	VB2_ALG_RSA8192_SHA256,
-	VB2_ALG_RSA8192_SHA512,
-	// TODO: add algorithms for bare SHA with no RSA?
-
-	/* Number of algorithms */
-	VB2_ALG_COUNT
-};
 
 /* Public key structure in RAM */
 struct vb2_public_key {
@@ -40,7 +22,7 @@ struct vb2_public_key {
 /**
  * Return the size of a RSA signature
  *
- * @param algorithm	Key algorithm
+ * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
  * @return The size of the signature, or 0 if error.
  */
 uint32_t vb2_rsa_sig_size(uint32_t algorithm);
@@ -48,7 +30,7 @@ uint32_t vb2_rsa_sig_size(uint32_t algorithm);
 /**
  * Return the size of a pre-processed RSA public key.
  *
- * @param algorithm	Key algorithm
+ * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
  * @return The size of the preprocessed key, or 0 if error.
  */
 uint32_t vb2_packed_key_size(uint32_t algorithm);
@@ -57,7 +39,7 @@ uint32_t vb2_packed_key_size(uint32_t algorithm);
  * Check pkcs 1.5 padding bytes
  *
  * @param sig		Signature to verify
- * @param algorithm	Key algorithm
+ * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
  * @return VB2_SUCCESS, or non-zero if error.
  */
 int vb2_check_padding(uint8_t *sig, int algorithm);

@@ -6,6 +6,8 @@
 #ifndef VBOOT_REFERENCE_2SHA_H_
 #define VBOOT_REFERENCE_2SHA_H_
 
+#include "2crypto.h"
+
 /* Hash algorithms may be disabled individually to save code space */
 
 #ifndef VB2_SUPPORT_SHA1
@@ -73,7 +75,7 @@ struct vb2_digest_context {
 #endif
 	};
 
-	/* Current hash algorithms */
+	/* Current hash algorithm (enum vb2_crypto_algorithm) */
 	uint32_t algorithm;
 };
 
@@ -116,7 +118,7 @@ void vb2_sha512_finalize(struct vb2_sha512_context *ctx, uint8_t *digest);
 /**
  * Return the size of the digest for a key algorithm.
  *
- * @param algorithm	Key algorithm
+ * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
  * @return The size of the digest, or 0 if error.
  */
 int vb2_digest_size(uint32_t algorithm);
@@ -125,7 +127,7 @@ int vb2_digest_size(uint32_t algorithm);
  * Initialize a digest context for doing block-style digesting.
  *
  * @param dc		Digest context
- * @param algorithm	Key algorithm
+ * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
  * @return VB2_SUCCESS, or non-zero on error.
  */
 int vb2_digest_init(struct vb2_digest_context *dc, uint32_t algorithm);
