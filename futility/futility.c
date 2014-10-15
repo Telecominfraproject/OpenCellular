@@ -256,108 +256,80 @@ static const char *const dep_usage = "\n"
 "\n" MYNAME " %s [...]\n"
 "\n";
 
-static void deprecated(const char *depname)
+static int deprecated(const char *depname)
 {
 	fprintf(stderr, dep_usage, depname, depname);
-	exit(1);
+	return 1;
 }
 
-/******************************************************************************/
+int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
+{
+	/* Handle the "CMD --help" case ourselves */
+	if (2 == argc && 0 == strcmp(argv[1], "--help")) {
+		char *fake_argv[] = {"help",
+				     (char *)cmd->name,
+				     NULL};
+		return do_help(2, fake_argv);
+	}
+
+	return cmd->handler(argc, argv);
+}
+
+static char *simple_basename(char *str)
+{
+	char *s = strrchr(str, '/');
+	if (s)
+		s++;
+	else
+		s = str;
+	return s;
+}
+
 /* Here we go */
-
-#define MYNAME_S MYNAME "_s"
-
 int main(int argc, char *argv[], char *envp[])
 {
-	char *fullname, *progname;
-	char truename[PATH_MAX];
-	char buf[80];
-	pid_t myproc;
-	ssize_t r;
+	char *progname;
 	const struct futil_cmd_t *cmd;
 	int i;
-	int via_symlink = 0;
 
 	log_args(argc, argv);
 
 	/* How were we invoked? */
-	fullname = strdup(argv[0]);
-	progname = strrchr(argv[0], '/');
-	if (progname)
-		progname++;
-	else
-		progname = argv[0];
+	progname = simple_basename(argv[0]);
 
-	/* Invoked directly by name */
-	if (0 == strcmp(progname, MYNAME) || 0 == strcmp(progname, MYNAME_S)) {
-
-		if (argc < 2) {	/* must have an argument */
-			do_help(0, 0);
-			exit(1);
-		}
-
-		/* We can just pass the rest along, then */
-		argc--;
-		argv++;
-
-		/* So now what function do we want to invoke? */
-		progname = strrchr(argv[0], '/');
-		if (progname)
-			progname++;
-		else
-			progname = argv[0];
-		/* Oh, and treat "--foo" the same as "foo" */
-		while (*progname == '-')
-			progname++;
-
-	} else {		/* Invoked by symlink */
-		via_symlink = 1;
-		/* Block any deprecated functions. */
-		for (i = 0; i < ARRAY_SIZE(dep_cmds); i++)
-			if (0 == strcmp(dep_cmds[i], progname))
-				deprecated(progname);
-	}
-
-	/* See if it's asking for something we know how to do ourselves */
+	/* See if the program name is a command we recognize */
 	cmd = find_command(progname);
 	if (cmd) {
-		/* Handle the "CMD --help" case ourselves */
-		if (2 == argc && 0 == strcmp(argv[1], "--help")) {
-			char *fake_argv[] = {"help",
-					     (char *)cmd->name,
-					     NULL};
-			return do_help(2, fake_argv);
-		} else {
-			return cmd->handler(argc, argv);
-		}
+		/* Block any deprecated functions invoked directly. */
+		for (i = 0; i < ARRAY_SIZE(dep_cmds); i++)
+			if (0 == strcmp(dep_cmds[i], progname))
+				return deprecated(progname);
+
+		return run_command(cmd, argc, argv);
 	}
 
-	/* Never heard of it */
-	if (!via_symlink) {
+	/* The program name means nothing, so we require an argument. */
+	if (argc < 2) {
 		do_help(0, 0);
-		exit(1);
+		return 1;
 	}
 
-	/* Complain about bogus symlink */
-	myproc = getpid();
-	snprintf(buf, sizeof(buf), "/proc/%d/exe", myproc);
-	r = readlink(buf, truename, PATH_MAX - 1);
-	if (r < 0) {
-		fprintf(stderr, "%s is lost: %s => %s: %s\n", MYNAME, argv[0],
-			buf, strerror(errno));
-		exit(1);
-	}
-	truename[r] = '\0';
+	/* The first arg should be a command we recognize */
+	argc--;
+	argv++;
 
-	fprintf(stderr, "\n"
-"The program\n\n  %s\n\nis a symlink to\n\n  %s\n"
-"\n"
-"However, " MYNAME " doesn't know how to implement that function.\n"
-"\n"
-"This is probably an error in your installation. If the problem persists\n"
-"after a fresh checkout/build/install, please open a bug at\n"
-"\n"
-"  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n"
-"\n", fullname, truename);
+	/* For reasons I've forgotten, treat /blah/blah/CMD the same as CMD */
+	progname = simple_basename(argv[0]);
+	/* Oh, and treat "--foo" the same as "foo" */
+	while (*progname == '-')
+		progname++;
+
+	/* Do we recognize the command? */
+	cmd = find_command(progname);
+	if (cmd)
+		return run_command(cmd, argc, argv);
+
+	/* Nope. We've no clue what we're being asked to do. */
+	do_help(0, 0);
 	return 1;
 }
