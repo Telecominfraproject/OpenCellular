@@ -9,16 +9,30 @@
 #include "cgptlib_internal.h"
 #include "vboot_host.h"
 
+static void AllocAndClear(uint8_t **buf, uint64_t size) {
+  if (*buf) {
+    memset(*buf, 0, size);
+  } else {
+    *buf = calloc(1, size);
+    if (!*buf) {
+      Error("Cannot allocate %u bytes.\n", size);
+      abort();
+    }
+  }
+}
+
 static int GptCreate(struct drive *drive, CgptCreateParams *params) {
-  // Erase the data
-  memset(drive->gpt.primary_header, 0,
-         drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
-  memset(drive->gpt.secondary_header, 0,
-         drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
-  memset(drive->gpt.primary_entries, 0,
-         drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
-  memset(drive->gpt.secondary_entries, 0,
-         drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
+  // Allocate and/or erase the data.
+  // We cannot assume the GPT headers or entry arrays have been allocated
+  // by GptLoad() because those fields might have failed validation checks.
+  AllocAndClear(&drive->gpt.primary_header,
+                drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
+  AllocAndClear(&drive->gpt.secondary_header,
+                drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
+  AllocAndClear(&drive->gpt.primary_entries,
+                drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
+  AllocAndClear(&drive->gpt.secondary_entries,
+                drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
 
   drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
                          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);

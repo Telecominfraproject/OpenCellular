@@ -27,6 +27,9 @@
 #include "flash_ts_api.h"
 #include "vboot_host.h"
 
+static const char kErrorTag[] = "ERROR";
+static const char kWarningTag[] = "WARNING";
+
 struct nand_layout nand;
 
 void EnableNandImage(int bytes_per_page, int pages_per_block,
@@ -38,19 +41,29 @@ void EnableNandImage(int bytes_per_page, int pages_per_block,
   nand.fts_block_size = fts_block_size;
 }
 
+static void LogToStderr(const char *tag, const char *format, va_list ap) {
+  fprintf(stderr, "%s: ", tag);
+  vfprintf(stderr, format, ap);
+}
+
 void Error(const char *format, ...) {
   va_list ap;
   va_start(ap, format);
-  fprintf(stderr, "ERROR: ");
-  vfprintf(stderr, format, ap);
+  LogToStderr(kErrorTag, format, ap);
+  va_end(ap);
+}
+
+void Warning(const char *format, ...) {
+  va_list ap;
+  va_start(ap, format);
+  LogToStderr(kWarningTag, format, ap);
   va_end(ap);
 }
 
 int CheckValid(const struct drive *drive) {
   if ((drive->gpt.valid_headers != MASK_BOTH) ||
       (drive->gpt.valid_entries != MASK_BOTH)) {
-	  fprintf(stderr,
-		  "\nWARNING: one of the GPT header/entries is invalid\n\n");
+    Warning("One of the GPT headers/entries is invalid\n\n");
     return CGPT_FAILED;
   }
   return CGPT_OK;
@@ -311,24 +324,36 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   if (CGPT_OK != Load(drive, &drive->gpt.primary_header,
                       GPT_PMBR_SECTORS,
                       drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
+    Error("Cannot read primary GPT header\n");
     return -1;
   }
   if (CGPT_OK != Load(drive, &drive->gpt.secondary_header,
                       drive->gpt.drive_sectors - GPT_PMBR_SECTORS,
                       drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
+    Error("Cannot read secondary GPT header\n");
     return -1;
   }
   GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
-  if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
-                      primary_header->entries_lba,
-                      drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
-    return -1;
+  if (CheckHeader(primary_header, 0, drive->gpt.drive_sectors) == 0) {
+    if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
+                        primary_header->entries_lba,
+                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+      Error("Cannot read primary partition entry array\n");
+      return -1;
+    }
+  } else {
+    Warning("Primary GPT header is invalid\n");
   }
   GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
-  if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
-                      secondary_header->entries_lba,
-                      drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
-    return -1;
+  if (CheckHeader(secondary_header, 1, drive->gpt.drive_sectors) == 0) {
+    if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
+                        secondary_header->entries_lba,
+                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+      Error("Cannot read secondary partition entry array\n");
+      return -1;
+    }
+  } else {
+    Warning("Secondary GPT header is invalid\n");
   }
   return 0;
 }
