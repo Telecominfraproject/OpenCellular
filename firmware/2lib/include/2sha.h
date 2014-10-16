@@ -116,6 +116,17 @@ void vb2_sha256_finalize(struct vb2_sha256_context *ctx, uint8_t *digest);
 void vb2_sha512_finalize(struct vb2_sha512_context *ctx, uint8_t *digest);
 
 /**
+ * Convert vb2_crypto_algorithm to vb2_hash_algorithm.
+ *
+ * @param algorithm	Crypto algorithm (vb2_crypto_algorithm)
+ *
+ * @return The hash algorithm for that crypto algorithm, or VB2_HASH_INVALID if
+ * the crypto algorithm or its corresponding hash algorithm is invalid or not
+ * supported.
+ */
+enum vb2_hash_algorithm vb2_hash_algorithm(uint32_t algorithm);
+
+/**
  * Return the size of the digest for a key algorithm.
  *
  * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)

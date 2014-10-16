@@ -7,6 +7,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "vboot_struct.h"  /* For old struct sizes */
 
 #include "test_common.h"
 
@@ -112,16 +113,59 @@ static void test_workbuf(void)
  */
 static void test_struct_packing(void)
 {
-	TEST_EQ(EXPECTED_VBPUBLICKEY_SIZE, sizeof(struct vb2_packed_key),
+	/* Test vboot2 versions of vboot1 structs */
+	TEST_EQ(EXPECTED_VB2_PACKED_KEY_SIZE,
+		sizeof(struct vb2_packed_key),
 		"sizeof(vb2_packed_key)");
-	TEST_EQ(EXPECTED_VBSIGNATURE_SIZE, sizeof(struct vb2_signature),
+	TEST_EQ(EXPECTED_VB2_SIGNATURE_SIZE,
+		sizeof(struct vb2_signature),
 		"sizeof(vb2_signature)");
-	TEST_EQ(EXPECTED_VB2KEYBLOCKHEADER_SIZE,
+	TEST_EQ(EXPECTED_VB2_KEYBLOCK_SIZE,
 		sizeof(struct vb2_keyblock),
-		"sizeof(VbKeyBlockHeader)");
-	TEST_EQ(EXPECTED_VB2FIRMWAREPREAMBLEHEADER2_1_SIZE,
+		"sizeof(vb2_keyblock)");
+	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE_SIZE,
 		sizeof(struct vb2_fw_preamble),
 		"sizeof(vb2_fw_preamble)");
+	TEST_EQ(EXPECTED_VB2_GBB_HEADER_SIZE,
+		sizeof(struct vb2_gbb_header),
+		"sizeof(vb2_gbb_header)");
+
+	/* And make sure they're the same as their vboot1 equivalents */
+	TEST_EQ(EXPECTED_VB2_PACKED_KEY_SIZE,
+		EXPECTED_VBPUBLICKEY_SIZE,
+		"vboot1->2 packed key sizes same");
+	TEST_EQ(EXPECTED_VB2_SIGNATURE_SIZE,
+		EXPECTED_VBSIGNATURE_SIZE,
+		"vboot1->2 signature sizes same");
+	TEST_EQ(EXPECTED_VB2_KEYBLOCK_SIZE,
+		EXPECTED_VBKEYBLOCKHEADER_SIZE,
+		"vboot1->2 keyblock sizes same");
+	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE_SIZE,
+		EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE,
+		"vboot1->2 firmware preamble sizes same");
+
+	/* Test new struct sizes */
+	TEST_EQ(EXPECTED_GUID_SIZE,
+		sizeof(struct vb2_guid),
+		"sizeof(vb2_guid)");
+	TEST_EQ(EXPECTED_VB2_STRUCT_COMMON_SIZE,
+		sizeof(struct vb2_struct_common),
+		"sizeof(vb2_struct_common)");
+	TEST_EQ(EXPECTED_VB2_PACKED_KEY2_SIZE,
+		sizeof(struct vb2_packed_key2),
+		"sizeof(vb2_packed_key2)");
+	TEST_EQ(EXPECTED_VB2_SIGNATURE2_SIZE,
+		sizeof(struct vb2_signature2),
+		"sizeof(vb2_signature2)");
+	TEST_EQ(EXPECTED_VB2_KEYBLOCK2_SIZE,
+		sizeof(struct vb2_keyblock2),
+		"sizeof(vb2_keyblock2)");
+	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE2_SIZE,
+		sizeof(struct vb2_fw_preamble2),
+		"sizeof(vb2_fw_preamble2)");
+	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE_HASH_SIZE,
+		sizeof(struct vb2_fw_preamble_hash),
+		"sizeof(vb2_fw_preamble_hash)");
 }
 
 /**

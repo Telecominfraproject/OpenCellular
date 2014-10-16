@@ -10,30 +10,59 @@
 #include "2rsa.h"
 #include "2sha.h"
 
-/* Hash algorithms.  Note that they line up with key algorithms. */
-enum vb2_hash_algorithm {
-	VB2_HASH_SHA1   = VB2_ALG_RSA1024_SHA1,
-	VB2_HASH_SHA256 = VB2_ALG_RSA1024_SHA256,
-	VB2_HASH_SHA512 = VB2_ALG_RSA1024_SHA512,
+#if VB2_SUPPORT_SHA1
+#define CTH_SHA1 VB2_HASH_SHA1
+#else
+#define CTH_SHA1 VB2_HASH_INVALID
+#endif
 
-	/* Number of hash algorithms */
-	VB2_HASH_COUNT
+#if VB2_SUPPORT_SHA256
+#define CTH_SHA256 VB2_HASH_SHA256
+#else
+#define CTH_SHA256 VB2_HASH_INVALID
+#endif
+
+#if VB2_SUPPORT_SHA512
+#define CTH_SHA512 VB2_HASH_SHA512
+#else
+#define CTH_SHA512 VB2_HASH_INVALID
+#endif
+
+static const uint8_t crypto_to_hash[VB2_ALG_COUNT] = {
+	CTH_SHA1,
+	CTH_SHA256,
+	CTH_SHA512,
+	CTH_SHA1,
+	CTH_SHA256,
+	CTH_SHA512,
+	CTH_SHA1,
+	CTH_SHA256,
+	CTH_SHA512,
+	CTH_SHA1,
+	CTH_SHA256,
+	CTH_SHA512,
 };
 
 /**
- * Convert key algorithm to hash algorithm.
+ * Convert vb2_crypto_algorithm to vb2_hash_algorithm.
+ *
+ * @param algorithm	Crypto algorithm (vb2_crypto_algorithm)
+ *
+ * @return The hash algorithm for that crypto algorithm, or VB2_HASH_INVALID if
+ * the crypto algorithm or its corresponding hash algorithm is invalid or not
+ * supported.
  */
-static enum vb2_hash_algorithm vb2_hash_alg(uint32_t algorithm)
+enum vb2_hash_algorithm vb2_hash_algorithm(uint32_t algorithm)
 {
 	if (algorithm < VB2_ALG_COUNT)
-		return algorithm % VB2_HASH_COUNT;
+		return crypto_to_hash[algorithm];
 	else
-		return VB2_HASH_COUNT;
+		return VB2_HASH_INVALID;
 }
 
 int vb2_digest_size(uint32_t algorithm)
 {
-	switch (vb2_hash_alg(algorithm)) {
+	switch (vb2_hash_algorithm(algorithm)) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		return VB2_SHA1_DIGEST_SIZE;
@@ -55,7 +84,7 @@ int vb2_digest_init(struct vb2_digest_context *dc, uint32_t algorithm)
 {
 	dc->algorithm = algorithm;
 
-	switch (vb2_hash_alg(dc->algorithm)) {
+	switch (vb2_hash_algorithm(dc->algorithm)) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		vb2_sha1_init(&dc->sha1);
@@ -80,7 +109,7 @@ int vb2_digest_extend(struct vb2_digest_context *dc,
 		      const uint8_t *buf,
 		      uint32_t size)
 {
-	switch (vb2_hash_alg(dc->algorithm)) {
+	switch (vb2_hash_algorithm(dc->algorithm)) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		vb2_sha1_update(&dc->sha1, buf, size);
@@ -108,7 +137,7 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 	if (digest_size < vb2_digest_size(dc->algorithm))
 		return VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE;
 
-	switch (vb2_hash_alg(dc->algorithm)) {
+	switch (vb2_hash_algorithm(dc->algorithm)) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		vb2_sha1_finalize(&dc->sha1, digest);

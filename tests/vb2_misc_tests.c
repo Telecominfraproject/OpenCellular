@@ -135,7 +135,7 @@ static void gbb_tests(void)
 	struct vb2_gbb_header gbbdest;
 
 	TEST_EQ(sizeof(struct vb2_gbb_header),
-		EXPECTED_GBB_HEADER_SIZE,
+		EXPECTED_VB2_GBB_HEADER_SIZE,
 		"sizeof(struct vb2_gbb_header)");
 
 	reset_common_data();

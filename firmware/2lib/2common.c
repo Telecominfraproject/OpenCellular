@@ -373,8 +373,8 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 	VB2_DEBUG("Verifying preamble.\n");
 
 	/* Sanity checks before attempting signature of data */
-	if(size < EXPECTED_VB2FIRMWAREPREAMBLEHEADER2_1_SIZE) {
-		VB2_DEBUG("Not enough data for preamble header 2.1.\n");
+	if(size < sizeof(*preamble)) {
+		VB2_DEBUG("Not enough data for preamble header\n");
 		return VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER;
 	}
 	if (preamble->header_version_major !=
