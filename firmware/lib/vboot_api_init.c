@@ -82,6 +82,10 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		shared->flags |= VBSD_EC_SLOW_UPDATE;
 	if (iparams->flags & VB_INIT_FLAG_VIRTUAL_REC_SWITCH)
 		shared->flags |= VBSD_BOOT_REC_SWITCH_VIRTUAL;
+	if (iparams->flags & VB_INIT_FLAG_OPROM_MATTERS)
+		shared->flags |= VBSD_OPROM_MATTERS;
+	if (iparams->flags & VB_INIT_FLAG_OPROM_LOADED)
+		shared->flags |= VBSD_OPROM_LOADED;
 
 	is_s3_resume = (iparams->flags & VB_INIT_FLAG_S3_RESUME ? 1 : 0);
 
@@ -327,7 +331,14 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		if ((iparams->flags & VB_INIT_FLAG_OPROM_MATTERS) &&
 		    (iparams->flags & VB_INIT_FLAG_OPROM_LOADED)) {
 			VbNvSet(&vnc, VBNV_OPROM_NEEDED, 0);
-			retval = VBERROR_VGA_OPROM_MISMATCH;
+			/*
+			 * If this is a system with slow EC update then don't
+			 * reboot immediately in case VGA option ROM is still
+			 * needed to display an update screen.  The reboot will
+			 * be requested after EC software sync is complete.
+			 */
+			if (!(iparams->flags & VB_INIT_FLAG_EC_SLOW_UPDATE))
+				retval = VBERROR_VGA_OPROM_MISMATCH;
 			VBDEBUG(("VbInit() has oprom, doesn't need it\n"));
 		}
 	}

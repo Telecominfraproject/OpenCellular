@@ -802,6 +802,18 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	if (in_rw) {
 		if (need_update) {
 			/*
+			 * Check if BIOS should also load VGA Option ROM when
+			 * rebooting to save another reboot if possible.
+			 */
+			if ((shared->flags & VBSD_EC_SLOW_UPDATE) &&
+			    (shared->flags & VBSD_OPROM_MATTERS) &&
+			    !(shared->flags & VBSD_OPROM_LOADED)) {
+				VBDEBUG(("VbEcSoftwareSync() - Reboot to "
+					 "load VGA Option ROM\n"));
+				VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+			}
+
+			/*
 			 * EC is running the wrong RW image.  Reboot the EC to
 			 * RO so we can update it on the next boot.
 			 */
@@ -821,10 +833,16 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 		if (shared->flags & VBSD_EC_SLOW_UPDATE) {
 			VBDEBUG(("VbEcSoftwareSync() - "
 				 "EC is slow. Show WAIT screen.\n"));
-			/*
-			 * FIXME(crosbug.com/p/12257): Ensure the VGA Option
-			 * ROM is loaded!
-			 */
+
+			/* Ensure the VGA Option ROM is loaded */
+			if ((shared->flags & VBSD_OPROM_MATTERS) &&
+			    !(shared->flags & VBSD_OPROM_LOADED)) {
+				VBDEBUG(("VbEcSoftwareSync() - Reboot to "
+					 "load VGA Option ROM\n"));
+				VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+				return VBERROR_VGA_OPROM_MISMATCH;
+			}
+
 			VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, &vnc);
 		}
 
@@ -890,6 +908,23 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
+	/*
+	 * Reboot to unload VGA Option ROM if:
+	 * - RW update was done
+	 * - the system is NOT in developer mode
+	 * - the system has slow EC update flag set
+	 * - the VGA Option ROM was needed and loaded
+	 */
+	if (need_update &&
+	    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
+	    (shared->flags & VBSD_EC_SLOW_UPDATE) &&
+	    (shared->flags & VBSD_OPROM_MATTERS) &&
+	    (shared->flags & VBSD_OPROM_LOADED)) {
+		VBDEBUG(("VbEcSoftwareSync() - Reboot to "
+			 "unload VGA Option ROM\n"));
+		return VBERROR_VGA_OPROM_MISMATCH;
+	}
+
 	VBDEBUG(("VbEcSoftwareSync() in RW; done\n"));
 	return VBERROR_SUCCESS;
 }
@@ -939,18 +974,31 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	/* Do EC software sync if necessary */
 	if ((shared->flags & VBSD_EC_SOFTWARE_SYNC) &&
 	    !(cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)) {
+		int oprom_mismatch = 0;
+
 		retval = VbEcSoftwareSync(0, cparams);
-		if (retval != VBERROR_SUCCESS)
+		/* Save reboot requested until after possible PD sync */
+		if (retval == VBERROR_VGA_OPROM_MISMATCH)
+			oprom_mismatch = 1;
+		else if (retval != VBERROR_SUCCESS)
 			goto VbSelectAndLoadKernel_exit;
 
 #ifdef PD_SYNC
 		if (!(cparams->gbb->flags &
 		      GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
 			retval = VbEcSoftwareSync(1, cparams);
-			if (retval != VBERROR_SUCCESS)
+			if (retval == VBERROR_VGA_OPROM_MISMATCH)
+				oprom_mismatch = 1;
+			else if (retval != VBERROR_SUCCESS)
 				goto VbSelectAndLoadKernel_exit;
 		}
 #endif
+
+		/* Request reboot to unload VGA Option ROM */
+		if (oprom_mismatch) {
+			retval = VBERROR_VGA_OPROM_MISMATCH;
+			goto VbSelectAndLoadKernel_exit;
+		}
 	}
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
