@@ -505,7 +505,8 @@ static char* ReadPlatformFamilyString(char* dest, int size) {
  * we look for a directory named /sys/class/gpio/gpiochip<O>/. If there's not
  * exactly one match for that, we're SOL.
  */
-static int FindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
+static int FindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
+                              const char *name) {
   DIR *dir;
   struct dirent *ent;
   int match = 0;
@@ -525,6 +526,43 @@ static int FindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
   return (1 == match);
 }
 
+/* Physical GPIO number <N> may be accessed through /sys/class/gpio/gpio<M>/,
+ * but <N> and <M> may differ by some offset <O>. To determine that constant,
+ * we look for a directory named /sys/class/gpio/gpiochip<O>/ and check for
+ * a 'label' file inside of it to find the expected the controller name.
+ */
+static int FindGpioChipOffsetByLabel(unsigned *gpio_num, unsigned *offset,
+                                     const char *name) {
+  DIR *dir;
+  struct dirent *ent;
+  char filename[128];
+  char chiplabel[128];
+  int match = 0;
+
+  dir = opendir(GPIO_BASE_PATH);
+  if (!dir) {
+    return 0;
+  }
+
+  while(0 != (ent = readdir(dir))) {
+    if (1 == sscanf(ent->d_name, "gpiochip%u", offset)) {
+      /*
+       * Read the file at gpiochip<O>/label to get the identifier
+       * for this bank of GPIOs.
+       */
+      snprintf(filename, sizeof(filename), "%s/gpiochip%u/label",
+               GPIO_BASE_PATH, *offset);
+      if (ReadFileString(chiplabel, sizeof(chiplabel), filename)) {
+        if (!strncasecmp(chiplabel, name, strlen(name)))
+          match++;
+      }
+    }
+  }
+
+  closedir(dir);
+  return (1 == match);
+}
+
 /* BayTrail has 3 sets of GPIO banks. It is expected the firmware exposes
  * each bank of gpios using a UID in ACPI. Furthermore the gpio number exposed
  * is relative to the bank. e.g. gpio 6 in the bank specified by UID 3 would
@@ -535,7 +573,8 @@ static int FindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
  *   2  | 0x1000
  *   3  | 0x2000
  */
-static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
+static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
+                                      const char *name) {
   DIR *dir;
   struct dirent *ent;
   unsigned expected_uid;
@@ -584,7 +623,8 @@ static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset) {
 
 struct GpioChipset {
   const char *name;
-  int (*ChipOffsetAndGpioNumber)(unsigned *gpio_num, unsigned *chip_offset);
+  int (*ChipOffsetAndGpioNumber)(unsigned *gpio_num, unsigned *chip_offset,
+                                 const char *name);
 };
 
 static const struct GpioChipset chipsets_supported[] = {
@@ -593,6 +633,7 @@ static const struct GpioChipset chipsets_supported[] = {
   { "PantherPoint", FindGpioChipOffset },
   { "LynxPoint", FindGpioChipOffset },
   { "PCH-LP", FindGpioChipOffset },
+  { "INT3437:00", FindGpioChipOffsetByLabel },
   { "BayTrail", BayTrailFindGpioChipOffset },
   { NULL },
 };
@@ -651,7 +692,8 @@ static int ReadGpio(unsigned signal_type) {
     return -1;
 
   /* Modify GPIO number by driver's offset */
-  if (!chipset->ChipOffsetAndGpioNumber(&controller_num, &controller_offset))
+  if (!chipset->ChipOffsetAndGpioNumber(&controller_num, &controller_offset,
+                                        chipset->name))
     return -1;
   controller_offset += controller_num;
 
