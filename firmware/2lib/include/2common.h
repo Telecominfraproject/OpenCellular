@@ -101,6 +101,21 @@ void vb2_workbuf_free(struct vb2_workbuf *wb, uint32_t size);
 #define vb_aligned(ptr, align) (!(((uintptr_t)(ptr)) & ((align) - 1)))
 
 /**
+ * Safer memcmp() for use in crypto.
+ *
+ * Compares the buffers to see if they are equal.  Time taken to perform
+ * the comparison is dependent only on the size, not the relationship of
+ * the match between the buffers.  Note that unlike memcmp(), this only
+ * indicates inequality, not which buffer is lesser.
+ *
+ * @param s1		First buffer
+ * @param s2		Second buffer
+ * @param size		Number of bytes to compare
+ * @return 0 if match or size=0, non-zero if at least one byte mismatched.
+ */
+int vb2_safe_memcmp(const void *s1, const void *s2, size_t size);
+
+/**
  * Align a buffer and check its size.
  *
  * @param **ptr		Pointer to pointer to align

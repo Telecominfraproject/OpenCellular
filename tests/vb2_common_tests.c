@@ -11,6 +11,16 @@
 #include "test_common.h"
 
 /**
+ * Test memory compare functions
+ */
+static void test_memcmp(void)
+{
+	TEST_EQ(vb2_safe_memcmp("foo", "foo", 3), 0, "memcmp equal");
+	TEST_NEQ(vb2_safe_memcmp("foo1", "foo2", 4), 0, "memcmp different");
+	TEST_EQ(vb2_safe_memcmp("foo1", "foo2", 0), 0, "memcmp 0-size");
+}
+
+/**
  * Test alignment functions
  */
 static void test_align(void)
@@ -230,6 +240,7 @@ static void test_helper_functions(void)
 
 int main(int argc, char* argv[])
 {
+	test_memcmp();
 	test_align();
 	test_workbuf();
 	test_struct_packing();

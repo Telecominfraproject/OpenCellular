@@ -11,6 +11,25 @@
 #include "2rsa.h"
 #include "2sha.h"
 
+int vb2_safe_memcmp(const void *s1, const void *s2, size_t size)
+{
+	const unsigned char *us1 = s1;
+	const unsigned char *us2 = s2;
+	int result = 0;
+
+	if (0 == size)
+		return 0;
+
+	/*
+	 * Code snippet without data-dependent branch due to Nate Lawson
+	 * (nate@root.org) of Root Labs.
+	 */
+	while (size--)
+		result |= *us1++ ^ *us2++;
+
+	return result != 0;
+}
+
 int vb2_align(uint8_t **ptr, uint32_t *size, uint32_t align, uint32_t want_size)
 {
 	uintptr_t p = (uintptr_t)*ptr;

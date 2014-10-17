@@ -139,38 +139,6 @@ static void modpowF4(const struct vb2_public_key *key, uint8_t *inout,
 	}
 }
 
-/**
- * Safer memcmp() for use in crypto.
- *
- * Compares the buffers to see if they are equal.  Time taken to perform
- * the comparison is dependent only on the size, not the relationship of
- * the match between the buffers.  Note that unlike memcmp(), this only
- * indicates inequality, not which buffer is lesser.
- *
- * @param s1		First buffer
- * @param s2		Second buffer
- * @param size		Number of bytes to compare
- * @return 0 if match or size=0, non-zero if at least one byte mismatched.
- */
-int vb2_safe_memcmp(const void *s1, const void *s2, size_t size)
-{
-	const unsigned char *us1 = s1;
-	const unsigned char *us2 = s2;
-	int result = 0;
-
-	if (0 == size)
-		return 0;
-
-	/*
-	 * Code snippet without data-dependent branch due to Nate Lawson
-	 * (nate@root.org) of Root Labs.
-	 */
-	while (size--)
-		result |= *us1++ ^ *us2++;
-
-	return result != 0;
-}
-
 uint32_t vb2_rsa_sig_size(uint32_t algorithm)
 {
 	switch (algorithm) {
