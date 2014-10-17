@@ -155,6 +155,12 @@ enum vb2_return_code {
 	/* Not enough work buffer for hash temp data in vb2_verify_data() */
 	VB2_ERROR_VDATA_WORKBUF_HASHING,
 
+	/*
+	 * Bad digest size in vb2_verify_data() - probably because algorithm
+	 * is bad.
+	 */
+	VB2_ERROR_VDATA_DIGEST_SIZE,
+
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())
 	 */

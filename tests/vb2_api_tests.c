@@ -176,10 +176,10 @@ uint32_t vb2_rsa_sig_size(uint32_t algorithm)
 	return mock_sig_size;
 }
 
-int vb2_verify_digest(const struct vb2_public_key *key,
-		      uint8_t *sig,
-		      const uint8_t *digest,
-		      struct vb2_workbuf *wb)
+int vb2_rsa_verify_digest(const struct vb2_public_key *key,
+			  uint8_t *sig,
+			  const uint8_t *digest,
+			  struct vb2_workbuf *wb)
 {
 	return retval_vb2_verify_digest;
 }
@@ -426,7 +426,7 @@ static void check_hash_tests(void)
 		(cc.workbuf + sd->workbuf_preamble_offset);
 	pre->body_signature.sig_size++;
 	TEST_EQ(vb2api_check_hash(&cc),
-		VB2_ERROR_API_CHECK_HASH_SIG_SIZE, "check hash sig size");
+		VB2_ERROR_VDATA_SIG_SIZE, "check hash sig size");
 
 	reset_common_data(FOR_CHECK_HASH);
 	retval_vb2_digest_finalize = VB2_ERROR_RSA_VERIFY_DIGEST;

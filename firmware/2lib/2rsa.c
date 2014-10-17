@@ -165,7 +165,9 @@ uint32_t vb2_rsa_sig_size(uint32_t algorithm)
 
 uint32_t vb2_packed_key_size(uint32_t algorithm)
 {
-	if (algorithm >= VB2_ALG_COUNT)
+	uint32_t sig_size = vb2_rsa_sig_size(algorithm);
+
+	if (!sig_size)
 		return 0;
 
 	/*
@@ -173,7 +175,7 @@ uint32_t vb2_packed_key_size(uint32_t algorithm)
 	 *  2 * key_len bytes for the n and rr arrays
 	 *  + sizeof len + sizeof n0inv.
 	 */
-	return 2 * vb2_rsa_sig_size(algorithm) + 2 * sizeof(uint32_t);
+	return 2 * sig_size + 2 * sizeof(uint32_t);
 }
 
 /*
@@ -274,10 +276,10 @@ int vb2_check_padding(uint8_t *sig, int algorithm)
 	return result ? VB2_ERROR_RSA_PADDING : VB2_SUCCESS;
 }
 
-int vb2_verify_digest(const struct vb2_public_key *key,
-		      uint8_t *sig,
-		      const uint8_t *digest,
-		      struct vb2_workbuf *wb)
+int vb2_rsa_verify_digest(const struct vb2_public_key *key,
+			  uint8_t *sig,
+			  const uint8_t *digest,
+			  struct vb2_workbuf *wb)
 {
 	struct vb2_workbuf wblocal = *wb;
 	uint32_t *workbuf32;
@@ -288,7 +290,7 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 	if (!key || !sig || !digest)
 		return VB2_ERROR_RSA_VERIFY_PARAM;
 
-	if (key->algorithm >= VB2_ALG_COUNT) {
+	if (key->algorithm > VB2_ALG_RSA8192_SHA512) {
 		VB2_DEBUG("Invalid signature type!\n");
 		return VB2_ERROR_RSA_VERIFY_ALGORITHM;
 	}

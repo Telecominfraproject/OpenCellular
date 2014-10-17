@@ -44,8 +44,8 @@ uint32_t vb2_packed_key_size(uint32_t algorithm);
  */
 int vb2_check_padding(uint8_t *sig, int algorithm);
 
-/* Size of work buffer sufficient for vb2_verify_digest() worst case */
-#define VB2_VERIFY_DIGEST_WORKBUF_BYTES (3 * 1024)
+/* Size of work buffer sufficient for vb2_rsa_verify_digest() worst case */
+#define VB2_VERIFY_RSA_DIGEST_WORKBUF_BYTES (3 * 1024)
 
 /**
  * Verify a RSA PKCS1.5 signature against an expected hash digest.
@@ -56,9 +56,9 @@ int vb2_check_padding(uint8_t *sig, int algorithm);
  * @param wb		Work buffer
  * @return VB2_SUCCESS, or non-zero if error.
  */
-int vb2_verify_digest(const struct vb2_public_key *key,
-		      uint8_t *sig,
-		      const uint8_t *digest,
-		      struct vb2_workbuf *wb);
+int vb2_rsa_verify_digest(const struct vb2_public_key *key,
+			  uint8_t *sig,
+			  const uint8_t *digest,
+			  struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_2RSA_H_ */

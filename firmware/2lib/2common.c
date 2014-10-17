@@ -225,6 +225,24 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	return VB2_SUCCESS;
 }
 
+int vb2_verify_digest(const struct vb2_public_key *key,
+		      struct vb2_signature *sig,
+		      const uint8_t *digest,
+		      struct vb2_workbuf *wb)
+{
+	uint8_t *sig_data = vb2_signature_data(sig);
+
+	if (sig->sig_size != vb2_rsa_sig_size(key->algorithm)) {
+		VB2_DEBUG("Wrong data signature size for algorithm, "
+			  "sig_size=%d, expected %d for algorithm %d.\n",
+			  sig->sig_size, vb2_rsa_sig_size(key->algorithm),
+			  key->algorithm);
+		return VB2_ERROR_VDATA_SIG_SIZE;
+	}
+
+	return vb2_rsa_verify_digest(key, sig_data, digest, wb);
+}
+
 int vb2_verify_data(const uint8_t *data,
 		    uint32_t size,
 		    struct vb2_signature *sig,
@@ -240,14 +258,6 @@ int vb2_verify_data(const uint8_t *data,
 	if (key->algorithm >= VB2_ALG_COUNT)
 		return VB2_ERROR_VDATA_ALGORITHM;
 
-	if (sig->sig_size != vb2_rsa_sig_size(key->algorithm)) {
-		VB2_DEBUG("Wrong data signature size for algorithm, "
-			 "sig_size=%d, expected %d for algorithm %d.\n",
-			 (int)sig->sig_size, vb2_rsa_sig_size(key->algorithm),
-			 key->algorithm);
-		return VB2_ERROR_VDATA_SIG_SIZE;
-	}
-
 	if (sig->data_size > size) {
 		VB2_DEBUG("Data buffer smaller than length of signed data.\n");
 		return VB2_ERROR_VDATA_NOT_ENOUGH_DATA;
@@ -255,6 +265,9 @@ int vb2_verify_data(const uint8_t *data,
 
 	/* Digest goes at start of work buffer */
 	digest_size = vb2_digest_size(key->algorithm);
+	if (!digest_size)
+		return VB2_ERROR_VDATA_DIGEST_SIZE;
+
 	digest = vb2_workbuf_alloc(&wblocal, digest_size);
 	if (!digest)
 		return VB2_ERROR_VDATA_WORKBUF_DIGEST;
@@ -278,8 +291,7 @@ int vb2_verify_data(const uint8_t *data,
 
 	vb2_workbuf_free(&wblocal, sizeof(*dc));
 
-	return vb2_verify_digest(key, vb2_signature_data(sig), digest,
-				 &wblocal);
+	return vb2_verify_digest(key, sig, digest, &wblocal);
 }
 
 int vb2_verify_keyblock(struct vb2_keyblock *block,

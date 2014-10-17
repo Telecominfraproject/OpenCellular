@@ -273,24 +273,11 @@ int vb2api_check_hash(struct vb2_context *ctx)
 	if (rv)
 		return rv;
 
-	/* Make sure body signature is the right size */
-	if (pre->body_signature.sig_size != vb2_rsa_sig_size(key.algorithm)) {
-		VB2_DEBUG("Wrong data signature size for algorithm, "
-			  "sig_size=%d, expected %d for algorithm %d.\n",
-			 (int)pre->body_signature.sig_size,
-			  vb2_rsa_sig_size(key.algorithm),
-			  key.algorithm);
-		return VB2_ERROR_API_CHECK_HASH_SIG_SIZE;
-	}
-
 	/*
 	 * Check digest vs. signature.  Note that this destroys the signature.
 	 * That's ok, because we only check each signature once per boot.
 	 */
-	rv = vb2_verify_digest(&key,
-			       vb2_signature_data(&pre->body_signature),
-			       digest,
-			       &wb);
+	rv = vb2_verify_digest(&key, &pre->body_signature, digest, &wb);
 	if (rv)
 		vb2_fail(ctx, VB2_RECOVERY_RO_INVALID_RW, rv);
 
