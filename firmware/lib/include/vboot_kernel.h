@@ -10,23 +10,10 @@
 #define VBOOT_REFERENCE_VBOOT_KERNEL_H_
 
 #include "cgptlib.h"
+#include "gpt_misc.h"
 #include "load_firmware_fw.h"
 #include "load_kernel_fw.h"
 #include "vboot_api.h"
-
-/**
- * Allocate and read GPT data from the drive.  The sector_bytes and
- * drive_sectors fields should be filled on input.  The primary and secondary
- * header and entries are filled on output.
- *
- * Returns 0 if successful, 1 if error.
- */
-int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata);
-
-/**
- * Write any changes for the GPT data back to the drive, then free the buffers.
- */
-int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata);
 
 /**
  * Accessors for unit tests only.

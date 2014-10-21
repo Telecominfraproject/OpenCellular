@@ -9,6 +9,7 @@
 #include "cgptlib_internal.h"
 #include "crc32.h"
 #include "gpt.h"
+#include "gpt_misc.h"
 #include "utility.h"
 
 
