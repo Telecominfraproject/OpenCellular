@@ -157,18 +157,21 @@ static void gbb_tests(void)
 		VB2_ERROR_GBB_MAGIC, "read gbb header bad magic");
 	gbb.signature[0]--;
 
-	gbb.major_version++;
+	gbb.major_version = VB2_GBB_MAJOR_VER + 1;
 	TEST_EQ(vb2_read_gbb_header(&cc, &gbbdest),
 		VB2_ERROR_GBB_VERSION, "read gbb header major version");
-	gbb.major_version--;
+	gbb.major_version = VB2_GBB_MAJOR_VER;
 
-	gbb.minor_version++;
+	gbb.minor_version = VB2_GBB_MINOR_VER + 1;
 	TEST_SUCC(vb2_read_gbb_header(&cc, &gbbdest),
 		  "read gbb header minor++");
-	gbb.minor_version -= 2;
+	gbb.minor_version = 1;
+	TEST_SUCC(vb2_read_gbb_header(&cc, &gbbdest),
+		  "read gbb header 1.1");
+	gbb.minor_version = 0;
 	TEST_EQ(vb2_read_gbb_header(&cc, &gbbdest),
-		VB2_ERROR_GBB_TOO_OLD, "read gbb header minor version old");
-	gbb.minor_version++;
+		VB2_ERROR_GBB_TOO_OLD, "read gbb header 1.0 fails");
+	gbb.minor_version = VB2_GBB_MINOR_VER;
 
 	gbb.header_size--;
 	TEST_EQ(vb2_read_gbb_header(&cc, &gbbdest),

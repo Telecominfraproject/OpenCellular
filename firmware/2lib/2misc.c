@@ -50,7 +50,7 @@ int vb2_read_gbb_header(struct vb2_context *ctx, struct vb2_gbb_header *gbb)
 		return VB2_ERROR_GBB_VERSION;
 
 	/* Current code is not backwards-compatible to 1.0 headers */
-	if (gbb->minor_version < VB2_GBB_MINOR_VER)
+	if (gbb->minor_version == 0)
 		return VB2_ERROR_GBB_TOO_OLD;
 
 	/*
