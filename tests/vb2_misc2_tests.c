@@ -218,9 +218,9 @@ static void verify_keyblock_tests(void)
 		"keyblock read root key");
 
 	reset_common_data(FOR_KEYBLOCK);
-	mock_unpack_key_retval = VB2_ERROR_UNPACK_KEY_ALGORITHM;
+	mock_unpack_key_retval = VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM;
 	TEST_EQ(vb2_verify_fw_keyblock(&cc),
-		VB2_ERROR_UNPACK_KEY_ALGORITHM,
+		VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
 		"keyblock unpack root key");
 
 	reset_common_data(FOR_KEYBLOCK);
@@ -295,9 +295,9 @@ static void verify_preamble_tests(void)
 		"preamble no data key");
 
 	reset_common_data(FOR_PREAMBLE);
-	mock_unpack_key_retval = VB2_ERROR_UNPACK_KEY_ALGORITHM;
+	mock_unpack_key_retval = VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM;
 	TEST_EQ(vb2_verify_fw_preamble2(&cc),
-		VB2_ERROR_UNPACK_KEY_ALGORITHM,
+		VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
 		"preamble unpack data key");
 
 	reset_common_data(FOR_PREAMBLE);

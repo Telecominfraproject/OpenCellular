@@ -71,6 +71,9 @@ enum vb2_return_code {
 	/* Digest mismatch in vb2_verify_digest() */
 	VB2_ERROR_RSA_VERIFY_DIGEST,
 
+	/* Bad size calculation in vb2_check_padding() */
+	VB2_ERROR_RSA_PADDING_SIZE,
+
         /**********************************************************************
 	 * NV storage errors
 	 */
@@ -128,8 +131,8 @@ enum vb2_return_code {
 	/* Member data outside parent in vb2_verify_member_inside() */
 	VB2_ERROR_INSIDE_DATA_OUTSIDE,
 
-	/* Bad algorithm in vb2_unpack_key() */
-	VB2_ERROR_UNPACK_KEY_ALGORITHM,
+	/* Unsupported signature algorithm in vb2_unpack_key() */
+	VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
 
 	/* Bad key size in vb2_unpack_key() */
 	VB2_ERROR_UNPACK_KEY_SIZE,

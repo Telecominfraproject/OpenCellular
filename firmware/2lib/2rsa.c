@@ -139,33 +139,58 @@ static void modpowF4(const struct vb2_public_key *key, uint8_t *inout,
 	}
 }
 
-uint32_t vb2_rsa_sig_size(uint32_t algorithm)
+
+static const uint8_t crypto_to_sig[] = {
+	VB2_SIG_RSA1024,
+	VB2_SIG_RSA1024,
+	VB2_SIG_RSA1024,
+	VB2_SIG_RSA2048,
+	VB2_SIG_RSA2048,
+	VB2_SIG_RSA2048,
+	VB2_SIG_RSA4096,
+	VB2_SIG_RSA4096,
+	VB2_SIG_RSA4096,
+	VB2_SIG_RSA8192,
+	VB2_SIG_RSA8192,
+	VB2_SIG_RSA8192,
+};
+
+/**
+ * Convert vb2_crypto_algorithm to vb2_signature_algorithm.
+ *
+ * @param algorithm	Crypto algorithm (vb2_crypto_algorithm)
+ *
+ * @return The signature algorithm for that crypto algorithm, or
+ * VB2_SIG_INVALID if the crypto algorithm or its corresponding signature
+ * algorithm is invalid or not supported.
+ */
+enum vb2_signature_algorithm vb2_crypto_to_signature(uint32_t algorithm)
 {
-	switch (algorithm) {
-	case VB2_ALG_RSA1024_SHA1:
-	case VB2_ALG_RSA1024_SHA256:
-	case VB2_ALG_RSA1024_SHA512:
+	if (algorithm < ARRAY_SIZE(crypto_to_sig))
+		return crypto_to_sig[algorithm];
+	else
+		return VB2_SIG_INVALID;
+}
+
+uint32_t vb2_rsa_sig_size(enum vb2_signature_algorithm sig_alg)
+{
+	switch (sig_alg) {
+	case VB2_SIG_RSA1024:
 		return 1024 / 8;
-	case VB2_ALG_RSA2048_SHA1:
-	case VB2_ALG_RSA2048_SHA256:
-	case VB2_ALG_RSA2048_SHA512:
+	case VB2_SIG_RSA2048:
 		return 2048 / 8;
-	case VB2_ALG_RSA4096_SHA1:
-	case VB2_ALG_RSA4096_SHA256:
-	case VB2_ALG_RSA4096_SHA512:
+	case VB2_SIG_RSA4096:
 		return 4096 / 8;
-	case VB2_ALG_RSA8192_SHA1:
-	case VB2_ALG_RSA8192_SHA256:
-	case VB2_ALG_RSA8192_SHA512:
+	case VB2_SIG_RSA8192:
 		return 8192 / 8;
 	default:
 		return 0;
 	}
 }
 
-uint32_t vb2_packed_key_size(uint32_t algorithm)
+uint32_t vb2_packed_key_size(enum vb2_signature_algorithm sig_alg)
 {
-	uint32_t sig_size = vb2_rsa_sig_size(algorithm);
+	uint32_t sig_size = vb2_rsa_sig_size(sig_alg);
 
 	if (!sig_size)
 		return 0;
@@ -215,26 +240,21 @@ static const uint8_t sha512_tail[] = {
 	0x05,0x00,0x04,0x40
 };
 
-/**
- * Check pkcs 1.5 padding bytes
- *
- * @param sig		Signature to verify
- * @param algorithm	Key algorithm
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_check_padding(uint8_t *sig, int algorithm)
+int vb2_check_padding(const uint8_t *sig, const struct vb2_public_key *key)
 {
 	/* Determine padding to use depending on the signature type */
-	uint32_t hash_alg = vb2_crypto_to_hash(algorithm);
-	uint32_t pad_size = vb2_rsa_sig_size(algorithm) -
-		vb2_digest_size(hash_alg);
+	uint32_t sig_size = vb2_rsa_sig_size(key->sig_alg);
+	uint32_t hash_size = vb2_digest_size(key->hash_alg);
+	uint32_t pad_size = sig_size - hash_size;
 	const uint8_t *tail;
 	uint32_t tail_size;
 	int result = 0;
-
 	int i;
 
-	switch (hash_alg) {
+	if (!sig_size || !hash_size || hash_size > sig_size)
+		return VB2_ERROR_RSA_PADDING_SIZE;
+
+	switch (key->hash_alg) {
 	case VB2_HASH_SHA1:
 		tail = sha1_tail;
 		tail_size = sizeof(sha1_tail);
@@ -276,20 +296,22 @@ int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 	struct vb2_workbuf wblocal = *wb;
 	uint32_t *workbuf32;
 	uint32_t key_bytes;
+	int sig_size;
 	int pad_size;
 	int rv;
 
 	if (!key || !sig || !digest)
 		return VB2_ERROR_RSA_VERIFY_PARAM;
 
-	if (key->algorithm > VB2_ALG_RSA8192_SHA512) {
+	sig_size = vb2_rsa_sig_size(key->sig_alg);
+	if (!sig_size) {
 		VB2_DEBUG("Invalid signature type!\n");
 		return VB2_ERROR_RSA_VERIFY_ALGORITHM;
 	}
 
 	/* Signature length should be same as key length */
 	key_bytes = key->arrsize * sizeof(uint32_t);
-	if (key_bytes != vb2_rsa_sig_size(key->algorithm)) {
+	if (key_bytes != sig_size) {
 		VB2_DEBUG("Signature is of incorrect length!\n");
 		return VB2_ERROR_RSA_VERIFY_SIG_LEN;
 	}
@@ -302,9 +324,13 @@ int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 
 	vb2_workbuf_free(&wblocal, 3 * key_bytes);
 
-	/* Check padding */
-	rv = vb2_check_padding(sig, key->algorithm);
-	if (rv)
+	/*
+	 * Check padding.  Only fail immediately if the padding size is bad.
+	 * Otherwise, continue on to check the digest to reduce the risk of
+	 * timing based attacks.
+	 */
+	rv = vb2_check_padding(sig, key);
+	if (rv == VB2_ERROR_RSA_PADDING_SIZE)
 		return rv;
 
 	/*
@@ -312,12 +338,11 @@ int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 	 * use vb2_safe_memcmp() just to be on the safe side.  (That's also why
 	 * we don't return before this check if the padding check failed.)
 	 */
-	pad_size = vb2_rsa_sig_size(key->algorithm) -
-		vb2_digest_size(key->hash_alg);
-
+	pad_size = sig_size - vb2_digest_size(key->hash_alg);
 	if (vb2_safe_memcmp(sig + pad_size, digest, key_bytes - pad_size)) {
 		VB2_DEBUG("Digest check failed!\n");
-		rv = VB2_ERROR_RSA_VERIFY_DIGEST;
+		if (!rv)
+			rv = VB2_ERROR_RSA_VERIFY_DIGEST;
 	}
 
 	return rv;

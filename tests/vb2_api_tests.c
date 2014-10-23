@@ -140,7 +140,7 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	if (size != sizeof(*k) + 8)
 		return VB2_ERROR_UNPACK_KEY_SIZE;
 
-	key->algorithm = k->algorithm;
+	key->sig_alg = vb2_crypto_to_signature(k->algorithm);
 	key->hash_alg = vb2_crypto_to_hash(k->algorithm);
 
 	return VB2_SUCCESS;
@@ -174,7 +174,7 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 	return retval_vb2_digest_finalize;
 }
 
-uint32_t vb2_rsa_sig_size(uint32_t algorithm)
+uint32_t vb2_rsa_sig_size(enum vb2_signature_algorithm sig_alg)
 {
 	return mock_sig_size;
 }

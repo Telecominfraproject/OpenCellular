@@ -35,7 +35,8 @@ static void test_unpack_key(const VbPublicKey *orig_key)
 	PublicKeyCopy(key, orig_key);
 	TEST_SUCC(vb2_unpack_key(&rsa, buf, size), "vb2_unpack_key() ok");
 
-	TEST_EQ(rsa.algorithm, key2->algorithm, "vb2_unpack_key() algorithm");
+	TEST_EQ(rsa.sig_alg, vb2_crypto_to_signature(key2->algorithm),
+		"vb2_unpack_key() sig_alg");
 	TEST_EQ(rsa.hash_alg, vb2_crypto_to_hash(key2->algorithm),
 		"vb2_unpack_key() hash_alg");
 
@@ -43,7 +44,7 @@ static void test_unpack_key(const VbPublicKey *orig_key)
 	PublicKeyCopy(key, orig_key);
 	key2->algorithm = VB2_ALG_COUNT;
 	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
-		VB2_ERROR_UNPACK_KEY_ALGORITHM,
+		VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
 		"vb2_unpack_key() invalid algorithm");
 
 	PublicKeyCopy(key, orig_key);
@@ -83,9 +84,8 @@ static void test_verify_data(const VbPublicKey *public_key,
 	struct vb2_workbuf wb;
 	VbSignature *sig;
 
-	struct vb2_public_key rsa;
+	struct vb2_public_key rsa, rsa_orig;
 	struct vb2_signature *sig2;
-
 	struct vb2_packed_key *public_key2;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
@@ -106,13 +106,19 @@ static void test_verify_data(const VbPublicKey *public_key,
 
 	TEST_EQ(vb2_unpack_key(&rsa, (uint8_t *)public_key2, pubkey_size),
 		0, "vb2_verify_data() unpack key");
+	rsa_orig = rsa;
 
 	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
-	rsa.algorithm += VB2_ALG_COUNT;
-	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa,
-				 &wb),
-		 0, "vb2_verify_data() bad key");
-	rsa.algorithm -= VB2_ALG_COUNT;
+	rsa.sig_alg = VB2_SIG_INVALID;
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+		 0, "vb2_verify_data() bad sig alg");
+	rsa.sig_alg = rsa_orig.sig_alg;
+
+	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
+	rsa.hash_alg = VB2_HASH_INVALID;
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+		 0, "vb2_verify_data() bad hash alg");
+	rsa.hash_alg = rsa_orig.hash_alg;
 
 	vb2_workbuf_init(&wb, workbuf, 4);
 	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
