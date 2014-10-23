@@ -128,7 +128,7 @@ int vb2_select_fw_slot(struct vb2_context *ctx);
  * @param ctx		Vboot context
  * @return VB2_SUCCESS, or error code on error.
  */
-int vb2_verify_fw_keyblock(struct vb2_context *ctx);
+int vb2_load_fw_keyblock(struct vb2_context *ctx);
 
 /**
  * Verify the firmware preamble using the data subkey from the keyblock.
@@ -138,6 +138,6 @@ int vb2_verify_fw_keyblock(struct vb2_context *ctx);
  * @param ctx		Vboot context
  * @return VB2_SUCCESS, or error code on error.
  */
-int vb2_verify_fw_preamble2(struct vb2_context *ctx);
+int vb2_load_fw_preamble(struct vb2_context *ctx);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2MISC_H_ */

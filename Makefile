@@ -285,6 +285,7 @@ FWLIB2_SRCS = \
 	firmware/2lib/2crc8.c \
 	firmware/2lib/2misc.c \
 	firmware/2lib/2nvstorage.c \
+	firmware/2lib/2packed_key.c \
 	firmware/2lib/2rsa.c \
 	firmware/2lib/2secdata.c \
 	firmware/2lib/2sha1.c \

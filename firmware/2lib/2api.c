@@ -110,14 +110,14 @@ int vb2api_fw_phase3(struct vb2_context *ctx)
 	int rv;
 
 	/* Verify firmware keyblock */
-	rv = vb2_verify_fw_keyblock(ctx);
+	rv = vb2_load_fw_keyblock(ctx);
 	if (rv) {
 		vb2_fail(ctx, VB2_RECOVERY_RO_INVALID_RW, rv);
 		return rv;
 	}
 
 	/* Verify firmware preamble */
-	rv = vb2_verify_fw_preamble2(ctx);
+	rv = vb2_load_fw_preamble(ctx);
 	if (rv) {
 		vb2_fail(ctx, VB2_RECOVERY_RO_INVALID_RW, rv);
 		return rv;

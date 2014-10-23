@@ -263,34 +263,34 @@ enum vb2_return_code {
 	/* Header size too small in vb2_read_gbb_header() */
 	VB2_ERROR_GBB_HEADER_SIZE,
 
-	/* Work buffer too small for root key in vb2_verify_fw_keyblock() */
+	/* Work buffer too small for root key in vb2_load_fw_keyblock() */
 	VB2_ERROR_FW_KEYBLOCK_WORKBUF_ROOT_KEY,
 
-	/* Work buffer too small for header in vb2_verify_fw_keyblock() */
+	/* Work buffer too small for header in vb2_load_fw_keyblock() */
 	VB2_ERROR_FW_KEYBLOCK_WORKBUF_HEADER,
 
-	/* Work buffer too small for keyblock in vb2_verify_fw_keyblock() */
+	/* Work buffer too small for keyblock in vb2_load_fw_keyblock() */
 	VB2_ERROR_FW_KEYBLOCK_WORKBUF,
 
-	/* Keyblock version out of range in vb2_verify_fw_keyblock() */
+	/* Keyblock version out of range in vb2_load_fw_keyblock() */
 	VB2_ERROR_FW_KEYBLOCK_VERSION_RANGE,
 
-	/* Keyblock version rollback in vb2_verify_fw_keyblock() */
+	/* Keyblock version rollback in vb2_load_fw_keyblock() */
 	VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK,
 
-	/* Missing firmware data key in vb2_verify_fw_preamble2() */
+	/* Missing firmware data key in vb2_load_fw_preamble() */
 	VB2_ERROR_FW_PREAMBLE2_DATA_KEY,
 
-	/* Work buffer too small for header in vb2_verify_fw_preamble2() */
+	/* Work buffer too small for header in vb2_load_fw_preamble() */
 	VB2_ERROR_FW_PREAMBLE2_WORKBUF_HEADER,
 
-	/* Work buffer too small for preamble in vb2_verify_fw_preamble2() */
+	/* Work buffer too small for preamble in vb2_load_fw_preamble() */
 	VB2_ERROR_FW_PREAMBLE2_WORKBUF,
 
-	/* Firmware version out of range in vb2_verify_fw_preamble2() */
+	/* Firmware version out of range in vb2_load_fw_preamble() */
 	VB2_ERROR_FW_PREAMBLE2_VERSION_RANGE,
 
-	/* Firmware version rollback in vb2_verify_fw_preamble2() */
+	/* Firmware version rollback in vb2_load_fw_preamble() */
 	VB2_ERROR_FW_PREAMBLE2_VERSION_ROLLBACK,
 
         /**********************************************************************

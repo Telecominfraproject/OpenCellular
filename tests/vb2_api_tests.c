@@ -35,8 +35,8 @@ static int retval_vb2_fw_parse_gbb;
 static int retval_vb2_check_dev_switch;
 static int retval_vb2_check_tpm_clear;
 static int retval_vb2_select_fw_slot;
-static int retval_vb2_verify_fw_keyblock;
-static int retval_vb2_verify_fw_preamble2;
+static int retval_vb2_load_fw_keyblock;
+static int retval_vb2_load_fw_preamble;
 static int retval_vb2_digest_finalize;
 static int retval_vb2_verify_digest;
 
@@ -70,8 +70,8 @@ static void reset_common_data(enum reset_type t)
 	retval_vb2_check_dev_switch = VB2_SUCCESS;
 	retval_vb2_check_tpm_clear = VB2_SUCCESS;
 	retval_vb2_select_fw_slot = VB2_SUCCESS;
-	retval_vb2_verify_fw_keyblock = VB2_SUCCESS;
-	retval_vb2_verify_fw_preamble2 = VB2_SUCCESS;
+	retval_vb2_load_fw_keyblock = VB2_SUCCESS;
+	retval_vb2_load_fw_preamble = VB2_SUCCESS;
 	retval_vb2_digest_finalize = VB2_SUCCESS;
 	retval_vb2_verify_digest = VB2_SUCCESS;
 
@@ -121,14 +121,14 @@ int vb2_select_fw_slot(struct vb2_context *ctx)
 	return retval_vb2_select_fw_slot;
 }
 
-int vb2_verify_fw_keyblock(struct vb2_context *ctx)
+int vb2_load_fw_keyblock(struct vb2_context *ctx)
 {
-	return retval_vb2_verify_fw_keyblock;
+	return retval_vb2_load_fw_keyblock;
 }
 
-int vb2_verify_fw_preamble2(struct vb2_context *ctx)
+int vb2_load_fw_preamble(struct vb2_context *ctx)
 {
-	return retval_vb2_verify_fw_preamble2;
+	return retval_vb2_load_fw_preamble;
 }
 
 int vb2_unpack_key(struct vb2_public_key *key,
@@ -268,13 +268,13 @@ static void phase3_tests(void)
 	TEST_SUCC(vb2api_fw_phase3(&cc), "phase3 good");
 
 	reset_common_data(FOR_MISC);
-	retval_vb2_verify_fw_keyblock = VB2_ERROR_MOCK;
+	retval_vb2_load_fw_keyblock = VB2_ERROR_MOCK;
 	TEST_EQ(vb2api_fw_phase3(&cc), VB2_ERROR_MOCK, "phase3 keyblock");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
 		VB2_RECOVERY_RO_INVALID_RW, "  recovery reason");
 
 	reset_common_data(FOR_MISC);
-	retval_vb2_verify_fw_preamble2 = VB2_ERROR_MOCK;
+	retval_vb2_load_fw_preamble = VB2_ERROR_MOCK;
 	TEST_EQ(vb2api_fw_phase3(&cc), VB2_ERROR_MOCK, "phase3 keyblock");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
 		VB2_RECOVERY_RO_INVALID_RW, "  recovery reason");
