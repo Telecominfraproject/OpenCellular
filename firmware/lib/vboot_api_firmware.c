@@ -45,6 +45,15 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 		 */
 		VBDEBUG(("VbSelectFirmware() detected recovery request\n"));
 
+		/* Best effort to read the GBB */
+		cparams->gbb = VbExMalloc(sizeof(*cparams->gbb));
+		retval = VbGbbReadHeader_static(cparams, cparams->gbb);
+		if (VBERROR_SUCCESS != retval) {
+			VBDEBUG(("Can't read GBB. Continuing anyway...\n"));
+			VbExFree(cparams->gbb);
+			cparams->gbb = NULL;
+		}
+
 		/* Go directly to recovery mode */
 		fparams->selected_firmware = VB_SELECT_FIRMWARE_RECOVERY;
 	} else {
@@ -100,7 +109,8 @@ VbError_t VbSelectFirmware(VbCommonParams *cparams,
 	 * boot. Update the TPM with this state information.
 	 */
 	tpm_status = SetTPMBootModeState(is_dev, is_rec,
-					 shared->fw_keyblock_flags);
+					 shared->fw_keyblock_flags,
+					 cparams->gbb);
 	if (0 != tpm_status) {
 		VBDEBUG(("Can't update the TPM with boot mode information.\n"));
 		if (!is_rec) {

@@ -545,6 +545,7 @@ FUTIL_SRCS = \
 	futility/cmd_dev_sign_file.c \
 	futility/cmd_dump_kernel_config.c \
 	futility/cmd_load_fmap.c \
+	futility/cmd_pcr.c \
 	futility/cmd_show.c \
 	futility/cmd_sign.c \
 	futility/cmd_vbutil_firmware.c \

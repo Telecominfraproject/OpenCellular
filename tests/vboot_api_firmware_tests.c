@@ -110,7 +110,8 @@ uint32_t RollbackFirmwareLock(void) {
 }
 
 uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
-                             uint64_t fw_keyblock_flags) {
+			     uint64_t fw_keyblock_flags,
+			     GoogleBinaryBlockHeader *gbb) {
   if (recovery_mode)
     mock_stbms_got_flags |= MOCK_REC_FLAG;
   if (developer_mode)

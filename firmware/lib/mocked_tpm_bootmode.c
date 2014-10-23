@@ -62,6 +62,7 @@ const char* kBootStateSHA1Digests[] = {
 
 
 uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
-                             uint64_t fw_keyblock_flags) {
+			     uint64_t fw_keyblock_flags,
+			     GoogleBinaryBlockHeader *gbb)
   return TPM_SUCCESS;
 }
