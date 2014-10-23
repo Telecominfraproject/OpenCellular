@@ -26,6 +26,7 @@ static struct vb2_shared_data *sd;
 const char mock_body[320] = "Mock body";
 const int mock_body_size = sizeof(mock_body);
 const int mock_algorithm = VB2_ALG_RSA2048_SHA256;
+const int mock_hash_alg = VB2_HASH_SHA256;
 const int mock_sig_size = 64;
 
 /* Mocked function data */
@@ -140,16 +141,18 @@ int vb2_unpack_key(struct vb2_public_key *key,
 		return VB2_ERROR_UNPACK_KEY_SIZE;
 
 	key->algorithm = k->algorithm;
+	key->hash_alg = vb2_crypto_to_hash(k->algorithm);
 
 	return VB2_SUCCESS;
 }
 
-int vb2_digest_init(struct vb2_digest_context *dc, uint32_t algorithm)
+int vb2_digest_init(struct vb2_digest_context *dc,
+		    enum vb2_hash_algorithm hash_alg)
 {
-	if (algorithm != mock_algorithm)
+	if (hash_alg != mock_hash_alg)
 		return VB2_ERROR_SHA_INIT_ALGORITHM;
 
-	dc->algorithm = algorithm;
+	dc->hash_alg = hash_alg;
 
 	return VB2_SUCCESS;
 }
@@ -158,7 +161,7 @@ int vb2_digest_extend(struct vb2_digest_context *dc,
 		      const uint8_t *buf,
 		      uint32_t size)
 {
-	if (dc->algorithm != mock_algorithm)
+	if (dc->hash_alg != mock_hash_alg)
 		return VB2_ERROR_SHA_EXTEND_ALGORITHM;
 
 	return VB2_SUCCESS;
@@ -370,7 +373,7 @@ static void extend_hash_tests(void)
 	reset_common_data(FOR_EXTEND_HASH);
 	dc = (struct vb2_digest_context *)
 		(cc.workbuf + sd->workbuf_hash_offset);
-	dc->algorithm++;
+	dc->hash_alg = mock_hash_alg + 1;
 	TEST_EQ(vb2api_extend_hash(&cc, mock_body, mock_body_size),
 		VB2_ERROR_SHA_EXTEND_ALGORITHM, "hash extend fail");
 }

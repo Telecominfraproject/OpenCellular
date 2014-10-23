@@ -161,6 +161,9 @@ enum vb2_return_code {
 	 */
 	VB2_ERROR_VDATA_DIGEST_SIZE,
 
+	/* Unsupported hash algorithm in vb2_unpack_key() */
+	VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
+
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())
 	 */

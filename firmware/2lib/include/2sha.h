@@ -7,6 +7,7 @@
 #define VBOOT_REFERENCE_2SHA_H_
 
 #include "2crypto.h"
+#include "2struct.h"
 
 /* Hash algorithms may be disabled individually to save code space */
 
@@ -75,8 +76,8 @@ struct vb2_digest_context {
 #endif
 	};
 
-	/* Current hash algorithm (enum vb2_crypto_algorithm) */
-	uint32_t algorithm;
+	/* Current hash algorithm */
+	enum vb2_hash_algorithm hash_alg;
 };
 
 /**
@@ -124,24 +125,25 @@ void vb2_sha512_finalize(struct vb2_sha512_context *ctx, uint8_t *digest);
  * the crypto algorithm or its corresponding hash algorithm is invalid or not
  * supported.
  */
-enum vb2_hash_algorithm vb2_hash_algorithm(uint32_t algorithm);
+enum vb2_hash_algorithm vb2_crypto_to_hash(uint32_t algorithm);
 
 /**
- * Return the size of the digest for a key algorithm.
+ * Return the size of the digest for a hash algorithm.
  *
- * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
+ * @param hash_alg	Hash algorithm
  * @return The size of the digest, or 0 if error.
  */
-int vb2_digest_size(uint32_t algorithm);
+int vb2_digest_size(enum vb2_hash_algorithm hash_alg);
 
 /**
  * Initialize a digest context for doing block-style digesting.
  *
  * @param dc		Digest context
- * @param algorithm	Key algorithm (enum vb2_crypto_algorithm)
+ * @param hash_alg	Hash algorithm
  * @return VB2_SUCCESS, or non-zero on error.
  */
-int vb2_digest_init(struct vb2_digest_context *dc, uint32_t algorithm);
+int vb2_digest_init(struct vb2_digest_context *dc,
+		    enum vb2_hash_algorithm hash_alg);
 
 /**
  * Extend a digest's hash with another block of data.

@@ -28,7 +28,7 @@
 #define CTH_SHA512 VB2_HASH_INVALID
 #endif
 
-static const uint8_t crypto_to_hash[VB2_ALG_COUNT] = {
+static const uint8_t crypto_to_hash[] = {
 	CTH_SHA1,
 	CTH_SHA256,
 	CTH_SHA512,
@@ -52,17 +52,17 @@ static const uint8_t crypto_to_hash[VB2_ALG_COUNT] = {
  * the crypto algorithm or its corresponding hash algorithm is invalid or not
  * supported.
  */
-enum vb2_hash_algorithm vb2_hash_algorithm(uint32_t algorithm)
+enum vb2_hash_algorithm vb2_crypto_to_hash(uint32_t algorithm)
 {
-	if (algorithm < VB2_ALG_COUNT)
+	if (algorithm < ARRAY_SIZE(crypto_to_hash))
 		return crypto_to_hash[algorithm];
 	else
 		return VB2_HASH_INVALID;
 }
 
-int vb2_digest_size(uint32_t algorithm)
+int vb2_digest_size(enum vb2_hash_algorithm hash_alg)
 {
-	switch (vb2_hash_algorithm(algorithm)) {
+	switch (hash_alg) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		return VB2_SHA1_DIGEST_SIZE;
@@ -80,11 +80,12 @@ int vb2_digest_size(uint32_t algorithm)
 	}
 }
 
-int vb2_digest_init(struct vb2_digest_context *dc, uint32_t algorithm)
+int vb2_digest_init(struct vb2_digest_context *dc,
+		    enum vb2_hash_algorithm hash_alg)
 {
-	dc->algorithm = algorithm;
+	dc->hash_alg = hash_alg;
 
-	switch (vb2_hash_algorithm(dc->algorithm)) {
+	switch (dc->hash_alg) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		vb2_sha1_init(&dc->sha1);
@@ -109,7 +110,7 @@ int vb2_digest_extend(struct vb2_digest_context *dc,
 		      const uint8_t *buf,
 		      uint32_t size)
 {
-	switch (vb2_hash_algorithm(dc->algorithm)) {
+	switch (dc->hash_alg) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		vb2_sha1_update(&dc->sha1, buf, size);
@@ -134,10 +135,10 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 			uint8_t *digest,
 			uint32_t digest_size)
 {
-	if (digest_size < vb2_digest_size(dc->algorithm))
+	if (digest_size < vb2_digest_size(dc->hash_alg))
 		return VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE;
 
-	switch (vb2_hash_algorithm(dc->algorithm)) {
+	switch (dc->hash_alg) {
 #if VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		vb2_sha1_finalize(&dc->sha1, digest);

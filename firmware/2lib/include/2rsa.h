@@ -7,6 +7,7 @@
 #define VBOOT_REFERENCE_2RSA_H_
 
 #include "2crypto.h"
+#include "2struct.h"
 
 struct vb2_workbuf;
 
@@ -17,6 +18,7 @@ struct vb2_public_key {
 	const uint32_t *n;   /* Modulus as little endian array */
 	const uint32_t *rr;  /* R^2 as little endian array */
 	uint32_t algorithm;  /* Algorithm to use when verifying with the key */
+	enum vb2_hash_algorithm hash_alg;  /* Hash algorithm */
 };
 
 /**

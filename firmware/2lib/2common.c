@@ -192,9 +192,17 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	if (rv)
 		return rv;
 
+	/* Check key algorithm */
 	if (packed_key->algorithm >= VB2_ALG_COUNT) {
 		VB2_DEBUG("Invalid algorithm.\n");
 		return VB2_ERROR_UNPACK_KEY_ALGORITHM;
+	}
+	key->algorithm = packed_key->algorithm;
+
+	key->hash_alg = vb2_crypto_to_hash(packed_key->algorithm);
+	if (key->hash_alg == VB2_HASH_INVALID) {
+		VB2_DEBUG("Unsupported hash algorithm.\n");
+		return VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM;
 	}
 
 	expected_key_size = vb2_packed_key_size(packed_key->algorithm);
@@ -219,8 +227,6 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	/* Arrays point inside the key data */
 	key->n = buf32 + 2;
 	key->rr = buf32 + 2 + key->arrsize;
-
-	key->algorithm = packed_key->algorithm;
 
 	return VB2_SUCCESS;
 }
@@ -264,7 +270,7 @@ int vb2_verify_data(const uint8_t *data,
 	}
 
 	/* Digest goes at start of work buffer */
-	digest_size = vb2_digest_size(key->algorithm);
+	digest_size = vb2_digest_size(key->hash_alg);
 	if (!digest_size)
 		return VB2_ERROR_VDATA_DIGEST_SIZE;
 
@@ -277,7 +283,7 @@ int vb2_verify_data(const uint8_t *data,
 	if (!dc)
 		return VB2_ERROR_VDATA_WORKBUF_HASHING;
 
-	rv = vb2_digest_init(dc, key->algorithm);
+	rv = vb2_digest_init(dc, key->hash_alg);
 	if (rv)
 		return rv;
 

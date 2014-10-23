@@ -34,6 +34,7 @@ void vb2_public_key_to_vb2(struct vb2_public_key *k2,
 	k2->n = key->n;
 	k2->rr = key->rr;
 	k2->algorithm = key->algorithm;
+	k2->hash_alg = vb2_crypto_to_hash(key->algorithm);
 }
 
 /**

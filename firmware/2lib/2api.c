@@ -190,7 +190,7 @@ int vb2api_init_hash(struct vb2_context *ctx, uint32_t tag, uint32_t *size)
 	if (size)
 		*size = pre->body_signature.data_size;
 
-	return vb2_digest_init(dc, key.algorithm);
+	return vb2_digest_init(dc, key.hash_alg);
 }
 
 int vb2api_extend_hash(struct vb2_context *ctx,
@@ -222,7 +222,7 @@ int vb2api_check_hash(struct vb2_context *ctx)
 	struct vb2_workbuf wb;
 
 	uint8_t *digest;
-	uint32_t digest_size = vb2_digest_size(dc->algorithm);
+	uint32_t digest_size = vb2_digest_size(dc->hash_alg);
 
 	struct vb2_fw_preamble *pre;
 	struct vb2_public_key key;

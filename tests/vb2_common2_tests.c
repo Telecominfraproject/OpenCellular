@@ -36,6 +36,9 @@ static void test_unpack_key(const VbPublicKey *orig_key)
 	TEST_SUCC(vb2_unpack_key(&rsa, buf, size), "vb2_unpack_key() ok");
 
 	TEST_EQ(rsa.algorithm, key2->algorithm, "vb2_unpack_key() algorithm");
+	TEST_EQ(rsa.hash_alg, vb2_crypto_to_hash(key2->algorithm),
+		"vb2_unpack_key() hash_alg");
+
 
 	PublicKeyCopy(key, orig_key);
 	key2->algorithm = VB2_ALG_COUNT;
