@@ -105,7 +105,7 @@ void vb2_fail(struct vb2_context *ctx, uint8_t reason, uint8_t subcode)
 	 * If recovery is already requested, it's a more specific error code
 	 * than later code is providing and we shouldn't overwrite it.
 	 */
-	VB2_DEBUG("Both slots are bad. Need recovery\n");
+	VB2_DEBUG("Need recovery, reason: %#x / %#x\n", reason, subcode);
 	if (!vb2_nv_get(ctx, VB2_NV_RECOVERY_REQUEST)) {
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, reason);
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_SUBCODE, subcode);
@@ -166,8 +166,12 @@ void vb2_check_recovery(struct vb2_context *ctx)
 	}
 
 	/* If recovery reason is non-zero, tell caller we need recovery mode */
-	if (sd->recovery_reason)
+	if (sd->recovery_reason) {
 		ctx->flags |= VB2_CONTEXT_RECOVERY_MODE;
+		VB2_DEBUG("We have a recovery request: %#x / %#x\n",
+			  sd->recovery_reason,
+			  vb2_nv_get(ctx, VB2_NV_RECOVERY_SUBCODE));
+	}
 }
 
 int vb2_fw_parse_gbb(struct vb2_context *ctx)
