@@ -287,6 +287,7 @@ FWLIB2_SRCS = \
 	firmware/2lib/2misc.c \
 	firmware/2lib/2nvstorage.c \
 	firmware/2lib/2packed_key.c \
+	firmware/2lib/2packed_key2.c \
 	firmware/2lib/2rsa.c \
 	firmware/2lib/2secdata.c \
 	firmware/2lib/2sha1.c \
@@ -578,6 +579,11 @@ TESTLIB_SRCS = \
 	tests/test_common.c \
 	tests/timer_utils.c \
 	tests/crc32_test.c
+
+ifneq (${VBOOT2},)
+TESTLIB_SRCS += \
+	tests/vb2_convert_structs.c
+endif
 
 TESTLIB_OBJS = ${TESTLIB_SRCS:%.c=${BUILD}/%.o}
 TEST_OBJS += ${TESTLIB_OBJS}

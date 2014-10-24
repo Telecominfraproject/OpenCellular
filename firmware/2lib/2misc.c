@@ -127,7 +127,7 @@ int vb2_init_context(struct vb2_context *ctx)
 	 */
 	if (ctx->workbuf_size < sizeof(*sd))
 		return VB2_ERROR_INITCTX_WORKBUF_SMALL;
-	if (!vb_aligned(ctx->workbuf, VB2_WORKBUF_ALIGN))
+	if (!vb2_aligned(ctx->workbuf, VB2_WORKBUF_ALIGN))
 		return VB2_ERROR_INITCTX_WORKBUF_ALIGN;
 
 	/* Initialize the shared data at the start of the work buffer */

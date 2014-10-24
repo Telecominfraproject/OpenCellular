@@ -1,0 +1,36 @@
+/* Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ *
+ */
+
+#ifndef VBOOT_REFERENCE_VB2_CONVERT_STRUCTS_H_
+#define VBOOT_REFERENCE_VB2_CONVERT_STRUCTS_H_
+
+#include "2struct.h"
+
+/**
+ * Round up a size to a multiple of 32 bits (4 bytes).
+ */
+static __inline const uint32_t roundup32(uint32_t v)
+{
+	return (v + 3) & ~3;
+}
+
+/**
+ * Convert a packed key from vboot data format to vboot2 data format.
+ *
+ * Intended for use by unit tests.  Does NOT validate the original struct
+ * contents, just copies them.
+ *
+ * @param key		Packed key in vboot1 format
+ * @param desc		Description of packed key
+ * @param out_size	Size of the newly allocated buffer
+ * @return a newly allocated buffer with the converted key.  Caller is
+ * responsible for freeing this buffer.
+ */
+struct vb2_packed_key2 *vb2_convert_packed_key2(
+				const struct vb2_packed_key *key,
+				const char *desc, uint32_t *out_size);
+
+#endif  /* VBOOT_REFERENCE_VB2_CONVERT_STRUCTS_H_ */

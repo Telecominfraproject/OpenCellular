@@ -59,7 +59,7 @@ int vb2_unpack_key(struct vb2_public_key *key,
 
 	/* Make sure source buffer is 32-bit aligned */
 	buf32 = (const uint32_t *)vb2_packed_key_data(packed_key);
-	if (!vb_aligned(buf32, sizeof(uint32_t)))
+	if (!vb2_aligned(buf32, sizeof(uint32_t)))
 		return VB2_ERROR_UNPACK_KEY_ALIGN;
 
 	/* Sanity check key array size */

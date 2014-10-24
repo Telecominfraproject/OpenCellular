@@ -11,6 +11,7 @@
 
 #include "file_keys.h"
 #include "host_common.h"
+#include "vb2_convert_structs.h"
 #include "vboot_common.h"
 #include "test_common.h"
 
@@ -73,6 +74,113 @@ static void test_unpack_key(const VbPublicKey *orig_key)
 		"vb2_unpack_key() buffer too small");
 
 	free(key);
+}
+
+static void test_unpack_key2(const VbPublicKey *orig_key)
+{
+	/* vb2_packed_key and VbPublicKey are bit-identical */
+	const struct vb2_packed_key *key1 =
+		(const struct vb2_packed_key *)orig_key;
+
+	struct vb2_public_key pubk;
+	struct vb2_packed_key2 *key2;
+	uint32_t size;
+
+	/* Should be able to handle a vboot1-style key binary as well */
+	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key1,
+				  key1->key_offset + key1->key_size),
+		  "vb2_unpack_key2() passthru");
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		  "vb2_unpack_key2() ok");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->key_offset += 4;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		"vb2_unpack_key2() buffer too small");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->c.desc_offset += size;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		"vb2_unpack_key2() buffer too small for desc");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->c.desc_size = 0;
+	key2->c.desc_offset = 0;
+	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		  "vb2_unpack_key2() no desc");
+	TEST_EQ(strcmp(pubk.desc, ""), 0, "  empty desc string");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->c.magic++;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		"vb2_unpack_key2() bad magic");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->c.struct_version_major++;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_UNPACK_KEY_STRUCT_VERSION,
+		"vb2_unpack_key2() bad major version");
+	free(key2);
+
+	/*
+	 * Minor version changes are ok.  Note that this test assumes that the
+	 * source key struct version is the highest actually known to the
+	 * reader.  If the reader does know about minor version + 1 and that
+	 * adds fields, this test will likely fail.  But at that point, we
+	 * should have already added a test for minor version compatibility to
+	 * handle both old and new struct versions, so someone will have
+	 * noticed this comment.
+	 */
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->c.struct_version_minor++;
+	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		  "vb2_unpack_key2() minor version change ok");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->sig_algorithm = VB2_SIG_INVALID;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
+		"vb2_unpack_key2() bad sig algorithm");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->hash_algorithm = VB2_HASH_INVALID;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
+		"vb2_unpack_key2() bad hash algorithm");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->key_size--;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_UNPACK_KEY_SIZE,
+		"vb2_unpack_key2() invalid size");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	key2->key_offset--;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_UNPACK_KEY_ALIGN,
+		"vb2_unpack_key2() unaligned data");
+	free(key2);
+
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	*(uint32_t *)((uint8_t *)key2 + key2->key_offset) /= 2;
+	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		VB2_ERROR_UNPACK_KEY_ARRAY_SIZE,
+		"vb2_unpack_key2() invalid key array size");
+	free(key2);
 }
 
 static void test_verify_data(const VbPublicKey *public_key,
@@ -173,6 +281,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	}
 
 	test_unpack_key(public_key);
+	test_unpack_key2(public_key);
 	test_verify_data(public_key, private_key);
 
 	if (public_key)

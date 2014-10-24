@@ -19,6 +19,9 @@ struct vb2_public_key {
 	const uint32_t *rr;  /* R^2 as little endian array */
 	enum vb2_signature_algorithm sig_alg;  /* Signature algorithm */
 	enum vb2_hash_algorithm hash_alg;      /* Hash algorithm */
+	const char *desc;            /* Description */
+	uint32_t version;            /* Key version */
+	const struct vb2_guid *guid; /* Key GUID */
 };
 
 /**

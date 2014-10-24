@@ -176,6 +176,9 @@ enum vb2_return_code {
 	/* Member data overlaps member header */
 	VB2_ERROR_INSIDE_DATA_OVERLAP,
 
+	/* Unsupported packed key struct version */
+	VB2_ERROR_UNPACK_KEY_STRUCT_VERSION,
+
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())
 	 */
