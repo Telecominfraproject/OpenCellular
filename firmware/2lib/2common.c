@@ -125,7 +125,6 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 			     ptrdiff_t member_data_offset,
 			     size_t member_data_size)
 {
-	const size_t psize = (size_t)parent_size;
 	const uintptr_t parent_end = (uintptr_t)parent + parent_size;
 	const ptrdiff_t member_offs = vb2_offset_of(parent, member);
 	const ptrdiff_t member_end_offs = member_offs + member_size;
@@ -133,23 +132,57 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 	const ptrdiff_t data_end_offs = data_offs + member_data_size;
 
 	/* Make sure parent doesn't wrap */
-	if (parent_end < (uintptr_t)parent)
+	if (parent_size < 0 || parent_end < (uintptr_t)parent)
 		return VB2_ERROR_INSIDE_PARENT_WRAPS;
 
 	/*
 	 * Make sure the member is fully contained in the parent and doesn't
 	 * wrap.  Use >, not >=, since member_size = 0 is possible.
 	 */
-	if (member_end_offs < member_offs)
+	if (member_size < 0 || member_end_offs < member_offs)
 		return VB2_ERROR_INSIDE_MEMBER_WRAPS;
-	if (member_offs < 0 || member_offs > psize || member_end_offs > psize)
+	if (member_offs < 0 || member_offs > parent_size ||
+	    member_end_offs > parent_size)
 		return VB2_ERROR_INSIDE_MEMBER_OUTSIDE;
 
-	/* Make sure parent fully contains member data */
-	if (data_end_offs < data_offs)
+	/* Make sure the member data is after the member */
+	if (member_data_size > 0 && data_offs < member_end_offs)
+		return VB2_ERROR_INSIDE_DATA_OVERLAP;
+
+	/* Make sure parent fully contains member data, if any */
+	if (member_data_size < 0 || data_end_offs < data_offs)
 		return VB2_ERROR_INSIDE_DATA_WRAPS;
-	if (data_offs < 0 || data_offs > psize || data_end_offs > psize)
+	if (data_offs < 0 || data_offs > parent_size ||
+	    data_end_offs > parent_size)
 		return VB2_ERROR_INSIDE_DATA_OUTSIDE;
+
+	return VB2_SUCCESS;
+}
+
+int vb2_verify_common_header(const void *parent,
+			     uint32_t parent_size,
+			     const struct vb2_struct_common *c)
+{
+	int rv;
+
+	/* Make sure common data and description are inside parent */
+	rv = vb2_verify_member_inside(parent, parent_size,
+				      c, sizeof(*c),
+				      c->desc_offset, c->desc_size);
+	if (rv)
+		return rv;
+
+	/* Check description */
+	if (c->desc_size > 0) {
+		/* Description must be null-terminated */
+		const uint8_t *cptr = (const uint8_t *)c;
+		if (cptr[c->desc_offset + c->desc_size - 1] != 0)
+			return VB2_ERROR_DESC_TERMINATOR;
+
+	} else if (c->desc_offset != 0) {
+		/* If size is non-zero, offset must be too */
+		return VB2_ERROR_DESC_EMPTY_OFFSET;
+	}
 
 	return VB2_SUCCESS;
 }

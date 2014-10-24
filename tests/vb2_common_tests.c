@@ -228,15 +228,59 @@ static void test_helper_functions(void)
 		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, 4, 17),
 			VB2_ERROR_INSIDE_DATA_OUTSIDE,
 			"MemberInside data too big");
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 8, 4, 8),
+			VB2_ERROR_INSIDE_DATA_OVERLAP,
+			"MemberInside data overlaps member");
 		TEST_EQ(vb2_verify_member_inside(p, -8, p, 12, 0, 0),
 			VB2_ERROR_INSIDE_PARENT_WRAPS,
 			"MemberInside wraparound 1");
 		TEST_EQ(vb2_verify_member_inside(p, 20, p, -8, 0, 0),
 			VB2_ERROR_INSIDE_MEMBER_WRAPS,
 			"MemberInside wraparound 2");
-		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, 0, -8),
+		TEST_EQ(vb2_verify_member_inside(p, 20, p, 4, 4, -12),
 			VB2_ERROR_INSIDE_DATA_WRAPS,
 			"MemberInside wraparound 3");
+	}
+
+	{
+		uint8_t cbuf[sizeof(struct vb2_struct_common) + 128];
+		struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
+
+		c->desc_offset = sizeof(*c);
+		c->desc_size = 128;
+		cbuf[sizeof(cbuf) - 1] = 0;
+		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
+			  "CommonInside at start");
+
+		c[1].desc_offset = sizeof(*c);
+		c[1].desc_size = 128 - sizeof(*c);
+		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c + 1),
+			  "CommonInside after start");
+
+		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf) - 1, c),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"CommonInside key too big");
+
+		c->desc_offset = sizeof(cbuf);
+		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
+			VB2_ERROR_INSIDE_DATA_OUTSIDE,
+			"CommonInside offset too big");
+		c->desc_offset = sizeof(*c);
+
+		cbuf[sizeof(cbuf) - 1] = 1;
+		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
+			VB2_ERROR_DESC_TERMINATOR,
+			"CommonInside description not terminated");
+
+		c->desc_size = 0;
+		c->desc_offset = 0;
+		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
+			  "CommonInside no description");
+
+		c->desc_offset = 4;
+		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
+			VB2_ERROR_DESC_EMPTY_OFFSET,
+			"CommonInside description empty offset");
 	}
 
 	{

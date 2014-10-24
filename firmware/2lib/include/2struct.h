@@ -277,12 +277,16 @@ struct vb2_struct_common {
 	uint16_t struct_version_major;
 	uint16_t struct_version_minor;
 
-	/* Offset of null-terminated ASCII description from start of struct */
+	/*
+	 * Offset of null-terminated ASCII description from start of struct.
+	 * Must be 0 if desc_size=0.
+	 */
 	uint32_t desc_offset;
 
 	/*
-	 * Size of description in bytes, counting null terminator.  May be 0
-	 * if no description is present.
+	 * Size of description in bytes, counting null terminator.  Set 0 if no
+	 * description is present.  If non-zero, there must be a null
+	 * terminator (0) at offset (desc_offset + desc_size - 1).
 	 */
 	uint32_t desc_size;
 } __attribute__((packed));

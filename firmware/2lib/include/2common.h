@@ -181,6 +181,20 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 			     size_t member_data_size);
 
 /**
+ * Verify the common struct header is fully contained in its parent data
+ *
+ * Also verifies the description is either zero-length or null-terminated.
+ *
+ * @param parent	Parent data
+ * @param parent_size	Parent size in bytes
+ * @param sig		Signature pointer
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_verify_common_header(const void *parent,
+			     uint32_t parent_size,
+			     const struct vb2_struct_common *c);
+
+/**
  * Verify a signature is fully contained in its parent data
  *
  * @param parent	Parent data

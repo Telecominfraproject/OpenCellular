@@ -167,6 +167,15 @@ enum vb2_return_code {
 	/* Unsupported hash algorithm in vb2_unpack_key() */
 	VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
 
+	/* Common struct description is not null-terminated */
+	VB2_ERROR_DESC_TERMINATOR,
+
+	/* Common struct description offset is empty, but offset is non-zero */
+	VB2_ERROR_DESC_EMPTY_OFFSET,
+
+	/* Member data overlaps member header */
+	VB2_ERROR_INSIDE_DATA_OVERLAP,
+
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())
 	 */
