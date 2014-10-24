@@ -21,6 +21,12 @@ DIR="${TEST_DIR}/cgpt_test_dir"
 warning "testing $CGPT in $DIR"
 cd "$DIR"
 
+# Test failure on non existing file.
+set +e
+${CGPT} show blah_404_haha
+[ $? != 0 ] || error "CGPT should fail on non existing file."
+set -e
+
 echo "Create an empty file to use as the device..."
 NUM_SECTORS=1000
 DEV=fake_dev.bin

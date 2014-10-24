@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "cgpt_endian.h"
 #include "cgptlib.h"
+#include "drive.h"
 #include "gpt.h"
 #include "mtdlib.h"
 
@@ -28,7 +29,6 @@ struct legacy_partition {
   uint32_t num_sect;
 } __attribute__((packed));
 
-
 // syslinux uses this format:
 struct pmbr {
   uint8_t                 bootcode[424];
@@ -43,12 +43,33 @@ void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen);
 
 // Handle to the drive storing the GPT.
 struct drive {
-  int fd;           /* file descriptor */
   uint64_t size;    /* total size (in bytes) */
   int is_mtd;
   GptData gpt;
   MtdData mtd;
   struct pmbr pmbr;
+  /*
+   * For use with regular file or block device.
+   * GPT structures will occupy the first and last few blocks.
+   */
+  struct {
+    int fd;       /* file descriptor */
+  };
+  /*
+   * For use with flash.
+   * GPT structures will be stored in flash, while the partitions are in
+   * /dev/mtd*.
+   */
+  struct {
+    off_t current_position;  /* for used by DriveSeekFunc */
+    uint32_t flash_start;    /* offset where we can write to flash, in FMAP */
+    uint32_t flash_size;     /* size of that area, in bytes, in FMAP */
+  };  /* for use with flashrom */
+  DriveSeekFunc seek;
+  DriveReadFunc read;
+  DriveWriteFunc write;
+  DriveSyncFunc sync;
+  DriveCloseFunc close;
 };
 
 struct nand_layout {
@@ -61,7 +82,11 @@ struct nand_layout {
 void EnableNandImage(int bytes_per_page, int pages_per_block,
                      int fts_block_offset, int fts_block_size);
 
-/* mode should be O_RDONLY or O_RDWR */
+// Opens a block device or file, loads raw GPT data from it.
+// mode should be O_RDONLY or O_RDWR
+//
+// Returns CGPT_FAILED if any error happens.
+// Returns CGPT_OK if success and information are stored in 'drive'.
 int DriveOpen(const char *drive_path, struct drive *drive, int mode);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
@@ -191,6 +216,7 @@ int GenerateGuid(Guid *newguid);
 
 // For usage and error messages.
 void Error(const char *format, ...);
+void Warning(const char *format, ...);
 
 // Command functions.
 int cmd_show(int argc, char *argv[]);

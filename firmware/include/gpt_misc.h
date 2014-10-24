@@ -57,6 +57,24 @@ enum {
 	GPT_UPDATE_ENTRY_BAD = 2,
 };
 
+enum {
+	GPT_STORED_ON_DEVICE = 0,   /* The GPT is stored on the same device. */
+	GPT_STORED_OFF_DEVICE = 1,  /* The GPT is stored on another place. */
+};
+
+/*
+ * A note about stored_on_device and gpt_drive_sectors:
+ *
+ * This code is used by both the "cgpt" utility and depthcharge/vboot. ATM,
+ * depthcharge does not have logic to properly setup stored_on_device and
+ * gpt_drive_sectors, but it does do a memset(gpt, 0, sizeof(GptData)). And so,
+ * GPT_STORED_ON_DEVICE should be 0 to make stored_on_device compatible with
+ * present behavior. At the same time, in vboot_kernel:LoadKernel(), and
+ * cgpt_common:GptLoad(), we need to have simple shims to set gpt_drive_sectors
+ * to drive_sectors.
+ *
+ * TODO(namnguyen): Remove those shims when the firmware can set these fields.
+ */
 typedef struct {
 	/* Fill in the following fields before calling GptInit() */
 	/* GPT primary header, from sector 1 of disk (size: 512 bytes) */
@@ -69,8 +87,12 @@ typedef struct {
 	uint8_t *secondary_entries;
 	/* Size of a LBA sector, in bytes */
 	uint32_t sector_bytes;
-	/* Size of drive in LBA sectors, in sectors */
+	/* Size of drive (that the partitions are on) in LBA sectors */
 	uint64_t drive_sectors;
+	/* Are the GPT structures stored on the same device */
+	uint8_t stored_on_device;
+	/* Size of the device that holds the GPT structures, 512-byte sectors */
+	uint64_t gpt_drive_sectors;
 
 	/* Outputs */
 	/* Which inputs have been modified?  GPT_MODIFIED_* */
@@ -98,6 +120,8 @@ typedef struct {
  *   secondary_entries
  *   sector_bytes
  *   drive_sectors
+ *   stored_on_device
+ *   gpt_device_sectors
  *
  * On return the modified field may be set, if the GPT data has been modified
  * and should be written to disk.

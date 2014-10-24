@@ -445,7 +445,7 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
     }
 
     if (drive->gpt.valid_headers & MASK_SECONDARY)
-      printf(GPT_FMT, (int)(drive->gpt.drive_sectors - GPT_HEADER_SECTORS),
+      printf(GPT_FMT, (int)(drive->gpt.gpt_drive_sectors - GPT_HEADER_SECTORS),
              (int)GPT_HEADER_SECTORS, "", "Sec GPT header");
     else
       printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
