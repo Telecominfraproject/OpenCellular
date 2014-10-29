@@ -218,10 +218,30 @@ static void phase1_tests(void)
 	TEST_EQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
 
 	reset_common_data(FOR_MISC);
+	retval_vb2_fw_parse_gbb = VB2_ERROR_GBB_MAGIC;
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
+		"phase1 gbb");
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_GBB_HEADER,
+		"  recovery reason");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_RECOVERY_MODE, 0, "  recovery flag");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
+
+
+	reset_common_data(FOR_MISC);
+	retval_vb2_check_dev_switch = VB2_ERROR_MOCK;
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
+		"phase1 dev switch");
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_DEV_SWITCH,
+		"  recovery reason");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_RECOVERY_MODE, 0, "  recovery flag");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
+
+	reset_common_data(FOR_MISC);
 	cc.secdata[0] ^= 0x42;
-	TEST_EQ(vb2api_fw_phase1(&cc),
-		VB2_ERROR_API_PHASE1_RECOVERY, "phase1 secdata");
-	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_SECDATA_INIT, "  recovery");
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
+		"phase1 secdata");
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_SECDATA_INIT,
+		"  recovery reason");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_RECOVERY_MODE, 0, "  recovery flag");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
 }
@@ -231,18 +251,6 @@ static void phase2_tests(void)
 	reset_common_data(FOR_MISC);
 	TEST_SUCC(vb2api_fw_phase2(&cc), "phase2 good");
 	TEST_EQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
-
-	reset_common_data(FOR_MISC);
-	retval_vb2_fw_parse_gbb = VB2_ERROR_GBB_MAGIC;
-	TEST_EQ(vb2api_fw_phase2(&cc), VB2_ERROR_GBB_MAGIC, "phase2 gbb");
-	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
-		VB2_RECOVERY_GBB_HEADER, "  recovery reason");
-
-	reset_common_data(FOR_MISC);
-	retval_vb2_check_dev_switch = VB2_ERROR_MOCK;
-	TEST_EQ(vb2api_fw_phase2(&cc), VB2_ERROR_MOCK, "phase2 dev switch");
-	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
-		VB2_RECOVERY_DEV_SWITCH, "  recovery reason");
 
 	reset_common_data(FOR_MISC);
 	cc.flags |= VB2_CONTEXT_DEVELOPER_MODE;

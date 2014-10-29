@@ -35,7 +35,6 @@ void vb2api_fail(struct vb2_context *ctx, uint8_t reason, uint8_t subcode)
 
 int vb2api_fw_phase1(struct vb2_context *ctx)
 {
-	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	int rv;
 
 	/* Initialize the vboot context if it hasn't been yet */
@@ -47,7 +46,17 @@ int vb2api_fw_phase1(struct vb2_context *ctx)
 	/* Initialize secure data */
 	rv = vb2_secdata_init(ctx);
 	if (rv)
-		sd->recovery_reason = VB2_RECOVERY_SECDATA_INIT;
+		vb2_fail(ctx, VB2_RECOVERY_SECDATA_INIT, rv);
+
+	/* Load and parse the GBB header */
+	rv = vb2_fw_parse_gbb(ctx);
+	if (rv)
+		vb2_fail(ctx, VB2_RECOVERY_GBB_HEADER, rv);
+
+	/* Check for dev switch */
+	rv = vb2_check_dev_switch(ctx);
+	if (rv)
+		vb2_fail(ctx, VB2_RECOVERY_DEV_SWITCH, rv);
 
 	/*
 	 * Check for recovery.  Note that this function returns void, since
@@ -69,20 +78,6 @@ int vb2api_fw_phase1(struct vb2_context *ctx)
 int vb2api_fw_phase2(struct vb2_context *ctx)
 {
 	int rv;
-
-	/* Load and parse the GBB header */
-	rv = vb2_fw_parse_gbb(ctx);
-	if (rv) {
-		vb2_fail(ctx, VB2_RECOVERY_GBB_HEADER, rv);
-		return rv;
-	}
-
-	/* Check for dev switch */
-	rv = vb2_check_dev_switch(ctx);
-	if (rv) {
-		vb2_fail(ctx, VB2_RECOVERY_DEV_SWITCH, rv);
-		return rv;
-	}
 
 	/* Always clear RAM when entering developer mode */
 	if (ctx->flags & VB2_CONTEXT_DEVELOPER_MODE)

@@ -162,7 +162,7 @@ void vb2_check_recovery(struct vb2_context *ctx)
 	/* If forcing recovery, override recovery reason */
 	if (ctx->flags & VB2_CONTEXT_FORCE_RECOVERY_MODE) {
 		sd->recovery_reason = VB2_RECOVERY_RO_MANUAL;
-		sd->flags = VB2_SD_FLAG_MANUAL_RECOVERY;
+		sd->flags |= VB2_SD_FLAG_MANUAL_RECOVERY;
 	}
 
 	/* If recovery reason is non-zero, tell caller we need recovery mode */
