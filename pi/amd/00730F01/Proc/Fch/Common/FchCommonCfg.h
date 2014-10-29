@@ -137,7 +137,7 @@ typedef struct _CODEC_ENTRY {
 ///
 typedef struct _CODEC_TBL_LIST {
   UINT32                CodecId;                        /// CodecID - Codec ID
-  CODEC_ENTRY*          CodecTablePtr;                  /// CodecTablePtr - Codec table pointer
+  CONST CODEC_ENTRY*    CodecTablePtr;                  /// CodecTablePtr - Codec table pointer
 } CODEC_TBL_LIST;
 
 ///
@@ -206,12 +206,12 @@ typedef struct {
 ///
 /// AZOEMTBL - Azalia Controller OEM Codec Table Pointer
 ///
-  CODEC_TBL_LIST        *AzaliaOemCodecTablePtr;        /// AzaliaOemCodecTablePtr - Oem Azalia Codec Table Pointer
+  CONST CODEC_TBL_LIST  *AzaliaOemCodecTablePtr;        /// AzaliaOemCodecTablePtr - Oem Azalia Codec Table Pointer
 
 ///
 /// AZOEMFPTBL - Azalia Controller Front Panel OEM Table Pointer
 ///
-  VOID                  *AzaliaOemFpCodecTablePtr;      /// AzaliaOemFpCodecTablePtr - Oem Front Panel Codec Table Pointer
+  CONST VOID            *AzaliaOemFpCodecTablePtr;      /// AzaliaOemFpCodecTablePtr - Oem Front Panel Codec Table Pointer
 } FCH_AZALIA;
 
 ///
