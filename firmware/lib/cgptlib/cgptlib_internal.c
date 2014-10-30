@@ -131,6 +131,8 @@ int IsKernelEntry(const GptEntry *e)
 
 int CheckEntries(GptEntry *entries, GptHeader *h)
 {
+	if (!entries)
+		return GPT_ERROR_INVALID_ENTRIES;
 	GptEntry *entry;
 	uint32_t crc32;
 	uint32_t i;

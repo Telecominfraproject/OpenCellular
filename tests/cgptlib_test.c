@@ -1146,6 +1146,30 @@ static int SanityCheckTest(void)
 	EXPECT(MASK_BOTH == gpt->valid_entries);
 	EXPECT((GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2) == gpt->modified);
 
+	/* Test unloaded entry array. */
+	gpt = GetEmptyGptData();
+	BuildTestGptData(gpt);
+	gpt->primary_entries = NULL;
+	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+	EXPECT(MASK_SECONDARY == gpt->valid_entries);
+	gpt = GetEmptyGptData();
+	BuildTestGptData(gpt);
+	gpt->secondary_entries = NULL;
+	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+	EXPECT(MASK_PRIMARY == gpt->valid_entries);
+
+	/* Test unloaded header. */
+	gpt = GetEmptyGptData();
+	BuildTestGptData(gpt);
+	gpt->primary_header = NULL;
+	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+	EXPECT(MASK_SECONDARY == gpt->valid_headers);
+	gpt = GetEmptyGptData();
+	BuildTestGptData(gpt);
+	gpt->secondary_header = NULL;
+	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
+	EXPECT(MASK_PRIMARY == gpt->valid_headers);
+
 	return TEST_OK;
 }
 
