@@ -168,20 +168,16 @@ int vb2_verify_common_header(const void *parent,
 	/* Make sure common data and description are inside parent */
 	rv = vb2_verify_member_inside(parent, parent_size,
 				      c, sizeof(*c),
-				      c->desc_offset, c->desc_size);
+				      c->fixed_size, c->desc_size);
 	if (rv)
 		return rv;
 
 	/* Check description */
 	if (c->desc_size > 0) {
 		/* Description must be null-terminated */
-		const uint8_t *cptr = (const uint8_t *)c;
-		if (cptr[c->desc_offset + c->desc_size - 1] != 0)
+		const uint8_t *desc = (const uint8_t *)c + c->fixed_size;
+		if (desc[c->desc_size - 1] != 0)
 			return VB2_ERROR_DESC_TERMINATOR;
-
-	} else if (c->desc_offset != 0) {
-		/* If size is non-zero, offset must be too */
-		return VB2_ERROR_DESC_EMPTY_OFFSET;
 	}
 
 	return VB2_SUCCESS;

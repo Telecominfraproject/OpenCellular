@@ -104,7 +104,7 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 	free(key2);
 
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
-	key2->c.desc_offset += size;
+	key2->c.fixed_size += size;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
 		VB2_ERROR_INSIDE_DATA_OUTSIDE,
 		"vb2_unpack_key2() buffer too small for desc");
@@ -112,7 +112,6 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
 	key2->c.desc_size = 0;
-	key2->c.desc_offset = 0;
 	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
 		  "vb2_unpack_key2() no desc");
 	TEST_EQ(strcmp(pubk.desc, ""), 0, "  empty desc string");

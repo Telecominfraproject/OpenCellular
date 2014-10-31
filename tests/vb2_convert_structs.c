@@ -24,20 +24,21 @@ struct vb2_packed_key2 *vb2_convert_packed_key2(
 	};
 	uint8_t *kbuf;
 
-	/* Calculate description size */
-	k2.c.desc_offset = sizeof(k2);
+	/* Calculate sizes and offsets */
+	k2.c.fixed_size = sizeof(k2);
 	k2.c.desc_size = roundup32(strlen(desc) + 1);
+	k2.key_offset = k2.c.fixed_size + k2.c.desc_size;
+	k2.key_size = key->key_size;
+	k2.c.total_size = k2.key_offset + k2.key_size;
 
 	/* Copy/initialize fields */
-	k2.key_offset = k2.c.desc_offset + k2.c.desc_size;
-	k2.key_size = key->key_size;
 	k2.key_version = key->key_version;
 	k2.sig_algorithm = vb2_crypto_to_signature(key->algorithm);
 	k2.hash_algorithm = vb2_crypto_to_hash(key->algorithm);
 	/* TODO: fill in a non-zero GUID */
 
 	/* Allocate the new buffer */
-	*out_size = k2.key_offset + k2.key_size;
+	*out_size = k2.c.total_size;
 	kbuf = malloc(*out_size);
 	memset(kbuf, 0, *out_size);
 
@@ -45,8 +46,8 @@ struct vb2_packed_key2 *vb2_convert_packed_key2(
 	memcpy(kbuf, &k2, sizeof(k2));
 
 	/* strcpy() is safe because we allocated above based on strlen() */
-	strcpy((char *)(kbuf + k2.c.desc_offset), desc);
-	kbuf[k2.c.desc_offset + k2.c.desc_size - 1] = 0;
+	strcpy((char *)(kbuf + k2.c.fixed_size), desc);
+	kbuf[k2.c.fixed_size + k2.c.desc_size - 1] = 0;
 
 	memcpy(kbuf + k2.key_offset,
 	       (const uint8_t *)key + key->key_offset,

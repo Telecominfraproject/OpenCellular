@@ -90,11 +90,6 @@ struct vb2_signature {
 	/* Size of the data block which was signed in bytes */
 	uint32_t data_size;
 	uint32_t reserved2;
-
-	/*
-	 * TODO: when redoing this struct, add a text description of the
-	 * signature (including what key was used) and an algorithm type field.
-	 */
 } __attribute__((packed));
 
 #define EXPECTED_VB2_SIGNATURE_SIZE 24
@@ -262,14 +257,15 @@ enum vb2_struct_common_magic {
 
 /*
  * Generic struct header for all vboot2 structs.  This makes it easy to
- * automatically parse and identify vboot structs (e.g., in futility).
+ * automatically parse and identify vboot structs (e.g., in futility).  This
+ * must be the first member of the parent vboot2 struct.
  */
 struct vb2_struct_common {
 	/* Magic number; see vb2_struct_common_magic for expected values */
 	uint32_t magic;
 
 	/*
-	 * Struct version; see each struct for the expected value.
+	 * Parent struct version; see each struct for the expected value.
 	 *
 	 * How to handle struct version mismatches, if the parser is version
 	 * A.b and the data is version C.d:
@@ -289,20 +285,34 @@ struct vb2_struct_common {
 	uint16_t struct_version_minor;
 
 	/*
-	 * Offset of null-terminated ASCII description from start of struct.
-	 * Must be 0 if desc_size=0.
+	 * Size of the parent structure and all its data, including the
+	 * description and any necessary padding.  That is, all data must lie
+	 * in a contiguous region of <total_size> bytes starting at the first
+	 * byte of this header.
 	 */
-	uint32_t desc_offset;
+	uint32_t total_size;
 
 	/*
-	 * Size of description in bytes, counting null terminator.  Set 0 if no
-	 * description is present.  If non-zero, there must be a null
-	 * terminator (0) at offset (desc_offset + desc_size - 1).
+	 * Size of the fixed portion of the parent structure.  If a description
+	 * is present, it must start at this offset.
+	 */
+	uint32_t fixed_size;
+
+	/*
+	 * The object may contain an ASCII description following the fixed
+	 * portion of the structure.  If it is present, it must be
+	 * null-terminated, and padded with 0 (null) bytes to a multiple of 32
+	 * bits.
+	 *
+	 * Size of ASCII description in bytes, counting null terminator and
+	 * padding (if any).  Set 0 if no description is present.  If non-zero,
+	 * there must be a null terminator (0) at offset (fixed_size +
+	 * desc_size - 1).
 	 */
 	uint32_t desc_size;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_STRUCT_COMMON_SIZE 16
+#define EXPECTED_VB2_STRUCT_COMMON_SIZE 20
 
 /* Algorithm types for signatures */
 enum vb2_signature_algorithm {
@@ -339,16 +349,19 @@ enum vb2_hash_algorithm {
 #define VB2_PACKED_KEY2_VERSION_MAJOR 3
 #define VB2_PACKED_KEY2_VERSION_MINOR 0
 
-/* Packed public key data, version 2 */
+/*
+ * Packed public key data, version 2
+ *
+ * The key data must be arranged like this:
+ *     1) vb2_packed_key2 header struct h
+ *     2) Key description (pointed to by h.c.fixed_size)
+ *     3) Key data key (pointed to by h.key_offset)
+ */
 struct vb2_packed_key2 {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
-	/*
-	 * Offset of key data from start of this struct.  Note that data may
-	 * not immediately follow this struct header, if this struct is a
-	 * member of a bigger struct; see vb2_keyblock2 for an example.
-	 */
+	/* Offset of key data from start of this struct */
 	uint32_t key_offset;
 
 	/* Size of key data in bytes (NOT strength of key in bits) */
@@ -378,16 +391,19 @@ struct vb2_packed_key2 {
 #define VB2_SIGNATURE2_VERSION_MAJOR 3
 #define VB2_SIGNATURE2_VERSION_MINOR 0
 
-/* Signature data, version 2 */
+/*
+ * Signature data, version 2
+ *
+ * The signature data must be arranged like this:
+ *     1) vb2_signature2 header struct h
+ *     2) Signature description (pointed to by h.c.fixed_size)
+ *     3) Signature data (pointed to by h.sig_offset)
+ */
 struct vb2_signature2 {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
-	/*
-	 * Offset of signature data from start of this struct.  Note that data
-	 * may not immediately follow the struct header, if this struct is a
-	 * member of a bigger struct; see vb2_keyblock2 for an example.
-	 */
+	/* Offset of signature data from start of this struct */
 	uint32_t sig_offset;
 
 	/* Size of signature data in bytes */
@@ -408,16 +424,10 @@ struct vb2_signature2 {
 	 * with the key being used by the firmware.
 	 */
 	struct vb2_guid key_guid;
-
-	/* Offset of null-terminated ASCII description from start of struct */
-	uint32_t desc_offset;
-
-	/* Size of description in bytes, counting null terminator */
-	uint32_t desc_size;
 } __attribute__((packed));
 
 #define EXPECTED_VB2_SIGNATURE2_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 24)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
 
 
 /* Current version of vb2_keyblock2 struct */
@@ -430,45 +440,35 @@ struct vb2_signature2 {
  *
  * The key block data must be arranged like this:
  *     1) vb2_keyblock2 header struct h
- *     2) The following in any order
- *        - Keyblock description (pointed to by h.c.desc_offset)
- *        - Data key description (pointed to by h.data_key.c.desc_offset)
- *        - Data key data (pointed to by h.data_key.key_offset)
- *        - Signature table (pointed to by h.signature_table_offset)
- *     3) Signature data and descriptions (pointed to by each signature table
- *        entry e's e.c.desc_offset and e.sig_offset)
+ *     2) Keyblock description (pointed to by h.c.fixed_size)
+ *     3) Data key (pointed to by h.data_key_offset)
+ *     4) Signatures (first signature pointed to by h.sig_offset)
  *
- * The signatures from 3) must cover all the data from 1) and 2).
+ * The signatures from 4) must cover all the data from 1), 2), 3).  That is,
+ * signatures must sign all data up to sig_offset.
  */
 struct vb2_keyblock2 {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
-	/*
-	 * Size of this key block, including this header and all data (data
-	 * key, signatures, description from common header, padding, etc.), in
-	 * bytes.
-	 */
-	uint32_t keyblock_size;
-
 	/* Flags (VB2_KEY_BLOCK_FLAG_*) */
 	uint32_t flags;
 
-	/* Key to use in next stage of verification */
-	struct vb2_packed_key2 data_key;
+	/*
+	 * Offset of key (struct vb2_packed_key2) to use in next stage of
+	 * verification, from start of the keyblock.
+	 */
+	uint32_t key_offset;
 
 	/* Number of keyblock signatures which follow */
-	uint32_t signature_count;
-
-	/* Size of each signature table entry, in bytes */
-	uint32_t signature_entry_size;
+	uint32_t sig_count;
 
 	/*
-	 * Offset of signature table from the start of the keyblock.  The
-	 * signature table is an array of struct vb2_signature2 (version 3.0).
+	 * Offset of the first signature (struct vb2_signature2) from the start
+	 * of the keyblock.
 	 *
 	 * Signatures sign the contents of this struct and the data pointed to
-	 * by data_key (but not the signature table/data).
+	 * by data_key_offset, but not themselves or other signatures.
 	 *
 	 * For the firmware, there may be only one signature.
 	 *
@@ -476,11 +476,10 @@ struct vb2_keyblock2 {
 	 * subkey from the RW firmware (for signed kernels) and one which is
 	 * simply a SHA-512 hash (for unsigned developer kernels).
 	 */
-	uint32_t signature_table_offset;
+	uint32_t sig_offset;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_KEYBLOCK2_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_VB2_PACKED_KEY2_SIZE + 20)
+#define EXPECTED_VB2_KEYBLOCK2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 16)
 
 
 /* Current version of vb2_preamble2 struct */
@@ -488,7 +487,7 @@ struct vb2_keyblock2 {
 #define VB2_PREAMBLE2_VERSION_MINOR 0
 
 /* Single hash entry for the firmware preamble */
-struct vb2_fw_preamble_hash {
+struct vb2_fw_preamble2_hash {
 	/* Type of data being hashed (enum vb2api_hash_tag) */
 	uint32_t tag;
 
@@ -499,30 +498,22 @@ struct vb2_fw_preamble_hash {
 	uint8_t digest[0];
 } __attribute__((packed));
 
-#define EXPECTED_VB2_FW_PREAMBLE_HASH_SIZE 8
+#define EXPECTED_VB2_FW_PREAMBLE2_HASH_SIZE 8
 
 /*
  * Firmware preamble
  *
  * The preamble data must be arranged like this:
  *     1) vb2_fw_preamble2 header struct h
- *     2) The following in any order
- *        - Preamble description (pointed to by h.c.desc_offset)
- *        - Hash table (pointed to by h.hash_table_offset)
- *     3) Signature data and description (pointed to by
- *	  h.preamble_signature.desc_offset and h.preamble_signature.sig_offset)
+ *     2) Preamble description (pointed to by h.c.fixed_size)
+ *     3) Hash table (pointed to by h.hash_table_offset)
+ *     4) Signature (pointed to by h.sig_offset)
  *
- * The signature 3) must cover all the data from 1) and 2).
+ * The signature 4) must cover all the data from 1), 2), 3).
  */
 struct vb2_fw_preamble2 {
 	/* Common header fields */
 	struct vb2_struct_common c;
-
-	/*
-	 * Size of the preamble, including this header struct and all data
-	 * (hashes, signatures, descriptions, padding, etc.), in bytes.
-	 */
-	uint32_t preamble_size;
 
 	/* Flags; see VB2_FIRMWARE_PREAMBLE_* */
 	uint32_t flags;
@@ -530,8 +521,8 @@ struct vb2_fw_preamble2 {
 	/* Firmware version */
 	uint32_t firmware_version;
 
-	/* Signature for this preamble (header + hash table entries) */
-	struct vb2_signature2 preamble_signature;
+	/* Offset of signature (struct vb2_signature2) for this preamble */
+	uint32_t sig_offset;
 
 	/*
 	 * The preamble contains a list of hashes for the various firmware
@@ -561,8 +552,7 @@ struct vb2_fw_preamble2 {
 	uint32_t hash_table_offset;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_FW_PREAMBLE2_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_VB2_SIGNATURE2_SIZE + 24)
+#define EXPECTED_VB2_FW_PREAMBLE2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 24)
 
 /****************************************************************************/
 

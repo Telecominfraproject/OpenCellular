@@ -98,7 +98,7 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 
 	/* Key description */
 	if (pkey->c.desc_size)
-		key->desc = (const char *)&(pkey->c) + pkey->c.desc_offset;
+		key->desc = (const char *)&(pkey->c) + pkey->c.fixed_size;
 	else
 		key->desc = "";
 

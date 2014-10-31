@@ -163,9 +163,9 @@ static void test_struct_packing(void)
 	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE2_SIZE,
 		sizeof(struct vb2_fw_preamble2),
 		"sizeof(vb2_fw_preamble2)");
-	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE_HASH_SIZE,
-		sizeof(struct vb2_fw_preamble_hash),
-		"sizeof(vb2_fw_preamble_hash)");
+	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE2_HASH_SIZE,
+		sizeof(struct vb2_fw_preamble2_hash),
+		"sizeof(vb2_fw_preamble2_hash)");
 }
 
 /**
@@ -246,13 +246,14 @@ static void test_helper_functions(void)
 		uint8_t cbuf[sizeof(struct vb2_struct_common) + 128];
 		struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
 
-		c->desc_offset = sizeof(*c);
+		c->total_size = sizeof(cbuf);
+		c->fixed_size = sizeof(*c);
 		c->desc_size = 128;
 		cbuf[sizeof(cbuf) - 1] = 0;
 		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
 			  "CommonInside at start");
 
-		c[1].desc_offset = sizeof(*c);
+		c[1].fixed_size = sizeof(*c);
 		c[1].desc_size = 128 - sizeof(*c);
 		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c + 1),
 			  "CommonInside after start");
@@ -261,11 +262,11 @@ static void test_helper_functions(void)
 			VB2_ERROR_INSIDE_DATA_OUTSIDE,
 			"CommonInside key too big");
 
-		c->desc_offset = sizeof(cbuf);
+		c->fixed_size = sizeof(cbuf);
 		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
 			VB2_ERROR_INSIDE_DATA_OUTSIDE,
 			"CommonInside offset too big");
-		c->desc_offset = sizeof(*c);
+		c->fixed_size = sizeof(*c);
 
 		cbuf[sizeof(cbuf) - 1] = 1;
 		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
@@ -273,14 +274,8 @@ static void test_helper_functions(void)
 			"CommonInside description not terminated");
 
 		c->desc_size = 0;
-		c->desc_offset = 0;
 		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
 			  "CommonInside no description");
-
-		c->desc_offset = 4;
-		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
-			VB2_ERROR_DESC_EMPTY_OFFSET,
-			"CommonInside description empty offset");
 	}
 
 	{

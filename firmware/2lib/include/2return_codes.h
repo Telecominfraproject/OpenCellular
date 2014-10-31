@@ -170,9 +170,6 @@ enum vb2_return_code {
 	/* Common struct description is not null-terminated */
 	VB2_ERROR_DESC_TERMINATOR,
 
-	/* Common struct description offset is empty, but offset is non-zero */
-	VB2_ERROR_DESC_EMPTY_OFFSET,
-
 	/* Member data overlaps member header */
 	VB2_ERROR_INSIDE_DATA_OVERLAP,
 
