@@ -237,6 +237,16 @@ DECLARE_FUTIL_COMMAND(help, do_help,
 		      "Show a bit of help (you're looking at it)",
 		      print_help);
 
+static int do_version(int argc, char *argv[])
+{
+	printf("%s\n", futility_version);
+	return 0;
+}
+
+DECLARE_FUTIL_COMMAND(version, do_version,
+		      "Show the futility source revision and build date",
+		      NULL);
+
 /*
  * These are built-in functions that we'd like to abandon completely someday.
  * TODO: If no one complains, get rid of them.

@@ -1052,6 +1052,7 @@ ${FUTIL_CMD_LIST} ${FUTIL_STATIC_CMD_LIST}:
 	${Q}grep -hoRE '^DECLARE_FUTIL_COMMAND\([^,]+' $^ \
 		| sed 's/DECLARE_FUTIL_COMMAND(\(.*\)/_CMD(\1)/' \
 		| sort >>$@_commands
+	${Q}./scripts/getversion.sh >> $@_t
 	${Q}echo '#define _CMD(NAME) extern const struct' \
 		'futil_cmd_t __cmd_##NAME;' >> $@_t
 	${Q}cat $@_commands >> $@_t
