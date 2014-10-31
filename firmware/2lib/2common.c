@@ -159,30 +159,6 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 	return VB2_SUCCESS;
 }
 
-int vb2_verify_common_header(const void *parent,
-			     uint32_t parent_size,
-			     const struct vb2_struct_common *c)
-{
-	int rv;
-
-	/* Make sure common data and description are inside parent */
-	rv = vb2_verify_member_inside(parent, parent_size,
-				      c, sizeof(*c),
-				      c->fixed_size, c->desc_size);
-	if (rv)
-		return rv;
-
-	/* Check description */
-	if (c->desc_size > 0) {
-		/* Description must be null-terminated */
-		const uint8_t *desc = (const uint8_t *)c + c->fixed_size;
-		if (desc[c->desc_size - 1] != 0)
-			return VB2_ERROR_DESC_TERMINATOR;
-	}
-
-	return VB2_SUCCESS;
-}
-
 int vb2_verify_signature_inside(const void *parent,
 				uint32_t parent_size,
 				const struct vb2_signature *sig)

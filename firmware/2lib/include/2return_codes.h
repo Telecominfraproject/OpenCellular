@@ -132,7 +132,7 @@ enum vb2_return_code {
 	VB2_ERROR_INSIDE_DATA_OUTSIDE,
 
 	/* Unsupported signature algorithm in vb2_unpack_key() */
-	VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
+	VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,                      /* 0x150008 */
 
 	/* Bad key size in vb2_unpack_key() */
 	VB2_ERROR_UNPACK_KEY_SIZE,
@@ -156,7 +156,7 @@ enum vb2_return_code {
 	VB2_ERROR_VDATA_WORKBUF_DIGEST,
 
 	/* Not enough work buffer for hash temp data in vb2_verify_data() */
-	VB2_ERROR_VDATA_WORKBUF_HASHING,
+	VB2_ERROR_VDATA_WORKBUF_HASHING,                         /* 0x150010 */
 
 	/*
 	 * Bad digest size in vb2_verify_data() - probably because algorithm
@@ -167,14 +167,58 @@ enum vb2_return_code {
 	/* Unsupported hash algorithm in vb2_unpack_key() */
 	VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
 
-	/* Common struct description is not null-terminated */
-	VB2_ERROR_DESC_TERMINATOR,
-
 	/* Member data overlaps member header */
 	VB2_ERROR_INSIDE_DATA_OVERLAP,
 
 	/* Unsupported packed key struct version */
 	VB2_ERROR_UNPACK_KEY_STRUCT_VERSION,
+
+	/*
+	 * Buffer too small for total, fixed size, or description reported in
+	 * common header, or member data checked via
+	 * vb2_verify_common_member().
+	 */
+	VB2_ERROR_COMMON_TOTAL_SIZE,
+	VB2_ERROR_COMMON_FIXED_SIZE,
+	VB2_ERROR_COMMON_DESC_SIZE,
+	VB2_ERROR_COMMON_MEMBER_SIZE,                            /* 0x150018 */
+
+	/*
+	 * Total, fixed, description, or member offset/size not a multiple of
+	 * 32 bits.
+	 */
+	VB2_ERROR_COMMON_TOTAL_UNALIGNED,
+	VB2_ERROR_COMMON_FIXED_UNALIGNED,
+	VB2_ERROR_COMMON_DESC_UNALIGNED,
+	VB2_ERROR_COMMON_MEMBER_UNALIGNED,
+
+	/* Common struct description or member data wraps address space */
+	VB2_ERROR_COMMON_DESC_WRAPS,
+	VB2_ERROR_COMMON_MEMBER_WRAPS,
+
+	/* Common struct description is not null-terminated */
+	VB2_ERROR_COMMON_DESC_TERMINATOR,
+
+	/* Member data overlaps previous data */
+	VB2_ERROR_COMMON_MEMBER_OVERLAP,                         /* 0x150020 */
+
+	/* Signature bad magic number */
+	VB2_ERROR_SIG_MAGIC,
+
+	/* Signature incompatible version */
+	VB2_ERROR_SIG_VERSION,
+
+	/* Signature header doesn't fit */
+	VB2_ERROR_SIG_HEADER_SIZE,
+
+	/* Wrong amount of data signed */
+	VB2_ERROR_VDATA_SIZE,
+
+	/* Digest mismatch */
+	VB2_ERROR_VDATA_VERIFY_DIGEST,
+
+	/* Key algorithm doesn't match signature algorithm */
+	VB2_ERROR_VDATA_ALGORITHM_MISMATCH,
 
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())
@@ -210,6 +254,12 @@ enum vb2_return_code {
 
 	/* Data key outside signed part of keyblock */
 	VB2_ERROR_KEYBLOCK_DATA_KEY_UNSIGNED,
+
+	/* Signature signed wrong amount of data */
+	VB2_ERROR_KEYBLOCK_SIGNED_SIZE,
+
+	/* No signature matching key GUID */
+	VB2_ERROR_KEYBLOCK_SIG_GUID,
 
         /**********************************************************************
 	 * Preamble verification errors (all in vb2_verify_preamble())

@@ -243,42 +243,6 @@ static void test_helper_functions(void)
 	}
 
 	{
-		uint8_t cbuf[sizeof(struct vb2_struct_common) + 128];
-		struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
-
-		c->total_size = sizeof(cbuf);
-		c->fixed_size = sizeof(*c);
-		c->desc_size = 128;
-		cbuf[sizeof(cbuf) - 1] = 0;
-		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
-			  "CommonInside at start");
-
-		c[1].fixed_size = sizeof(*c);
-		c[1].desc_size = 128 - sizeof(*c);
-		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c + 1),
-			  "CommonInside after start");
-
-		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf) - 1, c),
-			VB2_ERROR_INSIDE_DATA_OUTSIDE,
-			"CommonInside key too big");
-
-		c->fixed_size = sizeof(cbuf);
-		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
-			VB2_ERROR_INSIDE_DATA_OUTSIDE,
-			"CommonInside offset too big");
-		c->fixed_size = sizeof(*c);
-
-		cbuf[sizeof(cbuf) - 1] = 1;
-		TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
-			VB2_ERROR_DESC_TERMINATOR,
-			"CommonInside description not terminated");
-
-		c->desc_size = 0;
-		TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf), c),
-			  "CommonInside no description");
-	}
-
-	{
 		struct vb2_packed_key k = {.key_offset = sizeof(k),
 					   .key_size = 128};
 		TEST_SUCC(vb2_verify_packed_key_inside(&k, sizeof(k)+128, &k),
@@ -321,6 +285,140 @@ static void test_helper_functions(void)
 	}
 }
 
+/**
+ * Common header functions
+ */
+static void test_common_header_functions(void)
+{
+	uint8_t cbuf[sizeof(struct vb2_struct_common) + 128];
+	uint8_t cbufgood[sizeof(cbuf)];
+	struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
+	struct vb2_struct_common *c2;
+	uint32_t desc_end, m;
+
+	c->total_size = sizeof(cbuf);
+	c->fixed_size = sizeof(*c);
+	c->desc_size = 32;
+	desc_end = c->fixed_size + c->desc_size;
+	cbuf[desc_end - 1] = 0;
+
+	c2 = (struct vb2_struct_common *)(cbuf + desc_end);
+	c2->total_size = c->total_size - desc_end;
+	c2->fixed_size = sizeof(*c2);
+	c2->desc_size = 0;
+
+	TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		  "vb2_verify_common_header() good");
+	memcpy(cbufgood, cbuf, sizeof(cbufgood));
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->total_size += 4;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_TOTAL_SIZE,
+		"vb2_verify_common_header() total size");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->fixed_size = c->total_size + 4;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_FIXED_SIZE,
+		"vb2_verify_common_header() fixed size");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->desc_size = c->total_size - c->fixed_size + 4;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_DESC_SIZE,
+		"vb2_verify_common_header() desc size");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->total_size--;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_TOTAL_UNALIGNED,
+		"vb2_verify_common_header() total unaligned");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->fixed_size++;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_FIXED_UNALIGNED,
+		"vb2_verify_common_header() fixed unaligned");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->desc_size--;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_DESC_UNALIGNED,
+		"vb2_verify_common_header() desc unaligned");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	c->desc_size = -4;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_DESC_WRAPS,
+		"vb2_verify_common_header() desc wraps");
+
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	cbuf[desc_end - 1] = 1;
+	TEST_EQ(vb2_verify_common_header(cbuf, sizeof(cbuf)),
+		VB2_ERROR_COMMON_DESC_TERMINATOR,
+		"vb2_verify_common_header() desc not terminated");
+
+	/* Member checking function */
+	memcpy(cbuf, cbufgood, sizeof(cbuf));
+	m = 0;
+	TEST_SUCC(vb2_verify_common_member(cbuf, &m, c->total_size - 8, 4),
+		  "vb2_verify_common_member()");
+	TEST_EQ(m, c->total_size - 4, "  new minimum");
+
+	m = desc_end;
+	TEST_SUCC(vb2_verify_common_member(cbuf, &m, desc_end, 4),
+		  "vb2_verify_common_member() good offset");
+	TEST_EQ(m, desc_end + 4, "  new minimum");
+
+	m = 0;
+	TEST_EQ(vb2_verify_common_member(cbuf, &m, c->total_size - 8, -4),
+		VB2_ERROR_COMMON_MEMBER_WRAPS,
+		"vb2_verify_common_member() wraps");
+
+	m = 0;
+	TEST_EQ(vb2_verify_common_member(cbuf, &m, c->total_size - 7, 4),
+		VB2_ERROR_COMMON_MEMBER_UNALIGNED,
+		"vb2_verify_common_member() offset unaligned");
+
+	m = 0;
+	TEST_EQ(vb2_verify_common_member(cbuf, &m, c->total_size - 8, 5),
+		VB2_ERROR_COMMON_MEMBER_UNALIGNED,
+		"vb2_verify_common_member() size unaligned");
+
+	m = 0;
+	TEST_EQ(vb2_verify_common_member(cbuf, &m, desc_end - 4, 4),
+		VB2_ERROR_COMMON_MEMBER_OVERLAP,
+		"vb2_verify_common_member() overlap");
+
+	m = desc_end + 4;
+	TEST_EQ(vb2_verify_common_member(cbuf, &m, desc_end, 4),
+		VB2_ERROR_COMMON_MEMBER_OVERLAP,
+		"vb2_verify_common_member() overlap 2");
+
+	m = 0;
+	TEST_EQ(vb2_verify_common_member(cbuf, &m, c->total_size - 4, 8),
+		VB2_ERROR_COMMON_MEMBER_SIZE,
+		"vb2_verify_common_member() size");
+
+	/* Subobject checking */
+	m = 0;
+	TEST_SUCC(vb2_verify_common_subobject(cbuf, &m, desc_end),
+		  "vb2_verify_common_subobject() good offset");
+	TEST_EQ(m, sizeof(cbuf), "  new minimum");
+
+	m = desc_end + 4;
+	TEST_EQ(vb2_verify_common_subobject(cbuf, &m, desc_end),
+		VB2_ERROR_COMMON_MEMBER_OVERLAP,
+		"vb2_verify_common_subobject() overlap");
+
+	m = 0;
+	c2->total_size += 4;
+	TEST_EQ(vb2_verify_common_subobject(cbuf, &m, desc_end),
+		VB2_ERROR_COMMON_TOTAL_SIZE,
+		"vb2_verify_common_subobject() size");
+}
+
 int main(int argc, char* argv[])
 {
 	test_memcmp();
@@ -328,6 +426,7 @@ int main(int argc, char* argv[])
 	test_workbuf();
 	test_struct_packing();
 	test_helper_functions();
+	test_common_header_functions();
 
 	return gTestSuccess ? 0 : 255;
 }

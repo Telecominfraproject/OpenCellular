@@ -99,14 +99,14 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
 	key2->key_offset += 4;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
-		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		VB2_ERROR_COMMON_MEMBER_SIZE,
 		"vb2_unpack_key2() buffer too small");
 	free(key2);
 
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
 	key2->c.fixed_size += size;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
-		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		VB2_ERROR_COMMON_FIXED_SIZE,
 		"vb2_unpack_key2() buffer too small for desc");
 	free(key2);
 
@@ -161,7 +161,7 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 	free(key2);
 
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
-	key2->key_size--;
+	key2->key_size -= 4;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
 		VB2_ERROR_UNPACK_KEY_SIZE,
 		"vb2_unpack_key2() invalid size");
@@ -170,7 +170,7 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
 	key2->key_offset--;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
-		VB2_ERROR_UNPACK_KEY_ALIGN,
+		VB2_ERROR_COMMON_MEMBER_UNALIGNED,
 		"vb2_unpack_key2() unaligned data");
 	free(key2);
 

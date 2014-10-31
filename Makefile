@@ -283,6 +283,7 @@ VBSLK_SRCS = \
 FWLIB2_SRCS = \
 	firmware/2lib/2api.c \
 	firmware/2lib/2common.c \
+	firmware/2lib/2common2.c \
 	firmware/2lib/2crc8.c \
 	firmware/2lib/2misc.c \
 	firmware/2lib/2nvstorage.c \
