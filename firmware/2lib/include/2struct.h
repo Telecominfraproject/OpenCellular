@@ -32,6 +32,17 @@ struct vb2_guid {
 
 #define EXPECTED_GUID_SIZE GUID_SIZE
 
+/* Key GUIDs to use for VB2_SIG_NONE and hash algorithms */
+
+#define VB2_GUID_NONE_SHA1 \
+	{{{0xcfb5687a,0x6092,0x11e4,0x96,0xe1,{0x8f,0x3b,0x1a,0x60,0xa2,0x1d}}}}
+
+#define VB2_GUID_NONE_SHA256 \
+	{{{0x0e4114e0,0x6093,0x11e4,0x9d,0xcb,{0x8f,0x8a,0xf4,0xca,0x2e,0x32}}}}
+
+#define VB2_GUID_NONE_SHA512 \
+	{{{0x1c695960,0x6093,0x11e4,0x82,0x63,{0xdb,0xee,0xe9,0x3c,0xcd,0x7e}}}}
+
 /****************************************************************************/
 /*
  * Vboot1-compatible data structures
@@ -298,7 +309,10 @@ enum vb2_signature_algorithm {
 	/* Invalid or unsupported signature type */
 	VB2_SIG_INVALID = 0,
 
-	/* No signature algorithm.  The digest is unsigned. */
+	/*
+	 * No signature algorithm.  The digest is unsigned.  See
+	 * VB2_GUID_NONE_* above for key GUIDs to use with this algorithm.
+	 */
 	VB2_SIG_NONE = 1,
 
 	/* RSA algorithms of the given length in bits (1024-8192) */
@@ -391,8 +405,7 @@ struct vb2_signature2 {
 	/*
 	 * GUID of key used to generate this signature.  This allows the
 	 * firmware to quickly determine which signature block (if any) goes
-	 * with the key being used by the firmware.  If the algorithm is an
-	 * unsigned hash, this guid will be all 0.
+	 * with the key being used by the firmware.
 	 */
 	struct vb2_guid key_guid;
 
