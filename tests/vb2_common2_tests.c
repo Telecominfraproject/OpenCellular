@@ -235,6 +235,73 @@ static void test_verify_data(struct vb2_packed_key *key1,
 	free(sig2);
 }
 
+static void test_verify_signature(const struct vb2_packed_key *key1,
+				  const struct vb2_signature *sig1)
+{
+	struct vb2_public_key pubk;
+	struct vb2_packed_key2 *key2;
+	struct vb2_signature2 *sig2;
+	uint8_t *buf2good, *buf2;
+	uint32_t size;
+
+	/* Unpack and convert the public key */
+	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key1,
+				  key1->key_offset + key1->key_size),
+		  "verify_sig vb2_unpack_key2() passthru");
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	TEST_PTR_NEQ(key2, 0, "verify_sig convert pub key");
+
+	buf2good = (uint8_t *)
+		vb2_convert_signature2(sig1, "test desc", key2, &size);
+	buf2 = malloc(size);
+	sig2 = (struct vb2_signature2 *)buf2;
+
+	memcpy(buf2, buf2good, size);
+	TEST_PTR_NEQ(sig1, 0, "verify_sig convert signature");
+	TEST_SUCC(vb2_verify_signature2(sig2, size), "verify_sig ok");
+	sig2->c.magic = VB2_MAGIC_PACKED_KEY2;
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_SIG_MAGIC,
+		"verify_sig magic");
+
+	memcpy(buf2, buf2good, size);
+	sig2->c.total_size += 4;
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_COMMON_TOTAL_SIZE,
+		"verify_sig common header");
+
+	memcpy(buf2, buf2good, size);
+	sig2->c.struct_version_minor++;
+	TEST_SUCC(vb2_verify_signature2(sig2, size), "verify_sig minor ver");
+	sig2->c.struct_version_major++;
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_SIG_VERSION,
+		"verify_sig major ver");
+
+	memcpy(buf2, buf2good, size);
+	sig2->c.fixed_size -= 4;
+	sig2->c.desc_size += 4;
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_SIG_HEADER_SIZE,
+		"verify_sig header size");
+
+	memcpy(buf2, buf2good, size);
+	sig2->sig_size += 4;
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_COMMON_MEMBER_SIZE,
+		"verify_sig sig size");
+
+	memcpy(buf2, buf2good, size);
+	sig2->sig_alg = VB2_SIG_INVALID;
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_SIG_ALGORITHM,
+		"verify_sig sig alg");
+
+	memcpy(buf2, buf2good, size);
+	sig2->sig_alg = (sig2->sig_alg == VB2_SIG_NONE ?
+			 VB2_SIG_RSA1024 : VB2_SIG_NONE);
+	TEST_EQ(vb2_verify_signature2(sig2, size), VB2_ERROR_SIG_SIZE,
+		"verify_sig sig size");
+
+	free(buf2);
+	free(buf2good);
+	free(key2);
+}
+
 int test_algorithm(int key_algorithm, const char *keys_dir)
 {
 	char filename[1024];
@@ -272,6 +339,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	test_unpack_key(key1);
 	test_unpack_key2(key1);
 	test_verify_data(key1, sig);
+	test_verify_signature(key1, sig);
 
 	if (key1)
 		free(key1);

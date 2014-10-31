@@ -211,6 +211,12 @@ enum vb2_return_code {
 	/* Signature header doesn't fit */
 	VB2_ERROR_SIG_HEADER_SIZE,
 
+	/* Signature unsupported algorithm */
+	VB2_ERROR_SIG_ALGORITHM,
+
+	/* Signature bad size for algorithm */
+	VB2_ERROR_SIG_SIZE,
+
 	/* Wrong amount of data signed */
 	VB2_ERROR_VDATA_SIZE,
 

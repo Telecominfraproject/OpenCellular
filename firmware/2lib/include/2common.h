@@ -281,6 +281,25 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 		    const uint8_t *buf,
 		    uint32_t size);
 
+/**
+ * Return expected signature size for a signature/hash algorithm pair
+ *
+ * @param sig_alg	Signature algorithm
+ * @param hash_alg	Hash algorithm
+ * @return The signature size, or zero if error / unsupported algorithm.
+ */
+uint32_t vb2_sig_size(enum vb2_signature_algorithm sig_alg,
+		      enum vb2_hash_algorithm hash_alg);
+
+/**
+ * Verify the integrity of a signature struct
+ * @param sig		Signature struct
+ * @param size		Size of buffer containing signature struct
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_verify_signature2(const struct vb2_signature2 *sig,
+			  uint32_t size);
+
 /* Size of work buffer sufficient for vb2_rsa_verify_digest() worst case */
 #define VB2_VERIFY_DIGEST_WORKBUF_BYTES VB2_VERIFY_RSA_DIGEST_WORKBUF_BYTES
 

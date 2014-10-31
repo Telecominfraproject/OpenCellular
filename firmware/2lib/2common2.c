@@ -118,3 +118,63 @@ int vb2_verify_common_subobject(const void *parent,
 
 	return VB2_SUCCESS;
 }
+
+uint32_t vb2_sig_size(enum vb2_signature_algorithm sig_alg,
+		      enum vb2_hash_algorithm hash_alg)
+{
+	uint32_t digest_size = vb2_digest_size(hash_alg);
+
+	/* Fail if we don't support the hash algorithm */
+	if (!digest_size)
+		return 0;
+
+	/* Handle unsigned hashes */
+	if (sig_alg == VB2_SIG_NONE)
+		return digest_size;
+
+	return vb2_rsa_sig_size(sig_alg);
+}
+
+int vb2_verify_signature2(const struct vb2_signature2 *sig,
+			  uint32_t size)
+{
+	uint32_t min_offset = 0;
+	uint32_t expect_sig_size;
+	int rv;
+
+	/* Check magic number */
+	if (sig->c.magic != VB2_MAGIC_SIGNATURE2)
+		return VB2_ERROR_SIG_MAGIC;
+
+	/* Make sure common header is good */
+	rv = vb2_verify_common_header(sig, size);
+	if (rv)
+		return rv;
+
+	/*
+	 * Check for compatible version.  No need to check minor version, since
+	 * that's compatible across readers matching the major version, and we
+	 * haven't added any new fields.
+	 */
+	if (sig->c.struct_version_major != VB2_SIGNATURE2_VERSION_MAJOR)
+		return VB2_ERROR_SIG_VERSION;
+
+	/* Make sure header is big enough for signature */
+	if (sig->c.fixed_size < sizeof(*sig))
+		return VB2_ERROR_SIG_HEADER_SIZE;
+
+	/* Make sure signature data is inside */
+	rv = vb2_verify_common_member(sig, &min_offset,
+				      sig->sig_offset, sig->sig_size);
+	if (rv)
+		return rv;
+
+	/* Make sure signature size is correct for the algorithm */
+	expect_sig_size = vb2_sig_size(sig->sig_alg, sig->hash_alg);
+	if (!expect_sig_size)
+		return VB2_ERROR_SIG_ALGORITHM;
+	if (sig->sig_size != expect_sig_size)
+		return VB2_ERROR_SIG_SIZE;
+
+	return VB2_SUCCESS;
+}

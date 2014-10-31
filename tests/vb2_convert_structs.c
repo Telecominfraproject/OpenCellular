@@ -56,3 +56,57 @@ struct vb2_packed_key2 *vb2_convert_packed_key2(
 	/* Return the newly allocated buffer */
 	return (struct vb2_packed_key2 *)kbuf;
 }
+
+struct vb2_signature2 *vb2_convert_signature2(
+			      const struct vb2_signature *sig,
+			      const char *desc,
+			      const struct vb2_packed_key2 *key,
+			      uint32_t *out_size)
+{
+	struct vb2_signature2 s2 = {
+		.c.magic = VB2_MAGIC_SIGNATURE2,
+		.c.struct_version_major = VB2_SIGNATURE2_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_SIGNATURE2_VERSION_MINOR,
+	};
+	uint8_t *buf;
+
+	/* Calculate description size */
+	s2.c.fixed_size = sizeof(s2);
+	s2.c.desc_size = roundup32(strlen(desc) + 1);
+
+	/* Copy/initialize fields */
+	s2.sig_offset = s2.c.fixed_size + s2.c.desc_size;
+	s2.sig_size = sig->sig_size;
+	s2.c.total_size = s2.sig_offset + s2.sig_size;
+	s2.data_size = sig->data_size;
+
+	/* Copy fields from key if present */
+	if (key) {
+		s2.sig_alg = key->sig_alg;
+		s2.hash_alg = key->hash_alg;
+		memcpy(&s2.key_guid, &key->key_guid, GUID_SIZE);
+	} else {
+		s2.sig_alg = VB2_SIG_INVALID;
+		s2.hash_alg = VB2_HASH_INVALID;
+		memset(&s2.key_guid, 0, GUID_SIZE);
+	}
+
+	/* Allocate the new buffer */
+	*out_size = s2.sig_offset + s2.sig_size;
+	buf = malloc(*out_size);
+	memset(buf, 0, *out_size);
+
+	/* Copy data into the buffer */
+	memcpy(buf, &s2, sizeof(s2));
+
+	/* strcpy() is safe because we allocated above based on strlen() */
+	strcpy((char *)(buf + s2.c.fixed_size), desc);
+	buf[s2.c.fixed_size + s2.c.desc_size - 1] = 0;
+
+	memcpy(buf + s2.sig_offset,
+	       (const uint8_t *)sig + sig->sig_offset,
+	       sig->sig_size);
+
+	/* Return the newly allocated buffer */
+	return (struct vb2_signature2 *)buf;
+}

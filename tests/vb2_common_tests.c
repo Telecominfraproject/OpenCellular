@@ -419,6 +419,32 @@ static void test_common_header_functions(void)
 		"vb2_verify_common_subobject() size");
 }
 
+/**
+ * Signature size
+ */
+static void test_sig_size(void)
+{
+	TEST_EQ(vb2_sig_size(VB2_SIG_INVALID, VB2_HASH_SHA256), 0,
+		"vb2_sig_size() sig invalid");
+
+	TEST_EQ(vb2_sig_size(VB2_SIG_RSA2048, VB2_HASH_INVALID), 0,
+		"vb2_sig_size() hash invalid");
+
+	TEST_EQ(vb2_sig_size(VB2_SIG_RSA2048, VB2_HASH_SHA256), 2048 / 8,
+		"vb2_sig_size() RSA2048");
+	TEST_EQ(vb2_sig_size(VB2_SIG_RSA4096, VB2_HASH_SHA256), 4096 / 8,
+		"vb2_sig_size() RSA4096");
+	TEST_EQ(vb2_sig_size(VB2_SIG_RSA8192, VB2_HASH_SHA512), 8192 / 8,
+		"vb2_sig_size() RSA8192");
+
+	TEST_EQ(vb2_sig_size(VB2_SIG_NONE, VB2_HASH_SHA1),
+		VB2_SHA1_DIGEST_SIZE, "vb2_sig_size() SHA1");
+	TEST_EQ(vb2_sig_size(VB2_SIG_NONE, VB2_HASH_SHA256),
+		VB2_SHA256_DIGEST_SIZE, "vb2_sig_size() SHA256");
+	TEST_EQ(vb2_sig_size(VB2_SIG_NONE, VB2_HASH_SHA512),
+		VB2_SHA512_DIGEST_SIZE, "vb2_sig_size() SHA512");
+}
+
 int main(int argc, char* argv[])
 {
 	test_memcmp();
@@ -427,6 +453,7 @@ int main(int argc, char* argv[])
 	test_struct_packing();
 	test_helper_functions();
 	test_common_header_functions();
+	test_sig_size();
 
 	return gTestSuccess ? 0 : 255;
 }
