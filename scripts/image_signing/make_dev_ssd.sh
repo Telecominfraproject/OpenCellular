@@ -62,7 +62,7 @@ EXEC_LOG="$(make_temp_file)"
 remove_rootfs_verification() {
   local new_root="PARTUUID=%U/PARTNROFF=1"
   echo "$*" | sed '
-    s| root=/dev/dm-0 | root='"$new_root"' |
+    s| root=/dev/dm-[0-9] | root='"$new_root"' |
     s| dm_verity.dev_wait=1 | dm_verity.dev_wait=0 |
     s| payload=PARTUUID=%U/PARTNROFF=1 | payload=ROOT_DEV |
     s| hashtree=PARTUUID=%U/PARTNROFF=1 | hashtree=HASH_DEV |
