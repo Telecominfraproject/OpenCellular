@@ -368,14 +368,14 @@ struct vb2_packed_key2 {
 	uint32_t key_size;
 
 	/* Signature algorithm used by the key (enum vb2_signature_algorithm) */
-	uint16_t sig_algorithm;
+	uint16_t sig_alg;
 
 	/*
 	 * Hash digest algorithm used with the key (enum vb2_hash_algorithm).
 	 * This is explicitly specified as part of the key to prevent use of a
 	 * strong key with a weak hash.
 	 */
-	uint16_t hash_algorithm;
+	uint16_t hash_alg;
 
 	/* Key version */
 	uint32_t key_version;
@@ -413,10 +413,10 @@ struct vb2_signature2 {
 	uint32_t data_size;
 
 	/* Signature algorithm used (enum vb2_signature_algorithm) */
-	uint16_t sig_algorithm;
+	uint16_t sig_alg;
 
 	/* Hash digest algorithm used (enum vb2_hash_algorithm) */
-	uint16_t hash_algorithm;
+	uint16_t hash_alg;
 
 	/*
 	 * GUID of key used to generate this signature.  This allows the
@@ -538,7 +538,7 @@ struct vb2_fw_preamble2 {
 	 * Hash algorithm used (must be same for all entries) (enum
 	 * vb2_hash_algorithm).
 	 */
-	uint16_t hash_algorithm;
+	uint16_t hash_alg;
 
 	/* Size of each hash entry, in bytes */
 	uint16_t hash_entry_size;

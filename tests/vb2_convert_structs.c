@@ -33,8 +33,8 @@ struct vb2_packed_key2 *vb2_convert_packed_key2(
 
 	/* Copy/initialize fields */
 	k2.key_version = key->key_version;
-	k2.sig_algorithm = vb2_crypto_to_signature(key->algorithm);
-	k2.hash_algorithm = vb2_crypto_to_hash(key->algorithm);
+	k2.sig_alg = vb2_crypto_to_signature(key->algorithm);
+	k2.hash_alg = vb2_crypto_to_hash(key->algorithm);
 	/* TODO: fill in a non-zero GUID */
 
 	/* Allocate the new buffer */

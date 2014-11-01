@@ -56,12 +56,12 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 		return VB2_ERROR_UNPACK_KEY_STRUCT_VERSION;
 
 	/* Copy key algorithms */
-	key->sig_alg = pkey->sig_algorithm;
+	key->sig_alg = pkey->sig_alg;
 	sig_size = vb2_rsa_sig_size(key->sig_alg);
 	if (!sig_size)
 		return VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM;
 
-	key->hash_alg = pkey->hash_algorithm;
+	key->hash_alg = pkey->hash_alg;
 	if (!vb2_digest_size(key->hash_alg))
 		return VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM;
 

@@ -147,14 +147,14 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 	free(key2);
 
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
-	key2->sig_algorithm = VB2_SIG_INVALID;
+	key2->sig_alg = VB2_SIG_INVALID;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
 		VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
 		"vb2_unpack_key2() bad sig algorithm");
 	free(key2);
 
 	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
-	key2->hash_algorithm = VB2_HASH_INVALID;
+	key2->hash_alg = VB2_HASH_INVALID;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
 		VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
 		"vb2_unpack_key2() bad hash algorithm");
