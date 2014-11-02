@@ -53,4 +53,16 @@ struct vb2_signature2 *vb2_convert_signature2(
 			      const struct vb2_packed_key2 *key,
 			      uint32_t *out_size);
 
+/**
+ * Create an unsigned hash signature of the data.
+ *
+ * @param data		Data to sign
+ * @param size		Size of data in bytes
+ * @return a newly-allocated signature, which the caller must free, or NULL if
+ *	   error.
+ */
+struct vb2_signature2 *vb2_create_hash_sig(const uint8_t *data,
+					   uint32_t size,
+					   enum vb2_hash_algorithm hash_alg);
+
 #endif  /* VBOOT_REFERENCE_VB2_CONVERT_STRUCTS_H_ */

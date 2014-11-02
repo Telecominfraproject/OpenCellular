@@ -302,6 +302,83 @@ static void test_verify_signature(const struct vb2_packed_key *key1,
 	free(key2);
 }
 
+static void test_verify_data2(struct vb2_packed_key *key1,
+			     const struct vb2_signature *sig1)
+{
+	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
+	struct vb2_workbuf wb;
+
+	struct vb2_public_key pubk, pubk_orig;
+	struct vb2_packed_key2 *key2;
+	struct vb2_signature2 *sig2;
+	uint8_t *buf2good, *buf2;
+	uint32_t size;
+
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+	/* Unpack and convert the public key */
+	key2 = vb2_convert_packed_key2(key1, "Test key", &size);
+	TEST_PTR_NEQ(key2, 0, "verify_data convert pub key");
+	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
+		  "verify_data2 unpack key");
+	pubk_orig = pubk;
+
+	/* Convert signature and allocate copy for tests */
+	buf2good = (uint8_t *)
+		vb2_convert_signature2(sig1, "test desc", key2, &size);
+	buf2 = malloc(size);
+	sig2 = (struct vb2_signature2 *)buf2;
+
+	memcpy(buf2, buf2good, size);
+	pubk.sig_alg = VB2_SIG_INVALID;
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		VB2_ERROR_VDATA_ALGORITHM, "vb2_verify_data2() bad sig alg");
+	pubk.sig_alg = pubk_orig.sig_alg;
+
+	memcpy(buf2, buf2good, size);
+	pubk.hash_alg = VB2_HASH_INVALID;
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		VB2_ERROR_VDATA_DIGEST_SIZE,
+		"vb2_verify_data2() bad hash alg");
+	pubk.hash_alg = pubk_orig.hash_alg;
+
+	vb2_workbuf_init(&wb, workbuf, 4);
+	memcpy(buf2, buf2good, size);
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		VB2_ERROR_VDATA_WORKBUF_DIGEST,
+		"vb2_verify_data2() workbuf too small");
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+	memcpy(buf2, buf2good, size);
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		0, "vb2_verify_data2() ok");
+
+	memcpy(buf2, buf2good, size);
+	sig2->sig_size -= 16;
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		VB2_ERROR_VDATA_SIG_SIZE, "vb2_verify_data2() wrong sig size");
+
+	memcpy(buf2, buf2good, size);
+	TEST_EQ(vb2_verify_data2(test_data, test_size - 1, sig2, &pubk, &wb),
+		VB2_ERROR_VDATA_SIZE, "vb2_verify_data2() wrong data size");
+
+	memcpy(buf2, buf2good, size);
+	sig2->hash_alg = (sig2->hash_alg == VB2_HASH_SHA1 ?
+			  VB2_HASH_SHA256 : VB2_HASH_SHA1);
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		VB2_ERROR_VDATA_ALGORITHM_MISMATCH,
+		"vb2_verify_data2() alg mismatch");
+
+
+	memcpy(buf2, buf2good, size);
+	buf2[sig2->sig_offset] ^= 0x5A;
+	TEST_EQ(vb2_verify_data2(test_data, test_size, sig2, &pubk, &wb),
+		VB2_ERROR_RSA_PADDING, "vb2_verify_data2() wrong sig");
+
+	free(buf2);
+	free(buf2good);
+}
+
 int test_algorithm(int key_algorithm, const char *keys_dir)
 {
 	char filename[1024];
@@ -339,6 +416,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	test_unpack_key(key1);
 	test_unpack_key2(key1);
 	test_verify_data(key1, sig);
+	test_verify_data2(key1, sig);
 	test_verify_signature(key1, sig);
 
 	if (key1)
