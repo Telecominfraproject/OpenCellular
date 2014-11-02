@@ -18,70 +18,64 @@
 #include "2common.h"
 #include "2rsa.h"
 
-static void test_unpack_key(const VbPublicKey *orig_key)
-{
-	struct vb2_public_key rsa;
-	VbPublicKey *key = PublicKeyAlloc(orig_key->key_size, 0, 0);
+static const uint8_t test_data[] = "This is some test data to sign.";
+static const uint32_t test_size = sizeof(test_data);
 
-	/* vb2_packed_key and VbPublicKey are bit-identical */
-	struct vb2_packed_key *key2 = (struct vb2_packed_key *)key;
-	uint8_t *buf = (uint8_t *)key;
+static void test_unpack_key(const struct vb2_packed_key *key1)
+{
+	struct vb2_public_key pubk;
 
 	/*
 	 * Key data follows the header for a newly allocated key, so we can
 	 * calculate the buffer size by looking at how far the key data goes.
 	 */
-	uint32_t size = key2->key_offset + key2->key_size;
+	uint32_t size = key1->key_offset + key1->key_size;
+	uint8_t *buf = malloc(size);
+	struct vb2_packed_key *key = (struct vb2_packed_key *)buf;
 
-	PublicKeyCopy(key, orig_key);
-	TEST_SUCC(vb2_unpack_key(&rsa, buf, size), "vb2_unpack_key() ok");
+	memcpy(key, key1, size);
+	TEST_SUCC(vb2_unpack_key(&pubk, buf, size), "vb2_unpack_key() ok");
 
-	TEST_EQ(rsa.sig_alg, vb2_crypto_to_signature(key2->algorithm),
+	TEST_EQ(pubk.sig_alg, vb2_crypto_to_signature(key->algorithm),
 		"vb2_unpack_key() sig_alg");
-	TEST_EQ(rsa.hash_alg, vb2_crypto_to_hash(key2->algorithm),
+	TEST_EQ(pubk.hash_alg, vb2_crypto_to_hash(key->algorithm),
 		"vb2_unpack_key() hash_alg");
 
 
-	PublicKeyCopy(key, orig_key);
-	key2->algorithm = VB2_ALG_COUNT;
-	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
+	memcpy(key, key1, size);
+	key->algorithm = VB2_ALG_COUNT;
+	TEST_EQ(vb2_unpack_key(&pubk, buf, size),
 		VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
 		"vb2_unpack_key() invalid algorithm");
 
-	PublicKeyCopy(key, orig_key);
-	key2->key_size--;
-	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
+	memcpy(key, key1, size);
+	key->key_size--;
+	TEST_EQ(vb2_unpack_key(&pubk, buf, size),
 		VB2_ERROR_UNPACK_KEY_SIZE,
 		"vb2_unpack_key() invalid size");
-	key2->key_size++;
 
-	PublicKeyCopy(key, orig_key);
-	key2->key_offset++;
-	TEST_EQ(vb2_unpack_key(&rsa, buf, size + 1),
+	memcpy(key, key1, size);
+	key->key_offset++;
+	TEST_EQ(vb2_unpack_key(&pubk, buf, size + 1),
 		VB2_ERROR_UNPACK_KEY_ALIGN,
 		"vb2_unpack_key() unaligned data");
-	key2->key_offset--;
 
-	PublicKeyCopy(key, orig_key);
-	*(uint32_t *)(buf + key2->key_offset) /= 2;
-	TEST_EQ(vb2_unpack_key(&rsa, buf, size),
+	memcpy(key, key1, size);
+	*(uint32_t *)(buf + key->key_offset) /= 2;
+	TEST_EQ(vb2_unpack_key(&pubk, buf, size),
 		VB2_ERROR_UNPACK_KEY_ARRAY_SIZE,
 		"vb2_unpack_key() invalid key array size");
 
-	PublicKeyCopy(key, orig_key);
-	TEST_EQ(vb2_unpack_key(&rsa, buf, size - 1),
+	memcpy(key, key1, size);
+	TEST_EQ(vb2_unpack_key(&pubk, buf, size - 1),
 		VB2_ERROR_INSIDE_DATA_OUTSIDE,
 		"vb2_unpack_key() buffer too small");
 
 	free(key);
 }
 
-static void test_unpack_key2(const VbPublicKey *orig_key)
+static void test_unpack_key2(const struct vb2_packed_key *key1)
 {
-	/* vb2_packed_key and VbPublicKey are bit-identical */
-	const struct vb2_packed_key *key1 =
-		(const struct vb2_packed_key *)orig_key;
-
 	struct vb2_public_key pubk;
 	struct vb2_packed_key2 *key2;
 	uint32_t size;
@@ -182,76 +176,62 @@ static void test_unpack_key2(const VbPublicKey *orig_key)
 	free(key2);
 }
 
-static void test_verify_data(const VbPublicKey *public_key,
-			     const VbPrivateKey *private_key)
+static void test_verify_data(struct vb2_packed_key *key1,
+			     const struct vb2_signature *sig)
 {
-	const uint8_t test_data[] = "This is some test data to sign.";
-	const uint64_t test_size = sizeof(test_data);
 	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
 	struct vb2_workbuf wb;
-	VbSignature *sig;
 
-	struct vb2_public_key rsa, rsa_orig;
+	uint32_t pubkey_size = key1->key_offset + key1->key_size;
+	struct vb2_public_key pubk, pubk_orig;
+	uint32_t sig_total_size = sig->sig_offset + sig->sig_size;
 	struct vb2_signature *sig2;
-	struct vb2_packed_key *public_key2;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
-	/* Vb2 structs are bit-identical to the old ones */
-	public_key2 = (struct vb2_packed_key *)public_key;
-	uint32_t pubkey_size = public_key2->key_offset + public_key2->key_size;
-
-	/* Calculate good signature */
-	sig = CalculateSignature(test_data, test_size, private_key);
-	TEST_PTR_NEQ(sig, 0, "VerifyData() calculate signature");
-	if (!sig)
-		return;
-
 	/* Allocate signature copy for tests */
-	sig2 = (struct vb2_signature *)
-		SignatureAlloc(siglen_map[public_key2->algorithm], 0);
+	sig2 = (struct vb2_signature *)malloc(sig_total_size);
 
-	TEST_EQ(vb2_unpack_key(&rsa, (uint8_t *)public_key2, pubkey_size),
+	TEST_EQ(vb2_unpack_key(&pubk, (uint8_t *)key1, pubkey_size),
 		0, "vb2_verify_data() unpack key");
-	rsa_orig = rsa;
+	pubk_orig = pubk;
 
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
-	rsa.sig_alg = VB2_SIG_INVALID;
-	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+	memcpy(sig2, sig, sig_total_size);
+	pubk.sig_alg = VB2_SIG_INVALID;
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &pubk, &wb),
 		 0, "vb2_verify_data() bad sig alg");
-	rsa.sig_alg = rsa_orig.sig_alg;
+	pubk.sig_alg = pubk_orig.sig_alg;
 
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
-	rsa.hash_alg = VB2_HASH_INVALID;
-	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+	memcpy(sig2, sig, sig_total_size);
+	pubk.hash_alg = VB2_HASH_INVALID;
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &pubk, &wb),
 		 0, "vb2_verify_data() bad hash alg");
-	rsa.hash_alg = rsa_orig.hash_alg;
+	pubk.hash_alg = pubk_orig.hash_alg;
 
 	vb2_workbuf_init(&wb, workbuf, 4);
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
-	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+	memcpy(sig2, sig, sig_total_size);
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &pubk, &wb),
 		 0, "vb2_verify_data() workbuf too small");
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
-	TEST_EQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+	memcpy(sig2, sig, sig_total_size);
+	TEST_EQ(vb2_verify_data(test_data, test_size, sig2, &pubk, &wb),
 		0, "vb2_verify_data() ok");
 
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
+	memcpy(sig2, sig, sig_total_size);
 	sig2->sig_size -= 16;
-	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &pubk, &wb),
 		 0, "vb2_verify_data() wrong sig size");
 
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
-	TEST_NEQ(vb2_verify_data(test_data, test_size - 1, sig2, &rsa, &wb),
+	memcpy(sig2, sig, sig_total_size);
+	TEST_NEQ(vb2_verify_data(test_data, test_size - 1, sig2, &pubk, &wb),
 		 0, "vb2_verify_data() input buffer too small");
 
-	memcpy(sig2, sig, sizeof(VbSignature) + sig->sig_size);
+	memcpy(sig2, sig, sig_total_size);
 	vb2_signature_data(sig2)[0] ^= 0x5A;
-	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &rsa, &wb),
+	TEST_NEQ(vb2_verify_data(test_data, test_size, sig2, &pubk, &wb),
 		 0, "vb2_verify_data() wrong sig");
 
-	free(sig);
 	free(sig2);
 }
 
@@ -261,7 +241,9 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	int rsa_len = siglen_map[key_algorithm] * 8;
 
 	VbPrivateKey *private_key = NULL;
-	VbPublicKey *public_key = NULL;
+
+	struct vb2_signature *sig = NULL;
+	struct vb2_packed_key *key1;
 
 	printf("***Testing algorithm: %s\n", algo_strings[key_algorithm]);
 
@@ -273,20 +255,30 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	}
 
 	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, rsa_len);
-	public_key = PublicKeyReadKeyb(filename, key_algorithm, 1);
-	if (!public_key) {
+	key1 = (struct vb2_packed_key *)
+		PublicKeyReadKeyb(filename, key_algorithm, 1);
+	if (!key1) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
 		return 1;
 	}
 
-	test_unpack_key(public_key);
-	test_unpack_key2(public_key);
-	test_verify_data(public_key, private_key);
+	/* Calculate good signature */
+	sig = (struct vb2_signature *)
+		CalculateSignature(test_data, sizeof(test_data), private_key);
+	TEST_PTR_NEQ(sig, 0, "Calculate signature");
+	if (!sig)
+		return 1;
 
-	if (public_key)
-		free(public_key);
+	test_unpack_key(key1);
+	test_unpack_key2(key1);
+	test_verify_data(key1, sig);
+
+	if (key1)
+		free(key1);
 	if (private_key)
 		free(private_key);
+	if (sig)
+		free(sig);
 
 	return 0;
 }
