@@ -479,6 +479,186 @@ static void test_verify_hash(void)
 	free(sig);
 }
 
+/**
+ * Verify keyblock
+ */
+static void test_verify_keyblock(void)
+{
+	const char desc[16] = "test keyblock";
+	struct vb2_signature2 *sig;
+	struct vb2_keyblock2 *kbuf;
+	uint32_t buf_size;
+	uint8_t *buf, *buf2, *bnext;
+
+	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES];
+	struct vb2_workbuf wb;
+
+	const struct vb2_public_key pubk = {
+		.sig_alg = VB2_SIG_NONE,
+		.hash_alg = VB2_HASH_SHA256,
+		.guid = vb2_hash_guid(VB2_HASH_SHA256)
+	};
+	const struct vb2_public_key pubk2 = {
+		.sig_alg = VB2_SIG_NONE,
+		.hash_alg = VB2_HASH_SHA512,
+		.guid = vb2_hash_guid(VB2_HASH_SHA512)
+	};
+	const struct vb2_public_key pubk_not_present = {
+		.sig_alg = VB2_SIG_NONE,
+		.hash_alg = VB2_HASH_SHA1,
+		.guid = vb2_hash_guid(VB2_HASH_SHA1)
+	};
+
+	/*
+	 * Test packed key only needs to initialize the fields used by keyblock
+	 * verification.
+	 */
+	const struct vb2_packed_key2 pkey = {
+		.c.fixed_size = sizeof(pkey),
+		.c.desc_size = 0,
+		.c.total_size = sizeof(pkey)
+	};
+
+	struct vb2_keyblock2 kb = {
+		.c.magic = VB2_MAGIC_KEYBLOCK2,
+		.c.struct_version_major = VB2_KEYBLOCK2_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_KEYBLOCK2_VERSION_MAJOR,
+		.c.fixed_size = sizeof(kb),
+		.c.desc_size = sizeof(desc),
+		.flags = 0,
+		.sig_count = 2,
+	};
+
+	kb.key_offset = kb.c.fixed_size + kb.c.desc_size;
+	kb.sig_offset = kb.key_offset + pkey.c.total_size;
+
+	/*
+	 * Sign some dummy data with the right algorithms and descritions, to
+	 * determine signature sizes.
+	 */
+	kb.c.total_size = kb.sig_offset;
+
+	sig = vb2_create_hash_sig((const uint8_t *)desc, sizeof(desc),
+				  VB2_HASH_SHA256);
+	kb.c.total_size += sig->c.total_size;
+	free(sig);
+
+	sig = vb2_create_hash_sig((const uint8_t *)desc, sizeof(desc),
+				  VB2_HASH_SHA512);
+	kb.c.total_size += sig->c.total_size;
+	free(sig);
+
+	/* Now that the keyblock size is known, create the real keyblock */
+	buf_size = kb.c.total_size;
+	buf = malloc(buf_size);
+	memset(buf, 0, buf_size);
+	memcpy(buf, &kb, sizeof(kb));
+	memcpy(buf + kb.c.fixed_size, desc, sizeof(desc));
+	memcpy(buf + kb.key_offset, &pkey, pkey.c.total_size);
+
+	/* And copy in the signatures */
+	bnext = buf + kb.sig_offset;
+
+	sig = vb2_create_hash_sig(buf, kb.sig_offset, VB2_HASH_SHA256);
+	memcpy(bnext, sig, sig->c.total_size);
+	bnext += sig->c.total_size;
+	free(sig);
+
+	sig = vb2_create_hash_sig(buf, kb.sig_offset, VB2_HASH_SHA512);
+	memcpy(bnext, sig, sig->c.total_size);
+	bnext += sig->c.total_size;
+	free(sig);
+
+	/* Make a copy of the buffer, so we can mangle it for tests */
+	buf2 = malloc(buf_size);
+	memcpy(buf2, buf, buf_size);
+
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+	kbuf = (struct vb2_keyblock2 *)buf;
+
+	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		  "vb2_verify_keyblock2()");
+
+	memcpy(buf, buf2, buf_size);
+	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk2, &wb),
+		  "vb2_verify_keyblock2() key 2");
+
+	memcpy(buf, buf2, buf_size);
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk_not_present, &wb),
+		VB2_ERROR_KEYBLOCK_SIG_GUID,
+		"vb2_verify_keyblock2() key not present");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->c.magic = VB2_MAGIC_PACKED_KEY2;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk_not_present, &wb),
+		VB2_ERROR_KEYBLOCK_MAGIC,
+		"vb2_verify_keyblock2() magic");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->c.fixed_size++;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk_not_present, &wb),
+		VB2_ERROR_COMMON_FIXED_UNALIGNED,
+		"vb2_verify_keyblock2() header");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->c.struct_version_major++;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk_not_present, &wb),
+		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
+		"vb2_verify_keyblock2() major version");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->c.struct_version_minor++;
+	/* That changes the signature, so resign the keyblock */
+	sig = vb2_create_hash_sig(buf, kb.sig_offset, VB2_HASH_SHA256);
+	memcpy(buf + kbuf->sig_offset, sig, sig->c.total_size);
+	free(sig);
+	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		  "vb2_verify_keyblock2() minor version");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->c.fixed_size -= 4;
+	kbuf->c.desc_size += 4;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		VB2_ERROR_KEYBLOCK_SIZE,
+		"vb2_verify_keyblock2() header size");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->key_offset = kbuf->c.total_size - 4;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		VB2_ERROR_COMMON_MEMBER_SIZE,
+		"vb2_verify_keyblock2() data key outside");
+
+	memcpy(buf, buf2, buf_size);
+	sig = (struct vb2_signature2 *)(buf + kbuf->sig_offset);
+	sig->data_size--;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		VB2_ERROR_KEYBLOCK_SIGNED_SIZE,
+		"vb2_verify_keyblock2() signed wrong size");
+
+	memcpy(buf, buf2, buf_size);
+	sig = (struct vb2_signature2 *)(buf + kbuf->sig_offset);
+	sig->c.total_size = kbuf->c.total_size - 4;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		VB2_ERROR_COMMON_TOTAL_SIZE,
+		"vb2_verify_keyblock2() key outside keyblock");
+
+	memcpy(buf, buf2, buf_size);
+	sig = (struct vb2_signature2 *)(buf + kbuf->sig_offset);
+	sig->c.struct_version_major++;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		VB2_ERROR_SIG_VERSION,
+		"vb2_verify_keyblock2() corrupt key");
+
+	memcpy(buf, buf2, buf_size);
+	kbuf->c.struct_version_minor++;
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+		VB2_ERROR_VDATA_VERIFY_DIGEST,
+		"vb2_verify_keyblock2() corrupt");
+
+	free(buf);
+	free(buf2);
+}
+
 int main(int argc, char* argv[])
 {
 	test_memcmp();
@@ -489,6 +669,7 @@ int main(int argc, char* argv[])
 	test_common_header_functions();
 	test_sig_size();
 	test_verify_hash();
+	test_verify_keyblock();
 
 	return gTestSuccess ? 0 : 255;
 }

@@ -298,3 +298,71 @@ int vb2_verify_data2(const void *data,
 
 	return vb2_verify_digest2(key, sig, digest, &wblocal);
 }
+
+int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
+			 uint32_t size,
+			 const struct vb2_public_key *key,
+			 struct vb2_workbuf *wb)
+{
+	uint32_t min_offset = 0, sig_offset;
+	int rv, i;
+
+	/* Check magic number */
+	if (block->c.magic != VB2_MAGIC_KEYBLOCK2)
+		return VB2_ERROR_KEYBLOCK_MAGIC;
+
+	/* Make sure common header is good */
+	rv = vb2_verify_common_header(block, size);
+	if (rv)
+		return rv;
+
+	/*
+	 * Check for compatible version.  No need to check minor version, since
+	 * that's compatible across readers matching the major version, and we
+	 * haven't added any new fields.
+	 */
+	if (block->c.struct_version_major != VB2_KEYBLOCK2_VERSION_MAJOR)
+		return VB2_ERROR_KEYBLOCK_HEADER_VERSION;
+
+	/* Make sure header is big enough */
+	if (block->c.fixed_size < sizeof(*block))
+		return VB2_ERROR_KEYBLOCK_SIZE;
+
+	/* Make sure data key is inside */
+	rv = vb2_verify_common_subobject(block, &min_offset, block->key_offset);
+	if (rv)
+		return rv;
+
+	/* Loop over signatures */
+	sig_offset = block->sig_offset;
+	for (i = 0; i < block->sig_count; i++, sig_offset = min_offset) {
+		struct vb2_signature2 *sig;
+
+		/* Make sure signature is inside keyblock */
+		rv = vb2_verify_common_subobject(block, &min_offset,
+						 sig_offset);
+		if (rv)
+			return rv;
+
+		sig = (struct vb2_signature2 *)((uint8_t *)block + sig_offset);
+
+		/* Verify the signature integrity */
+		rv = vb2_verify_signature2(sig,
+					   block->c.total_size - sig_offset);
+		if (rv)
+			return rv;
+
+		/* Skip signature if it doesn't match the key GUID */
+		if (memcmp(&sig->key_guid, key->guid, GUID_SIZE))
+			continue;
+
+		/* Make sure we signed the right amount of data */
+		if (sig->data_size != block->sig_offset)
+			return VB2_ERROR_KEYBLOCK_SIGNED_SIZE;
+
+		return vb2_verify_data2(block, block->sig_offset, sig, key, wb);
+	}
+
+	/* If we're still here, no signature matched the key GUID */
+	return VB2_ERROR_KEYBLOCK_SIG_GUID;
+}
