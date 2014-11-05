@@ -366,3 +366,73 @@ int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
 	/* If we're still here, no signature matched the key GUID */
 	return VB2_ERROR_KEYBLOCK_SIG_GUID;
 }
+
+int vb2_verify_fw_preamble2(struct vb2_fw_preamble2 *preamble,
+			    uint32_t size,
+			    const struct vb2_public_key *key,
+			    const struct vb2_workbuf *wb)
+{
+	struct vb2_signature2 *sig;
+	uint32_t min_offset = 0, hash_offset;
+	int rv, i;
+
+	/* Check magic number */
+	if (preamble->c.magic != VB2_MAGIC_FW_PREAMBLE2)
+		return VB2_ERROR_PREAMBLE_MAGIC;
+
+	/* Make sure common header is good */
+	rv = vb2_verify_common_header(preamble, size);
+	if (rv)
+		return rv;
+
+	/*
+	 * Check for compatible version.  No need to check minor version, since
+	 * that's compatible across readers matching the major version, and we
+	 * haven't added any new fields.
+	 */
+	if (preamble->c.struct_version_major != VB2_FW_PREAMBLE2_VERSION_MAJOR)
+		return VB2_ERROR_PREAMBLE_HEADER_VERSION;
+
+	/* Make sure header is big enough */
+	if (preamble->c.fixed_size < sizeof(*preamble))
+		return VB2_ERROR_PREAMBLE_SIZE;
+
+	/* Make sure all hash signatures are inside */
+	hash_offset = preamble->hash_offset;
+	for (i = 0; i < preamble->hash_count; i++, hash_offset = min_offset) {
+		/* Make sure signature is inside preamble */
+		rv = vb2_verify_common_subobject(preamble, &min_offset,
+						 hash_offset);
+		if (rv)
+			return rv;
+
+		sig = (struct vb2_signature2 *)
+			((uint8_t *)preamble + hash_offset);
+
+		/* Verify the signature integrity */
+		rv = vb2_verify_signature2(
+				sig, preamble->c.total_size - hash_offset);
+		if (rv)
+			return rv;
+
+		/* Hashes must all be unsigned */
+		if (sig->sig_alg != VB2_SIG_NONE)
+			return VB2_ERROR_PREAMBLE_HASH_SIGNED;
+	}
+
+	/* Make sure signature is inside preamble */
+	rv = vb2_verify_common_subobject(preamble, &min_offset,
+					 preamble->sig_offset);
+	if (rv)
+		return rv;
+
+	/* Verify preamble signature */
+	sig = (struct vb2_signature2 *)((uint8_t *)preamble +
+					preamble->sig_offset);
+
+	rv = vb2_verify_data2(preamble, preamble->sig_offset, sig, key, wb);
+	if (rv)
+		return rv;
+
+	return VB2_SUCCESS;
+}

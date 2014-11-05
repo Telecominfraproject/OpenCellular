@@ -302,6 +302,12 @@ enum vb2_return_code {
 	/* Kernel subkey outside preamble */
 	VB2_ERROR_PREAMBLE_KERNEL_SUBKEY_OUTSIDE,
 
+	/* Bad magic number */
+	VB2_ERROR_PREAMBLE_MAGIC,
+
+	/* Hash is signed */
+	VB2_ERROR_PREAMBLE_HASH_SIGNED,
+
         /**********************************************************************
 	 * Misc higher-level code errors
 	 */

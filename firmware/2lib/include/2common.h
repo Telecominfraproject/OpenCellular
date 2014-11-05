@@ -410,7 +410,10 @@ int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
 			 const struct vb2_public_key *key,
 			 const struct vb2_workbuf *wb);
 
-/* Size of work buffer sufficient for vb2_verify_fw_preamble() worst case */
+/*
+ * Size of work buffer sufficient for vb2_verify_fw_preamble() or
+ * vb2_verify_fw_preamble2() worst case.
+ */
 #define VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES VB2_VERIFY_DATA_WORKBUF_BYTES
 
 /**
@@ -428,5 +431,10 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 			   uint32_t size,
 			   const struct vb2_public_key *key,
 			   const struct vb2_workbuf *wb);
+
+int vb2_verify_fw_preamble2(struct vb2_fw_preamble2 *preamble,
+			    uint32_t size,
+			    const struct vb2_public_key *key,
+			    const struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2COMMON_H_ */

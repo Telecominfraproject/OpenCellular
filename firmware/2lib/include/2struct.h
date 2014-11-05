@@ -491,9 +491,9 @@ struct vb2_keyblock2 {
 #define EXPECTED_VB2_KEYBLOCK2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 16)
 
 
-/* Current version of vb2_preamble2 struct */
-#define VB2_PREAMBLE2_VERSION_MAJOR 3
-#define VB2_PREAMBLE2_VERSION_MINOR 0
+/* Current version of vb2_fw_preamble2 struct */
+#define VB2_FW_PREAMBLE2_VERSION_MAJOR 3
+#define VB2_FW_PREAMBLE2_VERSION_MINOR 0
 
 /*
  * Firmware preamble
@@ -501,7 +501,7 @@ struct vb2_keyblock2 {
  * The preamble data must be arranged like this:
  *     1) vb2_fw_preamble2 header struct h
  *     2) Preamble description (pointed to by h.c.fixed_size)
- *     3) Hash table (pointed to by h.hash_table_offset)
+ *     3) Hashes (pointed to by h.hash_offset)
  *     4) Signature (pointed to by h.sig_offset)
  *
  * The signature 4) must cover all the data from 1), 2), 3).
