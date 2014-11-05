@@ -75,6 +75,6 @@ int vb2_check_padding(const uint8_t *sig, const struct vb2_public_key *key);
 int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 			  uint8_t *sig,
 			  const uint8_t *digest,
-			  struct vb2_workbuf *wb);
+			  const struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_2RSA_H_ */

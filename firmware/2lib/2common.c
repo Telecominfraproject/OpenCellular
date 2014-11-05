@@ -171,7 +171,7 @@ int vb2_verify_signature_inside(const void *parent,
 int vb2_verify_digest(const struct vb2_public_key *key,
 		      struct vb2_signature *sig,
 		      const uint8_t *digest,
-		      struct vb2_workbuf *wb)
+		      const struct vb2_workbuf *wb)
 {
 	uint8_t *sig_data = vb2_signature_data(sig);
 
@@ -190,7 +190,7 @@ int vb2_verify_data(const uint8_t *data,
 		    uint32_t size,
 		    struct vb2_signature *sig,
 		    const struct vb2_public_key *key,
-		    struct vb2_workbuf *wb)
+		    const struct vb2_workbuf *wb)
 {
 	struct vb2_workbuf wblocal = *wb;
 	struct vb2_digest_context *dc;
@@ -237,7 +237,7 @@ int vb2_verify_data(const uint8_t *data,
 int vb2_verify_keyblock(struct vb2_keyblock *block,
 			uint32_t size,
 			const struct vb2_public_key *key,
-			struct vb2_workbuf *wb)
+			const struct vb2_workbuf *wb)
 {
 	struct vb2_signature *sig;
 	int rv;
@@ -306,7 +306,7 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 			   uint32_t size,
 			   const struct vb2_public_key *key,
-			   struct vb2_workbuf *wb)
+			   const struct vb2_workbuf *wb)
 {
 	struct vb2_signature *sig = &preamble->preamble_signature;
 

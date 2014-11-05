@@ -66,6 +66,11 @@ void vb2_workbuf_init(struct vb2_workbuf *wb, uint8_t *buf, uint32_t size);
  * is not done.  The caller must track the size of each allocation and free via
  * vb2_workbuf_free() in the reverse order they were allocated.
  *
+ * An acceptable alternate workflow inside a function is to pass in a const
+ * work buffer, then make a local copy.  Allocations done to the local copy
+ * then don't change the passed-in work buffer, and will effectively be freed
+ * when the local copy goes out of scope.
+ *
  * @param wb		Work buffer
  * @param size		Requested size in bytes
  * @return A pointer to the allocated space, or NULL if error.
@@ -196,7 +201,8 @@ int vb2_verify_common_header(const void *parent, uint32_t parent_size);
  * @param min_offset	Pointer to minimum offset where member can be located.
  *			If this offset is 0 on input, uses the size of the
  *			fixed header (and description, if any).  This will be
- *			updated on return to the end of the passed member.
+ *			updated on return to the end of the passed member.  On
+ *			error, the value of min_offset is undefined.
  * @param member_offset Offset of member data from start of parent, in bytes
  * @param member_size	Size of member data, in bytes
  * @return VB2_SUCCESS, or non-zero if error.
@@ -217,7 +223,8 @@ int vb2_verify_common_member(const void *parent,
  * @param min_offset	Pointer to minimum offset where member can be located.
  *			If this offset is 0 on input, uses the size of the
  *			fixed header (and description, if any).  This will be
- *			updated on return to the end of the passed member.
+ *			updated on return to the end of the passed member.  On
+ *			error, the value of min_offset is undefined.
  * @param member_offset Offset of member data from start of parent, in bytes.
  *                      This should be the start of the common header of the
  *                      member.
@@ -327,7 +334,7 @@ int vb2_verify_signature2(const struct vb2_signature2 *sig,
 int vb2_verify_digest(const struct vb2_public_key *key,
 		      struct vb2_signature *sig,
 		      const uint8_t *digest,
-		      struct vb2_workbuf *wb);
+		      const struct vb2_workbuf *wb);
 
 /**
  * Verify a signature against an expected hash digest.
@@ -341,7 +348,7 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 int vb2_verify_digest2(const struct vb2_public_key *key,
 		       struct vb2_signature2 *sig,
 		       const uint8_t *digest,
-		       struct vb2_workbuf *wb);
+		       const struct vb2_workbuf *wb);
 
 /*
  * Size of work buffer sufficient for vb2_verify_data() or vb2_verify_data2()
@@ -367,13 +374,13 @@ int vb2_verify_data(const uint8_t *data,
 		    uint32_t size,
 		    struct vb2_signature *sig,
 		    const struct vb2_public_key *key,
-		    struct vb2_workbuf *wb);
+		    const struct vb2_workbuf *wb);
 
 int vb2_verify_data2(const void *data,
 		     uint32_t size,
 		     struct vb2_signature2 *sig,
 		     const struct vb2_public_key *key,
-		     struct vb2_workbuf *wb);
+		     const struct vb2_workbuf *wb);
 
 /*
  * Size of work buffer sufficient for vb2_verify_keyblock() or
@@ -396,12 +403,12 @@ int vb2_verify_data2(const void *data,
 int vb2_verify_keyblock(struct vb2_keyblock *block,
 			uint32_t size,
 			const struct vb2_public_key *key,
-			struct vb2_workbuf *wb);
+			const struct vb2_workbuf *wb);
 
 int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
 			 uint32_t size,
 			 const struct vb2_public_key *key,
-			 struct vb2_workbuf *wb);
+			 const struct vb2_workbuf *wb);
 
 /* Size of work buffer sufficient for vb2_verify_fw_preamble() worst case */
 #define VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES VB2_VERIFY_DATA_WORKBUF_BYTES
@@ -420,6 +427,6 @@ int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
 int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 			   uint32_t size,
 			   const struct vb2_public_key *key,
-			   struct vb2_workbuf *wb);
+			   const struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2COMMON_H_ */

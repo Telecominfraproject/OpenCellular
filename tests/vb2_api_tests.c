@@ -182,7 +182,7 @@ uint32_t vb2_rsa_sig_size(enum vb2_signature_algorithm sig_alg)
 int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 			  uint8_t *sig,
 			  const uint8_t *digest,
-			  struct vb2_workbuf *wb)
+			  const struct vb2_workbuf *wb)
 {
 	return retval_vb2_verify_digest;
 }

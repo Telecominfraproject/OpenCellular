@@ -221,7 +221,7 @@ static uint8_t *vb2_signature2_data(struct vb2_signature2 *sig)
 int vb2_verify_digest2(const struct vb2_public_key *key,
 		       struct vb2_signature2 *sig,
 		       const uint8_t *digest,
-		       struct vb2_workbuf *wb)
+		       const struct vb2_workbuf *wb)
 {
 	uint32_t key_sig_size = vb2_sig_size(key->sig_alg, key->hash_alg);
 
@@ -255,7 +255,7 @@ int vb2_verify_data2(const void *data,
 		     uint32_t size,
 		     struct vb2_signature2 *sig,
 		     const struct vb2_public_key *key,
-		     struct vb2_workbuf *wb)
+		     const struct vb2_workbuf *wb)
 {
 	struct vb2_workbuf wblocal = *wb;
 	struct vb2_digest_context *dc;
@@ -302,7 +302,7 @@ int vb2_verify_data2(const void *data,
 int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
 			 uint32_t size,
 			 const struct vb2_public_key *key,
-			 struct vb2_workbuf *wb)
+			 const struct vb2_workbuf *wb)
 {
 	uint32_t min_offset = 0, sig_offset;
 	int rv, i;
