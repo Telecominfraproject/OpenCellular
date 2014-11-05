@@ -205,6 +205,7 @@ int main(int argc, char* argv[]) {
   }
   fseek(image_file, 0, SEEK_END);
   lkp.ending_lba = (ftell(image_file) / LBA_BYTES) - 1;
+  lkp.gpt_lba_count = lkp.ending_lba + 1;
   rewind(image_file);
   printf("Ending LBA: %" PRIu64 "\n", lkp.ending_lba);
 

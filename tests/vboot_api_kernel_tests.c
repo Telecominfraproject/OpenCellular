@@ -229,6 +229,7 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 			mock_disks[num_disks].bytes_per_lba =
 				t->disks_to_provide[i].bytes_per_lba;
 			mock_disks[num_disks].lba_count =
+				mock_disks[num_disks].streaming_lba_count =
 				t->disks_to_provide[i].lba_count;
 			mock_disks[num_disks].flags =
 				t->disks_to_provide[i].flags;

@@ -96,6 +96,8 @@ static int do_verify_kernel(int argc, char *argv[])
 	params.disk_handle = (VbExDiskHandle_t)1;
 	params.bytes_per_lba = 512;
 	params.ending_lba = disk_bytes / 512 - 1;
+	params.gpt_lba_count = params.ending_lba + 1;
+	params.external_gpt = 0;
 
 	params.kernel_buffer_size = 16 * 1024 * 1024;
 	params.kernel_buffer = malloc(params.kernel_buffer_size);
