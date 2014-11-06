@@ -84,11 +84,11 @@ struct vb2_signature2 *vb2_convert_signature2(
 	if (key) {
 		s2.sig_alg = key->sig_alg;
 		s2.hash_alg = key->hash_alg;
-		memcpy(&s2.key_guid, &key->key_guid, GUID_SIZE);
+		memcpy(&s2.guid, &key->guid, GUID_SIZE);
 	} else {
 		s2.sig_alg = VB2_SIG_INVALID;
 		s2.hash_alg = VB2_HASH_INVALID;
-		memset(&s2.key_guid, 0, GUID_SIZE);
+		memset(&s2.guid, 0, GUID_SIZE);
 	}
 
 	/* Allocate the new buffer */
@@ -135,7 +135,7 @@ struct vb2_signature2 *vb2_create_hash_sig(const uint8_t *data,
 	if (!hash_guid || !s.sig_size)
 		return NULL;
 
-	memcpy(&s.key_guid, hash_guid, sizeof(s.key_guid));
+	memcpy(&s.guid, hash_guid, sizeof(s.guid));
 	s.sig_offset = s.c.fixed_size + s.c.desc_size;
 	s.c.total_size = s.sig_offset + s.sig_size;
 

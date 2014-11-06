@@ -92,7 +92,7 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 		key->desc = "";
 
 	key->version = pkey->key_version;
-	key->guid = &pkey->key_guid;
+	key->guid = &pkey->guid;
 
 	return VB2_SUCCESS;
 }

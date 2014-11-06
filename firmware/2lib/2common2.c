@@ -353,7 +353,7 @@ int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
 			return rv;
 
 		/* Skip signature if it doesn't match the key GUID */
-		if (memcmp(&sig->key_guid, key->guid, GUID_SIZE))
+		if (memcmp(&sig->guid, key->guid, GUID_SIZE))
 			continue;
 
 		/* Make sure we signed the right amount of data */

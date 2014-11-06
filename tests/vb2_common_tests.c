@@ -165,9 +165,6 @@ static void test_struct_packing(void)
 	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE2_SIZE,
 		sizeof(struct vb2_fw_preamble2),
 		"sizeof(vb2_fw_preamble2)");
-	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE2_HASH_SIZE,
-		sizeof(struct vb2_fw_preamble2_hash),
-		"sizeof(vb2_fw_preamble2_hash)");
 }
 
 /**

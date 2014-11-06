@@ -381,7 +381,7 @@ struct vb2_packed_key2 {
 	uint32_t key_version;
 
 	/* Key GUID */
-	struct vb2_guid key_guid;
+	struct vb2_guid guid;
 } __attribute__((packed));
 
 #define EXPECTED_VB2_PACKED_KEY2_SIZE					\
@@ -419,11 +419,17 @@ struct vb2_signature2 {
 	uint16_t hash_alg;
 
 	/*
-	 * GUID of key used to generate this signature.  This allows the
-	 * firmware to quickly determine which signature block (if any) goes
-	 * with the key being used by the firmware.
+	 * GUID for the signature.
+	 *
+	 * If this is a keyblock signature entry, this is the GUID of the key
+	 * used to generate this signature.  This allows the firmware to
+	 * quickly determine which signature block (if any) goes with the key
+	 * being used by the firmware.
+	 *
+	 * If this is a preamble hash entry, this is the GUID of the data type
+	 * being hashed.  There is no key GUID, because sig_alg=VB2_ALG_NONE.
 	 */
-	struct vb2_guid key_guid;
+	struct vb2_guid guid;
 } __attribute__((packed));
 
 #define EXPECTED_VB2_SIGNATURE2_SIZE					\
@@ -475,6 +481,9 @@ struct vb2_keyblock2 {
 	 * Kernels often have at least two signatures - one using the kernel
 	 * subkey from the RW firmware (for signed kernels) and one which is
 	 * simply a SHA-512 hash (for unsigned developer kernels).
+	 *
+	 * The GUID for each signature indicates which key was used to generate
+	 * the signature.
 	 */
 	uint32_t sig_offset;
 } __attribute__((packed));
@@ -485,20 +494,6 @@ struct vb2_keyblock2 {
 /* Current version of vb2_preamble2 struct */
 #define VB2_PREAMBLE2_VERSION_MAJOR 3
 #define VB2_PREAMBLE2_VERSION_MINOR 0
-
-/* Single hash entry for the firmware preamble */
-struct vb2_fw_preamble2_hash {
-	/* Type of data being hashed (enum vb2api_hash_tag) */
-	uint32_t tag;
-
-	/* Size of hashed data in bytes */
-	uint32_t data_size;
-
-	/* Hash digest follows this struct */
-	uint8_t digest[0];
-} __attribute__((packed));
-
-#define EXPECTED_VB2_FW_PREAMBLE2_HASH_SIZE 8
 
 /*
  * Firmware preamble
@@ -525,34 +520,22 @@ struct vb2_fw_preamble2 {
 	uint32_t sig_offset;
 
 	/*
-	 * The preamble contains a list of hashes for the various firmware
-	 * components.  The calling firmware is responsible for knowing where
-	 * to find those components, which may be on a different storage device
-	 * than this preamble.
+	 * The preamble contains a list of hashes (struct vb2_signature2) for
+	 * the various firmware components.  These have sig_alg=VB2_SIG_NONE,
+	 * and the GUID for each hash identifies the component being hashed.
+	 * The calling firmware is responsible for knowing where to find those
+	 * components, which may be on a different storage device than this
+	 * preamble.
 	 */
 
 	/* Number of hash entries */
 	uint32_t hash_count;
 
-	/*
-	 * Hash algorithm used (must be same for all entries) (enum
-	 * vb2_hash_algorithm).
-	 */
-	uint16_t hash_alg;
-
-	/* Size of each hash entry, in bytes */
-	uint16_t hash_entry_size;
-
-	/*
-	 * Offset of first hash entry from start of preamble.  Entry N can be
-	 * found at:
-	 *
-	 * (uint8_t *)hdr + hdr->hash_table_offset + N * hdr->hash_entry_size
-	 */
-	uint32_t hash_table_offset;
+	/* Offset of first hash entry from start of preamble */
+	uint32_t hash_offset;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_FW_PREAMBLE2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 24)
+#define EXPECTED_VB2_FW_PREAMBLE2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 20)
 
 /****************************************************************************/
 
