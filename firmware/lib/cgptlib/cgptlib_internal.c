@@ -54,7 +54,7 @@ uint32_t HeaderCrc(GptHeader *h)
 }
 
 int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
-	uint8_t stored_on_device)
+		uint64_t gpt_drive_sectors, uint8_t stored_on_device)
 {
 	if (!h)
 		return 1;
@@ -101,7 +101,7 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
 	 * secondary is at the end of the drive, preceded by its entries.
 	 */
 	if (is_secondary) {
-		if (h->my_lba != drive_sectors - GPT_HEADER_SECTORS)
+		if (h->my_lba != gpt_drive_sectors - GPT_HEADER_SECTORS)
 			return 1;
 		if (h->entries_lba != h->my_lba - GPT_ENTRIES_SECTORS)
 			return 1;
@@ -245,11 +245,13 @@ int GptSanityCheck(GptData *gpt)
 		return retval;
 
 	/* Check both headers; we need at least one valid header. */
-	if (0 == CheckHeader(header1, 0, gpt->drive_sectors, gpt->stored_on_device)) {
+	if (0 == CheckHeader(header1, 0, gpt->drive_sectors,
+			     gpt->gpt_drive_sectors, gpt->stored_on_device)) {
 		gpt->valid_headers |= MASK_PRIMARY;
 		goodhdr = header1;
 	}
-	if (0 == CheckHeader(header2, 1, gpt->drive_sectors, gpt->stored_on_device)) {
+	if (0 == CheckHeader(header2, 1, gpt->drive_sectors,
+			     gpt->gpt_drive_sectors, gpt->stored_on_device)) {
 		gpt->valid_headers |= MASK_SECONDARY;
 		if (!goodhdr)
 			goodhdr = header2;
@@ -320,7 +322,7 @@ void GptRepair(GptData *gpt)
 	if (MASK_PRIMARY == gpt->valid_headers) {
 		/* Primary is good, secondary is bad */
 		Memcpy(header2, header1, sizeof(GptHeader));
-		header2->my_lba = gpt->drive_sectors - GPT_HEADER_SECTORS;
+		header2->my_lba = gpt->gpt_drive_sectors - GPT_HEADER_SECTORS;
 		header2->alternate_lba = GPT_PMBR_SECTORS;  /* Second sector. */
 		header2->entries_lba = header2->my_lba - GPT_ENTRIES_SECTORS;
 		header2->header_crc32 = HeaderCrc(header2);

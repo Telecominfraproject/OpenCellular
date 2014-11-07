@@ -340,6 +340,7 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   }
   GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
   if (CheckHeader(primary_header, 0, drive->gpt.drive_sectors,
+                  drive->gpt.gpt_drive_sectors,
                   drive->gpt.stored_on_device) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
                         primary_header->entries_lba,
@@ -352,6 +353,7 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   }
   GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
   if (CheckHeader(secondary_header, 1, drive->gpt.drive_sectors,
+                  drive->gpt.gpt_drive_sectors,
                   drive->gpt.stored_on_device) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
                         secondary_header->entries_lba,
