@@ -59,7 +59,11 @@ read_from_image(char	*filename,
 		return result;
 	}
 
-	fseek(fp, offset, SEEK_SET);
+	if (fseek(fp, offset, SEEK_SET) == -1) {
+		printf("Error: Couldn't seek to %s(%d)\n", filename, offset);
+		result = 1;
+		goto cleanup;
+	}
 
 	if (stat(filename, &stats) != 0) {
 		printf("Error: Unable to query info on bootloader path %s\n",
