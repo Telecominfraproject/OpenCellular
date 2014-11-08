@@ -80,20 +80,24 @@ int FwidStartsWith(const char *start) {
   return 0 == strncmp(fwid, start, strlen(start));
 }
 
+static int vnc_read;
 
 int VbGetNvStorage(VbNvParam param) {
-  VbNvContext vnc;
   uint32_t value;
   int retval;
+  static VbNvContext cached_vnc;
 
   /* TODO: locking around NV access */
+  if (!vnc_read) {
+    if (0 != VbReadNvStorage(&cached_vnc))
+      return -1;
+    vnc_read = 1;
+  }
 
-  if (0 != VbReadNvStorage(&vnc))
+  if (0 != VbNvSetup(&cached_vnc))
     return -1;
-  if (0 != VbNvSetup(&vnc))
-    return -1;
-  retval = VbNvGet(&vnc, param, &value);
-  if (0 != VbNvTeardown(&vnc))
+  retval = VbNvGet(&cached_vnc, param, &value);
+  if (0 != VbNvTeardown(&cached_vnc))
     return -1;
   if (0 != retval)
     return -1;
@@ -123,6 +127,7 @@ int VbSetNvStorage(VbNvParam param, int value) {
     goto VbSetNvCleanup;
 
   if (vnc.raw_changed) {
+    vnc_read = 0;
     if (0 != VbWriteNvStorage(&vnc))
       goto VbSetNvCleanup;
   }
