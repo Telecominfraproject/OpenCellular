@@ -364,6 +364,9 @@ enum vb2_return_code {
 	/* Firmware version rollback in vb2_load_fw_preamble() */
 	VB2_ERROR_FW_PREAMBLE2_VERSION_ROLLBACK,
 
+	/* Not enough space in work buffer for resource object */
+	VB2_ERROR_READ_RESOURCE_OBJECT_BUF,
+
         /**********************************************************************
 	 * API-level errors
 	 */
