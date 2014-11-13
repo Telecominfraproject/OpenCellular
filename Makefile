@@ -282,6 +282,7 @@ VBSLK_SRCS = \
 # Firmware library source needed for smaller library 2
 FWLIB2_SRCS = \
 	firmware/2lib/2api.c \
+	firmware/2lib/2api2.c \
 	firmware/2lib/2common.c \
 	firmware/2lib/2common2.c \
 	firmware/2lib/2crc8.c \
@@ -633,6 +634,7 @@ endif
 ifneq (${VBOOT2},)
 TEST_NAMES += \
 	tests/vb2_api_tests \
+	tests/vb2_api2_tests \
 	tests/vb2_common_tests \
 	tests/vb2_common2_tests \
 	tests/vb2_common3_tests \
@@ -936,7 +938,7 @@ tests: ${TEST_BINS}
 
 ${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
-${TEST_BINS}: LIBS = ${UTILLIB} ${TESTLIB}
+${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
@@ -1170,6 +1172,7 @@ runmisctests: test_setup
 .PHONY: run2tests
 run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_api_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_api2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}

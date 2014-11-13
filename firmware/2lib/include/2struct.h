@@ -611,7 +611,15 @@ struct vb2_shared_data {
 	uint32_t workbuf_hash_offset;
 	uint32_t workbuf_hash_size;
 
-	/* Current tag we're hashing */
+	/*
+	 * Current tag we're hashing
+	 *
+	 * For new structs, this is the offset of the vb2_signature2 struct
+	 * in the work buffer.
+	 *
+	 * TODO: rename to workbuf_hash_sig_offset when vboot1 structs are
+	 * deprecated.
+	 */
 	uint32_t hash_tag;
 
 	/* Amount of data we still expect to hash */

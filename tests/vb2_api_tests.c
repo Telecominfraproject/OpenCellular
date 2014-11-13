@@ -75,7 +75,7 @@ static void reset_common_data(enum reset_type t)
 	retval_vb2_digest_finalize = VB2_SUCCESS;
 	retval_vb2_verify_digest = VB2_SUCCESS;
 
-	sd->workbuf_preamble_offset = 8;
+	sd->workbuf_preamble_offset = cc.workbuf_used;
 	sd->workbuf_preamble_size = sizeof(*pre);
 	cc.workbuf_used = sd->workbuf_preamble_offset
 		+ sd->workbuf_preamble_size;
