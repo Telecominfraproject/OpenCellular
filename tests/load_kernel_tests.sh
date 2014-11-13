@@ -11,6 +11,8 @@
 
 set -e
 
+CGPT=${BIN_DIR}/cgpt
+
 echo 'Creating test kernel'
 
 # Run tests in a dedicated directory for easy cleanup or debugging.
@@ -58,9 +60,9 @@ happy 'Kernel verification succeeded'
 # Now create a dummy disk image
 echo 'Creating test disk image'
 dd if=/dev/zero of=disk.test bs=1024 count=1024
-cgpt create disk.test
-cgpt add -i 1 -S 1 -P 1 -b 64 -s 960 -t kernel -l kernelA disk.test
-cgpt show disk.test
+${CGPT} create disk.test
+${CGPT} add -i 1 -S 1 -P 1 -b 64 -s 960 -t kernel -l kernelA disk.test
+${CGPT} show disk.test
 
 # And insert the kernel into it
 dd if=kernel.test of=disk.test bs=512 seek=64 conv=notrunc
