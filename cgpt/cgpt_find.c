@@ -211,7 +211,7 @@ static int do_search(CgptFindParams *params, char *fileName) {
   int retval;
   struct drive drive;
 
-  if (CGPT_OK != DriveOpen(fileName, &drive, O_RDONLY))
+  if (CGPT_OK != DriveOpen(fileName, &drive, O_RDONLY, params->drive_size))
     return 0;
 
   if (drive.is_mtd) {

@@ -52,7 +52,7 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
       h->last_usable_lba = (drive->gpt.drive_sectors - GPT_HEADER_SECTORS -
                             GPT_ENTRIES_SECTORS - 1);
     } else {
-      h->first_usable_lba = 0;
+      h->first_usable_lba = params->padding;
       h->last_usable_lba = (drive->gpt.drive_sectors - 1);
     }
     if (CGPT_OK != GenerateGuid(&h->disk_uuid)) {
@@ -63,18 +63,18 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
     if (drive->gpt.stored_on_device != GPT_STORED_ON_DEVICE) {
       // We might have smaller space for the GPT table. Scale accordingly.
-      size_t half_size = drive->flash_size / 2;
-      size_t header_block_size = GPT_HEADER_SECTORS * drive->gpt.sector_bytes;
-      if (half_size < header_block_size) {
+      size_t half_size_sectors = drive->gpt.gpt_drive_sectors / 2;
+      if (half_size_sectors < GPT_HEADER_SECTORS) {
         Error("Not enough space for a GPT header.\n");
         return -1;
       }
-      half_size -= header_block_size;
-      if (half_size < MIN_NUMBER_OF_ENTRIES * h->size_of_entry) {
+      half_size_sectors -= GPT_HEADER_SECTORS;
+      size_t half_size = half_size_sectors * drive->gpt.sector_bytes;
+      if (half_size < (MIN_NUMBER_OF_ENTRIES * h->size_of_entry)) {
         Error("Not enough space for minimum number of entries.\n");
         return -1;
       }
-      if (128 > half_size / h->size_of_entry) {
+      if (128 > (half_size / h->size_of_entry)) {
         h->number_of_entries = half_size / h->size_of_entry;
       }
     }
@@ -119,7 +119,8 @@ int CgptCreate(CgptCreateParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR,
+                           params->drive_size))
     return CGPT_FAILED;
 
   if (drive.is_mtd) {

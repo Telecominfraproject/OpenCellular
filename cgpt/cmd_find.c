@@ -16,6 +16,9 @@ static void Usage(void)
          "Find a partition by its UUID or label. With no specified DRIVE\n"
          "it scans all physical drives.\n\n"
          "Options:\n"
+         "  -D NUM       Size (in bytes) of the disk where partitions reside\n"
+         "                 default 0, meaning partitions and GPT structs are\n"
+         "                 both on DRIVE\n"
          "  -t GUID      Search for Partition Type GUID\n"
          "  -u GUID      Search for Partition Unique ID\n"
          "  -l LABEL     Search for Label\n"
@@ -71,10 +74,18 @@ int cmd_find(int argc, char *argv[]) {
   int c;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hv1nt:u:l:M:O:")) != -1)
+  while ((c=getopt(argc, argv, ":hv1nt:u:l:M:O:D:")) != -1)
   {
     switch (c)
     {
+    case 'D':
+      params.drive_size = strtoull(optarg, &e, 0);
+      if (!*optarg || (e && *e))
+      {
+        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
+        errorcnt++;
+      }
+      break;
     case 'v':
       params.verbose++;
       break;

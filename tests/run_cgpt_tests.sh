@@ -12,8 +12,7 @@
 CGPT=$(readlink -f "$1")
 [ -x "$CGPT" ] || error "Can't execute $CGPT"
 
-MTD="${2:-}"
-CGPT="${CGPT} ${MTD}"
+MTD="${@:2}"
 
 # Run tests in a dedicated directory for easy cleanup or debugging.
 DIR="${TEST_DIR}/cgpt_test_dir"
@@ -21,11 +20,17 @@ DIR="${TEST_DIR}/cgpt_test_dir"
 warning "testing $CGPT in $DIR"
 cd "$DIR"
 
+assert_fail() {
+  set +e
+  "$@" 2>/dev/null
+  if [ $? == 0 ]; then
+    error "$*" " should have failed but did not"
+  fi
+  set -e
+}
+
 # Test failure on non existing file.
-set +e
-${CGPT} show blah_404_haha
-[ $? != 0 ] || error "CGPT should fail on non existing file."
-set -e
+assert_fail ${CGPT} show $MTD blah_404_haha
 
 echo "Create an empty file to use as the device..."
 NUM_SECTORS=1000
@@ -71,85 +76,82 @@ RANDOM_LABEL="random stuff"
 RANDOM_GUID='2364a860-bf63-42fb-a83d-9ad3e057fcf5'
 RANDOM_NUM=6
 
-$CGPT create ${DEV}
+$CGPT create $MTD ${DEV}
 
-$CGPT add -b ${DATA_START} -s ${DATA_SIZE} -t ${DATA_GUID} \
+$CGPT add $MTD -b ${DATA_START} -s ${DATA_SIZE} -t ${DATA_GUID} \
   -l "${DATA_LABEL}" ${DEV}
-$CGPT add -b ${KERN_START} -s ${KERN_SIZE} -t ${KERN_GUID} \
+$CGPT add $MTD -b ${KERN_START} -s ${KERN_SIZE} -t ${KERN_GUID} \
   -l "${KERN_LABEL}" ${DEV}
-$CGPT add -b ${ROOTFS_START} -s ${ROOTFS_SIZE} -t ${ROOTFS_GUID} \
+$CGPT add $MTD -b ${ROOTFS_START} -s ${ROOTFS_SIZE} -t ${ROOTFS_GUID} \
   -l "${ROOTFS_LABEL}" ${DEV}
-$CGPT add -b ${ESP_START} -s ${ESP_SIZE} -t ${ESP_GUID} \
+$CGPT add $MTD -b ${ESP_START} -s ${ESP_SIZE} -t ${ESP_GUID} \
   -l "${ESP_LABEL}" ${DEV}
-$CGPT add -b ${FUTURE_START} -s ${FUTURE_SIZE} -t ${FUTURE_GUID} \
+$CGPT add $MTD -b ${FUTURE_START} -s ${FUTURE_SIZE} -t ${FUTURE_GUID} \
   -l "${FUTURE_LABEL}" ${DEV}
-$CGPT add -b ${RANDOM_START} -s ${RANDOM_SIZE} -t ${RANDOM_GUID} \
+$CGPT add $MTD -b ${RANDOM_START} -s ${RANDOM_SIZE} -t ${RANDOM_GUID} \
   -l "${RANDOM_LABEL}" ${DEV}
 
 
 echo "Extract the start and size of given partitions..."
 
-X=$($CGPT show -b -i $DATA_NUM ${DEV})
-Y=$($CGPT show -s -i $DATA_NUM ${DEV})
+X=$($CGPT show $MTD -b -i $DATA_NUM ${DEV})
+Y=$($CGPT show $MTD -s -i $DATA_NUM ${DEV})
 [ "$X $Y" = "$DATA_START $DATA_SIZE" ] || error
 
-X=$($CGPT show -b -i $KERN_NUM ${DEV})
-Y=$($CGPT show -s -i $KERN_NUM ${DEV})
+X=$($CGPT show $MTD -b -i $KERN_NUM ${DEV})
+Y=$($CGPT show $MTD -s -i $KERN_NUM ${DEV})
 [ "$X $Y" = "$KERN_START $KERN_SIZE" ] || error
 
-X=$($CGPT show -b -i $ROOTFS_NUM ${DEV})
-Y=$($CGPT show -s -i $ROOTFS_NUM ${DEV})
+X=$($CGPT show $MTD -b -i $ROOTFS_NUM ${DEV})
+Y=$($CGPT show $MTD -s -i $ROOTFS_NUM ${DEV})
 [ "$X $Y" = "$ROOTFS_START $ROOTFS_SIZE" ] || error
 
-X=$($CGPT show -b -i $ESP_NUM ${DEV})
-Y=$($CGPT show -s -i $ESP_NUM ${DEV})
+X=$($CGPT show $MTD -b -i $ESP_NUM ${DEV})
+Y=$($CGPT show $MTD -s -i $ESP_NUM ${DEV})
 [ "$X $Y" = "$ESP_START $ESP_SIZE" ] || error
 
-X=$($CGPT show -b -i $FUTURE_NUM ${DEV})
-Y=$($CGPT show -s -i $FUTURE_NUM ${DEV})
+X=$($CGPT show $MTD -b -i $FUTURE_NUM ${DEV})
+Y=$($CGPT show $MTD -s -i $FUTURE_NUM ${DEV})
 [ "$X $Y" = "$FUTURE_START $FUTURE_SIZE" ] || error
 
-X=$($CGPT show -b -i $RANDOM_NUM ${DEV})
-Y=$($CGPT show -s -i $RANDOM_NUM ${DEV})
+X=$($CGPT show $MTD -b -i $RANDOM_NUM ${DEV})
+Y=$($CGPT show $MTD -s -i $RANDOM_NUM ${DEV})
 [ "$X $Y" = "$RANDOM_START $RANDOM_SIZE" ] || error
 
 
 echo "Change the beginning..."
 DATA_START=$((DATA_START + 10))
-$CGPT add -i 1 -b ${DATA_START} ${DEV} || error
-X=$($CGPT show -b -i 1 ${DEV})
+$CGPT add $MTD -i 1 -b ${DATA_START} ${DEV} || error
+X=$($CGPT show $MTD -b -i 1 ${DEV})
 [ "$X" = "$DATA_START" ] || error
 
 echo "Change the size..."
 DATA_SIZE=$((DATA_SIZE + 10))
-$CGPT add -i 1 -s ${DATA_SIZE} ${DEV} || error
-X=$($CGPT show -s -i 1 ${DEV})
+$CGPT add $MTD -i 1 -s ${DATA_SIZE} ${DEV} || error
+X=$($CGPT show $MTD -s -i 1 ${DEV})
 [ "$X" = "$DATA_SIZE" ] || error
 
 echo "Change the type..."
-$CGPT add -i 1 -t reserved ${DEV} || error
-X=$($CGPT show -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
+$CGPT add $MTD -i 1 -t reserved ${DEV} || error
+X=$($CGPT show $MTD -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
 [ "$X" = "$FUTURE_GUID" ] || error
 # arbitrary value
-if [ -z "$MTD" ]; then
-  $CGPT add -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
-  X=$($CGPT show -t -i 1 ${DEV})
-  [ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
-fi
-$CGPT add -i 1 -t data ${DEV} || error
-X=$($CGPT show -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
+$CGPT add $MTD -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
+X=$($CGPT show $MTD -t -i 1 ${DEV})
+[ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
+
+$CGPT add $MTD -i 1 -t data ${DEV} || error
+X=$($CGPT show $MTD -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
 [ "$X" = "$DATA_GUID" ] || error
 
 
-if [ -z "$MTD" ]; then
-  echo "Set the boot partition.."
-  $CGPT boot -i ${KERN_NUM} ${DEV} >/dev/null
+echo "Set the boot partition.."
+$CGPT boot $MTD -i ${KERN_NUM} ${DEV} >/dev/null
 
-  echo "Check the PMBR's idea of the boot partition..."
-  X=$($CGPT boot ${DEV})
-  Y=$($CGPT show -u -i $KERN_NUM $DEV)
-  [ "$X" = "$Y" ] || error
-fi
+echo "Check the PMBR's idea of the boot partition..."
+X=$($CGPT boot $MTD ${DEV})
+Y=$($CGPT show $MTD -u -i $KERN_NUM $DEV)
+[ "$X" = "$Y" ] || error
 
 echo "Test the cgpt prioritize command..."
 
@@ -157,18 +159,18 @@ echo "Test the cgpt prioritize command..."
 # Output: ${DEV} has kernel partitions with the given priorities
 make_pri() {
   local idx=0
-  $CGPT create ${DEV}
+  $CGPT create $MTD ${DEV}
   for pri in "$@"; do
     idx=$((idx+1))
-    $CGPT add -t kernel -l "kern$idx" -b $((100 + 2 * $idx)) -s 1 -P $pri ${DEV}
+    $CGPT add $MTD -t kernel -l "kern$idx" -b $((100 + 2 * $idx)) -s 1 -P $pri ${DEV}
   done
 }
 
 # Output: returns string containing priorities of all kernels
 get_pri() {
   echo $(
-  for idx in $($CGPT find -t kernel ${DEV} | sed -e s@${DEV}@@); do
-    $CGPT show -i $idx -P ${DEV}
+  for idx in $($CGPT find $MTD -t kernel ${DEV} | sed -e s@${DEV}@@); do
+    $CGPT show $MTD -i $idx -P ${DEV}
   done
   )
 }
@@ -183,117 +185,126 @@ assert_pri() {
 }
 
 # no kernels at all. This should do nothing.
-$CGPT create ${DEV}
-$CGPT add -t rootfs -b 100 -s 1 ${DEV}
-$CGPT prioritize ${DEV}
+$CGPT create $MTD ${DEV}
+$CGPT add $MTD -t rootfs -b 100 -s 1 ${DEV}
+$CGPT prioritize $MTD ${DEV}
 assert_pri ""
 
 # common install/upgrade sequence
 make_pri   2 0 0
-$CGPT prioritize -i 1 ${DEV}
+$CGPT prioritize $MTD -i 1 ${DEV}
 assert_pri 1 0 0
-$CGPT prioritize -i 2 ${DEV}
+$CGPT prioritize $MTD -i 2 ${DEV}
 assert_pri 1 2 0
-$CGPT prioritize -i 1 ${DEV}
+$CGPT prioritize $MTD -i 1 ${DEV}
 assert_pri 2 1 0
-$CGPT prioritize -i 2 ${DEV}
+$CGPT prioritize $MTD -i 2 ${DEV}
 assert_pri 1 2 0
-
 # lots of kernels, all same starting priority, should go to priority 1
 make_pri   8 8 8 8 8 8 8 8 8 8 8 0 0 8
-$CGPT prioritize ${DEV}
+$CGPT prioritize $MTD ${DEV}
 assert_pri 1 1 1 1 1 1 1 1 1 1 1 0 0 1
 
 # now raise them all up again
-$CGPT prioritize -P 4 ${DEV}
+$CGPT prioritize $MTD -P 4 ${DEV}
 assert_pri 4 4 4 4 4 4 4 4 4 4 4 0 0 4
 
 # set one of them higher, should leave the rest alone
-$CGPT prioritize -P 5 -i 3 ${DEV}
+$CGPT prioritize $MTD -P 5 -i 3 ${DEV}
 assert_pri 4 4 5 4 4 4 4 4 4 4 4 0 0 4
 
 # set one of them lower, should bring the rest down
-$CGPT prioritize -P 3 -i 4 ${DEV}
+$CGPT prioritize $MTD -P 3 -i 4 ${DEV}
 assert_pri 1 1 2 3 1 1 1 1 1 1 1 0 0 1
 
 # raise a group by including the friends of one partition
-$CGPT prioritize -P 6 -i 1 -f ${DEV}
+$CGPT prioritize $MTD -P 6 -i 1 -f ${DEV}
 assert_pri 6 6 4 5 6 6 6 6 6 6 6 0 0 6
 
 # resurrect one, should not affect the others
 make_pri   0 0 0 0 0 0 0 0 0 0 0 0 0 0
-$CGPT prioritize -i 2 ${DEV}
+$CGPT prioritize $MTD -i 2 ${DEV}
 assert_pri 0 1 0 0 0 0 0 0 0 0 0 0 0 0
 
 # resurrect one and all its friends
 make_pri   0 0 0 0 0 0 0 0 1 2 0 0 0 0
-$CGPT prioritize -P 5 -i 2 -f ${DEV}
+$CGPT prioritize $MTD -P 5 -i 2 -f ${DEV}
 assert_pri 5 5 5 5 5 5 5 5 3 4 5 5 5 5
 
 # no options should maintain the same order
-$CGPT prioritize ${DEV}
+$CGPT prioritize $MTD ${DEV}
 assert_pri 3 3 3 3 3 3 3 3 1 2 3 3 3 3
 
 # squish all the ranks
 make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize -P 6 ${DEV}
+$CGPT prioritize $MTD -P 6 ${DEV}
 assert_pri 1 1 1 1 2 2 3 3 4 4 0 5 6 6
 
 # squish the ranks by not leaving room
 make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize -P 7 -i 3 ${DEV}
+$CGPT prioritize $MTD -P 7 -i 3 ${DEV}
 assert_pri 1 1 7 1 2 2 3 3 4 4 0 5 6 6
 
 # squish the ranks while bringing the friends along
 make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize -P 6 -i 3 -f ${DEV}
+$CGPT prioritize $MTD -P 6 -i 3 -f ${DEV}
 assert_pri 1 1 6 6 1 1 2 2 3 3 0 4 5 5
 
 # squish them pretty hard
 make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize -P 2 ${DEV}
+$CGPT prioritize $MTD -P 2 ${DEV}
 assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 2 2
 
 # squish them really really hard (nobody gets reduced to zero, though)
 make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize -P 1 -i 3 ${DEV}
+$CGPT prioritize $MTD -P 1 -i 3 ${DEV}
 assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 1 1
 
-if [ -z "$MTD" ]; then # MTD doesn't support this many partitions
-  # squish if we try to go too high
-  make_pri   15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0
-  $CGPT prioritize -i 3 ${DEV}
-  assert_pri 14 14 15 13 12 12 11 11 10 10  9  9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 0
-  $CGPT prioritize -i 5 ${DEV}
-  assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
-  # but if I bring friends I don't have to squish
-  $CGPT prioritize -i 1 -f ${DEV}
-  assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
-fi
-
+make_pri   15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0
+$CGPT prioritize $MTD -i 3 ${DEV}
+assert_pri 14 14 15 13 12 12 11 11 10 10  9  9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 0
+$CGPT prioritize $MTD -i 5 ${DEV}
+assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+# but if I bring friends I don't have to squish
+$CGPT prioritize $MTD -i 1 -f ${DEV}
+assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
 
 # Now make sure that we don't need write access if we're just looking.
 echo "Test read vs read-write access..."
 chmod 0444 ${DEV}
 
 # These should fail
-$CGPT create -z ${DEV} 2>/dev/null && error
-$CGPT add -i 2 -P 3 ${DEV} 2>/dev/null && error
-$CGPT repair ${DEV} 2>/dev/null && error
-$CGPT prioritize -i 3 ${DEV} 2>/dev/null && error
+$CGPT create $MTD -z ${DEV} 2>/dev/null && error
+$CGPT add $MTD -i 2 -P 3 ${DEV} 2>/dev/null && error
+$CGPT repair $MTD ${DEV} 2>/dev/null && error
+$CGPT prioritize $MTD -i 3 ${DEV} 2>/dev/null && error
 
 # Most 'boot' usage should fail too.
-$CGPT boot -p ${DEV} 2>/dev/null && error
+$CGPT boot $MTD -p ${DEV} 2>/dev/null && error
 dd if=/dev/zero of=fake_mbr.bin bs=100 count=1 2>/dev/null
-$CGPT boot -b fake_mbr.bin ${DEV} 2>/dev/null && error
-$CGPT boot -i 2 ${DEV} 2>/dev/null && error
+$CGPT boot $MTD -b fake_mbr.bin ${DEV} 2>/dev/null && error
+$CGPT boot $MTD -i 2 ${DEV} 2>/dev/null && error
 
-# These should pass
-if [ -z "$MTD" ]; then
-  $CGPT boot ${DEV} >/dev/null
-fi
-$CGPT show ${DEV} >/dev/null
-$CGPT find -t kernel ${DEV} >/dev/null
+$CGPT boot $MTD ${DEV} >/dev/null
+$CGPT show $MTD ${DEV} >/dev/null
+$CGPT find $MTD -t kernel ${DEV} >/dev/null
+
+# Enable write access again to test boundary in off device storage
+chmod 600 ${DEV}
+# Drive size is not multiple of 512
+assert_fail $CGPT create -D 511 ${DEV}
+assert_fail $CGPT create -D 513 ${DEV}
+MTD="-D 1024"
+# Create a GPT table for a device of 1024 bytes (2 sectors)
+$CGPT create $MTD ${DEV}
+# This fails because header verification is off due to different drive size
+assert_fail $CGPT show ${DEV}
+# But this passes because we pass in correct drive size
+$CGPT show $MTD ${DEV}
+# This fails because beginning sector is over the size of the device
+assert_fail $CGPT add $MTD -b 2 -s 1 -t data ${DEV}
+# This fails because partition size is over the size of the device
+assert_fail $CGPT add $MTD -b 0 -s 3 -t data ${DEV}
 
 echo "Done."
 

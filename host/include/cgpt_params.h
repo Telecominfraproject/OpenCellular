@@ -15,6 +15,7 @@ enum {
 
 typedef struct CgptCreateParams {
   char *drive_name;
+  uint64_t drive_size;
   int zap;
   uint64_t size;
   uint64_t padding;
@@ -22,6 +23,7 @@ typedef struct CgptCreateParams {
 
 typedef struct CgptAddParams {
   char *drive_name;
+  uint64_t drive_size;
   uint32_t partition;
   uint64_t begin;
   uint64_t size;
@@ -44,6 +46,7 @@ typedef struct CgptAddParams {
 
 typedef struct CgptShowParams {
   char *drive_name;
+  uint64_t drive_size;
   int numeric;
   int verbose;
   int quick;
@@ -55,11 +58,13 @@ typedef struct CgptShowParams {
 
 typedef struct CgptRepairParams {
   char *drive_name;
+  uint64_t drive_size;
   int verbose;
 } CgptRepairParams;
 
 typedef struct CgptBootParams {
   char *drive_name;
+  uint64_t drive_size;
   uint32_t partition;
   char *bootfile;
   int create_pmbr;
@@ -67,6 +72,7 @@ typedef struct CgptBootParams {
 
 typedef struct CgptPrioritizeParams {
   char *drive_name;
+  uint64_t drive_size;
   uint32_t set_partition;
   int set_friends;
   int max_priority;
@@ -75,6 +81,7 @@ typedef struct CgptPrioritizeParams {
 
 typedef struct CgptFindParams {
   char *drive_name;
+  uint64_t drive_size;
   int verbose;
   int set_unique;
   int set_type;
@@ -94,6 +101,7 @@ typedef struct CgptFindParams {
 
 typedef struct CgptLegacyParams {
   char *drive_name;
+  uint64_t drive_size;
   int efipart;
 } CgptLegacyParams;
 

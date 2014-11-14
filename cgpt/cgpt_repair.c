@@ -15,7 +15,8 @@ int CgptRepair(CgptRepairParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDWR,
+                           params->drive_size))
     return CGPT_FAILED;
 
   if (drive.is_mtd) {

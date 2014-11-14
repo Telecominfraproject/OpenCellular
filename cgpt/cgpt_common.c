@@ -94,12 +94,12 @@ int Load(struct drive *drive, uint8_t **buf,
   *buf = malloc(count);
   require(*buf);
 
-  if (-1 == drive->seek(drive, sector * sector_bytes, SEEK_SET)) {
+  if (-1 == lseek(drive->fd, sector * sector_bytes, SEEK_SET)) {
     Error("Can't seek: %s\n", strerror(errno));
     goto error_free;
   }
 
-  nread = drive->read(drive, *buf, count);
+  nread = read(drive->fd, *buf, count);
   if (nread < count) {
     Error("Can't read enough: %d, not %d\n", nread, count);
     goto error_free;
@@ -115,10 +115,10 @@ error_free:
 
 
 int ReadPMBR(struct drive *drive) {
-  if (-1 == drive->seek(drive, 0, SEEK_SET))
+  if (-1 == lseek(drive->fd, 0, SEEK_SET))
     return CGPT_FAILED;
 
-  int nread = drive->read(drive, &drive->pmbr, sizeof(struct pmbr));
+  int nread = read(drive->fd, &drive->pmbr, sizeof(struct pmbr));
   if (nread != sizeof(struct pmbr))
     return CGPT_FAILED;
 
@@ -126,10 +126,10 @@ int ReadPMBR(struct drive *drive) {
 }
 
 int WritePMBR(struct drive *drive) {
-  if (-1 == drive->seek(drive, 0, SEEK_SET))
+  if (-1 == lseek(drive->fd, 0, SEEK_SET))
     return CGPT_FAILED;
 
-  int nwrote = drive->write(drive, &drive->pmbr, sizeof(struct pmbr));
+  int nwrote = write(drive->fd, &drive->pmbr, sizeof(struct pmbr));
   if (nwrote != sizeof(struct pmbr))
     return CGPT_FAILED;
 
@@ -146,10 +146,10 @@ int Save(struct drive *drive, const uint8_t *buf,
   require(buf);
   count = sector_bytes * sector_count;
 
-  if (-1 == drive->seek(drive, sector * sector_bytes, SEEK_SET))
+  if (-1 == lseek(drive->fd, sector * sector_bytes, SEEK_SET))
     return CGPT_FAILED;
 
-  nwrote = drive->write(drive, buf, count);
+  nwrote = write(drive->fd, buf, count);
   if (nwrote < count)
     return CGPT_FAILED;
 
@@ -420,14 +420,31 @@ static int GptSave(struct drive *drive) {
   return errors ? -1 : 0;
 }
 
-
-// Opens a block device or file, loads raw GPT data from it.
-// mode should be O_RDONLY or O_RDWR
-//
-// Returns CGPT_FAILED if any error happens.
-// Returns CGPT_OK if success and information are stored in 'drive'. */
-int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
+/*
+ * Query drive size and bytes per sector. Return zero on success. On error,
+ * -1 is returned and errno is set appropriately.
+ */
+static int ObtainDriveSize(int fd, uint64_t* size, uint32_t* sector_bytes) {
   struct stat stat;
+  if (fstat(fd, &stat) == -1) {
+    return -1;
+  }
+  if ((stat.st_mode & S_IFMT) != S_IFREG) {
+    if (ioctl(fd, BLKGETSIZE64, size) < 0) {
+      return -1;
+    }
+    if (ioctl(fd, BLKSSZGET, sector_bytes) < 0) {
+      return -1;
+    }
+  } else {
+    *sector_bytes = 512;  /* bytes */
+    *size = stat.st_size;
+  }
+  return 0;
+}
+
+int DriveOpen(const char *drive_path, struct drive *drive, int mode,
+              uint64_t drive_size) {
   uint32_t sector_bytes;
   int is_mtd = nand.enabled;
 
@@ -448,50 +465,21 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode) {
       return CGPT_FAILED;
     }
 
-    drive->seek = FileSeek;
-    drive->read = FileRead;
-    drive->write = FileWrite;
-    drive->sync = FileSync;
-    drive->close = FileClose;
-    if (fstat(drive->fd, &stat) == -1) {
-      Error("Can't fstat %s: %s\n", drive_path, strerror(errno));
+    sector_bytes = 512;
+    uint64_t gpt_drive_size;
+    if (ObtainDriveSize(drive->fd, &gpt_drive_size, &sector_bytes) != 0) {
+      Error("Can't get drive size and bytes per sector for %s: %s\n",
+            drive_path, strerror(errno));
       goto error_close;
     }
-    if (major(stat.st_rdev) == MTD_CHAR_MAJOR) {
-      mtd_info_t mtd_info;
-      if (ioctl(drive->fd, MEMGETINFO, &mtd_info) != 0) {
-        Error("Can't get the size of the MTD device\n");
-        goto error_close;
-      }
-      drive->size = mtd_info.size;
 
-      if (FlashInit(drive) != 0) {
-        Error("Can't obtain NOR flash info with flashrom\n");
-        goto error_close;
-      }
-
-      sector_bytes = 512;
-      drive->gpt.stored_on_device = GPT_STORED_OFF_DEVICE;
-      drive->gpt.gpt_drive_sectors = drive->flash_size / sector_bytes;
-      drive->seek = FlashSeek;
-      drive->read = FlashRead;
-      drive->write = FlashWrite;
-      drive->sync = FlashSync;
-      drive->close = FlashClose;
-    } else if ((stat.st_mode & S_IFMT) != S_IFREG) {
-      if (ioctl(drive->fd, BLKGETSIZE64, &drive->size) < 0) {
-        Error("Can't read drive size from %s: %s\n", drive_path,
-              strerror(errno));
-        goto error_close;
-      }
-      if (ioctl(drive->fd, BLKSSZGET, &sector_bytes) < 0) {
-        Error("Can't read sector size from %s: %s\n",
-              drive_path, strerror(errno));
-        goto error_close;
-      }
+    drive->gpt.gpt_drive_sectors = gpt_drive_size / sector_bytes;
+    if (drive_size == 0) {
+      drive->size = gpt_drive_size;
+      drive->gpt.stored_on_device = GPT_STORED_ON_DEVICE;
     } else {
-      sector_bytes = 512;  /* bytes */
-      drive->size = stat.st_size;
+      drive->size = drive_size;
+      drive->gpt.stored_on_device = GPT_STORED_OFF_DEVICE;
     }
   }
   drive->is_mtd = is_mtd;
@@ -537,9 +525,9 @@ int DriveClose(struct drive *drive, int update_as_needed) {
   // Sync early! Only sync file descriptor here, and leave the whole system sync
   // outside cgpt because whole system sync would trigger tons of disk accesses
   // and timeout tests.
-  drive->sync(drive);
+  fsync(drive->fd);
 
-  drive->close(drive);
+  close(drive->fd);
 
   return errors ? CGPT_FAILED : CGPT_OK;
 }
@@ -1234,7 +1222,8 @@ int CgptGetNumNonEmptyPartitions(CgptShowParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY,
+                           params->drive_size))
     return CGPT_FAILED;
 
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {

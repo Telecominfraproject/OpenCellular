@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include "cgpt_endian.h"
 #include "cgptlib.h"
-#include "drive.h"
 #include "gpt.h"
 #include "mtdlib.h"
 
@@ -48,28 +47,7 @@ struct drive {
   GptData gpt;
   MtdData mtd;
   struct pmbr pmbr;
-  /*
-   * For use with regular file or block device.
-   * GPT structures will occupy the first and last few blocks.
-   */
-  struct {
-    int fd;       /* file descriptor */
-  };
-  /*
-   * For use with flash.
-   * GPT structures will be stored in flash, while the partitions are in
-   * /dev/mtd*.
-   */
-  struct {
-    off_t current_position;  /* for used by DriveSeekFunc */
-    uint32_t flash_start;    /* offset where we can write to flash, in FMAP */
-    uint32_t flash_size;     /* size of that area, in bytes, in FMAP */
-  };  /* for use with flashrom */
-  DriveSeekFunc seek;
-  DriveReadFunc read;
-  DriveWriteFunc write;
-  DriveSyncFunc sync;
-  DriveCloseFunc close;
+  int fd;       /* file descriptor */
 };
 
 struct nand_layout {
@@ -83,11 +61,16 @@ void EnableNandImage(int bytes_per_page, int pages_per_block,
                      int fts_block_offset, int fts_block_size);
 
 // Opens a block device or file, loads raw GPT data from it.
-// mode should be O_RDONLY or O_RDWR
+// 'mode' should be O_RDONLY or O_RDWR.
+// If 'drive_size' is 0, both the partitions and GPT structs reside on the same
+// 'drive_path'.
+// Otherwise, 'drive_size' is taken as the size of the device that all
+// partitions will reside on, and 'drive_path' is where we store GPT structs.
 //
 // Returns CGPT_FAILED if any error happens.
-// Returns CGPT_OK if success and information are stored in 'drive'.
-int DriveOpen(const char *drive_path, struct drive *drive, int mode);
+// Returns CGPT_OK if success and information are stored in 'drive'. */
+int DriveOpen(const char *drive_path, struct drive *drive, int mode,
+              uint64_t drive_size);
 int DriveClose(struct drive *drive, int update_as_needed);
 int CheckValid(const struct drive *drive);
 

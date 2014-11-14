@@ -34,7 +34,7 @@ int CheckParameters(GptData *gpt)
 	 * too small to contain basic GPT structure (PMBR + Headers + Entries),
 	 * the value is wrong.
 	 */
-	if (gpt->drive_sectors < (1 + 2 * (1 + GPT_ENTRIES_SECTORS)))
+	if (gpt->gpt_drive_sectors < (1 + 2 * (1 + GPT_ENTRIES_SECTORS)))
 		return GPT_ERROR_INVALID_SECTOR_NUMBER;
 
 	return GPT_SUCCESS;

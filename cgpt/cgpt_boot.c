@@ -20,7 +20,8 @@ int CgptGetBootPartitionNumber(CgptBootParams *params) {
   if (params == NULL)
     return CGPT_FAILED;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY))
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, O_RDONLY,
+                           params->drive_size))
     return CGPT_FAILED;
 
   if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
@@ -73,7 +74,8 @@ int CgptBoot(CgptBootParams *params) {
   if (params->create_pmbr || params->partition || params->bootfile)
     mode = O_RDWR;
 
-  if (CGPT_OK != DriveOpen(params->drive_name, &drive, mode)) {
+  if (CGPT_OK != DriveOpen(params->drive_name, &drive, mode,
+                           params->drive_size)) {
     return CGPT_FAILED;
   }
 
