@@ -553,35 +553,14 @@ VbError_t VbExHashFirmwareBody(VbCommonParams *cparams,
  *                  when processing read-only recovery image.
  */
 
-/*
- * Disks are used in two ways:
- * - As a random-access device to read and write the GPT
- * - As a streaming device to read the kernel
- * These are implemented differently on raw NAND vs eMMC/SATA/USB
- * - On eMMC/SATA/USB, both of these refer to the same underlying
- *   storage, so they have the same size and LBA size. In this case,
- *   the GPT should not point to the same address as itself.
- * - On raw NAND, the GPT is held on a portion of the SPI flash.
- *   Random access GPT operations refer to the SPI and streaming
- *   operations refer to NAND. The GPT may therefore point into
- *   the same offsets as itself.
- * These types are distinguished by the following flag and VbDiskInfo
- * has separate fields to describe the random-access ("GPT") and
- * streaming aspects of the disk. If a disk is random-access (i.e.
- * not raw NAND) then these fields are equal.
- */
-#define VB_DISK_FLAG_EXTERNAL_GPT	0x00000004
-
 /* Information on a single disk */
 typedef struct VbDiskInfo {
 	/* Disk handle */
 	VbExDiskHandle_t handle;
-	/* Size of a random-access LBA sector in bytes */
+	/* Size of a LBA sector in bytes */
 	uint64_t bytes_per_lba;
-	/* Number of random-access LBA sectors on the device */
+	/* Number of LBA sectors on the device */
 	uint64_t lba_count;
-	/* Number of streaming sectors on the device */
-	uint64_t streaming_lba_count;
 	/* Flags (see VB_DISK_FLAG_* constants) */
 	uint32_t flags;
 	/*
@@ -623,9 +602,6 @@ VbError_t VbExDiskFreeInfo(VbDiskInfo *infos,
  * Read lba_count LBA sectors, starting at sector lba_start, from the disk,
  * into the buffer.
  *
- * This is used for random access to the GPT. It does not (necessarily) access
- * the streaming portion of the device.
- *
  * If the disk handle is invalid (for example, the handle refers to a disk
  * which as been removed), the function must return error but must not
  * crash.
@@ -636,9 +612,6 @@ VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
 /**
  * Write lba_count LBA sectors, starting at sector lba_start, to the disk, from
  * the buffer.
- *
- * This is used for random access to the GPT. It does not (necessarily) access
- * the streaming portion of the device.
  *
  * If the disk handle is invalid (for example, the handle refers to a disk
  * which as been removed), the function must return error but must not
@@ -660,9 +633,10 @@ typedef void *VbExStream_t;
  *
  * @return Error code, or VBERROR_SUCCESS.
  *
- * This is used for access to the streaming portion of the device, and does
- * not (necessarily) access the GPT. The size of the content addressed is within
- * streaming_lba_count.
+ * lba_start and lba_count are subject to disk type-dependent alignment
+ * restrictions. An invalid value will lead to an error code. In particular,
+ * on raw NAND devices, lba_start and lba_count must be page-aligned after
+ * subtracting the offset of the GPT.
  */
 VbError_t VbExStreamOpen(VbExDiskHandle_t handle, uint64_t lba_start,
 			 uint64_t lba_count, VbExStream_t *stream_ptr);
@@ -676,6 +650,10 @@ VbError_t VbExStreamOpen(VbExDiskHandle_t handle, uint64_t lba_start,
  *
  * @return Error code, or VBERROR_SUCCESS. Failure to read as much data as
  * requested is an error.
+ *
+ * bytes is subject to disk type-dependent alignment restrictions. An invalid
+ * value will lead to an error code. In particular, on raw NAND devices, bytes
+ * must be a page multiple.
  */
 VbError_t VbExStreamRead(VbExStream_t stream, uint32_t bytes, void *buffer);
 

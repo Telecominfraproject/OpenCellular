@@ -42,10 +42,6 @@ typedef struct LoadKernelParams {
 	uint64_t bytes_per_lba;
 	/* Last addressable lba sector on current device */
 	uint64_t ending_lba;
-	/* Random-access GPT size */
-	uint64_t gpt_lba_count;
-	/* External GPT */
-	uint8_t external_gpt;	/* 1 = external, 0 = internal */
 	/* Destination buffer for kernel (normally at 0x100000) */
 	void *kernel_buffer;
 	/* Size of kernel buffer in bytes */

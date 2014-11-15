@@ -151,7 +151,6 @@ static void ResetMocks(void)
 	lkp.gbb_size = sizeof(gbb_data);
 	lkp.bytes_per_lba = 512;
 	lkp.ending_lba = 1023;
-	lkp.gpt_lba_count = 1024;
 	lkp.kernel_buffer = kernel_buffer;
 	lkp.kernel_buffer_size = sizeof(kernel_buffer);
 	lkp.disk_handle = (VbExDiskHandle_t)1;
@@ -541,11 +540,6 @@ static void InvalidParamsTest(void)
 	gpt_init_fail = 1;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
 		"Bad GPT");
-
-	ResetMocks();
-	lkp.gpt_lba_count = 0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
-		"GPT size = 0");
 
 	/* This causes the stream open call to fail */
 	ResetMocks();
