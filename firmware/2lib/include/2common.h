@@ -289,6 +289,20 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 		    uint32_t size);
 
 /**
+ * Unpack the RSA data fields for a public key
+ *
+ * This is called by vb2_unpack_key2() to extract the arrays from a packed key.
+ * These elements of *key will point inside the key_data buffer.
+ *
+ * @param key		Destination key for RSA data fields
+ * @param key_data	Packed key data (from inside a packed key buffer)
+ * @param key_size	Size of packed key data in bytes
+ */
+int vb2_unpack_key2_data(struct vb2_public_key *key,
+			 const uint8_t *key_data,
+			 uint32_t key_size);
+
+/**
  * Return expected signature size for a signature/hash algorithm pair
  *
  * @param sig_alg	Signature algorithm

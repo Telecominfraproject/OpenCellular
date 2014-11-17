@@ -208,19 +208,22 @@ struct vb2_fw_preamble {
  */
 enum vb2_struct_common_magic {
 	/* "Vb2B" = vb2_keyblock2.c.magic */
-	VB2_MAGIC_KEYBLOCK2        = 0x42326256,
+	VB2_MAGIC_KEYBLOCK2		= 0x42326256,
 
 	/* "Vb2F" = vb2_fw_preamble.c.magic */
-	VB2_MAGIC_FW_PREAMBLE2     = 0x46326256,
+	VB2_MAGIC_FW_PREAMBLE2		= 0x46326256,
+
+	/* "Vb2I" = vb2_packed_private_key2.c.magic */
+	VB2_MAGIC_PACKED_PRIVATE_KEY2	= 0x49326256,
 
 	/* "Vb2K" = vb2_kernel_preamble.c.magic */
-	VB2_MAGIC_KERNEL_PREAMBLE2 = 0x4b326256,
+	VB2_MAGIC_KERNEL_PREAMBLE2	= 0x4b326256,
 
 	/* "Vb2P" = vb2_packed_key2.c.magic */
-	VB2_MAGIC_PACKED_KEY2      = 0x50326256,
+	VB2_MAGIC_PACKED_KEY2		= 0x50326256,
 
 	/* "Vb2S" = vb2_signature.c.magic */
-	VB2_MAGIC_SIGNATURE2       = 0x53326256,
+	VB2_MAGIC_SIGNATURE2		= 0x53326256,
 };
 
 
@@ -355,6 +358,45 @@ struct vb2_packed_key2 {
 
 #define EXPECTED_VB2_PACKED_KEY2_SIZE					\
 	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
+
+/* Current version of vb2_packed_private_key2 struct */
+#define VB2_PACKED_PRIVATE_KEY2_VERSION_MAJOR 3
+#define VB2_PACKED_PRIVATE_KEY2_VERSION_MINOR 0
+
+/*
+ * Packed private key data, version 2
+ *
+ * The key data must be arranged like this:
+ *     1) vb2_packed_private_key2 header struct h
+ *     2) Key description (pointed to by h.c.fixed_size)
+ *     3) Key data key (pointed to by h.key_offset)
+ */
+struct vb2_packed_private_key2 {
+	/* Common header fields */
+	struct vb2_struct_common c;
+
+	/* Offset of key data from start of this struct */
+	uint32_t key_offset;
+
+	/* Size of key data in bytes (NOT strength of key in bits) */
+	uint32_t key_size;
+
+	/* Signature algorithm used by the key (enum vb2_signature_algorithm) */
+	uint16_t sig_alg;
+
+	/*
+	 * Hash digest algorithm used with the key (enum vb2_hash_algorithm).
+	 * This is explicitly specified as part of the key to prevent use of a
+	 * strong key with a weak hash.
+	 */
+	uint16_t hash_alg;
+
+	/* Key GUID */
+	struct vb2_guid guid;
+} __attribute__((packed));
+
+#define EXPECTED_VB2_PACKED_PRIVATE_KEY2_SIZE				\
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 12)
 
 /* Current version of vb2_signature2 struct */
 #define VB2_SIGNATURE2_VERSION_MAJOR 3

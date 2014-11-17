@@ -9,9 +9,36 @@
 #include "2common.h"
 #include "2rsa.h"
 
-const uint8_t *vb2_packed_key2_data(const struct vb2_packed_key2 *key)
+int vb2_unpack_key2_data(struct vb2_public_key *key,
+			 const uint8_t *key_data,
+			 uint32_t key_size)
 {
-	return (const uint8_t *)key + key->key_offset;
+	const uint32_t *buf32 = (const uint32_t *)key_data;
+	uint32_t expected_key_size = vb2_packed_key_size(key->sig_alg);
+
+	/* Make sure buffer is the correct length */
+	if (!expected_key_size || expected_key_size != key_size) {
+		VB2_DEBUG("Wrong key size for algorithm\n");
+		return VB2_ERROR_UNPACK_KEY_SIZE;
+	}
+
+	/* Check for alignment */
+	if (!vb2_aligned(buf32, sizeof(uint32_t)))
+		return VB2_ERROR_UNPACK_KEY_ALIGN;
+
+	key->arrsize = buf32[0];
+
+	/* Sanity check key array size */
+	if (key->arrsize * sizeof(uint32_t) != vb2_rsa_sig_size(key->sig_alg))
+		return VB2_ERROR_UNPACK_KEY_ARRAY_SIZE;
+
+	key->n0inv = buf32[1];
+
+	/* Arrays point inside the key data */
+	key->n = buf32 + 2;
+	key->rr = buf32 + 2 + key->arrsize;
+
+	return VB2_SUCCESS;
 }
 
 int vb2_unpack_key2(struct vb2_public_key *key,
@@ -20,8 +47,6 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 {
 	const struct vb2_packed_key2 *pkey =
 		(const struct vb2_packed_key2 *)buf;
-	const uint32_t *buf32;
-	uint32_t expected_key_size;
 	uint32_t sig_size;
 	uint32_t min_offset = 0;
 	int rv;
@@ -65,25 +90,11 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 	if (!vb2_digest_size(key->hash_alg))
 		return VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM;
 
-	expected_key_size = vb2_packed_key_size(key->sig_alg);
-	if (!expected_key_size || expected_key_size != pkey->key_size) {
-		VB2_DEBUG("Wrong key size for algorithm\n");
-		return VB2_ERROR_UNPACK_KEY_SIZE;
-	}
-
-	/* Unpack key data */
-	buf32 = (const uint32_t *)vb2_packed_key2_data(pkey);
-
-	/* Sanity check key array size */
-	key->arrsize = buf32[0];
-	if (key->arrsize * sizeof(uint32_t) != sig_size)
-		return VB2_ERROR_UNPACK_KEY_ARRAY_SIZE;
-
-	key->n0inv = buf32[1];
-
-	/* Arrays point inside the key data */
-	key->n = buf32 + 2;
-	key->rr = buf32 + 2 + key->arrsize;
+	rv = vb2_unpack_key2_data(key,
+				  (const uint8_t *)pkey + pkey->key_offset,
+				  pkey->key_size);
+	if (rv)
+		return rv;
 
 	/* Key description */
 	if (pkey->c.desc_size)
