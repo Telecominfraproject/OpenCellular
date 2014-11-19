@@ -10,14 +10,6 @@
 #include "2struct.h"
 
 /**
- * Round up a size to a multiple of 32 bits (4 bytes).
- */
-static __inline const uint32_t roundup32(uint32_t v)
-{
-	return (v + 3) & ~3;
-}
-
-/**
  * Convert a packed key from vboot data format to vboot2 data format.
  *
  * Intended for use by unit tests.  Does NOT validate the original struct

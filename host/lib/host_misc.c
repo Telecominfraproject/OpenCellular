@@ -108,6 +108,7 @@ int WriteFile(const char* filename, const void *data, uint64_t size) {
     VBDEBUG(("Unable to write to file %s\n", filename));
     fclose(f);
     unlink(filename);  /* Delete any partial file */
+    return 1;
   }
 
   fclose(f);

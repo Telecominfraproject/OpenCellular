@@ -8,6 +8,8 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
+#include "host_common.h"
+#include "host_misc.h"
 #include "vb2_convert_structs.h"
 #include "vboot_struct.h"  /* For old struct sizes */
 

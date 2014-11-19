@@ -374,6 +374,12 @@ UTILLIB_SRCS = \
 	host/lib/host_signature.c \
 	host/lib/signature_digest.c
 
+ifneq (${VBOOT2},)
+UTILLIB_SRCS += \
+	host/lib/host_misc2.c \
+
+endif
+
 UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${UTILLIB_OBJS}
 
@@ -626,6 +632,7 @@ TEST_NAMES += \
 	tests/vb2_common_tests \
 	tests/vb2_common2_tests \
 	tests/vb2_common3_tests \
+	tests/vb2_host_misc_tests \
 	tests/vb2_misc_tests \
 	tests/vb2_misc2_tests \
 	tests/vb2_misc3_tests \
@@ -1160,6 +1167,7 @@ run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc3_tests
