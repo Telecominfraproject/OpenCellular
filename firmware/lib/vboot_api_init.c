@@ -301,7 +301,13 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		if ((iparams->flags & VB_INIT_FLAG_OPROM_MATTERS) &&
 		    !(iparams->flags & VB_INIT_FLAG_OPROM_LOADED)) {
 			VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
-			retval = VBERROR_VGA_OPROM_MISMATCH;
+			/*
+			 * If VbInit() is run before Option ROMs are run it
+			 * can still respond to the VbNv flag and does not
+			 * need to reboot here.
+			 */
+			if (!(iparams->flags & VB_INIT_FLAG_BEFORE_OPROM_LOAD))
+				retval = VBERROR_VGA_OPROM_MISMATCH;
 			VBDEBUG(("VbInit() needs oprom, doesn't have it\n"));
 		}
 
@@ -332,12 +338,11 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		    (iparams->flags & VB_INIT_FLAG_OPROM_LOADED)) {
 			VbNvSet(&vnc, VBNV_OPROM_NEEDED, 0);
 			/*
-			 * If this is a system with slow EC update then don't
-			 * reboot immediately in case VGA option ROM is still
-			 * needed to display an update screen.  The reboot will
-			 * be requested after EC software sync is complete.
+			 * If VbInit() is run before Option ROMs are run it
+			 * can still respond to the VbNv flag and does not
+			 * need to reboot here.
 			 */
-			if (!(iparams->flags & VB_INIT_FLAG_EC_SLOW_UPDATE))
+			if (!(iparams->flags & VB_INIT_FLAG_BEFORE_OPROM_LOAD))
 				retval = VBERROR_VGA_OPROM_MISMATCH;
 			VBDEBUG(("VbInit() has oprom, doesn't need it\n"));
 		}

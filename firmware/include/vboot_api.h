@@ -227,6 +227,8 @@ typedef struct VbCommonParams {
  * can (and should) be used for additional physical presence checks.
  */
 #define VB_INIT_FLAG_VIRTUAL_REC_SWITCH  0x00001000
+/* Set when we are calling VbInit() before loading Option ROMs */
+#define VB_INIT_FLAG_BEFORE_OPROM_LOAD   0x00002000
 
 /*
  * Output flags for VbInitParams.out_flags.  Used to indicate potential boot
