@@ -65,6 +65,8 @@
 #define GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY  0x00000400
 /* Disable PD software sync */
 #define GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC 0x00000800
+/* Disable shutdown on lid closed */
+#define GBB_FLAG_DISABLE_LID_SHUTDOWN     0x00001000
 
 #ifdef __cplusplus
 extern "C" {
