@@ -988,6 +988,7 @@ ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_common_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_host_key_tests: LDLIBS += ${CRYPTO_LIBS}

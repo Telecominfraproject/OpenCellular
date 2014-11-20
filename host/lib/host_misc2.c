@@ -10,6 +10,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "2sha.h"
 #include "host_common.h"
 
 int vb2_read_file(const char *filename, uint8_t **data_ptr, uint32_t *size_ptr)

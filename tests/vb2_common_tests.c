@@ -8,6 +8,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
+#include "host_key2.h"
 #include "vb2_convert_structs.h"
 #include "vboot_struct.h"  /* For old struct sizes */
 
@@ -452,15 +453,14 @@ static void test_sig_size(void)
 static void test_verify_hash(void)
 {
 	struct vb2_signature2 *sig;
-	struct vb2_public_key pubk = {
-		.sig_alg = VB2_SIG_NONE,
-		.hash_alg = VB2_HASH_SHA256,
-		.guid = vb2_hash_guid(VB2_HASH_SHA256)
-	};
+	struct vb2_public_key pubk;
 	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
 	struct vb2_workbuf wb;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+	TEST_SUCC(vb2_public_key_hash(&pubk, VB2_HASH_SHA256),
+		  "create hash key");
 
 	/* Create the signature */
 	sig = vb2_create_hash_sig(test_data, sizeof(test_data), pubk.hash_alg);
@@ -483,6 +483,7 @@ static void test_verify_hash(void)
 static void test_verify_keyblock(void)
 {
 	const char desc[16] = "test keyblock";
+	struct vb2_public_key pubk, pubk2, pubk_not_present;
 	struct vb2_signature2 *sig;
 	struct vb2_keyblock2 *kbuf;
 	uint32_t buf_size;
@@ -491,21 +492,12 @@ static void test_verify_keyblock(void)
 	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES];
 	struct vb2_workbuf wb;
 
-	const struct vb2_public_key pubk = {
-		.sig_alg = VB2_SIG_NONE,
-		.hash_alg = VB2_HASH_SHA256,
-		.guid = vb2_hash_guid(VB2_HASH_SHA256)
-	};
-	const struct vb2_public_key pubk2 = {
-		.sig_alg = VB2_SIG_NONE,
-		.hash_alg = VB2_HASH_SHA512,
-		.guid = vb2_hash_guid(VB2_HASH_SHA512)
-	};
-	const struct vb2_public_key pubk_not_present = {
-		.sig_alg = VB2_SIG_NONE,
-		.hash_alg = VB2_HASH_SHA1,
-		.guid = vb2_hash_guid(VB2_HASH_SHA1)
-	};
+	TEST_SUCC(vb2_public_key_hash(&pubk, VB2_HASH_SHA256),
+		  "create hash key 1");
+	TEST_SUCC(vb2_public_key_hash(&pubk2, VB2_HASH_SHA512),
+		  "create hash key 2");
+	TEST_SUCC(vb2_public_key_hash(&pubk_not_present, VB2_HASH_SHA1),
+		  "create hash key 3");
 
 	/*
 	 * Test packed key only needs to initialize the fields used by keyblock
@@ -663,6 +655,7 @@ static void test_verify_keyblock(void)
 static void test_verify_fw_preamble(void)
 {
 	const char desc[16] = "test preamble";
+	struct vb2_public_key pubk;
 	struct vb2_signature2 *sig;
 	struct vb2_fw_preamble2 *pre;
 	uint32_t buf_size;
@@ -678,11 +671,8 @@ static void test_verify_fw_preamble(void)
 	 * bare hash here saves us from needing to have a private key to do
 	 * this test.
 	 */
-	const struct vb2_public_key pubk = {
-		.sig_alg = VB2_SIG_NONE,
-		.hash_alg = VB2_HASH_SHA256,
-		.guid = vb2_hash_guid(VB2_HASH_SHA256)
-	};
+	TEST_SUCC(vb2_public_key_hash(&pubk, VB2_HASH_SHA256),
+		  "create hash key");
 
 	struct vb2_fw_preamble2 fp = {
 		.c.magic = VB2_MAGIC_FW_PREAMBLE2,

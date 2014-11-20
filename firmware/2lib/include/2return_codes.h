@@ -510,6 +510,9 @@ enum vb2_return_code {
 	/* Unable to set description in vb2_private_key_unpack() */
 	VB2_ERROR_UNPACK_PRIVATE_KEY_DESC,
 
+	/* Bad bare hash key in vb2_private_key_unpack() */
+	VB2_ERROR_UNPACK_PRIVATE_KEY_HASH,
+
 	/* Unable to create RSA data in vb2_private_key_write() */
 	VB2_ERROR_PRIVATE_KEY_WRITE_RSA,
 
@@ -518,6 +521,9 @@ enum vb2_return_code {
 
 	/* Unable to write file in vb2_private_key_write() */
 	VB2_ERROR_PRIVATE_KEY_WRITE_FILE,
+
+	/* Bad algorithm in vb2_private_key_hash() */
+	VB2_ERROR_PRIVATE_KEY_HASH,
 
 	/* Unable to determine key size in vb2_public_key_alloc() */
 	VB2_ERROR_PUBLIC_KEY_ALLOC_SIZE,
@@ -548,6 +554,9 @@ enum vb2_return_code {
 
 	/* Unable to determine key size in vb2_public_key_pack() */
 	VB2_ERROR_PUBLIC_KEY_PACK_SIZE,
+
+	/* Bad hash algorithm in vb2_publc_key_hash() */
+	VB2_ERROR_PUBLIC_KEY_HASH,
 
         /**********************************************************************
 	 * Highest non-zero error generated inside vboot library.  Note that

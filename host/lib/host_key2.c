@@ -14,6 +14,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
+#include "2sha.h"
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_misc.h"
@@ -82,11 +83,19 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 	key->guid = pkey->guid;
 
 	/* Unpack RSA key */
-	start = (const unsigned char *)(buf + pkey->key_offset);
-	key->rsa_private_key = d2i_RSAPrivateKey(0, &start, pkey->key_size);
-	if (!key->rsa_private_key) {
-		free(key);
-		return VB2_ERROR_UNPACK_PRIVATE_KEY_RSA;
+	if (pkey->sig_alg == VB2_SIG_NONE) {
+		if (pkey->key_size != 0) {
+			free(key);
+			return VB2_ERROR_UNPACK_PRIVATE_KEY_HASH;
+		}
+	} else {
+		start = (const unsigned char *)(buf + pkey->key_offset);
+		key->rsa_private_key = d2i_RSAPrivateKey(0, &start,
+							 pkey->key_size);
+		if (!key->rsa_private_key) {
+			free(key);
+			return VB2_ERROR_UNPACK_PRIVATE_KEY_RSA;
+		}
 	}
 
 	/* Key description */
@@ -184,7 +193,7 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 	};
 	uint8_t *buf;
 	uint8_t *rsabuf = NULL;
-	int rsalen;
+	int rsalen = 0;
 	int rv;
 
 	memcpy(&pkey.guid, &key->guid, sizeof(pkey.guid));
@@ -192,10 +201,12 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 	if (key->desc)
 		pkey.c.desc_size = roundup32(strlen(key->desc) + 1);
 
-	/* Pack RSA key */
-	rsalen = i2d_RSAPrivateKey(key->rsa_private_key, &rsabuf);
-	if (rsalen <= 0)
-		return VB2_ERROR_PRIVATE_KEY_WRITE_RSA;
+	if (key->sig_alg != VB2_SIG_NONE) {
+		/* Pack RSA key */
+		rsalen = i2d_RSAPrivateKey(key->rsa_private_key, &rsabuf);
+		if (rsalen <= 0 || !rsabuf)
+			return VB2_ERROR_PRIVATE_KEY_WRITE_RSA;
+	}
 
 	pkey.key_offset = pkey.c.fixed_size + pkey.c.desc_size;
 	pkey.key_size = roundup32(rsalen);
@@ -215,13 +226,65 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 	if (key->desc)
 		strcpy((char *)buf + pkey.c.fixed_size, key->desc);
 
-	memcpy(buf + pkey.key_offset, rsabuf, rsalen);
-	free(rsabuf);
+	if (rsabuf) {
+		memcpy(buf + pkey.key_offset, rsabuf, rsalen);
+		free(rsabuf);
+	}
 
 	rv = vb2_write_object(filename, buf);
 	free(buf);
 
 	return rv ? VB2_ERROR_PRIVATE_KEY_WRITE_FILE : VB2_SUCCESS;
+}
+
+int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
+			 enum vb2_hash_algorithm hash_alg)
+{
+	*key_ptr = NULL;
+
+	switch (hash_alg) {
+#if VB2_SUPPORT_SHA1
+	case VB2_HASH_SHA1:
+		{
+			static const struct vb2_private_key key = {
+				.hash_alg = VB2_HASH_SHA1,
+				.sig_alg = VB2_SIG_NONE,
+				.desc = "Unsigned SHA1",
+				.guid = VB2_GUID_NONE_SHA1,
+			};
+			*key_ptr = &key;
+			return VB2_SUCCESS;
+		}
+#endif
+#if VB2_SUPPORT_SHA256
+	case VB2_HASH_SHA256:
+		{
+			static const struct vb2_private_key key = {
+				.hash_alg = VB2_HASH_SHA256,
+				.sig_alg = VB2_SIG_NONE,
+				.desc = "Unsigned SHA-256",
+				.guid = VB2_GUID_NONE_SHA256,
+			};
+			*key_ptr = &key;
+			return VB2_SUCCESS;
+		}
+#endif
+#if VB2_SUPPORT_SHA512
+	case VB2_HASH_SHA512:
+		{
+			static const struct vb2_private_key key = {
+				.hash_alg = VB2_HASH_SHA512,
+				.sig_alg = VB2_SIG_NONE,
+				.desc = "Unsigned SHA-512",
+				.guid = VB2_GUID_NONE_SHA512,
+			};
+			*key_ptr = &key;
+			return VB2_SUCCESS;
+		}
+#endif
+	default:
+		return VB2_ERROR_PRIVATE_KEY_HASH;
+	}
 }
 
 /**
@@ -347,11 +410,11 @@ int vb2_packed_key2_read(struct vb2_packed_key2 **key_ptr,
 
 	*key_ptr = NULL;
 
-	if (!vb2_read_file(filename, &buf, &size))
+	if (vb2_read_file(filename, &buf, &size))
 		return VB2_ERROR_READ_PACKED_KEY_DATA;
 
 	/* Sanity check: make sure key unpacks properly */
-	if (!vb2_unpack_key(&key, buf, size))
+	if (vb2_unpack_key2(&key, buf, size))
 		return VB2_ERROR_READ_PACKED_KEY;
 
 	*key_ptr = (struct vb2_packed_key2 *)buf;
@@ -375,14 +438,16 @@ int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
 	/* Calculate sizes and offsets */
 	key.c.fixed_size = sizeof(key);
 
-	if (pubk->desc)
+	if (pubk->desc && *pubk->desc)
 		key.c.desc_size = roundup32(strlen(pubk->desc) + 1);
 
 	key.key_offset = key.c.fixed_size + key.c.desc_size;
 
-	key.key_size = vb2_packed_key_size(pubk->sig_alg);
-	if (!key.key_size)
-		return VB2_ERROR_PUBLIC_KEY_PACK_SIZE;
+	if (pubk->sig_alg != VB2_SIG_NONE) {
+		key.key_size = vb2_packed_key_size(pubk->sig_alg);
+		if (!key.key_size)
+			return VB2_ERROR_PUBLIC_KEY_PACK_SIZE;
+	}
 
 	key.c.total_size = key.key_offset + key.key_size;
 
@@ -400,20 +465,51 @@ int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
 	memcpy(buf, &key, sizeof(key));
 
 	/* strcpy() is safe because we allocated above based on strlen() */
-	if (pubk->desc) {
+	if (pubk->desc && *pubk->desc) {
 		strcpy((char *)(buf + key.c.fixed_size), pubk->desc);
 		buf[key.c.fixed_size + key.c.desc_size - 1] = 0;
 	}
 
-	/* Re-pack the key arrays */
-	buf32 = (uint32_t *)(buf + key.key_offset);
-	buf32[0] = pubk->arrsize;
-	buf32[1] = pubk->n0inv;
-	memcpy(buf32 + 2, pubk->n, pubk->arrsize * sizeof(uint32_t));
-	memcpy(buf32 + 2 + pubk->arrsize, pubk->rr,
-	       pubk->arrsize * sizeof(uint32_t));
+	if (pubk->sig_alg != VB2_SIG_NONE) {
+		/* Re-pack the key arrays */
+		buf32 = (uint32_t *)(buf + key.key_offset);
+		buf32[0] = pubk->arrsize;
+		buf32[1] = pubk->n0inv;
+		memcpy(buf32 + 2, pubk->n, pubk->arrsize * sizeof(uint32_t));
+		memcpy(buf32 + 2 + pubk->arrsize, pubk->rr,
+		       pubk->arrsize * sizeof(uint32_t));
+	}
 
 	*key_ptr = (struct vb2_packed_key2 *)buf;
 
+	return VB2_SUCCESS;
+}
+
+int vb2_public_key_hash(struct vb2_public_key *key,
+			enum vb2_hash_algorithm hash_alg)
+{
+	switch (hash_alg) {
+#if VB2_SUPPORT_SHA1
+	case VB2_HASH_SHA1:
+		key->desc = "Unsigned SHA1";
+		break;
+#endif
+#if VB2_SUPPORT_SHA256
+	case VB2_HASH_SHA256:
+		key->desc = "Unsigned SHA-256";
+		break;
+#endif
+#if VB2_SUPPORT_SHA512
+	case VB2_HASH_SHA512:
+		key->desc = "Unsigned SHA-512";
+		break;
+#endif
+	default:
+		return VB2_ERROR_PUBLIC_KEY_HASH;
+	}
+
+	key->sig_alg = VB2_SIG_NONE;
+	key->hash_alg = hash_alg;
+	key->guid = vb2_hash_guid(hash_alg);
 	return VB2_SUCCESS;
 }

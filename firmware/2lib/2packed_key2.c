@@ -81,20 +81,22 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 		return VB2_ERROR_UNPACK_KEY_STRUCT_VERSION;
 
 	/* Copy key algorithms */
-	key->sig_alg = pkey->sig_alg;
-	sig_size = vb2_rsa_sig_size(key->sig_alg);
-	if (!sig_size)
-		return VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM;
-
 	key->hash_alg = pkey->hash_alg;
 	if (!vb2_digest_size(key->hash_alg))
 		return VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM;
 
-	rv = vb2_unpack_key2_data(key,
-				  (const uint8_t *)pkey + pkey->key_offset,
-				  pkey->key_size);
-	if (rv)
-		return rv;
+	key->sig_alg = pkey->sig_alg;
+	if (key->sig_alg != VB2_SIG_NONE) {
+		sig_size = vb2_rsa_sig_size(key->sig_alg);
+		if (!sig_size)
+			return VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM;
+		rv = vb2_unpack_key2_data(
+				key,
+				(const uint8_t *)pkey + pkey->key_offset,
+				pkey->key_size);
+		if (rv)
+			return rv;
+	}
 
 	/* Key description */
 	if (pkey->c.desc_size)

@@ -33,6 +33,7 @@ static void private_key_tests(const struct alg_combo *combo,
 			      const char *pemfile)
 {
 	struct vb2_private_key *key, *k2;
+	const struct vb2_private_key *ckey;
 	struct vb2_packed_private_key2 *pkey;
 	const char *testfile = "test.vbprik2";
 	const char *notapem = "not_a_pem";
@@ -136,11 +137,31 @@ static void private_key_tests(const struct alg_combo *combo,
 		VB2_ERROR_UNPACK_PRIVATE_KEY_RSA,
 		"Unpack private key bad rsa data");
 
+	memcpy(buf, buf2, bufsize);
+	pkey->sig_alg = VB2_SIG_NONE;
+	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+		VB2_ERROR_UNPACK_PRIVATE_KEY_HASH,
+		"Unpack private key hash but has data");
+
 	free(buf);
 	free(buf2);
 	unlink(testfile);
 
-	vb2_private_key_free(key);
+	TEST_EQ(vb2_private_key_hash(&ckey, VB2_HASH_INVALID),
+		VB2_ERROR_PRIVATE_KEY_HASH,
+		"Hash key invalid");
+	TEST_PTR_EQ(ckey, NULL, "  key_ptr");
+
+	TEST_SUCC(vb2_private_key_hash(&ckey, combo->hash_alg), "Hash key");
+	TEST_PTR_NEQ(ckey, NULL, "  key_ptr");
+	TEST_EQ(ckey->hash_alg, combo->hash_alg, "  hash_alg");
+	TEST_EQ(ckey->sig_alg, VB2_SIG_NONE, "  sig_alg");
+	TEST_EQ(memcmp(&ckey->guid, vb2_hash_guid(combo->hash_alg),
+		       sizeof(ckey->guid)), 0, "  guid");
+
+	TEST_SUCC(vb2_private_key_write(ckey, testfile), "Write hash key");
+	TEST_SUCC(vb2_private_key_read(&key, testfile), "Read hash key");
+	unlink(testfile);
 }
 
 static void public_key_tests(const struct alg_combo *combo,
@@ -213,13 +234,47 @@ static void public_key_tests(const struct alg_combo *combo,
 		"  n");
 	TEST_EQ(memcmp(key->rr, k2.rr, key->arrsize * sizeof(uint32_t)), 0,
 		"  rr");
+
+	TEST_SUCC(vb2_write_object(testfile, pkey), "Write packed key");
 	free(pkey);
+
+	TEST_SUCC(vb2_packed_key2_read(&pkey, testfile), "Read packed key");
+	TEST_PTR_NEQ(pkey, NULL, "  key_ptr");
+	unlink(testfile);
+
+	pkey->hash_alg = VB2_HASH_INVALID;
+	TEST_SUCC(vb2_write_object(testfile, pkey), "Write bad packed key");
+	free(pkey);
+
+	TEST_EQ(vb2_packed_key2_read(&pkey, testfile),
+		VB2_ERROR_READ_PACKED_KEY, "Read bad packed key");
+	TEST_PTR_EQ(pkey, NULL, "  key_ptr");
+	unlink(testfile);
+
+	TEST_EQ(vb2_packed_key2_read(&pkey, testfile),
+		VB2_ERROR_READ_PACKED_KEY_DATA, "Read missing packed key");
 
 	key->sig_alg = VB2_SIG_INVALID;
 	TEST_EQ(vb2_public_key_pack(&pkey, key),
 		VB2_ERROR_PUBLIC_KEY_PACK_SIZE,
 		"Pack invalid sig alg");
 	vb2_public_key_free(key);
+
+	TEST_EQ(vb2_public_key_hash(&k2, VB2_HASH_INVALID),
+		VB2_ERROR_PUBLIC_KEY_HASH,
+		"Hash key invalid");
+
+	TEST_SUCC(vb2_public_key_hash(&k2, combo->hash_alg), "Hash key");
+	TEST_EQ(k2.hash_alg, combo->hash_alg, "  hash_alg");
+	TEST_EQ(k2.sig_alg, VB2_SIG_NONE, "  sig_alg");
+	TEST_EQ(memcmp(k2.guid, vb2_hash_guid(combo->hash_alg),
+		       sizeof(*k2.guid)), 0, "  guid");
+
+	TEST_SUCC(vb2_public_key_pack(&pkey, &k2), "Pack public hash key");
+	TEST_PTR_NEQ(pkey, NULL, "  key_ptr");
+	TEST_SUCC(vb2_unpack_key2(&k2, (uint8_t *)pkey, pkey->c.total_size),
+		  "Unpack public hash key");
+	free(pkey);
 }
 
 static int test_algorithm(const struct alg_combo *combo, const char *keys_dir)

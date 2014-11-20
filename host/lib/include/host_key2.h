@@ -84,6 +84,17 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 			  const char *filename);
 
 /**
+ * Get a private key for an unsigned hash
+ *
+ * @param key_ptr	Destination for pointer to key.  The key is statically
+ *			allocated and must not be freed.
+ * @param hash_alg	Hash algorithm to use
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
+			 enum vb2_hash_algorithm hash_alg);
+
+/**
  * Free a public key allocated by one of the functions below.
  *
  * Note that this should ONLY be called for public keys allocated via one
@@ -140,5 +151,16 @@ int vb2_packed_key2_read(struct vb2_packed_key2 **key_ptr,
  */
 int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
 			const struct vb2_public_key *pubk);
+
+/**
+ * Get a public key for an unsigned hash.
+ *
+ * @param key		Destination for key data.
+ * @param hash_alg	Hash algorithm to use
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_public_key_hash(struct vb2_public_key *key,
+			enum vb2_hash_algorithm hash_alg);
+
 
 #endif  /* VBOOT_REFERENCE_HOST_KEY2_H_ */
