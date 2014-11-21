@@ -83,3 +83,12 @@ int vb2_write_object(const char *filename, const void *buf)
 
 	return vb2_write_file(filename, buf, cptr->total_size);
 }
+
+uint32_t vb2_desc_size(const char *desc)
+{
+	if (!desc || !*desc)
+		return 0;
+
+	return roundup32(strlen(desc) + 1);
+}
+

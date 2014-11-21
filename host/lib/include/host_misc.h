@@ -84,4 +84,16 @@ static __inline const uint32_t roundup32(uint32_t v)
 	return (v + 3) & ~3;
 }
 
+/**
+ * Return the buffer size required to hold a description string.
+ *
+ * If the string is NULL or empty, the size is zero.  Otherwise, it is the
+ * size of a buffer which can hold the string and its null terminator,
+ * rounded up to the nerest multiple of 32 bits.
+ *
+ * @param desc		Description string
+ * @return The buffer size in bytes.
+ */
+uint32_t vb2_desc_size(const char *desc);
+
 #endif  /* VBOOT_REFERENCE_HOST_MISC_H_ */

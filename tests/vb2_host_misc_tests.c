@@ -19,6 +19,11 @@ static void misc_tests(void)
 	TEST_EQ(roundup32(0), 0, "roundup32(0)");
 	TEST_EQ(roundup32(15), 16, "roundup32(15)");
 	TEST_EQ(roundup32(16), 16, "roundup32(16)");
+
+	TEST_EQ(vb2_desc_size(NULL), 0, "desc size null");
+	TEST_EQ(vb2_desc_size(""), 0, "desc size empty");
+	TEST_EQ(vb2_desc_size("foo"), 4, "desc size 'foo'");
+	TEST_EQ(vb2_desc_size("foob"), 8, "desc size 'foob'");
 }
 
 static void file_tests(void)

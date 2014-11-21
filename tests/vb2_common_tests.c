@@ -9,6 +9,7 @@
 #include "2common.h"
 #include "2rsa.h"
 #include "host_key2.h"
+#include "host_signature2.h"
 #include "vb2_convert_structs.h"
 #include "vboot_struct.h"  /* For old struct sizes */
 

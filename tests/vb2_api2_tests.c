@@ -15,6 +15,8 @@
 #include "2rsa.h"
 #include "2secdata.h"
 
+#include "host_signature2.h"
+
 #include "test_common.h"
 #include "vb2_convert_structs.h"
 

@@ -378,6 +378,7 @@ ifneq (${VBOOT2},)
 UTILLIB_SRCS += \
 	host/lib/host_key2.c \
 	host/lib/host_misc2.c \
+	host/lib/host_signature2.c \
 
 endif
 
@@ -635,6 +636,7 @@ TEST_NAMES += \
 	tests/vb2_common3_tests \
 	tests/vb2_host_key_tests \
 	tests/vb2_host_misc_tests \
+	tests/vb2_host_sig_tests \
 	tests/vb2_misc_tests \
 	tests/vb2_misc2_tests \
 	tests/vb2_misc3_tests \
@@ -988,10 +990,12 @@ ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_api2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_host_key_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_host_sig_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 
@@ -1173,6 +1177,7 @@ run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_key_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_misc_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_sig_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc3_tests

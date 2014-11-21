@@ -9,7 +9,9 @@
 #include "2common.h"
 #include "2rsa.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "host_misc.h"
+#include "host_signature2.h"
 #include "vb2_convert_structs.h"
 #include "vboot_struct.h"  /* For old struct sizes */
 
@@ -117,41 +119,14 @@ struct vb2_signature2 *vb2_create_hash_sig(const uint8_t *data,
 					   uint32_t size,
 					   enum vb2_hash_algorithm hash_alg)
 {
-	const char desc[12] = "hash sig";
-	struct vb2_signature2 s = {
-		.c.magic = VB2_MAGIC_SIGNATURE2,
-		.c.struct_version_major = VB2_SIGNATURE2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_SIGNATURE2_VERSION_MINOR,
-		.c.fixed_size = sizeof(s),
-		.c.desc_size = sizeof(desc),
-		.sig_alg = VB2_SIG_NONE,
-		.hash_alg = hash_alg,
-		.sig_size = vb2_sig_size(VB2_SIG_NONE, hash_alg),
-		.data_size = size,
-	};
-	const struct vb2_guid *hash_guid = vb2_hash_guid(hash_alg);
-	struct vb2_digest_context dc;
-	uint8_t *buf;
+	const struct vb2_private_key *key;
+	struct vb2_signature2 *sig;
 
-	/* Make sure hash algorithm was supported */
-	if (!hash_guid || !s.sig_size)
+	if (vb2_private_key_hash(&key, hash_alg))
 		return NULL;
 
-	memcpy(&s.guid, hash_guid, sizeof(s.guid));
-	s.sig_offset = s.c.fixed_size + s.c.desc_size;
-	s.c.total_size = s.sig_offset + s.sig_size;
-
-	buf = malloc(s.c.total_size);
-	memset(buf, 0, s.c.total_size);
-	memcpy(buf, &s, sizeof(s));
-	memcpy(buf + s.c.fixed_size, desc, sizeof(desc));
-
-	if (vb2_digest_init(&dc, hash_alg) ||
-	    vb2_digest_extend(&dc, data, size) ||
-	    vb2_digest_finalize(&dc, buf + s.sig_offset, s.sig_size)) {
-		free(buf);
+	if (vb2_sign_data(&sig, data, size, key, NULL))
 		return NULL;
-	}
 
-	return (struct vb2_signature2 *)buf;
+	return sig;
 }
