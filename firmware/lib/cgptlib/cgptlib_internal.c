@@ -141,12 +141,6 @@ int CheckHeader(GptHeader *h, int is_secondary,
 	return 0;
 }
 
-int IsUnusedEntry(const GptEntry *e)
-{
-	static Guid zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
-	return !Memcmp(&zero, (const uint8_t*)(&e->type), sizeof(zero));
-}
-
 int IsKernelEntry(const GptEntry *e)
 {
 	static Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;

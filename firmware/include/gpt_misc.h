@@ -6,6 +6,7 @@
 #ifndef VBOOT_REFERENCE_CGPT_MISC_H_
 #define VBOOT_REFERENCE_CGPT_MISC_H_
 
+#include "gpt.h"
 #include "vboot_api.h"
 
 enum {
@@ -147,5 +148,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata);
  * Write any changes for the GPT data back to the drive, then free the buffers.
  */
 int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata);
+
+/**
+ * Return 1 if the entry is unused, 0 if it is used.
+ */
+int IsUnusedEntry(const GptEntry *e);
 
 #endif  /* VBOOT_REFERENCE_CGPT_MISC_H_ */

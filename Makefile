@@ -417,12 +417,15 @@ HOSTLIB_SRCS = \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/crc8.c \
+	firmware/lib/gpt_misc.c \
 	firmware/lib/tpm_lite/tlcl.c \
 	firmware/lib/utility_string.c \
 	firmware/lib/vboot_nvstorage.c \
 	firmware/stub/tpm_lite_stub.c \
 	firmware/stub/utility_stub.c \
+	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_init.c \
+	firmware/stub/vboot_api_stub_sf.c \
 	futility/dump_kernel_config_lib.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
@@ -445,7 +448,10 @@ TINYHOSTLIB_SRCS = \
 	cgpt/cgpt_prioritize.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
+	firmware/lib/gpt_misc.c \
 	firmware/lib/utility_string.c \
+	firmware/stub/vboot_api_stub_disk.c \
+	firmware/stub/vboot_api_stub_sf.c \
 	firmware/stub/utility_stub.c \
 	futility/dump_kernel_config_lib.c
 

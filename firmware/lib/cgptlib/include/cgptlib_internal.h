@@ -149,11 +149,6 @@ void SetEntryPriority(GptEntry *e, int priority);
 void SetEntryTries(GptEntry *e, int tries);
 
 /**
- * Return 1 if the entry is unused, 0 if it is used.
- */
-int IsUnusedEntry(const GptEntry *e);
-
-/**
  * Return 1 if the entry is a Chrome OS kernel partition, else 0.
  */
 int IsKernelEntry(const GptEntry *e);
