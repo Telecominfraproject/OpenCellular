@@ -198,8 +198,7 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 
 	memcpy(&pkey.guid, &key->guid, sizeof(pkey.guid));
 
-	if (key->desc)
-		pkey.c.desc_size = roundup32(strlen(key->desc) + 1);
+	pkey.c.desc_size = vb2_desc_size(key->desc);
 
 	if (key->sig_alg != VB2_SIG_NONE) {
 		/* Pack RSA key */
@@ -437,10 +436,7 @@ int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
 
 	/* Calculate sizes and offsets */
 	key.c.fixed_size = sizeof(key);
-
-	if (pubk->desc && *pubk->desc)
-		key.c.desc_size = roundup32(strlen(pubk->desc) + 1);
-
+	key.c.desc_size = vb2_desc_size(pubk->desc);
 	key.key_offset = key.c.fixed_size + key.c.desc_size;
 
 	if (pubk->sig_alg != VB2_SIG_NONE) {
