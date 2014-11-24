@@ -9,6 +9,7 @@
 #include "2common.h"
 #include "2rsa.h"
 #include "host_key2.h"
+#include "host_keyblock2.h"
 #include "host_signature2.h"
 #include "vb2_convert_structs.h"
 #include "vboot_struct.h"  /* For old struct sizes */
@@ -297,18 +298,23 @@ static void test_common_header_functions(void)
 	uint8_t cbufgood[sizeof(cbuf)];
 	struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
 	struct vb2_struct_common *c2;
+	const char test_desc[32] = "test desc";
 	uint32_t desc_end, m;
 
 	c->total_size = sizeof(cbuf);
 	c->fixed_size = sizeof(*c);
-	c->desc_size = 32;
+	c->desc_size = sizeof(test_desc);
+	memcpy(cbuf + c->fixed_size, test_desc, sizeof(test_desc));
 	desc_end = c->fixed_size + c->desc_size;
-	cbuf[desc_end - 1] = 0;
 
 	c2 = (struct vb2_struct_common *)(cbuf + desc_end);
 	c2->total_size = c->total_size - desc_end;
 	c2->fixed_size = sizeof(*c2);
 	c2->desc_size = 0;
+
+	/* Description helper */
+	TEST_EQ(0, strcmp(vb2_common_desc(c), test_desc), "vb2_common_desc()");
+	TEST_EQ(0, strcmp(vb2_common_desc(c2), ""), "vb2_common_desc() empty");
 
 	TEST_SUCC(vb2_verify_common_header(cbuf, sizeof(cbuf)),
 		  "vb2_verify_common_header() good");
@@ -484,11 +490,12 @@ static void test_verify_hash(void)
 static void test_verify_keyblock(void)
 {
 	const char desc[16] = "test keyblock";
-	struct vb2_public_key pubk, pubk2, pubk_not_present;
+	const struct vb2_private_key *prik[2];
+	struct vb2_public_key pubk, pubk2, pubk3;
 	struct vb2_signature2 *sig;
 	struct vb2_keyblock2 *kbuf;
 	uint32_t buf_size;
-	uint8_t *buf, *buf2, *bnext;
+	uint8_t *buf, *buf2;
 
 	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES];
 	struct vb2_workbuf wb;
@@ -497,68 +504,20 @@ static void test_verify_keyblock(void)
 		  "create hash key 1");
 	TEST_SUCC(vb2_public_key_hash(&pubk2, VB2_HASH_SHA512),
 		  "create hash key 2");
-	TEST_SUCC(vb2_public_key_hash(&pubk_not_present, VB2_HASH_SHA1),
+	TEST_SUCC(vb2_public_key_hash(&pubk3, VB2_HASH_SHA1),
 		  "create hash key 3");
 
-	/*
-	 * Test packed key only needs to initialize the fields used by keyblock
-	 * verification.
-	 */
-	const struct vb2_packed_key2 pkey = {
-		.c.fixed_size = sizeof(pkey),
-		.c.desc_size = 0,
-		.c.total_size = sizeof(pkey)
-	};
+	TEST_SUCC(vb2_private_key_hash(prik + 0, VB2_HASH_SHA256),
+		  "create private key 1");
+	TEST_SUCC(vb2_private_key_hash(prik + 1, VB2_HASH_SHA512),
+		  "create private key 2");
 
-	struct vb2_keyblock2 kb = {
-		.c.magic = VB2_MAGIC_KEYBLOCK2,
-		.c.struct_version_major = VB2_KEYBLOCK2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_KEYBLOCK2_VERSION_MAJOR,
-		.c.fixed_size = sizeof(kb),
-		.c.desc_size = sizeof(desc),
-		.flags = 0,
-		.sig_count = 2,
-	};
+	/* Create the test keyblock */
+	TEST_SUCC(vb2_keyblock_create(&kbuf, &pubk3, prik, 2, 0x4321, desc),
+		  "create keyblock");
 
-	kb.key_offset = kb.c.fixed_size + kb.c.desc_size;
-	kb.sig_offset = kb.key_offset + pkey.c.total_size;
-
-	/*
-	 * Sign some dummy data with the right algorithms and descritions, to
-	 * determine signature sizes.
-	 */
-	kb.c.total_size = kb.sig_offset;
-
-	sig = vb2_create_hash_sig(test_data, sizeof(test_data),
-				  VB2_HASH_SHA256);
-	kb.c.total_size += sig->c.total_size;
-	free(sig);
-
-	sig = vb2_create_hash_sig(test_data, sizeof(test_data),
-				  VB2_HASH_SHA512);
-	kb.c.total_size += sig->c.total_size;
-	free(sig);
-
-	/* Now that the keyblock size is known, create the real keyblock */
-	buf_size = kb.c.total_size;
-	buf = malloc(buf_size);
-	memset(buf, 0, buf_size);
-	memcpy(buf, &kb, sizeof(kb));
-	memcpy(buf + kb.c.fixed_size, desc, sizeof(desc));
-	memcpy(buf + kb.key_offset, &pkey, pkey.c.total_size);
-
-	/* And copy in the signatures */
-	bnext = buf + kb.sig_offset;
-
-	sig = vb2_create_hash_sig(buf, kb.sig_offset, VB2_HASH_SHA256);
-	memcpy(bnext, sig, sig->c.total_size);
-	bnext += sig->c.total_size;
-	free(sig);
-
-	sig = vb2_create_hash_sig(buf, kb.sig_offset, VB2_HASH_SHA512);
-	memcpy(bnext, sig, sig->c.total_size);
-	bnext += sig->c.total_size;
-	free(sig);
+	buf = (uint8_t *)kbuf;
+	buf_size = kbuf->c.total_size;
 
 	/* Make a copy of the buffer, so we can mangle it for tests */
 	buf2 = malloc(buf_size);
@@ -575,7 +534,7 @@ static void test_verify_keyblock(void)
 		  "vb2_verify_keyblock2() key 2");
 
 	memcpy(buf, buf2, buf_size);
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk_not_present, &wb),
+	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk3, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_GUID,
 		"vb2_verify_keyblock2() key not present");
 
@@ -600,7 +559,7 @@ static void test_verify_keyblock(void)
 	memcpy(buf, buf2, buf_size);
 	kbuf->c.struct_version_minor++;
 	/* That changes the signature, so resign the keyblock */
-	sig = vb2_create_hash_sig(buf, kb.sig_offset, VB2_HASH_SHA256);
+	sig = vb2_create_hash_sig(buf, kbuf->sig_offset, VB2_HASH_SHA256);
 	memcpy(buf + kbuf->sig_offset, sig, sig->c.total_size);
 	free(sig);
 	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),

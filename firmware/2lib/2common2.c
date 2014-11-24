@@ -10,6 +10,13 @@
 #include "2rsa.h"
 #include "2sha.h"
 
+const char *vb2_common_desc(const void *buf)
+{
+	const struct vb2_struct_common *c = buf;
+
+	return c->desc_size ? (const char *)c + c->fixed_size : "";
+}
+
 int vb2_verify_common_header(const void *parent, uint32_t parent_size)
 {
 	const struct vb2_struct_common *c = parent;
@@ -42,8 +49,7 @@ int vb2_verify_common_header(const void *parent, uint32_t parent_size)
 			return VB2_ERROR_COMMON_DESC_SIZE;
 
 		/* Description must be null-terminated */
-		const uint8_t *desc = (const uint8_t *)c + c->fixed_size;
-		if (desc[c->desc_size - 1] != 0)
+		if (vb2_common_desc(c)[c->desc_size - 1] != 0)
 			return VB2_ERROR_COMMON_DESC_TERMINATOR;
 	}
 

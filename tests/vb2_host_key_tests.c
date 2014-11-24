@@ -224,8 +224,7 @@ static void public_key_tests(const struct alg_combo *combo,
 	TEST_EQ(pkey->key_version, key->version, "  version");
 	TEST_EQ(memcmp(&pkey->guid, key->guid, sizeof(pkey->guid)), 0,
 		"  guid");
-	TEST_EQ(strcmp((char *)pkey + pkey->c.fixed_size, key->desc), 0,
-		"  desc");
+	TEST_EQ(strcmp(vb2_common_desc(pkey), key->desc), 0, "  desc");
 	TEST_SUCC(vb2_unpack_key2(&k2, (uint8_t *)pkey, pkey->c.total_size),
 		  "Unpack public key");
 	TEST_EQ(key->arrsize, k2.arrsize, "  arrsize");

@@ -184,6 +184,16 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 			     size_t member_data_size);
 
 /**
+ * Return the description of an object starting with a vb2_struct_common header.
+ *
+ * Does not sanity-check the buffer; merely returns the pointer.
+ *
+ * @param buf		Pointer to common object
+ * @return A pointer to description or an empty string if none.
+ */
+const char *vb2_common_desc(const void *buf);
+
+/**
  * Verify the common struct header is fully contained in its parent data
  *
  * Also verifies the description is either zero-length or null-terminated.

@@ -80,8 +80,7 @@ static void sig_tests(const struct alg_combo *combo,
 	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prik, NULL),
 		  "Sign good");
 	TEST_PTR_NEQ(sig, NULL, "  sig_ptr");
-	TEST_EQ(0, strcmp((char *)sig + sig->c.fixed_size, test_desc),
-		"  desc");
+	TEST_EQ(0, strcmp(vb2_common_desc(sig), test_desc), "  desc");
 	TEST_EQ(0, memcmp(&sig->guid, &test_guid, sizeof(test_guid)), "  guid");
 	TEST_EQ(sig->data_size, test_size, "  data_size");
 	TEST_SUCC(vb2_sig_size_for_key(&size, prik, NULL), "Sig size");
@@ -93,8 +92,7 @@ static void sig_tests(const struct alg_combo *combo,
 	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prik,
 				test_sig_desc),
 		  "Sign with desc");
-	TEST_EQ(0, strcmp((char *)sig + sig->c.fixed_size, test_sig_desc),
-		"  desc");
+	TEST_EQ(0, strcmp(vb2_common_desc(sig),	test_sig_desc), "  desc");
 	free(sig);
 
 	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prik, ""),

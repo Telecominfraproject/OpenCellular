@@ -99,11 +99,7 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 	}
 
 	/* Key description */
-	if (pkey->c.desc_size)
-		key->desc = (const char *)&(pkey->c) + pkey->c.fixed_size;
-	else
-		key->desc = "";
-
+	key->desc = vb2_common_desc(pkey);
 	key->version = pkey->key_version;
 	key->guid = &pkey->guid;
 
