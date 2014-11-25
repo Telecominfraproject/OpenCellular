@@ -19,7 +19,6 @@ static void Usage(void)
          "                 default 0, meaning partitions and GPT structs are\n"
          "                 both on DRIVE\n"
          "  -z           Zero the sectors of the GPT table and entries\n"
-         "  -s NUM       Size (in bytes) of the disk (MTD only)\n"
          "  -p NUM       Size (in blocks) of the disk to pad between the\n"
          "                 primary GPT header and its entries, default 0\n"
          "\n", progname);
@@ -34,7 +33,7 @@ int cmd_create(int argc, char *argv[]) {
   char *e = 0;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hzs:p:D:")) != -1)
+  while ((c=getopt(argc, argv, ":hzp:D:")) != -1)
   {
     switch (c)
     {
@@ -48,9 +47,6 @@ int cmd_create(int argc, char *argv[]) {
       break;
     case 'z':
       params.zap = 1;
-      break;
-    case 's':
-      params.size = strtoull(optarg, &e, 0);
       break;
     case 'p':
       params.padding = strtoull(optarg, &e, 0);

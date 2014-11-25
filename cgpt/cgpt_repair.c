@@ -19,12 +19,6 @@ int CgptRepair(CgptRepairParams *params) {
                            params->drive_size))
     return CGPT_FAILED;
 
-  if (drive.is_mtd) {
-    // Nothing to do
-    DriveClose(&drive, 0);
-    return 0;
-  }
-
   int gpt_retval = GptSanityCheck(&drive.gpt);
   if (params->verbose)
     printf("GptSanityCheck() returned %d: %s\n",

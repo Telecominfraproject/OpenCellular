@@ -52,45 +52,6 @@ void Usage(void) {
   printf("\nFor more detailed usage, use %s COMMAND -h\n\n", progname);
 }
 
-static int is_pow2(size_t v) {
-  return v && (v & (v - 1)) == 0;
-}
-
-static int parse_nand_option(const char *arg) {
-  int bytes_per_page, pages_per_block, fts_block_offset, fts_block_size;
-
-  if ('=' != arg[0])
-    return -1;
-
-  arg++;
-  bytes_per_page = atoi(arg);
-  arg = strchr(arg, ',');
-  if (!arg)
-    return -1;
-
-  arg++;
-  pages_per_block = atoi(arg);
-  arg = strchr(arg, ',');
-  if (!arg)
-    return -1;
-
-  arg++;
-  fts_block_offset = atoi(arg);
-  arg = strchr(arg, ',');
-  if (!arg)
-    return -1;
-
-  arg++;
-  fts_block_size = atoi(arg);
-  if (fts_block_size == 0 || !is_pow2(pages_per_block) ||
-      !is_pow2(bytes_per_page) || bytes_per_page < 512) {
-    return -1;
-  }
-  EnableNandImage(bytes_per_page, pages_per_block, fts_block_offset,
-                  fts_block_size);
-  return 0;
-}
-
 int main(int argc, char *argv[]) {
   int i;
   int match_count = 0;
@@ -102,25 +63,6 @@ int main(int argc, char *argv[]) {
     progname++;
   else
     progname = argv[0];
-
-
-  for (i = 1; i < argc; ++i) {
-    if (0 == strncmp(argv[i], "-N", 2)) {
-      if (!parse_nand_option(argv[i] + 2)) {
-        int j;
-
-        // Remove it form the list.
-        for (j = i; j < argc - 1; j++)
-          argv[j] = argv[j + 1];
-        argc--;
-        break;
-      }
-      // Bad nand config.
-      printf("Nand option must fit: -N=<bytes_per_page>,<pages_per_block>,"
-             "<block_offset_of_partition>,<block_size_of_partition>\n");
-      return CGPT_FAILED;
-    }
-  }
 
   if (argc < 2) {
     Usage();

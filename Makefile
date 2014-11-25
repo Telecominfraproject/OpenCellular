@@ -270,7 +270,6 @@ VBSLK_SRCS = \
 	firmware/lib/cgptlib/cgptlib.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
-	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/gpt_misc.c \
 	firmware/lib/utility_string.c \
 	firmware/lib/vboot_api_kernel.c \
@@ -362,9 +361,6 @@ UTILLIB_SRCS = \
 	cgpt/cgpt_repair.c \
 	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_common.c \
-	cgpt/flash_ts.c \
-	cgpt/flash_ts_drv.c \
-	firmware/lib/cgptlib/mtdlib.c \
 	futility/dump_kernel_config_lib.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
@@ -391,11 +387,8 @@ HOSTLIB_SRCS = \
 	cgpt/cgpt_common.c \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_prioritize.c \
-	cgpt/flash_ts.c \
-	cgpt/flash_ts_drv.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
-	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/crc8.c \
 	firmware/lib/tpm_lite/tlcl.c \
 	firmware/lib/utility_string.c \
@@ -423,11 +416,8 @@ TINYHOSTLIB_SRCS = \
 	cgpt/cgpt_common.c \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_prioritize.c \
-	cgpt/flash_ts.c \
-	cgpt/flash_ts_drv.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
-	firmware/lib/cgptlib/mtdlib.c \
 	firmware/lib/utility_string.c \
 	firmware/stub/utility_stub.c \
 	futility/dump_kernel_config_lib.c
@@ -457,9 +447,7 @@ CGPT_SRCS = \
 	cgpt/cmd_legacy.c \
 	cgpt/cmd_prioritize.c \
 	cgpt/cmd_repair.c \
-	cgpt/cmd_show.c \
-	cgpt/flash_ts.c \
-	cgpt/flash_ts_drv.c
+	cgpt/cmd_show.c
 
 CGPT_OBJS = ${CGPT_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${CGPT_OBJS}
@@ -995,10 +983,6 @@ ${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
-
-${BUILD}/tests/cgptlib_test: OBJS += \
-	${BUILD}/firmware/lib/cgptlib/mtdlib_unused.o
-${BUILD}/tests/cgptlib_test: ${BUILD}/firmware/lib/cgptlib/mtdlib_unused.o
 
 ${BUILD}/utility/bmpblk_utility: LD = ${CXX}
 ${BUILD}/utility/bmpblk_utility: LDLIBS = -llzma -lyaml

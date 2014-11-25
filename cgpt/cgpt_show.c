@@ -66,20 +66,6 @@ void PrintSignature(const char *indent, const char *sig, size_t n, int raw) {
   printf("\n");
 }
 
-static void MtdHeaderDetails(MtdDiskLayout *header, const char *indent,
-			     int raw) {
-  PrintSignature(indent, (char*)header->signature, sizeof(header->signature),
-    raw);
-
-  printf("%sSize: %d\n", indent, header->size);
-  printf("%sCRC: 0x%08x %s\n", indent, header->crc32,
-         (MtdHeaderCrc(header) != header->crc32) ? "(INVALID)" : "");
-  printf("%sFirst offset: %llu\n", indent,
-    (unsigned long long)header->first_offset);
-  printf("%sLast offset: %llu\n", indent,
-    (unsigned long long)header->last_offset);
-}
-
 static void HeaderDetails(GptHeader *header, GptEntry *entries,
                           const char *indent, int raw) {
   PrintSignature(indent, header->signature, sizeof(header->signature), raw);
@@ -108,45 +94,6 @@ static void HeaderDetails(GptHeader *header, GptEntry *entries,
                                             header->number_of_entries)
              ? "INVALID" : ""
          );
-}
-
-void MtdEntryDetails(MtdDiskPartition *entry, uint32_t index, int raw) {
-  const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
-  char type[256];
-  char contents[256];
-  char name[sizeof(entry->label) + 1];
-  uint64_t start, size;
-  if (guid) {
-    ResolveType(guid, type);
-  } else {
-    snprintf(type, sizeof(type), "MTD partition type %d",
-             MtdGetEntryType(entry));
-  }
-
-  MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
-
-  // Provide a NUL if we are at maximum size.
-  name[sizeof(name)-1] = '\0';
-  memcpy(name, entry->label, sizeof(entry->label));
-  require(snprintf(contents, sizeof(contents),
-                   "Label: \"%s\"", name) < sizeof(contents));
-
-  printf(PARTITION_FMT, (int)start, (int)size, index+1, contents);
-  printf(PARTITION_MORE, "Type: ", type);
-
-  if (raw && MtdGetEntryType(entry) == MTD_PARTITION_TYPE_CHROMEOS_KERNEL) {
-    int tries = MtdGetEntryTries(entry);
-    int successful = MtdGetEntrySuccessful(entry);
-    int priority = MtdGetEntryPriority(entry);
-    require(snprintf(contents, sizeof(contents),
-                     "priority=%d tries=%d successful=%d",
-                     priority, tries, successful) < sizeof(contents));
-    printf(PARTITION_MORE, "Attr: ", contents);
-  } else {
-    require(snprintf(contents, sizeof(contents),
-                     "[%x]", entry->flags) < sizeof(contents));
-    printf(PARTITION_MORE, "Attr: ", contents);
-  }
 }
 
 void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
@@ -194,18 +141,6 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
   }
 }
 
-void MtdEntriesDetails(struct drive *drive, int secondary, int raw) {
-  uint32_t i;
-
-  for (i = 0; i < GetNumberOfEntries(drive); ++i) {
-    MtdDiskPartition *entry;
-    entry = MtdGetEntry(&drive->mtd, secondary, i);
-    if (IsUnused(drive, secondary, i))
-      continue;
-    MtdEntryDetails(entry, i, raw);
-  }
-}
-
 void EntriesDetails(struct drive *drive, const int secondary, int raw) {
   uint32_t i;
 
@@ -218,87 +153,6 @@ void EntriesDetails(struct drive *drive, const int secondary, int raw) {
 
     EntryDetails(entry, i, raw);
   }
-}
-
-int MtdShow(struct drive *drive, CgptShowParams *params) {
-  if (params->partition) {                      // show single partition
-    if (params->partition > GetNumberOfEntries(drive)) {
-      Error("invalid partition number: %d\n", params->partition);
-      return CGPT_FAILED;
-    }
-
-    uint32_t index = params->partition - 1;
-    MtdDiskPartition *entry = MtdGetEntry(&drive->mtd, ANY_VALID, index);
-    char buf[256];                      // scratch buffer for string conversion
-    const Guid *guid;
-    uint64_t start, size;
-
-    MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
-
-    if (params->single_item) {
-      switch(params->single_item) {
-      case 'b':
-        printf("%u\n", (int)start);
-        break;
-      case 's':
-        printf("%u\n", (int)size);
-        break;
-      case 't':
-        guid = LookupGuidForMtdType(MtdGetEntryType(entry));
-        GuidToStr(guid, buf, sizeof(buf));
-        printf("%s\n", buf);
-        break;
-      case 'S':
-        printf("%d\n", GetSuccessful(drive, ANY_VALID, index));
-        break;
-      case 'T':
-        printf("%d\n", GetTries(drive, ANY_VALID, index));
-        break;
-      case 'P':
-        printf("%d\n", GetPriority(drive, ANY_VALID, index));
-        break;
-      case 'A':
-        printf("0x%x\n", entry->flags);
-        break;
-      }
-    } else {
-      printf(TITLE_FMT, "start", "size", "part", "contents");
-      MtdEntryDetails(entry, index, params->numeric);
-    }
-  } else if (params->quick) {                   // show all partitions, quickly
-    uint32_t i;
-    char type[GUID_STRLEN];
-
-    for (i = 0; i < GetNumberOfEntries(drive); ++i) {
-      MtdDiskPartition *entry = MtdGetEntry(&drive->mtd, ANY_VALID, i);
-      const Guid *guid = LookupGuidForMtdType(MtdGetEntryType(entry));
-      uint64_t start, size;
-
-      MtdGetPartitionSizeInSectors(entry, &start, NULL, &size);
-
-      if (IsUnused(drive, ANY_VALID, i))
-        continue;
-
-      if (!params->numeric && guid) {
-        ResolveType(guid, type);
-      } else {
-        snprintf(type, sizeof(type), "MTD partition type %d",
-                 MtdGetEntryType(entry));
-      }
-      printf(PARTITION_FMT, (int)start, (int)size, i+1, type);
-    }
-  } else {                              // show all partitions
-    if (params->debug || params->verbose) {
-      char indent[64];
-
-      require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
-      MtdHeaderDetails(&drive->mtd.primary, indent, 0);
-    }
-    printf(TITLE_FMT, "start", "size", "part", "contents");
-    MtdEntriesDetails(drive, PRIMARY, params->numeric);
-  }
-
-  return CGPT_OK;
 }
 
 static int GptShow(struct drive *drive, CgptShowParams *params) {
@@ -486,13 +340,8 @@ int CgptShow(CgptShowParams *params) {
                            params->drive_size))
     return CGPT_FAILED;
 
-  if (drive.is_mtd) {
-    if (MtdShow(&drive, params))
-      return CGPT_FAILED;
-  } else {
-    if (GptShow(&drive, params))
-      return CGPT_FAILED;
-  }
+  if (GptShow(&drive, params))
+    return CGPT_FAILED;
 
   DriveClose(&drive, 0);
   return CGPT_OK;

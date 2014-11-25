@@ -83,20 +83,6 @@ static void showmatch(CgptFindParams *params, char *filename,
     EntryDetails(entry, partnum - 1, params->numeric);
 }
 
-// This needs to handle /dev/mmcblk0 -> /dev/mmcblk0p3, /dev/sda -> /dev/sda3
-static void mtd_showmatch(CgptFindParams *params, char *filename,
-                           int partnum, MtdDiskPartition *entry) {
-  char * format = "%s%d\n";
-  if (strncmp("/dev/mmcblk", filename, 11) == 0)
-    format = "%sp%d\n";
-  if (params->numeric)
-    printf("%d\n", partnum);
-  else
-    printf(format, filename, partnum);
-  if (params->verbose > 0)
-    MtdEntryDetails(entry, partnum - 1, params->numeric);
-}
-
 // This returns true if a GPT partition matches the search criteria. If a match
 // isn't found (or if the file doesn't contain a GPT), it returns false. The
 // filename and partition number that matched is left in a global, since we
@@ -144,69 +130,6 @@ static int gpt_search(CgptFindParams *params, struct drive *drive,
   return retval;
 }
 
-static int mtd_match_type_to_guid(const MtdDiskPartition *e, const Guid *guid) {
-  return LookupMtdTypeForGuid(guid) == MtdGetEntryType(e);
-}
-
-static int mtd_match_content(CgptFindParams *params, struct drive *drive,
-                             MtdDiskPartition *entry) {
-  uint64_t start, part_size;
-
-  if (!params->matchlen)
-    return 1;
-
-  // Ensure that the region we want to match against is inside the partition.
-  MtdGetPartitionSize(entry, &start, NULL, &part_size);
-  if (params->matchoffset + params->matchlen > part_size) {
-    return 0;
-  }
-
-  // Read the partition data.
-  if (!FillBuffer(params,
-                  drive->fd,
-                  start + params->matchoffset,
-                  params->matchlen)) {
-    Error("unable to read partition data\n");
-    return 0;
-  }
-
-  // Compare it
-  if (0 == memcmp(params->matchbuf, params->comparebuf, params->matchlen)) {
-    return 1;
-  }
-
-  // Nope.
-  return 0;
-}
-
-static int mtd_search(CgptFindParams *params, struct drive *drive,
-                      char *filename) {
-  int i;
-  int retval = 0;
-  for (i = 0; i < GetNumberOfEntries(drive); ++i) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, ANY_VALID, i);
-
-    if (IsUnused(drive, ANY_VALID, i))
-      continue;
-
-    int found = 0;
-
-    // Only searches by type are possible right now
-    if (params->set_type && mtd_match_type_to_guid(e, &params->type_guid)) {
-      found = 1;
-    }
-
-    if (found && mtd_match_content(params, drive, e)) {
-      params->hits++;
-      retval++;
-      mtd_showmatch(params, filename, i+1, e);
-      if (!params->match_partnum)
-        params->match_partnum = i+1;
-    }
-  }
-  return retval;
-}
-
 static int do_search(CgptFindParams *params, char *fileName) {
   int retval;
   struct drive drive;
@@ -214,11 +137,7 @@ static int do_search(CgptFindParams *params, char *fileName) {
   if (CGPT_OK != DriveOpen(fileName, &drive, O_RDONLY, params->drive_size))
     return 0;
 
-  if (drive.is_mtd) {
-    retval = mtd_search(params, &drive, fileName);
-  } else {
-    retval = gpt_search(params, &drive, fileName);
-  }
+  retval = gpt_search(params, &drive, fileName);
 
   (void) DriveClose(&drive, 0);
 

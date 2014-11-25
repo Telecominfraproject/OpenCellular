@@ -110,17 +110,10 @@ int CgptPrioritize(CgptPrioritizeParams *params) {
                            params->drive_size))
     return CGPT_FAILED;
 
-  if (drive.is_mtd) {
-    if (drive.mtd.primary.crc32 != MtdHeaderCrc(&drive.mtd.primary)) {
-      Error("MTD header crc failure\n");
-      return CGPT_FAILED;
-    }
-  } else {
-    if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
-      Error("GptSanityCheck() returned %d: %s\n",
-            gpt_retval, GptError(gpt_retval));
-      return CGPT_FAILED;
-    }
+  if (GPT_SUCCESS != (gpt_retval = GptSanityCheck(&drive.gpt))) {
+    Error("GptSanityCheck() returned %d: %s\n",
+          gpt_retval, GptError(gpt_retval));
+    return CGPT_FAILED;
   }
 
   max_part = GetNumberOfEntries(&drive);

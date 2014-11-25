@@ -25,23 +25,10 @@
 #include "cgpt.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
-#include "flash_ts.h"
-#include "flash_ts_api.h"
 #include "vboot_host.h"
 
 static const char kErrorTag[] = "ERROR";
 static const char kWarningTag[] = "WARNING";
-
-struct nand_layout nand;
-
-void EnableNandImage(int bytes_per_page, int pages_per_block,
-                     int fts_block_offset, int fts_block_size) {
-  nand.enabled = 1;
-  nand.bytes_per_page = bytes_per_page;
-  nand.pages_per_block = pages_per_block;
-  nand.fts_block_offset = fts_block_offset;
-  nand.fts_block_size = fts_block_size;
-}
 
 static void LogToStderr(const char *tag, const char *format, va_list ap) {
   fprintf(stderr, "%s: ", tag);
@@ -154,161 +141,6 @@ int Save(struct drive *drive, const uint8_t *buf,
     return CGPT_FAILED;
 
   return CGPT_OK;
-}
-
-static int get_hex_char_value(char ch) {
-  if (ch >= '0' && ch <= '9') {
-    return ch - '0';
-  }
-  if (ch >= 'a' && ch <= 'f') {
-    return ch - 'a' + 10;
-  }
-  if (ch >= 'A' && ch <= 'F') {
-    return ch - 'A' + 10;
-  }
-  return -1;
-}
-
-static int TryInitMtd(const char *dev) {
-  static int already_inited = 0;
-  if (already_inited)
-    return nand.use_host_ioctl;
-
-  already_inited = 1;
-
-  /* If we're running on the live system, we can just use /dev/fts and not
-   * actually need the specific parameters. This needs to be accessed via
-   * ioctl and not normal I/O.
-   */
-  if (!strcmp(dev, FTS_DEVICE) && !access(FTS_DEVICE, R_OK | W_OK)) {
-    nand.enabled = 1;
-    nand.use_host_ioctl = 1;
-    return 1;
-  }
-  return 0;
-}
-
-int FlashGet(const char *key, uint8_t *data, uint32_t *bufsz) {
-  char *hex = (char*)malloc(*bufsz * 2);
-  char *read;
-  uint32_t written = 0;
-
-  if (nand.use_host_ioctl) {
-    struct flash_ts_io_req req;
-    strncpy(req.key, key, sizeof(req.key));
-    int fd = open(FTS_DEVICE, O_RDWR);
-    if (fd < 0)
-      return -1;
-    if (ioctl(fd, FLASH_TS_IO_GET, &req))
-      return -1;
-    strncpy(hex, req.val, *bufsz * 2);
-    close(fd);
-  } else {
-    flash_ts_get(key, hex, *bufsz * 2);
-  }
-
-  /* Hex -> binary */
-  for (read = hex; read < hex + *bufsz * 2 && *read != '\0'; read += 2) {
-    int c0, c1;
-    c0 = get_hex_char_value(read[0]);
-    c1 = get_hex_char_value(read[1]);
-    if (c0 < 0 || c1 < 0) {
-      free(hex);
-      return -1;
-    }
-
-    data[written++] = (c0 << 4) + c1;
-  }
-  *bufsz = written;
-  free(hex);
-  return 0;
-}
-
-int FlashSet(const char *key, const uint8_t *data, uint32_t bufsz) {
-  char *hex = (char*)malloc(bufsz * 2 + 1);
-  const char *hex_chars = "0123456789ABCDEF";
-  int ret;
-  uint32_t i;
-
-  /* Binary -> hex, we need some encoding because FTS only stores C strings */
-  for (i = 0; i < bufsz; i++) {
-    hex[i * 2] = hex_chars[data[i] >> 4];
-    hex[i * 2 + 1] = hex_chars[data[i] & 0xF];
-  }
-  /* Buffer must be NUL-terminated. */
-  hex[bufsz * 2] = '\0';
-  if (nand.use_host_ioctl) {
-    struct flash_ts_io_req req;
-    strncpy(req.key, key, sizeof(req.key));
-    strncpy(req.val, hex, sizeof(req.val));
-    free(hex);
-    int fd = open(FTS_DEVICE, O_RDWR);
-    if (fd < 0)
-      return -1;
-    if (ioctl(fd, FLASH_TS_IO_SET, &req))
-      return -1;
-    close(fd);
-    return 0;
-  }
-  ret = flash_ts_set(key, hex);
-  free(hex);
-  return ret;
-}
-
-int MtdLoad(struct drive *drive, int sector_bytes) {
-  int ret;
-  uint32_t sz;
-  MtdData *mtd = &drive->mtd;
-
-  mtd->sector_bytes = sector_bytes;
-  mtd->drive_sectors = drive->size / mtd->sector_bytes;
-
-  if (!nand.use_host_ioctl) {
-    ret = flash_ts_init(mtd->fts_block_offset,
-                        mtd->fts_block_size,
-                        mtd->flash_page_bytes,
-                        mtd->flash_block_bytes,
-                        mtd->sector_bytes, /* Needed for Load() and Save() */
-                        drive);
-    if (ret)
-      return ret;
-  }
-
-  memset(&mtd->primary, 0, sizeof(mtd->primary));
-  sz = sizeof(mtd->primary);
-  ret = FlashGet(MTD_DRIVE_SIGNATURE, (uint8_t *)&mtd->primary, &sz);
-  if (ret)
-    return ret;
-
-  /* Read less than expected */
-  if (sz < MTD_DRIVE_V1_SIZE)
-    memset(&mtd->primary, 0, sizeof(mtd->primary));
-
-  if (nand.use_host_ioctl) {
-    /* If we are using /dev/fts, we can't stat() the size, so re-use
-     * our internal value to set it.
-     */
-    drive->size = mtd->primary.last_offset + 1;
-    mtd->drive_sectors = drive->size / mtd->sector_bytes;
-  }
-
-  mtd->current_kernel = -1;
-  mtd->current_priority = 0;
-  mtd->modified = 0;
-  return 0;
-}
-
-int MtdSave(struct drive *drive) {
-  MtdData *mtd = &drive->mtd;
-
-  if (!mtd->modified)
-    return 0;
-
-  mtd->primary.crc32 = 0;
-  mtd->primary.crc32 = Crc32(&mtd->primary, MTD_DRIVE_V1_SIZE);
-
-  return FlashSet(MTD_DRIVE_SIGNATURE, (uint8_t *)&mtd->primary,
-                  sizeof(mtd->primary));
 }
 
 static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
@@ -446,7 +278,6 @@ static int ObtainDriveSize(int fd, uint64_t* size, uint32_t* sector_bytes) {
 int DriveOpen(const char *drive_path, struct drive *drive, int mode,
               uint64_t drive_size) {
   uint32_t sector_bytes;
-  int is_mtd = nand.enabled;
 
   require(drive_path);
   require(drive);
@@ -455,47 +286,32 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode,
   memset(drive, 0, sizeof(struct drive));
   drive->gpt.stored_on_device = GPT_STORED_ON_DEVICE;
 
-  if (TryInitMtd(drive_path)) {
-    is_mtd = 1;
-    sector_bytes = 512;  /* bytes */
-  } else {
-    drive->fd = open(drive_path, mode | O_LARGEFILE | O_NOFOLLOW);
-    if (drive->fd == -1) {
-      Error("Can't open %s: %s\n", drive_path, strerror(errno));
-      return CGPT_FAILED;
-    }
-
-    sector_bytes = 512;
-    uint64_t gpt_drive_size;
-    if (ObtainDriveSize(drive->fd, &gpt_drive_size, &sector_bytes) != 0) {
-      Error("Can't get drive size and bytes per sector for %s: %s\n",
-            drive_path, strerror(errno));
-      goto error_close;
-    }
-
-    drive->gpt.gpt_drive_sectors = gpt_drive_size / sector_bytes;
-    if (drive_size == 0) {
-      drive->size = gpt_drive_size;
-      drive->gpt.stored_on_device = GPT_STORED_ON_DEVICE;
-    } else {
-      drive->size = drive_size;
-      drive->gpt.stored_on_device = GPT_STORED_OFF_DEVICE;
-    }
+  drive->fd = open(drive_path, mode | O_LARGEFILE | O_NOFOLLOW);
+  if (drive->fd == -1) {
+    Error("Can't open %s: %s\n", drive_path, strerror(errno));
+    return CGPT_FAILED;
   }
-  drive->is_mtd = is_mtd;
 
-  if (is_mtd) {
-    drive->mtd.fts_block_offset = nand.fts_block_offset;
-    drive->mtd.fts_block_size = nand.fts_block_size;
-    drive->mtd.flash_page_bytes = nand.bytes_per_page;
-    drive->mtd.flash_block_bytes = nand.pages_per_block * nand.bytes_per_page;
-    if (MtdLoad(drive, sector_bytes)) {
-      goto error_close;
-    }
+  sector_bytes = 512;
+  uint64_t gpt_drive_size;
+  if (ObtainDriveSize(drive->fd, &gpt_drive_size, &sector_bytes) != 0) {
+    Error("Can't get drive size and bytes per sector for %s: %s\n",
+          drive_path, strerror(errno));
+    goto error_close;
+  }
+
+  drive->gpt.gpt_drive_sectors = gpt_drive_size / sector_bytes;
+  if (drive_size == 0) {
+    drive->size = gpt_drive_size;
+    drive->gpt.stored_on_device = GPT_STORED_ON_DEVICE;
   } else {
-    if (GptLoad(drive, sector_bytes)) {
-      goto error_close;
-    }
+    drive->size = drive_size;
+    drive->gpt.stored_on_device = GPT_STORED_OFF_DEVICE;
+  }
+
+
+  if (GptLoad(drive, sector_bytes)) {
+    goto error_close;
   }
 
   // We just load the data. Caller must validate it.
@@ -511,14 +327,8 @@ int DriveClose(struct drive *drive, int update_as_needed) {
   int errors = 0;
 
   if (update_as_needed) {
-    if (drive->is_mtd) {
-      if (MtdSave(drive)) {
+    if (GptSave(drive)) {
         errors++;
-      }
-    } else {
-      if (GptSave(drive)) {
-        errors++;
-      }
     }
   }
 
@@ -816,43 +626,15 @@ const static struct {
   const Guid *type;
   char *name;
   char *description;
-  int mtd_type;
 } supported_types[] = {
-  {&guid_chromeos_firmware, "firmware", "ChromeOS firmware",
-    MTD_PARTITION_TYPE_CHROMEOS_FIRMWARE},
-  {&guid_chromeos_kernel, "kernel", "ChromeOS kernel",
-    MTD_PARTITION_TYPE_CHROMEOS_KERNEL},
-  {&guid_chromeos_rootfs, "rootfs", "ChromeOS rootfs",
-    MTD_PARTITION_TYPE_CHROMEOS_ROOTFS},
-  {&guid_linux_data, "data", "Linux data",
-    MTD_PARTITION_TYPE_LINUX_DATA},
-  {&guid_chromeos_reserved, "reserved", "ChromeOS reserved",
-    MTD_PARTITION_TYPE_CHROMEOS_RESERVED},
-  {&guid_efi, "efi", "EFI System Partition",
-    MTD_PARTITION_TYPE_EFI},
-  {&guid_unused, "unused", "Unused (nonexistent) partition",
-    MTD_PARTITION_TYPE_UNUSED},
+  {&guid_chromeos_firmware, "firmware", "ChromeOS firmware"},
+  {&guid_chromeos_kernel, "kernel", "ChromeOS kernel"},
+  {&guid_chromeos_rootfs, "rootfs", "ChromeOS rootfs"},
+  {&guid_linux_data, "data", "Linux data"},
+  {&guid_chromeos_reserved, "reserved", "ChromeOS reserved"},
+  {&guid_efi, "efi", "EFI System Partition"},
+  {&guid_unused, "unused", "Unused (nonexistent) partition"},
 };
-
-int LookupMtdTypeForGuid(const Guid *type) {
-  int i;
-  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
-    if (!memcmp(type, supported_types[i].type, sizeof(Guid))) {
-      return supported_types[i].mtd_type;
-    }
-  }
-  return MTD_PARTITION_TYPE_OTHER;
-}
-
-const Guid *LookupGuidForMtdType(int type) {
-  int i;
-  for (i = 0; i < ARRAY_COUNT(supported_types); ++i) {
-    if (supported_types[i].mtd_type == type) {
-      return supported_types[i].type;
-    }
-  }
-  return NULL;
-}
 
 /* Resolves human-readable GPT type.
  * Returns CGPT_OK if found.
@@ -899,9 +681,6 @@ static GptHeader* GetGptHeader(const GptData *gpt) {
 }
 
 uint32_t GetNumberOfEntries(const struct drive *drive) {
-  if (drive->is_mtd)
-    return MTD_MAX_PARTITIONS;
-
   GptHeader *header = GetGptHeader(&drive->gpt);
   if (!header)
     return 0;
@@ -933,130 +712,74 @@ GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
   return (GptEntry*)(&entries[stride * entry_index]);
 }
 
-MtdDiskPartition* MtdGetEntry(MtdData *mtd, int secondary, uint32_t index) {
-  if (index >= MTD_MAX_PARTITIONS)
-    return NULL;
-  return &mtd->primary.partitions[index];
-}
-
 void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority) {
   require(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    MtdSetEntryPriority(e, priority);
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    SetEntryPriority(entry, priority);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  SetEntryPriority(entry, priority);
 }
 
 int GetPriority(struct drive *drive, int secondary, uint32_t entry_index) {
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    return MtdGetEntryPriority(e);
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    return GetEntryPriority(entry);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntryPriority(entry);
 }
 
 void SetTries(struct drive *drive, int secondary, uint32_t entry_index,
               int tries) {
   require(tries >= 0 && tries <= CGPT_ATTRIBUTE_MAX_TRIES);
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    MtdSetEntryTries(e, tries);
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    SetEntryTries(entry, tries);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  SetEntryTries(entry, tries);
 }
 
 int GetTries(struct drive *drive, int secondary, uint32_t entry_index) {
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    return MtdGetEntryTries(e);
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    return GetEntryTries(entry);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntryTries(entry);
 }
 
 void SetSuccessful(struct drive *drive, int secondary, uint32_t entry_index,
                    int success) {
   require(success >= 0 && success <= CGPT_ATTRIBUTE_MAX_SUCCESSFUL);
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    MtdSetEntrySuccessful(e, success);
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    SetEntrySuccessful(entry, success);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  SetEntrySuccessful(entry, success);
 }
 
 int GetSuccessful(struct drive *drive, int secondary, uint32_t entry_index) {
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    return MtdGetEntrySuccessful(e);
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    return GetEntrySuccessful(entry);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntrySuccessful(entry);
 }
 
 void SetRaw(struct drive *drive, int secondary, uint32_t entry_index,
             uint32_t raw) {
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, entry_index);
-    e->flags = raw;
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, entry_index);
-    entry->attrs.fields.gpt_att = (uint16_t)raw;
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  entry->attrs.fields.gpt_att = (uint16_t)raw;
 }
 
 void UpdateAllEntries(struct drive *drive) {
-  if (drive->is_mtd) {
-    drive->mtd.modified = 1;
-    drive->mtd.primary.crc32 = MtdHeaderCrc(&drive->mtd.primary);
-  } else {
-    RepairEntries(&drive->gpt, MASK_PRIMARY);
-    RepairHeader(&drive->gpt, MASK_PRIMARY);
+  RepairEntries(&drive->gpt, MASK_PRIMARY);
+  RepairHeader(&drive->gpt, MASK_PRIMARY);
 
-    drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
-                           GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
-    UpdateCrc(&drive->gpt);
-  }
+  drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
+                          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
+  UpdateCrc(&drive->gpt);
 }
 
 int IsUnused(struct drive *drive, int secondary, uint32_t index) {
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, index);
-    return MtdGetEntryType(e) == MTD_PARTITION_TYPE_UNUSED;
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, index);
-    return GuidIsZero(&entry->type);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, index);
+  return GuidIsZero(&entry->type);
 }
 
 int IsKernel(struct drive *drive, int secondary, uint32_t index) {
-  if (drive->is_mtd) {
-    MtdDiskPartition *e = MtdGetEntry(&drive->mtd, secondary, index);
-    return MtdGetEntryType(e) == MTD_PARTITION_TYPE_CHROMEOS_KERNEL;
-  } else {
-    GptEntry *entry;
-    entry = GetEntry(&drive->gpt, secondary, index);
-    return GuidEqual(&entry->type, &guid_chromeos_kernel);
-  }
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, index);
+  return GuidEqual(&entry->type, &guid_chromeos_kernel);
 }
 
 

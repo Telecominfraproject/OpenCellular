@@ -79,15 +79,6 @@ int CgptBoot(CgptBootParams *params) {
     return CGPT_FAILED;
   }
 
-  if (drive.is_mtd) {
-    /* This command manipulates the legacy MBR sector present at the beginning
-     * of the GPT structures, and so doesn't apply to MTD drives.
-     */
-    Error("'boot' command unsupported in MTD mode\n");
-    retval = CGPT_FAILED;
-    goto done;
-  }
-
   if (CGPT_OK != ReadPMBR(&drive)) {
     Error("Unable to read PMBR\n");
     goto done;

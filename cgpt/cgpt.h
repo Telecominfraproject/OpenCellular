@@ -13,7 +13,6 @@
 #include "cgpt_endian.h"
 #include "cgptlib.h"
 #include "gpt.h"
-#include "mtdlib.h"
 
 struct legacy_partition {
   uint8_t  status;
@@ -43,22 +42,10 @@ void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen);
 // Handle to the drive storing the GPT.
 struct drive {
   uint64_t size;    /* total size (in bytes) */
-  int is_mtd;
   GptData gpt;
-  MtdData mtd;
   struct pmbr pmbr;
   int fd;       /* file descriptor */
 };
-
-struct nand_layout {
-  int enabled;
-  int use_host_ioctl; /* Use ioctl() on /dev/fts to read/write. */
-  int bytes_per_page, pages_per_block, fts_block_offset, fts_block_size;
-};
-
-/* Write a NAND/MTD image instead of GPT. */
-void EnableNandImage(int bytes_per_page, int pages_per_block,
-                     int fts_block_offset, int fts_block_size);
 
 // Opens a block device or file, loads raw GPT data from it.
 // 'mode' should be O_RDONLY or O_RDWR.
@@ -156,11 +143,9 @@ int ResolveType(const Guid *type, char *buf);
 int SupportedType(const char *name, Guid *type);
 void PrintTypes(void);
 void EntryDetails(GptEntry *entry, uint32_t index, int raw);
-void MtdEntryDetails(MtdDiskPartition *entry, uint32_t index, int raw);
 
 uint32_t GetNumberOfEntries(const struct drive *drive);
 GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index);
-MtdDiskPartition *MtdGetEntry(MtdData *mtd, int secondary, uint32_t index);
 
 void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority);
@@ -184,8 +169,6 @@ int IsSynonymous(const GptHeader* a, const GptHeader* b);
 
 int IsUnused(struct drive *drive, int secondary, uint32_t index);
 int IsKernel(struct drive *drive, int secondary, uint32_t index);
-int LookupMtdTypeForGuid(const Guid *type);
-const Guid *LookupGuidForMtdType(int type);
 
 // Optional. Applications that need this must provide an implementation.
 //

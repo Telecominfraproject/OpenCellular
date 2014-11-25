@@ -88,31 +88,6 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
   return 0;
 }
 
-static int MtdCreate(struct drive *drive, CgptCreateParams *params) {
-  MtdDiskLayout *h = &drive->mtd.primary;
-  memset(h, 0, sizeof(*h));
-  drive->mtd.modified = 1;
-
-  if (!params->zap) {
-    // Prep basic parameters
-    memcpy(h->signature, MTD_DRIVE_SIGNATURE, sizeof(h->signature));
-    h->size = sizeof(*h);
-    h->first_offset = 0;
-    h->last_offset = (drive->mtd.drive_sectors * drive->mtd.sector_bytes) - 1;
-    h->crc32 = MtdHeaderCrc(h);
-  }
-  if (params->size) {
-    h->last_offset = params->size - 1;
-    drive->size = params->size;
-    drive->mtd.drive_sectors = drive->size / drive->mtd.sector_bytes;
-  } else if (!drive->mtd.drive_sectors) {
-    Error("MTD create with params->size == 0 && drive->mtd.drive_sectors == 0");
-    return -1;
-  }
-
-  return 0;
-}
-
 int CgptCreate(CgptCreateParams *params) {
   struct drive drive;
 
@@ -123,13 +98,8 @@ int CgptCreate(CgptCreateParams *params) {
                            params->drive_size))
     return CGPT_FAILED;
 
-  if (drive.is_mtd) {
-    if (MtdCreate(&drive, params))
-      goto bad;
-  } else {
-    if (GptCreate(&drive, params))
-      goto bad;
-  }
+  if (GptCreate(&drive, params))
+    goto bad;
 
   // Write it all out
   return DriveClose(&drive, 1);
