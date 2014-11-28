@@ -566,7 +566,11 @@ endif
 FUTIL_STATIC_CMD_LIST = ${BUILD}/gen/futility_static_cmds.c
 FUTIL_CMD_LIST = ${BUILD}/gen/futility_cmds.c
 
+# Workaround for TODO(crbug.com/437107).
+FUTIL_STATIC_WORKAROUND_SRCS = firmware/stub/vboot_api_stub_static_sf.c
+
 FUTIL_STATIC_OBJS = ${FUTIL_STATIC_SRCS:%.c=${BUILD}/%.o} \
+	${FUTIL_STATIC_WORKAROUND_SRCS:%.c=${BUILD}/%.o} \
 	${FUTIL_STATIC_CMD_LIST:%.c=%.o}
 FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o} ${FUTIL_CMD_LIST:%.c=%.o}
 
