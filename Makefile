@@ -236,9 +236,7 @@ endif
 FWLIB = ${BUILD}/vboot_fw.a
 
 # Smaller firmware library. TODO: Do we still need to export this?
-ifneq (${VBOOT2},)
-FWLIB2 = ${BUILD}/vboot_fw2.a
-endif
+FWLIB20 = ${BUILD}/vboot_fw2.a
 
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
@@ -279,7 +277,7 @@ VBSLK_SRCS = \
 	firmware/lib/region-kernel.c \
 
 # Firmware library source needed for smaller library 2
-FWLIB2_SRCS = \
+FWLIB20_SRCS = \
 	firmware/2lib/2api.c \
 	firmware/2lib/2api2.c \
 	firmware/2lib/2common.c \
@@ -331,7 +329,7 @@ VBSLK_SRCS += \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_stream.c
 
-FWLIB2_SRCS += \
+FWLIB20_SRCS += \
 	firmware/2lib/2stub.c
 
 endif
@@ -343,15 +341,13 @@ VBINIT_OBJS = ${VBINIT_SRCS:%.c=${BUILD}/%.o}
 VBSF_OBJS = ${VBSF_SRCS:%.c=${BUILD}/%.o}
 
 FWLIB_OBJS = ${FWLIB_SRCS:%.c=${BUILD}/%.o}
+FWLIB20_OBJS = ${FWLIB20_SRCS:%.c=${BUILD}/%.o}
 
-ifneq (${VBOOT2},)
-FWLIB2_OBJS = ${FWLIB2_SRCS:%.c=${BUILD}/%.o}
-endif
-
-ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2_OBJS} ${VBINIT_OBJS} ${VBSF_OBJS}
+ALL_OBJS += ${FWLIB_OBJS} ${FWLIB20_OBJS} ${VBINIT_OBJS} ${VBSF_OBJS}
 
 # Intermediate library for the vboot_reference utilities to link against.
 UTILLIB = ${BUILD}/libvboot_util.a
+UTILLIB20 = ${BUILD}/libvboot_util20.a
 
 UTILLIB_SRCS = \
 	cgpt/cgpt_create.c \
@@ -374,18 +370,18 @@ UTILLIB_SRCS = \
 	host/lib/host_signature.c \
 	host/lib/signature_digest.c
 
-ifneq (${VBOOT2},)
-UTILLIB_SRCS += \
+UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS += ${UTILLIB_OBJS}
+
+UTILLIB20_SRCS += \
 	host/lib/host_fw_preamble2.c \
 	host/lib/host_key2.c \
 	host/lib/host_keyblock2.c \
 	host/lib/host_misc2.c \
-	host/lib/host_signature2.c \
+	host/lib/host_signature2.c
 
-endif
-
-UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${UTILLIB_OBJS}
+UTILLIB20_OBJS = ${UTILLIB20_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS += ${UTILLIB20_OBJS}
 
 # Externally exported library for some target userspace apps to link with
 # (cryptohome, updater, etc.)
@@ -633,8 +629,7 @@ ifdef REGION_READ
 TEST_NAMES += tests/vboot_region_tests
 endif
 
-ifneq (${VBOOT2},)
-TEST_NAMES += \
+TEST20_NAMES = \
 	tests/vb2_api_tests \
 	tests/vb2_api2_tests \
 	tests/vb2_common_tests \
@@ -654,6 +649,8 @@ TEST_NAMES += \
 	tests/vb2_secdata_tests \
 	tests/vb2_sha_tests \
 
+ifneq (${VBOOT2},)
+TEST_NAMES += ${TEST20_NAMES}
 endif
 
 # And a few more...
@@ -676,6 +673,8 @@ TEST_NAMES += ${TLCL_TEST_NAMES}
 TEST_BINS = $(addprefix ${BUILD}/,${TEST_NAMES})
 TEST_OBJS += $(addsuffix .o,${TEST_BINS})
 
+TEST20_BINS = $(addprefix ${BUILD}/,${TEST20_NAMES})
+
 # Directory containing test keys
 TEST_KEYS = ${SRC_RUN}/tests/testkeys
 
@@ -693,12 +692,14 @@ _dir_create := $(foreach d, \
 
 # Default target.
 .PHONY: all
-all: fwlib $(if ${VBOOT2},fwlib2) $(if ${FIRMWARE_ARCH},,host_stuff) \
+all: fwlib \
+	$(if ${VBOOT2},fwlib2) \
+	$(if ${FIRMWARE_ARCH},,host_stuff) \
 	$(if ${COV},coverage)
 
 # Host targets
 .PHONY: host_stuff
-host_stuff: utillib hostlib cgpt utils futil tests
+host_stuff: utillib hostlib cgpt utils futil tests $(if ${VBOOT2},utillib20)
 
 .PHONY: clean
 clean:
@@ -738,7 +739,7 @@ ${FWLIB_OBJS}: CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 ifeq (${FIRMWARE_ARCH},i386)
 # Unrolling loops in cryptolib makes it faster
 ${FWLIB_OBJS}: CFLAGS += -DUNROLL_LOOPS
-${FWLIB2_OBJS}: CFLAGS += -DUNROLL_LOOPS
+${FWLIB20_OBJS}: CFLAGS += -DUNROLL_LOOPS
 
 # Workaround for coreboot on x86, which will power off asynchronously
 # without giving us a chance to react. This is not an example of the Right
@@ -783,7 +784,7 @@ fwlinktest: \
 fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
 
 .PHONY: fwlib2
-fwlib2: ${FWLIB2}
+fwlib2: ${FWLIB20}
 
 ${FWLIB}: ${FWLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
@@ -791,7 +792,7 @@ ${FWLIB}: ${FWLIB_OBJS}
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
-${FWLIB2}: ${FWLIB2_OBJS}
+${FWLIB20}: ${FWLIB20_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -810,7 +811,17 @@ utillib: ${UTILLIB} \
 	${BUILD}/host/linktest/main
 
 # TODO: better way to make .a than duplicating this recipe each time?
-${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} $(if ${VBOOT2},${FWLIB2_OBJS})
+${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	${Q}rm -f $@
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	${Q}ar qc $@ $^
+
+.PHONY: utillib20
+utillib20: ${UTILLIB20}
+
+# TODO: better way to make .a than duplicating this recipe each time?
+${UTILLIB20}: ${UTILLIB20_OBJS} ${FWLIB20_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -904,12 +915,13 @@ signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
 .PHONY: futil
 futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
-${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB}
+${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB} \
+		$(if ${VBOOT2},${UTILLIB20})
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
-${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB}
+${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${UTILLIB20})
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -946,6 +958,9 @@ tests: ${TEST_BINS}
 ${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
+
+${TEST20_BINS}: ${UTILLIB20}
+${TEST20_BINS}: LIBS += ${UTILLIB20}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
