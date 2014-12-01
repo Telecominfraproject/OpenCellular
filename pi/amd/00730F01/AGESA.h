@@ -184,6 +184,19 @@ typedef enum {
   GpioIn      = 1 << 7,               ///< This bit is read only - current pin state
 } CFG_BYTE;
 
+/// Configuration values for GPIO_CFG2
+typedef enum {
+  DrvStrengthSel_4mA = 0 << 1,               ///< 18:17 DrvStrengthSel.
+  DrvStrengthSel_8mA = 1 << 1,               ///< 18:17 DrvStrengthSel.
+  DrvStrengthSel_12mA = 2 << 1,               ///< 18:17 DrvStrengthSel.
+  DrvStrengthSel_16mA = 3 << 1,               ///< 18:17 DrvStrengthSel.
+  PullUpSel_8K     = 1 << 3,               ///< 19 PullUpSel. Read-write. 0=4 K pull-up is selected. 1=8 K pull-up is selected.
+  PullUpEnable    = 1 << 4,               ///< 20 PullUpEnable. Read-write. 0=Pull-up is disabled on the pin. 1=Pull-up is enabled on the pin.
+  PullDownEnable  = 1 << 5,               ///< 21 PullDownEnable. Read-write. 0=Pull-down is disabled on the pin. 1=Pull-down is enabled on thepin.
+  OutputValue     = 1 << 6,               ///< 22 OutputValue. Read-write. 0=low. 1=high.
+  OutputEnable      = 1 << 7,               ///< 23 OutputEnable. Read-write. 0=Output is disabled on the pin. 1=Output is enabled on the pin.
+} CFG2_BYTE;
+
 /// FCH GPIO CONTROL
 typedef struct {
   IN         UINT8        GpioPin;               ///< Gpio Pin, valid range: 0-67, 128-150, 160-228

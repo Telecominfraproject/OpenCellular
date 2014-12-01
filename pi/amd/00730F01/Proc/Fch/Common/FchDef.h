@@ -57,7 +57,7 @@ VOID          RwPci (IN UINT32 Address, IN UINT8 OpFlag, IN UINT32 Mask, IN UINT
 VOID          ProgramPciByteTable (IN REG8_MASK* pPciByteTable, IN UINT16 dwTableSize, IN AMD_CONFIG_PARAMS *StdHeader);
 VOID          ProgramFchAcpiMmioTbl (IN ACPI_REG_WRITE  *pAcpiTbl, IN AMD_CONFIG_PARAMS *StdHeader);
 VOID          ProgramFchSciMapTbl (IN SCI_MAP_CONTROL  *pSciMapTbl, IN FCH_RESET_DATA_BLOCK *FchResetDataBlock);
-VOID          ProgramFchGpioTbl (IN GPIO_CONTROL  *pGpioTbl, IN FCH_RESET_DATA_BLOCK *FchResetDataBlock);
+VOID          ProgramFchGpioTbl (IN GPIO_CONTROL  *pGpioTbl);
 VOID          ProgramFchSataPhyTbl (IN SATA_PHY_CONTROL  *pSataPhyTbl, IN FCH_RESET_DATA_BLOCK *FchResetDataBlock);
 VOID          GetChipSysMode (IN VOID *Value, IN AMD_CONFIG_PARAMS *StdHeader);
 BOOLEAN       IsImcEnabled (IN AMD_CONFIG_PARAMS *StdHeader);
@@ -301,6 +301,7 @@ VOID  FchInitLateUsbXhciProgram  (IN VOID  *FchDataPtr);
 VOID  FchXhciPowerSavingProgram  (IN FCH_DATA_BLOCK* FchDataPtr);
 VOID  FchXhciUsbPhyCalibrated    (IN FCH_DATA_BLOCK* FchDataPtr);
 UINT8 FchUsbCommonPhyCalibration (IN FCH_DATA_BLOCK* FchDataPtr);
+VOID  FchUsbOverCurrentControl      (IN VOID  *FchDataPtr);
 
 ///
 /// Fch Sd Routines
@@ -377,6 +378,18 @@ FchSpiTransfer (
   IN       BOOLEAN  DataFlag,
   IN       BOOLEAN  FinishedFlag
   );
+
+BOOLEAN
+FchConfigureSpiDeviceDummyCycle (
+  IN       UINT32     DeviceID,
+  IN       UINT8      SpiMode
+  );
+
+UINT32
+FchReadSpiId (
+  IN       BOOLEAN    Flag
+  );
+
 
 BOOLEAN
 FchPlatformSpiQe (

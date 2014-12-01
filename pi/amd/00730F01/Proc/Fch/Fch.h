@@ -953,6 +953,7 @@
 #define FCH_EHCI_REG61           0x61        // FLADJ - RW
 #define FCH_EHCI_REG62           0x62        // PORTWAKECAP - RW
 #define FCH_EHCI_REG64           0x64        // Misc Control 2 - RW
+#define FCH_EHCI_REG70           0x70        // Over Current Control - RW
 #define FCH_EHCI_REG74           0x74        // EHCI Misc Control2 - RW
 #define FCH_EHCI_REG84           0x84        // HUB Configure 1 - RW
 #define FCH_EHCI_REG88           0x88        // - RW
@@ -1960,6 +1961,19 @@ FCH_MISC_REGF0                   EQU     0F0h
 #define FCH_ECMOS_REG0D          0x0D        //;Reserve for NB
 
 //
+#define FCH_PMIOxC0_S5ResetStatus          0xFED803C0ul         // S5ResetStatus
+#define FCH_PMIOxC0_S5ResetStatus_ThermalTrip        (1 << 0)
+#define FCH_PMIOxC0_S5ResetStatus_FourSecondPwrBtn   (1 << 1)
+#define FCH_PMIOxC0_S5ResetStatus_All_Status        (0x3ff | (1 << 20))
+
+//
+//  FCH MISC Base (FCH_MISC_BASE)
+//    offset : 0x0E00
+//
+#define FCH_MISCx50_JTAG_Control_ECO_bits          0xFED80E50ul         // JTAG_Control_ECO_bits
+#define FCH_MISCx50_JTAG_Control_ECO_bits_BIT12   (1 << 12)
+#define FCH_MISCx50_JTAG_Control_ECO_bits_BIT16   (1 << 16)
+
 //  FCH AOAC Base (FCH_AOAC_BASE)
 //    offset : 0x1E00
 //
@@ -2025,6 +2039,7 @@ FCH_MISC_REGF0                   EQU     0F0h
 #define FCH_IOMAP_REGDA          0x0DA   // Dma_Clear
 #define FCH_IOMAP_REGDC          0x0DC   // Dma_ClrMask
 #define FCH_IOMAP_REGDE          0x0DE   // Dma_ClrMask
+#define FCH_IOMAP_REGED          0x0ED   // DUMMY IO PORT
 #define FCH_IOMAP_REGF0          0x0F0   // NCP_Error
 #define FCH_IOMAP_REG40B         0x040B  // DMA1_Extend
 #define FCH_IOMAP_REG4D0         0x04D0  // IntrEdgeControl
@@ -2107,6 +2122,7 @@ FCH_MISC_REGF0                   EQU     0F0h
 
 #define FCH_SPI_MMIO_REG20       0x20        //
 #define FCH_SPI_MMIO_REG22       0x22        //
+#define FCH_SPI_MMIO_REG2C       0x2C        //
 #define FCH_SPI_MMIO_REG38       0x38        //
 #define FCH_SPI_MMIO_REG3C       0x3C        //
 

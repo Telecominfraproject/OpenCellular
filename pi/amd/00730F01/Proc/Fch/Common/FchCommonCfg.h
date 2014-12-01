@@ -122,6 +122,7 @@ typedef struct {
                                                         ///    @li <b>00</b> - Removable Card Slot
                                                         ///    @li <b>01</b> - Embedded Slot for One Device
                                                         ///    @li <b>10</b> - Shared Bus Slot
+  BOOLEAN               SdForce18;                      ///< SD Force18
 } FCH_SD;
 
 ///
@@ -1167,6 +1168,16 @@ typedef struct {
   BOOLEAN               IsCapsuleMode;                  ///< IsCapsuleMode - Support Capsule Mode in FCH
 } FCH_GPP;
 
+/// FCH USB Over Current Data Block
+typedef struct {
+  UINT8        Usb1OcPinMap[5];       ///< USB1 over current pin mapping
+  UINT8        Usb2OcPinMap[5];       ///< USB2 over current pin mapping
+  UINT8        Usb3OcPinMap[4];       ///< USB3 over current pin mapping
+  UINT8        Usb4OcPinMap[2];       ///< USB4 over current pin mapping
+  UINT8        Xhci0OcPinMap[2];      ///< XHCI0 over current pin mapping
+  UINT8        Xhci1OcPinMap[2];      ///< XHCI1 over current pin mapping
+} FCH_USB_OC;
+
 
 ///
 /// FCH USB sturcture
@@ -1210,6 +1221,7 @@ typedef struct {
                                                         ///  @li   <b>010</b> - HubDownStreamPort1
                                                         ///  @li   <b>011</b> - HubDownStreamPort2
                                                         ///  @li   <b>100</b> - HubDownStreamPort3
+  FCH_USB_OC            FchUsbOcMap;                    ///< Fch USB OC Map
 } FCH_USB;
 
 
@@ -1247,6 +1259,8 @@ typedef struct _FCH_RESET_DATA_BLOCK {
   FCH_GPP               Gpp;                            ///< GPP subsystem
   FCH_SPI               Spi;                            ///< SPI subsystem
   BOOLEAN               QeEnabled;                      /// Quad Mode Enabled
+  BOOLEAN               FchOscout1ClkContinous;         ///< FCH OSCOUT1_CLK Continous
+  VOID*                 EarlyOemGpioTable;              /// Pointer of Early OEM GPIO table
 //  VOID*                 OemSpiDeviceTable;              /// Pointer of OEM Spi Device table
   VOID*                 OemResetProgrammingTablePtr;    /// Pointer of ACPI OEM table
 } FCH_RESET_DATA_BLOCK;
@@ -1274,6 +1288,7 @@ typedef struct _FCH_DATA_BLOCK {
   FCH_GCPU              Gcpu;                           ///< GCPU structure
   FCH_IMC               Imc;                            ///< IMC structure
   FCH_MISC              Misc;                           ///< MISC structure
+  VOID*                 PostOemGpioTable;              /// Pointer of Post OEM GPIO table
 } FCH_DATA_BLOCK;
 
 #pragma pack (pop)

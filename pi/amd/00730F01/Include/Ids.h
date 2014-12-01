@@ -1301,7 +1301,7 @@ AmdIdsHdtOutS3ApExit (
 VOID
 AmdIdsDebugPrint (
   IN       UINT64 Flag,
-  IN       CHAR8 *Format,
+  IN       const CHAR8 *Format,
   IN       ...
   );
 
@@ -1386,8 +1386,8 @@ IdsErrorStop (
 
 VOID
 IdsDelay (
-	void
-);
+  IN      VOID
+  );
 
 BOOLEAN
 AmdHeapIntactCheck (
