@@ -665,8 +665,7 @@ static void test_verify_fw_preamble(void)
 
 	/* Now that the total size is known, create the real preamble */
 	buf_size = fp.c.total_size;
-	buf = malloc(buf_size);
-	memset(buf, 0, buf_size);
+	buf = calloc(1, buf_size);
 	memcpy(buf, &fp, sizeof(fp));
 	memcpy(buf + fp.c.fixed_size, desc, sizeof(desc));
 

@@ -187,8 +187,7 @@ static void public_key_tests(const struct alg_combo *combo,
 	vb2_public_key_free(key);
 
 	bufsize = vb2_packed_key_size(combo->sig_alg);
-	buf = malloc(bufsize);
-	memset(buf, 0, bufsize);
+	buf = calloc(1, bufsize);
 
 	vb2_write_file(testfile, buf, bufsize - 1);
 	TEST_EQ(vb2_public_key_read_keyb(&key, testfile),

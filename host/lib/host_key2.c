@@ -71,11 +71,9 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 		return VB2_ERROR_UNPACK_PRIVATE_KEY_STRUCT_VERSION;
 
 	/* Allocate the new key */
-	key = malloc(sizeof(*key));
+	key = calloc(1, sizeof(*key));
 	if (!key)
 		return VB2_ERROR_UNPACK_PRIVATE_KEY_ALLOC;
-
-	memset(key, 0, sizeof(*key));
 
 	/* Copy key algorithms and guid */
 	key->sig_alg = pkey->sig_alg;
@@ -140,11 +138,9 @@ int vb2_private_key_read_pem(struct vb2_private_key **key_ptr,
 	*key_ptr = NULL;
 
 	/* Allocate the new key */
-	key = malloc(sizeof(*key));
+	key = calloc(1, sizeof(*key));
 	if (!key)
 		return VB2_ERROR_READ_PEM_ALLOC;
-
-	memset(key, 0, sizeof(*key));
 
 	/* Read private key */
 	f = fopen(filename, "r");
@@ -212,13 +208,12 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 	pkey.c.total_size = pkey.key_offset + pkey.key_size;
 
 	/* Pack private key */
-	buf = malloc(pkey.c.total_size);
+	buf = calloc(1, pkey.c.total_size);
 	if (!buf) {
 		free(rsabuf);
 		return VB2_ERROR_PRIVATE_KEY_WRITE_ALLOC;
 	}
 
-	memset(buf, 0, pkey.c.total_size);
 	memcpy(buf, &pkey, sizeof(pkey));
 
 	/* strcpy() is ok here because we checked the length above */
@@ -310,11 +305,10 @@ static int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
 	if (!key_data_size)
 		return VB2_ERROR_PUBLIC_KEY_ALLOC_SIZE;
 
-	key = malloc(buf_size);
+	key = calloc(1, buf_size);
 	if (!key)
 		return VB2_ERROR_PUBLIC_KEY_ALLOC;
 
-	memset(key, 0, buf_size);
 	key->guid = (struct vb2_guid *)(key + 1);
 	key->sig_alg = sig_alg;
 
@@ -454,8 +448,7 @@ int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
 	key.guid = *pubk->guid;
 
 	/* Allocate the new buffer */
-	buf = malloc(key.c.total_size);
-	memset(buf, 0, key.c.total_size);
+	buf = calloc(1, key.c.total_size);
 
 	/* Copy data into the buffer */
 	memcpy(buf, &key, sizeof(key));

@@ -52,7 +52,7 @@ int vb2_keyblock_create(struct vb2_keyblock2 **kb_ptr,
 	kb.c.total_size = kb.sig_offset + sig_size;
 
 	/* Allocate buffer and copy header and data key */
-	buf = malloc(kb.c.total_size);
+	buf = calloc(1, kb.c.total_size);
 	if (!buf) {
 		free(key);
 		return VB2_KEYBLOCK_CREATE_ALLOC;

@@ -154,8 +154,7 @@ int vb2_sign_data(struct vb2_signature2 **sig_ptr,
 	}
 
 	/* Allocate signature buffer and copy header */
-	buf = malloc(s.c.total_size);
-	memset(buf, 0, s.c.total_size);
+	buf = calloc(1, s.c.total_size);
 	memcpy(buf, &s, sizeof(s));
 
 	/* strcpy() is ok because we allocated buffer based on desc length */

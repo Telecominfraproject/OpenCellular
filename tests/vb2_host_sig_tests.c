@@ -117,8 +117,7 @@ static void sig_tests(const struct alg_combo *combo,
 	c_sig_offs = sizeof(*c) + 24;
 	TEST_SUCC(vb2_sig_size_for_key(&size, prik, NULL), "Sig size");
 	bufsize = c_sig_offs + size;
-	buf = malloc(bufsize);
-	memset(buf, 0, bufsize);
+	buf = calloc(1, bufsize);
 	memset(buf + sizeof(*c), 0x12, 24);
 	c = (struct vb2_struct_common *)buf;
 	c->total_size = bufsize;
@@ -135,8 +134,7 @@ static void sig_tests(const struct alg_combo *combo,
 	/* Multiply sign an object */
 	TEST_SUCC(vb2_sig_size_for_keys(&size, priks, 2), "Sigs size");
 	bufsize = c_sig_offs + size;
-	buf = malloc(bufsize);
-	memset(buf, 0, bufsize);
+	buf = calloc(1, bufsize);
 	memset(buf + sizeof(*c), 0x12, 24);
 	c = (struct vb2_struct_common *)buf;
 	c->total_size = bufsize;

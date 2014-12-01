@@ -55,7 +55,7 @@ int vb2_fw_preamble_create(struct vb2_fw_preamble2 **fp_ptr,
 	fp.c.total_size = fp.sig_offset + sig_size;
 
 	/* Allocate buffer and copy components */
-	buf = malloc(fp.c.total_size);
+	buf = calloc(fp.c.total_size, 1);
 	if (!buf)
 		return VB2_FW_PREAMBLE_CREATE_ALLOC;
 
