@@ -37,6 +37,7 @@ typedef struct {
 	disk_desc_t disks_to_provide[MAX_TEST_DISKS];
 	int disk_count_to_return;
 	VbError_t loadkernel_return_val[MAX_TEST_DISKS];
+	uint8_t external_expected[MAX_TEST_DISKS];
 
 	/* outputs from test */
 	uint32_t expected_recovery_request_val;
@@ -67,13 +68,16 @@ test_case_t test[] = {
 			{512,  100,  0, 0},
 			/* still wrong flags */
 			{512,  100,  -1, 0},
-			{512,  100,  VB_DISK_FLAG_REMOVABLE, pickme},
+			{512,  100,
+			 VB_DISK_FLAG_REMOVABLE | VB_DISK_FLAG_EXTERNAL_GPT,
+			 pickme},
 			/* already got one */
 			{512,  100,  VB_DISK_FLAG_REMOVABLE, "holygrail"},
 		},
 		.disk_count_to_return = DEFAULT_COUNT,
 		.diskgetinfo_return_val = VBERROR_SUCCESS,
 		.loadkernel_return_val = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
+		.external_expected = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
 
 		.expected_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED,
 		.expected_to_find_disk = pickme,
@@ -182,6 +186,7 @@ static uint32_t got_recovery_request_val;
 static const char *got_find_disk;
 static const char *got_load_disk;
 static uint32_t got_return_val;
+static uint32_t got_external_mismatch;
 
 /**
  * Reset mock data (for use before each test)
@@ -229,6 +234,7 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 			mock_disks[num_disks].bytes_per_lba =
 				t->disks_to_provide[i].bytes_per_lba;
 			mock_disks[num_disks].lba_count =
+				mock_disks[num_disks].streaming_lba_count =
 				t->disks_to_provide[i].lba_count;
 			mock_disks[num_disks].flags =
 				t->disks_to_provide[i].flags;
@@ -275,6 +281,9 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	VBDEBUG(("%s(%d): got_find_disk = %s\n", __FUNCTION__,
 		 load_kernel_calls,
 		 got_find_disk ? got_find_disk : "0"));
+	if (t->external_expected[load_kernel_calls] !=
+			!!(params->boot_flags & BOOT_FLAG_EXTERNAL_GPT))
+		got_external_mismatch++;
 	return t->loadkernel_return_val[load_kernel_calls++];
 }
 
@@ -306,6 +315,7 @@ static void VbTryLoadKernelTest(void)
 			TEST_PTR_EQ(got_load_disk, t->expected_to_load_disk,
 				    "  load disk");
 		}
+		TEST_EQ(got_external_mismatch, 0, "  external GPT errors");
 	}
 }
 

@@ -50,6 +50,7 @@ static int preamble_verify_fail;
 static int verify_data_fail;
 static RSAPublicKey *mock_data_key;
 static int mock_data_key_allocated;
+static int gpt_flag_external;
 
 static uint8_t gbb_data[sizeof(GoogleBinaryBlockHeader) + 2048];
 static GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader*)gbb_data;
@@ -126,6 +127,8 @@ static void ResetMocks(void)
 	mock_data_key = (RSAPublicKey *)"TestDataKey";
 	mock_data_key_allocated = 0;
 
+	gpt_flag_external = 0;
+
 	memset(gbb, 0, sizeof(*gbb));
 	gbb->major_version = GBB_MAJOR_VER;
 	gbb->minor_version = GBB_MINOR_VER;
@@ -150,7 +153,8 @@ static void ResetMocks(void)
 	lkp.gbb_data = gbb;
 	lkp.gbb_size = sizeof(gbb_data);
 	lkp.bytes_per_lba = 512;
-	lkp.ending_lba = 1023;
+	lkp.streaming_lba_count = 1024;
+	lkp.gpt_lba_count = 1024;
 	lkp.kernel_buffer = kernel_buffer;
 	lkp.kernel_buffer_size = sizeof(kernel_buffer);
 	lkp.disk_handle = (VbExDiskHandle_t)1;
@@ -214,6 +218,9 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size)
 
 	if (!p->size)
 		return GPT_ERROR_NO_VALID_KERNEL;
+
+	if (gpt->flags & GPT_FLAG_EXTERNAL)
+		gpt_flag_external++;
 
 	gpt->current_kernel = mock_part_next;
 	*start_sector = p->start;
@@ -522,7 +529,7 @@ static void InvalidParamsTest(void)
 		"Bad lba size");
 
 	ResetMocks();
-	lkp.ending_lba = 0;
+	lkp.streaming_lba_count = 0;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_PARAMETER,
 		"Bad lba count");
 
@@ -540,6 +547,11 @@ static void InvalidParamsTest(void)
 	gpt_init_fail = 1;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
 		"Bad GPT");
+
+	ResetMocks();
+	lkp.gpt_lba_count = 0;
+	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
+		"GPT size = 0");
 
 	/* This causes the stream open call to fail */
 	ResetMocks();
@@ -560,6 +572,7 @@ static void LoadKernelTest(void)
 	TEST_EQ(lkp.bootloader_address, 0xbeadd008, "  bootloader addr");
 	TEST_EQ(lkp.bootloader_size, 0x1234, "  bootloader size");
 	TEST_STR_EQ((char *)lkp.partition_guid, "FakeGuid", "  guid");
+	TEST_EQ(gpt_flag_external, 0, "GPT was internal");
 	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, 0, "  recovery request");
 
@@ -742,6 +755,12 @@ static void LoadKernelTest(void)
 	ResetMocks();
 	verify_data_fail = 1;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,	"Bad data");
+
+	/* Check that EXTERNAL_GPT flag makes it down */
+	ResetMocks();
+	lkp.boot_flags |= BOOT_FLAG_EXTERNAL_GPT;
+	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Succeed external GPT");
+	TEST_EQ(gpt_flag_external, 1, "GPT was external");
 }
 
 int main(void)

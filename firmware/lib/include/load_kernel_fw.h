@@ -16,9 +16,11 @@
 
 /* Boot flags for LoadKernel().boot_flags */
 /* Developer switch is on */
-#define BOOT_FLAG_DEVELOPER (0x01ULL)
+#define BOOT_FLAG_DEVELOPER    (0x01ULL)
 /* In recovery mode */
-#define BOOT_FLAG_RECOVERY  (0x02ULL)
+#define BOOT_FLAG_RECOVERY     (0x02ULL)
+/* GPT is external */
+#define BOOT_FLAG_EXTERNAL_GPT (0x04ULL)
 
 typedef struct LoadKernelParams {
 	/* Inputs to LoadKernel() */
@@ -40,8 +42,10 @@ typedef struct LoadKernelParams {
 	VbExDiskHandle_t disk_handle;
 	/* Bytes per lba sector on current device */
 	uint64_t bytes_per_lba;
-	/* Last addressable lba sector on current device */
-	uint64_t ending_lba;
+	/* Number of LBA-addressable sectors on the main device */
+	uint64_t streaming_lba_count;
+	/* Random-access GPT size */
+	uint64_t gpt_lba_count;
 	/* Destination buffer for kernel (normally at 0x100000) */
 	void *kernel_buffer;
 	/* Size of kernel buffer in bytes */

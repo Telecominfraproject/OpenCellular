@@ -57,7 +57,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	/* Sanity Checks */
 	if (!params->bytes_per_lba ||
-	    !params->ending_lba) {
+	    !params->streaming_lba_count) {
 		VBDEBUG(("LoadKernel() called with invalid params\n"));
 		retval = VBERROR_INVALID_PARAMETER;
 		goto LoadKernelExit;
@@ -90,7 +90,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	shcall->boot_flags = (uint32_t)params->boot_flags;
 	shcall->boot_mode = boot_mode;
 	shcall->sector_size = (uint32_t)params->bytes_per_lba;
-	shcall->sector_count = params->ending_lba + 1;
+	shcall->sector_count = params->streaming_lba_count;
 	shared->lk_call_count++;
 
 	/* Initialization */
@@ -115,10 +115,10 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	/* Read GPT data */
 	gpt.sector_bytes = (uint32_t)blba;
-	gpt.streaming_drive_sectors = params->ending_lba + 1;
-	/* TODO: Set stored_on_device and gpt_drive_sectors appropriately */
-	gpt.gpt_drive_sectors = gpt.streaming_drive_sectors;
-	gpt.flags = 0;
+	gpt.streaming_drive_sectors = params->streaming_lba_count;
+	gpt.gpt_drive_sectors = params->gpt_lba_count;
+	gpt.flags = params->boot_flags & BOOT_FLAG_EXTERNAL_GPT
+			? GPT_FLAG_EXTERNAL : 0;
 	if (0 != AllocAndReadGptData(params->disk_handle, &gpt)) {
 		VBDEBUG(("Unable to read GPT data\n"));
 		shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;

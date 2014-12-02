@@ -88,7 +88,7 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 		 */
 		if (512 != disk_info[i].bytes_per_lba ||
 		    32 > disk_info[i].lba_count ||
-		    get_info_flags != disk_info[i].flags) {
+		    get_info_flags != (disk_info[i].flags & ~VB_DISK_FLAG_EXTERNAL_GPT)) {
 			VBDEBUG(("  skipping: bytes_per_lba=%" PRIu64
 				 " lba_count=%" PRIu64 " flags=0x%x\n",
 				 disk_info[i].bytes_per_lba,
@@ -98,7 +98,11 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 		}
 		p->disk_handle = disk_info[i].handle;
 		p->bytes_per_lba = disk_info[i].bytes_per_lba;
-		p->ending_lba = disk_info[i].lba_count - 1;
+		p->gpt_lba_count = disk_info[i].lba_count;
+		p->streaming_lba_count = disk_info[i].streaming_lba_count
+						?: p->gpt_lba_count;
+		p->boot_flags |= disk_info[i].flags & VB_DISK_FLAG_EXTERNAL_GPT
+				? BOOT_FLAG_EXTERNAL_GPT : 0;
 		retval = LoadKernel(p, cparams);
 		VBDEBUG(("VbTryLoadKernel() LoadKernel() = %d\n", retval));
 

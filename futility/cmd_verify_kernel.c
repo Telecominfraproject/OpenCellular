@@ -30,9 +30,9 @@ VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
 {
 	if (handle != (VbExDiskHandle_t)1)
 		return VBERROR_UNKNOWN;
-	if (lba_start > params.ending_lba)
+	if (lba_start >= params.streaming_lba_count)
 		return VBERROR_UNKNOWN;
-	if (lba_start + lba_count > params.ending_lba + 1)
+	if (lba_start + lba_count > params.streaming_lba_count)
 		return VBERROR_UNKNOWN;
 
 	memcpy(buffer, diskbuf + lba_start * 512, lba_count * 512);
@@ -44,9 +44,9 @@ VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
 {
 	if (handle != (VbExDiskHandle_t)1)
 		return VBERROR_UNKNOWN;
-	if (lba_start > params.ending_lba)
+	if (lba_start >= params.streaming_lba_count)
 		return VBERROR_UNKNOWN;
-	if (lba_start + lba_count > params.ending_lba + 1)
+	if (lba_start + lba_count > params.streaming_lba_count)
 		return VBERROR_UNKNOWN;
 
 	memcpy(diskbuf + lba_start * 512, buffer, lba_count * 512);
@@ -95,7 +95,8 @@ static int do_verify_kernel(int argc, char *argv[])
 	params.shared_data_size = sizeof(shared_data);
 	params.disk_handle = (VbExDiskHandle_t)1;
 	params.bytes_per_lba = 512;
-	params.ending_lba = disk_bytes / 512 - 1;
+	params.streaming_lba_count = disk_bytes / 512;
+	params.gpt_lba_count = params.streaming_lba_count;
 
 	params.kernel_buffer_size = 16 * 1024 * 1024;
 	params.kernel_buffer = malloc(params.kernel_buffer_size);
@@ -108,7 +109,7 @@ static int do_verify_kernel(int argc, char *argv[])
 	params.gbb_data = NULL;
 	params.gbb_size = 0;
 
-	/* TODO: optional dev-mode flag */
+	/* TODO(chromium:441893): support dev-mode flag and external gpt flag */
 	params.boot_flags = 0;
 
 	/*
