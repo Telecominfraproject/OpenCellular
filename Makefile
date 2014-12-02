@@ -583,11 +583,6 @@ TESTLIB_SRCS = \
 	tests/timer_utils.c \
 	tests/crc32_test.c
 
-ifneq (${VBOOT2},)
-TESTLIB_SRCS += \
-	tests/vb2_convert_structs.c
-endif
-
 TESTLIB_OBJS = ${TESTLIB_SRCS:%.c=${BUILD}/%.o}
 TEST_OBJS += ${TESTLIB_OBJS}
 

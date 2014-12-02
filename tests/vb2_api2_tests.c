@@ -15,10 +15,10 @@
 #include "2rsa.h"
 #include "2secdata.h"
 
+#include "host_key2.h"
 #include "host_signature2.h"
 
 #include "test_common.h"
-#include "vb2_convert_structs.h"
 
 /* Common context for tests */
 static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE]
@@ -52,6 +52,7 @@ enum reset_type {
 
 static void reset_common_data(enum reset_type t)
 {
+	const struct vb2_private_key *hash_key;
 	struct vb2_fw_preamble2 *pre;
 	struct vb2_signature2 *sig;
 	uint32_t sig_offset;
@@ -75,6 +76,8 @@ static void reset_common_data(enum reset_type t)
 	retval_vb2_load_fw_keyblock = VB2_SUCCESS;
 	retval_vb2_load_fw_preamble = VB2_SUCCESS;
 
+	vb2_private_key_hash(&hash_key, mock_hash_alg);
+
 	sd->workbuf_preamble_offset = ctx.workbuf_used;
 	pre = (struct vb2_fw_preamble2 *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
@@ -82,9 +85,8 @@ static void reset_common_data(enum reset_type t)
 	pre->hash_offset = sig_offset = sizeof(*pre);
 
 	for (i = 0; i < 3; i++) {
-		sig = vb2_create_hash_sig(mock_body,
-					  mock_body_size - 16 * i,
-					  mock_hash_alg);
+		vb2_sign_data(&sig, mock_body, mock_body_size - 16 * i,
+			      hash_key, NULL);
 		memcpy(&sig->guid, test_guid + i, sizeof(sig->guid));
 		memcpy((uint8_t *)pre + sig_offset, sig, sig->c.total_size);
 		sig_offset += sig->c.total_size;

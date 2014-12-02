@@ -17,7 +17,6 @@
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_signature2.h"
-#include "vb2_convert_structs.h"
 #include "vboot_common.h"
 #include "test_common.h"
 
