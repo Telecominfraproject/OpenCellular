@@ -237,6 +237,7 @@ FWLIB = ${BUILD}/vboot_fw.a
 
 # Smaller firmware library. TODO: Do we still need to export this?
 FWLIB20 = ${BUILD}/vboot_fw2.a
+FWLIB21 = ${BUILD}/vboot_fw21.a
 
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
@@ -279,21 +280,23 @@ VBSLK_SRCS = \
 # Firmware library source needed for smaller library 2
 FWLIB20_SRCS = \
 	firmware/2lib/2api.c \
-	firmware/2lib/2api2.c \
 	firmware/2lib/2common.c \
-	firmware/2lib/2common2.c \
 	firmware/2lib/2crc8.c \
 	firmware/2lib/2misc.c \
-	firmware/2lib/2misc2.c \
 	firmware/2lib/2nvstorage.c \
 	firmware/2lib/2packed_key.c \
-	firmware/2lib/2packed_key2.c \
 	firmware/2lib/2rsa.c \
 	firmware/2lib/2secdata.c \
 	firmware/2lib/2sha1.c \
 	firmware/2lib/2sha256.c \
 	firmware/2lib/2sha512.c \
-	firmware/2lib/2sha_utility.c \
+	firmware/2lib/2sha_utility.c
+
+FWLIB21_SRCS = \
+	firmware/lib21/api.c \
+	firmware/lib21/common.c \
+	firmware/lib21/misc.c \
+	firmware/lib21/packed_key.c
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
@@ -339,15 +342,16 @@ FWLIB_SRCS += ${VBSF_SRCS} ${VBSLK_SRCS}
 
 VBINIT_OBJS = ${VBINIT_SRCS:%.c=${BUILD}/%.o}
 VBSF_OBJS = ${VBSF_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS +=  ${VBINIT_OBJS} ${VBSF_OBJS}
 
 FWLIB_OBJS = ${FWLIB_SRCS:%.c=${BUILD}/%.o}
 FWLIB20_OBJS = ${FWLIB20_SRCS:%.c=${BUILD}/%.o}
-
-ALL_OBJS += ${FWLIB_OBJS} ${FWLIB20_OBJS} ${VBINIT_OBJS} ${VBSF_OBJS}
+FWLIB21_OBJS = ${FWLIB21_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS += ${FWLIB_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
 
 # Intermediate library for the vboot_reference utilities to link against.
 UTILLIB = ${BUILD}/libvboot_util.a
-UTILLIB20 = ${BUILD}/libvboot_util20.a
+UTILLIB21 = ${BUILD}/libvboot_util20.a
 
 UTILLIB_SRCS = \
 	cgpt/cgpt_create.c \
@@ -373,15 +377,15 @@ UTILLIB_SRCS = \
 UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${UTILLIB_OBJS}
 
-UTILLIB20_SRCS += \
-	host/lib/host_fw_preamble2.c \
-	host/lib/host_key2.c \
-	host/lib/host_keyblock2.c \
-	host/lib/host_misc2.c \
-	host/lib/host_signature2.c
+UTILLIB21_SRCS += \
+	host/lib21/host_fw_preamble.c \
+	host/lib21/host_key.c \
+	host/lib21/host_keyblock.c \
+	host/lib21/host_misc.c \
+	host/lib21/host_signature.c
 
-UTILLIB20_OBJS = ${UTILLIB20_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${UTILLIB20_OBJS}
+UTILLIB21_OBJS = ${UTILLIB21_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS += ${UTILLIB21_OBJS}
 
 # Externally exported library for some target userspace apps to link with
 # (cryptohome, updater, etc.)
@@ -688,13 +692,13 @@ _dir_create := $(foreach d, \
 # Default target.
 .PHONY: all
 all: fwlib \
-	$(if ${VBOOT2},fwlib2) \
+	$(if ${VBOOT2},fwlib2 fwlib21) \
 	$(if ${FIRMWARE_ARCH},,host_stuff) \
 	$(if ${COV},coverage)
 
 # Host targets
 .PHONY: host_stuff
-host_stuff: utillib hostlib cgpt utils futil tests $(if ${VBOOT2},utillib20)
+host_stuff: utillib hostlib cgpt utils futil tests $(if ${VBOOT2},utillib21)
 
 .PHONY: clean
 clean:
@@ -735,6 +739,7 @@ ifeq (${FIRMWARE_ARCH},i386)
 # Unrolling loops in cryptolib makes it faster
 ${FWLIB_OBJS}: CFLAGS += -DUNROLL_LOOPS
 ${FWLIB20_OBJS}: CFLAGS += -DUNROLL_LOOPS
+${FWLIB21_OBJS}: CFLAGS += -DUNROLL_LOOPS
 
 # Workaround for coreboot on x86, which will power off asynchronously
 # without giving us a chance to react. This is not an example of the Right
@@ -778,16 +783,25 @@ fwlinktest: \
 .PHONY: fwlib
 fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
 
-.PHONY: fwlib2
-fwlib2: ${FWLIB20}
-
 ${FWLIB}: ${FWLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
+.PHONY: fwlib2
+fwlib2: ${FWLIB20}
+
 ${FWLIB20}: ${FWLIB20_OBJS}
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	${Q}rm -f $@
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	${Q}ar qc $@ $^
+
+.PHONY: fwlib21
+fwlib21: ${FWLIB21}
+
+${FWLIB21}: ${FWLIB21_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -812,11 +826,13 @@ ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
-.PHONY: utillib20
-utillib20: ${UTILLIB20}
+.PHONY: utillib21
+utillib21: ${UTILLIB21}
 
-# TODO: better way to make .a than duplicating this recipe each time?
-${UTILLIB20}: ${UTILLIB20_OBJS} ${FWLIB20_OBJS}
+${UTILLIB21}: INCLUDES += -Ihost/lib21/include
+
+# TODO: right now, firmware lib 2.1 isn't a complete standalone copy
+${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -911,12 +927,12 @@ signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
 futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
 ${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB} \
-		$(if ${VBOOT2},${UTILLIB20})
+		$(if ${VBOOT2},${UTILLIB21})
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
-${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${UTILLIB20})
+${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${UTILLIB21})
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -954,8 +970,9 @@ ${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
 
-${TEST20_BINS}: ${UTILLIB20}
-${TEST20_BINS}: LIBS += ${UTILLIB20}
+${TEST20_BINS}: ${UTILLIB21}
+${TEST20_BINS}: INCLUDES += -Ihost/lib21/include
+${TEST20_BINS}: LIBS += ${UTILLIB21}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
