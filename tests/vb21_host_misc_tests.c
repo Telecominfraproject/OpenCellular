@@ -9,6 +9,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "vb2_common.h"
 #include "host_common.h"
 #include "host_misc.h"
 

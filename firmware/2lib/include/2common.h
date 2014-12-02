@@ -331,15 +331,6 @@ uint32_t vb2_sig_size(enum vb2_signature_algorithm sig_alg,
  */
 const struct vb2_guid *vb2_hash_guid(enum vb2_hash_algorithm hash_alg);
 
-/**
- * Verify the integrity of a signature struct
- * @param sig		Signature struct
- * @param size		Size of buffer containing signature struct
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_signature2(const struct vb2_signature2 *sig,
-			  uint32_t size);
-
 /*
  * Size of work buffer sufficient for vb2_verify_digest() or
  * vb2_verify_digest2() worst case.
@@ -359,20 +350,6 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 		      struct vb2_signature *sig,
 		      const uint8_t *digest,
 		      const struct vb2_workbuf *wb);
-
-/**
- * Verify a signature against an expected hash digest.
- *
- * @param key		Key to use in signature verification
- * @param sig		Signature to verify (may be destroyed in process)
- * @param digest	Digest of signed data
- * @param wb		Work buffer
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_digest2(const struct vb2_public_key *key,
-		       struct vb2_signature2 *sig,
-		       const uint8_t *digest,
-		       const struct vb2_workbuf *wb);
 
 /*
  * Size of work buffer sufficient for vb2_verify_data() or vb2_verify_data2()
@@ -400,12 +377,6 @@ int vb2_verify_data(const uint8_t *data,
 		    const struct vb2_public_key *key,
 		    const struct vb2_workbuf *wb);
 
-int vb2_verify_data2(const void *data,
-		     uint32_t size,
-		     struct vb2_signature2 *sig,
-		     const struct vb2_public_key *key,
-		     const struct vb2_workbuf *wb);
-
 /*
  * Size of work buffer sufficient for vb2_verify_keyblock() or
  * vb2_verify_keyblock2() worst case.
@@ -429,11 +400,6 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 			const struct vb2_public_key *key,
 			const struct vb2_workbuf *wb);
 
-int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
-			 uint32_t size,
-			 const struct vb2_public_key *key,
-			 const struct vb2_workbuf *wb);
-
 /*
  * Size of work buffer sufficient for vb2_verify_fw_preamble() or
  * vb2_verify_fw_preamble2() worst case.
@@ -455,10 +421,5 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 			   uint32_t size,
 			   const struct vb2_public_key *key,
 			   const struct vb2_workbuf *wb);
-
-int vb2_verify_fw_preamble2(struct vb2_fw_preamble2 *preamble,
-			    uint32_t size,
-			    const struct vb2_public_key *key,
-			    const struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2COMMON_H_ */

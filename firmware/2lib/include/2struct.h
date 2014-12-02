@@ -12,6 +12,37 @@
 
 #include "2guid.h"
 
+/* Algorithm types for signatures */
+enum vb2_signature_algorithm {
+	/* Invalid or unsupported signature type */
+	VB2_SIG_INVALID = 0,
+
+	/*
+	 * No signature algorithm.  The digest is unsigned.  See
+	 * VB2_GUID_NONE_* above for key GUIDs to use with this algorithm.
+	 */
+	VB2_SIG_NONE = 1,
+
+	/* RSA algorithms of the given length in bits (1024-8192) */
+	VB2_SIG_RSA1024 = 2,  /* Warning!  This is likely to be deprecated! */
+	VB2_SIG_RSA2048 = 3,
+	VB2_SIG_RSA4096 = 4,
+	VB2_SIG_RSA8192 = 5,
+};
+
+/* Algorithm types for hash digests */
+enum vb2_hash_algorithm {
+	/* Invalid or unsupported digest type */
+	VB2_HASH_INVALID = 0,
+
+	/* SHA-1.  Warning: This is likely to be deprecated soon! */
+	VB2_HASH_SHA1 = 1,
+
+	/* SHA-256 and SHA-512 */
+	VB2_HASH_SHA256 = 2,
+	VB2_HASH_SHA512 = 3,
+};
+
 /****************************************************************************/
 /*
  * Vboot1-compatible data structures
@@ -188,365 +219,6 @@ struct vb2_fw_preamble {
 } __attribute__((packed));
 
 #define EXPECTED_VB2_FW_PREAMBLE_SIZE 108
-
-/****************************************************************************/
-/*
- * Vboot2 data structures
- *
- *
- * Offsets should be padded to 32-bit boundaries, since some architectures
- * have trouble with accessing unaligned integers.
- */
-
-/*
- * Magic numbers used by vb2_struct_common.magic.
- *
- * All valid numbers should be listed here to avoid accidental overlap.
- * Numbers start at a large value, so that previous parsers (which stored
- * things like lengths and offsets at that field) will detect and reject new
- * structs as invalid.
- */
-enum vb2_struct_common_magic {
-	/* "Vb2B" = vb2_keyblock2.c.magic */
-	VB2_MAGIC_KEYBLOCK2		= 0x42326256,
-
-	/* "Vb2F" = vb2_fw_preamble.c.magic */
-	VB2_MAGIC_FW_PREAMBLE2		= 0x46326256,
-
-	/* "Vb2I" = vb2_packed_private_key2.c.magic */
-	VB2_MAGIC_PACKED_PRIVATE_KEY2	= 0x49326256,
-
-	/* "Vb2K" = vb2_kernel_preamble.c.magic */
-	VB2_MAGIC_KERNEL_PREAMBLE2	= 0x4b326256,
-
-	/* "Vb2P" = vb2_packed_key2.c.magic */
-	VB2_MAGIC_PACKED_KEY2		= 0x50326256,
-
-	/* "Vb2S" = vb2_signature.c.magic */
-	VB2_MAGIC_SIGNATURE2		= 0x53326256,
-};
-
-
-/*
- * Generic struct header for all vboot2 structs.  This makes it easy to
- * automatically parse and identify vboot structs (e.g., in futility).  This
- * must be the first member of the parent vboot2 struct.
- */
-struct vb2_struct_common {
-	/* Magic number; see vb2_struct_common_magic for expected values */
-	uint32_t magic;
-
-	/*
-	 * Parent struct version; see each struct for the expected value.
-	 *
-	 * How to handle struct version mismatches, if the parser is version
-	 * A.b and the data is version C.d:
-	 *     1) If A.b == C.d, we're good.
-	 *     2) If A != C, the data cannot be parsed at all.
-	 *     3) If b < d, C.d is a newer version of data which is backwards-
-	 *        compatible to old parsers.  We're good.
-	 *     4) If b > d, C.d is an older version of data.  The parser should
-	 *        use default values for fields added after version d.  We're
-	 *        good.
-	 *
-	 * Struct versions start at 3.0, since the highest version of the old
-	 * structures was 2.1.  This way, there is no possibility of collision
-	 * for old code which depends on the version number.
-	 */
-	uint16_t struct_version_major;
-	uint16_t struct_version_minor;
-
-	/*
-	 * Size of the parent structure and all its data, including the
-	 * description and any necessary padding.  That is, all data must lie
-	 * in a contiguous region of <total_size> bytes starting at the first
-	 * byte of this header.
-	 */
-	uint32_t total_size;
-
-	/*
-	 * Size of the fixed portion of the parent structure.  If a description
-	 * is present, it must start at this offset.
-	 */
-	uint32_t fixed_size;
-
-	/*
-	 * The object may contain an ASCII description following the fixed
-	 * portion of the structure.  If it is present, it must be
-	 * null-terminated, and padded with 0 (null) bytes to a multiple of 32
-	 * bits.
-	 *
-	 * Size of ASCII description in bytes, counting null terminator and
-	 * padding (if any).  Set 0 if no description is present.  If non-zero,
-	 * there must be a null terminator (0) at offset (fixed_size +
-	 * desc_size - 1).
-	 */
-	uint32_t desc_size;
-} __attribute__((packed));
-
-#define EXPECTED_VB2_STRUCT_COMMON_SIZE 20
-
-/* Algorithm types for signatures */
-enum vb2_signature_algorithm {
-	/* Invalid or unsupported signature type */
-	VB2_SIG_INVALID = 0,
-
-	/*
-	 * No signature algorithm.  The digest is unsigned.  See
-	 * VB2_GUID_NONE_* above for key GUIDs to use with this algorithm.
-	 */
-	VB2_SIG_NONE = 1,
-
-	/* RSA algorithms of the given length in bits (1024-8192) */
-	VB2_SIG_RSA1024 = 2,  /* Warning!  This is likely to be deprecated! */
-	VB2_SIG_RSA2048 = 3,
-	VB2_SIG_RSA4096 = 4,
-	VB2_SIG_RSA8192 = 5,
-};
-
-/* Algorithm types for hash digests */
-enum vb2_hash_algorithm {
-	/* Invalid or unsupported digest type */
-	VB2_HASH_INVALID = 0,
-
-	/* SHA-1.  Warning: This is likely to be deprecated soon! */
-	VB2_HASH_SHA1 = 1,
-
-	/* SHA-256 and SHA-512 */
-	VB2_HASH_SHA256 = 2,
-	VB2_HASH_SHA512 = 3,
-};
-
-/* Current version of vb2_packed_key2 struct */
-#define VB2_PACKED_KEY2_VERSION_MAJOR 3
-#define VB2_PACKED_KEY2_VERSION_MINOR 0
-
-/*
- * Packed public key data, version 2
- *
- * The key data must be arranged like this:
- *     1) vb2_packed_key2 header struct h
- *     2) Key description (pointed to by h.c.fixed_size)
- *     3) Key data key (pointed to by h.key_offset)
- */
-struct vb2_packed_key2 {
-	/* Common header fields */
-	struct vb2_struct_common c;
-
-	/* Offset of key data from start of this struct */
-	uint32_t key_offset;
-
-	/* Size of key data in bytes (NOT strength of key in bits) */
-	uint32_t key_size;
-
-	/* Signature algorithm used by the key (enum vb2_signature_algorithm) */
-	uint16_t sig_alg;
-
-	/*
-	 * Hash digest algorithm used with the key (enum vb2_hash_algorithm).
-	 * This is explicitly specified as part of the key to prevent use of a
-	 * strong key with a weak hash.
-	 */
-	uint16_t hash_alg;
-
-	/* Key version */
-	uint32_t key_version;
-
-	/* Key GUID */
-	struct vb2_guid guid;
-} __attribute__((packed));
-
-#define EXPECTED_VB2_PACKED_KEY2_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
-
-/* Current version of vb2_packed_private_key2 struct */
-#define VB2_PACKED_PRIVATE_KEY2_VERSION_MAJOR 3
-#define VB2_PACKED_PRIVATE_KEY2_VERSION_MINOR 0
-
-/*
- * Packed private key data, version 2
- *
- * The key data must be arranged like this:
- *     1) vb2_packed_private_key2 header struct h
- *     2) Key description (pointed to by h.c.fixed_size)
- *     3) Key data key (pointed to by h.key_offset)
- */
-struct vb2_packed_private_key2 {
-	/* Common header fields */
-	struct vb2_struct_common c;
-
-	/* Offset of key data from start of this struct */
-	uint32_t key_offset;
-
-	/* Size of key data in bytes (NOT strength of key in bits) */
-	uint32_t key_size;
-
-	/* Signature algorithm used by the key (enum vb2_signature_algorithm) */
-	uint16_t sig_alg;
-
-	/*
-	 * Hash digest algorithm used with the key (enum vb2_hash_algorithm).
-	 * This is explicitly specified as part of the key to prevent use of a
-	 * strong key with a weak hash.
-	 */
-	uint16_t hash_alg;
-
-	/* Key GUID */
-	struct vb2_guid guid;
-} __attribute__((packed));
-
-#define EXPECTED_VB2_PACKED_PRIVATE_KEY2_SIZE				\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 12)
-
-/* Current version of vb2_signature2 struct */
-#define VB2_SIGNATURE2_VERSION_MAJOR 3
-#define VB2_SIGNATURE2_VERSION_MINOR 0
-
-/*
- * Signature data, version 2
- *
- * The signature data must be arranged like this:
- *     1) vb2_signature2 header struct h
- *     2) Signature description (pointed to by h.c.fixed_size)
- *     3) Signature data (pointed to by h.sig_offset)
- */
-struct vb2_signature2 {
-	/* Common header fields */
-	struct vb2_struct_common c;
-
-	/* Offset of signature data from start of this struct */
-	uint32_t sig_offset;
-
-	/* Size of signature data in bytes */
-	uint32_t sig_size;
-
-	/* Size of the data block which was signed in bytes */
-	uint32_t data_size;
-
-	/* Signature algorithm used (enum vb2_signature_algorithm) */
-	uint16_t sig_alg;
-
-	/* Hash digest algorithm used (enum vb2_hash_algorithm) */
-	uint16_t hash_alg;
-
-	/*
-	 * GUID for the signature.
-	 *
-	 * If this is a keyblock signature entry, this is the GUID of the key
-	 * used to generate this signature.  This allows the firmware to
-	 * quickly determine which signature block (if any) goes with the key
-	 * being used by the firmware.
-	 *
-	 * If this is a preamble hash entry, this is the GUID of the data type
-	 * being hashed.  There is no key GUID, because sig_alg=VB2_ALG_NONE.
-	 */
-	struct vb2_guid guid;
-} __attribute__((packed));
-
-#define EXPECTED_VB2_SIGNATURE2_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
-
-
-/* Current version of vb2_keyblock2 struct */
-#define VB2_KEYBLOCK2_VERSION_MAJOR 3
-#define VB2_KEYBLOCK2_VERSION_MINOR 0
-
-/*
- * Key block.  This contains a signed, versioned key for use in the next stage
- * of verified boot.
- *
- * The key block data must be arranged like this:
- *     1) vb2_keyblock2 header struct h
- *     2) Keyblock description (pointed to by h.c.fixed_size)
- *     3) Data key (pointed to by h.data_key_offset)
- *     4) Signatures (first signature pointed to by h.sig_offset)
- *
- * The signatures from 4) must cover all the data from 1), 2), 3).  That is,
- * signatures must sign all data up to sig_offset.
- */
-struct vb2_keyblock2 {
-	/* Common header fields */
-	struct vb2_struct_common c;
-
-	/* Flags (VB2_KEY_BLOCK_FLAG_*) */
-	uint32_t flags;
-
-	/*
-	 * Offset of key (struct vb2_packed_key2) to use in next stage of
-	 * verification, from start of the keyblock.
-	 */
-	uint32_t key_offset;
-
-	/* Number of keyblock signatures which follow */
-	uint32_t sig_count;
-
-	/*
-	 * Offset of the first signature (struct vb2_signature2) from the start
-	 * of the keyblock.
-	 *
-	 * Signatures sign the contents of this struct and the data pointed to
-	 * by data_key_offset, but not themselves or other signatures.
-	 *
-	 * For the firmware, there may be only one signature.
-	 *
-	 * Kernels often have at least two signatures - one using the kernel
-	 * subkey from the RW firmware (for signed kernels) and one which is
-	 * simply a SHA-512 hash (for unsigned developer kernels).
-	 *
-	 * The GUID for each signature indicates which key was used to generate
-	 * the signature.
-	 */
-	uint32_t sig_offset;
-} __attribute__((packed));
-
-#define EXPECTED_VB2_KEYBLOCK2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 16)
-
-
-/* Current version of vb2_fw_preamble2 struct */
-#define VB2_FW_PREAMBLE2_VERSION_MAJOR 3
-#define VB2_FW_PREAMBLE2_VERSION_MINOR 0
-
-/*
- * Firmware preamble
- *
- * The preamble data must be arranged like this:
- *     1) vb2_fw_preamble2 header struct h
- *     2) Preamble description (pointed to by h.c.fixed_size)
- *     3) Hashes (pointed to by h.hash_offset)
- *     4) Signature (pointed to by h.sig_offset)
- *
- * The signature 4) must cover all the data from 1), 2), 3).
- */
-struct vb2_fw_preamble2 {
-	/* Common header fields */
-	struct vb2_struct_common c;
-
-	/* Flags; see VB2_FIRMWARE_PREAMBLE_* */
-	uint32_t flags;
-
-	/* Firmware version */
-	uint32_t firmware_version;
-
-	/* Offset of signature (struct vb2_signature2) for this preamble */
-	uint32_t sig_offset;
-
-	/*
-	 * The preamble contains a list of hashes (struct vb2_signature2) for
-	 * the various firmware components.  These have sig_alg=VB2_SIG_NONE,
-	 * and the GUID for each hash identifies the component being hashed.
-	 * The calling firmware is responsible for knowing where to find those
-	 * components, which may be on a different storage device than this
-	 * preamble.
-	 */
-
-	/* Number of hash entries */
-	uint32_t hash_count;
-
-	/* Offset of first hash entry from start of preamble */
-	uint32_t hash_offset;
-} __attribute__((packed));
-
-#define EXPECTED_VB2_FW_PREAMBLE2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 20)
 
 /****************************************************************************/
 

@@ -278,19 +278,21 @@ VBSLK_SRCS = \
 	firmware/lib/region-kernel.c \
 
 # Firmware library source needed for smaller library 2
-FWLIB20_SRCS = \
+FWLIB2_SRCS = \
 	firmware/2lib/2api.c \
 	firmware/2lib/2common.c \
 	firmware/2lib/2crc8.c \
 	firmware/2lib/2misc.c \
 	firmware/2lib/2nvstorage.c \
-	firmware/2lib/2packed_key.c \
 	firmware/2lib/2rsa.c \
 	firmware/2lib/2secdata.c \
 	firmware/2lib/2sha1.c \
 	firmware/2lib/2sha256.c \
 	firmware/2lib/2sha512.c \
 	firmware/2lib/2sha_utility.c
+
+FWLIB20_SRCS = \
+	firmware/2lib/2packed_key.c
 
 FWLIB21_SRCS = \
 	firmware/lib21/api.c \
@@ -332,7 +334,7 @@ VBSLK_SRCS += \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_stream.c
 
-FWLIB20_SRCS += \
+FWLIB2_SRCS += \
 	firmware/2lib/2stub.c
 
 endif
@@ -345,13 +347,14 @@ VBSF_OBJS = ${VBSF_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS +=  ${VBINIT_OBJS} ${VBSF_OBJS}
 
 FWLIB_OBJS = ${FWLIB_SRCS:%.c=${BUILD}/%.o}
+FWLIB2_OBJS = ${FWLIB2_SRCS:%.c=${BUILD}/%.o}
 FWLIB20_OBJS = ${FWLIB20_SRCS:%.c=${BUILD}/%.o}
 FWLIB21_OBJS = ${FWLIB21_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${FWLIB_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
+ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
 
 # Intermediate library for the vboot_reference utilities to link against.
 UTILLIB = ${BUILD}/libvboot_util.a
-UTILLIB21 = ${BUILD}/libvboot_util20.a
+UTILLIB21 = ${BUILD}/libvboot_util21.a
 
 UTILLIB_SRCS = \
 	cgpt/cgpt_create.c \
@@ -630,26 +633,30 @@ endif
 
 TEST20_NAMES = \
 	tests/vb2_api_tests \
-	tests/vb2_api2_tests \
 	tests/vb2_common_tests \
 	tests/vb2_common2_tests \
 	tests/vb2_common3_tests \
-	tests/vb2_host_fw_preamble_tests \
-	tests/vb2_host_key_tests \
-	tests/vb2_host_keyblock_tests \
-	tests/vb2_host_misc_tests \
-	tests/vb2_host_sig_tests \
 	tests/vb2_misc_tests \
 	tests/vb2_misc2_tests \
-	tests/vb2_misc3_tests \
 	tests/vb2_nvstorage_tests \
 	tests/vb2_rsa_padding_tests \
 	tests/vb2_rsa_utility_tests \
 	tests/vb2_secdata_tests \
-	tests/vb2_sha_tests \
+	tests/vb2_sha_tests
+
+TEST21_NAMES = \
+	tests/vb21_api_tests \
+	tests/vb21_common_tests \
+	tests/vb21_common2_tests \
+	tests/vb21_misc_tests \
+	tests/vb21_host_fw_preamble_tests \
+	tests/vb21_host_key_tests \
+	tests/vb21_host_keyblock_tests \
+	tests/vb21_host_misc_tests \
+	tests/vb21_host_sig_tests
 
 ifneq (${VBOOT2},)
-TEST_NAMES += ${TEST20_NAMES}
+TEST_NAMES += ${TEST20_NAMES} ${TEST21_NAMES}
 endif
 
 # And a few more...
@@ -673,6 +680,7 @@ TEST_BINS = $(addprefix ${BUILD}/,${TEST_NAMES})
 TEST_OBJS += $(addsuffix .o,${TEST_BINS})
 
 TEST20_BINS = $(addprefix ${BUILD}/,${TEST20_NAMES})
+TEST21_BINS = $(addprefix ${BUILD}/,${TEST21_NAMES})
 
 # Directory containing test keys
 TEST_KEYS = ${SRC_RUN}/tests/testkeys
@@ -738,6 +746,7 @@ ${FWLIB_OBJS}: CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 ifeq (${FIRMWARE_ARCH},i386)
 # Unrolling loops in cryptolib makes it faster
 ${FWLIB_OBJS}: CFLAGS += -DUNROLL_LOOPS
+${FWLIB2_OBJS}: CFLAGS += -DUNROLL_LOOPS
 ${FWLIB20_OBJS}: CFLAGS += -DUNROLL_LOOPS
 ${FWLIB21_OBJS}: CFLAGS += -DUNROLL_LOOPS
 
@@ -762,6 +771,8 @@ ifeq (${FIRMWARE_ARCH},)
 # load_kernel_test attempts to talk to the TPM.
 ${FWLIB_OBJS}: CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
+
+${FWLIB21_OBJS}: INCLUDES += -Ifirmware/lib21/include
 
 # Linktest ensures firmware lib doesn't rely on outside libraries
 ${BUILD}/firmware/linktest/main_vbinit: ${VBINIT_OBJS}
@@ -792,7 +803,7 @@ ${FWLIB}: ${FWLIB_OBJS}
 .PHONY: fwlib2
 fwlib2: ${FWLIB20}
 
-${FWLIB20}: ${FWLIB20_OBJS}
+${FWLIB20}: ${FWLIB2_OBJS} ${FWLIB20_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -801,7 +812,7 @@ ${FWLIB20}: ${FWLIB20_OBJS}
 .PHONY: fwlib21
 fwlib21: ${FWLIB21}
 
-${FWLIB21}: ${FWLIB21_OBJS}
+${FWLIB21}: ${FWLIB2_OBJS} ${FWLIB21_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -829,10 +840,10 @@ ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
 .PHONY: utillib21
 utillib21: ${UTILLIB21}
 
-${UTILLIB21}: INCLUDES += -Ihost/lib21/include
+${UTILLIB21}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
 
 # TODO: right now, firmware lib 2.1 isn't a complete standalone copy
-${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
+${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -970,9 +981,12 @@ ${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
 
-${TEST20_BINS}: ${UTILLIB21}
-${TEST20_BINS}: INCLUDES += -Ihost/lib21/include
-${TEST20_BINS}: LIBS += ${UTILLIB21}
+${TEST20_BINS}: ${FWLIB20}
+${TEST20_BINS}: LIBS += ${FWLIB20}
+
+${TEST21_BINS}: ${UTILLIB21}
+${TEST21_BINS}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
+${TEST21_BINS}: LIBS += ${UTILLIB21}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
@@ -1025,16 +1039,12 @@ ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_api2_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_common_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_host_fw_preamble_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_host_key_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_host_keyblock_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_host_sig_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
+
+${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/utility/bmpblk_utility: LD = ${CXX}
 ${BUILD}/utility/bmpblk_utility: LDLIBS = -llzma -lyaml
@@ -1208,22 +1218,24 @@ runmisctests: test_setup
 .PHONY: run2tests
 run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_api_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_api2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_fw_preamble_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_key_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_keyblock_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_misc_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_host_sig_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc2_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc3_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_nvstorage_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_secdata_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_sha_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_api_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_common_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_misc_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_fw_preamble_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_key_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_keyblock_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_misc_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_sig_tests ${TEST_KEYS}
 
 .PHONY: runfutiltests
 runfutiltests: test_setup
@@ -1240,6 +1252,7 @@ runlongtests: test_setup genkeys genfuzztestcases
 ifneq (${VBOOT2},)
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS} --all
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS} --all
 endif
 	tests/run_preamble_tests.sh --all
 	tests/run_vbutil_tests.sh --all

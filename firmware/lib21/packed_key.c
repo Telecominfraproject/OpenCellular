@@ -8,6 +8,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
+#include "vb2_common.h"
 
 int vb2_unpack_key2_data(struct vb2_public_key *key,
 			 const uint8_t *key_data,

@@ -14,6 +14,8 @@
 #include "2nvstorage.h"
 #include "2secdata.h"
 
+#include "vb2_common.h"
+
 #include "test_common.h"
 
 /* Common context for tests */

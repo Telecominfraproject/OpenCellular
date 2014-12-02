@@ -8,7 +8,7 @@
 #ifndef VBOOT_REFERENCE_HOST_FW_PREAMBLE2_H_
 #define VBOOT_REFERENCE_HOST_FW_PREAMBLE2_H_
 
-#include "2struct.h"
+#include "vb2_struct.h"
 
 struct vb2_private_key;
 

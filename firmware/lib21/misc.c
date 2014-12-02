@@ -13,6 +13,7 @@
 #include "2secdata.h"
 #include "2sha.h"
 #include "2rsa.h"
+#include "vb2_common.h"
 
 /**
  * Read an object with a common struct header from a verified boot resource.

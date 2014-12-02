@@ -15,6 +15,8 @@
 #include "2rsa.h"
 #include "2secdata.h"
 
+#include "vb2_common.h"
+
 #include "host_key2.h"
 #include "host_signature2.h"
 

@@ -9,6 +9,7 @@
 #include "2common.h"
 #include "2rsa.h"
 #include "2sha.h"
+#include "vb2_common.h"
 
 const char *vb2_common_desc(const void *buf)
 {

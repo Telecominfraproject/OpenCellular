@@ -14,6 +14,7 @@
 #include "host_keyblock2.h"
 #include "host_misc.h"
 #include "host_signature2.h"
+#include "vb2_common.h"
 
 int vb2_fw_preamble_create(struct vb2_fw_preamble2 **fp_ptr,
 			   const struct vb2_private_key *signing_key,

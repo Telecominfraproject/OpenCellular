@@ -14,6 +14,7 @@
 #include "2secdata.h"
 #include "2sha.h"
 #include "2rsa.h"
+#include "vb2_common.h"
 
 int vb2api_fw_phase3_2(struct vb2_context *ctx)
 {
