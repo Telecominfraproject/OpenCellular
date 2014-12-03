@@ -271,6 +271,29 @@ try_arch () {
   # The rest of the partition should be unchanged.
   cmp -i ${blobsize} ${TMP}.part1.${arch} ${TMP}.part6.${arch}.new1
 
+  # repack it the new way, from input to output
+  cp ${TMP}.part1.${arch} ${TMP}.part1.${arch}.in
+  ${FUTILITY} sign --debug \
+    --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
+    --keyblock ${DEVKEYS}/kernel.keyblock \
+    --version 2 \
+    --pad ${padding} \
+    --config ${TMP}.config2.txt \
+    --bootloader ${TMP}.bootloader2.bin \
+    ${TMP}.part1.${arch}.in \
+    ${TMP}.part6.${arch}.new2
+
+  ${FUTILITY} vbutil_kernel --verify ${TMP}.part6.${arch}.new2 \
+    --pad ${padding} \
+    --signpubkey ${DEVKEYS}/kernel_subkey.vbpubk > ${TMP}.verify6.new2
+
+  # The input file should not have changed (just being sure).
+  cmp ${TMP}.part1.${arch} ${TMP}.part1.${arch}.in
+  # The verification should be indentical
+  diff ${TMP}.verify6.old ${TMP}.verify6.new2
+  # And creating a new output file should only emit a blob's worth
+  cmp ${TMP}.part6.${arch} ${TMP}.part6.${arch}.new2
+
   # Note: We specifically do not test repacking with a different --kloadaddr,
   # because the old way has a bug and does not update params->cmd_line_ptr to
   # point at the new on-disk location. Apparently (and not surprisingly), no

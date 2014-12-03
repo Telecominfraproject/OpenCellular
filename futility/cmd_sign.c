@@ -302,17 +302,20 @@ int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
 	}
 	Debug("vblock_size = 0x%" PRIx64 "\n", vblock_size);
 
-	if (option.vblockonly) {
-		/* If we're only writing the vblock, then we should be doing it
-		 * into a new file. */
-		rv = WriteSomeParts(option.outfile,
-				    vblock_data, vblock_size,
-				    NULL, 0);
+	if (option.create_new_outfile) {
+		/* Write out what we've been asked for */
+		if (option.vblockonly)
+			rv = WriteSomeParts(option.outfile,
+					    vblock_data, vblock_size,
+					    NULL, 0);
+		else
+			rv = WriteSomeParts(option.outfile,
+					    vblock_data, vblock_size,
+					    kblob_data, kblob_size);
 	} else {
-		/* If we're writing the whole thing, then the output is
-		 * the same size (and possibly the same file) as the input.
-		 * Either way, it's mmap'ed so modifications to the buffer
-		 * will get flushed to disk when we close the file. */
+		/* If we're modifying an existing file, it's mmap'ed so that
+		 * all our modifications to the buffer will get flushed to
+		 * disk when we close it. */
 		Memcpy(kpart_data, vblock_data, vblock_size);
 	}
 
@@ -879,6 +882,12 @@ static int do_sign(int argc, char *argv[])
 		}
 	}
 
+	/* Look for an output file if we don't have one, just in case. */
+	if (!option.outfile && argc - optind > 0) {
+		inout_file_count++;
+		option.outfile = argv[optind++];
+	}
+
 	/* What are we looking at? */
 	type = futil_what_file_type(infile);
 
@@ -890,6 +899,8 @@ static int do_sign(int argc, char *argv[])
 		else if (option.kernel_subkey || option.fv_specified)
 			type = FILE_TYPE_RAW_FIRMWARE;
 	}
+
+	Debug("type=%s\n", futil_file_type_str[type]);
 
 	/* Check the arguments for the type of thing we want to sign */
 	switch (type) {
@@ -942,7 +953,7 @@ static int do_sign(int argc, char *argv[])
 		break;
 	case FILE_TYPE_KERN_PREAMBLE:
 		errorcnt += no_opt_if(!option.signprivate, "signprivate");
-		if (option.vblockonly)
+		if (option.vblockonly || inout_file_count > 1)
 			option.create_new_outfile = 1;
 		break;
 	case FILE_TYPE_RAW_FIRMWARE:
@@ -965,29 +976,21 @@ static int do_sign(int argc, char *argv[])
 		DIE;
 	}
 
-	/* If we don't have an output file, we may need one */
+	Debug("infile=%s\n", infile);
+	Debug("inout_file_count=%d\n", inout_file_count);
+	Debug("option.create_new_outfile=%d\n", option.create_new_outfile);
+
+	/* Make sure we have an output file if one is needed */
 	if (!option.outfile) {
-		if (argc - optind > 0) {
-			/* We have an outfile arg, so use it. */
-			inout_file_count++;
-			option.outfile = argv[optind++];
+		if (option.create_new_outfile) {
+			errorcnt++;
+			fprintf(stderr, "Missing output filename\n");
+			goto done;
 		} else {
-			if (option.create_new_outfile) {
-				/* A distinct outfile is required */
-				errorcnt++;
-				fprintf(stderr, "Missing output filename\n");
-				goto done;
-			} else {
-				/* We'll just modify the input file */
-				option.outfile = infile;
-			}
+			option.outfile = infile;
 		}
 	}
 
-	Debug("type=%d\n", type);
-	Debug("option.create_new_outfile=%d\n", option.create_new_outfile);
-	Debug("inout_file_count=%d\n", inout_file_count);
-	Debug("infile=%s\n", infile);
 	Debug("option.outfile=%s\n", option.outfile);
 
 	if (argc - optind > 0) {
@@ -1005,6 +1008,7 @@ static int do_sign(int argc, char *argv[])
 		/* The input is read-only, the output is write-only. */
 		mapping = MAP_RO;
 		state.in_filename = infile;
+		Debug("open RO %s\n", infile);
 		ifd = open(infile, O_RDONLY);
 		if (ifd < 0) {
 			errorcnt++;
@@ -1018,6 +1022,7 @@ static int do_sign(int argc, char *argv[])
 		state.in_filename = option.outfile;
 		if (inout_file_count > 1)
 			futil_copy_file_or_die(infile, option.outfile);
+		Debug("open RW %s\n", option.outfile);
 		ifd = open(option.outfile, O_RDWR);
 		if (ifd < 0) {
 			errorcnt++;

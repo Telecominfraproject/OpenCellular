@@ -130,7 +130,7 @@ int print_hwid_digest(GoogleBinaryBlockHeader *gbb,
 	uint8_t *buf = (uint8_t *)gbb;
 	char *hwid_str = (char *)(buf + gbb->hwid_offset);
 	int is_valid = 0;
-	uint8_t* digest = DigestBuf(buf + gbb->hwid_offset,
+	uint8_t *digest = DigestBuf(buf + gbb->hwid_offset,
 				    strlen(hwid_str),
 				    SHA256_DIGEST_ALGORITHM);
 	if (digest) {
@@ -159,7 +159,7 @@ void update_hwid_digest(GoogleBinaryBlockHeader *gbb)
 
 	uint8_t *buf = (uint8_t *)gbb;
 	char *hwid_str = (char *)(buf + gbb->hwid_offset);
-	uint8_t* digest = DigestBuf(buf + gbb->hwid_offset,
+	uint8_t *digest = DigestBuf(buf + gbb->hwid_offset,
 				    strlen(hwid_str),
 				    SHA256_DIGEST_ALGORITHM);
 	memcpy(gbb->hwid_digest, digest, SHA256_DIGEST_SIZE);
@@ -174,6 +174,8 @@ void futil_copy_file_or_die(const char *infile, const char *outfile)
 {
 	pid_t pid;
 	int status;
+
+	Debug("%s(%s, %s)\n", __func__, infile, outfile);
 
 	pid = fork();
 
