@@ -51,16 +51,9 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 	uint32_t min_offset = 0;
 	int rv;
 
-	/*
-	 * Check magic number.
-	 *
-	 * If it doesn't match, pass through to the old packed key format.
-	 *
-	 * TODO: remove passthru when signing scripts have switched over to
-	 * use the new format.
-	 */
+	/* Check magic number */
 	if (pkey->c.magic != VB2_MAGIC_PACKED_KEY2)
-		return vb2_unpack_key(key, buf, size);
+		return VB2_ERROR_UNPACK_KEY_MAGIC;
 
 	rv = vb2_verify_common_header(buf, size);
 	if (rv)

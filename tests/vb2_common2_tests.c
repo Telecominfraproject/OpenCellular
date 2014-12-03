@@ -87,11 +87,6 @@ static void test_unpack_key2(const struct vb2_packed_key *key1,
 	/* Make a copy of the key for testing */
 	key2 = (struct vb2_packed_key2 *)malloc(size);
 
-	/* Should be able to handle a vboot1-style key binary as well */
-	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key1,
-				  key1->key_offset + key1->key_size),
-		  "vb2_unpack_key2() passthru");
-
 	memcpy(key2, key, size);
 	TEST_SUCC(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
 		  "vb2_unpack_key2() ok");
@@ -117,7 +112,7 @@ static void test_unpack_key2(const struct vb2_packed_key *key1,
 	memcpy(key2, key, size);
 	key2->c.magic++;
 	TEST_EQ(vb2_unpack_key2(&pubk, (uint8_t *)key2, size),
-		VB2_ERROR_INSIDE_DATA_OUTSIDE,
+		VB2_ERROR_UNPACK_KEY_MAGIC,
 		"vb2_unpack_key2() bad magic");
 
 	memcpy(key2, key, size);

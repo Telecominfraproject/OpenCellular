@@ -226,6 +226,9 @@ enum vb2_return_code {
 	/* Key algorithm doesn't match signature algorithm */
 	VB2_ERROR_VDATA_ALGORITHM_MISMATCH,
 
+	/* Bad magic number in vb2_unpack_key2() */
+	VB2_ERROR_UNPACK_KEY_MAGIC,
+
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())
 	 */
