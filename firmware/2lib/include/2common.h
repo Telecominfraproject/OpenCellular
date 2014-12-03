@@ -146,172 +146,6 @@ int vb2_align(uint8_t **ptr,
  */
 ptrdiff_t vb2_offset_of(const void *base, const void *ptr);
 
-/*
- * Helper functions to get data pointed to by a public key or signature.
- */
-
-const uint8_t *vb2_packed_key_data(const struct vb2_packed_key *key);
-uint8_t *vb2_signature_data(struct vb2_signature *sig);
-
-/**
- * Verify the data pointed to by a subfield is inside the parent data.
- *
- * The subfield has a header pointed to by member, and a separate data
- * field at an offset relative to the header.  That is:
- *
- *   struct parent {
- *     (possibly other parent fields)
- *     struct member {
- *        (member header fields)
- *     };
- *     (possibly other parent fields)
- *   };
- *   (possibly some other parent data)
- *   (member data)
- *   (possibly some other parent data)
- *
- * @param parent		Parent data
- * @param parent_size		Parent size in bytes
- * @param member		Subfield header
- * @param member_size		Size of subfield header in bytes
- * @param member_data_offset	Offset of member data from start of member
- * @param member_data_size	Size of member data in bytes
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_member_inside(const void *parent, size_t parent_size,
-			     const void *member, size_t member_size,
-			     ptrdiff_t member_data_offset,
-			     size_t member_data_size);
-
-/**
- * Return the description of an object starting with a vb2_struct_common header.
- *
- * Does not sanity-check the buffer; merely returns the pointer.
- *
- * @param buf		Pointer to common object
- * @return A pointer to description or an empty string if none.
- */
-const char *vb2_common_desc(const void *buf);
-
-/**
- * Verify the common struct header is fully contained in its parent data
- *
- * Also verifies the description is either zero-length or null-terminated.
- *
- * @param parent	Parent data
- * @param parent_size	Parent size in bytes
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_common_header(const void *parent, uint32_t parent_size);
-
-/**
- * Verify a member is within the data for a parent object
- *
- * @param parent	Parent data (starts with struct vb2_struct_common)
- * @param min_offset	Pointer to minimum offset where member can be located.
- *			If this offset is 0 on input, uses the size of the
- *			fixed header (and description, if any).  This will be
- *			updated on return to the end of the passed member.  On
- *			error, the value of min_offset is undefined.
- * @param member_offset Offset of member data from start of parent, in bytes
- * @param member_size	Size of member data, in bytes
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_common_member(const void *parent,
-			     uint32_t *min_offset,
-			     uint32_t member_offset,
-			     uint32_t member_size);
-
-/**
- * Verify a member which starts with a common header is within the parent
- *
- * This does not verify the contents of the member or its header, only that the
- * member's claimed total size fits within the parent's claimed total size at
- * the specified offset.
- *
- * @param parent	Parent data (starts with struct vb2_struct_common)
- * @param min_offset	Pointer to minimum offset where member can be located.
- *			If this offset is 0 on input, uses the size of the
- *			fixed header (and description, if any).  This will be
- *			updated on return to the end of the passed member.  On
- *			error, the value of min_offset is undefined.
- * @param member_offset Offset of member data from start of parent, in bytes.
- *                      This should be the start of the common header of the
- *                      member.
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_common_subobject(const void *parent,
-				uint32_t *min_offset,
-				uint32_t member_offset);
-
-/**
- * Verify a signature is fully contained in its parent data
- *
- * @param parent	Parent data
- * @param parent_size	Parent size in bytes
- * @param sig		Signature pointer
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_signature_inside(const void *parent,
-				uint32_t parent_size,
-				const struct vb2_signature *sig);
-
-/**
- * Verify a packed key is fully contained in its parent data
- *
- * @param parent	Parent data
- * @param parent_size	Parent size in bytes
- * @param key		Packed key pointer
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_packed_key_inside(const void *parent,
-				 uint32_t parent_size,
-				 const struct vb2_packed_key *key);
-
-/**
- * Unpack a vboot1-format key for use in verification
- *
- * The elements of the unpacked key will point into the source buffer, so don't
- * free the source buffer until you're done with the key.
- *
- * @param key		Destintion for unpacked key
- * @param buf		Source buffer containing packed key
- * @param size		Size of buffer in bytes
- * @return VB2_SUCCESS, or non-zero error code if error.
- */
-int vb2_unpack_key(struct vb2_public_key *key,
-		   const uint8_t *buf,
-		   uint32_t size);
-
-/**
- * Unpack a key for use in verification
- *
- * The elements of the unpacked key will point into the source buffer, so don't
- * free the source buffer until you're done with the key.
- *
- * @param key		Destintion for unpacked key
- * @param buf		Source buffer containing packed key
- * @param size		Size of buffer in bytes
- * @return VB2_SUCCESS, or non-zero error code if error.
- */
-int vb2_unpack_key2(struct vb2_public_key *key,
-		    const uint8_t *buf,
-		    uint32_t size);
-
-/**
- * Unpack the RSA data fields for a public key
- *
- * This is called by vb2_unpack_key2() to extract the arrays from a packed key.
- * These elements of *key will point inside the key_data buffer.
- *
- * @param key		Destination key for RSA data fields
- * @param key_data	Packed key data (from inside a packed key buffer)
- * @param key_size	Size of packed key data in bytes
- */
-int vb2_unpack_key2_data(struct vb2_public_key *key,
-			 const uint8_t *key_data,
-			 uint32_t key_size);
-
 /**
  * Return expected signature size for a signature/hash algorithm pair
  *
@@ -337,20 +171,6 @@ const struct vb2_guid *vb2_hash_guid(enum vb2_hash_algorithm hash_alg);
  */
 #define VB2_VERIFY_DIGEST_WORKBUF_BYTES VB2_VERIFY_RSA_DIGEST_WORKBUF_BYTES
 
-/**
- * Verify a signature against an expected hash digest.
- *
- * @param key		Key to use in signature verification
- * @param sig		Signature to verify (may be destroyed in process)
- * @param digest	Digest of signed data
- * @param wb		Work buffer
- * @return VB2_SUCCESS, or non-zero if error.
- */
-int vb2_verify_digest(const struct vb2_public_key *key,
-		      struct vb2_signature *sig,
-		      const uint8_t *digest,
-		      const struct vb2_workbuf *wb);
-
 /*
  * Size of work buffer sufficient for vb2_verify_data() or vb2_verify_data2()
  * worst case.
@@ -360,66 +180,16 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 	 VB2_MAX(VB2_VERIFY_DIGEST_WORKBUF_BYTES,			\
 		 sizeof(struct vb2_digest_context)))
 
-/**
- * Verify data matches signature.
- *
- * @param data		Data to verify
- * @param size		Size of data buffer.  Note that amount of data to
- *			actually validate is contained in sig->data_size.
- * @param sig		Signature of data (destroyed in process)
- * @param key		Key to use to validate signature
- * @param wb		Work buffer
- * @return VB2_SUCCESS, or non-zero error code if error.
- */
-int vb2_verify_data(const uint8_t *data,
-		    uint32_t size,
-		    struct vb2_signature *sig,
-		    const struct vb2_public_key *key,
-		    const struct vb2_workbuf *wb);
-
 /*
  * Size of work buffer sufficient for vb2_verify_keyblock() or
  * vb2_verify_keyblock2() worst case.
  */
 #define VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES VB2_VERIFY_DATA_WORKBUF_BYTES
 
-/**
- * Check the sanity of a key block using a public key.
- *
- * Header fields are also checked for sanity.  Does not verify key index or key
- * block flags.  Signature inside block is destroyed during check.
- *
- * @param block		Key block to verify
- * @param size		Size of key block buffer
- * @param key		Key to use to verify block
- * @param wb		Work buffer
- * @return VB2_SUCCESS, or non-zero error code if error.
- */
-int vb2_verify_keyblock(struct vb2_keyblock *block,
-			uint32_t size,
-			const struct vb2_public_key *key,
-			const struct vb2_workbuf *wb);
-
 /*
  * Size of work buffer sufficient for vb2_verify_fw_preamble() or
  * vb2_verify_fw_preamble2() worst case.
  */
 #define VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES VB2_VERIFY_DATA_WORKBUF_BYTES
-
-/**
- * Check the sanity of a firmware preamble using a public key.
- *
- * The signature in the preamble is destroyed during the check.
- *
- * @param preamble     	Preamble to verify
- * @param size		Size of preamble buffer
- * @param key		Key to use to verify preamble
- * @param wb		Work buffer
- * @return VB2_SUCCESS, or non-zero error code if error.
- */
-int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
-			   uint32_t size,
-			   const struct vb2_public_key *key,
-			   const struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2COMMON_H_ */

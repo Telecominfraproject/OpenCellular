@@ -6,8 +6,8 @@
  */
 
 #include "2sysincludes.h"
-#include "2common.h"
 #include "2rsa.h"
+#include "vb2_common.h"
 
 const uint8_t *vb2_packed_key_data(const struct vb2_packed_key *key)
 {

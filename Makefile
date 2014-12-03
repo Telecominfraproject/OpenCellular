@@ -235,8 +235,12 @@ endif
 # this source tree locally and link to it directly.
 FWLIB = ${BUILD}/vboot_fw.a
 
-# Smaller firmware library. TODO: Do we still need to export this?
+# Smaller firmware library
+# Stuff common to all vboot 2.x
+FWLIB2X = ${BUILD}/vboot_fw2x.a
+# Vboot 2.0 (stuck with this filename due to dependencies in coreboot)
 FWLIB20 = ${BUILD}/vboot_fw2.a
+# Vboot 2.1
 FWLIB21 = ${BUILD}/vboot_fw21.a
 
 # Firmware library sources needed by VbInit() call
@@ -278,6 +282,7 @@ VBSLK_SRCS = \
 	firmware/lib/region-kernel.c \
 
 # Firmware library source needed for smaller library 2
+# Code common to vboot 2.0 (old structs) and 2.1 (new structs)
 FWLIB2_SRCS = \
 	firmware/2lib/2api.c \
 	firmware/2lib/2common.c \
@@ -292,7 +297,10 @@ FWLIB2_SRCS = \
 	firmware/2lib/2sha_utility.c
 
 FWLIB20_SRCS = \
-	firmware/2lib/2packed_key.c
+	firmware/lib20/api.c \
+	firmware/lib20/common.c \
+	firmware/lib20/misc.c \
+	firmware/lib20/packed_key.c
 
 FWLIB21_SRCS = \
 	firmware/lib21/api.c \
@@ -631,18 +639,22 @@ ifdef REGION_READ
 TEST_NAMES += tests/vboot_region_tests
 endif
 
-TEST20_NAMES = \
+TEST2X_NAMES = \
 	tests/vb2_api_tests \
 	tests/vb2_common_tests \
-	tests/vb2_common2_tests \
-	tests/vb2_common3_tests \
 	tests/vb2_misc_tests \
-	tests/vb2_misc2_tests \
 	tests/vb2_nvstorage_tests \
-	tests/vb2_rsa_padding_tests \
 	tests/vb2_rsa_utility_tests \
 	tests/vb2_secdata_tests \
 	tests/vb2_sha_tests
+
+TEST20_NAMES = \
+	tests/vb20_api_tests \
+	tests/vb20_common_tests \
+	tests/vb20_common2_tests \
+	tests/vb20_common3_tests \
+	tests/vb20_misc_tests \
+	tests/vb20_rsa_padding_tests
 
 TEST21_NAMES = \
 	tests/vb21_api_tests \
@@ -656,7 +668,7 @@ TEST21_NAMES = \
 	tests/vb21_host_sig_tests
 
 ifneq (${VBOOT2},)
-TEST_NAMES += ${TEST20_NAMES} ${TEST21_NAMES}
+TEST_NAMES += ${TEST2X_NAMES} ${TEST20_NAMES} ${TEST21_NAMES}
 endif
 
 # And a few more...
@@ -679,6 +691,7 @@ TEST_NAMES += ${TLCL_TEST_NAMES}
 TEST_BINS = $(addprefix ${BUILD}/,${TEST_NAMES})
 TEST_OBJS += $(addsuffix .o,${TEST_BINS})
 
+TEST2X_BINS = $(addprefix ${BUILD}/,${TEST2X_NAMES})
 TEST20_BINS = $(addprefix ${BUILD}/,${TEST20_NAMES})
 TEST21_BINS = $(addprefix ${BUILD}/,${TEST21_NAMES})
 
@@ -700,7 +713,7 @@ _dir_create := $(foreach d, \
 # Default target.
 .PHONY: all
 all: fwlib \
-	$(if ${VBOOT2},fwlib2 fwlib21) \
+	$(if ${VBOOT2},fwlib2x fwlib2 fwlib21) \
 	$(if ${FIRMWARE_ARCH},,host_stuff) \
 	$(if ${COV},coverage)
 
@@ -772,6 +785,7 @@ ifeq (${FIRMWARE_ARCH},)
 ${FWLIB_OBJS}: CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
+${FWLIB20_OBJS}: INCLUDES += -Ifirmware/lib20/include
 ${FWLIB21_OBJS}: INCLUDES += -Ifirmware/lib21/include
 
 # Linktest ensures firmware lib doesn't rely on outside libraries
@@ -800,6 +814,16 @@ ${FWLIB}: ${FWLIB_OBJS}
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
+.PHONY: fwlib2x
+fwlib2x: ${FWLIB2X}
+
+${FWLIB2X}: ${FWLIB2_OBJS}
+	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	${Q}rm -f $@
+	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	${Q}ar qc $@ $^
+
+# TODO: it'd be nice to call this fwlib20, but coreboot expects fwlib2
 .PHONY: fwlib2
 fwlib2: ${FWLIB20}
 
@@ -841,9 +865,7 @@ ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
 utillib21: ${UTILLIB21}
 
 ${UTILLIB21}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
-
-# TODO: right now, firmware lib 2.1 isn't a complete standalone copy
-${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
+${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2_OBJS} ${FWLIB21_OBJS}
 	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -938,12 +960,12 @@ signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
 futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
 ${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB} \
-		$(if ${VBOOT2},${UTILLIB21})
+		$(if ${VBOOT2},${FWLIB20})
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
-${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${UTILLIB21})
+${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${FWLIB20})
 	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -981,7 +1003,11 @@ ${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
 
+${TEST2X_BINS}: ${FWLIB2X}
+${TEST2X_BINS}: LIBS += ${FWLIB2X}
+
 ${TEST20_BINS}: ${FWLIB20}
+${TEST20_BINS}: INCLUDES += -Ifirmware/lib20/include
 ${TEST20_BINS}: LIBS += ${FWLIB20}
 
 ${TEST21_BINS}: ${UTILLIB21}
@@ -1041,8 +1067,8 @@ ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_common2_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vb2_common3_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb20_common2_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
@@ -1219,14 +1245,16 @@ runmisctests: test_setup
 run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_api_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_common_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_misc2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_nvstorage_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_secdata_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb2_sha_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_api_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_common_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_common2_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_common3_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_api_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS}
@@ -1250,8 +1278,8 @@ runlongtests: test_setup genkeys genfuzztestcases
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS} --all
 ifneq (${VBOOT2},)
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_common2_tests ${TEST_KEYS} --all
-	${RUNTEST} ${BUILD_RUN}/tests/vb2_common3_tests ${TEST_KEYS} --all
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_common2_tests ${TEST_KEYS} --all
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_common3_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS} --all
 endif
 	tests/run_preamble_tests.sh --all

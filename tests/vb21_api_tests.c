@@ -30,7 +30,6 @@ static struct vb2_shared_data *sd;
 
 static const uint8_t mock_body[320] = "Mock body";
 static const int mock_body_size = sizeof(mock_body);
-static const int mock_algorithm = VB2_ALG_RSA2048_SHA256;
 static const int mock_hash_alg = VB2_HASH_SHA256;
 static int mock_sig_size;
 
@@ -198,6 +197,40 @@ static void init_hash_tests(void)
 		VB2_ERROR_SHA_INIT_ALGORITHM, "init hash algorithm");
 }
 
+static void extend_hash_tests(void)
+{
+	struct vb2_digest_context *dc;
+
+	reset_common_data(FOR_EXTEND_HASH);
+	TEST_SUCC(vb2api_extend_hash(&ctx, mock_body, 32),
+		"hash extend good");
+	TEST_EQ(sd->hash_remaining_size, mock_body_size - 32,
+		"hash extend remaining");
+	TEST_SUCC(vb2api_extend_hash(&ctx, mock_body, mock_body_size - 32),
+		"hash extend again");
+	TEST_EQ(sd->hash_remaining_size, 0, "hash extend remaining 2");
+
+	reset_common_data(FOR_EXTEND_HASH);
+	sd->workbuf_hash_size = 0;
+	TEST_EQ(vb2api_extend_hash(&ctx, mock_body, mock_body_size),
+		VB2_ERROR_API_EXTEND_HASH_WORKBUF, "hash extend no workbuf");
+
+	reset_common_data(FOR_EXTEND_HASH);
+	TEST_EQ(vb2api_extend_hash(&ctx, mock_body, mock_body_size + 1),
+		VB2_ERROR_API_EXTEND_HASH_SIZE, "hash extend too much");
+
+	reset_common_data(FOR_EXTEND_HASH);
+	TEST_EQ(vb2api_extend_hash(&ctx, mock_body, 0),
+		VB2_ERROR_API_EXTEND_HASH_SIZE, "hash extend empty");
+
+	reset_common_data(FOR_EXTEND_HASH);
+	dc = (struct vb2_digest_context *)
+		(ctx.workbuf + sd->workbuf_hash_offset);
+	dc->hash_alg = VB2_HASH_INVALID;
+	TEST_EQ(vb2api_extend_hash(&ctx, mock_body, mock_body_size),
+		VB2_ERROR_SHA_EXTEND_ALGORITHM, "hash extend fail");
+}
+
 static void check_hash_tests(void)
 {
 	struct vb2_fw_preamble2 *pre;
@@ -249,6 +282,7 @@ int main(int argc, char* argv[])
 {
 	phase3_tests();
 	init_hash_tests();
+	extend_hash_tests();
 	check_hash_tests();
 
 	return gTestSuccess ? 0 : 255;

@@ -33,7 +33,7 @@ function test_signatures {
     done
   done
   echo -e "Peforming ${COL_YELLOW}PKCS #1 v1.5 Padding Tests${COL_STOP}..."
-  ${TEST_DIR}/vb2_rsa_padding_tests ${TESTKEY_DIR}/rsa_padding_test_pubkey.keyb
+  ${TEST_DIR}/vb20_rsa_padding_tests ${TESTKEY_DIR}/rsa_padding_test_pubkey.keyb
 }
 
 check_test_keys

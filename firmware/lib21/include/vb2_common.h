@@ -16,6 +16,96 @@
 #include "vb2_struct.h"
 
 /**
+ * Return the description of an object starting with a vb2_struct_common header.
+ *
+ * Does not sanity-check the buffer; merely returns the pointer.
+ *
+ * @param buf		Pointer to common object
+ * @return A pointer to description or an empty string if none.
+ */
+const char *vb2_common_desc(const void *buf);
+
+/**
+ * Verify the common struct header is fully contained in its parent data
+ *
+ * Also verifies the description is either zero-length or null-terminated.
+ *
+ * @param parent	Parent data
+ * @param parent_size	Parent size in bytes
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_verify_common_header(const void *parent, uint32_t parent_size);
+
+/**
+ * Verify a member is within the data for a parent object
+ *
+ * @param parent	Parent data (starts with struct vb2_struct_common)
+ * @param min_offset	Pointer to minimum offset where member can be located.
+ *			If this offset is 0 on input, uses the size of the
+ *			fixed header (and description, if any).  This will be
+ *			updated on return to the end of the passed member.  On
+ *			error, the value of min_offset is undefined.
+ * @param member_offset Offset of member data from start of parent, in bytes
+ * @param member_size	Size of member data, in bytes
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_verify_common_member(const void *parent,
+			     uint32_t *min_offset,
+			     uint32_t member_offset,
+			     uint32_t member_size);
+
+/**
+ * Verify a member which starts with a common header is within the parent
+ *
+ * This does not verify the contents of the member or its header, only that the
+ * member's claimed total size fits within the parent's claimed total size at
+ * the specified offset.
+ *
+ * @param parent	Parent data (starts with struct vb2_struct_common)
+ * @param min_offset	Pointer to minimum offset where member can be located.
+ *			If this offset is 0 on input, uses the size of the
+ *			fixed header (and description, if any).  This will be
+ *			updated on return to the end of the passed member.  On
+ *			error, the value of min_offset is undefined.
+ * @param member_offset Offset of member data from start of parent, in bytes.
+ *                      This should be the start of the common header of the
+ *                      member.
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_verify_common_subobject(const void *parent,
+				uint32_t *min_offset,
+				uint32_t member_offset);
+
+/**
+ * Unpack a key for use in verification
+ *
+ * The elements of the unpacked key will point into the source buffer, so don't
+ * free the source buffer until you're done with the key.
+ *
+ * @param key		Destintion for unpacked key
+ * @param buf		Source buffer containing packed key
+ * @param size		Size of buffer in bytes
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_unpack_key2(struct vb2_public_key *key,
+		    const uint8_t *buf,
+		    uint32_t size);
+
+/**
+ * Unpack the RSA data fields for a public key
+ *
+ * This is called by vb2_unpack_key2() to extract the arrays from a packed key.
+ * These elements of *key will point inside the key_data buffer.
+ *
+ * @param key		Destination key for RSA data fields
+ * @param key_data	Packed key data (from inside a packed key buffer)
+ * @param key_size	Size of packed key data in bytes
+ */
+int vb2_unpack_key2_data(struct vb2_public_key *key,
+			 const uint8_t *key_data,
+			 uint32_t key_size);
+
+/**
  * Verify the integrity of a signature struct
  * @param sig		Signature struct
  * @param size		Size of buffer containing signature struct

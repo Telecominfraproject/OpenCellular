@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 #include "2sysincludes.h"
-#include "2common.h"
 #include "2rsa.h"
 
 #include "file_keys.h"
@@ -16,6 +15,7 @@
 #include "host_key.h"
 #include "host_keyblock.h"
 #include "host_signature.h"
+#include "vb2_common.h"
 #include "vboot_common.h"
 #include "test_common.h"
 

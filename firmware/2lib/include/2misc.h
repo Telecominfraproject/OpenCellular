@@ -11,6 +11,7 @@
 #include "2api.h"
 
 struct vb2_gbb_header;
+struct vb2_workbuf;
 
 /**
  * Get the shared data pointer from the vboot context

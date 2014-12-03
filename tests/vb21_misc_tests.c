@@ -245,7 +245,7 @@ static void load_keyblock_tests(void)
 
 	reset_common_data(FOR_KEYBLOCK);
 	ctx.workbuf_used = ctx.workbuf_size - sd->gbb_rootkey_size
-		- sizeof(struct vb2_keyblock);
+		- sizeof(struct vb2_keyblock2);
 	TEST_EQ(vb2_load_fw_keyblock2(&ctx),
 		VB2_ERROR_READ_RESOURCE_OBJECT_BUF,
 		"keyblock not enough workbuf for entire keyblock");
@@ -310,7 +310,7 @@ static void load_preamble_tests(void)
 
 	reset_common_data(FOR_PREAMBLE);
 	ctx.workbuf_used = ctx.workbuf_size
-		- sizeof(struct vb2_fw_preamble) + 8;
+		- sizeof(struct vb2_fw_preamble2) + 8;
 	TEST_EQ(vb2_load_fw_preamble2(&ctx),
 		VB2_ERROR_READ_RESOURCE_OBJECT_BUF,
 		"preamble not enough workbuf for header");
