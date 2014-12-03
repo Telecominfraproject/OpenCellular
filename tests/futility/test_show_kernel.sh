@@ -50,6 +50,28 @@ ${FUTILITY} show ${TMP}.kernel.test \
 
 echo 'Test kernel blob looks good'
 
+# Mess up the padding, make sure it fails.
+rc=0
+${FUTILITY} show ${TMP}.kernel.test \
+    --pad 0x100 \
+    --publickey ${DEVKEYS}/kernel_subkey.vbpubk \
+  || rc=$?
+[ $rc -ne 0 ]
+[ $rc -lt 128 ]
+
+echo 'Invalid args are invalid'
+
+# Look waaaaaay off the end of the file, make sure it fails.
+rc=0
+${FUTILITY} show ${TMP}.kernel.test \
+    --pad 0x100000 \
+    --publickey ${DEVKEYS}/kernel_subkey.vbpubk \
+  || rc=$?
+[ $rc -ne 0 ]
+[ $rc -lt 128 ]
+
+echo 'Really invalid args are still invalid'
+
 # cleanup
 rm -rf ${TMP}*
 exit 0

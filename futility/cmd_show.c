@@ -382,7 +382,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	uint32_t len = state->my_area->len;
 	VbPublicKey *sign_key = option.k;
 	uint8_t *kernel_blob = 0;
-	uint64_t kernel_size;
+	uint64_t kernel_size = 0;
 	int good_sig = 0;
 	int retval = 0;
 
@@ -441,7 +441,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 		/* It's in a separate file, which we've already read in */
 		kernel_blob = option.fv;
 		kernel_size = option.fv_size;
-	} else {
+	} else if (state->my_area->len > option.padding) {
 		/* It should be at an offset within the input file. */
 		kernel_blob = state->my_area->buf + option.padding;
 		kernel_size = state->my_area->len - option.padding;
