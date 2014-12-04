@@ -18,6 +18,7 @@ PUBLOGFILE="/var/log/debug_vboot_noisy.log"
 
 OPT_CLEANUP=
 OPT_BIOS=
+OPT_FORCE=
 OPT_IMAGE=
 OPT_KERNEL=
 OPT_VERBOSE=
@@ -170,14 +171,19 @@ fix_old_names() {
   true
 }
 
-
 ##############################################################################
 # Here we go...
 
 umask 022
 
+# defaults
+DEV_DEBUG_FORCE=
+
+# override them?
+[ -f /etc/default/vboot_reference ] && . /etc/default/vboot_reference
+
 # Pre-parse args to replace actual args with a sanitized version.
-TEMP=$(getopt -o hvb:i:k:c --long help,bios:,image:,kernel:,cleanup \
+TEMP=$(getopt -o hvb:i:k:cf --long help,bios:,image:,kernel:,cleanup,force \
        -n $0 -- "$@")
 eval set -- "$TEMP"
 
@@ -203,6 +209,10 @@ while true ; do
       OPT_CLEANUP=yes
       shift
       ;;
+    -f|--force)
+      OPT_FORCE=yes
+      shift
+      ;;
     -v)
       OPT_VERBOSE=yes
       shift
@@ -221,6 +231,7 @@ while true ; do
       ;;
   esac
 done
+
 if [ -z "${1:-}" ]; then
   TMPDIR=$(mktemp -d /tmp/debug_vboot_XXXXXXXXX)
 else
@@ -234,13 +245,20 @@ fi
 cd ${TMPDIR} || exit 1
 echo "Running $0 $*" > "$LOGFILE"
 log date
+debug "DEV_DEBUG_FORCE=($DEV_DEBUG_FORCE)"
 debug "OPT_CLEANUP=($OPT_CLEANUP)"
 debug "OPT_BIOS=($OPT_BIOS)"
+debug "OPT_FORCE=($OPT_FORCE)"
 debug "OPT_IMAGE=($OPT_IMAGE)"
 debug "OPT_KERNEL=($OPT_KERNEL)"
 debug "FLAG_SAVE_LOG_FILE=($FLAG_SAVE_LOG_FILE)"
 echo "Saving verbose log as $LOGFILE"
 trap cleanup EXIT
+
+if [ -n "${DEV_DEBUG_FORCE}" ] && [ -z "${OPT_FORCE}" ]; then
+  info "Not gonna do anything without the --force option."
+  exit 0
+fi
 
 
 # Make sure we have the programs we need
@@ -272,20 +290,23 @@ if [ -n "${OPT_BIOS}" ]; then
   log futility dump_fmap -x "${OPT_BIOS}"
   fix_old_names
 else
-  # Read it from the flash
-  if log flashrom -p host -r bios.rom ; then
-    # If we can read the whole BIOS at once, great.
-    log futility dump_fmap -x bios.rom
-    fix_old_names
-  else
-    # Otherwise pull just the components we want (implying new-style names)
-    info "  ...individually..."
-    log flashrom -p host -r /dev/null \
-      -i"GBB":GBB \
-      -i"VBLOCK_A":VBLOCK_A \
-      -i"VBLOCK_B":VBLOCK_B \
-      -i"FW_MAIN_A":FW_MAIN_A \
-      -i"FW_MAIN_B":FW_MAIN_B
+  # First try pulling just the components we want (using new-style names)
+  if log flashrom -p host -r /dev/null \
+    -i"GBB":GBB \
+    -i"FMAP":FMAP \
+    -i"VBLOCK_A":VBLOCK_A \
+    -i"VBLOCK_B":VBLOCK_B \
+    -i"FW_MAIN_A":FW_MAIN_A \
+    -i"FW_MAIN_B":FW_MAIN_B ; then
+      log futility dump_fmap FMAP
+    else
+      info "Couldn't read individual components. Read the whole thing..."
+      if log flashrom -p host -r bios.rom ; then
+        log futility dump_fmap -x bios.rom
+        fix_old_names
+      else
+        logdie "Can't read BIOS at all. Giving up."
+      fi
   fi
 fi
 

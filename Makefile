@@ -45,16 +45,22 @@ export BUILD
 INSTALL = install
 DESTDIR = /usr/local
 
+# Default values
+DEV_DEBUG_FORCE=
+
 # Where exactly do the pieces go?
 #  UB_DIR = utility binary directory
+#  DF_DIR = utility defaults directory
 #  VB_DIR = vboot binary directory for dev-mode-only scripts
 ifeq (${MINIMAL},)
 # Host install just puts everything where it's told
 UB_DIR=${DESTDIR}/bin
+DF_DIR=${DESTDIR}/default
 VB_DIR=${DESTDIR}/bin
 else
 # Target install puts things into different places
 UB_DIR=${DESTDIR}/usr/bin
+DF_DIR=${DESTDIR}/etc/default
 VB_DIR=${DESTDIR}/usr/share/vboot/bin
 endif
 
@@ -473,6 +479,8 @@ CGPT_SRCS = \
 CGPT_OBJS = ${CGPT_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${CGPT_OBJS}
 
+# Utility defaults
+UTIL_DEFAULTS = ${BUILD}/default/vboot_reference
 
 # Scripts to install directly (not compiled)
 UTIL_SCRIPTS = \
@@ -505,7 +513,6 @@ UTIL_NAMES += \
 	utility/pad_digest_utility \
 	utility/signature_digest_utility \
 	utility/verify_data
-
 endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/,${UTIL_NAMES_STATIC})
@@ -939,10 +946,12 @@ utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 	${Q}chmod a+rx $(patsubst %,${BUILD}/%,${UTIL_SCRIPTS})
 
 .PHONY: utils_install
-utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS}
+utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_DEFAULTS}
 	@$(PRINTF) "    INSTALL       UTILS\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${UTIL_BINS} ${UTIL_SCRIPTS}
+	${Q}mkdir -p ${DF_DIR}
+	${Q}${INSTALL} -t ${DF_DIR} -m 'u=rw,go=r,a-s' ${UTIL_DEFAULTS}
 
 # And some signing stuff for the target
 .PHONY: signing_install
@@ -1056,6 +1065,16 @@ ${BUILD}/%.o: %.cc
 
 # ----------------------------------------------------------------------------
 # Here are the special tweaks to the generic rules.
+
+# Always create the defaults file, since it depends on input variables
+.PHONY: ${UTIL_DEFAULTS}
+${UTIL_DEFAULTS}:
+	@$(PRINTF) "    CREATE        $(subst ${BUILD}/,,$@)\n"
+	${Q}rm -f $@
+	${Q}mkdir -p $(dir $@)
+	${Q}echo '# Generated file. Do not edit.' > $@.tmp
+	${Q}echo "DEV_DEBUG_FORCE=${DEV_DEBUG_FORCE}" >> $@.tmp
+	${Q}mv -f $@.tmp $@
 
 # Some utilities need external crypto functions
 CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
