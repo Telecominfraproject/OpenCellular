@@ -62,16 +62,16 @@ int vb2_read_resource_object(struct vb2_context *ctx,
 	return VB2_SUCCESS;
 }
 
-int vb2_load_fw_keyblock2(struct vb2_context *ctx)
+int vb2_load_fw_keyblock(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	struct vb2_workbuf wb;
 
 	uint8_t *key_data;
 	uint32_t key_size;
-	struct vb2_packed_key2 *packed_key;
+	struct vb2_packed_key *packed_key;
 	struct vb2_public_key root_key;
-	struct vb2_keyblock2 *kb;
+	struct vb2_keyblock *kb;
 
 	uint32_t sec_version;
 	int rv;
@@ -90,7 +90,7 @@ int vb2_load_fw_keyblock2(struct vb2_context *ctx)
 		return rv;
 
 	/* Unpack the root key */
-	rv = vb2_unpack_key2(&root_key, key_data, key_size);
+	rv = vb2_unpack_key(&root_key, key_data, key_size);
 	if (rv)
 		return rv;
 
@@ -104,7 +104,7 @@ int vb2_load_fw_keyblock2(struct vb2_context *ctx)
 		return rv;
 
 	/* Verify the keyblock */
-	rv = vb2_verify_keyblock2(kb, kb->c.total_size, &root_key, &wb);
+	rv = vb2_verify_keyblock(kb, kb->c.total_size, &root_key, &wb);
 	if (rv)
 		return rv;
 
@@ -116,7 +116,7 @@ int vb2_load_fw_keyblock2(struct vb2_context *ctx)
 	if (rv)
 		return rv;
 
-	packed_key = (struct vb2_packed_key2 *)((uint8_t *)kb + kb->key_offset);
+	packed_key = (struct vb2_packed_key *)((uint8_t *)kb + kb->key_offset);
 
 	/* Key version is the upper 16 bits of the composite firmware version */
 	if (packed_key->key_version > 0xffff)
@@ -137,7 +137,7 @@ int vb2_load_fw_keyblock2(struct vb2_context *ctx)
 	 * paranoid.
 	 */
 	memmove(key_data, packed_key, packed_key->c.total_size);
-	packed_key = (struct vb2_packed_key2 *)key_data;
+	packed_key = (struct vb2_packed_key *)key_data;
 
 	/* Save the packed key offset and size */
 	sd->workbuf_data_key_offset = vb2_offset_of(ctx->workbuf, key_data);
@@ -150,7 +150,7 @@ int vb2_load_fw_keyblock2(struct vb2_context *ctx)
 	return VB2_SUCCESS;
 }
 
-int vb2_load_fw_preamble2(struct vb2_context *ctx)
+int vb2_load_fw_preamble(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	struct vb2_workbuf wb;
@@ -160,7 +160,7 @@ int vb2_load_fw_preamble2(struct vb2_context *ctx)
 	struct vb2_public_key data_key;
 
 	/* Preamble goes in the next unused chunk of work buffer */
-	struct vb2_fw_preamble2 *pre;
+	struct vb2_fw_preamble *pre;
 
 	uint32_t sec_version;
 	int rv;
@@ -171,7 +171,7 @@ int vb2_load_fw_preamble2(struct vb2_context *ctx)
 	if (!sd->workbuf_data_key_size)
 		return VB2_ERROR_FW_PREAMBLE2_DATA_KEY;
 
-	rv = vb2_unpack_key2(&data_key, key_data, key_size);
+	rv = vb2_unpack_key(&data_key, key_data, key_size);
 	if (rv)
 		return rv;
 
@@ -185,13 +185,13 @@ int vb2_load_fw_preamble2(struct vb2_context *ctx)
 	/* Work buffer now contains the data subkey data and the preamble */
 
 	/* Verify the preamble */
-	rv = vb2_verify_fw_preamble2(pre, pre->c.total_size, &data_key, &wb);
+	rv = vb2_verify_fw_preamble(pre, pre->c.total_size, &data_key, &wb);
 	if (rv)
 		return rv;
 
 	/* Move the preamble down now that the data key is no longer used */
 	memmove(key_data, pre, pre->c.total_size);
-	pre = (struct vb2_fw_preamble2 *)key_data;
+	pre = (struct vb2_fw_preamble *)key_data;
 
 	/* Data key is now gone */
 	sd->workbuf_data_key_offset = sd->workbuf_data_key_size = 0;
@@ -205,13 +205,13 @@ int vb2_load_fw_preamble2(struct vb2_context *ctx)
 	 * Firmware version is the lower 16 bits of the composite firmware
 	 * version.
 	 */
-	if (pre->firmware_version > 0xffff)
-		return VB2_ERROR_FW_PREAMBLE2_VERSION_RANGE;
+	if (pre->fw_version > 0xffff)
+		return VB2_ERROR_FW_PREAMBLE_VERSION_RANGE;
 
 	/* Combine with the key version from vb2_load_fw_keyblock() */
-	sd->fw_version |= pre->firmware_version;
+	sd->fw_version |= pre->fw_version;
 	if (sd->fw_version < sec_version)
-		return VB2_ERROR_FW_PREAMBLE2_VERSION_ROLLBACK;
+		return VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
 
 	/*
 	 * If this is a newer version than in secure storage, and we

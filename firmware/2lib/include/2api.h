@@ -297,11 +297,6 @@ int vb2api_fw_phase2(struct vb2_context *ctx);
 int vb2api_fw_phase3(struct vb2_context *ctx);
 
 /**
- * Same, but for new-style structs.
- */
-int vb2api_fw_phase3_2(struct vb2_context *ctx);
-
-/**
  * Initialize hashing data for the specified tag.
  *
  * @param ctx		Vboot context
@@ -340,11 +335,6 @@ int vb2api_extend_hash(struct vb2_context *ctx,
  * @return VB2_SUCCESS, or error code on error.
  */
 int vb2api_check_hash(struct vb2_context *ctx);
-
-/**
- * Same, but for new-style structs.
- */
-int vb2api_check_hash2(struct vb2_context *ctx);
 
 /*****************************************************************************/
 /* APIs provided by the caller to verified boot */

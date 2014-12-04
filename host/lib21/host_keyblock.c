@@ -15,23 +15,23 @@
 #include "host_misc.h"
 #include "host_signature2.h"
 
-int vb2_keyblock_create(struct vb2_keyblock2 **kb_ptr,
+int vb2_keyblock_create(struct vb2_keyblock **kb_ptr,
 			const struct vb2_public_key *data_key,
 			const struct vb2_private_key **signing_keys,
 			uint32_t signing_key_count,
 			uint32_t flags,
 			const char *desc)
 {
-	struct vb2_keyblock2 kb = {
-		.c.magic = VB2_MAGIC_KEYBLOCK2,
-		.c.struct_version_major = VB2_KEYBLOCK2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_KEYBLOCK2_VERSION_MAJOR,
+	struct vb2_keyblock kb = {
+		.c.magic = VB2_MAGIC_KEYBLOCK,
+		.c.struct_version_major = VB2_KEYBLOCK_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_KEYBLOCK_VERSION_MAJOR,
 		.c.fixed_size = sizeof(kb),
 		.flags = flags,
 		.sig_count = signing_key_count,
 	};
 
-	struct vb2_packed_key2 *key = NULL;
+	struct vb2_packed_key *key = NULL;
 	uint32_t sig_size;
 	uint8_t *buf;
 
@@ -72,6 +72,6 @@ int vb2_keyblock_create(struct vb2_keyblock2 **kb_ptr,
 		return VB2_KEYBLOCK_CREATE_SIGN;
 	}
 
-	*kb_ptr = (struct vb2_keyblock2 *)buf;
+	*kb_ptr = (struct vb2_keyblock *)buf;
 	return VB2_SUCCESS;
 }

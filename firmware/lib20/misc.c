@@ -194,12 +194,12 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	 * version.
 	 */
 	if (pre->firmware_version > 0xffff)
-		return VB2_ERROR_FW_PREAMBLE2_VERSION_RANGE;
+		return VB2_ERROR_FW_PREAMBLE_VERSION_RANGE;
 
 	/* Combine with the key version from vb2_load_fw_keyblock() */
 	sd->fw_version |= pre->firmware_version;
 	if (sd->fw_version < sec_version)
-		return VB2_ERROR_FW_PREAMBLE2_VERSION_ROLLBACK;
+		return VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
 
 	/*
 	 * If this is a newer version than in secure storage, and we

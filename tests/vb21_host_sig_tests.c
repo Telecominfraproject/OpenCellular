@@ -43,7 +43,7 @@ static void sig_tests(const struct alg_combo *combo,
 	struct vb2_private_key *prik, prik2;
 	const struct vb2_private_key *prihash, *priks[2];
 	struct vb2_public_key *pubk, pubhash;
-	struct vb2_signature2 *sig, *sig2;
+	struct vb2_signature *sig, *sig2;
 	uint32_t size;
 
 	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
@@ -86,7 +86,7 @@ static void sig_tests(const struct alg_combo *combo,
 	TEST_EQ(sig->data_size, test_size, "  data_size");
 	TEST_SUCC(vb2_sig_size_for_key(&size, prik, NULL), "Sig size");
 	TEST_EQ(size, sig->c.total_size, "  size");
-	TEST_SUCC(vb2_verify_data2(test_data, test_size, sig, pubk, &wb),
+	TEST_SUCC(vb2_verify_data(test_data, test_size, sig, pubk, &wb),
 		  "Verify good");
 	free(sig);
 
@@ -105,7 +105,7 @@ static void sig_tests(const struct alg_combo *combo,
 
 	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prihash, NULL),
 		  "Sign with hash");
-	TEST_SUCC(vb2_verify_data2(test_data, test_size, sig, &pubhash, &wb),
+	TEST_SUCC(vb2_verify_data(test_data, test_size, sig, &pubhash, &wb),
 		  "Verify with hash");
 	free(sig);
 
@@ -124,8 +124,8 @@ static void sig_tests(const struct alg_combo *combo,
 	c->total_size = bufsize;
 
 	TEST_SUCC(vb2_sign_object(buf, c_sig_offs, prik, NULL), "Sign object");
-	sig = (struct vb2_signature2 *)(buf + c_sig_offs);
-	TEST_SUCC(vb2_verify_data2(buf, c_sig_offs, sig, pubk, &wb),
+	sig = (struct vb2_signature *)(buf + c_sig_offs);
+	TEST_SUCC(vb2_verify_data(buf, c_sig_offs, sig, pubk, &wb),
 		  "Verify object");
 
 	TEST_EQ(vb2_sign_object(buf, c_sig_offs + 4, prik, NULL),
@@ -142,11 +142,11 @@ static void sig_tests(const struct alg_combo *combo,
 
 	TEST_SUCC(vb2_sign_object_multiple(buf, c_sig_offs, priks, 2),
 		  "Sign multiple");
-	sig = (struct vb2_signature2 *)(buf + c_sig_offs);
-	TEST_SUCC(vb2_verify_data2(buf, c_sig_offs, sig, pubk, &wb),
+	sig = (struct vb2_signature *)(buf + c_sig_offs);
+	TEST_SUCC(vb2_verify_data(buf, c_sig_offs, sig, pubk, &wb),
 		  "Verify object with sig 1");
-	sig2 = (struct vb2_signature2 *)(buf + c_sig_offs + sig->c.total_size);
-	TEST_SUCC(vb2_verify_data2(buf, c_sig_offs, sig2, &pubhash, &wb),
+	sig2 = (struct vb2_signature *)(buf + c_sig_offs + sig->c.total_size);
+	TEST_SUCC(vb2_verify_data(buf, c_sig_offs, sig2, &pubhash, &wb),
 		  "Verify object with sig 2");
 
 	c->total_size -= 4;

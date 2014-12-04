@@ -22,8 +22,8 @@ static void keyblock_tests(const char *keys_dir)
 {
 	struct vb2_public_key *pubk2048, *pubk4096, *pubk8192, pubkhash;
 	struct vb2_private_key *prik4096, *prik8192;
-	struct vb2_packed_key2 *pak, *pakgood;
-	struct vb2_keyblock2 *kb;
+	struct vb2_packed_key *pak, *pakgood;
+	struct vb2_keyblock *kb;
 	const struct vb2_private_key *prikhash;
 	const struct vb2_private_key *prik[2];
 	char fname[1024];
@@ -80,12 +80,12 @@ static void keyblock_tests(const char *keys_dir)
 	TEST_SUCC(vb2_keyblock_create(&kb, pubk2048, prik, 1, 0x1234, NULL),
 		  "Keyblock single");
 	TEST_PTR_NEQ(kb, NULL, "  kb_ptr");
-	TEST_SUCC(vb2_verify_keyblock2(kb, kb->c.total_size, pubk4096, &wb),
+	TEST_SUCC(vb2_verify_keyblock(kb, kb->c.total_size, pubk4096, &wb),
 		  "  verify");
 	TEST_EQ(strcmp(vb2_common_desc(kb), pubk2048->desc), 0,	"  desc");
 	TEST_EQ(kb->flags, 0x1234, "  flags");
 
-	pak = (struct vb2_packed_key2 *)((uint8_t *)kb + kb->key_offset);
+	pak = (struct vb2_packed_key *)((uint8_t *)kb + kb->key_offset);
 	TEST_EQ(0, memcmp(pak, pakgood, pakgood->c.total_size), "  data key");
 	free(kb);
 
@@ -94,9 +94,9 @@ static void keyblock_tests(const char *keys_dir)
 	prik[1] = prikhash;
 	TEST_SUCC(vb2_keyblock_create(&kb, pubk4096, prik, 2, 0, test_desc),
 		  "Keyblock multiple");
-	TEST_SUCC(vb2_verify_keyblock2(kb, kb->c.total_size, pubk8192, &wb),
+	TEST_SUCC(vb2_verify_keyblock(kb, kb->c.total_size, pubk8192, &wb),
 		  "  verify 1");
-	TEST_SUCC(vb2_verify_keyblock2(kb, kb->c.total_size, &pubkhash, &wb),
+	TEST_SUCC(vb2_verify_keyblock(kb, kb->c.total_size, &pubkhash, &wb),
 		  "  verify 2");
 	TEST_EQ(strcmp(vb2_common_desc(kb), test_desc), 0,	"  desc");
 	TEST_EQ(kb->flags, 0, "  flags");

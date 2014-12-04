@@ -16,22 +16,22 @@
 #include "host_signature2.h"
 #include "vb2_common.h"
 
-int vb2_fw_preamble_create(struct vb2_fw_preamble2 **fp_ptr,
+int vb2_fw_preamble_create(struct vb2_fw_preamble **fp_ptr,
 			   const struct vb2_private_key *signing_key,
-			   const struct vb2_signature2 **hash_list,
+			   const struct vb2_signature **hash_list,
 			   uint32_t hash_count,
 			   uint32_t fw_version,
 			   uint32_t flags,
 			   const char *desc)
 {
-	struct vb2_fw_preamble2 fp = {
-		.c.magic = VB2_MAGIC_FW_PREAMBLE2,
-		.c.struct_version_major = VB2_FW_PREAMBLE2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_FW_PREAMBLE2_VERSION_MAJOR,
+	struct vb2_fw_preamble fp = {
+		.c.magic = VB2_MAGIC_FW_PREAMBLE,
+		.c.struct_version_major = VB2_FW_PREAMBLE_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_FW_PREAMBLE_VERSION_MAJOR,
 		.c.fixed_size = sizeof(fp),
 		.c.desc_size = vb2_desc_size(desc),
 		.flags = flags,
-		.firmware_version = fw_version,
+		.fw_version = fw_version,
 		.hash_count = hash_count,
 	};
 
@@ -77,6 +77,6 @@ int vb2_fw_preamble_create(struct vb2_fw_preamble2 **fp_ptr,
 		return VB2_FW_PREAMBLE_CREATE_SIGN;
 	}
 
-	*fp_ptr = (struct vb2_fw_preamble2 *)buf;
+	*fp_ptr = (struct vb2_fw_preamble *)buf;
 	return VB2_SUCCESS;
 }

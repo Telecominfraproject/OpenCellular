@@ -8,10 +8,8 @@
 #ifndef VBOOT_REFERENCE_VB2_COMMON_H_
 #define VBOOT_REFERENCE_VB2_COMMON_H_
 
-#include "2api.h"
 #include "2common.h"
 #include "2return_codes.h"
-#include "2sha.h"
 #include "2struct.h"
 #include "vb2_struct.h"
 
@@ -87,23 +85,23 @@ int vb2_verify_common_subobject(const void *parent,
  * @param size		Size of buffer in bytes
  * @return VB2_SUCCESS, or non-zero error code if error.
  */
-int vb2_unpack_key2(struct vb2_public_key *key,
-		    const uint8_t *buf,
-		    uint32_t size);
+int vb2_unpack_key(struct vb2_public_key *key,
+		   const uint8_t *buf,
+		   uint32_t size);
 
 /**
  * Unpack the RSA data fields for a public key
  *
- * This is called by vb2_unpack_key2() to extract the arrays from a packed key.
+ * This is called by vb2_unpack_key() to extract the arrays from a packed key.
  * These elements of *key will point inside the key_data buffer.
  *
  * @param key		Destination key for RSA data fields
  * @param key_data	Packed key data (from inside a packed key buffer)
  * @param key_size	Size of packed key data in bytes
  */
-int vb2_unpack_key2_data(struct vb2_public_key *key,
-			 const uint8_t *key_data,
-			 uint32_t key_size);
+int vb2_unpack_key_data(struct vb2_public_key *key,
+			const uint8_t *key_data,
+			uint32_t key_size);
 
 /**
  * Verify the integrity of a signature struct
@@ -111,8 +109,8 @@ int vb2_unpack_key2_data(struct vb2_public_key *key,
  * @param size		Size of buffer containing signature struct
  * @return VB2_SUCCESS, or non-zero if error.
  */
-int vb2_verify_signature2(const struct vb2_signature2 *sig,
-			  uint32_t size);
+int vb2_verify_signature(const struct vb2_signature *sig,
+			 uint32_t size);
 
 /**
  * Verify a signature against an expected hash digest.
@@ -123,10 +121,10 @@ int vb2_verify_signature2(const struct vb2_signature2 *sig,
  * @param wb		Work buffer
  * @return VB2_SUCCESS, or non-zero if error.
  */
-int vb2_verify_digest2(const struct vb2_public_key *key,
-		       struct vb2_signature2 *sig,
-		       const uint8_t *digest,
-		       const struct vb2_workbuf *wb);
+int vb2_verify_digest(const struct vb2_public_key *key,
+		      struct vb2_signature *sig,
+		      const uint8_t *digest,
+		      const struct vb2_workbuf *wb);
 
 /**
  * Verify data matches signature.
@@ -139,11 +137,11 @@ int vb2_verify_digest2(const struct vb2_public_key *key,
  * @param wb		Work buffer
  * @return VB2_SUCCESS, or non-zero error code if error.
  */
-int vb2_verify_data2(const void *data,
-		     uint32_t size,
-		     struct vb2_signature2 *sig,
-		     const struct vb2_public_key *key,
-		     const struct vb2_workbuf *wb);
+int vb2_verify_data(const void *data,
+		    uint32_t size,
+		    struct vb2_signature *sig,
+		    const struct vb2_public_key *key,
+		    const struct vb2_workbuf *wb);
 
 /**
  * Check the sanity of a key block using a public key.
@@ -157,10 +155,10 @@ int vb2_verify_data2(const void *data,
  * @param wb		Work buffer
  * @return VB2_SUCCESS, or non-zero error code if error.
  */
-int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
-			 uint32_t size,
-			 const struct vb2_public_key *key,
-			 const struct vb2_workbuf *wb);
+int vb2_verify_keyblock(struct vb2_keyblock *block,
+			uint32_t size,
+			const struct vb2_public_key *key,
+			const struct vb2_workbuf *wb);
 
 /**
  * Check the sanity of a firmware preamble using a public key.
@@ -173,9 +171,9 @@ int vb2_verify_keyblock2(struct vb2_keyblock2 *block,
  * @param wb		Work buffer
  * @return VB2_SUCCESS, or non-zero error code if error.
  */
-int vb2_verify_fw_preamble2(struct vb2_fw_preamble2 *preamble,
-			    uint32_t size,
-			    const struct vb2_public_key *key,
-			    const struct vb2_workbuf *wb);
+int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
+			   uint32_t size,
+			   const struct vb2_public_key *key,
+			   const struct vb2_workbuf *wb);
 
 #endif  /* VBOOT_REFERENCE_VB2_COMMON_H_ */

@@ -10,7 +10,7 @@
 #include "2rsa.h"
 #include "vb2_common.h"
 
-int vb2_unpack_key2_data(struct vb2_public_key *key,
+int vb2_unpack_key_data(struct vb2_public_key *key,
 			 const uint8_t *key_data,
 			 uint32_t key_size)
 {
@@ -42,18 +42,18 @@ int vb2_unpack_key2_data(struct vb2_public_key *key,
 	return VB2_SUCCESS;
 }
 
-int vb2_unpack_key2(struct vb2_public_key *key,
+int vb2_unpack_key(struct vb2_public_key *key,
 		    const uint8_t *buf,
 		    uint32_t size)
 {
-	const struct vb2_packed_key2 *pkey =
-		(const struct vb2_packed_key2 *)buf;
+	const struct vb2_packed_key *pkey =
+		(const struct vb2_packed_key *)buf;
 	uint32_t sig_size;
 	uint32_t min_offset = 0;
 	int rv;
 
 	/* Check magic number */
-	if (pkey->c.magic != VB2_MAGIC_PACKED_KEY2)
+	if (pkey->c.magic != VB2_MAGIC_PACKED_KEY)
 		return VB2_ERROR_UNPACK_KEY_MAGIC;
 
 	rv = vb2_verify_common_header(buf, size);
@@ -71,7 +71,7 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 	 * that's compatible across readers matching the major version, and we
 	 * haven't added any new fields.
 	 */
-	if (pkey->c.struct_version_major != VB2_PACKED_KEY2_VERSION_MAJOR)
+	if (pkey->c.struct_version_major != VB2_PACKED_KEY_VERSION_MAJOR)
 		return VB2_ERROR_UNPACK_KEY_STRUCT_VERSION;
 
 	/* Copy key algorithms */
@@ -84,7 +84,7 @@ int vb2_unpack_key2(struct vb2_public_key *key,
 		sig_size = vb2_rsa_sig_size(key->sig_alg);
 		if (!sig_size)
 			return VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM;
-		rv = vb2_unpack_key2_data(
+		rv = vb2_unpack_key_data(
 				key,
 				(const uint8_t *)pkey + pkey->key_offset,
 				pkey->key_size);

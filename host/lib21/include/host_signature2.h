@@ -24,7 +24,7 @@ struct vb2_private_key;
  *			key description will be used.
  * @return VB2_SUCCESS, or non-zero error code on failure.
  */
-int vb2_sign_data(struct vb2_signature2 **sig_ptr,
+int vb2_sign_data(struct vb2_signature **sig_ptr,
 		  const uint8_t *data,
 		  uint32_t size,
 		  const struct vb2_private_key *key,

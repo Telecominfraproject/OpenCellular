@@ -23,23 +23,23 @@
  * structs as invalid.
  */
 enum vb2_struct_common_magic {
-	/* "Vb2B" = vb2_keyblock2.c.magic */
-	VB2_MAGIC_KEYBLOCK2		= 0x42326256,
+	/* "Vb2B" = vb2_keyblock.c.magic */
+	VB2_MAGIC_KEYBLOCK		= 0x42326256,
 
 	/* "Vb2F" = vb2_fw_preamble.c.magic */
-	VB2_MAGIC_FW_PREAMBLE2		= 0x46326256,
+	VB2_MAGIC_FW_PREAMBLE		= 0x46326256,
 
-	/* "Vb2I" = vb2_packed_private_key2.c.magic */
-	VB2_MAGIC_PACKED_PRIVATE_KEY2	= 0x49326256,
+	/* "Vb2I" = vb2_packed_private_key.c.magic */
+	VB2_MAGIC_PACKED_PRIVATE_KEY	= 0x49326256,
 
 	/* "Vb2K" = vb2_kernel_preamble.c.magic */
-	VB2_MAGIC_KERNEL_PREAMBLE2	= 0x4b326256,
+	VB2_MAGIC_KERNEL_PREAMBLE	= 0x4b326256,
 
-	/* "Vb2P" = vb2_packed_key2.c.magic */
-	VB2_MAGIC_PACKED_KEY2		= 0x50326256,
+	/* "Vb2P" = vb2_packed_key.c.magic */
+	VB2_MAGIC_PACKED_KEY		= 0x50326256,
 
 	/* "Vb2S" = vb2_signature.c.magic */
-	VB2_MAGIC_SIGNATURE2		= 0x53326256,
+	VB2_MAGIC_SIGNATURE		= 0x53326256,
 };
 
 
@@ -102,19 +102,19 @@ struct vb2_struct_common {
 
 #define EXPECTED_VB2_STRUCT_COMMON_SIZE 20
 
-/* Current version of vb2_packed_key2 struct */
-#define VB2_PACKED_KEY2_VERSION_MAJOR 3
-#define VB2_PACKED_KEY2_VERSION_MINOR 0
+/* Current version of vb2_packed_key struct */
+#define VB2_PACKED_KEY_VERSION_MAJOR 3
+#define VB2_PACKED_KEY_VERSION_MINOR 0
 
 /*
- * Packed public key data, version 2
+ * Packed public key data
  *
  * The key data must be arranged like this:
- *     1) vb2_packed_key2 header struct h
+ *     1) vb2_packed_key header struct h
  *     2) Key description (pointed to by h.c.fixed_size)
  *     3) Key data key (pointed to by h.key_offset)
  */
-struct vb2_packed_key2 {
+struct vb2_packed_key {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
@@ -141,22 +141,22 @@ struct vb2_packed_key2 {
 	struct vb2_guid guid;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_PACKED_KEY2_SIZE					\
+#define EXPECTED_VB2_PACKED_KEY_SIZE					\
 	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
 
-/* Current version of vb2_packed_private_key2 struct */
-#define VB2_PACKED_PRIVATE_KEY2_VERSION_MAJOR 3
-#define VB2_PACKED_PRIVATE_KEY2_VERSION_MINOR 0
+/* Current version of vb2_packed_private_key struct */
+#define VB2_PACKED_PRIVATE_KEY_VERSION_MAJOR 3
+#define VB2_PACKED_PRIVATE_KEY_VERSION_MINOR 0
 
 /*
- * Packed private key data, version 2
+ * Packed private key data
  *
  * The key data must be arranged like this:
- *     1) vb2_packed_private_key2 header struct h
+ *     1) vb2_packed_private_key header struct h
  *     2) Key description (pointed to by h.c.fixed_size)
  *     3) Key data key (pointed to by h.key_offset)
  */
-struct vb2_packed_private_key2 {
+struct vb2_packed_private_key {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
@@ -180,22 +180,22 @@ struct vb2_packed_private_key2 {
 	struct vb2_guid guid;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_PACKED_PRIVATE_KEY2_SIZE				\
+#define EXPECTED_VB2_PACKED_PRIVATE_KEY_SIZE				\
 	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 12)
 
-/* Current version of vb2_signature2 struct */
-#define VB2_SIGNATURE2_VERSION_MAJOR 3
-#define VB2_SIGNATURE2_VERSION_MINOR 0
+/* Current version of vb2_signature struct */
+#define VB2_SIGNATURE_VERSION_MAJOR 3
+#define VB2_SIGNATURE_VERSION_MINOR 0
 
 /*
- * Signature data, version 2
+ * Signature data
  *
  * The signature data must be arranged like this:
- *     1) vb2_signature2 header struct h
+ *     1) vb2_signature header struct h
  *     2) Signature description (pointed to by h.c.fixed_size)
  *     3) Signature data (pointed to by h.sig_offset)
  */
-struct vb2_signature2 {
+struct vb2_signature {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
@@ -228,20 +228,20 @@ struct vb2_signature2 {
 	struct vb2_guid guid;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_SIGNATURE2_SIZE					\
+#define EXPECTED_VB2_SIGNATURE_SIZE					\
 	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
 
 
-/* Current version of vb2_keyblock2 struct */
-#define VB2_KEYBLOCK2_VERSION_MAJOR 3
-#define VB2_KEYBLOCK2_VERSION_MINOR 0
+/* Current version of vb2_keyblock struct */
+#define VB2_KEYBLOCK_VERSION_MAJOR 3
+#define VB2_KEYBLOCK_VERSION_MINOR 0
 
 /*
  * Key block.  This contains a signed, versioned key for use in the next stage
  * of verified boot.
  *
  * The key block data must be arranged like this:
- *     1) vb2_keyblock2 header struct h
+ *     1) vb2_keyblock header struct h
  *     2) Keyblock description (pointed to by h.c.fixed_size)
  *     3) Data key (pointed to by h.data_key_offset)
  *     4) Signatures (first signature pointed to by h.sig_offset)
@@ -249,7 +249,7 @@ struct vb2_signature2 {
  * The signatures from 4) must cover all the data from 1), 2), 3).  That is,
  * signatures must sign all data up to sig_offset.
  */
-struct vb2_keyblock2 {
+struct vb2_keyblock {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
@@ -257,7 +257,7 @@ struct vb2_keyblock2 {
 	uint32_t flags;
 
 	/*
-	 * Offset of key (struct vb2_packed_key2) to use in next stage of
+	 * Offset of key (struct vb2_packed_key) to use in next stage of
 	 * verification, from start of the keyblock.
 	 */
 	uint32_t key_offset;
@@ -266,7 +266,7 @@ struct vb2_keyblock2 {
 	uint32_t sig_count;
 
 	/*
-	 * Offset of the first signature (struct vb2_signature2) from the start
+	 * Offset of the first signature (struct vb2_signature) from the start
 	 * of the keyblock.
 	 *
 	 * Signatures sign the contents of this struct and the data pointed to
@@ -284,25 +284,25 @@ struct vb2_keyblock2 {
 	uint32_t sig_offset;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_KEYBLOCK2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 16)
+#define EXPECTED_VB2_KEYBLOCK_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 16)
 
 
-/* Current version of vb2_fw_preamble2 struct */
-#define VB2_FW_PREAMBLE2_VERSION_MAJOR 3
-#define VB2_FW_PREAMBLE2_VERSION_MINOR 0
+/* Current version of vb2_fw_preamble struct */
+#define VB2_FW_PREAMBLE_VERSION_MAJOR 3
+#define VB2_FW_PREAMBLE_VERSION_MINOR 0
 
 /*
  * Firmware preamble
  *
  * The preamble data must be arranged like this:
- *     1) vb2_fw_preamble2 header struct h
+ *     1) vb2_fw_preamble header struct h
  *     2) Preamble description (pointed to by h.c.fixed_size)
  *     3) Hashes (pointed to by h.hash_offset)
  *     4) Signature (pointed to by h.sig_offset)
  *
  * The signature 4) must cover all the data from 1), 2), 3).
  */
-struct vb2_fw_preamble2 {
+struct vb2_fw_preamble {
 	/* Common header fields */
 	struct vb2_struct_common c;
 
@@ -310,13 +310,13 @@ struct vb2_fw_preamble2 {
 	uint32_t flags;
 
 	/* Firmware version */
-	uint32_t firmware_version;
+	uint32_t fw_version;
 
-	/* Offset of signature (struct vb2_signature2) for this preamble */
+	/* Offset of signature (struct vb2_signature) for this preamble */
 	uint32_t sig_offset;
 
 	/*
-	 * The preamble contains a list of hashes (struct vb2_signature2) for
+	 * The preamble contains a list of hashes (struct vb2_signature) for
 	 * the various firmware components.  These have sig_alg=VB2_SIG_NONE,
 	 * and the GUID for each hash identifies the component being hashed.
 	 * The calling firmware is responsible for knowing where to find those
@@ -331,6 +331,6 @@ struct vb2_fw_preamble2 {
 	uint32_t hash_offset;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_FW_PREAMBLE2_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 20)
+#define EXPECTED_VB2_FW_PREAMBLE_SIZE (EXPECTED_VB2_STRUCT_COMMON_SIZE + 20)
 
 #endif  /* VBOOT_REFERENCE_VB2_STRUCT_H_ */

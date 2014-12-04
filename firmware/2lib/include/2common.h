@@ -165,31 +165,19 @@ uint32_t vb2_sig_size(enum vb2_signature_algorithm sig_alg,
  */
 const struct vb2_guid *vb2_hash_guid(enum vb2_hash_algorithm hash_alg);
 
-/*
- * Size of work buffer sufficient for vb2_verify_digest() or
- * vb2_verify_digest2() worst case.
- */
+/* Size of work buffer sufficient for vb2_verify_digest() worst case. */
 #define VB2_VERIFY_DIGEST_WORKBUF_BYTES VB2_VERIFY_RSA_DIGEST_WORKBUF_BYTES
 
-/*
- * Size of work buffer sufficient for vb2_verify_data() or vb2_verify_data2()
- * worst case.
- */
+/* Size of work buffer sufficient for vb2_verify_data() worst case. */
 #define VB2_VERIFY_DATA_WORKBUF_BYTES					\
 	(VB2_SHA512_DIGEST_SIZE +					\
 	 VB2_MAX(VB2_VERIFY_DIGEST_WORKBUF_BYTES,			\
 		 sizeof(struct vb2_digest_context)))
 
-/*
- * Size of work buffer sufficient for vb2_verify_keyblock() or
- * vb2_verify_keyblock2() worst case.
- */
+/* Size of work buffer sufficient for vb2_verify_keyblock() worst case. */
 #define VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES VB2_VERIFY_DATA_WORKBUF_BYTES
 
-/*
- * Size of work buffer sufficient for vb2_verify_fw_preamble() or
- * vb2_verify_fw_preamble2() worst case.
- */
+/* Size of work buffer sufficient for vb2_verify_fw_preamble() worst case. */
 #define VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES VB2_VERIFY_DATA_WORKBUF_BYTES
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2COMMON_H_ */

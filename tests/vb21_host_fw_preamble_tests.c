@@ -29,9 +29,9 @@ static void preamble_tests(const char *keys_dir)
 {
 	struct vb2_private_key *prik4096;
 	struct vb2_public_key *pubk4096;
-	struct vb2_fw_preamble2 *fp;
+	struct vb2_fw_preamble *fp;
 	const struct vb2_private_key *prikhash;
-	struct vb2_signature2 *hashes[3];
+	struct vb2_signature *hashes[3];
 	char fname[1024];
 	const char test_desc[] = "Test fw preamble";
 	const uint32_t test_version = 2061;
@@ -74,15 +74,15 @@ static void preamble_tests(const char *keys_dir)
 
 	/* Test good preamble */
 	TEST_SUCC(vb2_fw_preamble_create(&fp, prik4096,
-					 (const struct vb2_signature2 **)hashes,
+					 (const struct vb2_signature **)hashes,
 					 3, test_version, test_flags,
 					 test_desc),
 		  "Create preamble good");
 	TEST_PTR_NEQ(fp, NULL, "  fp_ptr");
-	TEST_SUCC(vb2_verify_fw_preamble2(fp, fp->c.total_size, pubk4096, &wb),
+	TEST_SUCC(vb2_verify_fw_preamble(fp, fp->c.total_size, pubk4096, &wb),
 		  "Verify preamble good");
 	TEST_EQ(strcmp(vb2_common_desc(fp), test_desc), 0, "  desc");
-	TEST_EQ(fp->firmware_version, test_version, "  firmware_version");
+	TEST_EQ(fp->fw_version, test_version, "  fw_version");
 	TEST_EQ(fp->flags, test_flags, "  flags");
 	TEST_EQ(fp->hash_count, 3, "  hash_count");
 
@@ -98,7 +98,7 @@ static void preamble_tests(const char *keys_dir)
 	/* Test errors */
 	prik4096->hash_alg = VB2_HASH_INVALID;
 	TEST_EQ(vb2_fw_preamble_create(&fp, prik4096,
-				       (const struct vb2_signature2 **)hashes,
+				       (const struct vb2_signature **)hashes,
 				       3, test_version, test_flags,
 				       test_desc),
 		VB2_FW_PREAMBLE_CREATE_SIG_SIZE,

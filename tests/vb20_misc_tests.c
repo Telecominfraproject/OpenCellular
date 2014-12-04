@@ -333,13 +333,13 @@ static void verify_preamble_tests(void)
 	reset_common_data(FOR_PREAMBLE);
 	pre->firmware_version = 0x10000;
 	TEST_EQ(vb2_load_fw_preamble(&cc),
-		VB2_ERROR_FW_PREAMBLE2_VERSION_RANGE,
+		VB2_ERROR_FW_PREAMBLE_VERSION_RANGE,
 		"preamble version range");
 
 	reset_common_data(FOR_PREAMBLE);
 	pre->firmware_version = 1;
 	TEST_EQ(vb2_load_fw_preamble(&cc),
-		VB2_ERROR_FW_PREAMBLE2_VERSION_ROLLBACK,
+		VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK,
 		"preamble version rollback");
 
 	reset_common_data(FOR_PREAMBLE);

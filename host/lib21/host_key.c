@@ -38,8 +38,8 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 			   const uint8_t *buf,
 			   uint32_t size)
 {
-	const struct vb2_packed_private_key2 *pkey =
-		(const struct vb2_packed_private_key2 *)buf;
+	const struct vb2_packed_private_key *pkey =
+		(const struct vb2_packed_private_key *)buf;
 	struct vb2_private_key *key;
 	const unsigned char *start;
 	uint32_t min_offset = 0;
@@ -51,7 +51,7 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 	 *
 	 * TODO: If it doesn't match, pass through to the old packed key format.
 	 */
-	if (pkey->c.magic != VB2_MAGIC_PACKED_PRIVATE_KEY2)
+	if (pkey->c.magic != VB2_MAGIC_PACKED_PRIVATE_KEY)
 		return VB2_ERROR_UNPACK_PRIVATE_KEY_MAGIC;
 
 	if (vb2_verify_common_header(buf, size))
@@ -68,7 +68,7 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 	 * haven't added any new fields.
 	 */
 	if (pkey->c.struct_version_major !=
-	    VB2_PACKED_PRIVATE_KEY2_VERSION_MAJOR)
+	    VB2_PACKED_PRIVATE_KEY_VERSION_MAJOR)
 		return VB2_ERROR_UNPACK_PRIVATE_KEY_STRUCT_VERSION;
 
 	/* Allocate the new key */
@@ -179,10 +179,10 @@ int vb2_private_key_set_desc(struct vb2_private_key *key, const char *desc)
 int vb2_private_key_write(const struct vb2_private_key *key,
 			  const char *filename)
 {
-	struct vb2_packed_private_key2 pkey = {
-		.c.magic = VB2_MAGIC_PACKED_PRIVATE_KEY2,
-		.c.struct_version_major = VB2_PACKED_PRIVATE_KEY2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_PACKED_PRIVATE_KEY2_VERSION_MINOR,
+	struct vb2_packed_private_key pkey = {
+		.c.magic = VB2_MAGIC_PACKED_PRIVATE_KEY,
+		.c.struct_version_major = VB2_PACKED_PRIVATE_KEY_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_PACKED_PRIVATE_KEY_VERSION_MINOR,
 		.c.fixed_size = sizeof(pkey),
 		.sig_alg = key->sig_alg,
 		.hash_alg = key->hash_alg,
@@ -369,7 +369,7 @@ int vb2_public_key_read_keyb(struct vb2_public_key **key_ptr,
 	memcpy(key_buf, key_data, key_size);
 	free(key_data);
 
-	if (vb2_unpack_key2_data(key, key_buf, key_size)) {
+	if (vb2_unpack_key_data(key, key_buf, key_size)) {
 		vb2_public_key_free(key);
 		return VB2_ERROR_READ_KEYB_UNPACK;
 	}
@@ -395,8 +395,8 @@ int vb2_public_key_set_desc(struct vb2_public_key *key, const char *desc)
 	return VB2_SUCCESS;
 }
 
-int vb2_packed_key2_read(struct vb2_packed_key2 **key_ptr,
-			 const char *filename)
+int vb2_packed_key_read(struct vb2_packed_key **key_ptr,
+			const char *filename)
 {
 	struct vb2_public_key key;
 	uint8_t *buf;
@@ -408,21 +408,21 @@ int vb2_packed_key2_read(struct vb2_packed_key2 **key_ptr,
 		return VB2_ERROR_READ_PACKED_KEY_DATA;
 
 	/* Sanity check: make sure key unpacks properly */
-	if (vb2_unpack_key2(&key, buf, size))
+	if (vb2_unpack_key(&key, buf, size))
 		return VB2_ERROR_READ_PACKED_KEY;
 
-	*key_ptr = (struct vb2_packed_key2 *)buf;
+	*key_ptr = (struct vb2_packed_key *)buf;
 
 	return VB2_SUCCESS;
 }
 
-int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
+int vb2_public_key_pack(struct vb2_packed_key **key_ptr,
 			const struct vb2_public_key *pubk)
 {
-	struct vb2_packed_key2 key = {
-		.c.magic = VB2_MAGIC_PACKED_KEY2,
-		.c.struct_version_major = VB2_PACKED_KEY2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_PACKED_KEY2_VERSION_MINOR,
+	struct vb2_packed_key key = {
+		.c.magic = VB2_MAGIC_PACKED_KEY,
+		.c.struct_version_major = VB2_PACKED_KEY_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_PACKED_KEY_VERSION_MINOR,
 	};
 	uint8_t *buf;
 	uint32_t *buf32;
@@ -470,7 +470,7 @@ int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
 		       pubk->arrsize * sizeof(uint32_t));
 	}
 
-	*key_ptr = (struct vb2_packed_key2 *)buf;
+	*key_ptr = (struct vb2_packed_key *)buf;
 
 	return VB2_SUCCESS;
 }

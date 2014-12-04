@@ -160,7 +160,7 @@ struct vb2_shared_data {
 	/*
 	 * Current tag we're hashing
 	 *
-	 * For new structs, this is the offset of the vb2_signature2 struct
+	 * For new structs, this is the offset of the vb2_signature struct
 	 * in the work buffer.
 	 *
 	 * TODO: rename to workbuf_hash_sig_offset when vboot1 structs are

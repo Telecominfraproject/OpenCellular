@@ -54,8 +54,8 @@ enum reset_type {
 static void reset_common_data(enum reset_type t)
 {
 	const struct vb2_private_key *hash_key;
-	struct vb2_fw_preamble2 *pre;
-	struct vb2_signature2 *sig;
+	struct vb2_fw_preamble *pre;
+	struct vb2_signature *sig;
 	uint32_t sig_offset;
 
 	int i;
@@ -80,7 +80,7 @@ static void reset_common_data(enum reset_type t)
 	vb2_private_key_hash(&hash_key, mock_hash_alg);
 
 	sd->workbuf_preamble_offset = ctx.workbuf_used;
-	pre = (struct vb2_fw_preamble2 *)
+	pre = (struct vb2_fw_preamble *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
 	pre->hash_count = 3;
 	pre->hash_offset = sig_offset = sizeof(*pre);
@@ -108,12 +108,12 @@ static void reset_common_data(enum reset_type t)
 
 /* Mocked functions */
 
-int vb2_load_fw_keyblock2(struct vb2_context *ctx)
+int vb2_load_fw_keyblock(struct vb2_context *ctx)
 {
 	return retval_vb2_load_fw_keyblock;
 }
 
-int vb2_load_fw_preamble2(struct vb2_context *ctx)
+int vb2_load_fw_preamble(struct vb2_context *ctx)
 {
 	return retval_vb2_load_fw_preamble;
 }
@@ -123,32 +123,32 @@ int vb2_load_fw_preamble2(struct vb2_context *ctx)
 static void phase3_tests(void)
 {
 	reset_common_data(FOR_MISC);
-	TEST_SUCC(vb2api_fw_phase3_2(&ctx), "phase3 good");
+	TEST_SUCC(vb2api_fw_phase3(&ctx), "phase3 good");
 
 	reset_common_data(FOR_MISC);
 	retval_vb2_load_fw_keyblock = VB2_ERROR_MOCK;
-	TEST_EQ(vb2api_fw_phase3_2(&ctx), VB2_ERROR_MOCK, "phase3 keyblock");
+	TEST_EQ(vb2api_fw_phase3(&ctx), VB2_ERROR_MOCK, "phase3 keyblock");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
 		VB2_RECOVERY_RO_INVALID_RW, "  recovery reason");
 
 	reset_common_data(FOR_MISC);
 	retval_vb2_load_fw_preamble = VB2_ERROR_MOCK;
-	TEST_EQ(vb2api_fw_phase3_2(&ctx), VB2_ERROR_MOCK, "phase3 keyblock");
+	TEST_EQ(vb2api_fw_phase3(&ctx), VB2_ERROR_MOCK, "phase3 keyblock");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
 		VB2_RECOVERY_RO_INVALID_RW, "  recovery reason");
 }
 
 static void init_hash_tests(void)
 {
-	struct vb2_fw_preamble2 *pre;
-	struct vb2_signature2 *sig;
+	struct vb2_fw_preamble *pre;
+	struct vb2_signature *sig;
 	int wb_used_before;
 	uint32_t size;
 
 	reset_common_data(FOR_MISC);
-	pre = (struct vb2_fw_preamble2 *)
+	pre = (struct vb2_fw_preamble *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
-	sig = (struct vb2_signature2 *)((uint8_t *)pre + pre->hash_offset);
+	sig = (struct vb2_signature *)((uint8_t *)pre + pre->hash_offset);
 
 	wb_used_before = ctx.workbuf_used;
 	TEST_SUCC(vb2api_init_hash2(&ctx, test_guid, &size),
@@ -233,48 +233,48 @@ static void extend_hash_tests(void)
 
 static void check_hash_tests(void)
 {
-	struct vb2_fw_preamble2 *pre;
-	struct vb2_signature2 *sig;
+	struct vb2_fw_preamble *pre;
+	struct vb2_signature *sig;
 	struct vb2_digest_context *dc;
 
 	reset_common_data(FOR_CHECK_HASH);
-	pre = (struct vb2_fw_preamble2 *)
+	pre = (struct vb2_fw_preamble *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
-	sig = (struct vb2_signature2 *)((uint8_t *)pre + pre->hash_offset);
+	sig = (struct vb2_signature *)((uint8_t *)pre + pre->hash_offset);
 	dc = (struct vb2_digest_context *)
 		(ctx.workbuf + sd->workbuf_hash_offset);
 
-	TEST_SUCC(vb2api_check_hash2(&ctx), "check hash good");
+	TEST_SUCC(vb2api_check_hash(&ctx), "check hash good");
 
 	reset_common_data(FOR_CHECK_HASH);
 	sd->hash_tag = 0;
-	TEST_EQ(vb2api_check_hash2(&ctx),
+	TEST_EQ(vb2api_check_hash(&ctx),
 		VB2_ERROR_API_CHECK_HASH_TAG, "check hash tag");
 
 	reset_common_data(FOR_CHECK_HASH);
 	sd->workbuf_hash_size = 0;
-	TEST_EQ(vb2api_check_hash2(&ctx),
+	TEST_EQ(vb2api_check_hash(&ctx),
 		VB2_ERROR_API_CHECK_HASH_WORKBUF, "check hash no workbuf");
 
 	reset_common_data(FOR_CHECK_HASH);
 	sd->hash_remaining_size = 1;
-	TEST_EQ(vb2api_check_hash2(&ctx),
+	TEST_EQ(vb2api_check_hash(&ctx),
 		VB2_ERROR_API_CHECK_HASH_SIZE, "check hash size");
 
 	reset_common_data(FOR_CHECK_HASH);
 	ctx.workbuf_used = ctx.workbuf_size;
-	TEST_EQ(vb2api_check_hash2(&ctx),
+	TEST_EQ(vb2api_check_hash(&ctx),
 		VB2_ERROR_API_CHECK_HASH_WORKBUF_DIGEST, "check hash workbuf");
 
 	reset_common_data(FOR_CHECK_HASH);
 	dc->hash_alg = VB2_HASH_INVALID;
 	*((uint8_t *)sig + sig->sig_offset) ^= 0x55;
-	TEST_EQ(vb2api_check_hash2(&ctx),
+	TEST_EQ(vb2api_check_hash(&ctx),
 		VB2_ERROR_SHA_FINALIZE_ALGORITHM, "check hash finalize");
 
 	reset_common_data(FOR_CHECK_HASH);
 	*((uint8_t *)sig + sig->sig_offset) ^= 0x55;
-	TEST_EQ(vb2api_check_hash2(&ctx),
+	TEST_EQ(vb2api_check_hash(&ctx),
 		VB2_ERROR_API_CHECK_HASH_SIG, "check hash sig");
 }
 

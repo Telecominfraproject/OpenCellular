@@ -25,9 +25,9 @@ struct vb2_private_key;
  * @param desc		Description for preamble, or NULL if none
  * @return VB2_SUCCESS, or non-zero error code if failure.
  */
-int vb2_fw_preamble_create(struct vb2_fw_preamble2 **fp_ptr,
+int vb2_fw_preamble_create(struct vb2_fw_preamble **fp_ptr,
 			   const struct vb2_private_key *signing_key,
-			   const struct vb2_signature2 **hash_list,
+			   const struct vb2_signature **hash_list,
 			   uint32_t hash_count,
 			   uint32_t fw_version,
 			   uint32_t flags,

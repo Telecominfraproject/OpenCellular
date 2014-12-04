@@ -33,18 +33,18 @@ static void test_struct_packing(void)
 	TEST_EQ(EXPECTED_VB2_STRUCT_COMMON_SIZE,
 		sizeof(struct vb2_struct_common),
 		"sizeof(vb2_struct_common)");
-	TEST_EQ(EXPECTED_VB2_PACKED_KEY2_SIZE,
-		sizeof(struct vb2_packed_key2),
-		"sizeof(vb2_packed_key2)");
-	TEST_EQ(EXPECTED_VB2_SIGNATURE2_SIZE,
-		sizeof(struct vb2_signature2),
-		"sizeof(vb2_signature2)");
-	TEST_EQ(EXPECTED_VB2_KEYBLOCK2_SIZE,
-		sizeof(struct vb2_keyblock2),
-		"sizeof(vb2_keyblock2)");
-	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE2_SIZE,
-		sizeof(struct vb2_fw_preamble2),
-		"sizeof(vb2_fw_preamble2)");
+	TEST_EQ(EXPECTED_VB2_PACKED_KEY_SIZE,
+		sizeof(struct vb2_packed_key),
+		"sizeof(vb2_packed_key)");
+	TEST_EQ(EXPECTED_VB2_SIGNATURE_SIZE,
+		sizeof(struct vb2_signature),
+		"sizeof(vb2_signature)");
+	TEST_EQ(EXPECTED_VB2_KEYBLOCK_SIZE,
+		sizeof(struct vb2_keyblock),
+		"sizeof(vb2_keyblock)");
+	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE_SIZE,
+		sizeof(struct vb2_fw_preamble),
+		"sizeof(vb2_fw_preamble)");
 }
 
 /**
@@ -217,7 +217,7 @@ static void test_sig_size(void)
  */
 static void test_verify_hash(void)
 {
-	struct vb2_signature2 *sig;
+	struct vb2_signature *sig;
 	const struct vb2_private_key *prik;
 	struct vb2_public_key pubk;
 	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
@@ -231,17 +231,16 @@ static void test_verify_hash(void)
 		  "create hash key");
 
 	/* Create the signature */
-	TEST_SUCC(vb2_sign_data(&sig, test_data, sizeof(test_data),
-				prik, NULL),
+	TEST_SUCC(vb2_sign_data(&sig, test_data, sizeof(test_data), prik, NULL),
 		  "create hash sig");
 
-	TEST_SUCC(vb2_verify_data2(test_data, sizeof(test_data),
-				   sig, &pubk, &wb),
-		  "vb2_verify_data2() hash ok");
+	TEST_SUCC(vb2_verify_data(test_data, sizeof(test_data),
+				  sig, &pubk, &wb),
+		  "vb2_verify_data() hash ok");
 
 	*((uint8_t *)sig + sig->sig_offset) ^= 0xab;
-	TEST_EQ(vb2_verify_data2(test_data, sizeof(test_data), sig, &pubk, &wb),
-		VB2_ERROR_VDATA_VERIFY_DIGEST, "vb2_verify_data2() hash bad");
+	TEST_EQ(vb2_verify_data(test_data, sizeof(test_data), sig, &pubk, &wb),
+		VB2_ERROR_VDATA_VERIFY_DIGEST, "vb2_verify_data() hash bad");
 
 	free(sig);
 }
@@ -254,8 +253,8 @@ static void test_verify_keyblock(void)
 	const char desc[16] = "test keyblock";
 	const struct vb2_private_key *prik[2];
 	struct vb2_public_key pubk, pubk2, pubk3;
-	struct vb2_signature2 *sig;
-	struct vb2_keyblock2 *kbuf;
+	struct vb2_signature *sig;
+	struct vb2_keyblock *kbuf;
 	uint32_t buf_size;
 	uint8_t *buf, *buf2;
 
@@ -286,37 +285,37 @@ static void test_verify_keyblock(void)
 	memcpy(buf2, buf, buf_size);
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
-	kbuf = (struct vb2_keyblock2 *)buf;
+	kbuf = (struct vb2_keyblock *)buf;
 
-	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
-		  "vb2_verify_keyblock2()");
-
-	memcpy(buf, buf2, buf_size);
-	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk2, &wb),
-		  "vb2_verify_keyblock2() key 2");
+	TEST_SUCC(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
+		  "vb2_verify_keyblock()");
 
 	memcpy(buf, buf2, buf_size);
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk3, &wb),
+	TEST_SUCC(vb2_verify_keyblock(kbuf, buf_size, &pubk2, &wb),
+		  "vb2_verify_keyblock() key 2");
+
+	memcpy(buf, buf2, buf_size);
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk3, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_GUID,
-		"vb2_verify_keyblock2() key not present");
+		"vb2_verify_keyblock() key not present");
 
 	memcpy(buf, buf2, buf_size);
-	kbuf->c.magic = VB2_MAGIC_PACKED_KEY2;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	kbuf->c.magic = VB2_MAGIC_PACKED_KEY;
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_KEYBLOCK_MAGIC,
-		"vb2_verify_keyblock2() magic");
+		"vb2_verify_keyblock() magic");
 
 	memcpy(buf, buf2, buf_size);
 	kbuf->c.fixed_size++;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_FIXED_UNALIGNED,
-		"vb2_verify_keyblock2() header");
+		"vb2_verify_keyblock() header");
 
 	memcpy(buf, buf2, buf_size);
 	kbuf->c.struct_version_major++;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
-		"vb2_verify_keyblock2() major version");
+		"vb2_verify_keyblock() major version");
 
 	memcpy(buf, buf2, buf_size);
 	kbuf->c.struct_version_minor++;
@@ -324,48 +323,48 @@ static void test_verify_keyblock(void)
 	vb2_sign_data(&sig, buf, kbuf->sig_offset, prik[0], NULL);
 	memcpy(buf + kbuf->sig_offset, sig, sig->c.total_size);
 	free(sig);
-	TEST_SUCC(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
-		  "vb2_verify_keyblock2() minor version");
+	TEST_SUCC(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
+		  "vb2_verify_keyblock() minor version");
 
 	memcpy(buf, buf2, buf_size);
 	kbuf->c.fixed_size -= 4;
 	kbuf->c.desc_size += 4;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_KEYBLOCK_SIZE,
-		"vb2_verify_keyblock2() header size");
+		"vb2_verify_keyblock() header size");
 
 	memcpy(buf, buf2, buf_size);
 	kbuf->key_offset = kbuf->c.total_size - 4;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_MEMBER_SIZE,
-		"vb2_verify_keyblock2() data key outside");
+		"vb2_verify_keyblock() data key outside");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + kbuf->sig_offset);
+	sig = (struct vb2_signature *)(buf + kbuf->sig_offset);
 	sig->data_size--;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_KEYBLOCK_SIGNED_SIZE,
-		"vb2_verify_keyblock2() signed wrong size");
+		"vb2_verify_keyblock() signed wrong size");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + kbuf->sig_offset);
+	sig = (struct vb2_signature *)(buf + kbuf->sig_offset);
 	sig->c.total_size = kbuf->c.total_size - 4;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_TOTAL_SIZE,
-		"vb2_verify_keyblock2() key outside keyblock");
+		"vb2_verify_keyblock() key outside keyblock");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + kbuf->sig_offset);
+	sig = (struct vb2_signature *)(buf + kbuf->sig_offset);
 	sig->c.struct_version_major++;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_SIG_VERSION,
-		"vb2_verify_keyblock2() corrupt key");
+		"vb2_verify_keyblock() corrupt key");
 
 	memcpy(buf, buf2, buf_size);
 	kbuf->c.struct_version_minor++;
-	TEST_EQ(vb2_verify_keyblock2(kbuf, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk, &wb),
 		VB2_ERROR_VDATA_VERIFY_DIGEST,
-		"vb2_verify_keyblock2() corrupt");
+		"vb2_verify_keyblock() corrupt");
 
 	free(buf);
 	free(buf2);
@@ -378,10 +377,10 @@ static void test_verify_fw_preamble(void)
 {
 	const char desc[16] = "test preamble";
 	const struct vb2_private_key *prikhash;
-	struct vb2_signature2 *hashes[3];
+	struct vb2_signature *hashes[3];
 	struct vb2_public_key pubk;
-	struct vb2_signature2 *sig;
-	struct vb2_fw_preamble2 *pre;
+	struct vb2_signature *sig;
+	struct vb2_fw_preamble *pre;
 	uint32_t buf_size;
 	uint8_t *buf, *buf2;
 
@@ -390,7 +389,7 @@ static void test_verify_fw_preamble(void)
 
 	/*
 	 * Preambles will usually be signed with a real key not a bare hash,
-	 * but the call to vb2_verify_data2() inside the preamble check is the
+	 * but the call to vb2_verify_data() inside the preamble check is the
 	 * same (and its functionality is verified separately), and using a
 	 * bare hash here saves us from needing to have a private key to do
 	 * this test.
@@ -413,7 +412,7 @@ static void test_verify_fw_preamble(void)
 
 	/* Test good preamble */
 	TEST_SUCC(vb2_fw_preamble_create(&pre, prikhash,
-					 (const struct vb2_signature2 **)hashes,
+					 (const struct vb2_signature **)hashes,
 					 3, 0x1234, 0x5678, desc),
 		  "Create preamble good");
 
@@ -425,28 +424,28 @@ static void test_verify_fw_preamble(void)
 	memcpy(buf2, buf, buf_size);
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
-	pre = (struct vb2_fw_preamble2 *)buf;
+	pre = (struct vb2_fw_preamble *)buf;
 
-	TEST_SUCC(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
-		  "vb2_verify_fw_preamble2()");
+	TEST_SUCC(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
+		  "vb2_verify_fw_preamble()");
 
 	memcpy(buf, buf2, buf_size);
-	pre->c.magic = VB2_MAGIC_PACKED_KEY2;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	pre->c.magic = VB2_MAGIC_PACKED_KEY;
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_PREAMBLE_MAGIC,
-		"vb2_verify_fw_preamble2() magic");
+		"vb2_verify_fw_preamble() magic");
 
 	memcpy(buf, buf2, buf_size);
 	pre->c.fixed_size++;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_FIXED_UNALIGNED,
-		"vb2_verify_fw_preamble2() header");
+		"vb2_verify_fw_preamble() header");
 
 	memcpy(buf, buf2, buf_size);
 	pre->c.struct_version_major++;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_PREAMBLE_HEADER_VERSION,
-		"vb2_verify_fw_preamble2() major version");
+		"vb2_verify_fw_preamble() major version");
 
 	memcpy(buf, buf2, buf_size);
 	pre->c.struct_version_minor++;
@@ -454,55 +453,55 @@ static void test_verify_fw_preamble(void)
 	vb2_sign_data(&sig, buf, pre->sig_offset, prikhash, NULL);
 	memcpy(buf + pre->sig_offset, sig, sig->c.total_size);
 	free(sig);
-	TEST_SUCC(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
-		  "vb2_verify_fw_preamble2() minor version");
+	TEST_SUCC(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
+		  "vb2_verify_fw_preamble() minor version");
 
 	memcpy(buf, buf2, buf_size);
 	pre->c.fixed_size -= 4;
 	pre->c.desc_size += 4;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_PREAMBLE_SIZE,
-		"vb2_verify_fw_preamble2() header size");
+		"vb2_verify_fw_preamble() header size");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + pre->hash_offset);
+	sig = (struct vb2_signature *)(buf + pre->hash_offset);
 	sig->c.total_size += pre->c.total_size;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_TOTAL_SIZE,
-		"vb2_verify_fw_preamble2() hash size");
+		"vb2_verify_fw_preamble() hash size");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + pre->hash_offset);
+	sig = (struct vb2_signature *)(buf + pre->hash_offset);
 	sig->sig_size /= 2;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_SIG_SIZE,
-		"vb2_verify_fw_preamble2() hash integrity");
+		"vb2_verify_fw_preamble() hash integrity");
 
 	memcpy(buf, buf2, buf_size);
 	pre->hash_count++;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_MEMBER_OVERLAP,
-		"vb2_verify_fw_preamble2() hash count");
+		"vb2_verify_fw_preamble() hash count");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + pre->sig_offset);
+	sig = (struct vb2_signature *)(buf + pre->sig_offset);
 	sig->c.total_size += 4;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_COMMON_TOTAL_SIZE,
-		"vb2_verify_fw_preamble2() sig inside");
+		"vb2_verify_fw_preamble() sig inside");
 
 	memcpy(buf, buf2, buf_size);
-	sig = (struct vb2_signature2 *)(buf + pre->sig_offset);
+	sig = (struct vb2_signature *)(buf + pre->sig_offset);
 	buf[pre->sig_offset + sig->sig_offset]++;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_VDATA_VERIFY_DIGEST,
-		"vb2_verify_fw_preamble2() sig corrupt");
+		"vb2_verify_fw_preamble() sig corrupt");
 
 	memcpy(buf, buf2, buf_size);
 	pre->flags++;
-	TEST_EQ(vb2_verify_fw_preamble2(pre, buf_size, &pubk, &wb),
+	TEST_EQ(vb2_verify_fw_preamble(pre, buf_size, &pubk, &wb),
 		VB2_ERROR_VDATA_VERIFY_DIGEST,
-		"vb2_verify_fw_preamble2() preamble corrupt");
+		"vb2_verify_fw_preamble() preamble corrupt");
 
 	free(buf);
 	free(buf2);

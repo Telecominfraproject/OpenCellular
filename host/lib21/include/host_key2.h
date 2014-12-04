@@ -29,7 +29,7 @@ struct vb2_private_key {
 void vb2_private_key_free(struct vb2_private_key *key);
 
 /**
- * Unpack a private key from vb2_packed_private_key2 format.
+ * Unpack a private key from vb2_packed_private_key format.
  *
  * @param key_ptr	Destination for newly allocated key; this must be
  *			freed with vb2_private_key_free().
@@ -42,7 +42,7 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 			   uint32_t size);
 
 /**
- * Read a private key from vb2_packed_private_key2 format.
+ * Read a private key from vb2_packed_private_key format.
  *
  * @param key_ptr	Destination for newly allocated key; this must be
  *			freed with vb2_private_key_free().
@@ -76,7 +76,7 @@ int vb2_private_key_read_pem(struct vb2_private_key **key_ptr,
 int vb2_private_key_set_desc(struct vb2_private_key *key, const char *desc);
 
 /**
- * Write a private key to vb2_packed_private_key2 format.
+ * Write a private key to vb2_packed_private_key format.
  *
  * @param key		Key to write
  * @param filename	File to write key data to.
@@ -101,7 +101,7 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
  *
  * Note that this should ONLY be called for public keys allocated via one
  * of those functions; public keys created or filled in other ways (such as
- * vb2_unpack_key2()) do not allocate memory for sub-fields in the same way.
+ * vb2_unpack_key()) do not allocate memory for sub-fields in the same way.
  *
  * @param key		Key to free
  */
@@ -133,17 +133,17 @@ int vb2_public_key_read_keyb(struct vb2_public_key **key_ptr,
 int vb2_public_key_set_desc(struct vb2_public_key *key, const char *desc);
 
 /**
- * Read a public key in vb2_packed_key2 format.
+ * Read a public key in vb2_packed_key format.
  *
  * @param key_ptr	On success, points to the newly allocated key buffer.
  *			Caller is responsible for calling free() on this.
  * @return VB2_SUCCESS, or non-zero if error.
  */
-int vb2_packed_key2_read(struct vb2_packed_key2 **key_ptr,
+int vb2_packed_key_read(struct vb2_packed_key **key_ptr,
 			 const char *filename);
 
 /**
- * Pack a public key into vb2_packed_key2 format.
+ * Pack a public key into vb2_packed_key format.
  *
  * @param pubk		Public key to pack
  * @param key_ptr	On success, points to a newly allocated packed key
@@ -151,7 +151,7 @@ int vb2_packed_key2_read(struct vb2_packed_key2 **key_ptr,
  *			this.
  * @return VB2_SUCCESS, or non-zero if error.
  */
-int vb2_public_key_pack(struct vb2_packed_key2 **key_ptr,
+int vb2_public_key_pack(struct vb2_packed_key **key_ptr,
 			const struct vb2_public_key *pubk);
 
 /**

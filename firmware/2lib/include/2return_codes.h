@@ -226,7 +226,7 @@ enum vb2_return_code {
 	/* Key algorithm doesn't match signature algorithm */
 	VB2_ERROR_VDATA_ALGORITHM_MISMATCH,
 
-	/* Bad magic number in vb2_unpack_key2() */
+	/* Bad magic number in vb2_unpack_key() */
 	VB2_ERROR_UNPACK_KEY_MAGIC,
 
         /**********************************************************************
@@ -362,10 +362,10 @@ enum vb2_return_code {
 	VB2_ERROR_FW_PREAMBLE2_WORKBUF,
 
 	/* Firmware version out of range in vb2_load_fw_preamble() */
-	VB2_ERROR_FW_PREAMBLE2_VERSION_RANGE,
+	VB2_ERROR_FW_PREAMBLE_VERSION_RANGE,
 
 	/* Firmware version rollback in vb2_load_fw_preamble() */
-	VB2_ERROR_FW_PREAMBLE2_VERSION_ROLLBACK,
+	VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK,
 
 	/* Not enough space in work buffer for resource object */
 	VB2_ERROR_READ_RESOURCE_OBJECT_BUF,

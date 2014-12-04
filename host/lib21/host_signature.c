@@ -79,16 +79,16 @@ static int vb2_digest_info(enum vb2_hash_algorithm hash_alg,
 	}
 }
 
-int vb2_sign_data(struct vb2_signature2 **sig_ptr,
+int vb2_sign_data(struct vb2_signature **sig_ptr,
 		  const uint8_t *data,
 		  uint32_t size,
 		  const struct vb2_private_key *key,
 		  const char *desc)
 {
-	struct vb2_signature2 s = {
-		.c.magic = VB2_MAGIC_SIGNATURE2,
-		.c.struct_version_major = VB2_SIGNATURE2_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_SIGNATURE2_VERSION_MINOR,
+	struct vb2_signature s = {
+		.c.magic = VB2_MAGIC_SIGNATURE,
+		.c.struct_version_major = VB2_SIGNATURE_VERSION_MAJOR,
+		.c.struct_version_minor = VB2_SIGNATURE_VERSION_MINOR,
 		.c.fixed_size = sizeof(s),
 		.sig_alg = key->sig_alg,
 		.hash_alg = key->hash_alg,
@@ -179,7 +179,7 @@ int vb2_sign_data(struct vb2_signature2 **sig_ptr,
 	}
 
 	free(sig_digest);
-	*sig_ptr = (struct vb2_signature2 *)buf;
+	*sig_ptr = (struct vb2_signature *)buf;
 	return VB2_SUCCESS;
 }
 
@@ -192,7 +192,7 @@ int vb2_sig_size_for_key(uint32_t *size_ptr,
 	if (!size)
 		return VB2_ERROR_SIG_SIZE_FOR_KEY;
 
-	size += sizeof(struct vb2_signature2);
+	size += sizeof(struct vb2_signature);
 	size += vb2_desc_size(desc ? desc : key->desc);
 
 	*size_ptr = size;
@@ -225,7 +225,7 @@ int vb2_sign_object(uint8_t *buf,
 		    const char *desc)
 {
 	struct vb2_struct_common *c = (struct vb2_struct_common *)buf;
-	struct vb2_signature2 *sig = NULL;
+	struct vb2_signature *sig = NULL;
 	int rv;
 
 	rv = vb2_sign_data(&sig, buf, sig_offset, key, desc);
@@ -253,7 +253,7 @@ int vb2_sign_object_multiple(uint8_t *buf,
 	int rv, i;
 
 	for (i = 0; i < key_count; i++)	{
-		struct vb2_signature2 *sig = NULL;
+		struct vb2_signature *sig = NULL;
 
 		rv = vb2_sign_data(&sig, buf, sig_offset, key_list[i], NULL);
 		if (rv)
