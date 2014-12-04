@@ -197,7 +197,7 @@ static uint8_t *ReadOldKPartFromFileOrDie(const char *filename,
 
 /****************************************************************************/
 
-static int do_vbutil_kernel2(int argc, char *argv[])
+static int do_vbutil_kernel(int argc, char *argv[])
 {
 	char *filename = NULL;
 	char *oldfile = NULL;
@@ -527,6 +527,6 @@ static int do_vbutil_kernel2(int argc, char *argv[])
 	return 1;
 }
 
-DECLARE_FUTIL_COMMAND(vbutil_kernel2, do_vbutil_kernel2,
+DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel,
 		      "Creates, signs, and verifies the kernel partition",
 		      print_help);
