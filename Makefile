@@ -596,7 +596,6 @@ FUTIL_SRCS = \
 	futility/cmd_vbutil_kernel.c \
 	futility/cmd_vbutil_key.c \
 	futility/cmd_vbutil_keyblock.c \
-	futility/cmd_verify_kernel.c \
 	futility/traversal.c \
 	futility/vb1_helper.c
 
@@ -662,6 +661,7 @@ TEST_NAMES = \
 	tests/vboot_firmware_tests \
 	tests/vboot_kernel_tests \
 	tests/vboot_nvstorage_test \
+	tests/verify_kernel \
 	tests/futility/binary_editor \
 	tests/futility/test_not_really
 
@@ -1130,6 +1130,7 @@ ${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb20_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/verify_kernel: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
 

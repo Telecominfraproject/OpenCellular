@@ -14,7 +14,6 @@
 #include "vboot_common.h"
 #include "vboot_api.h"
 #include "vboot_kernel.h"
-#include "futility.h"
 
 static uint8_t *diskbuf;
 
@@ -55,11 +54,11 @@ VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
 
 static void print_help(const char *progname)
 {
-	printf("\nUsage: " MYNAME " %s <disk_image> <kernel.vbpubk>\n\n",
+	printf("\nUsage: %s <disk_image> <kernel.vbpubk>\n\n",
 	       progname);
 }
 
-static int do_verify_kernel(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	VbPublicKey *kernkey;
 	uint64_t disk_bytes = 0;
@@ -136,7 +135,3 @@ static int do_verify_kernel(int argc, char *argv[])
 	printf("Yaay!\n");
 	return 0;
 }
-
-DECLARE_FUTIL_COMMAND(verify_kernel, do_verify_kernel,
-		      "Verifies a kernel / disk image",
-		      print_help);

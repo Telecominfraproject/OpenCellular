@@ -69,7 +69,7 @@ dd if=kernel.test of=disk.test bs=512 seek=64 conv=notrunc
 
 # And verify it using futility
 echo 'Verifying test disk image'
-${FUTILITY} verify_kernel disk.test \
+${BUILD_RUN}/tests/verify_kernel disk.test \
     ${SCRIPT_DIR}/devkeys/kernel_subkey.vbpubk
 
 happy 'Image verification succeeded'
