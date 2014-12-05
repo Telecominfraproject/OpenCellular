@@ -9,13 +9,12 @@
  * @xrefitem bom "File Content Label" "Release Content"
  * @e project:     AGESA
  * @e sub-project: FCH
- * @e \$Revision: 282796 $   @e \$Date: 2014-01-16 20:34:32 -0600 (Thu, 16 Jan 2014) $
+ * @e \$Revision: 302381 $   @e \$Date: 2014-08-29 16:59:06 -0500 (Fri, 29 Aug 2014) $
  *
  */
-/*;********************************************************************************
-;
- * Copyright (c) 2008 - 2014, Advanced Micro Devices, Inc.
- * All rights reserved.
+/*********************************************************************************
+ *
+ * Copyright 2008 - 2014 ADVANCED MICRO DEVICES, INC.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -38,7 +37,7 @@
  * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-;*********************************************************************************/
+ *********************************************************************************/
 #ifndef _FCH_COMMON_CFG_H_
 #define _FCH_COMMON_CFG_H_
 
@@ -1247,6 +1246,7 @@ typedef struct _FCH_RESET_DATA_BLOCK {
   FCH_SPI               Spi;                            ///< SPI subsystem
   BOOLEAN               QeEnabled;                      /// Quad Mode Enabled
   BOOLEAN               FchOscout1ClkContinous;         ///< FCH OSCOUT1_CLK Continous
+  VOID*                 EarlyOemGpioTable;              /// Pointer of Early OEM GPIO table
 //  VOID*                 OemSpiDeviceTable;              /// Pointer of OEM Spi Device table
   VOID*                 OemResetProgrammingTablePtr;    /// Pointer of ACPI OEM table
 } FCH_RESET_DATA_BLOCK;
@@ -1274,6 +1274,7 @@ typedef struct _FCH_DATA_BLOCK {
   FCH_GCPU              Gcpu;                           ///< GCPU structure
   FCH_IMC               Imc;                            ///< IMC structure
   FCH_MISC              Misc;                           ///< MISC structure
+  VOID*                 PostOemGpioTable;              /// Pointer of Post OEM GPIO table
 } FCH_DATA_BLOCK;
 
 #pragma pack (pop)

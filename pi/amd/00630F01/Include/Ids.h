@@ -13,8 +13,7 @@
  */
 /*****************************************************************************
  *
- * Copyright (c) 2008 - 2013, Advanced Micro Devices, Inc.
- * All rights reserved.
+ * Copyright 2008 - 2014 ADVANCED MICRO DEVICES, INC.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1382,8 +1381,8 @@ IdsErrorStop (
 
 VOID
 IdsDelay (
-  void
-);
+  IN      VOID
+  );
 
 BOOLEAN
 AmdHeapIntactCheck (

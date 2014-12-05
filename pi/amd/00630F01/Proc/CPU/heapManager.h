@@ -9,14 +9,13 @@
  * @xrefitem bom "File Content Label" "Release Content"
  * @e project:      AGESA
  * @e sub-project:  CPU
- * @e \$Revision: 281181 $   @e \$Date: 2013-12-18 02:18:55 -0600 (Wed, 18 Dec 2013) $
+ * @e \$Revision: 296129 $   @e \$Date: 2014-06-23 09:45:14 -0500 (Mon, 23 Jun 2014) $
  *
  */
 /*
  ******************************************************************************
  *
- * Copyright (c) 2008 - 2013, Advanced Micro Devices, Inc.
- * All rights reserved.
+ * Copyright 2008 - 2014 ADVANCED MICRO DEVICES, INC.  All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -197,11 +196,10 @@ typedef enum {
   AMD_GNB_SAMU_BOOT_CONTROL_HANDLE,               ///< Assign 0x000A02F buffer handle for Samu boot control buffer
   AMD_GNB_ACP_ENGINE_HANDLE,                      ///< Assign 0x000A030 buffer handle for GNB ACP engine buffer
   AMD_MEM_PMU_SRAM_MSG_BLOCK_HANDLE,              ///< Assign 0x000A031 buffer handle for PMU SRAM Message Block buffer
-  AMD_MEM_DRAM_CAD_BUS_CONFIG_HANDLE,             ///< Assign 0x000A033 buffer handle for DRAM CAD Bus Configuration
-  AMD_GNB_SMU_TABLE_HANDLE,                       ///< Assign 0x000A034 buffer handle for GNB SMU table buffer
-  AMD_GNB_CRAT_HSA_TABLE_HANDLE,                  ///< Assign 0x000A035 buffer handle for GNB CRAT HSA unit table
-  AMD_GNB_BUILD_OPTIONS_HANDLE,                   ///< Assign 0x000A036 buffer handle for GNB build options
-  AMD_S3_FINAL_RESTORE_HANDLE,                    ///< Assign 0x000A037 buffer handle to AmdS3FinalRestore routine.
+  AMD_GNB_SMU_TABLE_HANDLE,                       ///< Assign 0x000A032 buffer handle for GNB SMU table buffer
+  AMD_GNB_CRAT_HSA_TABLE_HANDLE,                  ///< Assign 0x000A033 buffer handle for GNB CRAT HSA unit table
+  AMD_GNB_BUILD_OPTIONS_HANDLE,                   ///< Assign 0x000A034 buffer handle for GNB build options
+  AMD_S3_FINAL_RESTORE_HANDLE,                    ///< Assign 0x000A035 buffer handle to AmdS3FinalRestore routine.
   AMD_MEM_MISC_HANDLES_START = 0x1000000,         ///< Reserve 0x1000000 to 0x1FFFFFF buffer handle
   AMD_MEM_MISC_HANDLES_END = 0x1FFFFFF,           ///< miscellaneous memory init tasks' buffers.
   AMD_HEAP_IN_MAIN_MEMORY_HANDLE = 0x8000000,     ///< Assign 0x8000000 to AMD_HEAP_IN_MAIN_MEMORY_HANDLE.

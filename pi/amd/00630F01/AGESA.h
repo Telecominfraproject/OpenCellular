@@ -9,7 +9,7 @@
  * @xrefitem bom "File Content Label" "Release Content"
  * @e project:      AGESA
  * @e sub-project:  Include
- * @e \$Revision: 281181 $   @e \$Date: 2013-12-18 02:18:55 -0600 (Wed, 18 Dec 2013) $
+ * @e \$Revision: 296129 $   @e \$Date: 2014-06-23 09:45:14 -0500 (Mon, 23 Jun 2014) $
  */
 /*****************************************************************************
  *
@@ -1340,6 +1340,7 @@ typedef struct _CH_DEF_STRUCT {
   OUT UINT8   Dimms;             ///< Number of DIMMs loading Channel
   OUT UINT8   Ranks;             ///< Number of ranks loading Channel DATA
   OUT BOOLEAN SlowMode;          ///< 1T or 2T CMD mode (slow access mode)
+  OUT BOOLEAN SlowModePs1;       ///< 1T or 2T CMD mode (slow access mode) for Mem Pstate 1
                                  ///< FALSE = 1T
                                  ///< TRUE = 2T
   ///< The following pointers will be pointed to dynamically allocated buffers.
@@ -1375,6 +1376,7 @@ typedef struct _CH_DEF_STRUCT {
   OUT VOID    *WrDataEyes;        ///< Pointer to Write Data Eye Bitmaps
   OUT UINT32  DctOdcCtl;          ///< Output Driver Strength (see BKDG FN2:Offset 9Ch, index 00h)
   OUT UINT32  DctAddrTmg;         ///< Address Bus Timing (see BKDG FN2:Offset 9Ch, index 04h)
+  OUT UINT32  DctAddrTmgPs1;      ///< Address Bus Timing (see BKDG FN2:Offset 9Ch, index 04h) for Mem Pstate 1
   OUT UINT32  PhyRODTCSLow;       ///< Phy Read ODT Pattern Chip Select low (see BKDG FN2:Offset 9Ch, index 180h)
   OUT UINT32  PhyRODTCSHigh;      ///< Phy Read ODT Pattern Chip Select high (see BKDG FN2:Offset 9Ch, index 181h)
   OUT UINT32  PhyWODTCSLow;       ///< Phy Write ODT Pattern Chip Select low (see BKDG FN2:Offset 9Ch, index 182h)
