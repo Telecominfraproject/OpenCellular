@@ -149,7 +149,8 @@ static void BuildTestGptData(GptData *gpt)
 	Guid chromeos_rootfs = GPT_ENT_TYPE_CHROMEOS_ROOTFS;
 
 	gpt->sector_bytes = DEFAULT_SECTOR_SIZE;
-	gpt->drive_sectors = gpt->gpt_drive_sectors = DEFAULT_DRIVE_SECTORS;
+	gpt->streaming_drive_sectors =
+		gpt->gpt_drive_sectors = DEFAULT_DRIVE_SECTORS;
 	gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
 	gpt->valid_headers = MASK_BOTH;
 	gpt->valid_entries = MASK_BOTH;
@@ -255,7 +256,8 @@ static int ParameterTests(void)
 	for (i = 0; i < ARRAY_SIZE(cases); ++i) {
 		BuildTestGptData(gpt);
 		gpt->sector_bytes = cases[i].sector_bytes;
-		gpt->drive_sectors = gpt->gpt_drive_sectors = cases[i].drive_sectors;
+		gpt->streaming_drive_sectors =
+			gpt->gpt_drive_sectors = cases[i].drive_sectors;
 		EXPECT(cases[i].expected_retval == CheckParameters(gpt));
 	}
 
@@ -350,15 +352,15 @@ static int SignatureTest(void)
 	GptHeader *h2 = (GptHeader *)gpt->secondary_header;
 	int i;
 
-	EXPECT(1 == CheckHeader(NULL, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(NULL, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	for (i = 0; i < 8; ++i) {
 		BuildTestGptData(gpt);
 		h1->signature[i] ^= 0xff;
 		h2->signature[i] ^= 0xff;
 		RefreshCrc32(gpt);
-		EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-		EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+		EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+		EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 	}
 
 	return TEST_OK;
@@ -392,9 +394,9 @@ static int RevisionTest(void)
 		h2->revision = cases[i].value_to_test;
 		RefreshCrc32(gpt);
 
-		EXPECT(CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].expect_rv);
-		EXPECT(CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].expect_rv);
 	}
 	return TEST_OK;
@@ -425,9 +427,9 @@ static int SizeTest(void)
 		h2->size = cases[i].value_to_test;
 		RefreshCrc32(gpt);
 
-		EXPECT(CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].expect_rv);
-		EXPECT(CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].expect_rv);
 	}
 	return TEST_OK;
@@ -444,12 +446,12 @@ static int CrcFieldTest(void)
 	/* Modify a field that the header verification doesn't care about */
 	h1->entries_crc32++;
 	h2->entries_crc32++;
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 	/* Refresh the CRC; should pass now */
 	RefreshCrc32(gpt);
-	EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(0 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(0 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	return TEST_OK;
 }
@@ -465,8 +467,8 @@ static int ReservedFieldsTest(void)
 	h1->reserved_zero ^= 0x12345678;  /* whatever random */
 	h2->reserved_zero ^= 0x12345678;  /* whatever random */
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 #ifdef PADDING_CHECKED
 	/* TODO: padding check is currently disabled */
@@ -474,8 +476,8 @@ static int ReservedFieldsTest(void)
 	h1->padding[12] ^= 0x34;  /* whatever random */
 	h2->padding[56] ^= 0x78;  /* whatever random */
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 #endif
 
 	return TEST_OK;
@@ -513,9 +515,9 @@ static int SizeOfPartitionEntryTest(void) {
 			cases[i].value_to_test;
 		RefreshCrc32(gpt);
 
-		EXPECT(CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].expect_rv);
-		EXPECT(CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].expect_rv);
 	}
 
@@ -536,11 +538,11 @@ static int NumberOfPartitionEntriesTest(void)
 	h1->number_of_entries--;
 	h2->number_of_entries /= 2;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 	/* But it's okay to have less if the GPT structs are stored elsewhere. */
-	EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
-	EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(0 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
+	EXPECT(0 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	return TEST_OK;
 }
@@ -555,37 +557,37 @@ static int MyLbaTest(void)
 
 	/* myLBA depends on primary vs secondary flag */
 	BuildTestGptData(gpt);
-	EXPECT(1 == CheckHeader(h1, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	BuildTestGptData(gpt);
 	h1->my_lba--;
 	h2->my_lba--;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	BuildTestGptData(gpt);
 	h1->my_lba = 2;
 	h2->my_lba--;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	/* We should ignore the alternate_lba field entirely */
 	BuildTestGptData(gpt);
 	h1->alternate_lba++;
 	h2->alternate_lba++;
 	RefreshCrc32(gpt);
-	EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(0 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(0 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	BuildTestGptData(gpt);
 	h1->alternate_lba--;
 	h2->alternate_lba--;
 	RefreshCrc32(gpt);
-	EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(0 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(0 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(0 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	BuildTestGptData(gpt);
 	h1->entries_lba++;
@@ -595,19 +597,19 @@ static int MyLbaTest(void)
 	 * We support a padding between primary GPT header and its entries. So
 	 * this still passes.
 	 */
-	EXPECT(0 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(0 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 	/*
 	 * But the secondary table should fail because it would overlap the
 	 * header, which is now lying after its entry array.
 	 */
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	BuildTestGptData(gpt);
 	h1->entries_lba--;
 	h2->entries_lba--;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(1 == CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
+	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 
 	return TEST_OK;
 }
@@ -656,9 +658,9 @@ static int FirstUsableLbaAndLastUsableLbaTest(void)
 		h2->last_usable_lba = cases[i].secondary_last_usable_lba;
 		RefreshCrc32(gpt);
 
-		EXPECT(CheckHeader(h1, 0, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].primary_rv);
-		EXPECT(CheckHeader(h2, 1, gpt->drive_sectors, gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE) ==
+		EXPECT(CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0) ==
 		       cases[i].secondary_rv);
 	}
 
@@ -1424,50 +1426,50 @@ static int CheckHeaderOffDevice()
 	RefreshCrc32(gpt);
 	// GPT is stored on the same device so first usable lba should not
 	// start at 0.
-	EXPECT(1 == CheckHeader(primary_header, 0, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(primary_header, 0, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, 0));
 	// But off device, it is okay to accept this GPT header.
-	EXPECT(0 == CheckHeader(primary_header, 0, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(0 == CheckHeader(primary_header, 0, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	BuildTestGptData(gpt);
 	primary_header->number_of_entries = 100;
 	RefreshCrc32(gpt);
 	// Normally, number of entries is 128. So this should fail.
-	EXPECT(1 == CheckHeader(primary_header, 0, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
+	EXPECT(1 == CheckHeader(primary_header, 0, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, 0));
 	// But off device, it is okay.
-	EXPECT(0 == CheckHeader(primary_header, 0, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(0 == CheckHeader(primary_header, 0, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	primary_header->number_of_entries = MIN_NUMBER_OF_ENTRIES - 1;
 	RefreshCrc32(gpt);
 	// However, too few entries is not good.
-	EXPECT(1 == CheckHeader(primary_header, 0, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(1 == CheckHeader(primary_header, 0, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	// Repeat for secondary header.
 	BuildTestGptData(gpt);
 	GptHeader* secondary_header = (GptHeader*)gpt->secondary_header;
 	secondary_header->first_usable_lba = 0;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(0 == CheckHeader(secondary_header, 1, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, 0));
+	EXPECT(0 == CheckHeader(secondary_header, 1, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	BuildTestGptData(gpt);
 	secondary_header->number_of_entries = 100;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_ON_DEVICE));
-	EXPECT(0 == CheckHeader(secondary_header, 1, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, 0));
+	EXPECT(0 == CheckHeader(secondary_header, 1, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	secondary_header->number_of_entries = MIN_NUMBER_OF_ENTRIES - 1;
 	RefreshCrc32(gpt);
-	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->drive_sectors,
-		gpt->gpt_drive_sectors, GPT_STORED_OFF_DEVICE));
+	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->streaming_drive_sectors,
+		gpt->gpt_drive_sectors, GPT_FLAG_EXTERNAL));
 
 	return TEST_OK;
 }

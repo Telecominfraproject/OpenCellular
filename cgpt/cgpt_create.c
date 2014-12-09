@@ -46,14 +46,15 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     h->my_lba = GPT_PMBR_SECTORS;  /* The second sector on drive. */
     h->alternate_lba = drive->gpt.gpt_drive_sectors - GPT_HEADER_SECTORS;
     h->entries_lba = h->my_lba + GPT_HEADER_SECTORS;
-    if (drive->gpt.stored_on_device == GPT_STORED_ON_DEVICE) {
+    if (!(drive->gpt.flags & GPT_FLAG_EXTERNAL)) {
       h->entries_lba += params->padding;
       h->first_usable_lba = h->entries_lba + GPT_ENTRIES_SECTORS;
-      h->last_usable_lba = (drive->gpt.drive_sectors - GPT_HEADER_SECTORS -
+      h->last_usable_lba = (drive->gpt.streaming_drive_sectors -
+			    GPT_HEADER_SECTORS -
                             GPT_ENTRIES_SECTORS - 1);
     } else {
       h->first_usable_lba = params->padding;
-      h->last_usable_lba = (drive->gpt.drive_sectors - 1);
+      h->last_usable_lba = (drive->gpt.streaming_drive_sectors - 1);
     }
     if (CGPT_OK != GenerateGuid(&h->disk_uuid)) {
       Error("Unable to generate new GUID.\n");
@@ -61,7 +62,7 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     }
     h->size_of_entry = sizeof(GptEntry);
     h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
-    if (drive->gpt.stored_on_device != GPT_STORED_ON_DEVICE) {
+    if (drive->gpt.flags & GPT_FLAG_EXTERNAL) {
       // We might have smaller space for the GPT table. Scale accordingly.
       size_t half_size_sectors = drive->gpt.gpt_drive_sectors / 2;
       if (half_size_sectors < GPT_HEADER_SECTORS) {

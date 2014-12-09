@@ -90,8 +90,9 @@ int CheckParameters(GptData* gpt);
  *
  * Returns 0 if header is valid, 1 if invalid.
  */
-int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
-                uint64_t gpt_drive_sectors, uint8_t stored_on_device);
+int CheckHeader(GptHeader *h, int is_secondary,
+                uint64_t streaming_drive_sectors,
+                uint64_t gpt_drive_sectors, uint32_t flags);
 
 /**
  * Calculate and return the header CRC.

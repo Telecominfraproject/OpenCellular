@@ -48,9 +48,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 
 	/* Only read primary GPT if the primary header is valid */
 	GptHeader* primary_header = (GptHeader*)gptdata->primary_header;
-	if (0 == CheckHeader(primary_header, 0, gptdata->drive_sectors,
+	if (0 == CheckHeader(primary_header, 0,
+			gptdata->streaming_drive_sectors,
 			gptdata->gpt_drive_sectors,
-			gptdata->stored_on_device)) {
+			gptdata->flags)) {
 		primary_valid = 1;
 		if (0 != VbExDiskRead(disk_handle,
 				      primary_header->entries_lba,
@@ -68,9 +69,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 
 	/* Only read secondary GPT if the secondary header is valid */
 	GptHeader* secondary_header = (GptHeader*)gptdata->secondary_header;
-	if (0 == CheckHeader(secondary_header, 1, gptdata->drive_sectors,
+	if (0 == CheckHeader(secondary_header, 1,
+			gptdata->streaming_drive_sectors,
 			gptdata->gpt_drive_sectors,
-			gptdata->stored_on_device)) {
+			gptdata->flags)) {
 		secondary_valid = 1;
 		if (0 != VbExDiskRead(disk_handle,
 				      secondary_header->entries_lba,

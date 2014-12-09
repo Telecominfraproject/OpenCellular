@@ -99,8 +99,8 @@ int CgptBoot(CgptBootParams *params) {
     drive.pmbr.part[0].l_cyl = 0xff;
     drive.pmbr.part[0].f_lba = htole32(1);
     uint32_t max = 0xffffffff;
-    if (drive.gpt.drive_sectors < 0xffffffff)
-      max = drive.gpt.drive_sectors - 1;
+    if (drive.gpt.streaming_drive_sectors < 0xffffffff)
+      max = drive.gpt.streaming_drive_sectors - 1;
     drive.pmbr.part[0].num_sect = htole32(max);
   }
 

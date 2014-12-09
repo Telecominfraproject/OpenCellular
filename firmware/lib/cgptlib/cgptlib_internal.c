@@ -20,12 +20,13 @@ int CheckParameters(GptData *gpt)
 		return GPT_ERROR_INVALID_SECTOR_SIZE;
 
 	/*
-	 * gpt_drive_sectors should be reasonable. It cannot be unset, and it cannot
-	 * differ from drive_sectors if the GPT structs are stored on same device.
+	 * gpt_drive_sectors should be reasonable. It cannot be unset, and it
+	 * cannot differ from streaming_drive_sectors if the GPT structs are
+	 * stored on same device.
 	 */
 	if (gpt->gpt_drive_sectors == 0 ||
-		(gpt->stored_on_device == GPT_STORED_ON_DEVICE &&
-			gpt->gpt_drive_sectors != gpt->drive_sectors)) {
+		(!(gpt->flags & GPT_FLAG_EXTERNAL) &&
+		 gpt->gpt_drive_sectors != gpt->streaming_drive_sectors)) {
 		return GPT_ERROR_INVALID_SECTOR_NUMBER;
 	}
 
@@ -53,8 +54,9 @@ uint32_t HeaderCrc(GptHeader *h)
 	return crc32;
 }
 
-int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
-		uint64_t gpt_drive_sectors, uint8_t stored_on_device)
+int CheckHeader(GptHeader *h, int is_secondary,
+		uint64_t streaming_drive_sectors,
+		uint64_t gpt_drive_sectors, uint32_t flags)
 {
 	if (!h)
 		return 1;
@@ -91,7 +93,7 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
 		return 1;
 	if ((h->number_of_entries < MIN_NUMBER_OF_ENTRIES) ||
 	    (h->number_of_entries > MAX_NUMBER_OF_ENTRIES) ||
-	    (stored_on_device == GPT_STORED_ON_DEVICE &&
+	    (!(flags & GPT_FLAG_EXTERNAL) &&
 	    h->number_of_entries * h->size_of_entry != TOTAL_ENTRIES_SIZE))
 		return 1;
 
@@ -116,8 +118,8 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
 	if (h->first_usable_lba > h->last_usable_lba)
 		return 1;
 
-	if (stored_on_device != GPT_STORED_ON_DEVICE) {
-		if (h->last_usable_lba >= drive_sectors) {
+	if (flags & GPT_FLAG_EXTERNAL) {
+		if (h->last_usable_lba >= streaming_drive_sectors) {
 			return 1;
 		}
 		return 0;
@@ -131,7 +133,8 @@ int CheckHeader(GptHeader *h, int is_secondary, uint64_t drive_sectors,
 	/* TODO(namnguyen): Also check for padding between header & entries. */
 	if (h->first_usable_lba < 2 + GPT_ENTRIES_SECTORS)
 		return 1;
-	if (h->last_usable_lba >= drive_sectors - 1 - GPT_ENTRIES_SECTORS)
+	if (h->last_usable_lba >=
+			streaming_drive_sectors - 1 - GPT_ENTRIES_SECTORS)
 		return 1;
 
 	/* Success */
@@ -245,13 +248,13 @@ int GptSanityCheck(GptData *gpt)
 		return retval;
 
 	/* Check both headers; we need at least one valid header. */
-	if (0 == CheckHeader(header1, 0, gpt->drive_sectors,
-			     gpt->gpt_drive_sectors, gpt->stored_on_device)) {
+	if (0 == CheckHeader(header1, 0, gpt->streaming_drive_sectors,
+			     gpt->gpt_drive_sectors, gpt->flags)) {
 		gpt->valid_headers |= MASK_PRIMARY;
 		goodhdr = header1;
 	}
-	if (0 == CheckHeader(header2, 1, gpt->drive_sectors,
-			     gpt->gpt_drive_sectors, gpt->stored_on_device)) {
+	if (0 == CheckHeader(header2, 1, gpt->streaming_drive_sectors,
+			     gpt->gpt_drive_sectors, gpt->flags)) {
 		gpt->valid_headers |= MASK_SECONDARY;
 		if (!goodhdr)
 			goodhdr = header2;
@@ -332,7 +335,8 @@ void GptRepair(GptData *gpt)
 		/* Secondary is good, primary is bad */
 		Memcpy(header1, header2, sizeof(GptHeader));
 		header1->my_lba = GPT_PMBR_SECTORS;  /* Second sector. */
-		header1->alternate_lba = gpt->drive_sectors - GPT_HEADER_SECTORS;
+		header1->alternate_lba =
+			gpt->streaming_drive_sectors - GPT_HEADER_SECTORS;
 		/* TODO (namnguyen): Preserve (header, entries) padding. */
 		header1->entries_lba = header1->my_lba + 1;
 		header1->header_crc32 = HeaderCrc(header1);

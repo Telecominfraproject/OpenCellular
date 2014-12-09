@@ -150,11 +150,11 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
           (long long unsigned int)drive->size, drive->gpt.sector_bytes);
     return -1;
   }
-  drive->gpt.drive_sectors = drive->size / drive->gpt.sector_bytes;
+  drive->gpt.streaming_drive_sectors = drive->size / drive->gpt.sector_bytes;
 
   /* TODO(namnguyen): Remove this and totally trust gpt_drive_sectors. */
-  if (drive->gpt.stored_on_device == GPT_STORED_ON_DEVICE) {
-    drive->gpt.gpt_drive_sectors = drive->gpt.drive_sectors;
+  if (!(drive->gpt.flags & GPT_FLAG_EXTERNAL)) {
+    drive->gpt.gpt_drive_sectors = drive->gpt.streaming_drive_sectors;
   } /* Else, we trust gpt.gpt_drive_sectors. */
 
   // Read the data.
@@ -171,9 +171,9 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
     return -1;
   }
   GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
-  if (CheckHeader(primary_header, 0, drive->gpt.drive_sectors,
+  if (CheckHeader(primary_header, 0, drive->gpt.streaming_drive_sectors,
                   drive->gpt.gpt_drive_sectors,
-                  drive->gpt.stored_on_device) == 0) {
+                  drive->gpt.flags) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
                         primary_header->entries_lba,
                         drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
@@ -184,9 +184,9 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
     Warning("Primary GPT header is invalid\n");
   }
   GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
-  if (CheckHeader(secondary_header, 1, drive->gpt.drive_sectors,
+  if (CheckHeader(secondary_header, 1, drive->gpt.streaming_drive_sectors,
                   drive->gpt.gpt_drive_sectors,
-                  drive->gpt.stored_on_device) == 0) {
+                  drive->gpt.flags) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
                         secondary_header->entries_lba,
                         drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
@@ -284,7 +284,6 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode,
 
   // Clear struct for proper error handling.
   memset(drive, 0, sizeof(struct drive));
-  drive->gpt.stored_on_device = GPT_STORED_ON_DEVICE;
 
   drive->fd = open(drive_path, mode | O_LARGEFILE | O_NOFOLLOW);
   if (drive->fd == -1) {
@@ -303,10 +302,10 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode,
   drive->gpt.gpt_drive_sectors = gpt_drive_size / sector_bytes;
   if (drive_size == 0) {
     drive->size = gpt_drive_size;
-    drive->gpt.stored_on_device = GPT_STORED_ON_DEVICE;
+    drive->gpt.flags = 0;
   } else {
     drive->size = drive_size;
-    drive->gpt.stored_on_device = GPT_STORED_OFF_DEVICE;
+    drive->gpt.flags = GPT_FLAG_EXTERNAL;
   }
 
 

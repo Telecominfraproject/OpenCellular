@@ -115,10 +115,10 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	/* Read GPT data */
 	gpt.sector_bytes = (uint32_t)blba;
-	gpt.drive_sectors = params->ending_lba + 1;
+	gpt.streaming_drive_sectors = params->ending_lba + 1;
 	/* TODO: Set stored_on_device and gpt_drive_sectors appropriately */
-	gpt.stored_on_device = GPT_STORED_ON_DEVICE;
-	gpt.gpt_drive_sectors = gpt.drive_sectors;
+	gpt.gpt_drive_sectors = gpt.streaming_drive_sectors;
+	gpt.flags = 0;
 	if (0 != AllocAndReadGptData(params->disk_handle, &gpt)) {
 		VBDEBUG(("Unable to read GPT data\n"));
 		shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;
