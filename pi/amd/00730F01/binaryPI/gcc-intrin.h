@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2011, Advanced Micro Devices, Inc.
+ * Copyright (c) 2011 Advanced Micro Devices, Inc.
+ *               2014 Sage Electronic Engineering, LLC
+ *               2014 Edward O'Callaghan <eocallaghan@alterapraxis.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,230 +30,234 @@
 
 #if defined (__GNUC__)
 
+#if !defined(AMDLIB_OPTIMIZE)
+	#define AMDLIB_OPTIMIZE
+#endif
+
 /* I/O intrin functions.  */
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned char __inbyte(unsigned short Port)
 {
   unsigned char value;
 
   __asm__ __volatile__ (
-    "in  %%dx, %%al"
+    "in  %1, %0"
     : "=a" (value)
-    : "d" (Port)
+    : "Nd" (Port)
     );
 
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned short __inword(unsigned short Port)
 {
   unsigned short value;
 
   __asm__ __volatile__ (
-    "in  %%dx, %%ax"
+    "in  %1, %0"
     : "=a" (value)
-    : "d" (Port)
+    : "Nd" (Port)
     );
 
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __indword(unsigned short Port)
 {
   unsigned long value;
 
   __asm__ __volatile__ (
-    "in  %%dx, %%eax"
+    "in  %1, %0"
     : "=a" (value)
-    : "d" (Port)
+    : "Nd" (Port)
     );
   return value;
 
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __outbyte(unsigned short Port,unsigned char Data)
 {
   __asm__ __volatile__ (
-    "out  %%al, %%dx"
+    "out  %0, %1"
     :
-    : "a" (Data), "d" (Port)
+    : "a" (Data), "Nd" (Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __outword(unsigned short Port,unsigned short Data)
 {
   __asm__ __volatile__ (
-    "out  %%ax, %%dx"
+    "out  %0, %1"
     :
-    : "a" (Data), "d" (Port)
+    : "a" (Data), "Nd" (Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __outdword(unsigned short Port,unsigned long Data)
 {
   __asm__ __volatile__ (
-    "out  %%eax, %%dx"
+    "out  %0, %1"
     :
-    : "a" (Data), "d" (Port)
+    : "a" (Data), "Nd" (Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __inbytestring(unsigned short Port,unsigned char *Buffer,unsigned long Count)
 {
   __asm__ __volatile__ (
-    "cld ; rep ; insb "
-    : "=D" (Buffer), "=c" (Count)
-    : "d"(Port), "0"(Buffer), "1" (Count)
+    "rep ; insb"
+    : "+D" (Buffer), "+c" (Count)
+    : "d"(Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __inwordstring(unsigned short Port,unsigned short *Buffer,unsigned long Count)
 {
   __asm__ __volatile__ (
-    "cld ; rep ; insw "
-    : "=D" (Buffer), "=c" (Count)
-    : "d"(Port), "0"(Buffer), "1" (Count)
+    "rep ; insw"
+    : "+D" (Buffer), "+c" (Count)
+    : "d"(Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __indwordstring(unsigned short Port,unsigned long *Buffer,unsigned long Count)
 {
   __asm__ __volatile__ (
-    "cld ; rep ; insl "
-    : "=D" (Buffer), "=c" (Count)
-    : "d"(Port), "0"(Buffer), "1" (Count)
+    "rep ; insl"
+    : "+D" (Buffer), "+c" (Count)
+    : "d"(Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __outbytestring(unsigned short Port,unsigned char *Buffer,unsigned long Count)
 {
   __asm__ __volatile__ (
-    "cld ; rep ; outsb "
-    : "=S" (Buffer), "=c" (Count)
-    : "d"(Port), "0"(Buffer), "1" (Count)
+    "rep ; outsb"
+    : "+S" (Buffer), "+c" (Count)
+    : "d"(Port)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __outwordstring(unsigned short Port,unsigned short *Buffer,unsigned long Count)
 {
   __asm__ __volatile__ (
-    "cld ; rep ; outsw "
-    : "=S" (Buffer), "=c" (Count)
-    : "d"(Port), "0"(Buffer), "1" (Count)
+    "rep ; outsw"
+    : "+S" (Buffer), "+c" (Count)
+    : "d"(Port)
   );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __outdwordstring(unsigned short Port,unsigned long *Buffer,unsigned long Count)
 {
   __asm__ __volatile__ (
-   "cld ; rep ; outsl "
-   : "=S" (Buffer), "=c" (Count)
-   : "d"(Port), "0"(Buffer), "1" (Count)
+   "rep ; outsl"
+   : "+S" (Buffer), "+c" (Count)
+   : "d"(Port)
    );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readdr0(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%dr0, %[value]"
-    : [value] "=a" (value)
+    : [value] "=r" (value)
     );
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readdr1(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%dr1, %[value]"
-    : [value] "=a" (value)
+    : [value] "=r" (value)
     );
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readdr2(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%dr2, %[value]"
-    : [value] "=a" (value)
+    : [value] "=r" (value)
     );
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readdr3(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%dr3, %[value]"
-    : [value] "=a" (value)
+    : [value] "=r" (value)
     );
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readdr7(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%dr7, %[value]"
-    : [value] "=a" (value)
+    : [value] "=r" (value)
     );
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readdr(unsigned long reg)
 {
@@ -278,71 +284,72 @@ unsigned long __readdr(unsigned long reg)
 
     default:
       return -1;
+      break;
   }
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writedr0(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%dr0"
+    "mov %0, %%dr0"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writedr1(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%dr1"
+    "mov %0, %%dr1"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writedr2(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%dr2"
+    "mov %0, %%dr2"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writedr3(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%dr3"
+    "mov %0, %%dr3"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writedr7(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%dr7"
+    "mov %0, %%dr7"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writedr(unsigned long reg, unsigned long Data)
 {
@@ -368,72 +375,72 @@ void __writedr(unsigned long reg, unsigned long Data)
       break;
 
     default:
-      ;
+      break;
   }
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readcr0(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%cr0, %[value]"
-    : [value] "=a" (value));
+    : [value] "=r" (value));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readcr2(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%cr2, %[value]"
-    : [value] "=a" (value));
+    : [value] "=r" (value));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readcr3(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%cr3, %[value]"
-    : [value] "=a" (value));
+    : [value] "=r" (value));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readcr4(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%cr4, %[value]"
-    : [value] "=a" (value));
+    : [value] "=r" (value));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readcr8(void)
 {
   unsigned long value;
   __asm__ __volatile__ (
     "mov %%cr8, %[value]"
-    : [value] "=a" (value));
+    : [value] "=r" (value));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readcr(unsigned long reg)
 {
@@ -460,71 +467,73 @@ unsigned long __readcr(unsigned long reg)
 
     default:
       return -1;
+      break;
   }
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writecr0(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%cr0"
+    "mov %0, %%cr0"
     :
-    : "a" (Data)
+    : "r" (Data)
+    : "memory"
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writecr2(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%cr2"
+    "mov %0, %%cr2"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writecr3(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%cr3"
+    "mov %0, %%cr3"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writecr4(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%cr4"
+    "mov %0, %%cr4"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writecr8(unsigned long Data)
 {
   __asm__ __volatile__ (
-    "mov %%eax, %%cr8"
+    "mov %0, %%cr8"
     :
-    : "a" (Data)
+    : "r" (Data)
     );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writecr(unsigned long reg, unsigned long Data)
 {
@@ -550,18 +559,18 @@ void __writecr(unsigned long reg, unsigned long Data)
       break;
 
     default:
-      ;
+      break;
   }
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 UINT64 __readmsr(UINT32 msr)
 {
   UINT64 retval;
   __asm__ __volatile__(
-       "rdmsr\n\t"
+       "rdmsr"
        : "=A" (retval)
        : "c" (msr)
        );
@@ -569,19 +578,19 @@ UINT64 __readmsr(UINT32 msr)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writemsr (UINT32 msr, UINT64 Value)
 {
   __asm__ __volatile__ (
-     "wrmsr\n\t"
+     "wrmsr"
      :
      : "c" (msr), "A" (Value)
      );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 UINT64 __rdtsc(void)
 {
@@ -593,7 +602,7 @@ UINT64 __rdtsc(void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __cpuid(int CPUInfo[], const int InfoType)
 {
@@ -605,7 +614,7 @@ void __cpuid(int CPUInfo[], const int InfoType)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _disable(void)
 {
@@ -613,7 +622,7 @@ void _disable(void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _enable(void)
 {
@@ -621,7 +630,7 @@ void _enable(void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __halt(void)
 {
@@ -629,7 +638,7 @@ void __halt(void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __debugbreak(void)
 {
@@ -637,7 +646,15 @@ void __debugbreak(void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
+__inline__ __attribute__((always_inline))
+void __invd(void)
+{
+  __asm__ __volatile__ ("invd");
+}
+
+static
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __wbinvd(void)
 {
@@ -645,7 +662,7 @@ void __wbinvd(void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __lidt(void *Source)
 {
@@ -653,56 +670,68 @@ void __lidt(void *Source)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writefsbyte(const unsigned long Offset, const unsigned char Data)
 {
-  __asm__("movb %b[Data], %%fs:%a[Offset]" : : [Offset] "ir" (Offset), [Data] "iq" (Data));
+  __asm__ ("movb %[Data], %%fs:%a[Offset]"
+          :
+          : [Offset] "ir" (Offset), [Data] "iq" (Data));
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writefsword(const unsigned long Offset, const unsigned short Data)
 {
-  __asm__("movw %w[Data], %%fs:%a[Offset]" : : [Offset] "ir" (Offset), [Data] "iq" (Data));
+  __asm__ ("movw %[Data], %%fs:%a[Offset]"
+          :
+          : [Offset] "ir" (Offset), [Data] "ir" (Data));
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __writefsdword(const unsigned long Offset, const unsigned long Data)
 {
-  __asm__("movl %k[Data], %%fs:%a[Offset]" : : [Offset] "ir" (Offset), [Data] "iq" (Data));
+  __asm__ ("movl %[Data], %%fs:%a[Offset]"
+           :
+           : [Offset] "ir" (Offset), [Data] "ir" (Data));
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned char __readfsbyte(const unsigned long Offset)
 {
   unsigned char value;
-  __asm__("movb %%fs:%a[Offset], %b[value]" : [value] "=q" (value) : [Offset] "irm" (Offset));
+  __asm__ ("movb %%fs:%a[Offset], %[value]"
+          : [value] "=q" (value)
+          : [Offset] "ir" (Offset));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned short __readfsword(const unsigned long Offset)
 {
   unsigned short value;
-  __asm__("movw %%fs:%a[Offset], %w[value]" : [value] "=q" (value) : [Offset] "irm" (Offset));
+  __asm__ ("movw %%fs:%a[Offset], %[value]"
+           : [value] "=q" (value)
+           : [Offset] "ir" (Offset));
   return value;
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 unsigned long __readfsdword(unsigned long Offset)
 {
   unsigned long value;
-  __asm__("movl %%fs:%a[Offset], %k[value]" : [value] "=q" (value) : [Offset] "irm" (Offset));
+  __asm__ ("movl %%fs:%a[Offset], %[value]"
+           : [value] "=r" (value)
+           : [Offset] "ir" (Offset));
   return value;
 }
 
@@ -711,7 +740,7 @@ typedef long long __v2di __attribute__ ((__vector_size__ (16)));
 typedef long long __m128i __attribute__ ((__vector_size__ (16), __may_alias__));
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _mm_stream_si128_fs2 (void *__A, __m128i __B)
 {
@@ -720,7 +749,7 @@ void _mm_stream_si128_fs2 (void *__A, __m128i __B)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _mm_stream_si128_fs (void *__A, void *__B)
 {
@@ -730,7 +759,7 @@ void _mm_stream_si128_fs (void *__A, void *__B)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _mm_clflush_fs (void *__A)
 {
@@ -739,7 +768,7 @@ void _mm_clflush_fs (void *__A)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _mm_mfence (void)
 {
@@ -747,40 +776,39 @@ void _mm_mfence (void)
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void _mm_sfence (void)
 {
   __builtin_ia32_sfence ();
 }
-#endif
+#endif /* __SSE3__ */
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __stosb(unsigned char *dest, unsigned char data, size_t count)
 {
    __asm__ __volatile__ (
-    "cld ; rep ; stosb "
-    : "=D" (dest), "=c" (count)
-    : "a"(data), "0"(dest), "1" (count)
+    "rep ; stosb "
+    : "+D" (dest), "+c" (count)
+    : "a"(data)
   );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void __movsb(unsigned char *dest, unsigned char *data, size_t count)
 {
    __asm__ __volatile__ (
-    "cld ; rep ; movsb "
-    : "=D" (dest), "=S"(data), "=c" (count)
-    : "S"(data), "0"(dest), "1" (count)
+    "movsb "
+    : "+D" (dest), "+S"(data), "+c" (count)
   );
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void debug_point ( unsigned short Port,  unsigned long Data )
 {
@@ -790,7 +818,7 @@ void debug_point ( unsigned short Port,  unsigned long Data )
 }
 
 static
-__attribute__((optimize("Os")))
+AMDLIB_OPTIMIZE
 __inline__ __attribute__((always_inline))
 void delay_point ( unsigned short Port, unsigned long Data, unsigned long delayTime )
 {
@@ -802,4 +830,4 @@ void delay_point ( unsigned short Port, unsigned long Data, unsigned long delayT
     Index ++;
   }
 }
-#endif // defined (__GNUC__)
+#endif /* defined (__GNUC__) */
