@@ -219,7 +219,8 @@ static int do_help(int argc, char *argv[])
 		cmd = find_command(argv[1]);
 		if (cmd) {
 			printf("\n%s - %s\n", argv[1], cmd->shorthelp);
-			cmd->longhelp(argv[1]);
+			if (cmd->longhelp)
+				cmd->longhelp(argv[1]);
 			return 0;
 		}
 	}
