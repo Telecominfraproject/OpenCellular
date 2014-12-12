@@ -925,15 +925,26 @@ VbError_t VbExProtectFlash(enum VbProtectFlash_t region);
 /**
  * Check if the firmware needs to shut down the system.
  *
- * Returns 1 if a shutdown is being requested (for example, the user has
- * pressed the power button or closed the lid), or 0 if a shutdown is not being
- * requested.
+ * Returns a non-zero VB_SHUTDOWN_REQUEST mask indicating the reason(s) for
+ * shutdown if a shutdown is being requested (see VB_SHUTDOWN_REQUEST_*), or 0
+ * if a shutdown is not being requested.
  *
  * NOTE: When we're displaying a screen, pressing the power button should shut
  * down the computer.  We need a way to break out of our control loop so this
  * can occur cleanly.
  */
 uint32_t VbExIsShutdownRequested(void);
+
+/*
+ * Shutdown requested for a reason which is not defined among other
+ * VB_SHUTDOWN_REQUEST_* values. This must be defined as 1 for backward
+ * compatibility with old versions of the API.
+ */
+#define VB_SHUTDOWN_REQUEST_OTHER		0x00000001
+/* Shutdown requested due to a lid switch being closed. */
+#define VB_SHUTDOWN_REQUEST_LID_CLOSED		0x00000002
+/* Shutdown requested due to a power button being pressed. */
+#define VB_SHUTDOWN_REQUEST_POWER_BUTTON	0x00000004
 
 /**
  * Expose the BIOS' built-in decompression routine to the vboot wrapper. The
