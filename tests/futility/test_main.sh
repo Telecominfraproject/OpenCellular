@@ -25,20 +25,6 @@ grep ${FUTILITY} ${LOG}
 rm -f ${LOG}
 [ -f ${LOG}.backup ] && mv ${LOG}.backup ${LOG}
 
-# Make sure deprecated functions fail via symlink
-DEPRECATED="dev_sign_file"
-
-for i in $DEPRECATED; do
-  ln -sf ${FUTILITY} $i
-  if ./$i 2>${TMP}.outmsg ; then false; fi
-  grep deprecated ${TMP}.outmsg
-  # They may still fail when invoked through futility
-  # but with a different error message.
-  ${FUTILITY} $i 1>${TMP}.outmsg2 2>&1 || true
-  if grep deprecated ${TMP}.outmsg2; then false; fi
-  rm -f $i
-done
-
 # Use some known digests to verify that things work...
 DEVKEYS=${SRCDIR}/tests/devkeys
 SHA=e78ce746a037837155388a1096212ded04fb86eb

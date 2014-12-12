@@ -567,9 +567,7 @@ FUTIL_STATIC_BIN = ${FUTIL_BIN}_s
 
 # These are the executables that are now built in to futility. We'll create
 # symlinks for these so the old names will still work.
-# TODO: Do we still need dev_sign_file for anything?
 FUTIL_SYMLINKS = \
-	dev_sign_file \
 	dump_fmap \
 	dump_kernel_config \
 	gbb_utility \
@@ -586,7 +584,6 @@ FUTIL_STATIC_SRCS = \
 
 FUTIL_SRCS = \
 	${FUTIL_STATIC_SRCS} \
-	futility/cmd_dev_sign_file.c \
 	futility/cmd_dump_kernel_config.c \
 	futility/cmd_load_fmap.c \
 	futility/cmd_pcr.c \

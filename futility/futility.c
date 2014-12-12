@@ -248,31 +248,6 @@ DECLARE_FUTIL_COMMAND(version, do_version,
 		      "Show the futility source revision and build date",
 		      NULL);
 
-/*
- * These are built-in functions that we'd like to abandon completely someday.
- * TODO: If no one complains, get rid of them.
- */
-static const char *const dep_cmds[] = {
-	"dev_sign_file",
-};
-
-static const char *const dep_usage = "\n"
-"The program \"%s\" is deprecated and may go away soon.\n"
-"\n"
-"If you feel this is in error, please open a bug at\n"
-"\n"
-"  http://dev.chromium.org/for-testers/bug-reporting-guidelines\n"
-"\n"
-"In the meantime, you may continue to use the program by invoking it as\n"
-"\n" MYNAME " %s [...]\n"
-"\n";
-
-static int deprecated(const char *depname)
-{
-	fprintf(stderr, dep_usage, depname, depname);
-	return 1;
-}
-
 int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
 {
 	/* Handle the "CMD --help" case ourselves */
@@ -301,7 +276,6 @@ int main(int argc, char *argv[], char *envp[])
 {
 	char *progname;
 	const struct futil_cmd_t *cmd;
-	int i;
 
 	log_args(argc, argv);
 
@@ -310,14 +284,8 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* See if the program name is a command we recognize */
 	cmd = find_command(progname);
-	if (cmd) {
-		/* Block any deprecated functions invoked directly. */
-		for (i = 0; i < ARRAY_SIZE(dep_cmds); i++)
-			if (0 == strcmp(dep_cmds[i], progname))
-				return deprecated(progname);
-
+	if (cmd)
 		return run_command(cmd, argc, argv);
-	}
 
 	/* The program name means nothing, so we require an argument. */
 	if (argc < 2) {
