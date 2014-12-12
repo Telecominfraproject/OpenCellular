@@ -247,7 +247,7 @@ static int ParameterTests(void)
 		{512, 0, GPT_ERROR_INVALID_SECTOR_NUMBER},
 		{512, 66, GPT_ERROR_INVALID_SECTOR_NUMBER},
 		{512, GPT_PMBR_SECTORS + GPT_HEADER_SECTORS * 2 +
-		 GPT_ENTRIES_SECTORS * 2, GPT_SUCCESS},
+		 TOTAL_ENTRIES_SIZE / DEFAULT_SECTOR_SIZE * 2, GPT_SUCCESS},
 		{4096, DEFAULT_DRIVE_SECTORS, GPT_ERROR_INVALID_SECTOR_SIZE},
 	};
 	int i;
@@ -537,6 +537,8 @@ static int NumberOfPartitionEntriesTest(void)
 	BuildTestGptData(gpt);
 	h1->number_of_entries--;
 	h2->number_of_entries /= 2;
+	/* Because we halved h2 entries, its entries_lba is going to change. */
+	h2->entries_lba = h2->my_lba - CalculateEntriesSectors(h2);
 	RefreshCrc32(gpt);
 	EXPECT(1 == CheckHeader(h1, 0, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
 	EXPECT(1 == CheckHeader(h2, 1, gpt->streaming_drive_sectors, gpt->gpt_drive_sectors, 0));
@@ -1460,6 +1462,9 @@ static int CheckHeaderOffDevice()
 
 	BuildTestGptData(gpt);
 	secondary_header->number_of_entries = 100;
+	/* Because we change number of entries, we need to also update entrie_lba. */
+	secondary_header->entries_lba = secondary_header->my_lba -
+		CalculateEntriesSectors(secondary_header);
 	RefreshCrc32(gpt);
 	EXPECT(1 == CheckHeader(secondary_header, 1, gpt->streaming_drive_sectors,
 		gpt->gpt_drive_sectors, 0));

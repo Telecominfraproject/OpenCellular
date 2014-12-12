@@ -87,14 +87,14 @@ static void SetupGptHeader(GptHeader *h, int is_secondary)
 	/* Set LBA pointers for primary or secondary header */
 	if (is_secondary) {
 		h->my_lba = MOCK_SECTOR_COUNT - GPT_HEADER_SECTORS;
-		h->entries_lba = h->my_lba - GPT_ENTRIES_SECTORS;
+		h->entries_lba = h->my_lba - CalculateEntriesSectors(h);
 	} else {
 		h->my_lba = GPT_PMBR_SECTORS;
 		h->entries_lba = h->my_lba + 1;
 	}
 
-	h->first_usable_lba = 2 + GPT_ENTRIES_SECTORS;
-	h->last_usable_lba = MOCK_SECTOR_COUNT - 2 - GPT_ENTRIES_SECTORS;
+	h->first_usable_lba = 2 + CalculateEntriesSectors(h);
+	h->last_usable_lba = MOCK_SECTOR_COUNT - 2 - CalculateEntriesSectors(h);
 
 	h->header_crc32 = HeaderCrc(h);
 }

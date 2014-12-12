@@ -176,7 +176,8 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
                   drive->gpt.flags) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
                         primary_header->entries_lba,
-                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+                        drive->gpt.sector_bytes,
+                        CalculateEntriesSectors(primary_header))) {
       Error("Cannot read primary partition entry array\n");
       return -1;
     }
@@ -189,7 +190,8 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
                   drive->gpt.flags) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
                         secondary_header->entries_lba,
-                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+                        drive->gpt.sector_bytes,
+                        CalculateEntriesSectors(secondary_header))) {
       Error("Cannot read secondary partition entry array\n");
       return -1;
     }
@@ -222,7 +224,8 @@ static int GptSave(struct drive *drive) {
   if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
     if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
                         primary_header->entries_lba,
-                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+                        drive->gpt.sector_bytes,
+                        CalculateEntriesSectors(primary_header))) {
       errors++;
       Error("Cannot write primary entries: %s\n", strerror(errno));
     }
@@ -231,7 +234,8 @@ static int GptSave(struct drive *drive) {
   if (drive->gpt.modified & GPT_MODIFIED_ENTRIES2) {
     if (CGPT_OK != Save(drive, drive->gpt.secondary_entries,
                         secondary_header->entries_lba,
-                        drive->gpt.sector_bytes, GPT_ENTRIES_SECTORS)) {
+                        drive->gpt.sector_bytes,
+                        CalculateEntriesSectors(secondary_header))) {
       errors++;
       Error("Cannot write secondary entries: %s\n", strerror(errno));
     }
@@ -808,12 +812,16 @@ void UpdateCrc(GptData *gpt) {
   if (gpt->modified & GPT_MODIFIED_ENTRIES1 &&
       memcmp(primary_header, GPT_HEADER_SIGNATURE2,
              GPT_HEADER_SIGNATURE_SIZE)) {
+    size_t entries_size = primary_header->size_of_entry *
+        primary_header->number_of_entries;
     primary_header->entries_crc32 =
-        Crc32(gpt->primary_entries, TOTAL_ENTRIES_SIZE);
+        Crc32(gpt->primary_entries, entries_size);
   }
   if (gpt->modified & GPT_MODIFIED_ENTRIES2) {
+    size_t entries_size = secondary_header->size_of_entry *
+        secondary_header->number_of_entries;
     secondary_header->entries_crc32 =
-        Crc32(gpt->secondary_entries, TOTAL_ENTRIES_SIZE);
+        Crc32(gpt->secondary_entries, entries_size);
   }
   if (gpt->modified & GPT_MODIFIED_HEADER1) {
     primary_header->header_crc32 = 0;
@@ -867,17 +875,26 @@ uint8_t RepairEntries(GptData *gpt, const uint32_t valid_entries) {
   if (!memcmp(h->signature, GPT_HEADER_SIGNATURE2, GPT_HEADER_SIGNATURE_SIZE))
     return 0;
 
+  if (gpt->valid_headers & MASK_PRIMARY) {
+    h = (GptHeader*)gpt->primary_header;
+  } else if (gpt->valid_headers & MASK_SECONDARY) {
+    h = (GptHeader*)gpt->secondary_header;
+  } else {
+    /* We cannot trust any header, don't update entries. */
+    return 0;
+  }
+
+  size_t entries_size = h->number_of_entries * h->size_of_entry;
   if (valid_entries == MASK_BOTH) {
-    if (memcmp(gpt->primary_entries, gpt->secondary_entries,
-               TOTAL_ENTRIES_SIZE)) {
-      memcpy(gpt->secondary_entries, gpt->primary_entries, TOTAL_ENTRIES_SIZE);
+    if (memcmp(gpt->primary_entries, gpt->secondary_entries, entries_size)) {
+      memcpy(gpt->secondary_entries, gpt->primary_entries, entries_size);
       return GPT_MODIFIED_ENTRIES2;
     }
   } else if (valid_entries == MASK_PRIMARY) {
-    memcpy(gpt->secondary_entries, gpt->primary_entries, TOTAL_ENTRIES_SIZE);
+    memcpy(gpt->secondary_entries, gpt->primary_entries, entries_size);
     return GPT_MODIFIED_ENTRIES2;
   } else if (valid_entries == MASK_SECONDARY) {
-    memcpy(gpt->primary_entries, gpt->secondary_entries, TOTAL_ENTRIES_SIZE);
+    memcpy(gpt->primary_entries, gpt->secondary_entries, entries_size);
     return GPT_MODIFIED_ENTRIES1;
   }
 
@@ -922,7 +939,7 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
     secondary_header->my_lba = gpt->gpt_drive_sectors - 1;  /* the last sector */
     secondary_header->alternate_lba = primary_header->my_lba;
     secondary_header->entries_lba = secondary_header->my_lba -
-        GPT_ENTRIES_SECTORS;
+        CalculateEntriesSectors(primary_header);
     return GPT_MODIFIED_HEADER2;
   } else if (valid_headers == MASK_SECONDARY) {
     memcpy(primary_header, secondary_header, sizeof(GptHeader));

@@ -51,17 +51,12 @@
 #define MIN_SIZE_OF_ENTRY 128
 #define MAX_SIZE_OF_ENTRY 512
 #define SIZE_OF_ENTRY_MULTIPLE 8
-#define MIN_NUMBER_OF_ENTRIES 32
+#define MIN_NUMBER_OF_ENTRIES 16
 #define MAX_NUMBER_OF_ENTRIES 512
 
 /* Defines GPT sizes */
 #define GPT_PMBR_SECTORS 1  /* size (in sectors) of PMBR */
 #define GPT_HEADER_SECTORS 1
-/*
- * Entries sectors assumes sector size if 512 bytes; then (TOTAL_ENTRIES_SIZE /
- * 512) = 32
- */
-#define GPT_ENTRIES_SECTORS 32
 
 /*
  * Alias name of index in internal array for primary and secondary header and
@@ -162,5 +157,10 @@ void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest);
  * Return a pointer to text describing the passed in error.
  */
 const char *GptErrorText(int error_code);
+
+/**
+ * Return number of 512-byte sectors required to store the entries table.
+ */
+size_t CalculateEntriesSectors(GptHeader* h);
 
 #endif /* VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_ */

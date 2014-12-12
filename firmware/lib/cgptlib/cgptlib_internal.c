@@ -12,11 +12,18 @@
 #include "gpt_misc.h"
 #include "utility.h"
 
+const static int SECTOR_SIZE = 512;
+
+size_t CalculateEntriesSectors(GptHeader* h) {
+  size_t bytes = h->number_of_entries * h->size_of_entry;
+  size_t ret = (bytes + SECTOR_SIZE - 1) / SECTOR_SIZE;
+  return ret;
+}
 
 int CheckParameters(GptData *gpt)
 {
 	/* Currently, we only support 512-byte sectors. */
-	if (gpt->sector_bytes != 512)
+	if (gpt->sector_bytes != SECTOR_SIZE)
 		return GPT_ERROR_INVALID_SECTOR_SIZE;
 
 	/*
@@ -33,9 +40,11 @@ int CheckParameters(GptData *gpt)
 	/*
 	 * Sector count of a drive should be reasonable. If the given value is
 	 * too small to contain basic GPT structure (PMBR + Headers + Entries),
-	 * the value is wrong.
+	 * the value is wrong. Entries size is hard coded to TOTAL_ENTRIES_SIZE (see
+	 * cgpt_create.c). This check is only applicable when GPT is stored on device.
 	 */
-	if (gpt->gpt_drive_sectors < (1 + 2 * (1 + GPT_ENTRIES_SECTORS)))
+	if (!(gpt->flags & GPT_FLAG_EXTERNAL) &&
+		gpt->gpt_drive_sectors < (1 + 2 * (1 + TOTAL_ENTRIES_SIZE / SECTOR_SIZE)))
 		return GPT_ERROR_INVALID_SECTOR_NUMBER;
 
 	return GPT_SUCCESS;
@@ -105,7 +114,7 @@ int CheckHeader(GptHeader *h, int is_secondary,
 	if (is_secondary) {
 		if (h->my_lba != gpt_drive_sectors - GPT_HEADER_SECTORS)
 			return 1;
-		if (h->entries_lba != h->my_lba - GPT_ENTRIES_SECTORS)
+		if (h->entries_lba != h->my_lba - CalculateEntriesSectors(h))
 			return 1;
 	} else {
 		if (h->my_lba != GPT_PMBR_SECTORS)
@@ -131,10 +140,10 @@ int CheckHeader(GptHeader *h, int is_secondary,
 	 * array.
 	 */
 	/* TODO(namnguyen): Also check for padding between header & entries. */
-	if (h->first_usable_lba < 2 + GPT_ENTRIES_SECTORS)
+	if (h->first_usable_lba < 2 + CalculateEntriesSectors(h))
 		return 1;
 	if (h->last_usable_lba >=
-			streaming_drive_sectors - 1 - GPT_ENTRIES_SECTORS)
+			streaming_drive_sectors - 1 - CalculateEntriesSectors(h))
 		return 1;
 
 	/* Success */
@@ -321,7 +330,7 @@ void GptRepair(GptData *gpt)
 		Memcpy(header2, header1, sizeof(GptHeader));
 		header2->my_lba = gpt->gpt_drive_sectors - GPT_HEADER_SECTORS;
 		header2->alternate_lba = GPT_PMBR_SECTORS;  /* Second sector. */
-		header2->entries_lba = header2->my_lba - GPT_ENTRIES_SECTORS;
+		header2->entries_lba = header2->my_lba - CalculateEntriesSectors(header1);
 		header2->header_crc32 = HeaderCrc(header2);
 		gpt->modified |= GPT_MODIFIED_HEADER2;
 	}

@@ -291,12 +291,17 @@ $CGPT find $MTD -t kernel ${DEV} >/dev/null
 
 # Enable write access again to test boundary in off device storage
 chmod 600 ${DEV}
+# Create a small 8K file to simulate Flash NOR section
+dd if=/dev/zero of=${DEV} bs=8K count=1
 # Drive size is not multiple of 512
 assert_fail $CGPT create -D 511 ${DEV}
 assert_fail $CGPT create -D 513 ${DEV}
 MTD="-D 1024"
 # Create a GPT table for a device of 1024 bytes (2 sectors)
 $CGPT create $MTD ${DEV}
+# Make sure number of entries is reasonable for 8KiB GPT
+X=$($CGPT show -D 1024 -d ${DEV} | grep -c "Number of entries: 24")
+[ "$X" = "2" ] || error
 # This fails because header verification is off due to different drive size
 assert_fail $CGPT show ${DEV}
 # But this passes because we pass in correct drive size
@@ -305,6 +310,7 @@ $CGPT show $MTD ${DEV}
 assert_fail $CGPT add $MTD -b 2 -s 1 -t data ${DEV}
 # This fails because partition size is over the size of the device
 assert_fail $CGPT add $MTD -b 0 -s 3 -t data ${DEV}
+
 
 echo "Done."
 

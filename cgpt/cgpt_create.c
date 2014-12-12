@@ -29,10 +29,6 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
                 drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
   AllocAndClear(&drive->gpt.secondary_header,
                 drive->gpt.sector_bytes * GPT_HEADER_SECTORS);
-  AllocAndClear(&drive->gpt.primary_entries,
-                drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
-  AllocAndClear(&drive->gpt.secondary_entries,
-                drive->gpt.sector_bytes * GPT_ENTRIES_SECTORS);
 
   drive->gpt.modified |= (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1 |
                          GPT_MODIFIED_HEADER2 | GPT_MODIFIED_ENTRIES2);
@@ -45,21 +41,12 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     h->size = sizeof(GptHeader);
     h->my_lba = GPT_PMBR_SECTORS;  /* The second sector on drive. */
     h->alternate_lba = drive->gpt.gpt_drive_sectors - GPT_HEADER_SECTORS;
-    h->entries_lba = h->my_lba + GPT_HEADER_SECTORS;
-    if (!(drive->gpt.flags & GPT_FLAG_EXTERNAL)) {
-      h->entries_lba += params->padding;
-      h->first_usable_lba = h->entries_lba + GPT_ENTRIES_SECTORS;
-      h->last_usable_lba = (drive->gpt.streaming_drive_sectors -
-			    GPT_HEADER_SECTORS -
-                            GPT_ENTRIES_SECTORS - 1);
-    } else {
-      h->first_usable_lba = params->padding;
-      h->last_usable_lba = (drive->gpt.streaming_drive_sectors - 1);
-    }
     if (CGPT_OK != GenerateGuid(&h->disk_uuid)) {
       Error("Unable to generate new GUID.\n");
       return -1;
     }
+
+    /* Calculate number of entries */
     h->size_of_entry = sizeof(GptEntry);
     h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
     if (drive->gpt.flags & GPT_FLAG_EXTERNAL) {
@@ -69,7 +56,7 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
         Error("Not enough space for a GPT header.\n");
         return -1;
       }
-      half_size_sectors -= GPT_HEADER_SECTORS;
+      half_size_sectors -= (GPT_HEADER_SECTORS + GPT_PMBR_SECTORS);
       size_t half_size = half_size_sectors * drive->gpt.sector_bytes;
       if (half_size < (MIN_NUMBER_OF_ENTRIES * h->size_of_entry)) {
         Error("Not enough space for minimum number of entries.\n");
@@ -79,6 +66,22 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
         h->number_of_entries = half_size / h->size_of_entry;
       }
     }
+
+    /* Then use number of entries to calculate entries_lba. */
+    h->entries_lba = h->my_lba + GPT_HEADER_SECTORS;
+    if (!(drive->gpt.flags & GPT_FLAG_EXTERNAL)) {
+      h->entries_lba += params->padding;
+      h->first_usable_lba = h->entries_lba + CalculateEntriesSectors(h);
+      h->last_usable_lba = (drive->gpt.streaming_drive_sectors - GPT_HEADER_SECTORS -
+                            CalculateEntriesSectors(h) - 1);
+    } else {
+      h->first_usable_lba = params->padding;
+      h->last_usable_lba = (drive->gpt.streaming_drive_sectors - 1);
+    }
+
+    size_t entries_size = h->number_of_entries * h->size_of_entry;
+    AllocAndClear(&drive->gpt.primary_entries, entries_size);
+    AllocAndClear(&drive->gpt.secondary_entries, entries_size);
 
     // Copy to secondary
     RepairHeader(&drive->gpt, MASK_PRIMARY);

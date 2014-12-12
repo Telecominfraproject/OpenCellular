@@ -271,7 +271,7 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
 
     GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
     printf(GPT_FMT, (int)primary_header->entries_lba,
-           (int)GPT_ENTRIES_SECTORS,
+           (int)CalculateEntriesSectors(primary_header),
            drive->gpt.valid_entries & MASK_PRIMARY ? "" : "INVALID",
            "Pri GPT table");
 
@@ -282,7 +282,7 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
     /****************************** Secondary *************************/
     GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
     printf(GPT_FMT, (int)secondary_header->entries_lba,
-           (int)GPT_ENTRIES_SECTORS,
+           (int)CalculateEntriesSectors(secondary_header),
            drive->gpt.valid_entries & MASK_SECONDARY ? "" : "INVALID",
            "Sec GPT table");
     /* We show secondary table details if any of following is true.
@@ -294,7 +294,8 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
         ((drive->gpt.valid_entries & MASK_SECONDARY) &&
          (!(drive->gpt.valid_entries & MASK_PRIMARY) ||
           memcmp(drive->gpt.primary_entries, drive->gpt.secondary_entries,
-                 TOTAL_ENTRIES_SIZE)))) {
+                 secondary_header->number_of_entries *
+                 secondary_header->size_of_entry)))) {
       EntriesDetails(drive, SECONDARY, params->numeric);
     }
 
