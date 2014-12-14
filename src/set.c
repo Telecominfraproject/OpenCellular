@@ -53,7 +53,7 @@ read_from_image(char	*filename,
 	FILE *fp;
 	struct stat stats;
 
-	fp = fopen(filename, "r");
+	fp = fopen(filename, "rb");
 	if (fp == NULL) {
 		result = 1;
 		return result;
