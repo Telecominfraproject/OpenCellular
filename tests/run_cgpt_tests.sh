@@ -291,6 +291,12 @@ $CGPT find $MTD -t kernel ${DEV} >/dev/null
 
 # Enable write access again to test boundary in off device storage
 chmod 600 ${DEV}
+# GPT too small
+dd if=/dev/zero of=${DEV} bs=5632 count=1
+assert_fail $CGPT create -D 1024 ${DEV}
+# GPT is just right for 16 entries (512 + 512 + 16 * 128) * 2 = 6144
+dd if=/dev/zero of=${DEV} bs=6144 count=1
+$CGPT create -D 1024 ${DEV}
 # Create a small 8K file to simulate Flash NOR section
 dd if=/dev/zero of=${DEV} bs=8K count=1
 # Drive size is not multiple of 512

@@ -51,19 +51,29 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
     if (drive->gpt.flags & GPT_FLAG_EXTERNAL) {
       // We might have smaller space for the GPT table. Scale accordingly.
-      size_t half_size_sectors = drive->gpt.gpt_drive_sectors / 2;
-      if (half_size_sectors < GPT_HEADER_SECTORS) {
-        Error("Not enough space for a GPT header.\n");
+      //
+      // +------+------------+---------------+-----+--------------+-----------+
+      // | PMBR | Prim. Head | Prim. Entries | ... | Sec. Entries | Sec. Head |
+      // +------+------------+---------------+-----+--------------+-----------+
+      //
+      // Half the size of gpt_drive_sectors must be big enough to hold PMBR +
+      // GPT Header + Entries Table, though the secondary structures do not
+      // contain PMBR.
+      size_t required_headers_size =
+          (GPT_PMBR_SECTORS + GPT_HEADER_SECTORS) * drive->gpt.sector_bytes;
+      size_t min_entries_size = MIN_NUMBER_OF_ENTRIES * h->size_of_entry;
+      size_t required_min_size = required_headers_size + min_entries_size;
+      size_t half_size =
+          (drive->gpt.gpt_drive_sectors / 2) * drive->gpt.sector_bytes;
+      if (half_size < required_min_size) {
+        Error("Not enough space to store GPT structures. Required %d bytes.\n",
+              required_min_size * 2);
         return -1;
       }
-      half_size_sectors -= (GPT_HEADER_SECTORS + GPT_PMBR_SECTORS);
-      size_t half_size = half_size_sectors * drive->gpt.sector_bytes;
-      if (half_size < (MIN_NUMBER_OF_ENTRIES * h->size_of_entry)) {
-        Error("Not enough space for minimum number of entries.\n");
-        return -1;
-      }
-      if (128 > (half_size / h->size_of_entry)) {
-        h->number_of_entries = half_size / h->size_of_entry;
+      size_t max_entries =
+          (half_size - required_headers_size) / h->size_of_entry;
+      if (h->number_of_entries > max_entries) {
+        h->number_of_entries = max_entries;
       }
     }
 
