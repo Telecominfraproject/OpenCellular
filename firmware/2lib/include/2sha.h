@@ -78,6 +78,9 @@ struct vb2_digest_context {
 
 	/* Current hash algorithm */
 	enum vb2_hash_algorithm hash_alg;
+
+	/* 1 if digest is computed with vb2ex_hwcrypto routines, else 0 */
+	int using_hwcrypto;
 };
 
 /**

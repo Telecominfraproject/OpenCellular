@@ -47,7 +47,7 @@ int vb2api_init_hash2(struct vb2_context *ctx,
 	struct vb2_digest_context *dc;
 	struct vb2_workbuf wb;
 	uint32_t hash_offset;
-	int i;
+	int i, rv;
 
 	vb2_workbuf_from_ctx(ctx, &wb);
 
@@ -93,6 +93,23 @@ int vb2api_init_hash2(struct vb2_context *ctx,
 	if (size)
 		*size = sig->data_size;
 
+	if (!(pre->flags & VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO)) {
+		rv = vb2ex_hwcrypto_digest_init(sig->hash_alg, sig->data_size);
+		if (!rv) {
+			VB2_DEBUG("Using HW crypto engine for hash_alg %d\n",
+				  sig->hash_alg);
+			dc->hash_alg = sig->hash_alg;
+			dc->using_hwcrypto = 1;
+			return VB2_SUCCESS;
+		}
+		if (rv != VB2_ERROR_EX_HWCRYPTO_UNSUPPORTED)
+			return rv;
+		VB2_DEBUG("HW crypto for hash_alg %d not supported, using SW\n",
+			  sig->hash_alg);
+	} else {
+		VB2_DEBUG("HW crypto forbidden by preamble, using SW\n");
+	}
+
 	return vb2_digest_init(dc, sig->hash_alg);
 }
 
@@ -131,7 +148,10 @@ int vb2api_check_hash(struct vb2_context *ctx)
 		return VB2_ERROR_API_CHECK_HASH_WORKBUF_DIGEST;
 
 	/* Finalize the digest */
-	rv = vb2_digest_finalize(dc, digest, digest_size);
+	if (dc->using_hwcrypto)
+		rv = vb2ex_hwcrypto_digest_finalize(digest, digest_size);
+	else
+		rv = vb2_digest_finalize(dc, digest, digest_size);
 	if (rv)
 		return rv;
 

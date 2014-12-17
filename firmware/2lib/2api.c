@@ -118,5 +118,8 @@ int vb2api_extend_hash(struct vb2_context *ctx,
 
 	sd->hash_remaining_size -= size;
 
-	return vb2_digest_extend(dc, buf, size);
+	if (dc->using_hwcrypto)
+		return vb2ex_hwcrypto_digest_extend(buf, size);
+	else
+		return vb2_digest_extend(dc, buf, size);
 }

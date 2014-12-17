@@ -21,6 +21,7 @@
 #define VBOOT_2_API_H_
 #include <stdint.h>
 
+#include "2crypto.h"
 #include "2fw_hash_tags.h"
 #include "2guid.h"
 #include "2recovery_reasons.h"
@@ -364,4 +365,33 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 			uint32_t size);
 
 void vb2ex_printf(const char *func, const char *fmt, ...);
+
+/**
+ * Initialize the hardware crypto engine to calculate a block-style digest.
+ *
+ * @param hash_alg	Hash algorithm to use
+ * @param data_size	Expected total size of data to hash
+ * @return VB2_SUCCESS, or non-zero error code (HWCRYPTO_UNSUPPORTED not fatal).
+ */
+int vb2ex_hwcrypto_digest_init(enum vb2_hash_algorithm hash_alg,
+			       uint32_t data_size);
+
+/**
+ * Extend the hash in the hardware crypto engine with another block of data.
+ *
+ * @param buf		Next data block to hash
+ * @param size		Length of data block in bytes
+ * @return VB2_SUCCESS, or non-zero error code.
+ */
+int vb2ex_hwcrypto_digest_extend(const uint8_t *buf, uint32_t size);
+
+/**
+ * Finalize the digest in the hardware crypto engine and extract the result.
+ *
+ * @param digest	Destination buffer for resulting digest
+ * @param digest_size	Length of digest buffer in bytes
+ * @return VB2_SUCCESS, or non-zero error code.
+ */
+int vb2ex_hwcrypto_digest_finalize(uint8_t *digest, uint32_t digest_size);
+
 #endif  /* VBOOT_2_API_H_ */

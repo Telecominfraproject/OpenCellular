@@ -9,37 +9,7 @@
 #ifndef VBOOT_REFERENCE_VBOOT_2STRUCT_H_
 #define VBOOT_REFERENCE_VBOOT_2STRUCT_H_
 #include <stdint.h>
-
-/* Algorithm types for signatures */
-enum vb2_signature_algorithm {
-	/* Invalid or unsupported signature type */
-	VB2_SIG_INVALID = 0,
-
-	/*
-	 * No signature algorithm.  The digest is unsigned.  See
-	 * VB2_GUID_NONE_* above for key GUIDs to use with this algorithm.
-	 */
-	VB2_SIG_NONE = 1,
-
-	/* RSA algorithms of the given length in bits (1024-8192) */
-	VB2_SIG_RSA1024 = 2,  /* Warning!  This is likely to be deprecated! */
-	VB2_SIG_RSA2048 = 3,
-	VB2_SIG_RSA4096 = 4,
-	VB2_SIG_RSA8192 = 5,
-};
-
-/* Algorithm types for hash digests */
-enum vb2_hash_algorithm {
-	/* Invalid or unsupported digest type */
-	VB2_HASH_INVALID = 0,
-
-	/* SHA-1.  Warning: This is likely to be deprecated soon! */
-	VB2_HASH_SHA1 = 1,
-
-	/* SHA-256 and SHA-512 */
-	VB2_HASH_SHA256 = 2,
-	VB2_HASH_SHA512 = 3,
-};
+#include "2crypto.h"
 
 /*
  * Key block flags.

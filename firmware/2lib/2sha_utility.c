@@ -84,6 +84,7 @@ int vb2_digest_init(struct vb2_digest_context *dc,
 		    enum vb2_hash_algorithm hash_alg)
 {
 	dc->hash_alg = hash_alg;
+	dc->using_hwcrypto = 0;
 
 	switch (dc->hash_alg) {
 #if VB2_SUPPORT_SHA1

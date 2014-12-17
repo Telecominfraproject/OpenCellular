@@ -30,6 +30,12 @@ const int mock_sig_size = 64;
 
 /* Mocked function data */
 
+static enum {
+	HWCRYPTO_DISABLED,
+	HWCRYPTO_ENABLED,
+	HWCRYPTO_FORBIDDEN,
+} hwcrypto_state;
+
 static int retval_vb2_load_fw_keyblock;
 static int retval_vb2_load_fw_preamble;
 static int retval_vb2_digest_finalize;
@@ -74,6 +80,10 @@ static void reset_common_data(enum reset_type t)
 		(cc.workbuf + sd->workbuf_preamble_offset);
 	pre->body_signature.data_size = mock_body_size;
 	pre->body_signature.sig_size = mock_sig_size;
+	if (hwcrypto_state == HWCRYPTO_FORBIDDEN)
+		pre->flags = VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO;
+	else
+		pre->flags = 0;
 
 	sd->workbuf_data_key_offset = cc.workbuf_used;
 	sd->workbuf_data_key_size = sizeof(*k) + 8;
@@ -117,13 +127,51 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	return VB2_SUCCESS;
 }
 
+int vb2ex_hwcrypto_digest_init(enum vb2_hash_algorithm hash_alg,
+			       uint32_t data_size)
+{
+	switch (hwcrypto_state) {
+	case HWCRYPTO_DISABLED:
+		return VB2_ERROR_EX_HWCRYPTO_UNSUPPORTED;
+	case HWCRYPTO_ENABLED:
+		if (hash_alg != mock_hash_alg)
+			return VB2_ERROR_SHA_INIT_ALGORITHM;
+		else
+			return VB2_SUCCESS;
+	case HWCRYPTO_FORBIDDEN:
+	default:
+		return VB2_ERROR_UNKNOWN;
+	}
+}
+
+int vb2ex_hwcrypto_digest_extend(const uint8_t *buf,
+				 uint32_t size)
+{
+	if (hwcrypto_state != HWCRYPTO_ENABLED)
+		return VB2_ERROR_UNKNOWN;
+
+	return VB2_SUCCESS;
+}
+
+int vb2ex_hwcrypto_digest_finalize(uint8_t *digest,
+				   uint32_t digest_size)
+{
+	if (hwcrypto_state != HWCRYPTO_ENABLED)
+		return VB2_ERROR_UNKNOWN;
+
+	return retval_vb2_digest_finalize;
+}
+
 int vb2_digest_init(struct vb2_digest_context *dc,
 		    enum vb2_hash_algorithm hash_alg)
 {
+	if (hwcrypto_state == HWCRYPTO_ENABLED)
+		return VB2_ERROR_UNKNOWN;
 	if (hash_alg != mock_hash_alg)
 		return VB2_ERROR_SHA_INIT_ALGORITHM;
 
 	dc->hash_alg = hash_alg;
+	dc->using_hwcrypto = 0;
 
 	return VB2_SUCCESS;
 }
@@ -132,6 +180,8 @@ int vb2_digest_extend(struct vb2_digest_context *dc,
 		      const uint8_t *buf,
 		      uint32_t size)
 {
+	if (hwcrypto_state == HWCRYPTO_ENABLED)
+		return VB2_ERROR_UNKNOWN;
 	if (dc->hash_alg != mock_hash_alg)
 		return VB2_ERROR_SHA_EXTEND_ALGORITHM;
 
@@ -142,6 +192,8 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 			uint8_t *digest,
 			uint32_t digest_size)
 {
+	if (hwcrypto_state == HWCRYPTO_ENABLED)
+		return VB2_ERROR_UNKNOWN;
 	return retval_vb2_digest_finalize;
 }
 
@@ -268,12 +320,14 @@ static void extend_hash_tests(void)
 	TEST_EQ(vb2api_extend_hash(&cc, mock_body, 0),
 		VB2_ERROR_API_EXTEND_HASH_SIZE, "hash extend empty");
 
-	reset_common_data(FOR_EXTEND_HASH);
-	dc = (struct vb2_digest_context *)
-		(cc.workbuf + sd->workbuf_hash_offset);
-	dc->hash_alg = mock_hash_alg + 1;
-	TEST_EQ(vb2api_extend_hash(&cc, mock_body, mock_body_size),
-		VB2_ERROR_SHA_EXTEND_ALGORITHM, "hash extend fail");
+	if (hwcrypto_state != HWCRYPTO_ENABLED) {
+		reset_common_data(FOR_EXTEND_HASH);
+		dc = (struct vb2_digest_context *)
+			(cc.workbuf + sd->workbuf_hash_offset);
+		dc->hash_alg = mock_hash_alg + 1;
+		TEST_EQ(vb2api_extend_hash(&cc, mock_body, mock_body_size),
+			VB2_ERROR_SHA_EXTEND_ALGORITHM, "hash extend fail");
+	}
 }
 
 static void check_hash_tests(void)
@@ -338,6 +392,21 @@ static void check_hash_tests(void)
 int main(int argc, char* argv[])
 {
 	phase3_tests();
+
+	fprintf(stderr, "Running hash API tests without hwcrypto support...\n");
+	hwcrypto_state = HWCRYPTO_DISABLED;
+	init_hash_tests();
+	extend_hash_tests();
+	check_hash_tests();
+
+	fprintf(stderr, "Running hash API tests with hwcrypto support...\n");
+	hwcrypto_state = HWCRYPTO_ENABLED;
+	init_hash_tests();
+	extend_hash_tests();
+	check_hash_tests();
+
+	fprintf(stderr, "Running hash API tests with forbidden hwcrypto...\n");
+	hwcrypto_state = HWCRYPTO_FORBIDDEN;
 	init_hash_tests();
 	extend_hash_tests();
 	check_hash_tests();

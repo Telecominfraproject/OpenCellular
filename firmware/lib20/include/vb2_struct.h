@@ -124,6 +124,8 @@ struct vb2_keyblock {
 /* Flags for VbFirmwarePreambleHeader.flags */
 /* Reserved; do not use */
 #define VB2_FIRMWARE_PREAMBLE_RESERVED0 0x00000001
+/* Do not allow use of any hardware crypto accelerators. */
+#define VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO 0x00000002
 
 /* Premable block for rewritable firmware, vboot1 version 2.1.
  *

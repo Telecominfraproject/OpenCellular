@@ -291,6 +291,12 @@ struct vb2_keyblock {
 #define VB2_FW_PREAMBLE_VERSION_MAJOR 3
 #define VB2_FW_PREAMBLE_VERSION_MINOR 0
 
+/* Flags for vb2_fw_preamble.flags */
+/* Reserved; do not use */
+#define VB2_FIRMWARE_PREAMBLE_RESERVED0 0x00000001
+/* Do not allow use of any hardware crypto accelerators. */
+#define VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO 0x00000002
+
 /*
  * Firmware preamble
  *
