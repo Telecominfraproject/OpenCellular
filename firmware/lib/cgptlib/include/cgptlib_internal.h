@@ -52,7 +52,7 @@
 #define MAX_SIZE_OF_ENTRY 512
 #define SIZE_OF_ENTRY_MULTIPLE 8
 #define MIN_NUMBER_OF_ENTRIES 16
-#define MAX_NUMBER_OF_ENTRIES 512
+#define MAX_NUMBER_OF_ENTRIES 128
 
 /* Defines GPT sizes */
 #define GPT_PMBR_SECTORS 1  /* size (in sectors) of PMBR */

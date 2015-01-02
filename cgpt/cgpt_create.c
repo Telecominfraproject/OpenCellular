@@ -48,7 +48,7 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
 
     /* Calculate number of entries */
     h->size_of_entry = sizeof(GptEntry);
-    h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
+    h->number_of_entries = MAX_NUMBER_OF_ENTRIES;
     if (drive->gpt.flags & GPT_FLAG_EXTERNAL) {
       // We might have smaller space for the GPT table. Scale accordingly.
       //

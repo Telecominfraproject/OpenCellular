@@ -23,7 +23,7 @@
  */
 int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 {
-	uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+	uint64_t max_entries_bytes = MAX_NUMBER_OF_ENTRIES * sizeof(GptEntry);
 	int primary_valid = 0, secondary_valid = 0;
 
 	/* No data to be written yet */
@@ -33,8 +33,8 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	gptdata->primary_header = (uint8_t *)VbExMalloc(gptdata->sector_bytes);
 	gptdata->secondary_header =
 		(uint8_t *)VbExMalloc(gptdata->sector_bytes);
-	gptdata->primary_entries = (uint8_t *)VbExMalloc(TOTAL_ENTRIES_SIZE);
-	gptdata->secondary_entries = (uint8_t *)VbExMalloc(TOTAL_ENTRIES_SIZE);
+	gptdata->primary_entries = (uint8_t *)VbExMalloc(max_entries_bytes);
+	gptdata->secondary_entries = (uint8_t *)VbExMalloc(max_entries_bytes);
 
 	if (gptdata->primary_header == NULL ||
 	    gptdata->secondary_header == NULL ||
@@ -53,6 +53,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 			gptdata->gpt_drive_sectors,
 			gptdata->flags)) {
 		primary_valid = 1;
+		uint64_t entries_bytes = primary_header->number_of_entries
+				* primary_header->size_of_entry;
+		uint64_t entries_sectors = entries_bytes
+					/ gptdata->sector_bytes;
 		if (0 != VbExDiskRead(disk_handle,
 				      primary_header->entries_lba,
 				      entries_sectors,
@@ -74,6 +78,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 			gptdata->gpt_drive_sectors,
 			gptdata->flags)) {
 		secondary_valid = 1;
+		uint64_t entries_bytes = secondary_header->number_of_entries
+				* secondary_header->size_of_entry;
+		uint64_t entries_sectors = entries_bytes
+				/ gptdata->sector_bytes;
 		if (0 != VbExDiskRead(disk_handle,
 				      secondary_header->entries_lba,
 				      entries_sectors,
@@ -95,7 +103,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 {
 	int legacy = 0;
-	uint64_t entries_sectors = TOTAL_ENTRIES_SIZE / gptdata->sector_bytes;
+	GptHeader *header = (GptHeader *)gptdata->primary_header;
+	uint64_t entries_bytes = header->number_of_entries
+				* header->size_of_entry;
+	uint64_t entries_sectors = entries_bytes / gptdata->sector_bytes;
 	int ret = 1;
 
 	/*

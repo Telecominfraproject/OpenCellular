@@ -40,11 +40,11 @@ int CheckParameters(GptData *gpt)
 	/*
 	 * Sector count of a drive should be reasonable. If the given value is
 	 * too small to contain basic GPT structure (PMBR + Headers + Entries),
-	 * the value is wrong. Entries size is hard coded to TOTAL_ENTRIES_SIZE (see
-	 * cgpt_create.c). This check is only applicable when GPT is stored on device.
+	 * the value is wrong.
 	 */
-	if (!(gpt->flags & GPT_FLAG_EXTERNAL) &&
-		gpt->gpt_drive_sectors < (1 + 2 * (1 + TOTAL_ENTRIES_SIZE / SECTOR_SIZE)))
+	if (gpt->gpt_drive_sectors <
+		(1 + 2 * (1 + MIN_NUMBER_OF_ENTRIES /
+				(SECTOR_SIZE / sizeof(GptEntry)))))
 		return GPT_ERROR_INVALID_SECTOR_NUMBER;
 
 	return GPT_SUCCESS;
@@ -103,7 +103,7 @@ int CheckHeader(GptHeader *h, int is_secondary,
 	if ((h->number_of_entries < MIN_NUMBER_OF_ENTRIES) ||
 	    (h->number_of_entries > MAX_NUMBER_OF_ENTRIES) ||
 	    (!(flags & GPT_FLAG_EXTERNAL) &&
-	    h->number_of_entries * h->size_of_entry != TOTAL_ENTRIES_SIZE))
+	    h->number_of_entries != MAX_NUMBER_OF_ENTRIES))
 		return 1;
 
 	/*

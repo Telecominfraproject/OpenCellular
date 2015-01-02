@@ -83,7 +83,7 @@ static void SetupGptHeader(GptHeader *h, int is_secondary)
 
 	/* 16KB: 128 entries of 128 bytes */
 	h->size_of_entry = sizeof(GptEntry);
-	h->number_of_entries = TOTAL_ENTRIES_SIZE / h->size_of_entry;
+	h->number_of_entries = MAX_NUMBER_OF_ENTRIES;
 
 	/* Set LBA pointers for primary or secondary header */
 	if (is_secondary) {
@@ -429,6 +429,8 @@ static void ReadWriteGptTest(void)
 	Memset(g.primary_header, '\0', g.sector_bytes);
 	h = (GptHeader*)g.primary_header;
 	h->entries_lba = 2;
+	h->number_of_entries = MAX_NUMBER_OF_ENTRIES;
+	h->size_of_entry = sizeof(GptEntry);
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod 1");
 	TEST_CALLS("VbExDiskWrite(h, 1, 1)\n"
 		   "VbExDiskWrite(h, 2, 32)\n");
@@ -441,6 +443,8 @@ static void ReadWriteGptTest(void)
 	Memset(g.primary_header, '\0', g.sector_bytes);
 	h = (GptHeader*)g.primary_header;
 	h->entries_lba = 2;
+	h->number_of_entries = MAX_NUMBER_OF_ENTRIES;
+	h->size_of_entry = sizeof(GptEntry);
 	h = (GptHeader*)g.secondary_header;
 	h->entries_lba = 991;
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod all");
