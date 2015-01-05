@@ -104,7 +104,7 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 		 * asked for.
 		 */
 		if (512 != disk_info[i].bytes_per_lba ||
-		    32 > disk_info[i].lba_count ||
+		    16 > disk_info[i].lba_count ||
 		    get_info_flags != (disk_info[i].flags & ~VB_DISK_FLAG_EXTERNAL_GPT)) {
 			VBDEBUG(("  skipping: bytes_per_lba=%" PRIu64
 				 " lba_count=%" PRIu64 " flags=0x%x\n",
