@@ -41,7 +41,7 @@ int main(void)
 
   /* host_common.h */
   CreateFirmwarePreamble(0, 0, 0, 0, 0);
-  CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0);
+  CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   /* file_keys.h */
   BufferFromFile(0, 0);

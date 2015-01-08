@@ -20,7 +20,8 @@
 /* Here are globals containing all the bits & pieces I'm working on.
  *
  * kernel vblock    = keyblock + kernel preamble + padding to 64K (or whatever)
- * kernel blob      = 32-bit kernel + config file + params + bootloader stub
+ * kernel blob      = 32-bit kernel + config file + params + bootloader stub +
+ *                    vmlinuz_header
  * kernel partition = kernel vblock + kernel blob
  *
  * The VbKernelPreambleHeader.preamble_size includes the padding.
@@ -41,8 +42,11 @@ static uint8_t *g_param_data;
 static uint64_t g_param_size;
 static uint8_t *g_bootloader_data;
 static uint64_t g_bootloader_size;
+static uint8_t *g_vmlinuz_header_data;
+static uint64_t g_vmlinuz_header_size;
 
 static uint64_t g_ondisk_bootloader_addr;
+static uint64_t g_ondisk_vmlinuz_header_addr;
 
 
 /*
@@ -163,6 +167,9 @@ static int PickApartVmlinuz(uint8_t *kernel_buf, uint64_t kernel_size,
 		}
 		kernel32_size = kernel_size - kernel32_start;
 
+		Debug(" kernel16_start=0x%" PRIx64 "\n", 0);
+		Debug(" kernel16_size=0x%" PRIx64 "\n", kernel32_start);
+
 		/* Copy the original zeropage data from kernel_buf into
 		 * g_param_data, then tweak a few fields for our purposes */
 		params = (struct linux_kernel_params *)(g_param_data);
@@ -206,14 +213,34 @@ static int PickApartVmlinuz(uint8_t *kernel_buf, uint64_t kernel_size,
 	return 0;
 }
 
-/* Split a kernel blob into separate g_kernel, g_param, g_config, and
- * g_bootloader parts. */
+/* Split a kernel blob into separate g_kernel, g_param, g_config,
+ * g_bootloader, and g_vmlinuz_header parts. */
 static void UnpackKernelBlob(uint8_t *kernel_blob_data)
 {
 	uint64_t now;
+	uint64_t vmlinuz_header_size = 0;
+	uint64_t vmlinuz_header_address = 0;
 
 	/* We have to work backwards from the end, because the preamble
-	   only describes the bootloader stub. */
+	   only describes the bootloader and vmlinuz stubs. */
+
+	/* Vmlinuz Header is at the end */
+	if (VbGetKernelVmlinuzHeader(g_preamble,
+				     &vmlinuz_header_address,
+				     &vmlinuz_header_size)
+	    != VBOOT_SUCCESS) {
+		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
+		return;
+	}
+	if (vmlinuz_header_size) {
+		now = vmlinuz_header_address - g_preamble->body_load_address;
+		g_vmlinuz_header_size = vmlinuz_header_size;
+		g_vmlinuz_header_data = kernel_blob_data + now;
+
+		Debug("vmlinuz_header_size     = 0x%" PRIx64 "\n",
+		      g_vmlinuz_header_size);
+		Debug("vmlinuz_header_ofs      = 0x%" PRIx64 "\n", now);
+	}
 
 	/* Where does the bootloader stub begin? */
 	now = g_preamble->bootloader_address - g_preamble->body_load_address;
@@ -273,6 +300,8 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 {
 	VbKeyBlockHeader *keyblock;
 	VbKernelPreambleHeader *preamble;
+	uint64_t vmlinuz_header_size = 0;
+	uint64_t vmlinuz_header_address = 0;
 	uint64_t now = 0;
 
 	/* Sanity-check the keyblock */
@@ -318,6 +347,21 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 	      preamble->body_signature.data_size);
 	g_preamble = preamble;
 	g_ondisk_bootloader_addr = g_preamble->bootloader_address;
+
+	if (VbGetKernelVmlinuzHeader(preamble,
+				     &vmlinuz_header_address,
+				     &vmlinuz_header_size)
+	    != VBOOT_SUCCESS) {
+		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
+		return NULL;
+	}
+	if (vmlinuz_header_size) {
+		Debug(" vmlinuz_header_address = 0x%" PRIx64 "\n",
+		      vmlinuz_header_address);
+		Debug(" vmlinuz_header_size = 0x%" PRIx64 "\n",
+		      vmlinuz_header_size);
+		g_ondisk_vmlinuz_header_addr = vmlinuz_header_address;
+	}
 
 	Debug("kernel blob is at offset 0x%" PRIx64 "\n", now);
 	g_kernel_blob_data = kpart_data + now;
@@ -367,7 +411,10 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 					kernel_body_load_address,
 					g_ondisk_bootloader_addr,
 					g_bootloader_size,
-					body_sig, min_size,
+					body_sig,
+					g_ondisk_vmlinuz_header_addr,
+					g_vmlinuz_header_size,
+					min_size,
 					signpriv_key);
 	if (!preamble) {
 		fprintf(stderr, "Error creating preamble.\n");
@@ -440,6 +487,8 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	VbPublicKey *data_key;
 	RSAPublicKey *rsa;
 	int rv = -1;
+	uint64_t vmlinuz_header_size = 0;
+	uint64_t vmlinuz_header_address = 0;
 
 	if (0 != KeyBlockVerify(g_keyblock, g_keyblock->key_block_size,
 				signpub_key, (0 == signpub_key))) {
@@ -526,6 +575,20 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	printf("  Bootloader size:     0x%" PRIx64 "\n",
 	       g_preamble->bootloader_size);
 
+	if (VbGetKernelVmlinuzHeader(g_preamble,
+				     &vmlinuz_header_address,
+				     &vmlinuz_header_size)
+	    != VBOOT_SUCCESS) {
+		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
+		goto done;
+	}
+	if (vmlinuz_header_size) {
+		printf("  Vmlinuz header address: 0x%" PRIx64 "\n",
+		       vmlinuz_header_address);
+		printf("  Vmlinuz header size:    0x%" PRIx64 "\n",
+		       vmlinuz_header_size);
+	}
+
 	if (g_preamble->kernel_version < (min_version & 0xFFFF)) {
 		fprintf(stderr,
 			"Kernel version %" PRIu64 " is lower than minimum %"
@@ -567,8 +630,13 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 	g_config_size = CROS_CONFIG_SIZE;
 	g_param_size = CROS_PARAMS_SIZE;
 	g_bootloader_size = roundup(bootloader_size, CROS_ALIGN);
-	g_kernel_blob_size = roundup(g_kernel_size, CROS_ALIGN) +
-		g_config_size + g_param_size + g_bootloader_size;
+	g_vmlinuz_header_size = vmlinuz_size-g_kernel_size;
+	g_kernel_blob_size =
+		roundup(g_kernel_size, CROS_ALIGN) +
+		g_config_size                      +
+		g_param_size                       +
+		g_bootloader_size                  +
+		g_vmlinuz_header_size;
 	Debug("g_kernel_blob_size  0x%" PRIx64 "\n", g_kernel_blob_size);
 
 	/* Allocate space for the blob. */
@@ -597,6 +665,18 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 	g_ondisk_bootloader_addr = kernel_body_load_address + now;
 	Debug("g_ondisk_bootloader_addr   0x%" PRIx64 "\n",
 	      g_ondisk_bootloader_addr);
+	now += g_bootloader_size;
+
+	if (g_vmlinuz_header_size) {
+		g_vmlinuz_header_data = g_kernel_blob_data + now;
+		Debug("g_vmlinuz_header_size 0x%" PRIx64 " ofs 0x%" PRIx64 "\n",
+		      g_vmlinuz_header_size, now);
+		g_ondisk_vmlinuz_header_addr = kernel_body_load_address + now;
+		Debug("g_ondisk_vmlinuz_header_addr   0x%" PRIx64 "\n",
+		      g_ondisk_vmlinuz_header_addr);
+	}
+
+	Debug("end of kern_blob at kern_blob+0x%" PRIx64 "\n", now);
 
 	/* Copy the kernel and params bits into the correct places */
 	if (0 != PickApartVmlinuz(vmlinuz_buf, vmlinuz_size,
@@ -611,6 +691,11 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 	/* Copy the other bits too */
 	Memcpy(g_config_data, config_data, config_size);
 	Memcpy(g_bootloader_data, bootloader_data, bootloader_size);
+	if (g_vmlinuz_header_size) {
+		Memcpy(g_vmlinuz_header_data,
+		       vmlinuz_buf,
+		       g_vmlinuz_header_size);
+	}
 
 	if (blob_size_ptr)
 		*blob_size_ptr = g_kernel_blob_size;

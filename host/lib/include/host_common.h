@@ -50,6 +50,8 @@ VbKernelPreambleHeader *CreateKernelPreamble(
 	uint64_t bootloader_address,
 	uint64_t bootloader_size,
 	const VbSignature *body_signature,
+	uint64_t vmlinuz_header_address,
+	uint64_t vmlinuz_header_size,
 	uint64_t desired_size,
 	const VbPrivateKey *signing_key);
 

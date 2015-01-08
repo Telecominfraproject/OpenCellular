@@ -180,9 +180,9 @@ typedef struct VbFirmwarePreambleHeader {
 /****************************************************************************/
 
 #define KERNEL_PREAMBLE_HEADER_VERSION_MAJOR 2
-#define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 0
+#define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 1
 
-/* Preamble block for kernel
+/* Preamble block for kernel, version 2.0
  *
  * This should be followed by:
  *   1) The signature data for the kernel body, pointed to by
@@ -190,7 +190,7 @@ typedef struct VbFirmwarePreambleHeader {
  *   2) The signature data for (VBFirmwarePreambleHeader + body signature
  *      data), pointed to by preamble_signature.sig_offset.
  */
-typedef struct VbKernelPreambleHeader {
+typedef struct VbKernelPreambleHeader2_0 {
 	/*
 	 * Size of this preamble, including keys, signatures, and padding, in
 	 * bytes
@@ -213,9 +213,56 @@ typedef struct VbKernelPreambleHeader {
 	uint64_t bootloader_size;
 	/* Signature for the kernel body */
 	VbSignature body_signature;
+} __attribute__((packed)) VbKernelPreambleHeader2_0;
+
+#define EXPECTED_VBKERNELPREAMBLEHEADER2_0_SIZE 96
+
+/* Preamble block for kernel, version 2.1
+ *
+ * This should be followed by:
+ *   1) The signature data for the kernel body, pointed to by
+ *      body_signature.sig_offset.
+ *   2) The signature data for (VBFirmwarePreambleHeader + body signature
+ *      data), pointed to by preamble_signature.sig_offset.
+ *   3) The 16-bit vmlinuz header, which is used for reconstruction of
+ *      vmlinuz image.
+ */
+typedef struct VbKernelPreambleHeader {
+	/*
+	 * Size of this preamble, including keys, signatures, vmlinuz header,
+	 * and padding, in bytes
+	 */
+	uint64_t preamble_size;
+	/* Signature for this preamble (header + body signature) */
+	VbSignature preamble_signature;
+	/* Version of this header format */
+	uint32_t header_version_major;
+	/* Version of this header format */
+	uint32_t header_version_minor;
+
+	/* Kernel version */
+	uint64_t kernel_version;
+	/* Load address for kernel body */
+	uint64_t body_load_address;
+	/* Address of bootloader, after body is loaded at body_load_address */
+	uint64_t bootloader_address;
+	/* Size of bootloader in bytes */
+	uint64_t bootloader_size;
+	/* Signature for the kernel body */
+	VbSignature body_signature;
+	/*
+	 * Fields added in header version 2.1.  You must verify the header
+	 * version before reading these fields!
+	 */
+	/* Address of 16-bit header for vmlinuz reassembly.  Readers should
+	   return 0 for header version < 2.1 */
+	uint64_t vmlinuz_header_address;
+	/* Size of 16-bit header for vmlinuz in bytes.  Readers should return 0
+	   for header version < 2.1 */
+	uint64_t vmlinuz_header_size;
 } __attribute__((packed)) VbKernelPreambleHeader;
 
-#define EXPECTED_VBKERNELPREAMBLEHEADER_SIZE 96
+#define EXPECTED_VBKERNELPREAMBLEHEADER2_1_SIZE 112
 
 /****************************************************************************/
 

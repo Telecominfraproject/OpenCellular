@@ -43,6 +43,7 @@ enum {
 	OPT_MODE_PACK = 1000,
 	OPT_MODE_REPACK,
 	OPT_MODE_VERIFY,
+	OPT_MODE_GET_VMLINUZ,
 	OPT_ARCH,
 	OPT_OLDBLOB,
 	OPT_KLOADADDR,
@@ -57,12 +58,14 @@ enum {
 	OPT_PAD,
 	OPT_VERBOSE,
 	OPT_MINVERSION,
+	OPT_VMLINUZ_OUT,
 };
 
 static const struct option long_opts[] = {
 	{"pack", 1, 0, OPT_MODE_PACK},
 	{"repack", 1, 0, OPT_MODE_REPACK},
 	{"verify", 1, 0, OPT_MODE_VERIFY},
+	{"get-vmlinuz", 1, 0, OPT_MODE_GET_VMLINUZ},
 	{"arch", 1, 0, OPT_ARCH},
 	{"oldblob", 1, 0, OPT_OLDBLOB},
 	{"kloadaddr", 1, 0, OPT_KLOADADDR},
@@ -78,6 +81,7 @@ static const struct option long_opts[] = {
 	{"pad", 1, 0, OPT_PAD},
 	{"verbose", 0, &opt_verbose, 1},
 	{"debug", 0, &debugging_enabled, 1},
+	{"vmlinuz-out", 1, 0, OPT_VMLINUZ_OUT},
 	{NULL, 0, 0, 0}
 };
 
@@ -129,14 +133,18 @@ static const char usage[] =
 	"                                in .keyblock format\n"
 	"    --pad <number>            Verification padding size in bytes\n"
 	"    --minversion <number>     Minimum combined kernel key version\n"
-	"                              and kernel version\n"
+	"\nOR\n\n"
+	"Usage:  " MYNAME " %s --get-vmlinuz <file> [PARAMETERS]\n"
+	"\n"
+	"  Required parameters:\n"
+	"    --vmlinuz-out <file>      vmlinuz image output file\n"
 	"\n";
 
 
 /* Print help and return error */
 static void print_help(const char *progname)
 {
-	printf(usage, progname, progname, progname);
+	printf(usage, progname, progname, progname, progname);
 }
 
 
@@ -209,13 +217,14 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	char *vmlinuz_file = NULL;
 	char *bootloader_file = NULL;
 	char *config_file = NULL;
+	char *vmlinuz_out_file = NULL;
 	enum arch_t arch = ARCH_X86;
 	uint64_t kernel_body_load_address = CROS_32BIT_ENTRY_ADDR;
 	int mode = 0;
 	int parse_error = 0;
 	uint64_t min_version = 0;
 	char *e;
-	int i;
+	int i = 0;
 	int rv;
 	VbKeyBlockHeader *keyblock = NULL;
 	VbKeyBlockHeader *t_keyblock = NULL;
@@ -229,11 +238,14 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	uint64_t t_config_size;
 	uint8_t *t_bootloader_data;
 	uint64_t t_bootloader_size;
+	uint64_t vmlinuz_header_size = 0;
+	uint64_t vmlinuz_header_address = 0;
 	VbKernelPreambleHeader *preamble = NULL;
 	uint8_t *kblob_data = NULL;
 	uint64_t kblob_size = 0;
 	uint8_t *vblock_data = NULL;
 	uint64_t vblock_size = 0;
+	FILE *f;
 
 	while (((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) &&
 	       !parse_error) {
@@ -251,6 +263,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		case OPT_MODE_PACK:
 		case OPT_MODE_REPACK:
 		case OPT_MODE_VERIFY:
+		case OPT_MODE_GET_VMLINUZ:
 			if (mode && (mode != i)) {
 				fprintf(stderr,
 					"Only one mode can be specified\n");
@@ -343,6 +356,8 @@ static int do_vbutil_kernel(int argc, char *argv[])
 				parse_error = 1;
 			}
 			break;
+		case OPT_VMLINUZ_OUT:
+			vmlinuz_out_file = optarg;
 		}
 	}
 
@@ -519,10 +534,79 @@ static int do_vbutil_kernel(int argc, char *argv[])
 				      signpub_key, keyblock_file, min_version);
 
 		return rv;
+
+	case OPT_MODE_GET_VMLINUZ:
+
+		if (!vmlinuz_out_file) {
+			fprintf(stderr,
+				"USE: vbutil_kernel --get-vmlinuz <file> "
+				"--vmlinuz-out <file>\n");
+			print_help(argv[0]);
+			return 1;
+		}
+
+		kpart_data = ReadOldKPartFromFileOrDie(filename, &kpart_size);
+
+		kblob_data = UnpackKPart(kpart_data, kpart_size, opt_pad,
+					 &keyblock, &preamble, &kblob_size);
+
+		if (!kblob_data)
+			Fatal("Unable to unpack kernel partition\n");
+
+		f = fopen(vmlinuz_out_file, "wb");
+		if (!f) {
+			VbExError("Can't open output file %s\n",
+				  vmlinuz_out_file);
+			return 1;
+		}
+
+		/* Now stick 16-bit header followed by kernel block into
+		   output */
+		if (VbGetKernelVmlinuzHeader(preamble,
+					     &vmlinuz_header_address,
+					     &vmlinuz_header_size)
+		    != VBOOT_SUCCESS) {
+			Fatal("Unable to retrieve Vmlinuz Header!");
+		}
+		if (vmlinuz_header_size) {
+			// verify that the 16-bit header is included in the
+			// kblob (to make sure that it's included in the
+			// signature)
+			if (VerifyVmlinuzInsideKBlob(preamble->body_load_address,
+						     kblob_size,
+						     vmlinuz_header_address,
+						     vmlinuz_header_size)) {
+				VbExError("Vmlinuz header not signed!\n");
+				fclose(f);
+				unlink(vmlinuz_out_file);
+				return 1;
+			}
+
+			i = (1 != fwrite((void*)(uintptr_t)
+					 vmlinuz_header_address,
+					 vmlinuz_header_size,
+					 1,
+					 f));
+		}
+		i = i || (1 != fwrite(kblob_data,
+				      kblob_size,
+				      1,
+				      f));
+		if (i) {
+			VbExError("Can't write output file %s\n",
+				  vmlinuz_out_file);
+			fclose(f);
+			unlink(vmlinuz_out_file);
+			return 1;
+		}
+
+		fclose(f);
+		return 1;
 	}
 
 	fprintf(stderr,
-		"You must specify a mode: --pack, --repack or --verify\n");
+		"You must specify a mode: "
+		"--pack, --repack, --verify, or --get-vmlinuz\n");
 	print_help(argv[0]);
 	return 1;
 }

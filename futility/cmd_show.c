@@ -385,6 +385,8 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	uint64_t kernel_size = 0;
 	int good_sig = 0;
 	int retval = 0;
+	uint64_t vmlinuz_header_size = 0;
+	uint64_t vmlinuz_header_address = 0;
 
 	/* Check the hash... */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
@@ -435,6 +437,19 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	printf("  Bootloader size:       0x%" PRIx64 "\n",
 	       preamble->bootloader_size);
 
+	if (VbGetKernelVmlinuzHeader(preamble,
+				     &vmlinuz_header_address,
+				     &vmlinuz_header_size)
+	    != VBOOT_SUCCESS) {
+		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
+		return 1;
+	}
+	if (vmlinuz_header_size) {
+		printf("  Vmlinuz_header address:    0x%" PRIx64 "\n",
+		       vmlinuz_header_address);
+		printf("  Vmlinuz header size:       0x%" PRIx64 "\n",
+		       vmlinuz_header_size);
+	}
 
 	/* Verify kernel body */
 	if (option.fv) {

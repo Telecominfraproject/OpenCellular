@@ -128,7 +128,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey *public_key,
 
 	rsa = PublicKeyToRSA(public_key);
 	hdr = CreateKernelPreamble(0x1234, 0x100000, 0x300000, 0x4000, body_sig,
-				   0, private_key);
+				   0, 0, 0, private_key);
 	TEST_NEQ(hdr && rsa, 0, "VerifyKernelPreamble() prerequisites");
 	if (!hdr)
 		return;
