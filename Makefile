@@ -476,6 +476,7 @@ CGPT_SRCS = \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_find.c \
 	cgpt/cgpt_legacy.c \
+	cgpt/cgpt_nor.c \
 	cgpt/cgpt_prioritize.c \
 	cgpt/cgpt_repair.c \
 	cgpt/cgpt_show.c \
@@ -489,7 +490,18 @@ CGPT_SRCS = \
 	cgpt/cmd_show.c
 
 CGPT_OBJS = ${CGPT_SRCS:%.c=${BUILD}/%.o}
+
 ALL_OBJS += ${CGPT_OBJS}
+
+CGPT_WRAPPER = ${BUILD}/cgpt/cgpt_wrapper
+
+CGPT_WRAPPER_SRCS = \
+	cgpt/cgpt_nor.c \
+	cgpt/cgpt_wrapper.c
+
+CGPT_WRAPPER_OBJS = ${CGPT_WRAPPER_SRCS:%.c=${BUILD}/%.o}
+
+ALL_OBJS += ${CGPT_WRAPPER_OBJS}
 
 # Utility defaults
 UTIL_DEFAULTS = ${BUILD}/default/vboot_reference
@@ -747,6 +759,9 @@ clean:
 .PHONY: install
 install: cgpt_install utils_install signing_install futil_install
 
+.PHONY: install_mtd
+install_mtd: install cgpt_wrapper_install
+
 .PHONY: install_for_test
 install_for_test: override DESTDIR = ${TEST_INSTALL_DIR}
 install_for_test: install
@@ -923,8 +938,15 @@ ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
 # ----------------------------------------------------------------------------
 # CGPT library and utility
 
+.PHONY: cgpt_wrapper
+cgpt_wrapper: ${CGPT_WRAPPER}
+
+${CGPT_WRAPPER}: ${CGPT_WRAPPER_OBJS} ${UTILLIB}
+	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
+	${Q}${LD} -o ${CGPT_WRAPPER} ${CFLAGS} $^
+
 .PHONY: cgpt
-cgpt: ${CGPT}
+cgpt: ${CGPT} ${CGPT_WRAPPER}
 
 ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
@@ -938,6 +960,15 @@ cgpt_install: ${CGPT}
 	@${PRINTF} "    INSTALL       CGPT\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} $^
+
+.PHONY: cgpt_wrapper_install
+cgpt_wrapper_install: cgpt_install ${CGPT_WRAPPER}
+	@$(PRINTF) "    INSTALL       cgpt_wrapper\n"
+	${Q}${INSTALL} -t ${UB_DIR} ${CGPT_WRAPPER}
+	${Q}mv ${UB_DIR}/$(notdir ${CGPT}) \
+		${UB_DIR}/$(notdir ${CGPT}).bin
+	${Q}mv ${UB_DIR}/$(notdir ${CGPT_WRAPPER}) \
+		${UB_DIR}/$(notdir ${CGPT})
 
 # ----------------------------------------------------------------------------
 # Utilities
