@@ -112,14 +112,15 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size)
 	return GPT_SUCCESS;
 }
 
-int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
+/*
+ * Func: GptUpdateKernelWithEntry
+ * Desc: This function updates the given kernel entry according to the provided
+ * update_type.
+ */
+int GptUpdateKernelWithEntry(GptData *gpt, GptEntry *e, uint32_t update_type)
 {
-	GptEntry *entries = (GptEntry *)gpt->primary_entries;
-	GptEntry *e = entries + gpt->current_kernel;
 	int modified = 0;
 
-	if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND)
-		return GPT_ERROR_INVALID_UPDATE_TYPE;
 	if (!IsKernelEntry(e))
 		return GPT_ERROR_INVALID_UPDATE_TYPE;
 
@@ -156,6 +157,28 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
 		}
 		break;
 	}
+	case GPT_UPDATE_ENTRY_RESET: {
+		/*
+		 * Used for fastboot mode. If image is written to kernel
+		 * partition, its GPT entry is marked with S1,P1,T15
+		 */
+		modified = 1;
+		SetEntryTries(e, 15);
+		SetEntryPriority(e, 1);
+		SetEntrySuccessful(e, 1);
+		break;
+	}
+	case GPT_UPDATE_ENTRY_INVALID: {
+		/*
+		 * Used for fastboot mode. If kernel partition is erased, its
+		 * GPT entry is marked with S0,P0,T0
+		 */
+		modified = 1;
+		SetEntryTries(e, 0);
+		SetEntryPriority(e, 0);
+		SetEntrySuccessful(e, 0);
+		break;
+	}
 	default:
 		return GPT_ERROR_INVALID_UPDATE_TYPE;
 	}
@@ -165,4 +188,44 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
 	}
 
 	return GPT_SUCCESS;
+}
+
+/*
+ * Func: GptUpdateKernelEntry
+ * Desc: This function updates current_kernel entry with provided
+ * update_type. If current_kernel is not set, then it returns error.
+ */
+int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type)
+{
+	GptEntry *entries = (GptEntry *)gpt->primary_entries;
+	GptEntry *e = entries + gpt->current_kernel;
+
+	if (gpt->current_kernel == CGPT_KERNEL_ENTRY_NOT_FOUND)
+		return GPT_ERROR_INVALID_UPDATE_TYPE;
+
+	return GptUpdateKernelWithEntry(gpt, e, update_type);
+}
+
+/*
+ * Func: GptFindNthEntry
+ * Desc: This function returns the nth instance of parition entry matching the
+ * partition type guid from the gpt table. Instance value starts from 0. If the
+ * entry is not found it returns NULL.
+ */
+GptEntry *GptFindNthEntry(GptData *gpt, const Guid *guid, unsigned int n)
+{
+	GptHeader *header = (GptHeader *)gpt->primary_header;
+	GptEntry *entries = (GptEntry *)gpt->primary_entries;
+	GptEntry *e;
+	int i;
+
+	for (i = 0, e = entries; i < header->number_of_entries; i++, e++) {
+		if (!Memcmp(&e->type, guid, sizeof(*guid))) {
+			if (n == 0)
+				return e;
+			n--;
+		}
+	}
+
+	return NULL;
 }

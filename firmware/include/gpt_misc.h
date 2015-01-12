@@ -50,6 +50,16 @@ enum {
 	 * entry as invalid.
 	 */
 	GPT_UPDATE_ENTRY_BAD = 2,
+	/*
+	 * Used for fastboot mode. When an image is written to kernel partition,
+	 * its GPT entry is marked with S1,P1,T15.
+	 */
+	GPT_UPDATE_ENTRY_RESET = 3,
+	/*
+	 * Used for fastboot mode. When an image is written to kernel partition,
+	 * its GPT entry is marked with S0,P0,T0.
+	 */
+	GPT_UPDATE_ENTRY_INVALID = 4,
 };
 
 /* If this bit is 1, the GPT is stored in another from the streaming data */
@@ -130,6 +140,13 @@ typedef struct {
 int GptInit(GptData *gpt);
 
 /**
+ * Return the nth instance of parition entry matching the partition type guid
+ * from the gpt table. Instance value starts from 0. If the entry is not found,
+ * it returns NULL.
+ */
+GptEntry *GptFindNthEntry(GptData *gpt, const Guid *guid, unsigned int n);
+
+/**
  * Allocate and read GPT data from the drive.  The sector_bytes and
  * drive_sectors fields should be filled on input.  The primary and secondary
  * header and entries are filled on output.
@@ -147,5 +164,36 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata);
  * Return 1 if the entry is unused, 0 if it is used.
  */
 int IsUnusedEntry(const GptEntry *e);
+
+/**
+ * Return size(in lba) of a partition represented by given GPT entry.
+ */
+size_t GptGetEntrySizeLba(const GptEntry *e);
+
+/**
+ * Return size(in bytes) of a partition represented by given GPT entry.
+ */
+size_t GptGetEntrySizeBytes(const GptData *gpt, const GptEntry *e);
+
+/**
+ * Updates the kernel entry with the specified index, using the specified type
+ * of update (GPT_UPDATE_ENTRY_*).
+ *
+ * On return the modified field may be set, if the GPT data has been modified
+ * and should be written to disk.
+ *
+ * Returns GPT_SUCCESS if successful, else
+ *   GPT_ERROR_INVALID_UPDATE_TYPE, invalid 'update_type' is given.
+ */
+int GptUpdateKernelWithEntry(GptData *gpt, GptEntry *e, uint32_t update_type);
+
+/**
+ * Updates the kernel entry identified by current_kernel field. If
+ * current_kernel is not set it returns an error.
+ *
+ * Returns GPT_SUCCESS if successful, else
+ *   GPT_ERROR_INVALID_UPDATE_TYPE, invalid 'update_type' is given.
+ */
+int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type);
 
 #endif  /* VBOOT_REFERENCE_CGPT_MISC_H_ */

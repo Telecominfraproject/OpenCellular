@@ -201,3 +201,23 @@ int IsUnusedEntry(const GptEntry *e)
 	static Guid zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
 	return !Memcmp(&zero, (const uint8_t*)(&e->type), sizeof(zero));
 }
+
+/*
+ * Func: GptGetEntrySize
+ * Desc: This function returns size(in lba) of a partition represented by
+ * given GPT entry.
+ */
+size_t GptGetEntrySizeLba(const GptEntry *e)
+{
+	return (e->ending_lba - e->starting_lba + 1);
+}
+
+/*
+ * Func: GptGetEntrySize
+ * Desc: This function returns size(in bytes) of a partition represented by
+ * given GPT entry.
+ */
+size_t GptGetEntrySizeBytes(const GptData *gpt, const GptEntry *e)
+{
+	return GptGetEntrySizeLba(e) * gpt->sector_bytes;
+}
