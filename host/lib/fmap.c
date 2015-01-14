@@ -9,21 +9,37 @@
 
 #include "fmap.h"
 
+static int is_fmap(uint8_t *ptr)
+{
+	FmapHeader *fmap_header = (FmapHeader *)ptr;
+
+	if (0 != memcmp(ptr, FMAP_SIGNATURE, FMAP_SIGNATURE_SIZE))
+		return 0;
+
+	if (fmap_header->fmap_ver_major == FMAP_VER_MAJOR)
+		return 1;
+
+	fprintf(stderr, "Found FMAP, but major version is %u instead of %u\n",
+		fmap_header->fmap_ver_major, FMAP_VER_MAJOR);
+	return 0;
+}
+
 /* Find and point to the FMAP header within the buffer */
 FmapHeader *fmap_find(uint8_t *ptr, size_t size)
 {
-	size_t i;
-	FmapHeader *fmap_header;
-	size_t lim = size - sizeof(FmapHeader);
-	for (i = 0;
-	     i <= lim;
-	     i += FMAP_SEARCH_STRIDE, ptr += FMAP_SEARCH_STRIDE) {
-		if (0 != memcmp(ptr, FMAP_SIGNATURE, FMAP_SIGNATURE_SIZE))
-			continue;
-		fmap_header = (FmapHeader *)ptr;
-		if (fmap_header->fmap_ver_major == FMAP_VER_MAJOR)
-			return fmap_header;
-	}
+	ssize_t offset, align;
+	ssize_t lim = size - sizeof(FmapHeader);
+
+	if (lim >= 0 && is_fmap(ptr))
+		return (FmapHeader *)ptr;
+
+	/* Search large alignments before small ones to find "right" FMAP. */
+	for (align = FMAP_SEARCH_STRIDE; align <= lim; align *= 2);
+	for (; align >= FMAP_SEARCH_STRIDE; align /= 2)
+		for (offset = align; offset <= lim; offset += align * 2)
+			if (is_fmap(ptr + offset))
+				return (FmapHeader *)(ptr + offset);
+
 	return NULL;
 }
 
