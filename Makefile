@@ -184,6 +184,12 @@ LD = ${CC}
 CXX ?= g++
 PKG_CONFIG ?= pkg-config
 
+# Static?
+ifneq (${STATIC},)
+LDFLAGS += -static
+PKG_CONFIG += --static
+endif
+
 # Determine QEMU architecture needed, if any
 ifeq (${ARCH},${HOST_ARCH})
   # Same architecture; no need for QEMU
@@ -1097,8 +1103,11 @@ ${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
+LZMA_LIBS := $(shell ${PKG_CONFIG} --libs liblzma)
+YAML_LIBS := $(shell ${PKG_CONFIG} --libs yaml-0.1)
+
 ${BUILD}/utility/bmpblk_utility: LD = ${CXX}
-${BUILD}/utility/bmpblk_utility: LDLIBS = -llzma -lyaml
+${BUILD}/utility/bmpblk_utility: LDLIBS = ${LZMA_LIBS} ${YAML_LIBS}
 
 BMPBLK_UTILITY_DEPS = \
 	${BUILD}/utility/bmpblk_util.o \
