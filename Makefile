@@ -38,7 +38,7 @@
 # We should only run pwd once, not every time we refer to ${BUILD}.
 SRCDIR := $(shell pwd)
 export SRCDIR
-BUILD = $(SRCDIR)/build
+BUILD = ${SRCDIR}/build
 export BUILD
 
 # Stuff for 'make install'
@@ -73,7 +73,7 @@ Q := @
 endif
 
 # Quiet? Use QUIET=1
-ifeq ($(QUIET),)
+ifeq (${QUIET},)
 PRINTF := printf
 else
 PRINTF := :
@@ -573,7 +573,7 @@ FUTIL_STATIC_SRCS = \
 	futility/misc.c
 
 FUTIL_SRCS = \
-	$(FUTIL_STATIC_SRCS) \
+	${FUTIL_STATIC_SRCS} \
 	futility/cmd_dev_sign_file.c \
 	futility/cmd_dump_kernel_config.c \
 	futility/cmd_load_fmap.c \
@@ -828,18 +828,18 @@ fwlinktest: \
 fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
 
 ${FWLIB}: ${FWLIB_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 .PHONY: fwlib2x
 fwlib2x: ${FWLIB2X}
 
 ${FWLIB2X}: ${FWLIB2_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 # TODO: it'd be nice to call this fwlib20, but coreboot expects fwlib2
@@ -847,18 +847,18 @@ ${FWLIB2X}: ${FWLIB2_OBJS}
 fwlib2: ${FWLIB20}
 
 ${FWLIB20}: ${FWLIB2_OBJS} ${FWLIB20_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 .PHONY: fwlib21
 fwlib21: ${FWLIB21}
 
 ${FWLIB21}: ${FWLIB2_OBJS} ${FWLIB21_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 # ----------------------------------------------------------------------------
@@ -875,9 +875,9 @@ utillib: ${UTILLIB} \
 
 # TODO: better way to make .a than duplicating this recipe each time?
 ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 .PHONY: utillib21
@@ -885,9 +885,9 @@ utillib21: ${UTILLIB21}
 
 ${UTILLIB21}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
 ${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2_OBJS} ${FWLIB21_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 
@@ -903,9 +903,9 @@ hostlib: ${HOSTLIB} \
 
 # TODO: better way to make .a than duplicating this recipe each time?
 ${HOSTLIB}: ${HOSTLIB_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 
@@ -915,9 +915,9 @@ tinyhostlib: ${TINYHOSTLIB}
 	${Q}cp -f ${TINYHOSTLIB} ${HOSTLIB}
 
 ${TINYHOSTLIB}: ${TINYHOSTLIB_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 # ----------------------------------------------------------------------------
@@ -930,12 +930,12 @@ ${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
 
 ${CGPT}: ${CGPT_OBJS} ${UTILLIB}
-	@$(PRINTF) "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    LDcgpt        $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o ${CGPT} ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
 .PHONY: cgpt_install
 cgpt_install: ${CGPT}
-	@$(PRINTF) "    INSTALL       CGPT\n"
+	@${PRINTF} "    INSTALL       CGPT\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} $^
 
@@ -959,7 +959,7 @@ utils: ${UTIL_BINS} ${UTIL_SCRIPTS}
 
 .PHONY: utils_install
 utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_DEFAULTS}
-	@$(PRINTF) "    INSTALL       UTILS\n"
+	@${PRINTF} "    INSTALL       UTILS\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${UTIL_BINS} ${UTIL_SCRIPTS}
 	${Q}mkdir -p ${DF_DIR}
@@ -968,7 +968,7 @@ utils_install: ${UTIL_BINS} ${UTIL_SCRIPTS} ${UTIL_DEFAULTS}
 # And some signing stuff for the target
 .PHONY: signing_install
 signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
-	@$(PRINTF) "    INSTALL       SIGNING\n"
+	@${PRINTF} "    INSTALL       SIGNING\n"
 	${Q}mkdir -p ${UB_DIR} ${VB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${SIGNING_SCRIPTS}
 	${Q}${INSTALL} -t ${VB_DIR} ${SIGNING_SCRIPTS_DEV}
@@ -982,17 +982,17 @@ futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
 ${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB} \
 		$(if ${VBOOT2},${FWLIB20})
-	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
 ${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${FWLIB20})
-	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
 .PHONY: futil_install
 futil_install: ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
-	@$(PRINTF) "    INSTALL       futility\n"
+	@${PRINTF} "    INSTALL       futility\n"
 	${Q}mkdir -p ${UB_DIR}
 	${Q}${INSTALL} -t ${UB_DIR} ${FUTIL_BIN} ${FUTIL_STATIC_BIN}
 	${Q}for prog in ${FUTIL_SYMLINKS}; do \
@@ -1008,7 +1008,7 @@ STRUCTURES_SRC=firmware/lib/tpm_lite/include/tlcl_structures.h
 
 .PHONY: update_tlcl_structures
 update_tlcl_structures: ${BUILD}/utility/tlcl_generator
-	@$(PRINTF) "    Rebuilding TLCL structures\n"
+	@${PRINTF} "    Rebuilding TLCL structures\n"
 	${Q}${BUILD}/utility/tlcl_generator > ${STRUCTURES_TMP}
 	${Q}cmp -s ${STRUCTURES_TMP} ${STRUCTURES_SRC} || \
 		( echo "%% Updating structures.h %%" && \
@@ -1036,9 +1036,9 @@ ${TEST21_BINS}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
 ${TEST21_BINS}: LIBS += ${UTILLIB21}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
-	@$(PRINTF) "    RM            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
-	@$(PRINTF) "    AR            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
 
@@ -1047,32 +1047,32 @@ ${TESTLIB}: ${TESTLIB_OBJS}
 # rules for specific targets.
 
 ${BUILD}/%: ${BUILD}/%.o ${OBJS} ${LIBS}
-	@$(PRINTF) "    LD            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $< ${OBJS} ${LIBS} ${LDLIBS}
 
 ${BUILD}/%.o: %.c
-	@$(PRINTF) "    CC            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    CC            $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 ${BUILD}/%.o: ${BUILD}/%.c
-	@$(PRINTF) "    CC            $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    CC            $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 # Rules to recompile a single source file for library and test
 # TODO: is there a tidier way to do this?
 ${BUILD}/%_for_lib.o: CFLAGS += -DFOR_LIBRARY
 ${BUILD}/%_for_lib.o: %.c
-	@$(PRINTF) "    CC-for-lib    $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    CC-for-lib    $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 ${BUILD}/%_for_test.o: CFLAGS += -DFOR_TEST
 ${BUILD}/%_for_test.o: %.c
-	@$(PRINTF) "    CC-for-test   $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    CC-for-test   $(subst ${BUILD}/,,$@)\n"
 	${Q}${CC} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 # TODO: C++ files don't belong in vboot reference at all.  Convert to C.
 ${BUILD}/%.o: %.cc
-	@$(PRINTF) "    CXX           $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    CXX           $(subst ${BUILD}/,,$@)\n"
 	${Q}${CXX} ${CFLAGS} ${INCLUDES} -c -o $@ $<
 
 # ----------------------------------------------------------------------------
@@ -1081,7 +1081,7 @@ ${BUILD}/%.o: %.cc
 # Always create the defaults file, since it depends on input variables
 .PHONY: ${UTIL_DEFAULTS}
 ${UTIL_DEFAULTS}:
-	@$(PRINTF) "    CREATE        $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    CREATE        $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	${Q}mkdir -p $(dir $@)
 	${Q}echo '# Generated file. Do not edit.' > $@.tmp
@@ -1159,7 +1159,7 @@ TEST_OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ${FUTIL_STATIC_CMD_LIST}: ${FUTIL_STATIC_SRCS}
 ${FUTIL_CMD_LIST}: ${FUTIL_SRCS}
 ${FUTIL_CMD_LIST} ${FUTIL_STATIC_CMD_LIST}:
-	@$(PRINTF) "    GEN           $(subst ${BUILD}/,,$@)\n"
+	@${PRINTF} "    GEN           $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@ $@_t $@_commands
 	${Q}mkdir -p ${BUILD}/gen
 	${Q}grep -hoRE '^DECLARE_FUTIL_COMMAND\([^,]+' $^ \
@@ -1207,7 +1207,7 @@ ifeq (${SYSROOT},)
 	$(error SYSROOT must be set to the top of the target-specific root \
 when cross-compiling for qemu-based tests to run properly.)
 endif
-	@$(PRINTF) "    Copying qemu binary.\n"
+	@${PRINTF} "    Copying qemu binary.\n"
 	${Q}cp -fu /usr/bin/${QEMU_BIN} ${BUILD}/${QEMU_BIN}
 	${Q}chmod a+rx ${BUILD}/${QEMU_BIN}
 endif
