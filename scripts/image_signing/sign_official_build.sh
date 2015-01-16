@@ -389,6 +389,10 @@ repack_firmware_bundle() {
     return 1
   elif grep -q '^##CUTHERE##' "${target}"; then
     # Bundle supports repacking.
+    # Workaround issue crosbug.com/p/33719
+    sed -i \
+      's/shar -Q -q -x -m -w/shar -Q -q -x -m --no-character-count/' \
+      "${target}"
     "$target" --sb_repack "${input_dir}" ||
       die "Updating firmware autoupdate (--sb_repack) failed."
   else
