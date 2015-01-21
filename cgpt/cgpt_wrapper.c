@@ -140,6 +140,23 @@ cleanup:
 }
 
 int main(int argc, const char *argv[]) {
+  char resolved_cgpt[PATH_MAX];
+  pid_t pid = getpid();
+  char exe_link[40];
+
+  if (argc < 1) {
+    return -1;
+  }
+
+  snprintf(exe_link, sizeof(exe_link), "/proc/%d/exe", pid);
+  memset(resolved_cgpt, 0, sizeof(resolved_cgpt));
+  if (readlink(exe_link, resolved_cgpt, sizeof(resolved_cgpt) - 1) == -1) {
+    perror("readlink");
+    return -1;
+  }
+
+  argv[0] = resolved_cgpt;
+
   if (argc > 2 && !has_dash_D(argc, argv)) {
     const char *mtd_device = find_mtd_device(argc, argv);
     if (mtd_device) {
