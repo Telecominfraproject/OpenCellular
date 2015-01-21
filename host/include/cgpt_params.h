@@ -78,6 +78,9 @@ typedef struct CgptPrioritizeParams {
   int orig_priority;
 } CgptPrioritizeParams;
 
+struct CgptFindParams;
+typedef void (*CgptFindShowFn)(struct CgptFindParams *params, char *filename,
+                               int partnum, GptEntry *entry);
 typedef struct CgptFindParams {
   char *drive_name;
   uint64_t drive_size;
@@ -96,6 +99,10 @@ typedef struct CgptFindParams {
   char *label;
   int hits;
   int match_partnum;           /* 1-based; 0 means no match */
+  /* when working with MTD, we actually work on a temp file, but we still need
+   * to print the device name. so this parameter is here to properly show the
+   * correct device name in that special case. */
+  CgptFindShowFn show_fn;
 } CgptFindParams;
 
 typedef struct CgptLegacyParams {
