@@ -231,12 +231,12 @@ int WriteNorFlash(const char *dir) {
   ret++;
   int nr_fails = 0;
   if (ForkExecL(dir, FLASHROM_PATH, "-i", "RW_GPT_PRIMARY:rw_gpt_1",
-                "-w", NULL) != 0) {
+                "-w", "--fast-verify", NULL) != 0) {
     Warning("Cannot write the 1st half of rw_gpt back with flashrom.\n");
     nr_fails++;
   }
   if (ForkExecL(dir, FLASHROM_PATH, "-i", "RW_GPT_SECONDARY:rw_gpt_2",
-                "-w", NULL) != 0) {
+                "-w", "--fast-verify", NULL) != 0) {
     Warning("Cannot write the 2nd half of rw_gpt back with flashrom.\n");
     nr_fails++;
   }
