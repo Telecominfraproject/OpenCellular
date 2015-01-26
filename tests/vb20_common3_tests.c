@@ -33,7 +33,8 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 				 const VbPrivateKey *private_key,
 				 const VbPublicKey *data_key)
 {
-	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES]
+		__attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 	struct vb2_public_key key;
 	struct vb2_keyblock *hdr;
@@ -175,7 +176,8 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 	struct vb2_fw_preamble *hdr;
 	struct vb2_fw_preamble *h;
 	struct vb2_public_key rsa;
-	uint8_t workbuf[VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 	uint32_t hsize;
 

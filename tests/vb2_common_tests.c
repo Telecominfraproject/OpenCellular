@@ -63,28 +63,32 @@ static void test_align(void)
  */
 static void test_workbuf(void)
 {
-	uint64_t buf[8];
+	uint64_t buf[8] __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	uint8_t *p0 = (uint8_t *)buf, *ptr;
 	struct vb2_workbuf wb;
 
-	/* Init */
-	vb2_workbuf_init(&wb, p0, 32);
-	TEST_EQ(vb2_offset_of(p0, wb.buf), 0, "Workbuf init aligned");
-	TEST_EQ(wb.size, 32, "  size");
+	/* NOTE: There are several magic numbers below which assume that
+	 * VB2_WORKBUF_ALIGN == 16 */
 
-	vb2_workbuf_init(&wb, p0 + 4, 32);
-	TEST_EQ(vb2_offset_of(p0, wb.buf), 8, "Workbuf init unaligned");
-	TEST_EQ(wb.size, 28, "  size");
+	/* Init */
+	vb2_workbuf_init(&wb, p0, 64);
+	TEST_EQ(vb2_offset_of(p0, wb.buf), 0, "Workbuf init aligned");
+	TEST_EQ(wb.size, 64, "  size");
+
+	vb2_workbuf_init(&wb, p0 + 4, 64);
+	TEST_EQ(vb2_offset_of(p0, wb.buf), VB2_WORKBUF_ALIGN,
+		"Workbuf init unaligned");
+	TEST_EQ(wb.size, 64 - VB2_WORKBUF_ALIGN + 4, "  size");
 
 	vb2_workbuf_init(&wb, p0 + 2, 5);
 	TEST_EQ(wb.size, 0, "Workbuf init tiny unaligned size");
 
 	/* Alloc rounds up */
-	vb2_workbuf_init(&wb, p0, 32);
+	vb2_workbuf_init(&wb, p0, 64);
 	ptr = vb2_workbuf_alloc(&wb, 22);
 	TEST_EQ(vb2_offset_of(p0, ptr), 0, "Workbuf alloc");
-	TEST_EQ(vb2_offset_of(p0, wb.buf), 24, "  buf");
-	TEST_EQ(wb.size, 8, "  size");
+	TEST_EQ(vb2_offset_of(p0, wb.buf), 32, "  buf");
+	TEST_EQ(wb.size, 32, "  size");
 
 	vb2_workbuf_init(&wb, p0, 32);
 	TEST_PTR_EQ(vb2_workbuf_alloc(&wb, 33), NULL, "Workbuf alloc too big");
@@ -97,12 +101,12 @@ static void test_workbuf(void)
 	TEST_EQ(wb.size, 32, "  size");
 
 	/* Realloc keeps same pointer as alloc */
-	vb2_workbuf_init(&wb, p0, 32);
+	vb2_workbuf_init(&wb, p0, 64);
 	vb2_workbuf_alloc(&wb, 6);
 	ptr = vb2_workbuf_realloc(&wb, 6, 21);
 	TEST_EQ(vb2_offset_of(p0, ptr), 0, "Workbuf realloc");
-	TEST_EQ(vb2_offset_of(p0, wb.buf), 24, "  buf");
-	TEST_EQ(wb.size, 8, "  size");
+	TEST_EQ(vb2_offset_of(p0, wb.buf), 32, "  buf");
+	TEST_EQ(wb.size, 32, "  size");
 }
 
 int main(int argc, char* argv[])

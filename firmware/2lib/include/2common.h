@@ -39,8 +39,22 @@ struct vb2_public_key;
 #  define VB2_DEBUG(format, args...)
 #endif
 
-/* Alignment for work buffer pointers/allocations */
-#define VB2_WORKBUF_ALIGN 8
+/*
+ * Alignment for work buffer pointers/allocations should be useful for any
+ * data type. When declaring workbuf buffers on the stack, the caller should
+ * use explicit alignment to avoid run-time errors. For example:
+ *
+ *    int foo(void)
+ *    {
+ *        struct vb2_workbuf wb;
+ *        uint8_t buf[NUM] __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
+ *        wb.buf = buf;
+ *        wb.size = sizeof(buf);
+ */
+
+/* We might get away with using __alignof__(void *), but since GCC defines a
+ * macro for us we'll be safe and use that. */
+#define VB2_WORKBUF_ALIGN __BIGGEST_ALIGNMENT__
 
 /* Work buffer */
 struct vb2_workbuf {

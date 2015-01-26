@@ -29,7 +29,8 @@ static void keyblock_tests(const char *keys_dir)
 	char fname[1024];
 	const char test_desc[] = "Test keyblock";
 
-	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));

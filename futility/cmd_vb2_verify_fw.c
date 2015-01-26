@@ -140,7 +140,7 @@ static void print_help(const char *progname)
 static int do_vb2_verify_fw(int argc, char *argv[])
 {
 	struct vb2_context ctx;
-	uint8_t workbuf[16384];
+	uint8_t workbuf[16384] __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	int rv;
 
 	if (argc < 4) {

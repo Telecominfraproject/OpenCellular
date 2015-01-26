@@ -220,7 +220,8 @@ static void test_verify_hash(void)
 	struct vb2_signature *sig;
 	const struct vb2_private_key *prik;
 	struct vb2_public_key pubk;
-	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
@@ -258,7 +259,8 @@ static void test_verify_keyblock(void)
 	uint32_t buf_size;
 	uint8_t *buf, *buf2;
 
-	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 
 	TEST_SUCC(vb2_public_key_hash(&pubk, VB2_HASH_SHA256),
@@ -384,7 +386,8 @@ static void test_verify_fw_preamble(void)
 	uint32_t buf_size;
 	uint8_t *buf, *buf2;
 
-	uint8_t workbuf[VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 
 	/*

@@ -77,7 +77,8 @@ static void test_unpack_key(const struct vb2_packed_key *key1)
 static void test_verify_data(const struct vb2_packed_key *key1,
 			     const struct vb2_signature *sig)
 {
-	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES];
+	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 
 	uint32_t pubkey_size = key1->key_offset + key1->key_size;

@@ -29,7 +29,8 @@ static void test_changed(struct vb2_context *ctx, int changed, const char *why)
 
 static void secdata_test(void)
 {
-	uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+	uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE]
+		__attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_context c = {
 		.flags = 0,
 		.workbuf = workbuf,
