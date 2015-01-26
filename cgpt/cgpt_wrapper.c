@@ -125,9 +125,10 @@ static int wrap_cgpt(int argc,
   // Write back "rw_gpt" to NOR flash in two chunks.
   ret++;
   modified_hash = DigestFile(rw_gpt_path, SHA1_DIGEST_ALGORITHM);
-  if (original_hash != NULL && modified_hash != NULL &&
-      memcmp(original_hash, modified_hash, SHA1_DIGEST_SIZE) != 0) {
-    if (WriteNorFlash(temp_dir) == 0) {
+  if (original_hash != NULL && modified_hash != NULL) {
+    if (memcmp(original_hash, modified_hash, SHA1_DIGEST_SIZE) != 0) {
+      ret = WriteNorFlash(temp_dir);
+    } else {
       ret = 0;
     }
   }
