@@ -5,8 +5,21 @@
  * Stub API implementations which should be implemented by the caller.
  */
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "2sysincludes.h"
 #include "2api.h"
+
+__attribute__((weak))
+void vb2ex_printf(const char *func, const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	fprintf(stderr, "%s: ", func);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+}
 
 __attribute__((weak))
 int vb2ex_tpm_clear_owner(struct vb2_context *ctx)
