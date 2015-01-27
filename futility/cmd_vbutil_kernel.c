@@ -21,6 +21,7 @@
 #include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
+#include "traversal.h"
 #include "vb1_helper.h"
 
 static void Fatal(const char *format, ...)
@@ -460,6 +461,11 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		/* Load the kernel partition */
 		kpart_data = ReadOldKPartFromFileOrDie(oldfile, &kpart_size);
+
+		/* Make sure we have a kernel partition */
+		if (FILE_TYPE_KERN_PREAMBLE !=
+		    futil_what_file_type_buf(kpart_data, kpart_size))
+			Fatal("%s is not a kernel blob\n", oldfile);
 
 		kblob_data = UnpackKPart(kpart_data, kpart_size, opt_pad,
 					 &keyblock, &preamble, &kblob_size);
