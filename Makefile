@@ -247,12 +247,14 @@ endif
 # this source tree locally and link to it directly.
 FWLIB = ${BUILD}/vboot_fw.a
 
-# Smaller firmware library
-# Stuff common to all vboot 2.x
+# Smaller firmware library common to all vboot 2.x, used only for
+# 1) compile-time tests of the public API or
+# 2) linking with an actual 2.0 or 2.1 implementation
 FWLIB2X = ${BUILD}/vboot_fw2x.a
-# Vboot 2.0 (stuck with this filename due to dependencies in coreboot)
-FWLIB20 = ${BUILD}/vboot_fw2.a
-# Vboot 2.1
+
+# Vboot 2.0 (deprecated - see firmware/README)
+FWLIB20 = ${BUILD}/vboot_fw20.a
+# Vboot 2.1 (not yet ready - see firmware/README)
 FWLIB21 = ${BUILD}/vboot_fw21.a
 
 # Firmware library sources needed by VbInit() call
@@ -293,9 +295,8 @@ VBSLK_SRCS = \
 	firmware/lib/vboot_kernel.c \
 	firmware/lib/region-kernel.c \
 
-# Firmware library source needed for smaller library 2
-# Code common to vboot 2.0 (old structs) and 2.1 (new structs)
-FWLIB2_SRCS = \
+# Code common to both vboot 2.0 (old structs) and 2.1 (new structs)
+FWLIB2X_SRCS = \
 	firmware/2lib/2api.c \
 	firmware/2lib/2common.c \
 	firmware/2lib/2crc8.c \
@@ -354,7 +355,7 @@ VBSLK_SRCS += \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_stream.c
 
-FWLIB2_SRCS += \
+FWLIB2X_SRCS += \
 	firmware/2lib/2stub.c
 
 endif
@@ -367,10 +368,10 @@ VBSF_OBJS = ${VBSF_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS +=  ${VBINIT_OBJS} ${VBSF_OBJS}
 
 FWLIB_OBJS = ${FWLIB_SRCS:%.c=${BUILD}/%.o}
-FWLIB2_OBJS = ${FWLIB2_SRCS:%.c=${BUILD}/%.o}
+FWLIB2X_OBJS = ${FWLIB2X_SRCS:%.c=${BUILD}/%.o}
 FWLIB20_OBJS = ${FWLIB20_SRCS:%.c=${BUILD}/%.o}
 FWLIB21_OBJS = ${FWLIB21_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
+ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS}
 
 # Intermediate library for the vboot_reference utilities to link against.
 UTILLIB = ${BUILD}/libvboot_util.a
@@ -691,9 +692,7 @@ TEST21_NAMES = \
 	tests/vb21_host_misc_tests \
 	tests/vb21_host_sig_tests
 
-ifneq (${VBOOT2},)
 TEST_NAMES += ${TEST2X_NAMES} ${TEST20_NAMES} ${TEST21_NAMES}
-endif
 
 # And a few more...
 TLCL_TEST_NAMES = \
@@ -736,14 +735,13 @@ _dir_create := $(foreach d, \
 
 # Default target.
 .PHONY: all
-all: fwlib \
-	$(if ${VBOOT2},fwlib2x fwlib2 fwlib21) \
+all: fwlib fwlib2x fwlib20 fwlib21 \
 	$(if ${FIRMWARE_ARCH},,host_stuff) \
 	$(if ${COV},coverage)
 
 # Host targets
 .PHONY: host_stuff
-host_stuff: utillib hostlib cgpt utils futil tests $(if ${VBOOT2},utillib21)
+host_stuff: utillib hostlib cgpt utils futil tests utillib21
 
 .PHONY: clean
 clean:
@@ -786,7 +784,7 @@ ${FWLIB_OBJS}: CFLAGS += -DTPM_BLOCKING_CONTINUESELFTEST
 ifeq (${FIRMWARE_ARCH},i386)
 # Unrolling loops in cryptolib makes it faster
 ${FWLIB_OBJS}: CFLAGS += -DUNROLL_LOOPS
-${FWLIB2_OBJS}: CFLAGS += -DUNROLL_LOOPS
+${FWLIB2X_OBJS}: CFLAGS += -DUNROLL_LOOPS
 ${FWLIB20_OBJS}: CFLAGS += -DUNROLL_LOOPS
 ${FWLIB21_OBJS}: CFLAGS += -DUNROLL_LOOPS
 
@@ -844,17 +842,16 @@ ${FWLIB}: ${FWLIB_OBJS}
 .PHONY: fwlib2x
 fwlib2x: ${FWLIB2X}
 
-${FWLIB2X}: ${FWLIB2_OBJS}
+${FWLIB2X}: ${FWLIB2X_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
 	${Q}ar qc $@ $^
 
-# TODO: it'd be nice to call this fwlib20, but coreboot expects fwlib2
-.PHONY: fwlib2
-fwlib2: ${FWLIB20}
+.PHONY: fwlib20
+fwlib20: ${FWLIB20}
 
-${FWLIB20}: ${FWLIB2_OBJS} ${FWLIB20_OBJS}
+${FWLIB20}: ${FWLIB2X_OBJS} ${FWLIB20_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -863,7 +860,7 @@ ${FWLIB20}: ${FWLIB2_OBJS} ${FWLIB20_OBJS}
 .PHONY: fwlib21
 fwlib21: ${FWLIB21}
 
-${FWLIB21}: ${FWLIB2_OBJS} ${FWLIB21_OBJS}
+${FWLIB21}: ${FWLIB2X_OBJS} ${FWLIB21_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -892,7 +889,7 @@ ${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
 utillib21: ${UTILLIB21}
 
 ${UTILLIB21}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
-${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2_OBJS} ${FWLIB21_OBJS}
+${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2X_OBJS} ${FWLIB21_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1004,13 +1001,12 @@ signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
 .PHONY: futil
 futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
-${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB} \
-		$(if ${VBOOT2},${FWLIB20})
+${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
-${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} $(if ${VBOOT2},${FWLIB20})
+${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -1208,7 +1204,7 @@ ${FUTIL_CMD_LIST} ${FUTIL_STATIC_CMD_LIST}:
 
 # Frequently-run tests
 .PHONY: test_targets
-test_targets:: runcgpttests runmisctests $(if ${VBOOT2},run2tests)
+test_targets:: runcgpttests runmisctests run2tests
 
 ifeq (${MINIMAL},)
 # Bitmap utility isn't compiled for minimal variant
@@ -1268,10 +1264,8 @@ runtestscripts: test_setup genfuzztestcases
 	tests/run_rsa_tests.sh
 	tests/run_vbutil_kernel_arg_tests.sh
 	tests/run_vbutil_tests.sh
-ifneq (${VBOOT2},)
 	tests/vb2_rsa_tests.sh
 	tests/vb2_firmware_tests.sh
-endif
 
 .PHONY: runmisctests
 runmisctests: test_setup
@@ -1336,11 +1330,9 @@ runfutiltests: test_setup
 runlongtests: test_setup genkeys genfuzztestcases
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS} --all
-ifneq (${VBOOT2},)
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common3_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS} --all
-endif
 	tests/run_preamble_tests.sh --all
 	tests/run_vbutil_tests.sh --all
 
