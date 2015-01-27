@@ -52,7 +52,7 @@ ${FUTILITY} vbutil_firmware \
 
 echo 'Verifying test firmware using vb2_verify_fw'
 
-# Verify the firmware using vboot2 utility
-${FUTILITY} vb2_verify_fw gbb.test vblock.test body.test
+# Verify the firmware using vboot2 checks
+${BUILD_RUN}/tests/vb20_verify_fw gbb.test vblock.test body.test
 
 happy 'vb2_verify_fw succeeded'

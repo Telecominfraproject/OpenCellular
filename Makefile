@@ -596,11 +596,6 @@ FUTIL_SRCS = \
 	futility/traversal.c \
 	futility/vb1_helper.c
 
-ifneq (${VBOOT2},)
-FUTIL_SRCS += \
-	futility/cmd_vb2_verify_fw.c
-endif
-
 # List of commands built in futility and futility_s.
 FUTIL_STATIC_CMD_LIST = ${BUILD}/gen/futility_static_cmds.c
 FUTIL_CMD_LIST = ${BUILD}/gen/futility_cmds.c
@@ -679,9 +674,11 @@ TEST20_NAMES = \
 	tests/vb20_api_tests \
 	tests/vb20_common_tests \
 	tests/vb20_common2_tests \
+	tests/vb20_verify_fw.c \
 	tests/vb20_common3_tests \
 	tests/vb20_misc_tests \
-	tests/vb20_rsa_padding_tests
+	tests/vb20_rsa_padding_tests \
+	tests/vb20_verify_fw
 
 TEST21_NAMES = \
 	tests/vb21_api_tests \

@@ -11,7 +11,6 @@
 
 #include "2sysincludes.h"
 #include "2api.h"
-#include "futility.h"
 
 const char *gbb_fname;
 const char *vblock_fname;
@@ -137,7 +136,7 @@ static void print_help(const char *progname)
 	printf("Usage: %s <gbb> <vblock> <body>\n", progname);
 }
 
-static int do_vb2_verify_fw(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	struct vb2_context ctx;
 	uint8_t workbuf[16384] __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
@@ -210,7 +209,3 @@ static int do_vb2_verify_fw(int argc, char *argv[])
 
 	return 0;
 }
-
-DECLARE_FUTIL_COMMAND(vb2_verify_fw, do_vb2_verify_fw,
-		      "Verifies firmware using vboot2 library",
-		      print_help);
