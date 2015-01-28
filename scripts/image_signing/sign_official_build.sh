@@ -476,9 +476,12 @@ resign_firmware_payload() {
   local shellball_dir=$(make_temp_dir)
 
   # extract_firmware_bundle can fail if the image has no firmware update.
-  extract_firmware_bundle "${firmware_bundle}" "${shellball_dir}" ||
-    { echo "Didn't find a firmware update. Not signing firmware."
-    return; }
+  if ! extract_firmware_bundle "${firmware_bundle}" "${shellball_dir}"; then
+    # Unmount now to prevent changes.
+    sudo umount "${rootfs_dir}"
+    echo "Didn't find a firmware update. Not signing firmware."
+    return
+  fi
   echo "Found a valid firmware update shellball."
 
   local image_file sign_args=() loem_sfx loem_output_dir
