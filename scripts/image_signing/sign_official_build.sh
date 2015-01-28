@@ -302,10 +302,18 @@ update_rootfs_hash() {
   local kernelpart=
   local keyblock=
   local priv_key=
+  local new_kernel_config=
 
   for kernelpart in 2 4; do
-    local new_kernel_config="$(grab_kernel_config "${image}" "${kernelpart}" |
-        sed -e 's#\(.*dm="\)\([^"]*\)\(".*\)'"#\1${dm_args}\3#g")"
+    if ! new_kernel_config="$(
+         grab_kernel_config "${image}" "${kernelpart}" 2>/dev/null)" &&
+       [[ "${kernelpart}" == 4 ]]; then
+      # Legacy images don't have partition 4.
+      echo "Skipping empty kernel partition 4 (legacy images)."
+      continue
+    fi
+    new_kernel_config="$(echo "${new_kernel_config}" |
+      sed -e 's#\(.*dm="\)\([^"]*\)\(".*\)'"#\1${dm_args}\3#g")"
     echo "New config for kernel partition ${kernelpart} is:"
     echo "${new_kernel_config}" | tee "${temp_config}"
     extract_image_partition "${image}" "${kernelpart}" "${temp_kimage}"
@@ -329,15 +337,26 @@ update_rootfs_hash() {
 
 # Update the SSD install-able vblock file on stateful partition.
 # ARGS: Image
-# This is deprecated because all new images should have a SSD boot-able kernel in
-# partition 4.
-# TODO(hungte) crbug.com/403031: Remove this when no one is still using it.
+# This is deprecated because all new images should have a SSD boot-able kernel
+# in partition 4. However, the signer needs to be able to sign new & old images
+# (crbug.com/449450#c13) so we will probably never remove this.
 update_stateful_partition_vblock() {
   local image="$1"
   local kernb_image="$(make_temp_file)"
   local temp_out_vb="$(make_temp_file)"
+
   extract_image_partition "${image}" 4 "${kernb_image}"
-  vbutil_kernel --verify "${kernb_image}" --keyblock "${temp_out_vb}"
+  if [[ "$(dump_kernel_config "${kernb_image}" 2>/dev/null)" == "" ]]; then
+    echo "Building vmlinuz_hd.vblock from legacy image partition 2."
+    extract_image_partition "${image}" 2 "${kernb_image}"
+  fi
+
+  # vblock should always use kernel keyblock.
+  vbutil_kernel --repack "${temp_out_vb}" \
+    --keyblock "${KEY_DIR}/kernel.keyblock" \
+    --signprivate "${KEY_DIR}/kernel_data_key.vbprivk" \
+    --oldblob "${kernb_image}" \
+    --vblockonly
 
   # Copy the installer vblock to the stateful partition.
   local stateful_dir=$(make_temp_dir)
