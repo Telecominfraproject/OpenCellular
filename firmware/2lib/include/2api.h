@@ -42,6 +42,9 @@
  */
 #define VB2_WORKBUF_RECOMMENDED_SIZE (12 * 1024)
 
+/* Recommended buffer size for vb2api_get_pcr_digest */
+#define VB2_PCR_DIGEST_RECOMMENDED_SIZE 32
+
 /* Flags for vb2_context.
  *
  * Unless otherwise noted, flags are set by verified boot and may be read (but
@@ -158,6 +161,15 @@ enum vb2_resource_index {
 	 * set that flag to the proper state before reading the vblock.
 	 */
 	VB2_RES_FW_VBLOCK,
+};
+
+/* Digest ID for vbapi_get_pcr_digest() */
+enum vb2_pcr_digest {
+	/* Digest based on current developer and recovery mode flags */
+	BOOT_MODE_PCR,
+
+	/* SHA-256 hash digest of HWID, from GBB */
+	HWID_DIGEST_PCR,
 };
 
 /******************************************************************************
@@ -337,6 +349,22 @@ int vb2api_extend_hash(struct vb2_context *ctx,
  * @return VB2_SUCCESS, or error code on error.
  */
 int vb2api_check_hash(struct vb2_context *ctx);
+
+/**
+ * Get a PCR digest
+ *
+ * @param ctx		Vboot context
+ * @param which_digest	PCR index of the digest
+ * @param dest		Destination where the digest is copied.
+ * 			Recommended size is VB2_PCR_DIGEST_RECOMMENDED_SIZE.
+ * @param dest_size	IN: size of the buffer pointed by dest
+ * 			OUT: size of the copied digest
+ * @return VB2_SUCCESS, or error code on error
+ */
+int vb2api_get_pcr_digest(struct vb2_context *ctx,
+			  enum vb2_pcr_digest which_digest,
+			  uint8_t *dest,
+			  uint32_t *dest_size);
 
 /*****************************************************************************/
 /* APIs provided by the caller to verified boot */

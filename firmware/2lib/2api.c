@@ -14,6 +14,7 @@
 #include "2secdata.h"
 #include "2sha.h"
 #include "2rsa.h"
+#include "2tpm_bootmode.h"
 
 int vb2api_secdata_check(const struct vb2_context *ctx)
 {
@@ -122,4 +123,34 @@ int vb2api_extend_hash(struct vb2_context *ctx,
 		return vb2ex_hwcrypto_digest_extend(buf, size);
 	else
 		return vb2_digest_extend(dc, buf, size);
+}
+
+int vb2api_get_pcr_digest(struct vb2_context *ctx,
+			  enum vb2_pcr_digest which_digest,
+			  uint8_t *dest,
+			  uint32_t *dest_size)
+{
+	const uint8_t *digest;
+	uint32_t digest_size;
+
+	switch (which_digest) {
+	case BOOT_MODE_PCR:
+		digest = vb2_get_boot_state_digest(ctx);
+		digest_size = VB2_SHA1_DIGEST_SIZE;
+		break;
+	case HWID_DIGEST_PCR:
+		digest = vb2_get_sd(ctx)->gbb_hwid_digest;
+		digest_size = VB2_GBB_HWID_DIGEST_SIZE;
+		break;
+	default:
+		return VB2_ERROR_API_PCR_DIGEST;
+	}
+
+	if (digest == NULL || *dest_size < digest_size)
+		return VB2_ERROR_API_PCR_DIGEST_BUF;
+
+	memcpy(dest, digest, digest_size);
+	*dest_size = digest_size;
+
+	return VB2_SUCCESS;
 }

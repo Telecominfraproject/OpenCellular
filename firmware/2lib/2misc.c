@@ -196,6 +196,7 @@ int vb2_fw_parse_gbb(struct vb2_context *ctx)
 	sd->gbb_flags = gbb->flags;
 	sd->gbb_rootkey_offset = gbb->rootkey_offset;
 	sd->gbb_rootkey_size = gbb->rootkey_size;
+	memcpy(sd->gbb_hwid_digest, gbb->hwid_digest, VB2_GBB_HWID_DIGEST_SIZE);
 
 	return VB2_SUCCESS;
 }
