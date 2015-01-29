@@ -84,7 +84,8 @@ static void reset_common_data(enum reset_type t)
 	mock_verify_preamble_retval = VB2_SUCCESS;
 
 	/* Set up mock data for verifying keyblock */
-	vb2_secdata_set(&ctx, VB2_SECDATA_VERSIONS, 0x20002);
+	sd->fw_version_secdata = 0x20002;
+	vb2_secdata_set(&ctx, VB2_SECDATA_VERSIONS, sd->fw_version_secdata);
 
 	sd->gbb_rootkey_offset = vb2_offset_of(&mock_gbb, &mock_gbb.rootkey);
 	sd->gbb_rootkey_size = sizeof(mock_gbb.rootkey_data);

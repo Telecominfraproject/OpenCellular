@@ -53,6 +53,12 @@ int vb2_secdata_init(struct vb2_context *ctx)
 	if (rv)
 		return rv;
 
+	/* Read this now to make sure crossystem has it even in rec mode. */
+	rv = vb2_secdata_get(ctx, VB2_SECDATA_VERSIONS,
+			     &sd->fw_version_secdata);
+	if (rv)
+		return rv;
+
 	/* Set status flag */
 	sd->status |= VB2_SD_STATUS_SECDATA_INIT;
 	// TODO: unit test for that

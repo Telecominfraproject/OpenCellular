@@ -88,6 +88,9 @@ struct vb2_shared_data {
 	 */
 	uint32_t fw_version;
 
+	/* Version stored in secdata (must be <= fw_version to boot). */
+	uint32_t fw_version_secdata;
+
 	/*
 	 * Status flags for this boot; see enum vb2_shared_data_status.  Status
 	 * is "what we've done"; flags above are "decisions we've made".

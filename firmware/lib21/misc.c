@@ -73,7 +73,6 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	struct vb2_public_key root_key;
 	struct vb2_keyblock *kb;
 
-	uint32_t sec_version;
 	int rv;
 
 	vb2_workbuf_from_ctx(ctx, &wb);
@@ -111,17 +110,12 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	/* Preamble follows the keyblock in the vblock */
 	sd->vblock_preamble_offset = kb->c.total_size;
 
-	/* Read the secure key version */
-	rv = vb2_secdata_get(ctx, VB2_SECDATA_VERSIONS, &sec_version);
-	if (rv)
-		return rv;
-
 	packed_key = (struct vb2_packed_key *)((uint8_t *)kb + kb->key_offset);
 
 	/* Key version is the upper 16 bits of the composite firmware version */
 	if (packed_key->key_version > 0xffff)
 		return VB2_ERROR_FW_KEYBLOCK_VERSION_RANGE;
-	if (packed_key->key_version < (sec_version >> 16))
+	if (packed_key->key_version < (sd->fw_version_secdata >> 16))
 		return VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK;
 
 	sd->fw_version = packed_key->key_version << 16;
@@ -162,7 +156,6 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	/* Preamble goes in the next unused chunk of work buffer */
 	struct vb2_fw_preamble *pre;
 
-	uint32_t sec_version;
 	int rv;
 
 	vb2_workbuf_from_ctx(ctx, &wb);
@@ -196,11 +189,6 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	/* Data key is now gone */
 	sd->workbuf_data_key_offset = sd->workbuf_data_key_size = 0;
 
-	/* Read the secure key version */
-	rv = vb2_secdata_get(ctx, VB2_SECDATA_VERSIONS, &sec_version);
-	if (rv)
-		return rv;
-
 	/*
 	 * Firmware version is the lower 16 bits of the composite firmware
 	 * version.
@@ -210,7 +198,7 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 
 	/* Combine with the key version from vb2_load_fw_keyblock() */
 	sd->fw_version |= pre->fw_version;
-	if (sd->fw_version < sec_version)
+	if (sd->fw_version < sd->fw_version_secdata)
 		return VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
 
 	/*
@@ -218,10 +206,11 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	 * successfully booted the same slot last boot, roll forward the
 	 * version in secure storage.
 	 */
-	if (sd->fw_version > sec_version &&
+	if (sd->fw_version > sd->fw_version_secdata &&
 	    sd->last_fw_slot == sd->fw_slot &&
 	    sd->last_fw_result == VB2_FW_RESULT_SUCCESS) {
 
+		sd->fw_version_secdata = sd->fw_version;
 		rv = vb2_secdata_set(ctx, VB2_SECDATA_VERSIONS, sd->fw_version);
 		if (rv)
 			return rv;
