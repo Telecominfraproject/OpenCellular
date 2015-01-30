@@ -10,6 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "file_type.h"
 #include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
@@ -700,4 +701,39 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 	if (blob_size_ptr)
 		*blob_size_ptr = g_kernel_blob_size;
 	return g_kernel_blob_data;
+}
+
+enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len)
+{
+	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
+	VbPublicKey *pubkey = (VbPublicKey *)buf;
+	VbFirmwarePreambleHeader *fw_preamble;
+	VbKernelPreambleHeader *kern_preamble;
+	RSAPublicKey *rsa;
+
+	if (VBOOT_SUCCESS == KeyBlockVerify(key_block, len, NULL, 1)) {
+		rsa = PublicKeyToRSA(&key_block->data_key);
+		uint32_t more = key_block->key_block_size;
+
+		/* and firmware preamble too? */
+		fw_preamble = (VbFirmwarePreambleHeader *)(buf + more);
+		if (VBOOT_SUCCESS ==
+		    VerifyFirmwarePreamble(fw_preamble, len - more, rsa))
+			return FILE_TYPE_FW_PREAMBLE;
+
+		/* or maybe kernel preamble? */
+		kern_preamble = (VbKernelPreambleHeader *)(buf + more);
+		if (VBOOT_SUCCESS ==
+		    VerifyKernelPreamble(kern_preamble, len - more, rsa))
+			return FILE_TYPE_KERN_PREAMBLE;
+
+		/* no, just keyblock */
+		return FILE_TYPE_KEYBLOCK;
+	}
+
+	/* Maybe just a VbPublicKey? */
+	if (PublicKeyLooksOkay(pubkey, len))
+		return FILE_TYPE_PUBKEY;
+
+	return FILE_TYPE_UNKNOWN;
 }

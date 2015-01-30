@@ -17,6 +17,7 @@
 #include <unistd.h>
 
 #include "bmpblk_header.h"
+#include "file_type.h"
 #include "fmap.h"
 #include "futility.h"
 #include "gbb_header.h"
@@ -38,6 +39,7 @@ static struct local_data_s {
 	uint64_t fv_size;
 	uint32_t padding;
 	int strict;
+	int t_flag;
 } option = {
 	.padding = 65536,
 };
@@ -505,7 +507,7 @@ enum no_short_opts {
 };
 
 static const char usage[] = "\n"
-	"Usage:  " MYNAME " %s [OPTIONS] FILE\n"
+	"Usage:  " MYNAME " %s [OPTIONS] FILE [...]\n"
 	"\n"
 	"Where FILE could be a\n"
 	"\n"
@@ -516,6 +518,7 @@ static const char usage[] = "\n"
 	"  kernel partition (/dev/sda2, /dev/mmcblk0p2)\n"
 	"\n"
 	"Options:\n"
+	"  -t                               Just show the type of each file\n"
 	"  -k|--publickey   FILE"
 	"            Use this public key for validation\n"
 	"  -f|--fv          FILE            Verify this payload (FW_MAIN_A/B)\n"
@@ -544,7 +547,34 @@ static const struct option long_opts[] = {
 	{"debug",       0, &debugging_enabled, 1},
 	{NULL, 0, NULL, 0},
 };
-static char *short_opts = ":f:k:";
+static char *short_opts = ":f:k:t";
+
+
+static void show_type(char *filename)
+{
+	enum futil_file_err err;
+	enum futil_file_type type;
+	err = futil_file_type(filename, &type);
+	switch (err) {
+	case FILE_ERR_NONE:
+		printf("%s:\t%s\n", filename, futil_file_type_str(type));
+		break;
+	case FILE_ERR_DIR:
+		printf("%s:\t%s\n", filename, "directory");
+		break;
+	case FILE_ERR_CHR:
+		printf("%s:\t%s\n", filename, "character special");
+		break;
+	case FILE_ERR_FIFO:
+		printf("%s:\t%s\n", filename, "FIFO");
+		break;
+	case FILE_ERR_SOCK:
+		printf("%s:\t%s\n", filename, "socket");
+		break;
+	default:
+		break;
+	}
+}
 
 static int do_show(int argc, char *argv[])
 {
@@ -573,6 +603,9 @@ static int do_show(int argc, char *argv[])
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
+			break;
+		case 't':
+			option.t_flag = 1;
 			break;
 		case OPT_PADDING:
 			option.padding = strtoul(optarg, &e, 0);
@@ -613,6 +646,12 @@ static int do_show(int argc, char *argv[])
 		return 1;
 	}
 
+	if (option.t_flag) {
+		for (i = optind; i < argc; i++)
+			show_type(argv[i]);
+		goto done;
+	}
+
 	for (i = optind; i < argc; i++) {
 		infile = argv[i];
 		ifd = open(infile, O_RDONLY);
@@ -646,6 +685,7 @@ boo:
 		}
 	}
 
+done:
 	if (option.k)
 		free(option.k);
 	if (option.fv)

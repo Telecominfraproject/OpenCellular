@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "file_type.h"
 #include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
@@ -464,7 +465,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		/* Make sure we have a kernel partition */
 		if (FILE_TYPE_KERN_PREAMBLE !=
-		    futil_what_file_type_buf(kpart_data, kpart_size))
+		    futil_file_type_buf(kpart_data, kpart_size))
 			Fatal("%s is not a kernel blob\n", oldfile);
 
 		kblob_data = UnpackKPart(kpart_data, kpart_size, opt_pad,

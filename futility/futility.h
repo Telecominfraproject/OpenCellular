@@ -85,11 +85,29 @@ int print_hwid_digest(GoogleBinaryBlockHeader *gbb,
 /* Copies a file or dies with an error message */
 void futil_copy_file_or_die(const char *infile, const char *outfile);
 
-/* Wrapper for mmap/munmap. Returns 0 on success. Skips stupidly large files. */
+/* Possible file operation errors */
+enum futil_file_err {
+	FILE_ERR_NONE,
+	FILE_ERR_STAT,
+	FILE_ERR_SIZE,
+	FILE_ERR_MMAP,
+	FILE_ERR_MSYNC,
+	FILE_ERR_MUNMAP,
+	FILE_ERR_OPEN,
+	FILE_ERR_CLOSE,
+	FILE_ERR_DIR,
+	FILE_ERR_CHR,
+	FILE_ERR_FIFO,
+	FILE_ERR_SOCK,
+};
+
+/* Wrapper for mmap/munmap. Skips stupidly large files. */
 #define MAP_RO 0
 #define MAP_RW 1
-int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len);
-int futil_unmap_file(int fd, int writeable, uint8_t *buf, uint32_t len);
+enum futil_file_err futil_map_file(int fd, int writeable,
+				   uint8_t **buf, uint32_t *len);
+enum futil_file_err futil_unmap_file(int fd, int writeable,
+				     uint8_t *buf, uint32_t len);
 
 /* The CPU architecture is occasionally important */
 enum arch_t {

@@ -8,27 +8,6 @@
 #include <stdint.h>
 
 
-/* What type of things do I know how to handle? */
-enum futil_file_type {
-	FILE_TYPE_UNKNOWN,
-	FILE_TYPE_PUBKEY,			/* 1 VbPublicKey */
-	FILE_TYPE_KEYBLOCK,			/* 2 VbKeyBlockHeader */
-	FILE_TYPE_FW_PREAMBLE,			/* 3 VbFirmwarePreambleHeader */
-	FILE_TYPE_GBB,				/* 4 GoogleBinaryBlockHeader */
-	FILE_TYPE_BIOS_IMAGE,			/* 5 Chrome OS BIOS image */
-	FILE_TYPE_OLD_BIOS_IMAGE,		/* 6 Old Chrome OS BIOS image */
-	FILE_TYPE_KERN_PREAMBLE,		/* 7 VbKernelPreambleHeader */
-
-	/* These are FILE_TYPE_UNKNOWN, but we've been told more about them */
-	FILE_TYPE_RAW_FIRMWARE,			/* 8 FW_MAIN_A, etc. */
-	FILE_TYPE_RAW_KERNEL,			/* 9 vmlinuz, *.uimg, etc. */
-
-	NUM_FILE_TYPES
-};
-
-/* Names for them */
-extern const char * const futil_file_type_str[];
-
 /* What are we trying to accomplish? */
 enum futil_op_type {
 	FUTIL_OP_SHOW,
@@ -89,18 +68,6 @@ struct futil_traverse_state_s {
 	int errors;
 };
 
-
-/*
- * This tries to match the buffer content to one of the known file types.
- */
-enum futil_file_type futil_what_file_type_buf(uint8_t *buf, uint32_t len);
-
-/*
- * This opens a file and tries to match it to one of the known file types. It
- * fails only if it can't open and scan the file. It's not an error if it
- * returns FILE_TYPE_UKNOWN.
- */
-enum futil_file_type futil_what_file_type(const char *filename);
 
 /*
  * Traverse the buffer using the provided state, which should be initialized

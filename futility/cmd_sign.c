@@ -18,6 +18,7 @@
 #include <unistd.h>
 
 #include "bmpblk_header.h"
+#include "file_type.h"
 #include "fmap.h"
 #include "futility.h"
 #include "gbb_header.h"
@@ -889,7 +890,10 @@ static int do_sign(int argc, char *argv[])
 	}
 
 	/* What are we looking at? */
-	type = futil_what_file_type(infile);
+	if (futil_file_type(infile, &type)) {
+		errorcnt++;
+		goto done;
+	}
 
 	/* We may be able to infer the type based on the other args */
 	if (type == FILE_TYPE_UNKNOWN) {
@@ -900,7 +904,7 @@ static int do_sign(int argc, char *argv[])
 			type = FILE_TYPE_RAW_FIRMWARE;
 	}
 
-	Debug("type=%s\n", futil_file_type_str[type]);
+	Debug("type=%s\n", futil_file_type_str(type));
 
 	/* Check the arguments for the type of thing we want to sign */
 	switch (type) {
@@ -971,6 +975,11 @@ static int do_sign(int argc, char *argv[])
 		errorcnt += no_opt_if(!option.bootloader_data, "bootloader");
 		errorcnt += no_opt_if(!option.config_data, "config");
 		errorcnt += no_opt_if(option.arch == ARCH_UNSPECIFIED, "arch");
+		break;
+	case FILE_TYPE_CHROMIUMOS_DISK:
+		fprintf(stderr, "Signing a %s is not yet supported\n",
+			futil_file_type_str(type));
+		errorcnt++;
 		break;
 	default:
 		DIE;

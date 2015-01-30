@@ -18,6 +18,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "cgptlib_internal.h"
+#include "file_type.h"
 #include "futility.h"
 #include "gbb_header.h"
 
@@ -49,17 +51,19 @@ static inline uint32_t max(uint32_t a, uint32_t b)
 	return a > b ? a : b;
 }
 
-int futil_looks_like_gbb(GoogleBinaryBlockHeader *gbb, uint32_t len)
+enum futil_file_type recognize_gbb(uint8_t *buf, uint32_t len)
 {
+	GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)buf;
+
 	if (memcmp(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE))
-		return 0;
+		return FILE_TYPE_UNKNOWN;
 	if (gbb->major_version > GBB_MAJOR_VER)
-		return 0;
+		return FILE_TYPE_UNKNOWN;
 	if (sizeof(GoogleBinaryBlockHeader) > len)
-		return 0;
+		return FILE_TYPE_UNKNOWN;
 
 	/* close enough */
-	return 1;
+	return FILE_TYPE_GBB;
 }
 
 int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
@@ -221,7 +225,8 @@ void futil_copy_file_or_die(const char *infile, const char *outfile)
 }
 
 
-int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len)
+enum futil_file_err futil_map_file(int fd, int writeable,
+				   uint8_t **buf, uint32_t *len)
 {
 	struct stat sb;
 	void *mmap_ptr;
@@ -230,7 +235,7 @@ int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len)
 	if (0 != fstat(fd, &sb)) {
 		fprintf(stderr, "Can't stat input file: %s\n",
 			strerror(errno));
-		return 1;
+		return FILE_ERR_STAT;
 	}
 
 	if (S_ISBLK(sb.st_mode))
@@ -239,7 +244,7 @@ int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len)
 	/* If the image is larger than 2^32 bytes, it's wrong. */
 	if (sb.st_size < 0 || sb.st_size > UINT32_MAX) {
 		fprintf(stderr, "Image size is unreasonable\n");
-		return 1;
+		return FILE_ERR_SIZE;
 	}
 	reasonable_len = (uint32_t)sb.st_size;
 
@@ -254,30 +259,60 @@ int futil_map_file(int fd, int writeable, uint8_t **buf, uint32_t *len)
 		fprintf(stderr, "Can't mmap %s file: %s\n",
 			writeable ? "output" : "input",
 			strerror(errno));
-		return 1;
+		return FILE_ERR_MMAP;
 	}
 
 	*buf = (uint8_t *)mmap_ptr;
 	*len = reasonable_len;
-	return 0;
+	return FILE_ERR_NONE;
 }
 
-int futil_unmap_file(int fd, int writeable, uint8_t *buf, uint32_t len)
+enum futil_file_err futil_unmap_file(int fd, int writeable,
+				     uint8_t *buf, uint32_t len)
 {
 	void *mmap_ptr = buf;
-	int errorcnt = 0;
+	enum futil_file_err err = FILE_ERR_NONE;
 
 	if (writeable &&
 	    (0 != msync(mmap_ptr, len, MS_SYNC|MS_INVALIDATE))) {
 		fprintf(stderr, "msync failed: %s\n", strerror(errno));
-		errorcnt++;
+		err = FILE_ERR_MSYNC;
 	}
 
 	if (0 != munmap(mmap_ptr, len)) {
 		fprintf(stderr, "Can't munmap pointer: %s\n",
 			strerror(errno));
-		errorcnt++;
+		if (err == FILE_ERR_NONE)
+			err = FILE_ERR_MUNMAP;
 	}
 
-	return errorcnt;
+	return err;
+}
+
+
+#define DISK_SECTOR_SIZE 512
+enum futil_file_type recognize_gpt(uint8_t *buf, uint32_t len)
+{
+	GptHeader *h;
+
+	/* GPT header starts at sector 1, is one sector long */
+	if (len < 2 * DISK_SECTOR_SIZE)
+		return FILE_TYPE_UNKNOWN;
+
+	h = (GptHeader *)(buf + DISK_SECTOR_SIZE);
+
+	if (memcmp(h->signature, GPT_HEADER_SIGNATURE,
+		   GPT_HEADER_SIGNATURE_SIZE) &&
+	    memcmp(h->signature, GPT_HEADER_SIGNATURE2,
+		   GPT_HEADER_SIGNATURE_SIZE))
+		return FILE_TYPE_UNKNOWN;
+	if (h->revision != GPT_HEADER_REVISION)
+		return FILE_TYPE_UNKNOWN;
+	if (h->size < MIN_SIZE_OF_HEADER || h->size > MAX_SIZE_OF_HEADER)
+		return FILE_TYPE_UNKNOWN;
+
+	if (HeaderCrc(h) != h->header_crc32)
+		return FILE_TYPE_UNKNOWN;
+
+	return FILE_TYPE_CHROMIUMOS_DISK;
 }

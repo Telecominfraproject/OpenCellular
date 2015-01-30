@@ -4,20 +4,12 @@
  * found in the LICENSE file.
  */
 
-#include <errno.h>
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
 
+#include "file_type.h"
 #include "fmap.h"
 #include "futility.h"
-#include "gbb_header.h"
-#include "host_common.h"
-#include "host_key.h"
 #include "traversal.h"
 
 /* What functions do we invoke for a particular operation and component? */
@@ -84,6 +76,7 @@ static const struct {
 	{CB_KERN_PREAMBLE, "Kernel Preamble"},	/* FILE_TYPE_KERN_PREAMBLE */
 	{CB_RAW_FIRMWARE,  "raw firmware"},	/* FILE_TYPE_RAW_FIRMWARE */
 	{CB_RAW_KERNEL,    "raw kernel"},	/* FILE_TYPE_RAW_KERNEL */
+	{0,                "chromiumos disk"},	/* FILE_TYPE_CHROMIUMOS_DISK */
 };
 BUILD_ASSERT(ARRAY_SIZE(direct_callback) == NUM_FILE_TYPES);
 
@@ -116,7 +109,6 @@ static const struct bios_area_s old_bios_area[] = {
 	{0, 0}
 };
 
-
 static int has_all_areas(uint8_t *buf, uint32_t len, FmapHeader *fmap,
 			 const struct bios_area_s *area)
 {
@@ -129,19 +121,17 @@ static int has_all_areas(uint8_t *buf, uint32_t len, FmapHeader *fmap,
 	return 1;
 }
 
-const char * const futil_file_type_str[] = {
-	"FILE_TYPE_UNKNOWN",
-	"FILE_TYPE_PUBKEY",
-	"FILE_TYPE_KEYBLOCK",
-	"FILE_TYPE_FW_PREAMBLE",
-	"FILE_TYPE_GBB",
-	"FILE_TYPE_BIOS_IMAGE",
-	"FILE_TYPE_OLD_BIOS_IMAGE",
-	"FILE_TYPE_KERN_PREAMBLE",
-	"FILE_TYPE_RAW_FIRMWARE",
-	"FILE_TYPE_RAW_KERNEL",
-};
-BUILD_ASSERT(ARRAY_SIZE(futil_file_type_str) == NUM_FILE_TYPES);
+enum futil_file_type recognize_bios_image(uint8_t *buf, uint32_t len)
+{
+	FmapHeader *fmap = fmap_find(buf, len);
+	if (fmap) {
+		if (has_all_areas(buf, len, fmap, bios_area))
+			return FILE_TYPE_BIOS_IMAGE;
+		if (has_all_areas(buf, len, fmap, old_bios_area))
+			return FILE_TYPE_OLD_BIOS_IMAGE;
+	}
+	return FILE_TYPE_UNKNOWN;
+}
 
 const char * const futil_cb_component_str[] = {
 	"CB_BEGIN_TRAVERSAL",
@@ -191,93 +181,6 @@ static int invoke_callback(struct futil_traverse_state_s *state,
 	return 0;
 }
 
-enum futil_file_type futil_what_file_type_buf(uint8_t *buf, uint32_t len)
-{
-	VbPublicKey *pubkey = (VbPublicKey *)buf;
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
-	GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)buf;
-	VbFirmwarePreambleHeader *fw_preamble;
-	VbKernelPreambleHeader *kern_preamble;
-	RSAPublicKey *rsa;
-	FmapHeader *fmap;
-
-	/*
-	 * Complex structs may begin with simpler structs first, so try them
-	 * in reverse order.
-	 */
-
-	fmap = fmap_find(buf, len);
-	if (fmap) {
-		if (has_all_areas(buf, len, fmap, bios_area))
-			return FILE_TYPE_BIOS_IMAGE;
-		if (has_all_areas(buf, len, fmap, old_bios_area))
-			return FILE_TYPE_OLD_BIOS_IMAGE;
-	}
-
-	if (futil_looks_like_gbb(gbb, len))
-		return FILE_TYPE_GBB;
-
-	if (VBOOT_SUCCESS == KeyBlockVerify(key_block, len, NULL, 1)) {
-		rsa = PublicKeyToRSA(&key_block->data_key);
-		uint32_t more = key_block->key_block_size;
-
-		/* and firmware preamble too? */
-		fw_preamble = (VbFirmwarePreambleHeader *)(buf + more);
-		if (VBOOT_SUCCESS ==
-		    VerifyFirmwarePreamble(fw_preamble, len - more, rsa))
-			return FILE_TYPE_FW_PREAMBLE;
-
-		/* or maybe kernel preamble? */
-		kern_preamble = (VbKernelPreambleHeader *)(buf + more);
-		if (VBOOT_SUCCESS ==
-		    VerifyKernelPreamble(kern_preamble, len - more, rsa))
-			return FILE_TYPE_KERN_PREAMBLE;
-
-		/* no, just keyblock */
-		return FILE_TYPE_KEYBLOCK;
-	}
-
-	if (PublicKeyLooksOkay(pubkey, len))
-		return FILE_TYPE_PUBKEY;
-
-	return FILE_TYPE_UNKNOWN;
-}
-
-enum futil_file_type futil_what_file_type(const char *filename)
-{
-	enum futil_file_type type;
-	int ifd;
-	uint8_t *buf;
-	uint32_t buf_len;
-
-	ifd = open(filename, O_RDONLY);
-	if (ifd < 0) {
-		fprintf(stderr, "Can't open %s: %s\n",
-			filename, strerror(errno));
-		exit(1);
-	}
-
-	if (0 != futil_map_file(ifd, MAP_RO, &buf, &buf_len)) {
-		close(ifd);
-		exit(1);
-	}
-
-	type = futil_what_file_type_buf(buf, buf_len);
-
-	if (0 != futil_unmap_file(ifd, MAP_RO, buf, buf_len)) {
-		close(ifd);
-		exit(1);
-	}
-
-	if (close(ifd)) {
-		fprintf(stderr, "Error when closing %s: %s\n",
-			filename, strerror(errno));
-		exit(1);
-	}
-
-	return type;
-}
-
 int futil_traverse(uint8_t *buf, uint32_t len,
 		   struct futil_traverse_state_s *state,
 		   enum futil_file_type type)
@@ -293,7 +196,7 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 	}
 
 	if (type == FILE_TYPE_UNKNOWN)
-		type = futil_what_file_type_buf(buf, len);
+		type = futil_file_type_buf(buf, len);
 	state->in_type = type;
 
 	state->errors = retval;
@@ -302,20 +205,6 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 	state->errors = retval;
 
 	switch (type) {
-	case FILE_TYPE_PUBKEY:
-	case FILE_TYPE_KEYBLOCK:
-	case FILE_TYPE_FW_PREAMBLE:
-	case FILE_TYPE_GBB:
-	case FILE_TYPE_KERN_PREAMBLE:
-	case FILE_TYPE_RAW_FIRMWARE:
-	case FILE_TYPE_RAW_KERNEL:
-		retval |= invoke_callback(state,
-					  direct_callback[type].component,
-					  direct_callback[type].name,
-					  0, buf, len);
-		state->errors = retval;
-		break;
-
 	case FILE_TYPE_BIOS_IMAGE:
 		/* We've already checked, so we know this will work. */
 		fmap = fmap_find(buf, len);
@@ -349,9 +238,12 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 		break;
 
 	default:
-		Debug("%s:%d unhandled type %s\n", __FILE__, __LINE__,
-		      futil_file_type_str[type]);
-		retval = 1;
+		retval |= invoke_callback(state,
+					  direct_callback[type].component,
+					  direct_callback[type].name,
+					  0, buf, len);
+		state->errors = retval;
+		break;
 	}
 
 	retval |= invoke_callback(state, CB_END_TRAVERSAL, "<end>",
