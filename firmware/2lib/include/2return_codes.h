@@ -105,6 +105,12 @@ enum vb2_return_code {
 	/* Invalid flags passed to vb2_secdata_set() */
 	VB2_ERROR_SECDATA_SET_FLAGS,
 
+	/* Called vb2_secdata_get() with uninitialized secdata */
+	VB2_ERROR_SECDATA_GET_UNINITIALIZED,
+
+	/* Called vb2_secdata_set() with uninitialized secdata */
+	VB2_ERROR_SECDATA_SET_UNINITIALIZED,
+
         /**********************************************************************
 	 * Common code errors
 	 */

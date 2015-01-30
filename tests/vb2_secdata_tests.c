@@ -15,6 +15,7 @@
 
 #include "2common.h"
 #include "2api.h"
+#include "2misc.h"
 #include "2secdata.h"
 
 static void test_changed(struct vb2_context *ctx, int changed, const char *why)
@@ -36,7 +37,6 @@ static void secdata_test(void)
 		.workbuf = workbuf,
 		.workbuf_size = sizeof(workbuf),
 	};
-	struct vb2_secdata *s = (struct vb2_secdata *)c.secdata;
 	uint32_t v = 1;
 
 	/* Blank data is invalid */
@@ -58,12 +58,6 @@ static void secdata_test(void)
 		VB2_ERROR_SECDATA_CRC, "Check invalid CRC");
 	TEST_EQ(vb2_secdata_init(&c),
 		 VB2_ERROR_SECDATA_CRC, "Init invalid CRC");
-
-	/* Version 1 didn't have a CRC, so init should reject it */
-	vb2_secdata_create(&c);
-	s->struct_version = 1;
-	TEST_EQ(vb2_secdata_init(&c),
-		VB2_ERROR_SECDATA_VERSION, "Init old version");
 
 	vb2_secdata_create(&c);
 	c.flags = 0;
@@ -102,6 +96,15 @@ static void secdata_test(void)
 	TEST_EQ(vb2_secdata_set(&c, -1, 456),
 		VB2_ERROR_SECDATA_SET_PARAM, "Set invalid");
 	test_changed(&c, 0, "Set invalid field doesn't change data");
+
+	/* Read/write uninitialized data fails */
+	vb2_get_sd(&c)->status &= ~VB2_SD_STATUS_SECDATA_INIT;
+	TEST_EQ(vb2_secdata_get(&c, VB2_SECDATA_VERSIONS, &v),
+		VB2_ERROR_SECDATA_GET_UNINITIALIZED, "Get uninitialized");
+	test_changed(&c, 0, "Get uninitialized doesn't change data");
+	TEST_EQ(vb2_secdata_set(&c, VB2_SECDATA_VERSIONS, 0x123456ff),
+		VB2_ERROR_SECDATA_SET_UNINITIALIZED, "Set uninitialized");
+	test_changed(&c, 0, "Set uninitialized doesn't change data");
 }
 
 int main(int argc, char* argv[])

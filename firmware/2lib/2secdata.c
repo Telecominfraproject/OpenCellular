@@ -42,26 +42,21 @@ int vb2_secdata_create(struct vb2_context *ctx)
 int vb2_secdata_init(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
-	struct vb2_secdata *sec = (struct vb2_secdata *)ctx->secdata;
 	int rv;
 
-	/* Data must be new enough to have a CRC */
-	if (sec->struct_version < 2)
-		return VB2_ERROR_SECDATA_VERSION;
-
 	rv = vb2_secdata_check_crc(ctx);
-	if (rv)
-		return rv;
-
-	/* Read this now to make sure crossystem has it even in rec mode. */
-	rv = vb2_secdata_get(ctx, VB2_SECDATA_VERSIONS,
-			     &sd->fw_version_secdata);
 	if (rv)
 		return rv;
 
 	/* Set status flag */
 	sd->status |= VB2_SD_STATUS_SECDATA_INIT;
 	// TODO: unit test for that
+
+	/* Read this now to make sure crossystem has it even in rec mode. */
+	rv = vb2_secdata_get(ctx, VB2_SECDATA_VERSIONS,
+			     &sd->fw_version_secdata);
+	if (rv)
+		return rv;
 
 	return VB2_SUCCESS;
 }
@@ -71,6 +66,9 @@ int vb2_secdata_get(struct vb2_context *ctx,
 		    uint32_t *dest)
 {
 	struct vb2_secdata *sec = (struct vb2_secdata *)ctx->secdata;
+
+	if (!(vb2_get_sd(ctx)->status & VB2_SD_STATUS_SECDATA_INIT))
+		return VB2_ERROR_SECDATA_GET_UNINITIALIZED;
 
 	switch(param) {
 	case VB2_SECDATA_FLAGS:
@@ -92,6 +90,9 @@ int vb2_secdata_set(struct vb2_context *ctx,
 {
 	struct vb2_secdata *sec = (struct vb2_secdata *)ctx->secdata;
 	uint32_t now;
+
+	if (!(vb2_get_sd(ctx)->status & VB2_SD_STATUS_SECDATA_INIT))
+		return VB2_ERROR_SECDATA_SET_UNINITIALIZED;
 
 	/* If not changing the value, don't regenerate the CRC. */
 	if (vb2_secdata_get(ctx, param, &now) == VB2_SUCCESS && now == value)
