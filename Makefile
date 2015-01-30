@@ -1378,9 +1378,11 @@ TEST_DEPS += ${TEST_OBJS:%.o=%.o.d}
 # paths inside and outside the chroot are different.
 SRCDIRPAT=$(subst /,\/,${SRCDIR}/)
 
+# Note: vboot 2.0 is deprecated, so don't index those files
 ${BUILD}/cscope.files: test_setup
 	${Q}rm -f $@
 	${Q}cat ${ALL_DEPS} | tr -d ':\\' | tr ' ' '\012' | \
+		grep -v /lib20/ | \
 		sed -e "s/${SRCDIRPAT}//" | \
 		egrep '\.[chS]$$' | sort | uniq > $@
 
