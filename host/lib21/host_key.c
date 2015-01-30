@@ -144,13 +144,15 @@ int vb2_private_key_read_pem(struct vb2_private_key **key_ptr,
 		return VB2_ERROR_READ_PEM_ALLOC;
 
 	/* Read private key */
-	f = fopen(filename, "r");
+	f = fopen(filename, "rb");
 	if (!f) {
 		free(key);
 		return VB2_ERROR_READ_PEM_FILE_OPEN;
 	}
 
 	key->rsa_private_key = PEM_read_RSAPrivateKey(f, NULL, NULL, NULL);
+	fclose(f);
+
 	if (!key->rsa_private_key) {
 		free(key);
 		return VB2_ERROR_READ_PEM_RSA;
