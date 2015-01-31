@@ -69,6 +69,9 @@ enum futil_file_type recognize_gbb(uint8_t *buf, uint32_t len)
 int futil_valid_gbb_header(GoogleBinaryBlockHeader *gbb, uint32_t len,
 			   uint32_t *maxlen_ptr)
 {
+	if (len < sizeof(GoogleBinaryBlockHeader))
+		return 0;
+
 	if (memcmp(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE))
 		return 0;
 	if (gbb->major_version != GBB_MAJOR_VER)

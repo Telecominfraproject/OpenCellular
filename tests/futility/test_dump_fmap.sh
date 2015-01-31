@@ -24,6 +24,9 @@ cmp "${SCRIPTDIR}/data_fmap_expect_h.txt" "$TMP"
 # contain the stuff that the FMAP claims it does.
 if "$FUTILITY" dump_fmap -x "${SCRIPTDIR}/data_fmap.bin" FMAP; then false; fi
 
+# This should fail too
+if "$FUTILITY" show "${SCRIPTDIR}/data_fmap.bin"; then false; fi
+
 # However, this should work.
 "$FUTILITY" dump_fmap -x "${SCRIPTDIR}/data_fmap.bin" SI_DESC > "$TMP"
 cmp "${SCRIPTDIR}/data_fmap_expect_x.txt" "$TMP"

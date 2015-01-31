@@ -39,10 +39,6 @@ enum futil_cb_component {
 	NUM_CB_COMPONENTS
 };
 
-/* Names for them */
-extern const char * const futil_cb_component_str[];
-
-
 /* Where is the component we're poking at? */
 struct cb_area_s {
 	uint32_t offset;			/* to avoid pointer math */

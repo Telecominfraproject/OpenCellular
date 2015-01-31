@@ -115,6 +115,13 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 	int retval = 0;
 	uint32_t maxlen = 0;
 
+	if (!len) {
+		printf("GBB header:              %s <invalid>\n",
+		       state->component == CB_GBB ?
+		       state->in_filename : state->name);
+		return 1;
+	}
+
 	/* It looks like a GBB or we wouldn't be called. */
 	if (!futil_valid_gbb_header(gbb, len, &maxlen))
 		retval = 1;
@@ -234,6 +241,11 @@ int futil_cb_show_keyblock(struct futil_traverse_state_s *state)
  */
 int futil_cb_show_fw_main(struct futil_traverse_state_s *state)
 {
+	if (!state->my_area->len) {
+		printf("Firmware body:           %s <invalid>\n", state->name);
+		return 1;
+	}
+
 	printf("Firmware body:           %s\n", state->name);
 	printf("  Offset:                0x%08x\n", state->my_area->offset);
 	printf("  Size:                  0x%08x\n", state->my_area->len);

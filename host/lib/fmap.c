@@ -65,4 +65,3 @@ uint8_t *fmap_find_by_name(uint8_t *ptr, size_t size, FmapHeader *fmap,
 
 	return NULL;
 }
-

@@ -133,7 +133,7 @@ enum futil_file_type recognize_bios_image(uint8_t *buf, uint32_t len)
 	return FILE_TYPE_UNKNOWN;
 }
 
-const char * const futil_cb_component_str[] = {
+static const char * const futil_cb_component_str[] = {
 	"CB_BEGIN_TRAVERSAL",
 	"CB_END_TRAVERSAL",
 	"CB_FMAP_GBB",
@@ -175,10 +175,20 @@ static int invoke_callback(struct futil_traverse_state_s *state,
 
 	if (cb_func[state->op][c])
 		return cb_func[state->op][c](state);
-	else
-		Debug("<no callback registered>\n");
 
 	return 0;
+}
+
+static void fmap_limit_area(FmapAreaHeader *ah, uint32_t len)
+{
+	uint32_t sum = ah->area_offset + ah->area_size;
+	if (sum < ah->area_size || sum > len) {
+		Debug("%s(%s) 0x%x + 0x%x > 0x%x\n",
+		      __func__, ah->area_name,
+		      ah->area_offset, ah->area_size, len);
+		ah->area_offset = 0;
+		ah->area_size = 0;
+	}
 }
 
 int futil_traverse(uint8_t *buf, uint32_t len,
@@ -211,6 +221,8 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 		for (area = bios_area; area->name; area++) {
 			/* We know this will work, too */
 			fmap_find_by_name(buf, len, fmap, area->name, &ah);
+			/* But the file might be truncated */
+			fmap_limit_area(ah, len);
 			retval |= invoke_callback(state,
 						  area->component,
 						  area->name,
@@ -227,6 +239,8 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 		for (area = old_bios_area; area->name; area++) {
 			/* We know this will work, too */
 			fmap_find_by_name(buf, len, fmap, area->name, &ah);
+			/* But the file might be truncated */
+			fmap_limit_area(ah, len);
 			retval |= invoke_callback(state,
 						  area->component,
 						  area->name,
@@ -237,7 +251,13 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 		}
 		break;
 
+	case FILE_TYPE_UNKNOWN:
+	case FILE_TYPE_CHROMIUMOS_DISK:
+		/* Nothing to do for these file types (yet) */
+		break;
+
 	default:
+		/* All other file types have their own callbacks */
 		retval |= invoke_callback(state,
 					  direct_callback[type].component,
 					  direct_callback[type].name,
