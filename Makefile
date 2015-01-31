@@ -1375,6 +1375,8 @@ endif
 # Include generated dependencies
 ALL_DEPS += ${ALL_OBJS:%.o=%.o.d}
 TEST_DEPS += ${TEST_OBJS:%.o=%.o.d}
+-include ${ALL_DEPS}
+-include ${TEST_DEPS}
 
 # We want to use only relative paths in cscope.files, especially since the
 # paths inside and outside the chroot are different.
