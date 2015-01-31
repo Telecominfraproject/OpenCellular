@@ -29,6 +29,12 @@ PREAMBLE_FLAG=$9
 LOEM_OUTPUT_DIR=${10}
 LOEMID=${11}
 
+if [ ! -e $DEV_FIRMWARE_KEYBLOCK ] || [ ! -e $DEV_FIRMWARE_DATAKEY ] ; then
+  echo "No dev firmware keyblock/datakey found. Reusing normal keys."
+  DEV_FIRMWARE_KEYBLOCK="$FIRMWARE_KEYBLOCK"
+  DEV_FIRMWARE_DATAKEY="$FIRMWARE_DATAKEY"
+fi
+
 # pass optional args
 [ -n "$VERSION" ] && VERSION="--version $VERSION"
 [ -n "$PREAMBLE_FLAG" ] && PREAMBLE_FLAG="--flags $PREAMBLE_FLAG"
