@@ -63,6 +63,8 @@ const Param sys_param_list[] = {
    "Firmware to try next (vboot2,writable)"},
   {"fw_result", IS_STRING|CAN_WRITE,
    "Firmware result this boot (vboot2,writable)"},
+  {"fw_prev_tried", IS_STRING, "Firmware tried on previous boot (vboot2)"},
+  {"fw_prev_result", IS_STRING, "Firmware result of previous boot (vboot2)"},
   {"hwid", IS_STRING, "Hardware ID"},
   {"kern_nv", 0, "Non-volatile field for kernel use", "0x%08x"},
   {"kernkey_vfy", IS_STRING, "Type of verification done on kernel key block"},
