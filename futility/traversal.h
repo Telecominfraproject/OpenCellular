@@ -35,6 +35,7 @@ enum futil_cb_component {
 	CB_KERN_PREAMBLE,
 	CB_RAW_FIRMWARE,
 	CB_RAW_KERNEL,
+	CB_PRIVKEY,
 
 	NUM_CB_COMPONENTS
 };
@@ -75,12 +76,13 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 
 /* These are invoked by the traversal. They also return nonzero on error. */
 int futil_cb_show_begin(struct futil_traverse_state_s *state);
-int futil_cb_show_key(struct futil_traverse_state_s *state);
+int futil_cb_show_pubkey(struct futil_traverse_state_s *state);
 int futil_cb_show_gbb(struct futil_traverse_state_s *state);
 int futil_cb_show_keyblock(struct futil_traverse_state_s *state);
 int futil_cb_show_fw_main(struct futil_traverse_state_s *state);
 int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state);
 int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state);
+int futil_cb_show_privkey(struct futil_traverse_state_s *state);
 
 int futil_cb_sign_pubkey(struct futil_traverse_state_s *state);
 int futil_cb_sign_fw_main(struct futil_traverse_state_s *state);

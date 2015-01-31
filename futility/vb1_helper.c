@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <openssl/rsa.h>
 
 #include "file_type.h"
 #include "futility.h"
@@ -734,6 +735,27 @@ enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len)
 	/* Maybe just a VbPublicKey? */
 	if (PublicKeyLooksOkay(pubkey, len))
 		return FILE_TYPE_PUBKEY;
+
+	return FILE_TYPE_UNKNOWN;
+}
+
+enum futil_file_type recognize_privkey(uint8_t *buf, uint32_t len)
+{
+	VbPrivateKey key;
+	const unsigned char *start;
+
+	if (len < sizeof(key.algorithm))
+		return FILE_TYPE_UNKNOWN;
+
+	key.algorithm = *(typeof(key.algorithm) *)buf;
+	start = buf + sizeof(key.algorithm);
+	key.rsa_private_key = d2i_RSAPrivateKey(NULL, &start,
+						len - sizeof(key.algorithm));
+
+	if (key.rsa_private_key) {
+		RSA_free(key.rsa_private_key);
+		return FILE_TYPE_PRIVKEY;
+	}
 
 	return FILE_TYPE_UNKNOWN;
 }

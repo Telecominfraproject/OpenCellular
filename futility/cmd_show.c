@@ -89,7 +89,7 @@ static void show_keyblock(VbKeyBlockHeader *key_block, const char *name,
 	printf("\n");
 }
 
-int futil_cb_show_key(struct futil_traverse_state_s *state)
+int futil_cb_show_pubkey(struct futil_traverse_state_s *state)
 {
 	VbPublicKey *pubkey = (VbPublicKey *)state->my_area->buf;
 
@@ -102,6 +102,24 @@ int futil_cb_show_key(struct futil_traverse_state_s *state)
 	show_key(pubkey, "  ");
 
 	state->my_area->_flags |= AREA_IS_VALID;
+	return 0;
+}
+
+int futil_cb_show_privkey(struct futil_traverse_state_s *state)
+{
+	VbPrivateKey key;
+	int alg_okay;
+
+	key.algorithm = *(typeof(key.algorithm) *)state->my_area->buf;
+
+	printf("Private Key file:      %s\n", state->in_filename);
+	alg_okay = key.algorithm < kNumAlgorithms;
+	printf("  Algorithm:           %" PRIu64 " %s\n", key.algorithm,
+	       alg_okay ? algo_strings[key.algorithm] : "(unknown)");
+
+	if (alg_okay)
+		state->my_area->_flags |= AREA_IS_VALID;
+
 	return 0;
 }
 

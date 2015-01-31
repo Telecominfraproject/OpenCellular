@@ -23,13 +23,14 @@ static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_show_fw_preamble,	/* CB_FMAP_VBLOCK_B */
 	futil_cb_show_fw_main,		/* CB_FMAP_FW_MAIN_A */
 	futil_cb_show_fw_main,		/* CB_FMAP_FW_MAIN_B */
-	futil_cb_show_key,		/* CB_PUBKEY */
+	futil_cb_show_pubkey,		/* CB_PUBKEY */
 	futil_cb_show_keyblock,		/* CB_KEYBLOCK */
 	futil_cb_show_gbb,		/* CB_GBB */
 	futil_cb_show_fw_preamble,	/* CB_FW_PREAMBLE */
 	futil_cb_show_kernel_preamble,	/* CB_KERN_PREAMBLE */
 	NULL,				/* CB_RAW_FIRMWARE */
 	NULL,				/* CB_RAW_KERNEL */
+	futil_cb_show_privkey,		/* CB_PRIVKEY */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_show_funcs) == NUM_CB_COMPONENTS);
 
@@ -49,6 +50,7 @@ static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_resign_kernel_part,	/* CB_KERN_PREAMBLE */
 	futil_cb_sign_raw_firmware,	/* CB_RAW_FIRMWARE */
 	futil_cb_create_kernel_part,	/* CB_RAW_KERNEL */
+	NULL,				/* CB_PRIVKEY */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_sign_funcs) == NUM_CB_COMPONENTS);
 
@@ -77,6 +79,7 @@ static const struct {
 	{CB_RAW_FIRMWARE,  "raw firmware"},	/* FILE_TYPE_RAW_FIRMWARE */
 	{CB_RAW_KERNEL,    "raw kernel"},	/* FILE_TYPE_RAW_KERNEL */
 	{0,                "chromiumos disk"},	/* FILE_TYPE_CHROMIUMOS_DISK */
+	{CB_PRIVKEY,       "VbPrivateKey"},	/* FILE_TYPE_PRIVKEY */
 };
 BUILD_ASSERT(ARRAY_SIZE(direct_callback) == NUM_FILE_TYPES);
 
@@ -148,9 +151,9 @@ static const char * const futil_cb_component_str[] = {
 	"CB_KERN_PREAMBLE",
 	"CB_RAW_FIRMWARE",
 	"CB_RAW_KERNEL",
+	"CB_PRIVKEY",
 };
 BUILD_ASSERT(ARRAY_SIZE(futil_cb_component_str) == NUM_CB_COMPONENTS);
-
 
 static int invoke_callback(struct futil_traverse_state_s *state,
 			   enum futil_cb_component c, const char *name,
