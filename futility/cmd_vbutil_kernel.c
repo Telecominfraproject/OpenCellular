@@ -227,6 +227,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	uint64_t min_version = 0;
 	char *e;
 	int i = 0;
+	int errcount = 0;
 	int rv;
 	VbKeyBlockHeader *keyblock = NULL;
 	VbKeyBlockHeader *t_keyblock = NULL;
@@ -242,6 +243,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	uint64_t t_bootloader_size;
 	uint64_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
+	uint64_t vmlinuz_header_offset = 0;
 	VbKernelPreambleHeader *preamble = NULL;
 	uint8_t *kblob_data = NULL;
 	uint64_t kblob_size = 0;
@@ -575,6 +577,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		    != VBOOT_SUCCESS) {
 			Fatal("Unable to retrieve Vmlinuz Header!");
 		}
+
 		if (vmlinuz_header_size) {
 			// verify that the 16-bit header is included in the
 			// kblob (to make sure that it's included in the
@@ -588,18 +591,25 @@ static int do_vbutil_kernel(int argc, char *argv[])
 				unlink(vmlinuz_out_file);
 				return 1;
 			}
-
-			i = (1 != fwrite((void*)(uintptr_t)
-					 vmlinuz_header_address,
-					 vmlinuz_header_size,
+			// calculate the vmlinuz_header offset from
+			// the beginning of the kpart_data.  The kblob doesn't
+			// include the body_load_offset, but does include
+			// the keyblock and preamble sections.
+			vmlinuz_header_offset = vmlinuz_header_address -
+				preamble->body_load_address +
+				keyblock->key_block_size +
+				preamble->preamble_size;
+			errcount |=
+				(1 != fwrite(kpart_data + vmlinuz_header_offset,
+					     vmlinuz_header_size,
+					     1,
+					     f));
+		}
+		errcount |= (1 != fwrite(kblob_data,
+					 kblob_size,
 					 1,
 					 f));
-		}
-		i = i || (1 != fwrite(kblob_data,
-				      kblob_size,
-				      1,
-				      f));
-		if (i) {
+		if (errcount) {
 			VbExError("Can't write output file %s\n",
 				  vmlinuz_out_file);
 			fclose(f);
@@ -608,7 +618,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		}
 
 		fclose(f);
-		return 1;
+		return 0;
 	}
 
 	fprintf(stderr,
