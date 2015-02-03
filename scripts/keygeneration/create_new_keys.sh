@@ -14,7 +14,12 @@ usage() {
 Usage: $0 [--devkeyblock]
 
 Options:
-  --devkeyblock   Also generate developer firmware keyblock and data key
+  --devkeyblock          Also generate developer firmware keyblock and data key
+  --4k                   Use 4k keys instead of 8k (enables options below)
+  --4k-root              Use 4k key size for the root key
+  --4k-recovery          Use 4k key size for the recovery key
+  --4k-recovery-kernel   Use 4k key size for the recovery kernel data
+  --4k-installer-kernel  Use 4k key size for the installer kernel data
 EOF
 
   if [[ $# -ne 0 ]]; then
@@ -30,12 +35,37 @@ main() {
 
   # Flag to indicate whether we should be generating a developer keyblock flag.
   local dev_keyblock="false"
+  local root_key_algoid=${ROOT_KEY_ALGOID}
+  local recovery_key_algoid=${RECOVERY_KEY_ALGOID}
+  local recovery_kernel_algoid=${RECOVERY_KERNEL_ALGOID}
+  local installer_kernel_algoid=${INSTALLER_KERNEL_ALGOID}
+
   while [[ $# -gt 0 ]]; do
     case $1 in
     --devkeyblock)
       echo "Will also generate developer firmware keyblock and data key."
       dev_keyblock="true"
       ;;
+
+    --4k)
+      root_key_algoid=${RSA4096_SHA512_ALGOID}
+      recovery_key_algoid=${RSA4096_SHA512_ALGOID}
+      recovery_kernel_algoid=${RSA4096_SHA512_ALGOID}
+      installer_kernel_algoid=${RSA4096_SHA512_ALGOID}
+      ;;
+    --4k-root)
+      root_key_algoid=${RSA4096_SHA512_ALGOID}
+      ;;
+    --4k-recovery)
+      recovery_key_algoid=${RSA4096_SHA512_ALGOID}
+      ;;
+    --4k-recovery-kernel)
+      recovery_kernel_algoid=${RSA4096_SHA512_ALGOID}
+      ;;
+    --4k-installer-kernel)
+      installer_kernel_algoid=${RSA4096_SHA512_ALGOID}
+      ;;
+
     -h|--help)
       usage
       ;;
@@ -64,7 +94,7 @@ main() {
   # Create the normal keypairs
   make_pair ec_root_key              ${EC_ROOT_KEY_ALGOID}
   make_pair ec_data_key              ${EC_DATAKEY_ALGOID} ${eckey_version}
-  make_pair root_key                 ${ROOT_KEY_ALGOID}
+  make_pair root_key                 ${root_key_algoid}
   make_pair firmware_data_key        ${FIRMWARE_DATAKEY_ALGOID} ${fkey_version}
   if [[ "${dev_keyblock}" == "true" ]]; then
     make_pair dev_firmware_data_key    ${DEV_FIRMWARE_DATAKEY_ALGOID} ${fkey_version}
@@ -73,9 +103,9 @@ main() {
   make_pair kernel_data_key          ${KERNEL_DATAKEY_ALGOID} ${kdatakey_version}
 
   # Create the recovery and factory installer keypairs
-  make_pair recovery_key             ${RECOVERY_KEY_ALGOID}
-  make_pair recovery_kernel_data_key ${RECOVERY_KERNEL_ALGOID}
-  make_pair installer_kernel_data_key ${INSTALLER_KERNEL_ALGOID}
+  make_pair recovery_key             ${recovery_key_algoid}
+  make_pair recovery_kernel_data_key ${recovery_kernel_algoid}
+  make_pair installer_kernel_data_key ${installer_kernel_algoid}
 
   # Create the firmware keyblock for use only in Normal mode. This is redundant,
   # since it's never even checked during Recovery mode.
