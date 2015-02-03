@@ -180,7 +180,7 @@ typedef struct VbFirmwarePreambleHeader {
 /****************************************************************************/
 
 #define KERNEL_PREAMBLE_HEADER_VERSION_MAJOR 2
-#define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 1
+#define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 2
 
 /* Preamble block for kernel, version 2.0
  *
@@ -260,9 +260,17 @@ typedef struct VbKernelPreambleHeader {
 	/* Size of 16-bit header for vmlinuz in bytes.  Readers should return 0
 	   for header version < 2.1 */
 	uint64_t vmlinuz_header_size;
+	/*
+	 * Flags passed in by the signer. Readers should return 0 for header
+	 * version < 2.2. Flags field is currently defined as:
+	 * [31:2] - Reserved (for future use)
+	 * [1:0]  - Kernel image type (0b00 - CrOS, 0b01 - bootimg)
+	 */
+	uint32_t flags;
 } __attribute__((packed)) VbKernelPreambleHeader;
 
 #define EXPECTED_VBKERNELPREAMBLEHEADER2_1_SIZE 112
+#define EXPECTED_VBKERNELPREAMBLEHEADER2_2_SIZE 116
 
 /****************************************************************************/
 

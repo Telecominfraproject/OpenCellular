@@ -78,6 +78,7 @@ VbKernelPreambleHeader *CreateKernelPreamble(
 	const VbSignature *body_signature,
 	uint64_t vmlinuz_header_address,
 	uint64_t vmlinuz_header_size,
+	uint32_t flags,
 	uint64_t desired_size,
 	const VbPrivateKey *signing_key)
 {
@@ -111,6 +112,7 @@ VbKernelPreambleHeader *CreateKernelPreamble(
 	h->bootloader_size = bootloader_size;
 	h->vmlinuz_header_address = vmlinuz_header_address;
 	h->vmlinuz_header_size = vmlinuz_header_size;
+	h->flags = flags;
 
 	/* Copy body signature */
 	SignatureInit(&h->body_signature, body_sig_dest,

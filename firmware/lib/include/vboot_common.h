@@ -41,6 +41,8 @@ enum {
 	VBOOT_PREAMBLE_SIGNATURE,
 	/* Shared data is invalid. */
 	VBOOT_SHARED_DATA_INVALID,
+	/* Kernel Preamble does not contain flags */
+	VBOOT_KERNEL_PREAMBLE_NO_FLAGS,
 	VBOOT_ERROR_MAX,
 };
 extern const char *kVbootErrors[VBOOT_ERROR_MAX];
@@ -159,6 +161,15 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader *preamble,
 int VbGetKernelVmlinuzHeader(const VbKernelPreambleHeader *preamble,
 			     uint64_t *vmlinuz_header_address,
 			     uint64_t *vmlinuz_header_size);
+
+/**
+ * Checks if the kernel preamble has flags field. This is available only if the
+ * Kernel Preamble Header version >=2.2. If give a header of 2.1 or lower, it
+ * will return VBOOT_KERNEL_PREAMBLE_NO_FLAGS.
+ *
+ * Returns VBOOT_SUCCESS if version is >=2.2.
+ */
+int VbKernelHasFlags(const VbKernelPreambleHeader *preamble);
 
 /**
  * Verify that the Vmlinuz Header is contained inside of the kernel blob.

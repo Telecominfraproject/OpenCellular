@@ -219,7 +219,7 @@ int futil_cb_create_kernel_part(struct futil_traverse_state_s *state)
 	vblock_data = SignKernelBlob(kblob_data, kblob_size, option.padding,
 				     option.version, option.kloadaddr,
 				     option.keyblock, option.signprivate,
-				     &vblock_size);
+				     option.flags, &vblock_size);
 	if (!vblock_data) {
 		fprintf(stderr, "Unable to sign kernel blob\n");
 		free(kblob_data);
@@ -288,6 +288,12 @@ int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
 	if (!option.version_specified)
 		option.version = preamble->kernel_version;
 
+	/* Preserve the flags if not specified */
+	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS) {
+		if (option.flags_specified == 0)
+			option.flags = preamble->flags;
+	}
+
 	/* Replace the keyblock if asked */
 	if (option.keyblock)
 		keyblock = option.keyblock;
@@ -296,7 +302,7 @@ int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
 	vblock_data = SignKernelBlob(kblob_data, kblob_size, option.padding,
 				     option.version, option.kloadaddr,
 				     keyblock, option.signprivate,
-				     &vblock_size);
+				     option.flags, &vblock_size);
 	if (!vblock_data) {
 		fprintf(stderr, "Unable to sign kernel blob\n");
 		return 1;
@@ -612,7 +618,8 @@ static const char usage_new_kpart[] = "\n"
 	"  --pad            NUM             The vblock padding size in bytes\n"
 	"                                     (default 0x%x)\n"
 	" --vblockonly                      Emit just the vblock (requires a\n"
-	"                                     distinct outfile)\n";
+	"                                     distinct outfile)\n"
+	"  -f|--flags       NUM             The preamble flags value\n";
 
 static const char usage_old_kpart[] = "\n"
 	"-----------------------------------------------------------------\n"
@@ -634,6 +641,7 @@ static const char usage_old_kpart[] = "\n"
 	"  [--outfile]      OUTFILE         Output kernel partition or vblock\n"
 	"  --vblockonly                     Emit just the vblock (requires a\n"
 	"                                     distinct OUTFILE)\n"
+	"  -f|--flags       NUM             The preamble flags value\n"
 	"\n";
 
 static void print_help(const char *prog)

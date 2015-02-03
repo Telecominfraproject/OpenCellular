@@ -437,11 +437,18 @@ int VerifyKernelPreamble(const VbKernelPreambleHeader *preamble,
 
 	/*
 	 * If the preamble header version is at least 2.1, verify we have space
-	 * for the added fields from 2.1.
+	 * for the added fields from >2.1.
 	 */
 	if (preamble->header_version_minor >= 1) {
-		if(size < EXPECTED_VBKERNELPREAMBLEHEADER2_1_SIZE) {
+		if((preamble->header_version_minor == 1) &&
+		   (size < EXPECTED_VBKERNELPREAMBLEHEADER2_1_SIZE)) {
 			VBDEBUG(("Not enough data for preamble header 2.1.\n"));
+			return VBOOT_PREAMBLE_INVALID;
+		}
+
+		if((preamble->header_version_minor == 2) &&
+		   (size < EXPECTED_VBKERNELPREAMBLEHEADER2_2_SIZE)) {
+			VBDEBUG(("Not enough data for preamble header 2.2.\n"));
 			return VBOOT_PREAMBLE_INVALID;
 		}
 	}
@@ -467,6 +474,14 @@ int VbGetKernelVmlinuzHeader(const VbKernelPreambleHeader *preamble,
 		*vmlinuz_header_size = preamble->vmlinuz_header_size;
 	}
 	return VBOOT_SUCCESS;
+}
+
+int VbKernelHasFlags(const VbKernelPreambleHeader *preamble)
+{
+	if (preamble->header_version_minor > 1)
+		return VBOOT_SUCCESS;
+
+	return VBOOT_KERNEL_PREAMBLE_NO_FLAGS;
 }
 
 int VerifyVmlinuzInsideKBlob(uint64_t kblob, uint64_t kblob_size,

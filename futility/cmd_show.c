@@ -419,6 +419,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	int retval = 0;
 	uint64_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
+	uint32_t flags = 0;
 
 	/* Check the hash... */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
@@ -482,6 +483,10 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 		printf("  Vmlinuz header size:       0x%" PRIx64 "\n",
 		       vmlinuz_header_size);
 	}
+
+	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
+		flags = preamble->flags;
+	printf("  Flags:                 0x%" PRIx32 "\n", flags);
 
 	/* Verify kernel body */
 	if (option.fv) {

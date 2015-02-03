@@ -63,6 +63,7 @@ enum {
 	OPT_VERBOSE,
 	OPT_MINVERSION,
 	OPT_VMLINUZ_OUT,
+	OPT_FLAGS,
 };
 
 static const struct option long_opts[] = {
@@ -86,6 +87,7 @@ static const struct option long_opts[] = {
 	{"verbose", 0, &opt_verbose, 1},
 	{"debug", 0, &debugging_enabled, 1},
 	{"vmlinuz-out", 1, 0, OPT_VMLINUZ_OUT},
+	{"flags", 1, 0, OPT_FLAGS},
 	{NULL, 0, 0, 0}
 };
 
@@ -109,6 +111,7 @@ static const char usage[] =
 	"    --kloadaddr <address>     Assign kernel body load address\n"
 	"    --pad <number>            Verification padding size in bytes\n"
 	"    --vblockonly              Emit just the verification blob\n"
+	"    --flags NUM               Flags to be passed in the header\n"
 	"\nOR\n\n"
 	"Usage:  " MYNAME " %s --repack <file> [PARAMETERS]\n"
 	"\n"
@@ -253,6 +256,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	uint64_t kblob_size = 0;
 	uint8_t *vblock_data = NULL;
 	uint64_t vblock_size = 0;
+	uint32_t flags = 0;
 	FILE *f;
 
 	while (((i = getopt_long(argc, argv, ":", long_opts, NULL)) != -1) &&
@@ -326,6 +330,14 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		case OPT_VMLINUZ:
 			vmlinuz_file = optarg;
+			break;
+
+		case OPT_FLAGS:
+			flags = (uint32_t)strtoul(optarg, &e, 0);
+			if (!*optarg || (e && *e)) {
+				fprintf(stderr, "Invalid --flags\n");
+				parse_error = 1;
+			}
 			break;
 
 		case OPT_BOOTLOADER:
@@ -435,7 +447,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		vblock_data = SignKernelBlob(kblob_data, kblob_size, opt_pad,
 					     version, kernel_body_load_address,
-					     t_keyblock, signpriv_key,
+					     t_keyblock, signpriv_key, flags,
 					     &vblock_size);
 		if (!vblock_data)
 			Fatal("Unable to sign kernel blob\n");
@@ -498,6 +510,9 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (!version_str)
 			version = preamble->kernel_version;
 
+		if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
+			flags = preamble->flags;
+
 		if (keyblock_file) {
 			t_keyblock =
 				(VbKeyBlockHeader *)ReadFile(keyblock_file, 0);
@@ -509,7 +524,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		vblock_data = SignKernelBlob(kblob_data, kblob_size, opt_pad,
 					     version, kernel_body_load_address,
 					     t_keyblock ? t_keyblock : keyblock,
-					     signpriv_key, &vblock_size);
+					     signpriv_key, flags, &vblock_size);
 		if (!vblock_data)
 			Fatal("Unable to sign kernel blob\n");
 

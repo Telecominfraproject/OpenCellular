@@ -18,7 +18,7 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 			uint64_t padding,
 			int version, uint64_t kernel_body_load_address,
 			VbKeyBlockHeader *keyblock, VbPrivateKey *signpriv_key,
-			uint64_t *vblock_size_ptr);
+			uint32_t flags, uint64_t *vblock_size_ptr);
 
 int WriteSomeParts(const char *outfile,
 		   void *part1_data, uint64_t part1_size,
