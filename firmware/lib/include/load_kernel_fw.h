@@ -70,6 +70,8 @@ typedef struct LoadKernelParams {
 	uint64_t bootloader_size;
 	/* UniquePartitionGuid for boot partition */
 	uint8_t  partition_guid[16];
+	/* Flags passed in by signer */
+	uint32_t flags;
 } LoadKernelParams;
 
 /**

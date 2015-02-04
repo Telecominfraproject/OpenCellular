@@ -335,6 +335,8 @@ typedef struct VbSelectAndLoadKernelParams {
 	uint32_t bootloader_size;
 	/* UniquePartitionGuid for boot partition */
 	uint8_t partition_guid[16];
+	/* Flags passed in by signer */
+	uint32_t flags;
 	/*
 	 * TODO: in H2C, all that pretty much just gets passed to the
 	 * bootloader as KernelBootloaderOptions, though the disk handle is

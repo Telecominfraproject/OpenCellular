@@ -984,6 +984,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	kparams->partition_number = 0;
 	kparams->bootloader_address = 0;
 	kparams->bootloader_size = 0;
+	kparams->flags = 0;
 	Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
 	cparams->bmp = NULL;
@@ -1152,6 +1153,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	kparams->partition_number = (uint32_t)p.partition_number;
 	kparams->bootloader_address = p.bootloader_address;
 	kparams->bootloader_size = (uint32_t)p.bootloader_size;
+	kparams->flags = p.flags;
 	Memcpy(kparams->partition_guid, p.partition_guid,
 	       sizeof(kparams->partition_guid));
 

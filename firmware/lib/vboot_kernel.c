@@ -67,6 +67,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	params->partition_number = 0;
 	params->bootloader_address = 0;
 	params->bootloader_size = 0;
+	params->flags = 0;
 
 	/* Calculate switch positions and boot mode */
 	rec_switch = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
@@ -437,6 +438,8 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		 */
 		params->bootloader_address = preamble->bootloader_address;
 		params->bootloader_size = preamble->bootloader_size;
+		if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
+			params->flags = preamble->flags;
 
 		/* Update GPT to note this is the kernel we're trying */
 		GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_TRY);
