@@ -605,6 +605,7 @@ FUTIL_STATIC_SRCS = \
 
 FUTIL_SRCS = \
 	${FUTIL_STATIC_SRCS} \
+	futility/cmd_create.c \
 	futility/cmd_dump_kernel_config.c \
 	futility/cmd_load_fmap.c \
 	futility/cmd_pcr.c \
@@ -629,6 +630,10 @@ FUTIL_STATIC_OBJS = ${FUTIL_STATIC_SRCS:%.c=${BUILD}/%.o} \
 	${FUTIL_STATIC_WORKAROUND_SRCS:%.c=${BUILD}/%.o} \
 	${FUTIL_STATIC_CMD_LIST:%.c=%.o}
 FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o} ${FUTIL_CMD_LIST:%.c=%.o}
+
+${FUTIL_OBJS}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
+${FUTIL_BIN}: ${UTILLIB21}
+${FUTIL_BIN}: LIBS += ${UTILLIB21}
 
 ALL_OBJS += ${FUTIL_OBJS}
 

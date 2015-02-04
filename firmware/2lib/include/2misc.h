@@ -27,7 +27,7 @@ static __inline struct vb2_shared_data *vb2_get_sd(struct vb2_context *ctx) {
  * Validate gbb signature (the magic number)
  *
  * @param sig		Pointer to the signature bytes to validate
- * @return VB2_SUCCESS if valid or VB2_ERROR_GBB_MAGIC otherwise.
+ * @return VB2_SUCCESS if valid or non-zero if error.
  */
 int vb2_validate_gbb_signature(uint8_t *sig);
 

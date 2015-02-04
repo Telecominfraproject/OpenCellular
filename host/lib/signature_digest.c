@@ -3,11 +3,8 @@
  * found in the LICENSE file.
  */
 
-#include "signature_digest.h"
 #define OPENSSL_NO_SHA
-#include <openssl/engine.h>
 #include <openssl/pem.h>
-#include <openssl/rsa.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +12,7 @@
 
 #include "cryptolib.h"
 #include "host_common.h"
+#include "signature_digest.h"
 
 
 uint8_t* PrependDigestInfo(unsigned int algorithm, uint8_t* digest) {

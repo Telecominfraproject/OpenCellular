@@ -8,8 +8,6 @@
 /* TODO: change all 'return 0', 'return 1' into meaningful return codes */
 
 #define OPENSSL_NO_SHA
-#include <openssl/engine.h>
-#include <openssl/pem.h>
 #include <openssl/rsa.h>
 
 #include <stdio.h>

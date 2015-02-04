@@ -8,11 +8,10 @@
  * /tools/DumpPublicKey.java). Uses the OpenSSL X509 and BIGNUM library.
  */
 
-#include <stdint.h>
-#include <openssl/bn.h>
-#include <openssl/evp.h>
+#define OPENSSL_NO_SHA
 #include <openssl/pem.h>
-#include <openssl/x509.h>
+
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 

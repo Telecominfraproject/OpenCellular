@@ -6,8 +6,6 @@
  */
 
 #define OPENSSL_NO_SHA
-#include <openssl/engine.h>
-#include <openssl/pem.h>
 #include <openssl/rsa.h>
 
 #include "2sysincludes.h"

@@ -21,6 +21,34 @@ struct vb2_private_key {
 	struct vb2_guid guid;			/* Key GUID */
 };
 
+/* Convert between enums and human-readable form. Terminated with {0, 0}. */
+struct vb2_text_vs_enum {
+	const char *name;
+	unsigned int num;
+};
+
+/**
+ * @param table         Table to search
+ * @param num           Enum value to search for
+ * @return pointer to table entry or NULL if no match
+ */
+const struct vb2_text_vs_enum *vb2_lookup_by_num(
+	const struct vb2_text_vs_enum *table,
+	const unsigned int num);
+
+/**
+ * @param table         Table to search
+ * @param name          String value to search for
+ * @return pointer to table entry or NULL if no match
+ */
+const struct vb2_text_vs_enum *vb2_lookup_by_name(
+	const struct vb2_text_vs_enum *table,
+	const char *name);
+
+extern struct vb2_text_vs_enum vb2_text_vs_algorithm[];
+extern struct vb2_text_vs_enum vb2_text_vs_sig[];
+extern struct vb2_text_vs_enum vb2_text_vs_hash[];
+
 /**
  * Free a private key.
  *
@@ -97,6 +125,27 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
 			 enum vb2_hash_algorithm hash_alg);
 
 /**
+ * Allocate a public key buffer of sufficient size for the signature algorithm.
+ *
+ * This only initializes the sig_alg field and the guid field to an empty
+ * guid.  It does not set any of the other fields in *key_ptr.
+ *
+ * @param key_ptr	Destination for newly allocated key; this must be
+ *			freed with vb2_public_key_free().
+ * @param sig_alg	Signature algorithm for key.
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
+			 enum vb2_signature_algorithm sig_alg);
+
+/**
+ * Return the packed data for a key allocated with vb2_public_key_alloc().
+ *
+ * The packed data is in the same buffer, following the key struct and GUID.
+ */
+uint8_t *vb2_public_key_packed_data(struct vb2_public_key *key);
+
+/**
  * Free a public key allocated by one of the functions below.
  *
  * Note that this should ONLY be called for public keys allocated via one
@@ -164,5 +213,23 @@ int vb2_public_key_pack(struct vb2_packed_key **key_ptr,
 int vb2_public_key_hash(struct vb2_public_key *key,
 			enum vb2_hash_algorithm hash_alg);
 
+
+/**
+ * Return the signature algorithm implied by the bit length of an RSA key
+ *
+ * @param rsa		RSA key
+ * @return vb2 signature algorithm
+ */
+enum vb2_signature_algorithm vb2_rsa_sig_alg(struct rsa_st *rsa);
+
+/**
+ * Write a public key to the vb2_packed_key format.
+ *
+ * @param key		Key to write
+ * @param filename	File to write key data to.
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_public_key_write(const struct vb2_public_key *key,
+			 const char *filename);
 
 #endif  /* VBOOT_REFERENCE_HOST_KEY2_H_ */

@@ -5,11 +5,10 @@
  * Host functions for keys.
  */
 
+#include <stdio.h>
+
 #define OPENSSL_NO_SHA
-#include <openssl/engine.h>
 #include <openssl/pem.h>
-#include <openssl/rsa.h>
-#include <openssl/x509.h>
 
 #include "2sysincludes.h"
 #include "2common.h"
@@ -19,6 +18,57 @@
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_misc.h"
+
+struct vb2_text_vs_enum vb2_text_vs_algorithm[] = {
+	{"RSA1024 SHA1",   VB2_ALG_RSA1024_SHA1},
+	{"RSA1024 SHA256", VB2_ALG_RSA1024_SHA256},
+	{"RSA1024 SHA512", VB2_ALG_RSA1024_SHA512},
+	{"RSA2048 SHA1",   VB2_ALG_RSA2048_SHA1},
+	{"RSA2048 SHA256", VB2_ALG_RSA2048_SHA256},
+	{"RSA2048 SHA512", VB2_ALG_RSA2048_SHA512},
+	{"RSA4096 SHA1",   VB2_ALG_RSA4096_SHA1},
+	{"RSA4096 SHA256", VB2_ALG_RSA4096_SHA256},
+	{"RSA4096 SHA512", VB2_ALG_RSA4096_SHA512},
+	{"RSA8192 SHA1",   VB2_ALG_RSA8192_SHA1},
+	{"RSA8192 SHA256", VB2_ALG_RSA8192_SHA256},
+	{"RSA8192 SHA512", VB2_ALG_RSA8192_SHA512},
+	{0, 0}
+};
+
+struct vb2_text_vs_enum vb2_text_vs_sig[] = {
+	{"RSA1024", VB2_SIG_RSA1024},
+	{"RSA2048", VB2_SIG_RSA2048},
+	{"RSA4096", VB2_SIG_RSA4096},
+	{"RSA8192", VB2_SIG_RSA8192},
+	{0, 0}
+};
+
+struct vb2_text_vs_enum vb2_text_vs_hash[] = {
+	{"SHA1",   VB2_HASH_SHA1},
+	{"SHA256", VB2_HASH_SHA256},
+	{"SHA512", VB2_HASH_SHA512},
+	{0, 0}
+};
+
+const struct vb2_text_vs_enum *vb2_lookup_by_num(
+	const struct vb2_text_vs_enum *table,
+	const unsigned int num)
+{
+	for (; table->name; table++)
+		if (table->num == num)
+			return table;
+	return 0;
+}
+
+const struct vb2_text_vs_enum *vb2_lookup_by_name(
+	const struct vb2_text_vs_enum *table,
+	const char *name)
+{
+	for (; table->name; table++)
+		if (!strcasecmp(table->name, name))
+			return table;
+	return 0;
+}
 
 void vb2_private_key_free(struct vb2_private_key *key)
 {
@@ -284,19 +334,8 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
 	}
 }
 
-/**
- * Allocate a public key buffer of sufficient size for the signature algorithm.
- *
- * This only initializes the sig_alg field and the guid field to an empty
- * guid.  It does not set any of the other fields in *key_ptr.
- *
- * @param key_ptr	Destination for newly allocated key; this must be
- *			freed with vb2_public_key_free().
- * @param sig_alg	Signature algorithm for key.
- * @return VB2_SUCCESS, or non-zero error code if error.
- */
-static int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
-				enum vb2_signature_algorithm sig_alg)
+int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
+			 enum vb2_signature_algorithm sig_alg)
 {
 	struct vb2_public_key *key;
 	uint32_t key_data_size = vb2_packed_key_size(sig_alg);
@@ -322,18 +361,16 @@ static int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
 
 void vb2_public_key_free(struct vb2_public_key *key)
 {
+	if (!key)
+		return;
+
 	if (key->desc)
 		free((void *)key->desc);
 
 	free(key);
 }
 
-/**
- * Return the packed data for a key allocated with vb2_public_key_alloc().
- *
- * The packed data is in the same buffer, following the key struct and GUID.
- */
-static uint8_t *vb2_public_key_packed_data(struct vb2_public_key *key)
+uint8_t *vb2_public_key_packed_data(struct vb2_public_key *key)
 {
 	return (uint8_t *)(key->guid + 1);
 }
@@ -504,4 +541,39 @@ int vb2_public_key_hash(struct vb2_public_key *key,
 	key->hash_alg = hash_alg;
 	key->guid = vb2_hash_guid(hash_alg);
 	return VB2_SUCCESS;
+}
+
+enum vb2_signature_algorithm vb2_rsa_sig_alg(struct rsa_st *rsa)
+{
+	int bits = BN_num_bits(rsa->n);
+
+	switch (bits) {
+	case 1024:
+		return VB2_SIG_RSA1024;
+	case 2048:
+		return VB2_SIG_RSA2048;
+	case 4096:
+		return VB2_SIG_RSA4096;
+	case 8192:
+		return VB2_SIG_RSA8192;
+	}
+
+	/* no clue */
+	return VB2_SIG_INVALID;
+}
+
+int vb2_public_key_write(const struct vb2_public_key *key,
+			 const char *filename)
+{
+	struct vb2_packed_key *pkey;
+	int ret;
+
+	ret = vb2_public_key_pack(&pkey, key);
+	if (ret)
+		return ret;
+
+	ret = vb2_write_object(filename, pkey);
+
+	free(pkey);
+	return ret;
 }
