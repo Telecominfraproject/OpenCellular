@@ -648,5 +648,6 @@ static int do_vbutil_kernel(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel,
+		      VBOOT_VERSION_1_0,
 		      "Creates, signs, and verifies the kernel partition",
 		      print_help);

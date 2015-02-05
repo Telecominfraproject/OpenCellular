@@ -22,9 +22,11 @@ ${FUTILITY} gbb_utility -s --flags=0xdeadbeef ${TMP}.blob
 ${FUTILITY} gbb_utility -g --flags ${TMP}.blob | grep -i 0xdeadbeef
 
 # HWID length should include the terminating null - this is too long
-if ${FUTILITY} gbb_utility -s -i "0123456789ABCDEF" ${TMP}.blob; then false; fi
+if ${FUTILITY} gbb_utility -s --hwid="0123456789ABCDEF" ${TMP}.blob; then
+  false;
+fi
 # This works
-${FUTILITY} gbb_utility -s -i "0123456789ABCDE" ${TMP}.blob
+${FUTILITY} gbb_utility -s --hwid="0123456789ABCDE" ${TMP}.blob
 # Read it back?
 ${FUTILITY} gbb_utility -g ${TMP}.blob | grep "0123456789ABCDE"
 
@@ -184,7 +186,7 @@ if ${FUTILITY} gbb_utility -g ${TMP}.blob.bad; then false; fi
 # hwid_size == 0 doesn't complain, but can't be set
 cat ${TMP}.blob | ${REPLACE} 0x14 0x00 > ${TMP}.blob.bad
 ${FUTILITY} gbb_utility -g ${TMP}.blob.bad
-if ${FUTILITY} gbb_utility -s -i "A" ${TMP}.blob.bad; then false; fi
+if ${FUTILITY} gbb_utility -s --hwid="A" ${TMP}.blob.bad; then false; fi
 
 # rootkey_size == 0 gives warning, gets nothing, can't be set
 cat ${TMP}.blob | ${REPLACE} 0x1c 0x00 > ${TMP}.blob.bad
@@ -213,7 +215,7 @@ if ${FUTILITY} gbb_utility -s --recoverykey ${TMP}.data2 ${TMP}.blob.bad; then f
 
 # See that the digest is updated properly.
 hwid="123456789ABCDEF"
-${FUTILITY} gbb_utility -s -i ${hwid} ${TMP}.blob
+${FUTILITY} gbb_utility -s --hwid=${hwid} ${TMP}.blob
 expect=$(echo -n "$hwid" | sha256sum | cut -d ' ' -f 1)
 [ $(echo -n ${expect} | wc -c) == "64" ]
 ${FUTILITY} gbb_utility -g --digest ${TMP}.blob | grep ${expect}

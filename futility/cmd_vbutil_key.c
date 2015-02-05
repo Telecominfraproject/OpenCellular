@@ -235,5 +235,6 @@ static int do_vbutil_key(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_key, do_vbutil_key,
+		      VBOOT_VERSION_1_0,
 		      "Wraps RSA keys with vboot headers",
 		      print_help);

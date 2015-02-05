@@ -199,5 +199,6 @@ done_file:
 }
 
 DECLARE_FUTIL_COMMAND(load_fmap, do_load_fmap,
+		      VBOOT_VERSION_ALL,
 		      "Replace the contents of specified FMAP areas",
 		      help_and_quit);

@@ -386,5 +386,6 @@ static int do_vbutil_firmware(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_firmware, do_vbutil_firmware,
+		      VBOOT_VERSION_1_0,
 		      "Verified boot firmware utility",
 		      print_help);

@@ -88,5 +88,6 @@ static int do_dump_kernel_config(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(dump_kernel_config, do_dump_kernel_config,
+		      VBOOT_VERSION_ALL,
 		      "Prints the kernel command line",
 		      PrintHelp);

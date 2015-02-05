@@ -332,5 +332,6 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(vbutil_keyblock, do_vbutil_keyblock,
+		      VBOOT_VERSION_1_0,
 		      "Creates, signs, and verifies a keyblock",
 		      print_help);

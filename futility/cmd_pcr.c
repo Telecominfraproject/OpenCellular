@@ -182,5 +182,6 @@ static int do_pcr(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(pcr, do_pcr,
+		      VBOOT_VERSION_ALL,
 		      "Simulate a TPM PCR extension operation",
 		      help_and_quit);

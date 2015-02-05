@@ -730,6 +730,7 @@ done:
 }
 
 DECLARE_FUTIL_COMMAND(show, do_show,
+		      VBOOT_VERSION_ALL,
 		      "Display the content of various binary components",
 		      print_help);
 
@@ -740,5 +741,6 @@ static int do_verify(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(verify, do_verify,
+		      VBOOT_VERSION_ALL,
 		      "Verify the signatures of various binary components",
 		      print_help);

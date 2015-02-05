@@ -398,11 +398,11 @@ static const char usage[] =
 	"Display (and extract) the FMAP components from a BIOS image.\n"
 	"\n"
 	"Options:\n"
-	"  -p             Use a format easy to parse by scripts\n"
-	"  -f             Use the format expected by flashrom\n"
+	"  -x             Extract the named sections from the file\n"
 	"  -h             Use a human-readable format\n"
 	"  -H             With -h, display any gaps\n"
-	"  -x             Extract the named sections from the file\n"
+	"  -p             Use a format easy to parse by scripts\n"
+	"  -F             Use the format expected by flashrom\n"
 	"\n"
 	"Specify one or more NAMEs to dump only those sections.\n"
 	"\n";
@@ -424,7 +424,7 @@ static int do_dump_fmap(int argc, char *argv[])
 	progname = argv[0];
 
 	opterr = 0;		/* quiet, you */
-	while ((c = getopt(argc, argv, ":xpfhH")) != -1) {
+	while ((c = getopt(argc, argv, ":xpFhH")) != -1) {
 		switch (c) {
 		case 'x':
 			opt_extract = 1;
@@ -432,7 +432,7 @@ static int do_dump_fmap(int argc, char *argv[])
 		case 'p':
 			opt_format = FMT_PRETTY;
 			break;
-		case 'f':
+		case 'F':
 			opt_format = FMT_FLASHROM;
 			break;
 		case 'H':
@@ -514,5 +514,6 @@ static int do_dump_fmap(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(dump_fmap, do_dump_fmap,
+		      VBOOT_VERSION_ALL,
 		      "Display FMAP contents from a firmware image",
 		      print_help);

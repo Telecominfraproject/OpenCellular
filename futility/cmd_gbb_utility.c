@@ -57,26 +57,39 @@ static void print_help(const char *prog)
 }
 
 enum {
-	OPT_DIGEST = 1000,
+	OPT_HWID = 1000,
+	OPT_FLAGS,
+	OPT_DIGEST,
 };
 
 /* Command line options */
-static const struct option long_opts[] = {
-	/* name    hasarg *flag val */
+static struct option long_opts[] = {
+	/* name  has_arg *flag val */
 	{"get", 0, NULL, 'g'},
 	{"set", 0, NULL, 's'},
 	{"create", 1, NULL, 'c'},
 	{"output", 1, NULL, 'o'},
 	{"rootkey", 1, NULL, 'k'},
 	{"bmpfv", 1, NULL, 'b'},
-	{"recoverykey", 1, NULL, 'R'},
-	{"hwid", 2, NULL, 'i'},
-	{"flags", 2, NULL, 'L'},
+	{"recoverykey", 1, NULL, 'r'},
+	{"hwid", 0, NULL, OPT_HWID},
+	{"flags", 0, NULL, OPT_FLAGS},
 	{"digest", 0, NULL, OPT_DIGEST},
 	{NULL, 0, NULL, 0},
 };
 
-static char *short_opts = ":gsc:o:k:b:R:r:h:i:L:f:";
+static char *short_opts = ":gsc:o:k:b:r:";
+
+/* Change the has_arg field of a long_opts entry */
+static void opt_has_arg(const char *name, int val)
+{
+	struct option *p;
+	for (p = long_opts; p->name; p++)
+		if (!strcmp(name, p->name)) {
+			p->has_arg = val;
+			break;
+		}
+}
 
 static int errorcnt;
 
@@ -360,9 +373,13 @@ static int do_gbb_utility(int argc, char *argv[])
 		switch (i) {
 		case 'g':
 			mode = DO_GET;
+			opt_has_arg("flags", 0);
+			opt_has_arg("hwid", 0);
 			break;
 		case 's':
 			mode = DO_SET;
+			opt_has_arg("flags", 1);
+			opt_has_arg("hwid", 1);
 			break;
 		case 'c':
 			mode = DO_CREATE;
@@ -377,18 +394,15 @@ static int do_gbb_utility(int argc, char *argv[])
 		case 'b':
 			opt_bmpfv = optarg;
 			break;
-		case 'R':
 		case 'r':
 			opt_recoverykey = optarg;
 			break;
-		case 'i':
-		case 'h':
+		case OPT_HWID:
 			/* --hwid is optional: null might be okay */
 			opt_hwid = optarg;
 			sel_hwid = 1;
 			break;
-		case 'L':
-		case 'f':
+		case OPT_FLAGS:
 			/* --flags is optional: null might be okay */
 			opt_flags = optarg;
 			sel_flags = 1;
@@ -624,5 +638,6 @@ static int do_gbb_utility(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(gbb_utility, do_gbb_utility,
+		      VBOOT_VERSION_ALL,
 		      "Manipulate the Google Binary Block (GBB)",
 		      print_help);

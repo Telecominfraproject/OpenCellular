@@ -6,6 +6,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -175,8 +176,11 @@ static void log_args(int argc, char *argv[])
 
 /******************************************************************************/
 
+/* Default is to support everything we can */
+enum vboot_version vboot_version = VBOOT_VERSION_ALL;
+
 static const char *const usage = "\n"
-"Usage: " MYNAME " COMMAND [args...]\n"
+"Usage: " MYNAME " [options] COMMAND [args...]\n"
 "\n"
 "This is the unified firmware utility, which will eventually replace\n"
 "most of the distinct verified boot tools formerly produced by the\n"
@@ -187,10 +191,12 @@ static const char *const usage = "\n"
 "as " MYNAME ", followed by the original name as the first argument.\n"
 "\n";
 
-static void print_help(const char *cmd)
-{
-	puts(usage);
-}
+static const char *const options =
+"Global options:\n"
+"\n"
+"  --vb1        Use only vboot v1.0 binary formats\n"
+"  --vb21       Use only vboot v2.1 binary formats\n"
+"\n";
 
 static const struct futil_cmd_t *find_command(const char *name)
 {
@@ -208,12 +214,15 @@ static void list_commands(void)
 	const struct futil_cmd_t *const *cmd;
 
 	for (cmd = futil_cmds; *cmd; cmd++)
-		printf("  %-20s %s\n", (*cmd)->name, (*cmd)->shorthelp);
+		if (vboot_version & (*cmd)->version)
+			printf("  %-20s %s\n",
+			       (*cmd)->name, (*cmd)->shorthelp);
 }
 
 static int do_help(int argc, char *argv[])
 {
 	const struct futil_cmd_t *cmd;
+	const char *vstr;
 
 	if (argc >= 2) {
 		cmd = find_command(argv[1]);
@@ -227,16 +236,30 @@ static int do_help(int argc, char *argv[])
 
 	fputs(usage, stdout);
 
-	printf("The following commands are built-in:\n\n");
+	if (vboot_version == VBOOT_VERSION_ALL)
+		fputs(options, stdout);
+
+	switch (vboot_version) {
+	case VBOOT_VERSION_1_0:
+		vstr = "version 1.0 ";
+		break;
+	case VBOOT_VERSION_2_1:
+		vstr = "version 2.1 ";
+		break;
+	case VBOOT_VERSION_ALL:
+		vstr = "";
+		break;
+	}
+	printf("The following %scommands are built-in:\n\n", vstr);
 	list_commands();
 	printf("\nUse \"" MYNAME " help COMMAND\" for more information.\n\n");
 
 	return 0;
 }
 
-DECLARE_FUTIL_COMMAND(help, do_help,
+DECLARE_FUTIL_COMMAND(help, do_help, VBOOT_VERSION_ALL,
 		      "Show a bit of help (you're looking at it)",
-		      print_help);
+		      NULL);
 
 static int do_version(int argc, char *argv[])
 {
@@ -244,7 +267,7 @@ static int do_version(int argc, char *argv[])
 	return 0;
 }
 
-DECLARE_FUTIL_COMMAND(version, do_version,
+DECLARE_FUTIL_COMMAND(version, do_version, VBOOT_VERSION_ALL,
 		      "Show the futility source revision and build date",
 		      NULL);
 
@@ -276,6 +299,13 @@ int main(int argc, char *argv[], char *envp[])
 {
 	char *progname;
 	const struct futil_cmd_t *cmd;
+	int i, errorcnt = 0;
+	int vb_ver = VBOOT_VERSION_ALL;
+	struct option long_opts[] = {
+		{"vb1" , 0,  &vb_ver,  VBOOT_VERSION_1_0},
+		{"vb21", 0,  &vb_ver,  VBOOT_VERSION_2_1},
+		{ 0, 0, 0, 0},
+	};
 
 	log_args(argc, argv);
 
@@ -285,23 +315,48 @@ int main(int argc, char *argv[], char *envp[])
 	/* See if the program name is a command we recognize */
 	cmd = find_command(progname);
 	if (cmd)
+		/* Yep, just do that */
 		return run_command(cmd, argc, argv);
 
-	/* The program name means nothing, so we require an argument. */
-	if (argc < 2) {
+	/* Parse the global options, stopping at the first non-option. */
+	opterr = 0;				/* quiet, you. */
+	while ((i = getopt_long(argc, argv, "+:", long_opts, NULL)) != -1) {
+		switch (i) {
+		case '?':
+			if (optopt)
+				fprintf(stderr, "Unrecognized option: -%c\n",
+					optopt);
+			else
+				fprintf(stderr, "Unrecognized option: %s\n",
+					argv[optind - 1]);
+			errorcnt++;
+			break;
+		case ':':
+			fprintf(stderr, "Missing argument to -%c\n", optopt);
+			errorcnt++;
+			break;
+		case 0:				/* handled option */
+			break;
+		default:
+			Debug("i=%d\n", i);
+			DIE;
+		}
+	}
+	vboot_version = vb_ver;
+
+	/* Reset the getopt state so commands can parse their own options. */
+	argc -= optind;
+	argv += optind;
+	optind = 0;
+
+	/* We require a command name. */
+	if (errorcnt || argc < 1) {
 		do_help(0, 0);
 		return 1;
 	}
 
-	/* The first arg should be a command we recognize */
-	argc--;
-	argv++;
-
 	/* For reasons I've forgotten, treat /blah/blah/CMD the same as CMD */
 	progname = simple_basename(argv[0]);
-	/* Oh, and treat "--foo" the same as "foo" */
-	while (*progname == '-')
-		progname++;
 
 	/* Do we recognize the command? */
 	cmd = find_command(progname);

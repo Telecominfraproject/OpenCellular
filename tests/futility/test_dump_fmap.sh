@@ -10,7 +10,7 @@ TMP="$me.tmp"
 cd "$OUTDIR"
 
 # Good FMAP
-"$FUTILITY" dump_fmap -f "${SCRIPTDIR}/data_fmap.bin"  > "$TMP"
+"$FUTILITY" dump_fmap -F "${SCRIPTDIR}/data_fmap.bin"  > "$TMP"
 cmp "${SCRIPTDIR}/data_fmap_expect_f.txt" "$TMP"
 
 "$FUTILITY" dump_fmap -p "${SCRIPTDIR}/data_fmap.bin"  > "$TMP"
