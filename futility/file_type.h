@@ -25,6 +25,7 @@ enum futil_file_type {
 	FILE_TYPE_PRIVKEY,			/* VbPrivateKey */
 	FILE_TYPE_VB2_PUBKEY,			/* struct vb2_public_key */
 	FILE_TYPE_VB2_PRIVKEY,			/* struct vb2_private_key */
+	FILE_TYPE_PEM,				/* RSA .pem file */
 
 	NUM_FILE_TYPES
 };
@@ -51,5 +52,6 @@ enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len);
 enum futil_file_type recognize_gpt(uint8_t *buf, uint32_t len);
 enum futil_file_type recognize_vb1_key(uint8_t *buf, uint32_t len);
 enum futil_file_type recognize_vb2_key(uint8_t *buf, uint32_t len);
+enum futil_file_type recognize_pem(uint8_t *buf, uint32_t len);
 
 #endif	/* VBOOT_REFERENCE_FUTILITY_FILE_TYPE_H_ */

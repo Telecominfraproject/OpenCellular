@@ -38,6 +38,7 @@ enum futil_cb_component {
 	CB_PRIVKEY,
 	CB_VB2_PUBKEY,
 	CB_VB2_PRIVKEY,
+	CB_PEM,
 
 	NUM_CB_COMPONENTS
 };
@@ -87,6 +88,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state);
 int futil_cb_show_privkey(struct futil_traverse_state_s *state);
 int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state);
 int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state);
+int futil_cb_show_pem(struct futil_traverse_state_s *state);
 
 int futil_cb_sign_pubkey(struct futil_traverse_state_s *state);
 int futil_cb_sign_fw_main(struct futil_traverse_state_s *state);

@@ -37,8 +37,12 @@ done
 # Demonstrate that the sha1sums are the same for all the keys created from the
 # same .pem files, both public and private, vb1 and vb21.
 for sig in rsa1024 rsa2048 rsa4096 rsa8192; do
-  num=$(${FUTILITY} show ${TMP}_key_${sig}.* | grep sha1sum | uniq | wc -l)
-  [ "$num" -eq "1" ]
+  pem_sum=$(${FUTILITY} show "${TESTKEYS}/key_${sig}.pem" |
+    awk '/sha1sum/ {print $3}')
+  key_sums=$(${FUTILITY} show ${TMP}_key_${sig}.* |
+    awk '/sha1sum/ {print $3}' | uniq)
+  # note that this also tests that all the key_sums are the same
+  [ "$pem_sum" = "$key_sums" ]
 done
 
 # cleanup

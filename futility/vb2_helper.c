@@ -4,6 +4,9 @@
  * found in the LICENSE file.
  */
 
+#define OPENSSL_NO_SHA
+#include <openssl/pem.h>
+
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2guid.h"
@@ -143,5 +146,72 @@ int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
 	printf("\n");
 
 	vb2_private_key_free(key);
+	return 0;
+}
+
+static RSA *rsa_from_buffer(uint8_t *buf, uint32_t len)
+{
+	BIO *bp;
+	RSA *rsa_key;
+
+	bp = BIO_new_mem_buf(buf, len);
+	if (!bp)
+		return 0;
+
+	rsa_key = PEM_read_bio_RSAPrivateKey(bp, NULL, NULL, NULL);
+	if (!rsa_key) {
+		BIO_free(bp);
+		return 0;
+	}
+
+	BIO_free(bp);
+
+	return rsa_key;
+}
+
+enum futil_file_type recognize_pem(uint8_t *buf, uint32_t len)
+{
+	RSA *rsa_key = rsa_from_buffer(buf, len);
+
+	if (rsa_key) {
+		RSA_free(rsa_key);
+		return FILE_TYPE_PEM;
+	}
+
+	return FILE_TYPE_UNKNOWN;
+}
+
+int futil_cb_show_pem(struct futil_traverse_state_s *state)
+{
+	RSA *rsa_key;
+	uint8_t *keyb, *digest;
+	uint32_t keyb_len;
+	int i, bits;
+
+	printf("Private Key file:      %s\n", state->in_filename);
+
+	/* We're called only after recognize_pem, so this should work. */
+	rsa_key = rsa_from_buffer(state->my_area->buf, state->my_area->len);
+	if (!rsa_key)
+		DIE;
+
+	bits = BN_num_bits(rsa_key->n);
+	printf("  Key length:          %d\n", bits);
+
+	if (vb_keyb_from_rsa(rsa_key, &keyb, &keyb_len)) {
+		printf("  Key sha1sum:         <error>");
+		RSA_free(rsa_key);
+		return 1;
+	}
+
+	printf("  Key sha1sum:         ");
+	digest = DigestBuf(keyb, keyb_len, SHA1_DIGEST_ALGORITHM);
+	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+		printf("%02x", digest[i]);
+	printf("\n");
+
+	free(digest);
+	free(keyb);
+	RSA_free(rsa_key);
 	return 0;
 }

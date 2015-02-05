@@ -33,6 +33,7 @@ static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_show_privkey,		/* CB_PRIVKEY */
 	futil_cb_show_vb2_pubkey,	/* CB_VB2_PUBKEY */
 	futil_cb_show_vb2_privkey,	/* CB_VB2_PRIVKEY */
+	futil_cb_show_pem,		/* CB_PEM */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_show_funcs) == NUM_CB_COMPONENTS);
 
@@ -55,6 +56,7 @@ static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) = {
 	NULL,				/* CB_PRIVKEY */
 	NULL,				/* CB_VB2_PUBKEY */
 	NULL,				/* CB_VB2_PRIVKEY */
+	NULL,				/* CB_PEM */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_sign_funcs) == NUM_CB_COMPONENTS);
 
@@ -86,6 +88,7 @@ static const struct {
 	{CB_PRIVKEY,       "VbPrivateKey"},	/* FILE_TYPE_PRIVKEY */
 	{CB_VB2_PUBKEY,    "vb21 public key"},	/* FILE_TYPE_VB2_PUBKEY */
 	{CB_VB2_PRIVKEY,   "vb21 private key"},	/* FILE_TYPE_VB2_PRIVKEY */
+	{CB_PEM,           "RSA private key"},	/* FILE_TYPE_PEM */
 };
 BUILD_ASSERT(ARRAY_SIZE(direct_callback) == NUM_FILE_TYPES);
 
@@ -160,6 +163,7 @@ static const char * const futil_cb_component_str[] = {
 	"CB_PRIVKEY",
 	"CB_VB2_PUBKEY",
 	"CB_VB2_PRIVKEY",
+	"CB_PEM",
 };
 BUILD_ASSERT(ARRAY_SIZE(futil_cb_component_str) == NUM_CB_COMPONENTS);
 
