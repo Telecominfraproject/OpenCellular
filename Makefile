@@ -617,7 +617,8 @@ FUTIL_SRCS = \
 	futility/cmd_vbutil_keyblock.c \
 	futility/file_type.c \
 	futility/traversal.c \
-	futility/vb1_helper.c
+	futility/vb1_helper.c \
+	futility/vb2_helper.c
 
 # List of commands built in futility and futility_s.
 FUTIL_STATIC_CMD_LIST = ${BUILD}/gen/futility_static_cmds.c

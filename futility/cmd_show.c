@@ -46,6 +46,7 @@ static struct local_data_s {
 
 static void show_key(VbPublicKey *pubkey, const char *sp)
 {
+	printf("%sVboot API:           1.0\n", sp);
 	printf("%sAlgorithm:           %" PRIu64 " %s\n", sp, pubkey->algorithm,
 	       (pubkey->algorithm < kNumAlgorithms ?
 		algo_strings[pubkey->algorithm] : "(invalid)"));
@@ -113,6 +114,7 @@ int futil_cb_show_privkey(struct futil_traverse_state_s *state)
 	key.algorithm = *(typeof(key.algorithm) *)state->my_area->buf;
 
 	printf("Private Key file:      %s\n", state->in_filename);
+	printf("  Vboot API:           1.0\n");
 	alg_okay = key.algorithm < kNumAlgorithms;
 	printf("  Algorithm:           %" PRIu64 " %s\n", key.algorithm,
 	       alg_okay ? algo_strings[key.algorithm] : "(unknown)");

@@ -32,6 +32,8 @@ static const char * const type_strings[] = {
 	"raw kernel",
 	"chromiumos disk image",
 	"VbPrivateKey",
+	"vb21 public key",
+	"vb21 private key",
 };
 BUILD_ASSERT(ARRAY_SIZE(type_strings) == NUM_FILE_TYPES);
 
@@ -49,7 +51,8 @@ enum futil_file_type (*recognizers[])(uint8_t *buf, uint32_t len) = {
 	&recognize_bios_image,
 	&recognize_gbb,
 	&recognize_vblock1,
-	&recognize_privkey,
+	&recognize_vb1_key,
+	&recognize_vb2_key,
 };
 
 /* Try to figure out what we're looking at */

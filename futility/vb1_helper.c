@@ -718,7 +718,6 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
-	VbPublicKey *pubkey = (VbPublicKey *)buf;
 	VbFirmwarePreambleHeader *fw_preamble;
 	VbKernelPreambleHeader *kern_preamble;
 	RSAPublicKey *rsa;
@@ -743,18 +742,20 @@ enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len)
 		return FILE_TYPE_KEYBLOCK;
 	}
 
-	/* Maybe just a VbPublicKey? */
-	if (PublicKeyLooksOkay(pubkey, len))
-		return FILE_TYPE_PUBKEY;
-
 	return FILE_TYPE_UNKNOWN;
 }
 
-enum futil_file_type recognize_privkey(uint8_t *buf, uint32_t len)
+enum futil_file_type recognize_vb1_key(uint8_t *buf, uint32_t len)
 {
+	VbPublicKey *pubkey = (VbPublicKey *)buf;
 	VbPrivateKey key;
 	const unsigned char *start;
 
+	/* Maybe just a VbPublicKey? */
+	if (len >= sizeof(VbPublicKey) && PublicKeyLooksOkay(pubkey, len))
+		return FILE_TYPE_PUBKEY;
+
+	/* How about a VbPrivateKey? */
 	if (len < sizeof(key.algorithm))
 		return FILE_TYPE_UNKNOWN;
 

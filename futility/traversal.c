@@ -31,6 +31,8 @@ static int (* const cb_show_funcs[])(struct futil_traverse_state_s *state) = {
 	NULL,				/* CB_RAW_FIRMWARE */
 	NULL,				/* CB_RAW_KERNEL */
 	futil_cb_show_privkey,		/* CB_PRIVKEY */
+	futil_cb_show_vb2_pubkey,	/* CB_VB2_PUBKEY */
+	futil_cb_show_vb2_privkey,	/* CB_VB2_PRIVKEY */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_show_funcs) == NUM_CB_COMPONENTS);
 
@@ -51,6 +53,8 @@ static int (* const cb_sign_funcs[])(struct futil_traverse_state_s *state) = {
 	futil_cb_sign_raw_firmware,	/* CB_RAW_FIRMWARE */
 	futil_cb_create_kernel_part,	/* CB_RAW_KERNEL */
 	NULL,				/* CB_PRIVKEY */
+	NULL,				/* CB_VB2_PUBKEY */
+	NULL,				/* CB_VB2_PRIVKEY */
 };
 BUILD_ASSERT(ARRAY_SIZE(cb_sign_funcs) == NUM_CB_COMPONENTS);
 
@@ -80,6 +84,8 @@ static const struct {
 	{CB_RAW_KERNEL,    "raw kernel"},	/* FILE_TYPE_RAW_KERNEL */
 	{0,                "chromiumos disk"},	/* FILE_TYPE_CHROMIUMOS_DISK */
 	{CB_PRIVKEY,       "VbPrivateKey"},	/* FILE_TYPE_PRIVKEY */
+	{CB_VB2_PUBKEY,    "vb21 public key"},	/* FILE_TYPE_VB2_PUBKEY */
+	{CB_VB2_PRIVKEY,   "vb21 private key"},	/* FILE_TYPE_VB2_PRIVKEY */
 };
 BUILD_ASSERT(ARRAY_SIZE(direct_callback) == NUM_FILE_TYPES);
 
@@ -152,6 +158,8 @@ static const char * const futil_cb_component_str[] = {
 	"CB_RAW_FIRMWARE",
 	"CB_RAW_KERNEL",
 	"CB_PRIVKEY",
+	"CB_VB2_PUBKEY",
+	"CB_VB2_PRIVKEY",
 };
 BUILD_ASSERT(ARRAY_SIZE(futil_cb_component_str) == NUM_CB_COMPONENTS);
 

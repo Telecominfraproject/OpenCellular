@@ -270,7 +270,7 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 	memcpy(buf, &pkey, sizeof(pkey));
 
 	/* strcpy() is ok here because we checked the length above */
-	if (key->desc)
+	if (pkey.c.desc_size)
 		strcpy((char *)buf + pkey.c.fixed_size, key->desc);
 
 	if (rsabuf) {
