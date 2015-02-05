@@ -1259,12 +1259,12 @@ runtests: test_setup test_targets
 
 # Generate test keys
 .PHONY: genkeys
-genkeys: utils
+genkeys: utils test_setup
 	tests/gen_test_keys.sh
 
 # Generate test cases for fuzzing
 .PHONY: genfuzztestcases
-genfuzztestcases: utils
+genfuzztestcases: utils test_setup
 	tests/gen_fuzz_test_cases.sh
 
 .PHONY: runbmptests
