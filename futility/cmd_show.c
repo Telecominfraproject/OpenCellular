@@ -3,6 +3,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#define OPENSSL_NO_SHA
+#include <openssl/rsa.h>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -109,15 +113,27 @@ int futil_cb_show_pubkey(struct futil_traverse_state_s *state)
 int futil_cb_show_privkey(struct futil_traverse_state_s *state)
 {
 	VbPrivateKey key;
-	int alg_okay;
+	const unsigned char *start;
+	int len, alg_okay;
 
 	key.algorithm = *(typeof(key.algorithm) *)state->my_area->buf;
+	start = state->my_area->buf + sizeof(key.algorithm);
+	len = state->my_area->len - sizeof(key.algorithm);
+	key.rsa_private_key = d2i_RSAPrivateKey(NULL, &start, len);
 
 	printf("Private Key file:      %s\n", state->in_filename);
 	printf("  Vboot API:           1.0\n");
 	alg_okay = key.algorithm < kNumAlgorithms;
 	printf("  Algorithm:           %" PRIu64 " %s\n", key.algorithm,
 	       alg_okay ? algo_strings[key.algorithm] : "(unknown)");
+	printf("  Key sha1sum:         ");
+	if (key.rsa_private_key) {
+		PrintPrivKeySha1Sum(&key);
+		RSA_free(key.rsa_private_key);
+	} else {
+		printf("<error>");
+	}
+	printf("\n");
 
 	if (alg_okay)
 		state->my_area->_flags |= AREA_IS_VALID;

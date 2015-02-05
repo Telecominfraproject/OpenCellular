@@ -34,6 +34,13 @@ for sig in rsa1024 rsa2048 rsa4096 rsa8192; do
   done
 done
 
+# Demonstrate that the sha1sums are the same for all the keys created from the
+# same .pem files, both public and private, vb1 and vb21.
+for sig in rsa1024 rsa2048 rsa4096 rsa8192; do
+  num=$(${FUTILITY} show ${TMP}_key_${sig}.* | grep sha1sum | uniq | wc -l)
+  [ "$num" -eq "1" ]
+done
+
 # cleanup
 rm -rf ${TMP}*
 exit 0

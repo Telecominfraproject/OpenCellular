@@ -8,11 +8,15 @@
 #ifndef VBOOT_REFERENCE_UTIL_MISC_H_
 #define VBOOT_REFERENCE_UTIL_MISC_H_
 
+#include "host_key.h"
 #include "vboot_struct.h"
 struct rsa_st;
 
-/* Prints the sha1sum of the given VbPublicKey to stdout. */
-void PrintPubKeySha1Sum(VbPublicKey* key);
+/* Prints the sha1sum of a VbPublicKey to stdout. */
+void PrintPubKeySha1Sum(VbPublicKey *key);
+
+/* Prints the sha1sum of a VbPrivateKey to stdout. */
+void PrintPrivKeySha1Sum(VbPrivateKey *key);
 
 /*
  * Our packed RSBPublicKey buffer (historically in files ending with ".keyb",

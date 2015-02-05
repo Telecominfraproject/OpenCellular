@@ -8,6 +8,7 @@
 #include "2common.h"
 #include "2guid.h"
 #include "2rsa.h"
+#include "util_misc.h"
 #include "vb2_common.h"
 #include "vb2_struct.h"
 
@@ -91,6 +92,25 @@ int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
 	return 0;
 }
 
+static void vb2_print_private_key_sha1sum(struct vb2_private_key *key)
+{
+	uint8_t *buf, *digest;
+	uint32_t buflen;
+	int i;
+
+	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen)) {
+		printf("<error>");
+		return;
+	}
+
+	digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+		printf("%02x", digest[i]);
+
+	free(digest);
+	free(buf);
+}
+
 int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
 {
 	struct vb2_private_key *key = 0;
@@ -118,7 +138,9 @@ int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
 	printf("  Hash Algorithm:      %d %s\n", key->hash_alg,
 	       entry ? entry->name : "(invalid)");
 	printf("  GUID:                %s\n", guid_str);
-
+	printf("  Key sha1sum:         ");
+	vb2_print_private_key_sha1sum(key);
+	printf("\n");
 
 	vb2_private_key_free(key);
 	return 0;

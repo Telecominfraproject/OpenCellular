@@ -29,6 +29,25 @@ void PrintPubKeySha1Sum(VbPublicKey *key)
 	free(digest);
 }
 
+void PrintPrivKeySha1Sum(VbPrivateKey *key)
+{
+	uint8_t *buf, *digest;
+	uint32_t buflen;
+	int i;
+
+	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen)) {
+		printf("<error>");
+		return;
+	}
+
+	digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+		printf("%02x", digest[i]);
+
+	free(digest);
+	free(buf);
+}
+
 int vb_keyb_from_rsa(struct rsa_st *rsa_private_key,
 		     uint8_t **keyb_data, uint32_t *keyb_size)
 {
