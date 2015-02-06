@@ -524,6 +524,11 @@ int VbGetArchPropertyInt(const char* name) {
 
     return VbGetVarGpio("developer-switch");
   } else if (!strcasecmp(name, "recoverysw_cur")) {
+    int value;
+    value = VbGetPlatformGpioStatus("recovery");
+    if (value != -1)
+      return value;
+
     return VbGetVarGpio("recovery-switch");
   } else if (!strcasecmp(name, "wpsw_cur")) {
     int value;
