@@ -2,19 +2,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * Defines EFI related structure. See more details in EFI 2.3 spec.
+ * Defines UEFI related structure. See more details in the UEFI spec.
  *
- * To download EFI standard, please visit UEFI homepage:
+ * To download UEFI standard, please visit UEFI homepage:
  *    http://www.uefi.org/
  */
 #ifndef VBOOT_REFERENCE_CGPTLIB_GPT_H_
 #define VBOOT_REFERENCE_CGPTLIB_GPT_H_
 #include <stdint.h>
 
-#define GPT_HEADER_SIGNATURE  "EFI PART"
-#define GPT_HEADER_SIGNATURE2 "CHROMEOS"
-#define GPT_HEADER_SIGNATURE_SIZE sizeof(GPT_HEADER_SIGNATURE)
+/* From the specification */
+#define GPT_HEADER_SIGNATURE_SIZE 8
 #define GPT_HEADER_REVISION 0x00010000
+#define GPT_HEADER_SIGNATURE  "EFI PART"
+
+/* From https://chromium-review.googlesource.com/31264 */
+#define GPT_HEADER_SIGNATURE2 "CHROMEOS"
 
 /*
  * The first 3 numbers should be stored in network-endian format according to
@@ -43,7 +46,7 @@
 #define UUID_NODE_LEN 6
 #define GUID_SIZE 16
 
-/* GUID definition. Defined in appendix A of EFI standard. */
+/* GUID definition. Defined in appendix A of UEFI standard. */
 typedef struct {
 	union {
 		struct {
@@ -63,12 +66,12 @@ typedef struct {
 /*
  * GPT header defines how many partitions exist on a drive and sectors managed.
  * For every drive device, there are 2 headers, primary and secondary.  Most of
- * fields are duplicated except my_lba and entries_lba.
+ * the fields are duplicates except my_lba and entries_lba.
  *
- * You may find more details in chapter 5 of EFI standard.
+ * You may find more details in chapter 5 of the UEFI standard.
  */
 typedef struct {
-	char signature[8];
+	char signature[GPT_HEADER_SIGNATURE_SIZE];
 	uint32_t revision;
 	uint32_t size;
 	uint32_t header_crc32;
@@ -91,7 +94,7 @@ typedef struct {
  * GPT partition entry defines the starting and ending LBAs of a partition.  It
  * also contains the unique GUID, type, and attribute bits.
  *
- * You may find more details in chapter 5 of EFI standard.
+ * You may find more details in chapter 5 of the UEFI standard.
  */
 typedef struct {
 	Guid type;
