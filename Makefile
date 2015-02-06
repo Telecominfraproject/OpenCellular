@@ -179,6 +179,10 @@ ifneq (${COV},)
   COV_INFO = ${BUILD}/coverage.info
 endif
 
+ifdef HAVE_MACOS
+  CFLAGS += -DHAVE_MACOS -Wno-deprecated-declarations
+endif
+
 # And a few more default utilities
 LD = ${CC}
 CXX ?= g++

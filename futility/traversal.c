@@ -164,7 +164,7 @@ static int invoke_callback(struct futil_traverse_state_s *state,
 	      __func__, name, state->op, futil_cb_component_str[c],
 	      offset, len, buf);
 
-	if (c < 0 || c >= NUM_CB_COMPONENTS) {
+	if ((int) c < 0 || c >= NUM_CB_COMPONENTS) {
 		fprintf(stderr, "Invalid component %d\n", c);
 		return 1;
 	}
@@ -203,7 +203,7 @@ int futil_traverse(uint8_t *buf, uint32_t len,
 	const struct bios_area_s *area;
 	int retval = 0;
 
-	if (state->op < 0 || state->op >= NUM_FUTIL_OPS) {
+	if ((int) state->op < 0 || state->op >= NUM_FUTIL_OPS) {
 		fprintf(stderr, "Invalid op %d\n", state->op);
 		return 1;
 	}

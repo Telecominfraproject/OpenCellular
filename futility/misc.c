@@ -5,7 +5,9 @@
  */
 
 #include <errno.h>
+#ifndef HAVE_MACOS
 #include <linux/fs.h>		/* For BLKGETSIZE64 */
+#endif
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -241,8 +243,10 @@ enum futil_file_err futil_map_file(int fd, int writeable,
 		return FILE_ERR_STAT;
 	}
 
+#ifndef HAVE_MACOS
 	if (S_ISBLK(sb.st_mode))
 		ioctl(fd, BLKGETSIZE64, &sb.st_size);
+#endif
 
 	/* If the image is larger than 2^32 bytes, it's wrong. */
 	if (sb.st_size < 0 || sb.st_size > UINT32_MAX) {

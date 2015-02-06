@@ -7,7 +7,9 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
+#ifndef HAVE_MACOS
 #include <linux/fs.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/param.h>
@@ -456,6 +458,7 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc) {
               __FUNCTION__, nvctx_path);
       break;
     }
+#ifndef HAVE_MACOS
     /* Must flush buffer cache here to make sure it goes to disk */
     rv = ioctl(nvctx_fd, BLKFLSBUF, 0);
     if (rv < 0) {
@@ -463,6 +466,7 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc) {
               __FUNCTION__, nvctx_path);
       break;
     }
+#endif
     rv = 0;
   } while (0);
 

@@ -7,11 +7,15 @@
 #define VBOOT_REFERENCE_UTILITY_CGPT_ENDIAN_H_
 
 // Newer distros already have this. For those that don't, we add it here.
+#ifndef HAVE_MACOS
 #include <endian.h>
+#endif
 
 #ifndef le16toh
 
+#ifndef HAVE_MACOS
 # include <byteswap.h>
+#endif
 
 # if __BYTE_ORDER == __LITTLE_ENDIAN
 #  define htobe16(x) __bswap_16 (x)

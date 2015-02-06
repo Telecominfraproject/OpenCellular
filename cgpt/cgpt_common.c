@@ -9,8 +9,10 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
+#ifndef HAVE_MACOS
 #include <linux/major.h>
 #include <mtd/mtd-user.h>
+#endif
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -265,6 +267,7 @@ static int ObtainDriveSize(int fd, uint64_t* size, uint32_t* sector_bytes) {
   if (fstat(fd, &stat) == -1) {
     return -1;
   }
+#ifndef HAVE_MACOS
   if ((stat.st_mode & S_IFMT) != S_IFREG) {
     if (ioctl(fd, BLKGETSIZE64, size) < 0) {
       return -1;
@@ -276,6 +279,10 @@ static int ObtainDriveSize(int fd, uint64_t* size, uint32_t* sector_bytes) {
     *sector_bytes = 512;  /* bytes */
     *size = stat.st_size;
   }
+#else
+  *sector_bytes = 512;  /* bytes */
+  *size = stat.st_size;
+#endif
   return 0;
 }
 
@@ -289,7 +296,11 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode,
   // Clear struct for proper error handling.
   memset(drive, 0, sizeof(struct drive));
 
-  drive->fd = open(drive_path, mode | O_LARGEFILE | O_NOFOLLOW);
+  drive->fd = open(drive_path, mode | 
+#ifndef HAVE_MACOS
+		               O_LARGEFILE |
+#endif
+			       O_NOFOLLOW);
   if (drive->fd == -1) {
     Error("Can't open %s: %s\n", drive_path, strerror(errno));
     return CGPT_FAILED;
@@ -1010,4 +1021,6 @@ void PMBRToStr(struct pmbr *pmbr, char *str, unsigned int buflen) {
 
 /* Optional */
 int __GenerateGuid(Guid *newguid) { return CGPT_FAILED; };
+#ifndef HAVE_MACOS
 int GenerateGuid(Guid *newguid) __attribute__((weak, alias("__GenerateGuid")));
+#endif

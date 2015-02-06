@@ -37,7 +37,7 @@ BUILD_ASSERT(ARRAY_SIZE(type_strings) == NUM_FILE_TYPES);
 
 const char * const futil_file_type_str(enum futil_file_type type)
 {
-	if (type < 0 || type >= NUM_FILE_TYPES)
+	if ((int) type < 0 || type >= NUM_FILE_TYPES)
 		type = FILE_TYPE_UNKNOWN;
 
 	return type_strings[type];
