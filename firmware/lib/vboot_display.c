@@ -430,6 +430,16 @@ const char *RecoveryReasonString(uint8_t code)
 		return "EC software sync unable to jump to EC-RW";
 	case VBNV_RECOVERY_EC_PROTECT:
 		return "EC software sync protection error";
+	case VBNV_RECOVERY_VB2_SECDATA_INIT:
+		return "Secure NVRAM (TPM) initialization error";
+	case VBNV_RECOVERY_VB2_GBB_HEADER:
+		return "Error parsing GBB header";
+	case VBNV_RECOVERY_VB2_TPM_CLEAR_OWNER:
+		return "Error trying to clear TPM owner";
+	case VBNV_RECOVERY_VB2_DEV_SWITCH:
+		return "Error reading or updating developer switch";
+	case VBNV_RECOVERY_VB2_FW_SLOT:
+		return "Error selecting RW firmware slot";
 	case VBNV_RECOVERY_RO_UNSPECIFIED:
 		return "Unspecified/unknown error in RO firmware";
 	case VBNV_RECOVERY_RW_DEV_SCREEN:
@@ -511,11 +521,14 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	used += StrnAppend(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
 	used += StrnAppend(buf + used, hwid, DEBUG_INFO_SIZE - used);
 
-	/* Add recovery reason */
+	/* Add recovery reason and subcode */
+	VbNvGet(vncptr, VBNV_RECOVERY_SUBCODE, &i);
 	used += StrnAppend(buf + used,
 			"\nrecovery_reason: 0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 			       shared->recovery_reason, 16, 2);
+	used += StrnAppend(buf + used, " / 0x", DEBUG_INFO_SIZE - used);
+	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 16, 2);
 	used += StrnAppend(buf + used, "  ", DEBUG_INFO_SIZE - used);
 	used += StrnAppend(buf + used,
 			RecoveryReasonString(shared->recovery_reason),

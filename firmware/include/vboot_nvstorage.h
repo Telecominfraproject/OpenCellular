@@ -183,6 +183,16 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_EC_EXPECTED_HASH 0x29
 /* EC software sync - expected EC image doesn't match hash */
 #define VBNV_RECOVERY_EC_HASH_MISMATCH 0x2A
+/* VB2: Secure data inititalization error */
+#define VBNV_RECOVERY_VB2_SECDATA_INIT 0x2B
+/* VB2: GBB header is bad */
+#define VBNV_RECOVERY_VB2_GBB_HEADER  0x2C
+/* VB2: Unable to clear TPM owner */
+#define VBNV_RECOVERY_VB2_TPM_CLEAR_OWNER 0x2D
+/* VB2: Error determining/updating virtual dev switch */
+#define VBNV_RECOVERY_VB2_DEV_SWITCH  0x2E
+/* VB2: Error determining firmware slot */
+#define VBNV_RECOVERY_VB2_FW_SLOT     0x2F
 /* Unspecified/unknown error in read-only firmware */
 #define VBNV_RECOVERY_RO_UNSPECIFIED  0x3F
 /*
