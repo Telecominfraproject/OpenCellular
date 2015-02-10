@@ -78,7 +78,8 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 	/* Read try-b count and decrement if necessary */
 	VbNvGet(vnc, VBNV_TRY_B_COUNT, &try_b_count);
 	if (0 != try_b_count) {
-		VbNvSet(vnc, VBNV_TRY_B_COUNT, try_b_count - 1);
+		if (!(shared->flags & VBSD_NOFAIL_BOOT))
+			VbNvSet(vnc, VBNV_TRY_B_COUNT, try_b_count - 1);
 		shared->flags |= VBSD_FWB_TRIED;
 	}
 

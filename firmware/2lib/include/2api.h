@@ -100,6 +100,9 @@ enum vb2_context_flags {
 	 * back to its underlying storage, then may clear this flag.
 	 */
 	VB2_CONTEXT_SECDATAK_CHANGED = (1 << 11),
+
+	/* Boot optimistically: don't touch failure counters */
+	VB2_CONTEXT_NOFAIL_BOOT = (1 << 12),
 };
 
 /*

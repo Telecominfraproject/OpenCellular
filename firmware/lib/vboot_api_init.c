@@ -76,6 +76,8 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		shared->flags |= VBSD_BOOT_S3_RESUME;
 	if (iparams->flags & VB_INIT_FLAG_RO_NORMAL_SUPPORT)
 		shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
+	if (iparams->flags & VB_INIT_FLAG_NOFAIL_BOOT)
+		shared->flags |= VBSD_NOFAIL_BOOT;
 	if (iparams->flags & VB_INIT_FLAG_EC_SOFTWARE_SYNC)
 		shared->flags |= VBSD_EC_SOFTWARE_SYNC;
 	if (iparams->flags & VB_INIT_FLAG_EC_SLOW_UPDATE)

@@ -229,9 +229,12 @@ typedef struct VbCommonParams {
 #define VB_INIT_FLAG_VIRTUAL_REC_SWITCH  0x00001000
 /* Set when we are calling VbInit() before loading Option ROMs */
 #define VB_INIT_FLAG_BEFORE_OPROM_LOAD   0x00002000
-
 /* Allow USB boot on transition to dev */
 #define VB_INIT_FLAG_ALLOW_USB_BOOT	 0x00004000
+/* Set when we can't reliably identify boot failures. This prevents
+ * the boot-try counters from decrementing.
+ */
+#define VB_INIT_FLAG_NOFAIL_BOOT         0x00008000
 
 /*
  * Output flags for VbInitParams.out_flags.  Used to indicate potential boot

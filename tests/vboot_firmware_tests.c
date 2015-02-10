@@ -371,6 +371,39 @@ static void LoadFirmwareTest(void) {
   VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
   TEST_EQ(u, 4, "Used up a try");
 
+  /* There's a optimistic boot mode that doesn't consume tries.
+   * The behaviour should differ only in that the try count doesn't change. */
+  /* Optimistic boot case 1: count == 0: Go for A */
+  ResetMocks();
+  mpreamble[0].flags = VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL;
+  mpreamble[1].flags = VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL;
+  shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
+  shared->flags |= VBSD_NOFAIL_BOOT;
+  VbNvSet(&vnc, VBNV_TRY_B_COUNT, 0);
+  TestLoadFirmware(VBERROR_SUCCESS, 0, "Give up on B");
+  TEST_EQ(shared->check_fw_a_result, VBSD_LF_CHECK_VALID, "RO normal A valid");
+  TEST_EQ(shared->check_fw_b_result, 0, "RO normal B not checked");
+  TEST_EQ(shared->firmware_index, 0, "Boot A");
+  TEST_EQ(shared->flags & VBSD_FWB_TRIED, 0, "Didn't try firmware B");
+  TEST_EQ(shared->kernel_subkey.algorithm, 7, "Copy kernel subkey");
+  VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
+  TEST_EQ(u, 0, "try count still zero");
+  /* Optimistic boot case 2: count > 0: count unchanged, use B */
+  ResetMocks();
+  mpreamble[0].flags = VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL;
+  mpreamble[1].flags = VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL;
+  shared->flags |= VBSD_BOOT_RO_NORMAL_SUPPORT;
+  shared->flags |= VBSD_NOFAIL_BOOT;
+  VbNvSet(&vnc, VBNV_TRY_B_COUNT, 5);
+  TestLoadFirmware(VBERROR_SUCCESS, 0, "Check B then A");
+  TEST_EQ(shared->check_fw_a_result, 0, "RO normal A not checked ");
+  TEST_EQ(shared->check_fw_b_result, VBSD_LF_CHECK_VALID, "RO normal B valid");
+  TEST_EQ(shared->firmware_index, 1, "Boot B");
+  TEST_NEQ(shared->flags & VBSD_FWB_TRIED, 0, "Tried firmware B");
+  TEST_EQ(shared->kernel_subkey.algorithm, 8, "Copy kernel subkey");
+  VbNvGet(&vnc, VBNV_TRY_B_COUNT, &u);
+  TEST_EQ(u, 5, "Not used up a try");
+
   /* If both A and B are valid and grater version than TPM, A is
    * selected and B preamble (but not body) is verified. */
   ResetMocks();

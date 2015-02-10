@@ -441,8 +441,12 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
 			params->flags = preamble->flags;
 
-		/* Update GPT to note this is the kernel we're trying */
-		GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_TRY);
+		/* Update GPT to note this is the kernel we're trying.
+		 * But not when we assume that the boot process may
+		 * not complete for valid reasons (eg. early shutdown).
+		 */
+		if (!(shared->flags & VBSD_NOFAIL_BOOT))
+			GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_TRY);
 
 		/*
 		 * If we're in recovery mode or we're about to boot a

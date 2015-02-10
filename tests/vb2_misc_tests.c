@@ -446,6 +446,17 @@ static void select_slot_tests(void)
 	TEST_EQ(sd->fw_slot, 1, "selected B");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "ctx says choose B");
 
+	/* Slot A ran out of tries, even with nofail active */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_NOFAIL_BOOT;
+	vb2_nv_set(&cc, VB2_NV_FW_RESULT, VB2_FW_RESULT_TRYING);
+	TEST_SUCC(vb2_select_fw_slot(&cc), "select slot A out of tries");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TRY_NEXT), 1, "try B next");
+	TEST_NEQ(sd->status & VB2_SD_STATUS_CHOSE_SLOT, 0, "chose slot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_TRIED), 1, "tried B");
+	TEST_EQ(sd->fw_slot, 1, "selected B");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "ctx says choose B");
+
 	/* Slot A used up a try */
 	reset_common_data();
 	vb2_nv_set(&cc, VB2_NV_TRY_COUNT, 3);
@@ -457,6 +468,19 @@ static void select_slot_tests(void)
 	TEST_EQ(sd->fw_slot, 0, "selected A");
 	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "didn't choose B");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TRY_COUNT), 2, "tries decremented");
+
+	/* Slot A failed, but nofail active */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_NOFAIL_BOOT;
+	vb2_nv_set(&cc, VB2_NV_TRY_COUNT, 3);
+	TEST_SUCC(vb2_select_fw_slot(&cc), "try slot A");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_RESULT),
+		VB2_FW_RESULT_TRYING, "result trying");
+	TEST_NEQ(sd->status & VB2_SD_STATUS_CHOSE_SLOT, 0, "chose slot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FW_TRIED), 0, "tried A");
+	TEST_EQ(sd->fw_slot, 0, "selected A");
+	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "didn't choose B");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TRY_COUNT), 3, "tries not decremented");
 
 	/* Tried/result get copied to the previous fields */
 	reset_common_data();

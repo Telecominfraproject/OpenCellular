@@ -360,8 +360,9 @@ int vb2_select_fw_slot(struct vb2_context *ctx)
 		/* Still trying this firmware */
 		vb2_nv_set(ctx, VB2_NV_FW_RESULT, VB2_FW_RESULT_TRYING);
 
-		/* Decrement non-zero try count */
-		vb2_nv_set(ctx, VB2_NV_TRY_COUNT, tries - 1);
+		/* Decrement non-zero try count, unless told not to */
+		if (!(ctx->flags & VB2_CONTEXT_NOFAIL_BOOT))
+			vb2_nv_set(ctx, VB2_NV_TRY_COUNT, tries - 1);
 	}
 
 	/* Store the slot we're trying */

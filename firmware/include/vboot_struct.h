@@ -322,6 +322,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_OPROM_MATTERS               0x00010000
 /* Firmware has loaded the VGA Option ROM */
 #define VBSD_OPROM_LOADED                0x00020000
+/* Don't try for boot failures */
+#define VBSD_NOFAIL_BOOT                 0x00040000
 
 /*
  * Supported flags by header version.  It's ok to add new flags while keeping
