@@ -189,7 +189,7 @@ int vb2api_check_hash(struct vb2_context *ctx)
 	 */
 	rv = vb2_verify_digest(&key, &pre->body_signature, digest, &wb);
 	if (rv)
-		vb2_fail(ctx, VB2_RECOVERY_RO_INVALID_RW, rv);
+		vb2_fail(ctx, VB2_RECOVERY_FW_BODY, rv);
 
 	return rv;
 }

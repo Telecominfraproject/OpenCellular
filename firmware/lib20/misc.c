@@ -74,14 +74,20 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 
 	/* Verify the keyblock */
 	rv = vb2_verify_keyblock(kb, block_size, &root_key, &wb);
-	if (rv)
+	if (rv) {
+		vb2_fail(ctx, VB2_RECOVERY_FW_KEYBLOCK, rv);
 		return rv;
+	}
 
 	/* Key version is the upper 16 bits of the composite firmware version */
 	if (kb->data_key.key_version > 0xffff)
-		return VB2_ERROR_FW_KEYBLOCK_VERSION_RANGE;
-	if (kb->data_key.key_version < (sd->fw_version_secdata >> 16))
-		return VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK;
+		rv = VB2_ERROR_FW_KEYBLOCK_VERSION_RANGE;
+	if (!rv && kb->data_key.key_version < (sd->fw_version_secdata >> 16))
+		rv = VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK;
+	if (rv) {
+		vb2_fail(ctx, VB2_RECOVERY_FW_KEY_ROLLBACK, rv);
+		return rv;
+	}
 
 	sd->fw_version = kb->data_key.key_version << 16;
 
@@ -174,20 +180,25 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 
 	/* Verify the preamble */
 	rv = vb2_verify_fw_preamble(pre, pre_size, &data_key, &wb);
-	if (rv)
+	if (rv) {
+		vb2_fail(ctx, VB2_RECOVERY_FW_PREAMBLE, rv);
 		return rv;
+	}
 
 	/*
 	 * Firmware version is the lower 16 bits of the composite firmware
 	 * version.
 	 */
 	if (pre->firmware_version > 0xffff)
-		return VB2_ERROR_FW_PREAMBLE_VERSION_RANGE;
-
+		rv = VB2_ERROR_FW_PREAMBLE_VERSION_RANGE;
 	/* Combine with the key version from vb2_load_fw_keyblock() */
 	sd->fw_version |= pre->firmware_version;
-	if (sd->fw_version < sd->fw_version_secdata)
-		return VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
+	if (!rv && sd->fw_version < sd->fw_version_secdata)
+		rv = VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
+	if (rv) {
+		vb2_fail(ctx, VB2_RECOVERY_FW_ROLLBACK, rv);
+		return rv;
+	}
 
 	/*
 	 * If this is a newer version than in secure storage, and we
