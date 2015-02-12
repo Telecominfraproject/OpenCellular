@@ -18,6 +18,12 @@
 #include "vboot_api.h"
 #include "vboot_host.h"
 
+#ifdef USE_MTD
+#include <linux/major.h>
+#include <mtd/mtd-user.h>
+#include <mtdutils.h>
+#endif
+
 typedef ssize_t (*ReadFullyFn)(void *ctx, void *buf, size_t count);
 
 static ssize_t ReadFullyWithRead(void *ctx, void *buf, size_t count)
@@ -36,6 +42,14 @@ static ssize_t ReadFullyWithRead(void *ctx, void *buf, size_t count)
 	}
 	return nr_read;
 }
+
+#ifdef USE_MTD
+static ssize_t ReadFullyWithMtdRead(void *ctx, void *buf, size_t count)
+{
+	MtdReadContext *mtd_ctx = (MtdReadContext*)ctx;
+	return mtd_read_data(mtd_ctx, buf, count);
+}
+#endif
 
 /* Skip the stream by calling |read_fn| many times. Return 0 on success. */
 static int SkipWithRead(void *ctx, ReadFullyFn read_fn, size_t count)
@@ -130,9 +144,32 @@ char *FindKernelConfig(const char *infile, uint64_t kernel_body_load_address)
 	void *ctx = &fd;
 	ReadFullyFn read_fn = ReadFullyWithRead;
 
+#ifdef USE_MTD
+	struct stat stat_buf;
+	if (fstat(fd, &stat_buf)) {
+		VbExError("Cannot stat %s\n", infile);
+		return NULL;
+	}
+
+	int is_mtd = (major(stat_buf.st_rdev) == MTD_CHAR_MAJOR);
+	if (is_mtd) {
+		ctx = mtd_read_descriptor(fd, infile);
+		if (!ctx) {
+			VbExError("Cannot read from MTD device %s\n", infile);
+			return NULL;
+		}
+		read_fn = ReadFullyWithMtdRead;
+	}
+#endif
+
 	newstr = FindKernelConfigFromStream(ctx, read_fn,
 					    kernel_body_load_address);
 
+#ifdef USE_MTD
+	if (is_mtd) {
+		mtd_read_close(ctx);
+	}
+#endif
 	close(fd);
 
 	return newstr;

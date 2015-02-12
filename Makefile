@@ -164,6 +164,11 @@ ifneq (${PD_SYNC},)
 CFLAGS += -DPD_SYNC
 endif
 
+ifneq (${USE_MTD},)
+CFLAGS += -DUSE_MTD
+LDLIBS += -lmtdutils
+endif
+
 # NOTE: We don't use these files but they are useful for other packages to
 # query about required compiling/linking flags.
 PC_IN_FILES = vboot_host.pc.in
