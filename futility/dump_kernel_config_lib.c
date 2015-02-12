@@ -8,115 +8,132 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "vboot_api.h"
 #include "vboot_host.h"
 
-static uint8_t *GetKernelConfig(uint8_t *blob, size_t blob_size,
-				uint64_t kernel_body_load_address)
-{
+typedef ssize_t (*ReadFullyFn)(void *ctx, void *buf, size_t count);
 
-	VbKeyBlockHeader *key_block;
-	VbKernelPreambleHeader *preamble;
+static ssize_t ReadFullyWithRead(void *ctx, void *buf, size_t count)
+{
+	ssize_t nr_read = 0;
+	int fd = *((int*)ctx);
+	while (nr_read < count) {
+		ssize_t to_read = count - nr_read;
+		ssize_t chunk = read(fd, buf + nr_read, to_read);
+		if (chunk < 0) {
+			return -1;
+		} else if (chunk == 0) {
+			break;
+		}
+		nr_read += chunk;
+	}
+	return nr_read;
+}
+
+/* Skip the stream by calling |read_fn| many times. Return 0 on success. */
+static int SkipWithRead(void *ctx, ReadFullyFn read_fn, size_t count)
+{
+	char buf[1024];
+	ssize_t nr_skipped = 0;
+	while (nr_skipped < count) {
+		ssize_t to_read = count - nr_skipped;
+		if (to_read > sizeof(buf)) {
+			to_read = sizeof(buf);
+		}
+		if (read_fn(ctx, buf, to_read) != to_read) {
+			return -1;
+		}
+		nr_skipped += to_read;
+	}
+	return 0;
+}
+
+static char *FindKernelConfigFromStream(void *ctx, ReadFullyFn read_fn,
+					uint64_t kernel_body_load_address)
+{
+	VbKeyBlockHeader key_block;
+	VbKernelPreambleHeader preamble;
 	uint32_t now = 0;
 	uint32_t offset = 0;
 
 	/* Skip the key block */
-	key_block = (VbKeyBlockHeader *) blob;
-	now += key_block->key_block_size;
-	if (now + blob > blob + blob_size) {
+	if (read_fn(ctx, &key_block, sizeof(key_block)) != sizeof(key_block)) {
+		VbExError("not enough data to fill key block header\n");
+		return NULL;
+	}
+	ssize_t to_skip = key_block.key_block_size - sizeof(key_block);
+	if (to_skip < 0 || SkipWithRead(ctx, read_fn, to_skip)) {
 		VbExError("key_block_size advances past the end of the blob\n");
 		return NULL;
 	}
+	now += key_block.key_block_size;
 
 	/* Open up the preamble */
-	preamble = (VbKernelPreambleHeader *) (blob + now);
-	now += preamble->preamble_size;
-	if (now + blob > blob + blob_size) {
+	if (read_fn(ctx, &preamble, sizeof(preamble)) != sizeof(preamble)) {
+		VbExError("not enough data to fill preamble\n");
+		return NULL;
+	}
+	to_skip = preamble.preamble_size - sizeof(preamble);
+	if (to_skip < 0 || SkipWithRead(ctx, read_fn, to_skip)) {
 		VbExError("preamble_size advances past the end of the blob\n");
 		return NULL;
 	}
+	now += preamble.preamble_size;
 
 	/* Read body_load_address from preamble if no
 	 * kernel_body_load_address */
 	if (kernel_body_load_address == USE_PREAMBLE_LOAD_ADDR)
-		kernel_body_load_address = preamble->body_load_address;
+		kernel_body_load_address = preamble.body_load_address;
 
 	/* The x86 kernels have a pointer to the kernel commandline in the
 	 * zeropage table, but that's irrelevant for ARM. Both types keep the
 	 * config blob in the same place, so just go find it. */
-	offset = preamble->bootloader_address -
+	offset = preamble.bootloader_address -
 	    (kernel_body_load_address + CROS_PARAMS_SIZE +
 	     CROS_CONFIG_SIZE) + now;
-	if (offset > blob_size) {
+	to_skip = offset - now;
+	if (to_skip < 0 || SkipWithRead(ctx, read_fn, to_skip)) {
 		VbExError("params are outside of the memory blob: %x\n",
 			  offset);
 		return NULL;
 	}
-	return blob + offset;
-}
-
-static void *MMapFile(const char *filename, size_t *size)
-{
-	FILE *f;
-	uint8_t *buf;
-	long file_size = 0;
-
-	f = fopen(filename, "rb");
-	if (!f) {
-		VBDEBUG(("Unable to open file %s\n", filename));
+	char *ret = malloc(CROS_CONFIG_SIZE);
+	if (!ret) {
+		VbExError("No memory\n");
 		return NULL;
 	}
-
-	fseek(f, 0, SEEK_END);
-	file_size = ftell(f);
-	rewind(f);
-
-	if (file_size <= 0) {
-		fclose(f);
-		return NULL;
+	if (read_fn(ctx, ret, CROS_CONFIG_SIZE) != CROS_CONFIG_SIZE) {
+		VbExError("Cannot read kernel config\n");
+		free(ret);
+		ret = NULL;
 	}
-	*size = (size_t) file_size;
-
-	/* Uses a host primitive as this is not meant for firmware use. */
-	buf = mmap(NULL, *size, PROT_READ, MAP_PRIVATE, fileno(f), 0);
-	if (buf == MAP_FAILED) {
-		VbExError("Failed to mmap the file %s\n", filename);
-		fclose(f);
-		return NULL;
-	}
-
-	fclose(f);
-	return buf;
+	return ret;
 }
 
 char *FindKernelConfig(const char *infile, uint64_t kernel_body_load_address)
 {
-	uint8_t *blob;
-	size_t blob_size;
-	uint8_t *config = NULL;
 	char *newstr = NULL;
 
-	blob = MMapFile(infile, &blob_size);
-	if (!blob) {
-		VbExError("Error reading input file\n");
-		return 0;
+	int fd = open(infile, O_RDONLY | O_CLOEXEC | O_LARGEFILE);
+	if (fd < 0) {
+		VbExError("Cannot open %s\n", infile);
+		return NULL;
 	}
 
-	config = GetKernelConfig(blob, blob_size, kernel_body_load_address);
-	if (!config) {
-		VbExError("Error parsing input file\n");
-		munmap(blob, blob_size);
-		return 0;
-	}
+	void *ctx = &fd;
+	ReadFullyFn read_fn = ReadFullyWithRead;
 
-	newstr = strndup((char *)config, CROS_CONFIG_SIZE);
-	if (!newstr)
-		VbExError("Can't allocate new string\n");
+	newstr = FindKernelConfigFromStream(ctx, read_fn,
+					    kernel_body_load_address);
 
-	munmap(blob, blob_size);
+	close(fd);
 
 	return newstr;
 }
