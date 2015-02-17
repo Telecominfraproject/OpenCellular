@@ -44,22 +44,26 @@ export BUILD
 # Stuff for 'make install'
 INSTALL = install
 DESTDIR = /usr/local
+LIBDIR ?= lib
 
 # Default values
 DEV_DEBUG_FORCE=
 
 # Where exactly do the pieces go?
 #  UB_DIR = utility binary directory
+#  ULP_DIR = pkgconfig directory, usually /usr/lib/pkgconfig
 #  DF_DIR = utility defaults directory
 #  VB_DIR = vboot binary directory for dev-mode-only scripts
 ifeq (${MINIMAL},)
 # Host install just puts everything where it's told
 UB_DIR=${DESTDIR}/bin
+ULP_DIR=${DESTDIR}/${LIBDIR}/pkgconfig
 DF_DIR=${DESTDIR}/default
 VB_DIR=${DESTDIR}/bin
 else
 # Target install puts things into different places
 UB_DIR=${DESTDIR}/usr/bin
+ULP_DIR=${DESTDIR}/usr/${LIBDIR}/pkgconfig
 DF_DIR=${DESTDIR}/etc/default
 VB_DIR=${DESTDIR}/usr/share/vboot/bin
 endif
@@ -159,6 +163,10 @@ endif
 ifneq (${PD_SYNC},)
 CFLAGS += -DPD_SYNC
 endif
+
+# NOTE: We don't use these files but they are useful for other packages to
+# query about required compiling/linking flags.
+PC_IN_FILES = vboot_host.pc.in
 
 # Create / use dependency files
 CFLAGS += -MMD -MF $@.d
@@ -754,7 +762,8 @@ clean:
 	${Q}/bin/rm -rf ${BUILD}
 
 .PHONY: install
-install: cgpt_install utils_install signing_install futil_install
+install: cgpt_install utils_install signing_install futil_install \
+	pc_files_install
 
 .PHONY: install_mtd
 install_mtd: install cgpt_wrapper_install
@@ -1403,3 +1412,15 @@ tags TAGS xrefs: ${BUILD}/cscope.files
 	${Q}\rm -f ${BUILD}/tags ${BUILD}/TAGS
 	${Q}$(call run_if_prog,etags,${cmd_etags})
 	${Q}$(call run_if_prog,ctags,${cmd_ctags})
+
+PC_FILES = ${PC_IN_FILES:%.pc.in=%.pc}
+${PC_FILES}: ${PC_IN_FILES}
+	${Q}sed \
+		-e 's:@LDLIBS@:${LDLIBS}:' \
+		-e 's:@LIBDIR@:${LIBDIR}:' \
+		$< > $@
+
+.PHONY: pc_files_install
+pc_files_install: ${PC_FILES}
+	${Q}mkdir -p ${ULP_DIR}
+	${Q}${INSTALL} -D -m 0644 $< ${ULP_DIR}/$<
