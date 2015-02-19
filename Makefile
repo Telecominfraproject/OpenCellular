@@ -960,7 +960,6 @@ ${CGPT_WRAPPER}: ${CGPT_WRAPPER_OBJS} ${UTILLIB}
 .PHONY: cgpt
 cgpt: ${CGPT} ${CGPT_WRAPPER}
 
-${CGPT}: LDFLAGS += -static
 ${CGPT}: LDLIBS += -luuid
 
 ${CGPT}: ${CGPT_OBJS} ${UTILLIB}
