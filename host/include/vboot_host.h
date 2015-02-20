@@ -58,5 +58,14 @@ char *FindKernelConfig(const char *filename,
                        uint64_t kernel_body_load_address);
 
 /****************************************************************************/
+/* Kernel partition */
+
+/* Used to get a bootable vmlinuz from the kernel partition. vmlinuz_out must
+ * be free'd after this function returns success. Success is indicated by a
+ * zero return value.
+ */
+int ExtractVmlinuz(void *kpart_data, size_t kpart_size,
+		   void **vmlinuz_out, size_t *vmlinuz_size);
+
 
 #endif  /* VBOOT_HOST_H_ */

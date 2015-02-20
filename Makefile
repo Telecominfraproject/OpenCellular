@@ -454,6 +454,7 @@ HOSTLIB_SRCS = \
 	futility/dump_kernel_config_lib.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
+	host/lib/extract_vmlinuz.c \
 	host/lib/fmap.c \
 	host/lib/host_misc.c
 
@@ -478,7 +479,8 @@ TINYHOSTLIB_SRCS = \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_sf.c \
 	firmware/stub/utility_stub.c \
-	futility/dump_kernel_config_lib.c
+	futility/dump_kernel_config_lib.c \
+	host/lib/extract_vmlinuz.c
 
 TINYHOSTLIB_OBJS = ${TINYHOSTLIB_SRCS:%.c=${BUILD}/%.o}
 
