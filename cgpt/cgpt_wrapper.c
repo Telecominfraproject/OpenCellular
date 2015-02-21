@@ -6,6 +6,7 @@
  * device is an MTD device, this utility will read the GPT structures from
  * FMAP, invokes "cgpt" on that, and writes the result back to NOR flash. */
 
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
@@ -171,5 +172,8 @@ int main(int argc, const char *argv[]) {
     return -1;
   }
   argv[0] = real_cgpt;
-  return execv(argv[0], (char * const *)argv);
+  if (execv(argv[0], (char * const *)argv) == -1) {
+    err(-2, "execv(%s) failed", real_cgpt);
+  }
+  return -2;
 }
