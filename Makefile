@@ -1419,7 +1419,7 @@ tags TAGS xrefs: ${BUILD}/cscope.files
 	${Q}$(call run_if_prog,etags,${cmd_etags})
 	${Q}$(call run_if_prog,ctags,${cmd_ctags})
 
-PC_FILES = ${PC_IN_FILES:%.pc.in=%.pc}
+PC_FILES = ${PC_IN_FILES:%.pc.in=${BUILD}/%.pc}
 ${PC_FILES}: ${PC_IN_FILES}
 	${Q}sed \
 		-e 's:@LDLIBS@:${LDLIBS}:' \
@@ -1429,4 +1429,4 @@ ${PC_FILES}: ${PC_IN_FILES}
 .PHONY: pc_files_install
 pc_files_install: ${PC_FILES}
 	${Q}mkdir -p ${ULP_DIR}
-	${Q}${INSTALL} -D -m 0644 $< ${ULP_DIR}/$<
+	${Q}${INSTALL} -D -m 0644 $< ${ULP_DIR}/$(notdir $<)
