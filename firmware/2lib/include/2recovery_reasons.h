@@ -104,7 +104,7 @@ enum vb2_nv_recovery {
 	VB2_RECOVERY_EC_HASH_MISMATCH = 0x2a,
 
 	/* New error codes from VB2 */
-	// TODO: may need to add strings for these in the original fwlib
+	/* TODO: may need to add strings for these in the original fwlib */
 
 	/* Secure data inititalization error */
 	VB2_RECOVERY_SECDATA_INIT = 0x2b,

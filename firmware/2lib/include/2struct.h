@@ -121,14 +121,14 @@ struct vb2_shared_data {
 	uint32_t workbuf_data_key_size;
 
 	/*
-	 * Offset and size of firmware preamble in work buffer.  Size if 0 if
+	 * Offset and size of firmware preamble in work buffer.  Size is 0 if
 	 * preamble is not stored in the work buffer.
 	 */
 	uint32_t workbuf_preamble_offset;
 	uint32_t workbuf_preamble_size;
 
 	/*
-	 * Offset and size of hash context in work buffer.  Size if 0 if
+	 * Offset and size of hash context in work buffer.  Size is 0 if
 	 * hash context is not stored in the work buffer.
 	 */
 	uint32_t workbuf_hash_offset;

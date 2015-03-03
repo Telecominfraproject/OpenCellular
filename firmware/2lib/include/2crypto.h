@@ -35,7 +35,7 @@ enum vb2_signature_algorithm {
 
 	/*
 	 * No signature algorithm.  The digest is unsigned.  See
-	 * VB2_GUID_NONE_* above for key GUIDs to use with this algorithm.
+	 * VB2_GUID_NONE_* for key GUIDs to use with this algorithm.
 	 */
 	VB2_SIG_NONE = 1,
 

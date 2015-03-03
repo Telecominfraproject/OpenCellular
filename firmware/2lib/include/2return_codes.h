@@ -381,7 +381,7 @@ enum vb2_return_code {
 	 */
 	VB2_ERROR_API = VB2_ERROR_BASE + 0x090000,
 
-	/* Bag tag in vb2api_init_hash() */
+	/* Bad tag in vb2api_init_hash() */
 	VB2_ERROR_API_INIT_HASH_TAG,
 
 	/* Preamble not present in vb2api_init_hash() */
@@ -411,22 +411,22 @@ enum vb2_return_code {
 	/* Work buffer too small in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_WORKBUF_DIGEST,
 
-	/* Bag tag in vb2api_check_hash() */
+	/* Bad tag in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_TAG,
 
 	/* Missing firmware data key in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_DATA_KEY,
 
-	/* Siganature size mismatch in vb2api_check_hash() */
+	/* Signature size mismatch in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_SIG_SIZE,
 
 	/* Phase one needs recovery mode */
 	VB2_ERROR_API_PHASE1_RECOVERY,
 
-	/* Bag tag in vb2api_check_hash() */
+	/* Bad tag in vb2api_check_hash() */
 	VB2_ERROR_API_INIT_HASH_GUID,
 
-	/* Siganature mismatch in vb2api_check_hash() */
+	/* Signature mismatch in vb2api_check_hash() */
 	VB2_ERROR_API_CHECK_HASH_SIG,
 
 	/* Invalid enum vb2_pcr_digest requested to vb2api_get_pcr_digest */

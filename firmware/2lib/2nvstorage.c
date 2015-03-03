@@ -63,7 +63,7 @@ void vb2_nv_init(struct vb2_context *ctx)
 
 		/* Set status flag */
 		sd->status |= VB2_SD_STATUS_NV_REINIT;
-		// TODO: unit test for status flag being set
+		/* TODO: unit test for status flag being set */
 	}
 
 	sd->status |= VB2_SD_STATUS_NV_INIT;

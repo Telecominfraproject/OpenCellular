@@ -56,7 +56,7 @@ class BmpBlockUtil {
   BmpBlockUtil(bool debug);
   ~BmpBlockUtil();
 
-  /* Load all the images and related infomations according to a config file. */
+  /* Load all the images and related information according to a config file. */
   void load_from_config(const char *filename);
 
   /* Contruct the bmpblock. */

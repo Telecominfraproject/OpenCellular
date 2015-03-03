@@ -651,7 +651,7 @@ static void VbInitTestBackup(void)
 	TEST_EQ(shared->flags, VBSD_BOOT_DEV_SWITCH_ON, "  shared flags");
 	TEST_EQ(backup_write_called, 1, "  Once more, one backup");
 
-	/* But if we explictly request a backup, they'll get saved. */
+	/* But if we explicitly request a backup, they'll get saved. */
 	VbNvSet(&vnc, VBNV_BACKUP_NVRAM_REQUEST, 1);
 	VbNvTeardown(&vnc);
 	TestVbInit(0, 0, "Dev mode on");

@@ -160,8 +160,8 @@ int vb2api_check_hash(struct vb2_context *ctx)
 			    digest_size))
 		return VB2_ERROR_API_CHECK_HASH_SIG;
 
-	// TODO: the old check-hash function called vb2_fail() on any mismatch.
-	// I don't think it should do that; the caller should.
+	/* TODO: the old check-hash function called vb2_fail() on any mismatch.
+	 * I don't think it should do that; the caller should. */
 
 	return VB2_SUCCESS;
 }

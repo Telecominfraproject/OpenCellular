@@ -201,7 +201,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 				goto bad_kernel;
 
 			/*
-			 * In developer mode, we can explictly disallow
+			 * In developer mode, we can explicitly disallow
 			 * self-signed kernels
 			 */
 			if (require_official_os) {
