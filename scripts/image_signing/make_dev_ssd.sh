@@ -136,7 +136,7 @@ resign_ssd_kernel() {
   local ssd_device="$1"
 
   # reasonable size for current kernel partition
-  local min_kernel_size=32000
+  local min_kernel_size=16000
   local max_kernel_size=65536
   local resigned_kernels=0
 
