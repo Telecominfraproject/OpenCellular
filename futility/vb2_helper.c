@@ -41,31 +41,34 @@ enum futil_file_type recognize_vb2_key(uint8_t *buf, uint32_t len)
 	return FILE_TYPE_UNKNOWN;
 }
 
-static void vb2_print_public_key_sha1sum(struct vb2_public_key *key)
+static inline void vb2_print_bytes(const void *ptr, uint32_t len)
+{
+	const uint8_t *buf = (const uint8_t *)ptr;
+	int i;
+	for (i = 0; i < len; i++)
+		printf("%02x", *buf++);
+}
+
+static uint8_t *vb2_public_key_sha1sum(struct vb2_public_key *key)
 {
 	struct vb2_packed_key *pkey;
 	uint8_t *digest;
-	int i;
 
-	if (vb2_public_key_pack(&pkey, key)) {
-		printf("<error>");
-		return;
-	}
+	if (vb2_public_key_pack(&pkey, key))
+		return 0;
 
 	digest = DigestBuf((uint8_t *)pkey + pkey->key_offset,
 			   pkey->key_size, SHA1_DIGEST_ALGORITHM);
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
-		printf("%02x", digest[i]);
-
-	free(digest);
 	free(pkey);
+
+	return digest;
 }
 
 int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
 {
 	struct vb2_public_key key;
-	char guid_str[VB2_GUID_MIN_STRLEN];
 	const struct vb2_text_vs_enum *entry;
+	uint8_t *sha1sum;
 
 	/* The key's members will point into the state buffer after this. Don't
 	 * free anything. */
@@ -73,9 +76,7 @@ int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
 					  state->my_area->len))
 		return 1;
 
-	if (VB2_SUCCESS != vb2_guid_to_str(key.guid, guid_str,
-					   sizeof(guid_str)))
-		return 1;
+	sha1sum = vb2_public_key_sha1sum(&key);
 
 	printf("Public Key file:       %s\n", state->in_filename);
 	printf("  Vboot API:           2.1\n");
@@ -86,50 +87,44 @@ int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
 	entry = vb2_lookup_by_num(vb2_text_vs_hash, key.hash_alg);
 	printf("  Hash Algorithm:      %d %s\n", key.hash_alg,
 	       entry ? entry->name : "(invalid)");
-	printf("  GUID:                %s\n", guid_str);
 	printf("  Version:             0x%08x\n", key.version);
-	printf("  Key sha1sum:         ");
-	vb2_print_public_key_sha1sum(&key);
+	printf("  GUID:                ");
+	vb2_print_bytes(key.guid, sizeof(*key.guid));
 	printf("\n");
-
+	if (sha1sum && memcmp(key.guid, sha1sum, sizeof(*key.guid))) {
+		printf("  Key sha1sum:         ");
+		vb2_print_bytes(sha1sum, SHA1_DIGEST_SIZE);
+		printf("\n");
+	}
+	free(sha1sum);
 	return 0;
 }
 
-static void vb2_print_private_key_sha1sum(struct vb2_private_key *key)
+static uint8_t *vb2_private_key_sha1sum(struct vb2_private_key *key)
 {
 	uint8_t *buf, *digest;
 	uint32_t buflen;
-	int i;
 
-	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen)) {
-		printf("<error>");
-		return;
-	}
+	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen))
+		return 0;
 
 	digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
-		printf("%02x", digest[i]);
-
-	free(digest);
 	free(buf);
+
+	return digest;
 }
 
 int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
 {
 	struct vb2_private_key *key = 0;
-	char guid_str[VB2_GUID_MIN_STRLEN];
 	const struct vb2_text_vs_enum *entry;
+	uint8_t *sha1sum;
 
 	if (VB2_SUCCESS != vb2_private_key_unpack(&key, state->my_area->buf,
 						  state->my_area->len))
 		return 1;
 
-	if (VB2_SUCCESS != vb2_guid_to_str(&key->guid, guid_str,
-					   sizeof(guid_str))) {
-		vb2_private_key_free(key);
-		return 1;
-	}
-
+	sha1sum = vb2_private_key_sha1sum(key);
 
 	printf("Private key file:      %s\n", state->in_filename);
 	printf("  Vboot API:           2.1\n");
@@ -140,11 +135,15 @@ int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
 	entry = vb2_lookup_by_num(vb2_text_vs_hash, key->hash_alg);
 	printf("  Hash Algorithm:      %d %s\n", key->hash_alg,
 	       entry ? entry->name : "(invalid)");
-	printf("  GUID:                %s\n", guid_str);
-	printf("  Key sha1sum:         ");
-	vb2_print_private_key_sha1sum(key);
+	printf("  GUID:                ");
+	vb2_print_bytes(&key->guid, sizeof(key->guid));
 	printf("\n");
-
+	if (sha1sum && memcmp(&key->guid, sha1sum, sizeof(key->guid))) {
+		printf("  Key sha1sum:         ");
+		vb2_print_bytes(sha1sum, SHA1_DIGEST_SIZE);
+		printf("\n");
+	}
+	free(sha1sum);
 	vb2_private_key_free(key);
 	return 0;
 }

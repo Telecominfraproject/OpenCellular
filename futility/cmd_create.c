@@ -41,6 +41,7 @@ static uint32_t opt_version = DEFAULT_VERSION;
 enum vb2_hash_algorithm opt_hash_alg = DEFAULT_HASH;
 static char *opt_desc;
 static struct vb2_guid opt_guid;
+static int force_guid;
 
 static const struct option long_opts[] = {
 	{"version",  1, 0, OPT_VERSION},
@@ -196,22 +197,14 @@ static int vb2_make_keypair()
 		fprintf(stderr, "Unable to allocate the private key\n");
 		goto done;
 	}
+
 	privkey->rsa_private_key = rsa_key;
 	privkey->sig_alg = sig_alg;
 	privkey->hash_alg = opt_hash_alg;
-	privkey->guid = opt_guid;
 	if (opt_desc && vb2_private_key_set_desc(privkey, opt_desc)) {
 		fprintf(stderr, "Unable to set the private key description\n");
 		goto done;
 	}
-
-	/* Write it out */
-	strcpy(outext, ".vbprik2");
-	if (vb2_private_key_write(privkey, outfile)) {
-		fprintf(stderr, "unable to write private key\n");
-		goto done;
-	}
-	fprintf(stderr, "wrote %s\n", outfile);
 
 	/* Create the public key */
 	if (vb2_public_key_alloc(&pubkey, sig_alg)) {
@@ -240,13 +233,30 @@ static int vb2_make_keypair()
 
 	pubkey->hash_alg = opt_hash_alg;
 	pubkey->version = opt_version;
-	memcpy((struct vb2_guid *)pubkey->guid, &opt_guid, sizeof(opt_guid));
 	if (opt_desc && vb2_public_key_set_desc(pubkey, opt_desc)) {
 		fprintf(stderr, "Unable to set pubkey description\n");
 		goto done;
 	}
 
-	/* Write it out */
+	/* Update the IDs */
+	if (!force_guid) {
+		uint8_t *digest = DigestBuf(keyb_data, keyb_size,
+					    SHA1_DIGEST_ALGORITHM);
+		memcpy(&opt_guid, digest, sizeof(opt_guid));
+		free(digest);
+	}
+
+	privkey->guid = opt_guid;
+	memcpy((struct vb2_guid *)pubkey->guid, &opt_guid, sizeof(opt_guid));
+
+	/* Write them out */
+	strcpy(outext, ".vbprik2");
+	if (vb2_private_key_write(privkey, outfile)) {
+		fprintf(stderr, "unable to write private key\n");
+		goto done;
+	}
+	fprintf(stderr, "wrote %s\n", outfile);
+
 	strcpy(outext, ".vbpubk2");
 	if (vb2_public_key_write(pubkey, outfile)) {
 		fprintf(stderr, "unable to write public key\n");
@@ -296,6 +306,7 @@ static int do_create(int argc, char *argv[])
 					optarg);
 				errorcnt = 1;
 			}
+			force_guid = 1;
 			break;
 
 		case OPT_HASH_ALG:

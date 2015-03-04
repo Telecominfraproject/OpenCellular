@@ -12,7 +12,7 @@
 #include "2guid.h"
 
 /* Length of string representation, including trailing '\0' */
-#define VB2_GUID_MIN_STRLEN 37
+#define VB2_GUID_MIN_STRLEN (2 * NUM_GUID_BYTES + 1)
 
 /**
  * Convert string to struct vb2_guid.

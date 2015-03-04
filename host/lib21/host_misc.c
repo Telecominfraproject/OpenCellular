@@ -5,7 +5,9 @@
  * Host functions for verified boot.
  */
 
+#include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "2sysincludes.h"
@@ -94,71 +96,64 @@ uint32_t vb2_desc_size(const char *desc)
 	return roundup32(strlen(desc) + 1);
 }
 
-int vb2_str_to_guid(const char *str, struct vb2_guid *guid)
+static const char *onedigit(const char *str, uint8_t *vptr)
 {
-	uint32_t time_low;
-	uint16_t time_mid;
-	uint16_t time_high_and_version;
-	unsigned int chunk[11];
+	uint8_t val = 0;
+	char c;
 
-	if (!str ||
-	    11 != sscanf(str,
-			 "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-			 chunk+0,
-			 chunk+1,
-			 chunk+2,
-			 chunk+3,
-			 chunk+4,
-			 chunk+5,
-			 chunk+6,
-			 chunk+7,
-			 chunk+8,
-			 chunk+9,
-			 chunk+10)) {
-		return VB2_ERROR_STR_TO_GUID;
-	}
+	for (; (c = *str++) && !isxdigit(c);)
+		;
+	if (!c)
+		return 0;
 
-	time_low = chunk[0] & 0xffffffff;
-	time_mid = chunk[1] & 0xffff;
-	time_high_and_version = chunk[2] & 0xffff;
+	if (c >= '0' && c <= '9')
+		val = c - '0';
+	else if (c >= 'A' && c <= 'F')
+		val = 10 + c - 'A';
+	else if (c >= 'a' && c <= 'f')
+		val = 10 + c - 'a';
 
-	guid->uuid.time_low = htole32(time_low);
-	guid->uuid.time_mid = htole16(time_mid);
-	guid->uuid.time_high_and_version = htole16(time_high_and_version);
-
-	guid->uuid.clock_seq_high_and_reserved = chunk[3] & 0xff;
-	guid->uuid.clock_seq_low = chunk[4] & 0xff;
-	guid->uuid.node[0] = chunk[5] & 0xff;
-	guid->uuid.node[1] = chunk[6] & 0xff;
-	guid->uuid.node[2] = chunk[7] & 0xff;
-	guid->uuid.node[3] = chunk[8] & 0xff;
-	guid->uuid.node[4] = chunk[9] & 0xff;
-	guid->uuid.node[5] = chunk[10] & 0xff;
-
-	return VB2_SUCCESS;
+	*vptr = val;
+	return str;
 }
 
-int vb2_guid_to_str(const struct vb2_guid *guid,
-		    char *buf, unsigned int buflen)
+static const char *onebyte(const char *str, uint8_t *vptr)
 {
-	int n;
+	uint8_t val;
+	uint8_t digit;
 
-	if (!buf || buflen < VB2_GUID_MIN_STRLEN)
-		return VB2_ERROR_GUID_TO_STR;
+	str = onedigit(str, &digit);
+	if (!str)
+		return 0;
+	val = digit << 4;
 
-	n = snprintf(buf, buflen,
-		     "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-		     le32toh(guid->uuid.time_low),
-		     le16toh(guid->uuid.time_mid),
-		     le16toh(guid->uuid.time_high_and_version),
-		     guid->uuid.clock_seq_high_and_reserved,
-		     guid->uuid.clock_seq_low,
-		     guid->uuid.node[0], guid->uuid.node[1],
-		     guid->uuid.node[2], guid->uuid.node[3],
-		     guid->uuid.node[4], guid->uuid.node[5]);
+	str = onedigit(str, &digit);
+	if (!str)
+		return 0;
+	val |= digit;
 
-	if (n != VB2_GUID_MIN_STRLEN - 1)
-		return VB2_ERROR_GUID_TO_STR;
+	*vptr = val;
+	return str;
+}
 
-	return VB2_SUCCESS;
+int vb2_str_to_guid(const char *str, struct vb2_guid *guid)
+{
+	uint8_t val;
+	int i;
+
+	if (!str)
+		return VB2_ERROR_STR_TO_GUID;
+
+	memset(guid, 0, sizeof(*guid));
+
+	for (i = 0; i < NUM_GUID_BYTES; i++) {
+
+		str = onebyte(str, &val);
+		if (!str)
+			break;
+		guid->raw[i] = val;
+	}
+
+	/* If we get at least one valid byte, that's good enough. */
+	return i ? VB2_SUCCESS : VB2_ERROR_STR_TO_GUID;
 }

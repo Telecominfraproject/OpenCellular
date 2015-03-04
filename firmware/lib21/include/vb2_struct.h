@@ -142,7 +142,7 @@ struct vb2_packed_key {
 } __attribute__((packed));
 
 #define EXPECTED_VB2_PACKED_KEY_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 16 + EXPECTED_GUID_SIZE)
 
 /* Current version of vb2_packed_private_key struct */
 #define VB2_PACKED_PRIVATE_KEY_VERSION_MAJOR 3
@@ -181,7 +181,7 @@ struct vb2_packed_private_key {
 } __attribute__((packed));
 
 #define EXPECTED_VB2_PACKED_PRIVATE_KEY_SIZE				\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 12)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 12 + EXPECTED_GUID_SIZE)
 
 /* Current version of vb2_signature struct */
 #define VB2_SIGNATURE_VERSION_MAJOR 3
@@ -229,7 +229,7 @@ struct vb2_signature {
 } __attribute__((packed));
 
 #define EXPECTED_VB2_SIGNATURE_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + EXPECTED_GUID_SIZE + 16)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 16 + EXPECTED_GUID_SIZE)
 
 
 /* Current version of vb2_keyblock struct */
