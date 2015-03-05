@@ -51,12 +51,12 @@ static const struct option long_opts[] = {
 	{NULL, 0, 0, 0}
 };
 
-static void print_help(const char *progname)
+static void print_help(int argc, char *argv[])
 {
 	struct vb2_text_vs_enum *entry;
 
 	printf("\n"
-"Usage:  " MYNAME " %s [options] <INFILE> [<BASENAME>]\n", progname);
+"Usage:  " MYNAME " %s [options] <INFILE> [<BASENAME>]\n", argv[0]);
 	printf("\n"
 "Create a keypair from an RSA key (.pem file).\n"
 "\n"
@@ -362,7 +362,7 @@ static int do_create(int argc, char *argv[])
 	}
 
 	if (errorcnt) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 

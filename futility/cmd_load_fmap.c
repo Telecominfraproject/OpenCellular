@@ -39,9 +39,9 @@ static const char usage[] = "\n"
 	"  " MYNAME " %s bios.bin RO_VPD:/dev/zero VBLOCK_B:/dev/urandom\n"
 	"\n";
 
-static void help_and_quit(const char *prog)
+static void print_help(int argc, char *argv[])
 {
-	printf(usage, prog, prog);
+	printf(usage, argv[0], argv[0]);
 }
 
 static const struct option long_opts[] = {
@@ -123,7 +123,7 @@ static int do_load_fmap(int argc, char *argv[])
 	}
 
 	if (errorcnt) {
-		help_and_quit(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -131,7 +131,7 @@ static int do_load_fmap(int argc, char *argv[])
 		fprintf(stderr,
 			"You must specify an input file"
 			" and at least one AREA:file argument\n");
-		help_and_quit(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -201,4 +201,4 @@ done_file:
 DECLARE_FUTIL_COMMAND(load_fmap, do_load_fmap,
 		      VBOOT_VERSION_ALL,
 		      "Replace the contents of specified FMAP areas",
-		      help_and_quit);
+		      print_help);

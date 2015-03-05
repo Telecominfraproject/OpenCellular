@@ -579,15 +579,15 @@ static const char usage[] = "\n"
 	"%s"
 	"\n";
 
-static void print_help(const char *prog)
+static void print_help(int argc, char *argv[])
 {
-	if (strcmp(prog, "verify"))
-		printf(usage, prog,
+	if (strcmp(argv[0], "verify"))
+		printf(usage, argv[0],
 		       "  public key (.vbpubk)\n",
 		       "  --strict                         "
 		       "Fail unless all signatures are valid\n");
 	else
-		printf(usage, prog, "",
+		printf(usage, argv[0], "",
 		       "\nIt will fail unless all signatures are valid\n");
 }
 
@@ -688,13 +688,13 @@ static int do_show(int argc, char *argv[])
 	}
 
 	if (errorcnt) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
 	if (argc - optind < 1) {
 		fprintf(stderr, "ERROR: missing input filename\n");
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 

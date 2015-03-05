@@ -38,7 +38,7 @@ static const struct option long_opts[] = {
 	{NULL, 0, 0, 0}
 };
 
-static void print_help(const char *progname)
+static void print_help(int argc, char *argv[])
 {
 	int i;
 
@@ -51,7 +51,7 @@ static void print_help(const char *progname)
 	       "(required for .keyb,\n"
 	       "                                  ignored for .pem)\n"
 	       "    --algorithm <number>        "
-	       "Signing algorithm to use with key:\n", progname);
+	       "Signing algorithm to use with key:\n", argv[0]);
 
 	for (i = 0; i < kNumAlgorithms; i++) {
 		printf("                                  %d = (%s)\n",
@@ -63,7 +63,7 @@ static void print_help(const char *progname)
 	       "\n"
 	       "  Optional parameters:\n"
 	       "    --copyto <file>             "
-	       "Write a copy of the key to this file.\n\n", progname);
+	       "Write a copy of the key to this file.\n\n", argv[0]);
 }
 
 /* Pack a .keyb file into a .vbpubk, or a .pem into a .vbprivk */
@@ -218,7 +218,7 @@ static int do_vbutil_key(int argc, char *argv[])
 	}
 
 	if (parse_error) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -229,7 +229,7 @@ static int do_vbutil_key(int argc, char *argv[])
 		return Unpack(infile, outfile);
 	default:
 		printf("Must specify a mode.\n");
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 }

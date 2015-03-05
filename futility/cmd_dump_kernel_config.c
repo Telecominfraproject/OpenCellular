@@ -23,10 +23,10 @@ static const struct option long_opts[] = {
 };
 
 /* Print help and return error */
-static void PrintHelp(const char *progname)
+static void print_help(int argc, char *argv[])
 {
 	printf("\nUsage:  " MYNAME " %s [--kloadaddr ADDRESS] "
-	       "KERNEL_PARTITION\n\n", progname);
+	       "KERNEL_PARTITION\n\n", argv[0]);
 }
 
 static int do_dump_kernel_config(int argc, char *argv[])
@@ -68,7 +68,7 @@ static int do_dump_kernel_config(int argc, char *argv[])
 		infile = argv[optind];
 
 	if (parse_error) {
-		PrintHelp(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -90,4 +90,4 @@ static int do_dump_kernel_config(int argc, char *argv[])
 DECLARE_FUTIL_COMMAND(dump_kernel_config, do_dump_kernel_config,
 		      VBOOT_VERSION_ALL,
 		      "Prints the kernel command line",
-		      PrintHelp);
+		      print_help);

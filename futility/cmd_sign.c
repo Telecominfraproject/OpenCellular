@@ -596,7 +596,7 @@ static const char usage_bios[] = "\n"
 
 static const char usage_new_kpart[] = "\n"
 	"-----------------------------------------------------------------\n"
-	"To create a new kernel parition image (/dev/sda2, /dev/mmcblk0p2):\n"
+	"To create a new kernel partition image (/dev/sda2, /dev/mmcblk0p2):\n"
 	"\n"
 	"Required PARAMS:\n"
 	"  -s|--signprivate FILE.vbprivk"
@@ -623,7 +623,7 @@ static const char usage_new_kpart[] = "\n"
 
 static const char usage_old_kpart[] = "\n"
 	"-----------------------------------------------------------------\n"
-	"To resign an existing kernel parition (/dev/sda2, /dev/mmcblk0p2):\n"
+	"To resign an existing kernel partition (/dev/sda2, /dev/mmcblk0p2):\n"
 	"\n"
 	"Required PARAMS:\n"
 	"  -s|--signprivate FILE.vbprivk"
@@ -644,9 +644,9 @@ static const char usage_old_kpart[] = "\n"
 	"  -f|--flags       NUM             The preamble flags value\n"
 	"\n";
 
-static void print_help(const char *prog)
+static void print_help(int argc, char *argv[])
 {
-	printf(usage, prog);
+	printf(usage, argv[0]);
 	printf(usage_pubkey, kNumAlgorithms - 1);
 	puts(usage_fw_main);
 	printf(usage_bios, option.version);

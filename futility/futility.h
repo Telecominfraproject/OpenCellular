@@ -48,7 +48,7 @@ struct futil_cmd_t {
 	int (*const handler) (int argc, char **argv);
 	enum vboot_version version;
 	const char *const shorthelp;
-	void (*longhelp) (const char *cmd);
+	void (*longhelp) (int argc, char *argv[]); /* argv[0] is the command */
 };
 
 /* Macro to define a command */

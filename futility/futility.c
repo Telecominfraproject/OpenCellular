@@ -227,7 +227,7 @@ static int do_help(int argc, char *argv[])
 		if (cmd) {
 			printf("\n%s - %s\n", argv[1], cmd->shorthelp);
 			if (cmd->longhelp)
-				cmd->longhelp(argv[1]);
+				cmd->longhelp(argc - 1, argv + 1);
 			return 0;
 		}
 	}

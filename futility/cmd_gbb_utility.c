@@ -18,7 +18,7 @@
 #include "futility.h"
 #include "gbb_header.h"
 
-static void print_help(const char *prog)
+static void print_help(int argc, char *argv[])
 {
 	printf("\n"
 		"Usage:  " MYNAME " %s [-g|-s|-c] [OPTIONS] "
@@ -53,7 +53,7 @@ static void print_help(const char *prog)
 		"  %s --set --hwid='New Model' -k key.bin"
 		" bios.bin newbios.bin\n"
 		"  %s -c 0x100,0x1000,0x03DE80,0x1000 gbb.blob\n\n",
-		prog, prog, prog, prog);
+		argv[0], argv[0], argv[0], argv[0]);
 }
 
 enum {
@@ -444,7 +444,7 @@ static int do_gbb_utility(int argc, char *argv[])
 
 	/* Problems? */
 	if (errorcnt) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -453,7 +453,7 @@ static int do_gbb_utility(int argc, char *argv[])
 	case DO_GET:
 		if (argc - optind < 1) {
 			fprintf(stderr, "\nERROR: missing input filename\n");
-			print_help(argv[0]);
+			print_help(argc, argv);
 			return 1;
 		} else {
 			infile = argv[optind++];
@@ -505,7 +505,7 @@ static int do_gbb_utility(int argc, char *argv[])
 	case DO_SET:
 		if (argc - optind < 1) {
 			fprintf(stderr, "\nERROR: missing input filename\n");
-			print_help(argv[0]);
+			print_help(argc, argv);
 			return 1;
 		}
 		infile = argv[optind++];
@@ -514,12 +514,12 @@ static int do_gbb_utility(int argc, char *argv[])
 
 		if (sel_hwid && !opt_hwid) {
 			fprintf(stderr, "\nERROR: missing new HWID value\n");
-			print_help(argv[0]);
+			print_help(argc, argv);
 			return 1;
 		}
 		if (sel_flags && (!opt_flags || !*opt_flags)) {
 			fprintf(stderr, "\nERROR: missing new flags value\n");
-			print_help(argv[0]);
+			print_help(argc, argv);
 			return 1;
 		}
 
@@ -610,7 +610,7 @@ static int do_gbb_utility(int argc, char *argv[])
 			if (argc - optind < 1) {
 				fprintf(stderr,
 					"\nERROR: missing output filename\n");
-				print_help(argv[0]);
+				print_help(argc, argv);
 				return 1;
 			}
 			outfile = argv[optind++];
@@ -621,7 +621,7 @@ static int do_gbb_utility(int argc, char *argv[])
 			fprintf(stderr,
 				"\nERROR: unable to parse creation spec (%s)\n",
 				opt_create);
-			print_help(argv[0]);
+			print_help(argc, argv);
 			return 1;
 		}
 		if (!errorcnt)

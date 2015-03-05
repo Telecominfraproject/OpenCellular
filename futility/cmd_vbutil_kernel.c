@@ -148,9 +148,9 @@ static const char usage[] =
 
 
 /* Print help and return error */
-static void print_help(const char *progname)
+static void print_help(int argc, char *argv[])
 {
-	printf(usage, progname, progname, progname, progname);
+	printf(usage, argv[0], argv[0], argv[0], argv[0]);
 }
 
 
@@ -381,7 +381,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	}
 
 	if (parse_error) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -568,7 +568,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 			fprintf(stderr,
 				"USE: vbutil_kernel --get-vmlinuz <file> "
 				"--vmlinuz-out <file>\n");
-			print_help(argv[0]);
+			print_help(argc, argv);
 			return 1;
 		}
 
@@ -642,7 +642,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	fprintf(stderr,
 		"You must specify a mode: "
 		"--pack, --repack, --verify, or --get-vmlinuz\n");
-	print_help(argv[0]);
+	print_help(argc, argv);
 	return 1;
 }
 

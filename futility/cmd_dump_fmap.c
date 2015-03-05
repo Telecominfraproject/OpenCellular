@@ -24,13 +24,12 @@ enum { FMT_NORMAL, FMT_PRETTY, FMT_FLASHROM, FMT_HUMAN };
 static int opt_extract;
 static int opt_format = FMT_NORMAL;
 static int opt_overlap;
-static char *progname;
 static void *base_of_rom;
 static size_t size_of_rom;
 static int opt_gaps;
 
 /* Return 0 if successful */
-static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
+static int normal_fmap(const FmapHeader *fmh, int argc, char *argv[])
 {
 	int i, retval = 0;
 	char buf[80];		/* DWR: magic number */
@@ -120,21 +119,21 @@ static int dump_fmap(const FmapHeader *fmh, int argc, char *argv[])
 			FILE *fp = fopen(outname, "wb");
 			if (!fp) {
 				fprintf(stderr, "%s: can't open %s: %s\n",
-					progname, outname, strerror(errno));
+					argv[0], outname, strerror(errno));
 				retval = 1;
 			} else if (!ah->area_size) {
 				fprintf(stderr,
 					"%s: section %s has zero size\n",
-					progname, buf);
+					argv[0], buf);
 			} else if (ah->area_offset + ah->area_size >
 				   size_of_rom) {
 				fprintf(stderr, "%s: section %s is larger"
-					" than the image\n", progname, buf);
+					" than the image\n", argv[0], buf);
 				retval = 1;
 			} else if (1 != fwrite(base_of_rom + ah->area_offset,
 					       ah->area_size, 1, fp)) {
 				fprintf(stderr, "%s: can't write %s: %s\n",
-					progname, buf, strerror(errno));
+					argv[0], buf, strerror(errno));
 				retval = 1;
 			} else {
 				if (FMT_NORMAL == opt_format)
@@ -407,9 +406,9 @@ static const char usage[] =
 	"Specify one or more NAMEs to dump only those sections.\n"
 	"\n";
 
-static void print_help(const char *name)
+static void print_help(int argc, char *argv[])
 {
-	printf(usage, name);
+	printf(usage, argv[0]);
 }
 
 static int do_dump_fmap(int argc, char *argv[])
@@ -420,8 +419,6 @@ static int do_dump_fmap(int argc, char *argv[])
 	int fd;
 	const FmapHeader *fmap;
 	int retval = 1;
-
-	progname = argv[0];
 
 	opterr = 0;		/* quiet, you */
 	while ((c = getopt(argc, argv, ":xpFhH")) != -1) {
@@ -444,12 +441,12 @@ static int do_dump_fmap(int argc, char *argv[])
 			break;
 		case '?':
 			fprintf(stderr, "%s: unrecognized switch: -%c\n",
-				progname, optopt);
+				argv[0], optopt);
 			errorcnt++;
 			break;
 		case ':':
 			fprintf(stderr, "%s: missing argument to -%c\n",
-				progname, optopt);
+				argv[0], optopt);
 			errorcnt++;
 			break;
 		default:
@@ -459,20 +456,20 @@ static int do_dump_fmap(int argc, char *argv[])
 	}
 
 	if (errorcnt || optind >= argc) {
-		print_help(progname);
+		print_help(argc, argv);
 		return 1;
 	}
 
 	if (0 != stat(argv[optind], &sb)) {
 		fprintf(stderr, "%s: can't stat %s: %s\n",
-			progname, argv[optind], strerror(errno));
+			argv[0], argv[optind], strerror(errno));
 		return 1;
 	}
 
 	fd = open(argv[optind], O_RDONLY);
 	if (fd < 0) {
 		fprintf(stderr, "%s: can't open %s: %s\n",
-			progname, argv[optind], strerror(errno));
+			argv[0], argv[optind], strerror(errno));
 		return 1;
 	}
 
@@ -480,7 +477,7 @@ static int do_dump_fmap(int argc, char *argv[])
 	    mmap(0, sb.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 	if (base_of_rom == (char *)-1) {
 		fprintf(stderr, "%s: can't mmap %s: %s\n",
-			progname, argv[optind], strerror(errno));
+			argv[0], argv[optind], strerror(errno));
 		close(fd);
 		return 1;
 	}
@@ -498,15 +495,15 @@ static int do_dump_fmap(int argc, char *argv[])
 			       (uint32_t) ((char *)fmap - (char *)base_of_rom));
 			/* fallthrough */
 		default:
-			retval =
-			    dump_fmap(fmap, argc - optind - 1,
-				      argv + optind + 1);
+			retval = normal_fmap(fmap,
+					     argc - optind - 1,
+					     argv + optind + 1);
 		}
 	}
 
 	if (0 != munmap(base_of_rom, sb.st_size)) {
 		fprintf(stderr, "%s: can't munmap %s: %s\n",
-			progname, argv[optind], strerror(errno));
+			argv[0], argv[optind], strerror(errno));
 		return 1;
 	}
 

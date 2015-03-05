@@ -71,9 +71,9 @@ static const char usage[] =
 	"  --datapubkey <file>"
 	"        Write the data public key to this file.\n\n";
 
-static void print_help(const char *progname)
+static void print_help(int argc, char *argv[])
 {
-	printf(usage, progname);
+	printf(usage, argv[0]);
 }
 
 /* Pack a .keyblock */
@@ -313,7 +313,7 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 	}
 
 	if (parse_error) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -326,7 +326,7 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 		return Unpack(filename, datapubkey, signpubkey);
 	default:
 		printf("Must specify a mode.\n");
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 }

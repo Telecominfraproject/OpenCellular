@@ -46,7 +46,7 @@ static const struct option long_opts[] = {
 };
 
 /* Print help and return error */
-static void print_help(const char *prog)
+static void print_help(int argc, char *argv[])
 {
 	printf("\nUsage:  " MYNAME " %s <--vblock|--verify> <file> [OPTIONS]\n"
 	       "\n"
@@ -71,7 +71,7 @@ static void print_help(const char *prog)
 	       "For '--verify <file>', optional OPTIONS are:\n"
 	       "  --kernelkey <file>"
 	       "          Write the kernel subkey to this file\n\n",
-	       prog);
+	       argv[0]);
 }
 
 /* Create a firmware .vblock */
@@ -368,7 +368,7 @@ static int do_vbutil_firmware(int argc, char *argv[])
 	}
 
 	if (parse_error) {
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -380,7 +380,7 @@ static int do_vbutil_firmware(int argc, char *argv[])
 		return Verify(filename, signpubkey, fv_file, kernelkey_file);
 	default:
 		fprintf(stderr, "Must specify a mode.\n");
-		print_help(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 }

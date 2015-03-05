@@ -33,9 +33,9 @@ static const char usage[] = "\n"
 	"'b5 27 91 12 6f 96 a2 1a 8b a4 d5 11 c6 f2 5a 1c 1e b6 dc 9e'\n"
 	"\n";
 
-static void help_and_quit(const char *prog)
+static void print_help(int argc, char *argv[])
 {
-	printf(usage, prog, prog, prog);
+	printf(usage, argv[0], argv[0], argv[0]);
 }
 
 static int parse_hex(uint8_t *val, const char *str)
@@ -136,13 +136,13 @@ static int do_pcr(int argc, char *argv[])
 	}
 
 	if (errorcnt) {
-		help_and_quit(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
 	if (argc - optind < 1 + opt_init) {
 		fprintf(stderr, "You must extend at least one DIGEST\n");
-		help_and_quit(argv[0]);
+		print_help(argc, argv);
 		return 1;
 	}
 
@@ -184,4 +184,4 @@ static int do_pcr(int argc, char *argv[])
 DECLARE_FUTIL_COMMAND(pcr, do_pcr,
 		      VBOOT_VERSION_ALL,
 		      "Simulate a TPM PCR extension operation",
-		      help_and_quit);
+		      print_help);
