@@ -30,7 +30,7 @@ static const struct alg_combo test_algs[] = {
 	{"RSA8192/SHA-512", VB2_SIG_RSA8192, VB2_HASH_SHA512},
 };
 
-const struct vb2_guid test_guid = {.raw = {0xaa}};
+const struct vb2_id test_id = {.raw = {0xaa}};
 const char *test_desc = "The test key";
 const char *test_sig_desc = "The test signature";
 const uint8_t test_data[] = "Some test data";
@@ -60,13 +60,13 @@ static void sig_tests(const struct alg_combo *combo,
 	/* Create test keys */
 	/* TODO: should read these from .vbprik2, .vbpubk2 files */
 	TEST_SUCC(vb2_private_key_read_pem(&prik, pemfile), "Read private key");
-	prik->guid = test_guid;
+	prik->id = test_id;
 	prik->hash_alg = combo->hash_alg;
 	prik->sig_alg = combo->sig_alg;
 	vb2_private_key_set_desc(prik, test_desc);
 
 	TEST_SUCC(vb2_public_key_read_keyb(&pubk, keybfile), "Read pub key");
-	pubk->guid = &test_guid;
+	pubk->id = &test_id;
 	pubk->hash_alg = combo->hash_alg;
 	vb2_public_key_set_desc(pubk, test_desc);
 
@@ -83,7 +83,7 @@ static void sig_tests(const struct alg_combo *combo,
 		  "Sign good");
 	TEST_PTR_NEQ(sig, NULL, "  sig_ptr");
 	TEST_EQ(0, strcmp(vb2_common_desc(sig), test_desc), "  desc");
-	TEST_EQ(0, memcmp(&sig->guid, &test_guid, sizeof(test_guid)), "  guid");
+	TEST_EQ(0, memcmp(&sig->id, &test_id, sizeof(test_id)), "  id");
 	TEST_EQ(sig->data_size, test_size, "  data_size");
 	TEST_SUCC(vb2_sig_size_for_key(&size, prik, NULL), "Sig size");
 	TEST_EQ(size, sig->c.total_size, "  size");

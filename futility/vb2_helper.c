@@ -9,7 +9,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
-#include "2guid.h"
+#include "2id.h"
 #include "2rsa.h"
 #include "util_misc.h"
 #include "vb2_common.h"
@@ -88,10 +88,10 @@ int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
 	printf("  Hash Algorithm:      %d %s\n", key.hash_alg,
 	       entry ? entry->name : "(invalid)");
 	printf("  Version:             0x%08x\n", key.version);
-	printf("  GUID:                ");
-	vb2_print_bytes(key.guid, sizeof(*key.guid));
+	printf("  ID:                  ");
+	vb2_print_bytes(key.id, sizeof(*key.id));
 	printf("\n");
-	if (sha1sum && memcmp(key.guid, sha1sum, sizeof(*key.guid))) {
+	if (sha1sum && memcmp(key.id, sha1sum, sizeof(*key.id))) {
 		printf("  Key sha1sum:         ");
 		vb2_print_bytes(sha1sum, SHA1_DIGEST_SIZE);
 		printf("\n");
@@ -135,10 +135,10 @@ int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
 	entry = vb2_lookup_by_num(vb2_text_vs_hash, key->hash_alg);
 	printf("  Hash Algorithm:      %d %s\n", key->hash_alg,
 	       entry ? entry->name : "(invalid)");
-	printf("  GUID:                ");
-	vb2_print_bytes(&key->guid, sizeof(key->guid));
+	printf("  ID:                  ");
+	vb2_print_bytes(&key->id, sizeof(key->id));
 	printf("\n");
-	if (sha1sum && memcmp(&key->guid, sha1sum, sizeof(key->guid))) {
+	if (sha1sum && memcmp(&key->id, sha1sum, sizeof(key->id))) {
 		printf("  Key sha1sum:         ");
 		vb2_print_bytes(sha1sum, SHA1_DIGEST_SIZE);
 		printf("\n");

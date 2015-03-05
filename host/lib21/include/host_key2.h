@@ -18,7 +18,7 @@ struct vb2_private_key {
 	enum vb2_hash_algorithm hash_alg;	/* Hash algorithm */
 	enum vb2_signature_algorithm sig_alg;	/* Signature algorithm */
 	char *desc;				/* Description */
-	struct vb2_guid guid;			/* Key GUID */
+	struct vb2_id id;			/* Key ID */
 };
 
 /* Convert between enums and human-readable form. Terminated with {0, 0}. */
@@ -127,8 +127,8 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
 /**
  * Allocate a public key buffer of sufficient size for the signature algorithm.
  *
- * This only initializes the sig_alg field and the guid field to an empty
- * guid.  It does not set any of the other fields in *key_ptr.
+ * This only initializes the sig_alg field and the id field to an empty
+ * id.  It does not set any of the other fields in *key_ptr.
  *
  * @param key_ptr	Destination for newly allocated key; this must be
  *			freed with vb2_public_key_free().
@@ -141,7 +141,7 @@ int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
 /**
  * Return the packed data for a key allocated with vb2_public_key_alloc().
  *
- * The packed data is in the same buffer, following the key struct and GUID.
+ * The packed data is in the same buffer, following the key struct and ID.
  */
 uint8_t *vb2_public_key_packed_data(struct vb2_public_key *key);
 
@@ -160,7 +160,7 @@ void vb2_public_key_free(struct vb2_public_key *key);
  * Read a public key from a .keyb file.
  *
  * Guesses the signature algorithm based on the size of the .keyb file.  Does
- * not set the hash_alg, guid, or desc fields, since those are not contained in
+ * not set the hash_alg, id, or desc fields, since those are not contained in
  * the .keyb file.
  *
  * @param key_ptr	Destination for newly allocated key; this must be

@@ -12,7 +12,7 @@
 #define VBOOT_REFERENCE_VB2_STRUCT_H_
 #include <stdint.h>
 
-#include "2guid.h"
+#include "2id.h"
 
 /*
  * Magic numbers used by vb2_struct_common.magic.
@@ -137,12 +137,12 @@ struct vb2_packed_key {
 	/* Key version */
 	uint32_t key_version;
 
-	/* Key GUID */
-	struct vb2_guid guid;
+	/* Key ID */
+	struct vb2_id id;
 } __attribute__((packed));
 
 #define EXPECTED_VB2_PACKED_KEY_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 16 + EXPECTED_GUID_SIZE)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 16 + EXPECTED_ID_SIZE)
 
 /* Current version of vb2_packed_private_key struct */
 #define VB2_PACKED_PRIVATE_KEY_VERSION_MAJOR 3
@@ -176,12 +176,12 @@ struct vb2_packed_private_key {
 	 */
 	uint16_t hash_alg;
 
-	/* Key GUID */
-	struct vb2_guid guid;
+	/* Key ID */
+	struct vb2_id id;
 } __attribute__((packed));
 
 #define EXPECTED_VB2_PACKED_PRIVATE_KEY_SIZE				\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 12 + EXPECTED_GUID_SIZE)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 12 + EXPECTED_ID_SIZE)
 
 /* Current version of vb2_signature struct */
 #define VB2_SIGNATURE_VERSION_MAJOR 3
@@ -215,21 +215,21 @@ struct vb2_signature {
 	uint16_t hash_alg;
 
 	/*
-	 * GUID for the signature.
+	 * ID for the signature.
 	 *
-	 * If this is a keyblock signature entry, this is the GUID of the key
+	 * If this is a keyblock signature entry, this is the ID of the key
 	 * used to generate this signature.  This allows the firmware to
 	 * quickly determine which signature block (if any) goes with the key
 	 * being used by the firmware.
 	 *
-	 * If this is a preamble hash entry, this is the GUID of the data type
-	 * being hashed.  There is no key GUID, because sig_alg=VB2_ALG_NONE.
+	 * If this is a preamble hash entry, this is the ID of the data type
+	 * being hashed.  There is no key ID, because sig_alg=VB2_ALG_NONE.
 	 */
-	struct vb2_guid guid;
+	struct vb2_id id;
 } __attribute__((packed));
 
 #define EXPECTED_VB2_SIGNATURE_SIZE					\
-	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 16 + EXPECTED_GUID_SIZE)
+	(EXPECTED_VB2_STRUCT_COMMON_SIZE + 16 + EXPECTED_ID_SIZE)
 
 
 /* Current version of vb2_keyblock struct */
@@ -278,7 +278,7 @@ struct vb2_keyblock {
 	 * subkey from the RW firmware (for signed kernels) and one which is
 	 * simply a SHA-512 hash (for unsigned developer kernels).
 	 *
-	 * The GUID for each signature indicates which key was used to generate
+	 * The ID for each signature indicates which key was used to generate
 	 * the signature.
 	 */
 	uint32_t sig_offset;
@@ -324,7 +324,7 @@ struct vb2_fw_preamble {
 	/*
 	 * The preamble contains a list of hashes (struct vb2_signature) for
 	 * the various firmware components.  These have sig_alg=VB2_SIG_NONE,
-	 * and the GUID for each hash identifies the component being hashed.
+	 * and the ID for each hash identifies the component being hashed.
 	 * The calling firmware is responsible for knowing where to find those
 	 * components, which may be on a different storage device than this
 	 * preamble.

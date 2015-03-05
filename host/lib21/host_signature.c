@@ -91,7 +91,7 @@ int vb2_sign_data(struct vb2_signature **sig_ptr,
 		.sig_alg = key->sig_alg,
 		.hash_alg = key->hash_alg,
 		.data_size = size,
-		.guid = key->guid,
+		.id = key->id,
 	};
 
 	struct vb2_digest_context dc;

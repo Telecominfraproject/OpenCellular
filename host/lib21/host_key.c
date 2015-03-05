@@ -126,10 +126,10 @@ int vb2_private_key_unpack(struct vb2_private_key **key_ptr,
 	if (!key)
 		return VB2_ERROR_UNPACK_PRIVATE_KEY_ALLOC;
 
-	/* Copy key algorithms and guid */
+	/* Copy key algorithms and ID */
 	key->sig_alg = pkey->sig_alg;
 	key->hash_alg = pkey->hash_alg;
-	key->guid = pkey->guid;
+	key->id = pkey->id;
 
 	/* Unpack RSA key */
 	if (pkey->sig_alg == VB2_SIG_NONE) {
@@ -238,14 +238,14 @@ int vb2_private_key_write(const struct vb2_private_key *key,
 		.c.fixed_size = sizeof(pkey),
 		.sig_alg = key->sig_alg,
 		.hash_alg = key->hash_alg,
-		.guid = key->guid,
+		.id = key->id,
 	};
 	uint8_t *buf;
 	uint8_t *rsabuf = NULL;
 	int rsalen = 0;
 	int rv;
 
-	memcpy(&pkey.guid, &key->guid, sizeof(pkey.guid));
+	memcpy(&pkey.id, &key->id, sizeof(pkey.id));
 
 	pkey.c.desc_size = vb2_desc_size(key->desc);
 
@@ -297,7 +297,7 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
 				.hash_alg = VB2_HASH_SHA1,
 				.sig_alg = VB2_SIG_NONE,
 				.desc = "Unsigned SHA1",
-				.guid = VB2_GUID_NONE_SHA1,
+				.id = VB2_ID_NONE_SHA1,
 			};
 			*key_ptr = &key;
 			return VB2_SUCCESS;
@@ -310,7 +310,7 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
 				.hash_alg = VB2_HASH_SHA256,
 				.sig_alg = VB2_SIG_NONE,
 				.desc = "Unsigned SHA-256",
-				.guid = VB2_GUID_NONE_SHA256,
+				.id = VB2_ID_NONE_SHA256,
 			};
 			*key_ptr = &key;
 			return VB2_SUCCESS;
@@ -323,7 +323,7 @@ int vb2_private_key_hash(const struct vb2_private_key **key_ptr,
 				.hash_alg = VB2_HASH_SHA512,
 				.sig_alg = VB2_SIG_NONE,
 				.desc = "Unsigned SHA-512",
-				.guid = VB2_GUID_NONE_SHA512,
+				.id = VB2_ID_NONE_SHA512,
 			};
 			*key_ptr = &key;
 			return VB2_SUCCESS;
@@ -340,8 +340,8 @@ int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
 	struct vb2_public_key *key;
 	uint32_t key_data_size = vb2_packed_key_size(sig_alg);
 
-	/* The buffer contains the key, its GUID, and its packed data */
-	uint32_t buf_size = sizeof(*key) + sizeof(struct vb2_guid) +
+	/* The buffer contains the key, its ID, and its packed data */
+	uint32_t buf_size = sizeof(*key) + sizeof(struct vb2_id) +
 		key_data_size;
 
 	if (!key_data_size)
@@ -351,7 +351,7 @@ int vb2_public_key_alloc(struct vb2_public_key **key_ptr,
 	if (!key)
 		return VB2_ERROR_PUBLIC_KEY_ALLOC;
 
-	key->guid = (struct vb2_guid *)(key + 1);
+	key->id = (struct vb2_id *)(key + 1);
 	key->sig_alg = sig_alg;
 
 	*key_ptr = key;
@@ -372,7 +372,7 @@ void vb2_public_key_free(struct vb2_public_key *key)
 
 uint8_t *vb2_public_key_packed_data(struct vb2_public_key *key)
 {
-	return (uint8_t *)(key->guid + 1);
+	return (uint8_t *)(key->id + 1);
 }
 
 int vb2_public_key_read_keyb(struct vb2_public_key **key_ptr,
@@ -485,7 +485,7 @@ int vb2_public_key_pack(struct vb2_packed_key **key_ptr,
 	key.key_version = pubk->version;
 	key.sig_alg = pubk->sig_alg;
 	key.hash_alg = pubk->hash_alg;
-	key.guid = *pubk->guid;
+	key.id = *pubk->id;
 
 	/* Allocate the new buffer */
 	buf = calloc(1, key.c.total_size);
@@ -539,7 +539,7 @@ int vb2_public_key_hash(struct vb2_public_key *key,
 
 	key->sig_alg = VB2_SIG_NONE;
 	key->hash_alg = hash_alg;
-	key->guid = vb2_hash_guid(hash_alg);
+	key->id = vb2_hash_id(hash_alg);
 	return VB2_SUCCESS;
 }
 

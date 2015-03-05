@@ -136,24 +136,24 @@ static const char *onebyte(const char *str, uint8_t *vptr)
 	return str;
 }
 
-int vb2_str_to_guid(const char *str, struct vb2_guid *guid)
+int vb2_str_to_id(const char *str, struct vb2_id *id)
 {
 	uint8_t val;
 	int i;
 
 	if (!str)
-		return VB2_ERROR_STR_TO_GUID;
+		return VB2_ERROR_STR_TO_ID;
 
-	memset(guid, 0, sizeof(*guid));
+	memset(id, 0, sizeof(*id));
 
-	for (i = 0; i < NUM_GUID_BYTES; i++) {
+	for (i = 0; i < VB2_ID_NUM_BYTES; i++) {
 
 		str = onebyte(str, &val);
 		if (!str)
 			break;
-		guid->raw[i] = val;
+		id->raw[i] = val;
 	}
 
 	/* If we get at least one valid byte, that's good enough. */
-	return i ? VB2_SUCCESS : VB2_ERROR_STR_TO_GUID;
+	return i ? VB2_SUCCESS : VB2_ERROR_STR_TO_ID;
 }

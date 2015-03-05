@@ -142,30 +142,28 @@ uint32_t vb2_sig_size(enum vb2_signature_algorithm sig_alg,
 	return vb2_rsa_sig_size(sig_alg);
 }
 
-const struct vb2_guid *vb2_hash_guid(enum vb2_hash_algorithm hash_alg)
+const struct vb2_id *vb2_hash_id(enum vb2_hash_algorithm hash_alg)
 {
 	switch(hash_alg) {
 #ifdef VB2_SUPPORT_SHA1
 	case VB2_HASH_SHA1:
 		{
-			static const struct vb2_guid guid = VB2_GUID_NONE_SHA1;
-			return &guid;
+			static const struct vb2_id id = VB2_ID_NONE_SHA1;
+			return &id;
 		}
 #endif
 #ifdef VB2_SUPPORT_SHA256
 	case VB2_HASH_SHA256:
 		{
-			static const struct vb2_guid guid =
-				VB2_GUID_NONE_SHA256;
-			return &guid;
+			static const struct vb2_id id = VB2_ID_NONE_SHA256;
+			return &id;
 		}
 #endif
 #ifdef VB2_SUPPORT_SHA512
 	case VB2_HASH_SHA512:
 		{
-			static const struct vb2_guid guid =
-				VB2_GUID_NONE_SHA512;
-			return &guid;
+			static const struct vb2_id id = VB2_ID_NONE_SHA512;
+			return &id;
 		}
 #endif
 	default:
@@ -358,8 +356,8 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 		if (rv)
 			return rv;
 
-		/* Skip signature if it doesn't match the key GUID */
-		if (memcmp(&sig->guid, key->guid, NUM_GUID_BYTES))
+		/* Skip signature if it doesn't match the key ID */
+		if (memcmp(&sig->id, key->id, VB2_ID_NUM_BYTES))
 			continue;
 
 		/* Make sure we signed the right amount of data */
@@ -369,8 +367,8 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 		return vb2_verify_data(block, block->sig_offset, sig, key, wb);
 	}
 
-	/* If we're still here, no signature matched the key GUID */
-	return VB2_ERROR_KEYBLOCK_SIG_GUID;
+	/* If we're still here, no signature matched the key ID */
+	return VB2_ERROR_KEYBLOCK_SIG_ID;
 }
 
 int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,

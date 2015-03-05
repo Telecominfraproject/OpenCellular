@@ -171,13 +171,13 @@ uint32_t vb2_sig_size(enum vb2_signature_algorithm sig_alg,
 		      enum vb2_hash_algorithm hash_alg);
 
 /**
- * Return a key guid for an unsigned hash algorithm.
+ * Return a key ID for an unsigned hash algorithm.
  *
  * @param hash_alg	Hash algorithm to return key for
- * @return A pointer to the key guid for that hash algorithm and
+ * @return A pointer to the key ID for that hash algorithm with
  *	   sig_alg=VB2_SIG_NONE, or NULL if error.
  */
-const struct vb2_guid *vb2_hash_guid(enum vb2_hash_algorithm hash_alg);
+const struct vb2_id *vb2_hash_id(enum vb2_hash_algorithm hash_alg);
 
 /* Size of work buffer sufficient for vb2_verify_digest() worst case. */
 #define VB2_VERIFY_DIGEST_WORKBUF_BYTES VB2_VERIFY_RSA_DIGEST_WORKBUF_BYTES

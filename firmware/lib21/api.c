@@ -38,7 +38,7 @@ int vb2api_fw_phase3(struct vb2_context *ctx)
 }
 
 int vb2api_init_hash2(struct vb2_context *ctx,
-		      const struct vb2_guid *guid,
+		      const struct vb2_id *id,
 		      uint32_t *size)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
@@ -63,13 +63,13 @@ int vb2api_init_hash2(struct vb2_context *ctx,
 		sig = (const struct vb2_signature *)
 			((uint8_t *)pre + hash_offset);
 
-		if (!memcmp(guid, &sig->guid, sizeof(*guid)))
+		if (!memcmp(id, &sig->id, sizeof(*id)))
 			break;
 
 		hash_offset += sig->c.total_size;
 	}
 	if (i >= pre->hash_count)
-		return VB2_ERROR_API_INIT_HASH_GUID;  /* No match */
+		return VB2_ERROR_API_INIT_HASH_ID;  /* No match */
 
 	/* Allocate workbuf space for the hash */
 	if (sd->workbuf_hash_size) {

@@ -39,7 +39,7 @@ static void private_key_tests(const struct alg_combo *combo,
 	const char *testfile = "test.vbprik2";
 	const char *notapem = "not_a_pem";
 	const char *testdesc = "test desc";
-	const struct vb2_guid test_guid = {.raw = {0xaa}};
+	const struct vb2_id test_id = {.raw = {0xaa}};
 	uint8_t *buf, *buf2;
 	uint32_t bufsize;
 
@@ -72,7 +72,7 @@ static void private_key_tests(const struct alg_combo *combo,
 	TEST_SUCC(vb2_private_key_set_desc(key, testdesc), "Set desc");
 	key->hash_alg = combo->hash_alg;
 	key->sig_alg = combo->sig_alg;
-	key->guid = test_guid;
+	key->id = test_id;
 
 	unlink(testfile);
 
@@ -86,7 +86,7 @@ static void private_key_tests(const struct alg_combo *combo,
 	TEST_PTR_NEQ(k2, NULL, "  key_ptr");
 	TEST_EQ(k2->sig_alg, key->sig_alg, "  sig alg");
 	TEST_EQ(k2->hash_alg, key->hash_alg, "  hash alg");
-	TEST_EQ(memcmp(&k2->guid, &key->guid, sizeof(k2->guid)), 0, "  guid");
+	TEST_EQ(memcmp(&k2->id, &key->id, sizeof(k2->id)), 0, "  id");
 	TEST_EQ(strcmp(k2->desc, testdesc), 0, "  desc");
 	vb2_private_key_free(k2);
 
@@ -157,8 +157,8 @@ static void private_key_tests(const struct alg_combo *combo,
 	TEST_PTR_NEQ(ckey, NULL, "  key_ptr");
 	TEST_EQ(ckey->hash_alg, combo->hash_alg, "  hash_alg");
 	TEST_EQ(ckey->sig_alg, VB2_SIG_NONE, "  sig_alg");
-	TEST_EQ(memcmp(&ckey->guid, vb2_hash_guid(combo->hash_alg),
-		       sizeof(ckey->guid)), 0, "  guid");
+	TEST_EQ(memcmp(&ckey->id, vb2_hash_id(combo->hash_alg),
+		       sizeof(ckey->id)), 0, "  id");
 
 	TEST_SUCC(vb2_private_key_write(ckey, testfile), "Write hash key");
 	TEST_SUCC(vb2_private_key_read(&key, testfile), "Read hash key");
@@ -172,7 +172,7 @@ static void public_key_tests(const struct alg_combo *combo,
 	struct vb2_packed_key *pkey;
 	const char *testfile = "test.vbpubk2";
 	const char *testdesc = "test desc";
-	const struct vb2_guid test_guid = {.raw = {0xbb}};
+	const struct vb2_id test_id = {.raw = {0xbb}};
 	const uint32_t test_version = 0xcc01;
 	uint8_t *buf;
 	uint32_t bufsize;
@@ -214,7 +214,7 @@ static void public_key_tests(const struct alg_combo *combo,
 	TEST_SUCC(vb2_public_key_read_keyb(&key, keybfile), "Read keyb 3");
 	TEST_SUCC(vb2_public_key_set_desc(key, testdesc), "Set desc");
 	key->hash_alg = combo->hash_alg;
-	key->guid = &test_guid;
+	key->id = &test_id;
 	key->version = test_version;
 
 	TEST_SUCC(vb2_public_key_pack(&pkey, key), "Pack public key");
@@ -222,8 +222,8 @@ static void public_key_tests(const struct alg_combo *combo,
 	TEST_EQ(pkey->hash_alg, key->hash_alg, "  hash_alg");
 	TEST_EQ(pkey->sig_alg, key->sig_alg, "  sig_alg");
 	TEST_EQ(pkey->key_version, key->version, "  version");
-	TEST_EQ(memcmp(&pkey->guid, key->guid, sizeof(pkey->guid)), 0,
-		"  guid");
+	TEST_EQ(memcmp(&pkey->id, key->id, sizeof(pkey->id)), 0,
+		"  id");
 	TEST_EQ(strcmp(vb2_common_desc(pkey), key->desc), 0, "  desc");
 	TEST_SUCC(vb2_unpack_key(&k2, (uint8_t *)pkey, pkey->c.total_size),
 		  "Unpack public key");
@@ -266,8 +266,8 @@ static void public_key_tests(const struct alg_combo *combo,
 	TEST_SUCC(vb2_public_key_hash(&k2, combo->hash_alg), "Hash key");
 	TEST_EQ(k2.hash_alg, combo->hash_alg, "  hash_alg");
 	TEST_EQ(k2.sig_alg, VB2_SIG_NONE, "  sig_alg");
-	TEST_EQ(memcmp(k2.guid, vb2_hash_guid(combo->hash_alg),
-		       sizeof(*k2.guid)), 0, "  guid");
+	TEST_EQ(memcmp(k2.id, vb2_hash_id(combo->hash_alg),
+		       sizeof(*k2.id)), 0, "  id");
 
 	TEST_SUCC(vb2_public_key_pack(&pkey, &k2), "Pack public hash key");
 	TEST_PTR_NEQ(pkey, NULL, "  key_ptr");

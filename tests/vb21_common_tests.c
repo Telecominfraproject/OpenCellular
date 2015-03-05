@@ -27,9 +27,9 @@ static const uint8_t test_data3[] = "Even more test data";
 static void test_struct_packing(void)
 {
 	/* Test new struct sizes */
-	TEST_EQ(EXPECTED_GUID_SIZE,
-		sizeof(struct vb2_guid),
-		"sizeof(vb2_guid)");
+	TEST_EQ(EXPECTED_ID_SIZE,
+		sizeof(struct vb2_id),
+		"sizeof(vb2_id)");
 	TEST_EQ(EXPECTED_VB2_STRUCT_COMMON_SIZE,
 		sizeof(struct vb2_struct_common),
 		"sizeof(vb2_struct_common)");
@@ -298,7 +298,7 @@ static void test_verify_keyblock(void)
 
 	memcpy(buf, buf2, buf_size);
 	TEST_EQ(vb2_verify_keyblock(kbuf, buf_size, &pubk3, &wb),
-		VB2_ERROR_KEYBLOCK_SIG_GUID,
+		VB2_ERROR_KEYBLOCK_SIG_ID,
 		"vb2_verify_keyblock() key not present");
 
 	memcpy(buf, buf2, buf_size);

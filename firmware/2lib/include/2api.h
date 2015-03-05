@@ -24,7 +24,7 @@
 #include "2common.h"
 #include "2crypto.h"
 #include "2fw_hash_tags.h"
-#include "2guid.h"
+#include "2id.h"
 #include "2recovery_reasons.h"
 #include "2return_codes.h"
 
@@ -325,7 +325,7 @@ int vb2api_init_hash(struct vb2_context *ctx, uint32_t tag, uint32_t *size);
  * Same, but for new-style structs.
  */
 int vb2api_init_hash2(struct vb2_context *ctx,
-		      const struct vb2_guid *guid,
+		      const struct vb2_id *id,
 		      uint32_t *size);
 
 /**

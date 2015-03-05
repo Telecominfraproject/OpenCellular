@@ -12,7 +12,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
-#include "2guid.h"
+#include "2id.h"
 #include "2rsa.h"
 #include "util_misc.h"
 #include "vb2_common.h"
@@ -29,7 +29,7 @@ enum {
 	OPT_OUTFILE = 1000,
 	OPT_VERSION,
 	OPT_DESC,
-	OPT_GUID,
+	OPT_ID,
 	OPT_HASH_ALG,
 };
 
@@ -40,13 +40,13 @@ static char *infile, *outfile, *outext;
 static uint32_t opt_version = DEFAULT_VERSION;
 enum vb2_hash_algorithm opt_hash_alg = DEFAULT_HASH;
 static char *opt_desc;
-static struct vb2_guid opt_guid;
-static int force_guid;
+static struct vb2_id opt_id;
+static int force_id;
 
 static const struct option long_opts[] = {
 	{"version",  1, 0, OPT_VERSION},
 	{"desc",     1, 0, OPT_DESC},
-	{"guid",     1, 0, OPT_GUID},
+	{"id",       1, 0, OPT_ID},
 	{"hash_alg", 1, 0, OPT_HASH_ALG},
 	{NULL, 0, 0, 0}
 };
@@ -70,7 +70,7 @@ static void print_help(const char *progname)
 		       entry->num, entry->name,
 		       entry->num == VB2_HASH_SHA256 ? " (default)" : "");
 	printf(
-"  --guid <guid>               Identifier for this keypair (vb21 only)\n"
+"  --id <id>                   Identifier for this keypair (vb21 only)\n"
 "  --desc <text>               Human-readable description (vb21 only)\n"
 "\n");
 
@@ -239,15 +239,15 @@ static int vb2_make_keypair()
 	}
 
 	/* Update the IDs */
-	if (!force_guid) {
+	if (!force_id) {
 		uint8_t *digest = DigestBuf(keyb_data, keyb_size,
 					    SHA1_DIGEST_ALGORITHM);
-		memcpy(&opt_guid, digest, sizeof(opt_guid));
+		memcpy(&opt_id, digest, sizeof(opt_id));
 		free(digest);
 	}
 
-	privkey->guid = opt_guid;
-	memcpy((struct vb2_guid *)pubkey->guid, &opt_guid, sizeof(opt_guid));
+	privkey->id = opt_id;
+	memcpy((struct vb2_id *)pubkey->id, &opt_id, sizeof(opt_id));
 
 	/* Write them out */
 	strcpy(outext, ".vbprik2");
@@ -299,14 +299,13 @@ static int do_create(int argc, char *argv[])
 			opt_desc = optarg;
 			break;
 
-		case OPT_GUID:
-			if (VB2_SUCCESS != vb2_str_to_guid(optarg,
-							   &opt_guid)) {
-				fprintf(stderr, "invalid guid \"%s\"\n",
+		case OPT_ID:
+			if (VB2_SUCCESS != vb2_str_to_id(optarg, &opt_id)) {
+				fprintf(stderr, "invalid id \"%s\"\n",
 					optarg);
 				errorcnt = 1;
 			}
-			force_guid = 1;
+			force_id = 1;
 			break;
 
 		case OPT_HASH_ALG:

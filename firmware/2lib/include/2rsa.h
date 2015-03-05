@@ -17,11 +17,11 @@ struct vb2_public_key {
 	uint32_t n0inv;      /* -1 / n[0] mod 2^32 */
 	const uint32_t *n;   /* Modulus as little endian array */
 	const uint32_t *rr;  /* R^2 as little endian array */
-	enum vb2_signature_algorithm sig_alg;  /* Signature algorithm */
-	enum vb2_hash_algorithm hash_alg;      /* Hash algorithm */
-	const char *desc;            /* Description */
-	uint32_t version;            /* Key version */
-	const struct vb2_guid *guid; /* Key GUID */
+	enum vb2_signature_algorithm sig_alg;	/* Signature algorithm */
+	enum vb2_hash_algorithm hash_alg;	/* Hash algorithm */
+	const char *desc;			/* Description */
+	uint32_t version;			/* Key version */
+	const struct vb2_id *id;		/* Key ID */
 };
 
 /**
