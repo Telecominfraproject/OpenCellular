@@ -683,6 +683,7 @@ TEST_NAMES = \
 	tests/vboot_nvstorage_test \
 	tests/verify_kernel \
 	tests/futility/binary_editor \
+	tests/futility/test_file_types \
 	tests/futility/test_not_really
 
 ifdef REGION_READ
@@ -1176,6 +1177,11 @@ ${BUILD}/tests/%: CFLAGS += -Xlinker --allow-multiple-definition
 ${BUILD}/tests/%: LDLIBS += -lrt -luuid
 ${BUILD}/tests/%: LIBS += ${TESTLIB}
 
+# Futility tests need almost everything that futility needs.
+${BUILD}/tests/futility/%: INCLUDES += -Ifutility
+${BUILD}/tests/futility/%: OBJS += ${FUTIL_OBJS} ${UTILLIB} ${UTILLIB21}
+${BUILD}/tests/futility/%: LDLIBS += ${CRYPTO_LIBS}
+
 ${BUILD}/tests/rollback_index2_tests: OBJS += \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 ${BUILD}/tests/rollback_index2_tests: \
@@ -1348,6 +1354,7 @@ run2tests: test_setup
 .PHONY: runfutiltests
 runfutiltests: test_setup
 	tests/futility/run_test_scripts.sh ${TEST_INSTALL_DIR}/bin
+	${RUNTEST} ${BUILD_RUN}/tests/futility/test_file_types
 	${RUNTEST} ${BUILD_RUN}/tests/futility/test_not_really
 
 # Run long tests, including all permutations of encryption keys (instead of
