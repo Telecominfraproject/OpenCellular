@@ -681,13 +681,18 @@ TEST_NAMES = \
 	tests/vboot_firmware_tests \
 	tests/vboot_kernel_tests \
 	tests/vboot_nvstorage_test \
-	tests/verify_kernel \
-	tests/futility/binary_editor \
-	tests/futility/test_not_really
+	tests/verify_kernel
 
 ifdef REGION_READ
 TEST_NAMES += tests/vboot_region_tests
 endif
+
+TEST_FUTIL_NAMES  = \
+	tests/futility/binary_editor \
+	tests/futility/test_file_types \
+	tests/futility/test_not_really
+
+TEST_NAMES += ${TEST_FUTIL_NAMES}
 
 TEST2X_NAMES = \
 	tests/vb2_api_tests \
@@ -741,6 +746,7 @@ TEST_NAMES += ${TLCL_TEST_NAMES}
 TEST_BINS = $(addprefix ${BUILD}/,${TEST_NAMES})
 TEST_OBJS += $(addsuffix .o,${TEST_BINS})
 
+TEST_FUTIL_BINS = $(addprefix ${BUILD}/,${TEST_FUTIL_NAMES})
 TEST2X_BINS = $(addprefix ${BUILD}/,${TEST2X_NAMES})
 TEST20_BINS = $(addprefix ${BUILD}/,${TEST20_NAMES})
 TEST21_BINS = $(addprefix ${BUILD}/,${TEST21_NAMES})
@@ -1071,6 +1077,12 @@ ${TEST_BINS}: ${UTILLIB} ${TESTLIB}
 ${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
 
+# Futility tests need almost everything that futility needs.
+${TEST_FUTIL_BINS}: ${FUTIL_OBJS} ${UTILLIB} ${UTILLIB21}
+${TEST_FUTIL_BINS}: INCLUDES += -Ifutility
+${TEST_FUTIL_BINS}: OBJS += ${FUTIL_OBJS} ${UTILLIB} ${UTILLIB21}
+${TEST_FUTIL_BINS}: LDLIBS += ${CRYPTO_LIBS}
+
 ${TEST2X_BINS}: ${FWLIB2X}
 ${TEST2X_BINS}: LIBS += ${FWLIB2X}
 
@@ -1348,6 +1360,7 @@ run2tests: test_setup
 .PHONY: runfutiltests
 runfutiltests: test_setup
 	tests/futility/run_test_scripts.sh ${TEST_INSTALL_DIR}/bin
+	${RUNTEST} ${BUILD_RUN}/tests/futility/test_file_types
 	${RUNTEST} ${BUILD_RUN}/tests/futility/test_not_really
 
 # Run long tests, including all permutations of encryption keys (instead of
