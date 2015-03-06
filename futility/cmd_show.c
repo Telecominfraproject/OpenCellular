@@ -597,7 +597,6 @@ static const struct option long_opts[] = {
 	{"fv",          1, 0, 'f'},
 	{"pad",         1, NULL, OPT_PADDING},
 	{"verify",      0, &option.strict, 1},
-	{"debug",       0, &debugging_enabled, 1},
 	{NULL, 0, NULL, 0},
 };
 static char *short_opts = ":f:k:t";
