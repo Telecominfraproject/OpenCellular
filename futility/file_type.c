@@ -19,31 +19,58 @@
 #include "gbb_header.h"
 
 /* Human-readable strings */
-static const char * const type_strings[] = {
-	"unknown",
-	"VbPublicKey",
-	"VbKeyBlock",
-	"VbFirmwarePreamble",
-	"GBB",
-	"Chrome OS BIOS image",
-	"Cr-48 Chrome OS BIOS image",
-	"VbKernelPreamble",
-	"raw firmware",
-	"raw kernel",
-	"chromiumos disk image",
-	"VbPrivateKey",
-	"vb21 public key",
-	"vb21 private key",
-	"RSA private key",
+static const struct {
+	const char * const name;
+	const char * const desc;
+} type_strings[] = {
+#define FILE_TYPE(A, B, C) {B, C},
+#include "file_type.inc"
+#undef FILE_TYPE
 };
-BUILD_ASSERT(ARRAY_SIZE(type_strings) == NUM_FILE_TYPES);
 
-const char * const futil_file_type_str(enum futil_file_type type)
+const char * const futil_file_type_name(enum futil_file_type type)
 {
 	if ((int) type < 0 || type >= NUM_FILE_TYPES)
 		type = FILE_TYPE_UNKNOWN;
 
-	return type_strings[type];
+	return type_strings[type].name;
+}
+
+const char * const futil_file_type_desc(enum futil_file_type type)
+{
+	if ((int) type < 0 || type >= NUM_FILE_TYPES)
+		type = FILE_TYPE_UNKNOWN;
+
+	return type_strings[type].desc;
+}
+
+/* Name to enum. Returns true on success. */
+int futil_file_str_to_type(const char *str, enum futil_file_type *tptr)
+{
+	int i;
+	for (i = 0; i < NUM_FILE_TYPES; i++)
+		if (!strcasecmp(str, type_strings[i].name)) {
+			if (tptr)
+				*tptr = i;
+			return 1;
+		}
+
+	if (tptr)
+		*tptr = FILE_TYPE_UNKNOWN;
+	return 0;
+}
+
+/* Print the list of type names and exit with the given value. */
+void print_file_types_and_exit(int retval)
+{
+	int i;
+	printf("\nValid file types are:\n\n");
+	for (i = 0; i < NUM_FILE_TYPES; i++)
+		printf("  %-20s%s\n", type_strings[i].name,
+		       type_strings[i].desc);
+	printf("\n");
+
+	exit(retval);
 }
 
 /* Try these in order so we recognize the larger objects first */
@@ -56,6 +83,21 @@ enum futil_file_type (*recognizers[])(uint8_t *buf, uint32_t len) = {
 	&recognize_vb2_key,
 	&recognize_pem,
 };
+
+int futil_str_to_file_type(const char *str, enum futil_file_type *type)
+{
+	int i;
+	for (i = 0; i < NUM_FILE_TYPES; i++)
+		if (!strcasecmp(str, type_strings[i].name))
+			break;
+	if (i < NUM_FILE_TYPES) {
+		*type = i;
+		return 1;
+	}
+
+	return 0;
+}
+
 
 /* Try to figure out what we're looking at */
 enum futil_file_type futil_file_type_buf(uint8_t *buf, uint32_t len)

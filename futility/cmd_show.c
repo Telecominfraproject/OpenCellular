@@ -611,7 +611,7 @@ static void show_type(char *filename)
 	err = futil_file_type(filename, &type);
 	switch (err) {
 	case FILE_ERR_NONE:
-		printf("%s:\t%s\n", filename, futil_file_type_str(type));
+		printf("%s:\t%s\n", filename, futil_file_type_name(type));
 		break;
 	case FILE_ERR_DIR:
 		printf("%s:\t%s\n", filename, "directory");

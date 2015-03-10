@@ -515,19 +515,7 @@ int futil_cb_sign_end(struct futil_traverse_state_s *state)
 	return state->errors;
 }
 
-static const char usage[] = "\n"
-	"Usage:  " MYNAME " %s [PARAMS] INFILE [OUTFILE]\n"
-	"\n"
-	"Where INFILE is a\n"
-	"\n"
-	"  public key (.vbpubk); OUTFILE is a keyblock\n"
-	"  raw firmware blob (FW_MAIN_A/B); OUTFILE is a VBLOCK_A/B\n"
-	"  complete firmware image (bios.bin)\n"
-	"  raw linux kernel; OUTFILE is a kernel partition image\n"
-	"  kernel partition image (/dev/sda2, /dev/mmcblk0p2)\n";
-
 static const char usage_pubkey[] = "\n"
-	"-----------------------------------------------------------------\n"
 	"To sign a public key / create a new keyblock:\n"
 	"\n"
 	"Required PARAMS:\n"
@@ -547,10 +535,10 @@ static const char usage_pubkey[] = "\n"
 	"  -f|--flags       NUM             Flags specifying use conditions\n"
 	"  --pem_external   PROGRAM"
 	"         External program to compute the signature\n"
-	"                                     (requires a PEM signing key)\n";
+	"                                     (requires a PEM signing key)\n"
+	"\n";
 
 static const char usage_fw_main[] = "\n"
-	"-----------------------------------------------------------------\n"
 	"To sign a raw firmware blob (FW_MAIN_A/B):\n"
 	"\n"
 	"Required PARAMS:\n"
@@ -565,10 +553,10 @@ static const char usage_fw_main[] = "\n"
 	"\n"
 	"Optional PARAMS:\n"
 	"  -f|--flags       NUM             The preamble flags value"
-	" (default is 0)\n";
+	" (default is 0)\n"
+	"\n";
 
 static const char usage_bios[] = "\n"
-	"-----------------------------------------------------------------\n"
 	"To sign a complete firmware image (bios.bin):\n"
 	"\n"
 	"Required PARAMS:\n"
@@ -592,10 +580,10 @@ static const char usage_bios[] = "\n"
 	"                                     unchanged, or 0 if unknown)\n"
 	"  -d|--loemdir     DIR             Local OEM output vblock directory\n"
 	"  -l|--loemid      STRING          Local OEM vblock suffix\n"
-	"  [--outfile]      OUTFILE         Output firmware image\n";
+	"  [--outfile]      OUTFILE         Output firmware image\n"
+	"\n";
 
 static const char usage_new_kpart[] = "\n"
-	"-----------------------------------------------------------------\n"
 	"To create a new kernel partition image (/dev/sda2, /dev/mmcblk0p2):\n"
 	"\n"
 	"Required PARAMS:\n"
@@ -619,10 +607,10 @@ static const char usage_new_kpart[] = "\n"
 	"                                     (default 0x%x)\n"
 	" --vblockonly                      Emit just the vblock (requires a\n"
 	"                                     distinct outfile)\n"
-	"  -f|--flags       NUM             The preamble flags value\n";
+	"  -f|--flags       NUM             The preamble flags value\n"
+	"\n";
 
 static const char usage_old_kpart[] = "\n"
-	"-----------------------------------------------------------------\n"
 	"To resign an existing kernel partition (/dev/sda2, /dev/mmcblk0p2):\n"
 	"\n"
 	"Required PARAMS:\n"
@@ -644,14 +632,54 @@ static const char usage_old_kpart[] = "\n"
 	"  -f|--flags       NUM             The preamble flags value\n"
 	"\n";
 
+static const char usage[] = "\n"
+	"Usage:  " MYNAME " %s [PARAMS] INFILE [OUTFILE]\n"
+	"\n"
+	"The following signing operations are supported:\n"
+	"\n"
+	"    INFILE                              OUTFILE\n"
+	"  public key (.vbpubk)                keyblock\n"
+	"  raw firmware blob (FW_MAIN_A/B)     firmware preamble (VBLOCK_A/B)\n"
+	"  full firmware image (bios.bin)      same, or signed in-place\n"
+	"  raw linux kernel (vmlinuz)          kernel partition image\n"
+	"  kernel partition (/dev/sda2)        same, or signed in-place\n"
+	"\n"
+	"For more information, use \"" MYNAME " %s help TYPE\",\n"
+	"where TYPE is one of:\n\n  %s  %s  %s  %s  %s\n\n";
+
+
 static void print_help(int argc, char *argv[])
 {
-	printf(usage, argv[0]);
-	printf(usage_pubkey, kNumAlgorithms - 1);
-	puts(usage_fw_main);
-	printf(usage_bios, option.version);
-	printf(usage_new_kpart, option.kloadaddr, option.padding);
-	printf(usage_old_kpart, option.padding);
+	enum futil_file_type type = FILE_TYPE_UNKNOWN;
+
+	if (argc > 1 && futil_str_to_file_type(argv[1], &type))
+		switch (type) {
+		case FILE_TYPE_PUBKEY:
+			printf(usage_pubkey, kNumAlgorithms - 1);
+			return;
+		case FILE_TYPE_RAW_FIRMWARE:
+			puts(usage_fw_main);
+			return;
+		case FILE_TYPE_BIOS_IMAGE:
+			printf(usage_bios, option.version);
+			return;
+		case FILE_TYPE_RAW_KERNEL:
+			printf(usage_new_kpart, option.kloadaddr,
+			       option.padding);
+			return;
+		case FILE_TYPE_KERN_PREAMBLE:
+			printf(usage_old_kpart, option.padding);
+			return;
+		default:
+			break;
+		}
+
+	printf(usage, argv[0], argv[0],
+	       futil_file_type_name(FILE_TYPE_PUBKEY),
+	       futil_file_type_name(FILE_TYPE_RAW_FIRMWARE),
+	       futil_file_type_name(FILE_TYPE_BIOS_IMAGE),
+	       futil_file_type_name(FILE_TYPE_RAW_KERNEL),
+	       futil_file_type_name(FILE_TYPE_KERN_PREAMBLE));
 }
 
 enum no_short_opts {
@@ -712,6 +740,7 @@ static int do_sign(int argc, char *argv[])
 	enum futil_file_type type;
 	int inout_file_count = 0;
 	int mapping;
+	int helpind = 0;
 
 	opterr = 0;		/* quiet, you */
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
@@ -859,8 +888,8 @@ static int do_sign(int argc, char *argv[])
 			option.pem_external = optarg;
 			break;
 		case OPT_HELP:
-			print_help(argc, argv);
-			return !!errorcnt;
+			helpind = optind - 1;
+			break;
 
 		case '?':
 			if (optopt)
@@ -881,6 +910,16 @@ static int do_sign(int argc, char *argv[])
 			Debug("i=%d\n", i);
 			DIE;
 		}
+	}
+
+	if (helpind) {
+		/* Skip all the options we've already parsed */
+		optind--;
+		argv[optind] = argv[0];
+		argc -= optind;
+		argv += optind;
+		print_help(argc, argv);
+		return !!errorcnt;
 	}
 
 	/* If we don't have an input file already, we need one */
@@ -916,7 +955,7 @@ static int do_sign(int argc, char *argv[])
 			type = FILE_TYPE_RAW_FIRMWARE;
 	}
 
-	Debug("type=%s\n", futil_file_type_str(type));
+	Debug("type=%s\n", futil_file_type_name(type));
 
 	/* Check the arguments for the type of thing we want to sign */
 	switch (type) {
@@ -990,7 +1029,7 @@ static int do_sign(int argc, char *argv[])
 		break;
 	case FILE_TYPE_CHROMIUMOS_DISK:
 		fprintf(stderr, "Signing a %s is not yet supported\n",
-			futil_file_type_str(type));
+			futil_file_type_desc(type));
 		errorcnt++;
 		break;
 	default:

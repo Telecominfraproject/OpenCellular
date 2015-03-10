@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 		if (!test_case[i].file) {
 			printf("%sWarning: No test for file type %d (%s)%s\n",
 			       COL_YELLOW, test_case[i].type,
-			       futil_file_type_str(test_case[i].type),
+			       futil_file_type_name(test_case[i].type),
 			       COL_STOP);
 			continue;
 		}
@@ -80,14 +80,14 @@ int main(int argc, char *argv[])
 		snprintf(status, sizeof(status),
 			 "File type %d (%s): examined",
 			 test_case[i].type,
-			 futil_file_type_str(test_case[i].type));
+			 futil_file_type_name(test_case[i].type));
 		TEST_EQ(FILE_ERR_NONE, futil_file_type(filename, &type),
 			status);
 
 		snprintf(status, sizeof(status),
 			 "File type %d (%s) identified",
 			 test_case[i].type,
-			 futil_file_type_str(test_case[i].type));
+			 futil_file_type_name(test_case[i].type));
 		TEST_EQ(type, test_case[i].type, status);
 	}
 

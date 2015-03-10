@@ -8,30 +8,25 @@
 
 /* What type of things do I know how to handle? */
 enum futil_file_type {
-	FILE_TYPE_UNKNOWN,
-	FILE_TYPE_PUBKEY,			/* VbPublicKey */
-	FILE_TYPE_KEYBLOCK,			/* VbKeyBlockHeader */
-	FILE_TYPE_FW_PREAMBLE,			/* VbFirmwarePreambleHeader */
-	FILE_TYPE_GBB,				/* GoogleBinaryBlockHeader */
-	FILE_TYPE_BIOS_IMAGE,			/* Chrome OS BIOS image */
-	FILE_TYPE_OLD_BIOS_IMAGE,		/* Old Chrome OS BIOS image */
-	FILE_TYPE_KERN_PREAMBLE,		/* VbKernelPreambleHeader */
-
-	/* These are FILE_TYPE_UNKNOWN, but we've been told more about them */
-	FILE_TYPE_RAW_FIRMWARE,			/* FW_MAIN_A, etc. */
-	FILE_TYPE_RAW_KERNEL,			/* vmlinuz, *.uimg, etc. */
-
-	FILE_TYPE_CHROMIUMOS_DISK,		/* At least it has a GPT */
-	FILE_TYPE_PRIVKEY,			/* VbPrivateKey */
-	FILE_TYPE_VB2_PUBKEY,			/* struct vb2_public_key */
-	FILE_TYPE_VB2_PRIVKEY,			/* struct vb2_private_key */
-	FILE_TYPE_PEM,				/* RSA .pem file */
-
+#define FILE_TYPE(A, B, C) FILE_TYPE_ ## A,
+#include "file_type.inc"
+#undef FILE_TYPE
 	NUM_FILE_TYPES
 };
 
-/* Names for them */
-const char * const futil_file_type_str(enum futil_file_type type);
+/* Short name for file types */
+const char * const futil_file_type_name(enum futil_file_type type);
+/* Description of file type */
+const char * const futil_file_type_desc(enum futil_file_type type);
+
+/* Name to enum. Returns true on success. */
+int futil_file_str_to_type(const char *str, enum futil_file_type *tptr);
+
+/* Print the list of type names and exit with the given value. */
+void print_file_types_and_exit(int retval);
+
+/* Lookup an type by name. Return true on success */
+int futil_str_to_file_type(const char *str, enum futil_file_type *type);
 
 /*
  * This tries to match the buffer content to one of the known file types.
