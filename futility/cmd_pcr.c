@@ -96,7 +96,13 @@ static void print_digest(const uint8_t *buf, int len)
 		printf("%02x", buf[i]);
 }
 
-
+enum {
+	OPT_HELP = 1000,
+};
+static const struct option long_opts[] = {
+	{"help",     0, 0, OPT_HELP},
+	{NULL, 0, 0, 0}
+};
 static int do_pcr(int argc, char *argv[])
 {
 	uint8_t accum[SHA256_DIGEST_SIZE * 2];
@@ -109,7 +115,7 @@ static int do_pcr(int argc, char *argv[])
 	int i;
 
 	opterr = 0;		/* quiet, you */
-	while ((i = getopt(argc, argv, ":i2")) != -1) {
+	while ((i = getopt_long(argc, argv, ":i2", long_opts, NULL)) != -1) {
 		switch (i) {
 		case 'i':
 			opt_init = 1;
@@ -118,6 +124,9 @@ static int do_pcr(int argc, char *argv[])
 			digest_alg = SHA256_DIGEST_ALGORITHM;
 			digest_size = SHA256_DIGEST_SIZE;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!errorcnt;
 		case '?':
 			if (optopt)
 				fprintf(stderr, "Unrecognized option: -%c\n",
@@ -181,7 +190,5 @@ static int do_pcr(int argc, char *argv[])
 	return 0;
 }
 
-DECLARE_FUTIL_COMMAND(pcr, do_pcr,
-		      VBOOT_VERSION_ALL,
-		      "Simulate a TPM PCR extension operation",
-		      print_help);
+DECLARE_FUTIL_COMMAND(pcr, do_pcr, VBOOT_VERSION_ALL,
+		      "Simulate a TPM PCR extension operation");

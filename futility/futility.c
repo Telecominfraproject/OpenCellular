@@ -17,7 +17,6 @@
 
 #include "futility.h"
 
-
 /******************************************************************************/
 /* Logging stuff */
 
@@ -201,7 +200,8 @@ static const struct futil_cmd_t *find_command(const char *name)
 	const struct futil_cmd_t *const *cmd;
 
 	for (cmd = futil_cmds; *cmd; cmd++)
-		if (0 == strcmp((*cmd)->name, name))
+		if (((*cmd)->version & vboot_version) &&
+		    !strcmp((*cmd)->name, name))
 			return *cmd;
 
 	return NULL;
@@ -217,18 +217,29 @@ static void list_commands(void)
 			       (*cmd)->name, (*cmd)->shorthelp);
 }
 
+static int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
+{
+	int i;
+	Debug("%s(\"%s\") ...\n", __func__, cmd->name);
+	for (i = 0; i < argc; i++)
+		Debug("  argv[%d] = \"%s\"\n", i, argv[i]);
+
+	return cmd->handler(argc, argv);
+}
+
 static int do_help(int argc, char *argv[])
 {
 	const struct futil_cmd_t *cmd;
 	const char *vstr;
 
-	if (argc >= 2) {
+	/* Help about a known command? */
+	if (argc > 1) {
 		cmd = find_command(argv[1]);
 		if (cmd) {
-			printf("\n%s - %s\n", argv[1], cmd->shorthelp);
-			if (cmd->longhelp)
-				cmd->longhelp(argc - 1, argv + 1);
-			return 0;
+			/* Let the command provide its own help */
+			argv[0] = argv[1];
+			argv[1] = "--help";
+			return run_command(cmd, argc, argv);
 		}
 	}
 
@@ -256,31 +267,21 @@ static int do_help(int argc, char *argv[])
 }
 
 DECLARE_FUTIL_COMMAND(help, do_help, VBOOT_VERSION_ALL,
-		      "Show a bit of help (you're looking at it)",
-		      NULL);
+		      "Show a bit of help (you're looking at it)");
 
+static const char ver_help[] =
+	"Show the futility source revision and build date";
 static int do_version(int argc, char *argv[])
 {
-	printf("%s\n", futility_version);
+	if (argc > 1)
+		printf("%s - %s\n", argv[0], ver_help);
+	else
+		printf("%s\n", futility_version);
 	return 0;
 }
 
 DECLARE_FUTIL_COMMAND(version, do_version, VBOOT_VERSION_ALL,
-		      "Show the futility source revision and build date",
-		      NULL);
-
-static int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
-{
-	/* Handle the "CMD --help" case ourselves */
-	if (2 == argc && 0 == strcmp(argv[1], "--help")) {
-		char *fake_argv[] = {"help",
-				     (char *)cmd->name,
-				     NULL};
-		return do_help(2, fake_argv);
-	}
-
-	return cmd->handler(argc, argv);
-}
+		      ver_help);
 
 static char *simple_basename(char *str)
 {
@@ -293,16 +294,19 @@ static char *simple_basename(char *str)
 }
 
 /* Here we go */
+#define OPT_HELP 1000
 int main(int argc, char *argv[], char *envp[])
 {
 	char *progname;
 	const struct futil_cmd_t *cmd;
 	int i, errorcnt = 0;
 	int vb_ver = VBOOT_VERSION_ALL;
+	int helpind = 0;
 	struct option long_opts[] = {
 		{"debug", 0, &debugging_enabled, 1},
 		{"vb1" ,  0, &vb_ver, VBOOT_VERSION_1_0},
 		{"vb21",  0, &vb_ver, VBOOT_VERSION_2_1},
+		{"help",  0, 0, OPT_HELP},
 		{ 0, 0, 0, 0},
 	};
 
@@ -313,14 +317,20 @@ int main(int argc, char *argv[], char *envp[])
 
 	/* See if the program name is a command we recognize */
 	cmd = find_command(progname);
-	if (cmd)
+	if (cmd) {
 		/* Yep, just do that */
 		return run_command(cmd, argc, argv);
+	}
 
 	/* Parse the global options, stopping at the first non-option. */
 	opterr = 0;				/* quiet, you. */
 	while ((i = getopt_long(argc, argv, "+:", long_opts, NULL)) != -1) {
 		switch (i) {
+		case OPT_HELP:
+			/* Remember where we found this option */
+			/* Note: this might be GNU-specific */
+			helpind = optind - 1;
+			break;
 		case '?':
 			if (optopt)
 				fprintf(stderr, "Unrecognized option: -%c\n",
@@ -343,26 +353,38 @@ int main(int argc, char *argv[], char *envp[])
 	}
 	vboot_version = vb_ver;
 
-	/* Reset the getopt state so commands can parse their own options. */
-	argc -= optind;
-	argv += optind;
-	optind = 0;
+	/*
+	 * Translate "--help" in the args to "help" as the first parameter,
+	 * by rearranging argv[].
+	 */
+	if (helpind) {
+		int i;
+		optind--;
+		for (i = helpind; i < optind; i++)
+			argv[i] = argv[i + 1];
+		argv[i] = "help";
+	}
 
 	/* We require a command name. */
-	if (errorcnt || argc < 1) {
-		do_help(0, 0);
+	if (errorcnt || argc == optind) {
+		do_help(1, argv);
 		return 1;
 	}
 
 	/* For reasons I've forgotten, treat /blah/blah/CMD the same as CMD */
-	progname = simple_basename(argv[0]);
+	argv[optind] = simple_basename(argv[optind]);
 
 	/* Do we recognize the command? */
-	cmd = find_command(progname);
-	if (cmd)
+	cmd = find_command(argv[optind]);
+	if (cmd) {
+		/* Reset so commands can parse their own options */
+		argc -= optind;
+		argv += optind;
+		optind = 0;
 		return run_command(cmd, argc, argv);
+	}
 
 	/* Nope. We've no clue what we're being asked to do. */
-	do_help(0, 0);
+	do_help(1, argv);
 	return 1;
 }

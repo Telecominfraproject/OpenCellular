@@ -26,6 +26,7 @@ enum {
 	OPT_MODE_PACK,
 	OPT_MODE_UNPACK,
 	OPT_COPYTO,
+	OPT_HELP,
 };
 
 static const struct option long_opts[] = {
@@ -35,6 +36,7 @@ static const struct option long_opts[] = {
 	{"pack", 1, 0, OPT_MODE_PACK},
 	{"unpack", 1, 0, OPT_MODE_UNPACK},
 	{"copyto", 1, 0, OPT_COPYTO},
+	{"help", 0, 0, OPT_HELP},
 	{NULL, 0, 0, 0}
 };
 
@@ -180,6 +182,9 @@ static int do_vbutil_key(int argc, char *argv[])
 			VbExError("Unknown option\n");
 			parse_error = 1;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!parse_error;
 
 		case OPT_INKEY:
 			infile = optarg;
@@ -234,7 +239,5 @@ static int do_vbutil_key(int argc, char *argv[])
 	}
 }
 
-DECLARE_FUTIL_COMMAND(vbutil_key, do_vbutil_key,
-		      VBOOT_VERSION_1_0,
-		      "Wraps RSA keys with vboot headers",
-		      print_help);
+DECLARE_FUTIL_COMMAND(vbutil_key, do_vbutil_key, VBOOT_VERSION_1_0,
+		      "Wraps RSA keys with vboot headers");

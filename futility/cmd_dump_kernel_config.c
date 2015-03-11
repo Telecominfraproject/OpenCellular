@@ -15,10 +15,12 @@
 
 enum {
 	OPT_KLOADADDR = 1000,
+	OPT_HELP,
 };
 
 static const struct option long_opts[] = {
 	{"kloadaddr", 1, NULL, OPT_KLOADADDR},
+	{"help", 0, 0, OPT_HELP},
 	{NULL, 0, NULL, 0}
 };
 
@@ -29,7 +31,7 @@ static void print_help(int argc, char *argv[])
 	       "KERNEL_PARTITION\n\n", argv[0]);
 }
 
-static int do_dump_kernel_config(int argc, char *argv[])
+static int do_dump_kern_cfg(int argc, char *argv[])
 {
 	char *infile = NULL;
 	char *config = NULL;
@@ -58,6 +60,10 @@ static int do_dump_kernel_config(int argc, char *argv[])
 				parse_error = 1;
 			}
 			break;
+
+		case OPT_HELP:
+			print_help(argc, argv);
+			return 0;
 		}
 	}
 
@@ -87,7 +93,6 @@ static int do_dump_kernel_config(int argc, char *argv[])
 	return 0;
 }
 
-DECLARE_FUTIL_COMMAND(dump_kernel_config, do_dump_kernel_config,
-		      VBOOT_VERSION_ALL,
-		      "Prints the kernel command line",
-		      print_help);
+DECLARE_FUTIL_COMMAND(dump_kernel_config, do_dump_kern_cfg, VBOOT_VERSION_ALL,
+		      "Prints the kernel command line");
+

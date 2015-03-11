@@ -44,21 +44,25 @@ enum vboot_version vboot_version;
 
 /* Here's a structure to define the commands that futility implements. */
 struct futil_cmd_t {
+	/* String used to invoke this command */
 	const char *const name;
+	/* Function to do the work. Returns 0 on success.
+	 * Called with argv[0] == "name".
+	 * It should handle its own "--help" option. */
 	int (*const handler) (int argc, char **argv);
+	/* Supported ABIs */
 	enum vboot_version version;
+	/* One-line summary of what it does */
 	const char *const shorthelp;
-	void (*longhelp) (int argc, char *argv[]); /* argv[0] is the command */
 };
 
 /* Macro to define a command */
-#define DECLARE_FUTIL_COMMAND(NAME, HANDLER, VERSION, SHORTHELP, LONGHELP) \
+#define DECLARE_FUTIL_COMMAND(NAME, HANDLER, VERSION, SHORTHELP)	\
 	const struct futil_cmd_t __cmd_##NAME = {			\
 		.name = #NAME,						\
 		.handler = HANDLER,					\
 		.version = VERSION,					\
 		.shorthelp = SHORTHELP,					\
-		.longhelp =  LONGHELP,					\
 	}
 
 /* This is the list of pointers to all commands. */

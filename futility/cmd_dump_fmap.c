@@ -5,6 +5,7 @@
  */
 #include <errno.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -411,6 +412,13 @@ static void print_help(int argc, char *argv[])
 	printf(usage, argv[0]);
 }
 
+enum {
+	OPT_HELP = 1000,
+};
+static const struct option long_opts[] = {
+	{"help",     0, 0, OPT_HELP},
+	{NULL, 0, 0, 0}
+};
 static int do_dump_fmap(int argc, char *argv[])
 {
 	int c;
@@ -421,7 +429,7 @@ static int do_dump_fmap(int argc, char *argv[])
 	int retval = 1;
 
 	opterr = 0;		/* quiet, you */
-	while ((c = getopt(argc, argv, ":xpFhH")) != -1) {
+	while ((c = getopt_long(argc, argv, ":xpFhH", long_opts, 0)) != -1) {
 		switch (c) {
 		case 'x':
 			opt_extract = 1;
@@ -439,6 +447,9 @@ static int do_dump_fmap(int argc, char *argv[])
 			opt_format = FMT_HUMAN;
 			opt_overlap++;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return 0;
 		case '?':
 			fprintf(stderr, "%s: unrecognized switch: -%c\n",
 				argv[0], optopt);
@@ -510,7 +521,5 @@ static int do_dump_fmap(int argc, char *argv[])
 	return retval;
 }
 
-DECLARE_FUTIL_COMMAND(dump_fmap, do_dump_fmap,
-		      VBOOT_VERSION_ALL,
-		      "Display FMAP contents from a firmware image",
-		      print_help);
+DECLARE_FUTIL_COMMAND(dump_fmap, do_dump_fmap, VBOOT_VERSION_ALL,
+		      "Display FMAP contents from a firmware image");

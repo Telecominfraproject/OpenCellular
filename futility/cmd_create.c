@@ -31,6 +31,7 @@ enum {
 	OPT_DESC,
 	OPT_ID,
 	OPT_HASH_ALG,
+	OPT_HELP,
 };
 
 #define DEFAULT_VERSION 1
@@ -48,6 +49,7 @@ static const struct option long_opts[] = {
 	{"desc",     1, 0, OPT_DESC},
 	{"id",       1, 0, OPT_ID},
 	{"hash_alg", 1, 0, OPT_HASH_ALG},
+	{"help",     0, 0, OPT_HELP},
 	{NULL, 0, 0, 0}
 };
 
@@ -331,6 +333,9 @@ static int do_create(int argc, char *argv[])
 				errorcnt++;
 			}
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!errorcnt;
 
 		case '?':
 			if (optopt)
@@ -406,7 +411,5 @@ static int do_create(int argc, char *argv[])
 	return r;
 }
 
-DECLARE_FUTIL_COMMAND(create, do_create,
-		      VBOOT_VERSION_ALL,
-		      "Create a keypair from an RSA .pem file",
-		      print_help);
+DECLARE_FUTIL_COMMAND(create, do_create, VBOOT_VERSION_ALL,
+		      "Create a keypair from an RSA .pem file");

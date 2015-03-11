@@ -28,6 +28,7 @@ enum {
 	OPT_PEM_ALGORITHM,
 	OPT_EXTERNAL_SIGNER,
 	OPT_FLAGS,
+	OPT_HELP,
 };
 
 static const struct option long_opts[] = {
@@ -40,6 +41,7 @@ static const struct option long_opts[] = {
 	{"pem_algorithm", 1, 0, OPT_PEM_ALGORITHM},
 	{"externalsigner", 1, 0, OPT_EXTERNAL_SIGNER},
 	{"flags", 1, 0, OPT_FLAGS},
+	{"help", 0, 0, OPT_HELP},
 	{NULL, 0, 0, 0}
 };
 
@@ -244,6 +246,9 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 			printf("Unknown option\n");
 			parse_error = 1;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!parse_error;
 
 		case OPT_MODE_PACK:
 		case OPT_MODE_UNPACK:
@@ -331,7 +336,5 @@ static int do_vbutil_keyblock(int argc, char *argv[])
 	}
 }
 
-DECLARE_FUTIL_COMMAND(vbutil_keyblock, do_vbutil_keyblock,
-		      VBOOT_VERSION_1_0,
-		      "Creates, signs, and verifies a keyblock",
-		      print_help);
+DECLARE_FUTIL_COMMAND(vbutil_keyblock, do_vbutil_keyblock, VBOOT_VERSION_1_0,
+		      "Creates, signs, and verifies a keyblock");

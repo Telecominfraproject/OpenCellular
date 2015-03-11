@@ -666,6 +666,7 @@ enum no_short_opts {
 	OPT_PEM_SIGNPRIV,
 	OPT_PEM_ALGO,
 	OPT_PEM_EXTERNAL,
+	OPT_HELP,
 };
 
 static const struct option long_opts[] = {
@@ -693,6 +694,7 @@ static const struct option long_opts[] = {
 	{"pem_algo",     1, NULL, OPT_PEM_ALGO},
 	{"pem_external", 1, NULL, OPT_PEM_EXTERNAL},
 	{"vblockonly",   0, &option.vblockonly, 1},
+	{"help",         0, NULL, OPT_HELP},
 	{NULL,           0, NULL, 0},
 };
 static char *short_opts = ":s:b:k:S:B:v:f:d:l:";
@@ -856,6 +858,9 @@ static int do_sign(int argc, char *argv[])
 		case OPT_PEM_EXTERNAL:
 			option.pem_external = optarg;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!errorcnt;
 
 		case '?':
 			if (optopt)
@@ -1077,7 +1082,6 @@ done:
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(sign, do_sign,
-		      VBOOT_VERSION_ALL,
-		      "Sign / resign various binary components",
-		      print_help);
+DECLARE_FUTIL_COMMAND(sign, do_sign, VBOOT_VERSION_ALL,
+		      "Sign / resign various binary components");
+

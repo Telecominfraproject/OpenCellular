@@ -557,6 +557,7 @@ int futil_cb_show_begin(struct futil_traverse_state_s *state)
 
 enum no_short_opts {
 	OPT_PADDING = 1000,
+	OPT_HELP,
 };
 
 static const char usage[] = "\n"
@@ -597,6 +598,7 @@ static const struct option long_opts[] = {
 	{"fv",          1, 0, 'f'},
 	{"pad",         1, NULL, OPT_PADDING},
 	{"verify",      0, &option.strict, 1},
+	{"help",        0, NULL, OPT_HELP},
 	{NULL, 0, NULL, 0},
 };
 static char *short_opts = ":f:k:t";
@@ -667,6 +669,9 @@ static int do_show(int argc, char *argv[])
 				errorcnt++;
 			}
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!errorcnt;
 
 		case '?':
 			if (optopt)
@@ -746,10 +751,8 @@ done:
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(show, do_show,
-		      VBOOT_VERSION_ALL,
-		      "Display the content of various binary components",
-		      print_help);
+DECLARE_FUTIL_COMMAND(show, do_show, VBOOT_VERSION_ALL,
+		      "Display the content of various binary components");
 
 static int do_verify(int argc, char *argv[])
 {
@@ -759,5 +762,4 @@ static int do_verify(int argc, char *argv[])
 
 DECLARE_FUTIL_COMMAND(verify, do_verify,
 		      VBOOT_VERSION_ALL,
-		      "Verify the signatures of various binary components",
-		      print_help);
+		      "Verify the signatures of various binary components");

@@ -64,6 +64,7 @@ enum {
 	OPT_MINVERSION,
 	OPT_VMLINUZ_OUT,
 	OPT_FLAGS,
+	OPT_HELP,
 };
 
 static const struct option long_opts[] = {
@@ -87,6 +88,7 @@ static const struct option long_opts[] = {
 	{"verbose", 0, &opt_verbose, 1},
 	{"vmlinuz-out", 1, 0, OPT_VMLINUZ_OUT},
 	{"flags", 1, 0, OPT_FLAGS},
+	{"help", 0, 0, OPT_HELP},
 	{NULL, 0, 0, 0}
 };
 
@@ -270,6 +272,9 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		case 0:
 			/* silently handled option */
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!parse_error;
 
 		case OPT_MODE_PACK:
 		case OPT_MODE_REPACK:
@@ -646,7 +651,5 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	return 1;
 }
 
-DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel,
-		      VBOOT_VERSION_1_0,
-		      "Creates, signs, and verifies the kernel partition",
-		      print_help);
+DECLARE_FUTIL_COMMAND(vbutil_kernel, do_vbutil_kernel, VBOOT_VERSION_1_0,
+		      "Creates, signs, and verifies the kernel partition");

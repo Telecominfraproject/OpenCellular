@@ -44,8 +44,12 @@ static void print_help(int argc, char *argv[])
 	printf(usage, argv[0], argv[0]);
 }
 
+enum {
+	OPT_HELP = 1000,
+};
 static const struct option long_opts[] = {
 	/* name    hasarg *flag  val */
+	{"help",        0, NULL, OPT_HELP},
 	{NULL,          0, NULL, 0},
 };
 static char *short_opts = ":o:";
@@ -105,6 +109,9 @@ static int do_load_fmap(int argc, char *argv[])
 		case 'o':
 			outfile = optarg;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!errorcnt;
 		case '?':
 			if (optopt)
 				fprintf(stderr, "Unrecognized option: -%c\n",
@@ -198,7 +205,6 @@ done_file:
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(load_fmap, do_load_fmap,
-		      VBOOT_VERSION_ALL,
-		      "Replace the contents of specified FMAP areas",
-		      print_help);
+DECLARE_FUTIL_COMMAND(load_fmap, do_load_fmap, VBOOT_VERSION_ALL,
+		      "Replace the contents of specified FMAP areas");
+

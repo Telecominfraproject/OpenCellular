@@ -30,6 +30,7 @@ enum {
 	OPT_FV,
 	OPT_KERNELKEY,
 	OPT_FLAGS,
+	OPT_HELP,
 };
 
 static const struct option long_opts[] = {
@@ -42,6 +43,7 @@ static const struct option long_opts[] = {
 	{"fv", 1, 0, OPT_FV},
 	{"kernelkey", 1, 0, OPT_KERNELKEY},
 	{"flags", 1, 0, OPT_FLAGS},
+	{"help", 0, 0, OPT_HELP},
 	{NULL, 0, 0, 0}
 };
 
@@ -322,6 +324,9 @@ static int do_vbutil_firmware(int argc, char *argv[])
 			printf("Unknown option\n");
 			parse_error = 1;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!parse_error;
 
 		case OPT_MODE_VBLOCK:
 		case OPT_MODE_VERIFY:
@@ -385,7 +390,5 @@ static int do_vbutil_firmware(int argc, char *argv[])
 	}
 }
 
-DECLARE_FUTIL_COMMAND(vbutil_firmware, do_vbutil_firmware,
-		      VBOOT_VERSION_1_0,
-		      "Verified boot firmware utility",
-		      print_help);
+DECLARE_FUTIL_COMMAND(vbutil_firmware, do_vbutil_firmware, VBOOT_VERSION_1_0,
+		      "Verified boot firmware utility");

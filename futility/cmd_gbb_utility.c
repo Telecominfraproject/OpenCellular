@@ -60,6 +60,7 @@ enum {
 	OPT_HWID = 1000,
 	OPT_FLAGS,
 	OPT_DIGEST,
+	OPT_HELP,
 };
 
 /* Command line options */
@@ -75,6 +76,7 @@ static struct option long_opts[] = {
 	{"hwid", 0, NULL, OPT_HWID},
 	{"flags", 0, NULL, OPT_FLAGS},
 	{"digest", 0, NULL, OPT_DIGEST},
+	{"help", 0, NULL, OPT_HELP},
 	{NULL, 0, NULL, 0},
 };
 
@@ -410,6 +412,10 @@ static int do_gbb_utility(int argc, char *argv[])
 		case OPT_DIGEST:
 			sel_digest = 1;
 			break;
+		case OPT_HELP:
+			print_help(argc, argv);
+			return !!errorcnt;
+
 		case '?':
 			errorcnt++;
 			if (optopt)
@@ -637,7 +643,5 @@ static int do_gbb_utility(int argc, char *argv[])
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(gbb_utility, do_gbb_utility,
-		      VBOOT_VERSION_ALL,
-		      "Manipulate the Google Binary Block (GBB)",
-		      print_help);
+DECLARE_FUTIL_COMMAND(gbb_utility, do_gbb_utility, VBOOT_VERSION_ALL,
+		      "Manipulate the Google Binary Block (GBB)");
