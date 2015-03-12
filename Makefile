@@ -120,9 +120,10 @@ endif
 #
 # Flag ordering: arch, then -f, then -m, then -W
 DEBUG_FLAGS := $(if ${DEBUG},-g -O0,-Os)
+WERROR := -Werror
 COMMON_FLAGS := -nostdinc -pipe \
 	-ffreestanding -fno-builtin -fno-stack-protector \
-	-Werror -Wall -Wstrict-prototypes ${DEBUG_FLAGS}
+	${WERROR} -Wall -Wstrict-prototypes ${DEBUG_FLAGS}
 
 # Note: FIRMWARE_ARCH is defined by the Chromium OS ebuild.
 ifeq (${FIRMWARE_ARCH}, arm)
