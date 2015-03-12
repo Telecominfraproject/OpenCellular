@@ -176,6 +176,9 @@ static void log_args(int argc, char *argv[])
 
 /******************************************************************************/
 
+/* Default is to support everything we can */
+enum vboot_version vboot_version = VBOOT_VERSION_ALL;
+
 static const char *const usage = "\n"
 "Usage: " MYNAME " [options] COMMAND [args...]\n"
 "\n"
@@ -193,7 +196,6 @@ static const char *const options =
 "\n"
 "  --vb1        Use only vboot v1.0 binary formats\n"
 "  --vb21       Use only vboot v2.1 binary formats\n"
-"  --debug      Be noisy about what's going on\n"
 "\n";
 
 static const struct futil_cmd_t *find_command(const char *name)
@@ -269,7 +271,7 @@ DECLARE_FUTIL_COMMAND(version, do_version, VBOOT_VERSION_ALL,
 		      "Show the futility source revision and build date",
 		      NULL);
 
-static int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
+int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
 {
 	/* Handle the "CMD --help" case ourselves */
 	if (2 == argc && 0 == strcmp(argv[1], "--help")) {
@@ -300,9 +302,8 @@ int main(int argc, char *argv[], char *envp[])
 	int i, errorcnt = 0;
 	int vb_ver = VBOOT_VERSION_ALL;
 	struct option long_opts[] = {
-		{"debug", 0, &debugging_enabled, 1},
-		{"vb1" ,  0, &vb_ver, VBOOT_VERSION_1_0},
-		{"vb21",  0, &vb_ver, VBOOT_VERSION_2_1},
+		{"vb1" , 0,  &vb_ver,  VBOOT_VERSION_1_0},
+		{"vb21", 0,  &vb_ver,  VBOOT_VERSION_2_1},
 		{ 0, 0, 0, 0},
 	};
 

@@ -85,6 +85,7 @@ static const struct option long_opts[] = {
 	{"vblockonly", 0, 0, OPT_VBLOCKONLY},
 	{"pad", 1, 0, OPT_PAD},
 	{"verbose", 0, &opt_verbose, 1},
+	{"debug", 0, &debugging_enabled, 1},
 	{"vmlinuz-out", 1, 0, OPT_VMLINUZ_OUT},
 	{"flags", 1, 0, OPT_FLAGS},
 	{NULL, 0, 0, 0}

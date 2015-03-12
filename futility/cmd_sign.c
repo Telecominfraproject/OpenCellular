@@ -693,6 +693,7 @@ static const struct option long_opts[] = {
 	{"pem_algo",     1, NULL, OPT_PEM_ALGO},
 	{"pem_external", 1, NULL, OPT_PEM_EXTERNAL},
 	{"vblockonly",   0, &option.vblockonly, 1},
+	{"debug",        0, &debugging_enabled, 1},
 	{NULL,           0, NULL, 0},
 };
 static char *short_opts = ":s:b:k:S:B:v:f:d:l:";

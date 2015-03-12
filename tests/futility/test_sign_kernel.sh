@@ -26,7 +26,7 @@ try_arch () {
   echo -n "${arch}: 1 " 1>&3
 
   # pack it up the old way
-  ${FUTILITY} --debug vbutil_kernel \
+  ${FUTILITY} vbutil_kernel --debug \
     --pack ${TMP}.blob1.${arch} \
     --keyblock ${DEVKEYS}/recovery_kernel.keyblock \
     --signprivate ${DEVKEYS}/recovery_kernel_data_key.vbprivk \
@@ -44,7 +44,7 @@ try_arch () {
     --signpubkey ${DEVKEYS}/recovery_key.vbpubk > ${TMP}.verify1
 
   # pack it up the new way
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --keyblock ${DEVKEYS}/recovery_kernel.keyblock \
     --signprivate ${DEVKEYS}/recovery_kernel_data_key.vbprivk \
     --version 1 \
@@ -67,7 +67,7 @@ try_arch () {
   echo -n "2 " 1>&3
 
   # repack it the old way
-  ${FUTILITY} --debug vbutil_kernel \
+  ${FUTILITY} vbutil_kernel --debug \
     --repack ${TMP}.blob3.${arch} \
     --oldblob ${TMP}.blob1.${arch} \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
@@ -83,7 +83,7 @@ try_arch () {
     --signpubkey ${DEVKEYS}/kernel_subkey.vbpubk > ${TMP}.verify3
 
   # repack it the new way
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
     --keyblock ${DEVKEYS}/kernel.keyblock \
     --version 2 \
@@ -105,7 +105,7 @@ try_arch () {
 
   # repack it the new way, in-place
   cp ${TMP}.blob2.${arch} ${TMP}.blob5.${arch}
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
     --keyblock ${DEVKEYS}/kernel.keyblock \
     --version 2 \
@@ -144,7 +144,7 @@ try_arch () {
   cmp ${TMP}.blob1.${arch}.vb0 ${TMP}.blob1.${arch}.vb1
 
   # pack the new way
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --keyblock ${DEVKEYS}/recovery_kernel.keyblock \
     --signprivate ${DEVKEYS}/recovery_kernel_data_key.vbprivk \
     --version 1 \
@@ -182,14 +182,14 @@ try_arch () {
   # extract just the kernel blob
   dd bs=${padding} skip=1 if=${TMP}.blob3.${arch} of=${TMP}.blob3.${arch}.kb0
   # and verify it using the new vblock (no way to do that with vbutil_kernel)
-  ${FUTILITY} --debug verify \
+  ${FUTILITY} verify --debug \
     --pad ${padding} \
     --publickey ${DEVKEYS}/kernel_subkey.vbpubk \
     --fv ${TMP}.blob3.${arch}.kb0 \
     ${TMP}.blob3.${arch}.vb1 > ${TMP}.verify3v
 
   # repack the new way
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
     --keyblock ${DEVKEYS}/kernel.keyblock \
     --version 2 \
@@ -207,7 +207,7 @@ try_arch () {
   # extract just the kernel blob
   dd bs=${padding} skip=1 if=${TMP}.blob4.${arch} of=${TMP}.blob4.${arch}.kb0
   # and verify it using the new vblock (no way to do that with vbutil_kernel)
-  ${FUTILITY} --debug verify \
+  ${FUTILITY} verify --debug \
     --pad ${padding} \
     --publickey ${DEVKEYS}/kernel_subkey.vbpubk \
     --fv ${TMP}.blob4.${arch}.kb0 \
@@ -229,7 +229,7 @@ try_arch () {
   diff ${TMP}.verify1 ${TMP}.verify6
 
   # repack it the old way
-  ${FUTILITY} --debug vbutil_kernel \
+  ${FUTILITY} vbutil_kernel --debug \
     --repack ${TMP}.part6.${arch} \
     --oldblob ${TMP}.part1.${arch} \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
@@ -249,7 +249,7 @@ try_arch () {
 
   # repack it the new way, in-place
   cp ${TMP}.part1.${arch} ${TMP}.part6.${arch}.new1
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
     --keyblock ${DEVKEYS}/kernel.keyblock \
     --version 2 \
@@ -273,7 +273,7 @@ try_arch () {
 
   # repack it the new way, from input to output
   cp ${TMP}.part1.${arch} ${TMP}.part1.${arch}.in
-  ${FUTILITY} --debug sign \
+  ${FUTILITY} sign --debug \
     --signprivate ${DEVKEYS}/kernel_data_key.vbprivk \
     --keyblock ${DEVKEYS}/kernel.keyblock \
     --version 2 \

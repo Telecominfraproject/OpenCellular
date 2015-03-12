@@ -25,9 +25,6 @@
 #include "futility.h"
 #include "gbb_header.h"
 
-/* Default is to support everything we can */
-enum vboot_version vboot_version = VBOOT_VERSION_ALL;
-
 int debugging_enabled;
 void Debug(const char *format, ...)
 {

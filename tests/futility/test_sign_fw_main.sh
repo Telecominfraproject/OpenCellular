@@ -29,7 +29,7 @@ ${FUTILITY} vbutil_firmware --verify ${TMP}.vblock.old \
   --fv ${TMP}.fw_main
 
 # and the new way
-${FUTILITY} --debug sign \
+${FUTILITY} sign --debug \
   --signprivate ${KEYDIR}/firmware_data_key.vbprivk \
   --keyblock ${KEYDIR}/firmware.keyblock \
   --kernelkey ${KEYDIR}/kernel_subkey.vbpubk \
