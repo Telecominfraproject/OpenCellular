@@ -30,7 +30,7 @@ cmp ${DEVKEYS}/firmware.keyblock ${TMP}.keyblock0
 
 
 # Now create it the new way
-${FUTILITY} sign --debug \
+${FUTILITY} --debug sign \
   --datapubkey ${DEVKEYS}/firmware_data_key.vbpubk \
   --flags 7 \
   --signprivate ${DEVKEYS}/root_key.vbprivk \
@@ -48,7 +48,7 @@ ${FUTILITY} vbutil_keyblock --pack ${TMP}.keyblock0 \
   --flags 14
 
 # new way
-${FUTILITY} sign --debug \
+${FUTILITY} --debug sign \
   --flags 14 \
   ${DEVKEYS}/firmware_data_key.vbpubk \
   ${TMP}.keyblock1
@@ -70,7 +70,7 @@ ${FUTILITY} vbutil_keyblock --unpack ${TMP}.keyblock2 \
   --signpubkey ${TESTKEYS}/key_rsa4096.sha512.vbpubk
 
 # new way
-${FUTILITY} sign --debug \
+${FUTILITY} --debug sign \
   --pem_signpriv ${TESTKEYS}/key_rsa4096.pem \
   --pem_algo 8 \
   --flags 9 \
@@ -94,7 +94,7 @@ ${FUTILITY} vbutil_keyblock --unpack ${TMP}.keyblock4 \
   --signpubkey ${TESTKEYS}/key_rsa4096.sha512.vbpubk
 
 # new way
-${FUTILITY} sign --debug \
+${FUTILITY} --debug sign \
   --pem_signpriv ${TESTKEYS}/key_rsa4096.pem \
   --pem_algo 8 \
   --pem_external ${SIGNER} \
