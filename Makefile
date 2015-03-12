@@ -1353,9 +1353,9 @@ run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_fw_preamble_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_key_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_key_tests ${TEST_KEYS} ${BUILD}
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_keyblock_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_misc_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_misc_tests ${BUILD}
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_sig_tests ${TEST_KEYS}
 
 .PHONY: runfutiltests

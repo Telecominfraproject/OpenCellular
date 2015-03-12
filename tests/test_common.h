@@ -58,4 +58,11 @@ int TEST_SUCC(int result, const char* testname);
 /* Check that all memory allocations were freed */
 int vboot_api_stub_check_memory(void);
 
+/* Abort if asprintf fails. */
+#define xasprintf(...) \
+	do { \
+		if (asprintf(__VA_ARGS__) < 0) \
+			abort(); \
+	} while (0)
+
 #endif  /* VBOOT_REFERENCE_TEST_COMMON_H_ */

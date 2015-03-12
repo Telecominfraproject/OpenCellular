@@ -5,6 +5,7 @@
  * Tests for host misc library vboot2 functions
  */
 
+#include <stdio.h>
 #include <unistd.h>
 
 #include "2sysincludes.h"
@@ -27,15 +28,17 @@ static void misc_tests(void)
 	TEST_EQ(vb2_desc_size("foob"), 8, "desc size 'foob'");
 }
 
-static void file_tests(void)
+static void file_tests(const char *temp_dir)
 {
-	const char *testfile = "file_tests.dat";
+	char *testfile;
 	const uint8_t test_data[] = "Some test data";
 	uint8_t *read_data;
 	uint32_t read_size;
 
 	uint8_t cbuf[sizeof(struct vb2_struct_common) + 12];
 	struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
+
+	xasprintf(&testfile, "%s/file_tests.dat", temp_dir);
 
 	unlink(testfile);
 
@@ -70,8 +73,14 @@ static void file_tests(void)
 
 int main(int argc, char* argv[])
 {
+	if (argc != 2) {
+		fprintf(stderr, "Usage: %s <temp_dir>\n", argv[0]);
+		return -1;
+	}
+	const char *temp_dir = argv[1];
+
 	misc_tests();
-	file_tests();
+	file_tests(temp_dir);
 
 	return gTestSuccess ? 0 : 255;
 }

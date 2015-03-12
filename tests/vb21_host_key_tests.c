@@ -31,17 +31,19 @@ static const struct alg_combo test_algs[] = {
 };
 
 static void private_key_tests(const struct alg_combo *combo,
-			      const char *pemfile)
+			      const char *pemfile, const char *temp_dir)
 {
 	struct vb2_private_key *key, *k2;
 	const struct vb2_private_key *ckey;
 	struct vb2_packed_private_key *pkey;
-	const char *testfile = "test.vbprik2";
+	char *testfile;
 	const char *notapem = "not_a_pem";
 	const char *testdesc = "test desc";
 	const struct vb2_id test_id = {.raw = {0xaa}};
 	uint8_t *buf, *buf2;
 	uint32_t bufsize;
+
+	xasprintf(&testfile, "%s/test.vbprik2", temp_dir);
 
 	TEST_SUCC(vb2_private_key_read_pem(&key, pemfile), "Read pem - good");
 	TEST_PTR_NEQ(key, NULL, "  key_ptr");
@@ -166,16 +168,18 @@ static void private_key_tests(const struct alg_combo *combo,
 }
 
 static void public_key_tests(const struct alg_combo *combo,
-			     const char *keybfile)
+			     const char *keybfile, const char *temp_dir)
 {
 	struct vb2_public_key *key, k2;
 	struct vb2_packed_key *pkey;
-	const char *testfile = "test.vbpubk2";
+	char *testfile;
 	const char *testdesc = "test desc";
 	const struct vb2_id test_id = {.raw = {0xbb}};
 	const uint32_t test_version = 0xcc01;
 	uint8_t *buf;
 	uint32_t bufsize;
+
+	xasprintf(&testfile, "%s/test.vbprik2", temp_dir);
 
 	TEST_EQ(vb2_public_key_read_keyb(&key, "no_such_key"),
 		VB2_ERROR_READ_KEYB_DATA, "Read keyb - no file");
@@ -276,34 +280,40 @@ static void public_key_tests(const struct alg_combo *combo,
 	free(pkey);
 }
 
-static int test_algorithm(const struct alg_combo *combo, const char *keys_dir)
+static int test_algorithm(const struct alg_combo *combo, const char *keys_dir,
+                          const char *temp_dir)
 {
 	int rsa_bits = vb2_rsa_sig_size(combo->sig_alg) * 8;
-	char pemfile[1024];
-	char keybfile[1024];
+	char *pemfile;
+	char *keybfile;
 
 	printf("***Testing algorithm: %s\n", combo->name);
 
-	sprintf(pemfile, "%s/key_rsa%d.pem", keys_dir, rsa_bits);
-	sprintf(keybfile, "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
+	xasprintf(&pemfile, "%s/key_rsa%d.pem", keys_dir, rsa_bits);
+	xasprintf(&keybfile, "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
 
-	private_key_tests(combo, pemfile);
-	public_key_tests(combo, keybfile);
+	private_key_tests(combo, pemfile, temp_dir);
+	public_key_tests(combo, keybfile, temp_dir);
+
+	free(pemfile);
+	free(keybfile);
 
 	return 0;
 }
 
 int main(int argc, char *argv[]) {
 
-	if (argc == 2) {
+	if (argc == 3) {
+		const char *keys_dir = argv[1];
+		const char *temp_dir = argv[2];
 		int i;
 
 		for (i = 0; i < ARRAY_SIZE(test_algs); i++) {
-			if (test_algorithm(test_algs + i, argv[1]))
+			if (test_algorithm(test_algs + i, keys_dir, temp_dir))
 				return 1;
 		}
 	} else {
-		fprintf(stderr, "Usage: %s <keys_dir>", argv[0]);
+		fprintf(stderr, "Usage: %s <keys_dir> <temp_dir>\n", argv[0]);
 		return -1;
 	}
 
