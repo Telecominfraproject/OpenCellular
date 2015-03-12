@@ -51,7 +51,6 @@ int TEST_SUCC(int result, const char* testname);
  * Don't use \e as MSC does not recognize it as a valid escape sequence.
  */
 #define COL_GREEN "\x1b[1;32m"
-#define COL_YELLOW "\x1b[1;33m"
 #define COL_RED "\x1b[0;31m"
 #define COL_STOP "\x1b[m"
 
