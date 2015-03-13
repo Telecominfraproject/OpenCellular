@@ -102,6 +102,8 @@ typedef enum VbNvParam {
 	VBNV_FW_PREV_TRIED,
 	/* Result of trying that firmware (see vb2_fw_result) */
 	VBNV_FW_PREV_RESULT,
+	/* Wipeout request from firmware present. */
+	VBNV_FW_REQ_WIPEOUT,
 
 } VbNvParam;
 

@@ -257,6 +257,9 @@ int vb2_check_dev_switch(struct vb2_context *ctx)
 		vb2_nv_set(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY, 0);
 	}
 
+	if (ctx->flags & VB2_CONTEXT_FORCE_WIPEOUT_MODE)
+		vb2_nv_set(ctx, VB2_NV_REQ_WIPEOUT, 1);
+
 	if (flags != old_flags) {
 		/*
 		 * Just changed dev mode state.  Clear TPM owner.  This must be

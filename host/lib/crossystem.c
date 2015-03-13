@@ -496,6 +496,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_OPROM_NEEDED);
   } else if (!strcasecmp(name,"recovery_subcode")) {
     value = VbGetNvStorage(VBNV_RECOVERY_SUBCODE);
+  } else if (!strcasecmp(name,"wipeout_request")) {
+    value = VbGetNvStorage(VBNV_FW_REQ_WIPEOUT);
   }
   /* Other parameters */
   else if (!strcasecmp(name,"cros_debug")) {

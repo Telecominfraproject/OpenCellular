@@ -94,6 +94,7 @@ const Param sys_param_list[] = {
   {"vdat_lkdebug", IS_STRING|NO_PRINT_ALL,
    "LoadKernel() debug data (not in print-all)"},
   {"vdat_timers", IS_STRING, "Timer values from VbSharedData"},
+  {"wipeout_request", 0, "Firmware requested factory reset (wipeout)"},
   {"wpsw_boot", 0, "Firmware write protect hardware switch position at boot"},
   {"wpsw_cur", 0, "Firmware write protect hardware switch current position"},
   /* Terminate with null name */

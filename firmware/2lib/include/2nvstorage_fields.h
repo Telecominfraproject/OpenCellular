@@ -34,7 +34,8 @@ enum vb2_nv_offset {
 	VB2_NV_OFFS_CRC = 15
 };
 
-/* Fields in VB2_NV_OFFS_HEADER (unused = 0x0f) */
+/* Fields in VB2_NV_OFFS_HEADER (unused = 0x07) */
+#define VB2_NV_HEADER_WIPEOUT		       0x08
 #define VB2_NV_HEADER_KERNEL_SETTINGS_RESET    0x10
 #define VB2_NV_HEADER_FW_SETTINGS_RESET        0x20
 #define VB2_NV_HEADER_SIGNATURE                0x40

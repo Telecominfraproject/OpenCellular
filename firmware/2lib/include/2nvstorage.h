@@ -78,6 +78,8 @@ enum vb2_nv_param {
 	VB2_NV_FW_PREV_TRIED,
 	/* Result of trying that firmware (see vb2_fw_result) */
 	VB2_NV_FW_PREV_RESULT,
+	/* Request wipeout of the device by the app. */
+	VB2_NV_REQ_WIPEOUT,
 };
 
 /* Firmware result codes for VB2_NV_FW_RESULT and VB2_NV_FW_PREV_RESULT */

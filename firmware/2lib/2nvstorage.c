@@ -149,6 +149,9 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 
 	case VB2_NV_CLEAR_TPM_OWNER_DONE:
 		return GETBIT(VB2_NV_OFFS_TPM, VB2_NV_TPM_CLEAR_OWNER_DONE);
+
+	case VB2_NV_REQ_WIPEOUT:
+		return GETBIT(VB2_NV_OFFS_HEADER , VB2_NV_HEADER_WIPEOUT);
 	}
 
 	/*
@@ -290,6 +293,10 @@ void vb2_nv_set(struct vb2_context *ctx,
 
 	case VB2_NV_CLEAR_TPM_OWNER_DONE:
 		SETBIT(VB2_NV_OFFS_TPM, VB2_NV_TPM_CLEAR_OWNER_DONE);
+		break;
+
+	case VB2_NV_REQ_WIPEOUT:
+		SETBIT(VB2_NV_OFFS_HEADER , VB2_NV_HEADER_WIPEOUT);
 		break;
 	}
 

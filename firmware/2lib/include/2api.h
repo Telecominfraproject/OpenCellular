@@ -87,6 +87,9 @@ enum vb2_context_flags {
 
 	/* RAM should be cleared by caller this boot */
 	VB2_CONTEXT_CLEAR_RAM = (1 << 7),
+
+	/* Wipeout by the app should be requested. */
+	VB2_CONTEXT_FORCE_WIPEOUT_MODE = (1 << 8),
 };
 
 /*
