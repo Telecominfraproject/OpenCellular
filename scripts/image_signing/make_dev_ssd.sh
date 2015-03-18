@@ -293,6 +293,32 @@ resign_ssd_kernel() {
   return $resigned_kernels
 }
 
+sanity_check_crossystem_flags() {
+  debug_msg "crossystem sanity check"
+  if [ -n "${FLAGS_save_config}" ]; then
+    debug_msg "not resigning kernel."
+    return
+  fi
+
+  if [ "$(crossystem dev_boot_signed_only)" = "0" ]; then
+    debug_msg "dev_boot_signed_only not set - safe."
+    return
+  fi
+
+  echo "
+  ERROR: YOUR FIRMWARE WILL ONLY BOOT SIGNED IMAGES.
+
+  Modifying the kernel or root filesystem will result in an unusable system.  If
+  you really want to make this change, allow the firmware to boot self-signed
+  images by running:
+
+    sudo crossystem dev_boot_signed_only=0
+
+  before re-executing this command.
+  "
+  return $FLAGS_FALSE
+}
+
 sanity_check_live_partitions() {
   debug_msg "Partition sanity check"
   if [ "$FLAGS_partitions" = "$ROOTDEV_KERNEL" ]; then
@@ -418,7 +444,8 @@ main() {
       done
       echo ""
     elif ! sanity_check_live_firmware ||
-         ! sanity_check_live_partitions; then
+         ! sanity_check_live_partitions ||
+         ! sanity_check_crossystem_flags; then
       err_die "IMAGE $FLAGS_image IS NOT MODIFIED."
     fi
   fi
