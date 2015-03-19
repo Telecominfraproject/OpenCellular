@@ -85,6 +85,7 @@ const Param sys_param_list[] = {
   {"savedmem_size", 0, "RAM debug data area size in bytes"},
   {"sw_wpsw_boot", 0,
    "Firmware write protect software setting enabled at boot"},
+  {"tpm_attack", CAN_WRITE, "TPM was interrupted since this flag was cleared"},
   {"tpm_fwver", 0, "Firmware version stored in TPM", "0x%08x"},
   {"tpm_kernver", 0, "Kernel version stored in TPM", "0x%08x"},
   {"tried_fwb", 0, "Tried firmware B before A this boot"},
@@ -291,9 +292,12 @@ int main(int argc, char* argv[]) {
 
     if (i > 1)
       printf(" ");  /* Output params space-delimited */
-    if (has_set)
+    if (has_set) {
       retval = SetParam(p, value);
-    else if (has_expect)
+      if (retval) {
+        fprintf(stderr, "Parameter %s is read-only\n", name);
+      }
+    } else if (has_expect)
       retval = CheckParam(p, value);
     else
       retval = PrintParam(p);
