@@ -90,6 +90,9 @@ enum vb2_context_flags {
 
 	/* Wipeout by the app should be requested. */
 	VB2_CONTEXT_FORCE_WIPEOUT_MODE = (1 << 8),
+
+	/* Erase TPM developer mode state if it is enabled. */
+	VB2_DISABLE_DEVELOPER_MODE = (1 << 9),
 };
 
 /*

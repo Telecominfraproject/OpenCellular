@@ -224,6 +224,14 @@ int vb2_check_dev_switch(struct vb2_context *ctx)
 		vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST, 0);
 	}
 
+	if (ctx->flags & VB2_DISABLE_DEVELOPER_MODE) {
+		/*
+		 * Hardware switch and GBB flag will take precedence over
+		 * this.
+		 */
+		flags &= ~VB2_SECDATA_FLAG_DEV_MODE;
+	}
+
 	/* Check virtual dev switch */
 	if (flags & VB2_SECDATA_FLAG_DEV_MODE)
 		is_dev = 1;
