@@ -72,7 +72,7 @@ usage(void)
 	printf("    -o<ODM_DATA>          Specify the odm_data(in hex).\n");
 	printf("    -t|--tegra NN         Select target device. Must be one of:\n");
 	printf("                          20, 30, 114, 124, 132, 210.\n");
-	printf("                          Default: 20. This option is deprecated\n");
+	printf("                          Default: 20.\n");
 	printf("    -s|--soc tegraNN      Select target device. Must be one of:\n");
 	printf("                          tegra20, tegra30, tegra114, tegra124,\n");
 	printf("                          tegra132, tegra210.\n");
