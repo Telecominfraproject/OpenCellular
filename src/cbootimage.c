@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -71,11 +71,11 @@ usage(void)
 	printf("    -gbct                 Generate the new bct file.\n");
 	printf("    -o<ODM_DATA>          Specify the odm_data(in hex).\n");
 	printf("    -t|--tegra NN         Select target device. Must be one of:\n");
-	printf("                          20, 30, 114, 124, 132.\n");
+	printf("                          20, 30, 114, 124, 132, 210.\n");
 	printf("                          Default: 20. This option is deprecated\n");
 	printf("    -s|--soc tegraNN      Select target device. Must be one of:\n");
 	printf("                          tegra20, tegra30, tegra114, tegra124,\n");
-	printf("                          tegra132.\n");
+	printf("                          tegra132, tegra210.\n");
 	printf("                          Default: tegra20.\n");
 	printf("    -u|--update           Copy input image data and update bct\n");
 	printf("                          configs into new image file.\n");
@@ -131,6 +131,8 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 				t124_get_soc_config(context, &g_soc_config);
 			} else if (!strcasecmp("132", optarg)) {
 				t132_get_soc_config(context, &g_soc_config);
+			} else if (!strcasecmp("210", optarg)) {
+				t210_get_soc_config(context, &g_soc_config);
 			} else {
 				printf("Unsupported chipname!\n");
 				usage();

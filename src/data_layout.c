@@ -1036,6 +1036,8 @@ int data_is_valid_bct(build_image_context *context)
 		return 1;
 	if (if_bct_is_t132_get_soc_config(context, &g_soc_config))
 		return 1;
+	if (if_bct_is_t210_get_soc_config(context, &g_soc_config))
+		return 1;
 
 	return 0;
 }

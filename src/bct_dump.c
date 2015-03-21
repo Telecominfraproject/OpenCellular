@@ -53,6 +53,7 @@ static value_data const values[] = {
 	{ token_partition_size,      "PartitionSize = ", format_u32_hex8 },
 	{ token_odm_data,            "OdmData       = ", format_u32_hex8 },
 	{ token_secure_jtag_control, "JtagCtrl      = ", format_u32_hex8 },
+	{ token_secure_debug_control, "DebugCtrl     = ", format_u32_hex8 },
 	{ token_unique_chip_id,      "ChipUid       = ", format_chipuid },
 	{ token_bootloader_used,     "# Bootloader used       = ", format_u32 },
 	{ token_bootloaders_max,     "# Bootloaders max       = ", format_u32 },

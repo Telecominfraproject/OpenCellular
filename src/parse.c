@@ -115,6 +115,7 @@ static parse_item s_top_level_items[] = {
 	{ "OdmData=",       token_odm_data,		parse_value_u32 },
 	{ "ChipUid=",       token_unique_chip_id,	parse_value_chipuid },
 	{ "JtagCtrl=",	    token_secure_jtag_control,	parse_value_u32 },
+	{ "DebugCtrl=",	    token_secure_debug_control,	parse_value_u32 },
 	{ NULL, 0, NULL } /* Must be last */
 };
 

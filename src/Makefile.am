@@ -11,11 +11,13 @@ cbootimage_SOURCES = \
 	aes_ref.c \
 	context.c \
 	parse.c \
+	t210/parse_t210.c \
 	t132/parse_t132.c \
 	t124/parse_t124.c \
 	t114/parse_t114.c \
 	t30/parse_t30.c \
 	t20/parse_t20.c \
+	t210/nvbctlib_t210.c \
 	t132/nvbctlib_t132.c \
 	t124/nvbctlib_t124.c \
 	t114/nvbctlib_t114.c \
@@ -37,7 +39,9 @@ cbootimage_SOURCES = \
 	t124/nvboot_bct_t124.h \
 	t124/nvboot_sdram_param_t124.h \
 	t132/nvboot_bct_t132.h \
-	t132/nvboot_sdram_param_t132.h
+	t132/nvboot_sdram_param_t132.h \
+	t210/nvboot_bct_t210.h \
+	t210/nvboot_sdram_param_t210.h
 
 cbootimage_LDADD = -lm
 
@@ -49,11 +53,13 @@ bct_dump_SOURCES = \
 	aes_ref.c \
 	context.c \
 	parse.c \
+	t210/parse_t210.c \
 	t132/parse_t132.c \
 	t124/parse_t124.c \
 	t114/parse_t114.c \
 	t30/parse_t30.c \
 	t20/parse_t20.c \
+	t210/nvbctlib_t210.c \
 	t132/nvbctlib_t132.c \
 	t124/nvbctlib_t124.c \
 	t114/nvbctlib_t114.c \
@@ -75,4 +81,6 @@ bct_dump_SOURCES = \
 	t124/nvboot_bct_t124.h \
 	t124/nvboot_sdram_param_t124.h \
 	t132/nvboot_bct_t132.h \
-	t132/nvboot_sdram_param_t132.h
+	t132/nvboot_sdram_param_t132.h \
+	t210/nvboot_bct_t210.h \
+	t210/nvboot_sdram_param_t210.h

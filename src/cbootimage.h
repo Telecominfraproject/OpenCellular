@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2012-2015, NVIDIA CORPORATION.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms and conditions of the GNU General Public License,
@@ -45,10 +45,11 @@
 #define BOOTDATA_VERSION_T114		NVBOOT_BOOTDATA_VERSION(0x35, 0x1)
 #define BOOTDATA_VERSION_T124		NVBOOT_BOOTDATA_VERSION(0x40, 0x1)
 #define BOOTDATA_VERSION_T132		NVBOOT_BOOTDATA_VERSION(0x13, 0x1)
+#define BOOTDATA_VERSION_T210		NVBOOT_BOOTDATA_VERSION(0x21, 0x1)
 
 #define MAX_MTS_SIZE (4 * 1024 * 1024)
 
-#define NVBOOT_CONFIG_TABLE_SIZE_MAX 8704
+#define NVBOOT_CONFIG_TABLE_SIZE_MAX (10 * 1024)
 
 /*
  * Enumerations
@@ -111,6 +112,7 @@ typedef struct build_image_context_rec
 	u_int32_t odm_data; /* The odm data value */
 	u_int8_t unique_chip_id[16]; /* The unique chip uid */
 	u_int8_t secure_jtag_control; /* The flag for enabling jtag control */
+	u_int32_t secure_debug_control; /* The flag for enabling jtag control */
 	u_int8_t update_image; /* The flag for updating image */
 } build_image_context;
 
