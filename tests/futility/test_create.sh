@@ -39,10 +39,17 @@ done
 for sig in rsa1024 rsa2048 rsa4096 rsa8192; do
   pem_sum=$(${FUTILITY} show "${TESTKEYS}/key_${sig}.pem" |
     awk '/sha1sum/ {print $3}')
+  # expect only one
+  [ $(echo "$pem_sum" | wc -w) = 1 ]
+  num_keys=$(echo ${TMP}_key_${sig}.* | wc -w)
   key_sums=$(${FUTILITY} show ${TMP}_key_${sig}.* |
-    awk '/sha1sum/ {print $3}' | uniq)
+    awk '/sha1sum:|ID:/ {print $NF}')
+  num_sums=$(echo "$key_sums" | wc -w)
+  # expect one sha1sum (or ID) line per file
+  [ "$num_keys" = "$num_sums" ]
+  uniq_sums=$(echo "$key_sums" | uniq)
   # note that this also tests that all the key_sums are the same
-  [ "$pem_sum" = "$key_sums" ]
+  [ "$pem_sum" = "$uniq_sums" ]
 done
 
 # cleanup
