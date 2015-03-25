@@ -366,6 +366,13 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 		raw[BOOT2_OFFSET] |= (uint8_t)value << BOOT2_PREV_RESULT_SHIFT;
 		break;
 
+	case VBNV_FW_REQ_WIPEOUT:
+		if (value)
+			raw[HEADER_OFFSET] |= HEADER_WIPEOUT;
+		else
+			raw[HEADER_OFFSET] &= ~HEADER_WIPEOUT;
+		break;
+
 	default:
 		return 1;
 	}

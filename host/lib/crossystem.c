@@ -617,6 +617,9 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage(VBNV_FW_TRY_COUNT, value);
   } else if (!strcasecmp(name,"oprom_needed")) {
     return VbSetNvStorage(VBNV_OPROM_NEEDED, value);
+  } else if (!strcasecmp(name,"wipeout_request")) {
+    /* Can only clear this flag, set only by firmware. */
+    return VbSetNvStorage(VBNV_FW_REQ_WIPEOUT, 0);
   } else if (!strcasecmp(name,"backup_nvram_request")) {
       /* Best-effort only, since it requires firmware and TPM support. */
     return VbSetNvStorage(VBNV_BACKUP_NVRAM_REQUEST, value);
