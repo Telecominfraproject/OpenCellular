@@ -575,6 +575,11 @@ static const char usage_pubkey[] = "\n"
 	"         External program to compute the signature\n"
 	"                                     (requires a PEM signing key)\n"
 	"\n";
+static void print_help_pubkey(int argc, char *argv[])
+{
+	printf(usage_pubkey, kNumAlgorithms - 1);
+}
+
 
 static const char usage_fw_main[] = "\n"
 	"To sign a raw firmware blob (FW_MAIN_A/B):\n"
@@ -593,6 +598,10 @@ static const char usage_fw_main[] = "\n"
 	"  -f|--flags       NUM             The preamble flags value"
 	" (default is 0)\n"
 	"\n";
+static void print_help_raw_firmware(int argc, char *argv[])
+{
+	puts(usage_fw_main);
+}
 
 static const char usage_bios[] = "\n"
 	"To sign a complete firmware image (bios.bin):\n"
@@ -620,6 +629,10 @@ static const char usage_bios[] = "\n"
 	"  -l|--loemid      STRING          Local OEM vblock suffix\n"
 	"  [--outfile]      OUTFILE         Output firmware image\n"
 	"\n";
+static void print_help_bios_image(int argc, char *argv[])
+{
+	printf(usage_bios, sign_option.version);
+}
 
 static const char usage_new_kpart[] = "\n"
 	"To create a new kernel partition image (/dev/sda2, /dev/mmcblk0p2):\n"
@@ -647,6 +660,10 @@ static const char usage_new_kpart[] = "\n"
 	"                                     distinct outfile)\n"
 	"  -f|--flags       NUM             The preamble flags value\n"
 	"\n";
+static void print_help_raw_kernel(int argc, char *argv[])
+{
+	printf(usage_new_kpart, sign_option.kloadaddr, sign_option.padding);
+}
 
 static const char usage_old_kpart[] = "\n"
 	"To resign an existing kernel partition (/dev/sda2, /dev/mmcblk0p2):\n"
@@ -669,8 +686,20 @@ static const char usage_old_kpart[] = "\n"
 	"                                     distinct OUTFILE)\n"
 	"  -f|--flags       NUM             The preamble flags value\n"
 	"\n";
+static void print_help_kern_preamble(int argc, char *argv[])
+{
+	printf(usage_old_kpart, sign_option.padding);
+}
 
-static const char usage[] = "\n"
+static void (*help_type[NUM_FILE_TYPES])(int argc, char *argv[]) = {
+	[FILE_TYPE_PUBKEY] = &print_help_pubkey,
+	[FILE_TYPE_RAW_FIRMWARE] = &print_help_raw_firmware,
+	[FILE_TYPE_BIOS_IMAGE] = &print_help_bios_image,
+	[FILE_TYPE_RAW_KERNEL] = &print_help_raw_kernel,
+	[FILE_TYPE_KERN_PREAMBLE] = &print_help_kern_preamble,
+};
+
+static const char usage_default[] = "\n"
 	"Usage:  " MYNAME " %s [PARAMS] INFILE [OUTFILE]\n"
 	"\n"
 	"The following signing operations are supported:\n"
@@ -682,42 +711,30 @@ static const char usage[] = "\n"
 	"  raw linux kernel (vmlinuz)          kernel partition image\n"
 	"  kernel partition (/dev/sda2)        same, or signed in-place\n"
 	"\n"
-	"For more information, use \"" MYNAME " %s help TYPE\",\n"
-	"where TYPE is one of:\n\n  %s  %s  %s  %s  %s\n\n";
+	"For more information, use \"" MYNAME " help %s TYPE\",\n"
+	"where TYPE is one of:\n\n";
+static void print_help_default(int argc, char *argv[])
+{
+	enum futil_file_type type;
 
+	printf(usage_default, argv[0], argv[0]);
+	for (type = 0; type < NUM_FILE_TYPES; type++)
+		if (help_type[type])
+			printf("  %s", futil_file_type_name(type));
+	printf("\n\n");
+}
 
 static void print_help(int argc, char *argv[])
 {
 	enum futil_file_type type = FILE_TYPE_UNKNOWN;
 
-	if (argc > 1 && futil_str_to_file_type(argv[1], &type))
-		switch (type) {
-		case FILE_TYPE_PUBKEY:
-			printf(usage_pubkey, kNumAlgorithms - 1);
-			return;
-		case FILE_TYPE_RAW_FIRMWARE:
-			puts(usage_fw_main);
-			return;
-		case FILE_TYPE_BIOS_IMAGE:
-			printf(usage_bios, sign_option.version);
-			return;
-		case FILE_TYPE_RAW_KERNEL:
-			printf(usage_new_kpart, sign_option.kloadaddr,
-			       sign_option.padding);
-			return;
-		case FILE_TYPE_KERN_PREAMBLE:
-			printf(usage_old_kpart, sign_option.padding);
-			return;
-		default:
-			break;
-		}
+	if (argc > 1)
+		futil_str_to_file_type(argv[1], &type);
 
-	printf(usage, argv[0], argv[0],
-	       futil_file_type_name(FILE_TYPE_PUBKEY),
-	       futil_file_type_name(FILE_TYPE_RAW_FIRMWARE),
-	       futil_file_type_name(FILE_TYPE_BIOS_IMAGE),
-	       futil_file_type_name(FILE_TYPE_RAW_KERNEL),
-	       futil_file_type_name(FILE_TYPE_KERN_PREAMBLE));
+	if (help_type[type])
+		help_type[type](argc, argv);
+	else
+		print_help_default(argc, argv);
 }
 
 enum no_short_opts {
@@ -1064,9 +1081,8 @@ static int do_sign(int argc, char *argv[])
 				      "arch");
 		break;
 	default:
-		fprintf(stderr, "Unable to sign type %s\n",
-			futil_file_type_name(sign_option.type));
-		errorcnt++;
+		/* Anything else we don't care */
+		break;
 	}
 
 	Debug("infile=%s\n", infile);
