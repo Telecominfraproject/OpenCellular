@@ -24,7 +24,6 @@
 #include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
-#include "traversal.h"
 #include "vb1_helper.h"
 
 static void Fatal(const char *format, ...)

@@ -39,8 +39,10 @@ static struct local_data_s {
 	uint32_t padding;
 	int strict;
 	int t_flag;
+	enum futil_file_type type;
 } option = {
 	.padding = 65536,
+	.type = FILE_TYPE_UNKNOWN,
 };
 
 /* Stuff for BIOS images. */
@@ -615,6 +617,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 
 enum no_short_opts {
 	OPT_PADDING = 1000,
+	OPT_TYPE,
 	OPT_HELP,
 };
 
@@ -635,6 +638,8 @@ static const char usage[] = "\n"
 	"            Use this public key for validation\n"
 	"  -f|--fv          FILE            Verify this payload (FW_MAIN_A/B)\n"
 	"  --pad            NUM             Kernel vblock padding size\n"
+	"  --type           TYPE            Override the detected file type\n"
+	"                                     Use \"--type help\" for a list\n"
 	"%s"
 	"\n";
 
@@ -655,6 +660,7 @@ static const struct option long_opts[] = {
 	{"publickey",   1, 0, 'k'},
 	{"fv",          1, 0, 'f'},
 	{"pad",         1, NULL, OPT_PADDING},
+	{"type",        1, NULL, OPT_TYPE},
 	{"strict",      0, &option.strict, 1},
 	{"help",        0, NULL, OPT_HELP},
 	{NULL, 0, NULL, 0},
@@ -662,7 +668,7 @@ static const struct option long_opts[] = {
 static char *short_opts = ":f:k:t";
 
 
-static void show_type(char *filename)
+static int show_type(char *filename)
 {
 	enum futil_file_err err;
 	enum futil_file_type type;
@@ -670,7 +676,8 @@ static void show_type(char *filename)
 	switch (err) {
 	case FILE_ERR_NONE:
 		printf("%s:\t%s\n", filename, futil_file_type_name(type));
-		break;
+		/* Only our recognized types return success */
+		return 0;
 	case FILE_ERR_DIR:
 		printf("%s:\t%s\n", filename, "directory");
 		break;
@@ -686,6 +693,8 @@ static void show_type(char *filename)
 	default:
 		break;
 	}
+	/* Everything else is an error */
+	return 1;
 }
 
 static int do_show(int argc, char *argv[])
@@ -693,10 +702,11 @@ static int do_show(int argc, char *argv[])
 	char *infile = 0;
 	int ifd, i;
 	int errorcnt = 0;
-	enum futil_file_type type;
 	uint8_t *buf;
 	uint32_t len;
 	char *e = 0;
+	int type_override = 0;
+	enum futil_file_type type;
 
 	opterr = 0;		/* quiet, you */
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
@@ -726,6 +736,16 @@ static int do_show(int argc, char *argv[])
 					"Invalid --padding \"%s\"\n", optarg);
 				errorcnt++;
 			}
+			break;
+		case OPT_TYPE:
+			if (!futil_str_to_file_type(optarg, &option.type)) {
+				if (!strcasecmp("help", optarg))
+					print_file_types_and_exit(errorcnt);
+				fprintf(stderr,
+					"Invalid --type \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			type_override = 1;
 			break;
 		case OPT_HELP:
 			print_help(argc, argv);
@@ -763,7 +783,7 @@ static int do_show(int argc, char *argv[])
 
 	if (option.t_flag) {
 		for (i = optind; i < argc; i++)
-			show_type(argv[i]);
+			errorcnt += show_type(argv[i]);
 		goto done;
 	}
 
@@ -782,7 +802,11 @@ static int do_show(int argc, char *argv[])
 			goto boo;
 		}
 
-		type = futil_file_type_buf(buf, len);
+		/* Allow the user to override the type */
+		if (type_override)
+			type = option.type;
+		else
+			type = futil_file_type_buf(buf, len);
 
 		errorcnt += futil_file_type_show(type, infile, buf, len);
 

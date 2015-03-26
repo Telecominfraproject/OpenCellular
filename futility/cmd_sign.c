@@ -57,11 +57,13 @@ static struct local_data_s {
 	int pem_algo_specified;
 	uint32_t pem_algo;
 	char *pem_external;
+	enum futil_file_type type;
 } option = {
 	.version = 1,
 	.arch = ARCH_UNSPECIFIED,
 	.kloadaddr = CROS_32BIT_ENTRY_ADDR,
 	.padding = 65536,
+	.type = FILE_TYPE_UNKNOWN,
 };
 
 
@@ -748,6 +750,7 @@ enum no_short_opts {
 	OPT_PEM_SIGNPRIV,
 	OPT_PEM_ALGO,
 	OPT_PEM_EXTERNAL,
+	OPT_TYPE,
 	OPT_HELP,
 };
 
@@ -775,6 +778,7 @@ static const struct option long_opts[] = {
 	{"pem_signpriv", 1, NULL, OPT_PEM_SIGNPRIV},
 	{"pem_algo",     1, NULL, OPT_PEM_ALGO},
 	{"pem_external", 1, NULL, OPT_PEM_EXTERNAL},
+	{"type",         1, NULL, OPT_TYPE},
 	{"vblockonly",   0, &option.vblockonly, 1},
 	{"help",         0, NULL, OPT_HELP},
 	{NULL,           0, NULL, 0},
@@ -790,7 +794,6 @@ static int do_sign(int argc, char *argv[])
 	uint8_t *buf;
 	uint32_t buf_len;
 	char *e = 0;
-	enum futil_file_type type;
 	int inout_file_count = 0;
 	int mapping;
 	int helpind = 0;
@@ -940,6 +943,15 @@ static int do_sign(int argc, char *argv[])
 		case OPT_PEM_EXTERNAL:
 			option.pem_external = optarg;
 			break;
+		case OPT_TYPE:
+			if (!futil_str_to_file_type(optarg, &option.type)) {
+				if (!strcasecmp("help", optarg))
+				    print_file_types_and_exit(errorcnt);
+				fprintf(stderr,
+					"Invalid --type \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			break;
 		case OPT_HELP:
 			helpind = optind - 1;
 			break;
@@ -994,24 +1006,25 @@ static int do_sign(int argc, char *argv[])
 	}
 
 	/* What are we looking at? */
-	if (futil_file_type(infile, &type)) {
+	if (option.type == FILE_TYPE_UNKNOWN &&
+	    futil_file_type(infile, &option.type)) {
 		errorcnt++;
 		goto done;
 	}
 
 	/* We may be able to infer the type based on the other args */
-	if (type == FILE_TYPE_UNKNOWN) {
+	if (option.type == FILE_TYPE_UNKNOWN) {
 		if (option.bootloader_data || option.config_data
 		    || option.arch != ARCH_UNSPECIFIED)
-			type = FILE_TYPE_RAW_KERNEL;
+			option.type = FILE_TYPE_RAW_KERNEL;
 		else if (option.kernel_subkey || option.fv_specified)
-			type = FILE_TYPE_RAW_FIRMWARE;
+			option.type = FILE_TYPE_RAW_FIRMWARE;
 	}
 
-	Debug("type=%s\n", futil_file_type_name(type));
+	Debug("type=%s\n", futil_file_type_name(option.type));
 
 	/* Check the arguments for the type of thing we want to sign */
-	switch (type) {
+	switch (option.type) {
 	case FILE_TYPE_PUBKEY:
 		option.create_new_outfile = 1;
 		if (option.signprivate && option.pem_signpriv) {
@@ -1063,7 +1076,7 @@ static int do_sign(int argc, char *argv[])
 		break;
 	default:
 		fprintf(stderr, "Unable to sign type %s\n",
-			futil_file_type_name(type));
+			futil_file_type_name(option.type));
 		errorcnt++;
 	}
 
@@ -1124,7 +1137,7 @@ static int do_sign(int argc, char *argv[])
 		goto done;
 	}
 
-	errorcnt += futil_file_type_sign(type, infile, buf, buf_len);
+	errorcnt += futil_file_type_sign(option.type, infile, buf, buf_len);
 
 	errorcnt += futil_unmap_file(ifd, MAP_RW, buf, buf_len);
 

@@ -319,7 +319,7 @@ int main(int argc, char *argv[], char *envp[])
 	cmd = find_command(progname);
 	if (cmd) {
 		/* Yep, just do that */
-		return run_command(cmd, argc, argv);
+		return !!run_command(cmd, argc, argv);
 	}
 
 	/* Parse the global options, stopping at the first non-option. */
@@ -381,7 +381,7 @@ int main(int argc, char *argv[], char *envp[])
 		argc -= optind;
 		argv += optind;
 		optind = 0;
-		return run_command(cmd, argc, argv);
+		return !!run_command(cmd, argc, argv);
 	}
 
 	/* Nope. We've no clue what we're being asked to do. */
