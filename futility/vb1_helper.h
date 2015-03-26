@@ -6,6 +6,11 @@
 #ifndef VBOOT_REFERENCE_FUTILITY_VB1_HELPER_H_
 #define VBOOT_REFERENCE_FUTILITY_VB1_HELPER_H_
 
+/* Display a public key with variable indentation */
+void show_pubkey(VbPublicKey *pubkey, const char *sp);
+
+/* Other random functions needed for backward compatibility */
+
 uint8_t *ReadConfigFile(const char *config_file, uint64_t *config_size);
 
 uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,

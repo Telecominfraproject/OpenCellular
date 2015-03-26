@@ -17,15 +17,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "bmpblk_header.h"
 #include "file_type.h"
+#include "file_type_bios.h"
 #include "fmap.h"
 #include "futility.h"
 #include "futility_options.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "kernel_blob.h"
-#include "traversal.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
 #include "vboot_common.h"
@@ -48,41 +47,6 @@ static int no_opt_if(int expr, const char *optname)
 	}
 	return 0;
 }
-
-/* Stuff for BIOS images */
-
-/* Forward declarations */
-static int fmap_fw_main(const char *name, uint8_t *buf, uint32_t len,
-			void *data);
-static int fmap_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
-			    void *data);
-
-/* These are the functions we'll call for each FMAP area. */
-static int (*fmap_func[])(const char *name, uint8_t *buf, uint32_t len,
-			  void *data) = {
-	0,
-	fmap_fw_main,
-	fmap_fw_main,
-	fmap_fw_preamble,
-	fmap_fw_preamble,
-};
-BUILD_ASSERT(ARRAY_SIZE(fmap_func) == NUM_BIOS_COMPONENTS);
-
-/* Where is the component we're looking at? */
-struct bios_area_s {
-	uint8_t *buf;
-	uint32_t len;
-	uint32_t is_valid;
-};
-
-/* When looking at the FMAP areas, we need to gather some state for later. */
-struct sign_state_s {
-	/* Current component */
-	enum bios_component c;
-	/* Other activites, possibly before or after the current one */
-	struct bios_area_s area[NUM_BIOS_COMPONENTS];
-};
-
 
 /* This wraps/signs a public key, producing a keyblock. */
 int ft_sign_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
@@ -122,85 +86,6 @@ int ft_sign_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 	return WriteSomeParts(sign_option.outfile,
 			      vblock, vblock->key_block_size,
 			      NULL, 0);
-}
-
-/*
- * This handles FW_MAIN_A and FW_MAIN_B while signing a BIOS image. The data is
- * just the RW firmware blob so there's nothing useful to do with it, but we'll
- * mark it as valid so that we'll know that this FMAP area exists and can
- * be signed.
- */
-static int fmap_fw_main(const char *name, uint8_t *buf, uint32_t len,
-			void *data)
-{
-	struct sign_state_s *state = (struct sign_state_s *)data;
-	state->area[state->c].is_valid = 1;
-	return 0;
-}
-
-/*
- * This handles VBLOCK_A and VBLOCK_B while processing a BIOS image. We don't
- * do any signing here. We just check to see if the existing FMAP area contains
- * a firmware preamble so we can preserve its contents. We do the signing once
- * we've looked over all the components.
- */
-static int fmap_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
-			    void *data)
-{
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
-	struct sign_state_s *state = (struct sign_state_s *)data;
-
-	/*
-	 * If we have a valid keyblock and fw_preamble, then we can use them to
-	 * determine the size of the firmware body. Otherwise, we'll have to
-	 * just sign the whole region.
-	 */
-	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
-		fprintf(stderr, "Warning: %s keyblock is invalid. "
-			"Signing the entire FW FMAP region...\n", name);
-		goto whatever;
-	}
-
-	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
-	if (!rsa) {
-		fprintf(stderr, "Warning: %s public key is invalid. "
-			"Signing the entire FW FMAP region...\n", name);
-		goto whatever;
-	}
-	uint32_t more = key_block->key_block_size;
-	VbFirmwarePreambleHeader *preamble =
-		(VbFirmwarePreambleHeader *)(buf + more);
-	uint32_t fw_size = preamble->body_signature.data_size;
-	struct bios_area_s *fw_body_area = 0;
-
-	switch (state->c) {
-	case BIOS_FMAP_VBLOCK_A:
-		fw_body_area = &state->area[BIOS_FMAP_FW_MAIN_A];
-		/* Preserve the flags if they're not specified */
-		if (!sign_option.flags_specified)
-			sign_option.flags = preamble->flags;
-		break;
-	case BIOS_FMAP_VBLOCK_B:
-		fw_body_area = &state->area[BIOS_FMAP_FW_MAIN_B];
-		break;
-	default:
-		DIE;
-	}
-
-	if (fw_size > fw_body_area->len) {
-		fprintf(stderr,
-			"%s says the firmware is larger than we have\n",
-			name);
-		return 1;
-	}
-
-	/* Update the firmware size */
-	fw_body_area->len = fw_size;
-
-whatever:
-	state->area[state->c].is_valid = 1;
-
-	return 0;
 }
 
 int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
@@ -381,176 +266,6 @@ int ft_sign_raw_firmware(const char *name, uint8_t *buf, uint32_t len,
 	free(body_sig);
 
 	return rv;
-}
-
-
-static int write_new_preamble(struct bios_area_s *vblock,
-			      struct bios_area_s *fw_body,
-			      VbPrivateKey *signkey,
-			      VbKeyBlockHeader *keyblock)
-{
-	VbSignature *body_sig;
-	VbFirmwarePreambleHeader *preamble;
-
-	body_sig = CalculateSignature(fw_body->buf, fw_body->len, signkey);
-	if (!body_sig) {
-		fprintf(stderr, "Error calculating body signature\n");
-		return 1;
-	}
-
-	preamble = CreateFirmwarePreamble(sign_option.version,
-					  sign_option.kernel_subkey,
-					  body_sig,
-					  signkey,
-					  sign_option.flags);
-	if (!preamble) {
-		fprintf(stderr, "Error creating firmware preamble.\n");
-		free(body_sig);
-		return 1;
-	}
-
-	/* Write the new keyblock */
-	uint32_t more = keyblock->key_block_size;
-	memcpy(vblock->buf, keyblock, more);
-	/* and the new preamble */
-	memcpy(vblock->buf + more, preamble, preamble->preamble_size);
-
-	free(preamble);
-	free(body_sig);
-
-	return 0;
-}
-
-static int write_loem(const char *ab, struct bios_area_s *vblock)
-{
-	char filename[PATH_MAX];
-	int n;
-	n = snprintf(filename, sizeof(filename), "%s/vblock_%s.%s",
-		     sign_option.loemdir ? sign_option.loemdir : ".",
-		     ab, sign_option.loemid);
-	if (n >= sizeof(filename)) {
-		fprintf(stderr, "LOEM args produce bogus filename\n");
-		return 1;
-	}
-
-	FILE *fp = fopen(filename, "w");
-	if (!fp) {
-		fprintf(stderr, "Can't open %s for writing: %s\n",
-			filename, strerror(errno));
-		return 1;
-	}
-
-	if (1 != fwrite(vblock->buf, vblock->len, 1, fp)) {
-		fprintf(stderr, "Can't write to %s: %s\n",
-			filename, strerror(errno));
-		fclose(fp);
-		return 1;
-	}
-	if (fclose(fp)) {
-		fprintf(stderr, "Failed closing loem output: %s\n",
-			strerror(errno));
-		return 1;
-	}
-
-	return 0;
-}
-
-/* This signs a full BIOS image after it's been traversed. */
-static int sign_bios_at_end(struct sign_state_s *state)
-{
-	struct bios_area_s *vblock_a = &state->area[BIOS_FMAP_VBLOCK_A];
-	struct bios_area_s *vblock_b = &state->area[BIOS_FMAP_VBLOCK_B];
-	struct bios_area_s *fw_a = &state->area[BIOS_FMAP_FW_MAIN_A];
-	struct bios_area_s *fw_b = &state->area[BIOS_FMAP_FW_MAIN_B];
-	int retval = 0;
-
-	if (!vblock_a->is_valid || !vblock_b->is_valid ||
-	    !fw_a->is_valid || !fw_b->is_valid) {
-		fprintf(stderr, "Something's wrong. Not changing anything\n");
-		return 1;
-	}
-
-	/* Do A & B differ ? */
-	if (fw_a->len != fw_b->len ||
-	    memcmp(fw_a->buf, fw_b->buf, fw_a->len)) {
-		/* Yes, must use DEV keys for A */
-		if (!sign_option.devsignprivate || !sign_option.devkeyblock) {
-			fprintf(stderr,
-				"FW A & B differ. DEV keys are required.\n");
-			return 1;
-		}
-		retval |= write_new_preamble(vblock_a, fw_a,
-					     sign_option.devsignprivate,
-					     sign_option.devkeyblock);
-	} else {
-		retval |= write_new_preamble(vblock_a, fw_a,
-					     sign_option.signprivate,
-					     sign_option.keyblock);
-	}
-
-	/* FW B is always normal keys */
-	retval |= write_new_preamble(vblock_b, fw_b,
-				     sign_option.signprivate,
-				     sign_option.keyblock);
-
-
-
-
-	if (sign_option.loemid) {
-		retval |= write_loem("A", vblock_a);
-		retval |= write_loem("B", vblock_b);
-	}
-
-	return retval;
-}
-
-
-int ft_sign_bios(const char *name, uint8_t *buf, uint32_t len, void *data)
-{
-	FmapHeader *fmap;
-	FmapAreaHeader *ah = 0;
-	char ah_name[FMAP_NAMELEN + 1];
-	int i;
-	int retval = 0;
-	struct sign_state_s state;
-
-	memset(&state, 0, sizeof(state));
-
-	/* We've already checked, so we know this will work. */
-	fmap = fmap_find(buf, len);
-	for (i = 0; i < NUM_BIOS_COMPONENTS; i++) {
-		/* We know one of these will work, too */
-		if (fmap_find_by_name(buf, len, fmap,
-				      bios_area[i].name, &ah) ||
-		    fmap_find_by_name(buf, len, fmap,
-				      bios_area[i].oldname, &ah)) {
-			/* But the file might be truncated */
-			fmap_limit_area(ah, len);
-			/* The name is not necessarily null-terminated */
-			snprintf(ah_name, sizeof(ah_name), "%s", ah->area_name);
-
-			/* Update the state we're passing around */
-			state.c = i;
-			state.area[i].buf = buf + ah->area_offset;
-			state.area[i].len = ah->area_size;
-
-			Debug("%s() examining FMAP area %d (%s),"
-			      " offset=0x%08x len=0x%08x\n",
-			      __func__, i, ah_name,
-			      ah->area_offset, ah->area_size);
-
-			/* Go look at it, but abort on error */
-			if (fmap_func[i])
-				retval += fmap_func[i](ah_name,
-						       state.area[i].buf,
-						       state.area[i].len,
-						       &state);
-		}
-	}
-
-	retval += sign_bios_at_end(&state);
-
-	return retval;
 }
 
 static const char usage_pubkey[] = "\n"

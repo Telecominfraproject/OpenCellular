@@ -21,7 +21,6 @@
 
 #include "file_type.h"
 #include "futility.h"
-#include "traversal.h"
 
 enum futil_file_type ft_recognize_vb2_key(uint8_t *buf, uint32_t len)
 {

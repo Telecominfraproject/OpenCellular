@@ -625,7 +625,7 @@ FUTIL_SRCS = \
 	futility/cmd_vbutil_key.c \
 	futility/cmd_vbutil_keyblock.c \
 	futility/file_type.c \
-	futility/traversal.c \
+	futility/file_type_bios.c \
 	futility/vb1_helper.c \
 	futility/vb2_helper.c
 
