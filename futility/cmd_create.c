@@ -23,6 +23,7 @@
 #include "host_misc2.h"
 
 #include "futility.h"
+#include "futility_options.h"
 
 /* Command line options */
 enum {
@@ -283,7 +284,6 @@ static int do_create(int argc, char *argv[])
 	int errorcnt = 0;
 	char *e, *s;
 	int i, r, len, remove_ext = 0;
-	const struct vb2_text_vs_enum *entry;
 
 	while ((i = getopt_long(argc, argv, "", long_opts, NULL)) != -1) {
 		switch (i) {
@@ -311,28 +311,13 @@ static int do_create(int argc, char *argv[])
 			break;
 
 		case OPT_HASH_ALG:
-			/* try string first */
-			entry = vb2_lookup_by_name(vb2_text_vs_hash, optarg);
-			if (entry) {
-				opt_hash_alg = entry->num;
-				break;
-			}
-			/* fine, try number */
-			opt_hash_alg = strtoul(optarg, &e, 0);
-			if (!*optarg || (e && *e)) {
+			if (!vb2_lookup_hash_alg(optarg, &opt_hash_alg)) {
 				fprintf(stderr,
 					"invalid hash_alg \"%s\"\n", optarg);
 				errorcnt++;
-				break;
-			}
-			if (!vb2_lookup_by_num(vb2_text_vs_hash,
-					       opt_hash_alg)) {
-				fprintf(stderr,
-					"Hash algorithm %d is unsupported\n",
-					opt_hash_alg);
-				errorcnt++;
 			}
 			break;
+
 		case OPT_HELP:
 			print_help(argc, argv);
 			return !!errorcnt;

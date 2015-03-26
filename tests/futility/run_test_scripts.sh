@@ -51,6 +51,7 @@ ${SCRIPTDIR}/test_sign_firmware.sh
 ${SCRIPTDIR}/test_sign_fw_main.sh
 ${SCRIPTDIR}/test_sign_kernel.sh
 ${SCRIPTDIR}/test_sign_keyblocks.sh
+${SCRIPTDIR}/test_sign_usbpd1.sh
 ${SCRIPTDIR}/test_file_types.sh
 "
 

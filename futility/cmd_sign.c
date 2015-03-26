@@ -27,6 +27,8 @@
 #include "kernel_blob.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
+#include "vb2_common.h"
+#include "host_key2.h"
 #include "vboot_common.h"
 
 /* Options */
@@ -36,6 +38,11 @@ struct sign_option_s sign_option = {
 	.kloadaddr = CROS_32BIT_ENTRY_ADDR,
 	.padding = 65536,
 	.type = FILE_TYPE_UNKNOWN,
+	.hash_alg = VB2_HASH_SHA256,		/* default */
+	.ro_size = 0xffffffff,
+	.rw_size = 0xffffffff,
+	.ro_offset = 0xffffffff,
+	.rw_offset = 0xffffffff,
 };
 
 /* Helper to complain about invalid args. Returns num errors discovered */
@@ -406,12 +413,62 @@ static void print_help_kern_preamble(int argc, char *argv[])
 	printf(usage_old_kpart, sign_option.padding);
 }
 
+static void print_help_usbpd1(int argc, char *argv[])
+{
+	struct vb2_text_vs_enum *entry;
+
+	printf("\n"
+	       "Usage:  " MYNAME " %s --type %s [options] INFILE [OUTFILE]\n"
+	       "\n"
+	       "This signs a %s.\n"
+	       "\n"
+	       "The INPUT is assumed to consist of equal-sized RO and RW"
+	       " sections,\n"
+	       "with the public key at the end of of the RO section and the"
+	       " signature\n"
+	       "at the end of the RW section (both in an opaque binary"
+	       " format).\n"
+	       "Signing the image will update both binary blobs, so both"
+	       " public and\n"
+	       "private keys are required.\n"
+	       "\n"
+	       "The signing key is specified with:\n"
+	       "\n"
+	       "  --pem            "
+	       "FILE          Signing keypair in PEM format\n"
+	       "\n"
+	       "  --hash_alg       "
+	       "NUM           Hash algorithm to use:\n",
+	       argv[0],
+	       futil_file_type_name(FILE_TYPE_USBPD1),
+	       futil_file_type_desc(FILE_TYPE_USBPD1));
+	for (entry = vb2_text_vs_hash; entry->name; entry++)
+		printf("                                   %d / %s%s\n",
+		       entry->num, entry->name,
+		       entry->num == VB2_HASH_SHA256 ? " (default)" : "");
+	printf("\n"
+	       "The size and offset assumptions can be overridden. "
+	       "All numbers are in bytes.\n"
+	       "Specify a size of 0 to ignore that section.\n"
+	       "\n"
+	       "  --ro_size        NUM"
+	       "           Size of the RO section (default half)\n"
+	       "  --rw_size        NUM"
+	       "           Size of the RW section (default half)\n"
+	       "  --ro_offset      NUM"
+	       "           Start of the RO section (default 0)\n"
+	       "  --rw_offset      NUM"
+	       "           Start of the RW section (default half)\n"
+	       "\n");
+}
+
 static void (*help_type[NUM_FILE_TYPES])(int argc, char *argv[]) = {
 	[FILE_TYPE_PUBKEY] = &print_help_pubkey,
 	[FILE_TYPE_RAW_FIRMWARE] = &print_help_raw_firmware,
 	[FILE_TYPE_BIOS_IMAGE] = &print_help_bios_image,
 	[FILE_TYPE_RAW_KERNEL] = &print_help_raw_kernel,
 	[FILE_TYPE_KERN_PREAMBLE] = &print_help_kern_preamble,
+	[FILE_TYPE_USBPD1] = &print_help_usbpd1,
 };
 
 static const char usage_default[] = "\n"
@@ -465,6 +522,11 @@ enum no_short_opts {
 	OPT_PEM_ALGO,
 	OPT_PEM_EXTERNAL,
 	OPT_TYPE,
+	OPT_HASH_ALG,
+	OPT_RO_SIZE,
+	OPT_RW_SIZE,
+	OPT_RO_OFFSET,
+	OPT_RW_OFFSET,
 	OPT_HELP,
 };
 
@@ -490,14 +552,33 @@ static const struct option long_opts[] = {
 	{"kloadaddr",    1, NULL, OPT_KLOADADDR},
 	{"pad",          1, NULL, OPT_PADDING},
 	{"pem_signpriv", 1, NULL, OPT_PEM_SIGNPRIV},
+	{"pem",          1, NULL, OPT_PEM_SIGNPRIV}, /* alias */
 	{"pem_algo",     1, NULL, OPT_PEM_ALGO},
 	{"pem_external", 1, NULL, OPT_PEM_EXTERNAL},
 	{"type",         1, NULL, OPT_TYPE},
 	{"vblockonly",   0, &sign_option.vblockonly, 1},
+	{"hash_alg",     1, NULL, OPT_HASH_ALG},
+	{"ro_size",      1, NULL, OPT_RO_SIZE},
+	{"rw_size",      1, NULL, OPT_RW_SIZE},
+	{"ro_offset",    1, NULL, OPT_RO_OFFSET},
+	{"rw_offset",    1, NULL, OPT_RW_OFFSET},
 	{"help",         0, NULL, OPT_HELP},
 	{NULL,           0, NULL, 0},
 };
 static char *short_opts = ":s:b:k:S:B:v:f:d:l:";
+
+/* Return zero on success */
+static int parse_number_opt(const char *arg, const char *name, uint32_t *dest)
+{
+	char *e;
+	uint32_t val = strtoul(arg, &e, 0);
+	if (!*arg || (e && *e)) {
+		fprintf(stderr, "Invalid --%s \"%s\"\n", name, arg);
+		return 1;
+	}
+	*dest = val;
+	return 0;
+}
 
 static int do_sign(int argc, char *argv[])
 {
@@ -511,9 +592,11 @@ static int do_sign(int argc, char *argv[])
 	int inout_file_count = 0;
 	int mapping;
 	int helpind = 0;
+	int longindex;
 
 	opterr = 0;		/* quiet, you */
-	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
+	while ((i = getopt_long(argc, argv, short_opts, long_opts,
+				&longindex)) != -1) {
 		switch (i) {
 		case 's':
 			sign_option.signprivate = PrivateKeyRead(optarg);
@@ -562,12 +645,8 @@ static int do_sign(int argc, char *argv[])
 
 		case 'f':
 			sign_option.flags_specified = 1;
-			sign_option.flags = strtoul(optarg, &e, 0);
-			if (!*optarg || (e && *e)) {
-				fprintf(stderr,
-					"Invalid --flags \"%s\"\n", optarg);
-				errorcnt++;
-			}
+			errorcnt += parse_number_opt(optarg, "flags",
+						     &sign_option.flags);
 			break;
 		case 'd':
 			sign_option.loemdir = optarg;
@@ -626,20 +705,28 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case OPT_KLOADADDR:
-			sign_option.kloadaddr = strtoul(optarg, &e, 0);
-			if (!*optarg || (e && *e)) {
-				fprintf(stderr,
-					"Invalid --kloadaddr \"%s\"\n", optarg);
-				errorcnt++;
-			}
+			errorcnt += parse_number_opt(optarg, "kloadaddr",
+						     &sign_option.kloadaddr);
 			break;
 		case OPT_PADDING:
-			sign_option.padding = strtoul(optarg, &e, 0);
-			if (!*optarg || (e && *e)) {
-				fprintf(stderr,
-					"Invalid --padding \"%s\"\n", optarg);
-				errorcnt++;
-			}
+			errorcnt += parse_number_opt(optarg, "padding",
+						     &sign_option.padding);
+			break;
+		case OPT_RO_SIZE:
+			errorcnt += parse_number_opt(optarg, "ro_size",
+						     &sign_option.ro_size);
+			break;
+		case OPT_RW_SIZE:
+			errorcnt += parse_number_opt(optarg, "rw_size",
+						     &sign_option.rw_size);
+			break;
+		case OPT_RO_OFFSET:
+			errorcnt += parse_number_opt(optarg, "ro_offset",
+						     &sign_option.ro_offset);
+			break;
+		case OPT_RW_OFFSET:
+			errorcnt += parse_number_opt(optarg, "rw_offset",
+						     &sign_option.rw_offset);
 			break;
 		case OPT_PEM_SIGNPRIV:
 			sign_option.pem_signpriv = optarg;
@@ -651,6 +738,14 @@ static int do_sign(int argc, char *argv[])
 			    (sign_option.pem_algo >= kNumAlgorithms)) {
 				fprintf(stderr,
 					"Invalid --pem_algo \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_HASH_ALG:
+			if (!vb2_lookup_hash_alg(optarg,
+						 &sign_option.hash_alg)) {
+				fprintf(stderr,
+					"invalid hash_alg \"%s\"\n", optarg);
 				errorcnt++;
 			}
 			break;
@@ -795,6 +890,11 @@ static int do_sign(int argc, char *argv[])
 		errorcnt += no_opt_if(sign_option.arch == ARCH_UNSPECIFIED,
 				      "arch");
 		break;
+	case FILE_TYPE_USBPD1:
+		errorcnt += no_opt_if(!sign_option.pem_signpriv, "pem");
+		errorcnt += no_opt_if(sign_option.hash_alg == VB2_HASH_INVALID,
+				      "hash_alg");
+		break;
 	default:
 		/* Anything else we don't care */
 		break;
@@ -839,18 +939,18 @@ static int do_sign(int argc, char *argv[])
 		}
 	} else {
 		/* We'll read-modify-write the output file */
-		mapping = MAP_RW;
-		if (inout_file_count > 1)
-			futil_copy_file_or_die(infile, sign_option.outfile);
-		Debug("open RW %s\n", sign_option.outfile);
-		infile = sign_option.outfile;
-		ifd = open(sign_option.outfile, O_RDWR);
-		if (ifd < 0) {
-			errorcnt++;
-			fprintf(stderr, "Can't open %s for writing: %s\n",
-				sign_option.outfile, strerror(errno));
-			goto done;
-		}
+	       mapping = MAP_RW;
+	       if (inout_file_count > 1)
+		       futil_copy_file_or_die(infile, sign_option.outfile);
+	       Debug("open RW %s\n", sign_option.outfile);
+	       infile = sign_option.outfile;
+	       ifd = open(sign_option.outfile, O_RDWR);
+	       if (ifd < 0) {
+		       errorcnt++;
+		       fprintf(stderr, "Can't open %s for writing: %s\n",
+			       sign_option.outfile, strerror(errno));
+		       goto done;
+	       }
 	}
 
 	if (0 != futil_map_file(ifd, mapping, &buf, &buf_len)) {

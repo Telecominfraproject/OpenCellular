@@ -71,3 +71,9 @@ FILE_TYPE(CHROMIUMOS_DISK,  "disk_img",      "chromiumos disk image",
 	  NONE,
 	  NONE,
 	  NONE)
+
+/* Firmware for Samus' USB Type-C power adapters */
+FILE_TYPE(USBPD1,           "usbpd1",        "USB-PD charger image (v1.0)",
+	  NONE,
+	  NONE,
+	  S_(ft_sign_usbpd1))

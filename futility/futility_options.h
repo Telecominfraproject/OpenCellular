@@ -13,6 +13,8 @@
 #define VBOOT_REFERENCE_FUTILITY_OPTIONS_H_
 #include <stdint.h>
 #include "vboot_common.h"
+#include "file_type.h"
+#include "2rsa.h"
 
 struct show_option_s {
 	VbPublicKey *k;
@@ -53,7 +55,13 @@ struct sign_option_s {
 	uint32_t pem_algo;
 	char *pem_external;
 	enum futil_file_type type;
+	enum vb2_hash_algorithm hash_alg;
+	uint32_t ro_size, rw_size;
+	uint32_t ro_offset, rw_offset;
 };
 extern struct sign_option_s sign_option;
+
+/* Return true if hash_alg was identified, either by name or number */
+int vb2_lookup_hash_alg(const char *str, enum vb2_hash_algorithm *alg);
 
 #endif	/* VBOOT_REFERENCE_FUTILITY_OPTIONS_H_ */

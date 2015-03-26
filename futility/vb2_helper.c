@@ -22,6 +22,33 @@
 #include "file_type.h"
 #include "futility.h"
 
+int vb2_lookup_hash_alg(const char *str, enum vb2_hash_algorithm *alg)
+{
+	const struct vb2_text_vs_enum *entry;
+	uint32_t val;
+	char *e;
+
+	/* try string first */
+	entry = vb2_lookup_by_name(vb2_text_vs_hash, str);
+	if (entry) {
+		*alg = entry->num;
+		return 1;
+	}
+
+	/* fine, try number */
+	val = strtoul(str, &e, 0);
+	if (!*str || (e && *e))
+		/* that's not a number */
+		return 0;
+
+	if (!vb2_lookup_by_num(vb2_text_vs_hash, val))
+		/* That's not a valid alg */
+		return 0;
+
+	*alg = val;
+	return 1;
+}
+
 enum futil_file_type ft_recognize_vb2_key(uint8_t *buf, uint32_t len)
 {
 	struct vb2_public_key pubkey;

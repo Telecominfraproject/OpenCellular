@@ -37,6 +37,7 @@ static struct {
 	{FILE_TYPE_VB2_PUBKEY,      "tests/futility/data/sample.vbpubk2"},
 	{FILE_TYPE_VB2_PRIVKEY,     "tests/futility/data/sample.vbprik2"},
 	{FILE_TYPE_PEM,             "tests/testkeys/key_rsa2048.pem"},
+	{FILE_TYPE_USBPD1,          },
 };
 BUILD_ASSERT(ARRAY_SIZE(test_case) == NUM_FILE_TYPES);
 
