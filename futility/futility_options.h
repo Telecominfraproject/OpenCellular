@@ -1,0 +1,59 @@
+/*
+ * Copyright 2015 The Chromium OS Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+/*
+ * We centralize option parsing but may split operations into multiple files,
+ * so let's declare the option structures in a single place (here).
+ */
+
+#ifndef VBOOT_REFERENCE_FUTILITY_OPTIONS_H_
+#define VBOOT_REFERENCE_FUTILITY_OPTIONS_H_
+#include <stdint.h>
+#include "vboot_common.h"
+
+struct show_option_s {
+	VbPublicKey *k;
+	uint8_t *fv;
+	uint64_t fv_size;
+	uint32_t padding;
+	int strict;
+	int t_flag;
+	enum futil_file_type type;
+};
+extern struct show_option_s show_option;
+
+struct sign_option_s {
+	VbPrivateKey *signprivate;
+	VbKeyBlockHeader *keyblock;
+	VbPublicKey *kernel_subkey;
+	VbPrivateKey *devsignprivate;
+	VbKeyBlockHeader *devkeyblock;
+	uint32_t version;
+	int version_specified;
+	uint32_t flags;
+	int flags_specified;
+	char *loemdir;
+	char *loemid;
+	uint8_t *bootloader_data;
+	uint64_t bootloader_size;
+	uint8_t *config_data;
+	uint64_t config_size;
+	enum arch_t arch;
+	int fv_specified;
+	uint32_t kloadaddr;
+	uint32_t padding;
+	int vblockonly;
+	char *outfile;
+	int create_new_outfile;
+	char *pem_signpriv;
+	int pem_algo_specified;
+	uint32_t pem_algo;
+	char *pem_external;
+	enum futil_file_type type;
+};
+extern struct sign_option_s sign_option;
+
+#endif	/* VBOOT_REFERENCE_FUTILITY_OPTIONS_H_ */

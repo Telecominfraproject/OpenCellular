@@ -21,6 +21,7 @@
 #include "file_type.h"
 #include "fmap.h"
 #include "futility.h"
+#include "futility_options.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "kernel_blob.h"
@@ -29,43 +30,14 @@
 #include "vb1_helper.h"
 #include "vboot_common.h"
 
-/* Local structure for args, etc. */
-static struct local_data_s {
-	VbPrivateKey *signprivate;
-	VbKeyBlockHeader *keyblock;
-	VbPublicKey *kernel_subkey;
-	VbPrivateKey *devsignprivate;
-	VbKeyBlockHeader *devkeyblock;
-	uint32_t version;
-	int version_specified;
-	uint32_t flags;
-	int flags_specified;
-	char *loemdir;
-	char *loemid;
-	uint8_t *bootloader_data;
-	uint64_t bootloader_size;
-	uint8_t *config_data;
-	uint64_t config_size;
-	enum arch_t arch;
-	int fv_specified;
-	uint32_t kloadaddr;
-	uint32_t padding;
-	int vblockonly;
-	char *outfile;
-	int create_new_outfile;
-	char *pem_signpriv;
-	int pem_algo_specified;
-	uint32_t pem_algo;
-	char *pem_external;
-	enum futil_file_type type;
-} option = {
+/* Options */
+struct sign_option_s sign_option = {
 	.version = 1,
 	.arch = ARCH_UNSPECIFIED,
 	.kloadaddr = CROS_32BIT_ENTRY_ADDR,
 	.padding = 65536,
 	.type = FILE_TYPE_UNKNOWN,
 };
-
 
 /* Helper to complain about invalid args. Returns num errors discovered */
 static int no_opt_if(int expr, const char *optname)
@@ -118,34 +90,36 @@ int ft_sign_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 	VbPublicKey *data_key = (VbPublicKey *)buf;
 	VbKeyBlockHeader *vblock;
 
-	if (option.pem_signpriv) {
-		if (option.pem_external) {
+	if (sign_option.pem_signpriv) {
+		if (sign_option.pem_external) {
 			/* External signing uses the PEM file directly. */
 			vblock = KeyBlockCreate_external(
 				data_key,
-				option.pem_signpriv,
-				option.pem_algo, option.flags,
-				option.pem_external);
+				sign_option.pem_signpriv,
+				sign_option.pem_algo, sign_option.flags,
+				sign_option.pem_external);
 		} else {
-			option.signprivate = PrivateKeyReadPem(
-				option.pem_signpriv, option.pem_algo);
-			if (!option.signprivate) {
+			sign_option.signprivate = PrivateKeyReadPem(
+				sign_option.pem_signpriv,
+				sign_option.pem_algo);
+			if (!sign_option.signprivate) {
 				fprintf(stderr,
 					"Unable to read PEM signing key: %s\n",
 					strerror(errno));
 				return 1;
 			}
-			vblock = KeyBlockCreate(data_key, option.signprivate,
-						option.flags);
+			vblock = KeyBlockCreate(data_key,
+						sign_option.signprivate,
+						sign_option.flags);
 		}
 	} else {
 		/* Not PEM. Should already have a signing key. */
-		vblock = KeyBlockCreate(data_key, option.signprivate,
-					option.flags);
+		vblock = KeyBlockCreate(data_key, sign_option.signprivate,
+					sign_option.flags);
 	}
 
 	/* Write it out */
-	return WriteSomeParts(option.outfile,
+	return WriteSomeParts(sign_option.outfile,
 			      vblock, vblock->key_block_size,
 			      NULL, 0);
 }
@@ -203,8 +177,8 @@ static int fmap_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	case BIOS_FMAP_VBLOCK_A:
 		fw_body_area = &state->area[BIOS_FMAP_FW_MAIN_A];
 		/* Preserve the flags if they're not specified */
-		if (!option.flags_specified)
-			option.flags = preamble->flags;
+		if (!sign_option.flags_specified)
+			sign_option.flags = preamble->flags;
 		break;
 	case BIOS_FMAP_VBLOCK_B:
 		fw_body_area = &state->area[BIOS_FMAP_FW_MAIN_B];
@@ -241,9 +215,9 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 
 	kblob_data = CreateKernelBlob(
 		vmlinuz_data, vmlinuz_size,
-		option.arch, option.kloadaddr,
-		option.config_data, option.config_size,
-		option.bootloader_data, option.bootloader_size,
+		sign_option.arch, sign_option.kloadaddr,
+		sign_option.config_data, sign_option.config_size,
+		sign_option.bootloader_data, sign_option.bootloader_size,
 		&kblob_size);
 	if (!kblob_data) {
 		fprintf(stderr, "Unable to create kernel blob\n");
@@ -251,10 +225,13 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 	}
 	Debug("kblob_size = 0x%" PRIx64 "\n", kblob_size);
 
-	vblock_data = SignKernelBlob(kblob_data, kblob_size, option.padding,
-				     option.version, option.kloadaddr,
-				     option.keyblock, option.signprivate,
-				     option.flags, &vblock_size);
+	vblock_data = SignKernelBlob(kblob_data, kblob_size,
+				     sign_option.padding,
+				     sign_option.version,
+				     sign_option.kloadaddr,
+				     sign_option.keyblock,
+				     sign_option.signprivate,
+				     sign_option.flags, &vblock_size);
 	if (!vblock_data) {
 		fprintf(stderr, "Unable to sign kernel blob\n");
 		free(kblob_data);
@@ -264,15 +241,15 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 
 	/* We should be creating a completely new output file.
 	 * If not, something's wrong. */
-	if (!option.create_new_outfile)
+	if (!sign_option.create_new_outfile)
 		DIE;
 
-	if (option.vblockonly)
-		rv = WriteSomeParts(option.outfile,
+	if (sign_option.vblockonly)
+		rv = WriteSomeParts(sign_option.outfile,
 				    vblock_data, vblock_size,
 				    NULL, 0);
 	else
-		rv = WriteSomeParts(option.outfile,
+		rv = WriteSomeParts(sign_option.outfile,
 				    vblock_data, vblock_size,
 				    kblob_data, kblob_size);
 
@@ -294,7 +271,7 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 	kpart_size = len;
 
 	/* Note: This just sets some static pointers. It doesn't malloc. */
-	kblob_data = UnpackKPart(kpart_data, kpart_size, option.padding,
+	kblob_data = UnpackKPart(kpart_data, kpart_size, sign_option.padding,
 				 &keyblock, &preamble, &kblob_size);
 
 	if (!kblob_data) {
@@ -309,50 +286,54 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 	 * it here either. To enable it, we'd need to update the zeropage
 	 * table's cmd_line_ptr as well as the preamble.
 	 */
-	option.kloadaddr = preamble->body_load_address;
+	sign_option.kloadaddr = preamble->body_load_address;
 
 	/* Replace the config if asked */
-	if (option.config_data &&
+	if (sign_option.config_data &&
 	    0 != UpdateKernelBlobConfig(kblob_data, kblob_size,
-					option.config_data,
-					option.config_size)) {
+					sign_option.config_data,
+					sign_option.config_size)) {
 		fprintf(stderr, "Unable to update config\n");
 		return 1;
 	}
 
 	/* Preserve the version unless a new one is given */
-	if (!option.version_specified)
-		option.version = preamble->kernel_version;
+	if (!sign_option.version_specified)
+		sign_option.version = preamble->kernel_version;
 
 	/* Preserve the flags if not specified */
 	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS) {
-		if (option.flags_specified == 0)
-			option.flags = preamble->flags;
+		if (sign_option.flags_specified == 0)
+			sign_option.flags = preamble->flags;
 	}
 
 	/* Replace the keyblock if asked */
-	if (option.keyblock)
-		keyblock = option.keyblock;
+	if (sign_option.keyblock)
+		keyblock = sign_option.keyblock;
 
 	/* Compute the new signature */
-	vblock_data = SignKernelBlob(kblob_data, kblob_size, option.padding,
-				     option.version, option.kloadaddr,
-				     keyblock, option.signprivate,
-				     option.flags, &vblock_size);
+	vblock_data = SignKernelBlob(kblob_data, kblob_size,
+				     sign_option.padding,
+				     sign_option.version,
+				     sign_option.kloadaddr,
+				     keyblock,
+				     sign_option.signprivate,
+				     sign_option.flags,
+				     &vblock_size);
 	if (!vblock_data) {
 		fprintf(stderr, "Unable to sign kernel blob\n");
 		return 1;
 	}
 	Debug("vblock_size = 0x%" PRIx64 "\n", vblock_size);
 
-	if (option.create_new_outfile) {
+	if (sign_option.create_new_outfile) {
 		/* Write out what we've been asked for */
-		if (option.vblockonly)
-			rv = WriteSomeParts(option.outfile,
+		if (sign_option.vblockonly)
+			rv = WriteSomeParts(sign_option.outfile,
 					    vblock_data, vblock_size,
 					    NULL, 0);
 		else
-			rv = WriteSomeParts(option.outfile,
+			rv = WriteSomeParts(sign_option.outfile,
 					    vblock_data, vblock_size,
 					    kblob_data, kblob_size);
 	} else {
@@ -374,25 +355,26 @@ int ft_sign_raw_firmware(const char *name, uint8_t *buf, uint32_t len,
 	VbFirmwarePreambleHeader *preamble;
 	int rv;
 
-	body_sig = CalculateSignature(buf, len, option.signprivate);
+	body_sig = CalculateSignature(buf, len, sign_option.signprivate);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return 1;
 	}
 
-	preamble = CreateFirmwarePreamble(option.version,
-					  option.kernel_subkey,
+	preamble = CreateFirmwarePreamble(sign_option.version,
+					  sign_option.kernel_subkey,
 					  body_sig,
-					  option.signprivate,
-					  option.flags);
+					  sign_option.signprivate,
+					  sign_option.flags);
 	if (!preamble) {
 		fprintf(stderr, "Error creating firmware preamble.\n");
 		free(body_sig);
 		return 1;
 	}
 
-	rv = WriteSomeParts(option.outfile,
-			    option.keyblock, option.keyblock->key_block_size,
+	rv = WriteSomeParts(sign_option.outfile,
+			    sign_option.keyblock,
+			    sign_option.keyblock->key_block_size,
 			    preamble, preamble->preamble_size);
 
 	free(preamble);
@@ -416,11 +398,11 @@ static int write_new_preamble(struct bios_area_s *vblock,
 		return 1;
 	}
 
-	preamble = CreateFirmwarePreamble(option.version,
-					  option.kernel_subkey,
+	preamble = CreateFirmwarePreamble(sign_option.version,
+					  sign_option.kernel_subkey,
 					  body_sig,
 					  signkey,
-					  option.flags);
+					  sign_option.flags);
 	if (!preamble) {
 		fprintf(stderr, "Error creating firmware preamble.\n");
 		free(body_sig);
@@ -444,8 +426,8 @@ static int write_loem(const char *ab, struct bios_area_s *vblock)
 	char filename[PATH_MAX];
 	int n;
 	n = snprintf(filename, sizeof(filename), "%s/vblock_%s.%s",
-		     option.loemdir ? option.loemdir : ".",
-		     ab, option.loemid);
+		     sign_option.loemdir ? sign_option.loemdir : ".",
+		     ab, sign_option.loemid);
 	if (n >= sizeof(filename)) {
 		fprintf(stderr, "LOEM args produce bogus filename\n");
 		return 1;
@@ -492,29 +474,29 @@ static int sign_bios_at_end(struct sign_state_s *state)
 	if (fw_a->len != fw_b->len ||
 	    memcmp(fw_a->buf, fw_b->buf, fw_a->len)) {
 		/* Yes, must use DEV keys for A */
-		if (!option.devsignprivate || !option.devkeyblock) {
+		if (!sign_option.devsignprivate || !sign_option.devkeyblock) {
 			fprintf(stderr,
 				"FW A & B differ. DEV keys are required.\n");
 			return 1;
 		}
 		retval |= write_new_preamble(vblock_a, fw_a,
-					     option.devsignprivate,
-					     option.devkeyblock);
+					     sign_option.devsignprivate,
+					     sign_option.devkeyblock);
 	} else {
 		retval |= write_new_preamble(vblock_a, fw_a,
-					     option.signprivate,
-					     option.keyblock);
+					     sign_option.signprivate,
+					     sign_option.keyblock);
 	}
 
 	/* FW B is always normal keys */
 	retval |= write_new_preamble(vblock_b, fw_b,
-				     option.signprivate,
-				     option.keyblock);
+				     sign_option.signprivate,
+				     sign_option.keyblock);
 
 
 
 
-	if (option.loemid) {
+	if (sign_option.loemid) {
 		retval |= write_loem("A", vblock_a);
 		retval |= write_loem("B", vblock_b);
 	}
@@ -717,14 +699,14 @@ static void print_help(int argc, char *argv[])
 			puts(usage_fw_main);
 			return;
 		case FILE_TYPE_BIOS_IMAGE:
-			printf(usage_bios, option.version);
+			printf(usage_bios, sign_option.version);
 			return;
 		case FILE_TYPE_RAW_KERNEL:
-			printf(usage_new_kpart, option.kloadaddr,
-			       option.padding);
+			printf(usage_new_kpart, sign_option.kloadaddr,
+			       sign_option.padding);
 			return;
 		case FILE_TYPE_KERN_PREAMBLE:
-			printf(usage_old_kpart, option.padding);
+			printf(usage_old_kpart, sign_option.padding);
 			return;
 		default:
 			break;
@@ -779,7 +761,7 @@ static const struct option long_opts[] = {
 	{"pem_algo",     1, NULL, OPT_PEM_ALGO},
 	{"pem_external", 1, NULL, OPT_PEM_EXTERNAL},
 	{"type",         1, NULL, OPT_TYPE},
-	{"vblockonly",   0, &option.vblockonly, 1},
+	{"vblockonly",   0, &sign_option.vblockonly, 1},
 	{"help",         0, NULL, OPT_HELP},
 	{NULL,           0, NULL, 0},
 };
@@ -802,43 +784,43 @@ static int do_sign(int argc, char *argv[])
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
 		switch (i) {
 		case 's':
-			option.signprivate = PrivateKeyRead(optarg);
-			if (!option.signprivate) {
+			sign_option.signprivate = PrivateKeyRead(optarg);
+			if (!sign_option.signprivate) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case 'b':
-			option.keyblock = KeyBlockRead(optarg);
-			if (!option.keyblock) {
+			sign_option.keyblock = KeyBlockRead(optarg);
+			if (!sign_option.keyblock) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case 'k':
-			option.kernel_subkey = PublicKeyRead(optarg);
-			if (!option.kernel_subkey) {
+			sign_option.kernel_subkey = PublicKeyRead(optarg);
+			if (!sign_option.kernel_subkey) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case 'S':
-			option.devsignprivate = PrivateKeyRead(optarg);
-			if (!option.devsignprivate) {
+			sign_option.devsignprivate = PrivateKeyRead(optarg);
+			if (!sign_option.devsignprivate) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case 'B':
-			option.devkeyblock = KeyBlockRead(optarg);
-			if (!option.devkeyblock) {
+			sign_option.devkeyblock = KeyBlockRead(optarg);
+			if (!sign_option.devkeyblock) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case 'v':
-			option.version_specified = 1;
-			option.version = strtoul(optarg, &e, 0);
+			sign_option.version_specified = 1;
+			sign_option.version = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
 					"Invalid --version \"%s\"\n", optarg);
@@ -847,8 +829,8 @@ static int do_sign(int argc, char *argv[])
 			break;
 
 		case 'f':
-			option.flags_specified = 1;
-			option.flags = strtoul(optarg, &e, 0);
+			sign_option.flags_specified = 1;
+			sign_option.flags = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
 					"Invalid --flags \"%s\"\n", optarg);
@@ -856,13 +838,13 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case 'd':
-			option.loemdir = optarg;
+			sign_option.loemdir = optarg;
 			break;
 		case 'l':
-			option.loemid = optarg;
+			sign_option.loemid = optarg;
 			break;
 		case OPT_FV:
-			option.fv_specified = 1;
+			sign_option.fv_specified = 1;
 			/* fallthrough */
 		case OPT_INFILE:
 			inout_file_count++;
@@ -870,24 +852,24 @@ static int do_sign(int argc, char *argv[])
 			break;
 		case OPT_OUTFILE:
 			inout_file_count++;
-			option.outfile = optarg;
+			sign_option.outfile = optarg;
 			break;
 		case OPT_BOOTLOADER:
-			option.bootloader_data = ReadFile(
-				optarg, &option.bootloader_size);
-			if (!option.bootloader_data) {
+			sign_option.bootloader_data = ReadFile(
+				optarg, &sign_option.bootloader_size);
+			if (!sign_option.bootloader_data) {
 				fprintf(stderr,
 					"Error reading bootloader file: %s\n",
 					strerror(errno));
 				errorcnt++;
 			}
 			Debug("bootloader file size=0x%" PRIx64 "\n",
-			      option.bootloader_size);
+			      sign_option.bootloader_size);
 			break;
 		case OPT_CONFIG:
-			option.config_data = ReadConfigFile(
-				optarg, &option.config_size);
-			if (!option.config_data) {
+			sign_option.config_data = ReadConfigFile(
+				optarg, &sign_option.config_size);
+			if (!sign_option.config_data) {
 				fprintf(stderr,
 					"Error reading config file: %s\n",
 					strerror(errno));
@@ -898,12 +880,12 @@ static int do_sign(int argc, char *argv[])
 			/* check the first 3 characters to also match x86_64 */
 			if ((!strncasecmp(optarg, "x86", 3)) ||
 			    (!strcasecmp(optarg, "amd64")))
-				option.arch = ARCH_X86;
+				sign_option.arch = ARCH_X86;
 			else if ((!strcasecmp(optarg, "arm")) ||
 				 (!strcasecmp(optarg, "aarch64")))
-				option.arch = ARCH_ARM;
+				sign_option.arch = ARCH_ARM;
 			else if (!strcasecmp(optarg, "mips"))
-				option.arch = ARCH_MIPS;
+				sign_option.arch = ARCH_MIPS;
 			else {
 				fprintf(stderr,
 					"Unknown architecture: \"%s\"\n",
@@ -912,7 +894,7 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case OPT_KLOADADDR:
-			option.kloadaddr = strtoul(optarg, &e, 0);
+			sign_option.kloadaddr = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
 					"Invalid --kloadaddr \"%s\"\n", optarg);
@@ -920,7 +902,7 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case OPT_PADDING:
-			option.padding = strtoul(optarg, &e, 0);
+			sign_option.padding = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
 					"Invalid --padding \"%s\"\n", optarg);
@@ -928,23 +910,24 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case OPT_PEM_SIGNPRIV:
-			option.pem_signpriv = optarg;
+			sign_option.pem_signpriv = optarg;
 			break;
 		case OPT_PEM_ALGO:
-			option.pem_algo_specified = 1;
-			option.pem_algo = strtoul(optarg, &e, 0);
+			sign_option.pem_algo_specified = 1;
+			sign_option.pem_algo = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e) ||
-			    (option.pem_algo >= kNumAlgorithms)) {
+			    (sign_option.pem_algo >= kNumAlgorithms)) {
 				fprintf(stderr,
 					"Invalid --pem_algo \"%s\"\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case OPT_PEM_EXTERNAL:
-			option.pem_external = optarg;
+			sign_option.pem_external = optarg;
 			break;
 		case OPT_TYPE:
-			if (!futil_str_to_file_type(optarg, &option.type)) {
+			if (!futil_str_to_file_type(optarg,
+						    &sign_option.type)) {
 				if (!strcasecmp("help", optarg))
 				    print_file_types_and_exit(errorcnt);
 				fprintf(stderr,
@@ -1000,46 +983,48 @@ static int do_sign(int argc, char *argv[])
 	}
 
 	/* Look for an output file if we don't have one, just in case. */
-	if (!option.outfile && argc - optind > 0) {
+	if (!sign_option.outfile && argc - optind > 0) {
 		inout_file_count++;
-		option.outfile = argv[optind++];
+		sign_option.outfile = argv[optind++];
 	}
 
 	/* What are we looking at? */
-	if (option.type == FILE_TYPE_UNKNOWN &&
-	    futil_file_type(infile, &option.type)) {
+	if (sign_option.type == FILE_TYPE_UNKNOWN &&
+	    futil_file_type(infile, &sign_option.type)) {
 		errorcnt++;
 		goto done;
 	}
 
 	/* We may be able to infer the type based on the other args */
-	if (option.type == FILE_TYPE_UNKNOWN) {
-		if (option.bootloader_data || option.config_data
-		    || option.arch != ARCH_UNSPECIFIED)
-			option.type = FILE_TYPE_RAW_KERNEL;
-		else if (option.kernel_subkey || option.fv_specified)
-			option.type = FILE_TYPE_RAW_FIRMWARE;
+	if (sign_option.type == FILE_TYPE_UNKNOWN) {
+		if (sign_option.bootloader_data || sign_option.config_data
+		    || sign_option.arch != ARCH_UNSPECIFIED)
+			sign_option.type = FILE_TYPE_RAW_KERNEL;
+		else if (sign_option.kernel_subkey || sign_option.fv_specified)
+			sign_option.type = FILE_TYPE_RAW_FIRMWARE;
 	}
 
-	Debug("type=%s\n", futil_file_type_name(option.type));
+	Debug("type=%s\n", futil_file_type_name(sign_option.type));
 
 	/* Check the arguments for the type of thing we want to sign */
-	switch (option.type) {
+	switch (sign_option.type) {
 	case FILE_TYPE_PUBKEY:
-		option.create_new_outfile = 1;
-		if (option.signprivate && option.pem_signpriv) {
+		sign_option.create_new_outfile = 1;
+		if (sign_option.signprivate && sign_option.pem_signpriv) {
 			fprintf(stderr,
 				"Only one of --signprivate and --pem_signpriv"
 				" can be specified\n");
 			errorcnt++;
 		}
-		if ((option.signprivate && option.pem_algo_specified) ||
-		    (option.pem_signpriv && !option.pem_algo_specified)) {
+		if ((sign_option.signprivate &&
+		     sign_option.pem_algo_specified) ||
+		    (sign_option.pem_signpriv &&
+		     !sign_option.pem_algo_specified)) {
 			fprintf(stderr, "--pem_algo must be used with"
 				" --pem_signpriv\n");
 			errorcnt++;
 		}
-		if (option.pem_external && !option.pem_signpriv) {
+		if (sign_option.pem_external && !sign_option.pem_signpriv) {
 			fprintf(stderr, "--pem_external must be used with"
 				" --pem_signpriv\n");
 			errorcnt++;
@@ -1049,53 +1034,58 @@ static int do_sign(int argc, char *argv[])
 		break;
 	case FILE_TYPE_BIOS_IMAGE:
 	case FILE_TYPE_OLD_BIOS_IMAGE:
-		errorcnt += no_opt_if(!option.signprivate, "signprivate");
-		errorcnt += no_opt_if(!option.keyblock, "keyblock");
-		errorcnt += no_opt_if(!option.kernel_subkey, "kernelkey");
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
+		errorcnt += no_opt_if(!sign_option.keyblock, "keyblock");
+		errorcnt += no_opt_if(!sign_option.kernel_subkey, "kernelkey");
 		break;
 	case FILE_TYPE_KERN_PREAMBLE:
-		errorcnt += no_opt_if(!option.signprivate, "signprivate");
-		if (option.vblockonly || inout_file_count > 1)
-			option.create_new_outfile = 1;
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
+		if (sign_option.vblockonly || inout_file_count > 1)
+			sign_option.create_new_outfile = 1;
 		break;
 	case FILE_TYPE_RAW_FIRMWARE:
-		option.create_new_outfile = 1;
-		errorcnt += no_opt_if(!option.signprivate, "signprivate");
-		errorcnt += no_opt_if(!option.keyblock, "keyblock");
-		errorcnt += no_opt_if(!option.kernel_subkey, "kernelkey");
-		errorcnt += no_opt_if(!option.version_specified, "version");
+		sign_option.create_new_outfile = 1;
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
+		errorcnt += no_opt_if(!sign_option.keyblock, "keyblock");
+		errorcnt += no_opt_if(!sign_option.kernel_subkey, "kernelkey");
+		errorcnt += no_opt_if(!sign_option.version_specified,
+				      "version");
 		break;
 	case FILE_TYPE_RAW_KERNEL:
-		option.create_new_outfile = 1;
-		errorcnt += no_opt_if(!option.signprivate, "signprivate");
-		errorcnt += no_opt_if(!option.keyblock, "keyblock");
-		errorcnt += no_opt_if(!option.version_specified, "version");
-		errorcnt += no_opt_if(!option.bootloader_data, "bootloader");
-		errorcnt += no_opt_if(!option.config_data, "config");
-		errorcnt += no_opt_if(option.arch == ARCH_UNSPECIFIED, "arch");
+		sign_option.create_new_outfile = 1;
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
+		errorcnt += no_opt_if(!sign_option.keyblock, "keyblock");
+		errorcnt += no_opt_if(!sign_option.version_specified,
+				      "version");
+		errorcnt += no_opt_if(!sign_option.bootloader_data,
+				      "bootloader");
+		errorcnt += no_opt_if(!sign_option.config_data, "config");
+		errorcnt += no_opt_if(sign_option.arch == ARCH_UNSPECIFIED,
+				      "arch");
 		break;
 	default:
 		fprintf(stderr, "Unable to sign type %s\n",
-			futil_file_type_name(option.type));
+			futil_file_type_name(sign_option.type));
 		errorcnt++;
 	}
 
 	Debug("infile=%s\n", infile);
 	Debug("inout_file_count=%d\n", inout_file_count);
-	Debug("option.create_new_outfile=%d\n", option.create_new_outfile);
+	Debug("sign_option.create_new_outfile=%d\n",
+	      sign_option.create_new_outfile);
 
 	/* Make sure we have an output file if one is needed */
-	if (!option.outfile) {
-		if (option.create_new_outfile) {
+	if (!sign_option.outfile) {
+		if (sign_option.create_new_outfile) {
 			errorcnt++;
 			fprintf(stderr, "Missing output filename\n");
 			goto done;
 		} else {
-			option.outfile = infile;
+			sign_option.outfile = infile;
 		}
 	}
 
-	Debug("option.outfile=%s\n", option.outfile);
+	Debug("sign_option.outfile=%s\n", sign_option.outfile);
 
 	if (argc - optind > 0) {
 		errorcnt++;
@@ -1105,7 +1095,7 @@ static int do_sign(int argc, char *argv[])
 	if (errorcnt)
 		goto done;
 
-	if (option.create_new_outfile) {
+	if (sign_option.create_new_outfile) {
 		/* The input is read-only, the output is write-only. */
 		mapping = MAP_RO;
 		Debug("open RO %s\n", infile);
@@ -1120,14 +1110,14 @@ static int do_sign(int argc, char *argv[])
 		/* We'll read-modify-write the output file */
 		mapping = MAP_RW;
 		if (inout_file_count > 1)
-			futil_copy_file_or_die(infile, option.outfile);
-		Debug("open RW %s\n", option.outfile);
-		infile = option.outfile;
-		ifd = open(option.outfile, O_RDWR);
+			futil_copy_file_or_die(infile, sign_option.outfile);
+		Debug("open RW %s\n", sign_option.outfile);
+		infile = sign_option.outfile;
+		ifd = open(sign_option.outfile, O_RDWR);
 		if (ifd < 0) {
 			errorcnt++;
 			fprintf(stderr, "Can't open %s for writing: %s\n",
-				option.outfile, strerror(errno));
+				sign_option.outfile, strerror(errno));
 			goto done;
 		}
 	}
@@ -1137,7 +1127,8 @@ static int do_sign(int argc, char *argv[])
 		goto done;
 	}
 
-	errorcnt += futil_file_type_sign(option.type, infile, buf, buf_len);
+	errorcnt += futil_file_type_sign(sign_option.type, infile,
+					 buf, buf_len);
 
 	errorcnt += futil_unmap_file(ifd, MAP_RW, buf, buf_len);
 
@@ -1148,12 +1139,12 @@ done:
 			strerror(errno));
 	}
 
-	if (option.signprivate)
-		free(option.signprivate);
-	if (option.keyblock)
-		free(option.keyblock);
-	if (option.kernel_subkey)
-		free(option.kernel_subkey);
+	if (sign_option.signprivate)
+		free(sign_option.signprivate);
+	if (sign_option.keyblock)
+		free(sign_option.keyblock);
+	if (sign_option.kernel_subkey)
+		free(sign_option.kernel_subkey);
 
 	if (errorcnt)
 		fprintf(stderr, "Use --help for usage instructions\n");

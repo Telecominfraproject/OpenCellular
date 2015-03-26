@@ -24,6 +24,7 @@
 #include "file_type.h"
 #include "fmap.h"
 #include "futility.h"
+#include "futility_options.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "traversal.h"
@@ -31,16 +32,8 @@
 #include "vb1_helper.h"
 #include "vboot_common.h"
 
-/* Local structure for args, etc. */
-static struct local_data_s {
-	VbPublicKey *k;
-	uint8_t *fv;
-	uint64_t fv_size;
-	uint32_t padding;
-	int strict;
-	int t_flag;
-	enum futil_file_type type;
-} option = {
+/* Options */
+struct show_option_s show_option = {
 	.padding = 65536,
 	.type = FILE_TYPE_UNKNOWN,
 };
@@ -278,7 +271,7 @@ int ft_show_gbb(const char *name, uint8_t *buf, uint32_t len, void *data)
 int ft_show_keyblock(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	VbKeyBlockHeader *block = (VbKeyBlockHeader *)buf;
-	VbPublicKey *sign_key = option.k;
+	VbPublicKey *sign_key = show_option.k;
 	int good_sig = 0;
 	int retval = 0;
 
@@ -293,7 +286,7 @@ int ft_show_keyblock(const char *name, uint8_t *buf, uint32_t len, void *data)
 	    KeyBlockVerify(block, len, sign_key, 0))
 		good_sig = 1;
 
-	if (option.strict && (!sign_key || !good_sig))
+	if (show_option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
 	show_keyblock(block, name, !!sign_key, good_sig);
@@ -333,9 +326,9 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
 	struct show_state_s *state = (struct show_state_s *)data;
-	VbPublicKey *sign_key = option.k;
-	uint8_t *fv_data = option.fv;
-	uint64_t fv_size = option.fv_size;
+	VbPublicKey *sign_key = show_option.k;
+	uint8_t *fv_data = show_option.fv;
+	uint64_t fv_size = show_option.fv_size;
 	struct bios_area_s *fw_body_area = 0;
 	int good_sig = 0;
 	int retval = 0;
@@ -371,7 +364,7 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 
 	show_keyblock(key_block, name, !!sign_key, good_sig);
 
-	if (option.strict && (!sign_key || !good_sig))
+	if (show_option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
@@ -428,7 +421,7 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 
 	if (!fv_data) {
 		printf("No firmware body available to verify.\n");
-		if (option.strict)
+		if (show_option.strict)
 			return 1;
 		return 0;
 	}
@@ -449,7 +442,7 @@ done:
 			state->area[state->c].is_valid = 1;
 	} else {
 		printf("Seems legit, but the signature is unverified.\n");
-		if (option.strict)
+		if (show_option.strict)
 			retval = 1;
 	}
 
@@ -509,7 +502,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 			    void *data)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
-	VbPublicKey *sign_key = option.k;
+	VbPublicKey *sign_key = show_option.k;
 	uint8_t *kernel_blob = 0;
 	uint64_t kernel_size = 0;
 	int good_sig = 0;
@@ -532,7 +525,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 	printf("Kernel partition:        %s\n", name);
 	show_keyblock(key_block, NULL, !!sign_key, good_sig);
 
-	if (option.strict && (!sign_key || !good_sig))
+	if (show_option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
@@ -586,14 +579,14 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 	printf("  Flags:                 0x%" PRIx32 "\n", flags);
 
 	/* Verify kernel body */
-	if (option.fv) {
+	if (show_option.fv) {
 		/* It's in a separate file, which we've already read in */
-		kernel_blob = option.fv;
-		kernel_size = option.fv_size;
-	} else if (len > option.padding) {
+		kernel_blob = show_option.fv;
+		kernel_size = show_option.fv_size;
+	} else if (len > show_option.padding) {
 		/* It should be at an offset within the input file. */
-		kernel_blob = buf + option.padding;
-		kernel_size = len - option.padding;
+		kernel_blob = buf + show_option.padding;
+		kernel_size = len - show_option.padding;
 	}
 
 	if (!kernel_blob) {
@@ -661,7 +654,7 @@ static const struct option long_opts[] = {
 	{"fv",          1, 0, 'f'},
 	{"pad",         1, NULL, OPT_PADDING},
 	{"type",        1, NULL, OPT_TYPE},
-	{"strict",      0, &option.strict, 1},
+	{"strict",      0, &show_option.strict, 1},
 	{"help",        0, NULL, OPT_HELP},
 	{NULL, 0, NULL, 0},
 };
@@ -712,25 +705,26 @@ static int do_show(int argc, char *argv[])
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
 		switch (i) {
 		case 'f':
-			option.fv = ReadFile(optarg, &option.fv_size);
-			if (!option.fv) {
+			show_option.fv = ReadFile(optarg,
+						  &show_option.fv_size);
+			if (!show_option.fv) {
 				fprintf(stderr, "Error reading %s: %s\n",
 					optarg, strerror(errno));
 				errorcnt++;
 			}
 			break;
 		case 'k':
-			option.k = PublicKeyRead(optarg);
-			if (!option.k) {
+			show_option.k = PublicKeyRead(optarg);
+			if (!show_option.k) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
 		case 't':
-			option.t_flag = 1;
+			show_option.t_flag = 1;
 			break;
 		case OPT_PADDING:
-			option.padding = strtoul(optarg, &e, 0);
+			show_option.padding = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
 				fprintf(stderr,
 					"Invalid --padding \"%s\"\n", optarg);
@@ -738,7 +732,8 @@ static int do_show(int argc, char *argv[])
 			}
 			break;
 		case OPT_TYPE:
-			if (!futil_str_to_file_type(optarg, &option.type)) {
+			if (!futil_str_to_file_type(optarg,
+						    &show_option.type)) {
 				if (!strcasecmp("help", optarg))
 					print_file_types_and_exit(errorcnt);
 				fprintf(stderr,
@@ -781,7 +776,7 @@ static int do_show(int argc, char *argv[])
 		return 1;
 	}
 
-	if (option.t_flag) {
+	if (show_option.t_flag) {
 		for (i = optind; i < argc; i++)
 			errorcnt += show_type(argv[i]);
 		goto done;
@@ -804,7 +799,7 @@ static int do_show(int argc, char *argv[])
 
 		/* Allow the user to override the type */
 		if (type_override)
-			type = option.type;
+			type = show_option.type;
 		else
 			type = futil_file_type_buf(buf, len);
 
@@ -820,10 +815,10 @@ boo:
 	}
 
 done:
-	if (option.k)
-		free(option.k);
-	if (option.fv)
-		free(option.fv);
+	if (show_option.k)
+		free(show_option.k);
+	if (show_option.fv)
+		free(show_option.fv);
 
 	return !!errorcnt;
 }
@@ -833,7 +828,7 @@ DECLARE_FUTIL_COMMAND(show, do_show, VBOOT_VERSION_ALL,
 
 static int do_verify(int argc, char *argv[])
 {
-	option.strict = 1;
+	show_option.strict = 1;
 	return do_show(argc, argv);
 }
 
