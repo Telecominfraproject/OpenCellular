@@ -64,7 +64,7 @@ static uint8_t *vb2_public_key_sha1sum(struct vb2_public_key *key)
 	return digest;
 }
 
-int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
+int ft_show_vb2_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	struct vb2_public_key key;
 	const struct vb2_text_vs_enum *entry;
@@ -72,13 +72,12 @@ int futil_cb_show_vb2_pubkey(struct futil_traverse_state_s *state)
 
 	/* The key's members will point into the state buffer after this. Don't
 	 * free anything. */
-	if (VB2_SUCCESS != vb2_unpack_key(&key, state->my_area->buf,
-					  state->my_area->len))
+	if (VB2_SUCCESS != vb2_unpack_key(&key, buf, len))
 		return 1;
 
 	sha1sum = vb2_public_key_sha1sum(&key);
 
-	printf("Public Key file:       %s\n", state->in_filename);
+	printf("Public Key file:       %s\n", name);
 	printf("  Vboot API:           2.1\n");
 	printf("  Desc:                \"%s\"\n", key.desc);
 	entry = vb2_lookup_by_num(vb2_text_vs_sig, key.sig_alg);
@@ -114,19 +113,19 @@ static uint8_t *vb2_private_key_sha1sum(struct vb2_private_key *key)
 	return digest;
 }
 
-int futil_cb_show_vb2_privkey(struct futil_traverse_state_s *state)
+int ft_show_vb2_privkey(const char *name, uint8_t *buf, uint32_t len,
+			void *data)
 {
 	struct vb2_private_key *key = 0;
 	const struct vb2_text_vs_enum *entry;
 	uint8_t *sha1sum;
 
-	if (VB2_SUCCESS != vb2_private_key_unpack(&key, state->my_area->buf,
-						  state->my_area->len))
+	if (VB2_SUCCESS != vb2_private_key_unpack(&key, buf, len))
 		return 1;
 
 	sha1sum = vb2_private_key_sha1sum(key);
 
-	printf("Private key file:      %s\n", state->in_filename);
+	printf("Private key file:      %s\n", name);
 	printf("  Vboot API:           2.1\n");
 	printf("  Desc:                \"%s\"\n", key->desc ? key->desc : "");
 	entry = vb2_lookup_by_num(vb2_text_vs_sig, key->sig_alg);
@@ -180,17 +179,17 @@ enum futil_file_type ft_recognize_pem(uint8_t *buf, uint32_t len)
 	return FILE_TYPE_UNKNOWN;
 }
 
-int futil_cb_show_pem(struct futil_traverse_state_s *state)
+int ft_show_pem(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	RSA *rsa_key;
 	uint8_t *keyb, *digest;
 	uint32_t keyb_len;
 	int i, bits;
 
-	printf("Private Key file:      %s\n", state->in_filename);
+	printf("Private Key file:      %s\n", name);
 
 	/* We're called only after ft_recognize_pem, so this should work. */
-	rsa_key = rsa_from_buffer(state->my_area->buf, state->my_area->len);
+	rsa_key = rsa_from_buffer(buf, len);
 	if (!rsa_key)
 		DIE;
 

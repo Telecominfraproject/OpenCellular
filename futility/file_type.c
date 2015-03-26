@@ -154,3 +154,28 @@ enum futil_file_err futil_file_type(const char *filename,
 
 	return err;
 }
+
+int futil_file_type_show(enum futil_file_type type,
+			 const char *filename,
+			 uint8_t *buf, uint32_t len)
+{
+	if (futil_file_types[type].show)
+		return futil_file_types[type].show(filename, buf, len, 0);
+
+	fprintf(stderr, "Don't know how to show %s (type %s)\n",
+		filename, futil_file_type_name(type));
+	return 1;
+}
+
+int futil_file_type_sign(enum futil_file_type type,
+			 const char *filename,
+			 uint8_t *buf, uint32_t len)
+{
+	if (futil_file_types[type].sign)
+		return futil_file_types[type].sign(filename, buf, len, 0);
+
+	fprintf(stderr, "Don't know how to sign %s (type %s)\n",
+		filename, futil_file_type_name(type));
+	return 1;
+}
+

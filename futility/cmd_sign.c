@@ -29,11 +29,6 @@
 #include "vb1_helper.h"
 #include "vboot_common.h"
 
-/* Local values for cb_area_s._flags */
-enum callback_flags {
-	AREA_IS_VALID =     0x00000001,
-};
-
 /* Local structure for args, etc. */
 static struct local_data_s {
 	VbPrivateKey *signprivate;
@@ -80,10 +75,45 @@ static int no_opt_if(int expr, const char *optname)
 	return 0;
 }
 
+/* Stuff for BIOS images */
+
+/* Forward declarations */
+static int fmap_fw_main(const char *name, uint8_t *buf, uint32_t len,
+			void *data);
+static int fmap_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
+			    void *data);
+
+/* These are the functions we'll call for each FMAP area. */
+static int (*fmap_func[])(const char *name, uint8_t *buf, uint32_t len,
+			  void *data) = {
+	0,
+	fmap_fw_main,
+	fmap_fw_main,
+	fmap_fw_preamble,
+	fmap_fw_preamble,
+};
+BUILD_ASSERT(ARRAY_SIZE(fmap_func) == NUM_BIOS_COMPONENTS);
+
+/* Where is the component we're looking at? */
+struct bios_area_s {
+	uint8_t *buf;
+	uint32_t len;
+	uint32_t is_valid;
+};
+
+/* When looking at the FMAP areas, we need to gather some state for later. */
+struct sign_state_s {
+	/* Current component */
+	enum bios_component c;
+	/* Other activites, possibly before or after the current one */
+	struct bios_area_s area[NUM_BIOS_COMPONENTS];
+};
+
+
 /* This wraps/signs a public key, producing a keyblock. */
-int futil_cb_sign_pubkey(struct futil_traverse_state_s *state)
+int ft_sign_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	VbPublicKey *data_key = (VbPublicKey *)state->my_area->buf;
+	VbPublicKey *data_key = (VbPublicKey *)buf;
 	VbKeyBlockHeader *vblock;
 
 	if (option.pem_signpriv) {
@@ -119,26 +149,30 @@ int futil_cb_sign_pubkey(struct futil_traverse_state_s *state)
 }
 
 /*
- * This handles FW_MAIN_A and FW_MAIN_B while processing a BIOS image.
- * The data in state->my_area is just the RW firmware blob, so there's nothing
- * useful to show about it. We'll just mark it as present so when we encounter
- * corresponding VBLOCK area, we'll have this to verify.
+ * This handles FW_MAIN_A and FW_MAIN_B while signing a BIOS image. The data is
+ * just the RW firmware blob so there's nothing useful to do with it, but we'll
+ * mark it as valid so that we'll know that this FMAP area exists and can
+ * be signed.
  */
-int futil_cb_sign_fw_main(struct futil_traverse_state_s *state)
+static int fmap_fw_main(const char *name, uint8_t *buf, uint32_t len,
+			void *data)
 {
-	state->my_area->_flags |= AREA_IS_VALID;
+	struct sign_state_s *state = (struct sign_state_s *)data;
+	state->area[state->c].is_valid = 1;
 	return 0;
 }
 
 /*
- * This handles VBLOCK_A and VBLOCK_B while processing a BIOS image.
- * We don't do any signing here. We just check to see if the VBLOCK
- * area contains a firmware preamble.
+ * This handles VBLOCK_A and VBLOCK_B while processing a BIOS image. We don't
+ * do any signing here. We just check to see if the existing FMAP area contains
+ * a firmware preamble so we can preserve its contents. We do the signing once
+ * we've looked over all the components.
  */
-int futil_cb_sign_fw_vblock(struct futil_traverse_state_s *state)
+static int fmap_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
+			    void *data)
 {
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
-	uint32_t len = state->my_area->len;
+	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
+	struct sign_state_s *state = (struct sign_state_s *)data;
 
 	/*
 	 * If we have a valid keyblock and fw_preamble, then we can use them to
@@ -147,33 +181,31 @@ int futil_cb_sign_fw_vblock(struct futil_traverse_state_s *state)
 	 */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
 		fprintf(stderr, "Warning: %s keyblock is invalid. "
-			"Signing the entire FW FMAP region...\n",
-			state->name);
+			"Signing the entire FW FMAP region...\n", name);
 		goto whatever;
 	}
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
 	if (!rsa) {
 		fprintf(stderr, "Warning: %s public key is invalid. "
-			"Signing the entire FW FMAP region...\n",
-			state->name);
+			"Signing the entire FW FMAP region...\n", name);
 		goto whatever;
 	}
 	uint32_t more = key_block->key_block_size;
 	VbFirmwarePreambleHeader *preamble =
-		(VbFirmwarePreambleHeader *)(state->my_area->buf + more);
+		(VbFirmwarePreambleHeader *)(buf + more);
 	uint32_t fw_size = preamble->body_signature.data_size;
-	struct cb_area_s *fw_body_area = 0;
+	struct bios_area_s *fw_body_area = 0;
 
-	switch (state->component) {
-	case CB_FMAP_VBLOCK_A:
-		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_A];
+	switch (state->c) {
+	case BIOS_FMAP_VBLOCK_A:
+		fw_body_area = &state->area[BIOS_FMAP_FW_MAIN_A];
 		/* Preserve the flags if they're not specified */
 		if (!option.flags_specified)
 			option.flags = preamble->flags;
 		break;
-	case CB_FMAP_VBLOCK_B:
-		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_B];
+	case BIOS_FMAP_VBLOCK_B:
+		fw_body_area = &state->area[BIOS_FMAP_FW_MAIN_B];
 		break;
 	default:
 		DIE;
@@ -182,7 +214,7 @@ int futil_cb_sign_fw_vblock(struct futil_traverse_state_s *state)
 	if (fw_size > fw_body_area->len) {
 		fprintf(stderr,
 			"%s says the firmware is larger than we have\n",
-			state->name);
+			name);
 		return 1;
 	}
 
@@ -190,19 +222,20 @@ int futil_cb_sign_fw_vblock(struct futil_traverse_state_s *state)
 	fw_body_area->len = fw_size;
 
 whatever:
-	state->my_area->_flags |= AREA_IS_VALID;
+	state->area[state->c].is_valid = 1;
 
 	return 0;
 }
 
-int futil_cb_create_kernel_part(struct futil_traverse_state_s *state)
+int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
+		       void *data)
 {
 	uint8_t *vmlinuz_data, *kblob_data, *vblock_data;
 	uint64_t vmlinuz_size, kblob_size, vblock_size;
 	int rv;
 
-	vmlinuz_data = state->my_area->buf;
-	vmlinuz_size = state->my_area->len;
+	vmlinuz_data = buf;
+	vmlinuz_size = len;
 
 	kblob_data = CreateKernelBlob(
 		vmlinuz_data, vmlinuz_size,
@@ -246,7 +279,8 @@ int futil_cb_create_kernel_part(struct futil_traverse_state_s *state)
 	return rv;
 }
 
-int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
+int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
+			  void *data)
 {
 	uint8_t *kpart_data, *kblob_data, *vblock_data;
 	uint64_t kpart_size, kblob_size, vblock_size;
@@ -254,8 +288,8 @@ int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
 	VbKernelPreambleHeader *preamble = NULL;
 	int rv = 0;
 
-	kpart_data = state->my_area->buf;
-	kpart_size = state->my_area->len;
+	kpart_data = buf;
+	kpart_size = len;
 
 	/* Note: This just sets some static pointers. It doesn't malloc. */
 	kblob_data = UnpackKPart(kpart_data, kpart_size, option.padding,
@@ -331,14 +365,14 @@ int futil_cb_resign_kernel_part(struct futil_traverse_state_s *state)
 }
 
 
-int futil_cb_sign_raw_firmware(struct futil_traverse_state_s *state)
+int ft_sign_raw_firmware(const char *name, uint8_t *buf, uint32_t len,
+			 void *data)
 {
 	VbSignature *body_sig;
 	VbFirmwarePreambleHeader *preamble;
 	int rv;
 
-	body_sig = CalculateSignature(state->my_area->buf, state->my_area->len,
-				      option.signprivate);
+	body_sig = CalculateSignature(buf, len, option.signprivate);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return 1;
@@ -366,19 +400,8 @@ int futil_cb_sign_raw_firmware(struct futil_traverse_state_s *state)
 }
 
 
-int futil_cb_sign_begin(struct futil_traverse_state_s *state)
-{
-	if (state->in_type == FILE_TYPE_UNKNOWN) {
-		fprintf(stderr, "Unable to determine type of %s\n",
-			state->in_filename);
-		return 1;
-	}
-
-	return 0;
-}
-
-static int write_new_preamble(struct cb_area_s *vblock,
-			      struct cb_area_s *fw_body,
+static int write_new_preamble(struct bios_area_s *vblock,
+			      struct bios_area_s *fw_body,
 			      VbPrivateKey *signkey,
 			      VbKeyBlockHeader *keyblock)
 {
@@ -414,7 +437,7 @@ static int write_new_preamble(struct cb_area_s *vblock,
 	return 0;
 }
 
-static int write_loem(const char *ab, struct cb_area_s *vblock)
+static int write_loem(const char *ab, struct bios_area_s *vblock)
 {
 	char filename[PATH_MAX];
 	int n;
@@ -449,19 +472,16 @@ static int write_loem(const char *ab, struct cb_area_s *vblock)
 }
 
 /* This signs a full BIOS image after it's been traversed. */
-static int sign_bios_at_end(struct futil_traverse_state_s *state)
+static int sign_bios_at_end(struct sign_state_s *state)
 {
-	struct cb_area_s *vblock_a = &state->cb_area[CB_FMAP_VBLOCK_A];
-	struct cb_area_s *vblock_b = &state->cb_area[CB_FMAP_VBLOCK_B];
-	struct cb_area_s *fw_a = &state->cb_area[CB_FMAP_FW_MAIN_A];
-	struct cb_area_s *fw_b = &state->cb_area[CB_FMAP_FW_MAIN_B];
+	struct bios_area_s *vblock_a = &state->area[BIOS_FMAP_VBLOCK_A];
+	struct bios_area_s *vblock_b = &state->area[BIOS_FMAP_VBLOCK_B];
+	struct bios_area_s *fw_a = &state->area[BIOS_FMAP_FW_MAIN_A];
+	struct bios_area_s *fw_b = &state->area[BIOS_FMAP_FW_MAIN_B];
 	int retval = 0;
 
-	if (state->errors ||
-	    !(vblock_a->_flags & AREA_IS_VALID) ||
-	    !(vblock_b->_flags & AREA_IS_VALID) ||
-	    !(fw_a->_flags & AREA_IS_VALID) ||
-	    !(fw_b->_flags & AREA_IS_VALID)) {
+	if (!vblock_a->is_valid || !vblock_b->is_valid ||
+	    !fw_a->is_valid || !fw_b->is_valid) {
 		fprintf(stderr, "Something's wrong. Not changing anything\n");
 		return 1;
 	}
@@ -500,19 +520,53 @@ static int sign_bios_at_end(struct futil_traverse_state_s *state)
 	return retval;
 }
 
-int futil_cb_sign_end(struct futil_traverse_state_s *state)
-{
-	switch (state->in_type) {
-	case FILE_TYPE_BIOS_IMAGE:
-	case FILE_TYPE_OLD_BIOS_IMAGE:
-		return sign_bios_at_end(state);
 
-	default:
-		/* Any other cleanup needed? */
-		break;
+int ft_sign_bios(const char *name, uint8_t *buf, uint32_t len, void *data)
+{
+	FmapHeader *fmap;
+	FmapAreaHeader *ah = 0;
+	char ah_name[FMAP_NAMELEN + 1];
+	int i;
+	int retval = 0;
+	struct sign_state_s state;
+
+	memset(&state, 0, sizeof(state));
+
+	/* We've already checked, so we know this will work. */
+	fmap = fmap_find(buf, len);
+	for (i = 0; i < NUM_BIOS_COMPONENTS; i++) {
+		/* We know one of these will work, too */
+		if (fmap_find_by_name(buf, len, fmap,
+				      bios_area[i].name, &ah) ||
+		    fmap_find_by_name(buf, len, fmap,
+				      bios_area[i].oldname, &ah)) {
+			/* But the file might be truncated */
+			fmap_limit_area(ah, len);
+			/* The name is not necessarily null-terminated */
+			snprintf(ah_name, sizeof(ah_name), "%s", ah->area_name);
+
+			/* Update the state we're passing around */
+			state.c = i;
+			state.area[i].buf = buf + ah->area_offset;
+			state.area[i].len = ah->area_size;
+
+			Debug("%s() examining FMAP area %d (%s),"
+			      " offset=0x%08x len=0x%08x\n",
+			      __func__, i, ah_name,
+			      ah->area_offset, ah->area_size);
+
+			/* Go look at it, but abort on error */
+			if (fmap_func[i])
+				retval += fmap_func[i](ah_name,
+						       state.area[i].buf,
+						       state.area[i].len,
+						       &state);
+		}
 	}
 
-	return state->errors;
+	retval += sign_bios_at_end(&state);
+
+	return retval;
 }
 
 static const char usage_pubkey[] = "\n"
@@ -684,7 +738,7 @@ static void print_help(int argc, char *argv[])
 
 enum no_short_opts {
 	OPT_FV = 1000,
-	OPT_INFILE,			/* aka "--vmlinuz" */
+	OPT_INFILE,
 	OPT_OUTFILE,
 	OPT_BOOTLOADER,
 	OPT_CONFIG,
@@ -733,7 +787,6 @@ static int do_sign(int argc, char *argv[])
 	int i;
 	int ifd = -1;
 	int errorcnt = 0;
-	struct futil_traverse_state_s state;
 	uint8_t *buf;
 	uint32_t buf_len;
 	char *e = 0;
@@ -808,7 +861,7 @@ static int do_sign(int argc, char *argv[])
 		case OPT_FV:
 			option.fv_specified = 1;
 			/* fallthrough */
-		case OPT_INFILE:		/* aka "--vmlinuz" */
+		case OPT_INFILE:
 			inout_file_count++;
 			infile = optarg;
 			break;
@@ -959,11 +1012,6 @@ static int do_sign(int argc, char *argv[])
 
 	/* Check the arguments for the type of thing we want to sign */
 	switch (type) {
-	case FILE_TYPE_UNKNOWN:
-		fprintf(stderr,
-			"Unable to determine the type of the input file\n");
-		errorcnt++;
-		goto done;
 	case FILE_TYPE_PUBKEY:
 		option.create_new_outfile = 1;
 		if (option.signprivate && option.pem_signpriv) {
@@ -985,20 +1033,6 @@ static int do_sign(int argc, char *argv[])
 		}
 		/* We'll wait to read the PEM file, since the external signer
 		 * may want to read it instead. */
-		break;
-	case FILE_TYPE_KEYBLOCK:
-		fprintf(stderr, "Resigning a keyblock is kind of pointless.\n");
-		fprintf(stderr, "Just create a new one.\n");
-		errorcnt++;
-		break;
-	case FILE_TYPE_FW_PREAMBLE:
-		fprintf(stderr,
-			"%s IS a signature. Sign the firmware instead\n",
-			infile);
-		break;
-	case FILE_TYPE_GBB:
-		fprintf(stderr, "There's no way to sign a GBB\n");
-		errorcnt++;
 		break;
 	case FILE_TYPE_BIOS_IMAGE:
 	case FILE_TYPE_OLD_BIOS_IMAGE:
@@ -1027,13 +1061,10 @@ static int do_sign(int argc, char *argv[])
 		errorcnt += no_opt_if(!option.config_data, "config");
 		errorcnt += no_opt_if(option.arch == ARCH_UNSPECIFIED, "arch");
 		break;
-	case FILE_TYPE_CHROMIUMOS_DISK:
-		fprintf(stderr, "Signing a %s is not yet supported\n",
-			futil_file_type_desc(type));
-		errorcnt++;
-		break;
 	default:
-		DIE;
+		fprintf(stderr, "Unable to sign type %s\n",
+			futil_file_type_name(type));
+		errorcnt++;
 	}
 
 	Debug("infile=%s\n", infile);
@@ -1061,13 +1092,9 @@ static int do_sign(int argc, char *argv[])
 	if (errorcnt)
 		goto done;
 
-	memset(&state, 0, sizeof(state));
-	state.op = FUTIL_OP_SIGN;
-
 	if (option.create_new_outfile) {
 		/* The input is read-only, the output is write-only. */
 		mapping = MAP_RO;
-		state.in_filename = infile;
 		Debug("open RO %s\n", infile);
 		ifd = open(infile, O_RDONLY);
 		if (ifd < 0) {
@@ -1079,10 +1106,10 @@ static int do_sign(int argc, char *argv[])
 	} else {
 		/* We'll read-modify-write the output file */
 		mapping = MAP_RW;
-		state.in_filename = option.outfile;
 		if (inout_file_count > 1)
 			futil_copy_file_or_die(infile, option.outfile);
 		Debug("open RW %s\n", option.outfile);
+		infile = option.outfile;
 		ifd = open(option.outfile, O_RDWR);
 		if (ifd < 0) {
 			errorcnt++;
@@ -1097,7 +1124,7 @@ static int do_sign(int argc, char *argv[])
 		goto done;
 	}
 
-	errorcnt += futil_traverse(buf, buf_len, &state, type);
+	errorcnt += futil_file_type_sign(type, infile, buf, buf_len);
 
 	errorcnt += futil_unmap_file(ifd, MAP_RW, buf, buf_len);
 
@@ -1123,4 +1150,3 @@ done:
 
 DECLARE_FUTIL_COMMAND(sign, do_sign, VBOOT_VERSION_ALL,
 		      "Sign / resign various binary components");
-

@@ -31,11 +31,6 @@
 #include "vb1_helper.h"
 #include "vboot_common.h"
 
-/* Local values for cb_area_s._flags */
-enum callback_flags {
-	AREA_IS_VALID =     0x00000001,
-};
-
 /* Local structure for args, etc. */
 static struct local_data_s {
 	VbPublicKey *k;
@@ -46,6 +41,41 @@ static struct local_data_s {
 	int t_flag;
 } option = {
 	.padding = 65536,
+};
+
+/* Stuff for BIOS images. */
+
+/* Forward declarations */
+static int fmap_fw_main(const char *name, uint8_t *buf, uint32_t len,
+			void *data);
+
+/* These are the functions we'll call for each FMAP area. */
+static int (*fmap_func[])(const char *name, uint8_t *buf, uint32_t len,
+			void *data) = {
+	ft_show_gbb,
+	fmap_fw_main,
+	fmap_fw_main,
+	ft_show_fw_preamble,
+	ft_show_fw_preamble,
+};
+BUILD_ASSERT(ARRAY_SIZE(fmap_func) == NUM_BIOS_COMPONENTS);
+
+/* Where is the component we're looking at? */
+struct bios_area_s {
+	uint32_t offset;			/* to avoid pointer math */
+	uint8_t *buf;
+	uint32_t len;
+	uint32_t is_valid;
+};
+
+/* When looking at the FMAP areas, we need to gather some state for later. */
+struct show_state_s {
+	/* Current component */
+	enum bios_component c;
+	/* Other activites, possibly before or after the current one */
+	struct bios_area_s area[NUM_BIOS_COMPONENTS];
+	struct bios_area_s recovery_key;
+	struct bios_area_s rootkey;
 };
 
 static void show_key(VbPublicKey *pubkey, const char *sp)
@@ -94,34 +124,37 @@ static void show_keyblock(VbKeyBlockHeader *key_block, const char *name,
 	printf("\n");
 }
 
-int futil_cb_show_pubkey(struct futil_traverse_state_s *state)
+int ft_show_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	VbPublicKey *pubkey = (VbPublicKey *)state->my_area->buf;
+	VbPublicKey *pubkey = (VbPublicKey *)buf;
 
-	if (!PublicKeyLooksOkay(pubkey, state->my_area->len)) {
-		printf("%s looks bogus\n", state->name);
+	if (!PublicKeyLooksOkay(pubkey, len)) {
+		printf("%s looks bogus\n", name);
 		return 1;
 	}
 
-	printf("Public Key file:       %s\n", state->in_filename);
+	printf("Public Key file:       %s\n", name);
 	show_key(pubkey, "  ");
 
-	state->my_area->_flags |= AREA_IS_VALID;
 	return 0;
 }
 
-int futil_cb_show_privkey(struct futil_traverse_state_s *state)
+int ft_show_privkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	VbPrivateKey key;
 	const unsigned char *start;
-	int len, alg_okay;
+	int alg_okay;
 
-	key.algorithm = *(typeof(key.algorithm) *)state->my_area->buf;
-	start = state->my_area->buf + sizeof(key.algorithm);
-	len = state->my_area->len - sizeof(key.algorithm);
+	key.algorithm = *(typeof(key.algorithm) *)buf;
+	start = buf + sizeof(key.algorithm);
+	if (len <= sizeof(key.algorithm)) {
+		printf("%s looks bogus\n", name);
+		return 1;
+	}
+	len -= sizeof(key.algorithm);
 	key.rsa_private_key = d2i_RSAPrivateKey(NULL, &start, len);
 
-	printf("Private Key file:      %s\n", state->in_filename);
+	printf("Private Key file:      %s\n", name);
 	printf("  Vboot API:           1.0\n");
 	alg_okay = key.algorithm < kNumAlgorithms;
 	printf("  Algorithm:           %" PRIu64 " %s\n", key.algorithm,
@@ -135,26 +168,20 @@ int futil_cb_show_privkey(struct futil_traverse_state_s *state)
 	}
 	printf("\n");
 
-	if (alg_okay)
-		state->my_area->_flags |= AREA_IS_VALID;
-
 	return 0;
 }
 
-int futil_cb_show_gbb(struct futil_traverse_state_s *state)
+int ft_show_gbb(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	uint8_t *buf = state->my_area->buf;
-	uint32_t len = state->my_area->len;
 	GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)buf;
+	struct show_state_s *state = (struct show_state_s *)data;
 	VbPublicKey *pubkey;
 	BmpBlockHeader *bmp;
 	int retval = 0;
 	uint32_t maxlen = 0;
 
 	if (!len) {
-		printf("GBB header:              %s <invalid>\n",
-		       state->component == CB_GBB ?
-		       state->in_filename : state->name);
+		printf("GBB header:              %s <invalid>\n", name);
 		return 1;
 	}
 
@@ -162,8 +189,7 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 	if (!futil_valid_gbb_header(gbb, len, &maxlen))
 		retval = 1;
 
-	printf("GBB header:              %s\n",
-	       state->component == CB_GBB ? state->in_filename : state->name);
+	printf("GBB header:              %s\n", name);
 	printf("  Version:               %d.%d\n",
 	       gbb->major_version, gbb->minor_version);
 	printf("  Flags:                 0x%08x\n", gbb->flags);
@@ -191,11 +217,14 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 
 	pubkey = (VbPublicKey *)(buf + gbb->rootkey_offset);
 	if (PublicKeyLooksOkay(pubkey, gbb->rootkey_size)) {
-		state->rootkey.offset = state->my_area->offset +
-			gbb->rootkey_offset;
-		state->rootkey.buf = buf + gbb->rootkey_offset;
-		state->rootkey.len = gbb->rootkey_size;
-		state->rootkey._flags |= AREA_IS_VALID;
+		if (state) {
+			state->rootkey.offset =
+				state->area[BIOS_FMAP_GBB].offset +
+				gbb->rootkey_offset;
+			state->rootkey.buf = buf + gbb->rootkey_offset;
+			state->rootkey.len = gbb->rootkey_size;
+			state->rootkey.is_valid = 1;
+		}
 		printf("  Root Key:\n");
 		show_key(pubkey, "    ");
 	} else {
@@ -205,11 +234,15 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 
 	pubkey = (VbPublicKey *)(buf + gbb->recovery_key_offset);
 	if (PublicKeyLooksOkay(pubkey, gbb->recovery_key_size)) {
-		state->recovery_key.offset = state->my_area->offset +
-			gbb->recovery_key_offset;
-		state->recovery_key.buf = buf + gbb->recovery_key_offset;
-		state->recovery_key.len = gbb->recovery_key_size;
-		state->recovery_key._flags |= AREA_IS_VALID;
+		if (state) {
+			state->recovery_key.offset =
+				state->area[BIOS_FMAP_GBB].offset +
+				gbb->recovery_key_offset;
+			state->recovery_key.buf = buf +
+				gbb->recovery_key_offset;
+			state->recovery_key.len = gbb->recovery_key_size;
+			state->recovery_key.is_valid = 1;
+		}
 		printf("  Recovery Key:\n");
 		show_key(pubkey, "    ");
 	} else {
@@ -234,36 +267,34 @@ int futil_cb_show_gbb(struct futil_traverse_state_s *state)
 		       bmp->number_of_imageinfos);
 	}
 
-	if (!retval)
-		state->my_area->_flags |= AREA_IS_VALID;
+	if (!retval && state)
+		state->area[BIOS_FMAP_GBB].is_valid = 1;
 
 	return retval;
 }
 
-int futil_cb_show_keyblock(struct futil_traverse_state_s *state)
+int ft_show_keyblock(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	VbKeyBlockHeader *block = (VbKeyBlockHeader *)state->my_area->buf;
+	VbKeyBlockHeader *block = (VbKeyBlockHeader *)buf;
 	VbPublicKey *sign_key = option.k;
 	int good_sig = 0;
 	int retval = 0;
 
 	/* Check the hash only first */
-	if (0 != KeyBlockVerify(block, state->my_area->len, NULL, 1)) {
-		printf("%s is invalid\n", state->name);
+	if (0 != KeyBlockVerify(block, len, NULL, 1)) {
+		printf("%s is invalid\n", name);
 		return 1;
 	}
 
 	/* Check the signature if we have one */
 	if (sign_key && VBOOT_SUCCESS ==
-	    KeyBlockVerify(block, state->my_area->len, sign_key, 0))
+	    KeyBlockVerify(block, len, sign_key, 0))
 		good_sig = 1;
 
 	if (option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
-	show_keyblock(block, state->in_filename, !!sign_key, good_sig);
-
-	state->my_area->_flags |= AREA_IS_VALID;
+	show_keyblock(block, name, !!sign_key, good_sig);
 
 	return retval;
 }
@@ -271,63 +302,64 @@ int futil_cb_show_keyblock(struct futil_traverse_state_s *state)
 /*
  * This handles FW_MAIN_A and FW_MAIN_B while processing a BIOS image.
  *
- * The data in state->my_area is just the RW firmware blob, so there's nothing
- * useful to show about it. We'll just mark it as present so when we encounter
- * corresponding VBLOCK area, we'll have this to verify.
+ * The data is just the RW firmware blob, so there's nothing useful to show
+ * about it. We'll just mark it as present so when we encounter corresponding
+ * VBLOCK area, we'll have this to verify.
  */
-int futil_cb_show_fw_main(struct futil_traverse_state_s *state)
+static int fmap_fw_main(const char *name, uint8_t *buf, uint32_t len,
+			void *data)
 {
-	if (!state->my_area->len) {
-		printf("Firmware body:           %s <invalid>\n", state->name);
+	struct show_state_s *state = (struct show_state_s *)data;
+
+	if (!len) {
+		printf("Firmware body:           %s <invalid>\n", name);
 		return 1;
 	}
 
-	printf("Firmware body:           %s\n", state->name);
-	printf("  Offset:                0x%08x\n", state->my_area->offset);
-	printf("  Size:                  0x%08x\n", state->my_area->len);
+	printf("Firmware body:           %s\n", name);
+	printf("  Offset:                0x%08x\n",
+	       state->area[state->c].offset);
+	printf("  Size:                  0x%08x\n", len);
 
-	state->my_area->_flags |= AREA_IS_VALID;
+	state->area[state->c].is_valid = 1;
 
 	return 0;
 }
 
-int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
+int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
+			void *data)
 {
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
-	uint32_t len = state->my_area->len;
+	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
+	struct show_state_s *state = (struct show_state_s *)data;
 	VbPublicKey *sign_key = option.k;
 	uint8_t *fv_data = option.fv;
 	uint64_t fv_size = option.fv_size;
-	struct cb_area_s *fw_body_area = 0;
+	struct bios_area_s *fw_body_area = 0;
 	int good_sig = 0;
 	int retval = 0;
 
 	/* Check the hash... */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
-		printf("%s keyblock component is invalid\n", state->name);
+		printf("%s keyblock component is invalid\n", name);
 		return 1;
 	}
 
-	switch (state->component) {
-	case CB_FMAP_VBLOCK_A:
-		if (!sign_key && (state->rootkey._flags & AREA_IS_VALID))
+	/*
+	 * If we're being invoked while poking through a BIOS, we should
+	 * be given the keys and data to verify as part of the state. If we
+	 * have no state, then we're just looking at a standalone fw_preamble,
+	 * so we'll have to get any keys or data from options.
+	 */
+	if (state) {
+
+		if (!sign_key && state->rootkey.is_valid)
 			/* BIOS should have a rootkey in the GBB */
 			sign_key = (VbPublicKey *)state->rootkey.buf;
-		/* And we should have already seen the firmware body */
-		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_A];
-		break;
-	case CB_FMAP_VBLOCK_B:
-		if (!sign_key && (state->rootkey._flags & AREA_IS_VALID))
-			/* BIOS should have a rootkey in the GBB */
-			sign_key = (VbPublicKey *)state->rootkey.buf;
-		/* And we should have already seen the firmware body */
-		fw_body_area = &state->cb_area[CB_FMAP_FW_MAIN_B];
-		break;
-	case CB_FW_PREAMBLE:
-		/* We have to provide a signature and body in the options. */
-		break;
-	default:
-		DIE;
+		/* Identify the firmware body for this VBLOCK */
+		enum bios_component body_c = state->c == BIOS_FMAP_VBLOCK_A
+			? BIOS_FMAP_FW_MAIN_A
+			: BIOS_FMAP_FW_MAIN_B;
+		fw_body_area = &state->area[body_c];
 	}
 
 	/* If we have a key, check the signature too */
@@ -335,26 +367,23 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 	    KeyBlockVerify(key_block, len, sign_key, 0))
 		good_sig = 1;
 
-	show_keyblock(key_block,
-		      state->component == CB_FW_PREAMBLE
-		      ? state->in_filename : state->name,
-		      !!sign_key, good_sig);
+	show_keyblock(key_block, name, !!sign_key, good_sig);
 
 	if (option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
 	if (!rsa) {
-		fprintf(stderr, "Error parsing data key in %s\n", state->name);
+		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
 	uint32_t more = key_block->key_block_size;
 	VbFirmwarePreambleHeader *preamble =
-		(VbFirmwarePreambleHeader *)(state->my_area->buf + more);
+		(VbFirmwarePreambleHeader *)(buf + more);
 
 	if (VBOOT_SUCCESS != VerifyFirmwarePreamble(preamble,
 						    len - more, rsa)) {
-		printf("%s is invalid\n", state->name);
+		printf("%s is invalid\n", name);
 		return 1;
 	}
 
@@ -390,7 +419,7 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 	}
 
 	/* We'll need to get the firmware body from somewhere... */
-	if (fw_body_area && (fw_body_area->_flags & AREA_IS_VALID)) {
+	if (fw_body_area && fw_body_area->is_valid) {
 		fv_data = fw_body_area->buf;
 		fv_size = fw_body_area->len;
 	}
@@ -409,13 +438,13 @@ int futil_cb_show_fw_preamble(struct futil_traverse_state_s *state)
 	}
 
 done:
-	/* Can't trust the BIOS unless everything is signed,
-	 * but standalone files are okay. */
-	if ((state->component == CB_FW_PREAMBLE) ||
-	    (sign_key && good_sig)) {
+	/* Can't trust the BIOS unless everything is signed (in which case
+	 * we've already returned), but standalone files are okay. */
+	if (state || (sign_key && good_sig)) {
 		if (!(flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL))
 			printf("Body verification succeeded.\n");
-		state->my_area->_flags |= AREA_IS_VALID;
+		if (state)
+			state->area[state->c].is_valid = 1;
 	} else {
 		printf("Seems legit, but the signature is unverified.\n");
 		if (option.strict)
@@ -425,11 +454,59 @@ done:
 	return retval;
 }
 
-int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
+int ft_show_bios(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
+	FmapHeader *fmap;
+	FmapAreaHeader *ah = 0;
+	char ah_name[FMAP_NAMELEN + 1];
+	int i;
+	int retval = 0;
+	struct show_state_s state;
 
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)state->my_area->buf;
-	uint32_t len = state->my_area->len;
+	memset(&state, 0, sizeof(state));
+
+	printf("BIOS:                    %s\n", name);
+
+	/* We've already checked, so we know this will work. */
+	fmap = fmap_find(buf, len);
+	for (i = 0; i < NUM_BIOS_COMPONENTS; i++) {
+		/* We know one of these will work, too */
+		if (fmap_find_by_name(buf, len, fmap,
+				      bios_area[i].name, &ah) ||
+		    fmap_find_by_name(buf, len, fmap,
+				      bios_area[i].oldname, &ah)) {
+			/* But the file might be truncated */
+			fmap_limit_area(ah, len);
+			/* The name is not necessarily null-terminated */
+			snprintf(ah_name, sizeof(ah_name), "%s", ah->area_name);
+
+			/* Update the state we're passing around */
+			state.c = i;
+			state.area[i].offset = ah->area_offset;
+			state.area[i].buf = buf + ah->area_offset;
+			state.area[i].len = ah->area_size;
+
+			Debug("%s() showing FMAP area %d (%s),"
+			      " offset=0x%08x len=0x%08x\n",
+			      __func__, i, ah_name,
+			      ah->area_offset, ah->area_size);
+
+			/* Go look at it. */
+			if (fmap_func[i])
+				retval += fmap_func[i](ah_name,
+						       state.area[i].buf,
+						       state.area[i].len,
+						       &state);
+		}
+	}
+
+	return retval;
+}
+
+int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
+			    void *data)
+{
+	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
 	VbPublicKey *sign_key = option.k;
 	uint8_t *kernel_blob = 0;
 	uint64_t kernel_size = 0;
@@ -441,7 +518,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 
 	/* Check the hash... */
 	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
-		printf("%s keyblock component is invalid\n", state->name);
+		printf("%s keyblock component is invalid\n", name);
 		return 1;
 	}
 
@@ -450,7 +527,7 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	    KeyBlockVerify(key_block, len, sign_key, 0))
 		good_sig = 1;
 
-	printf("Kernel partition:        %s\n", state->in_filename);
+	printf("Kernel partition:        %s\n", name);
 	show_keyblock(key_block, NULL, !!sign_key, good_sig);
 
 	if (option.strict && (!sign_key || !good_sig))
@@ -458,16 +535,16 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 
 	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
 	if (!rsa) {
-		fprintf(stderr, "Error parsing data key in %s\n", state->name);
+		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
 	uint32_t more = key_block->key_block_size;
 	VbKernelPreambleHeader *preamble =
-		(VbKernelPreambleHeader *)(state->my_area->buf + more);
+		(VbKernelPreambleHeader *)(buf + more);
 
 	if (VBOOT_SUCCESS != VerifyKernelPreamble(preamble,
 						    len - more, rsa)) {
-		printf("%s is invalid\n", state->name);
+		printf("%s is invalid\n", name);
 		return 1;
 	}
 
@@ -511,10 +588,10 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 		/* It's in a separate file, which we've already read in */
 		kernel_blob = option.fv;
 		kernel_size = option.fv_size;
-	} else if (state->my_area->len > option.padding) {
+	} else if (len > option.padding) {
 		/* It should be at an offset within the input file. */
-		kernel_blob = state->my_area->buf + option.padding;
-		kernel_size = state->my_area->len - option.padding;
+		kernel_blob = buf + option.padding;
+		kernel_size = len - option.padding;
 	}
 
 	if (!kernel_blob) {
@@ -534,25 +611,6 @@ int futil_cb_show_kernel_preamble(struct futil_traverse_state_s *state)
 	printf("Config:\n%s\n", kernel_blob + KernelCmdLineOffset(preamble));
 
 	return retval;
-}
-
-int futil_cb_show_begin(struct futil_traverse_state_s *state)
-{
-	switch (state->in_type) {
-	case FILE_TYPE_UNKNOWN:
-		fprintf(stderr, "Unable to determine type of %s\n",
-			state->in_filename);
-		return 1;
-
-	case FILE_TYPE_BIOS_IMAGE:
-	case FILE_TYPE_OLD_BIOS_IMAGE:
-		printf("BIOS:                    %s\n", state->in_filename);
-		break;
-
-	default:
-		break;
-	}
-	return 0;
 }
 
 enum no_short_opts {
@@ -597,7 +655,7 @@ static const struct option long_opts[] = {
 	{"publickey",   1, 0, 'k'},
 	{"fv",          1, 0, 'f'},
 	{"pad",         1, NULL, OPT_PADDING},
-	{"verify",      0, &option.strict, 1},
+	{"strict",      0, &option.strict, 1},
 	{"help",        0, NULL, OPT_HELP},
 	{NULL, 0, NULL, 0},
 };
@@ -635,9 +693,9 @@ static int do_show(int argc, char *argv[])
 	char *infile = 0;
 	int ifd, i;
 	int errorcnt = 0;
-	struct futil_traverse_state_s state;
+	enum futil_file_type type;
 	uint8_t *buf;
-	uint32_t buf_len;
+	uint32_t len;
 	char *e = 0;
 
 	opterr = 0;		/* quiet, you */
@@ -719,21 +777,16 @@ static int do_show(int argc, char *argv[])
 			continue;
 		}
 
-		if (0 != futil_map_file(ifd, MAP_RO, &buf, &buf_len)) {
+		if (0 != futil_map_file(ifd, MAP_RO, &buf, &len)) {
 			errorcnt++;
 			goto boo;
 		}
 
-		memset(&state, 0, sizeof(state));
-		state.in_filename = infile ? infile : "<none>";
-		state.op = FUTIL_OP_SHOW;
+		type = futil_file_type_buf(buf, len);
 
-		errorcnt += futil_traverse(buf, buf_len, &state,
-					   FILE_TYPE_UNKNOWN);
+		errorcnt += futil_file_type_show(type, infile, buf, len);
 
-
-		errorcnt += futil_unmap_file(ifd, MAP_RO, buf, buf_len);
-
+		errorcnt += futil_unmap_file(ifd, MAP_RO, buf, len);
 boo:
 		if (close(ifd)) {
 			errorcnt++;

@@ -39,6 +39,24 @@ enum futil_file_type futil_file_type_buf(uint8_t *buf, uint32_t len);
 enum futil_file_err futil_file_type(const char *filename,
 				    enum futil_file_type *type);
 
+/*
+ * Call the show() method on a buffer containing a specific file type.
+ * Returns zero on success. It's up to the caller to ensure that only valid
+ * file types are invoked.
+ */
+int futil_file_type_show(enum futil_file_type type,
+			 const char *filename,
+			 uint8_t *buf, uint32_t len);
+
+/*
+ * Call the sign() method on a buffer containing a specific file type.
+ * Returns zero on success. It's up to the caller to ensure that only valid
+ * file types are invoked.
+ */
+int futil_file_type_sign(enum futil_file_type type,
+			 const char *filename,
+			 uint8_t *buf, uint32_t len);
+
 /* Declare the file_type functions. */
 #define R_(FOO) \
 	enum futil_file_type FOO(uint8_t *buf, uint32_t len);
