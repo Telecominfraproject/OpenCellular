@@ -23,7 +23,7 @@
 #include "futility.h"
 #include "traversal.h"
 
-enum futil_file_type recognize_vb2_key(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_vb2_key(uint8_t *buf, uint32_t len)
 {
 	struct vb2_public_key pubkey;
 	struct vb2_private_key *privkey = 0;
@@ -168,7 +168,7 @@ static RSA *rsa_from_buffer(uint8_t *buf, uint32_t len)
 	return rsa_key;
 }
 
-enum futil_file_type recognize_pem(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_pem(uint8_t *buf, uint32_t len)
 {
 	RSA *rsa_key = rsa_from_buffer(buf, len);
 
@@ -189,7 +189,7 @@ int futil_cb_show_pem(struct futil_traverse_state_s *state)
 
 	printf("Private Key file:      %s\n", state->in_filename);
 
-	/* We're called only after recognize_pem, so this should work. */
+	/* We're called only after ft_recognize_pem, so this should work. */
 	rsa_key = rsa_from_buffer(state->my_area->buf, state->my_area->len);
 	if (!rsa_key)
 		DIE;

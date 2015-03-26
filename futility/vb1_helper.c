@@ -715,7 +715,7 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 	return g_kernel_blob_data;
 }
 
-enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_vblock1(uint8_t *buf, uint32_t len)
 {
 	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
 	VbFirmwarePreambleHeader *fw_preamble;
@@ -745,7 +745,7 @@ enum futil_file_type recognize_vblock1(uint8_t *buf, uint32_t len)
 	return FILE_TYPE_UNKNOWN;
 }
 
-enum futil_file_type recognize_vb1_key(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_vb1_key(uint8_t *buf, uint32_t len)
 {
 	VbPublicKey *pubkey = (VbPublicKey *)buf;
 	VbPrivateKey key;

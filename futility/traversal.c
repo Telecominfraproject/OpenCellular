@@ -133,7 +133,7 @@ static int has_all_areas(uint8_t *buf, uint32_t len, FmapHeader *fmap,
 	return 1;
 }
 
-enum futil_file_type recognize_bios_image(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_bios_image(uint8_t *buf, uint32_t len)
 {
 	FmapHeader *fmap = fmap_find(buf, len);
 	if (fmap) {

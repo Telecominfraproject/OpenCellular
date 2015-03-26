@@ -56,7 +56,7 @@ static inline uint32_t max(uint32_t a, uint32_t b)
 	return a > b ? a : b;
 }
 
-enum futil_file_type recognize_gbb(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_gbb(uint8_t *buf, uint32_t len)
 {
 	GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)buf;
 
@@ -301,7 +301,7 @@ enum futil_file_err futil_unmap_file(int fd, int writeable,
 
 
 #define DISK_SECTOR_SIZE 512
-enum futil_file_type recognize_gpt(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_gpt(uint8_t *buf, uint32_t len)
 {
 	GptHeader *h;
 
