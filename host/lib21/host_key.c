@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 
-#define OPENSSL_NO_SHA
 #include <openssl/pem.h>
 
 #include "2sysincludes.h"

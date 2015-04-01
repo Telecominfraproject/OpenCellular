@@ -21,12 +21,12 @@ void DigestInit(DigestContext* ctx, int sig_algorithm) {
       break;
 #endif
     case SHA256_DIGEST_ALGORITHM:
-      ctx->sha256_ctx = (SHA256_CTX*) VbExMalloc(sizeof(SHA256_CTX));
+      ctx->sha256_ctx = (VB_SHA256_CTX*) VbExMalloc(sizeof(VB_SHA256_CTX));
       SHA256_init(ctx->sha256_ctx);
       break;
 #ifndef CHROMEOS_EC
     case SHA512_DIGEST_ALGORITHM:
-      ctx->sha512_ctx = (SHA512_CTX*) VbExMalloc(sizeof(SHA512_CTX));
+      ctx->sha512_ctx = (VB_SHA512_CTX*) VbExMalloc(sizeof(VB_SHA512_CTX));
       SHA512_init(ctx->sha512_ctx);
       break;
 #endif

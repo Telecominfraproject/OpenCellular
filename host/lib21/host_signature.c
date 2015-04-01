@@ -5,7 +5,6 @@
  * Host functions for signatures.
  */
 
-#define OPENSSL_NO_SHA
 #include <openssl/rsa.h>
 
 #include "2sysincludes.h"

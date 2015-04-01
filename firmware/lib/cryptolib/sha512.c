@@ -151,7 +151,7 @@ static const uint64_t sha512_k[80] = {
 
 /* SHA-512 implementation */
 
-void SHA512_init(SHA512_CTX *ctx) {
+void SHA512_init(VB_SHA512_CTX *ctx) {
 #ifdef UNROLL_LOOPS_SHA512
     ctx->h[0] = sha512_h0[0]; ctx->h[1] = sha512_h0[1];
     ctx->h[2] = sha512_h0[2]; ctx->h[3] = sha512_h0[3];
@@ -169,7 +169,7 @@ void SHA512_init(SHA512_CTX *ctx) {
 }
 
 
-static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
+static void SHA512_transform(VB_SHA512_CTX* ctx, const uint8_t* message,
                              unsigned int block_nb) {
   uint64_t w[80];
   uint64_t wv[8];
@@ -263,7 +263,7 @@ static void SHA512_transform(SHA512_CTX* ctx, const uint8_t* message,
 }
 
 
-void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
+void SHA512_update(VB_SHA512_CTX* ctx, const uint8_t* data,
                    uint32_t len) {
     unsigned int block_nb;
     unsigned int new_len, rem_len, tmp_len;
@@ -296,7 +296,7 @@ void SHA512_update(SHA512_CTX* ctx, const uint8_t* data,
     ctx->tot_len += (block_nb + 1) << 7;
 }
 
-uint8_t* SHA512_final(SHA512_CTX* ctx)
+uint8_t* SHA512_final(VB_SHA512_CTX* ctx)
 {
     unsigned int block_nb;
     unsigned int pm_len;
@@ -341,7 +341,7 @@ uint8_t* internal_SHA512(const uint8_t* data, uint64_t len, uint8_t* digest) {
   const uint8_t* result;
   uint64_t remaining_len;
   int i;
-  SHA512_CTX ctx;
+  VB_SHA512_CTX ctx;
   SHA512_init(&ctx);
 
   input_ptr = data;

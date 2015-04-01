@@ -42,7 +42,7 @@ typedef struct {
   uint32_t len;
   uint8_t block[2 * SHA256_BLOCK_SIZE];
   uint8_t buf[SHA256_DIGEST_SIZE];  /* Used for storing the final digest. */
-} SHA256_CTX;
+} VB_SHA256_CTX;
 
 typedef struct {
   uint64_t h[8];
@@ -50,20 +50,20 @@ typedef struct {
   uint32_t len;
   uint8_t block[2 * SHA512_BLOCK_SIZE];
   uint8_t buf[SHA512_DIGEST_SIZE];  /* Used for storing the final digest. */
-} SHA512_CTX;
+} VB_SHA512_CTX;
 
 
 void SHA1_init(SHA1_CTX* ctx);
 void SHA1_update(SHA1_CTX* ctx, const uint8_t* data, uint64_t len);
 uint8_t* SHA1_final(SHA1_CTX* ctx);
 
-void SHA256_init(SHA256_CTX* ctx);
-void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint32_t len);
-uint8_t* SHA256_final(SHA256_CTX* ctx);
+void SHA256_init(VB_SHA256_CTX* ctx);
+void SHA256_update(VB_SHA256_CTX* ctx, const uint8_t* data, uint32_t len);
+uint8_t* SHA256_final(VB_SHA256_CTX* ctx);
 
-void SHA512_init(SHA512_CTX* ctx);
-void SHA512_update(SHA512_CTX* ctx, const uint8_t* data, uint32_t len);
-uint8_t* SHA512_final(SHA512_CTX* ctx);
+void SHA512_init(VB_SHA512_CTX* ctx);
+void SHA512_update(VB_SHA512_CTX* ctx, const uint8_t* data, uint32_t len);
+uint8_t* SHA512_final(VB_SHA512_CTX* ctx);
 
 /* Convenience function for SHA-1.  Computes hash on [data] of length [len].
  * and stores it into [digest]. [digest] should be pre-allocated to
@@ -95,8 +95,8 @@ uint8_t* internal_SHA512(const uint8_t* data, uint64_t len, uint8_t* digest);
  */
 typedef struct DigestContext {
   SHA1_CTX* sha1_ctx;
-  SHA256_CTX* sha256_ctx;
-  SHA512_CTX* sha512_ctx;
+  VB_SHA256_CTX* sha256_ctx;
+  VB_SHA512_CTX* sha512_ctx;
   int algorithm;  /* Hashing algorithm to use. */
 } DigestContext;
 

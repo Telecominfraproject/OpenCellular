@@ -3,7 +3,6 @@
  * found in the LICENSE file.
  */
 
-#define OPENSSL_NO_SHA
 #include <openssl/pem.h>
 
 #include <stdio.h>

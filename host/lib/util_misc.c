@@ -5,7 +5,7 @@
  * Miscellaneous functions for userspace vboot utilities.
  */
 
-#define OPENSSL_NO_SHA
+#include <openssl/bn.h>
 #include <openssl/rsa.h>
 
 #include <stdio.h>

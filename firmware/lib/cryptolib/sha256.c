@@ -108,7 +108,7 @@ static const uint32_t sha256_k[64] = {
 
 
 /* SHA-256 implementation */
-void SHA256_init(SHA256_CTX *ctx) {
+void SHA256_init(VB_SHA256_CTX *ctx) {
 #ifndef UNROLL_LOOPS
     int i;
     for (i = 0; i < 8; i++) {
@@ -126,7 +126,7 @@ void SHA256_init(SHA256_CTX *ctx) {
 }
 
 
-static void SHA256_transform(SHA256_CTX* ctx, const uint8_t* message,
+static void SHA256_transform(VB_SHA256_CTX* ctx, const uint8_t* message,
                              unsigned int block_nb) {
   uint32_t w[64];
   uint32_t wv[8];
@@ -242,7 +242,7 @@ static void SHA256_transform(SHA256_CTX* ctx, const uint8_t* message,
 
 
 
-void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint32_t len) {
+void SHA256_update(VB_SHA256_CTX* ctx, const uint8_t* data, uint32_t len) {
     unsigned int block_nb;
     unsigned int new_len, rem_len, tmp_len;
     const uint8_t *shifted_data;
@@ -274,7 +274,7 @@ void SHA256_update(SHA256_CTX* ctx, const uint8_t* data, uint32_t len) {
     ctx->tot_len += (block_nb + 1) << 6;
 }
 
-uint8_t* SHA256_final(SHA256_CTX* ctx) {
+uint8_t* SHA256_final(VB_SHA256_CTX* ctx) {
     unsigned int block_nb;
     unsigned int pm_len;
     unsigned int len_b;
@@ -317,7 +317,7 @@ uint8_t* internal_SHA256(const uint8_t* data, uint64_t len, uint8_t* digest) {
   const uint8_t* result;
   uint64_t remaining_len;
   int i;
-  SHA256_CTX ctx;
+  VB_SHA256_CTX ctx;
 
   SHA256_init(&ctx);
 

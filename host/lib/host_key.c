@@ -7,7 +7,6 @@
 
 /* TODO: change all 'return 0', 'return 1' into meaningful return codes */
 
-#define OPENSSL_NO_SHA
 #include <openssl/pem.h>
 
 #include <stdio.h>

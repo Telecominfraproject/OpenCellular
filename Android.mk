@@ -24,8 +24,7 @@ LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/firmware/lib/tpm_lite/include \
 	$(LOCAL_PATH)/firmware/2lib/include \
 	$(LOCAL_PATH)/host/include \
-	$(LOCAL_PATH)/host/lib/include \
-	external/openssl/include
+	$(LOCAL_PATH)/host/lib/include
 
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
@@ -108,6 +107,7 @@ LOCAL_SRC_FILES := \
 	$(UTILLIB_SRCS)
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := $(LOCAL_C_INCLUDES)
+LOCAL_STATIC_LIBRARIES := libcrypto_static
 
 include $(BUILD_HOST_STATIC_LIBRARY)
 
@@ -174,6 +174,6 @@ $(generated_sources)/futility_cmds.c: ${FUTIL_SRCS:%=${LOCAL_PATH}/%}
 LOCAL_GENERATED_SOURCES := $(generated_sources)/futility_cmds.c
 
 LOCAL_STATIC_LIBRARIES := libvboot_util-host
-LOCAL_SHARED_LIBRARIES := libssl-host libcrypto-host
+LOCAL_SHARED_LIBRARIES := libcrypto-host
 include $(BUILD_HOST_EXECUTABLE)
 
