@@ -98,6 +98,11 @@ typedef struct PlatformFamily {
   const char* platform_string; /* String to return */
 } PlatformFamily;
 
+typedef struct {
+  unsigned int base;
+  unsigned int uid;
+} Basemapping;
+
 /* Array of platform family names, terminated with a NULL entry */
 const PlatformFamily platform_family_array[] = {
   {0x8086, 0xA010, "PineTrail"},
@@ -110,6 +115,7 @@ const PlatformFamily platform_family_array[] = {
   {0x8086, 0x0c04, "Haswell"},     /* mobile */
   {0x8086, 0x0f00, "BayTrail"},    /* mobile */
   {0x8086, 0x1604, "Broadwell"},   /* ult */
+  {0x8086, 0x2280, "Braswell"},    /* ult */
   /* Terminate with NULL entry */
   {0, 0, 0}
 };
@@ -563,33 +569,30 @@ static int FindGpioChipOffsetByLabel(unsigned *gpio_num, unsigned *offset,
   return (1 == match);
 }
 
-/* BayTrail has 3 sets of GPIO banks. It is expected the firmware exposes
- * each bank of gpios using a UID in ACPI. Furthermore the gpio number exposed
- * is relative to the bank. e.g. gpio 6 in the bank specified by UID 3 would
- * be encoded as 0x2006.
- *  UID | Bank Offset
- *  ----+------------
- *   1  | 0x0000
- *   2  | 0x1000
- *   3  | 0x2000
- */
-static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
-                                      const char *name) {
+static int FindGpioChipOffsetByNumber(unsigned *gpio_num, unsigned *offset,
+				      Basemapping *data) {
   DIR *dir;
   struct dirent *ent;
-  unsigned expected_uid;
   int match = 0;
 
-  /* Obtain relative GPIO number. */
-  if (*gpio_num >= 0x2000) {
-    *gpio_num -= 0x2000;
-    expected_uid = 3;
-  } else if (*gpio_num >= 0x1000) {
-    *gpio_num -= 0x1000;
-    expected_uid = 2;
-  } else {
-    *gpio_num -= 0x0000;
-    expected_uid = 1;
+  /* Obtain relative GPIO number.
+   * The assumption here is the Basemapping
+   * table is arranged in decreasing order of
+   * base address and ends with 0.
+   * A UID with value 0 indicates an invalid range
+   * and causes an early return to avoid the directory
+   * opening code below.
+  */
+  do {
+    if (*gpio_num >= data->base) {
+      *gpio_num -= data->base;
+      break;
+    }
+    data++;
+  } while(1);
+
+  if (data->uid == 0) {
+    return 0;
   }
 
   dir = opendir(GPIO_BASE_PATH);
@@ -607,7 +610,7 @@ static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
                *offset);
       if (ReadFileInt(uid_file, &uid_value) < 0)
         continue;
-      if (expected_uid == uid_value) {
+      if (data->uid == uid_value) {
         match++;
         break;
       }
@@ -618,6 +621,50 @@ static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
   return (1 == match);
 }
 
+
+/* Braswell has 4 sets of GPIO banks. It is expected the firmware exposes
+ * each bank of gpios using a UID in ACPI. Furthermore the gpio number exposed
+ * is relative to the bank. e.g. gpio MF_ISH_GPIO_4 in the bank specified by UID 3
+ * would be encoded as 0x10016.
+ *  UID | Bank Offset
+ *  ----+------------
+ *   1  | 0x0000
+ *   2  | 0x8000
+ *   3  | 0x10000
+ *   4  | 0x18000
+ */
+static int BraswellFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
+                                      const char *name) {
+ static Basemapping data[]={
+                    {0x20000, 0},
+                    {0x18000, 4},
+                    {0x10000, 3},
+                    {0x08000, 2},
+                    {0x00000, 1}};
+
+  return FindGpioChipOffsetByNumber(gpio_num, offset, data);
+}
+
+/* BayTrail has 3 sets of GPIO banks. It is expected the firmware exposes
+ * each bank of gpios using a UID in ACPI. Furthermore the gpio number exposed
+ * is relative to the bank. e.g. gpio 6 in the bank specified by UID 3 would
+ * be encoded as 0x2006.
+ *  UID | Bank Offset
+ *  ----+------------
+ *   1  | 0x0000
+ *   2  | 0x1000
+ *   3  | 0x2000
+ */
+static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
+                                      const char *name) {
+  static Basemapping data[]={
+                    {0x3000, 0},
+                    {0x2000, 3},
+                    {0x1000, 2},
+                    {0x0000, 1}};
+
+  return FindGpioChipOffsetByNumber(gpio_num, offset, data);
+}
 
 struct GpioChipset {
   const char *name;
@@ -633,6 +680,7 @@ static const struct GpioChipset chipsets_supported[] = {
   { "PCH-LP", FindGpioChipOffset },
   { "INT3437:00", FindGpioChipOffsetByLabel },
   { "BayTrail", BayTrailFindGpioChipOffset },
+  { "Braswell", BraswellFindGpioChipOffset },
   { NULL },
 };
 
