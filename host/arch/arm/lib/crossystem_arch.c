@@ -568,8 +568,6 @@ const char* VbGetArchPropertyString(const char* name, char* dest,
     prop = "firmware-type";
   else if (!strcasecmp(name, "ecfw_act"))
     prop = "active-ec-firmware";
-  else if (!strcasecmp(name, "ddr_type"))
-    prop = "ddr-type";
 
   if (prop)
     str = ReadFdtString(prop);

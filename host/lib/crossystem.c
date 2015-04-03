@@ -539,8 +539,6 @@ int VbGetSystemPropertyInt(const char* name) {
 
 const char* VbGetSystemPropertyString(const char* name, char* dest,
                                       size_t size) {
-  static const char unknown_string[] = "unknown";
-
   /* Check architecture-dependent properties first */
   if (VbGetArchPropertyString(name, dest, size))
     return dest;
@@ -562,8 +560,6 @@ const char* VbGetSystemPropertyString(const char* name, char* dest,
     return GetVdatString(dest, size, VDAT_STRING_LOAD_FIRMWARE_DEBUG);
   } else if (!strcasecmp(name, "vdat_lkdebug")) {
     return GetVdatString(dest, size, VDAT_STRING_LOAD_KERNEL_DEBUG);
-  } else if (!strcasecmp(name, "ddr_type")) {
-    return unknown_string;
   } else if (!strcasecmp(name, "fw_try_next")) {
     return VbGetNvStorage(VBNV_FW_TRY_NEXT) ? "B" : "A";
   } else if (!strcasecmp(name, "fw_tried")) {

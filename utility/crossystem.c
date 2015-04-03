@@ -39,7 +39,6 @@ const Param sys_param_list[] = {
   {"clear_tpm_owner_done", CAN_WRITE, "Clear TPM owner done"},
   {"cros_debug", 0, "OS should allow debug features"},
   {"dbg_reset", CAN_WRITE, "Debug reset mode request (writable)"},
-  {"ddr_type", IS_STRING, "Type of DDR RAM"},
   {"debug_build", 0, "OS image built for debug features"},
   {"dev_boot_usb", CAN_WRITE,
    "Enable developer mode boot from USB/SD (writable)"},
