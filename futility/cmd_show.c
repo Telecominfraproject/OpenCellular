@@ -401,35 +401,37 @@ enum no_short_opts {
 static const char usage[] = "\n"
 	"Usage:  " MYNAME " %s [OPTIONS] FILE [...]\n"
 	"\n"
-	"Where FILE could be a\n"
+	"Where FILE could be\n"
 	"\n"
-	"%s"
-	"  keyblock (.keyblock)\n"
-	"  firmware preamble signature (VBLOCK_A/B)\n"
-	"  firmware image (bios.bin)\n"
-	"  kernel partition (/dev/sda2, /dev/mmcblk0p2)\n"
+	"  a keyblock (.keyblock)\n"
+	"  a firmware preamble signature (VBLOCK_A/B)\n"
+	"  a firmware image (bios.bin)\n"
+	"  a kernel partition (/dev/sda2, /dev/mmcblk0p2)\n"
+	"  keys in various formats (.vbpubk, .vbprivk, .pem)\n"
+	"  several other file types related to verified boot\n"
 	"\n"
 	"Options:\n"
 	"  -t                               Just show the type of each file\n"
+	"  --type           TYPE            Override the detected file type\n"
+	"                                     Use \"--type help\" for a list\n"
+	"Type-specific options:\n"
 	"  -k|--publickey   FILE"
 	"            Use this public key for validation\n"
 	"  -f|--fv          FILE            Verify this payload (FW_MAIN_A/B)\n"
 	"  --pad            NUM             Kernel vblock padding size\n"
-	"  --type           TYPE            Override the detected file type\n"
-	"                                     Use \"--type help\" for a list\n"
-	"%s"
+	"  --strict                         "
+	"Fail unless all signatures are valid\n"
 	"\n";
 
 static void print_help(int argc, char *argv[])
 {
-	if (strcmp(argv[0], "verify"))
-		printf(usage, argv[0],
-		       "  public key (.vbpubk)\n",
-		       "  --strict                         "
-		       "Fail unless all signatures are valid\n");
-	else
-		printf(usage, argv[0], "",
-		       "\nIt will fail unless all signatures are valid\n");
+	if (!strcmp(argv[0], "verify"))
+		printf("\nUsage:  " MYNAME " %s [OPTIONS] FILE [...]\n\n"
+		       "This is just an alias for\n\n"
+		       "  " MYNAME " show --strict\n\n",
+		       argv[0]);
+
+	printf(usage, "show");
 }
 
 static const struct option long_opts[] = {
