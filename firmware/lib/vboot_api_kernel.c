@@ -41,6 +41,12 @@ static void VbSetRecoveryRequest(uint32_t recovery_request)
 	VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, recovery_request);
 }
 
+static void VbAllowUsbBoot(void)
+{
+	VBDEBUG(("%s\n", __func__));
+	VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 1);
+}
+
 /**
  * Checks GBB flags against VbExIsShutdownRequested() shutdown request to
  * determine if a shutdown is required.
@@ -587,6 +593,9 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 						return VBERROR_TPM_SET_BOOT_MODE_STATE;
 					VBDEBUG(("%s() Reboot so it will take "
 						 "effect\n", __func__));
+					if (VbExGetSwitches
+					    (VB_INIT_FLAG_ALLOW_USB_BOOT))
+						VbAllowUsbBoot();
 					return VBERROR_TPM_REBOOT_REQUIRED;
 				case -1:
 					VBDEBUG(("%s() - Shutdown requested\n",

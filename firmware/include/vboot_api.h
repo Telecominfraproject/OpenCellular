@@ -230,6 +230,9 @@ typedef struct VbCommonParams {
 /* Set when we are calling VbInit() before loading Option ROMs */
 #define VB_INIT_FLAG_BEFORE_OPROM_LOAD   0x00002000
 
+/* Allow USB boot on transition to dev */
+#define VB_INIT_FLAG_ALLOW_USB_BOOT	 0x00004000
+
 /*
  * Output flags for VbInitParams.out_flags.  Used to indicate potential boot
  * paths and configuration to the calling firmware early in the boot process,
