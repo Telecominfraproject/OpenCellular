@@ -12,6 +12,7 @@
 #include "2common.h"
 #include "2misc.h"
 #include "2nvstorage.h"
+#include "2rsa.h"
 #include "2secdata.h"
 #include "vb2_common.h"
 #include "test_common.h"
@@ -149,6 +150,7 @@ int vb2_unpack_key(struct vb2_public_key *key,
 		   const uint8_t *buf,
 		   uint32_t size)
 {
+	key->arrsize = 0;
 	return mock_unpack_key_retval;
 }
 
