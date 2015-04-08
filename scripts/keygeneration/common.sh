@@ -54,7 +54,7 @@ INSTALLER_KERNEL_KEYBLOCK_MODE=10  # Only allow in Dev + Recovery.
 # likely to cause problems than just keeping an eye out for any differences. If
 # you feel the need to change this file, check the history of that other file
 # to see what may need updating here too.
-function make_pair {
+make_pair() {
   local base=$1
   local alg=$2
   local key_version=${3:-1}
@@ -94,7 +94,7 @@ function make_pair {
 #   0x02  Developer switch on
 #   0x04  Not recovery mode
 #   0x08  Recovery mode
-function make_keyblock {
+make_keyblock() {
   local base=$1
   local flags=$2
   local pubkey=$3
@@ -120,7 +120,9 @@ VERSION_FILE="key.versions"
 
 # ARGS: <VERSION_TYPE> [VERSION_FILE]
 get_version() {
-  awk -F= '/^'$1'\>/ { print $NF }' "${2:-${VERSION_FILE}}"
+  local key="$1"
+  local file="${2:-${VERSION_FILE}}"
+  awk -F= -vkey="${key}" '$1 == key { print $NF }' "${file}"
 }
 
 # Loads the current versions prints them to stdout and sets the global version
