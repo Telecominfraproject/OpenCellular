@@ -138,7 +138,7 @@ static const char *onebyte(const char *str, uint8_t *vptr)
 
 int vb2_str_to_id(const char *str, struct vb2_id *id)
 {
-	uint8_t val;
+	uint8_t val = 0;
 	int i;
 
 	if (!str)

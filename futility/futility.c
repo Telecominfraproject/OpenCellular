@@ -230,7 +230,7 @@ static int run_command(const struct futil_cmd_t *cmd, int argc, char *argv[])
 static int do_help(int argc, char *argv[])
 {
 	const struct futil_cmd_t *cmd;
-	const char *vstr;
+	const char *vstr = "";
 
 	/* Help about a known command? */
 	if (argc > 1) {
