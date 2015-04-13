@@ -1,8 +1,8 @@
 *******************************************************************************
-* ATTENTION: The blobs/cpu/qualcomm/ipq806x/uber-sbl.mbn file is a placeholder.
-* It is NOT a working IPQ806x binary.
+* ATTENTION: The MBN files in cpu/qualcomm/ipq806x/*.mbn are placeholders.
+* These are NOT working IPQ806x binaries.
 *
-* Developers should maintain the IPQ806x file on the flash device and be
+* Developers should maintain the IPQ806x files on the flash device and be
 * sure to back it up prior to overwriting it with a coreboot image.
 *******************************************************************************
 
