@@ -31,7 +31,7 @@ struct futil_file_type_s {
 };
 
 /* Populate a list of file types and operator functions. */
-static const struct futil_file_type_s const futil_file_types[] = {
+static const struct futil_file_type_s futil_file_types[] = {
 	{"unknown",       "not something we know about", 0, 0, 0},
 #define R_(x) x
 #define S_(x) x

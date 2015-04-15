@@ -28,14 +28,14 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 	const ptrdiff_t data_end_offs = data_offs + member_data_size;
 
 	/* Make sure parent doesn't wrap */
-	if (parent_size < 0 || parent_end < (uintptr_t)parent)
+	if (parent_end < (uintptr_t)parent)
 		return VB2_ERROR_INSIDE_PARENT_WRAPS;
 
 	/*
 	 * Make sure the member is fully contained in the parent and doesn't
 	 * wrap.  Use >, not >=, since member_size = 0 is possible.
 	 */
-	if (member_size < 0 || member_end_offs < member_offs)
+	if (member_end_offs < member_offs)
 		return VB2_ERROR_INSIDE_MEMBER_WRAPS;
 	if (member_offs < 0 || member_offs > parent_size ||
 	    member_end_offs > parent_size)
@@ -46,7 +46,7 @@ int vb2_verify_member_inside(const void *parent, size_t parent_size,
 		return VB2_ERROR_INSIDE_DATA_OVERLAP;
 
 	/* Make sure parent fully contains member data, if any */
-	if (member_data_size < 0 || data_end_offs < data_offs)
+	if (data_end_offs < data_offs)
 		return VB2_ERROR_INSIDE_DATA_WRAPS;
 	if (data_offs < 0 || data_offs > parent_size ||
 	    data_end_offs > parent_size)

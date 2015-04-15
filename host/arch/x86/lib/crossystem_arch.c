@@ -587,11 +587,9 @@ static int BayTrailFindGpioChipOffset(unsigned *gpio_num, unsigned *offset,
   } else if (*gpio_num >= 0x1000) {
     *gpio_num -= 0x1000;
     expected_uid = 2;
-  } else if (*gpio_num >= 0x0000) {
+  } else {
     *gpio_num -= 0x0000;
     expected_uid = 1;
-  } else {
-    return 0;
   }
 
   dir = opendir(GPIO_BASE_PATH);
