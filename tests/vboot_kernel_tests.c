@@ -12,6 +12,7 @@
 
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
+#include "crc32.h"
 #include "gbb_header.h"
 #include "gpt.h"
 #include "host_common.h"
@@ -467,27 +468,43 @@ static void ReadWriteGptTest(void)
 	/* Error reading */
 	ResetMocks();
 	disk_read_to_fail = 1;
-	TEST_NEQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
-	Memset(g.primary_header, '\0', g.sector_bytes);
-	WriteAndFreeGptData(handle, &g);
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
+	g.valid_headers = g.valid_entries = MASK_SECONDARY;
+	GptRepair(&g);
+	ResetCallLog();
+	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod 1");
+	TEST_CALLS("VbExDiskWrite(h, 1, 1)\n"
+		   "VbExDiskWrite(h, 2, 32)\n");
 
 	ResetMocks();
 	disk_read_to_fail = 2;
-	TEST_NEQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
-	Memset(g.primary_header, '\0', g.sector_bytes);
-	WriteAndFreeGptData(handle, &g);
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
+	g.valid_headers = MASK_BOTH;
+	g.valid_entries = MASK_SECONDARY;
+	GptRepair(&g);
+	ResetCallLog();
+	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod 1");
+	TEST_CALLS("VbExDiskWrite(h, 2, 32)\n");
 
 	ResetMocks();
 	disk_read_to_fail = 991;
-	TEST_NEQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
-	Memset(g.primary_header, '\0', g.sector_bytes);
-	WriteAndFreeGptData(handle, &g);
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
+	g.valid_headers = MASK_BOTH;
+	g.valid_entries = MASK_PRIMARY;
+	GptRepair(&g);
+	ResetCallLog();
+	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod 2");
+	TEST_CALLS("VbExDiskWrite(h, 991, 32)\n");
 
 	ResetMocks();
 	disk_read_to_fail = 1023;
-	TEST_NEQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
-	Memset(g.primary_header, '\0', g.sector_bytes);
-	WriteAndFreeGptData(handle, &g);
+	TEST_EQ(AllocAndReadGptData(handle, &g), 0, "AllocAndRead disk fail");
+	g.valid_headers = g.valid_entries = MASK_PRIMARY;
+	GptRepair(&g);
+	ResetCallLog();
+	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree mod 2");
+	TEST_CALLS("VbExDiskWrite(h, 1023, 1)\n"
+		   "VbExDiskWrite(h, 991, 32)\n");
 
 	/* Error writing */
 	ResetMocks();
@@ -543,19 +560,9 @@ static void InvalidParamsTest(void)
 		"Huge lba size");
 
 	ResetMocks();
-	disk_read_to_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
-		"Can't read disk");
-
-	ResetMocks();
 	gpt_init_fail = 1;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
 		"Bad GPT");
-
-	ResetMocks();
-	lkp.gpt_lba_count = 0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
-		"GPT size = 0");
 
 	/* This causes the stream open call to fail */
 	ResetMocks();
@@ -765,6 +772,11 @@ static void LoadKernelTest(void)
 	lkp.boot_flags |= BOOT_FLAG_EXTERNAL_GPT;
 	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Succeed external GPT");
 	TEST_EQ(gpt_flag_external, 1, "GPT was external");
+
+	/* Check recovery from unreadble primary GPT */
+	ResetMocks();
+	disk_read_to_fail = 1;
+	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Can't read disk");
 }
 
 int main(void)

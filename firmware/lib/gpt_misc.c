@@ -43,8 +43,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		return 1;
 
 	/* Read primary header from the drive, skipping the protective MBR */
-	if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header))
-		return 1;
+	if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header)) {
+		VBDEBUG(("Read error in primary GPT header\n"));
+		Memset(gptdata->primary_header, 0, gptdata->sector_bytes);
+	}
 
 	/* Only read primary GPT if the primary header is valid */
 	GptHeader* primary_header = (GptHeader*)gptdata->primary_header;
@@ -60,16 +62,20 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		if (0 != VbExDiskRead(disk_handle,
 				      primary_header->entries_lba,
 				      entries_sectors,
-				      gptdata->primary_entries))
-			return 1;
+				      gptdata->primary_entries)) {
+			VBDEBUG(("Read error in primary GPT entries\n"));
+			primary_valid = 0;
+		}
 	} else {
 		VBDEBUG(("Primary GPT header invalid!\n"));
 	}
 
 	/* Read secondary header from the end of the drive */
 	if (0 != VbExDiskRead(disk_handle, gptdata->gpt_drive_sectors - 1, 1,
-			      gptdata->secondary_header))
-		return 1;
+			      gptdata->secondary_header)) {
+		VBDEBUG(("Read error in secondary GPT header\n"));
+		Memset(gptdata->secondary_header, 0, gptdata->sector_bytes);
+	}
 
 	/* Only read secondary GPT if the secondary header is valid */
 	GptHeader* secondary_header = (GptHeader*)gptdata->secondary_header;
@@ -85,8 +91,10 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		if (0 != VbExDiskRead(disk_handle,
 				      secondary_header->entries_lba,
 				      entries_sectors,
-				      gptdata->secondary_entries))
-			return 1;
+				      gptdata->secondary_entries)) {
+			VBDEBUG(("Read error in secondary GPT entries\n"));
+			secondary_valid = 0;
+		}
 	} else {
 		VBDEBUG(("Secondary GPT header invalid!\n"));
 	}
