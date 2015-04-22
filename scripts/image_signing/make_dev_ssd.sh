@@ -35,6 +35,8 @@ DEFINE_string save_config "" \
   "Base filename to store kernel configs to, instead of resigning." ""
 DEFINE_string set_config "" \
   "Base filename to load kernel configs from" ""
+DEFINE_boolean edit_config "${FLAGS_FALSE}" \
+  "Edit kernel config in-place." ""
 DEFINE_string partitions "" \
   "List of partitions to examine (default: $DEFAULT_PARTITIONS)" ""
 DEFINE_boolean recovery_key "$FLAGS_FALSE" \
@@ -190,6 +192,33 @@ resign_ssd_kernel() {
         err_die "Failed to read new kernel config from $new_config_file"
       debug_msg "New kernel config: $kernel_config)"
       echo "$name: Replaced config from $new_config_file"
+    fi
+
+    if [ "${FLAGS_edit_config}" = ${FLAGS_TRUE} ]; then
+      debug_msg "Editing kernel config file."
+      local new_config_file="$(make_temp_file)"
+      echo "${kernel_config}" >"${new_config_file}"
+      local old_md5sum="$(md5sum "${new_config_file}")"
+      local editor="${VISUAL:-${EDITOR:-vi}}"
+      echo "${name}: Editing kernel config:"
+      # On ChromiumOS, some builds may come with broken EDITOR that refers to
+      # nano so we want to check again if the editor really exists.
+      if type "${editor}" >/dev/null 2>&1; then
+        "${editor}" "${new_config_file}"
+      else
+        # This script runs under dash but we want readline in bash to support
+        # editing in in console.
+        bash -c "read -e -i '${kernel_config}' &&
+                 echo \"\${REPLY}\" >${new_config_file}" ||
+          err_die "Failed to run editor. Please specify editor name by VISUAL."
+      fi
+      kernel_config="$(cat "${new_config_file}")"
+      if [ "$(md5sum "${new_config_file}")" = "${old_md5sum}" ]; then
+        echo "${name}: Config not changed."
+      else
+        debug_msg "New kernel config: ${kernel_config})"
+        echo "${name}: Config updated"
+      fi
     fi
 
     if [ ${FLAGS_remove_rootfs_verification} = $FLAGS_FALSE ]; then
