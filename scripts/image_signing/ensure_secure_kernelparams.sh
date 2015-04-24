@@ -98,10 +98,8 @@ main() {
     local rootfs=$(make_temp_dir)
     mount_image_partition_ro "$image" 3 "$rootfs"
 
-    # Pick the right set of test-expectation data to use. The cuts
-    # turn e.g. x86-foo as a well as x86-foo-pvtkeys into x86_foo.
-    local board=$(grep CHROMEOS_RELEASE_BOARD= "$rootfs/etc/lsb-release" | \
-                  cut -d = -f 2 | cut -d - -f 1,2 --output-delimiter=_)
+    # Pick the right set of test-expectation data to use.
+    local board=$(get_board_from_lsb_release "${rootfs}")
     eval "required_kparams=(\"\${required_kparams_$board[@]}\")"
     eval "required_kparams_regex=(\"\${required_kparams_regex_$board[@]}\")"
     eval "optional_kparams=(\"\${optional_kparams_$board[@]}\")"
