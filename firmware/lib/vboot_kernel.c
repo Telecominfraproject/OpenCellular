@@ -86,7 +86,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	 * times, so we need to initialize the call entry each time.
 	 */
 	shcall = shared->lk_calls + (shared->lk_call_count
-				     & (VBSD_MAX_KERNEL_CALLS - 1));
+			& (VBSD_MAX_KERNEL_CALLS - 1));
 	Memset(shcall, 0, sizeof(VbSharedDataKernelCall));
 	shcall->boot_flags = (uint32_t)params->boot_flags;
 	shcall->boot_mode = boot_mode;
@@ -138,9 +138,9 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	if (!kbuf)
 		goto bad_gpt;
 
-        /* Loop over candidate kernel partitions */
-        while (GPT_SUCCESS ==
-	       GptNextKernelEntry(&gpt, &part_start, &part_size)) {
+	/* Loop over candidate kernel partitions */
+	while (GPT_SUCCESS ==
+			GptNextKernelEntry(&gpt, &part_start, &part_size)) {
 		VbSharedDataKernelPart *shpart = NULL;
 		VbKeyBlockHeader *key_block;
 		VbKernelPreambleHeader *preamble;
@@ -160,7 +160,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		 * time.
 		 */
 		shpart = shcall->parts + (shcall->kernel_parts_found
-					  & (VBSD_MAX_KERNEL_PARTS - 1));
+				& (VBSD_MAX_KERNEL_PARTS - 1));
 		Memset(shpart, 0, sizeof(VbSharedDataKernelPart));
 		shpart->sector_start = part_start;
 		shpart->sector_count = part_size;
@@ -319,7 +319,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		else {
 			VBDEBUG(("Key block valid: %d\n", key_block_valid));
 			VBDEBUG(("Combined version: %u\n",
-				 (unsigned) combined_version));
+						(unsigned) combined_version));
 		}
 
 		/*
@@ -469,7 +469,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		/* Continue, so that we skip the error handling code below */
 		continue;
 
-	bad_kernel:
+bad_kernel:
 		/* Handle errors parsing this kernel */
 		if (NULL != stream)
 			VbExStreamClose(stream);
@@ -480,9 +480,9 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_BAD);
 
 
-        } /* while(GptNextKernelEntry) */
+	} /* while(GptNextKernelEntry) */
 
- bad_gpt:
+bad_gpt:
 
 	/* Free kernel buffer */
 	if (kbuf)
@@ -518,7 +518,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		retval = VBERROR_NO_KERNEL_FOUND;
 	}
 
- LoadKernelExit:
+LoadKernelExit:
 
 	/* Store recovery request, if any */
 	VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
