@@ -15,11 +15,11 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <tss/tcs.h>
 
 #include "sysincludes.h"
 #include "tlcl_internal.h"
 #include "tpmextras.h"
+#include "tss_constants.h"
 
 /* See struct Command below.  This structure represent a field in a TPM
  * command.  [name] is the field name.  [visible] is 1 if the field is

@@ -10,10 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <tss/tcs.h>
-/* Don't use the vboot constants, since they conflict with the TCS lib */
-#define VBOOT_REFERENCE_TSS_CONSTANTS_H_
-
 #include "host_common.h"
 #include "test_common.h"
 #include "tlcl.h"
