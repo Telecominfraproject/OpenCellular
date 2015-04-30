@@ -464,63 +464,24 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 
 	/*
 	 * If the dev-mode switch is off and the user didn't press the recovery
-	 * button, require removal of all external media.
+	 * button (recovery was triggerred automatically), show 'broken' screen.
+	 * The user can either only shutdown to abort or hit esc+refresh+power
+	 * to initiate recovery as instructed on the screen.
 	 */
 	if (!(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
 	    !(shared->flags & VBSD_BOOT_REC_SWITCH_ON)) {
-		VbDiskInfo *disk_info = NULL;
-		uint32_t disk_count = 0;
-
-		VBDEBUG(("VbBootRecovery() forcing device removal\n"));
-
-		/* If no media is detected initially, delay and make one extra
-		 * attempt, in case devices appear later than expected. */
-		if (VBERROR_SUCCESS != VbExDiskGetInfo(&disk_info, &disk_count,
-						       VB_DISK_FLAG_REMOVABLE))
-			disk_count = 0;
-
-		VbExDiskFreeInfo(disk_info, NULL);
-		if (0 == disk_count)
-			VbExSleepMs(REC_MEDIA_INIT_DELAY);
-
+		VBDEBUG(("VbBootRecovery() waiting for manual recovery\n"));
+		VbDisplayScreen(cparams, VB_SCREEN_OS_BROKEN, 0, &vnc);
 		while (1) {
-			disk_info = NULL;
-			disk_count = 0;
-			if (VBERROR_SUCCESS !=
-			    VbExDiskGetInfo(&disk_info, &disk_count,
-					    VB_DISK_FLAG_REMOVABLE))
-				disk_count = 0;
-
-			VbExDiskFreeInfo(disk_info, NULL);
-
-			if (0 == disk_count) {
-				VbDisplayScreen(cparams, VB_SCREEN_BLANK,
-						0, &vnc);
-				break;
-			}
-
-			VBDEBUG(("VbBootRecovery() "
-				 "waiting for %d disks to be removed\n",
-				 (int)disk_count));
-
-			VbDisplayScreen(cparams, VB_SCREEN_RECOVERY_REMOVE,
-					0, &vnc);
-
-			/*
-			 * Scan keyboard more frequently than media, since x86
-			 * platforms don't like to scan USB too rapidly.
-			 */
-			for (i = 0; i < REC_DISK_DELAY; i += REC_KEY_DELAY) {
-				VbCheckDisplayKey(cparams, VbExKeyboardRead(),
-						  &vnc);
-				if (VbWantShutdown(cparams->gbb->flags))
-					return VBERROR_SHUTDOWN_REQUESTED;
-				VbExSleepMs(REC_KEY_DELAY);
-			}
+			VbCheckDisplayKey(cparams, VbExKeyboardRead(), &vnc);
+			if (VbWantShutdown(cparams->gbb->flags))
+				return VBERROR_SHUTDOWN_REQUESTED;
+			VbExSleepMs(REC_KEY_DELAY);
 		}
 	}
 
 	/* Loop and wait for a recovery image */
+	VBDEBUG(("VbBootRecovery() waiting for a recovery image\n"));
 	while (1) {
 		VBDEBUG(("VbBootRecovery() attempting to load kernel2\n"));
 		retval = VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE);

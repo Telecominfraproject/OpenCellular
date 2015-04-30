@@ -285,6 +285,9 @@ VbError_t VbExDisplayScreen(uint32_t screen_type) {
   case VB_SCREEN_RECOVERY_NO_GOOD:
     VBDEBUG(("VbExDisplayScreen(NO_GOOD)\n"));
     break;
+  case VB_SCREEN_OS_BROKEN:
+    VBDEBUG(("VbExDisplayScreen(BROKEN)\n"));
+    break;
   default:
     VBDEBUG(("VbExDisplayScreen(%d)\n", screen_type));
   }

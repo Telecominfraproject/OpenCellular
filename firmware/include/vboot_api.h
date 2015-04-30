@@ -735,6 +735,8 @@ enum VbScreenType_t {
 	VB_SCREEN_WAIT              = 0x206,
 	/* Confirm after DEVELOPER_TO_NORM */
 	VB_SCREEN_TO_NORM_CONFIRMED = 0x207,
+	/* Broken screen shown after verification failure */
+	VB_SCREEN_OS_BROKEN         = 0x208,
 };
 
 /**

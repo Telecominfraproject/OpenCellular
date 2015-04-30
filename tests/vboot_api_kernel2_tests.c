@@ -462,26 +462,8 @@ static void VbBootRecTest(void)
 
 	VbNvGet(VbApiKernelGetVnc(), VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, 0, "  recovery reason");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_BLANK,
-		"  blank screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_NO_GOOD,
-		"  no good screen");
-
-	/* Disk inserted after start */
-	ResetMocks();
-	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootRecovery(&cparams, &lkp), 0, "Good");
-
-	/* No disk inserted */
-	ResetMocks();
-	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
-	shutdown_request_calls_left = 10;
-	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
-		"Bad disk");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_BLANK,
-		"  blank screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_INSERT,
-		"  insert screen");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
 
 	/* Remove disks */
 	ResetMocks();
@@ -492,14 +474,8 @@ static void VbBootRecTest(void)
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
 		"Remove");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_REMOVE,
-		"  remove screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_REMOVE,
-		"  remove screen");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_BLANK,
-		"  blank screen");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_RECOVERY_INSERT,
-		"  insert screen");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
 
 	/* No removal if dev switch is on */
 	ResetMocks();
@@ -533,24 +509,19 @@ static void VbBootRecTest(void)
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
 		"Remove");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_REMOVE,
-		"  remove screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_BLANK,
-		"  blank screen");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_RECOVERY_INSERT,
-		"  insert screen");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
 
 	/* Bad disk count doesn't require removal */
 	ResetMocks();
+	shutdown_request_calls_left = 100;
 	mock_num_disks[0] = -1;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	shutdown_request_calls_left = 10;
 	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
 		"Bad disk count");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_BLANK,
-		"  blank screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_INSERT,
-		"  insert screen");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
 
 	/* Ctrl+D ignored for many reasons... */
 	ResetMocks();

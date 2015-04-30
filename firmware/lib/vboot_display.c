@@ -188,6 +188,9 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	case VB_SCREEN_TO_NORM_CONFIRMED:
 		screen_index = SCREEN_TO_NORM_CONFIRMED;
 		break;
+	case VB_SCREEN_OS_BROKEN:
+		screen_index = SCREEN_OS_BROKEN;
+		break;
 	case VB_SCREEN_BLANK:
 	case VB_SCREEN_DEVELOPER_EGG:
 	default:
