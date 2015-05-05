@@ -7,7 +7,6 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
-#include "2rsa.h"
 #include "2sha.h"
 
 #if VB2_SUPPORT_SHA1
@@ -43,15 +42,6 @@ static const uint8_t crypto_to_hash[] = {
 	CTH_SHA512,
 };
 
-/**
- * Convert vb2_crypto_algorithm to vb2_hash_algorithm.
- *
- * @param algorithm	Crypto algorithm (vb2_crypto_algorithm)
- *
- * @return The hash algorithm for that crypto algorithm, or VB2_HASH_INVALID if
- * the crypto algorithm or its corresponding hash algorithm is invalid or not
- * supported.
- */
 enum vb2_hash_algorithm vb2_crypto_to_hash(uint32_t algorithm)
 {
 	if (algorithm < ARRAY_SIZE(crypto_to_hash))
@@ -158,4 +148,24 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 	default:
 		return VB2_ERROR_SHA_FINALIZE_ALGORITHM;
 	}
+}
+
+int vb2_digest_buffer(const uint8_t *buf,
+		      uint32_t size,
+		      enum vb2_hash_algorithm hash_alg,
+		      uint8_t *digest,
+		      uint32_t digest_size)
+{
+	struct vb2_digest_context dc;
+	int rv;
+
+	rv = vb2_digest_init(&dc, hash_alg);
+	if (rv)
+		return rv;
+
+	rv = vb2_digest_extend(&dc, buf, size);
+	if (rv)
+		return rv;
+
+	return vb2_digest_finalize(&dc, digest, digest_size);
 }

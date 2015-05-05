@@ -13,26 +13,6 @@
 #include "sha_test_vectors.h"
 #include "test_common.h"
 
-static int vb2_digest(const uint8_t *buf,
-		      uint32_t size,
-		      enum vb2_hash_algorithm hash_alg,
-		      uint8_t *digest,
-		      uint32_t digest_size)
-{
-	struct vb2_digest_context dc;
-	int rv;
-
-	rv = vb2_digest_init(&dc, hash_alg);
-	if (rv)
-		return rv;
-
-	rv = vb2_digest_extend(&dc, buf, size);
-	if (rv)
-		return rv;
-
-	return vb2_digest_finalize(&dc, digest, digest_size);
-}
-
 void sha1_tests(void)
 {
 	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
@@ -44,17 +24,20 @@ void sha1_tests(void)
 	test_inputs[2] = (uint8_t *) long_msg;
 
 	for (i = 0; i < 3; i++) {
-		TEST_SUCC(vb2_digest(test_inputs[i],
-				     strlen((char *)test_inputs[i]),
-				     VB2_HASH_SHA1, digest, sizeof(digest)),
-			  "vb2_digest() SHA1");
+		TEST_SUCC(vb2_digest_buffer(test_inputs[i],
+					    strlen((char *)test_inputs[i]),
+					    VB2_HASH_SHA1,
+					    digest, sizeof(digest)),
+			  "vb2_digest_buffer() SHA1");
 		TEST_EQ(memcmp(digest, sha1_results[i], sizeof(digest)),
 			0, "SHA1 digest");
 	}
 
-	TEST_EQ(vb2_digest(test_inputs[0], strlen((char *)test_inputs[0]),
-			   VB2_HASH_SHA1, digest, sizeof(digest) - 1),
-		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE, "vb2_digest() too small");
+	TEST_EQ(vb2_digest_buffer(test_inputs[0],
+				  strlen((char *)test_inputs[0]),
+				  VB2_HASH_SHA1, digest, sizeof(digest) - 1),
+		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE,
+		"vb2_digest_buffer() too small");
 }
 
 void sha256_tests(void)
@@ -68,17 +51,20 @@ void sha256_tests(void)
 	test_inputs[2] = (uint8_t *) long_msg;
 
 	for (i = 0; i < 3; i++) {
-		TEST_SUCC(vb2_digest(test_inputs[i],
-				     strlen((char *)test_inputs[i]),
-				     VB2_HASH_SHA256, digest, sizeof(digest)),
-			  "vb2_digest() SHA256");
+		TEST_SUCC(vb2_digest_buffer(test_inputs[i],
+					    strlen((char *)test_inputs[i]),
+					    VB2_HASH_SHA256,
+					    digest, sizeof(digest)),
+			  "vb2_digest_buffer() SHA256");
 		TEST_EQ(memcmp(digest, sha256_results[i], sizeof(digest)),
 			0, "SHA-256 digest");
 	}
 
-	TEST_EQ(vb2_digest(test_inputs[0], strlen((char *)test_inputs[0]),
-			   VB2_HASH_SHA256, digest, sizeof(digest) - 1),
-		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE, "vb2_digest() too small");
+	TEST_EQ(vb2_digest_buffer(test_inputs[0],
+				  strlen((char *)test_inputs[0]),
+				  VB2_HASH_SHA256, digest, sizeof(digest) - 1),
+		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE,
+		"vb2_digest_buffer() too small");
 }
 
 void sha512_tests(void)
@@ -92,18 +78,20 @@ void sha512_tests(void)
 	test_inputs[2] = (uint8_t *) long_msg;
 
 	for (i = 0; i < 3; i++) {
-		TEST_SUCC(vb2_digest(test_inputs[i],
-				     strlen((char *)test_inputs[i]),
-				     VB2_HASH_SHA512, digest,
-				     sizeof(digest)),
-			  "vb2_digest() SHA512");
+		TEST_SUCC(vb2_digest_buffer(test_inputs[i],
+					    strlen((char *)test_inputs[i]),
+					    VB2_HASH_SHA512,
+					    digest, sizeof(digest)),
+			  "vb2_digest_buffer() SHA512");
 		TEST_EQ(memcmp(digest, sha512_results[i], sizeof(digest)),
 			0, "SHA-512 digest");
 	}
 
-	TEST_EQ(vb2_digest(test_inputs[0], strlen((char *)test_inputs[0]),
-			   VB2_HASH_SHA512, digest, sizeof(digest) - 1),
-		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE, "vb2_digest() too small");
+	TEST_EQ(vb2_digest_buffer(test_inputs[0],
+				  strlen((char *)test_inputs[0]),
+				  VB2_HASH_SHA512, digest, sizeof(digest) - 1),
+		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE,
+		"vb2_digest_buffer() too small");
 }
 
 void misc_tests(void)
@@ -126,10 +114,10 @@ void misc_tests(void)
 	TEST_EQ(vb2_digest_size(VB2_HASH_INVALID), 0,
 		"digest size invalid alg");
 
-	TEST_EQ(vb2_digest((uint8_t *)oneblock_msg, strlen(oneblock_msg),
-			   VB2_HASH_INVALID, digest, sizeof(digest)),
+	TEST_EQ(vb2_digest_buffer((uint8_t *)oneblock_msg, strlen(oneblock_msg),
+				  VB2_HASH_INVALID, digest, sizeof(digest)),
 		VB2_ERROR_SHA_INIT_ALGORITHM,
-		"vb2_digest() invalid alg");
+		"vb2_digest_buffer() invalid alg");
 
 	/* Test bad algorithm inside extend and finalize */
 	vb2_digest_init(&dc, VB2_HASH_SHA256);

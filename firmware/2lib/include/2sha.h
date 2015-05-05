@@ -1,13 +1,17 @@
 /* Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
+ *
+ * These APIs may be called by external firmware as well as vboot.  External
+ * firmware must NOT include this header file directly; instead, define
+ * NEED_VB2_SHA_LIBRARY and include vb2api.h.  This is permissible because the
+ * SHA library routines below don't interact with the rest of vboot.
  */
 
 #ifndef VBOOT_REFERENCE_2SHA_H_
 #define VBOOT_REFERENCE_2SHA_H_
 
 #include "2crypto.h"
-#include "2struct.h"
 
 /* Hash algorithms may be disabled individually to save code space */
 
@@ -173,5 +177,21 @@ int vb2_digest_extend(struct vb2_digest_context *dc,
 int vb2_digest_finalize(struct vb2_digest_context *dc,
 			uint8_t *digest,
 			uint32_t digest_size);
+
+/**
+ * Calculate the digest of a buffer and store the result.
+ *
+ * @param buf		Data to hash
+ * @param size		Length of data in bytes
+ * @param hash_alg	Hash algorithm
+ * @param digest	Destination for digest
+ * @param digest_size	Length of digest buffer in bytes.
+ * @return VB2_SUCCESS, or non-zero on error.
+ */
+int vb2_digest_buffer(const uint8_t *buf,
+		      uint32_t size,
+		      enum vb2_hash_algorithm hash_alg,
+		      uint8_t *digest,
+		      uint32_t digest_size);
 
 #endif  /* VBOOT_REFERENCE_2SHA_H_ */
