@@ -437,7 +437,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	if ((gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) &&
 	    !ctrl_d_pressed) {
 		VBDEBUG(("VbBootDeveloper() - defaulting to legacy\n"));
-		VbTryLegacy(1);
+		VbTryLegacy(allow_legacy);
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */

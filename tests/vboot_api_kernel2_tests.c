@@ -288,7 +288,8 @@ static void VbBootDevTest(void)
 
 	/* Proceed to legacy after timeout if GBB flag set */
 	ResetMocks();
-	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY;
+	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY |
+		     GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
 	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
