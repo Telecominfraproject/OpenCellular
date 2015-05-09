@@ -64,6 +64,21 @@ static int VbWantShutdown(uint32_t gbb_flags)
 	return !!shutdown_request;
 }
 
+static void VbTryLegacy(int allowed)
+{
+	if (!allowed)
+		VBDEBUG(("VbBootDeveloper() - Legacy boot is disabled\n"));
+	else if (0 != RollbackKernelLock(0))
+		VBDEBUG(("Error locking kernel versions on legacy boot.\n"));
+	else
+		VbExLegacy();	/* will not return if successful */
+
+	/* If legacy boot fails, beep and return to calling UI loop. */
+	VbExBeep(120, 400);
+	VbExSleepMs(120);
+	VbExBeep(120, 400);
+}
+
 /**
  * Attempt loading a kernel from the specified type(s) of disks.
  *
@@ -351,19 +366,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 		case 0x0c:
 			VBDEBUG(("VbBootDeveloper() - "
 				 "user pressed Ctrl+L; Try legacy boot\n"));
-			/*
-			 * If VbExLegacy() succeeds, it will never return.  If
-			 * it returns, beep.
-			 */
-			if (allow_legacy)
-				VbExLegacy();
-			else
-				VBDEBUG(("VbBootDeveloper() - "
-					 "Legacy boot is disabled\n"));
-
-			VbExBeep(120, 400);
-			VbExSleepMs(120);
-			VbExBeep(120, 400);
+			VbTryLegacy(allow_legacy);
 			break;
 
 		case VB_KEY_CTRL_ENTER:
@@ -434,12 +437,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	if ((gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) &&
 	    !ctrl_d_pressed) {
 		VBDEBUG(("VbBootDeveloper() - defaulting to legacy\n"));
-		VbExLegacy();
-
-		/* If that fails, beep and fall through to fixed disk */
-		VbExBeep(120, 400);
-		VbExSleepMs(120);
-		VbExBeep(120, 400);
+		VbTryLegacy(1);
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */

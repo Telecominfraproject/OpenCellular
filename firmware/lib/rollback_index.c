@@ -667,10 +667,16 @@ uint32_t RollbackBackupWrite(uint8_t *raw)
 
 uint32_t RollbackKernelLock(int recovery_mode)
 {
-	if (recovery_mode)
+	static int kernel_locked = 0;
+	uint32_t r;
+
+	if (recovery_mode || kernel_locked)
 		return TPM_SUCCESS;
-	else
-		return TlclLockPhysicalPresence();
+
+	r = TlclLockPhysicalPresence();
+	if (TPM_SUCCESS == r)
+		kernel_locked = 1;
+	return r;
 }
 
 #endif /* DISABLE_ROLLBACK_TPM */

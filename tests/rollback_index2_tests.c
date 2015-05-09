@@ -945,12 +945,6 @@ static void RollbackKernelTest(void)
 		"RollbackKernelWrite() error");
 
 	/* Test lock (recovery off) */
-	ResetMocks(0, 0);
-	TEST_EQ(RollbackKernelLock(0), 0, "RollbackKernelLock()");
-	TEST_STR_EQ(mock_calls,
-		    "TlclLockPhysicalPresence()\n",
-		    "tlcl calls");
-
 	ResetMocks(1, TPM_E_IOERROR);
 	TEST_EQ(RollbackKernelLock(0), TPM_E_IOERROR,
 		"RollbackKernelLock() error");
@@ -960,6 +954,12 @@ static void RollbackKernelTest(void)
 	ResetMocks(0, 0);
 	TEST_EQ(RollbackKernelLock(1), 0, "RollbackKernelLock() in recovery");
 	TEST_STR_EQ(mock_calls, "", "no tlcl calls");
+
+	ResetMocks(0, 0);
+	TEST_EQ(RollbackKernelLock(0), 0, "RollbackKernelLock()");
+	TEST_STR_EQ(mock_calls,
+		    "TlclLockPhysicalPresence()\n",
+		    "tlcl calls");
 }
 
 /* Tests for RollbackS3Resume() */
