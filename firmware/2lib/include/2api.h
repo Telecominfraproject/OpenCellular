@@ -31,8 +31,9 @@
 /* Size of non-volatile data used by vboot */
 #define VB2_NVDATA_SIZE 16
 
-/* Size of secure data used by vboot */
+/* Size of secure data spaces used by vboot */
 #define VB2_SECDATA_SIZE 10
+#define VB2_SECDATAK_SIZE 14
 
 /*
  * Recommended size of work buffer.
@@ -93,6 +94,12 @@ enum vb2_context_flags {
 
 	/* Erase TPM developer mode state if it is enabled. */
 	VB2_DISABLE_DEVELOPER_MODE = (1 << 9),
+
+	/*
+	 * Verified boot has changed secdatak[].  Caller must save secdatak[]
+	 * back to its underlying storage, then may clear this flag.
+	 */
+	VB2_CONTEXT_SECDATAK_CHANGED = (1 << 11),
 };
 
 /*
@@ -128,10 +135,11 @@ struct vb2_context {
 	uint8_t nvdata[VB2_NVDATA_SIZE];
 
 	/*
-	 * Secure data.  Caller must fill this from some secure non-volatile
-	 * location.  If the VB2_CONTEXT_SECDATA_CHANGED flag is set when a
-	 * function returns, caller must save the data back to the secure
-	 * non-volatile location and then clear the flag.
+	 * Secure data for firmware verification stage.  Caller must fill this
+	 * from some secure non-volatile location.  If the
+	 * VB2_CONTEXT_SECDATA_CHANGED flag is set when a function returns,
+	 * caller must save the data back to the secure non-volatile location
+	 * and then clear the flag.
 	 */
 	uint8_t secdata[VB2_SECDATA_SIZE];
 
@@ -154,6 +162,19 @@ struct vb2_context {
 	 * copied when relocating the work buffer.
 	 */
 	uint32_t workbuf_used;
+
+	/**********************************************************************
+	 * Fields caller must initialize before calling vb2api_kernel_phase1().
+	 */
+
+	/*
+	 * Secure data for kernel verification stage.  Caller must fill this
+	 * from some secure non-volatile location.  If the
+	 * VB2_CONTEXT_SECDATAK_CHANGED flag is set when a function returns,
+	 * caller must save the data back to the secure non-volatile location
+	 * and then clear the flag.
+	 */
+	uint8_t secdatak[VB2_SECDATAK_SIZE];
 };
 
 enum vb2_resource_index {
@@ -234,8 +255,7 @@ enum vb2_pcr_digest {
  *
  * At this point, firmware verification is done, and vb2_context contains the
  * kernel key needed to verify the kernel.  That context should be preserved
- * and passed on to kernel selection.  For now, that requires translating it
- * into the old VbSharedData format (via a func which does not yet exist...)
+ * and passed on to kernel selection.
  */
 
 /**
@@ -265,6 +285,34 @@ int vb2api_secdata_check(const struct vb2_context *ctx);
  * @return VB2_SUCCESS, or non-zero error code if error.
  */
 int vb2api_secdata_create(struct vb2_context *ctx);
+
+/**
+ * Sanity-check the contents of the kernel version secure storage context.
+ *
+ * Use this if reading from secure storage may be flaky, and you want to retry
+ * reading it several times.
+ *
+ * This may be called before vb2api_phase1().
+ *
+ * @param ctx		Context pointer
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2api_secdatak_check(const struct vb2_context *ctx);
+
+/**
+ * Create fresh data in the kernel version secure storage context.
+ *
+ * Use this only when initializing the secure storage context on a new machine
+ * the first time it boots.  Do NOT simply use this if vb2api_secdatak_check()
+ * (or any other API in this library) fails; that could allow the secure data
+ * to be rolled back to an insecure state.
+ *
+ * This may be called before vb2api_phase1().
+ *
+ * @param ctx		Context pointer
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2api_secdatak_create(struct vb2_context *ctx);
 
 /**
  * Report firmware failure to vboot.

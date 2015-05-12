@@ -111,6 +111,30 @@ enum vb2_return_code {
 	/* Called vb2_secdata_set() with uninitialized secdata */
 	VB2_ERROR_SECDATA_SET_UNINITIALIZED,
 
+	/* Bad CRC in vb2_secdatak_check_crc() */
+	VB2_ERROR_SECDATAK_CRC,
+
+	/* Bad struct version in vb2_secdatak_init() */
+	VB2_ERROR_SECDATAK_VERSION,
+
+	/* Bad uid in vb2_secdatak_init() */
+	VB2_ERROR_SECDATAK_UID,
+
+	/* Invalid param in vb2_secdatak_get() */
+	VB2_ERROR_SECDATAK_GET_PARAM,
+
+	/* Invalid param in vb2_secdatak_set() */
+	VB2_ERROR_SECDATAK_SET_PARAM,
+
+	/* Invalid flags passed to vb2_secdatak_set() */
+	VB2_ERROR_SECDATAK_SET_FLAGS,
+
+	/* Called vb2_secdatak_get() with uninitialized secdatak */
+	VB2_ERROR_SECDATAK_GET_UNINITIALIZED,
+
+	/* Called vb2_secdatak_set() with uninitialized secdatak */
+	VB2_ERROR_SECDATAK_SET_UNINITIALIZED,
+
         /**********************************************************************
 	 * Common code errors
 	 */

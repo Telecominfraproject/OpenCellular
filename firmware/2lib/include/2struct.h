@@ -52,6 +52,9 @@ enum vb2_shared_data_status {
 
 	/* Chose a firmware slot */
 	VB2_SD_STATUS_CHOSE_SLOT = (1 << 3),
+
+	/* Secure data kernel version space initialized */
+	VB2_SD_STATUS_SECDATAK_INIT = (1 << 4),
 };
 
 /*
