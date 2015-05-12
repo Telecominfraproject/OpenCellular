@@ -81,8 +81,6 @@ struct vb2_keyblock {
 
 	/* Version of this header format */
 	uint32_t header_version_major;
-
-	/* Version of this header format */
 	uint32_t header_version_minor;
 
 	/*
@@ -121,7 +119,7 @@ struct vb2_keyblock {
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MAJOR 2
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 1
 
-/* Flags for VbFirmwarePreambleHeader.flags */
+/* Flags for vb2_fw_preamble.flags */
 /* Reserved; do not use */
 #define VB2_FIRMWARE_PREAMBLE_RESERVED0 0x00000001
 /* Do not allow use of any hardware crypto accelerators. */
@@ -177,5 +175,89 @@ struct vb2_fw_preamble {
 } __attribute__((packed));
 
 #define EXPECTED_VB2_FW_PREAMBLE_SIZE 108
+
+/* Kernel preamble header */
+#define KERNEL_PREAMBLE_HEADER_VERSION_MAJOR 2
+#define KERNEL_PREAMBLE_HEADER_VERSION_MINOR 2
+
+/* Flags for vb2_kernel_preamble.flags */
+/* Kernel image type = bits 1:0 */
+#define VB2_KERNEL_PREAMBLE_KERNEL_TYPE_MASK 0x00000003
+#define VB2_KERNEL_PREAMBLE_KERNEL_TYPE_CROS    0
+#define VB2_KERNEL_PREAMBLE_KERNEL_TYPE_BOOTIMG 1
+/* Kernel types 2,3 are reserved for future use */
+
+/*
+ * Preamble block for kernel, version 2.2
+ *
+ * This should be followed by:
+ *   1) The signature data for the kernel body, pointed to by
+ *      body_signature.sig_offset.
+ *   2) The signature data for (vb2_kernel_preamble + body signature data),
+ *       pointed to by preamble_signature.sig_offset.
+ *   3) The 16-bit vmlinuz header, which is used for reconstruction of
+ *      vmlinuz image.
+ */
+struct vb2_kernel_preamble {
+	/*
+	 * Size of this preamble, including keys, signatures, vmlinuz header,
+	 * and padding, in bytes
+	 */
+	uint32_t preamble_size;
+	uint32_t reserved0;
+
+	/* Signature for this preamble (header + body signature) */
+	struct vb2_signature preamble_signature;
+
+	/* Version of this header format */
+	uint32_t header_version_major;
+	uint32_t header_version_minor;
+
+	/* Kernel version */
+	uint32_t kernel_version;
+	uint32_t reserved1;
+
+	/* Load address for kernel body */
+	uint64_t body_load_address;
+
+	/* Address of bootloader, after body is loaded at body_load_address */
+	uint64_t bootloader_address;
+
+	/* Size of bootloader in bytes */
+	uint32_t bootloader_size;
+	uint32_t reserved2;
+
+	/* Signature for the kernel body */
+	struct vb2_signature body_signature;
+
+	/*
+	 * Fields added in header version 2.1.  You must verify the header
+	 * version before reading these fields!
+	 */
+
+	/*
+	 * Address of 16-bit header for vmlinuz reassembly.  Readers should
+	 * return 0 for header version < 2.1.
+	 */
+	uint64_t vmlinuz_header_address;
+
+	/* Size of 16-bit header for vmlinuz in bytes.  Readers should return 0
+	   for header version < 2.1 */
+	uint32_t vmlinuz_header_size;
+	uint32_t reserved3;
+
+	/*
+	 * Fields added in header version 2.2.  You must verify the header
+	 * version before reading these fields!
+	 */
+
+	/*
+	 * Flags; see VB2_KERNEL_PREAMBLE_*.  Readers should return 0 for
+	 * header version < 2.2.
+	 */
+	uint32_t flags;
+} __attribute__((packed));
+
+#define EXPECTED_VB2_KERNEL_PREAMBLE_SIZE 116
 
 #endif  /* VBOOT_REFERENCE_VB2_STRUCT_H_ */

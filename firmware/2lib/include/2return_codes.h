@@ -341,6 +341,12 @@ enum vb2_return_code {
 	/* Hash is signed */
 	VB2_ERROR_PREAMBLE_HASH_SIGNED,
 
+	/* Bootloader outside signed portion of body */
+	VB2_ERROR_PREAMBLE_BOOTLOADER_OUTSIDE,
+
+	/* Vmlinuz header outside signed portion of body */
+	VB2_ERROR_PREAMBLE_VMLINUZ_HEADER_OUTSIDE,
+
         /**********************************************************************
 	 * Misc higher-level code errors
 	 */

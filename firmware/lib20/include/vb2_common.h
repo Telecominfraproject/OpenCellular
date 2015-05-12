@@ -156,4 +156,20 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 			   const struct vb2_public_key *key,
 			   const struct vb2_workbuf *wb);
 
+/**
+ * Check the sanity of a kernel preamble using a public key.
+ *
+ * The signature in the preamble is destroyed during the check.
+ *
+ * @param preamble     	Preamble to verify
+ * @param size		Size of preamble buffer
+ * @param key		Key to use to verify preamble
+ * @param wb		Work buffer
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_verify_kernel_preamble(struct vb2_kernel_preamble *preamble,
+			       uint32_t size,
+			       const struct vb2_public_key *key,
+			       const struct vb2_workbuf *wb);
+
 #endif  /* VBOOT_REFERENCE_VB2_COMMON_H_ */

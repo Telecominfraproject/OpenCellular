@@ -300,6 +300,187 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 	free(hdr);
 }
 
+static void resign_kernel_preamble(struct vb2_kernel_preamble *h,
+				   const VbPrivateKey *key)
+{
+	VbSignature *sig = CalculateSignature(
+		(const uint8_t *)h, h->preamble_signature.data_size, key);
+
+	SignatureCopy((VbSignature *)&h->preamble_signature, sig);
+	free(sig);
+}
+
+static void test_verify_kernel_preamble(const VbPublicKey *public_key,
+					const VbPrivateKey *private_key)
+{
+	struct vb2_kernel_preamble *hdr;
+	struct vb2_kernel_preamble *h;
+	struct vb2_public_key rsa;
+	// TODO: how many workbuf bytes?
+	uint8_t workbuf[VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES]
+		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
+	struct vb2_workbuf wb;
+	uint32_t hsize;
+
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+	/* Create a dummy signature */
+	VbSignature *body_sig = SignatureAlloc(56, 0x214000);
+
+	TEST_SUCC(vb2_unpack_key(&rsa, (uint8_t *)public_key,
+				 public_key->key_offset + public_key->key_size),
+		  "vb2_verify_kernel_preamble() prereq key");
+
+	hdr = (struct vb2_kernel_preamble *)
+		CreateKernelPreamble(0x1234, 0x100000, 0x300000, 0x4000,
+				     body_sig, 0x304000, 0x10000, 0, 0,
+				     private_key);
+	TEST_PTR_NEQ(hdr, NULL,
+		     "vb2_verify_kernel_preamble() prereq test preamble");
+	if (!hdr)
+		return;
+	hsize = (uint32_t) hdr->preamble_size;
+	h = (struct vb2_kernel_preamble *)malloc(hsize + 16384);
+
+	Memcpy(h, hdr, hsize);
+	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		  "vb2_verify_kernel_preamble() ok using key");
+
+	Memcpy(h, hdr, hsize);
+	TEST_EQ(vb2_verify_kernel_preamble(h, 4, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER,
+		"vb2_verify_kernel_preamble() size tiny");
+
+	Memcpy(h, hdr, hsize);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize - 1, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIZE,
+		"vb2_verify_kernel_preamble() size--");
+
+	/* Buffer is allowed to be bigger than preamble */
+	Memcpy(h, hdr, hsize);
+	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize + 1, &rsa, &wb),
+		  "vb2_verify_kernel_preamble() size++");
+
+	/* Care about major version but not minor */
+	Memcpy(h, hdr, hsize);
+	h->header_version_major++;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_HEADER_VERSION
+		, "vb2_verify_kernel_preamble() major++");
+
+	Memcpy(h, hdr, hsize);
+	h->header_version_major--;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_HEADER_VERSION,
+		"vb2_verify_kernel_preamble() major--");
+
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor++;
+	resign_kernel_preamble(h, private_key);
+	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		  "vb2_verify_kernel_preamble() minor++");
+
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor--;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_HEADER_OLD,
+		"vb2_verify_kernel_preamble() 2.1 not supported");
+
+	/* Check signature */
+	Memcpy(h, hdr, hsize);
+	h->preamble_signature.sig_offset = hsize;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIG_OUTSIDE,
+		"vb2_verify_kernel_preamble() sig off end");
+
+	Memcpy(h, hdr, hsize);
+	h->preamble_signature.sig_size--;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIG_INVALID,
+		"vb2_verify_kernel_preamble() sig too small");
+
+	Memcpy(h, hdr, hsize);
+	h->flags++;
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIG_INVALID,
+		"vb2_verify_kernel_preamble() sig mismatch");
+
+	/* Check that we signed header and body sig */
+	Memcpy(h, hdr, hsize);
+	h->preamble_signature.data_size = 4;
+	h->body_signature.sig_offset = 0;
+	h->body_signature.sig_size = 0;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_SIGNED_TOO_LITTLE,
+		"vb2_verify_kernel_preamble() didn't sign header");
+
+	Memcpy(h, hdr, hsize);
+	h->body_signature.sig_offset = hsize;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_BODY_SIG_OUTSIDE,
+		"vb2_verify_kernel_preamble() body sig off end");
+
+	/* Check bootloader inside signed body */
+	Memcpy(h, hdr, hsize);
+	h->bootloader_address = h->body_load_address - 1;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_BOOTLOADER_OUTSIDE,
+		"vb2_verify_kernel_preamble() bootloader before body");
+
+	Memcpy(h, hdr, hsize);
+	h->bootloader_address = h->body_load_address +
+		h->body_signature.data_size + 1;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_BOOTLOADER_OUTSIDE,
+		"vb2_verify_kernel_preamble() bootloader off end of body");
+
+	Memcpy(h, hdr, hsize);
+	h->bootloader_address = h->body_load_address +
+		h->body_signature.data_size + 1;
+	h->bootloader_size = 0;
+	resign_kernel_preamble(h, private_key);
+	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		  "vb2_verify_kernel_preamble() no bootloader");
+
+	/* Check vmlinuz inside signed body */
+	Memcpy(h, hdr, hsize);
+	h->vmlinuz_header_address = h->body_load_address - 1;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_VMLINUZ_HEADER_OUTSIDE,
+		"vb2_verify_kernel_preamble() vmlinuz_header before body");
+
+	Memcpy(h, hdr, hsize);
+	h->vmlinuz_header_address = h->body_load_address +
+		h->body_signature.data_size + 1;
+	resign_kernel_preamble(h, private_key);
+	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		VB2_ERROR_PREAMBLE_VMLINUZ_HEADER_OUTSIDE,
+		"vb2_verify_kernel_preamble() vmlinuz_header off end of body");
+
+	Memcpy(h, hdr, hsize);
+	h->vmlinuz_header_address = h->body_load_address +
+		h->body_signature.data_size + 1;
+	h->vmlinuz_header_size = 0;
+	resign_kernel_preamble(h, private_key);
+	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
+		  "vb2_verify_kernel_preamble() no vmlinuz_header");
+
+	/* TODO: verify with extra padding at end of header. */
+
+	free(h);
+	free(hdr);
+}
+
 int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		     const char *keys_dir)
 {
@@ -347,6 +528,7 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 			     data_public_key);
 	test_verify_fw_preamble(signing_public_key, signing_private_key,
 				data_public_key);
+	test_verify_kernel_preamble(signing_public_key, signing_private_key);
 
 	if (signing_public_key)
 		free(signing_public_key);

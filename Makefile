@@ -340,6 +340,7 @@ FWLIB2X_SRCS = \
 FWLIB20_SRCS = \
 	firmware/lib20/api.c \
 	firmware/lib20/common.c \
+	firmware/lib20/kernel.c \
 	firmware/lib20/misc.c \
 	firmware/lib20/packed_key.c
 
