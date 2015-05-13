@@ -166,8 +166,8 @@ static void gbb_tests(void)
 	TEST_SUCC(vb2_read_gbb_header(&cc, &gbbdest),
 		  "read gbb header minor++");
 	gbb.minor_version = 1;
-	TEST_SUCC(vb2_read_gbb_header(&cc, &gbbdest),
-		  "read gbb header 1.1");
+	TEST_EQ(vb2_read_gbb_header(&cc, &gbbdest),
+		VB2_ERROR_GBB_TOO_OLD, "read gbb header 1.1 fails");
 	gbb.minor_version = 0;
 	TEST_EQ(vb2_read_gbb_header(&cc, &gbbdest),
 		VB2_ERROR_GBB_TOO_OLD, "read gbb header 1.0 fails");
