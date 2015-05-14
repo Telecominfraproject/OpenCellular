@@ -320,6 +320,7 @@ VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams)
 		VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 0);
 		VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 0);
 		VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 0);
+		VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 0);
 		/*
 		 * Back up any changes now, so these values can't be forgotten
 		 * by draining the battery. We really only care about these

@@ -564,6 +564,12 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 			DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
+	/* Add dev_boot_fastboot_full_cap flag */
+	VbNvGet(vncptr, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &i);
+	used += StrnAppend(buf + used, "\ndev_boot_fastboot_full_cap: ",
+			DEBUG_INFO_SIZE - used);
+	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
+
 	/* Add TPM versions */
 	used += StrnAppend(buf + used, "\nTPM: fwver=0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,

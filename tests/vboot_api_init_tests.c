@@ -555,6 +555,7 @@ static void VbInitTestBackup(void)
 	VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
 	/* and some that don't */
 	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
 	VbNvSet(&vnc, VBNV_TRY_B_COUNT, 3);
@@ -582,6 +583,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 0, "  NV dev_boot_legacy");
 	VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
 	TEST_EQ(u, 0, "  NV dev_boot_signed_only");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
+	TEST_EQ(u, 0, "  NV dev_boot_fastboot_full_cap");
 	/* So we should have written the backup */
 	TEST_EQ(backup_write_called, 1, "  Backup written once");
 	/* And the backup should reflect the persisent flags. */
@@ -597,6 +600,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 0, "  BU dev_boot_legacy");
 	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
 	TEST_EQ(u, 0, "  BU dev_boot_signed_only");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_fastboot_full_cap");
 	/* but not the others */
 	VbNvGet(&tmp_vnc, VBNV_OPROM_NEEDED, &u);
 	TEST_EQ(u, 0, "  BU oprom_needed");
@@ -636,6 +641,7 @@ static void VbInitTestBackup(void)
 	VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
+	VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
 	/* and some that don't */
 	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
 	VbNvSet(&vnc, VBNV_TRY_B_COUNT, 4);
@@ -683,6 +689,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 1, "  BU dev_boot_legacy");
 	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
 	TEST_EQ(u, 1, "  BU dev_boot_signed_only");
+	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_fastboot_full_cap");
 	/* but not the others */
 	VbNvGet(&tmp_vnc, VBNV_OPROM_NEEDED, &u);
 	TEST_EQ(u, 0, "  BU oprom_needed");
@@ -720,6 +728,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 1, "  BU dev_boot_legacy");
 	VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
 	TEST_EQ(u, 1, "  BU dev_boot_signed_only");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
+	TEST_EQ(u, 1, "  BU dev_boot_fastboot_full_cap");
 
 	/*
 	 * But if we lose the NV storage and go back to normal mode at the same
@@ -754,6 +764,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 0, "  BU dev_boot_legacy");
 	VbNvGet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &u);
 	TEST_EQ(u, 0, "  BU dev_boot_signed_only");
+	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
+	TEST_EQ(u, 0, "  BU dev_boot_fastboot_full_cap");
 }
 
 

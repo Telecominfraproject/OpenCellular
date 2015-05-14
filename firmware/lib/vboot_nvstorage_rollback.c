@@ -20,6 +20,7 @@ static const VbNvParam backup_params[] = {
 	VBNV_DEV_BOOT_USB,
 	VBNV_DEV_BOOT_LEGACY,
 	VBNV_DEV_BOOT_SIGNED_ONLY,
+	VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
 };
 
 /* We can't back things up if there isn't enough storage. */

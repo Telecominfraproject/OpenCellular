@@ -72,6 +72,11 @@ typedef enum VbNvParam {
 	/* Only boot Google-signed images in developer mode.  0=no, 1=yes. */
 	VBNV_DEV_BOOT_SIGNED_ONLY,
 	/*
+	 * Allow full fastboot capability in firmware in developer mode.
+	 * 0=no, 1=yes.
+	 */
+	VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
+	/*
 	 * Set by userspace to request that RO firmware disable dev-mode on the
 	 * next boot. This is likely only possible if the dev-switch is
 	 * virtual.

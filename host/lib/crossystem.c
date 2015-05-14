@@ -499,6 +499,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_LEGACY);
   } else if (!strcasecmp(name,"dev_boot_signed_only")) {
     value = VbGetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY);
+  } else if (!strcasecmp(name,"dev_boot_fastboot_full_cap")) {
+    value = VbGetNvStorage(VBNV_DEV_BOOT_FASTBOOT_FULL_CAP);
   } else if (!strcasecmp(name,"oprom_needed")) {
     value = VbGetNvStorage(VBNV_OPROM_NEEDED);
   } else if (!strcasecmp(name,"recovery_subcode")) {
@@ -653,6 +655,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_LEGACY, value);
   } else if (!strcasecmp(name,"dev_boot_signed_only")) {
     return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_SIGNED_ONLY, value);
+  } else if (!strcasecmp(name,"dev_boot_fastboot_full_cap")) {
+    return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, value);
   }
 
   return -1;
