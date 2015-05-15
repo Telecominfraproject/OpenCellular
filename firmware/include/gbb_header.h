@@ -34,39 +34,44 @@
 
 /* Flags for .flags field */
 /* Reduce the dev screen delay to 2 sec from 30 sec to speedup factory. */
-#define GBB_FLAG_DEV_SCREEN_SHORT_DELAY   0x00000001
+#define GBB_FLAG_DEV_SCREEN_SHORT_DELAY		0x00000001
 /*
  * BIOS should load option ROMs from arbitrary PCI devices. We'll never enable
  * this ourselves because it executes non-verified code, but if a customer
  * wants to void their warranty and set this flag in the read-only flash, they
  * should be able to do so.
  */
-#define GBB_FLAG_LOAD_OPTION_ROMS         0x00000002
+#define GBB_FLAG_LOAD_OPTION_ROMS			0x00000002
 /*
  * The factory flow may need the BIOS to boot a non-ChromeOS kernel if the
  * dev-switch is on. This flag allows that.
  */
-#define GBB_FLAG_ENABLE_ALTERNATE_OS      0x00000004
+#define GBB_FLAG_ENABLE_ALTERNATE_OS			0x00000004
 /* Force dev switch on, regardless of physical/keyboard dev switch position. */
-#define GBB_FLAG_FORCE_DEV_SWITCH_ON      0x00000008
+#define GBB_FLAG_FORCE_DEV_SWITCH_ON			0x00000008
 /* Allow booting from USB in dev mode even if dev_boot_usb=0. */
-#define GBB_FLAG_FORCE_DEV_BOOT_USB       0x00000010
+#define GBB_FLAG_FORCE_DEV_BOOT_USB			0x00000010
 /* Disable firmware rollback protection. */
-#define GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK  0x00000020
+#define GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK		0x00000020
 /* Allow Enter key to trigger dev->tonorm screen transition */
-#define GBB_FLAG_ENTER_TRIGGERS_TONORM    0x00000040
+#define GBB_FLAG_ENTER_TRIGGERS_TONORM			0x00000040
 /* Allow booting Legacy OSes in dev mode even if dev_boot_legacy=0. */
-#define GBB_FLAG_FORCE_DEV_BOOT_LEGACY    0x00000080
+#define GBB_FLAG_FORCE_DEV_BOOT_LEGACY			0x00000080
 /* Allow booting using alternate keys for FAFT servo testing */
-#define GBB_FLAG_FAFT_KEY_OVERIDE         0x00000100
+#define GBB_FLAG_FAFT_KEY_OVERIDE			0x00000100
 /* Disable EC software sync */
-#define GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC 0x00000200
+#define GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC		0x00000200
 /* Default to booting legacy OS when dev screen times out */
-#define GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY  0x00000400
+#define GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY		0x00000400
 /* Disable PD software sync */
-#define GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC 0x00000800
+#define GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC		0x00000800
 /* Disable shutdown on lid closed */
-#define GBB_FLAG_DISABLE_LID_SHUTDOWN     0x00001000
+#define GBB_FLAG_DISABLE_LID_SHUTDOWN			0x00001000
+/*
+ * Allow full fastboot capability in firmware even if
+ * dev_boot_fastboot_full_cap=0.
+ */
+#define GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP	0x00002000
 
 #ifdef __cplusplus
 extern "C" {

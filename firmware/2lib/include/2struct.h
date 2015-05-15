@@ -224,6 +224,12 @@ enum vb2_gbb_flag {
 
 	/* Disable PD software sync */
 	VB2_GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC = (1 << 11),
+
+	/*
+	 * Allow full fastboot capability in firmware even if
+	 * dev_boot_fastboot_full_cap=0.
+	 */
+	VB2_GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP = (1 << 13),
 };
 
 struct vb2_gbb_header {
