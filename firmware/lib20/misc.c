@@ -126,8 +126,12 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	/* Key version is the upper 16 bits of the composite firmware version */
 	if (kb->data_key.key_version > 0xffff)
 		rv = VB2_ERROR_FW_KEYBLOCK_VERSION_RANGE;
-	if (!rv && kb->data_key.key_version < (sd->fw_version_secdata >> 16))
-		rv = VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK;
+	if (!rv && kb->data_key.key_version < (sd->fw_version_secdata >> 16)) {
+		if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK)
+			VB2_DEBUG("Ignoring FW key rollback due to GBB flag\n");
+		else
+			rv = VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK;
+	}
 	if (rv) {
 		vb2_fail(ctx, VB2_RECOVERY_FW_KEY_ROLLBACK, rv);
 		return rv;
@@ -238,8 +242,12 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 		rv = VB2_ERROR_FW_PREAMBLE_VERSION_RANGE;
 	/* Combine with the key version from vb2_load_fw_keyblock() */
 	sd->fw_version |= pre->firmware_version;
-	if (!rv && sd->fw_version < sd->fw_version_secdata)
-		rv = VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
+	if (!rv && sd->fw_version < sd->fw_version_secdata) {
+		if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK)
+			VB2_DEBUG("Ignoring FW rollback due to GBB flag\n");
+		else
+			rv = VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK;
+	}
 	if (rv) {
 		vb2_fail(ctx, VB2_RECOVERY_FW_ROLLBACK, rv);
 		return rv;

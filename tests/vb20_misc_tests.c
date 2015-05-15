@@ -268,6 +268,11 @@ static void verify_keyblock_tests(void)
 	TEST_EQ(vb2_load_fw_keyblock(&cc),
 		VB2_ERROR_FW_KEYBLOCK_VERSION_ROLLBACK,
 		"keyblock rollback");
+
+	reset_common_data(FOR_KEYBLOCK);
+	kb->data_key.key_version = 1;
+	sd->gbb_flags |= VB2_GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK;
+	TEST_SUCC(vb2_load_fw_keyblock(&cc), "keyblock rollback with GBB flag");
 }
 
 static void verify_preamble_tests(void)
@@ -344,6 +349,11 @@ static void verify_preamble_tests(void)
 	TEST_EQ(vb2_load_fw_preamble(&cc),
 		VB2_ERROR_FW_PREAMBLE_VERSION_ROLLBACK,
 		"preamble version rollback");
+
+	reset_common_data(FOR_PREAMBLE);
+	pre->firmware_version = 1;
+	sd->gbb_flags |= VB2_GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK;
+	TEST_SUCC(vb2_load_fw_preamble(&cc), "version rollback with GBB flag");
 
 	reset_common_data(FOR_PREAMBLE);
 	pre->firmware_version = 3;

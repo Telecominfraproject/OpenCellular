@@ -182,12 +182,16 @@ enum vb2_gbb_flag {
 	 * enable this ourselves because it executes non-verified code, but if
 	 * a customer wants to void their warranty and set this flag in the
 	 * read-only flash, they should be able to do so.
+	 *
+	 * (TODO: Currently not supported. Mark as deprecated/unused?)
 	 */
 	VB2_GBB_FLAG_LOAD_OPTION_ROMS = (1 << 1),
 
 	/*
 	 * The factory flow may need the BIOS to boot a non-ChromeOS kernel if
 	 * the dev-switch is on. This flag allows that.
+	 *
+	 * (TODO: Currently not supported. Mark as deprecated/unused?)
 	 */
 	VB2_GBB_FLAG_ENABLE_ALTERNATE_OS = (1 << 2),
 
