@@ -225,6 +225,9 @@ enum vb2_gbb_flag {
 	/* Disable PD software sync */
 	VB2_GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC = (1 << 11),
 
+	/* Disable shutdown on lid closed */
+	VB2_GBB_FLAG_DISABLE_LID_SHUTDOWN = (1 << 12),
+
 	/*
 	 * Allow full fastboot capability in firmware even if
 	 * dev_boot_fastboot_full_cap=0.
