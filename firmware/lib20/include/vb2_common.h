@@ -124,7 +124,23 @@ int vb2_verify_data(const uint8_t *data,
 		    const struct vb2_workbuf *wb);
 
 /**
- * Check the sanity of a key block using a public key.
+ * Check the sanity of a key block structure.
+ *
+ * Verifies all the header fields.  Does not verify key index or key block
+ * flags.  Should be called before verifying the key block data itself using
+ * the key.  (This function does not itself verify the signature - just that
+ * the right amount of data is claimed to be signed.)
+ *
+ * @param block		Key block to verify
+ * @param size		Size of key block buffer
+ * @param sig		Which signature inside the keyblock to use
+ */
+int vb2_check_keyblock(const struct vb2_keyblock *block,
+		       uint32_t size,
+		       const struct vb2_signature *sig);
+
+/**
+ * Verify a key block using a public key.
  *
  * Header fields are also checked for sanity.  Does not verify key index or key
  * block flags.  Signature inside block is destroyed during check.

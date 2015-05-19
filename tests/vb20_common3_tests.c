@@ -29,6 +29,120 @@ static void resign_keyblock(struct vb2_keyblock *h, const VbPrivateKey *key)
 	free(sig);
 }
 
+static void test_check_keyblock(const VbPublicKey *public_key,
+				 const VbPrivateKey *private_key,
+				 const VbPublicKey *data_key)
+{
+	struct vb2_public_key key;
+	struct vb2_keyblock *hdr;
+	struct vb2_keyblock *h;
+	struct vb2_signature *sig;
+	uint32_t hsize;
+
+	/* Unpack public key */
+	TEST_SUCC(vb2_unpack_key(&key, (uint8_t *)public_key,
+				 public_key->key_offset + public_key->key_size),
+		  "vb2_verify_keyblock public key");
+
+	hdr = (struct vb2_keyblock *)
+		KeyBlockCreate(data_key, private_key, 0x1234);
+	TEST_NEQ((size_t)hdr, 0, "vb2_verify_keyblock() prerequisites");
+	if (!hdr)
+		return;
+	hsize = hdr->keyblock_size;
+	h = (struct vb2_keyblock *)malloc(hsize + 2048);
+	sig = &h->keyblock_signature;
+
+	Memcpy(h, hdr, hsize);
+	TEST_SUCC(vb2_check_keyblock(h, hsize, sig),
+		  "vb2_check_keyblock() ok");
+
+	Memcpy(h, hdr, hsize);
+	TEST_EQ(vb2_check_keyblock(h, hsize - 1, sig),
+		VB2_ERROR_KEYBLOCK_SIZE, "vb2_check_keyblock() size--");
+
+	/* Buffer is allowed to be bigger than keyblock */
+	Memcpy(h, hdr, hsize);
+	TEST_SUCC(vb2_check_keyblock(h, hsize + 1, sig),
+		  "vb2_check_keyblock() size++");
+
+	Memcpy(h, hdr, hsize);
+	h->magic[0] &= 0x12;
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_MAGIC, "vb2_check_keyblock() magic");
+
+	/* Care about major version but not minor */
+	Memcpy(h, hdr, hsize);
+	h->header_version_major++;
+	resign_keyblock(h, private_key);
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
+		"vb2_check_keyblock() major++");
+
+	Memcpy(h, hdr, hsize);
+	h->header_version_major--;
+	resign_keyblock(h, private_key);
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
+		"vb2_check_keyblock() major--");
+
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor++;
+	resign_keyblock(h, private_key);
+	TEST_SUCC(vb2_check_keyblock(h, hsize, sig),
+		  "vb2_check_keyblock() minor++");
+
+	Memcpy(h, hdr, hsize);
+	h->header_version_minor--;
+	resign_keyblock(h, private_key);
+	TEST_SUCC(vb2_check_keyblock(h, hsize, sig),
+		  "vb2_check_keyblock() minor--");
+
+	/* Check signature */
+	Memcpy(h, hdr, hsize);
+	h->keyblock_signature.sig_offset = hsize;
+	resign_keyblock(h, private_key);
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_SIG_OUTSIDE,
+		"vb2_check_keyblock() sig off end");
+
+	Memcpy(h, hdr, hsize);
+	h->keyblock_signature.data_size = h->keyblock_size + 1;
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH,
+		"vb2_check_keyblock() sig data past end of block");
+
+	/* Check that we signed header and data key */
+	Memcpy(h, hdr, hsize);
+	h->keyblock_signature.data_size = 4;
+	h->data_key.key_offset = 0;
+	h->data_key.key_size = 0;
+	resign_keyblock(h, private_key);
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_SIGNED_TOO_LITTLE,
+		"vb2_check_keyblock() didn't sign header");
+
+	Memcpy(h, hdr, hsize);
+	h->data_key.key_offset = hsize;
+	resign_keyblock(h, private_key);
+	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
+		VB2_ERROR_KEYBLOCK_DATA_KEY_OUTSIDE,
+		"vb2_check_keyblock() data key off end");
+
+	/* Corner cases for error checking */
+	TEST_EQ(vb2_check_keyblock(NULL, 4, sig),
+		VB2_ERROR_KEYBLOCK_TOO_SMALL_FOR_HEADER,
+		"vb2_check_keyblock size too small");
+
+	/*
+	 * TODO: verify parser can support a bigger header (i.e., one where
+	 * data_key.key_offset is bigger than expected).
+	 */
+
+	free(h);
+	free(hdr);
+}
+
 static void test_verify_keyblock(const VbPublicKey *public_key,
 				 const VbPrivateKey *private_key,
 				 const VbPublicKey *data_key)
@@ -60,55 +174,12 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
 		  "vb2_verify_keyblock() ok using key");
 
+	/* Failures in keyblock check also cause verify to fail */
 	Memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_verify_keyblock(h, hsize - 1, &key, &wb),
-		VB2_ERROR_KEYBLOCK_SIZE, "vb2_verify_keyblock() size--");
-
-	/* Buffer is allowed to be bigger than keyblock */
-	Memcpy(h, hdr, hsize);
-	TEST_SUCC(vb2_verify_keyblock(h, hsize + 1, &key, &wb),
-		  "vb2_verify_keyblock() size++");
-
-	Memcpy(h, hdr, hsize);
-	h->magic[0] &= 0x12;
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_MAGIC, "vb2_verify_keyblock() magic");
-
-	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
-	h->header_version_major++;
-	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
-		"vb2_verify_keyblock() major++");
-
-	Memcpy(h, hdr, hsize);
-	h->header_version_major--;
-	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
-		"vb2_verify_keyblock() major--");
-
-	Memcpy(h, hdr, hsize);
-	h->header_version_minor++;
-	resign_keyblock(h, private_key);
-	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
-		  "vb2_verify_keyblock() minor++");
-
-	Memcpy(h, hdr, hsize);
-	h->header_version_minor--;
-	resign_keyblock(h, private_key);
-	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
-		  "vb2_verify_keyblock() minor--");
+		VB2_ERROR_KEYBLOCK_SIZE, "vb2_verify_keyblock() check");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
-	h->keyblock_signature.sig_offset = hsize;
-	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_SIG_OUTSIDE,
-		"vb2_verify_keyblock() sig off end");
-
 	Memcpy(h, hdr, hsize);
 	h->keyblock_signature.sig_size--;
 	resign_keyblock(h, private_key);
@@ -121,34 +192,6 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_INVALID,
 		"vb2_verify_keyblock() sig mismatch");
-
-	Memcpy(h, hdr, hsize);
-	h->keyblock_signature.data_size = h->keyblock_size + 1;
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH,
-		"vb2_verify_keyblock() sig data past end of block");
-
-	/* Check that we signed header and data key */
-	Memcpy(h, hdr, hsize);
-	h->keyblock_signature.data_size = 4;
-	h->data_key.key_offset = 0;
-	h->data_key.key_size = 0;
-	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_SIGNED_TOO_LITTLE,
-		"vb2_verify_keyblock() didn't sign header");
-
-	Memcpy(h, hdr, hsize);
-	h->data_key.key_offset = hsize;
-	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
-		VB2_ERROR_KEYBLOCK_DATA_KEY_OUTSIDE,
-		"vb2_verify_keyblock() data key off end");
-
-	/* Corner cases for error checking */
-	TEST_EQ(vb2_verify_keyblock(NULL, 4, &key, &wb),
-		VB2_ERROR_KEYBLOCK_TOO_SMALL_FOR_HEADER,
-		"vb2_verify_keyblock size too small");
 
 	/*
 	 * TODO: verify parser can support a bigger header (i.e., one where
@@ -524,6 +567,8 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		return 1;
 	}
 
+	test_check_keyblock(signing_public_key, signing_private_key,
+			    data_public_key);
 	test_verify_keyblock(signing_public_key, signing_private_key,
 			     data_public_key);
 	test_verify_fw_preamble(signing_public_key, signing_private_key,

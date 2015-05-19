@@ -1444,7 +1444,7 @@ coverage_html:
 .PHONY: coverage
 ifeq (${COV},)
 coverage:
-	$(error Build coverage like this: make clean && COV=1 make)
+	$(error Build coverage like this: make clean && COV=1 make coverage)
 else
 coverage: coverage_init runtests coverage_html
 endif

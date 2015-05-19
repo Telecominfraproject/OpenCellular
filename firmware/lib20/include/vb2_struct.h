@@ -97,12 +97,12 @@ struct vb2_keyblock {
 	struct vb2_signature keyblock_signature;
 
 	/*
-	 * SHA-512 checksum for this key block (header + data pointed to by
+	 * SHA-512 hash for this key block (header + data pointed to by
 	 * data_key) For use with unsigned data keys.
 	 *
-	 * Note that the vb2 lib currently only supports signed blocks.
+	 * Only supported for kernel keyblocks, not firmware keyblocks.
 	 */
-	struct vb2_signature keyblock_checksum_unused;
+	struct vb2_signature keyblock_hash;
 
 	/* Flags for key (VB2_KEY_BLOCK_FLAG_*) */
 	uint32_t keyblock_flags;

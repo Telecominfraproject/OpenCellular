@@ -77,6 +77,14 @@ int vb2api_init_hash(struct vb2_context *ctx, uint32_t tag, uint32_t *size)
 	}
 
 	/*
+	 * Work buffer now contains:
+	 *   - vb2_shared_data
+	 *   - packed firmware data key
+	 *   - firmware preamble
+	 *   - hash data
+	 */
+
+	/*
 	 * Unpack the firmware data key to see which hashing algorithm we
 	 * should use.
 	 *

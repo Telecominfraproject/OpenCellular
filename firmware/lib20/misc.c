@@ -25,6 +25,13 @@ static const uint8_t dev_key_digest[] = {
 	0xcf, 0x04, 0x1f, 0x10,
 };
 
+/**
+ * Determine if the root key is the developer key checked into the
+ * vboot_reference repository.  Has no effect on boot; just logs this to the
+ * debug console.
+ *
+ * @param root		Root key
+ */
 static void vb2_report_dev_firmware(struct vb2_public_key *root)
 {
 	struct vb2_digest_context dc;
@@ -91,6 +98,9 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	if (rv)
 		return rv;
 
+	/* If that's the checked-in root key, this is dev-signed firmware */
+	vb2_report_dev_firmware(&root_key);
+
 	/* Load the firmware keyblock header after the root key */
 	kb = vb2_workbuf_alloc(&wb, sizeof(*kb));
 	if (!kb)
@@ -137,7 +147,6 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 		return rv;
 	}
 
-	vb2_report_dev_firmware(&root_key);
 	sd->fw_version = kb->data_key.key_version << 16;
 
 	/*
@@ -169,7 +178,13 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	/* Preamble follows the keyblock in the vblock */
 	sd->vblock_preamble_offset = kb->keyblock_size;
 
-	/* Data key will persist in the workbuf after we return */
+	/*
+	 * Data key will persist in the workbuf after we return.
+	 *
+	 * Work buffer now contains:
+	 *   - vb2_shared_data
+	 *   - packed firmware data key
+	 */
 	ctx->workbuf_used = sd->workbuf_data_key_offset +
 		sd->workbuf_data_key_size;
 
@@ -272,7 +287,17 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	sd->workbuf_preamble_offset = vb2_offset_of(ctx->workbuf, pre);
 	sd->workbuf_preamble_size = pre_size;
 
-	/* Preamble will persist in work buffer after we return */
+	/*
+	 * Preamble will persist in work buffer after we return.
+	 *
+	 * Work buffer now contains:
+	 *   - vb2_shared_data
+	 *   - packed firmware data key
+	 *   - firmware preamble
+	 *
+	 * TODO: we could move the preamble down over the firmware data key
+	 * since we don't need it anymore.
+	 */
 	ctx->workbuf_used = sd->workbuf_preamble_offset + pre_size;
 
 	return VB2_SUCCESS;

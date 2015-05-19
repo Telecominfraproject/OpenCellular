@@ -130,34 +130,29 @@ int vb2_verify_data(const uint8_t *data,
 	return vb2_verify_digest(key, sig, digest, &wblocal);
 }
 
-int vb2_verify_keyblock(struct vb2_keyblock *block,
-			uint32_t size,
-			const struct vb2_public_key *key,
-			const struct vb2_workbuf *wb)
+int vb2_check_keyblock(const struct vb2_keyblock *block,
+		       uint32_t size,
+		       const struct vb2_signature *sig)
 {
-	struct vb2_signature *sig;
-	int rv;
-
-	/* Sanity checks before attempting signature of data */
 	if(size < sizeof(*block)) {
 		VB2_DEBUG("Not enough space for key block header.\n");
 		return VB2_ERROR_KEYBLOCK_TOO_SMALL_FOR_HEADER;
 	}
+
 	if (memcmp(block->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE)) {
 		VB2_DEBUG("Not a valid verified boot key block.\n");
 		return VB2_ERROR_KEYBLOCK_MAGIC;
 	}
+
 	if (block->header_version_major != KEY_BLOCK_HEADER_VERSION_MAJOR) {
 		VB2_DEBUG("Incompatible key block header version.\n");
 		return VB2_ERROR_KEYBLOCK_HEADER_VERSION;
 	}
+
 	if (size < block->keyblock_size) {
 		VB2_DEBUG("Not enough data for key block.\n");
 		return VB2_ERROR_KEYBLOCK_SIZE;
 	}
-
-	/* Check signature */
-	sig = &block->keyblock_signature;
 
 	if (vb2_verify_signature_inside(block, block->keyblock_size, sig)) {
 		VB2_DEBUG("Key block signature off end of block\n");
@@ -168,13 +163,6 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 	if (block->keyblock_size < sig->data_size) {
 		VB2_DEBUG("Signature calculated past end of block\n");
 		return VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH;
-	}
-
-	VB2_DEBUG("Checking key block signature...\n");
-	rv = vb2_verify_data((const uint8_t *)block, size, sig, key, wb);
-	if (rv) {
-		VB2_DEBUG("Invalid key block signature.\n");
-		return VB2_ERROR_KEYBLOCK_SIG_INVALID;
 	}
 
 	/* Verify we signed enough data */
@@ -193,6 +181,29 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 					 &block->data_key)) {
 		VB2_DEBUG("Data key off end of signed data\n");
 		return VB2_ERROR_KEYBLOCK_DATA_KEY_UNSIGNED;
+	}
+
+	return VB2_SUCCESS;
+}
+
+int vb2_verify_keyblock(struct vb2_keyblock *block,
+			uint32_t size,
+			const struct vb2_public_key *key,
+			const struct vb2_workbuf *wb)
+{
+	struct vb2_signature *sig = &block->keyblock_signature;
+	int rv;
+
+	/* Sanity check keyblock before attempting signature check of data */
+	rv = vb2_check_keyblock(block, size, sig);
+	if (rv)
+		return rv;
+
+	VB2_DEBUG("Checking key block signature...\n");
+	rv = vb2_verify_data((const uint8_t *)block, size, sig, key, wb);
+	if (rv) {
+		VB2_DEBUG("Invalid key block signature.\n");
+		return VB2_ERROR_KEYBLOCK_SIG_INVALID;
 	}
 
 	/* Success */
