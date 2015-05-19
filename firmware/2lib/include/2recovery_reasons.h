@@ -193,6 +193,12 @@ enum vb2_nv_recovery {
 	/* BCB related error in RW firmware */
 	VB2_RECOVERY_RW_BCB_ERROR    = 0x5c,
 
+	/* New error codes from VB2 */
+	/* TODO: may need to add strings for these in the original fwlib */
+
+	/* Secure data inititalization error */
+	VB2_RECOVERY_SECDATAK_INIT = 0x5d,
+
 	/* Unspecified/unknown error in rewritable firmware */
 	VB2_RECOVERY_RW_UNSPECIFIED  = 0x7f,
 

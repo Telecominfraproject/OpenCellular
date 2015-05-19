@@ -219,9 +219,11 @@ struct vb2_kernel_preamble {
 
 	/* Load address for kernel body */
 	uint64_t body_load_address;
+	/* TODO (vboot 2.1): we never used that */
 
 	/* Address of bootloader, after body is loaded at body_load_address */
 	uint64_t bootloader_address;
+	/* TODO (vboot 2.1): should be a 32-bit offset */
 
 	/* Size of bootloader in bytes */
 	uint32_t bootloader_size;
@@ -229,6 +231,14 @@ struct vb2_kernel_preamble {
 
 	/* Signature for the kernel body */
 	struct vb2_signature body_signature;
+
+	/*
+	 * TODO (vboot 2.1): fields for kernel offset and size.  Right now the
+	 * size is implicitly the same as the size of data signed by the body
+	 * signature, and the offset is implicitly at the end of the preamble.
+	 * But that forces us to pad the preamble to 64KB rather than just
+	 * having a tiny preamble and an offset field.
+	 */
 
 	/*
 	 * Fields added in header version 2.1.  You must verify the header

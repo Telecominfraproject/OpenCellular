@@ -110,7 +110,13 @@ enum vb2_context_flags {
 	 * Verified boot has changed secdatak[].  Caller must save secdatak[]
 	 * back to its underlying storage, then may clear this flag.
 	 */
-	VB2_CONTEXT_SECDATAK_CHANGED = (1 << 11),
+	VB2_CONTEXT_SECDATAK_CHANGED = (1 << 10),
+
+	/*
+	 * Allow kernel verification to roll forward the version in secdatak[].
+	 * Caller may set this flag before calling vb2api_kernel_phase3().
+	 */
+	VB2_CONTEXT_ALLOW_KERNEL_ROLL_FORWARD = (1 << 11),
 
 	/* Boot optimistically: don't touch failure counters */
 	VB2_CONTEXT_NOFAIL_BOOT = (1 << 12),
@@ -279,7 +285,57 @@ enum vb2_pcr_digest {
  *
  * At this point, firmware verification is done, and vb2_context contains the
  * kernel key needed to verify the kernel.  That context should be preserved
- * and passed on to kernel selection.
+ * and passed on to kernel selection.  The kernel selection process may be
+ * done by the same firmware image, or may be done by the RW firmware.  The
+ * recommended order is:
+ *
+ *	Load secdatak from wherever you keep it.
+ *
+ *      	If it wasn't there at all (for example, this is the first boot
+ *		of a new system in the factory), call vb2api_secdatak_create()
+ *		to initialize the data.
+ *
+ *		If access to your storage is unreliable (reads/writes may
+ *		contain corrupt data), you may call vb2api_secdatak_check() to
+ *		determine if the data was valid, and retry reading if it
+ *		wasn't.  (In that case, you should also read back and check the
+ *		data after any time you write it, to make sure it was written
+ *		correctly.)
+ *
+ *	Call vb2api_kernel_phase1().  At present, this decides which key to
+ *	use to verify kernel data - the recovery key from the GBB, or the
+ *	kernel subkey from the firmware verification stage.
+ *
+ *	Kernel phase 2 is finding loading, and verifying the kernel partition.
+ *
+ *	Find a boot device (you're on your own here).
+ *
+ *	Call vb2api_load_kernel_vblock() for each kernel partition on the
+ *	boot device, until one succeeds.
+ *
+ *	When that succeeds, call vb2api_get_kernel_size() to determine where
+ *	the kernel is located in the stream and how big it is.  Load or map
+ *	the kernel.  (Again, you're on your own.  This is the responsibility of
+ *	the caller so that the caller can choose whether to allocate a buffer,
+ *	load the kernel data into a predefined area of RAM, or directly map a
+ *	kernel file into the address space.  Note that technically it doesn't
+ *	matter whether the kernel data is even in the same file or stream as
+ *	the vblock, as long as the caller loads the right data.
+ *
+ *	Call vb2api_verify_kernel_data() on the kernel data.
+ *
+ *	If you ran out of kernels before finding a good one, call vb2api_fail()
+ *	with an appropriate recovery reason.
+ *
+ *	Set the VB2_CONTEXT_ALLOW_KERNEL_ROLL_FORWARD flag if the current
+ *	kernel partition has the successful flag (that is, it's already known
+ *	or assumed to be a functional kernel partition).
+ *
+ *	Call vb2api_kernel_phase3().  This cleans up from kernel verification
+ *	and updates the secure data if needed.
+ *
+ *	Lock down wherever you keep secdatak.  It should no longer be writable
+ *	this boot.
  */
 
 /**
@@ -443,6 +499,70 @@ int vb2api_get_pcr_digest(struct vb2_context *ctx,
 			  enum vb2_pcr_digest which_digest,
 			  uint8_t *dest,
 			  uint32_t *dest_size);
+
+/**
+ * Prepare for kernel verification stage.
+ *
+ * Must be called before other vb2api kernel functions.
+ *
+ * @param ctx		Vboot context
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2api_kernel_phase1(struct vb2_context *ctx);
+
+/**
+ * Load the verified boot block (vblock) for a kernel.
+ *
+ * This function may be called multiple times, to load and verify the
+ * vblocks from multiple kernel partitions.
+ *
+ * @param ctx		Vboot context
+ * @param stream	Kernel stream
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2api_load_kernel_vblock(struct vb2_context *ctx);
+
+/**
+ * Get the size and offset of the kernel data for the most recent vblock.
+ *
+ * Valid after a successful call to vb2api_load_kernel_vblock().
+ *
+ * @param ctx		Vboot context
+ * @param offset_ptr	Destination for offset in bytes of kernel data as
+ *			reported by vblock.
+ * @param size_ptr      Destination for size of kernel data in bytes.
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2api_get_kernel_size(struct vb2_context *ctx,
+			   uint32_t *offset_ptr,
+			   uint32_t *size_ptr);
+
+/**
+ * Verify kernel data using the previously loaded kernel vblock.
+ *
+ * Valid after a successful call to vb2api_load_kernel_vblock().  This allows
+ * the caller to load or map the kernel data, as appropriate, and pass the
+ * pointer to the kernel data into vboot.
+ *
+ * @param ctx		Vboot context
+ * @param buf		Pointer to kernel data
+ * @param size		Size of kernel data in bytes
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2api_verify_kernel_data(struct vb2_context *ctx,
+			      const void *buf,
+			      uint32_t size);
+
+/**
+ * Clean up after kernel verification.
+ *
+ * Call this after successfully loading a vblock and verifying kernel data,
+ * or if you've run out of boot devices and/or kernel partitions.
+ *
+ * This cleans up intermediate data structures in the vboot context, and
+ * updates the version in the secure data if necessary.
+ */
+int vb2api_kernel_phase3(struct vb2_context *ctx);
 
 /*****************************************************************************/
 /* APIs provided by the caller to verified boot */
