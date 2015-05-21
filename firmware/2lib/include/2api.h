@@ -177,17 +177,27 @@ struct vb2_context {
 	uint8_t secdatak[VB2_SECDATAK_SIZE];
 };
 
+/* Resource index for vb2ex_read_resource() */
 enum vb2_resource_index {
 
 	/* Google binary block */
 	VB2_RES_GBB,
 
 	/*
-	 * Verified boot block (keyblock+preamble).  Use VB2_CONTEXT_FW_SLOT_B
-	 * to determine whether this refers to slot A or slot B; vboot will
-	 * set that flag to the proper state before reading the vblock.
+	 * Firmware verified boot block (keyblock+preamble).  Use
+	 * VB2_CONTEXT_FW_SLOT_B to determine whether this refers to slot A or
+	 * slot B; vboot will set that flag to the proper state before reading
+	 * the vblock.
 	 */
 	VB2_RES_FW_VBLOCK,
+
+	/*
+	 * Kernel verified boot block (keyblock+preamble) for the current
+	 * kernel partition.  Used only by vb2api_kernel_load_vblock().
+	 * Contents are allowed to change between calls to that function (to
+	 * allow multiple kernels to be examined).
+	 */
+	VB2_RES_KERNEL_VBLOCK,
 };
 
 /* Digest ID for vbapi_get_pcr_digest() */

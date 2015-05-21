@@ -406,6 +406,27 @@ enum vb2_return_code {
 	/* Not enough space in work buffer for resource object */
 	VB2_ERROR_READ_RESOURCE_OBJECT_BUF,
 
+	/* Work buffer too small for header in vb2_load_kernel_keyblock() */
+	VB2_ERROR_KERNEL_KEYBLOCK_WORKBUF_HEADER,
+
+	/* Work buffer too small for keyblock in vb2_load_kernel_keyblock() */
+	VB2_ERROR_KERNEL_KEYBLOCK_WORKBUF,
+
+	/* Keyblock version out of range in vb2_load_kernel_keyblock() */
+	VB2_ERROR_KERNEL_KEYBLOCK_VERSION_RANGE,
+
+	/* Keyblock version rollback in vb2_load_kernel_keyblock() */
+	VB2_ERROR_KERNEL_KEYBLOCK_VERSION_ROLLBACK,
+
+	/*
+	 * Keyblock flags don't match current mode in
+	 * vb2_load_kernel_keyblock().
+	 */
+	VB2_ERROR_KERNEL_KEYBLOCK_DEV_FLAG,
+	VB2_ERROR_KERNEL_KEYBLOCK_REC_FLAG,
+
+
+
         /**********************************************************************
 	 * API-level errors
 	 */

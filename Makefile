@@ -722,6 +722,7 @@ TEST20_NAMES = \
 	tests/vb20_common2_tests \
 	tests/vb20_verify_fw.c \
 	tests/vb20_common3_tests \
+	tests/vb20_kernel_tests \
 	tests/vb20_misc_tests \
 	tests/vb20_rsa_padding_tests \
 	tests/vb20_verify_fw
@@ -1385,6 +1386,7 @@ run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common3_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/vb20_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_misc_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_api_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common_tests

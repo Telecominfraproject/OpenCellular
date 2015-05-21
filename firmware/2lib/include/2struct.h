@@ -31,12 +31,16 @@ enum vb2_shared_data_flags {
 	VB2_SD_FLAG_MANUAL_RECOVERY = (1 << 0),
 
 	/* Developer mode is enabled */
+	/* TODO: should have been VB2_SD_FLAG_DEV_MODE_ENABLED */
 	VB2_SD_DEV_MODE_ENABLED = (1 << 1),
 
 	/*
 	 * TODO: might be nice to add flags for why dev mode is enabled - via
 	 * gbb, virtual dev switch, or forced on for testing.
 	 */
+
+	/* Kernel keyblock was verified by signature (not just hash) */
+	VB2_SD_FLAG_KERNEL_SIGNED = (1 << 2),
 };
 
 /* Flags for vb2_shared_data.status */
@@ -101,6 +105,25 @@ struct vb2_shared_data {
 	uint32_t status;
 
 	/**********************************************************************
+	 * Data from kernel verification stage.
+	 *
+	 * TODO: shouldn't be part of the main struct, since that needlessly
+	 * uses more memory during firmware verification.
+	 */
+
+	/*
+	 * Version for the current kernel (top 16 bits = key, lower 16 bits =
+	 * kernel preamble).
+	 *
+	 * TODO: Make this a union to allow getting/setting those versions
+	 * separately?
+	 */
+	uint32_t kernel_version;
+
+	/* Kernel version from secdatak (must be <= kernel_version to boot) */
+	uint32_t kernel_version_secdatak;
+
+	/**********************************************************************
 	 * Temporary variables used during firmware verification.  These don't
 	 * really need to persist through to the OS, but there's nowhere else
 	 * we can put them.
@@ -150,6 +173,25 @@ struct vb2_shared_data {
 
 	/* Amount of data we still expect to hash */
 	uint32_t hash_remaining_size;
+
+	/**********************************************************************
+	 * Temporary variables used during kernel verification.  These don't
+	 * really need to persist through to the OS, but there's nowhere else
+	 * we can put them.
+	 *
+	 * TODO: make a union with the firmware verification temp variables,
+	 * or make both of them workbuf-allocated sub-structs, so that we can
+	 * overlap them so kernel variables don't bloat firmware verification
+	 * stage memory requirements.
+	 */
+
+	/*
+	 * Offset and size of packed kernel key in work buffer.  Size is 0 if
+	 * subkey is not stored in the work buffer.  Note that kernel key may
+	 * be inside the firmware preamble.
+	 */
+	uint32_t workbuf_kernel_key_offset;
+	uint32_t workbuf_kernel_key_size;
 
 } __attribute__((packed));
 

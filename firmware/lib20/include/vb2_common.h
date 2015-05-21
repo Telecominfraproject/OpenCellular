@@ -157,6 +157,22 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 			const struct vb2_workbuf *wb);
 
 /**
+ * Verify a key block using its hash.
+ *
+ * Header fields are also checked for sanity.  Does not verify key index or key
+ * block flags.  Use this for self-signed keyblocks in developer mode.
+ *
+ * @param block		Key block to verify
+ * @param size		Size of key block buffer
+ * @param key		Key to use to verify block
+ * @param wb		Work buffer
+ * @return VB2_SUCCESS, or non-zero error code if error.
+ */
+int vb2_verify_keyblock_hash(const struct vb2_keyblock *block,
+			     uint32_t size,
+			     const struct vb2_workbuf *wb);
+
+/**
  * Check the sanity of a firmware preamble using a public key.
  *
  * The signature in the preamble is destroyed during the check.

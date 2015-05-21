@@ -6,9 +6,228 @@
  */
 
 #include "2sysincludes.h"
+#include "2misc.h"
+#include "2nvstorage.h"
 #include "2rsa.h"
 #include "2sha.h"
 #include "vb2_common.h"
+
+static const uint8_t *vb2_signature_data_const(const struct vb2_signature *sig)
+{
+	return (uint8_t *)sig + sig->sig_offset;
+}
+
+int vb2_verify_keyblock_hash(const struct vb2_keyblock *block,
+			     uint32_t size,
+			     const struct vb2_workbuf *wb)
+{
+	const struct vb2_signature *sig = &block->keyblock_hash;
+	struct vb2_workbuf wblocal = *wb;
+	struct vb2_digest_context *dc;
+	uint8_t *digest;
+	uint32_t digest_size;
+	int rv;
+
+	/* Sanity check keyblock before attempting hash check of data */
+	rv = vb2_check_keyblock(block, size, sig);
+	if (rv)
+		return rv;
+
+	VB2_DEBUG("Checking key block hash...\n");
+
+	/* Digest goes at start of work buffer */
+	digest_size = vb2_digest_size(VB2_HASH_SHA512);
+	digest = vb2_workbuf_alloc(&wblocal, digest_size);
+	if (!digest)
+		return VB2_ERROR_VDATA_WORKBUF_DIGEST;
+
+	/* Hashing requires temp space for the context */
+	dc = vb2_workbuf_alloc(&wblocal, sizeof(*dc));
+	if (!dc)
+		return VB2_ERROR_VDATA_WORKBUF_HASHING;
+
+	rv = vb2_digest_init(dc, VB2_HASH_SHA512);
+	if (rv)
+		return rv;
+
+	rv = vb2_digest_extend(dc, (const uint8_t *)block, sig->data_size);
+	if (rv)
+		return rv;
+
+	rv = vb2_digest_finalize(dc, digest, digest_size);
+	if (rv)
+		return rv;
+
+	if (vb2_safe_memcmp(vb2_signature_data_const(sig), digest,
+			    digest_size) != 0) {
+		VB2_DEBUG("Invalid key block hash.\n");
+		return VB2_ERROR_KEYBLOCK_SIG_INVALID;
+	}
+
+	/* Success */
+	return VB2_SUCCESS;
+}
+
+int vb2_load_kernel_keyblock(struct vb2_context *ctx)
+{
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	struct vb2_workbuf wb;
+
+	uint8_t *key_data;
+	uint32_t key_size;
+	struct vb2_packed_key *packed_key;
+	struct vb2_public_key kernel_key;
+
+	struct vb2_keyblock *kb;
+	uint32_t block_size;
+
+	int rec_switch = (ctx->flags & VB2_CONTEXT_RECOVERY_MODE) != 0;
+	int dev_switch = (ctx->flags & VB2_CONTEXT_DEVELOPER_MODE) != 0;
+	int need_keyblock_valid = 1;
+	int keyblock_is_valid = 1;
+
+	int rv;
+
+	vb2_workbuf_from_ctx(ctx, &wb);
+
+	/*
+	 * The only time we don't need a valid keyblock is if we're in
+	 * developer mode and not set to require a signed kernel.
+	 */
+	if (dev_switch && !rec_switch &&
+	    !vb2_nv_get(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY))
+		need_keyblock_valid = 0;
+
+	/*
+	 * Clear any previous keyblock-valid flag (for example, from a previous
+	 * kernel where the keyblock was signed but the preamble failed
+	 * verification).
+	 */
+	sd->flags &= ~VB2_SD_FLAG_KERNEL_SIGNED;
+
+	/* Unpack the kernel key */
+	key_data = ctx->workbuf + sd->workbuf_kernel_key_offset;
+	key_size = sd->workbuf_kernel_key_size;
+	rv = vb2_unpack_key(&kernel_key, key_data, key_size);
+	if (rv)
+		return rv;
+
+	/* Load the kernel keyblock header after the root key */
+	kb = vb2_workbuf_alloc(&wb, sizeof(*kb));
+	if (!kb)
+		return VB2_ERROR_KERNEL_KEYBLOCK_WORKBUF_HEADER;
+
+	rv = vb2ex_read_resource(ctx, VB2_RES_KERNEL_VBLOCK, 0, kb,
+				 sizeof(*kb));
+	if (rv)
+		return rv;
+
+	block_size = kb->keyblock_size;
+
+	/*
+	 * Load the entire keyblock, now that we know how big it is.  Note that
+	 * we're loading the entire keyblock instead of just the piece after
+	 * the header.  That means we re-read the header.  But that's a tiny
+	 * amount of data, and it makes the code much more straightforward.
+	 */
+	kb = vb2_workbuf_realloc(&wb, sizeof(*kb), block_size);
+	if (!kb)
+		return VB2_ERROR_KERNEL_KEYBLOCK_WORKBUF;
+
+	rv = vb2ex_read_resource(ctx, VB2_RES_KERNEL_VBLOCK, 0, kb, block_size);
+	if (rv)
+		return rv;
+
+	/* Verify the keyblock */
+	rv = vb2_verify_keyblock(kb, block_size, &kernel_key, &wb);
+	if (rv) {
+		keyblock_is_valid = 0;
+		if (need_keyblock_valid)
+			return rv;
+
+		/* Signature is invalid, but hash may be fine */
+		rv = vb2_verify_keyblock_hash(kb, block_size, &wb);
+		if (rv)
+			return rv;
+	}
+
+	/* Check the key block flags against the current boot mode */
+	if (!(kb->keyblock_flags &
+	      (dev_switch ? VB2_KEY_BLOCK_FLAG_DEVELOPER_1 :
+	       VB2_KEY_BLOCK_FLAG_DEVELOPER_0))) {
+		VB2_DEBUG("Key block developer flag mismatch.\n");
+		keyblock_is_valid = 0;
+		if (need_keyblock_valid)
+			return VB2_ERROR_KERNEL_KEYBLOCK_DEV_FLAG;
+	}
+	if (!(kb->keyblock_flags &
+	      (rec_switch ? VB2_KEY_BLOCK_FLAG_RECOVERY_1 :
+	       VB2_KEY_BLOCK_FLAG_RECOVERY_0))) {
+		VB2_DEBUG("Key block recovery flag mismatch.\n");
+		keyblock_is_valid = 0;
+		if (need_keyblock_valid)
+			return VB2_ERROR_KERNEL_KEYBLOCK_REC_FLAG;
+	}
+
+	/* Check for keyblock rollback if not in recovery mode */
+	/* Key version is the upper 16 bits of the composite version */
+	if (!rec_switch && kb->data_key.key_version > 0xffff) {
+		keyblock_is_valid = 0;
+		if (need_keyblock_valid)
+			return VB2_ERROR_KERNEL_KEYBLOCK_VERSION_RANGE;
+	}
+	if (!rec_switch && kb->data_key.key_version <
+	    (sd->kernel_version_secdatak >> 16)) {
+		keyblock_is_valid = 0;
+		if (need_keyblock_valid)
+			return VB2_ERROR_KERNEL_KEYBLOCK_VERSION_ROLLBACK;
+	}
+
+	sd->kernel_version = kb->data_key.key_version << 16;
+
+	/*
+	 * At this point, we've checked everything.  The kernel keyblock is at
+	 * least self-consistent, and has either a valid signature or a valid
+	 * hash.  Track if it had a valid signature (that is, would we have
+	 * been willing to boot it even if developer mode was off).
+	 */
+	if (keyblock_is_valid)
+		sd->flags |= VB2_SD_FLAG_KERNEL_SIGNED;
+
+	/* Preamble follows the keyblock in the vblock */
+	sd->vblock_preamble_offset = kb->keyblock_size;
+
+	/*
+	 * Keep just the data key from the vblock.  This follows the kernel key
+	 * (which we might still need to verify the next kernel, if the
+	 * assoiciated kernel preamble and data don't verify).
+	 */
+	sd->workbuf_data_key_offset = ctx->workbuf_used;
+	key_data = ctx->workbuf + sd->workbuf_data_key_offset;
+	packed_key = (struct vb2_packed_key *)key_data;
+	memmove(packed_key, &kb->data_key, sizeof(*packed_key));
+	packed_key->key_offset = sizeof(*packed_key);
+	memmove(key_data + packed_key->key_offset,
+		(uint8_t*)&kb->data_key + kb->data_key.key_offset,
+		packed_key->key_size);
+
+	/* Save the packed key size */
+	sd->workbuf_data_key_size =
+		packed_key->key_offset + packed_key->key_size;
+
+	/*
+	 * Data key will persist in the workbuf after we return.
+	 *
+	 * Work buffer now contains:
+	 *   - vb2_shared_data
+	 *   - kernel key
+	 *   - packed kernel data key
+	 */
+	ctx->workbuf_used = sd->workbuf_data_key_offset +
+		sd->workbuf_data_key_size;
+
+	return VB2_SUCCESS;
+}
 
 int vb2_verify_kernel_preamble(struct vb2_kernel_preamble *preamble,
 			       uint32_t size,
