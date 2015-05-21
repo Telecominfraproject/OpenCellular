@@ -1004,4 +1004,25 @@ VbError_t VbExRegionRead(VbCommonParams *cparams,
 			 enum vb_firmware_region region, uint32_t offset,
 			 uint32_t size, void *buf);
 
+/**
+ * Verify Kernel Image loaded in memory.
+ *
+ * This routine is used by fastboot boot command to verify the kernel image in
+ * memory sent by the host device using fastboot protocol. It checks if the
+ * image in memory is signed using official recovery keys. In case of GBB
+ * override to allow full fastboot functionality, it checks image integrity, but
+ * does not check the image signature.
+ *
+ * @param cparams	Common parameters, e.g. use member caller_context
+ *			to point to useful context data
+ * @param kparams	kernel params
+ * @param boot_image	Image in memory that needs to be verified
+ * @param image_size	Size of the image in memory
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
+				  VbSelectAndLoadKernelParams *kparams,
+				  void *boot_image,
+				  size_t image_size);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */

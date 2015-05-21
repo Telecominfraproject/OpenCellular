@@ -1194,3 +1194,139 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	/* Pass through return value from boot path */
 	return retval;
 }
+
+VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
+				  VbSelectAndLoadKernelParams *kparams,
+				  void *boot_image,
+				  size_t image_size)
+{
+	VbError_t retval;
+	VbPublicKey* kernel_subkey = NULL;
+	uint8_t *kbuf;
+	VbKeyBlockHeader *key_block;
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
+	RSAPublicKey *data_key = NULL;
+	VbKernelPreambleHeader *preamble;
+	uint64_t body_offset;
+	int hash_only = 0;
+	int dev_switch;
+
+	if ((boot_image == NULL) || (image_size == 0))
+		return VBERROR_INVALID_PARAMETER;
+
+	/* Clear output params in case we fail. */
+	kparams->disk_handle = NULL;
+	kparams->partition_number = 0;
+	kparams->bootloader_address = 0;
+	kparams->bootloader_size = 0;
+	kparams->flags = 0;
+	Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
+
+	/* Populate pointers to all components in the image. */
+	kbuf = boot_image;
+	key_block = (VbKeyBlockHeader *)kbuf;
+	preamble = (VbKernelPreambleHeader *)(kbuf + key_block->key_block_size);
+	body_offset = key_block->key_block_size + preamble->preamble_size;
+
+	/* Read GBB Header */
+	cparams->bmp = NULL;
+	cparams->gbb = VbExMalloc(sizeof(*cparams->gbb));
+	retval = VbGbbReadHeader_static(cparams, cparams->gbb);
+	if (VBERROR_SUCCESS != retval) {
+		VBDEBUG(("Gbb read header failed.\n"));
+		return retval;
+	}
+
+	/*
+	 * We don't care verifying the image if:
+	 * 1. dev-mode switch is on and
+	 * 2. GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP is set.
+	 *
+	 * Check only the integrity of the image.
+	 */
+	dev_switch = shared->flags & VBSD_BOOT_DEV_SWITCH_ON;
+	if (dev_switch && (cparams->gbb->flags &
+			   GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP)) {
+		VBDEBUG(("Only performing integrity-check.\n"));
+		hash_only = 1;
+	} else {
+		/* Get recovery key. */
+		retval = VbGbbReadRecoveryKey(cparams, &kernel_subkey);
+		if (VBERROR_SUCCESS != retval) {
+			VBDEBUG(("Gbb Read Recovery key failed.\n"));
+			return retval;
+		}
+	}
+
+	/* If we fail at any step, retval returned would be invalid kernel. */
+	retval = VBERROR_INVALID_KERNEL_FOUND;
+
+	/* Verify the key block. */
+	if (0 != KeyBlockVerify(key_block, image_size, kernel_subkey,
+				hash_only)) {
+		VBDEBUG(("Verifying key block signature/hash failed.\n"));
+		goto fail;
+	}
+
+	/* Check the key block flags against the current boot mode. */
+	if (!(key_block->key_block_flags &
+	      (dev_switch ? KEY_BLOCK_FLAG_DEVELOPER_1 :
+	       KEY_BLOCK_FLAG_DEVELOPER_0))) {
+		VBDEBUG(("Key block developer flag mismatch.\n"));
+		if (hash_only == 0)
+			goto fail;
+	}
+
+	if (!(key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)) {
+		VBDEBUG(("Key block recovery flag mismatch.\n"));
+		if (hash_only == 0)
+			goto fail;
+	}
+
+	/* Get key for preamble/data verification from the key block. */
+	data_key = PublicKeyToRSA(&key_block->data_key);
+	if (!data_key) {
+		VBDEBUG(("Data key bad.\n"));
+		goto fail;
+	}
+
+	/* Verify the preamble, which follows the key block */
+	if ((0 != VerifyKernelPreamble(preamble,
+				       image_size -
+				       key_block->key_block_size,
+				       data_key))) {
+		VBDEBUG(("Preamble verification failed.\n"));
+		goto fail;
+	}
+
+	VBDEBUG(("Kernel preamble is good.\n"));
+
+	/* Verify kernel data */
+	if (0 != VerifyData((const uint8_t *)(kbuf + body_offset),
+			    image_size - body_offset,
+			    &preamble->body_signature, data_key)) {
+		VBDEBUG(("Kernel data verification failed.\n"));
+		goto fail;
+	}
+
+	VBDEBUG(("Kernel is good.\n"));
+
+	/* Fill in output parameters. */
+	kparams->kernel_buffer = kbuf + body_offset;
+	kparams->kernel_buffer_size = image_size - body_offset;
+	kparams->bootloader_address = preamble->bootloader_address;
+	kparams->bootloader_size = preamble->bootloader_size;
+	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
+		kparams->flags = preamble->flags;
+
+	retval = VBERROR_SUCCESS;
+
+fail:
+	VbApiKernelFree(cparams);
+	if (NULL != data_key)
+		RSAPublicKeyFree(data_key);
+	if (NULL != kernel_subkey)
+		VbExFree(kernel_subkey);
+	return retval;
+}
