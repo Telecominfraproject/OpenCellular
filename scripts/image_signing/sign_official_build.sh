@@ -663,7 +663,13 @@ sign_image_file() {
   resign_firmware_payload "${output}"
   # We do NOT strip /boot for factory installer, since some devices need it to
   # boot EFI. crbug.com/260512 would obsolete this requirement.
-  if [[ "${image_type}" != "factory_install" ]]; then
+  #
+  # We also do NOT strip /boot for legacy BIOS devices.  This is because
+  # "cros_installer postinst" on legacy BIOS relies on presence of /boot in
+  # rootfs.  We infer the BIOS type from the kernel config.
+  local kerna_config="$(grab_kernel_config "${input}" 2)"
+  if [[ "${image_type}" != "factory_install" &&
+        " ${kerna_config} " != *" cros_legacy "* ]]; then
     "${SCRIPT_DIR}/strip_boot_from_image.sh" --image "${output}"
   fi
   update_rootfs_hash "${output}" "${dm_partno}" \
