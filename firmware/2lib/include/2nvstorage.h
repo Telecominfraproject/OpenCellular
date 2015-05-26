@@ -51,6 +51,11 @@ enum vb2_nv_param {
 	/* Only boot Google-signed images in developer mode.  0=no, 1=yes. */
 	VB2_NV_DEV_BOOT_SIGNED_ONLY,
 	/*
+	 * Allow full fastboot capability in firmware in developer mode.
+	 * 0=no, 1=yes.
+	 */
+	VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP,
+	/*
 	 * Set by userspace to request that RO firmware disable dev-mode on the
 	 * next boot. This is likely only possible if the dev-switch is
 	 * virtual.
@@ -80,6 +85,9 @@ enum vb2_nv_param {
 	VB2_NV_FW_PREV_RESULT,
 	/* Request wipeout of the device by the app. */
 	VB2_NV_REQ_WIPEOUT,
+
+	/* Fastboot: Unlock in firmware, 0=disabled, 1=enabled. */
+	VB2_NV_FASTBOOT_UNLOCK_IN_FW,
 };
 
 /* Firmware result codes for VB2_NV_FW_RESULT and VB2_NV_FW_PREV_RESULT */

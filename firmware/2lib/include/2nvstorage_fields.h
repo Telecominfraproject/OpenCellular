@@ -28,7 +28,8 @@ enum vb2_nv_offset {
 	VB2_NV_OFFS_TPM = 5,
 	VB2_NV_OFFS_RECOVERY_SUBCODE = 6,
 	VB2_NV_OFFS_BOOT2 = 7,
-	/* Offsets 8-10 are currently unused */
+	VB2_NV_OFFS_FASTBOOT = 8,
+	/* Offsets 9-10 are currently unused */
 	VB2_NV_OFFS_KERNEL = 11, /* 11-14; field is 32 bits */
 	/* CRC must be last field */
 	VB2_NV_OFFS_CRC = 15
@@ -56,13 +57,17 @@ enum vb2_nv_offset {
 #define VB2_NV_BOOT2_PREV_RESULT_SHIFT 4  /* Number of bits to shift result */
 #define VB2_NV_BOOT2_PREV_TRIED                0x40
 
-/* Fields in VB2_NV_OFFS_DEV (unused = 0xf8) */
+/* Fields in VB2_NV_OFFS_DEV (unused = 0xf0) */
 #define VB2_NV_DEV_FLAG_USB                    0x01
 #define VB2_NV_DEV_FLAG_SIGNED_ONLY            0x02
 #define VB2_NV_DEV_FLAG_LEGACY                 0x04
+#define VB2_NV_DEV_FLAG_FASTBOOT_FULL_CAP      0x08
 
 /* Fields in VB2_NV_OFFS_TPM (unused = 0xfc) */
 #define VB2_NV_TPM_CLEAR_OWNER_REQUEST         0x01
 #define VB2_NV_TPM_CLEAR_OWNER_DONE            0x02
+
+/* Fields in VB2_NV_OFFS_FASTBOOT (unused = 0xfe) */
+#define VB2_NV_FASTBOOT_FLAG_UNLOCK_IN_FW      0x01
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2NVSTORAGE_FIELDS_H_ */

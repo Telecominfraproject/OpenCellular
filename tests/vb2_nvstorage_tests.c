@@ -43,11 +43,13 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_DEV_BOOT_USB, 0, 1, 0, "dev boot usb"},
 	{VB2_NV_DEV_BOOT_LEGACY, 0, 1, 0, "dev boot legacy"},
 	{VB2_NV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
+	{VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP, 0, 1, 0, "dev boot fb full cap"},
 	{VB2_NV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
 	{VB2_NV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
 	{VB2_NV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
 	{VB2_NV_OPROM_NEEDED, 0, 1, 0, "oprom needed"},
 	{VB2_NV_BACKUP_NVRAM_REQUEST, 0, 1, 0, "backup nvram request"},
+	{VB2_NV_FASTBOOT_UNLOCK_IN_FW, 0, 1, 0, "fastboot unlock in fw"},
 	{0, 0, 0, 0, NULL}
 };
 

@@ -135,6 +135,10 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 	case VB2_NV_DEV_BOOT_SIGNED_ONLY:
 		return GETBIT(VB2_NV_OFFS_DEV, VB2_NV_DEV_FLAG_SIGNED_ONLY);
 
+	case VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP:
+		return GETBIT(VB2_NV_OFFS_DEV,
+			      VB2_NV_DEV_FLAG_FASTBOOT_FULL_CAP);
+
 	case VB2_NV_DISABLE_DEV_REQUEST:
 		return GETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_DISABLE_DEV);
 
@@ -152,6 +156,10 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 
 	case VB2_NV_REQ_WIPEOUT:
 		return GETBIT(VB2_NV_OFFS_HEADER , VB2_NV_HEADER_WIPEOUT);
+
+	case VB2_NV_FASTBOOT_UNLOCK_IN_FW:
+		return GETBIT(VB2_NV_OFFS_FASTBOOT,
+			      VB2_NV_FASTBOOT_FLAG_UNLOCK_IN_FW);
 	}
 
 	/*
@@ -275,6 +283,10 @@ void vb2_nv_set(struct vb2_context *ctx,
 		SETBIT(VB2_NV_OFFS_DEV, VB2_NV_DEV_FLAG_SIGNED_ONLY);
 		break;
 
+	case VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP:
+		SETBIT(VB2_NV_OFFS_DEV, VB2_NV_DEV_FLAG_FASTBOOT_FULL_CAP);
+		break;
+
 	case VB2_NV_DISABLE_DEV_REQUEST:
 		SETBIT(VB2_NV_OFFS_BOOT, VB2_NV_BOOT_DISABLE_DEV);
 		break;
@@ -298,6 +310,11 @@ void vb2_nv_set(struct vb2_context *ctx,
 	case VB2_NV_REQ_WIPEOUT:
 		SETBIT(VB2_NV_OFFS_HEADER , VB2_NV_HEADER_WIPEOUT);
 		break;
+
+	case VB2_NV_FASTBOOT_UNLOCK_IN_FW:
+		SETBIT(VB2_NV_OFFS_FASTBOOT, VB2_NV_FASTBOOT_FLAG_UNLOCK_IN_FW);
+		break;
+
 	}
 
 	/*
