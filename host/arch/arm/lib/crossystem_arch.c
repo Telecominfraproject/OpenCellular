@@ -484,7 +484,7 @@ int VbReadNvStorage(VbNvContext* vnc) {
   media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
   if (!strcmp(media, "disk"))
     return VbReadNvStorage_disk(vnc);
-  if (!strcmp(media, "mkbp") || !strcmp(media, "flash"))
+  if (!strcmp(media, "cros-ec") || !strcmp(media, "flash"))
     return VbReadNvStorage_mosys(vnc);
   return -1;
 }
@@ -497,7 +497,7 @@ int VbWriteNvStorage(VbNvContext* vnc) {
   media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
   if (!strcmp(media, "disk"))
     return VbWriteNvStorage_disk(vnc);
-  if (!strcmp(media, "mkbp") || !strcmp(media, "flash"))
+  if (!strcmp(media, "cros-ec") || !strcmp(media, "flash"))
     return VbWriteNvStorage_mosys(vnc);
   return -1;
 }
