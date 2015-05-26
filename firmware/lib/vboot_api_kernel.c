@@ -1330,3 +1330,34 @@ fail:
 		VbExFree(kernel_subkey);
 	return retval;
 }
+
+VbError_t VbUnlockDevice(void)
+{
+	VBDEBUG(("%s() Enabling dev-mode...\n", __func__));
+	if (TPM_SUCCESS != SetVirtualDevMode(1))
+		return VBERROR_TPM_SET_BOOT_MODE_STATE;
+
+	VBDEBUG(("%s() Mode change will take effect on next reboot.\n",
+		 __func__));
+	return VBERROR_SUCCESS;
+}
+
+VbError_t VbLockDevice(void)
+{
+	VbExNvStorageRead(vnc.raw);
+	VbNvSetup(&vnc);
+
+	VBDEBUG(("%s() - Storing request to leave dev-mode.\n",
+		 __func__));
+	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST,
+		1);
+
+	VbNvTeardown(&vnc);
+	if (vnc.raw_changed)
+		VbExNvStorageWrite(vnc.raw);
+
+	VBDEBUG(("%s() Mode change will take effect on next reboot.\n",
+		 __func__));
+
+	return VBERROR_SUCCESS;
+}

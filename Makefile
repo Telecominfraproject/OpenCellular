@@ -686,6 +686,7 @@ TEST_NAMES = \
 	tests/vboot_api_kernel3_tests \
 	tests/vboot_api_kernel4_tests \
 	tests/vboot_api_kernel5_tests \
+	tests/vboot_api_kernel6_tests \
 	tests/vboot_audio_tests \
 	tests/vboot_common_tests \
 	tests/vboot_common2_tests \
@@ -1365,6 +1366,7 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel3_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel4_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel5_tests
+	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel6_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_audio_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}

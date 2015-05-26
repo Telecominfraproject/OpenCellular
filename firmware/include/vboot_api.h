@@ -1028,4 +1028,33 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 				  void *boot_image,
 				  size_t image_size);
 
+/**
+ * Fastboot API to enter dev mode.
+ *
+ * This routine is used by fastboot oem unlock command to switch the device into
+ * dev mode.
+ *
+ * NOTE: The caller MUST be in read-only firmware, and MUST have just obtained
+ * explicit physical confirmation from the user via a trusted input method
+ * before calling this function! Also, on successful return from this function,
+ * the caller needs to reboot the device immediately for changes to take effect.
+ *
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbUnlockDevice(void);
+
+/**
+ * Fastboot API to enter normal mode.
+ *
+ * This routine is used by fastboot oem lock command to switch the device into
+ * normal mode.
+ *
+ * NOTE: On successful return from this function, the caller needs to reboot the
+ * device immediately for changes to take effect. This routine just stores a
+ * request, which will be handled by RO firmware on next reboot.
+ *
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbLockDevice(void);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */
