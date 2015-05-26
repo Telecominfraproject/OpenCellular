@@ -110,6 +110,9 @@ typedef enum VbNvParam {
 	/* Wipeout request from firmware present. */
 	VBNV_FW_REQ_WIPEOUT,
 
+	/* Fastboot: Unlock in firmware, 0=disabled, 1=enabled. */
+	VBNV_FASTBOOT_UNLOCK_IN_FW,
+
 } VbNvParam;
 
 /* Result of trying the firmware in VBNV_FW_TRIED */
