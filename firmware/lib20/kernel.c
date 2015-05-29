@@ -9,12 +9,34 @@
 #include "2misc.h"
 #include "2nvstorage.h"
 #include "2rsa.h"
+#include "2secdata.h"
 #include "2sha.h"
 #include "vb2_common.h"
 
 static const uint8_t *vb2_signature_data_const(const struct vb2_signature *sig)
 {
 	return (uint8_t *)sig + sig->sig_offset;
+}
+
+/**
+ * Returns non-zero if the kernel needs to have a valid signature, instead of
+ * just a valid hash.
+ */
+static int vb2_need_signed_kernel(struct vb2_context *ctx)
+{
+	/* Recovery kernels are always signed */
+	if (ctx->flags & VB2_CONTEXT_RECOVERY_MODE)
+		return 1;
+
+	/* Normal mode kernels are always signed */
+	if (!(ctx->flags & VB2_CONTEXT_DEVELOPER_MODE))
+		return 1;
+
+	/* Developers may require signed kernels */
+	if (vb2_nv_get(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY))
+		return 1;
+
+	return 0;
 }
 
 int vb2_verify_keyblock_hash(const struct vb2_keyblock *block,
@@ -83,20 +105,12 @@ int vb2_load_kernel_keyblock(struct vb2_context *ctx)
 
 	int rec_switch = (ctx->flags & VB2_CONTEXT_RECOVERY_MODE) != 0;
 	int dev_switch = (ctx->flags & VB2_CONTEXT_DEVELOPER_MODE) != 0;
-	int need_keyblock_valid = 1;
+	int need_keyblock_valid = vb2_need_signed_kernel(ctx);
 	int keyblock_is_valid = 1;
 
 	int rv;
 
 	vb2_workbuf_from_ctx(ctx, &wb);
-
-	/*
-	 * The only time we don't need a valid keyblock is if we're in
-	 * developer mode and not set to require a signed kernel.
-	 */
-	if (dev_switch && !rec_switch &&
-	    !vb2_nv_get(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY))
-		need_keyblock_valid = 0;
 
 	/*
 	 * Clear any previous keyblock-valid flag (for example, from a previous
@@ -327,5 +341,104 @@ int vb2_verify_kernel_preamble(struct vb2_kernel_preamble *preamble,
 	}
 
 	/* Success */
+	return VB2_SUCCESS;
+}
+
+int vb2_load_kernel_preamble(struct vb2_context *ctx)
+{
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	struct vb2_workbuf wb;
+
+	uint8_t *key_data = ctx->workbuf + sd->workbuf_data_key_offset;
+	uint32_t key_size = sd->workbuf_data_key_size;
+	struct vb2_public_key data_key;
+
+	/* Preamble goes in the next unused chunk of work buffer */
+	/* TODO: what's the minimum workbuf size?  Kernel preamble is usually
+	 * padded to around 64KB. */
+	struct vb2_kernel_preamble *pre;
+	uint32_t pre_size;
+
+	int rv;
+
+	vb2_workbuf_from_ctx(ctx, &wb);
+
+	/* Unpack the kernel data key */
+	if (!sd->workbuf_data_key_size)
+		return VB2_ERROR_KERNEL_PREAMBLE2_DATA_KEY;
+
+	rv = vb2_unpack_key(&data_key, key_data, key_size);
+	if (rv)
+		return rv;
+
+	/* Load the kernel preamble header */
+	pre = vb2_workbuf_alloc(&wb, sizeof(*pre));
+	if (!pre)
+		return VB2_ERROR_KERNEL_PREAMBLE2_WORKBUF_HEADER;
+
+	rv = vb2ex_read_resource(ctx, VB2_RES_KERNEL_VBLOCK,
+				 sd->vblock_preamble_offset,
+				 pre, sizeof(*pre));
+	if (rv)
+		return rv;
+
+	pre_size = pre->preamble_size;
+
+	/* Load the entire preamble, now that we know how big it is */
+	pre = vb2_workbuf_realloc(&wb, sizeof(*pre), pre_size);
+	if (!pre)
+		return VB2_ERROR_KERNEL_PREAMBLE2_WORKBUF;
+
+	rv = vb2ex_read_resource(ctx, VB2_RES_KERNEL_VBLOCK,
+				 sd->vblock_preamble_offset,
+				 pre, pre_size);
+	if (rv)
+		return rv;
+
+	/*
+	 * Work buffer now contains:
+	 *   - vb2_shared_data
+	 *   - kernel key
+	 *   - packed kernel data key
+	 *   - kernel preamble
+	 */
+
+	/* Verify the preamble */
+	rv = vb2_verify_kernel_preamble(pre, pre_size, &data_key, &wb);
+	if (rv)
+		return rv;
+
+	/*
+	 * Kernel preamble version is the lower 16 bits of the composite kernel
+	 * version.
+	 */
+	if (pre->kernel_version > 0xffff)
+		return VB2_ERROR_KERNEL_PREAMBLE_VERSION_RANGE;
+
+	/* Combine with the key version from vb2_load_kernel_keyblock() */
+	sd->kernel_version |= pre->kernel_version;
+
+	if (vb2_need_signed_kernel(ctx) &&
+	    sd->kernel_version < sd->kernel_version_secdatak)
+		return VB2_ERROR_KERNEL_PREAMBLE_VERSION_ROLLBACK;
+
+	/* Keep track of where we put the preamble */
+	sd->workbuf_preamble_offset = vb2_offset_of(ctx->workbuf, pre);
+	sd->workbuf_preamble_size = pre_size;
+
+	/*
+	 * Preamble will persist in work buffer after we return.
+	 *
+	 * Work buffer now contains:
+	 *   - vb2_shared_data
+	 *   - kernel key
+	 *   - packed kernel data key
+	 *   - kernel preamble
+	 *
+	 * TODO: we could move the preamble down over the kernel data key
+	 * since we don't need it anymore.
+	 */
+	ctx->workbuf_used = sd->workbuf_preamble_offset + pre_size;
+
 	return VB2_SUCCESS;
 }

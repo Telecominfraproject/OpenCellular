@@ -18,7 +18,7 @@
 #include "test_common.h"
 
 /* Common context for tests */
-static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE]
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE]
 	__attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 static struct vb2_workbuf wb;
 static struct vb2_context cc;
@@ -50,6 +50,7 @@ static struct {
 static int mock_read_res_fail_on_call;
 static int mock_unpack_key_retval;
 static int mock_verify_keyblock_retval;
+static int mock_verify_preamble_retval;
 
 /* Type of test to reset for */
 enum reset_type {
@@ -95,6 +96,7 @@ static void reset_common_data(enum reset_type t)
 	mock_read_res_fail_on_call = 0;
 	mock_unpack_key_retval = VB2_SUCCESS;
 	mock_verify_keyblock_retval = VB2_SUCCESS;
+	mock_verify_preamble_retval = VB2_SUCCESS;
 
 	/* Set up mock data for verifying keyblock */
 	sd->kernel_version_secdatak = 0x20002;
@@ -179,6 +181,14 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 			const struct vb2_workbuf *wb)
 {
 	return mock_verify_keyblock_retval;
+}
+
+int vb2_verify_kernel_preamble(struct vb2_kernel_preamble *preamble,
+			       uint32_t size,
+			       const struct vb2_public_key *key,
+			       const struct vb2_workbuf *wb)
+{
+	return mock_verify_preamble_retval;
 }
 
 /* Tests */
@@ -382,13 +392,90 @@ static void load_kernel_keyblock_tests(void)
 	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
 	TEST_SUCC(vb2_load_kernel_keyblock(&cc),
 		  "Kernel keyblock rollback rec");
+}
 
+static void load_kernel_preamble_tests(void)
+{
+	struct vb2_kernel_preamble *pre = &mock_vblock.p.pre;
+	int wb_used_before;
+	//uint32_t v;
+
+	/* Test successful call */
+	reset_common_data(FOR_PREAMBLE);
+	wb_used_before = cc.workbuf_used;
+	TEST_SUCC(vb2_load_kernel_preamble(&cc), "preamble good");
+	TEST_EQ(sd->kernel_version, 0x20002, "combined version");
+	TEST_EQ(sd->workbuf_preamble_offset,
+		(wb_used_before + (VB2_WORKBUF_ALIGN - 1)) &
+		~(VB2_WORKBUF_ALIGN - 1),
+		"preamble offset");
+	TEST_EQ(sd->workbuf_preamble_size, pre->preamble_size, "preamble size");
+	TEST_EQ(cc.workbuf_used,
+		sd->workbuf_preamble_offset + sd->workbuf_preamble_size,
+		"workbuf used");
+
+	/* Expected failures */
+	reset_common_data(FOR_PREAMBLE);
+	sd->workbuf_data_key_size = 0;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_KERNEL_PREAMBLE2_DATA_KEY,
+		"preamble no data key");
+
+	reset_common_data(FOR_PREAMBLE);
+	mock_unpack_key_retval = VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
+		"preamble unpack data key");
+
+	reset_common_data(FOR_PREAMBLE);
+	cc.workbuf_used = cc.workbuf_size -
+		sizeof(struct vb2_kernel_preamble) + 8;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_KERNEL_PREAMBLE2_WORKBUF_HEADER,
+		"preamble not enough workbuf for header");
+
+	reset_common_data(FOR_PREAMBLE);
+	sd->vblock_preamble_offset = sizeof(mock_vblock);
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_EX_READ_RESOURCE_SIZE,
+		"preamble read header");
+
+	reset_common_data(FOR_PREAMBLE);
+	cc.workbuf_used = cc.workbuf_size - sizeof(mock_vblock.p) + 8;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_KERNEL_PREAMBLE2_WORKBUF,
+		"preamble not enough workbuf");
+
+	reset_common_data(FOR_PREAMBLE);
+	pre->preamble_size = sizeof(mock_vblock);
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_EX_READ_RESOURCE_SIZE,
+		"preamble read full");
+
+	reset_common_data(FOR_PREAMBLE);
+	mock_verify_preamble_retval = VB2_ERROR_MOCK;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_MOCK,
+		"preamble verify");
+
+	reset_common_data(FOR_PREAMBLE);
+	pre->kernel_version = 0x10000;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_KERNEL_PREAMBLE_VERSION_RANGE,
+		"preamble version range");
+
+	reset_common_data(FOR_PREAMBLE);
+	pre->kernel_version = 1;
+	TEST_EQ(vb2_load_kernel_preamble(&cc),
+		VB2_ERROR_KERNEL_PREAMBLE_VERSION_ROLLBACK,
+		"preamble version rollback");
 }
 
 int main(int argc, char* argv[])
 {
 	verify_keyblock_hash_tests();
 	load_kernel_keyblock_tests();
+	load_kernel_preamble_tests();
 
 	return gTestSuccess ? 0 : 255;
 }

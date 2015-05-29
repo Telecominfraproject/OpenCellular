@@ -36,12 +36,23 @@
 #define VB2_SECDATAK_SIZE 14
 
 /*
- * Recommended size of work buffer.
+ * Recommended size of work buffer for firmware verification stage
  *
  * TODO: The recommended size really depends on which key algorithms are
  * used.  Should have a better / more accurate recommendation than this.
  */
 #define VB2_WORKBUF_RECOMMENDED_SIZE (12 * 1024)
+
+/*
+ * Recommended size of work buffer for kernel verification stage
+ *
+ * This is bigger because vboot 2.0 kernel preambles are usually padded to
+ * 64 KB.
+ *
+ * TODO: The recommended size really depends on which key algorithms are
+ * used.  Should have a better / more accurate recommendation than this.
+ */
+#define VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE (80 * 1024)
 
 /* Recommended buffer size for vb2api_get_pcr_digest */
 #define VB2_PCR_DIGEST_RECOMMENDED_SIZE 32

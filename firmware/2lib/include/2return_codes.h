@@ -425,7 +425,23 @@ enum vb2_return_code {
 	VB2_ERROR_KERNEL_KEYBLOCK_DEV_FLAG,
 	VB2_ERROR_KERNEL_KEYBLOCK_REC_FLAG,
 
+	/* Missing firmware data key in vb2_load_kernel_preamble() */
+	VB2_ERROR_KERNEL_PREAMBLE2_DATA_KEY,
 
+	/* Work buffer too small for header in vb2_load_kernel_preamble() */
+	VB2_ERROR_KERNEL_PREAMBLE2_WORKBUF_HEADER,
+
+	/* Work buffer too small for preamble in vb2_load_kernel_preamble() */
+	VB2_ERROR_KERNEL_PREAMBLE2_WORKBUF,
+
+	/* Kernel version out of range in vb2_load_kernel_preamble() */
+	VB2_ERROR_KERNEL_PREAMBLE_VERSION_RANGE,
+
+	/* Kernel version rollback in vb2_load_kernel_preamble() */
+	VB2_ERROR_KERNEL_PREAMBLE_VERSION_ROLLBACK,
+
+	/* Kernel preamble not loaded before calling vb2api_get_kernel_size() */
+	VB2_ERROR_API_GET_KERNEL_SIZE_PREAMBLE,
 
         /**********************************************************************
 	 * API-level errors

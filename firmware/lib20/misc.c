@@ -272,6 +272,12 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	 * If this is a newer version than in secure storage, and we
 	 * successfully booted the same slot last boot, roll forward the
 	 * version in secure storage.
+	 *
+	 * Note that this happens before we've verified the firmware data this
+	 * boot; we're relying on the indicator that the last boot was
+	 * successful.  That's ok, because even if the firmware data has a
+	 * valid hash, the only way we can know if it's functional is to trust
+	 * the status from the last boot.
 	 */
 	if (sd->fw_version > sd->fw_version_secdata &&
 	    sd->last_fw_slot == sd->fw_slot &&
