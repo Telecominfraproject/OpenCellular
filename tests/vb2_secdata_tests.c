@@ -46,6 +46,10 @@ static void secdata_test(void)
 	TEST_EQ(vb2_secdata_init(&c),
 		 VB2_ERROR_SECDATA_CRC, "Init blank CRC");
 
+	/* Ensure zeroed buffers are invalid (coreboot relies on this) */
+	memset(c.secdata, 0, sizeof(c.secdata));
+	TEST_EQ(vb2_secdata_init(&c), VB2_ERROR_SECDATA_ZERO, "Zeroed buffer");
+
 	/* Create good data */
 	TEST_SUCC(vb2_secdata_create(&c), "Create");
 	TEST_SUCC(vb2_secdata_check_crc(&c), "Check created CRC");

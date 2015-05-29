@@ -20,6 +20,10 @@ int vb2_secdata_check_crc(const struct vb2_context *ctx)
 	if (sec->crc8 != vb2_crc8(sec, offsetof(struct vb2_secdata, crc8)))
 		return VB2_ERROR_SECDATA_CRC;
 
+	/* CRC(<000...00>) is 0, so check version as well (should never be 0) */
+	if (!sec->struct_version)
+		return VB2_ERROR_SECDATA_ZERO;
+
 	return VB2_SUCCESS;
 }
 
