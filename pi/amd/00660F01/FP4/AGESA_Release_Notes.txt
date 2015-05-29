@@ -1,0 +1,30 @@
+﻿                        Binary PI Release Notes for
+                            -----------------
+         Merlin Falcon (Carrizo) Platform Initialization (CarrizoPI)
+
+
+=============================================================================
+AGESA PI Version:  1.0.0.7                 Test Board: Bettong Alfa
+Binary PI version: 1.1                     Binary PI Build Date: May 29 2015
+=============================================================================
+1. Update to CarrizoPI version 1.0.0.7
+
+=============================================================================
+AGESA PI Version:  1.0.0.2                 Test Board: Bettong Alfa
+Binary PI version: 1.0                     Binary PI Build Date: May 19 2015
+=============================================================================
+1. Support 2133MHz dimm and enable 35W TDP
+     Add two macros in buildOpts.c
+     #define BLDCFG_SYSTEM_CONFIGURATION           2
+     #define BLDCFG_AMD_TDP_LIMIT                  35000
+2. Enable HDMI audio
+     Add a macro in buildOpts.c
+     #define BLDCFG_CFG_GNB_HD_AUDIO               TRUE
+3. Add PSP initialization code
+     Add PspMboxBiosCmdDramInfo in AmdInitEnv
+     Add PspMboxBiosCmdExitBootServices in AmdInitLate
+4. Pull up GPIO86 (use SSD) and GPIO64 (enable network adapter)
+     add a gpio array "merlin_falcon_gpio" to pull up GPIO86 and GPIO64,
+     then add a macro in buildOpts.c
+     #define BLDCFG_FCH_GPIO_CONTROL_LIST          (&merlin_falcon_gpio[0])
+     This can be override by oem_bettong_gpio in src/mainboard/amd/bettong/BiosCallOuts.c

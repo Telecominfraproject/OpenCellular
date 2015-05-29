@@ -1,0 +1,29 @@
+//----------------------------------------------------------------------------
+// PSP FW Delivery Release Note
+//
+// Copyright 2015, Advanced Micro Devices, Inc.
+// Image Version number: PSP BootLoader: 0.2.0.2B, PSP SecureOS: 0.2.0.2B
+// Date:   Apr 28, 2015
+//----------------------------------------------------------------------------
+
+Content:
+	PSP FW Deliverables for Carrizo Bring Up.
+	This Build is compiled using the ARM license from the AMD license server.
+
+Files:
+	PspBootLoader_prod_CZ.sbin    - PSP offchip BootLoader, signed with production key version
+	PspRecoveryBootLoader_prod_CZ.sbin    - PSP offchip Recovery BootLoader, signed with production key version
+	PspAgesaS3Resume_prod_CZ.csbin - PSP Agesa S3 resume, signed with production key version and compressed
+	PspSecureOs_prod_CZ.csbin      - PSP secure OS, signed with production key version and compressed
+	PspTrustlets_prod_CZ.cbin      - PSP secure OS system trustlets, not signed but compressed
+
+Features and fixes:
+1. BUG462694: [CZ DDR4] S3 Resume failed with PC A05A/BB07 in Agesa code. WARNING! Does not compatible with weekly BIOSs prior 05/06
+2. ENH464884: fTPM HLK Stress test fixing instability issue on Win8.1 and Win10.
+3. ENH464884: fTPM Fix 192 Gy curve value. Updated fTPM Trustlet.
+4. OBS460342: Update White List for Token Secure Unlock.
+5. Code base updated up to CL#29115.
+
+WARNING!
+New Agesa S3 Resume binary image (PspAgesaS3Resume_prod_CZ.csbin) does not compatible with old BIOSs
+prior May 6, 2015.
