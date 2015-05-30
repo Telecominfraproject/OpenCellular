@@ -1223,11 +1223,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	kparams->flags = 0;
 	Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
-	/* Populate pointers to all components in the image. */
 	kbuf = boot_image;
-	key_block = (VbKeyBlockHeader *)kbuf;
-	preamble = (VbKernelPreambleHeader *)(kbuf + key_block->key_block_size);
-	body_offset = key_block->key_block_size + preamble->preamble_size;
 
 	/* Read GBB Header */
 	cparams->bmp = NULL;
@@ -1263,6 +1259,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	retval = VBERROR_INVALID_KERNEL_FOUND;
 
 	/* Verify the key block. */
+	key_block = (VbKeyBlockHeader *)kbuf;
 	if (0 != KeyBlockVerify(key_block, image_size, kernel_subkey,
 				hash_only)) {
 		VBDEBUG(("Verifying key block signature/hash failed.\n"));
@@ -1292,6 +1289,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	}
 
 	/* Verify the preamble, which follows the key block */
+	preamble = (VbKernelPreambleHeader *)(kbuf + key_block->key_block_size);
 	if ((0 != VerifyKernelPreamble(preamble,
 				       image_size -
 				       key_block->key_block_size,
@@ -1303,6 +1301,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	VBDEBUG(("Kernel preamble is good.\n"));
 
 	/* Verify kernel data */
+	body_offset = key_block->key_block_size + preamble->preamble_size;
 	if (0 != VerifyData((const uint8_t *)(kbuf + body_offset),
 			    image_size - body_offset,
 			    &preamble->body_signature, data_key)) {
