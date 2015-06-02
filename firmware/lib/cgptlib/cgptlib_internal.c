@@ -370,6 +370,12 @@ int GetEntrySuccessful(const GptEntry *e)
 
 int GetEntryPriority(const GptEntry *e)
 {
+	int ret = VbExOverrideGptEntryPriority(e);
+
+	/* Ensure that the override priority is valid. */
+	if ((ret > 0) && (ret < 16))
+		return ret;
+
 	return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_PRIORITY_MASK) >>
 		CGPT_ATTRIBUTE_PRIORITY_OFFSET;
 }

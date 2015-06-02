@@ -53,6 +53,18 @@ static const Guid guid_rootfs = GPT_ENT_TYPE_CHROMEOS_ROOTFS;
 const char *progname = "CGPT-TEST";
 const char *command = "TEST";
 
+static int override_priority = 0;
+static int override_counter = 0;
+
+uint8_t VbExOverrideGptEntryPriority(const GptEntry *e)
+{
+	if (override_counter == 0)
+		return override_priority;
+
+	override_counter--;
+	return 0;
+}
+
 /*
  * Copy a random-for-this-program-only Guid into the dest. The num parameter
  * completely determines the Guid.
@@ -1064,15 +1076,48 @@ static int EntryAttributeGetSetTest(void)
 	EXPECT(0xFFF0FFFFFFFFFFFFULL == e->attrs.whole);
 	EXPECT(0 == GetEntryPriority(e));
 
+	e->attrs.whole = 0x0000000000000000ULL;
+	SetEntryPriority(e, 15);
+	override_priority = 10;
+	EXPECT(0x000F000000000000ULL == e->attrs.whole);
+	EXPECT(10 == GetEntryPriority(e));
+	e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
+	SetEntryPriority(e, 0);
+	EXPECT(0xFFF0FFFFFFFFFFFFULL == e->attrs.whole);
+	EXPECT(10 == GetEntryPriority(e));
+	override_priority = 0;
+
 	e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
 	EXPECT(1 == GetEntrySuccessful(e));
 	EXPECT(15 == GetEntryPriority(e));
 	EXPECT(15 == GetEntryTries(e));
 
+	override_priority = 10;
+	e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
+	EXPECT(1 == GetEntrySuccessful(e));
+	EXPECT(10 == GetEntryPriority(e));
+	EXPECT(15 == GetEntryTries(e));
+	override_priority = 0;
+
 	e->attrs.whole = 0x0123000000000000ULL;
 	EXPECT(1 == GetEntrySuccessful(e));
 	EXPECT(2 == GetEntryTries(e));
 	EXPECT(3 == GetEntryPriority(e));
+
+	override_priority = 10;
+	e->attrs.whole = 0x0123000000000000ULL;
+	EXPECT(1 == GetEntrySuccessful(e));
+	EXPECT(2 == GetEntryTries(e));
+	EXPECT(10 == GetEntryPriority(e));
+	override_priority = 0;
+
+	/* Invalid priority */
+	override_priority = 100;
+	e->attrs.whole = 0x0123000000000000ULL;
+	EXPECT(1 == GetEntrySuccessful(e));
+	EXPECT(2 == GetEntryTries(e));
+	EXPECT(3 == GetEntryPriority(e));
+	override_priority = 0;
 
 	return TEST_OK;
 }
@@ -1307,6 +1352,38 @@ static int GptUpdateTest(void)
 	return TEST_OK;
 }
 
+static int GptOverridePriorityTest(void)
+{
+	GptData *gpt = GetEmptyGptData();
+	GptEntry *e = (GptEntry *)(gpt->primary_entries);
+	uint64_t start, size;
+
+	/* Tries=nonzero is attempted just like success, but tries=0 isn't */
+	BuildTestGptData(gpt);
+	FillEntry(e + KERNEL_A, 1, 4, 1, 0);
+	FillEntry(e + KERNEL_B, 1, 3, 0, 2);
+	FillEntry(e + KERNEL_X, 1, 2, 0, 2);
+	RefreshCrc32(gpt);
+	GptInit(gpt);
+	gpt->modified = 0;  /* Nothing modified yet */
+
+	override_counter = 1;
+	override_priority = 15;
+
+	/* Kernel returned should be B instead of A */
+	EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+	EXPECT(KERNEL_B == gpt->current_kernel);
+
+	override_counter = 0;
+	override_priority = 0;
+
+	/* Now, we should get A */
+	EXPECT(GPT_SUCCESS == GptNextKernelEntry(gpt, &start, &size));
+	EXPECT(KERNEL_A == gpt->current_kernel);
+
+	return TEST_OK;
+}
+
 /*
  * Give an invalid kernel type, and expect GptUpdateKernelEntry() returns
  * GPT_ERROR_INVALID_UPDATE_TYPE.
@@ -1514,6 +1591,7 @@ int main(int argc, char *argv[])
 		{ TEST_CASE(GetNextPrioTest), },
 		{ TEST_CASE(GetNextTriesTest), },
 		{ TEST_CASE(GptUpdateTest), },
+		{ TEST_CASE(GptOverridePriorityTest), },
 		{ TEST_CASE(UpdateInvalidKernelTypeTest), },
 		{ TEST_CASE(DuplicateUniqueGuidTest), },
 		{ TEST_CASE(TestCrc32TestVectors), },

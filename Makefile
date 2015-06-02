@@ -459,6 +459,7 @@ HOSTLIB_SRCS = \
 	firmware/lib/vboot_nvstorage.c \
 	firmware/stub/tpm_lite_stub.c \
 	firmware/stub/utility_stub.c \
+	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_init.c \
 	firmware/stub/vboot_api_stub_sf.c \
@@ -487,6 +488,7 @@ TINYHOSTLIB_SRCS = \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/gpt_misc.c \
 	firmware/lib/utility_string.c \
+	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_sf.c \
 	firmware/stub/utility_stub.c \

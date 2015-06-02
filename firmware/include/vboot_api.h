@@ -24,6 +24,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "gpt.h"
+
 /*****************************************************************************/
 /* Error codes */
 
@@ -1057,4 +1059,16 @@ VbError_t VbUnlockDevice(void);
  */
 VbError_t VbLockDevice(void);
 
+/**
+ * Check if the firmware wants to override GPT entry priority.
+ *
+ * In case of kernel entry, check if there is an override of priority
+ * available. This is used to select a particular partition to boot in the
+ * current boot cycle. Rollback protection, image verification and all other
+ * checks in LoadKernel still remain the same.
+ *
+ * @param e	Gpt Entry to check for priority override.
+ * @return 0 if no override, 1-15 for override priority.
+ */
+uint8_t VbExOverrideGptEntryPriority(const GptEntry *e);
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */

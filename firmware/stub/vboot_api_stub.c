@@ -168,3 +168,8 @@ int VbExLegacy(void)
 {
 	return 1;
 }
+
+uint8_t VbExOverrideGptEntryPriority(const GptEntry *e)
+{
+	return 0;
+}
