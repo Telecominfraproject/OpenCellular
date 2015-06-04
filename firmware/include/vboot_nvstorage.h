@@ -250,6 +250,8 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_RW_NO_DISK      0x5A
 /* No bootable kernel found on disk */
 #define VBNV_RECOVERY_RW_NO_KERNEL    0x5B
+/* BCB-related error in RW firmware */
+#define VBNV_RECOVERY_RW_BCB_ERROR    0x5C
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */
@@ -258,6 +260,8 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_KE_UNSPECIFIED  0xBF
 /* Recovery mode test from user-mode */
 #define VBNV_RECOVERY_US_TEST         0xC1
+/* Recovery requested by user-mode via BCB */
+#define VBNV_RECOVERY_BCB_USER_MODE   0xC2
 /* Unspecified/unknown error in user-mode */
 #define VBNV_RECOVERY_US_UNSPECIFIED  0xFF
 

@@ -484,6 +484,8 @@ const char *RecoveryReasonString(uint8_t code)
 		return "No bootable storage device in system";
 	case VBNV_RECOVERY_RW_NO_KERNEL:
 		return "No bootable kernel found on disk";
+	case VBNV_RECOVERY_RW_BCB_ERROR:
+		return "BCB partition error on disk";
 	case VBNV_RECOVERY_RW_UNSPECIFIED:
 		return "Unspecified/unknown error in RW firmware";
 	case VBNV_RECOVERY_KE_DM_VERITY:
@@ -492,6 +494,8 @@ const char *RecoveryReasonString(uint8_t code)
 		return "Unspecified/unknown error in kernel";
 	case VBNV_RECOVERY_US_TEST:
 		return "Recovery mode test from user-mode";
+	case VBNV_RECOVERY_BCB_USER_MODE:
+		return "User-mode requested recovery via BCB";
 	case VBNV_RECOVERY_US_UNSPECIFIED:
 		return "Unspecified/unknown error in user-mode";
 	}

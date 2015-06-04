@@ -190,6 +190,9 @@ enum vb2_nv_recovery {
 	/* No bootable kernel found on disk */
 	VB2_RECOVERY_RW_NO_KERNEL    = 0x5b,
 
+	/* BCB related error in RW firmware */
+	VB2_RECOVERY_RW_BCB_ERROR    = 0x5c,
+
 	/* Unspecified/unknown error in rewritable firmware */
 	VB2_RECOVERY_RW_UNSPECIFIED  = 0x7f,
 
@@ -201,6 +204,9 @@ enum vb2_nv_recovery {
 
 	/* Recovery mode test from user-mode */
 	VB2_RECOVERY_US_TEST         = 0xc1,
+
+	/* Recovery requested by user-mode via BCB */
+	VB2_RECOVERY_BCB_USER_MODE   = 0xc2,
 
 	/* Unspecified/unknown error in user-mode */
 	VB2_RECOVERY_US_UNSPECIFIED  = 0xff,
