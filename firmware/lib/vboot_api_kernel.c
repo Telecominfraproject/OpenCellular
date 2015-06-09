@@ -238,7 +238,8 @@ int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags)
 	return -1;
 }
 
-VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
+VbError_t test_mockable
+VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
 {
 	/* Boot from fixed disk only */
 	VBDEBUG(("Entering %s()\n", __func__));

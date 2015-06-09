@@ -37,6 +37,11 @@
 typedef uint32_t VbError_t;
 
 /*
+ * Define test_mockable for mocking functions.
+ */
+#define test_mockable __attribute__((weak))
+
+/*
  * Predefined error numbers.  Success is 0.  Errors are non-zero, but differ
  * between functions.  For example, the TPM functions may pass through TPM
  * error codes, some of which may be recoverable.
