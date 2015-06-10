@@ -20,7 +20,7 @@
 #include "microcode-M7240651_0000001C.h" /* Haswell ULT C0 or D0 */
 #include "microcode-MF2306D2_FFFF0009.h" /* Broadwell C0 */
 #include "microcode-MC0306D3_FFFF0010.h" /* Broadwell D0 */
-#include "microcode-MC0306D4_0000000D.h" /* Broadwell E0 */
+#include "microcode-MC0306D4_0000001F.h" /* Broadwell E0/F0 */
 
 	/*  Dummy terminator  */
 	0x0, 0x0, 0x0, 0x0,
