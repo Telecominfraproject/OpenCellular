@@ -125,6 +125,10 @@ int GptSanityCheck(GptData *gpt);
  * Repair GPT data by copying from one set of valid headers/entries to the
  * other.  Assumes GptSanityCheck() has been run to determine which headers
  * and/or entries are already valid.
+ *
+ * The caller must make sure that even if one of the entries table is invalid
+ * then corresponding buffer is allocated and big enough to accommodate entries
+ * from the other (good) table.
  */
 void GptRepair(GptData *gpt);
 

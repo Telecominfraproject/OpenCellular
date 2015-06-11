@@ -269,6 +269,22 @@ assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1
 $CGPT prioritize $MTD -i 1 -f ${DEV}
 assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
 
+echo "Test cgpt repair command"
+$CGPT repair $MTD ${DEV}
+($CGPT show $MTD ${DEV} | grep -q INVALID) && error
+
+# Zero primary header and partition table and try to repair it.
+dd if=/dev/zero of=${DEV} conv=notrunc bs=512 count=33 2>/dev/null
+$CGPT show $MTD ${DEV} | grep -q INVALID
+$CGPT repair $MTD ${DEV}
+($CGPT show $MTD ${DEV} | grep -q INVALID) && error
+
+# Zero secondary header and partition table and try to repair it.
+dd if=/dev/zero of=${DEV} seek=$(($NUM_SECTORS - 33)) conv=notrunc bs=512 count=33 2>/dev/null
+$CGPT show $MTD ${DEV} | grep -q INVALID
+$CGPT repair $MTD ${DEV}
+($CGPT show $MTD ${DEV} | grep -q INVALID) && error
+
 # Now make sure that we don't need write access if we're just looking.
 echo "Test read vs read-write access..."
 chmod 0444 ${DEV}

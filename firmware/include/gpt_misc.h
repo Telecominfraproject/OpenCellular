@@ -84,9 +84,9 @@ typedef struct {
 	uint8_t *primary_header;
 	/* GPT secondary header, from last sector of disk (size: 512 bytes) */
 	uint8_t *secondary_header;
-	/* Primary GPT table, follows primary header (size: 16 KB) */
+	/* Primary GPT table, follows primary header */
 	uint8_t *primary_entries;
-	/* Secondary GPT table, precedes secondary header (size: 16 KB) */
+	/* Secondary GPT table, precedes secondary header */
 	uint8_t *secondary_entries;
 	/* Size of a LBA sector, in bytes */
 	uint32_t sector_bytes;

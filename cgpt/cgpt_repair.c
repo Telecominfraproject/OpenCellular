@@ -24,6 +24,24 @@ int CgptRepair(CgptRepairParams *params) {
     printf("GptSanityCheck() returned %d: %s\n",
            gpt_retval, GptError(gpt_retval));
 
+  GptHeader *header;
+  if (MASK_PRIMARY == drive.gpt.valid_headers ||
+      MASK_BOTH == drive.gpt.valid_headers) {
+    header = (GptHeader *)(drive.gpt.primary_header);
+  } else {
+    header = (GptHeader *)(drive.gpt.secondary_header);
+  }
+
+  if (MASK_PRIMARY == drive.gpt.valid_entries) {
+    free(drive.gpt.secondary_entries);
+    drive.gpt.secondary_entries =
+        malloc(header->size_of_entry * header->number_of_entries);
+  } else if (MASK_SECONDARY == drive.gpt.valid_entries) {
+    free(drive.gpt.primary_entries);
+    drive.gpt.primary_entries =
+        malloc(header->size_of_entry * header->number_of_entries);
+  }
+
   GptRepair(&drive.gpt);
   if (drive.gpt.modified & GPT_MODIFIED_HEADER1)
     printf("Primary Header is updated.\n");
