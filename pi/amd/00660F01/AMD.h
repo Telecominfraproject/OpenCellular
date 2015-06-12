@@ -175,9 +175,9 @@ typedef enum {
 /// The standard header for all AGESA services.
 /// For internal AGESA naming conventions, see @ref amdconfigparamname .
 typedef struct {
-  IN       UINT32          ImageBasePtr;     ///< The AGESA Image base address.
+  IN       VOID *          ImageBasePtr;     ///< The AGESA Image base address.
   IN       UINT32          Func;             ///< The service desired
-  IN       UINT32          AltImageBasePtr;  ///< Alternate Image location
+  IN       VOID *          AltImageBasePtr;  ///< Alternate Image location
   IN       CALLOUT_ENTRY   CalloutPtr;       ///< For Callout from AGESA
   IN       UINT8           HeapStatus;       ///< For heap status from boot time slide.
   IN       UINT64          HeapBasePtr;      ///< Location of the heap

@@ -1322,7 +1322,7 @@ typedef struct _FCH_RESET_DATA_BLOCK {
   BOOLEAN               QeEnabled;                      /// Quad Mode Enabled
   BOOLEAN               FchOscout1ClkContinous;         ///< FCH OSCOUT1_CLK Continous
   UINT8                 LpcClockDriveStrength;          ///< Lpc Clock Drive Strength
-  VOID*                 EarlyOemGpioTable;              /// Pointer of Early OEM GPIO table
+  const VOID*           EarlyOemGpioTable;              /// Pointer of Early OEM GPIO table
 //  VOID*                 OemSpiDeviceTable;              /// Pointer of OEM Spi Device table
 } FCH_RESET_DATA_BLOCK;
 
