@@ -90,15 +90,12 @@ LocateModule (
 	const AMD_MODULE_HEADER* module;
 	size_t file_size;
 
-	//printk(BIOS_WARNING, "LocateModule Be wyj \n");
 	if (init_default_cbfs_media(&media)) return NULL;
 	file = cbfs_get_file(&media, (const char*)CONFIG_CBFS_AGESA_NAME);
 	if (!file) return NULL;
-	//printk(BIOS_WARNING, "LocateModule Eyywyj \n");
 	agesa = cbfs_get_file_content(&media, (const char*)CONFIG_CBFS_AGESA_NAME, ntohl(file->type), &file_size);
 	if (!agesa) return NULL;
 
-	//printk(BIOS_WARNING, "LocateModule ddd \n");
 	image =  LibAmdLocateImage(agesa, agesa + ntohl(file->len) - 1, 4096, name);
 	module = (AMD_MODULE_HEADER*)image->ModuleInfoOffset;
 
@@ -114,16 +111,10 @@ AmdCreateStruct (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	//printk(BIOS_WARNING, "PI AmdCreateStruct , InterfaceParams->AgesaFunctionName==0x%x\n",
-			//InterfaceParams->AgesaFunctionName);
 	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
 	InterfaceParams->StdHeader.Func = AMD_CREATE_STRUCT;
 	if (!module) return AGESA_UNSUPPORTED;
-	//printk(BIOS_WARNING, "AmdCreateStruct 33 \n");
 	Dispatcher = module->ModuleDispatcher;
-	//printk(BIOS_WARNING, "Dispatcher 0x%x\n", (unsigned int)Dispatcher);
-	//printk(BIOS_WARNING, "InterfaceParams 0x%x\n", InterfaceParams);
-	//nprintk(BIOS_WARNING, "PI AmdCreateStruct, InterfaceParams addr 0x%x\n", (unsigned int)InterfaceParams);
 	return Dispatcher(InterfaceParams);
 }
 
@@ -152,7 +143,6 @@ AmdInitReset (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	//printk(BIOS_WARNING, "AmdInitReset begin2 \n");
 	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
 	ResetParams->StdHeader.Func = AMD_INIT_RESET;
 	if (!module) return AGESA_UNSUPPORTED;
