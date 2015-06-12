@@ -41,6 +41,7 @@
  ***************************************************************************/
 // TODO This list needs to be pruned of anything that is not API
 #include "AGESA.h"
+#include "agesawrapper.h"
 #include "FieldAccessors.h"
 #include "AcpiLib.h"
 #include "FchCommonCfg.h"
@@ -69,38 +70,7 @@ HeapDeallocateBuffer (
 
 CONST UINT32 ImageSignature = IMAGE_SIGNATURE;
 CONST UINT32 ModuleSignature = MODULE_SIGNATURE;
-CHAR8 ModuleIdentifier[] = AGESA_ID;
-
-/************************************************************************
- *
- *  AGESA Basic Level interface structure definition and function prototypes
- *
- ***********************************************************************/
-
-static
-CONST VOID *
-LocateModule (
-  IN       CHAR8 name[8]
-  )
-{
-	struct cbfs_media media;
-	struct cbfs_file* file;
-	void* agesa;
-	const AMD_IMAGE_HEADER* image;
-	const AMD_MODULE_HEADER* module;
-	size_t file_size;
-
-	if (init_default_cbfs_media(&media)) return NULL;
-	file = cbfs_get_file(&media, (const char*)CONFIG_CBFS_AGESA_NAME);
-	if (!file) return NULL;
-	agesa = cbfs_get_file_content(&media, (const char*)CONFIG_CBFS_AGESA_NAME, ntohl(file->type), &file_size);
-	if (!agesa) return NULL;
-
-	image =  LibAmdLocateImage(agesa, agesa + ntohl(file->len) - 1, 4096, name);
-	module = (AMD_MODULE_HEADER*)image->ModuleInfoOffset;
-
-	return module;
-}
+CONST CHAR8 ModuleIdentifier[] = AGESA_ID;
 
 /**********************************************************************
  * Interface call:  AmdCreateStruct
@@ -111,7 +81,7 @@ AmdCreateStruct (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	InterfaceParams->StdHeader.Func = AMD_CREATE_STRUCT;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -127,7 +97,7 @@ AmdReleaseStruct (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	InterfaceParams->StdHeader.Func = AMD_RELEASE_STRUCT;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -143,7 +113,7 @@ AmdInitReset (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	ResetParams->StdHeader.Func = AMD_INIT_RESET;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -159,7 +129,7 @@ AmdInitEarly (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	EarlyParams->StdHeader.Func = AMD_INIT_EARLY;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -175,7 +145,7 @@ AmdInitPost (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	PostParams->StdHeader.Func = AMD_INIT_POST;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -191,7 +161,7 @@ AmdInitEnv (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	EnvParams->StdHeader.Func = AMD_INIT_ENV;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -207,7 +177,7 @@ AmdInitMid (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	MidParams->StdHeader.Func = AMD_INIT_MID;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -223,7 +193,7 @@ AmdInitLate (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	LateParams->StdHeader.Func = AMD_INIT_LATE;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -239,7 +209,7 @@ AmdInitRecovery (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	RecoveryParams->StdHeader.Func = AMD_INIT_RECOVERY;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -255,7 +225,7 @@ AmdInitResume (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	ResumeParams->StdHeader.Func = AMD_INIT_RESUME;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -271,7 +241,7 @@ AmdS3LateRestore (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	S3LateParams->StdHeader.Func = AMD_S3LATE_RESTORE;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -287,7 +257,7 @@ AmdInitRtb (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdInitRtbParams->StdHeader.Func = AMD_INIT_RTB;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -303,7 +273,7 @@ AmdLateRunApTask (
 )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdApExeParams->StdHeader.Func = AMD_LATE_RUN_AP_TASK;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -319,7 +289,7 @@ AmdGetApicId (
 )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdParamApic->StdHeader.Func = AMD_GET_APIC_ID;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -335,7 +305,7 @@ AmdGetPciAddress (
 )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdParamGetPci->StdHeader.Func = AMD_GET_PCI_ADDRESS;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -351,7 +321,7 @@ AmdIdentifyCore (
 )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdParamIdentify->StdHeader.Func = AMD_IDENTIFY_CORE;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -367,7 +337,7 @@ AmdReadEventLog (
 )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	Event->StdHeader.Func = AMD_READ_EVENT_LOG;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -383,7 +353,7 @@ AmdIdentifyDimm (
 )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdDimmIdentify->StdHeader.Func = AMD_IDENTIFY_DIMMS;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -396,7 +366,7 @@ AmdIdsRunApTaskLate (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdApExeParams->StdHeader.Func = -1;
 	return AGESA_UNSUPPORTED;
 	if (!module) return AGESA_UNSUPPORTED;
@@ -413,7 +383,7 @@ AmdGet2DDataEye (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	AmdGetDataEye->StdHeader.Func = AMD_GET_2D_DATA_EYE;
 	if (!module) return AGESA_UNSUPPORTED;
 	Dispatcher = module->ModuleDispatcher;
@@ -433,7 +403,7 @@ FchInitS3EarlyRestore (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	FchDataPtr->StdHeader->Func = FCH_INIT_S3_EARLY_RESTORE;
 	if (!module) return;
 	Dispatcher = module->ModuleDispatcher;
@@ -446,7 +416,7 @@ FchInitS3LateRestore (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 	FchDataPtr->StdHeader->Func = FCH_INIT_S3_LATE_RESTORE;
 	if (!module) return;
 	Dispatcher = module->ModuleDispatcher;
@@ -461,7 +431,7 @@ HeapAllocateBuffer (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 
 	AMD_INTERFACE_PARAMS InterfaceParams = {};
 
@@ -485,7 +455,7 @@ HeapDeallocateBuffer (
   )
 {
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 
 	AMD_INTERFACE_PARAMS InterfaceParams = {};
 
@@ -513,7 +483,7 @@ AmdSetValue (
 	AGESA_STATUS status = AGESA_UNSUPPORTED;
 
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 
 	AMD_ACCESSOR_PARAMS AccessorParams = {};
 
@@ -547,7 +517,7 @@ AmdGetValue (
 	AGESA_STATUS status = AGESA_UNSUPPORTED;
 
 	MODULE_ENTRY Dispatcher = NULL;
-	const AMD_MODULE_HEADER* module = LocateModule(ModuleIdentifier);
+	const AMD_MODULE_HEADER* module = agesawrapper_locate_module(ModuleIdentifier);
 
 	AMD_ACCESSOR_PARAMS AccessorParams = {};
 
