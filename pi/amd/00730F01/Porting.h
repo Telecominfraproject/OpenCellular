@@ -261,7 +261,7 @@
   typedef unsigned long  long UINT64;
   typedef void VOID;
   //typedef unsigned long  size_t;
-  typedef unsigned int   uintptr_t;
+  //typedef unsigned int   uintptr_t;
   //#include <intrin.h>                   // MingW-w64 library header
 
 #define CODE_GROUP(arg)

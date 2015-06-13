@@ -256,7 +256,7 @@
   typedef unsigned long  long UINT64;
   typedef void VOID;
   //typedef unsigned long  size_t;
-  typedef unsigned int   uintptr_t;
+  //typedef unsigned int   uintptr_t;
   #define CODE_GROUP(arg)
   #define RDATA_GROUP(arg)
 
