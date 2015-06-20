@@ -252,6 +252,8 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_RW_NO_KERNEL    0x5B
 /* BCB-related error in RW firmware */
 #define VBNV_RECOVERY_RW_BCB_ERROR    0x5C
+/* Fastboot mode requested in firmware */
+#define VBNV_RECOVERY_FW_FASTBOOT     0x5E
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */

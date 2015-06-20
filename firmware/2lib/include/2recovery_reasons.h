@@ -199,6 +199,9 @@ enum vb2_nv_recovery {
 	/* Secure data inititalization error */
 	VB2_RECOVERY_SECDATAK_INIT = 0x5d,
 
+	/* Fastboot mode requested in firmware */
+	VB2_RECOVERY_FW_FASTBOOT     = 0x5e,
+
 	/* Unspecified/unknown error in rewritable firmware */
 	VB2_RECOVERY_RW_UNSPECIFIED  = 0x7f,
 

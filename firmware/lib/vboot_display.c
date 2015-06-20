@@ -486,6 +486,8 @@ const char *RecoveryReasonString(uint8_t code)
 		return "No bootable kernel found on disk";
 	case VBNV_RECOVERY_RW_BCB_ERROR:
 		return "BCB partition error on disk";
+	case VBNV_RECOVERY_FW_FASTBOOT:
+		return "Fastboot-mode requested in firmware";
 	case VBNV_RECOVERY_RW_UNSPECIFIED:
 		return "Unspecified/unknown error in RW firmware";
 	case VBNV_RECOVERY_KE_DM_VERITY:
