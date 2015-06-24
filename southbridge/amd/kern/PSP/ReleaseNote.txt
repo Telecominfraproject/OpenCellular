@@ -2,8 +2,8 @@
 // PSP FW Delivery Release Note
 //
 // Copyright 2015, Advanced Micro Devices, Inc.
-// Image Version number: PSP BootLoader: 0.2.0.2B, PSP SecureOS: 0.2.0.2B
-// Date:   Apr 28, 2015
+// Image Version number: PSP BootLoader: 0.2.0.30, PSP SecureOS: 0.2.0.30
+// Date:   June 11, 2015
 //----------------------------------------------------------------------------
 
 Content:
@@ -18,12 +18,7 @@ Files:
 	PspTrustlets_prod_CZ.cbin      - PSP secure OS system trustlets, not signed but compressed
 
 Features and fixes:
-1. BUG462694: [CZ DDR4] S3 Resume failed with PC A05A/BB07 in Agesa code. WARNING! Does not compatible with weekly BIOSs prior 05/06
-2. ENH464884: fTPM HLK Stress test fixing instability issue on Win8.1 and Win10.
-3. ENH464884: fTPM Fix 192 Gy curve value. Updated fTPM Trustlet.
-4. OBS460342: Update White List for Token Secure Unlock.
-5. Code base updated up to CL#29115.
-
-WARNING!
-New Agesa S3 Resume binary image (PspAgesaS3Resume_prod_CZ.csbin) does not compatible with old BIOSs
-prior May 6, 2015.
+1. PLAT-1180, PLAT-1183: Checking whether the current fTPM session is bound to an entity if the session is for a HierarchyChangeAuth() call. fTPM is updated.
+2. OBS465776: Request to postpone enabling eDP after S3 resume until command 7 "S3 Resume Done".
+3. OBS460342: Add extra parts to Token Secure Debug Unlock White List.
+4. Code base updated up to CL#29784.
