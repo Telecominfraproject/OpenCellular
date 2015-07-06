@@ -30,7 +30,6 @@
 
 /* I/O intrin functions.  */
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned char __inbyte(unsigned short Port)
 {
@@ -46,7 +45,6 @@ unsigned char __inbyte(unsigned short Port)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned short __inword(unsigned short Port)
 {
@@ -62,7 +60,6 @@ unsigned short __inword(unsigned short Port)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __indword(unsigned short Port)
 {
@@ -78,7 +75,6 @@ unsigned long __indword(unsigned short Port)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __outbyte(unsigned short Port,unsigned char Data)
 {
@@ -90,7 +86,6 @@ void __outbyte(unsigned short Port,unsigned char Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __outword(unsigned short Port,unsigned short Data)
 {
@@ -102,7 +97,6 @@ void __outword(unsigned short Port,unsigned short Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __outdword(unsigned short Port,unsigned long Data)
 {
@@ -114,7 +108,6 @@ void __outdword(unsigned short Port,unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __inbytestring(unsigned short Port,unsigned char *Buffer,unsigned long Count)
 {
@@ -126,7 +119,6 @@ void __inbytestring(unsigned short Port,unsigned char *Buffer,unsigned long Coun
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __inwordstring(unsigned short Port,unsigned short *Buffer,unsigned long Count)
 {
@@ -138,7 +130,6 @@ void __inwordstring(unsigned short Port,unsigned short *Buffer,unsigned long Cou
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __indwordstring(unsigned short Port,unsigned long *Buffer,unsigned long Count)
 {
@@ -150,7 +141,6 @@ void __indwordstring(unsigned short Port,unsigned long *Buffer,unsigned long Cou
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __outbytestring(unsigned short Port,unsigned char *Buffer,unsigned long Count)
 {
@@ -162,7 +152,6 @@ void __outbytestring(unsigned short Port,unsigned char *Buffer,unsigned long Cou
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __outwordstring(unsigned short Port,unsigned short *Buffer,unsigned long Count)
 {
@@ -174,7 +163,6 @@ void __outwordstring(unsigned short Port,unsigned short *Buffer,unsigned long Co
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __outdwordstring(unsigned short Port,unsigned long *Buffer,unsigned long Count)
 {
@@ -186,7 +174,6 @@ void __outdwordstring(unsigned short Port,unsigned long *Buffer,unsigned long Co
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readdr0(void)
 {
@@ -199,7 +186,6 @@ unsigned long __readdr0(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readdr1(void)
 {
@@ -212,7 +198,6 @@ unsigned long __readdr1(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readdr2(void)
 {
@@ -225,7 +210,6 @@ unsigned long __readdr2(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readdr3(void)
 {
@@ -238,7 +222,6 @@ unsigned long __readdr3(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readdr7(void)
 {
@@ -251,7 +234,6 @@ unsigned long __readdr7(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readdr(unsigned long reg)
 {
@@ -282,7 +264,6 @@ unsigned long __readdr(unsigned long reg)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writedr0(unsigned long Data)
 {
@@ -294,7 +275,6 @@ void __writedr0(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writedr1(unsigned long Data)
 {
@@ -306,7 +286,6 @@ void __writedr1(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writedr2(unsigned long Data)
 {
@@ -318,7 +297,6 @@ void __writedr2(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writedr3(unsigned long Data)
 {
@@ -330,7 +308,6 @@ void __writedr3(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writedr7(unsigned long Data)
 {
@@ -342,7 +319,6 @@ void __writedr7(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writedr(unsigned long reg, unsigned long Data)
 {
@@ -373,7 +349,6 @@ void __writedr(unsigned long reg, unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readcr0(void)
 {
@@ -385,7 +360,6 @@ unsigned long __readcr0(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readcr2(void)
 {
@@ -397,7 +371,6 @@ unsigned long __readcr2(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readcr3(void)
 {
@@ -409,7 +382,6 @@ unsigned long __readcr3(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readcr4(void)
 {
@@ -421,7 +393,6 @@ unsigned long __readcr4(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readcr8(void)
 {
@@ -433,7 +404,6 @@ unsigned long __readcr8(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readcr(unsigned long reg)
 {
@@ -464,7 +434,6 @@ unsigned long __readcr(unsigned long reg)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writecr0(unsigned long Data)
 {
@@ -476,7 +445,6 @@ void __writecr0(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writecr2(unsigned long Data)
 {
@@ -488,7 +456,6 @@ void __writecr2(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writecr3(unsigned long Data)
 {
@@ -500,7 +467,6 @@ void __writecr3(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writecr4(unsigned long Data)
 {
@@ -512,7 +478,6 @@ void __writecr4(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writecr8(unsigned long Data)
 {
@@ -524,7 +489,6 @@ void __writecr8(unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writecr(unsigned long reg, unsigned long Data)
 {
@@ -555,7 +519,6 @@ void __writecr(unsigned long reg, unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 UINT64 __readmsr(UINT32 msr)
 {
@@ -569,7 +532,6 @@ UINT64 __readmsr(UINT32 msr)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writemsr (UINT32 msr, UINT64 Value)
 {
@@ -581,7 +543,6 @@ void __writemsr (UINT32 msr, UINT64 Value)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 UINT64 __rdtsc(void)
 {
@@ -593,7 +554,6 @@ UINT64 __rdtsc(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __cpuid(int CPUInfo[], const int InfoType)
 {
@@ -605,7 +565,6 @@ void __cpuid(int CPUInfo[], const int InfoType)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _disable(void)
 {
@@ -613,7 +572,6 @@ void _disable(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _enable(void)
 {
@@ -621,7 +579,6 @@ void _enable(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __halt(void)
 {
@@ -629,7 +586,6 @@ void __halt(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __debugbreak(void)
 {
@@ -637,7 +593,6 @@ void __debugbreak(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __wbinvd(void)
 {
@@ -645,7 +600,6 @@ void __wbinvd(void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __lidt(void *Source)
 {
@@ -653,7 +607,6 @@ void __lidt(void *Source)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writefsbyte(const unsigned long Offset, const unsigned char Data)
 {
@@ -661,7 +614,6 @@ void __writefsbyte(const unsigned long Offset, const unsigned char Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writefsword(const unsigned long Offset, const unsigned short Data)
 {
@@ -669,7 +621,6 @@ void __writefsword(const unsigned long Offset, const unsigned short Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __writefsdword(const unsigned long Offset, const unsigned long Data)
 {
@@ -677,7 +628,6 @@ void __writefsdword(const unsigned long Offset, const unsigned long Data)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned char __readfsbyte(const unsigned long Offset)
 {
@@ -687,7 +637,6 @@ unsigned char __readfsbyte(const unsigned long Offset)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned short __readfsword(const unsigned long Offset)
 {
@@ -697,7 +646,6 @@ unsigned short __readfsword(const unsigned long Offset)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 unsigned long __readfsdword(const unsigned long Offset)
 {
@@ -711,7 +659,6 @@ typedef long long __v2di __attribute__ ((__vector_size__ (16)));
 typedef long long __m128i __attribute__ ((__vector_size__ (16), __may_alias__));
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _mm_stream_si128_fs2 (void *__A, __m128i __B)
 {
@@ -720,7 +667,6 @@ void _mm_stream_si128_fs2 (void *__A, __m128i __B)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _mm_stream_si128_fs (void *__A, void *__B)
 {
@@ -730,7 +676,6 @@ void _mm_stream_si128_fs (void *__A, void *__B)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _mm_clflush_fs (void *__A)
 {
@@ -739,7 +684,6 @@ void _mm_clflush_fs (void *__A)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _mm_mfence (void)
 {
@@ -747,7 +691,6 @@ void _mm_mfence (void)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void _mm_sfence (void)
 {
@@ -756,7 +699,6 @@ void _mm_sfence (void)
 #endif
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __stosb(unsigned char *dest, unsigned char data, size_t count)
 {
@@ -768,7 +710,6 @@ void __stosb(unsigned char *dest, unsigned char data, size_t count)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void __movsb(unsigned char *dest, unsigned char *data, size_t count)
 {
@@ -780,7 +721,6 @@ void __movsb(unsigned char *dest, unsigned char *data, size_t count)
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void debug_point ( unsigned short Port,  unsigned long Data )
 {
@@ -790,7 +730,6 @@ void debug_point ( unsigned short Port,  unsigned long Data )
 }
 
 static
-__attribute__((optimize("Os")))
 __inline__ __attribute__((always_inline))
 void delay_point ( unsigned short Port, unsigned long Data, unsigned long delayTime )
 {
