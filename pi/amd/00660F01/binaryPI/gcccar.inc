@@ -1098,10 +1098,10 @@ SetupStack:
         or %ah, %ah
         jne 2f
             # Is BSP, assign a 64K stack
-            mov     $((AMD_MTRR_FIX64k_00000 << 16) + (3 << 8) + (BSP_STACK_SIZE  / 0x1000)), %ebx
+            mov     $((AMD_MTRR_FIX64k_00000 << 16) + (3 << 8) + (BSP_STACK_SIZE  >> 12)), %ebx
             bt      $FLAG_FORCE_32K_STACK, %eax
             jnc w64k_here            # Br if no
-            mov     $((AMD_MTRR_FIX64k_00000 << 16) + (3 << 8) + (BSP_STACK_SIZE_32K  / 0x1000)), %ebx
+            mov     $((AMD_MTRR_FIX64k_00000 << 16) + (3 << 8) + (BSP_STACK_SIZE_32K  >> 12)), %ebx
 w64k_here:
             mov     $BSP_STACK_BASE_ADDR, %ebp
             jmp     0f
@@ -1112,7 +1112,7 @@ w64k_here:
             shl     $16, %ebx             #
             dec     %ah                  #index from 0
             mov     %ah, %bh              # Node# is used as slot#
-            mov     $(CORE0_STACK_SIZE / 0x1000), %bl
+            mov     $(CORE0_STACK_SIZE >> 12), %bl
             mov     %ah, %al              # Base = (Node# * Size)#
             mul     %bl                  #
             movzx   %ax, %eax             #
@@ -1134,7 +1134,7 @@ w64k_here:
         mov     %al, %bh                  # Slot# = (CoreIndex / 16) + 4#
         shr     $4, %bh                   #
         add     $4, %bh                   #
-        mov     $(CORE1_STACK_SIZE / 0x1000), %bl
+        mov     $(CORE1_STACK_SIZE >> 12), %bl
 
         mul     %bl                      # Base = ( (CoreIndex * Size) ...
         movzx   %ax, %eax                 #
