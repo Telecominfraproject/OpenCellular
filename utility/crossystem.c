@@ -83,7 +83,7 @@ const Param sys_param_list[] = {
   {"savedmem_base", 0, "RAM debug data area physical address", "0x%08x"},
   {"savedmem_size", 0, "RAM debug data area size in bytes"},
   {"sw_wpsw_boot", 0,
-   "Firmware write protect software setting enabled at boot"},
+   "Firmware write protect software setting enabled at boot (Baytrail only)"},
   {"tpm_attack", CAN_WRITE, "TPM was interrupted since this flag was cleared"},
   {"tpm_fwver", 0, "Firmware version stored in TPM", "0x%08x"},
   {"tpm_kernver", 0, "Kernel version stored in TPM", "0x%08x"},
