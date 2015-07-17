@@ -116,6 +116,14 @@ int print_hwid_digest(GoogleBinaryBlockHeader *gbb,
 /* Copies a file or dies with an error message */
 void futil_copy_file_or_die(const char *infile, const char *outfile);
 
+/* Update ryu root key header in the image */
+int fill_ryu_root_header(uint8_t *ptr, size_t size,
+			 const GoogleBinaryBlockHeader *gbb);
+
+/* Verify ryu root key header */
+int verify_ryu_root_header(uint8_t *ptr, size_t size,
+			   const GoogleBinaryBlockHeader *gbb);
+
 /* Possible file operation errors */
 enum futil_file_err {
 	FILE_ERR_NONE,

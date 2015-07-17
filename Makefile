@@ -615,7 +615,8 @@ FUTIL_STATIC_SRCS = \
 	futility/futility.c \
 	futility/cmd_dump_fmap.c \
 	futility/cmd_gbb_utility.c \
-	futility/misc.c
+	futility/misc.c \
+	futility/ryu_root_header.c
 
 FUTIL_SRCS = \
 	${FUTIL_STATIC_SRCS} \

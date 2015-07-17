@@ -30,6 +30,7 @@ static void print_help(int argc, char *argv[])
 		"     --hwid          \tReport hardware id (default).\n"
 		"     --flags         \tReport header flags.\n"
 		"     --digest        \tReport digest of hwid (>= v1.2)\n"
+	        "     --roothash      \tCheck ryu root key hash\n"
 		" -k, --rootkey=FILE  \tFile name to export Root Key.\n"
 		" -b, --bmpfv=FILE    \tFile name to export Bitmap FV.\n"
 		" -r  --recoverykey=FILE\tFile name to export Recovery Key.\n"
@@ -61,6 +62,7 @@ enum {
 	OPT_FLAGS,
 	OPT_DIGEST,
 	OPT_HELP,
+	OPT_ROOTHASH,
 };
 
 /* Command line options */
@@ -77,6 +79,7 @@ static struct option long_opts[] = {
 	{"flags", 0, NULL, OPT_FLAGS},
 	{"digest", 0, NULL, OPT_DIGEST},
 	{"help", 0, NULL, OPT_HELP},
+	{"roothash", 0, NULL, OPT_ROOTHASH},
 	{NULL, 0, NULL, 0},
 };
 
@@ -363,6 +366,7 @@ static int do_gbb_utility(int argc, char *argv[])
 	int sel_hwid = 0;
 	int sel_digest = 0;
 	int sel_flags = 0;
+	int sel_roothash = 0;
 	uint8_t *inbuf = NULL;
 	off_t filesize;
 	uint8_t *outbuf = NULL;
@@ -411,6 +415,9 @@ static int do_gbb_utility(int argc, char *argv[])
 			break;
 		case OPT_DIGEST:
 			sel_digest = 1;
+			break;
+		case OPT_ROOTHASH:
+			sel_roothash = 1;
 			break;
 		case OPT_HELP:
 			print_help(argc, argv);
@@ -489,6 +496,9 @@ static int do_gbb_utility(int argc, char *argv[])
 							 hwid_offset) : "");
 		if (sel_digest)
 			print_hwid_digest(gbb, "digest: ", "\n");
+
+		if (sel_roothash)
+			verify_ryu_root_header(inbuf, filesize, gbb);
 
 		if (sel_flags)
 			printf("flags: 0x%08x\n", gbb->flags);
@@ -591,10 +601,14 @@ static int do_gbb_utility(int argc, char *argv[])
 			}
 		}
 
-		if (opt_rootkey)
+		if (opt_rootkey) {
 			read_from_file("root_key", opt_rootkey,
 				       gbb_base + gbb->rootkey_offset,
 				       gbb->rootkey_size);
+
+			if (fill_ryu_root_header(outbuf, filesize, gbb))
+				errorcnt++;
+		}
 		if (opt_bmpfv)
 			read_from_file("bmp_fv", opt_bmpfv,
 				       gbb_base + gbb->bmpfv_offset,

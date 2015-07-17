@@ -305,4 +305,40 @@ struct vb2_gbb_header {
 /* The GBB is used outside of vboot_reference, so this size is important. */
 #define EXPECTED_VB2_GBB_HEADER_SIZE 128
 
+/*
+ * Root key hash for Ryu devices only.  Contains the hash of the root key.
+ * This will be embedded somewhere inside the RO part of the firmware, so that
+ * it can verify the GBB contains only the official root key.
+ */
+
+#define RYU_ROOT_KEY_HASH_MAGIC "RtKyHash"
+#define RYU_ROOT_KEY_HASH_MAGIC_INVCASE "rTkYhASH"
+#define RYU_ROOT_KEY_HASH_MAGIC_SIZE 8
+
+#define RYU_ROOT_KEY_HASH_VERSION_MAJOR 1
+#define RYU_ROOT_KEY_HASH_VERSION_MINOR 0
+
+struct vb2_ryu_root_key_hash {
+	/* Magic number (RYU_ROOT_KEY_HASH_MAGIC) */
+	uint8_t magic[RYU_ROOT_KEY_HASH_MAGIC_SIZE];
+
+	/* Version of this struct */
+	uint16_t header_version_major;
+	uint16_t header_version_minor;
+
+	/*
+	 * Length of this struct, in bytes, including any variable length data
+	 * which follows (there is none, yet).
+	 */
+	uint32_t struct_size;
+
+	/*
+	 * SHA-256 hash digest of the entire root key section from the GBB.  If
+	 * all 0 bytes, all root keys will be treated as if matching.
+	 */
+	uint8_t root_key_hash_digest[32];
+};
+
+#define EXPECTED_VB2_RYU_ROOT_KEY_HASH_SIZE 48
+
 #endif  /* VBOOT_REFERENCE_VBOOT_2STRUCT_H_ */
