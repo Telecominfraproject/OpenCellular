@@ -681,6 +681,7 @@ static const struct GpioChipset chipsets_supported[] = {
   { "LynxPoint", FindGpioChipOffset },
   { "PCH-LP", FindGpioChipOffset },
   { "INT3437:00", FindGpioChipOffsetByLabel },
+  { "INT344B:00", FindGpioChipOffsetByLabel },
   { "BayTrail", BayTrailFindGpioChipOffset },
   { "Braswell", BraswellFindGpioChipOffset },
   { NULL },
