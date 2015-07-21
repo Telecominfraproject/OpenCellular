@@ -116,6 +116,8 @@ const PlatformFamily platform_family_array[] = {
   {0x8086, 0x0f00, "BayTrail"},    /* mobile */
   {0x8086, 0x1604, "Broadwell"},   /* ult */
   {0x8086, 0x2280, "Braswell"},    /* ult */
+  {0x8086, 0x1904, "Skylake"},     /* skylake-u */
+  {0x8086, 0x190c, "Skylake"},     /* skylake-y */
   /* Terminate with NULL entry */
   {0, 0, 0}
 };
