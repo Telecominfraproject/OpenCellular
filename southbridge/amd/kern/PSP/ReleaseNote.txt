@@ -2,8 +2,8 @@
 // PSP FW Delivery Release Note
 //
 // Copyright 2015, Advanced Micro Devices, Inc.
-// Image Version number: PSP BootLoader: 0.2.0.30, PSP SecureOS: 0.2.0.30
-// Date:   June 11, 2015
+// Image Version number: PSP BootLoader: 0.2.0.35, PSP SecureOS: 0.2.0.35
+// Date:   July 15, 2015
 //----------------------------------------------------------------------------
 
 Content:
@@ -18,7 +18,5 @@ Files:
 	PspTrustlets_prod_CZ.cbin      - PSP secure OS system trustlets, not signed but compressed
 
 Features and fixes:
-1. PLAT-1180, PLAT-1183: Checking whether the current fTPM session is bound to an entity if the session is for a HierarchyChangeAuth() call. fTPM is updated.
-2. OBS465776: Request to postpone enabling eDP after S3 resume until command 7 "S3 Resume Done".
-3. OBS460342: Add extra parts to Token Secure Debug Unlock White List.
-4. Code base updated up to CL#29784.
+1. ENH466357: Reduce PSP/SMN clock back to 300 MHz as a temporarily workaround for eCZ B10/A10 fused parts.
+2. Code base updated up to CL#30190.

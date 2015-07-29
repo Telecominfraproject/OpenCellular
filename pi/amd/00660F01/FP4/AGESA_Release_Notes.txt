@@ -4,6 +4,12 @@
 
 
 =============================================================================
+AGESA PI Version:  1.1.0.1                 Test Board: Bettong Alfa, Beta
+Binary PI version: 1.5                     Binary PI Build Date: Aug.  5 2015
+=============================================================================
+1. Update CarrizoPI to Version 1.1.0.1
+
+=============================================================================
 AGESA PI Version:  1.1.0.0                 Test Board: Bettong Alfa, Beta
 Binary PI version: 1.4                     Binary PI Build Date: Jul. 10 2015
 =============================================================================
