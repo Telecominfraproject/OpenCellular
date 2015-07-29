@@ -59,6 +59,23 @@ int HexStringToUint8(const char* string, uint8_t* value) {
   return 0;
 }
 
+int HexStringToArray(const char* string, uint8_t* value, int num_bytes) {
+  int len = strlen(string);
+  if (!strncmp(string, "0x", 2)) {
+    string += 2;
+    len -= 2;
+  }
+  if (len != num_bytes * 2) {
+    return 1;
+  }
+  for (; len > 0; string += 2, len -= 2, value++) {
+    if (sscanf(string, "%2hhx", value) != 1) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 /* TPM error check and reporting.  Returns 0 if |result| is 0 (TPM_SUCCESS).
  * Otherwise looks up a TPM error in the error table and prints the error if
  * found.  Then returns min(result, OTHER_ERROR) since some error codes, such
@@ -185,6 +202,24 @@ static uint32_t HandlerPCRRead(void) {
     printf("\n");
   }
   return result;
+}
+
+static uint32_t HandlerPCRExtend(void) {
+  uint32_t index;
+  uint8_t value[TPM_PCR_DIGEST];
+  if (nargs != 4) {
+    fprintf(stderr, "usage: tpmc pcrextend <index> <extend_hash>\n");
+    exit(OTHER_ERROR);
+  }
+  if (HexStringToUint32(args[2], &index) != 0) {
+    fprintf(stderr, "<index> must be 32-bit hex (0x[0-9a-f]+)\n");
+    exit(OTHER_ERROR);
+  }
+  if (HexStringToArray(args[3], value, TPM_PCR_DIGEST)) {
+    fprintf(stderr, "<extend_hash> must be a 20-byte hex string\n");
+    exit(OTHER_ERROR);
+  }
+  return TlclExtend(index, value, value);
 }
 
 static uint32_t HandlerRead(void) {
@@ -397,6 +432,8 @@ command_record command_table[] = {
     HandlerRead },
   { "pcrread", "pcr", "read from a PCR (pcrread <index>)",
     HandlerPCRRead },
+  { "pcrextend", "extend", "extend a PCR (extend <index> <extend_hash>)",
+    HandlerPCRExtend },
   { "getownership", "geto", "print state of TPM ownership",
     HandlerGetOwnership },
   { "getpermissions", "getp", "print space permissions (getp <index>)",
