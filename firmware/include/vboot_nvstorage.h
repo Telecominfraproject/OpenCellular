@@ -112,6 +112,8 @@ typedef enum VbNvParam {
 
 	/* Fastboot: Unlock in firmware, 0=disabled, 1=enabled. */
 	VBNV_FASTBOOT_UNLOCK_IN_FW,
+	/* Boot system when AC detected (0=no, 1=yes). */
+	VBNV_BOOT_ON_AC_DETECT,
 
 } VbNvParam;
 

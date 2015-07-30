@@ -45,6 +45,7 @@ static VbNvField nvfields[] = {
   {VBNV_FW_PREV_TRIED, 0, 1, 0, "firmware prev tried"},
   {VBNV_FW_PREV_RESULT, VBNV_FW_RESULT_UNKNOWN, 1, 3, "firmware prev result"},
   {VBNV_FASTBOOT_UNLOCK_IN_FW, 0, 1, 0, "fastboot unlock in firmware"},
+  {VBNV_BOOT_ON_AC_DETECT, 0, 1, 0, "boot on ac detect"},
   {0, 0, 0, 0, NULL}
 };
 
