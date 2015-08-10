@@ -25,7 +25,8 @@
 #include "crossystem.h"
 #include "crossystem_arch.h"
 
-#define MOSYS_PATH "/usr/sbin/mosys"
+#define MOSYS_CROS_PATH "/usr/sbin/mosys"
+#define MOSYS_ANDROID_PATH "/system/bin/mosys"
 
 /* Base name for firmware FDT files */
 #define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
@@ -48,6 +49,7 @@
 #define FNAME_SIZE  80
 #define SECTOR_SIZE 512
 #define MAX_NMMCBLK 9
+#define MAX_ARRAY_SIZE 256
 
 typedef struct PlatformFamily {
   const char* compatible_string; /* Last string in FDT compatible entry */
@@ -68,6 +70,31 @@ const PlatformFamily platform_family_array[] = {
   /* Terminate with NULL entry */
   {NULL, NULL}
 };
+
+static const char* GetMosysPath() {
+	int fd;
+	struct stat s;
+
+	/* In Android, mosys utility located in /system/bin
+	   check if file exists.  Using fstat because for some
+	   reason, stat() was seg faulting in Android */
+	fd = open(MOSYS_ANDROID_PATH, O_RDONLY);
+	if (fstat(fd, &s) == 0) {
+		close(fd);
+		return MOSYS_ANDROID_PATH;
+	}
+	close(fd);
+
+	fd = open(MOSYS_CROS_PATH, O_RDONLY);
+	if (fstat(fd, &s) == 0) {
+		close(fd);
+		return MOSYS_CROS_PATH;
+	}
+	close(fd);
+
+	return NULL;
+
+}
 
 static int FindEmmcDev(void) {
   int mmcblk;
@@ -287,10 +314,12 @@ out:
   return ret;
 }
 
-static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
+static int ExecuteMosys(const char * const argv[], char *buf, size_t bufsize) {
   int status, mosys_to_crossystem[2];
   pid_t pid;
   ssize_t n;
+  char *argv_cpy[MAX_ARRAY_SIZE];
+  int i = 0;
 
   if (pipe(mosys_to_crossystem) < 0) {
     VBDEBUG(("pipe() error\n"));
@@ -312,10 +341,30 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
         exit(1);
       }
     }
-    /* Execute mosys */
-    execv(MOSYS_PATH, argv);
+
+    /* for some reason execv takes a char *const, so need to
+       make a duplicate copy of it and free it right after exec
+       in order to minimize the passing around of a non-const
+       copy of our array */
+    for (i = 0; argv[i] != NULL && i < MAX_ARRAY_SIZE; i++) {
+      argv_cpy[i] = strdup(argv[i]);
+    }
+    if (i >= MAX_ARRAY_SIZE) {
+      VBDEBUG(("too many args (mosys)\n"))
+      for (i = 0; argv_cpy[i] != NULL && i < MAX_ARRAY_SIZE; i++) {
+        free(argv_cpy[i]);
+      }
+      close(mosys_to_crossystem[1]);
+      exit(1);
+    }
+    argv_cpy[i] = NULL;
+    execv(argv[0], argv_cpy);
+
     /* We shouldn't be here; exit now! */
     VBDEBUG(("execv() of mosys failed\n"));
+    for (i = 0; argv_cpy[i] != NULL && i < MAX_ARRAY_SIZE; i++) {
+      free(argv_cpy[i]);
+    }
     close(mosys_to_crossystem[1]);
     exit(1);
   } else {  /* Parent */
@@ -329,6 +378,9 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
       *buf = '\0';
     } else {
       n = 0;
+    }
+    for (i = 0; argv_cpy[i] != NULL && i < MAX_ARRAY_SIZE; i++) {
+      free(argv_cpy[i]);
     }
     close(mosys_to_crossystem[0]);
     if (n < 0)
@@ -346,8 +398,9 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
 
 static int VbReadNvStorage_mosys(VbNvContext* vnc) {
   char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
-  char * const argv[] = {
-    MOSYS_PATH, "nvram", "vboot", "read", NULL
+  const char *path = GetMosysPath();
+  const char * const argv[] = {
+    path, "nvram", "vboot", "read", NULL
   };
   char hexdigit[3];
   int i;
@@ -365,8 +418,9 @@ static int VbReadNvStorage_mosys(VbNvContext* vnc) {
 
 static int VbWriteNvStorage_mosys(VbNvContext* vnc) {
   char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
-  char * const argv[] = {
-    MOSYS_PATH, "nvram", "vboot", "write", hexstring, NULL
+  const char *path = GetMosysPath();
+  const char * const argv[] = {
+    path, "nvram", "vboot", "write", hexstring, NULL
   };
   int i;
 
