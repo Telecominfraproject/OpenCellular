@@ -26,6 +26,7 @@ usage() {
 Usage: $PROG <type> input_image /path/to/keys/dir [output_image] [version_file]
 where <type> is one of:
              ssd  (sign an SSD image)
+             base (sign a base image, similar to an SSD image)
              recovery (sign a USB recovery image)
              factory (sign a factory install image)
              install (old alias to "factory")
@@ -718,7 +719,7 @@ echo "Using firmware version: ${FIRMWARE_VERSION}"
 echo "Using kernel version: ${KERNEL_VERSION}"
 
 # Make all modifications on output copy.
-if [[ "${TYPE}" == "ssd" ]]; then
+if [[ "${TYPE}" == "ssd" || "${TYPE}" == "base" ]]; then
   sign_image_file "SSD" "${INPUT_IMAGE}" "${OUTPUT_IMAGE}" 2 \
     "${KEY_DIR}/kernel.keyblock" "${KEY_DIR}/kernel_data_key.vbprivk" \
     "${KEY_DIR}/kernel.keyblock" "${KEY_DIR}/kernel_data_key.vbprivk"
