@@ -217,6 +217,9 @@ enum vb2_nv_recovery {
 	/* Recovery requested by user-mode via BCB */
 	VB2_RECOVERY_BCB_USER_MODE   = 0xc2,
 
+	/* Fastboot mode requested by user-mode */
+	VB2_RECOVERY_US_FASTBOOT     = 0xc3,
+
 	/* Unspecified/unknown error in user-mode */
 	VB2_RECOVERY_US_UNSPECIFIED  = 0xff,
 };

@@ -268,6 +268,8 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_US_TEST         0xC1
 /* Recovery requested by user-mode via BCB */
 #define VBNV_RECOVERY_BCB_USER_MODE   0xC2
+/* Fastboot mode requested by user-mode */
+#define VBNV_RECOVERY_US_FASTBOOT     0xC3
 /* Unspecified/unknown error in user-mode */
 #define VBNV_RECOVERY_US_UNSPECIFIED  0xFF
 
