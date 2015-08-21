@@ -31,6 +31,7 @@ where <type> is one of:
              factory (sign a factory install image)
              install (old alias to "factory")
              update_payload (sign a delta update hash)
+             kernel (sign a kernel image)
              firmware (sign a firmware image)
              usb  (sign an image to boot directly from USB)
              verify (verify an image including rootfs hashes)
@@ -452,6 +453,29 @@ sign_firmware() {
   echo "Signed firmware image output to ${image}"
 }
 
+# Sign a kernel in-place with the given keys.
+# Args: KERNEL_IMAGE KEY_DIR KERNEL_VERSION
+sign_kernel() {
+  local image=$1
+  local key_dir=$2
+  local kernel_version=$3
+
+  # Note: Although vbutil_kernel may correctly handle specifying the same
+  # output file as the input file, we do not want to rely on it correctly
+  # handing that. Hence, the use of a temporary file.
+  local temp_kernel=$(make_temp_file)
+
+  # Resign the kernel with new keys.
+  vbutil_kernel --repack "${temp_kernel}" \
+    --keyblock "${key_dir}/kernel.keyblock" \
+    --signprivate "${key_dir}/kernel_data_key.vbprivk" \
+    --version "${kernel_version}" \
+    --oldblob "${image}"
+
+  mv "${temp_kernel}" "${image}"
+  echo "Signed kernel image output to ${image}"
+}
+
 # Sign a delta update payload (usually created by paygen).
 # Args: INPUT_IMAGE KEY_DIR OUTPUT_IMAGE
 sign_update_payload() {
@@ -748,6 +772,13 @@ elif [[ "${TYPE}" == "firmware" ]]; then
   fi
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   sign_firmware ${OUTPUT_IMAGE} ${KEY_DIR} ${FIRMWARE_VERSION}
+elif [[ "${TYPE}" == "kernel" ]]; then
+  if [[ -e "${KEY_DIR}/loem.ini" ]]; then
+    echo "LOEM signing not implemented yet for kernel images"
+    exit 1
+  fi
+  cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
+  sign_kernel "${OUTPUT_IMAGE}" "${KEY_DIR}" "${KERNEL_VERSION}"
 elif [[ "${TYPE}" == "update_payload" ]]; then
   sign_update_payload ${INPUT_IMAGE} ${KEY_DIR} ${OUTPUT_IMAGE}
 else
