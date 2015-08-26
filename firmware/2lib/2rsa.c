@@ -317,8 +317,10 @@ int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 	}
 
 	workbuf32 = vb2_workbuf_alloc(&wblocal, 3 * key_bytes);
-	if (!workbuf32)
+	if (!workbuf32) {
+		VB2_DEBUG("ERROR - vboot2 work buffer too small!\n");
 		return VB2_ERROR_RSA_VERIFY_WORKBUF;
+	}
 
 	modpowF4(key, sig, workbuf32);
 
