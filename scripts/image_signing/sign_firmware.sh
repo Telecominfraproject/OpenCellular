@@ -123,6 +123,16 @@ main() {
     sign_one
     gbb_update "${temp_fw}" "${key_dir}" "${out_firmware}" \
       "${key_dir}/root_key.vbpubk"
+
+    # Additional signing step for nVidia T210 SoC.
+    # Currently, cbootimage is unable to handle path with double slash.
+    if [[ -e ${key_dir}/nv_pkc.pem ]]; then
+      "${SCRIPT_DIR}/sign_nv_cbootimage.sh" \
+        "bootloader" \
+        "${key_dir%/}/nv_pkc.pem" \
+        "${out_firmware}" \
+        tegra210
+    fi
   fi
 }
 main "$@"
