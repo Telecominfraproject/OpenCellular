@@ -35,6 +35,7 @@ where <type> is one of:
              firmware (sign a firmware image)
              usb  (sign an image to boot directly from USB)
              verify (verify an image including rootfs hashes)
+             nv_lp0_firmware (sign nvidia lp0 firmware)
 
 output_image: File name of the signed output image
 version_file: File name of where to read the kernel and firmware versions.
@@ -453,6 +454,17 @@ sign_firmware() {
   echo "Signed firmware image output to ${image}"
 }
 
+# Sign nvidia lp0 firmware with the given keys.
+# Args: NV_LP0_FIRMWARE_IMAGE KEY_DIR
+sign_nv_lp0_firmware() {
+  local nv_lp0_fw_image=$1
+  local key_dir=$2
+
+  "${SCRIPT_DIR}/sign_nv_cbootimage.sh" "lp0_firmware" \
+      "${key_dir%/}/nv_pkc.pem" "${nv_lp0_fw_image}" "tegra210"
+  echo "Signed nvidia lp0 firmware image output to ${nv_lp0_fw_image}"
+}
+
 # Sign a kernel in-place with the given keys.
 # Args: KERNEL_IMAGE KEY_DIR KERNEL_VERSION
 sign_kernel() {
@@ -721,6 +733,11 @@ dump_config)
 verify)
   check_argc $# 2
   verify_image
+  exit 0
+  ;;
+nv_lp0_firmware)
+  check_argc $# 3
+  sign_nv_lp0_firmware "${INPUT_IMAGE}" "${KEY_DIR}"
   exit 0
   ;;
 *)

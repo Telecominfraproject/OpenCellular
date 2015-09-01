@@ -21,6 +21,7 @@ Usage: $0 <type> <pkc_key> <firmware_image> <soc>
 Signs <firmware_image> of <type> with <pkc_key> using cbootimage for <soc>.
 where type is one of
       bootloader = sign bootloader image
+      lp0_firmware = sign lp0 firmware
 EOF
   exit 1
 }
@@ -56,6 +57,20 @@ EOF
     popd >/dev/null
     # Copy signed firmware image and public key hash to current directory.
     mv "${work_dir}/pubkey.sha" "${firmware_image}.pubkey.sha"
+    mv "${signed_fw}" "${firmware_image}"
+
+  elif [[ "${type}" == "lp0_firmware" ]]; then
+
+    pushd "${work_dir}" >/dev/null
+
+    cat >update.cfg <<EOF
+PkcKey = ${pkc_key};
+RsaSign = 0x220,, 288, 16, Complete;
+EOF
+
+    cbootimage --sign update.cfg "${firmware_image}" "${signed_fw}"
+
+    popd >/dev/null
     mv "${signed_fw}" "${firmware_image}"
 
   else
