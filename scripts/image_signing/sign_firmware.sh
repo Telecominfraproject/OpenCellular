@@ -21,6 +21,7 @@ Usage: $0 <input_firmware> <key_dir> <output_firmware> [firmware_version] \
 
 Signs <input_firmware> with keys in <key_dir>, setting firmware version
 to <firmware_version>. Outputs signed firmware to <output_firmware>.
+The <input_firmware> and <output_firmware> paths may be the same.
 If no firmware version is specified, it is set as 1.
 EOF
   exit 1

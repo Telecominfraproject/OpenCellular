@@ -442,15 +442,10 @@ sign_firmware() {
   local firmware_version=$3
   local loem_output_dir=${4:-}
 
-  local temp_firmware=$(make_temp_file)
   # Resign the firmware with new keys, also replacing the root and recovery
   # public keys in the GBB.
-  "${SCRIPT_DIR}/sign_firmware.sh" "${image}" "${key_dir}" "${temp_firmware}" \
+  "${SCRIPT_DIR}/sign_firmware.sh" "${image}" "${key_dir}" "${image}" \
     "${firmware_version}" "${loem_output_dir}"
-  # Note: Although sign_firmware.sh may correctly handle specifying the same
-  # output file as the input file, we do not want to rely on it correctly
-  # handing that. Hence, the use of a temporary file.
-  mv ${temp_firmware} ${image}
   echo "Signed firmware image output to ${image}"
 }
 
