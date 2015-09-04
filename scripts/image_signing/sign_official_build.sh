@@ -730,11 +730,6 @@ verify)
   verify_image
   exit 0
   ;;
-nv_lp0_firmware)
-  check_argc $# 3
-  sign_nv_lp0_firmware "${INPUT_IMAGE}" "${KEY_DIR}"
-  exit 0
-  ;;
 *)
   # All other signing commands take 4 to 5 args.
   if [ -z "${OUTPUT_IMAGE}" ]; then
@@ -784,6 +779,13 @@ elif [[ "${TYPE}" == "firmware" ]]; then
   fi
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   sign_firmware ${OUTPUT_IMAGE} ${KEY_DIR} ${FIRMWARE_VERSION}
+elif [[ "${TYPE}" == "nv_lp0_firmware" ]]; then
+  if [[ -e "${KEY_DIR}/loem.ini" ]]; then
+      echo "LOEM signing not implemented yet for nv_lp0_firmware images"
+    exit 1
+  fi
+  cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
+  sign_nv_lp0_firmware "${OUTPUT_IMAGE}" "${KEY_DIR}"
 elif [[ "${TYPE}" == "kernel" ]]; then
   if [[ -e "${KEY_DIR}/loem.ini" ]]; then
     echo "LOEM signing not implemented yet for kernel images"
