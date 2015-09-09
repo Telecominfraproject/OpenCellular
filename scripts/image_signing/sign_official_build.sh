@@ -691,7 +691,7 @@ sign_image_file() {
   local kernB_keyblock="$7"
   local kernB_privkey="$8"
   echo "Preparing ${image_type} image..."
-  cp "${input}" "${output}"
+  cp --sparse=always "${input}" "${output}"
   resign_firmware_payload "${output}"
   # We do NOT strip /boot for factory installer, since some devices need it to
   # boot EFI. crbug.com/260512 would obsolete this requirement.
