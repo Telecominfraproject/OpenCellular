@@ -71,7 +71,6 @@ sign_loems() {
   local line loem_section=false loem_index loemid
   local rootkey
 
-  rm -f "${out_firmware}"
   while read line; do
     # Find the [loem] section.
     if ! ${loem_section}; then
@@ -95,7 +94,7 @@ sign_loems() {
     rootkey="${key_dir}/root_key.loem${loem_index}.vbpubk"
     cp "${rootkey}" "${loem_output_dir}/rootkey.${loemid}"
 
-    if [[ ! -e ${out_firmware} ]]; then
+    if [[ ${loem_index} == "1" ]]; then
       gbb_update "${temp_fw}" "${key_dir}" "${out_firmware}" "${rootkey}"
     fi
     echo
