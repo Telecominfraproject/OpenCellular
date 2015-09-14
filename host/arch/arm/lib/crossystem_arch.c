@@ -25,7 +25,8 @@
 #include "crossystem.h"
 #include "crossystem_arch.h"
 
-#define MOSYS_PATH "/usr/sbin/mosys"
+#define MOSYS_CROS_PATH "/usr/sbin/mosys"
+#define MOSYS_ANDROID_PATH "/system/bin/mosys"
 
 /* Base name for firmware FDT files */
 #define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
@@ -68,6 +69,22 @@ const PlatformFamily platform_family_array[] = {
   /* Terminate with NULL entry */
   {NULL, NULL}
 };
+
+static int InAndroid() {
+  int fd;
+  struct stat s;
+
+  /* In Android, mosys utility located in /system/bin
+     check if file exists.  Using fstat because for some
+     reason, stat() was seg faulting in Android */
+  fd = open(MOSYS_ANDROID_PATH, O_RDONLY);
+  if (fstat(fd, &s) == 0) {
+    close(fd);
+    return 1;
+  }
+  close(fd);
+  return 0;
+}
 
 static int FindEmmcDev(void) {
   int mmcblk;
@@ -313,7 +330,7 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
       }
     }
     /* Execute mosys */
-    execv(MOSYS_PATH, argv);
+    execv(InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH, argv);
     /* We shouldn't be here; exit now! */
     VBDEBUG(("execv() of mosys failed\n"));
     close(mosys_to_crossystem[1]);
@@ -347,7 +364,8 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
 static int VbReadNvStorage_mosys(VbNvContext* vnc) {
   char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
   char * const argv[] = {
-    MOSYS_PATH, "nvram", "vboot", "read", NULL
+    InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH,
+    "nvram", "vboot", "read", NULL
   };
   char hexdigit[3];
   int i;
@@ -366,7 +384,8 @@ static int VbReadNvStorage_mosys(VbNvContext* vnc) {
 static int VbWriteNvStorage_mosys(VbNvContext* vnc) {
   char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
   char * const argv[] = {
-    MOSYS_PATH, "nvram", "vboot", "write", hexstring, NULL
+    InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH,
+    "nvram", "vboot", "write", hexstring, NULL
   };
   int i;
 
