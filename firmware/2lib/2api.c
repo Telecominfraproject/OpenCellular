@@ -75,22 +75,32 @@ int vb2api_fw_phase1(struct vb2_context *ctx)
 	if (rv)
 		vb2_fail(ctx, VB2_RECOVERY_GBB_HEADER, rv);
 
-	/* Check for dev switch */
-	rv = vb2_check_dev_switch(ctx);
-	if (rv)
-		vb2_fail(ctx, VB2_RECOVERY_DEV_SWITCH, rv);
-
 	/*
-	 * Check for recovery.  Note that this function returns void, since
-	 * any errors result in requesting recovery.
+	 * Check for recovery.  Note that this function returns void, since any
+	 * errors result in requesting recovery.  That's also why we don't
+	 * return error from failures in the preceding two steps; those
+	 * failures simply cause us to detect recovery mode here.
 	 */
 	vb2_check_recovery(ctx);
+
+	/* Check for dev switch */
+	rv = vb2_check_dev_switch(ctx);
+	if (rv && !(ctx->flags & VB2_CONTEXT_RECOVERY_MODE)) {
+		/*
+		 * Error in dev switch processing, and we weren't already
+		 * headed for recovery mode.  Reboot into recovery mode, since
+		 * it's too late to handle those errors this boot, and we need
+		 * to take a different path through the dev switch checking
+		 * code in that case.
+		 */
+		vb2_fail(ctx, VB2_RECOVERY_DEV_SWITCH, rv);
+		return rv;
+	}
 
 	/* Return error if recovery is needed */
 	if (ctx->flags & VB2_CONTEXT_RECOVERY_MODE) {
 		/* Always clear RAM when entering recovery mode */
 		ctx->flags |= VB2_CONTEXT_CLEAR_RAM;
-
 		return VB2_ERROR_API_PHASE1_RECOVERY;
 	}
 

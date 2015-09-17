@@ -290,9 +290,9 @@ static void dev_switch_tests(void)
 	/* Normal mode */
 	reset_common_data();
 	TEST_SUCC(vb2_check_dev_switch(&cc), "dev mode off");
-	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "sd not in dev");
-	TEST_EQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "ctx not in dev");
-	TEST_EQ(mock_tpm_clear_called, 0, "no tpm clear");
+	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
+	TEST_EQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx not in dev");
+	TEST_EQ(mock_tpm_clear_called, 0, "  no tpm clear");
 
 	/* Dev mode */
 	reset_common_data();
@@ -300,9 +300,9 @@ static void dev_switch_tests(void)
 			(VB2_SECDATA_FLAG_DEV_MODE |
 			 VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER));
 	TEST_SUCC(vb2_check_dev_switch(&cc), "dev mode on");
-	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "sd in dev");
-	TEST_NEQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "ctx in dev");
-	TEST_EQ(mock_tpm_clear_called, 0, "no tpm clear");
+	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd in dev");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx in dev");
+	TEST_EQ(mock_tpm_clear_called, 0, "  no tpm clear");
 
 	/* Any normal mode boot clears dev boot flags */
 	reset_common_data();
@@ -313,34 +313,34 @@ static void dev_switch_tests(void)
 	vb2_nv_set(&cc, VB2_NV_FASTBOOT_UNLOCK_IN_FW, 1);
 	TEST_SUCC(vb2_check_dev_switch(&cc), "dev mode off");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_BOOT_USB),
-		0, "cleared dev boot usb");
+		0, "  cleared dev boot usb");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_BOOT_LEGACY),
-		0, "cleared dev boot legacy");
+		0, "  cleared dev boot legacy");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_BOOT_SIGNED_ONLY),
-		0, "cleared dev boot signed only");
+		0, "  cleared dev boot signed only");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP),
-		0, "cleared dev boot fastboot full cap");
+		0, "  cleared dev boot fastboot full cap");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FASTBOOT_UNLOCK_IN_FW),
-		0, "cleared dev boot fastboot unlock in fw");
+		0, "  cleared dev boot fastboot unlock in fw");
 
 	/* Normal-dev transition clears TPM */
 	reset_common_data();
 	vb2_secdata_set(&cc, VB2_SECDATA_FLAGS, VB2_SECDATA_FLAG_DEV_MODE);
 	TEST_SUCC(vb2_check_dev_switch(&cc), "to dev mode");
-	TEST_EQ(mock_tpm_clear_called, 1, "tpm clear");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 	vb2_secdata_get(&cc, VB2_SECDATA_FLAGS, &v);
 	TEST_EQ(v, (VB2_SECDATA_FLAG_DEV_MODE |
 		    VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER),
-		"last boot developer now");
+		"  last boot developer now");
 
 	/* Dev-normal transition clears TPM too */
 	reset_common_data();
 	vb2_secdata_set(&cc, VB2_SECDATA_FLAGS,
 			VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER);
 	TEST_SUCC(vb2_check_dev_switch(&cc), "from dev mode");
-	TEST_EQ(mock_tpm_clear_called, 1, "tpm clear");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 	vb2_secdata_get(&cc, VB2_SECDATA_FLAGS, &v);
-	TEST_EQ(v, 0, "last boot not developer now");
+	TEST_EQ(v, 0, "  last boot not developer now");
 
 	/* Disable dev mode */
 	reset_common_data();
@@ -349,29 +349,29 @@ static void dev_switch_tests(void)
 			 VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER));
 	vb2_nv_set(&cc, VB2_NV_DISABLE_DEV_REQUEST, 1);
 	TEST_SUCC(vb2_check_dev_switch(&cc), "disable dev request");
-	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "sd not in dev");
+	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DISABLE_DEV_REQUEST),
-		0, "request cleared");
+		0, "  request cleared");
 
-	/* Force enabled by gbb */
+	/* Force enabled by GBB */
 	reset_common_data();
 	sd->gbb_flags |= VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON;
 	TEST_SUCC(vb2_check_dev_switch(&cc), "dev on via gbb");
-	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "sd in dev");
+	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd in dev");
 	vb2_secdata_get(&cc, VB2_SECDATA_FLAGS, &v);
 	TEST_EQ(v, VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER,
-		"doesn't set dev on in secdata but does set last boot dev");
-	TEST_EQ(mock_tpm_clear_called, 1, "tpm clear");
+		"  doesn't set dev on in secdata but does set last boot dev");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 
 	/* Force enabled by ctx flag */
 	reset_common_data();
 	cc.flags |= VB2_CONTEXT_FORCE_DEVELOPER_MODE;
 	TEST_SUCC(vb2_check_dev_switch(&cc), "dev on via ctx flag");
-	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "sd in dev");
+	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd in dev");
 	vb2_secdata_get(&cc, VB2_SECDATA_FLAGS, &v);
 	TEST_EQ(v, VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER,
-		"doesn't set dev on in secdata but does set last boot dev");
-	TEST_EQ(mock_tpm_clear_called, 1, "tpm clear");
+		"  doesn't set dev on in secdata but does set last boot dev");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 
 	/* Simulate clear owner failure */
 	reset_common_data();
@@ -380,14 +380,65 @@ static void dev_switch_tests(void)
 	mock_tpm_clear_retval = VB2_ERROR_EX_TPM_CLEAR_OWNER;
 	TEST_EQ(vb2_check_dev_switch(&cc),
 		VB2_ERROR_EX_TPM_CLEAR_OWNER, "tpm clear fail");
-	TEST_EQ(mock_tpm_clear_called, 1, "tpm clear");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 	vb2_secdata_get(&cc, VB2_SECDATA_FLAGS, &v);
 	TEST_EQ(v, VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER,
-		"last boot still developer");
+		"  last boot still developer");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
-		VB2_RECOVERY_TPM_CLEAR_OWNER, "requests recovery");
+		VB2_RECOVERY_TPM_CLEAR_OWNER, "  requests recovery");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_SUBCODE),
-		(uint8_t)VB2_ERROR_EX_TPM_CLEAR_OWNER, "recovery subcode");
+		(uint8_t)VB2_ERROR_EX_TPM_CLEAR_OWNER, "  recovery subcode");
+
+	/*
+	 * Secdata failure in normal mode fails and shows dev=0 even if dev
+	 * mode was on in the (inaccessible) secdata.
+	 */
+	reset_common_data();
+	vb2_secdata_set(&cc, VB2_SECDATA_FLAGS, VB2_SECDATA_FLAG_DEV_MODE);
+	sd->status &= ~VB2_SD_STATUS_SECDATA_INIT;
+	TEST_EQ(vb2_check_dev_switch(&cc), VB2_ERROR_SECDATA_GET_UNINITIALIZED,
+		"secdata fail normal");
+	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
+	TEST_EQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx not in dev");
+
+	/* Secdata failure in recovery mode continues */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
+	sd->status &= ~VB2_SD_STATUS_SECDATA_INIT;
+	TEST_SUCC(vb2_check_dev_switch(&cc), "secdata fail recovery");
+	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
+	TEST_EQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx not in dev");
+
+	/* And doesn't check or clear dev disable request */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
+	sd->status &= ~VB2_SD_STATUS_SECDATA_INIT;
+	vb2_nv_set(&cc, VB2_NV_DISABLE_DEV_REQUEST, 1);
+	TEST_SUCC(vb2_check_dev_switch(&cc), "secdata fail recovery disable");
+	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
+	TEST_EQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx not in dev");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DISABLE_DEV_REQUEST),
+		1, "  request not cleared");
+
+	/* Can still override with GBB flag */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
+	sd->status &= ~VB2_SD_STATUS_SECDATA_INIT;
+	sd->gbb_flags |= VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON;
+	TEST_SUCC(vb2_check_dev_switch(&cc), "secdata fail recovery gbb");
+	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd in dev");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx in dev");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
+
+	/* Can still override with context flag */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
+	cc.flags |= VB2_CONTEXT_FORCE_DEVELOPER_MODE;
+	sd->status &= ~VB2_SD_STATUS_SECDATA_INIT;
+	TEST_SUCC(vb2_check_dev_switch(&cc), "secdata fail recovery ctx");
+	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd in dev");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx in dev");
+	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 }
 
 static void tpm_clear_tests(void)
