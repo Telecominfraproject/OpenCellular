@@ -44,6 +44,27 @@ int vb2api_fw_phase1(struct vb2_context *ctx)
 	/* Initialize NV context */
 	vb2_nv_init(ctx);
 
+	/*
+	 * Handle caller-requested reboot due to secdata.  Do this before we
+	 * even look at secdata.  If we fail because of a reboot loop we'll be
+	 * the first failure so will get to set the recovery reason.
+	 */
+	if (!(ctx->flags & VB2_CONTEXT_SECDATA_WANTS_REBOOT)) {
+		/* No reboot requested */
+		vb2_nv_set(ctx, VB2_NV_TPM_REQUESTED_REBOOT, 0);
+	} else if (vb2_nv_get(ctx, VB2_NV_TPM_REQUESTED_REBOOT)) {
+		/*
+		 * Reboot requested... again.  Fool me once, shame on you.
+		 * Fool me twice, shame on me.  Fail into recovery to avoid
+		 * a reboot loop.
+		 */
+		vb2_fail(ctx, VB2_RECOVERY_RO_TPM_REBOOT, 0);
+	} else {
+		/* Reboot requested for the first time */
+		vb2_nv_set(ctx, VB2_NV_TPM_REQUESTED_REBOOT, 1);
+		return VB2_ERROR_API_PHASE1_SECDATA_REBOOT;
+	}
+
 	/* Initialize secure data */
 	rv = vb2_secdata_init(ctx);
 	if (rv)

@@ -120,6 +120,15 @@ enum vb2_context_flags {
 
 	/* Boot optimistically: don't touch failure counters */
 	VB2_CONTEXT_NOFAIL_BOOT = (1 << 12),
+
+	/*
+	 * Secdata is not ready this boot, but should be ready next boot.  It
+	 * would like to reboot.  The decision whether to reboot or not must be
+	 * deferred until vboot, because rebooting all the time before then
+	 * could cause a device with malfunctioning secdata to get stuck in an
+	 * unrecoverable crash loop.
+	 */
+	VB2_CONTEXT_SECDATA_WANTS_REBOOT = (1 << 13),
 };
 
 /*
@@ -411,8 +420,11 @@ void vb2api_fail(struct vb2_context *ctx, uint8_t reason, uint8_t subcode);
 /**
  * Firmware selection, phase 1.
  *
- * On error, the calling firmware should jump directly to recovery-mode
- * firmware without rebooting.
+ * If the returned error is VB2_ERROR_API_PHASE1_RECOVERY, the calling firmware
+ * should jump directly to recovery-mode firmware without rebooting.
+ *
+ * For other errors, the calling firmware should check for updates to secdata
+ * and/or nvdata, then reboot.
  *
  * @param ctx		Vboot context
  * @return VB2_SUCCESS, or error code on error.

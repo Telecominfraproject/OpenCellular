@@ -71,6 +71,8 @@ enum vb2_nv_param {
 	VB2_NV_CLEAR_TPM_OWNER_REQUEST,
 	/* Flag that TPM owner was cleared on request. */
 	VB2_NV_CLEAR_TPM_OWNER_DONE,
+	/* TPM requested a reboot already. */
+	VB2_NV_TPM_REQUESTED_REBOOT,
 	/* More details on recovery reason */
 	VB2_NV_RECOVERY_SUBCODE,
 	/* Request that NVRAM be backed up at next boot if possible. */

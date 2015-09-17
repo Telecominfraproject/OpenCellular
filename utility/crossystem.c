@@ -87,6 +87,7 @@ const Param sys_param_list[] = {
   {"tpm_attack", CAN_WRITE, "TPM was interrupted since this flag was cleared"},
   {"tpm_fwver", 0, "Firmware version stored in TPM", "0x%08x"},
   {"tpm_kernver", 0, "Kernel version stored in TPM", "0x%08x"},
+  {"tpm_rebooted", 0, "TPM requesting repeated reboot (vboot2)"},
   {"tried_fwb", 0, "Tried firmware B before A this boot"},
   {"vdat_flags", 0, "Flags from VbSharedData", "0x%08x"},
   {"vdat_lfdebug", IS_STRING|NO_PRINT_ALL,

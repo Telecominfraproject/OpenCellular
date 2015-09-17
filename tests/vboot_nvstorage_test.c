@@ -37,6 +37,7 @@ static VbNvField nvfields[] = {
   {VBNV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
   {VBNV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
   {VBNV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
+  {VBNV_TPM_REQUESTED_REBOOT, 0, 1, 0, "tpm requested reboot"},
   {VBNV_OPROM_NEEDED, 0, 1, 0, "oprom needed"},
   {VBNV_FW_TRY_COUNT, 0, 8, 15, "try count"},
   {VBNV_FW_TRY_NEXT, 0, 1, 0, "try next"},

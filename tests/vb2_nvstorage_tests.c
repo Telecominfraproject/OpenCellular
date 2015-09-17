@@ -47,6 +47,7 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
 	{VB2_NV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
 	{VB2_NV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
+	{VB2_NV_TPM_REQUESTED_REBOOT, 0, 1, 0, "tpm requested reboot"},
 	{VB2_NV_OPROM_NEEDED, 0, 1, 0, "oprom needed"},
 	{VB2_NV_BACKUP_NVRAM_REQUEST, 0, 1, 0, "backup nvram request"},
 	{VB2_NV_FASTBOOT_UNLOCK_IN_FW, 0, 1, 0, "fastboot unlock in fw"},

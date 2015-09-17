@@ -131,7 +131,6 @@ static void phase1_tests(void)
 	TEST_NEQ(cc.flags & VB2_CONTEXT_RECOVERY_MODE, 0, "  recovery flag");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
 
-
 	reset_common_data(FOR_MISC);
 	retval_vb2_check_dev_switch = VB2_ERROR_MOCK;
 	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
@@ -149,6 +148,86 @@ static void phase1_tests(void)
 		"  recovery reason");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_RECOVERY_MODE, 0, "  recovery flag");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
+
+	/* Test secdata-requested reboot */
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_SECDATA_WANTS_REBOOT;
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_SECDATA_REBOOT,
+		"phase1 secdata reboot normal");
+	TEST_EQ(sd->recovery_reason, 0,	"  recovery reason");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		1, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
+		0, "  recovery request");
+
+	reset_common_data(FOR_MISC);
+	vb2_nv_set(&cc, VB2_NV_TPM_REQUESTED_REBOOT, 1);
+	TEST_SUCC(vb2api_fw_phase1(&cc), "phase1 secdata reboot back normal");
+	TEST_EQ(sd->recovery_reason, 0,	"  recovery reason");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		0, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
+		0, "  recovery request");
+
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_SECDATA_WANTS_REBOOT;
+	memset(cc.secdata, 0, sizeof(cc.secdata));
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_SECDATA_REBOOT,
+		"phase1 secdata reboot normal, secdata blank");
+	TEST_EQ(sd->recovery_reason, 0,	"  recovery reason");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		1, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
+		0, "  recovery request");
+
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_SECDATA_WANTS_REBOOT;
+	vb2_nv_set(&cc, VB2_NV_TPM_REQUESTED_REBOOT, 1);
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
+		"phase1 secdata reboot normal again");
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_RO_TPM_REBOOT,
+		"  recovery reason");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		1, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
+		0, "  recovery request");
+
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_SECDATA_WANTS_REBOOT;
+	vb2_nv_set(&cc, VB2_NV_RECOVERY_REQUEST, VB2_RECOVERY_RO_UNSPECIFIED);
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_SECDATA_REBOOT,
+		"phase1 secdata reboot recovery");
+	/* Recovery reason isn't set this boot because we're rebooting first */
+	TEST_EQ(sd->recovery_reason, 0, "  recovery reason not set THIS boot");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		1, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
+		VB2_RECOVERY_RO_UNSPECIFIED, "  recovery request not cleared");
+
+	reset_common_data(FOR_MISC);
+	vb2_nv_set(&cc, VB2_NV_TPM_REQUESTED_REBOOT, 1);
+	vb2_nv_set(&cc, VB2_NV_RECOVERY_REQUEST, VB2_RECOVERY_RO_UNSPECIFIED);
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
+		"phase1 secdata reboot back recovery");
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_RO_UNSPECIFIED,
+		"  recovery reason");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		0, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST), 0,
+		"  recovery request cleared");
+
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_SECDATA_WANTS_REBOOT;
+	vb2_nv_set(&cc, VB2_NV_TPM_REQUESTED_REBOOT, 1);
+	vb2_nv_set(&cc, VB2_NV_RECOVERY_REQUEST, VB2_RECOVERY_RO_UNSPECIFIED);
+	TEST_EQ(vb2api_fw_phase1(&cc), VB2_ERROR_API_PHASE1_RECOVERY,
+		"phase1 secdata reboot recovery again");
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_RO_UNSPECIFIED,
+		"  recovery reason");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_TPM_REQUESTED_REBOOT),
+		1, "  tpm reboot request");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST), 0,
+		"  recovery request cleared");
 }
 
 static void phase2_tests(void)

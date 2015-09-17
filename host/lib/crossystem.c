@@ -467,6 +467,8 @@ int VbGetSystemPropertyInt(const char* name) {
     value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_REQUEST);
   } else if (!strcasecmp(name,"clear_tpm_owner_done")) {
     value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE);
+  } else if (!strcasecmp(name,"tpm_rebooted")) {
+    value = VbGetNvStorage(VBNV_TPM_REQUESTED_REBOOT);
   } else if (!strcasecmp(name,"fwb_tries")) {
     value = VbGetNvStorage(VBNV_TRY_B_COUNT);
   } else if (!strcasecmp(name,"fw_vboot2")) {

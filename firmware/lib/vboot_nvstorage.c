@@ -46,6 +46,7 @@
 #define TPM_FLAGS_OFFSET             5
 #define TPM_CLEAR_OWNER_REQUEST         0x01
 #define TPM_CLEAR_OWNER_DONE            0x02
+#define TPM_REBOOTED                    0x04
 
 #define RECOVERY_SUBCODE_OFFSET      6
 
@@ -175,6 +176,10 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 
 	case VBNV_CLEAR_TPM_OWNER_DONE:
 		*dest = (raw[TPM_FLAGS_OFFSET] & TPM_CLEAR_OWNER_DONE ? 1 : 0);
+		return 0;
+
+	case VBNV_TPM_REQUESTED_REBOOT:
+		*dest = (raw[TPM_FLAGS_OFFSET] & TPM_REBOOTED ? 1 : 0);
 		return 0;
 
 	case VBNV_BACKUP_NVRAM_REQUEST:
@@ -345,6 +350,13 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 			raw[TPM_FLAGS_OFFSET] |= TPM_CLEAR_OWNER_DONE;
 		else
 			raw[TPM_FLAGS_OFFSET] &= ~TPM_CLEAR_OWNER_DONE;
+		break;
+
+	case VBNV_TPM_REQUESTED_REBOOT:
+		if (value)
+			raw[TPM_FLAGS_OFFSET] |= TPM_REBOOTED;
+		else
+			raw[TPM_FLAGS_OFFSET] &= ~TPM_REBOOTED;
 		break;
 
 	case VBNV_BACKUP_NVRAM_REQUEST:
