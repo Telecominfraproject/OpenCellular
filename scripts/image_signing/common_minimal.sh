@@ -162,19 +162,17 @@ is_rootfs_partition() {
 # If the kernel is buggy and is unable to loop+mount quickly,
 # retry the operation a few times.
 # Args: IMAGE PARTNUM MOUNTDIRECTORY [ro]
+#
+# This function does not check whether the partition is allowed to be mounted as
+# RW.  Callers must ensure the partition can be mounted as RW before calling
+# this function without |ro| argument.
 _mount_image_partition_retry() {
   local image=$1
   local partnum=$2
   local mount_dir=$3
   local ro=$4
-  local offset=$(( $(partoffset "$image" "$partnum") * 512 ))
+  local offset=$(( $(partoffset "${image}" "${partnum}") * 512 ))
   local out try
-
-  if [ "$ro" != "ro" ]; then
-    # Forcibly call enable_rw_mount.  It should fail on unsupported
-    # filesystems and be idempotent on ext*.
-    enable_rw_mount "$image" ${offset} 2> /dev/null
-  fi
 
   set -- sudo LC_ALL=C mount -o loop,offset=${offset},${ro} \
     "${image}" "${mount_dir}"
@@ -204,19 +202,38 @@ _mount_image_partition_retry() {
   return 1
 }
 
+# If called without 'ro', make sure the partition is allowed to be mounted as
+# 'rw' before actually mounting it.
+# Args: IMAGE PARTNUM MOUNTDIRECTORY [ro]
+_mount_image_partition() {
+  local image=$1
+  local partnum=$2
+  local mount_dir=$3
+  local ro=$4
+  local offset=$(( $(partoffset "${image}" "${partnum}") * 512 ))
+
+  if [ "$ro" != "ro" ]; then
+    # Forcibly call enable_rw_mount.  It should fail on unsupported
+    # filesystems and be idempotent on ext*.
+    enable_rw_mount "${image}" ${offset} 2> /dev/null
+  fi
+
+  _mount_image_partition_retry "$@"
+}
+
 # Mount a partition read-only from an image into a local directory
 # Args: IMAGE PARTNUM MOUNTDIRECTORY
 mount_image_partition_ro() {
-  _mount_image_partition_retry "$@" "ro"
+  _mount_image_partition "$@" "ro"
 }
 
 # Mount a partition from an image into a local directory
 # Args: IMAGE PARTNUM MOUNTDIRECTORY
 mount_image_partition() {
   local mount_dir=$3
-  _mount_image_partition_retry "$@"
-  if is_rootfs_partition "$mount_dir"; then
-    tag_as_needs_to_be_resigned "$mount_dir"
+  _mount_image_partition "$@"
+  if is_rootfs_partition "${mount_dir}"; then
+    tag_as_needs_to_be_resigned "${mount_dir}"
   fi
 }
 
