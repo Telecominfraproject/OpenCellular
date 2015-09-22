@@ -138,15 +138,6 @@ void GptRepair(GptData *gpt);
  */
 void GptModified(GptData *gpt);
 
-/* Getters and setters for partition attribute fields. */
-
-int GetEntrySuccessful(const GptEntry *e);
-int GetEntryPriority(const GptEntry *e);
-int GetEntryTries(const GptEntry *e);
-void SetEntrySuccessful(GptEntry *e, int successful);
-void SetEntryPriority(GptEntry *e, int priority);
-void SetEntryTries(GptEntry *e, int tries);
-
 /**
  * Return 1 if the entry is a Chrome OS kernel partition, else 0.
  */
