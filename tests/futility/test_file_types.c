@@ -29,15 +29,14 @@ static struct {
 	{FILE_TYPE_BIOS_IMAGE,      "tests/futility/data/bios_zgb_mp.bin"},
 	{FILE_TYPE_OLD_BIOS_IMAGE,  "tests/futility/data/bios_mario_mp.bin"},
 	{FILE_TYPE_KERN_PREAMBLE,   "tests/futility/data/kern_preamble.bin"},
-	/* We don't have a way to identify these (yet?) */
-	{FILE_TYPE_RAW_FIRMWARE,    },
-	{FILE_TYPE_RAW_KERNEL,	    },
-	{FILE_TYPE_CHROMIUMOS_DISK, },
+	{FILE_TYPE_RAW_FIRMWARE,    },		/* need a test for this */
+	{FILE_TYPE_RAW_KERNEL,	    },		/* need a test for this */
+	{FILE_TYPE_CHROMIUMOS_DISK, },		/* need a test for this */
 	{FILE_TYPE_PRIVKEY,	    "tests/devkeys/root_key.vbprivk"},
 	{FILE_TYPE_VB2_PUBKEY,      "tests/futility/data/sample.vbpubk2"},
 	{FILE_TYPE_VB2_PRIVKEY,     "tests/futility/data/sample.vbprik2"},
 	{FILE_TYPE_PEM,             "tests/testkeys/key_rsa2048.pem"},
-	{FILE_TYPE_USBPD1,          },
+	{FILE_TYPE_USBPD1,          "tests/futility/data/zinger_mp_image.bin"},
 };
 BUILD_ASSERT(ARRAY_SIZE(test_case) == NUM_FILE_TYPES);
 
