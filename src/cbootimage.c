@@ -79,7 +79,7 @@ usage(void)
 	printf("                          Default: tegra20.\n");
 	printf("    -u|--update           Copy input image data and update bct\n");
 	printf("                          configs into new image file.\n");
-	printf("                          This feature is only for tegra114/124.\n");
+	printf("                          This feature is currently not supported on Tegra20/30.\n");
 	printf("    configfile            File with configuration information\n");
 	printf("    inputimage            Input image name. This is required\n");
 	printf("                          if -u|--update option is used.\n");
@@ -169,9 +169,10 @@ process_command_line(int argc, char *argv[], build_image_context *context)
 	/* Record the input image filename if update_image is necessary */
 	if (context->update_image)
 	{
-		if (context->boot_data_version != BOOTDATA_VERSION_T114 &&
-			context->boot_data_version != BOOTDATA_VERSION_T124) {
-			printf("Update image feature is only for Tegra114 and Tegra124.\n");
+		if (context->boot_data_version == BOOTDATA_VERSION_T20 ||
+			context->boot_data_version == BOOTDATA_VERSION_T30) {
+			printf("Update image feature is not supported on"
+				" Tegra20/30.\n");
 			return -EINVAL;
 		}
 
