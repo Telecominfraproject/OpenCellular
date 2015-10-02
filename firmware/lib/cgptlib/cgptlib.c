@@ -157,21 +157,21 @@ int GptUpdateKernelWithEntry(GptData *gpt, GptEntry *e, uint32_t update_type)
 		}
 		break;
 	}
-	case GPT_UPDATE_ENTRY_RESET: {
+	case GPT_UPDATE_ENTRY_ACTIVE: {
 		/*
-		 * Used for fastboot mode. If image is written to kernel
-		 * partition, its GPT entry is marked with S1,P1,T15
+		 * Used for fastboot mode. If kernel partition slot is marked
+		 * active, its GPT entry is marked with S1,P2,T0.
 		 */
 		modified = 1;
-		SetEntryTries(e, 15);
-		SetEntryPriority(e, 1);
+		SetEntryTries(e, 0);
+		SetEntryPriority(e, 2);
 		SetEntrySuccessful(e, 1);
 		break;
 	}
 	case GPT_UPDATE_ENTRY_INVALID: {
 		/*
-		 * Used for fastboot mode. If kernel partition is erased, its
-		 * GPT entry is marked with S0,P0,T0
+		 * Used for fastboot mode. If kernel partition slot is marked
+		 * invalid, its GPT entry is marked with S0,P0,T0
 		 */
 		modified = 1;
 		SetEntryTries(e, 0);

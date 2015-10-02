@@ -51,12 +51,12 @@ enum {
 	 */
 	GPT_UPDATE_ENTRY_BAD = 2,
 	/*
-	 * Used for fastboot mode. When an image is written to kernel partition,
-	 * its GPT entry is marked with S1,P1,T15.
+	 * Used for fastboot mode. If kernel partition slot is marked active,
+	 * its GPT entry is marked with S1,P2,T0.
 	 */
-	GPT_UPDATE_ENTRY_RESET = 3,
+	GPT_UPDATE_ENTRY_ACTIVE = 3,
 	/*
-	 * Used for fastboot mode. When an image is written to kernel partition,
+	 * Used for fastboot mode. If kernel partition slot is marked invalid,
 	 * its GPT entry is marked with S0,P0,T0.
 	 */
 	GPT_UPDATE_ENTRY_INVALID = 4,
