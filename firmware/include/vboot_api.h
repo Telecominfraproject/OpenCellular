@@ -767,7 +767,7 @@ VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height);
  * to be simple ASCII text such as "NO GOOD" or "INSERT"; these screens should
  * only be seen during development.
  */
-VbError_t VbExDisplayScreen(uint32_t screen_type);
+VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale);
 
 /**
  * Write an image to the display, with the upper left corner at the specified

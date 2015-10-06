@@ -13,7 +13,7 @@
 #include "vboot_nvstorage.h"
 
 VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
-                                 VbNvContext *vncptr);
+                                 VbNvContext *vncptr, uint32_t locale);
 VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen, int force,
                           VbNvContext *vncptr);
 VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr);

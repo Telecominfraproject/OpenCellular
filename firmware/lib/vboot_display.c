@@ -138,12 +138,11 @@ void VbRenderTextAtPos(const char *text, int right_to_left,
 }
 
 VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
-                                 VbNvContext *vncptr)
+                                 VbNvContext *vncptr, uint32_t localization)
 {
 	char *fullimage = NULL;
 	BmpBlockHeader hdr;
 	uint32_t screen_index;
-	uint32_t localization = 0;
 	VbError_t retval = VBERROR_UNKNOWN;   /* Assume error until proven ok */
 	uint32_t inoutsize;
 	uint32_t i;
@@ -210,7 +209,6 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	}
 
 	/* Clip localization to number of localizations present in the GBB */
-	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &localization);
 	if (localization >= hdr.number_of_localizations) {
 		localization = 0;
 		VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, localization);
@@ -308,6 +306,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 			  int force, VbNvContext *vncptr)
 {
+	uint32_t locale;
 	VbError_t retval;
 
 	/* Initialize display if necessary */
@@ -327,13 +326,16 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 	/* Request the screen */
 	disp_current_screen = screen;
 
+	/* Read the locale last saved */
+	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &locale);
+
 	/* Look in the GBB first */
 	if (VBERROR_SUCCESS == VbDisplayScreenFromGBB(cparams, screen,
-						      vncptr))
+						      vncptr, locale))
 		return VBERROR_SUCCESS;
 
 	/* If screen wasn't in the GBB bitmaps, fall back to a default */
-	return VbExDisplayScreen(screen);
+	return VbExDisplayScreen(screen, locale);
 }
 
 static void Uint8ToString(char *buf, uint8_t val)
