@@ -293,6 +293,45 @@ static void VbBootDevTest(void)
 	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
+	/* Proceed to legacy after timeout if boot legacy and default boot
+	 * legacy are set */
+	ResetMocks();
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_DEFAULT_BOOT,
+		VBNV_DEV_DEFAULT_BOOT_LEGACY);
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_BOOT_LEGACY, 1);
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
+
+	/* Proceed to legacy boot mode only if enabled */
+	ResetMocks();
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_DEFAULT_BOOT,
+		VBNV_DEV_DEFAULT_BOOT_LEGACY);
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
+
+	/* Proceed to usb after timeout if boot usb and default boot
+	 * usb are set */
+	ResetMocks();
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_DEFAULT_BOOT,
+		VBNV_DEV_DEFAULT_BOOT_USB);
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_BOOT_USB, 1);
+	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 0, "Ctrl+U USB");
+
+	/* Proceed to usb boot mode only if enabled */
+	ResetMocks();
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_DEFAULT_BOOT,
+		VBNV_DEV_DEFAULT_BOOT_USB);
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Timeout");
+
+	/* If no USB tries fixed disk */
+	ResetMocks();
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_BOOT_USB, 1);
+	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_DEFAULT_BOOT,
+		VBNV_DEV_DEFAULT_BOOT_USB);
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Ctrl+U enabled");
+	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
+
 	/* Up arrow is uninteresting / passed to VbCheckDisplayKey() */
 	ResetMocks();
 	mock_keypress[0] = VB_KEY_UP;
@@ -402,7 +441,6 @@ static void VbBootDevTest(void)
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
 	ResetMocks();
-
 	gbb.flags |= GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
 	mock_keypress[0] = 0x0c;
 	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Ctrl+L force legacy");

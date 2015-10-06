@@ -76,6 +76,8 @@ typedef enum VbNvParam {
 	 * 0=no, 1=yes.
 	 */
 	VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
+	/* Set default boot mode (see VbDevDefaultBoot) */
+	VBNV_DEV_DEFAULT_BOOT,
 	/*
 	 * Set by userspace to request that RO firmware disable dev-mode on the
 	 * next boot. This is likely only possible if the dev-switch is
@@ -118,6 +120,19 @@ typedef enum VbNvParam {
 	VBNV_BOOT_ON_AC_DETECT,
 
 } VbNvParam;
+
+/* Set default boot in developer mode */
+typedef enum VbDevDefaultBoot {
+	/* Default to boot from disk*/
+	VBNV_DEV_DEFAULT_BOOT_DISK = 0,
+
+	/* Default to boot from USB */
+	VBNV_DEV_DEFAULT_BOOT_USB = 1,
+
+	/* Default to boot legacy OS */
+	VBNV_DEV_DEFAULT_BOOT_LEGACY = 2,
+
+} VbDevDefaultBoot;
 
 /* Result of trying the firmware in VBNV_FW_TRIED */
 typedef enum VbFwResult {

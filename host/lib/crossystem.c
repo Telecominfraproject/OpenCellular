@@ -61,6 +61,7 @@ typedef enum VbBuildOption {
 } VbBuildOption;
 
 static const char *fw_results[] = {"unknown", "trying", "success", "failure"};
+static const char *default_boot[] = {"disk", "usb", "legacy"};
 
 /* Masks for kern_nv usage by kernel. */
 #define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
@@ -586,6 +587,12 @@ const char* VbGetSystemPropertyString(const char* name, char* dest,
       return fw_results[v];
     else
       return "unknown";
+  } else if (!strcasecmp(name,"dev_default_boot")) {
+    int v = VbGetNvStorage(VBNV_DEV_DEFAULT_BOOT);
+    if (v < ARRAY_SIZE(default_boot))
+      return default_boot[v];
+    else
+      return "unknown";
   }
 
   return NULL;
@@ -692,6 +699,14 @@ int VbSetSystemPropertyString(const char* name, const char* value) {
     for (i = 0; i < ARRAY_SIZE(fw_results); i++) {
       if (!strcasecmp(value, fw_results[i]))
 	return VbSetNvStorage(VBNV_FW_RESULT, i);
+    }
+    return -1;
+  } else if (!strcasecmp(name, "dev_default_boot")) {
+    int i;
+
+    for (i = 0; i < ARRAY_SIZE(default_boot); i++) {
+      if (!strcasecmp(value, default_boot[i]))
+	return VbSetNvStorage(VBNV_DEV_DEFAULT_BOOT, i);
     }
     return -1;
   }

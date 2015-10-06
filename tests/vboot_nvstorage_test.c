@@ -34,6 +34,7 @@ static VbNvField nvfields[] = {
   {VBNV_DEV_BOOT_LEGACY, 0, 1, 0, "dev boot legacy"},
   {VBNV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
   {VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 0, 1, 0, "dev boot fastboot full cap"},
+  {VBNV_DEV_DEFAULT_BOOT, 0, 1, 2, "dev default boot"},
   {VBNV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
   {VBNV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
   {VBNV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
@@ -189,6 +190,9 @@ static void VbNvStorageTest(void) {
   VbNvSet(&c, VBNV_FW_RESULT, VBNV_FW_RESULT_UNKNOWN + 100);
   VbNvGet(&c, VBNV_FW_RESULT, &data);
   TEST_EQ(data, VBNV_FW_RESULT_UNKNOWN, "Firmware result out of range");
+  VbNvSet(&c, VBNV_DEV_DEFAULT_BOOT, VBNV_DEV_DEFAULT_BOOT_DISK + 100);
+  VbNvGet(&c, VBNV_DEV_DEFAULT_BOOT, &data);
+  TEST_EQ(data, VBNV_DEV_DEFAULT_BOOT_DISK, "Firmware result out of range");
   VbNvTeardown(&c);
 }
 

@@ -569,6 +569,12 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 			"\ndev_boot_legacy: ", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
+	/* Add dev_default_boot flag */
+	VbNvGet(vncptr, VBNV_DEV_DEFAULT_BOOT, &i);
+	used += StrnAppend(buf + used,
+			"\ndev_default_boot: ", DEBUG_INFO_SIZE - used);
+	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
+
 	/* Add dev_boot_signed_only flag */
 	VbNvGet(vncptr, VBNV_DEV_BOOT_SIGNED_ONLY, &i);
 	used += StrnAppend(buf + used, "\ndev_boot_signed_only: ",

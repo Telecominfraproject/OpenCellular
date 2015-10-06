@@ -170,6 +170,27 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 	return retval;
 }
 
+uint32_t VbTryUsb(VbCommonParams *cparams, LoadKernelParams *p)
+{
+	uint32_t retval = VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE);
+	if (VBERROR_SUCCESS == retval) {
+		VBDEBUG(("VbBootDeveloper() - booting USB\n"));
+	} else {
+		VBDEBUG(("VbBootDeveloper() - no kernel found on USB\n"));
+		VbExBeep(250, 200);
+		VbExSleepMs(120);
+		/*
+		 * Clear recovery requests from failed
+		 * kernel loading, so that powering off
+		 * at this point doesn't put us into
+		 * recovery mode.
+		 */
+		VbSetRecoveryRequest(
+			VBNV_RECOVERY_NOT_REQUESTED);
+	}
+	return retval;
+}
+
 #define CONFIRM_KEY_DELAY 20  /* Check confirm screen keys every 20ms */
 
 int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags)
@@ -251,7 +272,14 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	uint32_t allow_usb = 0, allow_legacy = 0, ctrl_d_pressed = 0;
+
+	uint32_t allow_usb = 0;
+	uint32_t allow_legacy = 0;
+	uint32_t use_usb = 0;
+	uint32_t use_legacy = 0;
+	uint32_t default_boot = 0;
+	uint32_t ctrl_d_pressed = 0;
+
 	VbAudioContext *audio = 0;
 
 	VBDEBUG(("Entering %s()\n", __func__));
@@ -260,11 +288,23 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
 	VbNvGet(&vnc, VBNV_DEV_BOOT_LEGACY, &allow_legacy);
 
+	/* Check if the default is to boot using disk, usb, or legacy */
+	VbNvGet(&vnc, VBNV_DEV_DEFAULT_BOOT, &default_boot);
+
+	if(default_boot == VBNV_DEV_DEFAULT_BOOT_USB)
+		use_usb = 1;
+	if(default_boot == VBNV_DEV_DEFAULT_BOOT_LEGACY)
+		use_legacy = 1;
+
 	/* Handle GBB flag override */
 	if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_USB)
 		allow_usb = 1;
 	if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
 		allow_legacy = 1;
+	if (gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
+		use_legacy = 1;
+		use_usb = 0;
+	}
 
 	/* Show the dev mode warning screen */
 	VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
@@ -397,26 +437,10 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 				 */
 				VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0,
 						&vnc);
-				if (VBERROR_SUCCESS ==
-				    VbTryLoadKernel(cparams, p,
-						    VB_DISK_FLAG_REMOVABLE)) {
-					VBDEBUG(("VbBootDeveloper() - "
-						 "booting USB\n"));
+				if (VBERROR_SUCCESS == VbTryUsb(cparams, p)) {
 					VbAudioClose(audio);
 					return VBERROR_SUCCESS;
 				} else {
-					VBDEBUG(("VbBootDeveloper() - "
-						 "no kernel found on USB\n"));
-					VbExBeep(250, 200);
-					VbExSleepMs(120);
-					/*
-					 * Clear recovery requests from failed
-					 * kernel loading, so that powering off
-					 * at this point doesn't put us into
-					 * recovery mode.
-					 */
-					VbSetRecoveryRequest(
-						VBNV_RECOVERY_NOT_REQUESTED);
 					/* Show dev mode warning screen again */
 					VbDisplayScreen(
 						cparams,
@@ -435,10 +459,16 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
  fallout:
 
 	/* If defaulting to legacy boot, try that unless Ctrl+D was pressed */
-	if ((gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) &&
-	    !ctrl_d_pressed) {
+	if (use_legacy && !ctrl_d_pressed) {
 		VBDEBUG(("VbBootDeveloper() - defaulting to legacy\n"));
 		VbTryLegacy(allow_legacy);
+	}
+
+	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
+		if (VBERROR_SUCCESS == VbTryUsb(cparams, p)) {
+			VbAudioClose(audio);
+			return VBERROR_SUCCESS;
+		}
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */

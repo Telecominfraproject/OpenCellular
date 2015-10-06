@@ -556,6 +556,7 @@ static void VbInitTestBackup(void)
 	VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
+	VbNvSet(&vnc, VBNV_DEV_DEFAULT_BOOT, 1);
 	VbNvSet(&vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, 1);
 	/* and some that don't */
 	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
@@ -586,6 +587,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 0, "  NV dev_boot_signed_only");
 	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
 	TEST_EQ(u, 0, "  NV dev_boot_fastboot_full_cap");
+	VbNvGet(&vnc, VBNV_DEV_DEFAULT_BOOT, &u);
+	TEST_EQ(u, 0, "  NV dev_default_boot");
 	VbNvGet(&vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, &u);
 	TEST_EQ(u, 0, "  NV_fastboot_unlock_in_fw ");
 	/* So we should have written the backup */
@@ -605,6 +608,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 0, "  BU dev_boot_signed_only");
 	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
 	TEST_EQ(u, 0, "  BU dev_boot_fastboot_full_cap");
+	VbNvGet(&tmp_vnc, VBNV_DEV_DEFAULT_BOOT, &u);
+	TEST_EQ(u, 0, "  BU dev_default_boot");
 	VbNvGet(&tmp_vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, &u);
 	TEST_EQ(u, 0, "  BU fastboot_unlock_in_fw");
 	/* but not the others */
@@ -647,6 +652,7 @@ static void VbInitTestBackup(void)
 	VbNvSet(&vnc, VBNV_DEV_BOOT_LEGACY, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
 	VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
+	VbNvSet(&vnc, VBNV_DEV_DEFAULT_BOOT, 1);
 	VbNvSet(&vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, 1);
 	/* and some that don't */
 	VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
@@ -697,6 +703,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 1, "  BU dev_boot_signed_only");
 	VbNvGet(&tmp_vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
 	TEST_EQ(u, 1, "  BU dev_boot_fastboot_full_cap");
+	VbNvGet(&tmp_vnc, VBNV_DEV_DEFAULT_BOOT, &u);
+	TEST_EQ(u, 1, "  BU dev_default_boot");
 	VbNvGet(&tmp_vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, &u);
 	TEST_EQ(u, 1, "  BU fastboot_unlock_in_fw");
 	/* but not the others */
@@ -738,6 +746,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 1, "  BU dev_boot_signed_only");
 	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
 	TEST_EQ(u, 1, "  BU dev_boot_fastboot_full_cap");
+	VbNvGet(&tmp_vnc, VBNV_DEV_DEFAULT_BOOT, &u);
+	TEST_EQ(u, 1, "  BU dev_default_boot");
 	VbNvGet(&vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, &u);
 	TEST_EQ(u, 1, "  BU fastboot_unlock_in_fw");
 
@@ -776,6 +786,8 @@ static void VbInitTestBackup(void)
 	TEST_EQ(u, 0, "  BU dev_boot_signed_only");
 	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &u);
 	TEST_EQ(u, 0, "  BU dev_boot_fastboot_full_cap");
+	VbNvGet(&vnc, VBNV_DEV_DEFAULT_BOOT, &u);
+	TEST_EQ(u, 0, "  BU dev_default_boot");
 	VbNvGet(&vnc, VBNV_FASTBOOT_UNLOCK_IN_FW, &u);
 	TEST_EQ(u, 0, "  BU fastboot_unlock_in_fw");
 }

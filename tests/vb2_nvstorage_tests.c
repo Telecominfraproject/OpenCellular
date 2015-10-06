@@ -44,6 +44,7 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_DEV_BOOT_LEGACY, 0, 1, 0, "dev boot legacy"},
 	{VB2_NV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
 	{VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP, 0, 1, 0, "dev boot fb full cap"},
+	{VB2_NV_DEV_DEFAULT_BOOT, 0, 1, 2, "dev default boot"},
 	{VB2_NV_DISABLE_DEV_REQUEST, 0, 1, 0, "disable dev request"},
 	{VB2_NV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
 	{VB2_NV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
@@ -195,6 +196,10 @@ static void nv_storage_test(void)
 	vb2_nv_set(&c, VB2_NV_FW_RESULT, VB2_FW_RESULT_UNKNOWN + 100);
 	TEST_EQ(vb2_nv_get(&c, VB2_NV_FW_RESULT),
 		VB2_FW_RESULT_UNKNOWN, "Firmware result out of range");
+
+	vb2_nv_set(&c, VB2_NV_DEV_DEFAULT_BOOT, VB2_DEV_DEFAULT_BOOT_DISK + 100);
+	TEST_EQ(vb2_nv_get(&c, VB2_NV_DEV_DEFAULT_BOOT),
+		VB2_DEV_DEFAULT_BOOT_DISK, "default to booting from disk");
 }
 
 int main(int argc, char* argv[])

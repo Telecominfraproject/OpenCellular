@@ -276,6 +276,7 @@ int vb2_check_dev_switch(struct vb2_context *ctx)
 		vb2_nv_set(ctx, VB2_NV_DEV_BOOT_LEGACY, 0);
 		vb2_nv_set(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY, 0);
 		vb2_nv_set(ctx, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP, 0);
+		vb2_nv_set(ctx, VB2_NV_DEV_DEFAULT_BOOT, 0);
 		vb2_nv_set(ctx, VB2_NV_FASTBOOT_UNLOCK_IN_FW, 0);
 	}
 

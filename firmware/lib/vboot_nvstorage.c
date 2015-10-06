@@ -42,6 +42,8 @@
 #define DEV_BOOT_SIGNED_ONLY_MASK       0x02
 #define DEV_BOOT_LEGACY_MASK            0x04
 #define DEV_BOOT_FASTBOOT_FULL_CAP_MASK 0x08
+#define DEV_DEFAULT_BOOT_MASK           0x30
+#define DEV_DEFAULT_BOOT_SHIFT 4  /* Number of bits to shift */
 
 #define TPM_FLAGS_OFFSET             5
 #define TPM_CLEAR_OWNER_REQUEST         0x01
@@ -149,6 +151,11 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 
 	case VBNV_DEV_BOOT_LEGACY:
 		*dest = (raw[DEV_FLAGS_OFFSET] & DEV_BOOT_LEGACY_MASK ? 1 : 0);
+		return 0;
+
+	case VBNV_DEV_DEFAULT_BOOT:
+		*dest = (raw[DEV_FLAGS_OFFSET] & DEV_DEFAULT_BOOT_MASK)
+			>> DEV_DEFAULT_BOOT_SHIFT;
 		return 0;
 
 	case VBNV_DEV_BOOT_SIGNED_ONLY:
@@ -306,6 +313,17 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 			raw[DEV_FLAGS_OFFSET] |= DEV_BOOT_LEGACY_MASK;
 		else
 			raw[DEV_FLAGS_OFFSET] &= ~DEV_BOOT_LEGACY_MASK;
+		break;
+
+	case VBNV_DEV_DEFAULT_BOOT:
+		/* Map out of range values to boot disk */
+		if (value > (DEV_DEFAULT_BOOT_MASK >>
+			     DEV_DEFAULT_BOOT_SHIFT))
+			value = VBNV_DEV_DEFAULT_BOOT_DISK;
+
+		raw[DEV_FLAGS_OFFSET] &= ~DEV_DEFAULT_BOOT_MASK;
+		raw[DEV_FLAGS_OFFSET] |= (uint8_t)value <<
+			DEV_DEFAULT_BOOT_SHIFT;
 		break;
 
 	case VBNV_DEV_BOOT_SIGNED_ONLY:

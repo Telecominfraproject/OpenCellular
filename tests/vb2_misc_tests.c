@@ -310,6 +310,7 @@ static void dev_switch_tests(void)
 	vb2_nv_set(&cc, VB2_NV_DEV_BOOT_LEGACY, 1);
 	vb2_nv_set(&cc, VB2_NV_DEV_BOOT_SIGNED_ONLY, 1);
 	vb2_nv_set(&cc, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
+	vb2_nv_set(&cc, VB2_NV_DEV_DEFAULT_BOOT, 1);
 	vb2_nv_set(&cc, VB2_NV_FASTBOOT_UNLOCK_IN_FW, 1);
 	TEST_SUCC(vb2_check_dev_switch(&cc), "dev mode off");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_BOOT_USB),
@@ -320,6 +321,8 @@ static void dev_switch_tests(void)
 		0, "  cleared dev boot signed only");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP),
 		0, "  cleared dev boot fastboot full cap");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_DEV_DEFAULT_BOOT),
+		0, "  cleared dev default boot");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_FASTBOOT_UNLOCK_IN_FW),
 		0, "  cleared dev boot fastboot unlock in fw");
 
