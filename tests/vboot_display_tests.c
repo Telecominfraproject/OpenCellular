@@ -149,14 +149,14 @@ static void LocalizationTest(void)
 	ResetMocks();
 	cparams.gbb->bmpfv_size = 0;
 	TEST_EQ(VbGetLocalizationCount(&cparams, &count),
-		VBERROR_INVALID_GBB, "VbGetLocalizationCount bad gbb");
+		VBERROR_UNKNOWN, "VbGetLocalizationCount bad gbb");
 	TEST_EQ(count, 0, "  count");
 	VbApiKernelFree(&cparams);
 
 	ResetMocks();
 	bhdr->signature[0] ^= 0x5a;
 	TEST_EQ(VbGetLocalizationCount(&cparams, &count),
-		VBERROR_INVALID_BMPFV, "VbGetLocalizationCount bad bmpfv");
+		VBERROR_UNKNOWN, "VbGetLocalizationCount bad bmpfv");
 	VbApiKernelFree(&cparams);
 
 	ResetMocks();

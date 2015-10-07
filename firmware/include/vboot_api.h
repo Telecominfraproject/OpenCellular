@@ -1078,4 +1078,12 @@ VbError_t VbLockDevice(void);
  * @return 0 if no override, 1-15 for override priority.
  */
 uint8_t VbExOverrideGptEntryPriority(const GptEntry *e);
+
+/**
+ * Return number of locales supported
+ *
+ * @param count		Pointer to the number of locales.
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbExGetLocalizationCount(uint32_t *count);
 #endif  /* VBOOT_REFERENCE_VBOOT_API_H_ */

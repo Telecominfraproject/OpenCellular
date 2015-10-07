@@ -20,6 +20,11 @@
 static uint32_t disp_current_screen = VB_SCREEN_BLANK;
 static uint32_t disp_width = 0, disp_height = 0;
 
+__attribute__((weak))
+VbError_t VbExGetLocalizationCount(uint32_t *count) {
+	return VBERROR_UNKNOWN;
+}
+
 VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count)
 {
 	BmpBlockHeader hdr;
@@ -28,12 +33,15 @@ VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count)
 	/* Default to 0 on error */
 	*count = 0;
 
+	/* First try to get the count from GBB */
 	ret = VbGbbReadBmpHeader(cparams, &hdr);
-	if (ret)
+	if (ret == VBERROR_SUCCESS) {
+		*count = hdr.number_of_localizations;
 		return ret;
+	}
 
-	*count = hdr.number_of_localizations;
-	return VBERROR_SUCCESS;
+	/* If GBB is broken or missing, fallback to the callback */
+	return VbExGetLocalizationCount(count);
 }
 
 /*
