@@ -84,3 +84,20 @@ bct_dump_SOURCES = \
 	t132/nvboot_sdram_param_t132.h \
 	t210/nvboot_bct_t210.h \
 	t210/nvboot_sdram_param_t210.h
+
+man_MANS = cbootimage.1 bct_dump.1
+
+EXTRA_DIST = cbootimage.1.in bct_dump.1.in
+DISTCLEANFILES = cbootimage.1 cbootimage.man bct_dump.1 bct_dump.man
+
+cbootimage.1: $(srcdir)/cbootimage.1.in
+	sed 's|VERSION|$(VERSION)|g' $< >$@
+
+cbootimage.man: $(srcdir)/cbootimage.1
+	nroff -man $< >$@
+
+bct_dump.1: $(srcdir)/bct_dump.1.in
+	sed 's|VERSION|$(VERSION)|g' $< >$@
+
+bct_dump.man: $(srcdir)/bct_dump.1
+	nroff -man $< >$@
