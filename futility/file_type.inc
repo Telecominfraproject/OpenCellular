@@ -71,6 +71,10 @@ FILE_TYPE(CHROMIUMOS_DISK,  "disk_img",      "chromiumos disk image",
 	  NONE,
 	  NONE,
 	  NONE)
+FILE_TYPE(RWSIG,            "rwsig",         "RO+RW firmware image",
+	  NONE,
+	  NONE,
+	  S_(ft_sign_rwsig))
 /* Firmware for USB Type-C power adapters */
 FILE_TYPE(USBPD1,           "usbpd1",        "USB-PD charger image (v1.0)",
 	  R_(ft_recognize_usbpd1),

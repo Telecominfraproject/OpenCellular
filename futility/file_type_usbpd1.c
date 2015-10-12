@@ -12,7 +12,7 @@
  * and the image itself just looks like a bunch of random numbers.
  *
  * This file handles those images, but PLEASE don't use it as a template for
- * new devices.
+ * new devices. Look at file_type_rwsig.c instead.
  */
 
 #include <stdint.h>
@@ -259,7 +259,7 @@ static enum vb2_signature_algorithm sigs[] = {
 	VB2_SIG_RSA4096,
 	VB2_SIG_RSA8192,
 };
-enum vb2_hash_algorithm hashes[] = {
+static enum vb2_hash_algorithm hashes[] = {
 	VB2_HASH_SHA256,
 	VB2_HASH_SHA1,
 	VB2_HASH_SHA512,

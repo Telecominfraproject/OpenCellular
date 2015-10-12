@@ -43,6 +43,8 @@ struct sign_option_s sign_option = {
 	.rw_size = 0xffffffff,
 	.ro_offset = 0xffffffff,
 	.rw_offset = 0xffffffff,
+	.pkey_offset = 0xffffffff,
+	.sig_offset = 0xffffffff,
 };
 
 /* Helper to complain about invalid args. Returns num errors discovered */
@@ -462,6 +464,49 @@ static void print_help_usbpd1(int argc, char *argv[])
 	       "\n");
 }
 
+/* The rwsig help is the same as the usbpd1 help, for now anyway. */
+static void print_help_rwsig(int argc, char *argv[])
+{
+	printf("\n"
+	       "Usage:  " MYNAME " %s --type %s [options] INFILE [OUTFILE]\n"
+	       "\n"
+	       "This signs a %s.\n"
+	       "\n"
+	       "The INPUT is assumed to consist of equal-sized RO and RW"
+	       " sections.\n"
+	       "Signing the RW image will put the signature in the RW half."
+	       " If the public\n"
+	       "key is provided, it will be copied to the RO half.\n"
+	       "\n"
+	       "Options:\n"
+	       "\n"
+	       "  --prikey         FILE.vbprik2"
+	       "           Private key in vb2 format\n"
+	       "  --pubkey         FILE.vbpubk2"
+	       "           Public key in vb2 format\n"
+	       "\n"
+	       "The size and offset assumptions can be overridden. "
+	       "All numbers are in bytes.\n"
+	       "Specify a size of 0 to ignore that section.\n"
+	       "\n"
+	       "  --rw_size        NUM"
+	       "           Size of the RW section (default half)\n"
+	       "  --rw_offset      NUM"
+	       "           Start of the RW section (default half)\n"
+	       "  --sig_offset     NUM"
+	       "           Where to place the signature (default is\n"
+	       "                      "
+	       "             near the end of the RW image)\n"
+	       "  --pkey_offset    NUM"
+	       "           Where to place the public key (default is\n"
+	       "                      "
+	       "             near the end of the RO image)\n"
+	       "\n",
+	       argv[0],
+	       futil_file_type_name(FILE_TYPE_RWSIG),
+	       futil_file_type_desc(FILE_TYPE_RWSIG));
+}
+
 static void (*help_type[NUM_FILE_TYPES])(int argc, char *argv[]) = {
 	[FILE_TYPE_PUBKEY] = &print_help_pubkey,
 	[FILE_TYPE_RAW_FIRMWARE] = &print_help_raw_firmware,
@@ -469,6 +514,7 @@ static void (*help_type[NUM_FILE_TYPES])(int argc, char *argv[]) = {
 	[FILE_TYPE_RAW_KERNEL] = &print_help_raw_kernel,
 	[FILE_TYPE_KERN_PREAMBLE] = &print_help_kern_preamble,
 	[FILE_TYPE_USBPD1] = &print_help_usbpd1,
+	[FILE_TYPE_RWSIG] = &print_help_rwsig,
 };
 
 static const char usage_default[] = "\n"
@@ -482,9 +528,11 @@ static const char usage_default[] = "\n"
 	"  full firmware image (bios.bin)      same, or signed in-place\n"
 	"  raw linux kernel (vmlinuz)          kernel partition image\n"
 	"  kernel partition (/dev/sda2)        same, or signed in-place\n"
+	"  usbpd1 firmware image               same, or signed in-place\n"
+	"  RO+RW firmware image                same, or signed in-place\n"
 	"\n"
-	"For more information, use \"" MYNAME " help %s TYPE\",\n"
-	"where TYPE is one of:\n\n";
+	"For more information, use \"" MYNAME " help %s TYPE\", where\n"
+	"TYPE is one of:\n\n";
 static void print_help_default(int argc, char *argv[])
 {
 	enum futil_file_type type;
@@ -527,6 +575,10 @@ enum no_short_opts {
 	OPT_RW_SIZE,
 	OPT_RO_OFFSET,
 	OPT_RW_OFFSET,
+	OPT_PKEY_OFFSET,
+	OPT_SIG_OFFSET,
+	OPT_PRIKEY,
+	OPT_PUBKEY,
 	OPT_HELP,
 };
 
@@ -562,6 +614,11 @@ static const struct option long_opts[] = {
 	{"rw_size",      1, NULL, OPT_RW_SIZE},
 	{"ro_offset",    1, NULL, OPT_RO_OFFSET},
 	{"rw_offset",    1, NULL, OPT_RW_OFFSET},
+	{"pkey_offset",  1, NULL, OPT_PKEY_OFFSET},
+	{"sig_offset",   1, NULL, OPT_SIG_OFFSET},
+	{"prikey",       1, NULL, OPT_PRIKEY},
+	{"privkey",      1, NULL, OPT_PRIKEY},	/* alias */
+	{"pubkey",       1, NULL, OPT_PUBKEY},
 	{"help",         0, NULL, OPT_HELP},
 	{NULL,           0, NULL, 0},
 };
@@ -728,6 +785,14 @@ static int do_sign(int argc, char *argv[])
 			errorcnt += parse_number_opt(optarg, "rw_offset",
 						     &sign_option.rw_offset);
 			break;
+		case OPT_PKEY_OFFSET:
+			errorcnt += parse_number_opt(optarg, "pkey_offset",
+						     &sign_option.pkey_offset);
+			break;
+		case OPT_SIG_OFFSET:
+			errorcnt += parse_number_opt(optarg, "sig_offset",
+						     &sign_option.sig_offset);
+			break;
 		case OPT_PEM_SIGNPRIV:
 			sign_option.pem_signpriv = optarg;
 			break;
@@ -759,6 +824,19 @@ static int do_sign(int argc, char *argv[])
 				    print_file_types_and_exit(errorcnt);
 				fprintf(stderr,
 					"Invalid --type \"%s\"\n", optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_PRIKEY:
+			if (vb2_private_key_read(&sign_option.prikey,
+						 optarg)) {
+				fprintf(stderr, "Error reading %s\n", optarg);
+				errorcnt++;
+			}
+			break;
+		case OPT_PUBKEY:
+			if (vb2_packed_key_read(&sign_option.pkey, optarg)) {
+				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
 			break;
@@ -894,6 +972,9 @@ static int do_sign(int argc, char *argv[])
 		errorcnt += no_opt_if(!sign_option.pem_signpriv, "pem");
 		errorcnt += no_opt_if(sign_option.hash_alg == VB2_HASH_INVALID,
 				      "hash_alg");
+		break;
+	case FILE_TYPE_RWSIG:
+		errorcnt += no_opt_if(!sign_option.prikey, "prikey");
 		break;
 	default:
 		/* Anything else we don't care */

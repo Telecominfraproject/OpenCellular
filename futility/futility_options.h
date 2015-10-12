@@ -16,6 +16,9 @@
 #include "file_type.h"
 #include "2rsa.h"
 
+struct vb2_private_key;
+struct vb2_packed_key;
+
 struct show_option_s {
 	VbPublicKey *k;
 	uint8_t *fv;
@@ -58,6 +61,9 @@ struct sign_option_s {
 	enum vb2_hash_algorithm hash_alg;
 	uint32_t ro_size, rw_size;
 	uint32_t ro_offset, rw_offset;
+	uint32_t pkey_offset, sig_offset;
+	struct vb2_private_key *prikey;
+	struct vb2_packed_key *pkey;
 };
 extern struct sign_option_s sign_option;
 
