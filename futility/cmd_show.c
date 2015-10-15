@@ -29,6 +29,8 @@
 #include "util_misc.h"
 #include "vb1_helper.h"
 #include "vboot_common.h"
+#include "2api.h"
+#include "host_key2.h"
 
 /* Options */
 struct show_option_s show_option = {
@@ -395,6 +397,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 enum no_short_opts {
 	OPT_PADDING = 1000,
 	OPT_TYPE,
+	OPT_PUBKEY,
 	OPT_HELP,
 };
 
@@ -415,8 +418,8 @@ static const char usage[] = "\n"
 	"  --type           TYPE            Override the detected file type\n"
 	"                                     Use \"--type help\" for a list\n"
 	"Type-specific options:\n"
-	"  -k|--publickey   FILE"
-	"            Use this public key for validation\n"
+	"  -k|--publickey   FILE.vbpubk     Public key in vb1 format\n"
+	"  --pubkey         FILE.vpubk2     Public key in vb2 format\n"
 	"  -f|--fv          FILE            Verify this payload (FW_MAIN_A/B)\n"
 	"  --pad            NUM             Kernel vblock padding size\n"
 	"  --strict                         "
@@ -441,6 +444,7 @@ static const struct option long_opts[] = {
 	{"pad",         1, NULL, OPT_PADDING},
 	{"type",        1, NULL, OPT_TYPE},
 	{"strict",      0, &show_option.strict, 1},
+	{"pubkey",      1, NULL, OPT_PUBKEY},
 	{"help",        0, NULL, OPT_HELP},
 	{NULL, 0, NULL, 0},
 };
@@ -527,6 +531,12 @@ static int do_show(int argc, char *argv[])
 				errorcnt++;
 			}
 			type_override = 1;
+			break;
+		case OPT_PUBKEY:
+			if (vb2_packed_key_read(&show_option.pkey, optarg)) {
+				fprintf(stderr, "Error reading %s\n", optarg);
+				errorcnt++;
+			}
 			break;
 		case OPT_HELP:
 			print_help(argc, argv);

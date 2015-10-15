@@ -27,6 +27,8 @@ struct show_option_s {
 	int strict;
 	int t_flag;
 	enum futil_file_type type;
+	struct vb2_packed_key *pkey;
+	uint32_t sig_size;
 };
 extern struct show_option_s show_option;
 
@@ -53,6 +55,7 @@ struct sign_option_s {
 	int vblockonly;
 	char *outfile;
 	int create_new_outfile;
+	int inout_file_count;
 	char *pem_signpriv;
 	int pem_algo_specified;
 	uint32_t pem_algo;
@@ -61,9 +64,8 @@ struct sign_option_s {
 	enum vb2_hash_algorithm hash_alg;
 	uint32_t ro_size, rw_size;
 	uint32_t ro_offset, rw_offset;
-	uint32_t pkey_offset, sig_offset;
+	uint32_t data_size, sig_size;
 	struct vb2_private_key *prikey;
-	struct vb2_packed_key *pkey;
 };
 extern struct sign_option_s sign_option;
 

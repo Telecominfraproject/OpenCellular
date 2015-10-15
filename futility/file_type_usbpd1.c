@@ -465,8 +465,6 @@ enum futil_file_type ft_recognize_usbpd1(uint8_t *buf, uint32_t len)
 	uint32_t ro_size, rw_size, ro_offset, rw_offset;
 	int s, h;
 
-	Debug("%s(): len  0x%08x (%d)\n", __func__, len, len);
-
 	/*
 	 * Since we don't use any headers to identify or locate the pubkey and
 	 * signature, in order to identify blob as the right type we have to
