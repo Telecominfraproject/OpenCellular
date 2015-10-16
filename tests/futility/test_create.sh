@@ -52,6 +52,18 @@ for sig in rsa1024 rsa2048 rsa4096 rsa8192; do
   [ "$pem_sum" = "$uniq_sums" ]
 done
 
+# Demonstrate that we can create some vb21 public key from PEM containing
+# only the pubkeypairs and verify it's the same as the one generated from
+# the private key.
+for sig in rsa1024 rsa2048 rsa4096 rsa8192; do
+  for hash in sha1 sha256 sha512; do
+    ${FUTILITY} --vb21 create --hash_alg "${hash}" \
+      "${TESTKEYS}/key_${sig}.pub.pem" "${TMP}_key_${sig}.pubonly.${hash}"
+    cmp "${TMP}_key_${sig}.pubonly.${hash}.vbpubk2" \
+      "${TMP}_key_${sig}.${hash}.vbpubk2"
+  done
+done
+
 # cleanup
 rm -rf ${TMP}*
 exit 0

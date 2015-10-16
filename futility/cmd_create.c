@@ -169,6 +169,7 @@ static int vb2_make_keypair()
 	uint32_t keyb_size;
 	enum vb2_signature_algorithm sig_alg;
 	uint8_t *pubkey_buf = 0;
+	int has_priv = 0;
 
 	FILE *fp;
 	int ret = 1;
@@ -180,12 +181,21 @@ static int vb2_make_keypair()
 	}
 
 	rsa_key = PEM_read_RSAPrivateKey(fp, NULL, NULL, NULL);
-	fclose(fp);
 
+	if (!rsa_key) {
+		/* Check if the PEM contains only a public key */
+		fseek(fp, 0, SEEK_SET);
+		rsa_key = PEM_read_RSA_PUBKEY(fp, NULL, NULL, NULL);
+	}
+	fclose(fp);
 	if (!rsa_key) {
 		fprintf(stderr, "Unable to read RSA key from %s\n", infile);
 		goto done;
 	}
+	/* Public keys doesn't have the private exponent */
+	has_priv = !!rsa_key->d;
+	if (!has_priv)
+		fprintf(stderr, "%s has a public key only.\n", infile);
 
 	sig_alg = vb2_rsa_sig_alg(rsa_key);
 	if (sig_alg == VB2_SIG_INVALID) {
@@ -193,19 +203,21 @@ static int vb2_make_keypair()
 		goto done;
 	}
 
-	/* Create the private key */
-	privkey = calloc(1, sizeof(*privkey));
-	if (!privkey) {
-		fprintf(stderr, "Unable to allocate the private key\n");
-		goto done;
-	}
+	if (has_priv) {
+		/* Create the private key */
+		privkey = calloc(1, sizeof(*privkey));
+		if (!privkey) {
+			fprintf(stderr, "Unable to allocate the private key\n");
+			goto done;
+		}
 
-	privkey->rsa_private_key = rsa_key;
-	privkey->sig_alg = sig_alg;
-	privkey->hash_alg = opt_hash_alg;
-	if (opt_desc && vb2_private_key_set_desc(privkey, opt_desc)) {
-		fprintf(stderr, "Unable to set the private key description\n");
-		goto done;
+		privkey->rsa_private_key = rsa_key;
+		privkey->sig_alg = sig_alg;
+		privkey->hash_alg = opt_hash_alg;
+		if (opt_desc && vb2_private_key_set_desc(privkey, opt_desc)) {
+			fprintf(stderr, "Unable to set the private key description\n");
+			goto done;
+		}
 	}
 
 	/* Create the public key */
@@ -248,16 +260,18 @@ static int vb2_make_keypair()
 		free(digest);
 	}
 
-	privkey->id = opt_id;
 	memcpy((struct vb2_id *)pubkey->id, &opt_id, sizeof(opt_id));
 
 	/* Write them out */
-	strcpy(outext, ".vbprik2");
-	if (vb2_private_key_write(privkey, outfile)) {
-		fprintf(stderr, "unable to write private key\n");
-		goto done;
+	if (has_priv) {
+		privkey->id = opt_id;
+		strcpy(outext, ".vbprik2");
+		if (vb2_private_key_write(privkey, outfile)) {
+			fprintf(stderr, "unable to write private key\n");
+			goto done;
+		}
+		fprintf(stderr, "wrote %s\n", outfile);
 	}
-	fprintf(stderr, "wrote %s\n", outfile);
 
 	strcpy(outext, ".vbpubk2");
 	if (vb2_public_key_write(pubkey, outfile)) {

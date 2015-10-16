@@ -184,6 +184,11 @@ static RSA *rsa_from_buffer(uint8_t *buf, uint32_t len)
 
 	rsa_key = PEM_read_bio_RSAPrivateKey(bp, NULL, NULL, NULL);
 	if (!rsa_key) {
+		if (BIO_reset(bp) < 0)
+			return 0;
+		rsa_key = PEM_read_bio_RSA_PUBKEY(bp, NULL, NULL, NULL);
+	}
+	if (!rsa_key) {
 		BIO_free(bp);
 		return 0;
 	}
@@ -212,12 +217,14 @@ int ft_show_pem(const char *name, uint8_t *buf, uint32_t len, void *data)
 	uint32_t keyb_len;
 	int i, bits;
 
-	printf("Private Key file:      %s\n", name);
-
 	/* We're called only after ft_recognize_pem, so this should work. */
 	rsa_key = rsa_from_buffer(buf, len);
 	if (!rsa_key)
 		DIE;
+
+	/* Use to presence of the private exponent to decide if it's public */
+	printf("%s Key file:      %s\n", rsa_key->d ? "Private" : "Public",
+					 name);
 
 	bits = BN_num_bits(rsa_key->n);
 	printf("  Key length:          %d\n", bits);
