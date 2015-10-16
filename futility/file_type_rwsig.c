@@ -226,7 +226,8 @@ enum futil_file_type ft_recognize_rwsig(uint8_t *buf, uint32_t len)
 	if (!vb2_verify_signature((const struct vb2_signature *)buf, len))
 		return FILE_TYPE_RWSIG;
 
-	if (!vb2_verify_signature((const struct vb2_signature *)
+	if (len >= SIGNATURE_RSVD_SIZE &&
+	    !vb2_verify_signature((const struct vb2_signature *)
 				  (buf + len - SIGNATURE_RSVD_SIZE),
 				  SIGNATURE_RSVD_SIZE))
 		return FILE_TYPE_RWSIG;

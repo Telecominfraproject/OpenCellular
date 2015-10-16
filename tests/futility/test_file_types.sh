@@ -26,6 +26,7 @@ fail_case() {
 }
 
 # Known types
+test_case "unknown"         "tests/futility/data/short_junk.bin"
 test_case "unknown"         "tests/futility/data/random_noise.bin"
 test_case "pubkey"          "tests/devkeys/root_key.vbpubk"
 test_case "keyblock"        "tests/devkeys/kernel.keyblock"
