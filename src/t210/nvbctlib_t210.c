@@ -113,7 +113,10 @@ parse_token t210_root_token_list[] = {
 	token_crypto_length,
 	token_max_bct_search_blks,
 	token_unique_chip_id,
-	token_secure_debug_control
+	token_secure_debug_control,
+	token_rsa_key_modulus,
+	token_rsa_pss_sig_bl,
+	token_rsa_pss_sig_bct
 };
 
 int
@@ -2174,6 +2177,28 @@ t210_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 }
 
 int
+t210_bct_get_value_size(parse_token id)
+{
+	switch (id) {
+	case token_rsa_key_modulus:
+		return sizeof(nvboot_rsa_key_modulus);
+
+	case token_rsa_pss_sig_bl:
+		return sizeof(nvboot_rsa_pss_sig);
+
+	case token_rsa_pss_sig_bct:
+		return sizeof(nvboot_rsa_pss_sig);
+
+	/*
+	 * Other bct fields can be added in when needed
+	 */
+	default:
+		return -ENODATA;
+	}
+	return 0;
+}
+
+int
 t210_bct_set_value(parse_token id, void *data, u_int8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
@@ -2196,6 +2221,26 @@ t210_bct_set_value(parse_token id, void *data, u_int8_t *bct)
 	CASE_SET_NVU32(secure_debug_control);
 	case token_unique_chip_id:
 		memcpy(&bct_ptr->unique_chip_id, data, sizeof(nvboot_ecid));
+		break;
+
+	case token_rsa_key_modulus:
+		reverse_byte_order((u_int8_t *)&bct_ptr->key, data,
+					sizeof(nvboot_rsa_key_modulus));
+		break;
+
+	case token_rsa_pss_sig_bl:
+		/*
+		 * Update bootloader 0 since there is only one copy
+		 * of bootloader being built in.
+		 */
+		reverse_byte_order(
+			(u_int8_t *)&bct_ptr->bootloader[0].signature.rsa_pss_sig,
+			data, sizeof(nvboot_rsa_pss_sig));
+		break;
+
+	case token_rsa_pss_sig_bct:
+		reverse_byte_order((u_int8_t *)&bct_ptr->signature.rsa_pss_sig,
+			data, sizeof(nvboot_rsa_pss_sig));
 		break;
 
 	default:
@@ -2279,6 +2324,7 @@ cbootimage_soc_config tegra210_config = {
 	.getbl_param				= t210_getbl_param,
 	.set_value					= t210_bct_set_value,
 	.get_value					= t210_bct_get_value,
+	.get_value_size					= t210_bct_get_value_size,
 	.set_data					= t210_bct_set_data,
 	.get_bct_size				= t210_get_bct_size,
 	.token_supported			= t210_bct_token_supported,

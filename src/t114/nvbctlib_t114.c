@@ -1112,6 +1112,7 @@ cbootimage_soc_config tegra114_config = {
 	.getbl_param				= t114_getbl_param,
 	.set_value					= t114_bct_set_value,
 	.get_value					= t114_bct_get_value,
+	.get_value_size					= bct_get_unsupported,
 	.set_data					= t114_bct_set_data,
 	.get_bct_size				= t114_get_bct_size,
 	.token_supported			= t114_bct_token_supported,

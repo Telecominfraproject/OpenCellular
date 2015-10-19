@@ -147,6 +147,50 @@ set_mts_image(build_image_context	*context,
 	context->mts_entry_point = entry_point;
 	return update_mts_image(context);
 }
+
+int
+set_rsa_param(build_image_context *context, parse_token token,
+		char *filename)
+{
+	int	result;
+	u_int8_t *rsa_storage;	/* Holds the rsa param after reading */
+	int32_t size;		/* Bytes to read */
+	u_int32_t actual_size;	/* In bytes */
+
+	if ((size = g_soc_config->get_value_size(token)) <= 0)  {
+		printf("Error: Unsupported token %d for value size.\n", token);
+		exit(1);
+	}
+
+	/* Read the image into memory. */
+	result = read_from_image(filename,
+				0,
+				(u_int32_t)size,
+				&rsa_storage,
+				&actual_size,
+				file_type_bin);
+
+	if (result) {
+		printf("Error reading file %s.\n", filename);
+		exit(1);
+	}
+
+	if (actual_size != size) {
+		printf("Error: invalid size, file %s.\n", filename);
+		exit(1);
+	}
+
+	if (enable_debug)
+		printf("Updating token %d with file %s\n", (int)token, filename);
+
+	/* set to appropriate bct field */
+	result = g_soc_config->set_value(token,
+			rsa_storage, context->bct);
+
+	free(rsa_storage);
+	return result;
+}
+
 #define DEFAULT()                                                     \
 	default:                                                      \
 		printf("Unexpected token %d at line %d\n",            \

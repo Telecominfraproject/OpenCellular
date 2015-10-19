@@ -42,6 +42,11 @@ set_mts_image(build_image_context	*context,
 		u_int32_t	entry_point);
 
 int
+set_rsa_param(build_image_context	*context,
+		parse_token	token,
+		char	*filename);
+
+int
 context_set_value(build_image_context	*context,
 		parse_token	token,
 		void		*value);

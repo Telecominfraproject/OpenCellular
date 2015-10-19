@@ -60,6 +60,7 @@ typedef enum
 	file_type_bl = 0,
 	file_type_bct,
 	file_type_mts,
+	file_type_bin,
 } file_type;
 
 /*

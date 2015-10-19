@@ -44,4 +44,9 @@ sign_data_block(u_int8_t *source,
 		u_int32_t length,
 		u_int8_t *signature);
 
+void
+reverse_byte_order(
+	u_int8_t *out,
+	const u_int8_t *in,
+	const u_int32_t size);
 #endif /* #ifndef INCLUDED_CRYPTO_H */

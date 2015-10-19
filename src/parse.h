@@ -114,6 +114,10 @@ typedef enum
 	token_secure_jtag_control,
 	token_secure_debug_control,
 
+	token_rsa_key_modulus,
+	token_rsa_pss_sig_bl,
+	token_rsa_pss_sig_bct,
+
 	token_nand_clock_divider,
 	token_nand_nand_timing,
 	token_nand_nand_timing2,
@@ -1109,6 +1113,14 @@ typedef struct cbootimage_soc_config_rec {
 			void *data,
 			u_int8_t *bct);
 	/*
+	 * Get the size of specified bct field
+	 *
+	 * @param id  	The parse token
+	 * @return size or 0/-ENODATA for failure
+	 */
+	int (*get_value_size)(parse_token id);
+
+	/*
 	 * Set the bct crypto hash data.
 	 *
 	 * @param id    	The parse token value
@@ -1337,6 +1349,11 @@ u_int32_t iceil_log2(u_int32_t a, u_int32_t b);
 u_int32_t ceil_log2(u_int32_t a);
 
 extern cbootimage_soc_config *g_soc_config;
+
+/*
+ * Dummy function for unsupported token
+ */
+int bct_get_unsupported(parse_token id);
 
 /*
  * Provide access to enum and field tables.  These tables are useful when

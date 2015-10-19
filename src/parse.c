@@ -65,6 +65,8 @@ parse_bootloader(build_image_context *context, parse_token token, char *rest);
 static int
 parse_mts_image(build_image_context *context, parse_token token, char *rest);
 static int
+parse_rsa_param(build_image_context *context, parse_token token, char *rest);
+static int
 parse_value_u32(build_image_context *context, parse_token token, char *rest);
 static int
 parse_value_chipuid(build_image_context *context,
@@ -116,6 +118,9 @@ static parse_item s_top_level_items[] = {
 	{ "ChipUid=",       token_unique_chip_id,	parse_value_chipuid },
 	{ "JtagCtrl=",	    token_secure_jtag_control,	parse_value_u32 },
 	{ "DebugCtrl=",	    token_secure_debug_control,	parse_value_u32 },
+	{ "RsaKeyModulusFile=", token_rsa_key_modulus,	parse_rsa_param },
+	{ "RsaPssSigBlFile=",   token_rsa_pss_sig_bl,	parse_rsa_param },
+	{ "RsaPssSigBctFile=",  token_rsa_pss_sig_bct,	parse_rsa_param },
 	{ NULL, 0, NULL } /* Must be last */
 };
 
@@ -477,6 +482,36 @@ static int parse_mts_image(build_image_context *context,
 
 	/* Parsing has finished - set the bootloader */
 	return set_mts_image(context, filename, load_addr, entry_point);
+}
+
+/*
+ * Parse the given rsa modulus/key/signature file name
+ * then call set_rsa_settings to set proper rsa field.
+ *
+ * @param context	The main context pointer
+ * @param token  	The parse token value
+ * @param rest   	String to parse
+ * @return 0 and 1 for success and failure
+ */
+static int parse_rsa_param(build_image_context *context,
+			parse_token token,
+			char *rest)
+{
+	char filename[MAX_BUFFER];
+
+	assert(context != NULL);
+	assert(rest != NULL);
+
+	if (context->generate_bct != 0)
+		return 0;
+
+	/* Parse the file name. */
+	rest = parse_filename(rest, filename, MAX_BUFFER);
+	if (rest == NULL)
+		return 1;
+
+	/* Parsing has finished - set the bootloader */
+	return set_rsa_param(context, token, filename);
 }
 
 /*
@@ -938,4 +973,9 @@ void process_config_file(build_image_context *context, u_int8_t simple_parse)
  error:
 	printf("Error parsing: %s\n", buffer);
 	exit(1);
+}
+
+int bct_get_unsupported(parse_token id)
+{
+	return -ENODATA;
 }

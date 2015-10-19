@@ -297,3 +297,32 @@ sign_bct(build_image_context *context,
 	free(hash_buffer);
 	return e;
 }
+
+/*
+ * reverse_byte_order
+ *
+ * Reverse the order of bytes pointed by 'in' and place the results
+ * to location pointed by 'out'. If 'out' is the same as 'in', then
+ * order of bytes pointed by 'in' is reversed.
+ */
+void
+reverse_byte_order(
+	u_int8_t *out,
+	const u_int8_t *in,
+	const u_int32_t size)
+{
+	u_int32_t i, j;
+	u_int8_t b1, b2;
+
+	for (i = 0; i < size / 2; i++) {
+		j = size - 1 - i;
+		b1 = in[i];
+		b2 = in[j];
+		out[i] = b2;
+		out[j] = b1;
+	}
+
+	/* In case odd number of bytes */
+	if (size % 2)
+		out[size / 2] = in[size / 2];
+}

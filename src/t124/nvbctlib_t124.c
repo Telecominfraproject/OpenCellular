@@ -1125,6 +1125,7 @@ cbootimage_soc_config tegra124_config = {
 	.getbl_param				= t124_getbl_param,
 	.set_value					= t124_bct_set_value,
 	.get_value					= t124_bct_get_value,
+	.get_value_size					= bct_get_unsupported,
 	.set_data					= t124_bct_set_data,
 	.get_bct_size				= t124_get_bct_size,
 	.token_supported			= t124_bct_token_supported,
