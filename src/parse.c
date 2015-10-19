@@ -80,6 +80,8 @@ static int
 parse_dev_param(build_image_context *context, parse_token token, char *rest);
 static int
 parse_sdram_param(build_image_context *context, parse_token token, char *rest);
+static int
+parse_sign_bl(build_image_context *context, parse_token token, char *rest);
 
 static int process_statement(build_image_context *context,
 				char *str,
@@ -121,6 +123,7 @@ static parse_item s_top_level_items[] = {
 	{ "RsaKeyModulusFile=", token_rsa_key_modulus,	parse_rsa_param },
 	{ "RsaPssSigBlFile=",   token_rsa_pss_sig_bl,	parse_rsa_param },
 	{ "RsaPssSigBctFile=",  token_rsa_pss_sig_bct,	parse_rsa_param },
+	{ "RehashBl",       token_sign_bl,		parse_sign_bl },
 	{ NULL, 0, NULL } /* Must be last */
 };
 
@@ -687,6 +690,12 @@ parse_bct_file(build_image_context *context, parse_token token, char *rest)
 
 	update_context(context);
 	return 0;
+}
+
+static int
+parse_sign_bl(build_image_context *context, parse_token token, char *rest)
+{
+	return resign_bl(context);
 }
 
 static char *

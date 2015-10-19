@@ -49,4 +49,11 @@ reverse_byte_order(
 	u_int8_t *out,
 	const u_int8_t *in,
 	const u_int32_t size);
+
+int
+sign_bl(build_image_context *context,
+	u_int8_t *bootloader,
+	u_int32_t length,
+	u_int32_t image_instance);
+
 #endif /* #ifndef INCLUDED_CRYPTO_H */

@@ -1065,3 +1065,54 @@ int get_bct_size_from_image(build_image_context *context)
 	context->bct = 0;
 	return bct_size;
 }
+
+int resign_bl(build_image_context *context)
+{
+	int ret;
+	u_int8_t  *buffer, *image;
+	u_int32_t  image_instance = 0;	/* support only one instance */
+	u_int32_t  image_actual_size; /* In bytes */
+	u_int32_t  bl_length;
+	u_int32_t  pages_in_image;
+	u_int32_t  blk_size, page_size, current_blk, current_page;
+	u_int32_t  offset;
+
+	/* read in bl from image */
+	g_soc_config->get_value(token_block_size, &blk_size, context->bct);
+	g_soc_config->get_value(token_page_size, &page_size, context->bct);
+
+	GET_BL_FIELD(image_instance, start_blk, &current_blk);
+	GET_BL_FIELD(image_instance, start_page,  &current_page);
+	GET_BL_FIELD(image_instance, length,  &bl_length);
+
+	offset = current_blk * blk_size +
+			current_page * page_size;
+
+	if (read_from_image(context->input_image_filename,
+				offset, bl_length,
+				&image, &image_actual_size, file_type_bin)) {
+		printf("Error reading image file %s.\n",
+				context->input_image_filename);
+		return -ENOMEM;
+	}
+
+	pages_in_image = ICEIL(image_actual_size, page_size);
+
+	/* Create a local copy of the bl */
+	if ((buffer = malloc(pages_in_image * page_size)) == NULL) {
+		ret = -ENOMEM;
+		goto fail;
+	}
+
+	memset(buffer, 0, pages_in_image * page_size);
+	memcpy(buffer, image, image_actual_size);
+
+	insert_padding(buffer, image_actual_size);
+
+	/* sign bl */
+	ret = sign_bl(context, buffer, image_actual_size, image_instance);
+	free (buffer);
+ fail:
+	free (image);
+	return ret;
+}

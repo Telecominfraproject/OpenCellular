@@ -117,6 +117,7 @@ typedef enum
 	token_rsa_key_modulus,
 	token_rsa_pss_sig_bl,
 	token_rsa_pss_sig_bct,
+	token_sign_bl,
 
 	token_nand_clock_divider,
 	token_nand_nand_timing,

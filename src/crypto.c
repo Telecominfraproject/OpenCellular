@@ -326,3 +326,37 @@ reverse_byte_order(
 	if (size % 2)
 		out[size / 2] = in[size / 2];
 }
+
+int
+sign_bl(build_image_context *context,
+	u_int8_t *bootloader,
+	u_int32_t length,
+	u_int32_t image_instance)
+{
+	int e = 0;
+	u_int8_t  *hash_buffer;
+	u_int32_t  hash_size;
+
+	g_soc_config->get_value(token_hash_size,
+			&hash_size, context->bct);
+
+	hash_buffer = calloc(1, hash_size);
+	if (hash_buffer == NULL)
+		return -ENOMEM;
+
+	/* Encrypt and compute hash */
+	if ((e = sign_data_block(bootloader,
+			length,
+			hash_buffer)) != 0)
+		goto fail;
+
+	if ((e = g_soc_config->setbl_param(image_instance,
+				token_bl_crypto_hash,
+				(u_int32_t*)hash_buffer,
+				context->bct)) != 0)
+		goto fail;
+
+ fail:
+	free(hash_buffer);
+	return e;
+}

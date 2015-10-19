@@ -64,4 +64,6 @@ get_bct_size_from_image(build_image_context *context);
 int
 begin_update(build_image_context *context);
 
+int
+resign_bl(build_image_context *context);
 #endif /* #ifndef INCLUDED_DATA_LAYOUT_H */
