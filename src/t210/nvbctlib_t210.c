@@ -109,6 +109,8 @@ parse_token t210_root_token_list[] = {
 	token_bootloaders_max,
 	token_bct_size,
 	token_hash_size,
+	token_crypto_hash,
+	token_bl_crypto_hash,
 	token_crypto_offset,
 	token_crypto_length,
 	token_max_bct_search_blks,
@@ -2034,6 +2036,12 @@ t210_getbl_param(u_int32_t set,
 		sizeof(nvboot_hash));
 		break;
 
+	case token_rsa_pss_sig_bl:
+		reverse_byte_order((u_int8_t *)data,
+			(const u_int8_t *)&bct_ptr->bootloader[set].signature.rsa_pss_sig,
+			sizeof(nvboot_rsa_pss_sig));
+		break;
+
 	default:
 		return -ENODATA;
 	}
@@ -2128,6 +2136,17 @@ t210_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 
 	case token_unique_chip_id:
 		memcpy(data, &(bct_ptr->unique_chip_id), sizeof(nvboot_ecid));
+		break;
+
+	case token_rsa_key_modulus:
+		reverse_byte_order(data, (const u_int8_t *)&bct_ptr->key,
+				sizeof(nvboot_rsa_key_modulus));
+		break;
+
+	case token_rsa_pss_sig_bct:
+		reverse_byte_order(data,
+			(const u_int8_t *)&bct_ptr->signature.rsa_pss_sig,
+			sizeof(nvboot_rsa_pss_sig));
 		break;
 
 	case token_reserved_offset:

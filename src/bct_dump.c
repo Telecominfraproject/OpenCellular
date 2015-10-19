@@ -27,11 +27,13 @@
 int enable_debug;
 cbootimage_soc_config * g_soc_config;
 
-static void format_u32_hex8(char const * message, void * data);
-static void format_u32(char const * message, void * data);
-static void format_chipuid(char const * message, void * data);
+static void format_u32_hex8(parse_token id, char const * message, void * data);
+static void format_u32(parse_token id, char const * message, void * data);
+static void format_chipuid(parse_token id, char const * message, void * data);
+static void format_hex_16_bytes(parse_token id, char const * message, void * data);
+static void format_rsa_param(parse_token id, char const * message, void * data);
 
-typedef void (*format_function)(char const * message, void * data);
+typedef void (*format_function)(parse_token id, char const * message, void * data);
 
 typedef struct {
 	parse_token id;
@@ -39,9 +41,11 @@ typedef struct {
 	format_function format;
 } value_data;
 
+#define PARAM_TYPE_BINARY_DATA_MAX_SIZE 256
 typedef union {
 	u_int32_t val;
 	u_int8_t uid[16];
+	u_int8_t binary[PARAM_TYPE_BINARY_DATA_MAX_SIZE];
 } param_types;
 
 #define MAX_PARAM_SIZE sizeof(param_types)
@@ -54,6 +58,9 @@ static value_data const values[] = {
 	{ token_odm_data,            "OdmData       = ", format_u32_hex8 },
 	{ token_secure_jtag_control, "JtagCtrl      = ", format_u32_hex8 },
 	{ token_secure_debug_control, "DebugCtrl     = ", format_u32_hex8 },
+	{ token_crypto_hash, 	     "BCT AES Hash  = ", format_hex_16_bytes },
+	{ token_rsa_key_modulus,     "RsaKeyModulus:\n", format_rsa_param },
+	{ token_rsa_pss_sig_bct,     "RsaPssSigBct:\n", format_rsa_param },
 	{ token_unique_chip_id,      "ChipUid       = ", format_chipuid },
 	{ token_bootloader_used,     "# Bootloader used       = ", format_u32 },
 	{ token_bootloaders_max,     "# Bootloaders max       = ", format_u32 },
@@ -72,6 +79,8 @@ static value_data const bl_values[] = {
 	{ token_bl_load_addr,   "Load address = ", format_u32_hex8 },
 	{ token_bl_entry_point, "Entry point  = ", format_u32_hex8 },
 	{ token_bl_attribute,   "Attributes   = ", format_u32_hex8 },
+	{ token_bl_crypto_hash, "Bl AES Hash  = ", format_hex_16_bytes },
+	{ token_rsa_pss_sig_bl,	"RsaPssSigBl:\n", format_rsa_param },
 };
 
 static value_data const mts_values[] = {
@@ -85,17 +94,17 @@ static value_data const mts_values[] = {
 };
 
 /*****************************************************************************/
-static void format_u32_hex8(char const * message, void * data)
+static void format_u32_hex8(parse_token id, char const * message, void * data)
 {
 	printf("%s0x%08x;\n", message, *((u_int32_t *) data));
 }
 
-static void format_u32(char const * message, void * data)
+static void format_u32(parse_token id, char const * message, void * data)
 {
 	printf("%s%d;\n", message, *((u_int32_t *) data));
 }
 
-static void format_chipuid(char const * message, void * data)
+static void format_chipuid(parse_token id, char const * message, void * data)
 {
 	u_int8_t *uid = (u_int8_t *)data;
 	int byte_index;
@@ -106,6 +115,38 @@ static void format_chipuid(char const * message, void * data)
 		sprintf(s, "%02x", uid[byte_index]);
 
 	printf("%s%s;\n", message, uid_str);
+}
+
+static void format_hex_16_bytes(parse_token id, char const * message, void * data)
+{
+	u_int8_t *p_byte = (u_int8_t *)data;
+	int byte_index;
+
+	printf("%s", message);
+	for (byte_index = 0; byte_index < 16; ++byte_index)
+		printf("%02x", *p_byte++);
+
+	printf(";\n");
+}
+
+static void format_rsa_param(parse_token id, char const * message, void * data)
+{
+#define MAX_BYTE_NUMBER_PER_LINE	16
+	u_int8_t *rsa = (u_int8_t *)data;
+	int size = g_soc_config->get_value_size(id);
+	int byte_index;
+
+	printf("%s", message);
+	for (byte_index = 0; byte_index < size; ++byte_index) {
+		printf(" %02x", *rsa++);
+
+		if ((byte_index + 1) % MAX_BYTE_NUMBER_PER_LINE == 0)
+			printf("\n");
+	}
+
+	if (byte_index % MAX_BYTE_NUMBER_PER_LINE != 0)
+		printf("\n");
+#undef MAX_BYTE_NUMBER_PER_LINE
 }
 
 /*****************************************************************************/
@@ -213,7 +254,7 @@ int main(int argc, char *argv[])
 		if (e)
 			memset(&data, 0, MAX_PARAM_SIZE);
 
-		values[i].format(values[i].message, &data);
+		values[i].format(values[i].id, values[i].message, &data);
 	}
 
 	/* Display bootloader values */
@@ -241,7 +282,9 @@ int main(int argc, char *argv[])
 				if (e)
 					data.val = -1;
 
-				bl_values[j].format(bl_values[j].message, &data);
+				bl_values[j].format(bl_values[j].id,
+							bl_values[j].message,
+							&data);
 			}
 		}
 	}
@@ -271,7 +314,9 @@ int main(int argc, char *argv[])
 				if (e)
 					data.val = -1;
 
-				mts_values[j].format(mts_values[j].message, &data);
+				mts_values[j].format(mts_values[j].id,
+							mts_values[j].message,
+							&data);
 			}
 		}
 	}
