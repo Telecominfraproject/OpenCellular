@@ -37,6 +37,8 @@ where <type> is one of:
              usb  (sign an image to boot directly from USB)
              verify (verify an image including rootfs hashes)
              nv_lp0_firmware (sign nvidia lp0 firmware)
+             accessory_usbpd (sign USB-PD accessory firmware)
+             accessory_rwsig (sign accessory RW firmware)
 
 output_image: File name of the signed output image
 version_file: File name of where to read the kernel and firmware versions.
@@ -879,6 +881,14 @@ elif [[ "${TYPE}" == "recovery_kernel" ]]; then
   sign_recovery_kernel "${OUTPUT_IMAGE}" "${KEY_DIR}" "${KERNEL_VERSION}"
 elif [[ "${TYPE}" == "update_payload" ]]; then
   sign_update_payload ${INPUT_IMAGE} ${KEY_DIR} ${OUTPUT_IMAGE}
+elif [[ "${TYPE}" == "accessory_usbpd" ]]; then
+  KEY_NAME="key_$(basename $(dirname ${INPUT_IMAGE}))"
+  cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
+  futility sign --type usbpd1 --pem "${KEY_NAME}.pem" "${OUTPUT_IMAGE}"
+elif [[ "${TYPE}" == "accessory_rwsig" ]]; then
+  KEY_NAME="key_$(basename $(dirname ${INPUT_IMAGE}))"
+  cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
+  futility sign --type rwsig --prikey "${KEY_NAME}.vbprik2" "${OUTPUT_IMAGE}"
 else
   echo "Invalid type ${TYPE}"
   exit 1
