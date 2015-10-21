@@ -925,6 +925,19 @@ VbError_t VbExEcProtectRW(int devidx);
 enum VbEcBootMode_t {VB_EC_NORMAL, VB_EC_DEVELOPER, VB_EC_RECOVERY };
 VbError_t VbExEcEnteringMode(int devidx, enum VbEcBootMode_t mode);
 
+/**
+ * Perform EC post-verification / updating / jumping actions.
+ *
+ * This routine is called to perform certain actions that must wait until
+ * after the EC resides in its `final` image (the image the EC will
+ * run for the duration of boot). These actions include verifying that
+ * enough power is available to continue with boot.
+ *
+ * @param in_recovery	1 if recovery mode is selected by the AP, 0 otherwise.
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbExEcVbootDone(int in_recovery);
+
 /*****************************************************************************/
 /* Misc */
 
