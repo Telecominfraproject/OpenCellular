@@ -41,6 +41,19 @@ static void VbSetRecoveryRequest(uint32_t recovery_request)
 	VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, recovery_request);
 }
 
+static void VbSetRecoverySubcode(uint32_t recovery_request)
+{
+	VBDEBUG(("VbSetRecoverySubcode(%d)\n", (int)recovery_request));
+	VbNvSet(&vnc, VBNV_RECOVERY_SUBCODE, recovery_request);
+}
+
+static void VbNvCommit(void)
+{
+	VbNvTeardown(&vnc);
+	if (vnc.raw_changed)
+		VbExNvStorageWrite(vnc.raw);
+}
+
 static void VbAllowUsbBoot(void)
 {
 	VBDEBUG(("%s\n", __func__));
@@ -500,8 +513,20 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 	 */
 	if (!(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
 	    !(shared->flags & VBSD_BOOT_REC_SWITCH_ON)) {
-		VBDEBUG(("VbBootRecovery() waiting for manual recovery\n"));
+		/*
+		 * We have to save the reason here so that it will survive
+		 * coming up three-finger-salute. We're saving it in
+		 * VBNV_RECOVERY_SUBCODE to avoid a recovery loop.
+		 * If we save the reason in VBNV_RECOVERY_REQUEST, we will come
+		 * back here, thus, we won't be able to give a user a chance to
+		 * reboot to workaround boot hicups.
+		 */
+		VBDEBUG(("VbBootRecovery() saving recovery reason (%#x)\n",
+				shared->recovery_reason));
+		VbSetRecoverySubcode(shared->recovery_reason);
+		VbNvCommit();
 		VbDisplayScreen(cparams, VB_SCREEN_OS_BROKEN, 0, &vnc);
+		VBDEBUG(("VbBootRecovery() waiting for manual recovery\n"));
 		while (1) {
 			VbCheckDisplayKey(cparams, VbExKeyboardRead(), &vnc);
 			if (VbWantShutdown(cparams->gbb->flags))
@@ -1171,9 +1196,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 
 	VbApiKernelFree(cparams);
 
-	VbNvTeardown(&vnc);
-	if (vnc.raw_changed)
-		VbExNvStorageWrite(vnc.raw);
+	VbNvCommit();
 
 	/* Stop timer */
 	shared->timer_vb_select_and_load_kernel_exit = VbExGetTimer();
@@ -1343,9 +1366,7 @@ VbError_t VbLockDevice(void)
 	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST,
 		1);
 
-	VbNvTeardown(&vnc);
-	if (vnc.raw_changed)
-		VbExNvStorageWrite(vnc.raw);
+	VbNvCommit();
 
 	VBDEBUG(("%s() Mode change will take effect on next reboot.\n",
 		 __func__));
