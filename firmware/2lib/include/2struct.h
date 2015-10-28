@@ -275,6 +275,9 @@ enum vb2_gbb_flag {
 	 * dev_boot_fastboot_full_cap=0.
 	 */
 	VB2_GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP = (1 << 13),
+
+	/* Enable serial */
+	VB2_GBB_FLAG_ENABLE_SERIAL = (1 << 14),
 };
 
 struct vb2_gbb_header {

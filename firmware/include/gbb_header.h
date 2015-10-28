@@ -72,6 +72,8 @@
  * dev_boot_fastboot_full_cap=0.
  */
 #define GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP	0x00002000
+/* Enable serial console */
+#define GBB_FLAG_ENABLE_SERIAL				0x00004000
 
 #ifdef __cplusplus
 extern "C" {
