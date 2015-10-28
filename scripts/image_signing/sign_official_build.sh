@@ -882,11 +882,11 @@ elif [[ "${TYPE}" == "recovery_kernel" ]]; then
 elif [[ "${TYPE}" == "update_payload" ]]; then
   sign_update_payload ${INPUT_IMAGE} ${KEY_DIR} ${OUTPUT_IMAGE}
 elif [[ "${TYPE}" == "accessory_usbpd" ]]; then
-  KEY_NAME="key_$(basename $(dirname ${INPUT_IMAGE}))"
+  KEY_NAME="${KEY_DIR}/key_$(basename $(dirname ${INPUT_IMAGE}))"
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   futility sign --type usbpd1 --pem "${KEY_NAME}.pem" "${OUTPUT_IMAGE}"
 elif [[ "${TYPE}" == "accessory_rwsig" ]]; then
-  KEY_NAME="key_$(basename $(dirname ${INPUT_IMAGE}))"
+  KEY_NAME="${KEY_DIR}/key_$(basename $(dirname ${INPUT_IMAGE}))"
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   futility sign --type rwsig --prikey "${KEY_NAME}.vbprik2" "${OUTPUT_IMAGE}"
 else
