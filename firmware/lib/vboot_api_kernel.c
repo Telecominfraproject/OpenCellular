@@ -1226,6 +1226,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	uint64_t body_offset;
 	int hash_only = 0;
 	int dev_switch;
+	uint32_t allow_fastboot_full_cap = 0;
 
 	if ((boot_image == NULL) || (image_size == 0))
 		return VBERROR_INVALID_PARAMETER;
@@ -1252,13 +1253,24 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	/*
 	 * We don't care verifying the image if:
 	 * 1. dev-mode switch is on and
-	 * 2. GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP is set.
+	 * 2a. GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP is set, or
+	 * 2b. DEV_BOOT_FASTBOOT_FULL_CAP flag is set in NvStorage
 	 *
 	 * Check only the integrity of the image.
 	 */
 	dev_switch = shared->flags & VBSD_BOOT_DEV_SWITCH_ON;
-	if (dev_switch && (cparams->gbb->flags &
-			   GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP)) {
+
+	VbExNvStorageRead(vnc.raw);
+	VbNvSetup(&vnc);
+	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
+		&allow_fastboot_full_cap);
+
+	if (0 == allow_fastboot_full_cap) {
+		allow_fastboot_full_cap = !!(cparams->gbb->flags &
+				GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP);
+	}
+
+	if (dev_switch && allow_fastboot_full_cap) {
 		VBDEBUG(("Only performing integrity-check.\n"));
 		hash_only = 1;
 	} else {

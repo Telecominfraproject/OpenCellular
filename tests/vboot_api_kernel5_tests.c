@@ -145,6 +145,12 @@ int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
 	return VBERROR_SUCCESS;
 }
 
+VbError_t VbExNvStorageRead(uint8_t *buf)
+{
+	Memcpy(buf, vnc.raw, sizeof(vnc.raw));
+	return VBERROR_SUCCESS;
+}
+
 static void VerifyMemoryBootImageTest(void)
 {
 	uint32_t u;
@@ -199,6 +205,17 @@ static void VerifyMemoryBootImageTest(void)
 					kernel_buffer_size),
 		VBERROR_INVALID_KERNEL_FOUND, "Key verify failed");
 	TEST_EQ(hash_only_check, 1, "  hash check");
+
+	/* Key Block Hash Failure -- VBNV */
+	ResetMocks();
+	shared->flags = VBSD_BOOT_DEV_SWITCH_ON;
+	key_block_verify_fail = 1;
+	VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
+	VbNvTeardown(&vnc);
+	TEST_EQ(VbVerifyMemoryBootImage(&cparams, &kparams, kernel_buffer,
+					kernel_buffer_size),
+		VBERROR_INVALID_KERNEL_FOUND, "Key verify failed");
+	TEST_EQ(hash_only_check, 1, "  hash check -- VBNV flag");
 
 	/* Developer flag mismatch - dev switch on */
 	ResetMocks();
