@@ -92,35 +92,10 @@
 #define PCI_VENDOR_ID_PATH "/sys/bus/pci/devices/0000:00:00.0/vendor"
 #define PCI_DEVICE_ID_PATH "/sys/bus/pci/devices/0000:00:00.0/device"
 
-typedef struct PlatformFamily {
-  unsigned int vendor;          /* Vendor id value */
-  unsigned int device;          /* Device id value */
-  const char* platform_string; /* String to return */
-} PlatformFamily;
-
 typedef struct {
   unsigned int base;
   unsigned int uid;
 } Basemapping;
-
-/* Array of platform family names, terminated with a NULL entry */
-const PlatformFamily platform_family_array[] = {
-  {0x8086, 0xA010, "PineTrail"},
-  {0x8086, 0x3406, "Westmere"},
-  {0x8086, 0x0104, "SandyBridge"}, /* mobile */
-  {0x8086, 0x0100, "SandyBridge"}, /* desktop */
-  {0x8086, 0x0154, "IvyBridge"},   /* mobile */
-  {0x8086, 0x0150, "IvyBridge"},   /* desktop */
-  {0x8086, 0x0a04, "Haswell"},     /* ult */
-  {0x8086, 0x0c04, "Haswell"},     /* mobile */
-  {0x8086, 0x0f00, "BayTrail"},    /* mobile */
-  {0x8086, 0x1604, "Broadwell"},   /* ult */
-  {0x8086, 0x2280, "Braswell"},    /* ult */
-  {0x8086, 0x1904, "Skylake"},     /* skylake-u */
-  {0x8086, 0x190c, "Skylake"},     /* skylake-y */
-  /* Terminate with NULL entry */
-  {0, 0, 0}
-};
 
 static void VbFixCmosChecksum(FILE* file) {
   int fd = fileno(file);
@@ -472,40 +447,6 @@ static int VbGetRecoveryReason(void) {
       /* Other values don't map cleanly to firmware type. */
       return -1;
   }
-}
-
-/* Determine the platform family and return it in the dest string.
- * This uses the PCI Bus 0, Device 0, Function 0 vendor and device id values
- * taken from sysfs to determine the platform family. This assumes there will
- * be a unique pair of values here for any given platform.
- */
-static char* ReadPlatformFamilyString(char* dest, int size) {
-  FILE* f;
-  const PlatformFamily* p;
-  unsigned int v = 0xFFFF;
-  unsigned int d = 0xFFFF;
-
-  f = fopen(PCI_VENDOR_ID_PATH, "rt");
-  if (!f)
-    return NULL;
-  if(fscanf(f, "0x%4x", &v) != 1)
-    return NULL;
-  fclose(f);
-
-  f = fopen(PCI_DEVICE_ID_PATH, "rt");
-  if (!f)
-    return NULL;
-  if(fscanf(f, "0x%4x", &d) != 1)
-    return NULL;
-  fclose(f);
-
-  for (p = platform_family_array; p->vendor; p++) {
-    if((v == p->vendor) && (d == p->device))
-      return StrCopy(dest, p->platform_string, size);
-  }
-
-  /* No recognized platform family was found */
-  return NULL;
 }
 
 /* Physical GPIO number <N> may be accessed through /sys/class/gpio/gpio<M>/,
@@ -904,8 +845,6 @@ const char* VbGetArchPropertyString(const char* name, char* dest,
       default:
         return NULL;
     }
-  } else if (!strcasecmp(name,"platform_family")) {
-    return ReadPlatformFamilyString(dest, size);
   }
 
   return NULL;
