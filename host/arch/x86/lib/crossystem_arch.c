@@ -756,22 +756,6 @@ int VbGetArchPropertyInt(const char* name) {
     }
   }
 
-  /* Saved memory is at a fixed location for all H2C BIOS.  If the CHSW
-   * path exists in sysfs, it's a H2C BIOS. */
-  if (!strcasecmp(name,"savedmem_base")) {
-    unsigned savedmem_base;
-    if (ReadFileInt(ACPI_CHSW_PATH, &savedmem_base) < 0)
-      return -1;
-    else
-      return 0x00F00000;
-  } else if (!strcasecmp(name,"savedmem_size")) {
-    unsigned savedmem_size;
-    if (ReadFileInt(ACPI_CHSW_PATH, &savedmem_size) < 0)
-      return -1;
-    else
-      return 0x00100000;
-  }
-
   /* NV storage values.  If unable to get from NV storage, fall back to the
    * CMOS reboot field used by older BIOS (e.g. Mario). */
   if (!strcasecmp(name,"recovery_request")) {

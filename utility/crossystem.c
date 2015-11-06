@@ -81,8 +81,6 @@ const Param sys_param_list[] = {
   {"recoverysw_cur", 0, "Recovery switch current position"},
   {"recoverysw_ec_boot", 0, "Recovery switch position at EC boot"},
   {"ro_fwid", IS_STRING, "Read-only firmware ID"},
-  {"savedmem_base", 0, "RAM debug data area physical address", "0x%08x"},
-  {"savedmem_size", 0, "RAM debug data area size in bytes"},
   {"sw_wpsw_boot", 0,
    "Firmware write protect software setting enabled at boot (Baytrail only)"},
   {"tpm_attack", CAN_WRITE, "TPM was interrupted since this flag was cleared"},
