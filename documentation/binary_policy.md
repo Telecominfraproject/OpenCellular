@@ -24,23 +24,24 @@ must meet the following**:
 
 
 2. Appropriate license (redistributable)
-   a. The binary must be accompanied by a distribution license. The license
+   The binary must be accompanied by a distribution license. The license
    must allow unlimited redistribution to allow coreboot contributors to
    create coreboot images for third parties which contain this and other blobs.
 
 
-3. Source code linked into coreboot may not be committed to the binary
-repository. Source code and header files must be committed to the coreboot
-repository.
+3. Linking
+   Source code linked into coreboot may not be committed to the binary
+   repository. Such source code and header files must be committed to the
+   coreboot repository instead.
 
 
 4. Binary version
-   a. The binary must contain the version and how to extract the version
-   must be published in the ABI
+   The binary must contain the version and how to extract the version must
+   be published in the ABI
 
 
 5. Release notes - updated with each version
-   a. Each binary release must be accompanied by a release note that contains
+   Each binary release must be accompanied by a release note that contains
    all of the following (if a field is unknown or unavailable, mark it as
    unknown or N/A):
       * version
@@ -54,7 +55,7 @@ repository.
 
 
 6. Good commit message
-   a.  The commit message should summarize the release note and contain
+   The commit message should summarize the release note and contain
    any additional information that might be specific to coreboot. It is
    helpful to indicate how the binary was tested within coreboot and list
    any known exceptions or errata.
