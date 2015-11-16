@@ -311,10 +311,15 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	return retval;
 }
 
-VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
-			  int force, VbNvContext *vncptr)
+/*
+ * This is the deprecated display screen function. This should be called only
+ * if bmpblk.bin is found in GBB. New devices store graphics data in cbfs
+ * and screens are rendered by Depthcharge (chromium:502066).
+ */
+static VbError_t VbDisplayScreenLegacy(VbCommonParams *cparams, uint32_t screen,
+				       int force, VbNvContext *vncptr,
+				       uint32_t locale)
 {
-	uint32_t locale;
 	VbError_t retval;
 
 	/* Initialize display if necessary */
@@ -334,9 +339,6 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 	/* Request the screen */
 	disp_current_screen = screen;
 
-	/* Read the locale last saved */
-	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &locale);
-
 	/* Look in the GBB first */
 	if (VBERROR_SUCCESS == VbDisplayScreenFromGBB(cparams, screen,
 						      vncptr, locale))
@@ -344,6 +346,21 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 
 	/* If screen wasn't in the GBB bitmaps, fall back to a default */
 	return VbExDisplayScreen(screen, locale);
+}
+
+VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
+			  int force, VbNvContext *vncptr)
+{
+	uint32_t locale;
+	GoogleBinaryBlockHeader *gbb = cparams->gbb;
+
+	/* Read the locale last saved */
+	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &locale);
+
+	if (gbb->bmpfv_size == 0)
+		return VbExDisplayScreen(screen, locale);
+
+	return VbDisplayScreenLegacy(cparams, screen, force, vncptr, locale);
 }
 
 static void Uint8ToString(char *buf, uint8_t val)
