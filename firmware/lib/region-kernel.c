@@ -50,7 +50,7 @@ VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams, BmpBlockHeader *hdr_ret)
 		(hdr->major_version > BMPBLOCK_MAJOR_VERSION) ||
 		((hdr->major_version == BMPBLOCK_MAJOR_VERSION) &&
 		(hdr->minor_version > BMPBLOCK_MINOR_VERSION))) {
-			VBDEBUG(("VbDisplayScreenFromGBB(): "
+			VBDEBUG(("VbGbbReadBmpHeader(): "
 				"invalid/too new bitmap header\n"));
 			VbExFree(hdr);
 			return VBERROR_INVALID_BMPFV;
