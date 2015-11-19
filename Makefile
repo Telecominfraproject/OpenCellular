@@ -154,7 +154,7 @@ CFLAGS ?= ${COMMON_FLAGS} \
 else
 # FIRMWARE_ARCH not defined; assuming local compile.
 CC ?= gcc
-CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall -Werror ${DEBUG_FLAGS}
+CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall ${WERROR} ${DEBUG_FLAGS}
 endif
 
 ifneq (${DEBUG},)
