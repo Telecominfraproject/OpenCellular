@@ -251,6 +251,16 @@ endif
 export BUILD_RUN
 
 ##############################################################################
+# The default target is here, to allow dependencies to be expressed below
+# without accidentally changing the default target.
+
+# Default target.
+.PHONY: all
+all: fwlib fwlib2x fwlib20 fwlib21 \
+	$(if ${FIRMWARE_ARCH},,host_stuff) \
+	$(if ${COV},coverage)
+
+##############################################################################
 # Now we need to describe everything we might want or need to build
 
 # Everything wants these headers.
@@ -786,13 +796,6 @@ SUBDIRS := firmware host cgpt utility futility tests tests/tpm_lite
 _dir_create := $(foreach d, \
 	$(shell find ${SUBDIRS} -name '*.c' -exec  dirname {} \; | sort -u), \
 	$(shell [ -d ${BUILD}/${d} ] || mkdir -p ${BUILD}/${d}))
-
-
-# Default target.
-.PHONY: all
-all: fwlib fwlib2x fwlib20 fwlib21 \
-	$(if ${FIRMWARE_ARCH},,host_stuff) \
-	$(if ${COV},coverage)
 
 # Host targets
 .PHONY: host_stuff
