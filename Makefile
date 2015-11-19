@@ -205,6 +205,11 @@ ifdef HAVE_MACOS
   CFLAGS += -DHAVE_MACOS -Wno-deprecated-declarations
 endif
 
+# Musl doesn't have execinfo.h.
+ifndef HAVE_MUSL
+  CFLAGS += -DHAVE_EXECINFO_H
+endif
+
 # And a few more default utilities
 LD = ${CC}
 CXX ?= g++
