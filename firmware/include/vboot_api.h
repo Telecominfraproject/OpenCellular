@@ -121,6 +121,8 @@ enum VbErrorPredefined_t {
 	/* No image present (returned from VbGbbReadImage() for missing image) */
 	VBERROR_NO_IMAGE_PRESENT              = 0x10026,
 
+	/* failed to draw screen */
+	VBERROR_SCREEN_DRAW                   = 0x10027,
 	/* VbExEcGetExpectedRWHash() may return the following codes */
 	/* Compute expected RW hash from the EC image; BIOS doesn't have it */
 	VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE = 0x20000,
