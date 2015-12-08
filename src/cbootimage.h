@@ -49,6 +49,20 @@
 
 #define MAX_MTS_SIZE (4 * 1024 * 1024)
 
+/* Minimum size to read to at least be able to validate a BCT, it must
+ * include the boot_data_version field with any BCT version while not
+ * beeing larger than the smallest possible BCT. The currently supported
+ * BCT are as follow:
+ *
+ * Chip		Version offset	Total size
+ * T20		32		4080
+ * T30		32		6128
+ * T114		1792		8192
+ * T124		1744		8192
+ * T132		1744		8704
+ * T210		1328		10240
+ */
+#define NVBOOT_CONFIG_TABLE_SIZE_MIN 4080
 #define NVBOOT_CONFIG_TABLE_SIZE_MAX (10 * 1024)
 
 /*

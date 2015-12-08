@@ -1044,7 +1044,7 @@ int data_is_valid_bct(build_image_context *context)
 
 int get_bct_size_from_image(build_image_context *context)
 {
-	u_int8_t buffer[NVBOOT_CONFIG_TABLE_SIZE_MAX];
+	u_int8_t buffer[NVBOOT_CONFIG_TABLE_SIZE_MIN];
 	u_int32_t bct_size = 0;
 	FILE *fp;
 
@@ -1052,7 +1052,7 @@ int get_bct_size_from_image(build_image_context *context)
 	if (!fp)
 		return -ENODATA;
 
-	if (fread(buffer, 1, NVBOOT_CONFIG_TABLE_SIZE_MAX, fp) != NVBOOT_CONFIG_TABLE_SIZE_MAX) {
+	if (fread(buffer, 1, NVBOOT_CONFIG_TABLE_SIZE_MIN, fp) != NVBOOT_CONFIG_TABLE_SIZE_MIN) {
 		fclose(fp);
 		return -ENODATA;
 	}
