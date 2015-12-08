@@ -239,7 +239,7 @@ main(int argc, char *argv[])
 
 		/* Get BCT_SIZE from input image file  */
 		bct_size = get_bct_size_from_image(&context);
-		if (!bct_size) {
+		if (bct_size < 0) {
 			printf("Error: Invalid input image file %s\n",
 			context.input_image_filename);
 			goto fail;

@@ -792,7 +792,7 @@ read_bct_file(struct build_image_context_rec *context)
 	free(bct_storage);
 
 	if (!data_is_valid_bct(context))
-		return ENODATA;
+		return -ENODATA;
 
 	return err;
 }
@@ -1050,11 +1050,11 @@ int get_bct_size_from_image(build_image_context *context)
 
 	fp = fopen(context->input_image_filename, "r");
 	if (!fp)
-		return ENODATA;
+		return -ENODATA;
 
 	if (fread(buffer, 1, NVBOOT_CONFIG_TABLE_SIZE_MAX, fp) != NVBOOT_CONFIG_TABLE_SIZE_MAX) {
 		fclose(fp);
-		return ENODATA;
+		return -ENODATA;
 	}
 
 	context->bct = buffer;
