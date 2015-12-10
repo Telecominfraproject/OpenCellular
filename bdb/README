@@ -1,0 +1,30 @@
+BDB library and utilities
+
+Building:
+---------
+The host-side library and utilities requires OpenSSL.
+
+Do 'make runtests' to ensure everything is working.
+
+Generating a BDB:
+-----------------
+Edit the options in bdb_create.c.  Then 'make bdb'.
+
+In the next release, this will take a config file rather than
+requiring recompilation each time.  Also, the BDB header and data will
+be signed in two separate steps, so that the private BDB key is not
+required each time.
+
+Revision History:
+-----------------
+v0.1.2	24-Nov-2015	Add support for RSA-3072B keys and signatures.
+			Add dump_rsa utility and 'make testkeys' to create
+			new keys.
+			Use a RSA-3072B (exponent 3) key for the subkey so
+			the exponent 3 code gets tested.
+
+v0.1.1	17-Nov-2015	Add support for ECDSA-521 data types.  Note that
+			only the data types are supported; there is not a
+			C implementation for ECDSA.
+
+v0.1.0	15-Sep-2015	Initial version.
