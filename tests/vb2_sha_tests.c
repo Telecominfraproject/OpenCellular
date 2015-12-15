@@ -44,6 +44,14 @@ void sha256_tests(void)
 {
 	uint8_t digest[VB2_SHA256_DIGEST_SIZE];
 	uint8_t *test_inputs[3];
+	struct vb2_sha256_context ctx;
+	uint8_t expect_multiple[VB2_SHA256_DIGEST_SIZE] =
+		{
+			0x07, 0x08, 0xb4, 0xca, 0x46, 0x4c, 0x40, 0x39,
+			0x07, 0x06, 0x88, 0x80, 0x30, 0x55, 0x5d, 0x86,
+			0x0e, 0x4a, 0x0d, 0x2b, 0xc6, 0xc4, 0x87, 0x39,
+			0x2c, 0x16, 0x55, 0xb0, 0x82, 0x13, 0x16, 0x29
+		};
 	int i;
 
 	test_inputs[0] = (uint8_t *) oneblock_msg;
@@ -65,6 +73,15 @@ void sha256_tests(void)
 				  VB2_HASH_SHA256, digest, sizeof(digest) - 1),
 		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE,
 		"vb2_digest_buffer() too small");
+
+	/* Test multiple small extends */
+	vb2_sha256_init(&ctx);
+	vb2_sha256_update(&ctx, (uint8_t *)"test1", 5);
+	vb2_sha256_update(&ctx, (uint8_t *)"test2", 5);
+	vb2_sha256_update(&ctx, (uint8_t *)"test3", 5);
+	vb2_sha256_finalize(&ctx, digest);
+	TEST_EQ(memcmp(digest, expect_multiple, sizeof(digest)), 0,
+		"SHA-256 multiple extends");
 }
 
 void sha512_tests(void)
