@@ -22,12 +22,12 @@
 
 /*
  * Need one second of noise in the first 22 seconds.
- * Total delay >= 30 seconds, <= 60 seconds.
+ * Total delay >= 30 seconds, <= 5 minutes.
  */
-#define REQUIRED_NOISE_TIME    1000
-#define REQUIRED_NOISE_WITHIN 22000
-#define REQUIRED_TOTAL_DELAY  30000
-#define MAX_CUSTOM_DELAY      60000
+#define REQUIRED_NOISE_TIME     1000
+#define REQUIRED_NOISE_WITHIN  22000
+#define REQUIRED_TOTAL_DELAY   30000
+#define MAX_CUSTOM_DELAY      300000
 
 /* These are visible externally only to make testing easier */
 VbDevMusicNote default_notes_[] = { {20000, 0}, /* 20 seconds */
@@ -155,7 +155,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 		goto nope;
 
 	/*
-	 * We'll also require that the total time be less than a minute. No
+	 * We'll also require that the total time be less than 5 minutes. No
 	 * real reason, it just gives us less to worry about.
 	 */
 	VBDEBUG(("VbGetDevMusicNotes:   lasting %d msecs\n", total_msecs));
