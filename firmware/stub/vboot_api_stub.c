@@ -115,7 +115,8 @@ VbError_t VbExEcDisableJump(int devidx)
 
 #define SHA256_HASH_SIZE 32
 
-VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size)
+VbError_t VbExEcHashImage(int devidx, enum VbSelectFirmware_t select,
+			  const uint8_t **hash, int *hash_size)
 {
 	static const uint8_t fake_hash[32] = {1, 2, 3, 4};
 
@@ -124,8 +125,8 @@ VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
-                              const uint8_t **image, int *image_size)
+VbError_t VbExEcGetExpectedImage(int devidx, enum VbSelectFirmware_t select,
+				 const uint8_t **image, int *image_size)
 {
 	static uint8_t fake_image[64] = {5, 6, 7, 8};
 	*image = fake_image;
@@ -133,8 +134,8 @@ VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
-				  const uint8_t **hash, int *hash_size)
+VbError_t VbExEcGetExpectedImageHash(int devidx, enum VbSelectFirmware_t select,
+				     const uint8_t **hash, int *hash_size)
 {
 	static const uint8_t fake_hash[32] = {1, 2, 3, 4};
 
@@ -143,12 +144,13 @@ VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size)
+VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
+			    const uint8_t *image, int image_size)
 {
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExEcProtectRW(int devidx)
+VbError_t VbExEcProtect(int devidx, enum VbSelectFirmware_t select)
 {
 	return VBERROR_SUCCESS;
 }

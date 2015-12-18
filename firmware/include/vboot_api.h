@@ -891,34 +891,37 @@ VbError_t VbExEcJumpToRW(int devidx);
 VbError_t VbExEcDisableJump(int devidx);
 
 /**
- * Read the SHA-256 hash of the rewriteable EC image.
+ * Read the SHA-256 hash of the selected EC image.
  */
-VbError_t VbExEcHashRW(int devidx, const uint8_t **hash, int *hash_size);
+VbError_t VbExEcHashImage(int devidx, enum VbSelectFirmware_t select,
+			  const uint8_t **hash, int *hash_size);
 
 /**
  * Get the expected contents of the EC image associated with the main firmware
  * specified by the "select" argument.
  */
-VbError_t VbExEcGetExpectedRW(int devidx, enum VbSelectFirmware_t select,
-                              const uint8_t **image, int *image_size);
+VbError_t VbExEcGetExpectedImage(int devidx, enum VbSelectFirmware_t select,
+				 const uint8_t **image, int *image_size);
 
 /**
  * Read the SHA-256 hash of the expected contents of the EC image associated
  * with the main firmware specified by the "select" argument.
  */
-VbError_t VbExEcGetExpectedRWHash(int devidx, enum VbSelectFirmware_t select,
-		       const uint8_t **hash, int *hash_size);
+VbError_t VbExEcGetExpectedImageHash(int devidx, enum VbSelectFirmware_t select,
+				     const uint8_t **hash, int *hash_size);
 
 /**
- * Update the EC rewritable image.
+ * Update the selected EC image.
  */
-VbError_t VbExEcUpdateRW(int devidx, const uint8_t *image, int image_size);
+VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
+			    const uint8_t *image, int image_size);
 
 /**
- * Lock the EC code to prevent updates until the EC is rebooted.
- * Subsequent calls to VbExEcUpdateRW() this boot will fail.
+ * Lock the selected EC code to prevent updates until the EC is rebooted.
+ * Subsequent calls to VbExEcUpdateImage() with the same region this boot will
+ * fail.
  */
-VbError_t VbExEcProtectRW(int devidx);
+VbError_t VbExEcProtect(int devidx, enum VbSelectFirmware_t select);
 
 /**
  * Info the EC of the boot mode selected by the AP.

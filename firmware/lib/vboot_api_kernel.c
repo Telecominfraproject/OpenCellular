@@ -639,16 +639,16 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 }
 
 /**
- * Wrapper around VbExEcProtectRW() which sets recovery reason on error.
+ * Wrapper around VbExEcProtect() which sets recovery reason on error.
  */
-static VbError_t EcProtectRW(int devidx)
+static VbError_t EcProtect(int devidx, enum VbSelectFirmware_t select)
 {
-	int rv = VbExEcProtectRW(devidx);
+	int rv = VbExEcProtect(devidx, select);
 
 	if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
-		VBDEBUG(("VbExEcProtectRW() needs reboot\n"));
+		VBDEBUG(("VbExEcProtect() needs reboot\n"));
 	} else if (rv != VBERROR_SUCCESS) {
-		VBDEBUG(("VbExEcProtectRW() returned %d\n", rv));
+		VBDEBUG(("VbExEcProtect() returned %d\n", rv));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_PROTECT);
 	}
 	return rv;
@@ -658,6 +658,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
+	enum VbSelectFirmware_t rw;
 	int in_rw = 0;
 	int rv;
 	const uint8_t *ec_hash = NULL;
@@ -671,6 +672,8 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	int i;
 
 	VBDEBUG(("VbEcSoftwareSync(devidx=%d)\n", devidx));
+	rw = shared->firmware_index ? VB_SELECT_FIRMWARE_B :
+	     VB_SELECT_FIRMWARE_A;
 
 	/* Determine whether the EC is in RO or RW */
 	rv = VbExEcRunningRW(devidx, &in_rw);
@@ -719,7 +722,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 		}
 
 		/* Protect the RW flash and stay in EC-RO */
-		rv = EcProtectRW(devidx);
+		rv = EcProtect(devidx, rw);
 		if (rv != VBERROR_SUCCESS)
 			return rv;
 
@@ -736,16 +739,16 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	}
 
 	/* Get hash of EC-RW */
-	rv = VbExEcHashRW(devidx, &ec_hash, &ec_hash_size);
+	rv = VbExEcHashImage(devidx, rw, &ec_hash, &ec_hash_size);
 	if (rv) {
 		VBDEBUG(("VbEcSoftwareSync() - "
-			 "VbExEcHashRW() returned %d\n", rv));
+			 "VbExEcHashImage() returned %d\n", rv));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_FAILED);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 	if (ec_hash_size != SHA256_DIGEST_SIZE) {
 		VBDEBUG(("VbEcSoftwareSync() - "
-			 "VbExEcHashRW() says size %d, not %d\n",
+			 "VbExEcHashImage() says size %d, not %d\n",
 			 ec_hash_size, SHA256_DIGEST_SIZE));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_SIZE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
@@ -761,9 +764,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	 * RO_NORMAL, so we know that the BIOS must be RW-A or RW-B, and
 	 * therefore the EC must match.
 	 */
-	rv = VbExEcGetExpectedRWHash(devidx, shared->firmware_index ?
-				 VB_SELECT_FIRMWARE_B : VB_SELECT_FIRMWARE_A,
-				 &rw_hash, &rw_hash_size);
+	rv = VbExEcGetExpectedImageHash(devidx, rw, &rw_hash, &rw_hash_size);
 
 	if (rv == VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE) {
 		/*
@@ -799,10 +800,8 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	 */
 	if (need_update || !rw_hash) {
 		/* Get expected EC-RW image */
-		rv = VbExEcGetExpectedRW(devidx, shared->firmware_index ?
-					 VB_SELECT_FIRMWARE_B :
-					 VB_SELECT_FIRMWARE_A,
-					 &expected, &expected_size);
+		rv = VbExEcGetExpectedImage(devidx, rw, &expected,
+					    &expected_size);
 		if (rv) {
 			VBDEBUG(("VbEcSoftwareSync() - "
 				 "VbExEcGetExpectedRW() returned %d\n", rv));
@@ -891,11 +890,11 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 			VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, &vnc);
 		}
 
-		rv = VbExEcUpdateRW(devidx, expected, expected_size);
+		rv = VbExEcUpdateImage(devidx, rw, expected, expected_size);
 
 		if (rv != VBERROR_SUCCESS) {
 			VBDEBUG(("VbEcSoftwareSync() - "
-				 "VbExEcUpdateRW() returned %d\n", rv));
+				 "VbExEcUpdateImage() returned %d\n", rv));
 
 			/*
 			 * The EC may know it needs a reboot.  It may need to
@@ -919,7 +918,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	}
 
 	/* Protect EC-RW flash */
-	rv = EcProtectRW(devidx);
+	rv = EcProtect(devidx, rw);
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
