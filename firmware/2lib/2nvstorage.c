@@ -169,6 +169,9 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 
 	case VB2_NV_BOOT_ON_AC_DETECT:
 		return GETBIT(VB2_NV_OFFS_MISC, VB2_NV_MISC_BOOT_ON_AC_DETECT);
+
+	case VB2_NV_TRY_RO_SYNC:
+		return GETBIT(VB2_NV_OFFS_MISC, VB2_NV_MISC_TRY_RO_SYNC);
 	}
 
 	/*
@@ -341,6 +344,10 @@ void vb2_nv_set(struct vb2_context *ctx,
 
 	case VB2_NV_BOOT_ON_AC_DETECT:
 		SETBIT(VB2_NV_OFFS_MISC, VB2_NV_MISC_BOOT_ON_AC_DETECT);
+		break;
+
+	case VB2_NV_TRY_RO_SYNC:
+		SETBIT(VB2_NV_OFFS_MISC, VB2_NV_MISC_TRY_RO_SYNC);
 		break;
 
 	}

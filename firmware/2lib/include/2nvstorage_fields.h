@@ -70,8 +70,9 @@ enum vb2_nv_offset {
 #define VB2_NV_TPM_CLEAR_OWNER_DONE            0x02
 #define VB2_NV_TPM_REBOOTED                    0x04
 
-/* Fields in VB2_NV_OFFS_MISC (unused = 0xfc) */
+/* Fields in VB2_NV_OFFS_MISC (unused = 0xf8) */
 #define VB2_NV_MISC_UNLOCK_FASTBOOT            0x01
 #define VB2_NV_MISC_BOOT_ON_AC_DETECT          0x02
+#define VB2_NV_MISC_TRY_RO_SYNC		       0x04
 
 #endif  /* VBOOT_REFERENCE_VBOOT_2NVSTORAGE_FIELDS_H_ */

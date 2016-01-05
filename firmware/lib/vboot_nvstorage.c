@@ -63,6 +63,7 @@
 #define MISC_OFFSET                        8
 #define MISC_UNLOCK_FASTBOOT            0x01
 #define MISC_BOOT_ON_AC_DETECT          0x02
+#define MISC_TRY_RO_SYNC		0x04
 
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
@@ -224,6 +225,10 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 
 	case VBNV_BOOT_ON_AC_DETECT:
 		*dest = (raw[MISC_OFFSET] & MISC_BOOT_ON_AC_DETECT) ? 1 : 0;
+		return 0;
+
+	case VBNV_TRY_RO_SYNC:
+		*dest = (raw[MISC_OFFSET] & MISC_TRY_RO_SYNC) ? 1 : 0;
 		return 0;
 
 	default:
@@ -442,6 +447,13 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 			raw[MISC_OFFSET] |= MISC_BOOT_ON_AC_DETECT;
 		else
 			raw[MISC_OFFSET] &= ~MISC_BOOT_ON_AC_DETECT;
+		break;
+
+	case VBNV_TRY_RO_SYNC:
+		if (value)
+			raw[MISC_OFFSET] |= MISC_TRY_RO_SYNC;
+		else
+			raw[MISC_OFFSET] &= ~MISC_TRY_RO_SYNC;
 		break;
 
 	default:

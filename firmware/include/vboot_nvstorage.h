@@ -118,6 +118,8 @@ typedef enum VbNvParam {
 	VBNV_FASTBOOT_UNLOCK_IN_FW,
 	/* Boot system when AC detected (0=no, 1=yes). */
 	VBNV_BOOT_ON_AC_DETECT,
+	/* Try to update the EC-RO image (0=no, 1=yes). */
+	VBNV_TRY_RO_SYNC,
 
 } VbNvParam;
 
