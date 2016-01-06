@@ -30,17 +30,22 @@ static int trust_ec;
 static int mock_in_rw;
 static VbError_t in_rw_retval;
 static int protect_retval;
-static int ec_protected;
+static int ec_ro_protected;
+static int ec_rw_protected;
 static int run_retval;
 static int ec_run_image;
 static int update_retval;
-static int ec_updated;
+static int ec_ro_updated;
+static int ec_rw_updated;
 static int get_expected_retval;
 static int shutdown_request_calls_left;
 
-static uint8_t mock_ec_hash[32];
-static int mock_ec_hash_size;
+static uint8_t mock_ec_ro_hash[32];
+static uint8_t mock_ec_rw_hash[32];
+static int mock_ec_ro_hash_size;
+static int mock_ec_rw_hash_size;
 static uint8_t want_ec_hash[32];
+static uint8_t update_hash;
 static int want_ec_hash_size;
 static uint8_t mock_sha[32];
 
@@ -73,9 +78,11 @@ static void ResetMocks(void)
 
 	trust_ec = 0;
 	mock_in_rw = 0;
-	ec_protected = 0;
+	ec_ro_protected = 0;
+	ec_rw_protected = 0;
 	ec_run_image = 0;   /* 0 = RO, 1 = RW */
-	ec_updated = 0;
+	ec_ro_updated = 0;
+	ec_rw_updated = 0;
 	in_rw_retval = VBERROR_SUCCESS;
 	protect_retval = VBERROR_SUCCESS;
 	update_retval = VBERROR_SUCCESS;
@@ -83,13 +90,19 @@ static void ResetMocks(void)
 	get_expected_retval = VBERROR_SUCCESS;
 	shutdown_request_calls_left = -1;
 
-	Memset(mock_ec_hash, 0, sizeof(mock_ec_hash));
-	mock_ec_hash[0] = 42;
-	mock_ec_hash_size = sizeof(mock_ec_hash);
+	Memset(mock_ec_ro_hash, 0, sizeof(mock_ec_ro_hash));
+	mock_ec_ro_hash[0] = 42;
+	mock_ec_ro_hash_size = sizeof(mock_ec_ro_hash);
+
+	Memset(mock_ec_rw_hash, 0, sizeof(mock_ec_rw_hash));
+	mock_ec_rw_hash[0] = 42;
+	mock_ec_rw_hash_size = sizeof(mock_ec_rw_hash);
 
 	Memset(want_ec_hash, 0, sizeof(want_ec_hash));
 	want_ec_hash[0] = 42;
 	want_ec_hash_size = sizeof(want_ec_hash);
+
+	update_hash = 42;
 
 	Memset(mock_sha, 0, sizeof(want_ec_hash));
 	mock_sha[0] = 42;
@@ -125,7 +138,10 @@ VbError_t VbExEcRunningRW(int devidx, int *in_rw)
 
 VbError_t VbExEcProtect(int devidx, enum VbSelectFirmware_t select)
 {
-	ec_protected = 1;
+	if (select == VB_SELECT_FIRMWARE_READONLY)
+		ec_ro_protected = 1;
+	else
+		ec_rw_protected = 1;
 	return protect_retval;
 }
 
@@ -137,15 +153,18 @@ VbError_t VbExEcDisableJump(int devidx)
 VbError_t VbExEcJumpToRW(int devidx)
 {
 	ec_run_image = 1;
+	mock_in_rw = 1;
 	return run_retval;
 }
 
 VbError_t VbExEcHashImage(int devidx, enum VbSelectFirmware_t select,
 			  const uint8_t **hash, int *hash_size)
 {
-	*hash = mock_ec_hash;
-	*hash_size = mock_ec_hash_size;
-	return mock_ec_hash_size ? VBERROR_SUCCESS : VBERROR_SIMULATED;
+	*hash = select == VB_SELECT_FIRMWARE_READONLY ?
+		mock_ec_ro_hash : mock_ec_rw_hash;
+	*hash_size = select == VB_SELECT_FIRMWARE_READONLY ?
+		     mock_ec_ro_hash_size : mock_ec_rw_hash_size;
+	return *hash_size ? VBERROR_SUCCESS : VBERROR_SIMULATED;
 }
 
 VbError_t VbExEcGetExpectedImage(int devidx, enum VbSelectFirmware_t select,
@@ -178,7 +197,13 @@ uint8_t *internal_SHA256(const uint8_t *data, uint64_t len, uint8_t *digest)
 VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
 			    const uint8_t *image, int image_size)
 {
-	ec_updated = 1;
+	if (select == VB_SELECT_FIRMWARE_READONLY) {
+		ec_ro_updated = 1;
+		mock_ec_ro_hash[0] = update_hash;
+	 } else {
+		ec_rw_updated = 1;
+		mock_ec_rw_hash[0] = update_hash;
+	}
 	return update_retval;
 }
 
@@ -208,7 +233,7 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	shared->recovery_reason = 123;
 	test_ssync(0, 0, "In recovery, EC-RO");
-	TEST_EQ(ec_protected, 0, "  ec protected");
+	TEST_EQ(ec_rw_protected, 0, "  ec rw protected");
 
 	ResetMocks();
 	shared->recovery_reason = 123;
@@ -231,7 +256,7 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	shared->flags |= VBSD_LF_USE_RO_NORMAL;
 	test_ssync(0, 0, "AP-RO, EC-RO");
-	TEST_EQ(ec_protected, 1, "  ec protected");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
 	TEST_EQ(ec_run_image, 0, "  ec run image");
 
 	ResetMocks();
@@ -254,12 +279,12 @@ static void VbSoftwareSyncTest(void)
 
 	/* Calculate hashes */
 	ResetMocks();
-	mock_ec_hash_size = 0;
+	mock_ec_rw_hash_size = 0;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		   VBNV_RECOVERY_EC_HASH_FAILED, "Bad EC hash");
 
 	ResetMocks();
-	mock_ec_hash_size = 16;
+	mock_ec_rw_hash_size = 16;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		   VBNV_RECOVERY_EC_HASH_SIZE, "Bad EC hash size");
 
@@ -295,32 +320,90 @@ static void VbSoftwareSyncTest(void)
 
 	ResetMocks();
 	mock_in_rw = 1;
-	mock_ec_hash[0]++;
+	mock_ec_rw_hash[0]++;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		   0, "Pending update needs reboot");
 
 	ResetMocks();
-	mock_ec_hash[0]++;
-	test_ssync(0, 0, "Update without reboot");
-	TEST_EQ(ec_protected, 1, "  ec protected");
+	mock_ec_rw_hash[0]++;
+	VbNvSet(VbApiKernelGetVnc(), VBNV_TRY_RO_SYNC, 1);
+	test_ssync(0, 0, "Update rw without reboot");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
 	TEST_EQ(ec_run_image, 1, "  ec run image");
-	TEST_EQ(ec_updated, 1, "  ec updated");
+	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
+	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
 
 	ResetMocks();
-	mock_ec_hash[0]++;
+	mock_ec_rw_hash[0]++;
+	mock_ec_ro_hash[0]++;
+	VbNvSet(VbApiKernelGetVnc(), VBNV_TRY_RO_SYNC, 1);
+	test_ssync(0, 0, "Update rw and ro images without reboot");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
+	TEST_EQ(ec_run_image, 1, "  ec run image");
+	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
+	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 1, "  ec ro updated");
+
+	ResetMocks();
+	shared->flags |= VBSD_BOOT_FIRMWARE_WP_ENABLED;
+	VbNvSet(VbApiKernelGetVnc(), VBNV_TRY_RO_SYNC, 1);
+	mock_ec_rw_hash[0]++;
+	mock_ec_ro_hash[0]++;
+	test_ssync(0, 0, "WP enabled");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
+	TEST_EQ(ec_run_image, 1, "  ec run image");
+	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
+	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
+
+	ResetMocks();
+	VbNvSet(VbApiKernelGetVnc(), VBNV_TRY_RO_SYNC, 1);
+	mock_ec_ro_hash[0]++;
+	test_ssync(0, 0, "rw update not needed");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
+	TEST_EQ(ec_run_image, 1, "  ec run image");
+	TEST_EQ(ec_rw_updated, 0, "  ec rw not updated");
+	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 1, "  ec ro updated");
+
+	ResetMocks();
+	mock_ec_rw_hash[0]++;
+	mock_ec_ro_hash[0]++;
+	test_ssync(0, 0, "ro update not requested");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
+	TEST_EQ(ec_run_image, 1, "  ec run image");
+	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
+	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
+
+	ResetMocks();
+	mock_ec_rw_hash[0]++;
+	update_hash++;
+	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
+		   VBNV_RECOVERY_EC_UPDATE, "updated hash mismatch");
+	TEST_EQ(ec_rw_protected, 0, "  ec rw protected");
+	TEST_EQ(ec_run_image, 0, "  ec run image");
+	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
+	TEST_EQ(ec_ro_protected, 0, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
+
+	ResetMocks();
+	mock_ec_rw_hash[0]++;
 	update_retval = VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   0, "Reboot after update");
-	TEST_EQ(ec_updated, 1, "  ec updated");
+		   0, "Reboot after rw update");
+	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
+	TEST_EQ(ec_ro_updated, 0, "  ec rw updated");
 
 	ResetMocks();
-	mock_ec_hash[0]++;
+	mock_ec_rw_hash[0]++;
 	update_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		   VBNV_RECOVERY_EC_UPDATE, "Update failed");
 
 	ResetMocks();
-	mock_ec_hash[0]++;
+	mock_ec_rw_hash[0]++;
 	shared->flags |= VBSD_EC_SLOW_UPDATE;
 	test_ssync(0, 0, "Slow update");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_WAIT, "  wait screen");
@@ -332,9 +415,11 @@ static void VbSoftwareSyncTest(void)
 
 	ResetMocks();
 	test_ssync(0, 0, "AP-RW, EC-RO -> EC-RW");
-	TEST_EQ(ec_protected, 1, "  ec protected");
+	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
 	TEST_EQ(ec_run_image, 1, "  ec run image");
-	TEST_EQ(ec_updated, 0, "  ec updated");
+	TEST_EQ(ec_rw_updated, 0, "  ec rw updated");
+	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
+	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
 
 	ResetMocks();
 	run_retval = VBERROR_SIMULATED;
