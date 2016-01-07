@@ -7,7 +7,11 @@
 # Attempt to trigger the TPM Dictionary Attack Defense Lock and measure its
 # behavior.
 
-owned=$(cat /sys/class/misc/tpm0/device/owned)
+if [ -f /sys/class/misc/tpm0/device/owned ]; then
+  owned=$(cat /sys/class/misc/tpm0/device/owned)
+else
+  owned=$(cat /sys/class/tpm/tpm0/device/owned)
+fi
 if [ "$owned" = "" ]; then
   echo "TPM is not functional"
   exit 1
