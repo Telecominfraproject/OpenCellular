@@ -157,6 +157,10 @@ CC ?= gcc
 CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall ${WERROR} ${DEBUG_FLAGS}
 endif
 
+ifneq (${CUSTOM_MUSIC},)
+CFLAGS += -DCUSTOM_MUSIC
+endif
+
 ifneq (${DEBUG},)
 CFLAGS += -DVBOOT_DEBUG
 endif
