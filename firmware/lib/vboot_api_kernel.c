@@ -1052,6 +1052,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
 	    (shared->flags & VBSD_OPROM_LOADED)) {
 		VBDEBUG(("VbEcSoftwareSync() - Reboot to "
 			 "unload VGA Option ROM\n"));
+		VbNvSet(&vnc, VBNV_OPROM_NEEDED, 0);
 		return VBERROR_VGA_OPROM_MISMATCH;
 	}
 
