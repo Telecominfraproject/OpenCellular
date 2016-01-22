@@ -497,6 +497,18 @@ int vb2api_extend_hash(struct vb2_context *ctx,
 int vb2api_check_hash(struct vb2_context *ctx);
 
 /**
+ * Check the hash value started by vb2api_init_hash() while retrieving
+ * calculated digest.
+ *
+ * @param ctx			Vboot context
+ * @param digest_out		optional pointer to buffer to store digest
+ * @param digest_out_size	optional size of buffer to store digest
+ * @return VB2_SUCCESS, or error code on error.
+ */
+int vb2api_check_hash_get_digest(struct vb2_context *ctx, void *digest_out,
+				uint32_t digest_out_size);
+
+/**
  * Get a PCR digest
  *
  * @param ctx		Vboot context

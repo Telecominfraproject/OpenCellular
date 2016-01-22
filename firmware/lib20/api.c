@@ -129,7 +129,8 @@ int vb2api_init_hash(struct vb2_context *ctx, uint32_t tag, uint32_t *size)
 	return vb2_digest_init(dc, key.hash_alg);
 }
 
-int vb2api_check_hash(struct vb2_context *ctx)
+int vb2api_check_hash_get_digest(struct vb2_context *ctx, void *digest_out,
+				uint32_t digest_out_size)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	struct vb2_digest_context *dc = (struct vb2_digest_context *)
@@ -199,5 +200,16 @@ int vb2api_check_hash(struct vb2_context *ctx)
 	if (rv)
 		vb2_fail(ctx, VB2_RECOVERY_FW_BODY, rv);
 
+	if (digest_out != NULL) {
+		if (digest_out_size < digest_size)
+			return VB2_ERROR_API_CHECK_DIGEST_SIZE;
+		memcpy(digest_out, digest, digest_size);
+	}
+
 	return rv;
+}
+
+int vb2api_check_hash(struct vb2_context *ctx)
+{
+	return vb2api_check_hash_get_digest(ctx, NULL, 0);
 }

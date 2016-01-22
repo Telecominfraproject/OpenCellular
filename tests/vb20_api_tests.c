@@ -27,6 +27,8 @@ const int mock_body_size = sizeof(mock_body);
 const int mock_algorithm = VB2_ALG_RSA2048_SHA256;
 const int mock_hash_alg = VB2_HASH_SHA256;
 const int mock_sig_size = 64;
+static uint8_t digest_result[VB2_SHA256_DIGEST_SIZE];
+static const uint32_t digest_result_size = sizeof(digest_result);
 
 /* Mocked function data */
 
@@ -98,6 +100,9 @@ static void reset_common_data(enum reset_type t)
 
 	if (t == FOR_CHECK_HASH)
 		vb2api_extend_hash(&cc, mock_body, mock_body_size);
+
+	/* Always clear out the digest result. */
+	memset(digest_result, 0, digest_result_size);
 };
 
 /* Mocked functions */
@@ -153,11 +158,20 @@ int vb2ex_hwcrypto_digest_extend(const uint8_t *buf,
 	return VB2_SUCCESS;
 }
 
+static void fill_digest(uint8_t *digest, uint32_t digest_size)
+{
+	/* Set the result to a known value. */
+	memset(digest, 0x0a, digest_size);
+}
+
 int vb2ex_hwcrypto_digest_finalize(uint8_t *digest,
 				   uint32_t digest_size)
 {
 	if (hwcrypto_state != HWCRYPTO_ENABLED)
 		return VB2_ERROR_UNKNOWN;
+
+	if (retval_vb2_digest_finalize == VB2_SUCCESS)
+		fill_digest(digest, digest_size);
 
 	return retval_vb2_digest_finalize;
 }
@@ -194,6 +208,10 @@ int vb2_digest_finalize(struct vb2_digest_context *dc,
 {
 	if (hwcrypto_state == HWCRYPTO_ENABLED)
 		return VB2_ERROR_UNKNOWN;
+
+	if (retval_vb2_digest_finalize == VB2_SUCCESS)
+		fill_digest(digest, digest_size);
+
 	return retval_vb2_digest_finalize;
 }
 
@@ -333,9 +351,24 @@ static void extend_hash_tests(void)
 static void check_hash_tests(void)
 {
 	struct vb2_fw_preamble *pre;
+	const uint32_t digest_value = 0x0a0a0a0a;
 
 	reset_common_data(FOR_CHECK_HASH);
 	TEST_SUCC(vb2api_check_hash(&cc), "check hash good");
+
+	reset_common_data(FOR_CHECK_HASH);
+	TEST_SUCC(vb2api_check_hash_get_digest(&cc, digest_result,
+			digest_result_size), "check hash good with result");
+	/* Check the first 4 bytes to ensure it was copied over. */
+	TEST_SUCC(memcmp(digest_result, &digest_value, sizeof(digest_value)),
+		"check digest value");
+
+	reset_common_data(FOR_CHECK_HASH);
+	TEST_EQ(vb2api_check_hash_get_digest(&cc, digest_result,
+			digest_result_size - 1),
+		VB2_ERROR_API_CHECK_DIGEST_SIZE, "check digest size");
+	TEST_NEQ(memcmp(digest_result, &digest_value, sizeof(digest_value)), 0,
+		"check digest wrong size");
 
 	reset_common_data(FOR_CHECK_HASH);
 	sd->workbuf_preamble_size = 0;
