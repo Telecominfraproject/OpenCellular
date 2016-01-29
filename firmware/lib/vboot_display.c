@@ -357,8 +357,14 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 	/* Read the locale last saved */
 	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &locale);
 
-	if (gbb->bmpfv_size == 0)
-		return VbExDisplayScreen(screen, locale);
+	if (gbb->bmpfv_size == 0) {
+		VbError_t ret = VbExDisplayScreen(screen, locale);
+
+		/* Keep track of the currently displayed screen */
+		if (ret == VBERROR_SUCCESS)
+			disp_current_screen = screen;
+		return ret;
+	}
 
 	return VbDisplayScreenLegacy(cparams, screen, force, vncptr, locale);
 }
