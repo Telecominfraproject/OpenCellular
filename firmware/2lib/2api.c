@@ -111,6 +111,24 @@ int vb2api_fw_phase2(struct vb2_context *ctx)
 {
 	int rv;
 
+	/*
+	 * Use the slot from the last boot if this is a resume.  Do not set
+	 * VB2_SD_STATUS_CHOSE_SLOT so the try counter is not decremented on
+	 * failure as we are explicitly not attempting to boot from a new slot.
+	 */
+	if (ctx->flags & VB2_CONTEXT_S3_RESUME) {
+		struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+		/* Set the current slot to the last booted slot */
+		sd->fw_slot = vb2_nv_get(ctx, VB2_NV_FW_TRIED);
+
+		/* Set context flag if we're using slot B */
+		if (sd->fw_slot)
+			ctx->flags |= VB2_CONTEXT_FW_SLOT_B;
+
+		return VB2_SUCCESS;
+	}
+
 	/* Always clear RAM when entering developer mode */
 	if (ctx->flags & VB2_CONTEXT_DEVELOPER_MODE)
 		ctx->flags |= VB2_CONTEXT_CLEAR_RAM;

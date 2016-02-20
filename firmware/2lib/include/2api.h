@@ -129,6 +129,9 @@ enum vb2_context_flags {
 	 * unrecoverable crash loop.
 	 */
 	VB2_CONTEXT_SECDATA_WANTS_REBOOT = (1 << 13),
+
+	/* Boot is S3->S0 resume, not S5->S0 normal boot */
+	VB2_CONTEXT_S3_RESUME = (1 << 14),
 };
 
 /*
