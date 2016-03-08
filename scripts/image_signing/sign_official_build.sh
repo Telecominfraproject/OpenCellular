@@ -714,7 +714,11 @@ update_legacy_bootloader() {
   local esp_dir="$(make_temp_dir)"
   # We use the 'unsafe' variant because the EFI system partition is vfat type
   # and can be mounted in RW mode.
-  _mount_image_partition_retry "${image}" "${esp_partnum}" "${esp_dir}"
+  if ! _mount_image_partition_retry "${image}" "${esp_partnum}" \
+                                    "${esp_dir}"; then
+    error "Could not mount EFI partition for updating legacy bootloader cfg."
+    return 1
+  fi
 
   # If we can't find the dm parameter in the kernel config, bail out now.
   local kernel_config=$(grab_kernel_config "${image}" "${dm_partno}")
