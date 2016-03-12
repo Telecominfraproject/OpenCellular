@@ -249,7 +249,7 @@ parse_filename(char *str, char *name, int chars_remaining)
 	 * Check if the filename buffer is out of space, preserving one
 	 * character to null terminate the string.
 	 */
-	while (isalnum(*str) || strchr("\\/~_-+:.", *str)) {
+	while (isalnum(*str) || strchr("\\/~_-+:.@", *str)) {
 
 		chars_remaining--;
 
