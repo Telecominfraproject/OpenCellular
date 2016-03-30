@@ -18,6 +18,7 @@
 
 #include "crossystem.h"
 #include "crossystem_arch.h"
+#include "crossystem_vbnv.h"
 #include "host_common.h"
 #include "utility.h"
 #include "vboot_common.h"
@@ -171,6 +172,7 @@ int VbReadNvStorage(VbNvContext* vnc) {
 
 int VbWriteNvStorage(VbNvContext* vnc) {
   unsigned offs, blksz;
+  VbSharedDataHeader *sh = VbSharedDataRead();
 
   if (!vnc->raw_changed)
     return 0;  /* Nothing changed, so no need to write */
@@ -185,6 +187,10 @@ int VbWriteNvStorage(VbNvContext* vnc) {
 
   if (0 != VbCmosWrite(offs, VBNV_BLOCK_SIZE, vnc->raw))
     return -1;
+
+  /* Also attempt to write using mosys if using vboot2 */
+  if (sh && (sh->flags & VBSD_BOOT_FIRMWARE_VBOOT2))
+    VbWriteNvStorage_mosys(vnc);
 
   return 0;
 }
