@@ -24,9 +24,7 @@
 #include "host_common.h"
 #include "crossystem.h"
 #include "crossystem_arch.h"
-
-#define MOSYS_CROS_PATH "/usr/sbin/mosys"
-#define MOSYS_ANDROID_PATH "/system/bin/mosys"
+#include "crossystem_vbnv.h"
 
 /* Base name for firmware FDT files */
 #define FDT_BASE_PATH "/proc/device-tree/firmware/chromeos"
@@ -49,22 +47,6 @@
 #define FNAME_SIZE  80
 #define SECTOR_SIZE 512
 #define MAX_NMMCBLK 9
-
-static int InAndroid() {
-  int fd;
-  struct stat s;
-
-  /* In Android, mosys utility located in /system/bin
-     check if file exists.  Using fstat because for some
-     reason, stat() was seg faulting in Android */
-  fd = open(MOSYS_ANDROID_PATH, O_RDONLY);
-  if (fstat(fd, &s) == 0) {
-    close(fd);
-    return 1;
-  }
-  close(fd);
-  return 0;
-}
 
 static int FindEmmcDev(void) {
   int mmcblk;
@@ -253,98 +235,6 @@ out:
   return ret;
 }
 
-static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize) {
-  int status, mosys_to_crossystem[2];
-  pid_t pid;
-  ssize_t n;
-
-  if (pipe(mosys_to_crossystem) < 0) {
-    VBDEBUG(("pipe() error\n"));
-    return -1;
-  }
-
-  if ((pid = fork()) < 0) {
-    VBDEBUG(("fork() error\n"));
-    close(mosys_to_crossystem[0]);
-    close(mosys_to_crossystem[1]);
-    return -1;
-  } else if (!pid) {  /* Child */
-    close(mosys_to_crossystem[0]);
-    /* Redirect pipe's write-end to mosys' stdout */
-    if (STDOUT_FILENO != mosys_to_crossystem[1]) {
-      if (dup2(mosys_to_crossystem[1], STDOUT_FILENO) != STDOUT_FILENO) {
-        VBDEBUG(("stdout dup2() failed (mosys)\n"));
-        close(mosys_to_crossystem[1]);
-        exit(1);
-      }
-    }
-    /* Execute mosys */
-    execv(InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH, argv);
-    /* We shouldn't be here; exit now! */
-    VBDEBUG(("execv() of mosys failed\n"));
-    close(mosys_to_crossystem[1]);
-    exit(1);
-  } else {  /* Parent */
-    close(mosys_to_crossystem[1]);
-    if (bufsize) {
-      bufsize--;  /* Reserve 1 byte for '\0' */
-      while ((n = read(mosys_to_crossystem[0], buf, bufsize)) > 0) {
-        buf += n;
-        bufsize -= n;
-      }
-      *buf = '\0';
-    } else {
-      n = 0;
-    }
-    close(mosys_to_crossystem[0]);
-    if (n < 0)
-      VBDEBUG(("read() error while reading output from mosys\n"));
-    if (waitpid(pid, &status, 0) < 0 || status) {
-      VBDEBUG(("waitpid() or mosys error\n"));
-      fprintf(stderr, "waitpid() or mosys error\n");
-      return -1;
-    }
-    if (n < 0)
-      return -1;
-  }
-  return 0;
-}
-
-static int VbReadNvStorage_mosys(VbNvContext* vnc) {
-  char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
-  char * const argv[] = {
-    InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH,
-    "nvram", "vboot", "read", NULL
-  };
-  char hexdigit[3];
-  int i;
-
-  if (ExecuteMosys(argv, hexstring, sizeof(hexstring)))
-    return -1;
-  hexdigit[2] = '\0';
-  for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
-    hexdigit[0] = hexstring[i * 2];
-    hexdigit[1] = hexstring[i * 2 + 1];
-    vnc->raw[i] = strtol(hexdigit, NULL, 16);
-  }
-  return 0;
-}
-
-static int VbWriteNvStorage_mosys(VbNvContext* vnc) {
-  char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
-  char * const argv[] = {
-    InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH,
-    "nvram", "vboot", "write", hexstring, NULL
-  };
-  int i;
-
-  for (i = 0; i < VBNV_BLOCK_SIZE; i++)
-    snprintf(hexstring + i * 2, 3, "%02x", vnc->raw[i]);
-  hexstring[sizeof(hexstring) - 1] = '\0';
-  if (ExecuteMosys(argv, NULL, 0))
-    return -1;
-  return 0;
-}
 
 static int VbReadNvStorage_disk(VbNvContext* vnc) {
   int nvctx_fd = -1;
