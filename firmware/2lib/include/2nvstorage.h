@@ -96,6 +96,8 @@ enum vb2_nv_param {
 	VB2_NV_BOOT_ON_AC_DETECT,
 	/* Try to update the EC-RO image after updating the EC-RW image(0=no, 1=yes). */
 	VB2_NV_TRY_RO_SYNC,
+        /* Cut off battery and shutdown on next boot. */
+        VB2_NV_BATTERY_CUTOFF_REQUEST,
 };
 
 /* Set default boot in developer mode */

@@ -64,6 +64,7 @@
 #define MISC_UNLOCK_FASTBOOT            0x01
 #define MISC_BOOT_ON_AC_DETECT          0x02
 #define MISC_TRY_RO_SYNC		0x04
+#define MISC_BATTERY_CUTOFF_REQUEST	0x08
 
 #define KERNEL_FIELD_OFFSET         11
 #define CRC_OFFSET                  15
@@ -229,6 +230,11 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 
 	case VBNV_TRY_RO_SYNC:
 		*dest = (raw[MISC_OFFSET] & MISC_TRY_RO_SYNC) ? 1 : 0;
+		return 0;
+
+	case VBNV_BATTERY_CUTOFF_REQUEST:
+		*dest = (raw[MISC_OFFSET] & MISC_BATTERY_CUTOFF_REQUEST)
+			 ?  1 : 0;
 		return 0;
 
 	default:
@@ -454,6 +460,13 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 			raw[MISC_OFFSET] |= MISC_TRY_RO_SYNC;
 		else
 			raw[MISC_OFFSET] &= ~MISC_TRY_RO_SYNC;
+		break;
+
+	case VBNV_BATTERY_CUTOFF_REQUEST:
+		if (value)
+			raw[MISC_OFFSET] |= MISC_BATTERY_CUTOFF_REQUEST;
+		else
+			raw[MISC_OFFSET] &= ~MISC_BATTERY_CUTOFF_REQUEST;
 		break;
 
 	default:

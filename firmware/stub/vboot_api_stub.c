@@ -166,6 +166,11 @@ VbError_t VbExEcVbootDone(int in_recovery)
        return VBERROR_SUCCESS;
 }
 
+VbError_t VbExEcBatteryCutOff(void)
+{
+	return VBERROR_SUCCESS;
+}
+
 enum VbEcBootMode_t VbGetMode(void)
 {
 	return vboot_mode;

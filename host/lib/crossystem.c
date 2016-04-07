@@ -551,6 +551,8 @@ int VbGetSystemPropertyInt(const char* name) {
 	  value = VbGetNvStorage(VBNV_BOOT_ON_AC_DETECT);
   } else if (!strcasecmp(name, "try_ro_sync")) {
 	  value = VbGetNvStorage(VBNV_TRY_RO_SYNC);
+  } else if (!strcasecmp(name, "battery_cutoff_request")) {
+    value = VbGetNvStorage(VBNV_BATTERY_CUTOFF_REQUEST);
   }
 
   return value;
@@ -687,6 +689,8 @@ int VbSetSystemPropertyInt(const char* name, int value) {
     return VbSetNvStorage_WithBackup(VBNV_BOOT_ON_AC_DETECT, value);
   } else if (!strcasecmp(name, "try_ro_sync")) {
     return VbSetNvStorage_WithBackup(VBNV_TRY_RO_SYNC, value);
+  } else if (!strcasecmp(name, "battery_cutoff_request")) {
+    return VbSetNvStorage(VBNV_BATTERY_CUTOFF_REQUEST, value);
   }
 
   return -1;

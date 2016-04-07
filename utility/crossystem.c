@@ -34,6 +34,8 @@ const Param sys_param_list[] = {
   {"arch", IS_STRING, "Platform architecture"},
   {"backup_nvram_request", CAN_WRITE,
    "Backup the nvram somewhere at the next boot. Cleared on success."},
+  {"battery_cutoff_request", CAN_WRITE,
+   "Cut off battery and shutdown on next boot."},
   {"block_devmode", CAN_WRITE, "Block all use of developer mode"},
   {"clear_tpm_owner_request", CAN_WRITE, "Clear TPM owner on next boot"},
   {"clear_tpm_owner_done", CAN_WRITE, "Clear TPM owner done"},

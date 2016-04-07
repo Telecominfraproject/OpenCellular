@@ -1082,6 +1082,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	VbError_t retval = VBERROR_SUCCESS;
 	LoadKernelParams p;
 	uint32_t tpm_status = 0;
+	uint32_t battery_cutoff = 0;
 
 	/* Start timer */
 	shared->timer_vb_select_and_load_kernel_enter = VbExGetTimer();
@@ -1137,6 +1138,17 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	retval = VbExEcVbootDone(!!shared->recovery_reason);
 	if (retval != VBERROR_SUCCESS)
 		goto VbSelectAndLoadKernel_exit;
+
+	/* Check if we need to cut-off battery. This must be done after EC
+         * firmware updating and before kernel started. */
+	VbNvGet(&vnc, VBNV_BATTERY_CUTOFF_REQUEST, &battery_cutoff);
+	if (battery_cutoff) {
+		VBDEBUG(("Request to cut-off battery\n"));
+		VbNvSet(&vnc, VBNV_BATTERY_CUTOFF_REQUEST, 0);
+		VbExEcBatteryCutOff();
+		retval = VBERROR_SHUTDOWN_REQUESTED;
+		goto VbSelectAndLoadKernel_exit;
+	}
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
 	tpm_status = RollbackKernelRead(&shared->kernel_version_tpm);

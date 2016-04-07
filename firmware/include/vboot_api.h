@@ -945,6 +945,11 @@ VbError_t VbExEcEnteringMode(int devidx, enum VbEcBootMode_t mode);
  */
 VbError_t VbExEcVbootDone(int in_recovery);
 
+/**
+ * Request EC to stop discharging and cut-off battery.
+ */
+VbError_t VbExEcBatteryCutOff(void);
+
 /*****************************************************************************/
 /* Misc */
 
