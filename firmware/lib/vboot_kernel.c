@@ -15,6 +15,7 @@
 #include "gbb_header.h"
 #include "gpt_misc.h"
 #include "load_kernel_fw.h"
+#include "rollback_index.h"
 #include "utility.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -77,6 +78,10 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	} else if (dev_switch) {
 		boot_mode = kBootDev;
 		VbNvGet(vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &require_official_os);
+
+		if (params->fwmp &&
+		    (params->fwmp->flags & FWMP_DEV_ENABLE_OFFICIAL_ONLY))
+			require_official_os = 1;
 	} else {
 		boot_mode = kBootNormal;
 	}
@@ -266,6 +271,39 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		if (kBootDev != boot_mode && !key_block_valid) {
 			VBDEBUG(("Key block is invalid.\n"));
 			goto bad_kernel;
+		}
+
+
+		/* If in developer mode and using key hash, check it */
+		if ((kBootDev == boot_mode) &&
+		    params->fwmp &&
+		    (params->fwmp->flags & FWMP_DEV_USE_KEY_HASH)) {
+			VbPublicKey *key = &key_block->data_key;
+			uint8_t *buf = ((uint8_t *)key) + key->key_offset;
+			uint64_t buflen = key->key_size;
+			uint8_t *digest;
+
+			VBDEBUG(("Checking developer key hash.\n"));
+			digest = DigestBuf(buf, buflen,
+					   SHA256_DIGEST_ALGORITHM);
+			if (0 != SafeMemcmp(digest, params->fwmp->dev_key_hash,
+					    SHA256_DIGEST_SIZE)) {
+				int i;
+
+				VBDEBUG(("Wrong developer key hash.\n"));
+				VBDEBUG(("Want: "));
+				for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+					VBDEBUG(("%02x",
+						 params->fwmp->dev_key_hash[i]));
+				VBDEBUG(("\nGot:  "));
+				for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+					VBDEBUG(("%02x", digest[i]));
+				VBDEBUG(("\n"));
+
+				VbExFree(digest);
+				goto bad_kernel;
+			}
+			VbExFree(digest);
 		}
 
 		/* Get key for preamble/data verification from the key block. */

@@ -481,7 +481,6 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
 	return TPM_SUCCESS;
 }
 
-
 #ifdef DISABLE_ROLLBACK_TPM
 /* Dummy implementations which don't support TPM rollback protection */
 
@@ -680,3 +679,73 @@ uint32_t RollbackKernelLock(int recovery_mode)
 }
 
 #endif /* DISABLE_ROLLBACK_TPM */
+
+uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
+{
+	uint8_t buf[FWMP_NV_MAX_SIZE];
+	struct RollbackSpaceFwmp *bf = (struct RollbackSpaceFwmp *)buf;
+	uint32_t r;
+	int attempts = 3;
+
+	/* Clear destination in case error or FWMP not present */
+	Memset(fwmp, 0, sizeof(*fwmp));
+
+	while (attempts--) {
+		/* Try to read entire 1.0 struct */
+		r = TlclRead(FWMP_NV_INDEX, buf, sizeof(*bf));
+		if (r == TPM_E_BADINDEX) {
+			/* Missing space is not an error; use defaults */
+			VBDEBUG(("TPM: %s() - no FWMP space\n", __func__));
+			return TPM_SUCCESS;
+		} else if (r != TPM_SUCCESS) {
+			VBDEBUG(("TPM: %s() - read returned 0x%x\n",
+				 __func__, r));
+			return r;
+		}
+
+		/*
+		 * Struct must be at least big enough for 1.0, but not bigger
+		 * than our buffer size.
+		 */
+		if (bf->struct_size < sizeof(*bf) ||
+		    bf->struct_size > sizeof(buf))
+			return TPM_E_STRUCT_SIZE;
+
+		/*
+		 * If space is bigger than we expect, re-read so we properly
+		 * compute the CRC.
+		 */
+		if (bf->struct_size > sizeof(*bf)) {
+			r = TlclRead(FWMP_NV_INDEX, buf, bf->struct_size);
+			if (r != TPM_SUCCESS)
+				return r;
+		}
+
+		/* Verify CRC */
+		if (bf->crc != Crc8(buf + 2, bf->struct_size - 2)) {
+			VBDEBUG(("TPM: %s() - bad CRC\n", __func__));
+			continue;
+		}
+
+		/* Verify major version is compatible */
+		if ((bf->struct_version >> 4) !=
+		    (ROLLBACK_SPACE_FWMP_VERSION >> 4))
+			return TPM_E_STRUCT_VERSION;
+
+		/*
+		 * Copy to destination.  Note that if the space is bigger than
+		 * we expect (due to a minor version change), we only copy the
+		 * part of the FWMP that we know what to do with.
+		 *
+		 * If this were a 1.1+ reader and the source was a 1.0 struct,
+		 * we would need to take care of initializing the extra fields
+		 * added in 1.1+.  But that's not an issue yet.
+		 */
+		Memcpy(fwmp, bf, sizeof(*fwmp));
+		return TPM_SUCCESS;
+	}
+
+	VBDEBUG(("TPM: %s() - too many bad CRCs, giving up\n", __func__));
+	return TPM_E_CORRUPTED_STATE;
+}
+

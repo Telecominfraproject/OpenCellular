@@ -46,6 +46,7 @@ static uint32_t mock_num_disks[8];
 static uint32_t mock_num_disks_count;
 
 extern enum VbEcBootMode_t VbGetMode(void);
+extern struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void);
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
@@ -68,6 +69,8 @@ static void ResetMocks(void)
 	Memset(VbApiKernelGetVnc(), 0, sizeof(VbNvContext));
 	VbNvSetup(VbApiKernelGetVnc());
 	VbNvTeardown(VbApiKernelGetVnc()); /* So CRC gets generated */
+
+	Memset(VbApiKernelGetFwmp(), 0, sizeof(struct RollbackSpaceFwmp));
 
 	Memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -452,6 +455,12 @@ static void VbBootDevTest(void)
 	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Ctrl+L nv legacy");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
+	ResetMocks();
+	VbApiKernelGetFwmp()->flags |= FWMP_DEV_ENABLE_LEGACY;
+	mock_keypress[0] = 0x0c;
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 1002, "Ctrl+L fwmp legacy");
+	TEST_EQ(vbexlegacy_called, 1, "  fwmp legacy");
+
 	/* Ctrl+U boots USB only if enabled */
 	ResetMocks();
 	mock_keypress[0] = 0x15;
@@ -471,6 +480,13 @@ static void VbBootDevTest(void)
 	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 0, "Ctrl+U force USB");
 
+	/* Ctrl+U enabled via FWMP */
+	ResetMocks();
+	VbApiKernelGetFwmp()->flags |= FWMP_DEV_ENABLE_USB;
+	mock_keypress[0] = 0x15;
+	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), 0, "Ctrl+U force USB");
+
 	/* If no USB, eventually times out and tries fixed disk */
 	ResetMocks();
 	VbNvSet(VbApiKernelGetVnc(), VBNV_DEV_BOOT_USB, 1);
@@ -480,6 +496,32 @@ static void VbBootDevTest(void)
 	VbNvGet(VbApiKernelGetVnc(), VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, 0, "  recovery reason");
 	TEST_EQ(audio_looping_calls_left, 0, "  used up audio");
+
+	/* If dev mode is disabled, goes to TONORM screen repeatedly */
+	ResetMocks();
+	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
+	mock_keypress[0] = '\x1b';  /* Just causes TONORM again */
+	mock_keypress[1] = '\r';
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_TPM_REBOOT_REQUIRED,
+		"FWMP dev disabled");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM,
+		"  tonorm screen");
+	TEST_EQ(screens_displayed[1], VB_SCREEN_DEVELOPER_TO_NORM,
+		"  tonorm screen");
+	TEST_EQ(screens_displayed[2], VB_SCREEN_TO_NORM_CONFIRMED,
+		"  confirm screen");
+	VbNvGet(VbApiKernelGetVnc(), VBNV_DISABLE_DEV_REQUEST, &u);
+	TEST_EQ(u, 1, "  disable dev request");
+
+	/* Shutdown requested when dev disabled */
+	ResetMocks();
+	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
+	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
+	shutdown_request_calls_left = 1;
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_SHUTDOWN_REQUESTED,
+		"Shutdown requested when dev disabled");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM,
+		"  tonorm screen");
 
 	printf("...done.\n");
 }

@@ -13,10 +13,12 @@
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
+#include "cryptolib.h"
 #include "gbb_header.h"
 #include "gpt.h"
 #include "host_common.h"
 #include "load_kernel_fw.h"
+#include "rollback_index.h"
 #include "test_common.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -63,12 +65,13 @@ static LoadKernelParams lkp;
 static VbKeyBlockHeader kbh;
 static VbKernelPreambleHeader kph;
 static VbCommonParams cparams;
+static struct RollbackSpaceFwmp fwmp;
 static uint8_t mock_disk[MOCK_SECTOR_SIZE * MOCK_SECTOR_COUNT];
 static GptHeader *mock_gpt_primary =
 	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * 1];
 static GptHeader *mock_gpt_secondary =
 	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * (MOCK_SECTOR_COUNT - 1)];
-
+static uint8_t mock_digest[SHA256_DIGEST_SIZE] = {12, 34, 56, 78};
 
 /**
  * Prepare a valid GPT header that will pass CheckHeader() tests
@@ -171,6 +174,9 @@ static void ResetMocks(void)
 	kph.body_signature.data_size = 70144;
 	kph.bootloader_address = 0xbeadd008;
 	kph.bootloader_size = 0x1234;
+
+	memset(&fwmp, 0, sizeof(fwmp));
+	memcpy(fwmp.dev_key_hash, mock_digest, sizeof(fwmp.dev_key_hash));
 
 	memset(mock_parts, 0, sizeof(mock_parts));
 	mock_parts[0].start = 100;
@@ -287,6 +293,13 @@ int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
 	return VBERROR_SUCCESS;
 }
 
+uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm)
+{
+	uint8_t *d = VbExMalloc(sizeof(mock_digest));
+
+	memcpy(d, mock_digest, sizeof(mock_digest));
+	return d;
+}
 
 /**
  * Test reading/writing GPT
@@ -640,6 +653,14 @@ static void LoadKernelTest(void)
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
 		"Fail key block dev sig");
 
+	ResetMocks();
+	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	lkp.fwmp = &fwmp;
+	fwmp.flags |= FWMP_DEV_ENABLE_OFFICIAL_ONLY;
+	key_block_verify_fail = 1;
+	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
+		"Fail key block dev sig fwmp");
+
 	/* Check key block flag mismatches */
 	ResetMocks();
 	kbh.key_block_flags =
@@ -724,6 +745,22 @@ static void LoadKernelTest(void)
 	kph.kernel_version = 0;
 	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
 	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Kernel version ignored in rec mode");
+
+	/* Check developer key hash - bad */
+	ResetMocks();
+	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	lkp.fwmp = &fwmp;
+	fwmp.flags |= FWMP_DEV_USE_KEY_HASH;
+	fwmp.dev_key_hash[0]++;
+	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
+		"Fail key block dev fwmp hash");
+
+	/* Check developer key hash - good */
+	ResetMocks();
+	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	lkp.fwmp = &fwmp;
+	fwmp.flags |= FWMP_DEV_USE_KEY_HASH;
+	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Good key block dev fwmp hash");
 
 	ResetMocks();
 	kph.preamble_size |= 0x07;

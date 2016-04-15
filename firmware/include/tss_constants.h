@@ -40,6 +40,8 @@
 #define TPM_E_WRITE_FAILURE          ((uint32_t) 0x00005008)  /* vboot local */
 #define TPM_E_READ_EMPTY             ((uint32_t) 0x00005009)  /* vboot local */
 #define TPM_E_READ_FAILURE           ((uint32_t) 0x0000500a)  /* vboot local */
+#define TPM_E_STRUCT_SIZE            ((uint32_t) 0x0000500b)  /* vboot local */
+#define TPM_E_STRUCT_VERSION         ((uint32_t) 0x0000500c)  /* vboot local */
 
 #define TPM_NV_INDEX0            ((uint32_t) 0x00000000)
 #define TPM_NV_INDEX_LOCK        ((uint32_t) 0xffffffff)

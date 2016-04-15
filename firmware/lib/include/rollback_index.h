@@ -18,7 +18,8 @@
 /* This is just an opaque space for backup purposes */
 #define BACKUP_NV_INDEX                 0x1009
 #define BACKUP_NV_SIZE 16
-
+#define FWMP_NV_INDEX			0x100a
+#define FWMP_NV_MAX_SIZE 128
 
 /* Structure definitions for TPM spaces */
 
@@ -70,6 +71,34 @@ typedef struct RollbackSpaceFirmware {
 	uint8_t crc8;
 } __attribute__((packed)) RollbackSpaceFirmware;
 
+#define FWMP_HASH_SIZE 32 /* Enough for SHA-256 */
+
+/* Firmware management parameters */
+struct RollbackSpaceFwmp {
+	/* CRC-8 of fields following struct_size */
+	uint8_t crc;
+	/* Structure size in bytes */
+	uint8_t struct_size;
+	/* Structure version */
+	uint8_t struct_version;
+	/* Reserved; ignored by current reader */
+	uint8_t reserved0;
+	/* Flags; see enum fwmp_flags */
+	uint32_t flags;
+	/* Hash of developer kernel key */
+	uint8_t dev_key_hash[FWMP_HASH_SIZE];
+} __attribute__((packed));
+
+#define ROLLBACK_SPACE_FWMP_VERSION 0x10  /* 1.0 */
+
+enum fwmp_flags {
+	FWMP_DEV_DISABLE_BOOT		= (1 << 0),
+	FWMP_DEV_DISABLE_RECOVERY	= (1 << 1),
+	FWMP_DEV_ENABLE_USB		= (1 << 2),
+	FWMP_DEV_ENABLE_LEGACY		= (1 << 3),
+	FWMP_DEV_ENABLE_OFFICIAL_ONLY	= (1 << 4),
+	FWMP_DEV_USE_KEY_HASH		= (1 << 5),
+};
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
@@ -133,6 +162,15 @@ uint32_t RollbackBackupWrite(uint8_t *raw);
  * Lock must be called.  Internally, it's ignored in recovery mode.
  */
 uint32_t RollbackKernelLock(int recovery_mode);
+
+/**
+ * Read and validate firmware management parameters.
+ *
+ * Absence of a FWMP is not an error; in this case, fwmp will be cleared.
+ *
+ * Returns non-zero if error.
+ */
+uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp);
 
 /****************************************************************************/
 

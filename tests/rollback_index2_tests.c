@@ -53,7 +53,20 @@ static int noise_on[MAX_NOISE_COUNT];   /* calls to inject noise on */
 static TPM_PERMANENT_FLAGS mock_pflags;
 static RollbackSpaceFirmware mock_rsf;
 static RollbackSpaceKernel mock_rsk;
+
+static union {
+	struct RollbackSpaceFwmp fwmp;
+	uint8_t buf[FWMP_NV_MAX_SIZE];
+} mock_fwmp;
+
 static uint32_t mock_permissions;
+
+/* Recalculate CRC of FWMP data */
+static void RecalcFwmpCrc(void)
+{
+	mock_fwmp.fwmp.crc = Crc8(mock_fwmp.buf + 2,
+				  mock_fwmp.fwmp.struct_size - 2);
+}
 
 /* Reset the variables for the Tlcl mock functions. */
 static void ResetMocks(int fail_on_call, uint32_t fail_with_err)
@@ -70,6 +83,15 @@ static void ResetMocks(int fail_on_call, uint32_t fail_with_err)
 	Memset(&mock_rsf, 0, sizeof(mock_rsf));
 	Memset(&mock_rsk, 0, sizeof(mock_rsk));
 	mock_permissions = 0;
+
+	Memset(mock_fwmp.buf, 0, sizeof(mock_fwmp.buf));
+	mock_fwmp.fwmp.struct_size = sizeof(mock_fwmp.fwmp);
+	mock_fwmp.fwmp.struct_version = ROLLBACK_SPACE_FWMP_VERSION;
+	mock_fwmp.fwmp.flags = 0x1234;
+	/* Put some data in the hash */
+	mock_fwmp.fwmp.dev_key_hash[0] = 0xaa;
+	mock_fwmp.fwmp.dev_key_hash[FWMP_HASH_SIZE - 1] = 0xbb;
+	RecalcFwmpCrc();
 }
 
 /****************************************************************************/
@@ -134,6 +156,12 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 	} else if (KERNEL_NV_INDEX == index) {
 		TEST_EQ(length, sizeof(mock_rsk), "TlclRead rsk size");
 		Memcpy(data, &mock_rsk, length);
+		MaybeInjectNoise(data, length);
+	} else if (FWMP_NV_INDEX == index) {
+		Memset(data, 0, length);
+		if (length > sizeof(mock_fwmp))
+			length = sizeof(mock_fwmp);
+		Memcpy(data, &mock_fwmp, length);
 		MaybeInjectNoise(data, length);
 	} else {
 		Memset(data, 0, length);
@@ -962,6 +990,7 @@ static void RollbackKernelTest(void)
 		    "tlcl calls");
 }
 
+/****************************************************************************/
 /* Tests for RollbackS3Resume() */
 static void RollbackS3ResumeTest(void)
 {
@@ -982,6 +1011,99 @@ static void RollbackS3ResumeTest(void)
 		"RollbackS3Resume() other error");
 }
 
+/****************************************************************************/
+/* Tests for RollbackFwmpRead() calls */
+
+static void RollbackFwmpTest(void)
+{
+	struct RollbackSpaceFwmp fwmp;
+	struct RollbackSpaceFwmp fwmp_zero = {0};
+
+	/* Normal read */
+	ResetMocks(0, 0);
+	TEST_EQ(RollbackFwmpRead(&fwmp), 0, "RollbackFwmpRead()");
+	TEST_STR_EQ(mock_calls,
+		    "TlclRead(0x100a, 40)\n",
+		    "  tlcl calls");
+	TEST_EQ(0, Memcmp(&fwmp, &mock_fwmp, sizeof(fwmp)), "  data");
+
+	/* Read error */
+	ResetMocks(1, TPM_E_IOERROR);
+	TEST_EQ(RollbackFwmpRead(&fwmp), TPM_E_IOERROR,
+		"RollbackFwmpRead() error");
+	TEST_STR_EQ(mock_calls,
+		    "TlclRead(0x100a, 40)\n",
+		    "  tlcl calls");
+	TEST_EQ(0, Memcmp(&fwmp, &fwmp_zero, sizeof(fwmp)), "  data clear");
+
+	/* Not present isn't an error; just returns empty data */
+	ResetMocks(1, TPM_E_BADINDEX);
+	TEST_EQ(RollbackFwmpRead(&fwmp), 0, "RollbackFwmpRead() not present");
+	TEST_STR_EQ(mock_calls,
+		    "TlclRead(0x100a, 40)\n",
+		    "  tlcl calls");
+	TEST_EQ(0, Memcmp(&fwmp, &fwmp_zero, sizeof(fwmp)), "  data clear");
+
+	/* Struct size too small */
+	ResetMocks(0, 0);
+	mock_fwmp.fwmp.struct_size--;
+	TEST_EQ(RollbackFwmpRead(&fwmp), TPM_E_STRUCT_SIZE,
+		"RollbackFwmpRead() too small");
+
+	/* Struct size too large with good CRC */
+	ResetMocks(0, 0);
+	mock_fwmp.fwmp.struct_size += 4;
+	RecalcFwmpCrc();
+	TEST_EQ(RollbackFwmpRead(&fwmp), 0, "RollbackFwmpRead() bigger");
+	TEST_STR_EQ(mock_calls,
+		    "TlclRead(0x100a, 40)\n"
+		    "TlclRead(0x100a, 44)\n",
+		    "  tlcl calls");
+	TEST_EQ(0, Memcmp(&fwmp, &mock_fwmp, sizeof(fwmp)), "  data");
+
+	/* Bad CRC causes retry, then eventual failure */
+	ResetMocks(0, 0);
+	mock_fwmp.fwmp.crc++;
+	TEST_EQ(RollbackFwmpRead(&fwmp), TPM_E_CORRUPTED_STATE,
+		"RollbackFwmpRead() crc");
+	TEST_STR_EQ(mock_calls,
+		    "TlclRead(0x100a, 40)\n"
+		    "TlclRead(0x100a, 40)\n"
+		    "TlclRead(0x100a, 40)\n",
+		    "  tlcl calls");
+
+	/* Struct size too large with bad CRC */
+	ResetMocks(0, 0);
+	mock_fwmp.fwmp.struct_size += 4;
+	RecalcFwmpCrc();
+	mock_fwmp.fwmp.crc++;
+	TEST_EQ(RollbackFwmpRead(&fwmp), TPM_E_CORRUPTED_STATE,
+		"RollbackFwmpRead() bigger crc");
+	TEST_STR_EQ(mock_calls,
+		    "TlclRead(0x100a, 40)\n"
+		    "TlclRead(0x100a, 44)\n"
+		    "TlclRead(0x100a, 40)\n"
+		    "TlclRead(0x100a, 44)\n"
+		    "TlclRead(0x100a, 40)\n"
+		    "TlclRead(0x100a, 44)\n",
+		    "  tlcl calls");
+	TEST_EQ(0, Memcmp(&fwmp, &fwmp_zero, sizeof(fwmp)), "  data");
+
+	/* Minor version difference ok */
+	ResetMocks(0, 0);
+	mock_fwmp.fwmp.struct_version++;
+	RecalcFwmpCrc();
+	TEST_EQ(RollbackFwmpRead(&fwmp), 0, "RollbackFwmpRead() minor version");
+	TEST_EQ(0, Memcmp(&fwmp, &mock_fwmp, sizeof(fwmp)), "  data");
+
+	/* Major version difference not ok */
+	ResetMocks(0, 0);
+	mock_fwmp.fwmp.struct_version += 0x10;
+	RecalcFwmpCrc();
+	TEST_EQ(RollbackFwmpRead(&fwmp), TPM_E_STRUCT_VERSION,
+		"RollbackFwmpRead() major version");
+}
+
 int main(int argc, char* argv[])
 {
 	CrcTestFirmware();
@@ -992,6 +1114,7 @@ int main(int argc, char* argv[])
 	RollbackFirmwareTest();
 	RollbackKernelTest();
 	RollbackS3ResumeTest();
+	RollbackFwmpTest();
 
 	return gTestSuccess ? 0 : 255;
 }

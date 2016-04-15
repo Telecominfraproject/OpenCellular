@@ -22,13 +22,19 @@
 
 /* Global variables */
 static VbNvContext vnc;
+static struct RollbackSpaceFwmp fwmp;
 
 #ifdef CHROMEOS_ENVIRONMENT
-/* Global variable accessor for unit tests */
+/* Global variable accessors for unit tests */
 
 VbNvContext *VbApiKernelGetVnc(void)
 {
 	return &vnc;
+}
+
+struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void)
+{
+	return &fwmp;
 }
 #endif
 
@@ -280,6 +286,11 @@ VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
 	return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
 }
 
+static const char dev_disable_msg[] =
+	"Developer mode is disabled on this device by system policy.\n"
+	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
+	"\n";
+
 VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 {
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
@@ -288,6 +299,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 
 	uint32_t allow_usb = 0;
 	uint32_t allow_legacy = 0;
+	uint32_t disable_dev_boot = 0;
 	uint32_t use_usb = 0;
 	uint32_t use_legacy = 0;
 	uint32_t default_boot = 0;
@@ -317,6 +329,46 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	if (gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
 		use_legacy = 1;
 		use_usb = 0;
+	}
+
+	/* Handle FWMP override */
+	if (fwmp.flags & FWMP_DEV_ENABLE_USB)
+		allow_usb = 1;
+	if (fwmp.flags & FWMP_DEV_ENABLE_LEGACY)
+		allow_legacy = 1;
+	if (fwmp.flags & FWMP_DEV_DISABLE_BOOT) {
+		if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+			VBDEBUG(("%s() - FWMP_DEV_DISABLE_BOOT rejected by "
+				 "FORCE_DEV_SWITCH_ON\n",
+				 __func__));
+		} else {
+			disable_dev_boot = 1;
+		}
+	}
+
+	/* If dev mode is disabled, only allow TONORM */
+	while (disable_dev_boot) {
+		VBDEBUG(("%s() - dev_disable_boot is set.\n", __func__));
+		VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_TO_NORM, 0, &vnc);
+		VbExDisplayDebugInfo(dev_disable_msg);
+
+		/* Ignore space in VbUserConfirms()... */
+		switch (VbUserConfirms(cparams, 0)) {
+		case 1:
+			VBDEBUG(("%s() - leaving dev-mode.\n", __func__));
+			VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
+			VbDisplayScreen(cparams,
+					VB_SCREEN_TO_NORM_CONFIRMED,
+					0, &vnc);
+			VbExSleepMs(5000);
+			return VBERROR_TPM_REBOOT_REQUIRED;
+		case -1:
+			VBDEBUG(("%s() - shutdown requested\n", __func__));
+			return VBERROR_SHUTDOWN_REQUESTED;
+		default:
+			/* Ignore user attempt to cancel */
+			VBDEBUG(("%s() - ignore cancel TONORM\n", __func__));
+		}
 	}
 
 	/* Show the dev mode warning screen */
@@ -1162,12 +1214,29 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	}
 	shared->kernel_version_tpm_start = shared->kernel_version_tpm;
 
+	/* Read FWMP.  Ignore errors in recovery mode. */
+	if (cparams->gbb->flags & GBB_FLAG_DISABLE_FWMP) {
+		Memset(&fwmp, 0, sizeof(fwmp));
+		tpm_status = 0;
+	} else {
+		tpm_status = RollbackFwmpRead(&fwmp);
+	}
+	if (0 != tpm_status) {
+		VBDEBUG(("Unable to get FWMP from TPM\n"));
+		if (!shared->recovery_reason) {
+			VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_R_ERROR);
+			retval = VBERROR_TPM_READ_FWMP;
+			goto VbSelectAndLoadKernel_exit;
+		}
+	}
+
 	/* Fill in params for calls to LoadKernel() */
 	Memset(&p, 0, sizeof(p));
 	p.shared_data_blob = cparams->shared_data_blob;
 	p.shared_data_size = cparams->shared_data_size;
 	p.gbb_data = cparams->gbb_data;
 	p.gbb_size = cparams->gbb_size;
+	p.fwmp = &fwmp;
 
 	/*
 	 * This could be set to NULL, in which case the vboot header

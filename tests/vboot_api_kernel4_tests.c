@@ -31,7 +31,8 @@ static GoogleBinaryBlockHeader gbb;
 static int ecsync_retval;
 static uint32_t rkr_version;
 static uint32_t new_version;
-static int rkr_retval, rkw_retval, rkl_retval;
+static struct RollbackSpaceFwmp rfr_fwmp;
+static int rkr_retval, rkw_retval, rkl_retval, rfr_retval;
 static VbError_t vbboot_retval;
 
 /* Reset mock data (for use before each test) */
@@ -56,6 +57,9 @@ static void ResetMocks(void)
 
 	Memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
+
+	Memset(&rfr_fwmp, 0, sizeof(rfr_fwmp));
+	rfr_retval = TPM_SUCCESS;
 
 	ecsync_retval = VBERROR_SUCCESS;
 	rkr_version = new_version = 0x10002;
@@ -98,6 +102,12 @@ uint32_t RollbackKernelWrite(uint32_t version)
 uint32_t RollbackKernelLock(int recovery_mode)
 {
 	return rkl_retval;
+}
+
+uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
+{
+	Memcpy(fwmp, &rfr_fwmp, sizeof(*fwmp));
+	return rfr_retval;
 }
 
 VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
