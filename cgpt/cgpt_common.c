@@ -184,7 +184,11 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
       return -1;
     }
   } else {
-    Warning("Primary GPT header is invalid\n");
+    Warning("Primary GPT header is %s\n",
+      memcmp(primary_header->signature, GPT_HEADER_SIGNATURE_IGNORED,
+             GPT_HEADER_SIGNATURE_SIZE) ? "invalid" : "being ignored");
+    drive->gpt.primary_entries = calloc(MAX_NUMBER_OF_ENTRIES,
+                                        sizeof(GptEntry));
   }
   GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
   if (CheckHeader(secondary_header, 1, drive->gpt.streaming_drive_sectors,
@@ -198,41 +202,48 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
       return -1;
     }
   } else {
-    Warning("Secondary GPT header is invalid\n");
+    Warning("Secondary GPT header is %s\n",
+      memcmp(primary_header->signature, GPT_HEADER_SIGNATURE_IGNORED,
+             GPT_HEADER_SIGNATURE_SIZE) ? "invalid" : "being ignored");
+    drive->gpt.secondary_entries = calloc(MAX_NUMBER_OF_ENTRIES,
+                                          sizeof(GptEntry));
   }
   return 0;
 }
 
 static int GptSave(struct drive *drive) {
   int errors = 0;
-  if (drive->gpt.modified & GPT_MODIFIED_HEADER1) {
-    if (CGPT_OK != Save(drive, drive->gpt.primary_header,
-                        GPT_PMBR_SECTORS,
-                        drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
-      errors++;
-      Error("Cannot write primary header: %s\n", strerror(errno));
-    }
-  }
-  GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
-  if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
-    if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
-                        primary_header->entries_lba,
-                        drive->gpt.sector_bytes,
-                        CalculateEntriesSectors(primary_header))) {
-      errors++;
-      Error("Cannot write primary entries: %s\n", strerror(errno));
-    }
-  }
 
-  // Sync primary GPT before touching secondary so one is always valid.
-  if (drive->gpt.modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1))
-    if (fsync(drive->fd) < 0 && errno == EIO) {
-      errors++;
-      Error("I/O error when trying to write primary GPT\n");
+  if (!(drive->gpt.ignored & MASK_PRIMARY)) {
+    if (drive->gpt.modified & GPT_MODIFIED_HEADER1) {
+      if (CGPT_OK != Save(drive, drive->gpt.primary_header,
+                          GPT_PMBR_SECTORS,
+                          drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
+        errors++;
+        Error("Cannot write primary header: %s\n", strerror(errno));
+      }
     }
+    GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
+    if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
+      if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
+                          primary_header->entries_lba,
+                          drive->gpt.sector_bytes,
+                          CalculateEntriesSectors(primary_header))) {
+        errors++;
+        Error("Cannot write primary entries: %s\n", strerror(errno));
+      }
+    }
+
+    // Sync primary GPT before touching secondary so one is always valid.
+    if (drive->gpt.modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1))
+      if (fsync(drive->fd) < 0 && errno == EIO) {
+        errors++;
+        Error("I/O error when trying to write primary GPT\n");
+      }
+  }
 
   // Only start writing secondary GPT if primary was written correctly.
-  if (!errors) {
+  if (!errors && !(drive->gpt.ignored & MASK_SECONDARY)) {
     if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
       if(CGPT_OK != Save(drive, drive->gpt.secondary_header,
                          drive->gpt.gpt_drive_sectors - GPT_PMBR_SECTORS,

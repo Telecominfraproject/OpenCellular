@@ -250,79 +250,91 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
     PMBRToStr(&drive->pmbr, buf, sizeof(buf)); // will exit if buf is too small
     printf(GPT_FMT, 0, GPT_PMBR_SECTORS, "", buf);
 
-    if (drive->gpt.valid_headers & MASK_PRIMARY) {
+    if (drive->gpt.ignored & MASK_PRIMARY) {
       printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
-             (int)GPT_HEADER_SECTORS, "", "Pri GPT header");
+             (int)GPT_HEADER_SECTORS, "IGNORED", "Pri GPT header");
     } else {
-      printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
-             (int)GPT_HEADER_SECTORS, "INVALID", "Pri GPT header");
+      if (drive->gpt.valid_headers & MASK_PRIMARY) {
+        printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
+               (int)GPT_HEADER_SECTORS, "", "Pri GPT header");
+      } else {
+        printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
+               (int)GPT_HEADER_SECTORS, "INVALID", "Pri GPT header");
+      }
+
+      if (params->debug ||
+          ((drive->gpt.valid_headers & MASK_PRIMARY) && params->verbose)) {
+        GptHeader *header;
+        char indent[64];
+
+        require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
+        header = (GptHeader*)drive->gpt.primary_header;
+        entries = (GptEntry*)drive->gpt.primary_entries;
+        HeaderDetails(header, entries, indent, params->numeric);
+      }
+
+      GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
+      printf(GPT_FMT, (int)primary_header->entries_lba,
+             (int)CalculateEntriesSectors(primary_header),
+             drive->gpt.valid_entries & MASK_PRIMARY ? "" : "INVALID",
+             "Pri GPT table");
+
+      if (params->debug ||
+          (drive->gpt.valid_entries & MASK_PRIMARY))
+        EntriesDetails(drive, PRIMARY, params->numeric);
     }
-
-    if (params->debug ||
-        ((drive->gpt.valid_headers & MASK_PRIMARY) && params->verbose)) {
-      GptHeader *header;
-      char indent[64];
-
-      require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
-      header = (GptHeader*)drive->gpt.primary_header;
-      entries = (GptEntry*)drive->gpt.primary_entries;
-      HeaderDetails(header, entries, indent, params->numeric);
-    }
-
-    GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
-    printf(GPT_FMT, (int)primary_header->entries_lba,
-           (int)CalculateEntriesSectors(primary_header),
-           drive->gpt.valid_entries & MASK_PRIMARY ? "" : "INVALID",
-           "Pri GPT table");
-
-    if (params->debug ||
-        (drive->gpt.valid_entries & MASK_PRIMARY))
-      EntriesDetails(drive, PRIMARY, params->numeric);
 
     /****************************** Secondary *************************/
-    GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
-    printf(GPT_FMT, (int)secondary_header->entries_lba,
-           (int)CalculateEntriesSectors(secondary_header),
-           drive->gpt.valid_entries & MASK_SECONDARY ? "" : "INVALID",
-           "Sec GPT table");
-    /* We show secondary table details if any of following is true.
-     *   1. in debug mode.
-     *   2. only secondary is valid.
-     *   3. secondary is not identical to promary.
-     */
-    if (params->debug ||
-        ((drive->gpt.valid_entries & MASK_SECONDARY) &&
-         (!(drive->gpt.valid_entries & MASK_PRIMARY) ||
-          memcmp(drive->gpt.primary_entries, drive->gpt.secondary_entries,
-                 secondary_header->number_of_entries *
-                 secondary_header->size_of_entry)))) {
-      EntriesDetails(drive, SECONDARY, params->numeric);
-    }
-
-    if (drive->gpt.valid_headers & MASK_SECONDARY)
+    if (drive->gpt.ignored & MASK_SECONDARY) {
       printf(GPT_FMT, (int)(drive->gpt.gpt_drive_sectors - GPT_HEADER_SECTORS),
-             (int)GPT_HEADER_SECTORS, "", "Sec GPT header");
-    else
-      printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
-             (int)GPT_HEADER_SECTORS, "INVALID", "Sec GPT header");
-    /* We show secondary header if any of following is true:
-     *   1. in debug mode.
-     *   2. only secondary is valid.
-     *   3. secondary is not synonymous to primary.
-     */
-    if (params->debug ||
-        ((drive->gpt.valid_headers & MASK_SECONDARY) &&
-         (!(drive->gpt.valid_headers & MASK_PRIMARY) ||
-          !IsSynonymous((GptHeader*)drive->gpt.primary_header,
-                        (GptHeader*)drive->gpt.secondary_header)) &&
-         params->verbose)) {
-      GptHeader *header;
-      char indent[64];
+             (int)GPT_HEADER_SECTORS, "IGNORED", "Sec GPT header");
+    } else {
+      GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
+      printf(GPT_FMT, (int)secondary_header->entries_lba,
+             (int)CalculateEntriesSectors(secondary_header),
+             drive->gpt.valid_entries & MASK_SECONDARY ? "" : "INVALID",
+             "Sec GPT table");
+      /* We show secondary table details if any of following is true.
+       *   1. in debug mode.
+       *   2. primary table is being ignored
+       *   3. only secondary is valid.
+       *   4. secondary is not identical to promary.
+       */
+      if (params->debug || (drive->gpt.ignored & MASK_PRIMARY) ||
+          ((drive->gpt.valid_entries & MASK_SECONDARY) &&
+           (!(drive->gpt.valid_entries & MASK_PRIMARY) ||
+            memcmp(drive->gpt.primary_entries, drive->gpt.secondary_entries,
+                   secondary_header->number_of_entries *
+                   secondary_header->size_of_entry)))) {
+        EntriesDetails(drive, SECONDARY, params->numeric);
+      }
 
-      require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
-      header = (GptHeader*)drive->gpt.secondary_header;
-      entries = (GptEntry*)drive->gpt.secondary_entries;
-      HeaderDetails(header, entries, indent, params->numeric);
+      if (drive->gpt.valid_headers & MASK_SECONDARY) {
+        printf(GPT_FMT, (int)(drive->gpt.gpt_drive_sectors - GPT_HEADER_SECTORS),
+               (int)GPT_HEADER_SECTORS, "", "Sec GPT header");
+      } else {
+        printf(GPT_FMT, (int)GPT_PMBR_SECTORS,
+               (int)GPT_HEADER_SECTORS, "INVALID", "Sec GPT header");
+      }
+      /* We show secondary header if any of following is true:
+       *   1. in debug mode.
+       *   2. only secondary is valid.
+       *   3. secondary is not synonymous to primary and not ignored.
+       */
+      if (params->debug ||
+          ((drive->gpt.valid_headers & MASK_SECONDARY) &&
+           (!(drive->gpt.valid_headers & MASK_PRIMARY) ||
+            !IsSynonymous((GptHeader*)drive->gpt.primary_header,
+                          (GptHeader*)drive->gpt.secondary_header)) &&
+           params->verbose)) {
+        GptHeader *header;
+        char indent[64];
+
+        require(snprintf(indent, sizeof(indent), GPT_MORE) < sizeof(indent));
+        header = (GptHeader*)drive->gpt.secondary_header;
+        entries = (GptEntry*)drive->gpt.secondary_entries;
+        HeaderDetails(header, entries, indent, params->numeric);
+      }
     }
   }
 

@@ -245,6 +245,7 @@ int GptSanityCheck(GptData *gpt)
 
 	gpt->valid_headers = 0;
 	gpt->valid_entries = 0;
+	gpt->ignored = 0;
 
 	retval = CheckParameters(gpt);
 	if (retval != GPT_SUCCESS)
@@ -255,12 +256,18 @@ int GptSanityCheck(GptData *gpt)
 			     gpt->gpt_drive_sectors, gpt->flags)) {
 		gpt->valid_headers |= MASK_PRIMARY;
 		goodhdr = header1;
+	} else if (header1 && !Memcmp(header1->signature,
+		   GPT_HEADER_SIGNATURE_IGNORED, GPT_HEADER_SIGNATURE_SIZE)) {
+		gpt->ignored |= MASK_PRIMARY;
 	}
 	if (0 == CheckHeader(header2, 1, gpt->streaming_drive_sectors,
 			     gpt->gpt_drive_sectors, gpt->flags)) {
 		gpt->valid_headers |= MASK_SECONDARY;
 		if (!goodhdr)
 			goodhdr = header2;
+	} else if (header2 && !Memcmp(header2->signature,
+		   GPT_HEADER_SIGNATURE_IGNORED, GPT_HEADER_SIGNATURE_SIZE)) {
+		gpt->ignored |= MASK_SECONDARY;
 	}
 
 	if (!gpt->valid_headers)
@@ -308,6 +315,15 @@ int GptSanityCheck(GptData *gpt)
 	if (MASK_BOTH == gpt->valid_headers &&
 	    0 != HeaderFieldsSame(header1, header2))
 		gpt->valid_headers &= ~MASK_SECONDARY;
+
+	/*
+	 * When we're ignoring a GPT, make it look in memory like the other one
+	 * and pretend that everything is fine (until we try to save).
+	 */
+	if (MASK_NONE != gpt->ignored) {
+		GptRepair(gpt);
+		gpt->modified = 0;
+	}
 
 	return GPT_SUCCESS;
 }

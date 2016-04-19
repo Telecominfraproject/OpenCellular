@@ -19,6 +19,9 @@
 /* From https://chromium-review.googlesource.com/31264 */
 #define GPT_HEADER_SIGNATURE2 "CHROMEOS"
 
+/* From http://crosbug.com/p/52595 */
+#define GPT_HEADER_SIGNATURE_IGNORED "IGNOREME"
+
 /*
  * The first 3 numbers should be stored in network-endian format according to
  * the GUID RFC.  The UEFI spec appendix A claims they should be stored in

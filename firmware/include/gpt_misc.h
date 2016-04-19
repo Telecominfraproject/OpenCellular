@@ -108,7 +108,7 @@ typedef struct {
 	int current_kernel;
 
 	/* Internal variables */
-	uint32_t valid_headers, valid_entries;
+	uint8_t valid_headers, valid_entries, ignored;
 	int current_priority;
 } GptData;
 
