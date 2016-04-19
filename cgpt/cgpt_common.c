@@ -213,15 +213,6 @@ static int GptSave(struct drive *drive) {
       Error("Cannot write primary header: %s\n", strerror(errno));
     }
   }
-
-  if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
-    if(CGPT_OK != Save(drive, drive->gpt.secondary_header,
-                       drive->gpt.gpt_drive_sectors - GPT_PMBR_SECTORS,
-                       drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
-      errors++;
-      Error("Cannot write secondary header: %s\n", strerror(errno));
-    }
-  }
   GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
   if (drive->gpt.modified & GPT_MODIFIED_ENTRIES1) {
     if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
@@ -232,14 +223,33 @@ static int GptSave(struct drive *drive) {
       Error("Cannot write primary entries: %s\n", strerror(errno));
     }
   }
-  GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
-  if (drive->gpt.modified & GPT_MODIFIED_ENTRIES2) {
-    if (CGPT_OK != Save(drive, drive->gpt.secondary_entries,
-                        secondary_header->entries_lba,
-                        drive->gpt.sector_bytes,
-                        CalculateEntriesSectors(secondary_header))) {
+
+  // Sync primary GPT before touching secondary so one is always valid.
+  if (drive->gpt.modified & (GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1))
+    if (fsync(drive->fd) < 0 && errno == EIO) {
       errors++;
-      Error("Cannot write secondary entries: %s\n", strerror(errno));
+      Error("I/O error when trying to write primary GPT\n");
+    }
+
+  // Only start writing secondary GPT if primary was written correctly.
+  if (!errors) {
+    if (drive->gpt.modified & GPT_MODIFIED_HEADER2) {
+      if(CGPT_OK != Save(drive, drive->gpt.secondary_header,
+                         drive->gpt.gpt_drive_sectors - GPT_PMBR_SECTORS,
+                         drive->gpt.sector_bytes, GPT_HEADER_SECTORS)) {
+        errors++;
+        Error("Cannot write secondary header: %s\n", strerror(errno));
+      }
+    }
+    GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
+    if (drive->gpt.modified & GPT_MODIFIED_ENTRIES2) {
+      if (CGPT_OK != Save(drive, drive->gpt.secondary_entries,
+                          secondary_header->entries_lba,
+                          drive->gpt.sector_bytes,
+                          CalculateEntriesSectors(secondary_header))) {
+        errors++;
+        Error("Cannot write secondary entries: %s\n", strerror(errno));
+      }
     }
   }
 
