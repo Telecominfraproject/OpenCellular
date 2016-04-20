@@ -38,8 +38,6 @@ DEV=fake_dev.bin
 rm -f ${DEV}
 dd if=/dev/zero of=${DEV} conv=notrunc bs=512 count=${NUM_SECTORS} 2>/dev/null
 
-
-echo "Create a bunch of partitions, using the real GUID types..."
 DATA_START=100
 DATA_SIZE=20
 DATA_LABEL="data stuff"
@@ -78,71 +76,76 @@ RANDOM_NUM=6
 
 $CGPT create $MTD ${DEV}
 
-$CGPT add $MTD -b ${DATA_START} -s ${DATA_SIZE} -t ${DATA_GUID} \
-  -l "${DATA_LABEL}" ${DEV}
-$CGPT add $MTD -b ${KERN_START} -s ${KERN_SIZE} -t ${KERN_GUID} \
-  -l "${KERN_LABEL}" ${DEV}
-$CGPT add $MTD -b ${ROOTFS_START} -s ${ROOTFS_SIZE} -t ${ROOTFS_GUID} \
-  -l "${ROOTFS_LABEL}" ${DEV}
-$CGPT add $MTD -b ${ESP_START} -s ${ESP_SIZE} -t ${ESP_GUID} \
-  -l "${ESP_LABEL}" ${DEV}
-$CGPT add $MTD -b ${FUTURE_START} -s ${FUTURE_SIZE} -t ${FUTURE_GUID} \
-  -l "${FUTURE_LABEL}" ${DEV}
-$CGPT add $MTD -b ${RANDOM_START} -s ${RANDOM_SIZE} -t ${RANDOM_GUID} \
-  -l "${RANDOM_LABEL}" ${DEV}
+run_basic_tests() {
+  echo "Create a bunch of partitions, using the real GUID types..."
+
+  $CGPT add $MTD -b ${DATA_START} -s ${DATA_SIZE} -t ${DATA_GUID} \
+    -l "${DATA_LABEL}" ${DEV}
+  $CGPT add $MTD -b ${KERN_START} -s ${KERN_SIZE} -t ${KERN_GUID} \
+    -l "${KERN_LABEL}" ${DEV}
+  $CGPT add $MTD -b ${ROOTFS_START} -s ${ROOTFS_SIZE} -t ${ROOTFS_GUID} \
+    -l "${ROOTFS_LABEL}" ${DEV}
+  $CGPT add $MTD -b ${ESP_START} -s ${ESP_SIZE} -t ${ESP_GUID} \
+    -l "${ESP_LABEL}" ${DEV}
+  $CGPT add $MTD -b ${FUTURE_START} -s ${FUTURE_SIZE} -t ${FUTURE_GUID} \
+    -l "${FUTURE_LABEL}" ${DEV}
+  $CGPT add $MTD -b ${RANDOM_START} -s ${RANDOM_SIZE} -t ${RANDOM_GUID} \
+    -l "${RANDOM_LABEL}" ${DEV}
 
 
-echo "Extract the start and size of given partitions..."
+  echo "Extract the start and size of given partitions..."
 
-X=$($CGPT show $MTD -b -i $DATA_NUM ${DEV})
-Y=$($CGPT show $MTD -s -i $DATA_NUM ${DEV})
-[ "$X $Y" = "$DATA_START $DATA_SIZE" ] || error
+  X=$($CGPT show $MTD -b -i $DATA_NUM ${DEV})
+  Y=$($CGPT show $MTD -s -i $DATA_NUM ${DEV})
+  [ "$X $Y" = "$DATA_START $DATA_SIZE" ] || error
 
-X=$($CGPT show $MTD -b -i $KERN_NUM ${DEV})
-Y=$($CGPT show $MTD -s -i $KERN_NUM ${DEV})
-[ "$X $Y" = "$KERN_START $KERN_SIZE" ] || error
+  X=$($CGPT show $MTD -b -i $KERN_NUM ${DEV})
+  Y=$($CGPT show $MTD -s -i $KERN_NUM ${DEV})
+  [ "$X $Y" = "$KERN_START $KERN_SIZE" ] || error
 
-X=$($CGPT show $MTD -b -i $ROOTFS_NUM ${DEV})
-Y=$($CGPT show $MTD -s -i $ROOTFS_NUM ${DEV})
-[ "$X $Y" = "$ROOTFS_START $ROOTFS_SIZE" ] || error
+  X=$($CGPT show $MTD -b -i $ROOTFS_NUM ${DEV})
+  Y=$($CGPT show $MTD -s -i $ROOTFS_NUM ${DEV})
+  [ "$X $Y" = "$ROOTFS_START $ROOTFS_SIZE" ] || error
 
-X=$($CGPT show $MTD -b -i $ESP_NUM ${DEV})
-Y=$($CGPT show $MTD -s -i $ESP_NUM ${DEV})
-[ "$X $Y" = "$ESP_START $ESP_SIZE" ] || error
+  X=$($CGPT show $MTD -b -i $ESP_NUM ${DEV})
+  Y=$($CGPT show $MTD -s -i $ESP_NUM ${DEV})
+  [ "$X $Y" = "$ESP_START $ESP_SIZE" ] || error
 
-X=$($CGPT show $MTD -b -i $FUTURE_NUM ${DEV})
-Y=$($CGPT show $MTD -s -i $FUTURE_NUM ${DEV})
-[ "$X $Y" = "$FUTURE_START $FUTURE_SIZE" ] || error
+  X=$($CGPT show $MTD -b -i $FUTURE_NUM ${DEV})
+  Y=$($CGPT show $MTD -s -i $FUTURE_NUM ${DEV})
+  [ "$X $Y" = "$FUTURE_START $FUTURE_SIZE" ] || error
 
-X=$($CGPT show $MTD -b -i $RANDOM_NUM ${DEV})
-Y=$($CGPT show $MTD -s -i $RANDOM_NUM ${DEV})
-[ "$X $Y" = "$RANDOM_START $RANDOM_SIZE" ] || error
+  X=$($CGPT show $MTD -b -i $RANDOM_NUM ${DEV})
+  Y=$($CGPT show $MTD -s -i $RANDOM_NUM ${DEV})
+  [ "$X $Y" = "$RANDOM_START $RANDOM_SIZE" ] || error
 
 
-echo "Change the beginning..."
-DATA_START=$((DATA_START + 10))
-$CGPT add $MTD -i 1 -b ${DATA_START} ${DEV} || error
-X=$($CGPT show $MTD -b -i 1 ${DEV})
-[ "$X" = "$DATA_START" ] || error
+  echo "Change the beginning..."
+  DATA_START=$((DATA_START + 10))
+  $CGPT add $MTD -i 1 -b ${DATA_START} ${DEV} || error
+  X=$($CGPT show $MTD -b -i 1 ${DEV})
+  [ "$X" = "$DATA_START" ] || error
 
-echo "Change the size..."
-DATA_SIZE=$((DATA_SIZE + 10))
-$CGPT add $MTD -i 1 -s ${DATA_SIZE} ${DEV} || error
-X=$($CGPT show $MTD -s -i 1 ${DEV})
-[ "$X" = "$DATA_SIZE" ] || error
+  echo "Change the size..."
+  DATA_SIZE=$((DATA_SIZE + 10))
+  $CGPT add $MTD -i 1 -s ${DATA_SIZE} ${DEV} || error
+  X=$($CGPT show $MTD -s -i 1 ${DEV})
+  [ "$X" = "$DATA_SIZE" ] || error
 
-echo "Change the type..."
-$CGPT add $MTD -i 1 -t reserved ${DEV} || error
-X=$($CGPT show $MTD -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
-[ "$X" = "$FUTURE_GUID" ] || error
-# arbitrary value
-$CGPT add $MTD -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
-X=$($CGPT show $MTD -t -i 1 ${DEV})
-[ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
+  echo "Change the type..."
+  $CGPT add $MTD -i 1 -t reserved ${DEV} || error
+  X=$($CGPT show $MTD -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
+  [ "$X" = "$FUTURE_GUID" ] || error
+  # arbitrary value
+  $CGPT add $MTD -i 1 -t 610a563a-a55c-4ae0-ab07-86e5bb9db67f ${DEV} || error
+  X=$($CGPT show $MTD -t -i 1 ${DEV})
+  [ "$X" = "610A563A-A55C-4AE0-AB07-86E5BB9DB67F" ] || error
 
-$CGPT add $MTD -i 1 -t data ${DEV} || error
-X=$($CGPT show $MTD -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
-[ "$X" = "$DATA_GUID" ] || error
+  $CGPT add $MTD -i 1 -t data ${DEV} || error
+  X=$($CGPT show $MTD -t -i 1 ${DEV} | tr 'A-Z' 'a-z')
+  [ "$X" = "$DATA_GUID" ] || error
+}
+run_basic_tests
 
 
 echo "Set the boot partition.."
@@ -152,8 +155,6 @@ echo "Check the PMBR's idea of the boot partition..."
 X=$($CGPT boot $MTD ${DEV})
 Y=$($CGPT show $MTD -u -i $KERN_NUM $DEV)
 [ "$X" = "$Y" ] || error
-
-echo "Test the cgpt prioritize command..."
 
 # Input: sequence of priorities
 # Output: ${DEV} has kernel partitions with the given priorities
@@ -186,88 +187,93 @@ assert_pri() {
 
 # no kernels at all. This should do nothing.
 $CGPT create $MTD ${DEV}
-$CGPT add $MTD -t rootfs -b 100 -s 1 ${DEV}
-$CGPT prioritize $MTD ${DEV}
-assert_pri ""
 
-# common install/upgrade sequence
-make_pri   2 0 0
-$CGPT prioritize $MTD -i 1 ${DEV}
-assert_pri 1 0 0
-$CGPT prioritize $MTD -i 2 ${DEV}
-assert_pri 1 2 0
-$CGPT prioritize $MTD -i 1 ${DEV}
-assert_pri 2 1 0
-$CGPT prioritize $MTD -i 2 ${DEV}
-assert_pri 1 2 0
-# lots of kernels, all same starting priority, should go to priority 1
-make_pri   8 8 8 8 8 8 8 8 8 8 8 0 0 8
-$CGPT prioritize $MTD ${DEV}
-assert_pri 1 1 1 1 1 1 1 1 1 1 1 0 0 1
+run_prioritize_tests() {
+  echo "Test the cgpt prioritize command..."
+  $CGPT add $MTD -t rootfs -b 100 -s 1 ${DEV}
+  $CGPT prioritize $MTD ${DEV}
+  assert_pri ""
 
-# now raise them all up again
-$CGPT prioritize $MTD -P 4 ${DEV}
-assert_pri 4 4 4 4 4 4 4 4 4 4 4 0 0 4
+  # common install/upgrade sequence
+  make_pri   2 0 0
+  $CGPT prioritize $MTD -i 1 ${DEV}
+  assert_pri 1 0 0
+  $CGPT prioritize $MTD -i 2 ${DEV}
+  assert_pri 1 2 0
+  $CGPT prioritize $MTD -i 1 ${DEV}
+  assert_pri 2 1 0
+  $CGPT prioritize $MTD -i 2 ${DEV}
+  assert_pri 1 2 0
+  # lots of kernels, all same starting priority, should go to priority 1
+  make_pri   8 8 8 8 8 8 8 8 8 8 8 0 0 8
+  $CGPT prioritize $MTD ${DEV}
+  assert_pri 1 1 1 1 1 1 1 1 1 1 1 0 0 1
 
-# set one of them higher, should leave the rest alone
-$CGPT prioritize $MTD -P 5 -i 3 ${DEV}
-assert_pri 4 4 5 4 4 4 4 4 4 4 4 0 0 4
+  # now raise them all up again
+  $CGPT prioritize $MTD -P 4 ${DEV}
+  assert_pri 4 4 4 4 4 4 4 4 4 4 4 0 0 4
 
-# set one of them lower, should bring the rest down
-$CGPT prioritize $MTD -P 3 -i 4 ${DEV}
-assert_pri 1 1 2 3 1 1 1 1 1 1 1 0 0 1
+  # set one of them higher, should leave the rest alone
+  $CGPT prioritize $MTD -P 5 -i 3 ${DEV}
+  assert_pri 4 4 5 4 4 4 4 4 4 4 4 0 0 4
 
-# raise a group by including the friends of one partition
-$CGPT prioritize $MTD -P 6 -i 1 -f ${DEV}
-assert_pri 6 6 4 5 6 6 6 6 6 6 6 0 0 6
+  # set one of them lower, should bring the rest down
+  $CGPT prioritize $MTD -P 3 -i 4 ${DEV}
+  assert_pri 1 1 2 3 1 1 1 1 1 1 1 0 0 1
 
-# resurrect one, should not affect the others
-make_pri   0 0 0 0 0 0 0 0 0 0 0 0 0 0
-$CGPT prioritize $MTD -i 2 ${DEV}
-assert_pri 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  # raise a group by including the friends of one partition
+  $CGPT prioritize $MTD -P 6 -i 1 -f ${DEV}
+  assert_pri 6 6 4 5 6 6 6 6 6 6 6 0 0 6
 
-# resurrect one and all its friends
-make_pri   0 0 0 0 0 0 0 0 1 2 0 0 0 0
-$CGPT prioritize $MTD -P 5 -i 2 -f ${DEV}
-assert_pri 5 5 5 5 5 5 5 5 3 4 5 5 5 5
+  # resurrect one, should not affect the others
+  make_pri   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  $CGPT prioritize $MTD -i 2 ${DEV}
+  assert_pri 0 1 0 0 0 0 0 0 0 0 0 0 0 0
 
-# no options should maintain the same order
-$CGPT prioritize $MTD ${DEV}
-assert_pri 3 3 3 3 3 3 3 3 1 2 3 3 3 3
+  # resurrect one and all its friends
+  make_pri   0 0 0 0 0 0 0 0 1 2 0 0 0 0
+  $CGPT prioritize $MTD -P 5 -i 2 -f ${DEV}
+  assert_pri 5 5 5 5 5 5 5 5 3 4 5 5 5 5
 
-# squish all the ranks
-make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize $MTD -P 6 ${DEV}
-assert_pri 1 1 1 1 2 2 3 3 4 4 0 5 6 6
+  # no options should maintain the same order
+  $CGPT prioritize $MTD ${DEV}
+  assert_pri 3 3 3 3 3 3 3 3 1 2 3 3 3 3
 
-# squish the ranks by not leaving room
-make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize $MTD -P 7 -i 3 ${DEV}
-assert_pri 1 1 7 1 2 2 3 3 4 4 0 5 6 6
+  # squish all the ranks
+  make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
+  $CGPT prioritize $MTD -P 6 ${DEV}
+  assert_pri 1 1 1 1 2 2 3 3 4 4 0 5 6 6
 
-# squish the ranks while bringing the friends along
-make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize $MTD -P 6 -i 3 -f ${DEV}
-assert_pri 1 1 6 6 1 1 2 2 3 3 0 4 5 5
+  # squish the ranks by not leaving room
+  make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
+  $CGPT prioritize $MTD -P 7 -i 3 ${DEV}
+  assert_pri 1 1 7 1 2 2 3 3 4 4 0 5 6 6
 
-# squish them pretty hard
-make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize $MTD -P 2 ${DEV}
-assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 2 2
+  # squish the ranks while bringing the friends along
+  make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
+  $CGPT prioritize $MTD -P 6 -i 3 -f ${DEV}
+  assert_pri 1 1 6 6 1 1 2 2 3 3 0 4 5 5
 
-# squish them really really hard (nobody gets reduced to zero, though)
-make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
-$CGPT prioritize $MTD -P 1 -i 3 ${DEV}
-assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 1 1
+  # squish them pretty hard
+  make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
+  $CGPT prioritize $MTD -P 2 ${DEV}
+  assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 2 2
 
-make_pri   15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0
-$CGPT prioritize $MTD -i 3 ${DEV}
-assert_pri 14 14 15 13 12 12 11 11 10 10  9  9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 0
-$CGPT prioritize $MTD -i 5 ${DEV}
-assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
-# but if I bring friends I don't have to squish
-$CGPT prioritize $MTD -i 1 -f ${DEV}
-assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+  # squish them really really hard (nobody gets reduced to zero, though)
+  make_pri   1 1 2 2 3 3 4 4 5 5 0 6 7 7
+  $CGPT prioritize $MTD -P 1 -i 3 ${DEV}
+  assert_pri 1 1 1 1 1 1 1 1 1 1 0 1 1 1
+
+  make_pri   15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 0
+  $CGPT prioritize $MTD -i 3 ${DEV}
+  assert_pri 14 14 15 13 12 12 11 11 10 10  9  9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 0
+  $CGPT prioritize $MTD -i 5 ${DEV}
+  assert_pri 13 13 14 12 15 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+  # but if I bring friends I don't have to squish
+  $CGPT prioritize $MTD -i 1 -f ${DEV}
+  assert_pri 15 15 13 12 14 11 10 10  9  9  8  8 7 7 6 6 5 5 4 4 3 3 2 2 1 1 1 1 1 1 0
+}
+run_prioritize_tests
 
 echo "Test cgpt repair command"
 $CGPT repair $MTD ${DEV}
@@ -284,6 +290,26 @@ dd if=/dev/zero of=${DEV} seek=$(($NUM_SECTORS - 33)) conv=notrunc bs=512 count=
 $CGPT show $MTD ${DEV} | grep -q INVALID
 $CGPT repair $MTD ${DEV}
 ($CGPT show $MTD ${DEV} | grep -q INVALID) && error
+
+echo "Test with IGNOREME primary GPT..."
+$CGPT create $MTD ${DEV}
+$CGPT legacy $MTD -p ${DEV}
+$CGPT show $MTD ${DEV} | egrep -q "IGNORED.*Pri GPT" 2>/dev/null
+($CGPT show $MTD ${DEV} | grep -q "Pri GPT table" 2>/dev/null) && error
+$CGPT repair $MTD ${DEV} 2>/dev/null
+$CGPT show $MTD ${DEV} | egrep -q "IGNORED.*Pri GPT" 2>/dev/null
+($CGPT show $MTD ${DEV} | grep -q "Pri GPT table" 2>/dev/null) && error
+$CGPT legacy $MTD -e ${DEV} 2>/dev/null
+($CGPT show $MTD ${DEV} | egrep -q "IGNORED.*Pri GPT") && error
+$CGPT show $MTD ${DEV} | grep -q "Pri GPT table"
+
+$CGPT create $MTD ${DEV}
+$CGPT legacy $MTD -p ${DEV}
+run_basic_tests 2>/dev/null
+
+$CGPT create $MTD ${DEV}
+$CGPT legacy $MTD -p ${DEV}
+run_prioritize_tests 2>/dev/null
 
 # Now make sure that we don't need write access if we're just looking.
 echo "Test read vs read-write access..."

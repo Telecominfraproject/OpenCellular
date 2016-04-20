@@ -105,10 +105,16 @@ typedef struct CgptFindParams {
   CgptFindShowFn show_fn;
 } CgptFindParams;
 
+enum {
+  CGPT_LEGACY_MODE_LEGACY = 0,
+  CGPT_LEGACY_MODE_EFIPART,
+  CGPT_LEGACY_MODE_IGNORE_PRIMARY,
+};
+
 typedef struct CgptLegacyParams {
   char *drive_name;
   uint64_t drive_size;
-  int efipart;
+  int mode;
 } CgptLegacyParams;
 
 #endif  // VBOOT_REFERENCE_CGPT_CGPT_PARAMS_H_

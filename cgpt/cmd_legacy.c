@@ -19,6 +19,7 @@ static void Usage(void)
          "                 default 0, meaning partitions and GPT structs are\n"
          "                 both on DRIVE\n"
          "  -e           Switch GPT header signature back to \"EFI PART\"\n"
+         "  -p           Switch primary GPT header signature to \"IGNOREME\"\n"
          "\n", progname);
 }
 
@@ -31,7 +32,7 @@ int cmd_legacy(int argc, char *argv[]) {
   int errorcnt = 0;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":heD:")) != -1)
+  while ((c=getopt(argc, argv, ":hepD:")) != -1)
   {
     switch (c)
     {
@@ -44,9 +45,19 @@ int cmd_legacy(int argc, char *argv[]) {
       }
       break;
     case 'e':
-      params.efipart = 1;
+      if (params.mode) {
+        Error("Incompatible flags, pick either -e or -p\n");
+        errorcnt++;
+      }
+      params.mode = CGPT_LEGACY_MODE_EFIPART;
       break;
-
+    case 'p':
+      if (params.mode) {
+        Error("Incompatible flags, pick either -e or -p\n");
+        errorcnt++;
+      }
+      params.mode = CGPT_LEGACY_MODE_IGNORE_PRIMARY;
+      break;
     case 'h':
       Usage();
       return CGPT_OK;
