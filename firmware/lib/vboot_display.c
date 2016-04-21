@@ -329,15 +329,8 @@ static VbError_t VbDisplayScreenLegacy(VbCommonParams *cparams, uint32_t screen,
 			return retval;
 	}
 
-	/* If requested screen is the same as the current one, we're done. */
-	if (disp_current_screen == screen && 0 == force)
-		return VBERROR_SUCCESS;
-
 	/* If the screen is blank, turn off the backlight; else turn it on. */
 	VbExDisplayBacklight(VB_SCREEN_BLANK == screen ? 0 : 1);
-
-	/* Request the screen */
-	disp_current_screen = screen;
 
 	/* Look in the GBB first */
 	if (VBERROR_SUCCESS == VbDisplayScreenFromGBB(cparams, screen,
@@ -353,20 +346,26 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 {
 	uint32_t locale;
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
+	VbError_t rv;
+
+	/* If requested screen is the same as the current one, we're done. */
+	if (disp_current_screen == screen && !force)
+		return VBERROR_SUCCESS;
 
 	/* Read the locale last saved */
 	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &locale);
 
-	if (gbb->bmpfv_size == 0) {
-		VbError_t ret = VbExDisplayScreen(screen, locale);
+	if (gbb->bmpfv_size == 0)
+		rv = VbExDisplayScreen(screen, locale);
+	else
+		rv = VbDisplayScreenLegacy(cparams, screen, force, vncptr,
+					   locale);
 
+	if (rv == VBERROR_SUCCESS)
 		/* Keep track of the currently displayed screen */
-		if (ret == VBERROR_SUCCESS)
-			disp_current_screen = screen;
-		return ret;
-	}
+		disp_current_screen = screen;
 
-	return VbDisplayScreenLegacy(cparams, screen, force, vncptr, locale);
+	return rv;
 }
 
 static void Uint8ToString(char *buf, uint8_t val)
