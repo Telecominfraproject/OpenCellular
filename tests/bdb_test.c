@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sha.h"
 #include "bdb.h"
 #include "host.h"
 #include "test_common.h"
@@ -306,7 +307,9 @@ void check_bdb_verify(const char *key_dir)
 		exit(2);
 	}
 
-	bdb_sha256(bdbkey_digest, p.bdbkey, p.bdbkey->struct_size);
+	vb2_digest_buffer((uint8_t *)p.bdbkey, p.bdbkey->struct_size,
+			  VB2_HASH_SHA256,
+			  bdbkey_digest, BDB_SHA256_DIGEST_SIZE);
 
 	/* Create the test BDB */
 	hgood = bdb_create(&p);

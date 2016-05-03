@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Chromium OS Authors. All rights reserved.
+/* Copyright 2015 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -9,6 +9,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "2sha.h"
 #include "bdb.h"
 #include "host.h"
 
@@ -203,7 +204,9 @@ struct bdb_sig *bdb_create_sig(const void *data,
 
 	/* Calculate info-padded digest */
 	memcpy(digest, info, sizeof(info));
-	if (bdb_sha256(digest + sizeof(info), data, size)) {
+	if (vb2_digest_buffer((uint8_t *)data, size,
+			      VB2_HASH_SHA256,
+			      digest + sizeof(info), BDB_SHA256_DIGEST_SIZE)) {
 		free(sig);
 		return NULL;
 	}

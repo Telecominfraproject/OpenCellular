@@ -374,7 +374,6 @@ FWLIB21_SRCS = \
 
 BDBLIB_SRCS = \
 	firmware/bdb/bdb.c \
-	firmware/bdb/sha.c \
 	firmware/bdb/rsa.c
 
 # Support real TPM unless BIOS sets MOCK_TPM
@@ -962,7 +961,7 @@ ${FWLIB21}: ${FWLIB2X_OBJS} ${FWLIB21_OBJS}
 .PHONY: bdblib
 bdblib: ${BDBLIB}
 
-${BDBLIB}: ${BDBLIB_OBJS}
+${BDBLIB}: ${FWLIB2X_OBJS} ${BDBLIB_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1189,9 +1188,9 @@ ${TEST21_BINS}: ${UTILLIB21}
 ${TEST21_BINS}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
 ${TEST21_BINS}: LIBS += ${UTILLIB21}
 
-${TESTBDB_BINS}: ${UTILBDB}
+${TESTBDB_BINS}: ${FWLIB2X} ${UTILBDB}
 ${TESTBDB_BINS}: INCLUDES += -Ifirmware/bdb
-${TESTBDB_BINS}: LIBS += ${UTILBDB_OBJS} ${BDBLIB_OBJS}
+${TESTBDB_BINS}: LIBS += ${FWLIB2X} ${UTILBDB_OBJS} ${BDBLIB_OBJS}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"

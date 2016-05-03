@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Chromium OS Authors. All rights reserved.
+/* Copyright 2015 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -6,6 +6,7 @@
  */
 
 #include <string.h>
+#include "2sha.h"
 #include "bdb.h"
 
 /*****************************************************************************/
@@ -337,7 +338,8 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 		return BDB_ERROR_BDBKEY;
 
 	/* Calculate BDB key digest and compare with expected */
-	if (bdb_sha256(digest, bdbkey, bdbkey->struct_size))
+	if (vb2_digest_buffer((uint8_t *)bdbkey, bdbkey->struct_size,
+			      VB2_HASH_SHA256, digest, BDB_SHA256_DIGEST_SIZE))
 		return BDB_ERROR_DIGEST;
 
 	bdb_digest_mismatch = memcmp(digest, bdb_key_digest, sizeof(digest));
@@ -367,7 +369,8 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 		return BDB_ERROR_HEADER_SIG;
 
 	/* Calculate header digest and compare with expected signature */
-	if (bdb_sha256(digest, oem, h->signed_size))
+	if (vb2_digest_buffer((uint8_t *)oem, h->signed_size,
+			      VB2_HASH_SHA256, digest, BDB_SHA256_DIGEST_SIZE))
 		return BDB_ERROR_DIGEST;
 	if (bdb_verify_sig(bdbkey, sig, digest))
 		return BDB_ERROR_HEADER_SIG;
@@ -388,7 +391,8 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 		return BDB_ERROR_DATA_SIG;
 
 	/* Calculate data digest and compare with expected signature */
-	if (bdb_sha256(digest, data, data->signed_size))
+	if (vb2_digest_buffer((uint8_t *)data, data->signed_size,
+			      VB2_HASH_SHA256, digest, BDB_SHA256_DIGEST_SIZE))
 		return BDB_ERROR_DIGEST;
 	if (bdb_verify_sig(subkey, sig, digest))
 		return BDB_ERROR_DATA_SIG;
