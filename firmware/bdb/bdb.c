@@ -214,12 +214,12 @@ const void *bdb_get_oem_area_0(const void *buf)
 	return b8 + k->struct_size;
 }
 
-const struct bdb_key *bdb_get_subkey(const void *buf)
+const struct bdb_key *bdb_get_datakey(const void *buf)
 {
 	const struct bdb_header *h = bdb_get_header(buf);
 	const uint8_t *b8 = bdb_get_oem_area_0(buf);
 
-	/* Subkey follows OEM area 0 */
+	/* datakey follows OEM area 0 */
 	return (const struct bdb_key *)(b8 + h->oem_area_0_size);
 }
 
@@ -313,7 +313,7 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 {
 	const uint8_t *end = (const uint8_t *)buf + size;
 	const struct bdb_header *h;
-	const struct bdb_key *bdbkey, *subkey;
+	const struct bdb_key *bdbkey, *datakey;
 	const struct bdb_sig *sig;
 	const struct bdb_data *data;
 	const void *oem;
@@ -349,13 +349,13 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 	if (h->oem_area_0_size > end - (const uint8_t *)oem)
 		return BDB_ERROR_OEM_AREA_0;
 
-	/* Sanity-check subkey */
-	subkey = bdb_get_subkey(buf);
-	if (bdb_check_key(subkey, end - (const uint8_t *)subkey))
-		return BDB_ERROR_SUBKEY;
+	/* Sanity-check datakey */
+	datakey = bdb_get_datakey(buf);
+	if (bdb_check_key(datakey, end - (const uint8_t *)datakey))
+		return BDB_ERROR_DATAKEY;
 
 	/* Make sure enough data was signed, and the signed data fits */
-	if (h->oem_area_0_size + subkey->struct_size > h->signed_size ||
+	if (h->oem_area_0_size + datakey->struct_size > h->signed_size ||
 	    h->signed_size > end - (const uint8_t *)oem)
 		return BDB_ERROR_BDB_SIGNED_SIZE;
 
@@ -394,7 +394,7 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 	if (vb2_digest_buffer((uint8_t *)data, data->signed_size,
 			      VB2_HASH_SHA256, digest, BDB_SHA256_DIGEST_SIZE))
 		return BDB_ERROR_DIGEST;
-	if (bdb_verify_sig(subkey, sig, digest))
+	if (bdb_verify_sig(datakey, sig, digest))
 		return BDB_ERROR_DATA_SIG;
 
 	/* Return success or success-other-than-BDB-key-mismatch */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Chromium OS Authors. All rights reserved.
+/* Copyright 2015 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -30,17 +30,17 @@ bdb_verify(buf, size, bdb_key_hash, dev_mode_flag);
 	If dev_mode_flag(), mismatch is not fatal
 
 	bdb_check_sig() on BDB header sig
-	bdb_sha256() on OEM area 1, RW subkey
+	bdb_sha256() on OEM area 1, RW datakey
 	bdb_rsa_verify() on digest using BDB key
 
-	bdb_check_key() on RW subkey
+	bdb_check_key() on RW datakey
 
 	bdb_check_data() on RW data
 	bdb_check_sig() on data sig
 	bdb_sha256() on data, OEM area 1, hashes
-	bdb_rsa_verify() on digest using RW subkey
+	bdb_rsa_verify() on digest using RW datakey
 
-Check RW subkey version.  If normal boot from primary BDB, roll forward
+Check RW datakey version.  If normal boot from primary BDB, roll forward
 Check data version.  If normal boot from primary BDB, roll forward
 */
 
@@ -135,13 +135,13 @@ struct bdb_create_params
 	uint8_t *oem_area_1;
 	uint32_t oem_area_1_size;
 
-	/* Public BDB key and subkey */
+	/* Public BDB key and datakey */
 	struct bdb_key *bdbkey;
-	struct bdb_key *subkey;
+	struct bdb_key *datakey;
 
-	/* Private BDB key and subkey */
+	/* Private BDB key and datakey */
 	struct rsa_st *private_bdbkey;
-	struct rsa_st *private_subkey;
+	struct rsa_st *private_datakey;
 
 	/* Descriptions for header and data signatures */
 	char *header_sig_description;

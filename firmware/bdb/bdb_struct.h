@@ -214,7 +214,7 @@ struct bdb_data {
 	/* Reserved; set 0 */
 	uint8_t reserved0[2];
 
-	/* Number of bytes of data signed by the subkey, including this
+	/* Number of bytes of data signed by the datakey, including this
 	 * header */
 	uint32_t signed_size;
 

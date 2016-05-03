@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Chromium OS Authors. All rights reserved.
+/* Copyright 2015 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -21,7 +21,7 @@ bdb_check_header(buf, size);
 Load and verify the entire BDB
 bdb_verify(buf, size, bdb_key_hash, dev_mode_flag);
 
-Check RW subkey version.  If normal boot from primary BDB, roll forward
+Check RW datakey version.  If normal boot from primary BDB, roll forward
 
 Check data version.  If normal boot from primary BDB, roll forward
 */
@@ -59,7 +59,7 @@ enum bdb_return_code {
 	BDB_ERROR_HEADER,
 	BDB_ERROR_BDBKEY,
 	BDB_ERROR_OEM_AREA_0,
-	BDB_ERROR_SUBKEY,
+	BDB_ERROR_DATAKEY,
 	BDB_ERROR_BDB_SIGNED_SIZE,
 	BDB_ERROR_HEADER_SIG,
 	BDB_ERROR_DATA,
@@ -115,7 +115,7 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest);
 const struct bdb_header *bdb_get_header(const void *buf);
 const struct bdb_key *bdb_get_bdbkey(const void *buf);
 const void *bdb_get_oem_area_0(const void *buf);
-const struct bdb_key *bdb_get_subkey(const void *buf);
+const struct bdb_key *bdb_get_datakey(const void *buf);
 const struct bdb_sig *bdb_get_header_sig(const void *buf);
 const struct bdb_data *bdb_get_data(const void *buf);
 const void *bdb_get_oem_area_1(const void *buf);

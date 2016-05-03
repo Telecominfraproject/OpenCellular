@@ -296,13 +296,13 @@ void check_bdb_verify(const char *key_dir)
 	/* Load keys */
 	sprintf(filename, "%s/bdbkey.keyb", key_dir);
 	p.bdbkey = bdb_create_key(filename, 100, "BDB key");
-	sprintf(filename, "%s/subkey.keyb", key_dir);
-	p.subkey = bdb_create_key(filename, 200, "Subkey");
+	sprintf(filename, "%s/datakey.keyb", key_dir);
+	p.datakey = bdb_create_key(filename, 200, "datakey");
 	sprintf(filename, "%s/bdbkey.pem", key_dir);
 	p.private_bdbkey = read_pem(filename);
-	sprintf(filename, "%s/subkey.pem", key_dir);
-	p.private_subkey = read_pem(filename);
-	if (!p.bdbkey || !p.subkey || !p.private_bdbkey || !p.private_subkey) {
+	sprintf(filename, "%s/datakey.pem", key_dir);
+	p.private_datakey = read_pem(filename);
+	if (!p.bdbkey || !p.datakey || !p.private_bdbkey || !p.private_datakey) {
 		fprintf(stderr, "Unable to load test keys\n");
 		exit(2);
 	}
@@ -344,11 +344,11 @@ void check_bdb_verify(const char *key_dir)
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_OEM_AREA_0);
 
 	memcpy(h, hgood, hsize);
-	((struct bdb_key *)bdb_get_subkey(h))->struct_magic++;
-	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_SUBKEY);
+	((struct bdb_key *)bdb_get_datakey(h))->struct_magic++;
+	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_DATAKEY);
 
 	memcpy(h, hgood, hsize);
-	((struct bdb_key *)bdb_get_subkey(h))->struct_size += 4;
+	((struct bdb_key *)bdb_get_datakey(h))->struct_size += 4;
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_BDB_SIGNED_SIZE);
 
 	memcpy(h, hgood, hsize);
@@ -365,7 +365,7 @@ void check_bdb_verify(const char *key_dir)
 
 	/* Also make sure the header sig really covers all the fields */
 	memcpy(h, hgood, hsize);
-	((struct bdb_key *)bdb_get_subkey(h))->key_version++;
+	((struct bdb_key *)bdb_get_datakey(h))->key_version++;
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_HEADER_SIG);
 
 	memcpy(h, hgood, hsize);
@@ -430,9 +430,9 @@ void check_bdb_verify(const char *key_dir)
 	TEST_EQ_S(memcmp(bdb_get_oem_area_0(h), oem_area_0, sizeof(oem_area_0)),
 		0);
 
-	TEST_EQ_S(strcmp(bdb_get_subkey(h)->description, p.subkey->description),
+	TEST_EQ_S(strcmp(bdb_get_datakey(h)->description, p.datakey->description),
 		0);
-	TEST_EQ_S(bdb_get_subkey(h)->key_version, p.subkey->key_version);
+	TEST_EQ_S(bdb_get_datakey(h)->key_version, p.datakey->key_version);
 
 	TEST_EQ_S(strcmp(bdb_get_header_sig(h)->description,
 		       p.header_sig_description), 0);
@@ -463,9 +463,9 @@ void check_bdb_verify(const char *key_dir)
 
 	/* Free keys and buffers */
 	free(p.bdbkey);
-	free(p.subkey);
+	free(p.datakey);
 	RSA_free(p.private_bdbkey);
-	RSA_free(p.private_subkey);
+	RSA_free(p.private_datakey);
 	free(hgood);
 	free(h);
 }

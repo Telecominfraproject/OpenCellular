@@ -253,7 +253,7 @@ struct bdb_header *bdb_create(struct bdb_create_params *p)
 	bdb_size = sizeof(struct bdb_header);
 	bdb_size += p->bdbkey->struct_size;
 	bdb_size += p->oem_area_0_size;
-	bdb_size += p->subkey->struct_size;
+	bdb_size += p->datakey->struct_size;
 	bdb_size += sig_size;
 	bdb_size += sizeof(struct bdb_data);
 	bdb_size += p->oem_area_1_size;
@@ -281,7 +281,7 @@ struct bdb_header *bdb_create(struct bdb_create_params *p)
 	h->struct_size = sizeof(*h);
 	h->bdb_load_address = p->bdb_load_address;
 	h->bdb_size = bdb_size;
-	h->signed_size = p->oem_area_0_size + p->subkey->struct_size;
+	h->signed_size = p->oem_area_0_size + p->datakey->struct_size;
 	h->oem_area_0_size = p->oem_area_0_size;
 	bnext += h->struct_size;
 
@@ -296,9 +296,9 @@ struct bdb_header *bdb_create(struct bdb_create_params *p)
 		bnext += p->oem_area_0_size;
 	}
 
-	/* Copy subkey */
-	memcpy(bnext, p->subkey, p->subkey->struct_size);
-	bnext += p->subkey->struct_size;
+	/* Copy datakey */
+	memcpy(bnext, p->datakey, p->datakey->struct_size);
+	bnext += p->datakey->struct_size;
 
 	/*
 	 * Create header signature using private BDB key.
@@ -340,9 +340,9 @@ struct bdb_header *bdb_create(struct bdb_create_params *p)
 	memcpy(bnext, p->hash, hashes_size);
 	bnext += hashes_size;
 
-	/* Create data signature using private subkey */
-	sig = bdb_create_sig(data, data->signed_size, p->private_subkey,
-			     p->subkey->sig_alg, p->data_sig_description);
+	/* Create data signature using private datakey */
+	sig = bdb_create_sig(data, data->signed_size, p->private_datakey,
+			     p->datakey->sig_alg, p->data_sig_description);
 	memcpy(bnext, sig, sig->struct_size);
 
 	/* Return the BDB */
