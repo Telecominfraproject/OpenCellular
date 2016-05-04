@@ -68,6 +68,10 @@ enum bdb_return_code {
 	/* Other errors in bdb_verify() */
 	BDB_ERROR_DIGEST,	/* Error calculating digest */
 	BDB_ERROR_VERIFY_SIG,	/* Error verifying signature */
+
+	/* Errors in vba_bdb_init */
+	BDB_ERROR_TRY_OTHER_SLOT,
+	BDB_ERROR_RECOVERY_REQUEST,
 };
 
 /*****************************************************************************/

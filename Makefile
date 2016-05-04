@@ -374,7 +374,9 @@ FWLIB21_SRCS = \
 
 BDBLIB_SRCS = \
 	firmware/bdb/bdb.c \
-	firmware/bdb/rsa.c
+	firmware/bdb/misc.c \
+	firmware/bdb/rsa.c \
+	firmware/bdb/stub.c
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
@@ -781,7 +783,8 @@ TEST21_NAMES = \
 	tests/vb21_host_sig_tests
 
 TESTBDB_NAMES = \
-	tests/bdb_test
+	tests/bdb_test \
+	tests/bdb_sprw_test
 
 TEST_NAMES += ${TEST2X_NAMES} ${TEST20_NAMES} ${TEST21_NAMES} ${TESTBDB_NAMES}
 
@@ -1259,6 +1262,7 @@ ${BUILD}/tests/vb20_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/verify_kernel: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/bdb_test: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/bdb_sprw_test: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
@@ -1464,6 +1468,7 @@ run2tests: test_setup
 .PHONY: runbdbtests
 runbdbtests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/bdb_test ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/bdb_sprw_test ${TEST_KEYS}
 
 .PHONY: runfutiltests
 runfutiltests: test_setup
