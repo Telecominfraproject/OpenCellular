@@ -377,7 +377,8 @@ BDBLIB_SRCS = \
 	firmware/bdb/bdb.c \
 	firmware/bdb/misc.c \
 	firmware/bdb/rsa.c \
-	firmware/bdb/stub.c
+	firmware/bdb/stub.c \
+	firmware/bdb/nvm.c
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
@@ -1195,7 +1196,7 @@ ${TEST21_BINS}: LIBS += ${UTILLIB21}
 
 ${TESTBDB_BINS}: ${FWLIB2X} ${UTILBDB}
 ${TESTBDB_BINS}: INCLUDES += -Ifirmware/bdb
-${TESTBDB_BINS}: LIBS += ${FWLIB2X} ${UTILBDB_OBJS} ${BDBLIB_OBJS}
+${TESTBDB_BINS}: LIBS += ${UTILBDB_OBJS} ${BDBLIB_OBJS} ${FWLIB2X}
 
 ${TESTLIB}: ${TESTLIB_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
