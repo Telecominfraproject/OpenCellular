@@ -17,8 +17,6 @@
 #include "test_common.h"
 #include "vboot_register.h"
 
-#define TEST_EQ_S(result, expect) TEST_EQ(result, expect, #result "==" #expect)
-
 static struct bdb_header *bdb, *bdb0, *bdb1;
 static uint32_t vboot_register;
 static uint32_t vboot_register_persist;

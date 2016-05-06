@@ -18,128 +18,157 @@
 /* Global test success flag. */
 int gTestSuccess = 1;
 
-int TEST_EQ(int result, int expected_result, const char* testname) {
-  if (result == expected_result) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+int test_eq(int result, int expected,
+	    const char *preamble, const char *desc, const char *comment)
+{
+  if (result == expected) {
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
     return 1;
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Expected: 0x%x (%d), got: 0x%x (%d)\n",
-	    expected_result, expected_result, result, result);
+	    expected, expected, result, result);
     gTestSuccess = 0;
     return 0;
   }
 }
 
-int TEST_NEQ(int result, int not_expected_result, const char* testname) {
-  if (result != not_expected_result) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+int test_neq(int result, int not_expected,
+	     const char *preamble, const char *desc, const char *comment)
+{
+  if (result != not_expected) {
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
     return 1;
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Didn't expect 0x%x (%d), but got it.\n",
-	    not_expected_result, not_expected_result);
+	    not_expected, not_expected);
     gTestSuccess = 0;
     return 0;
   }
 }
 
-int TEST_PTR_EQ(const void* result, const void* expected_result,
-                const char* testname) {
-  if (result == expected_result) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+int test_ptr_eq(const void* result, const void* expected,
+		const char *preamble, const char *desc, const char *comment)
+{
+  if (result == expected) {
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
     return 1;
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
-    fprintf(stderr, "  Expected: 0x%lx, got: 0x%lx\n", (long)expected_result,
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
+    fprintf(stderr, "  Expected: 0x%lx, got: 0x%lx\n", (long)expected,
             (long)result);
     gTestSuccess = 0;
     return 0;
   }
 }
 
-int TEST_PTR_NEQ(const void* result, const void* not_expected_result,
-                const char* testname) {
-  if (result != not_expected_result) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+int test_ptr_neq(const void* result, const void* not_expected,
+		 const char *preamble, const char *desc, const char *comment)
+{
+  if (result != not_expected) {
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
     return 1;
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Didn't expect 0x%lx, but got it\n",
-            (long)not_expected_result);
+            (long)not_expected);
     gTestSuccess = 0;
     return 0;
   }
 }
 
-int TEST_STR_EQ(const char* result, const char* expected_result,
-                const char* testname) {
-
-  if (!result || !expected_result) {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+int test_str_eq(const char* result, const char* expected,
+		const char *preamble, const char *desc, const char *comment)
+{
+  if (!result || !expected) {
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  String compare with NULL\n");
     gTestSuccess = 0;
     return 0;
-  } else if (!strcmp(result, expected_result)) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+  } else if (!strcmp(result, expected)) {
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
     return 1;
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
-    fprintf(stderr, "  Expected: \"%s\", got: \"%s\"\n", expected_result,
+    fprintf(stderr, "%s " COL_RED "FAILED\n" COL_STOP, comment);
+    fprintf(stderr, "  Expected: \"%s\", got: \"%s\"\n", expected,
             result);
     gTestSuccess = 0;
     return 0;
   }
-
 }
 
-int TEST_STR_NEQ(const char* result, const char* not_expected,
-		 const char* testname) {
-
+int test_str_neq(const char* result, const char* not_expected,
+		 const char *preamble, const char *desc, const char *comment)
+{
   if (!result || !not_expected) {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  String compare with NULL\n");
     gTestSuccess = 0;
     return 0;
   } else if (strcmp(result, not_expected)) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
     return 1;
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Didn't expect: \"%s\", but got it\n", not_expected);
     gTestSuccess = 0;
     return 0;
   }
-
 }
 
-int TEST_SUCC(int result, const char* testname) {
+int test_succ(int result,
+	      const char *preamble, const char *desc, const char *comment)
+{
   if (result == 0) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Expected SUCCESS, got: 0x%lx\n", (long)result);
     gTestSuccess = 0;
   }
   return !result;
 }
 
-int TEST_TRUE(int result, const char* testname) {
+int test_true(int result,
+	      const char *preamble, const char *desc, const char *comment)
+{
   if (result) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Expected TRUE, got 0\n");
     gTestSuccess = 0;
   }
   return result;
 }
 
-int TEST_FALSE(int result, const char* testname) {
+int test_false(int result,
+	       const char *preamble, const char *desc, const char *comment)
+{
   if (!result) {
-    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, desc, comment);
   } else {
-    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, desc, comment);
     fprintf(stderr, "  Expected FALSE, got: 0x%lx\n", (long)result);
     gTestSuccess = 0;
   }

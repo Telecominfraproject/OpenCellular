@@ -14,8 +14,6 @@
 #include "host.h"
 #include "test_common.h"
 
-#define TEST_EQ_S(result, expect) TEST_EQ(result, expect, #result "==" #expect)
-
 void check_header_tests(void)
 {
 	struct bdb_header sgood = {
