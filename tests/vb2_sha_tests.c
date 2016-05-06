@@ -5,6 +5,8 @@
 
 /* FIPS 180-2 Tests for message digest functions. */
 
+#include <stdio.h>
+
 #include "2sysincludes.h"
 #include "2rsa.h"
 #include "2sha.h"
@@ -38,6 +40,9 @@ void sha1_tests(void)
 				  VB2_HASH_SHA1, digest, sizeof(digest) - 1),
 		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE,
 		"vb2_digest_buffer() too small");
+
+	TEST_EQ(vb2_hash_block_size(VB2_HASH_SHA1), VB2_SHA1_BLOCK_SIZE,
+		"vb2_hash_block_size(VB2_HASH_SHA1)");
 }
 
 void sha256_tests(void)
@@ -82,6 +87,9 @@ void sha256_tests(void)
 	vb2_sha256_finalize(&ctx, digest);
 	TEST_EQ(memcmp(digest, expect_multiple, sizeof(digest)), 0,
 		"SHA-256 multiple extends");
+
+	TEST_EQ(vb2_hash_block_size(VB2_HASH_SHA256), VB2_SHA256_BLOCK_SIZE,
+		"vb2_hash_block_size(VB2_HASH_SHA256)");
 }
 
 void sha512_tests(void)
@@ -109,6 +117,9 @@ void sha512_tests(void)
 				  VB2_HASH_SHA512, digest, sizeof(digest) - 1),
 		VB2_ERROR_SHA_FINALIZE_DIGEST_SIZE,
 		"vb2_digest_buffer() too small");
+
+	TEST_EQ(vb2_hash_block_size(VB2_HASH_SHA512), VB2_SHA512_BLOCK_SIZE,
+		"vb2_hash_block_size(VB2_HASH_SHA512)");
 }
 
 void misc_tests(void)
@@ -131,6 +142,9 @@ void misc_tests(void)
 	TEST_EQ(vb2_digest_size(VB2_HASH_INVALID), 0,
 		"digest size invalid alg");
 
+	TEST_EQ(vb2_hash_block_size(VB2_HASH_INVALID), 0,
+		"vb2_hash_block_size(VB2_HASH_INVALID)");
+
 	TEST_EQ(vb2_digest_buffer((uint8_t *)oneblock_msg, strlen(oneblock_msg),
 				  VB2_HASH_INVALID, digest, sizeof(digest)),
 		VB2_ERROR_SHA_INIT_ALGORITHM,
@@ -147,6 +161,19 @@ void misc_tests(void)
 		"vb2_digest_finalize() invalid alg");
 }
 
+static void hash_algorithm_name_tests(void)
+{
+	enum vb2_hash_algorithm alg;
+	char test_name[256];
+
+	for (alg = 1; alg < VB2_HASH_ALG_COUNT; alg++) {
+		sprintf(test_name, "%s: %s (alg=%d)",
+			__func__, vb2_get_hash_algorithm_name(alg), alg);
+		TEST_STR_NEQ(vb2_get_hash_algorithm_name(alg),
+			     VB2_INVALID_ALG_NAME, test_name);
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	/* Initialize long_msg with 'a' x 1,000,000 */
@@ -158,6 +185,7 @@ int main(int argc, char *argv[])
 	sha256_tests();
 	sha512_tests();
 	misc_tests();
+	hash_algorithm_name_tests();
 
 	free(long_msg);
 

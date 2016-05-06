@@ -57,6 +57,9 @@ enum vb2_hash_algorithm {
 	/* SHA-256 and SHA-512 */
 	VB2_HASH_SHA256 = 2,
 	VB2_HASH_SHA512 = 3,
+
+	/* Last index. Don't add anything below. */
+	VB2_HASH_ALG_COUNT,
 };
 
 #endif /* VBOOT_REFERENCE_VBOOT_2CRYPTO_H_ */

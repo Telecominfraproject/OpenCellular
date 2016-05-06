@@ -27,8 +27,15 @@
 #define VB2_SUPPORT_SHA512 1
 #endif
 
+/* These are set to the biggest values among the supported hash algorithms.
+ * They have to be updated as we add new hash algorithms */
+#define VB2_MAX_DIGEST_SIZE	VB2_SHA512_DIGEST_SIZE
+#define VB2_MAX_BLOCK_SIZE	VB2_SHA512_BLOCK_SIZE
+#define VB2_INVALID_ALG_NAME	"INVALID"
+
 #define VB2_SHA1_DIGEST_SIZE 20
 #define VB2_SHA1_BLOCK_SIZE 64
+#define VB2_SHA1_ALG_NAME	"SHA1"
 
 /* Context structs for hash algorithms */
 
@@ -47,6 +54,7 @@ struct vb2_sha1_context {
 
 #define VB2_SHA256_DIGEST_SIZE 32
 #define VB2_SHA256_BLOCK_SIZE 64
+#define VB2_SHA256_ALG_NAME	"SHA256"
 
 struct vb2_sha256_context {
 	uint32_t h[8];
@@ -57,6 +65,7 @@ struct vb2_sha256_context {
 
 #define VB2_SHA512_DIGEST_SIZE 64
 #define VB2_SHA512_BLOCK_SIZE 128
+#define VB2_SHA512_ALG_NAME	"SHA512"
 
 struct vb2_sha512_context {
 	uint64_t h[8];
@@ -141,6 +150,23 @@ enum vb2_hash_algorithm vb2_crypto_to_hash(uint32_t algorithm);
  * @return The size of the digest, or 0 if error.
  */
 int vb2_digest_size(enum vb2_hash_algorithm hash_alg);
+
+/**
+ * Return the block size of a hash algorithm.
+ *
+ * @param hash_alg	Hash algorithm
+ * @return The block size of the algorithm, or 0 if error.
+ */
+int vb2_hash_block_size(enum vb2_hash_algorithm alg);
+
+/**
+ * Return the name of a hash algorithm
+ *
+ * @param alg	Hash algorithm ID
+ * @return	String containing a hash name or VB2_INVALID_ALG_NAME
+ * 		if <alg> is invalid.
+ */
+const char *vb2_get_hash_algorithm_name(enum vb2_hash_algorithm alg);
 
 /**
  * Initialize a digest context for doing block-style digesting.

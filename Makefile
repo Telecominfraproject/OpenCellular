@@ -356,7 +356,8 @@ FWLIB2X_SRCS = \
 	firmware/2lib/2sha256.c \
 	firmware/2lib/2sha512.c \
 	firmware/2lib/2sha_utility.c \
-	firmware/2lib/2tpm_bootmode.c
+	firmware/2lib/2tpm_bootmode.c \
+	firmware/2lib/2hmac.c
 
 FWLIB20_SRCS = \
 	firmware/lib20/api.c \
@@ -757,7 +758,8 @@ TEST2X_NAMES = \
 	tests/vb2_rsa_utility_tests \
 	tests/vb2_secdata_tests \
 	tests/vb2_secdatak_tests \
-	tests/vb2_sha_tests
+	tests/vb2_sha_tests \
+	tests/hmac_test
 
 TEST20_NAMES = \
 	tests/vb20_api_tests \
@@ -1263,6 +1265,7 @@ ${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/verify_kernel: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/bdb_test: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/bdb_sprw_test: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/hmac_test: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
@@ -1464,6 +1467,7 @@ run2tests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_keyblock_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_misc_tests ${BUILD}
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_host_sig_tests ${TEST_KEYS}
+	${RUNTEST} ${BUILD_RUN}/tests/hmac_test
 
 .PHONY: runbdbtests
 runbdbtests: test_setup

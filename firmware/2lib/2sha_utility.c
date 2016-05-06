@@ -70,6 +70,46 @@ int vb2_digest_size(enum vb2_hash_algorithm hash_alg)
 	}
 }
 
+int vb2_hash_block_size(enum vb2_hash_algorithm alg)
+{
+	switch (alg) {
+#if VB2_SUPPORT_SHA1
+	case VB2_HASH_SHA1:
+		return VB2_SHA1_BLOCK_SIZE;
+#endif
+#if VB2_SUPPORT_SHA256
+	case VB2_HASH_SHA256:
+		return VB2_SHA256_BLOCK_SIZE;
+#endif
+#if VB2_SUPPORT_SHA512
+	case VB2_HASH_SHA512:
+		return VB2_SHA512_BLOCK_SIZE;
+#endif
+	default:
+		return 0;
+	}
+}
+
+const char *vb2_get_hash_algorithm_name(enum vb2_hash_algorithm alg)
+{
+	switch (alg) {
+#if VB2_SUPPORT_SHA1
+	case VB2_HASH_SHA1:
+		return VB2_SHA1_ALG_NAME;
+#endif
+#if VB2_SUPPORT_SHA256
+	case VB2_HASH_SHA256:
+		return VB2_SHA256_ALG_NAME;
+#endif
+#if VB2_SUPPORT_SHA512
+	case VB2_HASH_SHA512:
+		return VB2_SHA512_ALG_NAME;
+#endif
+	default:
+		return VB2_INVALID_ALG_NAME;
+	}
+}
+
 int vb2_digest_init(struct vb2_digest_context *dc,
 		    enum vb2_hash_algorithm hash_alg)
 {
