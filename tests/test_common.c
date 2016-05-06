@@ -93,6 +93,26 @@ int TEST_STR_EQ(const char* result, const char* expected_result,
 
 }
 
+int TEST_STR_NEQ(const char* result, const char* not_expected,
+		 const char* testname) {
+
+  if (!result || !not_expected) {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  String compare with NULL\n");
+    gTestSuccess = 0;
+    return 0;
+  } else if (strcmp(result, not_expected)) {
+    fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);
+    return 1;
+  } else {
+    fprintf(stderr, "%s Test " COL_RED "FAILED\n" COL_STOP, testname);
+    fprintf(stderr, "  Didn't expect: \"%s\", but got it\n", not_expected);
+    gTestSuccess = 0;
+    return 0;
+  }
+
+}
+
 int TEST_SUCC(int result, const char* testname) {
   if (result == 0) {
     fprintf(stderr, "%s Test " COL_GREEN "PASSED\n" COL_STOP, testname);

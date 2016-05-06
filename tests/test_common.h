@@ -34,6 +34,11 @@ int TEST_PTR_NEQ(const void* result, const void* expected_result,
 int TEST_STR_EQ(const char* result, const char* expected_result,
                 const char* testname);
 
+/* Return 1 if result string is not equal to not_expected_result string,
+ * else return 0.  Also update the global gTestSuccess flag if test fails. */
+int TEST_STR_NEQ(const char* result, const char* not_expected_result,
+		 const char* testname);
+
 /* Return 1 if the result is true, else return 0.
  * Also update the global gTestSuccess flag if test fails. */
 int TEST_TRUE(int result, const char* testname);
