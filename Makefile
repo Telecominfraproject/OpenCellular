@@ -377,6 +377,7 @@ BDBLIB_SRCS = \
 	firmware/bdb/bdb.c \
 	firmware/bdb/misc.c \
 	firmware/bdb/rsa.c \
+	firmware/bdb/secrets.c \
 	firmware/bdb/stub.c \
 	firmware/bdb/nvm.c
 

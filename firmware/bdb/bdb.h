@@ -91,6 +91,12 @@ enum bdb_return_code {
 	BDB_ERROR_DECRYPT_BUC,
 	BDB_ERROR_ENCRYPT_BUC,
 	BDB_ERROR_WRITE_BUC,
+
+	BDB_ERROR_SECRET_TYPE,
+	BDB_ERROR_SECRET_BUC,
+	BDB_ERROR_SECRET_BOOT_VERIFIED,
+	BDB_ERROR_SECRET_BOOT_PATH,
+	BDB_ERROR_SECRET_BDB,
 };
 
 /*****************************************************************************/

@@ -31,9 +31,16 @@ static uint8_t reset_count;
 static uint8_t nvmrw1[NVM_RW_MAX_STRUCT_SIZE];
 static uint8_t nvmrw2[NVM_RW_MAX_STRUCT_SIZE];
 
-struct bdb_ro_secrets secrets = {
+static struct bdb_ro_secrets secrets = {
+	.nvm_wp = {0x00, },
 	.nvm_rw = {0x00, },
+	.bdb = {0x00, },
+	.boot_verified = {0x00, },
+	.boot_path = {0x00, },
 };
+
+/* TODO: Implement test for vba_clear_secret */
+//static uint8_t cleared_secret[BDB_SECRET_SIZE] = { 0x00, };
 
 struct bdb_rw_secrets rw_secrets = {
 	.buc = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -604,6 +611,69 @@ static void test_update_buc(void)
 	TEST_SUCC(memcmp(nvm->buc_enc_digest, enc_buc, sizeof(new_buc)), NULL);
 }
 
+static void test_derive_secrets(void)
+{
+	uint8_t test_key[sizeof(struct bdb_key) + BDB_RSA4096_KEY_DATA_SIZE];
+	struct bdb_key *key = (struct bdb_key *)test_key;
+	struct vba_context ctx = {
+		.bdb = NULL,
+		.ro_secrets = &secrets,
+		.rw_secrets = &rw_secrets,
+	};
+	const struct bdb_ro_secrets expected = {
+		.bdb = {
+			0x75, 0xb6, 0x24, 0xaa, 0x72, 0x50, 0xf9, 0x33,
+			0x59, 0x45, 0x8d, 0xbf, 0xfa, 0x42, 0xc4, 0xb7,
+			0x1b, 0xff, 0xc6, 0x02, 0x02, 0x35, 0xc5, 0x1a,
+			0x6c, 0xdc, 0x3a, 0x63, 0xfb, 0x8b, 0xac, 0x53},
+		.boot_verified = {
+			0x40, 0xf3, 0x9b, 0xdc, 0xf6, 0xb4, 0xe8, 0xdf,
+			0x48, 0xc4, 0xfe, 0x02, 0xdd, 0x34, 0x06, 0xd9,
+			0xed, 0xd9, 0x55, 0x79, 0xf4, 0x48, 0x58, 0xbf,
+			0x32, 0x55, 0xba, 0x21, 0xca, 0xcc, 0x8c, 0xd1},
+		.boot_path = {
+			0xfb, 0x58, 0x89, 0x58, 0x2f, 0x54, 0xa2, 0xf7,
+			0x96, 0x5b, 0x69, 0x77, 0x9b, 0x67, 0x80, 0x39,
+			0x7a, 0xd4, 0xc5, 0x3b, 0xcf, 0x95, 0x3f, 0xec,
+			0x28, 0x49, 0x55, 0x49, 0x38, 0x27, 0x5d, 0x3c},
+	};
+	const struct bdb_rw_secrets rw_expected = {
+		.buc = {
+			0x63, 0xa5, 0x30, 0xd7, 0xca, 0xe1, 0x3e, 0x2e,
+			0x72, 0x7e, 0x29, 0xc9, 0x37, 0x66, 0x6a, 0x63,
+			0x91, 0xd4, 0x8e, 0x8b, 0xbc, 0x1a, 0x7a, 0xcf,
+			0xc3, 0x19, 0xa0, 0x87, 0xfc, 0x4d, 0xe1, 0xe8},
+	};
+
+	memset(test_key, 0, sizeof(test_key));
+	key->struct_magic = BDB_KEY_MAGIC;
+	key->struct_major_version = BDB_KEY_VERSION_MAJOR;
+	key->struct_minor_version = BDB_KEY_VERSION_MINOR;
+	key->struct_size = sizeof(test_key);
+	key->hash_alg = BDB_HASH_ALG_SHA256;
+	key->sig_alg = BDB_SIG_ALG_RSA4096;
+	key->key_version = 1;
+
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BDB,
+				     test_key, sizeof(test_key)), NULL);
+	TEST_SUCC(memcmp(ctx.ro_secrets->bdb, expected.bdb, BDB_SECRET_SIZE),
+		  NULL);
+
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BOOT_VERIFIED,
+				     NULL, 0), NULL);
+	TEST_SUCC(memcmp(ctx.ro_secrets->boot_verified, expected.boot_verified,
+			 BDB_SECRET_SIZE), NULL);
+
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BOOT_PATH,
+				     test_key, sizeof(test_key)), NULL);
+	TEST_SUCC(memcmp(ctx.ro_secrets->boot_path, expected.boot_path,
+			 BDB_SECRET_SIZE), NULL);
+
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BUC, NULL, 0), NULL);
+	TEST_SUCC(memcmp(ctx.rw_secrets->buc, rw_expected.buc,
+			 BDB_SECRET_SIZE), NULL);
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
@@ -617,6 +687,7 @@ int main(int argc, char *argv[])
 	test_nvm_write();
 	test_update_kernel_version();
 	test_update_buc();
+	test_derive_secrets();
 
 	return gTestSuccess ? 0 : 255;
 }

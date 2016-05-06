@@ -10,10 +10,14 @@
 #include "vboot_register.h"
 #include "nvm.h"
 #include "secrets.h"
+#include "bdb_flag.h"
 
 struct vba_context {
 	/* Indicate which slot is being tried: 0 - primary, 1 - secondary */
 	uint8_t slot;
+
+	/* Defined by VBA_CONTEXT_FLAG_* in bdb_flag.h */
+	uint32_t flags;
 
 	/* BDB */
 	uint8_t *bdb;
@@ -75,6 +79,29 @@ int vba_update_kernel_version(struct vba_context *ctx,
  * @return		BDB_SUCCESS or BDB_ERROR_*
  */
 int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc);
+
+/**
+ * Derive a secret
+ *
+ * This derives a new secret from a secret passed from SP-RO.
+ *
+ * @param ctx
+ * @param type		Type of secret to derive
+ * @param buf		Buffer containing data to derive secret from
+ * @param buf_size	Size of <buf>
+ * @return		BDB_SUCCESS or BDB_ERROR_*
+ */
+int vba_derive_secret(struct vba_context *ctx, enum bdb_secret_type type,
+		      const uint8_t *buf, uint32_t buf_size);
+
+/**
+ * Clear a secret
+ *
+ * @param ctx
+ * @param type		Type of secret to clear
+ * @return		BDB_SUCCESS or BDB_ERROR_*
+ */
+int vba_clear_secret(struct vba_context *ctx, enum bdb_secret_type type);
 
 /**
  * Get vboot register value
