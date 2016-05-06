@@ -68,6 +68,15 @@ int vba_update_kernel_version(struct vba_context *ctx,
 			      uint32_t kernel_version);
 
 /**
+ * Write new boot unlock code to NVM-RW
+ *
+ * @param ctx
+ * @param new_buc	New BUC to be written
+ * @return		BDB_SUCCESS or BDB_ERROR_*
+ */
+int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc);
+
+/**
  * Get vboot register value
  *
  * Implemented by each chip
@@ -118,5 +127,29 @@ int vbe_read_nvm(enum nvm_type type, uint8_t *buf, uint32_t size);
  * @return	Zero if success or non-zero otherwise
  */
 int vbe_write_nvm(enum nvm_type type, void *buf, uint32_t size);
+
+/**
+ * Encrypt data by AES-256
+ *
+ * @param msg	Message to be encrypted
+ * @param len	Length of <msg> in bytes
+ * @param key	Key used for encryption
+ * @param out	Buffer where encrypted message is stored
+ * @return	BDB_SUCCESS or BDB_ERROR_*
+ */
+int vbe_aes256_encrypt(const uint8_t *msg, uint32_t len, const uint8_t *key,
+		       uint8_t *out);
+
+/**
+ * Decrypt data by AES-256
+ *
+ * @param msg	Message to be decrypted
+ * @param len	Length of <msg> in bytes
+ * @param key	Key used for decryption
+ * @param out	Buffer where decrypted message is stored
+ * @return	BDB_SUCCESS or BDB_ERROR_*
+ */
+int vbe_aes256_decrypt(const uint8_t *msg, uint32_t len, const uint8_t *key,
+		       uint8_t *out);
 
 #endif

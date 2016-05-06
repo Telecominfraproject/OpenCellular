@@ -35,3 +35,17 @@ int vbe_write_nvm(enum nvm_type type, void *buf, uint32_t size)
 {
 	return BDB_ERROR_NOT_IMPLEMENTED;
 }
+
+__attribute__((weak))
+int vbe_aes256_encrypt(const uint8_t *msg, uint32_t len, const uint8_t *key,
+		       uint8_t *out)
+{
+	return BDB_ERROR_NOT_IMPLEMENTED;
+}
+
+__attribute__((weak))
+int vbe_aes256_decrypt(const uint8_t *msg, uint32_t len, const uint8_t *key,
+		       uint8_t *out)
+{
+	return BDB_ERROR_NOT_IMPLEMENTED;
+}

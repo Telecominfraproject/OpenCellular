@@ -229,3 +229,39 @@ int vba_update_kernel_version(struct vba_context *ctx,
 
 	return BDB_SUCCESS;
 }
+
+int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc)
+{
+	struct nvmrw *nvm = &ctx->nvmrw;
+	uint8_t buc[BUC_ENC_DIGEST_SIZE];
+	int rv1, rv2;
+
+	if (nvmrw_verify(ctx->ro_secrets, nvm, sizeof(*nvm))) {
+		if (nvmrw_init(ctx))
+			return BDB_ERROR_NVM_INIT;
+	}
+
+	/* Encrypt new BUC
+	 * Note that we do not need to decide whether we should use hardware
+	 * crypto or not because this is supposed to be running in RW code. */
+	if (vbe_aes256_encrypt(new_buc, BUC_ENC_DIGEST_SIZE,
+			       ctx->rw_secrets->buc, buc))
+		return BDB_ERROR_ENCRYPT_BUC;
+
+	/* Return if new BUC is same as current one. */
+	if (!memcmp(buc, nvm->buc_enc_digest, sizeof(buc)))
+		return BDB_SUCCESS;
+
+	memcpy(nvm->buc_enc_digest, buc, sizeof(buc));
+
+	/* Increment update counter */
+	nvm->update_count++;
+
+	/* Write new BUC */
+	rv1 = nvmrw_write(ctx, NVM_TYPE_RW_PRIMARY);
+	rv2 = nvmrw_write(ctx, NVM_TYPE_RW_SECONDARY);
+	if (rv1 || rv2)
+		return BDB_ERROR_WRITE_BUC;
+
+	return BDB_SUCCESS;
+}

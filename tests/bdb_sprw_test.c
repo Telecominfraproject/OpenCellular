@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <openssl/aes.h>
 
 #include "2sha.h"
 #include "2hmac.h"
@@ -32,6 +33,13 @@ static uint8_t nvmrw2[NVM_RW_MAX_STRUCT_SIZE];
 
 struct bdb_ro_secrets secrets = {
 	.nvm_rw = {0x00, },
+};
+
+struct bdb_rw_secrets rw_secrets = {
+	.buc = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+		0xff, 0xff},
 };
 
 static int vbe_write_nvm_failure = 0;
@@ -554,6 +562,48 @@ static void test_update_kernel_version(void)
 	verify_kernel_version(0, 0, 1, 0, BDB_SUCCESS);
 }
 
+int vbe_aes256_encrypt(const uint8_t *msg, uint32_t len, const uint8_t *key,
+		       uint8_t *out)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		out[i] = msg[i] ^ key[i % 256/8];
+
+	return BDB_SUCCESS;
+}
+
+int vbe_aes256_decrypt(const uint8_t *msg, uint32_t len, const uint8_t *key,
+		       uint8_t *out)
+{
+	int i;
+
+	for (i = 0; i < len; i++)
+		out[i] = msg[i] ^ key[i % 256/8];
+
+	return BDB_SUCCESS;
+}
+
+static void test_update_buc(void)
+{
+	uint8_t new_buc[BUC_ENC_DIGEST_SIZE];
+	uint8_t enc_buc[BUC_ENC_DIGEST_SIZE];
+	struct nvmrw *nvm = (struct nvmrw *)nvmrw1;
+	struct vba_context ctx = {
+		.bdb = NULL,
+		.ro_secrets = &secrets,
+		.rw_secrets = &rw_secrets,
+	};
+
+	install_nvm(NVM_TYPE_RW_PRIMARY, 0, 1, 0);
+	install_nvm(NVM_TYPE_RW_SECONDARY, 1, 0, 0);
+
+	TEST_SUCC(vba_update_buc(&ctx, new_buc), NULL);
+	vbe_aes256_encrypt(new_buc, sizeof(new_buc), ctx.rw_secrets->buc,
+			   enc_buc);
+	TEST_SUCC(memcmp(nvm->buc_enc_digest, enc_buc, sizeof(new_buc)), NULL);
+}
+
 int main(int argc, char *argv[])
 {
 	if (argc != 2) {
@@ -566,6 +616,7 @@ int main(int argc, char *argv[])
 	test_nvm_read();
 	test_nvm_write();
 	test_update_kernel_version();
+	test_update_buc();
 
 	return gTestSuccess ? 0 : 255;
 }

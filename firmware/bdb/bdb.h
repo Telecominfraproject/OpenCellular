@@ -88,6 +88,9 @@ enum bdb_return_code {
 	BDB_ERROR_NVM_STRUCT_VERSION,
 	BDB_ERROR_NVM_VBE_READ,
 	BDB_ERROR_NVM_RW_BUFFER_SMALL,
+	BDB_ERROR_DECRYPT_BUC,
+	BDB_ERROR_ENCRYPT_BUC,
+	BDB_ERROR_WRITE_BUC,
 };
 
 /*****************************************************************************/
