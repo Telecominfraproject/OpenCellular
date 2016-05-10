@@ -82,3 +82,9 @@ uint32_t RollbackBackupWrite(uint8_t *raw)
 	Memcpy(rollback_backup, raw, BACKUP_NV_SIZE);
 	return TPM_SUCCESS;
 }
+
+uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
+{
+	Memset(fwmp, 0, sizeof(*fwmp));
+	return TPM_SUCCESS;
+}

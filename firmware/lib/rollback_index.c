@@ -552,6 +552,12 @@ uint32_t RollbackKernelLock(int recovery_mode)
 	return TPM_SUCCESS;
 }
 
+uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
+{
+	Memset(fwmp, 0, sizeof(*fwmp));
+	return TPM_SUCCESS;
+}
+
 #else
 
 uint32_t RollbackS3Resume(void)
@@ -678,8 +684,6 @@ uint32_t RollbackKernelLock(int recovery_mode)
 	return r;
 }
 
-#endif /* DISABLE_ROLLBACK_TPM */
-
 uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 {
 	uint8_t buf[FWMP_NV_MAX_SIZE];
@@ -749,3 +753,4 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 	return TPM_E_CORRUPTED_STATE;
 }
 
+#endif /* DISABLE_ROLLBACK_TPM */
