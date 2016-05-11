@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2sha.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
@@ -71,7 +74,7 @@ static GptHeader *mock_gpt_primary =
 	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * 1];
 static GptHeader *mock_gpt_secondary =
 	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * (MOCK_SECTOR_COUNT - 1)];
-static uint8_t mock_digest[SHA256_DIGEST_SIZE] = {12, 34, 56, 78};
+static uint8_t mock_digest[VB2_SHA256_DIGEST_SIZE] = {12, 34, 56, 78};
 
 /**
  * Prepare a valid GPT header that will pass CheckHeader() tests
@@ -293,12 +296,14 @@ int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
 	return VBERROR_SUCCESS;
 }
 
-uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm)
+int vb2_digest_buffer(const uint8_t *buf,
+		      uint32_t size,
+		      enum vb2_hash_algorithm hash_alg,
+		      uint8_t *digest,
+		      uint32_t digest_size)
 {
-	uint8_t *d = VbExMalloc(sizeof(mock_digest));
-
-	memcpy(d, mock_digest, sizeof(mock_digest));
-	return d;
+	Memcpy(digest, mock_digest, sizeof(mock_digest));
+	return VB2_SUCCESS;
 }
 
 /**

@@ -13,6 +13,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "host_common.h"
@@ -59,23 +63,22 @@ RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
   return key;
 }
 
-uint8_t* DigestFile(char* input_file, int sig_algorithm) {
-  int input_fd, len;
-  uint8_t data[SHA1_BLOCK_SIZE];
-  uint8_t* digest = NULL;
-  DigestContext ctx;
+int DigestFile(char *input_file, enum vb2_hash_algorithm alg,
+	       uint8_t *digest, uint32_t digest_size) {
+	int input_fd, len;
+	uint8_t data[VB2_SHA1_BLOCK_SIZE];
+	struct vb2_digest_context ctx;
 
-  if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
-    VBDEBUG(("Couldn't open %s\n", input_file));
-    return NULL;
-  }
-  DigestInit(&ctx, sig_algorithm);
-  while ( (len = read(input_fd, data, SHA1_BLOCK_SIZE)) ==
-          SHA1_BLOCK_SIZE)
-    DigestUpdate(&ctx, data, len);
-  if (len != -1)
-    DigestUpdate(&ctx, data, len);
-  digest = DigestFinal(&ctx);
-  close(input_fd);
-  return digest;
+	if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
+		VBDEBUG(("Couldn't open %s\n", input_file));
+		return VB2_ERROR_UNKNOWN;
+	}
+	vb2_digest_init(&ctx, alg);
+	while ((len = read(input_fd, data, sizeof(data))) == sizeof(data))
+		vb2_digest_extend(&ctx, data, len);
+	if (len != -1)
+		vb2_digest_extend(&ctx, data, len);
+	close(input_fd);
+
+	return vb2_digest_finalize(&ctx, digest, digest_size);
 }

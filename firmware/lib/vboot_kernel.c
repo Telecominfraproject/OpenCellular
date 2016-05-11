@@ -8,6 +8,8 @@
 
 #include "sysincludes.h"
 
+#include "2common.h"
+#include "2sha.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "region.h"
@@ -281,29 +283,27 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 			VbPublicKey *key = &key_block->data_key;
 			uint8_t *buf = ((uint8_t *)key) + key->key_offset;
 			uint64_t buflen = key->key_size;
-			uint8_t *digest;
+			uint8_t digest[VB2_SHA256_DIGEST_SIZE];
 
 			VBDEBUG(("Checking developer key hash.\n"));
-			digest = DigestBuf(buf, buflen,
-					   SHA256_DIGEST_ALGORITHM);
+			vb2_digest_buffer(buf, buflen, VB2_HASH_SHA256,
+					  digest, sizeof(digest));
 			if (0 != SafeMemcmp(digest, params->fwmp->dev_key_hash,
-					    SHA256_DIGEST_SIZE)) {
+					    VB2_SHA256_DIGEST_SIZE)) {
 				int i;
 
 				VBDEBUG(("Wrong developer key hash.\n"));
 				VBDEBUG(("Want: "));
-				for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+				for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++)
 					VBDEBUG(("%02x",
 						 params->fwmp->dev_key_hash[i]));
 				VBDEBUG(("\nGot:  "));
-				for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+				for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++)
 					VBDEBUG(("%02x", digest[i]));
 				VBDEBUG(("\n"));
 
-				VbExFree(digest);
 				goto bad_kernel;
 			}
-			VbExFree(digest);
 		}
 
 		/* Get key for preamble/data verification from the key block. */

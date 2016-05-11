@@ -5,7 +5,10 @@
  * Host functions for verified boot.
  */
 
+#include "2sysincludes.h"
 
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "host_common.h"
 #include "host_keyblock.h"
@@ -18,7 +21,7 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
 
   VbKeyBlockHeader* h;
   uint64_t signed_size = sizeof(VbKeyBlockHeader) + data_key->key_size;
-  uint64_t block_size = (signed_size + SHA512_DIGEST_SIZE +
+  uint64_t block_size = (signed_size + VB2_SHA512_DIGEST_SIZE +
                          (signing_key ?
                           siglen_map[signing_key->algorithm] : 0));
   uint8_t* data_key_dest;
@@ -32,7 +35,7 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
     return NULL;
   data_key_dest = (uint8_t*)(h + 1);
   block_chk_dest = data_key_dest + data_key->key_size;
-  block_sig_dest = block_chk_dest + SHA512_DIGEST_SIZE;
+  block_sig_dest = block_chk_dest + VB2_SHA512_DIGEST_SIZE;
 
   Memcpy(h->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE);
   h->header_version_major = KEY_BLOCK_HEADER_VERSION_MAJOR;
@@ -46,7 +49,7 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
 
   /* Set up signature structs so we can calculate the signatures */
   SignatureInit(&h->key_block_checksum, block_chk_dest,
-                SHA512_DIGEST_SIZE, signed_size);
+                VB2_SHA512_DIGEST_SIZE, signed_size);
   if (signing_key)
     SignatureInit(&h->key_block_signature, block_sig_dest,
                   siglen_map[signing_key->algorithm], signed_size);
@@ -79,7 +82,7 @@ VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
                                           const char* external_signer) {
   VbKeyBlockHeader* h;
   uint64_t signed_size = sizeof(VbKeyBlockHeader) + data_key->key_size;
-  uint64_t block_size = (signed_size + SHA512_DIGEST_SIZE +
+  uint64_t block_size = (signed_size + VB2_SHA512_DIGEST_SIZE +
                          siglen_map[algorithm]);
   uint8_t* data_key_dest;
   uint8_t* block_sig_dest;
@@ -95,7 +98,7 @@ VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
 
   data_key_dest = (uint8_t*)(h + 1);
   block_chk_dest = data_key_dest + data_key->key_size;
-  block_sig_dest = block_chk_dest + SHA512_DIGEST_SIZE;
+  block_sig_dest = block_chk_dest + VB2_SHA512_DIGEST_SIZE;
 
   Memcpy(h->magic, KEY_BLOCK_MAGIC, KEY_BLOCK_MAGIC_SIZE);
   h->header_version_major = KEY_BLOCK_HEADER_VERSION_MAJOR;
@@ -109,7 +112,7 @@ VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
 
   /* Set up signature structs so we can calculate the signatures */
   SignatureInit(&h->key_block_checksum, block_chk_dest,
-                SHA512_DIGEST_SIZE, signed_size);
+                VB2_SHA512_DIGEST_SIZE, signed_size);
   SignatureInit(&h->key_block_signature, block_sig_dest,
                 siglen_map[algorithm], signed_size);
 

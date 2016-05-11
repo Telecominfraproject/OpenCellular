@@ -106,8 +106,8 @@ int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
 	       const RSAPublicKey *key);
 
 /**
- * Verify a secure hash digest from DigestBuf() or DigestFinal(), using
- * [key]. Returns 0 on success.
+ * Verify a secure hash digest from vb2_digest_buffer() or
+ * vb2_digest_finalize(), using [key]. Returns 0 on success.
  */
 int VerifyDigest(const uint8_t *digest, const VbSignature *sig,
 		 const RSAPublicKey *key);

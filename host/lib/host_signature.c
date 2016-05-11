@@ -15,6 +15,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "host_common.h"
@@ -53,49 +57,46 @@ int SignatureCopy(VbSignature* dest, const VbSignature* src) {
 
 VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size) {
 
-  uint8_t* header_checksum;
+  uint8_t header_checksum[VB2_SHA512_DIGEST_SIZE];
   VbSignature* sig;
 
-  header_checksum = DigestBuf(data, size, SHA512_DIGEST_ALGORITHM);
-  if (!header_checksum)
+  if (VB2_SUCCESS != vb2_digest_buffer(data, size, VB2_HASH_SHA512,
+				       header_checksum,
+				       sizeof(header_checksum)))
     return NULL;
 
-  sig = SignatureAlloc(SHA512_DIGEST_SIZE, 0);
-  if (!sig) {
-    VbExFree(header_checksum);
+  sig = SignatureAlloc(VB2_SHA512_DIGEST_SIZE, 0);
+  if (!sig)
     return NULL;
-  }
+
   sig->sig_offset = sizeof(VbSignature);
-  sig->sig_size = SHA512_DIGEST_SIZE;
+  sig->sig_size = VB2_SHA512_DIGEST_SIZE;
   sig->data_size = size;
 
   /* Signature data immediately follows the header */
-  Memcpy(GetSignatureData(sig), header_checksum, SHA512_DIGEST_SIZE);
-  VbExFree(header_checksum);
+  Memcpy(GetSignatureData(sig), header_checksum, VB2_SHA512_DIGEST_SIZE);
   return sig;
 }
 
 VbSignature* CalculateHash(const uint8_t* data, uint64_t size,
                            const VbPrivateKey* key) {
-  uint8_t* digest = NULL;
-  int digest_size = hash_size_map[key->algorithm];
+  int vb2_alg = vb2_crypto_to_hash(key->algorithm);
+  uint8_t digest[VB2_MAX_DIGEST_SIZE];
+  int digest_size = vb2_digest_size(vb2_alg);
   VbSignature* sig = NULL;
 
   /* Calculate the digest */
-  digest = DigestBuf(data, size, key->algorithm);
-  if (!digest)
+  if (VB2_SUCCESS != vb2_digest_buffer(data, size, vb2_alg,
+				       digest, sizeof(digest)))
     return NULL;
 
   /* Allocate output signature */
   sig = SignatureAlloc(digest_size, size);
-  if (!sig) {
-    free(digest);
+  if (!sig)
     return NULL;
-  }
 
   /* The digest itself is the signature data */
   Memcpy(GetSignatureData(sig), digest, digest_size);
-  free(digest);
 
   /* Return the signature */
   return sig;
@@ -103,9 +104,9 @@ VbSignature* CalculateHash(const uint8_t* data, uint64_t size,
 
 VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
                                 const VbPrivateKey* key) {
-
-  uint8_t* digest;
-  int digest_size = hash_size_map[key->algorithm];
+  int vb2_alg = vb2_crypto_to_hash(key->algorithm);
+  uint8_t digest[VB2_MAX_DIGEST_SIZE];
+  int digest_size = vb2_digest_size(vb2_alg);
 
   const uint8_t* digestinfo = hash_digestinfo_map[key->algorithm];
   int digestinfo_size = digestinfo_size_map[key->algorithm];
@@ -117,20 +118,17 @@ VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
   int rv;
 
   /* Calculate the digest */
-  /* TODO: rename param 3 of DigestBuf to hash_type */
-  digest = DigestBuf(data, size, hash_type_map[key->algorithm]);
-  if (!digest)
+  if (VB2_SUCCESS != vb2_digest_buffer(data, size, vb2_alg,
+				       digest, sizeof(digest)))
     return NULL;
 
   /* Prepend the digest info to the digest */
   signature_digest = malloc(signature_digest_len);
-  if (!signature_digest) {
-    VbExFree(digest);
+  if (!signature_digest)
     return NULL;
-  }
+
   Memcpy(signature_digest, digestinfo, digestinfo_size);
   Memcpy(signature_digest + digestinfo_size, digest, digest_size);
-  VbExFree(digest);
 
   /* Allocate output signature */
   sig = SignatureAlloc(siglen_map[key->algorithm], size);
@@ -249,8 +247,9 @@ VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
                                          const char* key_file,
                                          uint64_t key_algorithm,
                                          const char* external_signer) {
-  uint8_t* digest;
-  uint64_t digest_size = hash_size_map[key_algorithm];
+  int vb2_alg = vb2_crypto_to_hash(key_algorithm);
+  uint8_t digest[VB2_MAX_DIGEST_SIZE];
+  int digest_size = vb2_digest_size(vb2_alg);
 
   const uint8_t* digestinfo = hash_digestinfo_map[key_algorithm];
   uint64_t digestinfo_size = digestinfo_size_map[key_algorithm];
@@ -262,20 +261,17 @@ VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
   int rv;
 
   /* Calculate the digest */
-  /* TODO: rename param 3 of DigestBuf to hash_type */
-  digest = DigestBuf(data, size, hash_type_map[key_algorithm]);
-  if (!digest)
+  if (VB2_SUCCESS != vb2_digest_buffer(data, size, vb2_alg,
+				       digest, sizeof(digest)))
     return NULL;
 
   /* Prepend the digest info to the digest */
   signature_digest = malloc(signature_digest_len);
-  if (!signature_digest) {
-    free(digest);
+  if (!signature_digest)
     return NULL;
-  }
+
   Memcpy(signature_digest, digestinfo, digestinfo_size);
   Memcpy(signature_digest + digestinfo_size, digest, digest_size);
-  free(digest);
 
   /* Allocate output signature */
   sig = SignatureAlloc(siglen_map[key_algorithm], size);

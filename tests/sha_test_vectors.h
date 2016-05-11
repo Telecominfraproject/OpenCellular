@@ -8,8 +8,6 @@
 #ifndef VBOOT_REFERENCE_SHA_TEST_VECTORS_H_
 #define VBOOT_REFERENCE_SHA_TEST_VECTORS_H_
 
-#include "cryptolib.h"
-
 char* oneblock_msg = "abc";
 char* multiblock_msg1 = "abcdbcdecdefdefgefghfghighijhijkijkl"
     "jklmklmnlmnomnopnopq";
@@ -18,7 +16,7 @@ char* multiblock_msg2= "abcdefghbcdefghicdefghijdefghijkefghi"
     "qrsmnopqrstnopqrstu";
 char* long_msg;
 
-uint8_t sha1_results[][SHA1_DIGEST_SIZE] = {
+uint8_t sha1_results[][VB2_SHA1_DIGEST_SIZE] = {
   {
     0xa9,0x99,0x3e,0x36,0x47,0x06,0x81,0x6a,
     0xba,0x3e,0x25,0x71,0x78,0x50,0xc2,0x6c,
@@ -36,7 +34,7 @@ uint8_t sha1_results[][SHA1_DIGEST_SIZE] = {
   }
 };
 
-uint8_t sha256_results[][SHA256_DIGEST_SIZE] = {
+uint8_t sha256_results[][VB2_SHA256_DIGEST_SIZE] = {
   {
     0xba,0x78,0x16,0xbf,0x8f,0x01,0xcf,0xea,
     0x41,0x41,0x40,0xde,0x5d,0xae,0x22,0x23,
@@ -57,7 +55,7 @@ uint8_t sha256_results[][SHA256_DIGEST_SIZE] = {
   }
 };
 
-uint8_t sha512_results[][SHA512_DIGEST_SIZE] = {
+uint8_t sha512_results[][VB2_SHA512_DIGEST_SIZE] = {
   {
     0xdd,0xaf,0x35,0xa1,0x93,0x61,0x7a,0xba,
     0xcc,0x41,0x73,0x49,0xae,0x20,0x41,0x31,

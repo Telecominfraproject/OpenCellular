@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "host_common.h"
@@ -19,12 +22,11 @@
 
 static void ReChecksumKeyBlock(VbKeyBlockHeader *h)
 {
-	uint8_t *newchk = DigestBuf((const uint8_t *)h,
-				    h->key_block_checksum.data_size,
-				    SHA512_DIGEST_ALGORITHM);
-	Memcpy(GetSignatureData(&h->key_block_checksum), newchk,
-	       SHA512_DIGEST_SIZE);
-	VbExFree(newchk);
+	vb2_digest_buffer((const uint8_t *)h,
+			  h->key_block_checksum.data_size,
+			  VB2_HASH_SHA512,
+			  GetSignatureData(&h->key_block_checksum),
+			  VB2_SHA512_DIGEST_SIZE);
 }
 
 static void KeyBlockVerifyTest(const VbPublicKey *public_key,

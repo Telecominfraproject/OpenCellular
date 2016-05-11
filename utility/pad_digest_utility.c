@@ -10,6 +10,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "file_keys.h"
 #include "host_common.h"
 #include "padding.h"
@@ -41,8 +45,8 @@ int main(int argc, char* argv[]) {
   }
 
   padded_digest = PrependDigestInfo(algorithm, digest);
-  padded_digest_len = (hash_size_map[algorithm] +
-                       digestinfo_size_map[algorithm]);
+  const int digest_size = vb2_digest_size(vb2_crypto_to_hash(algorithm));
+  padded_digest_len = (digest_size + digestinfo_size_map[algorithm]);
 
   if (!padded_digest)
     error_code = -1;

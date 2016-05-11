@@ -7,7 +7,10 @@
  */
 
 #include "sysincludes.h"
+#include "2sysincludes.h"
 
+#include "2common.h"
+#include "2sha.h"
 #include "region.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
@@ -24,7 +27,7 @@
  * struct back to us.
  */
 typedef struct VbLoadFirmwareInternal {
-	DigestContext body_digest_context;
+	struct vb2_digest_context body_digest_context;
 	uint32_t body_size_accum;
 } VbLoadFirmwareInternal;
 
@@ -34,7 +37,7 @@ void VbUpdateFirmwareBodyHash(VbCommonParams *cparams, uint8_t *data,
 	VbLoadFirmwareInternal *lfi =
 		(VbLoadFirmwareInternal*)cparams->vboot_context;
 
-	DigestUpdate(&lfi->body_digest_context, data, size);
+	vb2_digest_extend(&lfi->body_digest_context, data, size);
 	lfi->body_size_accum += size;
 }
 
@@ -96,7 +99,6 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 		RSAPublicKey *data_key;
 		uint64_t key_version;
 		uint32_t combined_version;
-		uint8_t *body_digest;
 		uint8_t *check_result;
 
 		/* If try B count is non-zero try firmware B first */
@@ -230,8 +232,8 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 			VbError_t rv;
 
 			/* Read the firmware data */
-			DigestInit(&lfi->body_digest_context,
-				   data_key->algorithm);
+			vb2_digest_init(&lfi->body_digest_context,
+				vb2_crypto_to_hash(data_key->algorithm));
 			lfi->body_size_accum = 0;
 			rv = VbExHashFirmwareBody(
 					cparams,
@@ -255,17 +257,17 @@ int LoadFirmware(VbCommonParams *cparams, VbSelectFirmwareParams *fparams,
 			}
 
 			/* Verify firmware data */
-			body_digest = DigestFinal(&lfi->body_digest_context);
+			uint8_t body_digest[VB2_MAX_DIGEST_SIZE];
+			vb2_digest_finalize(&lfi->body_digest_context,
+					    body_digest, sizeof(body_digest));
 			if (0 != VerifyDigest(body_digest,
 					      &preamble->body_signature,
 					      data_key)) {
 				VBDEBUG(("FW body verification failed.\n"));
 				*check_result = VBSD_LF_CHECK_VERIFY_BODY;
 				RSAPublicKeyFree(data_key);
-				VbExFree(body_digest);
 				continue;
 			}
-			VbExFree(body_digest);
 		}
 
 		/* Done with the data key, so can free it now */

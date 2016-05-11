@@ -13,6 +13,7 @@
 #include "2common.h"
 #include "2id.h"
 #include "2rsa.h"
+#include "2sha.h"
 #include "util_misc.h"
 #include "vb2_common.h"
 #include "vb2_struct.h"
@@ -254,10 +255,8 @@ static int vb2_make_keypair()
 
 	/* Update the IDs */
 	if (!force_id) {
-		uint8_t *digest = DigestBuf(keyb_data, keyb_size,
-					    SHA1_DIGEST_ALGORITHM);
-		memcpy(&opt_id, digest, sizeof(opt_id));
-		free(digest);
+		vb2_digest_buffer(keyb_data, keyb_size, VB2_HASH_SHA1,
+				  opt_id.raw, sizeof(opt_id.raw));
 	}
 
 	memcpy((struct vb2_id *)pubkey->id, &opt_id, sizeof(opt_id));

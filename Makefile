@@ -327,10 +327,6 @@ VBSF_SRCS = \
 	firmware/lib/cryptolib/padding.c \
 	firmware/lib/cryptolib/rsa.c \
 	firmware/lib/cryptolib/rsa_utility.c \
-	firmware/lib/cryptolib/sha1.c \
-	firmware/lib/cryptolib/sha256.c \
-	firmware/lib/cryptolib/sha512.c \
-	firmware/lib/cryptolib/sha_utility.c \
 	firmware/lib/stateful_util.c \
 	firmware/lib/vboot_api_firmware.c \
 	firmware/lib/vboot_common.c \
@@ -737,7 +733,6 @@ TEST_NAMES = \
 	tests/rsa_utility_tests \
 	tests/rsa_verify_benchmark \
 	tests/sha_benchmark \
-	tests/sha_tests \
 	tests/stateful_util_tests \
 	tests/tpm_bootmode_tests \
 	tests/utility_string_tests \
@@ -949,8 +944,8 @@ ${BDBLIB_OBJS}: INCLUDES += -Ifirmware/bdb
 ${BUILD}/firmware/linktest/main_vbinit: ${VBINIT_OBJS}
 ${BUILD}/firmware/linktest/main_vbinit: OBJS = ${VBINIT_OBJS}
 TEST_OBJS += ${BUILD}/firmware/linktest/main_vbinit.o
-${BUILD}/firmware/linktest/main_vbsf: ${VBSF_OBJS}
-${BUILD}/firmware/linktest/main_vbsf: OBJS = ${VBSF_OBJS}
+${BUILD}/firmware/linktest/main_vbsf: ${FWLIB}
+${BUILD}/firmware/linktest/main_vbsf: LIBS = ${FWLIB}
 TEST_OBJS += ${BUILD}/firmware/linktest/main_vbsf.o
 ${BUILD}/firmware/linktest/main: ${FWLIB}
 ${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
@@ -965,7 +960,7 @@ fwlinktest: \
 .PHONY: fwlib
 fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
 
-${FWLIB}: ${FWLIB_OBJS}
+${FWLIB}: ${FWLIB_OBJS} ${FWLIB2X_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1020,7 +1015,7 @@ utillib: ${UTILLIB} \
 	${BUILD}/host/linktest/main
 
 # TODO: better way to make .a than duplicating this recipe each time?
-${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS}
+${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} ${FWLIB2X_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1459,7 +1454,6 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index3_tests
 	${RUNTEST} ${BUILD_RUN}/tests/rsa_utility_tests
-	${RUNTEST} ${BUILD_RUN}/tests/sha_tests
 	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
 	${RUNTEST} ${BUILD_RUN}/tests/tlcl_tests
 	${RUNTEST} ${BUILD_RUN}/tests/tpm_bootmode_tests

@@ -15,7 +15,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "2struct.h"
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "futility.h"
 #include "gbb_header.h"
@@ -100,9 +102,11 @@ static void calculate_root_key_hash(uint8_t *digest, size_t digest_size,
 {
 	const uint8_t *gbb_base = (const uint8_t *)gbb;
 
-	internal_SHA256(gbb_base + gbb->rootkey_offset,
-			gbb->rootkey_size,
-			digest);
+	vb2_digest_buffer(gbb_base + gbb->rootkey_offset,
+			  gbb->rootkey_size,
+			  VB2_HASH_SHA256,
+			  digest,
+			  digest_size);
 }
 
 int fill_ryu_root_header(uint8_t *ptr, size_t size,
@@ -130,7 +134,7 @@ int fill_ryu_root_header(uint8_t *ptr, size_t size,
 int verify_ryu_root_header(uint8_t *ptr, size_t size,
 			   const GoogleBinaryBlockHeader *gbb)
 {
-	uint8_t digest[SHA256_DIGEST_SIZE] = {0};
+	uint8_t digest[VB2_SHA256_DIGEST_SIZE] = {0};
 
 	struct vb2_ryu_root_key_hash *hash;
 
@@ -145,8 +149,7 @@ int verify_ryu_root_header(uint8_t *ptr, size_t size,
 	}
 
 	/* Check for all 0's, which means hash hasn't been set */
-	if (0 == memcmp(digest, hash->root_key_hash_digest,
-			SHA256_DIGEST_SIZE)) {
+	if (0 == memcmp(digest, hash->root_key_hash_digest, sizeof(digest))) {
 		printf(" - ryu root hash is unset\n");
 		return 0;
 	}
@@ -154,8 +157,7 @@ int verify_ryu_root_header(uint8_t *ptr, size_t size,
 	/* Update the hash stored in the header based on the root key */
 	calculate_root_key_hash(digest, sizeof(digest), gbb);
 
-	if (0 == memcmp(digest, hash->root_key_hash_digest,
-			SHA256_DIGEST_SIZE)) {
+	if (0 == memcmp(digest, hash->root_key_hash_digest, sizeof(digest))) {
 		printf(" - ryu root hash verified\n");
 		return 0;
 	} else {

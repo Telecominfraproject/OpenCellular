@@ -42,8 +42,8 @@ int main(int argc, char* argv[]) {
   }
 
   signature_digest = SignatureDigest(buf, len, algorithm);
-  signature_digest_len = (hash_size_map[algorithm] +
-                          digestinfo_size_map[algorithm]);
+  const int digest_size = vb2_digest_size(vb2_crypto_to_hash(algorithm));
+  signature_digest_len = (digest_size + digestinfo_size_map[algorithm]);
   if (!signature_digest)
     error_code = -1;
   if(signature_digest &&

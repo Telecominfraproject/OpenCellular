@@ -7,7 +7,10 @@
  */
 
 #include "sysincludes.h"
+#include "2sysincludes.h"
 
+#include "2common.h"
+#include "2sha.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "utility.h"
@@ -219,7 +222,7 @@ int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
 	 */
 	if (hash_only) {
 		/* Check hash */
-		uint8_t *header_checksum = NULL;
+		uint8_t header_checksum[VB2_SHA512_DIGEST_SIZE];
 		int rv;
 
 		sig = &block->key_block_checksum;
@@ -228,7 +231,7 @@ int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
 			VBDEBUG(("Key block hash off end of block\n"));
 			return VBOOT_KEY_BLOCK_INVALID;
 		}
-		if (sig->sig_size != SHA512_DIGEST_SIZE) {
+		if (sig->sig_size != VB2_SHA512_DIGEST_SIZE) {
 			VBDEBUG(("Wrong hash size for key block.\n"));
 			return VBOOT_KEY_BLOCK_INVALID;
 		}
@@ -240,12 +243,15 @@ int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
 		}
 
 		VBDEBUG(("Checking key block hash only...\n"));
-		header_checksum = DigestBuf((const uint8_t *)block,
-					    sig->data_size,
-					    SHA512_DIGEST_ALGORITHM);
-		rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
-				SHA512_DIGEST_SIZE);
-		VbExFree(header_checksum);
+		rv = vb2_digest_buffer((const uint8_t *)block,
+				       sig->data_size,
+				       VB2_HASH_SHA512,
+				       header_checksum,
+				       sizeof(header_checksum));
+		if (!rv)
+			rv = SafeMemcmp(header_checksum, GetSignatureDataC(sig),
+					sizeof(header_checksum));
+
 		if (rv) {
 			VBDEBUG(("Invalid key block hash.\n"));
 			return VBOOT_KEY_BLOCK_HASH;

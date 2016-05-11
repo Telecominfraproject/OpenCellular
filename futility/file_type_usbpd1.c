@@ -21,6 +21,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "2sha.h"
 #include "2rsa.h"
 #include "file_type.h"
 #include "futility.h"
@@ -339,7 +340,7 @@ static void show_usbpd1_stuff(const char *name,
 {
 	struct vb2_public_key key;
 	struct vb2_packed_key *pkey;
-	uint8_t *sha1sum;
+	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 	int i;
 
 	vb2_pubkey_from_usbpd1(&key, sig_alg, hash_alg,
@@ -348,19 +349,18 @@ static void show_usbpd1_stuff(const char *name,
 	if (vb2_public_key_pack(&pkey, &key))
 		return;
 
-	sha1sum = DigestBuf((uint8_t *)pkey + pkey->key_offset,
-			pkey->key_size, SHA1_DIGEST_ALGORITHM);
+	vb2_digest_buffer((uint8_t *)pkey + pkey->key_offset, pkey->key_size,
+			  VB2_HASH_SHA1, sha1sum, sizeof(sha1sum));
 
 	printf("USB-PD v1 image:       %s\n", name);
 	printf("  Algorithm:           %s %s\n",
 	       vb2_lookup_by_num(vb2_text_vs_sig, sig_alg)->name,
 	       vb2_lookup_by_num(vb2_text_vs_hash, hash_alg)->name);
 	printf("  Key sha1sum:         ");
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+	for (i = 0; i < VB2_SHA1_DIGEST_SIZE; i++)
 		printf("%02x", sha1sum[i]);
 	printf("\n");
 
-	free(sha1sum);
 	free(pkey);
 }
 

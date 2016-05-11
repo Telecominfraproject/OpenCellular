@@ -13,6 +13,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "host_common.h"
 #include "util_misc.h"
@@ -22,17 +26,20 @@ void PrintPubKeySha1Sum(VbPublicKey *key)
 {
 	uint8_t *buf = ((uint8_t *)key) + key->key_offset;
 	uint64_t buflen = key->key_size;
-	uint8_t *digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
+
+	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest, sizeof(digest));
+
 	int i;
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+	for (i = 0; i < sizeof(digest); i++)
 		printf("%02x", digest[i]);
-	free(digest);
 }
 
 void PrintPrivKeySha1Sum(VbPrivateKey *key)
 {
-	uint8_t *buf, *digest;
+	uint8_t *buf;
 	uint32_t buflen;
+	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
 	int i;
 
 	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen)) {
@@ -40,11 +47,11 @@ void PrintPrivKeySha1Sum(VbPrivateKey *key)
 		return;
 	}
 
-	digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest, sizeof(digest));
+
+	for (i = 0; i < sizeof(digest); i++)
 		printf("%02x", digest[i]);
 
-	free(digest);
 	free(buf);
 }
 

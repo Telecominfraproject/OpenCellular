@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "host_common.h"
@@ -82,14 +85,17 @@ static void VerifyDigestTest(const VbPublicKey *public_key,
 	const uint8_t test_data[] = "This is some other test data to sign.";
 	VbSignature *sig;
 	RSAPublicKey *rsa;
-	uint8_t *digest;
+	uint8_t digest[VB2_MAX_DIGEST_SIZE];
 
 	sig = CalculateSignature(test_data, sizeof(test_data), private_key);
 	rsa = PublicKeyToRSA(public_key);
-	digest = DigestBuf(test_data, sizeof(test_data),
-			   (int)public_key->algorithm);
-	TEST_NEQ(sig && rsa && digest, 0, "VerifyData() prerequisites");
-	if (!sig || !rsa || !digest)
+	TEST_SUCC(vb2_digest_buffer(test_data, sizeof(test_data),
+				    vb2_crypto_to_hash(public_key->algorithm),
+				    digest, sizeof(digest)),
+		  "VerifyData() digest");
+
+	TEST_NEQ(sig && rsa, 0, "VerifyData() prerequisites");
+	if (!sig || !rsa)
 		return;
 
 	TEST_EQ(VerifyDigest(digest, sig, rsa), 0, "VerifyDigest() ok");
@@ -102,7 +108,6 @@ static void VerifyDigestTest(const VbPublicKey *public_key,
 
 	RSAPublicKeyFree(rsa);
 	free(sig);
-	VbExFree(digest);
 }
 
 static void ReSignKernelPreamble(VbKernelPreambleHeader *h,

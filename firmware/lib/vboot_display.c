@@ -6,7 +6,10 @@
  */
 
 #include "sysincludes.h"
+#include "2sysincludes.h"
 
+#include "2common.h"
+#include "2sha.h"
 #include "bmpblk_font.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
@@ -379,14 +382,15 @@ static void FillInSha1Sum(char *outbuf, VbPublicKey *key)
 {
 	uint8_t *buf = ((uint8_t *)key) + key->key_offset;
 	uint64_t buflen = key->key_size;
-	uint8_t *digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
+	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
 	int i;
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++) {
+
+	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest, sizeof(digest));
+	for (i = 0; i < sizeof(digest); i++) {
 		Uint8ToString(outbuf, digest[i]);
 		outbuf += 2;
 	}
 	*outbuf = '\0';
-	VbExFree(digest);
 }
 
 const char *RecoveryReasonString(uint8_t code)
@@ -549,7 +553,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	char buf[DEBUG_INFO_SIZE] = "";
-	char sha1sum[SHA1_DIGEST_SIZE * 2 + 1];
+	char sha1sum[VB2_SHA1_DIGEST_SIZE * 2 + 1];
 	char hwid[256];
 	uint32_t used = 0;
 	VbPublicKey *key;

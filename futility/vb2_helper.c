@@ -11,6 +11,7 @@
 #include "2common.h"
 #include "2id.h"
 #include "2rsa.h"
+#include "2sha.h"
 #include "util_misc.h"
 #include "vb2_common.h"
 #include "vb2_struct.h"
@@ -75,33 +76,30 @@ static inline void vb2_print_bytes(const void *ptr, uint32_t len)
 		printf("%02x", *buf++);
 }
 
-static uint8_t *vb2_public_key_sha1sum(struct vb2_public_key *key)
+static int vb2_public_key_sha1sum(struct vb2_public_key *key, uint8_t *digest)
 {
 	struct vb2_packed_key *pkey;
-	uint8_t *digest;
 
 	if (vb2_public_key_pack(&pkey, key))
 		return 0;
 
-	digest = DigestBuf((uint8_t *)pkey + pkey->key_offset,
-			   pkey->key_size, SHA1_DIGEST_ALGORITHM);
-	free(pkey);
+	vb2_digest_buffer((uint8_t *)pkey + pkey->key_offset, pkey->key_size,
+			  VB2_HASH_SHA1, digest, VB2_SHA1_DIGEST_SIZE);
 
-	return digest;
+	free(pkey);
+	return 1;
 }
 
 int ft_show_vb2_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	struct vb2_public_key key;
 	const struct vb2_text_vs_enum *entry;
-	uint8_t *sha1sum;
+	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 
 	/* The key's members will point into the state buffer after this. Don't
 	 * free anything. */
 	if (VB2_SUCCESS != vb2_unpack_key(&key, buf, len))
 		return 1;
-
-	sha1sum = vb2_public_key_sha1sum(&key);
 
 	printf("Public Key file:       %s\n", name);
 	printf("  Vboot API:           2.1\n");
@@ -116,27 +114,28 @@ int ft_show_vb2_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 	printf("  ID:                  ");
 	vb2_print_bytes(key.id, sizeof(*key.id));
 	printf("\n");
-	if (sha1sum && memcmp(key.id, sha1sum, sizeof(*key.id))) {
+	if (vb2_public_key_sha1sum(&key, sha1sum) &&
+	    memcmp(key.id, sha1sum, sizeof(*key.id))) {
 		printf("  Key sha1sum:         ");
-		vb2_print_bytes(sha1sum, SHA1_DIGEST_SIZE);
+		vb2_print_bytes(sha1sum, sizeof(sha1sum));
 		printf("\n");
 	}
-	free(sha1sum);
 	return 0;
 }
 
-static uint8_t *vb2_private_key_sha1sum(struct vb2_private_key *key)
+static int vb2_private_key_sha1sum(struct vb2_private_key *key, uint8_t *digest)
 {
-	uint8_t *buf, *digest;
+	uint8_t *buf;
 	uint32_t buflen;
 
 	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen))
 		return 0;
 
-	digest = DigestBuf(buf, buflen, SHA1_DIGEST_ALGORITHM);
-	free(buf);
+	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest,
+			  VB2_SHA1_DIGEST_SIZE);
 
-	return digest;
+	free(buf);
+	return 1;
 }
 
 int ft_show_vb2_privkey(const char *name, uint8_t *buf, uint32_t len,
@@ -144,12 +143,10 @@ int ft_show_vb2_privkey(const char *name, uint8_t *buf, uint32_t len,
 {
 	struct vb2_private_key *key = 0;
 	const struct vb2_text_vs_enum *entry;
-	uint8_t *sha1sum;
+	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 
 	if (VB2_SUCCESS != vb2_private_key_unpack(&key, buf, len))
 		return 1;
-
-	sha1sum = vb2_private_key_sha1sum(key);
 
 	printf("Private key file:      %s\n", name);
 	printf("  Vboot API:           2.1\n");
@@ -163,12 +160,12 @@ int ft_show_vb2_privkey(const char *name, uint8_t *buf, uint32_t len,
 	printf("  ID:                  ");
 	vb2_print_bytes(&key->id, sizeof(key->id));
 	printf("\n");
-	if (sha1sum && memcmp(&key->id, sha1sum, sizeof(key->id))) {
+	if (vb2_private_key_sha1sum(key, sha1sum) &&
+	    memcmp(&key->id, sha1sum, sizeof(key->id))) {
 		printf("  Key sha1sum:         ");
-		vb2_print_bytes(sha1sum, SHA1_DIGEST_SIZE);
+		vb2_print_bytes(sha1sum, sizeof(sha1sum));
 		printf("\n");
 	}
-	free(sha1sum);
 	vb2_private_key_free(key);
 	return 0;
 }
@@ -213,7 +210,8 @@ enum futil_file_type ft_recognize_pem(uint8_t *buf, uint32_t len)
 int ft_show_pem(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	RSA *rsa_key;
-	uint8_t *keyb, *digest;
+	uint8_t *keyb;
+	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
 	uint32_t keyb_len;
 	int i, bits;
 
@@ -236,12 +234,12 @@ int ft_show_pem(const char *name, uint8_t *buf, uint32_t len, void *data)
 	}
 
 	printf("  Key sha1sum:         ");
-	digest = DigestBuf(keyb, keyb_len, SHA1_DIGEST_ALGORITHM);
-	for (i = 0; i < SHA1_DIGEST_SIZE; i++)
+	vb2_digest_buffer(keyb, keyb_len, VB2_HASH_SHA1,
+			  digest, sizeof(digest));
+	for (i = 0; i < sizeof(digest); i++)
 		printf("%02x", digest[i]);
 	printf("\n");
 
-	free(digest);
 	free(keyb);
 	RSA_free(rsa_key);
 	return 0;

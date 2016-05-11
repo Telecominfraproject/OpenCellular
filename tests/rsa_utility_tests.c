@@ -20,12 +20,6 @@
 /* Data for mock functions */
 static int mock_rsaverify_retval;
 
-/* Mock functions */
-uint8_t* DigestBuf(const uint8_t* buf, uint64_t len, int sig_algorithm) {
-  /* Just need to return something; it's only passed to the mock RSAVerify() */
-  return VbExMalloc(4);
-}
-
 int RSAVerify(const RSAPublicKey *key,
               const uint8_t* sig,
               const uint32_t sig_len,

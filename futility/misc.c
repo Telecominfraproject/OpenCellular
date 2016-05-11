@@ -20,6 +20,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "cgptlib_internal.h"
 #include "file_type.h"
 #include "futility.h"
@@ -142,19 +146,19 @@ int print_hwid_digest(GoogleBinaryBlockHeader *gbb,
 	uint8_t *buf = (uint8_t *)gbb;
 	char *hwid_str = (char *)(buf + gbb->hwid_offset);
 	int is_valid = 0;
-	uint8_t *digest = DigestBuf(buf + gbb->hwid_offset,
-				    strlen(hwid_str),
-				    SHA256_DIGEST_ALGORITHM);
-	if (digest) {
+	uint8_t digest[VB2_SHA256_DIGEST_SIZE];
+
+	if (VB2_SUCCESS == vb2_digest_buffer(buf + gbb->hwid_offset,
+					     strlen(hwid_str), VB2_HASH_SHA256,
+					     digest, sizeof(digest))) {
 		int i;
 		is_valid = 1;
 		/* print it, comparing as we go */
-		for (i = 0; i < SHA256_DIGEST_SIZE; i++) {
+		for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++) {
 			printf("%02x", gbb->hwid_digest[i]);
 			if (gbb->hwid_digest[i] != digest[i])
 				is_valid = 0;
 		}
-		free(digest);
 	}
 
 	printf("   %s", is_valid ? "valid" : "<invalid>");
@@ -171,11 +175,10 @@ void update_hwid_digest(GoogleBinaryBlockHeader *gbb)
 
 	uint8_t *buf = (uint8_t *)gbb;
 	char *hwid_str = (char *)(buf + gbb->hwid_offset);
-	uint8_t *digest = DigestBuf(buf + gbb->hwid_offset,
-				    strlen(hwid_str),
-				    SHA256_DIGEST_ALGORITHM);
-	memcpy(gbb->hwid_digest, digest, SHA256_DIGEST_SIZE);
-	free(digest);
+
+	vb2_digest_buffer(buf + gbb->hwid_offset, strlen(hwid_str),
+			  VB2_HASH_SHA256,
+			  gbb->hwid_digest, sizeof(gbb->hwid_digest));
 }
 
 /*

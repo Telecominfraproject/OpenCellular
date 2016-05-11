@@ -10,6 +10,5 @@
 
 #include "padding.h"
 #include "rsa.h"
-#include "sha.h"
 
 #endif  /* VBOOT_REFERENCE_CRYPTOLIB_H_ */

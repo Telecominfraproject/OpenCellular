@@ -22,9 +22,14 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "cgpt.h"
 #include "cgpt_nor.h"
 #include "cryptolib.h"
+#include "file_keys.h"
 
 // Check if cmdline |argv| has "-D". "-D" signifies that GPT structs are stored
 // off device, and hence we should not wrap around cgpt.
@@ -67,8 +72,8 @@ static const char *find_mtd_device(int argc, const char *const argv[]) {
 static int wrap_cgpt(int argc,
                      const char *const argv[],
                      const char *mtd_device) {
-  uint8_t *original_hash = NULL;
-  uint8_t *modified_hash = NULL;
+  uint8_t original_hash[VB2_SHA1_DIGEST_SIZE];
+  uint8_t modified_hash[VB2_SHA1_DIGEST_SIZE];
   int ret = 0;
 
   // Create a temp dir to work in.
@@ -81,7 +86,11 @@ static int wrap_cgpt(int argc,
   if (snprintf(rw_gpt_path, sizeof(rw_gpt_path), "%s/rw_gpt", temp_dir) < 0) {
     goto cleanup;
   }
-  original_hash = DigestFile(rw_gpt_path, SHA1_DIGEST_ALGORITHM);
+  if (VB2_SUCCESS != DigestFile(rw_gpt_path, VB2_HASH_SHA1,
+				original_hash, sizeof(original_hash))) {
+    Error("Cannot compute original GPT digest.\n");
+    goto cleanup;
+  }
 
   // Obtain the MTD size.
   ret++;
@@ -126,9 +135,9 @@ static int wrap_cgpt(int argc,
 
   // Write back "rw_gpt" to NOR flash in two chunks.
   ret++;
-  modified_hash = DigestFile(rw_gpt_path, SHA1_DIGEST_ALGORITHM);
-  if (original_hash != NULL && modified_hash != NULL) {
-    if (memcmp(original_hash, modified_hash, SHA1_DIGEST_SIZE) != 0) {
+  if (VB2_SUCCESS == DigestFile(rw_gpt_path, VB2_HASH_SHA1,
+				modified_hash, sizeof(modified_hash))) {
+    if (memcmp(original_hash, modified_hash, VB2_SHA1_DIGEST_SIZE) != 0) {
       ret = WriteNorFlash(temp_dir);
     } else {
       ret = 0;
@@ -136,8 +145,6 @@ static int wrap_cgpt(int argc,
   }
 
 cleanup:
-  free(original_hash);
-  free(modified_hash);
   RemoveDir(temp_dir);
   return ret;
 }

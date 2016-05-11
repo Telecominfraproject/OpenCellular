@@ -15,6 +15,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "verify_data.h"
@@ -51,7 +55,7 @@ uint8_t* read_signature(char* input_file, int len) {
 int main(int argc, char* argv[]) {
   int i, algorithm, sig_len;
   int return_code = 1;  /* Default to error. */
-  uint8_t* digest = NULL;
+  uint8_t digest[VB2_MAX_DIGEST_SIZE];
   uint8_t* signature = NULL;
   RSAPublicKey* key = NULL;
 
@@ -74,7 +78,8 @@ int main(int argc, char* argv[]) {
   sig_len = siglen_map[algorithm];
   if ((key = RSAPublicKeyFromFile(argv[2])) &&
       (signature = read_signature(argv[3], sig_len)) &&
-      (digest = DigestFile(argv[4], algorithm))) {
+      (VB2_SUCCESS == DigestFile(argv[4], vb2_crypto_to_hash(algorithm),
+				 digest, sizeof(digest)))) {
     if (RSAVerify(key, signature, sig_len, algorithm, digest)) {
       return_code = 0;
       fprintf(stderr, "Signature Verification "
@@ -89,7 +94,6 @@ int main(int argc, char* argv[]) {
 
   free(key);
   free(signature);
-  free(digest);
 
   return return_code;
 }

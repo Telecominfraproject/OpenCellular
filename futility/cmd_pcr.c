@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2sha.h"
 #include "futility.h"
 
 static const char usage[] = "\n"
@@ -105,13 +108,12 @@ static const struct option long_opts[] = {
 };
 static int do_pcr(int argc, char *argv[])
 {
-	uint8_t accum[SHA256_DIGEST_SIZE * 2];
-	uint8_t pcr[SHA256_DIGEST_SIZE];
-	int digest_alg = SHA1_DIGEST_ALGORITHM;
-	int digest_size = SHA1_DIGEST_SIZE;
+	uint8_t accum[VB2_MAX_DIGEST_SIZE * 2];
+	uint8_t pcr[VB2_MAX_DIGEST_SIZE];
+	int digest_alg = VB2_HASH_SHA1;
+	int digest_size;
 	int opt_init = 0;
 	int errorcnt = 0;
-	uint8_t *digest;
 	int i;
 
 	opterr = 0;		/* quiet, you */
@@ -121,8 +123,7 @@ static int do_pcr(int argc, char *argv[])
 			opt_init = 1;
 			break;
 		case '2':
-			digest_alg = SHA256_DIGEST_ALGORITHM;
-			digest_size = SHA256_DIGEST_SIZE;
+			digest_alg = VB2_HASH_SHA256;
 			break;
 		case OPT_HELP:
 			print_help(argc, argv);
@@ -157,6 +158,12 @@ static int do_pcr(int argc, char *argv[])
 
 	memset(pcr, 0, sizeof(pcr));
 
+	digest_size = vb2_digest_size(digest_alg);
+	if (!digest_size) {
+		fprintf(stderr, "Error determining digest size!\n");
+		return 1;
+	}
+
 	if (opt_init) {
 		parse_digest_or_die(pcr, digest_size, argv[optind]);
 		optind++;
@@ -174,13 +181,12 @@ static int do_pcr(int argc, char *argv[])
 		print_digest(accum + digest_size, digest_size);
 		printf("\n");
 
-		digest = DigestBuf(accum, digest_size * 2, digest_alg);
-		if (!digest) {
+		if (VB2_SUCCESS != vb2_digest_buffer(accum, digest_size * 2,
+						     digest_alg,
+						     pcr, digest_size)) {
 			fprintf(stderr, "Error computing digest!\n");
 			return 1;
 		}
-		memcpy(pcr, digest, digest_size);
-		free(digest);
 
 		printf("PCR: ");
 		print_digest(pcr, digest_size);

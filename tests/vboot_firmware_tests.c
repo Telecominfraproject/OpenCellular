@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2sha.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "load_firmware_fw.h"
@@ -30,7 +34,6 @@ static uint8_t gbb_data[sizeof(GoogleBinaryBlockHeader) + 2048];
 static GoogleBinaryBlockHeader* gbb = (GoogleBinaryBlockHeader*)gbb_data;
 static RSAPublicKey data_key;
 static uint32_t digest_size;
-static uint8_t* digest_returned;
 static uint8_t* digest_expect_ptr;
 static int hash_fw_index;
 
@@ -95,7 +98,6 @@ static void ResetMocks(void) {
   Memset(&data_key, 0, sizeof(data_key));
 
   digest_size = 1234;
-  digest_returned = NULL;
   digest_expect_ptr = NULL;
   hash_fw_index = -1;
 }
@@ -144,18 +146,27 @@ void RSAPublicKeyFree(RSAPublicKey* key) {
   data_key.len--;
 }
 
-void DigestInit(DigestContext* ctx, int sig_algorithm) {
-  digest_size = 0;
+int vb2_digest_init(struct vb2_digest_context *dc,
+		    enum vb2_hash_algorithm hash_alg)
+{
+	digest_size = 0;
+	return VB2_SUCCESS;
 }
 
-void DigestUpdate(DigestContext* ctx, const uint8_t* data, uint32_t len) {
-  TEST_PTR_EQ(data, digest_expect_ptr, "  Digesting expected data");
-  digest_size += len;
+int vb2_digest_extend(struct vb2_digest_context *dc,
+		      const uint8_t *buf,
+		      uint32_t size)
+{
+	TEST_PTR_EQ(buf, digest_expect_ptr, "  Digesting expected data");
+	digest_size += size;
+	return VB2_SUCCESS;
 }
 
-uint8_t* DigestFinal(DigestContext* ctx) {
-  digest_returned = (uint8_t*)VbExMalloc(4);
-  return digest_returned;
+int vb2_digest_finalize(struct vb2_digest_context *dc,
+			uint8_t *digest,
+			uint32_t digest_size)
+{
+	return VB2_SUCCESS;
 }
 
 VbError_t VbExHashFirmwareBody(VbCommonParams* cparams,
@@ -185,7 +196,6 @@ VbError_t VbExHashFirmwareBody(VbCommonParams* cparams,
 
 int VerifyDigest(const uint8_t* digest, const VbSignature *sig,
                  const RSAPublicKey* key) {
-  TEST_PTR_EQ(digest, digest_returned, "Verifying expected digest");
   TEST_PTR_EQ(key, &data_key, "Verifying using data key");
   TEST_PTR_EQ(sig, &mpreamble[hash_fw_index].body_signature, "Verifying sig");
   /* Mocked function uses sig size as return value for verifying digest */

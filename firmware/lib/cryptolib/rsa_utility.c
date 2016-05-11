@@ -6,7 +6,10 @@
  */
 
 #include "sysincludes.h"
+#include "2sysincludes.h"
 
+#include "2common.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "stateful_util.h"
 #include "utility.h"
@@ -87,10 +90,10 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
                       const uint8_t* sig,
                       unsigned int algorithm) {
   RSAPublicKey* verification_key = NULL;
-  uint8_t* digest = NULL;
+  uint8_t digest[VB2_MAX_DIGEST_SIZE];
   uint64_t key_size;
   int sig_size;
-  int success;
+  int success = 0;
 
   if (algorithm >= (unsigned int)kNumAlgorithms)
     return 0;  /* Invalid algorithm. */
@@ -109,13 +112,15 @@ int RSAVerifyBinary_f(const uint8_t* key_blob,
   if (!verification_key)
     return 0;
 
-  digest = DigestBuf(buf, len, algorithm);
-  success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
-                      (uint8_t)algorithm, digest);
+  if (VB2_SUCCESS == vb2_digest_buffer(buf, len, vb2_crypto_to_hash(algorithm),
+				       digest, sizeof(digest))) {
+	  success = RSAVerify(verification_key, sig, (uint32_t)sig_size,
+			      (uint8_t)algorithm, digest);
+  }
 
-  VbExFree(digest);
   if (!key)
     RSAPublicKeyFree(verification_key);  /* Only free if we allocated it. */
+
   return success;
 }
 

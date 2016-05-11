@@ -9,6 +9,7 @@
 #define VBOOT_REFERENCE_FILE_KEYS_H_
 
 #include "cryptolib.h"
+#include "2sha.h"
 
 /* Read file named [input_file] into a buffer and stores the length into
  * [len].
@@ -25,10 +26,11 @@ uint8_t* BufferFromFile(const char* input_file, uint64_t* len);
  */
 RSAPublicKey* RSAPublicKeyFromFile(const char* input_file);
 
-/* Returns the appropriate digest for the data in [input_file]
- * based on the signature [algorithm].
- * Caller owns the returned digest and must free it.
+/* Calculates the appropriate digest for the data in [input_file] based on the
+ * hash algorithm [alg] and stores it into [digest], which is of size
+ * [digest_size].  Returns VB2_SUCCESS, or non-zero on error.
  */
-uint8_t* DigestFile(char* input_file, int sig_algorithm);
+int DigestFile(char *input_file, enum vb2_hash_algorithm alg,
+	       uint8_t *digest, uint32_t digest_size);
 
 #endif  /* VBOOT_REFERENCE_FILE_KEYS_H_ */
