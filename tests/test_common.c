@@ -139,7 +139,7 @@ int test_succ(int result,
   } else {
     fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
 	    preamble, desc, comment);
-    fprintf(stderr, "  Expected SUCCESS, got: 0x%lx\n", (long)result);
+    fprintf(stderr, "  Expected SUCCESS, got: 0x%x (%d)\n", result, result);
     gTestSuccess = 0;
   }
   return !result;
