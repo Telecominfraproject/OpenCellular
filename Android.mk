@@ -46,9 +46,7 @@ VBSF_SRCS = \
 	firmware/lib/cryptolib/sha512.c \
 	firmware/lib/cryptolib/sha_utility.c \
 	firmware/lib/stateful_util.c \
-	firmware/lib/vboot_api_firmware.c \
 	firmware/lib/vboot_common.c \
-	firmware/lib/vboot_firmware.c \
 	firmware/lib/region-fw.c \
 
 # Additional firmware library sources needed by VbSelectAndLoadKernel() call

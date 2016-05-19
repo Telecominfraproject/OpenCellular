@@ -316,10 +316,8 @@ BDBLIB = ${BUILD}/bdb.a
 VBINIT_SRCS = \
 	firmware/lib/crc8.c \
 	firmware/lib/utility.c \
-	firmware/lib/vboot_api_init.c \
 	firmware/lib/vboot_common_init.c \
 	firmware/lib/vboot_nvstorage.c \
-	firmware/lib/vboot_nvstorage_rollback.c \
 	firmware/lib/region-init.c \
 
 # Additional firmware library sources needed by VbSelectFirmware() call
@@ -328,9 +326,7 @@ VBSF_SRCS = \
 	firmware/lib/cryptolib/rsa.c \
 	firmware/lib/cryptolib/rsa_utility.c \
 	firmware/lib/stateful_util.c \
-	firmware/lib/vboot_api_firmware.c \
 	firmware/lib/vboot_common.c \
-	firmware/lib/vboot_firmware.c \
 	firmware/lib/region-fw.c \
 
 # Additional firmware library sources needed by VbSelectAndLoadKernel() call
@@ -401,16 +397,10 @@ ifeq (${MOCK_TPM},)
 VBINIT_SRCS += \
 	firmware/lib/rollback_index.c \
 	${TLCL_SRCS}
-
-VBSF_SRCS += \
-	firmware/lib/tpm_bootmode.c
 else
 VBINIT_SRCS += \
 	firmware/lib/mocked_rollback_index.c \
 	firmware/lib/tpm_lite/mocked_tlcl.c
-
-VBSF_SRCS += \
-	firmware/lib/mocked_tpm_bootmode.c
 endif
 
 ifeq (${FIRMWARE_ARCH},)
@@ -737,12 +727,9 @@ TEST_NAMES = \
 	tests/rsa_verify_benchmark \
 	tests/sha_benchmark \
 	tests/stateful_util_tests \
-	tests/tpm_bootmode_tests \
 	tests/utility_string_tests \
 	tests/utility_tests \
-	tests/vboot_api_init_tests \
 	tests/vboot_api_devmode_tests \
-	tests/vboot_api_firmware_tests \
 	tests/vboot_api_kernel_tests \
 	tests/vboot_api_kernel2_tests \
 	tests/vboot_api_kernel3_tests \
@@ -754,7 +741,6 @@ TEST_NAMES = \
 	tests/vboot_common2_tests \
 	tests/vboot_common3_tests \
 	tests/vboot_display_tests \
-	tests/vboot_firmware_tests \
 	tests/vboot_kernel_tests \
 	tests/vboot_nvstorage_test \
 	tests/verify_kernel
@@ -944,21 +930,12 @@ ${FWLIB21_OBJS}: INCLUDES += -Ifirmware/lib21/include
 ${BDBLIB_OBJS}: INCLUDES += -Ifirmware/bdb
 
 # Linktest ensures firmware lib doesn't rely on outside libraries
-${BUILD}/firmware/linktest/main_vbinit: ${VBINIT_OBJS}
-${BUILD}/firmware/linktest/main_vbinit: OBJS = ${VBINIT_OBJS}
-TEST_OBJS += ${BUILD}/firmware/linktest/main_vbinit.o
-${BUILD}/firmware/linktest/main_vbsf: ${FWLIB}
-${BUILD}/firmware/linktest/main_vbsf: LIBS = ${FWLIB}
-TEST_OBJS += ${BUILD}/firmware/linktest/main_vbsf.o
 ${BUILD}/firmware/linktest/main: ${FWLIB}
 ${BUILD}/firmware/linktest/main: LIBS = ${FWLIB}
 TEST_OBJS += ${BUILD}/firmware/linktest/main.o
 
 .PHONY: fwlinktest
-fwlinktest: \
-	${BUILD}/firmware/linktest/main_vbinit \
-	${BUILD}/firmware/linktest/main_vbsf \
-	${BUILD}/firmware/linktest/main
+fwlinktest: ${BUILD}/firmware/linktest/main
 
 .PHONY: fwlib
 fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
@@ -1456,12 +1433,9 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
 	${RUNTEST} ${BUILD_RUN}/tests/tlcl_tests
-	${RUNTEST} ${BUILD_RUN}/tests/tpm_bootmode_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_string_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_devmode_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_firmware_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_init_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel2_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel3_tests
@@ -1473,7 +1447,6 @@ runmisctests: test_setup
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_display_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_firmware_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_nvstorage_test
 

@@ -103,37 +103,6 @@ enum fwmp_flags {
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
 
 /*
- * These functions are called from VbInit().  They cannot use global
- * variables.
- */
-
-uint32_t RollbackS3Resume(void);
-
-/*
- * These functions are callable from VbSelectFirmware().  They cannot use
- * global variables.
- */
-
-/**
- * This must be called.
- */
-uint32_t RollbackFirmwareSetup(int is_hw_dev,
-                               int disable_dev_request,
-                               int clear_tpm_owner_request,
-                               /* two outputs on success */
-                               int *is_virt_dev, uint32_t *tpm_version);
-
-/**
- * Write may be called if the versions change.
- */
-uint32_t RollbackFirmwareWrite(uint32_t version);
-
-/**
- * Lock must be called.
- */
-uint32_t RollbackFirmwareLock(void);
-
-/*
  * These functions are callable from VbSelectAndLoadKernel().  They may use
  * global variables.
  */
@@ -147,16 +116,6 @@ uint32_t RollbackKernelRead(uint32_t *version);
  * Write stored kernel version.
  */
 uint32_t RollbackKernelWrite(uint32_t version);
-
-/**
- * Read backup data.
- */
-uint32_t RollbackBackupRead(uint8_t *raw);
-
-/**
- * Write backup data.
- */
-uint32_t RollbackBackupWrite(uint8_t *raw);
 
 /**
  * Lock must be called.  Internally, it's ignored in recovery mode.
@@ -191,31 +150,6 @@ uint32_t TPMClearAndReenable(void);
  * This is not expected to happen frequently, but it could happen.
  */
 uint32_t SafeWrite(uint32_t index, const void *data, uint32_t length);
-
-/**
- * Similarly to SafeWrite(), this ensures we don't fail a DefineSpace because
- * we hit the TPM write limit.  This is even less likely to happen than with
- * writes because we only define spaces once at initialization, but we'd rather
- * be paranoid about this.
- */
-uint32_t SafeDefineSpace(uint32_t index, uint32_t perm, uint32_t size);
-
-/**
- * Perform one-time initializations.
- *
- * Create the NVRAM spaces, and set their initial values as needed.  Sets the
- * nvLocked bit and ensures the physical presence command is enabled and
- * locked.
- */
-uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware *rsf,
-                              RollbackSpaceKernel *rsk);
-
-/**
- * Start the TPM and establish the root of trust for the anti-rollback
- * mechanism.
- */
-uint32_t SetupTPM(int developer_mode, int disable_dev_request,
-                  int clear_tpm_owner_request, RollbackSpaceFirmware *rsf);
 
 /**
  * Utility function to turn the virtual dev-mode flag on or off. 0=off, 1=on.

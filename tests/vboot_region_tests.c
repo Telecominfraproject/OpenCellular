@@ -115,12 +115,6 @@ static void ResetMocks(void) {
 /****************************************************************************/
 /* Mocked verification functions */
 
-uint32_t SetTPMBootModeState(int developer_mode, int recovery_mode,
-			     uint64_t fw_keyblock_flags
-			     GoogleBinaryBlockHeader *gbb) {
-  return VBERROR_SUCCESS;
-}
-
 VbError_t VbExNvStorageRead(uint8_t* buf) {
   Memcpy(buf, vnc.raw, sizeof(vnc.raw));
   return VBERROR_SUCCESS;

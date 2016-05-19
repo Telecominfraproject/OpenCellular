@@ -16,7 +16,6 @@
 
 #include "gbb_header.h"
 #include "host_common.h"
-#include "load_firmware_fw.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "vboot_common.h"

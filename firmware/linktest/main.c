@@ -6,11 +6,9 @@
 #include "sysincludes.h"
 
 #include "cgptlib.h"
-#include "load_firmware_fw.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "tlcl.h"
-#include "tpm_bootmode.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
 #include "vboot_nvstorage.h"
@@ -23,23 +21,13 @@ int main(void)
 	GptNextKernelEntry(0, 0, 0);
 	GptUpdateKernelEntry(0, 0);
 
-	/* load_firmware_fw.h */
-	LoadFirmware(0, 0, 0);
-
 	/* load_kernel_fw.h */
 	LoadKernel(0, 0);
 
 	/* rollback_index.h */
-	RollbackS3Resume();
-	RollbackFirmwareSetup(0, 0, 0, 0, 0);
-	RollbackFirmwareWrite(0);
-	RollbackFirmwareLock();
 	RollbackKernelRead(0);
 	RollbackKernelWrite(0);
 	RollbackKernelLock(0);
-
-	/* tpm_bootmode.c */
-	SetTPMBootModeState(0, 0, 0, 0);
 
 	/* tlcl.h */
 	TlclStartup();
@@ -66,9 +54,6 @@ int main(void)
 #endif
 
 	/* vboot_api.h - entry points INTO vboot_reference */
-	VbInit(0, 0);
-	VbSelectFirmware(0, 0);
-	VbUpdateFirmwareBodyHash(0, 0, 0);
 	VbSelectAndLoadKernel(0, 0);
 
 	/* vboot_common.h */

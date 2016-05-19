@@ -365,36 +365,6 @@ typedef struct VbSelectAndLoadKernelParams {
 } VbSelectAndLoadKernelParams;
 
 /**
- * Initialize the verified boot library.
- *
- * Returns VBERROR_SUCCESS if success, non-zero if error; on error,
- * caller should reboot.
- */
-VbError_t VbInit(VbCommonParams *cparams, VbInitParams *iparams);
-
-/**
- * Select the main firmware.
- *
- * Returns VBERROR_SUCCESS if success, non-zero if error; on error,
- * caller should reboot.
- *
- * NOTE: This is now called in all modes, including recovery.  Previously,
- * LoadFirmware() was not called in recovery mode, which meant that
- * LoadKernel() needed to duplicate the TPM and VbSharedData initialization
- * code.
- */
-VbError_t VbSelectFirmware(VbCommonParams *cparams,
-                           VbSelectFirmwareParams *fparams);
-
-/**
- * Update the data hash for the current firmware image, extending it by [size]
- * bytes stored in [*data].  This function must only be called inside
- * VbExHashFirmwareBody(), which is in turn called by VbSelectFirmware().
- */
-void VbUpdateFirmwareBodyHash(VbCommonParams *cparams,
-                              uint8_t *data, uint32_t size);
-
-/**
  * Select and loads the kernel.
  *
  * Returns VBERROR_SUCCESS if success, non-zero if error; on error, caller
