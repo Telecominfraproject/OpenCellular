@@ -314,3 +314,21 @@ void vb2_sha256_finalize(struct vb2_sha256_context *ctx, uint8_t *digest)
 	UNPACK32(ctx->h[7], &digest[28]);
 #endif /* !UNROLL_LOOPS */
 }
+
+void vb2_sha256_extend(const uint8_t *from, const uint8_t *by, uint8_t *to)
+{
+	struct vb2_sha256_context dc;
+	int i;
+
+	for (i = 0; i < 8; i++) {
+		 PACK32(from, &dc.h[i]);
+		 from += 4;
+	}
+
+	vb2_sha256_transform(&dc, by, 1);
+
+	for (i = 0; i < 8; i++) {
+		 UNPACK32(dc.h[i], to);
+		 to += 4;
+	}
+}
