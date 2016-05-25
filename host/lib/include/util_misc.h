@@ -20,7 +20,7 @@ void PrintPrivKeySha1Sum(VbPrivateKey *key);
 
 /*
  * Our packed RSBPublicKey buffer (historically in files ending with ".keyb",
- * but also the part of VbPublicKey and struct vb2_packed_key that is
+ * but also the part of VbPublicKey and struct vb21_packed_key that is
  * referenced by .key_offset) has this binary format:
  *
  *   struct {

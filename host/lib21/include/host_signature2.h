@@ -24,11 +24,11 @@ struct vb2_private_key;
  *			key description will be used.
  * @return VB2_SUCCESS, or non-zero error code on failure.
  */
-int vb2_sign_data(struct vb2_signature **sig_ptr,
-		  const uint8_t *data,
-		  uint32_t size,
-		  const struct vb2_private_key *key,
-		  const char *desc);
+int vb21_sign_data(struct vb21_signature **sig_ptr,
+		   const uint8_t *data,
+		   uint32_t size,
+		   const struct vb2_private_key *key,
+		   const char *desc);
 
 /**
  * Calculate the signature size for a private key.
@@ -39,9 +39,9 @@ int vb2_sign_data(struct vb2_signature **sig_ptr,
  *			key description will be used.
  * @return VB2_SUCCESS, or non-zero error code on failure.
  */
-int vb2_sig_size_for_key(uint32_t *size_ptr,
-			 const struct vb2_private_key *key,
-			 const char *desc);
+int vb21_sig_size_for_key(uint32_t *size_ptr,
+			  const struct vb2_private_key *key,
+			  const char *desc);
 
 /**
  * Calculate the total signature size for a list of keys.
@@ -51,9 +51,9 @@ int vb2_sig_size_for_key(uint32_t *size_ptr,
  * @param key_count	Number of keys.
  * @return VB2_SUCCESS, or non-zero error code on failure.
  */
-int vb2_sig_size_for_keys(uint32_t *size_ptr,
-			  const struct vb2_private_key **key_list,
-			  uint32_t key_count);
+int vb21_sig_size_for_keys(uint32_t *size_ptr,
+			   const struct vb2_private_key **key_list,
+			   uint32_t key_count);
 
 /**
  * Sign object with a key.
@@ -65,10 +65,10 @@ int vb2_sig_size_for_keys(uint32_t *size_ptr,
  * @param key		Key to sign object with
  * @param desc		If non-null, description to use for signature
  */
-int vb2_sign_object(uint8_t *buf,
-		    uint32_t sig_offset,
-		    const struct vb2_private_key *key,
-		    const char *desc);
+int vb21_sign_object(uint8_t *buf,
+		     uint32_t sig_offset,
+		     const struct vb2_private_key *key,
+		     const char *desc);
 
 /**
  * Sign object with list of keys.
@@ -80,9 +80,9 @@ int vb2_sign_object(uint8_t *buf,
  * @param key_list	List of keys to sign object with
  * @param key_count	Number of keys in list
  */
-int vb2_sign_object_multiple(uint8_t *buf,
-			     uint32_t sig_offset,
-			     const struct vb2_private_key **key_list,
-			     uint32_t key_count);
+int vb21_sign_object_multiple(uint8_t *buf,
+			      uint32_t sig_offset,
+			      const struct vb2_private_key **key_list,
+			      uint32_t key_count);
 
 #endif  /* VBOOT_REFERENCE_HOST_SIGNATURE2_H_ */

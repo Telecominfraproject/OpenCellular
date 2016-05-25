@@ -14,20 +14,20 @@
 #include "host_keyblock2.h"
 #include "host_misc.h"
 #include "host_signature2.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 
-int vb2_fw_preamble_create(struct vb2_fw_preamble **fp_ptr,
-			   const struct vb2_private_key *signing_key,
-			   const struct vb2_signature **hash_list,
-			   uint32_t hash_count,
-			   uint32_t fw_version,
-			   uint32_t flags,
-			   const char *desc)
+int vb21_fw_preamble_create(struct vb21_fw_preamble **fp_ptr,
+			    const struct vb2_private_key *signing_key,
+			    const struct vb21_signature **hash_list,
+			    uint32_t hash_count,
+			    uint32_t fw_version,
+			    uint32_t flags,
+			    const char *desc)
 {
-	struct vb2_fw_preamble fp = {
-		.c.magic = VB2_MAGIC_FW_PREAMBLE,
-		.c.struct_version_major = VB2_FW_PREAMBLE_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_FW_PREAMBLE_VERSION_MAJOR,
+	struct vb21_fw_preamble fp = {
+		.c.magic = VB21_MAGIC_FW_PREAMBLE,
+		.c.struct_version_major = VB21_FW_PREAMBLE_VERSION_MAJOR,
+		.c.struct_version_minor = VB21_FW_PREAMBLE_VERSION_MAJOR,
 		.c.fixed_size = sizeof(fp),
 		.c.desc_size = vb2_desc_size(desc),
 		.flags = flags,
@@ -50,7 +50,7 @@ int vb2_fw_preamble_create(struct vb2_fw_preamble **fp_ptr,
 
 	fp.sig_offset = hash_next;
 
-	if (vb2_sig_size_for_key(&sig_size, signing_key, NULL))
+	if (vb21_sig_size_for_key(&sig_size, signing_key, NULL))
 		return VB2_FW_PREAMBLE_CREATE_SIG_SIZE;
 
 	fp.c.total_size = fp.sig_offset + sig_size;
@@ -72,11 +72,11 @@ int vb2_fw_preamble_create(struct vb2_fw_preamble **fp_ptr,
 	}
 
 	/* Sign the preamble */
-	if (vb2_sign_object(buf, fp.sig_offset, signing_key, NULL)) {
+	if (vb21_sign_object(buf, fp.sig_offset, signing_key, NULL)) {
 		free(buf);
 		return VB2_FW_PREAMBLE_CREATE_SIGN;
 	}
 
-	*fp_ptr = (struct vb2_fw_preamble *)buf;
+	*fp_ptr = (struct vb21_fw_preamble *)buf;
 	return VB2_SUCCESS;
 }

@@ -11,7 +11,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_keyblock2.h"
@@ -22,8 +22,8 @@ static void keyblock_tests(const char *keys_dir)
 {
 	struct vb2_public_key *pubk2048, *pubk4096, *pubk8192, pubkhash;
 	struct vb2_private_key *prik4096, *prik8192;
-	struct vb2_packed_key *pak, *pakgood;
-	struct vb2_keyblock *kb;
+	struct vb21_packed_key *pak, *pakgood;
+	struct vb21_keyblock *kb;
 	const struct vb2_private_key *prikhash;
 	const struct vb2_private_key *prik[2];
 	char fname[1024];
@@ -74,45 +74,45 @@ static void keyblock_tests(const char *keys_dir)
 	TEST_SUCC(vb2_public_key_hash(&pubkhash, VB2_HASH_SHA512),
 		  "Create public hash key");
 
-	TEST_SUCC(vb2_public_key_pack(&pakgood, pubk2048), "Test packed key");
+	TEST_SUCC(vb21_public_key_pack(&pakgood, pubk2048), "Test packed key");
 
 	/* Sign a keyblock with one key */
 	prik[0] = prik4096;
-	TEST_SUCC(vb2_keyblock_create(&kb, pubk2048, prik, 1, 0x1234, NULL),
+	TEST_SUCC(vb21_keyblock_create(&kb, pubk2048, prik, 1, 0x1234, NULL),
 		  "Keyblock single");
 	TEST_PTR_NEQ(kb, NULL, "  kb_ptr");
-	TEST_SUCC(vb2_verify_keyblock(kb, kb->c.total_size, pubk4096, &wb),
+	TEST_SUCC(vb21_verify_keyblock(kb, kb->c.total_size, pubk4096, &wb),
 		  "  verify");
-	TEST_EQ(strcmp(vb2_common_desc(kb), pubk2048->desc), 0,	"  desc");
+	TEST_EQ(strcmp(vb21_common_desc(kb), pubk2048->desc), 0,	"  desc");
 	TEST_EQ(kb->flags, 0x1234, "  flags");
 
-	pak = (struct vb2_packed_key *)((uint8_t *)kb + kb->key_offset);
+	pak = (struct vb21_packed_key *)((uint8_t *)kb + kb->key_offset);
 	TEST_EQ(0, memcmp(pak, pakgood, pakgood->c.total_size), "  data key");
 	free(kb);
 
 	/* Sign a keyblock with two keys */
 	prik[0] = prik8192;
 	prik[1] = prikhash;
-	TEST_SUCC(vb2_keyblock_create(&kb, pubk4096, prik, 2, 0, test_desc),
+	TEST_SUCC(vb21_keyblock_create(&kb, pubk4096, prik, 2, 0, test_desc),
 		  "Keyblock multiple");
-	TEST_SUCC(vb2_verify_keyblock(kb, kb->c.total_size, pubk8192, &wb),
+	TEST_SUCC(vb21_verify_keyblock(kb, kb->c.total_size, pubk8192, &wb),
 		  "  verify 1");
-	TEST_SUCC(vb2_verify_keyblock(kb, kb->c.total_size, &pubkhash, &wb),
+	TEST_SUCC(vb21_verify_keyblock(kb, kb->c.total_size, &pubkhash, &wb),
 		  "  verify 2");
-	TEST_EQ(strcmp(vb2_common_desc(kb), test_desc), 0,	"  desc");
+	TEST_EQ(strcmp(vb21_common_desc(kb), test_desc), 0,	"  desc");
 	TEST_EQ(kb->flags, 0, "  flags");
 	free(kb);
 
 	/* Test errors */
 	prik[0] = prik8192;
 	prik8192->hash_alg = VB2_HASH_INVALID;
-	TEST_EQ(vb2_keyblock_create(&kb, pubk4096, prik, 1, 0, NULL),
+	TEST_EQ(vb21_keyblock_create(&kb, pubk4096, prik, 1, 0, NULL),
 		VB2_KEYBLOCK_CREATE_SIG_SIZE, "Keyblock bad sig size");
 	TEST_PTR_EQ(kb, NULL, "  kb_ptr");
 
 	prik[0] = prik4096;
 	pubk4096->sig_alg = VB2_SIG_INVALID;
-	TEST_EQ(vb2_keyblock_create(&kb, pubk4096, prik, 1, 0, NULL),
+	TEST_EQ(vb21_keyblock_create(&kb, pubk4096, prik, 1, 0, NULL),
 		VB2_KEYBLOCK_CREATE_DATA_KEY, "Keyblock bad data key");
 
 	/* Free keys */

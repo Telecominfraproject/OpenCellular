@@ -11,7 +11,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_key2.h"
 
@@ -35,7 +35,7 @@ static void private_key_tests(const struct alg_combo *combo,
 {
 	struct vb2_private_key *key, *k2;
 	const struct vb2_private_key *ckey;
-	struct vb2_packed_private_key *pkey;
+	struct vb21_packed_private_key *pkey;
 	char *testfile;
 	const char *notapem = "not_a_pem";
 	const char *testdesc = "test desc";
@@ -78,13 +78,13 @@ static void private_key_tests(const struct alg_combo *combo,
 
 	unlink(testfile);
 
-	TEST_EQ(vb2_private_key_read(&k2, testfile),
+	TEST_EQ(vb21_private_key_read(&k2, testfile),
 		VB2_ERROR_READ_FILE_OPEN, "Read key no file");
-	TEST_EQ(vb2_private_key_write(key, "no/such/dir"),
+	TEST_EQ(vb21_private_key_write(key, "no/such/dir"),
 		VB2_ERROR_PRIVATE_KEY_WRITE_FILE, "Write key to bad path");
 
-	TEST_SUCC(vb2_private_key_write(key, testfile), "Write key good");
-	TEST_SUCC(vb2_private_key_read(&k2, testfile), "Read key good");
+	TEST_SUCC(vb21_private_key_write(key, testfile), "Write key good");
+	TEST_SUCC(vb21_private_key_read(&k2, testfile), "Read key good");
 	TEST_PTR_NEQ(k2, NULL, "  key_ptr");
 	TEST_EQ(k2->sig_alg, key->sig_alg, "  sig alg");
 	TEST_EQ(k2->hash_alg, key->hash_alg, "  hash alg");
@@ -93,56 +93,56 @@ static void private_key_tests(const struct alg_combo *combo,
 	vb2_private_key_free(k2);
 
 	TEST_SUCC(vb2_read_file(testfile, &buf, &bufsize), "Read key raw");
-	pkey = (struct vb2_packed_private_key *)buf;
+	pkey = (struct vb21_packed_private_key *)buf;
 
 	/* Make a backup of the good buffer so we can mangle it */
 	buf2 = malloc(bufsize);
 	memcpy(buf2, buf, bufsize);
 
-	TEST_SUCC(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_SUCC(vb21_private_key_unpack(&k2, buf, bufsize),
 		  "Unpack private key good");
 	vb2_private_key_free(k2);
 
 	memcpy(buf, buf2, bufsize);
-	pkey->c.magic = VB2_MAGIC_PACKED_KEY;
-	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+	pkey->c.magic = VB21_MAGIC_PACKED_KEY;
+	TEST_EQ(vb21_private_key_unpack(&k2, buf, bufsize),
 		VB2_ERROR_UNPACK_PRIVATE_KEY_MAGIC,
 		"Unpack private key bad magic");
 	TEST_PTR_EQ(k2, NULL, "  key_ptr");
 
 	memcpy(buf, buf2, bufsize);
 	pkey->c.desc_size++;
-	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_EQ(vb21_private_key_unpack(&k2, buf, bufsize),
 		VB2_ERROR_UNPACK_PRIVATE_KEY_HEADER,
 		"Unpack private key bad header");
 
 	memcpy(buf, buf2, bufsize);
 	pkey->key_size += pkey->c.total_size;
-	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_EQ(vb21_private_key_unpack(&k2, buf, bufsize),
 		VB2_ERROR_UNPACK_PRIVATE_KEY_DATA,
 		"Unpack private key bad data size");
 
 	memcpy(buf, buf2, bufsize);
 	pkey->c.struct_version_major++;
-	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_EQ(vb21_private_key_unpack(&k2, buf, bufsize),
 		VB2_ERROR_UNPACK_PRIVATE_KEY_STRUCT_VERSION,
 		"Unpack private key bad struct version");
 
 	memcpy(buf, buf2, bufsize);
 	pkey->c.struct_version_minor++;
-	TEST_SUCC(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_SUCC(vb21_private_key_unpack(&k2, buf, bufsize),
 		  "Unpack private key minor version");
 	vb2_private_key_free(k2);
 
 	memcpy(buf, buf2, bufsize);
 	pkey->key_size -= 32;
-	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_EQ(vb21_private_key_unpack(&k2, buf, bufsize),
 		VB2_ERROR_UNPACK_PRIVATE_KEY_RSA,
 		"Unpack private key bad rsa data");
 
 	memcpy(buf, buf2, bufsize);
 	pkey->sig_alg = VB2_SIG_NONE;
-	TEST_EQ(vb2_private_key_unpack(&k2, buf, bufsize),
+	TEST_EQ(vb21_private_key_unpack(&k2, buf, bufsize),
 		VB2_ERROR_UNPACK_PRIVATE_KEY_HASH,
 		"Unpack private key hash but has data");
 
@@ -162,8 +162,8 @@ static void private_key_tests(const struct alg_combo *combo,
 	TEST_EQ(memcmp(&ckey->id, vb2_hash_id(combo->hash_alg),
 		       sizeof(ckey->id)), 0, "  id");
 
-	TEST_SUCC(vb2_private_key_write(ckey, testfile), "Write hash key");
-	TEST_SUCC(vb2_private_key_read(&key, testfile), "Read hash key");
+	TEST_SUCC(vb21_private_key_write(ckey, testfile), "Write hash key");
+	TEST_SUCC(vb21_private_key_read(&key, testfile), "Read hash key");
 	unlink(testfile);
 }
 
@@ -171,7 +171,7 @@ static void public_key_tests(const struct alg_combo *combo,
 			     const char *keybfile, const char *temp_dir)
 {
 	struct vb2_public_key *key, k2;
-	struct vb2_packed_key *pkey;
+	struct vb21_packed_key *pkey;
 	char *testfile;
 	const char *testdesc = "test desc";
 	const struct vb2_id test_id = {.raw = {0xbb}};
@@ -221,15 +221,15 @@ static void public_key_tests(const struct alg_combo *combo,
 	key->id = &test_id;
 	key->version = test_version;
 
-	TEST_SUCC(vb2_public_key_pack(&pkey, key), "Pack public key");
+	TEST_SUCC(vb21_public_key_pack(&pkey, key), "Pack public key");
 	TEST_PTR_NEQ(pkey, NULL, "  key_ptr");
 	TEST_EQ(pkey->hash_alg, key->hash_alg, "  hash_alg");
 	TEST_EQ(pkey->sig_alg, key->sig_alg, "  sig_alg");
 	TEST_EQ(pkey->key_version, key->version, "  version");
 	TEST_EQ(memcmp(&pkey->id, key->id, sizeof(pkey->id)), 0,
 		"  id");
-	TEST_EQ(strcmp(vb2_common_desc(pkey), key->desc), 0, "  desc");
-	TEST_SUCC(vb2_unpack_key(&k2, (uint8_t *)pkey, pkey->c.total_size),
+	TEST_EQ(strcmp(vb21_common_desc(pkey), key->desc), 0, "  desc");
+	TEST_SUCC(vb21_unpack_key(&k2, (uint8_t *)pkey, pkey->c.total_size),
 		  "Unpack public key");
 	TEST_EQ(key->arrsize, k2.arrsize, "  arrsize");
 	TEST_EQ(key->n0inv, k2.n0inv, "  n0inv");
@@ -238,27 +238,27 @@ static void public_key_tests(const struct alg_combo *combo,
 	TEST_EQ(memcmp(key->rr, k2.rr, key->arrsize * sizeof(uint32_t)), 0,
 		"  rr");
 
-	TEST_SUCC(vb2_write_object(testfile, pkey), "Write packed key");
+	TEST_SUCC(vb21_write_object(testfile, pkey), "Write packed key");
 	free(pkey);
 
-	TEST_SUCC(vb2_packed_key_read(&pkey, testfile), "Read packed key");
+	TEST_SUCC(vb21_packed_key_read(&pkey, testfile), "Read packed key");
 	TEST_PTR_NEQ(pkey, NULL, "  key_ptr");
 	unlink(testfile);
 
 	pkey->hash_alg = VB2_HASH_INVALID;
-	TEST_SUCC(vb2_write_object(testfile, pkey), "Write bad packed key");
+	TEST_SUCC(vb21_write_object(testfile, pkey), "Write bad packed key");
 	free(pkey);
 
-	TEST_EQ(vb2_packed_key_read(&pkey, testfile),
+	TEST_EQ(vb21_packed_key_read(&pkey, testfile),
 		VB2_ERROR_READ_PACKED_KEY, "Read bad packed key");
 	TEST_PTR_EQ(pkey, NULL, "  key_ptr");
 	unlink(testfile);
 
-	TEST_EQ(vb2_packed_key_read(&pkey, testfile),
+	TEST_EQ(vb21_packed_key_read(&pkey, testfile),
 		VB2_ERROR_READ_PACKED_KEY_DATA, "Read missing packed key");
 
 	key->sig_alg = VB2_SIG_INVALID;
-	TEST_EQ(vb2_public_key_pack(&pkey, key),
+	TEST_EQ(vb21_public_key_pack(&pkey, key),
 		VB2_ERROR_PUBLIC_KEY_PACK_SIZE,
 		"Pack invalid sig alg");
 	vb2_public_key_free(key);
@@ -273,9 +273,9 @@ static void public_key_tests(const struct alg_combo *combo,
 	TEST_EQ(memcmp(k2.id, vb2_hash_id(combo->hash_alg),
 		       sizeof(*k2.id)), 0, "  id");
 
-	TEST_SUCC(vb2_public_key_pack(&pkey, &k2), "Pack public hash key");
+	TEST_SUCC(vb21_public_key_pack(&pkey, &k2), "Pack public hash key");
 	TEST_PTR_NEQ(pkey, NULL, "  key_ptr");
-	TEST_SUCC(vb2_unpack_key(&k2, (uint8_t *)pkey, pkey->c.total_size),
+	TEST_SUCC(vb21_unpack_key(&k2, (uint8_t *)pkey, pkey->c.total_size),
 		  "Unpack public hash key");
 	free(pkey);
 }

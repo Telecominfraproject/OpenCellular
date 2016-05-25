@@ -27,7 +27,7 @@
 #include "kernel_blob.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_key2.h"
 #include "vboot_common.h"
 
@@ -472,11 +472,11 @@ static void print_help_rwsig(int argc, char *argv[])
 	       "\n"
 	       "The INFILE is a binary blob of arbitrary size."
 	       " It is signed using the\n"
-	       "private key and the vb2_signature blob emitted.\n"
+	       "private key and the vb21_signature blob emitted.\n"
 	       "\n"
 	       "If no OUTFILE is specified, the INFILE should contain"
 	       " an existing\n"
-	       "vb2_signature blob near its end. The data_size from that"
+	       "vb21_signature blob near its end. The data_size from that"
 	       " signature is\n"
 	       "used to re-sign a portion of the INFILE, and the old"
 	       " signature blob is\n"
@@ -818,8 +818,8 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case OPT_PRIKEY:
-			if (vb2_private_key_read(&sign_option.prikey,
-						 optarg)) {
+			if (vb21_private_key_read(&sign_option.prikey,
+						  optarg)) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}

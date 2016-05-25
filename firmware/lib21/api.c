@@ -14,7 +14,7 @@
 #include "2secdata.h"
 #include "2sha.h"
 #include "2rsa.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 
 int vb2api_fw_phase3(struct vb2_context *ctx)
 {
@@ -42,8 +42,8 @@ int vb2api_init_hash2(struct vb2_context *ctx,
 		      uint32_t *size)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
-	const struct vb2_fw_preamble *pre;
-	const struct vb2_signature *sig = NULL;
+	const struct vb21_fw_preamble *pre;
+	const struct vb21_signature *sig = NULL;
 	struct vb2_digest_context *dc;
 	struct vb2_workbuf wb;
 	uint32_t hash_offset;
@@ -54,13 +54,13 @@ int vb2api_init_hash2(struct vb2_context *ctx,
 	/* Get preamble pointer */
 	if (!sd->workbuf_preamble_size)
 		return VB2_ERROR_API_INIT_HASH_PREAMBLE;
-	pre = (const struct vb2_fw_preamble *)
+	pre = (const struct vb21_fw_preamble *)
 		(ctx->workbuf + sd->workbuf_preamble_offset);
 
 	/* Find the matching signature */
 	hash_offset = pre->hash_offset;
 	for (i = 0; i < pre->hash_count; i++) {
-		sig = (const struct vb2_signature *)
+		sig = (const struct vb21_signature *)
 			((uint8_t *)pre + hash_offset);
 
 		if (!memcmp(id, &sig->id, sizeof(*id)))
@@ -93,7 +93,7 @@ int vb2api_init_hash2(struct vb2_context *ctx,
 	if (size)
 		*size = sig->data_size;
 
-	if (!(pre->flags & VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO)) {
+	if (!(pre->flags & VB21_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO)) {
 		rv = vb2ex_hwcrypto_digest_init(sig->hash_alg, sig->data_size);
 		if (!rv) {
 			VB2_DEBUG("Using HW crypto engine for hash_alg %d\n",
@@ -123,7 +123,7 @@ int vb2api_check_hash(struct vb2_context *ctx)
 	uint8_t *digest;
 	uint32_t digest_size = vb2_digest_size(dc->hash_alg);
 
-	const struct vb2_signature *sig;
+	const struct vb21_signature *sig;
 
 	int rv;
 
@@ -132,7 +132,7 @@ int vb2api_check_hash(struct vb2_context *ctx)
 	/* Get signature pointer */
 	if (!sd->hash_tag)
 		return VB2_ERROR_API_CHECK_HASH_TAG;
-	sig = (const struct vb2_signature *)(ctx->workbuf + sd->hash_tag);
+	sig = (const struct vb21_signature *)(ctx->workbuf + sd->hash_tag);
 
 	/* Must have initialized hash digest work area */
 	if (!sd->workbuf_hash_size)

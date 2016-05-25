@@ -17,7 +17,7 @@
 #include "2rsa.h"
 
 struct vb2_private_key;
-struct vb2_packed_key;
+struct vb21_packed_key;
 
 struct show_option_s {
 	VbPublicKey *k;
@@ -27,7 +27,7 @@ struct show_option_s {
 	int strict;
 	int t_flag;
 	enum futil_file_type type;
-	struct vb2_packed_key *pkey;
+	struct vb21_packed_key *pkey;
 	uint32_t sig_size;
 };
 extern struct show_option_s show_option;

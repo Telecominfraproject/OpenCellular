@@ -13,7 +13,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2sha.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_misc2.h"
 
@@ -81,9 +81,9 @@ int vb2_write_file(const char *filename, const void *buf, uint32_t size)
 	return VB2_SUCCESS;
 }
 
-int vb2_write_object(const char *filename, const void *buf)
+int vb21_write_object(const char *filename, const void *buf)
 {
-	const struct vb2_struct_common *cptr = buf;
+	const struct vb21_struct_common *cptr = buf;
 
 	return vb2_write_file(filename, buf, cptr->total_size);
 }

@@ -8,7 +8,7 @@
  * Some instances of the Chrome OS embedded controller firmware can't do a
  * normal software sync handshake at boot, but will verify their own RW images
  * instead. This is typically done by putting a struct vb2_packed_key in the RO
- * image and a corresponding struct vb2_signature in the RW image.
+ * image and a corresponding struct vb21_signature in the RW image.
  *
  * This file provides the basic implementation for that approach.
  */
@@ -24,7 +24,7 @@
 #include "file_type.h"
 #include "futility.h"
 #include "futility_options.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_signature2.h"
@@ -40,12 +40,12 @@ static inline void vb2_print_bytes(const void *ptr, uint32_t len)
 		printf("%02x", *buf++);
 }
 
-static void show_sig(const char *name, const struct vb2_signature *sig)
+static void show_sig(const char *name, const struct vb21_signature *sig)
 {
 	const struct vb2_text_vs_enum *entry;
 	printf("Signature:             %s\n", name);
 	printf("  Vboot API:           2.1\n");
-	printf("  Desc:                \"%s\"\n", vb2_common_desc(sig));
+	printf("  Desc:                \"%s\"\n", vb21_common_desc(sig));
 	entry = vb2_lookup_by_num(vb2_text_vs_sig, sig->sig_alg);
 	printf("  Signature Algorithm: %d %s\n", sig->sig_alg,
 	       entry ? entry->name : "(invalid)");
@@ -63,7 +63,7 @@ static void show_sig(const char *name, const struct vb2_signature *sig)
 
 int ft_show_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 {
-	const struct vb2_signature *sig = 0;
+	const struct vb21_signature *sig = 0;
 	struct vb2_public_key key;
 	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES]
 		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
@@ -76,8 +76,8 @@ int ft_show_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 
 	/* Am I just looking at a signature file? */
 	Debug("Looking for signature at 0x0\n");
-	sig = (const struct vb2_signature *)buf;
-	if (VB2_SUCCESS == vb2_verify_signature(sig, len)) {
+	sig = (const struct vb21_signature *)buf;
+	if (VB2_SUCCESS == vb21_verify_signature(sig, len)) {
 		show_sig(name, sig);
 		if (!show_option.fv) {
 			printf("No data available to verify\n");
@@ -97,8 +97,8 @@ int ft_show_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 			return 1;
 		}
 
-		sig = (const struct vb2_signature *)(buf + len - sig_size);
-		if (VB2_SUCCESS == vb2_verify_signature(sig, sig_size)) {
+		sig = (const struct vb21_signature *)(buf + len - sig_size);
+		if (VB2_SUCCESS == vb21_verify_signature(sig, sig_size)) {
 			show_sig(name, sig);
 			data = buf;
 			data_size = sig->data_size;
@@ -113,9 +113,9 @@ int ft_show_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 	}
 
 	/* We already did this once, so it should work again */
-	if (vb2_unpack_key(&key,
-			   (const uint8_t *)show_option.pkey,
-			   show_option.pkey->c.total_size)) {
+	if (vb21_unpack_key(&key,
+			    (const uint8_t *)show_option.pkey,
+			    show_option.pkey->c.total_size)) {
 		Debug("Can't unpack pubkey\n");
 		return 1;
 	}
@@ -127,10 +127,10 @@ int ft_show_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 
 		vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
-		if (vb2_verify_data(data, data_size,
-				    (struct vb2_signature *)sigbuf,
-				    (const struct vb2_public_key *)&key,
-				    &wb)) {
+		if (vb21_verify_data(data, data_size,
+				     (struct vb21_signature *)sigbuf,
+				     (const struct vb2_public_key *)&key,
+				     &wb)) {
 			printf("Signature verification failed\n");
 			return 1;
 		}
@@ -142,7 +142,7 @@ int ft_show_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 
 int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	struct vb2_signature *sig = 0;
+	struct vb21_signature *sig = 0;
 	uint32_t r, data_size = len, sig_size = SIGNATURE_RSVD_SIZE;
 	int retval = 1;
 
@@ -151,7 +151,7 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 	/* If we don't have a distinct OUTFILE, look for an existing sig */
 	if (sign_option.inout_file_count < 2) {
-		const struct vb2_signature *old_sig;
+		const struct vb21_signature *old_sig;
 
 		/* Where would it be? */
 		if (sign_option.sig_size)
@@ -165,8 +165,8 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *data)
 		}
 
 		/* Take a look */
-		old_sig = (const struct vb2_signature *)(buf + len - sig_size);
-		if (vb2_verify_signature(old_sig, sig_size)) {
+		old_sig = (const struct vb21_signature *)(buf + len - sig_size);
+		if (vb21_verify_signature(old_sig, sig_size)) {
 			fprintf(stderr, "Can't find a valid signature\n");
 			return 1;
 		}
@@ -183,7 +183,7 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *data)
 		data_size = sign_option.data_size;
 
 	/* Sign the blob */
-	r = vb2_sign_data(&sig, buf, data_size, sign_option.prikey, 0);
+	r = vb21_sign_data(&sig, buf, data_size, sign_option.prikey, 0);
 	if (r) {
 		fprintf(stderr,
 			"Unable to sign data (error 0x%08x, if that helps)\n",
@@ -202,7 +202,7 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *data)
 		memcpy(buf + len - sig_size, sig, sig->c.total_size);
 	} else {
 		/* Write the signature to a new file */
-		r = vb2_write_object(sign_option.outfile, sig);
+		r = vb21_write_object(sign_option.outfile, sig);
 		if (r) {
 			fprintf(stderr, "Unable to write sig"
 				" (error 0x%08x, if that helps)\n", r);
@@ -223,11 +223,11 @@ done:
 
 enum futil_file_type ft_recognize_rwsig(uint8_t *buf, uint32_t len)
 {
-	if (!vb2_verify_signature((const struct vb2_signature *)buf, len))
+	if (!vb21_verify_signature((const struct vb21_signature *)buf, len))
 		return FILE_TYPE_RWSIG;
 
 	if (len >= SIGNATURE_RSVD_SIZE &&
-	    !vb2_verify_signature((const struct vb2_signature *)
+	    !vb21_verify_signature((const struct vb21_signature *)
 				  (buf + len - SIGNATURE_RSVD_SIZE),
 				  SIGNATURE_RSVD_SIZE))
 		return FILE_TYPE_RWSIG;

@@ -11,7 +11,7 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_signature2.h"
@@ -43,7 +43,7 @@ static void sig_tests(const struct alg_combo *combo,
 	struct vb2_private_key *prik, prik2;
 	const struct vb2_private_key *prihash, *priks[2];
 	struct vb2_public_key *pubk, pubhash;
-	struct vb2_signature *sig, *sig2;
+	struct vb21_signature *sig, *sig2;
 	uint32_t size;
 
 	uint8_t workbuf[VB2_VERIFY_DATA_WORKBUF_BYTES]
@@ -52,7 +52,7 @@ static void sig_tests(const struct alg_combo *combo,
 
 	uint8_t *buf;
 	uint32_t bufsize;
-	struct vb2_struct_common *c;
+	struct vb21_struct_common *c;
 	uint32_t c_sig_offs;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
@@ -79,79 +79,79 @@ static void sig_tests(const struct alg_combo *combo,
 	priks[1] = prihash;
 
 	/* Sign test data */
-	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prik, NULL),
+	TEST_SUCC(vb21_sign_data(&sig, test_data, test_size, prik, NULL),
 		  "Sign good");
 	TEST_PTR_NEQ(sig, NULL, "  sig_ptr");
-	TEST_EQ(0, strcmp(vb2_common_desc(sig), test_desc), "  desc");
+	TEST_EQ(0, strcmp(vb21_common_desc(sig), test_desc), "  desc");
 	TEST_EQ(0, memcmp(&sig->id, &test_id, sizeof(test_id)), "  id");
 	TEST_EQ(sig->data_size, test_size, "  data_size");
-	TEST_SUCC(vb2_sig_size_for_key(&size, prik, NULL), "Sig size");
+	TEST_SUCC(vb21_sig_size_for_key(&size, prik, NULL), "Sig size");
 	TEST_EQ(size, sig->c.total_size, "  size");
-	TEST_SUCC(vb2_verify_data(test_data, test_size, sig, pubk, &wb),
+	TEST_SUCC(vb21_verify_data(test_data, test_size, sig, pubk, &wb),
 		  "Verify good");
 	free(sig);
 
-	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prik,
+	TEST_SUCC(vb21_sign_data(&sig, test_data, test_size, prik,
 				test_sig_desc),
 		  "Sign with desc");
-	TEST_EQ(0, strcmp(vb2_common_desc(sig),	test_sig_desc), "  desc");
+	TEST_EQ(0, strcmp(vb21_common_desc(sig),	test_sig_desc), "  desc");
 	free(sig);
 
-	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prik, ""),
+	TEST_SUCC(vb21_sign_data(&sig, test_data, test_size, prik, ""),
 		  "Sign with no desc");
 	TEST_EQ(sig->c.desc_size, 0, "  desc");
-	TEST_SUCC(vb2_sig_size_for_key(&size, prik, ""), "Sig size");
+	TEST_SUCC(vb21_sig_size_for_key(&size, prik, ""), "Sig size");
 	TEST_EQ(size, sig->c.total_size, "  size");
 	free(sig);
 
-	TEST_SUCC(vb2_sign_data(&sig, test_data, test_size, prihash, NULL),
+	TEST_SUCC(vb21_sign_data(&sig, test_data, test_size, prihash, NULL),
 		  "Sign with hash");
-	TEST_SUCC(vb2_verify_data(test_data, test_size, sig, &pubhash, &wb),
+	TEST_SUCC(vb21_verify_data(test_data, test_size, sig, &pubhash, &wb),
 		  "Verify with hash");
 	free(sig);
 
 	prik2 = *prik;
 	prik2.sig_alg = VB2_SIG_INVALID;
-	TEST_EQ(vb2_sign_data(&sig, test_data, test_size, &prik2, NULL),
+	TEST_EQ(vb21_sign_data(&sig, test_data, test_size, &prik2, NULL),
 		VB2_SIGN_DATA_SIG_SIZE, "Sign bad sig alg");
 
 	/* Sign an object with a little (24 bytes) data */
 	c_sig_offs = sizeof(*c) + 24;
-	TEST_SUCC(vb2_sig_size_for_key(&size, prik, NULL), "Sig size");
+	TEST_SUCC(vb21_sig_size_for_key(&size, prik, NULL), "Sig size");
 	bufsize = c_sig_offs + size;
 	buf = calloc(1, bufsize);
 	memset(buf + sizeof(*c), 0x12, 24);
-	c = (struct vb2_struct_common *)buf;
+	c = (struct vb21_struct_common *)buf;
 	c->total_size = bufsize;
 
-	TEST_SUCC(vb2_sign_object(buf, c_sig_offs, prik, NULL), "Sign object");
-	sig = (struct vb2_signature *)(buf + c_sig_offs);
-	TEST_SUCC(vb2_verify_data(buf, c_sig_offs, sig, pubk, &wb),
+	TEST_SUCC(vb21_sign_object(buf, c_sig_offs, prik, NULL), "Sign object");
+	sig = (struct vb21_signature *)(buf + c_sig_offs);
+	TEST_SUCC(vb21_verify_data(buf, c_sig_offs, sig, pubk, &wb),
 		  "Verify object");
 
-	TEST_EQ(vb2_sign_object(buf, c_sig_offs + 4, prik, NULL),
+	TEST_EQ(vb21_sign_object(buf, c_sig_offs + 4, prik, NULL),
 		VB2_SIGN_OBJECT_OVERFLOW, "Sign object overflow");
 	free(buf);
 
 	/* Multiply sign an object */
-	TEST_SUCC(vb2_sig_size_for_keys(&size, priks, 2), "Sigs size");
+	TEST_SUCC(vb21_sig_size_for_keys(&size, priks, 2), "Sigs size");
 	bufsize = c_sig_offs + size;
 	buf = calloc(1, bufsize);
 	memset(buf + sizeof(*c), 0x12, 24);
-	c = (struct vb2_struct_common *)buf;
+	c = (struct vb21_struct_common *)buf;
 	c->total_size = bufsize;
 
-	TEST_SUCC(vb2_sign_object_multiple(buf, c_sig_offs, priks, 2),
+	TEST_SUCC(vb21_sign_object_multiple(buf, c_sig_offs, priks, 2),
 		  "Sign multiple");
-	sig = (struct vb2_signature *)(buf + c_sig_offs);
-	TEST_SUCC(vb2_verify_data(buf, c_sig_offs, sig, pubk, &wb),
+	sig = (struct vb21_signature *)(buf + c_sig_offs);
+	TEST_SUCC(vb21_verify_data(buf, c_sig_offs, sig, pubk, &wb),
 		  "Verify object with sig 1");
-	sig2 = (struct vb2_signature *)(buf + c_sig_offs + sig->c.total_size);
-	TEST_SUCC(vb2_verify_data(buf, c_sig_offs, sig2, &pubhash, &wb),
+	sig2 = (struct vb21_signature *)(buf + c_sig_offs + sig->c.total_size);
+	TEST_SUCC(vb21_verify_data(buf, c_sig_offs, sig2, &pubhash, &wb),
 		  "Verify object with sig 2");
 
 	c->total_size -= 4;
-	TEST_EQ(vb2_sign_object_multiple(buf, c_sig_offs, priks, 2),
+	TEST_EQ(vb21_sign_object_multiple(buf, c_sig_offs, priks, 2),
 		VB2_SIGN_OBJECT_OVERFLOW, "Sign multple overflow");
 
 	TEST_EQ(size, sig->c.total_size + sig2->c.total_size,

@@ -15,7 +15,7 @@
 #include "2rsa.h"
 #include "2secdata.h"
 
-#include "vb2_common.h"
+#include "vb21_common.h"
 
 #include "host_key2.h"
 #include "host_signature2.h"
@@ -64,8 +64,8 @@ enum reset_type {
 static void reset_common_data(enum reset_type t)
 {
 	const struct vb2_private_key *hash_key;
-	struct vb2_fw_preamble *pre;
-	struct vb2_signature *sig;
+	struct vb21_fw_preamble *pre;
+	struct vb21_signature *sig;
 	uint32_t sig_offset;
 
 	int i;
@@ -92,18 +92,18 @@ static void reset_common_data(enum reset_type t)
 	vb2_private_key_hash(&hash_key, mock_hash_alg);
 
 	sd->workbuf_preamble_offset = ctx.workbuf_used;
-	pre = (struct vb2_fw_preamble *)
+	pre = (struct vb21_fw_preamble *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
 	pre->hash_count = 3;
 	pre->hash_offset = sig_offset = sizeof(*pre);
 	if (hwcrypto_state == HWCRYPTO_FORBIDDEN)
-		pre->flags = VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO;
+		pre->flags = VB21_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO;
 	else
 		pre->flags = 0;
 
 	for (i = 0; i < 3; i++) {
-		vb2_sign_data(&sig, mock_body, mock_body_size - 16 * i,
-			      hash_key, NULL);
+		vb21_sign_data(&sig, mock_body, mock_body_size - 16 * i,
+			       hash_key, NULL);
 		memcpy(&sig->id, test_id + i, sizeof(sig->id));
 		memcpy((uint8_t *)pre + sig_offset, sig, sig->c.total_size);
 		sig_offset += sig->c.total_size;
@@ -197,15 +197,15 @@ static void phase3_tests(void)
 
 static void init_hash_tests(void)
 {
-	struct vb2_fw_preamble *pre;
-	struct vb2_signature *sig;
+	struct vb21_fw_preamble *pre;
+	struct vb21_signature *sig;
 	int wb_used_before;
 	uint32_t size;
 
 	reset_common_data(FOR_MISC);
-	pre = (struct vb2_fw_preamble *)
+	pre = (struct vb21_fw_preamble *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
-	sig = (struct vb2_signature *)((uint8_t *)pre + pre->hash_offset);
+	sig = (struct vb21_signature *)((uint8_t *)pre + pre->hash_offset);
 
 	wb_used_before = ctx.workbuf_used;
 	TEST_SUCC(vb2api_init_hash2(&ctx, test_id, &size),
@@ -304,14 +304,14 @@ static void extend_hash_tests(void)
 
 static void check_hash_tests(void)
 {
-	struct vb2_fw_preamble *pre;
-	struct vb2_signature *sig;
+	struct vb21_fw_preamble *pre;
+	struct vb21_signature *sig;
 	struct vb2_digest_context *dc;
 
 	reset_common_data(FOR_CHECK_HASH);
-	pre = (struct vb2_fw_preamble *)
+	pre = (struct vb21_fw_preamble *)
 		(ctx.workbuf + sd->workbuf_preamble_offset);
-	sig = (struct vb2_signature *)((uint8_t *)pre + pre->hash_offset);
+	sig = (struct vb21_signature *)((uint8_t *)pre + pre->hash_offset);
 	dc = (struct vb2_digest_context *)
 		(ctx.workbuf + sd->workbuf_hash_offset);
 

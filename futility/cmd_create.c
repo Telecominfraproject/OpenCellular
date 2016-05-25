@@ -15,8 +15,7 @@
 #include "2rsa.h"
 #include "2sha.h"
 #include "util_misc.h"
-#include "vb2_common.h"
-#include "vb2_struct.h"
+#include "vb21_common.h"
 
 #include "host_key.h"
 #include "host_key2.h"
@@ -265,7 +264,7 @@ static int vb2_make_keypair()
 	if (has_priv) {
 		privkey->id = opt_id;
 		strcpy(outext, ".vbprik2");
-		if (vb2_private_key_write(privkey, outfile)) {
+		if (vb21_private_key_write(privkey, outfile)) {
 			fprintf(stderr, "unable to write private key\n");
 			goto done;
 		}
@@ -273,7 +272,7 @@ static int vb2_make_keypair()
 	}
 
 	strcpy(outext, ".vbpubk2");
-	if (vb2_public_key_write(pubkey, outfile)) {
+	if (vb21_public_key_write(pubkey, outfile)) {
 		fprintf(stderr, "unable to write public key\n");
 		goto done;
 	}

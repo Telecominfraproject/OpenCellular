@@ -48,12 +48,12 @@ FILE_TYPE(PRIVKEY,          "prikey",        "VbPrivateKey (.vbprivk)",
 	  S_(ft_show_privkey),
 	  NONE)
 FILE_TYPE(VB2_PUBKEY,       "pubkey21",      "vb21 public key (.vbpubk2)",
-	  R_(ft_recognize_vb2_key),
-	  S_(ft_show_vb2_pubkey),
+	  R_(ft_recognize_vb21_key),
+	  S_(ft_show_vb21_pubkey),
 	  NONE)
 FILE_TYPE(VB2_PRIVKEY,	    "prikey21",      "vb21 private key (.vbprik2)",
-	  R_(ft_recognize_vb2_key),
-	  S_(ft_show_vb2_privkey),
+	  R_(ft_recognize_vb21_key),
+	  S_(ft_show_vb21_privkey),
 	  NONE)
 FILE_TYPE(PEM,		    "pem",           "RSA private key (.pem)",
 	  R_(ft_recognize_pem),

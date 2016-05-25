@@ -533,7 +533,7 @@ static int do_show(int argc, char *argv[])
 			type_override = 1;
 			break;
 		case OPT_PUBKEY:
-			if (vb2_packed_key_read(&show_option.pkey, optarg)) {
+			if (vb21_packed_key_read(&show_option.pkey, optarg)) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}

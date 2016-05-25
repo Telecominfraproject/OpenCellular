@@ -8,10 +8,9 @@
 #ifndef VBOOT_REFERENCE_HOST_KEYBLOCK2_H_
 #define VBOOT_REFERENCE_HOST_KEYBLOCK2_H_
 
-#include "2struct.h"
-
 struct vb2_private_key;
 struct vb2_public_key;
+struct vb21_keyblock;
 
 /**
  * Create and sign a keyblock.
@@ -26,11 +25,11 @@ struct vb2_public_key;
  *			taken from the data key.
  * @return VB2_SUCCESS, or non-zero error code if failure.
  */
-int vb2_keyblock_create(struct vb2_keyblock **kb_ptr,
-			const struct vb2_public_key *data_key,
-			const struct vb2_private_key **signing_keys,
-			uint32_t signing_key_count,
-			uint32_t flags,
-			const char *desc);
+int vb21_keyblock_create(struct vb21_keyblock **kb_ptr,
+			 const struct vb2_public_key *data_key,
+			 const struct vb2_private_key **signing_keys,
+			 uint32_t signing_key_count,
+			 uint32_t flags,
+			 const char *desc);
 
 #endif  /* VBOOT_REFERENCE_HOST_KEYBLOCK2_H_ */

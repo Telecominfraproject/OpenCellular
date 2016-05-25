@@ -8,11 +8,11 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2rsa.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 
 int vb2_unpack_key_data(struct vb2_public_key *key,
-			 const uint8_t *key_data,
-			 uint32_t key_size)
+			const uint8_t *key_data,
+			uint32_t key_size)
 {
 	const uint32_t *buf32 = (const uint32_t *)key_data;
 	uint32_t expected_key_size = vb2_packed_key_size(key->sig_alg);
@@ -42,27 +42,27 @@ int vb2_unpack_key_data(struct vb2_public_key *key,
 	return VB2_SUCCESS;
 }
 
-int vb2_unpack_key(struct vb2_public_key *key,
+int vb21_unpack_key(struct vb2_public_key *key,
 		    const uint8_t *buf,
 		    uint32_t size)
 {
-	const struct vb2_packed_key *pkey =
-		(const struct vb2_packed_key *)buf;
+	const struct vb21_packed_key *pkey =
+		(const struct vb21_packed_key *)buf;
 	uint32_t sig_size;
 	uint32_t min_offset = 0;
 	int rv;
 
 	/* Check magic number */
-	if (pkey->c.magic != VB2_MAGIC_PACKED_KEY)
+	if (pkey->c.magic != VB21_MAGIC_PACKED_KEY)
 		return VB2_ERROR_UNPACK_KEY_MAGIC;
 
-	rv = vb2_verify_common_header(buf, size);
+	rv = vb21_verify_common_header(buf, size);
 	if (rv)
 		return rv;
 
 	/* Make sure key data is inside */
-	rv = vb2_verify_common_member(pkey, &min_offset,
-				      pkey->key_offset, pkey->key_size);
+	rv = vb21_verify_common_member(pkey, &min_offset,
+				       pkey->key_offset, pkey->key_size);
 	if (rv)
 		return rv;
 
@@ -71,7 +71,7 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	 * that's compatible across readers matching the major version, and we
 	 * haven't added any new fields.
 	 */
-	if (pkey->c.struct_version_major != VB2_PACKED_KEY_VERSION_MAJOR)
+	if (pkey->c.struct_version_major != VB21_PACKED_KEY_VERSION_MAJOR)
 		return VB2_ERROR_UNPACK_KEY_STRUCT_VERSION;
 
 	/* Copy key algorithms */
@@ -93,7 +93,7 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	}
 
 	/* Key description */
-	key->desc = vb2_common_desc(pkey);
+	key->desc = vb21_common_desc(pkey);
 	key->version = pkey->key_version;
 	key->id = &pkey->id;
 

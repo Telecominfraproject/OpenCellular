@@ -9,18 +9,18 @@
 #include "2common.h"
 #include "2rsa.h"
 #include "2sha.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 
-const char *vb2_common_desc(const void *buf)
+const char *vb21_common_desc(const void *buf)
 {
-	const struct vb2_struct_common *c = buf;
+	const struct vb21_struct_common *c = buf;
 
 	return c->desc_size ? (const char *)c + c->fixed_size : "";
 }
 
-int vb2_verify_common_header(const void *parent, uint32_t parent_size)
+int vb21_verify_common_header(const void *parent, uint32_t parent_size)
 {
-	const struct vb2_struct_common *c = parent;
+	const struct vb21_struct_common *c = parent;
 
 	/* Parent buffer size must be at least the claimed total size */
 	if (parent_size < c->total_size)
@@ -50,19 +50,19 @@ int vb2_verify_common_header(const void *parent, uint32_t parent_size)
 			return VB2_ERROR_COMMON_DESC_SIZE;
 
 		/* Description must be null-terminated */
-		if (vb2_common_desc(c)[c->desc_size - 1] != 0)
+		if (vb21_common_desc(c)[c->desc_size - 1] != 0)
 			return VB2_ERROR_COMMON_DESC_TERMINATOR;
 	}
 
 	return VB2_SUCCESS;
 }
 
-int vb2_verify_common_member(const void *parent,
-			     uint32_t *min_offset,
-			     uint32_t member_offset,
-			     uint32_t member_size)
+int vb21_verify_common_member(const void *parent,
+			      uint32_t *min_offset,
+			      uint32_t member_offset,
+			      uint32_t member_size)
 {
-	const struct vb2_struct_common *c = parent;
+	const struct vb21_struct_common *c = parent;
 	uint32_t member_end = member_offset + member_size;
 
 	/* Make sure member doesn't wrap */
@@ -92,13 +92,13 @@ int vb2_verify_common_member(const void *parent,
 	return VB2_SUCCESS;
 }
 
-int vb2_verify_common_subobject(const void *parent,
-				uint32_t *min_offset,
-				uint32_t member_offset)
+int vb21_verify_common_subobject(const void *parent,
+				 uint32_t *min_offset,
+				 uint32_t member_offset)
 {
-	const struct vb2_struct_common *p = parent;
-	const struct vb2_struct_common *m =
-		(const struct vb2_struct_common *)
+	const struct vb21_struct_common *p = parent;
+	const struct vb21_struct_common *m =
+		(const struct vb21_struct_common *)
 		((const uint8_t *)parent + member_offset);
 	int rv;
 
@@ -106,7 +106,7 @@ int vb2_verify_common_subobject(const void *parent,
 	 * Verify the parent has space at the member offset for the common
 	 * header.
 	 */
-	rv = vb2_verify_common_member(parent, min_offset, member_offset,
+	rv = vb21_verify_common_member(parent, min_offset, member_offset,
 				      sizeof(*m));
 	if (rv)
 		return rv;
@@ -116,7 +116,7 @@ int vb2_verify_common_subobject(const void *parent,
 	 * additional data for the object past its common header fits in the
 	 * parent.
 	 */
-	rv = vb2_verify_common_header(m, p->total_size - member_offset);
+	rv = vb21_verify_common_header(m, p->total_size - member_offset);
 	if (rv)
 		return rv;
 
@@ -171,18 +171,18 @@ const struct vb2_id *vb2_hash_id(enum vb2_hash_algorithm hash_alg)
 	}
 }
 
-int vb2_verify_signature(const struct vb2_signature *sig, uint32_t size)
+int vb21_verify_signature(const struct vb21_signature *sig, uint32_t size)
 {
 	uint32_t min_offset = 0;
 	uint32_t expect_sig_size;
 	int rv;
 
 	/* Check magic number */
-	if (sig->c.magic != VB2_MAGIC_SIGNATURE)
+	if (sig->c.magic != VB21_MAGIC_SIGNATURE)
 		return VB2_ERROR_SIG_MAGIC;
 
 	/* Make sure common header is good */
-	rv = vb2_verify_common_header(sig, size);
+	rv = vb21_verify_common_header(sig, size);
 	if (rv)
 		return rv;
 
@@ -191,7 +191,7 @@ int vb2_verify_signature(const struct vb2_signature *sig, uint32_t size)
 	 * that's compatible across readers matching the major version, and we
 	 * haven't added any new fields.
 	 */
-	if (sig->c.struct_version_major != VB2_SIGNATURE_VERSION_MAJOR)
+	if (sig->c.struct_version_major != VB21_SIGNATURE_VERSION_MAJOR)
 		return VB2_ERROR_SIG_VERSION;
 
 	/* Make sure header is big enough for signature */
@@ -199,7 +199,7 @@ int vb2_verify_signature(const struct vb2_signature *sig, uint32_t size)
 		return VB2_ERROR_SIG_HEADER_SIZE;
 
 	/* Make sure signature data is inside */
-	rv = vb2_verify_common_member(sig, &min_offset,
+	rv = vb21_verify_common_member(sig, &min_offset,
 				      sig->sig_offset, sig->sig_size);
 	if (rv)
 		return rv;
@@ -217,15 +217,15 @@ int vb2_verify_signature(const struct vb2_signature *sig, uint32_t size)
 /**
  * Return the signature data for a signature
  */
-static uint8_t *vb2_signature_data(struct vb2_signature *sig)
+static uint8_t *vb21_signature_data(struct vb21_signature *sig)
 {
 	return (uint8_t *)sig + sig->sig_offset;
 }
 
-int vb2_verify_digest(const struct vb2_public_key *key,
-		      struct vb2_signature *sig,
-		      const uint8_t *digest,
-		      const struct vb2_workbuf *wb)
+int vb21_verify_digest(const struct vb2_public_key *key,
+		       struct vb21_signature *sig,
+		       const uint8_t *digest,
+		       const struct vb2_workbuf *wb)
 {
 	uint32_t key_sig_size = vb2_sig_size(key->sig_alg, key->hash_alg);
 
@@ -242,7 +242,7 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 
 	if (key->sig_alg == VB2_SIG_NONE) {
 		/* Bare hash */
-		if (vb2_safe_memcmp(vb2_signature_data(sig),
+		if (vb2_safe_memcmp(vb21_signature_data(sig),
 				    digest, key_sig_size))
 			return VB2_ERROR_VDATA_VERIFY_DIGEST;
 
@@ -250,16 +250,16 @@ int vb2_verify_digest(const struct vb2_public_key *key,
 	} else {
 		/* RSA-signed digest */
 		return vb2_rsa_verify_digest(key,
-					     vb2_signature_data(sig),
+					     vb21_signature_data(sig),
 					     digest, wb);
 	}
 }
 
-int vb2_verify_data(const void *data,
-		    uint32_t size,
-		    struct vb2_signature *sig,
-		    const struct vb2_public_key *key,
-		    const struct vb2_workbuf *wb)
+int vb21_verify_data(const void *data,
+		     uint32_t size,
+		     struct vb21_signature *sig,
+		     const struct vb2_public_key *key,
+		     const struct vb2_workbuf *wb)
 {
 	struct vb2_workbuf wblocal = *wb;
 	struct vb2_digest_context *dc;
@@ -300,23 +300,23 @@ int vb2_verify_data(const void *data,
 
 	vb2_workbuf_free(&wblocal, sizeof(*dc));
 
-	return vb2_verify_digest(key, sig, digest, &wblocal);
+	return vb21_verify_digest(key, sig, digest, &wblocal);
 }
 
-int vb2_verify_keyblock(struct vb2_keyblock *block,
-			uint32_t size,
-			const struct vb2_public_key *key,
-			const struct vb2_workbuf *wb)
+int vb21_verify_keyblock(struct vb21_keyblock *block,
+			 uint32_t size,
+			 const struct vb2_public_key *key,
+			 const struct vb2_workbuf *wb)
 {
 	uint32_t min_offset = 0, sig_offset;
 	int rv, i;
 
 	/* Check magic number */
-	if (block->c.magic != VB2_MAGIC_KEYBLOCK)
+	if (block->c.magic != VB21_MAGIC_KEYBLOCK)
 		return VB2_ERROR_KEYBLOCK_MAGIC;
 
 	/* Make sure common header is good */
-	rv = vb2_verify_common_header(block, size);
+	rv = vb21_verify_common_header(block, size);
 	if (rv)
 		return rv;
 
@@ -325,7 +325,7 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 	 * that's compatible across readers matching the major version, and we
 	 * haven't added any new fields.
 	 */
-	if (block->c.struct_version_major != VB2_KEYBLOCK_VERSION_MAJOR)
+	if (block->c.struct_version_major != VB21_KEYBLOCK_VERSION_MAJOR)
 		return VB2_ERROR_KEYBLOCK_HEADER_VERSION;
 
 	/* Make sure header is big enough */
@@ -333,25 +333,26 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 		return VB2_ERROR_KEYBLOCK_SIZE;
 
 	/* Make sure data key is inside */
-	rv = vb2_verify_common_subobject(block, &min_offset, block->key_offset);
+	rv = vb21_verify_common_subobject(block, &min_offset,
+					  block->key_offset);
 	if (rv)
 		return rv;
 
 	/* Loop over signatures */
 	sig_offset = block->sig_offset;
 	for (i = 0; i < block->sig_count; i++, sig_offset = min_offset) {
-		struct vb2_signature *sig;
+		struct vb21_signature *sig;
 
 		/* Make sure signature is inside keyblock */
-		rv = vb2_verify_common_subobject(block, &min_offset,
+		rv = vb21_verify_common_subobject(block, &min_offset,
 						 sig_offset);
 		if (rv)
 			return rv;
 
-		sig = (struct vb2_signature *)((uint8_t *)block + sig_offset);
+		sig = (struct vb21_signature *)((uint8_t *)block + sig_offset);
 
 		/* Verify the signature integrity */
-		rv = vb2_verify_signature(sig,
+		rv = vb21_verify_signature(sig,
 					  block->c.total_size - sig_offset);
 		if (rv)
 			return rv;
@@ -364,28 +365,28 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 		if (sig->data_size != block->sig_offset)
 			return VB2_ERROR_KEYBLOCK_SIGNED_SIZE;
 
-		return vb2_verify_data(block, block->sig_offset, sig, key, wb);
+		return vb21_verify_data(block, block->sig_offset, sig, key, wb);
 	}
 
 	/* If we're still here, no signature matched the key ID */
 	return VB2_ERROR_KEYBLOCK_SIG_ID;
 }
 
-int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
-			   uint32_t size,
-			   const struct vb2_public_key *key,
-			   const struct vb2_workbuf *wb)
+int vb21_verify_fw_preamble(struct vb21_fw_preamble *preamble,
+			    uint32_t size,
+			    const struct vb2_public_key *key,
+			    const struct vb2_workbuf *wb)
 {
-	struct vb2_signature *sig;
+	struct vb21_signature *sig;
 	uint32_t min_offset = 0, hash_offset;
 	int rv, i;
 
 	/* Check magic number */
-	if (preamble->c.magic != VB2_MAGIC_FW_PREAMBLE)
+	if (preamble->c.magic != VB21_MAGIC_FW_PREAMBLE)
 		return VB2_ERROR_PREAMBLE_MAGIC;
 
 	/* Make sure common header is good */
-	rv = vb2_verify_common_header(preamble, size);
+	rv = vb21_verify_common_header(preamble, size);
 	if (rv)
 		return rv;
 
@@ -394,7 +395,7 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 	 * that's compatible across readers matching the major version, and we
 	 * haven't added any new fields.
 	 */
-	if (preamble->c.struct_version_major != VB2_FW_PREAMBLE_VERSION_MAJOR)
+	if (preamble->c.struct_version_major != VB21_FW_PREAMBLE_VERSION_MAJOR)
 		return VB2_ERROR_PREAMBLE_HEADER_VERSION;
 
 	/* Make sure header is big enough */
@@ -405,16 +406,16 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 	hash_offset = preamble->hash_offset;
 	for (i = 0; i < preamble->hash_count; i++, hash_offset = min_offset) {
 		/* Make sure signature is inside preamble */
-		rv = vb2_verify_common_subobject(preamble, &min_offset,
-						 hash_offset);
+		rv = vb21_verify_common_subobject(preamble, &min_offset,
+						  hash_offset);
 		if (rv)
 			return rv;
 
-		sig = (struct vb2_signature *)
+		sig = (struct vb21_signature *)
 			((uint8_t *)preamble + hash_offset);
 
 		/* Verify the signature integrity */
-		rv = vb2_verify_signature(
+		rv = vb21_verify_signature(
 				sig, preamble->c.total_size - hash_offset);
 		if (rv)
 			return rv;
@@ -425,16 +426,16 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 	}
 
 	/* Make sure signature is inside preamble */
-	rv = vb2_verify_common_subobject(preamble, &min_offset,
+	rv = vb21_verify_common_subobject(preamble, &min_offset,
 					 preamble->sig_offset);
 	if (rv)
 		return rv;
 
 	/* Verify preamble signature */
-	sig = (struct vb2_signature *)((uint8_t *)preamble +
-				       preamble->sig_offset);
+	sig = (struct vb21_signature *)((uint8_t *)preamble +
+					preamble->sig_offset);
 
-	rv = vb2_verify_data(preamble, preamble->sig_offset, sig, key, wb);
+	rv = vb21_verify_data(preamble, preamble->sig_offset, sig, key, wb);
 	if (rv)
 		return rv;
 

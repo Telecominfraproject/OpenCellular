@@ -14,7 +14,7 @@
 #include "2nvstorage.h"
 #include "2secdata.h"
 
-#include "vb2_common.h"
+#include "vb21_common.h"
 
 #include "test_common.h"
 
@@ -28,21 +28,21 @@ static struct vb2_shared_data *sd;
 
 static struct {
 	struct vb2_gbb_header h;
-	struct vb2_packed_key rootkey;
+	struct vb21_packed_key rootkey;
 	char rootkey_data[32];
 } mock_gbb;
 
 static struct {
 	/* Keyblock */
 	struct {
-		struct vb2_keyblock kb;
-		struct vb2_packed_key data_key;
+		struct vb21_keyblock kb;
+		struct vb21_packed_key data_key;
 		char data_key_data[16];
 		uint8_t kbdata[128];
 	} k;
 	/* Preamble follows keyblock */
 	struct {
-		struct vb2_fw_preamble pre;
+		struct vb21_fw_preamble pre;
 		uint8_t predata[128];
 	} p;
 } mock_vblock;
@@ -60,9 +60,9 @@ enum reset_type {
 
 static void reset_common_data(enum reset_type t)
 {
-	struct vb2_keyblock *kb = &mock_vblock.k.kb;
-	struct vb2_packed_key *dk = &mock_vblock.k.data_key;
-	struct vb2_fw_preamble *pre = &mock_vblock.p.pre;
+	struct vb21_keyblock *kb = &mock_vblock.k.kb;
+	struct vb21_packed_key *dk = &mock_vblock.k.data_key;
+	struct vb21_fw_preamble *pre = &mock_vblock.p.pre;
 
 	memset(workbuf, 0xaa, sizeof(workbuf));
 
@@ -151,14 +151,14 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 	return VB2_SUCCESS;
 }
 
-int vb2_unpack_key(struct vb2_public_key *key,
+int vb21_unpack_key(struct vb2_public_key *key,
 		    const uint8_t *buf,
 		    uint32_t size)
 {
 	return mock_unpack_key_retval;
 }
 
-int vb2_verify_keyblock(struct vb2_keyblock *block,
+int vb21_verify_keyblock(struct vb21_keyblock *block,
 			 uint32_t size,
 			 const struct vb2_public_key *key,
 			 const struct vb2_workbuf *wb)
@@ -166,7 +166,7 @@ int vb2_verify_keyblock(struct vb2_keyblock *block,
 	return mock_verify_keyblock_retval;
 }
 
-int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
+int vb21_verify_fw_preamble(struct vb21_fw_preamble *preamble,
 			    uint32_t size,
 			    const struct vb2_public_key *key,
 			    const struct vb2_workbuf *wb)
@@ -178,9 +178,9 @@ int vb2_verify_fw_preamble(struct vb2_fw_preamble *preamble,
 
 static void load_keyblock_tests(void)
 {
-	struct vb2_keyblock *kb = &mock_vblock.k.kb;
-	struct vb2_packed_key *dk = &mock_vblock.k.data_key;
-	struct vb2_packed_key *k;
+	struct vb21_keyblock *kb = &mock_vblock.k.kb;
+	struct vb21_packed_key *dk = &mock_vblock.k.data_key;
+	struct vb21_packed_key *k;
 	int wb_used_before;
 
 	/* Test successful call */
@@ -199,8 +199,8 @@ static void load_keyblock_tests(void)
 		"workbuf used");
 
 	/* Make sure data key was properly saved */
-	k = (struct vb2_packed_key *)(ctx.workbuf +
-				      sd->workbuf_data_key_offset);
+	k = (struct vb21_packed_key *)(ctx.workbuf +
+				       sd->workbuf_data_key_offset);
 	TEST_EQ(k->sig_alg, VB2_SIG_RSA4096, "data key algorithm");
 	TEST_EQ(k->key_version, 2, "data key version");
 	TEST_EQ(k->key_size, sizeof(mock_vblock.k.data_key_data),
@@ -246,7 +246,7 @@ static void load_keyblock_tests(void)
 
 	reset_common_data(FOR_KEYBLOCK);
 	ctx.workbuf_used = ctx.workbuf_size - sd->gbb_rootkey_size
-		- sizeof(struct vb2_keyblock);
+		- sizeof(struct vb21_keyblock);
 	TEST_EQ(vb2_load_fw_keyblock(&ctx),
 		VB2_ERROR_READ_RESOURCE_OBJECT_BUF,
 		"keyblock not enough workbuf for entire keyblock");
@@ -283,7 +283,7 @@ static void load_keyblock_tests(void)
 
 static void load_preamble_tests(void)
 {
-	struct vb2_fw_preamble *pre = &mock_vblock.p.pre;
+	struct vb21_fw_preamble *pre = &mock_vblock.p.pre;
 	int data_key_offset_before;
 	uint32_t v;
 
@@ -316,7 +316,7 @@ static void load_preamble_tests(void)
 
 	reset_common_data(FOR_PREAMBLE);
 	ctx.workbuf_used = ctx.workbuf_size
-		- sizeof(struct vb2_fw_preamble) + 8;
+		- sizeof(struct vb21_fw_preamble) + 8;
 	TEST_EQ(vb2_load_fw_preamble(&ctx),
 		VB2_ERROR_READ_RESOURCE_OBJECT_BUF,
 		"preamble not enough workbuf for header");

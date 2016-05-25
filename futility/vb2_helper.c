@@ -13,8 +13,7 @@
 #include "2rsa.h"
 #include "2sha.h"
 #include "util_misc.h"
-#include "vb2_common.h"
-#include "vb2_struct.h"
+#include "vb21_common.h"
 
 #include "host_common.h"
 #include "host_key2.h"
@@ -50,17 +49,17 @@ int vb2_lookup_hash_alg(const char *str, enum vb2_hash_algorithm *alg)
 	return 1;
 }
 
-enum futil_file_type ft_recognize_vb2_key(uint8_t *buf, uint32_t len)
+enum futil_file_type ft_recognize_vb21_key(uint8_t *buf, uint32_t len)
 {
 	struct vb2_public_key pubkey;
 	struct vb2_private_key *privkey = 0;
 
 	/* The pubkey points into buf, so nothing to free */
-	if (VB2_SUCCESS == vb2_unpack_key(&pubkey, buf, len))
+	if (VB2_SUCCESS == vb21_unpack_key(&pubkey, buf, len))
 		return FILE_TYPE_VB2_PUBKEY;
 
 	/* The private key unpacks into new structs */
-	if (VB2_SUCCESS == vb2_private_key_unpack(&privkey, buf, len)) {
+	if (VB2_SUCCESS == vb21_private_key_unpack(&privkey, buf, len)) {
 		vb2_private_key_free(privkey);
 		return FILE_TYPE_VB2_PRIVKEY;
 	}
@@ -78,9 +77,9 @@ static inline void vb2_print_bytes(const void *ptr, uint32_t len)
 
 static int vb2_public_key_sha1sum(struct vb2_public_key *key, uint8_t *digest)
 {
-	struct vb2_packed_key *pkey;
+	struct vb21_packed_key *pkey;
 
-	if (vb2_public_key_pack(&pkey, key))
+	if (vb21_public_key_pack(&pkey, key))
 		return 0;
 
 	vb2_digest_buffer((uint8_t *)pkey + pkey->key_offset, pkey->key_size,
@@ -90,7 +89,8 @@ static int vb2_public_key_sha1sum(struct vb2_public_key *key, uint8_t *digest)
 	return 1;
 }
 
-int ft_show_vb2_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
+int ft_show_vb21_pubkey(const char *name, uint8_t *buf, uint32_t len,
+			void *data)
 {
 	struct vb2_public_key key;
 	const struct vb2_text_vs_enum *entry;
@@ -98,7 +98,7 @@ int ft_show_vb2_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 	/* The key's members will point into the state buffer after this. Don't
 	 * free anything. */
-	if (VB2_SUCCESS != vb2_unpack_key(&key, buf, len))
+	if (VB2_SUCCESS != vb21_unpack_key(&key, buf, len))
 		return 1;
 
 	printf("Public Key file:       %s\n", name);
@@ -138,14 +138,14 @@ static int vb2_private_key_sha1sum(struct vb2_private_key *key, uint8_t *digest)
 	return 1;
 }
 
-int ft_show_vb2_privkey(const char *name, uint8_t *buf, uint32_t len,
-			void *data)
+int ft_show_vb21_privkey(const char *name, uint8_t *buf, uint32_t len,
+			 void *data)
 {
 	struct vb2_private_key *key = 0;
 	const struct vb2_text_vs_enum *entry;
 	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 
-	if (VB2_SUCCESS != vb2_private_key_unpack(&key, buf, len))
+	if (VB2_SUCCESS != vb21_private_key_unpack(&key, buf, len))
 		return 1;
 
 	printf("Private key file:      %s\n", name);

@@ -26,7 +26,7 @@
 #include "file_type.h"
 #include "futility.h"
 #include "futility_options.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_signature2.h"
@@ -84,7 +84,7 @@ static int parse_size_opts(uint32_t len,
 int ft_sign_usbpd1(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	struct vb2_private_key *key_ptr = 0;
-	struct vb2_signature *sig_ptr = 0;
+	struct vb21_signature *sig_ptr = 0;
 	uint8_t *keyb_data = 0;
 	uint32_t keyb_size;
 	int retval = 1;
@@ -137,7 +137,7 @@ int ft_sign_usbpd1(const char *name, uint8_t *buf, uint32_t len, void *data)
 	Debug("sig_offset   0x%08x\n", sig_offset);
 
 	/* Sign the blob */
-	r = vb2_sign_data(&sig_ptr, buf + rw_offset, rw_size, key_ptr, "Bah");
+	r = vb21_sign_data(&sig_ptr, buf + rw_offset, rw_size, key_ptr, "Bah");
 	if (r) {
 		fprintf(stderr,
 			"Unable to sign data (error 0x%08x, if that helps)\n",
@@ -303,17 +303,17 @@ static void vb2_pubkey_from_usbpd1(struct vb2_public_key *key,
 	key->id = vb2_hash_id(hash_alg);
 }
 
-static int vb2_sig_from_usbpd1(struct vb2_signature **sig,
-			       enum vb2_signature_algorithm sig_alg,
-			       enum vb2_hash_algorithm hash_alg,
-			       const uint8_t *o_sig,
-			       uint32_t o_sig_size,
-			       uint32_t data_size)
+static int vb21_sig_from_usbpd1(struct vb21_signature **sig,
+				enum vb2_signature_algorithm sig_alg,
+				enum vb2_hash_algorithm hash_alg,
+				const uint8_t *o_sig,
+				uint32_t o_sig_size,
+				uint32_t data_size)
 {
-	struct vb2_signature s = {
-		.c.magic = VB2_MAGIC_SIGNATURE,
-		.c.struct_version_major = VB2_SIGNATURE_VERSION_MAJOR,
-		.c.struct_version_minor = VB2_SIGNATURE_VERSION_MINOR,
+	struct vb21_signature s = {
+		.c.magic = VB21_MAGIC_SIGNATURE,
+		.c.struct_version_major = VB21_SIGNATURE_VERSION_MAJOR,
+		.c.struct_version_minor = VB21_SIGNATURE_VERSION_MINOR,
 		.c.fixed_size = sizeof(s),
 		.sig_alg = sig_alg,
 		.hash_alg = hash_alg,
@@ -329,7 +329,7 @@ static int vb2_sig_from_usbpd1(struct vb2_signature **sig,
 	memcpy(buf, &s, sizeof(s));
 	memcpy(buf + sizeof(s), o_sig, o_sig_size);
 
-	*sig = (struct vb2_signature *)buf;
+	*sig = (struct vb21_signature *)buf;
 	return VB2_SUCCESS;
 }
 
@@ -339,14 +339,14 @@ static void show_usbpd1_stuff(const char *name,
 			      const uint8_t *o_pubkey, uint32_t o_pubkey_size)
 {
 	struct vb2_public_key key;
-	struct vb2_packed_key *pkey;
+	struct vb21_packed_key *pkey;
 	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 	int i;
 
 	vb2_pubkey_from_usbpd1(&key, sig_alg, hash_alg,
 			       o_pubkey, o_pubkey_size);
 
-	if (vb2_public_key_pack(&pkey, &key))
+	if (vb21_public_key_pack(&pkey, &key))
 		return;
 
 	vb2_digest_buffer((uint8_t *)pkey + pkey->key_offset, pkey->key_size,
@@ -373,7 +373,7 @@ static int try_our_own(enum vb2_signature_algorithm sig_alg,
 		       const uint8_t *data, uint32_t data_size)
 {
 	struct vb2_public_key pubkey;
-	struct vb2_signature *sig;
+	struct vb21_signature *sig;
 	uint8_t buf[VB2_WORKBUF_RECOMMENDED_SIZE]
 		__attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb = {
@@ -385,11 +385,11 @@ static int try_our_own(enum vb2_signature_algorithm sig_alg,
 	vb2_pubkey_from_usbpd1(&pubkey, sig_alg, hash_alg,
 			       o_pubkey, o_pubkey_size);
 
-	if ((rv = vb2_sig_from_usbpd1(&sig, sig_alg, hash_alg,
-				      o_sig, o_sig_size, data_size)))
+	if ((rv = vb21_sig_from_usbpd1(&sig, sig_alg, hash_alg,
+				       o_sig, o_sig_size, data_size)))
 	    return rv;
 
-	rv = vb2_verify_data(data, data_size, sig, &pubkey, &wb);
+	rv = vb21_verify_data(data, data_size, sig, &pubkey, &wb);
 
 	free(sig);
 

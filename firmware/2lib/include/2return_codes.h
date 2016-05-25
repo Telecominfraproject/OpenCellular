@@ -206,7 +206,7 @@ enum vb2_return_code {
 	/*
 	 * Buffer too small for total, fixed size, or description reported in
 	 * common header, or member data checked via
-	 * vb2_verify_common_member().
+	 * vb21_verify_common_member().
 	 */
 	VB2_ERROR_COMMON_TOTAL_SIZE,
 	VB2_ERROR_COMMON_FIXED_SIZE,

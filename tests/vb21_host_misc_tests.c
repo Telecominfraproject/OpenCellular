@@ -10,7 +10,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
-#include "vb2_common.h"
+#include "vb21_common.h"
 #include "host_common.h"
 #include "host_misc.h"
 
@@ -35,8 +35,8 @@ static void file_tests(const char *temp_dir)
 	uint8_t *read_data;
 	uint32_t read_size;
 
-	uint8_t cbuf[sizeof(struct vb2_struct_common) + 12];
-	struct vb2_struct_common *c = (struct vb2_struct_common *)cbuf;
+	uint8_t cbuf[sizeof(struct vb21_struct_common) + 12];
+	struct vb21_struct_common *c = (struct vb21_struct_common *)cbuf;
 
 	xasprintf(&testfile, "%s/file_tests.dat", temp_dir);
 
@@ -61,7 +61,7 @@ static void file_tests(const char *temp_dir)
 	c->total_size = sizeof(cbuf);
 	c->magic = 0x1234;
 	cbuf[sizeof(cbuf) - 1] = 0xed;  /* Some non-zero data at the end */
-	TEST_SUCC(vb2_write_object(testfile, c), "vb2_write_object() good");
+	TEST_SUCC(vb21_write_object(testfile, c), "vb2_write_object() good");
 	TEST_SUCC(vb2_read_file(testfile, &read_data, &read_size),
 		  "vb2_read_file() object");
 	TEST_EQ(read_size, c->total_size, "  data size");
