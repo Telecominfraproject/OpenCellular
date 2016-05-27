@@ -714,11 +714,11 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 	int rv;
 	int hash_size;
+	int ec_hash_size;
 	const uint8_t *hash = NULL;
 	const uint8_t *expected = NULL;
 	const uint8_t *ec_hash = NULL;
 	int expected_size;
-	uint8_t expected_hash[SHA256_DIGEST_SIZE];
 	int i;
 	int rw_request = select != VB_SELECT_FIRMWARE_READONLY;
 
@@ -727,202 +727,141 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		 "Check for %s update\n", rw_request ? "RW" : "RO"));
 
 	/* Get current EC hash. */
-	rv = VbExEcHashImage(devidx, select, &ec_hash, &hash_size);
-
+	rv = VbExEcHashImage(devidx, select, &ec_hash, &ec_hash_size);
 	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcHashImage() returned %d\n", rv));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_FAILED);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
-	if (hash_size != SHA256_DIGEST_SIZE) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcHashImage() says size %d, not %d\n",
-			 hash_size, SHA256_DIGEST_SIZE));
-		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_SIZE);
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-	}
-	VBDEBUG(("EC-%s hash:", rw_request ? "RW" : "RO"));
-	for (i = 0; i < SHA256_DIGEST_SIZE; i++)
+	VBDEBUG(("EC-%s hash: ", rw_request ? "RW" : "RO"));
+	for (i = 0; i < ec_hash_size; i++)
 		VBDEBUG(("%02x",ec_hash[i]));
 	VBDEBUG(("\n"));
 
 	/* Get expected EC hash. */
 	rv = VbExEcGetExpectedImageHash(devidx, select, &hash, &hash_size);
-
-	if (rv == VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE) {
-		/*
-		 * BIOS has verified EC image but doesn't have a precomputed
-		 * hash for it, so we must compute the hash ourselves.
-		 */
-		hash = NULL;
-	} else if (rv) {
+	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcGetExpectedImageHash() returned %d\n", rv));
 		VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_HASH);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-	} else if (hash_size != SHA256_DIGEST_SIZE) {
+	}
+	if (ec_hash_size != hash_size) {
 		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcGetExpectedImageHash() says size %d, not %d\n",
-			 hash_size, SHA256_DIGEST_SIZE));
-		VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_HASH);
+			 "EC uses %d-byte hash, but AP-RW contains %d bytes\n",
+			 ec_hash_size, hash_size));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_SIZE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-	} else {
-		VBDEBUG(("Expected hash:"));
-		for (i = 0; i < SHA256_DIGEST_SIZE; i++)
-			VBDEBUG(("%02x", hash[i]));
-		VBDEBUG(("\n"));
-		*need_update = SafeMemcmp(ec_hash, hash, SHA256_DIGEST_SIZE);
 	}
 
-	/*
-	 * Get expected EC image if we're sure we need to update (because the
-	 * expected hash didn't match the EC) or we still don't know (because
-	 * there was no expected hash and we need the image to compute one
-	 * ourselves).
-	 */
-	if (*need_update || !hash) {
-		/* Get expected EC image */
-		rv = VbExEcGetExpectedImage(devidx, select, &expected,
-					    &expected_size);
-		if (rv) {
-			VBDEBUG(("EcUpdateImage() - "
-				 "VbExEcGetExpectedImage() returned %d\n", rv));
-			VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_IMAGE);
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
-		VBDEBUG(("EcUpdateImage() - image len = %d\n", expected_size));
+	VBDEBUG(("Expected hash: "));
+	for (i = 0; i < hash_size; i++)
+		VBDEBUG(("%02x", hash[i]));
+	VBDEBUG(("\n"));
+	*need_update = SafeMemcmp(ec_hash, hash, hash_size);
 
-		/* Hash expected image */
-		internal_SHA256(expected, expected_size, expected_hash);
-		VBDEBUG(("Computed hash of expected image:"));
-		for (i = 0; i < SHA256_DIGEST_SIZE; i++)
-			VBDEBUG(("%02x", expected_hash[i]));
-		VBDEBUG(("\n"));
-	}
+	if (!*need_update)
+		return VBERROR_SUCCESS;
 
-	if (!hash) {
-		/*
-		 * BIOS didn't have expected EC hash, so check if we need
-		 * update by comparing EC hash to the one we just computed.
-		 */
-		*need_update = SafeMemcmp(ec_hash, expected_hash,
-					  SHA256_DIGEST_SIZE);
-	} else if (*need_update && SafeMemcmp(hash, expected_hash,
-					      SHA256_DIGEST_SIZE)) {
-		/*
-		 * We need to update, but the expected EC image doesn't match
-		 * the expected EC hash we were given.
-		 */
+	/* Get expected EC image */
+	rv = VbExEcGetExpectedImage(devidx, select, &expected, &expected_size);
+	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcGetExpectedImage() returned %d\n", rv));
-		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_MISMATCH);
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_EXPECTED_IMAGE);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	}
+	VBDEBUG(("EcUpdateImage() - image len = %d\n", expected_size));
+
+	if (in_rw && rw_request) {
+		/*
+		 * Check if BIOS should also load VGA Option ROM when
+		 * rebooting to save another reboot if possible.
+		 */
+		if ((shared->flags & VBSD_EC_SLOW_UPDATE) &&
+		    (shared->flags & VBSD_OPROM_MATTERS) &&
+		    !(shared->flags & VBSD_OPROM_LOADED)) {
+			VBDEBUG(("EcUpdateImage() - Reboot to "
+				 "load VGA Option ROM\n"));
+			VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+		}
+
+		/*
+		 * EC is running the wrong RW image.  Reboot the EC to
+		 * RO so we can update it on the next boot.
+		 */
+		VBDEBUG(("EcUpdateImage() - "
+			 "in RW, need to update RW, so reboot\n"));
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
-	if (in_rw && rw_request) {
-		if (*need_update) {
-			/*
-			 * Check if BIOS should also load VGA Option ROM when
-			 * rebooting to save another reboot if possible.
-			 */
-			if ((shared->flags & VBSD_EC_SLOW_UPDATE) &&
-			    (shared->flags & VBSD_OPROM_MATTERS) &&
-			    !(shared->flags & VBSD_OPROM_LOADED)) {
-				VBDEBUG(("EcUpdateImage() - Reboot to "
-					 "load VGA Option ROM\n"));
-				VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
-			}
+	VBDEBUG(("EcUpdateImage() updating EC-%s...\n",
+		 rw_request ? "RW" : "RO"));
 
-			/*
-			 * EC is running the wrong RW image.  Reboot the EC to
-			 * RO so we can update it on the next boot.
-			 */
-			VBDEBUG(("EcUpdateImage() - "
-				 "in RW, need to update RW, so reboot\n"));
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	if (shared->flags & VBSD_EC_SLOW_UPDATE) {
+		VBDEBUG(("EcUpdateImage() - EC is slow. Show WAIT screen.\n"));
+
+		/* Ensure the VGA Option ROM is loaded */
+		if ((shared->flags & VBSD_OPROM_MATTERS) &&
+		    !(shared->flags & VBSD_OPROM_LOADED)) {
+			VBDEBUG(("EcUpdateImage() - Reboot to "
+				 "load VGA Option ROM\n"));
+			VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
+			return VBERROR_VGA_OPROM_MISMATCH;
 		}
 
-		VBDEBUG(("EcUpdateImage() in EC-RW and it matches\n"));
-		return VBERROR_SUCCESS;
+		VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, &vnc);
 	}
 
-	/* Update EC if necessary */
+	rv = VbExEcUpdateImage(devidx, select, expected, expected_size);
+	if (rv != VBERROR_SUCCESS) {
+		VBDEBUG(("EcUpdateImage() - "
+			 "VbExEcUpdateImage() returned %d\n", rv));
 
-	if (*need_update) {
-		VBDEBUG(("EcUpdateImage() updating EC-%s...\n",
-			 rw_request ? "RW" : "RO"));
+		/*
+		 * The EC may know it needs a reboot.  It may need to
+		 * unprotect the region before updating, or may need to
+		 * reboot after updating.  Either way, it's not an error
+		 * requiring recovery mode.
+		 *
+		 * If we fail for any other reason, trigger recovery
+		 * mode.
+		 */
+		if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
+			VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
 
-		if (shared->flags & VBSD_EC_SLOW_UPDATE) {
-			VBDEBUG(("EcUpdateImage() - "
-				 "EC is slow. Show WAIT screen.\n"));
-
-			/* Ensure the VGA Option ROM is loaded */
-			if ((shared->flags & VBSD_OPROM_MATTERS) &&
-			    !(shared->flags & VBSD_OPROM_LOADED)) {
-				VBDEBUG(("EcUpdateImage() - Reboot to "
-					 "load VGA Option ROM\n"));
-				VbNvSet(&vnc, VBNV_OPROM_NEEDED, 1);
-				return VBERROR_VGA_OPROM_MISMATCH;
-			}
-
-			VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, &vnc);
-		}
-
-		rv = VbExEcUpdateImage(devidx, select, expected, expected_size);
-
-		if (rv != VBERROR_SUCCESS) {
-			VBDEBUG(("EcUpdateImage() - "
-				 "VbExEcUpdateImage() returned %d\n", rv));
-
-			/*
-			 * The EC may know it needs a reboot.  It may need to
-			 * unprotect the region before updating, or may need to
-			 * reboot after updating.  Either way, it's not an error
-			 * requiring recovery mode.
-			 *
-			 * If we fail for any other reason, trigger recovery
-			 * mode.
-			 */
-			if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
-				VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
-
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
-
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
 	/* Verify the EC was updated properly */
-	if (*need_update) {
-		/* Get current EC hash. */
-		rv = VbExEcHashImage(devidx, select, &ec_hash, &hash_size);
-
-		if (rv) {
-			VBDEBUG(("EcUpdateImage() - "
-				 "VbExEcHashImage() returned %d\n", rv));
-			VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_FAILED);
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
-		if (hash_size != SHA256_DIGEST_SIZE) {
-			VBDEBUG(("EcUpdateImage() - "
-				 "VbExEcHashImage() says size %d, not %d\n",
-				 hash_size, SHA256_DIGEST_SIZE));
-			VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_SIZE);
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
-		VBDEBUG(("Updated EC-%s hash:", rw_request ? "RW" : "RO"));
-		for (i = 0; i < SHA256_DIGEST_SIZE; i++)
-			VBDEBUG(("%02x",ec_hash[i]));
-		VBDEBUG(("\n"));
-
-		if (SafeMemcmp(ec_hash, hash, SHA256_DIGEST_SIZE)){
-			VBDEBUG(("EcUpdateImage() - "
-				 "Failed to update EC-%s\n", rw_request ?
-				 "RW" : "RO"));
-			VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
+	rv = VbExEcHashImage(devidx, select, &ec_hash, &ec_hash_size);
+	if (rv) {
+		VBDEBUG(("EcUpdateImage() - "
+			 "VbExEcHashImage() returned %d\n", rv));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_FAILED);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
+	if (hash_size != ec_hash_size) {
+		VBDEBUG(("EcUpdateImage() - "
+			 "VbExEcHashImage() says size %d, not %d\n",
+			 ec_hash_size, hash_size));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_HASH_SIZE);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	}
+	VBDEBUG(("Updated EC-%s hash: ", rw_request ? "RW" : "RO"));
+	for (i = 0; i < ec_hash_size; i++)
+		VBDEBUG(("%02x",ec_hash[i]));
+	VBDEBUG(("\n"));
+
+	if (SafeMemcmp(ec_hash, hash, hash_size)){
+		VBDEBUG(("EcUpdateImage() - "
+			 "Failed to update EC-%s\n", rw_request ?
+			 "RW" : "RO"));
+		VbSetRecoveryRequest(VBNV_RECOVERY_EC_UPDATE);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	}
+
 	return VBERROR_SUCCESS;
 }
 

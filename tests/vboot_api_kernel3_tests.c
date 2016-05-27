@@ -47,7 +47,6 @@ static int mock_ec_rw_hash_size;
 static uint8_t want_ec_hash[32];
 static uint8_t update_hash;
 static int want_ec_hash_size;
-static uint8_t mock_sha[32];
 
 static uint32_t screens_displayed[8];
 static uint32_t screens_count = 0;
@@ -103,9 +102,6 @@ static void ResetMocks(void)
 	want_ec_hash_size = sizeof(want_ec_hash);
 
 	update_hash = 42;
-
-	Memset(mock_sha, 0, sizeof(want_ec_hash));
-	mock_sha[0] = 42;
 
 	// TODO: ensure these are actually needed
 
@@ -182,16 +178,7 @@ VbError_t VbExEcGetExpectedImageHash(int devidx, enum VbSelectFirmware_t select,
 	*hash = want_ec_hash;
 	*hash_size = want_ec_hash_size;
 
-	if (want_ec_hash_size == -1)
-		return VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE;
-	else
-		return want_ec_hash_size ? VBERROR_SUCCESS : VBERROR_SIMULATED;
-}
-
-uint8_t *internal_SHA256(const uint8_t *data, uint64_t len, uint8_t *digest)
-{
-	Memcpy(digest, mock_sha, sizeof(mock_sha));
-	return digest;
+	return want_ec_hash_size ? VBERROR_SUCCESS : VBERROR_SIMULATED;
 }
 
 VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
@@ -296,28 +283,15 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	want_ec_hash_size = 16;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_EXPECTED_HASH,
-		   "Bad precalculated hash size");
+		   VBNV_RECOVERY_EC_HASH_SIZE,
+		   "Hash size mismatch");
 
 	ResetMocks();
-	mock_in_rw = 1;
-	want_ec_hash_size = -1;
-	test_ssync(0, 0, "No precomputed hash");
-
-	ResetMocks();
-	want_ec_hash_size = -1;
-	get_expected_retval = VBERROR_SIMULATED;
-	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_EXPECTED_IMAGE, "Can't fetch image");
+	want_ec_hash_size = 4;
+	mock_ec_rw_hash_size = 4;
+	test_ssync(0, 0, "Custom hash size");
 
 	/* Updates required */
-	ResetMocks();
-	mock_in_rw = 1;
-	want_ec_hash[0]++;
-	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_HASH_MISMATCH,
-		   "Precalculated hash mismatch");
-
 	ResetMocks();
 	mock_in_rw = 1;
 	mock_ec_rw_hash[0]++;
