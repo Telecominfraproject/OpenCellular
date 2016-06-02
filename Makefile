@@ -287,7 +287,8 @@ INCLUDES += \
 	-Ifirmware/lib/cgptlib/include \
 	-Ifirmware/lib/cryptolib/include \
 	-Ifirmware/lib/tpm_lite/include \
-	-Ifirmware/2lib/include
+	-Ifirmware/2lib/include \
+	-Ifirmware/lib20/include
 
 # If we're not building for a specific target, just stub out things like the
 # TPM commands and various external functions that are provided by the BIOS.
@@ -925,7 +926,6 @@ ifeq (${FIRMWARE_ARCH},)
 ${FWLIB_OBJS}: CFLAGS += -DDISABLE_ROLLBACK_TPM
 endif
 
-${FWLIB20_OBJS}: INCLUDES += -Ifirmware/lib20/include
 ${FWLIB21_OBJS}: INCLUDES += -Ifirmware/lib21/include
 ${BDBLIB_OBJS}: INCLUDES += -Ifirmware/bdb
 
@@ -995,7 +995,7 @@ utillib: ${UTILLIB} \
 	${BUILD}/host/linktest/main
 
 # TODO: better way to make .a than duplicating this recipe each time?
-${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} ${FWLIB2X_OBJS}
+${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1147,8 +1147,8 @@ ${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
-${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
-${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB}
+${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS} ${FWLIB20}
+${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} ${FWLIB20}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
@@ -1196,7 +1196,6 @@ ${TEST2X_BINS}: ${FWLIB2X}
 ${TEST2X_BINS}: LIBS += ${FWLIB2X}
 
 ${TEST20_BINS}: ${FWLIB20}
-${TEST20_BINS}: INCLUDES += -Ifirmware/lib20/include
 ${TEST20_BINS}: LIBS += ${FWLIB20}
 
 ${TEST21_BINS}: ${UTILLIB21}

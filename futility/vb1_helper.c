@@ -11,12 +11,23 @@
 #include <unistd.h>
 #include <openssl/rsa.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2common.h"
+#include "2rsa.h"
+#include "2sha.h"
 #include "file_type.h"
 #include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
+#include "vb2_common.h"
+
+const char *vb1_crypto_name(uint32_t algo)
+{
+	return algo < kNumAlgorithms ? algo_strings[algo] : "(invalid)";
+}
 
 /****************************************************************************/
 /* Here are globals containing all the bits & pieces I'm working on.
@@ -526,9 +537,8 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	       (data_key->algorithm < kNumAlgorithms ?
 		algo_strings[data_key->algorithm] : "(invalid)"));
 	printf("  Data key version:    %" PRIu64 "\n", data_key->key_version);
-	printf("  Data key sha1sum:    ");
-	PrintPubKeySha1Sum(data_key);
-	printf("\n");
+	printf("  Data key sha1sum:    %s\n",
+	       packed_key_sha1_string((struct vb2_packed_key *)data_key));
 
 	if (keyblock_outfile) {
 		FILE *f = NULL;
@@ -717,42 +727,62 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 
 enum futil_file_type ft_recognize_vblock1(uint8_t *buf, uint32_t len)
 {
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
-	VbFirmwarePreambleHeader *fw_preamble;
-	VbKernelPreambleHeader *kern_preamble;
-	RSAPublicKey *rsa;
+	int rv;
 
-	if (VBOOT_SUCCESS == KeyBlockVerify(key_block, len, NULL, 1)) {
-		rsa = PublicKeyToRSA(&key_block->data_key);
-		uint32_t more = key_block->key_block_size;
+	uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+	struct vb2_workbuf wb;
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
-		/* and firmware preamble too? */
-		fw_preamble = (VbFirmwarePreambleHeader *)(buf + more);
-		if (VBOOT_SUCCESS ==
-		    VerifyFirmwarePreamble(fw_preamble, len - more, rsa))
-			return FILE_TYPE_FW_PREAMBLE;
+	/* Vboot 2.0 signature checks destroy the buffer, so make a copy */
+	uint8_t *buf2 = malloc(len);
+	memcpy(buf2, buf, len);
 
-		/* or maybe kernel preamble? */
-		kern_preamble = (VbKernelPreambleHeader *)(buf + more);
-		if (VBOOT_SUCCESS ==
-		    VerifyKernelPreamble(kern_preamble, len - more, rsa))
-			return FILE_TYPE_KERN_PREAMBLE;
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf;
+	if (VB2_SUCCESS != vb2_verify_keyblock_hash(keyblock, len, &wb)) {
+		free(buf2);
+		return FILE_TYPE_UNKNOWN;
+	}
 
-		/* no, just keyblock */
+	/* Try unpacking the data key from the keyblock */
+	struct vb2_public_key data_key;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
+			   keyblock->data_key.key_offset +
+			   keyblock->data_key.key_size)) {
+		/* It looks like a bad keyblock, but still a keyblock */
+		free(buf2);
 		return FILE_TYPE_KEYBLOCK;
 	}
 
-	return FILE_TYPE_UNKNOWN;
+	uint32_t more = keyblock->keyblock_size;
+
+	/* Followed by firmware preamble too? */
+	struct vb2_fw_preamble *pre2 = (struct vb2_fw_preamble *)(buf2 + more);
+	rv = vb2_verify_fw_preamble(pre2, len - more, &data_key, &wb);
+	free(buf2);
+	if (VB2_SUCCESS == rv)
+		return FILE_TYPE_FW_PREAMBLE;
+
+	/* Or maybe kernel preamble? */
+	RSAPublicKey *rsa = PublicKeyToRSA((VbPublicKey *)&keyblock->data_key);
+	VbKernelPreambleHeader *kern_preamble =
+		(VbKernelPreambleHeader *)(buf + more);
+	if (VBOOT_SUCCESS ==
+	    VerifyKernelPreamble(kern_preamble, len - more, rsa))
+		return FILE_TYPE_KERN_PREAMBLE;
+
+	/* No, just keyblock */
+	return FILE_TYPE_KEYBLOCK;
 }
 
 enum futil_file_type ft_recognize_vb1_key(uint8_t *buf, uint32_t len)
 {
-	VbPublicKey *pubkey = (VbPublicKey *)buf;
+	struct vb2_packed_key *pubkey = (struct vb2_packed_key *)buf;
 	VbPrivateKey key;
 	const unsigned char *start;
 
 	/* Maybe just a VbPublicKey? */
-	if (len >= sizeof(VbPublicKey) && PublicKeyLooksOkay(pubkey, len))
+	if (packed_key_looks_ok(pubkey, len))
 		return FILE_TYPE_PUBKEY;
 
 	/* How about a VbPrivateKey? */

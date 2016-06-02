@@ -20,19 +20,24 @@
 #include "cryptolib.h"
 #include "host_common.h"
 #include "util_misc.h"
+#include "vb2_common.h"
 #include "vboot_common.h"
 
-void PrintPubKeySha1Sum(VbPublicKey *key)
+const char *packed_key_sha1_string(const struct vb2_packed_key *key)
 {
 	uint8_t *buf = ((uint8_t *)key) + key->key_offset;
-	uint64_t buflen = key->key_size;
+	uint32_t buflen = key->key_size;
 	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
+	static char dest[VB2_SHA1_DIGEST_SIZE * 2 + 1];
+	char *dnext = dest;
 
 	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest, sizeof(digest));
 
 	int i;
 	for (i = 0; i < sizeof(digest); i++)
-		printf("%02x", digest[i]);
+		dnext += sprintf(dnext, "%02x", digest[i]);
+
+	return dest;
 }
 
 void PrintPrivKeySha1Sum(VbPrivateKey *key)

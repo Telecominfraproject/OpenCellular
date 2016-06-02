@@ -11,6 +11,7 @@
 #include "cryptolib.h"
 #include "vboot_struct.h"
 
+struct vb2_packed_key;
 
 typedef struct rsa_st RSA;
 
@@ -51,8 +52,8 @@ VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
  * Returns NULL if error. */
 VbPublicKey* PublicKeyRead(const char* filename);
 
-/* Return true if the public key struct appears correct. */
-int PublicKeyLooksOkay(VbPublicKey *key, uint64_t file_size);
+/* Return true if the packed (public) key struct appears correct. */
+int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size);
 
 /* Read a public key from a .keyb file.  Caller owns the returned
  * pointer, and must free it with Free().

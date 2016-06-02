@@ -16,6 +16,8 @@
 #include "futility.h"
 #include "host_common.h"
 #include "util_misc.h"
+#include "vb1_helper.h"
+#include "vb2_common.h"
 #include "vboot_common.h"
 
 /* Command line options */
@@ -57,7 +59,7 @@ static void print_help(int argc, char *argv[])
 
 	for (i = 0; i < kNumAlgorithms; i++) {
 		printf("                                  %d = (%s)\n",
-		       i, algo_strings[i]);
+		       i, vb1_crypto_name(i));
 	}
 
 	printf("\nOR\n\n"
@@ -119,12 +121,10 @@ static int Unpack(const char *infile, const char *outfile)
 	if (pubkey) {
 		printf("Public Key file:   %s\n", infile);
 		printf("Algorithm:         %" PRIu64 " %s\n", pubkey->algorithm,
-		       (pubkey->algorithm < kNumAlgorithms ?
-			algo_strings[pubkey->algorithm] : "(invalid)"));
+		       vb1_crypto_name(pubkey->algorithm));
 		printf("Key Version:       %" PRIu64 "\n", pubkey->key_version);
-		printf("Key sha1sum:       ");
-		PrintPubKeySha1Sum(pubkey);
-		printf("\n");
+		printf("Key sha1sum:       %s\n",
+		       packed_key_sha1_string((struct vb2_packed_key *)pubkey));
 		if (outfile) {
 			if (0 != PublicKeyWrite(outfile, pubkey)) {
 				fprintf(stderr,
@@ -142,10 +142,7 @@ static int Unpack(const char *infile, const char *outfile)
 		printf("Private Key file:  %s\n", infile);
 		printf("Algorithm:         %" PRIu64 " %s\n",
 		       privkey->algorithm,
-		       (privkey->algorithm <
-			kNumAlgorithms ? algo_strings[privkey->
-						      algorithm] :
-			"(invalid)"));
+		       vb1_crypto_name(privkey->algorithm));
 		if (outfile) {
 			if (0 != PrivateKeyWrite(outfile, privkey)) {
 				fprintf(stderr,

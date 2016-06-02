@@ -15,6 +15,8 @@
 #include "futility.h"
 #include "host_common.h"
 #include "util_misc.h"
+#include "vb1_helper.h"
+#include "vb2_common.h"
 #include "vboot_common.h"
 
 /* Command line options */
@@ -203,12 +205,10 @@ static int Unpack(const char *infile, const char *datapubkey,
 
 	data_key = &block->data_key;
 	printf("Data key algorithm:   %" PRIu64 " %s\n", data_key->algorithm,
-	       (data_key->algorithm < kNumAlgorithms ?
-		algo_strings[data_key->algorithm] : "(invalid)"));
+	       vb1_crypto_name(data_key->algorithm));
 	printf("Data key version:     %" PRIu64 "\n", data_key->key_version);
-	printf("Data key sha1sum:     ");
-	PrintPubKeySha1Sum(data_key);
-	printf("\n");
+	printf("Data key sha1sum:     %s\n",
+	       packed_key_sha1_string((struct vb2_packed_key *)data_key));
 
 	if (datapubkey) {
 		if (0 != PublicKeyWrite(datapubkey, data_key)) {

@@ -12,12 +12,19 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2common.h"
+#include "2rsa.h"
 #include "cryptolib.h"
 #include "futility.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "kernel_blob.h"
 #include "util_misc.h"
 #include "vboot_common.h"
+#include "vb1_helper.h"
+#include "vb2_common.h"
 
 /* Command line options */
 enum {
@@ -174,19 +181,11 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 static int Verify(const char *infile, const char *signpubkey,
 		  const char *fv_file, const char *kernelkey_file)
 {
+	uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+	struct vb2_workbuf wb;
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
-	VbKeyBlockHeader *key_block;
-	VbFirmwarePreambleHeader *preamble;
-	VbPublicKey *data_key;
-	VbPublicKey *sign_key;
-	VbPublicKey *kernel_subkey;
-	RSAPublicKey *rsa;
-	uint8_t *blob;
-	uint64_t blob_size;
-	uint8_t *fv_data;
-	uint64_t fv_size;
-	uint64_t now = 0;
-	uint32_t flags;
+	uint32_t now = 0;
 
 	if (!infile || !signpubkey || !fv_file) {
 		VbExError("Must specify filename, signpubkey, and fv\n");
@@ -194,105 +193,112 @@ static int Verify(const char *infile, const char *signpubkey,
 	}
 
 	/* Read public signing key */
-	sign_key = PublicKeyRead(signpubkey);
-	if (!sign_key) {
-		VbExError("Error reading signpubkey.\n");
+	uint8_t *pubkbuf;
+	uint32_t pubklen;
+	struct vb2_public_key sign_key;
+	if (VB2_SUCCESS != vb2_read_file(signpubkey, &pubkbuf, &pubklen)) {
+		fprintf(stderr, "Error reading signpubkey.\n");
+		return 1;
+	}
+	if (VB2_SUCCESS != vb2_unpack_key(&sign_key, pubkbuf, pubklen)) {
+		fprintf(stderr, "Error unpacking signpubkey.\n");
 		return 1;
 	}
 
 	/* Read blob */
-	blob = ReadFile(infile, &blob_size);
-	if (!blob) {
+	uint8_t *blob;
+	uint32_t blob_size;
+	if (VB2_SUCCESS != vb2_read_file(infile, &blob, &blob_size)) {
 		VbExError("Error reading input file\n");
 		return 1;
 	}
 
 	/* Read firmware volume */
-	fv_data = ReadFile(fv_file, &fv_size);
-	if (!fv_data) {
+	uint8_t *fv_data;
+	uint32_t fv_size;
+	if (VB2_SUCCESS != vb2_read_file(fv_file, &fv_data, &fv_size)) {
 		VbExError("Error reading firmware volume\n");
 		return 1;
 	}
 
 	/* Verify key block */
-	key_block = (VbKeyBlockHeader *) blob;
-	if (0 != KeyBlockVerify(key_block, blob_size, sign_key, 0)) {
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)blob;
+	if (VB2_SUCCESS !=
+	    vb2_verify_keyblock(keyblock, blob_size, &sign_key, &wb)) {
 		VbExError("Error verifying key block.\n");
 		return 1;
 	}
-	free(sign_key);
-	now += key_block->key_block_size;
+	free(pubkbuf);
+
+	now += keyblock->keyblock_size;
 
 	printf("Key block:\n");
-	data_key = &key_block->data_key;
-	printf("  Size:                %" PRIu64 "\n",
-	       key_block->key_block_size);
-	printf("  Flags:               %" PRIu64 " (ignored)\n",
-	       key_block->key_block_flags);
-	printf("  Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
-	       (data_key->algorithm <
-		kNumAlgorithms ? algo_strings[data_key->
-					      algorithm] : "(invalid)"));
-	printf("  Data key version:    %" PRIu64 "\n", data_key->key_version);
-	printf("  Data key sha1sum:    ");
-	PrintPubKeySha1Sum(data_key);
-	printf("\n");
+	printf("  Size:                %d\n", keyblock->keyblock_size);
+	printf("  Flags:               %d (ignored)\n",
+	       keyblock->keyblock_flags);
 
-	rsa = PublicKeyToRSA(&key_block->data_key);
-	if (!rsa) {
-		VbExError("Error parsing data key.\n");
+	struct vb2_packed_key *packed_key = &keyblock->data_key;
+	printf("  Data key algorithm:  %d %s\n", packed_key->algorithm,
+	       vb1_crypto_name(packed_key->algorithm));
+	printf("  Data key version:    %d\n", packed_key->key_version);
+	printf("  Data key sha1sum:    %s\n",
+	       packed_key_sha1_string(packed_key));
+
+	struct vb2_public_key data_key;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
+			   keyblock->data_key.key_offset +
+			   keyblock->data_key.key_size)) {
+		fprintf(stderr, "Error parsing data key.\n");
 		return 1;
 	}
 
 	/* Verify preamble */
-	preamble = (VbFirmwarePreambleHeader *) (blob + now);
-	if (0 != VerifyFirmwarePreamble(preamble, blob_size - now, rsa)) {
-		VbExError("Error verifying preamble.\n");
+	struct vb2_fw_preamble *pre2 = (struct vb2_fw_preamble *)(blob + now);
+	if (VB2_SUCCESS !=
+	    vb2_verify_fw_preamble(pre2, blob_size - now, &data_key, &wb)) {
+		VbExError("Error2 verifying preamble.\n");
 		return 1;
 	}
-	now += preamble->preamble_size;
+	now += pre2->preamble_size;
 
-	flags = VbGetFirmwarePreambleFlags(preamble);
+	uint32_t flags = pre2->flags;
+	if (pre2->header_version_minor < 1)
+		flags = 0;  /* Old 2.0 structure didn't have flags */
+
 	printf("Preamble:\n");
-	printf("  Size:                  %" PRIu64 "\n",
-	       preamble->preamble_size);
-	printf("  Header version:        %" PRIu32 ".%" PRIu32 "\n",
-	       preamble->header_version_major, preamble->header_version_minor);
-	printf("  Firmware version:      %" PRIu64 "\n",
-	       preamble->firmware_version);
-	kernel_subkey = &preamble->kernel_subkey;
-	printf("  Kernel key algorithm:  %" PRIu64 " %s\n",
-	       kernel_subkey->algorithm,
-	       (kernel_subkey->algorithm < kNumAlgorithms ?
-		algo_strings[kernel_subkey->algorithm] : "(invalid)"));
-	printf("  Kernel key version:    %" PRIu64 "\n",
-	       kernel_subkey->key_version);
-	printf("  Kernel key sha1sum:    ");
-	PrintPubKeySha1Sum(kernel_subkey);
-	printf("\n");
-	printf("  Firmware body size:    %" PRIu64 "\n",
-	       preamble->body_signature.data_size);
-	printf("  Preamble flags:        %" PRIu32 "\n", flags);
+	printf("  Size:                  %d\n", pre2->preamble_size);
+	printf("  Header version:        %d.%d\n",
+	       pre2->header_version_major, pre2->header_version_minor);
+	printf("  Firmware version:      %d\n", pre2->firmware_version);
+
+	struct vb2_packed_key *kernel_subkey = &pre2->kernel_subkey;
+	printf("  Kernel key algorithm:  %d %s\n", kernel_subkey->algorithm,
+	       vb1_crypto_name(kernel_subkey->algorithm));
+	printf("  Kernel key version:    %d\n", kernel_subkey->key_version);
+	printf("  Kernel key sha1sum:    %s\n",
+	       packed_key_sha1_string(kernel_subkey));
+	printf("  Firmware body size:    %d\n", pre2->body_signature.data_size);
+	printf("  Preamble flags:        %d\n", flags);
 
 	/* TODO: verify body size same as signature size */
 
 	/* Verify body */
 	if (flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
-		printf
-		    ("Preamble requests USE_RO_NORMAL;"
-		     " skipping body verification.\n");
-	} else {
-		if (0 !=
-		    VerifyData(fv_data, fv_size, &preamble->body_signature,
-			       rsa)) {
-			VbExError("Error verifying firmware body.\n");
-			return 1;
-		}
+		printf("Preamble requests USE_RO_NORMAL;"
+		       " skipping body verification.\n");
+	} else if (VB2_SUCCESS ==
+		   vb2_verify_data(fv_data, fv_size, &pre2->body_signature,
+				   &data_key, &wb)) {
 		printf("Body verification succeeded.\n");
+	} else {
+		VbExError("Error verifying firmware body.\n");
+		return 1;
 	}
 
 	if (kernelkey_file) {
-		if (0 != PublicKeyWrite(kernelkey_file, kernel_subkey)) {
+		if (0 != PublicKeyWrite(kernelkey_file,
+					(struct VbPublicKey *)kernel_subkey)) {
 			VbExError("Unable to write kernel subkey\n");
 			return 1;
 		}

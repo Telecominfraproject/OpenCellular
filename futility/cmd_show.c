@@ -20,6 +20,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2common.h"
+#include "2sha.h"
 #include "file_type.h"
 #include "file_type_bios.h"
 #include "fmap.h"
@@ -28,8 +32,8 @@
 #include "host_common.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
+#include "vb2_common.h"
 #include "vboot_common.h"
-#include "2api.h"
 #include "host_key2.h"
 
 /* Options */
@@ -38,19 +42,21 @@ struct show_option_s show_option = {
 	.type = FILE_TYPE_UNKNOWN,
 };
 
-void show_pubkey(VbPublicKey *pubkey, const char *sp)
+/* Shared work buffer */
+static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+static struct vb2_workbuf wb;
+
+void show_pubkey(const struct vb2_packed_key *pubkey, const char *sp)
 {
 	printf("%sVboot API:           1.0\n", sp);
-	printf("%sAlgorithm:           %" PRIu64 " %s\n", sp, pubkey->algorithm,
-	       (pubkey->algorithm < kNumAlgorithms ?
-		algo_strings[pubkey->algorithm] : "(invalid)"));
-	printf("%sKey Version:         %" PRIu64 "\n", sp, pubkey->key_version);
-	printf("%sKey sha1sum:         ", sp);
-	PrintPubKeySha1Sum(pubkey);
-	printf("\n");
+	printf("%sAlgorithm:           %d %s\n", sp, pubkey->algorithm,
+	       vb1_crypto_name(pubkey->algorithm));
+	printf("%sKey Version:         %d\n", sp, pubkey->key_version);
+	printf("%sKey sha1sum:         %s\n",
+	       sp, packed_key_sha1_string(pubkey));
 }
 
-static void show_keyblock(VbKeyBlockHeader *key_block, const char *name,
+static void show_keyblock(struct vb2_keyblock *keyblock, const char *name,
 			  int sign_key, int good_sig)
 {
 	if (name)
@@ -59,36 +65,31 @@ static void show_keyblock(VbKeyBlockHeader *key_block, const char *name,
 		printf("Key block:\n");
 	printf("  Signature:             %s\n",
 	       sign_key ? (good_sig ? "valid" : "invalid") : "ignored");
-	printf("  Size:                  0x%" PRIx64 "\n",
-	       key_block->key_block_size);
-	printf("  Flags:                 %" PRIu64 " ",
-	       key_block->key_block_flags);
-	if (key_block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
+	printf("  Size:                  0x%x\n", keyblock->keyblock_size);
+	printf("  Flags:                 %d ", keyblock->keyblock_flags);
+	if (keyblock->keyblock_flags & VB2_KEY_BLOCK_FLAG_DEVELOPER_0)
 		printf(" !DEV");
-	if (key_block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
+	if (keyblock->keyblock_flags & VB2_KEY_BLOCK_FLAG_DEVELOPER_1)
 		printf(" DEV");
-	if (key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_0)
+	if (keyblock->keyblock_flags & VB2_KEY_BLOCK_FLAG_RECOVERY_0)
 		printf(" !REC");
-	if (key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)
+	if (keyblock->keyblock_flags & VB2_KEY_BLOCK_FLAG_RECOVERY_1)
 		printf(" REC");
 	printf("\n");
 
-	VbPublicKey *data_key = &key_block->data_key;
-	printf("  Data key algorithm:    %" PRIu64 " %s\n", data_key->algorithm,
-	       (data_key->algorithm < kNumAlgorithms
-		? algo_strings[data_key->algorithm]
-		: "(invalid)"));
-	printf("  Data key version:      %" PRIu64 "\n", data_key->key_version);
-	printf("  Data key sha1sum:      ");
-	PrintPubKeySha1Sum(data_key);
-	printf("\n");
+	struct vb2_packed_key *data_key = &keyblock->data_key;
+	printf("  Data key algorithm:    %d %s\n", data_key->algorithm,
+	       vb1_crypto_name(data_key->algorithm));
+	printf("  Data key version:      %d\n", data_key->key_version);
+	printf("  Data key sha1sum:      %s\n",
+	       packed_key_sha1_string(data_key));
 }
 
 int ft_show_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	VbPublicKey *pubkey = (VbPublicKey *)buf;
+	struct vb2_packed_key *pubkey = (struct vb2_packed_key *)buf;
 
-	if (!PublicKeyLooksOkay(pubkey, len)) {
+	if (!packed_key_looks_ok(pubkey, len)) {
 		printf("%s looks bogus\n", name);
 		return 1;
 	}
@@ -103,7 +104,6 @@ int ft_show_privkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	VbPrivateKey key;
 	const unsigned char *start;
-	int alg_okay;
 
 	key.algorithm = *(typeof(key.algorithm) *)buf;
 	start = buf + sizeof(key.algorithm);
@@ -116,9 +116,8 @@ int ft_show_privkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 	printf("Private Key file:      %s\n", name);
 	printf("  Vboot API:           1.0\n");
-	alg_okay = key.algorithm < kNumAlgorithms;
 	printf("  Algorithm:           %" PRIu64 " %s\n", key.algorithm,
-	       alg_okay ? algo_strings[key.algorithm] : "(unknown)");
+	       vb1_crypto_name(key.algorithm));
 	printf("  Key sha1sum:         ");
 	if (key.rsa_private_key) {
 		PrintPrivKeySha1Sum(&key);
@@ -133,20 +132,20 @@ int ft_show_privkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 int ft_show_keyblock(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	VbKeyBlockHeader *block = (VbKeyBlockHeader *)buf;
-	VbPublicKey *sign_key = show_option.k;
+	struct vb2_keyblock *block = (struct vb2_keyblock *)buf;
+	struct vb2_public_key *sign_key = show_option.k;
 	int good_sig = 0;
 	int retval = 0;
 
 	/* Check the hash only first */
-	if (0 != KeyBlockVerify(block, len, NULL, 1)) {
+	if (0 != vb2_verify_keyblock_hash(block, len, &wb)) {
 		printf("%s is invalid\n", name);
 		return 1;
 	}
 
 	/* Check the signature if we have one */
-	if (sign_key && VBOOT_SUCCESS ==
-	    KeyBlockVerify(block, len, sign_key, 0))
+	if (sign_key &&
+	    VB2_SUCCESS == vb2_verify_keyblock(block, len, sign_key, &wb))
 		good_sig = 1;
 
 	if (show_option.strict && (!sign_key || !good_sig))
@@ -160,9 +159,9 @@ int ft_show_keyblock(const char *name, uint8_t *buf, uint32_t len, void *data)
 int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 			void *data)
 {
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf;
 	struct bios_state_s *state = (struct bios_state_s *)data;
-	VbPublicKey *sign_key = show_option.k;
+	struct vb2_public_key *sign_key = show_option.k;
 	uint8_t *fv_data = show_option.fv;
 	uint64_t fv_size = show_option.fv_size;
 	struct bios_area_s *fw_body_area = 0;
@@ -170,7 +169,7 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	int retval = 0;
 
 	/* Check the hash... */
-	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
+	if (VB2_SUCCESS != vb2_verify_keyblock_hash(keyblock, len, &wb)) {
 		printf("%s keyblock component is invalid\n", name);
 		return 1;
 	}
@@ -181,10 +180,16 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	 * have no state, then we're just looking at a standalone fw_preamble,
 	 * so we'll have to get any keys or data from options.
 	 */
+	struct vb2_public_key root_key;
 	if (state) {
-		if (!sign_key && state->rootkey.is_valid)
+		if (!sign_key &&
+		    state->rootkey.is_valid &&
+		    VB2_SUCCESS == vb2_unpack_key(&root_key, state->rootkey.buf,
+						  state->rootkey.len)) {
 			/* BIOS should have a rootkey in the GBB */
-			sign_key = (VbPublicKey *)state->rootkey.buf;
+			sign_key = &root_key;
+		}
+
 		/* Identify the firmware body for this VBLOCK */
 		enum bios_component body_c = state->c == BIOS_FMAP_VBLOCK_A
 			? BIOS_FMAP_FW_MAIN_A
@@ -193,54 +198,53 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	}
 
 	/* If we have a key, check the signature too */
-	if (sign_key && VBOOT_SUCCESS ==
-	    KeyBlockVerify(key_block, len, sign_key, 0))
+	if (sign_key && VB2_SUCCESS ==
+	    vb2_verify_keyblock(keyblock, len, sign_key, &wb))
 		good_sig = 1;
 
-	show_keyblock(key_block, name, !!sign_key, good_sig);
+	show_keyblock(keyblock, name, !!sign_key, good_sig);
 
 	if (show_option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
-	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
-	if (!rsa) {
+	struct vb2_public_key data_key;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
+			   keyblock->data_key.key_offset +
+			   keyblock->data_key.key_size)) {
 		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
-	uint32_t more = key_block->key_block_size;
-	VbFirmwarePreambleHeader *preamble =
-		(VbFirmwarePreambleHeader *)(buf + more);
 
-	if (VBOOT_SUCCESS != VerifyFirmwarePreamble(preamble,
-						    len - more, rsa)) {
+	uint32_t more = keyblock->keyblock_size;
+	struct vb2_fw_preamble *pre2 = (struct vb2_fw_preamble *)(buf + more);
+	if (VB2_SUCCESS != vb2_verify_fw_preamble(pre2, len - more,
+						  &data_key, &wb)) {
 		printf("%s is invalid\n", name);
 		return 1;
 	}
 
-	uint32_t flags = VbGetFirmwarePreambleFlags(preamble);
+	uint32_t flags = pre2->flags;
+	if (pre2->header_version_minor < 1)
+		flags = 0;  /* Old 2.0 structure didn't have flags */
+
 	printf("Firmware Preamble:\n");
-	printf("  Size:                  %" PRIu64 "\n",
-	       preamble->preamble_size);
-	printf("  Header version:        %" PRIu32 ".%" PRIu32 "\n",
-	       preamble->header_version_major, preamble->header_version_minor);
-	printf("  Firmware version:      %" PRIu64 "\n",
-	       preamble->firmware_version);
-	VbPublicKey *kernel_subkey = &preamble->kernel_subkey;
-	printf("  Kernel key algorithm:  %" PRIu64 " %s\n",
+	printf("  Size:                  %d\n", pre2->preamble_size);
+	printf("  Header version:        %d.%d\n",
+	       pre2->header_version_major, pre2->header_version_minor);
+	printf("  Firmware version:      %d\n", pre2->firmware_version);
+
+	struct vb2_packed_key *kernel_subkey = &pre2->kernel_subkey;
+	printf("  Kernel key algorithm:  %d %s\n",
 	       kernel_subkey->algorithm,
-	       (kernel_subkey->algorithm < kNumAlgorithms ?
-		algo_strings[kernel_subkey->algorithm] : "(invalid)"));
+	       vb1_crypto_name(kernel_subkey->algorithm));
 	if (kernel_subkey->algorithm >= kNumAlgorithms)
 		retval = 1;
-	printf("  Kernel key version:    %" PRIu64 "\n",
-	       kernel_subkey->key_version);
-	printf("  Kernel key sha1sum:    ");
-	PrintPubKeySha1Sum(kernel_subkey);
-	printf("\n");
-	printf("  Firmware body size:    %" PRIu64 "\n",
-	       preamble->body_signature.data_size);
-	printf("  Preamble flags:        %" PRIu32 "\n", flags);
-
+	printf("  Kernel key version:    %d\n", kernel_subkey->key_version);
+	printf("  Kernel key sha1sum:    %s\n",
+	       packed_key_sha1_string(kernel_subkey));
+	printf("  Firmware body size:    %d\n", pre2->body_signature.data_size);
+	printf("  Preamble flags:        %d\n", flags);
 
 	if (flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
 		printf("Preamble requests USE_RO_NORMAL;"
@@ -261,8 +265,9 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 		return 0;
 	}
 
-	if (VBOOT_SUCCESS !=
-	    VerifyData(fv_data, fv_size, &preamble->body_signature, rsa)) {
+	if (VB2_SUCCESS !=
+	    vb2_verify_data(fv_data, fv_size, &pre2->body_signature,
+			    &data_key, &wb)) {
 		fprintf(stderr, "Error verifying firmware body.\n");
 		return 1;
 	}
@@ -287,8 +292,8 @@ done:
 int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 			    void *data)
 {
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
-	VbPublicKey *sign_key = show_option.k;
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf;
+	struct vb2_public_key *sign_key = show_option.k;
 	uint8_t *kernel_blob = 0;
 	uint64_t kernel_size = 0;
 	int good_sig = 0;
@@ -298,28 +303,28 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 	uint32_t flags = 0;
 
 	/* Check the hash... */
-	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
+	if (VB2_SUCCESS != vb2_verify_keyblock_hash(keyblock, len, &wb)) {
 		printf("%s keyblock component is invalid\n", name);
 		return 1;
 	}
 
 	/* If we have a key, check the signature too */
-	if (sign_key && VBOOT_SUCCESS ==
-	    KeyBlockVerify(key_block, len, sign_key, 0))
+	if (sign_key && VB2_SUCCESS ==
+	    vb2_verify_keyblock(keyblock, len, sign_key, &wb))
 		good_sig = 1;
 
 	printf("Kernel partition:        %s\n", name);
-	show_keyblock(key_block, NULL, !!sign_key, good_sig);
+	show_keyblock(keyblock, NULL, !!sign_key, good_sig);
 
 	if (show_option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
-	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
+	RSAPublicKey *rsa = PublicKeyToRSA((VbPublicKey *)&keyblock->data_key);
 	if (!rsa) {
 		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
-	uint32_t more = key_block->key_block_size;
+	uint32_t more = keyblock->keyblock_size;
 	VbKernelPreambleHeader *preamble =
 		(VbKernelPreambleHeader *)(buf + more);
 
@@ -482,6 +487,8 @@ static int show_type(char *filename)
 
 static int do_show(int argc, char *argv[])
 {
+	uint8_t *pubkbuf = NULL;
+	struct vb2_public_key pubk2;
 	char *infile = 0;
 	int ifd, i;
 	int errorcnt = 0;
@@ -490,6 +497,8 @@ static int do_show(int argc, char *argv[])
 	char *e = 0;
 	int type_override = 0;
 	enum futil_file_type type;
+
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	opterr = 0;		/* quiet, you */
 	while ((i = getopt_long(argc, argv, short_opts, long_opts, 0)) != -1) {
@@ -504,11 +513,21 @@ static int do_show(int argc, char *argv[])
 			}
 			break;
 		case 'k':
-			show_option.k = PublicKeyRead(optarg);
-			if (!show_option.k) {
+			if (VB2_SUCCESS !=
+			    vb2_read_file(optarg, &pubkbuf, &len)) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
+				break;
 			}
+
+			if (VB2_SUCCESS !=
+			    vb2_unpack_key(&pubk2, pubkbuf, len)) {
+				fprintf(stderr, "Error unpacking %s\n", optarg);
+				errorcnt++;
+				break;
+			}
+
+			show_option.k = &pubk2;
 			break;
 		case 't':
 			show_option.t_flag = 1;
@@ -611,8 +630,8 @@ boo:
 	}
 
 done:
-	if (show_option.k)
-		free(show_option.k);
+	if (pubkbuf)
+		free(pubkbuf);
 	if (show_option.fv)
 		free(show_option.fv);
 

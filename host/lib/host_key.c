@@ -17,6 +17,7 @@
 #include "host_common.h"
 #include "host_key.h"
 #include "host_misc.h"
+#include "vb2_common.h"
 #include "vboot_common.h"
 
 
@@ -196,50 +197,50 @@ VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
   return key;
 }
 
-
-int PublicKeyLooksOkay(VbPublicKey *key, uint64_t file_size)
+int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size)
 {
-  uint64_t key_size;
+	uint64_t key_size;
 
-  /* Sanity-check key data */
-  if (0 != VerifyPublicKeyInside(key, file_size, key)) {
-    VBDEBUG(("PublicKeyRead() not a VbPublicKey\n"));
-    return 0;
-  }
-  if (key->algorithm >= kNumAlgorithms) {
-    VBDEBUG(("PublicKeyRead() invalid algorithm\n"));
-    return 0;
-  }
-  if (key->key_version > 0xFFFF) {
-    VBDEBUG(("PublicKeyRead() invalid version\n"));
-    return 0;  /* Currently, TPM only supports 16-bit version */
-  }
-  if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
-      key_size != key->key_size) {
-    VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
-    return 0;
-  }
+	if (size < sizeof(*key))
+		return 0;
 
-  /* Success */
-  return 1;
+	/* Sanity-check key data */
+	if (0 != VerifyPublicKeyInside(key, size, (VbPublicKey *)key)) {
+		VBDEBUG(("PublicKeyRead() not a VbPublicKey\n"));
+		return 0;
+	}
+	if (key->algorithm >= kNumAlgorithms) {
+		VBDEBUG(("PublicKeyRead() invalid algorithm\n"));
+		return 0;
+	}
+	if (key->key_version > 0xFFFF) {
+		VBDEBUG(("PublicKeyRead() invalid version\n"));
+		return 0;  /* Currently, TPM only supports 16-bit version */
+	}
+	if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
+	    key_size != key->key_size) {
+		VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
+		return 0;
+	}
+
+	/* Success */
+	return 1;
 }
 
-
-
 VbPublicKey* PublicKeyRead(const char* filename) {
-  VbPublicKey* key;
-  uint64_t file_size;
+	struct vb2_packed_key *key;
+	uint64_t file_size;
 
-  key = (VbPublicKey*)ReadFile(filename, &file_size);
-  if (!key)
-    return NULL;
+	key = (struct vb2_packed_key *)ReadFile(filename, &file_size);
+	if (!key)
+		return NULL;
 
-  if (PublicKeyLooksOkay(key, file_size))
-      return key;
+	if (packed_key_looks_ok(key, file_size))
+		return (VbPublicKey *)key;
 
-  /* Error */
-  free(key);
-  return NULL;
+	/* Error */
+	free(key);
+	return NULL;
 }
 
 int PublicKeyWrite(const char* filename, const VbPublicKey* key) {

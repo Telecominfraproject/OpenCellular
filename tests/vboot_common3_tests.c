@@ -155,127 +155,6 @@ static void KeyBlockVerifyTest(const VbPublicKey *public_key,
 	free(hdr);
 }
 
-static void ReSignFirmwarePreamble(VbFirmwarePreambleHeader *h,
-                                   const VbPrivateKey *key)
-{
-	VbSignature *sig = CalculateSignature(
-		      (const uint8_t *)h, h->preamble_signature.data_size, key);
-
-	SignatureCopy(&h->preamble_signature, sig);
-	free(sig);
-}
-
-static void VerifyFirmwarePreambleTest(const VbPublicKey *public_key,
-                                       const VbPrivateKey *private_key,
-                                       const VbPublicKey *kernel_subkey)
-{
-	VbFirmwarePreambleHeader *hdr;
-	VbFirmwarePreambleHeader *h;
-	RSAPublicKey *rsa;
-	unsigned hsize;
-
-	/* Create a dummy signature */
-	VbSignature* body_sig = SignatureAlloc(56, 78);
-
-	rsa = PublicKeyToRSA(public_key);
-	hdr = CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig,
-				     private_key, 0x5678);
-	TEST_NEQ(hdr && rsa, 0, "VerifyFirmwarePreamble() prerequisites");
-	if (!hdr)
-		return;
-	hsize = (unsigned) hdr->preamble_size;
-	h = (VbFirmwarePreambleHeader *)malloc(hsize + 16384);
-
-	TEST_EQ(VerifyFirmwarePreamble(hdr, hsize, rsa), 0,
-		"VerifyFirmwarePreamble() ok using key");
-	TEST_NEQ(VerifyFirmwarePreamble(hdr, 4, rsa), 0,
-		 "VerifyFirmwarePreamble() size tiny");
-	TEST_NEQ(VerifyFirmwarePreamble(hdr, hsize - 1, rsa), 0,
-		 "VerifyFirmwarePreamble() size--");
-	TEST_EQ(VerifyFirmwarePreamble(hdr, hsize + 1, rsa), 0,
-		"VerifyFirmwarePreamble() size++");
-
-	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
-	h->header_version_major++;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() major++");
-
-	Memcpy(h, hdr, hsize);
-	h->header_version_major--;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() major--");
-
-	Memcpy(h, hdr, hsize);
-	h->header_version_minor++;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		"VerifyFirmwarePreamble() minor++");
-
-	Memcpy(h, hdr, hsize);
-	h->header_version_minor--;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_EQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		"VerifyFirmwarePreamble() minor--");
-
-	/* Check signature */
-	Memcpy(h, hdr, hsize);
-	h->preamble_signature.sig_offset = hsize;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() sig off end");
-
-	Memcpy(h, hdr, hsize);
-	h->preamble_signature.sig_size--;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() sig too small");
-
-	Memcpy(h, hdr, hsize);
-	GetPublicKeyData(&h->kernel_subkey)[0] ^= 0x34;
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() sig mismatch");
-
-	/* Check that we signed header, kernel subkey, and body sig */
-	Memcpy(h, hdr, hsize);
-	h->preamble_signature.data_size = 4;
-	h->kernel_subkey.key_offset = 0;
-	h->kernel_subkey.key_size = 0;
-	h->body_signature.sig_offset = 0;
-	h->body_signature.sig_size = 0;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() didn't sign header");
-
-	Memcpy(h, hdr, hsize);
-	h->kernel_subkey.key_offset = hsize;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() kernel subkey off end");
-
-	Memcpy(h, hdr, hsize);
-	h->body_signature.sig_offset = hsize;
-	ReSignFirmwarePreamble(h, private_key);
-	TEST_NEQ(VerifyFirmwarePreamble(h, hsize, rsa), 0,
-		 "VerifyFirmwarePreamble() body sig off end");
-
-	/* Check that we return flags properly for new and old structs */
-	Memcpy(h, hdr, hsize);
-	TEST_EQ(VbGetFirmwarePreambleFlags(h), 0x5678,
-		"VbGetFirmwarePreambleFlags() v2.1");
-	h->header_version_minor = 0;
-	TEST_EQ(VbGetFirmwarePreambleFlags(h), 0,
-		"VbGetFirmwarePreambleFlags() v2.0");
-
-	/* TODO: verify with extra padding at end of header. */
-
-	free(h);
-	RSAPublicKeyFree(rsa);
-	free(hdr);
-}
-
 int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		     const char *keys_dir)
 {
@@ -321,8 +200,6 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 
 	KeyBlockVerifyTest(signing_public_key, signing_private_key,
 			   data_public_key);
-	VerifyFirmwarePreambleTest(signing_public_key, signing_private_key,
-				   data_public_key);
 
 	if (signing_public_key)
 		free(signing_public_key);

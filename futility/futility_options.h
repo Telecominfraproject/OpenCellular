@@ -20,7 +20,7 @@ struct vb2_private_key;
 struct vb21_packed_key;
 
 struct show_option_s {
-	VbPublicKey *k;
+	struct vb2_public_key *k;
 	uint8_t *fv;
 	uint64_t fv_size;
 	uint32_t padding;

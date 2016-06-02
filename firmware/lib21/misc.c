@@ -28,11 +28,11 @@
  * @param buf_ptr	Destination for object pointer
  * @return VB2_SUCCESS, or error code on error.
  */
-int vb2_read_resource_object(struct vb2_context *ctx,
-			     enum vb2_resource_index index,
-			     uint32_t offset,
-			     struct vb2_workbuf *wb,
-			     void **buf_ptr)
+static int vb21_read_resource_object(struct vb2_context *ctx,
+				     enum vb2_resource_index index,
+				     uint32_t offset,
+				     struct vb2_workbuf *wb,
+				     void **buf_ptr)
 {
 	struct vb21_struct_common c;
 	void *buf;
@@ -62,7 +62,7 @@ int vb2_read_resource_object(struct vb2_context *ctx,
 	return VB2_SUCCESS;
 }
 
-int vb2_load_fw_keyblock(struct vb2_context *ctx)
+int vb21_load_fw_keyblock(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	struct vb2_workbuf wb;
@@ -97,8 +97,8 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	 * Load the firmware keyblock common header into the work buffer after
 	 * the root key.
 	 */
-	rv = vb2_read_resource_object(ctx, VB2_RES_FW_VBLOCK, 0, &wb,
-				      (void **)&kb);
+	rv = vb21_read_resource_object(ctx, VB2_RES_FW_VBLOCK, 0, &wb,
+				       (void **)&kb);
 	if (rv)
 		return rv;
 
@@ -154,7 +154,7 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	return VB2_SUCCESS;
 }
 
-int vb2_load_fw_preamble(struct vb2_context *ctx)
+int vb21_load_fw_preamble(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	struct vb2_workbuf wb;
@@ -179,9 +179,9 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 		return rv;
 
 	/* Load the firmware preamble */
-	rv = vb2_read_resource_object(ctx, VB2_RES_FW_VBLOCK,
-				      sd->vblock_preamble_offset, &wb,
-				      (void **)&pre);
+	rv = vb21_read_resource_object(ctx, VB2_RES_FW_VBLOCK,
+				       sd->vblock_preamble_offset, &wb,
+				       (void **)&pre);
 	if (rv)
 		return rv;
 

@@ -121,25 +121,6 @@ int VerifyDigest(const uint8_t *digest, const VbSignature *sig,
 int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
 		   const VbPublicKey *key, int hash_only);
 
-
-/**
- * Check the sanity of a firmware preamble of size [size] bytes, using public
- * key [key].
- *
- * Returns VBOOT_SUCCESS if successful.
- */
-int VerifyFirmwarePreamble(const VbFirmwarePreambleHeader *preamble,
-			   uint64_t size, const RSAPublicKey *key);
-
-
-/**
- * Return the flags from a firmware preamble, or a default value for older
- * preamble versions which didn't contain flags.  Use this function to ensure
- * compatibility with older preamble versions (2.0).  Assumes the preamble has
- * already been verified via VerifyFirmwarePreamble().
- */
-uint32_t VbGetFirmwarePreambleFlags(const VbFirmwarePreambleHeader *preamble);
-
 /**
  * Check the sanity of a kernel preamble of size [size] bytes, using public key
  * [key].
