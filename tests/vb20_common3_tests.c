@@ -425,13 +425,6 @@ static void test_verify_kernel_preamble(const VbPublicKey *public_key,
 	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		  "vb2_verify_kernel_preamble() minor++");
 
-	Memcpy(h, hdr, hsize);
-	h->header_version_minor--;
-	resign_kernel_preamble(h, private_key);
-	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
-		VB2_ERROR_PREAMBLE_HEADER_OLD,
-		"vb2_verify_kernel_preamble() 2.1 not supported");
-
 	/* Check signature */
 	Memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_offset = hsize;

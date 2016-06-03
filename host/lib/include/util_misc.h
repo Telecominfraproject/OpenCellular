@@ -12,6 +12,7 @@
 #include "vboot_struct.h"
 struct rsa_st;
 struct vb2_packed_key;
+struct vb2_private_key;
 
 /**
  * Returns the SHA1 digest of the packed key data as a string.
@@ -26,8 +27,18 @@ struct vb2_packed_key;
  */
 const char *packed_key_sha1_string(const struct vb2_packed_key *key);
 
-/* Prints the sha1sum of a VbPrivateKey to stdout. */
-void PrintPrivKeySha1Sum(VbPrivateKey *key);
+/**
+ * Returns the SHA1 digest of the private key data as a string.
+ *
+ * The returned string is a global static buffer, so each call to this
+ * overwrites the previous digest string.  So don't call this more than once
+ * per printf().
+ *
+ * @param key		Key to print digest for
+ *
+ * @return A string containing the SHA1 digest.
+ */
+const char *private_key_sha1_string(const struct vb2_private_key *key);
 
 /*
  * Our packed RSBPublicKey buffer (historically in files ending with ".keyb",

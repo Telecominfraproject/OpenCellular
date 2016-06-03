@@ -130,7 +130,7 @@ static unsigned int find_cmdline_start(uint8_t *buf_ptr, unsigned int max_len)
 }
 
 /* Offset of kernel command line string from the start of the kernel blob */
-uint64_t KernelCmdLineOffset(VbKernelPreambleHeader *preamble)
+uint64_t kernel_cmd_line_offset(const struct vb2_kernel_preamble *preamble)
 {
 	return preamble->bootloader_address - preamble->body_load_address -
 	    CROS_CONFIG_SIZE - CROS_PARAMS_SIZE;
@@ -628,7 +628,8 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	}
 	printf("Body verification succeeded.\n");
 
-	printf("Config:\n%s\n", kernel_blob + KernelCmdLineOffset(g_preamble));
+	printf("Config:\n%s\n", kernel_blob + kernel_cmd_line_offset(
+		     (struct vb2_kernel_preamble *)g_preamble));
 
 	rv = 0;
 done:

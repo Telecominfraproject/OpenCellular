@@ -21,6 +21,7 @@
 #include "host_common.h"
 #include "util_misc.h"
 #include "vb2_common.h"
+#include "host_key2.h"
 #include "vboot_common.h"
 
 const char *packed_key_sha1_string(const struct vb2_packed_key *key)
@@ -29,10 +30,10 @@ const char *packed_key_sha1_string(const struct vb2_packed_key *key)
 	uint32_t buflen = key->key_size;
 	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
 	static char dest[VB2_SHA1_DIGEST_SIZE * 2 + 1];
-	char *dnext = dest;
 
 	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest, sizeof(digest));
 
+	char *dnext = dest;
 	int i;
 	for (i = 0; i < sizeof(digest); i++)
 		dnext += sprintf(dnext, "%02x", digest[i]);
@@ -40,24 +41,27 @@ const char *packed_key_sha1_string(const struct vb2_packed_key *key)
 	return dest;
 }
 
-void PrintPrivKeySha1Sum(VbPrivateKey *key)
+const char *private_key_sha1_string(const struct vb2_private_key *key)
 {
 	uint8_t *buf;
 	uint32_t buflen;
 	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
-	int i;
+	static char dest[VB2_SHA1_DIGEST_SIZE * 2 + 1];
 
-	if (vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen)) {
-		printf("<error>");
-		return;
+	if (!key->rsa_private_key ||
+	    vb_keyb_from_rsa(key->rsa_private_key, &buf, &buflen)) {
+		return "<error>";
 	}
 
 	vb2_digest_buffer(buf, buflen, VB2_HASH_SHA1, digest, sizeof(digest));
 
+	char *dnext = dest;
+	int i;
 	for (i = 0; i < sizeof(digest); i++)
-		printf("%02x", digest[i]);
+		dnext += sprintf(dnext, "%02x", digest[i]);
 
 	free(buf);
+	return dest;
 }
 
 int vb_keyb_from_rsa(struct rsa_st *rsa_private_key,

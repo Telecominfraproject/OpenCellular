@@ -6,6 +6,7 @@
 #ifndef VBOOT_REFERENCE_FUTILITY_VB1_HELPER_H_
 #define VBOOT_REFERENCE_FUTILITY_VB1_HELPER_H_
 
+struct vb2_kernel_preamble;
 struct vb2_packed_key;
 
 /**
@@ -54,6 +55,6 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 		     const char *keyblock_outfile,
 		     uint64_t min_version);
 
-uint64_t KernelCmdLineOffset(VbKernelPreambleHeader *preamble);
+uint64_t kernel_cmd_line_offset(const struct vb2_kernel_preamble *preamble);
 
 #endif	/* VBOOT_REFERENCE_FUTILITY_VB1_HELPER_H_ */

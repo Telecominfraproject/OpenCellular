@@ -22,6 +22,14 @@ struct vb2_private_key {
 	struct vb2_id id;			/* Key ID */
 };
 
+struct vb2_packed_private_key {
+	/* Signature algorithm used by the key (enum vb2_crypto_algorithm) */
+	uint32_t algorithm;
+	uint32_t reserved2;
+	/* Key data formatted for d2i_RSAPrivateKey() */
+	uint8_t key_data[0];
+};
+
 /* Convert between enums and human-readable form. Terminated with {0, 0}. */
 struct vb2_text_vs_enum {
 	const char *name;

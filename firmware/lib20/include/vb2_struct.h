@@ -268,6 +268,8 @@ struct vb2_kernel_preamble {
 	uint32_t flags;
 } __attribute__((packed));
 
-#define EXPECTED_VB2_KERNEL_PREAMBLE_SIZE 116
+#define EXPECTED_VB2_KERNEL_PREAMBLE_2_0_SIZE 96
+#define EXPECTED_VB2_KERNEL_PREAMBLE_2_1_SIZE 112
+#define EXPECTED_VB2_KERNEL_PREAMBLE_2_2_SIZE 116
 
 #endif  /* VBOOT_REFERENCE_VB2_STRUCT_H_ */

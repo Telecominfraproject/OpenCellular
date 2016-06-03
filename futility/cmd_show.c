@@ -30,11 +30,10 @@
 #include "futility.h"
 #include "futility_options.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
 #include "vb2_common.h"
-#include "vboot_common.h"
-#include "host_key2.h"
 
 /* Options */
 struct show_option_s show_option = {
@@ -43,7 +42,7 @@ struct show_option_s show_option = {
 };
 
 /* Shared work buffer */
-static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_workbuf wb;
 
 void show_pubkey(const struct vb2_packed_key *pubkey, const char *sp)
@@ -102,30 +101,24 @@ int ft_show_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 int ft_show_privkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
-	VbPrivateKey key;
-	const unsigned char *start;
+	struct vb2_packed_private_key *pkey =
+		(struct vb2_packed_private_key *)buf;
+	struct vb2_private_key key;
+	const unsigned char *start = pkey->key_data;
 
-	key.algorithm = *(typeof(key.algorithm) *)buf;
-	start = buf + sizeof(key.algorithm);
-	if (len <= sizeof(key.algorithm)) {
+	if (len <= sizeof(*pkey)) {
 		printf("%s looks bogus\n", name);
 		return 1;
 	}
-	len -= sizeof(key.algorithm);
+	len -= sizeof(*pkey);
 	key.rsa_private_key = d2i_RSAPrivateKey(NULL, &start, len);
 
 	printf("Private Key file:      %s\n", name);
 	printf("  Vboot API:           1.0\n");
-	printf("  Algorithm:           %" PRIu64 " %s\n", key.algorithm,
-	       vb1_crypto_name(key.algorithm));
-	printf("  Key sha1sum:         ");
-	if (key.rsa_private_key) {
-		PrintPrivKeySha1Sum(&key);
-		RSA_free(key.rsa_private_key);
-	} else {
-		printf("<error>");
-	}
-	printf("\n");
+	printf("  Algorithm:           %u %s\n", pkey->algorithm,
+	       vb1_crypto_name(pkey->algorithm));
+	printf("  Key sha1sum:         %s\n",
+	       private_key_sha1_string(&key));
 
 	return 0;
 }
@@ -294,13 +287,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 {
 	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf;
 	struct vb2_public_key *sign_key = show_option.k;
-	uint8_t *kernel_blob = 0;
-	uint64_t kernel_size = 0;
-	int good_sig = 0;
 	int retval = 0;
-	uint64_t vmlinuz_header_size = 0;
-	uint64_t vmlinuz_header_address = 0;
-	uint32_t flags = 0;
 
 	/* Check the hash... */
 	if (VB2_SUCCESS != vb2_verify_keyblock_hash(keyblock, len, &wb)) {
@@ -309,6 +296,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 	}
 
 	/* If we have a key, check the signature too */
+	int good_sig = 0;
 	if (sign_key && VB2_SUCCESS ==
 	    vb2_verify_keyblock(keyblock, len, sign_key, &wb))
 		good_sig = 1;
@@ -319,57 +307,56 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 	if (show_option.strict && (!sign_key || !good_sig))
 		retval = 1;
 
-	RSAPublicKey *rsa = PublicKeyToRSA((VbPublicKey *)&keyblock->data_key);
-	if (!rsa) {
+	struct vb2_public_key data_key;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
+			   keyblock->data_key.key_offset +
+			   keyblock->data_key.key_size)) {
 		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
-	uint32_t more = keyblock->keyblock_size;
-	VbKernelPreambleHeader *preamble =
-		(VbKernelPreambleHeader *)(buf + more);
 
-	if (VBOOT_SUCCESS != VerifyKernelPreamble(preamble,
-						    len - more, rsa)) {
+	uint32_t more = keyblock->keyblock_size;
+	struct vb2_kernel_preamble *pre2 =
+		(struct vb2_kernel_preamble *)(buf + more);
+
+	if (VB2_SUCCESS != vb2_verify_kernel_preamble(pre2, len - more,
+						      &data_key, &wb)) {
 		printf("%s is invalid\n", name);
 		return 1;
 	}
 
 	printf("Kernel Preamble:\n");
-	printf("  Size:                  0x%" PRIx64 "\n",
-	       preamble->preamble_size);
-	printf("  Header version:        %" PRIu32 ".%" PRIu32 "\n",
-	       preamble->header_version_major,
-	       preamble->header_version_minor);
-	printf("  Kernel version:        %" PRIu64 "\n",
-	       preamble->kernel_version);
+	printf("  Size:                  0x%x\n", pre2->preamble_size);
+	printf("  Header version:        %u.%u\n",
+	       pre2->header_version_major,
+	       pre2->header_version_minor);
+	printf("  Kernel version:        %u\n", pre2->kernel_version);
 	printf("  Body load address:     0x%" PRIx64 "\n",
-	       preamble->body_load_address);
-	printf("  Body size:             0x%" PRIx64 "\n",
-	       preamble->body_signature.data_size);
+	       pre2->body_load_address);
+	printf("  Body size:             0x%x\n",
+	       pre2->body_signature.data_size);
 	printf("  Bootloader address:    0x%" PRIx64 "\n",
-	       preamble->bootloader_address);
-	printf("  Bootloader size:       0x%" PRIx64 "\n",
-	       preamble->bootloader_size);
+	       pre2->bootloader_address);
+	printf("  Bootloader size:       0x%x\n", pre2->bootloader_size);
 
-	if (VbGetKernelVmlinuzHeader(preamble,
-				     &vmlinuz_header_address,
-				     &vmlinuz_header_size)
-	    != VBOOT_SUCCESS) {
-		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
-		return 1;
-	}
+	uint64_t vmlinuz_header_address = 0;
+	uint32_t vmlinuz_header_size = 0;
+	vb2_kernel_get_vmlinuz_header(pre2,
+				      &vmlinuz_header_address,
+				      &vmlinuz_header_size);
 	if (vmlinuz_header_size) {
 		printf("  Vmlinuz_header address:    0x%" PRIx64 "\n",
 		       vmlinuz_header_address);
-		printf("  Vmlinuz header size:       0x%" PRIx64 "\n",
+		printf("  Vmlinuz header size:       0x%x\n",
 		       vmlinuz_header_size);
 	}
 
-	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
-		flags = preamble->flags;
-	printf("  Flags:                 0x%" PRIx32 "\n", flags);
+	printf("  Flags:                 0x%x\n", vb2_kernel_get_flags(pre2));
 
 	/* Verify kernel body */
+	uint8_t *kernel_blob = 0;
+	uint64_t kernel_size = 0;
 	if (show_option.fv) {
 		/* It's in a separate file, which we've already read in */
 		kernel_blob = show_option.fv;
@@ -386,15 +373,16 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 		return 1;
 	}
 
-	if (0 != VerifyData(kernel_blob, kernel_size,
-			    &preamble->body_signature, rsa)) {
+	if (VB2_SUCCESS !=
+	    vb2_verify_data(kernel_blob, kernel_size, &pre2->body_signature,
+			    &data_key, &wb)) {
 		fprintf(stderr, "Error verifying kernel body.\n");
 		return 1;
 	}
 
 	printf("Body verification succeeded.\n");
 
-	printf("Config:\n%s\n", kernel_blob + KernelCmdLineOffset(preamble));
+	printf("Config:\n%s\n", kernel_blob + kernel_cmd_line_offset(pre2));
 
 	return retval;
 }

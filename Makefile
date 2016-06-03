@@ -293,7 +293,7 @@ INCLUDES += \
 # If we're not building for a specific target, just stub out things like the
 # TPM commands and various external functions that are provided by the BIOS.
 ifeq (${FIRMWARE_ARCH},)
-INCLUDES += -Ihost/include -Ihost/lib/include
+INCLUDES += -Ihost/include -Ihost/lib/include -Ihost/lib21/include
 endif
 
 # Firmware library, used by the other firmware components (depthcharge,
@@ -1199,7 +1199,7 @@ ${TEST20_BINS}: ${FWLIB20}
 ${TEST20_BINS}: LIBS += ${FWLIB20}
 
 ${TEST21_BINS}: ${UTILLIB21}
-${TEST21_BINS}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
+${TEST21_BINS}: INCLUDES += -Ifirmware/lib21/include
 ${TEST21_BINS}: LIBS += ${UTILLIB21}
 
 ${TESTBDB_BINS}: ${FWLIB2X} ${UTILBDB}
