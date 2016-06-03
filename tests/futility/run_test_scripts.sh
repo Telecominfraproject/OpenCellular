@@ -45,6 +45,7 @@ ${SCRIPTDIR}/test_dump_fmap.sh
 ${SCRIPTDIR}/test_gbb_utility.sh
 ${SCRIPTDIR}/test_load_fmap.sh
 ${SCRIPTDIR}/test_main.sh
+${SCRIPTDIR}/test_show_contents.sh
 ${SCRIPTDIR}/test_show_kernel.sh
 ${SCRIPTDIR}/test_show_vs_verify.sh
 ${SCRIPTDIR}/test_show_usbpd1.sh
