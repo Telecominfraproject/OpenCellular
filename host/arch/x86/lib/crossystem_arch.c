@@ -493,6 +493,7 @@ static int FindGpioChipOffsetByLabel(unsigned *gpio_num, unsigned *offset,
   char filename[128];
   char chiplabel[128];
   int match = 0;
+  unsigned controller_offset = 0;
 
   dir = opendir(GPIO_BASE_PATH);
   if (!dir) {
@@ -500,16 +501,21 @@ static int FindGpioChipOffsetByLabel(unsigned *gpio_num, unsigned *offset,
   }
 
   while(0 != (ent = readdir(dir))) {
-    if (1 == sscanf(ent->d_name, "gpiochip%u", offset)) {
+    if (1 == sscanf(ent->d_name, "gpiochip%u", &controller_offset)) {
       /*
        * Read the file at gpiochip<O>/label to get the identifier
        * for this bank of GPIOs.
        */
       snprintf(filename, sizeof(filename), "%s/gpiochip%u/label",
-               GPIO_BASE_PATH, *offset);
+               GPIO_BASE_PATH, controller_offset);
       if (ReadFileString(chiplabel, sizeof(chiplabel), filename)) {
-        if (!strncasecmp(chiplabel, name, strlen(name)))
+        if (!strncasecmp(chiplabel, name, strlen(name))) {
+          /*
+           * Store offset when chip label is matched.
+           */
+          *offset = controller_offset;
           match++;
+        }
       }
     }
   }
@@ -629,6 +635,10 @@ static const struct GpioChipset chipsets_supported[] = {
   { "PCH-LP", FindGpioChipOffset },
   { "INT3437:00", FindGpioChipOffsetByLabel },
   { "INT344B:00", FindGpioChipOffsetByLabel },
+  { "INT3452:00", FindGpioChipOffsetByLabel }, /* INT3452 are for Apollolake */
+  { "INT3452:01", FindGpioChipOffsetByLabel },
+  { "INT3452:02", FindGpioChipOffsetByLabel },
+  { "INT3452:03", FindGpioChipOffsetByLabel },
   { "BayTrail", BayTrailFindGpioChipOffset },
   { "Braswell", BraswellFindGpioChipOffset },
   { NULL },
