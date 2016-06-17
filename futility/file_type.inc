@@ -27,7 +27,7 @@ FILE_TYPE(GBB,              "gbb",           "GBB",
 	  R_(ft_recognize_gbb),
 	  S_(ft_show_gbb),
 	  NONE)
-FILE_TYPE(FW_PREAMBLE,      "fw_pre",        "VbFirmwarePreamble (VBLOCK_A/B)",
+FILE_TYPE(FW_PREAMBLE,      "fw_pre",        "firmware preamble (VBLOCK_A/B)",
 	  R_(ft_recognize_vblock1),
 	  S_(ft_show_fw_preamble),
 	  NONE)

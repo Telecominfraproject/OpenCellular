@@ -11,6 +11,19 @@
 #include "2struct.h"
 
 struct vb2_private_key;
+struct vb21_signature;
+
+/**
+ * Get the digest info for a hash algorithm
+ *
+ * @param hash_alg	Hash algorithm
+ * @param buf_ptr	On success, points to the digest info
+ * @param size_ptr	On success, contains the info size in bytes
+ * @return VB2_SUCCESS, or non-zero error code on failure.
+ */
+int vb2_digest_info(enum vb2_hash_algorithm hash_alg,
+		    const uint8_t **buf_ptr,
+		    uint32_t *size_ptr);
 
 /**
  * Sign data buffer

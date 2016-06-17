@@ -43,9 +43,6 @@ static void test_struct_packing(void)
 	TEST_EQ(EXPECTED_VB2_KEYBLOCK_SIZE,
 		EXPECTED_VBKEYBLOCKHEADER_SIZE,
 		"vboot1->2 keyblock sizes same");
-	TEST_EQ(EXPECTED_VB2_FW_PREAMBLE_SIZE,
-		EXPECTED_VBFIRMWAREPREAMBLEHEADER2_1_SIZE,
-		"vboot1->2 firmware preamble sizes same");
 }
 
 /**

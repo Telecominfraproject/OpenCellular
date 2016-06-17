@@ -203,18 +203,18 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 }
 
 static void resign_fw_preamble(struct vb2_fw_preamble *h,
-			       const VbPrivateKey *key)
+			       struct vb2_private_key *key)
 {
-	VbSignature *sig = CalculateSignature(
+	struct vb2_signature *sig = vb2_calculate_signature(
 		(const uint8_t *)h, h->preamble_signature.data_size, key);
 
-	SignatureCopy((VbSignature *)&h->preamble_signature, sig);
+	vb2_copy_signature(&h->preamble_signature, sig);
 	free(sig);
 }
 
 static void test_verify_fw_preamble(const VbPublicKey *public_key,
-				    const VbPrivateKey *private_key,
-				    const VbPublicKey *kernel_subkey)
+				    struct vb2_private_key *private_key,
+				    struct vb2_packed_key *kernel_subkey)
 {
 	struct vb2_fw_preamble *hdr;
 	struct vb2_fw_preamble *h;
@@ -227,17 +227,16 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	/* Create a dummy signature */
-	VbSignature *body_sig = SignatureAlloc(56, 78);
+	struct vb2_signature *body_sig = vb2_alloc_signature(56, 78);
 
 	TEST_SUCC(vb2_unpack_key(&rsa, (uint8_t *)public_key,
 				 public_key->key_offset + public_key->key_size),
 		  "vb2_verify_fw_preamble() prereq key");
 
-	hdr = (struct vb2_fw_preamble *)
-		CreateFirmwarePreamble(0x1234, kernel_subkey, body_sig,
-				       private_key, 0x5678);
+	hdr = vb2_create_fw_preamble(0x1234, kernel_subkey, body_sig,
+				     private_key, 0x5678);
 	TEST_PTR_NEQ(hdr, NULL,
-		     "VerifyFirmwarePreamble() prereq test preamble");
+		     "vb2_verify_fw_preamble() prereq test preamble");
 	if (!hdr)
 		return;
 	hsize = (uint32_t) hdr->preamble_size;
@@ -368,7 +367,7 @@ static void test_verify_kernel_preamble(const VbPublicKey *public_key,
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	/* Create a dummy signature */
-	VbSignature *body_sig = SignatureAlloc(56, 0x214000);
+	struct vb2_signature *body_sig = vb2_alloc_signature(56, 0x214000);
 
 	TEST_SUCC(vb2_unpack_key(&rsa, (uint8_t *)public_key,
 				 public_key->key_offset + public_key->key_size),
@@ -376,7 +375,8 @@ static void test_verify_kernel_preamble(const VbPublicKey *public_key,
 
 	hdr = (struct vb2_kernel_preamble *)
 		CreateKernelPreamble(0x1234, 0x100000, 0x300000, 0x4000,
-				     body_sig, 0x304000, 0x10000, 0, 0,
+				     (VbSignature *)body_sig,
+				     0x304000, 0x10000, 0, 0,
 				     private_key);
 	TEST_PTR_NEQ(hdr, NULL,
 		     "vb2_verify_kernel_preamble() prereq test preamble");
@@ -542,6 +542,14 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		return 1;
 	}
 
+	struct vb2_private_key *signing_private_key2 =
+		vb2_read_private_key_pem(filename, signing_key_algorithm);
+	if (!signing_private_key2) {
+		fprintf(stderr, "Error reading signing_private_key: %s\n",
+			filename);
+		return 1;
+	}
+
 	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, signing_rsa_len);
 	signing_public_key = PublicKeyReadKeyb(filename,
 					       signing_key_algorithm, 1);
@@ -564,14 +572,16 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 			    data_public_key);
 	test_verify_keyblock(signing_public_key, signing_private_key,
 			     data_public_key);
-	test_verify_fw_preamble(signing_public_key, signing_private_key,
-				data_public_key);
+	test_verify_fw_preamble(signing_public_key, signing_private_key2,
+				(struct vb2_packed_key *)data_public_key);
 	test_verify_kernel_preamble(signing_public_key, signing_private_key);
 
 	if (signing_public_key)
 		free(signing_public_key);
 	if (signing_private_key)
 		free(signing_private_key);
+	if (signing_private_key2)
+		free(signing_private_key2);
 	if (data_public_key)
 		free(data_public_key);
 

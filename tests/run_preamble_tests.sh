@@ -4,10 +4,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# This tests that vblocks using pre-3.0 versions of VbFirmwarePreambleHeader
-# and VbKernelPreambleHeader will still verify (or not) correctly. We need to
-# keep the old versions around to make sure that we can still sign images in
-# the ways that existing devices can validate.
+# This tests that vblocks using pre-3.0 versions of vb2_fw_preamble
+# and VbKernelPreambleHeader will still verify (or not) correctly. We
+# need to keep the old versions around to make sure that we can still
+# sign images in the ways that existing devices can validate.
 
 # Load common constants and variables for tests.
 . "$(dirname "$0")/common.sh"

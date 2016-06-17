@@ -239,7 +239,7 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	printf("  Firmware body size:    %d\n", pre2->body_signature.data_size);
 	printf("  Preamble flags:        %d\n", flags);
 
-	if (flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
+	if (flags & VB2_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
 		printf("Preamble requests USE_RO_NORMAL;"
 		       " skipping body verification.\n");
 		goto done;
@@ -269,7 +269,7 @@ done:
 	/* Can't trust the BIOS unless everything is signed (in which case
 	 * we've already returned), but standalone files are okay. */
 	if (state || (sign_key && good_sig)) {
-		if (!(flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL))
+		if (!(flags & VB2_FIRMWARE_PREAMBLE_USE_RO_NORMAL))
 			printf("Body verification succeeded.\n");
 		if (state)
 			state->area[state->c].is_valid = 1;

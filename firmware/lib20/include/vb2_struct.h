@@ -120,8 +120,8 @@ struct vb2_keyblock {
 #define FIRMWARE_PREAMBLE_HEADER_VERSION_MINOR 1
 
 /* Flags for vb2_fw_preamble.flags */
-/* Reserved; do not use */
-#define VB2_FIRMWARE_PREAMBLE_RESERVED0 0x00000001
+/* Use RO-normal firmware (deprecated; do not use) */
+#define VB2_FIRMWARE_PREAMBLE_USE_RO_NORMAL 0x00000001
 /* Do not allow use of any hardware crypto accelerators. */
 #define VB2_FIRMWARE_PREAMBLE_DISALLOW_HWCRYPTO 0x00000002
 

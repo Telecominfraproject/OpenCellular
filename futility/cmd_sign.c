@@ -27,6 +27,7 @@
 #include "kernel_blob.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
+#include "vb2_struct.h"
 #include "vb21_common.h"
 #include "host_key2.h"
 #include "vboot_common.h"
@@ -77,6 +78,15 @@ int ft_sign_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 			if (!sign_option.signprivate) {
 				fprintf(stderr,
 					"Unable to read PEM signing key: %s\n",
+					strerror(errno));
+				return 1;
+			}
+			sign_option.signprivate2 = vb2_read_private_key_pem(
+				sign_option.pem_signpriv,
+				sign_option.pem_algo);
+			if (!sign_option.signprivate2) {
+				fprintf(stderr,
+ 					"Unable to read PEM signing key: %s\n",
 					strerror(errno));
 				return 1;
 			}
@@ -244,21 +254,22 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 int ft_sign_raw_firmware(const char *name, uint8_t *buf, uint32_t len,
 			 void *data)
 {
-	VbSignature *body_sig;
-	VbFirmwarePreambleHeader *preamble;
+	struct vb2_signature *body_sig;
+	struct vb2_fw_preamble *preamble;
 	int rv;
 
-	body_sig = CalculateSignature(buf, len, sign_option.signprivate);
+	body_sig = vb2_calculate_signature(buf, len, sign_option.signprivate2);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return 1;
 	}
 
-	preamble = CreateFirmwarePreamble(sign_option.version,
-					  sign_option.kernel_subkey,
-					  body_sig,
-					  sign_option.signprivate,
-					  sign_option.flags);
+	preamble = vb2_create_fw_preamble(
+			sign_option.version,
+			(struct vb2_packed_key *)sign_option.kernel_subkey,
+			body_sig,
+			sign_option.signprivate2,
+			sign_option.flags);
 	if (!preamble) {
 		fprintf(stderr, "Error creating firmware preamble.\n");
 		free(body_sig);
@@ -290,7 +301,7 @@ static const char usage_pubkey[] = "\n"
 	"    --pem_signpriv   FILE.pem      Signing key in PEM format...\n"
 	"    --pem_algo       NUM           AND the algorithm to use (0 - %d)\n"
 	"\n"
-	"  If a signing key is not given, the keyblock will not be signed (duh)."
+	"  If a signing key is not given, the keyblock will not be signed."
 	"\n\n"
 	"And these, too:\n\n"
 	"  -f|--flags       NUM             Flags specifying use conditions\n"
@@ -363,7 +374,7 @@ static const char usage_new_kpart[] = "\n"
 	"Required PARAMS:\n"
 	"  -s|--signprivate FILE.vbprivk"
 	"    The private key to sign the kernel blob\n"
-	"  -b|--keyblock    FILE.keyblock   The keyblock containing the public\n"
+	"  -b|--keyblock    FILE.keyblock   Keyblock containing the public\n"
 	"                                     key to verify the kernel blob\n"
 	"  -v|--version     NUM             The kernel version number\n"
 	"  --bootloader     FILE            Bootloader stub\n"
@@ -398,7 +409,7 @@ static const char usage_old_kpart[] = "\n"
 	"                                     in place if no OUTFILE given)\n"
 	"\n"
 	"Optional PARAMS:\n"
-	"  -b|--keyblock    FILE.keyblock   The keyblock containing the public\n"
+	"  -b|--keyblock    FILE.keyblock   Keyblock containing the public\n"
 	"                                     key to verify the kernel blob\n"
 	"  -v|--version     NUM             The kernel version number\n"
 	"  --config         FILE            The kernel commandline file\n"
@@ -651,6 +662,11 @@ static int do_sign(int argc, char *argv[])
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
+			sign_option.signprivate2 = vb2_read_private_key(optarg);
+			if (!sign_option.signprivate2) {
+				fprintf(stderr, "Error reading %s\n", optarg);
+				errorcnt++;
+			}
 			break;
 		case 'b':
 			sign_option.keyblock = KeyBlockRead(optarg);
@@ -667,7 +683,8 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case 'S':
-			sign_option.devsignprivate = PrivateKeyRead(optarg);
+			sign_option.devsignprivate =
+				vb2_read_private_key(optarg);
 			if (!sign_option.devsignprivate) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
@@ -1037,6 +1054,8 @@ done:
 
 	if (sign_option.signprivate)
 		free(sign_option.signprivate);
+	if (sign_option.signprivate2)
+		free(sign_option.signprivate2);
 	if (sign_option.keyblock)
 		free(sign_option.keyblock);
 	if (sign_option.kernel_subkey)

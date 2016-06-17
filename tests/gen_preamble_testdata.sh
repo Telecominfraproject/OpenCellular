@@ -4,11 +4,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
-# This generates the pre-change test data used to ensure that modifications to
-# VbFirmwarePreambleHeader and VbKernelPreambleHeader will not break the
-# signing tools for older releases. This was run *before* any modifications, so
-# be sure to revert the repo back to the correct point if you need to run it
-# again.
+# This generates the pre-change test data used to ensure that
+# modifications to vb2_fw_preamble and VbKernelPreambleHeader will not
+# break the signing tools for older releases. This was run *before*
+# any modifications, so be sure to revert the repo back to the correct
+# point if you need to run it again.
 
 
 # Load common constants and variables for tests.

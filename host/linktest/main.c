@@ -36,11 +36,9 @@ int main(void)
   SignatureInit(0, 0, 0, 0);
   SignatureAlloc(0, 0);
   SignatureCopy(0, 0);
-  CalculateChecksum(0, 0);
   CalculateSignature(0, 0, 0);
 
   /* host_common.h */
-  CreateFirmwarePreamble(0, 0, 0, 0, 0);
   CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   /* file_keys.h */

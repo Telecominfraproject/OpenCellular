@@ -54,54 +54,6 @@ int SignatureCopy(VbSignature* dest, const VbSignature* src) {
   return 0;
 }
 
-
-VbSignature* CalculateChecksum(const uint8_t* data, uint64_t size) {
-
-  uint8_t header_checksum[VB2_SHA512_DIGEST_SIZE];
-  VbSignature* sig;
-
-  if (VB2_SUCCESS != vb2_digest_buffer(data, size, VB2_HASH_SHA512,
-				       header_checksum,
-				       sizeof(header_checksum)))
-    return NULL;
-
-  sig = SignatureAlloc(VB2_SHA512_DIGEST_SIZE, 0);
-  if (!sig)
-    return NULL;
-
-  sig->sig_offset = sizeof(VbSignature);
-  sig->sig_size = VB2_SHA512_DIGEST_SIZE;
-  sig->data_size = size;
-
-  /* Signature data immediately follows the header */
-  Memcpy(GetSignatureData(sig), header_checksum, VB2_SHA512_DIGEST_SIZE);
-  return sig;
-}
-
-VbSignature* CalculateHash(const uint8_t* data, uint64_t size,
-                           const VbPrivateKey* key) {
-  int vb2_alg = vb2_crypto_to_hash(key->algorithm);
-  uint8_t digest[VB2_MAX_DIGEST_SIZE];
-  int digest_size = vb2_digest_size(vb2_alg);
-  VbSignature* sig = NULL;
-
-  /* Calculate the digest */
-  if (VB2_SUCCESS != vb2_digest_buffer(data, size, vb2_alg,
-				       digest, sizeof(digest)))
-    return NULL;
-
-  /* Allocate output signature */
-  sig = SignatureAlloc(digest_size, size);
-  if (!sig)
-    return NULL;
-
-  /* The digest itself is the signature data */
-  Memcpy(GetSignatureData(sig), digest, digest_size);
-
-  /* Return the signature */
-  return sig;
-}
-
 VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
                                 const VbPrivateKey* key) {
   int vb2_alg = vb2_crypto_to_hash(key->algorithm);

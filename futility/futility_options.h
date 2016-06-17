@@ -34,9 +34,10 @@ extern struct show_option_s show_option;
 
 struct sign_option_s {
 	VbPrivateKey *signprivate;
+	struct vb2_private_key *signprivate2;
 	VbKeyBlockHeader *keyblock;
 	VbPublicKey *kernel_subkey;
-	VbPrivateKey *devsignprivate;
+	struct vb2_private_key *devsignprivate;
 	VbKeyBlockHeader *devkeyblock;
 	uint32_t version;
 	int version_specified;

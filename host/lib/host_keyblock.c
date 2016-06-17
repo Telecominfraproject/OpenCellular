@@ -57,9 +57,9 @@ VbKeyBlockHeader* KeyBlockCreate(const VbPublicKey* data_key,
     Memset(&h->key_block_signature, 0, sizeof(VbSignature));
 
   /* Calculate checksum */
-  sigtmp = CalculateChecksum((uint8_t*)h, signed_size);
-  SignatureCopy(&h->key_block_checksum, sigtmp);
-  free(sigtmp);
+  struct vb2_signature *chk = vb2_sha512_signature((uint8_t*)h, signed_size);
+  SignatureCopy(&h->key_block_checksum, (VbSignature *)chk);
+  free(chk);
 
   /* Calculate signature */
   if (signing_key) {
@@ -117,9 +117,9 @@ VbKeyBlockHeader* KeyBlockCreate_external(const VbPublicKey* data_key,
                 siglen_map[algorithm], signed_size);
 
   /* Calculate checksum */
-  sigtmp = CalculateChecksum((uint8_t*)h, signed_size);
-  SignatureCopy(&h->key_block_checksum, sigtmp);
-  free(sigtmp);
+  struct vb2_signature *chk = vb2_sha512_signature((uint8_t*)h, signed_size);
+  SignatureCopy(&h->key_block_checksum, (VbSignature *)chk);
+  free(chk);
 
   /* Calculate signature */
   sigtmp = CalculateSignature_external((uint8_t*)h, signed_size,

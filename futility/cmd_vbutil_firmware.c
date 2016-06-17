@@ -92,8 +92,6 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 
 	VbPrivateKey *signing_key;
 	VbPublicKey *kernel_subkey;
-	VbSignature *body_sig;
-	VbFirmwarePreambleHeader *preamble;
 	VbKeyBlockHeader *key_block;
 	uint64_t key_block_size;
 	uint8_t *fv_data;
@@ -127,6 +125,12 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 		VbExError("Error reading signing key.\n");
 		return 1;
 	}
+	struct vb2_private_key *signing_key2 =
+		vb2_read_private_key(signprivate);
+	if (!signing_key2) {
+		VbExError("Error reading signing key.\n");
+		return 1;
+	}
 
 	kernel_subkey = PublicKeyRead(kernelkey_file);
 	if (!kernel_subkey) {
@@ -142,7 +146,8 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 		VbExError("Empty firmware volume file\n");
 		return 1;
 	}
-	body_sig = CalculateSignature(fv_data, fv_size, signing_key);
+	struct vb2_signature *body_sig =
+		vb2_calculate_signature(fv_data, fv_size, signing_key2);
 	if (!body_sig) {
 		VbExError("Error calculating body signature\n");
 		return 1;
@@ -150,10 +155,10 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 	free(fv_data);
 
 	/* Create preamble */
-	preamble = CreateFirmwarePreamble(version,
-					  kernel_subkey,
-					  body_sig,
-					  signing_key, preamble_flags);
+	struct vb2_fw_preamble *preamble =
+		vb2_create_fw_preamble(version,
+				       (struct vb2_packed_key *)kernel_subkey,
+				       body_sig, signing_key2, preamble_flags);
 	if (!preamble) {
 		VbExError("Error creating preamble.\n");
 		return 1;
@@ -284,7 +289,7 @@ static int Verify(const char *infile, const char *signpubkey,
 	/* TODO: verify body size same as signature size */
 
 	/* Verify body */
-	if (flags & VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
+	if (flags & VB2_FIRMWARE_PREAMBLE_USE_RO_NORMAL) {
 		printf("Preamble requests USE_RO_NORMAL;"
 		       " skipping body verification.\n");
 	} else if (VB2_SUCCESS ==

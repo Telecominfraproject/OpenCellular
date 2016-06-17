@@ -285,8 +285,8 @@ static int fmap_sign_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 		goto whatever;
 	}
 	uint32_t more = key_block->key_block_size;
-	VbFirmwarePreambleHeader *preamble =
-		(VbFirmwarePreambleHeader *)(buf + more);
+	struct vb2_fw_preamble *preamble =
+		(struct vb2_fw_preamble *)(buf + more);
 	uint32_t fw_size = preamble->body_signature.data_size;
 	struct bios_area_s *fw_body_area = 0;
 
@@ -322,23 +322,23 @@ whatever:
 
 static int write_new_preamble(struct bios_area_s *vblock,
 			      struct bios_area_s *fw_body,
-			      VbPrivateKey *signkey,
+			      struct vb2_private_key *signkey,
 			      VbKeyBlockHeader *keyblock)
 {
-	VbSignature *body_sig;
-	VbFirmwarePreambleHeader *preamble;
+	struct vb2_signature *body_sig;
+	struct vb2_fw_preamble *preamble;
 
-	body_sig = CalculateSignature(fw_body->buf, fw_body->len, signkey);
+	body_sig = vb2_calculate_signature(fw_body->buf, fw_body->len, signkey);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return 1;
 	}
 
-	preamble = CreateFirmwarePreamble(sign_option.version,
-					  sign_option.kernel_subkey,
-					  body_sig,
-					  signkey,
-					  sign_option.flags);
+	preamble = vb2_create_fw_preamble(sign_option.version,
+			(struct vb2_packed_key *)sign_option.kernel_subkey,
+			body_sig,
+			signkey,
+			sign_option.flags);
 	if (!preamble) {
 		fprintf(stderr, "Error creating firmware preamble.\n");
 		free(body_sig);
@@ -420,13 +420,13 @@ static int sign_bios_at_end(struct bios_state_s *state)
 					     sign_option.devkeyblock);
 	} else {
 		retval |= write_new_preamble(vblock_a, fw_a,
-					     sign_option.signprivate,
+					     sign_option.signprivate2,
 					     sign_option.keyblock);
 	}
 
 	/* FW B is always normal keys */
 	retval |= write_new_preamble(vblock_b, fw_b,
-				     sign_option.signprivate,
+				     sign_option.signprivate2,
 				     sign_option.keyblock);
 
 
