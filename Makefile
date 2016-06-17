@@ -293,7 +293,8 @@ INCLUDES += \
 # If we're not building for a specific target, just stub out things like the
 # TPM commands and various external functions that are provided by the BIOS.
 ifeq (${FIRMWARE_ARCH},)
-INCLUDES += -Ihost/include -Ihost/lib/include -Ihost/lib21/include
+INCLUDES += -Ihost/include -Ihost/lib/include
+INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
 endif
 
 # Firmware library, used by the other firmware components (depthcharge,
@@ -443,7 +444,6 @@ ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS} \
 
 # Intermediate library for the vboot_reference utilities to link against.
 UTILLIB = ${BUILD}/libvboot_util.a
-UTILLIB21 = ${BUILD}/libvboot_util21.a
 UTILBDB = ${BUILD}/libvboot_utilbdb.a
 
 UTILLIB_SRCS = \
@@ -465,20 +465,15 @@ UTILLIB_SRCS = \
 	host/lib/host_misc.c \
 	host/lib/util_misc.c \
 	host/lib/host_signature.c \
-	host/lib/signature_digest.c
-
-UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${UTILLIB_OBJS}
-
-UTILLIB21_SRCS += \
+	host/lib/signature_digest.c \
 	host/lib21/host_fw_preamble.c \
 	host/lib21/host_key.c \
 	host/lib21/host_keyblock.c \
 	host/lib21/host_misc.c \
 	host/lib21/host_signature.c
 
-UTILLIB21_OBJS = ${UTILLIB21_SRCS:%.c=${BUILD}/%.o}
-ALL_OBJS += ${UTILLIB21_OBJS}
+UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
+ALL_OBJS += ${UTILLIB_OBJS}
 
 UTILBDB_SRCS += \
 	firmware/bdb/host.c
@@ -701,8 +696,6 @@ FUTIL_STATIC_OBJS = ${FUTIL_STATIC_SRCS:%.c=${BUILD}/%.o} \
 FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o} ${FUTIL_CMD_LIST:%.c=%.o}
 
 ${FUTIL_OBJS}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
-${FUTIL_BIN}: ${UTILLIB21}
-${FUTIL_BIN}: LIBS += ${UTILLIB21}
 
 ALL_OBJS += ${FUTIL_OBJS}
 
@@ -852,7 +845,7 @@ _dir_create := $(foreach d, \
 
 # Host targets
 .PHONY: host_stuff
-host_stuff: utillib hostlib cgpt utils futil tests utillib21
+host_stuff: utillib hostlib cgpt utils futil tests
 
 .PHONY: clean
 clean:
@@ -995,17 +988,8 @@ utillib: ${UTILLIB} \
 	${BUILD}/host/linktest/main
 
 # TODO: better way to make .a than duplicating this recipe each time?
-${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS}
-	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
-	${Q}rm -f $@
-	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
-	${Q}ar qc $@ $^
-
-.PHONY: utillib21
-utillib21: ${UTILLIB21}
-
-${UTILLIB21}: INCLUDES += -Ihost/lib21/include -Ifirmware/lib21/include
-${UTILLIB21}: ${UTILLIB21_OBJS} ${FWLIB2X_OBJS} ${FWLIB21_OBJS}
+${UTILLIB}: ${UTILLIB_OBJS} ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS} \
+		${FWLIB21_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1187,9 +1171,9 @@ ${TEST_BINS}: INCLUDES += -Itests
 ${TEST_BINS}: LIBS = ${TESTLIB} ${UTILLIB}
 
 # Futility tests need almost everything that futility needs.
-${TEST_FUTIL_BINS}: ${FUTIL_OBJS} ${UTILLIB} ${UTILLIB21}
+${TEST_FUTIL_BINS}: ${FUTIL_OBJS} ${UTILLIB}
 ${TEST_FUTIL_BINS}: INCLUDES += -Ifutility
-${TEST_FUTIL_BINS}: OBJS += ${FUTIL_OBJS} ${UTILLIB} ${UTILLIB21}
+${TEST_FUTIL_BINS}: OBJS += ${FUTIL_OBJS} ${UTILLIB}
 ${TEST_FUTIL_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST2X_BINS}: ${FWLIB2X}
@@ -1197,10 +1181,6 @@ ${TEST2X_BINS}: LIBS += ${FWLIB2X}
 
 ${TEST20_BINS}: ${FWLIB20}
 ${TEST20_BINS}: LIBS += ${FWLIB20}
-
-${TEST21_BINS}: ${UTILLIB21}
-${TEST21_BINS}: INCLUDES += -Ifirmware/lib21/include
-${TEST21_BINS}: LIBS += ${UTILLIB21}
 
 ${TESTBDB_BINS}: ${FWLIB2X} ${UTILBDB}
 ${TESTBDB_BINS}: INCLUDES += -Ifirmware/bdb
