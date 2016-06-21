@@ -11,6 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2rsa.h"
 #include "cryptolib.h"
 #include "futility.h"
 #include "host_common.h"
@@ -86,9 +89,8 @@ static int Pack(const char *outfile, const char *datapubkey,
 		const char *signprivate_pem, uint64_t pem_algorithm,
 		uint64_t flags, const char *external_signer)
 {
-	VbPublicKey *data_key;
-	VbPrivateKey *signing_key = NULL;
-	VbKeyBlockHeader *block;
+	struct vb2_private_key *signing_key = NULL;
+	struct vb2_keyblock *block;
 
 	if (!outfile) {
 		fprintf(stderr,
@@ -101,7 +103,7 @@ static int Pack(const char *outfile, const char *datapubkey,
 		return 1;
 	}
 
-	data_key = PublicKeyRead(datapubkey);
+	struct vb2_packed_key *data_key = vb2_read_packed_key(datapubkey);
 	if (!data_key) {
 		fprintf(stderr, "vbutil_keyblock: Error reading data key.\n");
 		return 1;
@@ -116,37 +118,40 @@ static int Pack(const char *outfile, const char *datapubkey,
 		}
 		if (external_signer) {
 			/* External signing uses the PEM file directly. */
-			block = KeyBlockCreate_external(data_key,
-							signprivate_pem,
-							pem_algorithm, flags,
-							external_signer);
+			block = vb2_create_keyblock_external(data_key,
+							     signprivate_pem,
+							     pem_algorithm,
+							     flags,
+							     external_signer);
 		} else {
 			signing_key =
-			    PrivateKeyReadPem(signprivate_pem, pem_algorithm);
+				vb2_read_private_key_pem(signprivate_pem,
+							 pem_algorithm);
 			if (!signing_key) {
 				fprintf(stderr, "vbutil_keyblock:"
 					" Error reading signing key.\n");
 				return 1;
 			}
-			block = KeyBlockCreate(data_key, signing_key, flags);
+			block = vb2_create_keyblock(data_key, signing_key,
+						    flags);
 		}
 	} else {
 		if (signprivate) {
-			signing_key = PrivateKeyRead(signprivate);
+			signing_key = vb2_read_private_key(signprivate);
 			if (!signing_key) {
 				fprintf(stderr, "vbutil_keyblock:"
 					" Error reading signing key.\n");
 				return 1;
 			}
 		}
-		block = KeyBlockCreate(data_key, signing_key, flags);
+		block = vb2_create_keyblock(data_key, signing_key, flags);
 	}
 
 	free(data_key);
 	if (signing_key)
 		free(signing_key);
 
-	if (0 != KeyBlockWrite(outfile, block)) {
+	if (VB2_SUCCESS != vb2_write_keyblock(outfile, block)) {
 		fprintf(stderr, "vbutil_keyblock: Error writing key block.\n");
 		return 1;
 	}
@@ -157,32 +162,44 @@ static int Pack(const char *outfile, const char *datapubkey,
 static int Unpack(const char *infile, const char *datapubkey,
 		  const char *signpubkey)
 {
-	VbPublicKey *data_key;
-	VbPublicKey *sign_key = NULL;
-	VbKeyBlockHeader *block;
+	struct vb2_packed_key *sign_key = NULL;
 
 	if (!infile) {
 		fprintf(stderr, "vbutil_keyblock: Must specify filename\n");
 		return 1;
 	}
 
-	block = KeyBlockRead(infile);
+	struct vb2_keyblock *block = vb2_read_keyblock(infile);
 	if (!block) {
 		fprintf(stderr, "vbutil_keyblock: Error reading key block.\n");
 		return 1;
 	}
 
 	/* If the block is signed, then verify it with the signing public key,
-	 * since KeyBlockRead() only verified the hash. */
-	if (block->key_block_signature.sig_size && signpubkey) {
-		sign_key = PublicKeyRead(signpubkey);
+	 * since vb2_read_keyblock() only verified the hash. */
+	if (block->keyblock_signature.sig_size && signpubkey) {
+		static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+		static struct vb2_workbuf wb;
+		vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+		sign_key = vb2_read_packed_key(signpubkey);
 		if (!sign_key) {
 			fprintf(stderr,
 				"vbutil_keyblock: Error reading signpubkey.\n");
 			return 1;
 		}
-		if (0 !=
-		    KeyBlockVerify(block, block->key_block_size, sign_key, 0)) {
+		struct vb2_public_key key;
+		if (VB2_SUCCESS !=
+		    vb2_unpack_key(&key, (uint8_t *)sign_key,
+				   sign_key->key_offset + sign_key->key_size)) {
+			fprintf(stderr,
+				"vbutil_keyblock: Error reading signpubkey.\n");
+			return 1;
+		}
+
+		if (VB2_SUCCESS !=
+		    vb2_verify_keyblock(block, block->keyblock_size,
+					&key, &wb)) {
 			fprintf(stderr, "vbutil_keyblock:"
 				" Error verifying key block.\n");
 			return 1;
@@ -192,26 +209,26 @@ static int Unpack(const char *infile, const char *datapubkey,
 
 	printf("Key block file:       %s\n", infile);
 	printf("Signature             %s\n", sign_key ? "valid" : "ignored");
-	printf("Flags:                %" PRIu64 " ", block->key_block_flags);
-	if (block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
+	printf("Flags:                %u ", block->keyblock_flags);
+	if (block->keyblock_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
 		printf(" !DEV");
-	if (block->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
+	if (block->keyblock_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
 		printf(" DEV");
-	if (block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_0)
+	if (block->keyblock_flags & KEY_BLOCK_FLAG_RECOVERY_0)
 		printf(" !REC");
-	if (block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)
+	if (block->keyblock_flags & KEY_BLOCK_FLAG_RECOVERY_1)
 		printf(" REC");
 	printf("\n");
 
-	data_key = &block->data_key;
-	printf("Data key algorithm:   %" PRIu64 " %s\n", data_key->algorithm,
+	struct vb2_packed_key *data_key = &block->data_key;
+	printf("Data key algorithm:   %u %s\n", data_key->algorithm,
 	       vb1_crypto_name(data_key->algorithm));
-	printf("Data key version:     %" PRIu64 "\n", data_key->key_version);
+	printf("Data key version:     %u\n", data_key->key_version);
 	printf("Data key sha1sum:     %s\n",
 	       packed_key_sha1_string((struct vb2_packed_key *)data_key));
 
 	if (datapubkey) {
-		if (0 != PublicKeyWrite(datapubkey, data_key)) {
+		if (0 != PublicKeyWrite(datapubkey, (VbPublicKey *)data_key)) {
 			fprintf(stderr, "vbutil_keyblock:"
 				" unable to write public key\n");
 			return 1;

@@ -16,6 +16,7 @@
 
 #include "host_common.h"
 #include "kernel_blob.h"
+#include "vb2_struct.h"
 #include "vboot_api.h"
 #include "vboot_host.h"
 
@@ -73,22 +74,22 @@ static int SkipWithRead(void *ctx, ReadFullyFn read_fn, size_t count)
 static char *FindKernelConfigFromStream(void *ctx, ReadFullyFn read_fn,
 					uint64_t kernel_body_load_address)
 {
-	VbKeyBlockHeader key_block;
+	struct vb2_keyblock keyblock;
 	VbKernelPreambleHeader preamble;
 	uint32_t now = 0;
 	uint32_t offset = 0;
 
 	/* Skip the key block */
-	if (read_fn(ctx, &key_block, sizeof(key_block)) != sizeof(key_block)) {
-		VbExError("not enough data to fill key block header\n");
+	if (read_fn(ctx, &keyblock, sizeof(keyblock)) != sizeof(keyblock)) {
+		VbExError("not enough data to fill keyblock header\n");
 		return NULL;
 	}
-	ssize_t to_skip = key_block.key_block_size - sizeof(key_block);
+	ssize_t to_skip = keyblock.keyblock_size - sizeof(keyblock);
 	if (to_skip < 0 || SkipWithRead(ctx, read_fn, to_skip)) {
-		VbExError("key_block_size advances past the end of the blob\n");
+		VbExError("keyblock_size advances past the end of the blob\n");
 		return NULL;
 	}
-	now += key_block.key_block_size;
+	now += keyblock.keyblock_size;
 
 	/* Open up the preamble */
 	if (read_fn(ctx, &preamble, sizeof(preamble)) != sizeof(preamble)) {

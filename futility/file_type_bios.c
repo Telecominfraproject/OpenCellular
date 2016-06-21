@@ -264,7 +264,11 @@ static int fmap_sign_fw_main(const char *name, uint8_t *buf, uint32_t len,
 static int fmap_sign_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 				 void *data)
 {
-	VbKeyBlockHeader *key_block = (VbKeyBlockHeader *)buf;
+	static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+	static struct vb2_workbuf wb;
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf;
 	struct bios_state_s *state = (struct bios_state_s *)data;
 
 	/*
@@ -272,19 +276,19 @@ static int fmap_sign_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	 * determine the size of the firmware body. Otherwise, we'll have to
 	 * just sign the whole region.
 	 */
-	if (VBOOT_SUCCESS != KeyBlockVerify(key_block, len, NULL, 1)) {
+	if (VB2_SUCCESS != vb2_verify_keyblock_hash(keyblock, len, &wb)) {
 		fprintf(stderr, "Warning: %s keyblock is invalid. "
 			"Signing the entire FW FMAP region...\n", name);
 		goto whatever;
 	}
 
-	RSAPublicKey *rsa = PublicKeyToRSA(&key_block->data_key);
+	RSAPublicKey *rsa = PublicKeyToRSA((VbPublicKey *)&keyblock->data_key);
 	if (!rsa) {
 		fprintf(stderr, "Warning: %s public key is invalid. "
 			"Signing the entire FW FMAP region...\n", name);
 		goto whatever;
 	}
-	uint32_t more = key_block->key_block_size;
+	uint32_t more = keyblock->keyblock_size;
 	struct vb2_fw_preamble *preamble =
 		(struct vb2_fw_preamble *)(buf + more);
 	uint32_t fw_size = preamble->body_signature.data_size;
@@ -323,7 +327,7 @@ whatever:
 static int write_new_preamble(struct bios_area_s *vblock,
 			      struct bios_area_s *fw_body,
 			      struct vb2_private_key *signkey,
-			      VbKeyBlockHeader *keyblock)
+			      struct vb2_keyblock *keyblock)
 {
 	struct vb2_signature *body_sig;
 	struct vb2_fw_preamble *preamble;
@@ -346,7 +350,7 @@ static int write_new_preamble(struct bios_area_s *vblock,
 	}
 
 	/* Write the new keyblock */
-	uint32_t more = keyblock->key_block_size;
+	uint32_t more = keyblock->keyblock_size;
 	memcpy(vblock->buf, keyblock, more);
 	/* and the new preamble */
 	memcpy(vblock->buf + more, preamble, preamble->preamble_size);

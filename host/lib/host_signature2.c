@@ -44,7 +44,8 @@ struct vb2_signature *vb2_alloc_signature(uint32_t sig_size,
 void vb2_init_signature(struct vb2_signature *sig, uint8_t *sig_data,
 			uint32_t sig_size, uint32_t data_size)
 {
-	sig->sig_offset = OffsetOf(sig, sig_data);
+	memset(sig, 0, sizeof(*sig));
+	sig->sig_offset = vb2_offset_of(sig, sig_data);
 	sig->sig_size = sig_size;
 	sig->data_size = data_size;
 }

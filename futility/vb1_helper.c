@@ -41,7 +41,7 @@ const char *vb1_crypto_name(uint32_t algo)
  */
 
 /* The keyblock, preamble, and kernel blob are kept in separate places. */
-static VbKeyBlockHeader *g_keyblock;
+static struct vb2_keyblock *g_keyblock;
 static VbKernelPreambleHeader *g_preamble;
 static uint8_t *g_kernel_blob_data;
 static uint64_t g_kernel_blob_size;
@@ -307,11 +307,10 @@ int UpdateKernelBlobConfig(uint8_t *kblob_data, uint64_t kblob_size,
 /* Split a kernel partition into separate vblock and blob parts. */
 uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 		     uint64_t padding,
-		     VbKeyBlockHeader **keyblock_ptr,
+		     struct vb2_keyblock **keyblock_ptr,
 		     VbKernelPreambleHeader **preamble_ptr,
 		     uint64_t *blob_size_ptr)
 {
-	VbKeyBlockHeader *keyblock;
 	VbKernelPreambleHeader *preamble;
 	uint64_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
@@ -319,17 +318,17 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 	uint32_t flags = 0;
 
 	/* Sanity-check the keyblock */
-	keyblock = (VbKeyBlockHeader *)kpart_data;
-	Debug("Keyblock is 0x%" PRIx64 " bytes\n", keyblock->key_block_size);
-	now += keyblock->key_block_size;
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)kpart_data;
+	Debug("Keyblock is 0x%x bytes\n", keyblock->keyblock_size);
+	now += keyblock->keyblock_size;
 	if (now > kpart_size) {
 		fprintf(stderr,
-			"key_block_size advances past the end of the blob\n");
+			"keyblock_size advances past the end of the blob\n");
 		return NULL;
 	}
 	if (now > padding) {
 		fprintf(stderr,
-			"key_block_size advances past %" PRIu64
+			"keyblock_size advances past %" PRIu64
 			" byte padding\n",
 			padding);
 		return NULL;
@@ -408,13 +407,14 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 			uint64_t padding,
 			int version, uint64_t kernel_body_load_address,
-			VbKeyBlockHeader *keyblock, VbPrivateKey *signpriv_key,
+			struct vb2_keyblock *keyblock,
+			VbPrivateKey *signpriv_key,
 			uint32_t flags, uint64_t *vblock_size_ptr)
 {
 	VbSignature *body_sig;
 	VbKernelPreambleHeader *preamble;
-	uint64_t min_size = padding > keyblock->key_block_size
-		? padding - keyblock->key_block_size : 0;
+	uint64_t min_size = padding > keyblock->keyblock_size
+		? padding - keyblock->keyblock_size : 0;
 	void *outbuf;
 	uint64_t outsize;
 
@@ -441,11 +441,11 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 		return 0;
 	}
 
-	outsize = keyblock->key_block_size + preamble->preamble_size;
+	outsize = keyblock->keyblock_size + preamble->preamble_size;
 	outbuf = malloc(outsize);
 	Memset(outbuf, 0, outsize);
-	Memcpy(outbuf, keyblock, keyblock->key_block_size);
-	Memcpy(outbuf + keyblock->key_block_size,
+	Memcpy(outbuf, keyblock, keyblock->keyblock_size);
+	Memcpy(outbuf + keyblock->keyblock_size,
 	       preamble, preamble->preamble_size);
 
 	if (vblock_size_ptr)
@@ -504,41 +504,60 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 		     const char *keyblock_outfile,
 		     uint64_t min_version)
 {
-	VbPublicKey *data_key;
 	RSAPublicKey *rsa;
 	int rv = -1;
 	uint64_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
 
-	if (0 != KeyBlockVerify(g_keyblock, g_keyblock->key_block_size,
-				signpub_key, (0 == signpub_key))) {
+	static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+	static struct vb2_workbuf wb;
+	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
+
+	if (signpub_key) {
+		struct vb2_public_key pubkey;
+		if (VB2_SUCCESS !=
+		    vb2_unpack_key(&pubkey,
+				   (uint8_t *)signpub_key,
+				   signpub_key->key_offset +
+				   signpub_key->key_size)) {
+			fprintf(stderr, "Error unpacking signing key.\n");
+			goto done;
+		}
+		if (VB2_SUCCESS !=
+		    vb2_verify_keyblock(g_keyblock, g_keyblock->keyblock_size,
+					&pubkey, &wb)) {
+			fprintf(stderr, "Error verifying key block.\n");
+			goto done;
+		}
+	} else if (VB2_SUCCESS !=
+		   vb2_verify_keyblock_hash(g_keyblock,
+					    g_keyblock->keyblock_size,
+					    &wb)) {
 		fprintf(stderr, "Error verifying key block.\n");
 		goto done;
 	}
 
 	printf("Key block:\n");
-	data_key = &g_keyblock->data_key;
+	struct vb2_packed_key *data_key = &g_keyblock->data_key;
 	printf("  Signature:           %s\n",
 	       signpub_key ? "valid" : "ignored");
-	printf("  Size:                0x%" PRIx64 "\n",
-	       g_keyblock->key_block_size);
-	printf("  Flags:               %" PRIu64 " ",
-	       g_keyblock->key_block_flags);
-	if (g_keyblock->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
+	printf("  Size:                0x%x\n", g_keyblock->keyblock_size);
+	printf("  Flags:               %u ", g_keyblock->keyblock_flags);
+	if (g_keyblock->keyblock_flags & KEY_BLOCK_FLAG_DEVELOPER_0)
 		printf(" !DEV");
-	if (g_keyblock->key_block_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
+	if (g_keyblock->keyblock_flags & KEY_BLOCK_FLAG_DEVELOPER_1)
 		printf(" DEV");
-	if (g_keyblock->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_0)
+	if (g_keyblock->keyblock_flags & KEY_BLOCK_FLAG_RECOVERY_0)
 		printf(" !REC");
-	if (g_keyblock->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)
+	if (g_keyblock->keyblock_flags & KEY_BLOCK_FLAG_RECOVERY_1)
 		printf(" REC");
 	printf("\n");
-	printf("  Data key algorithm:  %" PRIu64 " %s\n", data_key->algorithm,
+	printf("  Data key algorithm:  %u %s\n", data_key->algorithm,
 	       (data_key->algorithm < kNumAlgorithms ?
 		algo_strings[data_key->algorithm] : "(invalid)"));
-	printf("  Data key version:    %" PRIu64 "\n", data_key->key_version);
+	printf("  Data key version:    %u\n", data_key->key_version);
 	printf("  Data key sha1sum:    %s\n",
-	       packed_key_sha1_string((struct vb2_packed_key *)data_key));
+	       packed_key_sha1_string(data_key));
 
 	if (keyblock_outfile) {
 		FILE *f = NULL;
@@ -548,7 +567,7 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 				keyblock_outfile, strerror(errno));
 			goto done;
 		}
-		if (1 != fwrite(g_keyblock, g_keyblock->key_block_size, 1, f)) {
+		if (1 != fwrite(g_keyblock, g_keyblock->keyblock_size, 1, f)) {
 			fprintf(stderr, "Can't write key block file %s: %s\n",
 				keyblock_outfile, strerror(errno));
 			fclose(f);
@@ -558,13 +577,13 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	}
 
 	if (data_key->key_version < (min_version >> 16)) {
-		fprintf(stderr, "Data key version %" PRIu64
-			" is lower than minimum %" PRIu64 ".\n",
+		fprintf(stderr, "Data key version %u is lower than minimum "
+			"%" PRIu64 ".\n",
 			data_key->key_version, (min_version >> 16));
 		goto done;
 	}
 
-	rsa = PublicKeyToRSA(data_key);
+	rsa = PublicKeyToRSA((VbPublicKey *)data_key);
 	if (!rsa) {
 		fprintf(stderr, "Error parsing data key.\n");
 		goto done;

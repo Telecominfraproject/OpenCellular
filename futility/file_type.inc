@@ -35,7 +35,7 @@ FILE_TYPE(KERN_PREAMBLE,    "kernel",        "kernel preamble/partition",
 	  R_(ft_recognize_vblock1),
 	  S_(ft_show_kernel_preamble),
 	  S_(ft_sign_kern_preamble))
-FILE_TYPE(KEYBLOCK,         "keyblock",      "VbKeyBlock",
+FILE_TYPE(KEYBLOCK,         "keyblock",      "keyblock (signed public key)",
 	  R_(ft_recognize_vblock1),
 	  S_(ft_show_keyblock),
 	  NONE)

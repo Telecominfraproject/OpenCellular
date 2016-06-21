@@ -8,13 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "vb2_struct.h"
 #include "vboot_struct.h"
 
 
 int ExtractVmlinuz(void *kpart_data, size_t kpart_size,
 		   void **vmlinuz_out, size_t *vmlinuz_size) {
-	uint64_t now = 0;
-	VbKeyBlockHeader *keyblock = NULL;
+	size_t now = 0;
 	VbKernelPreambleHeader *preamble = NULL;
 	uint8_t *kblob_data = NULL;
 	uint64_t kblob_size = 0;
@@ -23,8 +23,8 @@ int ExtractVmlinuz(void *kpart_data, size_t kpart_size,
 	uint64_t vmlinuz_header_offset = 0;
 	void *vmlinuz = NULL;
 
-	keyblock = (VbKeyBlockHeader *)kpart_data;
-	now += keyblock->key_block_size;
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)kpart_data;
+	now += keyblock->keyblock_size;
 	if (now > kpart_size)
 		return 1;
 
@@ -55,7 +55,7 @@ int ExtractVmlinuz(void *kpart_data, size_t kpart_size,
 	// the keyblock and preamble sections.
 	vmlinuz_header_offset = vmlinuz_header_address -
 		preamble->body_load_address +
-		keyblock->key_block_size +
+		keyblock->keyblock_size +
 		preamble->preamble_size;
 
 	vmlinuz = malloc(vmlinuz_header_size + kblob_size);

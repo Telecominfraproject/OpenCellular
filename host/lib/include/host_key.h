@@ -48,12 +48,33 @@ struct vb2_private_key *vb2_read_private_key(const char *filename);
 VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
                             uint64_t version);
 
+/**
+ * Initialize a packed key structure.
+ *
+ * @param key		Structure to initialize
+ * @param key_data	Pointer to key data (following the structure)
+ * @param key_size	Size of key
+ */
+void vb2_init_packed_key(struct vb2_packed_key *key, uint8_t *key_data,
+			 uint32_t key_size);
+
+/**
+ * Copy a packed key.
+ *
+ * @param dest		Destination packed key
+ * @param src		Source packed key
+ *
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_copy_packed_key(struct vb2_packed_key *dest,
+			const struct vb2_packed_key *src);
 
 /* Read a public key from a .vbpubk file.  Caller owns the returned
  * pointer, and must free it with Free().
  *
  * Returns NULL if error. */
 VbPublicKey* PublicKeyRead(const char* filename);
+struct vb2_packed_key *vb2_read_packed_key(const char *filename);
 
 /* Return true if the packed (public) key struct appears correct. */
 int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size);

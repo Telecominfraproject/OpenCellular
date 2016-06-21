@@ -7,6 +7,7 @@
 #define VBOOT_REFERENCE_FUTILITY_VB1_HELPER_H_
 
 struct vb2_kernel_preamble;
+struct vb2_keyblock;
 struct vb2_packed_key;
 
 /**
@@ -33,7 +34,8 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 			uint64_t padding,
 			int version, uint64_t kernel_body_load_address,
-			VbKeyBlockHeader *keyblock, VbPrivateKey *signpriv_key,
+			struct vb2_keyblock *keyblock,
+			VbPrivateKey *signpriv_key,
 			uint32_t flags, uint64_t *vblock_size_ptr);
 
 int WriteSomeParts(const char *outfile,
@@ -42,7 +44,7 @@ int WriteSomeParts(const char *outfile,
 
 uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 		     uint64_t padding,
-		     VbKeyBlockHeader **keyblock_ptr,
+		     struct vb2_keyblock **keyblock_ptr,
 		     VbKernelPreambleHeader **preamble_ptr,
 		     uint64_t *blob_size_ptr);
 

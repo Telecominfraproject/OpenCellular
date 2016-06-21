@@ -23,11 +23,6 @@ int main(void)
   PublicKeyReadKeyb(0, 0, 0);
   PublicKeyWrite(0, 0);
 
-  /* host_keyblock.h */
-  KeyBlockCreate(0, 0, 0);
-  KeyBlockRead(0);
-  KeyBlockWrite(0, 0);
-
   /* host_misc.h */
   ReadFile(0, 0);
   WriteFile(0, 0, 0);

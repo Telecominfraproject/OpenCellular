@@ -103,3 +103,44 @@ struct vb2_private_key *vb2_read_private_key_pem(
 	/* Return the key */
 	return key;
 }
+
+void vb2_init_packed_key(struct vb2_packed_key *key, uint8_t *key_data,
+			 uint32_t key_size)
+{
+	memset(key, 0, sizeof(*key));
+	key->key_offset = vb2_offset_of(key, key_data);
+	key->key_size = key_size;
+	key->algorithm = VB2_ALG_COUNT; /* Key not present yet */
+}
+
+int vb2_copy_packed_key(struct vb2_packed_key *dest,
+			const struct vb2_packed_key *src)
+{
+	if (dest->key_size < src->key_size)
+		return VB2_ERROR_COPY_KEY_SIZE;
+
+	dest->key_size = src->key_size;
+	dest->algorithm = src->algorithm;
+	dest->key_version = src->key_version;
+	memcpy((uint8_t *)vb2_packed_key_data(dest),
+	       vb2_packed_key_data(src), src->key_size);
+	return VB2_SUCCESS;
+}
+
+struct vb2_packed_key *vb2_read_packed_key(const char *filename)
+{
+	struct vb2_packed_key *key;
+	uint32_t file_size;
+
+	if (VB2_SUCCESS !=
+	    vb2_read_file(filename, (uint8_t **)&key, &file_size)) {
+		return NULL;
+	}
+
+	if (packed_key_looks_ok(key, file_size))
+		return key;
+
+	/* Error */
+	free(key);
+	return NULL;
+}

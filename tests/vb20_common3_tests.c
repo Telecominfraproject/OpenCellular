@@ -19,33 +19,27 @@
 #include "vboot_common.h"
 #include "test_common.h"
 
-static void resign_keyblock(struct vb2_keyblock *h, const VbPrivateKey *key)
+static void resign_keyblock(struct vb2_keyblock *h,
+			    const struct vb2_private_key *key)
 {
-	VbSignature *sig =
-		CalculateSignature((const uint8_t *)h,
-				   h->keyblock_signature.data_size, key);
+	struct vb2_signature *sig =
+		vb2_calculate_signature((const uint8_t *)h,
+					h->keyblock_signature.data_size, key);
 
-	SignatureCopy((VbSignature *)&h->keyblock_signature, sig);
+	vb2_copy_signature(&h->keyblock_signature, sig);
 	free(sig);
 }
 
-static void test_check_keyblock(const VbPublicKey *public_key,
-				 const VbPrivateKey *private_key,
-				 const VbPublicKey *data_key)
+static void test_check_keyblock(const struct vb2_public_key *public_key,
+				const struct vb2_private_key *private_key,
+				const struct vb2_packed_key *data_key)
 {
-	struct vb2_public_key key;
 	struct vb2_keyblock *hdr;
 	struct vb2_keyblock *h;
 	struct vb2_signature *sig;
 	uint32_t hsize;
 
-	/* Unpack public key */
-	TEST_SUCC(vb2_unpack_key(&key, (uint8_t *)public_key,
-				 public_key->key_offset + public_key->key_size),
-		  "vb2_verify_keyblock public key");
-
-	hdr = (struct vb2_keyblock *)
-		KeyBlockCreate(data_key, private_key, 0x1234);
+	hdr = vb2_create_keyblock(data_key, private_key, 0x1234);
 	TEST_NEQ((size_t)hdr, 0, "vb2_verify_keyblock() prerequisites");
 	if (!hdr)
 		return;
@@ -143,27 +137,20 @@ static void test_check_keyblock(const VbPublicKey *public_key,
 	free(hdr);
 }
 
-static void test_verify_keyblock(const VbPublicKey *public_key,
-				 const VbPrivateKey *private_key,
-				 const VbPublicKey *data_key)
+static void test_verify_keyblock(const struct vb2_public_key *public_key,
+				const struct vb2_private_key *private_key,
+				const struct vb2_packed_key *data_key)
 {
 	uint8_t workbuf[VB2_KEY_BLOCK_VERIFY_WORKBUF_BYTES]
 		__attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
-	struct vb2_public_key key;
 	struct vb2_keyblock *hdr;
 	struct vb2_keyblock *h;
 	uint32_t hsize;
 
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
-	/* Unpack public key */
-	TEST_SUCC(vb2_unpack_key(&key, (uint8_t *)public_key,
-				 public_key->key_offset + public_key->key_size),
-		  "vb2_verify_keyblock public key");
-
-	hdr = (struct vb2_keyblock *)
-		KeyBlockCreate(data_key, private_key, 0x1234);
+	hdr = vb2_create_keyblock(data_key, private_key, 0x1234);
 	TEST_NEQ((size_t)hdr, 0, "vb2_verify_keyblock() prerequisites");
 	if (!hdr)
 		return;
@@ -171,25 +158,25 @@ static void test_verify_keyblock(const VbPublicKey *public_key,
 	h = (struct vb2_keyblock *)malloc(hsize + 2048);
 
 	Memcpy(h, hdr, hsize);
-	TEST_SUCC(vb2_verify_keyblock(h, hsize, &key, &wb),
+	TEST_SUCC(vb2_verify_keyblock(h, hsize, public_key, &wb),
 		  "vb2_verify_keyblock() ok using key");
 
 	/* Failures in keyblock check also cause verify to fail */
 	Memcpy(h, hdr, hsize);
-	TEST_EQ(vb2_verify_keyblock(h, hsize - 1, &key, &wb),
+	TEST_EQ(vb2_verify_keyblock(h, hsize - 1, public_key, &wb),
 		VB2_ERROR_KEYBLOCK_SIZE, "vb2_verify_keyblock() check");
 
 	/* Check signature */
 	Memcpy(h, hdr, hsize);
 	h->keyblock_signature.sig_size--;
 	resign_keyblock(h, private_key);
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+	TEST_EQ(vb2_verify_keyblock(h, hsize, public_key, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_INVALID,
 		"vb2_verify_keyblock() sig too small");
 
 	Memcpy(h, hdr, hsize);
 	((uint8_t *)vb2_packed_key_data(&h->data_key))[0] ^= 0x34;
-	TEST_EQ(vb2_verify_keyblock(h, hsize, &key, &wb),
+	TEST_EQ(vb2_verify_keyblock(h, hsize, public_key, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_INVALID,
 		"vb2_verify_keyblock() sig mismatch");
 
@@ -568,10 +555,22 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		return 1;
 	}
 
-	test_check_keyblock(signing_public_key, signing_private_key,
-			    data_public_key);
-	test_verify_keyblock(signing_public_key, signing_private_key,
-			     data_public_key);
+	/* Unpack public key */
+	struct vb2_public_key signing_public_key2;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&signing_public_key2,
+			   (uint8_t *)signing_public_key,
+			   signing_public_key->key_offset +
+			   signing_public_key->key_size)) {
+		fprintf(stderr, "Error unpacking signing_public_key: %s\n",
+			filename);
+		return 1;
+	}
+
+	test_check_keyblock(&signing_public_key2, signing_private_key2,
+			    (struct vb2_packed_key *)data_public_key);
+	test_verify_keyblock(&signing_public_key2, signing_private_key2,
+			     (struct vb2_packed_key *)data_public_key);
 	test_verify_fw_preamble(signing_public_key, signing_private_key2,
 				(struct vb2_packed_key *)data_public_key);
 	test_verify_kernel_preamble(signing_public_key, signing_private_key);

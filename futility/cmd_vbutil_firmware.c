@@ -92,8 +92,6 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 
 	VbPrivateKey *signing_key;
 	VbPublicKey *kernel_subkey;
-	VbKeyBlockHeader *key_block;
-	uint64_t key_block_size;
 	uint8_t *fv_data;
 	uint64_t fv_size;
 	FILE *f;
@@ -113,9 +111,8 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 	}
 
 	/* Read the key block and keys */
-	key_block =
-	    (VbKeyBlockHeader *) ReadFile(keyblock_file, &key_block_size);
-	if (!key_block) {
+	struct vb2_keyblock *keyblock = vb2_read_keyblock(keyblock_file);
+	if (!keyblock) {
 		VbExError("Error reading key block.\n");
 		return 1;
 	}
@@ -170,7 +167,7 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 		VbExError("Can't open output file %s\n", outfile);
 		return 1;
 	}
-	i = ((1 != fwrite(key_block, key_block_size, 1, f)) ||
+	i = ((1 != fwrite(keyblock, keyblock->keyblock_size, 1, f)) ||
 	     (1 != fwrite(preamble, preamble->preamble_size, 1, f)));
 	fclose(f);
 	if (i) {
