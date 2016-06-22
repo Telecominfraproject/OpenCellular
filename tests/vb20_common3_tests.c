@@ -330,17 +330,18 @@ static void test_verify_fw_preamble(const VbPublicKey *public_key,
 }
 
 static void resign_kernel_preamble(struct vb2_kernel_preamble *h,
-				   const VbPrivateKey *key)
+				   const struct vb2_private_key *key)
 {
-	VbSignature *sig = CalculateSignature(
+	struct vb2_signature *sig = vb2_calculate_signature(
 		(const uint8_t *)h, h->preamble_signature.data_size, key);
 
-	SignatureCopy((VbSignature *)&h->preamble_signature, sig);
+	vb2_copy_signature(&h->preamble_signature, sig);
 	free(sig);
 }
 
-static void test_verify_kernel_preamble(const VbPublicKey *public_key,
-					const VbPrivateKey *private_key)
+static void test_verify_kernel_preamble(
+		const VbPublicKey *public_key,
+		const struct vb2_private_key *private_key)
 {
 	struct vb2_kernel_preamble *hdr;
 	struct vb2_kernel_preamble *h;
@@ -511,7 +512,6 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	int signing_rsa_len = siglen_map[signing_key_algorithm] * 8;
 	int data_rsa_len = siglen_map[data_key_algorithm] * 8;
 
-	VbPrivateKey *signing_private_key = NULL;
 	VbPublicKey *signing_public_key = NULL;
 	VbPublicKey *data_public_key = NULL;
 
@@ -521,17 +521,9 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	       algo_strings[data_key_algorithm]);
 
 	sprintf(filename, "%s/key_rsa%d.pem", keys_dir, signing_rsa_len);
-	signing_private_key = PrivateKeyReadPem(filename,
-						signing_key_algorithm);
-	if (!signing_private_key) {
-		fprintf(stderr, "Error reading signing_private_key: %s\n",
-			filename);
-		return 1;
-	}
-
-	struct vb2_private_key *signing_private_key2 =
+	struct vb2_private_key *signing_private_key =
 		vb2_read_private_key_pem(filename, signing_key_algorithm);
-	if (!signing_private_key2) {
+	if (!signing_private_key) {
 		fprintf(stderr, "Error reading signing_private_key: %s\n",
 			filename);
 		return 1;
@@ -567,11 +559,11 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		return 1;
 	}
 
-	test_check_keyblock(&signing_public_key2, signing_private_key2,
+	test_check_keyblock(&signing_public_key2, signing_private_key,
 			    (struct vb2_packed_key *)data_public_key);
-	test_verify_keyblock(&signing_public_key2, signing_private_key2,
+	test_verify_keyblock(&signing_public_key2, signing_private_key,
 			     (struct vb2_packed_key *)data_public_key);
-	test_verify_fw_preamble(signing_public_key, signing_private_key2,
+	test_verify_fw_preamble(signing_public_key, signing_private_key,
 				(struct vb2_packed_key *)data_public_key);
 	test_verify_kernel_preamble(signing_public_key, signing_private_key);
 
@@ -579,8 +571,6 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		free(signing_public_key);
 	if (signing_private_key)
 		free(signing_private_key);
-	if (signing_private_key2)
-		free(signing_private_key2);
 	if (data_public_key)
 		free(data_public_key);
 

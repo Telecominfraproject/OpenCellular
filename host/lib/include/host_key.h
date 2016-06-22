@@ -15,33 +15,57 @@
 struct vb2_packed_key;
 struct vb2_private_key;
 
-typedef struct rsa_st RSA;
+/**
+ * Convert a vb2 hash and crypto algorithm to a vb1 crypto algorithm.
+ *
+ * @param hash_alg	Hash algorithm
+ * @param sig_alg	Signature algorithm
+ *
+ * @return The equivalent vb1 crypto algorithm or VB2_ALG_COUNT if error.
+ */
+enum vb2_crypto_algorithm vb2_get_crypto_algorithm(
+		enum vb2_hash_algorithm hash_alg,
+		enum vb2_signature_algorithm sig_alg);
 
-/* Private key data */
-typedef struct VbPrivateKey {
-  RSA* rsa_private_key;  /* Private key data */
-  uint64_t algorithm;    /* Algorithm to use when signing */
-} VbPrivateKey;
-
-
-/* Read a private key from a .pem file.  Caller owns the returned pointer,
- * and must free() it. */
-VbPrivateKey* PrivateKeyReadPem(const char* filename, uint64_t algorithm);
+/**
+ * Read a private key from a .pem file.
+ *
+ * @param filename	Filename to read from
+ * @param algorithm	Algorithm to associate with file
+ * 			(enum vb2_crypto_algorithm)
+ *
+ * @return The private key or NULL if error.  Caller must free() it.
+ */
 struct vb2_private_key *vb2_read_private_key_pem(
 		const char *filename,
 		enum vb2_crypto_algorithm algorithm);
 
-/* Free a private key. */
-void PrivateKeyFree(VbPrivateKey* key);
-
-/* Write a private key to a file in .vbprivk format. */
-int PrivateKeyWrite(const char* filename, const VbPrivateKey* key);
-
-/* Read a private key from a .vbprivk file.  Caller owns the returned
- * pointer, and must free() it.
+/**
+ * Free a private key.
  *
- * Returns NULL if error. */
-VbPrivateKey* PrivateKeyRead(const char* filename);
+ * @param key		Key to free; ok to pass NULL (ignored).
+ */
+void vb2_free_private_key(struct vb2_private_key *key);
+
+/**
+ * Write a private key to a file in .vbprivk format.
+ *
+ * @param filename	Filename to write to
+ * @param key		Key to write
+ *
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_write_private_key(const char *filename,
+			  const struct vb2_private_key *key);
+
+
+/**
+ * Read a private key from a .vbprivk file.
+ *
+ * @param filename	Filename to read key from.
+ *
+ * @return The private key or NULL if error.  Caller must free() it.
+ */
 struct vb2_private_key *vb2_read_private_key(const char *filename);
 
 /* Allocate a new public key with space for a [key_size] byte key. */

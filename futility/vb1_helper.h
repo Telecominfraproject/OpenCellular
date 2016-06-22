@@ -35,7 +35,7 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 			uint64_t padding,
 			int version, uint64_t kernel_body_load_address,
 			struct vb2_keyblock *keyblock,
-			VbPrivateKey *signpriv_key,
+			struct vb2_private_key *signpriv_key,
 			uint32_t flags, uint64_t *vblock_size_ptr);
 
 int WriteSomeParts(const char *outfile,

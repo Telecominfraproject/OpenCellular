@@ -239,7 +239,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	int rv;
 	struct vb2_keyblock *keyblock = NULL;
 	struct vb2_keyblock *t_keyblock = NULL;
-	VbPrivateKey *signpriv_key = NULL;
+	struct vb2_private_key *signpriv_key = NULL;
 	VbPublicKey *signpub_key = NULL;
 	uint8_t *kpart_data = NULL;
 	uint64_t kpart_size = 0;
@@ -403,7 +403,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (!signprivkey_file)
 			Fatal("Missing required signprivate file.\n");
 
-		signpriv_key = PrivateKeyRead(signprivkey_file);
+		signpriv_key = vb2_read_private_key(signprivkey_file);
 		if (!signpriv_key)
 			Fatal("Error reading signing key.\n");
 
@@ -475,7 +475,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (!signprivkey_file)
 			Fatal("Missing required signprivate file.\n");
 
-		signpriv_key = PrivateKeyRead(signprivkey_file);
+		signpriv_key = vb2_read_private_key(signprivkey_file);
 		if (!signpriv_key)
 			Fatal("Error reading signing key.\n");
 

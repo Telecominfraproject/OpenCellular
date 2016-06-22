@@ -58,6 +58,6 @@ VbKernelPreambleHeader *CreateKernelPreamble(
 	uint64_t vmlinuz_header_size,
 	uint32_t flags,
 	uint64_t desired_size,
-	const VbPrivateKey *signing_key);
+	const struct vb2_private_key *signing_key);
 
 #endif  /* VBOOT_REFERENCE_HOST_COMMON_H_ */

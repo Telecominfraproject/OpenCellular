@@ -54,59 +54,6 @@ int SignatureCopy(VbSignature* dest, const VbSignature* src) {
   return 0;
 }
 
-VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
-                                const VbPrivateKey* key) {
-  int vb2_alg = vb2_crypto_to_hash(key->algorithm);
-  uint8_t digest[VB2_MAX_DIGEST_SIZE];
-  int digest_size = vb2_digest_size(vb2_alg);
-
-  const uint8_t* digestinfo = hash_digestinfo_map[key->algorithm];
-  int digestinfo_size = digestinfo_size_map[key->algorithm];
-
-  uint8_t* signature_digest;
-  int signature_digest_len = digest_size + digestinfo_size;
-
-  VbSignature* sig;
-  int rv;
-
-  /* Calculate the digest */
-  if (VB2_SUCCESS != vb2_digest_buffer(data, size, vb2_alg,
-				       digest, sizeof(digest)))
-    return NULL;
-
-  /* Prepend the digest info to the digest */
-  signature_digest = malloc(signature_digest_len);
-  if (!signature_digest)
-    return NULL;
-
-  Memcpy(signature_digest, digestinfo, digestinfo_size);
-  Memcpy(signature_digest + digestinfo_size, digest, digest_size);
-
-  /* Allocate output signature */
-  sig = SignatureAlloc(siglen_map[key->algorithm], size);
-  if (!sig) {
-    free(signature_digest);
-    return NULL;
-  }
-
-  /* Sign the signature_digest into our output buffer */
-  rv = RSA_private_encrypt(signature_digest_len,   /* Input length */
-                           signature_digest,       /* Input data */
-                           GetSignatureData(sig),  /* Output sig */
-                           key->rsa_private_key,   /* Key to use */
-                           RSA_PKCS1_PADDING);     /* Padding to use */
-  free(signature_digest);
-
-  if (-1 == rv) {
-    VBDEBUG(("SignatureBuf(): RSA_private_encrypt() failed.\n"));
-    free(sig);
-    return NULL;
-  }
-
-  /* Return the signature */
-  return sig;
-}
-
 /* Invoke [external_signer] command with [pem_file] as
  * an argument, contents of [inbuf] passed redirected to stdin,
  * and the stdout of the command is put back into [outbuf].
@@ -192,9 +139,6 @@ int InvokeExternalSigner(uint64_t size,
   return rv;
 }
 
-/* TODO(gauravsh): This could easily be integrated into CalculateSignature()
- * since the code is almost a mirror - I have kept it as such to avoid changing
- * the existing interface. */
 VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
                                          const char* key_file,
                                          uint64_t key_algorithm,

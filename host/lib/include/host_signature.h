@@ -56,21 +56,22 @@ int vb2_copy_signature(struct vb2_signature *dest,
 /**
  * Calculate a SHA-512 digest-only signature.
  *
- * Caller owns the returned pointer, and must free() it.
- *
  * @param data		Pointer to data to hash
  * @param size		Length of data in bytes
  *
- * @return The signature, or NULL if error.
+ * @return The signature, or NULL if error.  Caller must free() it.
  */
 struct vb2_signature *vb2_sha512_signature(const uint8_t *data, uint32_t size);
 
-/* Calculates a signature for the data using the specified key.
- * Caller owns the returned pointer, and must free it with Free().
+/**
+ * Calculate a signature for the data using the specified key.
  *
- * Returns NULL on error. */
-VbSignature* CalculateSignature(const uint8_t* data, uint64_t size,
-                                const VbPrivateKey* key);
+ * @param data		Pointer to data to sign
+ * @param size		Length of data in bytes
+ * @param key		Private key to use to sign data
+ *
+ * @return The signature, or NULL if error.  Caller must free() it.
+ */
 struct vb2_signature *vb2_calculate_signature(
 		const uint8_t *data, uint32_t size,
 		const struct vb2_private_key *key);

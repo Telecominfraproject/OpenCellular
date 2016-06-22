@@ -84,19 +84,11 @@ static void print_help(int argc, char *argv[])
 }
 
 /* Create a firmware .vblock */
-static int Vblock(const char *outfile, const char *keyblock_file,
-		  const char *signprivate, uint64_t version,
-		  const char *fv_file, const char *kernelkey_file,
-		  uint32_t preamble_flags)
+static int do_vblock(const char *outfile, const char *keyblock_file,
+		     const char *signprivate, uint32_t version,
+		     const char *fv_file, const char *kernelkey_file,
+		     uint32_t preamble_flags)
 {
-
-	VbPrivateKey *signing_key;
-	VbPublicKey *kernel_subkey;
-	uint8_t *fv_data;
-	uint64_t fv_size;
-	FILE *f;
-	uint64_t i;
-
 	if (!outfile) {
 		VbExError("Must specify output filename\n");
 		return 1;
@@ -117,34 +109,30 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 		return 1;
 	}
 
-	signing_key = PrivateKeyRead(signprivate);
+	struct vb2_private_key *signing_key = vb2_read_private_key(signprivate);
 	if (!signing_key) {
 		VbExError("Error reading signing key.\n");
 		return 1;
 	}
-	struct vb2_private_key *signing_key2 =
-		vb2_read_private_key(signprivate);
-	if (!signing_key2) {
-		VbExError("Error reading signing key.\n");
-		return 1;
-	}
 
-	kernel_subkey = PublicKeyRead(kernelkey_file);
+	struct vb2_packed_key *kernel_subkey =
+		vb2_read_packed_key(kernelkey_file);
 	if (!kernel_subkey) {
 		VbExError("Error reading kernel subkey.\n");
 		return 1;
 	}
 
 	/* Read and sign the firmware volume */
-	fv_data = ReadFile(fv_file, &fv_size);
-	if (!fv_data)
+	uint8_t *fv_data;
+	uint32_t fv_size;
+	if (VB2_SUCCESS != vb2_read_file(fv_file, &fv_data, &fv_size))
 		return 1;
 	if (!fv_size) {
 		VbExError("Empty firmware volume file\n");
 		return 1;
 	}
 	struct vb2_signature *body_sig =
-		vb2_calculate_signature(fv_data, fv_size, signing_key2);
+		vb2_calculate_signature(fv_data, fv_size, signing_key);
 	if (!body_sig) {
 		VbExError("Error calculating body signature\n");
 		return 1;
@@ -153,22 +141,21 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 
 	/* Create preamble */
 	struct vb2_fw_preamble *preamble =
-		vb2_create_fw_preamble(version,
-				       (struct vb2_packed_key *)kernel_subkey,
-				       body_sig, signing_key2, preamble_flags);
+		vb2_create_fw_preamble(version, kernel_subkey, body_sig,
+				       signing_key, preamble_flags);
 	if (!preamble) {
 		VbExError("Error creating preamble.\n");
 		return 1;
 	}
 
 	/* Write the output file */
-	f = fopen(outfile, "wb");
+	FILE *f = fopen(outfile, "wb");
 	if (!f) {
 		VbExError("Can't open output file %s\n", outfile);
 		return 1;
 	}
-	i = ((1 != fwrite(keyblock, keyblock->keyblock_size, 1, f)) ||
-	     (1 != fwrite(preamble, preamble->preamble_size, 1, f)));
+	int i = ((1 != fwrite(keyblock, keyblock->keyblock_size, 1, f)) ||
+		 (1 != fwrite(preamble, preamble->preamble_size, 1, f)));
 	fclose(f);
 	if (i) {
 		VbExError("Can't write output file %s\n", outfile);
@@ -180,8 +167,8 @@ static int Vblock(const char *outfile, const char *keyblock_file,
 	return 0;
 }
 
-static int Verify(const char *infile, const char *signpubkey,
-		  const char *fv_file, const char *kernelkey_file)
+static int do_verify(const char *infile, const char *signpubkey,
+		     const char *fv_file, const char *kernelkey_file)
 {
 	uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
 	struct vb2_workbuf wb;
@@ -316,7 +303,7 @@ static int do_vbutil_firmware(int argc, char *argv[])
 	char *key_block_file = NULL;
 	char *signpubkey = NULL;
 	char *signprivate = NULL;
-	uint64_t version = 0;
+	uint32_t version = 0;
 	char *fv_file = NULL;
 	char *kernelkey_file = NULL;
 	uint32_t preamble_flags = 0;
@@ -387,10 +374,10 @@ static int do_vbutil_firmware(int argc, char *argv[])
 
 	switch (mode) {
 	case OPT_MODE_VBLOCK:
-		return Vblock(filename, key_block_file, signprivate, version,
-			      fv_file, kernelkey_file, preamble_flags);
+		return do_vblock(filename, key_block_file, signprivate, version,
+				 fv_file, kernelkey_file, preamble_flags);
 	case OPT_MODE_VERIFY:
-		return Verify(filename, signpubkey, fv_file, kernelkey_file);
+		return do_verify(filename, signpubkey, fv_file, kernelkey_file);
 	default:
 		fprintf(stderr, "Must specify a mode.\n");
 		print_help(argc, argv);

@@ -9,7 +9,11 @@
 
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2rsa.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "cryptolib.h"
 #include "utility.h"
 #include "vboot_common.h"
@@ -24,26 +28,25 @@ VbKernelPreambleHeader *CreateKernelPreamble(
 	uint64_t vmlinuz_header_size,
 	uint32_t flags,
 	uint64_t desired_size,
-	const VbPrivateKey *signing_key)
+	const struct vb2_private_key *signing_key)
 {
 	VbKernelPreambleHeader *h;
 	uint64_t signed_size = (sizeof(VbKernelPreambleHeader) +
 				body_signature->sig_size);
-	uint64_t block_size = signed_size + siglen_map[signing_key->algorithm];
+	uint32_t sig_size = vb2_rsa_sig_size(signing_key->sig_alg);
+	uint64_t block_size = signed_size + sig_size;
 	uint8_t *body_sig_dest;
 	uint8_t *block_sig_dest;
-	VbSignature *sigtmp;
 
 	/* If the block size is smaller than the desired size, pad it */
 	if (block_size < desired_size)
 		block_size = desired_size;
 
 	/* Allocate key block */
-	h = (VbKernelPreambleHeader *)malloc(block_size);
+	h = (VbKernelPreambleHeader *)calloc(block_size, 1);
 	if (!h)
 		return NULL;
 
-	Memset(h, 0, block_size);
 	body_sig_dest = (uint8_t *)(h + 1);
 	block_sig_dest = body_sig_dest + body_signature->sig_size;
 
@@ -65,11 +68,12 @@ VbKernelPreambleHeader *CreateKernelPreamble(
 
 	/* Set up signature struct so we can calculate the signature */
 	SignatureInit(&h->preamble_signature, block_sig_dest,
-		      siglen_map[signing_key->algorithm], signed_size);
+		      sig_size, signed_size);
 
 	/* Calculate signature */
-	sigtmp = CalculateSignature((uint8_t *)h, signed_size, signing_key);
-	SignatureCopy(&h->preamble_signature, sigtmp);
+	struct vb2_signature *sigtmp =
+		vb2_calculate_signature((uint8_t *)h, signed_size, signing_key);
+	SignatureCopy(&h->preamble_signature, (VbSignature *)sigtmp);
 	free(sigtmp);
 
 	/* Return the header */

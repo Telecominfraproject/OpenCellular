@@ -408,7 +408,7 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 			uint64_t padding,
 			int version, uint64_t kernel_body_load_address,
 			struct vb2_keyblock *keyblock,
-			VbPrivateKey *signpriv_key,
+			struct vb2_private_key *signpriv_key,
 			uint32_t flags, uint64_t *vblock_size_ptr)
 {
 	VbSignature *body_sig;
@@ -419,7 +419,9 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 	uint64_t outsize;
 
 	/* Sign the kernel data */
-	body_sig = CalculateSignature(kernel_blob, kernel_size, signpriv_key);
+	body_sig = (VbSignature *)vb2_calculate_signature(kernel_blob,
+							  kernel_size,
+							  signpriv_key);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return NULL;
@@ -797,25 +799,19 @@ enum futil_file_type ft_recognize_vblock1(uint8_t *buf, uint32_t len)
 
 enum futil_file_type ft_recognize_vb1_key(uint8_t *buf, uint32_t len)
 {
-	struct vb2_packed_key *pubkey = (struct vb2_packed_key *)buf;
-	VbPrivateKey key;
-	const unsigned char *start;
-
-	/* Maybe just a VbPublicKey? */
+	/* Maybe just a packed public key? */
+	const struct vb2_packed_key *pubkey = (struct vb2_packed_key *)buf;
 	if (packed_key_looks_ok(pubkey, len))
 		return FILE_TYPE_PUBKEY;
 
-	/* How about a VbPrivateKey? */
-	if (len < sizeof(key.algorithm))
+	/* How about a private key? */
+	if (len < sizeof(uint64_t))
 		return FILE_TYPE_UNKNOWN;
-
-	key.algorithm = *(typeof(key.algorithm) *)buf;
-	start = buf + sizeof(key.algorithm);
-	key.rsa_private_key = d2i_RSAPrivateKey(NULL, &start,
-						len - sizeof(key.algorithm));
-
-	if (key.rsa_private_key) {
-		RSA_free(key.rsa_private_key);
+	const unsigned char *start = buf + sizeof(uint64_t);
+	struct rsa_st *rsa =
+		d2i_RSAPrivateKey(NULL, &start, len - sizeof(uint64_t));
+	if (rsa) {
+		RSA_free(rsa);
 		return FILE_TYPE_PRIVKEY;
 	}
 

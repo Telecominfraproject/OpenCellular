@@ -8,6 +8,7 @@
 #ifndef VBOOT_REFERENCE_HOST_KEY2_H_
 #define VBOOT_REFERENCE_HOST_KEY2_H_
 
+#include "2id.h"
 #include "2struct.h"
 
 struct vb2_public_key;
