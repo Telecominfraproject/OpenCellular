@@ -22,7 +22,8 @@
 static void VerifyPublicKeyToRSA(const VbPublicKey *orig_key)
 {
 	RSAPublicKey *rsa;
-	VbPublicKey *key = PublicKeyAlloc(orig_key->key_size, 0, 0);
+	VbPublicKey *key =
+		(VbPublicKey *)vb2_alloc_packed_key(orig_key->key_size, 0, 0);
 
 	PublicKeyCopy(key, orig_key);
 	key->algorithm = kNumAlgorithms;
@@ -235,7 +236,8 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	}
 
 	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, rsa_len);
-	public_key = PublicKeyReadKeyb(filename, key_algorithm, 1);
+	public_key = (VbPublicKey *)vb2_read_packed_keyb(filename,
+							 key_algorithm, 1);
 	if (!public_key) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
 		return 1;

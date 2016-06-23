@@ -17,6 +17,15 @@
 #define VBOOT_REFERENCE_VB2_STRUCT_H_
 #include <stdint.h>
 
+/*
+ * Rollback protection currently uses a 32-bit value comprised of the bottom 16
+ * bits of the (firmware or kernel) preamble version and the bottom 16 bits of
+ * the key version.  So each of those versions is effectively limited to 16
+ * bits even though they get stored in 32-bit fields.
+ */
+#define VB2_MAX_KEY_VERSION 0xffff
+#define VB2_MAX_PREAMBLE_VERSION 0xffff
+
 /* Packed public key data */
 struct vb2_packed_key {
 	/* Offset of key data from start of this struct */

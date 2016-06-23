@@ -9,8 +9,6 @@
 #define VBOOT_REFERENCE_HOST_KEY_H_
 
 #include "2crypto.h"
-#include "cryptolib.h"
-#include "vboot_struct.h"
 
 struct vb2_packed_key;
 struct vb2_private_key;
@@ -68,9 +66,17 @@ int vb2_write_private_key(const char *filename,
  */
 struct vb2_private_key *vb2_read_private_key(const char *filename);
 
-/* Allocate a new public key with space for a [key_size] byte key. */
-VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
-                            uint64_t version);
+/**
+ * Allocate a new public key.
+ * @param key_size	Size of key data the key can hold
+ * @param algorithm	Algorithm to store in key header
+ * @param version	Version to store in key header
+ *
+ * @return The public key or NULL if error.  Caller must free() it.
+ */
+struct vb2_packed_key *vb2_alloc_packed_key(uint32_t key_size,
+					    uint32_t algorithm,
+					    uint32_t version);
 
 /**
  * Initialize a packed key structure.
@@ -93,26 +99,49 @@ void vb2_init_packed_key(struct vb2_packed_key *key, uint8_t *key_data,
 int vb2_copy_packed_key(struct vb2_packed_key *dest,
 			const struct vb2_packed_key *src);
 
-/* Read a public key from a .vbpubk file.  Caller owns the returned
- * pointer, and must free it with Free().
+/**
+ * Read a packed key from a .vbpubk file.
  *
- * Returns NULL if error. */
-VbPublicKey* PublicKeyRead(const char* filename);
+ * @param filename	Name of file to read
+ * @param algorithm	Crypto algorithm to associate with key
+ * @param version	Version to store in key
+ *
+ * @return The packed key, or NULL if error.  Caller must free() it.
+ */
 struct vb2_packed_key *vb2_read_packed_key(const char *filename);
 
-/* Return true if the packed (public) key struct appears correct. */
+/**
+ * Sanity-check a packed key structure.
+ *
+ * @param key	     	Key to check
+ * @param size		Size of key buffer in bytes
+ *
+ * @return True if the key struct appears valid.
+ */
 int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size);
 
-/* Read a public key from a .keyb file.  Caller owns the returned
- * pointer, and must free it with Free().
+/**
+ * Read a packed key from a .keyb file.
  *
- * Returns NULL if error. */
-VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
-                               uint64_t version);
+ * @param filename	Name of file to read
+ * @param algorithm	Crypto algorithm to associate with key
+ * @param version	Version to store in key
+ *
+ * @return The packed key, or NULL if error.  Caller must free() it.
+ */
+struct vb2_packed_key *vb2_read_packed_keyb(const char *filename,
+					    uint32_t algorithm,
+					    uint32_t version);
 
-
-/* Write a public key to a file in .vbpubk format. */
-int PublicKeyWrite(const char* filename, const VbPublicKey* key);
-
+/**
+ * Write a packed key in .vbpubk format.
+ *
+ * @param filename	Name of file to write
+ * @param key		Key to write
+ *
+ * @return VB2_SUCCESS, or non-zero if error.
+ */
+int vb2_write_packed_key(const char *filename,
+			 const struct vb2_packed_key *key);
 
 #endif  /* VBOOT_REFERENCE_HOST_KEY_H_ */

@@ -225,14 +225,12 @@ static int Unpack(const char *infile, const char *datapubkey,
 	       vb1_crypto_name(data_key->algorithm));
 	printf("Data key version:     %u\n", data_key->key_version);
 	printf("Data key sha1sum:     %s\n",
-	       packed_key_sha1_string((struct vb2_packed_key *)data_key));
+	       packed_key_sha1_string(data_key));
 
-	if (datapubkey) {
-		if (0 != PublicKeyWrite(datapubkey, (VbPublicKey *)data_key)) {
-			fprintf(stderr, "vbutil_keyblock:"
-				" unable to write public key\n");
-			return 1;
-		}
+	if (datapubkey &&
+	    VB2_SUCCESS != vb2_write_packed_key(datapubkey, data_key)) {
+		fprintf(stderr, "vbutil_keyblock: error writing public key\n");
+		return 1;
 	}
 
 	free(block);

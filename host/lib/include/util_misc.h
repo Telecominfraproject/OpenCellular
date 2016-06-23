@@ -42,8 +42,8 @@ const char *private_key_sha1_string(const struct vb2_private_key *key);
 
 /*
  * Our packed RSBPublicKey buffer (historically in files ending with ".keyb",
- * but also the part of VbPublicKey and struct vb21_packed_key that is
- * referenced by .key_offset) has this binary format:
+ * but also the part of struct vb2_packed_key and struct vb21_packed_key that
+ * is referenced by .key_offset) has this binary format:
  *
  *   struct {
  *       uint32_t nwords;            // size of RSA key in 32-bit words

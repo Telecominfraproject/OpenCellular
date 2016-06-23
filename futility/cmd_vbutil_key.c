@@ -76,16 +76,15 @@ static void print_help(int argc, char *argv[])
 static int do_pack(const char *infile, const char *outfile, uint32_t algorithm,
 		   uint32_t version)
 {
-	VbPublicKey *pubkey;
-
 	if (!infile || !outfile) {
 		fprintf(stderr, "vbutil_key: Must specify --in and --out\n");
 		return 1;
 	}
 
-	pubkey = PublicKeyReadKeyb(infile, algorithm, version);
+	struct vb2_packed_key *pubkey =
+		vb2_read_packed_keyb(infile, algorithm, version);
 	if (pubkey) {
-		if (0 != PublicKeyWrite(outfile, pubkey)) {
+		if (0 != vb2_write_packed_key(outfile, pubkey)) {
 			fprintf(stderr, "vbutil_key: Error writing key.\n");
 			return 1;
 		}
@@ -111,28 +110,26 @@ static int do_pack(const char *infile, const char *outfile, uint32_t algorithm,
 /* Unpack a .vbpubk or .vbprivk */
 static int do_unpack(const char *infile, const char *outfile)
 {
-	VbPublicKey *pubkey;
+	struct vb2_packed_key *pubkey;
 
 	if (!infile) {
 		fprintf(stderr, "Need file to unpack\n");
 		return 1;
 	}
 
-	pubkey = PublicKeyRead(infile);
+	pubkey = vb2_read_packed_key(infile);
 	if (pubkey) {
 		printf("Public Key file:   %s\n", infile);
-		printf("Algorithm:         %" PRIu64 " %s\n", pubkey->algorithm,
+		printf("Algorithm:         %u %s\n", pubkey->algorithm,
 		       vb1_crypto_name(pubkey->algorithm));
-		printf("Key Version:       %" PRIu64 "\n", pubkey->key_version);
+		printf("Key Version:       %u\n", pubkey->key_version);
 		printf("Key sha1sum:       %s\n",
-		       packed_key_sha1_string((struct vb2_packed_key *)pubkey));
-		if (outfile) {
-			if (0 != PublicKeyWrite(outfile, pubkey)) {
-				fprintf(stderr,
-					"vbutil_key: Error writing key copy\n");
-				free(pubkey);
-				return 1;
-			}
+		       packed_key_sha1_string(pubkey));
+		if (outfile &&
+		    VB2_SUCCESS != vb2_write_packed_key(outfile, pubkey)) {
+			fprintf(stderr, "butil_key: Error writing key copy\n");
+			free(pubkey);
+			return 1;
 		}
 		free(pubkey);
 		return 0;
@@ -146,14 +143,11 @@ static int do_unpack(const char *infile, const char *outfile)
 			vb2_get_crypto_algorithm(privkey->hash_alg,
 						 privkey->sig_alg);
 		printf("Algorithm:         %u %s\n", alg, vb1_crypto_name(alg));
-		if (outfile) {
-			if (VB2_SUCCESS !=
-			    vb2_write_private_key(outfile, privkey)) {
-				fprintf(stderr,
-					"vbutil_key: Error writing key copy\n");
-				free(privkey);
-				return 1;
-			}
+		if (outfile &&
+		    VB2_SUCCESS != vb2_write_private_key(outfile, privkey)) {
+			fprintf(stderr,"vbutil_key: Error writing key copy\n");
+			free(privkey);
+			return 1;
 		}
 		free(privkey);
 		return 0;

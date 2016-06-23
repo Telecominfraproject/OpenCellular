@@ -15,6 +15,7 @@
 #include "2rsa.h"
 #include "2sha.h"
 #include "util_misc.h"
+#include "vb2_common.h"
 #include "vb21_common.h"
 
 #include "host_key.h"
@@ -81,7 +82,7 @@ static void print_help(int argc, char *argv[])
 static int vb1_make_keypair()
 {
 	struct vb2_private_key *privkey = NULL;
-	VbPublicKey *pubkey = 0;
+	struct vb2_packed_key *pubkey = NULL;
 	struct rsa_st *rsa_key = NULL;
 	uint8_t *keyb_data = 0;
 	uint32_t keyb_size;
@@ -136,14 +137,14 @@ static int vb1_make_keypair()
 		goto done;
 	}
 
-	pubkey = PublicKeyAlloc(keyb_size, vb1_algorithm, opt_version);
+	pubkey = vb2_alloc_packed_key(keyb_size, vb1_algorithm, opt_version);
 	if (!pubkey)
 		goto done;
-	memcpy(GetPublicKeyData(pubkey), keyb_data, keyb_size);
+	memcpy((uint8_t *)vb2_packed_key_data(pubkey), keyb_data, keyb_size);
 
 	/* Write it out */
 	strcpy(outext, ".vbpubk");
-	if (0 != PublicKeyWrite(outfile, pubkey)) {
+	if (VB2_SUCCESS != vb2_write_packed_key(outfile, pubkey)) {
 		fprintf(stderr, "unable to write public key\n");
 		goto done;
 	}
@@ -214,7 +215,8 @@ static int vb2_make_keypair()
 		privkey->sig_alg = sig_alg;
 		privkey->hash_alg = opt_hash_alg;
 		if (opt_desc && vb2_private_key_set_desc(privkey, opt_desc)) {
-			fprintf(stderr, "Unable to set the private key description\n");
+			fprintf(stderr,
+				"Unable to set the private key description\n");
 			goto done;
 		}
 	}

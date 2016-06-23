@@ -170,6 +170,22 @@ void vb2_init_packed_key(struct vb2_packed_key *key, uint8_t *key_data,
 	key->algorithm = VB2_ALG_COUNT; /* Key not present yet */
 }
 
+struct vb2_packed_key *vb2_alloc_packed_key(uint32_t key_size,
+					    uint32_t algorithm,
+					    uint32_t version)
+{
+	struct vb2_packed_key *key =
+		(struct vb2_packed_key *)calloc(sizeof(*key) + key_size, 1);
+	if (!key)
+		return NULL;
+
+	key->algorithm = algorithm;
+	key->key_version = version;
+	key->key_size = key_size;
+	key->key_offset = sizeof(*key);
+	return key;
+}
+
 int vb2_copy_packed_key(struct vb2_packed_key *dest,
 			const struct vb2_packed_key *src)
 {
@@ -200,4 +216,65 @@ struct vb2_packed_key *vb2_read_packed_key(const char *filename)
 	/* Error */
 	free(key);
 	return NULL;
+}
+
+struct vb2_packed_key *vb2_read_packed_keyb(const char *filename,
+					    uint32_t algorithm,
+					    uint32_t version)
+{
+	if (algorithm >= VB2_ALG_COUNT) {
+		fprintf(stderr, "%s() - invalid algorithm\n", __func__);
+		return NULL;
+	}
+	if (version > VB2_MAX_KEY_VERSION) {
+		/* Currently, TPM only supports 16-bit version */
+		fprintf(stderr, "%s() - invalid version 0x%x\n", __func__,
+			version);
+		return NULL;
+	}
+
+	uint8_t *key_data = NULL;
+	uint32_t key_size = 0;
+	if (VB2_SUCCESS != vb2_read_file(filename, &key_data, &key_size))
+		return NULL;
+
+	uint64_t expected_key_size;
+	if (!RSAProcessedKeySize(algorithm, &expected_key_size) ||
+	    expected_key_size != key_size) {
+		fprintf(stderr, "%s() - wrong key size %u for algorithm %u\n",
+			__func__, key_size, algorithm);
+		free(key_data);
+		return NULL;
+	}
+
+	struct vb2_packed_key *key =
+		vb2_alloc_packed_key(key_size, algorithm, version);
+	if (!key) {
+		free(key_data);
+		return NULL;
+	}
+	memcpy((uint8_t *)vb2_packed_key_data(key), key_data, key_size);
+
+	free(key_data);
+	return key;
+}
+
+int vb2_write_packed_key(const char *filename,
+			 const struct vb2_packed_key *key)
+{
+	/* Copy the key, so its data is contiguous with the header */
+	struct vb2_packed_key *kcopy =
+		vb2_alloc_packed_key(key->key_size, 0, 0);
+	if (!kcopy)
+		return VB2_ERROR_PACKED_KEY_ALLOC;
+	if (VB2_SUCCESS != vb2_copy_packed_key(kcopy, key)) {
+		free(kcopy);
+		return VB2_ERROR_PACKED_KEY_COPY;
+	}
+
+	/* Write the copy, then free it */
+	int rv = vb2_write_file(filename, kcopy,
+				kcopy->key_offset + kcopy->key_size);
+	free(kcopy);
+	return rv;
 }

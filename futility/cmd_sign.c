@@ -78,22 +78,22 @@ int ft_sign_pubkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 				sign_option.flags,
 				sign_option.pem_external);
 		} else {
-			sign_option.signprivate2 = vb2_read_private_key_pem(
+			sign_option.signprivate = vb2_read_private_key_pem(
 				sign_option.pem_signpriv,
 				sign_option.pem_algo);
-			if (!sign_option.signprivate2) {
+			if (!sign_option.signprivate) {
 				fprintf(stderr,
  					"Unable to read PEM signing key: %s\n",
 					strerror(errno));
 				return 1;
 			}
 			block = vb2_create_keyblock(data_key,
-						    sign_option.signprivate2,
+						    sign_option.signprivate,
 						    sign_option.flags);
 		}
 	} else {
 		/* Not PEM. Should already have a signing key. */
-		block = vb2_create_keyblock(data_key, sign_option.signprivate2,
+		block = vb2_create_keyblock(data_key, sign_option.signprivate,
 					    sign_option.flags);
 	}
 
@@ -130,7 +130,7 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 				     sign_option.version,
 				     sign_option.kloadaddr,
 				     sign_option.keyblock,
-				     sign_option.signprivate2,
+				     sign_option.signprivate,
 				     sign_option.flags, &vblock_size);
 	if (!vblock_data) {
 		fprintf(stderr, "Unable to sign kernel blob\n");
@@ -217,7 +217,7 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 				     sign_option.version,
 				     sign_option.kloadaddr,
 				     keyblock,
-				     sign_option.signprivate2,
+				     sign_option.signprivate,
 				     sign_option.flags,
 				     &vblock_size);
 	if (!vblock_data) {
@@ -255,7 +255,7 @@ int ft_sign_raw_firmware(const char *name, uint8_t *buf, uint32_t len,
 	struct vb2_fw_preamble *preamble;
 	int rv;
 
-	body_sig = vb2_calculate_signature(buf, len, sign_option.signprivate2);
+	body_sig = vb2_calculate_signature(buf, len, sign_option.signprivate);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return 1;
@@ -265,7 +265,7 @@ int ft_sign_raw_firmware(const char *name, uint8_t *buf, uint32_t len,
 			sign_option.version,
 			(struct vb2_packed_key *)sign_option.kernel_subkey,
 			body_sig,
-			sign_option.signprivate2,
+			sign_option.signprivate,
 			sign_option.flags);
 	if (!preamble) {
 		fprintf(stderr, "Error creating firmware preamble.\n");
@@ -654,8 +654,8 @@ static int do_sign(int argc, char *argv[])
 				&longindex)) != -1) {
 		switch (i) {
 		case 's':
-			sign_option.signprivate2 = vb2_read_private_key(optarg);
-			if (!sign_option.signprivate2) {
+			sign_option.signprivate = vb2_read_private_key(optarg);
+			if (!sign_option.signprivate) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
 			}
@@ -668,7 +668,7 @@ static int do_sign(int argc, char *argv[])
 			}
 			break;
 		case 'k':
-			sign_option.kernel_subkey = PublicKeyRead(optarg);
+			sign_option.kernel_subkey = vb2_read_packed_key(optarg);
 			if (!sign_option.kernel_subkey) {
 				fprintf(stderr, "Error reading %s\n", optarg);
 				errorcnt++;
@@ -908,13 +908,13 @@ static int do_sign(int argc, char *argv[])
 	switch (sign_option.type) {
 	case FILE_TYPE_PUBKEY:
 		sign_option.create_new_outfile = 1;
-		if (sign_option.signprivate2 && sign_option.pem_signpriv) {
+		if (sign_option.signprivate && sign_option.pem_signpriv) {
 			fprintf(stderr,
 				"Only one of --signprivate and --pem_signpriv"
 				" can be specified\n");
 			errorcnt++;
 		}
-		if ((sign_option.signprivate2 &&
+		if ((sign_option.signprivate &&
 		     sign_option.pem_algo_specified) ||
 		    (sign_option.pem_signpriv &&
 		     !sign_option.pem_algo_specified)) {
@@ -932,18 +932,18 @@ static int do_sign(int argc, char *argv[])
 		break;
 	case FILE_TYPE_BIOS_IMAGE:
 	case FILE_TYPE_OLD_BIOS_IMAGE:
-		errorcnt += no_opt_if(!sign_option.signprivate2, "signprivate");
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
 		errorcnt += no_opt_if(!sign_option.keyblock, "keyblock");
 		errorcnt += no_opt_if(!sign_option.kernel_subkey, "kernelkey");
 		break;
 	case FILE_TYPE_KERN_PREAMBLE:
-		errorcnt += no_opt_if(!sign_option.signprivate2, "signprivate");
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
 		if (sign_option.vblockonly || sign_option.inout_file_count > 1)
 			sign_option.create_new_outfile = 1;
 		break;
 	case FILE_TYPE_RAW_FIRMWARE:
 		sign_option.create_new_outfile = 1;
-		errorcnt += no_opt_if(!sign_option.signprivate2, "signprivate");
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
 		errorcnt += no_opt_if(!sign_option.keyblock, "keyblock");
 		errorcnt += no_opt_if(!sign_option.kernel_subkey, "kernelkey");
 		errorcnt += no_opt_if(!sign_option.version_specified,
@@ -951,7 +951,7 @@ static int do_sign(int argc, char *argv[])
 		break;
 	case FILE_TYPE_RAW_KERNEL:
 		sign_option.create_new_outfile = 1;
-		errorcnt += no_opt_if(!sign_option.signprivate2, "signprivate");
+		errorcnt += no_opt_if(!sign_option.signprivate, "signprivate");
 		errorcnt += no_opt_if(!sign_option.keyblock, "keyblock");
 		errorcnt += no_opt_if(!sign_option.version_specified,
 				      "version");
@@ -1044,8 +1044,8 @@ done:
 			strerror(errno));
 	}
 
-	if (sign_option.signprivate2)
-		free(sign_option.signprivate2);
+	if (sign_option.signprivate)
+		free(sign_option.signprivate);
 	if (sign_option.keyblock)
 		free(sign_option.keyblock);
 	if (sign_option.kernel_subkey)

@@ -182,8 +182,8 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	}
 
 	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, signing_rsa_len);
-	signing_public_key = PublicKeyReadKeyb(filename,
-					       signing_key_algorithm, 1);
+	signing_public_key = (VbPublicKey *)
+		vb2_read_packed_keyb(filename, signing_key_algorithm, 1);
 	if (!signing_public_key) {
 		fprintf(stderr, "Error reading signing_public_key: %s\n",
 			filename);
@@ -191,8 +191,8 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	}
 
 	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, data_rsa_len);
-	struct vb2_packed_key *data_public_key = (struct vb2_packed_key *)
-		PublicKeyReadKeyb(filename, data_key_algorithm, 1);
+	struct vb2_packed_key *data_public_key =
+		vb2_read_packed_keyb(filename, data_key_algorithm, 1);
 	if (!data_public_key) {
 		fprintf(stderr, "Error reading data_public_key: %s\n",
 			filename);

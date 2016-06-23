@@ -49,15 +49,22 @@ struct vb2_fw_preamble *vb2_create_fw_preamble(
 	h->flags = flags;
 
 	/* Copy data key */
-	PublicKeyInit((VbPublicKey *)&h->kernel_subkey, kernel_subkey_dest,
-		      kernel_subkey->key_size);
-	PublicKeyCopy((VbPublicKey *)&h->kernel_subkey,
-		      (VbPublicKey *)kernel_subkey);
+	vb2_init_packed_key(&h->kernel_subkey, kernel_subkey_dest,
+			    kernel_subkey->key_size);
+	if (VB2_SUCCESS !=
+	    vb2_copy_packed_key(&h->kernel_subkey, kernel_subkey)) {
+		free(h);
+		return NULL;
+	}
 
 	/* Copy body signature */
 	vb2_init_signature(&h->body_signature,
 			   body_sig_dest, body_signature->sig_size, 0);
-	vb2_copy_signature(&h->body_signature, body_signature);
+	if (VB2_SUCCESS !=
+	    vb2_copy_signature(&h->body_signature, body_signature)) {
+		free(h);
+		return NULL;
+	}
 
 	/* Set up signature struct so we can calculate the signature */
 	vb2_init_signature(&h->preamble_signature, block_sig_dest,

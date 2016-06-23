@@ -15,12 +15,6 @@
 
 int main(void)
 {
-  /* host_key.h */
-  PublicKeyAlloc(0, 0, 0);
-  PublicKeyRead(0);
-  PublicKeyReadKeyb(0, 0, 0);
-  PublicKeyWrite(0, 0);
-
   /* host_misc.h */
   ReadFile(0, 0);
   WriteFile(0, 0, 0);

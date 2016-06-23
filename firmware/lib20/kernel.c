@@ -185,7 +185,7 @@ int vb2_load_kernel_keyblock(struct vb2_context *ctx)
 
 	/* Check for keyblock rollback if not in recovery mode */
 	/* Key version is the upper 16 bits of the composite version */
-	if (!rec_switch && kb->data_key.key_version > 0xffff) {
+	if (!rec_switch && kb->data_key.key_version > VB2_MAX_KEY_VERSION) {
 		keyblock_is_valid = 0;
 		if (need_keyblock_valid)
 			return VB2_ERROR_KERNEL_KEYBLOCK_VERSION_RANGE;
@@ -419,7 +419,7 @@ int vb2_load_kernel_preamble(struct vb2_context *ctx)
 	 * Kernel preamble version is the lower 16 bits of the composite kernel
 	 * version.
 	 */
-	if (pre->kernel_version > 0xffff)
+	if (pre->kernel_version > VB2_MAX_PREAMBLE_VERSION)
 		return VB2_ERROR_KERNEL_PREAMBLE_VERSION_RANGE;
 
 	/* Combine with the key version from vb2_load_kernel_keyblock() */

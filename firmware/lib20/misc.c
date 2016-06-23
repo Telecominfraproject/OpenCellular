@@ -134,7 +134,7 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 	}
 
 	/* Key version is the upper 16 bits of the composite firmware version */
-	if (kb->data_key.key_version > 0xffff)
+	if (kb->data_key.key_version > VB2_MAX_KEY_VERSION)
 		rv = VB2_ERROR_FW_KEYBLOCK_VERSION_RANGE;
 	if (!rv && kb->data_key.key_version < (sd->fw_version_secdata >> 16)) {
 		if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK)
@@ -253,7 +253,7 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	 * Firmware version is the lower 16 bits of the composite firmware
 	 * version.
 	 */
-	if (pre->firmware_version > 0xffff)
+	if (pre->firmware_version > VB2_MAX_PREAMBLE_VERSION)
 		rv = VB2_ERROR_FW_PREAMBLE_VERSION_RANGE;
 	/* Combine with the key version from vb2_load_fw_keyblock() */
 	sd->fw_version |= pre->firmware_version;

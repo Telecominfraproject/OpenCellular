@@ -240,7 +240,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	struct vb2_keyblock *keyblock = NULL;
 	struct vb2_keyblock *t_keyblock = NULL;
 	struct vb2_private_key *signpriv_key = NULL;
-	VbPublicKey *signpub_key = NULL;
+	struct vb2_packed_key *signpub_key = NULL;
 	uint8_t *kpart_data = NULL;
 	uint64_t kpart_size = 0;
 	uint8_t *vmlinuz_buf = NULL;
@@ -547,7 +547,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		/* Optional */
 
 		if (signpubkey_file) {
-			signpub_key = PublicKeyRead(signpubkey_file);
+			signpub_key = vb2_read_packed_key(signpubkey_file);
 			if (!signpub_key)
 				Fatal("Error reading public key.\n");
 		}

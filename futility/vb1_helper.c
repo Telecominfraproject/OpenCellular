@@ -502,17 +502,16 @@ int WriteSomeParts(const char *outfile,
 /* Returns 0 on success */
 int VerifyKernelBlob(uint8_t *kernel_blob,
 		     uint64_t kernel_size,
-		     VbPublicKey *signpub_key,
+		     struct vb2_packed_key *signpub_key,
 		     const char *keyblock_outfile,
 		     uint64_t min_version)
 {
-	RSAPublicKey *rsa;
 	int rv = -1;
 	uint64_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
 
-	static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
-	static struct vb2_workbuf wb;
+	uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
+	struct vb2_workbuf wb;
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	if (signpub_key) {
@@ -585,15 +584,18 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 		goto done;
 	}
 
-	rsa = PublicKeyToRSA((VbPublicKey *)data_key);
-	if (!rsa) {
+	struct vb2_public_key pubkey;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&pubkey, (uint8_t *)data_key,
+			   data_key->key_offset + data_key->key_size)) {
 		fprintf(stderr, "Error parsing data key.\n");
 		goto done;
 	}
 
 	/* Verify preamble */
-	if (0 != VerifyKernelPreamble(g_preamble,
-				      g_preamble->preamble_size, rsa)) {
+	if (VB2_SUCCESS != vb2_verify_kernel_preamble(
+			(struct vb2_kernel_preamble *)g_preamble,
+			g_preamble->preamble_size, &pubkey, &wb)) {
 		fprintf(stderr, "Error verifying preamble.\n");
 		goto done;
 	}
@@ -642,8 +644,10 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	}
 
 	/* Verify body */
-	if (0 != VerifyData(kernel_blob, kernel_size,
-			    &g_preamble->body_signature, rsa)) {
+	if (VB2_SUCCESS !=
+	    vb2_verify_data(kernel_blob, kernel_size,
+			    (struct vb2_signature *)&g_preamble->body_signature,
+			    &pubkey, &wb)) {
 		fprintf(stderr, "Error verifying kernel body.\n");
 		goto done;
 	}
@@ -749,17 +753,14 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
 
 enum futil_file_type ft_recognize_vblock1(uint8_t *buf, uint32_t len)
 {
-	int rv;
-
-	uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
+	uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 	struct vb2_workbuf wb;
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	/* Vboot 2.0 signature checks destroy the buffer, so make a copy */
 	uint8_t *buf2 = malloc(len);
 	memcpy(buf2, buf, len);
-
-	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf;
+	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)buf2;
 	if (VB2_SUCCESS != vb2_verify_keyblock_hash(keyblock, len, &wb)) {
 		free(buf2);
 		return FILE_TYPE_UNKNOWN;
@@ -780,18 +781,26 @@ enum futil_file_type ft_recognize_vblock1(uint8_t *buf, uint32_t len)
 
 	/* Followed by firmware preamble too? */
 	struct vb2_fw_preamble *pre2 = (struct vb2_fw_preamble *)(buf2 + more);
-	rv = vb2_verify_fw_preamble(pre2, len - more, &data_key, &wb);
-	free(buf2);
-	if (VB2_SUCCESS == rv)
+	if (VB2_SUCCESS ==
+	    vb2_verify_fw_preamble(pre2, len - more, &data_key, &wb)) {
+		free(buf2);
 		return FILE_TYPE_FW_PREAMBLE;
+	}
+
+	/* Recopy since firmware preamble check destroyed the buffer */
+	memcpy(buf2, buf, len);
 
 	/* Or maybe kernel preamble? */
-	RSAPublicKey *rsa = PublicKeyToRSA((VbPublicKey *)&keyblock->data_key);
-	VbKernelPreambleHeader *kern_preamble =
-		(VbKernelPreambleHeader *)(buf + more);
-	if (VBOOT_SUCCESS ==
-	    VerifyKernelPreamble(kern_preamble, len - more, rsa))
+	struct vb2_kernel_preamble *kern_preamble =
+		(struct vb2_kernel_preamble *)(buf2 + more);
+	if (VB2_SUCCESS ==
+	    vb2_verify_kernel_preamble(kern_preamble, len - more,
+				       &data_key, &wb)) {
+		free(buf2);
 		return FILE_TYPE_KERN_PREAMBLE;
+	}
+
+	free(buf2);
 
 	/* No, just keyblock */
 	return FILE_TYPE_KEYBLOCK;

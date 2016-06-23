@@ -154,8 +154,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	}
 
 	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, rsa_len);
-	key1 = (struct vb2_packed_key *)
-		PublicKeyReadKeyb(filename, key_algorithm, 1);
+	key1 = vb2_read_packed_keyb(filename, key_algorithm, 1);
 	if (!key1) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
 		return 1;

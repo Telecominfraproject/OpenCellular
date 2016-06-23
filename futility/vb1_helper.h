@@ -53,7 +53,7 @@ int UpdateKernelBlobConfig(uint8_t *kblob_data, uint64_t kblob_size,
 
 int VerifyKernelBlob(uint8_t *kernel_blob,
 		     uint64_t kernel_size,
-		     VbPublicKey *signpub_key,
+		     struct vb2_packed_key *signpub_key,
 		     const char *keyblock_outfile,
 		     uint64_t min_version);
 

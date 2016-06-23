@@ -13,6 +13,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2rsa.h"
+#include "2sha.h"
 #include "cryptolib.h"
 #include "host_common.h"
 #include "host_key.h"
@@ -20,82 +24,15 @@
 #include "vb2_common.h"
 #include "vboot_common.h"
 
-/* Allocate a new public key with space for a [key_size] byte key. */
-VbPublicKey* PublicKeyAlloc(uint64_t key_size, uint64_t algorithm,
-                            uint64_t version) {
-  VbPublicKey* key = (VbPublicKey*)malloc(sizeof(VbPublicKey) + key_size);
-  if (!key)
-    return NULL;
-
-  key->algorithm = algorithm;
-  key->key_version = version;
-  key->key_size = key_size;
-  key->key_offset = sizeof(VbPublicKey);
-  return key;
-}
-
-VbPublicKey* PublicKeyReadKeyb(const char* filename, uint64_t algorithm,
-                               uint64_t version) {
-  VbPublicKey* key;
-  uint8_t* key_data;
-  uint64_t key_size;
-  uint64_t expected_key_size;
-
-  if (algorithm >= kNumAlgorithms) {
-    VBDEBUG(("PublicKeyReadKeyb() called with invalid algorithm!\n"));
-    return NULL;
-  }
-  if (version > 0xFFFF) {
-    /* Currently, TPM only supports 16-bit version */
-    VBDEBUG(("PublicKeyReadKeyb() called with invalid version!\n"));
-    return NULL;
-  }
-
-  key_data = ReadFile(filename, &key_size);
-  if (!key_data)
-    return NULL;
-
-  if (!RSAProcessedKeySize(algorithm, &expected_key_size) ||
-      expected_key_size != key_size) {
-    VBDEBUG(("PublicKeyReadKeyb() wrong key size for algorithm\n"));
-    free(key_data);
-    return NULL;
-  }
-
-  key = PublicKeyAlloc(key_size, algorithm, version);
-  if (!key) {
-    free(key_data);
-    return NULL;
-  }
-  Memcpy(GetPublicKeyData(key), key_data, key_size);
-
-  free(key_data);
-  return key;
-}
-
 int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size)
 {
-	uint64_t key_size;
-
-	if (size < sizeof(*key))
+	struct vb2_public_key pubkey;
+	if (VB2_SUCCESS != vb2_unpack_key(&pubkey, (const uint8_t *)key, size))
 		return 0;
 
-	/* Sanity-check key data */
-	if (0 != VerifyPublicKeyInside(key, size, (VbPublicKey *)key)) {
-		VBDEBUG(("PublicKeyRead() not a VbPublicKey\n"));
-		return 0;
-	}
-	if (key->algorithm >= kNumAlgorithms) {
-		VBDEBUG(("PublicKeyRead() invalid algorithm\n"));
-		return 0;
-	}
-	if (key->key_version > 0xFFFF) {
-		VBDEBUG(("PublicKeyRead() invalid version\n"));
-		return 0;  /* Currently, TPM only supports 16-bit version */
-	}
-	if (!RSAProcessedKeySize(key->algorithm, &key_size) ||
-	    key_size != key->key_size) {
-		VBDEBUG(("PublicKeyRead() wrong key size for algorithm\n"));
+	if (key->key_version > VB2_MAX_KEY_VERSION) {
+		/* Currently, TPM only supports 16-bit version */
+		VB2_DEBUG("%s() - packed key invalid version\n", __func__);
 		return 0;
 	}
 
@@ -103,37 +40,20 @@ int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size)
 	return 1;
 }
 
-VbPublicKey* PublicKeyRead(const char* filename) {
-	struct vb2_packed_key *key;
-	uint64_t file_size;
+/* TODO: the host code just uses this to check the embedded key length in
+ * uint32_t's.  It should get folded into packed_key_looks_ok. */
 
-	key = (struct vb2_packed_key *)ReadFile(filename, &file_size);
-	if (!key)
+RSAPublicKey *vb2_packed_key_to_rsa(const struct vb2_packed_key *key)
+{
+	RSAPublicKey *rsa;
+
+	if (!packed_key_looks_ok(key, key->key_size))
+	    return NULL;
+
+	rsa = RSAPublicKeyFromBuf(vb2_packed_key_data(key), key->key_size);
+	if (!rsa)
 		return NULL;
 
-	if (packed_key_looks_ok(key, file_size))
-		return (VbPublicKey *)key;
-
-	/* Error */
-	free(key);
-	return NULL;
-}
-
-int PublicKeyWrite(const char* filename, const VbPublicKey* key) {
-  VbPublicKey* kcopy;
-  int rv;
-
-  /* Copy the key, so its data is contiguous with the header */
-  kcopy = PublicKeyAlloc(key->key_size, 0, 0);
-  if (!kcopy)
-    return 1;
-  if (0 != PublicKeyCopy(kcopy, key)) {
-    free(kcopy);
-    return 1;
-  }
-
-  /* Write the copy, then free it */
-  rv = WriteFile(filename, kcopy, kcopy->key_offset + kcopy->key_size);
-  free(kcopy);
-  return rv;
+	rsa->algorithm = (unsigned int)key->algorithm;
+	return rsa;
 }

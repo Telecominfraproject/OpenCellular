@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Read public key */
-	kernkey = PublicKeyRead(argv[2]);
+	kernkey = (VbPublicKey *)vb2_read_packed_key(argv[2]);
 	if (!kernkey) {
 		fprintf(stderr, "Can't read key file %s\n", argv[2]);
 		return 1;

@@ -285,12 +285,11 @@ static int do_verify(const char *infile, const char *signpubkey,
 		return 1;
 	}
 
-	if (kernelkey_file) {
-		if (0 != PublicKeyWrite(kernelkey_file,
-					(struct VbPublicKey *)kernel_subkey)) {
-			VbExError("Unable to write kernel subkey\n");
-			return 1;
-		}
+	if (kernelkey_file &&
+	    VB2_SUCCESS != vb2_write_packed_key(kernelkey_file,
+						kernel_subkey)) {
+		VbExError("Unable to write kernel subkey\n");
+		return 1;
 	}
 
 	return 0;
