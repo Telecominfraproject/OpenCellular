@@ -247,6 +247,7 @@ uint32_t WriteSpaceKernel(RollbackSpaceKernel *rsk)
 	return TPM_E_CORRUPTED_STATE;
 }
 
+#ifndef TPM2_MODE
 uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware *rsf,
                               RollbackSpaceKernel *rsk)
 {
@@ -326,7 +327,7 @@ uint32_t OneTimeInitializeTPM(RollbackSpaceFirmware *rsf,
 
 	return TPM_SUCCESS;
 }
-
+#endif
 
 /*
  * SetupTPM starts the TPM and establishes the root of trust for the
@@ -419,6 +420,7 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
 
 	/* Read the firmware space. */
 	result = ReadSpaceFirmware(rsf);
+#ifndef TPM2_MDOE
 	if (TPM_E_BADINDEX == result) {
 		RollbackSpaceKernel rsk;
 
@@ -428,7 +430,9 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
 		 */
 		VBDEBUG(("TPM: Not initialized yet.\n"));
 		RETURN_ON_FAILURE(OneTimeInitializeTPM(rsf, &rsk));
-	} else if (TPM_SUCCESS != result) {
+	} else
+#endif
+	if (TPM_SUCCESS != result) {
 		VBDEBUG(("TPM: Firmware space in a bad state; giving up.\n"));
 		return TPM_E_CORRUPTED_STATE;
 	}
@@ -614,7 +618,6 @@ uint32_t RollbackFirmwareLock(void)
 uint32_t RollbackKernelRead(uint32_t* version)
 {
 	RollbackSpaceKernel rsk;
-	uint32_t perms, uid;
 
 	/*
 	 * Read the kernel space and verify its permissions.  If the kernel
@@ -625,11 +628,21 @@ uint32_t RollbackKernelRead(uint32_t* version)
 	 * PP-protected space (but not write to it).
 	 */
 	RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
-	RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_NV_INDEX, &perms));
-	Memcpy(&uid, &rsk.uid, sizeof(uid));
-	if (TPM_NV_PER_PPWRITE != perms || ROLLBACK_SPACE_KERNEL_UID != uid)
-		return TPM_E_CORRUPTED_STATE;
+#ifndef TPM2_MODE
+	/*
+	 * TODO(vbendeb): restore this when it is defined how the kernel space
+	 * gets protected.
+	 */
+	{
+		uint32_t perms, uid;
 
+		RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_NV_INDEX, &perms));
+		Memcpy(&uid, &rsk.uid, sizeof(uid));
+		if (TPM_NV_PER_PPWRITE != perms ||
+		    ROLLBACK_SPACE_KERNEL_UID != uid)
+			return TPM_E_CORRUPTED_STATE;
+	}
+#endif
 	Memcpy(version, &rsk.kernel_versions, sizeof(*version));
 	VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)*version));
 	return TPM_SUCCESS;
