@@ -182,6 +182,10 @@ CFLAGS += -DUSE_MTD
 LDLIBS += -lmtdutils
 endif
 
+ifneq (${TPM2_MODE},)
+CFLAGS += -DTPM2_MODE
+endif
+
 # NOTE: We don't use these files but they are useful for other packages to
 # query about required compiling/linking flags.
 PC_IN_FILES = vboot_host.pc.in
@@ -384,8 +388,15 @@ BDBLIB_SRCS = \
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
 VBINIT_SRCS += \
-	firmware/lib/rollback_index.c \
+	firmware/lib/rollback_index.c
+ifeq (${TPM2_MODE},)
+VBINIT_SRCS += \
 	firmware/lib/tpm_lite/tlcl.c
+else
+VBINIT_SRCS += \
+	firmware/lib/tpm2_lite/tlcl.c \
+	firmware/lib/tpm2_lite/marshaling.c
+endif
 
 VBSF_SRCS += \
 	firmware/lib/tpm_bootmode.c
