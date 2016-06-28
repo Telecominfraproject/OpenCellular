@@ -72,6 +72,21 @@ struct nvmrw {
 	uint8_t hmac[NVM_HMAC_SIZE];
 } __attribute__((packed));
 
+/*
+ * List of variables stored in NVM-RW. This should be exported and used by
+ * firmware and futility to access data in NVM-RW.
+ */
+enum nvmrw_var {
+	NVMRW_VAR_UPDATE_COUNT,
+	NVMRW_VAR_FLAGS,
+	NVMRW_VAR_MIN_KERNEL_DATA_KEY_VERSION,
+	NVMRW_VAR_MIN_KERNEL_VERSION,
+	NVMRW_VAR_BUC_TYPE,
+	NVMRW_VAR_FLAG_BUC_PRESENT,
+	NVMRW_VAR_FLAG_DFM_DISABLE,
+	NVMRW_VAR_FLAG_DOSM,
+};
+
 /* Size of the version 1.0 */
 #define NVM_RW_MIN_STRUCT_SIZE		96
 /* 4 Kbit EEPROM divided by 4 regions (RO,RW) x (1st,2nd) = 128 KB */
@@ -96,5 +111,29 @@ int nvmrw_read(struct vba_context *ctx);
  * @return	BDB_SUCCESS or BDB_ERROR_NVM_*
  */
 int nvmrw_write(struct vba_context *ctx, enum nvm_type type);
+
+/**
+ * Get a value of NVM-RW variable
+ *
+ * Callers are responsible for init and verify of ctx->nvmrw.
+ *
+ * @param ctx	struct vba_context
+ * @param var	Index of the variable
+ * @param val	Destination where the value is stored
+ * @return	BDB_SUCCESS or BDB_ERROR_NVM_*
+ */
+int nvmrw_get(struct vba_context *ctx, enum nvmrw_var var, uint32_t *val);
+
+/**
+ * Set a value in NVM-RW variable
+ *
+ * Callers are responsible for init and verify of ctx->nvmrw.
+ *
+ * @param ctx	struct vba_context
+ * @param var	Index of the variable
+ * @param val	Value to be set
+ * @return	BDB_SUCCESS or BDB_ERROR_NVM_*
+ */
+int nvmrw_set(struct vba_context *ctx, enum nvmrw_var var, uint32_t val);
 
 #endif

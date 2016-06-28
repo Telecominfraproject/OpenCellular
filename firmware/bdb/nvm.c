@@ -265,3 +265,82 @@ int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc)
 
 	return BDB_SUCCESS;
 }
+
+int nvmrw_get(struct vba_context *ctx, enum nvmrw_var var, uint32_t *val)
+{
+	struct nvmrw *nvm = &ctx->nvmrw;
+
+	/* No init or verify so that this can be called from futility.
+	 * Callers are responsible for init and verify. */
+
+	switch (var) {
+	case NVMRW_VAR_UPDATE_COUNT:
+		*val = nvm->update_count;
+		break;
+	case NVMRW_VAR_MIN_KERNEL_DATA_KEY_VERSION:
+		*val = nvm->min_kernel_data_key_version;
+		break;
+	case NVMRW_VAR_MIN_KERNEL_VERSION:
+		*val = nvm->min_kernel_version;
+		break;
+	case NVMRW_VAR_BUC_TYPE:
+		*val = nvm->buc_type;
+		break;
+	case NVMRW_VAR_FLAG_BUC_PRESENT:
+		*val = nvm->flags & NVM_RW_FLAG_BUC_PRESENT;
+		break;
+	case NVMRW_VAR_FLAG_DFM_DISABLE:
+		*val = nvm->flags & NVM_RW_FLAG_DFM_DISABLE;
+		break;
+	case NVMRW_VAR_FLAG_DOSM:
+		*val = nvm->flags & NVM_RW_FLAG_DOSM;
+		break;
+	default:
+		return BDB_ERROR_NVM_INVALID_PARAMETER;
+	}
+
+	return BDB_SUCCESS;
+}
+
+#define MAX_8BIT_UINT ((((uint64_t)1) << 8) - 1)
+
+int nvmrw_set(struct vba_context *ctx, enum nvmrw_var var, uint32_t val)
+{
+	struct nvmrw *nvm = &ctx->nvmrw;
+
+	/* No init or verify so that this can be called from futility.
+	 * Callers are responsible for init and verify. */
+
+	switch (var) {
+	case NVMRW_VAR_UPDATE_COUNT:
+		nvm->update_count = val;
+		break;
+	case NVMRW_VAR_MIN_KERNEL_DATA_KEY_VERSION:
+		nvm->min_kernel_data_key_version = val;
+		break;
+	case NVMRW_VAR_MIN_KERNEL_VERSION:
+		nvm->min_kernel_version = val;
+		break;
+	case NVMRW_VAR_BUC_TYPE:
+		if (val > MAX_8BIT_UINT)
+			return BDB_ERROR_NVM_INVALID_PARAMETER;
+		nvm->buc_type = val;
+		break;
+	case NVMRW_VAR_FLAG_BUC_PRESENT:
+		nvm->flags &= ~NVM_RW_FLAG_BUC_PRESENT;
+		nvm->flags |= val ? NVM_RW_FLAG_BUC_PRESENT : 0;
+		break;
+	case NVMRW_VAR_FLAG_DFM_DISABLE:
+		nvm->flags &= ~NVM_RW_FLAG_DFM_DISABLE;
+		nvm->flags |= val ? NVM_RW_FLAG_DFM_DISABLE : 0;
+		break;
+	case NVMRW_VAR_FLAG_DOSM:
+		nvm->flags &= ~NVM_RW_FLAG_DOSM;
+		nvm->flags |= val ? NVM_RW_FLAG_DOSM : 0;
+		break;
+	default:
+		return BDB_ERROR_NVM_INVALID_PARAMETER;
+	}
+
+	return BDB_SUCCESS;
+}

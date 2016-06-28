@@ -799,6 +799,7 @@ TEST21_NAMES = \
 
 TESTBDB_NAMES = \
 	tests/bdb_test \
+	tests/bdb_nvm_test \
 	tests/bdb_sprw_test
 
 TEST_NAMES += ${TEST2X_NAMES} ${TEST20_NAMES} ${TEST21_NAMES} ${TESTBDB_NAMES}
@@ -1277,6 +1278,7 @@ ${BUILD}/tests/vb20_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/verify_kernel: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/bdb_test: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/tests/bdb_nvm_test: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/bdb_sprw_test: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/hmac_test: LDLIBS += ${CRYPTO_LIBS}
 
