@@ -411,43 +411,40 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 			struct vb2_private_key *signpriv_key,
 			uint32_t flags, uint64_t *vblock_size_ptr)
 {
-	VbSignature *body_sig;
-	VbKernelPreambleHeader *preamble;
-	uint64_t min_size = padding > keyblock->keyblock_size
+	/* Make sure the preamble fills up the rest of the required padding */
+	uint32_t min_size = padding > keyblock->keyblock_size
 		? padding - keyblock->keyblock_size : 0;
-	void *outbuf;
-	uint64_t outsize;
 
 	/* Sign the kernel data */
-	body_sig = (VbSignature *)vb2_calculate_signature(kernel_blob,
-							  kernel_size,
-							  signpriv_key);
+	struct vb2_signature *body_sig = vb2_calculate_signature(kernel_blob,
+								 kernel_size,
+								 signpriv_key);
 	if (!body_sig) {
 		fprintf(stderr, "Error calculating body signature\n");
 		return NULL;
 	}
 
 	/* Create preamble */
-	preamble = CreateKernelPreamble(version,
-					kernel_body_load_address,
-					g_ondisk_bootloader_addr,
-					g_bootloader_size,
-					body_sig,
-					g_ondisk_vmlinuz_header_addr,
-					g_vmlinuz_header_size,
-					flags,
-					min_size,
-					signpriv_key);
+	struct vb2_kernel_preamble *preamble =
+		vb2_create_kernel_preamble(version,
+					   kernel_body_load_address,
+					   g_ondisk_bootloader_addr,
+					   g_bootloader_size,
+					   body_sig,
+					   g_ondisk_vmlinuz_header_addr,
+					   g_vmlinuz_header_size,
+					   flags,
+					   min_size,
+					   signpriv_key);
 	if (!preamble) {
 		fprintf(stderr, "Error creating preamble.\n");
 		return 0;
 	}
 
-	outsize = keyblock->keyblock_size + preamble->preamble_size;
-	outbuf = malloc(outsize);
-	Memset(outbuf, 0, outsize);
-	Memcpy(outbuf, keyblock, keyblock->keyblock_size);
-	Memcpy(outbuf + keyblock->keyblock_size,
+	uint32_t outsize = keyblock->keyblock_size + preamble->preamble_size;
+	void *outbuf = calloc(outsize, 1);
+	memcpy(outbuf, keyblock, keyblock->keyblock_size);
+	memcpy(outbuf + keyblock->keyblock_size,
 	       preamble, preamble->preamble_size);
 
 	if (vblock_size_ptr)

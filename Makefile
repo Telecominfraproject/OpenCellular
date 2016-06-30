@@ -460,7 +460,6 @@ UTILLIB_SRCS = \
 	host/lib/file_keys.c \
 	host/lib/fmap.c \
 	host/lib/host_common.c \
-	host/lib/host_common2.c \
 	host/lib/host_key.c \
 	host/lib/host_key2.c \
 	host/lib/host_keyblock.c \

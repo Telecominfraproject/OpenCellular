@@ -24,9 +24,6 @@ int main(void)
   SignatureAlloc(0, 0);
   SignatureCopy(0, 0);
 
-  /* host_common.h */
-  CreateKernelPreamble(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
   /* file_keys.h */
   BufferFromFile(0, 0);
   RSAPublicKeyFromFile(0);

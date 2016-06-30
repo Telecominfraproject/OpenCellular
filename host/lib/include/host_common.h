@@ -41,23 +41,33 @@ struct vb2_fw_preamble *vb2_create_fw_preamble(
 	const struct vb2_private_key *signing_key,
 	uint32_t flags);
 
+
 /**
- * Create a kernel preamble, signed with [signing_key].
+ * Create a kernel preamble.
  *
- * Caller owns the returned pointer, and must free it with Free().
+ * @param kernel_version		Firmware version
+ * @param body_load_address		Load address for kernel body
+ * @param bootloader_address		Load address for bootloader
+ * @param bootloader_size		Size of bootloader in bytes
+ * @param body_signature		Signature of kernel body
+ * @param vmlinuz_header_address	Load address for 16-bit vmlinuz header
+ * @param vmlinuz_header_size		Size of 16-bit vmlinuz header in bytes
+ * @param flags				Kernel preamble flags
+ * @param desired_size			Minimum size of preamble in bytes
+ * @param signing_key			Private key to sign header with
  *
- * Returns NULL if error.
+ * @return The preamble, or NULL if error.  Caller must free() it.
  */
-VbKernelPreambleHeader *CreateKernelPreamble(
-	uint64_t kernel_version,
+struct vb2_kernel_preamble *vb2_create_kernel_preamble(
+	uint32_t kernel_version,
 	uint64_t body_load_address,
 	uint64_t bootloader_address,
-	uint64_t bootloader_size,
-	const VbSignature *body_signature,
+	uint32_t bootloader_size,
+	const struct vb2_signature *body_signature,
 	uint64_t vmlinuz_header_address,
-	uint64_t vmlinuz_header_size,
+	uint32_t vmlinuz_header_size,
 	uint32_t flags,
-	uint64_t desired_size,
+	uint32_t desired_size,
 	const struct vb2_private_key *signing_key);
 
 #endif  /* VBOOT_REFERENCE_HOST_COMMON_H_ */

@@ -343,8 +343,6 @@ static void test_verify_kernel_preamble(
 		const struct vb2_packed_key *public_key,
 		const struct vb2_private_key *private_key)
 {
-	struct vb2_kernel_preamble *hdr;
-	struct vb2_kernel_preamble *h;
 	struct vb2_public_key rsa;
 	// TODO: how many workbuf bytes?
 	uint8_t workbuf[VB2_VERIFY_FIRMWARE_PREAMBLE_WORKBUF_BYTES]
@@ -361,17 +359,17 @@ static void test_verify_kernel_preamble(
 				 public_key->key_offset + public_key->key_size),
 		  "vb2_verify_kernel_preamble() prereq key");
 
-	hdr = (struct vb2_kernel_preamble *)
-		CreateKernelPreamble(0x1234, 0x100000, 0x300000, 0x4000,
-				     (VbSignature *)body_sig,
-				     0x304000, 0x10000, 0, 0,
-				     private_key);
+	struct vb2_kernel_preamble *hdr =
+		vb2_create_kernel_preamble(0x1234, 0x100000, 0x300000, 0x4000,
+					   body_sig, 0x304000, 0x10000, 0, 0,
+					   private_key);
 	TEST_PTR_NEQ(hdr, NULL,
 		     "vb2_verify_kernel_preamble() prereq test preamble");
 	if (!hdr)
 		return;
 	hsize = (uint32_t) hdr->preamble_size;
-	h = (struct vb2_kernel_preamble *)malloc(hsize + 16384);
+	struct vb2_kernel_preamble *h =
+		(struct vb2_kernel_preamble *)malloc(hsize + 16384);
 
 	Memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
