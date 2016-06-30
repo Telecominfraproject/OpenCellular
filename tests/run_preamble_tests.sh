@@ -5,7 +5,7 @@
 # found in the LICENSE file.
 #
 # This tests that vblocks using pre-3.0 versions of vb2_fw_preamble
-# and VbKernelPreambleHeader will still verify (or not) correctly. We
+# and vb2_kernel_preamble will still verify (or not) correctly. We
 # need to keep the old versions around to make sure that we can still
 # sign images in the ways that existing devices can validate.
 

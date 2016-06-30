@@ -20,11 +20,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
 #include "file_type.h"
 #include "futility.h"
 #include "host_common.h"
 #include "kernel_blob.h"
 #include "vb1_helper.h"
+#include "vb2_common.h"
 #include "vb2_struct.h"
 
 static void Fatal(const char *format, ...)
@@ -171,12 +174,12 @@ static const char *error_fread(FILE *fp)
 
 /* This reads a complete kernel partition into a buffer */
 static uint8_t *ReadOldKPartFromFileOrDie(const char *filename,
-					 uint64_t *size_ptr)
+					 uint32_t *size_ptr)
 {
 	FILE *fp = NULL;
 	struct stat statbuf;
 	uint8_t *buf;
-	uint64_t file_size = 0;
+	uint32_t file_size = 0;
 
 	if (0 != stat(filename, &statbuf))
 		Fatal("Unable to stat %s: %s\n", filename, strerror(errno));
@@ -192,7 +195,7 @@ static uint8_t *ReadOldKPartFromFileOrDie(const char *filename,
 	} else {
 		file_size = statbuf.st_size;
 	}
-	Debug("%s size is 0x%" PRIx64 "\n", filename, file_size);
+	Debug("%s size is 0x%x\n", filename, file_size);
 	if (file_size < opt_pad)
 		Fatal("%s is too small to be a valid kernel blob\n");
 
@@ -232,7 +235,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	uint64_t kernel_body_load_address = CROS_32BIT_ENTRY_ADDR;
 	int mode = 0;
 	int parse_error = 0;
-	uint64_t min_version = 0;
+	uint32_t min_version = 0;
 	char *e;
 	int i = 0;
 	int errcount = 0;
@@ -242,21 +245,21 @@ static int do_vbutil_kernel(int argc, char *argv[])
 	struct vb2_private_key *signpriv_key = NULL;
 	struct vb2_packed_key *signpub_key = NULL;
 	uint8_t *kpart_data = NULL;
-	uint64_t kpart_size = 0;
+	uint32_t kpart_size = 0;
 	uint8_t *vmlinuz_buf = NULL;
-	uint64_t vmlinuz_size = 0;
+	uint32_t vmlinuz_size = 0;
 	uint8_t *t_config_data;
-	uint64_t t_config_size;
+	uint32_t t_config_size;
 	uint8_t *t_bootloader_data;
-	uint64_t t_bootloader_size;
-	uint64_t vmlinuz_header_size = 0;
+	uint32_t t_bootloader_size;
+	uint32_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
-	uint64_t vmlinuz_header_offset = 0;
-	VbKernelPreambleHeader *preamble = NULL;
+	uint32_t vmlinuz_header_offset = 0;
+	struct vb2_kernel_preamble *preamble = NULL;
 	uint8_t *kblob_data = NULL;
-	uint64_t kblob_size = 0;
+	uint32_t kblob_size = 0;
 	uint8_t *vblock_data = NULL;
-	uint64_t vblock_size = 0;
+	uint32_t vblock_size = 0;
 	uint32_t flags = 0;
 	FILE *f;
 
@@ -420,21 +423,22 @@ static int do_vbutil_kernel(int argc, char *argv[])
 			Fatal("Missing required bootloader file.\n");
 
 		Debug("Reading %s\n", bootloader_file);
-		t_bootloader_data = ReadFile(bootloader_file,
-					     &t_bootloader_size);
-		if (!t_bootloader_data)
+
+		if (VB2_SUCCESS != vb2_read_file(bootloader_file,
+						 &t_bootloader_data,
+						 &t_bootloader_size))
 			Fatal("Error reading bootloader file.\n");
-		Debug(" bootloader file size=0x%" PRIx64 "\n",
-		      t_bootloader_size);
+		Debug(" bootloader file size=0x%x\n", t_bootloader_size);
 
 		if (!vmlinuz_file)
 			Fatal("Missing required vmlinuz file.\n");
+
 		Debug("Reading %s\n", vmlinuz_file);
-		vmlinuz_buf = ReadFile(vmlinuz_file, &vmlinuz_size);
-		if (!vmlinuz_buf)
+		if (VB2_SUCCESS !=
+		    vb2_read_file(vmlinuz_file, &vmlinuz_buf, &vmlinuz_size))
 			Fatal("Error reading vmlinuz file.\n");
-		Debug(" vmlinuz file size=0x%" PRIx64 "\n",
-		      vmlinuz_size);
+
+		Debug(" vmlinuz file size=0x%x\n", vmlinuz_size);
 		if (!vmlinuz_size)
 			Fatal("Empty vmlinuz file\n");
 
@@ -447,7 +451,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (!kblob_data)
 			Fatal("Unable to create kernel blob\n");
 
-		Debug("kblob_size = 0x%" PRIx64 "\n", kblob_size);
+		Debug("kblob_size = 0x%x\n", kblob_size);
 
 		vblock_data = SignKernelBlob(kblob_data, kblob_size, opt_pad,
 					     version, kernel_body_load_address,
@@ -456,7 +460,7 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (!vblock_data)
 			Fatal("Unable to sign kernel blob\n");
 
-		Debug("vblock_size = 0x%" PRIx64 "\n", vblock_size);
+		Debug("vblock_size = 0x%x\n", vblock_size);
 
 		if (opt_vblockonly)
 			rv = WriteSomeParts(filename,
@@ -490,8 +494,9 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		    futil_file_type_buf(kpart_data, kpart_size))
 			Fatal("%s is not a kernel blob\n", oldfile);
 
-		kblob_data = UnpackKPart(kpart_data, kpart_size, opt_pad,
-					 &keyblock, &preamble, &kblob_size);
+		kblob_data = unpack_kernel_partition(kpart_data, kpart_size,
+						     opt_pad, &keyblock,
+						     &preamble, &kblob_size);
 
 		if (!kblob_data)
 			Fatal("Unable to unpack kernel partition\n");
@@ -514,8 +519,8 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		if (!version_str)
 			version = preamble->kernel_version;
 
-		if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
-			flags = preamble->flags;
+		if (vb2_kernel_get_flags(preamble))
+			flags = vb2_kernel_get_flags(preamble);
 
 		if (keyblock_file) {
 			t_keyblock = (struct vb2_keyblock *)
@@ -557,8 +562,9 @@ static int do_vbutil_kernel(int argc, char *argv[])
 		/* Load the kernel partition */
 		kpart_data = ReadOldKPartFromFileOrDie(filename, &kpart_size);
 
-		kblob_data = UnpackKPart(kpart_data, kpart_size, opt_pad,
-					 0, 0, &kblob_size);
+		kblob_data = unpack_kernel_partition(kpart_data, kpart_size,
+						     opt_pad, 0, 0,
+						     &kblob_size);
 		if (!kblob_data)
 			Fatal("Unable to unpack kernel partition\n");
 
@@ -579,8 +585,9 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		kpart_data = ReadOldKPartFromFileOrDie(filename, &kpart_size);
 
-		kblob_data = UnpackKPart(kpart_data, kpart_size, opt_pad,
-					 &keyblock, &preamble, &kblob_size);
+		kblob_data = unpack_kernel_partition(kpart_data, kpart_size,
+						     opt_pad, &keyblock,
+						     &preamble, &kblob_size);
 
 		if (!kblob_data)
 			Fatal("Unable to unpack kernel partition\n");
@@ -594,13 +601,9 @@ static int do_vbutil_kernel(int argc, char *argv[])
 
 		/* Now stick 16-bit header followed by kernel block into
 		   output */
-		if (VbGetKernelVmlinuzHeader(preamble,
-					     &vmlinuz_header_address,
-					     &vmlinuz_header_size)
-		    != VBOOT_SUCCESS) {
-			Fatal("Unable to retrieve Vmlinuz Header!");
-		}
-
+		vb2_kernel_get_vmlinuz_header(preamble,
+					      &vmlinuz_header_address,
+					      &vmlinuz_header_size);
 		if (vmlinuz_header_size) {
 			// verify that the 16-bit header is included in the
 			// kblob (to make sure that it's included in the

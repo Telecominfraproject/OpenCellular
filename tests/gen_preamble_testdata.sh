@@ -5,7 +5,7 @@
 # found in the LICENSE file.
 #
 # This generates the pre-change test data used to ensure that
-# modifications to vb2_fw_preamble and VbKernelPreambleHeader will not
+# modifications to vb2_fw_preamble and vb2_kernel_preamble will not
 # break the signing tools for older releases. This was run *before*
 # any modifications, so be sure to revert the repo back to the correct
 # point if you need to run it again.

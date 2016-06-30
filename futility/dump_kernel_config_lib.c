@@ -75,7 +75,7 @@ static char *FindKernelConfigFromStream(void *ctx, ReadFullyFn read_fn,
 					uint64_t kernel_body_load_address)
 {
 	struct vb2_keyblock keyblock;
-	VbKernelPreambleHeader preamble;
+	struct vb2_kernel_preamble preamble;
 	uint32_t now = 0;
 	uint32_t offset = 0;
 

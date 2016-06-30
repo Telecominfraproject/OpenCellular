@@ -47,7 +47,7 @@ struct sign_option_s {
 	uint8_t *bootloader_data;
 	uint64_t bootloader_size;
 	uint8_t *config_data;
-	uint64_t config_size;
+	uint32_t config_size;
 	enum arch_t arch;
 	int fv_specified;
 	uint32_t kloadaddr;

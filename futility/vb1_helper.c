@@ -37,26 +37,26 @@ const char *vb1_crypto_name(uint32_t algo)
  *                    vmlinuz_header
  * kernel partition = kernel vblock + kernel blob
  *
- * The VbKernelPreambleHeader.preamble_size includes the padding.
+ * The vb2_kernel_preamble.preamble_size includes the padding.
  */
 
 /* The keyblock, preamble, and kernel blob are kept in separate places. */
 static struct vb2_keyblock *g_keyblock;
-static VbKernelPreambleHeader *g_preamble;
+static struct vb2_kernel_preamble *g_preamble;
 static uint8_t *g_kernel_blob_data;
-static uint64_t g_kernel_blob_size;
+static uint32_t g_kernel_blob_size;
 
 /* These refer to individual parts within the kernel blob. */
 static uint8_t *g_kernel_data;
-static uint64_t g_kernel_size;
+static uint32_t g_kernel_size;
 static uint8_t *g_config_data;
-static uint64_t g_config_size;
+static uint32_t g_config_size;
 static uint8_t *g_param_data;
-static uint64_t g_param_size;
+static uint32_t g_param_size;
 static uint8_t *g_bootloader_data;
-static uint64_t g_bootloader_size;
+static uint32_t g_bootloader_size;
 static uint8_t *g_vmlinuz_header_data;
-static uint64_t g_vmlinuz_header_size;
+static uint32_t g_vmlinuz_header_size;
 
 static uint64_t g_ondisk_bootloader_addr;
 static uint64_t g_ondisk_vmlinuz_header_addr;
@@ -69,15 +69,14 @@ static uint64_t g_ondisk_vmlinuz_header_addr;
  * Return the buffer contaning the line on success (and set the line length
  * using the passed in parameter), or NULL in case something goes wrong.
  */
-uint8_t *ReadConfigFile(const char *config_file, uint64_t *config_size)
+uint8_t *ReadConfigFile(const char *config_file, uint32_t *config_size)
 {
 	uint8_t *config_buf;
 	int i;
 
-	config_buf = ReadFile(config_file, config_size);
-	if (!config_buf)
+	if (VB2_SUCCESS != vb2_read_file(config_file, &config_buf, config_size))
 		return NULL;
-	Debug(" config file size=0x%" PRIx64 "\n", *config_size);
+	Debug(" config file size=0x%x\n", *config_size);
 	if (CROS_CONFIG_SIZE <= *config_size) {	/* room for trailing '\0' */
 		fprintf(stderr, "Config file %s is too large (>= %d bytes)\n",
 			config_file, CROS_CONFIG_SIZE);
@@ -98,9 +97,9 @@ uint8_t *ReadConfigFile(const char *config_file, uint64_t *config_size)
  * to or greater than [val]. Used to determine the number of
  * pages/sectors/blocks/whatever needed to contain [val]
  * items/bytes/etc. */
-static uint64_t roundup(uint64_t val, uint64_t alignment)
+static uint32_t roundup(uint32_t val, uint32_t alignment)
 {
-	uint64_t rem = val % alignment;
+	uint32_t rem = val % alignment;
 	if (rem)
 		return val + (alignment - rem);
 	return val;
@@ -137,10 +136,11 @@ uint64_t kernel_cmd_line_offset(const struct vb2_kernel_preamble *preamble)
 }
 
 /* Returns the size of the 32-bit kernel, or negative on error. */
-static int KernelSize(uint8_t *kernel_buf, uint64_t kernel_size,
+static int KernelSize(uint8_t *kernel_buf,
+		      uint32_t kernel_size,
 		      enum arch_t arch)
 {
-	uint64_t kernel32_start = 0;
+	uint32_t kernel32_start = 0;
 	struct linux_kernel_params *lh;
 
 	/* Except for x86, the kernel is the kernel. */
@@ -160,12 +160,13 @@ static int KernelSize(uint8_t *kernel_buf, uint64_t kernel_size,
 
 /* This extracts g_kernel_* and g_param_* from a standard vmlinuz file.
  * It returns nonzero on error. */
-static int PickApartVmlinuz(uint8_t *kernel_buf, uint64_t kernel_size,
+static int PickApartVmlinuz(uint8_t *kernel_buf,
+			    uint32_t kernel_size,
 			    enum arch_t arch,
 			    uint64_t kernel_body_load_address)
 {
-	uint64_t kernel32_start = 0;
-	uint64_t kernel32_size = kernel_size;
+	uint32_t kernel32_start = 0;
+	uint32_t kernel32_size = kernel_size;
 	struct linux_kernel_params *lh, *params;
 
 	/* Except for x86, the kernel is the kernel. */
@@ -230,29 +231,25 @@ static int PickApartVmlinuz(uint8_t *kernel_buf, uint64_t kernel_size,
  * g_bootloader, and g_vmlinuz_header parts. */
 static void UnpackKernelBlob(uint8_t *kernel_blob_data)
 {
-	uint64_t now;
-	uint64_t vmlinuz_header_size = 0;
+	uint32_t now;
+	uint32_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
 
 	/* We have to work backwards from the end, because the preamble
 	   only describes the bootloader and vmlinuz stubs. */
 
 	/* Vmlinuz Header is at the end */
-	if (VbGetKernelVmlinuzHeader(g_preamble,
-				     &vmlinuz_header_address,
-				     &vmlinuz_header_size)
-	    != VBOOT_SUCCESS) {
-		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
-		return;
-	}
+	vb2_kernel_get_vmlinuz_header(g_preamble,
+				      &vmlinuz_header_address,
+				      &vmlinuz_header_size);
 	if (vmlinuz_header_size) {
 		now = vmlinuz_header_address - g_preamble->body_load_address;
 		g_vmlinuz_header_size = vmlinuz_header_size;
 		g_vmlinuz_header_data = kernel_blob_data + now;
 
-		Debug("vmlinuz_header_size     = 0x%" PRIx64 "\n",
+		Debug("vmlinuz_header_size     = 0x%x\n",
 		      g_vmlinuz_header_size);
-		Debug("vmlinuz_header_ofs      = 0x%" PRIx64 "\n", now);
+		Debug("vmlinuz_header_ofs      = 0x%x\n", now);
 	}
 
 	/* Where does the bootloader stub begin? */
@@ -263,32 +260,32 @@ static void UnpackKernelBlob(uint8_t *kernel_blob_data)
 	g_bootloader_data = kernel_blob_data + now;
 	/* TODO: What to do if this is beyond the end of the blob? */
 
-	Debug("bootloader_size     = 0x%" PRIx64 "\n", g_bootloader_size);
-	Debug("bootloader_ofs      = 0x%" PRIx64 "\n", now);
+	Debug("bootloader_size     = 0x%x\n", g_bootloader_size);
+	Debug("bootloader_ofs      = 0x%x\n", now);
 
 	/* Before that is the params */
 	now -= CROS_PARAMS_SIZE;
 	g_param_size = CROS_PARAMS_SIZE;
 	g_param_data = kernel_blob_data + now;
-	Debug("param_ofs           = 0x%" PRIx64 "\n", now);
+	Debug("param_ofs           = 0x%x\n", now);
 
 	/* Before that is the config */
 	now -= CROS_CONFIG_SIZE;
 	g_config_size = CROS_CONFIG_SIZE;
 	g_config_data = kernel_blob_data + now;
-	Debug("config_ofs          = 0x%" PRIx64 "\n", now);
+	Debug("config_ofs          = 0x%x\n", now);
 
 	/* The kernel starts at offset 0 and extends up to the config */
 	g_kernel_data = kernel_blob_data;
 	g_kernel_size = now;
-	Debug("kernel_size         = 0x%" PRIx64 "\n", g_kernel_size);
+	Debug("kernel_size         = 0x%x\n", g_kernel_size);
 }
 
 
 /* Replaces the config section of the specified kernel blob.
  * Return nonzero on error. */
-int UpdateKernelBlobConfig(uint8_t *kblob_data, uint64_t kblob_size,
-			   uint8_t *config_data, uint64_t config_size)
+int UpdateKernelBlobConfig(uint8_t *kblob_data, uint32_t kblob_size,
+			   uint8_t *config_data, uint32_t config_size)
 {
 	/* We should have already examined this blob. If not, we could do it
 	 * again, but it's more likely due to an error. */
@@ -305,17 +302,17 @@ int UpdateKernelBlobConfig(uint8_t *kblob_data, uint64_t kblob_size,
 }
 
 /* Split a kernel partition into separate vblock and blob parts. */
-uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
-		     uint64_t padding,
-		     struct vb2_keyblock **keyblock_ptr,
-		     VbKernelPreambleHeader **preamble_ptr,
-		     uint64_t *blob_size_ptr)
+uint8_t *unpack_kernel_partition(uint8_t *kpart_data,
+				 uint32_t kpart_size,
+				 uint32_t padding,
+				 struct vb2_keyblock **keyblock_ptr,
+				 struct vb2_kernel_preamble **preamble_ptr,
+				 uint32_t *blob_size_ptr)
 {
-	VbKernelPreambleHeader *preamble;
-	uint64_t vmlinuz_header_size = 0;
+	struct vb2_kernel_preamble *preamble;
+	uint32_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
-	uint64_t now = 0;
-	uint32_t flags = 0;
+	uint32_t now = 0;
 
 	/* Sanity-check the keyblock */
 	struct vb2_keyblock *keyblock = (struct vb2_keyblock *)kpart_data;
@@ -328,8 +325,7 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 	}
 	if (now > padding) {
 		fprintf(stderr,
-			"keyblock_size advances past %" PRIu64
-			" byte padding\n",
+			"keyblock_size advances past %u byte padding\n",
 			padding);
 		return NULL;
 	}
@@ -338,8 +334,8 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 	g_keyblock = keyblock;
 
 	/* And the preamble */
-	preamble = (VbKernelPreambleHeader *)(kpart_data + now);
-	Debug("Preamble is 0x%" PRIx64 " bytes\n", preamble->preamble_size);
+	preamble = (struct vb2_kernel_preamble *)(kpart_data + now);
+	Debug("Preamble is 0x%x bytes\n", preamble->preamble_size);
 	now += preamble->preamble_size;
 	if (now > kpart_size) {
 		fprintf(stderr,
@@ -347,7 +343,7 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 		return NULL;
 	}
 	if (now > padding) {
-		fprintf(stderr, "preamble_size advances past %" PRIu64
+		fprintf(stderr, "preamble_size advances past %u"
 			" byte padding\n", padding);
 		return NULL;
 	}
@@ -355,40 +351,33 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 	Debug(" kernel_version = %d\n", preamble->kernel_version);
 	Debug(" bootloader_address = 0x%" PRIx64 "\n",
 	      preamble->bootloader_address);
-	Debug(" bootloader_size = 0x%" PRIx64 "\n", preamble->bootloader_size);
-	Debug(" kern_blob_size = 0x%" PRIx64 "\n",
-	      preamble->body_signature.data_size);
+	Debug(" bootloader_size = 0x%x\n", preamble->bootloader_size);
+	Debug(" kern_blob_size = 0x%x\n", preamble->body_signature.data_size);
 
-	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
-		flags = preamble->flags;
-	Debug(" flags = 0x%" PRIx32 "\n", flags);
+	uint32_t flags = vb2_kernel_get_flags(preamble);
+	Debug(" flags = 0x%x\n", flags);
 
 	g_preamble = preamble;
 	g_ondisk_bootloader_addr = g_preamble->bootloader_address;
 
-	if (VbGetKernelVmlinuzHeader(preamble,
-				     &vmlinuz_header_address,
-				     &vmlinuz_header_size)
-	    != VBOOT_SUCCESS) {
-		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
-		return NULL;
-	}
+	vb2_kernel_get_vmlinuz_header(preamble,
+				      &vmlinuz_header_address,
+				      &vmlinuz_header_size);
 	if (vmlinuz_header_size) {
 		Debug(" vmlinuz_header_address = 0x%" PRIx64 "\n",
 		      vmlinuz_header_address);
-		Debug(" vmlinuz_header_size = 0x%" PRIx64 "\n",
-		      vmlinuz_header_size);
+		Debug(" vmlinuz_header_size = 0x%x\n", vmlinuz_header_size);
 		g_ondisk_vmlinuz_header_addr = vmlinuz_header_address;
 	}
 
-	Debug("kernel blob is at offset 0x%" PRIx64 "\n", now);
+	Debug("kernel blob is at offset 0x%x\n", now);
 	g_kernel_blob_data = kpart_data + now;
 	g_kernel_blob_size = preamble->body_signature.data_size;
 
 	/* Sanity check */
 	if (g_kernel_blob_size < preamble->body_signature.data_size)
 		fprintf(stderr,
-			"Warning: kernel file only has 0x%" PRIx64 " bytes\n",
+			"Warning: kernel file only has 0x%x bytes\n",
 			g_kernel_blob_size);
 
 	/* Update the blob pointers */
@@ -404,12 +393,15 @@ uint8_t *UnpackKPart(uint8_t *kpart_data, uint64_t kpart_size,
 	return g_kernel_blob_data;
 }
 
-uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
-			uint64_t padding,
-			int version, uint64_t kernel_body_load_address,
+uint8_t *SignKernelBlob(uint8_t *kernel_blob,
+			uint32_t kernel_size,
+			uint32_t padding,
+			int version,
+			uint64_t kernel_body_load_address,
 			struct vb2_keyblock *keyblock,
 			struct vb2_private_key *signpriv_key,
-			uint32_t flags, uint64_t *vblock_size_ptr)
+			uint32_t flags,
+			uint32_t *vblock_size_ptr)
 {
 	/* Make sure the preamble fills up the rest of the required padding */
 	uint32_t min_size = padding > keyblock->keyblock_size
@@ -454,8 +446,8 @@ uint8_t *SignKernelBlob(uint8_t *kernel_blob, uint64_t kernel_size,
 
 /* Returns zero on success */
 int WriteSomeParts(const char *outfile,
-		   void *part1_data, uint64_t part1_size,
-		   void *part2_data, uint64_t part2_size)
+		   void *part1_data, uint32_t part1_size,
+		   void *part2_data, uint32_t part2_size)
 {
 	FILE *f;
 
@@ -498,13 +490,13 @@ int WriteSomeParts(const char *outfile,
 
 /* Returns 0 on success */
 int VerifyKernelBlob(uint8_t *kernel_blob,
-		     uint64_t kernel_size,
+		     uint32_t kernel_size,
 		     struct vb2_packed_key *signpub_key,
 		     const char *keyblock_outfile,
-		     uint64_t min_version)
+		     uint32_t min_version)
 {
 	int rv = -1;
-	uint64_t vmlinuz_header_size = 0;
+	uint32_t vmlinuz_header_size = 0;
 	uint64_t vmlinuz_header_address = 0;
 
 	uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
@@ -575,8 +567,7 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	}
 
 	if (data_key->key_version < (min_version >> 16)) {
-		fprintf(stderr, "Data key version %u is lower than minimum "
-			"%" PRIu64 ".\n",
+		fprintf(stderr, "Data key version %u < minimum %u.\n",
 			data_key->key_version, (min_version >> 16));
 		goto done;
 	}
@@ -598,60 +589,51 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	}
 
 	printf("Preamble:\n");
-	printf("  Size:                0x%" PRIx64 "\n",
-	       g_preamble->preamble_size);
-	printf("  Header version:      %" PRIu32 ".%" PRIu32 "\n",
+	printf("  Size:                0x%x\n", g_preamble->preamble_size);
+	printf("  Header version:      %u.%u\n",
 	       g_preamble->header_version_major,
 	       g_preamble->header_version_minor);
-	printf("  Kernel version:      %" PRIu64 "\n",
-	       g_preamble->kernel_version);
+	printf("  Kernel version:      %u\n", g_preamble->kernel_version);
 	printf("  Body load address:   0x%" PRIx64 "\n",
 	       g_preamble->body_load_address);
-	printf("  Body size:           0x%" PRIx64 "\n",
+	printf("  Body size:           0x%x\n",
 	       g_preamble->body_signature.data_size);
 	printf("  Bootloader address:  0x%" PRIx64 "\n",
 	       g_preamble->bootloader_address);
-	printf("  Bootloader size:     0x%" PRIx64 "\n",
-	       g_preamble->bootloader_size);
+	printf("  Bootloader size:     0x%x\n", g_preamble->bootloader_size);
 
-	if (VbGetKernelVmlinuzHeader(g_preamble,
-				     &vmlinuz_header_address,
-				     &vmlinuz_header_size)
-	    != VBOOT_SUCCESS) {
-		fprintf(stderr, "Unable to retrieve Vmlinuz Header!");
-		goto done;
-	}
+	vb2_kernel_get_vmlinuz_header(g_preamble,
+				      &vmlinuz_header_address,
+				      &vmlinuz_header_size);
 	if (vmlinuz_header_size) {
 		printf("  Vmlinuz header address: 0x%" PRIx64 "\n",
 		       vmlinuz_header_address);
-		printf("  Vmlinuz header size:    0x%" PRIx64 "\n",
-		       vmlinuz_header_size);
+		printf("  Vmlinuz header size:    0x%x\n",
+		       (uint32_t)vmlinuz_header_size);
 	}
 
-	if (VbKernelHasFlags(g_preamble) == VBOOT_SUCCESS)
-		printf("  Flags          :       0x%" PRIx32 "\n",
-		       g_preamble->flags);
+	printf("  Flags          :       0x%x\n",
+	       vb2_kernel_get_flags(g_preamble));
 
 	if (g_preamble->kernel_version < (min_version & 0xFFFF)) {
 		fprintf(stderr,
-			"Kernel version %" PRIu64 " is lower than minimum %"
-			PRIu64 ".\n", g_preamble->kernel_version,
-			(min_version & 0xFFFF));
+			"Kernel version %u is lower than minimum %u.\n",
+			g_preamble->kernel_version, (min_version & 0xFFFF));
 		goto done;
 	}
 
 	/* Verify body */
 	if (VB2_SUCCESS !=
 	    vb2_verify_data(kernel_blob, kernel_size,
-			    (struct vb2_signature *)&g_preamble->body_signature,
+			    &g_preamble->body_signature,
 			    &pubkey, &wb)) {
 		fprintf(stderr, "Error verifying kernel body.\n");
 		goto done;
 	}
 	printf("Body verification succeeded.\n");
 
-	printf("Config:\n%s\n", kernel_blob + kernel_cmd_line_offset(
-		     (struct vb2_kernel_preamble *)g_preamble));
+	printf("Config:\n%s\n",
+	       kernel_blob + kernel_cmd_line_offset(g_preamble));
 
 	rv = 0;
 done:
@@ -659,13 +641,13 @@ done:
 }
 
 
-uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint64_t vmlinuz_size,
+uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint32_t vmlinuz_size,
 			  enum arch_t arch, uint64_t kernel_body_load_address,
-			  uint8_t *config_data, uint64_t config_size,
-			  uint8_t *bootloader_data, uint64_t bootloader_size,
-			  uint64_t *blob_size_ptr)
+			  uint8_t *config_data, uint32_t config_size,
+			  uint8_t *bootloader_data, uint32_t bootloader_size,
+			  uint32_t *blob_size_ptr)
 {
-	uint64_t now = 0;
+	uint32_t now = 0;
 	int tmp;
 
 	/* We have all the parts. How much room do we need? */

@@ -24,12 +24,13 @@
 #include "futility_options.h"
 #include "gbb_header.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "kernel_blob.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
+#include "vb2_common.h"
 #include "vb2_struct.h"
 #include "vb21_common.h"
-#include "host_key2.h"
 #include "vboot_common.h"
 
 /* Options */
@@ -107,7 +108,7 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 		       void *data)
 {
 	uint8_t *vmlinuz_data, *kblob_data, *vblock_data;
-	uint64_t vmlinuz_size, kblob_size, vblock_size;
+	uint32_t vmlinuz_size, kblob_size, vblock_size;
 	int rv;
 
 	vmlinuz_data = buf;
@@ -123,7 +124,7 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 		fprintf(stderr, "Unable to create kernel blob\n");
 		return 1;
 	}
-	Debug("kblob_size = 0x%" PRIx64 "\n", kblob_size);
+	Debug("kblob_size = 0x%x\n", kblob_size);
 
 	vblock_data = SignKernelBlob(kblob_data, kblob_size,
 				     sign_option.padding,
@@ -137,7 +138,7 @@ int ft_sign_raw_kernel(const char *name, uint8_t *buf, uint32_t len,
 		free(kblob_data);
 		return 1;
 	}
-	Debug("vblock_size = 0x%" PRIx64 "\n", vblock_size);
+	Debug("vblock_size = 0x%x\n", vblock_size);
 
 	/* We should be creating a completely new output file.
 	 * If not, something's wrong. */
@@ -162,17 +163,18 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 			  void *data)
 {
 	uint8_t *kpart_data, *kblob_data, *vblock_data;
-	uint64_t kpart_size, kblob_size, vblock_size;
+	uint32_t kpart_size, kblob_size, vblock_size;
 	struct vb2_keyblock *keyblock = NULL;
-	VbKernelPreambleHeader *preamble = NULL;
+	struct vb2_kernel_preamble *preamble = NULL;
 	int rv = 0;
 
 	kpart_data = buf;
 	kpart_size = len;
 
 	/* Note: This just sets some static pointers. It doesn't malloc. */
-	kblob_data = UnpackKPart(kpart_data, kpart_size, sign_option.padding,
-				 &keyblock, &preamble, &kblob_size);
+	kblob_data = unpack_kernel_partition(kpart_data, kpart_size,
+					     sign_option.padding,
+					     &keyblock, &preamble, &kblob_size);
 
 	if (!kblob_data) {
 		fprintf(stderr, "Unable to unpack kernel partition\n");
@@ -202,10 +204,9 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 		sign_option.version = preamble->kernel_version;
 
 	/* Preserve the flags if not specified */
-	if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS) {
-		if (sign_option.flags_specified == 0)
-			sign_option.flags = preamble->flags;
-	}
+	uint32_t kernel_flags = vb2_kernel_get_flags(preamble);
+	if (sign_option.flags_specified == 0)
+		sign_option.flags = kernel_flags;
 
 	/* Replace the keyblock if asked */
 	if (sign_option.keyblock)
