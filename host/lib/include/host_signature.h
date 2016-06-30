@@ -24,8 +24,6 @@ struct vb2_signature;
  * @param sig_size	Size of signature data buffer in bytes
  * @param data_size	Amount of data signed in bytes
  */
-void SignatureInit(VbSignature* sig, uint8_t* sig_data,
-                   uint64_t sig_size, uint64_t data_size);
 void vb2_init_signature(struct vb2_signature *sig, uint8_t *sig_data,
 			uint32_t sig_size, uint32_t data_size);
 
@@ -38,7 +36,6 @@ void vb2_init_signature(struct vb2_signature *sig, uint8_t *sig_data,
  *
  * @return The signature or NULL if error.  Caller must free() it.
  */
-VbSignature* SignatureAlloc(uint64_t sig_size, uint64_t data_size);
 struct vb2_signature *vb2_alloc_signature(uint32_t sig_size,
 					  uint32_t data_size);
 
@@ -49,7 +46,6 @@ struct vb2_signature *vb2_alloc_signature(uint32_t sig_size,
  * @param src		Source signature
  *
  * @return VB2_SUCCESS, or non-zero if error. */
-int SignatureCopy(VbSignature* dest, const VbSignature* src);
 int vb2_copy_signature(struct vb2_signature *dest,
 		       const struct vb2_signature *src);
 
@@ -76,14 +72,21 @@ struct vb2_signature *vb2_calculate_signature(
 		const uint8_t *data, uint32_t size,
 		const struct vb2_private_key *key);
 
-/* Calculates a signature for the data using the specified key and
- * an external program.
- * Caller owns the returned pointer, and must free it with Free().
+/**
+ * Calculate a signature for the data using an external signer.
  *
- * Returns NULL on error. */
-VbSignature* CalculateSignature_external(const uint8_t* data, uint64_t size,
-                                         const char* key_file,
-                                         uint64_t key_algorithm,
-                                         const char* external_signer);
+ * @param data			Pointer to data to sign
+ * @param size			Length of data in bytes
+ * @param key_file		Name of file containing private key
+ * @param key_algorithm		Key algorithm
+ * @param external_signer	Path to external signer program
+ *
+ * @return The signature, or NULL if error.  Caller must free() it.
+ */
+struct vb2_signature *vb2_external_signature(const uint8_t *data,
+					     uint32_t size,
+					     const char *key_file,
+					     uint32_t key_algorithm,
+					     const char *external_signer);
 
 #endif  /* VBOOT_REFERENCE_HOST_SIGNATURE_H_ */

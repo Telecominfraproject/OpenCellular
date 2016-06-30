@@ -120,7 +120,7 @@ static void ReSignKernelPreamble(VbKernelPreambleHeader *h,
 	struct vb2_signature *sig = vb2_calculate_signature(
 		(const uint8_t *)h, h->preamble_signature.data_size, key);
 
-	SignatureCopy(&h->preamble_signature, (VbSignature *)sig);
+	vb2_copy_signature((struct vb2_signature *)&h->preamble_signature, sig);
 	free(sig);
 }
 

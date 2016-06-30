@@ -19,11 +19,6 @@ int main(void)
   ReadFile(0, 0);
   WriteFile(0, 0, 0);
 
-  /* host_signature.h */
-  SignatureInit(0, 0, 0, 0);
-  SignatureAlloc(0, 0);
-  SignatureCopy(0, 0);
-
   /* file_keys.h */
   BufferFromFile(0, 0);
   RSAPublicKeyFromFile(0);

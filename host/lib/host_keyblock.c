@@ -131,10 +131,10 @@ struct vb2_keyblock *vb2_create_keyblock_external(
 	free(chk);
 
 	/* Calculate signature */
-struct vb2_signature *sigtmp = (struct vb2_signature *)
-		CalculateSignature_external((uint8_t*)h, signed_size,
-					    signing_key_pem_file, algorithm,
-					    external_signer);
+	struct vb2_signature *sigtmp =
+		vb2_external_signature((uint8_t*)h, signed_size,
+				       signing_key_pem_file, algorithm,
+				       external_signer);
 	free(sigtmp);
 
 	/* Return the header */
