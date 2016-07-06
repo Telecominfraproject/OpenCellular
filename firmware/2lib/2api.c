@@ -199,6 +199,9 @@ int vb2api_get_pcr_digest(struct vb2_context *ctx,
 		return VB2_ERROR_API_PCR_DIGEST_BUF;
 
 	memcpy(dest, digest, digest_size);
+	if (digest_size < *dest_size)
+		memset(dest + digest_size, 0, *dest_size - digest_size);
+
 	*dest_size = digest_size;
 
 	return VB2_SUCCESS;
