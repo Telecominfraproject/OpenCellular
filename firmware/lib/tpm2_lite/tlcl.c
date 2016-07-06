@@ -10,11 +10,13 @@
 #include "tpm2_marshaling.h"
 #include "utility.h"
 
-static void *tpm_process_command(TPM_CC command, void *command_body)
+static struct tpm2_response *tpm_process_command(TPM_CC command,
+						 void *command_body)
 {
 	/* Command/response buffer. */
 	static uint8_t cr_buffer[TPM_BUFFER_SIZE];
 	uint32_t out_size, in_size;
+	struct tpm2_response *response;
 
 	out_size = tpm_marshal_command(command, command_body,
 				       cr_buffer, sizeof(cr_buffer));
@@ -27,11 +29,16 @@ static void *tpm_process_command(TPM_CC command, void *command_body)
 	in_size = sizeof(cr_buffer);
 	if (VbExTpmSendReceive(cr_buffer, out_size,
 			       cr_buffer, &in_size) != TPM_SUCCESS) {
-		VBDEBUG(("tpm transaction failed\n"));
+		VBDEBUG(("tpm transaction failed for %#x\n", command));
 		return NULL;
 	}
 
-	return tpm_unmarshal_response(command, cr_buffer, in_size);
+	response = tpm_unmarshal_response(command, cr_buffer, in_size);
+
+	VBDEBUG(("%s: command %#x, return code %#x\n", __func__, command,
+		 response ? response->hdr.tpm_code : -1));
+
+	return response;
 }
 
 /**
@@ -92,8 +99,6 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 	if (!response)
 		return TPM_E_READ_FAILURE;
 
-	VBDEBUG(("%s:%d index %#x return code %x\n",
-		 __FILE__, __LINE__, index, response->hdr.tpm_code));
 	switch (response->hdr.tpm_code) {
 	case 0:
 		break;
@@ -132,9 +137,6 @@ uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 	/* Need to map tpm error codes into internal values. */
 	if (!response)
 		return TPM_E_WRITE_FAILURE;
-
-	VBDEBUG(("%s:%d return code %x\n", __func__, __LINE__,
-		 response->hdr.tpm_code));
 
 	return TPM_SUCCESS;
 }
