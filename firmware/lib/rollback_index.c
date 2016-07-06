@@ -420,7 +420,7 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
 
 	/* Read the firmware space. */
 	result = ReadSpaceFirmware(rsf);
-#ifndef TPM2_MDOE
+#ifndef TPM2_MODE
 	if (TPM_E_BADINDEX == result) {
 		RollbackSpaceKernel rsk;
 
