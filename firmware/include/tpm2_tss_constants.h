@@ -17,8 +17,10 @@
 #define TPM_ST_SESSIONS    0x8002
 
 /* TPM2 command codes. */
-#define TPM2_NV_Write       ((TPM_CC)0x00000137)
-#define TPM2_NV_Read        ((TPM_CC)0x0000014E)
+#define TPM2_Hierarchy_Control ((TPM_CC)0x00000121)
+#define TPM2_NV_Write          ((TPM_CC)0x00000137)
+#define TPM2_NV_WriteLock      ((TPM_CC)0x00000138)
+#define TPM2_NV_Read           ((TPM_CC)0x0000014E)
 
 /* TCG Spec defined, verify for TPM2. */
 #define TPM_E_BADINDEX              ((uint32_t) 0x00000002)
@@ -32,9 +34,11 @@
 #define TPM_RS_PW           0x40000009
 
 
+typedef uint8_t TPMI_YES_NO;
 typedef uint32_t TPM_CC;
 typedef uint32_t TPM_HANDLE;
 typedef TPM_HANDLE TPMI_RH_NV_INDEX;
+typedef TPM_HANDLE TPMI_RH_ENABLES;
 
 typedef struct {
 	uint16_t      size;
@@ -59,6 +63,15 @@ struct tpm2_nv_write_cmd {
 	TPMI_RH_NV_INDEX nvIndex;
 	TPM2B_MAX_NV_BUFFER data;
 	uint16_t offset;
+};
+
+struct tpm2_nv_write_lock_cmd {
+	TPMI_RH_NV_INDEX nvIndex;
+};
+
+struct tpm2_hierarchy_control_cmd {
+	TPMI_RH_ENABLES enable;
+	TPMI_YES_NO state;
 };
 
 /* Common command/response header. */

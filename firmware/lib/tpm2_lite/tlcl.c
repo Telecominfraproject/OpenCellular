@@ -7,6 +7,7 @@
  * in the firmware
  */
 
+#include "rollback_index.h"
 #include "tpm2_marshaling.h"
 #include "utility.h"
 
@@ -73,14 +74,57 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t *permissions)
 	return TPM_SUCCESS;
 }
 
+static uint32_t tlcl_lock_nv_write(uint32_t index)
+{
+	struct tpm2_response *response;
+	struct tpm2_nv_write_lock_cmd nv_wl;
+
+	nv_wl.nvIndex = HR_NV_INDEX + index;
+	response = tpm_process_command(TPM2_NV_WriteLock, &nv_wl);
+
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_INTERNAL_INCONSISTENCY;
+
+	return TPM_SUCCESS;
+}
+
+static uint32_t tlcl_disable_platform_hierarchy(void)
+{
+	struct tpm2_response *response;
+	struct tpm2_hierarchy_control_cmd hc;
+
+	hc.enable = TPM_RH_PLATFORM;
+	hc.state = 0;
+
+	response = tpm_process_command(TPM2_Hierarchy_Control, &hc);
+
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_INTERNAL_INCONSISTENCY;
+
+	return TPM_SUCCESS;
+}
+
 /**
  * Turn off physical presence and locks it off until next reboot.  The TPM
  * error code is returned.
+ *
+ * The name of the function was kept to maintain the existing TPM API, but
+ * TPM2.0 does not have to use the Physical Presence concept. Instead it just
+ * removes platform authorization - this makes sure that firmware and kernel
+ * rollback counter spaces can not be modified.
+ *
+ * It also explicitly locks the kernel rollback counter space (the FW rollback
+ * counter space was locked before RW firmware started.)
  */
 uint32_t TlclLockPhysicalPresence(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
-	return TPM_SUCCESS;
+	uint32_t rv;
+
+	rv = tlcl_lock_nv_write(KERNEL_NV_INDEX);
+	if (rv == TPM_SUCCESS)
+		rv = tlcl_disable_platform_hierarchy();
+
+	return rv;
 }
 
 uint32_t TlclRead(uint32_t index, void* data, uint32_t length)

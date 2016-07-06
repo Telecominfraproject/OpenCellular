@@ -273,6 +273,36 @@ static void marshal_nv_read(void **buffer,
 	marshal_u16(buffer, command_body->offset, buffer_space);
 }
 
+static void marshal_nv_write_lock(void **buffer,
+				  struct tpm2_nv_write_lock_cmd *command_body,
+				  int *buffer_space)
+{
+	struct tpm2_session_header session_header;
+
+	tpm_tag = TPM_ST_SESSIONS;
+	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
+	Memset(&session_header, 0, sizeof(session_header));
+	session_header.session_handle = TPM_RS_PW;
+	marshal_session_header(buffer, &session_header, buffer_space);
+}
+
+static void marshal_hierarchy_control(void **buffer,
+				      struct tpm2_hierarchy_control_cmd
+				          *command_body,
+				      int *buffer_space)
+{
+	struct tpm2_session_header session_header;
+
+	tpm_tag = TPM_ST_SESSIONS;
+	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	Memset(&session_header, 0, sizeof(session_header));
+	session_header.session_handle = TPM_RS_PW;
+	marshal_session_header(buffer, &session_header, buffer_space);
+
+	marshal_TPM_HANDLE(buffer, command_body->enable, buffer_space);
+	marshal_u8(buffer, command_body->state, buffer_space);
+}
 
 int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 			void *buffer, int buffer_size)
@@ -292,6 +322,15 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 
 	case TPM2_NV_Write:
 		marshal_nv_write(&cmd_body, tpm_command_body, &body_size);
+		break;
+
+	case TPM2_NV_WriteLock:
+		marshal_nv_write_lock(&cmd_body, tpm_command_body, &body_size);
+		break;
+
+	case TPM2_Hierarchy_Control:
+		marshal_hierarchy_control(&cmd_body,
+					  tpm_command_body, &body_size);
 		break;
 
 	default:
@@ -341,7 +380,9 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 				  &tpm2_resp.nvr);
 		break;
 
+	case TPM2_Hierarchy_Control:
 	case TPM2_NV_Write:
+	case TPM2_NV_WriteLock:
 		/* Session data included in response can be safely ignored. */
 		cr_size = 0;
 		break;
