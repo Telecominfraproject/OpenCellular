@@ -103,6 +103,13 @@ uint8_t ErrorCheck(uint32_t result, const char* cmd) {
 
 /* Handler functions.  These wouldn't exist if C had closures.
  */
+/* TODO(apronin): stub for selecte flags for TPM2 */
+#ifdef TPM2_MODE
+static uint32_t HandlerGetFlags(void) {
+  fprintf(stderr, "getflags not implemented for TPM2\n");
+  return OTHER_ERROR;
+}
+#else
 static uint32_t HandlerGetFlags(void) {
   uint8_t disabled;
   uint8_t deactivated;
@@ -114,7 +121,9 @@ static uint32_t HandlerGetFlags(void) {
   }
   return result;
 }
+#endif
 
+#ifndef TPM2_MODE
 static uint32_t HandlerActivate(void) {
   return TlclSetDeactivated(0);
 }
@@ -122,6 +131,7 @@ static uint32_t HandlerActivate(void) {
 static uint32_t HandlerDeactivate(void) {
   return TlclSetDeactivated(1);
 }
+#endif
 
 static uint32_t HandlerDefineSpace(void) {
   uint32_t index, size, perm;
@@ -168,11 +178,13 @@ static uint32_t HandlerWrite(void) {
   }
 
   if (size == 0) {
+#ifndef TPM2_MODE
     if (index == TPM_NV_INDEX_LOCK) {
       fprintf(stderr, "This would set the nvLocked bit. "
               "Use \"tpmc setnv\" instead.\n");
       exit(OTHER_ERROR);
     }
+#endif
     printf("warning: zero-length write\n");
   } else {
     printf("writing %d byte%s\n", size, size > 1 ? "s" : "");
@@ -310,6 +322,18 @@ static uint32_t HandlerGetRandom(void) {
   return result;
 }
 
+/* TODO(apronin): stubs for permanent and ST_CLEAR flags for TPM2 */
+#ifdef TPM2_MODE
+static uint32_t HandlerGetPermanentFlags(void) {
+  fprintf(stderr, "getpermanentflags not implemented for TPM2\n");
+  return OTHER_ERROR;
+}
+
+static uint32_t HandlerGetSTClearFlags(void) {
+  fprintf(stderr, "getstclearflags not implemented for TPM2\n");
+  return OTHER_ERROR;
+}
+#else
 static uint32_t HandlerGetPermanentFlags(void) {
   TPM_PERMANENT_FLAGS pflags;
   uint32_t result = TlclGetPermanentFlags(&pflags);
@@ -354,7 +378,7 @@ static uint32_t HandlerGetSTClearFlags(void) {
   }
   return result;
 }
-
+#endif /* TPM2_MODE */
 
 static uint32_t HandlerSendRaw(void) {
   uint8_t request[4096];
@@ -407,6 +431,7 @@ command_record command_table[] = {
   { "selftestfull", "test", "issue a SelfTestFull command", TlclSelfTestFull },
   { "continueselftest", "ctest", "issue a ContinueSelfTest command",
     TlclContinueSelfTest },
+#ifndef TPM2_MODE
   { "assertphysicalpresence", "ppon", "assert Physical Presence",
     TlclAssertPhysicalPresence },
   { "physicalpresencecmdenable", "ppcmd", "turn on software PP",
@@ -417,13 +442,18 @@ command_record command_table[] = {
     HandlerActivate },
   { "deactivate", "deact", "deactivate the TPM (needs PP, maybe reboot)",
     HandlerDeactivate },
+#endif
   { "clear", "clr", "clear the TPM owner (needs PP)", TlclForceClear },
+#ifndef TPM2_MODE
   { "setnvlocked", "setnv", "set the nvLocked flag permanently (IRREVERSIBLE!)",
     TlclSetNvLocked },
+#endif
   { "lockphysicalpresence", "pplock", "lock (turn off) PP until reboot",
     TlclLockPhysicalPresence },
+#ifndef TPM2_MODE
   { "setbgloballock", "block", "set the bGlobalLock until reboot",
     TlclSetGlobalLock },
+#endif
   { "definespace", "def", "define a space (def <index> <size> <perm>)",
     HandlerDefineSpace },
   { "write", "write", "write to a space (write <index> [<byte0> <byte1> ...])",

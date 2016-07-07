@@ -385,18 +385,22 @@ BDBLIB_SRCS = \
 	firmware/bdb/stub.c \
 	firmware/bdb/nvm.c
 
-# Support real TPM unless BIOS sets MOCK_TPM
-ifeq (${MOCK_TPM},)
-VBINIT_SRCS += \
-	firmware/lib/rollback_index.c
+# TPM lightweight command library
 ifeq (${TPM2_MODE},)
-VBINIT_SRCS += \
+TLCL_SRCS = \
 	firmware/lib/tpm_lite/tlcl.c
 else
-VBINIT_SRCS += \
+TLCL_SRCS = \
 	firmware/lib/tpm2_lite/tlcl.c \
 	firmware/lib/tpm2_lite/marshaling.c
 endif
+TLCL_OBJS_FOR_TEST = $(TLCL_SRCS:%.c=${BUILD}/%_for_test.o)
+
+# Support real TPM unless BIOS sets MOCK_TPM
+ifeq (${MOCK_TPM},)
+VBINIT_SRCS += \
+	firmware/lib/rollback_index.c \
+	${TLCL_SRCS}
 
 VBSF_SRCS += \
 	firmware/lib/tpm_bootmode.c
@@ -505,7 +509,7 @@ HOSTLIB_SRCS = \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/crc8.c \
 	firmware/lib/gpt_misc.c \
-	firmware/lib/tpm_lite/tlcl.c \
+	${TLCL_SRCS} \
 	firmware/lib/utility_string.c \
 	firmware/lib/vboot_nvstorage.c \
 	firmware/stub/tpm_lite_stub.c \
@@ -607,9 +611,12 @@ UTIL_NAMES_STATIC = \
 	utility/crossystem
 
 UTIL_NAMES = ${UTIL_NAMES_STATIC} \
-	utility/tpm_init_temp_fix \
 	utility/dumpRSAPublicKey \
 	utility/tpmc
+
+ifeq (${TPM2_MODE},)
+UTIL_NAMES += utility/tpm_init_temp_fix
+endif
 
 # TODO: Do we still need eficompress and efidecompress for anything?
 ifeq (${MINIMAL},)
@@ -721,7 +728,6 @@ TEST_OBJS += ${TESTLIB_OBJS}
 # And some compiled tests.
 TEST_NAMES = \
 	tests/cgptlib_test \
-	tests/rollback_index2_tests \
 	tests/rollback_index3_tests \
 	tests/rsa_padding_test \
 	tests/rsa_utility_tests \
@@ -729,7 +735,6 @@ TEST_NAMES = \
 	tests/sha_benchmark \
 	tests/sha_tests \
 	tests/stateful_util_tests \
-	tests/tlcl_tests \
 	tests/tpm_bootmode_tests \
 	tests/utility_string_tests \
 	tests/utility_tests \
@@ -751,6 +756,13 @@ TEST_NAMES = \
 	tests/vboot_kernel_tests \
 	tests/vboot_nvstorage_test \
 	tests/verify_kernel
+
+ifeq (${TPM2_MODE},)
+# TODO(apronin): tests for TPM2 case?
+TEST_NAMES += \
+	tests/tlcl_tests \
+	tests/rollback_index2_tests
+endif
 
 ifdef REGION_READ
 TEST_NAMES += tests/vboot_region_tests
@@ -805,6 +817,7 @@ TESTBDB_NAMES = \
 TEST_NAMES += ${TEST2X_NAMES} ${TEST20_NAMES} ${TEST21_NAMES} ${TESTBDB_NAMES}
 
 # And a few more...
+ifeq (${TPM2_MODE},)
 TLCL_TEST_NAMES = \
 	tests/tpm_lite/tpmtest_earlyextend \
 	tests/tpm_lite/tpmtest_earlynvram \
@@ -817,6 +830,10 @@ TLCL_TEST_NAMES = \
 	tests/tpm_lite/tpmtest_testsetup \
 	tests/tpm_lite/tpmtest_timing \
         tests/tpm_lite/tpmtest_writelimit
+else
+# TODO(apronin): tests for TPM2 case?
+TLCL_TEST_NAMES =
+endif
 
 TEST_NAMES += ${TLCL_TEST_NAMES}
 
@@ -1309,17 +1326,20 @@ ${BUILD}/tests/%: CFLAGS += -Xlinker --allow-multiple-definition
 ${BUILD}/tests/%: LDLIBS += -lrt -luuid
 ${BUILD}/tests/%: LIBS += ${TESTLIB}
 
+ifeq (${TPM2_MODE},)
+# TODO(apronin): tests for TPM2 case?
 ${BUILD}/tests/rollback_index2_tests: OBJS += \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 ${BUILD}/tests/rollback_index2_tests: \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 TEST_OBJS += ${BUILD}/firmware/lib/rollback_index_for_test.o
+endif
 
 ${BUILD}/tests/tlcl_tests: OBJS += \
-	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
+	${TLCL_OBJS_FOR_TEST}
 ${BUILD}/tests/tlcl_tests: \
-	${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
-TEST_OBJS += ${BUILD}/firmware/lib/tpm_lite/tlcl_for_test.o
+	${TLCL_OBJS_FOR_TEST}
+TEST_OBJS += ${TLCL_OBJS_FOR_TEST}
 
 ${BUILD}/tests/vboot_audio_tests: OBJS += \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
@@ -1327,10 +1347,13 @@ ${BUILD}/tests/vboot_audio_tests: \
 	${BUILD}/firmware/lib/vboot_audio_for_test.o
 TEST_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
 
+ifeq (${TPM2_MODE},)
+# TODO(apronin): tests for TPM2 case?
 TLCL_TEST_BINS = $(addprefix ${BUILD}/,${TLCL_TEST_NAMES})
 ${TLCL_TEST_BINS}: OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
 ${TLCL_TEST_BINS}: ${BUILD}/tests/tpm_lite/tlcl_tests.o
 TEST_OBJS += ${BUILD}/tests/tpm_lite/tlcl_tests.o
+endif
 
 # ----------------------------------------------------------------------------
 # Here are the special rules that don't fit in the generic rules.

@@ -353,8 +353,10 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
                   int clear_tpm_owner_request, RollbackSpaceFirmware* rsf)
 {
 	uint8_t in_flags;
+#ifndef TPM2_MODE
 	uint8_t disable;
 	uint8_t deactivated;
+#endif
 	uint32_t result;
 	uint32_t versions;
 
@@ -396,6 +398,7 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
 #endif
 	RETURN_ON_FAILURE(TlclContinueSelfTest());
 #endif
+#ifndef TPM2_MODE
 	result = TlclAssertPhysicalPresence();
 	if (result != TPM_SUCCESS) {
 		/*
@@ -417,6 +420,7 @@ uint32_t SetupTPM(int developer_mode, int disable_dev_request,
 		VBDEBUG(("TPM: Must reboot to re-enable\n"));
 		return TPM_E_MUST_REBOOT;
 	}
+#endif
 
 	/* Read the firmware space. */
 	result = ReadSpaceFirmware(rsf);
