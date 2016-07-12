@@ -99,6 +99,10 @@ HOST_ARCH ?= ${_machname}
 # Pick a sane target architecture if none is defined.
 ifeq (${ARCH},)
   ARCH := ${HOST_ARCH}
+endif
+
+ifeq (${ARCH},armv7l)
+  override ARCH := arm
 else ifeq (${ARCH},i386)
   override ARCH := x86
 else ifeq (${ARCH},amd64)
