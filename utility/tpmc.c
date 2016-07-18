@@ -512,6 +512,7 @@ int main(int argc, char* argv[]) {
     }
 
     TlclLibInit();
+    TlclLibAccessAsUser();
 
     for (c = command_table; c < command_table + n_commands; c++) {
       if (strcmp(cmd, c->name) == 0 || strcmp(cmd, c->abbr) == 0) {

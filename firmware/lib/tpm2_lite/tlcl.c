@@ -52,6 +52,11 @@ uint32_t TlclLibClose(void)
 	return VbExTpmClose();
 }
 
+void TlclLibAccessAsUser(void)
+{
+	tpm_set_ph_disabled(1);
+}
+
 uint32_t TlclSendReceive(const uint8_t *request, uint8_t *response,
                          int max_length)
 {

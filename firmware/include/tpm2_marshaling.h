@@ -46,4 +46,15 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 					     void *response_body,
 					     int response_size);
 
+/**
+ * tpm_set_ph_disabled
+ *
+ * Sets the flag that indicates if platform hierarchy is disabled.
+ * certain commands, like NV_Read, may need to use different
+ * authorization if platform hierarchy is disabled.
+ *
+ * @flag: 1 if platform hierarchy is disabled, 0 otherwise
+ */
+void tpm_set_ph_disabled(int flag);
+
 #endif // __SRC_LIB_TPM2_MARSHALING_H

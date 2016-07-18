@@ -8,6 +8,7 @@
 #include "utility.h"
 
 static uint16_t tpm_tag;  /* Depends on the command type. */
+static int ph_disabled;   /* Platform hierarchy disabled. */
 
 static void write_be16(void *dest, uint16_t val)
 {
@@ -263,7 +264,11 @@ static void marshal_nv_read(void **buffer,
 {
 	struct tpm2_session_header session_header;
 
-	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
+	/* Use empty password auth if platform hierarchy is disabled */
+	if (ph_disabled)
+		marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
+	else
+		marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	Memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
@@ -418,4 +423,9 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 
 	/* The entire message have been parsed. */
 	return &tpm2_resp;
+}
+
+void tpm_set_ph_disabled(int flag)
+{
+	ph_disabled = flag;
 }
