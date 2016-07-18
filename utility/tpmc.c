@@ -450,7 +450,10 @@ command_record command_table[] = {
 #endif
   { "lockphysicalpresence", "pplock", "lock (turn off) PP until reboot",
     TlclLockPhysicalPresence },
-#ifndef TPM2_MODE
+#ifdef TPM2_MODE
+  { "setbgloballock", "block", "set rollback protection lock until reboot",
+    TlclLockPhysicalPresence },
+#else
   { "setbgloballock", "block", "set the bGlobalLock until reboot",
     TlclSetGlobalLock },
 #endif
