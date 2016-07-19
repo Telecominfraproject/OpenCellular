@@ -263,7 +263,7 @@ static void marshal_nv_read(void **buffer,
 {
 	struct tpm2_session_header session_header;
 
-	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	Memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
