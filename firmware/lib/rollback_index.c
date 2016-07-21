@@ -703,8 +703,15 @@ uint32_t RollbackKernelLock(int recovery_mode)
 
 uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 {
-	uint8_t buf[FWMP_NV_MAX_SIZE];
-	struct RollbackSpaceFwmp *bf = (struct RollbackSpaceFwmp *)buf;
+	union {
+		/*
+		 * Use a union for buf and bf, rather than making bf a pointer
+		 * to a bare uint8_t[] buffer.  This ensures bf will be aligned
+		 * if necesssary for the target platform.
+		 */
+		uint8_t buf[FWMP_NV_MAX_SIZE];
+		struct RollbackSpaceFwmp bf;
+	} u;
 	uint32_t r;
 	int attempts = 3;
 
@@ -713,7 +720,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 
 	while (attempts--) {
 		/* Try to read entire 1.0 struct */
-		r = TlclRead(FWMP_NV_INDEX, buf, sizeof(*bf));
+		r = TlclRead(FWMP_NV_INDEX, u.buf, sizeof(u.bf));
 		if (r == TPM_E_BADINDEX) {
 			/* Missing space is not an error; use defaults */
 			VBDEBUG(("TPM: %s() - no FWMP space\n", __func__));
@@ -728,28 +735,28 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 		 * Struct must be at least big enough for 1.0, but not bigger
 		 * than our buffer size.
 		 */
-		if (bf->struct_size < sizeof(*bf) ||
-		    bf->struct_size > sizeof(buf))
+		if (u.bf.struct_size < sizeof(u.bf) ||
+		    u.bf.struct_size > sizeof(u.buf))
 			return TPM_E_STRUCT_SIZE;
 
 		/*
 		 * If space is bigger than we expect, re-read so we properly
 		 * compute the CRC.
 		 */
-		if (bf->struct_size > sizeof(*bf)) {
-			r = TlclRead(FWMP_NV_INDEX, buf, bf->struct_size);
+		if (u.bf.struct_size > sizeof(u.bf)) {
+			r = TlclRead(FWMP_NV_INDEX, u.buf, u.bf.struct_size);
 			if (r != TPM_SUCCESS)
 				return r;
 		}
 
 		/* Verify CRC */
-		if (bf->crc != Crc8(buf + 2, bf->struct_size - 2)) {
+		if (u.bf.crc != Crc8(u.buf + 2, u.bf.struct_size - 2)) {
 			VBDEBUG(("TPM: %s() - bad CRC\n", __func__));
 			continue;
 		}
 
 		/* Verify major version is compatible */
-		if ((bf->struct_version >> 4) !=
+		if ((u.bf.struct_version >> 4) !=
 		    (ROLLBACK_SPACE_FWMP_VERSION >> 4))
 			return TPM_E_STRUCT_VERSION;
 
@@ -762,7 +769,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 		 * we would need to take care of initializing the extra fields
 		 * added in 1.1+.  But that's not an issue yet.
 		 */
-		Memcpy(fwmp, bf, sizeof(*fwmp));
+		Memcpy(fwmp, &u.bf, sizeof(*fwmp));
 		return TPM_SUCCESS;
 	}
 
