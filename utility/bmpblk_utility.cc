@@ -101,11 +101,11 @@ namespace vboot_reference {
     // The number of localizations should match the number of locale_index
 
     if (debug_) {
-      printf("%ld image_names\n", config_.image_names.size());
+      printf("%zd image_names\n", config_.image_names.size());
       for (unsigned int i = 0; i < config_.image_names.size(); ++i) {
         printf(" %d: \"%s\"\n", i, config_.image_names[i].c_str());
       }
-      printf("%ld images_map\n", config_.images_map.size());
+      printf("%zd images_map\n", config_.images_map.size());
       for (StrImageConfigMap::iterator it = config_.images_map.begin();
            it != config_.images_map.end();
            ++it) {
@@ -116,7 +116,7 @@ namespace vboot_reference {
                it->second.data.tag,
                it->second.data.format);
       }
-      printf("%ld screens_map\n", config_.screens_map.size());
+      printf("%zd screens_map\n", config_.screens_map.size());
       for (StrScreenConfigMap::iterator it = config_.screens_map.begin();
            it != config_.screens_map.end();
            ++it) {
@@ -593,7 +593,7 @@ namespace vboot_reference {
       current_filled += sizeof(it->second.data);
       current_offset += sizeof(it->second.data);
       if (debug_)
-        printf("I1: current offset is 0x%08x (len %ld)\n",
+        printf("I1: current offset is 0x%08x (len %zd)\n",
                current_offset, it->second.compressed_content.length());
       std::copy(it->second.compressed_content.begin(),
                 it->second.compressed_content.end(),
@@ -605,7 +605,7 @@ namespace vboot_reference {
       current_offset = config_.header.locale_string_offset;
       current_filled = bmpblock_.begin() + current_offset;
       if (debug_)
-        printf("locale_names: offset 0x%08x (len %ld)\n",
+        printf("locale_names: offset 0x%08x (len %zd)\n",
                current_offset, config_.locale_names.size());
       std::copy(config_.locale_names.begin(),
                 config_.locale_names.end(),
