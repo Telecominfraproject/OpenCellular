@@ -629,6 +629,9 @@ UTIL_NAMES += \
 	utility/pad_digest_utility \
 	utility/signature_digest_utility \
 	utility/verify_data
+
+LZMA_LIBS := $(shell ${PKG_CONFIG} --libs liblzma)
+YAML_LIBS := $(shell ${PKG_CONFIG} --libs yaml-0.1)
 endif
 
 UTIL_BINS_STATIC := $(addprefix ${BUILD}/,${UTIL_NAMES_STATIC})
@@ -1299,9 +1302,6 @@ ${BUILD}/tests/bdb_sprw_test: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/hmac_test: LDLIBS += ${CRYPTO_LIBS}
 
 ${TEST21_BINS}: LDLIBS += ${CRYPTO_LIBS}
-
-LZMA_LIBS := $(shell ${PKG_CONFIG} --libs liblzma)
-YAML_LIBS := $(shell ${PKG_CONFIG} --libs yaml-0.1)
 
 ${BUILD}/utility/bmpblk_utility: LD = ${CXX}
 ${BUILD}/utility/bmpblk_utility: LDLIBS = ${LZMA_LIBS} ${YAML_LIBS}
