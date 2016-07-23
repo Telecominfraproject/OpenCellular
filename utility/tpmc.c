@@ -452,15 +452,20 @@ command_record command_table[] = {
   { "setnvlocked", "setnv", "set the nvLocked flag permanently (IRREVERSIBLE!)",
     TlclSetNvLocked },
 #endif
-  { "lockphysicalpresence", "pplock", "lock (turn off) PP until reboot",
-    TlclLockPhysicalPresence },
+  { "lockphysicalpresence", "pplock",
 #ifdef TPM2_MODE
-  { "setbgloballock", "block", "set rollback protection lock until reboot",
-    TlclLockPhysicalPresence },
+    "set rollback protection lock for kernel image until reboot",
 #else
-  { "setbgloballock", "block", "set the bGlobalLock until reboot",
-    TlclSetGlobalLock },
+    "lock (turn off) PP until reboot",
 #endif
+    TlclLockPhysicalPresence },
+  { "setbgloballock", "block",
+#ifdef TPM2_MODE
+    "set rollback protection lock for R/W firmware until reboot",
+#else
+    "set the bGlobalLock until reboot",
+#endif
+    TlclSetGlobalLock },
   { "definespace", "def", "define a space (def <index> <size> <perm>)",
     HandlerDefineSpace },
   { "write", "write", "write to a space (write <index> [<byte0> <byte1> ...])",

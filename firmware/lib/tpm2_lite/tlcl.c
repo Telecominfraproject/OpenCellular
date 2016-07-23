@@ -277,6 +277,23 @@ static uint32_t tlcl_disable_platform_hierarchy(void)
 }
 
 /**
+ * The name of the function was kept to maintain the existing TPM API, but
+ * TPM2.0 does not use the global lock to protect the FW rollback counter.
+ * Instead it calls WriteLock for the FW NVRAM index to prevent future
+ * writes to it.
+ *
+ * It first checks if the platform hierarchy is already disabled, and does
+ * nothing, if so. Otherwise, WriteLock for the index obviously fails.
+ */
+uint32_t TlclSetGlobalLock(void)
+{
+	if (tpm_is_ph_disabled())
+		return TPM_SUCCESS;
+	else
+		return tlcl_lock_nv_write(FIRMWARE_NV_INDEX);
+}
+
+/**
  * Turn off physical presence and locks it off until next reboot.  The TPM
  * error code is returned.
  *
@@ -291,6 +308,9 @@ static uint32_t tlcl_disable_platform_hierarchy(void)
 uint32_t TlclLockPhysicalPresence(void)
 {
 	uint32_t rv;
+
+	if (tpm_is_ph_disabled())
+		return TPM_SUCCESS;
 
 	rv = tlcl_lock_nv_write(KERNEL_NV_INDEX);
 	if (rv == TPM_SUCCESS)
