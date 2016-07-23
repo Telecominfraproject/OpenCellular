@@ -10,6 +10,7 @@
 #include "rollback_index.h"
 #include "tpm2_marshaling.h"
 #include "utility.h"
+#include "tlcl.h"
 
 static struct tpm2_response *tpm_process_command(TPM_CC command,
 						 void *command_body)
@@ -42,19 +43,40 @@ static struct tpm2_response *tpm_process_command(TPM_CC command,
 	return response;
 }
 
+static uint32_t tlcl_read_ph_disabled(void)
+{
+	uint32_t rv;
+	TPM_STCLEAR_FLAGS flags;
+
+	rv = TlclGetSTClearFlags(&flags);
+	if (rv != TPM_SUCCESS)
+		return rv;
+
+	tpm_set_ph_disabled(!flags.phEnable);
+
+	return TPM_SUCCESS;
+}
+
 uint32_t TlclLibInit(void)
 {
-	return VbExTpmInit();
+	uint32_t rv;
+
+	rv = VbExTpmInit();
+	if (rv != TPM_SUCCESS)
+		return rv;
+
+	rv = tlcl_read_ph_disabled();
+	if (rv != TPM_SUCCESS) {
+		TlclLibClose();
+		return rv;
+	}
+
+	return TPM_SUCCESS;
 }
 
 uint32_t TlclLibClose(void)
 {
 	return VbExTpmClose();
-}
-
-void TlclLibAccessAsUser(void)
-{
-	tpm_set_ph_disabled(1);
 }
 
 uint32_t TlclSendReceive(const uint8_t *request, uint8_t *response,
@@ -100,7 +122,7 @@ uint32_t TlclContinueSelfTest(void)
 	return TPM_SUCCESS;
 }
 
-int32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
+uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 {
 	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
 	return TPM_SUCCESS;
@@ -250,6 +272,7 @@ static uint32_t tlcl_disable_platform_hierarchy(void)
 	if (!response || response->hdr.tpm_code)
 		return TPM_E_INTERNAL_INCONSISTENCY;
 
+	tpm_set_ph_disabled(1);
 	return TPM_SUCCESS;
 }
 
@@ -334,7 +357,7 @@ uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 	return TPM_SUCCESS;
 }
 
-int32_t TlclPCRRead(uint32_t index, void *data, uint32_t length)
+uint32_t TlclPCRRead(uint32_t index, void *data, uint32_t length)
 {
 	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
 	return TPM_SUCCESS;

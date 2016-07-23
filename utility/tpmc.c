@@ -491,6 +491,8 @@ static int n_commands = sizeof(command_table) / sizeof(command_table[0]);
 
 int main(int argc, char* argv[]) {
   char *progname;
+  uint32_t result;
+
   progname = strrchr(argv[0], '/');
   if (progname)
     progname++;
@@ -515,8 +517,11 @@ int main(int argc, char* argv[]) {
       return 0;
     }
 
-    TlclLibInit();
-    TlclLibAccessAsUser();
+    result = TlclLibInit();
+    if (result) {
+      fprintf(stderr, "initialization failed with code %d\n", result);
+      return result > OTHER_ERROR ? OTHER_ERROR : result;
+    }
 
     for (c = command_table; c < command_table + n_commands; c++) {
       if (strcmp(cmd, c->name) == 0 || strcmp(cmd, c->abbr) == 0) {

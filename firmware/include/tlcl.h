@@ -28,12 +28,6 @@ uint32_t TlclLibInit(void);
  */
 uint32_t TlclLibClose(void);
 
-/**
- * Indicate that we access tlcl with user privileges from OS userland
- * as opposed to from firmware. May affect required NVRAM read authorization.
- */
-void TlclLibAccessAsUser(void);
-
 /* Low-level operations */
 
 /**
