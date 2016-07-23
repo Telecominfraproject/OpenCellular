@@ -21,6 +21,7 @@
 #define TPM2_NV_Write          ((TPM_CC)0x00000137)
 #define TPM2_NV_WriteLock      ((TPM_CC)0x00000138)
 #define TPM2_NV_Read           ((TPM_CC)0x0000014E)
+#define TPM2_GetCapability     ((TPM_CC)0x0000017A)
 
 /* TCG Spec defined, verify for TPM2.
  * TODO(apronin): find TPM2 RC substitutes for TPM1.2 error codes.
@@ -37,12 +38,25 @@
 #define TPM_RH_PLATFORM     0x4000000C
 #define TPM_RS_PW           0x40000009
 
+/* TPM2 capabilities. */
+#define TPM_CAP_FIRST                   ((TPM_CAP)0x00000000)
+#define TPM_CAP_TPM_PROPERTIES          ((TPM_CAP)0x00000006)
+
+/* TPM properties */
+#define TPM_PT_NONE                     ((TPM_PT)0x00000000)
+#define PT_GROUP                        ((TPM_PT)0x00000100)
+#define PT_FIXED                        PT_GROUP
+#define PT_VAR                          (PT_GROUP * 2)
+#define TPM_PT_PERMANENT                (PT_VAR + 0)
+#define TPM_PT_STARTUP_CLEAR            (PT_VAR + 1)
 
 typedef uint8_t TPMI_YES_NO;
 typedef uint32_t TPM_CC;
 typedef uint32_t TPM_HANDLE;
 typedef TPM_HANDLE TPMI_RH_NV_INDEX;
 typedef TPM_HANDLE TPMI_RH_ENABLES;
+typedef uint32_t TPM_CAP;
+typedef uint32_t TPM_PT;
 
 typedef struct {
 	uint16_t      size;
@@ -56,6 +70,25 @@ typedef union {
 	} t;
 	TPM2B b;
 } TPM2B_MAX_NV_BUFFER;
+
+typedef struct {
+	TPM_PT property;
+	uint32_t value;
+} TPMS_TAGGED_PROPERTY;
+
+typedef struct {
+	uint32_t count;
+	TPMS_TAGGED_PROPERTY tpm_property[1];
+} TPML_TAGGED_TPM_PROPERTY;
+
+typedef union {
+	TPML_TAGGED_TPM_PROPERTY tpm_properties;
+} TPMU_CAPABILITIES;
+
+typedef struct {
+	TPM_CAP capability;
+	TPMU_CAPABILITIES data;
+} TPMS_CAPABILITY_DATA;
 
 struct tpm2_nv_read_cmd {
 	TPMI_RH_NV_INDEX nvIndex;
@@ -76,6 +109,12 @@ struct tpm2_nv_write_lock_cmd {
 struct tpm2_hierarchy_control_cmd {
 	TPMI_RH_ENABLES enable;
 	TPMI_YES_NO state;
+};
+
+struct tpm2_get_capability_cmd {
+	TPM_CAP capability;
+	uint32_t property;
+	uint32_t property_count;
 };
 
 /* Common command/response header. */
@@ -112,18 +151,39 @@ struct tpm2_session_header {
 	uint8_t *auth;
 };
 
+struct get_capability_response {
+	TPMI_YES_NO more_data;
+	TPMS_CAPABILITY_DATA capability_data;
+} __attribute__((packed));
+
 struct tpm2_response {
 	struct tpm_header hdr;
 	union {
 		struct nv_read_response nvr;
 		struct tpm2_session_header def_space;
+		struct get_capability_response cap;
 	};
 };
 
+typedef struct {
+	uint32_t ownerAuthSet : 1;
+	uint32_t endorsementAuthSet : 1;
+	uint32_t lockoutAuthSet : 1;
+	uint32_t reserved3_7 : 5;
+	uint32_t disableClear : 1;
+	uint32_t inLockout : 1;
+	uint32_t tpmGeneratedEPS : 1;
+	uint32_t reserved11_31 : 21;
+} TPM_PERMANENT_FLAGS;
 
-/* Temp stubs to quiet down compilation errors. */
-typedef struct {} TPM_PERMANENT_FLAGS;
-typedef struct {} TPM_STCLEAR_FLAGS;
+typedef struct {
+	uint32_t phEnable : 1;
+	uint32_t shEnable : 1;
+	uint32_t ehEnable : 1;
+	uint32_t phEnableNV : 1;
+	uint32_t reserved4_30 : 27;
+	uint32_t orderly : 1;
+} TPM_STCLEAR_FLAGS;
 
 /* TODO(apronin): For TPM2 certain properties must be received using
  * TPM2_GetCapability instead of being hardcoded as they are now:

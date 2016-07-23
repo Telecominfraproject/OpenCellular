@@ -163,16 +163,57 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t *permissions)
 	return TPM_SUCCESS;
 }
 
+static uint32_t tlcl_get_capability(TPM_CAP cap, TPM_PT property,
+				    struct get_capability_response **presp)
+{
+	struct tpm2_response *response;
+	struct tpm2_get_capability_cmd getcap;
+
+	getcap.capability = cap;
+	getcap.property = property;
+	getcap.property_count = 1;
+
+	response = tpm_process_command(TPM2_GetCapability, &getcap);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+	*presp = &response->cap;
+
+	return TPM_SUCCESS;
+}
+
+static uint32_t tlcl_get_tpm_property(TPM_PT property, uint32_t *pvalue)
+{
+	uint32_t rv;
+	struct get_capability_response *resp;
+	TPML_TAGGED_TPM_PROPERTY *tpm_prop;
+
+	rv = tlcl_get_capability(TPM_CAP_TPM_PROPERTIES, property, &resp);
+	if (rv != TPM_SUCCESS)
+		return rv;
+
+	if (resp->capability_data.capability != TPM_CAP_TPM_PROPERTIES)
+		return TPM_E_IOERROR;
+
+	tpm_prop = &resp->capability_data.data.tpm_properties;
+
+	if ((tpm_prop->count != 1) ||
+	    (tpm_prop->tpm_property[0].property != property))
+		return TPM_E_IOERROR;
+
+	*pvalue = tpm_prop->tpm_property[0].value;
+	return TPM_SUCCESS;
+}
+
 uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS *pflags)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
-	return TPM_SUCCESS;
+	return tlcl_get_tpm_property(TPM_PT_PERMANENT,
+				     (uint32_t *)pflags);
 }
 
 uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS *pflags)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
-	return TPM_SUCCESS;
+	return tlcl_get_tpm_property(TPM_PT_STARTUP_CLEAR,
+				     (uint32_t *)pflags);
 }
 
 uint32_t TlclGetOwnership(uint8_t *owned)

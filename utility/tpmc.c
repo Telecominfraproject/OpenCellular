@@ -322,23 +322,19 @@ static uint32_t HandlerGetRandom(void) {
   return result;
 }
 
-/* TODO(apronin): stubs for permanent and ST_CLEAR flags for TPM2 */
-#ifdef TPM2_MODE
-static uint32_t HandlerGetPermanentFlags(void) {
-  fprintf(stderr, "getpermanentflags not implemented for TPM2\n");
-  return OTHER_ERROR;
-}
-
-static uint32_t HandlerGetSTClearFlags(void) {
-  fprintf(stderr, "getstclearflags not implemented for TPM2\n");
-  return OTHER_ERROR;
-}
-#else
 static uint32_t HandlerGetPermanentFlags(void) {
   TPM_PERMANENT_FLAGS pflags;
   uint32_t result = TlclGetPermanentFlags(&pflags);
   if (result == 0) {
 #define P(name) printf("%s %d\n", #name, pflags.name)
+#ifdef TPM2_MODE
+    P(ownerAuthSet);
+    P(endorsementAuthSet);
+    P(lockoutAuthSet);
+    P(disableClear);
+    P(inLockout);
+    P(tpmGeneratedEPS);
+#else
     P(disable);
     P(ownership);
     P(deactivated);
@@ -359,6 +355,7 @@ static uint32_t HandlerGetPermanentFlags(void) {
     P(tpmEstablished);
     P(maintenanceDone);
     P(disableFullDALogicInfo);
+#endif
 #undef P
   }
   return result;
@@ -369,16 +366,23 @@ static uint32_t HandlerGetSTClearFlags(void) {
   uint32_t result = TlclGetSTClearFlags(&vflags);
   if (result == 0) {
 #define P(name) printf("%s %d\n", #name, vflags.name)
+#ifdef TPM2_MODE
+  P(phEnable);
+  P(shEnable);
+  P(ehEnable);
+  P(phEnableNV);
+  P(orderly);
+#else
   P(deactivated);
   P(disableForceClear);
   P(physicalPresence);
   P(physicalPresenceLock);
   P(bGlobalLock);
+#endif
 #undef P
   }
   return result;
 }
-#endif /* TPM2_MODE */
 
 static uint32_t HandlerSendRaw(void) {
   uint8_t request[4096];

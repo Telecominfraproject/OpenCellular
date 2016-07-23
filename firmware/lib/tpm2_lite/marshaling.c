@@ -53,6 +53,22 @@ static inline uint32_t read_be32(const void *src)
  * has been extracted from the buffer.
  */
 
+static uint8_t unmarshal_u8(void **buffer, int *buffer_space)
+{
+	uint8_t value;
+
+	if (*buffer_space < sizeof(value)) {
+		*buffer_space = -1; /* Indicate a failure. */
+		return 0;
+	}
+
+	value = *(uint8_t *)(*buffer);
+	*buffer = (void *) ((uintptr_t) (*buffer) + sizeof(value));
+	*buffer_space -= sizeof(value);
+
+	return value;
+}
+
 static uint16_t unmarshal_u16(void **buffer, int *buffer_space)
 {
 	uint16_t value;
@@ -103,6 +119,22 @@ static void unmarshal_TPM2B_MAX_NV_BUFFER(void **buffer,
 	*size -= nv_buffer->t.size;
 }
 
+static void unmarshal_authorization_section(void **buffer, int *size,
+					    char *cmd_name)
+{
+	/*
+	 * Let's ignore the authorisation section. It should be 5 bytes total,
+	 * just confirm that this is the case and report any discrepancy.
+	 */
+	if (*size != 5)
+		VBDEBUG(("%s:%d - unexpected authorisation section size %d "
+			 "for %s\n",
+			 __func__, __LINE__, *size, cmd_name));
+
+	*buffer = ((uint8_t *)(*buffer)) + *size;
+	*size = 0;
+}
+
 static void unmarshal_nv_read(void **buffer, int *size,
 			      struct nv_read_response *nvr)
 {
@@ -120,16 +152,54 @@ static void unmarshal_nv_read(void **buffer, int *size,
 
 	if (*size < 0)
 		return;
-	/*
-	 * Let's ignore the authorisation section. It should be 5 bytes total,
-	 * just confirm that this is the case and report any discrepancy.
-	 */
-	if (*size != 5)
-		VBDEBUG(("%s:%d - unexpected authorisation seciton size %d\n",
-			 __func__, __LINE__, *size));
 
-	*buffer = ((uint8_t *)(*buffer)) + *size;
-	*size = 0;
+	unmarshal_authorization_section(buffer, size, "NV_Read");
+}
+
+static void unmarshal_TPML_TAGGED_TPM_PROPERTY(void **buffer, int *size,
+					       TPML_TAGGED_TPM_PROPERTY *prop)
+{
+	prop->count = unmarshal_u32(buffer, size);
+
+	if (prop->count != 1) {
+		*size = -1;
+		VBDEBUG(("%s:%d:Request to unmarshal unsupported "
+			 "number of properties: %u\n",
+			 __FILE__, __LINE__, prop->count));
+		return;
+	}
+
+	prop->tpm_property[0].property = unmarshal_u32(buffer, size);
+	prop->tpm_property[0].value = unmarshal_u32(buffer, size);
+}
+
+static void unmarshal_TPMS_CAPABILITY_DATA(void **buffer, int *size,
+					   TPMS_CAPABILITY_DATA *cap_data)
+{
+	cap_data->capability = unmarshal_u32(buffer, size);
+
+	switch (cap_data->capability) {
+
+	case TPM_CAP_TPM_PROPERTIES:
+		unmarshal_TPML_TAGGED_TPM_PROPERTY(buffer, size,
+						   &cap_data->data.
+						       tpm_properties);
+		break;
+
+	default:
+		*size = -1;
+		VBDEBUG(("%s:%d:Request to unmarshal unsupported "
+			 "capability %#x\n",
+			 __FILE__, __LINE__, cap_data->capability));
+	}
+}
+
+static void unmarshal_get_capability(void **buffer, int *size,
+				     struct get_capability_response *cap)
+{
+	/* Total size of the parameter field. */
+	cap->more_data = unmarshal_u8(buffer, size);
+	unmarshal_TPMS_CAPABILITY_DATA(buffer, size, &cap->capability_data);
 }
 
 
@@ -309,6 +379,18 @@ static void marshal_hierarchy_control(void **buffer,
 	marshal_u8(buffer, command_body->state, buffer_space);
 }
 
+static void marshal_get_capability(void **buffer,
+				   struct tpm2_get_capability_cmd
+				       *command_body,
+				   int *buffer_space)
+{
+	tpm_tag = TPM_ST_NO_SESSIONS;
+
+	marshal_u32(buffer, command_body->capability, buffer_space);
+	marshal_u32(buffer, command_body->property, buffer_space);
+	marshal_u32(buffer, command_body->property_count, buffer_space);
+}
+
 int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 			void *buffer, int buffer_size)
 {
@@ -336,6 +418,10 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 	case TPM2_Hierarchy_Control:
 		marshal_hierarchy_control(&cmd_body,
 					  tpm_command_body, &body_size);
+		break;
+
+	case TPM2_GetCapability:
+		marshal_get_capability(&cmd_body, tpm_command_body, &body_size);
 		break;
 
 	default:
@@ -383,6 +469,11 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 	case TPM2_NV_Read:
 		unmarshal_nv_read(&response_body, &cr_size,
 				  &tpm2_resp.nvr);
+		break;
+
+	case TPM2_GetCapability:
+		unmarshal_get_capability(&response_body, &cr_size,
+					 &tpm2_resp.cap);
 		break;
 
 	case TPM2_Hierarchy_Control:
