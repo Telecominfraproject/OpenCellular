@@ -85,7 +85,7 @@ static uint16_t unmarshal_u16(void **buffer, int *buffer_space)
 	return value;
 }
 
-static uint16_t unmarshal_u32(void **buffer, int *buffer_space)
+static uint32_t unmarshal_u32(void **buffer, int *buffer_space)
 {
 	uint32_t value;
 
