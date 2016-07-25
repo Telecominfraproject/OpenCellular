@@ -21,6 +21,32 @@
 
 #define OTHER_ERROR 255  /* OTHER_ERROR must be the largest uint8_t value. */
 
+#ifdef TPM2_MODE
+#define TPM_MODE_SELECT(_, tpm20_ver) tpm20_ver
+#else
+#define TPM_MODE_SELECT(tpm12_ver, _) tpm12_ver
+#endif
+
+#define TPM_MODE_STRING TPM_MODE_SELECT("1.2", "2.0")
+#define TPM12_NEEDS_PP TPM_MODE_SELECT(" (needs PP)", "")
+#define TPM12_NEEDS_PP_REBOOT TPM_MODE_SELECT(" (needs PP, maybe reboot)", "")
+
+#define TPM20_NOT_IMPLEMENTED_DESCR(descr) \
+  descr TPM_MODE_SELECT("", " [not-implemented for TPM2.0]")
+#define TPM20_NOT_IMPLEMENTED_HANDLER(handler) \
+  TPM_MODE_SELECT(handler, HandlerNotImplementedForTPM2)
+#define TPM20_NOT_IMPLEMENTED(descr, handler) \
+  TPM20_NOT_IMPLEMENTED_DESCR(descr), \
+  TPM20_NOT_IMPLEMENTED_HANDLER(handler)
+
+#define TPM20_DOES_NOTHING_DESCR(descr) \
+  descr TPM_MODE_SELECT("", " [no-op for TPM2.0]")
+#define TPM20_DOES_NOTHING_HANDLER(handler) \
+  TPM_MODE_SELECT(handler, HandlerDoNothingForTPM2)
+#define TPM20_DOES_NOTHING(descr, handler) \
+  TPM20_DOES_NOTHING_DESCR(descr), \
+  TPM20_DOES_NOTHING_HANDLER(handler)
+
 typedef struct command_record {
   const char* name;
   const char* abbr;
@@ -103,11 +129,11 @@ uint8_t ErrorCheck(uint32_t result, const char* cmd) {
 
 /* Handler functions.  These wouldn't exist if C had closures.
  */
-/* TODO(apronin): stub for selecte flags for TPM2 */
+/* TODO(apronin): stub for selected flags for TPM2 */
 #ifdef TPM2_MODE
 static uint32_t HandlerGetFlags(void) {
   fprintf(stderr, "getflags not implemented for TPM2\n");
-  return OTHER_ERROR;
+  exit(OTHER_ERROR);
 }
 #else
 static uint32_t HandlerGetFlags(void) {
@@ -425,6 +451,16 @@ static uint32_t HandlerSendRaw(void) {
   return result;
 }
 
+#ifdef TPM2_MODE
+static uint32_t HandlerDoNothingForTPM2(void) {
+  return 0;
+}
+
+static uint32_t HandlerNotImplementedForTPM2(void) {
+  fprintf(stderr, "%s: not implemented for TPM2.0\n", args[1]);
+  exit(OTHER_ERROR);
+}
+#endif
 
 /* Table of TPM commands.
  */
@@ -435,36 +471,37 @@ command_record command_table[] = {
   { "selftestfull", "test", "issue a SelfTestFull command", TlclSelfTestFull },
   { "continueselftest", "ctest", "issue a ContinueSelfTest command",
     TlclContinueSelfTest },
-#ifndef TPM2_MODE
-  { "assertphysicalpresence", "ppon", "assert Physical Presence",
-    TlclAssertPhysicalPresence },
-  { "physicalpresencecmdenable", "ppcmd", "turn on software PP",
-    TlclPhysicalPresenceCMDEnable },
-  { "enable", "ena", "enable the TPM (needs PP)", TlclSetEnable },
-  { "disable", "dis", "disable the TPM (needs PP)", TlclClearEnable },
-  { "activate", "act", "activate the TPM (needs PP, maybe reboot)",
-    HandlerActivate },
-  { "deactivate", "deact", "deactivate the TPM (needs PP, maybe reboot)",
-    HandlerDeactivate },
-#endif
-  { "clear", "clr", "clear the TPM owner (needs PP)", TlclForceClear },
-#ifndef TPM2_MODE
-  { "setnvlocked", "setnv", "set the nvLocked flag permanently (IRREVERSIBLE!)",
-    TlclSetNvLocked },
-#endif
+  { "assertphysicalpresence", "ppon",
+    TPM20_DOES_NOTHING("assert Physical Presence",
+      TlclAssertPhysicalPresence) },
+  { "physicalpresencecmdenable", "ppcmd",
+    TPM20_NOT_IMPLEMENTED("turn on software PP",
+      TlclPhysicalPresenceCMDEnable) },
+  { "enable", "ena",
+    TPM20_DOES_NOTHING("enable the TPM" TPM12_NEEDS_PP,
+      TlclSetEnable) },
+  { "disable", "dis",
+    TPM20_NOT_IMPLEMENTED("disable the TPM" TPM12_NEEDS_PP,
+      TlclClearEnable) },
+  { "activate", "act",
+    TPM20_DOES_NOTHING("activate the TPM" TPM12_NEEDS_PP_REBOOT,
+      HandlerActivate) },
+  { "deactivate", "deact",
+    TPM20_NOT_IMPLEMENTED("deactivate the TPM" TPM12_NEEDS_PP_REBOOT,
+      HandlerDeactivate) },
+  { "clear", "clr",
+    "clear the TPM owner" TPM12_NEEDS_PP,
+    TlclForceClear },
+  { "setnvlocked", "setnv",
+    TPM20_NOT_IMPLEMENTED("set the nvLocked flag permanently (IRREVERSIBLE!)",
+      TlclSetNvLocked) },
   { "lockphysicalpresence", "pplock",
-#ifdef TPM2_MODE
-    "set rollback protection lock for kernel image until reboot",
-#else
-    "lock (turn off) PP until reboot",
-#endif
+    TPM_MODE_SELECT("lock (turn off) PP until reboot",
+      "set rollback protection lock for kernel image until reboot"),
     TlclLockPhysicalPresence },
   { "setbgloballock", "block",
-#ifdef TPM2_MODE
-    "set rollback protection lock for R/W firmware until reboot",
-#else
-    "set the bGlobalLock until reboot",
-#endif
+    TPM_MODE_SELECT("set the bGlobalLock until reboot",
+      "set rollback protection lock for R/W firmware until reboot"),
     TlclSetGlobalLock },
   { "definespace", "def", "define a space (def <index> <size> <perm>)",
     HandlerDefineSpace },
@@ -515,6 +552,7 @@ int main(int argc, char* argv[]) {
     args = argv;
 
     if (strcmp(cmd, "help") == 0) {
+      printf("tpmc mode: TPM%s\n", TPM_MODE_STRING);
       printf("%26s %7s  %s\n\n", "command", "abbr.", "description");
       for (c = command_table; c < command_table + n_commands; c++) {
         printf("%26s %7s  %s\n", c->name, c->abbr, c->description);
