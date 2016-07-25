@@ -82,14 +82,18 @@ uint32_t TlclLibClose(void)
 uint32_t TlclSendReceive(const uint8_t *request, uint8_t *response,
                          int max_length)
 {
-        VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
-        return TPM_SUCCESS;
+	uint32_t rv, resp_size;
+
+	resp_size = max_length;
+	rv = VbExTpmSendReceive(request, tpm_get_packet_size(request),
+				response, &resp_size);
+
+	return rv ? rv : tpm_get_packet_response_code(response);
 }
 
 int TlclPacketSize(const uint8_t *packet)
 {
-        VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
-        return 0;
+	return tpm_get_packet_size(packet);
 }
 
 uint32_t TlclStartup(void)

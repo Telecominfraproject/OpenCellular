@@ -516,6 +516,23 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 	return &tpm2_resp;
 }
 
+uint32_t tpm_get_packet_size(const uint8_t *packet)
+{
+	/* 0: tag (16 bit)
+	 * 2: size (32 bit)
+	 */
+	return read_be32(packet + 2);
+}
+
+uint32_t tpm_get_packet_response_code(const uint8_t *packet)
+{
+	/* 0: tag (16 bit)
+	 * 2: size (32 bit)
+	 * 6: resp code (32 bit)
+	 */
+	return read_be32(packet + 6);
+}
+
 void tpm_set_ph_disabled(int flag)
 {
 	ph_disabled = flag;

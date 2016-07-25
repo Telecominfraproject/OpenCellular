@@ -47,6 +47,24 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 					     int response_size);
 
 /**
+ * tpm_get_packet_size
+ *
+ * @packet: pointer to the start of the command or response packet.
+ *
+ * Returns the size of the tpm packet.
+ */
+uint32_t tpm_get_packet_size(const uint8_t *packet);
+
+/**
+ * tpm_get_packet_response_code
+ *
+ * @packet: pointer to the start of the response packet.
+ *
+ * Returns the response code.
+ */
+uint32_t tpm_get_packet_response_code(const uint8_t *packet);
+
+/**
  * tpm_set_ph_disabled
  *
  * Sets the flag that indicates if platform hierarchy is disabled.
