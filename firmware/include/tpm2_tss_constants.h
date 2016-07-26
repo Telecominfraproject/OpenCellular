@@ -18,8 +18,12 @@
 
 /* TPM2 command codes. */
 #define TPM2_Hierarchy_Control ((TPM_CC)0x00000121)
+#define TPM2_Clear             ((TPM_CC)0x00000126)
 #define TPM2_NV_Write          ((TPM_CC)0x00000137)
 #define TPM2_NV_WriteLock      ((TPM_CC)0x00000138)
+#define TPM2_SelfTest          ((TPM_CC)0x00000143)
+#define TPM2_Startup           ((TPM_CC)0x00000144)
+#define TPM2_Shutdown          ((TPM_CC)0x00000145)
 #define TPM2_NV_Read           ((TPM_CC)0x0000014E)
 #define TPM2_GetCapability     ((TPM_CC)0x0000017A)
 
@@ -50,6 +54,10 @@
 #define TPM_PT_PERMANENT                (PT_VAR + 0)
 #define TPM_PT_STARTUP_CLEAR            (PT_VAR + 1)
 
+/* TPM startup types. */
+#define TPM_SU_CLEAR                    ((TPM_SU)0x0000)
+#define TPM_SU_STATE                    ((TPM_SU)0x0001)
+
 typedef uint8_t TPMI_YES_NO;
 typedef uint32_t TPM_CC;
 typedef uint32_t TPM_HANDLE;
@@ -57,6 +65,7 @@ typedef TPM_HANDLE TPMI_RH_NV_INDEX;
 typedef TPM_HANDLE TPMI_RH_ENABLES;
 typedef uint32_t TPM_CAP;
 typedef uint32_t TPM_PT;
+typedef uint16_t TPM_SU;
 
 typedef struct {
 	uint16_t      size;
@@ -115,6 +124,18 @@ struct tpm2_get_capability_cmd {
 	TPM_CAP capability;
 	uint32_t property;
 	uint32_t property_count;
+};
+
+struct tpm2_self_test_cmd {
+	TPMI_YES_NO full_test;
+};
+
+struct tpm2_startup_cmd {
+	TPM_SU startup_type;
+};
+
+struct tpm2_shutdown_cmd {
+	TPM_SU shutdown_type;
 };
 
 /* Common command/response header. */

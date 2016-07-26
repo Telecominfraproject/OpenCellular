@@ -265,6 +265,7 @@ static void marshal_u32(void **buffer, uint32_t value, int *buffer_space)
 
 #define unmarshal_TPM_CC(a, b) unmarshal_u32(a, b)
 #define marshal_TPM_HANDLE(a, b, c) marshal_u32(a, b, c)
+#define marshal_TPM_SU(a, b, c) marshal_u16(a, b, c)
 
 static void marshal_session_header(void **buffer,
 				   struct tpm2_session_header *session_header,
@@ -391,6 +392,46 @@ static void marshal_get_capability(void **buffer,
 	marshal_u32(buffer, command_body->property_count, buffer_space);
 }
 
+static void marshal_clear(void **buffer,
+			  void *command_body,
+			  int *buffer_space)
+{
+	struct tpm2_session_header session_header;
+
+	tpm_tag = TPM_ST_SESSIONS;
+	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	Memset(&session_header, 0, sizeof(session_header));
+	session_header.session_handle = TPM_RS_PW;
+	marshal_session_header(buffer, &session_header, buffer_space);
+}
+
+static void marshal_self_test(void **buffer,
+			      struct tpm2_self_test_cmd *command_body,
+			      int *buffer_space)
+{
+	tpm_tag = TPM_ST_NO_SESSIONS;
+
+	marshal_u8(buffer, command_body->full_test, buffer_space);
+}
+
+static void marshal_startup(void **buffer,
+			    struct tpm2_startup_cmd *command_body,
+			    int *buffer_space)
+{
+	tpm_tag = TPM_ST_NO_SESSIONS;
+
+	marshal_TPM_SU(buffer, command_body->startup_type, buffer_space);
+}
+
+static void marshal_shutdown(void **buffer,
+			     struct tpm2_shutdown_cmd *command_body,
+			     int *buffer_space)
+{
+	tpm_tag = TPM_ST_NO_SESSIONS;
+
+	marshal_TPM_SU(buffer, command_body->shutdown_type, buffer_space);
+}
+
 int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 			void *buffer, int buffer_size)
 {
@@ -422,6 +463,22 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 
 	case TPM2_GetCapability:
 		marshal_get_capability(&cmd_body, tpm_command_body, &body_size);
+		break;
+
+	case TPM2_Clear:
+		marshal_clear(&cmd_body, tpm_command_body, &body_size);
+		break;
+
+	case TPM2_SelfTest:
+		marshal_self_test(&cmd_body, tpm_command_body, &body_size);
+		break;
+
+	case TPM2_Startup:
+		marshal_startup(&cmd_body, tpm_command_body, &body_size);
+		break;
+
+	case TPM2_Shutdown:
+		marshal_shutdown(&cmd_body, tpm_command_body, &body_size);
 		break;
 
 	default:
@@ -479,6 +536,10 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 	case TPM2_Hierarchy_Control:
 	case TPM2_NV_Write:
 	case TPM2_NV_WriteLock:
+	case TPM2_Clear:
+	case TPM2_SelfTest:
+	case TPM2_Startup:
+	case TPM2_Shutdown:
 		/* Session data included in response can be safely ignored. */
 		cr_size = 0;
 		break;

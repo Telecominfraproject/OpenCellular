@@ -98,31 +98,71 @@ int TlclPacketSize(const uint8_t *packet)
 
 uint32_t TlclStartup(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+	struct tpm2_startup_cmd startup;
+
+	startup.startup_type = TPM_SU_CLEAR;
+
+	response = tpm_process_command(TPM2_Startup, &startup);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclSaveState(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+	struct tpm2_shutdown_cmd shutdown;
+
+	shutdown.shutdown_type = TPM_SU_STATE;
+
+	response = tpm_process_command(TPM2_Shutdown, &shutdown);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclResume(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+	struct tpm2_startup_cmd startup;
+
+	startup.startup_type = TPM_SU_STATE;
+
+	response = tpm_process_command(TPM2_Startup, &startup);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclSelfTestFull(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+	struct tpm2_self_test_cmd self_test;
+
+	self_test.full_test = 1;
+
+	response = tpm_process_command(TPM2_SelfTest, &self_test);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclContinueSelfTest(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+	struct tpm2_self_test_cmd self_test;
+
+	self_test.full_test = 0;
+
+	response = tpm_process_command(TPM2_SelfTest, &self_test);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 
@@ -137,7 +177,12 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
  */
 uint32_t TlclForceClear(void)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+
+	response = tpm_process_command(TPM2_Clear, NULL);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 
