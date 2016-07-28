@@ -133,10 +133,14 @@ static void format_rsa_param(parse_token id, char const * message, void * data)
 {
 #define MAX_BYTE_NUMBER_PER_LINE	16
 	u_int8_t *rsa = (u_int8_t *)data;
-	int size = g_soc_config->get_value_size(id);
-	int byte_index;
+	int size, byte_index;
 
 	printf("%s", message);
+
+	if (!g_soc_config->get_value_size)
+		return;
+
+	size = g_soc_config->get_value_size(id);
 	for (byte_index = 0; byte_index < size; ++byte_index) {
 		printf(" %02x", *rsa++);
 
