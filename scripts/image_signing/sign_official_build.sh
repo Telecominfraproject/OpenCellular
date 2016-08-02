@@ -590,6 +590,35 @@ resign_firmware_payload() {
   echo "Re-signed firmware AU payload in $image"
 }
 
+# Re-sign Android image if exists.
+resign_android_image_if_exists() {
+  local image=$1
+
+  local rootfs_dir=$(make_temp_dir)
+  mount_image_partition "${image}" 3 "${rootfs_dir}"
+
+  local system_img="${rootfs_dir}/opt/google/containers/android/system.raw.img"
+
+  if [[ ! -e "${system_img}" ]]; then
+    info "Android image not found.  Not signing Android APKs."
+    sudo umount "${rootfs_dir}"
+    return
+  fi
+
+  # Sign only 54+ images to make sure it works on dev channel first.
+  local milestone=$(grep CHROMEOS_RELEASE_CHROME_MILESTONE= \
+    "${rootfs_dir}/etc/lsb-release" | cut -d= -f2)
+  if [[ "${milestone}" -le 53 ]]; then
+    info "Not signing Android apks before 53 (incl.).  Current: ${milestone}."
+    return
+  fi
+
+  "${SCRIPT_DIR}/sign_android_image.sh" "${rootfs_dir}" "${KEY_DIR}/android"
+
+  sudo umount "${rootfs_dir}"
+  echo "Re-signed Android image"
+}
+
 # Verify an image including rootfs hash using the specified keys.
 verify_image() {
   local rootfs_image=$(make_temp_file)
@@ -772,6 +801,7 @@ sign_image_file() {
   echo "Preparing ${image_type} image..."
   cp --sparse=always "${input}" "${output}"
   resign_firmware_payload "${output}"
+  resign_android_image_if_exists "${output}"
   # We do NOT strip /boot for factory installer, since some devices need it to
   # boot EFI. crbug.com/260512 would obsolete this requirement.
   #
