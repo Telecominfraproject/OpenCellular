@@ -57,7 +57,8 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 			gptdata->gpt_drive_sectors,
 			gptdata->flags)) {
 		primary_valid = 1;
-		uint64_t entries_bytes = primary_header->number_of_entries
+		uint64_t entries_bytes =
+				(uint64_t)primary_header->number_of_entries
 				* primary_header->size_of_entry;
 		uint64_t entries_sectors = entries_bytes
 					/ gptdata->sector_bytes;
@@ -90,7 +91,8 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 			gptdata->gpt_drive_sectors,
 			gptdata->flags)) {
 		secondary_valid = 1;
-		uint64_t entries_bytes = secondary_header->number_of_entries
+		uint64_t entries_bytes =
+				(uint64_t)secondary_header->number_of_entries
 				* secondary_header->size_of_entry;
 		uint64_t entries_sectors = entries_bytes
 				/ gptdata->sector_bytes;
@@ -122,7 +124,8 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 {
 	int skip_primary = 0;
 	GptHeader *header = (GptHeader *)gptdata->primary_header;
-	uint64_t entries_bytes = header->number_of_entries
+	uint64_t entries_bytes =
+				(uint64_t)header->number_of_entries
 				* header->size_of_entry;
 	uint64_t entries_sectors = entries_bytes / gptdata->sector_bytes;
 	int ret = 1;
