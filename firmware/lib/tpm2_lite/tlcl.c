@@ -289,8 +289,16 @@ uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS *pflags)
 
 uint32_t TlclGetOwnership(uint8_t *owned)
 {
+	uint32_t rv;
+	TPM_PERMANENT_FLAGS flags;
 	*owned = 0;
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+
+	rv = TlclGetPermanentFlags(&flags);
+	if (rv != TPM_SUCCESS)
+		return rv;
+
+	*owned = flags.ownerAuthSet;
+
 	return TPM_SUCCESS;
 }
 
@@ -434,13 +442,37 @@ uint32_t TlclPCRRead(uint32_t index, void *data, uint32_t length)
 
 uint32_t TlclWriteLock(uint32_t index)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_nv_write_lock_cmd nv_writelockc;
+	struct tpm2_response *response;
+
+	Memset(&nv_writelockc, 0, sizeof(nv_writelockc));
+
+	nv_writelockc.nvIndex = HR_NV_INDEX | index;
+
+	response = tpm_process_command(TPM2_NV_WriteLock, &nv_writelockc);
+
+	/* Need to map tpm error codes into internal values. */
+	if (!response)
+		return TPM_E_WRITE_FAILURE;
+
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclReadLock(uint32_t index)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_nv_read_lock_cmd nv_readlockc;
+	struct tpm2_response *response;
+
+	Memset(&nv_readlockc, 0, sizeof(nv_readlockc));
+
+	nv_readlockc.nvIndex = HR_NV_INDEX | index;
+
+	response = tpm_process_command(TPM2_NV_ReadLock, &nv_readlockc);
+
+	/* Need to map tpm error codes into internal values. */
+	if (!response)
+		return TPM_E_READ_FAILURE;
+
 	return TPM_SUCCESS;
 }
 

@@ -25,6 +25,7 @@
 #define TPM2_Startup           ((TPM_CC)0x00000144)
 #define TPM2_Shutdown          ((TPM_CC)0x00000145)
 #define TPM2_NV_Read           ((TPM_CC)0x0000014E)
+#define TPM2_NV_ReadLock       ((TPM_CC)0x0000014F)
 #define TPM2_GetCapability     ((TPM_CC)0x0000017A)
 
 /* TCG Spec defined, verify for TPM2.
@@ -109,6 +110,10 @@ struct tpm2_nv_write_cmd {
 	TPMI_RH_NV_INDEX nvIndex;
 	TPM2B_MAX_NV_BUFFER data;
 	uint16_t offset;
+};
+
+struct tpm2_nv_read_lock_cmd {
+	TPMI_RH_NV_INDEX nvIndex;
 };
 
 struct tpm2_nv_write_lock_cmd {
