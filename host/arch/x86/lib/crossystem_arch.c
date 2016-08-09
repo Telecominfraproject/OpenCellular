@@ -803,6 +803,23 @@ int VbGetArchPropertyInt(const char* name) {
       value = (int)fwupdate_value;
   }
 
+  /* Detect if the host is a VM. If there is no HWID and the firmware type
+   * is "nonchrome", then assume it is a VM. If HWID is present, it is a
+   * baremetal Chrome OS machine. Other cases are errors. */
+  if (!strcasecmp(name,"inside_vm")) {
+    char hwid[VB_MAX_STRING_PROPERTY];
+    if (!VbGetArchPropertyString("hwid", hwid, sizeof(hwid))) {
+      char fwtype_buf[VB_MAX_STRING_PROPERTY];
+      const char *fwtype = VbGetArchPropertyString("mainfw_type", fwtype_buf,
+                                                    sizeof(fwtype_buf));
+      if (fwtype && !strcasecmp(fwtype,"nonchrome")) {
+        value = 1;
+      }
+    } else {
+      value = 0;
+    }
+  }
+
   return value;
 }
 

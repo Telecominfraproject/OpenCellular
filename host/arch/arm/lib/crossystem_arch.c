@@ -401,11 +401,15 @@ int VbGetArchPropertyInt(const char* name) {
     if (value != -1)
       return value;
     return VbGetVarGpio("write-protect-switch");
-  } else if (!strcasecmp(name, "recoverysw_ec_boot"))
+  } else if (!strcasecmp(name, "recoverysw_ec_boot")) {
     /* TODO: read correct value using ectool */
     return 0;
-  else
+  } else if (!strcasecmp(name, "inside_vm")) {
+    /* No ARM VMs currently. */
+    return 0;
+  } else {
     return -1;
+  }
 }
 
 const char* VbGetArchPropertyString(const char* name, char* dest,
