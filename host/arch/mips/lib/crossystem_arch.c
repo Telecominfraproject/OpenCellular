@@ -42,8 +42,6 @@ int VbGetArchPropertyInt(const char* name) {
     return 0;
   } else if (!strcasecmp(name,"wpsw_boot")) {
     return 1;
-  } else if (!strcasecmp(name,"inside_vm")) {
-    return 0;
   }
   return -1;
 }

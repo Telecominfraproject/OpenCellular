@@ -404,9 +404,6 @@ int VbGetArchPropertyInt(const char* name) {
   } else if (!strcasecmp(name, "recoverysw_ec_boot")) {
     /* TODO: read correct value using ectool */
     return 0;
-  } else if (!strcasecmp(name, "inside_vm")) {
-    /* No ARM VMs currently. */
-    return 0;
   } else {
     return -1;
   }

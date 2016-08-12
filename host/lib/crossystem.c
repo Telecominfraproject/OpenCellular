@@ -553,6 +553,21 @@ int VbGetSystemPropertyInt(const char* name) {
 	  value = VbGetNvStorage(VBNV_TRY_RO_SYNC);
   } else if (!strcasecmp(name, "battery_cutoff_request")) {
     value = VbGetNvStorage(VBNV_BATTERY_CUTOFF_REQUEST);
+  } else if (!strcasecmp(name, "inside_vm")) {
+    /* Detect if the host is a VM. If there is no HWID and the firmware type
+     * is "nonchrome", then assume it is a VM. If HWID is present, it is a
+     * baremetal Chrome OS machine. Other cases are errors. */
+    char hwid[VB_MAX_STRING_PROPERTY];
+    if (!VbGetSystemPropertyString("hwid", hwid, sizeof(hwid))) {
+      char fwtype_buf[VB_MAX_STRING_PROPERTY];
+      const char *fwtype = VbGetSystemPropertyString("mainfw_type", fwtype_buf,
+                                                     sizeof(fwtype_buf));
+      if (fwtype && !strcasecmp(fwtype, "nonchrome")) {
+        value = 1;
+      }
+    } else {
+      value = 0;
+    }
   }
 
   return value;
