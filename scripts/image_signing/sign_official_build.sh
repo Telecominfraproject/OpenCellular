@@ -598,9 +598,10 @@ resign_android_image_if_exists() {
   mount_image_partition "${image}" 3 "${rootfs_dir}"
 
   local system_img="${rootfs_dir}/opt/google/containers/android/system.raw.img"
-
-  if [[ ! -e "${system_img}" ]]; then
-    info "Android image not found.  Not signing Android APKs."
+  local arc_version=$(grep CHROMEOS_ARC_VERSION= \
+    "${rootfs_dir}/etc/lsb-release" | cut -d= -f2)
+  if [[ ! -e "${system_img}" || -z "${arc_version}" ]]; then
+    info "ARC image not found.  Not signing Android APKs."
     sudo umount "${rootfs_dir}"
     return
   fi
