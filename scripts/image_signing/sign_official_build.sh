@@ -610,6 +610,7 @@ resign_android_image_if_exists() {
     "${rootfs_dir}/etc/lsb-release" | cut -d= -f2)
   if [[ "${milestone}" -le 53 ]]; then
     info "Not signing Android apks before 53 (incl.).  Current: ${milestone}."
+    sudo umount "${rootfs_dir}"
     return
   fi
 
