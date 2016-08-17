@@ -142,11 +142,9 @@ main() {
 
   if check_keyval_in_list $lsb CHROMEOS_RELEASE_BOARD \
     "${expected_boards[@]}"; then
-    # Pick the right set of test-expectation data to use. The cuts
-    # turn e.g. x86-foo-pvtkeys into x86-foo.
+    # Pick the right set of test-expectation data to use.
     local board=$(lsbval $lsb CHROMEOS_RELEASE_BOARD |
-                  cut -d = -f 2 |
-                  cut -d - -f 1,2)
+                  cut -d = -f 2)
     # a copy of the board string with '-' squished to variable-name-safe '_'.
     local boardvar=${board//-/_}
     channel=$(lsbval $lsb CHROMEOS_RELEASE_TRACK)
