@@ -97,14 +97,15 @@ sign_framework_apks() {
 
     # Follow the standard manual signing process.  See
     # https://developer.android.com/studio/publish/app-signing.html.
-    cp "${apk}" "${temp_apk}"
+    cp -a "${apk}" "${temp_apk}"
     # Explicitly remove existing signature.
     zip -q "${temp_apk}" -d "META-INF/*"
     signapk "${key_dir}/$keyname.x509.pem" "${key_dir}/$keyname.pk8" \
         "${temp_apk}" "${signed_apk}" > /dev/null
     zipalign 4 "${signed_apk}" "${aligned_apk}"
 
-    sudo mv -f "${aligned_apk}" "${apk}"
+    # Copy the content instead of mv to avoid owner/mode changes.
+    sudo cp "${aligned_apk}" "${apk}" && rm -f "${aligned_apk}"
 
     : $(( counter_${keyname} += 1 ))
     : $(( counter_total += 1 ))
@@ -137,17 +138,16 @@ update_sepolicy() {
     die "Unable to get the public platform key"
   fi
 
-  local output=$(make_temp_file)
+  local orig=$(make_temp_file)
   local xml="${system_mnt}/system/etc/security/mac_permissions.xml"
   local pattern='(<signer signature=")\w+("><seinfo value="platform)'
-  sed -E "s/${pattern}/\1${new_cert}"'\2/g' "${xml}" > "${output}"
+  cp "${xml}" "${orig}"
+  sudo sed -i -E "s/${pattern}/\1${new_cert}"'\2/g' "${xml}"
 
   # Sanity check.
-  if cmp "${xml}" "${output}"; then
+  if cmp "${xml}" "${orig}"; then
     die "Failed to replace SELinux policy cert"
   fi
-
-  sudo mv -f "${output}" "${xml}"
 }
 
 # Replace the debug key in OTA cert with release key.
@@ -161,8 +161,10 @@ replace_ota_cert() {
   local temp_dir=$(make_temp_dir)
   pushd "${temp_dir}" > /dev/null
   cp "${release_cert}" .
-  sudo rm "${ota_zip}"
-  sudo zip -q -r "${ota_zip}" .
+  local temp_zip=$(make_temp_file)
+  zip -q -r "${temp_zip}.zip" .
+  # Copy the content instead of mv to avoid owner/mode changes.
+  sudo cp "${temp_zip}.zip" "${ota_zip}"
   popd > /dev/null
 }
 
@@ -177,6 +179,12 @@ reapply_file_security_context() {
   sudo /sbin/setfiles -v -r "${system_mnt}" \
       "${root_fs_dir}/etc/selinux/arc/contexts/files/android_file_contexts" \
       "${system_mnt}"
+}
+
+# Snapshot file properties in a directory recursively.
+snapshot_file_properties() {
+  local dir=$1
+  sudo find "${dir}" -exec stat -c '%n:%u:%g:%a:%C' {} + | sort
 }
 
 main() {
@@ -197,23 +205,28 @@ main() {
   local system_mnt="${working_dir}/mnt"
 
   info "Unpacking sqaushfs image to ${system_img}"
-  sudo unsquashfs -f -d "${system_mnt}" "${system_img}"
+  sudo unsquashfs -f -no-progress -d "${system_mnt}" "${system_img}"
+
+  snapshot_file_properties "${system_mnt}" > "${working_dir}/properties.orig"
 
   sign_framework_apks "${system_mnt}" "${key_dir}"
   update_sepolicy "${system_mnt}" "${key_dir}"
   replace_ota_cert "${system_mnt}" "${key_dir}/releasekey.x509.pem"
   reapply_file_security_context "${system_mnt}" "${root_fs_dir}"
 
+  # Sanity check.
+  snapshot_file_properties "${system_mnt}" > "${working_dir}/properties.new"
+  local d
+  if ! d=$(diff "${working_dir}"/properties.{orig,new}); then
+    die "Unexpected change of file property, diff\n${d}"
+  fi
+
   info "Repacking sqaushfs image"
-
-  local new_system_img="${working_dir}/system.raw.img"
-  sudo mksquashfs "${system_mnt}" "${new_system_img}" -comp lzo
-
   local old_size=$(stat -c '%s' "${system_img}")
-  local new_size=$(stat -c '%s' "${new_system_img}")
+  # Overwrite the original image.
+  sudo mksquashfs "${system_mnt}" "${system_img}" -no-progress -comp lzo -noappend
+  local new_size=$(stat -c '%s' "${system_img}")
   info "Android system image size change: ${old_size} -> ${new_size}"
-
-  sudo mv -f "${new_system_img}" "${system_img}"
 }
 
 main "$@"
