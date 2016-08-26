@@ -606,15 +606,6 @@ resign_android_image_if_exists() {
     return
   fi
 
-  # Sign only 54+ images to make sure it works on dev channel first.
-  local milestone=$(grep CHROMEOS_RELEASE_CHROME_MILESTONE= \
-    "${rootfs_dir}/etc/lsb-release" | cut -d= -f2)
-  if [[ "${milestone}" -le 53 ]]; then
-    info "Not signing Android apks before 53 (incl.).  Current: ${milestone}."
-    sudo umount "${rootfs_dir}"
-    return
-  fi
-
   "${SCRIPT_DIR}/sign_android_image.sh" "${rootfs_dir}" "${KEY_DIR}/android"
 
   sudo umount "${rootfs_dir}"
