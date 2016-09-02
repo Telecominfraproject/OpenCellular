@@ -18,22 +18,6 @@
 #include "host_key2.h"
 #include "host_misc.h"
 
-struct vb2_text_vs_enum vb2_text_vs_algorithm[] = {
-	{"RSA1024 SHA1",   VB2_ALG_RSA1024_SHA1},
-	{"RSA1024 SHA256", VB2_ALG_RSA1024_SHA256},
-	{"RSA1024 SHA512", VB2_ALG_RSA1024_SHA512},
-	{"RSA2048 SHA1",   VB2_ALG_RSA2048_SHA1},
-	{"RSA2048 SHA256", VB2_ALG_RSA2048_SHA256},
-	{"RSA2048 SHA512", VB2_ALG_RSA2048_SHA512},
-	{"RSA4096 SHA1",   VB2_ALG_RSA4096_SHA1},
-	{"RSA4096 SHA256", VB2_ALG_RSA4096_SHA256},
-	{"RSA4096 SHA512", VB2_ALG_RSA4096_SHA512},
-	{"RSA8192 SHA1",   VB2_ALG_RSA8192_SHA1},
-	{"RSA8192 SHA256", VB2_ALG_RSA8192_SHA256},
-	{"RSA8192 SHA512", VB2_ALG_RSA8192_SHA512},
-	{0, 0}
-};
-
 struct vb2_text_vs_enum vb2_text_vs_sig[] = {
 	{"RSA1024", VB2_SIG_RSA1024},
 	{"RSA2048", VB2_SIG_RSA2048},
@@ -67,6 +51,14 @@ const struct vb2_text_vs_enum *vb2_lookup_by_name(
 		if (!strcasecmp(table->name, name))
 			return table;
 	return 0;
+}
+
+const char *vb2_get_sig_algorithm_name(enum vb2_signature_algorithm sig_alg)
+{
+	const struct vb2_text_vs_enum *entry =
+			vb2_lookup_by_num(vb2_text_vs_sig, sig_alg);
+
+	return entry ? entry->name : VB2_INVALID_ALG_NAME;
 }
 
 void vb2_private_key_free(struct vb2_private_key *key)

@@ -354,8 +354,8 @@ static void show_usbpd1_stuff(const char *name,
 
 	printf("USB-PD v1 image:       %s\n", name);
 	printf("  Algorithm:           %s %s\n",
-	       vb2_lookup_by_num(vb2_text_vs_sig, sig_alg)->name,
-	       vb2_lookup_by_num(vb2_text_vs_hash, hash_alg)->name);
+	       vb2_get_sig_algorithm_name(sig_alg),
+	       vb2_get_hash_algorithm_name(hash_alg));
 	printf("  Key sha1sum:         ");
 	for (i = 0; i < VB2_SHA1_DIGEST_SIZE; i++)
 		printf("%02x", sha1sum[i]);

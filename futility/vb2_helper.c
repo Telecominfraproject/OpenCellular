@@ -93,7 +93,6 @@ int ft_show_vb21_pubkey(const char *name, uint8_t *buf, uint32_t len,
 			void *data)
 {
 	struct vb2_public_key key;
-	const struct vb2_text_vs_enum *entry;
 	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 
 	/* The key's members will point into the state buffer after this. Don't
@@ -104,12 +103,10 @@ int ft_show_vb21_pubkey(const char *name, uint8_t *buf, uint32_t len,
 	printf("Public Key file:       %s\n", name);
 	printf("  Vboot API:           2.1\n");
 	printf("  Desc:                \"%s\"\n", key.desc);
-	entry = vb2_lookup_by_num(vb2_text_vs_sig, key.sig_alg);
 	printf("  Signature Algorithm: %d %s\n", key.sig_alg,
-	       entry ? entry->name : "(invalid)");
-	entry = vb2_lookup_by_num(vb2_text_vs_hash, key.hash_alg);
+	       vb2_get_sig_algorithm_name(key.sig_alg));
 	printf("  Hash Algorithm:      %d %s\n", key.hash_alg,
-	       entry ? entry->name : "(invalid)");
+	       vb2_get_hash_algorithm_name(key.hash_alg));
 	printf("  Version:             0x%08x\n", key.version);
 	printf("  ID:                  ");
 	vb2_print_bytes(key.id, sizeof(*key.id));
@@ -142,7 +139,6 @@ int ft_show_vb21_privkey(const char *name, uint8_t *buf, uint32_t len,
 			 void *data)
 {
 	struct vb2_private_key *key = 0;
-	const struct vb2_text_vs_enum *entry;
 	uint8_t sha1sum[VB2_SHA1_DIGEST_SIZE];
 
 	if (VB2_SUCCESS != vb21_private_key_unpack(&key, buf, len))
@@ -151,12 +147,10 @@ int ft_show_vb21_privkey(const char *name, uint8_t *buf, uint32_t len,
 	printf("Private key file:      %s\n", name);
 	printf("  Vboot API:           2.1\n");
 	printf("  Desc:                \"%s\"\n", key->desc ? key->desc : "");
-	entry = vb2_lookup_by_num(vb2_text_vs_sig, key->sig_alg);
 	printf("  Signature Algorithm: %d %s\n", key->sig_alg,
-	       entry ? entry->name : "(invalid)");
-	entry = vb2_lookup_by_num(vb2_text_vs_hash, key->hash_alg);
+	       vb2_get_sig_algorithm_name(key->sig_alg));
 	printf("  Hash Algorithm:      %d %s\n", key->hash_alg,
-	       entry ? entry->name : "(invalid)");
+	       vb2_get_hash_algorithm_name(key->hash_alg));
 	printf("  ID:                  ");
 	vb2_print_bytes(&key->id, sizeof(key->id));
 	printf("\n");

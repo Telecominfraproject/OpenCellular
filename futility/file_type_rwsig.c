@@ -42,16 +42,13 @@ static inline void vb2_print_bytes(const void *ptr, uint32_t len)
 
 static void show_sig(const char *name, const struct vb21_signature *sig)
 {
-	const struct vb2_text_vs_enum *entry;
 	printf("Signature:             %s\n", name);
 	printf("  Vboot API:           2.1\n");
 	printf("  Desc:                \"%s\"\n", vb21_common_desc(sig));
-	entry = vb2_lookup_by_num(vb2_text_vs_sig, sig->sig_alg);
 	printf("  Signature Algorithm: %d %s\n", sig->sig_alg,
-	       entry ? entry->name : "(invalid)");
-	entry = vb2_lookup_by_num(vb2_text_vs_hash, sig->hash_alg);
+	       vb2_get_sig_algorithm_name(sig->sig_alg));
 	printf("  Hash Algorithm:      %d %s\n", sig->hash_alg,
-	       entry ? entry->name : "(invalid)");
+	       vb2_get_hash_algorithm_name(sig->hash_alg));
 	printf("  Total size:          0x%x (%d)\n", sig->c.total_size,
 	       sig->c.total_size);
 	printf("  ID:                  ");
