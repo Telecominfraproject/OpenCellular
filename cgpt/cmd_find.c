@@ -37,6 +37,7 @@ static void Usage(void)
 static uint8_t *ReadFile(const char *filename, uint64_t *size) {
   FILE *f;
   uint8_t *buf;
+  long pos;
 
   f = fopen(filename, "rb");
   if (!f) {
@@ -44,7 +45,10 @@ static uint8_t *ReadFile(const char *filename, uint64_t *size) {
   }
 
   fseek(f, 0, SEEK_END);
-  *size = ftell(f);
+  pos = ftell(f);
+  if (pos < 0)
+    return NULL;
+  *size = pos;
   rewind(f);
 
   buf = malloc(*size);

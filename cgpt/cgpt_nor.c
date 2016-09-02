@@ -77,6 +77,7 @@ int ForkExecL(const char *cwd, const char *cmd, ...) {
   const char **argv = calloc(argc + 1, sizeof(char *));
   if (argv == NULL) {
     errno = ENOMEM;
+    va_end(ap);
     return -1;
   }
   argv[0] = cmd;
