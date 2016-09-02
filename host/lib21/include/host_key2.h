@@ -55,8 +55,8 @@ const struct vb2_text_vs_enum *vb2_lookup_by_name(
 	const struct vb2_text_vs_enum *table,
 	const char *name);
 
-extern struct vb2_text_vs_enum vb2_text_vs_sig[];
-extern struct vb2_text_vs_enum vb2_text_vs_hash[];
+extern const struct vb2_text_vs_enum vb2_text_vs_sig[];
+extern const struct vb2_text_vs_enum vb2_text_vs_hash[];
 
 /**
  * Return the name of a signature algorithm.

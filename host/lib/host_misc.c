@@ -27,7 +27,7 @@ char* StrCopy(char* dest, const char* src, int dest_size) {
 uint8_t* ReadFile(const char* filename, uint64_t* sizeptr) {
   FILE* f;
   uint8_t* buf;
-  uint64_t size;
+  long size;
 
   f = fopen(filename, "rb");
   if (!f) {
@@ -37,6 +37,8 @@ uint8_t* ReadFile(const char* filename, uint64_t* sizeptr) {
 
   fseek(f, 0, SEEK_END);
   size = ftell(f);
+  if (size < 0)
+    return NULL;
   rewind(f);
 
   buf = malloc(size);

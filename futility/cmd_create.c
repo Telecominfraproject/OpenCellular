@@ -56,7 +56,7 @@ static const struct option long_opts[] = {
 
 static void print_help(int argc, char *argv[])
 {
-	struct vb2_text_vs_enum *entry;
+	const struct vb2_text_vs_enum *entry;
 
 	printf("\n"
 "Usage:  " MYNAME " %s [options] <INFILE> [<BASENAME>]\n", argv[0]);

@@ -425,7 +425,7 @@ static void print_help_kern_preamble(int argc, char *argv[])
 
 static void print_help_usbpd1(int argc, char *argv[])
 {
-	struct vb2_text_vs_enum *entry;
+	const struct vb2_text_vs_enum *entry;
 
 	printf("\n"
 	       "Usage:  " MYNAME " %s --type %s [options] INFILE [OUTFILE]\n"

@@ -97,6 +97,7 @@ static int do_pack(const char *infile, const char *outfile, uint32_t algorithm,
 	if (privkey) {
 		if (VB2_SUCCESS != vb2_write_private_key(outfile, privkey)) {
 			fprintf(stderr, "vbutil_key: Error writing key.\n");
+			free(privkey);
 			return 1;
 		}
 		free(privkey);

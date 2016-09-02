@@ -89,70 +89,73 @@ static int do_vblock(const char *outfile, const char *keyblock_file,
 		     const char *fv_file, const char *kernelkey_file,
 		     uint32_t preamble_flags)
 {
+	struct vb2_keyblock *keyblock = NULL;
+	struct vb2_private_key *signing_key = NULL;
+	struct vb2_packed_key *kernel_subkey = NULL;
+	struct vb2_signature *body_sig = NULL;
+	struct vb2_fw_preamble *preamble = NULL;
+	uint8_t *fv_data = NULL;
+	int retval = 1;
+
 	if (!outfile) {
 		VbExError("Must specify output filename\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 	if (!keyblock_file || !signprivate || !kernelkey_file) {
 		VbExError("Must specify all keys\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 	if (!fv_file) {
 		VbExError("Must specify firmware volume\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 
 	/* Read the key block and keys */
-	struct vb2_keyblock *keyblock = vb2_read_keyblock(keyblock_file);
+	keyblock = vb2_read_keyblock(keyblock_file);
 	if (!keyblock) {
 		VbExError("Error reading key block.\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 
-	struct vb2_private_key *signing_key = vb2_read_private_key(signprivate);
+	signing_key = vb2_read_private_key(signprivate);
 	if (!signing_key) {
 		VbExError("Error reading signing key.\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 
-	struct vb2_packed_key *kernel_subkey =
-		vb2_read_packed_key(kernelkey_file);
+	kernel_subkey = vb2_read_packed_key(kernelkey_file);
 	if (!kernel_subkey) {
 		VbExError("Error reading kernel subkey.\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 
 	/* Read and sign the firmware volume */
-	uint8_t *fv_data;
 	uint32_t fv_size;
 	if (VB2_SUCCESS != vb2_read_file(fv_file, &fv_data, &fv_size))
-		return 1;
+		goto vblock_cleanup;
 	if (!fv_size) {
 		VbExError("Empty firmware volume file\n");
-		return 1;
+		goto vblock_cleanup;
 	}
-	struct vb2_signature *body_sig =
-		vb2_calculate_signature(fv_data, fv_size, signing_key);
+	body_sig = vb2_calculate_signature(fv_data, fv_size, signing_key);
 	if (!body_sig) {
 		VbExError("Error calculating body signature\n");
-		return 1;
+		goto vblock_cleanup;
 	}
-	free(fv_data);
 
 	/* Create preamble */
-	struct vb2_fw_preamble *preamble =
-		vb2_create_fw_preamble(version, kernel_subkey, body_sig,
-				       signing_key, preamble_flags);
+	preamble = vb2_create_fw_preamble(version, kernel_subkey, body_sig,
+					  signing_key, preamble_flags);
 	if (!preamble) {
 		VbExError("Error creating preamble.\n");
-		return 1;
+		goto vblock_cleanup;
 	}
 
 	/* Write the output file */
 	FILE *f = fopen(outfile, "wb");
 	if (!f) {
 		VbExError("Can't open output file %s\n", outfile);
-		return 1;
+		goto vblock_cleanup;
 	}
 	int i = ((1 != fwrite(keyblock, keyblock->keyblock_size, 1, f)) ||
 		 (1 != fwrite(preamble, preamble->preamble_size, 1, f)));
@@ -160,11 +163,27 @@ static int do_vblock(const char *outfile, const char *keyblock_file,
 	if (i) {
 		VbExError("Can't write output file %s\n", outfile);
 		unlink(outfile);
-		return 1;
+		goto vblock_cleanup;
 	}
 
 	/* Success */
-	return 0;
+	retval = 0;
+
+vblock_cleanup:
+	if (keyblock)
+		free(keyblock);
+	if (signing_key)
+		free(signing_key);
+	if (kernel_subkey)
+		free(kernel_subkey);
+	if (fv_data)
+		free(fv_data);
+	if (body_sig)
+		free(body_sig);
+	if (preamble)
+		free(preamble);
+
+	return retval;
 }
 
 static int do_verify(const char *infile, const char *signpubkey,
@@ -176,38 +195,40 @@ static int do_verify(const char *infile, const char *signpubkey,
 
 	uint32_t now = 0;
 
+	uint8_t *pubkbuf = NULL;
+	uint8_t *blob = NULL;
+	uint8_t *fv_data = NULL;
+	int retval = 1;
+
 	if (!infile || !signpubkey || !fv_file) {
 		VbExError("Must specify filename, signpubkey, and fv\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
 	/* Read public signing key */
-	uint8_t *pubkbuf;
 	uint32_t pubklen;
 	struct vb2_public_key sign_key;
 	if (VB2_SUCCESS != vb2_read_file(signpubkey, &pubkbuf, &pubklen)) {
 		fprintf(stderr, "Error reading signpubkey.\n");
-		return 1;
+		goto verify_cleanup;
 	}
 	if (VB2_SUCCESS != vb2_unpack_key(&sign_key, pubkbuf, pubklen)) {
 		fprintf(stderr, "Error unpacking signpubkey.\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
 	/* Read blob */
-	uint8_t *blob;
 	uint32_t blob_size;
 	if (VB2_SUCCESS != vb2_read_file(infile, &blob, &blob_size)) {
 		VbExError("Error reading input file\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
 	/* Read firmware volume */
-	uint8_t *fv_data;
 	uint32_t fv_size;
 	if (VB2_SUCCESS != vb2_read_file(fv_file, &fv_data, &fv_size)) {
 		VbExError("Error reading firmware volume\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
 	/* Verify key block */
@@ -215,9 +236,8 @@ static int do_verify(const char *infile, const char *signpubkey,
 	if (VB2_SUCCESS !=
 	    vb2_verify_keyblock(keyblock, blob_size, &sign_key, &wb)) {
 		VbExError("Error verifying key block.\n");
-		return 1;
+		goto verify_cleanup;
 	}
-	free(pubkbuf);
 
 	now += keyblock->keyblock_size;
 
@@ -239,7 +259,7 @@ static int do_verify(const char *infile, const char *signpubkey,
 			   keyblock->data_key.key_offset +
 			   keyblock->data_key.key_size)) {
 		fprintf(stderr, "Error parsing data key.\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
 	/* Verify preamble */
@@ -247,7 +267,7 @@ static int do_verify(const char *infile, const char *signpubkey,
 	if (VB2_SUCCESS !=
 	    vb2_verify_fw_preamble(pre2, blob_size - now, &data_key, &wb)) {
 		VbExError("Error2 verifying preamble.\n");
-		return 1;
+		goto verify_cleanup;
 	}
 	now += pre2->preamble_size;
 
@@ -282,17 +302,28 @@ static int do_verify(const char *infile, const char *signpubkey,
 		printf("Body verification succeeded.\n");
 	} else {
 		VbExError("Error verifying firmware body.\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
 	if (kernelkey_file &&
 	    VB2_SUCCESS != vb2_write_packed_key(kernelkey_file,
 						kernel_subkey)) {
 		VbExError("Unable to write kernel subkey\n");
-		return 1;
+		goto verify_cleanup;
 	}
 
-	return 0;
+	/* Success */
+	retval = 0;
+
+verify_cleanup:
+	if (pubkbuf)
+		free(pubkbuf);
+	if (blob)
+		free(blob);
+	if (fv_data)
+		free(fv_data);
+
+	return retval;
 }
 
 static int do_vbutil_firmware(int argc, char *argv[])

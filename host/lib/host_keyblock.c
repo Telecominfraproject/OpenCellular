@@ -92,6 +92,9 @@ struct vb2_keyblock *vb2_create_keyblock_external(
                 uint32_t flags,
                 const char *external_signer)
 {
+	if (!signing_key_pem_file || !data_key || !external_signer)
+		return NULL;
+
 	uint32_t signed_size = sizeof(struct vb2_keyblock) + data_key->key_size;
 	uint32_t sig_data_size = vb2_rsa_sig_size(algorithm);
 	uint32_t block_size =
@@ -100,8 +103,6 @@ struct vb2_keyblock *vb2_create_keyblock_external(
 	/* Allocate key block */
 	struct vb2_keyblock *h = (struct vb2_keyblock *)calloc(block_size, 1);
 	if (!h)
-		return NULL;
-	if (!signing_key_pem_file || !data_key || !external_signer)
 		return NULL;
 
 	uint8_t *data_key_dest = (uint8_t *)(h + 1);

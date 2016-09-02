@@ -22,45 +22,52 @@
 #include "host_common.h"
 #include "signature_digest.h"
 
-uint8_t* BufferFromFile(const char* input_file, uint64_t* len) {
-  int fd;
-  struct stat stat_fd;
-  uint8_t* buf = NULL;
+uint8_t *BufferFromFile(const char* input_file, uint64_t* len)
+{
+	int fd;
+	struct stat stat_fd;
+	uint8_t* buf = NULL;
 
-  if ((fd = open(input_file, O_RDONLY)) == -1) {
-    VBDEBUG(("Couldn't open file %s\n", input_file));
-    return NULL;
-  }
+	if ((fd = open(input_file, O_RDONLY)) == -1) {
+		VBDEBUG(("Couldn't open file %s\n", input_file));
+		return NULL;
+	}
 
-  if (-1 == fstat(fd, &stat_fd)) {
-    VBDEBUG(("Couldn't stat file %s\n", input_file));
-    return NULL;
-  }
-  *len = stat_fd.st_size;
+	if (-1 == fstat(fd, &stat_fd)) {
+		VBDEBUG(("Couldn't stat file %s\n", input_file));
+		close(fd);
+		return NULL;
+	}
+	*len = stat_fd.st_size;
 
-  buf = (uint8_t*)malloc(*len);
-  if (!buf) {
-    VbExError("Couldn't allocate %ld bytes for file %s\n", *len, input_file);
-    return NULL;
-  }
+	buf = (uint8_t *)malloc(*len);
+	if (!buf) {
+		VbExError("Couldn't allocate %ld bytes for file %s\n",
+			  *len, input_file);
+		close(fd);
+		return NULL;
+	}
 
-  if (*len != read(fd, buf, *len)) {
-    VBDEBUG(("Couldn't read file %s into a buffer\n", input_file));
-    return NULL;
-  }
+	if (*len != read(fd, buf, *len)) {
+		VBDEBUG(("Couldn't read file %s into a buffer\n", input_file));
+		free(buf);
+		close(fd);
+		return NULL;
+	}
 
-  close(fd);
-  return buf;
+	close(fd);
+	return buf;
 }
 
-RSAPublicKey* RSAPublicKeyFromFile(const char* input_file) {
-  uint64_t len;
-  RSAPublicKey* key = NULL;
-  uint8_t* buf = BufferFromFile(input_file, &len);
-  if (buf)
-    key = RSAPublicKeyFromBuf(buf, len);
-  free(buf);
-  return key;
+RSAPublicKey *RSAPublicKeyFromFile(const char *input_file) {
+	uint64_t len;
+	RSAPublicKey* key = NULL;
+
+	uint8_t *buf = BufferFromFile(input_file, &len);
+	if (buf)
+		key = RSAPublicKeyFromBuf(buf, len);
+	free(buf);
+	return key;
 }
 
 int DigestFile(char *input_file, enum vb2_hash_algorithm alg,

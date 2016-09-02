@@ -235,9 +235,10 @@ static uint8_t *read_entire_file(const char *filename, off_t *sizeptr)
 		goto fail;
 	}
 
-	if (fp && 0 != fclose(fp)) {
+	if (0 != fclose(fp)) {
 		fprintf(stderr, "ERROR: Unable to close %s: %s\n",
 			filename, strerror(errno));
+		fp = NULL;  /* Don't try to close it again */
 		goto fail;
 	}
 

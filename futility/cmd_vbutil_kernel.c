@@ -213,6 +213,7 @@ static uint8_t *ReadOldKPartFromFileOrDie(const char *filename,
 	if (size_ptr)
 		*size_ptr = file_size;
 
+	fclose(fp);
 	return buf;
 }
 

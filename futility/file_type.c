@@ -119,6 +119,7 @@ enum futil_file_err futil_file_type(const char *filename,
 	if (0 != fstat(ifd, &sb)) {
 		fprintf(stderr, "Can't stat input file: %s\n",
 			strerror(errno));
+		close(ifd);
 		return FILE_ERR_STAT;
 	}
 

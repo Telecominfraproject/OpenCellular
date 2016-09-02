@@ -39,9 +39,10 @@ static int normal_fmap(const FmapHeader *fmh, int argc, char *argv[])
 	char *extract_names[argc];
 	char *outname = 0;
 
+	memset(extract_names, 0, sizeof(extract_names));
+
 	if (opt_extract) {
 		/* prepare the filenames to write areas to */
-		memset(extract_names, 0, sizeof(extract_names));
 		for (i = 0; i < argc; i++) {
 			char *a = argv[i];
 			char *f = strchr(a, ':');
@@ -140,7 +141,8 @@ static int normal_fmap(const FmapHeader *fmh, int argc, char *argv[])
 				if (FMT_NORMAL == opt_format)
 					printf("saved as \"%s\"\n", outname);
 			}
-			fclose(fp);
+			if (fp)
+				fclose(fp);
 		}
 	}
 

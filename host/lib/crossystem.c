@@ -755,7 +755,7 @@ static int InAndroid() {
      check if file exists.  Using fstat because for some
      reason, stat() was seg faulting in Android */
   fd = open(MOSYS_ANDROID_PATH, O_RDONLY);
-  if (fstat(fd, &s) == 0) {
+  if (fd != -1 && fstat(fd, &s) == 0) {
     close(fd);
     return 1;
   }

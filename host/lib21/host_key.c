@@ -18,7 +18,7 @@
 #include "host_key2.h"
 #include "host_misc.h"
 
-struct vb2_text_vs_enum vb2_text_vs_sig[] = {
+const struct vb2_text_vs_enum vb2_text_vs_sig[] = {
 	{"RSA1024", VB2_SIG_RSA1024},
 	{"RSA2048", VB2_SIG_RSA2048},
 	{"RSA4096", VB2_SIG_RSA4096},
@@ -26,7 +26,7 @@ struct vb2_text_vs_enum vb2_text_vs_sig[] = {
 	{0, 0}
 };
 
-struct vb2_text_vs_enum vb2_text_vs_hash[] = {
+const struct vb2_text_vs_enum vb2_text_vs_hash[] = {
 	{"SHA1",   VB2_HASH_SHA1},
 	{"SHA256", VB2_HASH_SHA256},
 	{"SHA512", VB2_HASH_SHA512},
@@ -155,7 +155,7 @@ int vb21_private_key_read(struct vb2_private_key **key_ptr,
 			  const char *filename)
 {
 	uint32_t size = 0;
-	uint8_t *buf;
+	uint8_t *buf = NULL;
 	int rv;
 
 	*key_ptr = NULL;
