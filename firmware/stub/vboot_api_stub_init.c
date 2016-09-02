@@ -24,7 +24,7 @@ static char fmtbuf[MAX_FMT+1];
 static const char *fixfmt(const char *format)
 {
 	int i;
-	for(i=0; i<MAX_FMT && format[i]; i++) {
+	for(i=0; i<sizeof(fmtbuf)-1 && format[i]; i++) {
 		fmtbuf[i] = format[i];
 		if(format[i] == '%' && format[i+1] == 'L') {
 			fmtbuf[i+1] = 'l';

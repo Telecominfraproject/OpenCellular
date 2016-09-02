@@ -123,6 +123,7 @@ struct bdb_key *bdb_create_key(const char *filename,
 	} else {
 		fprintf(stderr, "%s: bad key size from %s\n",
 			__func__, filename);
+		free(kdata);
 		return NULL;
 	}
 	key_size += kdata_size;

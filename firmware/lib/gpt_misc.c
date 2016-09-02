@@ -123,12 +123,19 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 {
 	int skip_primary = 0;
-	GptHeader *header = (GptHeader *)gptdata->primary_header;
-	uint64_t entries_bytes =
-				(uint64_t)header->number_of_entries
-				* header->size_of_entry;
-	uint64_t entries_sectors = entries_bytes / gptdata->sector_bytes;
+	GptHeader *header;
+	uint64_t entries_bytes, entries_sectors;
 	int ret = 1;
+
+	header = (GptHeader *)gptdata->primary_header;
+	if (!header)
+		header = (GptHeader *)gptdata->secondary_header;
+	if (!header)
+		return 1;  /* No headers at all, so nothing to write */
+
+	entries_bytes = (uint64_t)header->number_of_entries
+			* header->size_of_entry;
+	entries_sectors = entries_bytes / gptdata->sector_bytes;
 
 	/*
 	 * TODO(namnguyen): Preserve padding between primary GPT header and

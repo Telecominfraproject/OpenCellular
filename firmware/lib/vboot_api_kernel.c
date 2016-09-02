@@ -1081,6 +1081,22 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	VbExNvStorageRead(vnc.raw);
 	VbNvSetup(&vnc);
 
+	/* Fill in params for calls to LoadKernel() */
+	Memset(&p, 0, sizeof(p));
+	p.shared_data_blob = cparams->shared_data_blob;
+	p.shared_data_size = cparams->shared_data_size;
+	p.gbb_data = cparams->gbb_data;
+	p.gbb_size = cparams->gbb_size;
+	p.fwmp = &fwmp;
+	p.nv_context = &vnc;
+
+	/*
+	 * This could be set to NULL, in which case the vboot header
+	 * information about the load address and size will be used.
+	 */
+	p.kernel_buffer = kparams->kernel_buffer;
+	p.kernel_buffer_size = kparams->kernel_buffer_size;
+
 	/* Clear output params in case we fail */
 	kparams->disk_handle = NULL;
 	kparams->partition_number = 0;
@@ -1169,22 +1185,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		}
 	}
 
-	/* Fill in params for calls to LoadKernel() */
-	Memset(&p, 0, sizeof(p));
-	p.shared_data_blob = cparams->shared_data_blob;
-	p.shared_data_size = cparams->shared_data_size;
-	p.gbb_data = cparams->gbb_data;
-	p.gbb_size = cparams->gbb_size;
-	p.fwmp = &fwmp;
-
-	/*
-	 * This could be set to NULL, in which case the vboot header
-	 * information about the load address and size will be used.
-	 */
-	p.kernel_buffer = kparams->kernel_buffer;
-	p.kernel_buffer_size = kparams->kernel_buffer_size;
-
-	p.nv_context = &vnc;
+	/* Set up boot flags */
 	p.boot_flags = 0;
 	if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
 		p.boot_flags |= BOOT_FLAG_DEVELOPER;

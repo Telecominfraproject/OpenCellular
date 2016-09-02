@@ -419,14 +419,14 @@ int VerifyVmlinuzInsideKBlob(uint64_t kblob, uint64_t kblob_size,
 
 uint64_t VbSharedDataReserve(VbSharedDataHeader *header, uint64_t size)
 {
-	uint64_t offs = header->data_used;
-
-	VBDEBUG(("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs));
-
 	if (!header || size > header->data_size - header->data_used) {
 		VBDEBUG(("VbSharedData buffer out of space.\n"));
 		return 0;  /* Not initialized, or not enough space left. */
 	}
+
+	uint64_t offs = header->data_used;
+	VBDEBUG(("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs));
+
 	header->data_used += size;
 	return offs;
 }

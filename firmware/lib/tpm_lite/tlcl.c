@@ -223,6 +223,8 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length) {
   if (result == TPM_SUCCESS && length > 0) {
     uint8_t* nv_read_cursor = response + kTpmResponseHeaderLength;
     FromTpmUint32(nv_read_cursor, &result_length);
+    if (result_length > length)
+      result_length = length;  /* Truncate to fit buffer */
     nv_read_cursor += sizeof(uint32_t);
     Memcpy(data, nv_read_cursor, result_length);
   }
