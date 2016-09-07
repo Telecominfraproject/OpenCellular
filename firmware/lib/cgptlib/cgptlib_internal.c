@@ -378,6 +378,11 @@ void GptRepair(GptData *gpt)
 	gpt->valid_entries = MASK_BOTH;
 }
 
+int GetEntryLegacyBoot(const GptEntry *e)
+{
+	return e->attrs.fields.legacy_boot;
+}
+
 int GetEntrySuccessful(const GptEntry *e)
 {
 	return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_SUCCESSFUL_MASK) >>
@@ -400,6 +405,11 @@ int GetEntryTries(const GptEntry *e)
 {
 	return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_TRIES_MASK) >>
 		CGPT_ATTRIBUTE_TRIES_OFFSET;
+}
+
+void SetEntryLegacyBoot(GptEntry *e, int legacy_boot)
+{
+	e->attrs.fields.legacy_boot = legacy_boot;
 }
 
 void SetEntrySuccessful(GptEntry *e, int successful)

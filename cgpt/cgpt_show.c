@@ -100,6 +100,7 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
   char contents[256];                   // scratch buffer for formatting output
   uint8_t label[GPT_PARTNAME_LEN];
   char type[GUID_STRLEN], unique[GUID_STRLEN];
+  int clen;
 
   UTF16ToUTF8(entry->name, sizeof(entry->name) / sizeof(entry->name[0]),
               label, sizeof(label));
@@ -118,6 +119,7 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
   GuidToStr(&entry->unique, unique, GUID_STRLEN);
   printf(PARTITION_MORE, "UUID: ", unique);
 
+  clen = 0;
   if (!raw) {
     if (GuidEqual(&guid_chromeos_kernel, &entry->type)) {
       int tries = (entry->attrs.fields.gpt_att &
@@ -129,16 +131,35 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
       int priority = (entry->attrs.fields.gpt_att &
                       CGPT_ATTRIBUTE_PRIORITY_MASK) >>
           CGPT_ATTRIBUTE_PRIORITY_OFFSET;
-      require(snprintf(contents, sizeof(contents),
-                       "priority=%d tries=%d successful=%d",
-                       priority, tries, successful) < sizeof(contents));
-      printf(PARTITION_MORE, "Attr: ", contents);
+      clen = snprintf(contents, sizeof(contents),
+                      "priority=%d tries=%d successful=%d ",
+                      priority, tries, successful);
+    }
+
+    if (entry->attrs.fields.system) {
+      clen += snprintf(contents + clen, sizeof(contents) - clen,
+                       "system=%d ", entry->attrs.fields.system);
+      require(clen < sizeof(contents));
+    }
+
+    if (entry->attrs.fields.efi_ignore) {
+      clen += snprintf(contents + clen, sizeof(contents) - clen,
+                       "efi_ignore=%d ", entry->attrs.fields.efi_ignore);
+      require(clen < sizeof(contents));
+    }
+
+    if (entry->attrs.fields.legacy_boot) {
+      clen += snprintf(contents + clen, sizeof(contents) - clen,
+                       "legacy_boot=%d ", entry->attrs.fields.legacy_boot);
+      require(clen < sizeof(contents));
     }
   } else {
-    require(snprintf(contents, sizeof(contents),
-                     "[%x]", entry->attrs.fields.gpt_att) < sizeof(contents));
-    printf(PARTITION_MORE, "Attr: ", contents);
+    clen = snprintf(contents, sizeof(contents),
+                    "[%x]", entry->attrs.fields.gpt_att);
   }
+  require(clen < sizeof(contents));
+  if (clen)
+    printf(PARTITION_MORE, "Attr: ", contents);
 }
 
 void EntriesDetails(struct drive *drive, const int secondary, int raw) {
@@ -208,6 +229,9 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
         break;
       case 'P':
         printf("%d\n", GetPriority(drive, ANY_VALID, index));
+        break;
+      case 'B':
+        printf("%d\n", GetLegacyBoot(drive, ANY_VALID, index));
         break;
       case 'A':
         printf("0x%x\n", entry->attrs.fields.gpt_att);

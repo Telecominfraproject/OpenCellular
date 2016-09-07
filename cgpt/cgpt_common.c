@@ -763,6 +763,20 @@ GptEntry *GetEntry(GptData *gpt, int secondary, uint32_t entry_index) {
   return (GptEntry*)(&entries[stride * entry_index]);
 }
 
+void SetLegacyBoot(struct drive *drive, int secondary, uint32_t entry_index,
+                   int legacy_boot) {
+  require(legacy_boot >= 0 && legacy_boot <= CGPT_ATTRIBUTE_MAX_LEGACY_BOOT);
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  SetEntryLegacyBoot(entry, legacy_boot);
+}
+
+int GetLegacyBoot(struct drive *drive, int secondary, uint32_t entry_index) {
+  GptEntry *entry;
+  entry = GetEntry(&drive->gpt, secondary, entry_index);
+  return GetEntryLegacyBoot(entry);
+}
+
 void SetPriority(struct drive *drive, int secondary, uint32_t entry_index,
                  int priority) {
   require(priority >= 0 && priority <= CGPT_ATTRIBUTE_MAX_PRIORITY);

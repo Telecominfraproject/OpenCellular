@@ -26,7 +26,8 @@
  *     56  -- success
  *  55-52  -- tries
  *  51-48  -- priority
- *   47-2  -- UEFI: reserved for future use
+ *   47-3  -- UEFI: reserved for future use
+ *      2  -- UEFI: Legacy BIOS bootable
  *      1  -- UEFI: partition is not mapped
  *      0  -- UEFI: partition is required
  */
@@ -44,6 +45,9 @@
 #define CGPT_ATTRIBUTE_MAX_PRIORITY (15ULL)
 #define CGPT_ATTRIBUTE_PRIORITY_MASK (CGPT_ATTRIBUTE_MAX_PRIORITY << \
                                       CGPT_ATTRIBUTE_PRIORITY_OFFSET)
+
+#define CGPT_ATTRIBUTE_LEGACY_BOOT_OFFSET (2)
+#define CGPT_ATTRIBUTE_MAX_LEGACY_BOOT (1ULL)
 
 /* Defines ChromeOS-specific limitation on GPT */
 #define MIN_SIZE_OF_HEADER 92

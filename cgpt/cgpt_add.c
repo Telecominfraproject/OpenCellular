@@ -55,6 +55,10 @@ static const char* DumpCgptAddParams(const CgptAddParams *params) {
     snprintf(tmp, sizeof(tmp), "-P %d ", params->priority);
     StrnAppend(buf, tmp, sizeof(buf));
   }
+  if (params->set_legacy_boot) {
+    snprintf(tmp, sizeof(tmp), "-B %d ", params->legacy_boot);
+    StrnAppend(buf, tmp, sizeof(buf));
+  }
   if (params->set_raw) {
     snprintf(tmp, sizeof(tmp), "-A 0x%x ", params->raw_value);
     StrnAppend(buf, tmp, sizeof(buf));
@@ -109,6 +113,8 @@ static int SetEntryAttributes(struct drive *drive,
       SetTries(drive, PRIMARY, index, params->tries);
     if (params->set_priority)
       SetPriority(drive, PRIMARY, index, params->priority);
+    if (params->set_legacy_boot)
+      SetLegacyBoot(drive, PRIMARY, index, params->legacy_boot);
   }
 
   // New partitions must specify type, begin, and size.
