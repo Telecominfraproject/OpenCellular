@@ -320,7 +320,7 @@ static uint32_t HandlerGetOwnership(void) {
 }
 
 static uint32_t HandlerGetRandom(void) {
-  uint32_t length, size;
+  uint32_t length, size = 0;
   uint8_t* bytes;
   uint32_t result;
   int i;

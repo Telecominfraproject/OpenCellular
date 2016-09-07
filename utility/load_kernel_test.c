@@ -43,8 +43,8 @@ VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
     return 1;
   }
 
-  fseek(image_file, lba_start * lkp.bytes_per_lba, SEEK_SET);
-  if (1 != fread(buffer, lba_count * lkp.bytes_per_lba, 1, image_file)) {
+  if (0 != fseek(image_file, lba_start * lkp.bytes_per_lba, SEEK_SET) ||
+      1 != fread(buffer, lba_count * lkp.bytes_per_lba, 1, image_file)) {
     fprintf(stderr, "Read error.");
     return 1;
   }
@@ -152,6 +152,11 @@ int main(int argc, char* argv[]) {
       return 1;
     }
     printf("Read %" PRIu64 " bytes of key from %s\n", key_size, argv[optind+1]);
+    if (key_size > 16*1024*1024) {
+      fprintf(stderr, "Key blob size=%" PRIu64 " is ridiculous.\n", key_size);
+      free(key_blob);
+      return 1;
+    }
   }
 
   /* Initialize the GBB */

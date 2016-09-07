@@ -38,13 +38,16 @@ uint8_t* read_signature(char* input_file, int len) {
 
   /* Read the signature into a buffer*/
   signature = (uint8_t*) malloc(len);
-  if (!signature)
+  if (!signature) {
+    close(sigfd);
     return NULL;
+  }
 
   if( (i = read(sigfd, signature, len)) != len ) {
     fprintf(stderr, "Wrong signature length - Expected = %d, Received = %d\n",
             len, i);
     close(sigfd);
+    free(signature);
     return NULL;
   }
 
