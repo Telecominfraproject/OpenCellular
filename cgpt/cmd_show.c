@@ -32,7 +32,7 @@ static void Usage(void)
          "               -S  Successful flag\n"
          "               -T  Tries flag\n"
          "               -P  Priority flag\n"
-         "               -A  raw 64-bit attribute value\n"
+         "               -A  raw 16-bit attribute value (bits 48-63)\n"
          "  -d           Debug output (including invalid headers)\n"
          "\n", progname);
 }

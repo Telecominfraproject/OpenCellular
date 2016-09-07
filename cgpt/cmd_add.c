@@ -27,7 +27,7 @@ static void Usage(void)
          "  -S NUM       set Successful flag (0|1)\n"
          "  -T NUM       set Tries flag (0-15)\n"
          "  -P NUM       set Priority flag (0-15)\n"
-         "  -A NUM       set raw 64-bit attribute value\n"
+         "  -A NUM       set raw 16-bit attribute value (bits 48-63)\n"
          "\n"
          "Use the -i option to modify an existing partition.\n"
          "The -b, -s, and -t options must be given for new partitions.\n"
