@@ -52,34 +52,19 @@ int cmd_prioritize(int argc, char *argv[]) {
     {
     case 'D':
       params.drive_size = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'i':
       params.set_partition = (uint32_t)strtoul(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'f':
       params.set_friends = 1;
       break;
     case 'P':
       params.max_priority = (int)strtol(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
-      if (params.max_priority < 1 || params.max_priority > 15) {
-        Error("value for -%c must be between 1 and 15\n", c);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
+      errorcnt += check_int_limit(c, params.max_priority, 1, 15);
       break;
 
     case 'h':

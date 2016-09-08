@@ -187,6 +187,8 @@ void Error(const char *format, ...);
 void Warning(const char *format, ...);
 
 // Command functions.
+int check_int_parse(char option, const char *buf);
+int check_int_limit(char option, int val, int low, int high);
 int cmd_show(int argc, char *argv[]);
 int cmd_repair(int argc, char *argv[]);
 int cmd_create(int argc, char *argv[]);

@@ -39,22 +39,14 @@ int cmd_create(int argc, char *argv[]) {
     {
     case 'D':
       params.drive_size = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'z':
       params.zap = 1;
       break;
     case 'p':
       params.padding = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'h':
       Usage();

@@ -51,6 +51,22 @@ void Warning(const char *format, ...) {
   va_end(ap);
 }
 
+int check_int_parse(char option, const char *buf) {
+  if (!*optarg || (buf && *buf)) {
+    Error("invalid argument to -%c: \"%s\"\n", option, optarg);
+    return 1;
+  }
+  return 0;
+}
+
+int check_int_limit(char option, int val, int low, int high) {
+  if (val < low || val > high) {
+    Error("value for -%c must be between %d and %d", option, low, high);
+    return 1;
+  }
+  return 0;
+}
+
 int CheckValid(const struct drive *drive) {
   if ((drive->gpt.valid_headers != MASK_BOTH) ||
       (drive->gpt.valid_entries != MASK_BOTH)) {

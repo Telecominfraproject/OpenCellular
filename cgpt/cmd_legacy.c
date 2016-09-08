@@ -38,11 +38,7 @@ int cmd_legacy(int argc, char *argv[]) {
     {
     case 'D':
       params.drive_size = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'e':
       if (params.mode) {

@@ -52,11 +52,7 @@ int cmd_show(int argc, char *argv[]) {
     {
     case 'D':
       params.drive_size = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'n':
       params.numeric = 1;
@@ -69,11 +65,7 @@ int cmd_show(int argc, char *argv[]) {
       break;
     case 'i':
       params.partition = (uint32_t)strtoul(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'b':
     case 's':

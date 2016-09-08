@@ -51,37 +51,21 @@ int cmd_add(int argc, char *argv[]) {
     {
     case 'D':
       params.drive_size = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'i':
       params.partition = (uint32_t)strtoul(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 'b':
       params.set_begin = 1;
       params.begin = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 's':
       params.set_size = 1;
       params.size = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
     case 't':
       params.set_type = 1;
@@ -104,51 +88,25 @@ int cmd_add(int argc, char *argv[]) {
     case 'S':
       params.set_successful = 1;
       params.successful = (uint32_t)strtoul(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
-      if (params.successful < 0 || params.successful > 1) {
-        Error("value for -%c must be between 0 and 1", c);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
+      errorcnt += check_int_limit(c, params.successful, 0, 1);
       break;
     case 'T':
       params.set_tries = 1;
       params.tries = (uint32_t)strtoul(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        fprintf(stderr, "%s: invalid argument to -%c: \"%s\"\n",
-                progname, c, optarg);
-        errorcnt++;
-      }
-      if (params.tries < 0 || params.tries > 15) {
-        Error("value for -%c must be between 0 and 15", c);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
+      errorcnt += check_int_limit(c, params.tries, 0, 15);
       break;
     case 'P':
       params.set_priority = 1;
       params.priority = (uint32_t)strtoul(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
-      if (params.priority < 0 || params.priority > 15) {
-        Error("value for -%c must be between 0 and 15", c);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
+      errorcnt += check_int_limit(c, params.priority, 0, 15);
       break;
     case 'A':
       params.set_raw = 1;
       params.raw_value = strtoull(optarg, &e, 0);
-      if (!*optarg || (e && *e))
-      {
-        Error("invalid argument to -%c: \"%s\"\n", c, optarg);
-        errorcnt++;
-      }
+      errorcnt += check_int_parse(c, e);
       break;
 
     case 'h':
