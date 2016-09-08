@@ -111,8 +111,10 @@ package body HW.GFX.GMA.Power_And_Clocks_Haswell is
          if Enabled then
             if Config.Has_IPS_CTL_Mailbox then
                GT_Mailbox_Write (DISPLAY_IPS_CONTROL, 0);
-               -- May take up to 42ms.
-               Registers.Wait_Unset_Mask (Registers.IPS_CTL, IPS_CTL_ENABLE);
+               Registers.Wait_Unset_Mask
+                 (Register => Registers.IPS_CTL,
+                  Mask     => IPS_CTL_ENABLE,
+                  TOut_MS  => 42);
             else
                Registers.Unset_Mask (Registers.IPS_CTL, IPS_CTL_ENABLE);
             end if;
