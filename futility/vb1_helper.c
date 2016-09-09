@@ -80,6 +80,7 @@ uint8_t *ReadConfigFile(const char *config_file, uint32_t *config_size)
 	if (CROS_CONFIG_SIZE <= *config_size) {	/* room for trailing '\0' */
 		fprintf(stderr, "Config file %s is too large (>= %d bytes)\n",
 			config_file, CROS_CONFIG_SIZE);
+		free(config_buf);
 		return NULL;
 	}
 

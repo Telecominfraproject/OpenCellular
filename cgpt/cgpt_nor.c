@@ -212,7 +212,8 @@ int ReadNorFlash(char *temp_dir_template) {
   ret++;
   int fd_flags = fcntl(1, F_GETFD);
   // Close stdout on exec so that flashrom does not muck up cgpt's output.
-  fcntl(1, F_SETFD, FD_CLOEXEC);
+  if (0 != fcntl(1, F_SETFD, FD_CLOEXEC))
+    Warning("Can't stop flashrom from mucking up our output\n");
   if (ForkExecL(temp_dir_template, FLASHROM_PATH, "-i", "RW_GPT:rw_gpt", "-r",
                 NULL) != 0) {
     Error("Cannot exec flashrom to read from RW_GPT section.\n");
@@ -221,7 +222,9 @@ int ReadNorFlash(char *temp_dir_template) {
     ret = 0;
   }
 
-  fcntl(1, F_SETFD, fd_flags);
+  // Restore stdout flags
+  if (0 != fcntl(1, F_SETFD, fd_flags))
+    Warning("Can't restore stdout flags\n");
   return ret;
 }
 
@@ -237,7 +240,8 @@ int WriteNorFlash(const char *dir) {
   int nr_fails = 0;
   int fd_flags = fcntl(1, F_GETFD);
   // Close stdout on exec so that flashrom does not muck up cgpt's output.
-  fcntl(1, F_SETFD, FD_CLOEXEC);
+  if (0 != fcntl(1, F_SETFD, FD_CLOEXEC))
+    Warning("Can't stop flashrom from mucking up our output\n");
   if (ForkExecL(dir, FLASHROM_PATH, "-i", "RW_GPT_PRIMARY:rw_gpt_1",
                 "-w", "--fast-verify", NULL) != 0) {
     Warning("Cannot write the 1st half of rw_gpt back with flashrom.\n");
@@ -248,7 +252,8 @@ int WriteNorFlash(const char *dir) {
     Warning("Cannot write the 2nd half of rw_gpt back with flashrom.\n");
     nr_fails++;
   }
-  fcntl(1, F_SETFD, fd_flags);
+  if (0 != fcntl(1, F_SETFD, fd_flags))
+    Warning("Can't restore stdout flags\n");
   switch (nr_fails) {
     case 0: ret = 0; break;
     case 1: Warning("It might still be okay.\n"); break;

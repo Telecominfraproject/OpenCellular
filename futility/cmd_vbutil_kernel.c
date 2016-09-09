@@ -471,6 +471,12 @@ static int do_vbutil_kernel(int argc, char *argv[])
 			rv = WriteSomeParts(filename,
 					    vblock_data, vblock_size,
 					    kblob_data, kblob_size);
+
+		free(vmlinuz_buf);
+		free(t_config_data);
+		free(t_bootloader_data);
+		free(vblock_data);
+		vb2_free_private_key(signpriv_key);
 		return rv;
 
 	case OPT_MODE_REPACK:

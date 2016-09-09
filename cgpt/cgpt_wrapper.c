@@ -153,10 +153,13 @@ int main(int argc, const char *argv[]) {
   char resolved_cgpt[PATH_MAX];
   pid_t pid = getpid();
   char exe_link[40];
+  int retval = 0;
 
   if (argc < 1) {
     return -1;
   }
+
+  const char *orig_argv0 = argv[0];
 
   snprintf(exe_link, sizeof(exe_link), "/proc/%d/exe", pid);
   memset(resolved_cgpt, 0, sizeof(resolved_cgpt));
@@ -170,18 +173,25 @@ int main(int argc, const char *argv[]) {
   if (argc > 2 && !has_dash_D(argc, argv)) {
     const char *mtd_device = find_mtd_device(argc, argv);
     if (mtd_device) {
-      return wrap_cgpt(argc, argv, mtd_device);
+      retval = wrap_cgpt(argc, argv, mtd_device);
+      goto cleanup;
     }
   }
 
   // Forward to cgpt as-is. Real cgpt has been renamed cgpt.bin.
   char *real_cgpt;
   if (asprintf(&real_cgpt, "%s.bin", argv[0]) == -1) {
-    return -1;
+    retval = -1;
+    goto cleanup;
   }
   argv[0] = real_cgpt;
   if (execv(argv[0], (char * const *)argv) == -1) {
     err(-2, "execv(%s) failed", real_cgpt);
   }
-  return -2;
+  free(real_cgpt);
+  retval = -2;
+
+cleanup:
+  argv[0] = orig_argv0;
+  return retval;
 }

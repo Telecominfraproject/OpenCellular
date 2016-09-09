@@ -46,8 +46,10 @@ static uint8_t *ReadFile(const char *filename, uint64_t *size) {
 
   fseek(f, 0, SEEK_END);
   pos = ftell(f);
-  if (pos < 0)
+  if (pos < 0) {
+    fclose(f);
     return NULL;
+  }
   *size = pos;
   rewind(f);
 
