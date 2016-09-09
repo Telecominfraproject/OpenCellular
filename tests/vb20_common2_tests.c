@@ -142,22 +142,26 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 
 	struct vb2_private_key *private_key = NULL;
 	struct vb2_signature *sig = NULL;
-	struct vb2_packed_key *key1;
+	struct vb2_packed_key *key1 = NULL;
+
+	int retval = 1;
 
 	printf("***Testing algorithm: %s\n", algo_strings[key_algorithm]);
 
-	sprintf(filename, "%s/key_rsa%d.pem", keys_dir, rsa_len);
+	snprintf(filename, sizeof(filename),
+		 "%s/key_rsa%d.pem", keys_dir, rsa_len);
 	private_key = vb2_read_private_key_pem(filename, key_algorithm);
 	if (!private_key) {
 		fprintf(stderr, "Error reading private_key: %s\n", filename);
-		return 1;
+		goto cleanup_algorithm;
 	}
 
-	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, rsa_len);
+	snprintf(filename, sizeof(filename),
+		 "%s/key_rsa%d.keyb", keys_dir, rsa_len);
 	key1 = vb2_read_packed_keyb(filename, key_algorithm, 1);
 	if (!key1) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
-		return 1;
+		goto cleanup_algorithm;
 	}
 
 	/* Calculate good signatures */
@@ -165,16 +169,22 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 				      private_key);
 	TEST_PTR_NEQ(sig, 0, "Calculate signature");
 	if (!sig)
-		return 1;
+		goto cleanup_algorithm;
 
 	test_unpack_key(key1);
 	test_verify_data(key1, sig);
 
-	free(key1);
-	free(private_key);
-	free(sig);
+	retval = 0;
 
-	return 0;
+cleanup_algorithm:
+	if (key1)
+		free(key1);
+	if (private_key)
+		free(private_key);
+	if (sig)
+		free(sig);
+
+	return retval;
 }
 
 /* Test only the algorithms we use */

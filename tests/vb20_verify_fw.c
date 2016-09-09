@@ -96,11 +96,15 @@ static int hash_body(struct vb2_context *ctx)
 
 	/* Open the body data */
 	f = fopen(body_fname, "rb");
+	if (!f)
+		return VB2_ERROR_TEST_INPUT_FILE;
 
 	/* Start the body hash */
 	rv = vb2api_init_hash(ctx, VB2_HASH_TAG_FW_BODY, &expect_size);
-	if (rv)
+	if (rv) {
+		fclose(f);
 		return rv;
+	}
 
 	printf("Expect %d bytes of body...\n", expect_size);
 
@@ -117,11 +121,15 @@ static int hash_body(struct vb2_context *ctx)
 
 		/* Hash it */
 		rv = vb2api_extend_hash(ctx, block, size);
-		if (rv)
+		if (rv) {
+			fclose(f);
 			return rv;
+		}
 
 		expect_size -= size;
 	}
+
+	fclose(f);
 
 	/* Check the result */
 	rv = vb2api_check_hash(ctx);

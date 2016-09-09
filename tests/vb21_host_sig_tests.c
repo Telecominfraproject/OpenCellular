@@ -171,8 +171,10 @@ static int test_algorithm(const struct alg_combo *combo, const char *keys_dir)
 
 	printf("***Testing algorithm: %s\n", combo->name);
 
-	sprintf(pemfile, "%s/key_rsa%d.pem", keys_dir, rsa_bits);
-	sprintf(keybfile, "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
+	snprintf(pemfile, sizeof(pemfile),
+		 "%s/key_rsa%d.pem", keys_dir, rsa_bits);
+	snprintf(keybfile, sizeof(keybfile),
+		 "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
 
 	sig_tests(combo, pemfile, keybfile);
 

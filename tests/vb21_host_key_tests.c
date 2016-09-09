@@ -37,8 +37,8 @@ static void private_key_tests(const struct alg_combo *combo,
 	const struct vb2_private_key *ckey;
 	struct vb21_packed_private_key *pkey;
 	char *testfile;
-	const char *notapem = "not_a_pem";
-	const char *testdesc = "test desc";
+	const char notapem[] = "not_a_pem";
+	const char testdesc[] = "test desc";
 	const struct vb2_id test_id = {.raw = {0xaa}};
 	uint8_t *buf, *buf2;
 	uint32_t bufsize;

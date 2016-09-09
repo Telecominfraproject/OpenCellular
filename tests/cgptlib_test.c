@@ -173,7 +173,7 @@ static void BuildTestGptData(GptData *gpt)
 	header = (GptHeader *)gpt->primary_header;
 	entries = (GptEntry *)gpt->primary_entries;
 	Memcpy(header->signature, GPT_HEADER_SIGNATURE,
-	       sizeof(GPT_HEADER_SIGNATURE));
+	       GPT_HEADER_SIGNATURE_SIZE);
 	header->revision = GPT_HEADER_REVISION;
 	header->size = sizeof(GptHeader);
 	header->reserved_zero = 0;

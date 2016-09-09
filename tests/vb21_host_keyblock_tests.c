@@ -109,11 +109,13 @@ static void keyblock_tests(const char *keys_dir)
 	TEST_EQ(vb21_keyblock_create(&kb, pubk4096, prik, 1, 0, NULL),
 		VB2_KEYBLOCK_CREATE_SIG_SIZE, "Keyblock bad sig size");
 	TEST_PTR_EQ(kb, NULL, "  kb_ptr");
+	free(kb);
 
 	prik[0] = prik4096;
 	pubk4096->sig_alg = VB2_SIG_INVALID;
 	TEST_EQ(vb21_keyblock_create(&kb, pubk4096, prik, 1, 0, NULL),
 		VB2_KEYBLOCK_CREATE_DATA_KEY, "Keyblock bad data key");
+	free(kb);
 
 	/* Free keys */
 	free(pakgood);

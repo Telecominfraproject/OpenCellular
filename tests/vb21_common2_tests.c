@@ -252,14 +252,16 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 
 	printf("***Testing algorithm: %s\n", algo_strings[key_algorithm]);
 
-	sprintf(filename, "%s/key_rsa%d.pem", keys_dir, rsa_len);
+	snprintf(filename, sizeof(filename),
+		 "%s/key_rsa%d.pem", keys_dir, rsa_len);
 	TEST_SUCC(vb2_private_key_read_pem(&prik, filename),
 		  "Read private key");
 	prik->hash_alg = hash_alg;
 	prik->sig_alg = sig_alg;
 	vb2_private_key_set_desc(prik, "private key");
 
-	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, rsa_len);
+	snprintf(filename, sizeof(filename),
+		 "%s/key_rsa%d.keyb", keys_dir, rsa_len);
 	TEST_SUCC(vb2_public_key_read_keyb(&pubk, filename),
 		  "Read public key");
 	pubk->hash_alg = hash_alg;

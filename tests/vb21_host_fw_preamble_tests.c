@@ -46,13 +46,13 @@ static void preamble_tests(const char *keys_dir)
 	vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 	/* Read keys */
-	sprintf(fname, "%s/key_rsa4096.keyb", keys_dir);
+	snprintf(fname, sizeof(fname), "%s/key_rsa4096.keyb", keys_dir);
 	TEST_SUCC(vb2_public_key_read_keyb(&pubk4096, fname),
 					   "Read public key 1");
 	vb2_public_key_set_desc(pubk4096, "Test RSA4096 public key");
 	pubk4096->hash_alg = VB2_HASH_SHA256;
 
-	sprintf(fname, "%s/key_rsa4096.pem", keys_dir);
+	snprintf(fname, sizeof(fname), "%s/key_rsa4096.pem", keys_dir);
 	TEST_SUCC(vb2_private_key_read_pem(&prik4096, fname),
 		  "Read private key 2");
 	vb2_private_key_set_desc(prik4096, "Test RSA4096 private key");

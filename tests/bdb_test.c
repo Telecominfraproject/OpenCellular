@@ -292,13 +292,13 @@ void check_bdb_verify(const char *key_dir)
 	size_t hsize;
 
 	/* Load keys */
-	sprintf(filename, "%s/bdbkey.keyb", key_dir);
+	snprintf(filename, sizeof(filename), "%s/bdbkey.keyb", key_dir);
 	p.bdbkey = bdb_create_key(filename, 100, "BDB key");
-	sprintf(filename, "%s/datakey.keyb", key_dir);
+	snprintf(filename, sizeof(filename), "%s/datakey.keyb", key_dir);
 	p.datakey = bdb_create_key(filename, 200, "datakey");
-	sprintf(filename, "%s/bdbkey.pem", key_dir);
+	snprintf(filename, sizeof(filename), "%s/bdbkey.pem", key_dir);
 	p.private_bdbkey = read_pem(filename);
-	sprintf(filename, "%s/datakey.pem", key_dir);
+	snprintf(filename, sizeof(filename), "%s/datakey.pem", key_dir);
 	p.private_datakey = read_pem(filename);
 	if (!p.bdbkey || !p.datakey || !p.private_bdbkey || !p.private_datakey) {
 		fprintf(stderr, "Unable to load test keys\n");

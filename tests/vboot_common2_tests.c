@@ -42,6 +42,8 @@ static void VerifyPublicKeyToRSA(const VbPublicKey *orig_key)
 			"PublicKeyToRSA() algorithm");
 		RSAPublicKeyFree(rsa);
 	}
+
+	free(key);
 }
 
 static void VerifyDataTest(const VbPublicKey *public_key,
@@ -217,6 +219,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey *public_key,
 	free(h);
 	RSAPublicKeyFree(rsa);
 	free(hdr);
+	free(body_sig);
 }
 
 int test_algorithm(int key_algorithm, const char *keys_dir)
@@ -228,7 +231,8 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 
 	printf("***Testing algorithm: %s\n", algo_strings[key_algorithm]);
 
-	sprintf(filename, "%s/key_rsa%d.pem", keys_dir, rsa_len);
+	snprintf(filename, sizeof(filename),
+		 "%s/key_rsa%d.pem", keys_dir, rsa_len);
 	struct vb2_private_key *private_key =
 		vb2_read_private_key_pem(filename, key_algorithm);
 	if (!private_key) {
@@ -236,11 +240,13 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 		return 1;
 	}
 
-	sprintf(filename, "%s/key_rsa%d.keyb", keys_dir, rsa_len);
+	snprintf(filename, sizeof(filename),
+		 "%s/key_rsa%d.keyb", keys_dir, rsa_len);
 	public_key = (VbPublicKey *)vb2_read_packed_keyb(filename,
 							 key_algorithm, 1);
 	if (!public_key) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
+		free(private_key);
 		return 1;
 	}
 
@@ -249,10 +255,8 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	VerifyDigestTest(public_key, private_key);
 	VerifyKernelPreambleTest(public_key, private_key);
 
-	if (public_key)
-		free(public_key);
-	if (private_key)
-		free(private_key);
+	free(public_key);
+	free(private_key);
 
 	return 0;
 }
