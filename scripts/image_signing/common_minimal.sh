@@ -338,6 +338,15 @@ rw_mount_disabled() {
 # Misc functions
 # ----------------------------------------------------------------------------
 
+# Parses the version file containing key=value lines
+# Args: key file
+# Returns: value
+get_version() {
+  local key="$1"
+  local file="$2"
+  awk -F= -vkey="${key}" '$1 == key { print $NF }' "${file}"
+}
+
 # Returns true if all files in parameters exist.
 # Args: List of files
 ensure_files_exist() {

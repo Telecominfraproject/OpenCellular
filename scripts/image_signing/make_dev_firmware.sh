@@ -122,6 +122,8 @@ main() {
   local dev_firmware_keyblock="$FLAGS_keys/dev_firmware.keyblock"
   local dev_firmware_prvkey="$FLAGS_keys/dev_firmware_data_key.vbprivk"
   local kernel_sub_pubkey="$FLAGS_keys/kernel_subkey.vbpubk"
+  local version_file="$FLAGS_keys/key.versions"
+  local firmware_version=
   local is_from_live=0
   local backup_image=
 
@@ -139,6 +141,11 @@ main() {
   else
     ensure_files_exist "$FLAGS_from" || exit 1
   fi
+
+  if [ -e "$version_file" ]; then
+    firmware_version=$(get_version "firmware_version" "$version_file")
+  fi
+  : ${firmware_version:=1}
 
   debug_msg "Checking software write protection status"
   disable_write_protection ||
@@ -200,9 +207,8 @@ main() {
   local unsigned_image="$(make_temp_file)"
   local optional_opts=""
   if [ -n "$FLAGS_preamble_flags" ]; then
-    # optional_opts: VERSION FLAGS
-    debug_msg "Setting new VERSION=1, FLAGS=$FLAGS_preamble_flags"
-    optional_opts="1 $FLAGS_preamble_flags"
+    debug_msg "Setting FLAGS=$FLAGS_preamble_flags"
+    optional_opts="$FLAGS_preamble_flags"
   fi
   cp -f "$IMAGE" "$unsigned_image"
   "$SCRIPT_BASE/resign_firmwarefd.sh" \
@@ -213,6 +219,7 @@ main() {
     "$dev_firmware_prvkey" \
     "$dev_firmware_keyblock" \
     "$kernel_sub_pubkey" \
+    "$firmware_version" \
     $optional_opts >"$EXEC_LOG" 2>&1 ||
     err_die "Failed to re-sign firmware. (message: $(cat "$EXEC_LOG"))"
     if is_debug_mode; then
