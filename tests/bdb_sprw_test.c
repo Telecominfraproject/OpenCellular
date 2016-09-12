@@ -31,18 +31,12 @@ static uint8_t reset_count;
 static uint8_t nvmrw1[NVM_RW_MAX_STRUCT_SIZE];
 static uint8_t nvmrw2[NVM_RW_MAX_STRUCT_SIZE];
 
-static struct bdb_ro_secrets secrets = {
+static struct bdb_secrets secrets = {
 	.nvm_wp = {0x00, },
 	.nvm_rw = {0x00, },
 	.bdb = {0x00, },
 	.boot_verified = {0x00, },
 	.boot_path = {0x00, },
-};
-
-/* TODO: Implement test for vba_clear_secret */
-//static uint8_t cleared_secret[BDB_SECRET_SIZE] = { 0x00, };
-
-struct bdb_rw_secrets rw_secrets = {
 	.buc = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 		0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -366,7 +360,7 @@ static void test_nvm_read(void)
 {
 	struct vba_context ctx = {
 		.bdb = NULL,
-		.ro_secrets = &secrets,
+		.secrets = &secrets,
 	};
 	struct nvmrw *nvm;
 	uint8_t nvmrw1_copy[NVM_RW_MAX_STRUCT_SIZE];
@@ -460,7 +454,7 @@ static void test_nvm_write(void)
 {
 	struct vba_context ctx = {
 		.bdb = NULL,
-		.ro_secrets = &secrets,
+		.secrets = &secrets,
 	};
 	struct nvmrw nvm = {
 		.struct_magic = NVM_RW_MAGIC,
@@ -518,7 +512,7 @@ static void verify_kernel_version(uint32_t min_kernel_data_key_version,
 {
 	struct vba_context ctx = {
 		.bdb = NULL,
-		.ro_secrets = &secrets,
+		.secrets = &secrets,
 	};
 	struct nvmrw *nvm = (struct nvmrw *)nvmrw1;
 	uint32_t expected_kernel_data_key_version = min_kernel_data_key_version;
@@ -598,15 +592,14 @@ static void test_update_buc(void)
 	struct nvmrw *nvm = (struct nvmrw *)nvmrw1;
 	struct vba_context ctx = {
 		.bdb = NULL,
-		.ro_secrets = &secrets,
-		.rw_secrets = &rw_secrets,
+		.secrets = &secrets,
 	};
 
 	install_nvm(NVM_TYPE_RW_PRIMARY, 0, 1, 0);
 	install_nvm(NVM_TYPE_RW_SECONDARY, 1, 0, 0);
 
 	TEST_SUCC(vba_update_buc(&ctx, new_buc), NULL);
-	vbe_aes256_encrypt(new_buc, sizeof(new_buc), ctx.rw_secrets->buc,
+	vbe_aes256_encrypt(new_buc, sizeof(new_buc), ctx.secrets->buc,
 			   enc_buc);
 	TEST_SUCC(memcmp(nvm->buc_enc_digest, enc_buc, sizeof(new_buc)), NULL);
 }
@@ -617,10 +610,9 @@ static void test_derive_secrets(void)
 	struct bdb_key *key = (struct bdb_key *)test_key;
 	struct vba_context ctx = {
 		.bdb = NULL,
-		.ro_secrets = &secrets,
-		.rw_secrets = &rw_secrets,
+		.secrets = &secrets,
 	};
-	const struct bdb_ro_secrets expected = {
+	const struct bdb_secrets expected = {
 		.bdb = {
 			0x75, 0xb6, 0x24, 0xaa, 0x72, 0x50, 0xf9, 0x33,
 			0x59, 0x45, 0x8d, 0xbf, 0xfa, 0x42, 0xc4, 0xb7,
@@ -636,8 +628,6 @@ static void test_derive_secrets(void)
 			0x96, 0x5b, 0x69, 0x77, 0x9b, 0x67, 0x80, 0x39,
 			0x7a, 0xd4, 0xc5, 0x3b, 0xcf, 0x95, 0x3f, 0xec,
 			0x28, 0x49, 0x55, 0x49, 0x38, 0x27, 0x5d, 0x3c},
-	};
-	const struct bdb_rw_secrets rw_expected = {
 		.buc = {
 			0x63, 0xa5, 0x30, 0xd7, 0xca, 0xe1, 0x3e, 0x2e,
 			0x72, 0x7e, 0x29, 0xc9, 0x37, 0x66, 0x6a, 0x63,
@@ -654,23 +644,24 @@ static void test_derive_secrets(void)
 	key->sig_alg = BDB_SIG_ALG_RSA4096;
 	key->key_version = 1;
 
-	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BDB,
-				     test_key, sizeof(test_key)), NULL);
-	TEST_SUCC(memcmp(ctx.ro_secrets->bdb, expected.bdb, BDB_SECRET_SIZE),
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BDB, NULL,
+				    test_key, sizeof(test_key)), NULL);
+	TEST_SUCC(memcmp(ctx.secrets->bdb, expected.bdb, BDB_SECRET_SIZE),
 		  NULL);
 
-	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BOOT_VERIFIED,
-				     NULL, 0), NULL);
-	TEST_SUCC(memcmp(ctx.ro_secrets->boot_verified, expected.boot_verified,
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BOOT_VERIFIED, NULL,
+				    NULL, 0), NULL);
+	TEST_SUCC(memcmp(ctx.secrets->boot_verified, expected.boot_verified,
 			 BDB_SECRET_SIZE), NULL);
 
-	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BOOT_PATH,
-				     test_key, sizeof(test_key)), NULL);
-	TEST_SUCC(memcmp(ctx.ro_secrets->boot_path, expected.boot_path,
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BOOT_PATH, NULL,
+				    test_key, sizeof(test_key)), NULL);
+	TEST_SUCC(memcmp(ctx.secrets->boot_path, expected.boot_path,
 			 BDB_SECRET_SIZE), NULL);
 
-	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BUC, NULL, 0), NULL);
-	TEST_SUCC(memcmp(ctx.rw_secrets->buc, rw_expected.buc,
+	TEST_SUCC(vba_derive_secret(&ctx, BDB_SECRET_TYPE_BUC, NULL, NULL, 0),
+		  NULL);
+	TEST_SUCC(memcmp(ctx.secrets->buc, expected.buc,
 			 BDB_SECRET_SIZE), NULL);
 }
 

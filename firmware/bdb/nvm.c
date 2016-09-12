@@ -39,7 +39,7 @@ static int nvmrw_validate(const void *buf, uint32_t size)
 	return BDB_SUCCESS;
 }
 
-static int nvmrw_verify(const struct bdb_ro_secrets *secrets,
+static int nvmrw_verify(const struct bdb_secrets *secrets,
 			const struct nvmrw *nvm, uint32_t size)
 {
 	uint8_t mac[NVM_HMAC_SIZE];
@@ -72,7 +72,7 @@ int nvmrw_write(struct vba_context *ctx, enum nvm_type type)
 	if (!ctx)
 		return BDB_ERROR_NVM_INVALID_PARAMETER;
 
-	if (!ctx->ro_secrets)
+	if (!ctx->secrets)
 		return BDB_ERROR_NVM_INVALID_SECRET;
 
 	rv = nvmrw_validate(nvm, sizeof(*nvm));
@@ -80,7 +80,7 @@ int nvmrw_write(struct vba_context *ctx, enum nvm_type type)
 		return rv;
 
 	/* Update HMAC */
-	hmac(VB2_HASH_SHA256, ctx->ro_secrets->nvm_rw, BDB_SECRET_SIZE,
+	hmac(VB2_HASH_SHA256, ctx->secrets->nvm_rw, BDB_SECRET_SIZE,
 	     nvm, nvm->struct_size - sizeof(nvm->hmac),
 	     nvm->hmac, sizeof(nvm->hmac));
 
@@ -101,7 +101,7 @@ int nvmrw_write(struct vba_context *ctx, enum nvm_type type)
 }
 
 static int read_verify_nvmrw(enum nvm_type type,
-			     const struct bdb_ro_secrets *secrets,
+			     const struct bdb_secrets *secrets,
 			     uint8_t *buf, uint32_t buf_size)
 {
 	struct nvmrw *nvm = (struct nvmrw *)buf;
@@ -136,11 +136,11 @@ int nvmrw_read(struct vba_context *ctx)
 	int rv1, rv2;
 
 	/* Read and verify the 1st copy */
-	rv1 = read_verify_nvmrw(NVM_TYPE_RW_PRIMARY, ctx->ro_secrets,
+	rv1 = read_verify_nvmrw(NVM_TYPE_RW_PRIMARY, ctx->secrets,
 				buf1, sizeof(buf1));
 
 	/* Read and verify the 2nd copy */
-	rv2 = read_verify_nvmrw(NVM_TYPE_RW_SECONDARY, ctx->ro_secrets,
+	rv2 = read_verify_nvmrw(NVM_TYPE_RW_SECONDARY, ctx->secrets,
 				buf2, sizeof(buf2));
 
 	if (rv1 == BDB_SUCCESS && rv2 == BDB_SUCCESS) {
@@ -204,7 +204,7 @@ int vba_update_kernel_version(struct vba_context *ctx,
 {
 	struct nvmrw *nvm = &ctx->nvmrw;
 
-	if (nvmrw_verify(ctx->ro_secrets, nvm, sizeof(*nvm))) {
+	if (nvmrw_verify(ctx->secrets, nvm, sizeof(*nvm))) {
 		if (nvmrw_init(ctx))
 			return BDB_ERROR_NVM_INIT;
 	}
@@ -236,7 +236,7 @@ int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc)
 	uint8_t buc[BUC_ENC_DIGEST_SIZE];
 	int rv1, rv2;
 
-	if (nvmrw_verify(ctx->ro_secrets, nvm, sizeof(*nvm))) {
+	if (nvmrw_verify(ctx->secrets, nvm, sizeof(*nvm))) {
 		if (nvmrw_init(ctx))
 			return BDB_ERROR_NVM_INIT;
 	}
@@ -245,7 +245,7 @@ int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc)
 	 * Note that we do not need to decide whether we should use hardware
 	 * crypto or not because this is supposed to be running in RW code. */
 	if (vbe_aes256_encrypt(new_buc, BUC_ENC_DIGEST_SIZE,
-			       ctx->rw_secrets->buc, buc))
+			       ctx->secrets->buc, buc))
 		return BDB_ERROR_ENCRYPT_BUC;
 
 	/* Return if new BUC is same as current one. */

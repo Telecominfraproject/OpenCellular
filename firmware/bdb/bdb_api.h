@@ -23,8 +23,7 @@ struct vba_context {
 	uint8_t *bdb;
 
 	/* Secrets */
-	struct bdb_ro_secrets *ro_secrets;
-	struct bdb_rw_secrets *rw_secrets;
+	struct bdb_secrets *secrets;
 
 	/* NVM-RW buffer */
 	struct nvmrw nvmrw;
@@ -92,7 +91,7 @@ int vba_update_buc(struct vba_context *ctx, uint8_t *new_buc);
  * @return		BDB_SUCCESS or BDB_ERROR_*
  */
 int vba_derive_secret(struct vba_context *ctx, enum bdb_secret_type type,
-		      const uint8_t *buf, uint32_t buf_size);
+		      uint8_t *wsr, const uint8_t *buf, uint32_t buf_size);
 
 /**
  * Clear a secret
@@ -102,6 +101,19 @@ int vba_derive_secret(struct vba_context *ctx, enum bdb_secret_type type,
  * @return		BDB_SUCCESS or BDB_ERROR_*
  */
 int vba_clear_secret(struct vba_context *ctx, enum bdb_secret_type type);
+
+/**
+ * Extend secrets for SP-RO
+ *
+ * @param ctx		struct vba_context
+ * @param bdb		BDB
+ * @param wsr		Pointer to working secret register contents
+ * @param extend	Function to be called for extending a secret
+ * @return		BDB_SUCCESS or BDB_ERROR_*
+ */
+typedef void (*f_extend)(const uint8_t *from, const uint8_t *by, uint8_t *to);
+int vba_extend_secrets_ro(struct vba_context *ctx, const uint8_t *bdb,
+			  uint8_t *wsr, f_extend extend);
 
 /**
  * Get vboot register value
