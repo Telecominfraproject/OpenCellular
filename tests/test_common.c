@@ -134,11 +134,11 @@ int test_succ(int result,
 	      const char *preamble, const char *desc, const char *comment)
 {
   if (result == 0) {
-    fprintf(stderr, "%s: %s, %s ... " COL_GREEN "PASSED\n" COL_STOP,
-	    preamble, desc, comment);
+    fprintf(stderr, "%s: %s ... " COL_GREEN "PASSED\n" COL_STOP,
+	    preamble, comment ? comment : desc);
   } else {
-    fprintf(stderr, "%s: %s, %s ... " COL_RED "FAILED\n" COL_STOP,
-	    preamble, desc, comment);
+    fprintf(stderr, "%s: %s ... " COL_RED "FAILED\n" COL_STOP,
+	    preamble, comment ? comment : desc);
     fprintf(stderr, "  Expected SUCCESS, got: 0x%x (%d)\n", result, result);
     gTestSuccess = 0;
   }
