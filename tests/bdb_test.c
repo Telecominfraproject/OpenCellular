@@ -324,6 +324,10 @@ void check_bdb_verify(const char *key_dir)
 	memcpy(h, hgood, hsize);
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_SUCCESS);
 
+	/* It can accept a NULL pointer as bdb_key_digest */
+	memcpy(h, hgood, hsize);
+	TEST_EQ_S(bdb_verify(h, hsize, NULL), BDB_GOOD_OTHER_THAN_KEY);
+
 	/* Mangle each component in turn */
 	memcpy(h, hgood, hsize);
 	h->struct_magic++;

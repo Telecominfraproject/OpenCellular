@@ -318,7 +318,7 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 	const struct bdb_data *data;
 	const void *oem;
 	uint8_t digest[BDB_SHA256_DIGEST_SIZE];
-	int bdb_digest_mismatch;
+	int bdb_digest_mismatch = -1;
 
 	/* Make sure buffer doesn't wrap around address space */
 	if (end < (const uint8_t *)buf)
@@ -342,7 +342,9 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 			      VB2_HASH_SHA256, digest, BDB_SHA256_DIGEST_SIZE))
 		return BDB_ERROR_DIGEST;
 
-	bdb_digest_mismatch = memcmp(digest, bdb_key_digest, sizeof(digest));
+	if (bdb_key_digest)
+		bdb_digest_mismatch = memcmp(digest,
+					     bdb_key_digest, sizeof(digest));
 
 	/* Make sure OEM area 0 fits */
 	oem = bdb_get_oem_area_0(buf);

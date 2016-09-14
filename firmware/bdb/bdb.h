@@ -124,6 +124,8 @@ int bdb_check_data(const struct bdb_data *p, size_t size);
  * @param size			Size of data in bytes
  * @param bdb_key_digest	Pointer to expected digest for BDB key.
  *				Must be BDB_SHA256_DIGEST_SIZE bytes long.
+ *				If it's NULL, digest match will be skipped
+ *				(and it'll be treated as 'mismatch').
  *
  * @return 0 if success, non-zero error code if error.  Note that error code
  * BDB_GOOD_OTHER_THAN_KEY may still indicate an acceptable BDB if the Boot
