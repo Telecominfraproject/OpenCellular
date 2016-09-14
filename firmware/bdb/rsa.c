@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 The Chromium OS Authors. All rights reserved.
+/* Copyright 2016 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -91,7 +91,7 @@ static void montMul(const struct public_key *key,
 	}
 }
 
-int vb2_safe_memcmp(const void *s1, const void *s2, size_t size)
+static int safe_memcmp(const void *s1, const void *s2, size_t size)
 {
 	const unsigned char *us1 = s1;
 	const unsigned char *us2 = s2;
@@ -150,9 +150,9 @@ int vb2_check_padding(const uint8_t *sig, const struct public_key *key,
 
 	/*
 	 * Then the tail.  Even though there are probably no timing issues
-	 * here, we use vb2_safe_memcmp() just to be on the safe side.
+	 * here, we use safe_memcmp() just to be on the safe side.
 	 */
-	result |= vb2_safe_memcmp(sig, sha256_tail, tail_size);
+	result |= safe_memcmp(sig, sha256_tail, tail_size);
 
 	return result ? BDB_ERROR_DIGEST : BDB_SUCCESS;
 }
@@ -239,11 +239,10 @@ int bdb_rsa4096_verify(const uint8_t *key_data,
 
 	/*
 	 * Check digest.  Even though there are probably no timing issues here,
-	 * use vb2_safe_memcmp() just to be on the safe side.  (That's also why
+	 * use safe_memcmp() just to be on the safe side.  (That's also why
 	 * we don't return before this check if the padding check failed.)
 	 */
-	if (vb2_safe_memcmp(sig_work + pad_size, digest,
-			    BDB_SHA256_DIGEST_SIZE))
+	if (safe_memcmp(sig_work + pad_size, digest, BDB_SHA256_DIGEST_SIZE))
 		rv = BDB_ERROR_DIGEST;
 
 	return rv;
@@ -328,11 +327,10 @@ int bdb_rsa3072b_verify(const uint8_t *key_data,
 
 	/*
 	 * Check digest.  Even though there are probably no timing issues here,
-	 * use vb2_safe_memcmp() just to be on the safe side.  (That's also why
+	 * use safe_memcmp() just to be on the safe side.  (That's also why
 	 * we don't return before this check if the padding check failed.)
 	 */
-	if (vb2_safe_memcmp(sig_work + pad_size, digest,
-			    BDB_SHA256_DIGEST_SIZE))
+	if (safe_memcmp(sig_work + pad_size, digest, BDB_SHA256_DIGEST_SIZE))
 		rv = BDB_ERROR_DIGEST;
 
 	return rv;
