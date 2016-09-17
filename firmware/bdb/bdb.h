@@ -69,6 +69,8 @@ enum bdb_return_code {
 	BDB_ERROR_HEADER_SIG,
 	BDB_ERROR_DATA,
 	BDB_ERROR_DATA_SIG,
+	BDB_ERROR_DATA_CHECK_SIG,
+	BDB_ERROR_DATA_SIGNED_SIZE,
 
 	/* Other errors in bdb_verify() */
 	BDB_ERROR_DIGEST,	/* Error calculating digest */

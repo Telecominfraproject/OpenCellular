@@ -385,11 +385,13 @@ void check_bdb_verify(const char *key_dir)
 
 	memcpy(h, hgood, hsize);
 	((struct bdb_sig *)bdb_get_data_sig(h))->struct_magic++;
-	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_DATA_SIG);
+	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest),
+		  BDB_ERROR_DATA_CHECK_SIG);
 
 	memcpy(h, hgood, hsize);
 	((struct bdb_sig *)bdb_get_data_sig(h))->signed_size--;
-	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_DATA_SIG);
+	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest),
+		  BDB_ERROR_DATA_SIGNED_SIZE);
 
 	memcpy(h, hgood, hsize);
 	((struct bdb_sig *)bdb_get_data_sig(h))->sig_data[0] ^= 0x42;

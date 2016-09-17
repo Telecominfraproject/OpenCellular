@@ -409,9 +409,9 @@ int bdb_verify(const void *buf, size_t size, const uint8_t *bdb_key_digest)
 	/* Sanity-check data signature */
 	sig = bdb_get_data_sig(buf);
 	if (bdb_check_sig(sig, end - (const uint8_t *)sig))
-		return BDB_ERROR_DATA_SIG;
+		return BDB_ERROR_DATA_CHECK_SIG;
 	if (sig->signed_size != data->signed_size)
-		return BDB_ERROR_DATA_SIG;
+		return BDB_ERROR_DATA_SIGNED_SIZE;
 
 	/* Calculate data digest and compare with expected signature */
 	if (vb2_digest_buffer((uint8_t *)data, data->signed_size,
