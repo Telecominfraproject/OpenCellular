@@ -312,6 +312,7 @@ FWLIB20 = ${BUILD}/vboot_fw20.a
 # Vboot 2.1 (not yet ready - see firmware/README)
 FWLIB21 = ${BUILD}/vboot_fw21.a
 
+# Static library containing firmware APIs for common boot flow
 BDBLIB = ${BUILD}/bdb.a
 
 # Firmware library sources needed by VbInit() call
@@ -446,6 +447,8 @@ ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS} \
 
 # Intermediate library for the vboot_reference utilities to link against.
 UTILLIB = ${BUILD}/libvboot_util.a
+
+# Static library containing both host and firmware APIs
 UTILBDB = ${BUILD}/libvboot_utilbdb.a
 
 UTILLIB_SRCS = \
@@ -479,6 +482,7 @@ UTILLIB_SRCS = \
 UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${UTILLIB_OBJS}
 
+# Source files containing host side APIs for common boot flow
 UTILBDB_SRCS += \
 	firmware/bdb/host.c
 

@@ -157,6 +157,26 @@ struct bdb_create_params
 };
 
 /**
+ * Sign data key in BDB
+ *
+ * @param bdb	(IN/OUT) Buffer is freed upon successful call. Caller is
+ *              responsible for freeing the newly allocated buffer.
+ * @param key	Private BDB key to be signed with
+ * @return	BDB_SUCCESS on success or BDB_ERROR_* otherwise.
+ */
+int bdb_sign_datakey(uint8_t **bdb, struct rsa_st *key);
+
+/**
+ * Sign data section of BDB
+ *
+ * @param bdb	(IN/OUT) Buffer is freed upon successful call. Caller is
+ *              responsible for freeing the newly allocated buffer.
+ * @param key	Private data key to be signed with
+ * @return	BDB_SUCCESS on success or BDB_ERROR_* otherwise.
+ */
+int bdb_sign_data(uint8_t **bdb, struct rsa_st *key);
+
+/**
  * Create a new BDB
  *
  * Caller must free() returned object.
