@@ -11,10 +11,11 @@
 
 usage() {
   cat <<EOF
-Usage: $0 [--devkeyblock]
+Usage: $0 [options]
 
 Options:
   --devkeyblock          Also generate developer firmware keyblock and data key
+  --android              Also generate android keys
   --4k                   Use 4k keys instead of 8k (enables options below)
   --4k-root              Use 4k key size for the root key
   --4k-recovery          Use 4k key size for the recovery key
@@ -35,6 +36,7 @@ main() {
 
   # Flag to indicate whether we should be generating a developer keyblock flag.
   local dev_keyblock="false"
+  local android_keys="false"
   local root_key_algoid=${ROOT_KEY_ALGOID}
   local recovery_key_algoid=${RECOVERY_KEY_ALGOID}
   local recovery_kernel_algoid=${RECOVERY_KERNEL_ALGOID}
@@ -45,6 +47,11 @@ main() {
     --devkeyblock)
       echo "Will also generate developer firmware keyblock and data key."
       dev_keyblock="true"
+      ;;
+
+    --android)
+      echo "Will also generate Android keys."
+      android_keys="true"
       ;;
 
     --4k)
@@ -127,6 +134,11 @@ main() {
   # Create the installer keyblock for use in Developer + Recovery mode
   # For use in Factory Install and Developer Mode install shims.
   make_keyblock installer_kernel ${INSTALLER_KERNEL_KEYBLOCK_MODE} installer_kernel_data_key recovery_key
+
+  if [[ "${android_keys}" == "true" ]]; then
+    mkdir android
+    "${SCRIPT_DIR}"/create_new_android_keys.sh android
+  fi
 
   # CAUTION: The public parts of most of these blobs must be compiled into the
   # firmware, which is built separately (and some of which can't be changed after

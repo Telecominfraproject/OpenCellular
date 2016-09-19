@@ -48,11 +48,26 @@ make_pair() {
 }
 
 main() {
+  local dir
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+    -h|--help)
+      usage
+      ;;
+    -*)
+      usage "Unknown option: $1"
+      ;;
+    *)
+      break
+      ;;
+    esac
+  done
+
   if [[ $# -ne 1 ]]; then
     usage "Invalid argument."
   fi
-
-  local dir=$1
+  dir=$1
 
   make_pair "${dir}" platform
   make_pair "${dir}" shared
