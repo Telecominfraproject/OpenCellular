@@ -33,7 +33,7 @@ static void subM(const struct public_key *key, uint32_t *a)
 /**
  * Return a[] >= mod
  */
-int vb2_mont_ge(const struct public_key *key, uint32_t *a)
+static int mont_ge(const struct public_key *key, uint32_t *a)
 {
 	uint32_t i;
 	for (i = key->arrsize; i;) {
@@ -132,7 +132,7 @@ static const uint8_t sha256_tail[] = {
 	0x05,0x00,0x04,0x20
 };
 
-int vb2_check_padding(const uint8_t *sig, const struct public_key *key,
+static int check_padding(const uint8_t *sig, const struct public_key *key,
 		      uint32_t pad_size)
 {
 	/* Determine padding to use depending on the signature type */
@@ -192,7 +192,7 @@ static void modpowF4(const struct public_key *key, uint8_t *inout)
 	montMul(key, aaa, aR, a);  /* aaa = aR * a / R mod M */
 
 	/* Make sure aaa < mod; aaa is at most 1x mod too large. */
-	if (vb2_mont_ge(key, aaa)) {
+	if (mont_ge(key, aaa)) {
 		subM(key, aaa);
 	}
 
@@ -235,7 +235,7 @@ int bdb_rsa4096_verify(const uint8_t *key_data,
 	 * reduce the risk of timing based attacks.
 	 */
 	pad_size = key.arrsize * sizeof(uint32_t) - BDB_SHA256_DIGEST_SIZE;
-	rv = vb2_check_padding(sig_work, &key, pad_size);
+	rv = check_padding(sig_work, &key, pad_size);
 
 	/*
 	 * Check digest.  Even though there are probably no timing issues here,
@@ -280,7 +280,7 @@ static void modpow3(const struct public_key *key, uint8_t *inout)
 	montMul(key, aaa, aaR, a);  /* aaa = aaR * a / R mod M */
 
 	/* Make sure aaa < mod; aaa is at most 1x mod too large. */
-	if (vb2_mont_ge(key, aaa)) {
+	if (mont_ge(key, aaa)) {
 		subM(key, aaa);
 	}
 
@@ -323,7 +323,7 @@ int bdb_rsa3072b_verify(const uint8_t *key_data,
 	 * reduce the risk of timing based attacks.
 	 */
 	pad_size = key.arrsize * sizeof(uint32_t) - BDB_SHA256_DIGEST_SIZE;
-	rv = vb2_check_padding(sig_work, &key, pad_size);
+	rv = check_padding(sig_work, &key, pad_size);
 
 	/*
 	 * Check digest.  Even though there are probably no timing issues here,

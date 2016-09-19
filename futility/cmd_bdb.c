@@ -6,13 +6,12 @@
  */
 
 #include <getopt.h>
-#include <inttypes.h>		/* For PRIu64 */
-#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "bdb.h"
 #include "bdb_struct.h"
 #include "futility.h"
 #include "host.h"
@@ -32,6 +31,7 @@ enum {
 	OPT_BDBKEY_PUB,
 	OPT_DATAKEY_PRI,
 	OPT_DATAKEY_PUB,
+	OPT_DATA,
 	/* key version */
 	OPT_BDBKEY_VERSION,
 	OPT_DATAKEY_VERSION,
@@ -55,6 +55,7 @@ static const struct option long_opts[] = {
 	{"datakey_pub", 1, 0, OPT_DATAKEY_PUB},
 	{"bdbkey_version", 1, 0, OPT_BDBKEY_VERSION},
 	{"datakey_version", 1, 0, OPT_DATAKEY_VERSION},
+	{"data", 1, 0, OPT_DATA},
 	{"offset", 1, 0, OPT_OFFSET},
 	{"partition", 1, 0, OPT_PARTITION},
 	{"type", 1, 0, OPT_TYPE},
@@ -74,8 +75,68 @@ static int do_add(const char *bdb_filename, const char *data_filename,
 		  uint64_t offset, uint8_t partition,
 		  uint8_t type, uint64_t load_address)
 {
-	fprintf(stderr, "'add' command is not implemented\n");
-	return -1;
+	uint8_t *bdb, *data, *new_bdb;
+	uint32_t bdb_size, data_size;
+	struct bdb_header *bdb_header;
+	struct bdb_data *data_header;
+	struct bdb_hash *new_hash;
+	int rv = -1;
+
+	bdb = read_file(bdb_filename, &bdb_size);
+	data = read_file(data_filename, &data_size);
+	if (!bdb || !data) {
+		fprintf(stderr, "Unable to load BDB or data\n");
+		goto exit;
+	}
+
+	/* Create a copy of BDB */
+	new_bdb = calloc(1, bdb_size + sizeof(*new_hash));
+	if (!new_bdb) {
+		fprintf(stderr, "Unable to allocate memory\n");
+		goto exit;
+	}
+	/* Copy up to the end of hashes. This implicitly clears the data
+	 * sig because it's not copied. */
+	memcpy(new_bdb, bdb, vb2_offset_of(bdb, bdb_get_data_sig(bdb)));
+
+	/* Update new BDB header */
+	bdb_header = (struct bdb_header *)bdb_get_header(new_bdb);
+	bdb_header->bdb_size += sizeof(*new_hash);
+
+	data_header = (struct bdb_data *)bdb_get_data(new_bdb);
+
+	/* Update new hash. We're overwriting the data signature, which
+	 * is already invalid anyway. */
+	new_hash = (struct bdb_hash *)((uint8_t *)data_header
+			+ data_header->signed_size);
+	new_hash->size = data_size;
+	new_hash->type = type;
+	new_hash->load_address = load_address;
+	new_hash->partition = partition;
+	new_hash->offset = offset;
+	if (bdb_sha256(new_hash->digest, data, data_size)) {
+		fprintf(stderr, "Unable to calculate hash\n");
+		goto exit;
+	}
+
+	/* Update data header */
+	data_header->num_hashes++;
+	data_header->signed_size += sizeof(*new_hash);
+
+	rv = write_file(bdb_filename, bdb_header, bdb_header->bdb_size);
+	if (rv) {
+		fprintf(stderr, "Unable to write BDB\n");
+		goto exit;
+	}
+
+	fprintf(stderr, "Hash is added to BDB successfully. Resign required\n");
+
+exit:
+	free(bdb);
+	free(data);
+	free(new_bdb);
+
+	return rv;
 }
 
 /**
@@ -251,6 +312,9 @@ static int do_bdb(int argc, char *argv[])
 			break;
 		case OPT_DATAKEY_PUB:
 			datakey_pub_filename = optarg;
+			break;
+		case OPT_DATA:
+			data_filename = optarg;
 			break;
 		case OPT_BDBKEY_VERSION:
 			bdbkey_version = strtoul(optarg, &e, 0);
