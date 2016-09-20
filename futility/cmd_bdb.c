@@ -32,6 +32,7 @@ enum {
 	OPT_DATAKEY_PRI,
 	OPT_DATAKEY_PUB,
 	OPT_DATA,
+	OPT_KEY_DIGEST,
 	/* key version */
 	OPT_BDBKEY_VERSION,
 	OPT_DATAKEY_VERSION,
@@ -56,6 +57,7 @@ static const struct option long_opts[] = {
 	{"bdbkey_version", 1, 0, OPT_BDBKEY_VERSION},
 	{"datakey_version", 1, 0, OPT_DATAKEY_VERSION},
 	{"data", 1, 0, OPT_DATA},
+	{"key_digest", 1, 0, OPT_KEY_DIGEST},
 	{"offset", 1, 0, OPT_OFFSET},
 	{"partition", 1, 0, OPT_PARTITION},
 	{"type", 1, 0, OPT_TYPE},
@@ -445,10 +447,49 @@ exit:
 	return rv;
 }
 
-static int do_verify(void)
+static int do_verify(const char *bdb_filename, const char *key_digest_filename)
 {
-	fprintf(stderr, "'verify' command is not implemented\n");
-	return -1;
+	uint8_t *bdb = NULL;
+	uint8_t *key_digest = NULL;
+	uint32_t bdb_size, key_digest_size;
+	int rv = -1;
+
+	bdb = read_file(bdb_filename, &bdb_size);
+	if (!bdb) {
+		fprintf(stderr, "Unable to load BDB\n");
+		goto exit;
+	}
+
+	if (key_digest_filename) {
+		key_digest = read_file(key_digest_filename, &key_digest_size);
+		if (!key_digest) {
+			fprintf(stderr, "Unable to read key digest\n");
+			goto exit;
+		}
+		if (key_digest_size != BDB_SHA256_DIGEST_SIZE) {
+			fprintf(stderr,
+				"Invalid digest size: %d\n", key_digest_size);
+			goto exit;
+		}
+	}
+
+	rv = bdb_verify(bdb, bdb_size, key_digest);
+	if (rv) {
+		if (rv != BDB_GOOD_OTHER_THAN_KEY) {
+			fprintf(stderr, "BDB is invalid: %d\n", rv);
+			goto exit;
+		}
+		fprintf(stderr,
+			"BDB is valid but key digest doesn't match\n");
+	} else {
+		fprintf(stderr, "BDB is successfully verified\n");
+	}
+
+exit:
+	free(bdb);
+	free(key_digest);
+
+	return rv;
 }
 
 /* Print help and return error */
@@ -490,6 +531,7 @@ static int do_bdb(int argc, char *argv[])
 	const char *datakey_pri_filename = NULL;
 	const char *datakey_pub_filename = NULL;
 	const char *data_filename = NULL;
+	const char *key_digest_filename = NULL;
 	uint32_t bdbkey_version = 0;
 	uint32_t datakey_version = 0;
 	uint64_t offset = 0;
@@ -522,6 +564,10 @@ static int do_bdb(int argc, char *argv[])
 			mode = i;
 			bdb_filename = optarg;
 			break;
+		case OPT_MODE_VERIFY:
+			mode = i;
+			bdb_filename = optarg;
+			break;
 		case OPT_BDBKEY_PRI:
 			bdbkey_pri_filename = optarg;
 			break;
@@ -536,6 +582,9 @@ static int do_bdb(int argc, char *argv[])
 			break;
 		case OPT_DATA:
 			data_filename = optarg;
+			break;
+		case OPT_KEY_DIGEST:
+			key_digest_filename = optarg;
 			break;
 		case OPT_BDBKEY_VERSION:
 			bdbkey_version = strtoul(optarg, &e, 0);
@@ -609,7 +658,7 @@ static int do_bdb(int argc, char *argv[])
 				 datakey_pri_filename, datakey_pub_filename,
 				 datakey_version);
 	case OPT_MODE_VERIFY:
-		return do_verify();
+		return do_verify(bdb_filename, key_digest_filename);
 	case OPT_MODE_NONE:
 	default:
 		fprintf(stderr, "Must specify a mode.\n");
