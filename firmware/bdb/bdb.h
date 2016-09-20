@@ -163,7 +163,6 @@ const struct bdb_sig *bdb_get_data_sig(const void *buf);
  * @param size		Size of data in bytes
  * @return 0 if success, non-zero error code if error.
  */
-__attribute__((weak))
 int bdb_sha256(void *digest, const void *buf, size_t size);
 
 /**
@@ -174,7 +173,6 @@ int bdb_sha256(void *digest, const void *buf, size_t size);
  * @param digest	Digest of signed data (BDB_SHA256_DIGEST bytes)
  * @return 0 if success, non-zero error code if error.
  */
-__attribute__((weak))
 int bdb_rsa4096_verify(const uint8_t *key_data,
 		       const uint8_t *sig,
 		       const uint8_t *digest);
@@ -187,7 +185,6 @@ int bdb_rsa4096_verify(const uint8_t *key_data,
  * @param digest	Digest of signed data (BDB_SHA256_DIGEST bytes)
  * @return 0 if success, non-zero error code if error.
  */
-__attribute__((weak))
 int bdb_rsa3072b_verify(const uint8_t *key_data,
 			const uint8_t *sig,
 			const uint8_t *digest);
@@ -200,7 +197,6 @@ int bdb_rsa3072b_verify(const uint8_t *key_data,
  * @param digest	Digest of signed data (BDB_SHA256_DIGEST bytes)
  * @return 0 if success, non-zero error code if error.
  */
-__attribute__((weak))
 int bdb_ecdsa521_verify(const uint8_t *key_data,
 			const uint8_t *sig,
 			const uint8_t *digest);

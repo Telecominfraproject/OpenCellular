@@ -377,6 +377,7 @@ FWLIB21_SRCS = \
 
 BDBLIB_SRCS = \
 	firmware/bdb/bdb.c \
+	firmware/bdb/ecdsa.c \
 	firmware/bdb/misc.c \
 	firmware/bdb/rsa.c \
 	firmware/bdb/secrets.c \
