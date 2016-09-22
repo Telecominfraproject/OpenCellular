@@ -196,6 +196,9 @@ main() {
   local key_dir=$2
   local android_dir="${root_fs_dir}/opt/google/containers/android"
   local system_img="${android_dir}/system.raw.img"
+  # Use the versions in $PATH rather than the system ones.
+  local unsquashfs=$(which unsquashfs)
+  local mksquashfs=$(which mksquashfs)
 
   if [[ $# -ne 2 ]]; then
     usage "command takes exactly 2 args"
@@ -215,8 +218,8 @@ main() {
   local working_dir=$(make_temp_dir)
   local system_mnt="${working_dir}/mnt"
 
-  info "Unpacking sqaushfs image to ${system_img}"
-  sudo unsquashfs -f -no-progress -d "${system_mnt}" "${system_img}"
+  info "Unpacking squashfs image to ${system_img}"
+  sudo "${unsquashfs}" -x -f -no-progress -d "${system_mnt}" "${system_img}"
 
   snapshot_file_properties "${system_mnt}" > "${working_dir}/properties.orig"
 
@@ -232,10 +235,11 @@ main() {
     die "Unexpected change of file property, diff\n${d}"
   fi
 
-  info "Repacking sqaushfs image"
+  info "Repacking squashfs image"
   local old_size=$(stat -c '%s' "${system_img}")
   # Overwrite the original image.
-  sudo mksquashfs "${system_mnt}" "${system_img}" -no-progress -comp lzo -noappend
+  sudo "${mksquashfs}" "${system_mnt}" "${system_img}" \
+      -no-progress -comp lzo -noappend
   local new_size=$(stat -c '%s' "${system_img}")
   info "Android system image size change: ${old_size} -> ${new_size}"
 }
