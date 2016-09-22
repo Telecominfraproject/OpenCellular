@@ -19,6 +19,7 @@ DATAKEY_PUB=${TESTKEY_DIR}/datakey.keyb
 DATAKEY_PRI=${TESTKEY_DIR}/datakey.pem
 BDBKEY_DIGEST=${TESTDATA_DIR}/bdbkey_digest.bin
 DATAKEY_DIGEST=${TESTDATA_DIR}/datakey_digest.bin
+DATA_FILE=${TESTDATA_DIR}/sp-rw.bin
 
 verify() {
 	local key_digest=${1:-${BDBKEY_DIGEST}}
@@ -30,6 +31,11 @@ ${FUTILITY} bdb --create ${BDB_FILE} \
 	--bdbkey_pri ${BDBKEY_PRI} --bdbkey_pub ${BDBKEY_PUB} \
 	--datakey_pub ${DATAKEY_PUB} --datakey_pri ${DATAKEY_PRI}
 verify
+
+# Demonstrate bdb --add can  add a new hash
+${FUTILITY} bdb --add ${BDB_FILE} \
+	--data ${DATA_FILE} --partition 1 --type 2 --offset 3 --load_address 4
+# TODO: Use futility show command to verify the hash is added
 
 # cleanup
 rm -rf ${TMP}*
