@@ -40,6 +40,7 @@ export OUTDIR
 
 # These are the scripts to run. Binaries are invoked directly by the Makefile.
 TESTS="
+${SCRIPTDIR}/test_bdb.sh
 ${SCRIPTDIR}/test_create.sh
 ${SCRIPTDIR}/test_dump_fmap.sh
 ${SCRIPTDIR}/test_gbb_utility.sh
