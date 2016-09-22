@@ -1409,11 +1409,13 @@ runtestscripts: test_setup genfuzztestcases
 
 .PHONY: runmisctests
 runmisctests: test_setup
+ifeq (${TPM2_MODE},)
+	${RUNTEST} ${BUILD_RUN}/tests/tlcl_tests
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index2_tests
+endif
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index3_tests
 	${RUNTEST} ${BUILD_RUN}/tests/rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
-	${RUNTEST} ${BUILD_RUN}/tests/tlcl_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_string_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_devmode_tests
