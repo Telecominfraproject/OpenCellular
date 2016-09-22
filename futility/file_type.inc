@@ -80,3 +80,7 @@ FILE_TYPE(USBPD1,           "usbpd1",        "USB-PD charger image (v1.0)",
 	  R_(ft_recognize_usbpd1),
 	  S_(ft_show_usbpd1),
 	  S_(ft_sign_usbpd1))
+FILE_TYPE(BDB,           "bdb",        "Common Boot Flow Boot Descriptor Block",
+	  R_(ft_recognize_bdb),
+	  S_(ft_show_bdb),
+	  NONE)

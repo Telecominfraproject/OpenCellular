@@ -44,6 +44,7 @@ test_case "pubkey21"        "tests/futility/data/sample.vbpubk2"
 test_case "prikey21"        "tests/futility/data/sample.vbprik2"
 test_case "pem"             "tests/testkeys/key_rsa2048.pem"
 test_case "pem"             "tests/testkeys/key_rsa8192.pub.pem"
+test_case "bdb"             "tests/futility/data/bdb.bin"
 
 # Expect failure here.
 fail_case "/Sir/Not/Appearing/In/This/Film"

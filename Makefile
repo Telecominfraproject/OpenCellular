@@ -691,7 +691,8 @@ FUTIL_SRCS = \
 	futility/file_type_rwsig.c \
 	futility/file_type_usbpd1.c \
 	futility/vb1_helper.c \
-	futility/vb2_helper.c
+	futility/vb2_helper.c \
+	futility/bdb_helper.c
 
 # List of commands built in futility and futility_s.
 FUTIL_STATIC_CMD_LIST = ${BUILD}/gen/futility_static_cmds.c
