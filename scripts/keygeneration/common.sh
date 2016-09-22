@@ -5,7 +5,7 @@
 
 # Common key generation functions.
 
-SCRIPT_DIR="$(dirname "$0")"
+SCRIPT_DIR="$(dirname "$(readlink -f -- "$0")")"
 
 # Algorithm ID mappings:
 RSA1024_SHA1_ALGOID=0

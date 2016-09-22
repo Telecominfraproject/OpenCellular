@@ -21,6 +21,8 @@ Options:
   --4k-recovery          Use 4k key size for the recovery key
   --4k-recovery-kernel   Use 4k key size for the recovery kernel data
   --4k-installer-kernel  Use 4k key size for the installer kernel data
+  --key-name <name>      Name of the keyset (for key.versions)
+  --output <dir>         Where to write the keys (default is cwd)
 EOF
 
   if [[ $# -ne 0 ]]; then
@@ -41,6 +43,8 @@ main() {
   local recovery_key_algoid=${RECOVERY_KEY_ALGOID}
   local recovery_kernel_algoid=${RECOVERY_KERNEL_ALGOID}
   local installer_kernel_algoid=${INSTALLER_KERNEL_ALGOID}
+  local keyname
+  local output_dir="${PWD}" setperms="false"
 
   while [[ $# -gt 0 ]]; do
     case $1 in
@@ -73,6 +77,21 @@ main() {
       installer_kernel_algoid=${RSA4096_SHA512_ALGOID}
       ;;
 
+    --key-name)
+      keyname="$2"
+      shift
+      ;;
+
+    --output)
+      output_dir="$2"
+      setperms="true"
+      if [[ -d "${output_dir}" ]]; then
+        echo "ERROR: output dir (${output_dir}) already exists" >&2
+        exit 1
+      fi
+      shift
+      ;;
+
     -h|--help)
       usage
       ;;
@@ -83,9 +102,20 @@ main() {
     shift
   done
 
+  mkdir -p "${output_dir}"
+  cd "${output_dir}"
+  if [[ "${setperms}" == "true" ]]; then
+    chmod 700 .
+  fi
+
   if [[ ! -e "${VERSION_FILE}" ]]; then
     echo "No version file found. Creating default ${VERSION_FILE}."
-    printf '%s_version=1\n' {firmware,kernel}{_key,} > "${VERSION_FILE}"
+    (
+      if [[ -n "${keyname}" ]]; then
+        echo "name=${keyname}"
+      fi
+      printf '%s_version=1\n' {firmware,kernel}{_key,}
+    ) > "${VERSION_FILE}"
   fi
 
   local eckey_version fkey_version ksubkey_version kdatakey_version
@@ -138,6 +168,11 @@ main() {
   if [[ "${android_keys}" == "true" ]]; then
     mkdir android
     "${SCRIPT_DIR}"/create_new_android_keys.sh android
+  fi
+
+  if [[ "${setperms}" == "true" ]]; then
+    find -type f -exec chmod 400 {} +
+    find -type d -exec chmod 500 {} +
   fi
 
   # CAUTION: The public parts of most of these blobs must be compiled into the
