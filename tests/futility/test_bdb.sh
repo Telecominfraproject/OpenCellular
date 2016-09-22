@@ -37,6 +37,22 @@ ${FUTILITY} bdb --add ${BDB_FILE} \
 	--data ${DATA_FILE} --partition 1 --type 2 --offset 3 --load_address 4
 # TODO: Use futility show command to verify the hash is added
 
+# Demonstrate futility bdb --resign can resign the BDB
+${FUTILITY} bdb --resign ${BDB_FILE} --datakey_pri ${DATAKEY_PRI}
+verify
+
+# Demonstrate futility bdb --resign can resign with a new data key
+# Note resigning with a new data key requires a private BDB key as well
+${FUTILITY} bdb --resign ${BDB_FILE} \
+	--bdbkey_pri ${BDBKEY_PRI} \
+	--datakey_pri ${BDBKEY_PRI} --datakey_pub ${BDBKEY_PUB}
+verify
+
+# Demonstrate futility bdb --resign can resign with a new BDB key
+${FUTILITY} bdb --resign ${BDB_FILE} \
+	--bdbkey_pri ${DATAKEY_PRI} --bdbkey_pub ${DATAKEY_PUB}
+verify ${DATAKEY_DIGEST}
+
 # cleanup
 rm -rf ${TMP}*
 exit 0
