@@ -5,7 +5,8 @@
  * Boot descriptor block firmware functions
  */
 
-#include <string.h>
+#include "2sysincludes.h"
+#include "2common.h"
 #include "2sha.h"
 #include "bdb.h"
 
@@ -196,6 +197,11 @@ const struct bdb_header *bdb_get_header(const void *buf)
 	return buf;
 }
 
+uint32_t bdb_size_of(const void *buf)
+{
+	return bdb_get_header(buf)->bdb_size;
+}
+
 const struct bdb_key *bdb_get_bdbkey(const void *buf)
 {
 	const struct bdb_header *h = bdb_get_header(buf);
@@ -223,6 +229,11 @@ const struct bdb_key *bdb_get_datakey(const void *buf)
 	return (const struct bdb_key *)(b8 + h->oem_area_0_size);
 }
 
+ptrdiff_t bdb_offset_of_datakey(const void *buf)
+{
+	return vb2_offset_of(buf, bdb_get_datakey(buf));
+}
+
 const struct bdb_sig *bdb_get_header_sig(const void *buf)
 {
 	const struct bdb_header *h = bdb_get_header(buf);
@@ -232,6 +243,11 @@ const struct bdb_sig *bdb_get_header_sig(const void *buf)
 	return (const struct bdb_sig *)(b8 + h->signed_size);
 }
 
+ptrdiff_t bdb_offset_of_header_sig(const void *buf)
+{
+	return vb2_offset_of(buf, bdb_get_header_sig(buf));
+}
+
 const struct bdb_data *bdb_get_data(const void *buf)
 {
 	const struct bdb_sig *s = bdb_get_header_sig(buf);
@@ -239,6 +255,11 @@ const struct bdb_data *bdb_get_data(const void *buf)
 
 	/* Data follows header signature */
 	return (const struct bdb_data *)(b8 + s->struct_size);
+}
+
+ptrdiff_t bdb_offset_of_data(const void *buf)
+{
+	return vb2_offset_of(buf, bdb_get_data(buf));
 }
 
 const void *bdb_get_oem_area_1(const void *buf)

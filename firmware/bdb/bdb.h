@@ -9,6 +9,8 @@
 #define VBOOT_REFERENCE_BDB_H_
 
 #include <stdlib.h>
+#include <stddef.h>
+
 #include "bdb_struct.h"
 
 /*****************************************************************************/
@@ -152,6 +154,24 @@ const struct bdb_data *bdb_get_data(const void *buf);
 const void *bdb_get_oem_area_1(const void *buf);
 const struct bdb_hash *bdb_get_hash(const void *buf, enum bdb_data_type type);
 const struct bdb_sig *bdb_get_data_sig(const void *buf);
+
+/**
+ * Functions to calculate size of BDB components
+ *
+ * @param buf		Pointer to BDB buffer
+ * @return		Size of the component
+ */
+uint32_t bdb_size_of(const void *buf);
+
+/**
+ * Functions to calculate offset of BDB components
+ *
+ * @param buf		Pointer to BDB buffer
+ * @return		Offset of the component
+ */
+ptrdiff_t bdb_offset_of_datakey(const void *buf);
+ptrdiff_t bdb_offset_of_header_sig(const void *buf);
+ptrdiff_t bdb_offset_of_data(const void *buf);
 
 /*****************************************************************************/
 /* Functions probably provided by the caller */
