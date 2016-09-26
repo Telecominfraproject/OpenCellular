@@ -41,6 +41,8 @@ enum {
 	OPT_PARTITION,
 	OPT_TYPE,
 	OPT_LOAD_ADDRESS,
+	/* Misc. options */
+	OPT_IGNORE_KEY_DIGEST,
 	OPT_VERSION,
 	OPT_HELP,
 };
@@ -62,6 +64,7 @@ static const struct option long_opts[] = {
 	{"partition", 1, 0, OPT_PARTITION},
 	{"type", 1, 0, OPT_TYPE},
 	{"load_address", 1, 0, OPT_LOAD_ADDRESS},
+	{"ignore_key_digest", 0, 0, OPT_IGNORE_KEY_DIGEST},
 	{"version", 1, 0, OPT_VERSION},
 	{"help", 0, 0, OPT_HELP},
 	{NULL, 0, 0, 0}
@@ -447,7 +450,8 @@ exit:
 	return rv;
 }
 
-static int do_verify(const char *bdb_filename, const char *key_digest_filename)
+static int do_verify(const char *bdb_filename, const char *key_digest_filename,
+		     int ignore_key_digest)
 {
 	uint8_t *bdb = NULL;
 	uint8_t *key_digest = NULL;
@@ -474,15 +478,24 @@ static int do_verify(const char *bdb_filename, const char *key_digest_filename)
 	}
 
 	rv = bdb_verify(bdb, bdb_size, key_digest);
-	if (rv) {
-		if (rv != BDB_GOOD_OTHER_THAN_KEY) {
-			fprintf(stderr, "BDB is invalid: %d\n", rv);
-			goto exit;
+	switch (rv) {
+	case BDB_SUCCESS:
+		fprintf(stderr, "BDB is successfully verified.\n");
+		break;
+	case BDB_GOOD_OTHER_THAN_KEY:
+		fprintf(stderr, "BDB is valid.");
+		if (ignore_key_digest) {
+			rv = BDB_SUCCESS;
+			fprintf(stderr,
+				" Key digest doesn't match but ignored.\n");
+		} else {
+			fprintf(stderr,
+				" Key digest doesn't match.\n");
 		}
-		fprintf(stderr,
-			"BDB is valid but key digest doesn't match\n");
-	} else {
-		fprintf(stderr, "BDB is successfully verified\n");
+		break;
+	default:
+		/* TODO: Probably nice to print translation of the error code */
+		fprintf(stderr, "BDB is invalid: %d.\n", rv);
 	}
 
 exit:
@@ -518,6 +531,7 @@ static void print_help(int argc, char *argv[])
 	       "\n"
 	       "For '--verify <bdb_file> [OPTIONS]', optional OPTIONS are:\n"
 	       "  --key_digest <file>         BDB key digest\n"
+	       "  --ignore_key_digest         Ignore key digest mismatch\n"
 	       "\n",
 	       argv[0]);
 }
@@ -538,6 +552,7 @@ static int do_bdb(int argc, char *argv[])
 	uint8_t partition = 0;
 	uint8_t type = 0;
 	uint64_t load_address = -1;
+	int ignore_key_digest = 0;
 	int parse_error = 0;
 	char *e;
 	int i;
@@ -628,6 +643,9 @@ static int do_bdb(int argc, char *argv[])
 				parse_error = 1;
 			}
 			break;
+		case OPT_IGNORE_KEY_DIGEST:
+			ignore_key_digest = 1;
+			break;
 		case OPT_VERSION:
 			version = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
@@ -658,7 +676,8 @@ static int do_bdb(int argc, char *argv[])
 				 datakey_pri_filename, datakey_pub_filename,
 				 datakey_version);
 	case OPT_MODE_VERIFY:
-		return do_verify(bdb_filename, key_digest_filename);
+		return do_verify(bdb_filename,
+				 key_digest_filename, ignore_key_digest);
 	case OPT_MODE_NONE:
 	default:
 		fprintf(stderr, "Must specify a mode.\n");

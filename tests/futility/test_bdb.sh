@@ -21,9 +21,15 @@ BDBKEY_DIGEST=${TESTDATA_DIR}/bdbkey_digest.bin
 DATAKEY_DIGEST=${TESTDATA_DIR}/datakey_digest.bin
 DATA_FILE=${TESTDATA_DIR}/sp-rw.bin
 
+# Verify a BDB
+#
+# $1: Key digest file
+# $2: Any remaining option passed to futility bdb --verify
 verify() {
 	local key_digest=${1:-${BDBKEY_DIGEST}}
-	${FUTILITY} bdb --verify ${BDB_FILE} --key_digest ${key_digest}
+	local extra_option=${2:-}
+	${FUTILITY} bdb --verify ${BDB_FILE} --key_digest ${key_digest} \
+		${extra_option}
 }
 
 # Demonstrate bdb --create can create a valid BDB
@@ -52,6 +58,10 @@ verify
 ${FUTILITY} bdb --resign ${BDB_FILE} \
 	--bdbkey_pri ${DATAKEY_PRI} --bdbkey_pub ${DATAKEY_PUB}
 verify ${DATAKEY_DIGEST}
+
+# Demonstrate futility bdb --verify can return success when key digest doesn't
+# match but --ignore_key_digest is specified.
+verify ${BDBKEY_DIGEST} --ignore_key_digest
 
 # cleanup
 rm -rf ${TMP}*
