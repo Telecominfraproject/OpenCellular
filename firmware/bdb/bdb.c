@@ -271,14 +271,21 @@ const void *bdb_get_oem_area_1(const void *buf)
 	return b8 + p->struct_size;
 }
 
-const struct bdb_hash *bdb_get_hash(const void *buf, enum bdb_data_type type)
+static const void *bdb_get_hash(const void *buf)
 {
 	const struct bdb_data *data = bdb_get_data(buf);
 	const uint8_t *b8 = bdb_get_oem_area_1(buf);
-	int i;
 
 	/* Hashes follow OEM area 0 */
-	b8 += data->oem_area_1_size;
+	return b8 + data->oem_area_1_size;
+}
+
+const struct bdb_hash *bdb_get_hash_by_type(const void *buf,
+					    enum bdb_data_type type)
+{
+	const struct bdb_data *data = bdb_get_data(buf);
+	const uint8_t *b8 = bdb_get_hash(buf);
+	int i;
 
 	/* Search for a matching hash */
 	for (i = 0; i < data->num_hashes; i++, b8 += data->hash_entry_size) {
@@ -289,6 +296,24 @@ const struct bdb_hash *bdb_get_hash(const void *buf, enum bdb_data_type type)
 	}
 
 	return NULL;
+}
+
+const struct bdb_hash *bdb_get_hash_by_index(const void *buf, int index)
+{
+	const struct bdb_data *data = bdb_get_data(buf);
+	const uint8_t *p = bdb_get_hash(buf);
+	const struct bdb_hash *h = NULL;
+	int i;
+
+	/* Search for a matching hash */
+	for (i = 0; i < data->num_hashes; i++, p += data->hash_entry_size) {
+		if (i == index) {
+			h = (const struct bdb_hash *)p;
+			break;
+		}
+	}
+
+	return h;
 }
 
 const struct bdb_sig *bdb_get_data_sig(const void *buf)

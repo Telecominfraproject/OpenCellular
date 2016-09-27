@@ -131,7 +131,7 @@ static void verstage_main(void)
 	/* 1. Locate BDB */
 
 	/* 2. Get bdb_hash structure for AP-RW */
-	hash = bdb_get_hash(bdb, BDB_DATA_AP_RW);
+	hash = bdb_get_hash_by_type(bdb, BDB_DATA_AP_RW);
 	fprintf(stderr, "Got hash of AP-RW\n");
 
 	/* 3. Load & calculate digest of AP-RW */

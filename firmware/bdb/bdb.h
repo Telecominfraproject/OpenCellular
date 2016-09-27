@@ -154,7 +154,9 @@ const struct bdb_key *bdb_get_datakey(const void *buf);
 const struct bdb_sig *bdb_get_header_sig(const void *buf);
 const struct bdb_data *bdb_get_data(const void *buf);
 const void *bdb_get_oem_area_1(const void *buf);
-const struct bdb_hash *bdb_get_hash(const void *buf, enum bdb_data_type type);
+const struct bdb_hash *bdb_get_hash_by_type(const void *buf,
+					    enum bdb_data_type type);
+const struct bdb_hash *bdb_get_hash_by_index(const void *buf, int index);
 const struct bdb_sig *bdb_get_data_sig(const void *buf);
 
 /**

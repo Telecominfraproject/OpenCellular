@@ -411,11 +411,12 @@ void check_bdb_verify(const char *key_dir)
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_DATA_SIG);
 
 	memcpy(h, hgood, hsize);
-	((struct bdb_hash *)bdb_get_hash(h, BDB_DATA_SP_RW))->offset++;
+	((struct bdb_hash *)bdb_get_hash_by_type(h, BDB_DATA_SP_RW))->offset++;
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_DATA_SIG);
 
 	memcpy(h, hgood, hsize);
-	((struct bdb_hash *)bdb_get_hash(h, BDB_DATA_AP_RW))->digest[0] ^= 0x96;
+	((struct bdb_hash *)bdb_get_hash_by_type(h, BDB_DATA_AP_RW))
+			->digest[0] ^= 0x96;
 	TEST_EQ_S(bdb_verify(h, hsize, bdbkey_digest), BDB_ERROR_DATA_SIG);
 
 	/*
@@ -454,10 +455,17 @@ void check_bdb_verify(const char *key_dir)
 
 	/* Test getting hash entries */
 	memcpy(h, hgood, hsize);
-	TEST_EQ_S(bdb_get_hash(h, BDB_DATA_SP_RW)->offset, hash[0].offset);
-	TEST_EQ_S(bdb_get_hash(h, BDB_DATA_AP_RW)->offset, hash[1].offset);
+	TEST_EQ_S(bdb_get_hash_by_type(h, BDB_DATA_SP_RW)
+		  ->offset, hash[0].offset);
+	TEST_EQ_S(bdb_get_hash_by_index(h, 0)
+		  ->offset, hash[0].offset);
+	TEST_EQ_S(bdb_get_hash_by_type(h, BDB_DATA_AP_RW)
+		  ->offset, hash[1].offset);
+	TEST_EQ_S(bdb_get_hash_by_index(h, 1)
+		  ->offset, hash[1].offset);
 	/* And a non-existent one */
-	TEST_EQ_S(bdb_get_hash(h, BDB_DATA_MCU)!=NULL, 0);
+	TEST_PTR_EQ(bdb_get_hash_by_type(h, BDB_DATA_MCU), NULL, NULL);
+	TEST_PTR_EQ(bdb_get_hash_by_index(h, 2), NULL, NULL);
 
 	/*
 	 * TODO: Verify wraparound checks works.  That can only be tested on a
