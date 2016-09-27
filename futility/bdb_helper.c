@@ -5,6 +5,7 @@
  * Boot descriptor block helper functions
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 
 #include "2sha.h"
@@ -33,6 +34,18 @@ static void print_digest(const char *label, const uint8_t *digest, size_t size)
 	printf("\n");
 }
 
+static void print_hash_entry(const char *label, const struct bdb_hash *hash)
+{
+	if (label)
+		printf("%s", label);
+	printf("  Offset:       0x%" PRIx64 "\n", hash->offset);
+	printf("  Size:         %d\n", hash->size);
+	printf("  Partition:    %d\n", hash->partition);
+	printf("  Type:         %d\n", hash->type);
+	printf("  Load Address: 0x%" PRIx64 "\n", hash->load_address);
+	print_digest("  Digest:       ", hash->digest, sizeof(hash->digest));
+}
+
 static void show_bdb_header(const uint8_t *bdb)
 {
 	const struct bdb_header *header = bdb_get_header(bdb);
@@ -48,6 +61,17 @@ static void show_bdb_header(const uint8_t *bdb)
 	printf("            size: %d\n", key->struct_size);
 }
 
+static void show_hashes(const uint8_t *bdb)
+{
+	const struct bdb_data *data = bdb_get_data(bdb);
+	int i;
+
+	for (i = 0; i < data->num_hashes; i++) {
+		const struct bdb_hash *hash = bdb_get_hash_by_index(bdb, i);
+		printf("Hash #%d:\n", i);
+		print_hash_entry(NULL, hash);
+	}
+}
 
 int ft_show_bdb(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
@@ -63,6 +87,7 @@ int ft_show_bdb(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 	printf("Boot Descriptor Block: %s\n", name);
 	show_bdb_header(buf);
+	show_hashes(buf);
 
 	return 0;
 }
