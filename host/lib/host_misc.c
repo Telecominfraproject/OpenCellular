@@ -37,8 +37,10 @@ uint8_t* ReadFile(const char* filename, uint64_t* sizeptr) {
 
   fseek(f, 0, SEEK_END);
   size = ftell(f);
-  if (size < 0)
+  if (size < 0) {
+    fclose(f);
     return NULL;
+  }
   rewind(f);
 
   buf = malloc(size);

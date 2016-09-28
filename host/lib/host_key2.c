@@ -202,8 +202,8 @@ int vb2_copy_packed_key(struct vb2_packed_key *dest,
 
 struct vb2_packed_key *vb2_read_packed_key(const char *filename)
 {
-	struct vb2_packed_key *key;
-	uint32_t file_size;
+	struct vb2_packed_key *key = NULL;
+	uint32_t file_size = 0;
 
 	if (VB2_SUCCESS !=
 	    vb2_read_file(filename, (uint8_t **)&key, &file_size)) {

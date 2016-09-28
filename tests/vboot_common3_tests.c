@@ -165,7 +165,10 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	int signing_rsa_len = siglen_map[signing_key_algorithm] * 8;
 	int data_rsa_len = siglen_map[data_key_algorithm] * 8;
 
+	struct vb2_private_key *signing_private_key = NULL;
+	struct vb2_packed_key *data_public_key = NULL;
 	VbPublicKey *signing_public_key = NULL;
+	int retval = 1;
 
 	printf("***Testing signing algorithm: %s\n",
 	       algo_strings[signing_key_algorithm]);
@@ -174,12 +177,12 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 
 	snprintf(filename, sizeof(filename),
 		 "%s/key_rsa%d.pem", keys_dir, signing_rsa_len);
-	struct vb2_private_key *signing_private_key =
+	signing_private_key =
 		vb2_read_private_key_pem(filename, signing_key_algorithm);
 	if (!signing_private_key) {
 		fprintf(stderr, "Error reading signing_private_key: %s\n",
 			filename);
-		return 1;
+		goto cleanup;
 	}
 
 	snprintf(filename, sizeof(filename),
@@ -189,22 +192,23 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	if (!signing_public_key) {
 		fprintf(stderr, "Error reading signing_public_key: %s\n",
 			filename);
-		return 1;
+		goto cleanup;
 	}
 
 	snprintf(filename, sizeof(filename),
 		 "%s/key_rsa%d.keyb", keys_dir, data_rsa_len);
-	struct vb2_packed_key *data_public_key =
-		vb2_read_packed_keyb(filename, data_key_algorithm, 1);
+	data_public_key = vb2_read_packed_keyb(filename, data_key_algorithm, 1);
 	if (!data_public_key) {
 		fprintf(stderr, "Error reading data_public_key: %s\n",
 			filename);
-		return 1;
+		goto cleanup;
 	}
 
 	KeyBlockVerifyTest(signing_public_key, signing_private_key,
 			   data_public_key);
+	retval = 0;
 
+cleanup:
 	if (signing_public_key)
 		free(signing_public_key);
 	if (signing_private_key)
@@ -212,7 +216,7 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	if (data_public_key)
 		free(data_public_key);
 
-	return 0;
+	return retval;
 }
 
 struct test_perm

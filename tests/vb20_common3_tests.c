@@ -224,8 +224,11 @@ static void test_verify_fw_preamble(struct vb2_packed_key *public_key,
 				     private_key, 0x5678);
 	TEST_PTR_NEQ(hdr, NULL,
 		     "vb2_verify_fw_preamble() prereq test preamble");
-	if (!hdr)
+	if (!hdr) {
+		free(body_sig);
 		return;
+	}
+
 	hsize = (uint32_t) hdr->preamble_size;
 	h = (struct vb2_fw_preamble *)malloc(hsize + 16384);
 
@@ -366,8 +369,11 @@ static void test_verify_kernel_preamble(
 					   private_key);
 	TEST_PTR_NEQ(hdr, NULL,
 		     "vb2_verify_kernel_preamble() prereq test preamble");
-	if (!hdr)
+	if (!hdr) {
+		free(body_sig);
 		return;
+	}
+
 	hsize = (uint32_t) hdr->preamble_size;
 	struct vb2_kernel_preamble *h =
 		(struct vb2_kernel_preamble *)malloc(hsize + 16384);

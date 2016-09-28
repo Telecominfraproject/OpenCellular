@@ -142,8 +142,12 @@ static void VerifyKernelPreambleTest(const VbPublicKey *public_key,
 		vb2_create_kernel_preamble(0x1234, 0x100000, 0x300000, 0x4000,
 					   body_sig, 0, 0, 0, 0, private_key);
 	TEST_NEQ(hdr && rsa, 0, "VerifyKernelPreamble() prerequisites");
-	if (!hdr)
+	if (!hdr) {
+		free(body_sig);
+		RSAPublicKeyFree(rsa);
 		return;
+	}
+
 	hsize = (unsigned) hdr->preamble_size;
 	h = (VbKernelPreambleHeader *)malloc(hsize + 16384);
 

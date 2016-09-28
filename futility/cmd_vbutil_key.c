@@ -86,6 +86,7 @@ static int do_pack(const char *infile, const char *outfile, uint32_t algorithm,
 	if (pubkey) {
 		if (0 != vb2_write_packed_key(outfile, pubkey)) {
 			fprintf(stderr, "vbutil_key: Error writing key.\n");
+			free(pubkey);
 			return 1;
 		}
 		free(pubkey);

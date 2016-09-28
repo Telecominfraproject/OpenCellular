@@ -747,20 +747,24 @@ int VbSetSystemPropertyString(const char* name, const char* value) {
 }
 
 
-static int InAndroid() {
-  int fd;
-  struct stat s;
+static int InAndroid(void)
+{
+	int fd;
+	struct stat s;
+	int retval = 0;
 
-  /* In Android, mosys utility located in /system/bin
-     check if file exists.  Using fstat because for some
-     reason, stat() was seg faulting in Android */
-  fd = open(MOSYS_ANDROID_PATH, O_RDONLY);
-  if (fd != -1 && fstat(fd, &s) == 0) {
-    close(fd);
-    return 1;
-  }
-  close(fd);
-  return 0;
+	/*
+	 * In Android, mosys utility located in /system/bin check if file
+	 * exists.  Using fstat because for some reason, stat() was seg
+	 * faulting in Android
+	 */
+	fd = open(MOSYS_ANDROID_PATH, O_RDONLY);
+	if (fd != -1) {
+		if (fstat(fd, &s) == 0)
+			retval = 1;
+		close(fd);
+	}
+	return retval;
 }
 
 

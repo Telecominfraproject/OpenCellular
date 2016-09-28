@@ -184,7 +184,10 @@ static int vb2_make_keypair()
 
 	if (!rsa_key) {
 		/* Check if the PEM contains only a public key */
-		fseek(fp, 0, SEEK_SET);
+		if (0 != fseek(fp, 0, SEEK_SET)) {
+			fprintf(stderr, "Error seeking in %s\n", infile);
+			goto done;
+		}
 		rsa_key = PEM_read_RSA_PUBKEY(fp, NULL, NULL, NULL);
 	}
 	fclose(fp);
