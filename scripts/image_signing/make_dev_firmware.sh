@@ -23,6 +23,8 @@ DEFINE_string keys "$DEFAULT_KEYS_FOLDER" "Path to folder of dev keys" "k"
 DEFINE_string preamble_flags "" "Override preamble flags value. Known values:
                         0: None. (Using RW to boot in normal. aka, two-stop)
                         1: VB_FIRMWARE_PREAMBLE_USE_RO_NORMAL (one-stop)" "p"
+DEFINE_boolean mod_hwid \
+  $FLAGS_TRUE "Modify HWID to indicate this is a modified firmware" ""
 DEFINE_boolean mod_gbb_flags \
   $FLAGS_TRUE "Modify GBB flags to enable developer friendly features" ""
 DEFINE_boolean force_backup \
@@ -122,8 +124,6 @@ main() {
   local dev_firmware_keyblock="$FLAGS_keys/dev_firmware.keyblock"
   local dev_firmware_prvkey="$FLAGS_keys/dev_firmware_data_key.vbprivk"
   local kernel_sub_pubkey="$FLAGS_keys/kernel_subkey.vbpubk"
-  local version_file="$FLAGS_keys/key.versions"
-  local firmware_version=
   local is_from_live=0
   local backup_image=
 
@@ -141,11 +141,6 @@ main() {
   else
     ensure_files_exist "$FLAGS_from" || exit 1
   fi
-
-  if [ -e "$version_file" ]; then
-    firmware_version=$(get_version "firmware_version" "$version_file")
-  fi
-  : ${firmware_version:=1}
 
   debug_msg "Checking software write protection status"
   disable_write_protection ||
@@ -195,8 +190,45 @@ main() {
     dev_firmware_keyblock="$firmware_keyblock"
   fi
 
-  # TODO(hungte) We can use vbutil_firmware to check if the current firmware is
-  # valid so that we know keys and vbutil_firmware are all working fine.
+  debug_msg "Extract firmware version and data key version"
+  gbb_utility -g --rootkey="$expanded_firmware_dir/rootkey" "$IMAGE" >/dev/null 2>&1
+
+  local data_key_version firmware_version
+  # When we are going to flash directly from or to system, the versions stored
+  # in TPM can be found by crossystem; otherwise we'll need to guess from source
+  # firmware (FLAGS_from).
+  if [ -z "$FLAGS_to" -o -z "$FLAGS_from" ]; then
+    debug_msg "Reading TPM version from crossystem tpm_fwver."
+    data_key_version="$(( $(crossystem tpm_fwver) >> 16 ))"
+    firmware_version="$(( $(crossystem tpm_fwver) & 0xFFFF ))"
+  else
+    # TODO(hungte) On Vboot2, A/B slot may contain different firmware so we may
+    # need to check both and decide from largest number.
+    debug_msg "Guessing TPM version from original firmware."
+    local fw_info="$(vbutil_firmware \
+                     --verify "$expanded_firmware_dir/VBLOCK_A" \
+                     --signpubkey "$expanded_firmware_dir/rootkey" \
+                     --fv "$expanded_firmware_dir/FW_MAIN_A")" 2>/dev/null ||
+        err_die "Failed to verify firmware slot A."
+    data_key_version="$(
+      echo "$fw_info" | sed -n '/^ *Data key version:/s/.*:[ \t]*//p')"
+    firmware_version="$(
+      echo "$fw_info" | sed -n '/^ *Firmware version:/s/.*:[ \t]*//p')"
+  fi
+
+  local new_data_key_version="$(
+    vbutil_keyblock --unpack "$firmware_keyblock" |
+    sed -n '/^ *Data key version:/s/.*:[ \t]*//p')"
+
+  # TODO(hungte) Change key block by data_key_version.
+  if [ "$data_key_version" -gt "$new_data_key_version" ]; then
+    err_die "Sorry, firmware data key version <$new_data_key_version> in" \
+            "your new keys [$FLAGS_keys] is smaller than original firmware" \
+            "<$data_key_version> and won't boot due to TPM anti-rollback" \
+            "detection. You have to first reset TPM."
+  fi
+  echo "Signing with Data Key Version: $data_key_version, " \
+       "Firmware Version: $firmware_version"
 
   echo "Preparing new firmware image..."
 
@@ -234,7 +266,10 @@ main() {
   debug_msg "Decide new HWID"
   [ -z "$old_hwid" ] &&
     err_die "Cannot find current HWID. (message: $(cat "$EXEC_LOG"))"
-  local new_hwid="$(echo_dev_hwid "$old_hwid")"
+  local new_hwid="$old_hwid"
+  if [ "$FLAGS_mod_hwid" = "$FLAGS_TRUE" ]; then
+    new_hwid="$(echo_dev_hwid "$old_hwid")"
+  fi
 
   local old_gbb_flags
   old_gbb_flags="$(gbb_utility --get --flags "$IMAGE" 2>"$EXEC_LOG" |
