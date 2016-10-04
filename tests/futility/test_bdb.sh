@@ -40,6 +40,20 @@ get_num_hash() {
 			| grep '# of Hashes' | cut -d':' -f 2)
 }
 
+# Tests field matches a specified value in a BDB
+# e.g. check_field 'Data Version:' 2 returns error if the data version isn't 2.
+check_field() {
+	# Find the field
+	x=$(${FUTILITY} show ${BDB_FILE} | grep "${1}")
+	[ "${x}" ] || return 1
+	# Remove the field name
+	x=${x##*:}
+	[ "${x}" ] || return 1
+	# Remove the leading and trailing spaces
+	x=${x//[[:blank:]]/}
+	[ "${x}" == "${2}" ] || return 1
+}
+
 # Demonstrate bdb --create can create a valid BDB
 ${FUTILITY} bdb --create ${BDB_FILE} \
 	--bdbkey_pri ${BDBKEY_PRI} --bdbkey_pub ${BDBKEY_PUB} \
@@ -56,8 +70,11 @@ num_hash+=1
 # TODO: verify partition, type, offset, and load_address
 
 # Demonstrate futility bdb --resign can resign the BDB
-${FUTILITY} bdb --resign ${BDB_FILE} --datakey_pri ${DATAKEY_PRI}
+data_version=2
+${FUTILITY} bdb --resign ${BDB_FILE} --datakey_pri ${DATAKEY_PRI} \
+	--data_version $data_version
 verify
+check_field "Data Version:" $data_version
 
 # Demonstrate futility bdb --resign can resign with a new data key
 # Note resigning with a new data key requires a private BDB key as well

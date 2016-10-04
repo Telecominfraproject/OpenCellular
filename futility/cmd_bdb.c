@@ -33,9 +33,10 @@ enum {
 	OPT_DATAKEY_PUB,
 	OPT_DATA,
 	OPT_KEY_DIGEST,
-	/* key version */
+	/* versions */
 	OPT_BDBKEY_VERSION,
 	OPT_DATAKEY_VERSION,
+	OPT_DATA_VERSION,
 	/* integer options */
 	OPT_OFFSET,
 	OPT_PARTITION,
@@ -58,6 +59,7 @@ static const struct option long_opts[] = {
 	{"datakey_pub", 1, 0, OPT_DATAKEY_PUB},
 	{"bdbkey_version", 1, 0, OPT_BDBKEY_VERSION},
 	{"datakey_version", 1, 0, OPT_DATAKEY_VERSION},
+	{"data_version", 1, 0, OPT_DATA_VERSION},
 	{"data", 1, 0, OPT_DATA},
 	{"key_digest", 1, 0, OPT_KEY_DIGEST},
 	{"offset", 1, 0, OPT_OFFSET},
@@ -319,7 +321,8 @@ static int do_resign(const char *bdb_filename,
 		     uint32_t bdbkey_version,
 		     const char *datakey_pri_filename,
 		     const char *datakey_pub_filename,
-		     uint32_t datakey_version)
+		     uint32_t datakey_version,
+		     uint32_t data_version)
 {
 	uint8_t *bdb = NULL;
 	struct rsa_st *bdbkey_pri = NULL;
@@ -337,6 +340,11 @@ static int do_resign(const char *bdb_filename,
 	if (!bdb) {
 		fprintf(stderr, "Unable to read %s\n", bdb_filename);
 		goto exit;
+	}
+
+	if (data_version != -1) {
+		struct bdb_data *data = (struct bdb_data *)bdb_get_data(bdb);
+		data->data_version = data_version;
 	}
 
 	if (bdbkey_pub_filename) {
@@ -528,6 +536,7 @@ static void print_help(int argc, char *argv[])
 	       "  --bdbkey_pub <file>         New BDB key in .keyb format\n"
 	       "  --datakey_pri <file>        New data key in .pem format\n"
 	       "  --datakey_pub <file>        New data key in .keyb format\n"
+	       "  --data_version <number>     Data version\n"
 	       "\n"
 	       "For '--verify <bdb_file> [OPTIONS]', optional OPTIONS are:\n"
 	       "  --key_digest <file>         BDB key digest\n"
@@ -548,6 +557,7 @@ static int do_bdb(int argc, char *argv[])
 	const char *key_digest_filename = NULL;
 	uint32_t bdbkey_version = 0;
 	uint32_t datakey_version = 0;
+	uint32_t data_version = -1;
 	uint64_t offset = 0;
 	uint8_t partition = 0;
 	uint8_t type = 0;
@@ -615,6 +625,13 @@ static int do_bdb(int argc, char *argv[])
 				parse_error = 1;
 			}
 			break;
+		case OPT_DATA_VERSION:
+			data_version = strtoul(optarg, &e, 0);
+			if (!*optarg || (e && *e)) {
+				fprintf(stderr, "Invalid --data_version\n");
+				parse_error = 1;
+			}
+			break;
 		case OPT_OFFSET:
 			offset = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e)) {
@@ -674,7 +691,7 @@ static int do_bdb(int argc, char *argv[])
 		return do_resign(bdb_filename, bdbkey_pri_filename,
 				 bdbkey_pub_filename, bdbkey_version,
 				 datakey_pri_filename, datakey_pub_filename,
-				 datakey_version);
+				 datakey_version, data_version);
 	case OPT_MODE_VERIFY:
 		return do_verify(bdb_filename,
 				 key_digest_filename, ignore_key_digest);
