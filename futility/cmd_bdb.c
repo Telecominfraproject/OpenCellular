@@ -82,7 +82,7 @@ static int do_add(const char *bdb_filename, const char *data_filename,
 		  uint64_t offset, uint8_t partition,
 		  uint8_t type, uint64_t load_address)
 {
-	uint8_t *bdb, *data, *new_bdb;
+	uint8_t *bdb, *data, *new_bdb = NULL;
 	uint32_t bdb_size, data_size;
 	struct bdb_header *bdb_header;
 	struct bdb_data *data_header;
@@ -173,7 +173,7 @@ static int do_create(const char *bdb_filename,
 	if (!bdb_filename || !bdbkey_pri_filename || !bdbkey_pub_filename
 			|| !datakey_pri_filename || !datakey_pub_filename) {
 		fprintf(stderr, "Missing filenames\n");
-		goto exit;
+		return rv;
 	}
 
 	/* Load keys */
