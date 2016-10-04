@@ -63,6 +63,18 @@ static void print_key_info(const char *label, const struct bdb_key *key)
 	print_digest("  Digest:         ", digest, sizeof(digest));
 }
 
+static void print_sig_info(const char *label, const struct bdb_sig *sig)
+{
+	if (label)
+		printf("%s", label);
+	printf("  Struct Version: 0x%x:0x%x\n",
+	       sig->struct_major_version, sig->struct_minor_version);
+	printf("  Hash Algorithm: %d\n", sig->hash_alg);
+	printf("  Sign Algorithm: %d\n", sig->sig_alg);
+	printf("  Signed Size:    %d\n", sig->signed_size);
+	printf("  Description:    %s\n", sig->description);
+}
+
 static void show_bdb_header(const uint8_t *bdb)
 {
 	const struct bdb_header *header = bdb_get_header(bdb);
@@ -80,6 +92,11 @@ static void show_bdbkey_info(const uint8_t *bdb)
 static void show_datakey_info(const uint8_t *bdb)
 {
 	print_key_info("Data key:\n", bdb_get_datakey(bdb));
+}
+
+static void show_header_signature(const uint8_t *bdb)
+{
+	print_sig_info("Header Signature:\n" , bdb_get_header_sig(bdb));
 }
 
 static void show_data_header(const uint8_t *bdb)
@@ -107,6 +124,11 @@ static void show_hashes(const uint8_t *bdb)
 	}
 }
 
+static void show_data_signature(const uint8_t *bdb)
+{
+	print_sig_info("Data Signature:\n" , bdb_get_data_sig(bdb));
+}
+
 int ft_show_bdb(const char *name, uint8_t *buf, uint32_t len, void *data)
 {
 	const struct bdb_header *header = bdb_get_header(buf);
@@ -123,8 +145,10 @@ int ft_show_bdb(const char *name, uint8_t *buf, uint32_t len, void *data)
 	show_bdb_header(buf);
 	show_bdbkey_info(buf);
 	show_datakey_info(buf);
+	show_header_signature(buf);
 	show_data_header(buf);
 	show_hashes(buf);
+	show_data_signature(buf);
 
 	return 0;
 }
