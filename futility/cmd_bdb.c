@@ -158,7 +158,8 @@ static int do_create(const char *bdb_filename,
 		     uint32_t bdbkey_version,
 		     const char *datakey_pri_filename,
 		     const char *datakey_pub_filename,
-		     uint32_t datakey_version)
+		     uint32_t datakey_version,
+		     uint64_t load_address)
 {
 	struct bdb_key *bdbkey;
 	struct bdb_key *datakey;
@@ -186,7 +187,7 @@ static int do_create(const char *bdb_filename,
 	}
 
 	memset(&params, 0, sizeof(params));
-	params.bdb_load_address = -1;
+	params.bdb_load_address = load_address;
 	params.bdbkey = bdbkey;
 	params.datakey = datakey;
 	params.private_bdbkey = bdbkey_pri;
@@ -530,6 +531,7 @@ static void print_help(int argc, char *argv[])
 	       "  --bdbkey_pub <file>         BDB key in .keyb format\n"
 	       "  --datakey_pri <file>        Data key in .pem format\n"
 	       "  --datakey_pub <file>        Data key in .keyb format\n"
+	       "  --load_address <number>     BDB load address\n"
 	       "\n"
 	       "For '--resign <bdb_file> [OPTIONS]', optional OPTIONS are:\n"
 	       "  --bdbkey_pri <file>         New BDB key in .pem format\n"
@@ -686,7 +688,7 @@ static int do_bdb(int argc, char *argv[])
 		return do_create(bdb_filename, bdbkey_pri_filename,
 				 bdbkey_pub_filename, bdbkey_version,
 				 datakey_pri_filename, datakey_pub_filename,
-				 datakey_version);
+				 datakey_version, load_address);
 	case OPT_MODE_RESIGN:
 		return do_resign(bdb_filename, bdbkey_pri_filename,
 				 bdbkey_pub_filename, bdbkey_version,

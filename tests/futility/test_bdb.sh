@@ -55,10 +55,13 @@ check_field() {
 }
 
 # Demonstrate bdb --create can create a valid BDB
+load_address=0x60061ec0de
 ${FUTILITY} bdb --create ${BDB_FILE} \
 	--bdbkey_pri ${BDBKEY_PRI} --bdbkey_pub ${BDBKEY_PUB} \
-	--datakey_pub ${DATAKEY_PUB} --datakey_pri ${DATAKEY_PRI}
+	--datakey_pub ${DATAKEY_PUB} --datakey_pri ${DATAKEY_PRI} \
+ 	--load_address ${load_address}
 verify
+check_field "Load Address:" ${load_address}
 
 # Demonstrate bdb --add can  add a new hash
 num_hash=$(get_num_hash)
