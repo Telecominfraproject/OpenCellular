@@ -61,6 +61,19 @@ static void show_bdb_header(const uint8_t *bdb)
 	printf("            size: %d\n", key->struct_size);
 }
 
+static void show_data_header(const uint8_t *bdb)
+{
+	const struct bdb_data *data = bdb_get_data(bdb);
+
+	printf("Data Header:\n");
+	printf("  Struct Version: 0x%x:0x%x\n",
+	       data->struct_major_version, data->struct_minor_version);
+	printf("  # of Hashes:    %d\n", data->num_hashes);
+	printf("  Hash Entry Size:%d\n", data->hash_entry_size);
+	printf("  Signed Size:    %d\n", data->signed_size);
+	printf("  Description:    %s\n", data->description);
+}
+
 static void show_hashes(const uint8_t *bdb)
 {
 	const struct bdb_data *data = bdb_get_data(bdb);
@@ -87,6 +100,7 @@ int ft_show_bdb(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 	printf("Boot Descriptor Block: %s\n", name);
 	show_bdb_header(buf);
+	show_data_header(buf);
 	show_hashes(buf);
 
 	return 0;

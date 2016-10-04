@@ -21,6 +21,8 @@ BDBKEY_DIGEST=${TESTDATA_DIR}/bdbkey_digest.bin
 DATAKEY_DIGEST=${TESTDATA_DIR}/datakey_digest.bin
 DATA_FILE=${TESTDATA_DIR}/sp-rw.bin
 
+declare -i num_hash
+
 # Verify a BDB
 #
 # $1: Key digest file
@@ -32,6 +34,12 @@ verify() {
 		${extra_option}
 }
 
+get_num_hash() {
+	printf "%d" \
+		$(${FUTILITY} show ${BDB_FILE} \
+			| grep '# of Hashes' | cut -d':' -f 2)
+}
+
 # Demonstrate bdb --create can create a valid BDB
 ${FUTILITY} bdb --create ${BDB_FILE} \
 	--bdbkey_pri ${BDBKEY_PRI} --bdbkey_pub ${BDBKEY_PUB} \
@@ -39,9 +47,13 @@ ${FUTILITY} bdb --create ${BDB_FILE} \
 verify
 
 # Demonstrate bdb --add can  add a new hash
+num_hash=$(get_num_hash)
 ${FUTILITY} bdb --add ${BDB_FILE} \
 	--data ${DATA_FILE} --partition 1 --type 2 --offset 3 --load_address 4
-# TODO: Use futility show command to verify the hash is added
+# Use futility show command to verify the hash is added
+num_hash+=1
+[ $(get_num_hash) -eq $num_hash ]
+# TODO: verify partition, type, offset, and load_address
 
 # Demonstrate futility bdb --resign can resign the BDB
 ${FUTILITY} bdb --resign ${BDB_FILE} --datakey_pri ${DATAKEY_PRI}
