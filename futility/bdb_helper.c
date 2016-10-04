@@ -82,6 +82,11 @@ static void show_bdb_header(const uint8_t *bdb)
 	printf("BDB Header:\n");
 	printf("  Struct Version: 0x%x:0x%x\n",
 	       header->struct_major_version, header->struct_minor_version);
+	printf("  Struct Size:    %d\n", header->struct_size);
+	printf("  Load Address:   0x%" PRIx64 "\n", header->bdb_load_address);
+	printf("  Size:           %d\n", header->bdb_size);
+	printf("  Signed Size:    %d\n", header->signed_size);
+	printf("  OEM0 Size:      %d\n", header->oem_area_0_size);
 }
 
 static void show_bdbkey_info(const uint8_t *bdb)
@@ -104,12 +109,13 @@ static void show_data_header(const uint8_t *bdb)
 	const struct bdb_data *data = bdb_get_data(bdb);
 
 	printf("Data Header:\n");
-	printf("  Struct Version: 0x%x:0x%x\n",
+	printf("  Struct Version:  0x%x:0x%x\n",
 	       data->struct_major_version, data->struct_minor_version);
-	printf("  # of Hashes:    %d\n", data->num_hashes);
-	printf("  Hash Entry Size:%d\n", data->hash_entry_size);
-	printf("  Signed Size:    %d\n", data->signed_size);
-	printf("  Description:    %s\n", data->description);
+	printf("  Data Version:    %d\n", data->data_version);
+	printf("  # of Hashes:     %d\n", data->num_hashes);
+	printf("  Hash Entry Size: %d\n", data->hash_entry_size);
+	printf("  Signed Size:     %d\n", data->signed_size);
+	printf("  Description:     %s\n", data->description);
 }
 
 static void show_hashes(const uint8_t *bdb)
