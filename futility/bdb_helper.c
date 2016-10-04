@@ -46,19 +46,40 @@ static void print_hash_entry(const char *label, const struct bdb_hash *hash)
 	print_digest("  Digest:       ", hash->digest, sizeof(hash->digest));
 }
 
+static void print_key_info(const char *label, const struct bdb_key *key)
+{
+	uint8_t digest[BDB_SHA256_DIGEST_SIZE];
+
+	if (label)
+		printf("%s", label);
+	printf("  Struct Version: 0x%x:0x%x\n",
+	       key->struct_major_version, key->struct_minor_version);
+	printf("  Size:           %d\n", key->struct_size);
+	printf("  Hash Algorithm: %d\n", key->hash_alg);
+	printf("  Sign Algorithm: %d\n", key->sig_alg);
+	printf("  Version:        %d\n", key->key_version);
+	printf("  Description:    %s\n", key->description);
+	bdb_sha256(digest, key, key->struct_size);
+	print_digest("  Digest:         ", digest, sizeof(digest));
+}
+
 static void show_bdb_header(const uint8_t *bdb)
 {
 	const struct bdb_header *header = bdb_get_header(bdb);
-	const struct bdb_key *key = bdb_get_bdbkey(bdb);
-	uint8_t digest[BDB_SHA256_DIGEST_SIZE];
 
 	printf("BDB Header:\n");
 	printf("  Struct Version: 0x%x:0x%x\n",
 	       header->struct_major_version, header->struct_minor_version);
+}
 
-	bdb_sha256(digest, key, key->struct_size);
-	print_digest("  BDB key digest: ", digest, sizeof(digest));
-	printf("            size: %d\n", key->struct_size);
+static void show_bdbkey_info(const uint8_t *bdb)
+{
+	print_key_info("BDB key:\n", bdb_get_bdbkey(bdb));
+}
+
+static void show_datakey_info(const uint8_t *bdb)
+{
+	print_key_info("Data key:\n", bdb_get_datakey(bdb));
 }
 
 static void show_data_header(const uint8_t *bdb)
@@ -100,6 +121,8 @@ int ft_show_bdb(const char *name, uint8_t *buf, uint32_t len, void *data)
 
 	printf("Boot Descriptor Block: %s\n", name);
 	show_bdb_header(buf);
+	show_bdbkey_info(buf);
+	show_datakey_info(buf);
 	show_data_header(buf);
 	show_hashes(buf);
 
