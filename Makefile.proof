@@ -62,7 +62,7 @@ $(libgpr): $$(MAKEFILE_LIST)
 	echo '   for Object_Dir use external ("obj", "build");'	>>$@
 	echo 'end lib$(name);'					>>$@
 
-$(obj)/gnatprove/gnatprove.out: $(gpr) $$($(name)-gens) $(obj)/proofmode
+$(obj)/gnatprove/gnatprove.out: $(gpr) $$($(name)-srcs) $$($(name)-gens) $(obj)/proofmode
 	gnatprove -P$< $(SPARKFLAGS) -Xobj=$(abspath $(obj))
 
 proof:
