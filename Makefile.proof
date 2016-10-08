@@ -1,0 +1,97 @@
+PROOF_MODE ?= all
+
+jobs ?= 4
+
+$(foreach dep,$($(name)-deplibs), \
+	$(eval SPARKFLAGS += -aP=$($(dep)-dir)))
+
+SPARKFLAGS += -j$(jobs)
+SPARKFLAGS += -k
+SPARKFLAGS += -m
+SPARKFLAGS += --mode=$(PROOF_MODE)
+SPARKFLAGS += --report=fail
+SPARKFLAGS += --warnings=error
+SPARKFLAGS += --prover=cvc4,z3 --steps=500 --timeout=1	# FIXME: timeout used because steps seems broken
+
+quote-list = $(subst $(space),$(comma),$(patsubst %,"%",$(1)))
+
+$(name)-exclude-srcs = \
+	$(filter-out \
+		$(sort $(notdir $($(name)-proof) $($(name)-srcs) $($(name)-gens) $($(name)-extra-specs))), \
+		$(sort $(notdir \
+			$(wildcard $(addsuffix *.ad[sb],$($(name)-proof-dirs))))))
+
+# Has to reside in the working directory. gnatprove takes paths relative
+# to the directory wher it's placed and reports internal errors if used
+# with absolute paths.
+gpr := $(name).gpr
+gpr-name = $(subst -,_,$(subst .,_,$(basename $(notdir $@))))
+
+# Will be installed for inclusion
+libgpr := $(obj)/lib$(name).gpr
+
+.SECONDEXPANSION:
+
+$(gpr):
+	@printf "    GENERATE   $(subst $(obj)/,,$@)\n"
+	printf '$(if $($(name)-deplibs),with "%s";\n)' $($(name)-deplibs) >$@
+	echo 'library project $(gpr-name) is'			>>$@
+	echo '   for Library_Name use "$(name)";'		>>$@
+	echo '   for Library_Dir use "$(obj)/adalib";'		>>$@
+	echo '   for Source_Dirs use' \
+		'($(call quote-list,$($(name)-proof-dirs)));'	>>$@
+	echo '   for Object_Dir use "$(obj)";'			>>$@
+	echo '   package Builder is'				>>$@
+	echo '      for Global_Configuration_Pragmas use' \
+		'"$(abspath $(libhw-dir)/spark.adc)";'		>>$@
+	echo '   end Builder;'					>>$@
+	echo '   for Excluded_Source_Files use' \
+		'($(call quote-list,$($(name)-exclude-srcs)));' >>$@
+	echo 'end $(gpr-name);'					>>$@
+
+.INTERMEDIATE: $(gpr)
+
+$(libgpr): $$(MAKEFILE_LIST)
+	@printf "    GENERATE   $(subst $(obj)/,,$@)\n"
+	printf '$(if $($(name)-deplibs),with "%s";\n)' $($(name)-deplibs) >$@
+	echo 'library project lib$(name) is'			>>$@
+	echo '   for Library_Name use "$(name)";'		>>$@
+	echo '   for Library_Dir use "lib";'			>>$@
+	echo '   for Library_ALI_Dir use "lib";'		>>$@
+	echo '   for Source_Dirs use ("proof");'		>>$@
+	echo '   for Object_Dir use external ("obj", "build");'	>>$@
+	echo 'end lib$(name);'					>>$@
+
+$(obj)/gnatprove/gnatprove.out: $(gpr) $$($(name)-gens) $(obj)/proofmode
+	gnatprove -P$< $(SPARKFLAGS) -Xobj=$(abspath $(obj))
+
+proof:
+	if [ "$(PROOF_MODE)" != "$$(cat $(obj)/proofmode 2>/dev/null)" ]; then \
+		echo "$(PROOF_MODE)" >$(obj)/proofmode; \
+	fi
+	$(MAKE) $(obj)/gnatprove/gnatprove.out
+
+check: export override PROOF_MODE=check
+check: proof
+
+flow: export override PROOF_MODE=flow
+flow: proof
+
+full: export override PROOF_MODE=all
+full: proof
+
+allconfigs = $(wildcard configs/*)
+allconfigs-targets = $(addprefix allconfigs-,$(notdir $(allconfigs)))
+
+$(allconfigs-targets): allconfigs-%: configs/%
+	rm -rf proof-allconfigs/$* $(name)_$*.gpr
+	mkdir -p proof-allconfigs/$*
+	echo "$(PROOF_MODE)" >proof-allconfigs/$*/proofmode
+	$(MAKE) obj=proof-allconfigs/$* cnf=configs/$* gpr=$(name)_$*.gpr jobs=1 proof-allconfigs/$*/gnatprove/gnatprove.out
+
+proof-allconfigs: $(allconfigs-targets)
+
+clean::
+	rm -rf proof-allconfigs/
+
+.PHONY: proof check flow full $(allconfigs-targets) proof-allconfigs
