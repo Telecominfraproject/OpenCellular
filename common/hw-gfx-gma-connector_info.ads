@@ -1,0 +1,39 @@
+--
+-- Copyright (C) 2015-2016 secunet Security Networks AG
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+
+with HW.GFX.EDID;
+
+private package HW.GFX.GMA.Connector_Info is
+
+   procedure Read_EDID
+     (Raw_EDID :    out EDID.Raw_EDID_Data;
+      Port_Cfg : in     Port_Config;
+      Success  :    out Boolean)
+   with
+      Post => (if Success then EDID.Valid (Raw_EDID));
+
+   procedure Preferred_Link_Setting
+     (Port_Cfg : in out Port_Config;
+      Success  :    out Boolean)
+      with
+         Post => (Port_Cfg.Port = Port_Cfg.Port'Old);
+
+   procedure Next_Link_Setting
+     (Port_Cfg : in out Port_Config;
+      Success  :    out Boolean)
+      with
+         Post => (Port_Cfg.Port = Port_Cfg.Port'Old);
+
+   function Default_BPC (Port_Cfg : Port_Config) return BPC_Type;
+
+end HW.GFX.GMA.Connector_Info;

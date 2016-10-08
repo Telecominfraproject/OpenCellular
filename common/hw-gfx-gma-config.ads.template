@@ -1,0 +1,205 @@
+--
+-- Copyright (C) 2015-2016 secunet Security Networks AG
+--
+-- This program is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; version 2 of the License.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+
+private package HW.GFX.GMA.Config
+with
+   Initializes => Valid_Port_GPU
+is
+
+   CPU : constant CPU_Type := <<CPU>>;
+
+   CPU_Var : constant CPU_Variant := <<CPU_VARIANT>>;
+
+   Internal_Display : constant Internal_Type := <<INTERNAL_PORT>>;
+
+   EDP_Low_Voltage_Swing : constant Boolean := False;
+
+   Default_MMIO_Base : constant := <<DEFAULT_MMIO_BASE>>;
+
+   LVDS_Dual_Threshold : constant := 95_000_000;
+
+   ----------------------------------------------------------------------------
+
+   Has_Internal_Display    : constant Boolean := Internal_Display /= None;
+   Internal_Is_EDP         : constant Boolean := Internal_Display = DP;
+
+   ----- CPU pipe: --------
+   Disable_Trickle_Feed    : constant Boolean := not
+                                                (CPU in Haswell .. Broadwell);
+   Pipe_Enabled_Workaround : constant Boolean := CPU = Broadwell;
+   Has_EDP_Pipe            : constant Boolean := CPU >= Haswell;
+   Has_Pipe_DDI_Func       : constant Boolean := CPU >= Haswell;
+   Has_Trans_Clk_Sel       : constant Boolean := CPU >= Haswell;
+   Has_Pipe_MSA_Misc       : constant Boolean := CPU >= Haswell;
+   Has_Pipeconf_Misc       : constant Boolean := CPU >= Broadwell;
+   Has_Pipeconf_BPC        : constant Boolean := CPU /= Haswell;
+   Has_Plane_Control       : constant Boolean := CPU >= Skylake;
+   Has_DSP_Linoff          : constant Boolean := CPU <= Ivybridge;
+
+   ----- Panel power: -----
+   Has_PP_Write_Protection : constant Boolean := CPU <= Ivybridge;
+   Has_PP_Port_Select      : constant Boolean := CPU <= Ivybridge;
+   Use_PP_VDD_Override     : constant Boolean := CPU <= Ivybridge;
+
+   ----- PCH/FDI: ---------
+   Has_PCH_DAC             : constant Boolean := CPU in Ironlake .. Ivybridge or
+                                                 (CPU in Broadwell .. Haswell
+                                                  and CPU_Var = Normal);
+
+   Has_PCH_Aux_Channels    : constant Boolean := CPU in Ironlake .. Broadwell;
+
+   VGA_Has_Sync_Disable    : constant Boolean := CPU <= Ivybridge;
+
+   Has_Trans_Timing_Ovrrde : constant Boolean := CPU >= Sandybridge;
+
+   Has_DPLL_SEL            : constant Boolean := CPU in Ironlake .. Ivybridge;
+   Has_FDI_BPC             : constant Boolean := CPU in Ironlake .. Ivybridge;
+   Has_FDI_Composite_Sel   : constant Boolean := CPU = Ivybridge;
+   Has_Trans_DP_Ctl        : constant Boolean := CPU in
+                                                 Sandybridge .. Ivybridge;
+   Has_FDI_C               : constant Boolean := CPU = Ivybridge;
+
+   Has_FDI_RX_Power_Down   : constant Boolean := CPU in Haswell .. Broadwell;
+
+   ----- DDI: -------------
+   End_EDP_Training_Late   : constant Boolean := CPU in Haswell .. Broadwell;
+   Has_Per_DDI_Clock_Sel   : constant Boolean := CPU in Haswell .. Broadwell;
+   Has_HOTPLUG_CTL         : constant Boolean := CPU in Haswell .. Broadwell;
+   Has_SHOTPLUG_CTL_A      : constant Boolean := (CPU in Haswell .. Broadwell
+                                                  and CPU_Var = ULT) or
+                                                 CPU >= Skylake;
+
+   Has_DDI_D               : constant Boolean := (CPU in Haswell .. Broadwell
+                                                  and CPU_Var = Normal)
+                                                 or CPU >= Skylake;
+
+   Has_Low_Voltage_Swing   : constant Boolean := CPU >= Skylake;
+
+   Need_DP_Aux_Mutex       : constant Boolean := False; -- Skylake & (PSR | GTC)
+
+   Ungate_GMBUS_Unit_Level : constant Boolean := CPU >= Skylake;
+
+   ----- Power: -----------
+   Has_IPS                 : constant Boolean := (CPU = Haswell and
+                                                  CPU_Var = ULT) or
+                                                 CPU = Broadwell;
+   Has_IPS_CTL_Mailbox     : constant Boolean := CPU = Broadwell;
+
+   Has_Per_Pipe_SRD        : constant Boolean := CPU >= Broadwell;
+
+   ----- GTT:         -----
+   Fold_39Bit_GTT_PTE      : constant Boolean := CPU <= Haswell;
+
+   ----------------------------------------------------------------------------
+
+   type Supported_Pipe_Array is array (Config_Index) of Boolean;
+   Supported_Pipe : constant Supported_Pipe_Array :=
+     (Primary     => True,
+      Secondary   => True,
+      Tertiary    => CPU >= Ivybridge);
+
+   type Valid_Per_Port is array (Port_Type) of Boolean;
+   type Valid_Per_GPU is array (CPU_Type) of Valid_Per_Port;
+   Valid_Port_GPU : Valid_Per_GPU :=
+     (Ironlake    => Valid_Per_Port'
+        (Disabled => False,
+         Internal => Config.Internal_Display = LVDS,
+         others   => True),
+      Sandybridge => Valid_Per_Port'
+        (Disabled => False,
+         Internal => Config.Internal_Display = LVDS,
+         others   => True),
+      Ivybridge   => Valid_Per_Port'
+        (Disabled => False,
+         Internal => Config.Internal_Display /= None,
+         others   => True),
+      Haswell     => Valid_Per_Port'
+        (Disabled => False,
+         Internal => Config.Internal_Display = DP,
+         Digital3 => CPU_Var = Normal,
+         DP3      => CPU_Var = Normal,
+         Analog   => CPU_Var = Normal,
+         others   => True),
+      Broadwell   => Valid_Per_Port'
+        (Disabled => False,
+         Internal => Config.Internal_Display = DP,
+         Digital3 => CPU_Var = Normal,
+         DP3      => CPU_Var = Normal,
+         Analog   => CPU_Var = Normal,
+         others   => True),
+      Skylake     => Valid_Per_Port'
+        (Disabled => False,
+         Internal => Config.Internal_Display = DP,
+         Analog   => False,
+         others   => True))
+   with
+      Part_Of => GMA.Config_State;
+   Valid_Port : Valid_Per_Port renames Valid_Port_GPU (CPU);
+
+   ----------------------------------------------------------------------------
+
+   type FDI_Per_Port is array (GPU_Port) of Boolean;
+   type FDI_Per_GPU is array (CPU_Type) of FDI_Per_Port;
+   FDI_GPU : constant FDI_Per_GPU :=
+     (Ironlake => FDI_Per_Port'
+        (DIGI_A   => False,            -- directly connected eDP
+         DIGI_B   => True,
+         DIGI_C   => True,
+         DIGI_D   => True,
+         others   => False),
+      Sandybridge => FDI_Per_Port'
+        (DIGI_A   => False,            -- directly connected eDP
+         DIGI_B   => True,
+         DIGI_C   => True,
+         DIGI_D   => True,
+         others   => False),
+      Ivybridge => FDI_Per_Port'
+        (DIGI_A   => False,            -- directly connected eDP
+         DIGI_B   => True,
+         DIGI_C   => True,
+         DIGI_D   => True,
+         others   => False),
+      Haswell => FDI_Per_Port'
+        (DIGI_A   => False,
+         DIGI_B   => False,
+         DIGI_C   => False,
+         DIGI_D   => False,
+         DIGI_E   => True,             -- VGA option through FDI
+         others   => False),
+      Broadwell => FDI_Per_Port'
+        (DIGI_A   => False,
+         DIGI_B   => False,
+         DIGI_C   => False,
+         DIGI_D   => False,
+         DIGI_E   => CPU_Var = Normal, -- VGA option through FDI
+         others   => False),
+      Skylake => FDI_Per_Port'
+        (others   => False));
+   FDI_Port : FDI_Per_Port renames FDI_GPU (CPU);
+
+   type FDI_Lanes_Per_Port is array (GPU_Port) of DP_Lane_Count;
+   FDI_Lane_Count : constant FDI_Lanes_Per_Port :=
+     (DIGI_D => DP_Lane_Count_2,
+      others =>
+        (if CPU in Ironlake .. Ivybridge then
+            DP_Lane_Count_4
+         else
+            DP_Lane_Count_2));
+
+   FDI_Training : constant FDI_Training_Type :=
+     (case CPU is
+         when Ironlake     => Simple_Training,
+         when Sandybridge  => Full_Training,
+         when others       => Auto_Training);
+
+end HW.GFX.GMA.Config;

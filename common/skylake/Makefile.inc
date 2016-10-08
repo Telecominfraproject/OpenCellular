@@ -1,0 +1,10 @@
+gfxinit-y += hw-gfx-gma-plls-dpll.adb
+gfxinit-y += hw-gfx-gma-plls-dpll.ads
+gfxinit-y += hw-gfx-gma-plls-dpll_0.adb
+gfxinit-y += hw-gfx-gma-plls-dpll_0.ads
+gfxinit-y += hw-gfx-gma-plls.adb
+gfxinit-y += hw-gfx-gma-plls.ads
+gfxinit-y += hw-gfx-gma-power_and_clocks.ads
+gfxinit-y += hw-gfx-gma-power_and_clocks_skylake.adb
+gfxinit-y += hw-gfx-gma-power_and_clocks_skylake.ads
+gfxinit-y += hw-gfx-gma-spll.ads
