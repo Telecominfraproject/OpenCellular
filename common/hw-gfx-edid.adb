@@ -160,7 +160,7 @@ package body HW.GFX.EDID is
                (Raw_EDID (INPUT) and INPUT_DIGITAL_DEPTH_MASK) = INPUT_DIGITAL_DEPTH_UNDEF or
                (Raw_EDID (INPUT) and INPUT_DIGITAL_DEPTH_MASK) = INPUT_DIGITAL_DEPTH_RESERVED
             then
-               0
+               Auto_BPC
             else
                4 + 2 * Pos64 (Shift_Right
                  (Raw_EDID (INPUT) and INPUT_DIGITAL_DEPTH_MASK,
