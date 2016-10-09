@@ -39,6 +39,10 @@ gfxinit-y += hw-gfx.ads
 gfxinit-$(CONFIG_HWBASE_DYNAMIC_MMIO) += hw-gfx-framebuffer_filler.adb
 gfxinit-$(CONFIG_HWBASE_DYNAMIC_MMIO) += hw-gfx-framebuffer_filler.ads
 
+CONFIG_GFX_GMA_CPU		:= $(call strip_quotes,$(CONFIG_GFX_GMA_CPU))
+CONFIG_GFX_GMA_CPU_VARIANT	:= $(call strip_quotes,$(CONFIG_GFX_GMA_CPU_VARIANT))
+CONFIG_GFX_GMA_INTERNAL_PORT	:= $(call strip_quotes,$(CONFIG_GFX_GMA_INTERNAL_PORT))
+
 $(call src-to-obj,,$(dir)/hw-gfx-gma-config).ads: $(dir)/hw-gfx-gma-config.ads.template $(cnf)
 	printf "    GENERATE   $(patsubst /%,%,$(subst $(obj)/,,$@))\n"
 	sed -e's/<<CPU>>/$(CONFIG_GFX_GMA_CPU)/' \
