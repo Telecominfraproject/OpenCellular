@@ -16,6 +16,8 @@ space :=
 space +=
 comma := ,
 
+strip_quotes = $(strip $(subst ",,$(1))) #"
+
 $(foreach dep,$($(name)-deplibs), \
 	$(eval -include $($(dep)-dir)/config))
 -include $(cnf)
