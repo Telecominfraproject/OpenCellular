@@ -658,7 +658,7 @@ is
                when Ivybridge |
                     Sandybridge  => Audio_VID_DID = 16#8086_2806# or
                                     Audio_VID_DID = 16#8086_2805#,
-               when Ironlake     => Audio_VID_DID = 16#8086_2804#);  -- not sure
+               when Ironlake     => Audio_VID_DID = 16#0000_0000#);
       end Check_Platform;
    begin
       pragma Warnings (GNATprove, Off, "unused variable ""Write_Delay""",
