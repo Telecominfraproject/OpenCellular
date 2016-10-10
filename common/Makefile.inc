@@ -43,14 +43,16 @@ CONFIG_GFX_GMA_CPU		:= $(call strip_quotes,$(CONFIG_GFX_GMA_CPU))
 CONFIG_GFX_GMA_CPU_VARIANT	:= $(call strip_quotes,$(CONFIG_GFX_GMA_CPU_VARIANT))
 CONFIG_GFX_GMA_INTERNAL_PORT	:= $(call strip_quotes,$(CONFIG_GFX_GMA_INTERNAL_PORT))
 
-$(call src-to-obj,,$(dir)/hw-gfx-gma-config).ads: $(dir)/hw-gfx-gma-config.ads.template $(cnf)
+hw-gfx-gma-config-ads := $(subst //,/,$(call src-to-obj,,$(dir)/hw-gfx-gma-config).ads)
+
+$(hw-gfx-gma-config-ads): $(dir)/hw-gfx-gma-config.ads.template $(cnf)
 	printf "    GENERATE   $(patsubst /%,%,$(subst $(obj)/,,$@))\n"
 	sed -e's/<<CPU>>/$(CONFIG_GFX_GMA_CPU)/' \
 	    -e's/<<CPU_VARIANT>>/$(CONFIG_GFX_GMA_CPU_VARIANT)/' \
 	    -e's/<<INTERNAL_PORT>>/$(CONFIG_GFX_GMA_INTERNAL_PORT)/' \
 	    -e's/<<DEFAULT_MMIO_BASE>>/$(CONFIG_GFX_GMA_DEFAULT_MMIO)/' \
 	    $< >$@
-gfxinit-gen-y += $(call src-to-obj,,$(dir)/hw-gfx-gma-config).ads
+gfxinit-gen-y += $(hw-gfx-gma-config-ads)
 
 ifneq ($(filter Ironlake Sandybridge Ivybridge,$(CONFIG_GFX_GMA_CPU)),)
 subdirs-y += ironlake
