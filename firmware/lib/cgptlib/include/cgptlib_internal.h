@@ -34,17 +34,17 @@
 #define CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET (56 - 48)
 #define CGPT_ATTRIBUTE_MAX_SUCCESSFUL (1ULL)
 #define CGPT_ATTRIBUTE_SUCCESSFUL_MASK (CGPT_ATTRIBUTE_MAX_SUCCESSFUL << \
-                                     CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET)
+					CGPT_ATTRIBUTE_SUCCESSFUL_OFFSET)
 
 #define CGPT_ATTRIBUTE_TRIES_OFFSET (52 - 48)
 #define CGPT_ATTRIBUTE_MAX_TRIES (15ULL)
 #define CGPT_ATTRIBUTE_TRIES_MASK (CGPT_ATTRIBUTE_MAX_TRIES << \
-                                   CGPT_ATTRIBUTE_TRIES_OFFSET)
+				   CGPT_ATTRIBUTE_TRIES_OFFSET)
 
 #define CGPT_ATTRIBUTE_PRIORITY_OFFSET (48 - 48)
 #define CGPT_ATTRIBUTE_MAX_PRIORITY (15ULL)
 #define CGPT_ATTRIBUTE_PRIORITY_MASK (CGPT_ATTRIBUTE_MAX_PRIORITY << \
-                                      CGPT_ATTRIBUTE_PRIORITY_OFFSET)
+				      CGPT_ATTRIBUTE_PRIORITY_OFFSET)
 
 #define CGPT_ATTRIBUTE_LEGACY_BOOT_OFFSET (2)
 #define CGPT_ATTRIBUTE_MAX_LEGACY_BOOT (1ULL)
@@ -90,8 +90,8 @@ int CheckParameters(GptData* gpt);
  * Returns 0 if header is valid, 1 if invalid.
  */
 int CheckHeader(GptHeader *h, int is_secondary,
-                uint64_t streaming_drive_sectors,
-                uint64_t gpt_drive_sectors, uint32_t flags);
+		uint64_t streaming_drive_sectors,
+		uint64_t gpt_drive_sectors, uint32_t flags);
 
 /**
  * Calculate and return the header CRC.

@@ -59,7 +59,8 @@ uint8_t *BufferFromFile(const char* input_file, uint64_t* len)
 	return buf;
 }
 
-RSAPublicKey *RSAPublicKeyFromFile(const char *input_file) {
+RSAPublicKey *RSAPublicKeyFromFile(const char *input_file)
+{
 	uint64_t len;
 	RSAPublicKey* key = NULL;
 
@@ -71,7 +72,8 @@ RSAPublicKey *RSAPublicKeyFromFile(const char *input_file) {
 }
 
 int DigestFile(char *input_file, enum vb2_hash_algorithm alg,
-	       uint8_t *digest, uint32_t digest_size) {
+	       uint8_t *digest, uint32_t digest_size)
+{
 	int input_fd, len;
 	uint8_t data[VB2_SHA1_BLOCK_SIZE];
 	struct vb2_digest_context ctx;

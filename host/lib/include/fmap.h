@@ -17,20 +17,21 @@
 #define FMAP_SEARCH_STRIDE 4
 #define FMAP_VER_MAJOR 1
 typedef struct _FmapHeader {
-  char        fmap_signature[FMAP_SIGNATURE_SIZE]; /* avoiding endian issues */
-  uint8_t     fmap_ver_major;
-  uint8_t     fmap_ver_minor;
-  uint64_t    fmap_base;
-  uint32_t    fmap_size;
-  char        fmap_name[FMAP_NAMELEN];
-  uint16_t    fmap_nareas;
+	/* Avoid endian issues in signature... */
+	char        fmap_signature[FMAP_SIGNATURE_SIZE];
+	uint8_t     fmap_ver_major;
+	uint8_t     fmap_ver_minor;
+	uint64_t    fmap_base;
+	uint32_t    fmap_size;
+	char        fmap_name[FMAP_NAMELEN];
+	uint16_t    fmap_nareas;
 } __attribute__((packed)) FmapHeader;
 
 typedef struct _FmapAreaHeader {
-  uint32_t area_offset;
-  uint32_t area_size;
-  char     area_name[FMAP_NAMELEN];
-  uint16_t area_flags;
+	uint32_t area_offset;
+	uint32_t area_size;
+	char     area_name[FMAP_NAMELEN];
+	uint16_t area_flags;
 } __attribute__((packed)) FmapAreaHeader;
 
 

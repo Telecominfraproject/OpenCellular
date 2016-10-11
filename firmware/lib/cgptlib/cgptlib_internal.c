@@ -14,10 +14,11 @@
 
 const static int SECTOR_SIZE = 512;
 
-size_t CalculateEntriesSectors(GptHeader* h) {
-  size_t bytes = h->number_of_entries * h->size_of_entry;
-  size_t ret = (bytes + SECTOR_SIZE - 1) / SECTOR_SIZE;
-  return ret;
+size_t CalculateEntriesSectors(GptHeader* h)
+{
+	size_t bytes = h->number_of_entries * h->size_of_entry;
+	size_t ret = (bytes + SECTOR_SIZE - 1) / SECTOR_SIZE;
+	return ret;
 }
 
 int CheckParameters(GptData *gpt)

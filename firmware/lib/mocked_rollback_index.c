@@ -14,25 +14,30 @@
 #include "tss_constants.h"
 
 
-uint32_t SetVirtualDevMode(int val) {
-  return TPM_SUCCESS;
+uint32_t SetVirtualDevMode(int val)
+{
+	return TPM_SUCCESS;
 }
 
-uint32_t TPMClearAndReenable(void) {
-  return TPM_SUCCESS;
+uint32_t TPMClearAndReenable(void)
+{
+	return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelRead(uint32_t* version) {
-  *version = 0;
-  return TPM_SUCCESS;
+uint32_t RollbackKernelRead(uint32_t *version)
+{
+	*version = 0;
+	return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelWrite(uint32_t version) {
-  return TPM_SUCCESS;
+uint32_t RollbackKernelWrite(uint32_t version)
+{
+	return TPM_SUCCESS;
 }
 
-uint32_t RollbackKernelLock(int recovery_mode) {
-  return TPM_SUCCESS;
+uint32_t RollbackKernelLock(int recovery_mode)
+{
+	return TPM_SUCCESS;
 }
 
 uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)

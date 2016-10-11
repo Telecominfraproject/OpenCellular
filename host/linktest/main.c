@@ -15,19 +15,19 @@
 
 int main(void)
 {
-  /* host_misc.h */
-  ReadFile(0, 0);
-  WriteFile(0, 0, 0);
+	/* host_misc.h */
+	ReadFile(0, 0);
+	WriteFile(0, 0, 0);
 
-  /* file_keys.h */
-  BufferFromFile(0, 0);
-  RSAPublicKeyFromFile(0);
-  DigestFile(0, 0, 0, 0);
+	/* file_keys.h */
+	BufferFromFile(0, 0);
+	RSAPublicKeyFromFile(0);
+	DigestFile(0, 0, 0, 0);
 
-  /* signature_digest.h */
-  PrependDigestInfo(0, 0);
-  SignatureDigest(0, 0, 0);
-  SignatureBuf(0, 0, 0, 0);
+	/* signature_digest.h */
+	PrependDigestInfo(0, 0);
+	SignatureDigest(0, 0, 0);
+	SignatureBuf(0, 0, 0, 0);
 
-  return 0;
+	return 0;
 }
