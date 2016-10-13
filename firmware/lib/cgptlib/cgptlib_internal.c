@@ -75,9 +75,9 @@ int CheckHeader(GptHeader *h, int is_secondary,
 	 * Make sure we're looking at a header of reasonable size before
 	 * attempting to calculate CRC.
 	 */
-	if (Memcmp(h->signature, GPT_HEADER_SIGNATURE,
+	if (memcmp(h->signature, GPT_HEADER_SIGNATURE,
 		   GPT_HEADER_SIGNATURE_SIZE) &&
-	    Memcmp(h->signature, GPT_HEADER_SIGNATURE2,
+	    memcmp(h->signature, GPT_HEADER_SIGNATURE2,
 		   GPT_HEADER_SIGNATURE_SIZE))
 		return 1;
 	if (h->revision != GPT_HEADER_REVISION)
@@ -154,7 +154,7 @@ int CheckHeader(GptHeader *h, int is_secondary,
 int IsKernelEntry(const GptEntry *e)
 {
 	static Guid chromeos_kernel = GPT_ENT_TYPE_CHROMEOS_KERNEL;
-	return !Memcmp(&e->type, &chromeos_kernel, sizeof(Guid));
+	return !memcmp(&e->type, &chromeos_kernel, sizeof(Guid));
 }
 
 int CheckEntries(GptEntry *entries, GptHeader *h)
@@ -199,7 +199,7 @@ int CheckEntries(GptEntry *entries, GptHeader *h)
 				return GPT_ERROR_END_LBA_OVERLAP;
 
 			/* UniqueGuid field must be unique. */
-			if (0 == Memcmp(&entry->unique, &e2->unique,
+			if (0 == memcmp(&entry->unique, &e2->unique,
 					sizeof(Guid)))
 				return GPT_ERROR_DUP_GUID;
 		}
@@ -211,7 +211,7 @@ int CheckEntries(GptEntry *entries, GptHeader *h)
 
 int HeaderFieldsSame(GptHeader *h1, GptHeader *h2)
 {
-	if (Memcmp(h1->signature, h2->signature, sizeof(h1->signature)))
+	if (memcmp(h1->signature, h2->signature, sizeof(h1->signature)))
 		return 1;
 	if (h1->revision != h2->revision)
 		return 1;
@@ -223,7 +223,7 @@ int HeaderFieldsSame(GptHeader *h1, GptHeader *h2)
 		return 1;
 	if (h1->last_usable_lba != h2->last_usable_lba)
 		return 1;
-	if (Memcmp(&h1->disk_uuid, &h2->disk_uuid, sizeof(Guid)))
+	if (memcmp(&h1->disk_uuid, &h2->disk_uuid, sizeof(Guid)))
 		return 1;
 	if (h1->number_of_entries != h2->number_of_entries)
 		return 1;
@@ -257,7 +257,7 @@ int GptSanityCheck(GptData *gpt)
 			     gpt->gpt_drive_sectors, gpt->flags)) {
 		gpt->valid_headers |= MASK_PRIMARY;
 		goodhdr = header1;
-	} else if (header1 && !Memcmp(header1->signature,
+	} else if (header1 && !memcmp(header1->signature,
 		   GPT_HEADER_SIGNATURE_IGNORED, GPT_HEADER_SIGNATURE_SIZE)) {
 		gpt->ignored |= MASK_PRIMARY;
 	}
@@ -266,7 +266,7 @@ int GptSanityCheck(GptData *gpt)
 		gpt->valid_headers |= MASK_SECONDARY;
 		if (!goodhdr)
 			goodhdr = header2;
-	} else if (header2 && !Memcmp(header2->signature,
+	} else if (header2 && !memcmp(header2->signature,
 		   GPT_HEADER_SIGNATURE_IGNORED, GPT_HEADER_SIGNATURE_SIZE)) {
 		gpt->ignored |= MASK_SECONDARY;
 	}
@@ -344,7 +344,7 @@ void GptRepair(GptData *gpt)
 	/* Repair headers if necessary */
 	if (MASK_PRIMARY == gpt->valid_headers) {
 		/* Primary is good, secondary is bad */
-		Memcpy(header2, header1, sizeof(GptHeader));
+		memcpy(header2, header1, sizeof(GptHeader));
 		header2->my_lba = gpt->gpt_drive_sectors - GPT_HEADER_SECTORS;
 		header2->alternate_lba = GPT_PMBR_SECTORS;  /* Second sector. */
 		header2->entries_lba = header2->my_lba - CalculateEntriesSectors(header1);
@@ -353,7 +353,7 @@ void GptRepair(GptData *gpt)
 	}
 	else if (MASK_SECONDARY == gpt->valid_headers) {
 		/* Secondary is good, primary is bad */
-		Memcpy(header1, header2, sizeof(GptHeader));
+		memcpy(header1, header2, sizeof(GptHeader));
 		header1->my_lba = GPT_PMBR_SECTORS;  /* Second sector. */
 		header1->alternate_lba =
 			gpt->streaming_drive_sectors - GPT_HEADER_SECTORS;
@@ -368,12 +368,12 @@ void GptRepair(GptData *gpt)
 	entries_size = header1->size_of_entry * header1->number_of_entries;
 	if (MASK_PRIMARY == gpt->valid_entries) {
 		/* Primary is good, secondary is bad */
-		Memcpy(entries2, entries1, entries_size);
+		memcpy(entries2, entries1, entries_size);
 		gpt->modified |= GPT_MODIFIED_ENTRIES2;
 	}
 	else if (MASK_SECONDARY == gpt->valid_entries) {
 		/* Secondary is good, primary is bad */
-		Memcpy(entries1, entries2, entries_size);
+		memcpy(entries1, entries2, entries_size);
 		gpt->modified |= GPT_MODIFIED_ENTRIES1;
 	}
 	gpt->valid_entries = MASK_BOTH;
@@ -440,7 +440,7 @@ void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest)
 {
 	GptEntry *entries = (GptEntry *)gpt->primary_entries;
 	GptEntry *e = entries + gpt->current_kernel;
-	Memcpy(dest, &e->unique, sizeof(Guid));
+	memcpy(dest, &e->unique, sizeof(Guid));
 }
 
 void GptModified(GptData *gpt) {

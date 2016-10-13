@@ -45,15 +45,15 @@ static int hash_only_check;
  */
 static void ResetMocks(void)
 {
-	Memset(&cparams, 0, sizeof(cparams));
+	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
 	cparams.gbb_data = &gbb;
 	cparams.gbb_size = sizeof(gbb);
 
-	Memset(&kparams, 0, sizeof(kparams));
+	memset(&kparams, 0, sizeof(kparams));
 
-	Memset(&gbb, 0, sizeof(gbb));
+	memset(&gbb, 0, sizeof(gbb));
 	gbb.major_version = GBB_MAJOR_VER;
 	gbb.minor_version = GBB_MINOR_VER;
 	gbb.flags = 0;
@@ -147,7 +147,7 @@ int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	Memcpy(buf, vnc.raw, sizeof(vnc.raw));
+	memcpy(buf, vnc.raw, sizeof(vnc.raw));
 	return VBERROR_SUCCESS;
 }
 

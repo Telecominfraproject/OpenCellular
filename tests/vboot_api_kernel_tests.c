@@ -193,8 +193,8 @@ static uint32_t got_external_mismatch;
  */
 static void ResetMocks(int i)
 {
-	Memset(&lkparams, 0, sizeof(lkparams));
-	Memset(&mock_disks, 0, sizeof(mock_disks));
+	memset(&lkparams, 0, sizeof(lkparams));
+	memset(&mock_disks, 0, sizeof(mock_disks));
 	load_kernel_calls = 0;
 
 	got_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED;

@@ -81,7 +81,7 @@ int VbNvSetup(VbNvContext *context)
 	if ((HEADER_SIGNATURE != (raw[HEADER_OFFSET] & HEADER_MASK))
 	    || (Crc8(raw, CRC_OFFSET) != raw[CRC_OFFSET])) {
 		/* Data is inconsistent (bad CRC or header); reset defaults */
-		Memset(raw, 0, VBNV_BLOCK_SIZE);
+		memset(raw, 0, VBNV_BLOCK_SIZE);
 		raw[HEADER_OFFSET] = (HEADER_SIGNATURE |
 				      HEADER_FIRMWARE_SETTINGS_RESET |
 				      HEADER_KERNEL_SETTINGS_RESET);

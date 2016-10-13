@@ -45,17 +45,17 @@ static void ResetMocks(void) {
 	ScreenLayout *layout;
 	int gbb_used;
 
-	Memset(&vnc, 0, sizeof(vnc));
+	memset(&vnc, 0, sizeof(vnc));
 	VbNvSetup(&vnc);
 	VbNvTeardown(&vnc);                   /* So CRC gets generated */
 
-	Memset(&cparams, 0, sizeof(cparams));
+	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
 
-	Memset(&fparams, 0, sizeof(fparams));
+	memset(&fparams, 0, sizeof(fparams));
 
-	Memset(gbb_data, 0, sizeof(gbb_data));
+	memset(gbb_data, 0, sizeof(gbb_data));
 	gbb = (GoogleBinaryBlockHeader *)gbb_data;
 	gbb->major_version = GBB_MAJOR_VER;
 	gbb->minor_version = GBB_MINOR_VER;
@@ -102,7 +102,7 @@ static void ResetMocks(void) {
 	image_info->compression = COMPRESS_LZMA1;
 	gbb_used += sizeof(*image_info) + COMPRESSED_SIZE;
 
-	Memset(&shared_data, 0, sizeof(shared_data));
+	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
 	shared->fw_keyblock_flags = 0xABCDE0;
 
@@ -116,12 +116,12 @@ static void ResetMocks(void) {
 /* Mocked verification functions */
 
 VbError_t VbExNvStorageRead(uint8_t* buf) {
-  Memcpy(buf, vnc.raw, sizeof(vnc.raw));
+  memcpy(buf, vnc.raw, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t* buf) {
-  Memcpy(vnc.raw, buf, sizeof(vnc.raw));
+  memcpy(vnc.raw, buf, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 

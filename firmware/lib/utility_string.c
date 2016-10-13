@@ -47,7 +47,7 @@ uint32_t Uint64ToString(char *buf, uint32_t bufsize, uint64_t value,
 	}
 
 	/* Now copy the string back to the input buffer. */
-	Memcpy(buf, s, usedsize);
+	memcpy(buf, s, usedsize);
 
 	/* Don't count the terminating null in the bytes used */
 	return usedsize - 1;

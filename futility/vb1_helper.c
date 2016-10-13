@@ -188,7 +188,7 @@ static int PickApartVmlinuz(uint8_t *kernel_buf,
 		/* Copy the original zeropage data from kernel_buf into
 		 * g_param_data, then tweak a few fields for our purposes */
 		params = (struct linux_kernel_params *)(g_param_data);
-		Memcpy(&(params->setup_sects), &(lh->setup_sects),
+		memcpy(&(params->setup_sects), &(lh->setup_sects),
 		       offsetof(struct linux_kernel_params, e820_entries)
 		       - offsetof(struct linux_kernel_params, setup_sects));
 		params->boot_flag = 0;
@@ -220,7 +220,7 @@ static int PickApartVmlinuz(uint8_t *kernel_buf,
 	/* Keep just the 32-bit kernel. */
 	if (kernel32_size) {
 		g_kernel_size = kernel32_size;
-		Memcpy(g_kernel_data, kernel_buf + kernel32_start,
+		memcpy(g_kernel_data, kernel_buf + kernel32_start,
 		       g_kernel_size);
 	}
 
@@ -296,8 +296,8 @@ int UpdateKernelBlobConfig(uint8_t *kblob_data, uint32_t kblob_size,
 		return -1;
 	}
 
-	Memset(g_config_data, 0, g_config_size);
-	Memcpy(g_config_data, config_data, config_size);
+	memset(g_config_data, 0, g_config_size);
+	memcpy(g_config_data, config_data, config_size);
 
 	return 0;
 }
@@ -670,7 +670,7 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint32_t vmlinuz_size,
 
 	/* Allocate space for the blob. */
 	g_kernel_blob_data = malloc(g_kernel_blob_size);
-	Memset(g_kernel_blob_data, 0, g_kernel_blob_size);
+	memset(g_kernel_blob_data, 0, g_kernel_blob_size);
 
 	/* Assign the sub-pointers */
 	g_kernel_data = g_kernel_blob_data + now;
@@ -718,10 +718,10 @@ uint8_t *CreateKernelBlob(uint8_t *vmlinuz_buf, uint32_t vmlinuz_size,
 	}
 
 	/* Copy the other bits too */
-	Memcpy(g_config_data, config_data, config_size);
-	Memcpy(g_bootloader_data, bootloader_data, bootloader_size);
+	memcpy(g_config_data, config_data, config_size);
+	memcpy(g_bootloader_data, bootloader_data, bootloader_size);
 	if (g_vmlinuz_header_size) {
-		Memcpy(g_vmlinuz_header_data,
+		memcpy(g_vmlinuz_header_data,
 		       vmlinuz_buf,
 		       g_vmlinuz_header_size);
 	}

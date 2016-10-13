@@ -59,79 +59,79 @@ static void KeyBlockVerifyTest(const VbPublicKey *public_key,
 	TEST_EQ(KeyBlockVerify(hdr, hsize + 1, NULL, 1), 0,
 		"KeyBlockVerify() size++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->magic[0] &= 0x12;
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() magic");
 
 	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() major++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() major--");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	ReChecksumKeyBlock(h);
 	TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		"KeyBlockVerify() minor++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor--;
 	ReChecksumKeyBlock(h);
 	TEST_EQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		"KeyBlockVerify() minor--");
 
 	/* Check hash */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->key_block_checksum.sig_offset = hsize;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() checksum off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->key_block_checksum.sig_size /= 2;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() checksum too small");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	GetPublicKeyData(&h->data_key)[0] ^= 0x34;
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() checksum mismatch");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->key_block_signature.sig_offset = hsize;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
 		 "KeyBlockVerify() sig off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->key_block_signature.sig_size--;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
 		 "KeyBlockVerify() sig too small");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	GetPublicKeyData(&h->data_key)[0] ^= 0x34;
 	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 0), 0,
 		 "KeyBlockVerify() sig mismatch");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->key_block_checksum.data_size = h->key_block_size + 1;
 	TEST_NEQ(KeyBlockVerify(h, hsize, public_key, 1), 0,
 		 "KeyBlockVerify() checksum data past end of block");
 
 	/* Check that we signed header and data key */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->key_block_checksum.data_size = 4;
 	h->data_key.key_offset = 0;
 	h->data_key.key_size = 0;
@@ -139,7 +139,7 @@ static void KeyBlockVerifyTest(const VbPublicKey *public_key,
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,
 		 "KeyBlockVerify() didn't sign header");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->data_key.key_offset = hsize;
 	ReChecksumKeyBlock(h);
 	TEST_NEQ(KeyBlockVerify(h, hsize, NULL, 1), 0,

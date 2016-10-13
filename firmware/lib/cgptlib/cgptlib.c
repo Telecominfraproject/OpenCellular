@@ -220,7 +220,7 @@ GptEntry *GptFindNthEntry(GptData *gpt, const Guid *guid, unsigned int n)
 	int i;
 
 	for (i = 0, e = entries; i < header->number_of_entries; i++, e++) {
-		if (!Memcmp(&e->type, guid, sizeof(*guid))) {
+		if (!memcmp(&e->type, guid, sizeof(*guid))) {
 			if (n == 0)
 				return e;
 			n--;

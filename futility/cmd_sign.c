@@ -241,7 +241,7 @@ int ft_sign_kern_preamble(const char *name, uint8_t *buf, uint32_t len,
 		/* If we're modifying an existing file, it's mmap'ed so that
 		 * all our modifications to the buffer will get flushed to
 		 * disk when we close it. */
-		Memcpy(kpart_data, vblock_data, vblock_size);
+		memcpy(kpart_data, vblock_data, vblock_size);
 	}
 
 	free(vblock_data);

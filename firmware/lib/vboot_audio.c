@@ -88,7 +88,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	if (!hdr || maxsize < sizeof(VbDevMusic))
 		goto nope;
 
-	if (0 != Memcmp(hdr->sig, "$SND", sizeof(hdr->sig))) {
+	if (0 != memcmp(hdr->sig, "$SND", sizeof(hdr->sig))) {
 		VBDEBUG(("VbGetDevMusicNotes: bad sig\n"));
 		goto nope;
 	}
@@ -171,7 +171,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 
 	/* Looks good. Allocate the space (plus one) and copy it over. */
 	notebuf = VbExMalloc((hdr->count + 1) * sizeof(VbDevMusicNote));
-	Memcpy(notebuf, hdr->notes, hdr->count * sizeof(VbDevMusicNote));
+	memcpy(notebuf, hdr->notes, hdr->count * sizeof(VbDevMusicNote));
 	count = hdr->count;
 
 	/* We also require at least 30 seconds of delay. */
@@ -224,7 +224,7 @@ VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 		ticks_per_msec));
 
 	/* Initialize */
-	Memset(audio, 0, sizeof(*audio));
+	memset(audio, 0, sizeof(*audio));
 	audio->background_beep = 1;
 	audio->play_until = b;                /* "zero" starts now */
 

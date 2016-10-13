@@ -1082,7 +1082,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	VbNvSetup(&vnc);
 
 	/* Fill in params for calls to LoadKernel() */
-	Memset(&p, 0, sizeof(p));
+	memset(&p, 0, sizeof(p));
 	p.shared_data_blob = cparams->shared_data_blob;
 	p.shared_data_size = cparams->shared_data_size;
 	p.gbb_data = cparams->gbb_data;
@@ -1103,7 +1103,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	kparams->bootloader_address = 0;
 	kparams->bootloader_size = 0;
 	kparams->flags = 0;
-	Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
+	memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
 	cparams->bmp = NULL;
 	cparams->gbb = VbExMalloc(sizeof(*cparams->gbb));
@@ -1171,7 +1171,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 
 	/* Read FWMP.  Ignore errors in recovery mode. */
 	if (cparams->gbb->flags & GBB_FLAG_DISABLE_FWMP) {
-		Memset(&fwmp, 0, sizeof(fwmp));
+		memset(&fwmp, 0, sizeof(fwmp));
 		tpm_status = 0;
 	} else {
 		tpm_status = RollbackFwmpRead(&fwmp);
@@ -1290,7 +1290,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	kparams->bootloader_address = p.bootloader_address;
 	kparams->bootloader_size = (uint32_t)p.bootloader_size;
 	kparams->flags = p.flags;
-	Memcpy(kparams->partition_guid, p.partition_guid,
+	memcpy(kparams->partition_guid, p.partition_guid,
 	       sizeof(kparams->partition_guid));
 
 	/* Lock the kernel versions.  Ignore errors in recovery mode. */
@@ -1349,7 +1349,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	kparams->bootloader_address = 0;
 	kparams->bootloader_size = 0;
 	kparams->flags = 0;
-	Memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
+	memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
 	kbuf = boot_image;
 

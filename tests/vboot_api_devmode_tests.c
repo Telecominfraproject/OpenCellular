@@ -149,23 +149,23 @@ static note_event_t *expected_event;
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
 
-  Memset(&cparams, 0, sizeof(cparams));
+  memset(&cparams, 0, sizeof(cparams));
   cparams.shared_data_size = sizeof(shared_data);
   cparams.shared_data_blob = shared_data;
   cparams.gbb_data = &gbb;
   cparams.gbb = &gbb;
 
-  Memset(&lkparams, 0, sizeof(lkparams));
+  memset(&lkparams, 0, sizeof(lkparams));
 
-  Memset(&vnc, 0, sizeof(vnc));
+  memset(&vnc, 0, sizeof(vnc));
   VbNvSetup(&vnc);
   VbNvTeardown(&vnc);  /* So CRC gets generated */
 
-  Memset(&shared_data, 0, sizeof(shared_data));
+  memset(&shared_data, 0, sizeof(shared_data));
   VbSharedDataInit(shared, sizeof(shared_data));
   shared->fw_keyblock_flags = 0xABCDE0;
 
-  Memset(&gbb, 0, sizeof(gbb));
+  memset(&gbb, 0, sizeof(gbb));
   gbb.major_version = GBB_MAJOR_VER;
   gbb.minor_version = GBB_MINOR_VER;
   gbb.flags = 0;
@@ -187,12 +187,12 @@ static void ResetMocks(void) {
 /* Mocked verification functions */
 
 VbError_t VbExNvStorageRead(uint8_t* buf) {
-  Memcpy(buf, vnc.raw, sizeof(vnc.raw));
+  memcpy(buf, vnc.raw, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t* buf) {
-  Memcpy(vnc.raw, buf, sizeof(vnc.raw));
+  memcpy(vnc.raw, buf, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 

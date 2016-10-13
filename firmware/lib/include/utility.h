@@ -47,36 +47,13 @@
 #define Min(a, b) (((a) < (b)) ? (a) : (b))
 
 /**
- * Compare [n] bytes in [src1] and [src2].
- *
- * Returns an integer less than, equal to, or greater than zero if the first
- * [n] bytes of [src1] is found, respectively, to be less than, to match, or be
- * greater than the first n bytes of [src2]. */
-int Memcmp(const void *src1, const void *src2, size_t n);
-
-/**
- * Copy [n] bytes from [src] to [dest].
- */
-void *Memcpy(void *dest, const void *src, uint64_t n);
-
-/*
- * Implementations of the functions below must be built as part of the firmware
- * and defined in lib/utility.c.
- */
-
-/**
- * Set [n] bytes starting at [s] to [c].  Returns dest.
- */
-void *Memset(void *dest, const uint8_t c, uint64_t n);
-
-/**
  * Compare [n] bytes starting at [s1] with [s2] and return 0 if they
  * match, 1 if they don't.  Returns 0 if n=0, since no bytes mismatched.
  *
  * Time taken to perform the comparison is only dependent on [n] and
  * not on the relationship of the match between [s1] and [s2].
  *
- * Note that unlike Memcmp(), this only indicates inequality, not
+ * Note that unlike memcmp(), this only indicates inequality, not
  * whether s1 is less than or greater than s2.
  */
 int SafeMemcmp(const void *s1, const void *s2, size_t n);
@@ -108,9 +85,6 @@ uint32_t StrnAppend(char *dest, const char *src, uint32_t destlen);
 #ifndef _STUB_IMPLEMENTATION_
 #define malloc _do_not_use_standard_malloc
 #define free _do_not_use_standard_free
-#define memcmp _do_not_use_standard_memcmp
-#define memcpy _do_not_use_standard_memcpy
-#define memset _do_not_use_standard_memset
 #endif
 
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */

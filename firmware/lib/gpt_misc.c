@@ -47,7 +47,7 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	/* Read primary header from the drive, skipping the protective MBR */
 	if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header)) {
 		VBDEBUG(("Read error in primary GPT header\n"));
-		Memset(gptdata->primary_header, 0, gptdata->sector_bytes);
+		memset(gptdata->primary_header, 0, gptdata->sector_bytes);
 	}
 
 	/* Only read primary GPT if the primary header is valid */
@@ -71,7 +71,7 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		}
 	} else {
 		VBDEBUG(("Primary GPT header is %s\n",
-			 Memcmp(primary_header->signature,
+			 memcmp(primary_header->signature,
 				GPT_HEADER_SIGNATURE_IGNORED,
 				GPT_HEADER_SIGNATURE_SIZE)
 			 ? "invalid" : "being ignored"));
@@ -81,7 +81,7 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	if (0 != VbExDiskRead(disk_handle, gptdata->gpt_drive_sectors - 1, 1,
 			      gptdata->secondary_header)) {
 		VBDEBUG(("Read error in secondary GPT header\n"));
-		Memset(gptdata->secondary_header, 0, gptdata->sector_bytes);
+		memset(gptdata->secondary_header, 0, gptdata->sector_bytes);
 	}
 
 	/* Only read secondary GPT if the secondary header is valid */
@@ -105,7 +105,7 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		}
 	} else {
 		VBDEBUG(("Secondary GPT header is %s\n",
-			 Memcmp(secondary_header->signature,
+			 memcmp(secondary_header->signature,
 				GPT_HEADER_SIGNATURE_IGNORED,
 				GPT_HEADER_SIGNATURE_SIZE)
 			 ? "invalid" : "being ignored"));
@@ -151,7 +151,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 				 "marked to be ignored.\n"));
 			skip_primary = 1;
 		} else if (gptdata->modified & GPT_MODIFIED_HEADER1) {
-			if (!Memcmp(h->signature, GPT_HEADER_SIGNATURE2,
+			if (!memcmp(h->signature, GPT_HEADER_SIGNATURE2,
 				    GPT_HEADER_SIGNATURE_SIZE)) {
 				VBDEBUG(("Not updating primary GPT: "
 					 "legacy mode is enabled.\n"));
@@ -219,7 +219,7 @@ fail:
 int IsUnusedEntry(const GptEntry *e)
 {
 	static Guid zero = {{{0, 0, 0, 0, 0, {0, 0, 0, 0, 0, 0}}}};
-	return !Memcmp(&zero, (const uint8_t*)(&e->type), sizeof(zero));
+	return !memcmp(&zero, (const uint8_t*)(&e->type), sizeof(zero));
 }
 
 /*

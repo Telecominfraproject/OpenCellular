@@ -221,7 +221,7 @@ static void marshal_blob(void **buffer, void *blob,
 		return;
 	}
 
-	Memcpy(*buffer, blob, blob_size);
+	memcpy(*buffer, blob, blob_size);
 	buffer_space -= blob_size;
 	*buffer = (void *)((uintptr_t)(*buffer) + blob_size);
 }
@@ -307,7 +307,7 @@ static void marshal_TPM2B(void **buffer,
 		return;
 	}
 	marshal_u16(buffer, data->size, buffer_space);
-	Memcpy(*buffer, data->buffer, data->size);
+	memcpy(*buffer, data->buffer, data->size);
 	*buffer = ((uint8_t *)(*buffer)) + data->size;
 	*buffer_space -= data->size;
 }
@@ -320,7 +320,7 @@ static void marshal_nv_write(void **buffer,
 
 	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
-	Memset(&session_header, 0, sizeof(session_header));
+	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
 	marshal_session_header(buffer, &session_header, buffer_space);
 	tpm_tag = TPM_ST_SESSIONS;
@@ -341,7 +341,7 @@ static void marshal_nv_read(void **buffer,
 	else
 		marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
-	Memset(&session_header, 0, sizeof(session_header));
+	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
 	marshal_session_header(buffer, &session_header, buffer_space);
 	tpm_tag = TPM_ST_SESSIONS;
@@ -358,7 +358,7 @@ static void marshal_nv_read_lock(void **buffer,
 	tpm_tag = TPM_ST_SESSIONS;
 	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
-	Memset(&session_header, 0, sizeof(session_header));
+	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
 	marshal_session_header(buffer, &session_header, buffer_space);
 }
@@ -372,7 +372,7 @@ static void marshal_nv_write_lock(void **buffer,
 	tpm_tag = TPM_ST_SESSIONS;
 	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
-	Memset(&session_header, 0, sizeof(session_header));
+	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
 	marshal_session_header(buffer, &session_header, buffer_space);
 }
@@ -386,7 +386,7 @@ static void marshal_hierarchy_control(void **buffer,
 
 	tpm_tag = TPM_ST_SESSIONS;
 	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
-	Memset(&session_header, 0, sizeof(session_header));
+	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
 	marshal_session_header(buffer, &session_header, buffer_space);
 
@@ -414,7 +414,7 @@ static void marshal_clear(void **buffer,
 
 	tpm_tag = TPM_ST_SESSIONS;
 	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
-	Memset(&session_header, 0, sizeof(session_header));
+	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
 	marshal_session_header(buffer, &session_header, buffer_space);
 }

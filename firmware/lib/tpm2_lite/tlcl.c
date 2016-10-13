@@ -381,7 +381,7 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 	struct tpm2_nv_read_cmd nv_readc;
 	struct tpm2_response *response;
 
-	Memset(&nv_readc, 0, sizeof(nv_readc));
+	memset(&nv_readc, 0, sizeof(nv_readc));
 
 	nv_readc.nvIndex = HR_NV_INDEX + index;
 	nv_readc.size = length;
@@ -409,7 +409,7 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 	if (length < response->nvr.buffer.t.size)
 		return TPM_E_READ_EMPTY;
 
-	Memcpy(data, response->nvr.buffer.t.buffer, length);
+	memcpy(data, response->nvr.buffer.t.buffer, length);
 
 	return TPM_SUCCESS;
 }
@@ -419,7 +419,7 @@ uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 	struct tpm2_nv_write_cmd nv_writec;
 	struct tpm2_response *response;
 
-	Memset(&nv_writec, 0, sizeof(nv_writec));
+	memset(&nv_writec, 0, sizeof(nv_writec));
 
 	nv_writec.nvIndex = HR_NV_INDEX + index;
 	nv_writec.data.t.size = length;
@@ -445,7 +445,7 @@ uint32_t TlclWriteLock(uint32_t index)
 	struct tpm2_nv_write_lock_cmd nv_writelockc;
 	struct tpm2_response *response;
 
-	Memset(&nv_writelockc, 0, sizeof(nv_writelockc));
+	memset(&nv_writelockc, 0, sizeof(nv_writelockc));
 
 	nv_writelockc.nvIndex = HR_NV_INDEX | index;
 
@@ -463,7 +463,7 @@ uint32_t TlclReadLock(uint32_t index)
 	struct tpm2_nv_read_lock_cmd nv_readlockc;
 	struct tpm2_response *response;
 
-	Memset(&nv_readlockc, 0, sizeof(nv_readlockc));
+	memset(&nv_readlockc, 0, sizeof(nv_readlockc));
 
 	nv_readlockc.nvIndex = HR_NV_INDEX | index;
 

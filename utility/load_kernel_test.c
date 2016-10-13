@@ -88,13 +88,13 @@ int main(int argc, char* argv[]) {
   int errorcnt = 0;
   char *e = 0;
 
-  Memset(&lkp, 0, sizeof(LoadKernelParams));
+  memset(&lkp, 0, sizeof(LoadKernelParams));
   lkp.bytes_per_lba = LBA_BYTES;
   lkp.boot_flags = BOOT_FLAG_RECOVERY;
-  Memset(&vnc, 0, sizeof(VbNvContext));
+  memset(&vnc, 0, sizeof(VbNvContext));
   VbNvSetup(&vnc);
   lkp.nv_context = &vnc;
-  Memset(&cparams, 0, sizeof(VbCommonParams));
+  memset(&cparams, 0, sizeof(VbCommonParams));
 
   /* Parse options */
   opterr = 0;
@@ -164,8 +164,8 @@ int main(int argc, char* argv[]) {
   lkp.gbb_data = (void*)malloc(lkp.gbb_size);
   gbb = (GoogleBinaryBlockHeader*)lkp.gbb_data;
   cparams.gbb = gbb;
-  Memset(gbb, 0, lkp.gbb_size);
-  Memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
+  memset(gbb, 0, lkp.gbb_size);
+  memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
   gbb->major_version = GBB_MAJOR_VER;
   gbb->minor_version = GBB_MINOR_VER;
   gbb->header_size = sizeof(GoogleBinaryBlockHeader);
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
   if (key_blob) {
     gbb->rootkey_offset = gbb->header_size;
     gbb->rootkey_size = key_size;
-    Memcpy((uint8_t*)gbb + gbb->rootkey_offset, key_blob, key_size);
+    memcpy((uint8_t*)gbb + gbb->rootkey_offset, key_blob, key_size);
 
     gbb->recovery_key_offset = gbb->rootkey_offset;
     gbb->recovery_key_size = key_size;

@@ -146,8 +146,8 @@ static void PublicKeyTest(void)
 	VbPublicKey j[5];
 
 	/* Fill some bits of the public key data */
-	Memset(j, 0, sizeof(j));
-	Memset(k, 0x42, sizeof(k));
+	memset(j, 0, sizeof(j));
+	memset(k, 0x42, sizeof(k));
 	k[1].key_size = 12345;
 	k[2].key_version = 67;
 
@@ -178,7 +178,7 @@ static void PublicKeyTest(void)
 	TEST_EQ(k->key_version, j->key_version, "PublicKeyCopy key_version");
 	/* Data should have been copied */
 	TEST_EQ(0,
-		Memcmp(GetPublicKeyData(k), GetPublicKeyData(j), k->key_size),
+		memcmp(GetPublicKeyData(k), GetPublicKeyData(j), k->key_size),
 		"PublicKeyCopy data");
 }
 
@@ -198,7 +198,7 @@ static void VbSharedDataTest(void)
 		 VbSharedDataInit(NULL, VB_SHARED_DATA_MIN_SIZE),
 		 "VbSharedDataInit null");
 
-	Memset(buf, 0x68, sizeof(buf));
+	memset(buf, 0x68, sizeof(buf));
 	TEST_EQ(VBOOT_SUCCESS, VbSharedDataInit(d, VB_SHARED_DATA_MIN_SIZE),
 		"VbSharedDataInit");
 

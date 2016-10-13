@@ -111,7 +111,7 @@ static VbError_t TpmExecute(const uint8_t *in, const uint32_t in_len,
 					       "output buffer\n");
 			} else {
 				*pout_len = n;
-				Memcpy(out, response, n);
+				memcpy(out, response, n);
 			}
 		}
 	}

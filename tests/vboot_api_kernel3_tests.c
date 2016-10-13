@@ -54,12 +54,12 @@ static uint32_t screens_count = 0;
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
 {
-	Memset(&cparams, 0, sizeof(cparams));
+	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
 	cparams.gbb_data = &gbb;
 
-	Memset(&gbb, 0, sizeof(gbb));
+	memset(&gbb, 0, sizeof(gbb));
 	gbb.major_version = GBB_MAJOR_VER;
 	gbb.minor_version = GBB_MINOR_VER;
 	gbb.flags = 0;
@@ -68,11 +68,11 @@ static void ResetMocks(void)
 	 * Only the outermost vboot_api_kernel call sets vboot_api_kernel's
 	 * vnc.  So clear it here too.
 	 */
-	Memset(VbApiKernelGetVnc(), 0, sizeof(VbNvContext));
+	memset(VbApiKernelGetVnc(), 0, sizeof(VbNvContext));
 	VbNvSetup(VbApiKernelGetVnc());
 	VbNvTeardown(VbApiKernelGetVnc()); /* So CRC gets generated */
 
-	Memset(&shared_data, 0, sizeof(shared_data));
+	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
 
 	trust_ec = 0;
@@ -89,15 +89,15 @@ static void ResetMocks(void)
 	get_expected_retval = VBERROR_SUCCESS;
 	shutdown_request_calls_left = -1;
 
-	Memset(mock_ec_ro_hash, 0, sizeof(mock_ec_ro_hash));
+	memset(mock_ec_ro_hash, 0, sizeof(mock_ec_ro_hash));
 	mock_ec_ro_hash[0] = 42;
 	mock_ec_ro_hash_size = sizeof(mock_ec_ro_hash);
 
-	Memset(mock_ec_rw_hash, 0, sizeof(mock_ec_rw_hash));
+	memset(mock_ec_rw_hash, 0, sizeof(mock_ec_rw_hash));
 	mock_ec_rw_hash[0] = 42;
 	mock_ec_rw_hash_size = sizeof(mock_ec_rw_hash);
 
-	Memset(want_ec_hash, 0, sizeof(want_ec_hash));
+	memset(want_ec_hash, 0, sizeof(want_ec_hash));
 	want_ec_hash[0] = 42;
 	want_ec_hash_size = sizeof(want_ec_hash);
 
@@ -105,7 +105,7 @@ static void ResetMocks(void)
 
 	// TODO: ensure these are actually needed
 
-	Memset(screens_displayed, 0, sizeof(screens_displayed));
+	memset(screens_displayed, 0, sizeof(screens_displayed));
 	screens_count = 0;
 }
 

@@ -47,67 +47,67 @@ static void test_check_keyblock(const struct vb2_public_key *public_key,
 	h = (struct vb2_keyblock *)malloc(hsize + 2048);
 	sig = &h->keyblock_signature;
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_check_keyblock(h, hsize, sig),
 		  "vb2_check_keyblock() ok");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_check_keyblock(h, hsize - 1, sig),
 		VB2_ERROR_KEYBLOCK_SIZE, "vb2_check_keyblock() size--");
 
 	/* Buffer is allowed to be bigger than keyblock */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_check_keyblock(h, hsize + 1, sig),
 		  "vb2_check_keyblock() size++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->magic[0] &= 0x12;
 	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
 		VB2_ERROR_KEYBLOCK_MAGIC, "vb2_check_keyblock() magic");
 
 	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	resign_keyblock(h, private_key);
 	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
 		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
 		"vb2_check_keyblock() major++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	resign_keyblock(h, private_key);
 	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
 		VB2_ERROR_KEYBLOCK_HEADER_VERSION,
 		"vb2_check_keyblock() major--");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	resign_keyblock(h, private_key);
 	TEST_SUCC(vb2_check_keyblock(h, hsize, sig),
 		  "vb2_check_keyblock() minor++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor--;
 	resign_keyblock(h, private_key);
 	TEST_SUCC(vb2_check_keyblock(h, hsize, sig),
 		  "vb2_check_keyblock() minor--");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->keyblock_signature.sig_offset = hsize;
 	resign_keyblock(h, private_key);
 	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
 		VB2_ERROR_KEYBLOCK_SIG_OUTSIDE,
 		"vb2_check_keyblock() sig off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->keyblock_signature.data_size = h->keyblock_size + 1;
 	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
 		VB2_ERROR_KEYBLOCK_SIGNED_TOO_MUCH,
 		"vb2_check_keyblock() sig data past end of block");
 
 	/* Check that we signed header and data key */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->keyblock_signature.data_size = 4;
 	h->data_key.key_offset = 0;
 	h->data_key.key_size = 0;
@@ -116,7 +116,7 @@ static void test_check_keyblock(const struct vb2_public_key *public_key,
 		VB2_ERROR_KEYBLOCK_SIGNED_TOO_LITTLE,
 		"vb2_check_keyblock() didn't sign header");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->data_key.key_offset = hsize;
 	resign_keyblock(h, private_key);
 	TEST_EQ(vb2_check_keyblock(h, hsize, sig),
@@ -157,24 +157,24 @@ static void test_verify_keyblock(const struct vb2_public_key *public_key,
 	hsize = hdr->keyblock_size;
 	h = (struct vb2_keyblock *)malloc(hsize + 2048);
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_verify_keyblock(h, hsize, public_key, &wb),
 		  "vb2_verify_keyblock() ok using key");
 
 	/* Failures in keyblock check also cause verify to fail */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_verify_keyblock(h, hsize - 1, public_key, &wb),
 		VB2_ERROR_KEYBLOCK_SIZE, "vb2_verify_keyblock() check");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->keyblock_signature.sig_size--;
 	resign_keyblock(h, private_key);
 	TEST_EQ(vb2_verify_keyblock(h, hsize, public_key, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_INVALID,
 		"vb2_verify_keyblock() sig too small");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	((uint8_t *)vb2_packed_key_data(&h->data_key))[0] ^= 0x34;
 	TEST_EQ(vb2_verify_keyblock(h, hsize, public_key, &wb),
 		VB2_ERROR_KEYBLOCK_SIG_INVALID,
@@ -232,47 +232,47 @@ static void test_verify_fw_preamble(struct vb2_packed_key *public_key,
 	hsize = (uint32_t) hdr->preamble_size;
 	h = (struct vb2_fw_preamble *)malloc(hsize + 16384);
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		  "vb2_verify_fw_preamble() ok using key");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_verify_fw_preamble(h, 4, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER,
 		"vb2_verify_fw_preamble() size tiny");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize - 1, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIZE,
 		"vb2_verify_fw_preamble() size--");
 
 	/* Buffer is allowed to be bigger than preamble */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_verify_fw_preamble(h, hsize + 1, &rsa, &wb),
 		  "vb2_verify_fw_preamble() size++");
 
 	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_HEADER_VERSION
 		, "vb2_verify_fw_preamble() major++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_HEADER_VERSION,
 		"vb2_verify_fw_preamble() major--");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	resign_fw_preamble(h, private_key);
 	TEST_SUCC(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		  "vb2_verify_fw_preamble() minor++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor--;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
@@ -280,28 +280,28 @@ static void test_verify_fw_preamble(struct vb2_packed_key *public_key,
 		"vb2_verify_fw_preamble() 2.0 not supported");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_offset = hsize;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIG_OUTSIDE,
 		"vb2_verify_fw_preamble() sig off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_size--;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIG_INVALID,
 		"vb2_verify_fw_preamble() sig too small");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	((uint8_t *)vb2_packed_key_data(&h->kernel_subkey))[0] ^= 0x34;
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIG_INVALID,
 		"vb2_verify_fw_preamble() sig mismatch");
 
 	/* Check that we signed header, kernel subkey, and body sig */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.data_size = 4;
 	h->kernel_subkey.key_offset = 0;
 	h->kernel_subkey.key_size = 0;
@@ -312,14 +312,14 @@ static void test_verify_fw_preamble(struct vb2_packed_key *public_key,
 		VB2_ERROR_PREAMBLE_SIGNED_TOO_LITTLE,
 		"vb2_verify_fw_preamble() didn't sign header");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->kernel_subkey.key_offset = hsize;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_KERNEL_SUBKEY_OUTSIDE,
 		"vb2_verify_fw_preamble() kernel subkey off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->body_signature.sig_offset = hsize;
 	resign_fw_preamble(h, private_key);
 	TEST_EQ(vb2_verify_fw_preamble(h, hsize, &rsa, &wb),
@@ -378,69 +378,69 @@ static void test_verify_kernel_preamble(
 	struct vb2_kernel_preamble *h =
 		(struct vb2_kernel_preamble *)malloc(hsize + 16384);
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		  "vb2_verify_kernel_preamble() ok using key");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_verify_kernel_preamble(h, 4, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_TOO_SMALL_FOR_HEADER,
 		"vb2_verify_kernel_preamble() size tiny");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize - 1, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIZE,
 		"vb2_verify_kernel_preamble() size--");
 
 	/* Buffer is allowed to be bigger than preamble */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize + 1, &rsa, &wb),
 		  "vb2_verify_kernel_preamble() size++");
 
 	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_HEADER_VERSION
 		, "vb2_verify_kernel_preamble() major++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_HEADER_VERSION,
 		"vb2_verify_kernel_preamble() major--");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	resign_kernel_preamble(h, private_key);
 	TEST_SUCC(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		  "vb2_verify_kernel_preamble() minor++");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_offset = hsize;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIG_OUTSIDE,
 		"vb2_verify_kernel_preamble() sig off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_size--;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIG_INVALID,
 		"vb2_verify_kernel_preamble() sig too small");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->flags++;
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_SIG_INVALID,
 		"vb2_verify_kernel_preamble() sig mismatch");
 
 	/* Check that we signed header and body sig */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.data_size = 4;
 	h->body_signature.sig_offset = 0;
 	h->body_signature.sig_size = 0;
@@ -449,7 +449,7 @@ static void test_verify_kernel_preamble(
 		VB2_ERROR_PREAMBLE_SIGNED_TOO_LITTLE,
 		"vb2_verify_kernel_preamble() didn't sign header");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->body_signature.sig_offset = hsize;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
@@ -457,14 +457,14 @@ static void test_verify_kernel_preamble(
 		"vb2_verify_kernel_preamble() body sig off end");
 
 	/* Check bootloader inside signed body */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->bootloader_address = h->body_load_address - 1;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_BOOTLOADER_OUTSIDE,
 		"vb2_verify_kernel_preamble() bootloader before body");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->bootloader_address = h->body_load_address +
 		h->body_signature.data_size + 1;
 	resign_kernel_preamble(h, private_key);
@@ -472,7 +472,7 @@ static void test_verify_kernel_preamble(
 		VB2_ERROR_PREAMBLE_BOOTLOADER_OUTSIDE,
 		"vb2_verify_kernel_preamble() bootloader off end of body");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->bootloader_address = h->body_load_address +
 		h->body_signature.data_size + 1;
 	h->bootloader_size = 0;
@@ -481,14 +481,14 @@ static void test_verify_kernel_preamble(
 		  "vb2_verify_kernel_preamble() no bootloader");
 
 	/* Check vmlinuz inside signed body */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->vmlinuz_header_address = h->body_load_address - 1;
 	resign_kernel_preamble(h, private_key);
 	TEST_EQ(vb2_verify_kernel_preamble(h, hsize, &rsa, &wb),
 		VB2_ERROR_PREAMBLE_VMLINUZ_HEADER_OUTSIDE,
 		"vb2_verify_kernel_preamble() vmlinuz_header before body");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->vmlinuz_header_address = h->body_load_address +
 		h->body_signature.data_size + 1;
 	resign_kernel_preamble(h, private_key);
@@ -496,7 +496,7 @@ static void test_verify_kernel_preamble(
 		VB2_ERROR_PREAMBLE_VMLINUZ_HEADER_OUTSIDE,
 		"vb2_verify_kernel_preamble() vmlinuz_header off end of body");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->vmlinuz_header_address = h->body_load_address +
 		h->body_signature.data_size + 1;
 	h->vmlinuz_header_size = 0;

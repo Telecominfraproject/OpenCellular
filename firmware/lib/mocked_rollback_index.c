@@ -42,6 +42,6 @@ uint32_t RollbackKernelLock(int recovery_mode)
 
 uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 {
-	Memset(fwmp, 0, sizeof(*fwmp));
+	memset(fwmp, 0, sizeof(*fwmp));
 	return TPM_SUCCESS;
 }

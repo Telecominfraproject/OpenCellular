@@ -57,13 +57,13 @@ uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length)
 
 uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 {
-	Memset(data, '\0', length);
+	memset(data, '\0', length);
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclPCRRead(uint32_t index, void* data, uint32_t length)
 {
-	Memset(data, '\0', length);
+	memset(data, '\0', length);
 	return TPM_SUCCESS;
 }
 
@@ -134,13 +134,13 @@ uint32_t TlclSetDeactivated(uint8_t flag)
 
 uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags)
 {
-	Memset(pflags, '\0', sizeof(*pflags));
+	memset(pflags, '\0', sizeof(*pflags));
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* vflags)
 {
-	Memset(vflags, '\0', sizeof(*vflags));
+	memset(vflags, '\0', sizeof(*vflags));
 	return TPM_SUCCESS;
 }
 
@@ -162,7 +162,7 @@ uint32_t TlclSetGlobalLock(void)
 uint32_t TlclExtend(int pcr_num, const uint8_t* in_digest,
                     uint8_t* out_digest)
 {
-	Memcpy(out_digest, in_digest, kPcrDigestLength);
+	memcpy(out_digest, in_digest, kPcrDigestLength);
 	return TPM_SUCCESS;
 }
 
@@ -182,7 +182,7 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 {
 	*size = length;
 	/* http://dilbert.com/strips/comic/2001-10-25/ */
-	Memset(data, '\x9', *size);
+	memset(data, '\x9', *size);
 	return TPM_SUCCESS;
 }
 

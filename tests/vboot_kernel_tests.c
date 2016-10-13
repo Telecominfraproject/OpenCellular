@@ -81,7 +81,7 @@ static uint8_t mock_digest[VB2_SHA256_DIGEST_SIZE] = {12, 34, 56, 78};
  */
 static void SetupGptHeader(GptHeader *h, int is_secondary)
 {
-	Memset(h, '\0', MOCK_SECTOR_SIZE);
+	memset(h, '\0', MOCK_SECTOR_SIZE);
 
 	/* "EFI PART" */
 	memcpy(h->signature, GPT_HEADER_SIGNATURE, GPT_HEADER_SIGNATURE_SIZE);
@@ -302,7 +302,7 @@ int vb2_digest_buffer(const uint8_t *buf,
 		      uint8_t *digest,
 		      uint32_t digest_size)
 {
-	Memcpy(digest, mock_digest, sizeof(mock_digest));
+	memcpy(digest, mock_digest, sizeof(mock_digest));
 	return VB2_SUCCESS;
 }
 
@@ -329,7 +329,7 @@ static void ReadWriteGptTest(void)
 	 * Valgrind complains about access to uninitialized memory here, so
 	 * zero the primary header before each test.
 	 */
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	TEST_EQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree");
 	TEST_CALLS("");
 
@@ -338,7 +338,7 @@ static void ReadWriteGptTest(void)
 	 * check that AllocAndReadGptData still succeeds
 	 */
 	ResetMocks();
-	Memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
+	memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
 		"AllocAndRead primary invalid");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
@@ -357,7 +357,7 @@ static void ReadWriteGptTest(void)
 	 * check that AllocAndReadGptData still succeeds
 	 */
 	ResetMocks();
-	Memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
+	memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
 		"AllocAndRead secondary invalid");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
@@ -376,8 +376,8 @@ static void ReadWriteGptTest(void)
 	 * check that AllocAndReadGptData fails.
 	 */
 	ResetMocks();
-	Memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
-	Memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
+	memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
+	memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
 	TEST_EQ(AllocAndReadGptData(handle, &g), 1,
 		"AllocAndRead primary and secondary invalid");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
@@ -398,7 +398,7 @@ static void ReadWriteGptTest(void)
 	 * but this callback is mocked in these tests.
 	 */
 	ResetMocks();
-	Memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
+	memset(mock_gpt_primary, '\0', sizeof(*mock_gpt_primary));
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
 		"Fix Primary GPT: AllocAndRead");
 	/* Call GptRepair() with input indicating secondary GPT is valid */
@@ -423,7 +423,7 @@ static void ReadWriteGptTest(void)
 	 * but this callback is mocked in these tests.
 	 */
 	ResetMocks();
-	Memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
+	memset(mock_gpt_secondary, '\0', sizeof(*mock_gpt_secondary));
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
 		"Fix Secondary GPT: AllocAndRead");
 	/* Call GptRepair() with input indicating primary GPT is valid */
@@ -445,7 +445,7 @@ static void ReadWriteGptTest(void)
 	AllocAndReadGptData(handle, &g);
 	g.modified |= GPT_MODIFIED_HEADER1 | GPT_MODIFIED_ENTRIES1;
 	ResetCallLog();
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	h = (GptHeader*)g.primary_header;
 	h->entries_lba = 2;
 	h->number_of_entries = MAX_NUMBER_OF_ENTRIES;
@@ -459,7 +459,7 @@ static void ReadWriteGptTest(void)
 	AllocAndReadGptData(handle, &g);
 	g.modified = -1;
 	ResetCallLog();
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	h = (GptHeader*)g.primary_header;
 	h->entries_lba = 2;
 	h->number_of_entries = MAX_NUMBER_OF_ENTRIES;
@@ -529,14 +529,14 @@ static void ReadWriteGptTest(void)
 	disk_write_to_fail = 1;
 	AllocAndReadGptData(handle, &g);
 	g.modified = -1;
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	TEST_NEQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree disk fail");
 
 	ResetMocks();
 	disk_write_to_fail = 2;
 	AllocAndReadGptData(handle, &g);
 	g.modified = -1;
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	h = (GptHeader*)g.primary_header;
 	h->entries_lba = 2;
 	TEST_NEQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree disk fail");
@@ -545,14 +545,14 @@ static void ReadWriteGptTest(void)
 	disk_write_to_fail = 991;
 	AllocAndReadGptData(handle, &g);
 	g.modified = -1;
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	TEST_NEQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree disk fail");
 
 	ResetMocks();
 	disk_write_to_fail = 1023;
 	AllocAndReadGptData(handle, &g);
 	g.modified = -1;
-	Memset(g.primary_header, '\0', g.sector_bytes);
+	memset(g.primary_header, '\0', g.sector_bytes);
 	TEST_NEQ(WriteAndFreeGptData(handle, &g), 0, "WriteAndFree disk fail");
 
 }

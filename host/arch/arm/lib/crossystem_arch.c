@@ -279,7 +279,7 @@ static int VbReadNvStorage_disk(VbNvContext* vnc)
 			__FUNCTION__, nvctx_path);
 		goto out;
 	}
-	Memcpy(vnc->raw, sector+offset, size);
+	memcpy(vnc->raw, sector+offset, size);
 	rv = 0;
 
 out:
@@ -323,7 +323,7 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc)
 				__FUNCTION__, nvctx_path);
 			break;
 		}
-		Memcpy(sector+offset, vnc->raw, size);
+		memcpy(sector+offset, vnc->raw, size);
 		lseek(nvctx_fd, lba * SECTOR_SIZE, SEEK_SET);
 		rv = write(nvctx_fd, sector, SECTOR_SIZE);
 		if (rv <= 0) {

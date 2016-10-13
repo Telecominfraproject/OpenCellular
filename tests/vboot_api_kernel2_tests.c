@@ -51,13 +51,13 @@ extern struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void);
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
 {
-	Memset(&cparams, 0, sizeof(cparams));
+	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
 	cparams.gbb_data = &gbb;
 	cparams.gbb = &gbb;
 
-	Memset(&gbb, 0, sizeof(gbb));
+	memset(&gbb, 0, sizeof(gbb));
 	gbb.major_version = GBB_MAJOR_VER;
 	gbb.minor_version = GBB_MINOR_VER;
 	gbb.flags = 0;
@@ -66,16 +66,16 @@ static void ResetMocks(void)
 	 * Only the outermost vboot_api_kernel call sets vboot_api_kernel's
 	 * vnc.  So clear it here too.
 	 */
-	Memset(VbApiKernelGetVnc(), 0, sizeof(VbNvContext));
+	memset(VbApiKernelGetVnc(), 0, sizeof(VbNvContext));
 	VbNvSetup(VbApiKernelGetVnc());
 	VbNvTeardown(VbApiKernelGetVnc()); /* So CRC gets generated */
 
-	Memset(VbApiKernelGetFwmp(), 0, sizeof(struct RollbackSpaceFwmp));
+	memset(VbApiKernelGetFwmp(), 0, sizeof(struct RollbackSpaceFwmp));
 
-	Memset(&shared_data, 0, sizeof(shared_data));
+	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
 
-	Memset(&lkp, 0, sizeof(lkp));
+	memset(&lkp, 0, sizeof(lkp));
 
 	shutdown_request_calls_left = -1;
 	audio_looping_calls_left = 30;
@@ -85,18 +85,18 @@ static void ResetMocks(void)
 	virtdev_set = 0;
 	virtdev_retval = 0;
 
-	Memset(screens_displayed, 0, sizeof(screens_displayed));
+	memset(screens_displayed, 0, sizeof(screens_displayed));
 	screens_count = 0;
 
-	Memset(mock_keypress, 0, sizeof(mock_keypress));
-	Memset(mock_keyflags, 0, sizeof(mock_keyflags));
+	memset(mock_keypress, 0, sizeof(mock_keypress));
+	memset(mock_keyflags, 0, sizeof(mock_keyflags));
 	mock_keypress_count = 0;
 
-	Memset(mock_switches, 0, sizeof(mock_switches));
+	memset(mock_switches, 0, sizeof(mock_switches));
 	mock_switches_count = 0;
 	mock_switches_are_stuck = 0;
 
-	Memset(mock_num_disks, 0, sizeof(mock_num_disks));
+	memset(mock_num_disks, 0, sizeof(mock_num_disks));
 	mock_num_disks_count = 0;
 }
 

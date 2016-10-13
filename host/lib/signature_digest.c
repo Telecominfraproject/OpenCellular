@@ -23,8 +23,8 @@ uint8_t* PrependDigestInfo(unsigned int algorithm, uint8_t* digest)
 	const int digestinfo_size = digestinfo_size_map[algorithm];
 	const uint8_t* digestinfo = hash_digestinfo_map[algorithm];
 	uint8_t* p = malloc(digestinfo_size + digest_size);
-	Memcpy(p, digestinfo, digestinfo_size);
-	Memcpy(p + digestinfo_size, digest, digest_size);
+	memcpy(p, digestinfo, digestinfo_size);
+	memcpy(p + digestinfo_size, digest, digest_size);
 	return p;
 }
 

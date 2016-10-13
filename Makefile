@@ -413,7 +413,6 @@ ifeq (${FIRMWARE_ARCH},)
 # TODO: split out other stub funcs too
 VBINIT_SRCS += \
 	firmware/stub/tpm_lite_stub.c \
-	firmware/stub/utility_stub.c \
 	firmware/stub/vboot_api_stub_init.c \
 	firmware/stub/vboot_api_stub_region.c
 
@@ -507,7 +506,6 @@ HOSTLIB_SRCS = \
 	firmware/lib/utility_string.c \
 	firmware/lib/vboot_nvstorage.c \
 	firmware/stub/tpm_lite_stub.c \
-	firmware/stub/utility_stub.c \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_init.c \
@@ -540,7 +538,6 @@ TINYHOSTLIB_SRCS = \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_sf.c \
-	firmware/stub/utility_stub.c \
 	futility/dump_kernel_config_lib.c \
 	host/lib/extract_vmlinuz.c
 

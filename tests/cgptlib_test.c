@@ -73,7 +73,7 @@ static void SetGuid(void *dest, uint32_t num)
 {
 	Guid g = {{{num,0xd450,0x44bc,0xa6,0x93,
 		    {0xb8,0xac,0x75,0x5f,0xcd,0x48}}}};
-	Memcpy(dest, &g, sizeof(Guid));
+	memcpy(dest, &g, sizeof(Guid));
 }
 
 /*
@@ -105,14 +105,14 @@ static void RefreshCrc32(GptData *gpt)
 
 static void ZeroHeaders(GptData *gpt)
 {
-	Memset(gpt->primary_header, 0, MAX_SECTOR_SIZE);
-	Memset(gpt->secondary_header, 0, MAX_SECTOR_SIZE);
+	memset(gpt->primary_header, 0, MAX_SECTOR_SIZE);
+	memset(gpt->secondary_header, 0, MAX_SECTOR_SIZE);
 }
 
 static void ZeroEntries(GptData *gpt)
 {
-	Memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
-	Memset(gpt->secondary_entries, 0, PARTITION_ENTRIES_SIZE);
+	memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
+	memset(gpt->secondary_entries, 0, PARTITION_ENTRIES_SIZE);
 }
 
 static void ZeroHeadersEntries(GptData *gpt)
@@ -134,7 +134,7 @@ static GptData *GetEmptyGptData(void)
 	static uint8_t secondary_header[MAX_SECTOR_SIZE];
 	static uint8_t secondary_entries[PARTITION_ENTRIES_SIZE];
 
-	Memset(&gpt, 0, sizeof(gpt));
+	memset(&gpt, 0, sizeof(gpt));
 	gpt.primary_header = primary_header;
 	gpt.primary_entries = primary_entries;
 	gpt.secondary_header = secondary_header;
@@ -172,7 +172,7 @@ static void BuildTestGptData(GptData *gpt)
 	/* Build primary */
 	header = (GptHeader *)gpt->primary_header;
 	entries = (GptEntry *)gpt->primary_entries;
-	Memcpy(header->signature, GPT_HEADER_SIGNATURE,
+	memcpy(header->signature, GPT_HEADER_SIGNATURE,
 	       GPT_HEADER_SIGNATURE_SIZE);
 	header->revision = GPT_HEADER_REVISION;
 	header->size = sizeof(GptHeader);
@@ -185,19 +185,19 @@ static void BuildTestGptData(GptData *gpt)
 	  /* 512B / 128B * 32sectors = 128 entries */
 	header->number_of_entries = 128;
 	header->size_of_entry = 128;  /* bytes */
-	Memcpy(&entries[0].type, &chromeos_kernel, sizeof(chromeos_kernel));
+	memcpy(&entries[0].type, &chromeos_kernel, sizeof(chromeos_kernel));
 	SetGuid(&entries[0].unique, 0);
 	entries[0].starting_lba = 34;
 	entries[0].ending_lba = 133;
-	Memcpy(&entries[1].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
+	memcpy(&entries[1].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
 	SetGuid(&entries[1].unique, 1);
 	entries[1].starting_lba = 134;
 	entries[1].ending_lba = 232;
-	Memcpy(&entries[2].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
+	memcpy(&entries[2].type, &chromeos_rootfs, sizeof(chromeos_rootfs));
 	SetGuid(&entries[2].unique, 2);
 	entries[2].starting_lba = 234;
 	entries[2].ending_lba = 331;
-	Memcpy(&entries[3].type, &chromeos_kernel, sizeof(chromeos_kernel));
+	memcpy(&entries[3].type, &chromeos_kernel, sizeof(chromeos_kernel));
 	SetGuid(&entries[3].unique, 3);
 	entries[3].starting_lba = 334;
 	entries[3].ending_lba = 430;
@@ -205,8 +205,8 @@ static void BuildTestGptData(GptData *gpt)
 	/* Build secondary */
 	header2 = (GptHeader *)gpt->secondary_header;
 	entries2 = (GptEntry *)gpt->secondary_entries;
-	Memcpy(header2, header, sizeof(GptHeader));
-	Memcpy(entries2, entries, PARTITION_ENTRIES_SIZE);
+	memcpy(header2, header, sizeof(GptHeader));
+	memcpy(entries2, entries, PARTITION_ENTRIES_SIZE);
 	header2->my_lba = DEFAULT_DRIVE_SECTORS - 1;  /* 466 */
 	header2->alternate_lba = 1;
 	header2->entries_lba = DEFAULT_DRIVE_SECTORS - 1 - 32;  /* 434 */
@@ -314,43 +314,43 @@ static int HeaderSameTest(void)
 
 	EXPECT(0 == HeaderFieldsSame(h1, h2));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.signature[0] ^= 0xba;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.revision++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.size++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.reserved_zero++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.first_usable_lba++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.last_usable_lba++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.disk_uuid.u.raw[0] ^= 0xba;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.number_of_entries++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.size_of_entry++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
-	Memcpy(&h3, h2, sizeof(h3));
+	memcpy(&h3, h2, sizeof(h3));
 	h3.entries_crc32++;
 	EXPECT(1 == HeaderFieldsSame(h1, &h3));
 
@@ -738,7 +738,7 @@ static int ValidEntryTest(void)
 
 	/* case: non active entry should be ignored. */
 	BuildTestGptData(gpt);
-	Memset(&e1[1].type, 0, sizeof(e1[1].type));
+	memset(&e1[1].type, 0, sizeof(e1[1].type));
 	e1[1].starting_lba = e1[1].ending_lba + 1;
 	RefreshCrc32(gpt);
 	EXPECT(0 == CheckEntries(e1, h1));
@@ -809,7 +809,7 @@ static int OverlappedPartitionTest(void) {
 				break;
 
 			if (cases[i].entries[j].active) {
-				Memcpy(&e[j].type, &guid_kernel, sizeof(Guid));
+				memcpy(&e[j].type, &guid_kernel, sizeof(Guid));
 			}
 			SetGuid(&e[j].unique, j);
 			e[j].starting_lba = cases[i].entries[j].starting_lba;
@@ -1075,9 +1075,9 @@ static int SanityCheckTest(void)
 
 	/* Test correct recognition of IGNOREME in primary GPT. */
 	BuildTestGptData(gpt);
-	Memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
-	Memset(gpt->primary_header, 0, sizeof(GptHeader));
-	Memcpy(h1->signature, GPT_HEADER_SIGNATURE_IGNORED,
+	memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
+	memset(gpt->primary_header, 0, sizeof(GptHeader));
+	memcpy(h1->signature, GPT_HEADER_SIGNATURE_IGNORED,
 	       GPT_HEADER_SIGNATURE_SIZE);
 	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
 	EXPECT(MASK_BOTH == gpt->valid_headers);
@@ -1087,9 +1087,9 @@ static int SanityCheckTest(void)
 
 	/* Test correct recognition of IGNOREME in secondary GPT. */
 	BuildTestGptData(gpt);
-	Memset(gpt->secondary_entries, 0, PARTITION_ENTRIES_SIZE);
-	Memset(gpt->secondary_header, 0, sizeof(GptHeader));
-	Memcpy(h2->signature, GPT_HEADER_SIGNATURE_IGNORED,
+	memset(gpt->secondary_entries, 0, PARTITION_ENTRIES_SIZE);
+	memset(gpt->secondary_header, 0, sizeof(GptHeader));
+	memcpy(h2->signature, GPT_HEADER_SIGNATURE_IGNORED,
 	       GPT_HEADER_SIGNATURE_SIZE);
 	EXPECT(GPT_SUCCESS == GptSanityCheck(gpt));
 	EXPECT(MASK_BOTH == gpt->valid_headers);
@@ -1099,9 +1099,9 @@ static int SanityCheckTest(void)
 
 	/* Test that two IGNOREME GPTs are invalid. */
 	ZeroHeadersEntries(gpt);
-	Memcpy(h1->signature, GPT_HEADER_SIGNATURE_IGNORED,
+	memcpy(h1->signature, GPT_HEADER_SIGNATURE_IGNORED,
 	       GPT_HEADER_SIGNATURE_SIZE);
-	Memcpy(h2->signature, GPT_HEADER_SIGNATURE_IGNORED,
+	memcpy(h2->signature, GPT_HEADER_SIGNATURE_IGNORED,
 	       GPT_HEADER_SIGNATURE_SIZE);
 	EXPECT(GPT_ERROR_INVALID_HEADERS == GptSanityCheck(gpt));
 	EXPECT(0 == gpt->valid_headers);
@@ -1111,9 +1111,9 @@ static int SanityCheckTest(void)
 
 	/* Test that one IGNOREME GPT and one corrupted one are invalid. */
 	BuildTestGptData(gpt);
-	Memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
-	Memset(gpt->primary_header, 0, sizeof(GptHeader));
-	Memcpy(h1->signature, GPT_HEADER_SIGNATURE_IGNORED,
+	memset(gpt->primary_entries, 0, PARTITION_ENTRIES_SIZE);
+	memset(gpt->primary_header, 0, sizeof(GptHeader));
+	memcpy(h1->signature, GPT_HEADER_SIGNATURE_IGNORED,
 	       GPT_HEADER_SIGNATURE_SIZE);
 	gpt->secondary_entries[0]++;
 	EXPECT(GPT_ERROR_INVALID_ENTRIES == GptSanityCheck(gpt));
@@ -1222,15 +1222,15 @@ static int EntryTypeTest(void)
 	GptData *gpt = GetEmptyGptData();
 	GptEntry *e = (GptEntry *)(gpt->primary_entries);
 
-	Memcpy(&e->type, &guid_zero, sizeof(Guid));
+	memcpy(&e->type, &guid_zero, sizeof(Guid));
 	EXPECT(1 == IsUnusedEntry(e));
 	EXPECT(0 == IsKernelEntry(e));
 
-	Memcpy(&e->type, &guid_kernel, sizeof(Guid));
+	memcpy(&e->type, &guid_kernel, sizeof(Guid));
 	EXPECT(0 == IsUnusedEntry(e));
 	EXPECT(1 == IsKernelEntry(e));
 
-	Memcpy(&e->type, &guid_rootfs, sizeof(Guid));
+	memcpy(&e->type, &guid_rootfs, sizeof(Guid));
 	EXPECT(0 == IsUnusedEntry(e));
 	EXPECT(0 == IsKernelEntry(e));
 
@@ -1240,14 +1240,14 @@ static int EntryTypeTest(void)
 /* Make an entry unused by clearing its type. */
 static void FreeEntry(GptEntry *e)
 {
-	Memset(&e->type, 0, sizeof(Guid));
+	memset(&e->type, 0, sizeof(Guid));
 }
 
 /* Set up an entry. */
 static void FillEntry(GptEntry *e, int is_kernel,
                       int priority, int successful, int tries)
 {
-	Memcpy(&e->type, (is_kernel ? &guid_kernel : &guid_zero), sizeof(Guid));
+	memcpy(&e->type, (is_kernel ? &guid_kernel : &guid_zero), sizeof(Guid));
 	SetEntryPriority(e, priority);
 	SetEntrySuccessful(e, successful);
 	SetEntryTries(e, tries);
@@ -1436,7 +1436,7 @@ static int GptUpdateTest(void)
 	EXPECT(0 == GetEntryTries(e + KERNEL_X));
 
 	/* Can't update if entry isn't a kernel, or there isn't an entry */
-	Memcpy(&e[KERNEL_X].type, &guid_rootfs, sizeof(guid_rootfs));
+	memcpy(&e[KERNEL_X].type, &guid_rootfs, sizeof(guid_rootfs));
 	EXPECT(GPT_ERROR_INVALID_UPDATE_TYPE ==
 	       GptUpdateKernelEntry(gpt, GPT_UPDATE_ENTRY_BAD));
 	gpt->current_kernel = CGPT_KERNEL_ENTRY_NOT_FOUND;
@@ -1566,10 +1566,10 @@ static int GetKernelGuidTest(void)
 	BuildTestGptData(gpt);
 	gpt->current_kernel = 0;
 	GetCurrentKernelUniqueGuid(gpt, &g);
-	EXPECT(!Memcmp(&g, &e[0].unique, sizeof(Guid)));
+	EXPECT(!memcmp(&g, &e[0].unique, sizeof(Guid)));
 	gpt->current_kernel = 1;
 	GetCurrentKernelUniqueGuid(gpt, &g);
-	EXPECT(!Memcmp(&g, &e[1].unique, sizeof(Guid)));
+	EXPECT(!memcmp(&g, &e[1].unique, sizeof(Guid)));
 
 	return TEST_OK;
 }

@@ -45,7 +45,7 @@ VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams, BmpBlockHeader *hdr_ret)
 		}
 
 		/* Sanity-check the bitmap block header */
-		if ((0 != Memcmp(hdr->signature, BMPBLOCK_SIGNATURE,
+		if ((0 != memcmp(hdr->signature, BMPBLOCK_SIGNATURE,
 				BMPBLOCK_SIGNATURE_SIZE)) ||
 		(hdr->major_version > BMPBLOCK_MAJOR_VERSION) ||
 		((hdr->major_version == BMPBLOCK_MAJOR_VERSION) &&

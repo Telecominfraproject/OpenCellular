@@ -50,12 +50,12 @@ static void TestRSAVerify(RSAPublicKey* key) {
                     test_message_sha1_hash), 0, "RSAVerify() wrong alg");
 
   /* Corrupt the signature near start and end */
-  Memcpy(sig, signatures[0], RSA1024NUMBYTES);
+  memcpy(sig, signatures[0], RSA1024NUMBYTES);
   sig[3] ^= 0x42;
   TEST_EQ(RSAVerify(key, sig, RSA1024NUMBYTES, 0, test_message_sha1_hash), 0,
           "RSAVerify() bad sig");
 
-  Memcpy(sig, signatures[0], RSA1024NUMBYTES);
+  memcpy(sig, signatures[0], RSA1024NUMBYTES);
   sig[RSA1024NUMBYTES - 3] ^= 0x56;
   TEST_EQ(RSAVerify(key, sig, RSA1024NUMBYTES, 0, test_message_sha1_hash), 0,
           "RSAVerify() bad sig end");

@@ -79,7 +79,7 @@ static void TestKeyFromBuffer(void) {
 
   for (i = 0; i < 4; i++) {
     uint32_t key_len = RSA1024NUMBYTES << i;
-    Memset(buf, 0xAB, 8 + 2 * RSA8192NUMBYTES);
+    memset(buf, 0xAB, 8 + 2 * RSA8192NUMBYTES);
     *buf_key_len = key_len / sizeof(uint32_t);
     *(buf_key_len + 1) = 0xF00D2345;  /* n0inv */
     buf[8] = 100;

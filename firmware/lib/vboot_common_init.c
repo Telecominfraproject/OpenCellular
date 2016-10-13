@@ -30,7 +30,7 @@ int VbSharedDataInit(VbSharedDataHeader *header, uint64_t size)
 		return VBOOT_SHARED_DATA_INVALID;
 
 	/* Zero the header */
-	Memset(header, 0, sizeof(VbSharedDataHeader));
+	memset(header, 0, sizeof(VbSharedDataHeader));
 
 	/* Initialize fields */
 	header->magic = VB_SHARED_DATA_MAGIC;

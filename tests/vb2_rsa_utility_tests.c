@@ -87,7 +87,7 @@ static void test_utils(void)
 		"Packed key size no signing algorithm");
 
 	/* Test padding check with bad algorithm */
-	Memcpy(sig, signatures[0], sizeof(sig));
+	memcpy(sig, signatures[0], sizeof(sig));
 	TEST_EQ(vb2_check_padding(sig, &kbad),
 		VB2_ERROR_RSA_PADDING_SIZE,
 		"vb2_check_padding() bad padding algorithm/size");

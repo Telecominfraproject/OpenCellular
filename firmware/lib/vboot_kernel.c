@@ -94,7 +94,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	 */
 	shcall = shared->lk_calls + (shared->lk_call_count
 			& (VBSD_MAX_KERNEL_CALLS - 1));
-	Memset(shcall, 0, sizeof(VbSharedDataKernelCall));
+	memset(shcall, 0, sizeof(VbSharedDataKernelCall));
 	shcall->boot_flags = (uint32_t)params->boot_flags;
 	shcall->boot_mode = boot_mode;
 	shcall->sector_size = (uint32_t)params->bytes_per_lba;
@@ -168,7 +168,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		 */
 		shpart = shcall->parts + (shcall->kernel_parts_found
 				& (VBSD_MAX_KERNEL_PARTS - 1));
-		Memset(shpart, 0, sizeof(VbSharedDataKernelPart));
+		memset(shpart, 0, sizeof(VbSharedDataKernelPart));
 		shpart->sector_start = part_start;
 		shpart->sector_count = part_size;
 		/*
@@ -422,7 +422,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 			if (body_copied > body_toread)
 				body_copied = body_toread;
 
-			Memcpy(body_readptr, kbuf + body_offset, body_copied);
+			memcpy(body_readptr, kbuf + body_offset, body_copied);
 			body_toread -= body_copied;
 			body_readptr += body_copied;
 		}

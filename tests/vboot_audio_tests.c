@@ -60,17 +60,17 @@ void FixChecksum(VbDevMusic *hdr) {
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
   VBDEBUG(("ResetMocks()\n"));
-  Memset(&cparams, 0, sizeof(cparams));
+  memset(&cparams, 0, sizeof(cparams));
   cparams.gbb_data = &gbb;
   cparams.gbb = &gbb;
-  Memset(&gbb, 0, sizeof(gbb));
+  memset(&gbb, 0, sizeof(gbb));
   gbb.major_version = GBB_MAJOR_VER;
   gbb.minor_version = GBB_MINOR_VER;
   gbb.flags = 0;
   use_hdr = (VbDevMusic *)notebuf;
   use_notes = use_hdr->notes;
-  Memcpy(use_hdr, &good_header, sizeof(good_header));
-  Memcpy(use_notes, good_notes, sizeof(good_notes));
+  memcpy(use_hdr, &good_header, sizeof(good_header));
+  memcpy(use_notes, good_notes, sizeof(good_notes));
   FixChecksum(use_hdr);
   use_size = sizeof(notebuf);
 }

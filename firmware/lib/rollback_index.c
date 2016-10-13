@@ -257,7 +257,7 @@ uint32_t RollbackKernelLock(int recovery_mode)
 
 uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 {
-	Memset(fwmp, 0, sizeof(*fwmp));
+	memset(fwmp, 0, sizeof(*fwmp));
 	return TPM_SUCCESS;
 }
 
@@ -285,13 +285,13 @@ uint32_t RollbackKernelRead(uint32_t* version)
 		uint32_t perms, uid;
 
 		RETURN_ON_FAILURE(TlclGetPermissions(KERNEL_NV_INDEX, &perms));
-		Memcpy(&uid, &rsk.uid, sizeof(uid));
+		memcpy(&uid, &rsk.uid, sizeof(uid));
 		if (TPM_NV_PER_PPWRITE != perms ||
 		    ROLLBACK_SPACE_KERNEL_UID != uid)
 			return TPM_E_CORRUPTED_STATE;
 	}
 #endif
-	Memcpy(version, &rsk.kernel_versions, sizeof(*version));
+	memcpy(version, &rsk.kernel_versions, sizeof(*version));
 	VBDEBUG(("TPM: RollbackKernelRead %x\n", (int)*version));
 	return TPM_SUCCESS;
 }
@@ -301,10 +301,10 @@ uint32_t RollbackKernelWrite(uint32_t version)
 	RollbackSpaceKernel rsk;
 	uint32_t old_version;
 	RETURN_ON_FAILURE(ReadSpaceKernel(&rsk));
-	Memcpy(&old_version, &rsk.kernel_versions, sizeof(old_version));
+	memcpy(&old_version, &rsk.kernel_versions, sizeof(old_version));
 	VBDEBUG(("TPM: RollbackKernelWrite %x --> %x\n",
 		 (int)old_version, (int)version));
-	Memcpy(&rsk.kernel_versions, &version, sizeof(version));
+	memcpy(&rsk.kernel_versions, &version, sizeof(version));
 	return WriteSpaceKernel(&rsk);
 }
 
@@ -337,7 +337,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 	int attempts = 3;
 
 	/* Clear destination in case error or FWMP not present */
-	Memset(fwmp, 0, sizeof(*fwmp));
+	memset(fwmp, 0, sizeof(*fwmp));
 
 	while (attempts--) {
 		/* Try to read entire 1.0 struct */
@@ -390,7 +390,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 		 * we would need to take care of initializing the extra fields
 		 * added in 1.1+.  But that's not an issue yet.
 		 */
-		Memcpy(fwmp, &u.bf, sizeof(*fwmp));
+		memcpy(fwmp, &u.bf, sizeof(*fwmp));
 		return TPM_SUCCESS;
 	}
 

@@ -158,7 +158,7 @@ int RSAVerify(const RSAPublicKey *key,
   buf = (uint8_t*) VbExMalloc(sig_len);
   if (!buf)
     return 0;
-  Memcpy(buf, sig, sig_len);
+  memcpy(buf, sig, sig_len);
 
   modpowF4(key, buf);
 

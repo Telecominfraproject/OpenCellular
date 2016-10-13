@@ -38,7 +38,7 @@ void *StatefulMemcpy(MemcpyState *state, void *dst, uint64_t len)
 		state->overrun = 1;
 		return NULL;
 	}
-	Memcpy(dst, state->remaining_buf, len);
+	memcpy(dst, state->remaining_buf, len);
 	state->remaining_buf += len;
 	state->remaining_len -= len;
 	return dst;
@@ -52,7 +52,7 @@ const void *StatefulMemcpy_r(MemcpyState *state, const void *src, uint64_t len)
 		state->overrun = 1;
 		return NULL;
 	}
-	Memcpy(state->remaining_buf, src, len);
+	memcpy(state->remaining_buf, src, len);
 	state->remaining_buf += len;
 	state->remaining_len -= len;
 	return src;
@@ -67,7 +67,7 @@ const void *StatefulMemset_r(MemcpyState *state, const uint8_t val,
 		state->overrun = 1;
 		return NULL;
 	}
-	Memset(state->remaining_buf, val, len);
+	memset(state->remaining_buf, val, len);
 	state->remaining_buf += len;
 	state->remaining_len -= len;
 	return state; /* Must return something non-NULL. */

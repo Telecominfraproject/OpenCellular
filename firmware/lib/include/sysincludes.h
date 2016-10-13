@@ -19,6 +19,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(HAVE_ENDIAN_H) && defined(HAVE_LITTLE_ENDIAN)
 #include <byteswap.h>

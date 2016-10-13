@@ -200,7 +200,7 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 {
 	struct s_tpm_nv_definespace_cmd cmd;
 	VBDEBUG(("TPM: TlclDefineSpace(0x%x, 0x%x, %d)\n", index, perm, size));
-	Memcpy(&cmd, &tpm_nv_definespace_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_nv_definespace_cmd, sizeof(cmd));
 	ToTpmUint32(cmd.buffer + tpm_nv_definespace_cmd.index, index);
 	ToTpmUint32(cmd.buffer + tpm_nv_definespace_cmd.perm, perm);
 	ToTpmUint32(cmd.buffer + tpm_nv_definespace_cmd.size, size);
@@ -215,13 +215,13 @@ uint32_t TlclWrite(uint32_t index, const void* data, uint32_t length)
 			kTpmRequestHeaderLength + kWriteInfoLength + length;
 
 	VBDEBUG(("TPM: TlclWrite(0x%x, %d)\n", index, length));
-	Memcpy(&cmd, &tpm_nv_write_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_nv_write_cmd, sizeof(cmd));
 	VbAssert(total_length <= TPM_LARGE_ENOUGH_COMMAND_SIZE);
 	SetTpmCommandSize(cmd.buffer, total_length);
 
 	ToTpmUint32(cmd.buffer + tpm_nv_write_cmd.index, index);
 	ToTpmUint32(cmd.buffer + tpm_nv_write_cmd.length, length);
-	Memcpy(cmd.buffer + tpm_nv_write_cmd.data, data, length);
+	memcpy(cmd.buffer + tpm_nv_write_cmd.data, data, length);
 
 	return TlclSendReceive(cmd.buffer, response, sizeof(response));
 }
@@ -234,7 +234,7 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 	uint32_t result;
 
 	VBDEBUG(("TPM: TlclRead(0x%x, %d)\n", index, length));
-	Memcpy(&cmd, &tpm_nv_read_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_nv_read_cmd, sizeof(cmd));
 	ToTpmUint32(cmd.buffer + tpm_nv_read_cmd.index, index);
 	ToTpmUint32(cmd.buffer + tpm_nv_read_cmd.length, length);
 
@@ -245,7 +245,7 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 		if (result_length > length)
 			result_length = length;  /* Truncate to fit buffer */
 		nv_read_cursor += sizeof(uint32_t);
-		Memcpy(data, nv_read_cursor, result_length);
+		memcpy(data, nv_read_cursor, result_length);
 	}
 
 	return result;
@@ -261,13 +261,13 @@ uint32_t TlclPCRRead(uint32_t index, void* data, uint32_t length)
 	if (length < kPcrDigestLength) {
 		return TPM_E_IOERROR;
 	}
-	Memcpy(&cmd, &tpm_pcr_read_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_pcr_read_cmd, sizeof(cmd));
 	ToTpmUint32(cmd.buffer + tpm_pcr_read_cmd.pcrNum, index);
 
 	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
 	if (result == TPM_SUCCESS) {
 		uint8_t* pcr_read_cursor = response + kTpmResponseHeaderLength;
-		Memcpy(data, pcr_read_cursor, kPcrDigestLength);
+		memcpy(data, pcr_read_cursor, kPcrDigestLength);
 	}
 
 	return result;
@@ -353,7 +353,7 @@ uint32_t TlclSetDeactivated(uint8_t flag)
 {
 	struct s_tpm_physicalsetdeactivated_cmd cmd;
 	VBDEBUG(("TPM: SetDeactivated(%d)\n", flag));
-	Memcpy(&cmd, &tpm_physicalsetdeactivated_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_physicalsetdeactivated_cmd, sizeof(cmd));
 	*(cmd.buffer + cmd.deactivated) = flag;
 	return Send(cmd.buffer);
 }
@@ -370,7 +370,7 @@ uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS* pflags)
 	/* TODO(crbug.com/379255): This fails. Find out why.
 	 * VbAssert(size == sizeof(TPM_PERMANENT_FLAGS));
 	 */
-	Memcpy(pflags,
+	memcpy(pflags,
 	       response + kTpmResponseHeaderLength + sizeof(size),
 	       sizeof(TPM_PERMANENT_FLAGS));
 	return result;
@@ -389,7 +389,7 @@ uint32_t TlclGetSTClearFlags(TPM_STCLEAR_FLAGS* vflags)
 	/* TODO(crbug.com/379255): This fails. Find out why.
 	 * VbAssert(size == 7 && sizeof(TPM_STCLEAR_FLAGS) - 1 == 7);
 	 */
-	Memcpy(vflags,
+	memcpy(vflags,
 	       response + kTpmResponseHeaderLength + sizeof(size),
 	       sizeof(TPM_STCLEAR_FLAGS));
 	return result;
@@ -429,15 +429,15 @@ uint32_t TlclExtend(int pcr_num, const uint8_t* in_digest,
 	uint8_t response[kTpmResponseHeaderLength + kPcrDigestLength];
 	uint32_t result;
 
-	Memcpy(&cmd, &tpm_extend_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_extend_cmd, sizeof(cmd));
 	ToTpmUint32(cmd.buffer + tpm_extend_cmd.pcrNum, pcr_num);
-	Memcpy(cmd.buffer + cmd.inDigest, in_digest, kPcrDigestLength);
+	memcpy(cmd.buffer + cmd.inDigest, in_digest, kPcrDigestLength);
 
 	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
 	if (result != TPM_SUCCESS)
 		return result;
 
-	Memcpy(out_digest, response + kTpmResponseHeaderLength,
+	memcpy(out_digest, response + kTpmResponseHeaderLength,
 	       kPcrDigestLength);
 	return result;
 }
@@ -450,7 +450,7 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions)
 	uint32_t result;
 	uint32_t size;
 
-	Memcpy(&cmd, &tpm_getpermissions_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_getpermissions_cmd, sizeof(cmd));
 	ToTpmUint32(cmd.buffer + tpm_getpermissions_cmd.index, index);
 	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
 	if (result != TPM_SUCCESS)
@@ -473,7 +473,7 @@ uint32_t TlclGetOwnership(uint8_t* owned)
 	/* TODO(crbug.com/379255): This fails. Find out why.
 	 * VbAssert(size == sizeof(*owned));
 	 */
-	Memcpy(owned,
+	memcpy(owned,
 	       response + kTpmResponseHeaderLength + sizeof(size),
 	       sizeof(*owned));
 	return result;
@@ -486,7 +486,7 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 	uint32_t result;
 
 	VBDEBUG(("TPM: TlclGetRandom(%d)\n", length));
-	Memcpy(&cmd, &tpm_get_random_cmd, sizeof(cmd));
+	memcpy(&cmd, &tpm_get_random_cmd, sizeof(cmd));
 	ToTpmUint32(cmd.buffer + tpm_get_random_cmd.bytesRequested, length);
 	/* There must be room in the response buffer for the bytes. */
 	if (length > TPM_LARGE_ENOUGH_COMMAND_SIZE - kTpmResponseHeaderLength
@@ -505,7 +505,7 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 		}
 		get_random_cursor = response + kTpmResponseHeaderLength
 				+ sizeof(uint32_t);
-		Memcpy(data, get_random_cursor, *size);
+		memcpy(data, get_random_cursor, *size);
 	}
 
 	return result;

@@ -161,50 +161,50 @@ static void VerifyKernelPreambleTest(const VbPublicKey *public_key,
 		"VerifyKernelPreamble() size++");
 
 	/* Care about major version but not minor */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major++;
 	ReSignKernelPreamble(h, private_key);
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		 "VerifyKernelPreamble() major++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_major--;
 	ReSignKernelPreamble(h, private_key);
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		 "VerifyKernelPreamble() major--");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor++;
 	ReSignKernelPreamble(h, private_key);
 	TEST_EQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		"VerifyKernelPreamble() minor++");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->header_version_minor--;
 	ReSignKernelPreamble(h, private_key);
 	TEST_EQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		"VerifyKernelPreamble() minor--");
 
 	/* Check signature */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_offset = hsize;
 	ReSignKernelPreamble(h, private_key);
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		 "VerifyKernelPreamble() sig off end");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.sig_size--;
 	ReSignKernelPreamble(h, private_key);
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		 "VerifyKernelPreamble() sig too small");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	GetSignatureData(&h->body_signature)[0] ^= 0x34;
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		 "VerifyKernelPreamble() sig mismatch");
 
 	/* Check that we signed header and body sig */
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->preamble_signature.data_size = 4;
 	h->body_signature.sig_offset = 0;
 	h->body_signature.sig_size = 0;
@@ -212,7 +212,7 @@ static void VerifyKernelPreambleTest(const VbPublicKey *public_key,
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,
 		 "VerifyKernelPreamble() didn't sign header");
 
-	Memcpy(h, hdr, hsize);
+	memcpy(h, hdr, hsize);
 	h->body_signature.sig_offset = hsize;
 	ReSignKernelPreamble(h, private_key);
 	TEST_NEQ(VerifyKernelPreamble(h, hsize, rsa), 0,

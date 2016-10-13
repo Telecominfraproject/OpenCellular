@@ -35,7 +35,7 @@ static void ResetMocks(void)
 {
 	int gbb_used;
 
-	Memset(gbb_data, 0, sizeof(gbb_data));
+	memset(gbb_data, 0, sizeof(gbb_data));
 	gbb->major_version = GBB_MAJOR_VER;
 	gbb->minor_version = GBB_MINOR_VER;
 	gbb->flags = 0;
@@ -55,7 +55,7 @@ static void ResetMocks(void)
 	bhdr->minor_version = BMPBLOCK_MINOR_VERSION;
 	bhdr->number_of_localizations = 3;
 
-	Memset(&cparams, 0, sizeof(cparams));
+	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
 	cparams.gbb_data = gbb;
@@ -75,11 +75,11 @@ static void ResetMocks(void)
 	gbb_used += 64;
 	memcpy(cparams.gbb, gbb, sizeof(*gbb));
 
-	Memset(&vnc, 0, sizeof(vnc));
+	memset(&vnc, 0, sizeof(vnc));
 	VbNvSetup(&vnc);
 	VbNvTeardown(&vnc);                   /* So CRC gets generated */
 
-	Memset(&shared_data, 0, sizeof(shared_data));
+	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
 
 	*debug_info = 0;
@@ -235,9 +235,9 @@ static void FontTest(void)
 
 	/* Create font data */
 	h.num_entries = ARRAY_SIZE(eh);
-	Memcpy(buf, &h, sizeof(h));
+	memcpy(buf, &h, sizeof(h));
 	eptr = (FontArrayEntryHeader *)(buf + sizeof(h));
-	Memcpy(eptr, eh, sizeof(eh));
+	memcpy(eptr, eh, sizeof(eh));
 
 	fptr = VbInternalizeFontData((FontArrayHeader *)buf);
 	TEST_PTR_EQ(fptr, buf, "Internalize");

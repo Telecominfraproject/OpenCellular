@@ -25,7 +25,7 @@ VbError_t VbRegionReadData(VbCommonParams *cparams,
 	if (region == VB_REGION_GBB && cparams->gbb_data) {
 		if (offset + size > cparams->gbb_size)
 			return VBERROR_INVALID_GBB;
-		Memcpy(buf, cparams->gbb_data + offset, size);
+		memcpy(buf, cparams->gbb_data + offset, size);
 	} else
 #ifdef REGION_READ
 	{
