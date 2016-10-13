@@ -2,4 +2,4 @@ medium	DP	re-read status if updated bit isn't set
 medium	DP	honor adjust requests also if training succeeded?
 unknown	DP	honor SINK_STATUS after training
 
-low	LVDS	sync polarity, 8bit colors, data format???
+low	LVDS	8bit colors, data format???
