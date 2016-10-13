@@ -274,7 +274,7 @@ log crossystem --all
 log rootdev -s
 log ls -aCF /root
 log ls -aCF /mnt/stateful_partition
-devs=$(awk '/(mmcblk[0-9])$|(sd[a-z])$/ {print "/dev/"$4}' /proc/partitions)
+devs=$(awk '/(mmcblk[0-9])$|(sd[a-z])$|(nvme[0-9]+n[0-9]+)$/ {print "/dev/"$4}' /proc/partitions)
 for d in $devs; do
   log cgpt show $d
 done

@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <ctype.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -74,7 +75,14 @@ static int match_content(CgptFindParams *params, struct drive *drive,
 static void showmatch(CgptFindParams *params, char *filename,
                       int partnum, GptEntry *entry) {
   char * format = "%s%d\n";
-  if (strncmp("/dev/mmcblk", filename, 11) == 0)
+
+  /*
+   * Follow convention from disk_name() in kernel block/partition-generic.c
+   * code:
+   * If the last digit of the device name is a number, add a 'p' between the
+   * device name and the partition number.
+   */
+  if (isdigit(filename[strlen(filename) - 1]))
     format = "%sp%d\n";
 
   if (params->numeric) {
