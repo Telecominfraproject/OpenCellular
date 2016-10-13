@@ -7,7 +7,7 @@
  */
 #include "sysincludes.h"
 
-#include "crc8.h"
+#include "2crc8.h"
 #include "utility.h"
 #include "vboot_common.h"
 #include "vboot_nvstorage.h"
@@ -79,7 +79,7 @@ int VbNvSetup(VbNvContext *context)
 
 	/* Check data for consistency */
 	if ((HEADER_SIGNATURE != (raw[HEADER_OFFSET] & HEADER_MASK))
-	    || (Crc8(raw, CRC_OFFSET) != raw[CRC_OFFSET])) {
+	    || (vb2_crc8(raw, CRC_OFFSET) != raw[CRC_OFFSET])) {
 		/* Data is inconsistent (bad CRC or header); reset defaults */
 		memset(raw, 0, VBNV_BLOCK_SIZE);
 		raw[HEADER_OFFSET] = (HEADER_SIGNATURE |
@@ -96,7 +96,7 @@ int VbNvSetup(VbNvContext *context)
 int VbNvTeardown(VbNvContext *context)
 {
 	if (context->regenerate_crc) {
-		context->raw[CRC_OFFSET] = Crc8(context->raw, CRC_OFFSET);
+		context->raw[CRC_OFFSET] = vb2_crc8(context->raw, CRC_OFFSET);
 		context->regenerate_crc = 0;
 		context->raw_changed = 1;
 	}

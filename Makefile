@@ -317,7 +317,6 @@ BDBLIB = ${BUILD}/bdb.a
 
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
-	firmware/lib/crc8.c \
 	firmware/lib/utility.c \
 	firmware/lib/vboot_common_init.c \
 	firmware/lib/vboot_nvstorage.c \
@@ -498,9 +497,9 @@ HOSTLIB_SRCS = \
 	cgpt/cgpt_common.c \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_prioritize.c \
+	firmware/2lib/2crc8.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
-	firmware/lib/crc8.c \
 	firmware/lib/gpt_misc.c \
 	${TLCL_SRCS} \
 	firmware/lib/utility_string.c \
@@ -531,6 +530,7 @@ TINYHOSTLIB_SRCS = \
 	cgpt/cgpt_common.c \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_prioritize.c \
+	firmware/2lib/2crc8.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/gpt_misc.c \

@@ -8,7 +8,7 @@
 
 #include "sysincludes.h"
 
-#include "crc8.h"
+#include "2crc8.h"
 #include "rollback_index.h"
 #include "tlcl.h"
 #include "tss_constants.h"
@@ -99,7 +99,7 @@ uint32_t ReadSpaceFirmware(RollbackSpaceFirmware *rsf)
 		 * more times to see if it gets better before we give up. It
 		 * could just be noise.
 		 */
-		if (rsf->crc8 == Crc8(rsf,
+		if (rsf->crc8 == vb2_crc8(rsf,
 				      offsetof(RollbackSpaceFirmware, crc8)))
 			return TPM_SUCCESS;
 
@@ -119,7 +119,7 @@ uint32_t WriteSpaceFirmware(RollbackSpaceFirmware *rsf)
 	/* All writes should use struct_version 2 or greater. */
 	if (rsf->struct_version < 2)
 		rsf->struct_version = 2;
-	rsf->crc8 = Crc8(rsf, offsetof(RollbackSpaceFirmware, crc8));
+	rsf->crc8 = vb2_crc8(rsf, offsetof(RollbackSpaceFirmware, crc8));
 
 	while (attempts--) {
 		r = SafeWrite(FIRMWARE_NV_INDEX, rsf,
@@ -195,7 +195,8 @@ uint32_t ReadSpaceKernel(RollbackSpaceKernel *rsk)
 		 * more times to see if it gets better before we give up. It
 		 * could just be noise.
 		 */
-		if (rsk->crc8 == Crc8(rsk, offsetof(RollbackSpaceKernel, crc8)))
+		if (rsk->crc8 ==
+		    vb2_crc8(rsk, offsetof(RollbackSpaceKernel, crc8)))
 			return TPM_SUCCESS;
 
 		VBDEBUG(("TPM: %s() - bad CRC\n", __func__));
@@ -214,7 +215,7 @@ uint32_t WriteSpaceKernel(RollbackSpaceKernel *rsk)
 	/* All writes should use struct_version 2 or greater. */
 	if (rsk->struct_version < 2)
 		rsk->struct_version = 2;
-	rsk->crc8 = Crc8(rsk, offsetof(RollbackSpaceKernel, crc8));
+	rsk->crc8 = vb2_crc8(rsk, offsetof(RollbackSpaceKernel, crc8));
 
 	while (attempts--) {
 		r = SafeWrite(KERNEL_NV_INDEX, rsk,
@@ -371,7 +372,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 		}
 
 		/* Verify CRC */
-		if (u.bf.crc != Crc8(u.buf + 2, u.bf.struct_size - 2)) {
+		if (u.bf.crc != vb2_crc8(u.buf + 2, u.bf.struct_size - 2)) {
 			VBDEBUG(("TPM: %s() - bad CRC\n", __func__));
 			continue;
 		}

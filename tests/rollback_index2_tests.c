@@ -12,7 +12,7 @@
 
 #define _STUB_IMPLEMENTATION_  /* So we can use memset() ourselves */
 
-#include "crc8.h"
+#include "2crc8.h"
 #include "rollback_index.h"
 #include "test_common.h"
 #include "tlcl.h"
@@ -64,7 +64,7 @@ static uint32_t mock_permissions;
 /* Recalculate CRC of FWMP data */
 static void RecalcFwmpCrc(void)
 {
-	mock_fwmp.fwmp.crc = Crc8(mock_fwmp.buf + 2,
+	mock_fwmp.fwmp.crc = vb2_crc8(mock_fwmp.buf + 2,
 				  mock_fwmp.fwmp.struct_size - 2);
 }
 
@@ -296,7 +296,8 @@ static void CrcTestFirmware(void)
 	/* If the CRC is good and some noise happens, it should recover. */
 	ResetMocks(0, 0);
 	mock_rsf.struct_version = 2;
-	mock_rsf.crc8 = Crc8(&mock_rsf, offsetof(RollbackSpaceFirmware, crc8));
+	mock_rsf.crc8 = vb2_crc8(&mock_rsf,
+				 offsetof(RollbackSpaceFirmware, crc8));
 	noise_on[0] = 1;
 	TEST_EQ(ReadSpaceFirmware(&rsf), 0,
 		"ReadSpaceFirmware(), v2, good CRC");
@@ -399,7 +400,8 @@ static void CrcTestKernel(void)
 	/* If the CRC is good and some noise happens, it should recover. */
 	ResetMocks(0, 0);
 	mock_rsk.struct_version = 2;
-	mock_rsk.crc8 = Crc8(&mock_rsk, offsetof(RollbackSpaceKernel, crc8));
+	mock_rsk.crc8 = vb2_crc8(&mock_rsk,
+				 offsetof(RollbackSpaceKernel, crc8));
 	noise_on[0] = 1;
 	TEST_EQ(ReadSpaceKernel(&rsk), 0, "ReadSpaceKernel(), v2, good CRC");
 	TEST_STR_EQ(mock_calls,
