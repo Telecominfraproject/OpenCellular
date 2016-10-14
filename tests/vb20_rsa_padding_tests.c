@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define _STUB_IMPLEMENTATION_
+
 #include "cryptolib.h"
 #include "file_keys.h"
 #include "rsa_padding_test.h"
@@ -15,27 +17,8 @@
 
 #include "2sysincludes.h"
 #include "2rsa.h"
+#include "host_key.h"
 #include "vb2_common.h"
-
-/**
- * Convert an old-style RSA public key struct to a new one.
- *
- * The new one does not allocate memory, so you must keep the old one around
- * until you're done with the new one.
- *
- * @param k2		Destination new key
- * @param key		Source old key
- */
-void vb2_public_key_to_vb2(struct vb2_public_key *k2,
-			   const struct RSAPublicKey *key)
-{
-	k2->arrsize = key->len;
-	k2->n0inv = key->n0inv;
-	k2->n = key->n;
-	k2->rr = key->rr;
-	k2->sig_alg = vb2_crypto_to_signature(key->algorithm);
-	k2->hash_alg = vb2_crypto_to_hash(key->algorithm);
-}
 
 /**
  * Test valid and invalid signatures.
@@ -122,37 +105,32 @@ static void test_verify_digest(struct vb2_public_key *key) {
 
 int main(int argc, char *argv[])
 {
-	int error = 0;
-	RSAPublicKey *key;
 	struct vb2_public_key k2;
+	struct vb2_packed_key *pk;
 
 	/* Read test key */
 	if (argc != 2) {
 		fprintf(stderr, "Usage: %s <test public key>\n", argv[0]);
 		return 1;
 	}
-	key = RSAPublicKeyFromFile(argv[1]);
-
-	if (!key) {
+	pk = vb2_read_packed_keyb(argv[1], VB2_ALG_RSA1024_SHA1, 0);
+	if (!pk) {
 		fprintf(stderr, "Couldn't read RSA public key for the test.\n");
 		return 1;
 	}
 
-	// TODO: why is test key algorithm wrong?
-	key->algorithm = 0;
-
-	/* Convert test key to Vb2 format */
-	vb2_public_key_to_vb2(&k2, key);
+	if (VB2_SUCCESS != vb2_unpack_key(&k2, (const uint8_t *)pk,
+					  pk->key_offset + pk->key_size)) {
+		fprintf(stderr, "Couldn't unpack RSA public key.\n");
+		free(pk);
+		return 1;
+	}
 
 	/* Run tests */
 	test_signatures(&k2);
 	test_verify_digest(&k2);
 
 	/* Clean up and exit */
-	RSAPublicKeyFree(key);
-
-	if (!gTestSuccess)
-		error = 255;
-
-	return error;
+	free(pk);
+	return gTestSuccess ? 0 : 255;
 }

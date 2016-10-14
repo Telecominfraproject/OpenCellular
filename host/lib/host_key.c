@@ -39,21 +39,3 @@ int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size)
 	/* Success */
 	return 1;
 }
-
-/* TODO: the host code just uses this to check the embedded key length in
- * uint32_t's.  It should get folded into packed_key_looks_ok. */
-
-RSAPublicKey *vb2_packed_key_to_rsa(const struct vb2_packed_key *key)
-{
-	RSAPublicKey *rsa;
-
-	if (!packed_key_looks_ok(key, key->key_size))
-	    return NULL;
-
-	rsa = RSAPublicKeyFromBuf(vb2_packed_key_data(key), key->key_size);
-	if (!rsa)
-		return NULL;
-
-	rsa->algorithm = (unsigned int)key->algorithm;
-	return rsa;
-}

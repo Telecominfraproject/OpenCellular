@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   int error_code = 0;
   uint8_t* digest = NULL;
   uint8_t* padded_digest = NULL;
-  uint64_t len;
+  uint32_t len;
   uint32_t padded_digest_len;
 
   if (argc != 3) {
@@ -44,8 +44,7 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  digest = BufferFromFile(argv[2], &len);
-  if (!digest) {
+  if (VB2_SUCCESS != vb2_read_file(argv[2], &digest, &len)) {
     fprintf(stderr, "Could not read file: %s\n", argv[2]);
     return -1;
   }

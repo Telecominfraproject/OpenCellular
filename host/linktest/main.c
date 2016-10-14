@@ -20,8 +20,6 @@ int main(void)
 	WriteFile(0, 0, 0);
 
 	/* file_keys.h */
-	BufferFromFile(0, 0);
-	RSAPublicKeyFromFile(0);
 	DigestFile(0, 0, 0, 0);
 
 	/* signature_digest.h */

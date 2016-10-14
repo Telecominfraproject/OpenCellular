@@ -324,8 +324,6 @@ VBINIT_SRCS = \
 # Additional firmware library sources needed by VbSelectFirmware() call
 VBSF_SRCS = \
 	firmware/lib/cryptolib/padding.c \
-	firmware/lib/cryptolib/rsa.c \
-	firmware/lib/cryptolib/rsa_utility.c \
 	firmware/lib/stateful_util.c \
 	firmware/lib/vboot_common.c \
 	firmware/lib/region-fw.c \
@@ -724,9 +722,6 @@ TEST_OBJS += ${TESTLIB_OBJS}
 TEST_NAMES = \
 	tests/cgptlib_test \
 	tests/rollback_index3_tests \
-	tests/rsa_padding_test \
-	tests/rsa_utility_tests \
-	tests/rsa_verify_benchmark \
 	tests/sha_benchmark \
 	tests/stateful_util_tests \
 	tests/utility_string_tests \
@@ -1187,6 +1182,7 @@ ${TEST2X_BINS}: LIBS += ${FWLIB2X}
 
 ${TEST20_BINS}: ${FWLIB20}
 ${TEST20_BINS}: LIBS += ${FWLIB20}
+${TEST20_BINS}: LDLIBS += ${CRYPTO_LIBS}
 
 ${TESTBDB_BINS}: ${FWLIB2X} ${UTILBDB}
 ${TESTBDB_BINS}: INCLUDES += -Ifirmware/bdb
@@ -1251,6 +1247,7 @@ CRYPTO_LIBS := $(shell ${PKG_CONFIG} --libs libcrypto)
 ${BUILD}/utility/dumpRSAPublicKey: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/pad_digest_utility: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/signature_digest_utility: LDLIBS += ${CRYPTO_LIBS}
+${BUILD}/utility/verify_data: LDLIBS += ${CRYPTO_LIBS}
 
 ${BUILD}/utility/bdb_extend: ${FWLIB2X} ${UTILBDB}
 ${BUILD}/utility/bdb_extend.o: INCLUDES += -Ifirmware/bdb
@@ -1408,7 +1405,6 @@ runtestscripts: test_setup genfuzztestcases
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt -D 358400
 	tests/run_preamble_tests.sh
-	tests/run_rsa_tests.sh
 	tests/run_vbutil_kernel_arg_tests.sh
 	tests/run_vbutil_tests.sh
 	tests/vb2_rsa_tests.sh
@@ -1421,7 +1417,6 @@ ifeq (${TPM2_MODE},)
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index2_tests
 endif
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index3_tests
-	${RUNTEST} ${BUILD_RUN}/tests/rsa_utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_string_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_tests

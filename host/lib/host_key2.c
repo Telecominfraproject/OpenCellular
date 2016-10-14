@@ -238,9 +238,9 @@ struct vb2_packed_key *vb2_read_packed_keyb(const char *filename,
 	if (VB2_SUCCESS != vb2_read_file(filename, &key_data, &key_size))
 		return NULL;
 
-	uint64_t expected_key_size;
-	if (!RSAProcessedKeySize(algorithm, &expected_key_size) ||
-	    expected_key_size != key_size) {
+	uint32_t expected_key_size =
+			vb2_packed_key_size(vb2_crypto_to_signature(algorithm));
+	if (!expected_key_size || expected_key_size != key_size) {
 		fprintf(stderr, "%s() - wrong key size %u for algorithm %u\n",
 			__func__, key_size, algorithm);
 		free(key_data);

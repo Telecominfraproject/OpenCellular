@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+
 #include "file_keys.h"
 #include "host_common.h"
 #include "padding.h"
@@ -22,7 +25,7 @@ int main(int argc, char* argv[]) {
   int error_code = 0;
   uint8_t* buf = NULL;
   uint8_t* signature_digest = NULL;
-  uint64_t len;
+  uint32_t len;
   uint32_t signature_digest_len;
 
   if (argc != 3) {
@@ -35,8 +38,7 @@ int main(int argc, char* argv[]) {
     return -1;
   }
 
-  buf = BufferFromFile(argv[2], &len);
-  if (!buf) {
+  if (VB2_SUCCESS != vb2_read_file(argv[2], &buf, &len)) {
     fprintf(stderr, "Could not read file: %s\n", argv[2]);
     return -1;
   }
