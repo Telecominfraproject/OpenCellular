@@ -317,7 +317,6 @@ BDBLIB = ${BUILD}/bdb.a
 
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
-	firmware/lib/utility.c \
 	firmware/lib/vboot_common_init.c \
 	firmware/lib/vboot_nvstorage.c \
 	firmware/lib/region-init.c \

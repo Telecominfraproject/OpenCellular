@@ -7,6 +7,8 @@
 
 #include "sysincludes.h"
 
+#include "2sysincludes.h"
+#include "2common.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
@@ -759,7 +761,7 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 	for (i = 0; i < hash_size; i++)
 		VBDEBUG(("%02x", hash[i]));
 	VBDEBUG(("\n"));
-	*need_update = SafeMemcmp(ec_hash, hash, hash_size);
+	*need_update = vb2_safe_memcmp(ec_hash, hash, hash_size);
 
 	if (!*need_update)
 		return VBERROR_SUCCESS;
@@ -854,7 +856,7 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		VBDEBUG(("%02x",ec_hash[i]));
 	VBDEBUG(("\n"));
 
-	if (SafeMemcmp(ec_hash, hash, hash_size)){
+	if (vb2_safe_memcmp(ec_hash, hash, hash_size)){
 		VBDEBUG(("EcUpdateImage() - "
 			 "Failed to update EC-%s\n", rw_request ?
 			 "RW" : "RO"));

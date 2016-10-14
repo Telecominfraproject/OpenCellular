@@ -10,6 +10,8 @@
 
 #include "sysincludes.h"
 
+#include "2sysincludes.h"
+#include "2common.h"
 #include "cryptolib.h"
 #include "vboot_api.h"
 #include "utility.h"
@@ -167,16 +169,16 @@ int RSAVerify(const RSAPublicKey *key,
   padding_len = padding_size_map[sig_type];
 
   /* Even though there are probably no timing issues here, we use
-   * SafeMemcmp() just to be on the safe side. */
+   * vb2_safe_memcmp() just to be on the safe side. */
 
   /* Check pkcs1.5 padding bytes. */
-  if (SafeMemcmp(buf, padding, padding_len)) {
+  if (vb2_safe_memcmp(buf, padding, padding_len)) {
     VBDEBUG(("In RSAVerify(): Padding check failed!\n"));
     success = 0;
   }
 
   /* Check hash. */
-  if (SafeMemcmp(buf + padding_len, hash, sig_len - padding_len)) {
+  if (vb2_safe_memcmp(buf + padding_len, hash, sig_len - padding_len)) {
     VBDEBUG(("In RSAVerify(): Hash check failed!\n"));
     success  = 0;
   }
