@@ -67,11 +67,6 @@ int main(void)
 	VerifySignatureInside(0, 0, 0);
 	PublicKeyInit(0, 0, 0);
 	PublicKeyCopy(0, 0);
-	PublicKeyToRSA(0);
-	VerifyData(0, 0, 0, 0);
-	VerifyDigest(0, 0, 0);
-	KeyBlockVerify(0, 0, 0, 0);
-	VerifyKernelPreamble(0, 0, 0);
 	VbSharedDataInit(0, 0);
 	VbSharedDataReserve(0, 0);
 	VbSharedDataSetKernelKey(0, 0);

@@ -740,8 +740,6 @@ TEST_NAMES = \
 	tests/vboot_api_kernel6_tests \
 	tests/vboot_audio_tests \
 	tests/vboot_common_tests \
-	tests/vboot_common2_tests \
-	tests/vboot_common3_tests \
 	tests/vboot_display_tests \
 	tests/vboot_kernel_tests \
 	tests/vboot_nvstorage_test \
@@ -941,7 +939,7 @@ fwlinktest: ${BUILD}/firmware/linktest/main
 .PHONY: fwlib
 fwlib: $(if ${FIRMWARE_ARCH},${FWLIB},fwlinktest)
 
-${FWLIB}: ${FWLIB_OBJS} ${FWLIB2X_OBJS}
+${FWLIB}: ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS}
 	@${PRINTF} "    RM            $(subst ${BUILD}/,,$@)\n"
 	${Q}rm -f $@
 	@${PRINTF} "    AR            $(subst ${BUILD}/,,$@)\n"
@@ -1260,8 +1258,6 @@ ${BUILD}/utility/bdb_extend: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/utility/bdb_extend: LIBS += ${UTILBDB} ${FWLIB2X}
 
 ${BUILD}/host/linktest/main: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vboot_common2_tests: LDLIBS += ${CRYPTO_LIBS}
-${BUILD}/tests/vboot_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb20_common2_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/vb20_common3_tests: LDLIBS += ${CRYPTO_LIBS}
 ${BUILD}/tests/verify_kernel: LDLIBS += ${CRYPTO_LIBS}
@@ -1438,8 +1434,6 @@ endif
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel6_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_audio_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS}
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS}
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_display_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_nvstorage_test
@@ -1488,8 +1482,6 @@ runfutiltests: test_setup
 # Not run by automated build.
 .PHONY: runlongtests
 runlongtests: test_setup genkeys genfuzztestcases
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_common2_tests ${TEST_KEYS} --all
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_common3_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common2_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb20_common3_tests ${TEST_KEYS} --all
 	${RUNTEST} ${BUILD_RUN}/tests/vb21_common2_tests ${TEST_KEYS} --all

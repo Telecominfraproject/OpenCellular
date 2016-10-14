@@ -7,8 +7,10 @@
  */
 
 #include "sysincludes.h"
+#include "2sysincludes.h"
 
 #include "2common.h"
+#include "2rsa.h"
 #include "2sha.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
@@ -19,6 +21,7 @@
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vb2_common.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
@@ -37,14 +40,14 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)params->shared_data_blob;
 	VbSharedDataKernelCall *shcall = NULL;
-	VbNvContext* vnc = params->nv_context;
-	VbPublicKey* kernel_subkey = NULL;
+	VbNvContext *vnc = params->nv_context;
+	VbPublicKey *kernel_subkey = NULL;
 	int free_kernel_subkey = 0;
 	GptData gpt;
 	uint64_t part_start, part_size;
 	uint64_t blba;
 	uint64_t kbuf_sectors;
-	uint8_t* kbuf = NULL;
+	uint8_t *kbuf = NULL;
 	int found_partitions = 0;
 	int good_partition = -1;
 	int good_partition_key_block_valid = 0;
@@ -57,6 +60,9 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 	VbError_t retval = VBERROR_UNKNOWN;
 	int recovery = VBNV_RECOVERY_LK_UNSPECIFIED;
+
+	uint8_t *workbuf = NULL;
+	struct vb2_workbuf wb;
 
 	/* Sanity Checks */
 	if (!params->bytes_per_lba ||
@@ -141,9 +147,27 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	}
 
 	/* Allocate kernel header buffers */
-	kbuf = (uint8_t*)VbExMalloc(KBUF_SIZE);
+	kbuf = (uint8_t *)VbExMalloc(KBUF_SIZE);
 	if (!kbuf)
 		goto bad_gpt;
+
+	/* Allocate work buffer */
+	workbuf = (uint8_t *)
+			VbExMalloc(VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+	if (!workbuf)
+		goto bad_gpt;
+	vb2_workbuf_init(&wb, workbuf,
+			 VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+
+	/* Unpack kernel subkey */
+	struct vb2_public_key kernel_subkey2;
+	if (VB2_SUCCESS != vb2_unpack_key(&kernel_subkey2,
+					  (const uint8_t *)kernel_subkey,
+					  kernel_subkey->key_offset +
+					  kernel_subkey->key_size)) {
+		VBDEBUG(("Unable to unpack kernel subkey\n"));
+		goto bad_gpt;
+	}
 
 	/* Loop over candidate kernel partitions */
 	while (GPT_SUCCESS ==
@@ -151,7 +175,6 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		VbSharedDataKernelPart *shpart = NULL;
 		VbKeyBlockHeader *key_block;
 		VbKernelPreambleHeader *preamble;
-		RSAPublicKey *data_key = NULL;
 		VbExStream_t stream = NULL;
 		uint64_t key_version;
 		uint32_t combined_version;
@@ -197,8 +220,9 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 		/* Verify the key block. */
 		key_block = (VbKeyBlockHeader*)kbuf;
-		if (0 != KeyBlockVerify(key_block, KBUF_SIZE,
-					kernel_subkey, 0)) {
+		struct vb2_keyblock *keyblock2 = (struct vb2_keyblock *)kbuf;
+		if (VB2_SUCCESS != vb2_verify_keyblock(keyblock2, KBUF_SIZE,
+						       &kernel_subkey2, &wb)) {
 			VBDEBUG(("Verifying key block signature failed.\n"));
 			shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_SIG;
 			key_block_valid = 0;
@@ -222,8 +246,9 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 			 * Allow the kernel if the SHA-512 hash of the key
 			 * block is valid.
 			 */
-			if (0 != KeyBlockVerify(key_block, KBUF_SIZE,
-						kernel_subkey, 1)) {
+			if (VB2_SUCCESS !=
+			    vb2_verify_keyblock_hash(keyblock2, KBUF_SIZE,
+						     &wb)) {
 				VBDEBUG(("Verifying key block hash failed.\n"));
 				shpart->check_result =
 					VBSD_LKP_CHECK_KEY_BLOCK_HASH;
@@ -309,20 +334,29 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		}
 
 		/* Get key for preamble/data verification from the key block. */
-		data_key = PublicKeyToRSA(&key_block->data_key);
-		if (!data_key) {
-			VBDEBUG(("Data key bad.\n"));
+		struct vb2_public_key data_key2;
+		if (VB2_SUCCESS !=
+		    vb2_unpack_key(&data_key2,
+				   (const uint8_t *)&keyblock2->data_key,
+				   keyblock2->data_key.key_offset +
+				   keyblock2->data_key.key_size)) {
+			VBDEBUG(("Unable to unpack kernel data key\n"));
 			shpart->check_result = VBSD_LKP_CHECK_DATA_KEY_PARSE;
 			goto bad_kernel;
 		}
 
 		/* Verify the preamble, which follows the key block */
 		preamble = (VbKernelPreambleHeader *)
-			(kbuf + key_block->key_block_size);
-		if ((0 != VerifyKernelPreamble(
-					preamble,
-					KBUF_SIZE - key_block->key_block_size,
-					data_key))) {
+				(kbuf + key_block->key_block_size);
+		struct vb2_kernel_preamble *preamble2 =
+				(struct vb2_kernel_preamble *)
+				(kbuf + key_block->key_block_size);
+
+		if (VB2_SUCCESS != vb2_verify_kernel_preamble(
+				preamble2,
+				KBUF_SIZE - key_block->key_block_size,
+				&data_key2,
+				&wb)) {
 			VBDEBUG(("Preamble verification failed.\n"));
 			shpart->check_result = VBSD_LKP_CHECK_VERIFY_PREAMBLE;
 			goto bad_kernel;
@@ -442,17 +476,16 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		stream = NULL;
 
 		/* Verify kernel data */
-		if (0 != VerifyData((const uint8_t *)params->kernel_buffer,
-				    params->kernel_buffer_size,
-				    &preamble->body_signature, data_key)) {
+		struct vb2_signature *body_sig = (struct vb2_signature *)
+				&preamble->body_signature;
+		if (VB2_SUCCESS != vb2_verify_data(
+				(const uint8_t *)params->kernel_buffer,
+				params->kernel_buffer_size,
+				body_sig, &data_key2, &wb)) {
 			VBDEBUG(("Kernel data verification failed.\n"));
 			shpart->check_result = VBSD_LKP_CHECK_VERIFY_DATA;
 			goto bad_kernel;
 		}
-
-		/* Done with the kernel signing key, so can free it now */
-		RSAPublicKeyFree(data_key);
-		data_key = NULL;
 
 		/*
 		 * If we're still here, the kernel is valid.  Save the first
@@ -517,8 +550,6 @@ bad_kernel:
 		/* Handle errors parsing this kernel */
 		if (NULL != stream)
 			VbExStreamClose(stream);
-		if (NULL != data_key)
-			RSAPublicKeyFree(data_key);
 
 		VBDEBUG(("Marking kernel as invalid.\n"));
 		GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_BAD);
@@ -527,8 +558,9 @@ bad_kernel:
 	} /* while(GptNextKernelEntry) */
 
 bad_gpt:
-
-	/* Free kernel buffer */
+	/* Free buffers */
+	if (workbuf)
+		VbExFree(workbuf);
 	if (kbuf)
 		VbExFree(kbuf);
 

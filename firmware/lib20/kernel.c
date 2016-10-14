@@ -462,7 +462,7 @@ void vb2_kernel_get_vmlinuz_header(const struct vb2_kernel_preamble *preamble,
 		 * Set header and size only if the preamble header version is >
 		 * 2.1 as they don't exist in version 2.0 (Note that we don't
 		 * need to check header_version_major; if that's not 2 then
-		 * VerifyKernelPreamble() would have already failed.
+		 * vb2_verify_kernel_preamble() would have already failed.
 		 */
 		*vmlinuz_header_address = preamble->vmlinuz_header_address;
 		*vmlinuz_header_size = preamble->vmlinuz_header_size;

@@ -90,48 +90,6 @@ void PublicKeyInit(VbPublicKey *key, uint8_t *key_data, uint64_t key_size);
 int PublicKeyCopy(VbPublicKey *dest, const VbPublicKey *src);
 
 /**
- * Convert a public key to RsaPublicKey format.  The returned key must be freed
- * using RSAPublicKeyFree().
- *
- * Returns NULL if error.
- */
-RSAPublicKey *PublicKeyToRSA(const VbPublicKey *key);
-
-/**
- * Verify [data] matches signature [sig] using [key].  [size] is the size of
- * the data buffer; the amount of data to be validated is contained in
- * sig->data_size.
- */
-int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
-	       const RSAPublicKey *key);
-
-/**
- * Verify a secure hash digest from vb2_digest_buffer() or
- * vb2_digest_finalize(), using [key]. Returns 0 on success.
- */
-int VerifyDigest(const uint8_t *digest, const VbSignature *sig,
-		 const RSAPublicKey *key);
-
-/**
- * Check the sanity of a key block of size [size] bytes, using public key
- * [key].  If hash_only is non-zero, uses only the block checksum to verify the
- * key block.  Header fields are also checked for sanity.  Does not verify key
- * index or key block flags.
- */
-int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
-		   const VbPublicKey *key, int hash_only);
-
-/**
- * Check the sanity of a kernel preamble of size [size] bytes, using public key
- * [key].
- *
- * Returns VBOOT_SUCCESS if successful.
- */
-int VerifyKernelPreamble(const VbKernelPreambleHeader *preamble,
-			 uint64_t size, const RSAPublicKey *key);
-
-
-/**
  * Retrieve the 16-bit vmlinuz header address and size from the kernel preamble
  * if there is one.  These are only available in Kernel Preamble Header version
  * >= 2.1.  If given a header 2.0 or lower, will set address and size to 0 (this

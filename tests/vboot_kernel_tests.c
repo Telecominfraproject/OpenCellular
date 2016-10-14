@@ -23,6 +23,7 @@
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
 #include "test_common.h"
+#include "vb2_struct.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
@@ -54,8 +55,7 @@ static int gpt_init_fail;
 static int key_block_verify_fail;  /* 0=ok, 1=sig, 2=hash */
 static int preamble_verify_fail;
 static int verify_data_fail;
-static RSAPublicKey *mock_data_key;
-static int mock_data_key_allocated;
+static int unpack_key_fail;
 static int gpt_flag_external;
 
 static uint8_t gbb_data[sizeof(GoogleBinaryBlockHeader) + 2048];
@@ -130,9 +130,7 @@ static void ResetMocks(void)
 	key_block_verify_fail = 0;
 	preamble_verify_fail = 0;
 	verify_data_fail = 0;
-
-	mock_data_key = (RSAPublicKey *)"TestDataKey";
-	mock_data_key_allocated = 0;
+	unpack_key_fail = 0;
 
 	gpt_flag_external = 0;
 
@@ -246,54 +244,64 @@ void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest)
 	memcpy(dest, fake_guid, sizeof(fake_guid));
 }
 
-int KeyBlockVerify(const VbKeyBlockHeader *block, uint64_t size,
-		   const VbPublicKey *key, int hash_only) {
+int vb2_unpack_key(struct vb2_public_key *key,
+		   const uint8_t *buf,
+		   uint32_t size)
+{
+	if (--unpack_key_fail == 0)
+		return VB2_ERROR_MOCK;
 
-	if (hash_only && key_block_verify_fail >= 2)
-		return VBERROR_SIMULATED;
-	else if (!hash_only && key_block_verify_fail >= 1)
-		return VBERROR_SIMULATED;
+	return VB2_SUCCESS;
+}
+
+int vb2_verify_keyblock(struct vb2_keyblock *block,
+			uint32_t size,
+			const struct vb2_public_key *key,
+			const struct vb2_workbuf *wb)
+{
+	if (key_block_verify_fail >= 1)
+		return VB2_ERROR_MOCK;
 
 	/* Use this as an opportunity to override the key block */
 	memcpy((void *)block, &kbh, sizeof(kbh));
-	return VBERROR_SUCCESS;
+	return VB2_SUCCESS;
 }
 
-RSAPublicKey *PublicKeyToRSA(const VbPublicKey *key)
+int vb2_verify_keyblock_hash(const struct vb2_keyblock *block,
+			     uint32_t size,
+			     const struct vb2_workbuf *wb)
 {
-	TEST_EQ(mock_data_key_allocated, 0, "  mock data key not allocated");
+	if (key_block_verify_fail >= 2)
+		return VB2_ERROR_MOCK;
 
-	if (mock_data_key)
-		mock_data_key_allocated++;
-
-	return mock_data_key;
+	/* Use this as an opportunity to override the key block */
+	memcpy((void *)block, &kbh, sizeof(kbh));
+	return VB2_SUCCESS;
 }
 
-void RSAPublicKeyFree(RSAPublicKey* key)
-{
-	TEST_EQ(mock_data_key_allocated, 1, "  mock data key allocated");
-	TEST_PTR_EQ(key, mock_data_key, "  data key ptr");
-	mock_data_key_allocated--;
-}
-
-int VerifyKernelPreamble(const VbKernelPreambleHeader *preamble,
-			 uint64_t size, const RSAPublicKey *key)
+int vb2_verify_kernel_preamble(struct vb2_kernel_preamble *preamble,
+			       uint32_t size,
+			       const struct vb2_public_key *key,
+			       const struct vb2_workbuf *wb)
 {
 	if (preamble_verify_fail)
-		return VBERROR_SIMULATED;
+		return VB2_ERROR_MOCK;
 
 	/* Use this as an opportunity to override the preamble */
 	memcpy((void *)preamble, &kph, sizeof(kph));
-	return VBERROR_SUCCESS;
+	return VB2_SUCCESS;
 }
 
-int VerifyData(const uint8_t *data, uint64_t size, const VbSignature *sig,
-	       const RSAPublicKey *key)
+int vb2_verify_data(const uint8_t *data,
+		    uint32_t size,
+		    struct vb2_signature *sig,
+		    const struct vb2_public_key *key,
+		    const struct vb2_workbuf *wb)
 {
 	if (verify_data_fail)
-		return VBERROR_SIMULATED;
+		return VB2_ERROR_MOCK;
 
-	return VBERROR_SUCCESS;
+	return VB2_SUCCESS;
 }
 
 int vb2_digest_buffer(const uint8_t *buf,
@@ -727,7 +735,7 @@ static void LoadKernelTest(void)
 	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Key version ignored in rec mode");
 
 	ResetMocks();
-	mock_data_key = NULL;
+	unpack_key_fail = 2;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
 		"Bad data key");
 

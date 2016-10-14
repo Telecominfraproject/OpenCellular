@@ -9,12 +9,14 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "2rsa.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
 #include "region.h"
 #include "rollback_index.h"
 #include "utility.h"
+#include "vb2_common.h"
 #include "vboot_api.h"
 #include "vboot_audio.h"
 #include "vboot_common.h"
@@ -1335,12 +1337,13 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	VbKeyBlockHeader *key_block;
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	RSAPublicKey *data_key = NULL;
 	VbKernelPreambleHeader *preamble;
 	uint64_t body_offset;
 	int hash_only = 0;
 	int dev_switch;
 	uint32_t allow_fastboot_full_cap = 0;
+	uint8_t *workbuf = NULL;
+	struct vb2_workbuf wb;
 
 	if ((boot_image == NULL) || (image_size == 0))
 		return VBERROR_INVALID_PARAMETER;
@@ -1399,10 +1402,35 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	/* If we fail at any step, retval returned would be invalid kernel. */
 	retval = VBERROR_INVALID_KERNEL_FOUND;
 
+	/* Allocate work buffer */
+	workbuf = (uint8_t *)
+			VbExMalloc(VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+	if (!workbuf)
+		goto fail;
+	vb2_workbuf_init(&wb, workbuf,
+			 VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+
 	/* Verify the key block. */
 	key_block = (VbKeyBlockHeader *)kbuf;
-	if (0 != KeyBlockVerify(key_block, image_size, kernel_subkey,
-				hash_only)) {
+	struct vb2_keyblock *keyblock2 = (struct vb2_keyblock *)kbuf;
+	int rv;
+	if (hash_only) {
+		rv = vb2_verify_keyblock_hash(keyblock2, image_size, &wb);
+	} else {
+		/* Unpack kernel subkey */
+		struct vb2_public_key kernel_subkey2;
+		if (VB2_SUCCESS != vb2_unpack_key(&kernel_subkey2,
+					  (const uint8_t *)kernel_subkey,
+					  kernel_subkey->key_offset +
+					  kernel_subkey->key_size)) {
+			VBDEBUG(("Unable to unpack kernel subkey\n"));
+			goto fail;
+		}
+		rv = vb2_verify_keyblock(keyblock2, image_size,
+					 &kernel_subkey2, &wb);
+	}
+
+	if (VB2_SUCCESS != rv) {
 		VBDEBUG(("Verifying key block signature/hash failed.\n"));
 		goto fail;
 	}
@@ -1423,18 +1451,27 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	}
 
 	/* Get key for preamble/data verification from the key block. */
-	data_key = PublicKeyToRSA(&key_block->data_key);
-	if (!data_key) {
-		VBDEBUG(("Data key bad.\n"));
+	struct vb2_public_key data_key2;
+	if (VB2_SUCCESS !=
+	    vb2_unpack_key(&data_key2,
+			   (const uint8_t *)&keyblock2->data_key,
+			   keyblock2->data_key.key_offset +
+			   keyblock2->data_key.key_size)) {
+		VBDEBUG(("Unable to unpack kernel data key\n"));
 		goto fail;
 	}
 
 	/* Verify the preamble, which follows the key block */
 	preamble = (VbKernelPreambleHeader *)(kbuf + key_block->key_block_size);
-	if ((0 != VerifyKernelPreamble(preamble,
-				       image_size -
-				       key_block->key_block_size,
-				       data_key))) {
+	struct vb2_kernel_preamble *preamble2 =
+			(struct vb2_kernel_preamble *)
+			(kbuf + key_block->key_block_size);
+
+	if (VB2_SUCCESS != vb2_verify_kernel_preamble(
+			preamble2,
+			image_size - key_block->key_block_size,
+			&data_key2,
+			&wb)) {
 		VBDEBUG(("Preamble verification failed.\n"));
 		goto fail;
 	}
@@ -1443,9 +1480,11 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 
 	/* Verify kernel data */
 	body_offset = key_block->key_block_size + preamble->preamble_size;
-	if (0 != VerifyData((const uint8_t *)(kbuf + body_offset),
-			    image_size - body_offset,
-			    &preamble->body_signature, data_key)) {
+	if (VB2_SUCCESS != vb2_verify_data(
+			(const uint8_t *)(kbuf + body_offset),
+			image_size - body_offset,
+			(struct vb2_signature *)&preamble->body_signature,
+			&data_key2, &wb)) {
 		VBDEBUG(("Kernel data verification failed.\n"));
 		goto fail;
 	}
@@ -1464,10 +1503,10 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 
 fail:
 	VbApiKernelFree(cparams);
-	if (NULL != data_key)
-		RSAPublicKeyFree(data_key);
 	if (NULL != kernel_subkey)
 		VbExFree(kernel_subkey);
+	if (NULL != workbuf)
+		VbExFree(workbuf);
 	return retval;
 }
 
