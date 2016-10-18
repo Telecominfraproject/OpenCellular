@@ -33,10 +33,10 @@ static VbError_t VbGbbReadKey(VbCommonParams *cparams, uint32_t offset,
 	size = hdr.key_offset + hdr.key_size;
 	if (size < sizeof(hdr))
 		size = sizeof(hdr);
-	key = VbExMalloc(size);
+	key = malloc(size);
 	ret = VbRegionReadData(cparams, VB_REGION_GBB, offset, size, key);
 	if (ret) {
-		VbExFree(key);
+		free(key);
 		return ret;
 	}
 

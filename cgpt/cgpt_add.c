@@ -4,8 +4,6 @@
 
 #include <string.h>
 
-#define _STUB_IMPLEMENTATION_
-
 #include "cgpt.h"
 #include "cgpt_params.h"
 #include "cgptlib_internal.h"

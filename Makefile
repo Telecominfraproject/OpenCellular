@@ -410,9 +410,6 @@ VBINIT_SRCS += \
 	firmware/stub/vboot_api_stub_init.c \
 	firmware/stub/vboot_api_stub_region.c
 
-VBSF_SRCS += \
-	firmware/stub/vboot_api_stub_sf.c
-
 VBSLK_SRCS += \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
@@ -503,7 +500,6 @@ HOSTLIB_SRCS = \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
 	firmware/stub/vboot_api_stub_init.c \
-	firmware/stub/vboot_api_stub_sf.c \
 	futility/dump_kernel_config_lib.c \
 	host/arch/${ARCH}/lib/crossystem_arch.c \
 	host/lib/crossystem.c \
@@ -532,7 +528,6 @@ TINYHOSTLIB_SRCS = \
 	firmware/lib/utility_string.c \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
-	firmware/stub/vboot_api_stub_sf.c \
 	futility/dump_kernel_config_lib.c \
 	host/lib/extract_vmlinuz.c
 
@@ -690,11 +685,7 @@ FUTIL_SRCS = \
 FUTIL_STATIC_CMD_LIST = ${BUILD}/gen/futility_static_cmds.c
 FUTIL_CMD_LIST = ${BUILD}/gen/futility_cmds.c
 
-# Workaround for TODO(crbug.com/437107).
-FUTIL_STATIC_WORKAROUND_SRCS = firmware/stub/vboot_api_stub_static_sf.c
-
 FUTIL_STATIC_OBJS = ${FUTIL_STATIC_SRCS:%.c=${BUILD}/%.o} \
-	${FUTIL_STATIC_WORKAROUND_SRCS:%.c=${BUILD}/%.o} \
 	${FUTIL_STATIC_CMD_LIST:%.c=%.o}
 FUTIL_OBJS = ${FUTIL_SRCS:%.c=${BUILD}/%.o} ${FUTIL_CMD_LIST:%.c=%.o}
 

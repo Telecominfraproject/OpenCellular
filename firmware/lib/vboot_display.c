@@ -298,7 +298,7 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 			retval = VBERROR_INVALID_GBB;
 		}
 
-		VbExFree(fullimage);
+		free(fullimage);
 
 		if (VBERROR_SUCCESS != retval)
 			goto VbDisplayScreenFromGBB_exit;
@@ -645,7 +645,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	ret = VbGbbReadRootKey(cparams, &key);
 	if (!ret) {
 		FillInSha1Sum(sha1sum, key);
-		VbExFree(key);
+		free(key);
 		used += StrnAppend(buf + used, "\ngbb.rootkey: ",
 				   DEBUG_INFO_SIZE - used);
 		used += StrnAppend(buf + used, sha1sum,
@@ -655,7 +655,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	ret = VbGbbReadRecoveryKey(cparams, &key);
 	if (!ret) {
 		FillInSha1Sum(sha1sum, key);
-		VbExFree(key);
+		free(key);
 		used += StrnAppend(buf + used, "\ngbb.recovery_key: ",
 				   DEBUG_INFO_SIZE - used);
 		used += StrnAppend(buf + used, sha1sum,

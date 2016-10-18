@@ -13,7 +13,6 @@
 #include "crc32_test.h"
 #include "gpt.h"
 #include "test_common.h"
-#define _STUB_IMPLEMENTATION_
 #include "utility.h"
 
 /*

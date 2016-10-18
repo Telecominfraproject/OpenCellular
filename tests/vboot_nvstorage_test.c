@@ -198,15 +198,9 @@ static void VbNvStorageTest(void) {
 }
 
 
-int main(int argc, char* argv[]) {
-  int error_code = 0;
-
+int main(int argc, char* argv[])
+{
   VbNvStorageTest();
 
-  if (vboot_api_stub_check_memory())
-    error_code = 255;
-  if (!gTestSuccess)
-    error_code = 255;
-
-  return error_code;
+  return gTestSuccess ? 0 : 255;
 }

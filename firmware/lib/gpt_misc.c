@@ -32,11 +32,11 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	gptdata->ignored = 0;
 
 	/* Allocate all buffers */
-	gptdata->primary_header = (uint8_t *)VbExMalloc(gptdata->sector_bytes);
+	gptdata->primary_header = (uint8_t *)malloc(gptdata->sector_bytes);
 	gptdata->secondary_header =
-		(uint8_t *)VbExMalloc(gptdata->sector_bytes);
-	gptdata->primary_entries = (uint8_t *)VbExMalloc(max_entries_bytes);
-	gptdata->secondary_entries = (uint8_t *)VbExMalloc(max_entries_bytes);
+		(uint8_t *)malloc(gptdata->sector_bytes);
+	gptdata->primary_entries = (uint8_t *)malloc(max_entries_bytes);
+	gptdata->secondary_entries = (uint8_t *)malloc(max_entries_bytes);
 
 	if (gptdata->primary_header == NULL ||
 	    gptdata->secondary_header == NULL ||
@@ -204,13 +204,13 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 fail:
 	/* Avoid leaking memory on disk write failure */
 	if (gptdata->primary_header)
-		VbExFree(gptdata->primary_header);
+		free(gptdata->primary_header);
 	if (gptdata->primary_entries)
-		VbExFree(gptdata->primary_entries);
+		free(gptdata->primary_entries);
 	if (gptdata->secondary_entries)
-		VbExFree(gptdata->secondary_entries);
+		free(gptdata->secondary_entries);
 	if (gptdata->secondary_header)
-		VbExFree(gptdata->secondary_header);
+		free(gptdata->secondary_header);
 
 	/* Success */
 	return ret;

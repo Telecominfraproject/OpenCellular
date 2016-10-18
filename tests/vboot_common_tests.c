@@ -232,8 +232,5 @@ int main(int argc, char* argv[])
 	PublicKeyTest();
 	VbSharedDataTest();
 
-	if (vboot_api_stub_check_memory())
-		return 255;
-
 	return gTestSuccess ? 0 : 255;
 }

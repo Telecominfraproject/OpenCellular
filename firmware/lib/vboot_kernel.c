@@ -147,12 +147,12 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	}
 
 	/* Allocate kernel header buffers */
-	kbuf = (uint8_t *)VbExMalloc(KBUF_SIZE);
+	kbuf = (uint8_t *)malloc(KBUF_SIZE);
 	if (!kbuf)
 		goto bad_gpt;
 
 	/* Allocate work buffer */
-	workbuf = (uint8_t *)VbExMalloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
+	workbuf = (uint8_t *)malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 	if (!workbuf)
 		goto bad_gpt;
 	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
@@ -558,9 +558,9 @@ bad_kernel:
 bad_gpt:
 	/* Free buffers */
 	if (workbuf)
-		VbExFree(workbuf);
+		free(workbuf);
 	if (kbuf)
-		VbExFree(kbuf);
+		free(kbuf);
 
 	/* Write and free GPT data */
 	WriteAndFreeGptData(params->disk_handle, &gpt);
@@ -613,7 +613,7 @@ LoadKernelExit:
 	params->shared_data_size = shared->data_used;
 
 	if (free_kernel_subkey)
-		VbExFree(kernel_subkey);
+		free(kernel_subkey);
 
 	return retval;
 }

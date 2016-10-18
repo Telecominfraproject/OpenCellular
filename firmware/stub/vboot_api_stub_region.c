@@ -6,9 +6,6 @@
  */
 
 #include <stdint.h>
-
-#define _STUB_IMPLEMENTATION_
-
 #include <stdlib.h>
 
 #include "vboot_api.h"

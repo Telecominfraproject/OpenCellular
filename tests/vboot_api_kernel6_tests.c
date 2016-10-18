@@ -55,8 +55,5 @@ int main(void)
 	VbUnlockDeviceTest();
 	VbLockDeviceTest();
 
-	if (vboot_api_stub_check_memory())
-		return 255;
-
 	return gTestSuccess ? 0 : 255;
 }

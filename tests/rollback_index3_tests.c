@@ -10,8 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define _STUB_IMPLEMENTATION_  /* So we can use memset() ourselves */
-
 #include "rollback_index.h"
 #include "test_common.h"
 

@@ -32,7 +32,7 @@ VbError_t VbGbbReadHeader_static(VbCommonParams *cparams,
  *
  * @param cparams	Vboot common parameters
  * @param keyp		Returns a pointer to the key. The caller must call
- *			VbExFree() on the key when finished with it.
+ *			free() on the key when finished with it.
  * @return VBERROR_... error, VBERROR_SUCCESS on success,
  */
 VbError_t VbGbbReadRootKey(VbCommonParams *cparams,
@@ -43,7 +43,7 @@ VbError_t VbGbbReadRootKey(VbCommonParams *cparams,
  *
  * @param cparams	Vboot common parameters
  * @param keyp		Returns a pointer to the key. The caller must call
- *			VbExFree() on the key when finished with it.
+ *			free() on the key when finished with it.
  * @return VBERROR_... error, VBERROR_SUCCESS on success,
  */
 VbError_t VbGbbReadRecoveryKey(VbCommonParams *cparams,
@@ -62,7 +62,7 @@ VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams,
 /**
  * Read a image from the GBB
  *
- * The caller must call VbExFree() on *image_datap when finished with it.
+ * The caller must call free() on *image_datap when finished with it.
  *
  * @param cparams	Vboot common parameters
  * @param localization	Localization/language number

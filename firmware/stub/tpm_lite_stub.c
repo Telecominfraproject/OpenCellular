@@ -8,7 +8,6 @@
 
 #include <stdint.h>
 
-#define _STUB_IMPLEMENTATION_
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "utility.h"

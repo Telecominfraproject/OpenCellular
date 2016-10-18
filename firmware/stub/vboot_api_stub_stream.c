@@ -7,8 +7,6 @@
 
 #include <stdint.h>
 
-#define _STUB_IMPLEMENTATION_
-
 #include "vboot_api.h"
 
 /* The stub implementation assumes 512-byte disk sectors */
@@ -36,7 +34,7 @@ VbError_t VbExStreamOpen(VbExDiskHandle_t handle, uint64_t lba_start,
 		return VBERROR_UNKNOWN;
 	}
 
-	s = VbExMalloc(sizeof(*s));
+	s = malloc(sizeof(*s));
 	s->handle = handle;
 	s->sector = lba_start;
 	s->sectors_left = lba_count;
@@ -82,6 +80,6 @@ void VbExStreamClose(VbExStream_t stream)
 	if (!s)
 		return;
 
-	VbExFree(s);
+	free(s);
 	return;
 }

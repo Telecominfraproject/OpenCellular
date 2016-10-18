@@ -5,11 +5,9 @@
  * Stub implementations of firmware-provided API functions.
  */
 
-#include <stdint.h>
-
-#define _STUB_IMPLEMENTATION_
 
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

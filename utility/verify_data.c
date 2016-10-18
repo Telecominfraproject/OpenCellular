@@ -15,8 +15,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define _STUB_IMPLEMENTATION_  /* For malloc()/free() */
-
 #include "2sysincludes.h"
 
 #include "2common.h"

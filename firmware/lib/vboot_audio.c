@@ -170,7 +170,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	}
 
 	/* Looks good. Allocate the space (plus one) and copy it over. */
-	notebuf = VbExMalloc((hdr->count + 1) * sizeof(VbDevMusicNote));
+	notebuf = malloc((hdr->count + 1) * sizeof(VbDevMusicNote));
 	memcpy(notebuf, hdr->notes, hdr->count * sizeof(VbDevMusicNote));
 	count = hdr->count;
 
@@ -296,5 +296,5 @@ void VbAudioClose(VbAudioContext *audio)
 {
 	VbExBeep(0,0);
 	if (audio->free_notes_when_done)
-		VbExFree(audio->music_notes);
+		free(audio->music_notes);
 }

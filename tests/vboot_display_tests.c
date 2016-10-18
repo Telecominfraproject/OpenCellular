@@ -63,9 +63,9 @@ static void ResetMocks(void)
 
 	/*
 	 * Note, VbApiKernelFree() expects this to be allocated by
-	 * VbExMalloc(), so we cannot just assign it staticly.
+	 * malloc(), so we cannot just assign it staticly.
 	 */
-	cparams.gbb = VbExMalloc(sizeof(*gbb));
+	cparams.gbb = malloc(sizeof(*gbb));
 	gbb->header_size = sizeof(*gbb);
 	gbb->rootkey_offset = gbb_used;
 	gbb->rootkey_size = 64;
@@ -263,9 +263,6 @@ int main(void)
 	LocalizationTest();
 	DisplayKeyTest();
 	FontTest();
-
-	if (vboot_api_stub_check_memory())
-		return 255;
 
 	return gTestSuccess ? 0 : 255;
 }

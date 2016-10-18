@@ -127,9 +127,6 @@ int test_succ(int result,
 #define COL_RED "\x1b[0;31m"
 #define COL_STOP "\x1b[m"
 
-/* Check that all memory allocations were freed */
-int vboot_api_stub_check_memory(void);
-
 /* Abort if asprintf fails. */
 #define xasprintf(...) \
 	do { \

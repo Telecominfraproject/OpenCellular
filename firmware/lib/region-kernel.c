@@ -36,11 +36,11 @@ VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams, BmpBlockHeader *hdr_ret)
 		if (0 == gbb->bmpfv_size)
 			return VBERROR_INVALID_GBB;
 
-		hdr = VbExMalloc(sizeof(*hdr));
+		hdr = malloc(sizeof(*hdr));
 		ret = VbRegionReadGbb(cparams, gbb->bmpfv_offset,
 				      sizeof(BmpBlockHeader), hdr);
 		if (ret) {
-			VbExFree(hdr);
+			free(hdr);
 			return ret;
 		}
 
@@ -52,7 +52,7 @@ VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams, BmpBlockHeader *hdr_ret)
 		(hdr->minor_version > BMPBLOCK_MINOR_VERSION))) {
 			VBDEBUG(("VbGbbReadBmpHeader(): "
 				"invalid/too new bitmap header\n"));
-			VbExFree(hdr);
+			free(hdr);
 			return VBERROR_INVALID_BMPFV;
 		}
 		cparams->bmp = hdr;
@@ -136,26 +136,26 @@ VbError_t VbGbbReadImage(VbCommonParams *cparams,
 	if (data_size) {
 		void *orig_data;
 
-		data = VbExMalloc(image_info->compressed_size);
+		data = malloc(image_info->compressed_size);
 		ret = VbRegionReadGbb(cparams, data_offset,
 				      image_info->compressed_size, data);
 		if (ret) {
-			VbExFree(data);
+			free(data);
 			return ret;
 		}
 		if (image_info->compression != COMPRESS_NONE) {
 			uint32_t inoutsize = image_info->original_size;
 
-			orig_data = VbExMalloc(image_info->original_size);
+			orig_data = malloc(image_info->original_size);
 			ret = VbExDecompress(data,
 					     image_info->compressed_size,
 					     image_info->compression,
 					     orig_data, &inoutsize);
 			data_size = inoutsize;
-			VbExFree(data);
+			free(data);
 			data = orig_data;
 			if (ret) {
-				VbExFree(data);
+				free(data);
 				return ret;
 			}
 		}

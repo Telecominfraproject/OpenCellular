@@ -7,8 +7,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define _STUB_IMPLEMENTATION_
-
 #include "2sysincludes.h"
 
 #include "2common.h"

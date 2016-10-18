@@ -7,8 +7,6 @@
 
 #include <stdint.h>
 
-#define _STUB_IMPLEMENTATION_
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -194,15 +194,9 @@ static void VbRegionReadTest(void) {
 		VBERROR_NO_DISK_FOUND, "Kernel");
 }
 
-int main(int argc, char* argv[]) {
-  int error_code = 0;
-
+int main(int argc, char* argv[])
+{
   VbRegionReadTest();
 
-  if (vboot_api_stub_check_memory())
-    error_code = 255;
-  if (!gTestSuccess)
-    error_code = 255;
-
-  return error_code;
+  return gTestSuccess ? 0 : 255;
 }

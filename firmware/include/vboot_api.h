@@ -388,24 +388,6 @@ void VbExDebug(const char *format, ...)
 	__attribute__ ((format (__printf__, 1, 2)));
 
 /*****************************************************************************/
-/* Memory (from utility.h) */
-
-/**
- * Allocate [size] bytes and return a pointer to the allocated memory. Abort
- * on error; this always either returns a good pointer or never returns.
- *
- * If any of the firmware API implementations require aligned data (for
- * example, disk access on ARM), all pointers returned by VbExMalloc() must
- * also be aligned.
- */
-void *VbExMalloc(size_t size);
-
-/**
- * Free memory pointed to by [ptr] previously allocated by VbExMalloc().
- */
-void VbExFree(void *ptr);
-
-/*****************************************************************************/
 /* Timer and delay (first two from utility.h) */
 
 /**

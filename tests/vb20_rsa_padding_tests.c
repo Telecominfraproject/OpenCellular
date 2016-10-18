@@ -3,11 +3,8 @@
  * found in the LICENSE file.
  */
 
-
 #include <stdint.h>
 #include <stdio.h>
-
-#define _STUB_IMPLEMENTATION_
 
 #include "file_keys.h"
 #include "rsa_padding_test.h"

@@ -69,10 +69,4 @@ uint32_t Uint64ToString(char *buf, uint32_t bufsize, uint64_t value,
  */
 uint32_t StrnAppend(char *dest, const char *src, uint32_t destlen);
 
-/* Ensure that only our stub implementations are used, not standard C */
-#ifndef _STUB_IMPLEMENTATION_
-#define malloc _do_not_use_standard_malloc
-#define free _do_not_use_standard_free
-#endif
-
 #endif  /* VBOOT_REFERENCE_UTILITY_H_ */
