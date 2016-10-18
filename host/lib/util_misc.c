@@ -17,7 +17,6 @@
 
 #include "2common.h"
 #include "2sha.h"
-#include "cryptolib.h"
 #include "host_common.h"
 #include "util_misc.h"
 #include "vb2_common.h"

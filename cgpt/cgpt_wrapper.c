@@ -28,7 +28,6 @@
 #include "2sha.h"
 #include "cgpt.h"
 #include "cgpt_nor.h"
-#include "cryptolib.h"
 #include "file_keys.h"
 
 // Check if cmdline |argv| has "-D". "-D" signifies that GPT structs are stored

@@ -22,7 +22,6 @@
 #include "2common.h"
 #include "2sha.h"
 #include "2rsa.h"
-#include "cryptolib.h"
 #include "file_keys.h"
 #include "host_common.h"
 #include "vb2_common.h"

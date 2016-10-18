@@ -16,7 +16,6 @@
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
-#include "cryptolib.h"
 #include "gbb_header.h"
 #include "gpt.h"
 #include "host_common.h"

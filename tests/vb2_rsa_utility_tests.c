@@ -9,15 +9,15 @@
 
 #define _STUB_IMPLEMENTATION_
 
-#include "cryptolib.h"
+#include "2sysincludes.h"
+
+#include "2common.h"
+#include "2rsa.h"
 #include "file_keys.h"
 #include "rsa_padding_test.h"
 #include "test_common.h"
 #include "utility.h"
 #include "vboot_api.h"
-
-#include "2common.h"
-#include "2rsa.h"
 
 /*
  * Internal functions from 2rsa.c that have error conditions we can't trigger

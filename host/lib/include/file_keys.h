@@ -8,7 +8,6 @@
 #ifndef VBOOT_REFERENCE_FILE_KEYS_H_
 #define VBOOT_REFERENCE_FILE_KEYS_H_
 
-#include "cryptolib.h"
 #include "2sha.h"
 
 /* Calculates the appropriate digest for the data in [input_file] based on the

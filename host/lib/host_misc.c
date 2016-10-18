@@ -12,7 +12,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "cryptolib.h"
 #include "host_common.h"
 #include "vboot_common.h"
 

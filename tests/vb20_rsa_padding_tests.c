@@ -9,7 +9,6 @@
 
 #define _STUB_IMPLEMENTATION_
 
-#include "cryptolib.h"
 #include "file_keys.h"
 #include "rsa_padding_test.h"
 #include "test_common.h"

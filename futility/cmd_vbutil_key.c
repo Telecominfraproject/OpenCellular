@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-#include "cryptolib.h"
 #include "futility.h"
 #include "host_common.h"
 #include "host_key2.h"

@@ -17,7 +17,6 @@
 
 #include "2common.h"
 #include "2sha.h"
-#include "cryptolib.h"
 #include "file_keys.h"
 #include "host_common.h"
 #include "signature_digest.h"

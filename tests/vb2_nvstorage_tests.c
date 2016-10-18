@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+
 #include "test_common.h"
 #include "vboot_common.h"
 

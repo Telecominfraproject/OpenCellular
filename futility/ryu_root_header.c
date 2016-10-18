@@ -18,7 +18,6 @@
 #include "2sysincludes.h"
 #include "2common.h"
 #include "2sha.h"
-#include "cryptolib.h"
 #include "futility.h"
 #include "gbb_header.h"
 

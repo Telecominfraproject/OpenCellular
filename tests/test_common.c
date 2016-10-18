@@ -5,15 +5,11 @@
  * Common functions used by tests.
  */
 
-#include "test_common.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "cryptolib.h"
-#include "file_keys.h"
-#include "utility.h"
+#include "test_common.h"
 
 /* Global test success flag. */
 int gTestSuccess = 1;

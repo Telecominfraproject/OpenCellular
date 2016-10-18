@@ -14,7 +14,6 @@
  */
 #define _STUB_IMPLEMENTATION_
 
-#include "cryptolib.h"
 #include "host_key.h"
 #include "host_key2.h"
 #include "host_keyblock.h"

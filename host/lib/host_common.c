@@ -12,7 +12,6 @@
 #include "2rsa.h"
 #include "host_common.h"
 #include "host_key2.h"
-#include "cryptolib.h"
 #include "utility.h"
 #include "vb2_common.h"
 #include "vboot_common.h"

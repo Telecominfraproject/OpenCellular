@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cryptolib.h"
 #include "sha_test_vectors.h"
 
 int SHA1_tests(void) {
