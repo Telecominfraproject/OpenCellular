@@ -13,6 +13,7 @@
 #include "2rsa.h"
 #include "file_keys.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "vb2_common.h"
 #include "vboot_common.h"
 #include "test_common.h"
@@ -138,7 +139,8 @@ static void test_verify_data(const struct vb2_packed_key *key1,
 int test_algorithm(int key_algorithm, const char *keys_dir)
 {
 	char filename[1024];
-	int rsa_len = siglen_map[key_algorithm] * 8;
+	int rsa_bits = 8 * vb2_rsa_sig_size(
+			vb2_crypto_to_signature(key_algorithm));
 
 	struct vb2_private_key *private_key = NULL;
 	struct vb2_signature *sig = NULL;
@@ -146,10 +148,11 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 
 	int retval = 1;
 
-	printf("***Testing algorithm: %s\n", algo_strings[key_algorithm]);
+	printf("***Testing algorithm: %s\n",
+	       vb2_get_crypto_algorithm_name(key_algorithm));
 
 	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.pem", keys_dir, rsa_len);
+		 "%s/key_rsa%d.pem", keys_dir, rsa_bits);
 	private_key = vb2_read_private_key_pem(filename, key_algorithm);
 	if (!private_key) {
 		fprintf(stderr, "Error reading private_key: %s\n", filename);
@@ -157,7 +160,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	}
 
 	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.keyb", keys_dir, rsa_len);
+		 "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
 	key1 = vb2_read_packed_keyb(filename, key_algorithm, 1);
 	if (!key1) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
@@ -208,7 +211,7 @@ int main(int argc, char *argv[]) {
 		/* Test all the algorithms */
 		int alg;
 
-		for (alg = 0; alg < kNumAlgorithms; alg++) {
+		for (alg = 0; alg < VB2_ALG_COUNT; alg++) {
 			if (test_algorithm(alg, argv[1]))
 				return 1;
 		}

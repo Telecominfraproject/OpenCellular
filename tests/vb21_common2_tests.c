@@ -239,7 +239,8 @@ static void test_verify_data(const struct vb2_public_key *pubk_orig,
 int test_algorithm(int key_algorithm, const char *keys_dir)
 {
 	char filename[1024];
-	int rsa_len = siglen_map[key_algorithm] * 8;
+	int rsa_bits = 8 * vb2_rsa_sig_size(
+			vb2_crypto_to_signature(key_algorithm));
 
 	enum vb2_signature_algorithm sig_alg =
 		vb2_crypto_to_signature(key_algorithm);
@@ -250,10 +251,11 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	struct vb2_public_key *pubk = NULL;
 	struct vb21_packed_key *key2 = NULL;
 
-	printf("***Testing algorithm: %s\n", algo_strings[key_algorithm]);
+	printf("***Testing algorithm: %s\n",
+	       vb2_get_crypto_algorithm_name(key_algorithm));
 
 	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.pem", keys_dir, rsa_len);
+		 "%s/key_rsa%d.pem", keys_dir, rsa_bits);
 	TEST_SUCC(vb2_private_key_read_pem(&prik, filename),
 		  "Read private key");
 	prik->hash_alg = hash_alg;
@@ -261,7 +263,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	vb2_private_key_set_desc(prik, "private key");
 
 	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.keyb", keys_dir, rsa_len);
+		 "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
 	TEST_SUCC(vb2_public_key_read_keyb(&pubk, filename),
 		  "Read public key");
 	pubk->hash_alg = hash_alg;
@@ -305,7 +307,7 @@ int main(int argc, char *argv[]) {
 		/* Test all the algorithms */
 		int alg;
 
-		for (alg = 0; alg < kNumAlgorithms; alg++) {
+		for (alg = 0; alg < VB2_ALG_COUNT; alg++) {
 			if (test_algorithm(alg, argv[1]))
 				return 1;
 		}

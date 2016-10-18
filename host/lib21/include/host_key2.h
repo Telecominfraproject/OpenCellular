@@ -67,6 +67,14 @@ extern const struct vb2_text_vs_enum vb2_text_vs_hash[];
 const char *vb2_get_sig_algorithm_name(enum vb2_signature_algorithm sig_alg);
 
 /**
+ * Return the name of a crypto algorithm.
+ *
+ * @param alg		Crypto algorithm to look up
+ * @return The corresponding name, or VB2_INVALID_ALG_NAME if no match.
+ */
+const char *vb2_get_crypto_algorithm_name(enum vb2_crypto_algorithm alg);
+
+/**
  * Free a private key.
  *
  * @param key		Key containing internal data to free.

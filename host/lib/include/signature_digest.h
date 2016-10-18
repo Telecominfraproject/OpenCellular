@@ -11,7 +11,7 @@
 /* Returns a buffer with DigestInfo (which depends on [algorithm])
  * prepended to [digest].
  */
-uint8_t* PrependDigestInfo(unsigned int algorithm, uint8_t* digest);
+uint8_t* PrependDigestInfo(enum vb2_hash_algorithm hash_alg, uint8_t* digest);
 
 /* Function that outputs the message digest of the contents of a buffer in a
  * format that can be used as input to OpenSSL for an RSA signature.

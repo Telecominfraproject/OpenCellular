@@ -10,14 +10,6 @@ struct vb2_kernel_preamble;
 struct vb2_keyblock;
 struct vb2_packed_key;
 
-/**
- * Return the name of the vb1 crypto algorithm
- *
- * @param algo	Crypto algorithm
- * @return The name of the algorithm, or "(invalid)" if algo is not valid.
- */
-const char *vb1_crypto_name(uint32_t algo);
-
 /* Display a public key with variable indentation */
 void show_pubkey(const struct vb2_packed_key *pubkey, const char *sp);
 

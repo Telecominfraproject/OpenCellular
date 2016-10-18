@@ -309,7 +309,7 @@ static const char usage_pubkey[] = "\n"
 	"\n";
 static void print_help_pubkey(int argc, char *argv[])
 {
-	printf(usage_pubkey, kNumAlgorithms - 1);
+	printf(usage_pubkey, VB2_ALG_COUNT - 1);
 }
 
 
@@ -800,7 +800,7 @@ static int do_sign(int argc, char *argv[])
 			sign_option.pem_algo_specified = 1;
 			sign_option.pem_algo = strtoul(optarg, &e, 0);
 			if (!*optarg || (e && *e) ||
-			    (sign_option.pem_algo >= kNumAlgorithms)) {
+			    (sign_option.pem_algo >= VB2_ALG_COUNT)) {
 				fprintf(stderr,
 					"Invalid --pem_algo \"%s\"\n", optarg);
 				errorcnt++;

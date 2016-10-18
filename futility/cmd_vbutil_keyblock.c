@@ -17,6 +17,7 @@
 #include "cryptolib.h"
 #include "futility.h"
 #include "host_common.h"
+#include "host_key2.h"
 #include "util_misc.h"
 #include "vb1_helper.h"
 #include "vb2_common.h"
@@ -110,7 +111,7 @@ static int Pack(const char *outfile, const char *datapubkey,
 	}
 
 	if (signprivate_pem) {
-		if (pem_algorithm >= kNumAlgorithms) {
+		if (pem_algorithm >= VB2_ALG_COUNT) {
 			fprintf(stderr,
 				"vbutil_keyblock: Invalid --pem_algorithm %"
 				PRIu64 "\n", pem_algorithm);
@@ -222,7 +223,7 @@ static int Unpack(const char *infile, const char *datapubkey,
 
 	struct vb2_packed_key *data_key = &block->data_key;
 	printf("Data key algorithm:   %u %s\n", data_key->algorithm,
-	       vb1_crypto_name(data_key->algorithm));
+	       vb2_get_crypto_algorithm_name(data_key->algorithm));
 	printf("Data key version:     %u\n", data_key->key_version);
 	printf("Data key sha1sum:     %s\n",
 	       packed_key_sha1_string(data_key));

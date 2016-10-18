@@ -515,8 +515,10 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		     const char *keys_dir)
 {
 	char filename[1024];
-	int signing_rsa_len = siglen_map[signing_key_algorithm] * 8;
-	int data_rsa_len = siglen_map[data_key_algorithm] * 8;
+	int signing_rsa_len = 8 * vb2_rsa_sig_size(
+			vb2_crypto_to_signature(signing_key_algorithm));
+	int data_rsa_len = 8 * vb2_rsa_sig_size(
+			vb2_crypto_to_signature(data_key_algorithm));
 	int retval = 1;
 
 	struct vb2_private_key *signing_private_key = NULL;
@@ -524,9 +526,9 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	struct vb2_packed_key *data_public_key = NULL;
 
 	printf("***Testing signing algorithm: %s\n",
-	       algo_strings[signing_key_algorithm]);
+	       vb2_get_crypto_algorithm_name(signing_key_algorithm));
 	printf("***With data key algorithm: %s\n",
-	       algo_strings[data_key_algorithm]);
+	       vb2_get_crypto_algorithm_name(data_key_algorithm));
 
 	snprintf(filename, sizeof(filename),
 		 "%s/key_rsa%d.pem", keys_dir, signing_rsa_len);

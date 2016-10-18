@@ -49,7 +49,7 @@ void show_pubkey(const struct vb2_packed_key *pubkey, const char *sp)
 {
 	printf("%sVboot API:           1.0\n", sp);
 	printf("%sAlgorithm:           %d %s\n", sp, pubkey->algorithm,
-	       vb1_crypto_name(pubkey->algorithm));
+	       vb2_get_crypto_algorithm_name(pubkey->algorithm));
 	printf("%sKey Version:         %d\n", sp, pubkey->key_version);
 	printf("%sKey sha1sum:         %s\n",
 	       sp, packed_key_sha1_string(pubkey));
@@ -78,7 +78,7 @@ static void show_keyblock(struct vb2_keyblock *keyblock, const char *name,
 
 	struct vb2_packed_key *data_key = &keyblock->data_key;
 	printf("  Data key algorithm:    %d %s\n", data_key->algorithm,
-	       vb1_crypto_name(data_key->algorithm));
+	       vb2_get_crypto_algorithm_name(data_key->algorithm));
 	printf("  Data key version:      %d\n", data_key->key_version);
 	printf("  Data key sha1sum:      %s\n",
 	       packed_key_sha1_string(data_key));
@@ -116,7 +116,7 @@ int ft_show_privkey(const char *name, uint8_t *buf, uint32_t len, void *data)
 	printf("Private Key file:      %s\n", name);
 	printf("  Vboot API:           1.0\n");
 	printf("  Algorithm:           %u %s\n", pkey->algorithm,
-	       vb1_crypto_name(pkey->algorithm));
+	       vb2_get_crypto_algorithm_name(pkey->algorithm));
 	printf("  Key sha1sum:         %s\n",
 	       private_key_sha1_string(&key));
 
@@ -230,8 +230,8 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	struct vb2_packed_key *kernel_subkey = &pre2->kernel_subkey;
 	printf("  Kernel key algorithm:  %d %s\n",
 	       kernel_subkey->algorithm,
-	       vb1_crypto_name(kernel_subkey->algorithm));
-	if (kernel_subkey->algorithm >= kNumAlgorithms)
+	       vb2_get_crypto_algorithm_name(kernel_subkey->algorithm));
+	if (kernel_subkey->algorithm >= VB2_ALG_COUNT)
 		retval = 1;
 	printf("  Kernel key version:    %d\n", kernel_subkey->key_version);
 	printf("  Kernel key sha1sum:    %s\n",

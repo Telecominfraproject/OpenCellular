@@ -8,7 +8,6 @@
 #ifndef VBOOT_REFERENCE_CRYPTOLIB_H_
 #define VBOOT_REFERENCE_CRYPTOLIB_H_
 
-#include "padding.h"
 #include "rsa.h"
 
 #endif  /* VBOOT_REFERENCE_CRYPTOLIB_H_ */

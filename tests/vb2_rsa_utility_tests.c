@@ -40,7 +40,7 @@ static void test_utils(void)
 				      .hash_alg = VB2_HASH_INVALID};
 
 	/* Verify old and new algorithm count constants match */
-	TEST_EQ(kNumAlgorithms, VB2_ALG_COUNT, "Algorithm counts");
+	TEST_EQ(VB2_ALG_COUNT, VB2_ALG_COUNT, "Algorithm counts");
 
 	/* Crypto algorithm to sig algorithm mapping */
 	TEST_EQ(vb2_crypto_to_signature(VB2_ALG_RSA1024_SHA1),

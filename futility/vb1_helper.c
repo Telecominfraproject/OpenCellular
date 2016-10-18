@@ -24,11 +24,6 @@
 #include "vb1_helper.h"
 #include "vb2_common.h"
 
-const char *vb1_crypto_name(uint32_t algo)
-{
-	return algo < kNumAlgorithms ? algo_strings[algo] : "(invalid)";
-}
-
 /****************************************************************************/
 /* Here are globals containing all the bits & pieces I'm working on.
  *
@@ -544,8 +539,7 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 		printf(" REC");
 	printf("\n");
 	printf("  Data key algorithm:  %u %s\n", data_key->algorithm,
-	       (data_key->algorithm < kNumAlgorithms ?
-		algo_strings[data_key->algorithm] : "(invalid)"));
+	       vb2_get_crypto_algorithm_name(data_key->algorithm));
 	printf("  Data key version:    %u\n", data_key->key_version);
 	printf("  Data key sha1sum:    %s\n",
 	       packed_key_sha1_string(data_key));

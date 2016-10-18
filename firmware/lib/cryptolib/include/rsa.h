@@ -17,9 +17,4 @@
 #define RSA4096NUMBYTES 512  /* 4096 bit key length */
 #define RSA8192NUMBYTES 1024  /* 8192 bit key length */
 
-#define RSA1024NUMWORDS (RSA1024NUMBYTES / sizeof(uint32_t))
-#define RSA2048NUMWORDS (RSA2048NUMBYTES / sizeof(uint32_t))
-#define RSA4096NUMWORDS (RSA4096NUMBYTES / sizeof(uint32_t))
-#define RSA8192NUMWORDS (RSA8192NUMBYTES / sizeof(uint32_t))
-
 #endif  /* VBOOT_REFERENCE_RSA_H_ */

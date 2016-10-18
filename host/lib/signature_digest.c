@@ -12,16 +12,23 @@
 #include "2sysincludes.h"
 
 #include "2common.h"
+#include "2rsa.h"
 #include "2sha.h"
 #include "cryptolib.h"
 #include "host_common.h"
+#include "host_signature2.h"
 #include "signature_digest.h"
 
-uint8_t* PrependDigestInfo(unsigned int algorithm, uint8_t* digest)
+uint8_t* PrependDigestInfo(enum vb2_hash_algorithm hash_alg, uint8_t* digest)
 {
-	const int digest_size = vb2_digest_size(vb2_crypto_to_hash(algorithm));
-	const int digestinfo_size = digestinfo_size_map[algorithm];
-	const uint8_t* digestinfo = hash_digestinfo_map[algorithm];
+	const int digest_size = vb2_digest_size(hash_alg);
+	uint32_t digestinfo_size = 0;
+	const uint8_t* digestinfo = NULL;
+
+	if (VB2_SUCCESS != vb2_digest_info(hash_alg, &digestinfo,
+					   &digestinfo_size))
+		return NULL;
+
 	uint8_t* p = malloc(digestinfo_size + digest_size);
 	memcpy(p, digestinfo, digestinfo_size);
 	memcpy(p + digestinfo_size, digest, digest_size);
@@ -35,7 +42,7 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len,
 
 	uint8_t digest[VB2_SHA512_DIGEST_SIZE];  /* Longest digest */
 
-	if (algorithm >= kNumAlgorithms) {
+	if (algorithm >= VB2_ALG_COUNT) {
 		VBDEBUG(("SignatureDigest() called with invalid algorithm!\n"));
 	} else if (VB2_SUCCESS ==
 		   vb2_digest_buffer(buf, len, vb2_crypto_to_hash(algorithm),
@@ -48,12 +55,29 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len,
 uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
                       unsigned int algorithm)
 {
+	const enum vb2_hash_algorithm hash_alg = vb2_crypto_to_hash(algorithm);
 	FILE* key_fp = NULL;
 	RSA* key = NULL;
 	uint8_t* signature = NULL;
 	uint8_t* signature_digest = SignatureDigest(buf, len, algorithm);
-	const int digest_size = vb2_digest_size(vb2_crypto_to_hash(algorithm));
-	int signature_digest_len = digest_size + digestinfo_size_map[algorithm];
+	if (!signature_digest) {
+		VBDEBUG(("SignatureBuf(): Couldn't get signature digest\n"));
+		return NULL;
+	}
+
+	const int digest_size = vb2_digest_size(hash_alg);
+
+	uint32_t digestinfo_size = 0;
+	const uint8_t* digestinfo = NULL;
+	if (VB2_SUCCESS != vb2_digest_info(hash_alg, &digestinfo,
+					   &digestinfo_size)) {
+		VBDEBUG(("SignatureBuf(): Couldn't get digest info\n"));
+		free(signature_digest);
+		return NULL;
+	}
+
+	int signature_digest_len = digest_size + digestinfo_size;
+
 	key_fp  = fopen(key_file, "r");
 	if (!key_fp) {
 		VBDEBUG(("SignatureBuf(): Couldn't open key file: %s\n",
@@ -62,7 +86,8 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
 		return NULL;
 	}
 	if ((key = PEM_read_RSAPrivateKey(key_fp, NULL, NULL, NULL)))
-		signature = (uint8_t*) malloc(siglen_map[algorithm]);
+		signature = (uint8_t *)malloc(
+		    vb2_rsa_sig_size(vb2_crypto_to_signature(algorithm)));
 	else
 		VBDEBUG(("SignatureBuf(): Couldn't read private key from: %s\n",
 			 key_file));

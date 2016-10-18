@@ -323,7 +323,6 @@ VBINIT_SRCS = \
 
 # Additional firmware library sources needed by VbSelectFirmware() call
 VBSF_SRCS = \
-	firmware/lib/cryptolib/padding.c \
 	firmware/lib/stateful_util.c \
 	firmware/lib/vboot_common.c \
 	firmware/lib/region-fw.c \

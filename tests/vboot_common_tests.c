@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "host_common.h"
 #include "test_common.h"
 #include "utility.h"
 #include "vboot_common.h"
@@ -154,7 +155,7 @@ static void PublicKeyTest(void)
 	PublicKeyInit(k, (uint8_t*)(k + 1), 2 * sizeof(VbPublicKey));
 	TEST_EQ(k->key_offset, sizeof(VbPublicKey), "PublicKeyInit key_offset");
 	TEST_EQ(k->key_size, 2 * sizeof(VbPublicKey), "PublicKeyInit key_size");
-	TEST_EQ(k->algorithm, kNumAlgorithms, "PublicKeyInit algorithm");
+	TEST_EQ(k->algorithm, VB2_ALG_COUNT, "PublicKeyInit algorithm");
 	TEST_EQ(k->key_version, 0, "PublicKeyInit key_version");
 
 	/* Set algorithm and version, so we can tell if they get copied */

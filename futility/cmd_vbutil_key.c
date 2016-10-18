@@ -59,9 +59,9 @@ static void print_help(int argc, char *argv[])
 	       "    --algorithm <number>        "
 	       "Signing algorithm to use with key:\n", argv[0]);
 
-	for (i = 0; i < kNumAlgorithms; i++) {
+	for (i = 0; i < VB2_ALG_COUNT; i++) {
 		printf("                                  %d = (%s)\n",
-		       i, vb1_crypto_name(i));
+		       i, vb2_get_crypto_algorithm_name(i));
 	}
 
 	printf("\nOR\n\n"
@@ -123,7 +123,7 @@ static int do_unpack(const char *infile, const char *outfile)
 	if (pubkey) {
 		printf("Public Key file:   %s\n", infile);
 		printf("Algorithm:         %u %s\n", pubkey->algorithm,
-		       vb1_crypto_name(pubkey->algorithm));
+		       vb2_get_crypto_algorithm_name(pubkey->algorithm));
 		printf("Key Version:       %u\n", pubkey->key_version);
 		printf("Key sha1sum:       %s\n",
 		       packed_key_sha1_string(pubkey));
@@ -144,7 +144,8 @@ static int do_unpack(const char *infile, const char *outfile)
 		enum vb2_crypto_algorithm alg =
 			vb2_get_crypto_algorithm(privkey->hash_alg,
 						 privkey->sig_alg);
-		printf("Algorithm:         %u %s\n", alg, vb1_crypto_name(alg));
+		printf("Algorithm:         %u %s\n", alg,
+		       vb2_get_crypto_algorithm_name(alg));
 		if (outfile &&
 		    VB2_SUCCESS != vb2_write_private_key(outfile, privkey)) {
 			fprintf(stderr,"vbutil_key: Error writing key copy\n");

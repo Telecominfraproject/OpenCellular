@@ -10,6 +10,7 @@
 #include "2sysincludes.h"
 
 #include "2common.h"
+#include "2rsa.h"
 #include "2sha.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -107,7 +108,7 @@ void PublicKeyInit(VbPublicKey *key, uint8_t *key_data, uint64_t key_size)
 {
 	key->key_offset = OffsetOf(key, key_data);
 	key->key_size = key_size;
-	key->algorithm = kNumAlgorithms; /* Key not present yet */
+	key->algorithm = VB2_ALG_COUNT; /* Key not present yet */
 	key->key_version = 0;
 }
 
@@ -190,7 +191,8 @@ int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 	kdest = &header->kernel_subkey;
 
 	VBDEBUG(("Saving kernel subkey to shared data: size %d, algo %d\n",
-		 siglen_map[src->algorithm], (int)src->algorithm));
+		 vb2_rsa_sig_size(vb2_crypto_to_signature(src->algorithm)),
+		 (int)src->algorithm));
 
 	/* Attempt to allocate space for key, if it hasn't been allocated yet */
 	if (!header->kernel_subkey_data_offset) {

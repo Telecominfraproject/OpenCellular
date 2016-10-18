@@ -33,6 +33,22 @@ const struct vb2_text_vs_enum vb2_text_vs_hash[] = {
 	{0, 0}
 };
 
+const struct vb2_text_vs_enum vb2_text_vs_crypto[] = {
+	{"RSA1024 SHA1",   VB2_ALG_RSA1024_SHA1},
+	{"RSA1024 SHA256", VB2_ALG_RSA1024_SHA256},
+	{"RSA1024 SHA512", VB2_ALG_RSA1024_SHA512},
+	{"RSA2048 SHA1",   VB2_ALG_RSA2048_SHA1},
+	{"RSA2048 SHA256", VB2_ALG_RSA2048_SHA256},
+	{"RSA2048 SHA512", VB2_ALG_RSA2048_SHA512},
+	{"RSA4096 SHA1",   VB2_ALG_RSA4096_SHA1},
+	{"RSA4096 SHA256", VB2_ALG_RSA4096_SHA256},
+	{"RSA4096 SHA512", VB2_ALG_RSA4096_SHA512},
+	{"RSA8192 SHA1",   VB2_ALG_RSA8192_SHA1},
+	{"RSA8192 SHA256", VB2_ALG_RSA8192_SHA256},
+	{"RSA8192 SHA512", VB2_ALG_RSA8192_SHA512},
+	{0, 0}
+};
+
 const struct vb2_text_vs_enum *vb2_lookup_by_num(
 	const struct vb2_text_vs_enum *table,
 	const unsigned int num)
@@ -57,6 +73,14 @@ const char *vb2_get_sig_algorithm_name(enum vb2_signature_algorithm sig_alg)
 {
 	const struct vb2_text_vs_enum *entry =
 			vb2_lookup_by_num(vb2_text_vs_sig, sig_alg);
+
+	return entry ? entry->name : VB2_INVALID_ALG_NAME;
+}
+
+const char *vb2_get_crypto_algorithm_name(enum vb2_crypto_algorithm alg)
+{
+	const struct vb2_text_vs_enum *entry =
+			vb2_lookup_by_num(vb2_text_vs_crypto, alg);
 
 	return entry ? entry->name : VB2_INVALID_ALG_NAME;
 }

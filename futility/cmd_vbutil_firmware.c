@@ -248,7 +248,7 @@ static int do_verify(const char *infile, const char *signpubkey,
 
 	struct vb2_packed_key *packed_key = &keyblock->data_key;
 	printf("  Data key algorithm:  %d %s\n", packed_key->algorithm,
-	       vb1_crypto_name(packed_key->algorithm));
+	       vb2_get_crypto_algorithm_name(packed_key->algorithm));
 	printf("  Data key version:    %d\n", packed_key->key_version);
 	printf("  Data key sha1sum:    %s\n",
 	       packed_key_sha1_string(packed_key));
@@ -283,7 +283,7 @@ static int do_verify(const char *infile, const char *signpubkey,
 
 	struct vb2_packed_key *kernel_subkey = &pre2->kernel_subkey;
 	printf("  Kernel key algorithm:  %d %s\n", kernel_subkey->algorithm,
-	       vb1_crypto_name(kernel_subkey->algorithm));
+	       vb2_get_crypto_algorithm_name(kernel_subkey->algorithm));
 	printf("  Kernel key version:    %d\n", kernel_subkey->key_version);
 	printf("  Kernel key sha1sum:    %s\n",
 	       packed_key_sha1_string(kernel_subkey));

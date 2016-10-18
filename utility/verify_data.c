@@ -24,8 +24,7 @@
 #include "2rsa.h"
 #include "cryptolib.h"
 #include "file_keys.h"
-#include "host_key.h"
-#include "host_misc.h"
+#include "host_common.h"
 #include "vb2_common.h"
 
 /* ANSI Color coding sequences. */
@@ -83,12 +82,13 @@ int main(int argc, char* argv[])
 			"where <algorithm> depends on the signature algorithm"
 			" used:\n");
 		for(i = 0; i < VB2_ALG_COUNT; i++)
-			fprintf(stderr, "\t%d for %s\n", i, algo_strings[i]);
+			fprintf(stderr, "\t%d for %s\n", i,
+				vb2_get_crypto_algorithm_name(i));
 		return -1;
 	}
 
 	int algorithm = atoi(argv[1]);
-	if (algorithm >= kNumAlgorithms) {
+	if (algorithm >= VB2_ALG_COUNT) {
 		fprintf(stderr, "Invalid algorithm %d\n", algorithm);
 		goto error;
 	}
