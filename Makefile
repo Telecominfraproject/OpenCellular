@@ -323,7 +323,6 @@ VBINIT_SRCS = \
 
 # Additional firmware library sources needed by VbSelectFirmware() call
 VBSF_SRCS = \
-	firmware/lib/stateful_util.c \
 	firmware/lib/vboot_common.c \
 	firmware/lib/region-fw.c \
 
@@ -722,7 +721,6 @@ TEST_NAMES = \
 	tests/cgptlib_test \
 	tests/rollback_index3_tests \
 	tests/sha_benchmark \
-	tests/stateful_util_tests \
 	tests/utility_string_tests \
 	tests/utility_tests \
 	tests/vboot_api_devmode_tests \
@@ -1416,7 +1414,6 @@ ifeq (${TPM2_MODE},)
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index2_tests
 endif
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index3_tests
-	${RUNTEST} ${BUILD_RUN}/tests/stateful_util_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_string_tests
 	${RUNTEST} ${BUILD_RUN}/tests/utility_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_devmode_tests
