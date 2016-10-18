@@ -114,9 +114,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Couldn't read RSA public key for the test.\n");
 		return 1;
 	}
-
-	if (VB2_SUCCESS != vb2_unpack_key(&k2, (const uint8_t *)pk,
-					  pk->key_offset + pk->key_size)) {
+	if (VB2_SUCCESS != vb2_unpack_key(&k2, pk)) {
 		fprintf(stderr, "Couldn't unpack RSA public key.\n");
 		free(pk);
 		return 1;

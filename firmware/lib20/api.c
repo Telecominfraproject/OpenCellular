@@ -96,7 +96,7 @@ int vb2api_init_hash(struct vb2_context *ctx, uint32_t tag, uint32_t *size)
 	if (!sd->workbuf_data_key_size)
 		return VB2_ERROR_API_INIT_HASH_DATA_KEY;
 
-	rv = vb2_unpack_key(&key,
+	rv = vb2_unpack_key_buffer(&key,
 			    ctx->workbuf + sd->workbuf_data_key_offset,
 			    sd->workbuf_data_key_size);
 	if (rv)
@@ -186,7 +186,7 @@ int vb2api_check_hash_get_digest(struct vb2_context *ctx, void *digest_out,
 	if (!sd->workbuf_data_key_size)
 		return VB2_ERROR_API_CHECK_HASH_DATA_KEY;
 
-	rv = vb2_unpack_key(&key,
+	rv = vb2_unpack_key_buffer(&key,
 			    ctx->workbuf + sd->workbuf_data_key_offset,
 			    sd->workbuf_data_key_size);
 	if (rv)

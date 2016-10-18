@@ -1417,10 +1417,9 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	} else {
 		/* Unpack kernel subkey */
 		struct vb2_public_key kernel_subkey2;
-		if (VB2_SUCCESS != vb2_unpack_key(&kernel_subkey2,
-					  (const uint8_t *)kernel_subkey,
-					  kernel_subkey->key_offset +
-					  kernel_subkey->key_size)) {
+		if (VB2_SUCCESS !=
+		    vb2_unpack_key(&kernel_subkey2,
+				   (struct vb2_packed_key *)kernel_subkey)) {
 			VBDEBUG(("Unable to unpack kernel subkey\n"));
 			goto fail;
 		}
@@ -1450,11 +1449,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 
 	/* Get key for preamble/data verification from the key block. */
 	struct vb2_public_key data_key2;
-	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&data_key2,
-			   (const uint8_t *)&keyblock2->data_key,
-			   keyblock2->data_key.key_offset +
-			   keyblock2->data_key.key_size)) {
+	if (VB2_SUCCESS != vb2_unpack_key(&data_key2, &keyblock2->data_key)) {
 		VBDEBUG(("Unable to unpack kernel data key\n"));
 		goto fail;
 	}

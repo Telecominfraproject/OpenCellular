@@ -194,7 +194,7 @@ int vb2_load_kernel_preamble(struct vb2_context *ctx)
 	return mock_load_kernel_preamble_retval;
 }
 
-int vb2_unpack_key(struct vb2_public_key *key,
+int vb2_unpack_key_buffer(struct vb2_public_key *key,
 		   const uint8_t *buf,
 		   uint32_t size)
 {

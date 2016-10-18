@@ -216,8 +216,7 @@ static void test_verify_fw_preamble(struct vb2_packed_key *public_key,
 	/* Create a dummy signature */
 	struct vb2_signature *body_sig = vb2_alloc_signature(56, 78);
 
-	TEST_SUCC(vb2_unpack_key(&rsa, (uint8_t *)public_key,
-				 public_key->key_offset + public_key->key_size),
+	TEST_SUCC(vb2_unpack_key(&rsa, public_key),
 		  "vb2_verify_fw_preamble() prereq key");
 
 	hdr = vb2_create_fw_preamble(0x1234, kernel_subkey, body_sig,
@@ -359,8 +358,7 @@ static void test_verify_kernel_preamble(
 	/* Create a dummy signature */
 	struct vb2_signature *body_sig = vb2_alloc_signature(56, 0x214000);
 
-	TEST_SUCC(vb2_unpack_key(&rsa, (uint8_t *)public_key,
-				 public_key->key_offset + public_key->key_size),
+	TEST_SUCC(vb2_unpack_key(&rsa, public_key),
 		  "vb2_verify_kernel_preamble() prereq key");
 
 	struct vb2_kernel_preamble *hdr =
@@ -563,7 +561,7 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	/* Unpack public key */
 	struct vb2_public_key signing_public_key2;
 	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&signing_public_key2,
+	    vb2_unpack_key_buffer(&signing_public_key2,
 			   (uint8_t *)signing_public_key,
 			   signing_public_key->key_offset +
 			   signing_public_key->key_size)) {

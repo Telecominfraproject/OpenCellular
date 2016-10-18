@@ -211,7 +211,7 @@ static int do_verify(const char *infile, const char *signpubkey,
 		fprintf(stderr, "Error reading signpubkey.\n");
 		goto verify_cleanup;
 	}
-	if (VB2_SUCCESS != vb2_unpack_key(&sign_key, pubkbuf, pubklen)) {
+	if (VB2_SUCCESS != vb2_unpack_key_buffer(&sign_key, pubkbuf, pubklen)) {
 		fprintf(stderr, "Error unpacking signpubkey.\n");
 		goto verify_cleanup;
 	}
@@ -254,9 +254,7 @@ static int do_verify(const char *infile, const char *signpubkey,
 
 	struct vb2_public_key data_key;
 	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
-			   keyblock->data_key.key_offset +
-			   keyblock->data_key.key_size)) {
+	    vb2_unpack_key(&data_key, &keyblock->data_key)) {
 		fprintf(stderr, "Error parsing data key.\n");
 		goto verify_cleanup;
 	}

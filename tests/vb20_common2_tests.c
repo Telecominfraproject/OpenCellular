@@ -35,44 +35,49 @@ static void test_unpack_key(const struct vb2_packed_key *key1)
 	struct vb2_packed_key *key = (struct vb2_packed_key *)buf;
 
 	memcpy(key, key1, size);
-	TEST_SUCC(vb2_unpack_key(&pubk, buf, size), "vb2_unpack_key() ok");
+	TEST_SUCC(vb2_unpack_key_buffer(&pubk, buf, size),
+		  "vb2_unpack_key_buffer() ok");
 
 	TEST_EQ(pubk.sig_alg, vb2_crypto_to_signature(key->algorithm),
-		"vb2_unpack_key() sig_alg");
+		"vb2_unpack_key_buffer() sig_alg");
 	TEST_EQ(pubk.hash_alg, vb2_crypto_to_hash(key->algorithm),
-		"vb2_unpack_key() hash_alg");
+		"vb2_unpack_key_buffer() hash_alg");
 
 
 	memcpy(key, key1, size);
 	key->algorithm = VB2_ALG_COUNT;
-	TEST_EQ(vb2_unpack_key(&pubk, buf, size),
+	TEST_EQ(vb2_unpack_key_buffer(&pubk, buf, size),
 		VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,
-		"vb2_unpack_key() invalid algorithm");
+		"vb2_unpack_key_buffer() invalid algorithm");
 
 	memcpy(key, key1, size);
 	key->key_size--;
-	TEST_EQ(vb2_unpack_key(&pubk, buf, size),
+	TEST_EQ(vb2_unpack_key_buffer(&pubk, buf, size),
 		VB2_ERROR_UNPACK_KEY_SIZE,
-		"vb2_unpack_key() invalid size");
+		"vb2_unpack_key_buffer() invalid size");
 
 	memcpy(key, key1, size);
 	key->key_offset++;
-	TEST_EQ(vb2_unpack_key(&pubk, buf, size + 1),
+	TEST_EQ(vb2_unpack_key_buffer(&pubk, buf, size + 1),
 		VB2_ERROR_UNPACK_KEY_ALIGN,
-		"vb2_unpack_key() unaligned data");
+		"vb2_unpack_key_buffer() unaligned data");
 
 	memcpy(key, key1, size);
 	*(uint32_t *)(buf + key->key_offset) /= 2;
-	TEST_EQ(vb2_unpack_key(&pubk, buf, size),
+	TEST_EQ(vb2_unpack_key_buffer(&pubk, buf, size),
 		VB2_ERROR_UNPACK_KEY_ARRAY_SIZE,
-		"vb2_unpack_key() invalid key array size");
+		"vb2_unpack_key_buffer() invalid key array size");
 
 	memcpy(key, key1, size);
-	TEST_EQ(vb2_unpack_key(&pubk, buf, size - 1),
+	TEST_EQ(vb2_unpack_key_buffer(&pubk, buf, size - 1),
 		VB2_ERROR_INSIDE_DATA_OUTSIDE,
-		"vb2_unpack_key() buffer too small");
+		"vb2_unpack_key_buffer() buffer too small");
 
 	free(key);
+
+	TEST_EQ(vb2_unpack_key(&pubk, NULL),
+		VB2_ERROR_UNPACK_KEY_BUFFER,
+		"vb2_unpack_key_() buffer NULL");
 }
 
 static void test_verify_data(const struct vb2_packed_key *key1,
@@ -82,7 +87,6 @@ static void test_verify_data(const struct vb2_packed_key *key1,
 		 __attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
 	struct vb2_workbuf wb;
 
-	uint32_t pubkey_size = key1->key_offset + key1->key_size;
 	struct vb2_public_key pubk, pubk_orig;
 	uint32_t sig_total_size = sig->sig_offset + sig->sig_size;
 	struct vb2_signature *sig2;
@@ -92,8 +96,7 @@ static void test_verify_data(const struct vb2_packed_key *key1,
 	/* Allocate signature copy for tests */
 	sig2 = (struct vb2_signature *)malloc(sig_total_size);
 
-	TEST_EQ(vb2_unpack_key(&pubk, (uint8_t *)key1, pubkey_size),
-		0, "vb2_verify_data() unpack key");
+	TEST_SUCC(vb2_unpack_key(&pubk, key1), "vb2_verify_data() unpack key");
 	pubk_orig = pubk;
 
 	memcpy(sig2, sig, sig_total_size);

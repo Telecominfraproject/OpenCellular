@@ -122,7 +122,7 @@ int vb2_load_kernel_keyblock(struct vb2_context *ctx)
 	/* Unpack the kernel key */
 	key_data = ctx->workbuf + sd->workbuf_kernel_key_offset;
 	key_size = sd->workbuf_kernel_key_size;
-	rv = vb2_unpack_key(&kernel_key, key_data, key_size);
+	rv = vb2_unpack_key_buffer(&kernel_key, key_data, key_size);
 	if (rv)
 		return rv;
 
@@ -374,7 +374,7 @@ int vb2_load_kernel_preamble(struct vb2_context *ctx)
 	if (!sd->workbuf_data_key_size)
 		return VB2_ERROR_KERNEL_PREAMBLE2_DATA_KEY;
 
-	rv = vb2_unpack_key(&data_key, key_data, key_size);
+	rv = vb2_unpack_key_buffer(&data_key, key_data, key_size);
 	if (rv)
 		return rv;
 

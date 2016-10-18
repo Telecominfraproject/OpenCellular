@@ -97,8 +97,7 @@ int main(int argc, char* argv[])
 	}
 
 	struct vb2_public_key k2;
-	if (VB2_SUCCESS != vb2_unpack_key(&k2, (const uint8_t *)pk,
-					  pk->key_offset + pk->key_size)) {
+	if (VB2_SUCCESS != vb2_unpack_key(&k2, pk)) {
 		fprintf(stderr, "Can't unpack RSA public key.\n");
 		goto error;
 	}

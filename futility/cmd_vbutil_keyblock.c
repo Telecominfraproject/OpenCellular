@@ -189,9 +189,7 @@ static int Unpack(const char *infile, const char *datapubkey,
 			return 1;
 		}
 		struct vb2_public_key key;
-		if (VB2_SUCCESS !=
-		    vb2_unpack_key(&key, (uint8_t *)sign_key,
-				   sign_key->key_offset + sign_key->key_size)) {
+		if (VB2_SUCCESS != vb2_unpack_key(&key, sign_key)) {
 			fprintf(stderr,
 				"vbutil_keyblock: Error reading signpubkey.\n");
 			return 1;

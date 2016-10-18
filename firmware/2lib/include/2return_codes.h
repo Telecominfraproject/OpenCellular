@@ -161,16 +161,16 @@ enum vb2_return_code {
 	/* Member data outside parent in vb2_verify_member_inside() */
 	VB2_ERROR_INSIDE_DATA_OUTSIDE,
 
-	/* Unsupported signature algorithm in vb2_unpack_key() */
+	/* Unsupported signature algorithm in vb2_unpack_key_buffer() */
 	VB2_ERROR_UNPACK_KEY_SIG_ALGORITHM,                      /* 0x150008 */
 
-	/* Bad key size in vb2_unpack_key() */
+	/* Bad key size in vb2_unpack_key_buffer() */
 	VB2_ERROR_UNPACK_KEY_SIZE,
 
-	/* Bad key alignment in vb2_unpack_key() */
+	/* Bad key alignment in vb2_unpack_key_buffer() */
 	VB2_ERROR_UNPACK_KEY_ALIGN,
 
-	/* Bad key array size in vb2_unpack_key() */
+	/* Bad key array size in vb2_unpack_key_buffer() */
 	VB2_ERROR_UNPACK_KEY_ARRAY_SIZE,
 
 	/* Bad algorithm in vb2_verify_data() */
@@ -194,7 +194,7 @@ enum vb2_return_code {
 	 */
 	VB2_ERROR_VDATA_DIGEST_SIZE,
 
-	/* Unsupported hash algorithm in vb2_unpack_key() */
+	/* Unsupported hash algorithm in vb2_unpack_key_buffer() */
 	VB2_ERROR_UNPACK_KEY_HASH_ALGORITHM,
 
 	/* Member data overlaps member header */
@@ -256,8 +256,11 @@ enum vb2_return_code {
 	/* Key algorithm doesn't match signature algorithm */
 	VB2_ERROR_VDATA_ALGORITHM_MISMATCH,
 
-	/* Bad magic number in vb2_unpack_key() */
+	/* Bad magic number in vb2_unpack_key_buffer() */
 	VB2_ERROR_UNPACK_KEY_MAGIC,
+
+	/* Null public key buffer passed to vb2_unpack_key_buffer() */
+	VB2_ERROR_UNPACK_KEY_BUFFER,
 
         /**********************************************************************
 	 * Keyblock verification errors (all in vb2_verify_keyblock())

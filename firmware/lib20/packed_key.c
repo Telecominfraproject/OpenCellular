@@ -23,9 +23,9 @@ int vb2_verify_packed_key_inside(const void *parent,
 					key->key_offset, key->key_size);
 }
 
-int vb2_unpack_key(struct vb2_public_key *key,
-		   const uint8_t *buf,
-		   uint32_t size)
+int vb2_unpack_key_buffer(struct vb2_public_key *key,
+			  const uint8_t *buf,
+			  uint32_t size)
 {
 	const struct vb2_packed_key *packed_key =
 		(const struct vb2_packed_key *)buf;
@@ -74,4 +74,16 @@ int vb2_unpack_key(struct vb2_public_key *key,
 	key->rr = buf32 + 2 + key->arrsize;
 
 	return VB2_SUCCESS;
+}
+
+int vb2_unpack_key(struct vb2_public_key *key,
+		   const struct vb2_packed_key *packed_key)
+{
+	if (!packed_key)
+		return VB2_ERROR_UNPACK_KEY_BUFFER;
+
+	return vb2_unpack_key_buffer(key,
+				     (const uint8_t *)packed_key,
+				     packed_key->key_offset +
+				     packed_key->key_size);
 }

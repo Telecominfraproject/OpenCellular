@@ -177,8 +177,9 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 	if (state) {
 		if (!sign_key &&
 		    state->rootkey.is_valid &&
-		    VB2_SUCCESS == vb2_unpack_key(&root_key, state->rootkey.buf,
-						  state->rootkey.len)) {
+		    VB2_SUCCESS == vb2_unpack_key_buffer(&root_key,
+							 state->rootkey.buf,
+							 state->rootkey.len)) {
 			/* BIOS should have a rootkey in the GBB */
 			sign_key = &root_key;
 		}
@@ -201,10 +202,7 @@ int ft_show_fw_preamble(const char *name, uint8_t *buf, uint32_t len,
 		retval = 1;
 
 	struct vb2_public_key data_key;
-	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
-			   keyblock->data_key.key_offset +
-			   keyblock->data_key.key_size)) {
+	if (VB2_SUCCESS != vb2_unpack_key(&data_key, &keyblock->data_key)) {
 		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
@@ -308,10 +306,7 @@ int ft_show_kernel_preamble(const char *name, uint8_t *buf, uint32_t len,
 		retval = 1;
 
 	struct vb2_public_key data_key;
-	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
-			   keyblock->data_key.key_offset +
-			   keyblock->data_key.key_size)) {
+	if (VB2_SUCCESS != vb2_unpack_key(&data_key, &keyblock->data_key)) {
 		fprintf(stderr, "Error parsing data key in %s\n", name);
 		return 1;
 	}
@@ -510,7 +505,7 @@ static int do_show(int argc, char *argv[])
 			}
 
 			if (VB2_SUCCESS !=
-			    vb2_unpack_key(&pubk2, pubkbuf, len)) {
+			    vb2_unpack_key_buffer(&pubk2, pubkbuf, len)) {
 				fprintf(stderr, "Error unpacking %s\n", optarg);
 				errorcnt++;
 				break;

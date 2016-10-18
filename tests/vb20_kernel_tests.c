@@ -167,7 +167,7 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 	return VB2_SUCCESS;
 }
 
-int vb2_unpack_key(struct vb2_public_key *key,
+int vb2_unpack_key_buffer(struct vb2_public_key *key,
 		   const uint8_t *buf,
 		   uint32_t size)
 {

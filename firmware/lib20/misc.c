@@ -94,7 +94,7 @@ int vb2_load_fw_keyblock(struct vb2_context *ctx)
 		return rv;
 
 	/* Unpack the root key */
-	rv = vb2_unpack_key(&root_key, key_data, key_size);
+	rv = vb2_unpack_key_buffer(&root_key, key_data, key_size);
 	if (rv)
 		return rv;
 
@@ -212,7 +212,7 @@ int vb2_load_fw_preamble(struct vb2_context *ctx)
 	if (!sd->workbuf_data_key_size)
 		return VB2_ERROR_FW_PREAMBLE2_DATA_KEY;
 
-	rv = vb2_unpack_key(&data_key, key_data, key_size);
+	rv = vb2_unpack_key_buffer(&data_key, key_data, key_size);
 	if (rv)
 		return rv;
 

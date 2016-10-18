@@ -25,7 +25,9 @@
 int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size)
 {
 	struct vb2_public_key pubkey;
-	if (VB2_SUCCESS != vb2_unpack_key(&pubkey, (const uint8_t *)key, size))
+	if (VB2_SUCCESS != vb2_unpack_key_buffer(&pubkey,
+						 (const uint8_t *)key,
+						 size))
 		return 0;
 
 	if (key->key_version > VB2_MAX_KEY_VERSION) {

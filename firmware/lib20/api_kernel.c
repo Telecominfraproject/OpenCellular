@@ -213,7 +213,7 @@ int vb2api_verify_kernel_data(struct vb2_context *ctx,
 	if (!sd->workbuf_data_key_size)
 		return VB2_ERROR_API_VERIFY_KDATA_KEY;
 
-	rv = vb2_unpack_key(&key,
+	rv = vb2_unpack_key_buffer(&key,
 			    ctx->workbuf + sd->workbuf_data_key_offset,
 			    sd->workbuf_data_key_size);
 	if (rv)

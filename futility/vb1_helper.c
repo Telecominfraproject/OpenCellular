@@ -501,11 +501,7 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 
 	if (signpub_key) {
 		struct vb2_public_key pubkey;
-		if (VB2_SUCCESS !=
-		    vb2_unpack_key(&pubkey,
-				   (uint8_t *)signpub_key,
-				   signpub_key->key_offset +
-				   signpub_key->key_size)) {
+		if (VB2_SUCCESS != vb2_unpack_key(&pubkey, signpub_key)) {
 			fprintf(stderr, "Error unpacking signing key.\n");
 			goto done;
 		}
@@ -568,9 +564,7 @@ int VerifyKernelBlob(uint8_t *kernel_blob,
 	}
 
 	struct vb2_public_key pubkey;
-	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&pubkey, (uint8_t *)data_key,
-			   data_key->key_offset + data_key->key_size)) {
+	if (VB2_SUCCESS != vb2_unpack_key(&pubkey, data_key)) {
 		fprintf(stderr, "Error parsing data key.\n");
 		goto done;
 	}
@@ -743,9 +737,7 @@ enum futil_file_type ft_recognize_vblock1(uint8_t *buf, uint32_t len)
 	/* Try unpacking the data key from the keyblock */
 	struct vb2_public_key data_key;
 	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&data_key, (const uint8_t *)&keyblock->data_key,
-			   keyblock->data_key.key_offset +
-			   keyblock->data_key.key_size)) {
+	    vb2_unpack_key(&data_key, &keyblock->data_key)) {
 		/* It looks like a bad keyblock, but still a keyblock */
 		free(buf2);
 		return FILE_TYPE_KEYBLOCK;
