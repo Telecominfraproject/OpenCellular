@@ -1,0 +1,340 @@
++-------------------------------------+
+| SMU Firmware Release Notes - STONEY |
++-------------------------------------+
+
++------------------------------------+
+| Version 26.16.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                13/07/16                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-92 - VPU recovery fix                                                                  |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
+
++------------------------------------+
+| Version 26.15.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                04/04/16                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-88 - Big Hammer CPU Idle Activity monitor                                              |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++------------------------------------+
+| Version 26.14.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                26/02/16                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-85 - Removed code related to CU1 and fixed nonsense AGM numbers for gfx cu pg          |
+|          -    SMUSTN-86 - Updated the infrastructure parameters for a couple of OPNs                        |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++------------------------------------+
+| Version 26.13.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                18/01/16                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-82 - Override EDC/TDC parameters                                                       |
+|          -    SMUSTN-83 - Big Hammer workaround code port and core 1 check removed                          |
+|          -    SMUSTN-84 - Removing RLC deadlock workaroudn from votlage.c                                   |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++------------------------------------+
+| Version 26.12.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                11/01/16                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-77 - Deadlock prevent (Additional code)                                                |
+|          -    SMUSTN-78 - Bypass SP ucode authentication request for DiagBL                                 |
+|          -    SMUSTN-80 - Prevent GCCAC access when driver notices of SRBM reset                            |
+|          -    SMUSTN-81 - RLC Response register race condition                                              |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
+
++------------------------------------+
+| Version 26.11.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                22/12/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-77 - Deadlock prevent                                           |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
+
++------------------------------------+
+| Version 26.10.0 - Official Release |
++------------------------------------+------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                14/12/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-73 - New coefficients for AC BTC fit for FT4                                           |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.9.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                23/11/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          -    SMUSTN-63 - PSP uCode validation enable                                                       |
+|          -    SMUSTN-70 - the bug is fixed by updating SystemConfigTable in app/tables.c                    |
+|               and SystemConfig_t in app/opn.h at the same time                                              |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.8.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                16/11/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - SMUSTN-67 - changed nb_dpm to mitigate the issue of no NBP3 enforcement when HTC is active       |
+|          - SMUSTN-68 - update AC BTC weights based on recent charz data                                     |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.7.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                09/11/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - SMUSTN-64 - enhance the SetVddNbOffset routine by considering ulv configs and gfx pwr status     |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.6.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                02/11/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                         |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - SMUSTN-55 - updated the lists of thermal sensors for the VDDCORE and VDDNB voltage rails         |
+|          - SMUSTN-60 - changed bapm.h/c files to align the BAPM loop with the Stoney thermal model          |
+|          - SMUSTN-51 - updated opn.h to comprehend the definitions of both FP4 and FT4 packages             |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.5.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                26/10/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - SMUSTN-57 DFS BYPASS fix and MP1 CLK back to 300Mhz
+|          - SMUSTN-54 - changed VDDIO_BASE_LEAKAGE from 0.5F to 0.25F in cac.h
+|          - SMUSTN-51 - updated opn.h to reflect the correct OPN limits for the FP4 package(according to P4 notes)
+|          - SMUSTN-49 - updated opn.h to reflect the correct OPN limits for the FP4 package (according to P4)
+|          - SMUSTN-58 - Updating AC BTC weights based on charz data and yield learning data
+|          - SMUSTN-61 - updating CAC weights to AFO
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.4.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                09/10/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - SMUSTN-44 - remove SDMA1 from VPU recovery sequence because it doesn't exist
+|          - SMUSTN-45 - CPU coffient and Leakage estimates
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.3.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                02/10/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - SMUSTN-34 - Override Proto MAX SCLK of 847 to 800
+|          - SMUSTN-36 - CAC weight IDLE back to 1
+|          - SMUSTN-41 - IsrPSPMSG needs to be in NONPAGEABLE section
+|          - SMUSTN-42 - BIOS message to disable SMU Post code 
+|          - SMUSTN-4 - ARG_1 usage for tools (need message to enable this fix)
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
+
++-----------------------------------+
+| Version 26.2.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                28/09/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -ALL                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - Official release since BU debug releases
+|          - All features are enabled, CAC @ 80% accuracy
+|          - BTC must be enabeld by default if AVFS is enabled in CBS options
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++-----------------------------------+
+| Version 26.1.0 - Official Release |
++-----------------------------------+-------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                13/08/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -NONE                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          - Official FW Release
+|          - CZ top of tree ported over
+|          - MS code ported over
+|          - CCLK and AVFS/BTC code ported from BR 
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++------------------------------------------+
+| Version 26.0.1 - Release for Prototyping |
++------------------------------------------+------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                24/06/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -NONE                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          Firmware release for Prototyping.                                                                  |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++----------------------------------------+
+| Version 26.0.0 - Release for Emulation |
++----------------------------------------+--------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                14/01/15                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -NONE                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                                                                                                             |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|          First Firmware release for Emulation.                                                              |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
