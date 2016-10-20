@@ -78,6 +78,16 @@ is
 
    ----------------------------------------------------------------------------
 
+   PCH_RAWCLK_FREQ_MASK                : constant := 16#3ff# * 2 ** 0;
+
+   function PCH_RAWCLK_FREQ (Freq : Frequency_Type) return Word32
+   is
+   begin
+      return Word32 (Freq / 1_000_000);
+   end PCH_RAWCLK_FREQ;
+
+   ----------------------------------------------------------------------------
+
    function To_GPU_Port
      (Configs  : Configs_Type;
       Idx      : Config_Index)
@@ -711,6 +721,11 @@ is
 
       -------------------- Now restart from a clean state ---------------------
       Power_And_Clocks.Initialize;
+
+      Registers.Unset_And_Set_Mask
+        (Register    => Registers.PCH_RAWCLK_FREQ,
+         Mask_Unset  => PCH_RAWCLK_FREQ_MASK,
+         Mask_Set    => PCH_RAWCLK_FREQ (Config.Default_RawClk_Freq));
 
       Initialized := True;
 

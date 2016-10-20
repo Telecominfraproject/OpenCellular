@@ -349,7 +349,7 @@ is
       PCH_FPB0,
       PCH_FPB1,
       PCH_DREF_CONTROL,
-      RAWCLK_FREQ,
+      PCH_RAWCLK_FREQ,
       PCH_DPLL_SEL,
       PCH_PP_STATUS,
       PCH_PP_CONTROL,
@@ -1014,7 +1014,7 @@ is
       TRANS_VSYNCSHIFT_A    => 16#0e_0028# / Register_Width,
       TRANS_VSYNCSHIFT_B    => 16#0e_1028# / Register_Width,
       TRANS_VSYNCSHIFT_C    => 16#0e_2028# / Register_Width,
-      RAWCLK_FREQ           => 16#0c_6204# / Register_Width,
+      PCH_RAWCLK_FREQ       => 16#0c_6204# / Register_Width,
       QUIRK_C2004           => 16#0c_2004# / Register_Width);
 
    subtype Registers_Index is Registers_Invalid_Index range

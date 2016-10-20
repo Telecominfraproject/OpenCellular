@@ -203,4 +203,18 @@ is
          when Sandybridge  => Full_Training,
          when others       => Auto_Training);
 
+   ----------------------------------------------------------------------------
+
+   Default_RawClk_Freq : constant Frequency_Type :=
+     (case CPU is
+         when Ironlake     |
+              Sandybridge  |
+              Ivybridge    => 125_000_000,
+         when Haswell      |
+              Broadwell    => (if CPU_Var = Normal then
+                                 125_000_000
+                               else
+                                 24_000_000),
+         when Skylake      => 24_000_000);
+
 end HW.GFX.GMA.Config;
