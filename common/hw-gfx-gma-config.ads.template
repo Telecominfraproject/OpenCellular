@@ -205,6 +205,15 @@ is
 
    ----------------------------------------------------------------------------
 
+   Default_CDClk_Freq : constant Frequency_Type :=
+     (case CPU is
+         when Ironlake     |
+              Haswell      |
+              Broadwell    => 450_000_000,
+         when Sandybridge  |
+              Ivybridge    => 400_000_000,
+         when Skylake      => 337_500_000);
+
    Default_RawClk_Freq : constant Frequency_Type :=
      (case CPU is
          when Ironlake     |
