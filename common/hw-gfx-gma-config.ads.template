@@ -23,6 +23,8 @@ is
 
    Internal_Display : constant Internal_Type := <<INTERNAL_PORT>>;
 
+   Analog_I2C_Port : constant PCH_Port := <<ANALOG_I2C_PORT>>;
+
    EDP_Low_Voltage_Swing : constant Boolean := False;
 
    Default_MMIO_Base : constant := <<DEFAULT_MMIO_BASE>>;

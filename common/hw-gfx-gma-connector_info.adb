@@ -59,7 +59,9 @@ package body HW.GFX.GMA.Connector_Info is
                Success  => Success);
          else
             I2C.I2C_Read
-              (Port     => Port_Cfg.PCH_Port,
+              (Port     => (if Port_Cfg.Display = VGA
+                            then Config.Analog_I2C_Port
+                            else Port_Cfg.PCH_Port),
                Address  => 16#50#,
                Length   => Raw_EDID_Length,
                Data     => Raw_EDID,
