@@ -109,10 +109,6 @@ private
    subtype PCH_HDMI_Port is PCH_Port range PCH_HDMI_B .. PCH_HDMI_D;
    subtype PCH_DP_Port is PCH_Port range PCH_DP_B .. PCH_DP_D;
 
-   type Display_Type is (None, LVDS, DP, HDMI, VGA);
-
-   subtype Internal_Type is Display_Type range None .. DP;
-
    type Port_Config is
       record
          Port     : GPU_Port;

@@ -32,6 +32,13 @@ is
    with
       Pre => Offset < Raw_EDID_Index'Last;
 
+   function Compatible_Display
+     (Raw_EDID : Raw_EDID_Data;
+      Display  : Display_Type)
+      return Boolean
+   with
+      Pre => Valid (Raw_EDID);
+
    function Has_Preferred_Mode (Raw_EDID : Raw_EDID_Data) return Boolean
    with
       Pre => Valid (Raw_EDID),

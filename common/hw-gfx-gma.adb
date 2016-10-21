@@ -327,7 +327,10 @@ is
                   Connector_Info.Read_EDID (Raw_EDID, Port_Cfg, Success);
                end if;
 
-               if Success and then EDID.Has_Preferred_Mode (Raw_EDID) then
+               if Success and then
+                  (EDID.Compatible_Display (Raw_EDID, Port_Cfg.Display) and
+                   EDID.Has_Preferred_Mode (Raw_EDID))
+               then
                   Configs (Config_Idx).Mode := EDID.Preferred_Mode (Raw_EDID);
                else
                   Configs (Config_Idx).Port := Disabled;
@@ -428,7 +431,10 @@ is
                   Success  => Success);
             end if;
 
-            if Success and then EDID.Has_Preferred_Mode (Raw_EDID) then
+            if Success and then
+               (EDID.Compatible_Display (Raw_EDID, Port_Cfg.Display) and
+                EDID.Has_Preferred_Mode (Raw_EDID))
+            then
                Configs (Config_Idx) := Config_Type'
                  (Port        => Port,
                   Framebuffer => Configs (Config_Idx).Framebuffer,

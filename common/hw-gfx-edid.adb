@@ -68,6 +68,15 @@ package body HW.GFX.EDID is
 
    ----------------------------------------------------------------------------
 
+   function Compatible_Display
+     (Raw_EDID : Raw_EDID_Data;
+      Display  : Display_Type)
+      return Boolean
+   is
+   begin
+      return (Display = VGA) = ((Raw_EDID (INPUT) and INPUT_DIGITAL) = 16#00#);
+   end Compatible_Display;
+
    function Read_LE16
      (Raw_EDID : Raw_EDID_Data;
       Offset   : Raw_EDID_Index)

@@ -94,6 +94,9 @@ package HW.GFX is
       Enhanced_Framing        => False,
       Opportunistic_Training  => False);
 
+   type Display_Type is (None, LVDS, DP, HDMI, VGA);
+   subtype Internal_Type is Display_Type range None .. DP;
+
    type Mode_Type is
    record
       Dotclock             : Frequency_Type;
