@@ -334,6 +334,7 @@ is
                   Configs (Config_Idx).Mode := EDID.Preferred_Mode (Raw_EDID);
                else
                   Configs (Config_Idx).Port := Disabled;
+                  Success := False;
 
                   if Ports (Port_Idx) = Internal and
                      not Port_Configured (Cur_Configs, Internal)
