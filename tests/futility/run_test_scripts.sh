@@ -70,23 +70,23 @@ exec 3>&1
 
 echo "-- builtin --"
 for i in $TESTS; do
-  j=${i##*/}
+	j=${i##*/}
 
-  : $(( progs++ ))
+	: $(( progs++ ))
 
-  echo -n "$j ... "
-  rm -rf "${OUTDIR}/$j."*
-  rc=$("$i" "$FUTILITY" 1>"${OUTDIR}/$j.stdout" \
-       2>"${OUTDIR}/$j.stderr" || echo "$?")
-  echo "${rc:-0}" > "${OUTDIR}/$j.return"
-  if [ ! "$rc" ]; then
-    green "passed"
-    : $(( pass++ ))
-    rm -f ${OUTDIR}/$j.{stdout,stderr,return}
-  else
-    red "failed"
-  fi
-
+	echo -n "$j ... "
+	rm -rf "${OUTDIR}/$j."*
+	rc=$("$i" "$FUTILITY" 1>"${OUTDIR}/$j.stdout" \
+		2>"${OUTDIR}/$j.stderr" || echo "$?")
+	echo "${rc:-0}" > "${OUTDIR}/$j.return"
+	if [ ! "$rc" ]; then
+		green "PASSED"
+		: $(( pass++ ))
+		rm -f ${OUTDIR}/$j.{stdout,stderr,return}
+	else
+		red "FAILED. Stdout is recorded in ${OUTDIR}/$j.stdout"
+		cat ${OUTDIR}/$j.stderr
+	fi
 done
 
 ##############################################################################
