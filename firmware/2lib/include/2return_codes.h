@@ -446,6 +446,48 @@ enum vb2_return_code {
 	/* Kernel preamble not loaded before calling vb2api_get_kernel_size() */
 	VB2_ERROR_API_GET_KERNEL_SIZE_PREAMBLE,
 
+	/* Unable to unpack kernel subkey in vb2_verify_vblock() */
+	VB2_ERROR_VBLOCK_KERNEL_SUBKEY,
+
+	/*
+	 * Got a self-signed kernel in vb2_verify_vblock(), but need an
+	 * officially signed one.
+	 */
+	VB2_ERROR_VBLOCK_SELF_SIGNED,
+
+	/* Invalid keyblock hash in vb2_verify_vblock() */
+	VB2_ERROR_VBLOCK_KEYBLOCK_HASH,
+
+	/* Invalid keyblock in vb2_verify_vblock() */
+	VB2_ERROR_VBLOCK_KEYBLOCK,
+
+	/* Wrong developer key hash in vb2_verify_vblock() */
+	VB2_ERROR_VBLOCK_DEV_KEY_HASH,
+
+	/* Work buffer too small in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_WORKBUF,
+
+	/* Unable to read vblock in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_READ_VBLOCK,
+
+	/* Unable to verify vblock in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_VERIFY_VBLOCK,
+
+	/* Kernel body offset too large in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_BODY_OFFSET,
+
+	/* Kernel body too big in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_BODY_SIZE,
+
+	/* Unable to read kernel body in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_READ_BODY,
+
+	/* Unable to unpack data key in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_DATA_KEY,
+
+	/* Unable to verify body in vb2_load_partition() */
+	VB2_ERROR_LOAD_PARTITION_VERIFY_BODY,
+
         /**********************************************************************
 	 * API-level errors
 	 */

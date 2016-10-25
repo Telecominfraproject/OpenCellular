@@ -90,8 +90,8 @@ int main(int argc, char *argv[])
 	/* TODO: optional TPM current kernel version */
 
 	/* Set up params */
-	params.shared_data_blob = shared_data;
-	params.shared_data_size = sizeof(shared_data);
+	cparams.shared_data_blob = shared_data;
+	cparams.shared_data_size = sizeof(shared_data);
 	params.disk_handle = (VbExDiskHandle_t)1;
 	params.bytes_per_lba = 512;
 	params.streaming_lba_count = disk_bytes / 512;
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 	}
 
 	printf("Found a good kernel.\n");
-	printf("Partition number:   %d\n", (int)params.partition_number);
+	printf("Partition number:   %u\n", params.partition_number);
 	printf("Bootloader address: 0x%" PRIx64 "\n",
 	       params.bootloader_address);
 

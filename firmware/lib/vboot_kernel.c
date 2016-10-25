@@ -26,50 +26,420 @@
 #include "vboot_common.h"
 #include "vboot_kernel.h"
 
-#define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
 #define LOWEST_TPM_VERSION 0xffffffff
 
-typedef enum BootMode {
+enum vboot_mode {
 	kBootRecovery = 0,  /* Recovery firmware, any dev switch position */
 	kBootNormal = 1,    /* Normal boot - kernel must be verified */
 	kBootDev = 2        /* Developer boot - self-signed kernel ok */
-} BootMode;
+};
+
+/**
+ * Return the boot mode based on the parameters.
+ *
+ * @param params	Load kernel parameters
+ * @return The current boot mode.
+ */
+static enum vboot_mode get_kernel_boot_mode(const LoadKernelParams *params)
+{
+	if (BOOT_FLAG_RECOVERY & params->boot_flags)
+		return kBootRecovery;
+
+	if (BOOT_FLAG_DEVELOPER & params->boot_flags)
+		return kBootDev;
+
+	return kBootNormal;
+};
+
+/**
+ * Check if the parameters require an officially signed OS.
+ *
+ * @param params	Load kernel parameters
+ * @return 1 if official OS required; 0 if self-signed kernels are ok
+ */
+static int require_official_os(const LoadKernelParams *params)
+{
+	/* Normal and recovery modes always require official OS */
+	if (get_kernel_boot_mode(params) != kBootDev)
+		return 1;
+
+	/* FWMP can require developer mode to use official OS */
+	if (params->fwmp &&
+	    (params->fwmp->flags & FWMP_DEV_ENABLE_OFFICIAL_ONLY))
+		return 1;
+
+	/* Developer can request official OS via nvstorage */
+	uint32_t signed_only = 1;
+	VbNvGet(params->nv_context, VBNV_DEV_BOOT_SIGNED_ONLY, &signed_only);
+	return signed_only;
+}
+
+/**
+ * Return a pointer to the keyblock inside a vblock.
+ *
+ * Must only be called during or after vb2_verify_kernel_vblock().
+ *
+ * @param kbuf		Buffer containing vblock
+ * @return The keyblock pointer.
+ */
+static struct vb2_keyblock *get_keyblock(uint8_t *kbuf)
+{
+	return (struct vb2_keyblock *)kbuf;
+}
+
+/**
+ * Return a pointer to the kernel preamble inside a vblock.
+ *
+ * Must only be called during or after vb2_verify_kernel_vblock().
+ *
+ * @param kbuf		Buffer containing vblock
+ * @return The kernel preamble pointer.
+ */
+static struct vb2_kernel_preamble *get_preamble(uint8_t *kbuf)
+{
+	return (struct vb2_kernel_preamble *)
+			(kbuf + get_keyblock(kbuf)->keyblock_size);
+}
+
+/**
+ * Return the offset of the kernel body from the start of the vblock.
+ *
+ * Must only be called during or after vb2_verify_kernel_vblock().
+ *
+ * @param kbuf		Buffer containing vblock
+ * @return The offset of the kernel body from the vblock start, in bytes.
+ */
+static uint32_t get_body_offset(uint8_t *kbuf)
+{
+	return (get_keyblock(kbuf)->keyblock_size +
+		get_preamble(kbuf)->preamble_size);
+}
+
+/**
+ * Verify a kernel vblock.
+ *
+ * @param kbuf		Buffer containing the vblock
+ * @param kbuf_size	Size of the buffer in bytes
+ * @param kernel_subkey	Packed kernel subkey to use in validating keyblock
+ * @param params	Load kernel parameters
+ * @param min_version	Minimum kernel version
+ * @param shpart	Destination for verification results
+ * @param wb		Work buffer.  Must be at least
+ *			VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES bytes.
+ * @return VB2_SUCCESS, or non-zero error code.
+ */
+int vb2_verify_kernel_vblock(uint8_t *kbuf,
+			     uint32_t kbuf_size,
+			     const struct vb2_packed_key *kernel_subkey,
+			     const LoadKernelParams *params,
+			     uint32_t min_version,
+			     VbSharedDataKernelPart *shpart,
+			     struct vb2_workbuf *wb)
+{
+	/* Unpack kernel subkey */
+	struct vb2_public_key kernel_subkey2;
+	if (VB2_SUCCESS != vb2_unpack_key(&kernel_subkey2, kernel_subkey)) {
+		VB2_DEBUG("Unable to unpack kernel subkey\n");
+		return VB2_ERROR_VBLOCK_KERNEL_SUBKEY;
+	}
+
+	/* Verify the key block. */
+	int keyblock_valid = 1;  /* Assume valid */
+	struct vb2_keyblock *keyblock = get_keyblock(kbuf);
+	if (VB2_SUCCESS != vb2_verify_keyblock(keyblock, kbuf_size,
+					       &kernel_subkey2, wb)) {
+		VB2_DEBUG("Verifying key block signature failed.\n");
+		shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_SIG;
+		keyblock_valid = 0;
+
+		/* Check if we must have an officially signed kernel */
+		if (require_official_os(params)) {
+			VB2_DEBUG("Self-signed kernels not enabled.\n");
+			shpart->check_result = VBSD_LKP_CHECK_SELF_SIGNED;
+			return VB2_ERROR_VBLOCK_SELF_SIGNED;
+		}
+
+		/* Otherwise, allow the kernel if the key block hash is valid */
+		if (VB2_SUCCESS !=
+		    vb2_verify_keyblock_hash(keyblock, kbuf_size, wb)) {
+			VB2_DEBUG("Verifying key block hash failed.\n");
+			shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_HASH;
+			return VB2_ERROR_VBLOCK_KEYBLOCK_HASH;
+		}
+	}
+
+	/* Check the key block flags against boot flags. */
+	if (!(keyblock->keyblock_flags &
+	      ((BOOT_FLAG_DEVELOPER & params->boot_flags) ?
+	       KEY_BLOCK_FLAG_DEVELOPER_1 : KEY_BLOCK_FLAG_DEVELOPER_0))) {
+		VB2_DEBUG("Key block developer flag mismatch.\n");
+		shpart->check_result = VBSD_LKP_CHECK_DEV_MISMATCH;
+		keyblock_valid = 0;
+	}
+	if (!(keyblock->keyblock_flags &
+	      ((BOOT_FLAG_RECOVERY & params->boot_flags) ?
+	       KEY_BLOCK_FLAG_RECOVERY_1 : KEY_BLOCK_FLAG_RECOVERY_0))) {
+		VB2_DEBUG("Key block recovery flag mismatch.\n");
+		shpart->check_result = VBSD_LKP_CHECK_REC_MISMATCH;
+		keyblock_valid = 0;
+	}
+
+	/* Check for rollback of key version except in recovery mode. */
+	enum vboot_mode boot_mode = get_kernel_boot_mode(params);
+	uint32_t key_version = keyblock->data_key.key_version;
+	if (kBootRecovery != boot_mode) {
+		if (key_version < (min_version >> 16)) {
+			VB2_DEBUG("Key version too old.\n");
+			shpart->check_result = VBSD_LKP_CHECK_KEY_ROLLBACK;
+			keyblock_valid = 0;
+		}
+		if (key_version > 0xFFFF) {
+			/*
+			 * Key version is stored in 16 bits in the TPM, so key
+			 * versions greater than 0xFFFF can't be stored
+			 * properly.
+			 */
+			VB2_DEBUG("Key version > 0xFFFF.\n");
+			shpart->check_result = VBSD_LKP_CHECK_KEY_ROLLBACK;
+			keyblock_valid = 0;
+		}
+	}
+
+	/* If not in developer mode, key block required to be valid. */
+	if (kBootDev != boot_mode && !keyblock_valid) {
+		VB2_DEBUG("Key block is invalid.\n");
+		return VB2_ERROR_VBLOCK_KEYBLOCK;
+	}
+
+	/* If in developer mode and using key hash, check it */
+	if ((kBootDev == boot_mode) &&
+	    params->fwmp && (params->fwmp->flags & FWMP_DEV_USE_KEY_HASH)) {
+		struct vb2_packed_key *key = &keyblock->data_key;
+		uint8_t *buf = ((uint8_t *)key) + key->key_offset;
+		uint32_t buflen = key->key_size;
+		uint8_t digest[VB2_SHA256_DIGEST_SIZE];
+
+		VB2_DEBUG("Checking developer key hash.\n");
+		vb2_digest_buffer(buf, buflen, VB2_HASH_SHA256,
+				  digest, sizeof(digest));
+		if (0 != vb2_safe_memcmp(digest, params->fwmp->dev_key_hash,
+					 VB2_SHA256_DIGEST_SIZE)) {
+			int i;
+
+			VB2_DEBUG("Wrong developer key hash.\n");
+			VB2_DEBUG("Want: ");
+			for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++)
+				VB2_DEBUG("%02x",
+					  params->fwmp->dev_key_hash[i]);
+			VB2_DEBUG("\nGot:  ");
+			for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++)
+				VB2_DEBUG("%02x", digest[i]);
+			VB2_DEBUG("\n");
+
+			return VB2_ERROR_VBLOCK_DEV_KEY_HASH;
+		}
+	}
+
+	/* Get key for preamble verification from the key block. */
+	struct vb2_public_key data_key;
+	if (VB2_SUCCESS != vb2_unpack_key(&data_key, &keyblock->data_key)) {
+		VB2_DEBUG("Unable to unpack kernel data key\n");
+		shpart->check_result = VBSD_LKP_CHECK_DATA_KEY_PARSE;
+		return VB2_ERROR_UNKNOWN;
+	}
+
+	/* Verify the preamble, which follows the key block */
+	struct vb2_kernel_preamble *preamble = get_preamble(kbuf);
+	if (VB2_SUCCESS !=
+	    vb2_verify_kernel_preamble(preamble,
+				       kbuf_size - keyblock->keyblock_size,
+				       &data_key,
+				       wb)) {
+		VB2_DEBUG("Preamble verification failed.\n");
+		shpart->check_result = VBSD_LKP_CHECK_VERIFY_PREAMBLE;
+		return VB2_ERROR_UNKNOWN;
+	}
+
+	/*
+	 * If the key block is valid and we're not in recovery mode, check for
+	 * rollback of the kernel version.
+	 */
+	uint32_t combined_version = (key_version << 16) |
+			(preamble->kernel_version & 0xFFFF);
+	shpart->combined_version = combined_version;
+	if (keyblock_valid && kBootRecovery != boot_mode) {
+		if (combined_version < min_version) {
+			VB2_DEBUG("Kernel version too low.\n");
+			shpart->check_result = VBSD_LKP_CHECK_KERNEL_ROLLBACK;
+			/*
+			 * If not in developer mode, kernel version
+			 * must be valid.
+			 */
+			if (kBootDev != boot_mode)
+				return VB2_ERROR_UNKNOWN;
+		}
+	}
+
+	VB2_DEBUG("Kernel preamble is good.\n");
+	shpart->check_result = VBSD_LKP_CHECK_PREAMBLE_VALID;
+	if (keyblock_valid)
+		shpart->flags |= VBSD_LKP_FLAG_KEY_BLOCK_VALID;
+
+	return VB2_SUCCESS;
+}
+
+enum vb2_load_partition_flags {
+	/* Only check the vblock to */
+	VB2_LOAD_PARTITION_VBLOCK_ONLY = (1 << 0),
+};
+
+#define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
+#define VB2_LOAD_PARTITION_WORKBUF_BYTES	\
+	(VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES + KBUF_SIZE)
+
+/**
+ * Load and verify a partition from the stream.
+ *
+ * @param stream	Stream to load kernel from
+ * @param kernel_subkey	Key to use to verify vblock
+ * @param flags		Flags (one or more of vb2_load_partition_flags)
+ * @param params	Load-kernel parameters
+ * @param min_version	Minimum kernel version from TPM
+ * @param shpart	Destination for verification results
+ * @param wb		Work buffer.  Must be at least
+ *			VB2_LOAD_PARTITION_WORKBUF_BYTES bytes.
+ * @return VB2_SUCCESS, or non-zero error code.
+ */
+int vb2_load_partition(VbExStream_t stream,
+		       const struct vb2_packed_key *kernel_subkey,
+		       uint32_t flags,
+		       LoadKernelParams *params,
+		       uint32_t min_version,
+		       VbSharedDataKernelPart *shpart,
+		       struct vb2_workbuf *wb)
+{
+	struct vb2_workbuf wblocal = *wb;
+
+	/* Allocate kernel header buffer in workbuf */
+	uint8_t *kbuf = vb2_workbuf_alloc(&wblocal, KBUF_SIZE);
+	if (!kbuf)
+		return VB2_ERROR_LOAD_PARTITION_WORKBUF;
+
+
+	if (VbExStreamRead(stream, KBUF_SIZE, kbuf)) {
+		VB2_DEBUG("Unable to read start of partition.\n");
+		shpart->check_result = VBSD_LKP_CHECK_READ_START;
+		return VB2_ERROR_LOAD_PARTITION_READ_VBLOCK;
+	}
+
+	if (VB2_SUCCESS !=
+	    vb2_verify_kernel_vblock(kbuf, KBUF_SIZE, kernel_subkey, params,
+				     min_version, shpart, &wblocal)) {
+		return VB2_ERROR_LOAD_PARTITION_VERIFY_VBLOCK;
+	}
+
+	if (flags & VB2_LOAD_PARTITION_VBLOCK_ONLY)
+		return VB2_SUCCESS;
+
+	struct vb2_keyblock *keyblock = get_keyblock(kbuf);
+	struct vb2_kernel_preamble *preamble = get_preamble(kbuf);
+
+	/*
+	 * Make sure the kernel starts at or before what we already read into
+	 * kbuf.
+	 *
+	 * We could deal with a larger offset by reading and discarding the
+	 * data in between the vblock and the kernel data.
+	 */
+	uint32_t body_offset = get_body_offset(kbuf);
+	if (body_offset > KBUF_SIZE) {
+		shpart->check_result = VBSD_LKP_CHECK_BODY_OFFSET;
+		VB2_DEBUG("Kernel body offset is %u > 64KB.\n", body_offset);
+		return VB2_ERROR_LOAD_PARTITION_BODY_OFFSET;
+	}
+
+	uint8_t *kernbuf = params->kernel_buffer;
+	uint32_t kernbuf_size = params->kernel_buffer_size;
+	if (!kernbuf) {
+		/* Get kernel load address and size from the header. */
+		kernbuf = (uint8_t *)((long)preamble->body_load_address);
+		kernbuf_size = preamble->body_signature.data_size;
+	} else if (preamble->body_signature.data_size > kernbuf_size) {
+		VB2_DEBUG("Kernel body doesn't fit in memory.\n");
+		shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
+		return 	VB2_ERROR_LOAD_PARTITION_BODY_SIZE;
+	}
+
+	uint32_t body_toread = preamble->body_signature.data_size;
+	uint8_t *body_readptr = kernbuf;
+
+	/*
+	 * If we've already read part of the kernel, copy that to the beginning
+	 * of the kernel buffer.
+	 */
+	uint32_t body_copied = KBUF_SIZE - body_offset;
+	if (body_copied > body_toread)
+		body_copied = body_toread;  /* Don't over-copy tiny kernel */
+	memcpy(body_readptr, kbuf + body_offset, body_copied);
+	body_toread -= body_copied;
+	body_readptr += body_copied;
+
+	/* Read the kernel data */
+	if (body_toread && VbExStreamRead(stream, body_toread, body_readptr)) {
+		VB2_DEBUG("Unable to read kernel data.\n");
+		shpart->check_result = VBSD_LKP_CHECK_READ_DATA;
+		return VB2_ERROR_LOAD_PARTITION_READ_BODY;
+	}
+
+	/* Get key for preamble/data verification from the key block. */
+	struct vb2_public_key data_key;
+	if (VB2_SUCCESS != vb2_unpack_key(&data_key, &keyblock->data_key)) {
+		VB2_DEBUG("Unable to unpack kernel data key\n");
+		shpart->check_result = VBSD_LKP_CHECK_DATA_KEY_PARSE;
+		return VB2_ERROR_LOAD_PARTITION_DATA_KEY;
+	}
+
+	/* Verify kernel data */
+	if (VB2_SUCCESS != vb2_verify_data(kernbuf, kernbuf_size,
+					   &preamble->body_signature,
+					   &data_key, &wblocal)) {
+		VB2_DEBUG("Kernel data verification failed.\n");
+		shpart->check_result = VBSD_LKP_CHECK_VERIFY_DATA;
+		return VB2_ERROR_LOAD_PARTITION_VERIFY_BODY;
+	}
+
+	/* If we're still here, the kernel is valid */
+	VB2_DEBUG("Partition is good.\n");
+	shpart->check_result = VBSD_LKP_CHECK_KERNEL_GOOD;
+
+	/* Save kernel data back to parameters */
+	params->bootloader_address = preamble->bootloader_address;
+	params->bootloader_size = preamble->bootloader_size;
+	params->flags = vb2_kernel_get_flags(preamble);
+	if (!params->kernel_buffer) {
+		params->kernel_buffer = kernbuf;
+		params->kernel_buffer_size = kernbuf_size;
+	}
+
+	return VB2_SUCCESS;
+}
 
 VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)params->shared_data_blob;
+	VbSharedDataHeader *shared = cparams->shared_data_blob;
 	VbSharedDataKernelCall *shcall = NULL;
-	VbNvContext *vnc = params->nv_context;
-	VbPublicKey *kernel_subkey = NULL;
-	int free_kernel_subkey = 0;
-	GptData gpt;
-	uint64_t part_start, part_size;
-	uint64_t blba;
-	uint64_t kbuf_sectors;
-	uint8_t *kbuf = NULL;
+	struct vb2_packed_key *recovery_key = NULL;
 	int found_partitions = 0;
-	int good_partition = -1;
-	int good_partition_key_block_valid = 0;
 	uint32_t lowest_version = LOWEST_TPM_VERSION;
-	int rec_switch, dev_switch;
-	BootMode boot_mode;
-	uint32_t require_official_os = 0;
-	uint32_t body_toread;
-	uint8_t *body_readptr;
 
 	VbError_t retval = VBERROR_UNKNOWN;
 	int recovery = VBNV_RECOVERY_LK_UNSPECIFIED;
 
-	uint8_t *workbuf = NULL;
-	struct vb2_workbuf wb;
-
 	/* Sanity Checks */
-	if (!params->bytes_per_lba ||
-	    !params->streaming_lba_count) {
-		VBDEBUG(("LoadKernel() called with invalid params\n"));
+	if (!params->bytes_per_lba || !params->streaming_lba_count) {
+		VB2_DEBUG("LoadKernel() called with invalid params\n");
 		retval = VBERROR_INVALID_PARAMETER;
-		goto LoadKernelExit;
+		goto load_kernel_exit;
 	}
 
 	/* Clear output params in case we fail */
@@ -78,115 +448,77 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	params->bootloader_size = 0;
 	params->flags = 0;
 
-	/* Calculate switch positions and boot mode */
-	rec_switch = (BOOT_FLAG_RECOVERY & params->boot_flags ? 1 : 0);
-	dev_switch = (BOOT_FLAG_DEVELOPER & params->boot_flags ? 1 : 0);
-	if (rec_switch) {
-		boot_mode = kBootRecovery;
-	} else if (dev_switch) {
-		boot_mode = kBootDev;
-		VbNvGet(vnc, VBNV_DEV_BOOT_SIGNED_ONLY, &require_official_os);
-
-		if (params->fwmp &&
-		    (params->fwmp->flags & FWMP_DEV_ENABLE_OFFICIAL_ONLY))
-			require_official_os = 1;
-	} else {
-		boot_mode = kBootNormal;
-	}
-
 	/*
 	 * Set up tracking for this call.  This wraps around if called many
 	 * times, so we need to initialize the call entry each time.
 	 */
-	shcall = shared->lk_calls + (shared->lk_call_count
-			& (VBSD_MAX_KERNEL_CALLS - 1));
-	memset(shcall, 0, sizeof(VbSharedDataKernelCall));
+	shcall = shared->lk_calls +
+			(shared->lk_call_count & (VBSD_MAX_KERNEL_CALLS - 1));
+	memset(shcall, 0, sizeof(*shcall));
 	shcall->boot_flags = (uint32_t)params->boot_flags;
-	shcall->boot_mode = boot_mode;
+	shcall->boot_mode = get_kernel_boot_mode(params);
 	shcall->sector_size = (uint32_t)params->bytes_per_lba;
 	shcall->sector_count = params->streaming_lba_count;
 	shared->lk_call_count++;
 
-	/* Initialization */
-	blba = params->bytes_per_lba;
-	kbuf_sectors = KBUF_SIZE / blba;
-	if (0 == kbuf_sectors) {
-		VBDEBUG(("LoadKernel() called with sector size > KBUF_SIZE\n"));
-		retval = VBERROR_INVALID_PARAMETER;
-		goto LoadKernelExit;
+	/* Choose key to verify kernel */
+	struct vb2_packed_key *kernel_subkey;
+	if (kBootRecovery == shcall->boot_mode) {
+		/* Use the recovery key to verify the kernel */
+		retval = VbGbbReadRecoveryKey(cparams,
+					      (VbPublicKey **)&recovery_key);
+		if (VBERROR_SUCCESS != retval)
+			goto load_kernel_exit;
+		kernel_subkey = recovery_key;
+	} else {
+		/* Use the kernel subkey passed from firmware verification */
+		kernel_subkey = (struct vb2_packed_key *)&shared->kernel_subkey;
 	}
 
-	if (kBootRecovery == boot_mode) {
-		/* Use the recovery key to verify the kernel */
-		retval = VbGbbReadRecoveryKey(cparams, &kernel_subkey);
-		if (VBERROR_SUCCESS != retval)
-			goto LoadKernelExit;
-		free_kernel_subkey = 1;
-	} else {
-		/* Use the kernel subkey passed from LoadFirmware(). */
-		kernel_subkey = &shared->kernel_subkey;
-	}
+	/* Allocate work buffer */
+	uint8_t *workbuf = malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
+	if (!workbuf)
+		goto load_kernel_exit;
+
+	struct vb2_workbuf wb;
+	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 
 	/* Read GPT data */
-	gpt.sector_bytes = (uint32_t)blba;
+	GptData gpt;
+	gpt.sector_bytes = (uint32_t)params->bytes_per_lba;
 	gpt.streaming_drive_sectors = params->streaming_lba_count;
 	gpt.gpt_drive_sectors = params->gpt_lba_count;
 	gpt.flags = params->boot_flags & BOOT_FLAG_EXTERNAL_GPT
 			? GPT_FLAG_EXTERNAL : 0;
 	if (0 != AllocAndReadGptData(params->disk_handle, &gpt)) {
-		VBDEBUG(("Unable to read GPT data\n"));
+		VB2_DEBUG("Unable to read GPT data\n");
 		shcall->check_result = VBSD_LKC_CHECK_GPT_READ_ERROR;
-		goto bad_gpt;
+		goto gpt_done;
 	}
 
 	/* Initialize GPT library */
 	if (GPT_SUCCESS != GptInit(&gpt)) {
-		VBDEBUG(("Error parsing GPT\n"));
+		VB2_DEBUG("Error parsing GPT\n");
 		shcall->check_result = VBSD_LKC_CHECK_GPT_PARSE_ERROR;
-		goto bad_gpt;
-	}
-
-	/* Allocate kernel header buffers */
-	kbuf = (uint8_t *)malloc(KBUF_SIZE);
-	if (!kbuf)
-		goto bad_gpt;
-
-	/* Allocate work buffer */
-	workbuf = (uint8_t *)malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
-	if (!workbuf)
-		goto bad_gpt;
-	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
-
-	/* Unpack kernel subkey */
-	struct vb2_public_key kernel_subkey2;
-	if (VB2_SUCCESS !=
-	    vb2_unpack_key(&kernel_subkey2,
-			   (struct vb2_packed_key *)kernel_subkey)) {
-		VBDEBUG(("Unable to unpack kernel subkey\n"));
-		goto bad_gpt;
+		goto gpt_done;
 	}
 
 	/* Loop over candidate kernel partitions */
+	uint64_t part_start, part_size;
 	while (GPT_SUCCESS ==
-			GptNextKernelEntry(&gpt, &part_start, &part_size)) {
-		VbSharedDataKernelPart *shpart = NULL;
-		VbKeyBlockHeader *key_block;
-		VbKernelPreambleHeader *preamble;
-		VbExStream_t stream = NULL;
-		uint64_t key_version;
-		uint32_t combined_version;
-		uint64_t body_offset;
-		int key_block_valid = 1;
+	       GptNextKernelEntry(&gpt, &part_start, &part_size)) {
 
-		VBDEBUG(("Found kernel entry at %" PRIu64 " size %" PRIu64 "\n",
-			 part_start, part_size));
+		VB2_DEBUG("Found kernel entry at %"
+			  PRIu64 " size %" PRIu64 "\n",
+			  part_start, part_size);
 
 		/*
 		 * Set up tracking for this partition.  This wraps around if
 		 * called many times, so initialize the partition entry each
 		 * time.
 		 */
-		shpart = shcall->parts + (shcall->kernel_parts_found
+		VbSharedDataKernelPart *shpart =
+				shcall->parts + (shcall->kernel_parts_found
 				& (VBSD_MAX_KERNEL_PARTS - 1));
 		memset(shpart, 0, sizeof(VbSharedDataKernelPart));
 		shpart->sector_start = part_start;
@@ -202,311 +534,72 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		found_partitions++;
 
 		/* Set up the stream */
+		VbExStream_t stream = NULL;
 		if (VbExStreamOpen(params->disk_handle,
 				   part_start, part_size, &stream)) {
-			VBDEBUG(("Partition error getting stream.\n"));
+			VB2_DEBUG("Partition error getting stream.\n");
 			shpart->check_result = VBSD_LKP_CHECK_TOO_SMALL;
-			goto bad_kernel;
-		}
-
-		if (0 != VbExStreamRead(stream, KBUF_SIZE, kbuf)) {
-			VBDEBUG(("Unable to read start of partition.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_READ_START;
-			goto bad_kernel;
-		}
-
-		/* Verify the key block. */
-		key_block = (VbKeyBlockHeader*)kbuf;
-		struct vb2_keyblock *keyblock2 = (struct vb2_keyblock *)kbuf;
-		if (VB2_SUCCESS != vb2_verify_keyblock(keyblock2, KBUF_SIZE,
-						       &kernel_subkey2, &wb)) {
-			VBDEBUG(("Verifying key block signature failed.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_KEY_BLOCK_SIG;
-			key_block_valid = 0;
-
-			/* If not in developer mode, this kernel is bad. */
-			if (kBootDev != boot_mode)
-				goto bad_kernel;
-
-			/*
-			 * In developer mode, we can explicitly disallow
-			 * self-signed kernels
-			 */
-			if (require_official_os) {
-				VBDEBUG(("Self-signed kernels not enabled.\n"));
-				shpart->check_result =
-					VBSD_LKP_CHECK_SELF_SIGNED;
-				goto bad_kernel;
-			}
-
-			/*
-			 * Allow the kernel if the SHA-512 hash of the key
-			 * block is valid.
-			 */
-			if (VB2_SUCCESS !=
-			    vb2_verify_keyblock_hash(keyblock2, KBUF_SIZE,
-						     &wb)) {
-				VBDEBUG(("Verifying key block hash failed.\n"));
-				shpart->check_result =
-					VBSD_LKP_CHECK_KEY_BLOCK_HASH;
-				goto bad_kernel;
-			}
-		}
-
-		/* Check the key block flags against the current boot mode. */
-		if (!(key_block->key_block_flags &
-		      (dev_switch ? KEY_BLOCK_FLAG_DEVELOPER_1 :
-		       KEY_BLOCK_FLAG_DEVELOPER_0))) {
-			VBDEBUG(("Key block developer flag mismatch.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_DEV_MISMATCH;
-			key_block_valid = 0;
-		}
-		if (!(key_block->key_block_flags &
-		      (rec_switch ? KEY_BLOCK_FLAG_RECOVERY_1 :
-		       KEY_BLOCK_FLAG_RECOVERY_0))) {
-			VBDEBUG(("Key block recovery flag mismatch.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_REC_MISMATCH;
-			key_block_valid = 0;
-		}
-
-		/* Check for rollback of key version except in recovery mode. */
-		key_version = key_block->data_key.key_version;
-		if (kBootRecovery != boot_mode) {
-			if (key_version < (shared->kernel_version_tpm >> 16)) {
-				VBDEBUG(("Key version too old.\n"));
-				shpart->check_result =
-					VBSD_LKP_CHECK_KEY_ROLLBACK;
-				key_block_valid = 0;
-			}
-			if (key_version > 0xFFFF) {
-				/*
-				 * Key version is stored in 16 bits in the TPM,
-				 * so key versions greater than 0xFFFF can't be
-				 * stored properly.
-				 */
-				VBDEBUG(("Key version > 0xFFFF.\n"));
-				shpart->check_result =
-					VBSD_LKP_CHECK_KEY_ROLLBACK;
-				key_block_valid = 0;
-			}
-		}
-
-		/* If not in developer mode, key block required to be valid. */
-		if (kBootDev != boot_mode && !key_block_valid) {
-			VBDEBUG(("Key block is invalid.\n"));
-			goto bad_kernel;
-		}
-
-
-		/* If in developer mode and using key hash, check it */
-		if ((kBootDev == boot_mode) &&
-		    params->fwmp &&
-		    (params->fwmp->flags & FWMP_DEV_USE_KEY_HASH)) {
-			VbPublicKey *key = &key_block->data_key;
-			uint8_t *buf = ((uint8_t *)key) + key->key_offset;
-			uint64_t buflen = key->key_size;
-			uint8_t digest[VB2_SHA256_DIGEST_SIZE];
-
-			VBDEBUG(("Checking developer key hash.\n"));
-			vb2_digest_buffer(buf, buflen, VB2_HASH_SHA256,
-					  digest, sizeof(digest));
-			if (0 != vb2_safe_memcmp(digest,
-						 params->fwmp->dev_key_hash,
-						 VB2_SHA256_DIGEST_SIZE)) {
-				int i;
-
-				VBDEBUG(("Wrong developer key hash.\n"));
-				VBDEBUG(("Want: "));
-				for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++)
-					VBDEBUG(("%02x",
-						 params->
-						 fwmp->dev_key_hash[i]));
-				VBDEBUG(("\nGot:  "));
-				for (i = 0; i < VB2_SHA256_DIGEST_SIZE; i++)
-					VBDEBUG(("%02x", digest[i]));
-				VBDEBUG(("\n"));
-
-				goto bad_kernel;
-			}
-		}
-
-		/* Get key for preamble/data verification from the key block. */
-		struct vb2_public_key data_key2;
-		if (VB2_SUCCESS !=
-		    vb2_unpack_key(&data_key2, &keyblock2->data_key)) {
-			VBDEBUG(("Unable to unpack kernel data key\n"));
-			shpart->check_result = VBSD_LKP_CHECK_DATA_KEY_PARSE;
-			goto bad_kernel;
-		}
-
-		/* Verify the preamble, which follows the key block */
-		preamble = (VbKernelPreambleHeader *)
-				(kbuf + key_block->key_block_size);
-		struct vb2_kernel_preamble *preamble2 =
-				(struct vb2_kernel_preamble *)
-				(kbuf + key_block->key_block_size);
-
-		if (VB2_SUCCESS != vb2_verify_kernel_preamble(
-				preamble2,
-				KBUF_SIZE - key_block->key_block_size,
-				&data_key2,
-				&wb)) {
-			VBDEBUG(("Preamble verification failed.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_VERIFY_PREAMBLE;
-			goto bad_kernel;
-		}
-
-		/*
-		 * If the key block is valid and we're not in recovery mode,
-		 * check for rollback of the kernel version.
-		 */
-		combined_version = (uint32_t)(
-				(key_version << 16) |
-				(preamble->kernel_version & 0xFFFF));
-		shpart->combined_version = combined_version;
-		if (key_block_valid && kBootRecovery != boot_mode) {
-			if (combined_version < shared->kernel_version_tpm) {
-				VBDEBUG(("Kernel version too low.\n"));
-				shpart->check_result =
-					VBSD_LKP_CHECK_KERNEL_ROLLBACK;
-				/*
-				 * If not in developer mode, kernel version
-				 * must be valid.
-				 */
-				if (kBootDev != boot_mode)
-					goto bad_kernel;
-			}
-		}
-
-		VBDEBUG(("Kernel preamble is good.\n"));
-		shpart->check_result = VBSD_LKP_CHECK_PREAMBLE_VALID;
-
-		/* Check for lowest version from a valid header. */
-		if (key_block_valid && lowest_version > combined_version)
-			lowest_version = combined_version;
-		else {
-			VBDEBUG(("Key block valid: %d\n", key_block_valid));
-			VBDEBUG(("Combined version: %u\n",
-						(unsigned) combined_version));
-		}
-
-		/*
-		 * If we already have a good kernel, no need to read another
-		 * one; we only needed to look at the versions to check for
-		 * rollback.  So skip to the next kernel preamble.
-		 */
-		if (-1 != good_partition) {
-			VbExStreamClose(stream);
-			stream = NULL;
+			VB2_DEBUG("Marking kernel as invalid.\n");
+			GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_BAD);
 			continue;
 		}
 
-		body_offset = key_block->key_block_size +
-			preamble->preamble_size;
-
-		/*
-		 * Make sure the kernel starts at or before what we already
-		 * read into kbuf.
-		 *
-		 * We could deal with a larger offset by reading and discarding
-		 * the data in between the vblock and the kernel data.
-		 */
-		if (body_offset > KBUF_SIZE) {
-			shpart->check_result = VBSD_LKP_CHECK_BODY_OFFSET;
-			VBDEBUG(("Kernel body offset is %d > 64KB.\n",
-				 (int)body_offset));
-			goto bad_kernel;
+		uint32_t lpflags = 0;
+		if (params->partition_number > 0) {
+			/*
+			 * If we already have a good kernel, we only needed to
+			 * look at the vblock versions to check for rollback.
+			 */
+			lpflags |= VB2_LOAD_PARTITION_VBLOCK_ONLY;
 		}
 
-		if (!params->kernel_buffer) {
-			/* Get kernel load address and size from the header. */
-			params->kernel_buffer =
-				(void *)((long)preamble->body_load_address);
-			params->kernel_buffer_size =
-				preamble->body_signature.data_size;
-		} else if (preamble->body_signature.data_size >
-			   params->kernel_buffer_size) {
-			VBDEBUG(("Kernel body doesn't fit in memory.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_BODY_EXCEEDS_MEM;
-			goto bad_kernel;
-		}
-
-		/*
-		 * Body signature data size is 64 bit and toread is 32 bit so
-		 * this could technically cause us to read less data.  That's
-		 * fine, because a 4 GB kernel is implausible, and if we did
-		 * have one that big, we'd simply read too little data and fail
-		 * to verify it.
-		 */
-		body_toread = preamble->body_signature.data_size;
-		body_readptr = params->kernel_buffer;
-
-		/*
-		 * If we've already read part of the kernel, copy that to the
-		 * beginning of the kernel buffer.
-		 */
-		if (body_offset < KBUF_SIZE) {
-			uint32_t body_copied = KBUF_SIZE - body_offset;
-
-			/* If the kernel is tiny, don't over-copy */
-			if (body_copied > body_toread)
-				body_copied = body_toread;
-
-			memcpy(body_readptr, kbuf + body_offset, body_copied);
-			body_toread -= body_copied;
-			body_readptr += body_copied;
-		}
-
-		/* Read the kernel data */
-		if (body_toread &&
-		    0 != VbExStreamRead(stream, body_toread, body_readptr)) {
-			VBDEBUG(("Unable to read kernel data.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_READ_DATA;
-			goto bad_kernel;
-		}
-
-		/* Close the stream; we're done with it */
+		int rv = vb2_load_partition(stream,
+					    kernel_subkey,
+					    lpflags,
+					    params,
+					    shared->kernel_version_tpm,
+					    shpart,
+					    &wb);
 		VbExStreamClose(stream);
-		stream = NULL;
 
-		/* Verify kernel data */
-		struct vb2_signature *body_sig = (struct vb2_signature *)
-				&preamble->body_signature;
-		if (VB2_SUCCESS != vb2_verify_data(
-				(const uint8_t *)params->kernel_buffer,
-				params->kernel_buffer_size,
-				body_sig, &data_key2, &wb)) {
-			VBDEBUG(("Kernel data verification failed.\n"));
-			shpart->check_result = VBSD_LKP_CHECK_VERIFY_DATA;
-			goto bad_kernel;
+		if (rv != VB2_SUCCESS) {
+			VB2_DEBUG("Marking kernel as invalid.\n");
+			GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_BAD);
+			continue;
 		}
 
-		/*
-		 * If we're still here, the kernel is valid.  Save the first
-		 * good partition we find; that's the one we'll boot.
-		 */
-		VBDEBUG(("Partition is good.\n"));
-		shpart->check_result = VBSD_LKP_CHECK_KERNEL_GOOD;
-		if (key_block_valid)
-			shpart->flags |= VBSD_LKP_FLAG_KEY_BLOCK_VALID;
+		int keyblock_valid = (shpart->flags &
+				      VBSD_LKP_FLAG_KEY_BLOCK_VALID);
+		if (keyblock_valid) {
+			shared->flags |= VBSD_KERNEL_KEY_VERIFIED;
+			/* Track lowest version from a valid header. */
+			if (lowest_version > shpart->combined_version)
+				lowest_version = shpart->combined_version;
+		}
+		VB2_DEBUG("Key block valid: %d\n", keyblock_valid);
+		VB2_DEBUG("Combined version: %u\n", shpart->combined_version);
 
-		good_partition_key_block_valid = key_block_valid;
 		/*
+		 * If we're only looking at headers, we're done with this
+		 * partition.
+		 */
+		if (lpflags & VB2_LOAD_PARTITION_VBLOCK_ONLY)
+			continue;
+
+		/*
+		 * Otherwise, we found a partition we like.
+		 *
 		 * TODO: GPT partitions start at 1, but cgptlib starts them at
 		 * 0.  Adjust here, until cgptlib is fixed.
 		 */
-		good_partition = gpt.current_kernel + 1;
 		params->partition_number = gpt.current_kernel + 1;
-		GetCurrentKernelUniqueGuid(&gpt, &params->partition_guid);
+
 		/*
 		 * TODO: GetCurrentKernelUniqueGuid() should take a destination
 		 * size, or the dest should be a struct, so we know it's big
 		 * enough.
 		 */
-		params->bootloader_address = preamble->bootloader_address;
-		params->bootloader_size = preamble->bootloader_size;
-		if (VbKernelHasFlags(preamble) == VBOOT_SUCCESS)
-			params->flags = preamble->flags;
+		GetCurrentKernelUniqueGuid(&gpt, &params->partition_guid);
 
 		/* Update GPT to note this is the kernel we're trying.
 		 * But not when we assume that the boot process may
@@ -517,11 +610,11 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 
 		/*
 		 * If we're in recovery mode or we're about to boot a
-		 * dev-signed kernel, there's no rollback protection, so we can
-		 * stop at the first valid kernel.
+		 * non-officially-signed kernel, there's no rollback
+		 * protection, so we can stop at the first valid kernel.
 		 */
-		if (kBootRecovery == boot_mode || !key_block_valid) {
-			VBDEBUG(("In recovery mode or dev-signed kernel\n"));
+		if (kBootRecovery == shcall->boot_mode || !keyblock_valid) {
+			VB2_DEBUG("In recovery mode or dev-signed kernel\n");
 			break;
 		}
 
@@ -532,38 +625,23 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		 * Otherwise, we'll check all the other headers to see if they
 		 * contain a newer key.
 		 */
-		if (combined_version == shared->kernel_version_tpm) {
-			VBDEBUG(("Same kernel version\n"));
+		if (shpart->combined_version == shared->kernel_version_tpm) {
+			VB2_DEBUG("Same kernel version\n");
 			break;
 		}
-
-		/* Continue, so that we skip the error handling code below */
-		continue;
-
-bad_kernel:
-		/* Handle errors parsing this kernel */
-		if (NULL != stream)
-			VbExStreamClose(stream);
-
-		VBDEBUG(("Marking kernel as invalid.\n"));
-		GptUpdateKernelEntry(&gpt, GPT_UPDATE_ENTRY_BAD);
-
-
 	} /* while(GptNextKernelEntry) */
 
-bad_gpt:
+gpt_done:
 	/* Free buffers */
 	if (workbuf)
 		free(workbuf);
-	if (kbuf)
-		free(kbuf);
 
 	/* Write and free GPT data */
 	WriteAndFreeGptData(params->disk_handle, &gpt);
 
 	/* Handle finding a good partition */
-	if (good_partition >= 0) {
-		VBDEBUG(("Good_partition >= 0\n"));
+	if (params->partition_number > 0) {
+		VB2_DEBUG("Good partition %d\n", params->partition_number);
 		shcall->check_result = VBSD_LKC_CHECK_GOOD_PARTITION;
 		shared->kernel_version_lowest = lowest_version;
 		/*
@@ -588,10 +666,11 @@ bad_gpt:
 		retval = VBERROR_NO_KERNEL_FOUND;
 	}
 
-LoadKernelExit:
+load_kernel_exit:
 
 	/* Store recovery request, if any */
-	VbNvSet(vnc, VBNV_RECOVERY_REQUEST, VBERROR_SUCCESS != retval ?
+	VbNvSet(params->nv_context, VBNV_RECOVERY_REQUEST,
+		VBERROR_SUCCESS != retval ?
 		recovery : VBNV_RECOVERY_NOT_REQUESTED);
 
 	/*
@@ -601,15 +680,10 @@ LoadKernelExit:
 	if (shcall)
 		shcall->return_code = (uint8_t)retval;
 
-	/* Save whether the good partition's key block was fully verified */
-	if (good_partition_key_block_valid)
-		shared->flags |= VBSD_KERNEL_KEY_VERIFIED;
-
 	/* Store how much shared data we used, if any */
-	params->shared_data_size = shared->data_used;
+	cparams->shared_data_size = shared->data_used;
 
-	if (free_kernel_subkey)
-		free(kernel_subkey);
+	free(recovery_key);
 
 	return retval;
 }

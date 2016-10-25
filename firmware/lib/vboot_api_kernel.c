@@ -1087,8 +1087,6 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 
 	/* Fill in params for calls to LoadKernel() */
 	memset(&p, 0, sizeof(p));
-	p.shared_data_blob = cparams->shared_data_blob;
-	p.shared_data_size = cparams->shared_data_size;
 	p.gbb_data = cparams->gbb_data;
 	p.gbb_size = cparams->gbb_size;
 	p.fwmp = &fwmp;
@@ -1295,9 +1293,9 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 
 	/* Save disk parameters */
 	kparams->disk_handle = p.disk_handle;
-	kparams->partition_number = (uint32_t)p.partition_number;
+	kparams->partition_number = p.partition_number;
 	kparams->bootloader_address = p.bootloader_address;
-	kparams->bootloader_size = (uint32_t)p.bootloader_size;
+	kparams->bootloader_size = p.bootloader_size;
 	kparams->flags = p.flags;
 	memcpy(kparams->partition_guid, p.partition_guid,
 	       sizeof(kparams->partition_guid));

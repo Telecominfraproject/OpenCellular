@@ -180,10 +180,10 @@ int main(int argc, char* argv[]) {
   }
 
   /* Initialize the shared data area */
-  lkp.shared_data_blob = malloc(VB_SHARED_DATA_REC_SIZE);
-  lkp.shared_data_size = VB_SHARED_DATA_REC_SIZE;
-  shared = (VbSharedDataHeader*)lkp.shared_data_blob;
-  if (0 != VbSharedDataInit(shared, lkp.shared_data_size)) {
+  cparams.shared_data_blob = malloc(VB_SHARED_DATA_REC_SIZE);
+  cparams.shared_data_size = VB_SHARED_DATA_REC_SIZE;
+  shared = (VbSharedDataHeader*)cparams.shared_data_blob;
+  if (0 != VbSharedDataInit(shared, cparams.shared_data_size)) {
     fprintf(stderr, "Unable to init shared data\n");
     return 1;
   }
@@ -226,9 +226,9 @@ int main(int argc, char* argv[]) {
   printf("LoadKernel() returned %d\n", rv);
 
   if (VBERROR_SUCCESS == rv) {
-    printf("Partition number:   %" PRIu64 "\n", lkp.partition_number);
+    printf("Partition number:   %u\n", lkp.partition_number);
     printf("Bootloader address: %" PRIu64 "\n", lkp.bootloader_address);
-    printf("Bootloader size:    %" PRIu64 "\n", lkp.bootloader_size);
+    printf("Bootloader size:    %u\n", lkp.bootloader_size);
     printf("Partition guid:     "
            "%02x%02x%02x%02x-%02x%02x-%02x%02x"
            "-%02x%02x-%02x%02x%02x%02x%02x%02x\n",

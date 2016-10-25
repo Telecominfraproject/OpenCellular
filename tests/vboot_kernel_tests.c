@@ -138,22 +138,22 @@ static void ResetMocks(void)
 	gbb->minor_version = GBB_MINOR_VER;
 	gbb->flags = 0;
 
+	memset(&shared_data, 0, sizeof(shared_data));
+	VbSharedDataInit(shared, sizeof(shared_data));
+	shared->kernel_version_tpm = 0x20001;
+
 	memset(&cparams, '\0', sizeof(cparams));
 	cparams.gbb = gbb;
 	cparams.gbb_data = gbb;
 	cparams.gbb_size = sizeof(gbb_data);
+	cparams.shared_data_blob = shared;
 
 	memset(&vnc, 0, sizeof(vnc));
 	VbNvSetup(&vnc);
 	VbNvTeardown(&vnc);                   /* So CRC gets generated */
 
-	memset(&shared_data, 0, sizeof(shared_data));
-	VbSharedDataInit(shared, sizeof(shared_data));
-	shared->kernel_version_tpm = 0x20001;
-
 	memset(&lkp, 0, sizeof(lkp));
 	lkp.nv_context = &vnc;
-	lkp.shared_data_blob = shared;
 	lkp.gbb_data = gbb;
 	lkp.gbb_size = sizeof(gbb_data);
 	lkp.bytes_per_lba = 512;
@@ -578,11 +578,6 @@ static void InvalidParamsTest(void)
 	lkp.streaming_lba_count = 0;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_PARAMETER,
 		"Bad lba count");
-
-	ResetMocks();
-	lkp.bytes_per_lba = 128*1024;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_PARAMETER,
-		"Huge lba size");
 
 	ResetMocks();
 	gpt_init_fail = 1;

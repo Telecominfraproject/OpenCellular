@@ -26,16 +26,6 @@ struct RollbackSpaceFwmp;
 
 typedef struct LoadKernelParams {
 	/* Inputs to LoadKernel() */
-	/*
-	 * Buffer for data shared between LoadFirmware() and LoadKernel().
-	 * Pass the same buffer which was passed to LoadFirmware().
-	 */
-	void *shared_data_blob;
-	/*
-	 * Size of shared data blob buffer, in bytes.  On output, this will
-	 * contain the actual data size placed into the buffer.
-	 */
-	uint64_t shared_data_size;
 	/* Pointer to GBB data */
 	void *gbb_data;
 	/* Size of GBB data in bytes */
@@ -67,11 +57,11 @@ typedef struct LoadKernelParams {
 	 * LOAD_KERNEL_SUCCESS
 	 */
 	/* Partition number to boot on current device (1...M) */
-	uint64_t partition_number;
+	uint32_t partition_number;
 	/* Address of bootloader image in RAM */
 	uint64_t bootloader_address;
 	/* Size of bootloader image in bytes */
-	uint64_t bootloader_size;
+	uint32_t bootloader_size;
 	/* UniquePartitionGuid for boot partition */
 	uint8_t  partition_guid[16];
 	/* Flags passed in by signer */
@@ -85,26 +75,5 @@ typedef struct LoadKernelParams {
  * reason via VbNvStorage and returns an error code.
  */
 VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams);
-
-/*
- * The bootloader is loaded using the EFI LoadImage() and StartImage() calls.
- * Pass this struct via loaded_image->load_options.
- */
-typedef struct KernelBootloaderOptions {
-	/* Drive number of boot device (0...N) */
-	uint64_t drive_number;
-	/*
-	 * Partition number, as returned from LoadKernel() in
-	 * LoadKernelParams.partition_number
-	 */
-	uint64_t partition_number;
-	/*
-	 * Absolute bootloader start adddress, as returned from LoadKernel() in
-	 * LoadKernelParams.bootloader_start
-	 */
-	uint64_t original_address;
-	  /* UniquePartitionGuid for boot partition */
-	uint8_t partition_guid[16];
-} KernelBootloaderOptions;
 
 #endif  /* VBOOT_REFERENCE_LOAD_KERNEL_FW_H_ */
