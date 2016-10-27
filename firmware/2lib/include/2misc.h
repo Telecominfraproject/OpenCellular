@@ -68,7 +68,7 @@ void vb2_fail(struct vb2_context *ctx, uint8_t reason, uint8_t subcode);
  * Set up the verified boot context data, if not already set up.
  *
  * This uses ctx->workbuf_used=0 as a flag to indicate that the data has not
- * yet been set up.  Caller must set that before calling any voot functions;
+ * yet been set up.  Caller must set that before calling any vboot functions;
  * see 2api.h.
  *
  * @param ctx		Vboot context to initialize

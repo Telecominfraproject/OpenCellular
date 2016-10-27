@@ -372,6 +372,56 @@ typedef struct VbSelectAndLoadKernelParams {
 VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
                                 VbSelectAndLoadKernelParams *kparams);
 
+/**
+ * Verify Kernel Image loaded in memory.
+ *
+ * This routine is used by fastboot boot command to verify the kernel image in
+ * memory sent by the host device using fastboot protocol. It checks if the
+ * image in memory is signed using official recovery keys. In case of GBB
+ * override to allow full fastboot functionality, it checks image integrity, but
+ * does not check the image signature.
+ *
+ * @param cparams	Common parameters, e.g. use member caller_context
+ *			to point to useful context data
+ * @param kparams	kernel params
+ * @param boot_image	Image in memory that needs to be verified
+ * @param image_size	Size of the image in memory
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
+				  VbSelectAndLoadKernelParams *kparams,
+				  void *boot_image,
+				  size_t image_size);
+
+/**
+ * Fastboot API to enter dev mode.
+ *
+ * This routine is used by fastboot oem unlock command to switch the device into
+ * dev mode.
+ *
+ * NOTE: The caller MUST be in read-only firmware, and MUST have just obtained
+ * explicit physical confirmation from the user via a trusted input method
+ * before calling this function! Also, on successful return from this function,
+ * the caller needs to reboot the device immediately for changes to take effect.
+ *
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbUnlockDevice(void);
+
+/**
+ * Fastboot API to enter normal mode.
+ *
+ * This routine is used by fastboot oem lock command to switch the device into
+ * normal mode.
+ *
+ * NOTE: On successful return from this function, the caller needs to reboot the
+ * device immediately for changes to take effect. This routine just stores a
+ * request, which will be handled by RO firmware on next reboot.
+ *
+ * @return VBERROR_... error, VBERROR_SUCCESS on success.
+ */
+VbError_t VbLockDevice(void);
+
 /*****************************************************************************/
 /* Debug output (from utility.h) */
 
@@ -994,56 +1044,6 @@ enum vb_firmware_region {
 VbError_t VbExRegionRead(VbCommonParams *cparams,
 			 enum vb_firmware_region region, uint32_t offset,
 			 uint32_t size, void *buf);
-
-/**
- * Verify Kernel Image loaded in memory.
- *
- * This routine is used by fastboot boot command to verify the kernel image in
- * memory sent by the host device using fastboot protocol. It checks if the
- * image in memory is signed using official recovery keys. In case of GBB
- * override to allow full fastboot functionality, it checks image integrity, but
- * does not check the image signature.
- *
- * @param cparams	Common parameters, e.g. use member caller_context
- *			to point to useful context data
- * @param kparams	kernel params
- * @param boot_image	Image in memory that needs to be verified
- * @param image_size	Size of the image in memory
- * @return VBERROR_... error, VBERROR_SUCCESS on success.
- */
-VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
-				  VbSelectAndLoadKernelParams *kparams,
-				  void *boot_image,
-				  size_t image_size);
-
-/**
- * Fastboot API to enter dev mode.
- *
- * This routine is used by fastboot oem unlock command to switch the device into
- * dev mode.
- *
- * NOTE: The caller MUST be in read-only firmware, and MUST have just obtained
- * explicit physical confirmation from the user via a trusted input method
- * before calling this function! Also, on successful return from this function,
- * the caller needs to reboot the device immediately for changes to take effect.
- *
- * @return VBERROR_... error, VBERROR_SUCCESS on success.
- */
-VbError_t VbUnlockDevice(void);
-
-/**
- * Fastboot API to enter normal mode.
- *
- * This routine is used by fastboot oem lock command to switch the device into
- * normal mode.
- *
- * NOTE: On successful return from this function, the caller needs to reboot the
- * device immediately for changes to take effect. This routine just stores a
- * request, which will be handled by RO firmware on next reboot.
- *
- * @return VBERROR_... error, VBERROR_SUCCESS on success.
- */
-VbError_t VbLockDevice(void);
 
 /**
  * Check if the firmware wants to override GPT entry priority.
