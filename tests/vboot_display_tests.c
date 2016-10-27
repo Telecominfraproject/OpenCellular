@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2misc.h"
+#include "2nvstorage.h"
 #include "bmpblk_font.h"
 #include "gbb_header.h"
 #include "host_common.h"
@@ -22,13 +26,14 @@
 
 /* Mock data */
 static VbCommonParams cparams;
-static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static char gbb_data[4096 + sizeof(GoogleBinaryBlockHeader)];
 static GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)gbb_data;
 static BmpBlockHeader *bhdr;
 static char debug_info[4096];
+static struct vb2_context ctx;
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
@@ -75,9 +80,11 @@ static void ResetMocks(void)
 	gbb_used += 64;
 	memcpy(cparams.gbb, gbb, sizeof(*gbb));
 
-	memset(&vnc, 0, sizeof(vnc));
-	VbNvSetup(&vnc);
-	VbNvTeardown(&vnc);                   /* So CRC gets generated */
+	memset(&ctx, 0, sizeof(ctx));
+	ctx.workbuf = workbuf;
+	ctx.workbuf_size = sizeof(workbuf);
+	vb2_init_context(&ctx);
+	vb2_nv_init(&ctx);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -136,7 +143,7 @@ static void DebugInfoTest(void)
 
 	/* Display debug info */
 	ResetMocks();
-	VbDisplayDebugInfo(&cparams, &vnc);
+	VbDisplayDebugInfo(&ctx, &cparams);
 	TEST_NEQ(*debug_info, '\0', "Some debug info was displayed");
 	VbApiKernelFree(&cparams);
 }
@@ -169,44 +176,43 @@ static void LocalizationTest(void)
 /* Test display key checking */
 static void DisplayKeyTest(void)
 {
-	uint32_t u;
-
 	ResetMocks();
-	VbCheckDisplayKey(&cparams, 'q', &vnc);
+	VbCheckDisplayKey(&ctx, &cparams, 'q');
 	TEST_EQ(*debug_info, '\0', "DisplayKey q = does nothing");
 	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	VbCheckDisplayKey(&cparams, '\t', &vnc);
+	VbCheckDisplayKey(&ctx, &cparams, '\t');
 	TEST_NEQ(*debug_info, '\0', "DisplayKey tab = display");
 	VbApiKernelFree(&cparams);
 
 	/* Toggle localization */
 	ResetMocks();
-	VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, 0);
-	VbNvTeardown(&vnc);
-	VbCheckDisplayKey(&cparams, VB_KEY_DOWN, &vnc);
-	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
-	TEST_EQ(u, 2, "DisplayKey up");
-	VbCheckDisplayKey(&cparams, VB_KEY_LEFT, &vnc);
-	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
-	TEST_EQ(u, 1, "DisplayKey left");
-	VbCheckDisplayKey(&cparams, VB_KEY_RIGHT, &vnc);
-	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
-	TEST_EQ(u, 2, "DisplayKey right");
-	VbCheckDisplayKey(&cparams, VB_KEY_UP, &vnc);
-	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
-	TEST_EQ(u, 0, "DisplayKey up");
+	vb2_nv_set(&ctx, VB2_NV_LOCALIZATION_INDEX, 0);
+	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_DOWN);
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 2,
+		"DisplayKey up");
+	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_LEFT);
+	vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX);
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 1,
+		"DisplayKey left");
+	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_RIGHT);
+	vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX);
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 2,
+		"DisplayKey right");
+	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_UP);
+	vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX);
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 0,
+		"DisplayKey up");
 	VbApiKernelFree(&cparams);
 
 	/* Reset localization if localization count is invalid */
 	ResetMocks();
-	VbNvSet(&vnc, VBNV_LOCALIZATION_INDEX, 1);
-	VbNvTeardown(&vnc);
+	vb2_nv_set(&ctx, VB2_NV_LOCALIZATION_INDEX, 1);
 	bhdr->signature[0] ^= 0x5a;
-	VbCheckDisplayKey(&cparams, VB_KEY_UP, &vnc);
-	VbNvGet(&vnc, VBNV_LOCALIZATION_INDEX, &u);
-	TEST_EQ(u, 0, "DisplayKey invalid");
+	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_UP);
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 0,
+		"DisplayKey invalid");
 	VbApiKernelFree(&cparams);
 }
 

@@ -12,13 +12,16 @@
 #include "vboot_api.h"
 #include "vboot_nvstorage.h"
 
-VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
-                                 VbNvContext *vncptr, uint32_t locale);
-VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen, int force,
-                          VbNvContext *vncptr);
-VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr);
-VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
-                            VbNvContext *vncptr);
+struct vb2_context;
+
+VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
+				 VbCommonParams *cparams, uint32_t screen,
+                                 uint32_t locale);
+VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
+			  uint32_t screen, int force);
+VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams);
+VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
+			    uint32_t key);
 
 /* Internal functions, for unit testing */
 

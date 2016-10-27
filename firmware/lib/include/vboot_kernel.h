@@ -14,10 +14,7 @@
 #include "load_kernel_fw.h"
 #include "vboot_api.h"
 
-/**
- * Accessors for unit tests only.
- */
-VbNvContext *VbApiKernelGetVnc(void);
+struct vb2_context;
 
 /**
  * Exported for unit tests only - frees memory used by VbSelectAndLoadKernel()
@@ -25,9 +22,20 @@ VbNvContext *VbApiKernelGetVnc(void);
 void VbApiKernelFree(VbCommonParams *cparams);
 
 /**
- * Try to load a kernel.
+ * Attempt loading a kernel from the specified type(s) of disks.
+ *
+ * If successful, sets p->disk_handle to the disk for the kernel and returns
+ * VBERROR_SUCCESS.
+ *
+ * @param ctx			Vboot context
+ * @param cparams		Vboot common params
+ * @param p			Parameters for loading kernel
+ * @param get_info_flags	Flags to pass to VbExDiskGetInfo()
+ * @return VBERROR_SUCCESS, VBERROR_NO_DISK_FOUND if no disks of the specified
+ * type were found, or other non-zero VBERROR_ codes for other failures.
  */
-uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
+uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
+			 LoadKernelParams *p,
                          uint32_t get_info_flags);
 
 /* Flags for VbUserConfirms() */
@@ -48,31 +56,35 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
  *
  * Returns: 1=yes, 0=no, -1 = shutdown.
  */
-int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags);
+int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
+		   uint32_t confirm_flags);
 
 /**
  * Handle a normal boot.
  */
-VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p);
+VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
+		       LoadKernelParams *p);
 
 /**
  * Handle a developer-mode boot.
  */
-VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p);
+VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
+			  LoadKernelParams *p);
 
 /**
  * Handle a recovery-mode boot.
  */
-VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p);
+VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
+			 LoadKernelParams *p);
 
 /**
  * Sync EC device <devidx> firmware to expected version.
  *
+ * @param ctx		Vboot context
  * @param devidx	EC device index to sync
  * @param cparams	Common vboot params
- * @param vnc		NV storage context
  */
-VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
-			   VbNvContext *vnc);
+VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
+			   VbCommonParams *cparams);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */

@@ -11,7 +11,9 @@
 #include <string.h>
 
 #include "2sysincludes.h"
+#include "2api.h"
 #include "2common.h"
+#include "2misc.h"
 #include "2sha.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
@@ -74,6 +76,8 @@ static GptHeader *mock_gpt_primary =
 static GptHeader *mock_gpt_secondary =
 	(GptHeader*)&mock_disk[MOCK_SECTOR_SIZE * (MOCK_SECTOR_COUNT - 1)];
 static uint8_t mock_digest[VB2_SHA256_DIGEST_SIZE] = {12, 34, 56, 78};
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
+static struct vb2_context ctx;
 
 /**
  * Prepare a valid GPT header that will pass CheckHeader() tests
@@ -182,6 +186,12 @@ static void ResetMocks(void)
 	mock_parts[0].start = 100;
 	mock_parts[0].size = 150;  /* 75 KB */
 	mock_part_next = 0;
+
+	memset(&ctx, 0, sizeof(ctx));
+	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
+	ctx.workbuf = workbuf;
+	ctx.workbuf_size = sizeof(workbuf);
+	// TODO: more workbuf fields - flags, secdata, secdatak
 }
 
 /* Mocks */
@@ -564,6 +574,23 @@ static void ReadWriteGptTest(void)
 
 }
 
+static void TestLoadKernel(int expect_retval, char *test_name)
+{
+	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
+	if (lkp.boot_flags & BOOT_FLAG_RECOVERY)
+		ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
+	if (lkp.boot_flags & BOOT_FLAG_DEVELOPER)
+		ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
+
+	TEST_EQ(LoadKernel(&ctx, &lkp, &cparams), expect_retval, test_name);
+
+	if (ctx.flags & VB2_CONTEXT_NVDATA_CHANGED) {
+		memcpy(vnc.raw, ctx.nvdata, VB2_NVDATA_SIZE);
+		vnc.raw_changed = 1;
+		ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
+	}
+}
+
 /**
  * Trivial invalid calls to LoadKernel()
  */
@@ -571,14 +598,12 @@ static void InvalidParamsTest(void)
 {
 	ResetMocks();
 	gpt_init_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
-		"Bad GPT");
+	TestLoadKernel(VBERROR_NO_KERNEL_FOUND, "Bad GPT");
 
 	/* This causes the stream open call to fail */
 	ResetMocks();
 	lkp.disk_handle = NULL;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Bad disk handle");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Bad disk handle");
 }
 
 static void LoadKernelTest(void)
@@ -587,8 +612,7 @@ static void LoadKernelTest(void)
 
 	ResetMocks();
 
-	u = LoadKernel(&lkp, &cparams);
-	TEST_EQ(u, 0, "First kernel good");
+	TestLoadKernel(0, "First kernel good");
 	TEST_EQ(lkp.partition_number, 1, "  part num");
 	TEST_EQ(lkp.bootloader_address, 0xbeadd008, "  bootloader addr");
 	TEST_EQ(lkp.bootloader_size, 0x1234, "  bootloader size");
@@ -600,46 +624,44 @@ static void LoadKernelTest(void)
 	ResetMocks();
 	mock_parts[1].start = 300;
 	mock_parts[1].size = 150;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Two good kernels");
+	TestLoadKernel(0, "Two good kernels");
 	TEST_EQ(lkp.partition_number, 1, "  part num");
 	TEST_EQ(mock_part_next, 1, "  didn't read second one");
 
 	/* Fail if no kernels found */
 	ResetMocks();
 	mock_parts[0].size = 0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND, "No kernels");
+	TestLoadKernel(VBERROR_NO_KERNEL_FOUND, "No kernels");
 	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, VBNV_RECOVERY_RW_NO_OS, "  recovery request");
 
 	/* Skip kernels which are too small */
 	ResetMocks();
 	mock_parts[0].size = 10;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND, "Too small");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Too small");
 	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
 	TEST_EQ(u, VBNV_RECOVERY_RW_INVALID_OS, "  recovery request");
 
 	ResetMocks();
 	disk_read_to_fail = 100;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail reading kernel start");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Fail reading kernel start");
 
 	ResetMocks();
 	key_block_verify_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail key block sig");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Fail key block sig");
 
 	/* In dev mode, fail if hash is bad too */
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
 	key_block_verify_fail = 2;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail key block dev hash");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Fail key block dev hash");
 
 	/* But just bad sig is ok */
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
 	key_block_verify_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Succeed key block dev sig");
+	TestLoadKernel(0, "Succeed key block dev sig");
 
 	/* In dev mode and requiring signed kernel, fail if sig is bad */
 	ResetMocks();
@@ -647,101 +669,97 @@ static void LoadKernelTest(void)
 	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
 	VbNvTeardown(&vnc);
 	key_block_verify_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail key block dev sig");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Fail key block dev sig");
 
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
 	lkp.fwmp = &fwmp;
 	fwmp.flags |= FWMP_DEV_ENABLE_OFFICIAL_ONLY;
 	key_block_verify_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail key block dev sig fwmp");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Fail key block dev sig fwmp");
 
 	/* Check key block flag mismatches */
 	ResetMocks();
 	kbh.key_block_flags =
 		KEY_BLOCK_FLAG_RECOVERY_0 | KEY_BLOCK_FLAG_DEVELOPER_1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Key block dev flag mismatch");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Key block dev flag mismatch");
 
 	ResetMocks();
 	kbh.key_block_flags =
 		KEY_BLOCK_FLAG_RECOVERY_1 | KEY_BLOCK_FLAG_DEVELOPER_0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Key block rec flag mismatch");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Key block rec flag mismatch");
 
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
 	kbh.key_block_flags =
 		KEY_BLOCK_FLAG_RECOVERY_1 | KEY_BLOCK_FLAG_DEVELOPER_1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Key block recdev flag mismatch");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Key block recdev flag mismatch");
 
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_RECOVERY | BOOT_FLAG_DEVELOPER;
 	kbh.key_block_flags =
 		KEY_BLOCK_FLAG_RECOVERY_1 | KEY_BLOCK_FLAG_DEVELOPER_0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Key block rec!dev flag mismatch");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Key block rec!dev flag mismatch");
 
 	ResetMocks();
 	kbh.data_key.key_version = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Key block kernel key rollback");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Key block kernel key rollback");
 
 	ResetMocks();
 	kbh.data_key.key_version = 0x10000;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Key block kernel key version too big");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Key block kernel key version too big");
 
 	ResetMocks();
 	kbh.data_key.key_version = 3;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Key block version roll forward");
+	TestLoadKernel(0, "Key block version roll forward");
 	TEST_EQ(shared->kernel_version_tpm, 0x30001, "  shared version");
 
 	ResetMocks();
 	kbh.data_key.key_version = 3;
 	mock_parts[1].start = 300;
 	mock_parts[1].size = 150;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Two kernels roll forward");
+	TestLoadKernel(0, "Two kernels roll forward");
 	TEST_EQ(mock_part_next, 2, "  read both");
 	TEST_EQ(shared->kernel_version_tpm, 0x30001, "  shared version");
 
 	ResetMocks();
 	kbh.data_key.key_version = 1;
 	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Key version ignored in dev mode");
+	TestLoadKernel(0, "Key version ignored in dev mode");
 
 	ResetMocks();
 	kbh.data_key.key_version = 1;
 	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Key version ignored in rec mode");
+	TestLoadKernel(0, "Key version ignored in rec mode");
 
 	ResetMocks();
 	unpack_key_fail = 2;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Bad data key");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Bad data key");
 
 	ResetMocks();
 	preamble_verify_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Bad preamble");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Bad preamble");
 
 	ResetMocks();
 	kph.kernel_version = 0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Kernel version rollback");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Kernel version rollback");
 
 	ResetMocks();
 	kph.kernel_version = 0;
 	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Kernel version ignored in dev mode");
+	TestLoadKernel(0, "Kernel version ignored in dev mode");
 
 	ResetMocks();
 	kph.kernel_version = 0;
 	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Kernel version ignored in rec mode");
+	TestLoadKernel(0, "Kernel version ignored in rec mode");
 
 	/* Check developer key hash - bad */
 	ResetMocks();
@@ -749,68 +767,66 @@ static void LoadKernelTest(void)
 	lkp.fwmp = &fwmp;
 	fwmp.flags |= FWMP_DEV_USE_KEY_HASH;
 	fwmp.dev_key_hash[0]++;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail key block dev fwmp hash");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Fail key block dev fwmp hash");
 
 	/* Check developer key hash - good */
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
 	lkp.fwmp = &fwmp;
 	fwmp.flags |= FWMP_DEV_USE_KEY_HASH;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Good key block dev fwmp hash");
+	TestLoadKernel(0, "Good key block dev fwmp hash");
 
 	ResetMocks();
 	kph.preamble_size |= 0x07;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Kernel body offset");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Kernel body offset");
 
 	ResetMocks();
 	kph.preamble_size += 65536;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Kernel body offset huge");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Kernel body offset huge");
 
 	/* Check getting kernel load address from header */
 	ResetMocks();
 	kph.body_load_address = (size_t)kernel_buffer;
 	lkp.kernel_buffer = NULL;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Get load address from preamble");
+	TestLoadKernel(0, "Get load address from preamble");
 	TEST_PTR_EQ(lkp.kernel_buffer, kernel_buffer, "  address");
 	/* Size is rounded up to nearest sector */
 	TEST_EQ(lkp.kernel_buffer_size, 70144, "  size");
 
 	ResetMocks();
 	lkp.kernel_buffer_size = 8192;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Kernel too big for buffer");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Kernel too big for buffer");
 
 	ResetMocks();
 	mock_parts[0].size = 130;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Kernel too big for partition");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Kernel too big for partition");
 
 	ResetMocks();
 	kph.body_signature.data_size = 8192;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Kernel tiny");
+	TestLoadKernel(0, "Kernel tiny");
 
 	ResetMocks();
 	disk_read_to_fail = 228;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,
-		"Fail reading kernel data");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
+		       "Fail reading kernel data");
 
 	ResetMocks();
 	verify_data_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_KERNEL_FOUND,	"Bad data");
+	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Bad data");
 
 	/* Check that EXTERNAL_GPT flag makes it down */
 	ResetMocks();
 	lkp.boot_flags |= BOOT_FLAG_EXTERNAL_GPT;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Succeed external GPT");
+	TestLoadKernel(0, "Succeed external GPT");
 	TEST_EQ(gpt_flag_external, 1, "GPT was external");
 
 	/* Check recovery from unreadble primary GPT */
 	ResetMocks();
 	disk_read_to_fail = 1;
-	TEST_EQ(LoadKernel(&lkp, &cparams), 0, "Can't read disk");
+	TestLoadKernel(0, "Can't read disk");
 }
 
 int main(void)

@@ -9,6 +9,8 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "2misc.h"
+#include "2nvstorage.h"
 #include "2rsa.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
@@ -31,11 +33,6 @@ static struct RollbackSpaceFwmp fwmp;
 #ifdef CHROMEOS_ENVIRONMENT
 /* Global variable accessors for unit tests */
 
-VbNvContext *VbApiKernelGetVnc(void)
-{
-	return &vnc;
-}
-
 struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void)
 {
 	return &fwmp;
@@ -45,16 +42,18 @@ struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void)
 /**
  * Set recovery request (called from vboot_api_kernel.c functions only)
  */
-static void VbSetRecoveryRequest(uint32_t recovery_request)
+static void VbSetRecoveryRequest(struct vb2_context *ctx,
+				 uint32_t recovery_request)
 {
 	VBDEBUG(("VbSetRecoveryRequest(%d)\n", (int)recovery_request));
-	VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, recovery_request);
+	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, recovery_request);
 }
 
-static void VbSetRecoverySubcode(uint32_t recovery_request)
+static void VbSetRecoverySubcode(struct vb2_context *ctx,
+				 uint32_t recovery_request)
 {
 	VBDEBUG(("VbSetRecoverySubcode(%d)\n", (int)recovery_request));
-	VbNvSet(&vnc, VBNV_RECOVERY_SUBCODE, recovery_request);
+	vb2_nv_set(ctx, VB2_NV_RECOVERY_SUBCODE, recovery_request);
 }
 
 static void VbNvLoad(void)
@@ -70,10 +69,10 @@ static void VbNvCommit(void)
 		VbExNvStorageWrite(vnc.raw);
 }
 
-static void VbAllowUsbBoot(void)
+static void VbAllowUsbBoot(struct vb2_context *ctx)
 {
 	VBDEBUG(("%s\n", __func__));
-	VbNvSet(&vnc, VBNV_DEV_BOOT_USB, 1);
+	vb2_nv_set(ctx, VB2_NV_DEV_BOOT_USB, 1);
 }
 
 /**
@@ -114,11 +113,15 @@ static void VbTryLegacy(int allowed)
  * If successful, sets p->disk_handle to the disk for the kernel and returns
  * VBERROR_SUCCESS.
  *
- * Returns VBERROR_NO_DISK_FOUND if no disks of the specified type were found.
- *
- * May return other VBERROR_ codes for other failures.
+ * @param ctx			Vboot context
+ * @param cparams		Vboot common params
+ * @param p			Parameters for loading kernel
+ * @param get_info_flags	Flags to pass to VbExDiskGetInfo()
+ * @return VBERROR_SUCCESS, VBERROR_NO_DISK_FOUND if no disks of the specified
+ * type were found, or other non-zero VBERROR_ codes for other failures.
  */
-uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
+uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
+			 LoadKernelParams *p,
                          uint32_t get_info_flags)
 {
 	VbError_t retval = VBERROR_UNKNOWN;
@@ -138,7 +141,7 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 
 	VBDEBUG(("VbTryLoadKernel() found %d disks\n", (int)disk_count));
 	if (0 == disk_count) {
-		VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_DISK);
+		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_NO_DISK);
 		return VBERROR_NO_DISK_FOUND;
 	}
 
@@ -155,7 +158,8 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 		 */
 		if (512 != disk_info[i].bytes_per_lba ||
 		    16 > disk_info[i].lba_count ||
-		    get_info_flags != (disk_info[i].flags & ~VB_DISK_FLAG_EXTERNAL_GPT)) {
+		    get_info_flags != (disk_info[i].flags &
+				       ~VB_DISK_FLAG_EXTERNAL_GPT)) {
 			VBDEBUG(("  skipping: bytes_per_lba=%" PRIu64
 				 " lba_count=%" PRIu64 " flags=0x%x\n",
 				 disk_info[i].bytes_per_lba,
@@ -170,7 +174,7 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 						?: p->gpt_lba_count;
 		p->boot_flags |= disk_info[i].flags & VB_DISK_FLAG_EXTERNAL_GPT
 				? BOOT_FLAG_EXTERNAL_GPT : 0;
-		retval = LoadKernel(p, cparams);
+		retval = LoadKernel(ctx, p, cparams);
 		VBDEBUG(("VbTryLoadKernel() LoadKernel() = %d\n", retval));
 
 		/*
@@ -186,7 +190,7 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 
 	/* If we didn't find any good kernels, don't return a disk handle. */
 	if (VBERROR_SUCCESS != retval) {
-		VbSetRecoveryRequest(VBNV_RECOVERY_RW_NO_KERNEL);
+		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_NO_KERNEL);
 		p->disk_handle = NULL;
 	}
 
@@ -199,9 +203,11 @@ uint32_t VbTryLoadKernel(VbCommonParams *cparams, LoadKernelParams *p,
 	return retval;
 }
 
-uint32_t VbTryUsb(VbCommonParams *cparams, LoadKernelParams *p)
+uint32_t VbTryUsb(struct vb2_context *ctx, VbCommonParams *cparams,
+		  LoadKernelParams *p)
 {
-	uint32_t retval = VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE);
+	uint32_t retval = VbTryLoadKernel(ctx, cparams, p,
+					  VB_DISK_FLAG_REMOVABLE);
 	if (VBERROR_SUCCESS == retval) {
 		VBDEBUG(("VbBootDeveloper() - booting USB\n"));
 	} else {
@@ -214,15 +220,15 @@ uint32_t VbTryUsb(VbCommonParams *cparams, LoadKernelParams *p)
 		 * at this point doesn't put us into
 		 * recovery mode.
 		 */
-		VbSetRecoveryRequest(
-			VBNV_RECOVERY_NOT_REQUESTED);
+		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_NOT_REQUESTED);
 	}
 	return retval;
 }
 
 #define CONFIRM_KEY_DELAY 20  /* Check confirm screen keys every 20ms */
 
-int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags)
+int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
+		   uint32_t confirm_flags)
 {
 	VbSharedDataHeader *shared =
            (VbSharedDataHeader *)cparams->shared_data_blob;
@@ -279,7 +285,7 @@ int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags)
 					return 1;
 				}
 			}
-			VbCheckDisplayKey(cparams, key, &vnc);
+			VbCheckDisplayKey(ctx, cparams, key);
 		}
 		VbExSleepMs(CONFIRM_KEY_DELAY);
 	}
@@ -289,11 +295,12 @@ int VbUserConfirms(VbCommonParams *cparams, uint32_t confirm_flags)
 }
 
 VbError_t test_mockable
-VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
+VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
+	     LoadKernelParams *p)
 {
 	/* Boot from fixed disk only */
 	VBDEBUG(("Entering %s()\n", __func__));
-	return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
+	return VbTryLoadKernel(ctx, cparams, p, VB_DISK_FLAG_FIXED);
 }
 
 static const char dev_disable_msg[] =
@@ -301,18 +308,16 @@ static const char dev_disable_msg[] =
 	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
 	"\n";
 
-VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
+VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
+			  LoadKernelParams *p)
 {
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 
-	uint32_t allow_usb = 0;
-	uint32_t allow_legacy = 0;
 	uint32_t disable_dev_boot = 0;
 	uint32_t use_usb = 0;
 	uint32_t use_legacy = 0;
-	uint32_t default_boot = 0;
 	uint32_t ctrl_d_pressed = 0;
 
 	VbAudioContext *audio = 0;
@@ -320,11 +325,11 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	VBDEBUG(("Entering %s()\n", __func__));
 
 	/* Check if USB booting is allowed */
-	VbNvGet(&vnc, VBNV_DEV_BOOT_USB, &allow_usb);
-	VbNvGet(&vnc, VBNV_DEV_BOOT_LEGACY, &allow_legacy);
+	uint32_t allow_usb = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_USB);
+	uint32_t allow_legacy = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_LEGACY);
 
 	/* Check if the default is to boot using disk, usb, or legacy */
-	VbNvGet(&vnc, VBNV_DEV_DEFAULT_BOOT, &default_boot);
+	uint32_t default_boot = vb2_nv_get(ctx, VB2_NV_DEV_DEFAULT_BOOT);
 
 	if(default_boot == VBNV_DEV_DEFAULT_BOOT_USB)
 		use_usb = 1;
@@ -359,17 +364,17 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	/* If dev mode is disabled, only allow TONORM */
 	while (disable_dev_boot) {
 		VBDEBUG(("%s() - dev_disable_boot is set.\n", __func__));
-		VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_TO_NORM, 0, &vnc);
+		VbDisplayScreen(ctx, cparams, VB_SCREEN_DEVELOPER_TO_NORM, 0);
 		VbExDisplayDebugInfo(dev_disable_msg);
 
 		/* Ignore space in VbUserConfirms()... */
-		switch (VbUserConfirms(cparams, 0)) {
+		switch (VbUserConfirms(ctx, cparams, 0)) {
 		case 1:
 			VBDEBUG(("%s() - leaving dev-mode.\n", __func__));
-			VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
-			VbDisplayScreen(cparams,
+			vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
+			VbDisplayScreen(ctx, cparams,
 					VB_SCREEN_TO_NORM_CONFIRMED,
-					0, &vnc);
+					0);
 			VbExSleepMs(5000);
 			return VBERROR_REBOOT_REQUIRED;
 		case -1:
@@ -382,7 +387,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	}
 
 	/* Show the dev mode warning screen */
-	VbDisplayScreen(cparams, VB_SCREEN_DEVELOPER_WARNING, 0, &vnc);
+	VbDisplayScreen(ctx, cparams, VB_SCREEN_DEVELOPER_WARNING, 0);
 
 	/* Get audio/delay context */
 	audio = VbAudioOpen(cparams);
@@ -428,20 +433,20 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 					VbExBeep(120, 400);
 					break;
 				}
-				VbDisplayScreen(cparams,
+				VbDisplayScreen(ctx, cparams,
 						VB_SCREEN_DEVELOPER_TO_NORM,
-						0, &vnc);
+						0);
 				/* Ignore space in VbUserConfirms()... */
-				switch (VbUserConfirms(cparams, 0)) {
+				switch (VbUserConfirms(ctx, cparams, 0)) {
 				case 1:
 					VBDEBUG(("%s() - leaving dev-mode.\n",
 						 __func__));
-					VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST,
+					vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST,
 						1);
-					VbDisplayScreen(
+					VbDisplayScreen(ctx,
 						cparams,
 						VB_SCREEN_TO_NORM_CONFIRMED,
-						0, &vnc);
+						0);
 					VbExSleepMs(5000);
 					return VBERROR_REBOOT_REQUIRED;
 				case -1:
@@ -452,10 +457,10 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 					/* Stay in dev-mode */
 					VBDEBUG(("%s() - stay in dev-mode\n",
 						 __func__));
-					VbDisplayScreen(
+					VbDisplayScreen(ctx,
 						cparams,
 						VB_SCREEN_DEVELOPER_WARNING,
-						0, &vnc);
+						0);
 					/* Start new countdown */
 					audio = VbAudioOpen(cparams);
 				}
@@ -466,7 +471,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 				 */
 				VBDEBUG(("%s() - going to recovery\n",
 					 __func__));
-				VbSetRecoveryRequest(
+				VbSetRecoveryRequest(ctx,
 					VBNV_RECOVERY_RW_DEV_SCREEN);
 				VbAudioClose(audio);
 				return VBERROR_LOAD_KERNEL_RECOVERY;
@@ -510,23 +515,24 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 				 * Clear the screen to show we get the Ctrl+U
 				 * key press.
 				 */
-				VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0,
-						&vnc);
-				if (VBERROR_SUCCESS == VbTryUsb(cparams, p)) {
+				VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK,
+						0);
+				if (VBERROR_SUCCESS ==
+				    VbTryUsb(ctx, cparams, p)) {
 					VbAudioClose(audio);
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
-					VbDisplayScreen(
+					VbDisplayScreen(ctx,
 						cparams,
 						VB_SCREEN_DEVELOPER_WARNING,
-						0, &vnc);
+						0);
 				}
 			}
 			break;
 		default:
 			VBDEBUG(("VbBootDeveloper() - pressed key %d\n", key));
-			VbCheckDisplayKey(cparams, key, &vnc);
+			VbCheckDisplayKey(ctx, cparams, key);
 			break;
 		}
 	} while(VbAudioLooping(audio));
@@ -540,7 +546,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	}
 
 	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
-		if (VBERROR_SUCCESS == VbTryUsb(cparams, p)) {
+		if (VBERROR_SUCCESS == VbTryUsb(ctx, cparams, p)) {
 			VbAudioClose(audio);
 			return VBERROR_SUCCESS;
 		}
@@ -549,7 +555,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VBDEBUG(("VbBootDeveloper() - trying fixed disk\n"));
 	VbAudioClose(audio);
-	return VbTryLoadKernel(cparams, p, VB_DISK_FLAG_FIXED);
+	return VbTryLoadKernel(ctx, cparams, p, VB_DISK_FLAG_FIXED);
 }
 
 /* Delay in recovery mode */
@@ -557,7 +563,8 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 #define REC_KEY_DELAY        20       /* Check keys every 20ms */
 #define REC_MEDIA_INIT_DELAY 500      /* Check removable media every 500ms */
 
-VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
+VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
+			 LoadKernelParams *p)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -585,12 +592,12 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 		 */
 		VBDEBUG(("VbBootRecovery() saving recovery reason (%#x)\n",
 				shared->recovery_reason));
-		VbSetRecoverySubcode(shared->recovery_reason);
+		VbSetRecoverySubcode(ctx, shared->recovery_reason);
 		VbNvCommit();
-		VbDisplayScreen(cparams, VB_SCREEN_OS_BROKEN, 0, &vnc);
+		VbDisplayScreen(ctx, cparams, VB_SCREEN_OS_BROKEN, 0);
 		VBDEBUG(("VbBootRecovery() waiting for manual recovery\n"));
 		while (1) {
-			VbCheckDisplayKey(cparams, VbExKeyboardRead(), &vnc);
+			VbCheckDisplayKey(ctx, cparams, VbExKeyboardRead());
 			if (VbWantShutdown(cparams->gbb->flags))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
@@ -601,7 +608,8 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 	VBDEBUG(("VbBootRecovery() waiting for a recovery image\n"));
 	while (1) {
 		VBDEBUG(("VbBootRecovery() attempting to load kernel2\n"));
-		retval = VbTryLoadKernel(cparams, p, VB_DISK_FLAG_REMOVABLE);
+		retval = VbTryLoadKernel(ctx, cparams, p,
+					 VB_DISK_FLAG_REMOVABLE);
 
 		/*
 		 * Clear recovery requests from failed kernel loading, since
@@ -609,15 +617,15 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 		 * powering off after inserting an invalid disk doesn't leave
 		 * us stuck in recovery mode.
 		 */
-		VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
+		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_NOT_REQUESTED);
 
 		if (VBERROR_SUCCESS == retval)
 			break; /* Found a recovery kernel */
 
-		VbDisplayScreen(cparams, VBERROR_NO_DISK_FOUND == retval ?
+		VbDisplayScreen(ctx, cparams, VBERROR_NO_DISK_FOUND == retval ?
 				VB_SCREEN_RECOVERY_INSERT :
 				VB_SCREEN_RECOVERY_NO_GOOD,
-				0, &vnc);
+				0);
 
 		/*
 		 * Scan keyboard more frequently than media, since x86
@@ -655,14 +663,15 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 				}
 
 				/* Ask the user to confirm entering dev-mode */
-				VbDisplayScreen(cparams,
+				VbDisplayScreen(ctx, cparams,
 						VB_SCREEN_RECOVERY_TO_DEV,
-						0, &vnc);
+						0);
 				/* SPACE means no... */
 				uint32_t vbc_flags =
 					VB_CONFIRM_SPACE_MEANS_NO |
 					VB_CONFIRM_MUST_TRUST_KEYBOARD;
-				switch (VbUserConfirms(cparams, vbc_flags)) {
+				switch (VbUserConfirms(ctx, cparams,
+						       vbc_flags)) {
 				case 1:
 					VBDEBUG(("%s() Enabling dev-mode...\n",
 						 __func__));
@@ -672,7 +681,7 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 						 "effect\n", __func__));
 					if (VbExGetSwitches
 					    (VB_INIT_FLAG_ALLOW_USB_BOOT))
-						VbAllowUsbBoot();
+						VbAllowUsbBoot(ctx);
 					return VBERROR_REBOOT_REQUIRED;
 				case -1:
 					VBDEBUG(("%s() - Shutdown requested\n",
@@ -689,7 +698,7 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 					break;
 				}
 			} else {
-				VbCheckDisplayKey(cparams, key, &vnc);
+				VbCheckDisplayKey(ctx, cparams, key);
 			}
 			if (VbWantShutdown(cparams->gbb->flags))
 				return VBERROR_SHUTDOWN_REQUESTED;
@@ -722,7 +731,6 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	VbError_t retval = VBERROR_SUCCESS;
 	LoadKernelParams p;
 	uint32_t tpm_status = 0;
-	uint32_t battery_cutoff = 0;
 
 	/* Start timer */
 	shared->timer_vb_select_and_load_kernel_enter = VbExGetTimer();
@@ -743,6 +751,53 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	p.kernel_buffer = kparams->kernel_buffer;
 	p.kernel_buffer_size = kparams->kernel_buffer_size;
 
+	/* Set up boot flags */
+	p.boot_flags = 0;
+	if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
+		p.boot_flags |= BOOT_FLAG_DEVELOPER;
+	if (shared->recovery_reason)
+		p.boot_flags |= BOOT_FLAG_RECOVERY;
+
+	/*
+	 * Set up vboot context.
+	 *
+	 * TODO: Propagate this up to higher API levels, and use more of the
+	 * context fields (e.g. secdatak) and flags.
+	 */
+	struct vb2_context ctx;
+	memset(&ctx, 0, sizeof(ctx));
+	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
+
+	if (p.boot_flags & BOOT_FLAG_RECOVERY)
+		ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
+	if (p.boot_flags & BOOT_FLAG_DEVELOPER)
+		ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
+
+	ctx.workbuf_size = VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE +
+			VB2_WORKBUF_ALIGN;
+
+	uint8_t *unaligned_workbuf = ctx.workbuf = malloc(ctx.workbuf_size);
+	if (!unaligned_workbuf) {
+		VB2_DEBUG("%s: Can't allocate work buffer\n", __func__);
+		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
+		return VBERROR_INIT_SHARED_DATA;
+	}
+
+	if (VB2_SUCCESS != vb2_align(&ctx.workbuf, &ctx.workbuf_size,
+				     VB2_WORKBUF_ALIGN,
+				     VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE)) {
+		VB2_DEBUG("%s: Can't align work buffer\n", __func__);
+		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
+		return VBERROR_INIT_SHARED_DATA;
+	}
+
+	if (VB2_SUCCESS != vb2_init_context(&ctx)) {
+		VB2_DEBUG("%s: Can't init vb2_context\n", __func__);
+		free(unaligned_workbuf);
+		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
+		return VBERROR_INIT_SHARED_DATA;
+	}
+
 	/* Clear output params in case we fail */
 	kparams->disk_handle = NULL;
 	kparams->partition_number = 0;
@@ -762,7 +817,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	    !(cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)) {
 		int oprom_mismatch = 0;
 
-		retval = VbEcSoftwareSync(0, cparams, &vnc);
+		retval = VbEcSoftwareSync(&ctx, 0, cparams);
 		/* Save reboot requested until after possible PD sync */
 		if (retval == VBERROR_VGA_OPROM_MISMATCH)
 			oprom_mismatch = 1;
@@ -772,7 +827,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 #ifdef PD_SYNC
 		if (!(cparams->gbb->flags &
 		      GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
-			retval = VbEcSoftwareSync(1, cparams, &vnc);
+			retval = VbEcSoftwareSync(&ctx, 1, cparams);
 			if (retval == VBERROR_VGA_OPROM_MISMATCH)
 				oprom_mismatch = 1;
 			else if (retval != VBERROR_SUCCESS)
@@ -794,10 +849,9 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 
 	/* Check if we need to cut-off battery. This must be done after EC
          * firmware updating and before kernel started. */
-	VbNvGet(&vnc, VBNV_BATTERY_CUTOFF_REQUEST, &battery_cutoff);
-	if (battery_cutoff) {
+	if (vb2_nv_get(&ctx, VB2_NV_BATTERY_CUTOFF_REQUEST)) {
 		VBDEBUG(("Request to cut-off battery\n"));
-		VbNvSet(&vnc, VBNV_BATTERY_CUTOFF_REQUEST, 0);
+		vb2_nv_set(&ctx, VB2_NV_BATTERY_CUTOFF_REQUEST, 0);
 		VbExEcBatteryCutOff();
 		retval = VBERROR_SHUTDOWN_REQUESTED;
 		goto VbSelectAndLoadKernel_exit;
@@ -808,7 +862,8 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	if (0 != tpm_status) {
 		VBDEBUG(("Unable to get kernel versions from TPM\n"));
 		if (!shared->recovery_reason) {
-			VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_R_ERROR);
+			VbSetRecoveryRequest(&ctx,
+					     VBNV_RECOVERY_RW_TPM_R_ERROR);
 			retval = VBERROR_TPM_READ_KERNEL;
 			goto VbSelectAndLoadKernel_exit;
 		}
@@ -825,39 +880,12 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	if (0 != tpm_status) {
 		VBDEBUG(("Unable to get FWMP from TPM\n"));
 		if (!shared->recovery_reason) {
-			VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_R_ERROR);
+			VbSetRecoveryRequest(&ctx,
+					     VBNV_RECOVERY_RW_TPM_R_ERROR);
 			retval = VBERROR_TPM_READ_FWMP;
 			goto VbSelectAndLoadKernel_exit;
 		}
 	}
-
-	/* Set up boot flags */
-	p.boot_flags = 0;
-	if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
-		p.boot_flags |= BOOT_FLAG_DEVELOPER;
-
-	/* Handle separate normal and developer firmware builds. */
-#if defined(VBOOT_FIRMWARE_TYPE_NORMAL)
-	/* Normal-type firmware always acts like the dev switch is off. */
-	p.boot_flags &= ~BOOT_FLAG_DEVELOPER;
-#elif defined(VBOOT_FIRMWARE_TYPE_DEVELOPER)
-	/* Developer-type firmware fails if the dev switch is off. */
-	if (!(p.boot_flags & BOOT_FLAG_DEVELOPER)) {
-		/*
-		 * Dev firmware should be signed with a key that only verifies
-		 * when the dev switch is on, so we should never get here.
-		 */
-		VBDEBUG(("Developer firmware called with dev switch off!\n"));
-		VbSetRecoveryRequest(VBNV_RECOVERY_RW_DEV_MISMATCH);
-		retval = VBERROR_DEV_FIRMWARE_SWITCH_MISMATCH;
-		goto VbSelectAndLoadKernel_exit;
-	}
-#else
-	/*
-	 * Recovery firmware, or merged normal+developer firmware.  No need to
-	 * override flags.
-	 */
-#endif
 
 	/* Select boot path */
 	if (shared->recovery_reason == VBNV_RECOVERY_TRAIN_AND_REBOOT) {
@@ -867,21 +895,20 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		retval = VBERROR_REBOOT_REQUIRED;
 	} else if (shared->recovery_reason) {
 		/* Recovery boot */
-		p.boot_flags |= BOOT_FLAG_RECOVERY;
-		retval = VbBootRecovery(cparams, &p);
+		retval = VbBootRecovery(&ctx, cparams, &p);
 		VbExEcEnteringMode(0, VB_EC_RECOVERY);
-		VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0, &vnc);
+		VbDisplayScreen(&ctx, cparams, VB_SCREEN_BLANK, 0);
 
 	} else if (p.boot_flags & BOOT_FLAG_DEVELOPER) {
 		/* Developer boot */
-		retval = VbBootDeveloper(cparams, &p);
+		retval = VbBootDeveloper(&ctx, cparams, &p);
 		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
-		VbDisplayScreen(cparams, VB_SCREEN_BLANK, 0, &vnc);
+		VbDisplayScreen(&ctx, cparams, VB_SCREEN_BLANK, 0);
 
 	} else {
 		/* Normal boot */
 		VbExEcEnteringMode(0, VB_EC_NORMAL);
-		retval = VbBootNormal(cparams, &p);
+		retval = VbBootNormal(&ctx, cparams, &p);
 
 		if ((1 == shared->firmware_index) &&
 		    (shared->flags & VBSD_FWB_TRIED)) {
@@ -908,7 +935,8 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 			if (VBERROR_INVALID_KERNEL_FOUND == retval) {
 				VBDEBUG(("Trying firmware B, "
 					 "and only found invalid kernels.\n"));
-				VbSetRecoveryRequest(VBNV_RECOVERY_NOT_REQUESTED);
+				VbSetRecoveryRequest(&ctx,
+						VBNV_RECOVERY_NOT_REQUESTED);
 				goto VbSelectAndLoadKernel_exit;
 			}
 		} else {
@@ -924,7 +952,8 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 				if (0 != tpm_status) {
 					VBDEBUG(("Error writing kernel "
 						 "versions to TPM.\n"));
-					VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_W_ERROR);
+					VbSetRecoveryRequest(&ctx,
+						VBNV_RECOVERY_RW_TPM_W_ERROR);
 					retval = VBERROR_TPM_WRITE_KERNEL;
 					goto VbSelectAndLoadKernel_exit;
 				}
@@ -949,13 +978,28 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	if (0 != tpm_status) {
 		VBDEBUG(("Error locking kernel versions.\n"));
 		if (!shared->recovery_reason) {
-			VbSetRecoveryRequest(VBNV_RECOVERY_RW_TPM_L_ERROR);
+			VbSetRecoveryRequest(&ctx,
+					     VBNV_RECOVERY_RW_TPM_L_ERROR);
 			retval = VBERROR_TPM_LOCK_KERNEL;
 			goto VbSelectAndLoadKernel_exit;
 		}
 	}
 
  VbSelectAndLoadKernel_exit:
+
+	/*
+	 * Clean up vboot context.
+	 *
+	 * TODO: This should propagate up to higher levels
+	 */
+	/* Free buffers */
+	free(unaligned_workbuf);
+	/* Copy nvdata back to old vboot1 nv context if needed */
+	if (ctx.flags & VB2_CONTEXT_NVDATA_CHANGED) {
+		memcpy(vnc.raw, ctx.nvdata, VB2_NVDATA_SIZE);
+		vnc.raw_changed = 1;
+		ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
+	}
 
 	VbApiKernelFree(cparams);
 
@@ -1025,7 +1069,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	dev_switch = shared->flags & VBSD_BOOT_DEV_SWITCH_ON;
 
 	VbNvLoad();
-	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
+	VbNvGet(&vnc, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP,
 		&allow_fastboot_full_cap);
 
 	if (0 == allow_fastboot_full_cap) {
@@ -1166,8 +1210,7 @@ VbError_t VbLockDevice(void)
 
 	VBDEBUG(("%s() - Storing request to leave dev-mode.\n",
 		 __func__));
-	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST,
-		1);
+	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
 
 	VbNvCommit();
 

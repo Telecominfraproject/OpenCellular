@@ -81,8 +81,8 @@ VbError_t VbExNvStorageWrite(const uint8_t *buf)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
-			   VbNvContext *vnc)
+VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
+			   VbCommonParams *cparams)
 {
 	return ecsync_retval;
 }
@@ -111,7 +111,8 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 	return rfr_retval;
 }
 
-VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
+VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
+		       LoadKernelParams *p)
 {
 	shared->kernel_version_tpm = new_version;
 
@@ -121,7 +122,8 @@ VbError_t VbBootNormal(VbCommonParams *cparams, LoadKernelParams *p)
 	return vbboot_retval;
 }
 
-VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
+VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
+			  LoadKernelParams *p)
 {
 	shared->kernel_version_tpm = new_version;
 
@@ -131,7 +133,8 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 	return vbboot_retval;
 }
 
-VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
+VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
+			 LoadKernelParams *p)
 {
 	shared->kernel_version_tpm = new_version;
 

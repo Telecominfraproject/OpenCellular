@@ -9,6 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2misc.h"
+#include "2nvstorage.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "load_kernel_fw.h"
@@ -16,6 +20,7 @@
 #include "test_common.h"
 #include "vboot_audio.h"
 #include "vboot_common.h"
+#include "vboot_display.h"
 #include "vboot_kernel.h"
 #include "vboot_nvstorage.h"
 #include "vboot_struct.h"
@@ -47,7 +52,8 @@ static int mock_ec_rw_hash_size;
 static uint8_t want_ec_hash[32];
 static uint8_t update_hash;
 static int want_ec_hash_size;
-static VbNvContext mock_vnc;
+static struct vb2_context ctx;
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 
 static uint32_t screens_displayed[8];
 static uint32_t screens_count = 0;
@@ -65,9 +71,11 @@ static void ResetMocks(void)
 	gbb.minor_version = GBB_MINOR_VER;
 	gbb.flags = 0;
 
-	memset(&mock_vnc, 0, sizeof(VbNvContext));
-	VbNvSetup(&mock_vnc);
-	VbNvTeardown(&mock_vnc); /* So CRC gets generated */
+	memset(&ctx, 0, sizeof(ctx));
+	ctx.workbuf = workbuf;
+	ctx.workbuf_size = sizeof(workbuf);
+	vb2_init_context(&ctx);
+	vb2_nv_init(&ctx);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -191,8 +199,8 @@ VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
 	return update_retval;
 }
 
-VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen, int force,
-                          VbNvContext *vncptr)
+VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
+			  uint32_t screen, int force)
 {
 	if (screens_count < ARRAY_SIZE(screens_displayed))
 		screens_displayed[screens_count++] = screen;
@@ -202,11 +210,9 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen, int force,
 
 static void test_ssync(VbError_t retval, int recovery_reason, const char *desc)
 {
-	uint32_t u;
-
-	TEST_EQ(VbEcSoftwareSync(0, &cparams, &mock_vnc), retval, desc);
-	VbNvGet(&mock_vnc, VBNV_RECOVERY_REQUEST, &u);
-	TEST_EQ(u, recovery_reason, "  recovery reason");
+	TEST_EQ(VbEcSoftwareSync(&ctx, 0, &cparams), retval, desc);
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
+		recovery_reason, "  recovery reason");
 }
 
 /* Tests */
@@ -297,7 +303,7 @@ static void VbSoftwareSyncTest(void)
 
 	ResetMocks();
 	mock_ec_rw_hash[0]++;
-	VbNvSet(&mock_vnc, VBNV_TRY_RO_SYNC, 1);
+	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
 	test_ssync(0, 0, "Update rw without reboot");
 	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
 	TEST_EQ(ec_run_image, 1, "  ec run image");
@@ -308,7 +314,7 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	mock_ec_rw_hash[0]++;
 	mock_ec_ro_hash[0]++;
-	VbNvSet(&mock_vnc, VBNV_TRY_RO_SYNC, 1);
+	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
 	test_ssync(0, 0, "Update rw and ro images without reboot");
 	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
 	TEST_EQ(ec_run_image, 1, "  ec run image");
@@ -318,7 +324,7 @@ static void VbSoftwareSyncTest(void)
 
 	ResetMocks();
 	shared->flags |= VBSD_BOOT_FIRMWARE_WP_ENABLED;
-	VbNvSet(&mock_vnc, VBNV_TRY_RO_SYNC, 1);
+	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
 	mock_ec_rw_hash[0]++;
 	mock_ec_ro_hash[0]++;
 	test_ssync(0, 0, "WP enabled");
@@ -329,7 +335,7 @@ static void VbSoftwareSyncTest(void)
 	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
 
 	ResetMocks();
-	VbNvSet(&mock_vnc, VBNV_TRY_RO_SYNC, 1);
+	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
 	mock_ec_ro_hash[0]++;
 	test_ssync(0, 0, "rw update not needed");
 	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");

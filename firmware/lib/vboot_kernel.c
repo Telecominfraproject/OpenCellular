@@ -10,6 +10,8 @@
 #include "2sysincludes.h"
 
 #include "2common.h"
+#include "2misc.h"
+#include "2nvstorage.h"
 #include "2rsa.h"
 #include "2sha.h"
 #include "cgptlib.h"
@@ -40,12 +42,12 @@ enum vboot_mode {
  * @param params	Load kernel parameters
  * @return The current boot mode.
  */
-static enum vboot_mode get_kernel_boot_mode(const LoadKernelParams *params)
+static enum vboot_mode get_kernel_boot_mode(struct vb2_context *ctx)
 {
-	if (BOOT_FLAG_RECOVERY & params->boot_flags)
+	if (ctx->flags & VB2_CONTEXT_RECOVERY_MODE)
 		return kBootRecovery;
 
-	if (BOOT_FLAG_DEVELOPER & params->boot_flags)
+	if (ctx->flags & VB2_CONTEXT_DEVELOPER_MODE)
 		return kBootDev;
 
 	return kBootNormal;
@@ -57,10 +59,11 @@ static enum vboot_mode get_kernel_boot_mode(const LoadKernelParams *params)
  * @param params	Load kernel parameters
  * @return 1 if official OS required; 0 if self-signed kernels are ok
  */
-static int require_official_os(const LoadKernelParams *params)
+static int require_official_os(struct vb2_context *ctx,
+			       const LoadKernelParams *params)
 {
 	/* Normal and recovery modes always require official OS */
-	if (get_kernel_boot_mode(params) != kBootDev)
+	if (get_kernel_boot_mode(ctx) != kBootDev)
 		return 1;
 
 	/* FWMP can require developer mode to use official OS */
@@ -69,9 +72,7 @@ static int require_official_os(const LoadKernelParams *params)
 		return 1;
 
 	/* Developer can request official OS via nvstorage */
-	uint32_t signed_only = 1;
-	VbNvGet(params->nv_context, VBNV_DEV_BOOT_SIGNED_ONLY, &signed_only);
-	return signed_only;
+	return vb2_nv_get(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY);
 }
 
 /**
@@ -128,7 +129,8 @@ static uint32_t get_body_offset(uint8_t *kbuf)
  *			VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES bytes.
  * @return VB2_SUCCESS, or non-zero error code.
  */
-int vb2_verify_kernel_vblock(uint8_t *kbuf,
+int vb2_verify_kernel_vblock(struct vb2_context *ctx,
+			     uint8_t *kbuf,
 			     uint32_t kbuf_size,
 			     const struct vb2_packed_key *kernel_subkey,
 			     const LoadKernelParams *params,
@@ -153,7 +155,7 @@ int vb2_verify_kernel_vblock(uint8_t *kbuf,
 		keyblock_valid = 0;
 
 		/* Check if we must have an officially signed kernel */
-		if (require_official_os(params)) {
+		if (require_official_os(ctx, params)) {
 			VB2_DEBUG("Self-signed kernels not enabled.\n");
 			shpart->check_result = VBSD_LKP_CHECK_SELF_SIGNED;
 			return VB2_ERROR_VBLOCK_SELF_SIGNED;
@@ -170,14 +172,14 @@ int vb2_verify_kernel_vblock(uint8_t *kbuf,
 
 	/* Check the key block flags against boot flags. */
 	if (!(keyblock->keyblock_flags &
-	      ((BOOT_FLAG_DEVELOPER & params->boot_flags) ?
+	      ((ctx->flags & VB2_CONTEXT_DEVELOPER_MODE) ?
 	       KEY_BLOCK_FLAG_DEVELOPER_1 : KEY_BLOCK_FLAG_DEVELOPER_0))) {
 		VB2_DEBUG("Key block developer flag mismatch.\n");
 		shpart->check_result = VBSD_LKP_CHECK_DEV_MISMATCH;
 		keyblock_valid = 0;
 	}
 	if (!(keyblock->keyblock_flags &
-	      ((BOOT_FLAG_RECOVERY & params->boot_flags) ?
+	      ((ctx->flags & VB2_CONTEXT_RECOVERY_MODE) ?
 	       KEY_BLOCK_FLAG_RECOVERY_1 : KEY_BLOCK_FLAG_RECOVERY_0))) {
 		VB2_DEBUG("Key block recovery flag mismatch.\n");
 		shpart->check_result = VBSD_LKP_CHECK_REC_MISMATCH;
@@ -185,7 +187,7 @@ int vb2_verify_kernel_vblock(uint8_t *kbuf,
 	}
 
 	/* Check for rollback of key version except in recovery mode. */
-	enum vboot_mode boot_mode = get_kernel_boot_mode(params);
+	enum vboot_mode boot_mode = get_kernel_boot_mode(ctx);
 	uint32_t key_version = keyblock->data_key.key_version;
 	if (kBootRecovery != boot_mode) {
 		if (key_version < (min_version >> 16)) {
@@ -294,31 +296,33 @@ enum vb2_load_partition_flags {
 };
 
 #define KBUF_SIZE 65536  /* Bytes to read at start of kernel partition */
+
+/* Minimum context work buffer size needed for vb2_load_partition() */
 #define VB2_LOAD_PARTITION_WORKBUF_BYTES	\
 	(VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES + KBUF_SIZE)
 
 /**
  * Load and verify a partition from the stream.
  *
+ * @param ctx		Vboot context
  * @param stream	Stream to load kernel from
  * @param kernel_subkey	Key to use to verify vblock
  * @param flags		Flags (one or more of vb2_load_partition_flags)
  * @param params	Load-kernel parameters
  * @param min_version	Minimum kernel version from TPM
  * @param shpart	Destination for verification results
- * @param wb		Work buffer.  Must be at least
- *			VB2_LOAD_PARTITION_WORKBUF_BYTES bytes.
  * @return VB2_SUCCESS, or non-zero error code.
  */
-int vb2_load_partition(VbExStream_t stream,
+int vb2_load_partition(struct vb2_context *ctx,
+		       VbExStream_t stream,
 		       const struct vb2_packed_key *kernel_subkey,
 		       uint32_t flags,
 		       LoadKernelParams *params,
 		       uint32_t min_version,
-		       VbSharedDataKernelPart *shpart,
-		       struct vb2_workbuf *wb)
+		       VbSharedDataKernelPart *shpart)
 {
-	struct vb2_workbuf wblocal = *wb;
+	struct vb2_workbuf wblocal;
+	vb2_workbuf_from_ctx(ctx, &wblocal);
 
 	/* Allocate kernel header buffer in workbuf */
 	uint8_t *kbuf = vb2_workbuf_alloc(&wblocal, KBUF_SIZE);
@@ -333,8 +337,8 @@ int vb2_load_partition(VbExStream_t stream,
 	}
 
 	if (VB2_SUCCESS !=
-	    vb2_verify_kernel_vblock(kbuf, KBUF_SIZE, kernel_subkey, params,
-				     min_version, shpart, &wblocal)) {
+	    vb2_verify_kernel_vblock(ctx, kbuf, KBUF_SIZE, kernel_subkey,
+				     params, min_version, shpart, &wblocal)) {
 		return VB2_ERROR_LOAD_PARTITION_VERIFY_VBLOCK;
 	}
 
@@ -424,7 +428,8 @@ int vb2_load_partition(VbExStream_t stream,
 	return VB2_SUCCESS;
 }
 
-VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
+VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
+		     VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared = cparams->shared_data_blob;
 	VbSharedDataKernelCall *shcall = NULL;
@@ -449,7 +454,7 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 			(shared->lk_call_count & (VBSD_MAX_KERNEL_CALLS - 1));
 	memset(shcall, 0, sizeof(*shcall));
 	shcall->boot_flags = (uint32_t)params->boot_flags;
-	shcall->boot_mode = get_kernel_boot_mode(params);
+	shcall->boot_mode = get_kernel_boot_mode(ctx);
 	shcall->sector_size = (uint32_t)params->bytes_per_lba;
 	shcall->sector_count = params->streaming_lba_count;
 	shared->lk_call_count++;
@@ -467,14 +472,6 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		/* Use the kernel subkey passed from firmware verification */
 		kernel_subkey = (struct vb2_packed_key *)&shared->kernel_subkey;
 	}
-
-	/* Allocate work buffer */
-	uint8_t *workbuf = malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
-	if (!workbuf)
-		goto load_kernel_exit;
-
-	struct vb2_workbuf wb;
-	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 
 	/* Read GPT data */
 	GptData gpt;
@@ -546,13 +543,13 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 			lpflags |= VB2_LOAD_PARTITION_VBLOCK_ONLY;
 		}
 
-		int rv = vb2_load_partition(stream,
+		int rv = vb2_load_partition(ctx,
+					    stream,
 					    kernel_subkey,
 					    lpflags,
 					    params,
 					    shared->kernel_version_tpm,
-					    shpart,
-					    &wb);
+					    shpart);
 		VbExStreamClose(stream);
 
 		if (rv != VB2_SUCCESS) {
@@ -625,10 +622,6 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	} /* while(GptNextKernelEntry) */
 
 gpt_done:
-	/* Free buffers */
-	if (workbuf)
-		free(workbuf);
-
 	/* Write and free GPT data */
 	WriteAndFreeGptData(params->disk_handle, &gpt);
 
@@ -660,11 +653,10 @@ gpt_done:
 	}
 
 load_kernel_exit:
-
 	/* Store recovery request, if any */
-	VbNvSet(params->nv_context, VBNV_RECOVERY_REQUEST,
-		VBERROR_SUCCESS != retval ?
-		recovery : VBNV_RECOVERY_NOT_REQUESTED);
+	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
+		   VBERROR_SUCCESS != retval ?
+		   recovery : VBNV_RECOVERY_NOT_REQUESTED);
 
 	/* Store how much shared data we used, if any */
 	cparams->shared_data_size = shared->data_used;

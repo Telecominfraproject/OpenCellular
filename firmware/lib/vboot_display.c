@@ -9,6 +9,7 @@
 #include "2sysincludes.h"
 
 #include "2common.h"
+#include "2nvstorage.h"
 #include "2sha.h"
 #include "bmpblk_font.h"
 #include "gbb_access.h"
@@ -148,8 +149,9 @@ void VbRenderTextAtPos(const char *text, int right_to_left,
 	}
 }
 
-VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
-                                 VbNvContext *vncptr, uint32_t localization)
+VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
+				 VbCommonParams *cparams, uint32_t screen,
+				 uint32_t localization)
 {
 	char *fullimage = NULL;
 	BmpBlockHeader hdr;
@@ -222,8 +224,8 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
 	/* Clip localization to number of localizations present in the GBB */
 	if (localization >= hdr.number_of_localizations) {
 		localization = 0;
-		VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, localization);
-		VbNvSet(vncptr, VBNV_BACKUP_NVRAM_REQUEST, 1);
+		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, localization);
+		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
 	}
 
 	/* Display all bitmaps for the image */
@@ -319,9 +321,9 @@ VbError_t VbDisplayScreenFromGBB(VbCommonParams *cparams, uint32_t screen,
  * if bmpblk.bin is found in GBB. New devices store graphics data in cbfs
  * and screens are rendered by Depthcharge (chromium:502066).
  */
-static VbError_t VbDisplayScreenLegacy(VbCommonParams *cparams, uint32_t screen,
-				       int force, VbNvContext *vncptr,
-				       uint32_t locale)
+static VbError_t VbDisplayScreenLegacy(struct vb2_context *ctx,
+				       VbCommonParams *cparams, uint32_t screen,
+				       int force, uint32_t locale)
 {
 	VbError_t retval;
 
@@ -336,16 +338,16 @@ static VbError_t VbDisplayScreenLegacy(VbCommonParams *cparams, uint32_t screen,
 	VbExDisplayBacklight(VB_SCREEN_BLANK == screen ? 0 : 1);
 
 	/* Look in the GBB first */
-	if (VBERROR_SUCCESS == VbDisplayScreenFromGBB(cparams, screen,
-						      vncptr, locale))
+	if (VBERROR_SUCCESS == VbDisplayScreenFromGBB(ctx, cparams, screen,
+						      locale))
 		return VBERROR_SUCCESS;
 
 	/* If screen wasn't in the GBB bitmaps, fall back to a default */
 	return VbExDisplayScreen(screen, locale);
 }
 
-VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
-			  int force, VbNvContext *vncptr)
+VbError_t VbDisplayScreen(struct vb2_context *ctx,
+			  VbCommonParams *cparams, uint32_t screen, int force)
 {
 	uint32_t locale;
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
@@ -356,13 +358,12 @@ VbError_t VbDisplayScreen(VbCommonParams *cparams, uint32_t screen,
 		return VBERROR_SUCCESS;
 
 	/* Read the locale last saved */
-	VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &locale);
+	locale = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
 
 	if (gbb->bmpfv_size == 0)
 		rv = VbExDisplayScreen(screen, locale);
 	else
-		rv = VbDisplayScreenLegacy(cparams, screen, force, vncptr,
-					   locale);
+		rv = VbDisplayScreenLegacy(ctx, cparams, screen, force, locale);
 
 	if (rv == VBERROR_SUCCESS)
 		/* Keep track of the currently displayed screen */
@@ -551,7 +552,7 @@ const char *RecoveryReasonString(uint8_t code)
 
 #define DEBUG_INFO_SIZE 512
 
-VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
+VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -565,7 +566,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	uint32_t i;
 
 	/* Redisplay current screen to overwrite any previous debug output */
-	VbDisplayScreen(cparams, disp_current_screen, 1, vncptr);
+	VbDisplayScreen(ctx, cparams, disp_current_screen, 1);
 
 	/* Add hardware ID */
 	VbRegionReadHWID(cparams, hwid, sizeof(hwid));
@@ -573,7 +574,7 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	used += StrnAppend(buf + used, hwid, DEBUG_INFO_SIZE - used);
 
 	/* Add recovery reason and subcode */
-	VbNvGet(vncptr, VBNV_RECOVERY_SUBCODE, &i);
+	i = vb2_nv_get(ctx, VB2_NV_RECOVERY_SUBCODE);
 	used += StrnAppend(buf + used,
 			"\nrecovery_reason: 0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
@@ -595,34 +596,34 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 	for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
 		used += StrnAppend(buf + used, " ", DEBUG_INFO_SIZE - used);
 		used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-				       vncptr->raw[i], 16, 2);
+				       ctx->nvdata[i], 16, 2);
 	}
 
 	/* Add dev_boot_usb flag */
-	VbNvGet(vncptr, VBNV_DEV_BOOT_USB, &i);
+	i = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_USB);
 	used += StrnAppend(buf + used, "\ndev_boot_usb: ", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add dev_boot_legacy flag */
-	VbNvGet(vncptr, VBNV_DEV_BOOT_LEGACY, &i);
+	i = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_LEGACY);
 	used += StrnAppend(buf + used,
 			"\ndev_boot_legacy: ", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add dev_default_boot flag */
-	VbNvGet(vncptr, VBNV_DEV_DEFAULT_BOOT, &i);
+	i = vb2_nv_get(ctx, VB2_NV_DEV_DEFAULT_BOOT);
 	used += StrnAppend(buf + used,
 			"\ndev_default_boot: ", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add dev_boot_signed_only flag */
-	VbNvGet(vncptr, VBNV_DEV_BOOT_SIGNED_ONLY, &i);
+	i = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY);
 	used += StrnAppend(buf + used, "\ndev_boot_signed_only: ",
 			DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add dev_boot_fastboot_full_cap flag */
-	VbNvGet(vncptr, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, &i);
+	i = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP);
 	used += StrnAppend(buf + used, "\ndev_boot_fastboot_full_cap: ",
 			DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
@@ -688,8 +689,8 @@ VbError_t VbDisplayDebugInfo(VbCommonParams *cparams, VbNvContext *vncptr)
 #define MAGIC_WORD "xyzzy"
 static uint8_t MagicBuffer[MAGIC_WORD_LEN];
 
-VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
-                            VbNvContext *vncptr)
+VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
+			    uint32_t key)
 {
 	int i;
 
@@ -701,14 +702,14 @@ VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
 
 	if ('\t' == key) {
 		/* Tab = display debug info */
-		return VbDisplayDebugInfo(cparams, vncptr);
+		return VbDisplayDebugInfo(ctx, cparams);
 	} else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key ||
 		   VB_KEY_DOWN == key || VB_KEY_UP == key) {
 		/* Arrow keys = change localization */
 		uint32_t loc = 0;
 		uint32_t count = 0;
 
-		VbNvGet(vncptr, VBNV_LOCALIZATION_INDEX, &loc);
+		loc = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
 		if (VBERROR_SUCCESS != VbGetLocalizationCount(cparams, &count))
 			loc = 0;  /* No localization count (bad GBB?) */
 		else if (VB_KEY_RIGHT == key || VB_KEY_UP == key)
@@ -717,23 +718,30 @@ VbError_t VbCheckDisplayKey(VbCommonParams *cparams, uint32_t key,
 			loc = (loc > 0 ? loc - 1 : count - 1);
 		VBDEBUG(("VbCheckDisplayKey() - change localization to %d\n",
 			 (int)loc));
-		VbNvSet(vncptr, VBNV_LOCALIZATION_INDEX, loc);
-		VbNvSet(vncptr, VBNV_BACKUP_NVRAM_REQUEST, 1);
+		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, loc);
+		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
 
 #ifdef SAVE_LOCALE_IMMEDIATELY
-		VbNvTeardown(vncptr);  /* really only computes checksum */
-		if (vncptr->raw_changed)
-			VbExNvStorageWrite(vncptr->raw);
+		/*
+		 * This is a workaround for coreboot on x86, which will power
+		 * off asynchronously without giving us a chance to react.
+		 * This is not an example of the Right Way to do things.  See
+		 * chrome-os-partner:7689.
+		 */
+		if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
+			VbExNvStorageWrite(ctx.nvdata);
+			ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
+		}
 #endif
 
 		/* Force redraw of current screen */
-		return VbDisplayScreen(cparams, disp_current_screen, 1, vncptr);
+		return VbDisplayScreen(ctx, cparams, disp_current_screen, 1);
 	}
 
 	if (0 == memcmp(MagicBuffer, MAGIC_WORD, MAGIC_WORD_LEN)) {
 		if (VBEASTEREGG)
-			(void)VbDisplayScreen(cparams, disp_current_screen,
-					      1, vncptr);
+			(void)VbDisplayScreen(ctx, cparams, disp_current_screen,
+					      1);
 	}
 
   return VBERROR_SUCCESS;

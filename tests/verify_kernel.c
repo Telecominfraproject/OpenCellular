@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2misc.h"
 #include "host_common.h"
 #include "util_misc.h"
 #include "vboot_common.h"
@@ -118,8 +121,30 @@ int main(int argc, char *argv[])
 	VbNvSetup(&nvc);
 	params.nv_context = &nvc;
 
+	/*
+	 * Set up vboot context.
+	 *
+	 * TODO: Propagate this up to higher API levels
+	 */
+	struct vb2_context ctx;
+	memset(&ctx, 0, sizeof(ctx));
+	/* No need to initialize ctx->nvdata[]; defaults are fine */
+	/* TODO(chromium:441893): support dev-mode flag and external gpt flag */
+	ctx.workbuf = malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
+	if (!ctx.workbuf) {
+		fprintf(stderr, "Can't allocate workbuf\n");
+		return 1;
+	}
+	ctx.workbuf_size = VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE;
+
+	if (VB2_SUCCESS != vb2_init_context(&ctx)) {
+		free(ctx.workbuf);
+		fprintf(stderr, "Can't init context\n");
+		return 1;
+	}
+
 	/* Try loading kernel */
-	rv = LoadKernel(&params, &cparams);
+	rv = LoadKernel(&ctx, &params, &cparams);
 	if (rv != VBERROR_SUCCESS) {
 		fprintf(stderr, "LoadKernel() failed with code %d\n", rv);
 		return 1;

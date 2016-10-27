@@ -7,6 +7,7 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "2nvstorage.h"
 #include "sysincludes.h"
 #include "utility.h"
 #include "vb2_common.h"
@@ -14,20 +15,19 @@
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 
-static void request_recovery(VbNvContext *vnc, uint32_t recovery_request)
+static void request_recovery(struct vb2_context *ctx, uint32_t recovery_request)
 {
-	VB2_DEBUG("request_recovery(%d)\n", (int)recovery_request);
+	VB2_DEBUG("request_recovery(%u)\n", recovery_request);
 
-	VbNvSet(vnc, VBNV_RECOVERY_REQUEST, recovery_request);
+	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, recovery_request);
 }
 
 /**
  * Wrapper around VbExEcProtect() which sets recovery reason on error.
  */
-static VbError_t EcProtect(int devidx, enum VbSelectFirmware_t select,
-			   VbNvContext *vnc)
+static VbError_t EcProtect(struct vb2_context *ctx, int devidx,
+			   enum VbSelectFirmware_t select)
 {
 	int rv = VbExEcProtect(devidx, select);
 
@@ -35,14 +35,15 @@ static VbError_t EcProtect(int devidx, enum VbSelectFirmware_t select,
 		VBDEBUG(("VbExEcProtect() needs reboot\n"));
 	} else if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbExEcProtect() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_PROTECT);
+		request_recovery(ctx, VB2_RECOVERY_EC_PROTECT);
 	}
 	return rv;
 }
 
-static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
+static VbError_t EcUpdateImage(struct vb2_context *ctx, int devidx,
+			       VbCommonParams *cparams,
 			       enum VbSelectFirmware_t select,
-			       int *need_update, int in_rw, VbNvContext *vnc)
+			       int *need_update, int in_rw)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -65,7 +66,7 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcHashImage() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_HASH_FAILED);
+		request_recovery(ctx, VB2_RECOVERY_EC_HASH_FAILED);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 	VBDEBUG(("EC-%s hash: ", rw_request ? "RW" : "RO"));
@@ -78,14 +79,14 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcGetExpectedImageHash() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_EXPECTED_HASH);
+		request_recovery(ctx, VB2_RECOVERY_EC_EXPECTED_HASH);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 	if (ec_hash_size != hash_size) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "EC uses %d-byte hash, but AP-RW contains %d bytes\n",
 			 ec_hash_size, hash_size));
-		request_recovery(vnc, VBNV_RECOVERY_EC_HASH_SIZE);
+		request_recovery(ctx, VB2_RECOVERY_EC_HASH_SIZE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
@@ -103,7 +104,7 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcGetExpectedImage() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_EXPECTED_IMAGE);
+		request_recovery(ctx, VB2_RECOVERY_EC_EXPECTED_IMAGE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 	VBDEBUG(("EcUpdateImage() - image len = %d\n", expected_size));
@@ -118,7 +119,7 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		    !(shared->flags & VBSD_OPROM_LOADED)) {
 			VBDEBUG(("EcUpdateImage() - Reboot to "
 				 "load VGA Option ROM\n"));
-			VbNvSet(vnc, VBNV_OPROM_NEEDED, 1);
+			vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 1);
 		}
 
 		/*
@@ -141,11 +142,11 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		    !(shared->flags & VBSD_OPROM_LOADED)) {
 			VBDEBUG(("EcUpdateImage() - Reboot to "
 				 "load VGA Option ROM\n"));
-			VbNvSet(vnc, VBNV_OPROM_NEEDED, 1);
+			vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 1);
 			return VBERROR_VGA_OPROM_MISMATCH;
 		}
 
-		VbDisplayScreen(cparams, VB_SCREEN_WAIT, 0, vnc);
+		VbDisplayScreen(ctx, cparams, VB_SCREEN_WAIT, 0);
 	}
 
 	rv = VbExEcUpdateImage(devidx, select, expected, expected_size);
@@ -163,7 +164,7 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		 * mode.
 		 */
 		if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
-			request_recovery(vnc, VBNV_RECOVERY_EC_UPDATE);
+			request_recovery(ctx, VB2_RECOVERY_EC_UPDATE);
 
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
@@ -173,14 +174,14 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 	if (rv) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcHashImage() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_HASH_FAILED);
+		request_recovery(ctx, VB2_RECOVERY_EC_HASH_FAILED);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 	if (hash_size != ec_hash_size) {
 		VBDEBUG(("EcUpdateImage() - "
 			 "VbExEcHashImage() says size %d, not %d\n",
 			 ec_hash_size, hash_size));
-		request_recovery(vnc, VBNV_RECOVERY_EC_HASH_SIZE);
+		request_recovery(ctx, VB2_RECOVERY_EC_HASH_SIZE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 	VBDEBUG(("Updated EC-%s hash: ", rw_request ? "RW" : "RO"));
@@ -192,15 +193,15 @@ static VbError_t EcUpdateImage(int devidx, VbCommonParams *cparams,
 		VBDEBUG(("EcUpdateImage() - "
 			 "Failed to update EC-%s\n", rw_request ?
 			 "RW" : "RO"));
-		request_recovery(vnc, VBNV_RECOVERY_EC_UPDATE);
+		request_recovery(ctx, VB2_RECOVERY_EC_UPDATE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
-			   VbNvContext *vnc)
+VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
+			   VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -211,7 +212,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 	int in_rw = 0;
 	int ro_try_count = 2;
 	int num_tries = 0;
-	uint32_t try_ro_sync, recovery_request;
+	uint32_t recovery_request;
 	int rv, updated_rw, updated_ro;
 
 	VBDEBUG(("VbEcSoftwareSync(devidx=%d)\n", devidx));
@@ -234,7 +235,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 			 */
 			VBDEBUG(("VbEcSoftwareSync() - "
 				 "want recovery but got EC-RW\n"));
-			request_recovery(vnc, shared->recovery_reason);
+			request_recovery(ctx, shared->recovery_reason);
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
 
@@ -249,7 +250,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
 			 "VbExEcRunningRW() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_UNKNOWN_IMAGE);
+		request_recovery(ctx, VB2_RECOVERY_EC_UNKNOWN_IMAGE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
@@ -263,7 +264,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 		}
 
 		/* Protect the RW flash and stay in EC-RO */
-		rv = EcProtect(devidx, select_rw, vnc);
+		rv = EcProtect(ctx, devidx, select_rw);
 		if (rv != VBERROR_SUCCESS)
 			return rv;
 
@@ -271,7 +272,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 		if (rv != VBERROR_SUCCESS) {
 			VBDEBUG(("VbEcSoftwareSync() - "
 				 "VbExEcDisableJump() returned %d\n", rv));
-			request_recovery(vnc, VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+			request_recovery(ctx, VB2_RECOVERY_EC_SOFTWARE_SYNC);
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
 
@@ -282,7 +283,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 	VBDEBUG(("VbEcSoftwareSync() check for RW update.\n"));
 
 	/* Update the RW Image. */
-	rv = EcUpdateImage(devidx, cparams, select_rw, &updated_rw, in_rw, vnc);
+	rv = EcUpdateImage(ctx, devidx, cparams, select_rw, &updated_rw, in_rw);
 
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
@@ -306,35 +307,34 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 			 * All other errors trigger recovery mode.
 			 */
 			if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
-				request_recovery(vnc, VBNV_RECOVERY_EC_JUMP_RW);
+				request_recovery(ctx, VB2_RECOVERY_EC_JUMP_RW);
 
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
 	}
 
-	VbNvGet(vnc, VBNV_TRY_RO_SYNC, &try_ro_sync);
-
+	uint32_t try_ro_sync = vb2_nv_get(ctx, VB2_NV_TRY_RO_SYNC);
 	if (!devidx && try_ro_sync &&
 	    !(shared->flags & VBSD_BOOT_FIRMWARE_WP_ENABLED)) {
 		/* Reset RO Software Sync NV flag */
-		VbNvSet(vnc, VBNV_TRY_RO_SYNC, 0);
+		vb2_nv_set(ctx, VB2_NV_TRY_RO_SYNC, 0);
 
-		VbNvGet(vnc, VBNV_RECOVERY_REQUEST, &recovery_request);
+		recovery_request = vb2_nv_get(ctx, VB2_NV_RECOVERY_REQUEST);
 
 		/* Update the RO Image. */
 		while (num_tries < ro_try_count) {
 			VBDEBUG(("VbEcSoftwareSync() RO Software Sync\n"));
 
 			/* Get expected EC-RO Image. */
-			rv = EcUpdateImage(devidx, cparams, select_ro,
-					   &updated_ro, in_rw, vnc);
+			rv = EcUpdateImage(ctx, devidx, cparams, select_ro,
+					   &updated_ro, in_rw);
 			if (rv == VBERROR_SUCCESS) {
 				/*
 				 * If the RO update had failed, reset the
 				 * recovery request.
 				 */
 				if (num_tries)
-					request_recovery(vnc, recovery_request);
+					request_recovery(ctx, recovery_request);
 				break;
 			} else
 				VBDEBUG(("VbEcSoftwareSync() - "
@@ -347,12 +347,12 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 		return rv;
 
 	/* Protect RO flash */
-	rv = EcProtect(devidx, select_ro, vnc);
+	rv = EcProtect(ctx, devidx, select_ro);
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
 	/* Protect RW flash */
-	rv = EcProtect(devidx, select_rw, vnc);
+	rv = EcProtect(ctx, devidx, select_rw);
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
@@ -360,7 +360,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 	if (rv != VBERROR_SUCCESS) {
 		VBDEBUG(("VbEcSoftwareSync() - "
 			"VbExEcDisableJump() returned %d\n", rv));
-		request_recovery(vnc, VBNV_RECOVERY_EC_SOFTWARE_SYNC);
+		request_recovery(ctx, VB2_RECOVERY_EC_SOFTWARE_SYNC);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
@@ -378,7 +378,7 @@ VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
 	    (shared->flags & VBSD_OPROM_LOADED)) {
 		VBDEBUG(("VbEcSoftwareSync() - Reboot to "
 			 "unload VGA Option ROM\n"));
-		VbNvSet(vnc, VBNV_OPROM_NEEDED, 0);
+		vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 0);
 		return VBERROR_VGA_OPROM_MISMATCH;
 	}
 

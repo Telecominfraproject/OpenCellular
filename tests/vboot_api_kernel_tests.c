@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2nvstorage.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
 #include "rollback_index.h"
@@ -187,6 +190,8 @@ static const char *got_find_disk;
 static const char *got_load_disk;
 static uint32_t got_return_val;
 static uint32_t got_external_mismatch;
+static VbNvContext vnc;
+static struct vb2_context ctx;
 
 /**
  * Reset mock data (for use before each test)
@@ -196,6 +201,7 @@ static void ResetMocks(int i)
 	memset(&lkparams, 0, sizeof(lkparams));
 	memset(&mock_disks, 0, sizeof(mock_disks));
 	load_kernel_calls = 0;
+	memset(&vnc, 0, sizeof(vnc));
 
 	got_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED;
 	got_find_disk = 0;
@@ -275,7 +281,8 @@ VbError_t VbExDiskFreeInfo(VbDiskInfo *infos,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
+VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
+		     VbCommonParams *cparams)
 {
 	got_find_disk = (const char *)params->disk_handle;
 	VBDEBUG(("%s(%d): got_find_disk = %s\n", __FUNCTION__,
@@ -287,12 +294,13 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 	return t->loadkernel_return_val[load_kernel_calls++];
 }
 
-int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
+void vb2_nv_set(struct vb2_context *ctx,
+		enum vb2_nv_param param,
+		uint32_t value)
 {
 	VBDEBUG(("%s(): got_recovery_request_val = %d (0x%x)\n", __FUNCTION__,
 		 value, value));
 	got_recovery_request_val = value;
-	return 0;
 }
 
 /****************************************************************************/
@@ -305,7 +313,7 @@ static void VbTryLoadKernelTest(void)
 	for (i = 0; i < num_tests; i++) {
 		printf("Test case: %s ...\n", test[i].name);
 		ResetMocks(i);
-		TEST_EQ(VbTryLoadKernel(0, &lkparams, test[i].want_flags),
+		TEST_EQ(VbTryLoadKernel(&ctx, 0, &lkparams, test[i].want_flags),
 			t->expected_return_val, "  return value");
 		TEST_EQ(got_recovery_request_val,
 			t->expected_recovery_request_val, "  recovery_request");

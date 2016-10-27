@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
 #include "crc32.h"
 #include "gbb_header.h"
 #include "host_common.h"
@@ -18,6 +20,7 @@
 #include "test_common.h"
 #include "vboot_common.h"
 #include "vboot_display.h"
+#include "vboot_kernel.h"
 #include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
@@ -132,6 +135,7 @@ test_case_t test[] = {
 /* Mock data */
 static VbCommonParams cparams;
 static LoadKernelParams lkparams;
+static struct vb2_context ctx;
 static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
@@ -156,6 +160,7 @@ static void ResetMocks(void) {
   cparams.gbb = &gbb;
 
   memset(&lkparams, 0, sizeof(lkparams));
+  memset(&ctx, 0, sizeof(ctx));
 
   memset(&vnc, 0, sizeof(vnc));
   VbNvSetup(&vnc);
@@ -299,9 +304,6 @@ VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale) {
 
 /****************************************************************************/
 
-VbError_t VbBootDeveloper(VbCommonParams* cparams, LoadKernelParams* p);
-
-
 static void VbBootDeveloperSoundTest(void) {
   int i;
   int num_tests =  sizeof(test) / sizeof(test_case_t);
@@ -315,7 +317,7 @@ static void VbBootDeveloperSoundTest(void) {
     kbd_fire_at = test[i].keypress_at_count;
     max_events = test[i].num_events;
     expected_event = test[i].notes;
-    (void) VbBootDeveloper(&cparams, &lkparams);
+    (void) VbBootDeveloper(&ctx, &cparams, &lkparams);
     VBDEBUG(("INFO: matched %d total %d expected %d\n",
              matched_events, current_event, test[i].num_events));
     TEST_TRUE(matched_events == test[i].num_events &&

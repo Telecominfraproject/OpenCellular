@@ -12,6 +12,8 @@
 #include "vboot_api.h"
 #include "vboot_nvstorage.h"
 
+struct vb2_context;
+
 /* Interface provided by verified boot library to BDS */
 
 /* Boot flags for LoadKernel().boot_flags */
@@ -71,9 +73,14 @@ typedef struct LoadKernelParams {
 /**
  * Attempt to load the kernel from the current device.
  *
+ * @param ctx		Vboot context
+ * @param params	Params specific to loading the kernel
+ * @param cparams	Common parameters to vboot1 APIs
+ *
  * Returns VBERROR_SUCCESS if successful.  If unsuccessful, sets a recovery
  * reason via VbNvStorage and returns an error code.
  */
-VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams);
+VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
+		     VbCommonParams *cparams);
 
 #endif  /* VBOOT_REFERENCE_LOAD_KERNEL_FW_H_ */
