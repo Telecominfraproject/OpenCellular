@@ -81,7 +81,8 @@ VbError_t VbExNvStorageWrite(const uint8_t *buf)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams)
+VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
+			   VbNvContext *vnc)
 {
 	return ecsync_retval;
 }

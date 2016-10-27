@@ -331,6 +331,7 @@ VBSLK_SRCS = \
 	firmware/lib/cgptlib/cgptlib.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
+	firmware/lib/ec_sync.c \
 	firmware/lib/gpt_misc.c \
 	firmware/lib/utility_string.c \
 	firmware/lib/vboot_api_kernel.c \
@@ -711,6 +712,7 @@ TEST_OBJS += ${TESTLIB_OBJS}
 # And some compiled tests.
 TEST_NAMES = \
 	tests/cgptlib_test \
+	tests/ec_sync_tests \
 	tests/rollback_index3_tests \
 	tests/sha_benchmark \
 	tests/utility_string_tests \
@@ -718,7 +720,6 @@ TEST_NAMES = \
 	tests/vboot_api_devmode_tests \
 	tests/vboot_api_kernel_tests \
 	tests/vboot_api_kernel2_tests \
-	tests/vboot_api_kernel3_tests \
 	tests/vboot_api_kernel4_tests \
 	tests/vboot_api_kernel5_tests \
 	tests/vboot_api_kernel6_tests \
@@ -1401,6 +1402,7 @@ runtestscripts: test_setup genfuzztestcases
 
 .PHONY: runmisctests
 runmisctests: test_setup
+	${RUNTEST} ${BUILD_RUN}/tests/ec_sync_tests
 ifeq (${TPM2_MODE},)
 	${RUNTEST} ${BUILD_RUN}/tests/tlcl_tests
 	${RUNTEST} ${BUILD_RUN}/tests/rollback_index2_tests
@@ -1411,7 +1413,6 @@ endif
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_devmode_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel2_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel3_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel4_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel5_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel6_tests

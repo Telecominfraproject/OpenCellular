@@ -67,7 +67,12 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p);
 
 /**
  * Sync EC device <devidx> firmware to expected version.
+ *
+ * @param devidx	EC device index to sync
+ * @param cparams	Common vboot params
+ * @param vnc		NV storage context
  */
-VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams);
+VbError_t VbEcSoftwareSync(int devidx, VbCommonParams *cparams,
+			   VbNvContext *vnc);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */
