@@ -1,14 +1,12 @@
 /* Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
- *
- * Utility for to generate a padded hash suitable for generating
- * PKCS#1.5 signatures.
  */
 
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "2sysincludes.h"
 
@@ -19,6 +17,14 @@
 #include "padding.h"
 #include "signature_digest.h"
 
+static void usage(char* argv[]) {
+  fprintf(stderr,
+          "Usage: %s <alg_id> <digest_file>\n"
+          "\n"
+          "Generate a padded hash suitable for generating PKCS#1.5 "
+          "signatures.\n",
+          basename(argv[0]));
+}
 
 int main(int argc, char* argv[]) {
   int algorithm = -1;
@@ -29,7 +35,7 @@ int main(int argc, char* argv[]) {
   uint32_t padded_digest_len;
 
   if (argc != 3) {
-    fprintf(stderr, "Usage: %s <alg_id> <digest_file>", argv[0]);
+    usage(argv);
     return -1;
   }
   algorithm = atoi(argv[1]);
