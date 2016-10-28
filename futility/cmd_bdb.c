@@ -519,6 +519,8 @@ static void print_help(int argc, char *argv[])
 {
 	printf("\nUsage: " MYNAME " %s <--create|--add|--resign|--verify>\n"
 	       "\n"
+	       "Utility for managing boot descriptor blocks (BDBs).\n"
+	       "\n"
 	       "For '--add <bdb_file> [OPTIONS]', required OPTIONS are:\n"
 	       "  --data <file>               Data to be added\n"
 	       "  --offset <offset>           Offset\n"
