@@ -12,6 +12,7 @@
 #include "2misc.h"
 #include "2nvstorage.h"
 #include "2rsa.h"
+#include "ec_sync.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
@@ -798,6 +799,9 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		return VBERROR_INIT_SHARED_DATA;
 	}
 
+	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+	sd->recovery_reason = shared->recovery_reason;
+
 	/* Clear output params in case we fail */
 	kparams->disk_handle = NULL;
 	kparams->partition_number = 0;
@@ -813,34 +817,9 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		goto VbSelectAndLoadKernel_exit;
 
 	/* Do EC software sync if necessary */
-	if ((shared->flags & VBSD_EC_SOFTWARE_SYNC) &&
-	    !(cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)) {
-		int oprom_mismatch = 0;
-
-		retval = VbEcSoftwareSync(&ctx, 0, cparams);
-		/* Save reboot requested until after possible PD sync */
-		if (retval == VBERROR_VGA_OPROM_MISMATCH)
-			oprom_mismatch = 1;
-		else if (retval != VBERROR_SUCCESS)
-			goto VbSelectAndLoadKernel_exit;
-
-#ifdef PD_SYNC
-		if (!(cparams->gbb->flags &
-		      GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
-			retval = VbEcSoftwareSync(&ctx, 1, cparams);
-			if (retval == VBERROR_VGA_OPROM_MISMATCH)
-				oprom_mismatch = 1;
-			else if (retval != VBERROR_SUCCESS)
-				goto VbSelectAndLoadKernel_exit;
-		}
-#endif
-
-		/* Request reboot to unload VGA Option ROM */
-		if (oprom_mismatch) {
-			retval = VBERROR_VGA_OPROM_MISMATCH;
-			goto VbSelectAndLoadKernel_exit;
-		}
-	}
+	retval = ec_sync_all(&ctx, cparams);
+	if (retval != VBERROR_SUCCESS)
+		goto VbSelectAndLoadKernel_exit;
 
 	/* EC verification (and possibily updating / jumping) is done */
 	retval = VbExEcVbootDone(!!shared->recovery_reason);

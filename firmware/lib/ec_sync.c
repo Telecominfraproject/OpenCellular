@@ -7,14 +7,28 @@
 
 #include "2sysincludes.h"
 #include "2common.h"
+#include "2misc.h"
 #include "2nvstorage.h"
+
 #include "sysincludes.h"
-#include "utility.h"
-#include "vb2_common.h"
-#include "vboot_api.h"
+#include "ec_sync.h"
+#include "gbb_header.h"
 #include "vboot_common.h"
-#include "vboot_display.h"
 #include "vboot_kernel.h"
+
+#define VB2_SD_FLAG_ECSYNC_RW					\
+	(VB2_SD_FLAG_ECSYNC_EC_RW | VB2_SD_FLAG_ECSYNC_PD_RW)
+#define VB2_SD_FLAG_ECSYNC_ANY					\
+	(VB2_SD_FLAG_ECSYNC_EC_RO | VB2_SD_FLAG_ECSYNC_RW)
+#define VB2_SD_FLAG_ECSYNC_IN_RW					\
+	(VB2_SD_FLAG_ECSYNC_EC_IN_RW | VB2_SD_FLAG_ECSYNC_PD_IN_RW)
+
+#define IN_RW(devidx)							\
+	((devidx) ? VB2_SD_FLAG_ECSYNC_PD_IN_RW : VB2_SD_FLAG_ECSYNC_EC_IN_RW)
+
+#define WHICH_EC(devidx, select) \
+	((select) == VB_SELECT_FIRMWARE_READONLY ? VB2_SD_FLAG_ECSYNC_EC_RO : \
+	 ((devidx) ? VB2_SD_FLAG_ECSYNC_PD_RW : VB2_SD_FLAG_ECSYNC_EC_RW))
 
 static void request_recovery(struct vb2_context *ctx, uint32_t recovery_request)
 {
@@ -26,133 +40,120 @@ static void request_recovery(struct vb2_context *ctx, uint32_t recovery_request)
 /**
  * Wrapper around VbExEcProtect() which sets recovery reason on error.
  */
-static VbError_t EcProtect(struct vb2_context *ctx, int devidx,
+static VbError_t protect_ec(struct vb2_context *ctx, int devidx,
 			   enum VbSelectFirmware_t select)
 {
 	int rv = VbExEcProtect(devidx, select);
 
 	if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
-		VBDEBUG(("VbExEcProtect() needs reboot\n"));
+		VB2_DEBUG("VbExEcProtect() needs reboot\n");
 	} else if (rv != VBERROR_SUCCESS) {
-		VBDEBUG(("VbExEcProtect() returned %d\n", rv));
+		VB2_DEBUG("VbExEcProtect() returned %d\n", rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_PROTECT);
 	}
 	return rv;
 }
 
-static VbError_t EcUpdateImage(struct vb2_context *ctx, int devidx,
-			       VbCommonParams *cparams,
-			       enum VbSelectFirmware_t select,
-			       int *need_update, int in_rw)
+/**
+ * Print a hash to debug output
+ *
+ * @param hash		Pointer to the hash
+ * @param hash_size	Size of the hash in bytes
+ * @param desc		Description of what's being hashed
+ */
+static void print_hash(const uint8_t *hash, uint32_t hash_size,
+		       const char *desc)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
-	int rv;
-	int hash_size;
-	int ec_hash_size;
-	const uint8_t *hash = NULL;
-	const uint8_t *expected = NULL;
-	const uint8_t *ec_hash = NULL;
-	int expected_size;
 	int i;
-	int rw_request = select != VB_SELECT_FIRMWARE_READONLY;
 
-	*need_update = 0;
-	VBDEBUG(("EcUpdateImage() - "
-		 "Check for %s update\n", rw_request ? "RW" : "RO"));
+	VB2_DEBUG("%s hash: ", desc);
+	for (i = 0; i < hash_size; i++)
+		VB2_DEBUG("%02x", hash[i]);
+	VB2_DEBUG("\n");
+}
+
+/**
+ * Check if the hash of the EC code matches the expected hash.
+ *
+ * @param ctx		Vboot2 context
+ * @param devidx	Index of EC device to check
+ * @param select	Which firmware image to check
+ * @return VB2_SUCCESS, or non-zero error code.
+ */
+static int check_ec_hash(struct vb2_context *ctx, int devidx,
+			 enum VbSelectFirmware_t select)
+{
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	/* Get current EC hash. */
-	rv = VbExEcHashImage(devidx, select, &ec_hash, &ec_hash_size);
+	const uint8_t *ec_hash = NULL;
+	int ec_hash_size;
+	int rv = VbExEcHashImage(devidx, select, &ec_hash, &ec_hash_size);
 	if (rv) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcHashImage() returned %d\n", rv));
+		VB2_DEBUG("%s: VbExEcHashImage() returned %d\n", __func__, rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_HASH_FAILED);
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		return VB2_ERROR_EC_HASH_IMAGE;
 	}
-	VBDEBUG(("EC-%s hash: ", rw_request ? "RW" : "RO"));
-	for (i = 0; i < ec_hash_size; i++)
-		VBDEBUG(("%02x",ec_hash[i]));
-	VBDEBUG(("\n"));
+	print_hash(ec_hash, ec_hash_size,
+		   select == VB_SELECT_FIRMWARE_READONLY ? "RO" : "RW");
 
 	/* Get expected EC hash. */
+	const uint8_t *hash = NULL;
+	int hash_size;
 	rv = VbExEcGetExpectedImageHash(devidx, select, &hash, &hash_size);
 	if (rv) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcGetExpectedImageHash() returned %d\n", rv));
+		VB2_DEBUG("%s: VbExEcGetExpectedImageHash() returned %d\n",
+			  __func__, rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_EXPECTED_HASH);
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		return VB2_ERROR_EC_HASH_EXPECTED;
 	}
 	if (ec_hash_size != hash_size) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "EC uses %d-byte hash, but AP-RW contains %d bytes\n",
-			 ec_hash_size, hash_size));
+		VB2_DEBUG("%s: EC uses %d-byte hash, but AP-RW contains %d "
+			  "bytes\n", __func__, ec_hash_size, hash_size);
 		request_recovery(ctx, VB2_RECOVERY_EC_HASH_SIZE);
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		return VB2_ERROR_EC_HASH_SIZE;
 	}
 
-	VBDEBUG(("Expected hash: "));
-	for (i = 0; i < hash_size; i++)
-		VBDEBUG(("%02x", hash[i]));
-	VBDEBUG(("\n"));
-	*need_update = vb2_safe_memcmp(ec_hash, hash, hash_size);
+	if (vb2_safe_memcmp(ec_hash, hash, hash_size)) {
+		print_hash(hash, hash_size, "Expected");
+		sd->flags |= WHICH_EC(devidx, select);
+	}
 
-	if (!*need_update)
-		return VBERROR_SUCCESS;
+	return VB2_SUCCESS;
+}
+
+/**
+ * Update the specified EC and verify the update succeeded
+ *
+ * @param ctx		Vboot2 context
+ * @param devidx	Index of EC device to check
+ * @param select	Which firmware image to check
+ * @return VBERROR_SUCCESS, or non-zero error code.
+ */
+static VbError_t update_ec(struct vb2_context *ctx, int devidx,
+			   enum VbSelectFirmware_t select)
+{
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	VB2_DEBUG("%s: updating %s...\n", __func__,
+		  select == VB_SELECT_FIRMWARE_READONLY ? "RO" : "RW");
 
 	/* Get expected EC image */
-	rv = VbExEcGetExpectedImage(devidx, select, &expected, &expected_size);
+	const uint8_t *want = NULL;
+	int want_size;
+	int rv = VbExEcGetExpectedImage(devidx, select, &want, &want_size);
 	if (rv) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcGetExpectedImage() returned %d\n", rv));
+		VB2_DEBUG("%s: VbExEcGetExpectedImage() returned %d\n",
+			  __func__, rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_EXPECTED_IMAGE);
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		return rv;
 	}
-	VBDEBUG(("EcUpdateImage() - image len = %d\n", expected_size));
+	VB2_DEBUG("%s: image len = %d\n", __func__, want_size);
 
-	if (in_rw && rw_request) {
-		/*
-		 * Check if BIOS should also load VGA Option ROM when
-		 * rebooting to save another reboot if possible.
-		 */
-		if ((shared->flags & VBSD_EC_SLOW_UPDATE) &&
-		    (shared->flags & VBSD_OPROM_MATTERS) &&
-		    !(shared->flags & VBSD_OPROM_LOADED)) {
-			VBDEBUG(("EcUpdateImage() - Reboot to "
-				 "load VGA Option ROM\n"));
-			vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 1);
-		}
-
-		/*
-		 * EC is running the wrong RW image.  Reboot the EC to
-		 * RO so we can update it on the next boot.
-		 */
-		VBDEBUG(("EcUpdateImage() - "
-			 "in RW, need to update RW, so reboot\n"));
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-	}
-
-	VBDEBUG(("EcUpdateImage() updating EC-%s...\n",
-		 rw_request ? "RW" : "RO"));
-
-	if (shared->flags & VBSD_EC_SLOW_UPDATE) {
-		VBDEBUG(("EcUpdateImage() - EC is slow. Show WAIT screen.\n"));
-
-		/* Ensure the VGA Option ROM is loaded */
-		if ((shared->flags & VBSD_OPROM_MATTERS) &&
-		    !(shared->flags & VBSD_OPROM_LOADED)) {
-			VBDEBUG(("EcUpdateImage() - Reboot to "
-				 "load VGA Option ROM\n"));
-			vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 1);
-			return VBERROR_VGA_OPROM_MISMATCH;
-		}
-
-		VbDisplayScreen(ctx, cparams, VB_SCREEN_WAIT, 0);
-	}
-
-	rv = VbExEcUpdateImage(devidx, select, expected, expected_size);
+	rv = VbExEcUpdateImage(devidx, select, want, want_size);
 	if (rv != VBERROR_SUCCESS) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcUpdateImage() returned %d\n", rv));
+		VB2_DEBUG("%s: VbExEcUpdateImage() returned %d\n",
+			  __func__, rv);
 
 		/*
 		 * The EC may know it needs a reboot.  It may need to
@@ -166,33 +167,15 @@ static VbError_t EcUpdateImage(struct vb2_context *ctx, int devidx,
 		if (rv != VBERROR_EC_REBOOT_TO_RO_REQUIRED)
 			request_recovery(ctx, VB2_RECOVERY_EC_UPDATE);
 
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		return rv;
 	}
 
 	/* Verify the EC was updated properly */
-	rv = VbExEcHashImage(devidx, select, &ec_hash, &ec_hash_size);
-	if (rv) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcHashImage() returned %d\n", rv));
-		request_recovery(ctx, VB2_RECOVERY_EC_HASH_FAILED);
+	sd->flags &= ~WHICH_EC(devidx, select);
+	if (check_ec_hash(ctx, devidx, select) != VB2_SUCCESS)
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-	}
-	if (hash_size != ec_hash_size) {
-		VBDEBUG(("EcUpdateImage() - "
-			 "VbExEcHashImage() says size %d, not %d\n",
-			 ec_hash_size, hash_size));
-		request_recovery(ctx, VB2_RECOVERY_EC_HASH_SIZE);
-		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-	}
-	VBDEBUG(("Updated EC-%s hash: ", rw_request ? "RW" : "RO"));
-	for (i = 0; i < ec_hash_size; i++)
-		VBDEBUG(("%02x",ec_hash[i]));
-	VBDEBUG(("\n"));
-
-	if (vb2_safe_memcmp(ec_hash, hash, hash_size)){
-		VBDEBUG(("EcUpdateImage() - "
-			 "Failed to update EC-%s\n", rw_request ?
-			 "RW" : "RO"));
+	if (sd->flags & WHICH_EC(devidx, select)) {
+		VB2_DEBUG("%s: Failed to update\n", __func__);
 		request_recovery(ctx, VB2_RECOVERY_EC_UPDATE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
@@ -200,28 +183,29 @@ static VbError_t EcUpdateImage(struct vb2_context *ctx, int devidx,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
-			   VbCommonParams *cparams)
+/**
+ * Check if the EC has the correct image active.
+ *
+ * @param ctx		Vboot2 context
+ * @param devidx	Which device (EC=0, PD=1)
+ * @return VBERROR_SUCCESS, or non-zero if error.
+ */
+static VbError_t check_ec_active(struct vb2_context *ctx, int devidx)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
-	enum VbSelectFirmware_t select_rw =
-		shared->firmware_index ? VB_SELECT_FIRMWARE_B :
-		VB_SELECT_FIRMWARE_A;
-	enum VbSelectFirmware_t select_ro = VB_SELECT_FIRMWARE_READONLY;
-	int in_rw = 0;
-	int ro_try_count = 2;
-	int num_tries = 0;
-	uint32_t recovery_request;
-	int rv, updated_rw, updated_ro;
-
-	VBDEBUG(("VbEcSoftwareSync(devidx=%d)\n", devidx));
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	/* Determine whether the EC is in RO or RW */
-	rv = VbExEcRunningRW(devidx, &in_rw);
+	int in_rw = 0;
+	int rv = VbExEcRunningRW(devidx, &in_rw);
+	if (in_rw) {
+		sd->flags |= IN_RW(devidx);
+	}
 
-	if (shared->recovery_reason) {
-		/* Recovery mode; just verify the EC is in RO code */
+	if (sd->recovery_reason) {
+		/*
+		 * Recovery mode; just verify the EC is in RO code.  Don't do
+		 * software sync, since we don't have a RW image.
+		 */
 		if (rv == VBERROR_SUCCESS && in_rw == 1) {
 			/*
 			 * EC is definitely in RW firmware.  We want it in
@@ -233,13 +217,13 @@ VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
 			 * had some way to track that we'd already rebooted for
 			 * this reason, we could retry only once.
 			 */
-			VBDEBUG(("VbEcSoftwareSync() - "
-				 "want recovery but got EC-RW\n"));
-			request_recovery(ctx, shared->recovery_reason);
+			VB2_DEBUG("%s: want recovery but got EC-RW\n",
+				  __func__);
+			request_recovery(ctx, sd->recovery_reason);
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
 
-		VBDEBUG(("VbEcSoftwareSync() in recovery; EC-RO\n"));
+		VB2_DEBUG("%s: in recovery; EC-RO\n", __func__);
 		return VBERROR_SUCCESS;
 	}
 
@@ -248,61 +232,54 @@ VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
 	 * reboot to recovery.
 	 */
 	if (rv != VBERROR_SUCCESS) {
-		VBDEBUG(("VbEcSoftwareSync() - "
-			 "VbExEcRunningRW() returned %d\n", rv));
+		VB2_DEBUG("%s: VbExEcRunningRW() returned %d\n", __func__, rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_UNKNOWN_IMAGE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
-	/* If AP is read-only normal, EC should be in its RO code also. */
-	if (shared->flags & VBSD_LF_USE_RO_NORMAL) {
-		/* If EC is in RW code, request reboot back to RO */
-		if (in_rw == 1) {
-			VBDEBUG(("VbEcSoftwareSync() - "
-				 "want RO-normal but got EC-RW\n"));
+	return VBERROR_SUCCESS;
+}
+
+#define RO_RETRIES 2  /* Maximum times to retry flashing RO */
+
+/**
+ * Sync, jump, and protect one EC device
+ *
+ * @param ctx		Vboot2 context
+ * @param devidx	Which device (EC=0, PD=1)
+ * @return VBERROR_SUCCESS, or non-zero if error.
+ */
+static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
+			     VbCommonParams *cparams)
+{
+	VbSharedDataHeader *shared =
+			(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	const enum VbSelectFirmware_t select_rw =
+		shared->firmware_index ? VB_SELECT_FIRMWARE_B :
+		VB_SELECT_FIRMWARE_A;
+	int rv;
+
+	VB2_DEBUG("%s: devidx=%d\n", __func__, devidx);
+
+	/* Update the RW Image */
+	if (sd->flags & VB2_SD_FLAG_ECSYNC_RW) {
+		if (VB2_SUCCESS != update_ec(ctx, devidx, select_rw))
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
-
-		/* Protect the RW flash and stay in EC-RO */
-		rv = EcProtect(ctx, devidx, select_rw);
-		if (rv != VBERROR_SUCCESS)
-			return rv;
-
-		rv = VbExEcDisableJump(devidx);
-		if (rv != VBERROR_SUCCESS) {
-			VBDEBUG(("VbEcSoftwareSync() - "
-				 "VbExEcDisableJump() returned %d\n", rv));
-			request_recovery(ctx, VB2_RECOVERY_EC_SOFTWARE_SYNC);
-			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
-		}
-
-		VBDEBUG(("VbEcSoftwareSync() in RO-Normal; EC-RO\n"));
-		return VBERROR_SUCCESS;
-	}
-
-	VBDEBUG(("VbEcSoftwareSync() check for RW update.\n"));
-
-	/* Update the RW Image. */
-	rv = EcUpdateImage(ctx, devidx, cparams, select_rw, &updated_rw, in_rw);
-
-	if (rv != VBERROR_SUCCESS) {
-		VBDEBUG(("VbEcSoftwareSync() - "
-			 "EcUpdateImage() returned %d\n", rv));
-		return rv;
 	}
 
 	/* Tell EC to jump to its RW image */
-	if (!in_rw) {
-		VBDEBUG(("VbEcSoftwareSync() jumping to EC-RW\n"));
+	if (!(sd->flags & IN_RW(devidx))) {
+		VB2_DEBUG("%s: jumping to EC-RW\n", __func__);
 		rv = VbExEcJumpToRW(devidx);
 		if (rv != VBERROR_SUCCESS) {
-			VBDEBUG(("VbEcSoftwareSync() - "
-				 "VbExEcJumpToRW() returned %x\n", rv));
+			VB2_DEBUG("%s: VbExEcJumpToRW() returned %x\n",
+				  __func__, rv);
 
 			/*
-			 * If the EC booted RO-normal and a previous AP boot
-			 * has called VbExEcStayInRO(), we need to reboot the EC
-			 * to unlock the ability to jump to the RW firmware.
+			 * If a previous AP boot has called VbExEcStayInRO(),
+			 * we need to reboot the EC to unlock the ability to
+			 * jump to the RW firmware.
 			 *
 			 * All other errors trigger recovery mode.
 			 */
@@ -313,75 +290,170 @@ VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
 		}
 	}
 
-	uint32_t try_ro_sync = vb2_nv_get(ctx, VB2_NV_TRY_RO_SYNC);
-	if (!devidx && try_ro_sync &&
-	    !(shared->flags & VBSD_BOOT_FIRMWARE_WP_ENABLED)) {
+	/* Might need to update EC-RO (but not PD-RO) */
+	if (sd->flags & VB2_SD_FLAG_ECSYNC_EC_RO) {
+		VB2_DEBUG("%s: RO Software Sync\n", __func__);
+
 		/* Reset RO Software Sync NV flag */
 		vb2_nv_set(ctx, VB2_NV_TRY_RO_SYNC, 0);
 
-		recovery_request = vb2_nv_get(ctx, VB2_NV_RECOVERY_REQUEST);
+		/*
+		 * Get the current recovery request (if any).  This gets
+		 * overwritten by a failed try.  If a later try succeeds, we'll
+		 * need to restore this request (or the lack of a request), or
+		 * else we'll end up in recovery mode even though RO software
+		 * sync did eventually succeed.
+		 */
+		uint32_t recovery_request =
+				vb2_nv_get(ctx, VB2_NV_RECOVERY_REQUEST);
 
 		/* Update the RO Image. */
-		while (num_tries < ro_try_count) {
-			VBDEBUG(("VbEcSoftwareSync() RO Software Sync\n"));
-
-			/* Get expected EC-RO Image. */
-			rv = EcUpdateImage(ctx, devidx, cparams, select_ro,
-					   &updated_ro, in_rw);
-			if (rv == VBERROR_SUCCESS) {
-				/*
-				 * If the RO update had failed, reset the
-				 * recovery request.
-				 */
-				if (num_tries)
-					request_recovery(ctx, recovery_request);
+		int num_tries;
+		for (num_tries = 0; num_tries < RO_RETRIES; num_tries++) {
+			if (VB2_SUCCESS ==
+			    update_ec(ctx, devidx, VB_SELECT_FIRMWARE_READONLY))
 				break;
-			} else
-				VBDEBUG(("VbEcSoftwareSync() - "
-					 "EcUpdateImage() returned %d\n", rv));
-
-			num_tries++;
+		}
+		if (num_tries == RO_RETRIES) {
+			/* Ran out of tries */
+			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+		} else if (num_tries) {
+			/*
+			 * Update succeeded after a failure, so we've polluted
+			 * the recovery request.  Restore it.
+			 */
+			request_recovery(ctx, recovery_request);
 		}
 	}
-	if (rv != VBERROR_SUCCESS)
-		return rv;
 
 	/* Protect RO flash */
-	rv = EcProtect(ctx, devidx, select_ro);
+	rv = protect_ec(ctx, devidx, VB_SELECT_FIRMWARE_READONLY);
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
 	/* Protect RW flash */
-	rv = EcProtect(ctx, devidx, select_rw);
+	rv = protect_ec(ctx, devidx, select_rw);
 	if (rv != VBERROR_SUCCESS)
 		return rv;
 
 	rv = VbExEcDisableJump(devidx);
 	if (rv != VBERROR_SUCCESS) {
-		VBDEBUG(("VbEcSoftwareSync() - "
-			"VbExEcDisableJump() returned %d\n", rv));
+		VB2_DEBUG("%s: VbExEcDisableJump() returned %d\n",
+			  __func__, rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_SOFTWARE_SYNC);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
+	return rv;
+}
+
+VbError_t ec_sync_phase1(struct vb2_context *ctx, VbCommonParams *cparams)
+{
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	/* Reasons not to do sync at all */
+	if (!(shared->flags & VBSD_EC_SOFTWARE_SYNC))
+		return VBERROR_SUCCESS;
+	if (cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)
+		return VBERROR_SUCCESS;
+
+#ifdef PD_SYNC
+	const int do_pd_sync = !(cparams->gbb->flags &
+				 GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC);
+#else
+	const int do_pd_sync = 0;
+#endif
+
+	/* Make sure the EC is running the correct image */
+	if (check_ec_active(ctx, 0))
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	if (do_pd_sync && check_ec_active(ctx, 1))
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+
 	/*
-	 * Reboot to unload VGA Option ROM if:
-	 * - RW update was done
-	 * - the system is NOT in developer mode
-	 * - the system has slow EC update flag set
-	 * - the VGA Option ROM was needed and loaded
+	 * In recovery mode; just verify the EC is in RO code.  Don't do
+	 * software sync, since we don't have a RW image.
 	 */
-	if (updated_rw &&
-	    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
-	    (shared->flags & VBSD_EC_SLOW_UPDATE) &&
-	    (shared->flags & VBSD_OPROM_MATTERS) &&
-	    (shared->flags & VBSD_OPROM_LOADED)) {
-		VBDEBUG(("VbEcSoftwareSync() - Reboot to "
-			 "unload VGA Option ROM\n"));
-		vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 0);
-		return VBERROR_VGA_OPROM_MISMATCH;
+	if (sd->recovery_reason)
+		return VBERROR_SUCCESS;
+
+	/* See if we need to update RW.  Failures trigger recovery mode. */
+	const enum VbSelectFirmware_t select_rw =
+			shared->firmware_index ? VB_SELECT_FIRMWARE_B :
+			VB_SELECT_FIRMWARE_A;
+	if (check_ec_hash(ctx, 0, select_rw))
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	if (do_pd_sync && check_ec_hash(ctx, 1, select_rw))
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	/*
+	 * See if we need to update EC-RO (devidx=0).
+	 *
+	 * If we want to extend this in the future to update PD-RO, we'll use a
+	 * different NV flag so we can track EC-RO and PD-RO updates
+	 * separately.
+	 */
+	if (vb2_nv_get(ctx, VB2_NV_TRY_RO_SYNC) &&
+	    !(shared->flags & VBSD_BOOT_FIRMWARE_WP_ENABLED) &&
+	    check_ec_hash(ctx, 0, VB_SELECT_FIRMWARE_READONLY)) {
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
+	/*
+	 * If we're in RW, we need to reboot back to RO because RW can't be
+	 * updated while we're running it.
+	 *
+	 * TODO: Technically this isn't true for ECs which don't execute from
+	 * flash.  For example, if the EC loads code from SPI into RAM before
+	 * executing it.
+	 */
+	if ((sd->flags & VB2_SD_FLAG_ECSYNC_RW) &&
+	    (sd->flags & VB2_SD_FLAG_ECSYNC_IN_RW)) {
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	}
 
-	return rv;
+	return VBERROR_SUCCESS;
+}
+
+int ec_will_update_slowly(struct vb2_context *ctx, VbCommonParams *cparams)
+{
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	return ((sd->flags & VB2_SD_FLAG_ECSYNC_ANY) &&
+		(shared->flags & VBSD_EC_SLOW_UPDATE));
+}
+
+
+VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
+{
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	/* Reasons not to do sync at all */
+	if (!(shared->flags & VBSD_EC_SOFTWARE_SYNC))
+		return VBERROR_SUCCESS;
+	if (cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)
+		return VBERROR_SUCCESS;
+	if (sd->recovery_reason)
+		return VBERROR_SUCCESS;
+
+	/* Handle updates and jumps for EC */
+	VbError_t retval = sync_one_ec(ctx, 0, cparams);
+	if (retval != VBERROR_SUCCESS)
+		return retval;
+
+#ifdef PD_SYNC
+	/* Handle updates and jumps for PD */
+	if (!(cparams->gbb->flags & GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
+		retval = sync_one_ec(ctx, 1, cparams);
+		if (retval != VBERROR_SUCCESS)
+			return retval;
+	}
+#endif
+
+	return VBERROR_SUCCESS;
 }

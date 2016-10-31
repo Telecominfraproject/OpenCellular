@@ -13,6 +13,7 @@
 #include "2common.h"
 #include "2misc.h"
 #include "2nvstorage.h"
+#include "ec_sync.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "load_kernel_fw.h"
@@ -54,6 +55,7 @@ static uint8_t update_hash;
 static int want_ec_hash_size;
 static struct vb2_context ctx;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
+static struct vb2_shared_data *sd;
 
 static uint32_t screens_displayed[8];
 static uint32_t screens_count = 0;
@@ -69,16 +71,19 @@ static void ResetMocks(void)
 	memset(&gbb, 0, sizeof(gbb));
 	gbb.major_version = GBB_MAJOR_VER;
 	gbb.minor_version = GBB_MINOR_VER;
-	gbb.flags = 0;
+	gbb.flags = GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC;
+	cparams.gbb = &gbb;
 
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;
 	ctx.workbuf_size = sizeof(workbuf);
 	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
+	sd = vb2_get_sd(&ctx);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
+	shared->flags = VBSD_EC_SOFTWARE_SYNC;
 
 	trust_ec = 0;
 	mock_in_rw = 0;
@@ -210,7 +215,7 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
 
 static void test_ssync(VbError_t retval, int recovery_reason, const char *desc)
 {
-	TEST_EQ(VbEcSoftwareSync(&ctx, 0, &cparams), retval, desc);
+	TEST_EQ(ec_sync_all(&ctx, &cparams), retval, desc);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
 		recovery_reason, "  recovery reason");
 }
@@ -221,12 +226,12 @@ static void VbSoftwareSyncTest(void)
 {
 	/* Recovery cases */
 	ResetMocks();
-	shared->recovery_reason = 123;
+	sd->recovery_reason = 123;
 	test_ssync(0, 0, "In recovery, EC-RO");
 	TEST_EQ(ec_rw_protected, 0, "  ec rw protected");
 
 	ResetMocks();
-	shared->recovery_reason = 123;
+	sd->recovery_reason = 123;
 	mock_in_rw = 1;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		   123, "Recovery needs EC-RO");
@@ -236,36 +241,6 @@ static void VbSoftwareSyncTest(void)
 	in_rw_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		   VBNV_RECOVERY_EC_UNKNOWN_IMAGE, "Unknown EC image");
-
-	ResetMocks();
-	shared->flags |= VBSD_LF_USE_RO_NORMAL;
-	mock_in_rw = 1;
-	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   0, "AP-RO needs EC-RO");
-
-	ResetMocks();
-	shared->flags |= VBSD_LF_USE_RO_NORMAL;
-	test_ssync(0, 0, "AP-RO, EC-RO");
-	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
-	TEST_EQ(ec_run_image, 0, "  ec run image");
-
-	ResetMocks();
-	shared->flags |= VBSD_LF_USE_RO_NORMAL;
-	run_retval = VBERROR_SIMULATED;
-	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_SOFTWARE_SYNC, "Stay in RO fail");
-
-	ResetMocks();
-	shared->flags |= VBSD_LF_USE_RO_NORMAL;
-	protect_retval = VBERROR_SIMULATED;
-	test_ssync(VBERROR_SIMULATED,
-		   VBNV_RECOVERY_EC_PROTECT, "Protect error");
-
-	/* No longer check for shutdown requested */
-	ResetMocks();
-	shared->flags |= VBSD_LF_USE_RO_NORMAL;
-	shutdown_request_calls_left = 0;
-	test_ssync(0, 0, "AP-RO shutdown requested");
 
 	/* Calculate hashes */
 	ResetMocks();

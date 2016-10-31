@@ -77,14 +77,4 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
 VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
 			 LoadKernelParams *p);
 
-/**
- * Sync EC device <devidx> firmware to expected version.
- *
- * @param ctx		Vboot context
- * @param devidx	EC device index to sync
- * @param cparams	Common vboot params
- */
-VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
-			   VbCommonParams *cparams);
-
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */

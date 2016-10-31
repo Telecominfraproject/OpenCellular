@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ec_sync.h"
 #include "gbb_header.h"
 #include "host_common.h"
 #include "load_kernel_fw.h"
@@ -81,8 +82,7 @@ VbError_t VbExNvStorageWrite(const uint8_t *buf)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbEcSoftwareSync(struct vb2_context *ctx, int devidx,
-			   VbCommonParams *cparams)
+VbError_t VbExEcRunningRW(int devidx, int *in_rw)
 {
 	return ecsync_retval;
 }
@@ -160,16 +160,22 @@ static void VbSlkTest(void)
 	ResetMocks();
 	test_slk(0, 0, "Normal");
 
-	/* Software sync */
+	/* Mock error early in software sync */
 	ResetMocks();
 	shared->flags |= VBSD_EC_SOFTWARE_SYNC;
 	ecsync_retval = VBERROR_SIMULATED;
-	test_slk(VBERROR_SIMULATED, 0, "EC sync bad");
+	test_slk(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
+		 VBNV_RECOVERY_EC_UNKNOWN_IMAGE, "EC sync bad");
 
+	/*
+	 * If shared->flags doesn't ask for software sync, we won't notice
+	 * that error.
+	 */
 	ResetMocks();
 	ecsync_retval = VBERROR_SIMULATED;
 	test_slk(0, 0, "EC sync not done");
 
+	/* Same if shared->flags asks for sync, but it's overridden by GBB */
 	ResetMocks();
 	shared->flags |= VBSD_EC_SOFTWARE_SYNC;
 	gbb.flags |= GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC;

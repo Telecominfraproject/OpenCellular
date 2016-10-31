@@ -41,6 +41,15 @@ enum vb2_shared_data_flags {
 
 	/* Kernel keyblock was verified by signature (not just hash) */
 	VB2_SD_FLAG_KERNEL_SIGNED = (1 << 2),
+
+	/* Software sync needs to update EC-RO, EC-RW, or PD-RW respectively */
+	VB2_SD_FLAG_ECSYNC_EC_RO = (1 << 3),
+	VB2_SD_FLAG_ECSYNC_EC_RW = (1 << 4),
+	VB2_SD_FLAG_ECSYNC_PD_RW = (1 << 5),
+
+	/* Software sync says EC / PD running RW */
+	VB2_SD_FLAG_ECSYNC_EC_IN_RW = (1 << 6),
+	VB2_SD_FLAG_ECSYNC_PD_IN_RW = (1 << 7),
 };
 
 /* Flags for vb2_shared_data.status */

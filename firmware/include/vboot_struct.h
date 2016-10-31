@@ -206,7 +206,10 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_KERNEL_KEY_VERIFIED         0x00000002
 /* LoadFirmware() was told the developer switch was on */
 #define VBSD_LF_DEV_SWITCH_ON            0x00000004
-/* LoadFirmware() is requesting the read only normal/dev code path */
+/*
+ * LoadFirmware() is requesting the read only normal/dev code path.  This is
+ * deprecated and unsupported by current firmware.
+ */
 #define VBSD_LF_USE_RO_NORMAL            0x00000008
 /* Developer switch was enabled at boot time */
 #define VBSD_BOOT_DEV_SWITCH_ON          0x00000010

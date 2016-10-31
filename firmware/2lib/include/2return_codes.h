@@ -488,6 +488,15 @@ enum vb2_return_code {
 	/* Unable to verify body in vb2_load_partition() */
 	VB2_ERROR_LOAD_PARTITION_VERIFY_BODY,
 
+	/* Unable to get EC image hash in ec_sync_phase1() */
+	VB2_ERROR_EC_HASH_IMAGE,
+
+	/* Unable to get expected EC image hash in ec_sync_phase1() */
+	VB2_ERROR_EC_HASH_EXPECTED,
+
+	/* Expected and image hashes are different size in ec_sync_phase1() */
+	VB2_ERROR_EC_HASH_SIZE,
+
         /**********************************************************************
 	 * API-level errors
 	 */
