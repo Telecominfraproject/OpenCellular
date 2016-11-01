@@ -19,6 +19,7 @@
 /* TPM2 command codes. */
 #define TPM2_Hierarchy_Control ((TPM_CC)0x00000121)
 #define TPM2_Clear             ((TPM_CC)0x00000126)
+#define TPM2_NV_DefineSpace    ((TPM_CC)0x0000012A)
 #define TPM2_NV_Write          ((TPM_CC)0x00000137)
 #define TPM2_NV_WriteLock      ((TPM_CC)0x00000138)
 #define TPM2_SelfTest          ((TPM_CC)0x00000143)
@@ -40,6 +41,7 @@
 #define HR_SHIFT               24
 #define TPM_HT_NV_INDEX        0x01
 #define HR_NV_INDEX           (TPM_HT_NV_INDEX <<  HR_SHIFT)
+#define TPM_RH_OWNER        0x40000001
 #define TPM_RH_PLATFORM     0x4000000C
 #define TPM_RS_PW           0x40000009
 
@@ -59,6 +61,36 @@
 #define TPM_SU_CLEAR                    ((TPM_SU)0x0000)
 #define TPM_SU_STATE                    ((TPM_SU)0x0001)
 
+/* TPM algorithm IDs. */
+#define TPM_ALG_SHA1			((TPM_ALG_ID)0x0004)
+#define TPM_ALG_SHA256			((TPM_ALG_ID)0x000B)
+#define TPM_ALG_NULL			((TPM_ALG_ID)0x0010)
+
+/* NV index attributes. */
+#define TPMA_NV_PPWRITE			((TPMA_NV)(1UL << 0))
+#define TPMA_NV_OWNERWRITE		((TPMA_NV)(1UL << 1))
+#define TPMA_NV_AUTHWRITE		((TPMA_NV)(1UL << 2))
+#define TPMA_NV_POLICYWRITE		((TPMA_NV)(1UL << 3))
+#define TPMA_NV_MASK_WRITE		(TPMA_NV_PPWRITE | TPMA_NV_OWNERWRITE |\
+					 TPMA_NV_AUTHWRITE | TPMA_NV_POLICYWRITE)
+#define TPMA_NV_PPREAD			((TPMA_NV)(1UL << 16))
+#define TPMA_NV_OWNERREAD		((TPMA_NV)(1UL << 17))
+#define TPMA_NV_AUTHREAD		((TPMA_NV)(1UL << 18))
+#define TPMA_NV_POLICYREAD		((TPMA_NV)(1UL << 19))
+#define TPMA_NV_MASK_READ		(TPMA_NV_PPREAD | TPMA_NV_OWNERREAD |\
+					 TPMA_NV_AUTHREAD | TPMA_NV_POLICYREAD)
+#define TPMA_NV_PLATFORMCREATE		((TPMA_NV)(1UL << 30))
+
+/* Starting indexes of NV index ranges, as defined in "Registry of reserved
+ * TPM 2.0 handles and localities".
+ */
+#define TPMI_RH_NV_INDEX_TPM_START	((TPMI_RH_NV_INDEX)0x01000000)
+#define TPMI_RH_NV_INDEX_PLATFORM_START	((TPMI_RH_NV_INDEX)0x01400000)
+#define TPMI_RH_NV_INDEX_OWNER_START	((TPMI_RH_NV_INDEX)0x01800000)
+#define TPMI_RH_NV_INDEX_TCG_OEM_START	((TPMI_RH_NV_INDEX)0x01C00000)
+#define TPMI_RH_NV_INDEX_TCG_WG_START	((TPMI_RH_NV_INDEX)0x01C40000)
+#define TPMI_RH_NV_INDEX_RESERVED_START	((TPMI_RH_NV_INDEX)0x01C90000)
+
 typedef uint8_t TPMI_YES_NO;
 typedef uint32_t TPM_CC;
 typedef uint32_t TPM_HANDLE;
@@ -67,11 +99,14 @@ typedef TPM_HANDLE TPMI_RH_ENABLES;
 typedef uint32_t TPM_CAP;
 typedef uint32_t TPM_PT;
 typedef uint16_t TPM_SU;
+typedef uint16_t TPM_ALG_ID;
+typedef TPM_ALG_ID TPMI_ALG_HASH;
+typedef uint32_t TPMA_NV;
 
 typedef struct {
 	uint16_t      size;
 	uint8_t       *buffer;
-} TPM2B;
+} TPM2B, TPM2B_DIGEST, TPM2B_AUTH;
 
 typedef union {
 	struct {
@@ -99,6 +134,19 @@ typedef struct {
 	TPM_CAP capability;
 	TPMU_CAPABILITIES data;
 } TPMS_CAPABILITY_DATA;
+
+typedef struct {
+	TPMI_RH_NV_INDEX nvIndex;
+	TPMI_ALG_HASH nameAlg;
+	TPMA_NV attributes;
+	TPM2B authPolicy;
+	uint16_t dataSize;
+} TPMS_NV_PUBLIC;
+
+struct tpm2_nv_define_space_cmd {
+	TPM2B auth;
+	TPMS_NV_PUBLIC publicInfo;
+};
 
 struct tpm2_nv_read_cmd {
 	TPMI_RH_NV_INDEX nvIndex;

@@ -168,7 +168,27 @@ uint32_t TlclContinueSelfTest(void)
 
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 {
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	struct tpm2_response *response;
+	struct tpm2_nv_define_space_cmd define_space;
+
+	/* For backwards-compatibility, if no READ or WRITE permissions are set,
+	 * assume readable/writeable with empty auth value.
+	 */
+	if (!(perm & TPMA_NV_MASK_WRITE))
+		perm |= TPMA_NV_AUTHWRITE;
+	if (!(perm & TPMA_NV_MASK_READ))
+		perm |= TPMA_NV_AUTHREAD;
+
+	memset(&define_space, 0, sizeof(define_space));
+	define_space.publicInfo.nvIndex = HR_NV_INDEX + index;
+	define_space.publicInfo.dataSize = size;
+	define_space.publicInfo.attributes = perm;
+	define_space.publicInfo.nameAlg = TPM_ALG_SHA256;
+
+	response = tpm_process_command(TPM2_NV_DefineSpace, &define_space);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+
 	return TPM_SUCCESS;
 }
 

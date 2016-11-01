@@ -266,19 +266,67 @@ static void marshal_u32(void **buffer, uint32_t value, int *buffer_space)
 #define unmarshal_TPM_CC(a, b) unmarshal_u32(a, b)
 #define marshal_TPM_HANDLE(a, b, c) marshal_u32(a, b, c)
 #define marshal_TPM_SU(a, b, c) marshal_u16(a, b, c)
+#define marshal_ALG_ID(a, b, c) marshal_u16(a, b, c)
+
+/*
+ * For TPM2B* structures the size field (16 or 32 bits) goes before the data.
+ * When marshaling, we first reserve the space for the size field, then
+ * marshal the data, then fill the reserved size field with the actual size
+ * of the marshaled data.
+ */
+typedef struct {
+	int size;
+	void *location;
+} tpm2_marshal_size_field;
+
+static void marshal_reserve_size_field(void **buffer,
+				       tpm2_marshal_size_field *field,
+				       int field_size,
+				       int *buffer_space)
+{
+	if (field_size != sizeof(uint32_t) && field_size != sizeof(uint16_t)) {
+		VBDEBUG(("%s:%d:Unsupported size field size: %d\n",
+			 __FILE__, __LINE__, field_size));
+		*buffer_space = -1;
+		return;
+	}
+	if (*buffer_space < field_size) {
+		*buffer_space = -1;
+		return;
+	}
+	field->size = field_size;
+	field->location = *buffer;
+	*buffer_space -= field_size;
+	*buffer = (void *)(((uintptr_t) *buffer) + field_size);
+}
+
+static void marshal_fill_size_field(void **buffer,
+				    tpm2_marshal_size_field *field,
+				    int include_size_field,
+				    int *buffer_space)
+{
+	uintptr_t size = (uintptr_t) *buffer - (uintptr_t) field->location;
+
+	if (*buffer_space < 0)
+		return;  /* The structure did not fit. */
+
+	if (!include_size_field)
+		size -= field->size;
+	if (field->size == sizeof(uint32_t))
+		marshal_u32(&field->location, size, &field->size);
+	else /* if (field->size == sizeof(uint16_t)) */
+		marshal_u16(&field->location, size, &field->size);
+}
 
 static void marshal_session_header(void **buffer,
 				   struct tpm2_session_header *session_header,
 				   int *buffer_space)
 {
-	int base_size;
-	void *size_location = *buffer;
+	tpm2_marshal_size_field size_field;
 
 	/* Skip room for the session header size. */
-	*buffer_space -= sizeof(uint32_t);
-	*buffer = (void *)(((uintptr_t) *buffer) + sizeof(uint32_t));
-
-	base_size = *buffer_space;
+	marshal_reserve_size_field(buffer, &size_field,
+				   sizeof(uint32_t), buffer_space);
 
 	marshal_u32(buffer, session_header->session_handle, buffer_space);
 	marshal_u16(buffer, session_header->nonce_size, buffer_space);
@@ -289,11 +337,8 @@ static void marshal_session_header(void **buffer,
 	marshal_blob(buffer, session_header->auth,
 		     session_header->auth_size, buffer_space);
 
-	if (*buffer_space < 0)
-		return;  /* The structure did not fit. */
-
 	/* Paste in the session size. */
-	marshal_u32(&size_location, base_size - *buffer_space, &base_size);
+	marshal_fill_size_field(buffer, &size_field, 0, buffer_space);
 }
 
 static void marshal_TPM2B(void **buffer,
@@ -312,13 +357,88 @@ static void marshal_TPM2B(void **buffer,
 	*buffer_space -= data->size;
 }
 
+static void marshal_TPMS_NV_PUBLIC(void **buffer,
+				   TPMS_NV_PUBLIC *data,
+				   int *buffer_space)
+{
+	tpm2_marshal_size_field size_field;
+
+	/* Skip room for the size. */
+	marshal_reserve_size_field(buffer, &size_field,
+				   sizeof(uint16_t), buffer_space);
+
+	marshal_TPM_HANDLE(buffer, data->nvIndex, buffer_space);
+	marshal_ALG_ID(buffer, data->nameAlg, buffer_space);
+	marshal_u32(buffer, data->attributes, buffer_space);
+	marshal_TPM2B(buffer, &data->authPolicy, buffer_space);
+	marshal_u16(buffer, data->dataSize, buffer_space);
+
+	/* Paste in the structure size. */
+	marshal_fill_size_field(buffer, &size_field, 0, buffer_space);
+}
+
+static void marshal_nv_define_space(void **buffer,
+				    struct tpm2_nv_define_space_cmd
+				        *command_body,
+				    int *buffer_space)
+{
+	struct tpm2_session_header session_header;
+
+	/* Use platform authorization if PLATFORMCREATE is set, and owner
+	 * authorization otherwise (per TPM2 Spec. Part 2. Section 31.3.1).
+	 * Owner authorization with empty password will work only until
+	 * ownership is taken. Platform authorization will work only until
+	 * platform hierarchy is disabled (i.e. in firmware or in recovery
+	 * mode).
+	 */
+	if (command_body->publicInfo.attributes & TPMA_NV_PLATFORMCREATE)
+		marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	else
+		marshal_TPM_HANDLE(buffer, TPM_RH_OWNER, buffer_space);
+
+	memset(&session_header, 0, sizeof(session_header));
+	session_header.session_handle = TPM_RS_PW;
+	marshal_session_header(buffer, &session_header, buffer_space);
+	tpm_tag = TPM_ST_SESSIONS;
+
+	marshal_TPM2B(buffer, &command_body->auth, buffer_space);
+	marshal_TPMS_NV_PUBLIC(buffer, &command_body->publicInfo, buffer_space);
+}
+
+/* Determine which authorization should be used when writing or write-locking
+ * an NV index.
+ *
+ * Use a simplified approach:
+ * 1) Use platform auth for indexes defined by TPM and Platform, as
+ * specified in "Registry of reserved TPM 2.0 handles and localities".
+ * That will only work for indexes with PPWRITE, and until the platform
+ * hierarchy is disabled.
+ * 2) Use empty password auth for other indexes.
+ * That will only work for indexes with AUTHWRITE and empty auth value.
+ *
+ * A more honest approach would require the caller to specify the
+ * authorization, or would check the NV index attributes.
+ * But that's not needed now, as all indexes defined by firmware are
+ * in the TPM range and have PPWRITE. The indexes defined by the
+ * OS are in the Owner range and have either OWNERWRITE or AUTHWRITE,
+ * but we don't ever use Tlcl to write to OWNERWRITE indexes.
+ */
+static TPM_HANDLE get_nv_index_write_auth(TPMI_RH_NV_INDEX nvIndex)
+{
+	return nvIndex >= TPMI_RH_NV_INDEX_OWNER_START ?
+	       nvIndex :
+	       TPM_RH_PLATFORM;
+}
+
 static void marshal_nv_write(void **buffer,
 			     struct tpm2_nv_write_cmd *command_body,
 			     int *buffer_space)
 {
 	struct tpm2_session_header session_header;
 
-	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	marshal_TPM_HANDLE(buffer,
+			   get_nv_index_write_auth(command_body->nvIndex),
+			   buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
@@ -370,7 +490,9 @@ static void marshal_nv_write_lock(void **buffer,
 	struct tpm2_session_header session_header;
 
 	tpm_tag = TPM_ST_SESSIONS;
-	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	marshal_TPM_HANDLE(buffer,
+			   get_nv_index_write_auth(command_body->nvIndex),
+			   buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
@@ -457,6 +579,10 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 	tpm_tag = TPM_ST_NO_SESSIONS;
 
 	switch (command) {
+
+	case TPM2_NV_DefineSpace:
+		marshal_nv_define_space(&cmd_body, tpm_command_body, &body_size);
+		break;
 
 	case TPM2_NV_Read:
 		marshal_nv_read(&cmd_body, tpm_command_body, &body_size);
@@ -558,6 +684,7 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 	case TPM2_SelfTest:
 	case TPM2_Startup:
 	case TPM2_Shutdown:
+	case TPM2_NV_DefineSpace:
 		/* Session data included in response can be safely ignored. */
 		cr_size = 0;
 		break;
