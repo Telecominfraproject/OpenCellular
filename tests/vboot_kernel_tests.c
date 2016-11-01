@@ -570,16 +570,6 @@ static void ReadWriteGptTest(void)
 static void InvalidParamsTest(void)
 {
 	ResetMocks();
-	lkp.bytes_per_lba = 0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_PARAMETER,
-		"Bad lba size");
-
-	ResetMocks();
-	lkp.streaming_lba_count = 0;
-	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_INVALID_PARAMETER,
-		"Bad lba count");
-
-	ResetMocks();
 	gpt_init_fail = 1;
 	TEST_EQ(LoadKernel(&lkp, &cparams), VBERROR_NO_KERNEL_FOUND,
 		"Bad GPT");
