@@ -57,4 +57,4 @@ echo "Running emerge tests (runs cros_workon start)."
 # Ignore errors about already working on those repos.
 cros_workon-${BOARD} start ${TEST_EBUILDS} || true
 
-USE=depthcharge emerge-${BOARD} ${TEST_EBUILDS}
+emerge-${BOARD} ${TEST_EBUILDS}
