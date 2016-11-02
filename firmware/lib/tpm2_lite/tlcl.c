@@ -448,7 +448,7 @@ uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 	response = tpm_process_command(TPM2_NV_Write, &nv_writec);
 
 	/* Need to map tpm error codes into internal values. */
-	if (!response)
+	if (!response || response->hdr.tpm_code)
 		return TPM_E_WRITE_FAILURE;
 
 	return TPM_SUCCESS;
@@ -472,7 +472,7 @@ uint32_t TlclWriteLock(uint32_t index)
 	response = tpm_process_command(TPM2_NV_WriteLock, &nv_writelockc);
 
 	/* Need to map tpm error codes into internal values. */
-	if (!response)
+	if (!response || response->hdr.tpm_code)
 		return TPM_E_WRITE_FAILURE;
 
 	return TPM_SUCCESS;
@@ -490,7 +490,7 @@ uint32_t TlclReadLock(uint32_t index)
 	response = tpm_process_command(TPM2_NV_ReadLock, &nv_readlockc);
 
 	/* Need to map tpm error codes into internal values. */
-	if (!response)
+	if (!response || response->hdr.tpm_code)
 		return TPM_E_READ_FAILURE;
 
 	return TPM_SUCCESS;
