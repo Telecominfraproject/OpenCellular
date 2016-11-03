@@ -290,6 +290,8 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_BCB_USER_MODE   0xC2
 /* Fastboot mode requested by user-mode */
 #define VBNV_RECOVERY_US_FASTBOOT     0xC3
+/* User requested recovery for training memory and rebooting. */
+#define VBNV_RECOVERY_TRAIN_AND_REBOOT 0xC4
 /* Unspecified/unknown error in user-mode */
 #define VBNV_RECOVERY_US_UNSPECIFIED  0xFF
 

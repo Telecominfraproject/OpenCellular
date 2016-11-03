@@ -539,6 +539,8 @@ const char *RecoveryReasonString(uint8_t code)
 		return "User-mode requested recovery via BCB";
 	case VBNV_RECOVERY_US_FASTBOOT:
 		return "User-mode requested fastboot mode";
+	case VBNV_RECOVERY_TRAIN_AND_REBOOT:
+		return "User-mode requested DRAM train and reboot";
 	case VBNV_RECOVERY_US_UNSPECIFIED:
 		return "Unspecified/unknown error in user-mode";
 	}

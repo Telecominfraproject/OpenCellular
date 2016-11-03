@@ -360,7 +360,7 @@ static void VbBootDevTest(void)
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
 	mock_keypress[0] = ' ';
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_TPM_REBOOT_REQUIRED,
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_REBOOT_REQUIRED,
 		"Space = tonorm");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING,
 		"  warning screen");
@@ -398,7 +398,7 @@ static void VbBootDevTest(void)
 	gbb.flags |= GBB_FLAG_ENTER_TRIGGERS_TONORM;
 	mock_keypress[0] = '\r';
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_TPM_REBOOT_REQUIRED,
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_REBOOT_REQUIRED,
 		"Enter = tonorm");
 
 	/* Tonorm ignored if GBB forces dev switch on */
@@ -502,7 +502,7 @@ static void VbBootDevTest(void)
 	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
 	mock_keypress[0] = '\x1b';  /* Just causes TONORM again */
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_TPM_REBOOT_REQUIRED,
+	TEST_EQ(VbBootDeveloper(&cparams, &lkp), VBERROR_REBOOT_REQUIRED,
 		"FWMP dev disabled");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM,
 		"  tonorm screen");
@@ -690,7 +690,7 @@ static void VbBootRecTest(void)
 	mock_keypress[0] = 0x04;
 	mock_keypress[1] = '\r';
 	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_TPM_REBOOT_REQUIRED,
+	TEST_EQ(VbBootRecovery(&cparams, &lkp), VBERROR_REBOOT_REQUIRED,
 		"Ctrl+D todev confirm");
 	TEST_EQ(virtdev_set, 1, "  virtual dev mode on");
 

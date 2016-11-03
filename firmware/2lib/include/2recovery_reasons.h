@@ -220,6 +220,9 @@ enum vb2_nv_recovery {
 	/* Fastboot mode requested by user-mode */
 	VB2_RECOVERY_US_FASTBOOT     = 0xc3,
 
+	/* User requested recovery for training memory and rebooting. */
+	VB2_RECOVERY_TRAIN_AND_REBOOT = 0xc4,
+
 	/* Unspecified/unknown error in user-mode */
 	VB2_RECOVERY_US_UNSPECIFIED  = 0xff,
 };

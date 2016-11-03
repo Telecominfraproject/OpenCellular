@@ -365,7 +365,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 					VB_SCREEN_TO_NORM_CONFIRMED,
 					0, &vnc);
 			VbExSleepMs(5000);
-			return VBERROR_TPM_REBOOT_REQUIRED;
+			return VBERROR_REBOOT_REQUIRED;
 		case -1:
 			VBDEBUG(("%s() - shutdown requested\n", __func__));
 			return VBERROR_SHUTDOWN_REQUESTED;
@@ -437,7 +437,7 @@ VbError_t VbBootDeveloper(VbCommonParams *cparams, LoadKernelParams *p)
 						VB_SCREEN_TO_NORM_CONFIRMED,
 						0, &vnc);
 					VbExSleepMs(5000);
-					return VBERROR_TPM_REBOOT_REQUIRED;
+					return VBERROR_REBOOT_REQUIRED;
 				case -1:
 					VBDEBUG(("%s() - shutdown requested\n",
 						 __func__));
@@ -667,7 +667,7 @@ VbError_t VbBootRecovery(VbCommonParams *cparams, LoadKernelParams *p)
 					if (VbExGetSwitches
 					    (VB_INIT_FLAG_ALLOW_USB_BOOT))
 						VbAllowUsbBoot();
-					return VBERROR_TPM_REBOOT_REQUIRED;
+					return VBERROR_REBOOT_REQUIRED;
 				case -1:
 					VBDEBUG(("%s() - Shutdown requested\n",
 						 __func__));
@@ -1218,7 +1218,12 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 #endif
 
 	/* Select boot path */
-	if (shared->recovery_reason) {
+	if (shared->recovery_reason == VBNV_RECOVERY_TRAIN_AND_REBOOT) {
+		/* Reboot requested by user recovery code. */
+		VBDEBUG(("Reboot requested by user (recovery_reason=%d).\n",
+			 shared->recovery_reason));
+		retval = VBERROR_REBOOT_REQUIRED;
+	} else if (shared->recovery_reason) {
 		/* Recovery boot */
 		p.boot_flags |= BOOT_FLAG_RECOVERY;
 		retval = VbBootRecovery(cparams, &p);

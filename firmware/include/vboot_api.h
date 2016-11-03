@@ -68,8 +68,8 @@ enum VbErrorPredefined_t {
 	VBERROR_TPM_LOCK_FIRMWARE             = 0x10005,
 	/* Unable to set boot mode state in TPM */
 	VBERROR_TPM_SET_BOOT_MODE_STATE       = 0x10006,
-	/* TPM requires reboot */
-	VBERROR_TPM_REBOOT_REQUIRED           = 0x10007,
+	/* Calling firmware needs to perform a reboot. */
+	VBERROR_REBOOT_REQUIRED               = 0x10007,
 	/* Unable to set up TPM */
 	VBERROR_TPM_FIRMWARE_SETUP            = 0x10008,
 	/* Unable to read kernel versions from TPM */

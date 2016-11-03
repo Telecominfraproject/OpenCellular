@@ -244,7 +244,9 @@ static void VbSlkTest(void)
 	rkr_retval = rkw_retval = rkl_retval = VBERROR_SIMULATED;
 	test_slk(0, 0, "Recovery ignore TPM errors");
 
-
+	ResetMocks();
+	shared->recovery_reason = VBNV_RECOVERY_TRAIN_AND_REBOOT;
+	test_slk(VBERROR_REBOOT_REQUIRED, 0, "Recovery train and reboot");
 
 	// todo: rkr/w/l fail ignored if recovery
 
