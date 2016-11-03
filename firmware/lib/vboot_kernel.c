@@ -152,12 +152,10 @@ VbError_t LoadKernel(LoadKernelParams *params, VbCommonParams *cparams)
 		goto bad_gpt;
 
 	/* Allocate work buffer */
-	workbuf = (uint8_t *)
-			VbExMalloc(VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+	workbuf = (uint8_t *)VbExMalloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 	if (!workbuf)
 		goto bad_gpt;
-	vb2_workbuf_init(&wb, workbuf,
-			 VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 
 	/* Unpack kernel subkey */
 	struct vb2_public_key kernel_subkey2;

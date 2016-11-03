@@ -1403,12 +1403,10 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	retval = VBERROR_INVALID_KERNEL_FOUND;
 
 	/* Allocate work buffer */
-	workbuf = (uint8_t *)
-			VbExMalloc(VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+	workbuf = (uint8_t *)VbExMalloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 	if (!workbuf)
 		goto fail;
-	vb2_workbuf_init(&wb, workbuf,
-			 VB2_VERIFY_KERNEL_PREAMBLE_WORKBUF_BYTES);
+	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 
 	/* Verify the key block. */
 	key_block = (VbKeyBlockHeader *)kbuf;
