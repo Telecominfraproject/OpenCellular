@@ -177,6 +177,23 @@ is
       DP_Info.Preferred_Link_Setting (Port_Cfg.FDI, Port_Cfg.Mode, Success);
    end Configure_FDI_Link;
 
+   function Validate_Config
+     (Framebuffer : Framebuffer_Type;
+      Port_Cfg    : Port_Config)
+      return Boolean
+   with Global => null
+   is
+   begin
+      -- No downscaling
+      -- Only 32bpp RGB
+      -- Stride must be a multiple of 64
+      return
+         Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
+         Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible) and
+         Framebuffer.BPC = 8 and
+         Framebuffer.Stride mod 64 = 0;
+   end Validate_Config;
+
    procedure Fill_Port_Config
      (Port_Cfg :    out Port_Config;
       Configs  : in     Configs_Type;
@@ -523,6 +540,9 @@ is
 
             if New_Config.Port /= Disabled then
                Fill_Port_Config (Port_Cfg, Configs, I, Success);
+
+               Success := Success and then
+                           Validate_Config (New_Config.Framebuffer, Port_Cfg);
 
                if Success and then Wait_For_HPD (New_Config.Port) then
                   Check_HPD (Port_Cfg, New_Config.Port, Success);
