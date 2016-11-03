@@ -228,4 +228,22 @@ is
                                  24_000_000),
          when Skylake      => 24_000_000);
 
+   ----------------------------------------------------------------------------
+
+   -- Maximum source width with enabled scaler. This only accounts
+   -- for simple 1:1 pipe:scaler mappings.
+
+   type Width_Per_Pipe is array (Config_Index) of Width_Type;
+
+   Maximum_Scalable_Width : constant Width_Per_Pipe :=
+     (case CPU is
+         when Ironlake..Haswell =>
+           (Primary     => 4096,
+            Secondary   => 2048,
+            Tertiary    => 2048),
+         when Broadwell..Skylake =>
+           (Primary     => 4096,
+            Secondary   => 4096,
+            Tertiary    => 4096));
+
 end HW.GFX.GMA.Config;

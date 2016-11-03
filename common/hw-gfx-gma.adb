@@ -179,17 +179,22 @@ is
 
    function Validate_Config
      (Framebuffer : Framebuffer_Type;
-      Port_Cfg    : Port_Config)
+      Port_Cfg    : Port_Config;
+      I           : Config_Index)
       return Boolean
    with Global => null
    is
    begin
       -- No downscaling
+      -- Respect maximum scalable width
       -- Only 32bpp RGB
       -- Stride must be a multiple of 64
       return
-         Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
-         Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible) and
+         ((Framebuffer.Width = Pos32 (Port_Cfg.Mode.H_Visible) and
+           Framebuffer.Height = Pos32 (Port_Cfg.Mode.V_Visible)) or
+          (Framebuffer.Width <= Config.Maximum_Scalable_Width (I) and
+           Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
+           Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible))) and
          Framebuffer.BPC = 8 and
          Framebuffer.Stride mod 64 = 0;
    end Validate_Config;
@@ -542,7 +547,7 @@ is
                Fill_Port_Config (Port_Cfg, Configs, I, Success);
 
                Success := Success and then
-                           Validate_Config (New_Config.Framebuffer, Port_Cfg);
+                          Validate_Config (New_Config.Framebuffer, Port_Cfg, I);
 
                if Success and then Wait_For_HPD (New_Config.Port) then
                   Check_HPD (Port_Cfg, New_Config.Port, Success);
