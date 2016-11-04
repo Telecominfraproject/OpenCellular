@@ -15,13 +15,25 @@ dot_recovery=${DOT_RECOVERY:=/mnt/stateful_partition/.recovery}
 awk=/usr/bin/awk
 initctl=/sbin/initctl
 
+tpm2_target() {
+  # This is not an ideal way to tell if we are running on a tpm2 target, but
+  # it will have to do for now.
+  if [ -f "/etc/init/trunksd.conf" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
 log() {
   echo "$*"
 }
 
 quit() {
   log "ERROR: $*"
+  restart_daemon_if_needed
   log "exiting"
+
   exit 1
 }
 
@@ -31,6 +43,10 @@ log_tryfix() {
 
 tpm_clear_and_reenable () {
   $tpmc clear
+
+  # The below commands are are no-op on tpm2, but let's keep them here for
+  # both TPM versions in case they are implemented in the future for
+  # version 2.
   $tpmc enable
   $tpmc activate
 }
@@ -41,15 +57,29 @@ reset_space () {
   local size=$3
   local bytes="$4"
 
-  if ! $tpmc definespace $index $size $permissions; then
-    log "could not redefine space $index"
+  if ! tpm2_target; then
+    # definespace is not yet supported for tpm2 (crosbug.com/p/59361), let's
+    # just rely on the firmware having created the required spaces for now.
+    if ! $tpmc definespace $index $size $permissions; then
+      log "could not redefine space $index"
+      return 1
+    fi
+  fi
+
+  # do not quote "$bytes", as we mean to expand it here
+  if ! $tpmc write $index $bytes; then
+    log "writing to $index failed"
     return 1
   fi
-  # do not quote "$bytes", as we mean to expand it here
-  $tpmc write $index $bytes || log "writing to $index failed with code $?"
   log "space $index was recreated successfully"
 }
 
+restart_daemon_if_needed() {
+  if [ $daemon_was_running != 0 ]; then
+    log "Restarting ${DAEMON}..."
+    $initctl start "${DAEMON}" >/dev/null
+  fi
+}
 
 # ------------
 # MAIN PROGRAM
@@ -67,39 +97,51 @@ if ! $($crossystem mainfw_type?recovery); then
   quit "You must put a test image on a USB stick and boot it in recovery mode to run this"
 fi
 
-# tcsd may or may not be running
-
-log "Stopping tcsd..."
-if $initctl stop tcsd >/dev/null 2>/dev/null; then
-  tcsd_was_running=1
-  log "...done"
+if tpm2_target; then
+  DAEMON="trunksd"
 else
-  tcsd_was_running=0
-  log "(already stopped)"
+  DAEMON="tcsd"
+fi
+
+# TPM daemon may or may not be running
+
+log "Stopping ${DAEMON}..."
+if $initctl stop "${DAEMON}" >/dev/null 2>/dev/null; then
+  daemon_was_running=1
+  log "done"
+else
+  daemon_was_running=0
+  log "(was not running)"
 fi
 
 # Is the state of the PP enable flags correct?
 
-if ! ($tpmc getpf | grep -q "physicalPresenceLifetimeLock 1" &&
+if ! tpm2_target; then
+  if ! ($tpmc getpf | grep -q "physicalPresenceLifetimeLock 1" &&
       $tpmc getpf | grep -q "physicalPresenceHWEnable 0" &&
       $tpmc getpf | grep -q "physicalPresenceCMDEnable 1"); then
-  log_tryfix "bad state of physical presence enable flags"
-  if $tpmc ppfin; then
-    log "physical presence enable flags are now correctly set"
-  else
-    quit "could not set physical presence enable flags"
+    log_tryfix "bad state of physical presence enable flags"
+    if $tpmc ppfin; then
+      log "physical presence enable flags are now correctly set"
+    else
+      quit "could not set physical presence enable flags"
+    fi
   fi
-fi
 
-# Is physical presence turned on?
+  # Is physical presence turned on?
 
-if $tpmc getvf | grep -q "physicalPresence 0"; then
-  log_tryfix "physical presence is OFF, expected ON"
-  # attempt to turn on physical presence
-  if $tpmc ppon; then
-    log "physical presence is now on"
-  else
-    quit "could not turn physical presence on"
+  if $tpmc getvf | grep -q "physicalPresence 0"; then
+    log_tryfix "physical presence is OFF, expected ON"
+    # attempt to turn on physical presence
+    if $tpmc ppon; then
+      log "physical presence is now on"
+    else
+      quit "could not turn physical presence on"
+    fi
+  fi
+else
+  if ! $tpmc getvf | grep -q 'phEnable 1'; then
+    quit "Platform Hierarchy is disabled, TPM can't be recovered"
   fi
 fi
 
@@ -115,9 +157,6 @@ reset_space 0x1008 0x1 0xd "02  4c 57 52 47  01 00 01 00  00 00 00  55" || \
 reset_space 0x1009 0x1 0x10 "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" || \
   log "could not fix backup space"
 
-if [ $tcsd_was_running != 0 ]; then
-  echo Restarting tcsd...
-  $initctl start tcsd >/dev/null
-fi
+restart_daemon_if_needed
 
 log "TPM has successfully been reset to factory defaults"
