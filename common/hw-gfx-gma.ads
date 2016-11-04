@@ -58,6 +58,10 @@ is
    type Config_Index is (Primary, Secondary, Tertiary);
    type Configs_Type is array (Config_Index) of Config_Type;
 
+   -- Special framebuffer offset to indicate legacy VGA plane.
+   -- Only valid on primary pipe.
+   VGA_PLANE_FRAMEBUFFER_OFFSET : constant := 16#ffff_ffff#;
+
    procedure Initialize
      (MMIO_Base   : in     Word64 := 0;
       Write_Delay : in     Word64 := 0;

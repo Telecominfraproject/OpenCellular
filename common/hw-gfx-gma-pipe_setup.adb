@@ -47,6 +47,22 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    SPCNTR_ENABLE : constant :=  1 * 2 ** 31;
 
+   VGA_SR01_SCREEN_OFF                 : constant :=        1 * 2 **  5;
+
+   VGA_CONTROL_VGA_DISPLAY_DISABLE     : constant :=        1 * 2 ** 31;
+   VGA_CONTROL_BLINK_DUTY_CYCLE_MASK   : constant := 16#0003# * 2 **  6;
+   VGA_CONTROL_BLINK_DUTY_CYCLE_50     : constant :=        2 * 2 **  6;
+   VGA_CONTROL_VSYNC_BLINK_RATE_MASK   : constant := 16#003f# * 2 **  0;
+
+   subtype VGA_Cycle_Count is Pos32 range 2 .. 128;
+   function VGA_CONTROL_VSYNC_BLINK_RATE
+     (Cycles : VGA_Cycle_Count)
+      return Word32
+   is
+   begin
+      return Word32 (Cycles) / 2 - 1;
+   end VGA_CONTROL_VSYNC_BLINK_RATE;
+
    TRANS_CLK_SEL_PORT_NONE : constant := 0 * 2 ** 29;
 
    type TRANS_CLK_SEL_PORT_Array is
@@ -311,9 +327,8 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
-   procedure Setup_Display
+   procedure Setup_Hires_Plane
      (Controller  : in     Controller_Type;
-      Head        : in     Head_Type;
       Mode        : in     HW.GFX.Mode_Type;
       Framebuffer : in     HW.GFX.Framebuffer_Type)
    with
@@ -323,7 +338,6 @@ package body HW.GFX.GMA.Pipe_Setup is
             =>+
               (Registers.Register_State,
                Controller,
-               Head,
                Mode,
                Framebuffer))
    is
@@ -341,13 +355,7 @@ package body HW.GFX.GMA.Pipe_Setup is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Registers.Write
-        (Register => Controller.PIPESRC,
-         Value    => Encode
-           (Pos16 (Framebuffer.Height), Pos16 (Framebuffer.Width)));
-
       if Config.Has_Plane_Control then
-         Setup_Watermarks (Controller);
          Registers.Write
            (Register    => Controller.PLANE_CTL,
             Value       => PLANE_CTL_PLANE_ENABLE or
@@ -376,6 +384,57 @@ package body HW.GFX.GMA.Pipe_Setup is
          end if;
          Registers.Write (Controller.DSPTILEOFF, 0);
       end if;
+   end Setup_Hires_Plane;
+
+   procedure Setup_Display
+     (Controller  : in     Controller_Type;
+      Head        : in     Head_Type;
+      Mode        : in     HW.GFX.Mode_Type;
+      Framebuffer : in     HW.GFX.Framebuffer_Type)
+   with
+      Global => (In_Out => (Registers.Register_State, Port_IO.State)),
+      Depends =>
+        (Registers.Register_State
+            =>+
+              (Registers.Register_State,
+               Controller,
+               Head,
+               Mode,
+               Framebuffer),
+         Port_IO.State
+            =>+
+               (Framebuffer))
+   is
+      use type Word8;
+
+      Reg8 : Word8;
+   begin
+      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      if Config.Has_Plane_Control then
+         Setup_Watermarks (Controller);
+      end if;
+
+      if Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET then
+         Registers.Unset_And_Set_Mask
+           (Register    => Registers.VGACNTRL,
+            Mask_Unset  => VGA_CONTROL_VGA_DISPLAY_DISABLE or
+                           VGA_CONTROL_BLINK_DUTY_CYCLE_MASK or
+                           VGA_CONTROL_VSYNC_BLINK_RATE_MASK,
+            Mask_Set    => VGA_CONTROL_BLINK_DUTY_CYCLE_50 or
+                           VGA_CONTROL_VSYNC_BLINK_RATE (30));
+
+         Port_IO.OutB (VGA_SR_INDEX, VGA_SR01);
+         Port_IO.InB  (Reg8, VGA_SR_DATA);
+         Port_IO.OutB (VGA_SR_DATA, Reg8 and not (VGA_SR01_SCREEN_OFF));
+      else
+         Setup_Hires_Plane (Controller, Mode, Framebuffer);
+      end if;
+
+      Registers.Write
+        (Register => Controller.PIPESRC,
+         Value    => Encode
+           (Pos16 (Framebuffer.Height), Pos16 (Framebuffer.Width)));
 
       Registers.Write (Head.HTOTAL,  Encode (Mode.H_Visible,    Mode.H_Total));
       Registers.Write (Head.HBLANK,  Encode (Mode.H_Visible,    Mode.H_Total));

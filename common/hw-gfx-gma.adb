@@ -192,16 +192,19 @@ is
    begin
       -- No downscaling
       -- Respect maximum scalable width
-      -- Only 32bpp RGB
-      -- Stride must be a multiple of 64
+      -- VGA plane is only allowed on the primary pipe
+      -- Only 32bpp RGB (ignored for VGA plane)
+      -- Stride must be a multiple of 64 (ignored for VGA plane)
       return
          ((Framebuffer.Width = Pos32 (Port_Cfg.Mode.H_Visible) and
            Framebuffer.Height = Pos32 (Port_Cfg.Mode.V_Visible)) or
           (Framebuffer.Width <= Config.Maximum_Scalable_Width (I) and
            Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
            Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible))) and
-         Framebuffer.BPC = 8 and
-         Framebuffer.Stride mod 64 = 0;
+         (Framebuffer.Offset /= VGA_PLANE_FRAMEBUFFER_OFFSET or I = Primary) and
+         (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
+          (Framebuffer.BPC = 8 and
+           Framebuffer.Stride mod 64 = 0));
    end Validate_Config;
 
    procedure Fill_Port_Config
