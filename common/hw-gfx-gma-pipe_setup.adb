@@ -21,7 +21,6 @@ with HW.GFX.GMA.Registers;
 
 use type HW.Word64;
 use type HW.Pos16;
-use type HW.Int32;
 use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
 
 package body HW.GFX.GMA.Pipe_Setup is

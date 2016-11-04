@@ -150,7 +150,8 @@ is
    procedure Configure_FDI_Link
      (Port_Cfg : in out Port_Config;
       Success  :    out Boolean)
-   with Pre => True
+   with
+      Post => Port_Cfg.Mode = Port_Cfg.Mode'Old
    is
       procedure Limit_Lane_Count
       is
@@ -182,7 +183,11 @@ is
       Port_Cfg    : Port_Config;
       I           : Config_Index)
       return Boolean
-   with Global => null
+   with
+      Post =>
+        (if Validate_Config'Result then
+            Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
+            Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible))
    is
    begin
       -- No downscaling
@@ -576,7 +581,9 @@ is
                end if;
 
                while Success loop
-                  pragma Loop_Invariant (New_Config.Port in Active_Port_Type);
+                  pragma Loop_Invariant
+                    (New_Config.Port in Active_Port_Type and
+                     Port_Cfg.Mode = Port_Cfg.Mode'Loop_Entry);
 
                   PLLs.Alloc
                     (Port_Cfg => Port_Cfg,

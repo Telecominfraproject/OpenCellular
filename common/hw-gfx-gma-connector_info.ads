@@ -26,14 +26,18 @@ private package HW.GFX.GMA.Connector_Info is
    procedure Preferred_Link_Setting
      (Port_Cfg : in out Port_Config;
       Success  :    out Boolean)
-      with
-         Post => (Port_Cfg.Port = Port_Cfg.Port'Old);
+   with
+      Post =>
+         Port_Cfg.Port = Port_Cfg.Port'Old and
+         Port_Cfg.Mode = Port_Cfg.Mode'Old;
 
    procedure Next_Link_Setting
      (Port_Cfg : in out Port_Config;
       Success  :    out Boolean)
-      with
-         Post => (Port_Cfg.Port = Port_Cfg.Port'Old);
+   with
+      Post =>
+         Port_Cfg.Port = Port_Cfg.Port'Old and
+         Port_Cfg.Mode = Port_Cfg.Mode'Old;
 
    function Default_BPC (Port_Cfg : Port_Config) return BPC_Type;
 

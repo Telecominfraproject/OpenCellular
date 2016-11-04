@@ -14,6 +14,8 @@
 
 with HW.GFX.GMA.Registers;
 
+use type HW.Int32;
+
 private package HW.GFX.GMA.Pipe_Setup
 is
 
@@ -29,7 +31,11 @@ is
      (Controller  : Controller_Type;
       Head        : Head_Type;
       Port_Cfg    : Port_Config;
-      Framebuffer : Framebuffer_Type);
+      Framebuffer : Framebuffer_Type)
+   with
+      Pre =>
+         Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
+         Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible);
 
    procedure Off
      (Controller : Controller_Type;
