@@ -339,7 +339,10 @@ package body HW.GFX.GMA.Pipe_Setup is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Registers.Write (Controller.PIPESRC, Encode (Mode.V_Visible, Mode.H_Visible));
+      Registers.Write
+        (Register => Controller.PIPESRC,
+         Value    => Encode
+           (Pos16 (Framebuffer.Height), Pos16 (Framebuffer.Width)));
 
       if Config.Has_Plane_Control then
          Setup_Watermarks (Controller);
