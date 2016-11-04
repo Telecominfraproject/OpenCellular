@@ -333,9 +333,8 @@ package body HW.GFX.GMA.Pipe_Setup is
    ----------------------------------------------------------------------------
 
    procedure Setup_Hires_Plane
-     (Controller  : in     Controller_Type;
-      Mode        : in     HW.GFX.Mode_Type;
-      Framebuffer : in     HW.GFX.Framebuffer_Type)
+     (Controller  : Controller_Type;
+      Framebuffer : HW.GFX.Framebuffer_Type)
    with
       Global => (In_Out => Registers.Register_State),
       Depends =>
@@ -343,7 +342,6 @@ package body HW.GFX.GMA.Pipe_Setup is
             =>+
               (Registers.Register_State,
                Controller,
-               Mode,
                Framebuffer))
    is
       -- FIXME: setup correct format, based on framebuffer RGB format
@@ -367,7 +365,9 @@ package body HW.GFX.GMA.Pipe_Setup is
                            PLANE_CTL_SRC_PIX_FMT_RGB_32B_8888 or
                            PLANE_CTL_PLANE_GAMMA_DISABLE);
          Registers.Write (Controller.PLANE_OFFSET, 16#0000_0000#);
-         Registers.Write (Controller.PLANE_SIZE,   Encode (Mode.H_Visible, Mode.V_Visible));
+         Registers.Write
+           (Controller.PLANE_SIZE,
+            Encode (Pos16 (Framebuffer.Width), Pos16 (Framebuffer.Height)));
          Registers.Write (Controller.PLANE_STRIDE, To_Bytes (Framebuffer.Stride) / 64);
          Registers.Write (Controller.PLANE_POS,    16#0000_0000#);
          Registers.Write (Controller.PLANE_SURF,   Framebuffer.Offset and 16#ffff_f000#);
@@ -444,7 +444,7 @@ package body HW.GFX.GMA.Pipe_Setup is
          Port_IO.InB  (Reg8, VGA_SR_DATA);
          Port_IO.OutB (VGA_SR_DATA, Reg8 and not (VGA_SR01_SCREEN_OFF));
       else
-         Setup_Hires_Plane (Controller, Mode, Framebuffer);
+         Setup_Hires_Plane (Controller, Framebuffer);
       end if;
 
       Registers.Write
