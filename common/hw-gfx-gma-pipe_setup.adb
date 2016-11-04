@@ -64,11 +64,13 @@ package body HW.GFX.GMA.Pipe_Setup is
    PIPECONF_ENABLE_DITHER   : constant := 1 * 2 **  4;
    PIPECONF_DITHER_TEMPORAL : constant := 1 * 2 **  2;
 
-   PF_CTL_1_ENABLE : constant Word32 := 1 * 2 ** 31;
+   PF_CTRL_ENABLE                         : constant := 1 * 2 ** 31;
+   PF_CTRL_PIPE_SELECT_MASK               : constant := 3 * 2 ** 29;
+   PF_CTRL_FILTER_MED                     : constant := 1 * 2 ** 23;
 
-   PS_CTRL_ENABLE_SCALER               : constant Word32 := 1 * 2 ** 31;
-   PS_CTRL_SCALER_MODE_7X5_EXTENDED    : constant Word32 := 1 * 2 ** 28;
-   PS_CTRL_FILTER_SELECT_MEDIUM_2      : constant Word32 := 1 * 2 ** 23;
+   PS_CTRL_ENABLE_SCALER                  : constant := 1 * 2 ** 31;
+   PS_CTRL_SCALER_MODE_7X5_EXTENDED       : constant := 1 * 2 ** 28;
+   PS_CTRL_FILTER_SELECT_MEDIUM_2         : constant := 1 * 2 ** 23;
 
    PIPE_DDI_FUNC_CTL_ENABLE               : constant := 1 * 2 ** 31;
    PIPE_DDI_FUNC_CTL_DDI_SELECT_MASK      : constant := 7 * 2 ** 28;
@@ -385,6 +387,148 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
+   procedure Scale_Keep_Aspect
+     (Width       :    out Pos32;
+      Height      :    out Pos32;
+      Max_Width   : in     Pos32;
+      Max_Height  : in     Pos32;
+      Framebuffer : in     Framebuffer_Type)
+   with
+      Pre =>
+         Max_Width <= Pos32 (Pos16'Last) and
+         Max_Height <= Pos32 (Pos16'Last) and
+         Framebuffer.Width <= Max_Width and
+         Framebuffer.Height <= Max_Height,
+      Post =>
+         Width <= Max_Width and Height <= Max_Height
+   is
+   begin
+      if (Max_Width * Framebuffer.Height) / Framebuffer.Width <= Max_Height then
+         Width  := Max_Width;
+         Height := (Max_Width * Framebuffer.Height) / Framebuffer.Width;
+      else
+         Height := Max_Height;
+         Width  := Pos32'Min (Max_Width,  -- could prove, it's <= Max_Width
+            (Max_Height * Framebuffer.Width) / Framebuffer.Height);
+      end if;
+   end Scale_Keep_Aspect;
+
+   procedure Setup_Skylake_Pipe_Scaler
+     (Controller  : in     Controller_Type;
+      Mode        : in     HW.GFX.Mode_Type;
+      Framebuffer : in     HW.GFX.Framebuffer_Type)
+   with
+      Pre =>
+         Framebuffer.Width <= Pos32 (Mode.H_Visible) and
+         Framebuffer.Height <= Pos32 (Mode.V_Visible)
+   is
+      -- Enable 7x5 extended mode where possible:
+      Scaler_Mode : constant Word32 :=
+        (if Controller.PS_CTRL_2 /= Registers.Invalid_Register then
+            PS_CTRL_SCALER_MODE_7X5_EXTENDED else 0);
+
+      -- We can scale up to 2.99x horizontally:
+      Horizontal_Limit : constant Pos32 := ((Framebuffer.Width * 299) / 100);
+      -- The third scaler is limited to 1.99x
+      -- vertical scaling for source widths > 2048:
+      Vertical_Limit : constant Pos32 :=
+        (Framebuffer.Height *
+           (if Controller.PS_CTRL_2 = Registers.Invalid_Register and
+               Framebuffer.Width > 2048
+            then
+               199
+            else
+               299)) / 100;
+
+      Width, Height : Pos32;
+   begin
+      -- Writes to WIN_SZ arm the PS registers.
+
+      Scale_Keep_Aspect
+        (Width       => Width,
+         Height      => Height,
+         Max_Width   => Pos32'Min (Horizontal_Limit, Pos32 (Mode.H_Visible)),
+         Max_Height  => Pos32'Min (Vertical_Limit, Pos32 (Mode.V_Visible)),
+         Framebuffer => Framebuffer);
+
+      Registers.Write
+        (Register => Controller.PS_CTRL_1,
+         Value    => PS_CTRL_ENABLE_SCALER or Scaler_Mode);
+      Registers.Write
+        (Register => Controller.PS_WIN_POS_1,
+         Value    =>
+            Shift_Left (Word32 (Pos32 (Mode.H_Visible) - Width) / 2, 16) or
+            Word32 (Pos32 (Mode.V_Visible) - Height) / 2);
+      Registers.Write
+        (Register => Controller.PS_WIN_SZ_1,
+         Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
+   end Setup_Skylake_Pipe_Scaler;
+
+   procedure Setup_Ironlake_Panel_Fitter
+     (Controller  : in     Controller_Type;
+      Mode        : in     HW.GFX.Mode_Type;
+      Framebuffer : in     HW.GFX.Framebuffer_Type)
+   with
+      Pre =>
+         Framebuffer.Width <= Pos32 (Mode.H_Visible) and
+         Framebuffer.Height <= Pos32 (Mode.V_Visible)
+   is
+      -- Force 1:1 mapping of panel fitter:pipe
+      PF_Ctrl_Pipe_Sel : constant Word32 :=
+        (if Config.Has_PF_Pipe_Select then
+           (case Controller.PF_CTRL is
+               when Registers.PFA_CTL_1 => 0 * 2 ** 29,
+               when Registers.PFB_CTL_1 => 1 * 2 ** 29,
+               when Registers.PFC_CTL_1 => 2 * 2 ** 29,
+               when others              => 0) else 0);
+
+      Width, Height : Pos32;
+   begin
+      -- Writes to WIN_SZ arm the PF registers.
+
+      Scale_Keep_Aspect
+        (Width       => Width,
+         Height      => Height,
+         Max_Width   => Pos32 (Mode.H_Visible),
+         Max_Height  => Pos32 (Mode.V_Visible),
+         Framebuffer => Framebuffer);
+
+      Registers.Write
+        (Register => Controller.PF_CTRL,
+         Value    => PF_CTRL_ENABLE or PF_Ctrl_Pipe_Sel or PF_CTRL_FILTER_MED);
+      Registers.Write
+        (Register => Controller.PF_WIN_POS,
+         Value    =>
+            Shift_Left (Word32 (Pos32 (Mode.H_Visible) - Width) / 2, 16) or
+            Word32 (Pos32 (Mode.V_Visible) - Height) / 2);
+      Registers.Write
+        (Register => Controller.PF_WIN_SZ,
+         Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
+   end Setup_Ironlake_Panel_Fitter;
+
+   procedure Setup_Scaling
+     (Controller  : in     Controller_Type;
+      Mode        : in     HW.GFX.Mode_Type;
+      Framebuffer : in     HW.GFX.Framebuffer_Type)
+   with
+      Pre =>
+         Framebuffer.Width <= Pos32 (Mode.H_Visible) and
+         Framebuffer.Height <= Pos32 (Mode.V_Visible)
+   is
+   begin
+      if Framebuffer.Width /= Pos32 (Mode.H_Visible) or
+         Framebuffer.Height /= Pos32 (Mode.V_Visible)
+      then
+         if Config.Has_Plane_Control then
+            Setup_Skylake_Pipe_Scaler (Controller, Mode, Framebuffer);
+         else
+            Setup_Ironlake_Panel_Fitter (Controller, Mode, Framebuffer);
+         end if;
+      end if;
+   end Setup_Scaling;
+
+   ----------------------------------------------------------------------------
+
    procedure Setup_Head
      (Controller  : Controller_Type;
       Head        : Head_Type;
@@ -456,6 +600,8 @@ package body HW.GFX.GMA.Pipe_Setup is
 
       Setup_Display (Controller, Head, Port_Cfg.Mode, Framebuffer);
 
+      Setup_Scaling (Controller, Port_Cfg.Mode, Framebuffer);
+
       Setup_Head (Controller, Head, Port_Cfg, Framebuffer);
    end On;
 
@@ -511,7 +657,7 @@ package body HW.GFX.GMA.Pipe_Setup is
             Registers.Write (Controller.PS_WIN_SZ_2, 16#0000_0000#);
          end if;
       else
-         Registers.Unset_Mask (Controller.PF_CTL_1, PF_CTL_1_ENABLE);
+         Registers.Unset_Mask (Controller.PF_CTRL, PF_CTRL_ENABLE);
          Registers.Write (Controller.PF_WIN_SZ, 16#0000_0000#);
       end if;
    end Panel_Fitter_Off;

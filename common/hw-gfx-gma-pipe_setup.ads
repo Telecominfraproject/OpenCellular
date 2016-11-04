@@ -65,7 +65,7 @@ private
          Kind              : Controller_Kind;
          PIPESRC           : Registers.Registers_Index;
          PIPEMISC          : Registers.Registers_Index;
-         PF_CTL_1          : Registers.Registers_Index;
+         PF_CTRL           : Registers.Registers_Index;
          PF_WIN_POS        : Registers.Registers_Index;
          PF_WIN_SZ         : Registers.Registers_Index;
          DSPCNTR           : Registers.Registers_Index;
@@ -83,8 +83,9 @@ private
          PLANE_STRIDE      : Registers.Registers_Index;
          PLANE_SURF        : Registers.Registers_Index;
          PS_CTRL_1         : Registers.Registers_Index;
-         PS_CTRL_2         : Registers.Registers_Invalid_Index;
+         PS_WIN_POS_1      : Registers.Registers_Index;
          PS_WIN_SZ_1       : Registers.Registers_Index;
+         PS_CTRL_2         : Registers.Registers_Invalid_Index;
          PS_WIN_SZ_2       : Registers.Registers_Invalid_Index;
          WM_LINETIME       : Registers.Registers_Index;
          PLANE_BUF_CFG     : Registers.Registers_Index;
@@ -114,7 +115,7 @@ private
         (Kind              => A,
          PIPESRC           => Registers.PIPEASRC,
          PIPEMISC          => Registers.PIPEAMISC,
-         PF_CTL_1          => Registers.PFA_CTL_1,
+         PF_CTRL           => Registers.PFA_CTL_1,
          PF_WIN_POS        => Registers.PFA_WIN_POS,
          PF_WIN_SZ         => Registers.PFA_WIN_SZ,
          DSPCNTR           => Registers.DSPACNTR,
@@ -131,8 +132,9 @@ private
          PLANE_STRIDE      => Registers.DSPASTRIDE,
          PLANE_SURF        => Registers.DSPASURF,
          PS_CTRL_1         => Registers.PS_CTRL_1_A,
-         PS_CTRL_2         => Registers.PS_CTRL_2_A,
+         PS_WIN_POS_1      => Registers.PS_WIN_POS_1_A,
          PS_WIN_SZ_1       => Registers.PS_WIN_SZ_1_A,
+         PS_CTRL_2         => Registers.PS_CTRL_2_A,
          PS_WIN_SZ_2       => Registers.PS_WIN_SZ_2_A,
          WM_LINETIME       => Registers.WM_LINETIME_A,
          PLANE_BUF_CFG     => Registers.PLANE_BUF_CFG_1_A,
@@ -149,7 +151,7 @@ private
         (Kind              => B,
          PIPESRC           => Registers.PIPEBSRC,
          PIPEMISC          => Registers.PIPEBMISC,
-         PF_CTL_1          => Registers.PFB_CTL_1,
+         PF_CTRL           => Registers.PFB_CTL_1,
          PF_WIN_POS        => Registers.PFB_WIN_POS,
          PF_WIN_SZ         => Registers.PFB_WIN_SZ,
          DSPCNTR           => Registers.DSPBCNTR,
@@ -166,8 +168,9 @@ private
          PLANE_STRIDE      => Registers.DSPBSTRIDE,
          PLANE_SURF        => Registers.DSPBSURF,
          PS_CTRL_1         => Registers.PS_CTRL_1_B,
-         PS_CTRL_2         => Registers.PS_CTRL_2_B,
+         PS_WIN_POS_1      => Registers.PS_WIN_POS_1_B,
          PS_WIN_SZ_1       => Registers.PS_WIN_SZ_1_B,
+         PS_CTRL_2         => Registers.PS_CTRL_2_B,
          PS_WIN_SZ_2       => Registers.PS_WIN_SZ_2_B,
          WM_LINETIME       => Registers.WM_LINETIME_B,
          PLANE_BUF_CFG     => Registers.PLANE_BUF_CFG_1_B,
@@ -184,7 +187,7 @@ private
         (Kind              => C,
          PIPESRC           => Registers.PIPECSRC,
          PIPEMISC          => Registers.PIPECMISC,
-         PF_CTL_1          => Registers.PFC_CTL_1,
+         PF_CTRL           => Registers.PFC_CTL_1,
          PF_WIN_POS        => Registers.PFC_WIN_POS,
          PF_WIN_SZ         => Registers.PFC_WIN_SZ,
          DSPCNTR           => Registers.DSPCCNTR,
@@ -201,8 +204,9 @@ private
          PLANE_STRIDE      => Registers.DSPCSTRIDE,
          PLANE_SURF        => Registers.DSPCSURF,
          PS_CTRL_1         => Registers.PS_CTRL_1_C,
-         PS_CTRL_2         => Registers.Invalid_Register,
+         PS_WIN_POS_1      => Registers.PS_WIN_POS_1_C,
          PS_WIN_SZ_1       => Registers.PS_WIN_SZ_1_C,
+         PS_CTRL_2         => Registers.Invalid_Register,
          PS_WIN_SZ_2       => Registers.Invalid_Register,
          WM_LINETIME       => Registers.WM_LINETIME_C,
          PLANE_BUF_CFG     => Registers.PLANE_BUF_CFG_1_C,

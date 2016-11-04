@@ -48,6 +48,7 @@ is
    Has_Pipeconf_BPC        : constant Boolean := CPU /= Haswell;
    Has_Plane_Control       : constant Boolean := CPU >= Skylake;
    Has_DSP_Linoff          : constant Boolean := CPU <= Ivybridge;
+   Has_PF_Pipe_Select      : constant Boolean := CPU in Ivybridge .. Haswell;
 
    ----- Panel power: -----
    Has_PP_Write_Protection : constant Boolean := CPU <= Ivybridge;
