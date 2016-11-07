@@ -344,7 +344,8 @@ is
 
    procedure Scan_Ports
      (Configs  :    out Configs_Type;
-      Ports    : in     Port_List)
+      Ports    : in     Port_List;
+      Max_Pipe : in     Config_Index := Config_Index'Last)
    is
       Raw_EDID : EDID.Raw_EDID_Data := (others => 16#00#);
       Port_Idx : Port_List_Range := Port_List_Range'First;
@@ -356,7 +357,7 @@ is
                      Mode        => Invalid_Mode,
                      Framebuffer => Default_FB));
 
-      for Config_Idx in Config_Index loop
+      for Config_Idx in Config_Index range Config_Index'First .. Max_Pipe loop
          while Ports (Port_Idx) /= Disabled loop
             if not Port_Configured (Configs, Ports (Port_Idx)) then
                Configs (Config_Idx).Port := Ports (Port_Idx);

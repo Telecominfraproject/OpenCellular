@@ -80,7 +80,8 @@ is
 
    procedure Scan_Ports
      (Configs  :    out Configs_Type;
-      Ports    : in     Port_List);
+      Ports    : in     Port_List;
+      Max_Pipe : in     Config_Index := Config_Index'Last);
    procedure Auto_Configure
      (Configs     : in out Configs_Type;
       Keep_Power  : in     Boolean := False);
