@@ -67,7 +67,7 @@ is
       GAB_CTL_REG,
       VGACNTRL,
       FUSE_STATUS,
-      QUIRK_42004,
+      ILK_DISPLAY_CHICKEN2,
       DSPCLK_GATE_D,
       FBA_CFB_BASE,
       FBC_CTL,
@@ -965,7 +965,7 @@ is
       VCS_PP_DCLV_LOW       => 16#01_2228# / Register_Width,
       BCS_PP_DCLV_HIGH      => 16#02_2220# / Register_Width,
       BCS_PP_DCLV_LOW       => 16#02_2228# / Register_Width,
-      QUIRK_42004           => 16#04_2004# / Register_Width,
+      ILK_DISPLAY_CHICKEN2  => 16#04_2004# / Register_Width,
       UCGCTL1               => 16#00_9400# / Register_Width,
       UCGCTL2               => 16#00_9404# / Register_Width,
       MBCTL                 => 16#00_907c# / Register_Width,
@@ -1029,6 +1029,7 @@ is
    DP_AUX_DATA_A_3      : constant Registers_Index := DDI_AUX_DATA_A_3;
    DP_AUX_DATA_A_4      : constant Registers_Index := DDI_AUX_DATA_A_4;
    DP_AUX_DATA_A_5      : constant Registers_Index := DDI_AUX_DATA_A_5;
+   ILK_DISPLAY_CHICKEN1 : constant Registers_Index := FUSE_STATUS;
 
    ---------------------------------------------------------------------------
 

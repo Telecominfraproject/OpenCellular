@@ -25,6 +25,11 @@ use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
 
 package body HW.GFX.GMA.Pipe_Setup is
 
+   ILK_DISPLAY_CHICKEN1_VGA_MASK       : constant := 7 * 2 ** 29;
+   ILK_DISPLAY_CHICKEN1_VGA_ENABLE     : constant := 5 * 2 ** 29;
+   ILK_DISPLAY_CHICKEN2_VGA_MASK       : constant := 1 * 2 ** 25;
+   ILK_DISPLAY_CHICKEN2_VGA_ENABLE     : constant := 0 * 2 ** 25;
+
    DSPCNTR_ENABLE               : constant :=  1 * 2 ** 31;
    DSPCNTR_GAMMA_CORRECTION     : constant :=  1 * 2 ** 30;
    DSPCNTR_DISABLE_TRICKLE_FEED : constant :=  1 * 2 ** 14;
@@ -416,6 +421,17 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
 
       if Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET then
+         if Config.VGA_Plane_Workaround then
+            Registers.Unset_And_Set_Mask
+              (Register    => Registers.ILK_DISPLAY_CHICKEN1,
+               Mask_Unset  => ILK_DISPLAY_CHICKEN1_VGA_MASK,
+               Mask_Set    => ILK_DISPLAY_CHICKEN1_VGA_ENABLE);
+            Registers.Unset_And_Set_Mask
+              (Register    => Registers.ILK_DISPLAY_CHICKEN2,
+               Mask_Unset  => ILK_DISPLAY_CHICKEN2_VGA_MASK,
+               Mask_Set    => ILK_DISPLAY_CHICKEN2_VGA_ENABLE);
+         end if;
+
          Registers.Unset_And_Set_Mask
            (Register    => Registers.VGACNTRL,
             Mask_Unset  => VGA_CONTROL_VGA_DISPLAY_DISABLE or
