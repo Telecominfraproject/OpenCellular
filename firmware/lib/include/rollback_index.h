@@ -20,6 +20,8 @@
 #define BACKUP_NV_SIZE 16
 #define FWMP_NV_INDEX			0x100a
 #define FWMP_NV_MAX_SIZE 128
+#define REC_HASH_NV_INDEX                0x100b
+#define REC_HASH_NV_SIZE                 VB2_SHA256_DIGEST_SIZE
 
 /* Structure definitions for TPM spaces */
 
