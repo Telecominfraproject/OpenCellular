@@ -278,6 +278,8 @@ typedef enum VbFwResult {
 #define VBNV_RECOVERY_RW_BCB_ERROR    0x5C
 /* Fastboot mode requested in firmware */
 #define VBNV_RECOVERY_FW_FASTBOOT     0x5E
+/* Recovery hash space lock error in RO firmware */
+#define VBNV_RECOVERY_RO_TPM_REC_HASH_L_ERROR  0x5F
 /* Unspecified/unknown error in rewritable firmware */
 #define VBNV_RECOVERY_RW_UNSPECIFIED  0x7F
 /* DM-verity error */

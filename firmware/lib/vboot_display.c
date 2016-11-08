@@ -527,6 +527,8 @@ const char *RecoveryReasonString(uint8_t code)
 		return "BCB partition error on disk";
 	case VBNV_RECOVERY_FW_FASTBOOT:
 		return "Fastboot-mode requested in firmware";
+	case VBNV_RECOVERY_RO_TPM_REC_HASH_L_ERROR:
+		return "Recovery hash space lock error in RO firmware";
 	case VBNV_RECOVERY_RW_UNSPECIFIED:
 		return "Unspecified/unknown error in RW firmware";
 	case VBNV_RECOVERY_KE_DM_VERITY:

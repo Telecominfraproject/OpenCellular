@@ -202,6 +202,9 @@ enum vb2_nv_recovery {
 	/* Fastboot mode requested in firmware */
 	VB2_RECOVERY_FW_FASTBOOT     = 0x5e,
 
+	/* Recovery hash space lock error in RO firmware */
+	VB2_RECOVERY_RO_TPM_REC_HASH_L_ERROR = 0x5f,
+
 	/* Unspecified/unknown error in rewritable firmware */
 	VB2_RECOVERY_RW_UNSPECIFIED  = 0x7f,
 
