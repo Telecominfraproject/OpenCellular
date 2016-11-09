@@ -57,20 +57,18 @@ static VbError_t DoError(VbError_t result, const char* format, ...)
 	return result;
 }
 
-/* Print |n| bytes from array |a|, with newlines.
+/* Print |n| bytes from array |a| to stderr, with newlines.
  */
-__attribute__((unused)) static void PrintBytes(const uint8_t* a, int n)
+__attribute__((unused)) static void DbgPrintBytes(const uint8_t* a, int n)
 {
 	int i;
+	fprintf(stderr, "DEBUG: ");
 	for (i = 0; i < n; i++) {
-		VBDEBUG(("%02x ", a[i]));
-		if ((i + 1) % 16 == 0) {
-			VBDEBUG(("\n"));
-		}
+		if (i && i % 16 == 0)
+			fprintf(stderr, "\nDEBUG: ");
+		fprintf(stderr, "%02x ", a[i]);
 	}
-	if (i % 16 != 0) {
-		VBDEBUG(("\n"));
-	}
+	fprintf(stderr, "\n");
 }
 
 
@@ -216,27 +214,24 @@ VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
 #endif
 	VbError_t result;
 
+#ifdef VBOOT_DEBUG
 	struct timeval before, after;
+	VBDEBUG(("request (%d bytes):\n", request_length));
+	DbgPrintBytes(request, request_length);
 	gettimeofday(&before, NULL);
+#endif
+
 	result = TpmExecute(request, request_length, response, response_length);
 	if (result != VBERROR_SUCCESS)
 		return result;
-	gettimeofday(&after, NULL);
 
 #ifdef VBOOT_DEBUG
-	{
-		int x = request_length;
-		int y = *response_length;
-		VBDEBUG(("request (%d bytes): ", x));
-		PrintBytes(request, 10);
-		PrintBytes(request + 10, x - 10);
-		VBDEBUG(("response (%d bytes): ", y));
-		PrintBytes(response, 10);
-		PrintBytes(response + 10, y - 10);
-		VBDEBUG(("execution time: %dms\n",
-			 (int) ((after.tv_sec - before.tv_sec) * 1000 +
-				(after.tv_usec - before.tv_usec) / 1000)));
-	}
+	gettimeofday(&after, NULL);
+	VBDEBUG(("response (%d bytes):\n", *response_length));
+	DbgPrintBytes(response, *response_length);
+	VBDEBUG(("execution time: %dms\n",
+		 (int) ((after.tv_sec - before.tv_sec) * 1000 +
+			(after.tv_usec - before.tv_usec) / 1000)));
 #endif
 
 #ifndef NDEBUG
