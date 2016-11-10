@@ -27,6 +27,7 @@
 #define TPM2_Shutdown          ((TPM_CC)0x00000145)
 #define TPM2_NV_Read           ((TPM_CC)0x0000014E)
 #define TPM2_NV_ReadLock       ((TPM_CC)0x0000014F)
+#define TPM2_NV_ReadPublic     ((TPM_CC)0x00000169)
 #define TPM2_GetCapability     ((TPM_CC)0x0000017A)
 
 /* TCG Spec defined, verify for TPM2.
@@ -106,7 +107,7 @@ typedef uint32_t TPMA_NV;
 typedef struct {
 	uint16_t      size;
 	uint8_t       *buffer;
-} TPM2B, TPM2B_DIGEST, TPM2B_AUTH;
+} TPM2B, TPM2B_DIGEST, TPM2B_AUTH, TPM2B_NAME;
 
 typedef union {
 	struct {
@@ -165,6 +166,10 @@ struct tpm2_nv_read_lock_cmd {
 };
 
 struct tpm2_nv_write_lock_cmd {
+	TPMI_RH_NV_INDEX nvIndex;
+};
+
+struct tpm2_nv_read_public_cmd {
 	TPMI_RH_NV_INDEX nvIndex;
 };
 
@@ -230,12 +235,18 @@ struct get_capability_response {
 	TPMS_CAPABILITY_DATA capability_data;
 } __attribute__((packed));
 
+struct nv_read_public_response {
+	TPMS_NV_PUBLIC nvPublic;
+	TPM2B_NAME nvName;
+} __attribute__((packed));
+
 struct tpm2_response {
 	struct tpm_header hdr;
 	union {
 		struct nv_read_response nvr;
 		struct tpm2_session_header def_space;
 		struct get_capability_response cap;
+		struct nv_read_public_response nv_read_public;
 	};
 };
 

@@ -101,6 +101,9 @@ static uint32_t unmarshal_u32(void **buffer, int *buffer_space)
 	return value;
 }
 
+#define unmarshal_TPM_HANDLE(a, b) unmarshal_u32(a, b)
+#define unmarshal_ALG_ID(a, b) unmarshal_u16(a, b)
+
 static void unmarshal_TPM2B_MAX_NV_BUFFER(void **buffer,
 					  int *size,
 					  TPM2B_MAX_NV_BUFFER *nv_buffer)
@@ -154,6 +157,69 @@ static void unmarshal_nv_read(void **buffer, int *size,
 		return;
 
 	unmarshal_authorization_section(buffer, size, "NV_Read");
+}
+
+static void unmarshal_TPM2B(void **buffer,
+			    int *size,
+			    TPM2B *tpm2b)
+{
+	tpm2b->size = unmarshal_u16(buffer, size);
+	if (tpm2b->size > *size) {
+		VBDEBUG(("%s:%d - "
+		       "size mismatch: expected %d, remaining %d\n",
+			 __func__, __LINE__, tpm2b->size, *size));
+		*size = -1;
+		return;
+	}
+
+	tpm2b->buffer = *buffer;
+
+	*buffer = ((uint8_t *)(*buffer)) + tpm2b->size;
+	*size -= tpm2b->size;
+}
+
+static void unmarshal_TPMS_NV_PUBLIC(void **buffer,
+				     int *size,
+				     TPMS_NV_PUBLIC *pub)
+{
+	int tpm2b_size = unmarshal_u16(buffer, size);
+	if (tpm2b_size > *size) {
+		VBDEBUG(("%s:%d - "
+			 "size mismatch: expected %d, remaining %d\n",
+			 __func__, __LINE__, tpm2b_size, *size));
+		*size = -1;
+		return;
+	}
+	*size -= tpm2b_size;
+
+	pub->nvIndex = unmarshal_TPM_HANDLE(buffer, &tpm2b_size);
+	pub->nameAlg = unmarshal_ALG_ID(buffer, &tpm2b_size);
+	pub->attributes = unmarshal_u32(buffer, &tpm2b_size);
+	unmarshal_TPM2B(buffer, &tpm2b_size, &pub->authPolicy);
+	pub->dataSize = unmarshal_u16(buffer, &tpm2b_size);
+
+	if (tpm2b_size != 0) {
+		VBDEBUG(("%s:%d - "
+			 "TPMS_NV_PUBLIC size doesn't match the size field\n",
+			 __func__, __LINE__));
+		*size = -1;
+		return;
+	}
+}
+
+static void unmarshal_nv_read_public(void **buffer, int *size,
+				     struct nv_read_public_response *nv_pub)
+{
+	unmarshal_TPMS_NV_PUBLIC(buffer, size, &nv_pub->nvPublic);
+	unmarshal_TPM2B(buffer, size, &nv_pub->nvName);
+
+	if (*size > 0) {
+		VBDEBUG(("%s:%d - "
+			 "extra %d bytes after nvName\n",
+			 __func__, __LINE__, *size));
+		*size = -1;
+		return;
+	}
 }
 
 static void unmarshal_TPML_TAGGED_TPM_PROPERTY(void **buffer, int *size,
@@ -499,6 +565,15 @@ static void marshal_nv_write_lock(void **buffer,
 	marshal_session_header(buffer, &session_header, buffer_space);
 }
 
+static void marshal_nv_read_public(void **buffer,
+				   struct tpm2_nv_read_public_cmd *command_body,
+				   int *buffer_space)
+{
+	tpm_tag = TPM_ST_NO_SESSIONS;
+
+	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
+}
+
 static void marshal_hierarchy_control(void **buffer,
 				      struct tpm2_hierarchy_control_cmd
 				          *command_body,
@@ -600,6 +675,10 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 		marshal_nv_write_lock(&cmd_body, tpm_command_body, &body_size);
 		break;
 
+	case TPM2_NV_ReadPublic:
+		marshal_nv_read_public(&cmd_body, tpm_command_body, &body_size);
+		break;
+
 	case TPM2_Hierarchy_Control:
 		marshal_hierarchy_control(&cmd_body,
 					  tpm_command_body, &body_size);
@@ -670,6 +749,11 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 	case TPM2_NV_Read:
 		unmarshal_nv_read(&response_body, &cr_size,
 				  &tpm2_resp.nvr);
+		break;
+
+	case TPM2_NV_ReadPublic:
+		unmarshal_nv_read_public(&response_body, &cr_size,
+				         &tpm2_resp.nv_read_public);
 		break;
 
 	case TPM2_GetCapability:

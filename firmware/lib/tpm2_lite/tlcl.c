@@ -244,13 +244,37 @@ uint32_t TlclExtend(int pcr_num, const uint8_t *in_digest, uint8_t *out_digest)
 	return TPM_SUCCESS;
 }
 
+
+static uint32_t tlcl_nv_read_public(uint32_t index,
+				    struct nv_read_public_response **presp)
+{
+	struct tpm2_response *response;
+	struct tpm2_nv_read_public_cmd read_pub;
+
+	memset(&read_pub, 0, sizeof(read_pub));
+	read_pub.nvIndex = HR_NV_INDEX + index;
+
+	response = tpm_process_command(TPM2_NV_ReadPublic, &read_pub);
+	if (!response || response->hdr.tpm_code)
+		return TPM_E_IOERROR;
+	*presp = &response->nv_read_public;
+
+	return TPM_SUCCESS;
+}
+
 /**
  * Get the permission bits for the NVRAM space with |index|.
  */
 uint32_t TlclGetPermissions(uint32_t index, uint32_t *permissions)
 {
-	*permissions = 0;
-	VBDEBUG(("%s called, NOT YET IMPLEMENTED\n", __func__));
+	uint32_t rv;
+	struct nv_read_public_response *resp;
+
+	rv = tlcl_nv_read_public(index, &resp);
+	if (rv != TPM_SUCCESS)
+		return rv;
+
+	*permissions = resp->nvPublic.attributes;
 	return TPM_SUCCESS;
 }
 
