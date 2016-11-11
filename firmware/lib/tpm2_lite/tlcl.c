@@ -408,16 +408,10 @@ uint32_t TlclSetGlobalLock(void)
  */
 uint32_t TlclLockPhysicalPresence(void)
 {
-	uint32_t rv;
-
 	if (tpm_is_ph_disabled())
 		return TPM_SUCCESS;
 
-	rv = tlcl_lock_nv_write(KERNEL_NV_INDEX);
-	if (rv == TPM_SUCCESS)
-		rv = tlcl_disable_platform_hierarchy();
-
-	return rv;
+	return tlcl_disable_platform_hierarchy();
 }
 
 uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
