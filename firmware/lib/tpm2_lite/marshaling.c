@@ -542,7 +542,7 @@ static void marshal_nv_read_lock(void **buffer,
 	struct tpm2_session_header session_header;
 
 	tpm_tag = TPM_ST_SESSIONS;
-	marshal_TPM_HANDLE(buffer, TPM_RH_PLATFORM, buffer_space);
+	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	marshal_TPM_HANDLE(buffer, command_body->nvIndex, buffer_space);
 	memset(&session_header, 0, sizeof(session_header));
 	session_header.session_handle = TPM_RS_PW;
@@ -764,6 +764,7 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 	case TPM2_Hierarchy_Control:
 	case TPM2_NV_Write:
 	case TPM2_NV_WriteLock:
+	case TPM2_NV_ReadLock:
 	case TPM2_Clear:
 	case TPM2_SelfTest:
 	case TPM2_Startup:
