@@ -129,6 +129,11 @@ uint8_t ErrorCheck(uint32_t result, const char* cmd) {
 
 /* Handler functions.  These wouldn't exist if C had closures.
  */
+static uint32_t HandlerTpmVersion(void) {
+  puts(TPM_MODE_STRING);
+  return 0;
+}
+
 /* TODO(apronin): stub for selected flags for TPM2 */
 #ifdef TPM2_MODE
 static uint32_t HandlerGetFlags(void) {
@@ -465,6 +470,8 @@ static uint32_t HandlerNotImplementedForTPM2(void) {
 /* Table of TPM commands.
  */
 command_record command_table[] = {
+  { "tpmversion", "tpmver", "print TPM version: 1.2 or 2.0",
+    HandlerTpmVersion },
   { "getflags", "getf", "read and print the value of selected flags",
     HandlerGetFlags },
   { "startup", "sta", "issue a Startup command", TlclStartup },
@@ -558,6 +565,9 @@ int main(int argc, char* argv[]) {
         printf("%26s %7s  %s\n", c->name, c->abbr, c->description);
       }
       return 0;
+    }
+    if (!strcmp(cmd, "tpmversion") || !strcmp(cmd, "tpmver")) {
+      return HandlerTpmVersion();
     }
 
     result = TlclLibInit();
