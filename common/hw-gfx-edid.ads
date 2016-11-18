@@ -22,6 +22,9 @@ is
    subtype Raw_EDID_Data is Buffer (Raw_EDID_Index);
 
    function Valid (Raw_EDID : Raw_EDID_Data) return Boolean;
+   procedure Sanitize (Raw_EDID : in out Raw_EDID_Data; Success : out Boolean)
+   with
+      Post => (if Success then Valid (Raw_EDID));
 
    DESCRIPTOR_1 : constant := 54;
 

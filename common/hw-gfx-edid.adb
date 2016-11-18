@@ -23,6 +23,11 @@ use type HW.Word16;
 
 package body HW.GFX.EDID is
 
+   subtype Header_Index is Raw_EDID_Index range 0 .. 7;
+   type Header_Type is new Buffer (Header_Index);
+   Header_Pattern : constant Header_Type :=
+     (16#00#, 16#ff#, 16#ff#, 16#ff#, 16#ff#, 16#ff#, 16#ff#, 16#00#);
+
    function Checksum_Valid (Raw_EDID : Raw_EDID_Data) return Boolean
    with
       Pre => True
@@ -37,24 +42,40 @@ package body HW.GFX.EDID is
       return Sum = 16#00#;
    end Checksum_Valid;
 
+   function Header_Score (Raw_EDID : Raw_EDID_Data) return Natural
+   is
+      Score : Natural := 0;
+   begin
+      for I in Header_Index loop
+         pragma Loop_Invariant (Score <= I);
+         if Raw_EDID (I) = Header_Pattern (I) then
+            Score := Score + 1;
+         end if;
+      end loop;
+      return Score;
+   end Header_Score;
+
    function Valid (Raw_EDID : Raw_EDID_Data) return Boolean
    is
-      Header_Valid : Boolean;
    begin
-      Header_Valid :=
-         Raw_EDID (0) = 16#00# and
-         Raw_EDID (1) = 16#ff# and
-         Raw_EDID (2) = 16#ff# and
-         Raw_EDID (3) = 16#ff# and
-         Raw_EDID (4) = 16#ff# and
-         Raw_EDID (5) = 16#ff# and
-         Raw_EDID (6) = 16#ff# and
-         Raw_EDID (7) = 16#00#;
-      pragma Debug (not Header_Valid, Debug.Put_Line
+      return Header_Score (Raw_EDID) = 8 and then Checksum_Valid (Raw_EDID);
+   end Valid;
+
+   procedure Sanitize (Raw_EDID : in out Raw_EDID_Data; Success : out Boolean)
+   is
+      Score : constant Natural := Header_Score (Raw_EDID);
+   begin
+      pragma Debug (Score /= 8, Debug.Put_Line
         (GNAT.Source_Info.Enclosing_Entity & ": EDID header pattern mismatch!"));
 
-      return Header_Valid and then Checksum_Valid (Raw_EDID);
-   end Valid;
+      if Score = 6 or Score = 7 then
+         pragma Debug (Debug.Put_Line
+           (GNAT.Source_Info.Enclosing_Entity & ": Trying to fix up."));
+         Raw_EDID (Header_Index) := Buffer (Header_Pattern);
+      end if;
+
+      Success := Valid (Raw_EDID);
+   end Sanitize;
 
    ----------------------------------------------------------------------------
 

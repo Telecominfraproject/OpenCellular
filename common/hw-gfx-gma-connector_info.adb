@@ -70,7 +70,7 @@ package body HW.GFX.GMA.Connector_Info is
          exit when not Success;  -- don't retry if reading itself failed
 
          pragma Debug (Debug.Put_Buffer ("EDID", Raw_EDID, Raw_EDID_Length));
-         Success := EDID.Valid (Raw_EDID);
+         EDID.Sanitize (Raw_EDID, Success);
          exit when Success;
       end loop;
    end Read_EDID;
