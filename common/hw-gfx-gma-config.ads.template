@@ -248,4 +248,9 @@ is
             Secondary   => 4096,
             Tertiary    => 4096));
 
+   ----------------------------------------------------------------------------
+
+   HDMI_Max_Clock_24bpp : constant Frequency_Type :=
+     (if CPU >= Haswell then 300_000_000 else 225_000_000);
+
 end HW.GFX.GMA.Config;
