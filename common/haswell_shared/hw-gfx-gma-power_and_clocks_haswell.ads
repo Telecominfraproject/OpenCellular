@@ -21,8 +21,8 @@ private package HW.GFX.GMA.Power_And_Clocks_Haswell is
 
    procedure Initialize;
 
-   procedure Power_Set_To (Configs : Configs_Type);
-   procedure Power_Up (Old_Configs, New_Configs : Configs_Type);
-   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Configs_Type);
+   procedure Power_Set_To (Configs : Pipe_Configs);
+   procedure Power_Up (Old_Configs, New_Configs : Pipe_Configs);
+   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Pipe_Configs);
 
 end HW.GFX.GMA.Power_And_Clocks_Haswell;

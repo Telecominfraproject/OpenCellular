@@ -60,14 +60,14 @@ is
 
    package Display_Controller renames Pipe_Setup;
 
-   type PLLs_Type is array (Config_Index) of PLLs.T;
+   type PLLs_Type is array (Pipe_Index) of PLLs.T;
 
-   type Links_Type is array (Config_Index) of DP_Link;
+   type Links_Type is array (Pipe_Index) of DP_Link;
 
    type HPD_Type is array (Port_Type) of Boolean;
    type HPD_Delay_Type is array (Port_Type) of Time.T;
 
-   Cur_Configs : Configs_Type;
+   Cur_Configs : Pipe_Configs;
    Allocated_PLLs : PLLs_Type;
    DP_Links : Links_Type;
    HPD_Delay : HPD_Delay_Type;
@@ -89,8 +89,8 @@ is
    ----------------------------------------------------------------------------
 
    function To_GPU_Port
-     (Configs  : Configs_Type;
-      Idx      : Config_Index)
+     (Configs  : Pipe_Configs;
+      Idx      : Pipe_Index)
       return GPU_Port
    is
    begin
@@ -181,7 +181,7 @@ is
    function Validate_Config
      (Framebuffer : Framebuffer_Type;
       Port_Cfg    : Port_Config;
-      I           : Config_Index)
+      I           : Pipe_Index)
       return Boolean
    with
       Post =>
@@ -209,8 +209,8 @@ is
 
    procedure Fill_Port_Config
      (Port_Cfg :    out Port_Config;
-      Configs  : in     Configs_Type;
-      Idx      : in     Config_Index;
+      Configs  : in     Pipe_Configs;
+      Idx      : in     Pipe_Index;
       Success  :    out Boolean)
    with Pre => True
    is
@@ -270,7 +270,7 @@ is
    ----------------------------------------------------------------------------
 
    function To_Controller
-      (Dsp_Config : Config_Index) return Display_Controller.Controller_Type
+      (Dsp_Config : Pipe_Index) return Display_Controller.Controller_Type
    is
       Result : Display_Controller.Controller_Type;
    begin
@@ -290,7 +290,7 @@ is
    ----------------------------------------------------------------------------
 
    function To_Head
-     (N_Config : Config_Index;
+     (N_Config : Pipe_Index;
       Port     : Active_Port_Type)
       return Display_Controller.Head_Type
    is
@@ -330,7 +330,7 @@ is
    ----------------------------------------------------------------------------
 
    function Port_Configured
-     (Configs  : Configs_Type;
+     (Configs  : Pipe_Configs;
       Port     : Port_Type)
       return Boolean
    with
@@ -343,21 +343,21 @@ is
    end Port_Configured;
 
    procedure Scan_Ports
-     (Configs  :    out Configs_Type;
+     (Configs  :    out Pipe_Configs;
       Ports    : in     Port_List;
-      Max_Pipe : in     Config_Index := Config_Index'Last)
+      Max_Pipe : in     Pipe_Index := Pipe_Index'Last)
    is
       Raw_EDID : EDID.Raw_EDID_Data := (others => 16#00#);
       Port_Idx : Port_List_Range := Port_List_Range'First;
       Port_Cfg : Port_Config;
       Success  : Boolean := False;
    begin
-      Configs := (Config_Index =>
+      Configs := (Pipe_Index =>
                     (Port        => Disabled,
                      Mode        => Invalid_Mode,
                      Framebuffer => Default_FB));
 
-      for Config_Idx in Config_Index range Config_Index'First .. Max_Pipe loop
+      for Config_Idx in Pipe_Index range Pipe_Index'First .. Max_Pipe loop
          while Ports (Port_Idx) /= Disabled loop
             if not Port_Configured (Configs, Ports (Port_Idx)) then
                Configs (Config_Idx).Port := Ports (Port_Idx);
@@ -403,13 +403,13 @@ is
    end Scan_Ports;
 
    procedure Auto_Configure
-     (Configs     : in out Configs_Type;
+     (Configs     : in out Pipe_Configs;
       Keep_Power  : in     Boolean := False)
    is
       Raw_EDID : EDID.Raw_EDID_Data := (others => 16#00#);
       Success : Boolean;
 
-      Config_Idx : Config_Index;
+      Config_Idx : Pipe_Index;
       Port_Cfg : Port_Config;
 
       function Free_Config return Boolean
@@ -420,7 +420,7 @@ is
          return Port_Configured (Configs, Disabled);
       end Free_Config;
 
-      function First_Free_Config return Config_Index
+      function First_Free_Config return Pipe_Index
       with
          Pre => Free_Config
       is
@@ -440,7 +440,7 @@ is
       end if;
 
       -- Check if displays are still connected
-      for I in Config_Index loop
+      for I in Pipe_Index loop
          if Configs (I).Port /= Disabled then
             Fill_Port_Config (Port_Cfg, Configs, I, Success);
             if Success then
@@ -484,7 +484,7 @@ is
                (EDID.Compatible_Display (Raw_EDID, Port_Cfg.Display) and
                 EDID.Has_Preferred_Mode (Raw_EDID))
             then
-               Configs (Config_Idx) := Config_Type'
+               Configs (Config_Idx) := Pipe_Config'
                  (Port        => Port,
                   Framebuffer => Configs (Config_Idx).Framebuffer,
                   Mode        => EDID.Preferred_Mode (Raw_EDID));
@@ -507,13 +507,13 @@ is
 
    ----------------------------------------------------------------------------
 
-   procedure Update_Outputs (Configs : Configs_Type)
+   procedure Update_Outputs (Configs : Pipe_Configs)
    is
       Did_Power_Up : Boolean := False;
 
       HPD, HPD_Delay_Over, Success : Boolean;
-      Old_Config, New_Config : Config_Type;
-      Old_Configs : Configs_Type;
+      Old_Config, New_Config : Pipe_Config;
+      Old_Configs : Pipe_Configs;
       Port_Cfg : Port_Config;
 
       procedure Check_HPD
@@ -533,7 +533,7 @@ is
    begin
       Old_Configs := Cur_Configs;
 
-      for I in Config_Index loop
+      for I in Pipe_Index loop
          HPD := False;
 
          Old_Config := Cur_Configs (I);
@@ -743,8 +743,8 @@ is
       HPD_Delay := HPD_Delay_Type'(others => Now);
       DP_Links := Links_Type'(others => HW.GFX.Default_DP);
       Allocated_PLLs := (others => PLLs.Invalid);
-      Cur_Configs := Configs_Type'
-        (others => Config_Type'
+      Cur_Configs := Pipe_Configs'
+        (others => Pipe_Config'
            (Port        => Disabled,
             Framebuffer => HW.GFX.Default_FB,
             Mode        => HW.GFX.Invalid_Mode));
@@ -827,10 +827,10 @@ is
 
    ----------------------------------------------------------------------------
 
-   procedure Dump_Configs (Configs : Configs_Type)
+   procedure Dump_Configs (Configs : Pipe_Configs)
    is
       subtype Pipe_Name is String (1 .. 9);
-      type Pipe_Name_Array is array (Config_Index) of Pipe_Name;
+      type Pipe_Name_Array is array (Pipe_Index) of Pipe_Name;
       Pipe_Names : constant Pipe_Name_Array :=
         (Primary     => "Primary  ",
          Secondary   => "Secondary",
@@ -838,8 +838,8 @@ is
    begin
       Debug.New_Line;
       Debug.Put_Line ("CONFIG => ");
-      for Pipe in Config_Index loop
-         if Pipe = Config_Index'First then
+      for Pipe in Pipe_Index loop
+         if Pipe = Pipe_Index'First then
             Debug.Put ("  (");
          else
             Debug.Put ("   ");
@@ -901,7 +901,7 @@ is
             else "False,"));
          Debug.Put ("         BPC                => ");
          Debug.Put_Int64 (Configs (Pipe).Mode.BPC);
-         if Pipe /= Config_Index'Last then
+         if Pipe /= Pipe_Index'Last then
             Debug.Put_Line (")),");
          else
             Debug.Put_Line (")));");

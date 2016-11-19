@@ -185,7 +185,7 @@ package body HW.GFX.GMA.Power_And_Clocks_Haswell is
       end if;
    end PDW_On;
 
-   function Need_PDW (Checked_Configs : Configs_Type) return Boolean is
+   function Need_PDW (Checked_Configs : Pipe_Configs) return Boolean is
    begin
       return (Checked_Configs (Primary).Port /= Disabled and
               Checked_Configs (Primary).Port /= Internal) or
@@ -209,7 +209,7 @@ package body HW.GFX.GMA.Power_And_Clocks_Haswell is
       PDW_Off;
    end Initialize;
 
-   procedure Power_Set_To (Configs : Configs_Type) is
+   procedure Power_Set_To (Configs : Pipe_Configs) is
    begin
       if Need_PDW (Configs) then
          PDW_On;
@@ -218,14 +218,14 @@ package body HW.GFX.GMA.Power_And_Clocks_Haswell is
       end if;
    end Power_Set_To;
 
-   procedure Power_Up (Old_Configs, New_Configs : Configs_Type) is
+   procedure Power_Up (Old_Configs, New_Configs : Pipe_Configs) is
    begin
       if not Need_PDW (Old_Configs) and Need_PDW (New_Configs) then
          PDW_On;
       end if;
    end Power_Up;
 
-   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Configs_Type)
+   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Pipe_Configs)
    is
    begin
       if (Need_PDW (Old_Configs) or Need_PDW (Tmp_Configs)) and

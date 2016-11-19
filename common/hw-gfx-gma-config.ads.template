@@ -107,7 +107,7 @@ is
 
    ----------------------------------------------------------------------------
 
-   type Supported_Pipe_Array is array (Config_Index) of Boolean;
+   type Supported_Pipe_Array is array (Pipe_Index) of Boolean;
    Supported_Pipe : constant Supported_Pipe_Array :=
      (Primary     => True,
       Secondary   => True,
@@ -235,7 +235,7 @@ is
    -- Maximum source width with enabled scaler. This only accounts
    -- for simple 1:1 pipe:scaler mappings.
 
-   type Width_Per_Pipe is array (Config_Index) of Width_Type;
+   type Width_Per_Pipe is array (Pipe_Index) of Width_Type;
 
    Maximum_Scalable_Width : constant Width_Per_Pipe :=
      (case CPU is

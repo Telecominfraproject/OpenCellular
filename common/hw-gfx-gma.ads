@@ -50,13 +50,13 @@ is
    type Port_List_Range is range 0 .. 7;
    type Port_List is array (Port_List_Range) of Port_Type;
 
-   type Config_Type is record
+   type Pipe_Config is record
       Port        : Port_Type;
       Framebuffer : Framebuffer_Type;
       Mode        : Mode_Type;
    end record;
-   type Config_Index is (Primary, Secondary, Tertiary);
-   type Configs_Type is array (Config_Index) of Config_Type;
+   type Pipe_Index is (Primary, Secondary, Tertiary);
+   type Pipe_Configs is array (Pipe_Index) of Pipe_Config;
 
    -- Special framebuffer offset to indicate legacy VGA plane.
    -- Only valid on primary pipe.
@@ -79,17 +79,17 @@ is
    procedure Legacy_VGA_Off;
 
    procedure Scan_Ports
-     (Configs  :    out Configs_Type;
+     (Configs  :    out Pipe_Configs;
       Ports    : in     Port_List;
-      Max_Pipe : in     Config_Index := Config_Index'Last);
+      Max_Pipe : in     Pipe_Index := Pipe_Index'Last);
    procedure Auto_Configure
-     (Configs     : in out Configs_Type;
+     (Configs     : in out Pipe_Configs;
       Keep_Power  : in     Boolean := False);
-   procedure Update_Outputs (Configs : Configs_Type);
+   procedure Update_Outputs (Configs : Pipe_Configs);
 
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
                     Reason => "It's only used for debugging");
-   procedure Dump_Configs (Configs : Configs_Type);
+   procedure Dump_Configs (Configs : Pipe_Configs);
 
    type GTT_Address_Type is mod 2 ** 39;
    type GTT_Range is range 0 .. 16#8_0000# - 1;

@@ -187,7 +187,7 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
       end if;
    end PD_On;
 
-   function Need_PD (PD : Dynamic_Domain; Configs : Configs_Type) return Boolean
+   function Need_PD (PD : Dynamic_Domain; Configs : Pipe_Configs) return Boolean
    is
    begin
       return (case PD is
@@ -314,7 +314,7 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
       end if;
    end Initialize;
 
-   procedure Power_Set_To (Configs : Configs_Type) is
+   procedure Power_Set_To (Configs : Pipe_Configs) is
    begin
       for PD in reverse Dynamic_Domain loop
          if not Need_PD (PD, Configs) then
@@ -328,7 +328,7 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
       end loop;
    end Power_Set_To;
 
-   procedure Power_Up (Old_Configs, New_Configs : Configs_Type) is
+   procedure Power_Up (Old_Configs, New_Configs : Pipe_Configs) is
    begin
       for PD in Dynamic_Domain loop
          if not Need_PD (PD, Old_Configs) and Need_PD (PD, New_Configs) then
@@ -337,7 +337,7 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
       end loop;
    end Power_Up;
 
-   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Configs_Type)
+   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Pipe_Configs)
    is
    begin
       for PD in reverse Dynamic_Domain loop

@@ -20,11 +20,11 @@ private package HW.GFX.GMA.Power_And_Clocks_Ironlake is
 
    procedure Post_All_Off is null;
 
-   procedure Power_Set_To (Configs : Configs_Type) is null;
+   procedure Power_Set_To (Configs : Pipe_Configs) is null;
 
-   procedure Power_Up (Old_Configs, New_Configs : Configs_Type) is null;
+   procedure Power_Up (Old_Configs, New_Configs : Pipe_Configs) is null;
 
-   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Configs_Type)
+   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Pipe_Configs)
    is null;
 
 end HW.GFX.GMA.Power_And_Clocks_Ironlake;
