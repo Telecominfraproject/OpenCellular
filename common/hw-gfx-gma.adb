@@ -359,6 +359,14 @@ is
 
       for I in 1 .. 2 loop
          if To_Display_Type (Port) = DP then
+            -- May need power to read edid
+            declare
+               Temp_Configs : Pipe_Configs := Cur_Configs;
+            begin
+               Temp_Configs (Primary).Port := Port;
+               Power_And_Clocks.Power_Up (Cur_Configs, Temp_Configs);
+            end;
+
             declare
                DP_Port : constant GMA.DP_Port :=
                  (case Port is
@@ -393,54 +401,57 @@ is
       end loop;
    end Read_EDID;
 
-   procedure Scan_Ports
-     (Configs  :    out Pipe_Configs;
-      Ports    : in     Port_List;
-      Max_Pipe : in     Pipe_Index := Pipe_Index'Last)
+   procedure Probe_Port
+     (Pipe_Cfg : in out Pipe_Config;
+      Port     : in     Active_Port_Type;
+      Success  :    out Boolean)
    is
       Raw_EDID : EDID.Raw_EDID_Data := (others => 16#00#);
+   begin
+      Success := Config.Valid_Port (Port);
+
+      if Success then
+         if Port = Internal then
+            Panel.On;
+         end if;
+         Read_EDID (Raw_EDID, Port, Success);
+      end if;
+
+      if Success and then
+         (EDID.Compatible_Display (Raw_EDID, To_Display_Type (Port)) and
+          EDID.Has_Preferred_Mode (Raw_EDID))
+      then
+         Pipe_Cfg.Port := Port;
+         Pipe_Cfg.Mode := EDID.Preferred_Mode (Raw_EDID);
+      else
+         Success := False;
+         if Port = Internal then
+            Panel.Off;
+         end if;
+      end if;
+   end Probe_Port;
+
+   procedure Scan_Ports
+     (Configs        :    out Pipe_Configs;
+      Ports          : in     Port_List;
+      Max_Pipe       : in     Pipe_Index := Pipe_Index'Last)
+   is
       Port_Idx : Port_List_Range := Port_List_Range'First;
-      Port_Cfg : Port_Config;
-      Success  : Boolean := False;
+      Success  : Boolean;
    begin
       Configs := (Pipe_Index =>
                     (Port        => Disabled,
                      Mode        => Invalid_Mode,
                      Framebuffer => Default_FB));
 
-      for Config_Idx in Pipe_Index range Pipe_Index'First .. Max_Pipe loop
+      for Pipe in Pipe_Index range
+         Pipe_Index'First .. Pipe_Index'Min (Max_Pipe, Config.Max_Pipe)
+      loop
          while Ports (Port_Idx) /= Disabled loop
             if not Port_Configured (Configs, Ports (Port_Idx)) then
-               Configs (Config_Idx).Port := Ports (Port_Idx);
-               Fill_Port_Config (Port_Cfg, Configs, Config_Idx, Success);
-
-               if Success then
-                  -- May need power to probe port
-                  if Port_Cfg.Display = DP then
-                     Power_And_Clocks.Power_Up (Cur_Configs, Configs);
-                  end if;
-                  if Ports (Port_Idx) = Internal then
-                     Panel.On;
-                  end if;
-
-                  Read_EDID (Raw_EDID, Ports (Port_Idx), Success);
-               end if;
-
-               if Success and then
-                  (EDID.Compatible_Display (Raw_EDID, Port_Cfg.Display) and
-                   EDID.Has_Preferred_Mode (Raw_EDID))
-               then
-                  Configs (Config_Idx).Mode := EDID.Preferred_Mode (Raw_EDID);
-               else
-                  Configs (Config_Idx).Port := Disabled;
-                  Success := False;
-
-                  if Ports (Port_Idx) = Internal and
-                     not Port_Configured (Cur_Configs, Internal)
-                  then
-                     Panel.Off;
-                  end if;
-               end if;
+               Probe_Port (Configs (Pipe), Ports (Port_Idx), Success);
+            else
+               Success := False;
             end if;
 
             exit when Port_Idx = Port_List_Range'Last;
@@ -450,6 +461,7 @@ is
          end loop;
       end loop;
 
+      -- Restore power settings
       Power_And_Clocks.Power_Set_To (Cur_Configs);
    end Scan_Ports;
 

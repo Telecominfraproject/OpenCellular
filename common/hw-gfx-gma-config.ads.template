@@ -107,11 +107,16 @@ is
 
    ----------------------------------------------------------------------------
 
+   Max_Pipe : constant Pipe_Index :=
+     (if CPU <= Sandybridge
+      then Secondary
+      else Tertiary);
+
    type Supported_Pipe_Array is array (Pipe_Index) of Boolean;
    Supported_Pipe : constant Supported_Pipe_Array :=
-     (Primary     => True,
-      Secondary   => True,
-      Tertiary    => CPU >= Ivybridge);
+     (Primary     => Primary     <= Max_Pipe,
+      Secondary   => Secondary   <= Max_Pipe,
+      Tertiary    => Tertiary    <= Max_Pipe);
 
    type Valid_Per_Port is array (Port_Type) of Boolean;
    type Valid_Per_GPU is array (CPU_Type) of Valid_Per_Port;
