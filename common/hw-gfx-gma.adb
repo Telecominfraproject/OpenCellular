@@ -12,12 +12,8 @@
 -- GNU General Public License for more details.
 --
 
-with HW.GFX.I2C;
-with HW.GFX.EDID;
 with HW.GFX.GMA.Config;
-with HW.GFX.GMA.I2C;
-with HW.GFX.GMA.DP_Aux_Ch;
-with HW.GFX.GMA.DP_Info;
+with HW.GFX.GMA.Config_Helpers;
 with HW.GFX.GMA.Registers;
 with HW.GFX.GMA.Power_And_Clocks;
 with HW.GFX.GMA.Panel;
@@ -70,14 +66,11 @@ is
    type HPD_Type is array (Port_Type) of Boolean;
    type HPD_Delay_Type is array (Port_Type) of Time.T;
 
-   Cur_Configs : Pipe_Configs;
    Allocated_PLLs : PLLs_Type;
    DP_Links : Links_Type;
    HPD_Delay : HPD_Delay_Type;
    Wait_For_HPD : HPD_Type;
    Initialized : Boolean := False;
-
-   subtype Active_Port_Type is Port_Type range Port_Type'Succ (Disabled) .. Port_Type'Last;
 
    ----------------------------------------------------------------------------
 
@@ -88,200 +81,6 @@ is
    begin
       return Word32 (Freq / 1_000_000);
    end PCH_RAWCLK_FREQ;
-
-   ----------------------------------------------------------------------------
-
-   function To_GPU_Port
-     (Pipe : Pipe_Index;
-      Port : Active_Port_Type)
-      return GPU_Port
-   is
-   begin
-      return
-        (case Config.CPU is
-            when Ironlake .. Ivybridge => -- everything but eDP through FDI/PCH
-              (if Config.Internal_Is_EDP and then Port = Internal then
-                  DIGI_A
-               else
-                 (case Pipe is
-                     -- FDIs are fixed to the CPU pipe
-                     when Primary   => DIGI_B,
-                     when Secondary => DIGI_C,
-                     when Tertiary  => DIGI_D)),
-            when Haswell .. Skylake =>    -- everything but VGA directly on CPU
-              (case Port is
-                  when Internal     => DIGI_A,  -- LVDS not available
-                  when HDMI1 | DP1  => DIGI_B,
-                  when HDMI2 | DP2  => DIGI_C,
-                  when HDMI3 | DP3  => DIGI_D,
-                  when Analog       => DIGI_E));
-   end To_GPU_Port;
-
-   function To_PCH_Port (Port : Active_Port_Type) return PCH_Port
-   with Pre => True
-   is
-   begin
-      return
-        (case Port is
-            when Internal  => PCH_LVDS,   -- will be ignored if Internal is DP
-            when Analog    => PCH_DAC,
-            when HDMI1     => PCH_HDMI_B,
-            when HDMI2     => PCH_HDMI_C,
-            when HDMI3     => PCH_HDMI_D,
-            when DP1       => PCH_DP_B,
-            when DP2       => PCH_DP_C,
-            when DP3       => PCH_DP_D);
-   end To_PCH_Port;
-
-   function To_Display_Type (Port : Active_Port_Type) return Display_Type
-   with Pre => True
-   is
-   begin
-      return Display_Type'
-        (case Port is
-            when Internal        => Config.Internal_Display,
-            when Analog          => VGA,
-            when HDMI1 .. HDMI3  => HDMI,
-            when DP1 .. DP3      => DP);
-   end To_Display_Type;
-
-   -- Prepares link rate and lane count settings for an FDI connection.
-   procedure Configure_FDI_Link
-     (Port_Cfg : in out Port_Config;
-      Success  :    out Boolean)
-   with Pre => True
-   is
-      procedure Limit_Lane_Count
-      is
-         FDI_TX_CTL_FDI_TX_ENABLE : constant := 1 * 2 ** 31;
-         Enabled : Boolean;
-      begin
-         -- if DIGI_D enabled: (FDI names are off by one)
-         Registers.Is_Set_Mask
-           (Register => Registers.FDI_TX_CTL_C,
-            Mask     => FDI_TX_CTL_FDI_TX_ENABLE,
-            Result   => Enabled);
-         if Enabled then
-            Port_Cfg.FDI.Receiver_Caps.Max_Lane_Count := DP_Lane_Count_2;
-         end if;
-      end Limit_Lane_Count;
-   begin
-      Port_Cfg.FDI.Receiver_Caps.Max_Link_Rate    := DP_Bandwidth_2_7;
-      Port_Cfg.FDI.Receiver_Caps.Max_Lane_Count   :=
-         Config.FDI_Lane_Count (Port_Cfg.Port);
-      Port_Cfg.FDI.Receiver_Caps.Enhanced_Framing := True;
-      if Config.Has_FDI_C and then Port_Cfg.Port = DIGI_C then
-         Limit_Lane_Count;
-      end if;
-      DP_Info.Preferred_Link_Setting (Port_Cfg.FDI, Port_Cfg.Mode, Success);
-   end Configure_FDI_Link;
-
-   -- Validates that a given configuration should work with
-   -- a given framebuffer.
-   function Validate_Config
-     (Framebuffer : Framebuffer_Type;
-      Port_Cfg    : Port_Config;
-      I           : Pipe_Index)
-      return Boolean
-   with
-      Post =>
-        (if Validate_Config'Result then
-            Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
-            Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible))
-   is
-   begin
-      -- No downscaling
-      -- Respect maximum scalable width
-      -- VGA plane is only allowed on the primary pipe
-      -- Only 32bpp RGB (ignored for VGA plane)
-      -- Stride must be a multiple of 64 (ignored for VGA plane)
-      return
-         ((Framebuffer.Width = Pos32 (Port_Cfg.Mode.H_Visible) and
-           Framebuffer.Height = Pos32 (Port_Cfg.Mode.V_Visible)) or
-          (Framebuffer.Width <= Config.Maximum_Scalable_Width (I) and
-           Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
-           Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible))) and
-         (Framebuffer.Offset /= VGA_PLANE_FRAMEBUFFER_OFFSET or I = Primary) and
-         (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
-          (Framebuffer.BPC = 8 and
-           Framebuffer.Stride mod 64 = 0));
-   end Validate_Config;
-
-   -- Derives an internal port config.
-   --
-   -- This is where the magic happens that hides the hardware details
-   -- from libgfxinit's users. We have to map the pipe (Pipe_Index),
-   -- the user visible port (Port_Type) and the modeline (Mode_Type)
-   -- that we are supposed to output to an internal representation
-   -- (Port_Config) that applies to the selected hardware generation
-   -- (in GMA.Config).
-   procedure Fill_Port_Config
-     (Port_Cfg :    out Port_Config;
-      Pipe     : in     Pipe_Index;
-      Port     : in     Port_Type;
-      Mode     : in     Mode_Type;
-      Success  :    out Boolean)
-   with Pre => True
-   is
-   begin
-      Success :=
-         GMA.Config.Supported_Pipe (Pipe) and then
-         GMA.Config.Valid_Port (Port) and then
-         Port /= Disabled; -- Valid_Port should already cover this, but the
-                           -- array is writeable, so it's hard to prove this.
-
-      if Success then
-         declare
-            Link : constant DP_Link := DP_Links (Pipe);
-         begin
-            Port_Cfg := Port_Config'
-              (Port     => To_GPU_Port (Pipe, Port),
-               PCH_Port => To_PCH_Port (Port),
-               Display  => To_Display_Type (Port),
-               Mode     => Mode,
-               Is_FDI   => GMA.Config.Is_FDI_Port (Port),
-               FDI      => Default_DP,
-               DP       => Link);
-         end;
-
-         if Port_Cfg.Is_FDI then
-            Configure_FDI_Link (Port_Cfg, Success);
-         end if;
-
-         if Success then
-            if Port_Cfg.Mode.BPC = Auto_BPC then
-               Port_Cfg.Mode.BPC := Connector_Info.Default_BPC (Port_Cfg);
-            end if;
-
-            if Port_Cfg.Display = HDMI then
-               declare
-                  pragma Assert (Config.HDMI_Max_Clock_24bpp * 8
-                                 / Port_Cfg.Mode.BPC >= Frequency_Type'First);
-                  Max_Dotclock : constant Frequency_Type :=
-                     Config.HDMI_Max_Clock_24bpp * 8 / Port_Cfg.Mode.BPC;
-               begin
-                  if Port_Cfg.Mode.Dotclock > Max_Dotclock then
-                     pragma Debug (Debug.Put ("Dotclock "));
-                     pragma Debug (Debug.Put_Int64 (Port_Cfg.Mode.Dotclock));
-                     pragma Debug (Debug.Put (" too high, limiting to "));
-                     pragma Debug (Debug.Put_Int64 (Max_Dotclock));
-                     pragma Debug (Debug.Put_Line ("."));
-                     Port_Cfg.Mode.Dotclock := Max_Dotclock;
-                  end if;
-               end;
-            end if;
-         end if;
-      else
-         Port_Cfg := Port_Config'
-           (Port     => GPU_Port'First,
-            PCH_Port => PCH_Port'First,
-            Display  => Display_Type'First,
-            Mode     => Invalid_Mode,
-            Is_FDI   => False,
-            FDI      => Default_DP,
-            DP       => Default_DP);
-      end if;
-   end Fill_Port_Config;
 
    ----------------------------------------------------------------------------
 
@@ -345,185 +144,6 @@ is
 
    ----------------------------------------------------------------------------
 
-   function Port_Configured
-     (Configs  : Pipe_Configs;
-      Port     : Port_Type)
-      return Boolean
-   with
-      Global => null
-   is
-   begin
-      return Configs (Primary).Port    = Port or
-             Configs (Secondary).Port  = Port or
-             Configs (Tertiary).Port   = Port;
-   end Port_Configured;
-
-   -- DP and HDMI share physical pins.
-   function Sibling_Port (Port : Port_Type) return Port_Type
-   is
-   begin
-      return
-        (case Port is
-            when HDMI1 => DP1,
-            when HDMI2 => DP2,
-            when HDMI3 => DP3,
-            when DP1 => HDMI1,
-            when DP2 => HDMI2,
-            when DP3 => HDMI3,
-            when others => Disabled);
-   end Sibling_Port;
-
-   function Has_Sibling_Port (Port : Port_Type) return Boolean
-   is
-   begin
-      return Sibling_Port (Port) /= Disabled;
-   end Has_Sibling_Port;
-
-   procedure Read_EDID
-     (Raw_EDID :    out EDID.Raw_EDID_Data;
-      Port     : in     Active_Port_Type;
-      Success  :    out Boolean)
-   with
-      Post => (if Success then EDID.Valid (Raw_EDID))
-   is
-      Raw_EDID_Length : GFX.I2C.Transfer_Length := Raw_EDID'Length;
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      for I in 1 .. 2 loop
-         if To_Display_Type (Port) = DP then
-            -- May need power to read edid
-            declare
-               Temp_Configs : Pipe_Configs := Cur_Configs;
-            begin
-               Temp_Configs (Primary).Port := Port;
-               Power_And_Clocks.Power_Up (Cur_Configs, Temp_Configs);
-            end;
-
-            declare
-               DP_Port : constant GMA.DP_Port :=
-                 (case Port is
-                     when Internal  => DP_A,
-                     when DP1       => DP_B,
-                     when DP2       => DP_C,
-                     when DP3       => DP_D,
-                     when others    => GMA.DP_Port'First);
-            begin
-               DP_Aux_Ch.I2C_Read
-                 (Port     => DP_Port,
-                  Address  => 16#50#,
-                  Length   => Raw_EDID_Length,
-                  Data     => Raw_EDID,
-                  Success  => Success);
-            end;
-         else
-            I2C.I2C_Read
-              (Port     => (if Port = Analog
-                            then Config.Analog_I2C_Port
-                            else To_PCH_Port (Port)),
-               Address  => 16#50#,
-               Length   => Raw_EDID_Length,
-               Data     => Raw_EDID,
-               Success  => Success);
-         end if;
-         exit when not Success;  -- don't retry if reading itself failed
-
-         pragma Debug (Debug.Put_Buffer ("EDID", Raw_EDID, Raw_EDID_Length));
-         EDID.Sanitize (Raw_EDID, Success);
-         exit when Success;
-      end loop;
-   end Read_EDID;
-
-   procedure Probe_Port
-     (Pipe_Cfg : in out Pipe_Config;
-      Port     : in     Active_Port_Type;
-      Success  :    out Boolean)
-   with Pre => True
-   is
-      Raw_EDID : EDID.Raw_EDID_Data := (others => 16#00#);
-   begin
-      Success := Config.Valid_Port (Port);
-
-      if Success then
-         if Port = Internal then
-            Panel.On;
-         end if;
-         Read_EDID (Raw_EDID, Port, Success);
-      end if;
-
-      if Success and then
-         (EDID.Compatible_Display (Raw_EDID, To_Display_Type (Port)) and
-          EDID.Has_Preferred_Mode (Raw_EDID))
-      then
-         Pipe_Cfg.Port := Port;
-         Pipe_Cfg.Mode := EDID.Preferred_Mode (Raw_EDID);
-
-         pragma Warnings (GNATprove, Off, "unused assignment to ""Raw_EDID""",
-            Reason => "We just want to check if it's readable.");
-         if Has_Sibling_Port (Port) then
-            -- Probe sibling port too and bail out if something is detected.
-            -- This is a precaution for adapters that expose the pins of a
-            -- port for both HDMI/DVI and DP (like some ThinkPad docks). A
-            -- user might have attached both by accident and there are ru-
-            -- mors of displays that got fried by applying the wrong signal.
-            declare
-               Have_Sibling_EDID : Boolean;
-            begin
-               Read_EDID (Raw_EDID, Sibling_Port (Port), Have_Sibling_EDID);
-               if Have_Sibling_EDID then
-                  Pipe_Cfg.Port := Disabled;
-                  Success := False;
-               end if;
-            end;
-         end if;
-         pragma Warnings (GNATprove, On, "unused assignment to ""Raw_EDID""");
-      else
-         Success := False;
-         if Port = Internal then
-            Panel.Off;
-         end if;
-      end if;
-   end Probe_Port;
-
-   procedure Scan_Ports
-     (Configs        :    out Pipe_Configs;
-      Ports          : in     Port_List;
-      Max_Pipe       : in     Pipe_Index := Pipe_Index'Last)
-   is
-      Port_Idx : Port_List_Range := Port_List_Range'First;
-      Success  : Boolean;
-   begin
-      Configs := (Pipe_Index =>
-                    (Port        => Disabled,
-                     Mode        => Invalid_Mode,
-                     Framebuffer => Default_FB));
-
-      for Pipe in Pipe_Index range
-         Pipe_Index'First .. Pipe_Index'Min (Max_Pipe, Config.Max_Pipe)
-      loop
-         while Ports (Port_Idx) /= Disabled loop
-            if not Port_Configured (Configs, Ports (Port_Idx)) and
-               (not Has_Sibling_Port (Ports (Port_Idx)) or
-                not Port_Configured (Configs, Sibling_Port (Ports (Port_Idx))))
-            then
-               Probe_Port (Configs (Pipe), Ports (Port_Idx), Success);
-            else
-               Success := False;
-            end if;
-
-            exit when Port_Idx = Port_List_Range'Last;
-            Port_Idx := Port_List_Range'Succ (Port_Idx);
-
-            exit when Success;
-         end loop;
-      end loop;
-
-      -- Restore power settings
-      Power_And_Clocks.Power_Set_To (Cur_Configs);
-   end Scan_Ports;
-
-   ----------------------------------------------------------------------------
-
    procedure Update_Outputs (Configs : Pipe_Configs)
    is
       Did_Power_Up : Boolean := False;
@@ -556,8 +176,9 @@ is
          Old_Config := Cur_Configs (I);
          New_Config := Configs (I);
 
-         Fill_Port_Config
+         Config_Helpers.Fill_Port_Config
            (Port_Cfg, I, Old_Configs (I).Port, Old_Configs (I).Mode, Success);
+         Port_Cfg.DP := DP_Links (I);
          if Success then
             Check_HPD (Port_Cfg, Old_Config.Port, HPD);
          end if;
@@ -588,11 +209,13 @@ is
             end if;
 
             if New_Config.Port /= Disabled then
-               Fill_Port_Config
+               Config_Helpers.Fill_Port_Config
                  (Port_Cfg, I, Configs (I).Port, Configs (I).Mode, Success);
 
-               Success := Success and then
-                          Validate_Config (New_Config.Framebuffer, Port_Cfg, I);
+               if Success then
+                  Success := Config_Helpers.Validate_Config
+                    (New_Config.Framebuffer, Port_Cfg, I);
+               end if;
 
                if Success and then Wait_For_HPD (New_Config.Port) then
                   Check_HPD (Port_Cfg, New_Config.Port, Success);

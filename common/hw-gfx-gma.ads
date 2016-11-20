@@ -47,8 +47,6 @@ is
       HDMI2, -- or DVI
       HDMI3, -- or DVI
       Analog);
-   type Port_List_Range is range 0 .. 7;
-   type Port_List is array (Port_List_Range) of Port_Type;
 
    type Pipe_Config is record
       Port        : Port_Type;
@@ -78,10 +76,6 @@ is
 
    procedure Legacy_VGA_Off;
 
-   procedure Scan_Ports
-     (Configs  :    out Pipe_Configs;
-      Ports    : in     Port_List;
-      Max_Pipe : in     Pipe_Index := Pipe_Index'Last);
    procedure Update_Outputs (Configs : Pipe_Configs);
 
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
@@ -98,6 +92,17 @@ is
    procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_FB : Word32);
 
 private
+
+   ----------------------------------------------------------------------------
+   -- State tracking for the currently configured pipes
+
+   Cur_Configs : Pipe_Configs with Part_Of => State;
+
+   ----------------------------------------------------------------------------
+   -- Internal representation of a single pipe's configuration
+
+   subtype Active_Port_Type is Port_Type
+      range Port_Type'Succ (Disabled) .. Port_Type'Last;
 
    type GPU_Port is (DIGI_A, DIGI_B, DIGI_C, DIGI_D, DIGI_E);
 
