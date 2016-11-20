@@ -158,44 +158,20 @@ is
 
    ----------------------------------------------------------------------------
 
-   type FDI_Per_Port is array (GPU_Port) of Boolean;
-   type FDI_Per_GPU is array (CPU_Type) of FDI_Per_Port;
-   FDI_GPU : constant FDI_Per_GPU :=
-     (Ironlake => FDI_Per_Port'
-        (DIGI_A   => False,            -- directly connected eDP
-         DIGI_B   => True,
-         DIGI_C   => True,
-         DIGI_D   => True,
-         others   => False),
-      Sandybridge => FDI_Per_Port'
-        (DIGI_A   => False,            -- directly connected eDP
-         DIGI_B   => True,
-         DIGI_C   => True,
-         DIGI_D   => True,
-         others   => False),
-      Ivybridge => FDI_Per_Port'
-        (DIGI_A   => False,            -- directly connected eDP
-         DIGI_B   => True,
-         DIGI_C   => True,
-         DIGI_D   => True,
-         others   => False),
-      Haswell => FDI_Per_Port'
-        (DIGI_A   => False,
-         DIGI_B   => False,
-         DIGI_C   => False,
-         DIGI_D   => False,
-         DIGI_E   => True,             -- VGA option through FDI
-         others   => False),
-      Broadwell => FDI_Per_Port'
-        (DIGI_A   => False,
-         DIGI_B   => False,
-         DIGI_C   => False,
-         DIGI_D   => False,
-         DIGI_E   => CPU_Var = Normal, -- VGA option through FDI
-         others   => False),
-      Skylake => FDI_Per_Port'
-        (others   => False));
-   FDI_Port : FDI_Per_Port renames FDI_GPU (CPU);
+   type FDI_Per_Port is array (Port_Type) of Boolean;
+   Is_FDI_Port : constant FDI_Per_Port :=
+     (case CPU is
+         when Ironlake .. Ivybridge => FDI_Per_Port'
+           (Internal => Internal_Display = LVDS,
+            others   => True),
+         when Haswell => FDI_Per_Port'
+           (Analog   => True,
+            others   => False),
+         when Broadwell => FDI_Per_Port'
+           (Analog   => CPU_Var = Normal,
+            others   => False),
+         when Skylake => FDI_Per_Port'
+           (others   => False));
 
    type FDI_Lanes_Per_Port is array (GPU_Port) of DP_Lane_Count;
    FDI_Lane_Count : constant FDI_Lanes_Per_Port :=

@@ -92,26 +92,24 @@ is
    ----------------------------------------------------------------------------
 
    function To_GPU_Port
-     (Configs  : Pipe_Configs;
-      Idx      : Pipe_Index)
+     (Pipe : Pipe_Index;
+      Port : Active_Port_Type)
       return GPU_Port
    is
    begin
       return
         (case Config.CPU is
             when Ironlake .. Ivybridge => -- everything but eDP through FDI/PCH
-              (if Config.Internal_Is_EDP and then Configs (Idx).Port = Internal
-               then
+              (if Config.Internal_Is_EDP and then Port = Internal then
                   DIGI_A
                else
-                 (case Idx is
+                 (case Pipe is
                      -- FDIs are fixed to the CPU pipe
                      when Primary   => DIGI_B,
                      when Secondary => DIGI_C,
                      when Tertiary  => DIGI_D)),
             when Haswell .. Skylake =>    -- everything but VGA directly on CPU
-              (case Configs (Idx).Port is
-                  when Disabled     => GPU_Port'First,
+              (case Port is
                   when Internal     => DIGI_A,  -- LVDS not available
                   when HDMI1 | DP1  => DIGI_B,
                   when HDMI2 | DP2  => DIGI_C,
@@ -139,23 +137,19 @@ is
    with Pre => True
    is
    begin
-      return
+      return Display_Type'
         (case Port is
-            when Internal  => Config.Internal_Display,
-            when Analog    => VGA,
-            when HDMI1 |
-                 HDMI2 |
-                 HDMI3     => HDMI,
-            when DP1 |
-                 DP2 |
-                 DP3       => DP);
+            when Internal        => Config.Internal_Display,
+            when Analog          => VGA,
+            when HDMI1 .. HDMI3  => HDMI,
+            when DP1 .. DP3      => DP);
    end To_Display_Type;
 
+   -- Prepares link rate and lane count settings for an FDI connection.
    procedure Configure_FDI_Link
      (Port_Cfg : in out Port_Config;
       Success  :    out Boolean)
-   with
-      Post => Port_Cfg.Mode = Port_Cfg.Mode'Old
+   with Pre => True
    is
       procedure Limit_Lane_Count
       is
@@ -182,6 +176,8 @@ is
       DP_Info.Preferred_Link_Setting (Port_Cfg.FDI, Port_Cfg.Mode, Success);
    end Configure_FDI_Link;
 
+   -- Validates that a given configuration should work with
+   -- a given framebuffer.
    function Validate_Config
      (Framebuffer : Framebuffer_Type;
       Port_Cfg    : Port_Config;
@@ -211,36 +207,52 @@ is
            Framebuffer.Stride mod 64 = 0));
    end Validate_Config;
 
+   -- Derives an internal port config.
+   --
+   -- This is where the magic happens that hides the hardware details
+   -- from libgfxinit's users. We have to map the pipe (Pipe_Index),
+   -- the user visible port (Port_Type) and the modeline (Mode_Type)
+   -- that we are supposed to output to an internal representation
+   -- (Port_Config) that applies to the selected hardware generation
+   -- (in GMA.Config).
    procedure Fill_Port_Config
      (Port_Cfg :    out Port_Config;
-      Configs  : in     Pipe_Configs;
-      Idx      : in     Pipe_Index;
+      Pipe     : in     Pipe_Index;
+      Port     : in     Port_Type;
+      Mode     : in     Mode_Type;
       Success  :    out Boolean)
    with Pre => True
    is
    begin
       Success :=
-         Config.Supported_Pipe (Idx) and then
-         Config.Valid_Port (Configs (Idx).Port) and then
-         Configs (Idx).Port /= Disabled;
+         GMA.Config.Supported_Pipe (Pipe) and then
+         GMA.Config.Valid_Port (Port) and then
+         Port /= Disabled; -- Valid_Port should already cover this, but the
+                           -- array is writeable, so it's hard to prove this.
 
       if Success then
          declare
-            Port : constant Port_Type := Configs (Idx).Port;
-            Mode : constant Mode_Type := Configs (Idx).Mode;
-            Link : constant DP_Link := DP_Links (Idx);
+            Link : constant DP_Link := DP_Links (Pipe);
          begin
             Port_Cfg := Port_Config'
-              (Port     => To_GPU_Port (Configs, Idx),
+              (Port     => To_GPU_Port (Pipe, Port),
                PCH_Port => To_PCH_Port (Port),
                Display  => To_Display_Type (Port),
                Mode     => Mode,
-               Is_FDI   => Config.FDI_Port (To_GPU_Port (Configs, Idx)),
+               Is_FDI   => GMA.Config.Is_FDI_Port (Port),
                FDI      => Default_DP,
                DP       => Link);
+         end;
+
+         if Port_Cfg.Is_FDI then
+            Configure_FDI_Link (Port_Cfg, Success);
+         end if;
+
+         if Success then
             if Port_Cfg.Mode.BPC = Auto_BPC then
                Port_Cfg.Mode.BPC := Connector_Info.Default_BPC (Port_Cfg);
             end if;
+
             if Port_Cfg.Display = HDMI then
                declare
                   pragma Assert (Config.HDMI_Max_Clock_24bpp * 8
@@ -258,7 +270,7 @@ is
                   end if;
                end;
             end if;
-         end;
+         end if;
       else
          Port_Cfg := Port_Config'
            (Port     => GPU_Port'First,
@@ -544,7 +556,8 @@ is
          Old_Config := Cur_Configs (I);
          New_Config := Configs (I);
 
-         Fill_Port_Config (Port_Cfg, Old_Configs, I, Success);
+         Fill_Port_Config
+           (Port_Cfg, I, Old_Configs (I).Port, Old_Configs (I).Mode, Success);
          if Success then
             Check_HPD (Port_Cfg, Old_Config.Port, HPD);
          end if;
@@ -575,7 +588,8 @@ is
             end if;
 
             if New_Config.Port /= Disabled then
-               Fill_Port_Config (Port_Cfg, Configs, I, Success);
+               Fill_Port_Config
+                 (Port_Cfg, I, Configs (I).Port, Configs (I).Mode, Success);
 
                Success := Success and then
                           Validate_Config (New_Config.Framebuffer, Port_Cfg, I);
@@ -593,10 +607,6 @@ is
                   if not Did_Power_Up then
                      Power_And_Clocks.Power_Up (Old_Configs, Configs);
                      Did_Power_Up := True;
-                  end if;
-
-                  if Port_Cfg.Is_FDI then
-                     Configure_FDI_Link (Port_Cfg, Success);
                   end if;
                end if;
 
