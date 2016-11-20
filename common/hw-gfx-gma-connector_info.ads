@@ -16,13 +16,6 @@ with HW.GFX.EDID;
 
 private package HW.GFX.GMA.Connector_Info is
 
-   procedure Read_EDID
-     (Raw_EDID :    out EDID.Raw_EDID_Data;
-      Port_Cfg : in     Port_Config;
-      Success  :    out Boolean)
-   with
-      Post => (if Success then EDID.Valid (Raw_EDID));
-
    procedure Preferred_Link_Setting
      (Port_Cfg : in out Port_Config;
       Success  :    out Boolean)

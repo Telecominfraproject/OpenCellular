@@ -12,8 +12,11 @@
 -- GNU General Public License for more details.
 --
 
+with HW.GFX.I2C;
 with HW.GFX.EDID;
 with HW.GFX.GMA.Config;
+with HW.GFX.GMA.I2C;
+with HW.GFX.GMA.DP_Aux_Ch;
 with HW.GFX.GMA.DP_Info;
 with HW.GFX.GMA.Registers;
 with HW.GFX.GMA.Power_And_Clocks;
@@ -117,6 +120,7 @@ is
    end To_GPU_Port;
 
    function To_PCH_Port (Port : Active_Port_Type) return PCH_Port
+   with Pre => True
    is
    begin
       return
@@ -342,6 +346,53 @@ is
              Configs (Tertiary).Port   = Port;
    end Port_Configured;
 
+   procedure Read_EDID
+     (Raw_EDID :    out EDID.Raw_EDID_Data;
+      Port     : in     Active_Port_Type;
+      Success  :    out Boolean)
+   with
+      Post => (if Success then EDID.Valid (Raw_EDID))
+   is
+      Raw_EDID_Length : GFX.I2C.Transfer_Length := Raw_EDID'Length;
+   begin
+      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      for I in 1 .. 2 loop
+         if To_Display_Type (Port) = DP then
+            declare
+               DP_Port : constant GMA.DP_Port :=
+                 (case Port is
+                     when Internal  => DP_A,
+                     when DP1       => DP_B,
+                     when DP2       => DP_C,
+                     when DP3       => DP_D,
+                     when others    => GMA.DP_Port'First);
+            begin
+               DP_Aux_Ch.I2C_Read
+                 (Port     => DP_Port,
+                  Address  => 16#50#,
+                  Length   => Raw_EDID_Length,
+                  Data     => Raw_EDID,
+                  Success  => Success);
+            end;
+         else
+            I2C.I2C_Read
+              (Port     => (if Port = Analog
+                            then Config.Analog_I2C_Port
+                            else To_PCH_Port (Port)),
+               Address  => 16#50#,
+               Length   => Raw_EDID_Length,
+               Data     => Raw_EDID,
+               Success  => Success);
+         end if;
+         exit when not Success;  -- don't retry if reading itself failed
+
+         pragma Debug (Debug.Put_Buffer ("EDID", Raw_EDID, Raw_EDID_Length));
+         EDID.Sanitize (Raw_EDID, Success);
+         exit when Success;
+      end loop;
+   end Read_EDID;
+
    procedure Scan_Ports
      (Configs  :    out Pipe_Configs;
       Ports    : in     Port_List;
@@ -372,7 +423,7 @@ is
                      Panel.On;
                   end if;
 
-                  Connector_Info.Read_EDID (Raw_EDID, Port_Cfg, Success);
+                  Read_EDID (Raw_EDID, Ports (Port_Idx), Success);
                end if;
 
                if Success and then

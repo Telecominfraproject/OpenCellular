@@ -12,22 +12,20 @@
 -- GNU General Public License for more details.
 --
 
-with HW.GFX.I2C;
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Panel;
-with HW.GFX.GMA.I2C;
 with HW.GFX.GMA.DP_Info;
-with HW.GFX.GMA.DP_Aux_Ch;
 
 with HW.Debug;
 with GNAT.Source_Info;
 
 package body HW.GFX.GMA.Connector_Info is
 
-   function To_DP (Port_Cfg : Port_Config) return DP_Port
+   procedure Preferred_Link_Setting
+     (Port_Cfg    : in out Port_Config;
+      Success     :    out Boolean)
    is
-   begin
-      return
+      DP_Port : constant GMA.DP_Port :=
         (if Port_Cfg.Port = DIGI_A then
             DP_A
          else
@@ -35,51 +33,7 @@ package body HW.GFX.GMA.Connector_Info is
                when PCH_DP_B  => DP_B,
                when PCH_DP_C  => DP_C,
                when PCH_DP_D  => DP_D,
-               when others    => DP_Port'First));
-   end To_DP;
-
-   ----------------------------------------------------------------------------
-
-   procedure Read_EDID
-     (Raw_EDID    :    out EDID.Raw_EDID_Data;
-      Port_Cfg    : in     Port_Config;
-      Success     :    out Boolean)
-   is
-      Raw_EDID_Length : GFX.I2C.Transfer_Length := Raw_EDID'Length;
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      for I in 1 .. 2 loop
-         if Port_Cfg.Display = DP then
-            DP_Aux_Ch.I2C_Read
-              (Port     => To_DP (Port_Cfg),
-               Address  => 16#50#,
-               Length   => Raw_EDID_Length,
-               Data     => Raw_EDID,
-               Success  => Success);
-         else
-            I2C.I2C_Read
-              (Port     => (if Port_Cfg.Display = VGA
-                            then Config.Analog_I2C_Port
-                            else Port_Cfg.PCH_Port),
-               Address  => 16#50#,
-               Length   => Raw_EDID_Length,
-               Data     => Raw_EDID,
-               Success  => Success);
-         end if;
-         exit when not Success;  -- don't retry if reading itself failed
-
-         pragma Debug (Debug.Put_Buffer ("EDID", Raw_EDID, Raw_EDID_Length));
-         EDID.Sanitize (Raw_EDID, Success);
-         exit when Success;
-      end loop;
-   end Read_EDID;
-
-   ----------------------------------------------------------------------------
-
-   procedure Preferred_Link_Setting
-     (Port_Cfg    : in out Port_Config;
-      Success     :    out Boolean) is
+               when others    => GMA.DP_Port'First));
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
@@ -94,7 +48,7 @@ package body HW.GFX.GMA.Connector_Info is
 
          DP_Info.Read_Caps
            (Link     => Port_Cfg.DP,
-            Port     => To_DP (Port_Cfg),
+            Port     => DP_Port,
             Success  => Success);
          if Success then
             DP_Info.Preferred_Link_Setting
