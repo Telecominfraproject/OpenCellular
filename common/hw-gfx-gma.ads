@@ -82,9 +82,6 @@ is
      (Configs  :    out Pipe_Configs;
       Ports    : in     Port_List;
       Max_Pipe : in     Pipe_Index := Pipe_Index'Last);
-   procedure Auto_Configure
-     (Configs     : in out Pipe_Configs;
-      Keep_Power  : in     Boolean := False);
    procedure Update_Outputs (Configs : Pipe_Configs);
 
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
