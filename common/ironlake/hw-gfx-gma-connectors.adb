@@ -66,7 +66,8 @@ is
 
       if Port_Cfg.Port = DIGI_A then
          EDP.Pre_Training;
-         Success := True;
+         Panel.On (Wait => True);
+         EDP.Post_On (Port_Cfg.DP, Success);
       elsif Port_Cfg.Port in FDI.GPU_FDI_Port then
          declare
             FDI_Port : constant PCH.FDI_Port_Type :=
@@ -92,14 +93,7 @@ is
       end if;
 
       if Success and Is_Internal (Port_Cfg) then
-         Panel.On;
-      end if;
-
-      if Port_Cfg.Port = DIGI_A then
-         EDP.Post_On (Port_Cfg.DP, Success);
-      end if;
-
-      if Success and Is_Internal (Port_Cfg) then
+         Panel.On (Wait => False);
          Panel.Backlight_On;
       end if;
    end Post_On;
