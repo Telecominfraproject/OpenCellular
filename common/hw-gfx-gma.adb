@@ -346,6 +346,27 @@ is
              Configs (Tertiary).Port   = Port;
    end Port_Configured;
 
+   -- DP and HDMI share physical pins.
+   function Sibling_Port (Port : Port_Type) return Port_Type
+   is
+   begin
+      return
+        (case Port is
+            when HDMI1 => DP1,
+            when HDMI2 => DP2,
+            when HDMI3 => DP3,
+            when DP1 => HDMI1,
+            when DP2 => HDMI2,
+            when DP3 => HDMI3,
+            when others => Disabled);
+   end Sibling_Port;
+
+   function Has_Sibling_Port (Port : Port_Type) return Boolean
+   is
+   begin
+      return Sibling_Port (Port) /= Disabled;
+   end Has_Sibling_Port;
+
    procedure Read_EDID
      (Raw_EDID :    out EDID.Raw_EDID_Data;
       Port     : in     Active_Port_Type;
@@ -448,7 +469,10 @@ is
          Pipe_Index'First .. Pipe_Index'Min (Max_Pipe, Config.Max_Pipe)
       loop
          while Ports (Port_Idx) /= Disabled loop
-            if not Port_Configured (Configs, Ports (Port_Idx)) then
+            if not Port_Configured (Configs, Ports (Port_Idx)) and
+               (not Has_Sibling_Port (Ports (Port_Idx)) or
+                not Port_Configured (Configs, Sibling_Port (Ports (Port_Idx))))
+            then
                Probe_Port (Configs (Pipe), Ports (Port_Idx), Success);
             else
                Success := False;
