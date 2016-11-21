@@ -128,7 +128,7 @@ is
 
       if Success then
          if Port = Internal then
-            Panel.On;
+            Panel.Wait_On;
          end if;
          Read_EDID (Raw_EDID, Port, Success);
       end if;
@@ -162,9 +162,6 @@ is
          pragma Warnings (GNATprove, On, "unused assignment to ""Raw_EDID""");
       else
          Success := False;
-         if Port = Internal then
-            Panel.Off;
-         end if;
       end if;
    end Probe_Port;
 
@@ -173,6 +170,8 @@ is
       Ports          : in     Port_List;
       Max_Pipe       : in     Pipe_Index := Pipe_Index'Last)
    is
+      Probe_Internal : Boolean := False;
+
       Port_Idx : Port_List_Range := Port_List_Range'First;
       Success  : Boolean;
    begin
@@ -180,6 +179,16 @@ is
                     (Port        => Disabled,
                      Mode        => Invalid_Mode,
                      Framebuffer => Default_FB));
+
+      -- Turn panel on early to probe other ports during the power on delay.
+      for Idx in Port_List_Range loop
+         exit when Ports (Idx) = Disabled;
+         if Ports (Idx) = Internal then
+            Panel.On (Wait => False);
+            Probe_Internal := True;
+            exit;
+         end if;
+      end loop;
 
       for Pipe in Pipe_Index range
          Pipe_Index'First .. Pipe_Index'Min (Max_Pipe, Config.Max_Pipe)
@@ -203,6 +212,11 @@ is
 
       -- Restore power settings
       Power_And_Clocks.Power_Set_To (Cur_Configs);
+
+      -- Turn panel power off if probing failed.
+      if Probe_Internal and not Port_Configured (Configs, Internal) then
+         Panel.Off;
+      end if;
    end Scan_Ports;
 
 end HW.GFX.GMA.Display_Probing;
