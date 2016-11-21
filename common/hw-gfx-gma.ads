@@ -63,6 +63,7 @@ is
    procedure Initialize
      (MMIO_Base   : in     Word64 := 0;
       Write_Delay : in     Word64 := 0;
+      Clean_State : in     Boolean := False;
       Success     :    out Boolean)
    with
       Global =>

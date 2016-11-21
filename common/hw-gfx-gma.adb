@@ -331,6 +331,7 @@ is
    procedure Initialize
      (MMIO_Base   : in     Word64 := 0;
       Write_Delay : in     Word64 := 0;
+      Clean_State : in     Boolean := False;
       Success     :    out Boolean)
    with
       Refined_Global =>
@@ -406,16 +407,17 @@ is
       Panel.Setup_PP_Sequencer;
       Port_Detect.Initialize;
 
-      Power_And_Clocks.Pre_All_Off;
+      Legacy_VGA_Off;   -- According to PRMs, VGA plane is the only
+                        -- thing that's enabled by default after reset.
 
-      Legacy_VGA_Off;
-
-      Connectors.Pre_All_Off;
-      Display_Controller.All_Off;
-      Connectors.Post_All_Off;
-      PLLs.All_Off;
-
-      Power_And_Clocks.Post_All_Off;
+      if Clean_State then
+         Power_And_Clocks.Pre_All_Off;
+         Connectors.Pre_All_Off;
+         Display_Controller.All_Off;
+         Connectors.Post_All_Off;
+         PLLs.All_Off;
+         Power_And_Clocks.Post_All_Off;
+      end if;
 
       -------------------- Now restart from a clean state ---------------------
       Power_And_Clocks.Initialize;
