@@ -53,9 +53,9 @@ is
       DP1      => "DP1     ",
       DP2      => "DP2     ",
       DP3      => "DP3     ",
-      Digital1 => "Digital1",
-      Digital2 => "Digital2",
-      Digital3 => "Digital3",
+      HDMI1    => "HDMI1   ",
+      HDMI2    => "HDMI2   ",
+      HDMI3    => "HDMI3   ",
       Analog   => "Analog  ");
 
    package Display_Controller renames Pipe_Setup;
@@ -108,12 +108,12 @@ is
                      when Tertiary  => DIGI_D)),
             when Haswell .. Skylake =>    -- everything but VGA directly on CPU
               (case Configs (Idx).Port is
-                  when Disabled           => GPU_Port'First,
-                  when Internal           => DIGI_A,  -- LVDS not available
-                  when Digital1 | DP1     => DIGI_B,
-                  when Digital2 | DP2     => DIGI_C,
-                  when Digital3 | DP3     => DIGI_D,
-                  when Analog             => DIGI_E));
+                  when Disabled     => GPU_Port'First,
+                  when Internal     => DIGI_A,  -- LVDS not available
+                  when HDMI1 | DP1  => DIGI_B,
+                  when HDMI2 | DP2  => DIGI_C,
+                  when HDMI3 | DP3  => DIGI_D,
+                  when Analog       => DIGI_E));
    end To_GPU_Port;
 
    function To_PCH_Port (Port : Active_Port_Type) return PCH_Port
@@ -123,9 +123,9 @@ is
         (case Port is
             when Internal  => PCH_LVDS,   -- will be ignored if Internal is DP
             when Analog    => PCH_DAC,
-            when Digital1  => PCH_HDMI_B,
-            when Digital2  => PCH_HDMI_C,
-            when Digital3  => PCH_HDMI_D,
+            when HDMI1     => PCH_HDMI_B,
+            when HDMI2     => PCH_HDMI_C,
+            when HDMI3     => PCH_HDMI_D,
             when DP1       => PCH_DP_B,
             when DP2       => PCH_DP_C,
             when DP3       => PCH_DP_D);
@@ -139,9 +139,9 @@ is
         (case Port is
             when Internal  => Config.Internal_Display,
             when Analog    => VGA,
-            when Digital1 |
-                 Digital2 |
-                 Digital3  => HDMI,
+            when HDMI1 |
+                 HDMI2 |
+                 HDMI3     => HDMI,
             when DP1 |
                  DP2 |
                  DP3       => DP);

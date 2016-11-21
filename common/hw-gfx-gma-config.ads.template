@@ -131,14 +131,14 @@ is
       Haswell     => Valid_Per_Port'
         (Disabled => False,
          Internal => Config.Internal_Display = DP,
-         Digital3 => CPU_Var = Normal,
+         HDMI3    => CPU_Var = Normal,
          DP3      => CPU_Var = Normal,
          Analog   => CPU_Var = Normal,
          others   => True),
       Broadwell   => Valid_Per_Port'
         (Disabled => False,
          Internal => Config.Internal_Display = DP,
-         Digital3 => CPU_Var = Normal,
+         HDMI3    => CPU_Var = Normal,
          DP3      => CPU_Var = Normal,
          Analog   => CPU_Var = Normal,
          others   => True),

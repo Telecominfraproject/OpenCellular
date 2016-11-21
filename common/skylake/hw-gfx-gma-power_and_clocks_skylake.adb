@@ -194,23 +194,23 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
          when DDI_AE    => Configs (Primary).Port = Internal or
                            Configs (Secondary).Port = Internal or
                            Configs (Tertiary).Port = Internal,
-         when DDI_B     => Configs (Primary).Port = Digital1 or
+         when DDI_B     => Configs (Primary).Port = HDMI1 or
                            Configs (Primary).Port = DP1 or
-                           Configs (Secondary).Port = Digital1 or
+                           Configs (Secondary).Port = HDMI1 or
                            Configs (Secondary).Port = DP1 or
-                           Configs (Tertiary).Port = Digital1 or
+                           Configs (Tertiary).Port = HDMI1 or
                            Configs (Tertiary).Port = DP1,
-         when DDI_C     => Configs (Primary).Port = Digital2 or
+         when DDI_C     => Configs (Primary).Port = HDMI2 or
                            Configs (Primary).Port = DP2 or
-                           Configs (Secondary).Port = Digital2 or
+                           Configs (Secondary).Port = HDMI2 or
                            Configs (Secondary).Port = DP2 or
-                           Configs (Tertiary).Port = Digital2 or
+                           Configs (Tertiary).Port = HDMI2 or
                            Configs (Tertiary).Port = DP2,
-         when DDI_D     => Configs (Primary).Port = Digital3 or
+         when DDI_D     => Configs (Primary).Port = HDMI3 or
                            Configs (Primary).Port = DP3 or
-                           Configs (Secondary).Port = Digital3 or
+                           Configs (Secondary).Port = HDMI3 or
                            Configs (Secondary).Port = DP3 or
-                           Configs (Tertiary).Port = Digital3 or
+                           Configs (Tertiary).Port = HDMI3 or
                            Configs (Tertiary).Port = DP3,
          when PW2       => (Configs (Primary).Port /= Disabled and
                             Configs (Primary).Port /= Internal) or

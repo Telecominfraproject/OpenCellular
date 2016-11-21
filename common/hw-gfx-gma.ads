@@ -43,9 +43,9 @@ is
       DP1,
       DP2,
       DP3,
-      Digital1,
-      Digital2,
-      Digital3,
+      HDMI1, -- or DVI
+      HDMI2, -- or DVI
+      HDMI3, -- or DVI
       Analog);
    type Port_List_Range is range 0 .. 7;
    type Port_List is array (Port_List_Range) of Port_Type;

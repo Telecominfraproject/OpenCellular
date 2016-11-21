@@ -63,9 +63,9 @@ is
 
       type PCH_Port_To_GMA_Port is array (PCH_HDMI_Port) of Port_Type;
       To_Digital_Port : constant PCH_Port_To_GMA_Port :=
-        (PCH_HDMI_B => Digital1,
-         PCH_HDMI_C => Digital2,
-         PCH_HDMI_D => Digital3);
+        (PCH_HDMI_B => HDMI1,
+         PCH_HDMI_C => HDMI2,
+         PCH_HDMI_D => HDMI3);
       To_DP_Port : constant PCH_Port_To_GMA_Port :=
         (PCH_HDMI_B => DP1,
          PCH_HDMI_C => DP2,

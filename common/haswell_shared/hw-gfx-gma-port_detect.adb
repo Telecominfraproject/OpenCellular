@@ -68,9 +68,9 @@ is
          Digital_Port range DIGI_B .. DIGI_D;
       type Digital_Port_To_GMA_Port is array (Ext_Digital_Port) of Port_Type;
       To_HDMI_Port : constant Digital_Port_To_GMA_Port :=
-        (DIGI_B => Digital1,
-         DIGI_C => Digital2,
-         DIGI_D => Digital3);
+        (DIGI_B => HDMI1,
+         DIGI_C => HDMI2,
+         DIGI_D => HDMI3);
       To_DP_Port : constant Digital_Port_To_GMA_Port :=
         (DIGI_B => DP1,
          DIGI_C => DP2,
