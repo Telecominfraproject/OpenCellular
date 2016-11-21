@@ -426,6 +426,7 @@ is
      (Pipe_Cfg : in out Pipe_Config;
       Port     : in     Active_Port_Type;
       Success  :    out Boolean)
+   with Pre => True
    is
       Raw_EDID : EDID.Raw_EDID_Data := (others => 16#00#);
    begin
@@ -444,6 +445,26 @@ is
       then
          Pipe_Cfg.Port := Port;
          Pipe_Cfg.Mode := EDID.Preferred_Mode (Raw_EDID);
+
+         pragma Warnings (GNATprove, Off, "unused assignment to ""Raw_EDID""",
+            Reason => "We just want to check if it's readable.");
+         if Has_Sibling_Port (Port) then
+            -- Probe sibling port too and bail out if something is detected.
+            -- This is a precaution for adapters that expose the pins of a
+            -- port for both HDMI/DVI and DP (like some ThinkPad docks). A
+            -- user might have attached both by accident and there are ru-
+            -- mors of displays that got fried by applying the wrong signal.
+            declare
+               Have_Sibling_EDID : Boolean;
+            begin
+               Read_EDID (Raw_EDID, Sibling_Port (Port), Have_Sibling_EDID);
+               if Have_Sibling_EDID then
+                  Pipe_Cfg.Port := Disabled;
+                  Success := False;
+               end if;
+            end;
+         end if;
+         pragma Warnings (GNATprove, On, "unused assignment to ""Raw_EDID""");
       else
          Success := False;
          if Port = Internal then
