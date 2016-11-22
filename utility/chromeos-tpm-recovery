@@ -14,6 +14,8 @@ crossystem=${USR_BIN}/crossystem
 dot_recovery=${DOT_RECOVERY:=/mnt/stateful_partition/.recovery}
 awk=/usr/bin/awk
 initctl=/sbin/initctl
+daemon_was_running=
+err=0
 
 tpm2_target() {
   # This is not an ideal way to tell if we are running on a tpm2 target, but
@@ -39,6 +41,16 @@ quit() {
 
 log_tryfix() {
   log "$*: attempting to fix"
+}
+
+log_error() {
+  err=$((err + 1))
+  log "ERROR: $*"
+}
+
+
+log_warn() {
+  log "WARNING: $*"
 }
 
 tpm_clear_and_reenable () {
@@ -75,7 +87,7 @@ reset_space () {
 }
 
 restart_daemon_if_needed() {
-  if [ $daemon_was_running != 0 ]; then
+  if [ "$daemon_was_running" = 1 ]; then
     log "Restarting ${DAEMON}..."
     $initctl start "${DAEMON}" >/dev/null
   fi
@@ -150,13 +162,15 @@ tpm_clear_and_reenable
 
 # Reset firmware and kernel spaces to default (rollback version 1/1)
 reset_space 0x1007 0x8001 0xa "02  00  01 00 01 00  00 00 00  4f" || \
-  log "could not fix firmware space"
+  log_error "could not fix firmware space"
 reset_space 0x1008 0x1 0xd "02  4c 57 52 47  01 00 01 00  00 00 00  55" || \
-  log "could not fix kernel space"
-# Don't need valid data in backup space, vboot can reset it as long as it exists
-reset_space 0x1009 0x1 0x10 "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00" || \
-  log "could not fix backup space"
+  log_error "could not fix kernel space"
 
 restart_daemon_if_needed
 
-log "TPM has successfully been reset to factory defaults"
+if [ "$err" -eq 0 ]; then
+  log "TPM has successfully been reset to factory defaults"
+else
+  log_error "TPM was not fully recovered."
+  exit 1
+fi
