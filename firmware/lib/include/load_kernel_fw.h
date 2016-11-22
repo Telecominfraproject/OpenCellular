@@ -17,10 +17,6 @@ struct vb2_context;
 /* Interface provided by verified boot library to BDS */
 
 /* Boot flags for LoadKernel().boot_flags */
-/* Developer switch is on */
-#define BOOT_FLAG_DEVELOPER    (0x01ULL)
-/* In recovery mode */
-#define BOOT_FLAG_RECOVERY     (0x02ULL)
 /* GPT is external */
 #define BOOT_FLAG_EXTERNAL_GPT (0x04ULL)
 
@@ -28,10 +24,6 @@ struct RollbackSpaceFwmp;
 
 typedef struct LoadKernelParams {
 	/* Inputs to LoadKernel() */
-	/* Pointer to GBB data */
-	void *gbb_data;
-	/* Size of GBB data in bytes */
-	uint64_t gbb_size;
 	/* Disk handle for current device */
 	VbExDiskHandle_t disk_handle;
 	/* Bytes per lba sector on current device */

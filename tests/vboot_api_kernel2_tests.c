@@ -184,7 +184,7 @@ int VbAudioLooping(VbAudioContext *audio)
 }
 
 uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
-			 LoadKernelParams *p, uint32_t get_info_flags)
+			 uint32_t get_info_flags)
 {
 	return vbtlk_retval + get_info_flags;
 }
@@ -273,7 +273,7 @@ static void VbBootTest(void)
 {
 	ResetMocks();
 	VbExEcEnteringMode(0, VB_EC_NORMAL);
-	TEST_EQ(VbBootNormal(&ctx, &cparams, &lkp), 1002, "VbBootNormal()");
+	TEST_EQ(VbBootNormal(&ctx, &cparams), 1002, "VbBootNormal()");
 	TEST_EQ(VbGetMode(), VB_EC_NORMAL, "vboot_mode normal");
 }
 
@@ -284,7 +284,7 @@ static void VbBootDevTest(void)
 	/* Proceed after timeout */
 	ResetMocks();
 	VbExEcEnteringMode(0, VB_EC_DEVELOPER);
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Timeout");
 	TEST_EQ(VbGetMode(), VB_EC_DEVELOPER, "vboot_mode developer");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING,
 		"  warning screen");
@@ -296,7 +296,7 @@ static void VbBootDevTest(void)
 	ResetMocks();
 	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY |
 		     GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Timeout");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
 	/* Proceed to legacy after timeout if boot legacy and default boot
@@ -305,14 +305,14 @@ static void VbBootDevTest(void)
 	vb2_nv_set(&ctx, VB2_NV_DEV_DEFAULT_BOOT,
 		   VBNV_DEV_DEFAULT_BOOT_LEGACY);
 	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_LEGACY, 1);
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Timeout");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
 	/* Proceed to legacy boot mode only if enabled */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_DEV_DEFAULT_BOOT,
 		   VBNV_DEV_DEFAULT_BOOT_LEGACY);
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Timeout");
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
 	/* Proceed to usb after timeout if boot usb and default boot
@@ -322,31 +322,31 @@ static void VbBootDevTest(void)
 		   VBNV_DEV_DEFAULT_BOOT_USB);
 	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_USB, 1);
 	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 0, "Ctrl+U USB");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 0, "Ctrl+U USB");
 
 	/* Proceed to usb boot mode only if enabled */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_DEV_DEFAULT_BOOT,
 		   VBNV_DEV_DEFAULT_BOOT_USB);
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Timeout");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Timeout");
 
 	/* If no USB tries fixed disk */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_USB, 1);
 	vb2_nv_set(&ctx, VB2_NV_DEV_DEFAULT_BOOT,
 		   VBNV_DEV_DEFAULT_BOOT_USB);
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Ctrl+U enabled");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Ctrl+U enabled");
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
 	/* Up arrow is uninteresting / passed to VbCheckDisplayKey() */
 	ResetMocks();
 	mock_keypress[0] = VB_KEY_UP;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Up arrow");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Up arrow");
 
 	/* Shutdown requested in loop */
 	ResetMocks();
 	shutdown_request_calls_left = 2;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Shutdown requested");
 	TEST_NEQ(audio_looping_calls_left, 0, "  aborts audio");
@@ -354,7 +354,7 @@ static void VbBootDevTest(void)
 	/* Space goes straight to recovery if no virtual dev switch */
 	ResetMocks();
 	mock_keypress[0] = ' ';
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
 		VBERROR_LOAD_KERNEL_RECOVERY,
 		"Space = recovery");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
@@ -365,7 +365,7 @@ static void VbBootDevTest(void)
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
 	mock_keypress[0] = ' ';
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), VBERROR_REBOOT_REQUIRED,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), VBERROR_REBOOT_REQUIRED,
 		"Space = tonorm");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING,
 		"  warning screen");
@@ -382,7 +382,7 @@ static void VbBootDevTest(void)
 	mock_keypress[0] = ' ';
 	mock_keypress[1] = ' ';
 	mock_keypress[2] = 0x1b;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Space-space");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Space-space");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING,
 		"  warning screen");
 	TEST_EQ(screens_displayed[1], VB_SCREEN_DEVELOPER_TO_NORM,
@@ -395,7 +395,7 @@ static void VbBootDevTest(void)
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
 	mock_keypress[0] = '\r';
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Enter ignored");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Enter ignored");
 
 	/* Enter does if GBB flag set */
 	ResetMocks();
@@ -403,7 +403,7 @@ static void VbBootDevTest(void)
 	gbb.flags |= GBB_FLAG_ENTER_TRIGGERS_TONORM;
 	mock_keypress[0] = '\r';
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), VBERROR_REBOOT_REQUIRED,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), VBERROR_REBOOT_REQUIRED,
 		"Enter = tonorm");
 
 	/* Tonorm ignored if GBB forces dev switch on */
@@ -412,7 +412,7 @@ static void VbBootDevTest(void)
 	gbb.flags |= GBB_FLAG_FORCE_DEV_SWITCH_ON;
 	mock_keypress[0] = ' ';
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002,
 		"Can't tonorm gbb-dev");
 
 	/* Shutdown requested at tonorm screen */
@@ -420,7 +420,7 @@ static void VbBootDevTest(void)
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
 	mock_keypress[0] = ' ';
 	shutdown_request_calls_left = 2;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Shutdown requested at tonorm");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING,
@@ -431,7 +431,7 @@ static void VbBootDevTest(void)
 	/* Ctrl+D dismisses warning */
 	ResetMocks();
 	mock_keypress[0] = 0x04;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Ctrl+D");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Ctrl+D");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST), 0,
 		"  recovery reason");
 	TEST_NEQ(audio_looping_calls_left, 0, "  aborts audio");
@@ -441,67 +441,67 @@ static void VbBootDevTest(void)
 	ResetMocks();
 	mock_keypress[0] = 0x04;
 	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Ctrl+D");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Ctrl+D");
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
 	/* Ctrl+L tries legacy boot mode only if enabled */
 	ResetMocks();
 	mock_keypress[0] = 0x0c;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Ctrl+L normal");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Ctrl+L normal");
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
 	ResetMocks();
 	gbb.flags |= GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
 	mock_keypress[0] = 0x0c;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002,
 		"Ctrl+L force legacy");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_LEGACY, 1);
 	mock_keypress[0] = 0x0c;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002,
 		"Ctrl+L nv legacy");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
 
 	ResetMocks();
 	VbApiKernelGetFwmp()->flags |= FWMP_DEV_ENABLE_LEGACY;
 	mock_keypress[0] = 0x0c;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002,
 		"Ctrl+L fwmp legacy");
 	TEST_EQ(vbexlegacy_called, 1, "  fwmp legacy");
 
 	/* Ctrl+U boots USB only if enabled */
 	ResetMocks();
 	mock_keypress[0] = 0x15;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Ctrl+U normal");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Ctrl+U normal");
 
 	/* Ctrl+U enabled, with good USB boot */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_USB, 1);
 	mock_keypress[0] = 0x15;
 	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 0, "Ctrl+U USB");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 0, "Ctrl+U USB");
 
 	/* Ctrl+U enabled via GBB */
 	ResetMocks();
 	gbb.flags |= GBB_FLAG_FORCE_DEV_BOOT_USB;
 	mock_keypress[0] = 0x15;
 	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 0, "Ctrl+U force USB");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 0, "Ctrl+U force USB");
 
 	/* Ctrl+U enabled via FWMP */
 	ResetMocks();
 	VbApiKernelGetFwmp()->flags |= FWMP_DEV_ENABLE_USB;
 	mock_keypress[0] = 0x15;
 	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 0, "Ctrl+U force USB");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 0, "Ctrl+U force USB");
 
 	/* If no USB, eventually times out and tries fixed disk */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_USB, 1);
 	mock_keypress[0] = 0x15;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), 1002, "Ctrl+U enabled");
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), 1002, "Ctrl+U enabled");
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST), 0,
 		"  recovery reason");
@@ -512,7 +512,7 @@ static void VbBootDevTest(void)
 	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
 	mock_keypress[0] = '\x1b';  /* Just causes TONORM again */
 	mock_keypress[1] = '\r';
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp), VBERROR_REBOOT_REQUIRED,
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams), VBERROR_REBOOT_REQUIRED,
 		"FWMP dev disabled");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM,
 		"  tonorm screen");
@@ -528,7 +528,7 @@ static void VbBootDevTest(void)
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
 	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
 	shutdown_request_calls_left = 1;
-	TEST_EQ(VbBootDeveloper(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Shutdown requested when dev disabled");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM,
@@ -545,7 +545,7 @@ static void VbBootRecTest(void)
 	ResetMocks();
 	shutdown_request_calls_left = 10;
 	VbExEcEnteringMode(0, VB_EC_RECOVERY);
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Shutdown requested");
 	TEST_EQ(VbGetMode(), VB_EC_RECOVERY, "vboot_mode recovery");
@@ -562,7 +562,7 @@ static void VbBootRecTest(void)
 	mock_num_disks[1] = 1;
 	mock_num_disks[2] = 1;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Remove");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
@@ -575,7 +575,7 @@ static void VbBootRecTest(void)
 	mock_num_disks[1] = 1;
 	shared->flags |= VBSD_BOOT_DEV_SWITCH_ON;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"No remove in dev");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
@@ -588,7 +588,7 @@ static void VbBootRecTest(void)
 	mock_num_disks[1] = 1;
 	shared->flags |= VBSD_BOOT_REC_SWITCH_ON;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"No remove in rec");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
@@ -600,7 +600,7 @@ static void VbBootRecTest(void)
 	mock_num_disks[0] = 0;
 	mock_num_disks[1] = 1;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Remove");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
@@ -612,7 +612,7 @@ static void VbBootRecTest(void)
 	mock_num_disks[0] = -1;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	shutdown_request_calls_left = 10;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Bad disk count");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
@@ -624,7 +624,7 @@ static void VbBootRecTest(void)
 	shutdown_request_calls_left = 100;
 	mock_keypress[0] = 0x04;
 	trust_ec = 0;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Ctrl+D ignored if EC not trusted");
 	TEST_EQ(virtdev_set, 0, "  virtual dev mode off");
@@ -637,7 +637,7 @@ static void VbBootRecTest(void)
 	trust_ec = 1;
 	shutdown_request_calls_left = 100;
 	mock_keypress[0] = 0x04;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Ctrl+D ignored if already in dev mode");
 	TEST_EQ(virtdev_set, 0, "  virtual dev mode off");
@@ -649,7 +649,7 @@ static void VbBootRecTest(void)
 	trust_ec = 1;
 	shutdown_request_calls_left = 100;
 	mock_keypress[0] = 0x04;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Ctrl+D ignored if recovery not manually triggered");
 	TEST_EQ(virtdev_set, 0, "  virtual dev mode off");
@@ -661,7 +661,7 @@ static void VbBootRecTest(void)
 	trust_ec = 1;
 	shutdown_request_calls_left = 100;
 	mock_keypress[0] = 0x04;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Ctrl+D ignored if no virtual dev switch");
 	TEST_EQ(virtdev_set, 0, "  virtual dev mode off");
@@ -677,7 +677,7 @@ static void VbBootRecTest(void)
 	shutdown_request_calls_left = 100;
 	mock_keypress[0] = 0x04;
 	mock_switches[0] = VB_INIT_FLAG_REC_BUTTON_PRESSED;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Ctrl+D ignored if phys rec button is still pressed");
 	TEST_NEQ(screens_displayed[1], VB_SCREEN_RECOVERY_TO_DEV,
@@ -691,7 +691,7 @@ static void VbBootRecTest(void)
 	trust_ec = 1;
 	mock_keypress[0] = 0x04;
 	mock_keypress[1] = ' ';
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Ctrl+D todev abort");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
@@ -711,7 +711,7 @@ static void VbBootRecTest(void)
 	mock_keypress[0] = 0x04;
 	mock_keypress[1] = '\r';
 	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp), VBERROR_REBOOT_REQUIRED,
+	TEST_EQ(VbBootRecovery(&ctx, &cparams), VBERROR_REBOOT_REQUIRED,
 		"Ctrl+D todev confirm");
 	TEST_EQ(virtdev_set, 1, "  virtual dev mode on");
 
@@ -725,7 +725,7 @@ static void VbBootRecTest(void)
 	mock_keypress[1] = '\r';
 	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
 	virtdev_retval = VBERROR_SIMULATED;
-	TEST_EQ(VbBootRecovery(&ctx, &cparams, &lkp),
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_TPM_SET_BOOT_MODE_STATE,
 		"Ctrl+D todev failure");
 

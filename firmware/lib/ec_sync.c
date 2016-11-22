@@ -457,3 +457,25 @@ VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	return VBERROR_SUCCESS;
 }
+
+VbError_t ec_sync_phase3(struct vb2_context *ctx, VbCommonParams *cparams)
+{
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
+
+	/* EC verification (and possibly updating / jumping) is done */
+	VbError_t rv = VbExEcVbootDone(!!shared->recovery_reason);
+	if (rv)
+		return rv;
+
+	/* Check if we need to cut-off battery. This must be done after EC
+         * firmware updating and before kernel started. */
+	if (vb2_nv_get(ctx, VB2_NV_BATTERY_CUTOFF_REQUEST)) {
+		VB2_DEBUG("Request to cut-off battery\n");
+		vb2_nv_set(ctx, VB2_NV_BATTERY_CUTOFF_REQUEST, 0);
+		VbExEcBatteryCutOff();
+		return VBERROR_SHUTDOWN_REQUESTED;
+	}
+
+	return VBERROR_SUCCESS;
+}

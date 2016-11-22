@@ -77,5 +77,10 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 		return VBERROR_VGA_OPROM_MISMATCH;
 	}
 
+	/* Do EC sync phase 3; this completes synd and handles battery cutoff */
+	rv = ec_sync_phase3(ctx, cparams);
+	if (rv)
+		return rv;
+
 	return VBERROR_SUCCESS;
 }

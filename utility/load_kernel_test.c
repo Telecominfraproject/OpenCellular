@@ -78,6 +78,9 @@ VbError_t VbExDiskWrite(VbExDiskHandle_t handle, uint64_t lba_start,
 }
 
 
+#define BOOT_FLAG_DEVELOPER (1 << 0)
+#define BOOT_FLAG_RECOVERY (1 << 1)
+
 /* Main routine */
 int main(int argc, char* argv[]) {
 
@@ -93,7 +96,7 @@ int main(int argc, char* argv[]) {
 
   memset(&lkp, 0, sizeof(LoadKernelParams));
   lkp.bytes_per_lba = LBA_BYTES;
-  lkp.boot_flags = BOOT_FLAG_RECOVERY;
+  int boot_flags = BOOT_FLAG_RECOVERY;
   memset(&vnc, 0, sizeof(VbNvContext));
   VbNvSetup(&vnc);
   lkp.nv_context = &vnc;
@@ -106,7 +109,7 @@ int main(int argc, char* argv[]) {
     switch (c)
     {
     case 'b':
-      lkp.boot_flags = strtoull(optarg, &e, 0);
+      boot_flags = strtoull(optarg, &e, 0);
       if (!*optarg || (e && *e))
       {
         fprintf(stderr, "Invalid argument to -%c: \"%s\"\n", c, optarg);
@@ -136,12 +139,12 @@ int main(int argc, char* argv[]) {
             argv[0]);
     fprintf(stderr, "\noptions:\n");
     /* These cases are because uint64_t isn't necessarily the same as ULL. */
-    fprintf(stderr, "  -b NUM     boot flag bits (default %" PRIu64 "):\n",
-            (uint64_t)BOOT_FLAG_RECOVERY);
-    fprintf(stderr, "               %" PRIu64 " = developer mode on\n",
-            (uint64_t)BOOT_FLAG_DEVELOPER);
-    fprintf(stderr, "               %" PRIu64 " = recovery mode on\n",
-            (uint64_t)BOOT_FLAG_RECOVERY);
+    fprintf(stderr, "  -b NUM     boot flag bits (default %d):\n",
+            BOOT_FLAG_RECOVERY);
+    fprintf(stderr, "               %d = developer mode on\n",
+            BOOT_FLAG_DEVELOPER);
+    fprintf(stderr, "               %d = recovery mode on\n",
+	    BOOT_FLAG_RECOVERY);
     return 1;
   }
 
@@ -163,11 +166,9 @@ int main(int argc, char* argv[]) {
   }
 
   /* Initialize the GBB */
-  lkp.gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
-  lkp.gbb_data = (void*)malloc(lkp.gbb_size);
-  gbb = (GoogleBinaryBlockHeader*)lkp.gbb_data;
-  cparams.gbb = gbb;
-  memset(gbb, 0, lkp.gbb_size);
+  cparams.gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
+  cparams.gbb = gbb = (GoogleBinaryBlockHeader*)malloc(cparams.gbb_size);
+  memset(gbb, 0, cparams.gbb_size);
   memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
   gbb->major_version = GBB_MAJOR_VER;
   gbb->minor_version = GBB_MINOR_VER;
@@ -201,7 +202,8 @@ int main(int argc, char* argv[]) {
   /* Free the key blob, now that we're done with it */
   free(key_blob);
 
-  printf("bootflags = %" PRIu64 "\n", lkp.boot_flags);
+  printf("bootflags = %d\n", boot_flags);
+  lkp.boot_flags = boot_flags;
 
   /* Get image size */
   printf("Reading from image: %s\n", image_name);
@@ -239,9 +241,9 @@ int main(int argc, char* argv[]) {
 	  return 1;
   }
   ctx.workbuf_size = VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE;
-  if (lkp.boot_flags & BOOT_FLAG_RECOVERY)
+  if (boot_flags & BOOT_FLAG_RECOVERY)
 	  ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
-  if (lkp.boot_flags & BOOT_FLAG_DEVELOPER)
+  if (boot_flags & BOOT_FLAG_DEVELOPER)
 	  ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
   if (VB2_SUCCESS != vb2_init_context(&ctx)) {
 	  free(ctx.workbuf);

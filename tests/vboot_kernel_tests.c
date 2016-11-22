@@ -158,8 +158,6 @@ static void ResetMocks(void)
 
 	memset(&lkp, 0, sizeof(lkp));
 	lkp.nv_context = &vnc;
-	lkp.gbb_data = gbb;
-	lkp.gbb_size = sizeof(gbb_data);
 	lkp.bytes_per_lba = 512;
 	lkp.streaming_lba_count = 1024;
 	lkp.gpt_lba_count = 1024;
@@ -577,10 +575,6 @@ static void ReadWriteGptTest(void)
 static void TestLoadKernel(int expect_retval, char *test_name)
 {
 	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
-	if (lkp.boot_flags & BOOT_FLAG_RECOVERY)
-		ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
-	if (lkp.boot_flags & BOOT_FLAG_DEVELOPER)
-		ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 
 	TEST_EQ(LoadKernel(&ctx, &lkp, &cparams), expect_retval, test_name);
 
@@ -653,26 +647,26 @@ static void LoadKernelTest(void)
 
 	/* In dev mode, fail if hash is bad too */
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	key_block_verify_fail = 2;
 	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Fail key block dev hash");
 
 	/* But just bad sig is ok */
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	key_block_verify_fail = 1;
 	TestLoadKernel(0, "Succeed key block dev sig");
 
 	/* In dev mode and requiring signed kernel, fail if sig is bad */
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
 	VbNvTeardown(&vnc);
 	key_block_verify_fail = 1;
 	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Fail key block dev sig");
 
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	lkp.fwmp = &fwmp;
 	fwmp.flags |= FWMP_DEV_ENABLE_OFFICIAL_ONLY;
 	key_block_verify_fail = 1;
@@ -693,14 +687,14 @@ static void LoadKernelTest(void)
 		       "Key block rec flag mismatch");
 
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
+	ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
 	kbh.key_block_flags =
 		KEY_BLOCK_FLAG_RECOVERY_1 | KEY_BLOCK_FLAG_DEVELOPER_1;
 	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
 		       "Key block recdev flag mismatch");
 
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_RECOVERY | BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_RECOVERY_MODE | VB2_CONTEXT_DEVELOPER_MODE;
 	kbh.key_block_flags =
 		KEY_BLOCK_FLAG_RECOVERY_1 | KEY_BLOCK_FLAG_DEVELOPER_0;
 	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND,
@@ -731,12 +725,12 @@ static void LoadKernelTest(void)
 
 	ResetMocks();
 	kbh.data_key.key_version = 1;
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	TestLoadKernel(0, "Key version ignored in dev mode");
 
 	ResetMocks();
 	kbh.data_key.key_version = 1;
-	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
+	ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
 	TestLoadKernel(0, "Key version ignored in rec mode");
 
 	ResetMocks();
@@ -753,17 +747,17 @@ static void LoadKernelTest(void)
 
 	ResetMocks();
 	kph.kernel_version = 0;
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	TestLoadKernel(0, "Kernel version ignored in dev mode");
 
 	ResetMocks();
 	kph.kernel_version = 0;
-	lkp.boot_flags |= BOOT_FLAG_RECOVERY;
+	ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
 	TestLoadKernel(0, "Kernel version ignored in rec mode");
 
 	/* Check developer key hash - bad */
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	lkp.fwmp = &fwmp;
 	fwmp.flags |= FWMP_DEV_USE_KEY_HASH;
 	fwmp.dev_key_hash[0]++;
@@ -772,7 +766,7 @@ static void LoadKernelTest(void)
 
 	/* Check developer key hash - good */
 	ResetMocks();
-	lkp.boot_flags |= BOOT_FLAG_DEVELOPER;
+	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 	lkp.fwmp = &fwmp;
 	fwmp.flags |= FWMP_DEV_USE_KEY_HASH;
 	TestLoadKernel(0, "Good key block dev fwmp hash");

@@ -30,6 +30,9 @@
 /* Global variables */
 static VbNvContext vnc;
 static struct RollbackSpaceFwmp fwmp;
+static LoadKernelParams lkp;
+static struct vb2_context ctx;
+static uint8_t *unaligned_workbuf;
 
 #ifdef CHROMEOS_ENVIRONMENT
 /* Global variable accessors for unit tests */
@@ -38,6 +41,12 @@ struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void)
 {
 	return &fwmp;
 }
+
+struct LoadKernelParams *VbApiKernelGetParams(void)
+{
+	return &lkp;
+}
+
 #endif
 
 /**
@@ -122,7 +131,6 @@ static void VbTryLegacy(int allowed)
  * type were found, or other non-zero VBERROR_ codes for other failures.
  */
 uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
-			 LoadKernelParams *p,
                          uint32_t get_info_flags)
 {
 	VbError_t retval = VBERROR_UNKNOWN;
@@ -133,7 +141,9 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 	VBDEBUG(("VbTryLoadKernel() start, get_info_flags=0x%x\n",
 		 (unsigned)get_info_flags));
 
-	p->disk_handle = NULL;
+	lkp.fwmp = &fwmp;
+	lkp.nv_context = &vnc;
+	lkp.disk_handle = NULL;
 
 	/* Find disks */
 	if (VBERROR_SUCCESS != VbExDiskGetInfo(&disk_info, &disk_count,
@@ -168,14 +178,14 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 				 disk_info[i].flags));
 			continue;
 		}
-		p->disk_handle = disk_info[i].handle;
-		p->bytes_per_lba = disk_info[i].bytes_per_lba;
-		p->gpt_lba_count = disk_info[i].lba_count;
-		p->streaming_lba_count = disk_info[i].streaming_lba_count
-						?: p->gpt_lba_count;
-		p->boot_flags |= disk_info[i].flags & VB_DISK_FLAG_EXTERNAL_GPT
+		lkp.disk_handle = disk_info[i].handle;
+		lkp.bytes_per_lba = disk_info[i].bytes_per_lba;
+		lkp.gpt_lba_count = disk_info[i].lba_count;
+		lkp.streaming_lba_count = disk_info[i].streaming_lba_count
+						?: lkp.gpt_lba_count;
+		lkp.boot_flags |= disk_info[i].flags & VB_DISK_FLAG_EXTERNAL_GPT
 				? BOOT_FLAG_EXTERNAL_GPT : 0;
-		retval = LoadKernel(ctx, p, cparams);
+		retval = LoadKernel(ctx, &lkp, cparams);
 		VBDEBUG(("VbTryLoadKernel() LoadKernel() = %d\n", retval));
 
 		/*
@@ -192,10 +202,10 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 	/* If we didn't find any good kernels, don't return a disk handle. */
 	if (VBERROR_SUCCESS != retval) {
 		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_NO_KERNEL);
-		p->disk_handle = NULL;
+		lkp.disk_handle = NULL;
 	}
 
-	VbExDiskFreeInfo(disk_info, p->disk_handle);
+	VbExDiskFreeInfo(disk_info, lkp.disk_handle);
 
 	/*
 	 * Pass through return code.  Recovery reason (if any) has already been
@@ -204,11 +214,9 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 	return retval;
 }
 
-uint32_t VbTryUsb(struct vb2_context *ctx, VbCommonParams *cparams,
-		  LoadKernelParams *p)
+uint32_t VbTryUsb(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	uint32_t retval = VbTryLoadKernel(ctx, cparams, p,
-					  VB_DISK_FLAG_REMOVABLE);
+	uint32_t retval = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_REMOVABLE);
 	if (VBERROR_SUCCESS == retval) {
 		VBDEBUG(("VbBootDeveloper() - booting USB\n"));
 	} else {
@@ -295,13 +303,54 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 	return -1;
 }
 
-VbError_t test_mockable
-VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
-	     LoadKernelParams *p)
+VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 {
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
+
 	/* Boot from fixed disk only */
-	VBDEBUG(("Entering %s()\n", __func__));
-	return VbTryLoadKernel(ctx, cparams, p, VB_DISK_FLAG_FIXED);
+	VB2_DEBUG("Entering %s()\n", __func__);
+
+	VbError_t rv = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
+
+	VB2_DEBUG("Checking if TPM kernel version needs advancing\n");
+
+	if ((1 == shared->firmware_index) && (shared->flags & VBSD_FWB_TRIED)) {
+		/*
+		 * Special cases for when we're trying a new firmware B.  These
+		 * are needed because firmware updates also usually change the
+		 * kernel key, which means that the B firmware can only boot a
+		 * new kernel, and the old firmware in A can only boot the
+		 * previous kernel.
+		 *
+		 * Don't advance the TPM if we're trying a new firmware B,
+		 * because we don't yet know if the new kernel will
+		 * successfully boot.  We still want to be able to fall back to
+		 * the previous firmware+kernel if the new firmware+kernel
+		 * fails.
+		 *
+		 * If we found only invalid kernels, reboot and try again.
+		 * This allows us to fall back to the previous firmware+kernel
+		 * instead of giving up and going to recovery mode right away.
+		 * We'll still go to recovery mode if we run out of tries and
+		 * the old firmware can't find a kernel it likes.
+		 */
+		if (rv == VBERROR_INVALID_KERNEL_FOUND) {
+			VB2_DEBUG("Trying FW B; only found invalid kernels.\n");
+			VbSetRecoveryRequest(ctx, VBNV_RECOVERY_NOT_REQUESTED);
+		}
+
+		return rv;
+	}
+
+	if ((shared->kernel_version_tpm > shared->kernel_version_tpm_start) &&
+	    RollbackKernelWrite(shared->kernel_version_tpm)) {
+		VB2_DEBUG("Error writing kernel versions to TPM.\n");
+		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_TPM_W_ERROR);
+		return VBERROR_TPM_WRITE_KERNEL;
+	}
+
+	return rv;
 }
 
 static const char dev_disable_msg[] =
@@ -309,8 +358,7 @@ static const char dev_disable_msg[] =
 	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
 	"\n";
 
-VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
-			  LoadKernelParams *p)
+VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	VbSharedDataHeader *shared =
@@ -519,7 +567,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
 				VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK,
 						0);
 				if (VBERROR_SUCCESS ==
-				    VbTryUsb(ctx, cparams, p)) {
+				    VbTryUsb(ctx, cparams)) {
 					VbAudioClose(audio);
 					return VBERROR_SUCCESS;
 				} else {
@@ -547,7 +595,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
 	}
 
 	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
-		if (VBERROR_SUCCESS == VbTryUsb(ctx, cparams, p)) {
+		if (VBERROR_SUCCESS == VbTryUsb(ctx, cparams)) {
 			VbAudioClose(audio);
 			return VBERROR_SUCCESS;
 		}
@@ -556,7 +604,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VBDEBUG(("VbBootDeveloper() - trying fixed disk\n"));
 	VbAudioClose(audio);
-	return VbTryLoadKernel(ctx, cparams, p, VB_DISK_FLAG_FIXED);
+	return VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
 }
 
 /* Delay in recovery mode */
@@ -564,8 +612,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
 #define REC_KEY_DELAY        20       /* Check keys every 20ms */
 #define REC_MEDIA_INIT_DELAY 500      /* Check removable media every 500ms */
 
-VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
-			 LoadKernelParams *p)
+VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -609,8 +656,7 @@ VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
 	VBDEBUG(("VbBootRecovery() waiting for a recovery image\n"));
 	while (1) {
 		VBDEBUG(("VbBootRecovery() attempting to load kernel2\n"));
-		retval = VbTryLoadKernel(ctx, cparams, p,
-					 VB_DISK_FLAG_REMOVABLE);
+		retval = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_REMOVABLE);
 
 		/*
 		 * Clear recovery requests from failed kernel loading, since
@@ -724,40 +770,14 @@ void VbApiKernelFree(VbCommonParams *cparams)
 	}
 }
 
-VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
-                                VbSelectAndLoadKernelParams *kparams)
+static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
+				  VbSelectAndLoadKernelParams *kparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	VbError_t retval = VBERROR_SUCCESS;
-	LoadKernelParams p;
-	uint32_t tpm_status = 0;
 
 	/* Start timer */
 	shared->timer_vb_select_and_load_kernel_enter = VbExGetTimer();
-
-	VbNvLoad();
-
-	/* Fill in params for calls to LoadKernel() */
-	memset(&p, 0, sizeof(p));
-	p.gbb_data = cparams->gbb_data;
-	p.gbb_size = cparams->gbb_size;
-	p.fwmp = &fwmp;
-	p.nv_context = &vnc;
-
-	/*
-	 * This could be set to NULL, in which case the vboot header
-	 * information about the load address and size will be used.
-	 */
-	p.kernel_buffer = kparams->kernel_buffer;
-	p.kernel_buffer_size = kparams->kernel_buffer_size;
-
-	/* Set up boot flags */
-	p.boot_flags = 0;
-	if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
-		p.boot_flags |= BOOT_FLAG_DEVELOPER;
-	if (shared->recovery_reason)
-		p.boot_flags |= BOOT_FLAG_RECOVERY;
 
 	/*
 	 * Set up vboot context.
@@ -765,19 +785,20 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	 * TODO: Propagate this up to higher API levels, and use more of the
 	 * context fields (e.g. secdatak) and flags.
 	 */
-	struct vb2_context ctx;
 	memset(&ctx, 0, sizeof(ctx));
+
+	VbNvLoad();
 	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
 
-	if (p.boot_flags & BOOT_FLAG_RECOVERY)
+	if (shared->recovery_reason)
 		ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
-	if (p.boot_flags & BOOT_FLAG_DEVELOPER)
+	if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
 		ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
 
 	ctx.workbuf_size = VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE +
 			VB2_WORKBUF_ALIGN;
 
-	uint8_t *unaligned_workbuf = ctx.workbuf = malloc(ctx.workbuf_size);
+	unaligned_workbuf = ctx.workbuf = malloc(ctx.workbuf_size);
 	if (!unaligned_workbuf) {
 		VB2_DEBUG("%s: Can't allocate work buffer\n", __func__);
 		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
@@ -802,6 +823,20 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
 	sd->recovery_reason = shared->recovery_reason;
 
+	/*
+	 * If we're in recovery mode just to do memory retraining, all we
+	 * need to do is reboot.
+	 */
+	if (shared->recovery_reason == VBNV_RECOVERY_TRAIN_AND_REBOOT) {
+		VB2_DEBUG("Reboot after retraining in recovery.\n");
+		return VBERROR_REBOOT_REQUIRED;
+	}
+
+	/* Fill in params for calls to LoadKernel() */
+	memset(&lkp, 0, sizeof(lkp));
+	lkp.kernel_buffer = kparams->kernel_buffer;
+	lkp.kernel_buffer_size = kparams->kernel_buffer_size;
+
 	/* Clear output params in case we fail */
 	kparams->disk_handle = NULL;
 	kparams->partition_number = 0;
@@ -810,161 +845,73 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	kparams->flags = 0;
 	memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
+	/* Read GBB header, since we'll needs flags from it */
 	cparams->bmp = NULL;
 	cparams->gbb = malloc(sizeof(*cparams->gbb));
-	retval = VbGbbReadHeader_static(cparams, cparams->gbb);
-	if (VBERROR_SUCCESS != retval)
-		goto VbSelectAndLoadKernel_exit;
-
-	/* Do EC software sync if necessary */
-	retval = ec_sync_all(&ctx, cparams);
-	if (retval != VBERROR_SUCCESS)
-		goto VbSelectAndLoadKernel_exit;
-
-	/* EC verification (and possibily updating / jumping) is done */
-	retval = VbExEcVbootDone(!!shared->recovery_reason);
-	if (retval != VBERROR_SUCCESS)
-		goto VbSelectAndLoadKernel_exit;
-
-	/* Check if we need to cut-off battery. This must be done after EC
-         * firmware updating and before kernel started. */
-	if (vb2_nv_get(&ctx, VB2_NV_BATTERY_CUTOFF_REQUEST)) {
-		VBDEBUG(("Request to cut-off battery\n"));
-		vb2_nv_set(&ctx, VB2_NV_BATTERY_CUTOFF_REQUEST, 0);
-		VbExEcBatteryCutOff();
-		retval = VBERROR_SHUTDOWN_REQUESTED;
-		goto VbSelectAndLoadKernel_exit;
-	}
+	uint32_t retval = VbGbbReadHeader_static(cparams, cparams->gbb);
+	if (retval)
+		return retval;
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
-	tpm_status = RollbackKernelRead(&shared->kernel_version_tpm);
-	if (0 != tpm_status) {
-		VBDEBUG(("Unable to get kernel versions from TPM\n"));
+	if (RollbackKernelRead(&shared->kernel_version_tpm)) {
+		VB2_DEBUG("Unable to get kernel versions from TPM\n");
 		if (!shared->recovery_reason) {
 			VbSetRecoveryRequest(&ctx,
 					     VBNV_RECOVERY_RW_TPM_R_ERROR);
-			retval = VBERROR_TPM_READ_KERNEL;
-			goto VbSelectAndLoadKernel_exit;
+			return VBERROR_TPM_READ_KERNEL;
 		}
 	}
+
 	shared->kernel_version_tpm_start = shared->kernel_version_tpm;
 
 	/* Read FWMP.  Ignore errors in recovery mode. */
 	if (cparams->gbb->flags & GBB_FLAG_DISABLE_FWMP) {
 		memset(&fwmp, 0, sizeof(fwmp));
-		tpm_status = 0;
-	} else {
-		tpm_status = RollbackFwmpRead(&fwmp);
-	}
-	if (0 != tpm_status) {
-		VBDEBUG(("Unable to get FWMP from TPM\n"));
+	} else if (RollbackFwmpRead(&fwmp)) {
+		VB2_DEBUG("Unable to get FWMP from TPM\n");
 		if (!shared->recovery_reason) {
 			VbSetRecoveryRequest(&ctx,
 					     VBNV_RECOVERY_RW_TPM_R_ERROR);
-			retval = VBERROR_TPM_READ_FWMP;
-			goto VbSelectAndLoadKernel_exit;
+			return VBERROR_TPM_READ_FWMP;
 		}
 	}
 
-	/* Select boot path */
-	if (shared->recovery_reason == VBNV_RECOVERY_TRAIN_AND_REBOOT) {
-		/* Reboot requested by user recovery code. */
-		VBDEBUG(("Reboot requested by user (recovery_reason=%d).\n",
-			 shared->recovery_reason));
-		retval = VBERROR_REBOOT_REQUIRED;
-	} else if (shared->recovery_reason) {
-		/* Recovery boot */
-		retval = VbBootRecovery(&ctx, cparams, &p);
-		VbExEcEnteringMode(0, VB_EC_RECOVERY);
-		VbDisplayScreen(&ctx, cparams, VB_SCREEN_BLANK, 0);
+	return VBERROR_SUCCESS;
+}
 
-	} else if (p.boot_flags & BOOT_FLAG_DEVELOPER) {
-		/* Developer boot */
-		retval = VbBootDeveloper(&ctx, cparams, &p);
-		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
-		VbDisplayScreen(&ctx, cparams, VB_SCREEN_BLANK, 0);
-
-	} else {
-		/* Normal boot */
-		VbExEcEnteringMode(0, VB_EC_NORMAL);
-		retval = VbBootNormal(&ctx, cparams, &p);
-
-		if ((1 == shared->firmware_index) &&
-		    (shared->flags & VBSD_FWB_TRIED)) {
-			/*
-			 * Special cases for when we're trying a new firmware
-			 * B.  These are needed because firmware updates also
-			 * usually change the kernel key, which means that the
-			 * B firmware can only boot a new kernel, and the old
-			 * firmware in A can only boot the previous kernel.
-			 *
-			 * Don't advance the TPM if we're trying a new firmware
-			 * B, because we don't yet know if the new kernel will
-			 * successfully boot.  We still want to be able to fall
-			 * back to the previous firmware+kernel if the new
-			 * firmware+kernel fails.
-			 *
-			 * If we found only invalid kernels, reboot and try
-			 * again.  This allows us to fall back to the previous
-			 * firmware+kernel instead of giving up and going to
-			 * recovery mode right away.  We'll still go to
-			 * recovery mode if we run out of tries and the old
-			 * firmware can't find a kernel it likes.
-			 */
-			if (VBERROR_INVALID_KERNEL_FOUND == retval) {
-				VBDEBUG(("Trying firmware B, "
-					 "and only found invalid kernels.\n"));
-				VbSetRecoveryRequest(&ctx,
-						VBNV_RECOVERY_NOT_REQUESTED);
-				goto VbSelectAndLoadKernel_exit;
-			}
-		} else {
-			/* Not trying a new firmware B. */
-
-			/* See if we need to update the TPM. */
-			VBDEBUG(("Checking if TPM kernel version needs "
-				 "advancing\n"));
-			if (shared->kernel_version_tpm >
-			    shared->kernel_version_tpm_start) {
-				tpm_status = RollbackKernelWrite(
-						shared->kernel_version_tpm);
-				if (0 != tpm_status) {
-					VBDEBUG(("Error writing kernel "
-						 "versions to TPM.\n"));
-					VbSetRecoveryRequest(&ctx,
-						VBNV_RECOVERY_RW_TPM_W_ERROR);
-					retval = VBERROR_TPM_WRITE_KERNEL;
-					goto VbSelectAndLoadKernel_exit;
-				}
-			}
-		}
-	}
-
-	if (VBERROR_SUCCESS != retval)
-		goto VbSelectAndLoadKernel_exit;
+static VbError_t vb2_kernel_phase4(VbCommonParams *cparams,
+				   VbSelectAndLoadKernelParams *kparams)
+{
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
 
 	/* Save disk parameters */
-	kparams->disk_handle = p.disk_handle;
-	kparams->partition_number = p.partition_number;
-	kparams->bootloader_address = p.bootloader_address;
-	kparams->bootloader_size = p.bootloader_size;
-	kparams->flags = p.flags;
-	memcpy(kparams->partition_guid, p.partition_guid,
+	kparams->disk_handle = lkp.disk_handle;
+	kparams->partition_number = lkp.partition_number;
+	kparams->bootloader_address = lkp.bootloader_address;
+	kparams->bootloader_size = lkp.bootloader_size;
+	kparams->flags = lkp.flags;
+	kparams->kernel_buffer = lkp.kernel_buffer;
+	kparams->kernel_buffer_size = lkp.kernel_buffer_size;
+	memcpy(kparams->partition_guid, lkp.partition_guid,
 	       sizeof(kparams->partition_guid));
 
-	/* Lock the kernel versions.  Ignore errors in recovery mode. */
-	tpm_status = RollbackKernelLock(shared->recovery_reason);
-	if (0 != tpm_status) {
-		VBDEBUG(("Error locking kernel versions.\n"));
-		if (!shared->recovery_reason) {
-			VbSetRecoveryRequest(&ctx,
-					     VBNV_RECOVERY_RW_TPM_L_ERROR);
-			retval = VBERROR_TPM_LOCK_KERNEL;
-			goto VbSelectAndLoadKernel_exit;
-		}
+	/* Lock the kernel versions if not in recovery mode */
+	if (!shared->recovery_reason &&
+	    RollbackKernelLock(shared->recovery_reason)) {
+		VB2_DEBUG("Error locking kernel versions.\n");
+		VbSetRecoveryRequest(&ctx, VBNV_RECOVERY_RW_TPM_L_ERROR);
+		return VBERROR_TPM_LOCK_KERNEL;
 	}
 
- VbSelectAndLoadKernel_exit:
+	return VBERROR_SUCCESS;
+}
+
+static void vb2_kernel_cleanup(VbCommonParams *cparams,
+			       VbSelectAndLoadKernelParams *kparams)
+{
+	VbSharedDataHeader *shared =
+			(VbSharedDataHeader *)cparams->shared_data_blob;
 
 	/*
 	 * Clean up vboot context.
@@ -986,13 +933,54 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 
 	/* Stop timer */
 	shared->timer_vb_select_and_load_kernel_exit = VbExGetTimer();
+}
 
-	kparams->kernel_buffer = p.kernel_buffer;
-	kparams->kernel_buffer_size = p.kernel_buffer_size;
+VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
+                                VbSelectAndLoadKernelParams *kparams)
+{
+	VbSharedDataHeader *shared =
+		(VbSharedDataHeader *)cparams->shared_data_blob;
 
-	VBDEBUG(("VbSelectAndLoadKernel() returning %d\n", (int)retval));
+	VbError_t retval = vb2_kernel_setup(cparams, kparams);
+	if (retval)
+		goto VbSelectAndLoadKernel_exit;
+
+	/*
+	 * Do EC software sync if necessary.  This has UI, but it's just a
+	 * single non-interactive WAIT screen.
+	 */
+	retval = ec_sync_all(&ctx, cparams);
+	if (retval)
+		goto VbSelectAndLoadKernel_exit;
+
+	/* Select boot path */
+	if (shared->recovery_reason) {
+		/* Recovery boot.  This has UI. */
+		retval = VbBootRecovery(&ctx, cparams);
+		VbExEcEnteringMode(0, VB_EC_RECOVERY);
+		VbDisplayScreen(&ctx, cparams, VB_SCREEN_BLANK, 0);
+
+	} else if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
+		/* Developer boot.  This has UI. */
+		retval = VbBootDeveloper(&ctx, cparams);
+		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
+		VbDisplayScreen(&ctx, cparams, VB_SCREEN_BLANK, 0);
+
+	} else {
+		/* Normal boot */
+		retval = VbBootNormal(&ctx, cparams);
+		VbExEcEnteringMode(0, VB_EC_NORMAL);
+	}
+
+ VbSelectAndLoadKernel_exit:
+
+	if (VBERROR_SUCCESS == retval)
+		retval = vb2_kernel_phase4(cparams, kparams);
+
+	vb2_kernel_cleanup(cparams, kparams);
 
 	/* Pass through return value from boot path */
+	VB2_DEBUG("%s returning %d\n", __func__, (int)retval);
 	return retval;
 }
 

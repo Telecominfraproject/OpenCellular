@@ -107,10 +107,6 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	/* GBB and cparams only needed by LoadKernel() in recovery mode */
-	params.gbb_data = NULL;
-	params.gbb_size = 0;
-
 	/* TODO(chromium:441893): support dev-mode flag and external gpt flag */
 	params.boot_flags = 0;
 

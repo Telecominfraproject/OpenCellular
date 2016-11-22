@@ -29,13 +29,11 @@ void VbApiKernelFree(VbCommonParams *cparams);
  *
  * @param ctx			Vboot context
  * @param cparams		Vboot common params
- * @param p			Parameters for loading kernel
  * @param get_info_flags	Flags to pass to VbExDiskGetInfo()
  * @return VBERROR_SUCCESS, VBERROR_NO_DISK_FOUND if no disks of the specified
  * type were found, or other non-zero VBERROR_ codes for other failures.
  */
 uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
-			 LoadKernelParams *p,
                          uint32_t get_info_flags);
 
 /* Flags for VbUserConfirms() */
@@ -62,19 +60,16 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 /**
  * Handle a normal boot.
  */
-VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
-		       LoadKernelParams *p);
+VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams);
 
 /**
  * Handle a developer-mode boot.
  */
-VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
-			  LoadKernelParams *p);
+VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams);
 
 /**
  * Handle a recovery-mode boot.
  */
-VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
-			 LoadKernelParams *p);
+VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */

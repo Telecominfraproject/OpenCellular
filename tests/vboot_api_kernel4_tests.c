@@ -111,8 +111,8 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 	return rfr_retval;
 }
 
-VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
-		       LoadKernelParams *p)
+uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
+                         uint32_t get_info_flags)
 {
 	shared->kernel_version_tpm = new_version;
 
@@ -122,8 +122,7 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams,
 	return vbboot_retval;
 }
 
-VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
-			  LoadKernelParams *p)
+VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	shared->kernel_version_tpm = new_version;
 
@@ -133,8 +132,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams,
 	return vbboot_retval;
 }
 
-VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams,
-			 LoadKernelParams *p)
+VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	shared->kernel_version_tpm = new_version;
 

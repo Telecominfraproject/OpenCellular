@@ -60,6 +60,18 @@ int ec_will_update_slowly(struct vb2_context *ctx,
 VbError_t ec_sync_phase2(struct vb2_context *ctx,
 			 struct VbCommonParams *cparams);
 
+
+/**
+ * EC sync, phase 3
+ *
+ * This completes EC sync and handles battery cutoff if needed.
+ *
+ * @param ctx		Vboot2 context
+ * @param cparams	Vboot common params
+ * @return VBERROR_SUCCESS or non-zero error code.
+ */
+VbError_t ec_sync_phase3(struct vb2_context *ctx, VbCommonParams *cparams);
+
 /**
  * Sync all EC devices to expected versions.
  *

@@ -134,7 +134,6 @@ test_case_t test[] = {
 
 /* Mock data */
 static VbCommonParams cparams;
-static LoadKernelParams lkparams;
 static struct vb2_context ctx;
 static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
@@ -159,7 +158,6 @@ static void ResetMocks(void) {
   cparams.gbb_data = &gbb;
   cparams.gbb = &gbb;
 
-  memset(&lkparams, 0, sizeof(lkparams));
   memset(&ctx, 0, sizeof(ctx));
 
   memset(&vnc, 0, sizeof(vnc));
@@ -317,7 +315,7 @@ static void VbBootDeveloperSoundTest(void) {
     kbd_fire_at = test[i].keypress_at_count;
     max_events = test[i].num_events;
     expected_event = test[i].notes;
-    (void) VbBootDeveloper(&ctx, &cparams, &lkparams);
+    (void) VbBootDeveloper(&ctx, &cparams);
     VBDEBUG(("INFO: matched %d total %d expected %d\n",
              matched_events, current_event, test[i].num_events));
     TEST_TRUE(matched_events == test[i].num_events &&

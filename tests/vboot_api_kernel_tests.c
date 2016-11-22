@@ -21,6 +21,8 @@
 #include "vboot_api.h"
 #include "vboot_kernel.h"
 
+struct LoadKernelParams *VbApiKernelGetParams(void);
+
 #define MAX_TEST_DISKS 10
 #define DEFAULT_COUNT -1
 
@@ -181,7 +183,6 @@ test_case_t test[] = {
 /****************************************************************************/
 
 /* Mock data */
-static LoadKernelParams lkparams;
 static VbDiskInfo mock_disks[MAX_TEST_DISKS];
 static test_case_t *t;
 static int load_kernel_calls;
@@ -190,7 +191,6 @@ static const char *got_find_disk;
 static const char *got_load_disk;
 static uint32_t got_return_val;
 static uint32_t got_external_mismatch;
-static VbNvContext vnc;
 static struct vb2_context ctx;
 
 /**
@@ -198,10 +198,12 @@ static struct vb2_context ctx;
  */
 static void ResetMocks(int i)
 {
-	memset(&lkparams, 0, sizeof(lkparams));
+	memset(&ctx, 0, sizeof(ctx));
+
+	memset(VbApiKernelGetParams(), 0, sizeof(LoadKernelParams));
+
 	memset(&mock_disks, 0, sizeof(mock_disks));
 	load_kernel_calls = 0;
-	memset(&vnc, 0, sizeof(vnc));
 
 	got_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED;
 	got_find_disk = 0;
@@ -313,7 +315,7 @@ static void VbTryLoadKernelTest(void)
 	for (i = 0; i < num_tests; i++) {
 		printf("Test case: %s ...\n", test[i].name);
 		ResetMocks(i);
-		TEST_EQ(VbTryLoadKernel(&ctx, 0, &lkparams, test[i].want_flags),
+		TEST_EQ(VbTryLoadKernel(&ctx, 0, test[i].want_flags),
 			t->expected_return_val, "  return value");
 		TEST_EQ(got_recovery_request_val,
 			t->expected_recovery_request_val, "  recovery_request");
