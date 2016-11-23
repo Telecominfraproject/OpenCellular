@@ -99,13 +99,13 @@ main() {
     mount_image_partition_ro "$image" 3 "$rootfs"
 
     # Pick the right set of test-expectation data to use.
-    local board=$(get_board_from_lsb_release "${rootfs}")
-    eval "required_kparams=(\"\${required_kparams_$board[@]}\")"
-    eval "required_kparams_regex=(\"\${required_kparams_regex_$board[@]}\")"
-    eval "optional_kparams=(\"\${optional_kparams_$board[@]}\")"
-    eval "optional_kparams_regex=(\"\${optional_kparams_regex_$board[@]}\")"
-    eval "required_dmparams=(\"\${required_dmparams_$board[@]}\")"
-    eval "required_dmparams_regex=(\"\${required_dmparams_regex_$board[@]}\")"
+    local boardvar=$(get_boardvar_from_lsb_release "${rootfs}")
+    eval "required_kparams=(\"\${required_kparams_${boardvar}[@]}\")"
+    eval "required_kparams_regex=(\"\${required_kparams_regex_${boardvar}[@]}\")"
+    eval "optional_kparams=(\"\${optional_kparams_${boardvar}[@]}\")"
+    eval "optional_kparams_regex=(\"\${optional_kparams_regex_${boardvar}[@]}\")"
+    eval "required_dmparams=(\"\${required_dmparams_${boardvar}[@]}\")"
+    eval "required_dmparams_regex=(\"\${required_dmparams_regex_${boardvar}[@]}\")"
     output+="required_kparams=(\n"
     output+="$(printf "\t'%s'\n" "${required_kparams[@]}")\n)\n"
     output+="required_kparams_regex=(\n"

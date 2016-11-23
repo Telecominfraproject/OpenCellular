@@ -16,14 +16,6 @@ usage() {
   echo "Usage $PROG image [config]"
 }
 
-# Usage: lsbval path-to-lsb-file key
-# Returns the value for the given lsb-release file variable.
-lsbval() {
-  local lsbfile="$1"
-  local key="$2"
-  grep ^$key= "$lsbfile" | sed s/^$key=//
-}
-
 # Usage: lsbequals path-to-lsb-file key expected-value
 # Returns 0 if they match, 1 otherwise.
 # Also outputs a warning message if they don't match.
@@ -140,13 +132,10 @@ main() {
   check_keyval_in_list $lsb CHROMEOS_RELEASE_TRACK \
     "${expected_release_tracks[@]}" || testfail=1
 
+  local board=$(get_board_from_lsb_release "${rootfs}")
   if check_keyval_in_list $lsb CHROMEOS_RELEASE_BOARD \
     "${expected_boards[@]}"; then
-    # Pick the right set of test-expectation data to use.
-    local board=$(lsbval $lsb CHROMEOS_RELEASE_BOARD |
-                  cut -d = -f 2)
-    # a copy of the board string with '-' squished to variable-name-safe '_'.
-    local boardvar=${board//-/_}
+    local boardvar=$(get_boardvar_from_lsb_release "${rootfs}")
     channel=$(lsbval $lsb CHROMEOS_RELEASE_TRACK)
     # For a canary or dogfood channel, appid maybe a different default value.
     if [ $channel = 'canary-channel' ] || [ $channel = 'dogfood-channel' ]; then
@@ -157,6 +146,7 @@ main() {
     lsbequals $lsb CHROMEOS_RELEASE_APPID "$expected_appid" || testfail=1
   else # unrecognized board
     testfail=1
+    error "Unknown board: ${board}"
   fi
 
   exit $testfail

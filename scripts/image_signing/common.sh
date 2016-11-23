@@ -75,14 +75,28 @@ die() {
   exit 1
 }
 
-# Extract and return board name from /etc/lsb-release.
-# Args: rootfs
+# Usage: lsbval path-to-lsb-file key
+# Returns the value for the given lsb-release file variable.
+lsbval() {
+  local lsbfile="$1"
+  local key="$2"
+  grep "^${key}=" "${lsbfile}" | sed "s/^${key}=//"
+}
+
+# Usage: get_board_from_lsb_release rootfs
+# Returns the exact board name from /etc/lsb-release.  This may contain
+# dashes or other characters not suitable for variable names.  See the
+# next function for that.
 get_board_from_lsb_release() {
-  local rootfs=$1
-  # The cuts turn e.g. x86-foo as a well as x86-foo-pvtkeys into x86_foo.
-  local board=$(grep CHROMEOS_RELEASE_BOARD= "${rootfs}/etc/lsb-release" | \
-                cut -d = -f 2 | cut -d - -f 1,2 --output-delimiter=_)
-  echo "${board}"
+  local rootfs="$1"
+  lsbval "${rootfs}/etc/lsb-release" CHROMEOS_RELEASE_BOARD
+}
+
+# Usage: get_boardvar_from_lsb_release rootfs
+# Returns the board name from /etc/lsb-release in a mangled form that can
+# be used in variable names.  e.g. dashes are turned into underscores.
+get_boardvar_from_lsb_release() {
+  get_board_from_lsb_release "$@" | sed 's:[-]:_:g'
 }
 
 # This will override the trap set in common_minmal.sh
