@@ -30,7 +30,7 @@ main() {
   lsb="${rootfs}/etc/lsb-release"
   mount_image_partition "${image}" 3 "${rootfs}"
   # Get the current channel on the image.
-  local from=$(grep '^CHROMEOS_RELEASE_TRACK=' "${lsb}" | cut -d '=' -f 2)
+  local from=$(lsbval "${lsb}" 'CHROMEOS_RELEASE_TRACK')
   from=${from%"-channel"}
   echo "Current channel is '${from}'. Changing to '${to}'."
 
