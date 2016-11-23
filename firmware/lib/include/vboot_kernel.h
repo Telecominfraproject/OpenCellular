@@ -72,4 +72,18 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams);
  */
 VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams);
 
+/**
+ * Return the current FWMP flags.  Valid only inside VbSelectAndLoadKernel().
+ */
+uint32_t vb2_get_fwmp_flags(void);
+
+/**
+ * Commit NvStorage.
+ *
+ * This may be called by UI functions which need to save settings before they
+ * sit in an infinite loop waiting for shutdown (this is, by a UI state which
+ * will never return).
+ */
+void vb2_nv_commit(struct vb2_context *ctx);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_KERNEL_H_ */
