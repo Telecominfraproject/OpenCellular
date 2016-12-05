@@ -25,6 +25,24 @@ use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
 
 package body HW.GFX.GMA.Pipe_Setup is
 
+   type Default_Head_Array is array (Pipe_Index) of Pipe_Head;
+   Default_Pipe_Head : constant Default_Head_Array :=
+     (Primary     => Head_A,
+      Secondary   => Head_B,
+      Tertiary    => Head_C);
+
+   function Get_Pipe_Head (Pipe : Pipe_Index; Port : GPU_Port) return Pipe_Head
+   is
+   begin
+      return
+        (if Config.Has_EDP_Pipe and then Port = DIGI_A then
+            Head_EDP
+         else
+            Default_Pipe_Head (Pipe));
+   end Get_Pipe_Head;
+
+   ----------------------------------------------------------------------------
+
    ILK_DISPLAY_CHICKEN1_VGA_MASK       : constant := 7 * 2 ** 29;
    ILK_DISPLAY_CHICKEN1_VGA_ENABLE     : constant := 5 * 2 ** 29;
    ILK_DISPLAY_CHICKEN2_VGA_MASK       : constant := 1 * 2 ** 25;
@@ -152,17 +170,16 @@ package body HW.GFX.GMA.Pipe_Setup is
      (False => PIPE_DDI_FUNC_CTL_HSYNC_ACTIVE_LOW,
       True  => PIPE_DDI_FUNC_CTL_HSYNC_ACTIVE_HIGH);
 
-   type EDP_Select_Array is array (Controller_Kind) of Word32;
+   type EDP_Select_Array is array (Pipe_Index) of Word32;
    PIPE_DDI_FUNC_CTL_EDP_SELECT : constant EDP_Select_Array :=
-      EDP_Select_Array'
-     (A => PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON, -- we never use panel fitter
-      B => PIPE_DDI_FUNC_CTL_EDP_SELECT_B,
-      C => PIPE_DDI_FUNC_CTL_EDP_SELECT_C);
+     (Primary     => PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON,   -- we never use
+                                                               -- panel fitter
+      Secondary   => PIPE_DDI_FUNC_CTL_EDP_SELECT_B,
+      Tertiary    => PIPE_DDI_FUNC_CTL_EDP_SELECT_C);
    PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF : constant EDP_Select_Array :=
-      EDP_Select_Array'
-     (A => PIPE_DDI_FUNC_CTL_EDP_SELECT_A,
-      B => PIPE_DDI_FUNC_CTL_EDP_SELECT_B,
-      C => PIPE_DDI_FUNC_CTL_EDP_SELECT_C);
+     (Primary     => PIPE_DDI_FUNC_CTL_EDP_SELECT_A,
+      Secondary   => PIPE_DDI_FUNC_CTL_EDP_SELECT_B,
+      Tertiary    => PIPE_DDI_FUNC_CTL_EDP_SELECT_C);
 
    type Port_Width_Array is array (HW.GFX.DP_Lane_Count) of Word32;
    PIPE_DDI_FUNC_CTL_PORT_WIDTH : constant Port_Width_Array :=
@@ -314,15 +331,15 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    procedure Setup_Watermarks (Controller : Controller_Type)
    is
-      type Per_Plane_Buffer_Range is array (Controller_Kind) of Word32;
-      Buffer_Range : constant Per_Plane_Buffer_Range := Per_Plane_Buffer_Range'
-        (A  => Shift_Left (159, 16) or   0,
-         B  => Shift_Left (319, 16) or 160,
-         C  => Shift_Left (479, 16) or 320);
+      type Per_Plane_Buffer_Range is array (Pipe_Index) of Word32;
+      Buffer_Range : constant Per_Plane_Buffer_Range :=
+        (Primary     => Shift_Left (159, 16) or   0,
+         Secondary   => Shift_Left (319, 16) or 160,
+         Tertiary    => Shift_Left (479, 16) or 320);
    begin
       Registers.Write
         (Register    => Controller.PLANE_BUF_CFG,
-         Value       => Buffer_Range (Controller.Kind));
+         Value       => Buffer_Range (Controller.Pipe));
       Registers.Write
         (Register    => Controller.PLANE_WM (0),
          Value       => PLANE_WM_ENABLE or
@@ -621,7 +638,7 @@ package body HW.GFX.GMA.Pipe_Setup is
                         PIPE_DDI_FUNC_CTL_BPC (Port_Cfg.Mode.BPC) or
                         PIPE_DDI_FUNC_CTL_VSYNC (Port_Cfg.Mode.V_Sync_Active_High) or
                         PIPE_DDI_FUNC_CTL_HSYNC (Port_Cfg.Mode.H_Sync_Active_High) or
-                        PIPE_DDI_FUNC_CTL_EDP_SELECT (Controller.Kind) or
+                        PIPE_DDI_FUNC_CTL_EDP_SELECT (Controller.Pipe) or
                         PIPE_DDI_FUNC_CTL_PORT_WIDTH (Port_Cfg.DP.Lane_Count));
       end if;
 
@@ -653,31 +670,32 @@ package body HW.GFX.GMA.Pipe_Setup is
    ----------------------------------------------------------------------------
 
    procedure On
-     (Controller  : Controller_Type;
-      Head        : Head_Type;
+     (Pipe        : Pipe_Index;
       Port_Cfg    : Port_Config;
       Framebuffer : Framebuffer_Type)
    is
+      Head : constant Pipe_Head := Get_Pipe_Head (Pipe, Port_Cfg.Port);
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       if Config.Has_Trans_Clk_Sel then
          Registers.Write
-           (Register => Controller.TRANS_CLK_SEL,
+           (Register => Controllers (Pipe).TRANS_CLK_SEL,
             Value    => TRANS_CLK_SEL_PORT (Port_Cfg.Port));
       end if;
 
       if Port_Cfg.Is_FDI then
-         Setup_Link (Head, Port_Cfg.FDI, Port_Cfg.Mode);
+         Setup_Link (Heads (Head), Port_Cfg.FDI, Port_Cfg.Mode);
       elsif Port_Cfg.Display = DP then
-         Setup_Link (Head, Port_Cfg.DP, Port_Cfg.Mode);
+         Setup_Link (Heads (Head), Port_Cfg.DP, Port_Cfg.Mode);
       end if;
 
-      Setup_Display (Controller, Head, Port_Cfg.Mode, Framebuffer);
+      Setup_Display
+        (Controllers (Pipe), Heads (Head), Port_Cfg.Mode, Framebuffer);
 
-      Setup_Scaling (Controller, Port_Cfg.Mode, Framebuffer);
+      Setup_Scaling (Controllers (Pipe), Port_Cfg.Mode, Framebuffer);
 
-      Setup_Head (Controller, Head, Port_Cfg, Framebuffer);
+      Setup_Head (Controllers (Pipe), Heads (Head), Port_Cfg, Framebuffer);
    end On;
 
    ----------------------------------------------------------------------------
@@ -744,21 +762,22 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
    end Trans_Clk_Off;
 
-   procedure Off (Controller : Controller_Type; Head : Head_Type) is
+   procedure Off (Pipe : Pipe_Index; Port_Cfg : Port_Config)
+   is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Planes_Off (Controller);
-      Head_Off (Head);
-      Panel_Fitter_Off (Controller);
-      Trans_Clk_Off (Controller);
+      Planes_Off (Controllers (Pipe));
+      Head_Off (Heads (Get_Pipe_Head (Pipe, Port_Cfg.Port)));
+      Panel_Fitter_Off (Controllers (Pipe));
+      Trans_Clk_Off (Controllers (Pipe));
    end Off;
 
    procedure All_Off
    is
       EDP_Enabled, EDP_Piped : Boolean;
 
-      procedure EDP_Piped_To (Kind : Controller_Kind; Piped_To : out Boolean)
+      procedure EDP_Piped_To (Pipe : Pipe_Index; Piped_To : out Boolean)
       is
          Pipe_DDI_Func_Ctl : Word32;
       begin
@@ -766,8 +785,10 @@ package body HW.GFX.GMA.Pipe_Setup is
          Pipe_DDI_Func_Ctl :=
             Pipe_DDI_Func_Ctl and PIPE_DDI_FUNC_CTL_EDP_SELECT_MASK;
 
-         Piped_To := (Kind = A and Pipe_DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON) or
-                     Pipe_DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF (Kind);
+         Piped_To :=
+            (Pipe = Primary and
+             Pipe_DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON) or
+            Pipe_DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF (Pipe);
       end EDP_Piped_To;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
@@ -779,18 +800,18 @@ package body HW.GFX.GMA.Pipe_Setup is
          EDP_Enabled := False;
       end if;
 
-      for Kind in Controller_Kind loop
-         Planes_Off (Controllers (Kind));
+      for Pipe in Pipe_Index loop
+         Planes_Off (Controllers (Pipe));
          if EDP_Enabled then
-            EDP_Piped_To (Kind, EDP_Piped);
+            EDP_Piped_To (Pipe, EDP_Piped);
             if EDP_Piped then
                Head_Off (Heads (Head_EDP));
                EDP_Enabled := False;
             end if;
          end if;
-         Head_Off (Default_Pipe_Head (Kind));
-         Panel_Fitter_Off (Controllers (Kind));
-         Trans_Clk_Off (Controllers (Kind));
+         Head_Off (Heads (Default_Pipe_Head (Pipe)));
+         Panel_Fitter_Off (Controllers (Pipe));
+         Trans_Clk_Off (Controllers (Pipe));
       end loop;
 
       if EDP_Enabled then
@@ -800,35 +821,25 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
-   procedure Update_Offset
-     (Controller  : Controller_Type;
-      Framebuffer : HW.GFX.Framebuffer_Type) is
+   procedure Update_Offset (Pipe : Pipe_Index; Framebuffer : Framebuffer_Type)
+   is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Registers.Write (Controller.DSPSURF, Framebuffer.Offset and 16#ffff_f000#);
+      Registers.Write
+        (Controllers (Pipe).DSPSURF, Framebuffer.Offset and 16#ffff_f000#);
    end Update_Offset;
 
    ----------------------------------------------------------------------------
 
-   function Get_Pipe_Hint (Head : Head_Type) return Word32
+   function Get_Pipe_Hint (Pipe : Pipe_Index) return Word32
    is
-      type Pipe_Hint_Array is array (Pipe_Head) of Word32;
-      Pipe_Hint : constant Pipe_Hint_Array := Pipe_Hint_Array'
-        (Head_EDP => 0, Head_A => 0, Head_B => 1, Head_C => 2);
    begin
-      return Pipe_Hint (Head.Head);
+      return
+        (case Pipe is
+            when Primary      => 0,
+            when Secondary    => 1,
+            when Tertiary     => 2);
    end Get_Pipe_Hint;
-
-   ----------------------------------------------------------------------------
-
-   function Default_Pipe_Head (Kind : Controller_Kind) return Head_Type
-   is
-      type Default_Head_Array is array (Controller_Kind) of Head_Type;
-      Default_Head : constant Default_Head_Array := Default_Head_Array'
-        (A => Heads (Head_A), B => Heads (Head_B), C => Heads (Head_C));
-   begin
-      return Default_Head (Kind);
-   end Default_Pipe_Head;
 
 end HW.GFX.GMA.Pipe_Setup;

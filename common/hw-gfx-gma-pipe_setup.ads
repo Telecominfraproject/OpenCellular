@@ -19,17 +19,8 @@ use type HW.Int32;
 private package HW.GFX.GMA.Pipe_Setup
 is
 
-   type Controller_Kind is (A, B, C);
-   type Controller_Type is private;
-   type Controller_Array is array (Controller_Kind) of Controller_Type;
-
-   type Pipe_Head is (Head_EDP, Head_A, Head_B, Head_C);
-   type Head_Type is private;
-   type Head_Array is array (Pipe_Head) of Head_Type;
-
    procedure On
-     (Controller  : Controller_Type;
-      Head        : Head_Type;
+     (Pipe        : Pipe_Index;
       Port_Cfg    : Port_Config;
       Framebuffer : Framebuffer_Type)
    with
@@ -37,32 +28,24 @@ is
          Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
          Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible);
 
-   procedure Off
-     (Controller : Controller_Type;
-      Head       : Head_Type);
+   procedure Off (Pipe : Pipe_Index; Port_Cfg : Port_Config);
 
    procedure All_Off;
 
-   function Get_Pipe_Hint (Head : Head_Type) return Word32;
+   function Get_Pipe_Hint (Pipe : Pipe_Index) return Word32;
 
-   procedure Update_Offset
-     (Controller  : Controller_Type;
-      Framebuffer : HW.GFX.Framebuffer_Type);
-
-   Controllers : constant Controller_Array;
-
-   Heads : constant Head_Array;
-
-   function Default_Pipe_Head (Kind : Controller_Kind) return Head_Type;
+   procedure Update_Offset (Pipe : Pipe_Index; Framebuffer : Framebuffer_Type);
 
 private
 
    subtype WM_Levels is Natural range 0 .. 7;
    type PLANE_WM_Type is array (WM_Levels) of Registers.Registers_Index;
 
+   ----------------------------------------------------------------------------
+
    type Controller_Type is
       record
-         Kind              : Controller_Kind;
+         Pipe              : Pipe_Index;
          PIPESRC           : Registers.Registers_Index;
          PIPEMISC          : Registers.Registers_Index;
          PF_CTRL           : Registers.Registers_Index;
@@ -92,6 +75,12 @@ private
          PLANE_WM          : PLANE_WM_Type;
       end record;
 
+   type Controller_Array is array (Pipe_Index) of Controller_Type;
+
+   ----------------------------------------------------------------------------
+
+   type Pipe_Head is (Head_EDP, Head_A, Head_B, Head_C);
+
    type Head_Type is
       record
          Head              : Pipe_Head;
@@ -110,9 +99,13 @@ private
          PIPE_MSA_MISC     : Registers.Registers_Index;
       end record;
 
-   Controllers : constant Controller_Array := Controller_Array'
-     (A => Controller_Type'
-        (Kind              => A,
+   type Head_Array is array (Pipe_Head) of Head_Type;
+
+   ----------------------------------------------------------------------------
+
+   Controllers : constant Controller_Array :=
+     (Primary => Controller_Type'
+        (Pipe              => Primary,
          PIPESRC           => Registers.PIPEASRC,
          PIPEMISC          => Registers.PIPEAMISC,
          PF_CTRL           => Registers.PFA_CTL_1,
@@ -147,8 +140,8 @@ private
                               Registers.PLANE_WM_1_A_5,
                               Registers.PLANE_WM_1_A_6,
                               Registers.PLANE_WM_1_A_7)),
-      B => Controller_Type'
-        (Kind              => B,
+      Secondary => Controller_Type'
+        (Pipe              => Secondary,
          PIPESRC           => Registers.PIPEBSRC,
          PIPEMISC          => Registers.PIPEBMISC,
          PF_CTRL           => Registers.PFB_CTL_1,
@@ -183,8 +176,8 @@ private
                               Registers.PLANE_WM_1_B_5,
                               Registers.PLANE_WM_1_B_6,
                               Registers.PLANE_WM_1_B_7)),
-      C => Controller_Type'
-        (Kind              => C,
+      Tertiary => Controller_Type'
+        (Pipe              => Tertiary,
          PIPESRC           => Registers.PIPECSRC,
          PIPEMISC          => Registers.PIPECMISC,
          PF_CTRL           => Registers.PFC_CTL_1,

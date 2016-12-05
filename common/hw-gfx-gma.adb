@@ -84,52 +84,6 @@ is
 
    ----------------------------------------------------------------------------
 
-   function To_Controller
-      (Dsp_Config : Pipe_Index) return Display_Controller.Controller_Type
-   is
-      Result : Display_Controller.Controller_Type;
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      case Dsp_Config is
-         when Primary =>
-            Result := Display_Controller.Controllers (Display_Controller.A);
-         when Secondary =>
-            Result := Display_Controller.Controllers (Display_Controller.B);
-         when Tertiary =>
-            Result := Display_Controller.Controllers (Display_Controller.C);
-      end case;
-      return Result;
-   end To_Controller;
-
-   ----------------------------------------------------------------------------
-
-   function To_Head
-     (N_Config : Pipe_Index;
-      Port     : Active_Port_Type)
-      return Display_Controller.Head_Type
-   is
-      Result : Display_Controller.Head_Type;
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      if Config.Has_EDP_Pipe and then Port = Internal then
-         Result := Display_Controller.Heads (Display_Controller.Head_EDP);
-      else
-         case N_Config is
-            when Primary =>
-               Result := Display_Controller.Heads (Display_Controller.Head_A);
-            when Secondary =>
-               Result := Display_Controller.Heads (Display_Controller.Head_B);
-            when Tertiary =>
-               Result := Display_Controller.Heads (Display_Controller.Head_C);
-         end case;
-      end if;
-      return Result;
-   end To_Head;
-
-   ----------------------------------------------------------------------------
-
    procedure Legacy_VGA_Off
    is
       Reg8 : Word8;
@@ -196,8 +150,7 @@ is
 
                   Connectors.Pre_Off (Port_Cfg);
 
-                  Display_Controller.Off
-                    (To_Controller (I), To_Head (I, Old_Config.Port));
+                  Display_Controller.Off (I, Port_Cfg);
 
                   Connectors.Post_Off (Port_Cfg);
                end if;
@@ -258,14 +211,12 @@ is
                           (Port_Cfg    => Port_Cfg,
                            PLL_Hint    => PLLs.Register_Value
                                             (Allocated_PLLs (I)),
-                           Pipe_Hint   => Display_Controller.Get_Pipe_Hint
-                                            (To_Head (I, New_Config.Port)),
+                           Pipe_Hint   => Display_Controller.Get_Pipe_Hint (I),
                            Success     => Success);
 
                         if Success then
                            Display_Controller.On
-                             (Controller  => To_Controller (I),
-                              Head        => To_Head (I, New_Config.Port),
+                             (Pipe        => I,
                               Port_Cfg    => Port_Cfg,
                               Framebuffer => New_Config.Framebuffer);
 
@@ -276,9 +227,7 @@ is
                               Success  => Success);
 
                            if not Success then
-                              Display_Controller.Off
-                                (To_Controller (I),
-                                 To_Head (I, New_Config.Port));
+                              Display_Controller.Off (I, Port_Cfg);
                               Connectors.Post_Off (Port_Cfg);
                            end if;
                         end if;
@@ -313,9 +262,7 @@ is
          elsif Old_Config.Framebuffer /= New_Config.Framebuffer and
                Old_Config.Port /= Disabled
          then
-            Display_Controller.Update_Offset
-              (Controller  => To_Controller (I),
-               Framebuffer => New_Config.Framebuffer);
+            Display_Controller.Update_Offset (I, New_Config.Framebuffer);
             Cur_Configs (I) := New_Config;
          end if;
       end loop;
