@@ -75,8 +75,6 @@ is
    with
       Global => (Input => Init_State);
 
-   procedure Legacy_VGA_Off;
-
    procedure Update_Outputs (Configs : Pipe_Configs);
 
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
@@ -133,11 +131,5 @@ private
    ----------------------------------------------------------------------------
 
    type DP_Port is (DP_A, DP_B, DP_C, DP_D);
-
-   ----------------------------------------------------------------------------
-
-   VGA_SR_INDEX   : constant Port_IO.Port_Type  := 16#03c4#;
-   VGA_SR_DATA    : constant Port_IO.Port_Type  := 16#03c5#;
-   VGA_SR01       : constant Word8 := 16#01#;
 
 end HW.GFX.GMA;

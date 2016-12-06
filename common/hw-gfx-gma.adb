@@ -28,7 +28,6 @@ with System;
 with HW.Debug;
 with GNAT.Source_Info;
 
-use type HW.Word8;
 use type HW.Int32;
 
 package body HW.GFX.GMA
@@ -81,20 +80,6 @@ is
    begin
       return Word32 (Freq / 1_000_000);
    end PCH_RAWCLK_FREQ;
-
-   ----------------------------------------------------------------------------
-
-   procedure Legacy_VGA_Off
-   is
-      Reg8 : Word8;
-   begin
-      -- disable legacy VGA plane, taking over control now
-      Port_IO.OutB (VGA_SR_INDEX, VGA_SR01);
-      Port_IO.InB  (Reg8, VGA_SR_DATA);
-      Port_IO.OutB (VGA_SR_DATA, Reg8 or 1 * 2 ** 5);
-      Time.U_Delay (100); -- PRM says 100us, Linux does 300
-      Registers.Set_Mask (Registers.VGACNTRL, 1 * 2 ** 31);
-   end Legacy_VGA_Off;
 
    ----------------------------------------------------------------------------
 
@@ -354,9 +339,6 @@ is
       Panel.Setup_PP_Sequencer;
       Port_Detect.Initialize;
 
-      Legacy_VGA_Off;   -- According to PRMs, VGA plane is the only
-                        -- thing that's enabled by default after reset.
-
       if Clean_State then
          Power_And_Clocks.Pre_All_Off;
          Connectors.Pre_All_Off;
@@ -364,6 +346,10 @@ is
          Connectors.Post_All_Off;
          PLLs.All_Off;
          Power_And_Clocks.Post_All_Off;
+      else
+         -- According to PRMs, VGA plane is the only thing
+         -- that's enabled by default after reset.
+         Display_Controller.Legacy_VGA_Off;
       end if;
 
       -------------------- Now restart from a clean state ---------------------

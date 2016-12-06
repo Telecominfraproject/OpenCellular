@@ -30,6 +30,8 @@ is
 
    procedure Off (Pipe : Pipe_Index; Port_Cfg : Port_Config);
 
+   procedure Legacy_VGA_Off;
+
    procedure All_Off;
 
    function Get_Pipe_Hint (Pipe : Pipe_Index) return Word32;

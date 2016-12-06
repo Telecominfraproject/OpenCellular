@@ -70,7 +70,10 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    SPCNTR_ENABLE : constant :=  1 * 2 ** 31;
 
-   VGA_SR01_SCREEN_OFF                 : constant :=        1 * 2 **  5;
+   VGA_SR_INDEX                        : constant :=   16#03c4#;
+   VGA_SR_DATA                         : constant :=   16#03c5#;
+   VGA_SR01                            : constant :=     16#01#;
+   VGA_SR01_SCREEN_OFF                 : constant := 1 * 2 ** 5;
 
    VGA_CONTROL_VGA_DISPLAY_DISABLE     : constant :=        1 * 2 ** 31;
    VGA_CONTROL_BLINK_DUTY_CYCLE_MASK   : constant := 16#0003# * 2 **  6;
@@ -773,6 +776,18 @@ package body HW.GFX.GMA.Pipe_Setup is
       Trans_Clk_Off (Controllers (Pipe));
    end Off;
 
+   procedure Legacy_VGA_Off
+   is
+      use type HW.Word8;
+      Reg8 : Word8;
+   begin
+      Port_IO.OutB (VGA_SR_INDEX, VGA_SR01);
+      Port_IO.InB  (Reg8, VGA_SR_DATA);
+      Port_IO.OutB (VGA_SR_DATA, Reg8 or VGA_SR01_SCREEN_OFF);
+      Time.U_Delay (100); -- PRM says 100us, Linux does 300
+      Registers.Set_Mask (Registers.VGACNTRL, VGA_CONTROL_VGA_DISPLAY_DISABLE);
+   end Legacy_VGA_Off;
+
    procedure All_Off
    is
       EDP_Enabled, EDP_Piped : Boolean;
@@ -792,6 +807,8 @@ package body HW.GFX.GMA.Pipe_Setup is
       end EDP_Piped_To;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      Legacy_VGA_Off;
 
       if Config.Has_EDP_Pipe then
          Registers.Is_Set_Mask
