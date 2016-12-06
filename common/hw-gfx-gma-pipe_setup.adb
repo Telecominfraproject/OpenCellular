@@ -106,6 +106,29 @@ package body HW.GFX.GMA.Pipe_Setup is
    PIPECONF_ENABLE_DITHER   : constant := 1 * 2 **  4;
    PIPECONF_DITHER_TEMPORAL : constant := 1 * 2 **  2;
 
+   function PIPECONF_BPC (Bits_Per_Color : BPC_Type) return Word32
+   with
+      Pre => True
+   is
+   begin
+      return
+        (case Bits_Per_Color is
+            when      6 => 2 * 2 ** 5,
+            when     10 => 1 * 2 ** 5,
+            when     12 => 3 * 2 ** 5,
+            when others => 0 * 2 ** 5);
+   end PIPECONF_BPC;
+
+   function PIPECONF_Misc (BPC : BPC_Type; Dither : Boolean) return Word32
+   with
+      Pre => True
+   is
+   begin
+      return
+        (if Config.Has_Pipeconf_BPC then PIPECONF_BPC (BPC) else 0) or
+        (if Dither then PIPECONF_ENABLE_DITHER else 0);
+   end PIPECONF_Misc;
+
    PF_CTRL_ENABLE                         : constant := 1 * 2 ** 31;
    PF_CTRL_PIPE_SELECT_MASK               : constant := 3 * 2 ** 29;
    PF_CTRL_FILTER_MED                     : constant := 1 * 2 ** 23;
@@ -230,24 +253,6 @@ package body HW.GFX.GMA.Pipe_Setup is
       end case;
       return Result;
    end PIPE_MSA_MISC_BPC;
-
-   ---------------------------------------------------------------------------
-
-   function PIPECONF_BPC_MAP (Bits_Per_Color : HW.GFX.BPC_Type) return Word32
-   is
-      Result : Word32;
-   begin
-      if    Bits_Per_Color = 6 then
-         Result := 2 * 2 ** 5;
-      elsif Bits_Per_Color = 10 then
-         Result := 1 * 2 ** 5;
-      elsif Bits_Per_Color = 12 then
-         Result := 3 * 2 ** 5;
-      else
-         Result := 0;
-      end if;
-      return Result;
-   end PIPECONF_BPC_MAP;
 
    ---------------------------------------------------------------------------
 
@@ -412,10 +417,10 @@ package body HW.GFX.GMA.Pipe_Setup is
    end Setup_Hires_Plane;
 
    procedure Setup_Display
-     (Controller  : in     Controller_Type;
-      Head        : in     Head_Type;
-      Mode        : in     HW.GFX.Mode_Type;
-      Framebuffer : in     HW.GFX.Framebuffer_Type)
+     (Controller  : Controller_Type;
+      Framebuffer : Framebuffer_Type;
+      Dither_BPC  : BPC_Type;
+      Dither      : Boolean)
    with
       Global => (In_Out => (Registers.Register_State, Port_IO.State)),
       Depends =>
@@ -423,9 +428,9 @@ package body HW.GFX.GMA.Pipe_Setup is
             =>+
               (Registers.Register_State,
                Controller,
-               Head,
-               Mode,
-               Framebuffer),
+               Framebuffer,
+               Dither_BPC,
+               Dither),
          Port_IO.State
             =>+
                (Framebuffer))
@@ -472,13 +477,42 @@ package body HW.GFX.GMA.Pipe_Setup is
          Value    => Encode
            (Pos16 (Framebuffer.Height), Pos16 (Framebuffer.Width)));
 
-      Registers.Write (Head.HTOTAL,  Encode (Mode.H_Visible,    Mode.H_Total));
-      Registers.Write (Head.HBLANK,  Encode (Mode.H_Visible,    Mode.H_Total));
-      Registers.Write (Head.HSYNC,   Encode (Mode.H_Sync_Begin, Mode.H_Sync_End));
-      Registers.Write (Head.VTOTAL,  Encode (Mode.V_Visible,    Mode.V_Total));
-      Registers.Write (Head.VBLANK,  Encode (Mode.V_Visible,    Mode.V_Total));
-      Registers.Write (Head.VSYNC,   Encode (Mode.V_Sync_Begin, Mode.V_Sync_End));
+      if Config.Has_Pipeconf_Misc then
+         Registers.Write
+           (Register => Controller.PIPEMISC,
+            Value    => PIPECONF_Misc (Dither_BPC, Dither));
+      end if;
    end Setup_Display;
+
+   procedure Setup_Transcoder
+     (Head     : Head_Type;
+      Port_Cfg : Port_Config)
+   is
+      M : constant Mode_Type := Port_Cfg.Mode;
+   begin
+      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      if Config.Has_Trans_Clk_Sel and then
+         Head.TRANS_CLK_SEL /= Registers.Invalid_Register
+      then
+         Registers.Write
+           (Register => Head.TRANS_CLK_SEL,
+            Value    => TRANS_CLK_SEL_PORT (Port_Cfg.Port));
+      end if;
+
+      if Port_Cfg.Is_FDI then
+         Setup_Link (Head, Port_Cfg.FDI, Port_Cfg.Mode);
+      elsif Port_Cfg.Display = DP then
+         Setup_Link (Head, Port_Cfg.DP, Port_Cfg.Mode);
+      end if;
+
+      Registers.Write (Head.HTOTAL,  Encode (M.H_Visible,    M.H_Total));
+      Registers.Write (Head.HBLANK,  Encode (M.H_Visible,    M.H_Total));
+      Registers.Write (Head.HSYNC,   Encode (M.H_Sync_Begin, M.H_Sync_End));
+      Registers.Write (Head.VTOTAL,  Encode (M.V_Visible,    M.V_Total));
+      Registers.Write (Head.VBLANK,  Encode (M.V_Visible,    M.V_Total));
+      Registers.Write (Head.VSYNC,   Encode (M.V_Sync_Begin, M.V_Sync_End));
+   end Setup_Transcoder;
 
    ----------------------------------------------------------------------------
 
@@ -624,13 +658,12 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
-   procedure Setup_Head
-     (Controller  : Controller_Type;
+   procedure Transcoder_On
+     (Pipe        : Pipe_Index;
       Head        : Head_Type;
       Port_Cfg    : Port_Config;
-      Framebuffer : Framebuffer_Type)
+      Dither      : Boolean)
    is
-      PIPECONF_Options : Word32 := 0;
    begin
       if Config.Has_Pipe_DDI_Func then
          Registers.Write
@@ -641,34 +674,17 @@ package body HW.GFX.GMA.Pipe_Setup is
                         PIPE_DDI_FUNC_CTL_BPC (Port_Cfg.Mode.BPC) or
                         PIPE_DDI_FUNC_CTL_VSYNC (Port_Cfg.Mode.V_Sync_Active_High) or
                         PIPE_DDI_FUNC_CTL_HSYNC (Port_Cfg.Mode.H_Sync_Active_High) or
-                        PIPE_DDI_FUNC_CTL_EDP_SELECT (Controller.Pipe) or
+                        PIPE_DDI_FUNC_CTL_EDP_SELECT (Pipe) or
                         PIPE_DDI_FUNC_CTL_PORT_WIDTH (Port_Cfg.DP.Lane_Count));
       end if;
 
-      if Config.Has_Pipeconf_BPC then
-         PIPECONF_Options := PIPECONF_BPC_MAP (Port_Cfg.Mode.BPC);
-      end if;
-
-      -- Enable dithering if framebuffer BPC differs from connector BPC,
-      -- as smooth gradients look really bad without
-      if Framebuffer.BPC /= Port_Cfg.Mode.BPC then
-         PIPECONF_Options := PIPECONF_Options or PIPECONF_ENABLE_DITHER;
-      end if;
-
-      if not Config.Has_Pipeconf_Misc then
-         Registers.Write
-           (Register => Head.PIPECONF,
-            Value    => PIPECONF_ENABLE or PIPECONF_Options);
-      else
-         Registers.Write
-           (Register => Controller.PIPEMISC,
-            Value    => PIPECONF_Options);
-         Registers.Write
-           (Register => Head.PIPECONF,
-            Value    => PIPECONF_ENABLE);
-      end if;
+      Registers.Write
+        (Register => Head.PIPECONF,
+         Value    => PIPECONF_ENABLE or
+                     (if not Config.Has_Pipeconf_Misc then
+                        PIPECONF_Misc (Port_Cfg.Mode.BPC, Dither) else 0));
       Registers.Posting_Read (Head.PIPECONF);
-   end Setup_Head;
+   end Transcoder_On;
 
    ----------------------------------------------------------------------------
 
@@ -677,28 +693,21 @@ package body HW.GFX.GMA.Pipe_Setup is
       Port_Cfg    : Port_Config;
       Framebuffer : Framebuffer_Type)
    is
+      -- Enable dithering if framebuffer BPC differs from port BPC,
+      -- as smooth gradients look really bad without.
+      Dither : constant Boolean := Framebuffer.BPC /= Port_Cfg.Mode.BPC;
       Head : constant Pipe_Head := Get_Pipe_Head (Pipe, Port_Cfg.Port);
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      if Config.Has_Trans_Clk_Sel then
-         Registers.Write
-           (Register => Controllers (Pipe).TRANS_CLK_SEL,
-            Value    => TRANS_CLK_SEL_PORT (Port_Cfg.Port));
-      end if;
-
-      if Port_Cfg.Is_FDI then
-         Setup_Link (Heads (Head), Port_Cfg.FDI, Port_Cfg.Mode);
-      elsif Port_Cfg.Display = DP then
-         Setup_Link (Heads (Head), Port_Cfg.DP, Port_Cfg.Mode);
-      end if;
+      Setup_Transcoder (Heads (Head), Port_Cfg);
 
       Setup_Display
-        (Controllers (Pipe), Heads (Head), Port_Cfg.Mode, Framebuffer);
+        (Controllers (Pipe), Framebuffer, Port_Cfg.Mode.BPC, Dither);
 
       Setup_Scaling (Controllers (Pipe), Port_Cfg.Mode, Framebuffer);
 
-      Setup_Head (Controllers (Pipe), Heads (Head), Port_Cfg, Framebuffer);
+      Transcoder_On (Pipe, Heads (Head), Port_Cfg, Dither);
    end On;
 
    ----------------------------------------------------------------------------
@@ -740,6 +749,25 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
    end Head_Off;
 
+   procedure Transcoder_Off (Pipe : Pipe_Index)
+   is
+      DDI_Func_Ctl : Word32;
+   begin
+      if Config.Has_EDP_Pipe then
+         Registers.Read (Registers.PIPE_EDP_DDI_FUNC_CTL, DDI_Func_Ctl);
+         DDI_Func_Ctl := DDI_Func_Ctl and PIPE_DDI_FUNC_CTL_EDP_SELECT_MASK;
+
+         if (Pipe = Primary and
+             DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON) or
+            DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF (Pipe)
+         then
+            Head_Off (Heads (Head_EDP));
+         end if;
+      end if;
+
+      Head_Off (Heads (Default_Pipe_Head (Pipe)));
+   end Transcoder_Off;
+
    procedure Panel_Fitter_Off (Controller : Controller_Type) is
    begin
       -- Writes to WIN_SZ arm the PS/PF registers.
@@ -758,22 +786,25 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
    end Panel_Fitter_Off;
 
-   procedure Trans_Clk_Off (Controller : Controller_Type) is
+   procedure Trans_Clk_Off (Head : Head_Type) is
    begin
-      if Config.Has_Trans_Clk_Sel then
-         Registers.Write (Controller.TRANS_CLK_SEL, TRANS_CLK_SEL_PORT_NONE);
+      if Config.Has_Trans_Clk_Sel and then
+         Head.TRANS_CLK_SEL /= Registers.Invalid_Register
+      then
+         Registers.Write (Head.TRANS_CLK_SEL, TRANS_CLK_SEL_PORT_NONE);
       end if;
    end Trans_Clk_Off;
 
    procedure Off (Pipe : Pipe_Index; Port_Cfg : Port_Config)
    is
+      Head : constant Pipe_Head := Get_Pipe_Head (Pipe, Port_Cfg.Port);
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       Planes_Off (Controllers (Pipe));
-      Head_Off (Heads (Get_Pipe_Head (Pipe, Port_Cfg.Port)));
+      Transcoder_Off (Pipe);
       Panel_Fitter_Off (Controllers (Pipe));
-      Trans_Clk_Off (Controllers (Pipe));
+      Trans_Clk_Off (Heads (Head));
    end Off;
 
    procedure Legacy_VGA_Off
@@ -790,50 +821,17 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    procedure All_Off
    is
-      EDP_Enabled, EDP_Piped : Boolean;
-
-      procedure EDP_Piped_To (Pipe : Pipe_Index; Piped_To : out Boolean)
-      is
-         Pipe_DDI_Func_Ctl : Word32;
-      begin
-         Registers.Read (Registers.PIPE_EDP_DDI_FUNC_CTL, Pipe_DDI_Func_Ctl);
-         Pipe_DDI_Func_Ctl :=
-            Pipe_DDI_Func_Ctl and PIPE_DDI_FUNC_CTL_EDP_SELECT_MASK;
-
-         Piped_To :=
-            (Pipe = Primary and
-             Pipe_DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON) or
-            Pipe_DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF (Pipe);
-      end EDP_Piped_To;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       Legacy_VGA_Off;
 
-      if Config.Has_EDP_Pipe then
-         Registers.Is_Set_Mask
-           (Registers.PIPE_EDP_CONF, PIPECONF_ENABLE, EDP_Enabled);
-      else
-         EDP_Enabled := False;
-      end if;
-
       for Pipe in Pipe_Index loop
          Planes_Off (Controllers (Pipe));
-         if EDP_Enabled then
-            EDP_Piped_To (Pipe, EDP_Piped);
-            if EDP_Piped then
-               Head_Off (Heads (Head_EDP));
-               EDP_Enabled := False;
-            end if;
-         end if;
-         Head_Off (Heads (Default_Pipe_Head (Pipe)));
+         Transcoder_Off (Pipe);
          Panel_Fitter_Off (Controllers (Pipe));
-         Trans_Clk_Off (Controllers (Pipe));
+         Trans_Clk_Off (Heads (Default_Pipe_Head (Pipe)));
       end loop;
-
-      if EDP_Enabled then
-         Head_Off (Heads (Head_EDP));
-      end if;
    end All_Off;
 
    ----------------------------------------------------------------------------

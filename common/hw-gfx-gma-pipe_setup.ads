@@ -59,7 +59,6 @@ private
          DSPSURF           : Registers.Registers_Index;
          DSPTILEOFF        : Registers.Registers_Index;
          SPCNTR            : Registers.Registers_Index;
-         TRANS_CLK_SEL     : Registers.Registers_Index;
          -- Skylake registers (partially aliased)
          PLANE_CTL         : Registers.Registers_Index;
          PLANE_OFFSET      : Registers.Registers_Index;
@@ -99,6 +98,7 @@ private
          PIPE_LINK_N1      : Registers.Registers_Index;
          PIPE_DDI_FUNC_CTL : Registers.Registers_Index;
          PIPE_MSA_MISC     : Registers.Registers_Index;
+         TRANS_CLK_SEL     : Registers.Registers_Invalid_Index;
       end record;
 
    type Head_Array is array (Pipe_Head) of Head_Type;
@@ -119,7 +119,6 @@ private
          DSPSURF           => Registers.DSPASURF,
          DSPTILEOFF        => Registers.DSPATILEOFF,
          SPCNTR            => Registers.SPACNTR,
-         TRANS_CLK_SEL     => Registers.TRANSA_CLK_SEL,
          PLANE_CTL         => Registers.DSPACNTR,
          PLANE_OFFSET      => Registers.DSPATILEOFF,
          PLANE_POS         => Registers.PLANE_POS_1_A,
@@ -155,7 +154,6 @@ private
          DSPSURF           => Registers.DSPBSURF,
          DSPTILEOFF        => Registers.DSPBTILEOFF,
          SPCNTR            => Registers.SPBCNTR,
-         TRANS_CLK_SEL     => Registers.TRANSB_CLK_SEL,
          PLANE_CTL         => Registers.DSPBCNTR,
          PLANE_OFFSET      => Registers.DSPBTILEOFF,
          PLANE_POS         => Registers.PLANE_POS_1_B,
@@ -191,7 +189,6 @@ private
          DSPSURF           => Registers.DSPCSURF,
          DSPTILEOFF        => Registers.DSPCTILEOFF,
          SPCNTR            => Registers.SPCCNTR,
-         TRANS_CLK_SEL     => Registers.TRANSC_CLK_SEL,
          PLANE_CTL         => Registers.DSPCCNTR,
          PLANE_OFFSET      => Registers.DSPCTILEOFF,
          PLANE_POS         => Registers.PLANE_POS_1_C,
@@ -230,7 +227,8 @@ private
          PIPE_LINK_M1      => Registers.PIPE_EDP_LINK_M1,
          PIPE_LINK_N1      => Registers.PIPE_EDP_LINK_N1,
          PIPE_DDI_FUNC_CTL => Registers.PIPE_EDP_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPE_EDP_MSA_MISC),
+         PIPE_MSA_MISC     => Registers.PIPE_EDP_MSA_MISC,
+         TRANS_CLK_SEL     => Registers.Invalid_Register),
       Head_A => Head_Type'
         (Head              => Head_A,
          HTOTAL            => Registers.HTOTAL_A,
@@ -245,7 +243,8 @@ private
          PIPE_LINK_M1      => Registers.PIPEA_LINK_M1,
          PIPE_LINK_N1      => Registers.PIPEA_LINK_N1,
          PIPE_DDI_FUNC_CTL => Registers.PIPEA_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPEA_MSA_MISC),
+         PIPE_MSA_MISC     => Registers.PIPEA_MSA_MISC,
+         TRANS_CLK_SEL     => Registers.TRANSA_CLK_SEL),
       Head_B => Head_Type'
         (Head              => Head_B,
          HTOTAL            => Registers.HTOTAL_B,
@@ -260,7 +259,8 @@ private
          PIPE_LINK_M1      => Registers.PIPEB_LINK_M1,
          PIPE_LINK_N1      => Registers.PIPEB_LINK_N1,
          PIPE_DDI_FUNC_CTL => Registers.PIPEB_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPEB_MSA_MISC),
+         PIPE_MSA_MISC     => Registers.PIPEB_MSA_MISC,
+         TRANS_CLK_SEL     => Registers.TRANSB_CLK_SEL),
       Head_C => Head_Type'
         (Head              => Head_C,
          HTOTAL            => Registers.HTOTAL_C,
@@ -275,6 +275,7 @@ private
          PIPE_LINK_M1      => Registers.PIPEC_LINK_M1,
          PIPE_LINK_N1      => Registers.PIPEC_LINK_N1,
          PIPE_DDI_FUNC_CTL => Registers.PIPEC_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPEC_MSA_MISC));
+         PIPE_MSA_MISC     => Registers.PIPEC_MSA_MISC,
+         TRANS_CLK_SEL     => Registers.TRANSC_CLK_SEL));
 
 end HW.GFX.GMA.Pipe_Setup;
