@@ -28,7 +28,7 @@ is
          Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
          Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible);
 
-   procedure Off (Pipe : Pipe_Index; Port_Cfg : Port_Config);
+   procedure Off (Pipe : Pipe_Index);
 
    procedure Legacy_VGA_Off;
 
@@ -42,8 +42,6 @@ private
 
    subtype WM_Levels is Natural range 0 .. 7;
    type PLANE_WM_Type is array (WM_Levels) of Registers.Registers_Index;
-
-   ----------------------------------------------------------------------------
 
    type Controller_Type is
       record
@@ -77,33 +75,6 @@ private
       end record;
 
    type Controller_Array is array (Pipe_Index) of Controller_Type;
-
-   ----------------------------------------------------------------------------
-
-   type Pipe_Head is (Head_EDP, Head_A, Head_B, Head_C);
-
-   type Head_Type is
-      record
-         Head              : Pipe_Head;
-         HTOTAL            : Registers.Registers_Index;
-         HBLANK            : Registers.Registers_Index;
-         HSYNC             : Registers.Registers_Index;
-         VTOTAL            : Registers.Registers_Index;
-         VBLANK            : Registers.Registers_Index;
-         VSYNC             : Registers.Registers_Index;
-         PIPECONF          : Registers.Registers_Index;
-         PIPE_DATA_M1      : Registers.Registers_Index;
-         PIPE_DATA_N1      : Registers.Registers_Index;
-         PIPE_LINK_M1      : Registers.Registers_Index;
-         PIPE_LINK_N1      : Registers.Registers_Index;
-         PIPE_DDI_FUNC_CTL : Registers.Registers_Index;
-         PIPE_MSA_MISC     : Registers.Registers_Index;
-         TRANS_CLK_SEL     : Registers.Registers_Invalid_Index;
-      end record;
-
-   type Head_Array is array (Pipe_Head) of Head_Type;
-
-   ----------------------------------------------------------------------------
 
    Controllers : constant Controller_Array :=
      (Primary => Controller_Type'
@@ -211,71 +182,5 @@ private
                               Registers.PLANE_WM_1_C_5,
                               Registers.PLANE_WM_1_C_6,
                               Registers.PLANE_WM_1_C_7)));
-
-   Heads : constant Head_Array := Head_Array'
-     (Head_EDP => Head_Type'
-        (Head              => Head_EDP,
-         HTOTAL            => Registers.HTOTAL_EDP,
-         HBLANK            => Registers.HBLANK_EDP,
-         HSYNC             => Registers.HSYNC_EDP,
-         VTOTAL            => Registers.VTOTAL_EDP,
-         VBLANK            => Registers.VBLANK_EDP,
-         VSYNC             => Registers.VSYNC_EDP,
-         PIPECONF          => Registers.PIPE_EDP_CONF,
-         PIPE_DATA_M1      => Registers.PIPE_EDP_DATA_M1,
-         PIPE_DATA_N1      => Registers.PIPE_EDP_DATA_N1,
-         PIPE_LINK_M1      => Registers.PIPE_EDP_LINK_M1,
-         PIPE_LINK_N1      => Registers.PIPE_EDP_LINK_N1,
-         PIPE_DDI_FUNC_CTL => Registers.PIPE_EDP_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPE_EDP_MSA_MISC,
-         TRANS_CLK_SEL     => Registers.Invalid_Register),
-      Head_A => Head_Type'
-        (Head              => Head_A,
-         HTOTAL            => Registers.HTOTAL_A,
-         HBLANK            => Registers.HBLANK_A,
-         HSYNC             => Registers.HSYNC_A,
-         VTOTAL            => Registers.VTOTAL_A,
-         VBLANK            => Registers.VBLANK_A,
-         VSYNC             => Registers.VSYNC_A,
-         PIPECONF          => Registers.PIPEACONF,
-         PIPE_DATA_M1      => Registers.PIPEA_DATA_M1,
-         PIPE_DATA_N1      => Registers.PIPEA_DATA_N1,
-         PIPE_LINK_M1      => Registers.PIPEA_LINK_M1,
-         PIPE_LINK_N1      => Registers.PIPEA_LINK_N1,
-         PIPE_DDI_FUNC_CTL => Registers.PIPEA_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPEA_MSA_MISC,
-         TRANS_CLK_SEL     => Registers.TRANSA_CLK_SEL),
-      Head_B => Head_Type'
-        (Head              => Head_B,
-         HTOTAL            => Registers.HTOTAL_B,
-         HBLANK            => Registers.HBLANK_B,
-         HSYNC             => Registers.HSYNC_B,
-         VTOTAL            => Registers.VTOTAL_B,
-         VBLANK            => Registers.VBLANK_B,
-         VSYNC             => Registers.VSYNC_B,
-         PIPECONF          => Registers.PIPEBCONF,
-         PIPE_DATA_M1      => Registers.PIPEB_DATA_M1,
-         PIPE_DATA_N1      => Registers.PIPEB_DATA_N1,
-         PIPE_LINK_M1      => Registers.PIPEB_LINK_M1,
-         PIPE_LINK_N1      => Registers.PIPEB_LINK_N1,
-         PIPE_DDI_FUNC_CTL => Registers.PIPEB_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPEB_MSA_MISC,
-         TRANS_CLK_SEL     => Registers.TRANSB_CLK_SEL),
-      Head_C => Head_Type'
-        (Head              => Head_C,
-         HTOTAL            => Registers.HTOTAL_C,
-         HBLANK            => Registers.HBLANK_C,
-         HSYNC             => Registers.HSYNC_C,
-         VTOTAL            => Registers.VTOTAL_C,
-         VBLANK            => Registers.VBLANK_C,
-         VSYNC             => Registers.VSYNC_C,
-         PIPECONF          => Registers.PIPECCONF,
-         PIPE_DATA_M1      => Registers.PIPEC_DATA_M1,
-         PIPE_DATA_N1      => Registers.PIPEC_DATA_N1,
-         PIPE_LINK_M1      => Registers.PIPEC_LINK_M1,
-         PIPE_LINK_N1      => Registers.PIPEC_LINK_N1,
-         PIPE_DDI_FUNC_CTL => Registers.PIPEC_DDI_FUNC_CTL,
-         PIPE_MSA_MISC     => Registers.PIPEC_MSA_MISC,
-         TRANS_CLK_SEL     => Registers.TRANSC_CLK_SEL));
 
 end HW.GFX.GMA.Pipe_Setup;

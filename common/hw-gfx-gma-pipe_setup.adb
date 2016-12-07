@@ -16,42 +16,19 @@ with HW.Debug;
 with GNAT.Source_Info;
 
 with HW.GFX.GMA.Config;
-with HW.GFX.GMA.DP_Info;
-with HW.GFX.GMA.Registers;
-
-use type HW.Word64;
-use type HW.Pos16;
-use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
+with HW.GFX.GMA.Transcoder;
 
 package body HW.GFX.GMA.Pipe_Setup is
-
-   type Default_Head_Array is array (Pipe_Index) of Pipe_Head;
-   Default_Pipe_Head : constant Default_Head_Array :=
-     (Primary     => Head_A,
-      Secondary   => Head_B,
-      Tertiary    => Head_C);
-
-   function Get_Pipe_Head (Pipe : Pipe_Index; Port : GPU_Port) return Pipe_Head
-   is
-   begin
-      return
-        (if Config.Has_EDP_Pipe and then Port = DIGI_A then
-            Head_EDP
-         else
-            Default_Pipe_Head (Pipe));
-   end Get_Pipe_Head;
-
-   ----------------------------------------------------------------------------
 
    ILK_DISPLAY_CHICKEN1_VGA_MASK       : constant := 7 * 2 ** 29;
    ILK_DISPLAY_CHICKEN1_VGA_ENABLE     : constant := 5 * 2 ** 29;
    ILK_DISPLAY_CHICKEN2_VGA_MASK       : constant := 1 * 2 ** 25;
    ILK_DISPLAY_CHICKEN2_VGA_ENABLE     : constant := 0 * 2 ** 25;
 
-   DSPCNTR_ENABLE               : constant :=  1 * 2 ** 31;
-   DSPCNTR_GAMMA_CORRECTION     : constant :=  1 * 2 ** 30;
-   DSPCNTR_DISABLE_TRICKLE_FEED : constant :=  1 * 2 ** 14;
-   DSPCNTR_FORMAT_MASK          : constant := 15 * 2 ** 26;
+   DSPCNTR_ENABLE                      : constant :=  1 * 2 ** 31;
+   DSPCNTR_GAMMA_CORRECTION            : constant :=  1 * 2 ** 30;
+   DSPCNTR_DISABLE_TRICKLE_FEED        : constant :=  1 * 2 ** 14;
+   DSPCNTR_FORMAT_MASK                 : constant := 15 * 2 ** 26;
 
    DSPCNTR_MASK : constant Word32 :=
       DSPCNTR_ENABLE or
@@ -67,8 +44,6 @@ package body HW.GFX.GMA.Pipe_Setup is
    PLANE_WM_LINES_SHIFT                : constant :=                 14;
    PLANE_WM_LINES_MASK                 : constant := 16#001f# * 2 ** 14;
    PLANE_WM_BLOCKS_MASK                : constant := 16#03ff# * 2 **  0;
-
-   SPCNTR_ENABLE : constant :=  1 * 2 ** 31;
 
    VGA_SR_INDEX                        : constant :=   16#03c4#;
    VGA_SR_DATA                         : constant :=   16#03c5#;
@@ -89,170 +64,13 @@ package body HW.GFX.GMA.Pipe_Setup is
       return Word32 (Cycles) / 2 - 1;
    end VGA_CONTROL_VSYNC_BLINK_RATE;
 
-   TRANS_CLK_SEL_PORT_NONE : constant := 0 * 2 ** 29;
+   PF_CTRL_ENABLE                      : constant := 1 * 2 ** 31;
+   PF_CTRL_PIPE_SELECT_MASK            : constant := 3 * 2 ** 29;
+   PF_CTRL_FILTER_MED                  : constant := 1 * 2 ** 23;
 
-   type TRANS_CLK_SEL_PORT_Array is
-      array (Digital_Port) of Word32;
-   TRANS_CLK_SEL_PORT : constant TRANS_CLK_SEL_PORT_Array :=
-      TRANS_CLK_SEL_PORT_Array'
-     (DIGI_A => 0 * 2 ** 29,   -- DDI A is not selectable
-      DIGI_B => 2 * 2 ** 29,
-      DIGI_C => 3 * 2 ** 29,
-      DIGI_D => 4 * 2 ** 29,
-      DIGI_E => 5 * 2 ** 29);
-
-   PIPECONF_ENABLE          : constant := 1 * 2 ** 31;
-   PIPECONF_ENABLED_STATUS  : constant := 1 * 2 ** 30;
-   PIPECONF_ENABLE_DITHER   : constant := 1 * 2 **  4;
-   PIPECONF_DITHER_TEMPORAL : constant := 1 * 2 **  2;
-
-   function PIPECONF_BPC (Bits_Per_Color : BPC_Type) return Word32
-   with
-      Pre => True
-   is
-   begin
-      return
-        (case Bits_Per_Color is
-            when      6 => 2 * 2 ** 5,
-            when     10 => 1 * 2 ** 5,
-            when     12 => 3 * 2 ** 5,
-            when others => 0 * 2 ** 5);
-   end PIPECONF_BPC;
-
-   function PIPECONF_Misc (BPC : BPC_Type; Dither : Boolean) return Word32
-   with
-      Pre => True
-   is
-   begin
-      return
-        (if Config.Has_Pipeconf_BPC then PIPECONF_BPC (BPC) else 0) or
-        (if Dither then PIPECONF_ENABLE_DITHER else 0);
-   end PIPECONF_Misc;
-
-   PF_CTRL_ENABLE                         : constant := 1 * 2 ** 31;
-   PF_CTRL_PIPE_SELECT_MASK               : constant := 3 * 2 ** 29;
-   PF_CTRL_FILTER_MED                     : constant := 1 * 2 ** 23;
-
-   PS_CTRL_ENABLE_SCALER                  : constant := 1 * 2 ** 31;
-   PS_CTRL_SCALER_MODE_7X5_EXTENDED       : constant := 1 * 2 ** 28;
-   PS_CTRL_FILTER_SELECT_MEDIUM_2         : constant := 1 * 2 ** 23;
-
-   PIPE_DDI_FUNC_CTL_ENABLE               : constant := 1 * 2 ** 31;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT_MASK      : constant := 7 * 2 ** 28;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT_NONE      : constant := 0 * 2 ** 28;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT_B         : constant := 1 * 2 ** 28;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT_C         : constant := 2 * 2 ** 28;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT_D         : constant := 3 * 2 ** 28;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT_E         : constant := 4 * 2 ** 28;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT_MASK     : constant := 7 * 2 ** 24;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT_HDMI     : constant := 0 * 2 ** 24;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT_DVI      : constant := 1 * 2 ** 24;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT_DP_SST   : constant := 2 * 2 ** 24;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT_DP_MST   : constant := 3 * 2 ** 24;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT_FDI      : constant := 4 * 2 ** 24;
-   PIPE_DDI_FUNC_CTL_BPC_MASK             : constant := 7 * 2 ** 20;
-   PIPE_DDI_FUNC_CTL_BPC_8BITS            : constant := 0 * 2 ** 20;
-   PIPE_DDI_FUNC_CTL_BPC_10BITS           : constant := 1 * 2 ** 20;
-   PIPE_DDI_FUNC_CTL_BPC_6BITS            : constant := 2 * 2 ** 20;
-   PIPE_DDI_FUNC_CTL_BPC_12BITS           : constant := 3 * 2 ** 20;
-   PIPE_DDI_FUNC_CTL_VSYNC_ACTIVE_LOW     : constant := 0 * 2 ** 17;
-   PIPE_DDI_FUNC_CTL_VSYNC_ACTIVE_HIGH    : constant := 1 * 2 ** 17;
-   PIPE_DDI_FUNC_CTL_HSYNC_ACTIVE_LOW     : constant := 0 * 2 ** 16;
-   PIPE_DDI_FUNC_CTL_HSYNC_ACTIVE_HIGH    : constant := 1 * 2 ** 16;
-   PIPE_DDI_FUNC_CTL_EDP_SELECT_MASK      : constant := 7 * 2 ** 12;
-   PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON : constant := 0 * 2 ** 12;
-   PIPE_DDI_FUNC_CTL_EDP_SELECT_A         : constant := 4 * 2 ** 12;
-   PIPE_DDI_FUNC_CTL_EDP_SELECT_B         : constant := 5 * 2 ** 12;
-   PIPE_DDI_FUNC_CTL_EDP_SELECT_C         : constant := 6 * 2 ** 12;
-   PIPE_DDI_FUNC_CTL_DP_VC_PAYLOAD_ALLOC  : constant := 1 * 2 **  8;
-   PIPE_DDI_FUNC_CTL_BFI_ENABLE           : constant := 1 * 2 **  4;
-   PIPE_DDI_FUNC_CTL_PORT_WIDTH_MASK      : constant := 7 * 2 **  1;
-   PIPE_DDI_FUNC_CTL_PORT_WIDTH_1_LANE    : constant := 0 * 2 **  1;
-   PIPE_DDI_FUNC_CTL_PORT_WIDTH_2_LANES   : constant := 1 * 2 **  1;
-   PIPE_DDI_FUNC_CTL_PORT_WIDTH_4_LANES   : constant := 3 * 2 **  1;
-
-   type DDI_Select_Array is array (Digital_Port) of Word32;
-   PIPE_DDI_FUNC_CTL_DDI_SELECT : constant DDI_Select_Array :=
-      DDI_Select_Array'
-     (DIGI_A => PIPE_DDI_FUNC_CTL_DDI_SELECT_NONE,
-      DIGI_B => PIPE_DDI_FUNC_CTL_DDI_SELECT_B,
-      DIGI_C => PIPE_DDI_FUNC_CTL_DDI_SELECT_C,
-      DIGI_D => PIPE_DDI_FUNC_CTL_DDI_SELECT_D,
-      DIGI_E => PIPE_DDI_FUNC_CTL_DDI_SELECT_E);
-
-   type DDI_Mode_Array is array (Display_Type) of Word32;
-   PIPE_DDI_FUNC_CTL_MODE_SELECT : constant DDI_Mode_Array :=
-      DDI_Mode_Array'
-     (VGA      => PIPE_DDI_FUNC_CTL_MODE_SELECT_FDI,
-      HDMI     => PIPE_DDI_FUNC_CTL_MODE_SELECT_DVI,
-      DP       => PIPE_DDI_FUNC_CTL_MODE_SELECT_DP_SST,
-      others   => 0);
-
-   type HV_Sync_Array is array (Boolean) of Word32;
-   PIPE_DDI_FUNC_CTL_VSYNC : constant HV_Sync_Array := HV_Sync_Array'
-     (False => PIPE_DDI_FUNC_CTL_VSYNC_ACTIVE_LOW,
-      True  => PIPE_DDI_FUNC_CTL_VSYNC_ACTIVE_HIGH);
-   PIPE_DDI_FUNC_CTL_HSYNC : constant HV_Sync_Array := HV_Sync_Array'
-     (False => PIPE_DDI_FUNC_CTL_HSYNC_ACTIVE_LOW,
-      True  => PIPE_DDI_FUNC_CTL_HSYNC_ACTIVE_HIGH);
-
-   type EDP_Select_Array is array (Pipe_Index) of Word32;
-   PIPE_DDI_FUNC_CTL_EDP_SELECT : constant EDP_Select_Array :=
-     (Primary     => PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON,   -- we never use
-                                                               -- panel fitter
-      Secondary   => PIPE_DDI_FUNC_CTL_EDP_SELECT_B,
-      Tertiary    => PIPE_DDI_FUNC_CTL_EDP_SELECT_C);
-   PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF : constant EDP_Select_Array :=
-     (Primary     => PIPE_DDI_FUNC_CTL_EDP_SELECT_A,
-      Secondary   => PIPE_DDI_FUNC_CTL_EDP_SELECT_B,
-      Tertiary    => PIPE_DDI_FUNC_CTL_EDP_SELECT_C);
-
-   type Port_Width_Array is array (HW.GFX.DP_Lane_Count) of Word32;
-   PIPE_DDI_FUNC_CTL_PORT_WIDTH : constant Port_Width_Array :=
-      Port_Width_Array'
-     (HW.GFX.DP_Lane_Count_1 => PIPE_DDI_FUNC_CTL_PORT_WIDTH_1_LANE,
-      HW.GFX.DP_Lane_Count_2 => PIPE_DDI_FUNC_CTL_PORT_WIDTH_2_LANES,
-      HW.GFX.DP_Lane_Count_4 => PIPE_DDI_FUNC_CTL_PORT_WIDTH_4_LANES);
-
-   function PIPE_DDI_FUNC_CTL_BPC (BPC : HW.GFX.BPC_Type) return Word32
-   is
-      Result : Word32;
-   begin
-      case BPC is
-         when      6 => Result := PIPE_DDI_FUNC_CTL_BPC_6BITS;
-         when      8 => Result := PIPE_DDI_FUNC_CTL_BPC_8BITS;
-         when     10 => Result := PIPE_DDI_FUNC_CTL_BPC_10BITS;
-         when     12 => Result := PIPE_DDI_FUNC_CTL_BPC_12BITS;
-         when others => Result := PIPE_DDI_FUNC_CTL_BPC_8BITS;
-      end case;
-      return Result;
-   end PIPE_DDI_FUNC_CTL_BPC;
-
-   function PIPE_DATA_M_TU (Transfer_Unit : Positive) return Word32 is
-   begin
-      return Shift_Left (Word32 (Transfer_Unit - 1), 25);
-   end PIPE_DATA_M_TU;
-
-   PIPE_MSA_MISC_SYNC_CLK     : constant := 1 * 2 ** 0;
-   PIPE_MSA_MISC_BPC_6BITS    : constant := 0 * 2 ** 5;
-   PIPE_MSA_MISC_BPC_8BITS    : constant := 1 * 2 ** 5;
-   PIPE_MSA_MISC_BPC_10BITS   : constant := 2 * 2 ** 5;
-   PIPE_MSA_MISC_BPC_12BITS   : constant := 3 * 2 ** 5;
-   PIPE_MSA_MISC_BPC_16BITS   : constant := 4 * 2 ** 5;
-
-   function PIPE_MSA_MISC_BPC (BPC : HW.GFX.BPC_Type) return Word32 is
-      Result : Word32;
-   begin
-      case BPC is
-         when      6 => Result := PIPE_MSA_MISC_BPC_6BITS;
-         when      8 => Result := PIPE_MSA_MISC_BPC_8BITS;
-         when     10 => Result := PIPE_MSA_MISC_BPC_10BITS;
-         when     12 => Result := PIPE_MSA_MISC_BPC_12BITS;
-         --when     16 => Result := PIPE_MSA_MISC_BPC_16BITS;
-         when others => Result := PIPE_MSA_MISC_BPC_8BITS;
-      end case;
-      return Result;
-   end PIPE_MSA_MISC_BPC;
+   PS_CTRL_ENABLE_SCALER               : constant := 1 * 2 ** 31;
+   PS_CTRL_SCALER_MODE_7X5_EXTENDED    : constant := 1 * 2 ** 28;
+   PS_CTRL_FILTER_SELECT_MEDIUM_2      : constant := 1 * 2 ** 23;
 
    ---------------------------------------------------------------------------
 
@@ -271,54 +89,8 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    function Encode (LSW, MSW : Pos16) return Word32 is
    begin
-      return Shift_Left (Word32 (MSW - 1), 16) or Word32 (LSW - 1);
+      return Shift_Left (Word32 (MSW) - 1, 16) or (Word32 (LSW) - 1);
    end Encode;
-
-   ----------------------------------------------------------------------------
-
-   procedure Setup_Link
-     (Head  : Head_Type;
-      Link  : DP_Link;
-      Mode  : Mode_Type)
-   with
-      Global => (In_Out => Registers.Register_State),
-      Depends => (Registers.Register_State =>+ (Head, Link, Mode))
-   is
-      Data_M, Link_M : DP_Info.M_Type;
-      Data_N, Link_N : DP_Info.N_Type;
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      DP_Info.Calculate_M_N
-        (Link     => Link,
-         Mode     => Mode,
-         Data_M   => Data_M,
-         Data_N   => Data_N,
-         Link_M   => Link_M,
-         Link_N   => Link_N);
-
-      Registers.Write
-        (Register => Head.PIPE_DATA_M1,
-         Value    => PIPE_DATA_M_TU (64) or
-                     Word32 (Data_M));
-      Registers.Write
-        (Register => Head.PIPE_DATA_N1,
-         Value    => Word32 (Data_N));
-
-      Registers.Write
-        (Register => Head.PIPE_LINK_M1,
-         Value    => Word32 (Link_M));
-      Registers.Write
-        (Register => Head.PIPE_LINK_N1,
-         Value    => Word32 (Link_N));
-
-      if Config.Has_Pipe_MSA_Misc then
-         Registers.Write
-           (Register => Head.PIPE_MSA_MISC,
-            Value    => PIPE_MSA_MISC_SYNC_CLK or
-                        PIPE_MSA_MISC_BPC (Mode.BPC));
-      end if;
-   end Setup_Link;
 
    ----------------------------------------------------------------------------
 
@@ -480,39 +252,9 @@ package body HW.GFX.GMA.Pipe_Setup is
       if Config.Has_Pipeconf_Misc then
          Registers.Write
            (Register => Controller.PIPEMISC,
-            Value    => PIPECONF_Misc (Dither_BPC, Dither));
+            Value    => Transcoder.BPC_Conf (Dither_BPC, Dither));
       end if;
    end Setup_Display;
-
-   procedure Setup_Transcoder
-     (Head     : Head_Type;
-      Port_Cfg : Port_Config)
-   is
-      M : constant Mode_Type := Port_Cfg.Mode;
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      if Config.Has_Trans_Clk_Sel and then
-         Head.TRANS_CLK_SEL /= Registers.Invalid_Register
-      then
-         Registers.Write
-           (Register => Head.TRANS_CLK_SEL,
-            Value    => TRANS_CLK_SEL_PORT (Port_Cfg.Port));
-      end if;
-
-      if Port_Cfg.Is_FDI then
-         Setup_Link (Head, Port_Cfg.FDI, Port_Cfg.Mode);
-      elsif Port_Cfg.Display = DP then
-         Setup_Link (Head, Port_Cfg.DP, Port_Cfg.Mode);
-      end if;
-
-      Registers.Write (Head.HTOTAL,  Encode (M.H_Visible,    M.H_Total));
-      Registers.Write (Head.HBLANK,  Encode (M.H_Visible,    M.H_Total));
-      Registers.Write (Head.HSYNC,   Encode (M.H_Sync_Begin, M.H_Sync_End));
-      Registers.Write (Head.VTOTAL,  Encode (M.V_Visible,    M.V_Total));
-      Registers.Write (Head.VBLANK,  Encode (M.V_Visible,    M.V_Total));
-      Registers.Write (Head.VSYNC,   Encode (M.V_Sync_Begin, M.V_Sync_End));
-   end Setup_Transcoder;
 
    ----------------------------------------------------------------------------
 
@@ -551,6 +293,8 @@ package body HW.GFX.GMA.Pipe_Setup is
          Framebuffer.Width <= Pos32 (Mode.H_Visible) and
          Framebuffer.Height <= Pos32 (Mode.V_Visible)
    is
+      use type Registers.Registers_Invalid_Index;
+
       -- Enable 7x5 extended mode where possible:
       Scaler_Mode : constant Word32 :=
         (if Controller.PS_CTRL_2 /= Registers.Invalid_Register then
@@ -658,36 +402,6 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
-   procedure Transcoder_On
-     (Pipe        : Pipe_Index;
-      Head        : Head_Type;
-      Port_Cfg    : Port_Config;
-      Dither      : Boolean)
-   is
-   begin
-      if Config.Has_Pipe_DDI_Func then
-         Registers.Write
-           (Register => Head.PIPE_DDI_FUNC_CTL,
-            Value    => PIPE_DDI_FUNC_CTL_ENABLE or
-                        PIPE_DDI_FUNC_CTL_DDI_SELECT (Port_Cfg.Port) or
-                        PIPE_DDI_FUNC_CTL_MODE_SELECT (Port_Cfg.Display) or
-                        PIPE_DDI_FUNC_CTL_BPC (Port_Cfg.Mode.BPC) or
-                        PIPE_DDI_FUNC_CTL_VSYNC (Port_Cfg.Mode.V_Sync_Active_High) or
-                        PIPE_DDI_FUNC_CTL_HSYNC (Port_Cfg.Mode.H_Sync_Active_High) or
-                        PIPE_DDI_FUNC_CTL_EDP_SELECT (Pipe) or
-                        PIPE_DDI_FUNC_CTL_PORT_WIDTH (Port_Cfg.DP.Lane_Count));
-      end if;
-
-      Registers.Write
-        (Register => Head.PIPECONF,
-         Value    => PIPECONF_ENABLE or
-                     (if not Config.Has_Pipeconf_Misc then
-                        PIPECONF_Misc (Port_Cfg.Mode.BPC, Dither) else 0));
-      Registers.Posting_Read (Head.PIPECONF);
-   end Transcoder_On;
-
-   ----------------------------------------------------------------------------
-
    procedure On
      (Pipe        : Pipe_Index;
       Port_Cfg    : Port_Config;
@@ -696,25 +410,24 @@ package body HW.GFX.GMA.Pipe_Setup is
       -- Enable dithering if framebuffer BPC differs from port BPC,
       -- as smooth gradients look really bad without.
       Dither : constant Boolean := Framebuffer.BPC /= Port_Cfg.Mode.BPC;
-      Head : constant Pipe_Head := Get_Pipe_Head (Pipe, Port_Cfg.Port);
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Setup_Transcoder (Heads (Head), Port_Cfg);
+      Transcoder.Setup (Pipe, Port_Cfg);
 
       Setup_Display
         (Controllers (Pipe), Framebuffer, Port_Cfg.Mode.BPC, Dither);
 
       Setup_Scaling (Controllers (Pipe), Port_Cfg.Mode, Framebuffer);
 
-      Transcoder_On (Pipe, Heads (Head), Port_Cfg, Dither);
+      Transcoder.On (Pipe, Port_Cfg, Dither);
    end On;
 
    ----------------------------------------------------------------------------
 
    procedure Planes_Off (Controller : Controller_Type) is
    begin
-      Registers.Unset_Mask (Controller.SPCNTR, SPCNTR_ENABLE);
+      Registers.Unset_Mask (Controller.SPCNTR, DSPCNTR_ENABLE);
       if Config.Has_Plane_Control then
          Clear_Watermarks (Controller);
          Registers.Unset_Mask (Controller.PLANE_CTL, PLANE_CTL_PLANE_ENABLE);
@@ -724,51 +437,9 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
    end Planes_Off;
 
-   procedure Head_Off (Head : Head_Type)
+   procedure Panel_Fitter_Off (Controller : Controller_Type)
    is
-      Enabled : Boolean;
-   begin
-      Registers.Is_Set_Mask (Head.PIPECONF, PIPECONF_ENABLE, Enabled);
-
-      if Enabled then
-         Registers.Unset_Mask (Head.PIPECONF, PIPECONF_ENABLE);
-      end if;
-
-      -- Workaround for Broadwell:
-      -- Status may be wrong if pipe hasn't been enabled since reset.
-      if not Config.Pipe_Enabled_Workaround or else Enabled then
-         -- synchronously wait until pipe is truly off
-         Registers.Wait_Unset_Mask
-           (Register => Head.PIPECONF,
-            Mask     => PIPECONF_ENABLED_STATUS,
-            TOut_MS  => 40);
-      end if;
-
-      if Config.Has_Pipe_DDI_Func then
-         Registers.Write (Head.PIPE_DDI_FUNC_CTL, 0);
-      end if;
-   end Head_Off;
-
-   procedure Transcoder_Off (Pipe : Pipe_Index)
-   is
-      DDI_Func_Ctl : Word32;
-   begin
-      if Config.Has_EDP_Pipe then
-         Registers.Read (Registers.PIPE_EDP_DDI_FUNC_CTL, DDI_Func_Ctl);
-         DDI_Func_Ctl := DDI_Func_Ctl and PIPE_DDI_FUNC_CTL_EDP_SELECT_MASK;
-
-         if (Pipe = Primary and
-             DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON) or
-            DDI_Func_Ctl = PIPE_DDI_FUNC_CTL_EDP_SELECT_ONOFF (Pipe)
-         then
-            Head_Off (Heads (Head_EDP));
-         end if;
-      end if;
-
-      Head_Off (Heads (Default_Pipe_Head (Pipe)));
-   end Transcoder_Off;
-
-   procedure Panel_Fitter_Off (Controller : Controller_Type) is
+      use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
    begin
       -- Writes to WIN_SZ arm the PS/PF registers.
       if Config.Has_Plane_Control then
@@ -786,25 +457,15 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
    end Panel_Fitter_Off;
 
-   procedure Trans_Clk_Off (Head : Head_Type) is
-   begin
-      if Config.Has_Trans_Clk_Sel and then
-         Head.TRANS_CLK_SEL /= Registers.Invalid_Register
-      then
-         Registers.Write (Head.TRANS_CLK_SEL, TRANS_CLK_SEL_PORT_NONE);
-      end if;
-   end Trans_Clk_Off;
-
-   procedure Off (Pipe : Pipe_Index; Port_Cfg : Port_Config)
+   procedure Off (Pipe : Pipe_Index)
    is
-      Head : constant Pipe_Head := Get_Pipe_Head (Pipe, Port_Cfg.Port);
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       Planes_Off (Controllers (Pipe));
-      Transcoder_Off (Pipe);
+      Transcoder.Off (Pipe);
       Panel_Fitter_Off (Controllers (Pipe));
-      Trans_Clk_Off (Heads (Head));
+      Transcoder.Clk_Off (Pipe);
    end Off;
 
    procedure Legacy_VGA_Off
@@ -828,9 +489,9 @@ package body HW.GFX.GMA.Pipe_Setup is
 
       for Pipe in Pipe_Index loop
          Planes_Off (Controllers (Pipe));
-         Transcoder_Off (Pipe);
+         Transcoder.Off (Pipe);
          Panel_Fitter_Off (Controllers (Pipe));
-         Trans_Clk_Off (Heads (Default_Pipe_Head (Pipe)));
+         Transcoder.Clk_Off (Pipe);
       end loop;
    end All_Off;
 

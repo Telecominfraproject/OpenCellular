@@ -40,7 +40,7 @@ is
    Disable_Trickle_Feed    : constant Boolean := not
                                                 (CPU in Haswell .. Broadwell);
    Pipe_Enabled_Workaround : constant Boolean := CPU = Broadwell;
-   Has_EDP_Pipe            : constant Boolean := CPU >= Haswell;
+   Has_EDP_Transcoder      : constant Boolean := CPU >= Haswell;
    Has_Pipe_DDI_Func       : constant Boolean := CPU >= Haswell;
    Has_Trans_Clk_Sel       : constant Boolean := CPU >= Haswell;
    Has_Pipe_MSA_Misc       : constant Boolean := CPU >= Haswell;

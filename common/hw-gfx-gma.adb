@@ -135,7 +135,7 @@ is
 
                   Connectors.Pre_Off (Port_Cfg);
 
-                  Display_Controller.Off (I, Port_Cfg);
+                  Display_Controller.Off (I);
 
                   Connectors.Post_Off (Port_Cfg);
                end if;
@@ -212,7 +212,7 @@ is
                               Success  => Success);
 
                            if not Success then
-                              Display_Controller.Off (I, Port_Cfg);
+                              Display_Controller.Off (I);
                               Connectors.Post_Off (Port_Cfg);
                            end if;
                         end if;
