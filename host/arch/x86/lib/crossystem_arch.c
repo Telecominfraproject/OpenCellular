@@ -67,6 +67,7 @@
 #define GPIO_SIGNAL_TYPE_RECOVERY 1
 #define GPIO_SIGNAL_TYPE_DEV 2
 #define GPIO_SIGNAL_TYPE_WP 3
+#define GPIO_SIGNAL_TYPE_PHASE_ENFORCEMENT 4
 
 /* Base name for ACPI files */
 #define ACPI_BASE_PATH "/sys/devices/platform/chromeos_acpi"
@@ -792,6 +793,8 @@ int VbGetArchPropertyInt(const char* name)
 			value = 1 - value;  /* Mario reports this backwards */
 	} else if (!strcasecmp(name,"recoverysw_ec_boot")) {
 		value = ReadFileBit(ACPI_CHSW_PATH, CHSW_RECOVERY_EC_BOOT);
+	} else if (!strcasecmp(name,"phase_enforcement")) {
+		value = ReadGpio(GPIO_SIGNAL_TYPE_PHASE_ENFORCEMENT);
 	}
 
 	/* Fields for old systems which don't have VbSharedData */
