@@ -60,7 +60,8 @@ check_write_protection() {
   if ! crossystem "wpsw_boot?0"; then
     hw_wp="on"
   fi
-  local wp_states="$(flashrom --wp-status 2>/dev/null | grep WP)"
+  local wp_states="$(flashrom $FLASHROM_COMMON_OPT --wp-status 2>/dev/null \
+    | grep WP)"
   local wp_disabled="$(echo "$wp_states" | grep "WP:.*is disabled.")"
   local wp_zero_len="$(echo "$wp_states" | grep "WP:.*, len=0x00000000")"
   if [ -z "$wp_disabled" -a -z "$wp_zero_len" ]; then
