@@ -40,6 +40,8 @@ eval set -- "$FLAGS_ARGV"
 # ----------------------------------------------------------------------------
 set -e
 
+FLASHROM="flashrom -p host"
+
 # the image we are (temporary) working with
 IMAGE="$(make_temp_file)"
 IMAGE="$(readlink -f "$IMAGE")"
@@ -60,7 +62,7 @@ disable_write_protection() {
   # --wp-disable command may return success even if WP is still enabled,
   # so we should use --wp-status to verify the results.
   echo "Disabling system software write protection status..."
-  (flashrom --wp-disable && flashrom --wp-status) 2>&1 |
+  (${FLASHROM} --wp-disable && ${FLASHROM} --wp-status) 2>&1 |
     tee "$EXEC_LOG" |
     grep -q '^WP: .* is disabled\.$'
 }
@@ -70,9 +72,9 @@ read_image() {
   if [ -z "$FLAGS_from" ]; then
     echo "Reading system live firmware..."
     if is_debug_mode; then
-      flashrom -V -r "$IMAGE"
+      ${FLASHROM} -V -r "$IMAGE"
     else
-      flashrom -r "$IMAGE" >"$EXEC_LOG" 2>&1
+      ${FLASHROM} -r "$IMAGE" >"$EXEC_LOG" 2>&1
     fi
   else
     debug_msg "reading from file: $FLAGS_from"
@@ -86,9 +88,9 @@ write_image() {
     echo "Writing system live firmware..."
     # TODO(hungte) we can enable partial write to make this faster
     if is_debug_mode; then
-      flashrom -V -w "$IMAGE"
+      ${FLASHROM} -w "$IMAGE" -V
     else
-      flashrom -w "$IMAGE" >"$EXEC_LOG" 2>&1
+      ${FLASHROM} -w "$IMAGE" >"$EXEC_LOG" 2>&1
     fi
   else
     debug_msg "writing to file: $FLAGS_to"
@@ -329,8 +331,8 @@ main() {
       Please copy the backup file to a safe place ASAP.
 
       To stop using devkeys and restore original firmware, execute command:
-        flashrom -w [PATH_TO_BACKUP_IMAGE]
-      Ex: flashrom -w $backup_file_path
+        ${FLASHROM} -w [PATH_TO_BACKUP_IMAGE]
+      Ex: ${FLASHROM} -w $backup_file_path
       "
     else
       echo "WARNING: Cannot create file in $FLAGS_backup_dir... Ignore backups."
