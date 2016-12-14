@@ -222,11 +222,18 @@ main() {
 
   # TODO(hungte) Change key block by data_key_version.
   if [ "$data_key_version" -gt "$new_data_key_version" ]; then
-    err_die "Sorry, firmware data key version <$new_data_key_version> in" \
-            "your new keys [$FLAGS_keys] is smaller than original firmware" \
-            "<$data_key_version> and won't boot due to TPM anti-rollback" \
-            "detection. You have to first reset TPM."
+    echo "$(tput bold)$(tput setaf 1)
+    Warning: firmware data key version <$new_data_key_version> in your new keys
+    [$FLAGS_keys] is smaller than original firmware <$data_key_version> and
+    will boot into only recovery mode due to TPM anti-rollback detection.
+
+    After reboot with dev recovery key, you will need to reset TPM by booting a
+    test or dev image in recovery mode (NOT Ctrl-U), switch to VT2 and run
+    command <chromoes-tpm-recovery>; or use a factory install shim image
+    (build_image factory_install).
+    $(tput sgr 0)" >&2
   fi
+
   echo "Signing with Data Key Version: $data_key_version, " \
        "Firmware Version: $firmware_version"
 
