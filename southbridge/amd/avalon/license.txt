@@ -3,7 +3,7 @@ ADVANCED MICRO DEVICES, INC.
 OBJECT CODE DISTRIBUTION AGREEMENT
 
 IMPORTANT- READ CAREFULLY:  DO NOT INSTALL, COPY OR USE THE ENCLOSED
-SOFTWARE, (“LICENSED SOFTWARE”) OR LICENSED TOOL (AS DEFINED BELOW), OR
+SOFTWARE, ("LICENSED SOFTWARE") OR LICENSED TOOL (AS DEFINED BELOW), OR
 ANY PORTION THEREOF, UNTIL YOU HAVE CAREFULLY READ AND AGREED TO THE
 FOLLOWING TERMS AND CONDITIONS.  THIS IS A LEGAL AGREEMENT ("AGREEMENT")
 BETWEEN YOU (EITHER AN INDIVIDUAL OR AN ENTITY) ("YOU") AND ADVANCED
@@ -15,19 +15,19 @@ OR USE THE LICENSED SOFTWARE, LICENSED TOOL, OR ANY PORTION THEREOF.
 
 1.  DEFINITIONS
 
-1.1 “Documentation” means install scripts and online or electronic
+1.1 "Documentation" means install scripts and online or electronic
 documentation associated, included, or provided in connection with the
 Object Code of the Licensed Software, or any portion thereof.
 
-1.2 “Intellectual Property Rights” means all copyrights, trademarks,
+1.2 "Intellectual Property Rights" means all copyrights, trademarks,
 trade secrets, patents, mask works, and all related, similar, or other
 intellectual property rights recognized in any jurisdiction worldwide,
 including all applications and registrations with respect thereto.
 
-1.3 “Object Code” means machine readable computer programming code files,
+1.3 "Object Code" means machine readable computer programming code files,
 which is not in a human readable form.
 
-1.4 “Licensed Tool” means BINUTIL2.exe, the associated tool to be used to
+1.4 "Licensed Tool" means BINUTIL2.exe, the associated tool to be used to
 set the base execution address.
 
 2.  LICENSE. Subject to the terms and conditions of this Agreement, AMD
@@ -35,7 +35,7 @@ hereby grants You a non-exclusive, royalty-free, revocable,
 non-transferable, limited, copyright license to
 
    a) use, distribute and sublicense the Licensed Software to
-      customers and end users (collectively, “Distribution Channel”)
+      customers and end users (collectively, "Distribution Channel")
       for use with Your products that incorporate AMD products. Such
       distribution may be made through multiple tiers of distribution,
       only subject to an end user license agreement that meets the
@@ -47,7 +47,7 @@ non-transferable, limited, copyright license to
 
 2.1 End User License Agreement.   Distribution of Licensed Software by
 You and Your Distribution Channel will be pursuant to an enforceable
-end user license agreement (“End User License Agreement”) with terms
+end user license agreement ("End User License Agreement") with terms
 and conditions that at a minimum are substantially similar to those set
 forth in Section 3 and the following:
 
@@ -57,7 +57,7 @@ forth in Section 3 and the following:
        interoperability), disassembly or de-compilation of the Licensed
        Software;
    (d) disclaimer, to the extent permitted by applicable law, of Your
-       and Your licensors’ liability for any damages, whether punitive,
+       and Your licensors' liability for any damages, whether punitive,
        direct, incidental, indirect, special or consequential damages,
        arising from the use of, or distribution of the Licensed Software;
    (f) requirement that the end user comply fully with all relevant
@@ -97,7 +97,7 @@ its licensors, and You shall have no right, title or interest therein
 except as expressly set forth in this Agreement.
 
 5.  FEEDBACK.  You have no obligation to give AMD any suggestions,
-comments or other feedback (“Feedback”) relating to the Licensed Software.
+comments or other feedback ("Feedback") relating to the Licensed Software.
 However, AMD may use and include any Feedback that it receives from You to
 improve the Licensed Software or other AMD products, software and
 technologies.  Accordingly, for any Feedback You provide to AMD, You grant
@@ -154,7 +154,7 @@ parties agree that these limitations are an essential element in setting
 consideration herein.
 
 8.  CONFIDENTIALITY. You shall protect the Licensed Software and any
-information related thereto (collectively, “Confidential Information”)
+information related thereto (collectively, "Confidential Information")
 by using the same degree of care, but no less than a reasonable degree
 of care, to prevent the unauthorized use, dissemination or publication
 of the Confidential Information as You use to protect its own confidential
@@ -195,7 +195,7 @@ termination of this Agreement shall:
 
 10. EXPORT RESTRICTIONS.  You shall adhere to all applicable U.S.,
 European, and other export laws, including but not limited to the U.S.
-Export Administration Regulations (“EAR”) (15 C.F.R Sections 730-774),
+Export Administration Regulations ("EAR") (15 C.F.R Sections 730-774),
 and E.U. Council Regulation (EC) No 428/2009 of  5 May 2009.  Further,
 pursuant to Section 740.6 of the EAR, You hereby certifies that, except
 pursuant to a license granted by the United States Department of Commerce
@@ -212,13 +212,13 @@ License Exception under the EAR, You will not
        Part 774 of EAR).  For the most current Country Group listings,
        or for additional information about the EAR or Your obligations
        under those regulations, please refer to the U.S. Bureau of
-       Industry and Security’s website at http://www.bis.doc.gov/.
+       Industry and Security's website at http://www.bis.doc.gov/.
 
 11. GOVERNMENT END USERS. The Licensed Software is provided with
-“RESTRICTED RIGHTS.”  Use, duplication or disclosure by the Government
+"RESTRICTED RIGHTS."  Use, duplication or disclosure by the Government
 is subject to restrictions as set forth in FAR 52.227-14 and DFAR
 252.227-7013, et seq., or its successor.  Use of the Licensed Software
-by the Government constitutes acknowledgment of AMD’s proprietary rights
+by the Government constitutes acknowledgment of AMD's proprietary rights
 in it.
 
 12. GOVERNING LAW.  This Agreement is made under and shall be construed
