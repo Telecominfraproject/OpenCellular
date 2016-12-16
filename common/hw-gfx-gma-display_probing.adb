@@ -166,9 +166,10 @@ is
    end Probe_Port;
 
    procedure Scan_Ports
-     (Configs        :    out Pipe_Configs;
-      Ports          : in     Port_List;
-      Max_Pipe       : in     Pipe_Index := Pipe_Index'Last)
+     (Configs     :    out Pipe_Configs;
+      Ports       : in     Port_List := All_Ports;
+      Max_Pipe    : in     Pipe_Index := Pipe_Index'Last;
+      Keep_Power  : in     Boolean := False)
    is
       Probe_Internal : Boolean := False;
 
@@ -211,7 +212,9 @@ is
       end loop;
 
       -- Restore power settings
-      Power_And_Clocks.Power_Set_To (Cur_Configs);
+      if not Keep_Power then
+         Power_And_Clocks.Power_Set_To (Cur_Configs);
+      end if;
 
       -- Turn panel power off if probing failed.
       if Probe_Internal and not Port_Configured (Configs, Internal) then
