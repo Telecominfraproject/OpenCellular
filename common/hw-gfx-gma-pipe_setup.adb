@@ -506,16 +506,4 @@ package body HW.GFX.GMA.Pipe_Setup is
         (Controllers (Pipe).DSPSURF, Framebuffer.Offset and 16#ffff_f000#);
    end Update_Offset;
 
-   ----------------------------------------------------------------------------
-
-   function Get_Pipe_Hint (Pipe : Pipe_Index) return Word32
-   is
-   begin
-      return
-        (case Pipe is
-            when Primary      => 0,
-            when Secondary    => 1,
-            when Tertiary     => 2);
-   end Get_Pipe_Hint;
-
 end HW.GFX.GMA.Pipe_Setup;

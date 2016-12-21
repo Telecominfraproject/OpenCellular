@@ -193,11 +193,10 @@ is
                           (New_Config.Port in Active_Port_Type);
 
                         Connectors.Pre_On
-                          (Port_Cfg    => Port_Cfg,
-                           PLL_Hint    => PLLs.Register_Value
-                                            (Allocated_PLLs (I)),
-                           Pipe_Hint   => Display_Controller.Get_Pipe_Hint (I),
-                           Success     => Success);
+                          (Pipe     => I,
+                           Port_Cfg => Port_Cfg,
+                           PLL_Hint => PLLs.Register_Value (Allocated_PLLs (I)),
+                           Success  => Success);
 
                         if Success then
                            Display_Controller.On

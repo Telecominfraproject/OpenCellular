@@ -34,8 +34,6 @@ is
 
    procedure All_Off;
 
-   function Get_Pipe_Hint (Pipe : Pipe_Index) return Word32;
-
    procedure Update_Offset (Pipe : Pipe_Index; Framebuffer : Framebuffer_Type);
 
 private

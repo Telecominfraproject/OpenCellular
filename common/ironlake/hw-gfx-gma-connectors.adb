@@ -40,16 +40,16 @@ is
    ----------------------------------------------------------------------------
 
    procedure Pre_On
-     (Port_Cfg    : in     Port_Config;
+     (Pipe        : in     Pipe_Index;
+      Port_Cfg    : in     Port_Config;
       PLL_Hint    : in     Word32;
-      Pipe_Hint   : in     Word32;
       Success     :    out Boolean)
    is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       if Port_Cfg.Port = DIGI_A then
-         EDP.Pre_On (Port_Cfg, Pipe_Hint);
+         EDP.Pre_On (Pipe, Port_Cfg);
       elsif Port_Cfg.Port in FDI.GPU_FDI_Port then
          FDI.Pre_On (Port_Cfg);
       end if;

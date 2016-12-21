@@ -25,8 +25,6 @@ package body HW.GFX.GMA.Connectors.EDP
 is
 
    DP_CTL_DISPLAYPORT_ENABLE        : constant :=  1 * 2 ** 31;
-   DP_CTL_PIPE_SELECT_MASK          : constant :=  3 * 2 ** 29;
-   DP_CTL_PIPE_SELECT_SHIFT         : constant :=           29;
    DP_CTL_VSWING_EMPH_SET_MASK      : constant := 63 * 2 ** 22;
    DP_CTL_PORT_WIDTH_MASK           : constant :=  7 * 2 ** 19;
    DP_CTL_PORT_WIDTH_1_LANE         : constant :=  0 * 2 ** 19;
@@ -47,6 +45,12 @@ is
    DP_CTL_VSYNC_ACTIVE_HIGH         : constant :=  1 * 2 **  4;
    DP_CTL_HSYNC_ACTIVE_HIGH         : constant :=  1 * 2 **  3;
    DP_CTL_PORT_DETECT               : constant :=  1 * 2 **  2;
+
+   type Pipe_Value_Array is array (Pipe_Index) of Word32;
+   DP_CTL_PIPE_SELECT : constant Pipe_Value_Array :=
+     (Primary     => 0 * 2 ** 29,
+      Secondary   => 1 * 2 ** 29,
+      Tertiary    => 2 * 2 ** 29);
 
    -- TODO? Values are for Ivy Bridge only
    DP_CTL_VSWING_0_EMPH_0 : constant := 1 * 2 ** 27 + 1 * 2 ** 24 + 0 * 2 ** 22;
@@ -176,16 +180,14 @@ is
 
    ----------------------------------------------------------------------------
 
-   procedure Pre_On
-     (Port_Cfg    : Port_Config;
-      Pipe_Hint   : Word32)
+   procedure Pre_On (Pipe : Pipe_Index; Port_Cfg : Port_Config)
    is
       DP_CTL_Set : Word32;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       DP_CTL_Set :=
-         Shift_Left (Pipe_Hint, DP_CTL_PIPE_SELECT_SHIFT) or
+         DP_CTL_PIPE_SELECT (Pipe) or
          DP_CTL_PORT_WIDTH (Port_Cfg.DP.Lane_Count);
 
       if Port_Cfg.DP.Enhanced_Framing then

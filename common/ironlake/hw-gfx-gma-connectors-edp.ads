@@ -15,9 +15,7 @@
 private package HW.GFX.GMA.Connectors.EDP
 is
 
-   procedure Pre_On
-     (Port_Cfg    : Port_Config;
-      Pipe_Hint   : Word32);
+   procedure Pre_On (Pipe : Pipe_Index; Port_Cfg : Port_Config);
 
    procedure Post_On
      (Link     : in     DP_Link;

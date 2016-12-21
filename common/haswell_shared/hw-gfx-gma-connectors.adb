@@ -22,10 +22,10 @@ with GNAT.Source_Info;
 package body HW.GFX.GMA.Connectors is
 
    procedure Pre_On
-     (Port_Cfg    : in     Port_Config;
-      PLL_Hint    : in     Word32;
-      Pipe_Hint   : in     Word32;
-      Success     :    out Boolean)
+     (Pipe     : in     Pipe_Index;
+      Port_Cfg : in     Port_Config;
+      PLL_Hint : in     Word32;
+      Success  :    out Boolean)
    is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));

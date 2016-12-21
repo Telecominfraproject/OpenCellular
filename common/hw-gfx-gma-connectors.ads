@@ -17,9 +17,9 @@ private package HW.GFX.GMA.Connectors is
    pragma Warnings (GNATprove, Off, "unused variable ""P*""",
                     Reason => "Needed for a common interface");
    procedure Pre_On
-     (Port_Cfg    : in     Port_Config;
+     (Pipe        : in     Pipe_Index;
+      Port_Cfg    : in     Port_Config;
       PLL_Hint    : in     Word32;
-      Pipe_Hint   : in     Word32;
       Success     :    out Boolean);
 
    procedure Post_On
