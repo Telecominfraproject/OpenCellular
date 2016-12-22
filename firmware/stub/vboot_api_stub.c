@@ -52,6 +52,12 @@ VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
 	return VBERROR_SUCCESS;
 }
 
+VbError_t VbExDisplayText(uint32_t x, uint32_t y,
+			  const char *info_str)
+{
+	return VBERROR_SUCCESS;
+}
+
 VbError_t VbExDisplayDebugInfo(const char *info_str)
 {
 	return VBERROR_SUCCESS;

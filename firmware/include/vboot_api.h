@@ -788,6 +788,12 @@ VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
                            void *buffer, uint32_t buffersize);
 
 /**
+ * Display a string at coordinate x,y
+ */
+VbError_t VbExDisplayText(uint32_t x, uint32_t y,
+			  const char *info_str);
+
+/**
  * Display a string containing debug information on the screen, rendered in a
  * platform-dependent font.  Should be able to handle newlines '\n' in the
  * string.  Firmware must support displaying at least 20 lines of text, where
