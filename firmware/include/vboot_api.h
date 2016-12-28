@@ -339,6 +339,8 @@ typedef struct VbSelectAndLoadKernelParams {
 	void *kernel_buffer;
 	/* Size of kernel buffer in bytes */
 	uint32_t kernel_buffer_size;
+	/* input flags.  Currently used for detachables */
+	uint32_t inflags;
 
 	/*
 	 * Outputs from VbSelectAndLoadKernel(); valid only if it returns
@@ -354,7 +356,7 @@ typedef struct VbSelectAndLoadKernelParams {
 	uint32_t bootloader_size;
 	/* UniquePartitionGuid for boot partition */
 	uint8_t partition_guid[16];
-	/* Flags passed in by signer */
+	/* Flags set by signer */
 	uint32_t flags;
 	/*
 	 * TODO: in H2C, all that pretty much just gets passed to the
@@ -363,6 +365,11 @@ typedef struct VbSelectAndLoadKernelParams {
 	 * that we're passing partition_guid?
 	 */
 } VbSelectAndLoadKernelParams;
+
+/* Flag to indicate using detachable menu ui (arrow up/down+power)
+ * instead of traditional FW screens with ctrl+D, ctrl+U, etc.
+ */
+#define VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI (1 << 0)
 
 /**
  * Select and loads the kernel.

@@ -427,11 +427,17 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	/* Select boot path */
 	if (shared->recovery_reason) {
 		/* Recovery boot.  This has UI. */
-		retval = VbBootRecovery(&ctx, cparams);
+	        if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
+	            retval = VbBootRecoveryMenu(&ctx, cparams);
+	        else
+		    retval = VbBootRecovery(&ctx, cparams);
 		VbExEcEnteringMode(0, VB_EC_RECOVERY);
 	} else if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
 		/* Developer boot.  This has UI. */
-		retval = VbBootDeveloper(&ctx, cparams);
+	        if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
+		    retval = VbBootDeveloperMenu(&ctx, cparams);
+		else
+		    retval = VbBootDeveloper(&ctx, cparams);
 		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
 	} else {
 		/* Normal boot */
