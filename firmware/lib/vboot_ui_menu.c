@@ -164,6 +164,7 @@ typedef enum _VB_MENU {
 	VB_MENU_TO_NORM,
 	VB_MENU_RECOVERY,
 	VB_MENU_TO_DEV,
+	VB_MENU_LANGUAGES,
 	VB_MENU_COUNT,
 } VB_MENU;
 
@@ -211,7 +212,16 @@ typedef enum _VB_TO_DEV_MENU {
 	VB_TO_DEV_COUNT,
 } VB_TO_DEV_MENU;
 
+// currently we're only supporting
+// english.  Will need to somehow find mapping
+// from language to localization index.
+typedef enum _VB_LANGUAGES_MENU {
+	VB_LANGUAGES_EN_US,
+	VB_LANGUAGES_COUNT,
+} VB_LANGUAGES_MENU;
+
 static VB_MENU current_menu = VB_MENU_DEV_WARNING;
+static VB_MENU prev_menu = VB_MENU_DEV_WARNING;
 static int current_menu_idx = 0;
 static int selected = 0;
 
@@ -255,6 +265,10 @@ static char *to_dev_menu[] = {
 	"Language\n"
 };
 
+static char *languages_menu[] = {
+	"US English\n",
+};
+
 // function that gets the current menu string array and size.
 // can set menu_array to NULL and only return string size.
 VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
@@ -281,6 +295,10 @@ VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
 	case VB_MENU_TO_DEV:
 		*size = VB_TO_DEV_COUNT;
 		temp_menu = to_dev_menu;
+		break;
+	case VB_MENU_LANGUAGES:
+		*size = VB_LANGUAGES_COUNT;
+		temp_menu = languages_menu;
 		break;
 	default:
 		*size = 0;
@@ -340,6 +358,7 @@ VbError_t vb2_update_menu()
 		switch(current_menu_idx) {
 		case VB_WARN_OPTIONS:
 			// select dev menu
+			prev_menu = current_menu;
 			current_menu = VB_MENU_DEV;
 			current_menu_idx = 0;
 			selected = 0;
@@ -349,6 +368,7 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_WARN_ENABLE_VER:
 			// enable boot verification
+			prev_menu = current_menu;
 			current_menu = VB_MENU_TO_NORM;
 			current_menu_idx = 0;
 			selected = 0;
@@ -360,6 +380,10 @@ VbError_t vb2_update_menu()
 		case VB_WARN_LANGUAGE:
 			// Languages
 			// we'll have to figure out how to display this
+			prev_menu = current_menu;
+			current_menu = VB_MENU_LANGUAGES;
+			current_menu_idx = 0;
+			selected = 0;
 			break;
 		default:
 			// invalid menu item.  Don't update anything.
@@ -382,6 +406,7 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_DEV_CANCEL:
 			// cancel (go back to developer warning menu)
+			prev_menu = current_menu;
 			current_menu = VB_MENU_DEV_WARNING;
 			current_menu_idx = 0;
 			selected = 0;
@@ -392,6 +417,10 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_DEV_LANGUAGE:
 			// Language
+			prev_menu = current_menu;
+			current_menu = VB_MENU_LANGUAGES;
+			current_menu_idx = 0;
+			selected = 0;
 			break;
 		default:
 			// invalid menu item.  don't update anything.
@@ -405,6 +434,7 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_TO_NORM_CANCEL:
 			// cancel (go back to developer warning menu)
+			prev_menu = current_menu;
 			current_menu = VB_MENU_DEV_WARNING;
 			current_menu_idx = 0;
 			selected = 0;
@@ -415,6 +445,10 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_TO_NORM_LANGUAGE:
 			// Language
+			prev_menu = current_menu;
+			current_menu = VB_MENU_LANGUAGES;
+			current_menu_idx = 0;
+			selected = 0;
 			break;
 		default:
 			// invalid menu item.  don't update anything
@@ -425,6 +459,7 @@ VbError_t vb2_update_menu()
 		switch(current_menu_idx) {
 		case VB_RECOVERY_TO_DEV:
 			// switch to TO_DEV menu
+			prev_menu = current_menu;
 			current_menu = VB_MENU_TO_DEV;
 			current_menu_idx = 0;
 			selected = 0;
@@ -435,6 +470,10 @@ VbError_t vb2_update_menu()
 			ret = VBERROR_SHUTDOWN_REQUESTED;
 			break;
 		case VB_RECOVERY_LANGUAGE:
+			prev_menu = current_menu;
+			current_menu = VB_MENU_LANGUAGES;
+			current_menu_idx = 0;
+			selected = 0;
 			break;
 		default:
 			// invalid menu item.  don't update anything
@@ -447,6 +486,7 @@ VbError_t vb2_update_menu()
 			// confirm enabling dev mode
 			break;
 		case VB_TO_DEV_CANCEL:
+			prev_menu = current_menu;
 			current_menu = VB_MENU_RECOVERY;
 			current_menu_idx = 0;
 			selected = 0;
@@ -455,12 +495,28 @@ VbError_t vb2_update_menu()
 			ret = VBERROR_SHUTDOWN_REQUESTED;
 			break;
 		case VB_TO_DEV_LANGUAGE:
+			prev_menu = current_menu;
+			current_menu = VB_MENU_LANGUAGES;
+			current_menu_idx = 0;
+			selected = 0;
 			break;
 		default:
 			// invalid menu item.  don't update anything.
 			break;
 		}
 		break;
+	case VB_MENU_LANGUAGES:
+		switch(current_menu_idx) {
+		default:
+			// assume that we select a language.
+			// go to previous menu.
+			// assume that there will be come action here.
+			current_menu = prev_menu;
+			current_menu_idx = 0;
+			prev_menu = VB_MENU_LANGUAGES;
+			selected = 0;
+			break;
+		}
 	default:
 		VB2_DEBUG("Current Menu Invalid!");
 	}
@@ -787,6 +843,7 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	VB2_DEBUG("VbBootRecoveryMenu() waiting for a recovery image\n");
 	// initialize menu to recovery menu.
 	current_menu = VB_MENU_RECOVERY;
+	prev_menu = VB_MENU_RECOVERY;
 	current_menu_idx = 0;
 
 	while (1) {
