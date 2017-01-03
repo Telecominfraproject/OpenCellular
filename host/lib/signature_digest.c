@@ -42,7 +42,8 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len,
 	uint8_t digest[VB2_SHA512_DIGEST_SIZE];  /* Longest digest */
 
 	if (algorithm >= VB2_ALG_COUNT) {
-		VBDEBUG(("SignatureDigest() called with invalid algorithm!\n"));
+		fprintf(stderr, "SignatureDigest(): "
+			"Called with invalid algorithm!\n");
 	} else if (VB2_SUCCESS ==
 		   vb2_digest_buffer(buf, len, vb2_crypto_to_hash(algorithm),
 				     digest, sizeof(digest))) {
@@ -60,7 +61,8 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
 	uint8_t* signature = NULL;
 	uint8_t* signature_digest = SignatureDigest(buf, len, algorithm);
 	if (!signature_digest) {
-		VBDEBUG(("SignatureBuf(): Couldn't get signature digest\n"));
+		fprintf(stderr, "SignatureBuf(): "
+			"Couldn't get signature digest\n");
 		return NULL;
 	}
 
@@ -70,7 +72,7 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
 	const uint8_t* digestinfo = NULL;
 	if (VB2_SUCCESS != vb2_digest_info(hash_alg, &digestinfo,
 					   &digestinfo_size)) {
-		VBDEBUG(("SignatureBuf(): Couldn't get digest info\n"));
+		fprintf(stderr, "SignatureBuf(): Couldn't get digest info\n");
 		free(signature_digest);
 		return NULL;
 	}
@@ -79,8 +81,8 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
 
 	key_fp  = fopen(key_file, "r");
 	if (!key_fp) {
-		VBDEBUG(("SignatureBuf(): Couldn't open key file: %s\n",
-			 key_file));
+		fprintf(stderr, "SignatureBuf(): Couldn't open key file: %s\n",
+			key_file);
 		free(signature_digest);
 		return NULL;
 	}
@@ -88,8 +90,8 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
 		signature = (uint8_t *)malloc(
 		    vb2_rsa_sig_size(vb2_crypto_to_signature(algorithm)));
 	else
-		VBDEBUG(("SignatureBuf(): Couldn't read private key from: %s\n",
-			 key_file));
+		fprintf(stderr, "SignatureBuf(): "
+			"Couldn't read private key from: %s\n", key_file);
 	if (signature) {
 		if (-1 == RSA_private_encrypt(
 				signature_digest_len,  /* Input length. */
@@ -97,8 +99,8 @@ uint8_t* SignatureBuf(const uint8_t* buf, uint64_t len, const char* key_file,
 				signature,  /* Output signature. */
 				key,  /* Key to use. */
 				RSA_PKCS1_PADDING))  /* Padding to use. */
-			VBDEBUG(("SignatureBuf(): "
-				 "RSA_private_encrypt() failed.\n"));
+			fprintf(stderr, "SignatureBuf(): "
+				"RSA_private_encrypt() failed.\n");
 	}
 	fclose(key_fp);
 	if (key)

@@ -6,8 +6,10 @@
  * (Firmware portion)
  */
 
-#include "sysincludes.h"
+#include "2sysincludes.h"
+#include "2common.h"
 
+#include "sysincludes.h"
 #include "bmpblk_header.h"
 #include "region.h"
 #include "gbb_access.h"
@@ -50,8 +52,8 @@ VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams, BmpBlockHeader *hdr_ret)
 		(hdr->major_version > BMPBLOCK_MAJOR_VERSION) ||
 		((hdr->major_version == BMPBLOCK_MAJOR_VERSION) &&
 		(hdr->minor_version > BMPBLOCK_MINOR_VERSION))) {
-			VBDEBUG(("VbGbbReadBmpHeader(): "
-				"invalid/too new bitmap header\n"));
+			VB2_DEBUG("VbGbbReadBmpHeader(): "
+				  "invalid/too new bitmap header\n");
 			free(hdr);
 			return VBERROR_INVALID_BMPFV;
 		}
@@ -78,12 +80,12 @@ VbError_t VbRegionReadHWID(VbCommonParams *cparams, char *hwid,
 	gbb = cparams->gbb;
 
 	if (0 == gbb->hwid_size) {
-		VBDEBUG(("VbHWID(): invalid hwid size\n"));
+		VB2_DEBUG("VbHWID(): invalid hwid size\n");
 		return VBERROR_SUCCESS; /* oddly enough! */
 	}
 
 	if (gbb->hwid_size > max_size) {
-		VBDEBUG(("VbDisplayDebugInfo(): invalid hwid offset/size\n"));
+		VB2_DEBUG("VbDisplayDebugInfo(): invalid hwid offset/size\n");
 		return VBERROR_INVALID_PARAMETER;
 	}
 	ret = VbRegionReadGbb(cparams, gbb->hwid_offset, gbb->hwid_size, hwid);

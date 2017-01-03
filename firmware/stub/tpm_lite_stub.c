@@ -8,6 +8,9 @@
 
 #include <stdint.h>
 
+#include "2sysincludes.h"
+#include "2common.h"
+
 #include "tlcl.h"
 #include "tlcl_internal.h"
 #include "utility.h"
@@ -176,8 +179,8 @@ VbError_t VbExTpmOpen(void)
 		if (saved_errno != EBUSY)
 			break;
 
-		VBDEBUG(("TPM: retrying %s: %s\n",
-			 device_path, strerror(errno)));
+		VB2_DEBUG("TPM: retrying %s: %s\n",
+			  device_path, strerror(errno));
 
 		/* Stall until TPM comes back. */
 		delay.tv_sec = 0;
@@ -216,7 +219,7 @@ VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
 
 #ifdef VBOOT_DEBUG
 	struct timeval before, after;
-	VBDEBUG(("request (%d bytes):\n", request_length));
+	VB2_DEBUG("request (%d bytes):\n", request_length);
 	DbgPrintBytes(request, request_length);
 	gettimeofday(&before, NULL);
 #endif
@@ -227,11 +230,11 @@ VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
 
 #ifdef VBOOT_DEBUG
 	gettimeofday(&after, NULL);
-	VBDEBUG(("response (%d bytes):\n", *response_length));
+	VB2_DEBUG("response (%d bytes):\n", *response_length);
 	DbgPrintBytes(response, *response_length);
-	VBDEBUG(("execution time: %dms\n",
-		 (int) ((after.tv_sec - before.tv_sec) * 1000 +
-			(after.tv_usec - before.tv_usec) / 1000)));
+	VB2_DEBUG("execution time: %dms\n",
+		  (int) ((after.tv_sec - before.tv_sec) * 1000 +
+			 (after.tv_usec - before.tv_usec) / 1000));
 #endif
 
 #ifndef NDEBUG

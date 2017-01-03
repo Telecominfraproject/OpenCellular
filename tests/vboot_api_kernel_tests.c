@@ -232,7 +232,7 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 	int i;
 	int num_disks = 0;
 
-	VBDEBUG(("My %s\n", __FUNCTION__));
+	VB2_DEBUG("My %s\n", __FUNCTION__);
 
 	*infos_ptr = mock_disks;
 
@@ -248,14 +248,14 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 				t->disks_to_provide[i].flags;
 			mock_disks[num_disks].handle = (VbExDiskHandle_t)
 				t->disks_to_provide[i].diskname;
-			VBDEBUG(("  mock_disk[%d] %" PRIu64 " %" PRIu64
-				 " 0x%x %s\n", i,
-				 mock_disks[num_disks].bytes_per_lba,
-				 mock_disks[num_disks].lba_count,
-				 mock_disks[num_disks].flags,
-				 (mock_disks[num_disks].handle
-				  ? (char *)mock_disks[num_disks].handle
-				  : "0")));
+			VB2_DEBUG("  mock_disk[%d] %" PRIu64 " %" PRIu64
+				  " 0x%x %s\n", i,
+				  mock_disks[num_disks].bytes_per_lba,
+				  mock_disks[num_disks].lba_count,
+				  mock_disks[num_disks].flags,
+				  (mock_disks[num_disks].handle
+				   ? (char *)mock_disks[num_disks].handle
+				   : "0"));
 			num_disks++;
 		} else {
 			mock_disks[num_disks].handle =
@@ -268,8 +268,8 @@ VbError_t VbExDiskGetInfo(VbDiskInfo **infos_ptr, uint32_t *count,
 	else
 		*count = num_disks;
 
-	VBDEBUG(("  *count=%" PRIu32 "\n", *count));
-	VBDEBUG(("  return 0x%x\n", t->diskgetinfo_return_val));
+	VB2_DEBUG("  *count=%" PRIu32 "\n", *count);
+	VB2_DEBUG("  return 0x%x\n", t->diskgetinfo_return_val);
 
 	return t->diskgetinfo_return_val;
 }
@@ -278,8 +278,8 @@ VbError_t VbExDiskFreeInfo(VbDiskInfo *infos,
                            VbExDiskHandle_t preserve_handle)
 {
 	got_load_disk = (const char *)preserve_handle;
-	VBDEBUG(("%s(): got_load_disk = %s\n", __FUNCTION__,
-		 got_load_disk ? got_load_disk : "0"));
+	VB2_DEBUG("%s(): got_load_disk = %s\n", __FUNCTION__,
+		  got_load_disk ? got_load_disk : "0");
 	return VBERROR_SUCCESS;
 }
 
@@ -287,9 +287,9 @@ VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
 		     VbCommonParams *cparams)
 {
 	got_find_disk = (const char *)params->disk_handle;
-	VBDEBUG(("%s(%d): got_find_disk = %s\n", __FUNCTION__,
-		 load_kernel_calls,
-		 got_find_disk ? got_find_disk : "0"));
+	VB2_DEBUG("%s(%d): got_find_disk = %s\n", __FUNCTION__,
+		  load_kernel_calls,
+		  got_find_disk ? got_find_disk : "0");
 	if (t->external_expected[load_kernel_calls] !=
 			!!(params->boot_flags & BOOT_FLAG_EXTERNAL_GPT))
 		got_external_mismatch++;
@@ -300,8 +300,8 @@ void vb2_nv_set(struct vb2_context *ctx,
 		enum vb2_nv_param param,
 		uint32_t value)
 {
-	VBDEBUG(("%s(): got_recovery_request_val = %d (0x%x)\n", __FUNCTION__,
-		 value, value));
+	VB2_DEBUG("%s(): got_recovery_request_val = %d (0x%x)\n", __FUNCTION__,
+		  value, value);
 	got_recovery_request_val = value;
 }
 

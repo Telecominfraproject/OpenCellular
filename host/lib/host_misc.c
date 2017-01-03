@@ -30,7 +30,7 @@ uint8_t* ReadFile(const char* filename, uint64_t* sizeptr)
 
 	f = fopen(filename, "rb");
 	if (!f) {
-		VBDEBUG(("Unable to open file %s\n", filename));
+		fprintf(stderr, "Unable to open file %s\n", filename);
 		return NULL;
 	}
 
@@ -49,7 +49,7 @@ uint8_t* ReadFile(const char* filename, uint64_t* sizeptr)
 	}
 
 	if(1 != fread(buf, size, 1, f)) {
-		VBDEBUG(("Unable to read from file %s\n", filename));
+		fprintf(stderr, "Unable to read from file %s\n", filename);
 		fclose(f);
 		free(buf);
 		return NULL;
@@ -103,12 +103,12 @@ int WriteFile(const char* filename, const void *data, uint64_t size)
 {
 	FILE *f = fopen(filename, "wb");
 	if (!f) {
-		VBDEBUG(("Unable to open file %s\n", filename));
+		fprintf(stderr, "Unable to open file %s\n", filename);
 		return 1;
 	}
 
 	if (1 != fwrite(data, size, 1, f)) {
-		VBDEBUG(("Unable to write to file %s\n", filename));
+		fprintf(stderr, "Unable to write to file %s\n", filename);
 		fclose(f);
 		unlink(filename);  /* Delete any partial file */
 		return 1;

@@ -6,23 +6,25 @@
  * (Firmware portion)
  */
 
-#include "sysincludes.h"
+#include "2sysincludes.h"
+#include "2common.h"
 
+#include "sysincludes.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "utility.h"
 
 int VbSharedDataInit(VbSharedDataHeader *header, uint64_t size)
 {
-	VBDEBUG(("VbSharedDataInit, %d bytes, header %d bytes\n", (int)size,
-		 (int)sizeof(VbSharedDataHeader)));
+	VB2_DEBUG("VbSharedDataInit, %d bytes, header %d bytes\n", (int)size,
+		  (int)sizeof(VbSharedDataHeader));
 
 	if (size < sizeof(VbSharedDataHeader)) {
-		VBDEBUG(("Not enough data for header.\n"));
+		VB2_DEBUG("Not enough data for header.\n");
 		return VBOOT_SHARED_DATA_INVALID;
 	}
 	if (size < VB_SHARED_DATA_MIN_SIZE) {
-		VBDEBUG(("Shared data buffer too small.\n"));
+		VB2_DEBUG("Shared data buffer too small.\n");
 		return VBOOT_SHARED_DATA_INVALID;
 	}
 

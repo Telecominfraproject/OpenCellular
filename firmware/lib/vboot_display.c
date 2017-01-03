@@ -116,7 +116,7 @@ void VbRenderTextAtPos(const char *text, int right_to_left,
 	uint32_t cur_x = x, cur_y = y;
 
 	if (!text || !font) {
-		VBDEBUG(("  VbRenderTextAtPos: invalid args\n"));
+		VB2_DEBUG("  VbRenderTextAtPos: invalid args\n");
 		return;
 	}
 
@@ -140,8 +140,8 @@ void VbRenderTextAtPos(const char *text, int right_to_left,
 
 		if (VBERROR_SUCCESS != VbExDisplayImage(cur_x, cur_y, buffer,
 							buffersize)) {
-			VBDEBUG(("  VbRenderTextAtPos: "
-				 "can't display ascii 0x%x\n", text[i]));
+			VB2_DEBUG("  VbRenderTextAtPos: "
+				  "can't display ascii 0x%x\n", text[i]);
 		}
 
 		if (!right_to_left)
@@ -207,16 +207,16 @@ VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
 	case VB_SCREEN_DEVELOPER_EGG:
 	default:
 		/* Screens which aren't in the GBB */
-		VBDEBUG(("VbDisplayScreenFromGBB(): screen %d not in the GBB\n",
-			 (int)screen));
+		VB2_DEBUG("VbDisplayScreenFromGBB(): screen %d not in GBB\n",
+			  (int)screen);
 		retval = VBERROR_INVALID_SCREEN_INDEX;
 		goto VbDisplayScreenFromGBB_exit;
 	}
 
 	if (screen_index >= hdr.number_of_screenlayouts) {
-		VBDEBUG(("VbDisplayScreenFromGBB(): "
-			 "screen %d index %d not in the GBB\n",
-			 (int)screen, (int)screen_index));
+		VB2_DEBUG("VbDisplayScreenFromGBB(): "
+			  "screen %d index %d not in the GBB\n",
+			  (int)screen, (int)screen_index);
 		retval = VBERROR_INVALID_SCREEN_INDEX;
 		goto VbDisplayScreenFromGBB_exit;
 	}
@@ -255,10 +255,10 @@ VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
 						image_info.width,
 						image_info.height);
 				if (ret) {
-					VBDEBUG(("VbExDisplaySetDimension"
-						 "(%d,%d): failed (%#x).\n",
-						 image_info.width,
-						 image_info.height, ret));
+					VB2_DEBUG("VbExDisplaySetDimension"
+						  "(%d,%d): failed (%#x).\n",
+						  image_info.width,
+						  image_info.height, ret);
 				}
 			}
 
@@ -294,9 +294,9 @@ VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
 			break;
 
 		default:
-			VBDEBUG(("VbDisplayScreenFromGBB(): "
-				 "unsupported ImageFormat %d\n",
-				 image_info.format));
+			VB2_DEBUG("VbDisplayScreenFromGBB(): "
+				  "unsupported ImageFormat %d\n",
+				  image_info.format);
 			retval = VBERROR_INVALID_GBB;
 		}
 
@@ -312,7 +312,7 @@ VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
 	VbRegionCheckVersion(cparams);
 
  VbDisplayScreenFromGBB_exit:
-	VBDEBUG(("leaving VbDisplayScreenFromGBB() with %d\n",retval));
+	VB2_DEBUG("leaving VbDisplayScreenFromGBB() with %d\n",retval);
 	return retval;
 }
 
@@ -716,8 +716,8 @@ VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
 			loc = (loc < count - 1 ? loc + 1 : 0);
 		else
 			loc = (loc > 0 ? loc - 1 : count - 1);
-		VBDEBUG(("VbCheckDisplayKey() - change localization to %d\n",
-			 (int)loc));
+		VB2_DEBUG("VbCheckDisplayKey() - change localization to %d\n",
+			  (int)loc);
 		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, loc);
 		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
 

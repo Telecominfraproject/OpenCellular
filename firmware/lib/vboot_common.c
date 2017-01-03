@@ -168,12 +168,12 @@ int VerifyVmlinuzInsideKBlob(uint64_t kblob, uint64_t kblob_size,
 uint64_t VbSharedDataReserve(VbSharedDataHeader *header, uint64_t size)
 {
 	if (!header || size > header->data_size - header->data_used) {
-		VBDEBUG(("VbSharedData buffer out of space.\n"));
+		VB2_DEBUG("VbSharedData buffer out of space.\n");
 		return 0;  /* Not initialized, or not enough space left. */
 	}
 
 	uint64_t offs = header->data_used;
-	VBDEBUG(("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs));
+	VB2_DEBUG("VbSharedDataReserve %d bytes at %d\n", (int)size, (int)offs);
 
 	header->data_used += size;
 	return offs;
@@ -190,9 +190,9 @@ int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 
 	kdest = &header->kernel_subkey;
 
-	VBDEBUG(("Saving kernel subkey to shared data: size %d, algo %d\n",
-		 vb2_rsa_sig_size(vb2_crypto_to_signature(src->algorithm)),
-		 (int)src->algorithm));
+	VB2_DEBUG("Saving kernel subkey to shared data: size %d, algo %d\n",
+		  vb2_rsa_sig_size(vb2_crypto_to_signature(src->algorithm)),
+		  (int)src->algorithm);
 
 	/* Attempt to allocate space for key, if it hasn't been allocated yet */
 	if (!header->kernel_subkey_data_offset) {

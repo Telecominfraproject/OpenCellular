@@ -3,8 +3,10 @@
  * found in the LICENSE file.
  */
 
-#include "sysincludes.h"
+#include "2sysincludes.h"
+#include "2common.h"
 
+#include "sysincludes.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
@@ -46,7 +48,7 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 
 	/* Read primary header from the drive, skipping the protective MBR */
 	if (0 != VbExDiskRead(disk_handle, 1, 1, gptdata->primary_header)) {
-		VBDEBUG(("Read error in primary GPT header\n"));
+		VB2_DEBUG("Read error in primary GPT header\n");
 		memset(gptdata->primary_header, 0, gptdata->sector_bytes);
 	}
 
@@ -66,21 +68,21 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 				      primary_header->entries_lba,
 				      entries_sectors,
 				      gptdata->primary_entries)) {
-			VBDEBUG(("Read error in primary GPT entries\n"));
+			VB2_DEBUG("Read error in primary GPT entries\n");
 			primary_valid = 0;
 		}
 	} else {
-		VBDEBUG(("Primary GPT header is %s\n",
-			 memcmp(primary_header->signature,
-				GPT_HEADER_SIGNATURE_IGNORED,
-				GPT_HEADER_SIGNATURE_SIZE)
-			 ? "invalid" : "being ignored"));
+		VB2_DEBUG("Primary GPT header is %s\n",
+			  memcmp(primary_header->signature,
+				 GPT_HEADER_SIGNATURE_IGNORED,
+				 GPT_HEADER_SIGNATURE_SIZE)
+			  ? "invalid" : "being ignored");
 	}
 
 	/* Read secondary header from the end of the drive */
 	if (0 != VbExDiskRead(disk_handle, gptdata->gpt_drive_sectors - 1, 1,
 			      gptdata->secondary_header)) {
-		VBDEBUG(("Read error in secondary GPT header\n"));
+		VB2_DEBUG("Read error in secondary GPT header\n");
 		memset(gptdata->secondary_header, 0, gptdata->sector_bytes);
 	}
 
@@ -100,15 +102,15 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 				      secondary_header->entries_lba,
 				      entries_sectors,
 				      gptdata->secondary_entries)) {
-			VBDEBUG(("Read error in secondary GPT entries\n"));
+			VB2_DEBUG("Read error in secondary GPT entries\n");
 			secondary_valid = 0;
 		}
 	} else {
-		VBDEBUG(("Secondary GPT header is %s\n",
-			 memcmp(secondary_header->signature,
-				GPT_HEADER_SIGNATURE_IGNORED,
-				GPT_HEADER_SIGNATURE_SIZE)
-			 ? "invalid" : "being ignored"));
+		VB2_DEBUG("Secondary GPT header is %s\n",
+			  memcmp(secondary_header->signature,
+				 GPT_HEADER_SIGNATURE_IGNORED,
+				 GPT_HEADER_SIGNATURE_SIZE)
+			  ? "invalid" : "being ignored");
 	}
 
 	/* Return 0 if least one GPT header was valid */
@@ -147,17 +149,17 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		entries_lba = h->entries_lba;
 
 		if (gptdata->ignored & MASK_PRIMARY) {
-			VBDEBUG(("Not updating primary GPT: "
-				 "marked to be ignored.\n"));
+			VB2_DEBUG("Not updating primary GPT: "
+				  "marked to be ignored.\n");
 			skip_primary = 1;
 		} else if (gptdata->modified & GPT_MODIFIED_HEADER1) {
 			if (!memcmp(h->signature, GPT_HEADER_SIGNATURE2,
 				    GPT_HEADER_SIGNATURE_SIZE)) {
-				VBDEBUG(("Not updating primary GPT: "
-					 "legacy mode is enabled.\n"));
+				VB2_DEBUG("Not updating primary GPT: "
+					  "legacy mode is enabled.\n");
 				skip_primary = 1;
 			} else {
-				VBDEBUG(("Updating GPT header 1\n"));
+				VB2_DEBUG("Updating GPT header 1\n");
 				if (0 != VbExDiskWrite(disk_handle, 1, 1,
 						       gptdata->primary_header))
 					goto fail;
@@ -167,7 +169,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 
 	if (gptdata->primary_entries && !skip_primary) {
 		if (gptdata->modified & GPT_MODIFIED_ENTRIES1) {
-			VBDEBUG(("Updating GPT entries 1\n"));
+			VB2_DEBUG("Updating GPT entries 1\n");
 			if (0 != VbExDiskWrite(disk_handle, entries_lba,
 					       entries_sectors,
 					       gptdata->primary_entries))
@@ -181,7 +183,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 		GptHeader *h = (GptHeader *)(gptdata->secondary_header);
 		entries_lba = h->entries_lba;
 		if (gptdata->modified & GPT_MODIFIED_HEADER2) {
-			VBDEBUG(("Updating GPT header 2\n"));
+			VB2_DEBUG("Updating GPT header 2\n");
 			if (0 != VbExDiskWrite(disk_handle,
 					       gptdata->gpt_drive_sectors - 1, 1,
 					       gptdata->secondary_header))
@@ -191,7 +193,7 @@ int WriteAndFreeGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 
 	if (gptdata->secondary_entries && !(gptdata->ignored & MASK_SECONDARY)){
 		if (gptdata->modified & GPT_MODIFIED_ENTRIES2) {
-			VBDEBUG(("Updating GPT entries 2\n"));
+			VB2_DEBUG("Updating GPT entries 2\n");
 			if (0 != VbExDiskWrite(disk_handle,
 					       entries_lba, entries_sectors,
 					       gptdata->secondary_entries))

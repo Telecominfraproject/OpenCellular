@@ -53,7 +53,7 @@ struct LoadKernelParams *VbApiKernelGetParams(void)
 static void VbSetRecoveryRequest(struct vb2_context *ctx,
 				 uint32_t recovery_request)
 {
-	VBDEBUG(("VbSetRecoveryRequest(%d)\n", (int)recovery_request));
+	VB2_DEBUG("VbSetRecoveryRequest(%d)\n", (int)recovery_request);
 	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, recovery_request);
 }
 
@@ -108,8 +108,8 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 	uint32_t disk_count = 0;
 	uint32_t i;
 
-	VBDEBUG(("VbTryLoadKernel() start, get_info_flags=0x%x\n",
-		 (unsigned)get_info_flags));
+	VB2_DEBUG("VbTryLoadKernel() start, get_info_flags=0x%x\n",
+		  (unsigned)get_info_flags);
 
 	lkp.fwmp = &fwmp;
 	lkp.nv_context = &vnc;
@@ -120,7 +120,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 					       get_info_flags))
 		disk_count = 0;
 
-	VBDEBUG(("VbTryLoadKernel() found %d disks\n", (int)disk_count));
+	VB2_DEBUG("VbTryLoadKernel() found %d disks\n", (int)disk_count);
 	if (0 == disk_count) {
 		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_NO_DISK);
 		return VBERROR_NO_DISK_FOUND;
@@ -128,7 +128,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 
 	/* Loop over disks */
 	for (i = 0; i < disk_count; i++) {
-		VBDEBUG(("VbTryLoadKernel() trying disk %d\n", (int)i));
+		VB2_DEBUG("VbTryLoadKernel() trying disk %d\n", (int)i);
 		/*
 		 * Sanity-check what we can. FWIW, VbTryLoadKernel() is always
 		 * called with only a single bit set in get_info_flags.
@@ -141,11 +141,11 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 		    16 > disk_info[i].lba_count ||
 		    get_info_flags != (disk_info[i].flags &
 				       ~VB_DISK_FLAG_EXTERNAL_GPT)) {
-			VBDEBUG(("  skipping: bytes_per_lba=%" PRIu64
-				 " lba_count=%" PRIu64 " flags=0x%x\n",
-				 disk_info[i].bytes_per_lba,
-				 disk_info[i].lba_count,
-				 disk_info[i].flags));
+			VB2_DEBUG("  skipping: bytes_per_lba=%" PRIu64
+				  " lba_count=%" PRIu64 " flags=0x%x\n",
+				  disk_info[i].bytes_per_lba,
+				  disk_info[i].lba_count,
+				  disk_info[i].flags);
 			continue;
 		}
 		lkp.disk_handle = disk_info[i].handle;
@@ -156,7 +156,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 		lkp.boot_flags |= disk_info[i].flags & VB_DISK_FLAG_EXTERNAL_GPT
 				? BOOT_FLAG_EXTERNAL_GPT : 0;
 		retval = LoadKernel(ctx, &lkp, cparams);
-		VBDEBUG(("VbTryLoadKernel() LoadKernel() = %d\n", retval));
+		VB2_DEBUG("VbTryLoadKernel() LoadKernel() = %d\n", retval);
 
 		/*
 		 * Stop now if we found a kernel.
@@ -488,7 +488,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	cparams->gbb = malloc(sizeof(*cparams->gbb));
 	retval = VbGbbReadHeader_static(cparams, cparams->gbb);
 	if (VBERROR_SUCCESS != retval) {
-		VBDEBUG(("Gbb read header failed.\n"));
+		VB2_DEBUG("Gbb read header failed.\n");
 		return retval;
 	}
 
@@ -512,13 +512,13 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	}
 
 	if (dev_switch && allow_fastboot_full_cap) {
-		VBDEBUG(("Only performing integrity-check.\n"));
+		VB2_DEBUG("Only performing integrity-check.\n");
 		hash_only = 1;
 	} else {
 		/* Get recovery key. */
 		retval = VbGbbReadRecoveryKey(cparams, &kernel_subkey);
 		if (VBERROR_SUCCESS != retval) {
-			VBDEBUG(("Gbb Read Recovery key failed.\n"));
+			VB2_DEBUG("Gbb Read Recovery key failed.\n");
 			return retval;
 		}
 	}
@@ -544,7 +544,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 		if (VB2_SUCCESS !=
 		    vb2_unpack_key(&kernel_subkey2,
 				   (struct vb2_packed_key *)kernel_subkey)) {
-			VBDEBUG(("Unable to unpack kernel subkey\n"));
+			VB2_DEBUG("Unable to unpack kernel subkey\n");
 			goto fail;
 		}
 		rv = vb2_verify_keyblock(keyblock2, image_size,
@@ -552,7 +552,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	}
 
 	if (VB2_SUCCESS != rv) {
-		VBDEBUG(("Verifying key block signature/hash failed.\n"));
+		VB2_DEBUG("Verifying key block signature/hash failed.\n");
 		goto fail;
 	}
 
@@ -560,13 +560,13 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	if (!(key_block->key_block_flags &
 	      (dev_switch ? KEY_BLOCK_FLAG_DEVELOPER_1 :
 	       KEY_BLOCK_FLAG_DEVELOPER_0))) {
-		VBDEBUG(("Key block developer flag mismatch.\n"));
+		VB2_DEBUG("Key block developer flag mismatch.\n");
 		if (hash_only == 0)
 			goto fail;
 	}
 
 	if (!(key_block->key_block_flags & KEY_BLOCK_FLAG_RECOVERY_1)) {
-		VBDEBUG(("Key block recovery flag mismatch.\n"));
+		VB2_DEBUG("Key block recovery flag mismatch.\n");
 		if (hash_only == 0)
 			goto fail;
 	}
@@ -574,7 +574,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	/* Get key for preamble/data verification from the key block. */
 	struct vb2_public_key data_key2;
 	if (VB2_SUCCESS != vb2_unpack_key(&data_key2, &keyblock2->data_key)) {
-		VBDEBUG(("Unable to unpack kernel data key\n"));
+		VB2_DEBUG("Unable to unpack kernel data key\n");
 		goto fail;
 	}
 
@@ -589,11 +589,11 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 			image_size - key_block->key_block_size,
 			&data_key2,
 			&wb)) {
-		VBDEBUG(("Preamble verification failed.\n"));
+		VB2_DEBUG("Preamble verification failed.\n");
 		goto fail;
 	}
 
-	VBDEBUG(("Kernel preamble is good.\n"));
+	VB2_DEBUG("Kernel preamble is good.\n");
 
 	/* Verify kernel data */
 	body_offset = key_block->key_block_size + preamble->preamble_size;
@@ -602,11 +602,11 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 			image_size - body_offset,
 			(struct vb2_signature *)&preamble->body_signature,
 			&data_key2, &wb)) {
-		VBDEBUG(("Kernel data verification failed.\n"));
+		VB2_DEBUG("Kernel data verification failed.\n");
 		goto fail;
 	}
 
-	VBDEBUG(("Kernel is good.\n"));
+	VB2_DEBUG("Kernel is good.\n");
 
 	/* Fill in output parameters. */
 	kparams->kernel_buffer = kbuf + body_offset;
@@ -629,12 +629,12 @@ fail:
 
 VbError_t VbUnlockDevice(void)
 {
-	VBDEBUG(("%s() Enabling dev-mode...\n", __func__));
+	VB2_DEBUG("%s() Enabling dev-mode...\n", __func__);
 	if (TPM_SUCCESS != SetVirtualDevMode(1))
 		return VBERROR_TPM_SET_BOOT_MODE_STATE;
 
-	VBDEBUG(("%s() Mode change will take effect on next reboot.\n",
-		 __func__));
+	VB2_DEBUG("%s() Mode change will take effect on next reboot.\n",
+		  __func__);
 	return VBERROR_SUCCESS;
 }
 
@@ -642,14 +642,14 @@ VbError_t VbLockDevice(void)
 {
 	VbNvLoad();
 
-	VBDEBUG(("%s() - Storing request to leave dev-mode.\n",
-		 __func__));
+	VB2_DEBUG("%s() - Storing request to leave dev-mode.\n",
+		  __func__);
 	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
 
 	VbNvCommit();
 
-	VBDEBUG(("%s() Mode change will take effect on next reboot.\n",
-		 __func__));
+	VB2_DEBUG("%s() Mode change will take effect on next reboot.\n",
+		  __func__);
 
 	return VBERROR_SUCCESS;
 }

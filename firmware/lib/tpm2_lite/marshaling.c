@@ -4,6 +4,9 @@
  * found in the LICENSE file.
  */
 
+#include "2sysincludes.h"
+#include "2common.h"
+
 #include "tpm2_marshaling.h"
 #include "utility.h"
 
@@ -110,9 +113,9 @@ static void unmarshal_TPM2B_MAX_NV_BUFFER(void **buffer,
 {
 	nv_buffer->t.size = unmarshal_u16(buffer, size);
 	if (nv_buffer->t.size > *size) {
-		VBDEBUG(("%s:%d - "
-		       "size mismatch: expected %d, remaining %d\n",
-			 __func__, __LINE__, nv_buffer->t.size, *size));
+		VB2_DEBUG("%s:%d - "
+			  "size mismatch: expected %d, remaining %d\n",
+			  __func__, __LINE__, nv_buffer->t.size, *size);
 		return;
 	}
 
@@ -130,9 +133,9 @@ static void unmarshal_authorization_section(void **buffer, int *size,
 	 * just confirm that this is the case and report any discrepancy.
 	 */
 	if (*size != 5)
-		VBDEBUG(("%s:%d - unexpected authorisation section size %d "
-			 "for %s\n",
-			 __func__, __LINE__, *size, cmd_name));
+		VB2_DEBUG("%s:%d - unexpected authorisation section size %d "
+			  "for %s\n",
+			  __func__, __LINE__, *size, cmd_name);
 
 	*buffer = ((uint8_t *)(*buffer)) + *size;
 	*size = 0;
@@ -147,9 +150,9 @@ static void unmarshal_nv_read(void **buffer, int *size,
 
 	if (nvr->params_size !=
 	    (nvr->buffer.t.size + sizeof(nvr->buffer.t.size))) {
-		VBDEBUG(("%s:%d - parameter/buffer %d/%d size mismatch",
-			 __func__, __LINE__, nvr->params_size,
-			 nvr->buffer.t.size));
+		VB2_DEBUG("%s:%d - parameter/buffer %d/%d size mismatch",
+			  __func__, __LINE__, nvr->params_size,
+			  nvr->buffer.t.size);
 		return;
 	}
 
@@ -165,9 +168,9 @@ static void unmarshal_TPM2B(void **buffer,
 {
 	tpm2b->size = unmarshal_u16(buffer, size);
 	if (tpm2b->size > *size) {
-		VBDEBUG(("%s:%d - "
-		       "size mismatch: expected %d, remaining %d\n",
-			 __func__, __LINE__, tpm2b->size, *size));
+		VB2_DEBUG("%s:%d - "
+			  "size mismatch: expected %d, remaining %d\n",
+			  __func__, __LINE__, tpm2b->size, *size);
 		*size = -1;
 		return;
 	}
@@ -184,9 +187,9 @@ static void unmarshal_TPMS_NV_PUBLIC(void **buffer,
 {
 	int tpm2b_size = unmarshal_u16(buffer, size);
 	if (tpm2b_size > *size) {
-		VBDEBUG(("%s:%d - "
-			 "size mismatch: expected %d, remaining %d\n",
-			 __func__, __LINE__, tpm2b_size, *size));
+		VB2_DEBUG("%s:%d - "
+			  "size mismatch: expected %d, remaining %d\n",
+			  __func__, __LINE__, tpm2b_size, *size);
 		*size = -1;
 		return;
 	}
@@ -199,9 +202,9 @@ static void unmarshal_TPMS_NV_PUBLIC(void **buffer,
 	pub->dataSize = unmarshal_u16(buffer, &tpm2b_size);
 
 	if (tpm2b_size != 0) {
-		VBDEBUG(("%s:%d - "
-			 "TPMS_NV_PUBLIC size doesn't match the size field\n",
-			 __func__, __LINE__));
+		VB2_DEBUG("%s:%d - "
+			  "TPMS_NV_PUBLIC size doesn't match the size field\n",
+			  __func__, __LINE__);
 		*size = -1;
 		return;
 	}
@@ -214,9 +217,9 @@ static void unmarshal_nv_read_public(void **buffer, int *size,
 	unmarshal_TPM2B(buffer, size, &nv_pub->nvName);
 
 	if (*size > 0) {
-		VBDEBUG(("%s:%d - "
-			 "extra %d bytes after nvName\n",
-			 __func__, __LINE__, *size));
+		VB2_DEBUG("%s:%d - "
+			  "extra %d bytes after nvName\n",
+			  __func__, __LINE__, *size);
 		*size = -1;
 		return;
 	}
@@ -229,9 +232,9 @@ static void unmarshal_TPML_TAGGED_TPM_PROPERTY(void **buffer, int *size,
 
 	if (prop->count != 1) {
 		*size = -1;
-		VBDEBUG(("%s:%d:Request to unmarshal unsupported "
-			 "number of properties: %u\n",
-			 __FILE__, __LINE__, prop->count));
+		VB2_DEBUG("%s:%d:Request to unmarshal unsupported "
+			  "number of properties: %u\n",
+			  __FILE__, __LINE__, prop->count);
 		return;
 	}
 
@@ -254,9 +257,9 @@ static void unmarshal_TPMS_CAPABILITY_DATA(void **buffer, int *size,
 
 	default:
 		*size = -1;
-		VBDEBUG(("%s:%d:Request to unmarshal unsupported "
-			 "capability %#x\n",
-			 __FILE__, __LINE__, cap_data->capability));
+		VB2_DEBUG("%s:%d:Request to unmarshal unsupported "
+			  "capability %#x\n",
+			  __FILE__, __LINE__, cap_data->capability);
 	}
 }
 
@@ -351,8 +354,8 @@ static void marshal_reserve_size_field(void **buffer,
 				       int *buffer_space)
 {
 	if (field_size != sizeof(uint32_t) && field_size != sizeof(uint16_t)) {
-		VBDEBUG(("%s:%d:Unsupported size field size: %d\n",
-			 __FILE__, __LINE__, field_size));
+		VB2_DEBUG("%s:%d:Unsupported size field size: %d\n",
+			  __FILE__, __LINE__, field_size);
 		*buffer_space = -1;
 		return;
 	}
@@ -706,8 +709,8 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 
 	default:
 		body_size = -1;
-		VBDEBUG(("%s:%d:Request to marshal unsupported command %#x\n",
-			 __FILE__, __LINE__, command));
+		VB2_DEBUG("%s:%d:Request to marshal unsupported command %#x\n",
+			  __FILE__, __LINE__, command);
 	}
 
 	if (body_size > 0) {
@@ -740,8 +743,9 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 
 	if (!cr_size) {
 		if (tpm2_resp.hdr.tpm_size != sizeof(tpm2_resp.hdr))
-			VBDEBUG(("%s: size mismatch in response to command %#x\n",
-				 __func__, command));
+			VB2_DEBUG("%s: "
+				  "size mismatch in response to command %#x\n",
+				  __func__, command);
 		return &tpm2_resp;
 	}
 
@@ -778,28 +782,28 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 		{
 			int i;
 
-			VBDEBUG(("%s:%d:"
-			       "Request to unmarshal unexpected command %#x,"
-			       " code %#x",
-			       __func__, __LINE__, command,
-				 tpm2_resp.hdr.tpm_code));
+			VB2_DEBUG("%s:%d:"
+				  "Request to unmarshal unexpected command %#x,"
+				  " code %#x",
+				  __func__, __LINE__, command,
+				  tpm2_resp.hdr.tpm_code);
 
 			for (i = 0; i < cr_size; i++) {
 				if (!(i % 16))
-					VBDEBUG(("\n"));
-				VBDEBUG(("%2.2x ",
-					 ((uint8_t *)response_body)[i]));
+					VB2_DEBUG("\n");
+				VB2_DEBUG("%2.2x ",
+					  ((uint8_t *)response_body)[i]);
 			}
 		}
-		VBDEBUG(("\n"));
+		VB2_DEBUG("\n");
 		return NULL;
 	}
 
 	if (cr_size) {
-		VBDEBUG(("%s:%d got %d bytes back in response to %#x,"
-			 " failed to parse (%d)\n",
-			 __func__, __LINE__, tpm2_resp.hdr.tpm_size,
-			 command, cr_size));
+		VB2_DEBUG("%s:%d got %d bytes back in response to %#x,"
+			  " failed to parse (%d)\n",
+			  __func__, __LINE__, tpm2_resp.hdr.tpm_size,
+			  command, cr_size);
 		return NULL;
 	}
 

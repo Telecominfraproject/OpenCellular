@@ -29,7 +29,7 @@ int DigestFile(char *input_file, enum vb2_hash_algorithm alg,
 	struct vb2_digest_context ctx;
 
 	if( (input_fd = open(input_file, O_RDONLY)) == -1 ) {
-		VBDEBUG(("Couldn't open %s\n", input_file));
+		fprintf(stderr, "Couldn't open %s\n", input_file);
 		return VB2_ERROR_UNKNOWN;
 	}
 	vb2_digest_init(&ctx, alg);

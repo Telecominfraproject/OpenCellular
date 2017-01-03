@@ -5,8 +5,10 @@
  * Delay/beep functions used in dev-mode kernel selection.
  */
 
-#include "sysincludes.h"
+#include "2sysincludes.h"
+#include "2common.h"
 
+#include "sysincludes.h"
 #include "crc32.h"
 #include "gbb_header.h"
 #include "utility.h"
@@ -69,8 +71,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	uint32_t this_msecs, on_msecs, total_msecs;
 	uint32_t count;
 
-	VBDEBUG(("VbGetDevMusicNotes: use_short is %d, hdr is %p, "
-		 "maxsize is %d\n", use_short, hdr, maxsize));
+	VB2_DEBUG("VbGetDevMusicNotes: use_short is %d, hdr is %p, "
+		  "maxsize is %d\n", use_short, hdr, maxsize);
 
 	if (use_short) {
 		builtin = short_notes_;
@@ -89,7 +91,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 		goto nope;
 
 	if (0 != memcmp(hdr->sig, "$SND", sizeof(hdr->sig))) {
-		VBDEBUG(("VbGetDevMusicNotes: bad sig\n"));
+		VB2_DEBUG("VbGetDevMusicNotes: bad sig\n");
 		goto nope;
 	}
 
@@ -99,8 +101,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	 */
 	maxnotes = 1 + (maxsize - sizeof(VbDevMusic)) / sizeof(VbDevMusicNote);
 	if (hdr->count == 0 || hdr->count > maxnotes) {
-		VBDEBUG(("VbGetDevMusicNotes: count=%d maxnotes=%d\n",
-			 hdr->count, maxnotes));
+		VB2_DEBUG("VbGetDevMusicNotes: count=%d maxnotes=%d\n",
+			  hdr->count, maxnotes);
 		goto nope;
 	}
 
@@ -112,8 +114,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	if ((sizeof(VbDevMusicNote) > UINT_MAX / hdr->count) ||
 	    (sizeof(hdr->count) >
 	     UINT_MAX - hdr->count * sizeof(VbDevMusicNote))) {
-		VBDEBUG(("VbGetDevMusicNotes: count=%d, just isn't right\n",
-			 hdr->count));
+		VB2_DEBUG("VbGetDevMusicNotes: count=%d, just isn't right\n",
+			  hdr->count);
 		goto nope;
 	}
 
@@ -123,12 +125,12 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	mysum = Crc32(&(hdr->count), mylen);
 
 	if (mysum != hdr->checksum) {
-		VBDEBUG(("VbGetDevMusicNotes: mysum=%08x, want=%08x\n",
-			 mysum, hdr->checksum));
+		VB2_DEBUG("VbGetDevMusicNotes: mysum=%08x, want=%08x\n",
+			  mysum, hdr->checksum);
 		goto nope;
 	}
 
-	VBDEBUG(("VbGetDevMusicNotes: custom notes struct at %p\n", hdr));
+	VB2_DEBUG("VbGetDevMusicNotes: custom notes struct at %p\n", hdr);
 
 	/*
 	 * Measure the audible sound up to the first 22 seconds, being careful
@@ -149,8 +151,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	}
 
 	/* We require at least one second of noise in the first 22 seconds */
-	VBDEBUG(("VbGetDevMusicNotes:   with %d msecs of sound to begin\n",
-		 on_msecs));
+	VB2_DEBUG("VbGetDevMusicNotes:   with %d msecs of sound to begin\n",
+		  on_msecs);
 	if (on_msecs < REQUIRED_NOISE_TIME)
 		goto nope;
 
@@ -158,14 +160,14 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	 * We'll also require that the total time be less than 5 minutes. No
 	 * real reason, it just gives us less to worry about.
 	 */
-	VBDEBUG(("VbGetDevMusicNotes:   lasting %d msecs\n", total_msecs));
+	VB2_DEBUG("VbGetDevMusicNotes:   lasting %d msecs\n", total_msecs);
 	if (total_msecs > MAX_CUSTOM_DELAY) {
 		goto nope;
 	}
 
 	/* One more check, just to be paranoid. */
 	if (hdr->count > (UINT_MAX / sizeof(VbDevMusicNote) - 1)) {
-		VBDEBUG(("VbGetDevMusicNotes:   they're all out to get me!\n"));
+		VB2_DEBUG("VbGetDevMusicNotes:   they're all out to get me!\n");
 		goto nope;
 	}
 
@@ -184,8 +186,8 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 		notebuf[hdr->count].msec = this_msecs;
 		notebuf[hdr->count].frequency = 0;
 		count++;
-		VBDEBUG(("VbGetDevMusicNotes:   adding %d msecs of silence\n",
-			 this_msecs));
+		VB2_DEBUG("VbGetDevMusicNotes:   adding %d msecs of silence\n",
+			  this_msecs);
 	}
 
 	/* Done */
@@ -196,7 +198,7 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 
  nope:
 	/* No custom notes, use the default. The count is already set. */
-	VBDEBUG(("VbGetDevMusicNotes: using %d default notes\n", count));
+	VB2_DEBUG("VbGetDevMusicNotes: using %d default notes\n", count);
 	audio->music_notes = builtin;
 	audio->note_count = count;
 	audio->free_notes_when_done = 0;
@@ -220,8 +222,8 @@ VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 	VbExSleepMs(10);
 	b = VbExGetTimer();
 	ticks_per_msec = (b - a) / 10ULL ;
-	VBDEBUG(("VbAudioOpen() - ticks_per_msec is %" PRIu64 "\n",
-		ticks_per_msec));
+	VB2_DEBUG("VbAudioOpen() - ticks_per_msec is %" PRIu64 "\n",
+		  ticks_per_msec);
 
 	/* Initialize */
 	memset(audio, 0, sizeof(*audio));
@@ -230,7 +232,7 @@ VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 
 	/* See if we have full background sound capability or not. */
 	if (VBERROR_SUCCESS != VbExBeep(0,0)) {
-		VBDEBUG(("VbAudioOpen() - VbExBeep() is limited\n"));
+		VB2_DEBUG("VbAudioOpen() - VbExBeep() is limited\n");
 		audio->background_beep = 0;
 	}
 
@@ -240,12 +242,12 @@ VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 	 */
 	if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1
 	    && (gbb->flags & GBB_FLAG_DEV_SCREEN_SHORT_DELAY)) {
-		VBDEBUG(("VbAudioOpen() - using short dev screen delay\n"));
+		VB2_DEBUG("VbAudioOpen() - using short dev screen delay\n");
 		use_short = 1;
 	}
 
 	VbGetDevMusicNotes(audio, use_short);
-	VBDEBUG(("VbAudioOpen() - note count %d\n", audio->note_count));
+	VB2_DEBUG("VbAudioOpen() - note count %d\n", audio->note_count);
 
 	return audio;
 }

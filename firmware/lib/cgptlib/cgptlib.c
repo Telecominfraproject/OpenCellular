@@ -3,8 +3,10 @@
  * found in the LICENSE file.
  */
 
-#include "sysincludes.h"
+#include "2sysincludes.h"
+#include "2common.h"
 
+#include "sysincludes.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
 #include "crc32.h"
@@ -22,7 +24,7 @@ int GptInit(GptData *gpt)
 
 	retval = GptSanityCheck(gpt);
 	if (GPT_SUCCESS != retval) {
-		VBDEBUG(("GptInit() failed sanity check\n"));
+		VB2_DEBUG("GptInit() failed sanity check\n");
 		return retval;
 	}
 
@@ -50,18 +52,18 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size)
 			e = entries + i;
 			if (!IsKernelEntry(e))
 				continue;
-			VBDEBUG(("GptNextKernelEntry looking at same prio "
-				 "partition %d\n", i+1));
-			VBDEBUG(("GptNextKernelEntry s%d t%d p%d\n",
-				 GetEntrySuccessful(e), GetEntryTries(e),
-				 GetEntryPriority(e)));
+			VB2_DEBUG("GptNextKernelEntry looking at same prio "
+				  "partition %d\n", i+1);
+			VB2_DEBUG("GptNextKernelEntry s%d t%d p%d\n",
+				  GetEntrySuccessful(e), GetEntryTries(e),
+				  GetEntryPriority(e));
 			if (!(GetEntrySuccessful(e) || GetEntryTries(e)))
 				continue;
 			if (GetEntryPriority(e) == gpt->current_priority) {
 				gpt->current_kernel = i;
 				*start_sector = e->starting_lba;
 				*size = e->ending_lba - e->starting_lba + 1;
-				VBDEBUG(("GptNextKernelEntry likes it\n"));
+				VB2_DEBUG("GptNextKernelEntry likes it\n");
 				return GPT_SUCCESS;
 			}
 		}
@@ -75,11 +77,11 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size)
 		int current_prio = GetEntryPriority(e);
 		if (!IsKernelEntry(e))
 			continue;
-		VBDEBUG(("GptNextKernelEntry looking at new prio "
-			 "partition %d\n", i+1));
-		VBDEBUG(("GptNextKernelEntry s%d t%d p%d\n",
-			 GetEntrySuccessful(e), GetEntryTries(e),
-			 GetEntryPriority(e)));
+		VB2_DEBUG("GptNextKernelEntry looking at new prio "
+			  "partition %d\n", i+1);
+		VB2_DEBUG("GptNextKernelEntry s%d t%d p%d\n",
+			  GetEntrySuccessful(e), GetEntryTries(e),
+			  GetEntryPriority(e));
 		if (!(GetEntrySuccessful(e) || GetEntryTries(e)))
 			continue;
 		if (current_prio >= gpt->current_priority) {
@@ -101,11 +103,11 @@ int GptNextKernelEntry(GptData *gpt, uint64_t *start_sector, uint64_t *size)
 	gpt->current_priority = new_prio;
 
 	if (CGPT_KERNEL_ENTRY_NOT_FOUND == new_kernel) {
-		VBDEBUG(("GptNextKernelEntry no more kernels\n"));
+		VB2_DEBUG("GptNextKernelEntry no more kernels\n");
 		return GPT_ERROR_NO_VALID_KERNEL;
 	}
 
-	VBDEBUG(("GptNextKernelEntry likes partition %d\n", new_kernel + 1));
+	VB2_DEBUG("GptNextKernelEntry likes partition %d\n", new_kernel + 1);
 	e = entries + new_kernel;
 	*start_sector = e->starting_lba;
 	*size = e->ending_lba - e->starting_lba + 1;

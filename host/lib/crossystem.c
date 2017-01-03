@@ -791,12 +791,12 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize)
 	ssize_t n;
 
 	if (pipe(mosys_to_crossystem) < 0) {
-		VBDEBUG(("pipe() error\n"));
+		fprintf(stderr, "pipe() error\n");
 		return -1;
 	}
 
 	if ((pid = fork()) < 0) {
-		VBDEBUG(("fork() error\n"));
+		fprintf(stderr, "fork() error\n");
 		close(mosys_to_crossystem[0]);
 		close(mosys_to_crossystem[1]);
 		return -1;
@@ -806,7 +806,7 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize)
 		if (STDOUT_FILENO != mosys_to_crossystem[1]) {
 			if (dup2(mosys_to_crossystem[1], STDOUT_FILENO)
 			    != STDOUT_FILENO) {
-				VBDEBUG(("stdout dup2() failed (mosys)\n"));
+				fprintf(stderr, "stdout dup2() failed (mosys)\n");
 				close(mosys_to_crossystem[1]);
 				exit(1);
 			}
@@ -814,7 +814,7 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize)
 		/* Execute mosys */
 		execv(InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH, argv);
 		/* We shouldn't be here; exit now! */
-		VBDEBUG(("execv() of mosys failed\n"));
+		fprintf(stderr, "execv() of mosys failed\n");
 		close(mosys_to_crossystem[1]);
 		exit(1);
 	} else {  /* Parent */
@@ -832,9 +832,8 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize)
 		}
 		close(mosys_to_crossystem[0]);
 		if (n < 0)
-			VBDEBUG(("read() error reading output from mosys\n"));
+			fprintf(stderr, "read() error on output from mosys\n");
 		if (waitpid(pid, &status, 0) < 0 || status) {
-			VBDEBUG(("waitpid() or mosys error\n"));
 			fprintf(stderr, "waitpid() or mosys error\n");
 			return -1;
 		}

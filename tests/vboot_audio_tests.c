@@ -59,7 +59,6 @@ void FixChecksum(VbDevMusic *hdr) {
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
-  VBDEBUG(("ResetMocks()\n"));
   memset(&cparams, 0, sizeof(cparams));
   cparams.gbb_data = &gbb;
   cparams.gbb = &gbb;

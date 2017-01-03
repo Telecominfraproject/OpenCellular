@@ -231,21 +231,21 @@ uint32_t VbExKeyboardRead(void) {
   now = current_time;
 
   if (kbd_fire_key && now >= kbd_fire_at) {
-    VBDEBUG(("  VbExKeyboardRead() - returning %d at %d msec\n",
-             kbd_fire_key, now));
+    VB2_DEBUG("  VbExKeyboardRead() - returning %d at %d msec\n",
+	      kbd_fire_key, now);
     tmp = kbd_fire_key;
     kbd_fire_key = 0;
     return tmp;
   }
-  VBDEBUG(("  VbExKeyboardRead() - returning %d at %d msec\n",
-           0, now));
+  VB2_DEBUG("  VbExKeyboardRead() - returning %d at %d msec\n",
+	    0, now);
   return 0;
 }
 
 void VbExSleepMs(uint32_t msec) {
   current_ticks += (uint64_t)msec * TICKS_PER_MSEC;
   current_time = current_ticks / TICKS_PER_MSEC;
-  VBDEBUG(("VbExSleepMs(%d) -> %d\n", msec, current_time));
+  VB2_DEBUG("VbExSleepMs(%d) -> %d\n", msec, current_time);
 }
 
 uint64_t VbExGetTimer(void) {
@@ -253,7 +253,7 @@ uint64_t VbExGetTimer(void) {
 }
 
 VbError_t VbExBeep(uint32_t msec, uint32_t frequency) {
-  VBDEBUG(("VbExBeep(%d, %d) at %d msec\n", msec, frequency, current_time));
+  VB2_DEBUG("VbExBeep(%d, %d) at %d msec\n", msec, frequency, current_time);
 
   if (current_event < max_events &&
       msec == expected_event[current_event].msec &&
@@ -271,31 +271,31 @@ VbError_t VbExBeep(uint32_t msec, uint32_t frequency) {
 VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale) {
   switch(screen_type) {
   case VB_SCREEN_BLANK:
-    VBDEBUG(("VbExDisplayScreen(BLANK)\n"));
+    VB2_DEBUG("VbExDisplayScreen(BLANK)\n");
     break;
   case VB_SCREEN_DEVELOPER_WARNING:
-    VBDEBUG(("VbExDisplayScreen(DEV)\n"));
+    VB2_DEBUG("VbExDisplayScreen(DEV)\n");
     break;
   case VB_SCREEN_DEVELOPER_EGG:
-    VBDEBUG(("VbExDisplayScreen(EGG)\n"));
+    VB2_DEBUG("VbExDisplayScreen(EGG)\n");
     break;
   case VB_SCREEN_RECOVERY_REMOVE:
-    VBDEBUG(("VbExDisplayScreen(REMOVE)\n"));
+    VB2_DEBUG("VbExDisplayScreen(REMOVE)\n");
     break;
   case VB_SCREEN_RECOVERY_INSERT:
-    VBDEBUG(("VbExDisplayScreen(INSERT)\n"));
+    VB2_DEBUG("VbExDisplayScreen(INSERT)\n");
     break;
   case VB_SCREEN_RECOVERY_NO_GOOD:
-    VBDEBUG(("VbExDisplayScreen(NO_GOOD)\n"));
+    VB2_DEBUG("VbExDisplayScreen(NO_GOOD)\n");
     break;
   case VB_SCREEN_OS_BROKEN:
-    VBDEBUG(("VbExDisplayScreen(BROKEN)\n"));
+    VB2_DEBUG("VbExDisplayScreen(BROKEN)\n");
     break;
   default:
-    VBDEBUG(("VbExDisplayScreen(%d)\n", screen_type));
+    VB2_DEBUG("VbExDisplayScreen(%d)\n", screen_type);
   }
 
-  VBDEBUG(("  current_time is %d msec\n", current_time));
+  VB2_DEBUG("  current_time is %d msec\n", current_time);
 
   return VBERROR_SUCCESS;
 }
@@ -307,7 +307,7 @@ static void VbBootDeveloperSoundTest(void) {
   int num_tests =  sizeof(test) / sizeof(test_case_t);
 
   for (i=0; i<num_tests; i++) {
-    VBDEBUG(("STARTING %s ...\n", test[i].name));
+    VB2_DEBUG("STARTING %s ...\n", test[i].name);
     ResetMocks();
     gbb.flags = test[i].gbb_flags;
     beep_return = test[i].beep_return;
@@ -316,8 +316,8 @@ static void VbBootDeveloperSoundTest(void) {
     max_events = test[i].num_events;
     expected_event = test[i].notes;
     (void) VbBootDeveloper(&ctx, &cparams);
-    VBDEBUG(("INFO: matched %d total %d expected %d\n",
-             matched_events, current_event, test[i].num_events));
+    VB2_DEBUG("INFO: matched %d total %d expected %d\n",
+	      matched_events, current_event, test[i].num_events);
     TEST_TRUE(matched_events == test[i].num_events &&
               current_event == test[i].num_events, test[i].name);
   }

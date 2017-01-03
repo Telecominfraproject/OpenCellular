@@ -14,13 +14,6 @@
 #include "sysincludes.h"
 #include "vboot_api.h"
 
-/* Debug and error output */
-#ifdef VBOOT_DEBUG
-#define VBDEBUG(params) VbExDebug params
-#else
-#define VBDEBUG(params)
-#endif
-
 #ifdef VBOOT_DEBUG
 #define VbAssert(expr) do { if (!(expr)) { \
     VbExError("assert fail: %s at %s:%d\n", \
