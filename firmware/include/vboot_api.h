@@ -824,7 +824,12 @@ enum VbKeyCode_t {
 	VB_KEY_DOWN = 0x101,
 	VB_KEY_LEFT = 0x102,
 	VB_KEY_RIGHT = 0x103,
-	VB_KEY_CTRL_ENTER = 0x104,
+	VB_KEY_CTRL_ENTER = 0x104
+};
+
+enum VbButtonCode_t {
+	VB_BUTTON_VOL_UP = 0x62,
+	VB_BUTTON_VOL_DOWN = 0x63
 };
 
 /* Flags for additional information.
