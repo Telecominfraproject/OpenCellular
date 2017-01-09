@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2016 secunet Security Networks AG
+-- Copyright (C) 2016-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Registers;
+with HW.GFX.GMA.Config_Helpers;
 
 package body HW.GFX.GMA.Port_Detect
 is
@@ -125,15 +126,15 @@ is
       end loop;
    end Initialize;
 
-   procedure Hotplug_Detect (Port_Cfg : in Port_Config; Detected : out Boolean)
+   procedure Hotplug_Detect (Port : in Active_Port_Type; Detected : out Boolean)
    is
       Ctl32 : Word32;
       PCH_Port : constant GMA.PCH_Port :=
-        (case Port_Cfg.PCH_Port is
-            when PCH_DP_B  => PCH_HDMI_B,
-            when PCH_DP_C  => PCH_HDMI_C,
-            when PCH_DP_D  => PCH_HDMI_D,
-            when others    => Port_Cfg.PCH_Port);
+        (case Port is
+            when DP1    => PCH_HDMI_B,
+            when DP2    => PCH_HDMI_C,
+            when DP3    => PCH_HDMI_D,
+            when others => Config_Helpers.To_PCH_Port (Port));
    begin
       case PCH_Port is
          when PCH_DAC =>

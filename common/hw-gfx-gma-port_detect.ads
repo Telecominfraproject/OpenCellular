@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2016 secunet Security Networks AG
+-- Copyright (C) 2016-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@ private package HW.GFX.GMA.Port_Detect is
 
    procedure Initialize;
 
-   procedure Hotplug_Detect (Port_Cfg : in Port_Config; Detected : out Boolean);
+   procedure Hotplug_Detect
+     (Port     : in Active_Port_Type;
+      Detected : out Boolean);
 
 end HW.GFX.GMA.Port_Detect;

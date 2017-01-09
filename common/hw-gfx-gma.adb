@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2014-2016 secunet Security Networks AG
+-- Copyright (C) 2014-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ is
    type PLLs_Type is array (Pipe_Index) of PLLs.T;
 
    type HPD_Type is array (Port_Type) of Boolean;
-   type HPD_Delay_Type is array (Port_Type) of Time.T;
+   type HPD_Delay_Type is array (Active_Port_Type) of Time.T;
 
    Allocated_PLLs : PLLs_Type;
    HPD_Delay : HPD_Delay_Type;
@@ -80,21 +80,6 @@ is
 
    ----------------------------------------------------------------------------
 
-   procedure Check_HPD
-     (Port_Cfg : in     Port_Config;
-      Port     : in     Port_Type;
-      Detected :    out Boolean)
-   is
-      HPD_Delay_Over : constant Boolean := Time.Timed_Out (HPD_Delay (Port));
-   begin
-      if HPD_Delay_Over then
-         Port_Detect.Hotplug_Detect (Port_Cfg, Detected);
-         HPD_Delay (Port) := Time.MS_From_Now (333);
-      else
-         Detected := False;
-      end if;
-   end Check_HPD;
-
    procedure Enable_Output
      (Pipe     : in     Pipe_Index;
       Pipe_Cfg : in     Pipe_Config;
@@ -102,6 +87,10 @@ is
    is
       Port_Cfg : Port_Config;
    begin
+      pragma Debug (Debug.New_Line);
+      pragma Debug (Debug.Put_Line
+        ("Trying to enable port " & Port_Names (Pipe_Cfg.Port)));
+
       Config_Helpers.Fill_Port_Config
         (Port_Cfg, Pipe, Pipe_Cfg.Port, Pipe_Cfg.Mode, Success);
 
@@ -110,16 +99,7 @@ is
            (Pipe_Cfg.Framebuffer, Port_Cfg, Pipe);
       end if;
 
-      if Success and then Wait_For_HPD (Pipe_Cfg.Port) then
-         Check_HPD (Port_Cfg, Pipe_Cfg.Port, Success);
-         Wait_For_HPD (Pipe_Cfg.Port) := not Success;
-      end if;
-
       if Success then
-         pragma Debug (Debug.New_Line);
-         pragma Debug (Debug.Put_Line
-           ("Trying to enable port " & Port_Names (Pipe_Cfg.Port)));
-
          Connector_Info.Preferred_Link_Setting (Port_Cfg, Success);
       end if;
 
@@ -186,6 +166,27 @@ is
       end if;
    end Enable_Output;
 
+   procedure Disable_Output (Pipe : Pipe_Index; Pipe_Cfg : Pipe_Config)
+   is
+      Port_Cfg : Port_Config;
+      Success  : Boolean;
+   begin
+      Config_Helpers.Fill_Port_Config
+        (Port_Cfg, Pipe, Pipe_Cfg.Port, Pipe_Cfg.Mode, Success);
+      if Success then
+         pragma Debug (Debug.New_Line);
+         pragma Debug (Debug.Put_Line
+           ("Disabling port " & Port_Names (Pipe_Cfg.Port)));
+         pragma Debug (Debug.New_Line);
+
+         Connectors.Pre_Off (Port_Cfg);
+         Display_Controller.Off (Pipe);
+         Connectors.Post_Off (Port_Cfg);
+
+         PLLs.Free (Allocated_PLLs (Pipe));
+      end if;
+   end Disable_Output;
+
    procedure Update_Outputs (Configs : Pipe_Configs)
    is
       Did_Power_Up : Boolean := False;
@@ -193,7 +194,18 @@ is
       HPD, Success : Boolean;
       Old_Config, New_Config : Pipe_Config;
       Old_Configs : Pipe_Configs;
-      Port_Cfg : Port_Config;
+
+      procedure Check_HPD (Port : in Active_Port_Type; Detected : out Boolean)
+      is
+         HPD_Delay_Over : constant Boolean := Time.Timed_Out (HPD_Delay (Port));
+      begin
+         if HPD_Delay_Over then
+            Port_Detect.Hotplug_Detect (Port, Detected);
+            HPD_Delay (Port) := Time.MS_From_Now (333);
+         else
+            Detected := False;
+         end if;
+      end Check_HPD;
    begin
       Old_Configs := Cur_Configs;
 
@@ -203,43 +215,37 @@ is
          Old_Config := Cur_Configs (I);
          New_Config := Configs (I);
 
-         Config_Helpers.Fill_Port_Config
-           (Port_Cfg, I, Old_Configs (I).Port, Old_Configs (I).Mode, Success);
-         if Success then
-            Check_HPD (Port_Cfg, Old_Config.Port, HPD);
+         if Old_Config.Port /= Disabled then
+            Check_HPD (Old_Config.Port, HPD);
          end if;
 
-         -- Connector changed?
-         if (Success and then HPD) or
+         -- hotplug event or configuration changed?
+         if HPD or
             Old_Config.Port /= New_Config.Port or
             Old_Config.Mode /= New_Config.Mode
          then
+            -- disable old configuration if any
             if Old_Config.Port /= Disabled then
-               if Success then
-                  pragma Debug (Debug.New_Line);
-                  pragma Debug (Debug.Put_Line
-                    ("Disabling port " & Port_Names (Old_Config.Port)));
-
-                  Connectors.Pre_Off (Port_Cfg);
-
-                  Display_Controller.Off (I);
-
-                  Connectors.Post_Off (Port_Cfg);
-               end if;
-
-               -- Free PLL
-               PLLs.Free (Allocated_PLLs (I));
-
+               Disable_Output (I, Old_Config);
                Cur_Configs (I).Port := Disabled;
             end if;
 
+            -- enable new configuration if any
             if New_Config.Port /= Disabled then
-               if not Did_Power_Up then
-                  Power_And_Clocks.Power_Up (Old_Configs, Configs);
-                  Did_Power_Up := True;
+               if Wait_For_HPD (New_Config.Port) then
+                  Check_HPD (New_Config.Port, Success);
+                  Wait_For_HPD (New_Config.Port) := not Success;
+               else
+                  Success := True;
                end if;
 
-               Enable_Output (I, New_Config, Success);
+               if Success then
+                  if not Did_Power_Up then
+                     Power_And_Clocks.Power_Up (Old_Configs, Configs);
+                     Did_Power_Up := True;
+                  end if;
+                  Enable_Output (I, New_Config, Success);
+               end if;
 
                if Success then
                   Cur_Configs (I) := New_Config;
@@ -247,6 +253,8 @@ is
             else
                Cur_Configs (I) := New_Config;
             end if;
+
+         -- update framebuffer offset only
          elsif Old_Config.Framebuffer /= New_Config.Framebuffer and
                Old_Config.Port /= Disabled
          then

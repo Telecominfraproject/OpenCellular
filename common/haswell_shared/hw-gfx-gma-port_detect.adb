@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2016 secunet Security Networks AG
+-- Copyright (C) 2016-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
 
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Registers;
+with HW.GFX.GMA.Config_Helpers;
 
 package body HW.GFX.GMA.Port_Detect
 is
@@ -149,11 +150,13 @@ is
       end loop;
    end Initialize;
 
-   procedure Hotplug_Detect (Port_Cfg : in Port_Config; Detected : out Boolean)
+   procedure Hotplug_Detect (Port : in Active_Port_Type; Detected : out Boolean)
    is
       Ctl32 : Word32;
+      GPU_Port : constant GMA.GPU_Port :=
+         Config_Helpers.To_GPU_Port (Primary, Port);
    begin
-      if Port_Cfg.Display = VGA then
+      if Port = Analog then
          Registers.Read (Registers.PCH_ADPA, Ctl32, Verbose => False);
          Ctl32 := Ctl32 and PCH_ADPA_CRT_HPD_CHANNEL_MASK;
          Detected := Ctl32 = PCH_ADPA_CRT_HPD_CHANNEL_MASK;
@@ -162,7 +165,7 @@ is
               (Register => Registers.PCH_ADPA,
                Mask     => PCH_ADPA_CRT_HPD_CHANNEL_MASK);
          end if;
-      elsif Config.Has_HOTPLUG_CTL and then Port_Cfg.Port = DIGI_A then
+      elsif Config.Has_HOTPLUG_CTL and then GPU_Port = DIGI_A then
          Registers.Read (Registers.HOTPLUG_CTL, Ctl32, Verbose => False);
          Detected := (Ctl32 and HOTPLUG_CTL_DDI_A_HPD_LONG_DETECT) /= 0;
 
@@ -171,16 +174,15 @@ is
               (Register => Registers.HOTPLUG_CTL,
                Mask     => HOTPLUG_CTL_DDI_A_HPD_STATUS);
          end if;
-      elsif Port_Cfg.Port in DIGI_A .. DIGI_D then
+      elsif GPU_Port in DIGI_A .. DIGI_D then
          Registers.Read (Registers.SHOTPLUG_CTL, Ctl32, Verbose => False);
-         Detected :=
-           (Ctl32 and SHOTPLUG_CTL_LONG_DETECT (Port_Cfg.Port)) /= 0;
+         Detected := (Ctl32 and SHOTPLUG_CTL_LONG_DETECT (GPU_Port)) /= 0;
 
-         if (Ctl32 and SHOTPLUG_CTL_HPD_STATUS (Port_Cfg.Port)) /= 0 then
+         if (Ctl32 and SHOTPLUG_CTL_HPD_STATUS (GPU_Port)) /= 0 then
             Registers.Unset_And_Set_Mask
               (Register    => Registers.SHOTPLUG_CTL,
                Mask_Unset  => SHOTPLUG_CTL_DETECT_MASK,
-               Mask_Set    => SHOTPLUG_CTL_HPD_STATUS (Port_Cfg.Port));
+               Mask_Set    => SHOTPLUG_CTL_HPD_STATUS (GPU_Port));
          end if;
       else
          Detected := False;

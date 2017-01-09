@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -16,6 +16,11 @@ with HW;
 
 private package HW.GFX.GMA.Config_Helpers
 is
+
+   function To_GPU_Port
+     (Pipe  : Pipe_Index;
+      Port  : Active_Port_Type)
+      return GPU_Port;
 
    function To_PCH_Port (Port : Active_Port_Type) return PCH_Port;
 
