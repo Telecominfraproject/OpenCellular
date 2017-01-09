@@ -80,29 +80,120 @@ is
 
    ----------------------------------------------------------------------------
 
+   procedure Check_HPD
+     (Port_Cfg : in     Port_Config;
+      Port     : in     Port_Type;
+      Detected :    out Boolean)
+   is
+      HPD_Delay_Over : constant Boolean := Time.Timed_Out (HPD_Delay (Port));
+   begin
+      if HPD_Delay_Over then
+         Port_Detect.Hotplug_Detect (Port_Cfg, Detected);
+         HPD_Delay (Port) := Time.MS_From_Now (333);
+      else
+         Detected := False;
+      end if;
+   end Check_HPD;
+
+   procedure Enable_Output
+     (Pipe     : in     Pipe_Index;
+      Pipe_Cfg : in     Pipe_Config;
+      Success  :    out Boolean)
+   is
+      Port_Cfg : Port_Config;
+   begin
+      Config_Helpers.Fill_Port_Config
+        (Port_Cfg, Pipe, Pipe_Cfg.Port, Pipe_Cfg.Mode, Success);
+
+      if Success then
+         Success := Config_Helpers.Validate_Config
+           (Pipe_Cfg.Framebuffer, Port_Cfg, Pipe);
+      end if;
+
+      if Success and then Wait_For_HPD (Pipe_Cfg.Port) then
+         Check_HPD (Port_Cfg, Pipe_Cfg.Port, Success);
+         Wait_For_HPD (Pipe_Cfg.Port) := not Success;
+      end if;
+
+      if Success then
+         pragma Debug (Debug.New_Line);
+         pragma Debug (Debug.Put_Line
+           ("Trying to enable port " & Port_Names (Pipe_Cfg.Port)));
+
+         Connector_Info.Preferred_Link_Setting (Port_Cfg, Success);
+      end if;
+
+      -- loop over all possible DP-lane configurations
+      -- (non-DP ports use a single fake configuration)
+      while Success loop
+         pragma Loop_Invariant
+           (Pipe_Cfg.Port in Active_Port_Type and
+            Port_Cfg.Mode = Port_Cfg.Mode'Loop_Entry);
+
+         PLLs.Alloc
+           (Port_Cfg => Port_Cfg,
+            PLL      => Allocated_PLLs (Pipe),
+            Success  => Success);
+
+         if Success then
+            -- try each DP-lane configuration twice
+            for Try in 1 .. 2 loop
+               pragma Loop_Invariant
+                 (Pipe_Cfg.Port in Active_Port_Type);
+
+               Connectors.Pre_On
+                 (Pipe        => Pipe,
+                  Port_Cfg    => Port_Cfg,
+                  PLL_Hint    => PLLs.Register_Value (Allocated_PLLs (Pipe)),
+                  Success     => Success);
+
+               if Success then
+                  Display_Controller.On
+                    (Pipe        => Pipe,
+                     Port_Cfg    => Port_Cfg,
+                     Framebuffer => Pipe_Cfg.Framebuffer);
+
+                  Connectors.Post_On
+                    (Port_Cfg => Port_Cfg,
+                     PLL_Hint => PLLs.Register_Value (Allocated_PLLs (Pipe)),
+                     Success  => Success);
+
+                  if not Success then
+                     Display_Controller.Off (Pipe);
+                     Connectors.Post_Off (Port_Cfg);
+                  end if;
+               end if;
+
+               exit when Success;
+            end loop;
+            exit when Success;   -- connection established => stop loop
+
+            -- connection failed
+            PLLs.Free (Allocated_PLLs (Pipe));
+         end if;
+
+         Connector_Info.Next_Link_Setting (Port_Cfg, Success);
+      end loop;
+
+      if Success then
+         pragma Debug (Debug.Put_Line
+           ("Enabled port " & Port_Names (Pipe_Cfg.Port)));
+      else
+         Wait_For_HPD (Pipe_Cfg.Port) := True;
+         if Pipe_Cfg.Port = Internal then
+            Panel.Off;
+         end if;
+      end if;
+   end Enable_Output;
+
    procedure Update_Outputs (Configs : Pipe_Configs)
    is
       Did_Power_Up : Boolean := False;
 
-      HPD, HPD_Delay_Over, Success : Boolean;
+      HPD, Success : Boolean;
       Old_Config, New_Config : Pipe_Config;
       Old_Configs : Pipe_Configs;
       Port_Cfg : Port_Config;
-
-      procedure Check_HPD
-        (Port_Cfg : in     Port_Config;
-         Port     : in     Port_Type;
-         Detected :    out Boolean)
-      is
-      begin
-         HPD_Delay_Over := Time.Timed_Out (HPD_Delay (Port));
-         if HPD_Delay_Over then
-            Port_Detect.Hotplug_Detect (Port_Cfg, Detected);
-            HPD_Delay (Port) := Time.MS_From_Now (333);
-         else
-            Detected := False;
-         end if;
-      end Check_HPD;
    begin
       Old_Configs := Cur_Configs;
 
@@ -143,97 +234,15 @@ is
             end if;
 
             if New_Config.Port /= Disabled then
-               Config_Helpers.Fill_Port_Config
-                 (Port_Cfg, I, Configs (I).Port, Configs (I).Mode, Success);
-
-               if Success then
-                  Success := Config_Helpers.Validate_Config
-                    (New_Config.Framebuffer, Port_Cfg, I);
+               if not Did_Power_Up then
+                  Power_And_Clocks.Power_Up (Old_Configs, Configs);
+                  Did_Power_Up := True;
                end if;
 
-               if Success and then Wait_For_HPD (New_Config.Port) then
-                  Check_HPD (Port_Cfg, New_Config.Port, Success);
-                  Wait_For_HPD (New_Config.Port) := not Success;
-               end if;
+               Enable_Output (I, New_Config, Success);
 
                if Success then
-                  pragma Debug (Debug.New_Line);
-                  pragma Debug (Debug.Put_Line
-                    ("Trying to enable port " & Port_Names (New_Config.Port)));
-
-                  if not Did_Power_Up then
-                     Power_And_Clocks.Power_Up (Old_Configs, Configs);
-                     Did_Power_Up := True;
-                  end if;
-               end if;
-
-               if Success then
-                  Connector_Info.Preferred_Link_Setting
-                    (Port_Cfg => Port_Cfg,
-                     Success  => Success);
-               end if;
-
-               while Success loop
-                  pragma Loop_Invariant
-                    (New_Config.Port in Active_Port_Type and
-                     Port_Cfg.Mode = Port_Cfg.Mode'Loop_Entry);
-
-                  PLLs.Alloc
-                    (Port_Cfg => Port_Cfg,
-                     PLL      => Allocated_PLLs (I),
-                     Success  => Success);
-
-                  if Success then
-                     for Try in 1 .. 2 loop
-                        pragma Loop_Invariant
-                          (New_Config.Port in Active_Port_Type);
-
-                        Connectors.Pre_On
-                          (Pipe     => I,
-                           Port_Cfg => Port_Cfg,
-                           PLL_Hint => PLLs.Register_Value (Allocated_PLLs (I)),
-                           Success  => Success);
-
-                        if Success then
-                           Display_Controller.On
-                             (Pipe        => I,
-                              Port_Cfg    => Port_Cfg,
-                              Framebuffer => New_Config.Framebuffer);
-
-                           Connectors.Post_On
-                             (Port_Cfg => Port_Cfg,
-                              PLL_Hint => PLLs.Register_Value
-                                            (Allocated_PLLs (I)),
-                              Success  => Success);
-
-                           if not Success then
-                              Display_Controller.Off (I);
-                              Connectors.Post_Off (Port_Cfg);
-                           end if;
-                        end if;
-
-                        exit when Success;
-                     end loop;
-                     exit when Success;   -- connection established => stop loop
-
-                     -- connection failed
-                     PLLs.Free (Allocated_PLLs (I));
-                  end if;
-
-                  Connector_Info.Next_Link_Setting
-                    (Port_Cfg => Port_Cfg,
-                     Success  => Success);
-               end loop;
-
-               if Success then
-                  pragma Debug (Debug.Put_Line
-                    ("Enabled port " & Port_Names (New_Config.Port)));
                   Cur_Configs (I) := New_Config;
-               else
-                  Wait_For_HPD (New_Config.Port) := True;
-                  if New_Config.Port = Internal then
-                     Panel.Off;
-                  end if;
                end if;
             else
                Cur_Configs (I) := New_Config;
