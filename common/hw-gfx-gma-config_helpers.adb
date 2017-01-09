@@ -139,32 +139,30 @@ is
             FDI      => Default_DP,
             DP       => Default_DP);
 
-         if Port_Cfg.Is_FDI then
-            Configure_FDI_Link (Port_Cfg, Success);
+         if Port_Cfg.Mode.BPC = Auto_BPC then
+            Port_Cfg.Mode.BPC := Connector_Info.Default_BPC (Port_Cfg);
          end if;
 
-         if Success then
-            if Port_Cfg.Mode.BPC = Auto_BPC then
-               Port_Cfg.Mode.BPC := Connector_Info.Default_BPC (Port_Cfg);
-            end if;
+         if Port_Cfg.Display = HDMI then
+            declare
+               pragma Assert (Config.HDMI_Max_Clock_24bpp * 8
+                              / Port_Cfg.Mode.BPC >= Frequency_Type'First);
+               Max_Dotclock : constant Frequency_Type :=
+                  Config.HDMI_Max_Clock_24bpp * 8 / Port_Cfg.Mode.BPC;
+            begin
+               if Port_Cfg.Mode.Dotclock > Max_Dotclock then
+                  pragma Debug (Debug.Put ("Dotclock "));
+                  pragma Debug (Debug.Put_Int64 (Port_Cfg.Mode.Dotclock));
+                  pragma Debug (Debug.Put (" too high, limiting to "));
+                  pragma Debug (Debug.Put_Int64 (Max_Dotclock));
+                  pragma Debug (Debug.Put_Line ("."));
+                  Port_Cfg.Mode.Dotclock := Max_Dotclock;
+               end if;
+            end;
+         end if;
 
-            if Port_Cfg.Display = HDMI then
-               declare
-                  pragma Assert (Config.HDMI_Max_Clock_24bpp * 8
-                                 / Port_Cfg.Mode.BPC >= Frequency_Type'First);
-                  Max_Dotclock : constant Frequency_Type :=
-                     Config.HDMI_Max_Clock_24bpp * 8 / Port_Cfg.Mode.BPC;
-               begin
-                  if Port_Cfg.Mode.Dotclock > Max_Dotclock then
-                     pragma Debug (Debug.Put ("Dotclock "));
-                     pragma Debug (Debug.Put_Int64 (Port_Cfg.Mode.Dotclock));
-                     pragma Debug (Debug.Put (" too high, limiting to "));
-                     pragma Debug (Debug.Put_Int64 (Max_Dotclock));
-                     pragma Debug (Debug.Put_Line ("."));
-                     Port_Cfg.Mode.Dotclock := Max_Dotclock;
-                  end if;
-               end;
-            end if;
+         if Port_Cfg.Is_FDI then
+            Configure_FDI_Link (Port_Cfg, Success);
          end if;
       else
          Port_Cfg := Port_Config'
