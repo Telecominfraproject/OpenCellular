@@ -35,7 +35,7 @@ package body HW.GFX.GMA
      (State =>
         (Registers.Address_State,
          PLLs.State, Panel.Panel_State,
-         Cur_Configs, Allocated_PLLs, DP_Links,
+         Cur_Configs, Allocated_PLLs,
          HPD_Delay, Wait_For_HPD),
       Init_State => Initialized,
       Config_State => Config.Valid_Port_GPU,
@@ -60,13 +60,10 @@ is
 
    type PLLs_Type is array (Pipe_Index) of PLLs.T;
 
-   type Links_Type is array (Pipe_Index) of DP_Link;
-
    type HPD_Type is array (Port_Type) of Boolean;
    type HPD_Delay_Type is array (Port_Type) of Time.T;
 
    Allocated_PLLs : PLLs_Type;
-   DP_Links : Links_Type;
    HPD_Delay : HPD_Delay_Type;
    Wait_For_HPD : HPD_Type;
    Initialized : Boolean := False;
@@ -117,7 +114,6 @@ is
 
          Config_Helpers.Fill_Port_Config
            (Port_Cfg, I, Old_Configs (I).Port, Old_Configs (I).Mode, Success);
-         Port_Cfg.DP := DP_Links (I);
          if Success then
             Check_HPD (Port_Cfg, Old_Config.Port, HPD);
          end if;
@@ -233,7 +229,6 @@ is
                   pragma Debug (Debug.Put_Line
                     ("Enabled port " & Port_Names (New_Config.Port)));
                   Cur_Configs (I) := New_Config;
-                  DP_Links (I) := Port_Cfg.DP;
                else
                   Wait_For_HPD (New_Config.Port) := True;
                   if New_Config.Port = Internal then
@@ -274,7 +269,7 @@ is
          Output =>
            (Registers.Address_State,
             PLLs.State, Panel.Panel_State,
-            Cur_Configs, Allocated_PLLs, DP_Links,
+            Cur_Configs, Allocated_PLLs,
             HPD_Delay, Wait_For_HPD, Initialized))
    is
       use type HW.Word64;
@@ -311,7 +306,6 @@ is
 
       Wait_For_HPD := HPD_Type'(others => False);
       HPD_Delay := HPD_Delay_Type'(others => Now);
-      DP_Links := Links_Type'(others => HW.GFX.Default_DP);
       Allocated_PLLs := (others => PLLs.Invalid);
       Cur_Configs := Pipe_Configs'
         (others => Pipe_Config'
