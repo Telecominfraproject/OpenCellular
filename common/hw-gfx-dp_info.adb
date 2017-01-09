@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -138,15 +138,6 @@ package body HW.GFX.DP_Info is
       Success := Success and
                   Link.Lane_Count <= Link.Receiver_Caps.Max_Lane_Count;
 
-      pragma Debug (Success, Debug.Put ("Trying DP settings: Symbol Rate = "));
-      pragma Debug (Success, Debug.Put_Int32
-        (Int32 (DP_Symbol_Rate (Link.Bandwidth))));
-      pragma Debug (Success, Debug.Put ("; Lane Count = "));
-      pragma Debug (Success, Debug.Put_Int32
-        (Int32 (Lane_Count_As_Integer (Link.Lane_Count))));
-      pragma Debug (Success, Debug.New_Line);
-      pragma Debug (Success, Debug.New_Line);
-
       pragma Debug (not Success, Debug.Put_Line
         ("Mode requirements exceed available bandwidth!"));
    end Preferred_Link_Setting;
@@ -167,16 +158,18 @@ package body HW.GFX.DP_Info is
       else
          Success := False;
       end if;
-
-      pragma Debug (Success, Debug.Put ("Trying DP settings: Symbol Rate = "));
-      pragma Debug (Success, Debug.Put_Int32
-        (Int32 (DP_Symbol_Rate (Link.Bandwidth))));
-      pragma Debug (Success, Debug.Put ("; Lane Count = "));
-      pragma Debug (Success, Debug.Put_Int32
-        (Int32 (Lane_Count_As_Integer (Link.Lane_Count))));
-      pragma Debug (Success, Debug.New_Line);
-      pragma Debug (Success, Debug.New_Line);
    end Next_Link_Setting;
+
+   procedure Dump_Link_Setting (Link : DP_Link)
+   is
+   begin
+      Debug.Put ("Trying DP settings: Symbol Rate = ");
+      Debug.Put_Int32 (Int32 (DP_Symbol_Rate (Link.Bandwidth)));
+      Debug.Put ("; Lane Count = ");
+      Debug.Put_Int32 (Int32 (Lane_Count_As_Integer (Link.Lane_Count)));
+      Debug.New_Line;
+      Debug.New_Line;
+   end Dump_Link_Setting;
 
    ----------------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -90,6 +90,11 @@ package HW.GFX.DP_Info is
      (Link        : in out DP_Link;
       Mode        : in     Mode_Type;
       Success     :    out Boolean);
+
+   pragma Warnings
+     (GNATprove, Off, "subprogram ""Dump_Link_Setting"" has no effect",
+      Reason => "It's only used for debugging");
+   procedure Dump_Link_Setting (Link : DP_Link);
 
    ----------------------------------------------------------------------------
 

@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ package body HW.GFX.GMA.Connector_Info is
               (Link     => Port_Cfg.DP,
                Mode     => Port_Cfg.Mode,
                Success  => Success);
+            pragma Debug (Success, DP_Info.Dump_Link_Setting (Port_Cfg.DP));
          end if;
       else
          Success := True;
@@ -73,6 +74,7 @@ package body HW.GFX.GMA.Connector_Info is
            (Link     => Port_Cfg.DP,
             Mode     => Port_Cfg.Mode,
             Success  => Success);
+         pragma Debug (Success, DP_Info.Dump_Link_Setting (Port_Cfg.DP));
       else
          Success := False;
       end if;
