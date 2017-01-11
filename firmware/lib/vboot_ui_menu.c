@@ -657,15 +657,18 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		case VB_KEY_UP:
 			vb2_get_current_menu_size(current_menu,
 						  NULL, &menu_size);
-			current_menu_idx = (current_menu_idx+menu_size-1) %
-				menu_size;
+			// do not wrap selection index
+			if (current_menu_idx > 0)
+				current_menu_idx--;
 			vb2_print_current_menu();
 			break;
 		case VB_BUTTON_VOL_DOWN:
 		case VB_KEY_DOWN:
 			vb2_get_current_menu_size(current_menu,
 						  NULL, &menu_size);
-			current_menu_idx = (current_menu_idx+1) % menu_size;
+			// do no wrap selection index
+			if (current_menu_idx < menu_size-1)
+				current_menu_idx++;
 			vb2_print_current_menu();
 			break;
 		case VB_KEY_RIGHT:
@@ -907,14 +910,16 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			case VB_KEY_UP:
 				VB2_DEBUG("VbBootRecoveryMenu() - pressed key VB_KEY_UP\n");
 				vb2_get_current_menu_size(current_menu, NULL, &menu_size);
-				current_menu_idx = (current_menu_idx+menu_size-1) % menu_size;
+				if (current_menu_idx > 0)
+					current_menu_idx--;
 				vb2_print_current_menu();
 				break;
 			case VB_BUTTON_VOL_DOWN:
 			case VB_KEY_DOWN:
 				VB2_DEBUG("VbBootRecoveryMenu() - pressed key VB_KEY_DOWN\n");
 				vb2_get_current_menu_size(current_menu, NULL, &menu_size);
-				current_menu_idx = (current_menu_idx+1) % menu_size;
+				if (current_menu_idx < menu_size-1)
+					current_menu_idx++;
 				vb2_print_current_menu();
 				break;
 			case VB_KEY_RIGHT:
