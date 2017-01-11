@@ -201,8 +201,19 @@ is
          end if;
       end Check_HPD;
 
-      Did_Power_Up   : Boolean := False;
+      Power_Changed  : Boolean := False;
       Old_Configs    : Pipe_Configs;
+
+      -- Only called when we actually tried to change something
+      -- so we don't congest the log with unnecessary messages.
+      procedure Update_Power
+      is
+      begin
+         if not Power_Changed then
+            Power_And_Clocks.Power_Up (Old_Configs, Configs);
+            Power_Changed := True;
+         end if;
+      end Update_Power;
    begin
       Old_Configs := Cur_Configs;
 
@@ -222,6 +233,7 @@ is
                then
                   Disable_Output (Pipe, Cur_Config);
                   Cur_Config.Port := Disabled;
+                  Update_Power;
                end if;
             end if;
          end;
@@ -246,10 +258,7 @@ is
                end if;
 
                if Success then
-                  if not Did_Power_Up then
-                     Power_And_Clocks.Power_Up (Old_Configs, Configs);
-                     Did_Power_Up := True;
-                  end if;
+                  Update_Power;
                   Enable_Output (Pipe, New_Config, Success);
                end if;
 
@@ -267,7 +276,7 @@ is
          end;
       end loop;
 
-      if Did_Power_Up then
+      if Power_Changed then
          Power_And_Clocks.Power_Down (Old_Configs, Configs, Cur_Configs);
       end if;
    end Update_Outputs;
