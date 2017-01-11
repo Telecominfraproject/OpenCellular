@@ -189,12 +189,6 @@ is
 
    procedure Update_Outputs (Configs : Pipe_Configs)
    is
-      Did_Power_Up : Boolean := False;
-
-      HPD, Success : Boolean;
-      Old_Config, New_Config : Pipe_Config;
-      Old_Configs : Pipe_Configs;
-
       procedure Check_HPD (Port : in Active_Port_Type; Detected : out Boolean)
       is
          HPD_Delay_Over : constant Boolean := Time.Timed_Out (HPD_Delay (Port));
@@ -206,32 +200,44 @@ is
             Detected := False;
          end if;
       end Check_HPD;
+
+      Did_Power_Up   : Boolean := False;
+      Old_Configs    : Pipe_Configs;
    begin
       Old_Configs := Cur_Configs;
 
-      for I in Pipe_Index loop
-         HPD := False;
+      -- disable all pipes that changed or had a hot-plug event
+      for Pipe in Pipe_Index loop
+         declare
+            Unplug_Detected : Boolean;
+            Cur_Config : Pipe_Config renames Cur_Configs (Pipe);
+            New_Config : Pipe_Config renames Configs (Pipe);
+         begin
+            if Cur_Config.Port /= Disabled then
+               Check_HPD (Cur_Config.Port, Unplug_Detected);
 
-         Old_Config := Cur_Configs (I);
-         New_Config := Configs (I);
-
-         if Old_Config.Port /= Disabled then
-            Check_HPD (Old_Config.Port, HPD);
-         end if;
-
-         -- hotplug event or configuration changed?
-         if HPD or
-            Old_Config.Port /= New_Config.Port or
-            Old_Config.Mode /= New_Config.Mode
-         then
-            -- disable old configuration if any
-            if Old_Config.Port /= Disabled then
-               Disable_Output (I, Old_Config);
-               Cur_Configs (I).Port := Disabled;
+               if Cur_Config.Port /= New_Config.Port or
+                  Cur_Config.Mode /= New_Config.Mode or
+                  Unplug_Detected
+               then
+                  Disable_Output (Pipe, Cur_Config);
+                  Cur_Config.Port := Disabled;
+               end if;
             end if;
+         end;
+      end loop;
 
-            -- enable new configuration if any
-            if New_Config.Port /= Disabled then
+      -- enable all pipes that changed and should be active
+      for Pipe in Pipe_Index loop
+         declare
+            Success : Boolean;
+            Cur_Config : Pipe_Config renames Cur_Configs (Pipe);
+            New_Config : Pipe_Config renames Configs (Pipe);
+         begin
+            if New_Config.Port /= Disabled and then
+               (Cur_Config.Port /= New_Config.Port or
+                Cur_Config.Mode /= New_Config.Mode)
+            then
                if Wait_For_HPD (New_Config.Port) then
                   Check_HPD (New_Config.Port, Success);
                   Wait_For_HPD (New_Config.Port) := not Success;
@@ -244,29 +250,26 @@ is
                      Power_And_Clocks.Power_Up (Old_Configs, Configs);
                      Did_Power_Up := True;
                   end if;
-                  Enable_Output (I, New_Config, Success);
+                  Enable_Output (Pipe, New_Config, Success);
                end if;
 
                if Success then
-                  Cur_Configs (I) := New_Config;
+                  Cur_Config := New_Config;
                end if;
-            else
-               Cur_Configs (I) := New_Config;
-            end if;
 
-         -- update framebuffer offset only
-         elsif Old_Config.Framebuffer /= New_Config.Framebuffer and
-               Old_Config.Port /= Disabled
-         then
-            Display_Controller.Update_Offset (I, New_Config.Framebuffer);
-            Cur_Configs (I) := New_Config;
-         end if;
+            -- update framebuffer offset only
+            elsif New_Config.Port /= Disabled and
+                  Cur_Config.Framebuffer /= New_Config.Framebuffer
+            then
+               Display_Controller.Update_Offset (Pipe, New_Config.Framebuffer);
+               Cur_Config := New_Config;
+            end if;
+         end;
       end loop;
 
       if Did_Power_Up then
          Power_And_Clocks.Power_Down (Old_Configs, Configs, Cur_Configs);
       end if;
-
    end Update_Outputs;
 
    ----------------------------------------------------------------------------
