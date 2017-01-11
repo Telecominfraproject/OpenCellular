@@ -827,9 +827,11 @@ enum VbKeyCode_t {
 	VB_KEY_CTRL_ENTER = 0x104
 };
 
+/* Button codes match that of 8042 ascii values */
 enum VbButtonCode_t {
 	VB_BUTTON_VOL_UP = 0x62,
-	VB_BUTTON_VOL_DOWN = 0x63
+	VB_BUTTON_VOL_DOWN = 0x63,
+	VB_BUTTON_POWER = 0x90
 };
 
 /* Flags for additional information.
