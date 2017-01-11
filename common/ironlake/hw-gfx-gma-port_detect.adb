@@ -159,4 +159,14 @@ is
       end case;
    end Hotplug_Detect;
 
+   procedure Clear_Hotplug_Detect (Port : Active_Port_Type)
+   is
+      Ignored_HPD : Boolean;
+   begin
+      pragma Warnings (GNATprove, Off, "unused assignment to ""Ignored_HPD""",
+                       Reason => "We want to clear pending events only");
+      Port_Detect.Hotplug_Detect (Port, Ignored_HPD);
+      pragma Warnings (GNATprove, On, "unused assignment to ""Ignored_HPD""");
+   end Clear_Hotplug_Detect;
+
 end HW.GFX.GMA.Port_Detect;

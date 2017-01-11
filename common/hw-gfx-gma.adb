@@ -121,6 +121,9 @@ is
                pragma Loop_Invariant
                  (Pipe_Cfg.Port in Active_Port_Type);
 
+               -- Clear pending hot-plug events before every try
+               Port_Detect.Clear_Hotplug_Detect (Pipe_Cfg.Port);
+
                Connectors.Pre_On
                  (Pipe        => Pipe,
                   Port_Cfg    => Port_Cfg,
