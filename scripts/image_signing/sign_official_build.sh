@@ -39,6 +39,7 @@ where <type> is one of:
              nv_lp0_firmware (sign nvidia lp0 firmware)
              accessory_usbpd (sign USB-PD accessory firmware)
              accessory_rwsig (sign accessory RW firmware)
+             oci-container (sign an OCI container)
 
 output_image: File name of the signed output image
 version_file: File name of where to read the kernel and firmware versions.
@@ -612,6 +613,17 @@ resign_android_image_if_exists() {
   echo "Re-signed Android image"
 }
 
+# Sign an oci container with the given keys.
+# Args: CONTAINER KEY_DIR [OUTPUT_CONTAINER]
+sign_oci_container() {
+  local image=$1
+  local key_dir=$2
+  local output=$3
+
+  "${SCRIPT_DIR}/sign_oci_container.sh" \
+    "${image}" "${key_dir}" --output "${output}"
+}
+
 # Verify an image including rootfs hash using the specified keys.
 verify_image() {
   local rootfs_image=$(make_temp_file)
@@ -924,6 +936,8 @@ elif [[ "${TYPE}" == "accessory_rwsig" ]]; then
   fi
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   futility sign --type rwsig --prikey "${KEY_NAME}.vbprik2" "${OUTPUT_IMAGE}"
+elif [[ "${TYPE}" == "oci-container" ]]; then
+  sign_oci_container "${INPUT_IMAGE}" "${KEY_DIR}" "${OUTPUT_IMAGE}"
 else
   echo "Invalid type ${TYPE}"
   exit 1
