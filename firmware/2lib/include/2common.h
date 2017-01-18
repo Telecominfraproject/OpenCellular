@@ -31,6 +31,7 @@ struct vb2_public_key;
 /* Debug output printf() for tests.  Otherwise, it's platform-dependent. */
 #if defined(VBOOT_DEBUG)
 #  if defined(FOR_TEST)
+#    include <stdio.h>
 #    define VB2_DEBUG(format, args...) printf(format, ## args)
 #  else
 #    define VB2_DEBUG(format, args...) vb2ex_printf(__func__, format, ## args)
