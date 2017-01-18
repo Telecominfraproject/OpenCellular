@@ -19,9 +19,6 @@ with HW.GFX.GMA.Config_Helpers;
 package body HW.GFX.GMA.Port_Detect
 is
 
-   PCH_ADPA_CRT_HPD_CHANNEL_MASK       : constant := 3 * 2 ** 24;
-   PCH_ADPA_CRT_HPD_ENABLE             : constant := 1 * 2 ** 23;
-
    SFUSE_STRAP_CRT_DAC_CAP_DISABLE     : constant := 1 * 2 **  6;
 
    HOTPLUG_CTL_DDI_A_HPD_INPUT_ENABLE  : constant := 1 * 2 **  4;
@@ -83,12 +80,6 @@ is
            (Register => Registers.SFUSE_STRAP,
             Mask     => SFUSE_STRAP_CRT_DAC_CAP_DISABLE,
             Result   => DAC_Disabled);
-         if not DAC_Disabled then
-            Registers.Set_Mask
-              (Register => Registers.PCH_ADPA,
-               Mask     => PCH_ADPA_CRT_HPD_CHANNEL_MASK or   -- clear status
-                           PCH_ADPA_CRT_HPD_ENABLE);
-         end if;
          Config.Valid_Port (Analog) := not DAC_Disabled;
       end if;
 
@@ -156,16 +147,7 @@ is
       GPU_Port : constant GMA.GPU_Port :=
          Config_Helpers.To_GPU_Port (Primary, Port);
    begin
-      if Port = Analog then
-         Registers.Read (Registers.PCH_ADPA, Ctl32, Verbose => False);
-         Ctl32 := Ctl32 and PCH_ADPA_CRT_HPD_CHANNEL_MASK;
-         Detected := Ctl32 = PCH_ADPA_CRT_HPD_CHANNEL_MASK;
-         if Ctl32 /= 0 then
-            Registers.Set_Mask
-              (Register => Registers.PCH_ADPA,
-               Mask     => PCH_ADPA_CRT_HPD_CHANNEL_MASK);
-         end if;
-      elsif Config.Has_HOTPLUG_CTL and then GPU_Port = DIGI_A then
+      if Config.Has_HOTPLUG_CTL and then GPU_Port = DIGI_A then
          Registers.Read (Registers.HOTPLUG_CTL, Ctl32, Verbose => False);
          Detected := (Ctl32 and HOTPLUG_CTL_DDI_A_HPD_LONG_DETECT) /= 0;
 

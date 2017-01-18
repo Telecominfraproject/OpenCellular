@@ -19,9 +19,6 @@ with HW.GFX.GMA.Config_Helpers;
 package body HW.GFX.GMA.Port_Detect
 is
 
-   PCH_ADPA_CRT_HPD_CHANNEL_MASK       : constant := 3 * 2 ** 24;
-   PCH_ADPA_CRT_HPD_ENABLE             : constant := 1 * 2 ** 23;
-
    DP_PORT_DETECTED                    : constant := 1 * 2 **  2;
    PCH_DIGI_PORT_DETECTED              : constant := 1 * 2 **  2;
    PCH_LVDS_PORT_DETECTED              : constant := 1 * 2 **  1;
@@ -72,12 +69,6 @@ is
          PCH_HDMI_C => DP2,
          PCH_HDMI_D => DP3);
    begin
-      -- PCH_DAC (_A)
-      Registers.Set_Mask
-        (Register => Registers.PCH_ADPA,
-         Mask     => PCH_ADPA_CRT_HPD_CHANNEL_MASK or   -- clear status
-                     PCH_ADPA_CRT_HPD_ENABLE);
-
       case Config.Internal_Display is
          when LVDS =>
             -- PCH_LVDS
@@ -136,27 +127,19 @@ is
             when DP3    => PCH_HDMI_D,
             when others => Config_Helpers.To_PCH_Port (Port));
    begin
-      case PCH_Port is
-         when PCH_DAC =>
-            Registers.Read (Registers.PCH_ADPA, Ctl32, Verbose => False);
-            Ctl32 := Ctl32 and PCH_ADPA_CRT_HPD_CHANNEL_MASK;
-            Detected := Ctl32 = PCH_ADPA_CRT_HPD_CHANNEL_MASK;
-            if Ctl32 /= 0 then
-               Registers.Set_Mask (Registers.PCH_ADPA, Ctl32);
-            end if;
-         when PCH_HDMI_B .. PCH_HDMI_D =>
-            Registers.Read (Registers.SHOTPLUG_CTL, Ctl32, Verbose => False);
-            Detected := (Ctl32 and SHOTPLUG_CTL_LONG_DETECT (PCH_Port)) /= 0;
+      if PCH_Port in PCH_HDMI_B .. PCH_HDMI_D then
+         Registers.Read (Registers.SHOTPLUG_CTL, Ctl32, Verbose => False);
+         Detected := (Ctl32 and SHOTPLUG_CTL_LONG_DETECT (PCH_Port)) /= 0;
 
-            if (Ctl32 and SHOTPLUG_CTL_HPD_STATUS (PCH_Port)) /= 0 then
-               Registers.Unset_And_Set_Mask
-                 (Register    => Registers.SHOTPLUG_CTL,
-                  Mask_Unset  => SHOTPLUG_CTL_DETECT_MASK,
-                  Mask_Set    => SHOTPLUG_CTL_HPD_STATUS (PCH_Port));
-            end if;
-         when others =>
-            Detected := False;
-      end case;
+         if (Ctl32 and SHOTPLUG_CTL_HPD_STATUS (PCH_Port)) /= 0 then
+            Registers.Unset_And_Set_Mask
+              (Register    => Registers.SHOTPLUG_CTL,
+               Mask_Unset  => SHOTPLUG_CTL_DETECT_MASK,
+               Mask_Set    => SHOTPLUG_CTL_HPD_STATUS (PCH_Port));
+         end if;
+      else
+         Detected := False;
+      end if;
    end Hotplug_Detect;
 
    procedure Clear_Hotplug_Detect (Port : Active_Port_Type)
