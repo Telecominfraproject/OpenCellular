@@ -66,6 +66,8 @@ ifneq ($(filter Ironlake Sandybridge Ivybridge,$(CONFIG_GFX_GMA_CPU)),)
 subdirs-y += ironlake
 else ifneq ($(filter Haswell Broadwell,$(CONFIG_GFX_GMA_CPU)),)
 subdirs-y += haswell_shared haswell
-else
+else ifneq ($(filter Broxton,$(CONFIG_GFX_GMA_CPU)),)
+subdirs-y += haswell_shared broxton
+else ifneq ($(filter Skylake,$(CONFIG_GFX_GMA_CPU)),)
 subdirs-y += haswell_shared skylake
 endif

@@ -320,6 +320,7 @@ is
          end case;
          Success :=
            (case Config.CPU is
+               when Broxton      => Audio_VID_DID = 16#8086_280a#,
                when Skylake      => Audio_VID_DID = 16#8086_2809#,
                when Broadwell    => Audio_VID_DID = 16#8086_2808#,
                when Haswell      => Audio_VID_DID = 16#8086_2807#,

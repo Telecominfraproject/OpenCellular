@@ -46,7 +46,7 @@ is
    Has_Pipe_MSA_Misc       : constant Boolean := CPU >= Haswell;
    Has_Pipeconf_Misc       : constant Boolean := CPU >= Broadwell;
    Has_Pipeconf_BPC        : constant Boolean := CPU /= Haswell;
-   Has_Plane_Control       : constant Boolean := CPU >= Skylake;
+   Has_Plane_Control       : constant Boolean := CPU >= Broxton;
    Has_DSP_Linoff          : constant Boolean := CPU <= Ivybridge;
    Has_PF_Pipe_Select      : constant Boolean := CPU in Ivybridge .. Haswell;
    VGA_Plane_Workaround    : constant Boolean := CPU = Ivybridge;
@@ -88,7 +88,7 @@ is
                                                   and CPU_Var = Normal)
                                                  or CPU >= Skylake;
 
-   Has_Low_Voltage_Swing   : constant Boolean := CPU >= Skylake;
+   Has_Low_Voltage_Swing   : constant Boolean := CPU >= Broxton;
 
    Need_DP_Aux_Mutex       : constant Boolean := False; -- Skylake & (PSR | GTC)
 
@@ -102,7 +102,7 @@ is
 
    Has_Per_Pipe_SRD        : constant Boolean := CPU >= Broadwell;
 
-   ----- GTT:         -----
+   ----- GTT: -------------
    Fold_39Bit_GTT_PTE      : constant Boolean := CPU <= Haswell;
 
    ----------------------------------------------------------------------------
@@ -121,33 +121,40 @@ is
    type Valid_Per_Port is array (Port_Type) of Boolean;
    type Valid_Per_GPU is array (CPU_Type) of Valid_Per_Port;
    Valid_Port_GPU : Valid_Per_GPU :=
-     (Ironlake    => Valid_Per_Port'
+     (Ironlake    =>
         (Disabled => False,
          Internal => Config.Internal_Display = LVDS,
          others   => True),
-      Sandybridge => Valid_Per_Port'
+      Sandybridge =>
         (Disabled => False,
          Internal => Config.Internal_Display = LVDS,
          others   => True),
-      Ivybridge   => Valid_Per_Port'
+      Ivybridge   =>
         (Disabled => False,
          Internal => Config.Internal_Display /= None,
          others   => True),
-      Haswell     => Valid_Per_Port'
+      Haswell     =>
         (Disabled => False,
          Internal => Config.Internal_Display = DP,
          HDMI3    => CPU_Var = Normal,
          DP3      => CPU_Var = Normal,
          Analog   => CPU_Var = Normal,
          others   => True),
-      Broadwell   => Valid_Per_Port'
+      Broadwell   =>
         (Disabled => False,
          Internal => Config.Internal_Display = DP,
          HDMI3    => CPU_Var = Normal,
          DP3      => CPU_Var = Normal,
          Analog   => CPU_Var = Normal,
          others   => True),
-      Skylake     => Valid_Per_Port'
+      Broxton     =>
+        (Internal => Config.Internal_Display = DP,
+         DP1      => True,
+         DP2      => True,
+         HDMI1    => True,
+         HDMI2    => True,
+         others   => False),
+      Skylake     =>
         (Disabled => False,
          Internal => Config.Internal_Display = DP,
          Analog   => False,
@@ -173,7 +180,7 @@ is
          when Broadwell => FDI_Per_Port'
            (Analog   => CPU_Var = Normal,
             others   => False),
-         when Skylake => FDI_Per_Port'
+         when others => FDI_Per_Port'
            (others   => False));
 
    type FDI_Lanes_Per_Port is array (GPU_Port) of DP_Lane_Count;
@@ -200,6 +207,7 @@ is
               Broadwell    => 450_000_000,
          when Sandybridge  |
               Ivybridge    => 400_000_000,
+         when Broxton      => 288_000_000,
          when Skylake      => 337_500_000);
 
    Default_RawClk_Freq : constant Frequency_Type :=
@@ -212,6 +220,7 @@ is
                                  125_000_000
                                else
                                  24_000_000),
+         when Broxton      => Frequency_Type'First,   -- none needed
          when Skylake      => 24_000_000);
 
    ----------------------------------------------------------------------------
@@ -234,6 +243,7 @@ is
 
    ----------------------------------------------------------------------------
 
+   -- FIXME: Unknown for Broxton, Linux' i915 contains a fixme too :-D
    HDMI_Max_Clock_24bpp : constant Frequency_Type :=
      (if CPU >= Haswell then 300_000_000 else 225_000_000);
 

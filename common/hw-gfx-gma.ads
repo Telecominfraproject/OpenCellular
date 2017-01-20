@@ -33,6 +33,7 @@ is
       Ivybridge,
       Haswell,
       Broadwell,
+      Broxton,
       Skylake);
 
    type CPU_Variant is (Normal, ULT);

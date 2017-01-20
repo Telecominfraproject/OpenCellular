@@ -26,13 +26,13 @@ private package HW.GFX.GMA.PCH is
      (case Config.CPU is
          when Ironlake                       => 30,
          when Sandybridge | Ivybridge        => 29,
-         when Haswell | Broadwell | Skylake  =>  0);
+         when Haswell .. Skylake             =>  0);
 
    PCH_TRANSCODER_SELECT_MASK : constant :=
      (case Config.CPU is
          when Ironlake                       => 1 * 2 ** 30,
          when Sandybridge | Ivybridge        => 3 * 2 ** 29,
-         when Haswell | Broadwell | Skylake  =>           0);
+         when Haswell .. Skylake             =>           0);
 
    type PCH_TRANSCODER_SELECT_Array is array (FDI_Port_Type) of Word32;
    PCH_TRANSCODER_SELECT : constant PCH_TRANSCODER_SELECT_Array :=
