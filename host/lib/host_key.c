@@ -32,7 +32,7 @@ int packed_key_looks_ok(const struct vb2_packed_key *key, uint32_t size)
 
 	if (key->key_version > VB2_MAX_KEY_VERSION) {
 		/* Currently, TPM only supports 16-bit version */
-		VB2_DEBUG("%s() - packed key invalid version\n", __func__);
+		fprintf(stderr, "%s() packed key invalid version\n", __func__);
 		return 0;
 	}
 

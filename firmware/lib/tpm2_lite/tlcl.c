@@ -39,7 +39,7 @@ static struct tpm2_response *tpm_process_command(TPM_CC command,
 
 	response = tpm_unmarshal_response(command, cr_buffer, in_size);
 
-	VB2_DEBUG("%s: command %#x, return code %#x\n", __func__, command,
+	VB2_DEBUG("command %#x, return code %#x\n", command,
 		  response ? response->hdr.tpm_code : -1);
 
 	return response;
@@ -210,13 +210,13 @@ uint32_t TlclForceClear(void)
 
 uint32_t TlclSetDeactivated(uint8_t flag)
 {
-	VB2_DEBUG("%s called, NOT YET IMPLEMENTED\n", __func__);
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return TPM_SUCCESS;
 }
 
 uint32_t TlclSetEnable(void)
 {
-	VB2_DEBUG("%s called, NOT YET IMPLEMENTED\n", __func__);
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return TPM_SUCCESS;
 }
 
@@ -236,13 +236,13 @@ uint32_t TlclGetFlags(uint8_t* disable,
 
 int TlclIsOwned(void)
 {
-	VB2_DEBUG("%s called, NOT YET IMPLEMENTED\n", __func__);
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return 0;
 }
 
 uint32_t TlclExtend(int pcr_num, const uint8_t *in_digest, uint8_t *out_digest)
 {
-	VB2_DEBUG("%s called, NOT YET IMPLEMENTED\n", __func__);
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return TPM_SUCCESS;
 }
 
@@ -476,7 +476,7 @@ uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 
 uint32_t TlclPCRRead(uint32_t index, void *data, uint32_t length)
 {
-	VB2_DEBUG("%s called, NOT YET IMPLEMENTED\n", __func__);
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return TPM_SUCCESS;
 }
 
@@ -519,6 +519,6 @@ uint32_t TlclReadLock(uint32_t index)
 uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size)
 {
 	*size = 0;
-	VB2_DEBUG("%s called, NOT YET IMPLEMENTED\n", __func__);
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return TPM_E_IOERROR;
 }

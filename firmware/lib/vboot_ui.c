@@ -29,7 +29,7 @@
 
 static void VbAllowUsbBoot(struct vb2_context *ctx)
 {
-	VB2_DEBUG("%s\n", __func__);
+	VB2_DEBUG(".");
 	vb2_nv_set(ctx, VB2_NV_DEV_BOOT_USB, 1);
 }
 
@@ -98,7 +98,7 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
         uint32_t button;
 	int rec_button_was_pressed = 0;
 
-	VB2_DEBUG("Entering %s(0x%x)\n", __func__, confirm_flags);
+	VB2_DEBUG("Entering(%x)\n", confirm_flags);
 
 	/* Await further instructions */
 	while (1) {
@@ -118,17 +118,17 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 				break;
                         }
 
-			VB2_DEBUG("%s() - Yes (1)\n", __func__);
+			VB2_DEBUG("Yes (1)\n");
 			return 1;
 			break;
 		case ' ':
-			VB2_DEBUG("%s() - Space (%d)\n", __func__,
+			VB2_DEBUG("Space (%d)\n",
 				  confirm_flags & VB_CONFIRM_SPACE_MEANS_NO);
 			if (confirm_flags & VB_CONFIRM_SPACE_MEANS_NO)
 				return 0;
 			break;
 		case 0x1b:
-			VB2_DEBUG("%s() - No (0)\n", __func__);
+			VB2_DEBUG("No (0)\n");
 			return 0;
 			break;
 		default:
@@ -137,12 +137,10 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 			 */
 			if (!(shared->flags & VBSD_BOOT_REC_SWITCH_VIRTUAL)) {
 				if (button) {
-					VB2_DEBUG("%s() - Rec button pressed\n",
-						  __func__);
+					VB2_DEBUG("Rec button pressed\n");
 	                                rec_button_was_pressed = 1;
 				} else if (rec_button_was_pressed) {
-					VB2_DEBUG("%s() - Rec button (1)\n",
-						  __func__);
+					VB2_DEBUG("Rec button (1)\n");
 					return 1;
 				}
 			}
@@ -173,7 +171,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	VbAudioContext *audio = 0;
 
-	VB2_DEBUG("Entering %s()\n", __func__);
+	VB2_DEBUG("Entering\n");
 
 	/* Check if USB booting is allowed */
 	uint32_t allow_usb = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_USB);
@@ -205,9 +203,8 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		allow_legacy = 1;
 	if (fwmp_flags & FWMP_DEV_DISABLE_BOOT) {
 		if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
-			VB2_DEBUG("%s() - FWMP_DEV_DISABLE_BOOT rejected by "
-				  "FORCE_DEV_SWITCH_ON\n",
-				  __func__);
+			VB2_DEBUG("FWMP_DEV_DISABLE_BOOT rejected by "
+				  "FORCE_DEV_SWITCH_ON\n");
 		} else {
 			disable_dev_boot = 1;
 		}
@@ -215,14 +212,14 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	/* If dev mode is disabled, only allow TONORM */
 	while (disable_dev_boot) {
-		VB2_DEBUG("%s() - dev_disable_boot is set.\n", __func__);
+		VB2_DEBUG("dev_disable_boot is set\n");
 		VbDisplayScreen(ctx, cparams, VB_SCREEN_DEVELOPER_TO_NORM, 0);
 		VbExDisplayDebugInfo(dev_disable_msg);
 
 		/* Ignore space in VbUserConfirms()... */
 		switch (VbUserConfirms(ctx, cparams, 0)) {
 		case 1:
-			VB2_DEBUG("%s() - leaving dev-mode.\n", __func__);
+			VB2_DEBUG("leaving dev-mode\n");
 			vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
 			VbDisplayScreen(ctx, cparams,
 					VB_SCREEN_TO_NORM_CONFIRMED,
@@ -230,11 +227,11 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			VbExSleepMs(5000);
 			return VBERROR_REBOOT_REQUIRED;
 		case -1:
-			VB2_DEBUG("%s() - shutdown requested\n", __func__);
+			VB2_DEBUG("shutdown requested\n");
 			return VBERROR_SHUTDOWN_REQUESTED;
 		default:
 			/* Ignore user attempt to cancel */
-			VB2_DEBUG("%s() - ignore cancel TONORM\n", __func__);
+			VB2_DEBUG("ignore cancel TONORM\n");
 		}
 	}
 
@@ -265,8 +262,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				break;
 		case ' ':
 			/* See if we should disable virtual dev-mode switch. */
-			VB2_DEBUG("%s shared->flags=0x%x\n",
-				  __func__, shared->flags);
+			VB2_DEBUG("shared->flags=0x%x\n", shared->flags);
 			if (shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
 			    shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
 				/* Stop the countdown while we go ask... */
@@ -276,9 +272,8 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					 * TONORM won't work (only for
 					 * non-shipping devices).
 					 */
-					VB2_DEBUG("%s() - TONORM rejected by "
-						  "FORCE_DEV_SWITCH_ON\n",
-						  __func__);
+					VB2_DEBUG("TONORM rejected by "
+						  "FORCE_DEV_SWITCH_ON\n");
 					VbExDisplayDebugInfo(
 						"WARNING: TONORM prohibited by "
 						"GBB FORCE_DEV_SWITCH_ON.\n\n");
@@ -291,8 +286,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				/* Ignore space in VbUserConfirms()... */
 				switch (VbUserConfirms(ctx, cparams, 0)) {
 				case 1:
-					VB2_DEBUG("%s() - leaving dev-mode.\n",
-						  __func__);
+					VB2_DEBUG("leaving dev-mode\n");
 					vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST,
 						1);
 					VbDisplayScreen(ctx,
@@ -302,13 +296,11 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					VbExSleepMs(5000);
 					return VBERROR_REBOOT_REQUIRED;
 				case -1:
-					VB2_DEBUG("%s() - shutdown requested\n",
-						  __func__);
+					VB2_DEBUG("shutdown requested\n");
 					return VBERROR_SHUTDOWN_REQUESTED;
 				default:
 					/* Stay in dev-mode */
-					VB2_DEBUG("%s() - stay in dev-mode\n",
-						  __func__);
+					VB2_DEBUG("stay in dev-mode\n");
 					VbDisplayScreen(ctx,
 						cparams,
 						VB_SCREEN_DEVELOPER_WARNING,
@@ -321,8 +313,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				 * No virtual dev-mode switch, so go directly
 				 * to recovery mode.
 				 */
-				VB2_DEBUG("%s() - going to recovery\n",
-					  __func__);
+				VB2_DEBUG("going to recovery\n");
 				vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
 					   VBNV_RECOVERY_RW_DEV_SCREEN);
 				VbAudioClose(audio);
@@ -520,8 +511,8 @@ VbError_t vb2_recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					 * any case we don't like this.  Beep
 					 * and ignore.
 					 */
-					VB2_DEBUG("%s() - ^D but rec switch "
-						  "is pressed\n", __func__);
+					VB2_DEBUG("^D but rec switch "
+						  "is pressed\n");
 					VbExBeep(120, 400);
 					continue;
 				}
@@ -537,23 +528,20 @@ VbError_t vb2_recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				switch (VbUserConfirms(ctx, cparams,
 						       vbc_flags)) {
 				case 1:
-					VB2_DEBUG("%s() Enabling dev-mode...\n",
-						  __func__);
+					VB2_DEBUG("Enabling dev-mode...\n");
 					if (TPM_SUCCESS != SetVirtualDevMode(1))
 						return VBERROR_TPM_SET_BOOT_MODE_STATE;
-					VB2_DEBUG("%s() Reboot so it will take "
-						  "effect\n", __func__);
+					VB2_DEBUG("Reboot so it will take "
+						  "effect\n");
 					if (VbExGetSwitches
 					    (VB_INIT_FLAG_ALLOW_USB_BOOT))
 						VbAllowUsbBoot(ctx);
 					return VBERROR_REBOOT_REQUIRED;
 				case -1:
-					VB2_DEBUG("%s() - Shutdown requested\n",
-						  __func__);
+					VB2_DEBUG("Shutdown requested\n");
 					return VBERROR_SHUTDOWN_REQUESTED;
 				default: /* zero, actually */
-					VB2_DEBUG("%s() - Not enabling "
-						  "dev-mode\n", __func__);
+					VB2_DEBUG("Not enabling dev-mode\n");
 					/*
 					 * Jump out of the outer loop to
 					 * refresh the display quickly.

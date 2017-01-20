@@ -37,7 +37,7 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 				shared->flags & VBSD_OPROM_MATTERS &&
 				!(shared->flags & VBSD_OPROM_LOADED));
 	if (reboot_for_oprom) {
-		VB2_DEBUG("%s: Reboot to load VGA Option ROM\n", __func__);
+		VB2_DEBUG("Reboot to load VGA Option ROM\n");
 		vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 1);
 	}
 
@@ -49,7 +49,7 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 
 	/* Display the wait screen if we need it */
 	if (need_wait_screen) {
-		VB2_DEBUG("%s: EC is slow. Show WAIT screen.\n", __func__);
+		VB2_DEBUG("EC is slow. Show WAIT screen.\n");
 		VbDisplayScreen(ctx, cparams, VB_SCREEN_WAIT, 0);
 	}
 
@@ -72,7 +72,7 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 	    (shared->flags & VBSD_OPROM_MATTERS) &&
 	    (shared->flags & VBSD_OPROM_LOADED) &&
 	    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON)) {
-		VB2_DEBUG("%s: Reboot to unload VGA Option ROM\n", __func__);
+		VB2_DEBUG("Reboot to unload VGA Option ROM\n");
 		vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 0);
 		return VBERROR_VGA_OPROM_MISMATCH;
 	}

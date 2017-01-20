@@ -32,12 +32,18 @@ struct vb2_public_key;
 #if defined(VBOOT_DEBUG)
 #  if defined(FOR_TEST)
 #    include <stdio.h>
-#    define VB2_DEBUG(format, args...) printf(format, ## args)
+#    define VB2_DEBUG(format, args...)		do {	\
+	printf("%s", __func__);				\
+	printf(format, ## args);			\
+	} while(0)
+#    define VB2_DEBUG_RAW(format, args...) printf(format, ## args)
 #  else
 #    define VB2_DEBUG(format, args...) vb2ex_printf(__func__, format, ## args)
+#    define VB2_DEBUG_RAW(format, args...) vb2ex_printf(NULL, format, ## args)
 #  endif
 #else
 #  define VB2_DEBUG(format, args...)
+#  define VB2_DEBUG_RAW(format, args...)
 #endif
 
 /*

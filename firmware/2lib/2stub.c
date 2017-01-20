@@ -16,7 +16,8 @@ void vb2ex_printf(const char *func, const char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	fprintf(stderr, "%s: ", func);
+	if (func)
+		fprintf(stderr, "%s: ", func);
 	vfprintf(stderr, fmt, ap);
 	va_end(ap);
 }

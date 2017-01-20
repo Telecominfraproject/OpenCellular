@@ -628,6 +628,18 @@ int vb2ex_read_resource(struct vb2_context *ctx,
 			void *buf,
 			uint32_t size);
 
+/**
+ * Print debug output
+ *
+ * This should work like printf().  If func!=NULL, it will be a string with
+ * the current function name; that can be used to generate prettier debug
+ * output.  If func==NULL, don't print any extra header/trailer so that this
+ * can be used to composite a bigger output string from several calls - for
+ * example, when doing a hex dump.
+ *
+ * @param func		Function name generating output, or NULL.
+ * @param fmt		Printf format string
+ */
 void vb2ex_printf(const char *func, const char *fmt, ...);
 
 /**

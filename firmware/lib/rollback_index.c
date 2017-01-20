@@ -105,10 +105,10 @@ uint32_t ReadSpaceFirmware(RollbackSpaceFirmware *rsf)
 				      offsetof(RollbackSpaceFirmware, crc8)))
 			return TPM_SUCCESS;
 
-		VB2_DEBUG("TPM: %s() - bad CRC\n", __func__);
+		VB2_DEBUG("TPM: bad CRC\n");
 	}
 
-	VB2_DEBUG("TPM: %s() - too many bad CRCs, giving up\n", __func__);
+	VB2_DEBUG("TPM: too many bad CRCs, giving up\n");
 	return TPM_E_CORRUPTED_STATE;
 }
 
@@ -135,11 +135,11 @@ uint32_t WriteSpaceFirmware(RollbackSpaceFirmware *rsf)
 		if (r == TPM_SUCCESS)
 			return r;
 
-		VB2_DEBUG("TPM: %s() - bad CRC\n", __func__);
+		VB2_DEBUG("TPM: bad CRC\n");
 		/* Try writing it again. Maybe it was garbled on the way out. */
 	}
 
-	VB2_DEBUG("TPM: %s() - too many bad CRCs, giving up\n", __func__);
+	VB2_DEBUG("TPM: too many bad CRCs, giving up\n");
 	return TPM_E_CORRUPTED_STATE;
 }
 
@@ -147,7 +147,7 @@ uint32_t SetVirtualDevMode(int val)
 {
 	RollbackSpaceFirmware rsf;
 
-	VB2_DEBUG("TPM: Entering %s()\n", __func__);
+	VB2_DEBUG("TPM: Entering");
 	if (TPM_SUCCESS != ReadSpaceFirmware(&rsf))
 		return VBERROR_TPM_FIRMWARE_SETUP;
 
@@ -165,7 +165,7 @@ uint32_t SetVirtualDevMode(int val)
 	if (TPM_SUCCESS != WriteSpaceFirmware(&rsf))
 		return VBERROR_TPM_SET_BOOT_MODE_STATE;
 
-	VB2_DEBUG("TPM: Leaving %s()\n", __func__);
+	VB2_DEBUG("TPM: Leaving\n");
 	return VBERROR_SUCCESS;
 }
 
@@ -201,10 +201,10 @@ uint32_t ReadSpaceKernel(RollbackSpaceKernel *rsk)
 		    vb2_crc8(rsk, offsetof(RollbackSpaceKernel, crc8)))
 			return TPM_SUCCESS;
 
-		VB2_DEBUG("TPM: %s() - bad CRC\n", __func__);
+		VB2_DEBUG("TPM: bad CRC\n");
 	}
 
-	VB2_DEBUG("TPM: %s() - too many bad CRCs, giving up\n", __func__);
+	VB2_DEBUG("TPM: too many bad CRCs, giving up\n");
 	return TPM_E_CORRUPTED_STATE;
 }
 
@@ -231,11 +231,11 @@ uint32_t WriteSpaceKernel(RollbackSpaceKernel *rsk)
 		if (r == TPM_SUCCESS)
 			return r;
 
-		VB2_DEBUG("TPM: %s() - bad CRC\n", __func__);
+		VB2_DEBUG("TPM: bad CRC\n");
 		/* Try writing it again. Maybe it was garbled on the way out. */
 	}
 
-	VB2_DEBUG("TPM: %s() - too many bad CRCs, giving up\n", __func__);
+	VB2_DEBUG("TPM: too many bad CRCs, giving up\n");
 	return TPM_E_CORRUPTED_STATE;
 }
 
@@ -347,11 +347,10 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 		r = TlclRead(FWMP_NV_INDEX, u.buf, sizeof(u.bf));
 		if (r == TPM_E_BADINDEX) {
 			/* Missing space is not an error; use defaults */
-			VB2_DEBUG("TPM: %s() - no FWMP space\n", __func__);
+			VB2_DEBUG("TPM: no FWMP space\n");
 			return TPM_SUCCESS;
 		} else if (r != TPM_SUCCESS) {
-			VB2_DEBUG("TPM: %s() - read returned 0x%x\n",
-				  __func__, r);
+			VB2_DEBUG("TPM: read returned 0x%x\n", r);
 			return r;
 		}
 
@@ -375,7 +374,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 
 		/* Verify CRC */
 		if (u.bf.crc != vb2_crc8(u.buf + 2, u.bf.struct_size - 2)) {
-			VB2_DEBUG("TPM: %s() - bad CRC\n", __func__);
+			VB2_DEBUG("TPM: bad CRC\n");
 			continue;
 		}
 
@@ -397,7 +396,7 @@ uint32_t RollbackFwmpRead(struct RollbackSpaceFwmp *fwmp)
 		return TPM_SUCCESS;
 	}
 
-	VB2_DEBUG("TPM: %s() - too many bad CRCs, giving up\n", __func__);
+	VB2_DEBUG("TPM: too many bad CRCs, giving up\n");
 	return TPM_E_CORRUPTED_STATE;
 }
 

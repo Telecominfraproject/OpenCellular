@@ -68,8 +68,8 @@ static void print_hash(const uint8_t *hash, uint32_t hash_size,
 
 	VB2_DEBUG("%s hash: ", desc);
 	for (i = 0; i < hash_size; i++)
-		VB2_DEBUG("%02x", hash[i]);
-	VB2_DEBUG("\n");
+		VB2_DEBUG_RAW("%02x", hash[i]);
+	VB2_DEBUG_RAW("\n");
 }
 
 /**
@@ -90,7 +90,7 @@ static int check_ec_hash(struct vb2_context *ctx, int devidx,
 	int ec_hash_size;
 	int rv = VbExEcHashImage(devidx, select, &ec_hash, &ec_hash_size);
 	if (rv) {
-		VB2_DEBUG("%s: VbExEcHashImage() returned %d\n", __func__, rv);
+		VB2_DEBUG("VbExEcHashImage() returned %d\n", rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_HASH_FAILED);
 		return VB2_ERROR_EC_HASH_IMAGE;
 	}
@@ -102,14 +102,13 @@ static int check_ec_hash(struct vb2_context *ctx, int devidx,
 	int hash_size;
 	rv = VbExEcGetExpectedImageHash(devidx, select, &hash, &hash_size);
 	if (rv) {
-		VB2_DEBUG("%s: VbExEcGetExpectedImageHash() returned %d\n",
-			  __func__, rv);
+		VB2_DEBUG("VbExEcGetExpectedImageHash() returned %d\n", rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_EXPECTED_HASH);
 		return VB2_ERROR_EC_HASH_EXPECTED;
 	}
 	if (ec_hash_size != hash_size) {
-		VB2_DEBUG("%s: EC uses %d-byte hash, but AP-RW contains %d "
-			  "bytes\n", __func__, ec_hash_size, hash_size);
+		VB2_DEBUG("EC uses %d-byte hash, but AP-RW contains %d bytes\n",
+			  ec_hash_size, hash_size);
 		request_recovery(ctx, VB2_RECOVERY_EC_HASH_SIZE);
 		return VB2_ERROR_EC_HASH_SIZE;
 	}
@@ -135,7 +134,7 @@ static VbError_t update_ec(struct vb2_context *ctx, int devidx,
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
-	VB2_DEBUG("%s: updating %s...\n", __func__,
+	VB2_DEBUG("updating %s...\n",
 		  select == VB_SELECT_FIRMWARE_READONLY ? "RO" : "RW");
 
 	/* Get expected EC image */
@@ -143,17 +142,15 @@ static VbError_t update_ec(struct vb2_context *ctx, int devidx,
 	int want_size;
 	int rv = VbExEcGetExpectedImage(devidx, select, &want, &want_size);
 	if (rv) {
-		VB2_DEBUG("%s: VbExEcGetExpectedImage() returned %d\n",
-			  __func__, rv);
+		VB2_DEBUG("VbExEcGetExpectedImage() returned %d\n", rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_EXPECTED_IMAGE);
 		return rv;
 	}
-	VB2_DEBUG("%s: image len = %d\n", __func__, want_size);
+	VB2_DEBUG("image len = %d\n", want_size);
 
 	rv = VbExEcUpdateImage(devidx, select, want, want_size);
 	if (rv != VBERROR_SUCCESS) {
-		VB2_DEBUG("%s: VbExEcUpdateImage() returned %d\n",
-			  __func__, rv);
+		VB2_DEBUG("VbExEcUpdateImage() returned %d\n", rv);
 
 		/*
 		 * The EC may know it needs a reboot.  It may need to
@@ -175,7 +172,7 @@ static VbError_t update_ec(struct vb2_context *ctx, int devidx,
 	if (check_ec_hash(ctx, devidx, select) != VB2_SUCCESS)
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	if (sd->flags & WHICH_EC(devidx, select)) {
-		VB2_DEBUG("%s: Failed to update\n", __func__);
+		VB2_DEBUG("Failed to update\n");
 		request_recovery(ctx, VB2_RECOVERY_EC_UPDATE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
@@ -217,13 +214,12 @@ static VbError_t check_ec_active(struct vb2_context *ctx, int devidx)
 			 * had some way to track that we'd already rebooted for
 			 * this reason, we could retry only once.
 			 */
-			VB2_DEBUG("%s: want recovery but got EC-RW\n",
-				  __func__);
+			VB2_DEBUG("want recovery but got EC-RW\n");
 			request_recovery(ctx, sd->recovery_reason);
 			return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 		}
 
-		VB2_DEBUG("%s: in recovery; EC-RO\n", __func__);
+		VB2_DEBUG("in recovery; EC-RO\n");
 		return VBERROR_SUCCESS;
 	}
 
@@ -232,7 +228,7 @@ static VbError_t check_ec_active(struct vb2_context *ctx, int devidx)
 	 * reboot to recovery.
 	 */
 	if (rv != VBERROR_SUCCESS) {
-		VB2_DEBUG("%s: VbExEcRunningRW() returned %d\n", __func__, rv);
+		VB2_DEBUG("VbExEcRunningRW() returned %d\n", rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_UNKNOWN_IMAGE);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
@@ -260,7 +256,7 @@ static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
 		VB_SELECT_FIRMWARE_A;
 	int rv;
 
-	VB2_DEBUG("%s: devidx=%d\n", __func__, devidx);
+	VB2_DEBUG("devidx=%d\n", devidx);
 
 	/* Update the RW Image */
 	if (sd->flags & VB2_SD_FLAG_ECSYNC_RW) {
@@ -270,11 +266,10 @@ static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
 
 	/* Tell EC to jump to its RW image */
 	if (!(sd->flags & IN_RW(devidx))) {
-		VB2_DEBUG("%s: jumping to EC-RW\n", __func__);
+		VB2_DEBUG("jumping to EC-RW\n");
 		rv = VbExEcJumpToRW(devidx);
 		if (rv != VBERROR_SUCCESS) {
-			VB2_DEBUG("%s: VbExEcJumpToRW() returned %x\n",
-				  __func__, rv);
+			VB2_DEBUG("VbExEcJumpToRW() returned %x\n", rv);
 
 			/*
 			 * If a previous AP boot has called VbExEcStayInRO(),
@@ -292,7 +287,7 @@ static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
 
 	/* Might need to update EC-RO (but not PD-RO) */
 	if (sd->flags & VB2_SD_FLAG_ECSYNC_EC_RO) {
-		VB2_DEBUG("%s: RO Software Sync\n", __func__);
+		VB2_DEBUG("RO Software Sync\n");
 
 		/* Reset RO Software Sync NV flag */
 		vb2_nv_set(ctx, VB2_NV_TRY_RO_SYNC, 0);
@@ -338,8 +333,7 @@ static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
 
 	rv = VbExEcDisableJump(devidx);
 	if (rv != VBERROR_SUCCESS) {
-		VB2_DEBUG("%s: VbExEcDisableJump() returned %d\n",
-			  __func__, rv);
+		VB2_DEBUG("VbExEcDisableJump() returned %d\n", rv);
 		request_recovery(ctx, VB2_RECOVERY_EC_SOFTWARE_SYNC);
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}

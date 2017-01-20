@@ -190,7 +190,7 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 
 	/* Boot from fixed disk only */
-	VB2_DEBUG("Entering %s()\n", __func__);
+	VB2_DEBUG("Entering\n");
 
 	VbError_t rv = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
 
@@ -278,7 +278,7 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 
 	unaligned_workbuf = ctx.workbuf = malloc(ctx.workbuf_size);
 	if (!unaligned_workbuf) {
-		VB2_DEBUG("%s: Can't allocate work buffer\n", __func__);
+		VB2_DEBUG("Can't allocate work buffer\n");
 		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
 		return VBERROR_INIT_SHARED_DATA;
 	}
@@ -286,13 +286,13 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	if (VB2_SUCCESS != vb2_align(&ctx.workbuf, &ctx.workbuf_size,
 				     VB2_WORKBUF_ALIGN,
 				     VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE)) {
-		VB2_DEBUG("%s: Can't align work buffer\n", __func__);
+		VB2_DEBUG("Can't align work buffer\n");
 		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
 		return VBERROR_INIT_SHARED_DATA;
 	}
 
 	if (VB2_SUCCESS != vb2_init_context(&ctx)) {
-		VB2_DEBUG("%s: Can't init vb2_context\n", __func__);
+		VB2_DEBUG("Can't init vb2_context\n");
 		free(unaligned_workbuf);
 		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_SHARED_DATA);
 		return VBERROR_INIT_SHARED_DATA;
@@ -453,7 +453,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	vb2_kernel_cleanup(&ctx, cparams);
 
 	/* Pass through return value from boot path */
-	VB2_DEBUG("%s returning %d\n", __func__, (int)retval);
+	VB2_DEBUG("Returning %d\n", (int)retval);
 	return retval;
 }
 
@@ -635,12 +635,11 @@ fail:
 
 VbError_t VbUnlockDevice(void)
 {
-	VB2_DEBUG("%s() Enabling dev-mode...\n", __func__);
+	VB2_DEBUG("Enabling dev-mode...\n");
 	if (TPM_SUCCESS != SetVirtualDevMode(1))
 		return VBERROR_TPM_SET_BOOT_MODE_STATE;
 
-	VB2_DEBUG("%s() Mode change will take effect on next reboot.\n",
-		  __func__);
+	VB2_DEBUG("Mode change will take effect on next reboot.\n");
 	return VBERROR_SUCCESS;
 }
 
@@ -648,14 +647,12 @@ VbError_t VbLockDevice(void)
 {
 	VbNvLoad();
 
-	VB2_DEBUG("%s() - Storing request to leave dev-mode.\n",
-		  __func__);
+	VB2_DEBUG("Storing request to leave dev-mode.\n");
 	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
 
 	VbNvCommit();
 
-	VB2_DEBUG("%s() Mode change will take effect on next reboot.\n",
-		  __func__);
+	VB2_DEBUG("Mode change will take effect on next reboot.\n");
 
 	return VBERROR_SUCCESS;
 }

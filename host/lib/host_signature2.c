@@ -125,7 +125,7 @@ struct vb2_signature *vb2_calculate_signature(
 	free(signature_digest);
 
 	if (-1 == rv) {
-		VB2_DEBUG("%s: RSA_private_encrypt() failed.\n", __func__);
+		fprintf(stderr, "%s: RSA_private_encrypt() failed\n", __func__);
 		free(sig);
 		return NULL;
 	}
