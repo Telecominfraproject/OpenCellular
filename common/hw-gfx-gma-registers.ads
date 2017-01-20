@@ -105,6 +105,7 @@ is
       SPLL_CTL,
       WRPLL_CTL_1,
       WRPLL_CTL_2,
+      BXT_DE_PLL_ENABLE,
       PORT_CLK_SEL_DDIA,
       PORT_CLK_SEL_DDIB,
       PORT_CLK_SEL_DDIC,
@@ -245,6 +246,7 @@ is
       DPLL_CTRL1,
       DPLL_CTRL2,
       DPLL_STATUS,
+      BXT_DE_PLL_CTL,
       HTOTAL_EDP,
       HBLANK_EDP,
       HSYNC_EDP,
@@ -829,6 +831,10 @@ is
       -- WRPLL registers
       WRPLL_CTL_1           => 16#04_6040# / Register_Width,
       WRPLL_CTL_2           => 16#04_6060# / Register_Width,
+
+      -- Broxton Display Engine PLL registers
+      BXT_DE_PLL_CTL        => 16#06_d000# / Register_Width,
+      BXT_DE_PLL_ENABLE     => 16#04_6070# / Register_Width,
 
       -- Power Down Well registers
       PWR_WELL_CTL_BIOS     => 16#04_5400# / Register_Width,

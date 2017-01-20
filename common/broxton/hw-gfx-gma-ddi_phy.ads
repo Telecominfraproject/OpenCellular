@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2016-2017 secunet Security Networks AG
+-- Copyright (C) 2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -12,15 +12,11 @@
 -- GNU General Public License for more details.
 --
 
-private package HW.GFX.GMA.Power_And_Clocks is
+private package HW.GFX.GMA.DDI_Phy is
 
-   procedure Pre_All_Off;
-   procedure Post_All_Off;
+   type T is (BC, A);
 
-   procedure Initialize;
+   procedure Power_On (Phy : T) is null;
+   procedure Power_Off (Phy : T) is null;
 
-   procedure Power_Set_To (Configs : Pipe_Configs);
-   procedure Power_Up (Old_Configs, New_Configs : Pipe_Configs);
-   procedure Power_Down (Old_Configs, Tmp_Configs, New_Configs : Pipe_Configs);
-
-end HW.GFX.GMA.Power_And_Clocks;
+end HW.GFX.GMA.DDI_Phy;

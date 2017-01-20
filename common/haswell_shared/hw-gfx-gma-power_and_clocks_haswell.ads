@@ -15,6 +15,7 @@
 private package HW.GFX.GMA.Power_And_Clocks_Haswell is
 
    procedure PSR_Off;
+   procedure GT_Mailbox_Write (MBox : Word32; Value : Word32);
 
    procedure Pre_All_Off;
    procedure Post_All_Off is null;
