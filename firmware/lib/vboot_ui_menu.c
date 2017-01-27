@@ -341,7 +341,6 @@ VbError_t vb2_print_current_menu()
 
 	// TODO: need to check for error code.
 	vb2_get_current_menu_size(current_menu, &m, &size);
-	VB2_DEBUG("vb2_print_current_menu:\n");
 
 	// TODO: do clear screen here.
 	/* Create menu string */
@@ -649,7 +648,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	/* Show the dev mode warning screen */
 	//TODO: change this to blank screen?
-	VbDisplayScreen(ctx, cparams, VB_SCREEN_DEVELOPER_WARNING, 0);
+	VbDisplayScreen(ctx, cparams, VB_SCREEN_BASE, 0);
 	vb2_print_current_menu();
 
 	/* Get audio/delay context */
@@ -704,7 +703,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			 */
 			VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK, 0);
 			VbDisplayScreen(ctx, cparams,
-					VB_SCREEN_DEVELOPER_WARNING, 0);
+					VB_SCREEN_BASE, 0);
 			vb2_print_current_menu();
 
 			/* Probably shutting down */
@@ -768,7 +767,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						 */
 						VbDisplayScreen(ctx,
 							cparams,
-							VB_SCREEN_DEVELOPER_WARNING,
+							VB_SCREEN_BASE,
 							0);
 					}
 				}
@@ -925,12 +924,13 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		if (VBERROR_SUCCESS == retval)
 			break; /* Found a recovery kernel */
 
-		VbDisplayScreen(ctx, cparams, VBERROR_NO_DISK_FOUND == retval ?
-				VB_SCREEN_RECOVERY_INSERT :
-				VB_SCREEN_RECOVERY_NO_GOOD,
-				0);
 		if (current_menu != VB_MENU_RECOVERY ||
 		    current_menu_idx != VB_RECOVERY_DBG_INFO) {
+			VbDisplayScreen(ctx, cparams,
+					VBERROR_NO_DISK_FOUND == retval ?
+					VB_SCREEN_BASE :
+					VB_SCREEN_RECOVERY_NO_GOOD,
+					0);
 			vb2_print_current_menu();
 		}
 
@@ -975,7 +975,7 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 					 */
 					VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK, 0);
 					VbDisplayScreen(ctx, cparams, VBERROR_NO_DISK_FOUND == retval ?
-							VB_SCREEN_RECOVERY_INSERT :
+							VB_SCREEN_BASE :
 							VB_SCREEN_RECOVERY_NO_GOOD,
 							0);
 					vb2_print_current_menu();
