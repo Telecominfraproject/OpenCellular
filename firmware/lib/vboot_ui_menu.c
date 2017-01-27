@@ -318,7 +318,8 @@ VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
 		*size = 0;
 		return VBERROR_UNKNOWN;
 	}
-	*menu_array = temp_menu;
+	if (menu_array)
+		*menu_array = temp_menu;
 
 	return VBERROR_SUCCESS;
 }
