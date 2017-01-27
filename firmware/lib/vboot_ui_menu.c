@@ -276,8 +276,15 @@ static char *languages_menu[] = {
 	"US English\n",
 };
 
-// function that gets the current menu string array and size.
-// can set menu_array to NULL and only return string size.
+/**
+ * Get the string array and size of current_menu.
+ *
+ * @param menu:	The current_menu
+ * @param menu_array:	Pointer to the menu's string array.  If menu_array==NULL
+ *			will not return string array.
+ * @param size:	Size of menu's string array.
+ * @return VBERROR_SUCCESS, or non-zero error code if error.
+ */
 VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
 {
 	char **temp_menu;
@@ -316,6 +323,11 @@ VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
 	return VBERROR_SUCCESS;
 }
 
+/**
+ * Print current_menu state, including selected entry.
+ *
+ * @return VBERROR_SUCCESS, or non-zero error code if error.
+ */
 // TODO: will probably have to print menu a
 // line at a time to center the text at X.
 // Otherwise, only the first line will be lined up
@@ -354,6 +366,13 @@ VbError_t vb2_print_current_menu()
 	return VbExDisplayText(0,50,m_str);
 }
 
+/**
+ * Set current_menu to new_current_menu
+ *
+ * @param new_current_menu:	new menu to set current_menu to
+ * @param new_current_menu_idx: new idx to set current_menu_idx to
+ * @return VBERROR_SUCCESS, or non-zero error code if error.
+ */
 VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
 			     int new_current_menu_idx)
 {
@@ -366,9 +385,11 @@ VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
 	return VBERROR_SUCCESS;
 }
 
-// This updates current_menu and current_menu_idx,
-// (as necessary)
-// which are used to determine what to do.
+/**
+ * This updates current_menu and current_menu_idx, as necessary
+ *
+ * @return VBERROR_SUCCESS, or non-zero error code if error.
+ */
 VbError_t vb2_update_menu()
 {
 	VbError_t ret = VBERROR_SUCCESS;
@@ -550,6 +571,13 @@ VbError_t vb2_update_menu()
 	return ret;
 }
 
+/**
+ * Main function that handles developer warning menu functionality
+ *
+ * @param ctx		Vboot2 context
+ * @param cparams	Vboot1 common params
+ * @return VBERROR_SUCCESS, or non-zero error code if error.
+ */
 VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
@@ -823,6 +851,13 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx, VbCommonParams *cparams)
 #define REC_KEY_DELAY        20       /* Check keys every 20ms */
 #define REC_MEDIA_INIT_DELAY 500      /* Check removable media every 500ms */
 
+/**
+ * Main function that handles recovery menu functionality
+ *
+ * @param ctx		Vboot2 context
+ * @param cparams	Vboot1 common params
+ * @return VBERROR_SUCCESS, or non-zero error code if error.
+ */
 VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
