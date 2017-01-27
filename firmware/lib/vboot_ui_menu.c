@@ -364,7 +364,7 @@ VbError_t vb2_print_current_menu()
 	}
 	VB2_DEBUG("%s", m_str);
 
-	return VbExDisplayText(0,50,m_str);
+	return VbExDisplayText(0,30,m_str);
 }
 
 /**
