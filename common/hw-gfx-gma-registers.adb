@@ -186,6 +186,43 @@ is
    ----------------------------------------------------------------------------
 
    -- TODO: Should have Success parameter
+   -- Wait for the bits in @Register@ indicated by @Mask@ to be of @Value@
+   procedure Wait
+     (Register : Registers_Index;
+      Mask     : Word32;
+      Value    : Word32;
+      TOut_MS  : Natural := Default_Timeout_MS;
+      Verbose  : Boolean := False)
+   is
+      Current : Word32;
+      Timeout : Time.T;
+      Timed_Out : Boolean;
+   begin
+      pragma Debug (Debug.Put (GNAT.Source_Info.Enclosing_Entity & ":  "));
+      pragma Debug (Debug.Put_Word32 (Value));
+      pragma Debug (Debug.Put (" <- "));
+      pragma Debug (Debug.Put_Word32 (Mask));
+      pragma Debug (Debug.Put (" & "));
+      pragma Debug (Debug.Put_Word32 (Register'Enum_Rep * Register_Width));
+      pragma Debug (Debug.Put (":"));
+      pragma Debug (Debug.Put_Line (Registers_Index'Image (Register)));
+
+      Timeout := Time.MS_From_Now (TOut_MS);
+      loop
+         Timed_Out := Time.Timed_Out (Timeout);
+         Read (Register, Current, Verbose);
+         if (Current and Mask) = Value then
+            exit;
+         end if;
+         pragma Debug (Timed_Out, Debug.Put (GNAT.Source_Info.Enclosing_Entity));
+         pragma Debug (Timed_Out, Debug.Put_Line (": Timed Out!"));
+         exit when Timed_Out;
+      end loop;
+   end Wait;
+
+   ----------------------------------------------------------------------------
+
+   -- TODO: Should have Success parameter
    -- Wait for all bits in @Register@ indicated by @Mask@ to be set
    procedure Wait_Set_Mask
      (Register : in     Registers_Index;
@@ -193,25 +230,8 @@ is
       TOut_MS  : in     Natural := Default_Timeout_MS;
       Verbose  : in     Boolean := False)
    is
-      Value : Word32;
-      Timeout : Time.T;
-      Timed_Out : Boolean;
    begin
-      pragma Debug (Debug.Put (GNAT.Source_Info.Enclosing_Entity & ": "));
-      pragma Debug (Debug.Put_Line (Registers_Index'Image (Register)));
-
-      Timeout := Time.MS_From_Now (TOut_MS);
-      loop
-         Timed_Out := Time.Timed_Out (Timeout);
-         Read (Register, Value, Verbose);
-         if (Value and Mask) = Mask then
-            exit;
-         end if;
-         pragma Debug (Timed_Out, Debug.Put (GNAT.Source_Info.Enclosing_Entity));
-         pragma Debug (Timed_Out, Debug.Put_Line (": Timed Out!"));
-         exit when Timed_Out;
-      end loop;
-
+      Wait (Register, Mask, Mask, TOut_MS, Verbose);
    end Wait_Set_Mask;
 
    ----------------------------------------------------------------------------
@@ -224,25 +244,8 @@ is
       TOut_MS  : in     Natural := Default_Timeout_MS;
       Verbose  : in     Boolean := False)
    is
-      Value : Word32;
-      Timeout : Time.T;
-      Timed_Out : Boolean;
    begin
-      pragma Debug (Debug.Put (GNAT.Source_Info.Enclosing_Entity & ": "));
-      pragma Debug (Debug.Put_Line (Registers_Index'Image (Register)));
-
-      Timeout := Time.MS_From_Now (TOut_MS);
-      loop
-         Timed_Out := Time.Timed_Out (Timeout);
-         Read (Register, Value, Verbose);
-         if (Value and Mask) = 0 then
-            exit;
-         end if;
-         pragma Debug (Timed_Out, Debug.Put (GNAT.Source_Info.Enclosing_Entity));
-         pragma Debug (Timed_Out, Debug.Put_Line (": Timed Out!"));
-         exit when Timed_Out;
-      end loop;
-
+      Wait (Register, Mask, 0, TOut_MS, Verbose);
    end Wait_Unset_Mask;
 
    ----------------------------------------------------------------------------

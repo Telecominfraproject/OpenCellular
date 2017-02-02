@@ -1075,6 +1075,13 @@ is
 
    pragma Warnings (GNATprove, Off, "unused initial value of ""Verbose""",
                     Reason => "Only used on debugging path");
+   procedure Wait
+     (Register : Registers_Index;
+      Mask     : Word32;
+      Value    : Word32;
+      TOut_MS  : Natural := Default_Timeout_MS;
+      Verbose  : Boolean := False);
+
    procedure Wait_Set_Mask
       (Register : Registers_Index;
        Mask     : Word32;
