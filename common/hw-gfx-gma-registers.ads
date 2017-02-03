@@ -212,6 +212,11 @@ is
       DP_TP_STATUS_E,
       SRD_CTL,
       SRD_STATUS,
+      BXT_PHY_CTL_A,
+      BXT_PHY_CTL_B,
+      BXT_PHY_CTL_C,
+      BXT_PHY_CTL_FAM_EDP,
+      BXT_PHY_CTL_FAM_DDI,
       AUD_VID_DID,
       PFA_WIN_POS,
       PFA_WIN_SZ,
@@ -237,6 +242,9 @@ is
       PS_WIN_POS_1_C,
       PS_WIN_SZ_1_C,
       PS_CTRL_1_C,
+      BXT_PORT_CL1CM_DW0_BC,
+      BXT_PORT_CL1CM_DW9_BC,
+      BXT_PORT_CL1CM_DW10_BC,
       DPLL1_CFGR1,
       DPLL1_CFGR2,
       DPLL2_CFGR1,
@@ -246,6 +254,12 @@ is
       DPLL_CTRL1,
       DPLL_CTRL2,
       DPLL_STATUS,
+      BXT_PORT_CL1CM_DW28_BC,
+      BXT_PORT_CL1CM_DW30_BC,
+      BXT_PORT_REF_DW3_BC,
+      BXT_PORT_REF_DW6_BC,
+      BXT_PORT_REF_DW8_BC,
+      BXT_PORT_CL2CM_DW6_BC,
       BXT_DE_PLL_CTL,
       HTOTAL_EDP,
       HBLANK_EDP,
@@ -457,9 +471,18 @@ is
       FDI_RXC_TUSIZE1,
       QUIRK_F2060,
       TRANSC_CHICKEN2,
+      BXT_P_CR_GT_DISP_PWRON,
       GT_MAILBOX,
       GT_MAILBOX_DATA,
-      GT_MAILBOX_DATA_1);
+      GT_MAILBOX_DATA_1,
+      BXT_PORT_CL1CM_DW0_A,
+      BXT_PORT_CL1CM_DW9_A,
+      BXT_PORT_CL1CM_DW10_A,
+      BXT_PORT_CL1CM_DW28_A,
+      BXT_PORT_CL1CM_DW30_A,
+      BXT_PORT_REF_DW3_A,
+      BXT_PORT_REF_DW6_A,
+      BXT_PORT_REF_DW8_A);
 
    pragma Warnings
      (GNATprove, Off, "pragma ""KEEP_NAMES"" ignored *(not yet supported)",
@@ -835,6 +858,35 @@ is
       -- Broxton Display Engine PLL registers
       BXT_DE_PLL_CTL        => 16#06_d000# / Register_Width,
       BXT_DE_PLL_ENABLE     => 16#04_6070# / Register_Width,
+
+      -- Broxton DDI PHY registers
+      BXT_P_CR_GT_DISP_PWRON  => 16#13_8090# / Register_Width,
+      BXT_PHY_CTL_A           => 16#06_4c00# / Register_Width,
+      BXT_PHY_CTL_B           => 16#06_4c10# / Register_Width,
+      BXT_PHY_CTL_C           => 16#06_4c20# / Register_Width,
+      BXT_PHY_CTL_FAM_EDP     => 16#06_4c80# / Register_Width,
+      BXT_PHY_CTL_FAM_DDI     => 16#06_4c90# / Register_Width,
+
+      -- Broxton DDI PHY common lane registers
+      BXT_PORT_CL1CM_DW0_A    => 16#16_2000# / Register_Width,
+      BXT_PORT_CL1CM_DW0_BC   => 16#06_c000# / Register_Width,
+      BXT_PORT_CL1CM_DW9_A    => 16#16_2024# / Register_Width,
+      BXT_PORT_CL1CM_DW9_BC   => 16#06_c024# / Register_Width,
+      BXT_PORT_CL1CM_DW10_A   => 16#16_2028# / Register_Width,
+      BXT_PORT_CL1CM_DW10_BC  => 16#06_c028# / Register_Width,
+      BXT_PORT_CL1CM_DW28_A   => 16#16_2070# / Register_Width,
+      BXT_PORT_CL1CM_DW28_BC  => 16#06_c070# / Register_Width,
+      BXT_PORT_CL1CM_DW30_A   => 16#16_2078# / Register_Width,
+      BXT_PORT_CL1CM_DW30_BC  => 16#06_c078# / Register_Width,
+      BXT_PORT_CL2CM_DW6_BC   => 16#06_c358# / Register_Width,
+
+      -- Broxton DDI PHY ref registers
+      BXT_PORT_REF_DW3_A      => 16#16_218c# / Register_Width,
+      BXT_PORT_REF_DW3_BC     => 16#06_c18c# / Register_Width,
+      BXT_PORT_REF_DW6_A      => 16#16_2198# / Register_Width,
+      BXT_PORT_REF_DW6_BC     => 16#06_c198# / Register_Width,
+      BXT_PORT_REF_DW8_A      => 16#16_21a0# / Register_Width,
+      BXT_PORT_REF_DW8_BC     => 16#06_c1a0# / Register_Width,
 
       -- Power Down Well registers
       PWR_WELL_CTL_BIOS     => 16#04_5400# / Register_Width,

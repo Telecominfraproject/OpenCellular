@@ -16,7 +16,9 @@ private package HW.GFX.GMA.DDI_Phy is
 
    type T is (BC, A);
 
-   procedure Power_On (Phy : T) is null;
-   procedure Power_Off (Phy : T) is null;
+   procedure Power_On (Phy : T);
+   procedure Power_Off (Phy : T);
+
+   subtype DDI_Phy_Port is GPU_Port range DIGI_A .. DIGI_C;
 
 end HW.GFX.GMA.DDI_Phy;
