@@ -256,6 +256,7 @@ done:
  */
 static enum vb2_signature_algorithm sigs[] = {
 	VB2_SIG_RSA2048,
+	VB2_SIG_RSA2048_EXP3,
 	VB2_SIG_RSA1024,
 	VB2_SIG_RSA4096,
 	VB2_SIG_RSA8192,
@@ -277,6 +278,7 @@ static uint32_t usbpd1_packed_key_size(enum vb2_signature_algorithm sig_alg)
 	case VB2_SIG_RSA1024:
 		return 272;
 	case VB2_SIG_RSA2048:
+	case VB2_SIG_RSA2048_EXP3:
 		return 528;
 	case VB2_SIG_RSA4096:
 		return 1040;

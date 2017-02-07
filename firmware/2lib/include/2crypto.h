@@ -23,7 +23,9 @@ enum vb2_crypto_algorithm {
 	VB2_ALG_RSA8192_SHA1   = 9,
 	VB2_ALG_RSA8192_SHA256 = 10,
 	VB2_ALG_RSA8192_SHA512 = 11,
-
+	VB2_ALG_RSA2048_EXP3_SHA1   = 12,
+	VB2_ALG_RSA2048_EXP3_SHA256 = 13,
+	VB2_ALG_RSA2048_EXP3_SHA512 = 14,
 	/* Number of algorithms */
 	VB2_ALG_COUNT
 };
@@ -44,6 +46,7 @@ enum vb2_signature_algorithm {
 	VB2_SIG_RSA2048 = 3,
 	VB2_SIG_RSA4096 = 4,
 	VB2_SIG_RSA8192 = 5,
+	VB2_SIG_RSA2048_EXP3 = 6,
 
 	/* Last index. Don't add anything below. */
 	VB2_SIG_ALG_COUNT,

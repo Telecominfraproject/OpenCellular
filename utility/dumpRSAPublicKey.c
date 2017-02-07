@@ -23,8 +23,9 @@ int check(RSA* key) {
   int public_exponent = BN_get_word(key->e);
   int modulus = BN_num_bits(key->n);
 
-  if (public_exponent != 65537) {
-    fprintf(stderr, "WARNING: Public exponent should be 65537 (but is %d).\n",
+  if (public_exponent != 3 && public_exponent != 65537) {
+    fprintf(stderr,
+            "WARNING: Public exponent should be 3 or 65537 (but is %d).\n",
             public_exponent);
   }
 

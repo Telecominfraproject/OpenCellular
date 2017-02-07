@@ -23,6 +23,7 @@ const struct vb2_text_vs_enum vb2_text_vs_sig[] = {
 	{"RSA2048", VB2_SIG_RSA2048},
 	{"RSA4096", VB2_SIG_RSA4096},
 	{"RSA8192", VB2_SIG_RSA8192},
+	{"RSA2048EXP3", VB2_SIG_RSA2048_EXP3},
 	{0, 0}
 };
 
@@ -403,7 +404,10 @@ int vb2_public_key_read_keyb(struct vb2_public_key **key_ptr,
 	if (vb2_read_file(filename, &key_data, &key_size))
 		return VB2_ERROR_READ_KEYB_DATA;
 
-	/* Guess the signature algorithm from the key size */
+	/* Guess the signature algorithm from the key size
+	 * Note: This only considers exponent F4 keys, as there is no way to
+	 * distinguish between exp 3 and F4 based on size. Vboot API 2.1 is
+	 * required to make proper use of exp 3 keys. */
 	for (sig_alg = VB2_SIG_RSA1024; sig_alg <= VB2_SIG_RSA8192; sig_alg++) {
 		if (key_size == vb2_packed_key_size(sig_alg))
 			break;
@@ -560,17 +564,27 @@ int vb2_public_key_hash(struct vb2_public_key *key,
 
 enum vb2_signature_algorithm vb2_rsa_sig_alg(struct rsa_st *rsa)
 {
+	int exp = BN_get_word(rsa->e);
 	int bits = BN_num_bits(rsa->n);
 
-	switch (bits) {
-	case 1024:
-		return VB2_SIG_RSA1024;
-	case 2048:
-		return VB2_SIG_RSA2048;
-	case 4096:
-		return VB2_SIG_RSA4096;
-	case 8192:
-		return VB2_SIG_RSA8192;
+	switch (exp) {
+	case RSA_3:
+		switch (bits) {
+		case 2048:
+			return VB2_SIG_RSA2048_EXP3;
+		}
+		break;
+	case RSA_F4:
+		switch (bits) {
+		case 1024:
+			return VB2_SIG_RSA1024;
+		case 2048:
+			return VB2_SIG_RSA2048;
+		case 4096:
+			return VB2_SIG_RSA4096;
+		case 8192:
+			return VB2_SIG_RSA8192;
+		}
 	}
 
 	/* no clue */

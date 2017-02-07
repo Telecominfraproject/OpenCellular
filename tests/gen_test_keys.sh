@@ -25,7 +25,15 @@ function generate_keys {
       continue
     fi
 
-    openssl genrsa -F4 -out ${key_base}.pem $i
+    # Extract exponent from key_length name, if necessary
+    exp="F4"
+    bits=$i
+    if [ "${i##*_exp}" != "${i}" ]; then
+        exp="${i##*_exp}"
+        bits="${i%%_exp${exp}}"
+    fi
+
+    openssl genrsa -${exp} -out ${key_base}.pem ${bits}
     # Generate self-signed certificate from key.
     openssl req -batch -new -x509 -key ${key_base}.pem \
       -out ${key_base}.crt

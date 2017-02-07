@@ -13,7 +13,7 @@ DATADIR="${SCRIPTDIR}/data"
 TESTKEYS=${SRCDIR}/tests/testkeys
 
 # Do not test 8192 as the signature length is > 1024 bytes
-SIGS="1024 2048 4096"
+SIGS="1024 2048 4096 2048_exp3"
 HASHES="SHA1 SHA256 SHA512"
 
 set -o pipefail

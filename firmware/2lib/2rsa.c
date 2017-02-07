@@ -73,6 +73,25 @@ static void montMulAdd(const struct vb2_public_key *key,
 }
 
 /**
+ * Montgomery c[] += 0 * b[] / R % mod
+ */
+static void montMulAdd0(const struct vb2_public_key *key,
+			uint32_t *c,
+			const uint32_t *b)
+{
+	uint32_t d0 = c[0] * key->n0inv;
+	uint64_t B = (uint64_t)d0 * key->n[0] + c[0];
+	uint32_t i;
+
+	for (i = 1; i < key->arrsize; ++i) {
+		B = (B >> 32) + (uint64_t)d0 * key->n[i] + c[i];
+		c[i - 1] = (uint32_t)B;
+	}
+
+	c[i - 1] = B >> 32;
+}
+
+/**
  * Montgomery c[] = a[] * b[] / R % mod
  */
 static void montMul(const struct vb2_public_key *key,
@@ -89,16 +108,32 @@ static void montMul(const struct vb2_public_key *key,
 	}
 }
 
+/* Montgomery c[] = a[] * 1 / R % key. */
+static void montMul1(const struct vb2_public_key *key,
+		     uint32_t *c,
+		     const uint32_t *a)
+{
+	int i;
+
+	for (i = 0; i < key->arrsize; ++i)
+		c[i] = 0;
+
+	montMulAdd(key, c, 1, a);
+	for (i = 1; i < key->arrsize; ++i)
+		montMulAdd0(key, c, a);
+}
+
 /**
- * In-place public exponentiation. (65537}
+ * In-place public exponentiation.
  *
  * @param key		Key to use in signing
  * @param inout		Input and output big-endian byte array
  * @param workbuf32	Work buffer; caller must verify this is
  *			(3 * key->arrsize) elements long.
+ * @param exp		RSA public exponent: either 65537 (F4) or 3
  */
-static void modpowF4(const struct vb2_public_key *key, uint8_t *inout,
-		    uint32_t *workbuf32)
+static void modpow(const struct vb2_public_key *key, uint8_t *inout,
+		uint32_t *workbuf32, int exp)
 {
 	uint32_t *a = workbuf32;
 	uint32_t *aR = a + key->arrsize;
@@ -117,12 +152,18 @@ static void modpowF4(const struct vb2_public_key *key, uint8_t *inout,
 	}
 
 	montMul(key, aR, a, key->rr);  /* aR = a * RR / R mod M   */
-	for (i = 0; i < 16; i+=2) {
-		montMul(key, aaR, aR, aR);  /* aaR = aR * aR / R mod M */
-		montMul(key, aR, aaR, aaR);  /* aR = aaR * aaR / R mod M */
+	if (exp == 3) {
+		montMul(key, aaR, aR, aR); /* aaR = aR * aR / R mod M */
+		montMul(key, a, aaR, aR); /* a = aaR * aR / R mod M */
+		montMul1(key, aaa, a); /* aaa = a * 1 / R mod M */
+	} else {
+		/* Exponent 65537 */
+		for (i = 0; i < 16; i+=2) {
+			montMul(key, aaR, aR, aR);  /* aaR = aR * aR / R mod M */
+			montMul(key, aR, aaR, aaR);  /* aR = aaR * aaR / R mod M */
+		}
+		montMul(key, aaa, aR, a);  /* aaa = aR * a / R mod M */
 	}
-	montMul(key, aaa, aR, a);  /* aaa = aR * a / R mod M */
-
 
 	/* Make sure aaa < mod; aaa is at most 1x mod too large. */
 	if (vb2_mont_ge(key, aaa)) {
@@ -153,6 +194,9 @@ static const uint8_t crypto_to_sig[] = {
 	VB2_SIG_RSA8192,
 	VB2_SIG_RSA8192,
 	VB2_SIG_RSA8192,
+	VB2_SIG_RSA2048_EXP3,
+	VB2_SIG_RSA2048_EXP3,
+	VB2_SIG_RSA2048_EXP3,
 };
 
 /**
@@ -178,11 +222,33 @@ uint32_t vb2_rsa_sig_size(enum vb2_signature_algorithm sig_alg)
 	case VB2_SIG_RSA1024:
 		return 1024 / 8;
 	case VB2_SIG_RSA2048:
+	case VB2_SIG_RSA2048_EXP3:
 		return 2048 / 8;
 	case VB2_SIG_RSA4096:
 		return 4096 / 8;
 	case VB2_SIG_RSA8192:
 		return 8192 / 8;
+	default:
+		return 0;
+	}
+}
+
+/**
+ * Return the exponent used by an RSA algorithm
+ *
+ * @param sig_alg	Signature algorithm
+ * @return The exponent to use (3 or 65537(F4)), or 0 if error.
+ */
+static uint32_t vb2_rsa_exponent(enum vb2_signature_algorithm sig_alg)
+{
+	switch (sig_alg) {
+	case VB2_SIG_RSA1024:
+	case VB2_SIG_RSA2048:
+	case VB2_SIG_RSA4096:
+	case VB2_SIG_RSA8192:
+		return 65537;
+	case VB2_SIG_RSA2048_EXP3:
+		return 3;
 	default:
 		return 0;
 	}
@@ -298,13 +364,15 @@ int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 	uint32_t key_bytes;
 	int sig_size;
 	int pad_size;
+	int exp;
 	int rv;
 
 	if (!key || !sig || !digest)
 		return VB2_ERROR_RSA_VERIFY_PARAM;
 
 	sig_size = vb2_rsa_sig_size(key->sig_alg);
-	if (!sig_size) {
+	exp = vb2_rsa_exponent(key->sig_alg);
+	if (!sig_size || !exp) {
 		VB2_DEBUG("Invalid signature type!\n");
 		return VB2_ERROR_RSA_VERIFY_ALGORITHM;
 	}
@@ -322,7 +390,7 @@ int vb2_rsa_verify_digest(const struct vb2_public_key *key,
 		return VB2_ERROR_RSA_VERIFY_WORKBUF;
 	}
 
-	modpowF4(key, sig, workbuf32);
+	modpow(key, sig, workbuf32, exp);
 
 	vb2_workbuf_free(&wblocal, 3 * key_bytes);
 
