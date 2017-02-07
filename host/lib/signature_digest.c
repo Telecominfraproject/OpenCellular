@@ -40,14 +40,19 @@ uint8_t* SignatureDigest(const uint8_t* buf, uint64_t len,
 	uint8_t* info_digest  = NULL;
 
 	uint8_t digest[VB2_SHA512_DIGEST_SIZE];  /* Longest digest */
+	enum vb2_hash_algorithm hash_alg;
 
 	if (algorithm >= VB2_ALG_COUNT) {
-		fprintf(stderr, "SignatureDigest(): "
-			"Called with invalid algorithm!\n");
-	} else if (VB2_SUCCESS ==
-		   vb2_digest_buffer(buf, len, vb2_crypto_to_hash(algorithm),
-				     digest, sizeof(digest))) {
-		info_digest = PrependDigestInfo(algorithm, digest);
+		fprintf(stderr,
+			"SignatureDigest(): Called with invalid algorithm!\n");
+		return NULL;
+	}
+
+	hash_alg = vb2_crypto_to_hash(algorithm);
+
+	if (VB2_SUCCESS == vb2_digest_buffer(buf, len, hash_alg,
+					     digest, sizeof(digest))) {
+		info_digest = PrependDigestInfo(hash_alg, digest);
 	}
 	return info_digest;
 }
