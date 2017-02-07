@@ -21,6 +21,7 @@ function generate_keys {
   do
     key_base="${key_name_base}${i}"
     if [ -f "${key_base}.keyb" ]; then
+      key_index=$((${key_index} + 1))
       continue
     fi
 
