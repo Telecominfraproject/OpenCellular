@@ -33,14 +33,12 @@ is
       PLL      :    out T;
       Success  :    out Boolean);
 
-   pragma Warnings (GNATprove, Off, "subprogram ""*"" has no effect");
    procedure Free (PLL : T);
 
    procedure All_Off;
-   pragma Warnings (GNATprove, On, "subprogram ""*"" has no effect");
 
-   pragma Warnings (GNATprove, Off, "unused variable ""PLL""");
-   function Register_Value (PLL : T) return Word32;
-   pragma Warnings (GNATprove, On, "unused variable ""PLL""");
+   -- Just an interface stub since PLLs are tied to the port.
+   type Word_Array is array (T) of Word32;
+   Register_Value : constant Word_Array := (others => 0);
 
 end HW.GFX.GMA.PLLs;
