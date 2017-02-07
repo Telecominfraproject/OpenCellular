@@ -35,6 +35,10 @@ function generate_test_signatures {
 # Generate a file with random bytes for signature tests.
 function generate_test_file {
   echo "Generating test file..."
+  if [ -f "${TEST_FILE}" ]; then
+    echo "(skipping, file already exists)"
+    return
+  fi
   dd if=/dev/urandom of=${TEST_FILE} bs=${TEST_FILE_SIZE} count=1
 }
 

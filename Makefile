@@ -1379,6 +1379,11 @@ runtests: test_setup test_targets
 genkeys: utils test_setup
 	tests/gen_test_keys.sh
 
+# Generate test cases
+.PHONY: gentestcases
+gentestcases: utils test_setup
+	tests/gen_test_cases.sh
+
 # Generate test cases for fuzzing
 .PHONY: genfuzztestcases
 genfuzztestcases: utils test_setup
