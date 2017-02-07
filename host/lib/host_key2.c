@@ -29,7 +29,7 @@ enum vb2_crypto_algorithm vb2_get_crypto_algorithm(
 		enum vb2_signature_algorithm sig_alg)
 {
 	/* Make sure algorithms are in the range supported by crypto alg */
-	if (sig_alg < VB2_SIG_RSA1024 || sig_alg > VB2_SIG_RSA8192)
+	if (sig_alg < VB2_SIG_RSA1024 || sig_alg >= VB2_SIG_ALG_COUNT)
 		return VB2_ALG_COUNT;
 	if (hash_alg < VB2_HASH_SHA1 || hash_alg > VB2_HASH_SHA512)
 		return VB2_ALG_COUNT;
@@ -129,8 +129,10 @@ int vb2_write_private_key(const char *filename,
 {
 	/* Convert back to legacy vb1 algorithm enum */
 	uint64_t alg = vb2_get_crypto_algorithm(key->hash_alg, key->sig_alg);
-	if (alg == VB2_ALG_COUNT)
+	if (alg == VB2_ALG_COUNT) {
+		fprintf(stderr, "Can't find crypto algorithm\n");
 		return VB2_ERROR_VB1_CRYPTO_ALGORITHM;
+	}
 
 	uint8_t *outbuf = NULL;
 	int buflen = i2d_RSAPrivateKey(key->rsa_private_key, &outbuf);

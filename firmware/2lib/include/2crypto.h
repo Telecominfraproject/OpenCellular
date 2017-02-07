@@ -44,6 +44,9 @@ enum vb2_signature_algorithm {
 	VB2_SIG_RSA2048 = 3,
 	VB2_SIG_RSA4096 = 4,
 	VB2_SIG_RSA8192 = 5,
+
+	/* Last index. Don't add anything below. */
+	VB2_SIG_ALG_COUNT,
 };
 
 /* Algorithm types for hash digests */
