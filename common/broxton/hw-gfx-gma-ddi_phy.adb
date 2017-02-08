@@ -15,6 +15,7 @@
 with GNAT.Source_Info;
 with HW.Debug;
 
+with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Registers;
 
 use HW.GFX.GMA.Registers;
@@ -265,31 +266,102 @@ package body HW.GFX.GMA.DDI_Phy is
    type Lane_Reg_Array is array (Lanes) of Registers_Index;
 
    type Port_TX_Regs is record
+      DW2_LN0 : Registers_Index;
+      DW2_GRP : Registers_Index;
+      DW3_LN0 : Registers_Index;
+      DW3_GRP : Registers_Index;
+      DW4_LN0 : Registers_Index;
+      DW4_GRP : Registers_Index;
       DW14_LN : Lane_Reg_Array;
    end record;
    type Port_TX_Array is array (DDI_Phy_Port) of Port_TX_Regs;
 
    PORT_TX : constant Port_TX_Array :=
      (DIGI_A =>
-        (DW14_LN =>
+        (DW2_LN0 => BXT_PORT_TX_DW2_LN0_A,
+         DW2_GRP => BXT_PORT_TX_DW2_GRP_A,
+         DW3_LN0 => BXT_PORT_TX_DW3_LN0_A,
+         DW3_GRP => BXT_PORT_TX_DW3_GRP_A,
+         DW4_LN0 => BXT_PORT_TX_DW4_LN0_A,
+         DW4_GRP => BXT_PORT_TX_DW4_GRP_A,
+         DW14_LN =>
            (BXT_PORT_TX_DW14_LN0_A,
             BXT_PORT_TX_DW14_LN1_A,
             BXT_PORT_TX_DW14_LN2_A,
             BXT_PORT_TX_DW14_LN3_A)),
       DIGI_B =>
-        (DW14_LN =>
+        (DW2_LN0 => BXT_PORT_TX_DW2_LN0_B,
+         DW2_GRP => BXT_PORT_TX_DW2_GRP_B,
+         DW3_LN0 => BXT_PORT_TX_DW3_LN0_B,
+         DW3_GRP => BXT_PORT_TX_DW3_GRP_B,
+         DW4_LN0 => BXT_PORT_TX_DW4_LN0_B,
+         DW4_GRP => BXT_PORT_TX_DW4_GRP_B,
+         DW14_LN =>
            (BXT_PORT_TX_DW14_LN0_B,
             BXT_PORT_TX_DW14_LN1_B,
             BXT_PORT_TX_DW14_LN2_B,
             BXT_PORT_TX_DW14_LN3_B)),
       DIGI_C =>
-        (DW14_LN =>
+        (DW2_LN0 => BXT_PORT_TX_DW2_LN0_C,
+         DW2_GRP => BXT_PORT_TX_DW2_GRP_C,
+         DW3_LN0 => BXT_PORT_TX_DW3_LN0_C,
+         DW3_GRP => BXT_PORT_TX_DW3_GRP_C,
+         DW4_LN0 => BXT_PORT_TX_DW4_LN0_C,
+         DW4_GRP => BXT_PORT_TX_DW4_GRP_C,
+         DW14_LN =>
            (BXT_PORT_TX_DW14_LN0_C,
             BXT_PORT_TX_DW14_LN1_C,
             BXT_PORT_TX_DW14_LN2_C,
             BXT_PORT_TX_DW14_LN3_C)));
 
-   PORT_TX_DW14_LN_LATENCY_OPTIM       : constant := 1 * 2 ** 30;
+   PORT_TX_DW2_MARGIN_000_SHIFT        : constant :=               16;
+   PORT_TX_DW2_MARGIN_000_MASK         : constant := 16#ff# * 2 ** 16;
+   PORT_TX_DW2_UNIQ_TRANS_SCALE_SHIFT  : constant :=                8;
+   PORT_TX_DW2_UNIQ_TRANS_SCALE_MASK   : constant := 16#ff# * 2 **  8;
+   function PORT_TX_DW2_MARGIN_000 (Margin : Word8) return Word32 is
+   begin
+      return Shift_Left (Word32 (Margin), PORT_TX_DW2_MARGIN_000_SHIFT);
+   end PORT_TX_DW2_MARGIN_000;
+   function PORT_TX_DW2_UNIQ_TRANS_SCALE (Scale : Word8) return Word32 is
+   begin
+      return Shift_Left (Word32 (Scale), PORT_TX_DW2_UNIQ_TRANS_SCALE_SHIFT);
+   end PORT_TX_DW2_UNIQ_TRANS_SCALE;
+
+   PORT_TX_DW3_UNIQUE_TRANGE_EN_METHOD : constant :=      1 * 2 ** 27;
+   PORT_TX_DW3_SCALE_DCOMP_METHOD      : constant :=      1 * 2 ** 26;
+
+   PORT_TX_DW4_DE_EMPHASIS_SHIFT       : constant :=               24;
+   PORT_TX_DW4_DE_EMPHASIS_MASK        : constant := 16#ff# * 2 ** 24;
+   function PORT_TX_DW4_DE_EMPHASIS (De_Emph : Word8) return Word32 is
+   begin
+      return Shift_Left (Word32 (De_Emph), PORT_TX_DW4_DE_EMPHASIS_SHIFT);
+   end PORT_TX_DW4_DE_EMPHASIS;
+
+   PORT_TX_DW14_LN_LATENCY_OPTIM       : constant :=      1 * 2 ** 30;
+
+   ----------------------------------------------------------------------------
+
+   type Port_PCS_Regs is record
+      DW10_LN01   : Registers_Index;
+      DW10_GRP    : Registers_Index;
+   end record;
+   type Port_PCS_Array is array (DDI_Phy_Port) of Port_PCS_Regs;
+
+   PORT_PCS : constant Port_PCS_Array :=
+     (DIGI_A =>
+        (DW10_LN01   => BXT_PORT_PCS_DW10_01_A,
+         DW10_GRP    => BXT_PORT_PCS_DW10_GRP_A),
+      DIGI_B =>
+        (DW10_LN01   => BXT_PORT_PCS_DW10_01_B,
+         DW10_GRP    => BXT_PORT_PCS_DW10_GRP_B),
+      DIGI_C =>
+        (DW10_LN01   => BXT_PORT_PCS_DW10_01_C,
+         DW10_GRP    => BXT_PORT_PCS_DW10_GRP_C));
+
+   PORT_PCS_TX2_SWING_CALC_INIT        : constant := 1 * 2 ** 31;
+   PORT_PCS_TX1_SWING_CALC_INIT        : constant := 1 * 2 ** 30;
+
+   ----------------------------------------------------------------------------
 
    procedure Pre_PLL (Port_Cfg : Port_Config)
    is
@@ -321,5 +393,162 @@ package body HW.GFX.GMA.DDI_Phy is
          end loop;
       end if;
    end Pre_PLL;
+
+   ----------------------------------------------------------------------------
+
+   type DDI_Buf_Trans is record
+      Margin   : Word8;
+      Scale    : Word8;
+      Scale_En : Boolean;
+      De_Emph  : Word8;
+   end record;
+   Invalid_Buf_Trans : constant DDI_Buf_Trans := (0, 0, False, 0);
+
+   function DP_Buf_Trans (TS : DP_Info.Train_Set) return DDI_Buf_Trans
+   with
+      Pre => True
+   is
+   begin
+      return
+        (case TS.Voltage_Swing is
+            when DP_Info.VS_Level_0 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => ( 52, 16#9a#, False, 128),
+                  when DP_Info.Emph_Level_1  => ( 78, 16#9a#, False,  85),
+                  when DP_Info.Emph_Level_2  => (104, 16#9a#, False,  64),
+                  when DP_Info.Emph_Level_3  => (154, 16#9a#, False,  43)),
+            when DP_Info.VS_Level_1 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => ( 77, 16#9a#, False, 128),
+                  when DP_Info.Emph_Level_1  => (116, 16#9a#, False,  85),
+                  when DP_Info.Emph_Level_2  => (154, 16#9a#, False,  64),
+                  when others                => Invalid_Buf_Trans),
+            when DP_Info.VS_Level_2 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => (102, 16#9a#, False, 128),
+                  when DP_Info.Emph_Level_1  => (154, 16#9a#, False,  85),
+                  when others                => Invalid_Buf_Trans),
+            when DP_Info.VS_Level_3 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => (154, 16#9a#,  True, 128),
+                  when others                => Invalid_Buf_Trans));
+   end DP_Buf_Trans;
+
+   function eDP_Buf_Trans (TS : DP_Info.Train_Set) return DDI_Buf_Trans
+   with
+      Pre => True
+   is
+   begin
+      return
+        (case TS.Voltage_Swing is
+            when DP_Info.VS_Level_0 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => ( 26, 16#00#, False, 128),
+                  when DP_Info.Emph_Level_1  => ( 38, 16#00#, False, 112),
+                  when DP_Info.Emph_Level_2  => ( 48, 16#00#, False,  96),
+                  when DP_Info.Emph_Level_3  => ( 54, 16#00#, False,  69)),
+            when DP_Info.VS_Level_1 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => ( 32, 16#00#, False, 128),
+                  when DP_Info.Emph_Level_1  => ( 48, 16#00#, False, 104),
+                  when DP_Info.Emph_Level_2  => ( 54, 16#00#, False,  85),
+                  when others                => Invalid_Buf_Trans),
+            when DP_Info.VS_Level_2 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => ( 43, 16#00#, False, 128),
+                  when DP_Info.Emph_Level_1  => ( 54, 16#00#, False, 101),
+                  when others                => Invalid_Buf_Trans),
+            when DP_Info.VS_Level_3 =>
+              (case TS.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => ( 48, 16#00#, False, 128),
+                  when others                => Invalid_Buf_Trans));
+   end eDP_Buf_Trans;
+
+   type HDMI_Buf_Trans_Array is array (HDMI_Buf_Trans_Range) of DDI_Buf_Trans;
+   HDMI_Buf_Trans : constant HDMI_Buf_Trans_Array :=
+     (0 => ( 52, 16#9a#, False, 128),
+      1 => ( 52, 16#9a#, False,  85),
+      2 => ( 52, 16#9a#, False,  64),
+      3 => ( 42, 16#9a#, False,  43), -- XXX: typo in i915?
+      4 => ( 77, 16#9a#, False, 128),
+      5 => ( 77, 16#9a#, False,  85),
+      6 => ( 77, 16#9a#, False,  64),
+      7 => (102, 16#9a#, False, 128),
+      8 => (102, 16#9a#, False,  85),
+      9 => (154, 16#9a#,  True, 128));
+
+   procedure Set_Signal_Levels
+     (Port  : DDI_Phy_Port;
+      Trans : DDI_Buf_Trans)
+   with
+      Pre => True
+   is
+      -- We read from / write to different registers
+      -- to program all lanes in a group at once.
+      Val32 : Word32;
+   begin
+      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      Read (PORT_PCS (Port).DW10_LN01, Val32);
+      Val32 := Val32 and
+         not PORT_PCS_TX2_SWING_CALC_INIT and
+         not PORT_PCS_TX1_SWING_CALC_INIT;
+      Write (PORT_PCS (Port).DW10_GRP, Val32);
+
+      Read (PORT_TX (Port).DW2_LN0, Val32);
+      Val32 := Val32 and
+         not PORT_TX_DW2_MARGIN_000_MASK and
+         not PORT_TX_DW2_UNIQ_TRANS_SCALE_MASK;
+      Val32 := Val32 or
+         PORT_TX_DW2_MARGIN_000 (Trans.Margin) or
+         PORT_TX_DW2_UNIQ_TRANS_SCALE (Trans.Scale);
+      Write (PORT_TX (Port).DW2_GRP, Val32);
+
+      Read (PORT_TX (Port).DW3_LN0, Val32);
+      Val32 := Val32 and not PORT_TX_DW3_SCALE_DCOMP_METHOD;
+      if Trans.Scale_En then
+         Val32 := Val32 or PORT_TX_DW3_SCALE_DCOMP_METHOD;
+      end if;
+      Write (PORT_TX (Port).DW3_GRP, Val32);
+
+      pragma Debug
+        ((Val32 and PORT_TX_DW3_UNIQUE_TRANGE_EN_METHOD) /= 0 and
+         (Val32 and PORT_TX_DW3_SCALE_DCOMP_METHOD) = 0,
+         Debug.Put_Line ("XXX: Unique trange enabled but scaling disabled."));
+
+      Read (PORT_TX (Port).DW4_LN0, Val32);
+      Val32 := Val32 and not PORT_TX_DW4_DE_EMPHASIS_MASK;
+      Val32 := Val32 or PORT_TX_DW4_DE_EMPHASIS (Trans.De_Emph);
+      Write (PORT_TX (Port).DW4_GRP, Val32);
+
+      Read (PORT_PCS (Port).DW10_LN01, Val32);
+      Val32 := Val32 or
+         PORT_PCS_TX2_SWING_CALC_INIT or
+         PORT_PCS_TX1_SWING_CALC_INIT;
+      Write (PORT_PCS (Port).DW10_GRP, Val32);
+   end Set_Signal_Levels;
+
+   procedure Set_DP_Signal_Levels
+     (Port        : Digital_Port;
+      Train_Set   : DP_Info.Train_Set)
+   is
+      Trans : constant DDI_Buf_Trans :=
+        (if Port = DIGI_A and Config.EDP_Low_Voltage_Swing then
+            eDP_Buf_Trans (Train_Set)
+         else
+            DP_Buf_Trans (Train_Set));
+   begin
+      if Port in DDI_Phy_Port then
+         Set_Signal_Levels (Port, Trans);
+      end if;
+   end Set_DP_Signal_Levels;
+
+   procedure Set_HDMI_Signal_Levels
+     (Port  : DDI_Phy_Port;
+      Level : HDMI_Buf_Trans_Range)
+   is
+   begin
+      Set_Signal_Levels (Port, HDMI_Buf_Trans (Level));
+   end Set_HDMI_Signal_Levels;
 
 end HW.GFX.GMA.DDI_Phy;

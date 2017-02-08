@@ -12,6 +12,8 @@
 -- GNU General Public License for more details.
 --
 
+with HW.GFX.GMA.DP_Info;
+
 private package HW.GFX.GMA.DDI_Phy is
 
    type T is (BC, A);
@@ -22,5 +24,23 @@ private package HW.GFX.GMA.DDI_Phy is
    subtype DDI_Phy_Port is GPU_Port range DIGI_A .. DIGI_C;
 
    procedure Pre_PLL (Port_Cfg : Port_Config);
+
+   Max_V_Swing : constant DP_Info.DP_Voltage_Swing := DP_Info.VS_Level_3;
+
+   type Emph_Array is array (DP_Info.DP_Voltage_Swing) of DP_Info.DP_Pre_Emph;
+   Max_Pre_Emph : constant Emph_Array :=
+     (DP_Info.VS_Level_0   => DP_Info.Emph_Level_3,
+      DP_Info.VS_Level_1   => DP_Info.Emph_Level_2,
+      DP_Info.VS_Level_2   => DP_Info.Emph_Level_1,
+      others               => DP_Info.Emph_Level_0);
+
+   procedure Set_DP_Signal_Levels
+     (Port        : Digital_Port;
+      Train_Set   : DP_Info.Train_Set);
+
+   type HDMI_Buf_Trans_Range is range 0 .. 9;
+   procedure Set_HDMI_Signal_Levels
+     (Port  : DDI_Phy_Port;
+      Level : HDMI_Buf_Trans_Range);
 
 end HW.GFX.GMA.DDI_Phy;
