@@ -284,7 +284,15 @@ is
       BXT_PORT_PLL_9_C,
       BXT_PORT_PLL_10_C,
       BXT_PORT_PCS_DW12_01_B,
+      BXT_PORT_TX_DW14_LN0_B,
+      BXT_PORT_TX_DW14_LN1_B,
+      BXT_PORT_TX_DW14_LN2_B,
+      BXT_PORT_TX_DW14_LN3_B,
       BXT_PORT_PCS_DW12_01_C,
+      BXT_PORT_TX_DW14_LN0_C,
+      BXT_PORT_TX_DW14_LN1_C,
+      BXT_PORT_TX_DW14_LN2_C,
+      BXT_PORT_TX_DW14_LN3_C,
       BXT_PORT_PCS_DW12_GRP_B,
       BXT_PORT_PCS_DW12_GRP_C,
       BXT_DE_PLL_CTL,
@@ -521,6 +529,10 @@ is
       BXT_PORT_REF_DW6_A,
       BXT_PORT_REF_DW8_A,
       BXT_PORT_PCS_DW12_01_A,
+      BXT_PORT_TX_DW14_LN0_A,
+      BXT_PORT_TX_DW14_LN1_A,
+      BXT_PORT_TX_DW14_LN2_A,
+      BXT_PORT_TX_DW14_LN3_A,
       BXT_PORT_PCS_DW12_GRP_A);
 
    pragma Warnings
@@ -959,6 +971,20 @@ is
       BXT_PORT_CL1CM_DW30_A   => 16#16_2078# / Register_Width,
       BXT_PORT_CL1CM_DW30_BC  => 16#06_c078# / Register_Width,
       BXT_PORT_CL2CM_DW6_BC   => 16#06_c358# / Register_Width,
+
+      -- Broxton DDI PHY TX lane registers
+      BXT_PORT_TX_DW14_LN0_A  => 16#16_2538# / Register_Width,
+      BXT_PORT_TX_DW14_LN1_A  => 16#16_25b8# / Register_Width,
+      BXT_PORT_TX_DW14_LN2_A  => 16#16_2738# / Register_Width,
+      BXT_PORT_TX_DW14_LN3_A  => 16#16_27b8# / Register_Width,
+      BXT_PORT_TX_DW14_LN0_B  => 16#06_c538# / Register_Width,
+      BXT_PORT_TX_DW14_LN1_B  => 16#06_c5b8# / Register_Width,
+      BXT_PORT_TX_DW14_LN2_B  => 16#06_c738# / Register_Width,
+      BXT_PORT_TX_DW14_LN3_B  => 16#06_c7b8# / Register_Width,
+      BXT_PORT_TX_DW14_LN0_C  => 16#06_c938# / Register_Width,
+      BXT_PORT_TX_DW14_LN1_C  => 16#06_c9b8# / Register_Width,
+      BXT_PORT_TX_DW14_LN2_C  => 16#06_cb38# / Register_Width,
+      BXT_PORT_TX_DW14_LN3_C  => 16#06_cbb8# / Register_Width,
 
       -- Broxton DDI PHY ref registers
       BXT_PORT_REF_DW3_A      => 16#16_218c# / Register_Width,

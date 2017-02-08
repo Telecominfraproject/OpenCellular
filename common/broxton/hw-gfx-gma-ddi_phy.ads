@@ -21,4 +21,6 @@ private package HW.GFX.GMA.DDI_Phy is
 
    subtype DDI_Phy_Port is GPU_Port range DIGI_A .. DIGI_C;
 
+   procedure Pre_PLL (Port_Cfg : Port_Config);
+
 end HW.GFX.GMA.DDI_Phy;

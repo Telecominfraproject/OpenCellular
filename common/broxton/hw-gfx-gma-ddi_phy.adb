@@ -259,4 +259,67 @@ package body HW.GFX.GMA.DDI_Phy is
       Unset_Mask (BXT_P_CR_GT_DISP_PWRON, GT_DISPLAY_POWER_ON (Phy));
    end Power_Off;
 
+   ----------------------------------------------------------------------------
+
+   type Lanes is range 0 .. 3;
+   type Lane_Reg_Array is array (Lanes) of Registers_Index;
+
+   type Port_TX_Regs is record
+      DW14_LN : Lane_Reg_Array;
+   end record;
+   type Port_TX_Array is array (DDI_Phy_Port) of Port_TX_Regs;
+
+   PORT_TX : constant Port_TX_Array :=
+     (DIGI_A =>
+        (DW14_LN =>
+           (BXT_PORT_TX_DW14_LN0_A,
+            BXT_PORT_TX_DW14_LN1_A,
+            BXT_PORT_TX_DW14_LN2_A,
+            BXT_PORT_TX_DW14_LN3_A)),
+      DIGI_B =>
+        (DW14_LN =>
+           (BXT_PORT_TX_DW14_LN0_B,
+            BXT_PORT_TX_DW14_LN1_B,
+            BXT_PORT_TX_DW14_LN2_B,
+            BXT_PORT_TX_DW14_LN3_B)),
+      DIGI_C =>
+        (DW14_LN =>
+           (BXT_PORT_TX_DW14_LN0_C,
+            BXT_PORT_TX_DW14_LN1_C,
+            BXT_PORT_TX_DW14_LN2_C,
+            BXT_PORT_TX_DW14_LN3_C)));
+
+   PORT_TX_DW14_LN_LATENCY_OPTIM       : constant := 1 * 2 ** 30;
+
+   procedure Pre_PLL (Port_Cfg : Port_Config)
+   is
+      type Lane_Values is array (Lanes) of Word32;
+      Lane_Optim : constant Lane_Values :=
+        (if Port_Cfg.Display = HDMI or
+            Port_Cfg.DP.Lane_Count = DP_Lane_Count_4
+         then
+            (0 => PORT_TX_DW14_LN_LATENCY_OPTIM,
+             1 => 0,
+             2 => PORT_TX_DW14_LN_LATENCY_OPTIM,
+             3 => PORT_TX_DW14_LN_LATENCY_OPTIM)
+         elsif Port_Cfg.DP.Lane_Count = DP_Lane_Count_2 then
+            (0 => PORT_TX_DW14_LN_LATENCY_OPTIM,
+             1 => 0,
+             2 => PORT_TX_DW14_LN_LATENCY_OPTIM,
+             3 => 0)
+         else
+            (Lanes => 0));
+   begin
+      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      if Port_Cfg.Port in DDI_Phy_Port then
+         for Lane in Lanes loop
+            Unset_And_Set_Mask
+              (Register    => PORT_TX (Port_Cfg.Port).DW14_LN (Lane),
+               Mask_Unset  => PORT_TX_DW14_LN_LATENCY_OPTIM,
+               Mask_Set    => Lane_Optim (Lane));
+         end loop;
+      end if;
+   end Pre_PLL;
+
 end HW.GFX.GMA.DDI_Phy;

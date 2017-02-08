@@ -17,6 +17,7 @@ with GNAT.Source_Info;
 
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Registers;
+with HW.GFX.GMA.DDI_Phy;
 
 use HW.GFX.GMA.Registers;
 
@@ -461,6 +462,7 @@ is
       end if;
 
       if Success then
+         DDI_Phy.Pre_PLL (Port_Cfg);
          Program_DPLL (PLL, Clock);
       end if;
    end Alloc;
