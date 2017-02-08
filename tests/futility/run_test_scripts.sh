@@ -48,6 +48,7 @@ ${SCRIPTDIR}/test_load_fmap.sh
 ${SCRIPTDIR}/test_main.sh
 ${SCRIPTDIR}/test_show_contents.sh
 ${SCRIPTDIR}/test_show_kernel.sh
+${SCRIPTDIR}/test_show_rwsig.sh
 ${SCRIPTDIR}/test_show_vs_verify.sh
 ${SCRIPTDIR}/test_show_usbpd1.sh
 ${SCRIPTDIR}/test_sign_firmware.sh
