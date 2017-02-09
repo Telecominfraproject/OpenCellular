@@ -37,6 +37,9 @@ package body HW.GFX.GMA.I2C is
    GMBUS0_PIN_PAIR_SELECT_DIGI_C    : constant :=   4 * 2 **  0;
    GMBUS0_PIN_PAIR_SELECT_DIGI_B    : constant :=   5 * 2 **  0;
    GMBUS0_PIN_PAIR_SELECT_DIGI_D    : constant :=   6 * 2 **  0;
+   -- Broxton uses different pins
+   GMBUS0_PIN_PAIR_SELECT_BXT_B     : constant :=   1 * 2 **  0;
+   GMBUS0_PIN_PAIR_SELECT_BXT_C     : constant :=   2 * 2 **  0;
 
    GMBUS1_SOFTWARE_CLEAR_INTERRUPT  : constant :=   1 * 2 ** 31;
    GMBUS1_SOFTWARE_READY            : constant :=   1 * 2 ** 30;
@@ -85,13 +88,19 @@ package body HW.GFX.GMA.I2C is
    function GMBUS0_PIN_PAIR_SELECT (Port : PCH_Port) return Word32 is
    begin
       return
-        (case Port is
-            when PCH_DAC      => GMBUS0_PIN_PAIR_SELECT_DAC,
-            when PCH_LVDS     => GMBUS0_PIN_PAIR_SELECT_LVDS,
-            when PCH_HDMI_B   => GMBUS0_PIN_PAIR_SELECT_DIGI_B,
-            when PCH_HDMI_C   => GMBUS0_PIN_PAIR_SELECT_DIGI_C,
-            when PCH_HDMI_D   => GMBUS0_PIN_PAIR_SELECT_DIGI_D,
-            when others       => GMBUS0_PIN_PAIR_SELECT_NONE);
+        (if Config.GMBUS_Alternative_Pins then
+           (case Port is
+               when PCH_HDMI_B   => GMBUS0_PIN_PAIR_SELECT_BXT_B,
+               when PCH_HDMI_C   => GMBUS0_PIN_PAIR_SELECT_BXT_C,
+               when others       => GMBUS0_PIN_PAIR_SELECT_NONE)
+         else
+           (case Port is
+               when PCH_DAC      => GMBUS0_PIN_PAIR_SELECT_DAC,
+               when PCH_LVDS     => GMBUS0_PIN_PAIR_SELECT_LVDS,
+               when PCH_HDMI_B   => GMBUS0_PIN_PAIR_SELECT_DIGI_B,
+               when PCH_HDMI_C   => GMBUS0_PIN_PAIR_SELECT_DIGI_C,
+               when PCH_HDMI_D   => GMBUS0_PIN_PAIR_SELECT_DIGI_D,
+               when others       => GMBUS0_PIN_PAIR_SELECT_NONE));
    end GMBUS0_PIN_PAIR_SELECT;
 
    ----------------------------------------------------------------------------

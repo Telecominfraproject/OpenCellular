@@ -21,6 +21,7 @@ with HW.GFX.GMA.PCH.VGA;
 with HW.GFX.GMA.DP_Info;
 with HW.GFX.GMA.DP_Aux_Ch;
 with HW.GFX.GMA.SPLL;
+with HW.GFX.GMA.DDI_Phy;
 
 with HW.Debug;
 with GNAT.Source_Info;
@@ -179,7 +180,9 @@ package body HW.GFX.GMA.Connectors.DDI is
    is
    begin
       return
-        (if (Config.Has_Low_Voltage_Swing and Config.EDP_Low_Voltage_Swing)
+        (if Config.Has_DDI_PHYs then
+            DDI_Phy.Max_V_Swing
+         elsif (Config.Has_Low_Voltage_Swing and Config.EDP_Low_Voltage_Swing)
             and then Port = DIGI_A
          then
             DP_Info.VS_Level_3
@@ -196,11 +199,14 @@ package body HW.GFX.GMA.Connectors.DDI is
    is
    begin
       return
-        (case Train_Set.Voltage_Swing is
-            when DP_Info.VS_Level_0 => DP_Info.Emph_Level_3,
-            when DP_Info.VS_Level_1 => DP_Info.Emph_Level_2,
-            when DP_Info.VS_Level_2 => DP_Info.Emph_Level_1,
-            when others             => DP_Info.Emph_Level_0);
+        (if Config.Has_DDI_PHYs then
+            DDI_Phy.Max_Pre_Emph (Train_Set.Voltage_Swing)
+         else
+           (case Train_Set.Voltage_Swing is
+               when DP_Info.VS_Level_0 => DP_Info.Emph_Level_3,
+               when DP_Info.VS_Level_1 => DP_Info.Emph_Level_2,
+               when DP_Info.VS_Level_2 => DP_Info.Emph_Level_1,
+               when others             => DP_Info.Emph_Level_0));
    end Max_Pre_Emph;
    pragma Warnings (GNATprove, On, "unused variable ""Port""");
 
@@ -262,38 +268,42 @@ package body HW.GFX.GMA.Connectors.DDI is
       Was_Enabled : Boolean;
       Trans_Select : DDI_BUF_CTL_TRANS_SELECT_T;
    begin
-      case Train_Set.Voltage_Swing is
-         when DP_Info.VS_Level_0 =>
-            case Train_Set.Pre_Emph is
-               when DP_Info.Emph_Level_0  => Trans_Select := 0;
-               when DP_Info.Emph_Level_1  => Trans_Select := 1;
-               when DP_Info.Emph_Level_2  => Trans_Select := 2;
-               when DP_Info.Emph_Level_3  => Trans_Select := 3;
-            end case;
-         when DP_Info.VS_Level_1 =>
-            case Train_Set.Pre_Emph is
-               when DP_Info.Emph_Level_0  => Trans_Select := 4;
-               when DP_Info.Emph_Level_1  => Trans_Select := 5;
-               when DP_Info.Emph_Level_2  => Trans_Select := 6;
-               when others                => Trans_Select := 0;
-            end case;
-         when DP_Info.VS_Level_2 =>
-            case Train_Set.Pre_Emph is
-               when DP_Info.Emph_Level_0  => Trans_Select := 7;
-               when DP_Info.Emph_Level_1  => Trans_Select := 8;
-               when others                => Trans_Select := 0;
-            end case;
-         when DP_Info.VS_Level_3 =>
-            case Train_Set.Pre_Emph is
-               when DP_Info.Emph_Level_0  => Trans_Select := 9;
-               when others                => Trans_Select := 0;
-            end case;
-      end case;
-
       Registers.Is_Set_Mask
         (Register => DDI_Regs (Port).BUF_CTL,
          Mask     => DDI_BUF_CTL_BUFFER_ENABLE,
          Result   => Was_Enabled);
+
+      if Config.Has_DDI_PHYs then
+         Trans_Select := 0;
+      else
+         case Train_Set.Voltage_Swing is
+            when DP_Info.VS_Level_0 =>
+               case Train_Set.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => Trans_Select := 0;
+                  when DP_Info.Emph_Level_1  => Trans_Select := 1;
+                  when DP_Info.Emph_Level_2  => Trans_Select := 2;
+                  when DP_Info.Emph_Level_3  => Trans_Select := 3;
+               end case;
+            when DP_Info.VS_Level_1 =>
+               case Train_Set.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => Trans_Select := 4;
+                  when DP_Info.Emph_Level_1  => Trans_Select := 5;
+                  when DP_Info.Emph_Level_2  => Trans_Select := 6;
+                  when others                => Trans_Select := 0;
+               end case;
+            when DP_Info.VS_Level_2 =>
+               case Train_Set.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => Trans_Select := 7;
+                  when DP_Info.Emph_Level_1  => Trans_Select := 8;
+                  when others                => Trans_Select := 0;
+               end case;
+            when DP_Info.VS_Level_3 =>
+               case Train_Set.Pre_Emph is
+                  when DP_Info.Emph_Level_0  => Trans_Select := 9;
+                  when others                => Trans_Select := 0;
+               end case;
+         end case;
+      end if;
 
       -- enable DDI buffer
       Registers.Unset_And_Set_Mask
@@ -308,6 +318,10 @@ package body HW.GFX.GMA.Connectors.DDI is
 
       if not Was_Enabled then
          Time.U_Delay (600);  -- wait >= 518us (intel spec)
+      end if;
+
+      if Config.Has_DDI_PHYs then
+         DDI_Phy.Set_DP_Signal_Levels (Port, Train_Set);
       end if;
    end Set_Signal_Levels;
 
@@ -344,7 +358,7 @@ package body HW.GFX.GMA.Connectors.DDI is
          Registers.Write
            (Register => DDI_Regs (Port).PORT_CLK_SEL,
             Value    => PORT_CLK_SEL_NONE);
-      else
+      elsif not Config.Has_DDI_PHYs then
          Registers.Set_Mask
            (Register => Registers.DPLL_CTRL2,
             Mask     => DPLL_CTRL2_DDIx_CLOCK_OFF (Port));
@@ -472,7 +486,7 @@ package body HW.GFX.GMA.Connectors.DDI is
             Registers.Write
               (Register    => DDI_Regs (Port_Cfg.Port).PORT_CLK_SEL,
                Value       => PLL_Hint);
-         else
+         elsif not Config.Has_DDI_PHYs then
             Registers.Unset_And_Set_Mask
               (Register    => Registers.DPLL_CTRL2,
                Mask_Unset  => DPLL_CTRL2_DDIx_CLOCK_OFF (Port_Cfg.Port) or
@@ -489,6 +503,14 @@ package body HW.GFX.GMA.Connectors.DDI is
               (Port        => Port_Cfg.Port,
                Link        => Port_Cfg.DP,
                Success     => Success);
+         elsif Config.Has_DDI_PHYs and then
+            Port_Cfg.Display = HDMI and then
+            Port_Cfg.Port in DDI_Phy.DDI_Phy_Port
+         then
+            DDI_Phy.Set_HDMI_Signal_Levels
+              (Port  => Port_Cfg.Port,
+               Level => DDI_Phy.HDMI_Buf_Trans_Range'Last);
+            Success := True;
          else
             Success := True;
          end if;

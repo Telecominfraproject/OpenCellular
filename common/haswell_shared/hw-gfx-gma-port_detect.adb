@@ -82,10 +82,14 @@ is
 
       if Config.Internal_Is_EDP then
          -- DDI_A
-         Registers.Is_Set_Mask
-           (Register => Registers.DDI_BUF_CTL_A,
-            Mask     => DDI_PORT_DETECTED (DIGI_A),
-            Result   => Internal_Detected);
+         if Config.Has_Presence_Straps then
+            Registers.Is_Set_Mask
+              (Register => Registers.DDI_BUF_CTL_A,
+               Mask     => DDI_PORT_DETECTED (DIGI_A),
+               Result   => Internal_Detected);
+         else
+            Internal_Detected := True; -- XXX: Linux' i915 contains a fixme.
+         end if;
          if Internal_Detected then
             if Config.Has_HOTPLUG_CTL then
                Registers.Set_Mask
@@ -114,10 +118,14 @@ is
 
       -- DDI_[BCD]
       for Port in Ext_Digital_Port range DIGI_B .. Config.Last_Digital_Port loop
-         Registers.Is_Set_Mask
-           (Register => Registers.SFUSE_STRAP,
-            Mask     => DDI_PORT_DETECTED (Port),
-            Result   => DDI_Detected);
+         if Config.Has_Presence_Straps then
+            Registers.Is_Set_Mask
+              (Register => Registers.SFUSE_STRAP,
+               Mask     => DDI_PORT_DETECTED (Port),
+               Result   => DDI_Detected);
+         else
+            DDI_Detected := True;
+         end if;
          Config.Valid_Port (To_HDMI_Port (Port)) :=
             Config.Valid_Port (To_HDMI_Port (Port)) and DDI_Detected;
          Config.Valid_Port (To_DP_Port (Port)) :=

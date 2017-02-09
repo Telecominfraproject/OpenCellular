@@ -1,3 +1,4 @@
+gfxinit-y += hw-gfx-gma-ddi_phy.ads
 gfxinit-y += hw-gfx-gma-plls-dpll.adb
 gfxinit-y += hw-gfx-gma-plls-dpll.ads
 gfxinit-y += hw-gfx-gma-plls-dpll_0.adb

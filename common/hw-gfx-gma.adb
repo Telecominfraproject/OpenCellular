@@ -381,10 +381,12 @@ is
       -------------------- Now restart from a clean state ---------------------
       Power_And_Clocks.Initialize;
 
-      Registers.Unset_And_Set_Mask
-        (Register    => Registers.PCH_RAWCLK_FREQ,
-         Mask_Unset  => PCH_RAWCLK_FREQ_MASK,
-         Mask_Set    => PCH_RAWCLK_FREQ (Config.Default_RawClk_Freq));
+      if Config.Has_PCH then
+         Registers.Unset_And_Set_Mask
+           (Register    => Registers.PCH_RAWCLK_FREQ,
+            Mask_Unset  => PCH_RAWCLK_FREQ_MASK,
+            Mask_Set    => PCH_RAWCLK_FREQ (Config.Default_RawClk_Freq));
+      end if;
 
       Initialized := True;
 
