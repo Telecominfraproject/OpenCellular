@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -52,6 +52,30 @@ package HW is
    subtype Pos16 is Interfaces.Integer_16 range 1 .. Interfaces.Integer_16'Last;
    subtype Pos32 is Interfaces.Integer_32 range 1 .. Interfaces.Integer_32'Last;
    subtype Pos64 is Interfaces.Integer_64 range 1 .. Interfaces.Integer_64'Last;
+
+   use type Pos8;
+   function Div_Round_Closest (N, M : Pos8) return Int8
+   with
+      Pre => N <= Pos8'Last - M / 2,
+      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+
+   use type Pos16;
+   function Div_Round_Closest (N, M : Pos16) return Int16
+   with
+      Pre => N <= Pos16'Last - M / 2,
+      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+
+   use type Pos32;
+   function Div_Round_Closest (N, M : Pos32) return Int32
+   with
+      Pre => N <= Pos32'Last - M / 2,
+      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+
+   use type Pos64;
+   function Div_Round_Closest (N, M : Pos64) return Int64
+   with
+      Pre => N <= Pos64'Last - M / 2,
+      Post => Div_Round_Closest'Result = (N + M / 2) / M;
 
    subtype Buffer_Range is Natural range 0 .. Natural'Last - 1;
    type Buffer is array (Buffer_Range range <>) of Byte;
