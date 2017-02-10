@@ -100,6 +100,8 @@ enum fwmp_flags {
 	FWMP_DEV_ENABLE_LEGACY		= (1 << 3),
 	FWMP_DEV_ENABLE_OFFICIAL_ONLY	= (1 << 4),
 	FWMP_DEV_USE_KEY_HASH		= (1 << 5),
+	/* CCD = case-closed debugging on cr50; flag implemented on cr50 */
+	FWMP_DEV_DISABLE_CCD_UNLOCK	= (1 << 6),
 };
 
 /* All functions return TPM_SUCCESS (zero) if successful, non-zero if error */
