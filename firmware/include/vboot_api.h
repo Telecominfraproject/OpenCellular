@@ -795,10 +795,16 @@ VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
                            void *buffer, uint32_t buffersize);
 
 /**
- * Display a string at coordinate x,y
+ * Display a string beginning at coordinate x,y.
+ *
+ * The highlight option will display the string in a contrasting color to
+ * the normal colors.  For example, the normal display colors are white
+ * background, black foreground.  If highlight==1, will display with black
+ * background, white foreground.
  */
 VbError_t VbExDisplayText(uint32_t x, uint32_t y,
-			  const char *info_str);
+			  const char *info_str,
+			  int highlight);
 
 /**
  * Display a string containing debug information on the screen, rendered in a

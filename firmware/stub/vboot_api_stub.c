@@ -53,7 +53,8 @@ VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
 }
 
 VbError_t VbExDisplayText(uint32_t x, uint32_t y,
-			  const char *info_str)
+			  const char *info_str,
+			  int highlight)
 {
 	return VBERROR_SUCCESS;
 }
