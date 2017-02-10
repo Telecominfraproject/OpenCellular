@@ -393,7 +393,7 @@ VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
 VbError_t vb2_update_menu()
 {
 	VbError_t ret = VBERROR_SUCCESS;
-	VB_MENU next_menu_idx;
+	VB_MENU next_menu_idx = current_menu_idx;
 	switch(current_menu) {
 	case VB_MENU_DEV_WARNING:
 		switch(current_menu_idx) {
