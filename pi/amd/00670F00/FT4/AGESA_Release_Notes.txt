@@ -1,0 +1,956 @@
+
+                        Release Notes for
+                        -----------------
+             Stoney Platform Initialization (StoneyPI)
+
+=============================================================================
+Version:  1.3.0.3                             Release Date: Aug 2016
+File:     StoneyPI_1_3_0_3.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.3 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.1 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Bristol AM4 VBIOS v002
+          - Stoney Generic VBIOS v006
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.15.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.4.0
+    PSP   - Carrizo/Bristol 0.5.0.29
+          - Stoney 0.6.0.1C
+    PlatformBIOS - Gardenia Platform BIOS RGY1303B.FD
+                   Jadeite Platform BIOS RJD1303B.FD
+                   Myrtle Platform BIOS RMY1303B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.2
+- PLAT-10652: [BR AM4] Critical FW/BIOS fix for SMU FW setting
+              [BR AM4] SMU Firmware Release 1.27.19.0
+- PLAT-10677: [BR/CZ] PSP Firmware Release 0.5.0.29
+- PLAT-10470: [ST] PSP Firmware Release 0.6.0.1C
+- PLAT-10358: [ST] SMU Firmware Release 26.16.0
+- PLAT-10630: [PT] Win7 boot fail from FCH SATA if PT SATA with device connected
+              is disabled
+- PLAT-10446: Missing terminator for memory override arrays
+- PLAT-10458: [PT] Publish PT FW init done Ppi in after FW loaded
+- PLAT-9522:  Limit the BIOS command ID to 7 bits
+- PLAT-7714:  AGESA SMI handler errors
+- PLAT-9964:  [BR] 2133 x/DR Disable RttWr and RttPark
+- PLAT-10252: [PT] Update PT FW to 160722_40_01_00
+- PLAT-10081: [PT] Support Redriver feature
+- PLAT-10005: [PT] Support Equalization4 feature
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.2                             Release Date: Jul 2016
+File:     StoneyPI_1_3_0_2.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.2 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.1 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Bristol AM4 VBIOS v002
+          - Stoney Generic VBIOS v006
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.15.0
+          - Bristol AM4 1.27.18.0
+          - Stoney 26.15.0
+          - Stoney FT4 Fanless 33.4.0
+    PSP   - Carrizo/Bristol 0.5.0.27
+          - Stoney 0.6.0.1A
+    PlatformBIOS - Gardenia Platform BIOS RGY1302B.FD
+                   Jadeite Platform BIOS RJD1302B.FD
+                   Myrtle Platform BIOS RMY1302B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.1
+- PLAT-9884: [PT] Update PT FW to 160707_40_01_02
+- PLAT-9656: Add AmdPeiInitEarlyPpiGuid in Promontory PEI dependency
+- PLAT-9529: [BR AM4] Optimal DRDR CPU Vref level
+- PLAT-9542: HDD detection failure after update StoneyPI 1.3.0.0
+- PLAT-9669: [ST] PSP Firmware Release 0.6.0.1A
+- PLAT-9670: [BR/CZ] PSP Firmware Release 0.5.0.27
+- PLAT-6896: S3 resume fail with NB P-states disabled
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.1                             Release Date: Jul 2016
+File:     StoneyPI_1_3_0_1.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.1 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.1 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Bristol AM4 VBIOS v002
+          - Stoney Generic VBIOS v006
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.15.0
+          - Bristol AM4 1.27.18.0
+          - Stoney 26.15.0
+          - Stoney FT4 Fanless 33.4.0
+    PSP   - Carrizo/Bristol 0.5.0.26
+          - Stoney 0.6.0.19
+    PlatformBIOS - Gardenia Platform BIOS RGY1301B.FD
+                   Jadeite Platform BIOS RJD1301B.FD
+                   Myrtle Platform BIOS RMY1301B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.0
+- PLAT-9533: Enable AGESA Programming for PT SI function
+- PLAT-9532: [PT] PT FW update to 160622_40_F6_00
+- PLAT-9453: Missmatching data type in SW SMI handler
+- PLAT-9502: [CZ/BR] PSP Firmware Release 0.5.0.26
+- PLAT-9458: [ST] PSP Firmware Release 0.6.0.19
+- PLAT-9233: Fix alignment error in DQS2DACCESS definition
+- PLAT-9221: Error Recovery not working with a bad DIMM in channel A
+- PLAT-9215: Add LoadPkgPowerParameters for the ALIB DPTCi function
+- PLAT-9022: [BR] BSOD 0x124 and reboot after S3 resume
+- PLAT-9139: [BR AM4] SMU Firmware Release 1.27.18.0
+- PLAT-6650: DDR4 Memory Timing improvements/fixes
+- PLAT-8818: [ST] 2DPC memory imbalance margin improvement
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.0                             Release Date: Jun 2016
+File:     StoneyPI_1_3_0_0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.06                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.0 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Bristol AM4 VBIOS v002
+          - Stoney Generic VBIOS v006
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.15.0
+          - Bristol AM4 1.27.16.0
+          - Stoney 26.15.0
+          - Stoney FT4 Fanless 33.4.0
+    PSP   - Carrizo/Bristol 0.5.0.24
+          - Stoney 0.6.0.17
+    PlatformBIOS - Gardenia Platform BIOS RGY1300D.FD
+                   Jadeite Platform BIOS RJD1300D.FD
+                   Myrtle Platform BIOS RMY1300D.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.2.0.0
+- PLAT-9082: [CZ/BR] PSP Firmware Release 0.5.0.24
+- PLAT-9109: [PT] Add 75ms delay to avoid PT-PCIE link enter recovery mode when
+             fails to loading PT FW
+- PLAT-9108: [PT] Add 75ms delay to avoid PT-PCIE link enter recovery mode after
+             loading PT FW
+- PLAT-8956: [PT] Fail to Initial PROM XHCI FW if GPP PCI-E running at Gen3
+- PLAT-9046: FCH MISCx50[16] should not be set
+- PLAT-8990: [ST] PSP Firmware Release 0.6.0.17
+- PLAT-8939: [ST] Fanless SMU Firmware Release 33.4.0
+- PLAT-7587: [BR] Intermittent Azalia verb programming failure on non-GPU OPN
+- PLAT-8924: [PT] Switch back to ROM code when loading PT FW fails
+- PLAT-8889: [CZ/BR] Duplicate RxDly/TxDly compensation on both DCT
+- PLAT-8882: [CZ/ST] DDR3 On-DIMM Thermal Sensor not functional
+- PLAT-8876: [PT] Leave PT SI programming to PT FW
+- PLAT-8825: [PT] Show post code 0xCCCC for 10s when loading PT FW fails
+- PLAT-8837: [ST] Update BIOS setting for CacheFlushOnHaltTmr and CacheFlushTmr
+- PLAT-8823: [PT] Promontory firmware update to 160519_40_F0_01
+- PLAT-8819: [CZ/ST] Mixing DDR4 configuration can not boot up
+- PLAT-7329: [CZ/BR] Optimal termination and DQ delay for 2DPC margin
+- PLAT-8797: [PT] Add interface for USB3.1/3.0/2.0 and SATA SI tuning
+- PLAT-8718: [BR AM4] Turn off CPUID's TopologyExtensions feature flag
+- PLAT-8722: [PT] Add PCD to enable/disable FW check after loading XHC FW
+- PLAT-8690: [PT] Add Promontory GPIO SMM driver
+- PLAT-8644: [BR AM4] A12-9800E P-State abnormal behavior and error message in
+             Windows event viewer
+- PLAT-8624: Enable CPU Idle Activity Monitor by default
+- PLAT-8621: Fix typo in PSP mutex register definition
+- PLAT-8055: [BR AM4] Missing Graphics Specific ACPI Methods and Objects
+- PLAT-8616: [ST] Add DMI info for A8 series
+- PLAT-8245: 1 DIMM per channel configuration support either MA0 or MA1
+- PLAT-8424: Add help text information for BLDCFG_SYSTEM_CONFIGURATION
+- PLAT-8240: [ST] SMU Firmware Release 26.15.0
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.2.0.0                             Release Date: Apr 2016
+File:     StoneyPI_1_2_0_0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.06                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.05                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.2.0.0 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v062.1 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Bristol AM4 VBIOS v002
+          - Stoney Generic VBIOS v006
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.15.0
+          - Bristol AM4 1.27.16.0
+          - Stoney 26.14.0
+          - Stoney FT4 Fanless 33.1.0
+    PSP   - Carrizo/Bristol 0.5.0.20
+          - Stoney 0.6.0.14
+    PlatformBIOS - Gardenia Platform BIOS RGY1200C.FD
+                   Jadeite Platform BIOS RJD1200C.FD
+                   Myrtle Platform BIOS RMY1200C.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.0.8.0
+- PLAT-8247: [PT] Promontory FW update 160406_40_01_00
+- PLAT-8205: [ST] PSP Firmware Release 0.6.0.14
+- PLAT-8109: [CZ/BR] PSP Firmware Release 0.5.0.20
+- PLAT-8120: [CZ] SMU Firmware Release 18.60.0
+- PLAT-8083: [CZ/BR] Update A1 microcode patch 6118h
+- PLAT-7763: [BR AM4] BIOS pass setting to driver for HDMI re-timer
+- PLAT-7934: [ST] Brand String support for AMD Embedded G-Series
+- PLAT-7725: [ST FT4] DDR4 Addr/cmd setup timing setting update
+- PLAT-7931: [BR AM4] Sending Msg 0x86 to SMU in S3 entry
+- PLAT-7871: [BR AM4] SMU Firmware Release 1.27.16.0
+- PLAT-7918: [ST FT4] Fanless SMU Firmware Release 33.1.0
+- PLAT-7220: CPU Idle Activity Monitor Enablement message to SMU
+- PLAT-7761: [ST/BR] Print DQS Routing Type in HDTOUT log
+- PLAT-7061: [CZ/BR] Add option to configure DDR Rx delay Tx delay
+- PLAT-7668: PMU message block option TXdly for Diasy chain Topology
+- PLAT-7252: Add a customer table entry to specify the DQS routing type
+- PLAT-7533: Disable Compliance mode for XHCI controller
+- PLAT-7545: Fix potential overflow of PspLibTimeOut
+- PLAT-7536: [ST] Set ULV_MASK bit in SMU enablement message for TDP 6W OPN
+- PLAT-7508: Update PSP HSTI driver
+- PLAT-7488: [ST] Enable autopopdown exit on TDP 6W OPN
+- PLAT-6827: BTS error after S3 on EHCIx54 and EHCIx64
+- PLAT-7422: Add mutex to ensure PSP SMI register atomic operation
+- PLAT-7335: Update HDTOUT to version 2.5.3
+- PLAT-7248: Obsolete IO (based at PMIOx6C) takes IO decoding of 0x00
+- PLAT-7201: [ST] SMU Firmware release 26.14.0
+- PLAT-7191: [BR AM4] Individual USB port enable/disable function on PT
+- PLAT-7123: [BR AM4] Incorrect SATA class code for RAID
+- PLAT-5292: [BR AM4] Disable CLKRUN by default
+- PLAT-6766: [CZ] Incorrect ECC capability in SMBIOS
+- PLAT-6980: Changed 2DPC mix configs SR+DR/DR+SR @1866 M0 Tcl value to Tcl-1
+- PLAT-6600: [BR AM4] SPI speed default setup in BIOS is 33Mhz
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.0.8.0                             Release Date: Feb 2016
+File:     StoneyPI_1_0_8_0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.04                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.03                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.0.8.0 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v061 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Stoney Generic VBIOS v005
+          - AMD Generic GOP v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY1080C.FD
+                   Jadeite Platform BIOS RJD1080C.FD
+                   Myrtle Platform BIOS RMY1080C.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1936
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.0.0.0
+** Include Bristol AM4 support **
+- PLAT-7009: [BR AM4] Update PT FW 160202_40_01_02
+- PLAT-6945: [ST] PSP Firmware Release 0.6.0.10
+- PLAT-6944: [BR FP4] PSP Firmware Release 0.5.0.1B
+- PLAT-6804: [BR AM4] Add SODIMM support
+- PLAT-6730: [BR AM4] SMU Firmware Release 1.27.15.0
+- PLAT-6153: [BR AM4] Add option for over-clock on/off
+- PLAT-6677: Override PLL setting according to fuse
+- PLAT-6559: Add PcieEarlyWrapperTxPresetLoadingSequence and change RX preset
+             value to 0x2
+- PLAT-6623: [BR/CZ] 4:1:1:1:1 PCIe configuration does not support lane muxing
+- PLAT-6553: [ST] FP4 2DPC low margins solution fix
+- PLAT-6145: Extend TPM command timer from 2s to 120s
+- PLAT-6538: IMC is dead after S3 resume when XHCI is disabled in Device Manager
+- PLAT-6539: SSID of XHCI is not restored after S3 if XHCI is disabled in
+             Device Manager
+- PLAT-6557: DDR4 1DPC SR and 1of2 SR changed RTT_PARK from 60 to 48ohm
+- PLAT-5643: A0bb in S3 resume when XHCI is disabled in Device Manager
+- PLAT-5840: [PT] Update AGESA FCH to support Promontory FW replacement
+- PLAT-5856: [BR AM4] Margin improvement for 2400 1DPC SR
+- PLAT-6010: [BR AM4] Add SATA RAID mode support
+- PLAT-5868: USB over current control does not match BKDG
+- PLAT-6231: Provide interface for sending command to TA
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.0.0.0                             Release Date: Jan 2016
+File:     StoneyPI_1_0_0_0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.04                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.03                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.0.0.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v059 for Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Stoney Generic VBIOS v005
+          - AMD Generic GOP v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY1000B.FD
+                   Jadeite Platform BIOS RJD1000B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1936
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.8.1
+- PLAT-6411: Reduce memory training time by eliminating PMU messages
+- PLAT-5708: Add setTokenFlag P2C command to reduce delay in PSP FW
+- PLAT-6306: [ST] PSP Firmware release 0.6.0.D
+- PLAT-6304: [BR/CZ] PSP Firmware release 0.5.0.17
+- PLAT-6377: [ST] SMU Firmware Release 26.12.0
+- PLAT-6228: Disable SATA D3 Cold
+- PLAT-6079: Update PMIOx08[20] ShutDownOption setting
+- PLAT-6143: [ST] Retry for intermittent PMU 2D training failure
+- PLAT-5840: Reserve entry 0x1B in PSP directory
+- PLAT-5801: [BR] Disable SCLK Stretcher on AM4 package
+- PLAT-5698: [BR] Add RAID support for AM4 package
+- PLAT-5654: [PSP] Remove the incorrect ASSERT
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  0.0.8.1                             Release Date: Dec 2015
+File:     StoneyPI_0_0_8_1.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.03                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.02                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.8.1 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v058.1 for Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Stoney Generic VBIOS v005
+          - AMD Generic GOP v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY0081C.FD
+                   Jadeite Platform BIOS RJD0081C.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1936
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.8.0
+- PLAT-5999: [BR] Brand String support for A4, PRO A4 and Athlon X4 series
+- PLAT-6119: [BR] SMU FW release 27.15.0
+- PLAT-6114: [ST] PSP FW release 0.6.0.0C
+- PLAT-6082: [ST] Memory Section Update from BKDG 1.03
+- PLAT-6019: [ST] Update A0 microcode patch 6704
+- PLAT-6022: [CZ/BR] Update A1 microcode patch 6115
+- PLAT-5968: [BR/CZ] Retry for intermittent PMU 2D training failure
+- PLAT-6118: [ST] SMU FW release 26.11.0
+- PLAT-6115: [BR] PSP FW Release 0.5.0.16
+- PLAT-5591: [ST] FT4 25W unable to transition to DPM7 (800Mhz)
+- PLAT-5671: Adjust PHY impedance calibration value by 3 for all XHCI USB2 ports
+- PLAT-5672: [ST] Turn off CPUID's TopologyExtensions feature flag
+- PLAT-5648: [ST] Brand String support for A9 and E2 series
+- PLAT-5616: [CZ] SMU firmware release 18.58.0
+- PLAT-5579: Incorrect Common Clock setting on Upstream port and End Point that
+             is not in function 0
+- PLAT-5490: Simplified MemRestore in support of Capsule Mode by way of S3
+- PLAT-5486: Ignore PSP BAR MSR programming if already set
+- PLAT-3098: Fix incorrect address of PCIE Ready message when plug NIC
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  0.0.8.0                             Release Date: Dec 2015
+File:     StoneyPI_0_0_8_0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.03                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.02                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.8.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v058 for Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Stoney Generic VBIOS v004
+          - AMD Generic GOP v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY0080C.FD
+                   Jadeite Platform BIOS RJD0080C.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1936
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.7.0
+- PLAT-5263: Extra audio end points in display HD audio device D1:F1
+- PLAT-5381: [ST] SMU FW release 26.8.0
+- ENH468077: [BR] SMU FW release 27.14.0
+- PLAT-5371: [ST] PSP FW release 0.6.0.9
+- PLAT-5339: [BR/CZ] PSP FW release 0.5.0.13
+- PLAT-2783: Intermittent semaphore error in MP service
+- PLAT-4956: [ST] Enable SATA dynamic PLL shutdown
+- PLAT-5023: [ST] Disable xHCI D3 cold
+- PLAT-2781: Update xHC USB2.0 Common PHY Impedance Calibration
+- PLAT-5001: [BR] Customize SATA PHY settings based on trace length
+- PLAT-5026: [ST] BLDCFG_GPU_FREQUENCY_LIMIT feature need to override SclkDid
+- PLAT-5009: [CZ/BR] BLDCFG_GPU_FREQUENCY_LIMIT feature need to override SclkDid
+- PLAT-5020: [BR] Disable xHCI D3 cold
+- PLAT-5013: [ST] Illegal combination of BankSwap/BankSwapAddr8En/DctSelBankSwap
+- PLAT-4959: Remove FCH Azalia code
+- PLAT-4927: Mismatched data structure in C and ASL file
+- PLAT-4978: FCH SD Controller can not detect SD card when in SD 2.0 mode
+- PLAT-4926: [BR] 2133 x/DR low margin improvement
+- PLAT-2625: Common SMBIOS Type 17 shows incorrect information on DDR4
+- PLAT-4913: [ST] BIOS should disable SMU feature ULV by default
+- PLAT-4868: [ST] Enable DFS BYPASS
+- PLAT-3080: [ST] Enable fix for SATA dynamic PLL shutdown
+- PLAT-3052: [CZ] Add A1 microcode patch 6113
+- PLAT-2935: [ST] Revert to CZ Display underflow
+- PLAT-2937: Limit support on "Far DIMM slot" for 1 of 2 DIMM configuration
+- PLAT-2854: [ST] Disable SMU post code by default
+- PLAT-2933: Update bridge interrupt selection in IOAPIC
+- PLAT-2852: [ST] Add A0 microcode patch 6703
+- PLAT-2917: [CZ] Memory coding errors
+- PLAT-2750: Move PSP S3Script for PspDxe to PspSmm
+- PLAT-2791: Disable IRQ routing for INTE#
+- PLAT-2792: Update GNB IOAPIC routing not to use INTE/F
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2682: HDTOUT script cannot work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  0.0.7.0                             Release Date: Oct 2015
+File:     StoneyPI_0_0_7_0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.02                                                     (#55072)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.7.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v056 for Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v028
+          - Stoney Generic VBIOS v003
+          - AMD Generic GOP v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY0070F.FD
+                   Jadeite Platform BIOS RJD0070F.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1931
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.6.0
+- PLAT-3081: Disable DFS_Bypass in PI 0.0.7.0 RC6 to work around PLAT-2717
+- PLAT-2424: Bristol Ridge USB3.0 TSSC Fail
+- PLAT-2873: [BR/CZ] PSP FW release 0.5.0.F
+- PLAT-2874: [ST] PSP FW release for 0.6.0.6
+- ENH467447: [BR] FP4 SMU FW 27.12.0 Release
+- PLAT-2857: [ST GNB] Should report single channel memory in System Info Table
+- PLAT-2855: [ST] STONEY SMU FW RELEASE 26.3.0
+- ENH467300: [BR] Enable AutoPopDownExit feature and set PopDownPstate
+- PLAT-2808: [CZ] Send SMU GpuPowerDown service request if GPU_DIS = 1
+- PLAT-2807: [CZ] SMU Firmware release 18.57.0
+- PLAT-2764: Parade HDCP2.2 DP->HDMI chip Support
+- PLAT-2340: Incorrect programming of D18F3xA8[HwPstateMaxVal]
+- PLAT-2474: [BR] DDR4 S3 resume fails at DDR2400
+- PLAT-2578: AGESA should halt if SMU returns SMC_FATAL response
+- PLAT-2299: [ST] DDR4: Disable Bank Group Mirror for x16 DIMMs
+- PLAT-1507: [BR] DDR4 2400 support with cTDP 35W
+- PLAT-2515: BLDCFG_GPU_FREQUENCY_LIMIT not functional
+- PLAT-2569: USB3 PHY setting update
+- PLAT-2321: SD SSID changed when run S3 some loops on Win7
+- PLAT-2525: [ST] GMC programming Guide update
+- PLAT-2520: [BR] NbPstateThreshold register is set to 0 when 2CU enabled
+- PLAT-2530: [BR] Update SCS data file name
+- PLAT-2145: [BR] Thermal Controller Verification failed
+- PLAT-2149: [BR] Request to change Onion3 priority on BR from Low to Medium
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2682: HDTOUT script cannot work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  0.0.6.0                             Release Date: Sep 2015
+File:     StoneyPI_0.0.6.0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.02                                                     (#55072)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.6.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v055 for Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v028
+          - Stoney Generic VBIOS v001
+          - AMD Generic GOP v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY0060C.FD
+                   Jadeite Platform BIOS RJD0060C.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1931
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.5.0
+- ENH467090: [BR FP4] SMU FW 27.9.0 Release
+- PLAT-2431: Add sample code for PSP Directory
+- PLAT-2436: [BR] Restore lost precision for tCCD_L @ DDR2400
+- PLAT-2435: Disable SelfRefreshAbort
+- PLAT-2388: [ST FT4] Add UDIMM MaxFreq table support
+- PLAT-2422: Fix D18F3xDC[HwPstateMaxVal] programming
+- PLAT-2429: CloseEvent for PCI enumeration callback in PSP DXE driver
+- PLAT-2414: [BR] PSP FW release 0.5.0.0C
+- PLAT-2269: [ST] Correct CkeToCsMap for FT4
+- PLAT-2248: [BR] Set default TDP according to the actual fuse
+- PLAT-2274: Disable post code in _PS0/_PS3 by default
+- PLAT-2347: [ST] Disable BTC by default
+- DESPCNB-77: Change BIOS Recommendation to 2h
+- ENH461599: [CZ] Declare PSP Bar3 in EFI_MEMORY_RUNTIME
+- PLAT-2329: Update PSPEntryInfo according to the processor installed
+- PLAT-2328: [ST] Add S3 NVRAM binary
+- PLAT-2325: [ST] Remove Pcie TxPreset loading sequence
+- PLAT-2317: Set BankSwapOnly=Enabled & BankGroupSwap=Disabled by default
+- PLAT-2310: [ST] Set default engine clock(SCLK) to 400MHz
+- PLAT-2309: [ST] PCI ACS enable request
+- PLAT-2308: [ST] Increase N_FTS request
+- PLAT-2307: [ST] Set REG_HPGI_PRESENCE_DETECT_STATE_CHANGE_EN = 1
+- PLAT-2306: [ST] ACP Power Gating
+- PLAT-2305: [ST] Bring-up SMU f/w release 26.1.25
+- PLAT-2292: [ST] Set PIF_DEGRADE_PWR_PLL_MODE =0x0
+- PLAT-2290: [ST] Remove SB link info function
+- PLAT-2289: [ST] update GNB code to load correct SCS data
+- PLAT-2287: [ST] update GNB fuse table
+- PLAT-2286: [ST] Force PCIe GPP reconfig even PCIe config does not changed
+- PLAT-2285: [ST] incorrect MainPllOpFreqIdStartup value set to ulDentistVCOFreq
+- PLAT-2284: [ST] Update BTC - fuse bit location changed
+- PLAT-2301: Two more configs for power optimization sync for DDR4
+- PLAT-2281: Add Time out mechanism for fTPM command execution
+- PLAT-2268: DDR4 Power optimization sync
+- PLAT-2222: [ST] Update ST BKDG MRL Training sequence so fudge is not padded
+- PLAT-2219: [ST] Change CkeToCsMap for FT4
+- PLAT-1353: [ST] FCH code doesn't match BKDG recommended value
+- PLAT-2188: Update ST debug unlock key
+- PLAT-2187: [ST] Add DDR3 FT4 Memory Stretch Frequency table
+- PLAT-2186: [ST] Enable DDR4 option in FT4 in PlatformInstall.h
+- PLAT-2181: [ST] FT4 PkgId should be 4
+- PLAT-2179: SwUsb3SlpShutdown should not be set when other bits are touched
+- PLAT-2178: [ST] NPST related fuse location was changed
+- PLAT-2174: [ST] Add Memory support for FT4
+- ENH466732: Program LFPS Detect Threshold value based on the fuse value
+- PLAT-2077: Frame Buffer Carve Out option for Hybrid Secure Frame Buffer
+- ENH466739: [CZ] update DMI ProcFamily table
+- PLAT-2127: [CZ] Disable BankGroupSwap by default
+- PLAT-2091: Set SwNbPstateLoDis to force the NB Pstate in ALIB
+- PLAT-2060: [CZ] Intialize original WrDat2dDlys before making an override
+- PLAT-2022: ACPI_ATCS_PCIEDEVICEREADY is taking 37 ms
+- PLAT-2065: [ST] PSP FW release for 0.6.0.2
+- PLAT-1300: fTPM no functional after S0i3 resume
+- PLAT-2027: BuildPspDirectory Update to 1.28
+- PLAT-1276: [ST] Set the VDDP for bootup and S-states based on different OPN
+- PLAT-1959: Incorrect pGpioTbl->GpioPin setting in FchPeLib.c
+- PLAT-1948: [BR] BTCGBV message needs to be sent after shadowPstates
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2682: HDTOUT script cannot work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  0.0.5.0                             Release Date: Aug 2015
+File:     StoneyPI_0.0.5.0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.01                                                     (#55072)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.5.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v054 for Stoney platform solution
+    VBIOS - Carrizo Generic VBios v027 & Gop v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY0050A.FD
+                   Jadeite Platform BIOS RJD0050A.FD
+                   gardenia_st_family15h.bsd file
+                   StoneyFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1928
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.3.0
+- PLAT-2011: [BR] PSP FW release for 0.5.0.08
+- PLAT-1959: Incorrect pGpioTbl->GpioPin setting in FchPeLib.c
+- PLAT-1987: [CZ] PSP FW release 0.2.0.37
+- PLAT-1948: [BR] BTCGBV message needs to be sent after shadowPstates
+- PLAT-1796: [CZ] Create S3 entry for D18F2x9C_x0081_0[F,2:0]77_dct[1:0]
+- PLAT-1910: KB and mouse doesn't work on USB2.0 port
+- PLAT-1915: [BR] Disable shadowPstates if AVFS CBS option is disabled
+- PLAT-1203: [BR] FCH SD Controller cannot detect SD card when D3 disabled
+- ENH466493: BR SMU FW 27.5.0 Release
+- PLAT-1354: [ST] FCH code doesn't match BKDG
+- PLAT-1353: [ST] FCH code doesn't match BKDG recommended value
+- PLAT-1878: [ST DDR4] Missing Mem Controller settings to update DqVref for
+             mpstate change
+- PLAT-1849: New brand string 'AMD Embedded G-Series GX-'
+- BUG465142: [CZ] ECC error injection fails
+- PLAT-1851: [CZ/BR] IMC firmware update for fan startup PWM
+- PLAT-1691: [CZ/BR] IMC interface update for startup PWM
+- PLAT-1842: C Style Check Failure
+- PLAT-1769: Configure GPIO for UART0/1 pins based on user setting
+- ENH466338: HGST/WD HDDs will downgrade to gen2 from gen3 on Carrizo
+- PLAT-1847: [PSP-ST] PSP FW release for 0.6.0.1
+- PLAT-1838: [CZ DDR4] Missing Mem Controller settings to update DqVref for
+             mpstate change
+- BUG462525: [CZ] PrototypeCheck Issue of Memory
+- ENH466386: [CZ] sync changes from EDKII package to EDK
+- PLAT-1687: [CZ] Remove delay for SD D3 if SDIO WLAN is disabled
+- PLAT-963:  Carrizo Reboot cycling hang at PC F582 under Win10
+- ENH466381: Move USB 3 D3 Cold routine to SMI
+- PLAT-1795: [CZ] Optimize Trcpage calculation
+- PLAT-1784: SMU Cooling Table from BIOS/SCS not getting loaded correctly
+- PLAT-1774: [CZ] Need to check iGPU first before access GMM registers
+- PLAT-1771: [ST] Need to check iGPU first before access GMM registers
+- PLAT-1715: [CZ] Report all cores as single-threaded to the OS
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+
+=============================================================================
+Version:  0.0.3.0                             Release Date: Jul 2015
+File:     StoneyPI_0.0.3.0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev1.00                                                     (#55072)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.3.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v052 for Stoney platform solution
+    VBIOS - Carrizo Generic VBios v027 & Gop v1.59
+    PlatformBIOS - Gardenia Platform BIOS RGY0030A.FD
+                   gardenia_st_family15h.bsd file
+                   StoneyFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+    BIOSTestSuite - BIOSTestSuite v8.0.12.1920
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 0.0.1.0
+- PLAT-1666: [CZ] Create a CBS option to tune address command timing
+- ENH466054: Change PspDxe from using Depex to Protocol notification
+- ENH466193: PspDxeReadyToBoot code change to support clear SMMLock in CC6
+             memory feature
+- ENH466194: Add command 0x17 to clear SMMLock bit in CC6 private memory
+- ENH466166: PSP FW 0.2.0.33 Carrizo release
+- PLAT-1480: [CZ] TPM2.0 device shows yellow bang in device manager
+- PLAT-1632: [ST] Incorrect PcieLateRestoreCZS3Script_ID
+- PLAT-1499: PSP buildDirectorytool Update to Version 1.2.7
+             Add new required parameter "-V" for "DP" subcommand
+- PLAT-1419: [BR] PSP FW release for 0.5.0.04
+- PLAT-1481: New CBS Enable/Disable option for "ACC"
+- ENH466098: BR SMU FW 27.3.0 Release
+- PLAT-1498: [CZ] BIOS init time exceed criteria on ADK test with fTPM enabled
+- PLAT-1389: [CZ][DDR4] Incorrect memory type info is passed to driver
+- PLAT-1284: [ST] Boot fail(hang at POST) on DDR4 platform
+- PLAT-1304: [BR] Add new SMU option for 'Reliability Controller'
+- PLAT-1423: [ST] Sync up DDR4 code
+- PLAT-1364: [BR] Add a CBS option for shadowPstates
+- BUG464411: SPI Normal Read Bus Interface test failed
+- ENH465911: Incorrect XHCI SSID programming in D3 cold entry/exit
+- BUG465941: Intermittent hang upon cold reset or power on cycling
+- ENH465788: Setup option for DRAM terminations
+- PLAT-1331: C Style Checker Fail
+- PLAT-1338: [BR] add VID:DID/1B21:0612 into Payload Blacklist Device Table
+- PLAT-1325: [BR] change Bristol Ridge AVFS BIOS default setting to Enable
+- ENH465927: [CZ] Enable MMIO decode in iTpmGetResponse
+- ENH462938: Add AGESA option to control PMxC0[0] ThermalTrip status
+- ENH465899: [CZ] set On3FreeCmdLmt = 5
+- ENH465853: CZ SMU FW 18.56.0
+- PLAT-1290: [ST] Incorrectly invoking a CZ routine in mndctst.c
+- ENH465834: Update DRAM ZQ/CKE to CS Map per BKDG
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+
+=============================================================================
+Version:  0.0.1.0                             Release Date: Jun 2015
+File:     StoneyPI_0.0.1.0.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev0.13                                                     (#55072)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+=============================================================================
+
+* First version of Stoney Platform Initialization package that includes
+Processor initialization code for IBV/OEM platform BIOS Development.
+
+StoneyPI_0.0.1.0.ZIP hasn't been through AMD internal QA process, but completed
+BIOS verification using SimNow.
+
+1.  As previously communicated the purpose of the 0.1 release of StoneyPI is
+    to provide customers with an early look at the new Architecture 2008
+    platform initialization library for Stoney.  The 0.1 release
+    is intended to be:
+        a.  100% API complete
+        b.  able to boot a single fixed configuration under SimNow
+
+    Per plan, the 0.1 release is NOT code complete or feature complete. Key
+    features may be stubbed out, incomplete and/or buggy. Features may not
+    function if used outside of the fixed demonstration configuration.
+
+    Customers are able to use the 0.1 release to prepare their wrappers and
+    conduct limited testing with the StoneyPI code under SimNow. AMD
+    welcomes your feedback on this 0.1 release.
+
+    The following future releases beyond 0.0.1.0 are planned:
+
+        0.3 - 100% code complete and feature complete, functionality
+              largely untested
+
+        0.5 - Pre bring-up -Thoroughly tested under SimNow
+
+        0.6 - Alpha release - code brought-up on real silicon, QA passed
+
+        0.7 - Beta release / EVT - lab characterization data incorporated
+
+        0.9 - Production Release Candidate / DVT
+
+        1.0 - Production Release
+
+    Additional intermediate releases may be issued as deemed necessary.
+
+2.  Package contents
+
+    AGESA - AGESA Arch2008 0.0.1.0 for Family 15h Model 70h - 7Fh (Stoney)
+            platform solutions
+    CPM   - Common Platform Module v052 for Stoney platform solution
+    VBIOS - Carrizo Generic VBios v026 & Gop v1.58
+    PlatformBIOS - Gardenia Platform BIOS RGY0010B.FD
+                   gardenia_st_family15h.bsd file
+                   StoneyFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.44.27
+
+3.  Build Instructions
+    To be added later
+
+4.  Known Issues/Limitations
+=============================================================================
