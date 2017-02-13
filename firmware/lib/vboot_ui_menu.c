@@ -329,41 +329,30 @@ VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
  *
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-// TODO: will probably have to print menu a
-// line at a time to center the text at X.
-// Otherwise, only the first line will be lined up
-// vertically properly.
-// which is why x is currently 0.
-// also, want to calculate what center is eventually instead of
-// hard-coding it.
-// at least right now there's no overlapping with the debug
-// printouts.
 VbError_t vb2_print_current_menu()
 {
-	char m_str[1024];
-	const char *selected = "==> ";
-	const char *deselected = "    ";
 	int size = 0;
 	int i = 0;
 	static char **m = NULL;
+	int highlight = 0;
+	// TODO: We probably want to center this text.
+	int xindex = 50;
+	int yindex = 30;
 
-	memset(m_str, 0, strlen(m_str));
 	// TODO: need to check for error code.
 	vb2_get_current_menu_size(current_menu, &m, &size);
 	VB2_DEBUG("vb2_print_current_menu:\n");
 
+	// TODO: do clear screen here.
 	/* Create menu string */
 	for (i = 0; i < size; i++) {
-		if (current_menu_idx == i) {
-			strncat(m_str, selected, strlen(selected));
-		} else {
-			strncat(m_str, deselected, strlen(deselected));
-		}
-		strncat(m_str, m[i], strlen(m[i]));
+		highlight = !!(current_menu_idx == i);
+		VbExDisplayText(xindex, yindex, m[i], highlight);
+		VB2_DEBUG("[%d,%d]: %s", xindex, yindex, m[i]);
+		yindex++;
 	}
-	VB2_DEBUG("%s", m_str);
 
-	return VbExDisplayText(0,30,m_str);
+	return VBERROR_SUCCESS;
 }
 
 /**
