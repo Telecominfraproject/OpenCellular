@@ -122,7 +122,7 @@ includemakefile = \
 	$(eval include $(1)/Makefile.inc) \
 	$(eval $(name)-srcs += \
 		$(subst $(top)/,, \
-		$(abspath $(addprefix $(1)/,$($(name)-y))))) \
+		$(abspath $(patsubst $(1)//%,/%,$(addprefix $(1)/,$($(name)-y)))))) \
 	$(eval $(name)-gens += \
 		$(subst $(top)/,, \
 		$(abspath $($(name)-gen-y)))) \
@@ -230,7 +230,7 @@ $(obj)/b__lib$(name).adb: $($(name)-alis)
 	cd $(dir $@) && \
 		$(GNATBIND) $(addprefix -aO,$(abspath $($(name)-extra-objs))) \
 			-a -n -L$(name)_ada -o $(notdir $@) \
-			$(subst $(dir $@),,$^)
+			$(patsubst /%,%,$(subst $(dir $@),,$^))
 $(eval $(call add_ada_rule,adb,$(obj)/b__lib$(name).o:,))
 $(name)-objs += $(obj)/b__lib$(name).o
 
