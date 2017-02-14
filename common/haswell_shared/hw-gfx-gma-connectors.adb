@@ -83,7 +83,7 @@ package body HW.GFX.GMA.Connectors is
    procedure Post_All_Off
    is
    begin
-      for Port in Digital_Port range DIGI_A .. DIGI_D loop
+      for Port in Digital_Port range DIGI_A .. Config.Last_Digital_Port loop
          DDI.Off (Port);
       end loop;
       if Config.Is_FDI_Port (Analog) then

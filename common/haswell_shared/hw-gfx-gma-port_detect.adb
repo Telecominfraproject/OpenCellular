@@ -59,9 +59,6 @@ is
       Internal_Detected,
       DDI_Detected : Boolean;
 
-      Last_Digital_Port : constant Digital_Port :=
-        (if Config.Has_DDI_D then DIGI_D else DIGI_C);
-
       subtype Ext_Digital_Port is
          Digital_Port range DIGI_B .. DIGI_D;
       type Digital_Port_To_GMA_Port is array (Ext_Digital_Port) of Port_Type;
@@ -116,7 +113,7 @@ is
       Config.Valid_Port (Internal) := Internal_Detected;
 
       -- DDI_[BCD]
-      for Port in Ext_Digital_Port range DIGI_B .. Last_Digital_Port loop
+      for Port in Ext_Digital_Port range DIGI_B .. Config.Last_Digital_Port loop
          Registers.Is_Set_Mask
            (Register => Registers.SFUSE_STRAP,
             Mask     => DDI_PORT_DETECTED (Port),

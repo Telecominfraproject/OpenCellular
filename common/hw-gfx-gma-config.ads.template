@@ -156,6 +156,9 @@ is
       Part_Of => GMA.Config_State;
    Valid_Port : Valid_Per_Port renames Valid_Port_GPU (CPU);
 
+   Last_Digital_Port : constant Digital_Port :=
+     (if Has_DDI_D then DIGI_D else DIGI_C);
+
    ----------------------------------------------------------------------------
 
    type FDI_Per_Port is array (Port_Type) of Boolean;
