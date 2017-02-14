@@ -670,6 +670,49 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			/* Only disable virtual dev switch if allowed by GBB */
 			if (!(gbb->flags & GBB_FLAG_ENTER_TRIGGERS_TONORM))
 				break;
+		case 0x04:
+			/* Ctrl+D = dismiss warning; advance to timeout */
+			VB2_DEBUG("user pressed Ctrl+D; skip delay\n");
+			ctrl_d_pressed = 1;
+			goto fallout;
+			break;
+		case 0x0c:
+			VB2_DEBUG("user pressed Ctrl+L; Try legacy boot\n");
+			VbTryLegacyMenu(allow_legacy);
+			break;
+		case 0x15:
+			/* Ctrl+U = try USB boot, or beep if failure */
+			VB2_DEBUG("user pressed Ctrl+U; try USB\n");
+			if (!allow_usb) {
+				VB2_DEBUG("USB booting is disabled\n");
+				VbExDisplayDebugInfo(
+					"WARNING: Booting from external media "
+					"(USB/SD) has not been enabled. Refer "
+					"to the developer-mode documentation "
+					"for details.\n");
+				VbExBeep(120, 400);
+				VbExSleepMs(120);
+				VbExBeep(120, 400);
+			} else {
+				/*
+				 * Clear the screen to show we get the Ctrl+U
+				 * key press.
+				 */
+				VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK,
+						0);
+				if (VBERROR_SUCCESS ==
+				    VbTryUsbMenu(ctx, cparams)) {
+					VbAudioClose(audio);
+					return VBERROR_SUCCESS;
+				} else {
+					/* Show dev mode warning screen again */
+					VbDisplayScreen(ctx,
+						cparams,
+						VB_SCREEN_BASE,
+						0);
+				}
+			}
+			break;
 		case VB_BUTTON_VOL_UP:
 		case VB_KEY_UP:
 			vb2_get_current_menu_size(current_menu,
