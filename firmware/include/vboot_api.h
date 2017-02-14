@@ -752,6 +752,8 @@ enum VbScreenType_t {
 	VB_SCREEN_TO_NORM_CONFIRMED = 0x207,
 	/* Broken screen shown after verification failure */
 	VB_SCREEN_OS_BROKEN         = 0x208,
+	/* Display base screen (no icons, no text) */
+	VB_SCREEN_BASE              = 0x209,
 };
 
 /**
