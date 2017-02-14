@@ -40,24 +40,24 @@
 
 static int
 set_array(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t value);
-static char *parse_u32(char *str, u_int32_t *val);
-static char *parse_u8(char *str, u_int32_t *val);
-static char *parse_chipuid(char *str, u_int8_t *val);
+			uint32_t value);
+static char *parse_u32(char *str, uint32_t *val);
+static char *parse_u8(char *str, uint32_t *val);
+static char *parse_chipuid(char *str, uint8_t *val);
 static char *parse_filename(char *str, char *name, int chars_remaining);
 static char *parse_enum(build_image_context *context,
 			char *str,
 			enum_item *table,
-			u_int32_t *val);
+			uint32_t *val);
 static char
 *parse_field_name(char *rest, field_item *field_table, field_item **field);
 static char
 *parse_field_value(build_image_context *context,
 			char *rest,
 			field_item *field,
-			u_int32_t *value);
+			uint32_t *value);
 static int
 parse_array(build_image_context *context, parse_token token, char *rest);
 static int
@@ -85,7 +85,7 @@ parse_sign_bl(build_image_context *context, parse_token token, char *rest);
 
 static int process_statement(build_image_context *context,
 				char *str,
-				u_int8_t simple_parse);
+				uint8_t simple_parse);
 
 static parse_item parse_simple_items[] =
 {
@@ -138,10 +138,10 @@ static parse_item s_top_level_items[] = {
  * @return the remainder of the string after the number was parsed
  */
 static char *
-parse_u32(char *str, u_int32_t *val)
+parse_u32(char *str, uint32_t *val)
 {
-	u_int32_t value = 0;
-	u_int32_t digit;
+	uint32_t value = 0;
+	uint32_t digit;
 
 	while (*str == '0')
 		str++;
@@ -172,7 +172,7 @@ parse_u32(char *str, u_int32_t *val)
  * @return the remainder of the string after the number was parsed
  */
 static char *
-parse_u8(char *str, u_int32_t *val)
+parse_u8(char *str, uint32_t *val)
 {
 	char *retval;
 
@@ -195,7 +195,7 @@ parse_u8(char *str, u_int32_t *val)
  * @return the remainder of the string after the number was parsed
  */
 static char *
-parse_chipuid(char *str, u_int8_t *chipuid)
+parse_chipuid(char *str, uint8_t *chipuid)
 {
 	int byte_index = 0;
 	int paddings = 0;
@@ -276,8 +276,8 @@ parse_filename(char *str, char *name, int chars_remaining)
 static char
 *parse_field_name(char *rest, field_item *field_table, field_item **field)
 {
-	u_int32_t i;
-	u_int32_t field_name_len = 0;
+	uint32_t i;
+	uint32_t field_name_len = 0;
 
 	assert(field_table != NULL);
 	assert(rest != NULL);
@@ -316,7 +316,7 @@ static char
 *parse_field_value(build_image_context *context,
 			char *rest,
 			field_item *field,
-			u_int32_t *value)
+			uint32_t *value)
 {
 	assert(rest != NULL);
 	assert(field != NULL);
@@ -360,7 +360,7 @@ static char *
 parse_enum(build_image_context *context,
 		char *str,
 		enum_item *table,
-		u_int32_t *val)
+		uint32_t *val)
 {
 	int i;
 	char *rest;
@@ -392,8 +392,8 @@ static int parse_bootloader(build_image_context *context,
 {
 	char filename[MAX_BUFFER];
 	char e_state[MAX_STR_LEN];
-	u_int32_t load_addr;
-	u_int32_t entry_point;
+	uint32_t load_addr;
+	uint32_t entry_point;
 
 	assert(context != NULL);
 	assert(rest != NULL);
@@ -447,8 +447,8 @@ static int parse_mts_image(build_image_context *context,
 {
 	char filename[MAX_BUFFER];
 	char e_state[MAX_STR_LEN];
-	u_int32_t load_addr;
-	u_int32_t entry_point;
+	uint32_t load_addr;
+	uint32_t entry_point;
 
 	assert(context != NULL);
 	assert(rest != NULL);
@@ -528,8 +528,8 @@ static int parse_rsa_param(build_image_context *context,
 static int
 parse_array(build_image_context *context, parse_token token, char *rest)
 {
-	u_int32_t index;
-	u_int32_t value;
+	uint32_t index;
+	uint32_t value;
 
 	assert(context != NULL);
 	assert(rest != NULL);
@@ -586,9 +586,9 @@ parse_array(build_image_context *context, parse_token token, char *rest)
 
 static int
 set_array(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t value)
+			uint32_t value)
 {
 	int err = 0;
 
@@ -614,7 +614,7 @@ set_array(build_image_context *context,
 }
 
 /*
- * General handler for setting u_int32_t values in config files.
+ * General handler for setting uint32_t values in config files.
  *
  * @param context	The main context pointer
  * @param token  	The parse token value
@@ -625,7 +625,7 @@ static int parse_value_u32(build_image_context *context,
 			parse_token token,
 			char *rest)
 {
-	u_int32_t value;
+	uint32_t value;
 
 	assert(context != NULL);
 	assert(rest != NULL);
@@ -649,7 +649,7 @@ static int parse_value_chipuid(build_image_context *context,
 			parse_token token,
 			char *rest)
 {
-	u_int8_t value[16];
+	uint8_t value[16];
 
 	assert(context != NULL);
 	assert(rest != NULL);
@@ -724,10 +724,10 @@ parse_end_state(char *str, char *uname, int chars_remaining)
 static int
 parse_dev_param(build_image_context *context, parse_token token, char *rest)
 {
-	u_int32_t i;
-	u_int32_t value;
+	uint32_t i;
+	uint32_t value;
 	field_item *field;
-	u_int32_t index;
+	uint32_t index;
 	parse_subfield_item *device_item = NULL;
 
 	assert(context != NULL);
@@ -791,9 +791,9 @@ parse_dev_param(build_image_context *context, parse_token token, char *rest)
 static int
 parse_sdram_param(build_image_context *context, parse_token token, char *rest)
 {
-	u_int32_t value;
+	uint32_t value;
 	field_item *field;
-	u_int32_t index;
+	uint32_t index;
 
 	assert(context != NULL);
 	assert(rest != NULL);
@@ -848,7 +848,7 @@ parse_sdram_param(build_image_context *context, parse_token token, char *rest)
 static int
 process_statement(build_image_context *context,
 			char *str,
-			u_int8_t simple_parse)
+			uint8_t simple_parse)
 {
 	int i;
 	char *rest;
@@ -880,15 +880,15 @@ process_statement(build_image_context *context,
  * @param context     	The main context pointer
  * @param simple_parse	Simple parse flag
  */
-void process_config_file(build_image_context *context, u_int8_t simple_parse)
+void process_config_file(build_image_context *context, uint8_t simple_parse)
 {
 	char buffer[MAX_BUFFER];
 	int  space = 0;
 	int current;
-	u_int8_t c_eol_comment_start = 0; /* True after first slash */
-	u_int8_t comment = 0;
-	u_int8_t string = 0;
-	u_int8_t equal_encounter = 0;
+	uint8_t c_eol_comment_start = 0; /* True after first slash */
+	uint8_t comment = 0;
+	uint8_t string = 0;
+	uint8_t equal_encounter = 0;
 
 	assert(context != NULL);
 	assert(context->config_file != NULL);

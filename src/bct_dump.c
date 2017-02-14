@@ -43,9 +43,9 @@ typedef struct {
 
 #define PARAM_TYPE_BINARY_DATA_MAX_SIZE 256
 typedef union {
-	u_int32_t val;
-	u_int8_t uid[16];
-	u_int8_t binary[PARAM_TYPE_BINARY_DATA_MAX_SIZE];
+	uint32_t val;
+	uint8_t uid[16];
+	uint8_t binary[PARAM_TYPE_BINARY_DATA_MAX_SIZE];
 } param_types;
 
 #define MAX_PARAM_SIZE sizeof(param_types)
@@ -96,17 +96,17 @@ static value_data const mts_values[] = {
 /*****************************************************************************/
 static void format_u32_hex8(parse_token id, char const * message, void * data)
 {
-	printf("%s0x%08x;\n", message, *((u_int32_t *) data));
+	printf("%s0x%08x;\n", message, *((uint32_t *) data));
 }
 
 static void format_u32(parse_token id, char const * message, void * data)
 {
-	printf("%s%d;\n", message, *((u_int32_t *) data));
+	printf("%s%d;\n", message, *((uint32_t *) data));
 }
 
 static void format_chipuid(parse_token id, char const * message, void * data)
 {
-	u_int8_t *uid = (u_int8_t *)data;
+	uint8_t *uid = (uint8_t *)data;
 	int byte_index;
 	char uid_str[35] = "0x";
 	char *s = &uid_str[2];
@@ -119,7 +119,7 @@ static void format_chipuid(parse_token id, char const * message, void * data)
 
 static void format_hex_16_bytes(parse_token id, char const * message, void * data)
 {
-	u_int8_t *p_byte = (u_int8_t *)data;
+	uint8_t *p_byte = (uint8_t *)data;
 	int byte_index;
 
 	printf("%s", message);
@@ -132,7 +132,7 @@ static void format_hex_16_bytes(parse_token id, char const * message, void * dat
 static void format_rsa_param(parse_token id, char const * message, void * data)
 {
 #define MAX_BYTE_NUMBER_PER_LINE	16
-	u_int8_t *rsa = (u_int8_t *)data;
+	uint8_t *rsa = (uint8_t *)data;
 	int size, byte_index;
 
 	printf("%s", message);
@@ -177,7 +177,7 @@ static int max_width(field_item const * table)
 /*****************************************************************************/
 static enum_item const * find_enum_item(build_image_context *context,
 					enum_item const * table,
-					u_int32_t value)
+					uint32_t value)
 {
 	int i;
 
@@ -191,7 +191,7 @@ static enum_item const * find_enum_item(build_image_context *context,
 /*****************************************************************************/
 static void display_enum_value(build_image_context *context,
 			       enum_item const * table,
-			       u_int32_t value)
+			       uint32_t value)
 {
 	enum_item const * e_item = find_enum_item(context, table, value);
 
@@ -203,7 +203,7 @@ static void display_enum_value(build_image_context *context,
 /*****************************************************************************/
 static int display_field_value(build_image_context *context,
 			       field_item const * item,
-			       u_int32_t value)
+			       uint32_t value)
 {
 	switch (item->type) {
 		case field_type_enum:
@@ -230,10 +230,10 @@ int main(int argc, char *argv[])
 {
 	int e;
 	build_image_context context;
-	u_int32_t bootloaders_used;
-	u_int32_t parameters_used;
-	u_int32_t sdram_used;
-	u_int32_t mts_used;
+	uint32_t bootloaders_used;
+	uint32_t parameters_used;
+	uint32_t sdram_used;
+	uint32_t mts_used;
 	nvboot_dev_type type;
 	param_types data;
 	int i;

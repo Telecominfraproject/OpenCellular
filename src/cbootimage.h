@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
+#include <stdint.h>
 
 #define NVBOOT_AES_BLOCK_SIZE_LOG2 4
 #define MAX_BUFFER 200
@@ -86,49 +87,49 @@ typedef struct build_image_context_rec
 	char *output_image_filename;
 	char *input_image_filename;
 	FILE *raw_file;
-	u_int32_t block_size;
-	u_int32_t block_size_log2;
-	u_int32_t page_size;
-	u_int32_t page_size_log2;
-	u_int32_t pages_per_blk;
-	u_int32_t partition_size;
-	u_int32_t redundancy;
-	u_int32_t version;
-	u_int32_t bct_copy;
+	uint32_t block_size;
+	uint32_t block_size_log2;
+	uint32_t page_size;
+	uint32_t page_size_log2;
+	uint32_t pages_per_blk;
+	uint32_t partition_size;
+	uint32_t redundancy;
+	uint32_t version;
+	uint32_t bct_copy;
 	/*
 	 * Number of blocks at start of device to skip before the BCT.
 	 * This may be used to reserve space for a partition table, for
 	 * example, in order to write the resultant boot image to e.g. an
 	 * SD card while using the remaining space for a user filesystem.
 	 */
-	u_int32_t pre_bct_pad_blocks;
+	uint32_t pre_bct_pad_blocks;
 	/* Allocation data. */
 	struct blk_data_rec *memory; /* Representation of memory */
 	/* block number for the BCT block */
-	u_int32_t next_bct_blk;
+	uint32_t next_bct_blk;
 
 	char *newbl_filename;
-	u_int32_t newbl_load_addr;
-	u_int32_t newbl_entry_point;
-	u_int32_t newbl_attr;
-	u_int8_t generate_bct;
-	u_int8_t *bct;
+	uint32_t newbl_load_addr;
+	uint32_t newbl_entry_point;
+	uint32_t newbl_attr;
+	uint8_t generate_bct;
+	uint8_t *bct;
 
 	char *mts_filename;
-	u_int32_t mts_load_addr;
-	u_int32_t mts_entry_point;
-	u_int32_t mts_attr;
+	uint32_t mts_load_addr;
+	uint32_t mts_entry_point;
+	uint32_t mts_attr;
 
 	char *bct_filename;
-	u_int32_t last_blk;
-	u_int32_t bct_size; /* The BCT file size */
-	u_int32_t boot_data_version; /* The boot data version of BCT */
-	u_int8_t bct_init; /* The flag for the memory allocation of bct */
-	u_int32_t odm_data; /* The odm data value */
-	u_int8_t unique_chip_id[16]; /* The unique chip uid */
-	u_int8_t secure_jtag_control; /* The flag for enabling jtag control */
-	u_int32_t secure_debug_control; /* The flag for enabling jtag control */
-	u_int8_t update_image; /* The flag for updating image */
+	uint32_t last_blk;
+	uint32_t bct_size; /* The BCT file size */
+	uint32_t boot_data_version; /* The boot data version of BCT */
+	uint8_t bct_init; /* The flag for the memory allocation of bct */
+	uint32_t odm_data; /* The odm data value */
+	uint8_t unique_chip_id[16]; /* The unique chip uid */
+	uint8_t secure_jtag_control; /* The flag for enabling jtag control */
+	uint32_t secure_debug_control; /* The flag for enabling jtag control */
+	uint8_t update_image; /* The flag for updating image */
 } build_image_context;
 
 /* Function prototypes */

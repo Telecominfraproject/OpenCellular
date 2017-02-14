@@ -27,35 +27,35 @@
 
 /* Local function declarations */
 static void
-apply_cbc_chain_data(u_int8_t *cbc_chain_data,
-			u_int8_t *src,
-			u_int8_t *dst);
+apply_cbc_chain_data(uint8_t *cbc_chain_data,
+			uint8_t *src,
+			uint8_t *dst);
 
 static void
-generate_key_schedule(u_int8_t *key, u_int8_t *key_schedule);
+generate_key_schedule(uint8_t *key, uint8_t *key_schedule);
 
 static void
-encrypt_object( u_int8_t	*key_schedule,
-		u_int8_t	*src,
-		u_int8_t	*dst,
-		u_int32_t	num_aes_blocks);
+encrypt_object( uint8_t	*key_schedule,
+		uint8_t	*src,
+		uint8_t	*dst,
+		uint32_t	num_aes_blocks);
 
 static int
-encrypt_and_sign(u_int8_t		*key,
-		 u_int8_t		*src,
-		 u_int32_t		length,
-		 u_int8_t		*sig_dst);
+encrypt_and_sign(uint8_t		*key,
+		 uint8_t		*src,
+		 uint32_t		length,
+		 uint8_t		*sig_dst);
 
-u_int8_t enable_debug_crypto = 0;
+uint8_t enable_debug_crypto = 0;
 
 /* Implementation */
-static u_int8_t zero_key[16] = { 0, 0, 0, 0, 0, 0, 0, 0,
+static uint8_t zero_key[16] = { 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0 };
 
 static void
-print_vector(char *name, u_int32_t num_bytes, u_int8_t *data)
+print_vector(char *name, uint32_t num_bytes, uint8_t *data)
 {
-	u_int32_t i;
+	uint32_t i;
 
 	printf("%s [%d] @%p", name, num_bytes, data);
 	for (i=0; i<num_bytes; i++) {
@@ -70,9 +70,9 @@ print_vector(char *name, u_int32_t num_bytes, u_int8_t *data)
 
 
 static void
-apply_cbc_chain_data(u_int8_t *cbc_chain_data,
-			u_int8_t *src,
-			u_int8_t *dst)
+apply_cbc_chain_data(uint8_t *cbc_chain_data,
+			uint8_t *src,
+			uint8_t *dst)
 {
 	int i;
 
@@ -82,7 +82,7 @@ apply_cbc_chain_data(u_int8_t *cbc_chain_data,
 }
 
 static void
-generate_key_schedule(u_int8_t *key, u_int8_t *key_schedule)
+generate_key_schedule(uint8_t *key, uint8_t *key_schedule)
 {
 	/*
 	 * The only need for a key is for signing/checksum purposes, so
@@ -92,14 +92,14 @@ generate_key_schedule(u_int8_t *key, u_int8_t *key_schedule)
 }
 
 static void
-encrypt_object(u_int8_t	*key_schedule,
-		u_int8_t	*src,
-		u_int8_t	*dst,
-		u_int32_t	num_aes_blocks)
+encrypt_object(uint8_t	*key_schedule,
+		uint8_t	*src,
+		uint8_t	*dst,
+		uint32_t	num_aes_blocks)
 {
-	u_int32_t i;
-	u_int8_t *cbc_chain_data;
-	u_int8_t  tmp_data[KEY_LENGTH];
+	uint32_t i;
+	uint8_t *cbc_chain_data;
+	uint8_t  tmp_data[KEY_LENGTH];
 
 	cbc_chain_data = zero_key; /* Convenient array of 0's for IV */
 
@@ -130,15 +130,15 @@ encrypt_object(u_int8_t	*key_schedule,
 }
 
 static void
-left_shift_vector(u_int8_t *in,
-		  u_int8_t	*out,
-		  u_int32_t size)
+left_shift_vector(uint8_t *in,
+		  uint8_t	*out,
+		  uint32_t size)
 {
-	u_int32_t i;
-	u_int8_t carry = 0;
+	uint32_t i;
+	uint8_t carry = 0;
 
 	for (i=0; i<size; i++) {
-		u_int32_t j = size-1-i;
+		uint32_t j = size-1-i;
 
 		out[j] = (in[j] << 1) | carry;
 		carry = in[j] >> 7; /* get most significant bit */
@@ -147,18 +147,18 @@ left_shift_vector(u_int8_t *in,
 
 static void
 sign_objext(
-	u_int8_t	*key,
-	u_int8_t	*key_schedule,
-	u_int8_t	*src,
-	u_int8_t	*dst,
-	u_int32_t	num_aes_blocks)
+	uint8_t	*key,
+	uint8_t	*key_schedule,
+	uint8_t	*src,
+	uint8_t	*dst,
+	uint32_t	num_aes_blocks)
 {
-	u_int32_t i;
-	u_int8_t *cbc_chain_data;
+	uint32_t i;
+	uint8_t *cbc_chain_data;
 
-	u_int8_t	l[KEY_LENGTH];
-	u_int8_t	k1[KEY_LENGTH];
-	u_int8_t	tmp_data[KEY_LENGTH];
+	uint8_t	l[KEY_LENGTH];
+	uint8_t	k1[KEY_LENGTH];
+	uint8_t	tmp_data[KEY_LENGTH];
 
 	cbc_chain_data = zero_key; /* Convenient array of 0's for IV */
 
@@ -193,7 +193,7 @@ sign_objext(
 			apply_cbc_chain_data(tmp_data, k1, tmp_data);
 
 		/* encrypt the AES block */
-		nv_aes_encrypt(tmp_data, key_schedule, (u_int8_t*)dst);
+		nv_aes_encrypt(tmp_data, key_schedule, (uint8_t*)dst);
 
 		if (enable_debug_crypto) {
 			printf("sign_objext: block %d of %d\n", i,
@@ -202,26 +202,26 @@ sign_objext(
 			print_vector("AES-CMAC Xor", KEY_LENGTH, tmp_data);
 			print_vector("AES-CMAC Dst",
 				KEY_LENGTH,
-				(u_int8_t*)dst);
+				(uint8_t*)dst);
 		}
 
 		/* Update pointers for next loop. */
-		cbc_chain_data = (u_int8_t*)dst;
+		cbc_chain_data = (uint8_t*)dst;
 		src += KEY_LENGTH;
 	}
 
 	if (enable_debug_crypto)
-		print_vector("AES-CMAC Hash", KEY_LENGTH, (u_int8_t*)dst);
+		print_vector("AES-CMAC Hash", KEY_LENGTH, (uint8_t*)dst);
 }
 
 static int
-encrypt_and_sign(u_int8_t		*key,
-		u_int8_t		*src,
-		u_int32_t		length,
-		u_int8_t		*sig_dst)
+encrypt_and_sign(uint8_t		*key,
+		uint8_t		*src,
+		uint32_t		length,
+		uint8_t		*sig_dst)
 {
-	u_int32_t	num_aes_blocks;
-	u_int8_t	key_schedule[4*NVAES_STATECOLS*(NVAES_ROUNDS+1)];
+	uint32_t	num_aes_blocks;
+	uint8_t	key_schedule[4*NVAES_STATECOLS*(NVAES_ROUNDS+1)];
 
 	if (enable_debug_crypto) {
 		printf("encrypt_and_sign: length = %d\n", length);
@@ -245,9 +245,9 @@ encrypt_and_sign(u_int8_t		*key,
 }
 
 int
-sign_data_block(u_int8_t *source,
-		u_int32_t length,
-		u_int8_t *signature)
+sign_data_block(uint8_t *source,
+		uint32_t length,
+		uint8_t *signature)
 {
 	return encrypt_and_sign(zero_key,
 				source,
@@ -257,12 +257,12 @@ sign_data_block(u_int8_t *source,
 
 int
 sign_bct(build_image_context *context,
-		u_int8_t *bct)
+		uint8_t *bct)
 {
-	u_int32_t Offset;
-	u_int32_t length;
-	u_int32_t hash_size;
-	u_int8_t *hash_buffer = NULL;
+	uint32_t Offset;
+	uint32_t length;
+	uint32_t hash_size;
+	uint8_t *hash_buffer = NULL;
 	int e = 0;
 
 	assert(bct != NULL);
@@ -307,12 +307,12 @@ sign_bct(build_image_context *context,
  */
 void
 reverse_byte_order(
-	u_int8_t *out,
-	const u_int8_t *in,
-	const u_int32_t size)
+	uint8_t *out,
+	const uint8_t *in,
+	const uint32_t size)
 {
-	u_int32_t i, j;
-	u_int8_t b1, b2;
+	uint32_t i, j;
+	uint8_t b1, b2;
 
 	for (i = 0; i < size / 2; i++) {
 		j = size - 1 - i;
@@ -329,13 +329,13 @@ reverse_byte_order(
 
 int
 sign_bl(build_image_context *context,
-	u_int8_t *bootloader,
-	u_int32_t length,
-	u_int32_t image_instance)
+	uint8_t *bootloader,
+	uint32_t length,
+	uint32_t image_instance)
 {
 	int e = 0;
-	u_int8_t  *hash_buffer;
-	u_int32_t  hash_size;
+	uint8_t  *hash_buffer;
+	uint32_t  hash_size;
 
 	g_soc_config->get_value(token_hash_size,
 			&hash_size, context->bct);
@@ -352,7 +352,7 @@ sign_bl(build_image_context *context,
 
 	if ((e = g_soc_config->setbl_param(image_instance,
 				token_bl_crypto_hash,
-				(u_int32_t*)hash_buffer,
+				(uint32_t*)hash_buffer,
 				context->bct)) != 0)
 		goto fail;
 

@@ -37,23 +37,23 @@
 
 int
 sign_bct(build_image_context *context,
-                  u_int8_t *bct);
+                  uint8_t *bct);
 
 int
-sign_data_block(u_int8_t *source,
-		u_int32_t length,
-		u_int8_t *signature);
+sign_data_block(uint8_t *source,
+		uint32_t length,
+		uint8_t *signature);
 
 void
 reverse_byte_order(
-	u_int8_t *out,
-	const u_int8_t *in,
-	const u_int32_t size);
+	uint8_t *out,
+	const uint8_t *in,
+	const uint32_t size);
 
 int
 sign_bl(build_image_context *context,
-	u_int8_t *bootloader,
-	u_int32_t length,
-	u_int32_t image_instance);
+	uint8_t *bootloader,
+	uint32_t length,
+	uint32_t image_instance);
 
 #endif /* #ifndef INCLUDED_CRYPTO_H */

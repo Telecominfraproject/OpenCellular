@@ -32,9 +32,9 @@
 
 typedef struct blk_data_rec
 {
-	u_int32_t blk_number;
-	u_int32_t pages_used; /* pages always used starting from 0. */
-	u_int8_t *data;
+	uint32_t blk_number;
+	uint32_t pages_used; /* pages always used starting from 0. */
+	uint8_t *data;
 
 	/* Pointer to ECC errors? */
 
@@ -43,54 +43,54 @@ typedef struct blk_data_rec
 
 /* Function prototypes */
 static block_data
-*new_block(u_int32_t blk_number, u_int32_t block_size);
+*new_block(uint32_t blk_number, uint32_t block_size);
 static block_data
-*find_block(u_int32_t blk_number, block_data  *block_list);
+*find_block(uint32_t blk_number, block_data  *block_list);
 static block_data
-*add_block(u_int32_t blk_number, block_data **block_list,
-			u_int32_t block_size);
+*add_block(uint32_t blk_number, block_data **block_list,
+			uint32_t block_size);
 static int
-erase_block(build_image_context *context, u_int32_t blk_number);
+erase_block(build_image_context *context, uint32_t blk_number);
 
 static int
 write_page(build_image_context *context,
-			u_int32_t blk_number,
-			u_int32_t page_number,
-			u_int8_t *data);
+			uint32_t blk_number,
+			uint32_t page_number,
+			uint8_t *data);
 
 static void
-insert_padding(u_int8_t *data, u_int32_t length);
+insert_padding(uint8_t *data, uint32_t length);
 
 static void
-write_padding(u_int8_t *data, u_int32_t length);
+write_padding(uint8_t *data, uint32_t length);
 
 static int write_bct(build_image_context *context,
-		u_int32_t block,
-		u_int32_t bct_slot);
+		uint32_t block,
+		uint32_t bct_slot);
 
 static void
 set_bl_data(build_image_context *context,
-			u_int32_t instance,
-			u_int32_t start_blk,
-			u_int32_t start_page,
-			u_int32_t length);
+			uint32_t instance,
+			uint32_t start_blk,
+			uint32_t start_page,
+			uint32_t length);
 
 static int write_image(build_image_context *context, file_type image_type);
 
 static void find_new_bct_blk(build_image_context *context);
 static int finish_update(build_image_context *context);
 
-u_int32_t
-iceil_log2(u_int32_t a, u_int32_t b)
+uint32_t
+iceil_log2(uint32_t a, uint32_t b)
 {
 	return (a + (1 << b) - 1) >> b;
 }
 
 /* Returns the smallest power of 2 >= a */
-u_int32_t
-ceil_log2(u_int32_t a)
+uint32_t
+ceil_log2(uint32_t a)
 {
-	u_int32_t result;
+	uint32_t result;
 
 	result = log2(a);
 	if ((1UL << result) < a)
@@ -99,7 +99,7 @@ ceil_log2(u_int32_t a)
 	return result;
 }
 
-static block_data *new_block(u_int32_t blk_number, u_int32_t block_size)
+static block_data *new_block(uint32_t blk_number, uint32_t block_size)
 {
 	block_data *new_block = malloc(sizeof(block_data));
 	if (new_block == NULL)
@@ -136,7 +136,7 @@ void destroy_block_list(block_data *block_list)
 	}
 }
 
-static block_data *find_block(u_int32_t blk_number, block_data  *block_list)
+static block_data *find_block(uint32_t blk_number, block_data  *block_list)
 {
 	while (block_list) {
 		if (block_list->blk_number == blk_number)
@@ -149,9 +149,9 @@ static block_data *find_block(u_int32_t blk_number, block_data  *block_list)
 }
 
 /* Returns pointer to block after adding it to block_list, if needed. */
-static block_data *add_block(u_int32_t blk_number,
+static block_data *add_block(uint32_t blk_number,
 		block_data **block_list,
-		u_int32_t block_size)
+		uint32_t block_size)
 {
 	block_data *block = find_block(blk_number,*block_list);
 	block_data *parent;
@@ -183,7 +183,7 @@ static block_data *add_block(u_int32_t blk_number,
 }
 
 static int
-erase_block(build_image_context *context, u_int32_t blk_number)
+erase_block(build_image_context *context, uint32_t blk_number)
 {
 	block_data   *block;
 
@@ -203,12 +203,12 @@ erase_block(build_image_context *context, u_int32_t blk_number)
 
 static int
 write_page(build_image_context *context,
-	u_int32_t blk_number,
-	u_int32_t page_number,
-	u_int8_t *data)
+	uint32_t blk_number,
+	uint32_t page_number,
+	uint8_t *data)
 {
 	block_data *block;
-	u_int8_t *page_ptr;
+	uint8_t *page_ptr;
 
 	assert(context);
 
@@ -234,10 +234,10 @@ write_page(build_image_context *context,
 }
 
 static void
-insert_padding(u_int8_t *data, u_int32_t length)
+insert_padding(uint8_t *data, uint32_t length)
 {
-	u_int32_t aes_blks;
-	u_int32_t remaining;
+	uint32_t aes_blks;
+	uint32_t remaining;
 
 	aes_blks = iceil_log2(length, NVBOOT_AES_BLOCK_SIZE_LOG2);
 	remaining = (aes_blks << NVBOOT_AES_BLOCK_SIZE_LOG2) - length;
@@ -246,9 +246,9 @@ insert_padding(u_int8_t *data, u_int32_t length)
 }
 
 static void
-write_padding(u_int8_t *p, u_int32_t remaining)
+write_padding(uint8_t *p, uint32_t remaining)
 {
-	u_int8_t value = 0x80;
+	uint8_t value = 0x80;
 
 	while (remaining) {
 		*p++ = value;
@@ -259,14 +259,14 @@ write_padding(u_int8_t *p, u_int32_t remaining)
 
 static int
 write_bct(build_image_context *context,
-	u_int32_t block,
-	u_int32_t bct_slot)
+	uint32_t block,
+	uint32_t bct_slot)
 {
-	u_int32_t pagesremaining;
-	u_int32_t page;
-	u_int32_t pages_per_bct;
-	u_int8_t *buffer;
-	u_int8_t *data;
+	uint32_t pagesremaining;
+	uint32_t page;
+	uint32_t pages_per_bct;
+	uint8_t *buffer;
+	uint8_t *data;
 	int err = 0;
 
 	assert(context);
@@ -322,7 +322,7 @@ g_soc_config->getbl_param(instance,            \
 
 #define COPY_BL_FIELD(from, to, field)         \
 do {                                           \
-    u_int32_t v;                               \
+    uint32_t v;                               \
     GET_BL_FIELD(from, field, &v);             \
     SET_BL_FIELD(to,   field,  v);             \
 } while (0);
@@ -343,7 +343,7 @@ g_soc_config->get_mts_info(context,             \
 
 #define COPY_MTS_FIELD(from, to, field)         \
 do {                                            \
-    u_int32_t v;                                \
+    uint32_t v;                                \
     GET_MTS_FIELD(from, field, &v);             \
     SET_MTS_FIELD(to,   field,  v);             \
 } while (0);
@@ -380,10 +380,10 @@ do {                                            \
 
 static void
 set_bl_data(build_image_context *context,
-		u_int32_t instance,
-		u_int32_t start_blk,
-		u_int32_t start_page,
-		u_int32_t length)
+		uint32_t instance,
+		uint32_t start_blk,
+		uint32_t start_page,
+		uint32_t length)
 {
 	assert(context);
 
@@ -398,10 +398,10 @@ set_bl_data(build_image_context *context,
 
 static void
 set_mts_data(build_image_context *context,
-		u_int32_t instance,
-		u_int32_t start_blk,
-		u_int32_t start_page,
-		u_int32_t length)
+		uint32_t instance,
+		uint32_t start_blk,
+		uint32_t start_page,
+		uint32_t length)
 {
 	assert(context);
 
@@ -436,25 +436,25 @@ do {                                                                      \
 static int
 write_image(build_image_context *context, file_type image_type)
 {
-	u_int32_t i, j;
-	u_int32_t image_instance;
-	u_int32_t image_move_count = 0;
-	u_int32_t image_move_remaining;
-	u_int32_t current_blk;
-	u_int32_t current_page;
-	u_int32_t pages_in_image;
-	u_int32_t image_used;
-	u_int8_t  *image_storage; /* Holds the image after reading */
-	u_int8_t  *buffer;	/* Holds the image for writing */
-	u_int8_t  *src;	/* Scans through the image during writing */
-	u_int32_t  image_actual_size; /* In bytes */
-	u_int32_t  pagesremaining;
-	u_int32_t  virtual_blk;
-	u_int32_t  pages_per_blk;
-	u_int32_t  image_version;
-	u_int8_t  *hash_buffer;
-	u_int32_t  hash_size;
-	u_int32_t  image_max;
+	uint32_t i, j;
+	uint32_t image_instance;
+	uint32_t image_move_count = 0;
+	uint32_t image_move_remaining;
+	uint32_t current_blk;
+	uint32_t current_page;
+	uint32_t pages_in_image;
+	uint32_t image_used;
+	uint8_t  *image_storage; /* Holds the image after reading */
+	uint8_t  *buffer;	/* Holds the image for writing */
+	uint8_t  *src;	/* Scans through the image during writing */
+	uint32_t  image_actual_size; /* In bytes */
+	uint32_t  pagesremaining;
+	uint32_t  virtual_blk;
+	uint32_t  pages_per_blk;
+	uint32_t  image_version;
+	uint8_t  *hash_buffer;
+	uint32_t  hash_size;
+	uint32_t  image_max;
 	parse_token token;
 	int err = 0, is_bl;
 
@@ -499,7 +499,7 @@ write_image(build_image_context *context, file_type image_type)
 	token = is_bl ? token_bootloader_used : token_mts_used;
 	g_soc_config->get_value(token, &image_used, context->bct);
 	for (image_instance = 0; image_instance < image_used; image_instance++) {
-		u_int32_t tmp;
+		uint32_t tmp;
 		GET_FIELD(is_bl, image_instance, version, &tmp);
 		if (tmp == image_version)
 			image_move_count++;
@@ -513,8 +513,8 @@ write_image(build_image_context *context, file_type image_type)
 	/* Move the mts entries down. */
 	image_move_remaining = image_move_count;
 	while (image_move_remaining > 0) {
-		u_int32_t  inst_from = image_move_remaining - 1;
-		u_int32_t  inst_to   =
+		uint32_t  inst_from = image_move_remaining - 1;
+		uint32_t  inst_to   =
 			image_move_remaining + context->redundancy - 1;
 
 		COPY_FIELD(is_bl, inst_from, inst_to, version);
@@ -528,11 +528,11 @@ write_image(build_image_context *context, file_type image_type)
 		if (is_bl) {
 			g_soc_config->getbl_param(inst_from,
 				token_bl_crypto_hash,
-				(u_int32_t*)hash_buffer,
+				(uint32_t*)hash_buffer,
 				context->bct);
 			g_soc_config->setbl_param(inst_to,
 				token_bl_crypto_hash,
-				(u_int32_t*)hash_buffer,
+				(uint32_t*)hash_buffer,
 				context->bct);
 		}
 
@@ -618,7 +618,7 @@ write_image(build_image_context *context, file_type image_type)
 					hash_buffer);
 			g_soc_config->setbl_param(image_instance,
 					token_bl_crypto_hash,
-					(u_int32_t*)hash_buffer,
+					(uint32_t*)hash_buffer,
 					context->bct);
 		}
 
@@ -662,12 +662,12 @@ write_image(build_image_context *context, file_type image_type)
 
 	if (enable_debug) {
 		for (i = 0; i < image_max; i++) {
-			u_int32_t version;
-			u_int32_t start_blk;
-			u_int32_t start_page;
-			u_int32_t length;
-			u_int32_t load_addr;
-			u_int32_t entry_point;
+			uint32_t version;
+			uint32_t start_blk;
+			uint32_t start_page;
+			uint32_t length;
+			uint32_t load_addr;
+			uint32_t entry_point;
 
 			GET_FIELD(is_bl, i, version,     &version);
 			GET_FIELD(is_bl, i, start_blk,  &start_blk);
@@ -689,11 +689,11 @@ write_image(build_image_context *context, file_type image_type)
 			if (is_bl) {
 				g_soc_config->getbl_param(i,
 					token_bl_crypto_hash,
-					(u_int32_t*)hash_buffer,
+					(uint32_t*)hash_buffer,
 					context->bct);
 				for (j = 0; j < hash_size / 4; j++) {
 					printf("%08x",
-						*((u_int32_t*)(hash_buffer + 4*j)));
+						*((uint32_t*)(hash_buffer + 4*j)));
 				}
 				printf("\n");
 			}
@@ -766,8 +766,8 @@ init_bct(struct build_image_context_rec *context)
 int
 read_bct_file(struct build_image_context_rec *context)
 {
-	u_int8_t  *bct_storage; /* Holds the Bl after reading */
-	u_int32_t  bct_actual_size; /* In bytes */
+	uint8_t  *bct_storage; /* Holds the Bl after reading */
+	uint32_t  bct_actual_size; /* In bytes */
 	file_type bct_filetype = file_type_bct;
 	int err = 0;
 
@@ -806,7 +806,7 @@ read_bct_file(struct build_image_context_rec *context)
 static void
 find_new_bct_blk(build_image_context *context)
 {
-	u_int32_t max_bct_search_blks;
+	uint32_t max_bct_search_blks;
 
 	assert(context);
 
@@ -830,9 +830,9 @@ find_new_bct_blk(build_image_context *context)
 int
 begin_update(build_image_context *context)
 {
-	u_int32_t hash_size;
-	u_int32_t reserved_size;
-	u_int32_t reserved_offset;
+	uint32_t hash_size;
+	uint32_t reserved_size;
+	uint32_t reserved_offset;
 	int err = 0;
 	int i;
 
@@ -840,8 +840,8 @@ begin_update(build_image_context *context)
 
 	/* Ensure that the BCT block & page data is current. */
 	if (enable_debug) {
-		u_int32_t block_size_log2;
-		u_int32_t page_size_log2;
+		uint32_t block_size_log2;
+		uint32_t page_size_log2;
 
 		g_soc_config->get_value(token_block_size_log2,
 			&block_size_log2, context->bct);
@@ -961,11 +961,11 @@ write_block_raw(build_image_context *context)
 {
 	block_data *block_list;
 	block_data *block;
-	u_int32_t blk_number;
-	u_int32_t last_blk;
-	u_int32_t pages_to_write;
-	u_int8_t *data;
-	u_int8_t *empty_blk = NULL;
+	uint32_t blk_number;
+	uint32_t last_blk;
+	uint32_t pages_to_write;
+	uint8_t *data;
+	uint8_t *empty_blk = NULL;
 
 	assert(context != NULL);
 	assert(context->memory);
@@ -1015,7 +1015,7 @@ write_block_raw(build_image_context *context)
 	return 0;
 }
 
-int write_data_block(FILE *fp, u_int32_t offset, u_int32_t size, u_int8_t *buffer)
+int write_data_block(FILE *fp, uint32_t offset, uint32_t size, uint8_t *buffer)
 {
 	if (fseek(fp, offset, 0))
 		return -1;
@@ -1044,8 +1044,8 @@ int data_is_valid_bct(build_image_context *context)
 
 int get_bct_size_from_image(build_image_context *context)
 {
-	u_int8_t buffer[NVBOOT_CONFIG_TABLE_SIZE_MIN];
-	u_int32_t bct_size = 0;
+	uint8_t buffer[NVBOOT_CONFIG_TABLE_SIZE_MIN];
+	uint32_t bct_size = 0;
 	FILE *fp;
 
 	fp = fopen(context->input_image_filename, "r");
@@ -1069,13 +1069,13 @@ int get_bct_size_from_image(build_image_context *context)
 int resign_bl(build_image_context *context)
 {
 	int ret;
-	u_int8_t  *buffer, *image;
-	u_int32_t  image_instance = 0;	/* support only one instance */
-	u_int32_t  image_actual_size; /* In bytes */
-	u_int32_t  bl_length;
-	u_int32_t  pages_in_image;
-	u_int32_t  blk_size, page_size, current_blk, current_page;
-	u_int32_t  offset;
+	uint8_t  *buffer, *image;
+	uint32_t  image_instance = 0;	/* support only one instance */
+	uint32_t  image_actual_size; /* In bytes */
+	uint32_t  bl_length;
+	uint32_t  pages_in_image;
+	uint32_t  blk_size, page_size, current_blk, current_page;
+	uint32_t  offset;
 
 	/* read in bl from image */
 	g_soc_config->get_value(token_block_size, &blk_size, context->bct);

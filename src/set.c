@@ -43,10 +43,10 @@
 
 int
 read_from_image(char	*filename,
-		u_int32_t	offset,
-		u_int32_t	max_size,
-		u_int8_t	**image,
-		u_int32_t	*actual_size,
+		uint32_t	offset,
+		uint32_t	max_size,
+		uint8_t	**image,
+		uint32_t	*actual_size,
 		file_type	f_type)
 {
 	int result = 0; /* 0 = success, 1 = failure */
@@ -79,7 +79,7 @@ read_from_image(char	*filename,
 			result = 1;
 			goto cleanup;
 		}
-		*actual_size = (u_int32_t)stats.st_size;
+		*actual_size = (uint32_t)stats.st_size;
 	} else {
 		if ((stats.st_size - offset) < max_size)
 			*actual_size = stats.st_size - offset;
@@ -118,8 +118,8 @@ cleanup:
 int
 set_bootloader(build_image_context	*context,
 		char	*filename,
-		u_int32_t	load_addr,
-		u_int32_t	entry_point)
+		uint32_t	load_addr,
+		uint32_t	entry_point)
 {
 	context->newbl_filename = filename;
 	context->newbl_load_addr = load_addr;
@@ -139,8 +139,8 @@ set_bootloader(build_image_context	*context,
 int
 set_mts_image(build_image_context	*context,
 		char	*filename,
-		u_int32_t	load_addr,
-		u_int32_t	entry_point)
+		uint32_t	load_addr,
+		uint32_t	entry_point)
 {
 	context->mts_filename = filename;
 	context->mts_load_addr = load_addr;
@@ -153,9 +153,9 @@ set_rsa_param(build_image_context *context, parse_token token,
 		char *filename)
 {
 	int	result;
-	u_int8_t *rsa_storage;	/* Holds the rsa param after reading */
+	uint8_t *rsa_storage;	/* Holds the rsa param after reading */
 	int32_t size;		/* Bytes to read */
-	u_int32_t actual_size;	/* In bytes */
+	uint32_t actual_size;	/* In bytes */
 
 	if ((size = g_soc_config->get_value_size(token)) <= 0)  {
 		printf("Error: Unsupported token %d for value size.\n", token);
@@ -165,7 +165,7 @@ set_rsa_param(build_image_context *context, parse_token token,
 	/* Read the image into memory. */
 	result = read_from_image(filename,
 				0,
-				(u_int32_t)size,
+				(uint32_t)size,
 				&rsa_storage,
 				&actual_size,
 				file_type_bin);
@@ -213,19 +213,19 @@ int context_set_value(build_image_context *context,
 
 	switch (token) {
 	case token_attribute:
-		context->newbl_attr = *((u_int32_t *)value);
+		context->newbl_attr = *((uint32_t *)value);
 		break;
 
 	case token_block_size:
-		context->block_size = *((u_int32_t *)value);
-		context->block_size_log2 = log2(*((u_int32_t *)value));
+		context->block_size = *((uint32_t *)value);
+		context->block_size_log2 = log2(*((uint32_t *)value));
 
 		if (context->memory != NULL) {
 			printf("Error: Too late to change block size.\n");
 			return 1;
 		}
 
-		if (context->block_size != (u_int32_t)(1 << context->block_size_log2)) {
+		if (context->block_size != (uint32_t)(1 << context->block_size_log2)) {
 			printf("Error: Block size must be a power of 2.\n");
 			return 1;
 		}
@@ -241,16 +241,16 @@ int context_set_value(build_image_context *context,
 			return 1;
 		}
 
-		context->partition_size= *((u_int32_t *)value);
+		context->partition_size= *((uint32_t *)value);
 		g_soc_config->set_value(token_partition_size,
 			value, context->bct);
 		break;
 
 	case token_page_size:
-		context->page_size = *((u_int32_t *)value);
-		context->page_size_log2 = log2(*((u_int32_t *)value));
+		context->page_size = *((uint32_t *)value);
+		context->page_size_log2 = log2(*((uint32_t *)value));
 
-		if (context->page_size != (u_int32_t)(1 << context->page_size_log2)) {
+		if (context->page_size != (uint32_t)(1 << context->page_size_log2)) {
 			printf("Error: Page size must be a power of 2.\n");
 			return 1;
 		}
@@ -261,19 +261,19 @@ int context_set_value(build_image_context *context,
 			&(context->page_size_log2), context->bct);
 		break;
 	case token_redundancy:
-		context->redundancy = *((u_int32_t *)value);
+		context->redundancy = *((uint32_t *)value);
 		break;
 
 	case token_version:
-		context->version = *((u_int32_t *)value);
+		context->version = *((uint32_t *)value);
 		break;
 
 	case token_bct_copy:
-		context->bct_copy = *((u_int32_t *)value);
+		context->bct_copy = *((uint32_t *)value);
 		break;
 
 	case token_odm_data:
-		context->odm_data = *((u_int32_t *)value);
+		context->odm_data = *((uint32_t *)value);
 		break;
 
 	case token_pre_bct_pad_blocks:
@@ -281,17 +281,17 @@ int context_set_value(build_image_context *context,
 			printf("Error: Too late to pre-BCT pad.\n");
 			return 1;
 		}
-		context->pre_bct_pad_blocks = *((u_int32_t *)value);
+		context->pre_bct_pad_blocks = *((uint32_t *)value);
 		break;
 
 	case token_secure_jtag_control:
-		context->secure_jtag_control = *((u_int32_t *)value);
+		context->secure_jtag_control = *((uint32_t *)value);
 		g_soc_config->set_value(token_secure_jtag_control,
 			value, context->bct);
 		break;
 
 	case token_secure_debug_control:
-		context->secure_debug_control = *((u_int32_t *)value);
+		context->secure_debug_control = *((uint32_t *)value);
 		g_soc_config->set_value(token_secure_debug_control,
 			value, context->bct);
 		break;

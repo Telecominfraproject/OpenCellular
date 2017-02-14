@@ -227,8 +227,8 @@ main(int argc, char *argv[])
 
 	/* Read the bct data from image if bct configs needs to be updated */
 	if (context.update_image) {
-		u_int32_t offset = 0, bct_size, actual_size;
-		u_int8_t *data_block;
+		uint32_t offset = 0, bct_size, actual_size;
+		uint8_t *data_block;
 		struct stat stats;
 
 		if (stat(context.input_image_filename, &stats) != 0) {

@@ -32,14 +32,14 @@
 int
 set_bootloader(build_image_context	*context,
 		char	*filename,
-		u_int32_t	load_addr,
-		u_int32_t	entry_point);
+		uint32_t	load_addr,
+		uint32_t	entry_point);
 
 int
 set_mts_image(build_image_context	*context,
 		char	*filename,
-		u_int32_t	load_addr,
-		u_int32_t	entry_point);
+		uint32_t	load_addr,
+		uint32_t	entry_point);
 
 int
 set_rsa_param(build_image_context	*context,
@@ -53,10 +53,10 @@ context_set_value(build_image_context	*context,
 
 int
 read_from_image(char *filename,
-		u_int32_t	offset,
-		u_int32_t	max_size,
-		u_int8_t	**Image,
-		u_int32_t	*actual_size,
+		uint32_t	offset,
+		uint32_t	max_size,
+		uint8_t	**Image,
+		uint32_t	*actual_size,
 		file_type	f_type);
 
 #endif /* #ifndef INCLUDED_SET_H */

@@ -53,7 +53,7 @@ int
 write_block_raw(struct build_image_context_rec *context);
 
 int
-write_data_block(FILE *fp, u_int32_t offset, u_int32_t size, u_int8_t *buffer);
+write_data_block(FILE *fp, uint32_t offset, uint32_t size, uint8_t *buffer);
 
 int
 data_is_valid_bct(build_image_context *context);

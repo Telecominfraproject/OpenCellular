@@ -97,7 +97,7 @@ enum {NVBOOT_CMAC_AES_HASH_LENGTH = 4};
  * Defines the storage for a hash value (128 bits).
  */
 typedef struct nvboot_hash_rec {
-	u_int32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
+	uint32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
 } nvboot_hash;
 
 /**
@@ -109,63 +109,63 @@ typedef struct nvboot_nand_params_rec {
 	 * If it is set to 18, then clock source to Nand controller is
 	 * 432 / 18 = 24MHz.
 	 */
-	u_int8_t clock_divider;
+	uint8_t clock_divider;
 
 	/**
 	 * Specifies the value to be programmed to Nand Async Timing
 	 * Register 0
 	 */
-	u_int32_t async_timing0;
+	uint32_t async_timing0;
 	/**
 	 * Specifies the value to be programmed to Nand Async Timing
 	 * Register 1
 	 */
-	u_int32_t async_timing1;
+	uint32_t async_timing1;
 	/**
 	 * Specifies the value to be programmed to Nand Async Timing
 	 * Register 2
 	 */
-	u_int32_t async_timing2;
+	uint32_t async_timing2;
 	/**
 	 * Specifies the value to be programmed to Nand Async Timing
 	 * Register 3
 	 */
-	u_int32_t async_timing3;
+	uint32_t async_timing3;
 	/**
 	 * Specifies the value to be programmed to Nand Sync DDR Timing
 	 * Register 0
 	 */
-	u_int32_t sddr_timing0;
+	uint32_t sddr_timing0;
 	/**
 	 * Specifies the value to be programmed to Nand Sync DDR Timing
 	 * Register 1
 	 */
-	u_int32_t sddr_timing1;
+	uint32_t sddr_timing1;
 	/**
 	 * Specifies the value to be programmed to Nand Toggle DDR Timing
 	 * Register 0
 	 */
-	u_int32_t tddr_timing0;
+	uint32_t tddr_timing0;
 	/**
 	 * Specifies the value to be programmed to Nand Toggle DDR Timing
 	 * Register 1
 	 */
-	u_int32_t tddr_timing1;
+	uint32_t tddr_timing1;
 	/* Specifies the value to be programmed to FBIO_DQSIB_DELAY register */
-	u_int8_t fbio_dqsib_dly_byte;
+	uint8_t fbio_dqsib_dly_byte;
 	/* Specifies the value to be programmed to FBIO_DQUSE_DELAY register */
-	u_int8_t fbio_quse_dly_byte;
+	uint8_t fbio_quse_dly_byte;
 	/* Specifies the CFG_QUSE_LATE value to be programmed to FBIO
 	 * configuration register */
-	u_int8_t fbio_cfg_quse_late;
+	uint8_t fbio_cfg_quse_late;
 	/* Specifies whether to enable sync DDR more or not */
-	u_int8_t disable_sync_ddr;
+	uint8_t disable_sync_ddr;
 
 	/* Specifies the block size in log2 bytes */
-	u_int8_t block_size_log2;
+	uint8_t block_size_log2;
 
 	/* Specifies the page size in log2 bytes */
-	u_int8_t page_size_log2;
+	uint8_t page_size_log2;
 } nvboot_nand_params;
 
 /* Defines various data widths supported. */
@@ -212,7 +212,7 @@ typedef struct nvboot_sdmmc_params_rec {
 	 * which is PLLP running at 432MHz.  If it is set to 18, then the SDMMC
 	 * controller runs at 432/18 = 24MHz.
 	 */
-	u_int8_t clock_divider;
+	uint8_t clock_divider;
 
 	/* Specifies the data bus width. Supported data widths are 4/8 bits. */
 	nvboot_sdmmc_data_width data_width;
@@ -223,7 +223,7 @@ typedef struct nvboot_sdmmc_params_rec {
 	 * supported within the power class range (0 to Max) if the selected
 	 * data width cannot be used at the chosen clock frequency.
 	 */
-	u_int8_t max_power_class_supported;
+	uint8_t max_power_class_supported;
 
 	/* Specifies the SD controller to be selected */
 	nvboot_sdmmc_cntrl sd_controller;
@@ -266,21 +266,21 @@ typedef struct nvboot_spiflash_params_rec {
 	 *     FAST_READ   at 40MHz: 11
 	 *     FAST_READ   at 50MHz:  9
 	 */
-	u_int8_t clock_divider;
+	uint8_t clock_divider;
 
 	/**
 	 * Specifies the type of command for read operations.
 	 * NV_FALSE specifies a NORMAL_READ Command
 	 * NV_TRUE  specifies a FAST_READ   Command
 	 */
-	u_int8_t read_command_type_fast;
+	uint8_t read_command_type_fast;
 } nvboot_spiflash_params;
 
 /**
 * Defines the union of the parameters required by each device.
 */
 typedef union {
-	u_int8_t size[64];
+	uint8_t size[64];
 	/* Specifies optimized parameters for NAND */
 	nvboot_nand_params nand_params;
 	/* Specifies optimized parameters for eMMC and eSD */
@@ -321,13 +321,13 @@ typedef enum {
  * the device.
  */
 typedef struct nv_bootloader_info_rec {
-	u_int32_t version;
-	u_int32_t start_blk;
-	u_int32_t start_page;
-	u_int32_t length;
-	u_int32_t load_addr;
-	u_int32_t entry_point;
-	u_int32_t attribute;
+	uint32_t version;
+	uint32_t start_blk;
+	uint32_t start_page;
+	uint32_t length;
+	uint32_t load_addr;
+	uint32_t entry_point;
+	uint32_t attribute;
 	nvboot_hash crypto_hash;
 } nv_bootloader_info;
 
@@ -335,10 +335,10 @@ typedef struct nv_bootloader_info_rec {
  * Defines the bad block table structure stored in the BCT.
  */
 typedef struct nvboot_badblock_table_rec {
-	u_int32_t entries_used;
-	u_int8_t virtual_blk_size_log2;
-	u_int8_t block_size_log2;
-	u_int8_t bad_blks[NVBOOT_BAD_BLOCK_TABLE_SIZE / 8];
+	uint32_t entries_used;
+	uint8_t virtual_blk_size_log2;
+	uint8_t block_size_log2;
+	uint8_t bad_blks[NVBOOT_BAD_BLOCK_TABLE_SIZE / 8];
 } nvboot_badblock_table;
 
 /**
@@ -352,28 +352,28 @@ typedef struct nvboot_badblock_table_rec {
 typedef struct nvboot_config_table_rec {
 	nvboot_hash crypto_hash;
 	nvboot_hash random_aes_blk;
-	u_int32_t boot_data_version;
-	u_int32_t block_size_log2;
-	u_int32_t page_size_log2;
-	u_int32_t partition_size;
-	u_int32_t num_param_sets;
+	uint32_t boot_data_version;
+	uint32_t block_size_log2;
+	uint32_t page_size_log2;
+	uint32_t partition_size;
+	uint32_t num_param_sets;
 	nvboot_dev_type dev_type[NVBOOT_BCT_MAX_PARAM_SETS];
 	nvboot_dev_params dev_params[NVBOOT_BCT_MAX_PARAM_SETS];
-	u_int32_t num_sdram_sets;
+	uint32_t num_sdram_sets;
 	nvboot_sdram_params sdram_params[NVBOOT_BCT_MAX_SDRAM_SETS];
 	nvboot_badblock_table badblock_table;
-	u_int32_t bootloader_used;
+	uint32_t bootloader_used;
 	nv_bootloader_info bootloader[NVBOOT_MAX_BOOTLOADERS];
-	u_int8_t customer_data[NVBOOT_BCT_CUSTOMER_DATA_SIZE];
+	uint8_t customer_data[NVBOOT_BCT_CUSTOMER_DATA_SIZE];
 	/*
 	 * ODMDATA is stored in the BCT in IRAM by the BootROM.
 	 * Read the data @ bct_start + (bct_size - 12). This works
 	 * on T20 and T30 BCTs, which are locked down. If this changes
 	 * in new chips, we can revisit this algorithm.
 	 */
-	u_int32_t odm_data;
-	u_int32_t reserved1;
-	u_int8_t enable_fail_back;
-	u_int8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
+	uint32_t odm_data;
+	uint32_t reserved1;
+	uint8_t enable_fail_back;
+	uint8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
 } nvboot_config_table;
 #endif /* #ifndef INCLUDED_NVBOOT_BCT_T30_H */

@@ -60,22 +60,22 @@ case token_bl_##x:\
 case token_##id:\
 	if (bct == NULL) \
 		return -ENODATA; \
-	*((u_int32_t *)data) = bct_ptr->id; \
+	*((uint32_t *)data) = bct_ptr->id; \
 	break
 
 #define CASE_GET_CONST(id, val) \
 case token_##id:\
-	*((u_int32_t *)data) = val; \
+	*((uint32_t *)data) = val; \
 	break
 
 #define CASE_GET_CONST_PREFIX(id, val_prefix) \
 case token_##id:\
-	*((u_int32_t *)data) = val_prefix##_##id; \
+	*((uint32_t *)data) = val_prefix##_##id; \
 	break
 
 #define CASE_SET_NVU32(id) \
 case token_##id:\
-	bct_ptr->id = *((u_int32_t *)data); \
+	bct_ptr->id = *((uint32_t *)data); \
 	break
 
 #define CASE_GET_DATA(id, size) \
@@ -130,9 +130,9 @@ parse_token t132_root_token_list[] = {
 
 int
 t132_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value)
+	uint32_t value)
 {
 	nvboot_config_table *bct = NULL;
 
@@ -166,9 +166,9 @@ t132_set_dev_param(build_image_context *context,
 
 int
 t132_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value)
+	uint32_t *value)
 {
 	nvboot_config_table *bct = NULL;
 
@@ -200,9 +200,9 @@ t132_get_dev_param(build_image_context *context,
 
 int
 t132_get_sdram_param(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t *value)
+		uint32_t *value)
 {
 	nvboot_sdram_params *params;
 	nvboot_config_table *bct = NULL;
@@ -530,9 +530,9 @@ t132_get_sdram_param(build_image_context *context,
 
 int
 t132_set_sdram_param(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t value)
+		uint32_t value)
 {
 	nvboot_sdram_params *params;
 	nvboot_config_table *bct = NULL;
@@ -861,10 +861,10 @@ t132_set_sdram_param(build_image_context *context,
 }
 
 int
-t132_getbl_param(u_int32_t set,
+t132_getbl_param(uint32_t set,
 		parse_token id,
-		u_int32_t *data,
-		u_int8_t *bct)
+		uint32_t *data,
+		uint8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 
@@ -896,10 +896,10 @@ t132_getbl_param(u_int32_t set,
 }
 
 int
-t132_setbl_param(u_int32_t set,
+t132_setbl_param(uint32_t set,
 		parse_token id,
-		u_int32_t *data,
-		u_int8_t *bct)
+		uint32_t *data,
+		uint8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 
@@ -931,7 +931,7 @@ t132_setbl_param(u_int32_t set,
 }
 
 int
-t132_bct_get_value(parse_token id, void *data, u_int8_t *bct)
+t132_bct_get_value(parse_token id, void *data, uint8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 	nvboot_config_table  samplebct; /* Used for computing offsets. */
@@ -960,19 +960,19 @@ t132_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 	case token_block_size:
 		if (bct == NULL)
 			return -ENODATA;
-		*((u_int32_t *)data) = 1 << bct_ptr->block_size_log2;
+		*((uint32_t *)data) = 1 << bct_ptr->block_size_log2;
 		break;
 
 	case token_page_size:
 		if (bct == NULL)
 			return -ENODATA;
-		*((u_int32_t *)data) = 1 << bct_ptr->page_size_log2;
+		*((uint32_t *)data) = 1 << bct_ptr->page_size_log2;
 		break;
 
 	case token_mts_used:
 		if (bct == NULL)
 			return -ENODATA;
-		*((u_int32_t *)data) = bct_ptr->mts_boot_components_used;
+		*((uint32_t *)data) = bct_ptr->mts_boot_components_used;
 		break;
 
 	/*
@@ -994,26 +994,26 @@ t132_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 		break;
 
 	case token_reserved_offset:
-		*((u_int32_t *)data) = (u_int8_t *)&(samplebct.reserved)
-				- (u_int8_t *)&samplebct;
+		*((uint32_t *)data) = (uint8_t *)&(samplebct.reserved)
+				- (uint8_t *)&samplebct;
 		break;
 
 	case token_bct_size:
-		*((u_int32_t *)data) = sizeof(nvboot_config_table);
+		*((uint32_t *)data) = sizeof(nvboot_config_table);
 		break;
 
 	CASE_GET_CONST(hash_size, sizeof(nvboot_hash));
 
 	case token_crypto_offset:
 		/* Offset to region in BCT to encrypt & sign */
-		*((u_int32_t *)data) = (u_int8_t *)&(samplebct.random_aes_blk)
-				- (u_int8_t *)&samplebct;
+		*((uint32_t *)data) = (uint8_t *)&(samplebct.random_aes_blk)
+				- (uint8_t *)&samplebct;
 		break;
 
 	case token_crypto_length:
 		/* size of region in BCT to encrypt & sign */
-		*((u_int32_t *)data) = (u_int8_t *)bct_ptr + sizeof(nvboot_config_table)
-				- (u_int8_t *)&(bct_ptr->random_aes_blk);
+		*((uint32_t *)data) = (uint8_t *)bct_ptr + sizeof(nvboot_config_table)
+				- (uint8_t *)&(bct_ptr->random_aes_blk);
 		break;
 
 	CASE_GET_CONST(max_bct_search_blks, NVBOOT_MAX_BCT_SEARCH_BLOCKS);
@@ -1039,7 +1039,7 @@ t132_bct_get_value(parse_token id, void *data, u_int8_t *bct)
 }
 
 int
-t132_bct_set_value(parse_token id, void *data, u_int8_t *bct)
+t132_bct_set_value(parse_token id, void *data, uint8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 
@@ -1064,7 +1064,7 @@ t132_bct_set_value(parse_token id, void *data, u_int8_t *bct)
 		break;
 
 	case token_mts_used:
-		bct_ptr->mts_boot_components_used = *((u_int32_t *)data);
+		bct_ptr->mts_boot_components_used = *((uint32_t *)data);
 		break;
 
 	default:
@@ -1076,9 +1076,9 @@ t132_bct_set_value(parse_token id, void *data, u_int8_t *bct)
 
 int
 t132_bct_set_data(parse_token id,
-	u_int8_t *data,
-	u_int32_t length,
-	u_int8_t *bct)
+	uint8_t *data,
+	uint32_t length,
+	uint8_t *bct)
 {
 	nvboot_config_table *bct_ptr = (nvboot_config_table *)bct;
 
@@ -1107,9 +1107,9 @@ int t132_get_bct_size()
 
 int
 t132_set_mts_info(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t value)
+		uint32_t value)
 {
 	nvboot_mts_info *mts_info;
 	nvboot_config_table *bct = NULL;
@@ -1135,9 +1135,9 @@ t132_set_mts_info(build_image_context *context,
 
 int
 t132_get_mts_info(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t *value)
+		uint32_t *value)
 {
 	nvboot_mts_info *mts_info;
 	nvboot_config_table *bct = NULL;
@@ -1174,7 +1174,7 @@ int t132_bct_token_supported(parse_token token)
 
 void t132_init_bad_block_table(build_image_context *context)
 {
-	u_int32_t bytes_per_entry;
+	uint32_t bytes_per_entry;
 	nvboot_badblock_table *table;
 	nvboot_config_table *bct;
 

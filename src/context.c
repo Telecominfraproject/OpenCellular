@@ -31,7 +31,7 @@ cleanup_context(build_image_context *context)
 int
 init_context(build_image_context *context)
 {
-	u_int32_t value;
+	uint32_t value;
 
 	/* Set defaults */
 	context->memory = new_block_list();

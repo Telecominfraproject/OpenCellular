@@ -967,21 +967,21 @@ typedef int (*process_function)(build_image_context *context,
 				char *remainder);
 
 typedef int (*process_subfield_function)(build_image_context *context,
-					u_int32_t index,
+					uint32_t index,
 					parse_token token,
-					u_int32_t value);
+					uint32_t value);
 
 
 typedef struct
 {
 	char *name;
-	u_int32_t value;
+	uint32_t value;
 } enum_item;
 
 typedef struct
 {
 	char *name;
-	u_int32_t token;
+	uint32_t token;
 	field_type type;
 	enum_item *enum_table;
 } field_item;
@@ -1017,9 +1017,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and -ENODATA for success and failure
 	 */
 	int (*set_dev_param)(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t value);
+			uint32_t value);
 	/*
 	 * Get the specified device parameters from bct data stored
 	 * in context.
@@ -1031,9 +1031,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and -ENODATA for success and failure
 	 */
 	int (*get_dev_param)(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t *value);
+			uint32_t *value);
 	/*
 	 * Set sdram parameters in bct according to the value listed
 	 * in config file.
@@ -1045,9 +1045,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and 1 for success and failure
 	 */
 	int (*set_sdram_param)(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t value);
+			uint32_t value);
 	/*
 	 * Get the specified sdram parameters from bct data stored
 	 * in context.
@@ -1059,9 +1059,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and 1 for success and failure
 	 */
 	int (*get_sdram_param)(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t *value);
+			uint32_t *value);
 	/*
 	 * Set bootloader parameters in bct according to the value listed
 	 * in config file.
@@ -1072,10 +1072,10 @@ typedef struct cbootimage_soc_config_rec {
 	 * @param bct 	Bct pointer
 	 * @return 0 and -ENODATA for success and failure
 	 */
-	int (*setbl_param)(u_int32_t set,
+	int (*setbl_param)(uint32_t set,
 			parse_token id,
-			u_int32_t *data,
-			u_int8_t *bct);
+			uint32_t *data,
+			uint8_t *bct);
 	/*
 	 * Get the specified bootloader parameters from bct data stored
 	 * in context.
@@ -1086,10 +1086,10 @@ typedef struct cbootimage_soc_config_rec {
 	 * @param bct 	Bct pointer
 	 * @return 0 and -ENODATA for success and failure
 	 */
-	int (*getbl_param)(u_int32_t set,
+	int (*getbl_param)(uint32_t set,
 			parse_token id,
-			u_int32_t *data,
-			u_int8_t *bct);
+			uint32_t *data,
+			uint8_t *bct);
 	/*
 	 * Set the specified bct value stored in context bct data structure.
 	 *
@@ -1100,7 +1100,7 @@ typedef struct cbootimage_soc_config_rec {
 	 */
 	int (*set_value)(parse_token id,
 			void *data,
-			u_int8_t *bct);
+			uint8_t *bct);
 	/*
 	 * Get the specified bct value or some constant value of clocks and
 	 * hw type.
@@ -1112,7 +1112,7 @@ typedef struct cbootimage_soc_config_rec {
 	 */
 	int (*get_value)(parse_token id,
 			void *data,
-			u_int8_t *bct);
+			uint8_t *bct);
 	/*
 	 * Get the size of specified bct field
 	 *
@@ -1131,9 +1131,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and -ENODATA for success and failure
 	 */
 	int (*set_data)(parse_token id,
-			u_int8_t *data,
-			u_int32_t  length,
-			u_int8_t *bct);
+			uint8_t *data,
+			uint32_t  length,
+			uint8_t *bct);
 
 	/*
 	 * Get the BCT structure size
@@ -1153,9 +1153,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and 1 for success and failure
 	 */
 	int (*set_mts_info)(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t value);
+			uint32_t value);
 	/*
 	 * Get the specified MTS information from bct data stored
 	 * in context.
@@ -1167,9 +1167,9 @@ typedef struct cbootimage_soc_config_rec {
 	 * @return 0 and 1 for success and failure
 	 */
 	int (*get_mts_info)(build_image_context *context,
-			u_int32_t index,
+			uint32_t index,
 			parse_token token,
-			u_int32_t *value);
+			uint32_t *value);
 
 	/*
 	 * Check if the token is supported to dump
@@ -1192,7 +1192,7 @@ typedef struct cbootimage_soc_config_rec {
 	parse_subfield_item *device_type_table;
 } cbootimage_soc_config;
 
-void process_config_file(build_image_context *context, u_int8_t simple_parse);
+void process_config_file(build_image_context *context, uint8_t simple_parse);
 
 void t210_get_soc_config(build_image_context *context,
 	cbootimage_soc_config **soc_config);
@@ -1222,132 +1222,132 @@ int if_bct_is_t20_get_soc_config(build_image_context *context,
 
 int
 t132_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t132_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t132_get_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t132_set_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 
 int
 t210_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t210_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t210_get_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t210_set_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 
 int
 t124_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t124_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t124_get_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t124_set_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t114_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t114_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t114_get_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t114_set_sdram_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t30_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t30_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 int
 t30_get_sdram_param(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t *value);
+		uint32_t *value);
 int
 t30_set_sdram_param(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t value);
+		uint32_t value);
 int
 t20_get_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t *value);
+	uint32_t *value);
 int
 t20_set_dev_param(build_image_context *context,
-	u_int32_t index,
+	uint32_t index,
 	parse_token token,
-	u_int32_t value);
+	uint32_t value);
 
 int
 t20_get_sdram_param(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t *value);
+		uint32_t *value);
 int
 t20_set_sdram_param(build_image_context *context,
-		u_int32_t index,
+		uint32_t index,
 		parse_token token,
-		u_int32_t value);
+		uint32_t value);
 
-u_int32_t iceil_log2(u_int32_t a, u_int32_t b);
+uint32_t iceil_log2(uint32_t a, uint32_t b);
 
 /* Returns the smallest power of 2 >= a */
-u_int32_t ceil_log2(u_int32_t a);
+uint32_t ceil_log2(uint32_t a);
 
 extern cbootimage_soc_config *g_soc_config;
 

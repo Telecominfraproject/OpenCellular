@@ -46,11 +46,11 @@ REDISTRIBUTION OF THIS SOFTWARE.
 
 #include "nvaes_ref.h"
 
-static void shift_rows(u_int8_t *state);
-static void mix_sub_columns(u_int8_t *state);
-static void add_round_key(u_int32_t *state, u_int32_t *key);
+static void shift_rows(uint8_t *state);
+static void mix_sub_columns(uint8_t *state);
+static void add_round_key(uint32_t *state, uint32_t *key);
 
-static u_int8_t s_Sbox[256] =
+static uint8_t s_Sbox[256] =
 {	/* forward s-box */
 	0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,
 	0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -87,7 +87,7 @@ static u_int8_t s_Sbox[256] =
 };
 
 /* combined Xtimes2[Sbox[]] */
-static u_int8_t s_Xtime2Sbox[256] =
+static uint8_t s_Xtime2Sbox[256] =
 {
 	0xc6, 0xf8, 0xee, 0xf6, 0xff, 0xd6, 0xde, 0x91,
 	0x60, 0x02, 0xce, 0x56, 0xe7, 0xb5, 0x4d, 0xec,
@@ -124,7 +124,7 @@ static u_int8_t s_Xtime2Sbox[256] =
 };
 
 /* combined Xtimes3[Sbox[]] */
-static u_int8_t s_Xtime3Sbox[256] =
+static uint8_t s_Xtime3Sbox[256] =
 {
 	0xa5, 0x84, 0x99, 0x8d, 0x0d, 0xbd, 0xb1, 0x54,
 	0x50, 0x03, 0xa9, 0x7d, 0x19, 0x62, 0xe6, 0x9a,
@@ -165,9 +165,9 @@ static u_int8_t s_Xtime3Sbox[256] =
  * row2 - shifted left 2 and row3 - shifted left 3
  */
 static void
-shift_rows(u_int8_t *state)
+shift_rows(uint8_t *state)
 {
-	u_int8_t tmp;
+	uint8_t tmp;
 
 	/* just substitute row 0 */
 	state[ 0] = s_Sbox[state[ 0]];
@@ -200,9 +200,9 @@ shift_rows(u_int8_t *state)
 
 /* recombine and mix each row in a column */
 static void
-mix_sub_columns(u_int8_t *state)
+mix_sub_columns(uint8_t *state)
 {
-	u_int8_t tmp[4 * NVAES_STATECOLS];
+	uint8_t tmp[4 * NVAES_STATECOLS];
 
 	/* mixing column 0 */
 	tmp[ 0] = s_Xtime2Sbox[state[ 0]] ^ s_Xtime3Sbox[state[ 5]] ^
@@ -253,7 +253,7 @@ mix_sub_columns(u_int8_t *state)
  */
 
 static void
-add_round_key(u_int32_t *state, u_int32_t *key)
+add_round_key(uint32_t *state, uint32_t *key)
 {
 	int idx;
 
@@ -261,17 +261,17 @@ add_round_key(u_int32_t *state, u_int32_t *key)
 		state[idx] ^= key[idx];
 }
 
-static u_int8_t s_Rcon[11] =
+static uint8_t s_Rcon[11] =
 {
 	0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
 };
 
 /* produce NVAES_STATECOLS bytes for each round */
 void
-nv_aes_expand_key(u_int8_t *key, u_int8_t *expkey)
+nv_aes_expand_key(uint8_t *key, uint8_t *expkey)
 {
-	u_int8_t  tmp0, tmp1, tmp2, tmp3, tmp4;
-	u_int32_t idx;
+	uint8_t  tmp0, tmp1, tmp2, tmp3, tmp4;
+	uint32_t idx;
 
 	memcpy(expkey, key, NVAES_KEYCOLS * 4);
 
@@ -304,13 +304,13 @@ nv_aes_expand_key(u_int8_t *key, u_int8_t *expkey)
 
 /* encrypt one 128 bit block */
 void
-nv_aes_encrypt(u_int8_t *in, u_int8_t *expkey, u_int8_t *out)
+nv_aes_encrypt(uint8_t *in, uint8_t *expkey, uint8_t *out)
 {
-	u_int8_t  state[NVAES_STATECOLS * 4];
-	u_int32_t round;
+	uint8_t  state[NVAES_STATECOLS * 4];
+	uint32_t round;
 
 	memcpy(state, in, NVAES_STATECOLS * 4);
-	add_round_key((u_int32_t *)state, (u_int32_t *)expkey);
+	add_round_key((uint32_t *)state, (uint32_t *)expkey);
 
 	for (round = 1; round < NVAES_ROUNDS + 1; round++) {
 		if (round < NVAES_ROUNDS)
@@ -318,7 +318,7 @@ nv_aes_encrypt(u_int8_t *in, u_int8_t *expkey, u_int8_t *out)
 		else
 			shift_rows (state);
 
-		add_round_key((u_int32_t *)state, (u_int32_t *)expkey +
+		add_round_key((uint32_t *)state, (uint32_t *)expkey +
 					round * NVAES_STATECOLS);
 	}
 

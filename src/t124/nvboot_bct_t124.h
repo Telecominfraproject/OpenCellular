@@ -110,7 +110,7 @@ enum {NVBOOT_CMAC_AES_HASH_LENGTH = 4};
  * Defines the storage for a hash value (128 bits).
  */
 typedef struct nvboot_hash_rec {
-	u_int32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
+	uint32_t hash[NVBOOT_CMAC_AES_HASH_LENGTH];
 } nvboot_hash;
 
 /*
@@ -119,7 +119,7 @@ typedef struct nvboot_hash_rec {
  */
 typedef struct nvboot_rsa_key_modulus_rec {
 	/* The modulus size is 2048-bits. */
-	u_int32_t modulus[NVBOOT_SE_RSA_MODULUS_LENGTH_BITS / 8 / 4];
+	uint32_t modulus[NVBOOT_SE_RSA_MODULUS_LENGTH_BITS / 8 / 4];
 } nvboot_rsa_key_modulus;
 
 typedef struct nvboot_rsa_pss_sig_rec {
@@ -128,7 +128,7 @@ typedef struct nvboot_rsa_pss_sig_rec {
 	 * length in octets of the RSA modulus.
 	 * In our case, it's 2048-bits.
 	 */
-	u_int32_t signature[NVBOOT_SE_RSA_MODULUS_LENGTH_BITS / 8 / 4];
+	uint32_t signature[NVBOOT_SE_RSA_MODULUS_LENGTH_BITS / 8 / 4];
 } nvboot_rsa_pss_sig;
 
 typedef struct nvboot_object_signature_rec {
@@ -146,10 +146,10 @@ typedef struct nvboot_object_signature_rec {
 } nvboot_object_signature;
 
 typedef struct nvboot_ecid_rec {
-	u_int32_t	ecid_0;
-	u_int32_t	ecid_1;
-	u_int32_t	ecid_2;
-	u_int32_t	ecid_3;
+	uint32_t	ecid_0;
+	uint32_t	ecid_1;
+	uint32_t	ecid_2;
+	uint32_t	ecid_3;
 } nvboot_ecid;
 
 /* Defines various data widths supported. */
@@ -186,7 +186,7 @@ typedef struct nvboot_sdmmc_params_rec {
 	 * which is PLLP running at 216MHz.  If it is set to 9, then the SDMMC
 	 * controller runs at 216/9 = 24MHz.
 	 */
-	u_int8_t clock_divider;
+	uint8_t clock_divider;
 
 	/* Specifies the data bus width. Supported data widths are 4/8 bits. */
 	nvboot_sdmmc_data_width data_width;
@@ -197,10 +197,10 @@ typedef struct nvboot_sdmmc_params_rec {
 	 * supported within the power class range (0 to Max) if the selected
 	 * data width cannot be used at the chosen clock frequency.
 	 */
-	u_int8_t max_power_class_supported;
+	uint8_t max_power_class_supported;
 
 	/* Specifies the max page size supported by driver */
-	u_int8_t multi_page_support;
+	uint8_t multi_page_support;
 } nvboot_sdmmc_params;
 
 typedef enum {
@@ -221,7 +221,7 @@ typedef struct nvboot_spiflash_params_rec {
 	/**
 	 * Specifies the clock source to use.
 	 */
-	u_int32_t clock_source;
+	uint32_t clock_source;
 
 	/**
 	 * Specifes the clock divider to use.
@@ -233,24 +233,24 @@ typedef struct nvboot_spiflash_params_rec {
 	 *     FAST_READ   at 40MHz: 11
 	 *     FAST_READ   at 50MHz:  9
 	 */
-	u_int8_t clock_divider;
+	uint8_t clock_divider;
 
 	/**
 	 * Specifies the type of command for read operations.
 	 * NV_FALSE specifies a NORMAL_READ Command
 	 * NV_TRUE  specifies a FAST_READ   Command
 	 */
-	u_int8_t read_command_type_fast;
+	uint8_t read_command_type_fast;
 
 	/* 0 = 2k page size, 1 = 16K page size */
-	u_int8_t page_size_2k_or_16k;
+	uint8_t page_size_2k_or_16k;
 } nvboot_spiflash_params;
 
 /**
 * Defines the union of the parameters required by each device.
 */
 typedef union {
-	u_int8_t size[64];
+	uint8_t size[64];
 	/* Specifies optimized parameters for eMMC and eSD */
 	nvboot_sdmmc_params sdmmc_params;
 	/* Specifies optimized parameters for SPI NOR */
@@ -286,13 +286,13 @@ typedef enum {
  * the device.
  */
 typedef struct nv_bootloader_info_rec {
-	u_int32_t version;
-	u_int32_t start_blk;
-	u_int32_t start_page;
-	u_int32_t length;
-	u_int32_t load_addr;
-	u_int32_t entry_point;
-	u_int32_t attribute;
+	uint32_t version;
+	uint32_t start_blk;
+	uint32_t start_page;
+	uint32_t length;
+	uint32_t load_addr;
+	uint32_t entry_point;
+	uint32_t attribute;
 
 	/* Specifies the AES-CMAC MAC or RSASSA-PSS signature of the BL. */
 	nvboot_object_signature signature;
@@ -302,15 +302,15 @@ typedef struct nv_bootloader_info_rec {
  * Defines the bad block table structure stored in the BCT.
  */
 typedef struct nvboot_badblock_table_rec {
-	u_int32_t entries_used;
-	u_int8_t virtual_blk_size_log2;
-	u_int8_t block_size_log2;
-	u_int8_t bad_blks[NVBOOT_BAD_BLOCK_TABLE_SIZE / 8];
+	uint32_t entries_used;
+	uint8_t virtual_blk_size_log2;
+	uint8_t block_size_log2;
+	uint8_t bad_blks[NVBOOT_BAD_BLOCK_TABLE_SIZE / 8];
 	/*
 	 * Add a reserved field as padding to make the bad block table structure
 	 * a multiple of 16 bytes (AES block size).
 	 */
-	u_int8_t reserved[NVBOOT_BAD_BLOCK_TABLE_PADDING];
+	uint8_t reserved[NVBOOT_BAD_BLOCK_TABLE_PADDING];
 } nvboot_badblock_table;
 
 /**
@@ -325,27 +325,27 @@ typedef struct nvboot_config_table_rec {
 	nvboot_badblock_table badblock_table;
 	nvboot_rsa_key_modulus key;
 	nvboot_object_signature signature;
-	u_int8_t customer_data[NVBOOT_BCT_CUSTOMER_DATA_SIZE];
-	u_int32_t odm_data;
-	u_int32_t reserved1;
+	uint8_t customer_data[NVBOOT_BCT_CUSTOMER_DATA_SIZE];
+	uint32_t odm_data;
+	uint32_t reserved1;
 
 	/* START OF SIGNED SECTION OF THE BCT */
 	nvboot_hash random_aes_blk;
 	nvboot_ecid unique_chip_id;
-	u_int32_t boot_data_version;
-	u_int32_t block_size_log2;
-	u_int32_t page_size_log2;
-	u_int32_t partition_size;
-	u_int32_t num_param_sets;
+	uint32_t boot_data_version;
+	uint32_t block_size_log2;
+	uint32_t page_size_log2;
+	uint32_t partition_size;
+	uint32_t num_param_sets;
 	nvboot_dev_type dev_type[NVBOOT_BCT_MAX_PARAM_SETS];
 	nvboot_dev_params dev_params[NVBOOT_BCT_MAX_PARAM_SETS];
-	u_int32_t num_sdram_sets;
+	uint32_t num_sdram_sets;
 	nvboot_sdram_params sdram_params[NVBOOT_BCT_MAX_SDRAM_SETS];
 
-	u_int32_t bootloader_used;
+	uint32_t bootloader_used;
 	nv_bootloader_info bootloader[NVBOOT_MAX_BOOTLOADERS];
 
-	u_int8_t enable_fail_back;
+	uint8_t enable_fail_back;
 
 	/*
 	 * Specify whether or not to enable JTAG access when the JTAG disable fuse
@@ -353,7 +353,7 @@ typedef struct nvboot_config_table_rec {
 	 * SecureJtagControl = NV_FALSE (0) = Disable JTAG access.
 	 * SecureJtagControl = NV_TRUE (1) = Enable JTAG access.
 	 */
-	u_int8_t secure_jtag_control;
-	u_int8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
+	uint8_t secure_jtag_control;
+	uint8_t reserved[NVBOOT_BCT_RESERVED_SIZE];
 } nvboot_config_table;
 #endif /* #ifndef INCLUDED_NVBOOT_BCT_T124_H */
