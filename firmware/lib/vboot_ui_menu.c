@@ -147,7 +147,6 @@ int VbUserConfirmsMenu(struct vb2_context *ctx, VbCommonParams *cparams,
 					return 1;
 				}
 			}
-			VbCheckDisplayKey(ctx, cparams, key);
 		}
 		VbExSleepMs(CONFIRM_KEY_DELAY);
 	}
@@ -836,7 +835,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		default:
 			VB2_DEBUG("pressed key %d\n", key);
-			VbCheckDisplayKey(ctx, cparams, key);
 			break;
 		}
 	} while(VbAudioLooping(audio));
