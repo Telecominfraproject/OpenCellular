@@ -666,10 +666,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		case 0:
 			/* Nothing pressed */
 			break;
-		case '\r':
-			/* Only disable virtual dev switch if allowed by GBB */
-			if (!(gbb->flags & GBB_FLAG_ENTER_TRIGGERS_TONORM))
-				break;
 		case 0x04:
 			/* Ctrl+D = dismiss warning; advance to timeout */
 			VB2_DEBUG("user pressed Ctrl+D; skip delay\n");
@@ -732,7 +728,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			vb2_print_current_menu();
 			break;
 		case VB_BUTTON_POWER:
-		case VB_KEY_RIGHT:
+		case '\r':
 			selected = 1;
 
 			ret = vb2_update_menu();
@@ -979,7 +975,6 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				break;
 			case VB_BUTTON_VOL_UP:
 			case VB_KEY_UP:
-				VB2_DEBUG("pressed key VB_KEY_UP\n");
 				vb2_get_current_menu_size(current_menu, NULL, &menu_size);
 				if (current_menu_idx > 0)
 					current_menu_idx--;
@@ -987,15 +982,13 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				break;
 			case VB_BUTTON_VOL_DOWN:
 			case VB_KEY_DOWN:
-				VB2_DEBUG("pressed key VB_KEY_DOWN\n");
 				vb2_get_current_menu_size(current_menu, NULL, &menu_size);
 				if (current_menu_idx < menu_size-1)
 					current_menu_idx++;
 				vb2_print_current_menu();
 				break;
 			case VB_BUTTON_POWER:
-			case VB_KEY_RIGHT:
-				VB2_DEBUG("pressed key VB_KEY_RIGHT (SELECT)\n");
+			case '\r':
 				selected = 1;
 
 				ret = vb2_update_menu();
