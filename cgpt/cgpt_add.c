@@ -138,10 +138,8 @@ static int CgptCheckAddValidity(struct drive *drive) {
     return -1;
   }
 
-  if (((drive->gpt.valid_headers & MASK_BOTH) != MASK_BOTH) ||
-      ((drive->gpt.valid_entries & MASK_BOTH) != MASK_BOTH)) {
-    Error("one of the GPT header/entries is invalid.\n"
-          "please run 'cgpt repair' before adding anything.\n");
+  if (CGPT_OK != CheckValid(drive)) {
+    Error("please run 'cgpt repair' before adding anything.\n");
     return -1;
   }
 

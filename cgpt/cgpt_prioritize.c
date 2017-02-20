@@ -116,6 +116,11 @@ int CgptPrioritize(CgptPrioritizeParams *params) {
     return CGPT_FAILED;
   }
 
+  if (CGPT_OK != CheckValid(&drive)) {
+    Error("please run 'cgpt repair' before reordering the priority.\n");
+    return CGPT_OK;
+  }
+
   max_part = GetNumberOfEntries(&drive);
 
   if (params->set_partition) {
