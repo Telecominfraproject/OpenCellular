@@ -12,8 +12,7 @@ cd "$OUTDIR"
 DATADIR="${SCRIPTDIR}/data"
 TESTKEYS=${SRCDIR}/tests/testkeys
 
-# Do not test 8192 as the signature length is > 1024 bytes
-SIGS="1024 2048 4096 2048_exp3"
+SIGS="1024 2048 2048_exp3 4096 8192"
 HASHES="SHA1 SHA256 SHA512"
 
 set -o pipefail
@@ -24,20 +23,29 @@ for s in $SIGS; do
     for h in $HASHES; do
         pemfile=${TESTKEYS}/key_rsa${s}.pem
         outfile=${TMP}.${s}_${h}.new
-        infile=${DATADIR}/random_noise.bin
+        infile=${DATADIR}/hammer_dev.bin
         outkeys=${TMP}.${s}_${h}
-        outsig=${TMP}.${s}_${h}.signature
+        outfile=${TMP}.${s}_${h}.bin
 
         ${FUTILITY} create --desc "Test key" --hash_alg ${h} \
                     ${pemfile} ${outkeys}
 
+        # The input file should be correctly signed to start with
+        ${FUTILITY} show --type rwsig ${infile}
+
+        # Using the wrong key to verify it should fail
+        if ${FUTILITY} show --type rwsig --pubkey ${outkeys}.vbpubk2 \
+                       ${infile}; then
+            exit 1
+        fi
+
+        cp ${infile} ${outfile}
+
         ${FUTILITY} sign --type rwsig --prikey ${outkeys}.vbprik2 \
-                ${infile} ${outsig}
-        dd if=/dev/zero bs=$((4096 + 1024)) count=1 of=${outfile}
-        dd if=${infile} of=${outfile} conv=notrunc
-        dd if=${outsig} of=${outfile} bs=4096 seek=1 conv=notrunc
+                --version 2 ${outfile}
 
         ${FUTILITY} show --type rwsig --pubkey ${outkeys}.vbpubk2 ${outfile}
+        ${FUTILITY} show --type rwsig ${outfile}
     done
 done
 
