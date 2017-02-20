@@ -177,6 +177,7 @@ static int do_search(CgptFindParams *params, char *fileName) {
 #define PROC_PARTITIONS "/proc/partitions"
 #define DEV_DIR "/dev"
 #define SYS_BLOCK_DIR "/sys/block"
+#define MAX_PARTITION_NAME_LEN 128
 
 static const char *devdirs[] = { "/dev", "/devices", "/devfs", 0 };
 
@@ -219,7 +220,8 @@ static char *is_wholedev(const char *basename) {
 // returns true if any matches were found, false otherwise.
 static int scan_real_devs(CgptFindParams *params) {
   int found = 0;
-  char partname[128];                   // max size for /proc/partition lines?
+  char partname[MAX_PARTITION_NAME_LEN];
+  char partname_prev[MAX_PARTITION_NAME_LEN];
   FILE *fp;
   char *pathname;
 
@@ -231,6 +233,7 @@ static int scan_real_devs(CgptFindParams *params) {
 
   size_t line_length = 0;
   char *line = NULL;
+  partname_prev[0] = '\0';
   while (getline(&line, &line_length, fp) != -1) {
     int ma, mi;
     long long unsigned int sz;
@@ -238,11 +241,19 @@ static int scan_real_devs(CgptFindParams *params) {
     if (sscanf(line, " %d %d %llu %127[^\n ]", &ma, &mi, &sz, partname) != 4)
       continue;
 
-    if ((pathname = is_wholedev(partname))) {
-      if (do_search(params, pathname)) {
-        found++;
+    /* Only check devices that have partitions under them.
+     * We can tell by checking that an entry like "sda" is immediately
+     * followed by one like "sda0". */
+    if (!strncmp(partname_prev, partname, strlen(partname_prev)) &&
+        strlen(partname_prev)) {
+      if ((pathname = is_wholedev(partname_prev))) {
+        if (do_search(params, pathname)) {
+          found++;
+        }
       }
     }
+
+    strcpy(partname_prev, partname);
   }
 
   fclose(fp);
