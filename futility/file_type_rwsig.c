@@ -212,8 +212,6 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *data)
 done:
 	if (sig)
 		free(sig);
-	if (sign_option.prikey)
-		vb2_private_key_free(sign_option.prikey);
 
 	return retval;
 }

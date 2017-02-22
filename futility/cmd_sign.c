@@ -1051,6 +1051,8 @@ done:
 		free(sign_option.keyblock);
 	if (sign_option.kernel_subkey)
 		free(sign_option.kernel_subkey);
+	if (sign_option.prikey)
+		vb2_private_key_free(sign_option.prikey);
 
 	if (errorcnt)
 		fprintf(stderr, "Use --help for usage instructions\n");
