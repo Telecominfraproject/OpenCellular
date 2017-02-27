@@ -777,6 +777,11 @@ VbError_t VbExDisplayBacklight(uint8_t enable);
 VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height);
 
 /**
+ * Returns the logical dimension to display.
+ */
+VbError_t VbExDisplayGetDimension(uint32_t *width, uint32_t *height);
+
+/**
  * Display a predefined screen; see VB_SCREEN_* for valid screens.
  *
  * This is a backup method of screen display, intended for use if the GBB does

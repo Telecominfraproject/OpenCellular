@@ -41,6 +41,11 @@ VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height)
 	return VBERROR_SUCCESS;
 }
 
+VbError_t VbExDisplayGetDimension(uint32_t *width, uint32_t *height)
+{
+	return VBERROR_SUCCESS;
+}
+
 VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale)
 {
 	return VBERROR_SUCCESS;
