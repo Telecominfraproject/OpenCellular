@@ -332,11 +332,15 @@ VbError_t vb2_print_current_menu()
 	static char **m = NULL;
 	int highlight = 0;
 	// TODO: We probably want to center this text.
-	int xindex = 50;
-	int yindex = 30;
+	uint32_t xindex, yindex;
 
 	// TODO: need to check for error code.
 	vb2_get_current_menu_size(current_menu, &m, &size);
+
+	/* Center block of text */
+	VbExDisplayGetDimension(&xindex, &yindex);
+	xindex = xindex/2 - strlen(m[0])/2;
+	yindex = yindex/2 - size/2;
 
 	// TODO: do clear screen here.
 	/* Create menu string */
