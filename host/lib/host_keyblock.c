@@ -95,7 +95,7 @@ struct vb2_keyblock *vb2_create_keyblock_external(
 		return NULL;
 
 	uint32_t signed_size = sizeof(struct vb2_keyblock) + data_key->key_size;
-	uint32_t sig_data_size = vb2_rsa_sig_size(algorithm);
+	uint32_t sig_data_size = vb2_rsa_sig_size(vb2_crypto_to_signature(algorithm));
 	uint32_t block_size =
 		signed_size + VB2_SHA512_DIGEST_SIZE + sig_data_size;
 
@@ -135,6 +135,7 @@ struct vb2_keyblock *vb2_create_keyblock_external(
 		vb2_external_signature((uint8_t*)h, signed_size,
 				       signing_key_pem_file, algorithm,
 				       external_signer);
+	vb2_copy_signature(&h->keyblock_signature, sigtmp);
 	free(sigtmp);
 
 	/* Return the header */
