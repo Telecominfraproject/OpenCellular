@@ -28,7 +28,7 @@ COL_BLUE='\E[34;1m'
 COL_STOP='\E[0;m'
 
 hash_algos=( sha1 sha256 sha512 )
-key_lengths=( 1024 2048 4096 8192 2048_exp3 )
+key_lengths=( 1024 2048 4096 8192 2048_exp3 3072_exp3 )
 
 function happy {
   echo -e "${COL_GREEN}$*${COL_STOP}" 1>&2

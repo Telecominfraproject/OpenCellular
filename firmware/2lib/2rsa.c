@@ -197,6 +197,9 @@ static const uint8_t crypto_to_sig[] = {
 	VB2_SIG_RSA2048_EXP3,
 	VB2_SIG_RSA2048_EXP3,
 	VB2_SIG_RSA2048_EXP3,
+	VB2_SIG_RSA3072_EXP3,
+	VB2_SIG_RSA3072_EXP3,
+	VB2_SIG_RSA3072_EXP3,
 };
 
 /**
@@ -224,6 +227,8 @@ uint32_t vb2_rsa_sig_size(enum vb2_signature_algorithm sig_alg)
 	case VB2_SIG_RSA2048:
 	case VB2_SIG_RSA2048_EXP3:
 		return 2048 / 8;
+	case VB2_SIG_RSA3072_EXP3:
+		return 3072 / 8;
 	case VB2_SIG_RSA4096:
 		return 4096 / 8;
 	case VB2_SIG_RSA8192:
@@ -248,6 +253,7 @@ static uint32_t vb2_rsa_exponent(enum vb2_signature_algorithm sig_alg)
 	case VB2_SIG_RSA8192:
 		return 65537;
 	case VB2_SIG_RSA2048_EXP3:
+	case VB2_SIG_RSA3072_EXP3:
 		return 3;
 	default:
 		return 0;

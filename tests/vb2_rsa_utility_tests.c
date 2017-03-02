@@ -61,6 +61,10 @@ static void test_utils(void)
 		"Sig size RSA4096");
 	TEST_EQ(vb2_rsa_sig_size(VB2_SIG_RSA8192), RSA8192NUMBYTES,
 		"Sig size RSA8192");
+	TEST_EQ(vb2_rsa_sig_size(VB2_SIG_RSA2048_EXP3), RSA2048NUMBYTES,
+		"Sig size RSA2048_EXP3");
+	TEST_EQ(vb2_rsa_sig_size(VB2_SIG_RSA3072_EXP3), RSA3072NUMBYTES,
+		"Sig size RSA3072_EXP3");
 	TEST_EQ(vb2_rsa_sig_size(VB2_SIG_INVALID), 0,
 		"Sig size invalid algorithm");
 	TEST_EQ(vb2_rsa_sig_size(VB2_SIG_NONE), 0,
@@ -79,6 +83,12 @@ static void test_utils(void)
 	TEST_EQ(vb2_packed_key_size(VB2_SIG_RSA8192),
 		RSA8192NUMBYTES * 2 + sizeof(uint32_t) * 2,
 		"Packed key size VB2_SIG_RSA8192");
+	TEST_EQ(vb2_packed_key_size(VB2_SIG_RSA2048_EXP3),
+		RSA2048NUMBYTES * 2 + sizeof(uint32_t) * 2,
+		"Packed key size VB2_SIG_RSA2048_EXP3");
+	TEST_EQ(vb2_packed_key_size(VB2_SIG_RSA3072_EXP3),
+		RSA3072NUMBYTES * 2 + sizeof(uint32_t) * 2,
+		"Packed key size VB2_SIG_RSA3072_EXP3");
 	TEST_EQ(vb2_packed_key_size(VB2_SIG_INVALID), 0,
 		"Packed key size invalid algorithm");
 	TEST_EQ(vb2_packed_key_size(VB2_SIG_NONE), 0,

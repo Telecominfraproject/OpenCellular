@@ -14,6 +14,7 @@
 
 #define RSA1024NUMBYTES 128  /* 1024 bit key length */
 #define RSA2048NUMBYTES 256  /* 2048 bit key length */
+#define RSA3072NUMBYTES 384  /* 3072 bit key length */
 #define RSA4096NUMBYTES 512  /* 4096 bit key length */
 #define RSA8192NUMBYTES 1024  /* 8192 bit key length */
 

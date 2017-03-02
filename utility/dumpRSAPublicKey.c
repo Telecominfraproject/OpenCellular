@@ -29,7 +29,7 @@ int check(RSA* key) {
             public_exponent);
   }
 
-  if (modulus != 1024 && modulus != 2048 && modulus != 4096
+  if (modulus != 1024 && modulus != 2048 && modulus != 3072 && modulus != 4096
       && modulus != 8192) {
     fprintf(stderr, "ERROR: Unknown modulus length = %d.\n", modulus);
     return 0;

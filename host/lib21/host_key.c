@@ -24,6 +24,7 @@ const struct vb2_text_vs_enum vb2_text_vs_sig[] = {
 	{"RSA4096", VB2_SIG_RSA4096},
 	{"RSA8192", VB2_SIG_RSA8192},
 	{"RSA2048EXP3", VB2_SIG_RSA2048_EXP3},
+	{"RSA3072EXP3", VB2_SIG_RSA3072_EXP3},
 	{0, 0}
 };
 
@@ -572,6 +573,8 @@ enum vb2_signature_algorithm vb2_rsa_sig_alg(struct rsa_st *rsa)
 		switch (bits) {
 		case 2048:
 			return VB2_SIG_RSA2048_EXP3;
+		case 3072:
+			return VB2_SIG_RSA3072_EXP3;
 		}
 		break;
 	case RSA_F4:

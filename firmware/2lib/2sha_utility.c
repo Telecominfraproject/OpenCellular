@@ -43,6 +43,9 @@ static const uint8_t crypto_to_hash[] = {
 	CTH_SHA1,
 	CTH_SHA256,
 	CTH_SHA512,
+	CTH_SHA1,
+	CTH_SHA256,
+	CTH_SHA512,
 };
 
 enum vb2_hash_algorithm vb2_crypto_to_hash(uint32_t algorithm)
