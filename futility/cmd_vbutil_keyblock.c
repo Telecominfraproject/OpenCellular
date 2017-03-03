@@ -175,11 +175,18 @@ static int Unpack(const char *infile, const char *datapubkey,
 		return 1;
 	}
 
-	/* If the block is signed, then verify it with the signing public key,
-	 * since vb2_read_keyblock() only verified the hash. */
-	if (block->keyblock_signature.sig_size && signpubkey) {
+	/* If the signing public key is provided, then verify the block
+	 * signature, since vb2_read_keyblock() only verified the hash. */
+	if (signpubkey) {
 		static uint8_t workbuf[VB2_WORKBUF_RECOMMENDED_SIZE];
 		static struct vb2_workbuf wb;
+
+		if (block->keyblock_signature.sig_size == 0) {
+			fprintf(stderr,
+				"vbutil_keyblock: signpubkey provided but keyblock is not signed.\n");
+			return 1;
+		}
+
 		vb2_workbuf_init(&wb, workbuf, sizeof(workbuf));
 
 		sign_key = vb2_read_packed_key(signpubkey);
