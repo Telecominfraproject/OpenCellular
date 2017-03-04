@@ -28,13 +28,15 @@ include $(libhw-dir)/Makefile.proof
 CC       = $(CROSS_COMPILE)gcc
 GNATBIND = $(CROSS_COMPILE)gnatbind
 
+CFLAGS += -Wuninitialized -Wall -Werror
+CFLAGS += -pipe -g
+CFLAGS += -Wstrict-aliasing -Wshadow
+CFLAGS += -fno-common -fomit-frame-pointer
+CFLAGS += -ffunction-sections -fdata-sections
+
 ADAFLAGS += -gnatA -gnatec=$(libhw-dir)/gnat.adc
 ADAFLAGS += -gnatg -gnatp
-ADAFLAGS += -Wuninitialized -Wall -Werror
-ADAFLAGS += -pipe -g
-ADAFLAGS += -Wstrict-aliasing -Wshadow
-ADAFLAGS += -fno-common -fomit-frame-pointer
-ADAFLAGS += -ffunction-sections -fdata-sections
+ADAFLAGS += $(CFLAGS)
 # Ada warning options:
 #
 #  a   Activate most optional warnings.
@@ -97,9 +99,10 @@ $(foreach dep,$($(name)-deplibs), \
 src-to-obj = \
 	$(addprefix $(obj)/,\
 	$(patsubst $(obj)/%,%, \
+	$(patsubst %.c,%.o,\
 	$(patsubst %.ads,%.o,\
 	$(patsubst %.adb,%.o,\
-	$(2)))))
+	$(2))))))
 
 # Converts one or more source file paths to the corresponding build/ paths
 # of their Ada library information (.ali) files.
@@ -194,7 +197,7 @@ add_ada_deps = \
 	$(call src-to-obj,,$(1)): $(1) \
 		$(call create_ada_deps,$(call src-to-ali,,$(1)))
 
-# Writes a compilation rule for a source type
+# Writes a compilation rule for Ada sources
 # $1 source type (ads, adb)
 # $2 source files (including the colon)
 # $3 obj path prefix (including the trailing slash)
@@ -234,6 +237,11 @@ $(obj)/b__lib$(name).adb: $($(name)-alis)
 			$(patsubst /%,%,$(subst $(dir $@),,$^))
 $(eval $(call add_ada_rule,adb,$(obj)/b__lib$(name).o:,))
 $(name)-objs += $(obj)/b__lib$(name).o
+
+# Compilation rule for C sources
+$(call src-to-obj,,$(filter %.c,$($(name)-srcs))): $(obj)/%.o: %.c
+	@printf "    COMPILE    $(subst $(obj)/,,$@)\n"
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(shell mkdir -p $(alldirs))
 
