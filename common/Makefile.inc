@@ -9,3 +9,5 @@ hw-y += hw-sub_regs.ads
 hw-y += hw-time.ads
 hw-y += hw-time.adb
 hw-y += hw-time-timer.ads
+
+hw-$(CONFIG_HWBASE_POSIX_FILE) += hw-file.ads

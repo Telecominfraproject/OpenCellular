@@ -1,2 +1,2 @@
-subdirs-y += ada common proof
+subdirs-y += ada common proof c
 subdirs-y += debug
