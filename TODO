@@ -5,3 +5,5 @@ unknown	DP	honor SINK_STATUS after training
 low	LVDS	8bit colors, data format???
 
 medium  SKL     check if DPLL_CTRL2 really defaults to `Clock Off` => 0
+
+medium  gfxtest take care of our own framebuffer mapping
