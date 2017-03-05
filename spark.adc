@@ -10,7 +10,6 @@ pragma Restrictions (No_Implicit_Loops);
 pragma Restrictions (No_Initialize_Scalars);
 pragma Restrictions (No_Local_Allocators);
 pragma Restrictions (No_Recursion);
-pragma Restrictions (No_Secondary_Stack);
 pragma Restrictions (No_Streams);
 pragma Restrictions (No_Tasking);
 pragma Restrictions (No_Unchecked_Access);
