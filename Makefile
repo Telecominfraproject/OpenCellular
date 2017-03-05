@@ -34,9 +34,7 @@ CFLAGS += -Wstrict-aliasing -Wshadow
 CFLAGS += -fno-common -fomit-frame-pointer
 CFLAGS += -ffunction-sections -fdata-sections
 
-ADAFLAGS += -gnatA -gnatec=$(libhw-dir)/gnat.adc
-ADAFLAGS += -gnatg -gnatp
-ADAFLAGS += $(CFLAGS)
+ADAFLAGS += $(CFLAGS) -gnatA -gnatec=$(libhw-dir)/gnat.adc -gnatp
 # Ada warning options:
 #
 #  a   Activate most optional warnings.
