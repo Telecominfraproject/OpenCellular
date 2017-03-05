@@ -9,7 +9,16 @@ top := $(CURDIR)
 cnf := .config
 obj := build
 
-binary := $(obj)/lib$(name).a
+link-type ?= archive
+
+ifeq ($(link-type),archive)
+prefixed-name ?= lib$(name)
+binary-suffix ?= .a
+else ifeq ($(link-type),program)
+prefixed-name ?= $(name)
+binary-suffix ?=
+endif
+binary := $(obj)/$(prefixed-name)$(binary-suffix)
 $(binary):
 
 space :=
@@ -83,9 +92,18 @@ endif
 # must come rather early
 .SECONDEXPANSION:
 
+ifeq ($(link-type),archive)
 $(binary): $$($(name)-objs)
 	@printf "    AR         $(subst $(obj)/,,$@)\n"
 	ar cr $@ $^
+else ifeq ($(link-type),program)
+$(binary): $$($(name)-objs)
+	@printf "    LINK       $(subst $(obj)/,,$@)\n"
+	$(CC) -o $@ $^ \
+		$(addprefix -L,$(abspath $($(name)-extra-objs))) \
+		$(addprefix -l,$(patsubst lib%,%,$($(name)-deplibs))) \
+		-lgnat
+endif
 
 $(foreach dep,$($(name)-deplibs), \
 	$(eval $(name)-extra-objs += $($(dep)-dir)/lib) \
@@ -118,10 +136,14 @@ src-to-ali = \
 # $1 dir to read Makefile.inc from
 includemakefile = \
 	$(eval $(name)-y :=) \
+	$(eval $(name)-main-y :=) \
 	$(eval $(name)-gen-y :=) \
 	$(eval $(name)-proof-y :=) \
 	$(eval subdirs-y :=) \
 	$(eval include $(1)/Makefile.inc) \
+	$(eval $(name)-main-src += \
+		$(subst $(top)/,, \
+		$(abspath $(patsubst $(1)//%,/%,$(addprefix $(1)/,$($(name)-main-y)))))) \
 	$(eval $(name)-srcs += \
 		$(subst $(top)/,, \
 		$(abspath $(patsubst $(1)//%,/%,$(addprefix $(1)/,$($(name)-y)))))) \
@@ -148,6 +170,8 @@ evaluate_subdirs = \
 # collect all object files eligible for building
 subdirs := .
 $(call evaluate_subdirs)
+
+$(name)-srcs += $($(name)-main-src)
 
 # Eliminate duplicate mentions of source files
 $(name)-srcs := $(sort $($(name)-srcs))
@@ -223,18 +247,25 @@ $($(name)-alis): %.ali: %.o ;
 
 # To support complex package initializations, we need to call the
 # emitted code explicitly. gnatbind gathers all the calls for us
-# and exports them as a procedure $(name)_adainit(). Every stage that
-# uses Ada code has to call it!
-$(obj)/b__lib$(name).adb: $($(name)-alis)
+# and exports them as a procedure $(name)_adainit().
+ifeq ($(link-type),archive)
+$(name)-bind-dirs  := $($(name)-extra-objs)
+$(name)-bind-flags := -a -n -L$(name)_ada
+$(name)-bind-alis   = $(patsubst /%,%,$(subst $(dir $@),,$^))
+else ifeq ($(link-type),program)
+$(name)-bind-dirs  := $(sort $(dir $($(name)-objs))) $($(name)-extra-objs)
+$(name)-bind-flags :=
+$(name)-bind-alis   = $(subst $(dir $@),,$(call src-to-ali,,$($(name)-main-src)))
+endif
+$(obj)/b__$(prefixed-name).adb: $($(name)-alis)
 	@printf "    BIND       $(subst $(obj)/,,$@)\n"
 	# We have to give gnatbind a simple filename (without leading
 	# path components) so just cd there.
 	cd $(dir $@) && \
-		$(GNATBIND) $(addprefix -aO,$(abspath $($(name)-extra-objs))) \
-			-a -n -L$(name)_ada -o $(notdir $@) \
-			$(patsubst /%,%,$(subst $(dir $@),,$^))
-$(eval $(call add_ada_rule,adb,$(obj)/b__lib$(name).o:,))
-$(name)-objs += $(obj)/b__lib$(name).o
+		$(GNATBIND) $(addprefix -aO,$(abspath $($(name)-bind-dirs))) \
+			$($(name)-bind-flags) -o $(notdir $@) $($(name)-bind-alis)
+$(eval $(call add_ada_rule,adb,$(obj)/b__$(prefixed-name).o:,))
+$(name)-objs += $(obj)/b__$(prefixed-name).o
 
 # Compilation rule for C sources
 $(call src-to-obj,,$(filter %.c,$($(name)-srcs))): $(obj)/%.o: %.c
