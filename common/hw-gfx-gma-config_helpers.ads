@@ -35,7 +35,10 @@ is
 
    ----------------------------------------------------------------------------
 
+   pragma Warnings (GNAT, Off, """Integer_32"" is already use-visible *",
+                    Reason => "Needed for older compiler versions");
    use type HW.Pos32;
+   pragma Warnings (GNAT, On, """Integer_32"" is already use-visible *");
    function Validate_Config
      (Framebuffer : Framebuffer_Type;
       Port_Cfg    : Port_Config;
