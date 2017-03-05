@@ -223,11 +223,13 @@ add_ada_deps = \
 # $1 source type (ads, adb)
 # $2 source files (including the colon)
 # $3 obj path prefix (including the trailing slash)
+# $4 compiler flags (if empty, $(ADAFLAGS) apply)
 define add_ada_rule
 $(2) $(3)%.o: %.$(1)
 	@printf "    COMPILE    $$(subst $(obj)/,,$$@)\n"
 	$(CC) \
-		$(ADAFLAGS) $(addprefix -I,$($(name)-ada-dirs) $($(name)-extra-incs)) \
+		$(if $(4),$(4),$(ADAFLAGS)) \
+		$(addprefix -I,$($(name)-ada-dirs) $($(name)-extra-incs)) \
 		-c -o $$@ $$<
 endef
 
@@ -264,7 +266,7 @@ $(obj)/b__$(prefixed-name).adb: $($(name)-alis)
 	cd $(dir $@) && \
 		$(GNATBIND) $(addprefix -aO,$(abspath $($(name)-bind-dirs))) \
 			$($(name)-bind-flags) -o $(notdir $@) $($(name)-bind-alis)
-$(eval $(call add_ada_rule,adb,$(obj)/b__$(prefixed-name).o:,))
+$(eval $(call add_ada_rule,adb,$(obj)/b__$(prefixed-name).o:,,$(filter-out -gnatec=%,$(ADAFLAGS))))
 $(name)-objs += $(obj)/b__$(prefixed-name).o
 
 # Compilation rule for C sources
