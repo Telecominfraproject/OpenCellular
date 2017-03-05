@@ -16,7 +16,8 @@ space :=
 space +=
 comma := ,
 
-strip_quotes = $(strip $(subst ",,$(1))) #"
+strip_quotes = $(strip $(subst ",,$(1)))
+# fix syntax highlighting with an odd emoticon "))
 
 $(foreach dep,$($(name)-deplibs), \
 	$(eval -include $($(dep)-dir)/config))
