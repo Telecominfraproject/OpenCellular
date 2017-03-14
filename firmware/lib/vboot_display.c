@@ -22,6 +22,7 @@
 #include "vboot_nvstorage.h"
 
 static uint32_t disp_current_screen = VB_SCREEN_BLANK;
+static uint32_t disp_current_index = 0;
 static uint32_t disp_width = 0, disp_height = 0;
 
 __attribute__((weak))
@@ -368,6 +369,47 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx,
 	if (rv == VBERROR_SUCCESS)
 		/* Keep track of the currently displayed screen */
 		disp_current_screen = screen;
+
+	return rv;
+}
+
+VbError_t VbDisplayMenu(struct vb2_context *ctx,
+			VbCommonParams *cparams, uint32_t screen, int force,
+			uint32_t selected_index)
+{
+	uint32_t locale;
+	VbError_t rv;
+	uint32_t redraw_base_screen = 0;
+
+	/*
+	 * If requested screen/selected_index is the same as the current one,
+	 * we're done.
+	 */
+	if (disp_current_screen == screen &&
+	    disp_current_index == selected_index &&
+	    !force)
+		return VBERROR_SUCCESS;
+
+	/*
+	 * If current screen is not the same, make sure we redraw the base
+	 * screen as well to avoid having artifacts from the menu.
+	 */
+	if (disp_current_screen != screen)
+		redraw_base_screen = 1;
+
+	/* Read the locale last saved */
+	locale = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
+
+	rv = VbExDisplayMenu(screen, locale, selected_index, redraw_base_screen);
+
+	if (rv == VBERROR_SUCCESS) {
+		/*
+		 * Keep track of the currently displayed screen and
+		 * selected_index
+		 */
+		disp_current_screen = screen;
+		disp_current_index = selected_index;
+	}
 
 	return rv;
 }

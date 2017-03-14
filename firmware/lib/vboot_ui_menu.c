@@ -354,6 +354,30 @@ VbError_t vb2_print_current_menu()
 	return VBERROR_SUCCESS;
 }
 
+/*
+ * Static array for mapping current_menu to matching screen item in depthcharge.
+ * Note that order here is important and needs to match that of items in
+ * VB_MENU.
+ */
+static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
+	VB_SCREEN_DEVELOPER_WARNING_MENU,
+	VB_SCREEN_DEVELOPER_MENU,
+	VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	VB_SCREEN_RECOVERY_MENU,
+	VB_SCREEN_RECOVERY_TO_DEV_MENU,
+	VB_SCREEN_LANGUAGES_MENU,
+};
+
+VbError_t vb2_draw_current_screen(struct vb2_context *ctx,
+				  VbCommonParams *cparams) {
+	uint32_t screen;
+	if (current_menu < VB_MENU_COUNT)
+		screen = VB_MENU_TO_SCREEN_MAP[current_menu];
+	else
+		return VBERROR_UNKNOWN;
+	return VbDisplayMenu(ctx, cparams, screen, 0, current_menu_idx);
+}
+
 /**
  * Set current_menu to new_current_menu
  *
@@ -720,6 +744,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			/* Do not wrap selection index */
 			if (current_menu_idx > 0)
 				current_menu_idx--;
+			vb2_draw_current_screen(ctx, cparams);
 			vb2_print_current_menu();
 			break;
 		case VB_BUTTON_VOL_DOWN:
@@ -729,6 +754,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			/* Do no wrap selection index */
 			if (current_menu_idx < menu_size-1)
 				current_menu_idx++;
+			vb2_draw_current_screen(ctx, cparams);
 			vb2_print_current_menu();
 			break;
 		case VB_BUTTON_POWER:
@@ -982,6 +1008,7 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				vb2_get_current_menu_size(current_menu, NULL, &menu_size);
 				if (current_menu_idx > 0)
 					current_menu_idx--;
+				vb2_draw_current_screen(ctx, cparams);
 				vb2_print_current_menu();
 				break;
 			case VB_BUTTON_VOL_DOWN:
@@ -989,6 +1016,7 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				vb2_get_current_menu_size(current_menu, NULL, &menu_size);
 				if (current_menu_idx < menu_size-1)
 					current_menu_idx++;
+				vb2_draw_current_screen(ctx, cparams);
 				vb2_print_current_menu();
 				break;
 			case VB_BUTTON_POWER:

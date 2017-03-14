@@ -754,6 +754,18 @@ enum VbScreenType_t {
 	VB_SCREEN_OS_BROKEN         = 0x208,
 	/* Display base screen (no icons, no text) */
 	VB_SCREEN_BASE              = 0x209,
+	/* Detachable Menu - Developer Warning */
+	VB_SCREEN_DEVELOPER_WARNING_MENU = 0x20a,
+	/* Detachable Menu - Developer Boot */
+	VB_SCREEN_DEVELOPER_MENU = 0x20b,
+	/* Detachable Menu - Recovery */
+	VB_SCREEN_RECOVERY_MENU = 0x20c,
+	/* Detachable Menu - Confirm Dev Mode */
+	VB_SCREEN_RECOVERY_TO_DEV_MENU = 0x20d,
+	/* Detachable Menu - Confirm Normal Mode */
+	VB_SCREEN_DEVELOPER_TO_NORM_MENU = 0x20e,
+	/* Detachable Menu - Languages */
+	VB_SCREEN_LANGUAGES_MENU = 0x20f,
 };
 
 /**

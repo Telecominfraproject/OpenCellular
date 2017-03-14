@@ -19,6 +19,8 @@ VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
                                  uint32_t locale);
 VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
 			  uint32_t screen, int force);
+VbError_t VbDisplayMenu(struct vb2_context *ctx, VbCommonParams *cparams,
+			uint32_t screen, int force, uint32_t selected_index);
 VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams);
 VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
 			    uint32_t key);
