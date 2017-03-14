@@ -147,7 +147,7 @@ package body HW.GFX.GMA.Pipe_Setup is
 
       function To_Bytes (Pixels : Width_Type) return Word32
       with
-         Pre => (Word32 (Pixels) <= Word32'Last / 4 / Word32 (BPC_Type'Last) * 8)
+         Pre => (Pos64 (Pixels) <= Pos64 (Word32'Last) / 4 / BPC_Type'Last * 8)
       is
       begin
          return Word32 (Pos64 (Pixels) * 4 * Framebuffer.BPC / 8);
