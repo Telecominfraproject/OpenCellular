@@ -792,6 +792,17 @@ VbError_t VbExDisplayGetDimension(uint32_t *width, uint32_t *height);
 VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale);
 
 /**
+ * Display a predefined menu screen; see VB_SCREEN_* for valid screens.
+ *
+ * This is a backup method of screen display, intended for use if the GBB does
+ * not contain a full set of bitmaps.  It is acceptable for the backup screen
+ * to be simple ASCII text such as "NO GOOD" or "INSERT"; these screens should
+ * only be seen during development.
+ */
+VbError_t VbExDisplayMenu(uint32_t screen_type, uint32_t locale,
+			  uint32_t selected_index, uint32_t redraw_base);
+
+/**
  * Write an image to the display, with the upper left corner at the specified
  * pixel coordinates.  The bitmap buffer is a pointer to the platform-dependent
  * uncompressed binary blob with dimensions and format specified internally
