@@ -740,6 +740,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			if (current_menu_idx > 0)
 				current_menu_idx--;
 			vb2_draw_current_screen(ctx, cparams);
+			/* reset 30 second timer */
+			audio = VbAudioOpen(cparams);
 			break;
 		case VB_BUTTON_VOL_DOWN:
 		case VB_KEY_DOWN:
@@ -749,6 +751,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			if (current_menu_idx < menu_size-1)
 				current_menu_idx++;
 			vb2_draw_current_screen(ctx, cparams);
+			/* reset 30 second timer */
+			audio = VbAudioOpen(cparams);
 			break;
 		case VB_BUTTON_POWER:
 		case '\r':
@@ -851,6 +855,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				VbExSleepMs(5000);
 				return VBERROR_REBOOT_REQUIRED;
 			}
+			/* reset 30 second timer */
+			audio = VbAudioOpen(cparams);
 			break;
 		default:
 			VB2_DEBUG("pressed key %d\n", key);
