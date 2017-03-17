@@ -10,12 +10,13 @@ load_shflags || exit 1
 DEFINE_string output "" \
   "Where to write signed output to (default: sign in-place)"
 
-FLAGS_HELP="Usage: ${PROG} [options] <input_container> <key_dir>
+FLAGS_HELP="Usage: ${PROG} [options] <input_image> <key_dir>
 
-Signs <input_container> with keys in <key_dir>.  Should have a config.json
-file in the OCI format.
+Signs <input_image> with keys in <key_dir>. Should have an imageloader.json
+file which imageloader can understand and will use to mount the squashfs
+image that provides the container's rootfs and OCI configuration.
 
-Input can be an unpacked container, or a CRX/ZIP file.
+Input can be an unpacked imageloader image, or a CRX/ZIP file.
 "
 
 # Parse command line.
@@ -25,7 +26,8 @@ eval set -- "${FLAGS_ARGV}"
 # Abort on error.
 set -e
 
-# Sign the directory holding OCI container(s).  We look for manifest.json files.
+# Sign the directory holding OCI container(s).  We look for an imageloader.json
+# file.
 sign_oci_container() {
   [[ $# -eq 3 ]] || die "Usage: sign_oci_container <input> <key> <output>"
   local input="${1%/}"
@@ -36,19 +38,20 @@ sign_oci_container() {
     rsync -a "${input}/" "${output}/"
   fi
 
-  local manifest out_manifest
-  while read -d $'\0' -r manifest; do
-    out_manifest="${output}/${manifest}.sig"
-    manifest="${input}/${manifest}"
-    info "Signing: ${manifest}"
-    if ! openssl dgst -sha256 -sign "${key_file}" \
-                      -out "${out_manifest}" "${manifest}"; then
-      die "Failed to sign"
-    fi
-  done < <(find "${input}/" -name manifest.json -printf '%P\0')
+  local out_manifest="${output}/imageloader.sig.2"
+  local manifest="${input}/imageloader.json"
+  if [[ ! -f "${manifest}" ]]; then
+    die "Could not find manifest"
+  fi
+  info "Signing: ${manifest}"
+  if ! openssl dgst -sha256 -sign "${key_file}" \
+                    -out "${out_manifest}" "${manifest}"; then
+    die "Failed to sign"
+  fi
 }
 
-# Sign the crx/zip holding OCI container(s).  We look for manifest.json files.
+# Sign the crx/zip holding OCI container(s).  We look for an imageloader.json
+# file.
 sign_oci_container_zip() {
   [[ $# -eq 3 ]] || die "Usage: sign_oci_container_zip <input> <key> <output>"
   local input="$1"
