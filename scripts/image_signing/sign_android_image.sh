@@ -211,6 +211,8 @@ main() {
 
   local working_dir=$(make_temp_dir)
   local system_mnt="${working_dir}/mnt"
+  local compression_method=$(sudo unsquashfs -s "${system_img}" | \
+      awk '$1 == "Compression" { print $2 }')
 
   info "Unpacking squashfs image to ${system_img}"
   sudo "${unsquashfs}" -x -f -no-progress -d "${system_mnt}" "${system_img}"
@@ -233,7 +235,7 @@ main() {
   local old_size=$(stat -c '%s' "${system_img}")
   # Overwrite the original image.
   sudo "${mksquashfs}" "${system_mnt}" "${system_img}" \
-      -no-progress -comp lzo -noappend
+      -no-progress -comp "${compression_method}" -noappend
   local new_size=$(stat -c '%s' "${system_img}")
   info "Android system image size change: ${old_size} -> ${new_size}"
 }
