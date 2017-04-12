@@ -281,7 +281,8 @@ static char *languages_menu[] = {
  * @param size:	Size of menu's string array.
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
+VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
+				    uint32_t *size)
 {
 	char **temp_menu;
 
@@ -327,7 +328,7 @@ VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array, int *size)
  */
 VbError_t vb2_print_current_menu()
 {
-	int size = 0;
+	uint32_t size = 0;
 	int i = 0;
 	static char **m = NULL;
 	int highlight = 0;
@@ -402,10 +403,11 @@ VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
  *
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_update_menu()
+VbError_t vb2_update_menu(struct vb2_context *ctx)
 {
 	VbError_t ret = VBERROR_SUCCESS;
 	VB_MENU next_menu_idx = current_menu_idx;
+	uint32_t loc = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
 	switch(current_menu) {
 	case VB_MENU_DEV_WARNING:
 		switch(current_menu_idx) {
@@ -447,7 +449,7 @@ VbError_t vb2_update_menu()
 			/* Languages */
 			// TODO: we'll have to figure out how to display this
 			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   VB_LANGUAGES_EN_US);
+					   loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything. */
@@ -474,7 +476,7 @@ VbError_t vb2_update_menu()
 			 * 2. Default to power off option.
 			 */
 			vb2_set_menu_items(VB_MENU_DEV_WARNING,
-					   VB_WARN_POWER_OFF);
+					   loc);
 			break;
 		case VB_DEV_POWER_OFF:
 			/* Power off */
@@ -483,7 +485,7 @@ VbError_t vb2_update_menu()
 		case VB_DEV_LANGUAGE:
 			/* Language */
 			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   VB_LANGUAGES_EN_US);
+					   loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything. */
@@ -510,7 +512,7 @@ VbError_t vb2_update_menu()
 		case VB_TO_NORM_LANGUAGE:
 			/* Language */
 			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   VB_LANGUAGES_EN_US);
+					   loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything */
@@ -534,7 +536,7 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_RECOVERY_LANGUAGE:
 			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   VB_LANGUAGES_EN_US);
+					   loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything */
@@ -555,7 +557,7 @@ VbError_t vb2_update_menu()
 			break;
 		case VB_TO_DEV_LANGUAGE:
 			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   VB_LANGUAGES_EN_US);
+					   loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything. */
@@ -574,12 +576,34 @@ VbError_t vb2_update_menu()
 			current_menu_idx = 0;
 			prev_menu = VB_MENU_LANGUAGES;
 			selected = 0;
+
 			break;
 		}
 	default:
 		VB2_DEBUG("Current Menu Invalid!");
 	}
 	return ret;
+}
+
+/**
+ * This updates the current locale to the current_menu_index
+ * This function only does something in the VB_MENU_LANGUAGES menu
+ * Otherwise it's a noop.
+ *
+ * @return VBERROR_SUCCESS
+ */
+VbError_t vb2_update_locale(struct vb2_context *ctx) {
+	if (current_menu == VB_MENU_LANGUAGES) {
+		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
+		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
+#ifdef SAVE_LOCALE_IMMEDIATELY
+		if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
+			VbExNvStorageWrite(ctx.nvdata);
+			ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
+		}
+#endif
+	}
+	return VBERROR_SUCCESS;
 }
 
 /**
@@ -679,7 +703,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
 		uint32_t key;
-		int menu_size;
+		uint32_t menu_size;
 
 		if (VbWantShutdownMenu(gbb->flags)) {
 			VB2_DEBUG("shutdown requested!\n");
@@ -745,9 +769,14 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		case VB_BUTTON_VOL_DOWN:
 		case VB_KEY_DOWN:
-			vb2_get_current_menu_size(current_menu,
-						  NULL, &menu_size);
 			/* Do no wrap selection index */
+			if (current_menu == VB_MENU_LANGUAGES) {
+				VbGetLocalizationCount(cparams, &menu_size);
+			}
+			else {
+				vb2_get_current_menu_size(current_menu,
+							  NULL, &menu_size);
+			}
 			if (current_menu_idx < menu_size-1)
 				current_menu_idx++;
 			vb2_draw_current_screen(ctx, cparams);
@@ -758,7 +787,13 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		case '\r':
 			selected = 1;
 
-			ret = vb2_update_menu();
+			/*
+			 * Need to update locale before updating the menu or
+			 * we'll lose the previous state
+			 */
+			vb2_update_locale(ctx);
+
+			ret = vb2_update_menu(ctx);
 			/*
 			 * Unfortunately, we need the blanking to get rid of
 			 * artifacts from previous menu printing.
@@ -912,7 +947,7 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	uint32_t key;
 	int i;
 	VbError_t ret;
-	int menu_size;
+	uint32_t menu_size;
 
 	VB2_DEBUG("start\n");
 
@@ -1002,6 +1037,14 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 							  &menu_size);
 				if (current_menu_idx > 0)
 					current_menu_idx--;
+				vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
+				vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
+#ifdef SAVE_LOCALE_IMMEDIATELY
+				if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
+					VbExNvStorageWrite(ctx.nvdata);
+					ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
+				}
+#endif
 				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_VOL_DOWN:
@@ -1016,7 +1059,13 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			case '\r':
 				selected = 1;
 
-				ret = vb2_update_menu();
+				/*
+				 * Need to update locale before updating the
+				 * menu or we'll lose the previous state
+				 */
+				vb2_update_locale(ctx);
+
+				ret = vb2_update_menu(ctx);
 				if (current_menu != VB_MENU_RECOVERY ||
 				     current_menu_idx != VB_RECOVERY_DBG_INFO) {
 					/*
