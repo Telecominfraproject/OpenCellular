@@ -38,16 +38,16 @@ sign_oci_container() {
     rsync -a "${input}/" "${output}/"
   fi
 
-  local out_manifest="${output}/imageloader.sig.2"
-  local manifest="${input}/imageloader.json"
-  if [[ ! -f "${manifest}" ]]; then
-    die "Could not find manifest"
-  fi
-  info "Signing: ${manifest}"
-  if ! openssl dgst -sha256 -sign "${key_file}" \
-                    -out "${out_manifest}" "${manifest}"; then
-    die "Failed to sign"
-  fi
+  local manifest out_manifest
+  while read -d $'\0' -r manifest; do
+    out_manifest="${output}/${manifest%.json}.sig.2"
+    manifest="${input}/${manifest}"
+    info "Signing: ${manifest}"
+    if ! openssl dgst -sha256 -sign "${key_file}" \
+                      -out "${out_manifest}" "${manifest}"; then
+      die "Failed to sign"
+    fi
+  done < <(find "${input}/" -name imageloader.json -printf '%P\0')
 }
 
 # Sign the crx/zip holding OCI container(s).  We look for an imageloader.json
