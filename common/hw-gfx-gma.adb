@@ -435,7 +435,7 @@ is
          Tertiary    => "Tertiary ");
    begin
       Debug.New_Line;
-      Debug.Put_Line ("CONFIG => ");
+      Debug.Put_Line ("CONFIG =>");
       for Pipe in Pipe_Index loop
          if Pipe = Pipe_Index'First then
             Debug.Put ("  (");
