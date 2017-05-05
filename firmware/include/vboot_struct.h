@@ -176,7 +176,9 @@ typedef struct VbKernelPreambleHeader {
 	 * Flags passed in by the signer. Readers should return 0 for header
 	 * version < 2.2. Flags field is currently defined as:
 	 * [31:2] - Reserved (for future use)
-	 * [1:0]  - Kernel image type (0b00 - CrOS, 0b01 - bootimg)
+	 * [1:0]  - Kernel image type (0b00 - CrOS,
+	 *                             0b01 - bootimg,
+	 *                             0b10 - multiboot)
 	 */
 	uint32_t flags;
 } __attribute__((packed)) VbKernelPreambleHeader;
