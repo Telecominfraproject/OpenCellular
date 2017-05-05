@@ -39,9 +39,14 @@ main() {
     mount_image_partition "${image}" 3 "${rootfs}"
   fi
 
+  # Imageloader likes DER as a runtime format as it's easier to read.
+  local tmpfile=$(mktemp)
+  trap "rm -f '${tmpfile}'" EXIT
+  openssl pkey -pubin -in "${pub_key}" -out "${tmpfile}" -pubout -outform DER
+
   sudo install \
     -D -o root -g root -m 644 \
-    "${pub_key}" "${rootfs}/${key_location}/oci-container-key-pub.pem"
+    "${tmpfile}" "${rootfs}/${key_location}/oci-container-key-pub.der"
   info "Container verification key was installed." \
        "Do not forget to resign the image!"
 }
