@@ -146,6 +146,10 @@ static int KernelSize(uint8_t *kernel_buf,
 	/* The first part of the x86 vmlinuz is a header, followed by
 	 * a real-mode boot stub. We only want the 32-bit part. */
 	lh = (struct linux_kernel_params *)kernel_buf;
+	if (lh->header != VMLINUZ_HEADER_SIG) {
+		Debug("Not a linux kernel image\n");
+		return kernel_size;
+	}
 	kernel32_start = (lh->setup_sects + 1) << 9;
 	if (kernel32_start >= kernel_size) {
 		fprintf(stderr, "Malformed kernel\n");
@@ -166,10 +170,15 @@ static int PickApartVmlinuz(uint8_t *kernel_buf,
 	struct linux_kernel_params *lh, *params;
 
 	/* Except for x86, the kernel is the kernel. */
-	if (arch == ARCH_X86) {
+	switch (arch) {
+	case ARCH_X86:
 		/* The first part of the x86 vmlinuz is a header, followed by
 		 * a real-mode boot stub. We only want the 32-bit part. */
 		lh = (struct linux_kernel_params *)kernel_buf;
+		if (lh->header != VMLINUZ_HEADER_SIG) {
+			Debug("Not a linux kernel image\n");
+			break;
+		}
 		kernel32_start = (lh->setup_sects + 1) << 9;
 		if (kernel32_start >= kernel_size) {
 			fprintf(stderr, "Malformed kernel\n");
@@ -207,6 +216,9 @@ static int PickApartVmlinuz(uint8_t *kernel_buf,
 		params->e820_entries[1].start_addr = 0xfffff000;
 		params->e820_entries[1].segment_size = 0x00001000;
 		params->e820_entries[1].segment_type = E820_TYPE_RESERVED;
+		break;
+	default:
+		break;
 	}
 
 	Debug(" kernel32_start=0x%" PRIx64 "\n", kernel32_start);

@@ -7,6 +7,9 @@
 #ifndef VBOOT_REFERENCE_KERNEL_BLOB_H_
 #define VBOOT_REFERENCE_KERNEL_BLOB_H_
 
+/* Linux vmlinuz header signature */
+#define VMLINUZ_HEADER_SIG 0x53726448
+
 /* Maximum kernel command-line size */
 #define CROS_CONFIG_SIZE 4096
 
