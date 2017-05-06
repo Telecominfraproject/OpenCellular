@@ -5,6 +5,7 @@
 # found in the LICENSE file.
 
 . "$(dirname "$0")/common_minimal.sh"
+CROS_LOG_PREFIX="${PROG}: "
 
 # Array of actions that are executed during the clean up process.
 declare -a cleanup_actions
@@ -50,21 +51,21 @@ V_VIDOFF="\e[0m"
 # Taken from src/scripts/common.sh.
 # Arg: MESSAGE
 info() {
-  echo -e >&2 "${V_BOLD_GREEN}INFO   : $1${V_VIDOFF}"
+  echo -e >&2 "${V_BOLD_GREEN}${CROS_LOG_PREFIX:-}INFO   : $1${V_VIDOFF}"
 }
 
 # Prints a warning message.
 # Taken from src/scripts/common.sh.
 # Arg: MESSAGE
 warn() {
-  echo -e >&2 "${V_BOLD_YELLOW}WARNING: $1${V_VIDOFF}"
+  echo -e >&2 "${V_BOLD_YELLOW}${CROS_LOG_PREFIX:-}WARNING: $1${V_VIDOFF}"
 }
 
 # Prints the specified error and exit the script with an error code.
 # Taken from src/scripts/common.sh.
 # Args: MESSAGE
 error() {
-  echo -e >&2   "${V_BOLD_RED}ERROR  : $1${V_VIDOFF}"
+  echo -e >&2   "${V_BOLD_RED}${CROS_LOG_PREFIX:-}ERROR  : $1${V_VIDOFF}"
 }
 
 # Prints an error message and exit with an error code.
