@@ -68,6 +68,59 @@ error() {
   echo -e >&2   "${V_BOLD_RED}${CROS_LOG_PREFIX:-}ERROR  : $1${V_VIDOFF}"
 }
 
+TEMP_LOOP_LIST=$(mktemp)
+
+# Setup a loopback device for a file and scan for partitions, with retries.
+#
+# $1 - The file to back the new loopback device.
+# $2-$N - Additional arguments to pass to losetup.
+loopback_partscan() {
+  local lb_dev image="$1"
+  shift
+
+  # We know partition scanning & dev node creation can be racy with udev and
+  # the kernel, and the kernel does not sleep/wait for it to finish.  We have
+  # to use the partx tool manually as it will sleep until things are finished.
+  lb_dev=$(sudo losetup --show -f "$@" "${image}")
+
+  # Cache the path so we can clean it up.
+  echo "${lb_dev}" >>"${TEMP_LOOP_LIST}"
+
+  # Ignore problems deleting existing partitions. There shouldn't be any
+  # which will upset partx, but that's actually ok.
+  sudo partx -d "${lb_dev}" 2>/dev/null || true
+  sudo partx -a "${lb_dev}"
+
+  echo "${lb_dev}"
+}
+
+# Detach a loopback device set up earlier.
+#
+# $1 - The loop device to detach.
+# $2-$N - Additional arguments to pass to losetup.
+loopback_detach() {
+  # Retry the deletes before we detach.  crbug.com/469259
+  local i
+  for (( i = 0; i < 10; i++ )); do
+    if sudo partx -d "$1"; then
+      break
+    fi
+    warn "Sleeping & retrying ..."
+    sync
+    sleep 1
+  done
+  sudo losetup --detach "$@"
+}
+
+# Clear out all loopback devices we setup.
+cleanup_loopbacks() {
+  local line
+  while read -r line; do
+    loopback_detach "${line}" 2>/dev/null
+  done <"${TEMP_LOOP_LIST}"
+  rm -f "${TEMP_LOOP_LIST}"
+}
+
 # Usage: lsbval path-to-lsb-file key
 # Returns the value for the given lsb-release file variable.
 lsbval() {
@@ -96,3 +149,4 @@ get_boardvar_from_lsb_release() {
 trap "cleanup" INT TERM EXIT
 
 add_cleanup_action "cleanup_temps_and_mounts"
+add_cleanup_action "cleanup_loopbacks"

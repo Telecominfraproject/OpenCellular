@@ -67,6 +67,8 @@ main() {
     local output
     # Copy of a string before it has been through sed
     local pre_sed
+    # Where the disk image is mounted.
+    local loopdev
 
     if [[ $# -ne 1 ]] && [[ $# -ne 2 ]]; then
         usage
@@ -89,14 +91,18 @@ main() {
     # Either way, load test-expectations data from config.
     . "$configfile" || return 1
 
-    local kernelblob=$(make_temp_file)
+    # Set up the image on a loopback device so it's faster to access.
+    local loopdev
+    loopdev=$(loopback_partscan "${image}")
+
     # TODO(jimhebert): Perform the kernel security tests on both the kernel
     #                  partitions. Here, we just run it on kernel partition 4
     #                  which is the install kernel on the recovery image.
     #                  crosbug.com/24274
-    extract_image_partition "$image" 4 "$kernelblob"
+    local loop_kern="${loopdev}p4"
+    local loop_rootfs="${loopdev}p3"
     local rootfs=$(make_temp_dir)
-    mount_image_partition_ro "$image" 3 "$rootfs"
+    sudo mount -o ro "${loop_rootfs}" "${rootfs}"
 
     # Pick the right set of test-expectation data to use.
     local boardvar=$(get_boardvar_from_lsb_release "${rootfs}")
@@ -120,7 +126,7 @@ main() {
     output+="$(printf "\t'%s'\n" "${required_dmparams_regex[@]}")\n)\n"
 
     # Divide the dm params from the rest and process seperately.
-    local kparams=$(dump_kernel_config "$kernelblob")
+    local kparams=$(sudo dump_kernel_config "${loop_kern}")
     local dmparams=$(get_dmparams "$kparams")
     local kparams_nodm=$(kparams_remove_dm "$kparams")
 
