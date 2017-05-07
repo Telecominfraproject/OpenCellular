@@ -87,7 +87,7 @@ PATH=$PATH:/usr/sbin:/sbin
 for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity \
   load_kernel_test dumpe2fs sha1sum e2fsck; do
   type -P "${prereqs}" &>/dev/null || \
-    { echo "${prereqs} tool not found."; exit 1; }
+    die "${prereqs} tool not found."
 done
 
 TYPE=$1
@@ -181,7 +181,7 @@ calculate_rootfs_hash() {
   local dm_config=$(get_dmparams_from_config "${kernel_config}")
 
   if [ -z "${dm_config}" ]; then
-    echo "WARNING: Couldn't grab dm_config. Aborting rootfs hash calculation."
+    warn "Couldn't grab dm_config. Aborting rootfs hash calculation."
     return 1
   fi
   local vroot_dev=$(get_dm_slave "${dm_config}" vroot)
@@ -254,14 +254,14 @@ update_rootfs_hash() {
   # Note even though there are two kernels, there is one place (after rootfs)
   # for hash data, so we must assume both kernel use same hash algorithm (i.e.,
   # DM config).
-  echo "Updating rootfs hash and updating config for Kernel partitions"
+  info "Updating rootfs hash and updating config for Kernel partitions"
 
   # If we can't find dm parameters in the kernel config, bail out now.
   local kernel_config=$(grab_kernel_config "${image}" "${dm_partno}")
   local dm_config=$(get_dmparams_from_config "${kernel_config}")
   if [ -z "${dm_config}" ]; then
-    echo "ERROR: Couldn't grab dm_config from kernel partition ${dm_partno}"
-    echo " (config: ${kernel_config})"
+    error "Couldn't grab dm_config from kernel partition ${dm_partno}"
+    error " (config: ${kernel_config})"
     return 1
   fi
 
@@ -285,8 +285,8 @@ update_rootfs_hash() {
 
   if ! calculate_rootfs_hash "${rootfs_image}"  "${kernel_config}" \
     "${hash_image}"; then
-    echo "calculate_rootfs_hash failed!"
-    echo "Aborting rootfs hash update!"
+    error "calculate_rootfs_hash failed!"
+    error "Aborting rootfs hash update!"
     return 1
   fi
 
@@ -316,12 +316,12 @@ update_rootfs_hash() {
          grab_kernel_config "${image}" "${kernelpart}" 2>/dev/null)" &&
        [[ "${kernelpart}" == 4 ]]; then
       # Legacy images don't have partition 4.
-      echo "Skipping empty kernel partition 4 (legacy images)."
+      info "Skipping empty kernel partition 4 (legacy images)."
       continue
     fi
     new_kernel_config="$(echo "${new_kernel_config}" |
       sed -e 's#\(.*dm="\)\([^"]*\)\(".*\)'"#\1${dm_args}\3#g")"
-    echo "New config for kernel partition ${kernelpart} is:"
+    info "New config for kernel partition ${kernelpart} is:"
     echo "${new_kernel_config}" | tee "${temp_config}"
     extract_image_partition "${image}" "${kernelpart}" "${temp_kimage}"
     # Re-calculate kernel partition signature and command line.
@@ -354,7 +354,7 @@ update_stateful_partition_vblock() {
 
   extract_image_partition "${image}" 4 "${kernb_image}"
   if [[ "$(dump_kernel_config "${kernb_image}" 2>/dev/null)" == "" ]]; then
-    echo "Building vmlinuz_hd.vblock from legacy image partition 2."
+    info "Building vmlinuz_hd.vblock from legacy image partition 2."
     extract_image_partition "${image}" 2 "${kernb_image}"
   fi
 
@@ -381,9 +381,9 @@ verify_image_rootfs() {
   # This flips the read-only compatibility flag, so that e2fsck does not
   # complain about unknown file system capabilities.
   enable_rw_mount ${rootfs_image}
-  echo "Running e2fsck to check root file system for errors"
+  info "Running e2fsck to check root file system for errors"
   sudo e2fsck -fn "${rootfs_image}" ||
-    { echo "Root file system has errors!" && exit 1;}
+    die "Root file system has errors!"
 }
 
 # Extracts a firmware updater bundle (for firmware image binaries) file
@@ -450,7 +450,7 @@ sign_firmware() {
   # public keys in the GBB.
   "${SCRIPT_DIR}/sign_firmware.sh" "${image}" "${key_dir}" "${image}" \
     "${firmware_version}" "${loem_output_dir}"
-  echo "Signed firmware image output to ${image}"
+  info "Signed firmware image output to ${image}"
 }
 
 # Sign nvidia lp0 firmware with the given keys.
@@ -461,7 +461,7 @@ sign_nv_lp0_firmware() {
 
   "${SCRIPT_DIR}/sign_nv_cbootimage.sh" "lp0_firmware" \
       "${key_dir%/}/nv_pkc.pem" "${nv_lp0_fw_image}" "tegra210"
-  echo "Signed nvidia lp0 firmware image output to ${nv_lp0_fw_image}"
+  info "Signed nvidia lp0 firmware image output to ${nv_lp0_fw_image}"
 }
 
 # Sign a kernel in-place with the given keys.
@@ -484,7 +484,7 @@ sign_kernel() {
     --oldblob "${image}"
 
   mv "${temp_kernel}" "${image}"
-  echo "Signed kernel image output to ${image}"
+  info "Signed kernel image output to ${image}"
 }
 
 # Sign a recovery kernel in-place with the given keys.
@@ -507,7 +507,7 @@ sign_recovery_kernel() {
     --oldblob "${image}"
 
   mv "${temp_kernel}" "${image}"
-  echo "Signed recovery_kernel image output to ${image}"
+  info "Signed recovery_kernel image output to ${image}"
 }
 
 # Sign a delta update payload (usually created by paygen).
@@ -543,7 +543,7 @@ resign_firmware_payload() {
   local image=$1
 
   if [ -n "${NO_FWUPDATE}" ]; then
-    echo "Skipping firmware update."
+    info "Skipping firmware update."
     return
   fi
 
@@ -557,10 +557,10 @@ resign_firmware_payload() {
   if ! extract_firmware_bundle "${firmware_bundle}" "${shellball_dir}"; then
     # Unmount now to prevent changes.
     sudo umount "${rootfs_dir}"
-    echo "Didn't find a firmware update. Not signing firmware."
+    info "Didn't find a firmware update. Not signing firmware."
     return
   fi
-  echo "Found a valid firmware update shellball."
+  info "Found a valid firmware update shellball."
 
   local image_file sign_args=() loem_sfx loem_output_dir
   for image_file in "${shellball_dir}"/bios*.bin; do
@@ -578,7 +578,7 @@ resign_firmware_payload() {
 
   local signer_notes="${shellball_dir}/VERSION.signer"
   echo "" >"$signer_notes"
-  echo "Signed with keyset in $(readlink -f "${KEY_DIR}") ." >>"$signer_notes"
+  info "Signed with keyset in $(readlink -f "${KEY_DIR}") ." >>"${signer_notes}"
 
   new_shellball=$(make_temp_file)
   cp -f "${firmware_bundle}" "${new_shellball}"
@@ -588,7 +588,7 @@ resign_firmware_payload() {
   sudo chmod a+rx "${firmware_bundle}"
   # Unmount now to flush changes.
   sudo umount "${rootfs_dir}"
-  echo "Re-signed firmware AU payload in $image"
+  info "Re-signed firmware AU payload in ${image}"
 }
 
 # Re-sign Android image if exists.
@@ -610,7 +610,7 @@ resign_android_image_if_exists() {
   "${SCRIPT_DIR}/sign_android_image.sh" "${rootfs_dir}" "${KEY_DIR}/android"
 
   sudo umount "${rootfs_dir}"
-  echo "Re-signed Android image"
+  info "Re-signed Android image"
 }
 
 # Sign an oci container with the given keys.
@@ -629,7 +629,7 @@ verify_image() {
   local rootfs_image=$(make_temp_file)
   extract_image_partition ${INPUT_IMAGE} 3 ${rootfs_image}
 
-  echo "Verifying RootFS hash..."
+  info "Verifying RootFS hash..."
   # What we get from image.
   local kernel_config
   # What we calculate from the rootfs.
@@ -638,12 +638,12 @@ verify_image() {
   # exist in either kernel partition 2 or kernel partition 4
   local partnum
   for partnum in 2 4; do
-    echo "Considering Kernel partition $partnum"
+    info "Considering Kernel partition ${partnum}"
     kernel_config=$(grab_kernel_config ${INPUT_IMAGE} $partnum)
     local hash_image=$(make_temp_file)
     if ! calculate_rootfs_hash "${rootfs_image}" "${kernel_config}" \
       "${hash_image}"; then
-      echo "Trying next kernel partition."
+      info "Trying next kernel partition."
       continue
     fi
     new_kernel_config="$CALCULATED_KERNEL_CONFIG"
@@ -656,8 +656,7 @@ verify_image() {
   got_hash=$(get_hash_from_config "${kernel_config}")
 
   if [ -z "${expected_hash}" ] || [ -z "${got_hash}" ]; then
-    echo "FAILURE: Couldn't verify RootFS hash on the image."
-    exit 1
+    die "Couldn't verify RootFS hash on the image."
   fi
 
   if [ ! "${got_hash}" = "${expected_hash}" ]; then
@@ -668,13 +667,13 @@ Got: ${got_hash}
 EOF
     exit 1
   else
-    echo "PASS: RootFS hash is correct (${expected_hash})"
+    info "PASS: RootFS hash is correct (${expected_hash})"
   fi
 
   # Now try and verify kernel partition signature.
   set +e
   local try_key=${KEY_DIR}/recovery_key.vbpubk
-  echo "Testing key verification..."
+  info "Testing key verification..."
   # The recovery key is only used in the recovery mode.
   echo -n "With Recovery Key (Recovery Mode ON, Dev Mode OFF): " && \
   { load_kernel_test "${INPUT_IMAGE}" "${try_key}" -b 2 >/dev/null 2>&1 && \
@@ -713,7 +712,7 @@ update_recovery_kernel_hash() {
   echo "$old_kerna_config" |
     sed -e "s#\(kern_b_hash=\)[a-z0-9]*#\1${new_kernb_hash}#" \
       > ${new_kerna_config}
-  echo "New config for kernel partition 2 is"
+  info "New config for kernel partition 2 is"
   cat ${new_kerna_config}
 
   local temp_kimagea=$(make_temp_file)
@@ -803,7 +802,7 @@ sign_image_file() {
   local kernA_privkey="$6"
   local kernB_keyblock="$7"
   local kernB_privkey="$8"
-  echo "Preparing ${image_type} image..."
+  info "Preparing ${image_type} image..."
   cp --sparse=always "${input}" "${output}"
   resign_firmware_payload "${output}"
   resign_android_image_if_exists "${output}"
@@ -831,7 +830,7 @@ sign_image_file() {
     # Error is already logged.
     return 1
   fi
-  echo "Signed ${image_type} image output to ${output}"
+  info "Signed ${image_type} image output to ${output}"
 }
 
 # Verification
@@ -839,7 +838,7 @@ case ${TYPE} in
 dump_config)
   check_argc $# 2
   for partnum in 2 4; do
-    echo "kernel config in partition number ${partnum}:"
+    info "kernel config in partition number ${partnum}:"
     grab_kernel_config "${INPUT_IMAGE}" ${partnum}
     echo
   done
@@ -866,8 +865,8 @@ if [ -n "${VERSION_FILE}" ]; then
   FIRMWARE_VERSION=$(sed -n 's#^firmware_version=\(.*\)#\1#pg' ${VERSION_FILE})
   KERNEL_VERSION=$(sed -n 's#^kernel_version=\(.*\)#\1#pg' ${VERSION_FILE})
 fi
-echo "Using firmware version: ${FIRMWARE_VERSION}"
-echo "Using kernel version: ${KERNEL_VERSION}"
+info "Using firmware version: ${FIRMWARE_VERSION}"
+info "Using kernel version: ${KERNEL_VERSION}"
 
 # Make all modifications on output copy.
 if [[ "${TYPE}" == "ssd" || "${TYPE}" == "base" ]]; then
@@ -894,29 +893,25 @@ elif [[ "${TYPE}" == "factory" ]] || [[ "${TYPE}" == "install" ]]; then
     "${KEY_DIR}/kernel_data_key.vbprivk"
 elif [[ "${TYPE}" == "firmware" ]]; then
   if [[ -e "${KEY_DIR}/loem.ini" ]]; then
-    echo "LOEM signing not implemented yet for firmware images"
-    exit 1
+    die "LOEM signing not implemented yet for firmware images"
   fi
   cp ${INPUT_IMAGE} ${OUTPUT_IMAGE}
   sign_firmware ${OUTPUT_IMAGE} ${KEY_DIR} ${FIRMWARE_VERSION}
 elif [[ "${TYPE}" == "nv_lp0_firmware" ]]; then
   if [[ -e "${KEY_DIR}/loem.ini" ]]; then
-      echo "LOEM signing not implemented yet for nv_lp0_firmware images"
-    exit 1
+    die "LOEM signing not implemented yet for nv_lp0_firmware images"
   fi
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   sign_nv_lp0_firmware "${OUTPUT_IMAGE}" "${KEY_DIR}"
 elif [[ "${TYPE}" == "kernel" ]]; then
   if [[ -e "${KEY_DIR}/loem.ini" ]]; then
-    echo "LOEM signing not implemented yet for kernel images"
-    exit 1
+    die "LOEM signing not implemented yet for kernel images"
   fi
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   sign_kernel "${OUTPUT_IMAGE}" "${KEY_DIR}" "${KERNEL_VERSION}"
 elif [[ "${TYPE}" == "recovery_kernel" ]]; then
   if [[ -e "${KEY_DIR}/loem.ini" ]]; then
-    echo "LOEM signing not implemented yet for recovery_kernel images"
-    exit 1
+    die "LOEM signing not implemented yet for recovery_kernel images"
   fi
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
   sign_recovery_kernel "${OUTPUT_IMAGE}" "${KEY_DIR}" "${KERNEL_VERSION}"
@@ -939,6 +934,5 @@ elif [[ "${TYPE}" == "accessory_rwsig" ]]; then
 elif [[ "${TYPE}" == "oci-container" ]]; then
   sign_oci_container "${INPUT_IMAGE}" "${KEY_DIR}" "${OUTPUT_IMAGE}"
 else
-  echo "Invalid type ${TYPE}"
-  exit 1
+  die "Invalid type ${TYPE}"
 fi
