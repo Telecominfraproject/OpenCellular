@@ -10,15 +10,24 @@ set -e
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
-if [ $# -ne 1 ]; then
+main() {
+  if [[ $# -ne 1 ]]; then
     echo "Usage $0 <image>"
     exit 1
-fi
+  fi
 
-IMAGE=$1
-ROOTFS=$(make_temp_dir)
-mount_image_partition_ro "$IMAGE" 3 "$ROOTFS"
+  local image="$1"
 
-if ! no_chronos_password $ROOTFS; then
+  local rootfs
+  if [[ -d "${image}" ]]; then
+    rootfs="${image}"
+  else
+    rootfs=$(make_temp_dir)
+    mount_image_partition_ro "${image}" 3 "${rootfs}"
+  fi
+
+  if ! no_chronos_password "${rootfs}"; then
     die "chronos password is set! Shouldn't be for release builds."
-fi
+  fi
+}
+main "$@"
