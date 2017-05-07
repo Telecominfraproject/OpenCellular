@@ -25,7 +25,8 @@ lsbequals() {
   local expectval="$3"
   local realval=$(lsbval "$lsbfile" $key)
   if [ "$realval" != "$expectval" ]; then
-    echo "$key mismatch. Expected '$expectval', image contains '$realval'"
+    error "${key} mismatch. Expected '${expectval}'," \
+      "image contains '${realval}'"
     return 1
   fi
   return 0
@@ -53,7 +54,7 @@ check_keyval_in_list() {
     shift
   done
   # If we get here, it wasn't found
-  echo "$lsbkey: Value '$lsbval' was not recognized"
+  error "${lsbkey}: Value '${lsbval}' was not recognized"
   return 1
 }
 
@@ -76,22 +77,22 @@ lsb_syntaxcheck() {
   badlines=$(grep -Ev '^[A-Z][A-Z_]*=([[:graph:]][[:print:]]*)?$' "$lsbfile")
   if [ -n "$badlines" ]; then
     syntaxbad=1
-    echo "$lsbfile: Some lines seem non-well-formed:"
-    echo "$badlines"
+    error "${lsbfile}: Some lines seem non-well-formed:"
+    error "${badlines}"
   fi
 
   # Checks for a lines exceeding a reasonable overall length.
   badlines=$(grep -E '^.{255}' "$lsbfile")
   if [ -n "$badlines" ]; then
     syntaxbad=1
-    echo "$lsbfile: Some lsb-release lines seem unreasonably long:"
-    echo "$badlines"
+    error "${lsbfile}: Some lsb-release lines seem unreasonably long:"
+    error "${badlines}"
   fi
   # Overall file size check:
   size=$(ls -sk "$lsbfile" | cut -d ' ' -f 1)
   if [ $size -gt 4 ]; then
     syntaxbad=1
-    echo "$lsbfile: This file exceeds 4kb"
+    error "${lsbfile}: This file exceeds 4kb"
   fi
   return $syntaxbad
 }
@@ -116,9 +117,8 @@ main() {
     configfile="$2"
   fi
   # Either way, load test-expectations data from config.
-  echo -n "Loading config from $configfile... "
+  info "Loading config from ${configfile}"
   . "$configfile" || return 1
-  echo "Done."
 
   local rootfs=$(make_temp_dir)
   mount_image_partition_ro "$image" 3 "$rootfs"
