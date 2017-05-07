@@ -365,7 +365,10 @@ ensure_files_exist() {
 # Args: rootfs
 no_chronos_password() {
   local rootfs=$1
-  sudo grep -q '^chronos:\*:' "$rootfs/etc/shadow"
+  # Make sure the chronos user actually exists.
+  if grep -qs '^chronos:' "${rootfs}/etc/passwd"; then
+    sudo grep -q '^chronos:\*:' "${rootfs}/etc/shadow"
+  fi
 }
 
 trap "cleanup_temps_and_mounts" EXIT
