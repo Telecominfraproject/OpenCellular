@@ -45,7 +45,7 @@ main() {
 
     for file in ${release_file_blacklist}; do
         if [ -e "${rootfs}/${file}" ]; then
-            echo "FAIL: ${file} exists in this image!"
+            error "${file} exists in this image!"
             ls -al "${rootfs}/${file}"
             testfail=1
         fi
@@ -56,8 +56,8 @@ main() {
     local config_path="${rootfs}/etc/chrome_dev.conf"
     local matches=$(grep -s "^[^#]" "${config_path}")
     if [ -n "${matches}" ]; then
-        echo "FAIL: Found commands in ${config_path}:"
-        echo "${matches}"
+        error "Found commands in ${config_path}:"
+        error "${matches}"
         testfail=1
     fi
 
