@@ -122,7 +122,7 @@ find_valid_kernel_partitions() {
     local name="$(cros_kernel_name $part_id)"
     local kernel_part="$(make_partition_dev "$FLAGS_image" "$part_id")"
     if [ -z "$(dump_kernel_config "$kernel_part" 2>"$EXEC_LOG")" ]; then
-      echo "INFO: $name: no kernel boot information, ignored." >&2
+      info "${name}: no kernel boot information, ignored." >&2
     else
       [ -z "$valid_partitions" ] &&
         valid_partitions="$part_id" ||
@@ -158,11 +158,11 @@ resign_ssd_kernel() {
     size="$(partsize "$ssd_device" "$kernel_index")" ||
       err_die "Failed to get partition $kernel_index size from $ssd_device"
     if [ ! $size -gt $min_kernel_size ]; then
-      echo "INFO: $name seems too small ($size), ignored."
+      info "${name} seems too small (${size}), ignored."
       continue
     fi
     if [ ! $size -le $max_kernel_size ]; then
-      echo "INFO: $name seems too large ($size), ignored."
+      info "${name} seems too large (${size}), ignored."
       continue
     fi
 
@@ -173,7 +173,7 @@ resign_ssd_kernel() {
     local kernel_config
     if ! kernel_config="$(dump_kernel_config "$old_blob" 2>"$EXEC_LOG")"; then
       debug_msg "dump_kernel_config error message: $(cat "$EXEC_LOG")"
-      echo "INFO: $name: no kernel boot information, ignored."
+      info "${name}: no kernel boot information, ignored."
       continue
     fi
 
@@ -181,7 +181,7 @@ resign_ssd_kernel() {
       # Save current kernel config
       local old_config_file
       old_config_file="${FLAGS_save_config}.$kernel_index"
-      echo "Saving $name config to $old_config_file"
+      info "Saving ${name} config to ${old_config_file}"
       echo "$kernel_config" > "$old_config_file"
       # Just save; don't resign
       continue
@@ -194,7 +194,7 @@ resign_ssd_kernel() {
       kernel_config="$(cat "$new_config_file")" ||
         err_die "Failed to read new kernel config from $new_config_file"
       debug_msg "New kernel config: $kernel_config)"
-      echo "$name: Replaced config from $new_config_file"
+      info "${name}: Replaced config from ${new_config_file}"
     fi
 
     if [ "${FLAGS_edit_config}" = ${FLAGS_TRUE} ]; then
@@ -203,7 +203,7 @@ resign_ssd_kernel() {
       echo "${kernel_config}" >"${new_config_file}"
       local old_md5sum="$(md5sum "${new_config_file}")"
       local editor="${VISUAL:-${EDITOR:-vi}}"
-      echo "${name}: Editing kernel config:"
+      info "${name}: Editing kernel config:"
       # On ChromiumOS, some builds may come with broken EDITOR that refers to
       # nano so we want to check again if the editor really exists.
       if type "${editor}" >/dev/null 2>&1; then
@@ -217,10 +217,10 @@ resign_ssd_kernel() {
       fi
       kernel_config="$(cat "${new_config_file}")"
       if [ "$(md5sum "${new_config_file}")" = "${old_md5sum}" ]; then
-        echo "${name}: Config not changed."
+        info "${name}: Config not changed."
       else
         debug_msg "New kernel config: ${kernel_config})"
-        echo "${name}: Config updated"
+        info "${name}: Config updated"
       fi
     fi
 
@@ -230,7 +230,7 @@ resign_ssd_kernel() {
       debug_msg "Changing boot parameter to remove rootfs verification"
       kernel_config="$(remove_rootfs_verification "$kernel_config")"
       debug_msg "New kernel config: $kernel_config"
-      echo "$name: Disabled rootfs verification."
+      info "${name}: Disabled rootfs verification."
       remove_legacy_boot_rootfs_verification "$ssd_device"
     fi
 
@@ -272,9 +272,9 @@ resign_ssd_kernel() {
     local backup_file_path="$FLAGS_backup_dir/$backup_file_name"
     if mkdir -p "$FLAGS_backup_dir" &&
       cp -f "$old_blob" "$backup_file_path"; then
-      echo "Backup of $name is stored in: $backup_file_path"
+      info "Backup of ${name} is stored in: ${backup_file_path}"
     else
-      echo "WARNING: Cannot create file in $FLAGS_backup_dir... Ignore backups."
+      warning "Cannot create file in ${FLAGS_backup_dir} ... Ignore backups."
     fi
 
     debug_msg "Writing $name to partition $kernel_index"
@@ -313,12 +313,12 @@ resign_ssd_kernel() {
     # safety, let's try to sync more.
     sync; sync; sync
 
-    echo "$name: Re-signed with developer keys successfully."
+    info "${name}: Re-signed with developer keys successfully."
   done
 
   # If we saved the kernel config, exit now so we don't print an error
   if [ -n "${FLAGS_save_config}" ]; then
-    echo "(Kernels have not been resigned.)"
+    info "(Kernels have not been resigned.)"
     exit 0
   fi
 
@@ -359,7 +359,7 @@ sanity_check_live_partitions() {
   fi
   if [ "$ORIGINAL_PARTITIONS" != "" ]; then
     debug_msg "user has assigned partitions - provide more info."
-    echo "INFO: Making change to $FLAGS_partitions on $FLAGS_image."
+    info "Making change to ${FLAGS_partitions} on ${FLAGS_image}."
     return
   fi
   echo "
@@ -387,7 +387,7 @@ sanity_check_live_firmware() {
   debug_msg "Loading firmware to check root key..."
   local bios_image="$(make_temp_file)"
   local rootkey_file="$(make_temp_file)"
-  echo "INFO: checking system firmware..."
+  info "checking system firmware..."
   sudo flashrom -p host -i GBB -r "$bios_image" >/dev/null 2>&1
   gbb_utility -g --rootkey="$rootkey_file" "$bios_image" >/dev/null 2>&1
   if [ ! -s "$rootkey_file" ]; then
@@ -487,8 +487,8 @@ main() {
   debug_msg "Complete."
   if [ $num_signed -gt 0 -a $num_signed -le $num_given ]; then
     # signed something at least
-    echo "Successfully re-signed $num_signed of $num_given kernel(s)" \
-      " on device $FLAGS_image".
+    info "Successfully re-signed ${num_signed} of ${num_given} kernel(s)" \
+      " on device ${FLAGS_image}."
   else
     err_die "Failed re-signing kernels."
   fi
