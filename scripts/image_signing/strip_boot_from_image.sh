@@ -30,7 +30,7 @@ fi
 zero_free_space() {
   local rootfs="$1"
 
-  echo "Zeroing freespace in ${rootfs}"
+  info "Zeroing freespace in ${rootfs}"
   # dd is a silly thing and will produce a "No space left on device" message
   # that cannot be turned off and is confusing to unsuspecting victims.
   ( sudo dd if=/dev/zero of="${rootfs}/filler" bs=4096 conv=fdatasync \
@@ -47,7 +47,7 @@ strip_boot() {
   mount_image_partition ${image} 3 ${rootfs_dir}
 
   sudo rm -rf "${rootfs_dir}/boot" &&
-    echo "/boot directory was removed."
+    info "/boot directory was removed."
 
   # To prevent the files we just removed from the FS from remaining as non-
   # zero trash blocks that bloat payload sizes, need to zero them. This was
