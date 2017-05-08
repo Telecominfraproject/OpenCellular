@@ -20,8 +20,8 @@ with System.Address_To_Access_Conversions;
 package body HW.MMIO_Range
 with
    Refined_State =>
-     (State => Range_A,       -- the contents accessed
-      Base_Address => null)   -- the address, so actually Range_A too
+     (State => null,             -- the contents accessed, Range_A points to it
+      Base_Address => Range_A)   -- the address, stored in Range_A
 is
    pragma Warnings (Off, "implicit dereference",
                     Reason => "This is what this package is about.");
@@ -33,8 +33,7 @@ is
    package Conv_Range is new System.Address_To_Access_Conversions (Array_T);
 
    Range_A : Range_Access :=
-      Range_Access (Conv_Range.To_Pointer (System'To_Address (Base_Addr)))
-   with Volatile;
+      Range_Access (Conv_Range.To_Pointer (System'To_Address (Base_Addr)));
 
    procedure Read (Value : out Element_T; Index : in Index_T)
    is
