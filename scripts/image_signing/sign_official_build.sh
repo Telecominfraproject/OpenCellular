@@ -234,22 +234,23 @@ calculate_rootfs_hash() {
 }
 
 # Re-calculate rootfs hash, update rootfs and kernel command line(s).
-# Args: IMAGE DM_PARTNO KERN_A_KEYBLOCK KERN_A_PRIVKEY KERN_B_KEYBLOCK \
+# Args: LOOPDEV KERNEL KERN_A_KEYBLOCK KERN_A_PRIVKEY KERN_B_KEYBLOCK \
 #       KERN_B_PRIVKEY
 #
 # The rootfs is hashed by tool 'verity', and the hash data is stored after the
 # rootfs. A hash of those hash data (also known as final verity hash) may be
 # contained in kernel 2 or kernel 4 command line.
 #
-# This function reads dm-verity configuration from DM_PARTNO, rebuilds rootfs
+# This function reads dm-verity configuration from KERNEL, rebuilds the rootfs
 # hash, and then resigns kernel A & B by their keyblock and private key files.
 update_rootfs_hash() {
-  local image=$1  # Input image.
-  local dm_partno="$2"  # Partition number of kernel that contains verity args.
+  local loopdev="$1"  # Input image.
+  local loop_kern="$2"  # Kernel that contains verity args.
   local kern_a_keyblock="$3"  # Keyblock file for kernel A.
   local kern_a_privkey="$4"  # Private key file for kernel A.
   local kern_b_keyblock="$5"  # Keyblock file for kernel B.
   local kern_b_privkey="$6"  # Private key file for kernel A.
+  local loop_rootfs="${loopdev}p3"
 
   # Note even though there are two kernels, there is one place (after rootfs)
   # for hash data, so we must assume both kernel use same hash algorithm (i.e.,
@@ -257,63 +258,58 @@ update_rootfs_hash() {
   info "Updating rootfs hash and updating config for Kernel partitions"
 
   # If we can't find dm parameters in the kernel config, bail out now.
-  local kernel_config=$(grab_kernel_config "${image}" "${dm_partno}")
+  local kernel_config=$(sudo dump_kernel_config "${loop_kern}")
   local dm_config=$(get_dmparams_from_config "${kernel_config}")
   if [ -z "${dm_config}" ]; then
-    error "Couldn't grab dm_config from kernel partition ${dm_partno}"
+    error "Couldn't grab dm_config from kernel ${loop_kern}"
     error " (config: ${kernel_config})"
     return 1
   fi
 
   # check and clear need_to_resign tag
   local rootfs_dir=$(make_temp_dir)
-  mount_image_partition_ro "${image}" 3 "${rootfs_dir}"
+  sudo mount -o ro "${loop_rootfs}" "${rootfs_dir}"
   if has_needs_to_be_resigned_tag "${rootfs_dir}"; then
     # remount as RW
-    sudo umount "${rootfs_dir}"
-    mount_image_partition "${image}" 3 "${rootfs_dir}"
+    sudo mount -o remount,rw "${rootfs_dir}"
     sudo rm -f "${rootfs_dir}/${TAG_NEEDS_TO_BE_SIGNED}"
   fi
   sudo umount "${rootfs_dir}"
 
-  local rootfs_image=$(make_temp_file)
-  extract_image_partition ${image} 3 ${rootfs_image}
   local hash_image=$(make_temp_file)
 
   # Disable rw mount support prior to hashing.
-  disable_rw_mount "${rootfs_image}"
+  disable_rw_mount "${loop_rootfs}"
 
-  if ! calculate_rootfs_hash "${rootfs_image}"  "${kernel_config}" \
+  if ! calculate_rootfs_hash "${loop_rootfs}"  "${kernel_config}" \
     "${hash_image}"; then
     error "calculate_rootfs_hash failed!"
     error "Aborting rootfs hash update!"
     return 1
   fi
 
-  local rootfs_blocks=$(sudo dumpe2fs "${rootfs_image}" 2> /dev/null |
+  local rootfs_blocks=$(sudo dumpe2fs "${loop_rootfs}" 2> /dev/null |
     grep "Block count" |
     tr -d ' ' |
     cut -f2 -d:)
   local rootfs_sectors=$((rootfs_blocks * 8))
 
   # Overwrite the appended hashes in the rootfs
-  dd if=${hash_image} of=${rootfs_image} bs=512 \
+  sudo dd if="${hash_image}" of="${loop_rootfs}" bs=512 \
     seek=${rootfs_sectors} conv=notrunc 2>/dev/null
-  replace_image_partition ${image} 3 ${rootfs_image}
 
   # Update kernel command lines
   local dm_args="${CALCULATED_DM_ARGS}"
   local temp_config=$(make_temp_file)
-  local temp_kimage=$(make_temp_file)
-  local updated_kimage=$(make_temp_file)
   local kernelpart=
   local keyblock=
   local priv_key=
   local new_kernel_config=
 
   for kernelpart in 2 4; do
+    loop_kern="${loopdev}p${kernelpart}"
     if ! new_kernel_config="$(
-         grab_kernel_config "${image}" "${kernelpart}" 2>/dev/null)" &&
+         sudo dump_kernel_config "${loop_kern}" 2>/dev/null)" &&
        [[ "${kernelpart}" == 4 ]]; then
       # Legacy images don't have partition 4.
       info "Skipping empty kernel partition 4 (legacy images)."
@@ -323,7 +319,6 @@ update_rootfs_hash() {
       sed -e 's#\(.*dm="\)\([^"]*\)\(".*\)'"#\1${dm_args}\3#g")"
     info "New config for kernel partition ${kernelpart} is:"
     echo "${new_kernel_config}" | tee "${temp_config}"
-    extract_image_partition "${image}" "${kernelpart}" "${temp_kimage}"
     # Re-calculate kernel partition signature and command line.
     if [[ "$kernelpart" == 2 ]]; then
       keyblock="${kern_a_keyblock}"
@@ -332,13 +327,12 @@ update_rootfs_hash() {
       keyblock="${kern_b_keyblock}"
       priv_key="${kern_b_privkey}"
     fi
-    vbutil_kernel --repack ${updated_kimage} \
+    sudo vbutil_kernel --repack "${loop_kern}" \
       --keyblock ${keyblock} \
       --signprivate ${priv_key} \
       --version "${KERNEL_VERSION}" \
-      --oldblob ${temp_kimage} \
+      --oldblob "${loop_kern}" \
       --config ${temp_config}
-    replace_image_partition ${image} ${kernelpart} ${updated_kimage}
   done
 }
 
@@ -841,7 +835,7 @@ sign_image_file() {
         " ${kerna_config} " != *" cros_efi "* ]]; then
     "${SCRIPT_DIR}/strip_boot_from_image.sh" --image "${output}"
   fi
-  update_rootfs_hash "${output}" "${dm_partno}" \
+  update_rootfs_hash "${loopdev}" "${loop_kern}" \
     "${kernA_keyblock}" "${kernA_privkey}" \
     "${kernB_keyblock}" "${kernB_privkey}"
   update_stateful_partition_vblock "${loopdev}"
