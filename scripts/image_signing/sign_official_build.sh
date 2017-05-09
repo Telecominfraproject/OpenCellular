@@ -859,9 +859,10 @@ sign_image_file() {
 case ${TYPE} in
 dump_config)
   check_argc $# 2
+  loopdev=$(loopback_partscan "${INPUT_IMAGE}")
   for partnum in 2 4; do
     info "kernel config in partition number ${partnum}:"
-    grab_kernel_config "${INPUT_IMAGE}" ${partnum}
+    sudo dump_kernel_config "${loopdev}p${partnum}"
     echo
   done
   exit 0
