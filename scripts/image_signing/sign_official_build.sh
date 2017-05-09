@@ -720,15 +720,15 @@ EOF
 }
 
 # Re-calculate recovery kernel hash.
-# Args: IMAGE_BIN
+# Args: LOOPDEV
 update_recovery_kernel_hash() {
-  image_bin=$1
+  local loopdev="$1"
+  local loop_kerna="${loopdev}p2"
+  local loop_kernb="${loopdev}p4"
 
   # Update the Kernel B hash in Kernel A command line
-  local old_kerna_config=$(grab_kernel_config "${image_bin}" 2)
-  local new_kernb=$(make_temp_file)
-  extract_image_partition ${image_bin} 4 ${new_kernb}
-  local new_kernb_hash=$(sha1sum ${new_kernb} | cut -f1 -d' ')
+  local old_kerna_config="$(sudo dump_kernel_config "${loop_kerna}")"
+  local new_kernb_hash=$(sudo sha1sum "${loop_kernb}" | cut -f1 -d' ')
 
   new_kerna_config=$(make_temp_file)
   echo "$old_kerna_config" |
@@ -737,19 +737,13 @@ update_recovery_kernel_hash() {
   info "New config for kernel partition 2 is"
   cat ${new_kerna_config}
 
-  local temp_kimagea=$(make_temp_file)
-  extract_image_partition ${image_bin} 2 ${temp_kimagea}
-
   # Re-calculate kernel partition signature and command line.
-  local updated_kimagea=$(make_temp_file)
-  vbutil_kernel --repack ${updated_kimagea} \
+  sudo vbutil_kernel --repack "${loop_kerna}" \
     --keyblock ${KEY_DIR}/recovery_kernel.keyblock \
     --signprivate ${KEY_DIR}/recovery_kernel_data_key.vbprivk \
     --version "${KERNEL_VERSION}" \
-    --oldblob ${temp_kimagea} \
+    --oldblob "${loop_kerna}" \
     --config ${new_kerna_config}
-
-  replace_image_partition ${image_bin} 2 ${updated_kimagea}
 }
 
 # Update the legacy bootloader templates in EFI partition if available.
@@ -852,7 +846,7 @@ sign_image_file() {
     "${kernB_keyblock}" "${kernB_privkey}"
   update_stateful_partition_vblock "${loopdev}"
   if [[ "${image_type}" == "recovery" ]]; then
-    update_recovery_kernel_hash "${output}"
+    update_recovery_kernel_hash "${loopdev}"
   fi
   if ! update_legacy_bootloader "${output}" "${dm_partno}"; then
     # Error is already logged.
