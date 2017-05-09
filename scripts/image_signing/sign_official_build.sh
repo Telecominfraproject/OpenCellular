@@ -99,17 +99,6 @@ VERSION_FILE=$5
 FIRMWARE_VERSION=1
 KERNEL_VERSION=1
 
-# Get current rootfs hash and kernel command line
-# ARGS: IMAGE KERNELPART
-grab_kernel_config() {
-  local image=$1
-  local kernelpart=$2  # Kernel partition number to grab.
-  # Grab the existing kernel partition and get the kernel config.
-  temp_kimage=$(make_temp_file)
-  extract_image_partition ${image} ${kernelpart} ${temp_kimage}
-  dump_kernel_config ${temp_kimage}
-}
-
 # TODO(gauravsh): These are duplicated from chromeos-setimage. We need
 # to move all signing and rootfs code to one single place where it can be
 # reused. crosbug.com/19543
@@ -741,10 +730,10 @@ update_recovery_kernel_hash() {
 }
 
 # Update the legacy bootloader templates in EFI partition if available.
-# Args: IMAGE_BIN DM_PARTNO
+# Args: IMAGE_BIN KERNEL
 update_legacy_bootloader() {
   local image="$1"
-  local dm_partno="$2"
+  local loop_kern="$2"
 
   local esp_partnum=12
   local esp_offset=$(( $(partoffset "${image}" "${esp_partnum}") * 512 ))
@@ -764,10 +753,10 @@ update_legacy_bootloader() {
   fi
 
   # If we can't find the dm parameter in the kernel config, bail out now.
-  local kernel_config=$(grab_kernel_config "${image}" "${dm_partno}")
+  local kernel_config=$(sudo dump_kernel_config "${loop_kern}")
   local root_hexdigest="$(get_hash_from_config "${kernel_config}")"
   if [[ -z "${root_hexdigest}" ]]; then
-    error "Couldn't grab root_digest from kernel partition ${dm_partno}"
+    error "Couldn't grab root_digest from kernel partition ${loop_kern}"
     error " (config: ${kernel_config})"
     return 1
   fi
@@ -842,7 +831,7 @@ sign_image_file() {
   if [[ "${image_type}" == "recovery" ]]; then
     update_recovery_kernel_hash "${loopdev}"
   fi
-  if ! update_legacy_bootloader "${output}" "${dm_partno}"; then
+  if ! update_legacy_bootloader "${output}" "${loop_kern}"; then
     # Error is already logged.
     return 1
   fi
