@@ -375,15 +375,15 @@ update_stateful_partition_vblock() {
 # Do a sanity check on the image's rootfs
 # ARGS: Image
 verify_image_rootfs() {
-  local image=$1
-  local rootfs_image=$(make_temp_file)
-  extract_image_partition ${image} 3 ${rootfs_image}
+  local rootfs=$1
   # This flips the read-only compatibility flag, so that e2fsck does not
   # complain about unknown file system capabilities.
-  enable_rw_mount ${rootfs_image}
+  enable_rw_mount "${rootfs}"
   info "Running e2fsck to check root file system for errors"
-  sudo e2fsck -fn "${rootfs_image}" ||
+  sudo e2fsck -fn "${rootfs}" ||
     die "Root file system has errors!"
+  # Flip the bit back so we don't break hashes.
+  disable_rw_mount "${rootfs}"
 }
 
 # Extracts a firmware updater bundle (for firmware image binaries) file
@@ -626,8 +626,8 @@ sign_oci_container() {
 
 # Verify an image including rootfs hash using the specified keys.
 verify_image() {
-  local rootfs_image=$(make_temp_file)
-  extract_image_partition ${INPUT_IMAGE} 3 ${rootfs_image}
+  local loopdev=$(loopback_partscan "${INPUT_IMAGE}")
+  local loop_rootfs="${loopdev}p3"
 
   info "Verifying RootFS hash..."
   # What we get from image.
@@ -639,9 +639,9 @@ verify_image() {
   local partnum
   for partnum in 2 4; do
     info "Considering Kernel partition ${partnum}"
-    kernel_config=$(grab_kernel_config ${INPUT_IMAGE} $partnum)
+    kernel_config=$(sudo dump_kernel_config "${loopdev}p${partnum}")
     local hash_image=$(make_temp_file)
-    if ! calculate_rootfs_hash "${rootfs_image}" "${kernel_config}" \
+    if ! calculate_rootfs_hash "${loop_rootfs}" "${kernel_config}" \
       "${hash_image}"; then
       info "Trying next kernel partition."
       continue
@@ -692,7 +692,7 @@ EOF
     echo "YES"; } || echo "NO"
   set -e
 
-  verify_image_rootfs "${INPUT_IMAGE}"
+  verify_image_rootfs "${loop_rootfs}"
 
   # TODO(gauravsh): Check embedded firmware AU signatures.
 }
