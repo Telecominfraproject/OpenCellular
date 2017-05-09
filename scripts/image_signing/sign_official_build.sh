@@ -343,31 +343,30 @@ update_rootfs_hash() {
 }
 
 # Update the SSD install-able vblock file on stateful partition.
-# ARGS: Image
+# ARGS: Loopdev
 # This is deprecated because all new images should have a SSD boot-able kernel
 # in partition 4. However, the signer needs to be able to sign new & old images
 # (crbug.com/449450#c13) so we will probably never remove this.
 update_stateful_partition_vblock() {
-  local image="$1"
-  local kernb_image="$(make_temp_file)"
+  local loopdev="$1"
   local temp_out_vb="$(make_temp_file)"
 
-  extract_image_partition "${image}" 4 "${kernb_image}"
-  if [[ "$(dump_kernel_config "${kernb_image}" 2>/dev/null)" == "" ]]; then
+  local loop_kern="${loopdev}p4"
+  if [[ -z "$(sudo dump_kernel_config "${loop_kern}" 2>/dev/null)" ]]; then
     info "Building vmlinuz_hd.vblock from legacy image partition 2."
-    extract_image_partition "${image}" 2 "${kernb_image}"
+    loop_kern="${loopdev}p2"
   fi
 
   # vblock should always use kernel keyblock.
-  vbutil_kernel --repack "${temp_out_vb}" \
+  sudo vbutil_kernel --repack "${temp_out_vb}" \
     --keyblock "${KEY_DIR}/kernel.keyblock" \
     --signprivate "${KEY_DIR}/kernel_data_key.vbprivk" \
-    --oldblob "${kernb_image}" \
+    --oldblob "${loop_kern}" \
     --vblockonly
 
   # Copy the installer vblock to the stateful partition.
   local stateful_dir=$(make_temp_dir)
-  mount_image_partition "${image}" 1 "${stateful_dir}"
+  sudo mount "${loopdev}p1" "${stateful_dir}"
   sudo cp ${temp_out_vb} ${stateful_dir}/vmlinuz_hd.vblock
   sudo umount "${stateful_dir}"
 }
@@ -825,8 +824,13 @@ sign_image_file() {
   local kernA_privkey="$6"
   local kernB_keyblock="$7"
   local kernB_privkey="$8"
+
   info "Preparing ${image_type} image..."
   cp --sparse=always "${input}" "${output}"
+
+  local loopdev=$(loopback_partscan "${output}")
+  local loop_kern="${loopdev}p${dm_partno}"
+
   resign_firmware_payload "${output}"
   resign_android_image_if_exists "${output}"
   # We do NOT strip /boot for factory installer, since some devices need it to
@@ -836,7 +840,8 @@ sign_image_file() {
   # "cros_installer postinst" on BIOS or EFI systems relies on presence of
   # /boot in rootfs to update kernel.  We infer the BIOS type from the kernel
   # config.
-  local kerna_config="$(grab_kernel_config "${input}" 2)"
+  local loop_kerna="${loopdev}p2"
+  local kerna_config="$(sudo dump_kernel_config "${loop_kerna}")"
   if [[ "${image_type}" != "factory_install" &&
         " ${kerna_config} " != *" cros_legacy "* &&
         " ${kerna_config} " != *" cros_efi "* ]]; then
@@ -845,7 +850,7 @@ sign_image_file() {
   update_rootfs_hash "${output}" "${dm_partno}" \
     "${kernA_keyblock}" "${kernA_privkey}" \
     "${kernB_keyblock}" "${kernB_privkey}"
-  update_stateful_partition_vblock "${output}"
+  update_stateful_partition_vblock "${loopdev}"
   if [[ "${image_type}" == "recovery" ]]; then
     update_recovery_kernel_hash "${output}"
   fi
