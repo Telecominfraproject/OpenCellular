@@ -60,6 +60,9 @@ static struct vb2_shared_data *sd;
 static uint32_t screens_displayed[8];
 static uint32_t screens_count = 0;
 
+static int ec_aux_fw_update_req;
+static VbAuxFwUpdateSeverity_t ec_aux_fw_update_severity;
+
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
 {
@@ -71,7 +74,7 @@ static void ResetMocks(void)
 	memset(&gbb, 0, sizeof(gbb));
 	gbb.major_version = GBB_MAJOR_VER;
 	gbb.minor_version = GBB_MINOR_VER;
-	gbb.flags = GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC;
+	gbb.flags = 0;
 	cparams.gbb = &gbb;
 
 	memset(&ctx, 0, sizeof(ctx));
@@ -117,6 +120,9 @@ static void ResetMocks(void)
 
 	memset(screens_displayed, 0, sizeof(screens_displayed));
 	screens_count = 0;
+
+	ec_aux_fw_update_severity = VB_AUX_FW_NO_UPDATE;
+	ec_aux_fw_update_req = 0;
 }
 
 /* Mock functions */
@@ -210,6 +216,18 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
 	if (screens_count < ARRAY_SIZE(screens_displayed))
 		screens_displayed[screens_count++] = screen;
 
+	return VBERROR_SUCCESS;
+}
+
+VbError_t VbExCheckAuxFw(VbAuxFwUpdateSeverity_t *severity)
+{
+	*severity = ec_aux_fw_update_severity;
+	return VBERROR_SUCCESS;
+}
+
+VbError_t VbExUpdateAuxFw()
+{
+	ec_aux_fw_update_req = 1;
 	return VBERROR_SUCCESS;
 }
 
@@ -398,6 +416,46 @@ static void VbSoftwareSyncTest(void)
 	mock_in_rw = 1;
 	shutdown_request_calls_left = 0;
 	test_ssync(0, 0, "AP-RW shutdown requested");
+
+	ResetMocks();
+	cparams.gbb->flags |= GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC;
+	ec_aux_fw_update_severity = VB_AUX_FW_FAST_UPDATE;
+	test_ssync(VBERROR_SUCCESS, 0,
+		   "GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC"
+		   " disables auxiliary FW update request");
+	TEST_EQ(ec_aux_fw_update_req, 0, "  aux fw update disabled");
+
+	ResetMocks();
+	cparams.gbb->flags |= GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC;
+	ec_aux_fw_update_severity = VB_AUX_FW_FAST_UPDATE;
+	test_ssync(VBERROR_SUCCESS, 0,
+		   "GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC"
+		   " disables auxiliary FW update request");
+	TEST_EQ(ec_aux_fw_update_req, 0, "  aux fw update disabled");
+
+	ResetMocks();
+	ec_aux_fw_update_severity = VB_AUX_FW_NO_UPDATE;
+	test_ssync(VBERROR_SUCCESS, 0,
+		   "No auxiliary FW update needed");
+	TEST_EQ(screens_count, 0,
+		"  wait screen skipped");
+	TEST_EQ(ec_aux_fw_update_req, 0, "  no aux fw update requested");
+
+	ResetMocks();
+	ec_aux_fw_update_severity = VB_AUX_FW_FAST_UPDATE;
+	test_ssync(VBERROR_SUCCESS, 0,
+		   "Fast auxiliary FW update needed");
+	TEST_EQ(screens_count, 0,
+		"  wait screen skipped");
+	TEST_EQ(ec_aux_fw_update_req, 1, "  aux fw update requested");
+
+	ResetMocks();
+	ec_aux_fw_update_severity = VB_AUX_FW_SLOW_UPDATE;
+	test_ssync(VBERROR_SUCCESS, 0,
+		   "Slow auxiliary FW update needed");
+	TEST_EQ(ec_aux_fw_update_req, 1, "  aux fw update requested");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_WAIT,
+		"  wait screen forced");
 }
 
 int main(void)

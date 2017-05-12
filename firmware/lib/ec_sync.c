@@ -13,6 +13,7 @@
 #include "sysincludes.h"
 #include "ec_sync.h"
 #include "gbb_header.h"
+#include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
 
@@ -420,8 +421,15 @@ int ec_will_update_slowly(struct vb2_context *ctx, VbCommonParams *cparams)
 		(shared->flags & VBSD_EC_SLOW_UPDATE));
 }
 
+/**
+ * determine if we can update the EC
+ *
+ * @param ctx		Vboot2 context
+ * @param cparams	Vboot common params
+ * @return boolean (true iff we can update the EC)
+ */
 
-VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
+static int ec_sync_allowed(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -429,10 +437,30 @@ VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	/* Reasons not to do sync at all */
 	if (!(shared->flags & VBSD_EC_SOFTWARE_SYNC))
-		return VBERROR_SUCCESS;
+		return 0;
 	if (cparams->gbb->flags & GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)
-		return VBERROR_SUCCESS;
+		return 0;
 	if (sd->recovery_reason)
+		return 0;
+	return 1;
+}
+
+VbError_t ec_sync_check_aux_fw(struct vb2_context *ctx,
+			       VbCommonParams *cparams,
+			       VbAuxFwUpdateSeverity_t *severity)
+{
+	/* If we're not updating the EC, skip aux fw syncs as well */
+	if (!ec_sync_allowed(ctx, cparams) ||
+	    (cparams->gbb->flags & GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
+		*severity = VB_AUX_FW_NO_UPDATE;
+		return VBERROR_SUCCESS;
+	}
+	return VbExCheckAuxFw(severity);
+}
+
+VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
+{
+	if (!ec_sync_allowed(ctx, cparams))
 		return VBERROR_SUCCESS;
 
 	/* Handle updates and jumps for EC */
