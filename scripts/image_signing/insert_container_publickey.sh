@@ -40,8 +40,7 @@ main() {
   fi
 
   # Imageloader likes DER as a runtime format as it's easier to read.
-  local tmpfile=$(mktemp)
-  trap "rm -f '${tmpfile}'" EXIT
+  local tmpfile=$(make_temp_file)
   openssl pkey -pubin -in "${pub_key}" -out "${tmpfile}" -pubout -outform DER
 
   sudo install \
