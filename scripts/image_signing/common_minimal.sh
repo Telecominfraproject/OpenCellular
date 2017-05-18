@@ -38,10 +38,24 @@ load_shflags() {
 # Functions for debug output
 # ----------------------------------------------------------------------------
 
+# These helpers are for runtime systems.  For scripts using common.sh,
+# they'll get better definitions that will clobber these ones.
+info() {
+  echo "${PROG}: INFO: $*" >&2
+}
+
+warn() {
+  echo "${PROG}: WARN: $*" >&2
+}
+
+error() {
+  echo "${PROG}: ERROR: $*" >&2
+}
+
 # Reports error message and exit(1)
 # Args: error message
-err_die() {
-  echo "ERROR: $*" 1>&2
+die() {
+  error "$@"
   exit 1
 }
 

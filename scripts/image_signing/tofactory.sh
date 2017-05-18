@@ -121,8 +121,8 @@ EOF
 
 main() {
   # Make sure the files we were passed exist
-  [ -n "$FLAGS_bios" ] || err_die "Please specify a BIOS file (-b bios.bin)"
-  [ -n "$FLAGS_ec" ] || err_die "Please specify an EC updater (-e updater.sh)"
+  [ -n "$FLAGS_bios" ] || die "Please specify a BIOS file (-b bios.bin)"
+  [ -n "$FLAGS_ec" ] || die "Please specify an EC updater (-e updater.sh)"
   ensure_files_exist "$FLAGS_bios" "$FLAGS_ec" || exit 1
 
   # If --nothing was specified, keep flashrom from writing
@@ -158,7 +158,7 @@ main() {
   debug_msg "Copying VPD from old firmware to new firmware"
   cp "$FLAGS_bios" "$NEW_BIOS"
   dd bs=1 seek=$vpd_offset skip=$vpd_offset count=$vpd_size conv=notrunc \
-    if="$OLD_BIOS" of="$NEW_BIOS" || err_die "Unable to copy RO VPD"
+    if="$OLD_BIOS" of="$NEW_BIOS" || die "Unable to copy RO VPD"
 
   # Disable write protect
   disable_wp "EC" ${FLASHROM_EC}
@@ -167,14 +167,14 @@ main() {
   # Write new firmware
   debug_msg "Writing EC"
   # TODO: if EC file ends in .bin, use flashrom to write it directly?
-  $NOTHING sh "$FLAGS_ec" --factory || err_die "Unable to write EC"
+  $NOTHING sh "$FLAGS_ec" --factory || die "Unable to write EC"
   debug_msg "Writing BIOS"
-  $NOTHING ${FLASHROM_BIOS} -w "$NEW_BIOS" || err_die "Unable to write BIOS"
+  $NOTHING ${FLASHROM_BIOS} -w "$NEW_BIOS" || die "Unable to write BIOS"
 
   # Wipe SSD
   if [ "$FLAGS_wipe_ssd" = $FLAGS_TRUE ]; then
     debug_msg "Wiping SSD"
-    $NOTHING cgpt create -z "$FLAGS_ssd" || err_die "Unable to wipe SSD"
+    $NOTHING cgpt create -z "$FLAGS_ssd" || die "Unable to wipe SSD"
   fi
 
   # Leave the update engine stopped.  We've mucked with the firmware

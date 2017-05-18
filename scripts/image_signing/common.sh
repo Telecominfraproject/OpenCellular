@@ -68,14 +68,6 @@ error() {
   echo -e >&2   "${V_BOLD_RED}${CROS_LOG_PREFIX:-}ERROR  : $1${V_VIDOFF}"
 }
 
-# Prints an error message and exit with an error code.
-# Taken from src/scripts/common.sh.
-# Args: MESSAGE
-die() {
-  error "$1"
-  exit 1
-}
-
 # Usage: lsbval path-to-lsb-file key
 # Returns the value for the given lsb-release file variable.
 lsbval() {

@@ -116,7 +116,7 @@ main() {
 
   if [[ -e ${key_dir}/loem.ini ]]; then
     if [[ -z ${loem_output_dir} ]]; then
-      err_die "need loem_output_dir w/loem keysets"
+      die "need loem_output_dir w/loem keysets"
     fi
     sign_loems
   else

@@ -95,7 +95,7 @@ mydd() {
   # oflag=sync is safer, but since we need bs=512, syncing every block would be
   # very slow.
   dd "$@" >"$EXEC_LOG" 2>&1 ||
-    err_die "Failed in [dd $@], Message: $(cat "$EXEC_LOG")"
+    die "Failed in [dd $*], Message: $(cat "${EXEC_LOG}")"
 }
 
 # Prints a more friendly name from kernel index number
@@ -154,9 +154,9 @@ resign_ssd_kernel() {
     debug_msg "Probing $name information"
     local offset size
     offset="$(partoffset "$ssd_device" "$kernel_index")" ||
-      err_die "Failed to get partition $kernel_index offset from $ssd_device"
+      die "Failed to get partition ${kernel_index} offset from ${ssd_device}"
     size="$(partsize "$ssd_device" "$kernel_index")" ||
-      err_die "Failed to get partition $kernel_index size from $ssd_device"
+      die "Failed to get partition ${kernel_index} size from ${ssd_device}"
     if [ ! $size -gt $min_kernel_size ]; then
       info "${name} seems too small (${size}), ignored."
       continue
@@ -192,7 +192,7 @@ resign_ssd_kernel() {
       local new_config_file
       new_config_file="${FLAGS_set_config}.$kernel_index"
       kernel_config="$(cat "$new_config_file")" ||
-        err_die "Failed to read new kernel config from $new_config_file"
+        die "Failed to read new kernel config from ${new_config_file}"
       debug_msg "New kernel config: $kernel_config)"
       info "${name}: Replaced config from ${new_config_file}"
     fi
@@ -213,7 +213,7 @@ resign_ssd_kernel() {
         # editing in in console.
         bash -c "read -e -i '${kernel_config}' &&
                  echo \"\${REPLY}\" >${new_config_file}" ||
-          err_die "Failed to run editor. Please specify editor name by VISUAL."
+          die "Failed to run editor. Please specify editor name by VISUAL."
       fi
       kernel_config="$(cat "${new_config_file}")"
       if [ "$(md5sum "${new_config_file}")" = "${old_md5sum}" ]; then
@@ -245,7 +245,7 @@ resign_ssd_kernel() {
       --config "$new_kernel_config_file" \
       --signprivate "$KERNEL_DATAKEY" \
       --oldblob "$old_blob" >"$EXEC_LOG" 2>&1 ||
-      err_die "Failed to resign $name. Message: $(cat "$EXEC_LOG")"
+      die "Failed to resign ${name}. Message: $(cat "${EXEC_LOG}")"
 
     debug_msg "Creating new kernel image (vboot+code+config)"
     local new_kern="$(make_temp_file)"
@@ -263,7 +263,7 @@ resign_ssd_kernel() {
     vbutil_kernel \
       --verify "$new_kern" \
       --signpubkey "$KERNEL_PUBKEY" --verbose >"$EXEC_LOG" 2>&1 ||
-      err_die "Failed to verify new $name. Message: $(cat "$EXEC_LOG")"
+      die "Failed to verify new ${name}. Message: $(cat "${EXEC_LOG}")"
 
     debug_msg "Backup old kernel blob"
     local backup_date_time="$(date +'%Y%m%d_%H%M%S')"
@@ -303,8 +303,8 @@ resign_ssd_kernel() {
         # disable the RO ext2 hack
         debug_msg "Disabling rootfs ext2 RO bit hack"
         enable_rw_mount "$ssd_device" "$root_offset_bytes" >"$EXEC_LOG" 2>&1 ||
-          err_die "Failed turning off rootfs RO bit. OS may be corrupted. " \
-                  "Message: $(cat "$EXEC_LOG")"
+          die "Failed turning off rootfs RO bit. OS may be corrupted. " \
+              "Message: $(cat "${EXEC_LOG}")"
       fi
     fi
 
@@ -459,7 +459,7 @@ main() {
     debug_msg "check valid kernel partitions for live system"
     local valid_partitions="$(find_valid_kernel_partitions $FLAGS_partitions)"
     [ -n "$valid_partitions" ] ||
-      err_die "No valid kernel partitions on $FLAGS_image ($FLAGS_partitions)."
+      die "No valid kernel partitions on ${FLAGS_image} (${FLAGS_partitions})."
     FLAGS_partitions="$valid_partitions"
 
     # Sanity checks
@@ -478,7 +478,7 @@ main() {
     elif ! sanity_check_live_firmware ||
          ! sanity_check_live_partitions ||
          ! sanity_check_crossystem_flags; then
-      err_die "IMAGE $FLAGS_image IS NOT MODIFIED."
+      die "IMAGE ${FLAGS_image} IS NOT MODIFIED."
     fi
   fi
 
@@ -490,7 +490,7 @@ main() {
     info "Successfully re-signed ${num_signed} of ${num_given} kernel(s)" \
       " on device ${FLAGS_image}."
   else
-    err_die "Failed re-signing kernels."
+    die "Failed re-signing kernels."
   fi
 }
 
@@ -498,7 +498,7 @@ main() {
 # so adding parameter check is safer.
 if [ "$#" -gt 0 ]; then
   flags_help
-  err_die "Unknown parameters: $@"
+  die "Unknown parameters: $*"
 fi
 
 main
