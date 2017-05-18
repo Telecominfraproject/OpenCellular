@@ -1037,14 +1037,6 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 							  &menu_size);
 				if (current_menu_idx > 0)
 					current_menu_idx--;
-				vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
-				vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
-#ifdef SAVE_LOCALE_IMMEDIATELY
-				if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
-					VbExNvStorageWrite(ctx.nvdata);
-					ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
-				}
-#endif
 				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_VOL_DOWN:
