@@ -709,6 +709,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						cparams,
 						VB_SCREEN_BASE,
 						0);
+					vb2_print_current_menu();
 				}
 			}
 			break;
@@ -804,6 +805,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 							cparams,
 							VB_SCREEN_BASE,
 							0);
+						vb2_print_current_menu();
 					}
 				}
 			}
