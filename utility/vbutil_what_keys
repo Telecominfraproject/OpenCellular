@@ -216,6 +216,7 @@ exit 0;
 # bf39d0d3e30cbf6a121416d04df4603ad5310779  recovery Peppy MP-v2
 # 60aa1bbbea1d2f724c6e5daa0653ca472ac3085e  recovery Quawks MP
 # fb4847ecb6bfcc300e5f570c5e8f3ab881204968  recovery Rambi PreMP
+# abd575549848c82b481068ddf0242ea38d2e5fdd  recovery Rowan PreMP
 # 462edb5ebfd817e29e813db7a424582c3ce35768  recovery Samus PreMP
 # 13b0ddf343bb0c325b178e5be138d4969a9e02be  recovery Snow MP
 # cdc2858ca78351dc4b54d5d5d02bc695830f7802  recovery Squawks MP
@@ -277,6 +278,7 @@ exit 0;
 # fc68bcb88bf9af1907289a9f377d658b3b9fe5b0      root Peppy MP-v2
 # 758a59f4f911b63a1335223d761d2485313674c8      root Quawks MP
 # b3119b02f2b5371da5596b13d612facbca99b94f      root Rambi PreMP
+# cb67b1bda9965eebae6c477abf557d2c13690c30      root Rowan PreMP
 # cb8086a9c1cd26318fef9a9fb3f846ca12320737      root Samus PreMP
 # a026a7a4a0bf0fa32d6b7aa90a80d5ef01a3b799      root Snow MP
 # 758a59f4f911b63a1335223d761d2485313674c8      root Squawks MP
@@ -339,6 +341,7 @@ exit 0;
 # 320e083d80e1a49d9c11cc0d8d055b050a92805a    normal Peppy MP-v2
 # c65c3e3648eca66449ac9cdaf60edc2ba1b136e8    normal Quawks MP
 # 037f4ed441ac39ca0a7fdd6c0829d4add9bf5f34    normal Rambi PreMP
+# 3ca9ee2c112826aa89f0edf3cedcc5b65f250271    normal Rowan PreMP
 # 989186f9aec3bced013d7f085c0f8caa07518e34    normal Samus PreMP
 # c5120666c642f031e76edab8a2b45dd32232f80d    normal Snow MP v2
 # 1cab1dedc34076b8887c9ebd4e6769eda6c41ed2    normal Squawks MP
@@ -403,6 +406,7 @@ exit 0;
 # 74ec605d3525e24b7f7a4b633afd2ec048dc6d12  recovery Peppy MP-v2
 # 315417a5d8a95b954f5f101acaef5b107136a418  recovery Quawks MP
 # d0b7feba2bb53ecd8eda6602ccf6a0c25e5b001f  recovery Rambi PreMP
+# 942e15e118dca77b75a668c8c814bf8d67b774b2  recovery Rowan PreMP
 # 61cad57963dd64202cead8dcfc62aea76c9911c2  recovery Samus PreMP
 # f32b5f6b6cfb6d77136ac0d8ed0cdf67e6df7b91  recovery Snow MP
 # d45eb14119d14b5b1d4b259f177e32c522d27f99  recovery Squawks MP
