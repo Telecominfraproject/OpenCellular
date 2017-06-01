@@ -4,11 +4,12 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-set -e
+# Load common constants and functions.
+. "$(dirname "$0")/common.sh"
 
 usage() {
   cat <<EOF
-Usage: $0 DIR
+Usage: ${PROG} DIR
 
 Generate Android's 4 framework key pairs at DIR.  For detail, please refer to
 "Certificates and private keys" and "Manually generating keys" in
@@ -17,8 +18,7 @@ https://source.android.com/devices/tech/ota/sign_builds.html.
 EOF
 
   if [[ $# -ne 0 ]]; then
-    echo "ERROR: $*" >&2
-    exit 1
+    die "$*"
   else
     exit 0
   fi
@@ -48,6 +48,8 @@ make_pair() {
 }
 
 main() {
+  set -e
+
   local dir
 
   while [[ $# -gt 0 ]]; do
@@ -65,7 +67,7 @@ main() {
   done
 
   if [[ $# -ne 1 ]]; then
-    usage "Invalid argument."
+    usage "Missing output directory"
   fi
   dir=$1
 

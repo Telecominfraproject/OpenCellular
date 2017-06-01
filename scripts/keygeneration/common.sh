@@ -6,6 +6,29 @@
 # Common key generation functions.
 
 SCRIPT_DIR="$(dirname "$(readlink -f -- "$0")")"
+PROG=$(basename "$0")
+CROS_LOG_PREFIX="${PROG}: "
+
+# Prints an informational message.
+info() {
+  echo "${CROS_LOG_PREFIX}INFO: $*" >&2
+}
+
+# Prints a warning message.
+warn() {
+  echo "${CROS_LOG_PREFIX}WARNING: $*" >&2
+}
+
+# Prints an error message.
+error() {
+  echo "${CROS_LOG_PREFIX}ERROR: $*" >&2
+}
+
+# Print an error message and then exit the script.
+die() {
+  error "$@"
+  exit 1
+}
 
 # Algorithm ID mappings:
 RSA1024_SHA1_ALGOID=0

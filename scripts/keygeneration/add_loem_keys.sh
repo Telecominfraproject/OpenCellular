@@ -8,7 +8,7 @@
 
 usage() {
   cat <<EOF
-Usage: ${0##*/} <number of loem keys to add>
+Usage: ${PROG} <number of loem keys to add>
 
 If the existing keyset is not set up for loem usage, it will be converted.
 
@@ -52,8 +52,7 @@ main() {
   local num_keys highest_key k
 
   if [[ ! -e ${VERSION_FILE} ]]; then
-    echo "missing ${VERSION_FILE} in ${PWD}; please create one" >&2
-    exit 1
+    die "missing ${VERSION_FILE} in ${PWD}; please create one"
   fi
 
   firmware_key_version=$(get_version "firmware_key_version")

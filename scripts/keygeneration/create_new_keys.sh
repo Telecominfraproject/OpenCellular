@@ -11,7 +11,7 @@
 
 usage() {
   cat <<EOF
-Usage: $0 [options]
+Usage: ${PROG} [options]
 
 Options:
   --devkeyblock          Also generate developer firmware keyblock and data key
@@ -26,8 +26,7 @@ Options:
 EOF
 
   if [[ $# -ne 0 ]]; then
-    echo "ERROR: unknown option $*" >&2
-    exit 1
+    die "unknown option $*"
   else
     exit 0
   fi
@@ -86,8 +85,7 @@ main() {
       output_dir="$2"
       setperms="true"
       if [[ -d "${output_dir}" ]]; then
-        echo "ERROR: output dir (${output_dir}) already exists" >&2
-        exit 1
+        die "output dir (${output_dir}) already exists"
       fi
       shift
       ;;
