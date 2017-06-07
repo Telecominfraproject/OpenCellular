@@ -23,6 +23,7 @@ int vb2_verify_packed_key_inside(const void *parent,
 					key->key_offset, key->key_size);
 }
 
+test_mockable
 int vb2_unpack_key_buffer(struct vb2_public_key *key,
 			  const uint8_t *buf,
 			  uint32_t size)

@@ -39,7 +39,9 @@ typedef uint32_t VbError_t;
 /*
  * Define test_mockable for mocking functions.
  */
+#ifndef test_mockable
 #define test_mockable __attribute__((weak))
+#endif
 
 /*
  * Predefined error numbers.  Success is 0.  Errors are non-zero, but differ
