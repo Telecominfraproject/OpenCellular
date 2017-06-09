@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -92,6 +92,7 @@ is
                                                   and CPU_Var = Normal)
                                                  or CPU >= Skylake;
 
+   Has_DDI_Buffer_Trans    : constant Boolean := False;
    Has_Low_Voltage_Swing   : constant Boolean := CPU >= Broxton;
 
    Need_DP_Aux_Mutex       : constant Boolean := False; -- Skylake & (PSR | GTC)

@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ package body HW.GFX.GMA.Connectors is
    procedure Initialize
    is
    begin
-      null;
+      DDI.Initialize;
    end Initialize;
 
    procedure Pre_On

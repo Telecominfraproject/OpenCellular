@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ with HW.GFX.GMA.DP_Info;
 with HW.GFX.GMA.DP_Aux_Ch;
 with HW.GFX.GMA.SPLL;
 with HW.GFX.GMA.DDI_Phy;
+with HW.GFX.GMA.Connectors.DDI.Buffers;
 
 with HW.Debug;
 with GNAT.Source_Info;
@@ -94,8 +95,12 @@ package body HW.GFX.GMA.Connectors.DDI is
       HW.GFX.DP_Bandwidth_2_7  => PORT_CLK_SEL_LCPLL1350,
       HW.GFX.DP_Bandwidth_5_4  => PORT_CLK_SEL_LCPLL2700);
 
+   type DDI_Buf_Trans_Regs_Array
+      is array (Buf_Trans_Range) of Registers.Registers_Index;
+
    type DDI_Registers is record
       BUF_CTL        : Registers.Registers_Index;
+      BUF_TRANS      : DDI_Buf_Trans_Regs_Array;
       DP_TP_CTL      : Registers.Registers_Index;
       DP_TP_STATUS   : Registers.Registers_Invalid_Index;
       PORT_CLK_SEL   : Registers.Registers_Index;
@@ -106,26 +111,131 @@ package body HW.GFX.GMA.Connectors.DDI is
    DDI_Regs : constant DDI_Registers_Array := DDI_Registers_Array'
      (DIGI_A => DDI_Registers'
         (BUF_CTL        => Registers.DDI_BUF_CTL_A,
+         BUF_TRANS      => DDI_Buf_Trans_Regs_Array'
+                          (Registers.DDI_BUF_TRANS_A_S0T1,
+                           Registers.DDI_BUF_TRANS_A_S0T2,
+                           Registers.DDI_BUF_TRANS_A_S1T1,
+                           Registers.DDI_BUF_TRANS_A_S1T2,
+                           Registers.DDI_BUF_TRANS_A_S2T1,
+                           Registers.DDI_BUF_TRANS_A_S2T2,
+                           Registers.DDI_BUF_TRANS_A_S3T1,
+                           Registers.DDI_BUF_TRANS_A_S3T2,
+                           Registers.DDI_BUF_TRANS_A_S4T1,
+                           Registers.DDI_BUF_TRANS_A_S4T2,
+                           Registers.DDI_BUF_TRANS_A_S5T1,
+                           Registers.DDI_BUF_TRANS_A_S5T2,
+                           Registers.DDI_BUF_TRANS_A_S6T1,
+                           Registers.DDI_BUF_TRANS_A_S6T2,
+                           Registers.DDI_BUF_TRANS_A_S7T1,
+                           Registers.DDI_BUF_TRANS_A_S7T2,
+                           Registers.DDI_BUF_TRANS_A_S8T1,
+                           Registers.DDI_BUF_TRANS_A_S8T2,
+                           Registers.DDI_BUF_TRANS_A_S9T1,
+                           Registers.DDI_BUF_TRANS_A_S9T2),
          DP_TP_CTL      => Registers.DP_TP_CTL_A,
          DP_TP_STATUS   => Registers.Invalid_Register,
          PORT_CLK_SEL   => Registers.PORT_CLK_SEL_DDIA),
       DIGI_B => DDI_Registers'
         (BUF_CTL        => Registers.DDI_BUF_CTL_B,
+         BUF_TRANS      => DDI_Buf_Trans_Regs_Array'
+                          (Registers.DDI_BUF_TRANS_B_S0T1,
+                           Registers.DDI_BUF_TRANS_B_S0T2,
+                           Registers.DDI_BUF_TRANS_B_S1T1,
+                           Registers.DDI_BUF_TRANS_B_S1T2,
+                           Registers.DDI_BUF_TRANS_B_S2T1,
+                           Registers.DDI_BUF_TRANS_B_S2T2,
+                           Registers.DDI_BUF_TRANS_B_S3T1,
+                           Registers.DDI_BUF_TRANS_B_S3T2,
+                           Registers.DDI_BUF_TRANS_B_S4T1,
+                           Registers.DDI_BUF_TRANS_B_S4T2,
+                           Registers.DDI_BUF_TRANS_B_S5T1,
+                           Registers.DDI_BUF_TRANS_B_S5T2,
+                           Registers.DDI_BUF_TRANS_B_S6T1,
+                           Registers.DDI_BUF_TRANS_B_S6T2,
+                           Registers.DDI_BUF_TRANS_B_S7T1,
+                           Registers.DDI_BUF_TRANS_B_S7T2,
+                           Registers.DDI_BUF_TRANS_B_S8T1,
+                           Registers.DDI_BUF_TRANS_B_S8T2,
+                           Registers.DDI_BUF_TRANS_B_S9T1,
+                           Registers.DDI_BUF_TRANS_B_S9T2),
          DP_TP_CTL      => Registers.DP_TP_CTL_B,
          DP_TP_STATUS   => Registers.DP_TP_STATUS_B,
          PORT_CLK_SEL   => Registers.PORT_CLK_SEL_DDIB),
       DIGI_C => DDI_Registers'
         (BUF_CTL        => Registers.DDI_BUF_CTL_C,
+         BUF_TRANS      => DDI_Buf_Trans_Regs_Array'
+                          (Registers.DDI_BUF_TRANS_C_S0T1,
+                           Registers.DDI_BUF_TRANS_C_S0T2,
+                           Registers.DDI_BUF_TRANS_C_S1T1,
+                           Registers.DDI_BUF_TRANS_C_S1T2,
+                           Registers.DDI_BUF_TRANS_C_S2T1,
+                           Registers.DDI_BUF_TRANS_C_S2T2,
+                           Registers.DDI_BUF_TRANS_C_S3T1,
+                           Registers.DDI_BUF_TRANS_C_S3T2,
+                           Registers.DDI_BUF_TRANS_C_S4T1,
+                           Registers.DDI_BUF_TRANS_C_S4T2,
+                           Registers.DDI_BUF_TRANS_C_S5T1,
+                           Registers.DDI_BUF_TRANS_C_S5T2,
+                           Registers.DDI_BUF_TRANS_C_S6T1,
+                           Registers.DDI_BUF_TRANS_C_S6T2,
+                           Registers.DDI_BUF_TRANS_C_S7T1,
+                           Registers.DDI_BUF_TRANS_C_S7T2,
+                           Registers.DDI_BUF_TRANS_C_S8T1,
+                           Registers.DDI_BUF_TRANS_C_S8T2,
+                           Registers.DDI_BUF_TRANS_C_S9T1,
+                           Registers.DDI_BUF_TRANS_C_S9T2),
          DP_TP_CTL      => Registers.DP_TP_CTL_C,
          DP_TP_STATUS   => Registers.DP_TP_STATUS_C,
          PORT_CLK_SEL   => Registers.PORT_CLK_SEL_DDIC),
       DIGI_D => DDI_Registers'
         (BUF_CTL        => Registers.DDI_BUF_CTL_D,
+         BUF_TRANS      => DDI_Buf_Trans_Regs_Array'
+                          (Registers.DDI_BUF_TRANS_D_S0T1,
+                           Registers.DDI_BUF_TRANS_D_S0T2,
+                           Registers.DDI_BUF_TRANS_D_S1T1,
+                           Registers.DDI_BUF_TRANS_D_S1T2,
+                           Registers.DDI_BUF_TRANS_D_S2T1,
+                           Registers.DDI_BUF_TRANS_D_S2T2,
+                           Registers.DDI_BUF_TRANS_D_S3T1,
+                           Registers.DDI_BUF_TRANS_D_S3T2,
+                           Registers.DDI_BUF_TRANS_D_S4T1,
+                           Registers.DDI_BUF_TRANS_D_S4T2,
+                           Registers.DDI_BUF_TRANS_D_S5T1,
+                           Registers.DDI_BUF_TRANS_D_S5T2,
+                           Registers.DDI_BUF_TRANS_D_S6T1,
+                           Registers.DDI_BUF_TRANS_D_S6T2,
+                           Registers.DDI_BUF_TRANS_D_S7T1,
+                           Registers.DDI_BUF_TRANS_D_S7T2,
+                           Registers.DDI_BUF_TRANS_D_S8T1,
+                           Registers.DDI_BUF_TRANS_D_S8T2,
+                           Registers.DDI_BUF_TRANS_D_S9T1,
+                           Registers.DDI_BUF_TRANS_D_S9T2),
          DP_TP_CTL      => Registers.DP_TP_CTL_D,
          DP_TP_STATUS   => Registers.DP_TP_STATUS_D,
          PORT_CLK_SEL   => Registers.PORT_CLK_SEL_DDID),
       DIGI_E => DDI_Registers'
         (BUF_CTL        => Registers.DDI_BUF_CTL_E,
+         BUF_TRANS      => DDI_Buf_Trans_Regs_Array'
+                          (Registers.DDI_BUF_TRANS_E_S0T1,
+                           Registers.DDI_BUF_TRANS_E_S0T2,
+                           Registers.DDI_BUF_TRANS_E_S1T1,
+                           Registers.DDI_BUF_TRANS_E_S1T2,
+                           Registers.DDI_BUF_TRANS_E_S2T1,
+                           Registers.DDI_BUF_TRANS_E_S2T2,
+                           Registers.DDI_BUF_TRANS_E_S3T1,
+                           Registers.DDI_BUF_TRANS_E_S3T2,
+                           Registers.DDI_BUF_TRANS_E_S4T1,
+                           Registers.DDI_BUF_TRANS_E_S4T2,
+                           Registers.DDI_BUF_TRANS_E_S5T1,
+                           Registers.DDI_BUF_TRANS_E_S5T2,
+                           Registers.DDI_BUF_TRANS_E_S6T1,
+                           Registers.DDI_BUF_TRANS_E_S6T2,
+                           Registers.DDI_BUF_TRANS_E_S7T1,
+                           Registers.DDI_BUF_TRANS_E_S7T2,
+                           Registers.DDI_BUF_TRANS_E_S8T1,
+                           Registers.DDI_BUF_TRANS_E_S8T2,
+                           Registers.DDI_BUF_TRANS_E_S9T1,
+                           Registers.DDI_BUF_TRANS_E_S9T2),
          DP_TP_CTL      => Registers.DP_TP_CTL_E,
          DP_TP_STATUS   => Registers.DP_TP_STATUS_E,
          PORT_CLK_SEL   => Registers.PORT_CLK_SEL_DDIE));
@@ -171,6 +281,33 @@ package body HW.GFX.GMA.Connectors.DDI is
    begin
       return Word32 (Sel) * 2 ** 24;
    end DDI_BUF_CTL_TRANS_SELECT;
+
+   ----------------------------------------------------------------------------
+
+   procedure Program_Buffer_Translations (Port : Digital_Port)
+   is
+      Buffer_Translations : Buf_Trans_Array;
+   begin
+      Buffers.Translations (Buffer_Translations, Port);
+      for I in Buf_Trans_Range loop
+         Registers.Write
+           (Register => DDI_Regs (Port).BUF_TRANS (I),
+            Value    => Buffer_Translations (I));
+      end loop;
+   end Program_Buffer_Translations;
+
+   procedure Initialize
+   is
+   begin
+      if Config.Has_DDI_Buffer_Trans then
+         for Port in Digital_Port range DIGI_A .. Config.Last_Digital_Port loop
+            Program_Buffer_Translations (Port);
+         end loop;
+         if Config.Is_FDI_Port (Analog) then
+            Program_Buffer_Translations (DIGI_E);
+         end if;
+      end if;
+   end Initialize;
 
    ----------------------------------------------------------------------------
 

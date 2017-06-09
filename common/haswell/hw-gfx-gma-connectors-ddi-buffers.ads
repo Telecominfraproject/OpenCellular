@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2017 secunet Security Networks AG
+-- Copyright (C) 2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -12,24 +12,10 @@
 -- GNU General Public License for more details.
 --
 
-with HW.GFX.GMA.Registers;
-
-private package HW.GFX.GMA.Connectors.DDI
+private package HW.GFX.GMA.Connectors.DDI.Buffers
 is
 
-   procedure Initialize;
+   procedure Translations (Trans : out Buf_Trans_Array; Port : Digital_Port)
+      is null;
 
-   procedure Pre_On
-     (Port_Cfg : in     Port_Config;
-      PLL_Hint : in     Word32;
-      Success  :    out Boolean);
-
-   procedure Post_On (Port_Cfg : Port_Config);
-
-   procedure Off (Port : Digital_Port);
-
-private
-   type Buf_Trans_Range is range 0 .. 19;
-   type Buf_Trans_Array is array (Buf_Trans_Range) of Word32;
-
-end HW.GFX.GMA.Connectors.DDI;
+end HW.GFX.GMA.Connectors.DDI.Buffers;
