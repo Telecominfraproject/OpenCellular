@@ -14,6 +14,11 @@
 
 private package HW.GFX.GMA.Connectors is
 
+   pragma Warnings (GNATprove, Off, "subprogram ""Initialize"" has no effect",
+                    Reason => "Only effects some platforms");
+   procedure Initialize;
+   pragma Warnings (GNATprove, On, "subprogram ""Initialize"" has no effect");
+
    pragma Warnings (GNATprove, Off, "unused variable ""P*""",
                     Reason => "Needed for a common interface");
    procedure Pre_On

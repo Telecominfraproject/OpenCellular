@@ -21,6 +21,12 @@ with GNAT.Source_Info;
 
 package body HW.GFX.GMA.Connectors is
 
+   procedure Initialize
+   is
+   begin
+      null;
+   end Initialize;
+
    procedure Pre_On
      (Pipe     : in     Pipe_Index;
       Port_Cfg : in     Port_Config;

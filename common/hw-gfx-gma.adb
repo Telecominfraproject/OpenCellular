@@ -364,6 +364,7 @@ is
 
       Panel.Setup_PP_Sequencer;
       Port_Detect.Initialize;
+      Connectors.Initialize;
 
       if Clean_State then
          Power_And_Clocks.Pre_All_Off;
