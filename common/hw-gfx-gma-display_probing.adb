@@ -61,6 +61,16 @@ is
       return Sibling_Port (Port) /= Disabled;
    end Has_Sibling_Port;
 
+   function Is_DVI_I (Port : Active_Port_Type) return Boolean
+   with
+      Global => null
+   is
+   begin
+      return Config.Have_DVI_I and
+             (Port = Analog or
+              Config_Helpers.To_PCH_Port (Port) = Config.Analog_I2C_Port);
+   end Is_DVI_I;
+
    procedure Read_EDID
      (Raw_EDID :    out EDID.Raw_EDID_Data;
       Port     : in     Active_Port_Type;
@@ -134,8 +144,8 @@ is
       end if;
 
       if Success and then
-         (EDID.Compatible_Display
-            (Raw_EDID, Config_Helpers.To_Display_Type (Port)) and
+         ((not Is_DVI_I (Port) or EDID.Compatible_Display
+            (Raw_EDID, Config_Helpers.To_Display_Type (Port))) and
           EDID.Has_Preferred_Mode (Raw_EDID))
       then
          Pipe_Cfg.Port := Port;

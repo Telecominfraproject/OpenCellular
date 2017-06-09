@@ -39,6 +39,7 @@ is
 
    Has_Internal_Display    : constant Boolean := Internal_Display /= None;
    Internal_Is_EDP         : constant Boolean := Internal_Display = DP;
+   Have_DVI_I              : constant Boolean := Analog_I2C_Port /= PCH_DAC;
    Has_Presence_Straps     : constant Boolean := CPU /= Broxton;
 
    ----- CPU pipe: --------
