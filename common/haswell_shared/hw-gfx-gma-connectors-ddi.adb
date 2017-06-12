@@ -95,6 +95,18 @@ package body HW.GFX.GMA.Connectors.DDI is
       HW.GFX.DP_Bandwidth_2_7  => PORT_CLK_SEL_LCPLL1350,
       HW.GFX.DP_Bandwidth_5_4  => PORT_CLK_SEL_LCPLL2700);
 
+   DISPIO_CR_TX_BLNC_LEG_DISBL_MASK    : constant := 16#1f# * 2 ** 23;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_4_SHIFT  : constant :=               20;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_4_MASK   : constant := 16#07# * 2 ** 20;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_3_SHIFT  : constant :=               17;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_3_MASK   : constant := 16#07# * 2 ** 17;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_2_SHIFT  : constant :=               14;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_2_MASK   : constant := 16#07# * 2 ** 14;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_1_SHIFT  : constant :=               11;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_1_MASK   : constant := 16#07# * 2 ** 11;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_0_SHIFT  : constant :=                8;
+   DISPIO_CR_TX_BLNC_LEG_SCTL_0_MASK   : constant := 16#07# * 2 **  8;
+
    type DDI_Buf_Trans_Regs_Array
       is array (Buf_Trans_Range) of Registers.Registers_Index;
 
@@ -298,6 +310,7 @@ package body HW.GFX.GMA.Connectors.DDI is
 
    procedure Initialize
    is
+      Iboost_Value : constant Word32 := 1;
    begin
       if Config.Has_DDI_Buffer_Trans then
          for Port in Digital_Port range DIGI_A .. Config.Last_Digital_Port loop
@@ -306,6 +319,23 @@ package body HW.GFX.GMA.Connectors.DDI is
          if Config.Is_FDI_Port (Analog) then
             Program_Buffer_Translations (DIGI_E);
          end if;
+      end if;
+
+      if Config.Has_Iboost_Config then
+         Registers.Unset_And_Set_Mask
+           (Register    => Registers.DISPIO_CR_TX_BMU_CR0,
+            Mask_Unset  => DISPIO_CR_TX_BLNC_LEG_DISBL_MASK or
+                           DISPIO_CR_TX_BLNC_LEG_SCTL_4_MASK or
+                           DISPIO_CR_TX_BLNC_LEG_SCTL_3_MASK or
+                           DISPIO_CR_TX_BLNC_LEG_SCTL_2_MASK or
+                           DISPIO_CR_TX_BLNC_LEG_SCTL_1_MASK or
+                           DISPIO_CR_TX_BLNC_LEG_SCTL_0_MASK,
+            Mask_Set    =>
+               Shift_Left (Iboost_Value, DISPIO_CR_TX_BLNC_LEG_SCTL_4_SHIFT) or
+               Shift_Left (Iboost_Value, DISPIO_CR_TX_BLNC_LEG_SCTL_3_SHIFT) or
+               Shift_Left (Iboost_Value, DISPIO_CR_TX_BLNC_LEG_SCTL_2_SHIFT) or
+               Shift_Left (Iboost_Value, DISPIO_CR_TX_BLNC_LEG_SCTL_1_SHIFT) or
+               Shift_Left (Iboost_Value, DISPIO_CR_TX_BLNC_LEG_SCTL_0_SHIFT));
       end if;
    end Initialize;
 

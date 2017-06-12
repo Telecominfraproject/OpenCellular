@@ -346,6 +346,7 @@ is
       PS_WIN_SZ_1_C,
       PS_CTRL_1_C,
       BXT_PORT_CL1CM_DW0_BC,
+      DISPIO_CR_TX_BMU_CR0,
       BXT_PORT_CL1CM_DW9_BC,
       BXT_PORT_CL1CM_DW10_BC,
       BXT_PORT_PLL_EBB_0_B,
@@ -1108,6 +1109,9 @@ is
       PORT_CLK_SEL_DDIC     => 16#04_6108# / Register_Width,
       PORT_CLK_SEL_DDID     => 16#04_610c# / Register_Width,
       PORT_CLK_SEL_DDIE     => 16#04_6110# / Register_Width,
+
+      -- Skylake I_boost configuration
+      DISPIO_CR_TX_BMU_CR0  => 16#06_c00c# / Register_Width,
 
       -- Skylake DPLL registers
       DPLL1_CFGR1           => 16#06_c040# / Register_Width,

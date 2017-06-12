@@ -95,6 +95,7 @@ is
    Has_DDI_Buffer_Trans    : constant Boolean := CPU >= Haswell and
                                                  CPU /= Broxton;
    Has_Low_Voltage_Swing   : constant Boolean := CPU >= Broxton;
+   Has_Iboost_Config       : constant Boolean := CPU >= Skylake;
 
    Need_DP_Aux_Mutex       : constant Boolean := False; -- Skylake & (PSR | GTC)
 
