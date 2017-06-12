@@ -15,7 +15,6 @@
 private package HW.GFX.GMA.Connectors.DDI.Buffers
 is
 
-   procedure Translations (Trans : out Buf_Trans_Array; Port : Digital_Port)
-      is null;
+   procedure Translations (Trans : out Buf_Trans_Array; Port : Digital_Port);
 
 end HW.GFX.GMA.Connectors.DDI.Buffers;

@@ -92,7 +92,7 @@ is
                                                   and CPU_Var = Normal)
                                                  or CPU >= Skylake;
 
-   Has_DDI_Buffer_Trans    : constant Boolean := False;
+   Has_DDI_Buffer_Trans    : constant Boolean := CPU in Haswell .. Broadwell;
    Has_Low_Voltage_Swing   : constant Boolean := CPU >= Broxton;
 
    Need_DP_Aux_Mutex       : constant Boolean := False; -- Skylake & (PSR | GTC)
@@ -211,6 +211,8 @@ is
 
    Default_DDI_HDMI_Buffer_Translation : constant DDI_HDMI_Buf_Trans_Range :=
      (case CPU is
+         when Haswell   => 6,
+         when Broadwell => 7,
          when Broxton   => 8,
          when others    => 0);
 
