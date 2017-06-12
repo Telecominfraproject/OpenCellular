@@ -61,6 +61,8 @@ is
    -- Only valid on primary pipe.
    VGA_PLANE_FRAMEBUFFER_OFFSET : constant := 16#ffff_ffff#;
 
+   pragma Warnings (GNATprove, Off, "unused variable ""Write_Delay""",
+      Reason => "Write_Delay is used for debugging only");
    procedure Initialize
      (Write_Delay : in     Word64 := 0;
       Clean_State : in     Boolean := False;
@@ -74,6 +76,7 @@ is
    function Is_Initialized return Boolean
    with
       Global => (Input => Init_State);
+   pragma Warnings (GNATprove, On, "unused variable ""Write_Delay""");
 
    procedure Update_Outputs (Configs : Pipe_Configs);
 

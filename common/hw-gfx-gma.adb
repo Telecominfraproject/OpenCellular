@@ -340,9 +340,6 @@ is
                when Ironlake     => Audio_VID_DID = 16#0000_0000#);
       end Check_Platform;
    begin
-      pragma Warnings (GNATprove, Off, "unused variable ""Write_Delay""",
-         Reason => "Write_Delay is used for debugging only");
-
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       pragma Debug (Debug.Set_Register_Write_Delay (Write_Delay));
