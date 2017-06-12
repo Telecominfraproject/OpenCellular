@@ -507,10 +507,16 @@ package body HW.GFX.GMA.Connectors.DDI is
             Port_Cfg.Display = HDMI and then
             Port_Cfg.Port in DDI_Phy.DDI_Phy_Port
          then
-            DDI_Phy.Set_HDMI_Signal_Levels
-              (Port  => Port_Cfg.Port,
-               Level => DDI_Phy.HDMI_Buf_Trans_Range'Last);
-            Success := True;
+            declare
+               HDMI_Level : constant DDI_Phy.HDMI_Buf_Trans_Range :=
+                 (if Config.DDI_HDMI_Buffer_Translation
+                     in DDI_Phy.HDMI_Buf_Trans_Range
+                  then Config.DDI_HDMI_Buffer_Translation
+                  else Config.Default_DDI_HDMI_Buffer_Translation);
+            begin
+               DDI_Phy.Set_HDMI_Signal_Levels (Port_Cfg.Port, HDMI_Level);
+               Success := True;
+            end;
          else
             Success := True;
          end if;

@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2017 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -132,5 +132,9 @@ private
    ----------------------------------------------------------------------------
 
    type DP_Port is (DP_A, DP_B, DP_C, DP_D);
+
+   ----------------------------------------------------------------------------
+
+   subtype DDI_HDMI_Buf_Trans_Range is Integer range 0 .. 11;
 
 end HW.GFX.GMA;

@@ -38,7 +38,7 @@ private package HW.GFX.GMA.DDI_Phy is
      (Port        : Digital_Port;
       Train_Set   : DP_Info.Train_Set);
 
-   type HDMI_Buf_Trans_Range is range 0 .. 9;
+   subtype HDMI_Buf_Trans_Range is DDI_HDMI_Buf_Trans_Range range 0 .. 9;
    procedure Set_HDMI_Signal_Levels
      (Port  : DDI_Phy_Port;
       Level : HDMI_Buf_Trans_Range);

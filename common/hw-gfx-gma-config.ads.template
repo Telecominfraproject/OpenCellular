@@ -27,6 +27,8 @@ is
 
    EDP_Low_Voltage_Swing : constant Boolean := False;
 
+   DDI_HDMI_Buffer_Translation : constant Integer := -1;
+
    Default_MMIO_Base : constant := <<DEFAULT_MMIO_BASE>>;
 
    LVDS_Dual_Threshold : constant := 95_000_000;
@@ -203,6 +205,13 @@ is
          when Ironlake     => Simple_Training,
          when Sandybridge  => Full_Training,
          when others       => Auto_Training);
+
+   ----------------------------------------------------------------------------
+
+   Default_DDI_HDMI_Buffer_Translation : constant DDI_HDMI_Buf_Trans_Range :=
+     (case CPU is
+         when Broxton   => 8,
+         when others    => 0);
 
    ----------------------------------------------------------------------------
 
