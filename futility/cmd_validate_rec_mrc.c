@@ -43,10 +43,11 @@ struct mrc_metadata {
 	uint32_t version;
 } __attribute__((packed));
 
-#define MRC_DATA_SIGNATURE	(('M'<<0)|('R'<<8)|('C'<<16)|('D'<<24))
-#define REGF_BLOCK_SHIFT	4
-#define REGF_UNALLOCATED_BLOCK	0xffff
-
+#define MRC_DATA_SIGNATURE		(('M'<<0)|('R'<<8)|('C'<<16)|('D'<<24))
+#define REGF_BLOCK_SHIFT		4
+#define REGF_BLOCK_GRANULARITY		(1 << REGF_BLOCK_SHIFT)
+#define REGF_METADATA_BLOCK_SIZE	REGF_BLOCK_GRANULARITY
+#define REGF_UNALLOCATED_BLOCK		0xffff
 
 unsigned long compute_ip_checksum(const void *addr, unsigned long length)
 {
@@ -116,18 +117,37 @@ static int verify_mrc_slot(struct mrc_metadata *md, unsigned long slot_len)
 	return 0;
 }
 
+static int block_offset_unallocated(uint16_t offset)
+{
+	return offset == REGF_UNALLOCATED_BLOCK;
+}
+
+static uint8_t *get_next_mb(uint8_t *curr_mb)
+{
+	return curr_mb + REGF_METADATA_BLOCK_SIZE;
+}
+
 static int get_mrc_data_slot(uint16_t *mb, uint32_t *data_offset,
 			     uint32_t *data_size)
 {
+	uint16_t num_metadata_blocks = *mb;
+
+	if (block_offset_unallocated(*mb)) {
+		fprintf(stderr, "MRC cache is empty!!\n");
+		return 1;
+	}
+
 	/*
 	 * First block offset in metadata block tells the total number of
 	 * metadata blocks.
-	 * Currently, we expect only 1 metadata block to be present.
+	 * Currently, we expect only 1 metadata block to be used.
 	 */
-	if (*mb != 1) {
-		fprintf(stderr, "Only 1 metadata block is expected. "
-			"Actual %x\n", *mb);
-		return 1;
+	if (num_metadata_blocks != 1) {
+		uint16_t *next_mb = (uint16_t *)get_next_mb((uint8_t *)mb);
+		if (!block_offset_unallocated(*next_mb)) {
+			fprintf(stderr, "More than 1 valid metadata block!!");
+			return 1;
+		}
 	}
 
 	/*
@@ -136,11 +156,11 @@ static int get_mrc_data_slot(uint16_t *mb, uint32_t *data_offset,
 	 * cache slot.
 	 */
 	mb++;
-	*data_offset = (1 << REGF_BLOCK_SHIFT);
-	*data_size = (*mb - 1) << REGF_BLOCK_SHIFT;
+	*data_offset = (1 << REGF_BLOCK_SHIFT) * num_metadata_blocks;
+	*data_size = (*mb - num_metadata_blocks) << REGF_BLOCK_SHIFT;
 
 	mb++;
-	if (*mb != REGF_UNALLOCATED_BLOCK) {
+	if (!block_offset_unallocated(*mb)) {
 		fprintf(stderr, "More than 1 slot in recovery mrc cache.\n");
 		return 1;
 	}
@@ -205,6 +225,14 @@ static int do_validate_rec_mrc(int argc, char *argv[])
 
 	if (futil_map_file(fd, MAP_RO, &buff, &file_size) != FILE_ERR_NONE) {
 		fprintf(stderr, "Cannot map file %s\n", infile);
+		close(fd);
+		return 1;
+	}
+
+	if (offset > file_size) {
+		fprintf(stderr, "File size(0x%x) smaller than offset(0x%x)\n",
+			file_size, offset);
+		futil_unmap_file(fd, MAP_RO, buff, file_size);
 		close(fd);
 		return 1;
 	}
