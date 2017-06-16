@@ -353,7 +353,7 @@ done_close:
 	return r;
 }
 
-static int do_gbb_utility(int argc, char *argv[])
+static int do_gbb(int argc, char *argv[])
 {
 	enum do_what_now { DO_GET, DO_SET, DO_CREATE } mode = DO_GET;
 	char *infile = NULL;
@@ -658,5 +658,7 @@ static int do_gbb_utility(int argc, char *argv[])
 	return !!errorcnt;
 }
 
-DECLARE_FUTIL_COMMAND(gbb_utility, do_gbb_utility, VBOOT_VERSION_ALL,
+DECLARE_FUTIL_COMMAND(gbb, do_gbb, VBOOT_VERSION_ALL,
 		      "Manipulate the Google Binary Block (GBB)");
+DECLARE_FUTIL_COMMAND(gbb_utility, do_gbb, VBOOT_VERSION_ALL,
+		      "Legacy name for `gbb` command");
