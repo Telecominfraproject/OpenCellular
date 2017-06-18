@@ -55,7 +55,8 @@ is
       MHz : constant T := Timer.Hz / 1_000_000;
       Current : constant T := Timer.Raw_Value_Min;
    begin
-      return Int64 ((Current and (2 ** 63 - 1)) / (if MHz = 0 then 1 else MHz));
+      return Int64 (Current and (2 ** 63 - 1))
+               / Int64 (if MHz = 0 then T'(1) else MHz);
    end Now_US;
 
    ----------------------------------------------------------------------------
