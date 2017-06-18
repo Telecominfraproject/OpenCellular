@@ -54,10 +54,10 @@ package body HW.File is
                   (if Writable then WRITE else 0),
          copy  => (if Map_Copy then 1 else 0));
    begin
-      pragma Warnings(GNAT, Off, """cpath"" modified*, but* never referenced",
+      pragma Warnings(GNAT, Off, """cpath"" modified*, but* referenced",
                       Reason => "Free() demands to set it to null_ptr");
       Free (cpath);
-      pragma Warnings(GNAT, On, """cpath"" modified*, but* never referenced");
+      pragma Warnings(GNAT, On, """cpath"" modified*, but* referenced");
       Success := ret = 0;
 
       pragma Debug (not Success, Debug.Put ("Mapping failed: "));
