@@ -17,4 +17,6 @@ is
 
    Dynamic_MMIO : constant Boolean := <<DYNAMIC_MMIO>>;
 
+   Default_MMConf_Base : constant := <<DEFAULT_MMCONF_BASE>>;
+
 end HW.Config;
