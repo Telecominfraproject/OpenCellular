@@ -562,19 +562,42 @@ resign_firmware_payload() {
   fi
   info "Found a valid firmware update shellball."
 
-  local image_file sign_args=() loem_sfx loem_output_dir
-  for image_file in "${shellball_dir}"/bios*.bin; do
-    if [[ -e "${KEY_DIR}/loem.ini" ]]; then
-      # Extract the extended details from "bios.bin" and use that in the
-      # subdir for the keyset.
-      loem_sfx=$(sed -r 's:.*/bios([^/]*)[.]bin$:\1:' <<<"${image_file}")
-      loem_output_dir="${shellball_dir}/keyset${loem_sfx}"
-      sign_args=( "${loem_output_dir}" )
-      mkdir -p "${loem_output_dir}"
-    fi
-    sign_firmware "${image_file}" "${KEY_DIR}" "${FIRMWARE_VERSION}" \
-      "${sign_args[@]}"
-  done
+  if [[ -d "${shellball_dir}/models" ]]; then
+    info "Signing firmware for all of the models in the unified build."
+    local model_dir
+    for model_dir in "${shellball_dir}"/models/*; do
+      local image_file sign_args=() loem_sfx loem_output_dir
+      for image_file in "${model_dir}"/bios*.bin; do
+        local model_name=$(sed -r 's:.*/models/(.*)/bios.*[.]bin$:\1:'\
+              <<<"${model_dir}")
+        if [[ -e "${KEY_DIR}/loem.ini" ]]; then
+          # Extract the extended details from "bios.bin" and use that, along
+          # with the model name, as the subdir for the keyset.
+          loem_sfx=$(sed -r "s:.*/models/${model_name}/bios([^/]*)[.]bin$:\1:"\
+                   <<<"${image_file}")
+          loem_output_dir="${shellball_dir}/keyset${loem_sfx}${model_name}"
+          sign_args=( "${loem_output_dir}" )
+          mkdir -p "${loem_output_dir}"
+        fi
+        sign_firmware "${image_file}" "${KEY_DIR}" "${FIRMWARE_VERSION}" \
+          "${sign_args[@]}"
+      done
+    done
+  else
+    local image_file sign_args=() loem_sfx loem_output_dir
+    for image_file in "${shellball_dir}"/bios*.bin; do
+      if [[ -e "${KEY_DIR}/loem.ini" ]]; then
+        # Extract the extended details from "bios.bin" and use that in the
+        # subdir for the keyset.
+        loem_sfx=$(sed -r 's:.*/bios([^/]*)[.]bin$:\1:' <<<"${image_file}")
+        loem_output_dir="${shellball_dir}/keyset${loem_sfx}"
+        sign_args=( "${loem_output_dir}" )
+        mkdir -p "${loem_output_dir}"
+      fi
+      sign_firmware "${image_file}" "${KEY_DIR}" "${FIRMWARE_VERSION}" \
+        "${sign_args[@]}"
+    done
+  fi
 
   local signer_notes="${shellball_dir}/VERSION.signer"
   echo "" >"$signer_notes"
