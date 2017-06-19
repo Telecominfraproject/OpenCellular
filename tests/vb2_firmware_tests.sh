@@ -32,8 +32,8 @@ ${FUTILITY} vbutil_key --pack kernkey.test \
     --key ${TESTKEY_DIR}/key_rsa2048.keyb --algorithm 4
 
 # Create a GBB with the root key
-${FUTILITY} gbb_utility -c 128,2400,0,0 gbb.test
-${FUTILITY} gbb_utility gbb.test -s --hwid='Test GBB' \
+${FUTILITY} gbb -c 128,2400,0,0 gbb.test
+${FUTILITY} gbb gbb.test -s --hwid='Test GBB' \
   --rootkey=rootkey.test
 
 # Keyblock with firmware subkey is signed by root key

@@ -90,9 +90,9 @@ main() {
   fi
 
   # Process file
-  local old_value="$(gbb_utility -g --flags "$image_file")"
+  local old_value="$(futility gbb -g --flags "$image_file")"
   printf "Setting GBB flags from %s to 0x%x.." "$old_value" "$value" >&2
-  gbb_utility -s --flags="$value" "$image_file"
+  futility gbb -s --flags="$value" "$image_file"
 
   if [ -z "$FLAGS_file" ]; then
     if [ "$FLAGS_check_wp" = "$FLAGS_TRUE" ]; then

@@ -30,7 +30,7 @@ ${FUTILITY} verify ${DEVKEYS}/firmware.keyblock \
 # Get some bits to look at
 ${FUTILITY} dump_fmap -x ${SCRIPTDIR}/data/bios_peppy_mp.bin \
   GBB:${TMP}.gbb VBLOCK_A:${TMP}.vblock_a FW_MAIN_A:${TMP}.fw_main_a
-${FUTILITY} gbb_utility -g -k ${TMP}.rootkey ${TMP}.gbb
+${FUTILITY} gbb -g -k ${TMP}.rootkey ${TMP}.gbb
 
 
 ${FUTILITY} show ${TMP}.vblock_a

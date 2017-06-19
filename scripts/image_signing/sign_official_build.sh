@@ -8,7 +8,7 @@
 #
 # Prerequisite tools needed in the system path:
 #
-#  gbb_utility (from src/platform/vboot_reference)
+#  futility (from src/platform/vboot_reference)
 #  vbutil_kernel (from src/platform/vboot_reference)
 #  cgpt (from src/platform/vboot_reference)
 #  dump_kernel_config (from src/platform/vboot_reference)
@@ -84,7 +84,7 @@ set -e
 PATH=$PATH:/usr/sbin:/sbin
 
 # Make sure the tools we need are available.
-for prereqs in gbb_utility vbutil_kernel cgpt dump_kernel_config verity \
+for prereqs in futility vbutil_kernel cgpt dump_kernel_config verity \
   load_kernel_test dumpe2fs sha1sum e2fsck; do
   type -P "${prereqs}" &>/dev/null || \
     die "${prereqs} tool not found."

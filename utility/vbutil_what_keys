@@ -73,15 +73,15 @@ showbios() {
   local file="$1" space="$2"
   local hwid matchh rootkey matchn recoverykey matchr
 
-  hwid=$(futility gbb_utility --hwid "$file" | sed -e 's/^.*: *//') || return
+  hwid=$(futility gbb --hwid "$file" | sed -e 's/^.*: *//') || return
   matchh=$(grep "$hwid" "$0" 2>/dev/null | sed -e 's/^# //')
 
-  futility gbb_utility --rootkey="$TMPFILE" "$file" >/dev/null
+  futility gbb --rootkey="$TMPFILE" "$file" >/dev/null
   rootkey=$(futility vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
     sed -e 's/^.*: *//')
   matchn=$(greppy "$rootkey")
 
-  futility gbb_utility --recoverykey="$TMPFILE" "$file" >/dev/null
+  futility gbb --recoverykey="$TMPFILE" "$file" >/dev/null
   recoverykey=$(futility vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
     sed -e 's/^.*: *//')
   matchr=$(greppy "$recoverykey")

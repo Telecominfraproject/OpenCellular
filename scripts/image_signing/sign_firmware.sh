@@ -37,7 +37,7 @@ gbb_update() {
   # firmware.  Note: This needs to happen after calling resign_firmwarefd.sh
   # since it needs to be able to verify the firmware using the root key to
   # determine the preamble flags.
-  gbb_utility \
+  futility gbb \
     -s \
     --recoverykey="${key_dir}/recovery_key.vbpubk" \
     --rootkey="${rootkey}" \

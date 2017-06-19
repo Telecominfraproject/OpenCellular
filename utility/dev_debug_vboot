@@ -311,7 +311,7 @@ else
 fi
 
 info "Pulling root and recovery keys from GBB..."
-log futility gbb_utility -g --rootkey rootkey.vbpubk \
+log futility gbb -g --rootkey rootkey.vbpubk \
   --recoverykey recoverykey.vbpubk \
   "GBB" || logdie "Unable to extract keys from GBB"
 log futility vbutil_key --unpack rootkey.vbpubk
