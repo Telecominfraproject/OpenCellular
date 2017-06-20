@@ -4,7 +4,6 @@
  * found in the LICENSE file.
  */
 
-#define OPENSSL_NO_SHA
 #include <openssl/rsa.h>
 
 #include <errno.h>
