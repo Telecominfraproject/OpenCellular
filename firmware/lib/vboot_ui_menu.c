@@ -447,7 +447,6 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			break;
 		case VB_WARN_LANGUAGE:
 			/* Languages */
-			// TODO: we'll have to figure out how to display this
 			vb2_set_menu_items(VB_MENU_LANGUAGES,
 					   loc);
 			break;
@@ -769,7 +768,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		case VB_BUTTON_VOL_DOWN:
 		case VB_KEY_DOWN:
-			/* Do no wrap selection index */
+			/* Do not wrap selection index */
 			if (current_menu == VB_MENU_LANGUAGES) {
 				VbGetLocalizationCount(cparams, &menu_size);
 			}
@@ -1041,8 +1040,14 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				break;
 			case VB_BUTTON_VOL_DOWN:
 			case VB_KEY_DOWN:
-				vb2_get_current_menu_size(current_menu, NULL,
-							  &menu_size);
+				/* Do not wrap selection index */
+				if (current_menu == VB_MENU_LANGUAGES) {
+					VbGetLocalizationCount(cparams, &menu_size);
+				}
+				else {
+					vb2_get_current_menu_size(current_menu,
+								  NULL, &menu_size);
+				}
 				if (current_menu_idx < menu_size-1)
 					current_menu_idx++;
 				vb2_draw_current_screen(ctx, cparams);
