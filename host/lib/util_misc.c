@@ -18,6 +18,7 @@
 #include "2common.h"
 #include "2sha.h"
 #include "host_common.h"
+#include "openssl_compat.h"
 #include "util_misc.h"
 #include "vb2_common.h"
 #include "host_key2.h"
@@ -73,6 +74,7 @@ int vb_keyb_from_rsa(struct rsa_st *rsa_private_key,
 	BIGNUM *N0inv = NULL, *R = NULL, *RR = NULL;
 	BIGNUM *RRTemp = NULL, *NnumBits = NULL;
 	BIGNUM *n = NULL, *rr = NULL;
+	const BIGNUM *rsa_private_key_n;
 	BN_CTX *bn_ctx = BN_CTX_new();
 	uint32_t n0invout;
 	uint32_t bufsize;
@@ -80,7 +82,7 @@ int vb_keyb_from_rsa(struct rsa_st *rsa_private_key,
 	int retval = 1;
 
 	/* Size of RSA key in 32-bit words */
-	nwords = BN_num_bits(rsa_private_key->n) / 32;
+	nwords = RSA_size(rsa_private_key) / 4;
 
 	bufsize = (2 + nwords + nwords) * sizeof(uint32_t);
 	outbuf = malloc(bufsize);
@@ -109,7 +111,8 @@ int vb_keyb_from_rsa(struct rsa_st *rsa_private_key,
 	NEW_BIGNUM(B);
 #undef NEW_BIGNUM
 
-	BN_copy(N, rsa_private_key->n);
+	RSA_get0_key(rsa_private_key, &rsa_private_key_n, NULL, NULL);
+	BN_copy(N, rsa_private_key_n);
 	BN_set_word(Big1, 1L);
 	BN_set_word(Big2, 2L);
 	BN_set_word(Big32, 32L);

@@ -14,6 +14,7 @@
 #include "2id.h"
 #include "2rsa.h"
 #include "2sha.h"
+#include "openssl_compat.h"
 #include "util_misc.h"
 #include "vb2_common.h"
 #include "vb21_common.h"
@@ -170,6 +171,7 @@ static int vb2_make_keypair()
 	enum vb2_signature_algorithm sig_alg;
 	uint8_t *pubkey_buf = 0;
 	int has_priv = 0;
+	const BIGNUM *rsa_d;
 
 	FILE *fp;
 	int ret = 1;
@@ -196,7 +198,8 @@ static int vb2_make_keypair()
 		goto done;
 	}
 	/* Public keys doesn't have the private exponent */
-	has_priv = !!rsa_key->d;
+	RSA_get0_key(rsa_key, NULL, NULL, &rsa_d);
+	has_priv = !!rsa_d;
 	if (!has_priv)
 		fprintf(stderr, "%s has a public key only.\n", infile);
 

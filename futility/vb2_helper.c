@@ -11,6 +11,7 @@
 #include "2id.h"
 #include "2rsa.h"
 #include "2sha.h"
+#include "openssl_compat.h"
 #include "util_misc.h"
 #include "vb21_common.h"
 
@@ -207,6 +208,7 @@ int ft_show_pem(const char *name, uint8_t *buf, uint32_t len, void *data)
 	uint8_t digest[VB2_SHA1_DIGEST_SIZE];
 	uint32_t keyb_len;
 	int i, bits;
+	const BIGNUM *rsa_key_n, *rsa_key_d;
 
 	/* We're called only after ft_recognize_pem, so this should work. */
 	rsa_key = rsa_from_buffer(buf, len);
@@ -214,10 +216,11 @@ int ft_show_pem(const char *name, uint8_t *buf, uint32_t len, void *data)
 		DIE;
 
 	/* Use to presence of the private exponent to decide if it's public */
-	printf("%s Key file:      %s\n", rsa_key->d ? "Private" : "Public",
+	RSA_get0_key(rsa_key, &rsa_key_n, NULL, &rsa_key_d);
+	printf("%s Key file:      %s\n", rsa_key_d ? "Private" : "Public",
 					 name);
 
-	bits = BN_num_bits(rsa_key->n);
+	bits = BN_num_bits(rsa_key_n);
 	printf("  Key length:          %d\n", bits);
 
 	if (vb_keyb_from_rsa(rsa_key, &keyb, &keyb_len)) {

@@ -17,6 +17,7 @@
 #include "host_common.h"
 #include "host_key2.h"
 #include "host_misc.h"
+#include "openssl_compat.h"
 
 const struct vb2_text_vs_enum vb2_text_vs_sig[] = {
 	{"RSA1024", VB2_SIG_RSA1024},
@@ -565,8 +566,12 @@ int vb2_public_key_hash(struct vb2_public_key *key,
 
 enum vb2_signature_algorithm vb2_rsa_sig_alg(struct rsa_st *rsa)
 {
-	int exp = BN_get_word(rsa->e);
-	int bits = BN_num_bits(rsa->n);
+	const BIGNUM *e, *n;
+	int exp, bits;
+
+	RSA_get0_key(rsa, &n, &e, NULL);
+	exp = BN_get_word(e);
+	bits = BN_num_bits(n);
 
 	switch (exp) {
 	case RSA_3:
