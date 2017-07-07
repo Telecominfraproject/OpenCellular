@@ -468,6 +468,31 @@ static uint32_t HandlerGetVersion(void) {
   return result;
 }
 
+#ifndef TPM2_MODE
+static void PrintIFXFirmwarePackage(TPM_IFX_FIRMWAREPACKAGE* firmware_package,
+                                    const char* prefix) {
+  printf("%s_package_id %08x\n", prefix,
+         firmware_package->FwPackageIdentifier);
+  printf("%s_version %08x\n", prefix, firmware_package->Version);
+  printf("%s_stale_version %08x\n", prefix, firmware_package->StaleVersion);
+}
+
+static uint32_t HandlerIFXFieldUpgradeInfo(void) {
+  TPM_IFX_FIELDUPGRADEINFO info;
+  uint32_t result = TlclIFXFieldUpgradeInfo(&info);
+  if (result == 0) {
+    printf("max_data_size %u\n", info.wMaxDataSize);
+    PrintIFXFirmwarePackage(&info.sBootloaderFirmwarePackage, "bootloader");
+    PrintIFXFirmwarePackage(&info.sFirmwarePackages[0], "fw0");
+    PrintIFXFirmwarePackage(&info.sFirmwarePackages[1], "fw1");
+    printf("status %04x\n", info.wSecurityModuleStatus);
+    PrintIFXFirmwarePackage(&info.sProcessFirmwarePackage, "process_fw");
+    printf("field_upgrade_counter %u\n", info.wFieldUpgradeCounter);
+  }
+  return result;
+}
+#endif
+
 #ifdef TPM2_MODE
 static uint32_t HandlerDoNothingForTPM2(void) {
   return 0;
@@ -548,6 +573,9 @@ command_record command_table[] = {
     HandlerSendRaw },
   { "getversion", "getver", "get TPM vendor and firmware version",
     HandlerGetVersion },
+  { "ifxfieldupgradeinfo", "ifxfui",
+    TPM20_NOT_IMPLEMENTED("read and print IFX field upgrade info",
+      HandlerIFXFieldUpgradeInfo) },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);

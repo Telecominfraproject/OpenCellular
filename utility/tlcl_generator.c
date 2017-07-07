@@ -404,6 +404,21 @@ Command* BuildGetVersionValCommand(void) {
   return cmd;
 }
 
+Command* BuildIFXFieldUpgradeInfoRequest2Command(void) {
+  int size = (kTpmRequestHeaderLength +
+              sizeof(TPM_IFX_FieldUpgradeInfoRequest2) +
+              sizeof(uint16_t));
+  Command* cmd = newCommand(TPM_ORD_FieldUpgrade, size);
+  cmd->name = "tpm_ifx_fieldupgradeinforequest2_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength,
+                      sizeof(TPM_IFX_FieldUpgradeInfoRequest2),
+                      TPM_IFX_FieldUpgradeInfoRequest2);
+  AddInitializedField(cmd, kTpmRequestHeaderLength +
+                      sizeof(TPM_IFX_FieldUpgradeInfoRequest2),
+                      sizeof(uint16_t), 0);
+  return cmd;
+}
+
 /* Output the fields of a structure.
  */
 void OutputFields(Field* fld) {
@@ -526,6 +541,7 @@ Command* (*builders[])(void) = {
   BuildGetRandomCommand,
   BuildExtendCommand,
   BuildGetVersionValCommand,
+  BuildIFXFieldUpgradeInfoRequest2Command,
 };
 
 static void FreeFields(Field* fld) {

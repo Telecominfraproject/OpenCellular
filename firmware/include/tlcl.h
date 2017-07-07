@@ -211,4 +211,10 @@ uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size);
  */
 uint32_t TlclGetVersion(uint32_t *vendor, uint64_t *firmware_version);
 
+/**
+ * Issues the IFX specific FieldUpgradeInfoRequest2 TPM_FieldUpgrade subcommand
+ * and fills in [info] with results.
+ */
+uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO *info);
+
 #endif  /* TPM_LITE_TLCL_H_ */

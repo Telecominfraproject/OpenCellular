@@ -273,6 +273,10 @@ typedef struct {
 	uint32_t orderly : 1;
 } TPM_STCLEAR_FLAGS;
 
+typedef struct tdTPM_IFX_FIELDUPGRADEINFO
+{
+} TPM_IFX_FIELDUPGRADEINFO;
+
 /* TODO(apronin): For TPM2 certain properties must be received using
  * TPM2_GetCapability instead of being hardcoded as they are now:
  * TPM_MAX_COMMAND_SIZE -> use TPM_PT_MAX_COMMAND_SIZE for TPM2.

@@ -541,3 +541,9 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version)
 	*firmware_version = ((uint64_t) version_1 << 32) | version_2;
 	return TPM_SUCCESS;
 }
+
+uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO* info)
+{
+	VB2_DEBUG("NOT YET IMPLEMENTED\n");
+	return TPM_E_IOERROR;
+}

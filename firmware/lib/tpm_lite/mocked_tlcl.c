@@ -205,3 +205,9 @@ uint32_t TlclSendReceive(const uint8_t* request, uint8_t* response,
 {
 	return TPM_SUCCESS;
 }
+
+uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO* info)
+{
+	memset(info, 0, sizeof(*info));
+	return TPM_SUCCESS;
+}

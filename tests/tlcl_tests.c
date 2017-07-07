@@ -376,6 +376,105 @@ static void GetVersionTest(void)
 	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
 }
 
+/**
+ * Test IFX FieldUpgradeInfoRequest2
+ */
+static void IFXFieldUpgradeInfoTest(void)
+{
+	uint8_t version_response[] = {
+		0x00, 0xc4, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x30,
+		0x01, 0x02, 0x04, 0x20, 0x00, 0x02, 0x03, 0x49,
+		0x46, 0x58, 0x00, 0x00, 0x0d, 0x04, 0x20, 0x03,
+		0x6f, 0x00, 0x74, 0x70, 0x6d, 0x33, 0x38, 0xff,
+		0xff, 0xff
+	};
+	uint8_t upgrade_info_response[] = {
+		0x00, 0xc4, 0x00, 0x00, 0x00, 0x76, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x6a, 0x03, 0x02, 0x04, 0x9c,
+		0x04, 0x01, 0x00, 0x00, 0x01, 0x02, 0x00, 0x08,
+		0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x05, 0x01, 0x00, 0x00, 0x00, 0xff, 0xff,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x04, 0x01,
+		0x01, 0x00, 0x00, 0x00, 0x00, 0xbe, 0x00, 0x00,
+		0x00, 0x00, 0x04, 0x01, 0x02, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xff, 0xff, 0xee, 0xee, 0x5a, 0x3c,
+		0x04, 0x01, 0x02, 0x00, 0x00, 0x00, 0x08, 0x32,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x3f
+	};
+
+	ResetMocks();
+	calls[0].rsp = version_response;
+	calls[0].rsp_size = sizeof(version_response);
+	calls[1].rsp = upgrade_info_response;
+	calls[1].rsp_size = sizeof(upgrade_info_response);
+	TPM_IFX_FIELDUPGRADEINFO info;
+	TEST_EQ(TlclIFXFieldUpgradeInfo(&info), 0, "IFXFieldUpgradeInfo");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_FieldUpgrade, "  cmd");
+	TEST_EQ(info.wMaxDataSize, 1180, "  wMaxDatasize");
+	TEST_EQ(info.sBootloaderFirmwarePackage.FwPackageIdentifier, 0x50100,
+		"  bootloader FWPackageIdeintifier");
+	TEST_EQ(info.sBootloaderFirmwarePackage.Version, 0xffff,
+		"  bootloader Version");
+	TEST_EQ(info.sBootloaderFirmwarePackage.StaleVersion, 0x0,
+		"  bootloader StaleVersion");
+	TEST_EQ(info.sFirmwarePackages[0].FwPackageIdentifier, 0x4010100,
+		"  fw[0] FWPackageIdeintifier");
+	TEST_EQ(info.sFirmwarePackages[0].Version, 0xbe,
+		"  fw[0] Version");
+	TEST_EQ(info.sFirmwarePackages[0].StaleVersion, 0x0,
+		"  fw[0] StaleVersion");
+	TEST_EQ(info.sFirmwarePackages[1].FwPackageIdentifier, 0x4010200,
+		"  fw[1] FWPackageIdeintifier");
+	TEST_EQ(info.sFirmwarePackages[1].Version, 0x0,
+		"  fw[1] Version");
+	TEST_EQ(info.sFirmwarePackages[1].StaleVersion, 0xffffeeee,
+		"  fw[1] StaleVersion");
+	TEST_EQ(info.wSecurityModuleStatus, 0x5a3c, "  wSecurityModuleStatus");
+	TEST_EQ(info.sProcessFirmwarePackage.FwPackageIdentifier, 0x4010200,
+		"  process FWPackageIdeintifier");
+	TEST_EQ(info.sProcessFirmwarePackage.Version, 0x832,
+		"  process Version");
+	TEST_EQ(info.sProcessFirmwarePackage.StaleVersion, 0x0,
+		"  process StaleVersion");
+	TEST_EQ(info.wFieldUpgradeCounter, 0x3f, "  wFieldUpgradeCounter");
+
+	ResetMocks();
+	calls[0].rsp = version_response;
+	calls[0].rsp_size = sizeof(version_response);
+	SetResponse(1, TPM_E_IOERROR, sizeof(upgrade_info_response) - 1);
+	TEST_EQ(TlclIFXFieldUpgradeInfo(&info), TPM_E_IOERROR,
+		"IFXFieldUpgradeInfo - error");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_FieldUpgrade, "  cmd");
+
+	/* Adjust response to indicate a 1 byte too short payload size. */
+	ToTpmUint16(upgrade_info_response + kTpmRequestHeaderLength,
+		    sizeof(upgrade_info_response) - kTpmRequestHeaderLength -
+		    sizeof(uint16_t) - 1);
+	ResetMocks();
+	calls[0].rsp = version_response;
+	calls[0].rsp_size = sizeof(version_response);
+	calls[1].rsp = upgrade_info_response;
+	calls[1].rsp_size = sizeof(upgrade_info_response);
+	TEST_EQ(TlclIFXFieldUpgradeInfo(&info), TPM_E_IOERROR,
+		"IFXFieldUpgradeInfo - short");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_FieldUpgrade, "  cmd");
+
+	/* Adjust version response to claim a non-IFX vendor. */
+	ToTpmUint32(version_response + kTpmResponseHeaderLength +
+		    sizeof(uint32_t), 0);
+	ResetMocks();
+	calls[0].rsp = version_response;
+	calls[0].rsp_size = sizeof(version_response);
+	TEST_EQ(TlclIFXFieldUpgradeInfo(&info), TPM_E_IOERROR,
+		"IFXFieldUpgradeInfo - bad vendor");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_FieldUpgrade, "  cmd");
+}
+
 int main(void)
 {
 	TlclTest();
@@ -385,6 +484,7 @@ int main(void)
 	FlagsTest();
 	RandomTest();
 	GetVersionTest();
+	IFXFieldUpgradeInfoTest();
 
 	return gTestSuccess ? 0 : 255;
 }
