@@ -50,6 +50,7 @@ static uint8_t notebuf[sizeof(good_header) +
 static VbDevMusic *use_hdr;
 static VbDevMusicNote *use_notes;
 static uint32_t use_size;
+extern int audio_open_count;
 
 /* Set correct checksum for custom notes */
 void FixChecksum(VbDevMusic *hdr) {
@@ -72,6 +73,7 @@ static void ResetMocks(void) {
   memcpy(use_notes, good_notes, sizeof(good_notes));
   FixChecksum(use_hdr);
   use_size = sizeof(notebuf);
+  audio_open_count = 0;
 }
 
 /* Compare two sets of notes */

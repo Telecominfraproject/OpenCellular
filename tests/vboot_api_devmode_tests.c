@@ -149,6 +149,8 @@ static uint32_t kbd_fire_key;
 static VbError_t beep_return;
 static note_event_t *expected_event;
 
+extern int audio_open_count;
+
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void) {
 
@@ -181,6 +183,7 @@ static void ResetMocks(void) {
   kbd_fire_key = 0;
 
   beep_return = VBERROR_SUCCESS;
+  audio_open_count = 0;
 
   matched_events = 0;
   max_events = 0;

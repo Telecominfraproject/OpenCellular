@@ -45,6 +45,9 @@ uint32_t short_count_ = sizeof(short_notes_) / sizeof(VbDevMusicNote);
 /* No need to dynamically allocate this, is there? */
 static VbAudioContext au;
 
+/* Flag to override GBB_FLAG_DEV_SCREEN_SHORT_DELAY gbb flag */
+int audio_open_count = 0;
+
 /* Convert from msecs to VbExGetTimer() units. */
 static uint64_t ticks_per_msec = 0;     /* Initialized by VbAudioOpen() */
 static uint64_t VbMsecToTicks(uint16_t msec) {
@@ -204,7 +207,6 @@ static void VbGetDevMusicNotes(VbAudioContext *audio, int use_short)
 	audio->free_notes_when_done = 0;
 }
 
-
 /**
  * Initialization function. Returns context for processing dev-mode delay.
  */
@@ -240,11 +242,15 @@ VbAudioContext *VbAudioOpen(VbCommonParams *cparams)
 	 * Prepare to generate audio/delay event. Use a short developer screen
 	 * delay if indicated by GBB flags.
 	 */
-	if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1
-	    && (gbb->flags & GBB_FLAG_DEV_SCREEN_SHORT_DELAY)) {
+	if ((gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1
+	     && (gbb->flags & GBB_FLAG_DEV_SCREEN_SHORT_DELAY))) {
 		VB2_DEBUG("VbAudioOpen() - using short dev screen delay\n");
 		use_short = 1;
 	}
+
+	/* Only use short dev screen delay on the first audio */
+	if (audio_open_count++ > 0)
+		use_short = 0;
 
 	VbGetDevMusicNotes(audio, use_short);
 	VB2_DEBUG("VbAudioOpen() - note count %d\n", audio->note_count);
