@@ -1,5 +1,6 @@
 --
 -- Copyright (C) 2014-2017 secunet Security Networks AG
+-- Copyright (C) 2017 Nico Huber <nico.h@gmx.de>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -12,6 +13,11 @@
 -- GNU General Public License for more details.
 --
 
+with HW.MMIO_Range;
+pragma Elaborate_All (HW.MMIO_Range);
+with HW.PCI.Dev;
+pragma Elaborate_All (HW.PCI.Dev);
+
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Config_Helpers;
 with HW.GFX.GMA.Registers;
@@ -23,8 +29,6 @@ with HW.GFX.GMA.Connectors;
 with HW.GFX.GMA.Connector_Info;
 with HW.GFX.GMA.Pipe_Setup;
 
-with System;
-
 with HW.Debug;
 with GNAT.Source_Info;
 
@@ -33,15 +37,17 @@ use type HW.Int32;
 package body HW.GFX.GMA
    with Refined_State =>
      (State =>
-        (Registers.Address_State,
+        (Dev.Address_State,
+         Registers.Address_State,
          PLLs.State, Panel.Panel_State,
          Cur_Configs, Allocated_PLLs,
          HPD_Delay, Wait_For_HPD),
       Init_State => Initialized,
       Config_State => Config.Valid_Port_GPU,
       Device_State =>
-        (Registers.Register_State, Registers.GTT_State))
+        (Dev.PCI_State, Registers.Register_State, Registers.GTT_State))
 is
+   pragma Disable_Atomic_Synchronization;
 
    subtype Port_Name is String (1 .. 8);
    type Port_Name_Array is array (Port_Type) of Port_Name;
@@ -55,6 +61,8 @@ is
       HDMI2    => "HDMI2   ",
       HDMI3    => "HDMI3   ",
       Analog   => "Analog  ");
+
+   package Dev is new HW.PCI.Dev (PCI.Address'(0, 2, 0));
 
    package Display_Controller renames Pipe_Setup;
 
@@ -287,8 +295,7 @@ is
    ----------------------------------------------------------------------------
 
    procedure Initialize
-     (MMIO_Base   : in     Word64 := 0;
-      Write_Delay : in     Word64 := 0;
+     (Write_Delay : in     Word64 := 0;
       Clean_State : in     Boolean := False;
       Success     :    out Boolean)
    with
@@ -299,12 +306,15 @@ is
          Input =>
            (Time.State),
          Output =>
-           (Registers.Address_State,
+           (Dev.Address_State,
+            Registers.Address_State,
             PLLs.State, Panel.Panel_State,
             Cur_Configs, Allocated_PLLs,
             HPD_Delay, Wait_For_HPD, Initialized))
    is
       use type HW.Word64;
+
+      PCI_MMIO_Base, PCI_GTT_Base : Word64;
 
       Now : constant Time.T := Time.Now;
 
@@ -345,14 +355,32 @@ is
            (Port        => Disabled,
             Framebuffer => HW.GFX.Default_FB,
             Mode        => HW.GFX.Invalid_Mode));
-      Registers.Set_Register_Base
-        (if MMIO_Base /= 0 then
-            MMIO_Base
-         else
-            Config.Default_MMIO_Base);
       PLLs.Initialize;
 
-      Check_Platform (Success);
+      Dev.Initialize (Success);
+
+      if Success then
+         Dev.Map (PCI_MMIO_Base, PCI.Res0, Length => Config.GTT_Offset);
+         Dev.Map (PCI_GTT_Base, PCI.Res0, Offset => Config.GTT_Offset);
+         if PCI_MMIO_Base /= 0 and PCI_GTT_Base /= 0 then
+            Registers.Set_Register_Base (PCI_MMIO_Base, PCI_GTT_Base);
+         else
+            pragma Debug (Debug.Put_Line
+              ("ERROR: Couldn't map resoure0."));
+            Registers.Set_Register_Base (Config.Default_MMIO_Base);
+            Success := Config.Default_MMIO_Base_Set;
+         end if;
+      else
+         pragma Debug (Debug.Put_Line
+           ("WARNING: Couldn't initialize PCI dev."));
+         Registers.Set_Register_Base (Config.Default_MMIO_Base);
+         Success := Config.Default_MMIO_Base_Set;
+      end if;
+
+      if Success then
+         Check_Platform (Success);
+      end if;
+
       if not Success then
          pragma Debug (Debug.Put_Line ("ERROR: Incompatible CPU or PCH."));
 

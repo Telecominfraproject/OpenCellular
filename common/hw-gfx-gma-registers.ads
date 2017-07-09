@@ -1541,10 +1541,10 @@ is
       Post    => True;
    pragma Warnings (On, "declaration of ""Write_GTT"" hides one at *");
 
-   procedure Set_Register_Base (Base : Word64)
+   procedure Set_Register_Base (Base : Word64; GTT_Base : Word64 := 0)
    with
       Global   => (Output => Address_State),
-      Depends  => (Address_State => Base),
+      Depends  => (Address_State => (Base, GTT_Base)),
       Pre      => True,
       Post     => True;
 

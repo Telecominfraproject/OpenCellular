@@ -165,15 +165,8 @@ is
       end if;
       Screen.Set_Base_Address (Res_Addr);
 
-      Dev.Map (Res_Addr, PCI.Res0);
-      if Res_Addr = 0 then
-         Debug.Put_Line ("Failed to map PCI resource0.");
-         return;
-      end if;
-
       GMA.Initialize
-        (MMIO_Base   => Res_Addr,
-         Clean_State => True,
+        (Clean_State => True,
          Success     => Initialized);
 
       if Initialized then

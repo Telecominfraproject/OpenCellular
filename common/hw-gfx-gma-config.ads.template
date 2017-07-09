@@ -35,6 +35,8 @@ is
 
    ----------------------------------------------------------------------------
 
+   Default_MMIO_Base_Set   : constant Boolean := Default_MMIO_Base /= 0;
+
    Has_Internal_Display    : constant Boolean := Internal_Display /= None;
    Internal_Is_EDP         : constant Boolean := Internal_Display = DP;
    Has_Presence_Straps     : constant Boolean := CPU /= Broxton;

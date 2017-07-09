@@ -290,11 +290,15 @@ is
 
    ----------------------------------------------------------------------------
 
-   procedure Set_Register_Base (Base : Word64)
+   procedure Set_Register_Base (Base : Word64; GTT_Base : Word64 := 0)
    is
    begin
       Regs.Set_Base_Address (Base);
-      GTT.Set_Base_Address (Base + Config.GTT_Offset);
+      if GTT_Base = 0 then
+         GTT.Set_Base_Address (Base + Config.GTT_Offset);
+      else
+         GTT.Set_Base_Address (GTT_Base);
+      end if;
    end Set_Register_Base;
 
 end HW.GFX.GMA.Registers;

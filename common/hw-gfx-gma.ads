@@ -62,8 +62,7 @@ is
    VGA_PLANE_FRAMEBUFFER_OFFSET : constant := 16#ffff_ffff#;
 
    procedure Initialize
-     (MMIO_Base   : in     Word64 := 0;
-      Write_Delay : in     Word64 := 0;
+     (Write_Delay : in     Word64 := 0;
       Clean_State : in     Boolean := False;
       Success     :    out Boolean)
    with
