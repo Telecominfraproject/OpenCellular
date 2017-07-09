@@ -1,6 +1,6 @@
-with GFX_Test;
+with HW.GFX.GMA.GFX_Test;
 
 procedure GFX_Test_Main is
 begin
-   GFX_Test.Main;
+   HW.GFX.GMA.GFX_Test.Main;
 end GFX_Test_Main;

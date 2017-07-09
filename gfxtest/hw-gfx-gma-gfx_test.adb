@@ -1,24 +1,18 @@
-with System.Storage_Elements;
+with Ada.Unchecked_Conversion;
 with Ada.Command_Line;
 with Interfaces.C;
 
-with HW.File;
 with HW.Debug;
+with HW.PCI.Dev;
+with HW.MMIO_Range;
 with HW.GFX.GMA;
 with HW.GFX.GMA.Display_Probing;
 
-use HW;
-use HW.GFX;
+package body HW.GFX.GMA.GFX_Test
+is
+   pragma Disable_Atomic_Synchronization;
 
-package body GFX_Test is
-
-   MMIO_Size : constant := 2 * 1024 * 1024;
-   subtype MMIO_Range is Natural range 0 .. MMIO_Size - 1;
-   subtype MMIO_Buffer is Buffer (MMIO_Range);
-   MMIO_Dummy : MMIO_Buffer
-   with
-      Alignment => 16#1000#,
-      Volatile;
+   package Dev is new PCI.Dev (PCI.Address'(0, 2, 0));
 
    type Pixel_Type is record
       Red   : Byte;
@@ -34,16 +28,23 @@ package body GFX_Test is
       Alpha at 3 range 0 .. 7;
    end record;
 
+   function Pixel_To_Word (P : Pixel_Type) return Word32
+   with
+      SPARK_Mode => Off
+   is
+      function To_Word is new Ada.Unchecked_Conversion (Pixel_Type, Word32);
+   begin
+      return To_Word (P);
+   end Pixel_To_Word;
+
    Max_W    : constant := 4096;
    Max_H    : constant := 2160;
    FB_Align : constant := 16#0004_0000#;
-   type Screen_Type is
-      array (0 .. 3 * (Max_W * Max_H + FB_Align / 4) - 1) of Pixel_Type;
+   subtype Screen_Index is Natural range
+      0 .. 3 * (Max_W * Max_H + FB_Align / 4) - 1;
+   type Screen_Type is array (Screen_Index) of Word32;
 
-   Screen : Screen_Type
-   with
-      Alignment => 16#1000#,
-      Volatile;
+   package Screen is new MMIO_Range (0, Word32, Screen_Index, Screen_Type);
 
    Pipes : GMA.Pipe_Configs;
 
@@ -76,7 +77,6 @@ package body GFX_Test is
      (Framebuffer : Framebuffer_Type;
       Pipe        : GMA.Pipe_Index)
    is
-      use type HW.Word32;
       P        : Pixel_Type;
       -- We have pixel offset wheras the framebuffer has a byte offset
       Offset_Y : Natural := Natural (Framebuffer.Offset / 4);
@@ -90,7 +90,7 @@ package body GFX_Test is
             else
                P := Fill (X, Y, Framebuffer, Pipe);
             end if;
-            Screen (Offset) := P;
+            Screen.Write (Offset, Pixel_To_Word (P));
             Offset := Offset + 1;
          end loop;
          Offset_Y := Offset_Y + Natural (Framebuffer.Stride);
@@ -102,8 +102,6 @@ package body GFX_Test is
       Mode     : in     Mode_Type;
       Offset   : in out Word32)
    is
-      use type HW.Int32;
-      use type HW.Word32;
    begin
       Offset := (Offset + FB_Align - 1) and not (FB_Align - 1);
       FB :=
@@ -119,7 +117,7 @@ package body GFX_Test is
    is
       use type HW.GFX.GMA.Port_Type;
 
-      Offset : HW.Word32 := 0;
+      Offset : Word32 := 0;
    begin
       GMA.Display_Probing.Scan_Ports (Pipes);
 
@@ -135,65 +133,46 @@ package body GFX_Test is
       GMA.Dump_Configs (Pipes);
    end Prepare_Configs;
 
-   procedure Print_Usage is
-   begin
-      Debug.Put_Line
-        ("Usage: " & Ada.Command_Line.Command_Name & " <sysfs-pci-path>");
-      Debug.New_Line;
-   end Print_Usage;
-
    procedure Main
    is
-      use System.Storage_Elements;
-
       use type HW.GFX.GMA.Port_Type;
+      use type HW.Word64;
       use type Interfaces.C.int;
 
-      MMIO_Mapped,
-      Screen_Mapped,
+      Res_Addr : Word64;
+
+      Dev_Init,
       Initialized : Boolean;
 
       function iopl (level : Interfaces.C.int) return Interfaces.C.int;
       pragma Import (C, iopl, "iopl");
    begin
-      if Ada.Command_Line.Argument_Count /= 1 then
-         Print_Usage;
-         return;
-      end if;
-
       if iopl (3) /= 0 then
          Debug.Put_Line ("Failed to change i/o privilege level.");
          return;
       end if;
 
-      File.Map
-        (Path     => Ada.Command_Line.Argument (1) & "/resource0",
-         Addr     => Word64 (To_Integer (MMIO_Dummy'Address)),
-         Len      => MMIO_Dummy'Size / 8,
-         Readable => True,
-         Writable => True,
-         Success  => MMIO_Mapped);
-      if not MMIO_Mapped then
-         Debug.Put_Line
-           ("Failed to map '" & Ada.Command_Line.Argument (1) & "/resource0'.");
+      Dev.Initialize (Dev_Init);
+      if not Dev_Init then
+         Debug.Put_Line ("Failed to map PCI config.");
          return;
       end if;
 
-      File.Map
-        (Path     => Ada.Command_Line.Argument (1) & "/resource2",
-         Addr     => Word64 (To_Integer (Screen'Address)),
-         Len      => Screen'Size / 8,
-         Readable => True,
-         Writable => True,
-         Success  => Screen_Mapped);
-      if not Screen_Mapped then
-         Debug.Put_Line
-           ("Failed to map '" & Ada.Command_Line.Argument (1) & "/resource2'.");
+      Dev.Map (Res_Addr, PCI.Res2, WC => True);
+      if Res_Addr = 0 then
+         Debug.Put_Line ("Failed to map PCI resource2.");
+         return;
+      end if;
+      Screen.Set_Base_Address (Res_Addr);
+
+      Dev.Map (Res_Addr, PCI.Res0);
+      if Res_Addr = 0 then
+         Debug.Put_Line ("Failed to map PCI resource0.");
          return;
       end if;
 
       GMA.Initialize
-        (MMIO_Base   => Word64 (To_Integer (MMIO_Dummy'Address)),
+        (MMIO_Base   => Res_Addr,
          Clean_State => True,
          Success     => Initialized);
 
@@ -212,4 +191,4 @@ package body GFX_Test is
       end if;
    end Main;
 
-end GFX_Test;
+end HW.GFX.GMA.GFX_Test;

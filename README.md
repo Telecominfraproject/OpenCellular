@@ -40,16 +40,16 @@ Both libraries are currently configured by hand-written config files.
 You can either write your own `.config`, link one of the shipped files
 in `configs/`, e.g.:
 
-    $ ln -s configs/posix libhwbase/.config
+    $ ln -s configs/linux libhwbase/.config
 
 or overwrite the config filename by specifying `cnf=<configfile>` on
 the make command line.
 
-Let's install *libhwbase*. We'll need `configs/posix` to build regular
+Let's install *libhwbase*. We'll need `configs/linux` to build regular
 Linux executables:
 
     $ cd libhwbase
-    $ make cnf=configs/posix install
+    $ make cnf=configs/linux install
 
 By default this installs into a new subdirectory `dest`. You can however
 overwrite this decision by specifying `DESTDIR=`.
@@ -80,11 +80,12 @@ to work well, after running the VBIOS but before the Linux driver
 command line or with *i915* blacklisted). After running *i915* it
 only works by chance.
 
-When running `gfx_test` (as root), it will ask for a single argument:
-The path to a sysfs PCI-device node, where it will find the graphics
-hardware. Usually this is PCI device 00:02.0:
+When running `gfx_test` (as root), it will access the graphics hard-
+ware through the sysfs PCI interface. The path is
 
-    $ sudo build/gfx_test /sys/devices/pci0000:00/0000:00:02.0/
+    /sys/devices/pci0000:00/0000:00:02.0/
+
+for all supported platforms.
 
 If you chose the right config above, you should be presented with a
 nice test image. However, `gfx_test` is one-way only: The graphics
