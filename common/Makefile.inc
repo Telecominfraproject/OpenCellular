@@ -1,4 +1,3 @@
-hw-y += hw.adb
 hw-y += hw.ads
 hw-y += hw-mmio_range.ads
 hw-y += hw-mmio_regs.adb

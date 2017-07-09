@@ -54,28 +54,36 @@ package HW is
    subtype Pos64 is Interfaces.Integer_64 range 1 .. Interfaces.Integer_64'Last;
 
    use type Pos8;
-   function Div_Round_Closest (N, M : Pos8) return Int8
+   function Div_Round_Up (N, M : Pos8) return Pos8 is ((N + (M - 1)) / M)
    with
-      Pre => N <= Pos8'Last - M / 2,
-      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+      Pre => N <= Pos8'Last - (M - 1);
+   function Div_Round_Closest (N, M : Pos8) return Int8 is ((N + M / 2) / M)
+   with
+      Pre => N <= Pos8'Last - M / 2;
 
    use type Pos16;
-   function Div_Round_Closest (N, M : Pos16) return Int16
+   function Div_Round_Up (N, M : Pos16) return Pos16 is ((N + (M - 1)) / M)
    with
-      Pre => N <= Pos16'Last - M / 2,
-      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+      Pre => N <= Pos16'Last - (M - 1);
+   function Div_Round_Closest (N, M : Pos16) return Int16 is ((N + M / 2) / M)
+   with
+      Pre => N <= Pos16'Last - M / 2;
 
    use type Pos32;
-   function Div_Round_Closest (N, M : Pos32) return Int32
+   function Div_Round_Up (N, M : Pos32) return Pos32 is ((N + (M - 1)) / M)
    with
-      Pre => N <= Pos32'Last - M / 2,
-      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+      Pre => N <= Pos32'Last - (M - 1);
+   function Div_Round_Closest (N, M : Pos32) return Int32 is ((N + M / 2) / M)
+   with
+      Pre => N <= Pos32'Last - M / 2;
 
    use type Pos64;
-   function Div_Round_Closest (N, M : Pos64) return Int64
+   function Div_Round_Up (N, M : Pos64) return Pos64 is ((N + (M - 1)) / M)
    with
-      Pre => N <= Pos64'Last - M / 2,
-      Post => Div_Round_Closest'Result = (N + M / 2) / M;
+      Pre => N <= Pos64'Last - (M - 1);
+   function Div_Round_Closest (N, M : Pos64) return Int64 is ((N + M / 2) / M)
+   with
+      Pre => N <= Pos64'Last - M / 2;
 
    subtype Buffer_Range is Natural range 0 .. Natural'Last - 1;
    type Buffer is array (Buffer_Range range <>) of Byte;
