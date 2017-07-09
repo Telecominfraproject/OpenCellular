@@ -21,8 +21,8 @@
 #define HW_FILE_READ	0x01
 #define HW_FILE_WRITE	0x02
 
-static int map_file(const char *const path,
-		    const uint64_t addr,
+static int map_file(uint64_t *const addr,
+		    const char *const path,
 		    const uint32_t len,
 		    const uint32_t mode)
 {
@@ -37,17 +37,17 @@ static int map_file(const char *const path,
 	if (fd < 0)
 		return errno;
 
-	void *const mapped = mmap((void *)(uintptr_t)addr, len, prot,
-				  MAP_SHARED | MAP_FIXED, fd, (off_t)0);
+	void *const mapped = mmap(NULL, len, prot, MAP_SHARED, fd, (off_t)0);
 	close(fd);
 	if (mapped == MAP_FAILED)
 		return errno;
 
+	*addr = (uint64_t)(uintptr_t)mapped;
 	return 0;
 }
 
-static int map_fill_from_file(const char *const path,
-			      const uint64_t addr,
+static int map_fill_from_file(uint64_t *const addr,
+			      const char *const path,
 			      const uint32_t len,
 			      const uint32_t mode)
 {
@@ -57,10 +57,8 @@ static int map_fill_from_file(const char *const path,
 	if (mode != HW_FILE_READ)
 		return EINVAL;
 
-	void *const mapped = mmap((void *)(uintptr_t)addr, len,
-				  PROT_READ | PROT_WRITE,
-				  MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED,
-				  -1, (off_t)0);
+	void *const mapped = mmap(NULL, len, PROT_READ | PROT_WRITE,
+				  MAP_ANONYMOUS | MAP_PRIVATE, -1, (off_t)0);
 	if (mapped == MAP_FAILED)
 		return errno;
 
@@ -83,6 +81,7 @@ static int map_fill_from_file(const char *const path,
 	if (mprotect(mapped, len, PROT_READ))
 		goto _munmap;
 
+	*addr = (uint64_t)(uintptr_t)mapped;
 	return 0;
 
 _munmap:
@@ -90,14 +89,14 @@ _munmap:
 	return errno;
 }
 
-int hw_file_map(const char *const path,
-		const uint64_t addr,
+int hw_file_map(uint64_t *const addr,
+		const char *const path,
 		const uint32_t len,
 		const uint32_t mode,
 		const int copy)
 {
 	if (copy)
-		return map_fill_from_file(path, addr, len, mode);
+		return map_fill_from_file(addr, path, len, mode);
 	else
-		return map_file(path, addr, len, mode);
+		return map_file(addr, path, len, mode);
 }

@@ -26,8 +26,8 @@ package body HW.File is
    WRITE : constant := 16#02#;
 
    function c_map
-     (path  : chars_ptr;
-      addr  : Word64;
+     (addr  : out Word64;
+      path  : chars_ptr;
       len   : Word32;
       mode  : Word32;
       copy  : int)
@@ -35,8 +35,8 @@ package body HW.File is
    pragma Import (C, c_map, "hw_file_map");
 
    procedure Map
-     (Path     : in     String;
-      Addr     : in     Word64;
+     (Addr     :    out Word64;
+      Path     : in     String;
       Len      : in     Natural;
       Readable : in     Boolean := False;
       Writable : in     Boolean := False;
@@ -47,8 +47,8 @@ package body HW.File is
 
       cpath : chars_ptr := New_String (Path);
       ret : constant int := c_map
-        (path  => cpath,
-         addr  => Addr,
+        (addr  => Addr,
+         path  => cpath,
          len   => Word32 (Len),
          mode  => (if Readable then READ else 0) or
                   (if Writable then WRITE else 0),
