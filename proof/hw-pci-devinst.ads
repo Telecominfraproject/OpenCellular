@@ -12,15 +12,6 @@
 -- GNU General Public License for more details.
 --
 
-package HW.Config
-is
+with HW.PCI.Dev;
 
-   Dynamic_MMIO : constant Boolean := <<DYNAMIC_MMIO>>;
-
-   Default_MMConf_Base : constant := <<DEFAULT_MMCONF_BASE>>;
-
-   ----------------------------------------------------------------------------
-
-   Default_MMConf_Base_Set : constant Boolean := Default_MMConf_Base /= 0;
-
-end HW.Config;
+package HW.PCI.Devinst is new HW.PCI.Dev;

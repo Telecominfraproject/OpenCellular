@@ -36,12 +36,15 @@ is
    with
       Pre => Offset mod 4 = 0;
 
+   pragma Warnings (GNATprove, Off, "unused variable ""WC""*",
+                    Reason => "Used for a common interface");
    procedure Map
      (Addr     :    out Word64;
       Res      : in     Resource;
       Length   : in     Natural := 0;
       Offset   : in     Natural := 0;
       WC       : in     Boolean := False);
+   pragma Warnings (GNATprove, On, "unused variable ""WC""*");
 
    procedure Resource_Size (Length : out Natural; Res : Resource);
 
