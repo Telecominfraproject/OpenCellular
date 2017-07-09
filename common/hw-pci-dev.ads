@@ -48,6 +48,9 @@ is
 
    procedure Resource_Size (Length : out Natural; Res : Resource);
 
+   pragma Warnings (GNATprove, Off, "unused variable ""MMConf_Base""*",
+                    Reason => "Used for a common interface");
    procedure Initialize (Success : out Boolean; MMConf_Base : Word64 := 0);
+   pragma Warnings (GNATprove, On, "unused variable ""MMConf_Base""*");
 
 end HW.PCI.Dev;

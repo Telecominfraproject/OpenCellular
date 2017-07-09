@@ -16,6 +16,8 @@ hw-$(CONFIG_HWBASE_POSIX_FILE) += hw-file.ads
 
 hw-$(CONFIG_HWBASE_DIRECT_PCIDEV) += direct/hw-pci-dev.adb
 hw-$(CONFIG_HWBASE_DIRECT_PCIDEV) += hw-pci-dev.ads
+hw-$(CONFIG_HWBASE_LINUX_PCIDEV) += linux/hw-pci-dev.adb
+hw-$(CONFIG_HWBASE_LINUX_PCIDEV) += hw-pci-dev.ads
 
 hw-config-ads := $(subst //,/,$(call src-to-obj,,$(dir)/hw-config).ads)
 $(hw-config-ads): $(dir)/hw-config.ads.template $(cnf)
