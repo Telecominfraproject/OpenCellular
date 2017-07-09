@@ -17,17 +17,20 @@ package HW.File is
    --
    -- Map a file's content into our address space
    --
-   -- If `Map_Copy` is `False`, `Len` bytes from the start of the file
-   -- given by `Path` shall be mapped into the application's address
-   -- space using mmap().
+   -- If `Map_Copy` is `False`, `Len` bytes at `Offset` from the start
+   -- of the file given by `Path` should be mapped into the application's
+   -- address space using mmap().
    --
    -- If `Map_Copy` is `True`, anonymous memory should be mapped instead
    -- and be filled with a copy of the file's content using read().
    --
+   -- If `Len` is zero, the whole file should be mapped.
+   --
    procedure Map
      (Addr     :    out Word64;
       Path     : in     String;
-      Len      : in     Natural;
+      Len      : in     Natural := 0;
+      Offset   : in     Natural := 0;
       Readable : in     Boolean := False;
       Writable : in     Boolean := False;
       Map_Copy : in     Boolean := False;

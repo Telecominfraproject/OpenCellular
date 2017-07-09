@@ -29,6 +29,7 @@ package body HW.File is
      (addr  : out Word64;
       path  : chars_ptr;
       len   : Word32;
+      off   : Word32;
       mode  : Word32;
       copy  : int)
       return int;
@@ -37,7 +38,8 @@ package body HW.File is
    procedure Map
      (Addr     :    out Word64;
       Path     : in     String;
-      Len      : in     Natural;
+      Len      : in     Natural := 0;
+      Offset   : in     Natural := 0;
       Readable : in     Boolean := False;
       Writable : in     Boolean := False;
       Map_Copy : in     Boolean := False;
@@ -50,6 +52,7 @@ package body HW.File is
         (addr  => Addr,
          path  => cpath,
          len   => Word32 (Len),
+         off   => Word32 (Offset),
          mode  => (if Readable then READ else 0) or
                   (if Writable then WRITE else 0),
          copy  => (if Map_Copy then 1 else 0));
