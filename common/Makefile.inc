@@ -11,3 +11,11 @@ hw-y += hw-time.adb
 hw-y += hw-time-timer.ads
 
 hw-$(CONFIG_HWBASE_POSIX_FILE) += hw-file.ads
+
+hw-config-ads := $(subst //,/,$(call src-to-obj,,$(dir)/hw-config).ads)
+$(hw-config-ads): $(dir)/hw-config.ads.template $(cnf)
+	printf "    GENERATE   $(patsubst /%,%,$(subst $(obj)/,,$@))\n"
+	sed \
+	    -e's/<<DYNAMIC_MMIO>>/$(if $(filter y,$(CONFIG_HWBASE_DYNAMIC_MMIO)),True,False)/' \
+	    $< >$@
+hw-gen-y += $(hw-config-ads)
