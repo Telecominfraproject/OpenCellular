@@ -277,7 +277,7 @@ $(call src-to-obj,,$(filter %.c,$($(name)-srcs))): $(obj)/%.o: %.c
 $(shell mkdir -p $(alldirs))
 
 $(name)-install-srcs = $(sort \
-	$($(name)-extra-specs) $(filter %.ads,$($(name)-srcs)) \
+	$($(name)-extra-specs) $(filter %.ads,$($(name)-srcs) $($(name)-gens)) \
 	$(foreach adb,$(filter %.adb,$($(name)-srcs)), \
 		$(shell grep -q '^U .*\<BN\>' $(call src-to-ali,,$(adb)) 2>/dev/null && echo $(adb))))
 
@@ -285,7 +285,7 @@ $(name)-install-proof = \
 	$(filter $(addprefix %/,$(notdir $($(name)-install-srcs))),$($(name)-proof)) \
 	$(filter-out $(addprefix %/,$(notdir $($(name)-proof))),$($(name)-install-srcs))
 
-install: $(binary) $($(name)-alis) $(libgpr)
+install: $(binary) $($(name)-alis) $($(name)-gens) $(libgpr)
 	install -d $(DESTDIR)/lib $(DESTDIR)/include $(DESTDIR)/proof
 	printf "    INSTALL    $(subst $(obj)/,,$(binary))\n"
 	install $(binary) $(DESTDIR)/lib/
