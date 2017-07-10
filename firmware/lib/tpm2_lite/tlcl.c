@@ -522,3 +522,22 @@ uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size)
 	VB2_DEBUG("NOT YET IMPLEMENTED\n");
 	return TPM_E_IOERROR;
 }
+
+uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version)
+{
+	uint32_t result =  tlcl_get_tpm_property(TPM_PT_MANUFACTURER, vendor);
+	if (result != TPM_SUCCESS)
+		return result;
+
+	uint32_t version_1;
+	uint32_t version_2;
+	result = tlcl_get_tpm_property(TPM_PT_FIRMWARE_VERSION_1, &version_1);
+	if (result != TPM_SUCCESS)
+		return result;
+	result = tlcl_get_tpm_property(TPM_PT_FIRMWARE_VERSION_2, &version_2);
+	if (result != TPM_SUCCESS)
+		return result;
+
+	*firmware_version = ((uint64_t) version_1 << 32) | version_2;
+	return TPM_SUCCESS;
+}

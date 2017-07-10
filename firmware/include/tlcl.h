@@ -206,4 +206,9 @@ uint32_t TlclGetOwnership(uint8_t *owned);
  */
 uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size);
 
+/**
+ * Requests version information from the TPM.
+ */
+uint32_t TlclGetVersion(uint32_t *vendor, uint64_t *firmware_version);
+
 #endif  /* TPM_LITE_TLCL_H_ */

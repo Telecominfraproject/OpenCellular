@@ -9,6 +9,7 @@
  * for other errors.
  */
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -456,6 +457,17 @@ static uint32_t HandlerSendRaw(void) {
   return result;
 }
 
+static uint32_t HandlerGetVersion(void) {
+  uint32_t vendor;
+  uint64_t firmware_version;
+  uint32_t result = TlclGetVersion(&vendor, &firmware_version);
+  if (result == 0) {
+    printf("vendor %08x\nfirmware_version %016" PRIx64 "\n",
+           vendor, firmware_version);
+  }
+  return result;
+}
+
 #ifdef TPM2_MODE
 static uint32_t HandlerDoNothingForTPM2(void) {
   return 0;
@@ -534,6 +546,8 @@ command_record command_table[] = {
   { "savestate", "save", "execute TPM_SaveState", TlclSaveState },
   { "sendraw", "raw", "send a raw request and print raw response",
     HandlerSendRaw },
+  { "getversion", "getver", "get TPM vendor and firmware version",
+    HandlerGetVersion },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);

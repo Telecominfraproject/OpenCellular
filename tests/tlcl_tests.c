@@ -335,6 +335,47 @@ static void RandomTest(void)
 	TEST_EQ(size, 0, "  size 0");
 }
 
+/**
+ * Test GetVersion
+ */
+static void GetVersionTest(void)
+{
+	uint8_t response[] = {
+		0x00, 0xc4, 0x00, 0x00, 0x00, 0x2a, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x00, 0x30,
+		0x01, 0x02, 0x04, 0x20, 0x00, 0x02, 0x03, 0x49,
+		0x46, 0x58, 0x00, 0x00, 0x0d, 0x04, 0x20, 0x03,
+		0x6f, 0x00, 0x74, 0x70, 0x6d, 0x33, 0x38, 0xff,
+		0xff, 0xff
+	};
+
+	uint32_t vendor;
+	uint64_t firmware_version;
+
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version), 0, "GetVersion");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
+	TEST_EQ(vendor, 0x49465800, "  vendor");
+	TEST_EQ(firmware_version, 0x420, "  firmware_version");
+
+	ResetMocks();
+	SetResponse(0, TPM_E_IOERROR, 0);
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version), TPM_E_IOERROR,
+		"GetVersion - error");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
+
+	/* Adjust response to indicate a 1 byte too short payload size. */
+	ToTpmUint32(response + kTpmResponseHeaderLength, 14);
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version), TPM_E_IOERROR,
+		"GetVersion -- short");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
+}
+
 int main(void)
 {
 	TlclTest();
@@ -343,6 +384,7 @@ int main(void)
 	PcrTest();
 	FlagsTest();
 	RandomTest();
+	GetVersionTest();
 
 	return gTestSuccess ? 0 : 255;
 }

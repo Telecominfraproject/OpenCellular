@@ -63,9 +63,10 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 #define TPM_CAP_FLAG_PERMANENT ((uint32_t) 0x00000108)
 #define TPM_CAP_FLAG_VOLATILE  ((uint32_t) 0x00000109)
 
-#define TPM_CAP_PROPERTY       ((uint32_t) 0x00000005)
-#define TPM_CAP_PROP_OWNER     ((uint32_t) 0x00000111)
-#define TPM_CAP_NV_INDEX       ((uint32_t) 0x00000011)
+#define TPM_CAP_PROPERTY        ((uint32_t) 0x00000005)
+#define TPM_CAP_PROP_OWNER      ((uint32_t) 0x00000111)
+#define TPM_CAP_NV_INDEX        ((uint32_t) 0x00000011)
+#define TPM_CAP_GET_VERSION_VAL ((uint32_t) 0x0000001a)
 
 #define TPM_ST_CLEAR       ((uint16_t) 0x0001)
 #define TPM_ST_STATE       ((uint16_t) 0x0002)

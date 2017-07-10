@@ -389,6 +389,21 @@ Command* BuildGetRandomCommand(void) {
   return cmd;
 }
 
+Command* BuildGetVersionValCommand(void) {
+  int size = (kTpmRequestHeaderLength +
+              sizeof(TPM_CAPABILITY_AREA) +   /* capArea */
+              sizeof(uint32_t));              /* subCapSize */
+
+  Command* cmd = newCommand(TPM_ORD_GetCapability, size);
+  cmd->name = "tpm_getversionval_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength,
+                      sizeof(TPM_CAPABILITY_AREA), TPM_CAP_GET_VERSION_VAL);
+  AddInitializedField(cmd, kTpmRequestHeaderLength +
+                      sizeof(TPM_CAPABILITY_AREA),
+                      sizeof(uint32_t), 0);
+  return cmd;
+}
+
 /* Output the fields of a structure.
  */
 void OutputFields(Field* fld) {
@@ -510,6 +525,7 @@ Command* (*builders[])(void) = {
   BuildGetOwnershipCommand,
   BuildGetRandomCommand,
   BuildExtendCommand,
+  BuildGetVersionValCommand,
 };
 
 static void FreeFields(Field* fld) {

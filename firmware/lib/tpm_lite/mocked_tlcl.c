@@ -186,6 +186,13 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 	return TPM_SUCCESS;
 }
 
+uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version)
+{
+	*vendor = 0x4e4f4e45;
+	*firmware_version = 0x1;
+	return TPM_SUCCESS;
+}
+
 int TlclPacketSize(const uint8_t* packet)
 {
 	uint32_t size;
