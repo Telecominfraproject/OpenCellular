@@ -572,10 +572,29 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			 * because need to do in different order.
 			 */
 			current_menu = prev_menu;
-			current_menu_idx = 0;
 			prev_menu = VB_MENU_LANGUAGES;
-			selected = 0;
-
+			/* default to power off index */
+			switch (current_menu) {
+			case VB_MENU_DEV_WARNING:
+				current_menu_idx = VB_WARN_POWER_OFF;
+				break;
+			case VB_MENU_DEV:
+				current_menu_idx = VB_DEV_POWER_OFF;
+				break;
+			case VB_MENU_TO_NORM:
+				current_menu_idx = VB_TO_NORM_POWER_OFF;
+				break;
+			case VB_MENU_RECOVERY:
+				current_menu_idx = VB_RECOVERY_POWER_OFF;
+				break;
+			case VB_MENU_TO_DEV:
+				current_menu_idx = VB_TO_DEV_POWER_OFF;
+				break;
+			default:
+				current_menu_idx = 0;
+				break;
+			}
+			selected = current_menu_idx;
 			break;
 		}
 	default:
