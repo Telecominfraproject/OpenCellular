@@ -3,7 +3,7 @@ libhw-dir := $(dir $(lastword $(MAKEFILE_LIST)))
 DESTDIR ?= dest
 
 name ?= hw
-hw-install = Makefile Makefile.proof gnat.adc spark.adc
+hw-install = Makefile Makefile.proof debug.adc gnat.adc spark.adc
 
 top := $(CURDIR)
 cnf := .config
@@ -34,6 +34,12 @@ $(foreach dep,$($(name)-deplibs), \
 
 include $(libhw-dir)/Makefile.proof
 
+ifeq ($(DEBUG),1)
+gnat-adc = $(libhw-dir)/debug.adc
+else
+gnat-adc = $(libhw-dir)/gnat.adc
+endif
+
 CC       = $(CROSS_COMPILE)gcc
 GNATBIND = $(CROSS_COMPILE)gnatbind
 
@@ -43,7 +49,7 @@ CFLAGS += -Wstrict-aliasing -Wshadow
 CFLAGS += -fno-common -fomit-frame-pointer
 CFLAGS += -ffunction-sections -fdata-sections
 
-ADAFLAGS += $(CFLAGS) -gnatA -gnatec=$(libhw-dir)/gnat.adc -gnatp
+ADAFLAGS += $(CFLAGS) -gnatA -gnatec=$(gnat-adc) -gnatp
 # Ada warning options:
 #
 #  a   Activate most optional warnings.
