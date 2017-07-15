@@ -14,7 +14,6 @@
 
 with System;
 with HW.GFX.GMA;
-with HW.GFX.GMA.Config;
 
 private package HW.GFX.GMA.Registers
 with

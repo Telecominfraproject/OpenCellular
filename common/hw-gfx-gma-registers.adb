@@ -12,16 +12,15 @@
 -- GNU General Public License for more details.
 --
 
-with System.Storage_Elements;
-
 with HW.Time;
 with HW.MMIO_Range;
 pragma Elaborate_All (HW.MMIO_Range);
 
+with HW.GFX.GMA.Config;
+
 with HW.Debug;
 with GNAT.Source_Info;
 
-use type System.Address;
 use type HW.Word64;
 
 package body HW.GFX.GMA.Registers
@@ -47,28 +46,13 @@ is
 
    ----------------------------------------------------------------------------
 
-   GTT_Offset  : constant := (case Config.CPU is
-                                 when Ironlake .. Haswell   => 16#0020_0000#,
-                                 when Broadwell .. Skylake  => 16#0080_0000#);
-
-   GTT_Size    : constant := (case Config.CPU is
-                                 when Ironlake .. Haswell   => 16#0020_0000#,
-                                 -- Limit Broadwell to 4MiB to have a stable
-                                 -- interface (i.e. same number of entries):
-                                 when Broadwell .. Skylake  => 16#0040_0000#);
-
-   GTT_PTE_Size   : constant := (case Config.CPU is
-                                    when Ironlake .. Haswell   => 4,
-                                    when Broadwell .. Skylake  => 8);
-
-
-   type GTT_PTE_Type is mod 2 ** (GTT_PTE_Size * 8);
+   type GTT_PTE_Type is mod 2 ** (Config.GTT_PTE_Size * 8);
    type GTT_Registers_Type is array (GTT_Range) of GTT_PTE_Type
    with
       Volatile_Components,
-      Size => GTT_Size * 8;
+      Size => Config.GTT_Size * 8;
    package GTT is new MMIO_Range
-     (Base_Addr   => Config.Default_MMIO_Base + GTT_Offset,
+     (Base_Addr   => Config.Default_MMIO_Base + Config.GTT_Offset,
       Element_T   => GTT_PTE_Type,
       Index_T     => GTT_Range,
       Array_T     => GTT_Registers_Type);
@@ -310,7 +294,7 @@ is
    is
    begin
       Regs.Set_Base_Address (Base);
-      GTT.Set_Base_Address (Base + GTT_Offset);
+      GTT.Set_Base_Address (Base + Config.GTT_Offset);
    end Set_Register_Base;
 
 end HW.GFX.GMA.Registers;

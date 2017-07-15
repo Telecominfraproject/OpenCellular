@@ -268,4 +268,20 @@ is
    HDMI_Max_Clock_24bpp : constant Frequency_Type :=
      (if CPU >= Haswell then 300_000_000 else 225_000_000);
 
+   ----------------------------------------------------------------------------
+
+   GTT_Offset  : constant := (case CPU is
+                                 when Ironlake .. Haswell   => 16#0020_0000#,
+                                 when Broadwell .. Skylake  => 16#0080_0000#);
+
+   GTT_Size    : constant := (case CPU is
+                                 when Ironlake .. Haswell   => 16#0020_0000#,
+                                 -- Limit Broadwell to 4MiB to have a stable
+                                 -- interface (i.e. same number of entries):
+                                 when Broadwell .. Skylake  => 16#0040_0000#);
+
+   GTT_PTE_Size   : constant := (case CPU is
+                                    when Ironlake .. Haswell   => 4,
+                                    when Broadwell .. Skylake  => 8);
+
 end HW.GFX.GMA.Config;
