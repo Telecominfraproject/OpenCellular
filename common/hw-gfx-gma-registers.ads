@@ -1529,6 +1529,8 @@ is
        Mask_Unset : Word32;
        Mask_Set   : Word32);
 
+   procedure Clear_Fences;
+
    pragma Warnings (Off, "declaration of ""Write_GTT"" hides one at *");
    procedure Write_GTT
      (GTT_Page       : GTT_Range;

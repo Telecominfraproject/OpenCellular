@@ -61,6 +61,21 @@ is
 
    ----------------------------------------------------------------------------
 
+   procedure Clear_Fences
+   is
+      Fence_Regs_Base : constant :=
+        (case Config.CPU is
+            when Ironlake                 => 16#00_3000#,
+            when Sandybridge .. Skylake   => 16#10_0000#);
+      subtype Fence_Range is Registers_Range range 0 .. 63;
+   begin
+      for Idx in Fence_Range loop
+         Regs.Write (Fence_Regs_Base / Register_Width + Idx, 0);
+      end loop;
+   end Clear_Fences;
+
+   ----------------------------------------------------------------------------
+
    procedure Write_GTT
      (GTT_Page       : GTT_Range;
       Device_Address : GTT_Address_Type;

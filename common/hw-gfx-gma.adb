@@ -401,6 +401,7 @@ is
          Connectors.Post_All_Off;
          PLLs.All_Off;
          Power_And_Clocks.Post_All_Off;
+         Registers.Clear_Fences;
       else
          -- According to PRMs, VGA plane is the only thing
          -- that's enabled by default after reset.
