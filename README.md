@@ -45,11 +45,15 @@ in `configs/`, e.g.:
 or overwrite the config filename by specifying `cnf=<configfile>` on
 the make command line.
 
+By default most debug messages won't be compiled into the binary. To
+include them into the build, set `DEBUG=1` on the command line or in
+your `.config`.
+
 Let's install *libhwbase*. We'll need `configs/linux` to build regular
 Linux executables:
 
     $ cd libhwbase
-    $ make cnf=configs/linux install
+    $ make DEBUG=1 cnf=configs/linux install
 
 By default this installs into a new subdirectory `dest`. You can however
 overwrite this decision by specifying `DESTDIR=`.
@@ -65,7 +69,7 @@ The makefile knows an additional target `gfx_test` to build a small
 Linux test application:
 
     $ cd ../libgfxinit
-    $ make cnf=configs/sandybridge gfx_test
+    $ make DEBUG=1 cnf=configs/sandybridge gfx_test
 
 The resulting binary is `build/gfx_test`.
 
@@ -73,20 +77,19 @@ The resulting binary is `build/gfx_test`.
 Testing libgfxinit on Linux
 ===========================
 
-In its current state `gfx_test` doesn't know how to set up a frame-
-buffer. It just assumes that enough memory is mapped. This is known
-to work well, after running the VBIOS but before the Linux driver
-*i915* took over (e.g. when booting with `nomodeset` in the kernel
-command line or with *i915* blacklisted). After running *i915* it
-only works by chance.
+`gfx_test` sets up its own framebuffer in the *stolen memory*. It
+backs any current framebuffer mapping and contents up first and re-
+stores it before exiting. This works somehow even while the *i915*
+driver is running. A wrapper script `gfxtest/gfx_test.sh` is pro-
+vided to help with the setup. It switches to a text console first
+and tries to unload the *i915* driver. But ignores failures to do
+so (it won't work if you still have any application running that
+uses the gfx driver, e.g. an X server).
 
-When running `gfx_test` (as root), it will access the graphics hard-
-ware through the sysfs PCI interface. The path is
-
-    /sys/devices/pci0000:00/0000:00:02.0/
-
-for all supported platforms.
+    # gfxtest/gfx_test.sh
 
 If you chose the right config above, you should be presented with a
-nice test image. However, `gfx_test` is one-way only: The graphics
-hardware will stay in this state, until another driver takes over.
+nice test image. But please be prepared that your console might be
+stuck in that state afterwards. You can try to run it with *i915*
+deactivated then (e.g. when booting with `nomodeset` in the kernel
+command line or with *i915* blacklisted) and loading it afterwards.
