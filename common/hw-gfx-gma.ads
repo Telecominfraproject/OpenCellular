@@ -94,32 +94,12 @@ is
       Device_Address : GTT_Address_Type;
       Valid          : Boolean);
 
-   ----------------------------------------------------------------------------
-
-   function FB_First_Page (FB : Framebuffer_Type) return Natural is
-     (Natural (FB.Offset / GTT_Page_Size));
-   function FB_Pages (FB : Framebuffer_Type) return Natural is
-     (Natural (Div_Round_Up (FB_Size (FB), GTT_Page_Size)));
-   function FB_Last_Page (FB : Framebuffer_Type) return Natural is
-     (FB_First_Page (FB) + FB_Pages (FB) - 1);
-
-   -- Check basics and that it fits in GTT
-   function Valid_FB (FB : Framebuffer_Type) return Boolean is
-     (FB.Width <= FB.Stride and FB_Last_Page (FB) <= GTT_Range'Last);
-
-   -- Also check that we don't overflow the GTT's 39-bit space
-   -- (always true with a 32-bit base)
-   function Valid_Phys_FB (FB : Framebuffer_Type; Phys_Base : Word32)
-      return Boolean is
-     (Valid_FB (FB) and
-      Int64 (Phys_Base) + Int64 (FB.Offset) + Int64 (FB_Size (FB)) <=
-         Int64 (GTT_Address_Type'Last))
+   procedure Setup_Default_FB
+     (FB       : in     Framebuffer_Type;
+      Clear    : in     Boolean := True;
+      Success  :    out Boolean)
    with
-      Ghost;
-
-   procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_Base : Word32)
-   with
-      Pre => Is_Initialized and Valid_Phys_FB (FB, Phys_Base);
+      Pre => Is_Initialized and HW.Config.Dynamic_MMIO;
 
 private
 

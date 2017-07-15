@@ -18,6 +18,8 @@ pragma Elaborate_All (HW.MMIO_Range);
 with HW.PCI.Dev;
 pragma Elaborate_All (HW.PCI.Dev);
 
+with HW.GFX.Framebuffer_Filler;
+
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Config_Helpers;
 with HW.GFX.GMA.Registers;
@@ -429,15 +431,39 @@ is
 
    ----------------------------------------------------------------------------
 
+   function FB_First_Page (FB : Framebuffer_Type) return Natural is
+     (Natural (FB.Offset / GTT_Page_Size));
+   function FB_Pages (FB : Framebuffer_Type) return Natural is
+     (Natural (Div_Round_Up (FB_Size (FB), GTT_Page_Size)));
+   function FB_Last_Page (FB : Framebuffer_Type) return Natural is
+     (FB_First_Page (FB) + FB_Pages (FB) - 1);
+
+   -- Check basics and that it fits in GTT
+   function Valid_FB (FB : Framebuffer_Type) return Boolean is
+     (FB.Width <= FB.Stride and FB_Last_Page (FB) <= GTT_Range'Last);
+
+   -- Also check that we don't overflow the GTT's 39-bit space
+   -- (always true with a 32-bit base)
+   function Valid_Phys_FB (FB : Framebuffer_Type; Phys_Base : Word32)
+      return Boolean is
+     (Valid_FB (FB) and
+      Int64 (Phys_Base) + Int64 (FB.Offset) + Int64 (FB_Size (FB)) <=
+         Int64 (GTT_Address_Type'Last))
+   with
+      Ghost;
+
    procedure Write_GTT
      (GTT_Page       : GTT_Range;
       Device_Address : GTT_Address_Type;
-      Valid          : Boolean) is
+      Valid          : Boolean)
+   is
    begin
       Registers.Write_GTT (GTT_Page, Device_Address, Valid);
    end Write_GTT;
 
    procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_Base : Word32)
+   with
+      Pre => Is_Initialized and Valid_Phys_FB (FB, Phys_Base)
    is
       Phys_Addr : GTT_Address_Type :=
          GTT_Address_Type (Phys_Base) + GTT_Address_Type (FB.Offset);
@@ -450,6 +476,46 @@ is
          Phys_Addr := Phys_Addr + GTT_Page_Size;
       end loop;
    end Setup_Default_GTT;
+
+   ----------------------------------------------------------------------------
+
+   procedure Setup_Default_FB
+     (FB       : in     Framebuffer_Type;
+      Clear    : in     Boolean := True;
+      Success  :    out Boolean)
+   is
+      GMA_Phys_Base      : constant PCI.Index := 16#5c#;
+      GMA_Phys_Base_Mask : constant := 16#fff0_0000#;
+
+      Phys_Base : Word32;
+   begin
+      Success := Valid_FB (FB);
+
+      if Success then
+         Dev.Read32 (Phys_Base, GMA_Phys_Base);
+         Phys_Base := Phys_Base and GMA_Phys_Base_Mask;
+         Success := Phys_Base /= GMA_Phys_Base_Mask and Phys_Base /= 0;
+         pragma Debug (not Success, Debug.Put_Line
+           ("Failed to read stolen memory base."));
+         if Success then
+            Setup_Default_GTT (FB, Phys_Base);
+         end if;
+      end if;
+
+      if Success and then Clear then
+         declare
+            use type HW.Word64;
+            Linear_FB : Word64;
+         begin
+            Dev.Map (Linear_FB, PCI.Res2);
+            if Linear_FB /= 0 then
+               Framebuffer_Filler.Fill (Linear_FB + Word64 (FB.Offset), FB);
+            end if;
+            pragma Debug
+              (Linear_FB = 0, Debug.Put_Line ("Failed to map resource2."));
+         end;
+      end if;
+   end Setup_Default_FB;
 
    ----------------------------------------------------------------------------
 

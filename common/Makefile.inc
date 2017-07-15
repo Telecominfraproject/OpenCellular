@@ -42,8 +42,8 @@ gfxinit-y += hw-gfx-gma.adb
 gfxinit-y += hw-gfx-gma.ads
 gfxinit-y += hw-gfx-i2c.ads
 gfxinit-y += hw-gfx.ads
-gfxinit-$(CONFIG_HWBASE_DYNAMIC_MMIO) += hw-gfx-framebuffer_filler.adb
-gfxinit-$(CONFIG_HWBASE_DYNAMIC_MMIO) += hw-gfx-framebuffer_filler.ads
+gfxinit-y += hw-gfx-framebuffer_filler.adb
+gfxinit-y += hw-gfx-framebuffer_filler.ads
 
 CONFIG_GFX_GMA_CPU		:= $(call strip_quotes,$(CONFIG_GFX_GMA_CPU))
 CONFIG_GFX_GMA_CPU_VARIANT	:= $(call strip_quotes,$(CONFIG_GFX_GMA_CPU_VARIANT))

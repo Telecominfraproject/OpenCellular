@@ -12,6 +12,7 @@
 -- GNU General Public License for more details.
 --
 
+with HW.Config;
 with HW.MMIO_Range;
 pragma Elaborate_All (HW.MMIO_Range);
 
@@ -27,6 +28,10 @@ is
    is
       Line_Start : Int32 := 0;
    begin
+      if not HW.Config.Dynamic_MMIO then
+         return;
+      end if;
+
       FB.Set_Base_Address (Linear_FB);
       for Line in 0 .. Framebuffer.Height - 1 loop
          pragma Loop_Invariant (Line_Start = Line * Framebuffer.Stride);
