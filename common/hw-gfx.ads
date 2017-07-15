@@ -1,5 +1,6 @@
 --
 -- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2017 Nico Huber <nico.h@gmx.de>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -34,6 +35,9 @@ package HW.GFX is
       Stride : Width_Type;
       Offset : Word32;
    end record;
+
+   function FB_Size (FB : Framebuffer_Type) return Pos32 is
+     (FB.Stride * FB.Height * Pos32 (FB.BPC) / (8 / 4));
 
    Default_FB : constant Framebuffer_Type := Framebuffer_Type'
       (Width  => 1,

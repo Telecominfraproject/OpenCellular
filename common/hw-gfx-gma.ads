@@ -1,5 +1,6 @@
 --
 -- Copyright (C) 2015-2017 secunet Security Networks AG
+-- Copyright (C) 2017 Nico Huber <nico.h@gmx.de>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -12,6 +13,7 @@
 -- GNU General Public License for more details.
 --
 
+with HW.Config;
 with HW.Time;
 with HW.Port_IO;
 
@@ -84,14 +86,40 @@ is
                     Reason => "It's only used for debugging");
    procedure Dump_Configs (Configs : Pipe_Configs);
 
+   GTT_Page_Size : constant := 4096;
    type GTT_Address_Type is mod 2 ** 39;
-   type GTT_Range is range 0 .. 16#8_0000# - 1;
+   subtype GTT_Range is Natural range 0 .. 16#8_0000# - 1;
    procedure Write_GTT
      (GTT_Page       : GTT_Range;
       Device_Address : GTT_Address_Type;
       Valid          : Boolean);
 
-   procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_FB : Word32);
+   ----------------------------------------------------------------------------
+
+   function FB_First_Page (FB : Framebuffer_Type) return Natural is
+     (Natural (FB.Offset / GTT_Page_Size));
+   function FB_Pages (FB : Framebuffer_Type) return Natural is
+     (Natural (Div_Round_Up (FB_Size (FB), GTT_Page_Size)));
+   function FB_Last_Page (FB : Framebuffer_Type) return Natural is
+     (FB_First_Page (FB) + FB_Pages (FB) - 1);
+
+   -- Check basics and that it fits in GTT
+   function Valid_FB (FB : Framebuffer_Type) return Boolean is
+     (FB.Width <= FB.Stride and FB_Last_Page (FB) <= GTT_Range'Last);
+
+   -- Also check that we don't overflow the GTT's 39-bit space
+   -- (always true with a 32-bit base)
+   function Valid_Phys_FB (FB : Framebuffer_Type; Phys_Base : Word32)
+      return Boolean is
+     (Valid_FB (FB) and
+      Int64 (Phys_Base) + Int64 (FB.Offset) + Int64 (FB_Size (FB)) <=
+         Int64 (GTT_Address_Type'Last))
+   with
+      Ghost;
+
+   procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_Base : Word32)
+   with
+      Pre => Is_Initialized and Valid_Phys_FB (FB, Phys_Base);
 
 private
 

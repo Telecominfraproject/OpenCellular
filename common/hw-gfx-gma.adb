@@ -437,19 +437,17 @@ is
       Registers.Write_GTT (GTT_Page, Device_Address, Valid);
    end Write_GTT;
 
-   procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_FB : Word32)
+   procedure Setup_Default_GTT (FB : Framebuffer_Type; Phys_Base : Word32)
    is
-      FB_Size : constant Pos32 :=
-         FB.Stride * FB.Height * Pos32 (((FB.BPC * 4) / 8));
-      Phys_Addr : GTT_Address_Type := GTT_Address_Type (Phys_FB);
+      Phys_Addr : GTT_Address_Type :=
+         GTT_Address_Type (Phys_Base) + GTT_Address_Type (FB.Offset);
    begin
-      for Idx in GTT_Range range 0 .. GTT_Range (((FB_Size + 4095) / 4096) - 1)
-      loop
+      for Idx in FB_First_Page (FB) .. FB_Last_Page (FB) loop
          Registers.Write_GTT
            (GTT_Page       => Idx,
             Device_Address => Phys_Addr,
             Valid          => True);
-         Phys_Addr := Phys_Addr + 4096;
+         Phys_Addr := Phys_Addr + GTT_Page_Size;
       end loop;
    end Setup_Default_GTT;
 
