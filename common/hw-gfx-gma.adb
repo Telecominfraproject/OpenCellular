@@ -43,7 +43,8 @@ package body HW.GFX.GMA
          Registers.Address_State,
          PLLs.State, Panel.Panel_State,
          Cur_Configs, Allocated_PLLs,
-         HPD_Delay, Wait_For_HPD),
+         HPD_Delay, Wait_For_HPD,
+         Linear_FB_Base),
       Init_State => Initialized,
       Config_State => Config.Valid_Port_GPU,
       Device_State =>
@@ -77,6 +78,8 @@ is
    HPD_Delay : HPD_Delay_Type;
    Wait_For_HPD : HPD_Type;
    Initialized : Boolean := False;
+
+   Linear_FB_Base : Word64;
 
    ----------------------------------------------------------------------------
 
@@ -312,7 +315,8 @@ is
             Registers.Address_State,
             PLLs.State, Panel.Panel_State,
             Cur_Configs, Allocated_PLLs,
-            HPD_Delay, Wait_For_HPD, Initialized))
+            HPD_Delay, Wait_For_HPD,
+            Linear_FB_Base, Initialized))
    is
       use type HW.Word64;
 
@@ -346,6 +350,7 @@ is
 
       pragma Debug (Debug.Set_Register_Write_Delay (Write_Delay));
 
+      Linear_FB_Base := 0;
       Wait_For_HPD := HPD_Type'(others => False);
       HPD_Delay := HPD_Delay_Type'(others => Now);
       Allocated_PLLs := (others => PLLs.Invalid);
@@ -597,15 +602,35 @@ is
             use type HW.Word64;
             Linear_FB : Word64;
          begin
-            Dev.Map (Linear_FB, PCI.Res2);
+            Map_Linear_FB (Linear_FB, FB);
             if Linear_FB /= 0 then
-               Framebuffer_Filler.Fill (Linear_FB + Word64 (FB.Offset), FB);
+               Framebuffer_Filler.Fill (Linear_FB, FB);
             end if;
-            pragma Debug
-              (Linear_FB = 0, Debug.Put_Line ("Failed to map resource2."));
          end;
       end if;
    end Setup_Default_FB;
+
+   procedure Map_Linear_FB (Linear_FB : out Word64; FB : in Framebuffer_Type)
+   is
+      use type HW.Word64;
+
+      Valid : Boolean;
+   begin
+      Linear_FB := 0;
+
+      if Linear_FB_Base = 0 then
+         Dev.Map (Linear_FB_Base, PCI.Res2);
+         pragma Debug
+           (Linear_FB_Base = 0, Debug.Put_Line ("Failed to map resource2."));
+      end if;
+
+      if Linear_FB_Base /= 0 then
+         Validate_FB (FB, Valid);
+         if Valid then
+            Linear_FB := Linear_FB_Base + Word64 (FB.Offset);
+         end if;
+      end if;
+   end Map_Linear_FB;
 
    ----------------------------------------------------------------------------
 

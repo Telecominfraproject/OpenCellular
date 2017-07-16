@@ -101,6 +101,10 @@ is
    with
       Pre => Is_Initialized and HW.Config.Dynamic_MMIO;
 
+   procedure Map_Linear_FB (Linear_FB : out Word64; FB : in Framebuffer_Type)
+   with
+      Pre => Is_Initialized and HW.Config.Dynamic_MMIO;
+
 private
 
    ----------------------------------------------------------------------------
