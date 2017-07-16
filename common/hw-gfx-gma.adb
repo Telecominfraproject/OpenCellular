@@ -479,6 +479,96 @@ is
 
    ----------------------------------------------------------------------------
 
+   use type HW.Word16;
+   subtype Stolen_Size_Range is Int64 range 0 .. 2 ** 33;
+
+   function GGMS_Gen4 (GGC : Word16) return Natural is
+     (Natural (Shift_Right (GGC, 8) and 16#07#));
+   function GTT_Size_Gen4 (GGC : Word16) return Natural is
+     (if GGMS_Gen4 (GGC) in 1 .. 3 then
+         (GGMS_Gen4 (GGC) + 1) * 2 ** 19 else 0);
+
+   function GMS_Gen4 (GGC : Word16) return Natural is
+     (Natural (Shift_Right (GGC, 4) and 16#0f#));
+   Valid_Stolen_Size_Gen4 : constant
+      array (Natural range 1 .. 13) of Stolen_Size_Range :=
+     (1, 4, 8, 16, 32, 48, 64, 128, 256, 96, 160, 224, 352);
+   function Stolen_Size_Gen4 (GGC : Word16) return Stolen_Size_Range is
+     (if GMS_Gen4 (GGC) in Valid_Stolen_Size_Gen4'Range then
+         Valid_Stolen_Size_Gen4 (GMS_Gen4 (GGC)) else 0);
+
+   function GTT_Size_Gen6 (GGC : Word16) return Natural is
+     (Natural (Shift_Right (GGC, 8) and 16#03#) * 2 ** 20);
+
+   function Stolen_Size_Gen6 (GGC : Word16) return Stolen_Size_Range is
+     (Stolen_Size_Range (Shift_Right (GGC, 3) and 16#1f#) * 32 * 2 ** 20);
+
+   function GTT_Size_Gen8 (GGC : Word16) return Natural is
+     (Natural (Shift_Right (GGC, 6) and 16#03#) * 2 ** 20);
+
+   function GMS_Gen8 (GGC : Word16) return Stolen_Size_Range is
+     (Stolen_Size_Range (Shift_Right (GGC, 8) and 16#ff#));
+   function Stolen_Size_Gen8 (GGC : Word16) return Stolen_Size_Range is
+     (GMS_Gen8 (GGC) * 32 * 2 ** 20);
+
+   function Stolen_Size_Gen9 (GGC : Word16) return Stolen_Size_Range is
+     (if GMS_Gen8 (GGC) < 16#f0# then
+         Stolen_Size_Gen8 (GGC)
+      else
+         (GMS_Gen8 (GGC) - 16#f0# + 1) * 4 * 2 ** 20);
+
+   procedure Decode_Stolen
+     (GTT_Size    : out Natural;
+      Stolen_Size : out Stolen_Size_Range)
+   with
+      Pre => Is_Initialized
+   is
+      GGC_Reg : constant :=
+        (case Config.CPU is
+            when Ironlake                 => 16#52#,
+            when Sandybridge .. Skylake   => 16#50#);
+      GGC : Word16;
+   begin
+      Dev.Read16 (GGC, GGC_Reg);
+      case Config.CPU is
+         when Ironlake =>
+            GTT_Size    := GTT_Size_Gen4 (GGC);
+            Stolen_Size := Stolen_Size_Gen4 (GGC);
+         when Sandybridge .. Haswell =>
+            GTT_Size    := GTT_Size_Gen6 (GGC);
+            Stolen_Size := Stolen_Size_Gen6 (GGC);
+         when Broadwell =>
+            GTT_Size    := GTT_Size_Gen8 (GGC);
+            Stolen_Size := Stolen_Size_Gen8 (GGC);
+         when Broxton .. Skylake =>
+            GTT_Size    := GTT_Size_Gen8 (GGC);
+            Stolen_Size := Stolen_Size_Gen9 (GGC);
+      end case;
+   end Decode_Stolen;
+
+   -- Additional runtime validation that FB fits stolen memory and aperture.
+   procedure Validate_FB (FB : Framebuffer_Type; Valid : out Boolean)
+   with
+      Pre => Is_Initialized,
+      Post => (if Valid then Valid_FB (FB))
+   is
+      GTT_Size, Aperture_Size : Natural;
+      Stolen_Size : Stolen_Size_Range;
+   begin
+      Valid := Valid_FB (FB);
+
+      if Valid then
+         Decode_Stolen (GTT_Size, Stolen_Size);
+         Dev.Resource_Size (Aperture_Size, PCI.Res2);
+         Valid :=
+            FB_Last_Page (FB) < GTT_Size / Config.GTT_PTE_Size and
+            FB_Last_Page (FB) < Natural (Stolen_Size / GTT_Page_Size) and
+            FB_Last_Page (FB) < Aperture_Size / GTT_Page_Size;
+         pragma Debug (not Valid, Debug.Put
+           ("Stolen memory too small to hold framebuffer."));
+      end if;
+   end Validate_FB;
+
    procedure Setup_Default_FB
      (FB       : in     Framebuffer_Type;
       Clear    : in     Boolean := True;
@@ -489,7 +579,7 @@ is
 
       Phys_Base : Word32;
    begin
-      Success := Valid_FB (FB);
+      Validate_FB (FB, Success);
 
       if Success then
          Dev.Read32 (Phys_Base, GMA_Phys_Base);
