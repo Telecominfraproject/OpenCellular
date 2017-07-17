@@ -49,7 +49,6 @@ typedef enum VdatIntField {
 	VDAT_INT_DEVSW_VIRTUAL,       /* Dev switch is virtual */
 	VDAT_INT_RECSW_BOOT,          /* Recovery switch position at boot */
 	VDAT_INT_HW_WPSW_BOOT,        /* Hardware WP switch position at boot */
-	VDAT_INT_SW_WPSW_BOOT,        /* Flash chip's WP setting at boot */
 
 	VDAT_INT_FW_VERSION_TPM,      /* Current firmware version in TPM */
 	VDAT_INT_KERNEL_VERSION_TPM,  /* Current kernel version in TPM */
@@ -440,11 +439,6 @@ int GetVdatInt(VdatIntField field)
 				value = (sh->flags &
 					 VBSD_BOOT_FIRMWARE_WP_ENABLED ? 1 : 0);
 				break;
-			case VDAT_INT_SW_WPSW_BOOT:
-				value = (sh->flags &
-					 VBSD_BOOT_FIRMWARE_SW_WP_ENABLED ?
-					 1 : 0);
-				break;
 			case VDAT_INT_RECOVERY_REASON:
 				value = sh->recovery_reason;
 				break;
@@ -543,8 +537,6 @@ int VbGetSystemPropertyInt(const char *name)
 		value = GetVdatInt(VDAT_INT_RECSW_BOOT);
 	} else if (!strcasecmp(name, "wpsw_boot")) {
 		value = GetVdatInt(VDAT_INT_HW_WPSW_BOOT);
-	} else if (!strcasecmp(name, "sw_wpsw_boot")) {
-		value = GetVdatInt(VDAT_INT_SW_WPSW_BOOT);
 	} else if (!strcasecmp(name,"vdat_flags")) {
 		value = GetVdatInt(VDAT_INT_FLAGS);
 	} else if (!strcasecmp(name,"tpm_fwver")) {
