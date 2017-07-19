@@ -283,20 +283,23 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
          Mask        => LCPLL1_CTL_PLL_LOCK);
 
       CDClk_Change_Timeout := Time.MS_From_Now (3);
+      Timed_Out := False;
       loop
          GT_Mailbox_Write
            (MBox        => SKL_PCODE_CDCLK_CONTROL,
             Value       => SKL_CDCLK_PREPARE_FOR_CHANGE);
-         Timed_Out := Time.Timed_Out (CDClk_Change_Timeout);
          Registers.Read (Registers.GT_MAILBOX_DATA, MBox_Data0);
-         if (MBox_Data0 and SKL_CDCLK_READY_FOR_CHANGE) =
-            SKL_CDCLK_READY_FOR_CHANGE
-         then
+         if (MBox_Data0 and SKL_CDCLK_READY_FOR_CHANGE) /= 0 then
+            -- Ignore timeout if we succeeded anyway.
             Timed_Out := False;
             exit;
          end if;
          exit when Timed_Out;
+
+         Timed_Out := Time.Timed_Out (CDClk_Change_Timeout);
       end loop;
+      pragma Debug (Timed_Out, Debug.Put_Line
+        ("ERROR: PCODE not ready for frequency change after 3ms."));
 
       if not Timed_Out then
          GT_Mailbox_Write
