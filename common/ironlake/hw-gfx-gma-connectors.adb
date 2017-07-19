@@ -29,11 +29,8 @@ with GNAT.Source_Info;
 package body HW.GFX.GMA.Connectors
 is
 
-   procedure Initialize
-   is
-   begin
-      null;
-   end Initialize;
+   procedure Post_Reset_Off is null;
+   procedure Initialize is null;
 
    function Is_Internal (Port_Cfg : Port_Config) return Boolean
    is

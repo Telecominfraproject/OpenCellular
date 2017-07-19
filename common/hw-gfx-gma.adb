@@ -408,8 +408,10 @@ is
          Registers.Clear_Fences;
       else
          -- According to PRMs, VGA plane is the only thing
-         -- that's enabled by default after reset.
+         -- that's enabled by default after reset...
          Display_Controller.Legacy_VGA_Off;
+         -- ... along with some DDI port bits since Skylake.
+         Connectors.Post_Reset_Off;
       end if;
 
       -------------------- Now restart from a clean state ---------------------

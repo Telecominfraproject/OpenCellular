@@ -747,4 +747,18 @@ package body HW.GFX.GMA.Connectors.DDI is
       end if;
    end Off;
 
+   ----------------------------------------------------------------------------
+
+   procedure Post_Reset_Off
+   is
+      Clocks_Off : Word32 := 0;
+   begin
+      if not Config.Has_Per_DDI_Clock_Sel and not Config.Has_DDI_PHYs then
+         for Port in Digital_Port loop
+            Clocks_Off := Clocks_Off or DPLL_CTRL2_DDIx_CLOCK_OFF (Port);
+         end loop;
+         Registers.Set_Mask (Registers.DPLL_CTRL2, Clocks_Off);
+      end if;
+   end Post_Reset_Off;
+
 end HW.GFX.GMA.Connectors.DDI;

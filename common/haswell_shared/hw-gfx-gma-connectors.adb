@@ -21,6 +21,12 @@ with GNAT.Source_Info;
 
 package body HW.GFX.GMA.Connectors is
 
+   procedure Post_Reset_Off
+   is
+   begin
+      DDI.Post_Reset_Off;
+   end Post_Reset_Off;
+
    procedure Initialize
    is
    begin

@@ -28,6 +28,8 @@ is
 
    procedure Off (Port : Digital_Port);
 
+   procedure Post_Reset_Off;
+
 private
    type Buf_Trans_Range is range 0 .. 19;
    type Buf_Trans_Array is array (Buf_Trans_Range) of Word32;
