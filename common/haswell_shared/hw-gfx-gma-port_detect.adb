@@ -19,6 +19,8 @@ with HW.GFX.GMA.Config_Helpers;
 package body HW.GFX.GMA.Port_Detect
 is
 
+   DDI_BUF_CTL_A_LANE_CAPABILITY_X4    : constant := 1 * 2 **  4;
+
    SFUSE_STRAP_CRT_DAC_CAP_DISABLE     : constant := 1 * 2 **  6;
 
    HOTPLUG_CTL_DDI_A_HPD_INPUT_ENABLE  : constant := 1 * 2 **  4;
@@ -55,6 +57,7 @@ is
 
    procedure Initialize
    is
+      DDI_A_X4,
       DAC_Disabled,
       Internal_Detected,
       DDI_Detected : Boolean;
@@ -71,13 +74,17 @@ is
          DIGI_C => DP2,
          DIGI_D => DP3);
    begin
-      if Config.Has_PCH_DAC then
+      if Config.Has_DDI_E and Config.Has_PCH_DAC then
          -- PCH_DAC (_A)
+         Registers.Is_Set_Mask
+           (Register => Registers.DDI_BUF_CTL_A,
+            Mask     => DDI_BUF_CTL_A_LANE_CAPABILITY_X4,
+            Result   => DDI_A_X4);
          Registers.Is_Set_Mask
            (Register => Registers.SFUSE_STRAP,
             Mask     => SFUSE_STRAP_CRT_DAC_CAP_DISABLE,
             Result   => DAC_Disabled);
-         Config.Valid_Port (Analog) := not DAC_Disabled;
+         Config.Valid_Port (Analog) := not (DDI_A_X4 or DAC_Disabled);
       end if;
 
       if Config.Internal_Is_EDP then

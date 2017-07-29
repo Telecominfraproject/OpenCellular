@@ -96,6 +96,8 @@ is
    Has_DDI_D               : constant Boolean := CPU >= Haswell and
                                                  CPU_Var = Normal and
                                                  not Has_DDI_PHYs;
+   Has_DDI_E               : constant Boolean := -- might be disabled by x4 eDP
+                                                 Has_DDI_D;
 
    Has_DDI_Buffer_Trans    : constant Boolean := CPU >= Haswell and
                                                  CPU /= Broxton;
