@@ -98,9 +98,6 @@ package body HW.GFX.GMA.Connectors is
       for Port in Digital_Port range DIGI_A .. Config.Last_Digital_Port loop
          DDI.Off (Port);
       end loop;
-      if Config.Is_FDI_Port (Analog) then
-         DDI.Off (DIGI_E);
-      end if;
    end Post_All_Off;
 
 end HW.GFX.GMA.Connectors;

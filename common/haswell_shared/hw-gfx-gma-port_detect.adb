@@ -124,7 +124,9 @@ is
       Config.Valid_Port (Internal) := Internal_Detected;
 
       -- DDI_[BCD]
-      for Port in Ext_Digital_Port range DIGI_B .. Config.Last_Digital_Port loop
+      for Port in Ext_Digital_Port range
+         DIGI_B .. Ext_Digital_Port'Min (DIGI_D, Config.Last_Digital_Port)
+      loop
          if Config.Has_Presence_Straps then
             Registers.Is_Set_Mask
               (Register => Registers.SFUSE_STRAP,

@@ -732,7 +732,7 @@ package body HW.GFX.GMA.Connectors.DDI is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      if Port = DIGI_E then
+      if Config.Has_PCH_DAC and then Port = DIGI_E then
          PCH.VGA.Off;
          PCH.Transcoder.Off (PCH.FDI_A);
          -- PCH.VGA.Clock_Off; -- Can't tell what Linux does, if anything.
@@ -743,7 +743,9 @@ package body HW.GFX.GMA.Connectors.DDI is
 
       if Port = DIGI_E then
          SPLL.Off;
-         PCH.FDI.Off (PCH.FDI_A, PCH.FDI.Clock_Off);
+         if Config.Has_PCH_DAC then
+            PCH.FDI.Off (PCH.FDI_A, PCH.FDI.Clock_Off);
+         end if;
       end if;
    end Off;
 

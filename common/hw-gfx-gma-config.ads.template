@@ -180,7 +180,7 @@ is
    Valid_Port : Valid_Per_Port renames Valid_Port_GPU (CPU);
 
    Last_Digital_Port : constant Digital_Port :=
-     (if Has_DDI_D then DIGI_D else DIGI_C);
+     (if Has_DDI_E then DIGI_E else DIGI_C);
 
    ----------------------------------------------------------------------------
 
@@ -190,11 +190,8 @@ is
          when Ironlake .. Ivybridge => FDI_Per_Port'
            (Internal => Internal_Display = LVDS,
             others   => True),
-         when Haswell => FDI_Per_Port'
-           (Analog   => True,
-            others   => False),
-         when Broadwell => FDI_Per_Port'
-           (Analog   => CPU_Var = Normal,
+         when Haswell .. Broadwell => FDI_Per_Port'
+           (Analog   => Has_PCH_DAC,
             others   => False),
          when others => FDI_Per_Port'
            (others   => False));
