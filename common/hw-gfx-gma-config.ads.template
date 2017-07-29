@@ -91,9 +91,11 @@ is
                                                   and CPU_Var = ULT) or
                                                  CPU >= Skylake;
 
-   Has_DDI_D               : constant Boolean := (CPU in Haswell .. Broadwell
-                                                  and CPU_Var = Normal)
-                                                 or CPU >= Skylake;
+   Has_DDI_PHYs            : constant Boolean := CPU = Broxton;
+
+   Has_DDI_D               : constant Boolean := CPU >= Haswell and
+                                                 CPU_Var = Normal and
+                                                 not Has_DDI_PHYs;
 
    Has_DDI_Buffer_Trans    : constant Boolean := CPU >= Haswell and
                                                  CPU /= Broxton;
@@ -101,8 +103,6 @@ is
    Has_Iboost_Config       : constant Boolean := CPU >= Skylake;
 
    Need_DP_Aux_Mutex       : constant Boolean := False; -- Skylake & (PSR | GTC)
-
-   Has_DDI_PHYs            : constant Boolean := CPU = Broxton;
 
    ----- GMBUS: -----------
    Ungate_GMBUS_Unit_Level : constant Boolean := CPU >= Skylake;
