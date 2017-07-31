@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
+/* Copyright 2017 The Chromium OS Authors. All rights reserved.
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
@@ -226,6 +226,7 @@ static VB_MENU current_menu = VB_MENU_DEV_WARNING;
 static VB_MENU prev_menu = VB_MENU_DEV_WARNING;
 static int current_menu_idx = VB_WARN_POWER_OFF;
 static int selected = 0;
+static int disabled_idx_mask = 0;
 static uint32_t default_boot = VB2_DEV_DEFAULT_BOOT_DISK;
 
 // TODO: add in consts
@@ -376,7 +377,8 @@ VbError_t vb2_draw_current_screen(struct vb2_context *ctx,
 		screen = VB_MENU_TO_SCREEN_MAP[current_menu];
 	else
 		return VBERROR_UNKNOWN;
-	return VbDisplayMenu(ctx, cparams, screen, 0, current_menu_idx);
+	return VbDisplayMenu(ctx, cparams, screen, 0,
+			     current_menu_idx, disabled_idx_mask);
 }
 
 /**
@@ -564,41 +566,38 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		}
 		break;
 	case VB_MENU_LANGUAGES:
-		switch(current_menu_idx) {
+		/*
+		 * Assume that we selected a language.  Go to previous
+		 * menu.  Purposely bypassing vb2_set_menu_items() here
+		 * because need to do in different order.
+		 */
+		current_menu = prev_menu;
+		prev_menu = VB_MENU_LANGUAGES;
+		/* default to power off index */
+		switch (current_menu) {
+		case VB_MENU_DEV_WARNING:
+			current_menu_idx = VB_WARN_POWER_OFF;
+			break;
+		case VB_MENU_DEV:
+			current_menu_idx = VB_DEV_POWER_OFF;
+			break;
+		case VB_MENU_TO_NORM:
+			current_menu_idx = VB_TO_NORM_POWER_OFF;
+			break;
+		case VB_MENU_RECOVERY:
+			current_menu_idx = VB_RECOVERY_POWER_OFF;
+			break;
+		case VB_MENU_TO_DEV:
+			current_menu_idx = VB_TO_DEV_POWER_OFF;
+			break;
 		default:
-			/*
-			 * Assume that we selected a language.  Go to previous
-			 * menu.  Purposely bypassing vb2_set_menu_items() here
-			 * because need to do in different order.
-			 */
-			current_menu = prev_menu;
-			prev_menu = VB_MENU_LANGUAGES;
-			/* default to power off index */
-			switch (current_menu) {
-			case VB_MENU_DEV_WARNING:
-				current_menu_idx = VB_WARN_POWER_OFF;
-				break;
-			case VB_MENU_DEV:
-				current_menu_idx = VB_DEV_POWER_OFF;
-				break;
-			case VB_MENU_TO_NORM:
-				current_menu_idx = VB_TO_NORM_POWER_OFF;
-				break;
-			case VB_MENU_RECOVERY:
-				current_menu_idx = VB_RECOVERY_POWER_OFF;
-				break;
-			case VB_MENU_TO_DEV:
-				current_menu_idx = VB_TO_DEV_POWER_OFF;
-				break;
-			default:
-				current_menu_idx = 0;
-				break;
-			}
-			selected = current_menu_idx;
+			current_menu_idx = 0;
 			break;
 		}
+		selected = current_menu_idx;
+		break;
 	default:
-		VB2_DEBUG("Current Menu Invalid!");
+		VB2_DEBUG("Current Menu Invalid! 0x%x\n", current_menu_idx);
 	}
 	return ret;
 }
@@ -625,6 +624,69 @@ VbError_t vb2_update_locale(struct vb2_context *ctx) {
 }
 
 /**
+ * Adjust the disabled_idx_mask based on current menu and settings.
+ *
+ * @param flags flag to check for dev/normal mode.
+ * @return VBERROR_SUCCESS
+ */
+VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
+	/* Disable "Enable Developer Mode" menu item */
+	disabled_idx_mask = 0;
+	if (current_menu == VB_MENU_RECOVERY &&
+	    (flags & VBSD_BOOT_DEV_SWITCH_ON)) {
+		disabled_idx_mask |= 1 << VB_RECOVERY_TO_DEV;
+	}
+	return VBERROR_SUCCESS;
+}
+
+/**
+ * Updates current_menu_idx upon an up/down key press, taking into
+ * account disabled indices (from disabled_idx_mask).  The cursor
+ * will not wrap, meaning that we block on the 0 or max index when
+ * we hit the ends of the menu.
+ *
+ * @param  cparams  common params
+ * @param  key      VOL_KEY_UP = increase index selection
+ *                  VOL_KEY_DOWN = decrease index selection.
+ *                  Every other key has no effect now.
+ */
+void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
+	int idx;
+	uint32_t menu_size;
+
+	if (current_menu == VB_MENU_LANGUAGES) {
+		VbGetLocalizationCount(cparams, &menu_size);
+	} else {
+		vb2_get_current_menu_size(current_menu,
+					  NULL, &menu_size);
+	}
+
+	switch (key) {
+	case VB_KEY_UP:
+		idx = current_menu_idx - 1;
+		while (idx >= 0 &&
+		       ((1 << idx) & disabled_idx_mask))
+		  idx--;
+		/* Only update if idx is valid */
+		if (idx >= 0)
+			current_menu_idx = idx;
+		break;
+	case VB_KEY_DOWN:
+		idx = current_menu_idx + 1;
+		while (idx < menu_size &&
+		       ((1 << idx) & disabled_idx_mask))
+		  idx++;
+		/* Only update if idx is valid */
+		if (idx < menu_size)
+			current_menu_idx = idx;
+		break;
+	default:
+	  /* Do not update anything */
+	  break;
+	}
+}
+
+/**
  * Main function that handles developer warning menu functionality
  *
  * @param ctx		Vboot2 context
@@ -634,10 +696,8 @@ VbError_t vb2_update_locale(struct vb2_context *ctx) {
 VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	GoogleBinaryBlockHeader *gbb = cparams->gbb;
-#if defined(VBOOT_DEBUG)
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-#endif
 
 	uint32_t disable_dev_boot = 0;
 	uint32_t use_usb = 0;
@@ -646,7 +706,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	VbAudioContext *audio = 0;
 	VbError_t ret;
-
 	VB2_DEBUG("Entering\n");
 
 	/* Check if USB booting is allowed */
@@ -712,6 +771,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		}
 	}
 
+
+	vb2_set_disabled_idx_mask(shared->flags);
 	/* Show the dev mode warning screen */
 	vb2_draw_current_screen(ctx, cparams);
 
@@ -721,7 +782,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
 		uint32_t key;
-		uint32_t menu_size;
 
 		if (VbWantShutdownMenu(gbb->flags)) {
 			VB2_DEBUG("shutdown requested!\n");
@@ -776,27 +836,14 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		case VB_BUTTON_VOL_UP:
 		case VB_KEY_UP:
-			vb2_get_current_menu_size(current_menu,
-						  NULL, &menu_size);
-			/* Do not wrap selection index */
-			if (current_menu_idx > 0)
-				current_menu_idx--;
+			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
 			audio = VbAudioOpen(cparams);
 			break;
 		case VB_BUTTON_VOL_DOWN:
 		case VB_KEY_DOWN:
-			/* Do not wrap selection index */
-			if (current_menu == VB_MENU_LANGUAGES) {
-				VbGetLocalizationCount(cparams, &menu_size);
-			}
-			else {
-				vb2_get_current_menu_size(current_menu,
-							  NULL, &menu_size);
-			}
-			if (current_menu_idx < menu_size-1)
-				current_menu_idx++;
+			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
 			audio = VbAudioOpen(cparams);
@@ -812,6 +859,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			vb2_update_locale(ctx);
 
 			ret = vb2_update_menu(ctx);
+			vb2_set_disabled_idx_mask(shared->flags);
 			/*
 			 * Unfortunately, we need the blanking to get rid of
 			 * artifacts from previous menu printing.
@@ -965,7 +1013,6 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	uint32_t key;
 	int i;
 	VbError_t ret;
-	uint32_t menu_size;
 
 	VB2_DEBUG("start\n");
 
@@ -1029,6 +1076,8 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		if (VBERROR_SUCCESS == retval)
 			break; /* Found a recovery kernel */
 
+		vb2_set_disabled_idx_mask(shared->flags);
+
 		if (current_menu != VB_MENU_RECOVERY ||
 		    current_menu_idx != VB_RECOVERY_DBG_INFO) {
 			if (retval == VBERROR_NO_DISK_FOUND)
@@ -1051,24 +1100,12 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				break;
 			case VB_BUTTON_VOL_UP:
 			case VB_KEY_UP:
-				vb2_get_current_menu_size(current_menu, NULL,
-							  &menu_size);
-				if (current_menu_idx > 0)
-					current_menu_idx--;
+				vb2_update_selection(cparams, key);
 				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_VOL_DOWN:
 			case VB_KEY_DOWN:
-				/* Do not wrap selection index */
-				if (current_menu == VB_MENU_LANGUAGES) {
-					VbGetLocalizationCount(cparams, &menu_size);
-				}
-				else {
-					vb2_get_current_menu_size(current_menu,
-								  NULL, &menu_size);
-				}
-				if (current_menu_idx < menu_size-1)
-					current_menu_idx++;
+				vb2_update_selection(cparams, key);
 				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_POWER:
@@ -1082,6 +1119,9 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				vb2_update_locale(ctx);
 
 				ret = vb2_update_menu(ctx);
+
+				vb2_set_disabled_idx_mask(shared->flags);
+
 				if (current_menu != VB_MENU_RECOVERY ||
 				     current_menu_idx != VB_RECOVERY_DBG_INFO) {
 					/*
@@ -1124,8 +1164,6 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				 *   - user forced recovery mode
 				 *   - EC isn't pwned
 				 */
-				// TODO: let's put an error here if we're
-				// already in dev mode.
 				if (current_menu == VB_MENU_TO_DEV &&
 				    current_menu_idx == 0 &&
 				    shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&

@@ -808,13 +808,18 @@ VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale);
 /**
  * Display a predefined menu screen; see VB_SCREEN_* for valid screens.
  *
- * This is a backup method of screen display, intended for use if the GBB does
- * not contain a full set of bitmaps.  It is acceptable for the backup screen
- * to be simple ASCII text such as "NO GOOD" or "INSERT"; these screens should
- * only be seen during development.
+ * @param screen_type       ID of screen to draw
+ * @param locale            language to display
+ * @param selected_index    Index of menu item that is currently selected.
+ * @param disabled_idx_mask Bitmap for enabling/disabling certain menu items.
+ *                          each bit corresponds to the menu item's index.
+ * @param redraw_base       Setting 1 will force a full redraw of the screen
+ *
+ * @return VBERROR_SUCCESS or error code on error.
  */
 VbError_t VbExDisplayMenu(uint32_t screen_type, uint32_t locale,
-			  uint32_t selected_index, uint32_t redraw_base);
+			  uint32_t selected_index, uint32_t disabled_idx_mask,
+			  uint32_t redraw_base);
 
 /**
  * Write an image to the display, with the upper left corner at the specified
