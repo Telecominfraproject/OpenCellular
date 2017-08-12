@@ -71,11 +71,9 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 	/*
 	 * Do software sync for devices tunneled throught the EC.
 	 */
-	if (fw_update != VB_AUX_FW_NO_UPDATE) {
-		rv = VbExUpdateAuxFw();
-		if (rv)
-			return rv;
-	}
+	rv = VbExUpdateAuxFw();
+	if (rv)
+		return rv;
 
 	/*
 	 * Reboot to unload VGA Option ROM if:
