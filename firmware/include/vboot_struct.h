@@ -241,6 +241,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_OPROM_LOADED                0x00020000
 /* Don't try for boot failures */
 #define VBSD_NOFAIL_BOOT                 0x00040000
+/* VbInit() was told that the EC firmware supports EFS */
+#define VBSD_EC_EFS                      0x00080000
 
 /*
  * Supported flags by header version.  It's ok to add new flags while keeping

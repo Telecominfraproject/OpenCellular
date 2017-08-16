@@ -28,7 +28,7 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 	if (rv)
 		return rv;
 
-	/* Do EC sync phase 1; this determines if we need an update */
+	/* Phase 1; this determines if we need an update */
 	VbError_t phase1_rv = ec_sync_phase1(ctx, cparams);
 	int need_wait_screen = ec_will_update_slowly(ctx, cparams) ||
 		(fw_update == VB_AUX_FW_SLOW_UPDATE);
@@ -60,16 +60,13 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 		VbDisplayScreen(ctx, cparams, VB_SCREEN_WAIT, 0);
 	}
 
-	/*
-	 * Do EC sync phase 2; this applies the update and/or jumps to the
-	 * correct EC image.
-	 */
+	/* Phase 2; Applies update and/or jumps to the correct EC image */
 	rv = ec_sync_phase2(ctx, cparams);
 	if (rv)
 		return rv;
 
 	/*
-	 * Do software sync for devices tunneled throught the EC.
+	 * Do software sync for devices tunneled through the EC.
 	 */
 	rv = VbExUpdateAuxFw();
 	if (rv)
@@ -91,7 +88,7 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 		return VBERROR_VGA_OPROM_MISMATCH;
 	}
 
-	/* Do EC sync phase 3; this completes sync and handles battery cutoff */
+	/* Phase 3; Completes sync and handles battery cutoff */
 	rv = ec_sync_phase3(ctx, cparams);
 	if (rv)
 		return rv;
