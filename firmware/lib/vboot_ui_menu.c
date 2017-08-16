@@ -167,6 +167,7 @@ typedef enum _VB_MENU {
 	VB_MENU_RECOVERY,
 	VB_MENU_TO_DEV,
 	VB_MENU_LANGUAGES,
+	VB_MENU_RECOVERY_INSERT,
 	VB_MENU_COUNT,
 } VB_MENU;
 
@@ -368,6 +369,7 @@ static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
 	VB_SCREEN_RECOVERY_MENU,
 	VB_SCREEN_RECOVERY_TO_DEV_MENU,
 	VB_SCREEN_LANGUAGES_MENU,
+	VB_SCREEN_RECOVERY_INSERT,
 };
 
 VbError_t vb2_draw_current_screen(struct vb2_context *ctx,
@@ -519,6 +521,10 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			/* Invalid menu item.  Don't update anything */
 			break;
 		}
+		break;
+	case VB_MENU_RECOVERY_INSERT:
+		vb2_set_menu_items(VB_MENU_RECOVERY,
+				   VB_RECOVERY_POWER_OFF);
 		break;
 	case VB_MENU_RECOVERY:
 		switch(current_menu_idx) {
@@ -1058,9 +1064,9 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	VB2_DEBUG("waiting for a recovery image\n");
 
 	/* Initialize menu to recovery menu. */
-	current_menu = VB_MENU_RECOVERY;
-	prev_menu = VB_MENU_RECOVERY;
-	current_menu_idx = VB_RECOVERY_POWER_OFF;
+	current_menu = VB_MENU_RECOVERY_INSERT;
+	prev_menu = VB_MENU_RECOVERY_INSERT;
+	current_menu_idx = 0;
 
 	while (1) {
 		VB2_DEBUG("attempting to load kernel2\n");
@@ -1101,13 +1107,15 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				/* nothing pressed */
 				break;
 			case VB_BUTTON_VOL_UP:
-			case VB_KEY_UP:
-				vb2_update_selection(cparams, key);
-				vb2_draw_current_screen(ctx, cparams);
-				break;
 			case VB_BUTTON_VOL_DOWN:
+			case VB_KEY_UP:
 			case VB_KEY_DOWN:
-				vb2_update_selection(cparams, key);
+				if (current_menu == VB_MENU_RECOVERY_INSERT) {
+					ret = vb2_update_menu(ctx);
+					vb2_set_disabled_idx_mask(shared->flags);
+				} else {
+					vb2_update_selection(cparams, key);
+				}
 				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_POWER:
@@ -1123,6 +1131,18 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				ret = vb2_update_menu(ctx);
 
 				vb2_set_disabled_idx_mask(shared->flags);
+
+				/*
+				 * If user hits power button in
+				 * initial recovery screen (ie:
+				 * because didn't really want to go
+				 * there), power button will turn off
+				 * device.
+				 */
+				if (current_menu == VB_MENU_RECOVERY_INSERT) {
+					ret = VBERROR_SHUTDOWN_REQUESTED;
+				}
+
 
 				if (current_menu != VB_MENU_RECOVERY ||
 				     current_menu_idx != VB_RECOVERY_DBG_INFO) {
