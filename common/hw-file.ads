@@ -39,4 +39,8 @@ package HW.File is
       Pre => (Readable or Writable) and
              (if Map_Copy then Readable and not Writable);
 
+   -- Sets `Length` to the size of the file given by `Path` or 0 if an
+   -- error occurs.
+   procedure Size (Length : out Natural; Path : String);
+
 end HW.File;

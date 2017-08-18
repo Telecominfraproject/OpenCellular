@@ -14,6 +14,7 @@
 
 with Interfaces.C;
 with Interfaces.C.Strings;
+with Ada.Directories;
 
 with HW.Debug;
 
@@ -67,5 +68,19 @@ package body HW.File is
       pragma Debug (not Success, Debug.Put_Int32 (Int32 (ret)));
       pragma Debug (not Success, Debug.New_Line);
    end Map;
+
+   procedure Size (Length : out Natural; Path : String)
+   with
+      SPARK_Mode => Off
+   is
+      use type Ada.Directories.File_Size;
+      Res_Size : Ada.Directories.File_Size;
+   begin
+      Res_Size := Ada.Directories.Size (Path);
+      Length := Natural (Res_Size);
+   exception
+      when others =>
+         Length := 0;
+   end Size;
 
 end HW.File;
