@@ -1,7 +1,6 @@
 pragma Restrictions (No_Allocators);
 pragma Restrictions (No_Calendar);
 pragma Restrictions (No_Dispatch);
-pragma Restrictions (No_Exception_Handlers);
 pragma Restrictions (No_Fixed_Point);
 pragma Restrictions (No_Floating_Point);
 pragma Restrictions (No_Implicit_Dynamic_Code);
