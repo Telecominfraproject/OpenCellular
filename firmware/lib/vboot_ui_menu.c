@@ -662,6 +662,7 @@ void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
 	}
 
 	switch (key) {
+	case VB_BUTTON_VOL_UP:
 	case VB_KEY_UP:
 		idx = current_menu_idx - 1;
 		while (idx >= 0 &&
@@ -671,6 +672,7 @@ void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
 		if (idx >= 0)
 			current_menu_idx = idx;
 		break;
+	case VB_BUTTON_VOL_DOWN:
 	case VB_KEY_DOWN:
 		idx = current_menu_idx + 1;
 		while (idx < menu_size &&
