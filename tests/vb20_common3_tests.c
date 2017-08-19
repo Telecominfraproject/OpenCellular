@@ -513,10 +513,6 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		     const char *keys_dir)
 {
 	char filename[1024];
-	int signing_rsa_len = 8 * vb2_rsa_sig_size(
-			vb2_crypto_to_signature(signing_key_algorithm));
-	int data_rsa_len = 8 * vb2_rsa_sig_size(
-			vb2_crypto_to_signature(data_key_algorithm));
 	int retval = 1;
 
 	struct vb2_private_key *signing_private_key = NULL;
@@ -528,8 +524,9 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 	printf("***With data key algorithm: %s\n",
 	       vb2_get_crypto_algorithm_name(data_key_algorithm));
 
-	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.pem", keys_dir, signing_rsa_len);
+	snprintf(filename, sizeof(filename), "%s/key_%s.pem",
+		 keys_dir,
+		 vb2_get_crypto_algorithm_file(signing_key_algorithm));
 	signing_private_key =
 		vb2_read_private_key_pem(filename, signing_key_algorithm);
 	if (!signing_private_key) {
@@ -538,8 +535,9 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		goto cleanup_permutation;
 	}
 
-	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.keyb", keys_dir, signing_rsa_len);
+	snprintf(filename, sizeof(filename), "%s/key_%s.keyb",
+		 keys_dir,
+		 vb2_get_crypto_algorithm_file(signing_key_algorithm));
 	signing_public_key =
 		vb2_read_packed_keyb(filename, signing_key_algorithm, 1);
 	if (!signing_public_key) {
@@ -548,8 +546,9 @@ int test_permutation(int signing_key_algorithm, int data_key_algorithm,
 		goto cleanup_permutation;
 	}
 
-	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.keyb", keys_dir, data_rsa_len);
+	snprintf(filename, sizeof(filename), "%s/key_%s.keyb",
+		 keys_dir,
+		 vb2_get_crypto_algorithm_file(data_key_algorithm));
 	data_public_key =
 		vb2_read_packed_keyb(filename, data_key_algorithm, 1);
 	if (!data_public_key) {

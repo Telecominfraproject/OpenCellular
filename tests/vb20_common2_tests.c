@@ -142,9 +142,6 @@ static void test_verify_data(const struct vb2_packed_key *key1,
 int test_algorithm(int key_algorithm, const char *keys_dir)
 {
 	char filename[1024];
-	int rsa_bits = 8 * vb2_rsa_sig_size(
-			vb2_crypto_to_signature(key_algorithm));
-
 	struct vb2_private_key *private_key = NULL;
 	struct vb2_signature *sig = NULL;
 	struct vb2_packed_key *key1 = NULL;
@@ -154,16 +151,18 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	printf("***Testing algorithm: %s\n",
 	       vb2_get_crypto_algorithm_name(key_algorithm));
 
-	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.pem", keys_dir, rsa_bits);
+	snprintf(filename, sizeof(filename), "%s/key_%s.pem",
+		 keys_dir,
+		 vb2_get_crypto_algorithm_file(key_algorithm));
 	private_key = vb2_read_private_key_pem(filename, key_algorithm);
 	if (!private_key) {
 		fprintf(stderr, "Error reading private_key: %s\n", filename);
 		goto cleanup_algorithm;
 	}
 
-	snprintf(filename, sizeof(filename),
-		 "%s/key_rsa%d.keyb", keys_dir, rsa_bits);
+	snprintf(filename, sizeof(filename), "%s/key_%s.keyb",
+		 keys_dir,
+		 vb2_get_crypto_algorithm_file(key_algorithm));
 	key1 = vb2_read_packed_keyb(filename, key_algorithm, 1);
 	if (!key1) {
 		fprintf(stderr, "Error reading public_key: %s\n", filename);
