@@ -479,7 +479,7 @@ is
 
    -- Check basics and that it fits in GTT
    function Valid_FB (FB : Framebuffer_Type) return Boolean is
-     (FB.Width <= FB.Stride and FB_Last_Page (FB) <= GTT_Range'Last);
+     (Valid_Stride (FB) and FB_Last_Page (FB) <= GTT_Range'Last);
 
    -- Also check that we don't overflow the GTT's 39-bit space
    -- (always true with a 32-bit base)
@@ -626,6 +626,20 @@ is
          Success := Phys_Base /= GMA_Phys_Base_Mask and Phys_Base /= 0;
          pragma Debug (not Success, Debug.Put_Line
            ("Failed to read stolen memory base."));
+
+         if Success then
+            if FB.Tiling in XY_Tiling then
+               Registers.Add_Fence
+                 (First_Page  => FB_First_Page (FB),
+                  Last_Page   => FB_Last_Page (FB),
+                  Tiling      => FB.Tiling,
+                  Pitch       => FB_Pitch (FB.Stride, FB),
+                  Success     => Success);
+            end if;
+            pragma Debug (not Success, Debug.Put_Line
+              ("Tiled framebuffer but no fence regs available."));
+         end if;
+
          if Success then
             Setup_Default_GTT (FB, Phys_Base);
          end if;

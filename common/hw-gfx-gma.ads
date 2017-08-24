@@ -157,4 +157,17 @@ private
 
    subtype DDI_HDMI_Buf_Trans_Range is Integer range 0 .. 11;
 
+   ----------------------------------------------------------------------------
+
+   Tile_Width : constant array (Tiling_Type) of Pos32 :=
+     (Linear => 16, X_Tiled => 128, Y_Tiled => 32);
+
+   function FB_Pitch (Px : Pixel_Type; FB : Framebuffer_Type) return Natural is
+     (Natural (Div_Round_Up
+        (Pixel_To_Bytes (Px, FB), Tile_Width (FB.Tiling) * 4)));
+
+   function Valid_Stride (FB : Framebuffer_Type) return Boolean is
+     (FB.Width <= FB.Stride and
+      Pixel_To_Bytes (FB.Stride, FB) mod (Tile_Width (FB.Tiling) * 4) = 0);
+
 end HW.GFX.GMA;

@@ -20,6 +20,9 @@ use type HW.Word32;
 
 package HW.GFX is
 
+   -- such that the count of pixels in any framebuffer may fit
+   subtype Pixel_Type is Pos32 range 1 .. 8192 * 8192;
+
    -- implementation only supports 4800p for now ;-)
    subtype Width_Type  is Pos32 range 1 .. 4800;
    subtype Height_Type is Pos32 range 1 .. 7680;
@@ -40,8 +43,10 @@ package HW.GFX is
       Offset   : Word32;
    end record;
 
+   function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
+      return Pos32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
    function FB_Size (FB : Framebuffer_Type) return Pos32 is
-     (FB.Stride * FB.Height * Pos32 (FB.BPC) / (8 / 4));
+     (Pixel_To_Bytes (FB.Stride * FB.Height, FB));
 
    Default_FB : constant Framebuffer_Type := Framebuffer_Type'
      (Width    => 1,

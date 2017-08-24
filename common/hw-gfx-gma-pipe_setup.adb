@@ -39,6 +39,16 @@ package body HW.GFX.GMA.Pipe_Setup is
    PLANE_CTL_PLANE_ENABLE              : constant := 1 * 2 ** 31;
    PLANE_CTL_SRC_PIX_FMT_RGB_32B_8888  : constant := 4 * 2 ** 24;
    PLANE_CTL_PLANE_GAMMA_DISABLE       : constant := 1 * 2 ** 13;
+   PLANE_CTL_TILED_SURFACE_MASK        : constant := 7 * 2 ** 10;
+   PLANE_CTL_TILED_SURFACE_LINEAR      : constant := 0 * 2 ** 10;
+   PLANE_CTL_TILED_SURFACE_X_TILED     : constant := 1 * 2 ** 10;
+   PLANE_CTL_TILED_SURFACE_Y_TILED     : constant := 4 * 2 ** 10;
+   PLANE_CTL_TILED_SURFACE_YF_TILED    : constant := 5 * 2 ** 10;
+
+   PLANE_CTL_TILED_SURFACE : constant array (Tiling_Type) of Word32 :=
+     (Linear   => PLANE_CTL_TILED_SURFACE_LINEAR,
+      X_Tiled  => PLANE_CTL_TILED_SURFACE_X_TILED,
+      Y_Tiled  => PLANE_CTL_TILED_SURFACE_Y_TILED);
 
    PLANE_WM_ENABLE                     : constant :=        1 * 2 ** 31;
    PLANE_WM_LINES_SHIFT                : constant :=                 14;
@@ -131,7 +141,7 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    procedure Setup_Hires_Plane
      (Controller  : Controller_Type;
-      Framebuffer : HW.GFX.Framebuffer_Type)
+      FB          : HW.GFX.Framebuffer_Type)
    with
       Global => (In_Out => Registers.Register_State),
       Depends =>
@@ -139,19 +149,11 @@ package body HW.GFX.GMA.Pipe_Setup is
             =>+
               (Registers.Register_State,
                Controller,
-               Framebuffer))
+               FB))
    is
       -- FIXME: setup correct format, based on framebuffer RGB format
       Format : constant Word32 := 6 * 2 ** 26;
       PRI : Word32 := DSPCNTR_ENABLE or Format;
-
-      function To_Bytes (Pixels : Width_Type) return Word32
-      with
-         Pre => (Pos64 (Pixels) <= Pos64 (Word32'Last) / 4 / BPC_Type'Last * 8)
-      is
-      begin
-         return Word32 (Pos64 (Pixels) * 4 * Framebuffer.BPC / 8);
-      end To_Bytes;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
@@ -160,14 +162,16 @@ package body HW.GFX.GMA.Pipe_Setup is
            (Register    => Controller.PLANE_CTL,
             Value       => PLANE_CTL_PLANE_ENABLE or
                            PLANE_CTL_SRC_PIX_FMT_RGB_32B_8888 or
-                           PLANE_CTL_PLANE_GAMMA_DISABLE);
+                           PLANE_CTL_PLANE_GAMMA_DISABLE or
+                           PLANE_CTL_TILED_SURFACE (FB.Tiling));
          Registers.Write (Controller.PLANE_OFFSET, 16#0000_0000#);
          Registers.Write
            (Controller.PLANE_SIZE,
-            Encode (Pos16 (Framebuffer.Width), Pos16 (Framebuffer.Height)));
-         Registers.Write (Controller.PLANE_STRIDE, To_Bytes (Framebuffer.Stride) / 64);
+            Encode (Pos16 (FB.Width), Pos16 (FB.Height)));
+         Registers.Write
+           (Controller.PLANE_STRIDE, Word32 (FB_Pitch (FB.Stride, FB)));
          Registers.Write (Controller.PLANE_POS,    16#0000_0000#);
-         Registers.Write (Controller.PLANE_SURF,   Framebuffer.Offset and 16#ffff_f000#);
+         Registers.Write (Controller.PLANE_SURF,   FB.Offset and 16#ffff_f000#);
       else
          if Config.Disable_Trickle_Feed then
             PRI := PRI or DSPCNTR_DISABLE_TRICKLE_FEED;
@@ -179,8 +183,9 @@ package body HW.GFX.GMA.Pipe_Setup is
              Mask_Unset => DSPCNTR_MASK,
              Mask_Set   => PRI);
 
-         Registers.Write (Controller.DSPSTRIDE, To_Bytes (Framebuffer.Stride));
-         Registers.Write (Controller.DSPSURF, Framebuffer.Offset and 16#ffff_f000#);
+         Registers.Write
+           (Controller.DSPSTRIDE, Word32 (Pixel_To_Bytes (FB.Stride, FB)));
+         Registers.Write (Controller.DSPSURF, FB.Offset and 16#ffff_f000#);
          if Config.Has_DSP_Linoff then
             Registers.Write (Controller.DSPLINOFF, 0);
          end if;

@@ -186,16 +186,14 @@ is
       Pipe        : Pipe_Index)
       return Boolean
    is
-      function To_Bytes (Pixels : Width_Type) return Pos32 is
-      begin
-         return Pos32 (Pixels) * 4 * Pos32 (Framebuffer.BPC) / 8;
-      end To_Bytes;
    begin
       -- No downscaling
       -- Respect maximum scalable width
       -- VGA plane is only allowed on the primary pipe
       -- Only 32bpp RGB (ignored for VGA plane)
-      -- Stride must be a multiple of 64 bytes (ignored for VGA plane)
+      -- Stride must be big enough and a multiple of 64 bytes or the tile size
+      -- (ignored for VGA plane)
+      -- Tiling is only supported on newer generations (with Plane_Control)
       return
          ((Framebuffer.Width = Pos32 (Port_Cfg.Mode.H_Visible) and
            Framebuffer.Height = Pos32 (Port_Cfg.Mode.V_Visible)) or
@@ -205,8 +203,8 @@ is
          (Framebuffer.Offset /= VGA_PLANE_FRAMEBUFFER_OFFSET or Pipe = Primary)
          and
          (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
-          (Framebuffer.BPC = 8 and
-           To_Bytes (Framebuffer.Stride) mod 64 = 0));
+          (Framebuffer.BPC = 8 and Valid_Stride (Framebuffer) and
+           (Config.Has_Plane_Control or Framebuffer.Tiling = Linear)));
    end Validate_Config;
 
 end HW.GFX.GMA.Config_Helpers;
