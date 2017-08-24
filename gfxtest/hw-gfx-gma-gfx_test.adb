@@ -157,6 +157,7 @@ is
          Height   => Height_Type (Mode.V_Visible),
          BPC      => 8,
          Stride   => Width_Type ((Word32 (Mode.H_Visible) + 15) and not 15),
+         Tiling   => Linear,
          Offset   => Offset);
       Offset := Offset + Word32 (FB.Stride * FB.Height * 4);
    end Calc_Framebuffer;

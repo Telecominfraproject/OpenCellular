@@ -27,24 +27,28 @@ package HW.GFX is
    Auto_BPC : constant := 5;
    subtype BPC_Type    is Int64 range Auto_BPC .. 16;
 
+   type Tiling_Type is (Linear, X_Tiled, Y_Tiled);
+
    type Framebuffer_Type is
    record
-      Width  : Width_Type;
-      Height : Height_Type;
-      BPC    : BPC_Type;
-      Stride : Width_Type;
-      Offset : Word32;
+      Width    : Width_Type;
+      Height   : Height_Type;
+      BPC      : BPC_Type;
+      Stride   : Width_Type;
+      Tiling   : Tiling_Type;
+      Offset   : Word32;
    end record;
 
    function FB_Size (FB : Framebuffer_Type) return Pos32 is
      (FB.Stride * FB.Height * Pos32 (FB.BPC) / (8 / 4));
 
    Default_FB : constant Framebuffer_Type := Framebuffer_Type'
-      (Width  => 1,
-       Height => 1,
-       BPC    => 8,
-       Stride => 1,
-       Offset => 0);
+     (Width    => 1,
+      Height   => 1,
+      BPC      => 8,
+      Stride   => 1,
+      Tiling   => Linear,
+      Offset   => 0);
 
    subtype Frequency_Type is Pos64 range 24_000_000 .. 600_000_000;
 
