@@ -1030,7 +1030,8 @@ elif [[ "${TYPE}" == "accessory_rwsig" ]]; then
     KEY_NAME="${KEY_DIR}/key"
   fi
   cp "${INPUT_IMAGE}" "${OUTPUT_IMAGE}"
-  futility sign --type rwsig --prikey "${KEY_NAME}.vbprik2" "${OUTPUT_IMAGE}"
+  futility sign --type rwsig --prikey "${KEY_NAME}.vbprik2" \
+           --version "${FIRMWARE_VERSION}" "${OUTPUT_IMAGE}"
 elif [[ "${TYPE}" == "oci-container" ]]; then
   sign_oci_container "${INPUT_IMAGE}" "${KEY_DIR}" "${OUTPUT_IMAGE}"
 else
