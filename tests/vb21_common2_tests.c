@@ -297,6 +297,7 @@ int test_algorithm(int key_algorithm, const char *keys_dir)
 	test_verify_data(pubk, sig2);
 	test_verify_signature(sig2);
 
+	free(keyb_data);
 	free(key2);
 	free(sig2);
 	vb2_private_key_free(prik);
