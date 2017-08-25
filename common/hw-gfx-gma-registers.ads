@@ -1531,6 +1531,15 @@ is
 
    procedure Clear_Fences;
 
+   procedure Add_Fence
+     (First_Page  : in     GTT_Range;
+      Last_Page   : in     GTT_Range;
+      Tiling      : in     XY_Tiling;
+      Pitch       : in     Natural;
+      Success     :    out Boolean);
+
+   procedure Remove_Fence (First_Page, Last_Page : GTT_Range);
+
    pragma Warnings (Off, "declaration of ""Write_GTT"" hides one at *");
    procedure Write_GTT
      (GTT_Page       : GTT_Range;

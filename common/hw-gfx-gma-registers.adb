@@ -61,18 +61,83 @@ is
 
    ----------------------------------------------------------------------------
 
+   subtype Fence_Range is Registers_Range range 0 .. Config.Fence_Count - 1;
+
+   FENCE_PAGE_SHIFT                    : constant := 12;
+   FENCE_PAGE_MASK                     : constant := 16#ffff_f000#;
+   FENCE_TILE_WALK_YMAJOR              : constant := 1 * 2 ** 1;
+   FENCE_VALID                         : constant := 1 * 2 ** 0;
+
+   function Fence_Lower_Idx (Fence : Fence_Range) return Registers_Range is
+      (Config.Fence_Base / Register_Width + 2 * Fence);
+   function Fence_Upper_Idx (Fence : Fence_Range) return Registers_Range is
+      (Fence_Lower_Idx (Fence) + 1);
+
    procedure Clear_Fences
    is
-      Fence_Regs_Base : constant :=
-        (case Config.CPU is
-            when Ironlake                 => 16#00_3000#,
-            when Sandybridge .. Skylake   => 16#10_0000#);
-      subtype Fence_Range is Registers_Range range 0 .. 63;
    begin
-      for Idx in Fence_Range loop
-         Regs.Write (Fence_Regs_Base / Register_Width + Idx, 0);
+      for Fence in Fence_Range loop
+         Regs.Write (Fence_Lower_Idx (Fence), 0);
       end loop;
    end Clear_Fences;
+
+   procedure Add_Fence
+     (First_Page  : in     GTT_Range;
+      Last_Page   : in     GTT_Range;
+      Tiling      : in     XY_Tiling;
+      Pitch       : in     Natural;
+      Success     :    out Boolean)
+   is
+      Y_Tiles : constant Boolean := Tiling = Y_Tiled;
+      Reg32 : Word32;
+   begin
+      pragma Debug (Debug.Put (GNAT.Source_Info.Enclosing_Entity & ": "));
+      pragma Debug (Debug.Put_Word32 (Shift_Left (Word32 (First_Page), 12)));
+      pragma Debug (Debug.Put (":"));
+      pragma Debug (Debug.Put_Word32 (Shift_Left (Word32 (Last_Page), 12)));
+      pragma Debug (not Y_Tiles, Debug.Put (" X tiled in "));
+      pragma Debug (    Y_Tiles, Debug.Put (" Y tiled in "));
+      pragma Debug (Debug.Put_Int32 (Int32 (Pitch)));
+      pragma Debug (Debug.Put_Line (" tiles per row."));
+
+      Success := False;
+      for Fence in Fence_Range loop
+         Regs.Read (Reg32, Fence_Lower_Idx (Fence));
+         if (Reg32 and FENCE_VALID) = 0 then
+            Regs.Write
+              (Index => Fence_Lower_Idx (Fence),
+               Value => Shift_Left (Word32 (First_Page), FENCE_PAGE_SHIFT) or
+                        (if Y_Tiles then FENCE_TILE_WALK_YMAJOR else 0) or
+                        FENCE_VALID);
+            Regs.Write
+              (Index => Fence_Upper_Idx (Fence),
+               Value => Shift_Left (Word32 (Last_Page), FENCE_PAGE_SHIFT) or
+                        Word32 (Pitch) * (if Y_Tiles then 1 else 4) - 1);
+            Success := True;
+            exit;
+         end if;
+      end loop;
+   end Add_Fence;
+
+   procedure Remove_Fence (First_Page, Last_Page : GTT_Range)
+   is
+      Page_Lower : constant Word32 :=
+         Shift_Left (Word32 (First_Page), FENCE_PAGE_SHIFT);
+      Page_Upper : constant Word32 :=
+         Shift_Left (Word32 (Last_Page), FENCE_PAGE_SHIFT);
+      Fence_Upper, Fence_Lower : Word32;
+   begin
+      for Fence in Fence_Range loop
+         Regs.Read (Fence_Lower, Fence_Lower_Idx (Fence));
+         Regs.Read (Fence_Upper, Fence_Upper_Idx (Fence));
+         if (Fence_Lower and FENCE_PAGE_MASK) = Page_Lower and
+            (Fence_Upper and FENCE_PAGE_MASK) = Page_Upper
+         then
+            Regs.Write (Fence_Lower_Idx (Fence), 0);
+            exit;
+         end if;
+      end loop;
+   end Remove_Fence;
 
    ----------------------------------------------------------------------------
 

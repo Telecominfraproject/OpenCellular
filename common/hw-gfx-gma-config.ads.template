@@ -286,6 +286,14 @@ is
                                     when Ironlake .. Haswell   => 4,
                                     when Broadwell .. Skylake  => 8);
 
+   Fence_Base : constant := (case CPU is
+                              when Ironlake                 => 16#0000_3000#,
+                              when Sandybridge .. Skylake   => 16#0010_0000#);
+
+   Fence_Count : constant := (case CPU is
+                                 when Ironlake .. Sandybridge  => 16,
+                                 when Ivybridge .. Skylake     => 32);
+
    ----------------------------------------------------------------------------
 
    use type HW.Word16;

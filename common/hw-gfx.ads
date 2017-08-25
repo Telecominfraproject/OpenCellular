@@ -28,6 +28,7 @@ package HW.GFX is
    subtype BPC_Type    is Int64 range Auto_BPC .. 16;
 
    type Tiling_Type is (Linear, X_Tiled, Y_Tiled);
+   subtype XY_Tiling is Tiling_Type range X_Tiled .. Y_Tiled;
 
    type Framebuffer_Type is
    record
