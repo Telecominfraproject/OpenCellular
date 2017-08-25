@@ -301,7 +301,7 @@ is
    with
       Refined_Global =>
         (In_Out =>
-           (Config.Valid_Port_GPU,
+           (Config.Valid_Port_GPU, Dev.PCI_State,
             Registers.Register_State, Port_IO.State),
          Input =>
            (Time.State),
