@@ -41,6 +41,15 @@ is
    procedure Write16 (Offset : Index; Value : Word16) renames MM.Write16;
    procedure Write32 (Offset : Index; Value : Word32) renames MM.Write32;
 
+   -- No-op PCI config update to share contracts
+   -- with implementations that do actual updates.
+   procedure Dummy_PCI_Update
+   with
+      Global => (In_Out => MM.PCI_State);
+   procedure Dummy_PCI_Update is null
+   with
+      SPARK_Mode => Off;
+
    function Hex (Val : Natural) return Character
    with
       Pre => Val < 16
@@ -85,6 +94,8 @@ is
       Path     : String (1 .. 49) :=
          "/sys/devices/pci0000:xx/0000:xx:xx.x/resourcex_wc";
    begin
+      Dummy_PCI_Update;
+
       Patch_Sysfs_Path (Path);
       Path (46) := Character'Val (Character'Pos ('0') + Resource'Pos (Res));
       if not WC then
@@ -123,6 +134,8 @@ is
       Path : String (1 .. 46) :=
          "/sys/devices/pci0000:xx/0000:xx:xx.x/resourcex";
    begin
+      Dummy_PCI_Update;
+
       Patch_Sysfs_Path (Path);
       Path (46) := Character'Val (Character'Pos ('0') + Resource'Pos (Res));
 
