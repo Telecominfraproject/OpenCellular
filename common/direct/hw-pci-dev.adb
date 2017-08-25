@@ -108,6 +108,8 @@ is
    begin
       if MMConf_Base /= 0 then
          MM.Set_Base_Address (MMConf_Base);
+      else
+         MM.Set_Base_Address (Config.Default_MMConf_Base);
       end if;
       Success := MMConf_Base /= 0 or Config.Default_MMConf_Base_Set;
    end Initialize;
