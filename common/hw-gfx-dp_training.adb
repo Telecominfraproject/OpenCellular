@@ -257,8 +257,9 @@ package body HW.GFX.DP_Training is
 
       -- According to DP spec, only change preemphasis during channel
       -- equalization. What to do if sink requests it during clock recovery?
-      -- Linux always accepts new values from the sink, we don't, for now.
-      if Success and then (CR_Was_Done and not EQ_Done) then
+      -- Linux always accepts new values from the sink, we too, now: There
+      -- are sinks in the wild that need this.
+      if Success and not EQ_Done then
          Train_Set.Pre_Emph :=
             DP_Info.Max_Requested_Emph (Status, Link);
          if Train_Set.Pre_Emph > Max_Pre_Emph (Port, Train_Set)
