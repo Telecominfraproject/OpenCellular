@@ -1,5 +1,6 @@
 --
 -- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2017 Nico Huber <nico.h@gmx.de>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -244,7 +245,8 @@ package body HW.GFX.DP_Training is
       EQ_Done := Success and then DP_Info.All_EQ_Done (Status, Link);
       Success := Success and then (CR_Done or not CR_Was_Done);
 
-      if Success and not CR_Done then
+      -- Voltage swing may be updated during channel equalization too.
+      if Success and not EQ_Done then
          Train_Set.Voltage_Swing :=
             DP_Info.Max_Requested_VS (Status, Link);
          if Train_Set.Voltage_Swing > Max_V_Swing (Port)
@@ -366,25 +368,12 @@ package body HW.GFX.DP_Training is
       end if;
 
       if Success then
-         Retries := 0;
-         for Tries in 1 .. 32 loop
-            pragma Loop_Invariant (Retries <= Max_Retry);
-
+         for Tries in 1 .. 6 loop
             Time.U_Delay (EQ_Delay);
 
-            Last_Train_Set := Train_Set;
             Sink_Adjust_Training
               (Port, DP, Link, Train_Set, CR_Done, EQ_Done, Success);
             exit when EQ_Done or not Success;
-
-            if Train_Set.Pre_Emph = Last_Train_Set.Pre_Emph then
-               exit when Retries = Max_Retry;
-               Retries := Retries + 1;
-            else
-               exit when Last_Train_Set.Pre_Emph =
-                  Max_Pre_Emph (Port, Last_Train_Set);
-               Retries := 0;
-            end if;
 
             Set_Signal_Levels (Port, Link, Train_Set);
             Sink_Set_Signal_Levels (Port, DP, Link, Train_Set, Success);
