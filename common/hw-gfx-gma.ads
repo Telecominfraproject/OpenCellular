@@ -95,6 +95,8 @@ is
    GTT_Page_Size : constant := 4096;
    type GTT_Address_Type is mod 2 ** 39;
    subtype GTT_Range is Natural range 0 .. 16#8_0000# - 1;
+   GTT_Rotation_Offset : constant GTT_Range := GTT_Range'Last / 2 + 1;
+
    procedure Write_GTT
      (GTT_Page       : GTT_Range;
       Device_Address : GTT_Address_Type;
@@ -161,6 +163,8 @@ private
 
    Tile_Width : constant array (Tiling_Type) of Pos32 :=
      (Linear => 16, X_Tiled => 128, Y_Tiled => 32);
+   Tile_Rows : constant array (Tiling_Type) of Pos32 :=
+     (Linear => 1, X_Tiled => 8, Y_Tiled => 32);
 
    function FB_Pitch (Px : Pixel_Type; FB : Framebuffer_Type) return Natural is
      (Natural (Div_Round_Up
@@ -168,6 +172,8 @@ private
 
    function Valid_Stride (FB : Framebuffer_Type) return Boolean is
      (FB.Width <= FB.Stride and
-      Pixel_To_Bytes (FB.Stride, FB) mod (Tile_Width (FB.Tiling) * 4) = 0);
+      Pixel_To_Bytes (FB.Stride, FB) mod (Tile_Width (FB.Tiling) * 4) = 0 and
+      FB.Height <= FB.V_Stride and
+      FB.V_Stride mod Tile_Rows (FB.Tiling) = 0);
 
 end HW.GFX.GMA;

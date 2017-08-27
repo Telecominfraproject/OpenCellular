@@ -40,14 +40,16 @@ is
    use type HW.Pos32;
    pragma Warnings (GNAT, On, """Integer_32"" is already use-visible *");
    function Validate_Config
-     (Framebuffer : Framebuffer_Type;
-      Port_Cfg    : Port_Config;
-      Pipe        : Pipe_Index)
+     (FB       : Framebuffer_Type;
+      Port_Cfg : Port_Config;
+      Pipe     : Pipe_Index)
       return Boolean
    with
       Post =>
         (if Validate_Config'Result then
-            Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
-            Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible));
+            Rotated_Width (FB) <= Port_Cfg.Mode.H_Visible and
+            Rotated_Height (FB) <= Port_Cfg.Mode.V_Visible and
+            (FB.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
+             FB.Height <= FB.V_Stride));
 
 end HW.GFX.GMA.Config_Helpers;

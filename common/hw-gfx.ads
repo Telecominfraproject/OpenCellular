@@ -47,6 +47,14 @@ package HW.GFX is
       Offset   : Word32;
    end record;
 
+   function Rotation_90 (FB : Framebuffer_Type) return Boolean is
+     (FB.Rotation = Rotated_90 or FB.Rotation = Rotated_270);
+
+   function Rotated_Width (FB : Framebuffer_Type) return Pos16 is
+     (if Rotation_90 (FB) then Pos16 (FB.Height) else Pos16 (FB.Width));
+   function Rotated_Height (FB : Framebuffer_Type) return Pos16 is
+     (if Rotation_90 (FB) then Pos16 (FB.Width) else Pos16 (FB.Height));
+
    function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
       return Pos32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
    function FB_Size (FB : Framebuffer_Type) return Pos32 is

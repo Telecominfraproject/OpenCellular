@@ -50,6 +50,13 @@ package body HW.GFX.GMA.Pipe_Setup is
       X_Tiled  => PLANE_CTL_TILED_SURFACE_X_TILED,
       Y_Tiled  => PLANE_CTL_TILED_SURFACE_Y_TILED);
 
+   PLANE_CTL_PLANE_ROTATION_MASK       : constant := 3 * 2 ** 0;
+   PLANE_CTL_PLANE_ROTATION : constant array (Rotation_Type) of Word32 :=
+     (No_Rotation => 0 * 2 ** 0,
+      Rotated_90  => 1 * 2 ** 0,
+      Rotated_180 => 2 * 2 ** 0,
+      Rotated_270 => 3 * 2 ** 0);
+
    PLANE_WM_ENABLE                     : constant :=        1 * 2 ** 31;
    PLANE_WM_LINES_SHIFT                : constant :=                 14;
    PLANE_WM_LINES_MASK                 : constant := 16#001f# * 2 ** 14;
@@ -149,7 +156,8 @@ package body HW.GFX.GMA.Pipe_Setup is
             =>+
               (Registers.Register_State,
                Controller,
-               FB))
+               FB)),
+      Pre => FB.Height <= FB.V_Stride
    is
       -- FIXME: setup correct format, based on framebuffer RGB format
       Format : constant Word32 := 6 * 2 ** 26;
@@ -158,20 +166,34 @@ package body HW.GFX.GMA.Pipe_Setup is
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       if Config.Has_Plane_Control then
-         Registers.Write
-           (Register    => Controller.PLANE_CTL,
-            Value       => PLANE_CTL_PLANE_ENABLE or
-                           PLANE_CTL_SRC_PIX_FMT_RGB_32B_8888 or
-                           PLANE_CTL_PLANE_GAMMA_DISABLE or
-                           PLANE_CTL_TILED_SURFACE (FB.Tiling));
-         Registers.Write (Controller.PLANE_OFFSET, 16#0000_0000#);
-         Registers.Write
-           (Controller.PLANE_SIZE,
-            Encode (Pos16 (FB.Width), Pos16 (FB.Height)));
-         Registers.Write
-           (Controller.PLANE_STRIDE, Word32 (FB_Pitch (FB.Stride, FB)));
-         Registers.Write (Controller.PLANE_POS,    16#0000_0000#);
-         Registers.Write (Controller.PLANE_SURF,   FB.Offset and 16#ffff_f000#);
+         declare
+            Stride, Offset, GTT_Addr : Word32;
+            Width : constant Pos16 := Rotated_Width (FB);
+            Height : constant Pos16 := Rotated_Height (FB);
+         begin
+            if Rotation_90 (FB) then
+               Stride            := Word32 (FB_Pitch (FB.V_Stride, FB));
+               Offset            := Word32 (FB.V_Stride - FB.Height);
+               GTT_Addr          :=
+                  FB.Offset + Word32 (GTT_Rotation_Offset) * GTT_Page_Size;
+            else
+               Stride            := Word32 (FB_Pitch (FB.Stride, FB));
+               Offset            := 0;
+               GTT_Addr          := FB.Offset;
+            end if;
+            Registers.Write
+              (Register    => Controller.PLANE_CTL,
+               Value       => PLANE_CTL_PLANE_ENABLE or
+                              PLANE_CTL_SRC_PIX_FMT_RGB_32B_8888 or
+                              PLANE_CTL_PLANE_GAMMA_DISABLE or
+                              PLANE_CTL_TILED_SURFACE (FB.Tiling) or
+                              PLANE_CTL_PLANE_ROTATION (FB.Rotation));
+            Registers.Write (Controller.PLANE_OFFSET, Offset);
+            Registers.Write (Controller.PLANE_SIZE, Encode (Width, Height));
+            Registers.Write (Controller.PLANE_STRIDE, Stride);
+            Registers.Write (Controller.PLANE_POS, 16#0000_0000#);
+            Registers.Write (Controller.PLANE_SURF, GTT_Addr and 16#ffff_f000#);
+         end;
       else
          if Config.Disable_Trickle_Feed then
             PRI := PRI or DSPCNTR_DISABLE_TRICKLE_FEED;
@@ -210,7 +232,10 @@ package body HW.GFX.GMA.Pipe_Setup is
                Dither),
          Port_IO.State
             =>+
-               (Framebuffer))
+               (Framebuffer)),
+      Pre =>
+         Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
+         Framebuffer.Height <= Framebuffer.V_Stride
    is
       use type Word8;
 
@@ -252,7 +277,7 @@ package body HW.GFX.GMA.Pipe_Setup is
       Registers.Write
         (Register => Controller.PIPESRC,
          Value    => Encode
-           (Pos16 (Framebuffer.Height), Pos16 (Framebuffer.Width)));
+           (Rotated_Height (Framebuffer), Rotated_Width (Framebuffer)));
 
       if Config.Has_Pipeconf_Misc then
          Registers.Write
@@ -273,19 +298,21 @@ package body HW.GFX.GMA.Pipe_Setup is
       Pre =>
          Max_Width <= Pos32 (Pos16'Last) and
          Max_Height <= Pos32 (Pos16'Last) and
-         Framebuffer.Width <= Max_Width and
-         Framebuffer.Height <= Max_Height,
+         Pos32 (Rotated_Width (Framebuffer)) <= Max_Width and
+         Pos32 (Rotated_Height (Framebuffer)) <= Max_Height,
       Post =>
          Width <= Max_Width and Height <= Max_Height
    is
+      Src_Width : constant Pos32 := Pos32 (Rotated_Width (Framebuffer));
+      Src_Height : constant Pos32 := Pos32 (Rotated_Height (Framebuffer));
    begin
-      if (Max_Width * Framebuffer.Height) / Framebuffer.Width <= Max_Height then
+      if (Max_Width * Src_Height) / Src_Width <= Max_Height then
          Width  := Max_Width;
-         Height := (Max_Width * Framebuffer.Height) / Framebuffer.Width;
+         Height := (Max_Width * Src_Height) / Src_Width;
       else
          Height := Max_Height;
          Width  := Pos32'Min (Max_Width,  -- could prove, it's <= Max_Width
-            (Max_Height * Framebuffer.Width) / Framebuffer.Height);
+            (Max_Height * Src_Width) / Src_Height);
       end if;
    end Scale_Keep_Aspect;
 
@@ -295,8 +322,8 @@ package body HW.GFX.GMA.Pipe_Setup is
       Framebuffer : in     HW.GFX.Framebuffer_Type)
    with
       Pre =>
-         Framebuffer.Width <= Pos32 (Mode.H_Visible) and
-         Framebuffer.Height <= Pos32 (Mode.V_Visible)
+         Rotated_Width (Framebuffer) <= Mode.H_Visible and
+         Rotated_Height (Framebuffer) <= Mode.V_Visible
    is
       use type Registers.Registers_Invalid_Index;
 
@@ -305,14 +332,17 @@ package body HW.GFX.GMA.Pipe_Setup is
         (if Controller.PS_CTRL_2 /= Registers.Invalid_Register then
             PS_CTRL_SCALER_MODE_7X5_EXTENDED else 0);
 
+      Width_In    : constant Pos32 := Pos32 (Rotated_Width (Framebuffer));
+      Height_In   : constant Pos32 := Pos32 (Rotated_Height (Framebuffer));
+
       -- We can scale up to 2.99x horizontally:
-      Horizontal_Limit : constant Pos32 := ((Framebuffer.Width * 299) / 100);
+      Horizontal_Limit : constant Pos32 := (Width_In * 299) / 100;
       -- The third scaler is limited to 1.99x
       -- vertical scaling for source widths > 2048:
       Vertical_Limit : constant Pos32 :=
-        (Framebuffer.Height *
+        (Height_In *
            (if Controller.PS_CTRL_2 = Registers.Invalid_Register and
-               Framebuffer.Width > 2048
+               Width_In > 2048
             then
                199
             else
@@ -348,8 +378,8 @@ package body HW.GFX.GMA.Pipe_Setup is
       Framebuffer : in     HW.GFX.Framebuffer_Type)
    with
       Pre =>
-         Framebuffer.Width <= Pos32 (Mode.H_Visible) and
-         Framebuffer.Height <= Pos32 (Mode.V_Visible)
+         Rotated_Width (Framebuffer) <= Mode.H_Visible and
+         Rotated_Height (Framebuffer) <= Mode.V_Visible
    is
       -- Force 1:1 mapping of panel fitter:pipe
       PF_Ctrl_Pipe_Sel : constant Word32 :=
@@ -390,12 +420,12 @@ package body HW.GFX.GMA.Pipe_Setup is
       Framebuffer : in     HW.GFX.Framebuffer_Type)
    with
       Pre =>
-         Framebuffer.Width <= Pos32 (Mode.H_Visible) and
-         Framebuffer.Height <= Pos32 (Mode.V_Visible)
+         Rotated_Width (Framebuffer) <= Mode.H_Visible and
+         Rotated_Height (Framebuffer) <= Mode.V_Visible
    is
    begin
-      if Framebuffer.Width /= Pos32 (Mode.H_Visible) or
-         Framebuffer.Height /= Pos32 (Mode.V_Visible)
+      if Rotated_Width (Framebuffer) /= Mode.H_Visible or
+         Rotated_Height (Framebuffer) /= Mode.V_Visible
       then
          if Config.Has_Plane_Control then
             Setup_Skylake_Pipe_Scaler (Controller, Mode, Framebuffer);

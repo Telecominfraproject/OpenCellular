@@ -181,9 +181,9 @@ is
    -- Validates that a given configuration should work with
    -- a given framebuffer.
    function Validate_Config
-     (Framebuffer : Framebuffer_Type;
-      Port_Cfg    : Port_Config;
-      Pipe        : Pipe_Index)
+     (FB       : Framebuffer_Type;
+      Port_Cfg : Port_Config;
+      Pipe     : Pipe_Index)
       return Boolean
    is
    begin
@@ -193,18 +193,21 @@ is
       -- Only 32bpp RGB (ignored for VGA plane)
       -- Stride must be big enough and a multiple of 64 bytes or the tile size
       -- (ignored for VGA plane)
-      -- Tiling is only supported on newer generations (with Plane_Control)
+      -- Tiling and rotation is only supported on newer generations (with
+      -- Plane_Control)
+      -- 90 degree rotations are only supported with Y-tiling
       return
-         ((Framebuffer.Width = Pos32 (Port_Cfg.Mode.H_Visible) and
-           Framebuffer.Height = Pos32 (Port_Cfg.Mode.V_Visible)) or
-          (Framebuffer.Width <= Config.Maximum_Scalable_Width (Pipe) and
-           Framebuffer.Width <= Pos32 (Port_Cfg.Mode.H_Visible) and
-           Framebuffer.Height <= Pos32 (Port_Cfg.Mode.V_Visible))) and
-         (Framebuffer.Offset /= VGA_PLANE_FRAMEBUFFER_OFFSET or Pipe = Primary)
-         and
-         (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
-          (Framebuffer.BPC = 8 and Valid_Stride (Framebuffer) and
-           (Config.Has_Plane_Control or Framebuffer.Tiling = Linear)));
+         ((Rotated_Width (FB) = Port_Cfg.Mode.H_Visible and
+           Rotated_Height (FB) = Port_Cfg.Mode.V_Visible) or
+          (Rotated_Width (FB) <= Config.Maximum_Scalable_Width (Pipe) and
+           Rotated_Width (FB) <= Port_Cfg.Mode.H_Visible and
+           Rotated_Height (FB) <= Port_Cfg.Mode.V_Visible)) and
+         (FB.Offset /= VGA_PLANE_FRAMEBUFFER_OFFSET or Pipe = Primary) and
+         (FB.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
+          (FB.BPC = 8 and Valid_Stride (FB) and
+           (Config.Has_Plane_Control or
+            (FB.Tiling = Linear and FB.Rotation = No_Rotation)) and
+           (FB.Tiling = Y_Tiled or not Rotation_90 (FB))));
    end Validate_Config;
 
 end HW.GFX.GMA.Config_Helpers;

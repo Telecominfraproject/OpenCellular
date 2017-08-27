@@ -479,7 +479,7 @@ is
 
    -- Check basics and that it fits in GTT
    function Valid_FB (FB : Framebuffer_Type) return Boolean is
-     (Valid_Stride (FB) and FB_Last_Page (FB) <= GTT_Range'Last);
+     (Valid_Stride (FB) and FB_Last_Page (FB) < GTT_Rotation_Offset);
 
    -- Also check that we don't overflow the GTT's 39-bit space
    -- (always true with a 32-bit base)
@@ -514,6 +514,30 @@ is
             Valid          => True);
          Phys_Addr := Phys_Addr + GTT_Page_Size;
       end loop;
+
+      if Rotation_90 (FB) and FB.Tiling = Y_Tiled and FB.V_Stride >= 32 then
+         declare
+            V_Pages : constant Natural := Natural (FB.V_Stride) / 32;
+            Bytes_Per_Row : constant GTT_Address_Type :=
+               GTT_Address_Type (Pixel_To_Bytes (32 * FB.Stride, FB));
+         begin
+            Phys_Addr := GTT_Address_Type (Phys_Base) +
+                           GTT_Address_Type (FB.Offset) +
+                           GTT_Address_Type (FB_Size (FB));
+            for Page in FB_First_Page (FB) .. FB_Last_Page (FB) loop
+               Phys_Addr := Phys_Addr - Bytes_Per_Row;
+               Registers.Write_GTT
+                 (GTT_Page       => GTT_Rotation_Offset + Page,
+                  Device_Address => Phys_Addr,
+                  Valid          => True);
+
+               if (Page - FB_First_Page (FB) + 1) mod V_Pages = 0 then
+                  Phys_Addr := Phys_Addr + GTT_Page_Size +
+                                 GTT_Address_Type (V_Pages) * Bytes_Per_Row;
+               end if;
+            end loop;
+         end;
+      end if;
    end Setup_Default_GTT;
 
    ----------------------------------------------------------------------------
