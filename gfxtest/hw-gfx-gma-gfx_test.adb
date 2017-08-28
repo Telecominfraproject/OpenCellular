@@ -183,25 +183,38 @@ is
    procedure Calc_Framebuffer
      (FB       :    out Framebuffer_Type;
       Mode     : in     Mode_Type;
+      Rotation : in     Rotation_Type;
       Offset   : in out Word32)
    is
    begin
       Offset := (Offset + FB_Align - 1) and not (FB_Align - 1);
-      FB :=
-        (Width    => Width_Type (Mode.H_Visible),
-         Height   => Height_Type (Mode.V_Visible),
-         BPC      => 8,
-         Stride   => Width_Type ((Word32 (Mode.H_Visible) + 15) and not 15),
-         V_Stride => Height_Type (Mode.V_Visible),
-         Tiling   => Linear,
-         Rotation => No_Rotation,
-         Offset   => Offset);
+      if Rotation = Rotated_90 or Rotation = Rotated_270 then
+         FB :=
+           (Width    => Width_Type (Mode.V_Visible),
+            Height   => Height_Type (Mode.H_Visible),
+            BPC      => 8,
+            Stride   => Div_Round_Up (Pos32 (Mode.V_Visible), 32) * 32,
+            V_Stride => Div_Round_Up (Pos32 (Mode.H_Visible), 32) * 32,
+            Tiling   => Y_Tiled,
+            Rotation => Rotation,
+            Offset   => Offset);
+      else
+         FB :=
+           (Width    => Width_Type (Mode.H_Visible),
+            Height   => Width_Type (Mode.V_Visible),
+            BPC      => 8,
+            Stride   => Div_Round_Up (Pos32 (Mode.H_Visible), 16) * 16,
+            V_Stride => Height_Type (Mode.V_Visible),
+            Tiling   => Linear,
+            Rotation => Rotation,
+            Offset   => Offset);
+      end if;
       Offset := Offset + Word32 (FB_Size (FB));
    end Calc_Framebuffer;
 
    Pipes : GMA.Pipe_Configs;
 
-   procedure Prepare_Configs
+   procedure Prepare_Configs (Rotation : Rotation_Type)
    is
       use type HW.GFX.GMA.Port_Type;
 
@@ -215,6 +228,7 @@ is
             Calc_Framebuffer
               (FB       => Pipes (Pipe).Framebuffer,
                Mode     => Pipes (Pipe).Mode,
+               Rotation => Rotation,
                Offset   => Offset);
             GMA.Setup_Default_FB
               (FB       => Pipes (Pipe).Framebuffer,
@@ -233,7 +247,9 @@ is
    is
    begin
       Debug.Put_Line
-        ("Usage: " & Ada.Command_Line.Command_Name & " <delay seconds>");
+        ("Usage: " & Ada.Command_Line.Command_Name &
+         " <delay seconds>" &
+         " [(0|90|180|270)]");
       Debug.New_Line;
    end Print_Usage;
 
@@ -246,6 +262,7 @@ is
       Res_Addr : Word64;
 
       Delay_S : Natural;
+      Rotation : Rotation_Type := No_Rotation;
 
       Dev_Init,
       Initialized : Boolean;
@@ -253,12 +270,24 @@ is
       function iopl (level : Interfaces.C.int) return Interfaces.C.int;
       pragma Import (C, iopl, "iopl");
    begin
-      if Ada.Command_Line.Argument_Count /= 1 then
+      if Ada.Command_Line.Argument_Count < 1 then
          Print_Usage;
          return;
       end if;
 
       Delay_S := Natural'Value (Ada.Command_Line.Argument (1));
+
+      if Ada.Command_Line.Argument_Count >= 2 then
+         declare
+            Rotation_Degree : constant String := Ada.Command_Line.Argument (2);
+         begin
+            if    Rotation_Degree =   "0" then Rotation := No_Rotation;
+            elsif Rotation_Degree =  "90" then Rotation := Rotated_90;
+            elsif Rotation_Degree = "180" then Rotation := Rotated_180;
+            elsif Rotation_Degree = "270" then Rotation := Rotated_270;
+            else  Print_Usage; return; end if;
+         end;
+      end if;
 
       if iopl (3) /= 0 then
          Debug.Put_Line ("Failed to change i/o privilege level.");
@@ -292,7 +321,7 @@ is
       if Initialized then
          Backup_GTT;
 
-         Prepare_Configs;
+         Prepare_Configs (Rotation);
 
          GMA.Update_Outputs (Pipes);
 

@@ -2,7 +2,7 @@
 
 set -e
 
-usage="Usage: $0 [seconds]\n"
+usage="Usage: $0 [<delay seconds> [(0|90|128|270)]]\n"
 
 err_msgs=
 command -v chvt >/dev/null || err_msgs="${err_msgs}"'Need `chvt`\n'
@@ -13,7 +13,7 @@ command -v fgconsole >/dev/null || err_msgs="${err_msgs}"'Need `fgconsole`\n'
 [ -x build/gfx_test ] || \
 	err_msgs="${err_msgs}"'Please run from *libgfxinit* source dir and build `gfx_test` first.\n'
 
-[ "$#" -gt 1 ] && err_msgs="${err_msgs}${usage}"
+[ "$#" -gt 2 ] && err_msgs="${err_msgs}${usage}"
 
 if [ -n "$err_msgs" ]; then
 	printf "$err_msgs"
