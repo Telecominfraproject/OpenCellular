@@ -56,6 +56,12 @@ is
       Alpha at 3 range 0 .. 7;
    end record;
 
+   White : constant Pixel_Type := (255, 255, 255, 255);
+   Black : constant Pixel_Type := (  0,   0,   0, 255);
+   Red   : constant Pixel_Type := (255,   0,   0, 255);
+   Green : constant Pixel_Type := (  0, 255,   0, 255);
+   Blue  : constant Pixel_Type := (  0,   0, 255, 255);
+
    function Pixel_To_Word (P : Pixel_Type) return Word32
    with
       SPARK_Mode => Off
@@ -96,10 +102,35 @@ is
       end loop;
    end Restore_Screen;
 
+   function Corner_Fill
+     (X, Y  : Natural;
+      FB    : Framebuffer_Type;
+      Pipe  : Pipe_Index)
+      return Pixel_Type
+   is
+      Xrel : constant Integer :=
+        (if X < 32 then X else X - (Natural (FB.Width) - 32));
+      Yrel : constant Integer :=
+        (if Y < 32 then Y else Y - (Natural (FB.Height) - 32));
+
+      function Color (Idx : Natural) return Pixel_Type is
+        (case (Idx + Pipe_Index'Pos (Pipe)) mod 4 is
+            when 0 => Blue,   when      1 => Black,
+            when 3 => Green,  when others => Red);
+   begin
+      return
+        (if Xrel mod 16 = 0 or Xrel = 31 or Yrel mod 16 = 0 or Yrel = 31 then
+            White
+         elsif Yrel < 16 then
+           (if Xrel < 16 then Color (0) else Color (1))
+         else
+           (if Xrel < 16 then Color (3) else Color (2)));
+   end Corner_Fill;
+
    function Fill
      (X, Y        : Natural;
       Framebuffer : Framebuffer_Type;
-      Pipe        : GMA.Pipe_Index)
+      Pipe        : Pipe_Index)
       return Pixel_Type
    is
       use type HW.Byte;
@@ -133,8 +164,12 @@ is
       for Y in 0 .. Natural (Framebuffer.Height) - 1 loop
          Offset := Offset_Y;
          for X in 0 .. Natural (Framebuffer.Width) - 1 loop
-            if Y mod 16 = 0 or X mod 16 = 0 then
-               P := (0, 0, 0, 0);
+            if (X < 32 or X >= Natural (Framebuffer.Width) - 32) and
+               (Y < 32 or Y >= Natural (Framebuffer.Height) - 32)
+            then
+               P := Corner_Fill (X, Y, Framebuffer, Pipe);
+            elsif Y mod 16 = 0 or X mod 16 = 0 then
+               P := Black;
             else
                P := Fill (X, Y, Framebuffer, Pipe);
             end if;
