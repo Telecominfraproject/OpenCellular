@@ -160,6 +160,19 @@ is
       -- We have pixel offset wheras the framebuffer has a byte offset
       Offset_Y : Natural := Natural (Framebuffer.Offset / 4);
       Offset   : Natural;
+
+      function Top_Test (X, Y : Natural) return Boolean
+      is
+         C     : constant Natural := Natural (Framebuffer.Width) / 2;
+         S_Y   : constant Natural := 3 * Y / 2;
+         Left  : constant Integer := X - C + S_Y;
+         Right : constant Integer := X - C - S_Y;
+      begin
+         return
+            Y < 12 and
+            ((-1 <= Left and Left <= 0) or
+             (0 <= Right and Right <= 1));
+      end Top_Test;
    begin
       for Y in 0 .. Natural (Framebuffer.Height) - 1 loop
          Offset := Offset_Y;
@@ -168,6 +181,10 @@ is
                (Y < 32 or Y >= Natural (Framebuffer.Height) - 32)
             then
                P := Corner_Fill (X, Y, Framebuffer, Pipe);
+            elsif Framebuffer.Rotation /= No_Rotation and then
+                  Top_Test (X, Y)
+            then
+               P := White;
             elsif Y mod 16 = 0 or X mod 16 = 0 then
                P := Black;
             else
