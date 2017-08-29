@@ -574,12 +574,15 @@ resign_firmware_payload() {
       while IFS="," read -r model_name image key_id
       do
         local key_suffix=''
+        local extra_args=()
 
         # If there are OEM specific keys available, we're going to use them.
         # Otherwise, we're going to ignore key_id from the config file and
         # just use the common keys present in the keyset.
-        # Regardless, a model specific vblock will be generated, which the
-        # updater script will be looking for.
+        #
+        # The presence of the /keyset subdir in the shellball will indicate
+        # whether model specific keyblocks are available or not.
+        # This is what updater4.sh currently uses to make the decision.
         if [[ -e "${KEY_DIR}/loem.ini" ]]; then
           # loem.ini has the format KEY_ID_VALUE = KEY_INDEX
           local match="$(grep -E "[0-9]+ = ${key_id}" "${KEY_DIR}/loem.ini")"
@@ -590,6 +593,11 @@ resign_firmware_payload() {
               "${model_name}"
           fi
           key_suffix=".loem${key_index}"
+          mkdir -p "${shellball_dir}/keyset"
+          extra_args+=(
+            --loemdir "${shellball_dir}/keyset"
+            --loemid "${model_name}"
+          )
         fi
 
         info "Signing firmware image ${image} for model ${model_name} " \
@@ -608,7 +616,6 @@ resign_firmware_payload() {
           devkeyblock="${keyblock}"
         fi
 
-        mkdir -p "${shellball_dir}/keyset"
         local image_path="${shellball_dir}/${image}"
         ${FUTILITY} sign \
           --signprivate "${signprivate}" \
@@ -617,8 +624,7 @@ resign_firmware_payload() {
           --devkeyblock "${devkeyblock}" \
           --kernelkey "${KEY_DIR}/kernel_subkey.vbpubk" \
           --version "${FIRMWARE_VERSION}" \
-          --loemdir "${shellball_dir}/keyset" \
-          --loemid "${model_name}" \
+          "${extra_args[@]}" \
           ${image_path} \
           ${temp_fw}
 
