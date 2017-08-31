@@ -495,12 +495,16 @@ static void print_help_rwsig(int argc, char *argv[])
 	       "If INFILE contains an FMAP, RW and signatures offsets are read from\n"
 	       "FMAP. These regions must be named EC_RW and SIG_RW respectively.\n"
 	       "If a public key is found in the region named KEY_RO, it will be replaced\n"
-	       "in the RO image.\n"
+	       "in the RO image. This mode also produces EC_RW.bin which is a EC_RW\n"
+	       "region image (same as the input file for 'Data + Signature mode').\n"
 	       "\n"
 	       "Options:\n"
 	       "\n"
-	       "  --prikey      FILE.vbprik2      Private key in vb2 format (required)\n"
-	       "  --version     NUM               Public key version if we are replacing"
+	       "  --prikey      FILE.vbprik2      Private key in vb2 format. Required\n"
+	       "                                  if INFILE is a binary blob. If not\n"
+	       "                                  provided, previous signature is copied\n"
+	       "                                  and a public key won't be replaced.\n"
+	       "  --version     NUM               Public key version if we are replacing\n"
 	       "                                  the key in INFILE (default: 1)\n"
 	       "  --sig_size    NUM               Offset from the end of INFILE where the\n"
 	       "                                    signature blob should be located, if\n"
@@ -972,7 +976,9 @@ static int do_sign(int argc, char *argv[])
 				      "hash_alg");
 		break;
 	case FILE_TYPE_RWSIG:
-		errorcnt += no_opt_if(!sign_option.prikey, "prikey");
+		if (sign_option.inout_file_count > 1)
+			/* Signing raw data. No signature pre-exists. */
+			errorcnt += no_opt_if(!sign_option.prikey, "prikey");
 		break;
 	default:
 		/* Anything else we don't care */

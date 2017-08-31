@@ -28,10 +28,12 @@
 #include "vb21_common.h"
 #include "host_common.h"
 #include "host_key2.h"
+#include "host_misc.h"
 #include "host_signature2.h"
 #include "util_misc.h"
 
 #define SIGNATURE_RSVD_SIZE 1024
+#define EC_RW_FILENAME "EC_RW.bin"
 
 static inline void vb2_print_bytes(const void *ptr, uint32_t len)
 {
@@ -215,14 +217,13 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 	int retval = 1;
 	FmapHeader *fmap = NULL;
 	FmapAreaHeader *fmaparea;
+	const struct vb21_signature *old_sig = 0;
 
 	Debug("%s(): name %s\n", __func__, name);
 	Debug("%s(): len  0x%08x (%d)\n", __func__, len, len);
 
 	/* If we don't have a distinct OUTFILE, look for an existing sig */
 	if (sign_option.inout_file_count < 2) {
-		const struct vb21_signature *old_sig;
-
 		fmap = fmap_find(buf, len);
 
 		if (fmap) {
@@ -284,12 +285,26 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 		data_size = sign_option.data_size;
 
 	/* Sign the blob */
-	r = vb21_sign_data(&tmp_sig, data, data_size, sign_option.prikey, 0);
-	if (r) {
-		fprintf(stderr,
-			"Unable to sign data (error 0x%08x, if that helps)\n",
-			r);
-		goto done;
+	if (sign_option.prikey) {
+		r = vb21_sign_data(&tmp_sig,
+				   data, data_size, sign_option.prikey, 0);
+		if (r) {
+			fprintf(stderr,
+				"Unable to sign data (error 0x%08x)\n", r);
+			goto done;
+		}
+	} else {
+		Debug("Private key not provided. Copying previous signature\n");
+		if (!old_sig) {
+			/* This isn't necessary because no prikey mode runs only
+			 * for fmap input or RW input */
+			fprintf(stderr, "Previous signature not found.\n");
+			goto done;
+		}
+		tmp_sig = calloc(1, old_sig->c.total_size);
+		if (!tmp_sig)
+			goto done;
+		memcpy(tmp_sig, old_sig, old_sig->c.total_size);
 	}
 
 	if (sign_option.inout_file_count < 2) {
@@ -301,6 +316,13 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 		}
 		memset(buf + len - sig_size, 0xff, sig_size);
 		memcpy(buf + len - sig_size, tmp_sig, tmp_sig->c.total_size);
+		if (fmap) {
+			Debug("Writing %s (size=%d)\n",
+			      EC_RW_FILENAME, fmaparea->area_size);
+			if (vb2_write_file(EC_RW_FILENAME,
+					   data, fmaparea->area_size))
+				goto done;
+		}
 	} else {
 		/* Write the signature to a new file */
 		r = vb21_write_object(sign_option.outfile, tmp_sig);
@@ -311,8 +333,9 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 		}
 	}
 
-	/* For full images, let's replace the public key in RO. */
-	if (fmap) {
+	/* For full images, let's replace the public key in RO. If prikey is
+	 * not provided, skip it. */
+	if (fmap && sign_option.prikey) {
 		uint8_t *new_pubkey;
 		uint8_t *pubkey_buf = 0;
 
