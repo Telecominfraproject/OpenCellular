@@ -105,6 +105,8 @@ ifeq (${ARCH},armv7l)
   override ARCH := arm
 else ifeq (${ARCH},i386)
   override ARCH := x86
+else ifeq (${ARCH},i686)
+  override ARCH := x86
 else ifeq (${ARCH},amd64)
   override ARCH := x86_64
 endif
