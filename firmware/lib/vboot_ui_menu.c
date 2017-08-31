@@ -1123,16 +1123,6 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				selected = 1;
 
 				/*
-				 * Need to update locale before updating the
-				 * menu or we'll lose the previous state
-				 */
-				vb2_update_locale(ctx);
-
-				ret = vb2_update_menu(ctx);
-
-				vb2_set_disabled_idx_mask(shared->flags);
-
-				/*
 				 * If user hits power button in
 				 * initial recovery screen (ie:
 				 * because didn't really want to go
@@ -1141,9 +1131,19 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				 */
 				if (current_menu == VB_MENU_RECOVERY_INSERT) {
 					ret = VBERROR_SHUTDOWN_REQUESTED;
+				} else {
+					/*
+					 * Need to update locale
+					 * before updating the menu or
+					 * we'll lose the previous state
+					 */
+					vb2_update_locale(ctx);
+
+					ret = vb2_update_menu(ctx);
+
+					vb2_set_disabled_idx_mask(shared->
+								  flags);
 				}
-
-
 				if (current_menu != VB_MENU_RECOVERY ||
 				     current_menu_idx != VB_RECOVERY_DBG_INFO) {
 					/*
