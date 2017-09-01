@@ -438,6 +438,23 @@ is
 
    ----------------------------------------------------------------------------
 
+   procedure Power_Up_VGA
+   is
+      Fake_Config : constant Pipe_Configs :=
+        (Primary =>
+           (Port        => Analog,
+            Framebuffer => HW.GFX.Default_FB,
+            Mode        => HW.GFX.Invalid_Mode),
+         others =>
+           (Port        => Disabled,
+            Framebuffer => HW.GFX.Default_FB,
+            Mode        => HW.GFX.Invalid_Mode));
+   begin
+      Power_And_Clocks.Power_Up (Cur_Configs, Fake_Config);
+   end Power_Up_VGA;
+
+   ----------------------------------------------------------------------------
+
    function FB_First_Page (FB : Framebuffer_Type) return Natural is
      (Natural (FB.Offset / GTT_Page_Size));
    function FB_Pages (FB : Framebuffer_Type) return Natural is

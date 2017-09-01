@@ -80,6 +80,12 @@ is
       Global => (Input => Init_State);
    pragma Warnings (GNATprove, On, "unused variable ""Write_Delay""");
 
+   pragma Warnings (GNATprove, Off, "subprogram ""Power_Up_VGA"" has no effect",
+                    Reason => "Effect depends on the platform compiled for");
+   procedure Power_Up_VGA
+   with
+      Pre => Is_Initialized;
+
    procedure Update_Outputs (Configs : Pipe_Configs);
 
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
