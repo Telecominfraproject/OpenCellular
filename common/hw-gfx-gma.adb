@@ -345,6 +345,17 @@ is
                                     Audio_VID_DID = 16#8086_2805#,
                when Ironlake     => Audio_VID_DID = 16#0000_0000#);
       end Check_Platform;
+
+      procedure Check_Platform_PCI (Success : out Boolean)
+      is
+         use type HW.Word16;
+         Vendor, Device : Word16;
+      begin
+         Dev.Read16 (Vendor, PCI.Vendor_Id);
+         Dev.Read16 (Device, PCI.Device_Id);
+
+         Success := Vendor = 16#8086# and Config.Compatible_GPU (Device);
+      end Check_Platform_PCI;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
@@ -374,15 +385,19 @@ is
             Registers.Set_Register_Base (Config.Default_MMIO_Base);
             Success := Config.Default_MMIO_Base_Set;
          end if;
+
+         if Success then
+            Check_Platform_PCI (Success);
+         end if;
       else
          pragma Debug (Debug.Put_Line
            ("WARNING: Couldn't initialize PCI dev."));
          Registers.Set_Register_Base (Config.Default_MMIO_Base);
          Success := Config.Default_MMIO_Base_Set;
-      end if;
 
-      if Success then
-         Check_Platform (Success);
+         if Success then
+            Check_Platform (Success);
+         end if;
       end if;
 
       if not Success then

@@ -286,4 +286,46 @@ is
                                     when Ironlake .. Haswell   => 4,
                                     when Broadwell .. Skylake  => 8);
 
+   ----------------------------------------------------------------------------
+
+   use type HW.Word16;
+
+   function Is_Broadwell_H (Device_Id : Word16) return Boolean is
+     (Device_Id = 16#1612# or Device_Id = 16#1622# or Device_Id = 16#162a#);
+
+   function Is_Skylake_U (Device_Id : Word16) return Boolean is
+     (Device_Id = 16#1906# or Device_Id = 16#1916# or Device_Id = 16#1923# or
+      Device_Id = 16#1926# or Device_Id = 16#1927#);
+
+   -- Rather catch too much here than too little,
+   -- it's only used to distinguish generations.
+   function Is_GPU (Device_Id : Word16; CPU : CPU_Type; CPU_Var : CPU_Variant)
+      return Boolean is
+     (case CPU is
+         when Ironlake     => (Device_Id and 16#fff3#) = 16#0042#,
+         when Sandybridge  => (Device_Id and 16#ffc2#) = 16#0102#,
+         when Ivybridge    => (Device_Id and 16#ffc3#) = 16#0142#,
+         when Haswell =>
+           (case CPU_Var is
+               when Normal => (Device_Id and 16#ffc3#) = 16#0402# or
+                              (Device_Id and 16#ffc3#) = 16#0d02#,
+               when ULT    => (Device_Id and 16#ffc3#) = 16#0a02#),
+         when Broadwell    => ((Device_Id and 16#ffc3#) = 16#1602# or
+                               (Device_Id and 16#ffcf#) = 16#160b# or
+                               (Device_Id and 16#ffcf#) = 16#160d#) and
+                             (case CPU_Var is
+                                 when Normal =>     Is_Broadwell_H (Device_Id),
+                                 when ULT    => not Is_Broadwell_H (Device_Id)),
+         when Broxton      => (Device_Id and 16#fffe#) = 16#5a84#,
+         when Skylake      => ((Device_Id and 16#ffc3#) = 16#1902# or
+                               (Device_Id and 16#ffcf#) = 16#190b# or
+                               (Device_Id and 16#ffcf#) = 16#190d# or
+                               (Device_Id and 16#fff9#) = 16#1921#) and
+                             (case CPU_Var is
+                                 when Normal => not Is_Skylake_U (Device_Id),
+                                 when ULT    =>     Is_Skylake_U (Device_Id)));
+
+   function Compatible_GPU (Device_Id : Word16) return Boolean is
+     (Is_GPU (Device_Id, CPU, CPU_Var));
+
 end HW.GFX.GMA.Config;
