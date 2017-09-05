@@ -575,6 +575,7 @@ resign_firmware_payload() {
       do
         local key_suffix=''
         local extra_args=()
+        rootkey="${KEY_DIR}/root_key.vbpubk"
 
         # If there are OEM specific keys available, we're going to use them.
         # Otherwise, we're going to ignore key_id from the config file and
@@ -593,11 +594,14 @@ resign_firmware_payload() {
               "${model_name}"
           fi
           key_suffix=".loem${key_index}"
-          mkdir -p "${shellball_dir}/keyset"
+          shellball_keyset_dir="${shellball_dir}/keyset"
+          mkdir -p "${shellball_keyset_dir}"
           extra_args+=(
-            --loemdir "${shellball_dir}/keyset"
+            --loemdir "${shellball_keyset_dir}"
             --loemid "${model_name}"
           )
+          rootkey="${KEY_DIR}/root_key${key_suffix}.vbpubk"
+          cp "${rootkey}" "${shellball_keyset_dir}/rootkey.${model_name}"
         fi
 
         info "Signing firmware image ${image} for model ${model_name} " \
@@ -628,7 +632,6 @@ resign_firmware_payload() {
           ${image_path} \
           ${temp_fw}
 
-        rootkey="${KEY_DIR}/root_key${key_suffix}.vbpubk"
 
         # For development phases, when the GBB can be updated still, set the
         # recovery and root keys in the image.
