@@ -642,6 +642,9 @@ VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
 	    (flags & VBSD_BOOT_DEV_SWITCH_ON)) {
 		disabled_idx_mask |= 1 << VB_RECOVERY_TO_DEV;
 	}
+	/* Disable Network Boot Option */
+	if (current_menu == VB_MENU_DEV)
+		disabled_idx_mask |= 1 << VB_DEV_NETWORK;
 	return VBERROR_SUCCESS;
 }
 
