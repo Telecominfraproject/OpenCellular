@@ -519,7 +519,7 @@ is
      (1, 4, 8, 16, 32, 48, 64, 128, 256, 96, 160, 224, 352);
    function Stolen_Size_Gen4 (GGC : Word16) return Stolen_Size_Range is
      (if GMS_Gen4 (GGC) in Valid_Stolen_Size_Gen4'Range then
-         Valid_Stolen_Size_Gen4 (GMS_Gen4 (GGC)) else 0);
+         Valid_Stolen_Size_Gen4 (GMS_Gen4 (GGC)) * 2 ** 20 else 0);
 
    function GTT_Size_Gen6 (GGC : Word16) return Natural is
      (Natural (Shift_Right (GGC, 8) and 16#03#) * 2 ** 20);
