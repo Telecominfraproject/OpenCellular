@@ -440,10 +440,10 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		case VB_WARN_ENABLE_VER:
 			/*
 			 * 1. Enable boot verification
-			 * 2. Default to the power off option
+			 * 2. Default to the confirm option
 			 */
 			vb2_set_menu_items(VB_MENU_TO_NORM,
-					   VB_TO_NORM_POWER_OFF);
+					   VB_TO_NORM_CONFIRM);
 			break;
 		case VB_WARN_POWER_OFF:
 			/* Power off machine */
@@ -531,10 +531,10 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		case VB_RECOVERY_TO_DEV:
 			/*
 			 * 1. Switch to TO_DEV menu
-			 * 2. Default to power off option
+			 * 2. Default to cancel option
 			 */
 			vb2_set_menu_items(VB_MENU_TO_DEV,
-					   VB_TO_DEV_POWER_OFF);
+					   VB_TO_DEV_CANCEL);
 			break;
 		case VB_RECOVERY_DBG_INFO:
 			break;
@@ -579,7 +579,10 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		 */
 		current_menu = prev_menu;
 		prev_menu = VB_MENU_LANGUAGES;
-		/* default to power off index */
+		/*
+		 * default to power off index with the exception of
+		 * TO_DEV and TO_NORM menus
+		 */
 		switch (current_menu) {
 		case VB_MENU_DEV_WARNING:
 			current_menu_idx = VB_WARN_POWER_OFF;
@@ -588,13 +591,13 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			current_menu_idx = VB_DEV_POWER_OFF;
 			break;
 		case VB_MENU_TO_NORM:
-			current_menu_idx = VB_TO_NORM_POWER_OFF;
+			current_menu_idx = VB_TO_NORM_CONFIRM;
 			break;
 		case VB_MENU_RECOVERY:
 			current_menu_idx = VB_RECOVERY_POWER_OFF;
 			break;
 		case VB_MENU_TO_DEV:
-			current_menu_idx = VB_TO_DEV_POWER_OFF;
+			current_menu_idx = VB_TO_DEV_CANCEL;
 			break;
 		default:
 			current_menu_idx = 0;
