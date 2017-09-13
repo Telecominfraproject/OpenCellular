@@ -1022,6 +1022,7 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 	uint32_t retval;
 	uint32_t key;
+	uint32_t key_flags;
 	int i;
 	VbError_t ret;
 
@@ -1104,15 +1105,27 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		 * platforms don't like to scan USB too rapidly.
 		 */
 		for (i = 0; i < REC_DISK_DELAY; i += REC_KEY_DELAY) {
-			key = VbExKeyboardRead();
+			key = VbExKeyboardReadWithFlags(&key_flags);
 			switch (key) {
 			case 0:
 				/* nothing pressed */
 				break;
-			case VB_BUTTON_VOL_UP:
-			case VB_BUTTON_VOL_DOWN:
 			case VB_KEY_UP:
 			case VB_KEY_DOWN:
+			case VB_BUTTON_VOL_UP:
+			case VB_BUTTON_VOL_DOWN:
+				/* User cannot use keyboard to enable dev mode.
+				 * They need to use the volume buttons from a
+				 * trusted source to navigate to the disable os
+				 * verification menu item.  Beep so user knows
+				 * that they're doing something wrong.
+				 */
+				if (current_menu == VB_MENU_TO_DEV &&
+				    !(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)) {
+					VbExBeep(120, 400);
+					break;
+				}
+
 				if (current_menu == VB_MENU_RECOVERY_INSERT) {
 					ret = vb2_update_menu(ctx);
 					vb2_set_disabled_idx_mask(shared->flags);
