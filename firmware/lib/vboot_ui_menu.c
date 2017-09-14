@@ -479,7 +479,7 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			 * 2. Default to power off option.
 			 */
 			vb2_set_menu_items(VB_MENU_DEV_WARNING,
-					   loc);
+					   VB_WARN_POWER_OFF);
 			break;
 		case VB_DEV_POWER_OFF:
 			/* Power off */
