@@ -594,11 +594,12 @@ UTIL_SCRIPTS += \
 	utility/vbutil_what_keys
 endif
 
-# These utilities should be linked statically.
+# These utilities should also provide static linked version (*_s).
 UTIL_NAMES_STATIC = \
 	utility/crossystem
 
-UTIL_NAMES = ${UTIL_NAMES_STATIC} \
+UTIL_NAMES = \
+	${UTIL_NAMES_STATIC} \
 	utility/dumpRSAPublicKey \
 	utility/tpmc
 
@@ -623,9 +624,9 @@ LZMA_LIBS := $(shell ${PKG_CONFIG} --libs liblzma)
 YAML_LIBS := $(shell ${PKG_CONFIG} --libs yaml-0.1)
 endif
 
-UTIL_BINS_STATIC := $(addprefix ${BUILD}/,${UTIL_NAMES_STATIC})
-UTIL_BINS = $(addprefix ${BUILD}/,${UTIL_NAMES})
-ALL_OBJS += $(addsuffix .o,${UTIL_BINS} ${UTIL_BINS_STATIC})
+UTIL_BINS_STATIC := $(addsuffix _s,$(addprefix ${BUILD}/,${UTIL_NAMES_STATIC}))
+UTIL_BINS = $(addprefix ${BUILD}/,${UTIL_NAMES}) ${UTIL_BINS_STATIC}
+ALL_OBJS += $(addsuffix .o,${UTIL_BINS})
 
 
 # Scripts for signing stuff.
@@ -1194,6 +1195,10 @@ ${TESTLIB}: ${TESTLIB_OBJS}
 # ----------------------------------------------------------------------------
 # Generic build rules. LIBS and OBJS can be overridden to tweak the generic
 # rules for specific targets.
+
+${BUILD}/%_s: ${BUILD}/%.o ${OBJS} ${LIBS}
+	@${PRINTF} "    LD (static)   $(subst ${BUILD}/,,$@)\n"
+	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $< ${OBJS} ${LIBS} ${LDLIBS}
 
 ${BUILD}/%: ${BUILD}/%.o ${OBJS} ${LIBS}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
