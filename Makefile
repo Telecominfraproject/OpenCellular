@@ -594,11 +594,10 @@ UTIL_SCRIPTS += \
 endif
 
 # These utilities should also provide static linked version (*_s).
-UTIL_NAMES_STATIC = \
-	utility/crossystem
+UTIL_NAMES_STATIC =
 
 UTIL_NAMES = \
-	${UTIL_NAMES_STATIC} \
+	utility/crossystem \
 	utility/dumpRSAPublicKey \
 	utility/tpmc
 
