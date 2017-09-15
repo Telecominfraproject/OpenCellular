@@ -258,7 +258,8 @@ int main(int argc, char* argv[]) {
     return PrintAllParams(1);
 
   /* Print help if needed */
-  if (!strcasecmp(argv[1], "-h") || !strcmp(argv[1], "-?")) {
+  if (!strcasecmp(argv[1], "-h") || !strcmp(argv[1], "-?") ||
+      !strcmp(argv[1], "--help")) {
     PrintHelp(progname);
     return 0;
   }
