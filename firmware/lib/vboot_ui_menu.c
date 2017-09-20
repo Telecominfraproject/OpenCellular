@@ -1060,9 +1060,14 @@ VbError_t vb2_recovery_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		VbDisplayScreen(ctx, cparams, VB_SCREEN_OS_BROKEN, 0);
 		VB2_DEBUG("waiting for manual recovery\n");
 		while (1) {
-			VbCheckDisplayKey(ctx, cparams, VbExKeyboardRead());
-			if (VbWantShutdownMenu(cparams->gbb->flags))
+			key = VbExKeyboardRead();
+			if (key == VB_BUTTON_POWER)
 				return VBERROR_SHUTDOWN_REQUESTED;
+			else {
+				VbCheckDisplayKey(ctx, cparams, key);
+				if (VbWantShutdownMenu(cparams->gbb->flags))
+					return VBERROR_SHUTDOWN_REQUESTED;
+			}
 			VbExSleepMs(REC_KEY_DELAY);
 		}
 	}
