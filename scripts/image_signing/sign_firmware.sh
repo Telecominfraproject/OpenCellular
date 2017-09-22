@@ -85,6 +85,11 @@ sign_loems() {
 
     # Strip comments/whitespace.
     line=$(sed -e 's:#.*::' -e 's:^ *::' -e 's: *$::' <<<"${line}")
+    if [[ -z "${line}" ]]; then
+      # Skip blank lines.
+      continue
+    fi
+
     loem_index=$(cut -d= -f1 <<<"${line}" | sed 's: *$::')
     loemid=$(cut -d= -f2 <<<"${line}" | sed 's:^ *::')
 
