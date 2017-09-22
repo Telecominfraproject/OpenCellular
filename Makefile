@@ -103,6 +103,8 @@ endif
 
 ifeq (${ARCH},armv7l)
   override ARCH := arm
+else ifeq (${ARCH},aarch64)
+  override ARCH := arm
 else ifeq (${ARCH},i386)
   override ARCH := x86
 else ifeq (${ARCH},i686)
