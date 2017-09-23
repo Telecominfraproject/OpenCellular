@@ -51,21 +51,21 @@ V_VIDOFF="\e[0m"
 # Taken from src/scripts/common.sh.
 # Arg: MESSAGE
 info() {
-  echo -e >&2 "${V_BOLD_GREEN}${CROS_LOG_PREFIX:-}INFO   : $1${V_VIDOFF}"
+  echo -e >&2 "${V_BOLD_GREEN}${CROS_LOG_PREFIX:-}INFO   : $*${V_VIDOFF}"
 }
 
 # Prints a warning message.
 # Taken from src/scripts/common.sh.
 # Arg: MESSAGE
 warn() {
-  echo -e >&2 "${V_BOLD_YELLOW}${CROS_LOG_PREFIX:-}WARNING: $1${V_VIDOFF}"
+  echo -e >&2 "${V_BOLD_YELLOW}${CROS_LOG_PREFIX:-}WARNING: $*${V_VIDOFF}"
 }
 
 # Prints the specified error and exit the script with an error code.
 # Taken from src/scripts/common.sh.
 # Args: MESSAGE
 error() {
-  echo -e >&2   "${V_BOLD_RED}${CROS_LOG_PREFIX:-}ERROR  : $1${V_VIDOFF}"
+  echo -e >&2   "${V_BOLD_RED}${CROS_LOG_PREFIX:-}ERROR  : $*${V_VIDOFF}"
 }
 
 TEMP_LOOP_LIST=$(mktemp)
