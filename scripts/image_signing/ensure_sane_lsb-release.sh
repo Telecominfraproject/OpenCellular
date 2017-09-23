@@ -74,7 +74,10 @@ lsb_syntaxcheck() {
   # Also checks for = with no spaces on either side.
   # Checks that the value contains printables (and not starting with space).
   # Alternatively, the value is permitted to be empty (0 chars) too.
-  badlines=$(grep -Ev '^[A-Z][A-Z_]*=([[:graph:]][[:print:]]*)?$' "$lsbfile")
+  # Allow comments to start with #.
+  badlines=$(grep -Ev \
+               -e '^[A-Z][A-Z_]*=([[:graph:]][[:print:]]*)?$' \
+               -e '^[[:space:]]*#' "${lsbfile}")
   if [ -n "$badlines" ]; then
     syntaxbad=1
     error "${lsbfile}: Some lines seem non-well-formed:"
