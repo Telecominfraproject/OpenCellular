@@ -148,7 +148,8 @@ main() {
     local boardvar=$(get_boardvar_from_lsb_release "${rootfs}")
     channel=$(lsbval $lsb CHROMEOS_RELEASE_TRACK)
     # For a canary or dogfood channel, appid maybe a different default value.
-    if [ $channel = 'canary-channel' ] || [ $channel = 'dogfood-channel' ]; then
+    if [[ "${channel}" == 'canary-channel' ||
+          "${channel}" == 'dogfood-channel' ]]; then
       eval "expected_appid=\"\$expected_appid_${channel%\-channel}\""
     else
       eval "expected_appid=\"\$expected_appid_$boardvar\""
