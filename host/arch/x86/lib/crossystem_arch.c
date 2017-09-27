@@ -657,6 +657,7 @@ struct GpioChipset {
 };
 
 static const struct GpioChipset chipsets_supported[] = {
+	{ "AMD0030", FindGpioChipOffset },
 	{ "NM10", FindGpioChipOffset },
 	{ "CougarPoint", FindGpioChipOffset },
 	{ "PantherPoint", FindGpioChipOffset },
