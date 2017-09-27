@@ -136,8 +136,16 @@ update_sepolicy() {
     die "Unable to get the public platform key"
   fi
 
+  shopt -s nullglob
+  local xml_list=( "${system_mnt}"/system/etc/**/*mac_permissions.xml )
+  shopt -u nullglob
+  if [[ "${#xml_list[@]}" -ne 1 ]]; then
+    die "Unexpected number of *mac_permissions.xml: ${#xml_list[@]}\n \
+      ${xml_list[*]}"
+  fi
+
+  local xml="${xml_list[0]}"
   local orig=$(make_temp_file)
-  local xml="${system_mnt}/system/etc/security/mac_permissions.xml"
   local pattern='(<signer signature=")\w+("><seinfo value="platform)'
   cp "${xml}" "${orig}"
   sudo sed -i -E "s/${pattern}/\1${new_cert}"'\2/g' "${xml}"
