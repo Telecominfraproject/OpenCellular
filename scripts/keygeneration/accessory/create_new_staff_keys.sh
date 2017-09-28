@@ -10,7 +10,7 @@
 main() {
   set -e
 
-  leverage_hammer_to_create_key "hammer" "$@"
+  leverage_hammer_to_create_key "staff" "$@"
 }
 
 main "$@"
