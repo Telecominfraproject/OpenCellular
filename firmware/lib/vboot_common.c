@@ -210,3 +210,17 @@ int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 
 	return PublicKeyCopy(kdest, src);
 }
+
+int vb2_allow_recovery(uint32_t flags)
+{
+	/* In dev mode, unconditionally allowed. */
+	if (flags & VBSD_BOOT_DEV_SWITCH_ON)
+		return 1;
+
+	/* If EC is in RW, it implies recovery wasn't manually requested. */
+	if (!VbExTrustEC(0))
+		return 0;
+
+	/* Now we confidently check the recovery switch state at boot */
+	return !!(flags & VBSD_BOOT_REC_SWITCH_ON);
+}

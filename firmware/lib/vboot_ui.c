@@ -413,7 +413,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams)
 #define REC_KEY_DELAY        20       /* Check keys every 20ms */
 #define REC_MEDIA_INIT_DELAY 500      /* Check removable media every 500ms */
 
-VbError_t vb2_recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
+static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
@@ -423,21 +423,14 @@ VbError_t vb2_recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	VB2_DEBUG("VbBootRecovery() start\n");
 
-	/*
-	 * If the dev-mode switch is off and the user didn't press the recovery
-	 * button (recovery was triggerred automatically), show 'broken' screen.
-	 * The user can either only shutdown to abort or hit esc+refresh+power
-	 * to initiate recovery as instructed on the screen.
-	 */
-	if (!(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
-	    !(shared->flags & VBSD_BOOT_REC_SWITCH_ON)) {
+	if (!vb2_allow_recovery(shared->flags)) {
 		/*
 		 * We have to save the reason here so that it will survive
 		 * coming up three-finger-salute. We're saving it in
 		 * VBNV_RECOVERY_SUBCODE to avoid a recovery loop.
 		 * If we save the reason in VBNV_RECOVERY_REQUEST, we will come
 		 * back here, thus, we won't be able to give a user a chance to
-		 * reboot to workaround boot hicups.
+		 * reboot to workaround a boot hiccup.
 		 */
 		VB2_DEBUG("VbBootRecovery() saving recovery reason (%#x)\n",
 			 shared->recovery_reason);
@@ -563,7 +556,7 @@ VbError_t vb2_recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbError_t retval = vb2_recovery_ui(ctx, cparams);
+	VbError_t retval = recovery_ui(ctx, cparams);
 	VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK, 0);
 	return retval;
 }

@@ -137,4 +137,17 @@ uint64_t VbSharedDataReserve(VbSharedDataHeader *header, uint64_t size);
 int VbSharedDataSetKernelKey(VbSharedDataHeader *header,
                              const VbPublicKey *src);
 
+/**
+ * Check whether recovery is allowed or not.
+ *
+ * The only way to pass this check and proceed to the recovery process is to
+ * physically request a recovery (a.k.a. manual recovery). All other recovery
+ * requests including manual recovery requested by a (compromised) host will
+ * end up with 'broken' screen.
+ *
+ * @param flags Flags of VbSharedDataHeader.
+ * @return 1: Yes. 0: No or not sure.
+ */
+int vb2_allow_recovery(uint32_t flags);
+
 #endif  /* VBOOT_REFERENCE_VBOOT_COMMON_H_ */

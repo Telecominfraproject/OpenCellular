@@ -29,7 +29,6 @@ static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static GoogleBinaryBlockHeader gbb;
 
-static int ecsync_retval;
 static uint32_t rkr_version;
 static uint32_t new_version;
 static struct RollbackSpaceFwmp rfr_fwmp;
@@ -62,7 +61,6 @@ static void ResetMocks(void)
 	memset(&rfr_fwmp, 0, sizeof(rfr_fwmp));
 	rfr_retval = TPM_SUCCESS;
 
-	ecsync_retval = VBERROR_SUCCESS;
 	rkr_version = new_version = 0x10002;
 	rkr_retval = rkw_retval = rkl_retval = VBERROR_SUCCESS;
 	vbboot_retval = VBERROR_SUCCESS;
@@ -80,11 +78,6 @@ VbError_t VbExNvStorageWrite(const uint8_t *buf)
 {
 	memcpy(vnc.raw, buf, sizeof(vnc.raw));
 	return VBERROR_SUCCESS;
-}
-
-VbError_t VbExEcRunningRW(int devidx, int *in_rw)
-{
-	return ecsync_retval;
 }
 
 uint32_t RollbackKernelRead(uint32_t *version)
@@ -158,26 +151,17 @@ static void VbSlkTest(void)
 	ResetMocks();
 	test_slk(0, 0, "Normal");
 
-	/* Mock error early in software sync */
-	ResetMocks();
-	shared->flags |= VBSD_EC_SOFTWARE_SYNC;
-	ecsync_retval = VBERROR_SIMULATED;
-	test_slk(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		 VBNV_RECOVERY_EC_UNKNOWN_IMAGE, "EC sync bad");
-
 	/*
 	 * If shared->flags doesn't ask for software sync, we won't notice
 	 * that error.
 	 */
 	ResetMocks();
-	ecsync_retval = VBERROR_SIMULATED;
 	test_slk(0, 0, "EC sync not done");
 
 	/* Same if shared->flags asks for sync, but it's overridden by GBB */
 	ResetMocks();
 	shared->flags |= VBSD_EC_SOFTWARE_SYNC;
 	gbb.flags |= GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC;
-	ecsync_retval = VBERROR_SIMULATED;
 	test_slk(0, 0, "EC sync disabled by GBB");
 
 	/* Rollback kernel version */

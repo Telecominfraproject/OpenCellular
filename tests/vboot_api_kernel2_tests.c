@@ -591,8 +591,8 @@ static void VbBootRecTest(void)
 	TEST_EQ(VbBootRecovery(&ctx, &cparams),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"No remove in rec");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
-		"  insert screen");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
 
 	/* Removal if no disk initially found, but found on second attempt */
 	ResetMocks();

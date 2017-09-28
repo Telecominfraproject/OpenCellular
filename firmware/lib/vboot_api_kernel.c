@@ -417,27 +417,29 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 		goto VbSelectAndLoadKernel_exit;
 
 	/*
-	 * Do EC software sync if necessary.  This has UI, but it's just a
-	 * single non-interactive WAIT screen.
+	 * Do EC software sync unless we're in recovery mode. This has UI but
+	 * it's just a single non-interactive WAIT screen.
 	 */
-	retval = ec_sync_all(&ctx, cparams);
-	if (retval)
-		goto VbSelectAndLoadKernel_exit;
+	if (shared->recovery_reason == VB2_RECOVERY_NOT_REQUESTED) {
+		retval = ec_sync_all(&ctx, cparams);
+		if (retval)
+			goto VbSelectAndLoadKernel_exit;
+	}
 
 	/* Select boot path */
 	if (shared->recovery_reason) {
 		/* Recovery boot.  This has UI. */
-	        if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
-	            retval = VbBootRecoveryMenu(&ctx, cparams);
-	        else
-		    retval = VbBootRecovery(&ctx, cparams);
+		if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
+			retval = VbBootRecoveryMenu(&ctx, cparams);
+		else
+			retval = VbBootRecovery(&ctx, cparams);
 		VbExEcEnteringMode(0, VB_EC_RECOVERY);
 	} else if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
 		/* Developer boot.  This has UI. */
-	        if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
-		    retval = VbBootDeveloperMenu(&ctx, cparams);
+		if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
+			retval = VbBootDeveloperMenu(&ctx, cparams);
 		else
-		    retval = VbBootDeveloper(&ctx, cparams);
+			retval = VbBootDeveloper(&ctx, cparams);
 		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
 	} else {
 		/* Normal boot */

@@ -32,9 +32,7 @@ static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static GoogleBinaryBlockHeader gbb;
 
-static int trust_ec;
 static int mock_in_rw;
-static VbError_t in_rw_retval;
 static int protect_retval;
 static int ec_ro_protected;
 static int ec_rw_protected;
@@ -90,14 +88,12 @@ static void ResetMocks(void)
 	VbSharedDataInit(shared, sizeof(shared_data));
 	shared->flags = VBSD_EC_SOFTWARE_SYNC;
 
-	trust_ec = 0;
 	mock_in_rw = 0;
 	ec_ro_protected = 0;
 	ec_rw_protected = 0;
 	ec_run_image = 0;   /* 0 = RO, 1 = RW */
 	ec_ro_updated = 0;
 	ec_rw_updated = 0;
-	in_rw_retval = VBERROR_SUCCESS;
 	protect_retval = VBERROR_SUCCESS;
 	update_retval = VBERROR_SUCCESS;
 	run_retval = VBERROR_SUCCESS;
@@ -143,13 +139,7 @@ uint32_t VbExIsShutdownRequested(void)
 
 int VbExTrustEC(int devidx)
 {
-	return trust_ec;
-}
-
-VbError_t VbExEcRunningRW(int devidx, int *in_rw)
-{
-	*in_rw = mock_in_rw;
-	return in_rw_retval;
+	return !mock_in_rw;
 }
 
 VbError_t VbExEcProtect(int devidx, enum VbSelectFirmware_t select)
@@ -169,7 +159,6 @@ VbError_t VbExEcDisableJump(int devidx)
 VbError_t VbExEcJumpToRW(int devidx)
 {
 	ec_run_image = 1;
-	mock_in_rw = 1;
 	return run_retval;
 }
 
@@ -248,24 +237,6 @@ static void test_ssync(VbError_t retval, int recovery_reason, const char *desc)
 
 static void VbSoftwareSyncTest(void)
 {
-	/* Recovery cases */
-	ResetMocks();
-	sd->recovery_reason = 123;
-	test_ssync(0, 0, "In recovery, EC-RO");
-	TEST_EQ(ec_rw_protected, 0, "  ec rw protected");
-
-	ResetMocks();
-	sd->recovery_reason = 123;
-	mock_in_rw = 1;
-	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   123, "Recovery needs EC-RO");
-
-	/* AP-RO cases */
-	ResetMocks();
-	in_rw_retval = VBERROR_SIMULATED;
-	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_UNKNOWN_IMAGE, "Unknown EC image");
-
 	/* Calculate hashes */
 	ResetMocks();
 	mock_ec_rw_hash_size = 0;
