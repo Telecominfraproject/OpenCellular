@@ -52,36 +52,37 @@ check_versions() {
 }
 
 main() {
- local testfail=0
+  local testfail=0
 
- local expected_kkey="$(get_version kernel_key_version)"
- local expected_fkey="$(get_version firmware_key_version)"
- local expected_firmware="$(get_version firmware_version)"
- local expected_kernel="$(get_version kernel_version)"
+  local expected_kkey="$(get_version kernel_key_version)"
+  local expected_fkey="$(get_version firmware_key_version)"
+  local expected_firmware="$(get_version firmware_version)"
+  local expected_kernel="$(get_version kernel_version)"
 
- check_versions "${expected_firmware}" "${expected_kkey}" \
-   "firmware" "kernel key" || testfail=1
+  check_versions "${expected_firmware}" "${expected_kkey}" \
+    "firmware" "kernel key" || testfail=1
 
- local got_fkey_keyblock="$(keyblock_version ${KEY_DIR}/firmware.keyblock)"
- local got_fkey="$(key_version ${KEY_DIR}/firmware_data_key.vbpubk)"
+  local got_fkey_keyblock="$(keyblock_version ${KEY_DIR}/firmware.keyblock)"
+  local got_fkey="$(key_version ${KEY_DIR}/firmware_data_key.vbpubk)"
 
- local got_kkey_keyblock="$(keyblock_version ${KEY_DIR}/kernel.keyblock)"
- local got_ksubkey="$(key_version ${KEY_DIR}/kernel_subkey.vbpubk)"
- local got_kdatakey="$(key_version ${KEY_DIR}/kernel_data_key.vbpubk)"
+  local got_kkey_keyblock="$(keyblock_version ${KEY_DIR}/kernel.keyblock)"
+  local got_ksubkey="$(key_version ${KEY_DIR}/kernel_subkey.vbpubk)"
+  local got_kdatakey="$(key_version ${KEY_DIR}/kernel_data_key.vbpubk)"
 
- check_versions "${got_fkey_keyblock}" "${got_fkey}" "firmware keyblock key" \
-   "firmware key" || testfail=1
- check_versions "${got_kkey_keyblock}" "${got_ksubkey}" "kernel keyblock key" \
-   "kernel subkey" || testfail=1
- check_versions "${got_kdatakey}" "${got_ksubkey}" "kernel data key" \
-   "kernel subkey" || testfail=1
- check_versions "${expected_fkey}" "${got_fkey}" "key.versions firmware key" \
-   "firmware key" || testfail=1
- check_versions "${expected_kkey}" "${got_kdatakey}" "key.versions kernel key" \
-   "kernel datakey" || testfail=1
- check_versions "${expected_kkey}" "${got_ksubkey}" "key.versions kernel key" \
-   "kernel subkey" || testfail=1
- exit ${testfail}
+  check_versions "${got_fkey_keyblock}" "${got_fkey}" "firmware keyblock key" \
+    "firmware key" || testfail=1
+  check_versions "${got_kkey_keyblock}" "${got_ksubkey}" "kernel keyblock key" \
+    "kernel subkey" || testfail=1
+  check_versions "${got_kdatakey}" "${got_ksubkey}" "kernel data key" \
+    "kernel subkey" || testfail=1
+  check_versions "${expected_fkey}" "${got_fkey}" "key.versions firmware key" \
+    "firmware key" || testfail=1
+  check_versions "${expected_kkey}" "${got_kdatakey}" "key.versions kernel key" \
+    "kernel datakey" || testfail=1
+  check_versions "${expected_kkey}" "${got_ksubkey}" "key.versions kernel key" \
+    "kernel subkey" || testfail=1
+
+  exit ${testfail}
 }
 
 main "$@"
