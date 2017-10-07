@@ -186,10 +186,15 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 	return TPM_SUCCESS;
 }
 
-uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version)
+uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
+                        uint8_t* vendor_specific_buf,
+                        size_t* vendor_specific_buf_size)
 {
 	*vendor = 0x4e4f4e45;
 	*firmware_version = 0x1;
+	if (vendor_specific_buf_size) {
+		*vendor_specific_buf_size = 0;
+	}
 	return TPM_SUCCESS;
 }
 

@@ -351,19 +351,54 @@ static void GetVersionTest(void)
 
 	uint32_t vendor;
 	uint64_t firmware_version;
+	uint8_t vendor_specific[32];
+	size_t vendor_specific_size;
 
 	ResetMocks();
 	calls[0].rsp = response;
 	calls[0].rsp_size = sizeof(response);
-	TEST_EQ(TlclGetVersion(&vendor, &firmware_version), 0, "GetVersion");
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version, NULL, NULL), 0,
+		"GetVersion");
 	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
 	TEST_EQ(vendor, 0x49465800, "  vendor");
 	TEST_EQ(firmware_version, 0x420, "  firmware_version");
 
 	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	vendor_specific_size = 100;
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version,
+		NULL, &vendor_specific_size), 0,
+		"GetVersion - vendor specific size");
+	TEST_EQ(vendor_specific_size, 0xd, "  vendor specific size");
+
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	vendor_specific_size = sizeof(vendor_specific);
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version,
+		vendor_specific, &vendor_specific_size), 0,
+		"GetVersion - vendor specific data");
+	TEST_EQ(vendor_specific_size, 0xd, "  vendor specific size");
+	TEST_EQ(memcmp(vendor_specific, response + 29, 0xd), 0,
+		"  vendor specific data check");
+
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	vendor_specific_size = 4;
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version,
+		vendor_specific, &vendor_specific_size), 0,
+		"GetVersion - vendor specific data, short buf");
+	TEST_EQ(vendor_specific_size, 4,
+		"  min(vendor specific size, buf size)");
+	TEST_EQ(memcmp(vendor_specific, response + 29, 4), 0,
+		"  vendor specific data check");
+
+	ResetMocks();
 	SetResponse(0, TPM_E_IOERROR, 0);
-	TEST_EQ(TlclGetVersion(&vendor, &firmware_version), TPM_E_IOERROR,
-		"GetVersion - error");
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version, NULL, NULL),
+		TPM_E_IOERROR, "GetVersion - error");
 	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
 
 	/* Adjust response to indicate a 1 byte too short payload size. */
@@ -371,8 +406,32 @@ static void GetVersionTest(void)
 	ResetMocks();
 	calls[0].rsp = response;
 	calls[0].rsp_size = sizeof(response);
-	TEST_EQ(TlclGetVersion(&vendor, &firmware_version), TPM_E_IOERROR,
-		"GetVersion -- short");
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version, NULL, NULL),
+		TPM_E_IOERROR, "GetVersion -- short");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
+
+	/* Adjust response to indicate a payload size too long for the
+	 * response buffer. */
+	ToTpmUint32(response + kTpmResponseHeaderLength,
+			TPM_LARGE_ENOUGH_COMMAND_SIZE - sizeof(uint32_t) -
+			kTpmResponseHeaderLength + 1);
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version, NULL, NULL),
+		TPM_E_IOERROR, "GetVersion -- long");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
+
+	/* Restore the original payload length and adjust response to contain
+	 * less vendor specific data than indicated in its size. */
+	ToTpmUint32(response + kTpmResponseHeaderLength, 0x1c);
+	ToTpmUint16(response + 27, 0xd + 1);
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	TEST_EQ(TlclGetVersion(&vendor, &firmware_version,
+		NULL, &vendor_specific_size), TPM_E_IOERROR,
+		"GetVersion -- short with vendor specific");
 	TEST_EQ(calls[0].req_cmd, TPM_ORD_GetCapability, "  cmd");
 }
 

@@ -523,7 +523,25 @@ uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size)
 	return TPM_E_IOERROR;
 }
 
-uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version)
+// Converts TPM_PT_VENDOR_STRING_x |value| to an array of bytes in |buf|.
+// Returns the number of bytes in the array.
+// |buf| should be at least 4 bytes long.
+size_t tlcl_vendor_string_parse(uint32_t value, uint8_t* buf)
+{
+	size_t len = 0;
+	int shift = 24;
+	for (; len < 4; shift -= 8) {
+		uint8_t byte = (value >> shift) & 0xffu;
+		if (!byte)
+			break;
+		buf[len++] = byte;
+	}
+	return len;
+}
+
+uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
+                        uint8_t* vendor_specific_buf,
+                        size_t* vendor_specific_buf_size)
 {
 	uint32_t result =  tlcl_get_tpm_property(TPM_PT_MANUFACTURER, vendor);
 	if (result != TPM_SUCCESS)
@@ -539,6 +557,35 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version)
 		return result;
 
 	*firmware_version = ((uint64_t) version_1 << 32) | version_2;
+
+	if (!vendor_specific_buf_size)
+		return TPM_SUCCESS;
+
+	size_t total_size = 0;
+	uint32_t prop_id;
+	uint8_t prop_string[16];
+	for (prop_id = TPM_PT_VENDOR_STRING_1;
+	     prop_id <= TPM_PT_VENDOR_STRING_4;
+	     ++prop_id) {
+		uint32_t prop_value;
+		result = tlcl_get_tpm_property(prop_id, &prop_value);
+		if (result != TPM_SUCCESS)
+			break;
+
+		size_t prop_len = tlcl_vendor_string_parse(
+				prop_value, prop_string + total_size);
+		VbAssert(prop_len <= 4 &&
+			 total_size + prop_len <= sizeof(prop_string));
+		total_size += prop_len;
+		if (prop_len < 4)
+			break;
+	}
+	if (vendor_specific_buf) {
+		if (total_size > *vendor_specific_buf_size)
+			total_size = *vendor_specific_buf_size;
+		memcpy(vendor_specific_buf, prop_string, total_size);
+	}
+	*vendor_specific_buf_size = total_size;
 	return TPM_SUCCESS;
 }
 

@@ -460,10 +460,18 @@ static uint32_t HandlerSendRaw(void) {
 static uint32_t HandlerGetVersion(void) {
   uint32_t vendor;
   uint64_t firmware_version;
-  uint32_t result = TlclGetVersion(&vendor, &firmware_version);
+  uint8_t vendor_specific[32];
+  size_t vendor_specific_size = sizeof(vendor_specific);
+  uint32_t result = TlclGetVersion(&vendor, &firmware_version, vendor_specific,
+                                   &vendor_specific_size);
   if (result == 0) {
-    printf("vendor %08x\nfirmware_version %016" PRIx64 "\n",
+    printf("vendor %08x\nfirmware_version %016" PRIx64 "\nvendor_specific ",
            vendor, firmware_version);
+    size_t n;
+    for (n = 0; n < vendor_specific_size; ++n) {
+      printf("%02x", vendor_specific[n]);
+    }
+    printf("\n");
   }
   return result;
 }

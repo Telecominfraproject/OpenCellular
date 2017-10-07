@@ -208,8 +208,17 @@ uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size);
 
 /**
  * Requests version information from the TPM.
+ * If vendor_specific_buf_size != NULL, requests also the vendor-specific
+ * variable-length part of the version:
+ *   if vendor_specific_buf == NULL, determines its size and returns in
+ *       *vendor_specific_buf_size;
+ *   if vendor_specific_buf != NULL, fills the buffer until either the
+ *       end of the vendor specific data or the end of the buffer, sets
+ *       *vendor_specific_buf_size to the length of the filled data.
  */
-uint32_t TlclGetVersion(uint32_t *vendor, uint64_t *firmware_version);
+uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
+                        uint8_t* vendor_specific_buf,
+                        size_t* vendor_specific_buf_size);
 
 /**
  * Issues the IFX specific FieldUpgradeInfoRequest2 TPM_FieldUpgrade subcommand

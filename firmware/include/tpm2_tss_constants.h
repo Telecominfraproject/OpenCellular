@@ -55,6 +55,8 @@
 #define PT_GROUP                        ((TPM_PT)0x00000100)
 #define PT_FIXED                        PT_GROUP
 #define TPM_PT_MANUFACTURER             (PT_FIXED + 5)
+#define TPM_PT_VENDOR_STRING_1          (PT_FIXED + 6)
+#define TPM_PT_VENDOR_STRING_4          (PT_FIXED + 9)
 #define TPM_PT_FIRMWARE_VERSION_1       (PT_FIXED + 11)
 #define TPM_PT_FIRMWARE_VERSION_2       (PT_FIXED + 12)
 #define PT_VAR                          (PT_GROUP * 2)

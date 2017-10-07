@@ -513,7 +513,10 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 	return result;
 }
 
-uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version) {
+uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
+                        uint8_t* vendor_specific_buf,
+                        size_t* vendor_specific_buf_size)
+{
 	uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
 	uint32_t result = TlclSendReceive(tpm_getversionval_cmd.buffer,
 					  response, sizeof(response));
@@ -528,7 +531,9 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version) {
 
 	/* Verify size >= sizeof(TPM_CAP_VERSION_INFO). */
 	const uint32_t kSizeofCapVersionInfo = 15;
-	if (size < kSizeofCapVersionInfo) {
+	if (size < kSizeofCapVersionInfo ||
+	    kTpmResponseHeaderLength + sizeof(size) + size >
+			TPM_LARGE_ENOUGH_COMMAND_SIZE) {
 		return TPM_E_IOERROR;
 	}
 
@@ -545,6 +550,26 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version) {
 
 	FromTpmUint32(cursor, vendor);
 	cursor += sizeof(*vendor);
+
+	if (vendor_specific_buf_size) {
+		uint16_t vendor_specific_size;
+		FromTpmUint16(cursor, &vendor_specific_size);
+		cursor += sizeof(vendor_specific_size);
+
+		if (size < kSizeofCapVersionInfo + vendor_specific_size) {
+			return TPM_E_IOERROR;
+		}
+		if (vendor_specific_buf) {
+			if (vendor_specific_size > *vendor_specific_buf_size) {
+				vendor_specific_size =
+					*vendor_specific_buf_size;
+			}
+			memcpy(vendor_specific_buf, cursor,
+			       vendor_specific_size);
+			cursor += vendor_specific_size;
+		}
+		*vendor_specific_buf_size = vendor_specific_size;
+	}
 
 	return TPM_SUCCESS;
 }
@@ -563,7 +588,8 @@ static void ParseIFXFirmwarePackage(uint8_t** cursor,
 uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO* info) {
 	uint32_t vendor;
 	uint64_t firmware_version;
-	uint32_t result = TlclGetVersion(&vendor, &firmware_version);
+	uint32_t result =
+			TlclGetVersion(&vendor, &firmware_version, NULL, NULL);
 	if (result != TPM_SUCCESS) {
 		return result;
 	}
