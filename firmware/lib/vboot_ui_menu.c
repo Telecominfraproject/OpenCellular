@@ -1129,6 +1129,8 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 				if (current_menu == VB_MENU_RECOVERY_INSERT) {
 					ret = vb2_update_menu(ctx);
+					if (ret != VBERROR_SUCCESS)
+						return ret;
 					vb2_set_disabled_idx_mask(shared->flags);
 				} else {
 					vb2_update_selection(cparams, key);
