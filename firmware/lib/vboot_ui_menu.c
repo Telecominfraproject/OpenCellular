@@ -874,11 +874,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 			ret = vb2_update_menu(ctx);
 			vb2_set_disabled_idx_mask(shared->flags);
-			/*
-			 * Unfortunately, we need the blanking to get rid of
-			 * artifacts from previous menu printing.
-			 */
-			VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK, 0);
 			vb2_draw_current_screen(ctx, cparams);
 
 			/* Probably shutting down */
