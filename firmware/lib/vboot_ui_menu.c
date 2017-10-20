@@ -953,22 +953,37 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			/* Enabling verified boot */
 			if (current_menu == VB_MENU_TO_NORM &&
 			    current_menu_idx == VB_TO_NORM_CONFIRM) {
-				/*
-				 * See if we should disable virtual dev-mode
-				 * switch.
-				 */
-				VB2_DEBUG("%s shared->flags=0x%x\n",
-					  __func__, shared->flags);
-				/* Ignore space in VbUserConfirmsMenu()... */
-			        VB2_DEBUG("leaving dev-mode.\n");
-				vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST,
-					   1);
-				VbDisplayScreen(ctx,
+				if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+					/*
+					 * Throw error when user tries to
+					 * confirm transition to normal
+					 * mode if FORCE_DEV_SWITCH_ON
+					 * is enabled.
+					 */
+					VB2_DEBUG("TONORM rejected by "
+						  "FORCE_DEV_SWITCH_ON\n");
+					VbExDisplayDebugInfo(
+						"WARNING: TONORM prohibited by "
+						"GBB FORCE_DEV_SWITCH_ON.\n\n");
+					VbExBeep(120, 400);
+				} else {
+					/*
+					 * See if we should disable
+					 * virtual dev-mode switch.
+					 */
+					VB2_DEBUG("%s shared->flags=0x%x\n",
+						  __func__, shared->flags);
+					VB2_DEBUG("leaving dev-mode.\n");
+					vb2_nv_set(ctx,
+						   VB2_NV_DISABLE_DEV_REQUEST,
+						   1);
+					VbDisplayScreen(ctx,
 						cparams,
 						VB_SCREEN_TO_NORM_CONFIRMED,
 						0);
-				VbExSleepMs(5000);
-				return VBERROR_REBOOT_REQUIRED;
+					VbExSleepMs(5000);
+					return VBERROR_REBOOT_REQUIRED;
+				}
 			}
 			/* reset 30 second timer */
 			audio = VbAudioOpen(cparams);
