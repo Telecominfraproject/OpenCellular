@@ -41,7 +41,7 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_RECOVERY_REQUEST, 0, 0x42, 0xED, "recovery request"},
 	{VB2_NV_RECOVERY_SUBCODE, 0, 0x56, 0xAC, "recovery subcode"},
 	{VB2_NV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},
-	{VB2_NV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
+	{VB2_NV_KERNEL_FIELD, 0, 0x1234, 0xFEDC, "kernel field"},
 	{VB2_NV_DEV_BOOT_USB, 0, 1, 0, "dev boot usb"},
 	{VB2_NV_DEV_BOOT_LEGACY, 0, 1, 0, "dev boot legacy"},
 	{VB2_NV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
@@ -56,6 +56,8 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_FASTBOOT_UNLOCK_IN_FW, 0, 1, 0, "fastboot unlock in fw"},
 	{VB2_NV_BOOT_ON_AC_DETECT, 0, 1, 0, "boot on ac detect"},
 	{VB2_NV_TRY_RO_SYNC, 0, 1, 0, "try read only software sync"},
+	{VB2_NV_KERNEL_MAX_ROLLFORWARD, 0, 0x12345678, 0xFEDCBA98,
+	 "kernel max rollforward"},
 	{0, 0, 0, 0, NULL}
 };
 

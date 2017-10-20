@@ -29,8 +29,12 @@ enum vb2_nv_offset {
 	VB2_NV_OFFS_RECOVERY_SUBCODE = 6,
 	VB2_NV_OFFS_BOOT2 = 7,
 	VB2_NV_OFFS_MISC = 8,
-	/* Offsets 9-10 are currently unused */
-	VB2_NV_OFFS_KERNEL = 11, /* 11-14; field is 32 bits */
+	VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD1 = 9, /* bits 0-7 of 32 */
+	VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD2 = 10, /* bits 8-15 of 32 */
+	VB2_NV_OFFS_KERNEL1 = 11, /* bits 0-7 of 16 */
+	VB2_NV_OFFS_KERNEL2 = 12, /* bits 8-15 of 16 */
+	VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD3 = 13, /* bits 16-23 of 32 */
+	VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD4 = 14, /* bits 24-31 of 32 */
 	/* CRC must be last field */
 	VB2_NV_OFFS_CRC = 15
  };

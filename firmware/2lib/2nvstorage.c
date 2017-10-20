@@ -121,10 +121,7 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 		return p[VB2_NV_OFFS_LOCALIZATION];
 
 	case VB2_NV_KERNEL_FIELD:
-		return (p[VB2_NV_OFFS_KERNEL]
-			| (p[VB2_NV_OFFS_KERNEL + 1] << 8)
-			| (p[VB2_NV_OFFS_KERNEL + 2] << 16)
-			| (p[VB2_NV_OFFS_KERNEL + 3] << 24));
+		return p[VB2_NV_OFFS_KERNEL1] | (p[VB2_NV_OFFS_KERNEL2] << 8);
 
 	case VB2_NV_DEV_BOOT_USB:
 		return GETBIT(VB2_NV_OFFS_DEV, VB2_NV_DEV_FLAG_USB);
@@ -175,6 +172,12 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 
 	case VB2_NV_BATTERY_CUTOFF_REQUEST:
 		return GETBIT(VB2_NV_OFFS_MISC, VB2_NV_MISC_BATTERY_CUTOFF);
+
+	case VB2_NV_KERNEL_MAX_ROLLFORWARD:
+		return (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD1]
+			| (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD2] << 8)
+			| (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD3] << 16)
+			| (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD4] << 24));
 	}
 
 	/*
@@ -280,10 +283,8 @@ void vb2_nv_set(struct vb2_context *ctx,
 		break;
 
 	case VB2_NV_KERNEL_FIELD:
-		p[VB2_NV_OFFS_KERNEL] = (uint8_t)(value);
-		p[VB2_NV_OFFS_KERNEL + 1] = (uint8_t)(value >> 8);
-		p[VB2_NV_OFFS_KERNEL + 2] = (uint8_t)(value >> 16);
-		p[VB2_NV_OFFS_KERNEL + 3] = (uint8_t)(value >> 24);
+		p[VB2_NV_OFFS_KERNEL1] = (uint8_t)(value);
+		p[VB2_NV_OFFS_KERNEL2] = (uint8_t)(value >> 8);
 		break;
 
 	case VB2_NV_DEV_BOOT_USB:
@@ -355,6 +356,13 @@ void vb2_nv_set(struct vb2_context *ctx,
 
 	case VB2_NV_BATTERY_CUTOFF_REQUEST:
 		SETBIT(VB2_NV_OFFS_MISC, VB2_NV_MISC_BATTERY_CUTOFF);
+		break;
+
+	case VB2_NV_KERNEL_MAX_ROLLFORWARD:
+		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD1] = (uint8_t)(value);
+		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD2] = (uint8_t)(value >> 8);
+		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD3] = (uint8_t)(value >> 16);
+		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD4] = (uint8_t)(value >> 24);
 		break;
 	}
 

@@ -66,7 +66,14 @@
 #define MISC_TRY_RO_SYNC		0x04
 #define MISC_BATTERY_CUTOFF_REQUEST	0x08
 
-#define KERNEL_FIELD_OFFSET         11
+#define KERNEL_MAX_ROLLFORWARD1_OFFSET     9 /* Low bits */
+#define KERNEL_MAX_ROLLFORWARD2_OFFSET    10
+#define KERNEL_MAX_ROLLFORWARD3_OFFSET    13
+#define KERNEL_MAX_ROLLFORWARD4_OFFSET    14 /* High bits */
+
+#define KERNEL_FIELD1_OFFSET         11 /* Low bits */
+#define KERNEL_FIELD2_OFFSET         12 /* Low bits */
+
 #define CRC_OFFSET                  15
 
 int VbNvSetup(VbNvContext *context)
@@ -141,10 +148,8 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 		return 0;
 
 	case VBNV_KERNEL_FIELD:
-		*dest = (raw[KERNEL_FIELD_OFFSET]
-			 | (raw[KERNEL_FIELD_OFFSET + 1] << 8)
-			 | (raw[KERNEL_FIELD_OFFSET + 2] << 16)
-			 | (raw[KERNEL_FIELD_OFFSET + 3] << 24));
+		*dest = (raw[KERNEL_FIELD1_OFFSET]
+			 | (raw[KERNEL_FIELD2_OFFSET] << 8));
 		return 0;
 
 	case VBNV_DEV_BOOT_USB:
@@ -237,6 +242,13 @@ int VbNvGet(VbNvContext *context, VbNvParam param, uint32_t *dest)
 			 ?  1 : 0;
 		return 0;
 
+	case VBNV_KERNEL_MAX_ROLLFORWARD:
+		*dest = (raw[KERNEL_MAX_ROLLFORWARD1_OFFSET]
+			 | (raw[KERNEL_MAX_ROLLFORWARD2_OFFSET] << 8)
+			 | (raw[KERNEL_MAX_ROLLFORWARD3_OFFSET] << 16)
+			 | (raw[KERNEL_MAX_ROLLFORWARD4_OFFSET] << 24));
+		return 0;
+
 	default:
 		return 1;
 	}
@@ -306,10 +318,8 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 		break;
 
 	case VBNV_KERNEL_FIELD:
-		raw[KERNEL_FIELD_OFFSET] = (uint8_t)(value);
-		raw[KERNEL_FIELD_OFFSET + 1] = (uint8_t)(value >> 8);
-		raw[KERNEL_FIELD_OFFSET + 2] = (uint8_t)(value >> 16);
-		raw[KERNEL_FIELD_OFFSET + 3] = (uint8_t)(value >> 24);
+		raw[KERNEL_FIELD1_OFFSET] = (uint8_t)(value);
+		raw[KERNEL_FIELD2_OFFSET] = (uint8_t)(value >> 8);
 		break;
 
 	case VBNV_DEV_BOOT_USB:
@@ -467,6 +477,13 @@ int VbNvSet(VbNvContext *context, VbNvParam param, uint32_t value)
 			raw[MISC_OFFSET] |= MISC_BATTERY_CUTOFF_REQUEST;
 		else
 			raw[MISC_OFFSET] &= ~MISC_BATTERY_CUTOFF_REQUEST;
+		break;
+
+	case VBNV_KERNEL_MAX_ROLLFORWARD:
+		raw[KERNEL_MAX_ROLLFORWARD1_OFFSET] = (uint8_t)(value);
+		raw[KERNEL_MAX_ROLLFORWARD2_OFFSET] = (uint8_t)(value >> 8);
+		raw[KERNEL_MAX_ROLLFORWARD3_OFFSET] = (uint8_t)(value >> 16);
+		raw[KERNEL_MAX_ROLLFORWARD4_OFFSET] = (uint8_t)(value >> 24);
 		break;
 
 	default:

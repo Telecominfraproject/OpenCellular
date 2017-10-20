@@ -29,7 +29,7 @@ static VbNvField nvfields[] = {
   {VBNV_TRY_B_COUNT, 0, 6, 15, "try B count"},
   {VBNV_RECOVERY_REQUEST, 0, 0x42, 0xED, "recovery request"},
   {VBNV_LOCALIZATION_INDEX, 0, 0x69, 0xB0, "localization index"},
-  {VBNV_KERNEL_FIELD, 0, 0x12345678, 0xFEDCBA98, "kernel field"},
+  {VBNV_KERNEL_FIELD, 0, 0x1234, 0xFEDC, "kernel field"},
   {VBNV_DEV_BOOT_USB, 0, 1, 0, "dev boot usb"},
   {VBNV_DEV_BOOT_LEGACY, 0, 1, 0, "dev boot legacy"},
   {VBNV_DEV_BOOT_SIGNED_ONLY, 0, 1, 0, "dev boot custom"},
@@ -49,6 +49,8 @@ static VbNvField nvfields[] = {
   {VBNV_FASTBOOT_UNLOCK_IN_FW, 0, 1, 0, "fastboot unlock in firmware"},
   {VBNV_BOOT_ON_AC_DETECT, 0, 1, 0, "boot on ac detect"},
   {VBNV_TRY_RO_SYNC, 0, 1, 0, "try read only software sync"},
+  {VBNV_KERNEL_MAX_ROLLFORWARD, 0, 0x12345678, 0xFEDCBA98,
+   "kernel max rollforward"},
   {0, 0, 0, 0, NULL}
 };
 

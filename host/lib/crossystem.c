@@ -72,14 +72,14 @@ static const char *fw_results[] = {"unknown", "trying", "success", "failure"};
 static const char *default_boot[] = {"disk", "usb", "legacy"};
 
 /* Masks for kern_nv usage by kernel. */
-#define KERN_NV_FWUPDATE_TRIES_MASK 0x0000000F
-#define KERN_NV_BLOCK_DEVMODE_FLAG  0x00000010
-#define KERN_NV_TPM_ATTACK_FLAG     0x00000020
+#define KERN_NV_FWUPDATE_TRIES_MASK 0x000F
+#define KERN_NV_BLOCK_DEVMODE_FLAG  0x0010
+#define KERN_NV_TPM_ATTACK_FLAG     0x0020
 /* If you want to use the remaining currently-unused bits in kern_nv
  * for something kernel-y, define a new field (the way we did for
  * fwupdate_tries).  Don't just modify kern_nv directly, because that
  * makes it too easy to accidentally corrupt other sub-fields. */
-#define KERN_NV_CURRENTLY_UNUSED    0xFFFFFFC0
+#define KERN_NV_CURRENTLY_UNUSED    0xFFC0
 
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start)
@@ -523,6 +523,8 @@ int VbGetSystemPropertyInt(const char *name)
 		value = VbGetNvStorage(VBNV_RECOVERY_SUBCODE);
 	} else if (!strcasecmp(name,"wipeout_request")) {
 		value = VbGetNvStorage(VBNV_FW_REQ_WIPEOUT);
+	} else if (!strcasecmp(name,"kernel_max_rollforward")) {
+		value = VbGetNvStorage(VBNV_KERNEL_MAX_ROLLFORWARD);
 	}
 	/* Other parameters */
 	else if (!strcasecmp(name,"cros_debug")) {
@@ -716,6 +718,8 @@ int VbSetSystemPropertyInt(const char *name, int value)
 		return VbSetNvStorage_WithBackup(VBNV_TRY_RO_SYNC, value);
 	} else if (!strcasecmp(name, "battery_cutoff_request")) {
 		return VbSetNvStorage(VBNV_BATTERY_CUTOFF_REQUEST, value);
+	} else if (!strcasecmp(name,"kernel_max_rollforward")) {
+		return VbSetNvStorage(VBNV_KERNEL_MAX_ROLLFORWARD, value);
 	}
 
 	return -1;

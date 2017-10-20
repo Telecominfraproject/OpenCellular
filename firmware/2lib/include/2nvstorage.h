@@ -42,7 +42,7 @@ enum vb2_nv_param {
 	 * 8-bit value.
 	 */
 	VB2_NV_LOCALIZATION_INDEX,
-	/* Field reserved for kernel/user-mode use; 32-bit value. */
+	/* Field reserved for kernel/user-mode use; 16-bit value. */
 	VB2_NV_KERNEL_FIELD,
 	/* Allow booting from USB in developer mode.  0=no, 1=yes. */
 	VB2_NV_DEV_BOOT_USB,
@@ -94,10 +94,15 @@ enum vb2_nv_param {
 	VB2_NV_FASTBOOT_UNLOCK_IN_FW,
 	/* Boot system when AC detected (0=no, 1=yes). */
 	VB2_NV_BOOT_ON_AC_DETECT,
-	/* Try to update the EC-RO image after updating the EC-RW image(0=no, 1=yes). */
+	/*
+	 * Try to update the EC-RO image after updating the EC-RW image
+	 * (0=no, 1=yes).
+	 */
 	VB2_NV_TRY_RO_SYNC,
         /* Cut off battery and shutdown on next boot. */
         VB2_NV_BATTERY_CUTOFF_REQUEST,
+	/* Maximum kernel version to roll forward to */
+	VB2_NV_KERNEL_MAX_ROLLFORWARD,
 };
 
 /* Set default boot in developer mode */

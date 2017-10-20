@@ -122,8 +122,11 @@ typedef enum VbNvParam {
 	VBNV_TRY_RO_SYNC,
 	/*
 	 * Finish mode transition (if requested), perform battery cut-off and
-	 * shutdown in next boot. */
+	 * shutdown in next boot.
+	 */
 	VBNV_BATTERY_CUTOFF_REQUEST,
+	/* Maximum kernel version to roll forward to */
+	VBNV_KERNEL_MAX_ROLLFORWARD,
 } VbNvParam;
 
 /* Set default boot in developer mode */
