@@ -16,11 +16,13 @@
 #  load_kernel_test (from src/platform/vboot_reference)
 #  dumpe2fs
 #  sha1sum
+#  cbfstool (from src/third_party/coreboot)
 
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
 # Which futility to run?
+# futility is exception because there are local automated tests for it.
 [ -z "${FUTILITY}" ] && FUTILITY=futility
 
 # Print usage string
@@ -87,8 +89,8 @@ set -e
 PATH=$PATH:/usr/sbin:/sbin
 
 # Make sure the tools we need are available.
-for prereqs in futility vbutil_kernel cgpt dump_kernel_config verity \
-  load_kernel_test dumpe2fs sha1sum e2fsck; do
+for prereqs in ${FUTILITY} vbutil_kernel cgpt dump_kernel_config verity \
+               cbfstool load_kernel_test dumpe2fs sha1sum e2fsck; do
   type -P "${prereqs}" &>/dev/null || \
     die "${prereqs} tool not found."
 done
@@ -117,6 +119,11 @@ is_old_verity_argv() {
     return 0
   fi
   return 1
+}
+
+# Returns true if given ec.bin is signed or false if not.
+is_ec_rw_signed() {
+  ${FUTILITY} dump_fmap "$1" | grep -q KEY_RO
 }
 
 # Get the dmparams parameters from a kernel config.
@@ -495,6 +502,28 @@ sign_recovery_kernel() {
   info "Signed recovery_kernel image output to ${image}"
 }
 
+# Get the compression algorithm used for the given CBFS file.
+# Args: INPUT_CBFS_IMAGE CBFS_FILE_NAME
+get_cbfs_compression() {
+  cbfstool "$1" print -r "FW_MAIN_A" | awk -vname="$2" '$1 == name {print $5}'
+}
+
+# Store a file in CBFS.
+# Args: INPUT_CBFS_IMAGE INPUT_FILE CBFS_FILE_NAME
+store_file_in_cbfs() {
+  local image="$1"
+  local file="$2"
+  local name="$3"
+  local compression=$(get_cbfs_compression "$1" "${name}")
+  cbfstool "${image}" remove -r "FW_MAIN_A,FW_MAIN_B" -n "${name}" || return
+  # This add can fail if
+  # 1. Size of a signature after compression is larger
+  # 2. CBFS is full
+  # These conditions extremely unlikely become true at the same time.
+  cbfstool "${image}" add -r "FW_MAIN_A,FW_MAIN_B" -t "raw" \
+    -c "${compression}" -f "${file}" -n "${name}" || return
+}
+
 # Sign a delta update payload (usually created by paygen).
 # Args: INPUT_IMAGE KEY_DIR OUTPUT_IMAGE
 sign_update_payload() {
@@ -573,7 +602,7 @@ resign_firmware_payload() {
     info "See go/cros-unibuild-signing for details"
     {
       read # Burn the first line (header line)
-      while IFS="," read -r output_name image key_id
+      while IFS="," read -r output_name bios_image key_id ec_image
       do
         local key_suffix=''
         local extra_args=()
@@ -606,7 +635,7 @@ resign_firmware_payload() {
           cp "${rootkey}" "${shellball_keyset_dir}/rootkey.${output_name}"
         fi
 
-        info "Signing firmware image ${image} for ${output_name} " \
+        info "Signing firmware image ${bios_image} for ${output_name} " \
           "with key suffix ${key_suffix}"
 
         local temp_fw=$(make_temp_file)
@@ -622,7 +651,35 @@ resign_firmware_payload() {
           devkeyblock="${keyblock}"
         fi
 
-        local image_path="${shellball_dir}/${image}"
+        # Path to bios.bin.
+        local bios_path="${shellball_dir}/${bios_image}"
+
+        if [ -n "${ec_image}" ]; then
+          # Path to ec.bin.
+          local ec_path="${shellball_dir}/${ec_image}"
+
+          # Resign ec.bin.
+          if is_ec_rw_signed "${ec_path}"; then
+            local rw_bin="EC_RW.bin"
+            local rw_hash="EC_RW.hash"
+            # futility writes byproduct files to CWD, so we cd to temp dir.
+            pushd "$(make_temp_dir)" > /dev/null
+            ${FUTILITY} sign --type rwsig --prikey \
+              "${KEY_DIR}/key_ec_efs.vbprik2" "${ec_path}" \
+              || die "Failed to sign ${ec_path}"
+            # Above command produces EC_RW.bin. Compute its hash.
+            openssl dgst -sha256 -binary "${rw_bin}" > "${rw_hash}"
+            # Store EC_RW.bin and its hash in bios.bin.
+            store_file_in_cbfs "${bios_path}" "${rw_bin}" "ecrw" \
+              || die "Failed to store file in ${bios_path}"
+            store_file_in_cbfs "${bios_path}" "${rw_hash}" "ecrw.hash" \
+              || die "Failed to store file in ${bios_path}"
+            popd > /dev/null
+            info "Signed EC image output to ${ec_path}"
+          fi
+        fi
+
+        # Resign bios.bin.
         ${FUTILITY} sign \
           --signprivate "${signprivate}" \
           --keyblock "${keyblock}" \
@@ -631,7 +688,7 @@ resign_firmware_payload() {
           --kernelkey "${KEY_DIR}/kernel_subkey.vbpubk" \
           --version "${FIRMWARE_VERSION}" \
           "${extra_args[@]}" \
-          ${image_path} \
+          ${bios_path} \
           ${temp_fw}
 
 
@@ -642,9 +699,9 @@ resign_firmware_payload() {
           --recoverykey="${KEY_DIR}/recovery_key.vbpubk" \
           --rootkey="${rootkey}" \
           "${temp_fw}" \
-          "${image_path}"
+          "${bios_path}"
 
-        info "Signed firmware image output to ${image_path}"
+        info "Signed firmware image output to ${bios_path}"
       done
       unset IFS
     } < "${signer_config}"
