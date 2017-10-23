@@ -551,27 +551,29 @@ resign_firmware_payload() {
   #   go/cros-unibuild-signing
   #
   # This iterates over a signer_config.csv file, which contains the following:
-  #   model_name,image,key_id               (header)
+  #   output_name,image,key_id               (header)
   #   santa,models/santa/bios.bin,SOME_OEM  (sample line)
   #
-  # This dictates the keys that should be used for which models and images.
+  # This dictates what output signature blocks to generate based on what
+  # keys/binaries.
   #
   # It reuses the LOEM architecture already existing in the signer keysets,
   # but this could be revisited at a future date.
   #
-  # Within signer_config.csv, it used the key_id column to match the key
+  # Within signer_config.csv, it uses the key_id column to match the key
   # value in loem.ini (if present) and signs the corresponding firmware
   # image using that key.
   #
-  # For output, it uses the model name for the signed vblocks, which is then
-  # detected/used by the firmware updater script.
+  # It then outputs the appropriate signature blocks based on the output_name.
+  # The firmware updater scripts then detects what output_name to use at
+  # runtime based on the platform.
   local signer_config="${shellball_dir}/signer_config.csv"
   if [[ -e "${signer_config}" ]]; then
     info "Using signer_config.csv to determine firmware signatures"
     info "See go/cros-unibuild-signing for details"
     {
       read # Burn the first line (header line)
-      while IFS="," read -r model_name image key_id
+      while IFS="," read -r output_name image key_id
       do
         local key_suffix=''
         local extra_args=()
@@ -582,7 +584,7 @@ resign_firmware_payload() {
         # just use the common keys present in the keyset.
         #
         # The presence of the /keyset subdir in the shellball will indicate
-        # whether model specific keyblocks are available or not.
+        # whether dynamic signature blocks are available or not.
         # This is what updater4.sh currently uses to make the decision.
         if [[ -e "${KEY_DIR}/loem.ini" ]]; then
           # loem.ini has the format KEY_ID_VALUE = KEY_INDEX
@@ -590,21 +592,21 @@ resign_firmware_payload() {
           local key_index="$(echo "${match}" | cut -d ' ' -f 1)"
           info "Detected key index from loem.ini as ${key_index} for ${key_id}"
           if [[ -z "${key_index}" ]]; then
-            die "Failed to find key_id ${key_id} in loem.ini file for model " \
-              "${model_name}"
+            die "Failed to find key_id ${key_id} in loem.ini file for " \
+              "${output_name}"
           fi
           key_suffix=".loem${key_index}"
           shellball_keyset_dir="${shellball_dir}/keyset"
           mkdir -p "${shellball_keyset_dir}"
           extra_args+=(
             --loemdir "${shellball_keyset_dir}"
-            --loemid "${model_name}"
+            --loemid "${output_name}"
           )
           rootkey="${KEY_DIR}/root_key${key_suffix}.vbpubk"
-          cp "${rootkey}" "${shellball_keyset_dir}/rootkey.${model_name}"
+          cp "${rootkey}" "${shellball_keyset_dir}/rootkey.${output_name}"
         fi
 
-        info "Signing firmware image ${image} for model ${model_name} " \
+        info "Signing firmware image ${image} for ${output_name} " \
           "with key suffix ${key_suffix}"
 
         local temp_fw=$(make_temp_file)
