@@ -45,6 +45,7 @@ DEFINE_boolean force "$FLAGS_FALSE" "Skip sanity checks and make the change" "f"
 
 # Parse command line
 FLAGS "$@" || exit 1
+ORIGINAL_CMD="$0"
 ORIGINAL_PARAMS="$@"
 eval set -- "$FLAGS_ARGV"
 ORIGINAL_PARTITIONS="$FLAGS_partitions"
@@ -370,7 +371,7 @@ sanity_check_live_partitions() {
   change the partition you have booted with. To do that, re-execute this command
   as:
 
-    sudo ./make_dev_ssd.sh $ORIGINAL_PARAMS --partitions $ROOTDEV_KERNEL
+    sudo $ORIGINAL_CMD $ORIGINAL_PARAMS --partitions $ROOTDEV_KERNEL
 
   If you are sure to modify other partition, please invoke the command again and
   explicitly assign only one target partition for each time  (--partitions N )
@@ -419,13 +420,13 @@ sanity_check_live_firmware() {
 
    - To change system rootkey: disable firmware write protection (a hardware
      switch) and then type command:
-     sudo ./make_dev_firmware.sh
+     sudo $SCRIPT_BASE/make_dev_firmware.sh
 
   If you are sure that you want to make such image without developer
   firmware or you've already changed system root keys, please run this
   command again with --force paramemeter:
 
-     sudo ./make_dev_ssd.sh --force $ORIGINAL_PARAMS
+     sudo $ORIGINAL_CMD --force $ORIGINAL_PARAMS
   "
   return $FLAGS_FALSE
 }
