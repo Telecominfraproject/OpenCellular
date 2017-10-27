@@ -217,7 +217,12 @@ int vb2_allow_recovery(uint32_t flags)
 	if (flags & VBSD_BOOT_DEV_SWITCH_ON)
 		return 1;
 
-	/* If EC is in RW, it implies recovery wasn't manually requested. */
+	/*
+	 * If EC is in RW, it implies recovery wasn't manually requested.
+	 * On some platforms, EC_IN_RW can't be reset by the EC, thus, this may
+	 * return false (=RW). That's ok because if recovery is manual, we will
+	 * get the right signal and that's the case we care about.
+	 */
 	if (!VbExTrustEC(0))
 		return 0;
 

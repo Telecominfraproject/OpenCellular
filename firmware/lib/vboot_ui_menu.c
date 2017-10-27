@@ -1213,14 +1213,12 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				 *   - we can honor the virtual dev switch
 				 *   - not already in dev mode
 				 *   - user forced recovery mode
-				 *   - EC isn't pwned
 				 */
 				if (current_menu == VB_MENU_TO_DEV &&
 				    current_menu_idx == 0 &&
 				    shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
 				    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
-				    (shared->flags & VBSD_BOOT_REC_SWITCH_ON) &&
-				    VbExTrustEC(0)) {
+				    (shared->flags & VBSD_BOOT_REC_SWITCH_ON)) {
 					if (!(shared->flags &
 					      VBSD_BOOT_REC_SWITCH_VIRTUAL) &&
 					    VbExGetSwitches(

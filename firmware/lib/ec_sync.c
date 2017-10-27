@@ -202,11 +202,29 @@ static VbError_t update_ec(struct vb2_context *ctx, int devidx,
  * @param ctx		Vboot2 context
  * @param devidx	Which device (EC=0, PD=1)
  */
-static void check_ec_active(struct vb2_context *ctx, int devidx)
+static VbError_t check_ec_active(struct vb2_context *ctx, int devidx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
-	if (!VbExTrustEC(devidx))
+	int in_rw = 0;
+	/*
+	 * We don't use VbExTrustEC, which checks EC_IN_RW. It is controlled by
+	 * cr50 but on some platforms, cr50 can't know when a EC resets. So, we
+	 * trust what EC-RW says. If it lies it's in RO, we'll flash RW while
+	 * it's in RW.
+	 */
+	int rv = VbExEcRunningRW(devidx, &in_rw);
+
+	/* If we couldn't determine where the EC was, reboot to recovery. */
+	if (rv != VBERROR_SUCCESS) {
+		VB2_DEBUG("VbExEcRunningRW() returned %d\n", rv);
+		request_recovery(ctx, VB2_RECOVERY_EC_UNKNOWN_IMAGE);
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	}
+
+	if (in_rw)
 		sd->flags |= IN_RW(devidx);
+
+	return VBERROR_SUCCESS;
 }
 
 #define RO_RETRIES 2  /* Maximum times to retry flashing RO */
@@ -341,9 +359,10 @@ VbError_t ec_sync_phase1(struct vb2_context *ctx, VbCommonParams *cparams)
 #endif
 
 	/* Set IN_RW flags */
-	check_ec_active(ctx, 0);
-	if (do_pd_sync)
-		check_ec_active(ctx, 1);
+	if (check_ec_active(ctx, 0))
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
+	if (do_pd_sync && check_ec_active(ctx, 1))
+		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 
 	/* Check if we need to update RW.  Failures trigger recovery mode. */
 	if (check_ec_hash(ctx, 0, VB_SELECT_FIRMWARE_EC_ACTIVE))
