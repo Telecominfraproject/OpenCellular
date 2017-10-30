@@ -188,6 +188,7 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
+	uint32_t max_rollforward;
 
 	/* Boot from fixed disk only */
 	VB2_DEBUG("Entering\n");
@@ -222,6 +223,25 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 		}
 
 		return rv;
+	}
+
+	/* Limit kernel version rollforward if needed */
+	if (0 == VbNvGet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, &max_rollforward)) {
+		/*
+		 * Can't limit kernel version to less than the version
+		 * currently in the TPM.  That is, we're limiting rollforward,
+		 * not allowing rollback.
+		 */
+		if (max_rollforward < shared->kernel_version_tpm_start)
+			max_rollforward = shared->kernel_version_tpm_start;
+
+		if (shared->kernel_version_tpm > max_rollforward) {
+			VB2_DEBUG("Limiting TPM kernel version roll-forward "
+				  "to 0x%x < 0x%x\n",
+				  max_rollforward, shared->kernel_version_tpm);
+
+			shared->kernel_version_tpm = max_rollforward;
+		}
 	}
 
 	if ((shared->kernel_version_tpm > shared->kernel_version_tpm_start) &&

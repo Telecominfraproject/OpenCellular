@@ -53,6 +53,7 @@ static void ResetMocks(void)
 
 	memset(&vnc, 0, sizeof(vnc));
 	VbNvSetup(&vnc);
+	VbNvSet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, 0xffffffff);
 	VbNvTeardown(&vnc);                   /* So CRC gets generated */
 
 	memset(&shared_data, 0, sizeof(shared_data));
@@ -88,7 +89,6 @@ uint32_t RollbackKernelRead(uint32_t *version)
 
 uint32_t RollbackKernelWrite(uint32_t version)
 {
-	TEST_EQ(version, new_version, "RollbackKernelWrite new version");
 	rkr_version = version;
 	return rkw_retval;
 }
@@ -150,6 +150,7 @@ static void VbSlkTest(void)
 {
 	ResetMocks();
 	test_slk(0, 0, "Normal");
+	TEST_EQ(rkr_version, 0x10002, "  version");
 
 	/*
 	 * If shared->flags doesn't ask for software sync, we won't notice
@@ -180,6 +181,20 @@ static void VbSlkTest(void)
 	shared->flags |= VBSD_FWB_TRIED;
 	shared->firmware_index = 1;
 	test_slk(0, 0, "Don't roll forward during try B");
+	TEST_EQ(rkr_version, 0x10002, "  version");
+
+	ResetMocks();
+	VbNvSet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, 0x30005);
+	VbNvTeardown(&vnc);
+	new_version = 0x40006;
+	test_slk(0, 0, "Limit max roll forward");
+	TEST_EQ(rkr_version, 0x30005, "  version");
+
+	ResetMocks();
+	VbNvSet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, 0x10001);
+	VbNvTeardown(&vnc);
+	new_version = 0x40006;
+	test_slk(0, 0, "Max roll forward can't rollback");
 	TEST_EQ(rkr_version, 0x10002, "  version");
 
 	ResetMocks();
