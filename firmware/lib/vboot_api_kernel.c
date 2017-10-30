@@ -511,7 +511,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	dev_switch = shared->flags & VBSD_BOOT_DEV_SWITCH_ON;
 
 	VbNvLoad();
-	VbNvGet(&vnc, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP,
+	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
 		&allow_fastboot_full_cap);
 
 	if (0 == allow_fastboot_full_cap) {
