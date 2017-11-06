@@ -268,6 +268,10 @@ int VbAudioLooping(VbAudioContext *audio)
 	uint16_t msec = 0;
 	int looping = 1;
 
+	/* if no audio context, never timeout */
+	if (!audio)
+		return 1;
+
 	now = VbExGetTimer();
 	while (audio->next_note < audio->note_count &&
 	       now >= audio->play_until) {
@@ -302,6 +306,9 @@ int VbAudioLooping(VbAudioContext *audio)
  */
 void VbAudioClose(VbAudioContext *audio)
 {
+	if (!audio)
+		return;
+
 	VbExBeep(0,0);
 	if (audio->free_notes_when_done)
 		free(audio->music_notes);

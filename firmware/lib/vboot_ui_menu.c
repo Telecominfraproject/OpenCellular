@@ -89,72 +89,6 @@ uint32_t VbTryUsbMenu(struct vb2_context *ctx, VbCommonParams *cparams)
 	return retval;
 }
 
-#define CONFIRM_KEY_DELAY 20  /* Check confirm screen keys every 20ms */
-
-int VbUserConfirmsMenu(struct vb2_context *ctx, VbCommonParams *cparams,
-		   uint32_t confirm_flags)
-{
-	VbSharedDataHeader *shared =
-           (VbSharedDataHeader *)cparams->shared_data_blob;
-	uint32_t key;
-	uint32_t key_flags;
-        uint32_t button;
-	int rec_button_was_pressed = 0;
-
-	VB2_DEBUG("Entering (0x%x)\n", confirm_flags);
-
-	/* Await further instructions */
-	while (1) {
-		if (VbWantShutdownMenu(cparams->gbb->flags))
-			return -1;
-		key = VbExKeyboardReadWithFlags(&key_flags);
-                button = VbExGetSwitches(VB_INIT_FLAG_REC_BUTTON_PRESSED);
-		switch (key) {
-		case '\r':
-			/* If we require a trusted keyboard for confirmation,
-			 * but the keyboard may be faked (for instance, a USB
-			 * device), beep and keep waiting.
-			 */
-			if (confirm_flags & VB_CONFIRM_MUST_TRUST_KEYBOARD &&
-			    !(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)) {
-				VbExBeep(120, 400);
-				break;
-                        }
-
-			VB2_DEBUG("Yes (1)\n");
-			return 1;
-			break;
-		case ' ':
-			VB2_DEBUG("Space (%d)\n",
-				  confirm_flags & VB_CONFIRM_SPACE_MEANS_NO);
-			if (confirm_flags & VB_CONFIRM_SPACE_MEANS_NO)
-				return 0;
-			break;
-		case 0x1b:
-			VB2_DEBUG("No (0)\n");
-			return 0;
-			break;
-		default:
-			/* If the recovery button is physical, and is pressed,
-			 * this is also a YES, but must wait for release.
-			 */
-			if (!(shared->flags & VBSD_BOOT_REC_SWITCH_VIRTUAL)) {
-				if (button) {
-					VB2_DEBUG("Rec button pressed\n");
-	                                rec_button_was_pressed = 1;
-				} else if (rec_button_was_pressed) {
-					VB2_DEBUG("Rec button (1)\n");
-					return 1;
-				}
-			}
-		}
-		VbExSleepMs(CONFIRM_KEY_DELAY);
-	}
-
-	/* Not reached, but compiler will complain without it */
-	return -1;
-}
-
 static const char dev_disable_msg[] =
 	"Developer mode is disabled on this device by system policy.\n"
 	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
@@ -229,6 +163,7 @@ static int current_menu_idx = VB_WARN_POWER_OFF;
 static int selected = 0;
 static int disabled_idx_mask = 0;
 static uint32_t default_boot = VB2_DEV_DEFAULT_BOOT_DISK;
+static uint32_t disable_dev_boot = 0;
 
 // TODO: add in consts
 static char *dev_warning_menu[] = {
@@ -648,6 +583,10 @@ VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
 	/* Disable Network Boot Option */
 	if (current_menu == VB_MENU_DEV)
 		disabled_idx_mask |= 1 << VB_DEV_NETWORK;
+	/* Disable cancel option if enterprise disabled dev mode */
+	if (current_menu == VB_MENU_TO_NORM &&
+	    disable_dev_boot == 1)
+		disabled_idx_mask |= 1 << VB_TO_NORM_CANCEL;
 	return VBERROR_SUCCESS;
 }
 
@@ -713,13 +652,13 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
 
-	uint32_t disable_dev_boot = 0;
 	uint32_t use_usb = 0;
 	uint32_t use_legacy = 0;
 	uint32_t ctrl_d_pressed = 0;
 
-	VbAudioContext *audio = 0;
+	VbAudioContext *audio = NULL;
 	VbError_t ret;
+
 	VB2_DEBUG("Entering\n");
 
 	/* Check if USB booting is allowed */
@@ -756,42 +695,22 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				  "FORCE_DEV_SWITCH_ON\n");
 		} else {
 			disable_dev_boot = 1;
+			VB2_DEBUG("dev_disable_boot is set.\n");
+
+			/* If dev mode is disabled, only allow TONORM */
+			current_menu = VB_MENU_TO_NORM;
+			prev_menu = VB_MENU_TO_NORM;
+			current_menu_idx = VB_TO_NORM_CONFIRM;
 		}
 	}
-
-	/* If dev mode is disabled, only allow TONORM */
-	while (disable_dev_boot) {
-		VB2_DEBUG("dev_disable_boot is set.\n");
-		VbDisplayScreen(ctx, cparams, VB_SCREEN_DEVELOPER_TO_NORM_MENU,
-				0);
-		VbExDisplayDebugInfo(dev_disable_msg);
-
-		/* Ignore space in VbUserConfirmsMenu()... */
-		switch (VbUserConfirmsMenu(ctx, cparams, 0)) {
-		case 1:
-			VB2_DEBUG("leaving dev-mode.\n");
-			vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
-			VbDisplayScreen(ctx, cparams,
-					VB_SCREEN_TO_NORM_CONFIRMED,
-					0);
-			VbExSleepMs(5000);
-			return VBERROR_REBOOT_REQUIRED;
-		case -1:
-			VB2_DEBUG("shutdown requested\n");
-			return VBERROR_SHUTDOWN_REQUESTED;
-		default:
-			/* Ignore user attempt to cancel */
-			VB2_DEBUG("ignore cancel TONORM\n");
-		}
-	}
-
 
 	vb2_set_disabled_idx_mask(shared->flags);
 	/* Show the dev mode warning screen */
 	vb2_draw_current_screen(ctx, cparams);
 
 	/* Get audio/delay context */
-	audio = VbAudioOpen(cparams);
+	if (!disable_dev_boot)
+		audio = VbAudioOpen(cparams);
 
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
@@ -799,9 +718,14 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 		if (VbWantShutdownMenu(gbb->flags)) {
 			VB2_DEBUG("shutdown requested!\n");
-			VbAudioClose(audio);
+			if (audio)
+				VbAudioClose(audio);
 			return VBERROR_SHUTDOWN_REQUESTED;
 		}
+
+		/* Make sure user knows dev mode disabled */
+		if (disable_dev_boot)
+			VbExDisplayDebugInfo(dev_disable_msg);
 
 		key = VbExKeyboardRead();
 		switch (key) {
@@ -811,16 +735,22 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		case VB_BUTTON_VOL_DOWN_LONG_PRESS:
 		case 0x04:
 			/* Ctrl+D = dismiss warning; advance to timeout */
+			if (disable_dev_boot)
+				break;
 			VB2_DEBUG("user pressed Ctrl+D; skip delay\n");
 			ctrl_d_pressed = 1;
 			goto fallout;
 			break;
 		case 0x0c:
+			if (disable_dev_boot)
+				break;
 			VB2_DEBUG("user pressed Ctrl+L; Try legacy boot\n");
 			VbTryLegacyMenu(allow_legacy);
 			break;
 		case VB_BUTTON_VOL_UP_LONG_PRESS:
 		case 0x15:
+			if (disable_dev_boot)
+				break;
 			/* Ctrl+U = try USB boot, or beep if failure */
 			VB2_DEBUG("user pressed Ctrl+U; try USB\n");
 			if (!allow_usb) {
@@ -842,7 +772,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						0);
 				if (VBERROR_SUCCESS ==
 				    VbTryUsbMenu(ctx, cparams)) {
-					VbAudioClose(audio);
+					if (audio)
+						VbAudioClose(audio);
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
@@ -855,14 +786,16 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
-			audio = VbAudioOpen(cparams);
+			if (audio)
+				audio = VbAudioOpen(cparams);
 			break;
 		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 		case VB_KEY_DOWN:
 			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
-			audio = VbAudioOpen(cparams);
+			if (audio)
+				audio = VbAudioOpen(cparams);
 			break;
 		case VB_BUTTON_POWER_SHORT_PRESS:
 		case '\r':
@@ -927,7 +860,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						cparams, VB_SCREEN_BLANK, 0);
 					if (VBERROR_SUCCESS ==
 					    VbTryUsbMenu(ctx, cparams)) {
-						VbAudioClose(audio);
+						if (audio)
+							VbAudioClose(audio);
 						return VBERROR_SUCCESS;
 					} else
 						/*
@@ -983,7 +917,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				}
 			}
 			/* reset 30 second timer */
-			audio = VbAudioOpen(cparams);
+			if (audio)
+				audio = VbAudioOpen(cparams);
 			break;
 		default:
 			VB2_DEBUG("pressed key %d\n", key);
