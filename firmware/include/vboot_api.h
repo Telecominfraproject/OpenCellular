@@ -877,11 +877,20 @@ enum VbKeyCode_t {
 	VB_KEY_CTRL_ENTER = 0x104
 };
 
-/* Button codes match that of 8042 ascii values */
+/*
+ * WARNING!!! Before updating the codes in enum VbButtonCode_t, ensure that the
+ * code does not overlap the values in VbKeyCode_t unless the button action is
+ * the same as key action.
+ */
 enum VbButtonCode_t {
-	VB_BUTTON_VOL_UP = 0x62,
-	VB_BUTTON_VOL_DOWN = 0x63,
-	VB_BUTTON_POWER = 0x90
+	/* Volume up/down short press match the values in 8042 driver. */
+	VB_BUTTON_VOL_UP_SHORT_PRESS = 0x62,
+	VB_BUTTON_VOL_DOWN_SHORT_PRESS = 0x63,
+	/* Dummy values used below. */
+	VB_BUTTON_POWER_SHORT_PRESS = 0x90,
+	VB_BUTTON_VOL_UP_LONG_PRESS = 0x91,
+	VB_BUTTON_VOL_DOWN_LONG_PRESS = 0x92,
+	VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS = 0x93,
 };
 
 /* Flags for additional information.

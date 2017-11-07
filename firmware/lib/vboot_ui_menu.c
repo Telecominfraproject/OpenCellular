@@ -674,7 +674,7 @@ void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
 	}
 
 	switch (key) {
-	case VB_BUTTON_VOL_UP:
+	case VB_BUTTON_VOL_UP_SHORT_PRESS:
 	case VB_KEY_UP:
 		idx = current_menu_idx - 1;
 		while (idx >= 0 &&
@@ -684,7 +684,7 @@ void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
 		if (idx >= 0)
 			current_menu_idx = idx;
 		break;
-	case VB_BUTTON_VOL_DOWN:
+	case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 	case VB_KEY_DOWN:
 		idx = current_menu_idx + 1;
 		while (idx < menu_size &&
@@ -808,6 +808,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		case 0:
 			/* Nothing pressed */
 			break;
+		case VB_BUTTON_VOL_DOWN_LONG_PRESS:
 		case 0x04:
 			/* Ctrl+D = dismiss warning; advance to timeout */
 			VB2_DEBUG("user pressed Ctrl+D; skip delay\n");
@@ -818,6 +819,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			VB2_DEBUG("user pressed Ctrl+L; Try legacy boot\n");
 			VbTryLegacyMenu(allow_legacy);
 			break;
+		case VB_BUTTON_VOL_UP_LONG_PRESS:
 		case 0x15:
 			/* Ctrl+U = try USB boot, or beep if failure */
 			VB2_DEBUG("user pressed Ctrl+U; try USB\n");
@@ -848,21 +850,21 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				}
 			}
 			break;
-		case VB_BUTTON_VOL_UP:
+		case VB_BUTTON_VOL_UP_SHORT_PRESS:
 		case VB_KEY_UP:
 			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
 			audio = VbAudioOpen(cparams);
 			break;
-		case VB_BUTTON_VOL_DOWN:
+		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 		case VB_KEY_DOWN:
 			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
 			audio = VbAudioOpen(cparams);
 			break;
-		case VB_BUTTON_POWER:
+		case VB_BUTTON_POWER_SHORT_PRESS:
 		case '\r':
 			selected = 1;
 
@@ -1064,7 +1066,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		VB2_DEBUG("waiting for manual recovery\n");
 		while (1) {
 			key = VbExKeyboardRead();
-			if (key == VB_BUTTON_POWER)
+			if (key == VB_BUTTON_POWER_SHORT_PRESS)
 				return VBERROR_SHUTDOWN_REQUESTED;
 			else {
 				VbCheckDisplayKey(ctx, cparams, key);
@@ -1123,8 +1125,8 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				break;
 			case VB_KEY_UP:
 			case VB_KEY_DOWN:
-			case VB_BUTTON_VOL_UP:
-			case VB_BUTTON_VOL_DOWN:
+			case VB_BUTTON_VOL_UP_SHORT_PRESS:
+			case VB_BUTTON_VOL_DOWN_LONG_PRESS:
 				/* User cannot use keyboard to enable dev mode.
 				 * They need to use the volume buttons from a
 				 * trusted source to navigate to the disable os
@@ -1147,7 +1149,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				}
 				vb2_draw_current_screen(ctx, cparams);
 				break;
-			case VB_BUTTON_POWER:
+			case VB_BUTTON_POWER_SHORT_PRESS:
 			case '\r':
 				selected = 1;
 
