@@ -218,7 +218,7 @@ static char *languages_menu[] = {
  * @param size:	Size of menu's string array.
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
+void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
 				    uint32_t *size)
 {
 	char **temp_menu;
@@ -250,12 +250,9 @@ VbError_t vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
 		break;
 	default:
 		*size = 0;
-		return VBERROR_UNKNOWN;
 	}
 	if (menu_array)
 		*menu_array = temp_menu;
-
-	return VBERROR_SUCCESS;
 }
 
 /**
@@ -1074,15 +1071,22 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					break;
 				}
 
+				vb2_update_selection(cparams, key);
+				vb2_draw_current_screen(ctx, cparams);
+				break;
+			case VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS:
+				/*
+				 * This is currently only being used to
+				 * transition out of the initial insert
+				 * graphic
+				 */
 				if (current_menu == VB_MENU_RECOVERY_INSERT) {
 					ret = vb2_update_menu(ctx);
 					if (ret != VBERROR_SUCCESS)
 						return ret;
 					vb2_set_disabled_idx_mask(shared->flags);
-				} else {
-					vb2_update_selection(cparams, key);
+					vb2_draw_current_screen(ctx, cparams);
 				}
-				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_POWER_SHORT_PRESS:
 			case '\r':
