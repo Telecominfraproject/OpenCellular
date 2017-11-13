@@ -1126,7 +1126,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			case VB_KEY_UP:
 			case VB_KEY_DOWN:
 			case VB_BUTTON_VOL_UP_SHORT_PRESS:
-			case VB_BUTTON_VOL_DOWN_LONG_PRESS:
+			case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 				/* User cannot use keyboard to enable dev mode.
 				 * They need to use the volume buttons from a
 				 * trusted source to navigate to the disable os
