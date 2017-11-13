@@ -217,7 +217,7 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 	int retval = 1;
 	FmapHeader *fmap = NULL;
 	FmapAreaHeader *fmaparea;
-	const struct vb21_signature *old_sig = 0;
+	struct vb21_signature *old_sig = 0;
 
 	Debug("%s(): name %s\n", __func__, name);
 	Debug("%s(): len  0x%08x (%d)\n", __func__, len, len);
@@ -230,7 +230,7 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 			/* This looks like a full image. */
 			Debug("Found an FMAP!\n");
 
-			old_sig = (const struct vb21_signature *)
+			old_sig = (struct vb21_signature *)
 				fmap_find_by_name(buf, len, fmap, "SIG_RW",
 						  &fmaparea);
 			if (!old_sig) {
@@ -264,7 +264,7 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 			}
 
 			/* Take a look */
-			old_sig = (const struct vb21_signature *)
+			old_sig = (struct vb21_signature *)
 				(buf + len - sig_size);
 		}
 
@@ -314,8 +314,9 @@ int ft_sign_rwsig(const char *name, uint8_t *buf, uint32_t len, void *nuthin)
 				tmp_sig->c.total_size, sig_size);
 			goto done;
 		}
-		memset(buf + len - sig_size, 0xff, sig_size);
-		memcpy(buf + len - sig_size, tmp_sig, tmp_sig->c.total_size);
+		Debug("Replacing old signature with new one\n");
+		memset(old_sig, 0xff, sig_size);
+		memcpy(old_sig, tmp_sig, tmp_sig->c.total_size);
 		if (fmap) {
 			Debug("Writing %s (size=%d)\n",
 			      EC_RW_FILENAME, fmaparea->area_size);
