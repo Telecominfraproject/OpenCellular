@@ -765,6 +765,8 @@ enum VbScreenType_t {
 	VB_SCREEN_DEVELOPER_TO_NORM_MENU = 0x20e,
 	/* Detachable Menu - Languages */
 	VB_SCREEN_LANGUAGES_MENU = 0x20f,
+	/* Detachable Menu - Options */
+	VB_SCREEN_OPTIONS_MENU = 0x210,
 };
 
 /**

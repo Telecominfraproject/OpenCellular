@@ -146,6 +146,13 @@ static char *languages_menu[] = {
 	"US English\n",
 };
 
+static char *options_menu[] = {
+	"Cancel\n",
+	"Show Debug Info\n",
+	"Power Off\n",
+	"Language\n"
+};
+
 /**
  * Get the string array and size of current_menu.
  *
@@ -184,6 +191,10 @@ void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
 	case VB_MENU_LANGUAGES:
 		*size = VB_LANGUAGES_COUNT;
 		temp_menu = languages_menu;
+		break;
+	case VB_MENU_OPTIONS:
+		*size = VB_OPTIONS_COUNT;
+		temp_menu = options_menu;
 		break;
 	default:
 		*size = 0;
@@ -238,6 +249,7 @@ static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
 	VB_SCREEN_RECOVERY_MENU,
 	VB_SCREEN_RECOVERY_TO_DEV_MENU,
 	VB_SCREEN_LANGUAGES_MENU,
+	VB_SCREEN_OPTIONS_MENU,
 	VB_SCREEN_RECOVERY_INSERT,
 	VB_SCREEN_RECOVERY_NO_GOOD,
 	VB_SCREEN_OS_BROKEN,
