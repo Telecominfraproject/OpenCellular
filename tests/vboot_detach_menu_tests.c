@@ -95,10 +95,6 @@ static void ResetMocks(void)
 
 	memset(mock_num_disks, 0, sizeof(mock_num_disks));
 	mock_num_disks_count = 0;
-
-	current_menu = VB_MENU_DEV_WARNING;
-	prev_menu = VB_MENU_DEV_WARNING;
-	current_menu_idx = VB_WARN_POWER_OFF;
 }
 
 /* Mock functions */
@@ -542,6 +538,8 @@ static void VbBootDevTest(void)
 
 static void VbBootRecTest(void)
 {
+	int i;
+
 	printf("Testing VbBootRecoveryMenu()...\n");
 
 	/* Shutdown requested in loop */
@@ -695,33 +693,29 @@ static void VbBootRecTest(void)
 	shutdown_request_calls_left = 100;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	trust_ec = 1;
-	mock_keypress[0] = 0x93; // volume up/down to exit insert
-	mock_keyflags[0] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[1] = 0x62; // volume up
-	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[2] = 0x62; // volume up
-	mock_keyflags[2] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[3] = 0x62; // volume up
-	mock_keyflags[3] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[4] = 0x90; // power button
-	mock_keypress[5] = 0x90; // power button
+	i = 0;
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x93; // volume up/down combo to enter TO_DEV
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x62; // volume up: confirm disabling
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x63; // volume down: cancel
+	mock_keypress[i++] = 0x90; // power button
+	mock_keypress[i++] = 0x90; // power button
 	TEST_EQ(VbBootRecoveryMenu(&ctx),
 		VBERROR_SHUTDOWN_REQUESTED,
 		"go to TO_DEV screen and cancel");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
+	i = 0;
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_INSERT,
 		"  insert screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: language");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: power off");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: show debug info");
-	TEST_EQ(screens_displayed[4], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: disable os verification");
-	TEST_EQ(screens_displayed[5], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
 		"  recovery to_dev menu: cancel");
-	TEST_EQ(screens_displayed[6], VB_SCREEN_RECOVERY_MENU,
-		"  back to recovery menu");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  recovery to_dev menu: confirm disabling");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  recovery to_dev menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_INSERT,
+		"  back to insert screen");
 	TEST_EQ(virtdev_set, 0, "  virtual dev mode off");
 
 	/* Navigate to confirm dev mode selection and then confirm */
@@ -730,33 +724,20 @@ static void VbBootRecTest(void)
 	shutdown_request_calls_left = 100;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	trust_ec = 1;
-	mock_keypress[0] = 0x93; // volume up/down to exit insert
-	mock_keyflags[0] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[1] = 0x62; // volume up
-	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[2] = 0x62; // volume up
-	mock_keyflags[2] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[3] = 0x62; // volume up
-	mock_keyflags[3] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[4] = 0x90; // power button
-	mock_keypress[5] = 0x62; // volume up
-	mock_keyflags[5] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[6] = 0x90; // power button
+	i = 0;
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x93; // volume up/down to enter to_dev
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x62; // volume up
+	mock_keypress[i++] = 0x90; // power button
 	TEST_EQ(VbBootRecoveryMenu(&ctx), VBERROR_REBOOT_REQUIRED,
 		"go to TO_DEV screen and confirm");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
+	i = 0;
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_INSERT,
 		"  insert screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: language");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: power off");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: show debug info");
-	TEST_EQ(screens_displayed[4], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: disable os verification");
-	TEST_EQ(screens_displayed[5], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
 		"  recovery to_dev menu: cancel");
-	TEST_EQ(screens_displayed[6], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
 		"  recovery to_dev menu: confirm disabling os verification");
 	TEST_EQ(virtdev_set, 1, "  virtual dev mode on");
 
@@ -781,6 +762,8 @@ static void VbBootRecTest(void)
 
 static void VbTestLanguageMenu(void)
 {
+	int i;
+
 	printf("Testing VbTestLanguageMenu()...\n");
 
 	/* Navigate to all language menus from recovery */
@@ -789,50 +772,58 @@ static void VbTestLanguageMenu(void)
 	shutdown_request_calls_left = 100;
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	trust_ec = 1;
-	mock_keypress[0] = 0x93; // volume up/down to exit insert
-	mock_keypress[1] = 0x63; // volume down
-	mock_keypress[2] = 0x90; // power button
-	mock_keypress[3] = 0x90; // power button: select current language
-	mock_keypress[4] = 0x62; // volume up: show debug info
-	mock_keypress[5] = 0x62; // volume up: disable os verification
-	mock_keypress[6] = 0x90; // power button: select disable os verification
-	mock_keypress[7] = 0x63; // volume down: power off
-	mock_keyflags[7] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[8] = 0x63; // volume down: language
-	mock_keyflags[8] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[9] = 0x90; // power button: select language
-	mock_keypress[10] = 0x90; // power button: select current language to go back
-	mock_keypress[11] = 0x63; // volume down: power off
-	mock_keyflags[11] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	mock_keypress[12] = 0x90; // power button: select power off
+	i = 0;
+	mock_keypress[i++] = 0x62; // volume up to enter OPTIONS
+	mock_keypress[i++] = 0x63; // volume down: power off
+	mock_keypress[i++] = 0x63; // volume down: languages
+	mock_keypress[i++] = 0x90; // power button
+	mock_keypress[i++] = 0x90; // power button: select current language
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x93; // volume up/down combo to enter TO_DEV
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x62; // volume up: confirm disabling os verification
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x63; // volume down: cancel
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x63; // volume down: power off
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x63; // volume down: language
+	mock_keypress[i++] = 0x90; // power button: select language
+	mock_keypress[i++] = 0x90; // power button: select current language to go back
+	mock_keyflags[i] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
+	mock_keypress[i++] = 0x63; // volume down: power off
+	mock_keypress[i++] = 0x90; // power button: select power off
 	TEST_EQ(VbBootRecoveryMenu(&ctx), VBERROR_SHUTDOWN_REQUESTED,
 		"go to language menu");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
+	i = 0;
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_INSERT,
 		"  insert screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: language");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_RECOVERY_MENU,
-		"  select language option");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_LANGUAGES_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_OPTIONS_MENU,
+		"  options menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_OPTIONS_MENU,
+		"  options menu: power off");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_OPTIONS_MENU,
+		"  options menu: language");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_LANGUAGES_MENU,
 		"  language menu");
-	TEST_EQ(screens_displayed[4], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: power off");
-	TEST_EQ(screens_displayed[5], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: show debug info");
-	TEST_EQ(screens_displayed[6], VB_SCREEN_RECOVERY_MENU,
-		"  recovery menu: disable os verification");
-	TEST_EQ(screens_displayed[7], VB_SCREEN_RECOVERY_TO_DEV_MENU,
-		"  recovery menu: select disable os verification");
-	TEST_EQ(screens_displayed[8], VB_SCREEN_RECOVERY_TO_DEV_MENU,
-		"  recovery to dev menu: cancel");
-	TEST_EQ(screens_displayed[9], VB_SCREEN_RECOVERY_TO_DEV_MENU,
-		"  recovery to dev menu: power off");
-	TEST_EQ(screens_displayed[10], VB_SCREEN_LANGUAGES_MENU,
-		"  recovery to dev menu: language");
-	TEST_EQ(screens_displayed[11], VB_SCREEN_RECOVERY_TO_DEV_MENU,
-		"  recovery to dev menu: cancel");
-	TEST_EQ(screens_displayed[12], VB_SCREEN_RECOVERY_TO_DEV_MENU,
-		"  recovery to dev menu: power off");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_OPTIONS_MENU,
+		"  options menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: confirm disabling os verification");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: power_off");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: language");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_LANGUAGES_MENU,
+		"  language menu");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		"  to dev menu: power off");
 
 	/* Navigate to all language menus from developer menu */
 	ResetMocks();

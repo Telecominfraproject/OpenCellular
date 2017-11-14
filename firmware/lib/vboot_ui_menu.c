@@ -68,7 +68,7 @@ static void VbTryLegacyMenu(int allowed)
 	VbExBeep(120, 400);
 }
 
-uint32_t VbTryUsbMenu(struct vb2_context *ctx)
+static int32_t VbTryUsbMenu(struct vb2_context *ctx)
 {
 	uint32_t retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
 	if (VBERROR_SUCCESS == retval) {
@@ -94,11 +94,8 @@ static const char dev_disable_msg[] =
 	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
 	"\n";
 
-VB_MENU current_menu = VB_MENU_DEV_WARNING;
-VB_MENU prev_menu = VB_MENU_DEV_WARNING;
-int current_menu_idx = VB_WARN_POWER_OFF;
-static int selected = 0;
-static int disabled_idx_mask = 0;
+static VB_MENU current_menu, prev_menu;
+static int current_menu_idx, selected, disabled_idx_mask, usb_nogood;
 static uint32_t default_boot = VB2_DEV_DEFAULT_BOOT_DISK;
 static uint32_t disable_dev_boot = 0;
 
@@ -154,6 +151,21 @@ static char *options_menu[] = {
 };
 
 /**
+ * Return 1 if screen with only an image, or 0 if screen with a real menu.
+ *
+ * @param menu: The menu to check
+ * @return int: 1 if legacy menu, or 0 otherwise
+ */
+static int vb2_is_menuless_screen(VB_MENU menu) {
+	if (menu == VB_MENU_RECOVERY_INSERT ||
+	    menu == VB_MENU_RECOVERY_NO_GOOD ||
+	    menu == VB_MENU_TO_NORM_CONFIRMED ||
+	    menu == VB_MENU_RECOVERY_BROKEN)
+		return 1;
+	return 0;
+}
+
+/**
  * Get the string array and size of current_menu.
  *
  * @param menu:	The current_menu
@@ -162,7 +174,7 @@ static char *options_menu[] = {
  * @param size:	Size of menu's string array.
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
+static void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
 				    uint32_t *size)
 {
 	char **temp_menu = NULL;
@@ -256,14 +268,16 @@ static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
 	VB_SCREEN_TO_NORM_CONFIRMED,
 };
 
-VbError_t vb2_draw_current_screen(struct vb2_context *ctx) {
+static VbError_t vb2_draw_current_screen(struct vb2_context *ctx) {
 	uint32_t screen;
 	if (current_menu < VB_MENU_COUNT)
 		screen = VB_MENU_TO_SCREEN_MAP[current_menu];
 	else
 		return VBERROR_UNKNOWN;
 	return VbDisplayMenu(ctx, screen, 0,
-			     current_menu_idx, disabled_idx_mask);
+			     vb2_is_menuless_screen(current_menu) ?
+			     0 : current_menu_idx,
+			     disabled_idx_mask);
 }
 
 /**
@@ -273,7 +287,7 @@ VbError_t vb2_draw_current_screen(struct vb2_context *ctx) {
  * @param new_current_menu_idx: new idx to set current_menu_idx to
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
+static VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
 			     int new_current_menu_idx)
 {
 	prev_menu = current_menu;
@@ -286,11 +300,22 @@ VbError_t vb2_set_menu_items(VB_MENU new_current_menu,
 }
 
 /**
+ * Transition to current recovery "base" menu based on current USB state.
+ */
+static void vb2_recovery_base_menu(int nogood)
+{
+	if (nogood)
+		vb2_set_menu_items(VB_MENU_RECOVERY_NO_GOOD, 0);
+	else
+		vb2_set_menu_items(VB_MENU_RECOVERY_INSERT, 0);
+}
+
+/**
  * This updates current_menu and current_menu_idx, as necessary
  *
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_update_menu(struct vb2_context *ctx)
+static VbError_t vb2_update_menu(struct vb2_context *ctx)
 {
 	VbError_t ret = VBERROR_SUCCESS;
 	VB_MENU next_menu_idx = current_menu_idx;
@@ -334,8 +359,7 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			break;
 		case VB_WARN_LANGUAGE:
 			/* Languages */
-			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   loc);
+			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything. */
@@ -370,8 +394,7 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			break;
 		case VB_DEV_LANGUAGE:
 			/* Language */
-			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   loc);
+			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything. */
@@ -397,8 +420,7 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			break;
 		case VB_TO_NORM_LANGUAGE:
 			/* Language */
-			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   loc);
+			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything */
@@ -406,12 +428,10 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		}
 		break;
 	case VB_MENU_RECOVERY_INSERT:
-		vb2_set_menu_items(VB_MENU_RECOVERY,
-				   VB_RECOVERY_POWER_OFF);
-		break;
 	case VB_MENU_RECOVERY_NO_GOOD:
 	case VB_MENU_RECOVERY_BROKEN:
-	case VB_MENU_TO_NORM_CONFIRMED:
+		vb2_set_menu_items(VB_MENU_OPTIONS,
+				   VB_OPTIONS_CANCEL);
 		break;
 	case VB_MENU_RECOVERY:
 		switch(current_menu_idx) {
@@ -429,8 +449,7 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			ret = VBERROR_SHUTDOWN_REQUESTED;
 			break;
 		case VB_RECOVERY_LANGUAGE:
-			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   loc);
+			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything */
@@ -443,15 +462,31 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 			/* Confirm enabling dev mode */
 			break;
 		case VB_TO_DEV_CANCEL:
-			vb2_set_menu_items(VB_MENU_RECOVERY,
-					   VB_RECOVERY_POWER_OFF);
+			vb2_recovery_base_menu(usb_nogood);
 			break;
 		case VB_TO_DEV_POWER_OFF:
 			ret = VBERROR_SHUTDOWN_REQUESTED;
 			break;
 		case VB_TO_DEV_LANGUAGE:
-			vb2_set_menu_items(VB_MENU_LANGUAGES,
-					   loc);
+			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
+			break;
+		default:
+			/* Invalid menu item.  Don't update anything. */
+			break;
+		}
+		break;
+	case VB_MENU_OPTIONS:
+		switch(current_menu_idx) {
+		case VB_OPTIONS_DBG_INFO:
+			break;
+		case VB_OPTIONS_CANCEL:
+			vb2_recovery_base_menu(usb_nogood);
+			break;
+		case VB_OPTIONS_POWER_OFF:
+			ret = VBERROR_SHUTDOWN_REQUESTED;
+			break;
+		case VB_OPTIONS_LANGUAGE:
+			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
 			break;
 		default:
 			/* Invalid menu item.  Don't update anything. */
@@ -460,37 +495,32 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		break;
 	case VB_MENU_LANGUAGES:
 		/*
-		 * Assume that we selected a language.  Go to previous
-		 * menu.  Purposely bypassing vb2_set_menu_items() here
-		 * because need to do in different order.
-		 */
-		current_menu = prev_menu;
-		prev_menu = VB_MENU_LANGUAGES;
-		/*
 		 * default to power off index with the exception of
-		 * TO_DEV and TO_NORM menus
+		 * TO_DEV, TO_NORM and OPTIONS menus
 		 */
-		switch (current_menu) {
+		switch (prev_menu) {
 		case VB_MENU_DEV_WARNING:
-			current_menu_idx = VB_WARN_POWER_OFF;
+			vb2_set_menu_items(prev_menu, VB_WARN_POWER_OFF);
 			break;
 		case VB_MENU_DEV:
-			current_menu_idx = VB_DEV_POWER_OFF;
+			vb2_set_menu_items(prev_menu, VB_DEV_POWER_OFF);
 			break;
 		case VB_MENU_TO_NORM:
-			current_menu_idx = VB_TO_NORM_CONFIRM;
+			vb2_set_menu_items(prev_menu, VB_TO_NORM_CONFIRM);
 			break;
 		case VB_MENU_RECOVERY:
-			current_menu_idx = VB_RECOVERY_POWER_OFF;
+			vb2_set_menu_items(prev_menu, VB_RECOVERY_POWER_OFF);
 			break;
 		case VB_MENU_TO_DEV:
-			current_menu_idx = VB_TO_DEV_CANCEL;
+			vb2_set_menu_items(prev_menu, VB_TO_DEV_CANCEL);
+			break;
+		case VB_MENU_OPTIONS:
+			vb2_set_menu_items(prev_menu, VB_OPTIONS_CANCEL);
 			break;
 		default:
-			current_menu_idx = 0;
+			vb2_set_menu_items(prev_menu, 0);
 			break;
 		}
-		selected = current_menu_idx;
 		break;
 	default:
 		VB2_DEBUG("Current Menu Invalid! 0x%x\n", current_menu_idx);
@@ -505,7 +535,7 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
  *
  * @return VBERROR_SUCCESS
  */
-VbError_t vb2_update_locale(struct vb2_context *ctx) {
+static VbError_t vb2_update_locale(struct vb2_context *ctx) {
 	if (current_menu == VB_MENU_LANGUAGES) {
 		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
 		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
@@ -525,7 +555,7 @@ VbError_t vb2_update_locale(struct vb2_context *ctx) {
  * @param flags flag to check for dev/normal mode.
  * @return VBERROR_SUCCESS
  */
-VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
+static VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
 	/* Disable "Enable Developer Mode" menu item */
 	disabled_idx_mask = 0;
 	if (current_menu == VB_MENU_RECOVERY &&
@@ -552,7 +582,7 @@ VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
  *                  VOL_KEY_DOWN = decrease index selection.
  *                  Every other key has no effect now.
  */
-void vb2_update_selection(uint32_t key) {
+static void vb2_update_selection(uint32_t key) {
 	int idx;
 	uint32_t menu_size;
 
@@ -596,7 +626,7 @@ void vb2_update_selection(uint32_t key) {
  * @param ctx		Vboot2 context
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_developer_menu(struct vb2_context *ctx)
+static VbError_t vb2_developer_menu(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -608,6 +638,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx)
 	VbError_t ret;
 
 	VB2_DEBUG("Entering\n");
+
+	vb2_set_menu_items(VB_MENU_DEV_WARNING, VB_WARN_POWER_OFF);
 
 	/* Check if USB booting is allowed */
 	uint32_t allow_usb = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_USB);
@@ -642,13 +674,10 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx)
 			VB2_DEBUG("FWMP_DEV_DISABLE_BOOT rejected by"
 				  "FORCE_DEV_SWITCH_ON\n");
 		} else {
+			/* If dev mode is disabled, only allow TONORM */
 			disable_dev_boot = 1;
 			VB2_DEBUG("dev_disable_boot is set.\n");
-
-			/* If dev mode is disabled, only allow TONORM */
-			current_menu = VB_MENU_TO_NORM;
-			prev_menu = VB_MENU_TO_NORM;
-			current_menu_idx = VB_TO_NORM_CONFIRM;
+			vb2_set_menu_items(VB_MENU_TO_NORM, VB_TO_NORM_CONFIRM);
 		}
 	}
 
@@ -845,8 +874,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx)
 					vb2_nv_set(ctx,
 						   VB2_NV_DISABLE_DEV_REQUEST,
 						   1);
-					VbDisplayScreen(ctx,
-						VB_SCREEN_TO_NORM_CONFIRMED, 0);
+					current_menu = VB_MENU_TO_NORM_CONFIRMED;
+					vb2_draw_current_screen(ctx);
 					current_menu = VB_MENU_TO_NORM_CONFIRMED;
 					VbExSleepMs(5000);
 					return VBERROR_REBOOT_REQUIRED;
@@ -902,6 +931,8 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx)
  */
 static VbError_t recovery_ui(struct vb2_context *ctx)
 {
+	const char dev_already_on[] =
+		"WARNING: TODEV rejected, developer mode is already on.\n";
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
 	uint32_t retval;
@@ -932,7 +963,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 		vb2_nv_commit(ctx);
 
 		VbDisplayScreen(ctx, VB_SCREEN_OS_BROKEN, 0);
-		current_menu = VB_MENU_RECOVERY_BROKEN;
+		vb2_set_menu_items(VB_MENU_RECOVERY_BROKEN, 0);
 		VB2_DEBUG("waiting for manual recovery\n");
 		while (1) {
 			key = VbExKeyboardRead();
@@ -950,11 +981,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 	/* Loop and wait for a recovery image */
 	VB2_DEBUG("waiting for a recovery image\n");
 
-	/* Initialize menu to recovery menu. */
-	current_menu = VB_MENU_RECOVERY_INSERT;
-	prev_menu = VB_MENU_RECOVERY_INSERT;
-	current_menu_idx = 0;
-
+	usb_nogood = -1;
 	while (1) {
 		VB2_DEBUG("attempting to load kernel2\n");
 		retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
@@ -971,17 +998,12 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 		if (VBERROR_SUCCESS == retval)
 			break; /* Found a recovery kernel */
 
-		vb2_set_disabled_idx_mask(shared->flags);
-
-		if (current_menu != VB_MENU_RECOVERY ||
-		    current_menu_idx != VB_RECOVERY_DBG_INFO) {
-			if (retval == VBERROR_NO_DISK_FOUND)
-				vb2_draw_current_screen(ctx);
-			else {
-				VbDisplayScreen(ctx,
-						VB_SCREEN_RECOVERY_NO_GOOD, 0);
-				current_menu = VB_MENU_RECOVERY_NO_GOOD;
-			}
+		if (usb_nogood != (retval != VBERROR_NO_DISK_FOUND)) {
+			/* USB state changed, force back to base screen */
+			usb_nogood = retval != VBERROR_NO_DISK_FOUND;
+			vb2_recovery_base_menu(usb_nogood);
+			vb2_draw_current_screen(ctx);
+			vb2_set_disabled_idx_mask(shared->flags);
 		}
 
 		/*
@@ -1010,22 +1032,25 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 					break;
 				}
 
-				vb2_update_selection(key);
+				if (vb2_is_menuless_screen(current_menu))
+					vb2_update_menu(ctx);
+				else
+					vb2_update_selection(key);
 				vb2_draw_current_screen(ctx);
 				break;
 			case VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS:
-				/*
-				 * This is currently only being used to
-				 * transition out of the initial insert
-				 * graphic
-				 */
-				if (current_menu == VB_MENU_RECOVERY_INSERT) {
-					ret = vb2_update_menu(ctx);
-					if (ret != VBERROR_SUCCESS)
-						return ret;
-					vb2_set_disabled_idx_mask(shared->flags);
-					vb2_draw_current_screen(ctx);
+				if (!(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD))
+					break;
+				if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
+					VB2_DEBUG(dev_already_on);
+					VbExDisplayDebugInfo(dev_already_on);
+					VbExBeep(120, 400);
+					break;
 				}
+				vb2_set_menu_items(VB_MENU_TO_DEV,
+						   VB_TO_DEV_CANCEL);
+				vb2_set_disabled_idx_mask(shared->flags);
+				vb2_draw_current_screen(ctx);
 				break;
 			case VB_BUTTON_POWER_SHORT_PRESS:
 			case '\r':
@@ -1038,8 +1063,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 				 * there), power button will turn off
 				 * device.
 				 */
-				if (current_menu == VB_MENU_RECOVERY_INSERT ||
-					current_menu == VB_MENU_RECOVERY_NO_GOOD) {
+				if (vb2_is_menuless_screen(current_menu)) {
 					ret = VBERROR_SHUTDOWN_REQUESTED;
 				} else {
 					/*
@@ -1053,21 +1077,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 
 					vb2_set_disabled_idx_mask(shared->
 								  flags);
-				}
-				if (current_menu != VB_MENU_RECOVERY ||
-				     current_menu_idx != VB_RECOVERY_DBG_INFO) {
-					/*
-					 * Unfortunately we need this screen
-					 * blanking to clear previous menus
-					 * printed.
-					 */
-					if (retval == VBERROR_NO_DISK_FOUND)
-						vb2_draw_current_screen(ctx);
-					else {
-						VbDisplayScreen(ctx,
-						VB_SCREEN_RECOVERY_NO_GOOD, 0);
-						current_menu = VB_MENU_RECOVERY_NO_GOOD;
-					}
+					vb2_draw_current_screen(ctx);
 				}
 
 				/* Probably shutting down */
@@ -1081,10 +1091,9 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 					break;
 
 				/* Display debug information */
-				if (current_menu == VB_MENU_RECOVERY &&
-				    current_menu_idx == VB_RECOVERY_DBG_INFO) {
+				if (current_menu == VB_MENU_OPTIONS &&
+				    current_menu_idx == VB_OPTIONS_DBG_INFO)
 					VbDisplayDebugInfo(ctx);
-				}
 
 				/* Confirm going into developer mode */
 				/*
@@ -1096,7 +1105,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 				 *   - user forced recovery mode
 				 */
 				if (current_menu == VB_MENU_TO_DEV &&
-				    current_menu_idx == 0 &&
+				    current_menu_idx == VB_TO_DEV_CONFIRM &&
 				    shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
 				    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
 				    (shared->flags & VBSD_BOOT_REC_SWITCH_ON)) {

@@ -76,15 +76,11 @@ typedef enum _VB_LANGUAGES_MENU {
 } VB_LANGUAGES_MENU;
 
 typedef enum _VB_OPTIONS_MENU {
-	VB_OPTIONS_CANCEL,
 	VB_OPTIONS_DBG_INFO,
+	VB_OPTIONS_CANCEL,
 	VB_OPTIONS_POWER_OFF,
 	VB_OPTIONS_LANGUAGE,
 	VB_OPTIONS_COUNT,
 } VB_OPTIONS_MENU;
-
-extern VB_MENU current_menu;
-extern VB_MENU prev_menu;
-extern int current_menu_idx;
 
 #endif
