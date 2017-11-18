@@ -221,7 +221,7 @@ static char *languages_menu[] = {
 void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
 				    uint32_t *size)
 {
-	char **temp_menu;
+	char **temp_menu = NULL;
 
 	switch(menu) {
 	case VB_MENU_DEV_WARNING:
