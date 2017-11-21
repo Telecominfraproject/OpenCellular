@@ -230,6 +230,19 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
  */
 uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO *info);
 
+#ifdef CHROMEOS_ENVIRONMENT
+#ifndef TPM2_MODE
+
+/**
+ * Read the public half of the EK.
+ */
+uint32_t TlclReadPubek(uint32_t* public_exponent,
+                       uint8_t* modulus,
+                       uint32_t* modulus_size);
+
+#endif  /* TPM2_MODE */
+#endif  /* CHROMEOS_ENVIRONMENT */
+
 #ifdef __cplusplus
 }
 #endif

@@ -419,6 +419,21 @@ VbError_t VbExTpmOpen(void);
 VbError_t VbExTpmSendReceive(const uint8_t *request, uint32_t request_length,
                              uint8_t *response, uint32_t *response_length);
 
+#ifdef CHROMEOS_ENVIRONMENT
+
+/**
+ * Obtain cryptographically secure random bytes. This function is used to
+ * generate random nonces for TPM auth sessions for example. As an implication,
+ * the generated random bytes should not be predictable for a TPM communication
+ * interception attack. This implies a local source of randomness should be
+ * used, i.e. this should not be wired to the TPM RNG directly. Otherwise, an
+ * attacker with communication interception abilities could launch replay
+ * attacks by reusing previous nonces.
+ */
+VbError_t VbExTpmGetRandom(uint8_t *buf, uint32_t length);
+
+#endif  /* CHROMEOS_ENVIRONMENT */
+
 /*****************************************************************************/
 /* Non-volatile storage */
 

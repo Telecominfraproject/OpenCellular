@@ -488,8 +488,10 @@ HOSTLIB_SRCS = \
 	cgpt/cgpt_common.c \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_prioritize.c \
+	firmware/2lib/2common.c \
 	firmware/2lib/2crc8.c \
 	firmware/2lib/2nvstorage.c \
+	firmware/2lib/2sha1.c \
 	firmware/2lib/2stub.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \

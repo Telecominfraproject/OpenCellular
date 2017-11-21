@@ -23,6 +23,10 @@
 #define TPM_E_READ_FAILURE           ((uint32_t) 0x0000500a)  /* vboot local */
 #define TPM_E_STRUCT_SIZE            ((uint32_t) 0x0000500b)  /* vboot local */
 #define TPM_E_STRUCT_VERSION         ((uint32_t) 0x0000500c)  /* vboot local */
+#define TPM_E_INTERNAL_ERROR         ((uint32_t) 0x0000500d)  /* vboot local */
+#define TPM_E_INVALID_RESPONSE       ((uint32_t) 0x0000500e)  /* vboot local */
+#define TPM_E_BUFFER_SIZE            ((uint32_t) 0x0000500f)  /* vboot local */
+
 
 /*
  * AP firmware relies on Tlcl returning these exact TPM1.2 error codes
@@ -31,6 +35,7 @@
  * either 0x100 or 0x80 bit set, so there is no confusion with actual error
  * codes returned from a TPM2.0 chip.
  */
+#define TPM_E_AUTHFAIL              ((uint32_t) 0x00000001)
 #define TPM_E_BADINDEX              ((uint32_t) 0x00000002)
 #define TPM_E_BAD_ORDINAL           ((uint32_t) 0x0000000a)
 #define TPM_E_OWNER_SET             ((uint32_t) 0x00000014)

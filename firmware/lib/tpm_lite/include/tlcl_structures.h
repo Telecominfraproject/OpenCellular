@@ -67,8 +67,9 @@ const struct s_tpm_forceclear_cmd{
 
 const struct s_tpm_readpubek_cmd{
   uint8_t buffer[30];
+  uint16_t antiReplay;
 } tpm_readpubek_cmd = {{0x0, 0xc1, 0x0, 0x0, 0x0, 0x1e, 0x0, 0x0, 0x0, 0x7c, },
-};
+10, };
 
 const struct s_tpm_continueselftest_cmd{
   uint8_t buffer[10];

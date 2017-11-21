@@ -55,6 +55,12 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 #define TPM_CAP_NV_INDEX        ((uint32_t) 0x00000011)
 #define TPM_CAP_GET_VERSION_VAL ((uint32_t) 0x0000001a)
 
+#define TPM_ALG_RSA ((uint16_t)0x0001)
+
+#define TPM_ES_RSAESOAEP_SHA1_MGF1 ((uint16_t)0x0003)
+
+#define TPM_SS_NONE ((uint16_t)0x0001)
+
 #define TPM_ST_CLEAR       ((uint16_t) 0x0001)
 #define TPM_ST_STATE       ((uint16_t) 0x0002)
 #define TPM_ST_DEACTIVATED ((uint16_t) 0x0003)
@@ -76,6 +82,10 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 
 #define TPM_SHA1_160_HASH_LEN    0x14
 #define TPM_SHA1BASED_NONCE_LEN  TPM_SHA1_160_HASH_LEN
+
+#define TPM_AUTH_DATA_LEN    0x14
+
+#define TPM_RSA_2048_LEN    0x100
 
 typedef struct tdTPM_DIGEST
 {

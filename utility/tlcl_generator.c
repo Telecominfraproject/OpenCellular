@@ -265,6 +265,7 @@ Command* BuildReadPubekCommand(void) {
   int size = kTpmRequestHeaderLength + sizeof(TPM_NONCE);
   Command* cmd = newCommand(TPM_ORD_ReadPubek, size);
   cmd->name = "tpm_readpubek_cmd";
+  AddVisibleField(cmd, "antiReplay", kTpmRequestHeaderLength);
   return cmd;
 }
 

@@ -253,3 +253,20 @@ VbError_t VbExTpmSendReceive(const uint8_t* request, uint32_t request_length,
 
 	return VBERROR_SUCCESS;
 }
+
+VbError_t VbExTpmGetRandom(uint8_t *buf, uint32_t length)
+{
+	static int urandom_fd = -1;
+	if (urandom_fd < 0) {
+		urandom_fd = open("/dev/urandom", O_RDONLY);
+		if (urandom_fd == -1) {
+			return VBERROR_UNKNOWN;
+		}
+	}
+
+	if (length != read(urandom_fd, buf, length)) {
+		return VBERROR_UNKNOWN;
+	}
+
+	return VBERROR_SUCCESS;
+}
