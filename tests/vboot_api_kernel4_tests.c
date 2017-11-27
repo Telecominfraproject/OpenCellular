@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2nvstorage.h"
 #include "ec_sync.h"
 #include "gbb_header.h"
 #include "host_common.h"
@@ -18,13 +21,12 @@
 #include "vboot_audio.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 /* Mock data */
+static struct vb2_context ctx;
 static VbCommonParams cparams;
 static VbSelectAndLoadKernelParams kparams;
-static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static GoogleBinaryBlockHeader gbb;
@@ -51,10 +53,9 @@ static void ResetMocks(void)
 	gbb.minor_version = GBB_MINOR_VER;
 	gbb.flags = 0;
 
-	memset(&vnc, 0, sizeof(vnc));
-	VbNvSetup(&vnc);
-	VbNvSet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, 0xffffffff);
-	VbNvTeardown(&vnc);                   /* So CRC gets generated */
+	memset(&ctx, 0, sizeof(ctx));
+	vb2_nv_init(&ctx);
+	vb2_nv_set(&ctx, VB2_NV_KERNEL_MAX_ROLLFORWARD, 0xffffffff);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -71,13 +72,13 @@ static void ResetMocks(void)
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	memcpy(buf, vnc.raw, sizeof(vnc.raw));
+	memcpy(buf, ctx.nvdata, sizeof(ctx.nvdata));
 	return VBERROR_SUCCESS;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t *buf)
 {
-	memcpy(vnc.raw, buf, sizeof(vnc.raw));
+	memcpy(ctx.nvdata, buf, sizeof(ctx.nvdata));
 	return VBERROR_SUCCESS;
 }
 
@@ -137,11 +138,9 @@ VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams)
 
 static void test_slk(VbError_t retval, int recovery_reason, const char *desc)
 {
-	uint32_t u;
-
 	TEST_EQ(VbSelectAndLoadKernel(&cparams, &kparams), retval, desc);
-	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
-	TEST_EQ(u, recovery_reason, "  recovery reason");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
+		recovery_reason, "  recovery reason");
 }
 
 /* Tests */
@@ -169,7 +168,7 @@ static void VbSlkTest(void)
 	ResetMocks();
 	rkr_retval = 123;
 	test_slk(VBERROR_TPM_READ_KERNEL,
-		 VBNV_RECOVERY_RW_TPM_R_ERROR, "Read kernel rollback");
+		 VB2_RECOVERY_RW_TPM_R_ERROR, "Read kernel rollback");
 
 	ResetMocks();
 	new_version = 0x20003;
@@ -184,23 +183,20 @@ static void VbSlkTest(void)
 	TEST_EQ(rkr_version, 0x10002, "  version");
 
 	ResetMocks();
-	VbNvSet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, 0x30005);
-	VbNvTeardown(&vnc);
+	vb2_nv_set(&ctx, VB2_NV_KERNEL_MAX_ROLLFORWARD, 0x30005);
 	new_version = 0x40006;
 	test_slk(0, 0, "Limit max roll forward");
 	TEST_EQ(rkr_version, 0x30005, "  version");
 
 	ResetMocks();
-	VbNvSet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, 0x10001);
-	VbNvTeardown(&vnc);
+	vb2_nv_set(&ctx, VB2_NV_KERNEL_MAX_ROLLFORWARD, 0x10001);
 	new_version = 0x40006;
 	test_slk(0, 0, "Max roll forward can't rollback");
 	TEST_EQ(rkr_version, 0x10002, "  version");
 
 	ResetMocks();
 	vbboot_retval = VBERROR_INVALID_KERNEL_FOUND;
-	VbNvSet(&vnc, VBNV_RECOVERY_REQUEST, 123);
-	VbNvTeardown(&vnc);
+	vb2_nv_set(&ctx, VB2_NV_RECOVERY_REQUEST, 123);
 	shared->flags |= VBSD_FWB_TRIED;
 	shared->firmware_index = 1;
 	test_slk(VBERROR_INVALID_KERNEL_FOUND,
@@ -210,12 +206,12 @@ static void VbSlkTest(void)
 	new_version = 0x20003;
 	rkw_retval = 123;
 	test_slk(VBERROR_TPM_WRITE_KERNEL,
-		 VBNV_RECOVERY_RW_TPM_W_ERROR, "Write kernel rollback");
+		 VB2_RECOVERY_RW_TPM_W_ERROR, "Write kernel rollback");
 
 	ResetMocks();
 	rkl_retval = 123;
 	test_slk(VBERROR_TPM_LOCK_KERNEL,
-		 VBNV_RECOVERY_RW_TPM_L_ERROR, "Lock kernel rollback");
+		 VB2_RECOVERY_RW_TPM_L_ERROR, "Lock kernel rollback");
 
 	/* Boot normal */
 	ResetMocks();
@@ -252,7 +248,7 @@ static void VbSlkTest(void)
 	test_slk(0, 0, "Recovery ignore TPM errors");
 
 	ResetMocks();
-	shared->recovery_reason = VBNV_RECOVERY_TRAIN_AND_REBOOT;
+	shared->recovery_reason = VB2_RECOVERY_TRAIN_AND_REBOOT;
 	test_slk(VBERROR_REBOOT_REQUIRED, 0, "Recovery train and reboot");
 
 	// todo: rkr/w/l fail ignored if recovery

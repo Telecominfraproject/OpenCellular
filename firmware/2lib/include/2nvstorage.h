@@ -8,6 +8,8 @@
 #ifndef VBOOT_REFERENCE_VBOOT_2NVSTORAGE_H_
 #define VBOOT_REFERENCE_VBOOT_2NVSTORAGE_H_
 
+struct vb2_context;
+
 enum vb2_nv_param {
 	/*
 	 * Parameter values have been reset to defaults (flag for firmware).
@@ -149,12 +151,24 @@ int vb2_nv_check_crc(const struct vb2_context *ctx);
 /**
  * Initialize the non-volatile storage context and verify its CRC.
  *
+ * This may be called before vb2_context_init(), as long as:
+ *
+ *    1) The ctx structure has been cleared to 0.
+ *    2) Existing non-volatile data, if any, has been stored to ctx->nvdata[].
+ *
+ * This is to support using the non-volatile storage functions to request
+ * recovery if there is an error allocating the workbuf for the context.  It
+ * also allows host-side code to use this library without setting up a bunch of
+ * extra context.
+ *
  * @param ctx		Context pointer
  */
 void vb2_nv_init(struct vb2_context *ctx);
 
 /**
  * Read a non-volatile value.
+ *
+ * Valid only after calling vb2_nv_init().
  *
  * @param ctx		Context pointer
  * @param param		Parameter to read
@@ -166,7 +180,9 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param);
 /**
  * Write a non-volatile value.
  *
- * Ignores writes to unknown params.
+ * Ignores writes to unknown params.  Valid only after calling vb2_nv_init().
+ * If this changes ctx->nvdata[], it will set VB2_CONTEXT_NVDATA_CHANGED in
+ * ctx->flags.
  *
  * @param ctx		Context pointer
  * @param param		Parameter to write

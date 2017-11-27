@@ -22,7 +22,6 @@
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 
 /* Mock data */
 static VbCommonParams cparams;

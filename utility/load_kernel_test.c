@@ -30,7 +30,6 @@
 /* Global variables for stub functions */
 static LoadKernelParams lkp;
 static VbCommonParams cparams;
-static VbNvContext vnc;
 static FILE *image_file = NULL;
 
 
@@ -97,9 +96,6 @@ int main(int argc, char* argv[]) {
   memset(&lkp, 0, sizeof(LoadKernelParams));
   lkp.bytes_per_lba = LBA_BYTES;
   int boot_flags = BOOT_FLAG_RECOVERY;
-  memset(&vnc, 0, sizeof(VbNvContext));
-  VbNvSetup(&vnc);
-  lkp.nv_context = &vnc;
   memset(&cparams, 0, sizeof(VbCommonParams));
 
   /* Parse options */

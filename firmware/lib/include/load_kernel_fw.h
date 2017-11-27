@@ -10,7 +10,6 @@
 #define VBOOT_REFERENCE_LOAD_KERNEL_FW_H_
 
 #include "vboot_api.h"
-#include "vboot_nvstorage.h"
 
 struct vb2_context;
 
@@ -38,11 +37,6 @@ typedef struct LoadKernelParams {
 	uint64_t kernel_buffer_size;
 	/* Boot flags */
 	uint64_t boot_flags;
-	/*
-	 * Context for NV storage.  Caller is responsible for calling
-	 * VbNvSetup() and VbNvTeardown() on the context.
-	 */
-	VbNvContext *nv_context;
 	/* Firmware management parameters; may be NULL if not present. */
 	const struct RollbackSpaceFwmp *fwmp;
 

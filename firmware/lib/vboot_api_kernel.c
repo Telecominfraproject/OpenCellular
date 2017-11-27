@@ -23,10 +23,8 @@
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 
 /* Global variables */
-static VbNvContext vnc;
 static struct RollbackSpaceFwmp fwmp;
 static LoadKernelParams lkp;
 static struct vb2_context ctx;
@@ -57,29 +55,14 @@ static void VbSetRecoveryRequest(struct vb2_context *ctx,
 	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, recovery_request);
 }
 
-static void VbNvLoad(void)
-{
-	VbExNvStorageRead(vnc.raw);
-	VbNvSetup(&vnc);
-}
-
-static void VbNvCommit(void)
-{
-	VbNvTeardown(&vnc);
-	if (vnc.raw_changed)
-		VbExNvStorageWrite(vnc.raw);
-}
-
 void vb2_nv_commit(struct vb2_context *ctx)
 {
-	/* Copy nvdata back to old vboot1 nv context if needed */
-	if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
-		memcpy(vnc.raw, ctx->nvdata, VB2_NVDATA_SIZE);
-		vnc.raw_changed = 1;
-		ctx->flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
-	}
+	/* Exit if nothing has changed */
+	if (!(ctx->flags & VB2_CONTEXT_NVDATA_CHANGED))
+		return;
 
-	VbNvCommit();
+	ctx->flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
+	VbExNvStorageWrite(ctx->nvdata);
 }
 
 uint32_t vb2_get_fwmp_flags(void)
@@ -112,7 +95,6 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 		  (unsigned)get_info_flags);
 
 	lkp.fwmp = &fwmp;
-	lkp.nv_context = &vnc;
 	lkp.disk_handle = NULL;
 
 	/* Find disks */
@@ -122,7 +104,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 
 	VB2_DEBUG("VbTryLoadKernel() found %d disks\n", (int)disk_count);
 	if (0 == disk_count) {
-		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_NO_DISK);
+		VbSetRecoveryRequest(ctx, VB2_RECOVERY_RW_NO_DISK);
 		return VBERROR_NO_DISK_FOUND;
 	}
 
@@ -171,7 +153,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 
 	/* If we didn't find any good kernels, don't return a disk handle. */
 	if (VBERROR_SUCCESS != retval) {
-		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_NO_KERNEL);
+		VbSetRecoveryRequest(ctx, VB2_RECOVERY_RW_NO_KERNEL);
 		lkp.disk_handle = NULL;
 	}
 
@@ -188,7 +170,8 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	uint32_t max_rollforward;
+	uint32_t max_rollforward = vb2_nv_get(ctx,
+					      VB2_NV_KERNEL_MAX_ROLLFORWARD);
 
 	/* Boot from fixed disk only */
 	VB2_DEBUG("Entering\n");
@@ -219,35 +202,32 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 		 */
 		if (rv == VBERROR_INVALID_KERNEL_FOUND) {
 			VB2_DEBUG("Trying FW B; only found invalid kernels.\n");
-			VbSetRecoveryRequest(ctx, VBNV_RECOVERY_NOT_REQUESTED);
+			VbSetRecoveryRequest(ctx, VB2_RECOVERY_NOT_REQUESTED);
 		}
 
 		return rv;
 	}
 
-	/* Limit kernel version rollforward if needed */
-	if (0 == VbNvGet(&vnc, VBNV_KERNEL_MAX_ROLLFORWARD, &max_rollforward)) {
-		/*
-		 * Can't limit kernel version to less than the version
-		 * currently in the TPM.  That is, we're limiting rollforward,
-		 * not allowing rollback.
-		 */
-		if (max_rollforward < shared->kernel_version_tpm_start)
-			max_rollforward = shared->kernel_version_tpm_start;
+	/*
+	 * Limit kernel version rollforward if needed.  Can't limit kernel
+	 * version to less than the version currently in the TPM.  That is,
+	 * we're limiting rollforward, not allowing rollback.
+	 */
+	if (max_rollforward < shared->kernel_version_tpm_start)
+		max_rollforward = shared->kernel_version_tpm_start;
 
-		if (shared->kernel_version_tpm > max_rollforward) {
-			VB2_DEBUG("Limiting TPM kernel version roll-forward "
-				  "to 0x%x < 0x%x\n",
-				  max_rollforward, shared->kernel_version_tpm);
+	if (shared->kernel_version_tpm > max_rollforward) {
+		VB2_DEBUG("Limiting TPM kernel version roll-forward "
+			  "to 0x%x < 0x%x\n",
+			  max_rollforward, shared->kernel_version_tpm);
 
-			shared->kernel_version_tpm = max_rollforward;
-		}
+		shared->kernel_version_tpm = max_rollforward;
 	}
 
 	if ((shared->kernel_version_tpm > shared->kernel_version_tpm_start) &&
 	    RollbackKernelWrite(shared->kernel_version_tpm)) {
 		VB2_DEBUG("Error writing kernel versions to TPM.\n");
-		VbSetRecoveryRequest(ctx, VBNV_RECOVERY_RW_TPM_W_ERROR);
+		VbSetRecoveryRequest(ctx, VB2_RECOVERY_RW_TPM_W_ERROR);
 		return VBERROR_TPM_WRITE_KERNEL;
 	}
 
@@ -285,8 +265,8 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	 */
 	memset(&ctx, 0, sizeof(ctx));
 
-	VbNvLoad();
-	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
+	VbExNvStorageRead(ctx.nvdata);
+	vb2_nv_init(&ctx);
 
 	if (shared->recovery_reason)
 		ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
@@ -325,7 +305,7 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	 * If we're in recovery mode just to do memory retraining, all we
 	 * need to do is reboot.
 	 */
-	if (shared->recovery_reason == VBNV_RECOVERY_TRAIN_AND_REBOOT) {
+	if (shared->recovery_reason == VB2_RECOVERY_TRAIN_AND_REBOOT) {
 		VB2_DEBUG("Reboot after retraining in recovery.\n");
 		return VBERROR_REBOOT_REQUIRED;
 	}
@@ -355,7 +335,7 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 		VB2_DEBUG("Unable to get kernel versions from TPM\n");
 		if (!shared->recovery_reason) {
 			VbSetRecoveryRequest(&ctx,
-					     VBNV_RECOVERY_RW_TPM_R_ERROR);
+					     VB2_RECOVERY_RW_TPM_R_ERROR);
 			return VBERROR_TPM_READ_KERNEL;
 		}
 	}
@@ -369,7 +349,7 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 		VB2_DEBUG("Unable to get FWMP from TPM\n");
 		if (!shared->recovery_reason) {
 			VbSetRecoveryRequest(&ctx,
-					     VBNV_RECOVERY_RW_TPM_R_ERROR);
+					     VB2_RECOVERY_RW_TPM_R_ERROR);
 			return VBERROR_TPM_READ_FWMP;
 		}
 	}
@@ -398,7 +378,7 @@ static VbError_t vb2_kernel_phase4(VbCommonParams *cparams,
 	if (!shared->recovery_reason &&
 	    RollbackKernelLock(shared->recovery_reason)) {
 		VB2_DEBUG("Error locking kernel versions.\n");
-		VbSetRecoveryRequest(&ctx, VBNV_RECOVERY_RW_TPM_L_ERROR);
+		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_TPM_L_ERROR);
 		return VBERROR_TPM_LOCK_KERNEL;
 	}
 
@@ -484,7 +464,6 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 				  void *boot_image,
 				  size_t image_size)
 {
-	VbError_t retval;
 	VbPublicKey* kernel_subkey = NULL;
 	uint8_t *kbuf;
 	VbKeyBlockHeader *key_block;
@@ -495,30 +474,18 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	int hash_only = 0;
 	int dev_switch;
 	uint32_t allow_fastboot_full_cap = 0;
-	uint8_t *workbuf = NULL;
 	struct vb2_workbuf wb;
 
-	if ((boot_image == NULL) || (image_size == 0))
-		return VBERROR_INVALID_PARAMETER;
+	VbError_t retval = vb2_kernel_setup(cparams, kparams);
+	if (retval)
+		goto fail;
 
-	/* Clear output params in case we fail. */
-	kparams->disk_handle = NULL;
-	kparams->partition_number = 0;
-	kparams->bootloader_address = 0;
-	kparams->bootloader_size = 0;
-	kparams->flags = 0;
-	memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
+	if ((boot_image == NULL) || (image_size == 0)) {
+		retval = VBERROR_INVALID_PARAMETER;
+		goto fail;
+	}
 
 	kbuf = boot_image;
-
-	/* Read GBB Header */
-	cparams->bmp = NULL;
-	cparams->gbb = malloc(sizeof(*cparams->gbb));
-	retval = VbGbbReadHeader_static(cparams, cparams->gbb);
-	if (VBERROR_SUCCESS != retval) {
-		VB2_DEBUG("Gbb read header failed.\n");
-		return retval;
-	}
 
 	/*
 	 * We don't care verifying the image if:
@@ -529,10 +496,8 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	 * Check only the integrity of the image.
 	 */
 	dev_switch = shared->flags & VBSD_BOOT_DEV_SWITCH_ON;
-
-	VbNvLoad();
-	VbNvGet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP,
-		&allow_fastboot_full_cap);
+	allow_fastboot_full_cap =
+			vb2_nv_get(&ctx, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP);
 
 	if (0 == allow_fastboot_full_cap) {
 		allow_fastboot_full_cap = !!(cparams->gbb->flags &
@@ -547,7 +512,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 		retval = VbGbbReadRecoveryKey(cparams, &kernel_subkey);
 		if (VBERROR_SUCCESS != retval) {
 			VB2_DEBUG("Gbb Read Recovery key failed.\n");
-			return retval;
+			goto fail;
 		}
 	}
 
@@ -555,10 +520,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	retval = VBERROR_INVALID_KERNEL_FOUND;
 
 	/* Allocate work buffer */
-	workbuf = (uint8_t *)malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
-	if (!workbuf)
-		goto fail;
-	vb2_workbuf_init(&wb, workbuf, VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
+	vb2_workbuf_from_ctx(&ctx, &wb);
 
 	/* Verify the key block. */
 	key_block = (VbKeyBlockHeader *)kbuf;
@@ -647,11 +609,9 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	retval = VBERROR_SUCCESS;
 
 fail:
-	VbApiKernelFree(cparams);
+	vb2_kernel_cleanup(&ctx, cparams);
 	if (NULL != kernel_subkey)
 		free(kernel_subkey);
-	if (NULL != workbuf)
-		free(workbuf);
 	return retval;
 }
 
@@ -667,12 +627,13 @@ VbError_t VbUnlockDevice(void)
 
 VbError_t VbLockDevice(void)
 {
-	VbNvLoad();
-
 	VB2_DEBUG("Storing request to leave dev-mode.\n");
-	VbNvSet(&vnc, VBNV_DISABLE_DEV_REQUEST, 1);
 
-	VbNvCommit();
+	memset(&ctx, 0, sizeof(ctx));
+	VbExNvStorageRead(ctx.nvdata);
+	vb2_nv_init(&ctx);
+	vb2_nv_set(&ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
+	vb2_nv_commit(&ctx);
 
 	VB2_DEBUG("Mode change will take effect on next reboot.\n");
 

@@ -20,7 +20,6 @@
 #include "vboot_audio_private.h"
 #include "vboot_common.h"
 #include "vboot_display.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 

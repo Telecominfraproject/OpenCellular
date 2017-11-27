@@ -61,12 +61,24 @@ void vb2_nv_init(struct vb2_context *ctx)
 		/* Regenerate CRC */
 		vb2_nv_regen_crc(ctx);
 
-		/* Set status flag */
-		sd->status |= VB2_SD_STATUS_NV_REINIT;
+		/*
+		 * Set status flag.
+		 *
+		 * Note that early in some calling sequences, shared data may
+		 * not be available.  For example, if there is an error
+		 * allocating the context work buffer, and we're trying to
+		 * initialize non-volatile storage so we can write a recovery
+		 * request.  In that case, sd will be NULL.  So while we don't
+		 * usually need to check for that in other library functions,
+		 * here we do.
+		 */
+		if (sd)
+			sd->status |= VB2_SD_STATUS_NV_REINIT;
 		/* TODO: unit test for status flag being set */
 	}
 
-	sd->status |= VB2_SD_STATUS_NV_INIT;
+	if (sd)
+		sd->status |= VB2_SD_STATUS_NV_INIT;
 }
 
 /* Macro for vb2_nv_get() single-bit settings to reduce duplicate code. */

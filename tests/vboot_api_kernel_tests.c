@@ -84,7 +84,7 @@ test_case_t test[] = {
 		.loadkernel_return_val = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
 		.external_expected = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
 
-		.expected_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED,
+		.expected_recovery_request_val = VB2_RECOVERY_NOT_REQUESTED,
 		.expected_to_find_disk = pickme,
 		.expected_to_load_disk = pickme,
 		.expected_return_val = VBERROR_SUCCESS
@@ -102,7 +102,7 @@ test_case_t test[] = {
 		.diskgetinfo_return_val = VBERROR_SUCCESS,
 		.loadkernel_return_val = {1, 0, 1, 1, 1, 1, 1, 1, 1, 1,},
 
-		.expected_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED,
+		.expected_recovery_request_val = VB2_RECOVERY_NOT_REQUESTED,
 		.expected_to_find_disk = pickme,
 		.expected_to_load_disk = pickme,
 		.expected_return_val = VBERROR_SUCCESS
@@ -132,7 +132,7 @@ test_case_t test[] = {
 		.diskgetinfo_return_val = VBERROR_SUCCESS,
 		.loadkernel_return_val = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
 
-		.expected_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED,
+		.expected_recovery_request_val = VB2_RECOVERY_NOT_REQUESTED,
 		.expected_to_find_disk = pickme,
 		.expected_to_load_disk = pickme,
 		.expected_return_val = VBERROR_SUCCESS
@@ -145,7 +145,7 @@ test_case_t test[] = {
 		.diskgetinfo_return_val = VBERROR_SUCCESS,
 		.loadkernel_return_val = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
 
-		.expected_recovery_request_val = VBNV_RECOVERY_RW_NO_DISK,
+		.expected_recovery_request_val = VB2_RECOVERY_RW_NO_DISK,
 		.expected_to_find_disk = 0,
 		.expected_to_load_disk = 0,
 		.expected_return_val = VBERROR_NO_DISK_FOUND
@@ -173,7 +173,7 @@ test_case_t test[] = {
 		.diskgetinfo_return_val = VBERROR_SUCCESS,
 		.loadkernel_return_val = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
 
-		.expected_recovery_request_val = VBNV_RECOVERY_RW_NO_KERNEL,
+		.expected_recovery_request_val = VB2_RECOVERY_RW_NO_KERNEL,
 		.expected_to_find_disk = DONT_CARE,
 		.expected_to_load_disk = 0,
 		.expected_return_val = 1
@@ -205,7 +205,7 @@ static void ResetMocks(int i)
 	memset(&mock_disks, 0, sizeof(mock_disks));
 	load_kernel_calls = 0;
 
-	got_recovery_request_val = VBNV_RECOVERY_NOT_REQUESTED;
+	got_recovery_request_val = VB2_RECOVERY_NOT_REQUESTED;
 	got_find_disk = 0;
 	got_load_disk = 0;
 	got_return_val = 0xdeadbeef;

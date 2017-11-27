@@ -10,7 +10,9 @@
 
 #include <stddef.h>
 
-#include "vboot_nvstorage.h"
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2nvstorage.h"
 #include "vboot_struct.h"
 
 /* Firmware types from BINF.3. Placed in the common file because both x86 and
@@ -28,12 +30,12 @@
 /* Read an integer property from VbNvStorage.
  *
  * Returns the parameter value, or -1 if error. */
-int VbGetNvStorage(VbNvParam param);
+int vb2_get_nv_storage(enum vb2_nv_param param);
 
 /* Write an integer property to VbNvStorage.
  *
  * Returns 0 if success, -1 if error. */
-int VbSetNvStorage(VbNvParam param, int value);
+int vb2_set_nv_storage(enum vb2_nv_param param, int value);
 
 /* Return true if the FWID starts with the specified string. */
 int FwidStartsWith(const char *start);
@@ -46,12 +48,12 @@ int VbSharedDataVersion(void);
 /* Read the non-volatile context from NVRAM.
  *
  * Returns 0 if success, -1 if error. */
-int VbReadNvStorage(VbNvContext* vnc);
+int vb2_read_nv_storage(struct vb2_context *ctx);
 
 /* Write the non-volatile context to NVRAM.
  *
  * Returns 0 if success, -1 if error. */
-int VbWriteNvStorage(VbNvContext* vnc);
+int vb2_write_nv_storage(struct vb2_context *ctx);
 
 /* Read the VbSharedData buffer.
  *

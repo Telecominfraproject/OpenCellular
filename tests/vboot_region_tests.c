@@ -16,12 +16,12 @@
 #include "rollback_index.h"
 #include "test_common.h"
 #include "vboot_common.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
+
+typedef struct VbNvContext VbNvContext;
 
 /* Mock data */
 static VbCommonParams cparams;
-static VbNvContext vnc;
 static VbSelectFirmwareParams fparams;
 VbSelectAndLoadKernelParams kparams;
 static char gbb_data[4096 + sizeof(GoogleBinaryBlockHeader)];
@@ -44,10 +44,6 @@ static void ResetMocks(void) {
 	ImageInfo *image_info;
 	ScreenLayout *layout;
 	int gbb_used;
-
-	memset(&vnc, 0, sizeof(vnc));
-	VbNvSetup(&vnc);
-	VbNvTeardown(&vnc);                   /* So CRC gets generated */
 
 	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
@@ -116,12 +112,10 @@ static void ResetMocks(void) {
 /* Mocked verification functions */
 
 VbError_t VbExNvStorageRead(uint8_t* buf) {
-  memcpy(buf, vnc.raw, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t* buf) {
-  memcpy(vnc.raw, buf, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 

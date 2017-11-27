@@ -6,7 +6,6 @@
 #include <string.h>
 
 #include "vboot_common.h"
-#include "vboot_nvstorage.h"
 #include "host_common.h"
 #include "crossystem.h"
 #include "crossystem_arch.h"
@@ -15,12 +14,12 @@
  * wherever possible. They will need real implementation as part of of MIPS
  * firmware bringup. */
 
-int VbReadNvStorage(VbNvContext* vnc)
+int vb2_read_nv_storage(struct vb2_context *ctx)
 {
 	return -1;
 }
 
-int VbWriteNvStorage(VbNvContext* vnc)
+int vb2_write_nv_storage(struct vb2_context *ctx)
 {
 	return -1;
 }

@@ -11,7 +11,9 @@
 #include <string.h>
 
 #include "2sysincludes.h"
+#include "2api.h"
 #include "2common.h"
+#include "2nvstorage.h"
 #include "2rsa.h"
 #include "gbb_header.h"
 #include "host_common.h"
@@ -21,10 +23,10 @@
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 /* Mock data */
+static struct vb2_context ctx;
 static VbCommonParams cparams;
 static VbSelectAndLoadKernelParams kparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
@@ -37,7 +39,6 @@ static int preamble_verify_fail;
 static int verify_data_fail;
 static int unpack_key_fail;
 
-static VbNvContext vnc;
 static VbKeyBlockHeader kbh;
 static VbKernelPreambleHeader kph;
 
@@ -61,9 +62,8 @@ static void ResetMocks(void)
 	gbb.minor_version = GBB_MINOR_VER;
 	gbb.flags = 0;
 
-	memset(&vnc, 0, sizeof(vnc));
-	VbNvSetup(&vnc);
-	VbNvTeardown(&vnc);                   /* So CRC gets generated */
+	memset(&ctx, 0, sizeof(ctx));
+	vb2_nv_init(&ctx);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -162,7 +162,7 @@ int vb2_verify_data(const uint8_t *data,
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	memcpy(buf, vnc.raw, sizeof(vnc.raw));
+	memcpy(buf, ctx.nvdata, sizeof(ctx.nvdata));
 	return VBERROR_SUCCESS;
 }
 
@@ -225,8 +225,7 @@ static void VerifyMemoryBootImageTest(void)
 	ResetMocks();
 	shared->flags = VBSD_BOOT_DEV_SWITCH_ON;
 	key_block_verify_fail = 1;
-	VbNvSet(&vnc, VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
-	VbNvTeardown(&vnc);
+	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP, 1);
 	TEST_EQ(VbVerifyMemoryBootImage(&cparams, &kparams, kernel_buffer,
 					kernel_buffer_size),
 		VBERROR_INVALID_KERNEL_FOUND, "Key verify failed");

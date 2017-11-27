@@ -22,7 +22,6 @@
 #include "host_common.h"
 #include "utility.h"
 #include "vboot_common.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 
@@ -156,7 +155,7 @@ static int VbCmosWrite(unsigned offs, size_t size, const void *ptr)
 }
 
 
-int VbReadNvStorage(VbNvContext* vnc)
+int vb2_read_nv_storage(struct vb2_context *ctx)
 {
 	unsigned offs, blksz;
 
@@ -168,18 +167,18 @@ int VbReadNvStorage(VbNvContext* vnc)
 	if (VBNV_BLOCK_SIZE > blksz)
 		return -1;  /* NV storage block is too small */
 
-	if (0 != VbCmosRead(offs, VBNV_BLOCK_SIZE, vnc->raw))
+	if (0 != VbCmosRead(offs, sizeof(ctx->nvdata), ctx->nvdata))
 		return -1;
 
 	return 0;
 }
 
 
-int VbWriteNvStorage(VbNvContext* vnc)
+int vb2_write_nv_storage(struct vb2_context *ctx)
 {
 	unsigned offs, blksz;
 
-	if (!vnc->raw_changed)
+	if (!(ctx->flags & VB2_CONTEXT_NVDATA_CHANGED))
 		return 0;  /* Nothing changed, so no need to write */
 
 	/* Get the byte offset from VBNV */
@@ -190,14 +189,14 @@ int VbWriteNvStorage(VbNvContext* vnc)
 	if (VBNV_BLOCK_SIZE > blksz)
 		return -1;  /* NV storage block is too small */
 
-	if (0 != VbCmosWrite(offs, VBNV_BLOCK_SIZE, vnc->raw))
+	if (0 != VbCmosWrite(offs, sizeof(ctx->nvdata), ctx->nvdata))
 		return -1;
 
 	/* Also attempt to write using mosys if using vboot2 */
 	VbSharedDataHeader *sh = VbSharedDataRead();
 	if (sh) {
 		if (sh->flags & VBSD_BOOT_FIRMWARE_VBOOT2)
-			VbWriteNvStorage_mosys(vnc);
+			vb2_write_nv_storage_mosys(ctx);
 		free(sh);
 	}
 
@@ -453,19 +452,19 @@ static int VbGetRecoveryReason(void)
 	switch(value) {
 		case BINF0_NORMAL:
 		case BINF0_DEVELOPER:
-			return VBNV_RECOVERY_NOT_REQUESTED;
+			return VB2_RECOVERY_NOT_REQUESTED;
 		case BINF0_RECOVERY_BUTTON:
-			return VBNV_RECOVERY_RO_MANUAL;
+			return VB2_RECOVERY_RO_MANUAL;
 		case BINF0_RECOVERY_DEV_SCREEN_KEY:
-			return VBNV_RECOVERY_RW_DEV_SCREEN;
+			return VB2_RECOVERY_RW_DEV_SCREEN;
 		case BINF0_RECOVERY_RW_FW_BAD:
-			return VBNV_RECOVERY_RO_INVALID_RW;
+			return VB2_RECOVERY_RO_INVALID_RW;
 		case BINF0_RECOVERY_NO_OS:
-			return VBNV_RECOVERY_RW_NO_OS;
+			return VB2_RECOVERY_RW_NO_OS;
 		case BINF0_RECOVERY_BAD_OS:
-			return VBNV_RECOVERY_RW_INVALID_OS;
+			return VB2_RECOVERY_RW_INVALID_OS;
 		case BINF0_RECOVERY_OS_INITIATED:
-			return VBNV_RECOVERY_LEGACY;
+			return VB2_RECOVERY_LEGACY;
 		default:
 			/* Other values don't map cleanly to firmware type. */
 			return -1;
@@ -817,15 +816,15 @@ int VbGetArchPropertyInt(const char* name)
 	/* NV storage values.  If unable to get from NV storage, fall back to
 	 * the CMOS reboot field used by older BIOS (e.g. Mario). */
 	if (!strcasecmp(name,"recovery_request")) {
-		value = VbGetNvStorage(VBNV_RECOVERY_REQUEST);
+		value = vb2_get_nv_storage(VB2_NV_RECOVERY_REQUEST);
 		if (-1 == value)
 			value = VbGetCmosRebootField(CMOSRF_RECOVERY);
 	} else if (!strcasecmp(name,"dbg_reset")) {
-		value = VbGetNvStorage(VBNV_DEBUG_RESET_MODE);
+		value = vb2_get_nv_storage(VB2_NV_DEBUG_RESET_MODE);
 		if (-1 == value)
 			value = VbGetCmosRebootField(CMOSRF_DEBUG_RESET);
 	} else if (!strcasecmp(name,"fwb_tries")) {
-		value = VbGetNvStorage(VBNV_TRY_B_COUNT);
+		value = vb2_get_nv_storage(VB2_NV_TRY_COUNT);
 		if (-1 == value)
 			value = VbGetCmosRebootField(CMOSRF_TRY_B);
 	}
@@ -835,7 +834,7 @@ int VbGetArchPropertyInt(const char* name)
 	 * stateful partition. */
 	if (!strcasecmp(name,"fwupdate_tries")) {
 		unsigned fwupdate_value;
-		if (-1 != VbGetNvStorage(VBNV_KERNEL_FIELD))
+		if (-1 != vb2_get_nv_storage(VB2_NV_KERNEL_FIELD))
 			return -1;  /* NvStorage supported; fail through
 				     * arch-specific implementation to normal
 				     * implementation. */
@@ -900,15 +899,15 @@ int VbSetArchPropertyInt(const char* name, int value)
 	/* NV storage values.  If unable to get from NV storage, fall back to
 	 * the CMOS reboot field used by older BIOS. */
 	if (!strcasecmp(name,"recovery_request")) {
-		if (0 == VbSetNvStorage(VBNV_RECOVERY_REQUEST, value))
+		if (0 == vb2_set_nv_storage(VB2_NV_RECOVERY_REQUEST, value))
 			return 0;
 		return VbSetCmosRebootField(CMOSRF_RECOVERY, value);
 	} else if (!strcasecmp(name,"dbg_reset")) {
-		if (0 == VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value))
+		if (0 == vb2_set_nv_storage(VB2_NV_DEBUG_RESET_MODE, value))
 			return 0;
 		return  VbSetCmosRebootField(CMOSRF_DEBUG_RESET, value);
 	} else if (!strcasecmp(name,"fwb_tries")) {
-		if (0 == VbSetNvStorage(VBNV_TRY_B_COUNT, value))
+		if (0 == vb2_set_nv_storage(VB2_NV_TRY_COUNT, value))
 			return 0;
 		return VbSetCmosRebootField(CMOSRF_TRY_B, value);
 	}
@@ -916,7 +915,7 @@ int VbSetArchPropertyInt(const char* name, int value)
 	 * older systems where it's not, it was stored in a file in the
 	 * stateful partition. */
 	else if (!strcasecmp(name,"fwupdate_tries")) {
-		if (-1 != VbGetNvStorage(VBNV_KERNEL_FIELD))
+		if (-1 != vb2_get_nv_storage(VB2_NV_KERNEL_FIELD))
 			return -1;  /* NvStorage supported; fail through
 				     * arch-specific implementation to normal
 				     * implementation */

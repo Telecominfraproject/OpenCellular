@@ -12,6 +12,7 @@
 
 #include "2sysincludes.h"
 #include "2api.h"
+#include "2nvstorage.h"
 #include "crc32.h"
 #include "gbb_header.h"
 #include "host_common.h"
@@ -21,7 +22,6 @@
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 
@@ -135,7 +135,6 @@ test_case_t test[] = {
 /* Mock data */
 static VbCommonParams cparams;
 static struct vb2_context ctx;
-static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
 static GoogleBinaryBlockHeader gbb;
@@ -161,10 +160,7 @@ static void ResetMocks(void) {
   cparams.gbb = &gbb;
 
   memset(&ctx, 0, sizeof(ctx));
-
-  memset(&vnc, 0, sizeof(vnc));
-  VbNvSetup(&vnc);
-  VbNvTeardown(&vnc);  /* So CRC gets generated */
+  vb2_nv_init(&ctx);
 
   memset(&shared_data, 0, sizeof(shared_data));
   VbSharedDataInit(shared, sizeof(shared_data));
@@ -193,12 +189,10 @@ static void ResetMocks(void) {
 /* Mocked verification functions */
 
 VbError_t VbExNvStorageRead(uint8_t* buf) {
-  memcpy(buf, vnc.raw, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t* buf) {
-  memcpy(vnc.raw, buf, sizeof(vnc.raw));
   return VBERROR_SUCCESS;
 }
 

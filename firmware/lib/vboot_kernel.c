@@ -438,7 +438,7 @@ VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
 	uint32_t lowest_version = LOWEST_TPM_VERSION;
 
 	VbError_t retval = VBERROR_UNKNOWN;
-	int recovery = VBNV_RECOVERY_LK_UNSPECIFIED;
+	int recovery = VB2_RECOVERY_LK_UNSPECIFIED;
 
 	/* Clear output params in case we fail */
 	params->partition_number = 0;
@@ -644,11 +644,11 @@ gpt_done:
 		retval = VBERROR_SUCCESS;
 	} else if (found_partitions > 0) {
 		shcall->check_result = VBSD_LKC_CHECK_INVALID_PARTITIONS;
-		recovery = VBNV_RECOVERY_RW_INVALID_OS;
+		recovery = VB2_RECOVERY_RW_INVALID_OS;
 		retval = VBERROR_INVALID_KERNEL_FOUND;
 	} else {
 		shcall->check_result = VBSD_LKC_CHECK_NO_PARTITIONS;
-		recovery = VBNV_RECOVERY_RW_NO_OS;
+		recovery = VB2_RECOVERY_RW_NO_OS;
 		retval = VBERROR_NO_KERNEL_FOUND;
 	}
 
@@ -656,7 +656,7 @@ load_kernel_exit:
 	/* Store recovery request, if any */
 	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
 		   VBERROR_SUCCESS != retval ?
-		   recovery : VBNV_RECOVERY_NOT_REQUESTED);
+		   recovery : VB2_RECOVERY_NOT_REQUESTED);
 
 	/* Store how much shared data we used, if any */
 	cparams->shared_data_size = shared->data_used;

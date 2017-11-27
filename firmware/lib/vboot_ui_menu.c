@@ -23,7 +23,6 @@
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 
 static void VbAllowUsbBootMenu(struct vb2_context *ctx)
 {
@@ -84,7 +83,7 @@ uint32_t VbTryUsbMenu(struct vb2_context *ctx, VbCommonParams *cparams)
 		 * recovery mode.
 		 */
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
-			   VBNV_RECOVERY_NOT_REQUESTED);
+			   VB2_RECOVERY_NOT_REQUESTED);
 	}
 	return retval;
 }
@@ -355,13 +354,13 @@ VbError_t vb2_update_menu(struct vb2_context *ctx)
 		switch(current_menu_idx) {
 		case VB_WARN_OPTIONS:
 			switch(default_boot) {
-			case VBNV_DEV_DEFAULT_BOOT_DISK:
+			case VB2_DEV_DEFAULT_BOOT_DISK:
 				next_menu_idx = VB_DEV_DISK;
 				break;
-			case VBNV_DEV_DEFAULT_BOOT_USB:
+			case VB2_DEV_DEFAULT_BOOT_USB:
 				next_menu_idx = VB_DEV_USB;
 				break;
-			case VBNV_DEV_DEFAULT_BOOT_LEGACY:
+			case VB2_DEV_DEFAULT_BOOT_LEGACY:
 				next_menu_idx = VB_DEV_LEGACY;
 				break;
 			}
@@ -675,9 +674,9 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* Check if the default is to boot using disk, usb, or legacy */
 	default_boot = vb2_nv_get(ctx, VB2_NV_DEV_DEFAULT_BOOT);
 
-	if(default_boot == VBNV_DEV_DEFAULT_BOOT_USB)
+	if(default_boot == VB2_DEV_DEFAULT_BOOT_USB)
 		use_usb = 1;
-	if(default_boot == VBNV_DEV_DEFAULT_BOOT_LEGACY)
+	if(default_boot == VB2_DEV_DEFAULT_BOOT_LEGACY)
 		use_legacy = 1;
 
 	/* Handle GBB flag override */
@@ -990,8 +989,8 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		/*
 		 * We have to save the reason here so that it will survive
 		 * coming up three-finger-salute. We're saving it in
-		 * VBNV_RECOVERY_SUBCODE to avoid a recovery loop.
-		 * If we save the reason in VBNV_RECOVERY_REQUEST, we will come
+		 * VB2_RECOVERY_SUBCODE to avoid a recovery loop.
+		 * If we save the reason in VB2_RECOVERY_REQUEST, we will come
 		 * back here, thus, we won't be able to give a user a chance to
 		 * reboot to workaround a boot hiccup.
 		 */
@@ -1040,7 +1039,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		 * us stuck in recovery mode.
 		 */
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
-			   VBNV_RECOVERY_NOT_REQUESTED);
+			   VB2_RECOVERY_NOT_REQUESTED);
 
 		if (VBERROR_SUCCESS == retval)
 			break; /* Found a recovery kernel */

@@ -12,6 +12,7 @@
 #include "2sysincludes.h"
 #include "2api.h"
 #include "2misc.h"
+#include "2nvstorage.h"
 #include "host_common.h"
 #include "util_misc.h"
 #include "vboot_common.h"
@@ -22,7 +23,6 @@ static uint8_t *diskbuf;
 
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
-static VbNvContext nvc;
 
 static LoadKernelParams params;
 static VbCommonParams cparams;
@@ -111,20 +111,13 @@ int main(int argc, char *argv[])
 	params.boot_flags = 0;
 
 	/*
-	 * LoadKernel() cares only about VBNV_DEV_BOOT_SIGNED_ONLY, and only in
-	 * dev mode.  So just use defaults.
-	 */
-	VbNvSetup(&nvc);
-	params.nv_context = &nvc;
-
-	/*
 	 * Set up vboot context.
 	 *
 	 * TODO: Propagate this up to higher API levels
 	 */
 	struct vb2_context ctx;
 	memset(&ctx, 0, sizeof(ctx));
-	/* No need to initialize ctx->nvdata[]; defaults are fine */
+
 	/* TODO(chromium:441893): support dev-mode flag and external gpt flag */
 	ctx.workbuf = malloc(VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE);
 	if (!ctx.workbuf) {
@@ -139,6 +132,12 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	/*
+	 * LoadKernel() cares only about VBNV_DEV_BOOT_SIGNED_ONLY, and only in
+	 * dev mode.  So just use defaults for nv storage.
+	 */
+	vb2_nv_init(&ctx);
+
 	/* Try loading kernel */
 	rv = LoadKernel(&ctx, &params, &cparams);
 	if (rv != VBERROR_SUCCESS) {
@@ -151,7 +150,7 @@ int main(int argc, char *argv[])
 	printf("Bootloader address: 0x%" PRIx64 "\n",
 	       params.bootloader_address);
 
-	/* TODO: print other things (partition GUID, nv_context, shared_data) */
+	/* TODO: print other things (partition GUID, shared_data) */
 
 	printf("Yaay!\n");
 	return 0;

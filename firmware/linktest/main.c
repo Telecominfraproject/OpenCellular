@@ -11,7 +11,6 @@
 #include "tlcl.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 
 
 int main(void)
@@ -70,11 +69,6 @@ int main(void)
 	VbSharedDataInit(0, 0);
 	VbSharedDataReserve(0, 0);
 	VbSharedDataSetKernelKey(0, 0);
-
-	VbNvSetup(0);
-	VbNvGet(0, 0, 0);
-	VbNvSet(0, 0, 0);
-	VbNvTeardown(0);
 
 	return 0;
 }

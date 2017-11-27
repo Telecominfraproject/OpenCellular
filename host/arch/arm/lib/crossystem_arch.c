@@ -20,7 +20,6 @@
 #include <netinet/in.h>
 
 #include "vboot_common.h"
-#include "vboot_nvstorage.h"
 #include "host_common.h"
 #include "crossystem.h"
 #include "crossystem_arch.h"
@@ -245,8 +244,7 @@ out:
 	return ret;
 }
 
-
-static int VbReadNvStorage_disk(VbNvContext* vnc)
+static int vb2_read_nv_storage_disk(struct vb2_context *ctx)
 {
 	int nvctx_fd = -1;
 	uint8_t sector[SECTOR_SIZE];
@@ -262,7 +260,7 @@ static int VbReadNvStorage_disk(VbNvContext* vnc)
 		return E_FAIL;
 	snprintf(nvctx_path, sizeof(nvctx_path), NVCTX_PATH, emmc_dev);
 
-	if (size != sizeof(vnc->raw) || (size + offset > SECTOR_SIZE))
+	if (size != sizeof(ctx->nvdata) || (size + offset > SECTOR_SIZE))
 		return E_FAIL;
 
 	nvctx_fd = open(nvctx_path, O_RDONLY);
@@ -279,7 +277,7 @@ static int VbReadNvStorage_disk(VbNvContext* vnc)
 			__FUNCTION__, nvctx_path);
 		goto out;
 	}
-	memcpy(vnc->raw, sector+offset, size);
+	memcpy(ctx->nvdata, sector+offset, size);
 	rv = 0;
 
 out:
@@ -289,7 +287,7 @@ out:
 	return rv;
 }
 
-static int VbWriteNvStorage_disk(VbNvContext* vnc)
+static int vb2_write_nv_storage_disk(struct vb2_context *ctx)
 {
 	int nvctx_fd = -1;
 	uint8_t sector[SECTOR_SIZE];
@@ -305,7 +303,7 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc)
 		return E_FAIL;
 	snprintf(nvctx_path, sizeof(nvctx_path), NVCTX_PATH, emmc_dev);
 
-	if (size != sizeof(vnc->raw) || (size + offset > SECTOR_SIZE))
+	if (size != sizeof(ctx->nvdata) || (size + offset > SECTOR_SIZE))
 		return E_FAIL;
 
 	do {
@@ -323,7 +321,7 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc)
 				__FUNCTION__, nvctx_path);
 			break;
 		}
-		memcpy(sector+offset, vnc->raw, size);
+		memcpy(sector+offset, ctx->nvdata, size);
 		lseek(nvctx_fd, lba * SECTOR_SIZE, SEEK_SET);
 		rv = write(nvctx_fd, sector, SECTOR_SIZE);
 		if (rv <= 0) {
@@ -351,35 +349,35 @@ static int VbWriteNvStorage_disk(VbNvContext* vnc)
 	return rv;
 }
 
-int VbReadNvStorage(VbNvContext* vnc)
+int vb2_read_nv_storage(struct vb2_context *ctx)
 {
 	/* Default to disk for older firmware which does not provide storage
 	 * type */
 	char *media;
 	if (!FdtPropertyExist(FDT_NVSTORAGE_TYPE_PROP))
-		return VbReadNvStorage_disk(vnc);
+		return vb2_read_nv_storage_disk(ctx);
 	media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
 	if (!strcmp(media, "disk"))
-		return VbReadNvStorage_disk(vnc);
+		return vb2_read_nv_storage_disk(ctx);
 	if (!strcmp(media, "cros-ec") || !strcmp(media, "mkbp") ||
 	    !strcmp(media, "flash"))
-		return VbReadNvStorage_mosys(vnc);
+		return vb2_read_nv_storage_mosys(ctx);
 	return -1;
 }
 
-int VbWriteNvStorage(VbNvContext* vnc)
+int vb2_write_nv_storage(struct vb2_context *ctx)
 {
 	/* Default to disk for older firmware which does not provide storage
 	 * type */
 	char *media;
 	if (!FdtPropertyExist(FDT_NVSTORAGE_TYPE_PROP))
-		return VbWriteNvStorage_disk(vnc);
+		return vb2_write_nv_storage_disk(ctx);
 	media = ReadFdtString(FDT_NVSTORAGE_TYPE_PROP);
 	if (!strcmp(media, "disk"))
-		return VbWriteNvStorage_disk(vnc);
+		return vb2_write_nv_storage_disk(ctx);
 	if (!strcmp(media, "cros-ec") || !strcmp(media, "mkbp") ||
 	    !strcmp(media, "flash"))
-		return VbWriteNvStorage_mosys(vnc);
+		return vb2_write_nv_storage_mosys(ctx);
 	return -1;
 }
 

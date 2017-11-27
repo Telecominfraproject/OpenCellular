@@ -23,7 +23,6 @@
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 /* Mock data */
@@ -250,28 +249,28 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	in_rw_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_UNKNOWN_IMAGE, "Unknown EC image");
+		   VB2_RECOVERY_EC_UNKNOWN_IMAGE, "Unknown EC image");
 
 	/* Calculate hashes */
 	ResetMocks();
 	mock_ec_rw_hash_size = 0;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_HASH_FAILED, "Bad EC hash");
+		   VB2_RECOVERY_EC_HASH_FAILED, "Bad EC hash");
 
 	ResetMocks();
 	mock_ec_rw_hash_size = 16;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_HASH_SIZE, "Bad EC hash size");
+		   VB2_RECOVERY_EC_HASH_SIZE, "Bad EC hash size");
 
 	ResetMocks();
 	want_ec_hash_size = 0;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_EXPECTED_HASH, "Bad precalculated hash");
+		   VB2_RECOVERY_EC_EXPECTED_HASH, "Bad precalculated hash");
 
 	ResetMocks();
 	want_ec_hash_size = 16;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_HASH_SIZE,
+		   VB2_RECOVERY_EC_HASH_SIZE,
 		   "Hash size mismatch");
 
 	ResetMocks();
@@ -343,7 +342,7 @@ static void VbSoftwareSyncTest(void)
 	mock_ec_rw_hash[0]++;
 	update_hash++;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_UPDATE, "updated hash mismatch");
+		   VB2_RECOVERY_EC_UPDATE, "updated hash mismatch");
 	TEST_EQ(ec_rw_protected, 0, "  ec rw protected");
 	TEST_EQ(ec_run_image, 0, "  ec run image");
 	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
@@ -362,7 +361,7 @@ static void VbSoftwareSyncTest(void)
 	mock_ec_rw_hash[0]++;
 	update_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_UPDATE, "Update failed");
+		   VB2_RECOVERY_EC_UPDATE, "Update failed");
 
 	ResetMocks();
 	mock_ec_rw_hash[0]++;
@@ -386,7 +385,7 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	run_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_EC_REBOOT_TO_RO_REQUIRED,
-		   VBNV_RECOVERY_EC_JUMP_RW, "Jump to RW fail");
+		   VB2_RECOVERY_EC_JUMP_RW, "Jump to RW fail");
 
 	ResetMocks();
 	run_retval = VBERROR_EC_REBOOT_TO_RO_REQUIRED;
@@ -396,7 +395,7 @@ static void VbSoftwareSyncTest(void)
 	ResetMocks();
 	protect_retval = VBERROR_SIMULATED;
 	test_ssync(VBERROR_SIMULATED,
-		   VBNV_RECOVERY_EC_PROTECT, "Protect error");
+		   VB2_RECOVERY_EC_PROTECT, "Protect error");
 
 	/* No longer check for shutdown requested */
 	ResetMocks();

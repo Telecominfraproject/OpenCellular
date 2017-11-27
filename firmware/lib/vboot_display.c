@@ -19,7 +19,6 @@
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_display.h"
-#include "vboot_nvstorage.h"
 
 static uint32_t disp_current_screen = VB_SCREEN_BLANK;
 static uint32_t disp_current_index = 0;
@@ -442,154 +441,154 @@ static void FillInSha1Sum(char *outbuf, VbPublicKey *key)
 const char *RecoveryReasonString(uint8_t code)
 {
 	switch(code) {
-	case VBNV_RECOVERY_NOT_REQUESTED:
+	case VB2_RECOVERY_NOT_REQUESTED:
 		return "Recovery not requested";
-	case VBNV_RECOVERY_LEGACY:
+	case VB2_RECOVERY_LEGACY:
 		return "Recovery requested from legacy utility";
-	case VBNV_RECOVERY_RO_MANUAL:
+	case VB2_RECOVERY_RO_MANUAL:
 		return "recovery button pressed";
-	case VBNV_RECOVERY_RO_INVALID_RW:
+	case VB2_RECOVERY_RO_INVALID_RW:
 		return "RW firmware failed signature check";
-	case VBNV_RECOVERY_RO_S3_RESUME:
+	case VB2_RECOVERY_RO_S3_RESUME:
 		return "S3 resume failed";
-	case VBNV_RECOVERY_DEP_RO_TPM_ERROR:
+	case VB2_RECOVERY_DEP_RO_TPM_ERROR:
 		return "TPM error in read-only firmware";
-	case VBNV_RECOVERY_RO_SHARED_DATA:
+	case VB2_RECOVERY_RO_SHARED_DATA:
 		return "Shared data error in read-only firmware";
-	case VBNV_RECOVERY_RO_TEST_S3:
+	case VB2_RECOVERY_RO_TEST_S3:
 		return "Test error from S3Resume()";
-	case VBNV_RECOVERY_RO_TEST_LFS:
+	case VB2_RECOVERY_RO_TEST_LFS:
 		return "Test error from LoadFirmwareSetup()";
-	case VBNV_RECOVERY_RO_TEST_LF:
+	case VB2_RECOVERY_RO_TEST_LF:
 		return "Test error from LoadFirmware()";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_NOT_DONE:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_NOT_DONE:
 		return "RW firmware check not done";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_DEV_MISMATCH:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_DEV_MISMATCH:
 	  return "RW firmware developer flag mismatch";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_REC_MISMATCH:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_REC_MISMATCH:
 		return "RW firmware recovery flag mismatch";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN +
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN +
 		VBSD_LF_CHECK_VERIFY_KEYBLOCK:
 		return "RW firmware unable to verify key block";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_KEY_ROLLBACK:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_KEY_ROLLBACK:
 		return "RW firmware key version rollback detected";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN +
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN +
 		VBSD_LF_CHECK_DATA_KEY_PARSE:
 		return "RW firmware unable to parse data key";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN +
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN +
 		VBSD_LF_CHECK_VERIFY_PREAMBLE:
 		return "RW firmware unable to verify preamble";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_FW_ROLLBACK:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_FW_ROLLBACK:
 		return "RW firmware version rollback detected";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_GET_FW_BODY:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_GET_FW_BODY:
 		return "RW firmware unable to get firmware body";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN +
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN +
 		VBSD_LF_CHECK_HASH_WRONG_SIZE:
 		return "RW firmware hash is wrong size";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_VERIFY_BODY:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_VERIFY_BODY:
 		return "RW firmware unable to verify firmware body";
-	case VBNV_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_NO_RO_NORMAL:
+	case VB2_RECOVERY_RO_INVALID_RW_CHECK_MIN + VBSD_LF_CHECK_NO_RO_NORMAL:
 		return "RW firmware read-only normal path is not supported";
-	case VBNV_RECOVERY_RO_FIRMWARE:
+	case VB2_RECOVERY_RO_FIRMWARE:
 		return "Firmware problem outside of verified boot";
-	case VBNV_RECOVERY_RO_TPM_REBOOT:
+	case VB2_RECOVERY_RO_TPM_REBOOT:
 		return "TPM requires a system reboot (should be transient)";
-	case VBNV_RECOVERY_EC_SOFTWARE_SYNC:
+	case VB2_RECOVERY_EC_SOFTWARE_SYNC:
 		return "EC software sync error";
-	case VBNV_RECOVERY_EC_UNKNOWN_IMAGE:
+	case VB2_RECOVERY_EC_UNKNOWN_IMAGE:
 		return "EC software sync unable to determine active EC image";
-	case VBNV_RECOVERY_DEP_EC_HASH:
+	case VB2_RECOVERY_DEP_EC_HASH:
 		return "EC software sync error obtaining EC image hash";
-	case VBNV_RECOVERY_EC_EXPECTED_IMAGE:
+	case VB2_RECOVERY_EC_EXPECTED_IMAGE:
 		return "EC software sync error "
 			"obtaining expected EC image from BIOS";
-	case VBNV_RECOVERY_EC_EXPECTED_HASH:
+	case VB2_RECOVERY_EC_EXPECTED_HASH:
 		return "EC software sync error "
 			"obtaining expected EC hash from BIOS";
-	case VBNV_RECOVERY_EC_HASH_MISMATCH:
+	case VB2_RECOVERY_EC_HASH_MISMATCH:
 		return "EC software sync error "
 			"comparing expected EC hash and image";
-	case VBNV_RECOVERY_EC_UPDATE:
+	case VB2_RECOVERY_EC_UPDATE:
 		return "EC software sync error updating EC";
-	case VBNV_RECOVERY_EC_JUMP_RW:
+	case VB2_RECOVERY_EC_JUMP_RW:
 		return "EC software sync unable to jump to EC-RW";
-	case VBNV_RECOVERY_EC_PROTECT:
+	case VB2_RECOVERY_EC_PROTECT:
 		return "EC software sync protection error";
-	case VBNV_RECOVERY_VB2_SECDATA_INIT:
+	case VB2_RECOVERY_SECDATA_INIT:
 		return "Secure NVRAM (TPM) initialization error";
-	case VBNV_RECOVERY_VB2_GBB_HEADER:
+	case VB2_RECOVERY_GBB_HEADER:
 		return "Error parsing GBB header";
-	case VBNV_RECOVERY_VB2_TPM_CLEAR_OWNER:
+	case VB2_RECOVERY_TPM_CLEAR_OWNER:
 		return "Error trying to clear TPM owner";
-	case VBNV_RECOVERY_VB2_DEV_SWITCH:
+	case VB2_RECOVERY_DEV_SWITCH:
 		return "Error reading or updating developer switch";
-	case VBNV_RECOVERY_VB2_FW_SLOT:
+	case VB2_RECOVERY_FW_SLOT:
 		return "Error selecting RW firmware slot";
-	case VBNV_RECOVERY_RO_UNSPECIFIED:
+	case VB2_RECOVERY_RO_UNSPECIFIED:
 		return "Unspecified/unknown error in RO firmware";
-	case VBNV_RECOVERY_RW_DEV_SCREEN:
+	case VB2_RECOVERY_RW_DEV_SCREEN:
 		return "User requested recovery from dev-mode warning screen";
-	case VBNV_RECOVERY_RW_NO_OS:
+	case VB2_RECOVERY_RW_NO_OS:
 		return "No OS kernel detected (or kernel rollback attempt?)";
-	case VBNV_RECOVERY_RW_INVALID_OS:
+	case VB2_RECOVERY_RW_INVALID_OS:
 		return "OS kernel failed signature check";
-	case VBNV_RECOVERY_DEP_RW_TPM_ERROR:
+	case VB2_RECOVERY_DEP_RW_TPM_ERROR:
 		return "TPM error in rewritable firmware";
-	case VBNV_RECOVERY_RW_DEV_MISMATCH:
+	case VB2_RECOVERY_RW_DEV_MISMATCH:
 		return "RW firmware in dev mode, but dev switch is off";
-	case VBNV_RECOVERY_RW_SHARED_DATA:
+	case VB2_RECOVERY_RW_SHARED_DATA:
 		return "Shared data error in rewritable firmware";
-	case VBNV_RECOVERY_RW_TEST_LK:
+	case VB2_RECOVERY_RW_TEST_LK:
 		return "Test error from LoadKernel()";
-	case VBNV_RECOVERY_DEP_RW_NO_DISK:
+	case VB2_RECOVERY_DEP_RW_NO_DISK:
 		return "No bootable disk found";
-	case VBNV_RECOVERY_TPM_E_FAIL:
+	case VB2_RECOVERY_TPM_E_FAIL:
 		return "TPM error that was not fixed by reboot";
-	case VBNV_RECOVERY_RO_TPM_S_ERROR:
+	case VB2_RECOVERY_RO_TPM_S_ERROR:
 		return "TPM setup error in read-only firmware";
-	case VBNV_RECOVERY_RO_TPM_W_ERROR:
+	case VB2_RECOVERY_RO_TPM_W_ERROR:
 		return "TPM write error in read-only firmware";
-	case VBNV_RECOVERY_RO_TPM_L_ERROR:
+	case VB2_RECOVERY_RO_TPM_L_ERROR:
 		return "TPM lock error in read-only firmware";
-	case VBNV_RECOVERY_RO_TPM_U_ERROR:
+	case VB2_RECOVERY_RO_TPM_U_ERROR:
 		return "TPM update error in read-only firmware";
-	case VBNV_RECOVERY_RW_TPM_R_ERROR:
+	case VB2_RECOVERY_RW_TPM_R_ERROR:
 		return "TPM read error in rewritable firmware";
-	case VBNV_RECOVERY_RW_TPM_W_ERROR:
+	case VB2_RECOVERY_RW_TPM_W_ERROR:
 		return "TPM write error in rewritable firmware";
-	case VBNV_RECOVERY_RW_TPM_L_ERROR:
+	case VB2_RECOVERY_RW_TPM_L_ERROR:
 		return "TPM lock error in rewritable firmware";
-	case VBNV_RECOVERY_EC_HASH_FAILED:
+	case VB2_RECOVERY_EC_HASH_FAILED:
 		return "EC software sync unable to get EC image hash";
-	case VBNV_RECOVERY_EC_HASH_SIZE:
+	case VB2_RECOVERY_EC_HASH_SIZE:
 		return "EC software sync invalid image hash size";
-	case VBNV_RECOVERY_LK_UNSPECIFIED:
+	case VB2_RECOVERY_LK_UNSPECIFIED:
 		return "Unspecified error while trying to load kernel";
-	case VBNV_RECOVERY_RW_NO_DISK:
+	case VB2_RECOVERY_RW_NO_DISK:
 		return "No bootable storage device in system";
-	case VBNV_RECOVERY_RW_NO_KERNEL:
+	case VB2_RECOVERY_RW_NO_KERNEL:
 		return "No bootable kernel found on disk";
-	case VBNV_RECOVERY_RW_BCB_ERROR:
+	case VB2_RECOVERY_RW_BCB_ERROR:
 		return "BCB partition error on disk";
-	case VBNV_RECOVERY_FW_FASTBOOT:
+	case VB2_RECOVERY_FW_FASTBOOT:
 		return "Fastboot-mode requested in firmware";
-	case VBNV_RECOVERY_RO_TPM_REC_HASH_L_ERROR:
+	case VB2_RECOVERY_RO_TPM_REC_HASH_L_ERROR:
 		return "Recovery hash space lock error in RO firmware";
-	case VBNV_RECOVERY_RW_UNSPECIFIED:
+	case VB2_RECOVERY_RW_UNSPECIFIED:
 		return "Unspecified/unknown error in RW firmware";
-	case VBNV_RECOVERY_KE_DM_VERITY:
+	case VB2_RECOVERY_KE_DM_VERITY:
 		return "DM-verity error";
-	case VBNV_RECOVERY_KE_UNSPECIFIED:
+	case VB2_RECOVERY_KE_UNSPECIFIED:
 		return "Unspecified/unknown error in kernel";
-	case VBNV_RECOVERY_US_TEST:
+	case VB2_RECOVERY_US_TEST:
 		return "Recovery mode test from user-mode";
-	case VBNV_RECOVERY_BCB_USER_MODE:
+	case VB2_RECOVERY_BCB_USER_MODE:
 		return "User-mode requested recovery via BCB";
-	case VBNV_RECOVERY_US_FASTBOOT:
+	case VB2_RECOVERY_US_FASTBOOT:
 		return "User-mode requested fastboot mode";
-	case VBNV_RECOVERY_TRAIN_AND_REBOOT:
+	case VB2_RECOVERY_TRAIN_AND_REBOOT:
 		return "User-mode requested DRAM train and reboot";
-	case VBNV_RECOVERY_US_UNSPECIFIED:
+	case VB2_RECOVERY_US_UNSPECIFIED:
 		return "Unspecified/unknown error in user-mode";
 	}
 	return "We have no idea what this means";

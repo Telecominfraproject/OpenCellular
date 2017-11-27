@@ -14,6 +14,7 @@
 #include "2api.h"
 #include "2common.h"
 #include "2misc.h"
+#include "2nvstorage.h"
 #include "2sha.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
@@ -28,7 +29,6 @@
 #include "vboot_api.h"
 #include "vboot_common.h"
 #include "vboot_kernel.h"
-#include "vboot_nvstorage.h"
 
 #define LOGCALL(fmt, args...) sprintf(call_log + strlen(call_log), fmt, ##args)
 #define TEST_CALLS(expect_log) TEST_STR_EQ(call_log, expect_log, "  calls")
@@ -62,7 +62,6 @@ static int gpt_flag_external;
 static uint8_t gbb_data[sizeof(GoogleBinaryBlockHeader) + 2048];
 static GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader*)gbb_data;
 static VbExDiskHandle_t handle;
-static VbNvContext vnc;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static LoadKernelParams lkp;
@@ -152,12 +151,7 @@ static void ResetMocks(void)
 	cparams.gbb_size = sizeof(gbb_data);
 	cparams.shared_data_blob = shared;
 
-	memset(&vnc, 0, sizeof(vnc));
-	VbNvSetup(&vnc);
-	VbNvTeardown(&vnc);                   /* So CRC gets generated */
-
 	memset(&lkp, 0, sizeof(lkp));
-	lkp.nv_context = &vnc;
 	lkp.bytes_per_lba = 512;
 	lkp.streaming_lba_count = 1024;
 	lkp.gpt_lba_count = 1024;
@@ -186,9 +180,10 @@ static void ResetMocks(void)
 	mock_part_next = 0;
 
 	memset(&ctx, 0, sizeof(ctx));
-	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
 	ctx.workbuf = workbuf;
 	ctx.workbuf_size = sizeof(workbuf);
+	vb2_nv_init(&ctx);
+
 	// TODO: more workbuf fields - flags, secdata, secdatak
 }
 
@@ -574,15 +569,7 @@ static void ReadWriteGptTest(void)
 
 static void TestLoadKernel(int expect_retval, char *test_name)
 {
-	memcpy(ctx.nvdata, vnc.raw, VB2_NVDATA_SIZE);
-
 	TEST_EQ(LoadKernel(&ctx, &lkp, &cparams), expect_retval, test_name);
-
-	if (ctx.flags & VB2_CONTEXT_NVDATA_CHANGED) {
-		memcpy(vnc.raw, ctx.nvdata, VB2_NVDATA_SIZE);
-		vnc.raw_changed = 1;
-		ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
-	}
 }
 
 /**
@@ -602,8 +589,6 @@ static void InvalidParamsTest(void)
 
 static void LoadKernelTest(void)
 {
-	uint32_t u;
-
 	ResetMocks();
 
 	TestLoadKernel(0, "First kernel good");
@@ -612,8 +597,8 @@ static void LoadKernelTest(void)
 	TEST_EQ(lkp.bootloader_size, 0x1234, "  bootloader size");
 	TEST_STR_EQ((char *)lkp.partition_guid, "FakeGuid", "  guid");
 	TEST_EQ(gpt_flag_external, 0, "GPT was internal");
-	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
-	TEST_EQ(u, 0, "  recovery request");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
+		0, "  recovery request");
 
 	ResetMocks();
 	mock_parts[1].start = 300;
@@ -626,15 +611,15 @@ static void LoadKernelTest(void)
 	ResetMocks();
 	mock_parts[0].size = 0;
 	TestLoadKernel(VBERROR_NO_KERNEL_FOUND, "No kernels");
-	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
-	TEST_EQ(u, VBNV_RECOVERY_RW_NO_OS, "  recovery request");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
+		VB2_RECOVERY_RW_NO_OS, "  recovery request");
 
 	/* Skip kernels which are too small */
 	ResetMocks();
 	mock_parts[0].size = 10;
 	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Too small");
-	VbNvGet(&vnc, VBNV_RECOVERY_REQUEST, &u);
-	TEST_EQ(u, VBNV_RECOVERY_RW_INVALID_OS, "  recovery request");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
+		VB2_RECOVERY_RW_INVALID_OS, "  recovery request");
 
 	ResetMocks();
 	disk_read_to_fail = 100;
@@ -660,8 +645,7 @@ static void LoadKernelTest(void)
 	/* In dev mode and requiring signed kernel, fail if sig is bad */
 	ResetMocks();
 	ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
-	VbNvSet(&vnc, VBNV_DEV_BOOT_SIGNED_ONLY, 1);
-	VbNvTeardown(&vnc);
+	vb2_nv_set(&ctx, VB2_NV_DEV_BOOT_SIGNED_ONLY, 1);
 	key_block_verify_fail = 1;
 	TestLoadKernel(VBERROR_INVALID_KERNEL_FOUND, "Fail key block dev sig");
 

@@ -16,6 +16,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "2sysincludes.h"
+#include "2api.h"
+#include "2nvstorage.h"
+
 #include "host_common.h"
 
 #include "crossystem.h"
@@ -23,7 +27,6 @@
 #include "crossystem_vbnv.h"
 #include "utility.h"
 #include "vboot_common.h"
-#include "vboot_nvstorage.h"
 #include "vboot_struct.h"
 
 /* Filename for kernel command line */
@@ -93,75 +96,58 @@ int FwidStartsWith(const char *start)
 
 static int vnc_read;
 
-int VbGetNvStorage(VbNvParam param)
+int vb2_get_nv_storage(enum vb2_nv_param param)
 {
-	uint32_t value;
-	int retval;
-	static VbNvContext cached_vnc;
+	static struct vb2_context cached_ctx;
 
 	/* TODO: locking around NV access */
 	if (!vnc_read) {
-		if (0 != VbReadNvStorage(&cached_vnc))
+		memset(&cached_ctx, 0, sizeof(cached_ctx));
+		if (0 != vb2_read_nv_storage(&cached_ctx))
 			return -1;
+		vb2_nv_init(&cached_ctx);
+
+		/* TODO: If vnc.raw_changed, attempt to reopen NVRAM for write
+		 * and save the new defaults.  If we're able to, log. */
+
 		vnc_read = 1;
 	}
 
-	if (0 != VbNvSetup(&cached_vnc))
-		return -1;
-	retval = VbNvGet(&cached_vnc, param, &value);
-	if (0 != VbNvTeardown(&cached_vnc))
-		return -1;
-	if (0 != retval)
-		return -1;
-
-	/* TODO: If vnc.raw_changed, attempt to reopen NVRAM for write and
-	 * save the new defaults.  If we're able to, log. */
-	/* TODO: release lock */
-
-	return (int)value;
+	return (int)vb2_nv_get(&cached_ctx, param);
 }
 
-int VbSetNvStorage(VbNvParam param, int value)
+int vb2_set_nv_storage(enum vb2_nv_param param, int value)
 {
-	VbNvContext vnc;
-	int retval = -1;
-	int i;
+	struct vb2_context ctx;
 
-	if (0 != VbReadNvStorage(&vnc))
+	/* TODO: locking around NV access */
+	memset(&ctx, 0, sizeof(ctx));
+	if (0 != vb2_read_nv_storage(&ctx))
 		return -1;
+	vb2_nv_init(&ctx);
+	vb2_nv_set(&ctx, param, (uint32_t)value);
 
-	if (0 != VbNvSetup(&vnc))
-		goto VbSetNvCleanup;
-	i = VbNvSet(&vnc, param, (uint32_t)value);
-	if (0 != VbNvTeardown(&vnc))
-		goto VbSetNvCleanup;
-	if (0 != i)
-		goto VbSetNvCleanup;
-
-	if (vnc.raw_changed) {
+	if (ctx.flags & VB2_CONTEXT_NVDATA_CHANGED) {
 		vnc_read = 0;
-		if (0 != VbWriteNvStorage(&vnc))
-			goto VbSetNvCleanup;
+		if (0 != vb2_write_nv_storage(&ctx))
+			return -1;
 	}
 
 	/* Success */
-	retval = 0;
-
-VbSetNvCleanup:
-	/* TODO: release lock */
-	return retval;
+	return 0;
 }
 
 /*
- * Set a param value, and try to flag it for persistent backup.
- * It's okay if backup isn't supported. It's best-effort only.
+ * Set a param value, and try to flag it for persistent backup.  It's okay if
+ * backup isn't supported (which it isn't, in current designs). It's
+ * best-effort only.
  */
-static int VbSetNvStorage_WithBackup(VbNvParam param, int value)
+static int vb2_set_nv_storage_with_backup(enum vb2_nv_param param, int value)
 {
 	int retval;
-	retval = VbSetNvStorage(param, value);
+	retval = vb2_set_nv_storage(param, value);
 	if (!retval)
-		VbSetNvStorage(VBNV_BACKUP_NVRAM_REQUEST, 1);
+		vb2_set_nv_storage(VB2_NV_BACKUP_NVRAM_REQUEST, 1);
 	return retval;
 }
 
@@ -468,63 +454,62 @@ int VbGetSystemPropertyInt(const char *name)
 
 	/* NV storage values */
 	else if (!strcasecmp(name,"kern_nv")) {
-		value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		value = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 	} else if (!strcasecmp(name,"nvram_cleared")) {
-		value = VbGetNvStorage(VBNV_KERNEL_SETTINGS_RESET);
+		value = vb2_get_nv_storage(VB2_NV_KERNEL_SETTINGS_RESET);
 	} else if (!strcasecmp(name,"recovery_request")) {
-		value = VbGetNvStorage(VBNV_RECOVERY_REQUEST);
+		value = vb2_get_nv_storage(VB2_NV_RECOVERY_REQUEST);
 	} else if (!strcasecmp(name,"dbg_reset")) {
-		value = VbGetNvStorage(VBNV_DEBUG_RESET_MODE);
+		value = vb2_get_nv_storage(VB2_NV_DEBUG_RESET_MODE);
 	} else if (!strcasecmp(name,"disable_dev_request")) {
-		value = VbGetNvStorage(VBNV_DISABLE_DEV_REQUEST);
+		value = vb2_get_nv_storage(VB2_NV_DISABLE_DEV_REQUEST);
 	} else if (!strcasecmp(name,"clear_tpm_owner_request")) {
-		value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_REQUEST);
+		value = vb2_get_nv_storage(VB2_NV_CLEAR_TPM_OWNER_REQUEST);
 	} else if (!strcasecmp(name,"clear_tpm_owner_done")) {
-		value = VbGetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE);
+		value = vb2_get_nv_storage(VB2_NV_CLEAR_TPM_OWNER_DONE);
 	} else if (!strcasecmp(name,"tpm_rebooted")) {
-		value = VbGetNvStorage(VBNV_TPM_REQUESTED_REBOOT);
-	} else if (!strcasecmp(name,"fwb_tries")) {
-		value = VbGetNvStorage(VBNV_TRY_B_COUNT);
+		value = vb2_get_nv_storage(VB2_NV_TPM_REQUESTED_REBOOT);
+	} else if (!strcasecmp(name,"fwb_tries") ||
+		   !strcasecmp(name,"fw_try_count")) {
+		value = vb2_get_nv_storage(VB2_NV_TRY_COUNT);
 	} else if (!strcasecmp(name,"fw_vboot2")) {
 		value = GetVdatInt(VDAT_INT_FW_BOOT2);
-	} else if (!strcasecmp(name,"fw_try_count")) {
-		value = VbGetNvStorage(VBNV_FW_TRY_COUNT);
 	} else if (!strcasecmp(name,"fwupdate_tries")) {
-		value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		value = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 		if (value != -1)
 			value &= KERN_NV_FWUPDATE_TRIES_MASK;
 	} else if (!strcasecmp(name,"block_devmode")) {
-		value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		value = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 		if (value != -1) {
 			value &= KERN_NV_BLOCK_DEVMODE_FLAG;
 			value = !!value;
 		}
 	} else if (!strcasecmp(name,"tpm_attack")) {
-		value = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		value = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 		if (value != -1) {
 			value &= KERN_NV_TPM_ATTACK_FLAG;
 			value = !!value;
 		}
 	} else if (!strcasecmp(name,"loc_idx")) {
-		value = VbGetNvStorage(VBNV_LOCALIZATION_INDEX);
+		value = vb2_get_nv_storage(VB2_NV_LOCALIZATION_INDEX);
 	} else if (!strcasecmp(name,"backup_nvram_request")) {
-		value = VbGetNvStorage(VBNV_BACKUP_NVRAM_REQUEST);
+		value = vb2_get_nv_storage(VB2_NV_BACKUP_NVRAM_REQUEST);
 	} else if (!strcasecmp(name,"dev_boot_usb")) {
-		value = VbGetNvStorage(VBNV_DEV_BOOT_USB);
+		value = vb2_get_nv_storage(VB2_NV_DEV_BOOT_USB);
 	} else if (!strcasecmp(name,"dev_boot_legacy")) {
-		value = VbGetNvStorage(VBNV_DEV_BOOT_LEGACY);
+		value = vb2_get_nv_storage(VB2_NV_DEV_BOOT_LEGACY);
 	} else if (!strcasecmp(name,"dev_boot_signed_only")) {
-		value = VbGetNvStorage(VBNV_DEV_BOOT_SIGNED_ONLY);
+		value = vb2_get_nv_storage(VB2_NV_DEV_BOOT_SIGNED_ONLY);
 	} else if (!strcasecmp(name,"dev_boot_fastboot_full_cap")) {
-		value = VbGetNvStorage(VBNV_DEV_BOOT_FASTBOOT_FULL_CAP);
+		value = vb2_get_nv_storage(VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP);
 	} else if (!strcasecmp(name,"oprom_needed")) {
-		value = VbGetNvStorage(VBNV_OPROM_NEEDED);
+		value = vb2_get_nv_storage(VB2_NV_OPROM_NEEDED);
 	} else if (!strcasecmp(name,"recovery_subcode")) {
-		value = VbGetNvStorage(VBNV_RECOVERY_SUBCODE);
+		value = vb2_get_nv_storage(VB2_NV_RECOVERY_SUBCODE);
 	} else if (!strcasecmp(name,"wipeout_request")) {
-		value = VbGetNvStorage(VBNV_FW_REQ_WIPEOUT);
+		value = vb2_get_nv_storage(VB2_NV_REQ_WIPEOUT);
 	} else if (!strcasecmp(name,"kernel_max_rollforward")) {
-		value = VbGetNvStorage(VBNV_KERNEL_MAX_ROLLFORWARD);
+		value = vb2_get_nv_storage(VB2_NV_KERNEL_MAX_ROLLFORWARD);
 	}
 	/* Other parameters */
 	else if (!strcasecmp(name,"cros_debug")) {
@@ -550,13 +535,13 @@ int VbGetSystemPropertyInt(const char *name)
 	} else if (!strcasecmp(name,"recovery_reason")) {
 		value = GetVdatInt(VDAT_INT_RECOVERY_REASON);
 	} else if (!strcasecmp(name, "fastboot_unlock_in_fw")) {
-		value = VbGetNvStorage(VBNV_FASTBOOT_UNLOCK_IN_FW);
+		value = vb2_get_nv_storage(VB2_NV_FASTBOOT_UNLOCK_IN_FW);
 	} else if (!strcasecmp(name, "boot_on_ac_detect")) {
-		value = VbGetNvStorage(VBNV_BOOT_ON_AC_DETECT);
+		value = vb2_get_nv_storage(VB2_NV_BOOT_ON_AC_DETECT);
 	} else if (!strcasecmp(name, "try_ro_sync")) {
-		value = VbGetNvStorage(VBNV_TRY_RO_SYNC);
+		value = vb2_get_nv_storage(VB2_NV_TRY_RO_SYNC);
 	} else if (!strcasecmp(name, "battery_cutoff_request")) {
-		value = VbGetNvStorage(VBNV_BATTERY_CUTOFF_REQUEST);
+		value = vb2_get_nv_storage(VB2_NV_BATTERY_CUTOFF_REQUEST);
 	} else if (!strcasecmp(name, "inside_vm")) {
 		/* Detect if the host is a VM. If there is no HWID and the
 		 * firmware type is "nonchrome", then assume it is a VM. If
@@ -604,25 +589,25 @@ const char *VbGetSystemPropertyString(const char *name, char *dest,
 	} else if (!strcasecmp(name, "vdat_lkdebug")) {
 		return GetVdatString(dest, size, VDAT_STRING_LOAD_KERNEL_DEBUG);
 	} else if (!strcasecmp(name, "fw_try_next")) {
-		return VbGetNvStorage(VBNV_FW_TRY_NEXT) ? "B" : "A";
+		return vb2_get_nv_storage(VB2_NV_TRY_NEXT) ? "B" : "A";
 	} else if (!strcasecmp(name, "fw_tried")) {
-		return VbGetNvStorage(VBNV_FW_TRIED) ? "B" : "A";
+		return vb2_get_nv_storage(VB2_NV_FW_TRIED) ? "B" : "A";
 	} else if (!strcasecmp(name, "fw_result")) {
-		int v = VbGetNvStorage(VBNV_FW_RESULT);
+		int v = vb2_get_nv_storage(VB2_NV_FW_RESULT);
 		if (v < ARRAY_SIZE(fw_results))
 			return fw_results[v];
 		else
 			return "unknown";
 	} else if (!strcasecmp(name, "fw_prev_tried")) {
-		return VbGetNvStorage(VBNV_FW_PREV_TRIED) ? "B" : "A";
+		return vb2_get_nv_storage(VB2_NV_FW_PREV_TRIED) ? "B" : "A";
 	} else if (!strcasecmp(name, "fw_prev_result")) {
-		int v = VbGetNvStorage(VBNV_FW_PREV_RESULT);
+		int v = vb2_get_nv_storage(VB2_NV_FW_PREV_RESULT);
 		if (v < ARRAY_SIZE(fw_results))
 			return fw_results[v];
 		else
 			return "unknown";
 	} else if (!strcasecmp(name,"dev_default_boot")) {
-		int v = VbGetNvStorage(VBNV_DEV_DEFAULT_BOOT);
+		int v = vb2_get_nv_storage(VB2_NV_DEV_DEFAULT_BOOT);
 		if (v < ARRAY_SIZE(default_boot))
 			return default_boot[v];
 		else
@@ -644,82 +629,89 @@ int VbSetSystemPropertyInt(const char *name, int value)
 	if (!strcasecmp(name,"nvram_cleared")) {
 		/* Can only clear this flag; it's set inside the NV storage
 		 * library. */
-		return VbSetNvStorage(VBNV_KERNEL_SETTINGS_RESET, 0);
+		return vb2_set_nv_storage(VB2_NV_KERNEL_SETTINGS_RESET, 0);
 	} else if (!strcasecmp(name,"recovery_request")) {
-		return VbSetNvStorage(VBNV_RECOVERY_REQUEST, value);
+		return vb2_set_nv_storage(VB2_NV_RECOVERY_REQUEST, value);
 	} else if (!strcasecmp(name,"recovery_subcode")) {
-		return VbSetNvStorage(VBNV_RECOVERY_SUBCODE, value);
+		return vb2_set_nv_storage(VB2_NV_RECOVERY_SUBCODE, value);
 	} else if (!strcasecmp(name,"dbg_reset")) {
-		return VbSetNvStorage(VBNV_DEBUG_RESET_MODE, value);
+		return vb2_set_nv_storage(VB2_NV_DEBUG_RESET_MODE, value);
 	} else if (!strcasecmp(name,"disable_dev_request")) {
-		return VbSetNvStorage(VBNV_DISABLE_DEV_REQUEST, value);
+		return vb2_set_nv_storage(VB2_NV_DISABLE_DEV_REQUEST, value);
 	} else if (!strcasecmp(name,"clear_tpm_owner_request")) {
-		return VbSetNvStorage(VBNV_CLEAR_TPM_OWNER_REQUEST, value);
+		return vb2_set_nv_storage(VB2_NV_CLEAR_TPM_OWNER_REQUEST, value);
 	} else if (!strcasecmp(name,"clear_tpm_owner_done")) {
 		/* Can only clear this flag; it's set by firmware. */
-		return VbSetNvStorage(VBNV_CLEAR_TPM_OWNER_DONE, 0);
-	} else if (!strcasecmp(name,"fwb_tries")) {
-		return VbSetNvStorage(VBNV_TRY_B_COUNT, value);
-	} else if (!strcasecmp(name,"fw_try_count")) {
-		return VbSetNvStorage(VBNV_FW_TRY_COUNT, value);
+		return vb2_set_nv_storage(VB2_NV_CLEAR_TPM_OWNER_DONE, 0);
+	} else if (!strcasecmp(name,"fwb_tries") ||
+		   !strcasecmp(name,"fw_try_count")) {
+		return vb2_set_nv_storage(VB2_NV_TRY_COUNT, value);
 	} else if (!strcasecmp(name,"oprom_needed")) {
-		return VbSetNvStorage(VBNV_OPROM_NEEDED, value);
+		return vb2_set_nv_storage(VB2_NV_OPROM_NEEDED, value);
 	} else if (!strcasecmp(name,"wipeout_request")) {
 		/* Can only clear this flag, set only by firmware. */
-		return VbSetNvStorage(VBNV_FW_REQ_WIPEOUT, 0);
+		return vb2_set_nv_storage(VB2_NV_REQ_WIPEOUT, 0);
 	} else if (!strcasecmp(name,"backup_nvram_request")) {
 		/* Best-effort only, since it requires firmware and TPM
 		 * support. */
-		return VbSetNvStorage(VBNV_BACKUP_NVRAM_REQUEST, value);
+		return vb2_set_nv_storage(VB2_NV_BACKUP_NVRAM_REQUEST, value);
 	} else if (!strcasecmp(name,"fwupdate_tries")) {
-		int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		int kern_nv = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 		if (kern_nv == -1)
 			return -1;
 		kern_nv &= ~KERN_NV_FWUPDATE_TRIES_MASK;
 		kern_nv |= (value & KERN_NV_FWUPDATE_TRIES_MASK);
-		return VbSetNvStorage_WithBackup(VBNV_KERNEL_FIELD, kern_nv);
+		return vb2_set_nv_storage_with_backup(VB2_NV_KERNEL_FIELD,
+						      kern_nv);
 	} else if (!strcasecmp(name,"block_devmode")) {
-		int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		int kern_nv = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 		if (kern_nv == -1)
 			return -1;
 		kern_nv &= ~KERN_NV_BLOCK_DEVMODE_FLAG;
 		if (value)
 			kern_nv |= KERN_NV_BLOCK_DEVMODE_FLAG;
-		return VbSetNvStorage_WithBackup(VBNV_KERNEL_FIELD, kern_nv);
+		return vb2_set_nv_storage_with_backup(VB2_NV_KERNEL_FIELD,
+						      kern_nv);
 	} else if (!strcasecmp(name,"tpm_attack")) {
 		/* This value should only be read and cleared, but we allow
 		 * setting it to 1 for testing. */
-		int kern_nv = VbGetNvStorage(VBNV_KERNEL_FIELD);
+		int kern_nv = vb2_get_nv_storage(VB2_NV_KERNEL_FIELD);
 		if (kern_nv == -1)
 			return -1;
 		kern_nv &= ~KERN_NV_TPM_ATTACK_FLAG;
 		if (value)
 			kern_nv |= KERN_NV_TPM_ATTACK_FLAG;
-		return VbSetNvStorage_WithBackup(VBNV_KERNEL_FIELD, kern_nv);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_KERNEL_FIELD, kern_nv);
 	} else if (!strcasecmp(name,"loc_idx")) {
-		return VbSetNvStorage_WithBackup(VBNV_LOCALIZATION_INDEX,
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_LOCALIZATION_INDEX,
 						 value);
 	} else if (!strcasecmp(name,"dev_boot_usb")) {
-		return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_USB, value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_DEV_BOOT_USB, value);
 	} else if (!strcasecmp(name,"dev_boot_legacy")) {
-		return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_LEGACY, value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_DEV_BOOT_LEGACY, value);
 	} else if (!strcasecmp(name,"dev_boot_signed_only")) {
-		return VbSetNvStorage_WithBackup(VBNV_DEV_BOOT_SIGNED_ONLY,
-						 value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_DEV_BOOT_SIGNED_ONLY, value);
 	} else if (!strcasecmp(name,"dev_boot_fastboot_full_cap")) {
-		return VbSetNvStorage_WithBackup(
-				VBNV_DEV_BOOT_FASTBOOT_FULL_CAP, value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP, value);
 	} else if (!strcasecmp(name, "fastboot_unlock_in_fw")) {
-		return VbSetNvStorage_WithBackup(VBNV_FASTBOOT_UNLOCK_IN_FW,
-						 value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_FASTBOOT_UNLOCK_IN_FW, value);
 	} else if (!strcasecmp(name, "boot_on_ac_detect")) {
-		return VbSetNvStorage_WithBackup(VBNV_BOOT_ON_AC_DETECT, value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_BOOT_ON_AC_DETECT, value);
 	} else if (!strcasecmp(name, "try_ro_sync")) {
-		return VbSetNvStorage_WithBackup(VBNV_TRY_RO_SYNC, value);
+		return vb2_set_nv_storage_with_backup(
+		    VB2_NV_TRY_RO_SYNC, value);
 	} else if (!strcasecmp(name, "battery_cutoff_request")) {
-		return VbSetNvStorage(VBNV_BATTERY_CUTOFF_REQUEST, value);
+		return vb2_set_nv_storage(VB2_NV_BATTERY_CUTOFF_REQUEST, value);
 	} else if (!strcasecmp(name,"kernel_max_rollforward")) {
-		return VbSetNvStorage(VBNV_KERNEL_MAX_ROLLFORWARD, value);
+		return vb2_set_nv_storage(VB2_NV_KERNEL_MAX_ROLLFORWARD, value);
 	}
 
 	return -1;
@@ -733,9 +725,9 @@ int VbSetSystemPropertyString(const char* name, const char* value)
 
 	if (!strcasecmp(name, "fw_try_next")) {
 		if (!strcasecmp(value, "A"))
-			return VbSetNvStorage(VBNV_FW_TRY_NEXT, 0);
+			return vb2_set_nv_storage(VB2_NV_TRY_NEXT, 0);
 		else if (!strcasecmp(value, "B"))
-			return VbSetNvStorage(VBNV_FW_TRY_NEXT, 1);
+			return vb2_set_nv_storage(VB2_NV_TRY_NEXT, 1);
 		else
 			return -1;
 
@@ -744,7 +736,7 @@ int VbSetSystemPropertyString(const char* name, const char* value)
 
 		for (i = 0; i < ARRAY_SIZE(fw_results); i++) {
 			if (!strcasecmp(value, fw_results[i]))
-				return VbSetNvStorage(VBNV_FW_RESULT, i);
+				return vb2_set_nv_storage(VB2_NV_FW_RESULT, i);
 		}
 		return -1;
 	} else if (!strcasecmp(name, "dev_default_boot")) {
@@ -752,7 +744,8 @@ int VbSetSystemPropertyString(const char* name, const char* value)
 
 		for (i = 0; i < ARRAY_SIZE(default_boot); i++) {
 			if (!strcasecmp(value, default_boot[i]))
-				return VbSetNvStorage(VBNV_DEV_DEFAULT_BOOT, i);
+				return vb2_set_nv_storage(
+				    VB2_NV_DEV_DEFAULT_BOOT, i);
 		}
 		return -1;
 	}
@@ -839,7 +832,7 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize)
 	return 0;
 }
 
-int VbReadNvStorage_mosys(VbNvContext *vnc)
+int vb2_read_nv_storage_mosys(struct vb2_context *ctx)
 {
 	char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
 	char * const argv[] = {
@@ -855,12 +848,12 @@ int VbReadNvStorage_mosys(VbNvContext *vnc)
 	for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
 		hexdigit[0] = hexstring[i * 2];
 		hexdigit[1] = hexstring[i * 2 + 1];
-		vnc->raw[i] = strtol(hexdigit, NULL, 16);
+		ctx->nvdata[i] = strtol(hexdigit, NULL, 16);
 	}
 	return 0;
 }
 
-int VbWriteNvStorage_mosys(VbNvContext* vnc)
+int vb2_write_nv_storage_mosys(struct vb2_context *ctx)
 {
 	char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
 	char * const argv[] = {
@@ -870,7 +863,7 @@ int VbWriteNvStorage_mosys(VbNvContext* vnc)
 	int i;
 
 	for (i = 0; i < VBNV_BLOCK_SIZE; i++)
-		snprintf(hexstring + i * 2, 3, "%02x", vnc->raw[i]);
+		snprintf(hexstring + i * 2, 3, "%02x", ctx->nvdata[i]);
 	hexstring[sizeof(hexstring) - 1] = '\0';
 	if (ExecuteMosys(argv, NULL, 0))
 		return -1;

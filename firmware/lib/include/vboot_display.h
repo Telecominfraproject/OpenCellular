@@ -9,8 +9,6 @@
 #define VBOOT_REFERENCE_VBOOT_DISPLAY_H_
 
 #include "bmpblk_font.h"
-#include "vboot_api.h"
-#include "vboot_nvstorage.h"
 
 struct vb2_context;
 

@@ -12,7 +12,6 @@
 
 #include "test_common.h"
 #include "vboot_api.h"
-#include "vboot_nvstorage.h"
 
 /* Mock data */
 static uint32_t virtual_dev_mode_fail;

@@ -32,8 +32,6 @@ VBINIT_SRCS = \
 	firmware/lib/utility.c \
 	firmware/lib/vboot_api_init.c \
 	firmware/lib/vboot_common_init.c \
-	firmware/lib/vboot_nvstorage.c \
-	firmware/lib/vboot_nvstorage_rollback.c \
 	firmware/lib/region-init.c \
 
 # Additional firmware library sources needed by VbSelectFirmware() call

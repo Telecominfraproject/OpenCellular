@@ -320,7 +320,6 @@ BDBLIB = ${BUILD}/bdb.a
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
 	firmware/lib/vboot_common_init.c \
-	firmware/lib/vboot_nvstorage.c \
 	firmware/lib/region-init.c \
 
 # Additional firmware library sources needed by VbSelectFirmware() call
@@ -496,13 +495,13 @@ HOSTLIB_SRCS = \
 	cgpt/cgpt_create.c \
 	cgpt/cgpt_prioritize.c \
 	firmware/2lib/2crc8.c \
+	firmware/2lib/2nvstorage.c \
 	firmware/2lib/2stub.c \
 	firmware/lib/cgptlib/cgptlib_internal.c \
 	firmware/lib/cgptlib/crc32.c \
 	firmware/lib/gpt_misc.c \
 	${TLCL_SRCS} \
 	firmware/lib/utility_string.c \
-	firmware/lib/vboot_nvstorage.c \
 	firmware/stub/tpm_lite_stub.c \
 	firmware/stub/vboot_api_stub.c \
 	firmware/stub/vboot_api_stub_disk.c \
@@ -736,7 +735,6 @@ TEST_NAMES = \
 	tests/vboot_common_tests \
 	tests/vboot_display_tests \
 	tests/vboot_kernel_tests \
-	tests/vboot_nvstorage_test \
 	tests/verify_kernel
 
 ifeq (${TPM2_MODE},)
@@ -1440,7 +1438,6 @@ endif
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_display_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_kernel_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_nvstorage_test
 
 .PHONY: run2tests
 run2tests: test_setup
