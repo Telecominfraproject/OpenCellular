@@ -82,14 +82,18 @@ static void AddInitializedField(Command* cmd, int offset,
 
 /* Create a structure representing a TPM command datagram.
  */
-Command* newCommand(TPM_COMMAND_CODE code, int size) {
+Command* newCommandWithTag(TPM_COMMAND_CODE code, int size, TPM_TAG tag) {
   Command* cmd = (Command*) calloc(1, sizeof(Command));
   cmd->size = size;
-  AddInitializedField(cmd, 0, sizeof(TPM_TAG), TPM_TAG_RQU_COMMAND);
+  AddInitializedField(cmd, 0, sizeof(TPM_TAG), tag);
   AddInitializedField(cmd, sizeof(TPM_TAG), sizeof(uint32_t), size);
   AddInitializedField(cmd, sizeof(TPM_TAG) + sizeof(uint32_t),
                       sizeof(TPM_COMMAND_CODE), code);
   return cmd;
+}
+
+Command* newCommand(TPM_COMMAND_CODE code, int size) {
+  return newCommandWithTag(code, size, TPM_TAG_RQU_COMMAND);
 }
 
 /* The TPM_PCR_SELECTION structure in /usr/include/tss/tpm.h contains a pointer
@@ -420,6 +424,74 @@ Command* BuildIFXFieldUpgradeInfoRequest2Command(void) {
   return cmd;
 }
 
+Command* BuildOIAPCommand(void) {
+  int size = kTpmRequestHeaderLength;
+  Command* cmd = newCommand(TPM_ORD_OIAP, size);
+  cmd->name = "tpm_oiap_cmd";
+  return cmd;
+}
+
+Command* BuildTakeOwnershipCommand(void) {
+  Command* cmd = newCommandWithTag(TPM_ORD_TakeOwnership, 624,
+                                   TPM_TAG_RQU_AUTH1_COMMAND);
+  cmd->name = "tpm_takeownership_cmd";
+  int offset = kTpmRequestHeaderLength;
+  AddInitializedField(cmd, offset, sizeof(uint16_t), TPM_PID_OWNER);
+  offset += sizeof(uint16_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), TPM_RSA_2048_LEN);
+  offset += sizeof(uint32_t);
+  AddVisibleField(cmd, "encOwnerAuth", offset);
+  offset += sizeof(uint8_t[TPM_RSA_2048_LEN]);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), TPM_RSA_2048_LEN);
+  offset += sizeof(uint32_t);
+  AddVisibleField(cmd, "encSrkAuth", offset);
+  offset += sizeof(uint8_t[TPM_RSA_2048_LEN]);
+
+  /* The remainder are the srkParams struct TPM_KEY12 contents. */
+  AddInitializedField(cmd, offset, sizeof(uint16_t), TPM_TAG_KEY12);
+  offset += sizeof(uint16_t);
+  AddInitializedField(cmd, offset, sizeof(uint16_t), 0);
+  offset += sizeof(uint16_t);
+  AddInitializedField(cmd, offset, sizeof(uint16_t), TPM_KEY_USAGE_STORAGE);
+  offset += sizeof(uint16_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), 0 /* keyFlags */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint8_t), TPM_AUTH_ALWAYS);
+  offset += sizeof(uint8_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), TPM_ALG_RSA);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint16_t),
+                      TPM_ES_RSAESOAEP_SHA1_MGF1);
+  offset += sizeof(uint16_t);
+  AddInitializedField(cmd, offset, sizeof(uint16_t), TPM_SS_NONE);
+  offset += sizeof(uint16_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t),
+                      3 * sizeof(uint32_t) /* algorithmParams.parmSize */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t),
+                      2048 /* algorithmParms.parms.keyLength */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t),
+                      2 /* algorithmParms.parms.numPrimes */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t),
+                      0 /* algorithmParms.parms.exponentSize */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), 0 /* PCRInfoSize */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), 0 /* pubkey.keyLength */);
+  offset += sizeof(uint32_t);
+  AddInitializedField(cmd, offset, sizeof(uint32_t), 0 /* encDataSize */);
+  offset += sizeof(uint32_t);
+
+  /* Allocate space for the auth block. */
+  offset += kTpmRequestAuthBlockLength;
+
+  assert(offset == cmd->size);
+
+  return cmd;
+}
+
 /* Output the fields of a structure.
  */
 void OutputFields(Field* fld) {
@@ -543,6 +615,8 @@ Command* (*builders[])(void) = {
   BuildExtendCommand,
   BuildGetVersionValCommand,
   BuildIFXFieldUpgradeInfoRequest2Command,
+  BuildOIAPCommand,
+  BuildTakeOwnershipCommand,
 };
 
 static void FreeFields(Field* fld) {

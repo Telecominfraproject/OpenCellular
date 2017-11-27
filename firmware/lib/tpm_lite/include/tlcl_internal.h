@@ -15,6 +15,9 @@
 #define kTpmReadInfoLength 12
 #define kEncAuthLength 20
 #define kPcrDigestLength 20
+#define kTpmRequestAuthBlockLength \
+    (sizeof(uint32_t) + sizeof(TPM_NONCE) + 1 + TPM_AUTH_DATA_LEN)
+#define kTpmResponseAuthBlockLength (sizeof(TPM_NONCE) + 1 + TPM_AUTH_DATA_LEN)
 
 
 /*

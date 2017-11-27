@@ -25,6 +25,7 @@
 
 #define TPM_TAG_NV_ATTRIBUTES          ((uint16_t) 0x0017)
 #define TPM_TAG_NV_DATA_PUBLIC         ((uint16_t) 0x0018)
+#define TPM_TAG_KEY12                  ((uint16_t) 0x0028)
 
 #define TPM_TAG_RQU_COMMAND       ((uint16_t) 0xc1)
 #define TPM_TAG_RQU_AUTH1_COMMAND ((uint16_t) 0xc2)
@@ -55,11 +56,17 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 #define TPM_CAP_NV_INDEX        ((uint32_t) 0x00000011)
 #define TPM_CAP_GET_VERSION_VAL ((uint32_t) 0x0000001a)
 
+#define TPM_AUTH_ALWAYS  ((uint8_t) 0x01)
+
+#define TPM_KEY_USAGE_STORAGE ((uint16_t) 0x0011)
+
 #define TPM_ALG_RSA ((uint16_t)0x0001)
 
 #define TPM_ES_RSAESOAEP_SHA1_MGF1 ((uint16_t)0x0003)
 
 #define TPM_SS_NONE ((uint16_t)0x0001)
+
+#define TPM_PID_OWNER ((uint16_t) 0x0005)
 
 #define TPM_ST_CLEAR       ((uint16_t) 0x0001)
 #define TPM_ST_STATE       ((uint16_t) 0x0002)
@@ -187,12 +194,14 @@ typedef struct tdTPM_IFX_FIELDUPGRADEINFO
 
 #define TPM_ORD_ContinueSelfTest  ((uint32_t) 0x00000053)
 #define TPM_ORD_Extend            ((uint32_t) 0x00000014)
+#define TPM_ORD_FieldUpgrade      ((uint32_t) 0x000000AA)
 #define TPM_ORD_ForceClear        ((uint32_t) 0x0000005D)
 #define TPM_ORD_GetCapability     ((uint32_t) 0x00000065)
 #define TPM_ORD_GetRandom                         ((uint32_t) 0x00000046)
 #define TPM_ORD_NV_DefineSpace    ((uint32_t) 0x000000CC)
 #define TPM_ORD_NV_ReadValue      ((uint32_t) 0x000000CF)
 #define TPM_ORD_NV_WriteValue     ((uint32_t) 0x000000CD)
+#define TPM_ORD_OIAP              ((uint32_t) 0x0000000A)
 #define TPM_ORD_PcrRead           ((uint32_t) 0x00000015)
 #define TPM_ORD_PhysicalEnable    ((uint32_t) 0x0000006F)
 #define TPM_ORD_PhysicalDisable   ((uint32_t) 0x00000070)
@@ -202,6 +211,6 @@ typedef struct tdTPM_IFX_FIELDUPGRADEINFO
 #define TPM_ORD_SaveState         ((uint32_t) 0x00000098)
 #define TPM_ORD_SelfTestFull      ((uint32_t) 0x00000050)
 #define TPM_ORD_Startup           ((uint32_t) 0x00000099)
-#define TPM_ORD_FieldUpgrade      ((uint32_t) 0x000000AA)
+#define TPM_ORD_TakeOwnership     ((uint32_t) 0x0000000D)
 
 #endif  /* ! __VBOOT_REFERENCE_FIRMWARE_INCLUDE_TPM1_TSS_CONSTANTS_H */
