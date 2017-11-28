@@ -35,10 +35,15 @@ prepare_vt() {
 	while [ `fgconsole` -eq $orig_vt ]; do :; done
 
 	# take i915 out of charge
-	echo 0 >/sys/devices/virtual/vtconsole/vtcon1/bind
+	for vtcon in /sys/devices/virtual/vtconsole/vtcon*; do
+		if grep -q frame\ buffer $vtcon/name >/dev/null 2>&1; then
+			echo 0 >$vtcon/bind
+			break
+		fi
+	done
 
 	# try unloading it
-	if lsmod | grep -q i915 && modprobe -r i915 >/dev/null 2>&1; then
+	if modprobe -r i915 >/dev/null 2>&1; then
 		reload_i915=1
 	fi
 }
@@ -46,11 +51,16 @@ prepare_vt() {
 restore_vt() {
 	# reload i915
 	if [ $reload_i915 -eq 1 ]; then
-		modprobe i915
+		modprobe i915 modeset=1
+	else
+		# put i915 back in charge
+		for vtcon in /sys/devices/virtual/vtconsole/vtcon*; do
+			if grep -q dummy $vtcon/name >/dev/null 2>&1; then
+				echo 0 >$vtcon/bind
+				break
+			fi
+		done
 	fi
-
-	# put i915 back in charge
-	echo 1 >/sys/devices/virtual/vtconsole/vtcon1/bind
 
 	# return to original VT
 	chvt $orig_vt
