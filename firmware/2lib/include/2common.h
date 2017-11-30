@@ -25,7 +25,7 @@ struct vb2_public_key;
 
 /* Return the number of elements in an array */
 #ifndef ARRAY_SIZE
-#define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
 /* Debug output printf() for tests.  Otherwise, it's platform-dependent. */

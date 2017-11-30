@@ -33,6 +33,7 @@
  * TODO: Make cleaner APIs to this stuff.
  */
 #ifdef NEED_VB20_INTERNALS
+#include "../2lib/include/2nvstorage.h"
 #include "../2lib/include/2nvstorage_fields.h"
 #include "../2lib/include/2struct.h"
 #include "../lib20/include/vb2_struct.h"
