@@ -157,9 +157,11 @@ is
          Height   => Height_Type (Mode.V_Visible),
          BPC      => 8,
          Stride   => Width_Type ((Word32 (Mode.H_Visible) + 15) and not 15),
+         V_Stride => Height_Type (Mode.V_Visible),
          Tiling   => Linear,
+         Rotation => No_Rotation,
          Offset   => Offset);
-      Offset := Offset + Word32 (FB.Stride * FB.Height * 4);
+      Offset := Offset + Word32 (FB_Size (FB));
    end Calc_Framebuffer;
 
    Pipes : GMA.Pipe_Configs;

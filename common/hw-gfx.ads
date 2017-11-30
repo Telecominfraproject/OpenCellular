@@ -23,9 +23,9 @@ package HW.GFX is
    -- such that the count of pixels in any framebuffer may fit
    subtype Pixel_Type is Pos32 range 1 .. 8192 * 8192;
 
-   -- implementation only supports 4800p for now ;-)
-   subtype Width_Type  is Pos32 range 1 .. 4800;
-   subtype Height_Type is Pos32 range 1 .. 7680;
+   -- Allow same range for width and height (for rotated framebuffers)
+   subtype Width_Type  is Pos32 range 1 .. 8192;
+   subtype Height_Type is Pos32 range 1 .. 8192;
 
    Auto_BPC : constant := 5;
    subtype BPC_Type    is Int64 range Auto_BPC .. 16;
@@ -33,27 +33,33 @@ package HW.GFX is
    type Tiling_Type is (Linear, X_Tiled, Y_Tiled);
    subtype XY_Tiling is Tiling_Type range X_Tiled .. Y_Tiled;
 
+   type Rotation_Type is (No_Rotation, Rotated_90, Rotated_180, Rotated_270);
+
    type Framebuffer_Type is
    record
       Width    : Width_Type;
       Height   : Height_Type;
       BPC      : BPC_Type;
       Stride   : Width_Type;
+      V_Stride : Height_Type;
       Tiling   : Tiling_Type;
+      Rotation : Rotation_Type;
       Offset   : Word32;
    end record;
 
    function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
       return Pos32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
    function FB_Size (FB : Framebuffer_Type) return Pos32 is
-     (Pixel_To_Bytes (FB.Stride * FB.Height, FB));
+     (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
 
    Default_FB : constant Framebuffer_Type := Framebuffer_Type'
      (Width    => 1,
       Height   => 1,
       BPC      => 8,
       Stride   => 1,
+      V_Stride => 1,
       Tiling   => Linear,
+      Rotation => No_Rotation,
       Offset   => 0);
 
    subtype Frequency_Type is Pos64 range 24_000_000 .. 600_000_000;
