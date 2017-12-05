@@ -213,6 +213,17 @@ uint32_t TlclExtend(int pcr_num, const uint8_t *in_digest, uint8_t *out_digest);
 uint32_t TlclGetPermissions(uint32_t index, uint32_t *permissions);
 
 /**
+ * Get the public information about the NVRAM space identified by |index|. All
+ * other parameters are filled in with the respective information.
+ * |auth_policy_size| is both an input an output parameter. It should contain
+ * the available buffer size in |auth_policy| and will be updated to indicate
+ * the size of the filled in auth policy upon return. If the buffer size is not
+ * sufficient, the return value will be TPM_E_BUFFER_SIZE.
+ */
+uint32_t TlclGetSpaceInfo(uint32_t index, uint32_t *attributes, uint32_t *size,
+                          void* auth_policy, uint32_t* auth_policy_size);
+
+/**
  * Get the entire set of permanent flags.
  */
 uint32_t TlclGetPermanentFlags(TPM_PERMANENT_FLAGS *pflags);

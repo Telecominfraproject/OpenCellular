@@ -313,6 +313,29 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t *permissions)
 	return rv;
 }
 
+uint32_t TlclGetSpaceInfo(uint32_t index, uint32_t *attributes, uint32_t *size,
+                          void* auth_policy, uint32_t* auth_policy_size)
+{
+	uint32_t rv;
+	struct nv_read_public_response *resp;
+
+	rv = tlcl_nv_read_public(index, &resp);
+	if (rv != TPM_SUCCESS)
+		return rv;
+
+	*attributes = resp->nvPublic.attributes;
+	*size = resp->nvPublic.dataSize;
+	if (resp->nvPublic.authPolicy.size > *auth_policy_size) {
+		return TPM_E_BUFFER_SIZE;
+	}
+
+	*auth_policy_size = resp->nvPublic.authPolicy.size;
+	memcpy(auth_policy, resp->nvPublic.authPolicy.buffer,
+	       *auth_policy_size);
+
+	return TPM_SUCCESS;
+}
+
 static uint32_t tlcl_get_capability(TPM_CAP cap, TPM_PT property,
 				    struct get_capability_response **presp)
 {

@@ -834,21 +834,110 @@ uint32_t TlclExtend(int pcr_num, const uint8_t* in_digest,
 
 uint32_t TlclGetPermissions(uint32_t index, uint32_t* permissions)
 {
-	struct s_tpm_getpermissions_cmd cmd;
+	uint32_t dummy_attributes;
+	TPM_NV_AUTH_POLICY dummy_policy;
+	uint32_t dummy_policy_size = sizeof(dummy_policy);
+
+	return TlclGetSpaceInfo(index, permissions, &dummy_attributes,
+				&dummy_policy, &dummy_policy_size);
+}
+
+static int DecodePCRInfo(const uint8_t** cursor,
+			 const uint8_t* end,
+			 TPM_PCR_INFO_SHORT* pcr_info)
+{
+	const size_t available_size = end - *cursor;
+	if (available_size < sizeof(uint16_t)) {
+		return 0;
+	}
+
+	uint16_t size_of_select = 0;
+	FromTpmUint16(*cursor, &size_of_select);
+
+	/* Compute the actual size of the encoded PCR selection (which is a
+	 * variable-length field). */
+	const size_t encoded_pcr_info_size = sizeof(TPM_PCR_INFO_SHORT) -
+		sizeof(pcr_info->pcrSelection.pcrSelect) + size_of_select;
+	if (available_size < encoded_pcr_info_size ||
+	    size_of_select > sizeof(pcr_info->pcrSelection.pcrSelect)) {
+		return 0;
+	}
+
+	memset(&pcr_info->pcrSelection, 0, sizeof(pcr_info->pcrSelection));
+	const size_t pcr_selection_size =
+		sizeof(size_of_select) + size_of_select;
+	memcpy(&pcr_info->pcrSelection, *cursor, pcr_selection_size);
+	*cursor += pcr_selection_size;
+
+	pcr_info->localityAtRelease = **cursor;
+	(*cursor)++;
+
+	memcpy(&pcr_info->digestAtRelease, *cursor, sizeof(TPM_COMPOSITE_HASH));
+	*cursor += sizeof(TPM_COMPOSITE_HASH);
+
+	return 1;
+}
+
+uint32_t TlclGetSpaceInfo(uint32_t index, uint32_t *attributes, uint32_t *size,
+			  void* auth_policy, uint32_t* auth_policy_size)
+{
+	TPM_NV_AUTH_POLICY* policy;
+	uint32_t buffer_size = *auth_policy_size;
+	*auth_policy_size = sizeof(TPM_NV_AUTH_POLICY);
+	if (buffer_size < sizeof(TPM_NV_AUTH_POLICY)) {
+		return TPM_E_BUFFER_SIZE;
+	}
+	policy = auth_policy;
+
+	struct s_tpm_getspaceinfo_cmd cmd;
+	memcpy(&cmd, &tpm_getspaceinfo_cmd, sizeof(cmd));
+	ToTpmUint32(cmd.buffer + tpm_getspaceinfo_cmd.index, index);
 	uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
-	uint8_t* nvdata;
-	uint32_t result;
-	uint32_t size;
-
-	memcpy(&cmd, &tpm_getpermissions_cmd, sizeof(cmd));
-	ToTpmUint32(cmd.buffer + tpm_getpermissions_cmd.index, index);
-	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
-	if (result != TPM_SUCCESS)
+	uint32_t result = TlclSendReceive(cmd.buffer, response,
+					  sizeof(response));
+	if (result != TPM_SUCCESS) {
 		return result;
+	}
 
-	nvdata = response + kTpmResponseHeaderLength + sizeof(size);
-	FromTpmUint32(nvdata + kNvDataPublicPermissionsOffset, permissions);
-	return result;
+	uint32_t response_size = TpmCommandSize(response);
+	if (response_size > sizeof(response)) {
+		return TPM_E_RESPONSE_TOO_LARGE;
+	}
+
+	const uint8_t* cursor = response + kTpmResponseHeaderLength;
+	uint32_t cap_size = ReadTpmUint32(&cursor);
+	if (cap_size >
+	    response_size - sizeof(cap_size) - kTpmResponseHeaderLength) {
+		return TPM_E_INVALID_RESPONSE;
+	}
+	const uint8_t* end = cursor + cap_size;
+
+	cursor += sizeof(uint16_t);  /* skip tag */
+	uint32_t response_index = ReadTpmUint32(&cursor);
+	if (index != response_index) {
+		return TPM_E_INVALID_RESPONSE;
+	}
+
+	if (!DecodePCRInfo(&cursor, end, &policy->pcr_info_read) ||
+	    !DecodePCRInfo(&cursor, end, &policy->pcr_info_write)) {
+		return TPM_E_INVALID_RESPONSE;
+	}
+
+	/* Make sure that the remaining data in the buffer matches the size of
+	 * the remaining fields to decode. */
+	if (end - cursor !=
+	    2 * sizeof(uint32_t) + 3 * sizeof(uint8_t) + sizeof(uint16_t)) {
+		return TPM_E_INVALID_RESPONSE;
+	}
+
+	cursor += sizeof(uint16_t);  /* skip TPM_NV_ATTRIBUTES tag */
+	*attributes = ReadTpmUint32(&cursor);
+	cursor += sizeof(uint8_t);  /* skip bReadSTClear */
+	cursor += sizeof(uint8_t);  /* skip bWriteSTClear */
+	cursor += sizeof(uint8_t);  /* skip bWriteDefine */
+	*size = ReadTpmUint32(&cursor);
+
+	return TPM_SUCCESS;
 }
 
 uint32_t TlclGetOwnership(uint8_t* owned)
