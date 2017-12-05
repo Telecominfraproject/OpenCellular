@@ -15,9 +15,6 @@
 #define TPM_ENCAUTH_SIZE 20
 #define TPM_PUBEK_SIZE 256
 
-#define TPM_ALL_LOCALITIES (TPM_LOC_ZERO | TPM_LOC_ONE | TPM_LOC_TWO    \
-                            | TPM_LOC_THREE | TPM_LOC_FOUR)  /* 0x1f */
-
 typedef struct tdTPM_WRITE_INFO {
   uint32_t nvIndex;
   uint32_t offset;

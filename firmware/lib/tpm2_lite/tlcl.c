@@ -190,7 +190,17 @@ uint32_t TlclContinueSelfTest(void)
 
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 {
+	return TlclDefineSpaceEx(NULL, 0, index, perm, size, NULL, 0);
+}
+
+uint32_t TlclDefineSpaceEx(const uint8_t* owner_auth, uint32_t owner_auth_size,
+			   uint32_t index, uint32_t perm, uint32_t size,
+			   const void* auth_policy, uint32_t auth_policy_size)
+{
 	struct tpm2_nv_define_space_cmd define_space;
+
+	/* Authentication support is not implemented. */
+	VbAssert(owner_auth == NULL && owner_auth_size == 0);
 
 	/* For backwards-compatibility, if no READ or WRITE permissions are set,
 	 * assume readable/writeable with empty auth value.
@@ -205,8 +215,23 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 	define_space.publicInfo.dataSize = size;
 	define_space.publicInfo.attributes = perm;
 	define_space.publicInfo.nameAlg = TPM_ALG_SHA256;
+	if (auth_policy && auth_policy_size > 0) {
+		define_space.publicInfo.authPolicy.size = auth_policy_size;
+		define_space.publicInfo.authPolicy.buffer =
+				(uint8_t*) auth_policy;
+	}
 
 	return tpm_get_response_code(TPM2_NV_DefineSpace, &define_space);
+}
+
+uint32_t TlclInitNvAuthPolicy(uint32_t pcr_selection_bitmap,
+			      const uint8_t pcr_values[][TPM_PCR_DIGEST],
+			      void* auth_policy, uint32_t* auth_policy_size)
+{
+	/* Actual PCR selection isn't implemented. */
+	VbAssert(pcr_selection_bitmap == 0);
+	*auth_policy_size = 0;
+	return TPM_SUCCESS;
 }
 
 /**

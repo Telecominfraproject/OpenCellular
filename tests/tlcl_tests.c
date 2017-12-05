@@ -266,6 +266,184 @@ static void ReadWriteTest(void)
 }
 
 /**
+ * Test DefineSpaceEx
+ */
+void DefineSpaceExTest(void) {
+	uint8_t osap_response[] = {
+		0x00, 0xc4, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00,
+		0x00, 0x00, 0x02, 0x41, 0x3d, 0xce, 0x20, 0xa2,
+		0x5a, 0xa5, 0x95, 0xbe, 0x26, 0xe8, 0x76, 0x74,
+		0x6c, 0x61, 0xf7, 0xa7, 0x24, 0x17, 0xa1, 0x06,
+		0xcf, 0x53, 0x6d, 0xd4, 0x26, 0x98, 0x68, 0x86,
+		0xe6, 0xf6, 0x62, 0x58, 0xdb, 0xa2, 0x9f, 0x5b,
+		0x18, 0xa6, 0xae, 0x36, 0x32, 0x5d,
+	};
+	uint8_t define_space_response[] = {
+		0x00, 0xc5, 0x00, 0x00, 0x00, 0x33, 0x00, 0x00,
+		0x00, 0x00, 0x42, 0xe6, 0x38, 0xc6, 0x37, 0x2a,
+		0xf2, 0xfe, 0xb4, 0x01, 0x4b, 0x29, 0x63, 0x30,
+		0x4e, 0x2f, 0x2e, 0x74, 0x58, 0xcd, 0x00, 0x40,
+		0x42, 0x10, 0x40, 0xac, 0x93, 0x0c, 0xff, 0x8a,
+		0xc4, 0x98, 0x78, 0xe3, 0xfe, 0x48, 0x5b, 0xb7,
+		0xc8, 0x8d, 0xf4,
+	};
+	uint8_t owner_secret[TPM_AUTH_DATA_LEN] = { 0 };
+	TPM_NV_AUTH_POLICY policy;
+
+	ResetMocks();
+	calls[0].rsp = osap_response;
+	calls[0].rsp_size = sizeof(osap_response);
+	calls[1].rsp = define_space_response;
+	calls[1].rsp_size = sizeof(define_space_response);
+	TEST_EQ(TlclDefineSpaceEx(owner_secret, sizeof(owner_secret),
+				  0x20000005, 0x2000, 0x10, NULL, 0),
+		TPM_SUCCESS, "DefineSpace");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_OSAP, "  osap cmd");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_NV_DefineSpace, "  definespace cmd");
+
+	/* Pass an auth policy. */
+	ResetMocks();
+	calls[0].rsp = osap_response;
+	calls[0].rsp_size = sizeof(osap_response);
+	calls[1].rsp = define_space_response;
+	calls[1].rsp_size = sizeof(define_space_response);
+	TEST_EQ(TlclDefineSpaceEx(owner_secret, sizeof(owner_secret),
+				  0x20000005, 0x2000, 0x10, &policy,
+				  sizeof(policy)),
+		TPM_SUCCESS, "DefineSpace");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_OSAP, "  osap cmd");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_NV_DefineSpace, "  definespace cmd");
+
+	/* Verify that the response gets authenticated. */
+	ResetMocks();
+	calls[0].rsp = osap_response;
+	calls[0].rsp_size = sizeof(osap_response);
+	calls[1].rsp = define_space_response;
+	calls[1].rsp_size = sizeof(define_space_response);
+	define_space_response[31] = 0;
+	TEST_EQ(TlclDefineSpaceEx(owner_secret, sizeof(owner_secret),
+				  0x20000005, 0x2000, 0x10, NULL, 0),
+		TPM_E_AUTHFAIL, "DefineSpace - response auth");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_OSAP, "  osap cmd");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_NV_DefineSpace, "  definespace cmd");
+	define_space_response[31] = 0x40;
+
+	/* Verify that a short OSAP response gets caught. */
+	ResetMocks();
+	calls[0].rsp = osap_response;
+	calls[0].rsp_size = sizeof(osap_response);
+	ToTpmUint32(osap_response + sizeof(uint16_t),
+		    kTpmRequestHeaderLength + sizeof(uint32_t) +
+		    2 * sizeof(TPM_NONCE) - 1);
+	TEST_EQ(TlclDefineSpaceEx(owner_secret, sizeof(owner_secret),
+				  0x20000005, 0x2000, 0x10, NULL, 0),
+		TPM_E_INVALID_RESPONSE, "DefineSpace - short OSAP response");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_OSAP, "  osap cmd");
+	ToTpmUint32(osap_response + sizeof(uint16_t), sizeof(osap_response));
+
+	/* Verify that a short DefineSpace response gets caught. */
+	ResetMocks();
+	calls[0].rsp = osap_response;
+	calls[0].rsp_size = sizeof(osap_response);
+	calls[1].rsp = define_space_response;
+	calls[1].rsp_size = sizeof(define_space_response);
+	ToTpmUint32(define_space_response + sizeof(uint16_t),
+		    kTpmResponseHeaderLength + kTpmResponseAuthBlockLength - 1);
+	TEST_EQ(TlclDefineSpaceEx(owner_secret, sizeof(owner_secret),
+				  0x20000005, 0x2000, 0x10, NULL, 0),
+		TPM_E_INVALID_RESPONSE,
+		"DefineSpace - short DefineSpace response");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_OSAP, "  osap cmd");
+	TEST_EQ(calls[1].req_cmd, TPM_ORD_NV_DefineSpace, "  definespace cmd");
+	ToTpmUint32(define_space_response + sizeof(uint16_t),
+		    sizeof(define_space_response));
+}
+
+/**
+ * Test TlclInitNvAuthPolicy.
+ */
+void InitNvAuthPolicyTest(void) {
+	const uint8_t empty_selection_digest[] = {
+		0x79, 0xdd, 0xda, 0xfd, 0xc1, 0x97, 0xdc, 0xcc,
+		0xe9, 0x98, 0x9a, 0xee, 0xf5, 0x52, 0x89, 0xee,
+		0x24, 0x96, 0x4c, 0xac,
+	};
+	const uint8_t pcr0_selection_digest[] = {
+		0xb3, 0x2b, 0x96, 0x30, 0xd3, 0x21, 0x1e, 0x99,
+		0x78, 0x9e, 0xd3, 0x1f, 0x11, 0x8e, 0x96, 0xbc,
+		0xf7, 0x7e, 0x7b, 0x06,
+	};
+	const uint8_t empty_selection_encoding[] = { 0x0, 0x0, 0x0 };
+	const uint8_t pcr0_selection_encoding[] = { 0x1, 0x0, 0x0 };
+	const uint8_t pcr_values[][TPM_PCR_DIGEST] = {
+		{ 0x06, 0x4a, 0xec, 0x9b, 0xbd, 0x94, 0xde, 0xa1,
+		  0x23, 0x1a, 0xe7, 0x57, 0x67, 0x64, 0x7f, 0x09,
+		  0x8c, 0x39, 0x8e, 0x79, },
+	};
+	TPM_NV_AUTH_POLICY policy;
+
+	/* Test empty selection. */
+	uint32_t policy_size = sizeof(policy);
+	TlclInitNvAuthPolicy(0x0, NULL, &policy, &policy_size);
+	TEST_EQ(policy_size, sizeof(policy), "policy size");
+
+	uint16_t size_of_select;
+	FromTpmUint16(
+		(uint8_t*)&policy.pcr_info_read.pcrSelection.sizeOfSelect,
+		&size_of_select);
+	TEST_EQ(size_of_select, 3, "empty PCR selection read size of select");
+	TEST_EQ(memcmp(policy.pcr_info_read.pcrSelection.pcrSelect,
+		       empty_selection_encoding,
+		       sizeof(empty_selection_encoding)), 0,
+		"empty PCR selection read selection encoding");
+	TEST_EQ(policy.pcr_info_read.localityAtRelease,
+		TPM_ALL_LOCALITIES & ~TPM_LOC_THREE,
+		"empty PCR selection read locality");
+	TEST_EQ(memcmp(empty_selection_digest,
+		       policy.pcr_info_read.digestAtRelease.digest,
+		       TPM_PCR_DIGEST),
+		0, "empty PCR selection read digest");
+
+	FromTpmUint16(
+		(uint8_t*)&policy.pcr_info_write.pcrSelection.sizeOfSelect,
+		&size_of_select);
+	TEST_EQ(size_of_select, 3, "empty PCR selection write size of select");
+	TEST_EQ(memcmp(policy.pcr_info_write.pcrSelection.pcrSelect,
+		       empty_selection_encoding,
+		       sizeof(empty_selection_encoding)), 0,
+		"empty PCR selection write selection encoding");
+	TEST_EQ(policy.pcr_info_write.localityAtRelease,
+		TPM_ALL_LOCALITIES & ~TPM_LOC_THREE,
+		"empty PCR selection write locality");
+	TEST_EQ(memcmp(empty_selection_digest,
+		       policy.pcr_info_write.digestAtRelease.digest,
+		       TPM_PCR_DIGEST),
+		0, "empty PCR selection write digest");
+
+	/* Test PCR0 selection. */
+	TlclInitNvAuthPolicy(0x1, pcr_values, &policy, &policy_size);
+	TEST_EQ(policy_size, sizeof(policy), "policy size");
+
+	TEST_EQ(memcmp(policy.pcr_info_read.pcrSelection.pcrSelect,
+		       pcr0_selection_encoding,
+		       sizeof(pcr0_selection_encoding)), 0,
+		"PCR0 selection read selection encoding");
+	TEST_EQ(memcmp(pcr0_selection_digest,
+		       policy.pcr_info_read.digestAtRelease.digest,
+		       TPM_PCR_DIGEST),
+		0, "PCR0 selection read digest");
+
+	TEST_EQ(memcmp(policy.pcr_info_write.pcrSelection.pcrSelect,
+		       pcr0_selection_encoding,
+		       sizeof(pcr0_selection_encoding)), 0,
+		"PCR0 selection write selection encoding");
+	TEST_EQ(memcmp(pcr0_selection_digest,
+		       policy.pcr_info_write.digestAtRelease.digest,
+		       TPM_PCR_DIGEST),
+		0, "PCR0 selection write digest");
+}
+
+/**
  * Test PCR funcs
  *
  * TODO: check params/data read/written.
@@ -818,6 +996,8 @@ int main(void)
 	TlclTest();
 	SendCommandTest();
 	ReadWriteTest();
+	DefineSpaceExTest();
+	InitNvAuthPolicyTest();
 	PcrTest();
 	FlagsTest();
 	RandomTest();

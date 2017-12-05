@@ -85,6 +85,29 @@ uint32_t TlclContinueSelfTest(void);
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size);
 
 /**
+ * Define a space using owner authorization secret [owner_auth]. The space is
+ * set up to have permission [perm].  [index] is the index for the space, [size]
+ * the usable data size. Optional auth policy (such as PCR selections) can be
+ * passed via [auth_policy]. The TPM error code is returned.
+ */
+uint32_t TlclDefineSpaceEx(const uint8_t* owner_auth, uint32_t owner_auth_size,
+                           uint32_t index, uint32_t perm, uint32_t size,
+                           const void* auth_policy, uint32_t auth_policy_size);
+
+/**
+ * Initializes [auth_policy] to require PCR binding of the given
+ * [pcr_selection_bitmap]. The PCR values are passed in the [pcr_values]
+ * parameter with each entry corresponding to the sequence of indexes that
+ * corresponds to the bits that are set in [pcr_selection_bitmap]. Returns
+ * TPM_SUCCESS if successful, TPM_E_BUFFER_SIZE if the provided buffer is too
+ * short. The actual size of the policy will be set in [auth_policy_size] upon
+ * return, also for the case of insufficient buffer size.
+ */
+uint32_t TlclInitNvAuthPolicy(uint32_t pcr_selection_bitmap,
+                              const uint8_t pcr_values[][TPM_PCR_DIGEST],
+                              void* auth_policy, uint32_t* auth_policy_size);
+
+/**
  * Write [length] bytes of [data] to space at [index].  The TPM error code is
  * returned.
  */

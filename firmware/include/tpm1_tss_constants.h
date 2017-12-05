@@ -68,6 +68,8 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 
 #define TPM_PID_OWNER ((uint16_t) 0x0005)
 
+#define TPM_ET_OWNER ((uint32_t) 0x02)
+
 #define TPM_ST_CLEAR       ((uint16_t) 0x0001)
 #define TPM_ST_STATE       ((uint16_t) 0x0002)
 #define TPM_ST_DEACTIVATED ((uint16_t) 0x0003)
@@ -77,6 +79,9 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 #define TPM_LOC_TWO    (((uint32_t)1)<<2)
 #define TPM_LOC_ONE    (((uint32_t)1)<<1)
 #define TPM_LOC_ZERO   (((uint32_t)1)<<0)
+
+#define TPM_ALL_LOCALITIES (TPM_LOC_ZERO | TPM_LOC_ONE | TPM_LOC_TWO    \
+                            | TPM_LOC_THREE | TPM_LOC_FOUR)  /* 0x1f */
 
 #define TPM_PHYSICAL_PRESENCE_LOCK          ((uint16_t) 0x0004)
 #define TPM_PHYSICAL_PRESENCE_PRESENT       ((uint16_t) 0x0008)
@@ -104,21 +109,21 @@ typedef TPM_DIGEST TPM_COMPOSITE_HASH;
 typedef struct tdTPM_PCR_SELECTION
 {
     uint16_t  sizeOfSelect;
-    uint8_t   *pcrSelect;
-} TPM_PCR_SELECTION;
+    uint8_t   pcrSelect[3];
+} __attribute__((packed)) TPM_PCR_SELECTION;
 
 typedef struct tdTPM_NV_ATTRIBUTES
 {
     TPM_STRUCTURE_TAG     tag;
     TPM_NV_PER_ATTRIBUTES attributes;
-} TPM_NV_ATTRIBUTES;
+} __attribute__((packed)) TPM_NV_ATTRIBUTES;
 
 typedef struct tdTPM_PCR_INFO_SHORT
 {
     TPM_PCR_SELECTION      pcrSelection;
     TPM_LOCALITY_SELECTION localityAtRelease;
     TPM_COMPOSITE_HASH     digestAtRelease;
-}  TPM_PCR_INFO_SHORT;
+} __attribute__((packed)) TPM_PCR_INFO_SHORT;
 
 typedef struct tdTPM_PERMANENT_FLAGS
 {
@@ -188,6 +193,12 @@ typedef struct tdTPM_IFX_FIELDUPGRADEINFO
     uint16_t wFieldUpgradeCounter;
 } TPM_IFX_FIELDUPGRADEINFO;
 
+typedef struct tdTPM_NV_AUTH_POLICY
+{
+    TPM_PCR_INFO_SHORT pcr_info_read;
+    TPM_PCR_INFO_SHORT pcr_info_write;
+} TPM_NV_AUTH_POLICY;
+
 #define TPM_IFX_FieldUpgradeInfoRequest2  ((uint8_t) 0x11)
 
 /* Ordinals */
@@ -202,6 +213,7 @@ typedef struct tdTPM_IFX_FIELDUPGRADEINFO
 #define TPM_ORD_NV_ReadValue      ((uint32_t) 0x000000CF)
 #define TPM_ORD_NV_WriteValue     ((uint32_t) 0x000000CD)
 #define TPM_ORD_OIAP              ((uint32_t) 0x0000000A)
+#define TPM_ORD_OSAP              ((uint32_t) 0x0000000B)
 #define TPM_ORD_PcrRead           ((uint32_t) 0x00000015)
 #define TPM_ORD_PhysicalEnable    ((uint32_t) 0x0000006F)
 #define TPM_ORD_PhysicalDisable   ((uint32_t) 0x00000070)

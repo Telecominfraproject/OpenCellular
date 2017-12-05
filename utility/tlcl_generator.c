@@ -96,12 +96,6 @@ Command* newCommand(TPM_COMMAND_CODE code, int size) {
   return newCommandWithTag(code, size, TPM_TAG_RQU_COMMAND);
 }
 
-/* The TPM_PCR_SELECTION structure in /usr/include/tss/tpm.h contains a pointer
- * instead of an array[3] of bytes, so we need to adjust sizes and offsets
- * accordingly.
- */
-#define PCR_SELECTION_FIX (3 - sizeof(char *))
-
 /* BuildXXX builds TPM command XXX.
  */
 Command* BuildDefineSpaceCommand(void) {
@@ -109,34 +103,29 @@ Command* BuildDefineSpaceCommand(void) {
   int nv_index = nv_data_public + offsetof(TPM_NV_DATA_PUBLIC, nvIndex);
   int nv_pcr_info_read = nv_data_public +
     offsetof(TPM_NV_DATA_PUBLIC, pcrInfoRead);
-  /*
-   * Here we need to carefully add PCR_SELECTION_FIX (or twice that much) in
-   * all the places where the offset calculation would be wrong without it.
-   * The mismatch occurs in the TPM_PCR_SELECTION structure, and it must be
-   * accounted for in all the structures that include it, directly or
-   * indirectly.
-   */
   int read_locality = nv_pcr_info_read +
-    offsetof(TPM_PCR_INFO_SHORT, localityAtRelease) + PCR_SELECTION_FIX;
+    offsetof(TPM_PCR_INFO_SHORT, localityAtRelease);
   int nv_pcr_info_write = nv_data_public +
-    offsetof(TPM_NV_DATA_PUBLIC, pcrInfoWrite) + PCR_SELECTION_FIX;
+    offsetof(TPM_NV_DATA_PUBLIC, pcrInfoWrite);
   int write_locality = nv_pcr_info_write +
-    offsetof(TPM_PCR_INFO_SHORT, localityAtRelease) + PCR_SELECTION_FIX;
+    offsetof(TPM_PCR_INFO_SHORT, localityAtRelease);
   int nv_permission = nv_data_public +
-    offsetof(TPM_NV_DATA_PUBLIC, permission) + 2 * PCR_SELECTION_FIX;
+    offsetof(TPM_NV_DATA_PUBLIC, permission);
   int nv_permission_tag =
     nv_permission + offsetof(TPM_NV_ATTRIBUTES, tag);
   int nv_permission_attributes =
     nv_permission + offsetof(TPM_NV_ATTRIBUTES, attributes);
   int nv_datasize = nv_data_public +
-    offsetof(TPM_NV_DATA_PUBLIC, dataSize) + 2 * PCR_SELECTION_FIX;
+    offsetof(TPM_NV_DATA_PUBLIC, dataSize);
 
   int size = kTpmRequestHeaderLength + sizeof(TPM_NV_DATA_PUBLIC) +
-    2 * PCR_SELECTION_FIX + kEncAuthLength;
+      kEncAuthLength;
   Command* cmd = newCommand(TPM_ORD_NV_DefineSpace, size);
   cmd->name = "tpm_nv_definespace_cmd";
 
   AddVisibleField(cmd, "index", nv_index);
+  AddVisibleField(cmd, "pcr_info_read", nv_pcr_info_read);
+  AddVisibleField(cmd, "pcr_info_write", nv_pcr_info_write);
   AddVisibleField(cmd, "perm", nv_permission_attributes);
   AddVisibleField(cmd, "size", nv_datasize);
 
@@ -431,6 +420,20 @@ Command* BuildOIAPCommand(void) {
   return cmd;
 }
 
+Command* BuildOSAPCommand(void) {
+  int size = kTpmRequestHeaderLength + sizeof(uint16_t) + sizeof(uint32_t) +
+             sizeof(TPM_NONCE);
+  Command* cmd = newCommand(TPM_ORD_OSAP, size);
+  cmd->name = "tpm_osap_cmd";
+  AddVisibleField(cmd, "entityType", kTpmRequestHeaderLength);
+  AddVisibleField(cmd, "entityValue",
+                  kTpmRequestHeaderLength + sizeof(uint16_t));
+  AddVisibleField(
+      cmd, "nonceOddOSAP",
+      kTpmRequestHeaderLength + sizeof(uint16_t) + sizeof(uint32_t));
+  return cmd;
+}
+
 Command* BuildTakeOwnershipCommand(void) {
   Command* cmd = newCommandWithTag(TPM_ORD_TakeOwnership, 624,
                                    TPM_TAG_RQU_AUTH1_COMMAND);
@@ -616,6 +619,7 @@ Command* (*builders[])(void) = {
   BuildGetVersionValCommand,
   BuildIFXFieldUpgradeInfoRequest2Command,
   BuildOIAPCommand,
+  BuildOSAPCommand,
   BuildTakeOwnershipCommand,
 };
 
@@ -650,7 +654,6 @@ int main(void) {
   printf("const int kWriteInfoLength = %d;\n", (int) sizeof(TPM_WRITE_INFO));
   printf("const int kNvDataPublicPermissionsOffset = %d;\n",
          (int) (offsetof(TPM_NV_DATA_PUBLIC, permission) +
-                2 * PCR_SELECTION_FIX +
                 offsetof(TPM_NV_ATTRIBUTES, attributes)));
 
   FreeCommands(commands);
