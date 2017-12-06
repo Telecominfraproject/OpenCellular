@@ -215,6 +215,10 @@ static void VbUserConfirmsTest(void)
 	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), -1, "Shutdown requested");
 
 	ResetMocks();
+	mock_keypress[0] = VB_BUTTON_POWER_SHORT_PRESS;
+	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), -1, "Shutdown requested");
+
+	ResetMocks();
 	mock_keypress[0] = '\r';
 	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), 1, "Enter");
 
@@ -351,6 +355,13 @@ static void VbBootDevTest(void)
 		"Shutdown requested");
 	TEST_NEQ(audio_looping_calls_left, 0, "  aborts audio");
 
+	/* Shutdown requested by keyboard in loop */
+	ResetMocks();
+	mock_keypress[0] = VB_BUTTON_POWER_SHORT_PRESS;
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
+		VBERROR_SHUTDOWN_REQUESTED,
+		"Shutdown requested by keyboard");
+
 	/* Space goes straight to recovery if no virtual dev switch */
 	ResetMocks();
 	mock_keypress[0] = ' ';
@@ -427,6 +438,14 @@ static void VbBootDevTest(void)
 		"  warning screen");
 	TEST_EQ(screens_displayed[1], VB_SCREEN_DEVELOPER_TO_NORM,
 		"  tonorm screen");
+
+	/* Shutdown requested by keyboard at tonorm screen */
+	ResetMocks();
+	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
+	mock_keypress[0] = VB_BUTTON_POWER_SHORT_PRESS;
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
+		VBERROR_SHUTDOWN_REQUESTED,
+		"Shutdown requested by keyboard at nonorm");
 
 	/* Ctrl+D dismisses warning */
 	ResetMocks();
@@ -534,6 +553,15 @@ static void VbBootDevTest(void)
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM,
 		"  tonorm screen");
 
+	/* Shutdown requested by keyboard when dev disabled */
+	ResetMocks();
+	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
+	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
+	mock_keypress[0] = VB_BUTTON_POWER_SHORT_PRESS;
+	TEST_EQ(VbBootDeveloper(&ctx, &cparams),
+		VBERROR_SHUTDOWN_REQUESTED,
+		"Shutdown requested by keyboard when dev disabled");
+
 	printf("...done.\n");
 }
 
@@ -554,6 +582,14 @@ static void VbBootRecTest(void)
 		"  recovery reason");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
 		"  broken screen");
+
+	/* Shutdown requested by keyboard */
+	ResetMocks();
+	VbExEcEnteringMode(0, VB_EC_RECOVERY);
+	mock_keypress[0] = VB_BUTTON_POWER_SHORT_PRESS;
+	TEST_EQ(VbBootRecovery(&ctx, &cparams),
+		VBERROR_SHUTDOWN_REQUESTED,
+		"Shutdown requested by keyboard");
 
 	/* Remove disks */
 	ResetMocks();

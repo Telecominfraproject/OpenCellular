@@ -39,9 +39,12 @@ static void VbAllowUsbBoot(struct vb2_context *ctx)
  *
  * Returns true if a shutdown is required and false if no shutdown is required.
  */
-static int VbWantShutdown(uint32_t gbb_flags)
+static int VbWantShutdown(uint32_t gbb_flags, uint32_t key)
 {
 	uint32_t shutdown_request = VbExIsShutdownRequested();
+
+	if (key == VB_BUTTON_POWER_SHORT_PRESS)
+		shutdown_request |= VB_SHUTDOWN_REQUEST_POWER_BUTTON;
 
 	/* If desired, ignore shutdown request due to lid closure. */
 	if (gbb_flags & GBB_FLAG_DISABLE_LID_SHUTDOWN)
@@ -92,20 +95,19 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 		   uint32_t confirm_flags)
 {
 	VbSharedDataHeader *shared =
-           (VbSharedDataHeader *)cparams->shared_data_blob;
+			(VbSharedDataHeader *)cparams->shared_data_blob;
 	uint32_t key;
 	uint32_t key_flags;
-        uint32_t button;
+	uint32_t btn;
 	int rec_button_was_pressed = 0;
 
 	VB2_DEBUG("Entering(%x)\n", confirm_flags);
 
 	/* Await further instructions */
 	while (1) {
-		if (VbWantShutdown(cparams->gbb->flags))
-			return -1;
 		key = VbExKeyboardReadWithFlags(&key_flags);
-                button = VbExGetSwitches(VB_INIT_FLAG_REC_BUTTON_PRESSED);
+		if (VbWantShutdown(cparams->gbb->flags, key))
+			return -1;
 		switch (key) {
 		case '\r':
 			/* If we require a trusted keyboard for confirmation,
@@ -116,8 +118,7 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 			    !(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)) {
 				VbExBeep(120, 400);
 				break;
-                        }
-
+			}
 			VB2_DEBUG("Yes (1)\n");
 			return 1;
 			break;
@@ -135,10 +136,11 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 			/* If the recovery button is physical, and is pressed,
 			 * this is also a YES, but must wait for release.
 			 */
+			btn = VbExGetSwitches(VB_INIT_FLAG_REC_BUTTON_PRESSED);
 			if (!(shared->flags & VBSD_BOOT_REC_SWITCH_VIRTUAL)) {
-				if (button) {
+				if (btn) {
 					VB2_DEBUG("Rec button pressed\n");
-	                                rec_button_was_pressed = 1;
+					rec_button_was_pressed = 1;
 				} else if (rec_button_was_pressed) {
 					VB2_DEBUG("Rec button (1)\n");
 					return 1;
@@ -243,15 +245,13 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
-		uint32_t key;
-
-		if (VbWantShutdown(gbb->flags)) {
+		uint32_t key = VbExKeyboardRead();
+		if (VbWantShutdown(gbb->flags, key)) {
 			VB2_DEBUG("VbBootDeveloper() - shutdown requested!\n");
 			VbAudioClose(audio);
 			return VBERROR_SHUTDOWN_REQUESTED;
 		}
 
-		key = VbExKeyboardRead();
 		switch (key) {
 		case 0:
 			/* nothing pressed */
@@ -445,8 +445,9 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		VbDisplayScreen(ctx, cparams, VB_SCREEN_OS_BROKEN, 0);
 		VB2_DEBUG("VbBootRecovery() waiting for manual recovery\n");
 		while (1) {
-			VbCheckDisplayKey(ctx, cparams, VbExKeyboardRead());
-			if (VbWantShutdown(cparams->gbb->flags))
+			key = VbExKeyboardRead();
+			VbCheckDisplayKey(ctx, cparams, key);
+			if (VbWantShutdown(cparams->gbb->flags, key))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
 		}
@@ -543,7 +544,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			} else {
 				VbCheckDisplayKey(ctx, cparams, key);
 			}
-			if (VbWantShutdown(cparams->gbb->flags))
+			if (VbWantShutdown(cparams->gbb->flags, key))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
 		}
