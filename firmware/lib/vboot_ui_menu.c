@@ -1115,7 +1115,8 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				 * there), power button will turn off
 				 * device.
 				 */
-				if (current_menu == VB_MENU_RECOVERY_INSERT) {
+				if (current_menu == VB_MENU_RECOVERY_INSERT ||
+					current_menu == VB_MENU_RECOVERY_NO_GOOD) {
 					ret = VBERROR_SHUTDOWN_REQUESTED;
 				} else {
 					/*
