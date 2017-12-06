@@ -1049,8 +1049,10 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 		if (current_menu != VB_MENU_RECOVERY ||
 		    current_menu_idx != VB_RECOVERY_DBG_INFO) {
-			if (retval == VBERROR_NO_DISK_FOUND)
+			if (retval == VBERROR_NO_DISK_FOUND) {
+				current_menu = VB_MENU_RECOVERY_INSERT;
 				vb2_draw_current_screen(ctx, cparams);
+			}
 			else {
 				VbDisplayScreen(ctx, cparams,
 						VB_SCREEN_RECOVERY_NO_GOOD,
