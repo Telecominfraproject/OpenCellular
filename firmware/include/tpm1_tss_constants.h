@@ -46,6 +46,10 @@ typedef uint32_t TPM_COMMAND_CODE;
 typedef uint16_t TPM_PHYSICAL_PRESENCE;
 typedef uint16_t TPM_STARTUP_TYPE;
 typedef uint32_t TPM_CAPABILITY_AREA;
+typedef uint8_t TPM_FAMILY_LABEL;
+typedef uint32_t TPM_FAMILY_ID;
+typedef uint32_t TPM_FAMILY_VERIFICATION;
+typedef uint32_t TPM_FAMILY_FLAGS;
 
 #define TPM_CAP_FLAG           ((uint32_t) 0x00000004)
 #define TPM_CAP_FLAG_PERMANENT ((uint32_t) 0x00000108)
@@ -69,6 +73,8 @@ typedef uint32_t TPM_CAPABILITY_AREA;
 #define TPM_PID_OWNER ((uint16_t) 0x0005)
 
 #define TPM_ET_OWNER ((uint32_t) 0x02)
+
+#define TPM_FAMILY_CREATE ((uint32_t) 0x00000001)
 
 #define TPM_ST_CLEAR       ((uint16_t) 0x0001)
 #define TPM_ST_STATE       ((uint16_t) 0x0002)
@@ -177,6 +183,15 @@ typedef struct tdTPM_NONCE
     uint8_t nonce[TPM_SHA1BASED_NONCE_LEN];
 } TPM_NONCE;
 
+typedef struct tdTPM_FAMILY_TABLE_ENTRY
+{
+    TPM_STRUCTURE_TAG tag;
+    TPM_FAMILY_LABEL familyLabel;
+    TPM_FAMILY_ID familyID;
+    TPM_FAMILY_VERIFICATION verificationCount;
+    TPM_FAMILY_FLAGS flags;
+} TPM_FAMILY_TABLE_ENTRY;
+
 typedef struct tdTPM_IFX_FIRMWAREPACKAGE {
     uint32_t FwPackageIdentifier;
     uint32_t Version;
@@ -203,26 +218,28 @@ typedef struct tdTPM_NV_AUTH_POLICY
 
 /* Ordinals */
 
-#define TPM_ORD_ContinueSelfTest  ((uint32_t) 0x00000053)
-#define TPM_ORD_Extend            ((uint32_t) 0x00000014)
-#define TPM_ORD_FieldUpgrade      ((uint32_t) 0x000000AA)
-#define TPM_ORD_ForceClear        ((uint32_t) 0x0000005D)
-#define TPM_ORD_GetCapability     ((uint32_t) 0x00000065)
-#define TPM_ORD_GetRandom                         ((uint32_t) 0x00000046)
-#define TPM_ORD_NV_DefineSpace    ((uint32_t) 0x000000CC)
-#define TPM_ORD_NV_ReadValue      ((uint32_t) 0x000000CF)
-#define TPM_ORD_NV_WriteValue     ((uint32_t) 0x000000CD)
-#define TPM_ORD_OIAP              ((uint32_t) 0x0000000A)
-#define TPM_ORD_OSAP              ((uint32_t) 0x0000000B)
-#define TPM_ORD_PcrRead           ((uint32_t) 0x00000015)
-#define TPM_ORD_PhysicalEnable    ((uint32_t) 0x0000006F)
-#define TPM_ORD_PhysicalDisable   ((uint32_t) 0x00000070)
-#define TSC_ORD_PhysicalPresence  ((uint32_t) 0x4000000A)
-#define TPM_ORD_PhysicalSetDeactivated    ((uint32_t) 0x00000072)
-#define TPM_ORD_ReadPubek         ((uint32_t) 0x0000007C)
-#define TPM_ORD_SaveState         ((uint32_t) 0x00000098)
-#define TPM_ORD_SelfTestFull      ((uint32_t) 0x00000050)
-#define TPM_ORD_Startup           ((uint32_t) 0x00000099)
-#define TPM_ORD_TakeOwnership     ((uint32_t) 0x0000000D)
+#define TPM_ORD_ContinueSelfTest        ((uint32_t) 0x00000053)
+#define TPM_ORD_Delegate_Manage         ((uint32_t) 0x000000D2)
+#define TPM_ORD_Delegate_ReadTable      ((uint32_t) 0x000000DB)
+#define TPM_ORD_Extend                  ((uint32_t) 0x00000014)
+#define TPM_ORD_FieldUpgrade            ((uint32_t) 0x000000AA)
+#define TPM_ORD_ForceClear              ((uint32_t) 0x0000005D)
+#define TPM_ORD_GetCapability           ((uint32_t) 0x00000065)
+#define TPM_ORD_GetRandom               ((uint32_t) 0x00000046)
+#define TPM_ORD_NV_DefineSpace          ((uint32_t) 0x000000CC)
+#define TPM_ORD_NV_ReadValue            ((uint32_t) 0x000000CF)
+#define TPM_ORD_NV_WriteValue           ((uint32_t) 0x000000CD)
+#define TPM_ORD_OIAP                    ((uint32_t) 0x0000000A)
+#define TPM_ORD_OSAP                    ((uint32_t) 0x0000000B)
+#define TPM_ORD_PcrRead                 ((uint32_t) 0x00000015)
+#define TPM_ORD_PhysicalEnable          ((uint32_t) 0x0000006F)
+#define TPM_ORD_PhysicalDisable         ((uint32_t) 0x00000070)
+#define TSC_ORD_PhysicalPresence        ((uint32_t) 0x4000000A)
+#define TPM_ORD_PhysicalSetDeactivated  ((uint32_t) 0x00000072)
+#define TPM_ORD_ReadPubek               ((uint32_t) 0x0000007C)
+#define TPM_ORD_SaveState               ((uint32_t) 0x00000098)
+#define TPM_ORD_SelfTestFull            ((uint32_t) 0x00000050)
+#define TPM_ORD_Startup                 ((uint32_t) 0x00000099)
+#define TPM_ORD_TakeOwnership           ((uint32_t) 0x0000000D)
 
 #endif  /* ! __VBOOT_REFERENCE_FIRMWARE_INCLUDE_TPM1_TSS_CONSTANTS_H */

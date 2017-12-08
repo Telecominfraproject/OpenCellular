@@ -1215,4 +1215,56 @@ uint32_t TlclTakeOwnership(uint8_t enc_owner_auth[TPM_RSA_2048_LEN],
 	return TPM_SUCCESS;
 }
 
+uint32_t TlclCreateDelegationFamily(uint8_t family_label)
+{
+	struct s_tpm_create_delegation_family_cmd cmd;
+	memcpy(&cmd, &tpm_create_delegation_family_cmd, sizeof(cmd));
+	cmd.buffer[tpm_create_delegation_family_cmd.familyLabel] = family_label;
+	return Send(cmd.buffer);
+}
+
+uint32_t TlclReadDelegationFamilyTable(TPM_FAMILY_TABLE_ENTRY *table,
+                                       uint32_t* table_size)
+{
+	uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
+	uint32_t result = TlclSendReceive(tpm_delegate_read_table_cmd.buffer,
+					  response, sizeof(response));
+	if (result != TPM_SUCCESS) {
+		return result;
+	}
+
+	uint32_t size;
+	FromTpmUint32(response + sizeof(uint16_t), &size);
+	if (size < kTpmRequestHeaderLength + sizeof(uint32_t) ||
+	    size > sizeof(response)) {
+		return TPM_E_INVALID_RESPONSE;
+	}
+
+	const uint8_t* cursor = response + kTpmRequestHeaderLength;
+	uint32_t table_bytes = ReadTpmUint32(&cursor);
+
+	if (table_bytes > size - (cursor - response)) {
+		return TPM_E_INVALID_RESPONSE;
+	}
+
+	uint32_t table_entries = table_bytes / sizeof(TPM_FAMILY_TABLE_ENTRY);
+	int i;
+	for (i = 0; i < table_entries; ++i) {
+		if (i >= *table_size || !table) {
+			result = TPM_E_BUFFER_SIZE;
+			break;
+		}
+
+		table[i].tag = ReadTpmUint16(&cursor);
+		table[i].familyLabel = *cursor++;
+		table[i].familyID = ReadTpmUint32(&cursor);
+		table[i].verificationCount = ReadTpmUint32(&cursor);
+		table[i].flags = ReadTpmUint32(&cursor);
+	}
+
+	*table_size = table_entries;
+
+	return result;
+}
+
 #endif  /* CHROMEOS_ENVIRONMENT */

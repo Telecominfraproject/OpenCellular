@@ -495,6 +495,28 @@ Command* BuildTakeOwnershipCommand(void) {
   return cmd;
 }
 
+Command* BuildCreateDelegationFamilyCommand(void) {
+  int size = kTpmRequestHeaderLength + 3 * sizeof(uint32_t) + sizeof(uint8_t);
+  Command* cmd = newCommand(TPM_ORD_Delegate_Manage, size);
+  cmd->name = "tpm_create_delegation_family_cmd";
+  AddInitializedField(cmd, kTpmRequestHeaderLength, sizeof(uint32_t),
+                      0 /* familyID */);
+  AddInitializedField(cmd, kTpmRequestHeaderLength + sizeof(uint32_t),
+                      sizeof(uint32_t), TPM_FAMILY_CREATE);
+  AddInitializedField(cmd, kTpmRequestHeaderLength + 2 * sizeof(uint32_t),
+                      sizeof(uint32_t), sizeof(uint8_t) /* opDataSize */);
+  AddVisibleField(cmd, "familyLabel",
+                  kTpmRequestHeaderLength + 3 * sizeof(uint32_t));
+  return cmd;
+}
+
+Command* BuildReadDelegationFamilyTableCommand(void) {
+  Command* cmd =
+      newCommand(TPM_ORD_Delegate_ReadTable, kTpmRequestHeaderLength);
+  cmd->name = "tpm_delegate_read_table_cmd";
+  return cmd;
+}
+
 /* Output the fields of a structure.
  */
 void OutputFields(Field* fld) {
@@ -621,6 +643,8 @@ Command* (*builders[])(void) = {
   BuildOIAPCommand,
   BuildOSAPCommand,
   BuildTakeOwnershipCommand,
+  BuildCreateDelegationFamilyCommand,
+  BuildReadDelegationFamilyTableCommand,
 };
 
 static void FreeFields(Field* fld) {

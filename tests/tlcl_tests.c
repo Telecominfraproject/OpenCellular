@@ -991,6 +991,91 @@ void TakeOwnershipTest(void) {
 		    sizeof(take_ownership_response));
 }
 
+/**
+ * Test ReadDelegationFamilyTable
+ */
+void ReadDelegationFamilyTableTest(void) {
+	uint8_t response[] = {
+		0x00, 0xc4, 0x00, 0x00, 0x00, 0x30, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x1e, 0x00, 0x25,
+		0x17, 0x00, 0x00, 0x00, 0x4f, 0x00, 0x00, 0x00,
+		0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x25, 0x42,
+		0x00, 0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x01,
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	};
+
+	TPM_FAMILY_TABLE_ENTRY table[20];
+	uint32_t table_size;
+
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	table_size = 8;
+	TEST_EQ(TlclReadDelegationFamilyTable(table, &table_size),
+		TPM_SUCCESS, "ReadDelegationFamilyTable");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_Delegate_ReadTable, "  cmd");
+	TEST_EQ(table_size, 2, "  table_size");
+	TEST_EQ(table[0].tag, 0x25, "  table[0].tag");
+	TEST_EQ(table[0].familyLabel, 0x17, "  table[0].familyLabel");
+	TEST_EQ(table[0].familyID, 0x4f, "  table[0].familyID");
+	TEST_EQ(table[0].verificationCount, 0x1,
+		"  table[0].verificationCount");
+	TEST_EQ(table[0].flags, 0x2, "  table[0].flags");
+	TEST_EQ(table[1].tag, 0x25, "  table[1].tag");
+	TEST_EQ(table[1].familyLabel, 0x42, "  table[1].familyLabel");
+	TEST_EQ(table[1].familyID, 0x50, "  table[1].familyID");
+	TEST_EQ(table[1].verificationCount, 0x1,
+		"  table[1].verificationCount");
+	TEST_EQ(table[1].flags, 0x0, "  table[1].flags");
+
+	/* Test that required table size is returned if more space required. */
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	table_size = 1;
+	TEST_EQ(TlclReadDelegationFamilyTable(table, &table_size),
+		TPM_E_BUFFER_SIZE, "ReadDelegationFamilyTable");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_Delegate_ReadTable, "  cmd");
+	TEST_EQ(table_size, 2, "  table_size");
+
+	/* Test that an overlong response gets caught. */
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	ToTpmUint32(response + sizeof(uint16_t), TPM_LARGE_ENOUGH_COMMAND_SIZE +
+		    1);
+	TEST_EQ(TlclReadDelegationFamilyTable(table, &table_size),
+		TPM_E_INVALID_RESPONSE,
+		"ReadDelegationFamilyTable - too long response");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_Delegate_ReadTable, "  cmd");
+	ToTpmUint32(response + sizeof(uint16_t), sizeof(response));
+
+	/* Test that a short response gets caught. */
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	ToTpmUint32(response + sizeof(uint16_t),
+		    kTpmRequestHeaderLength + sizeof(uint32_t) - 1);
+	TEST_EQ(TlclReadDelegationFamilyTable(table, &table_size),
+		TPM_E_INVALID_RESPONSE,
+		"ReadDelegationFamilyTable - too short response");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_Delegate_ReadTable, "  cmd");
+	ToTpmUint32(response + sizeof(uint16_t), sizeof(response));
+
+	/* Test that long table size in response gets caught. */
+	ResetMocks();
+	calls[0].rsp = response;
+	calls[0].rsp_size = sizeof(response);
+	table_size = 20;
+	ToTpmUint32(response + kTpmResponseHeaderLength,
+		    TPM_LARGE_ENOUGH_COMMAND_SIZE);
+	TEST_EQ(TlclReadDelegationFamilyTable(table, &table_size),
+		TPM_E_INVALID_RESPONSE,
+		"ReadDelegationFamilyTable - overlong family table");
+	TEST_EQ(calls[0].req_cmd, TPM_ORD_Delegate_ReadTable, "  cmd");
+	ToTpmUint32(response + kTpmResponseHeaderLength, 0x1e);
+}
+
 int main(void)
 {
 	TlclTest();
