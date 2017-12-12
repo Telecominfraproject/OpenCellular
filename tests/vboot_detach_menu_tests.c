@@ -180,7 +180,7 @@ int VbExTrustEC(int devidx)
 	return trust_ec;
 }
 
-int VbAudioLooping(VbAudioContext *audio)
+int vb2_audio_looping(void)
 {
 	if (audio_looping_calls_left == 0)
 		return 0;

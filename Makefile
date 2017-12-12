@@ -165,10 +165,6 @@ CC ?= gcc
 CFLAGS += -DCHROMEOS_ENVIRONMENT -Wall ${WERROR} ${DEBUG_FLAGS}
 endif
 
-ifneq (${CUSTOM_MUSIC},)
-CFLAGS += -DCUSTOM_MUSIC
-endif
-
 ifneq (${DEBUG},)
 CFLAGS += -DVBOOT_DEBUG
 endif
@@ -739,8 +735,7 @@ TEST_NAMES = \
 	tests/vboot_api_kernel5_tests \
 	tests/vboot_api_kernel6_tests \
 	tests/vboot_detach_menu_tests \
-	tests/vboot_audio_tests \
-	tests/vboot_common_tests \
+tests/vboot_common_tests \
 	tests/vboot_display_tests \
 	tests/vboot_kernel_tests \
 	tests/verify_kernel
@@ -1313,12 +1308,6 @@ ${BUILD}/tests/tlcl_tests: \
 	${TLCL_OBJS_FOR_TEST}
 TEST_OBJS += ${TLCL_OBJS_FOR_TEST}
 
-${BUILD}/tests/vboot_audio_tests: OBJS += \
-	${BUILD}/firmware/lib/vboot_audio_for_test.o
-${BUILD}/tests/vboot_audio_tests: \
-	${BUILD}/firmware/lib/vboot_audio_for_test.o
-TEST_OBJS += ${BUILD}/firmware/lib/vboot_audio_for_test.o
-
 ifeq (${TPM2_MODE},)
 # TODO(apronin): tests for TPM2 case?
 TLCL_TEST_BINS = $(addprefix ${BUILD}/,${TLCL_TEST_NAMES})
@@ -1443,7 +1432,6 @@ endif
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel5_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_api_kernel6_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_detach_menu_tests
-	${RUNTEST} ${BUILD_RUN}/tests/vboot_audio_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_common_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_display_tests
 	${RUNTEST} ${BUILD_RUN}/tests/vboot_kernel_tests

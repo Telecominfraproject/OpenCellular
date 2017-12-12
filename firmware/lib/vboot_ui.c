@@ -171,8 +171,6 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	uint32_t use_legacy = 0;
 	uint32_t ctrl_d_pressed = 0;
 
-	VbAudioContext *audio = 0;
-
 	VB2_DEBUG("Entering\n");
 
 	/* Check if USB booting is allowed */
@@ -240,15 +238,14 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* Show the dev mode warning screen */
 	VbDisplayScreen(ctx, cparams, VB_SCREEN_DEVELOPER_WARNING, 0);
 
-	/* Get audio/delay context */
-	audio = VbAudioOpen(cparams);
+	/* Initialize audio/delay context */
+	vb2_audio_start(ctx);
 
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
 		uint32_t key = VbExKeyboardRead();
 		if (VbWantShutdown(ctx, key)) {
 			VB2_DEBUG("VbBootDeveloper() - shutdown requested!\n");
-			VbAudioClose(audio);
 			return VBERROR_SHUTDOWN_REQUESTED;
 		}
 
@@ -267,7 +264,6 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			if (shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
 			    shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
 				/* Stop the countdown while we go ask... */
-				VbAudioClose(audio);
 				if (sd->gbb_flags &
 				    GBB_FLAG_FORCE_DEV_SWITCH_ON) {
 					/*
@@ -308,7 +304,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 						VB_SCREEN_DEVELOPER_WARNING,
 						0);
 					/* Start new countdown */
-					audio = VbAudioOpen(cparams);
+					vb2_audio_start(ctx);
 				}
 			} else {
 				/*
@@ -318,7 +314,6 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				VB2_DEBUG("going to recovery\n");
 				vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
 					   VB2_RECOVERY_RW_DEV_SCREEN);
-				VbAudioClose(audio);
 				return VBERROR_LOAD_KERNEL_RECOVERY;
 			}
 			break;
@@ -364,7 +359,6 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 						0);
 				if (VBERROR_SUCCESS ==
 				    VbTryUsb(ctx, cparams)) {
-					VbAudioClose(audio);
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
@@ -380,7 +374,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			VbCheckDisplayKey(ctx, cparams, key);
 			break;
 		}
-	} while(VbAudioLooping(audio));
+	} while(vb2_audio_looping());
 
  fallout:
 
@@ -392,14 +386,12 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
 		if (VBERROR_SUCCESS == VbTryUsb(ctx, cparams)) {
-			VbAudioClose(audio);
 			return VBERROR_SUCCESS;
 		}
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VB2_DEBUG("VbBootDeveloper() - trying fixed disk\n");
-	VbAudioClose(audio);
 	return VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
 }
 

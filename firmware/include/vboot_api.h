@@ -457,18 +457,12 @@ void VbExDebug(const char *format, ...)
 /* Timer and delay (first two from utility.h) */
 
 /**
- * Read a high-resolution timer.  Returns the current timer value in arbitrary
- * units.
+ * Read a microsecond timer.
  *
- * This is intended for benchmarking, so this call MUST be fast.  The timer
- * frequency must be >1 KHz (preferably >1 MHz), and the timer must not wrap
- * around for at least 10 minutes.  It is preferable (but not required) that
- * the timer be initialized to 0 at boot.
- *
- * It is assumed that the firmware has some other way of communicating the
- * timer frequency to the OS.  For example, on x86 we use TSC, and the OS
- * kernel reports the initial TSC value at kernel-start and calculates the
- * frequency. */
+ * This should have a sufficient number of bits to avoid wraparound for at
+ * least 10 minutes.  A 32-bit value would be plenty, but for historical
+ * reasons this returns uint64_t.
+ */
 uint64_t VbExGetTimer(void);
 
 /**

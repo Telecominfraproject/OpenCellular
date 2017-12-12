@@ -598,7 +598,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	uint32_t use_legacy = 0;
 	uint32_t ctrl_d_pressed = 0;
 
-	VbAudioContext *audio = NULL;
 	VbError_t ret;
 
 	VB2_DEBUG("Entering\n");
@@ -651,8 +650,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	vb2_draw_current_screen(ctx, cparams);
 
 	/* Get audio/delay context */
-	if (!disable_dev_boot)
-		audio = VbAudioOpen(cparams);
+	vb2_audio_start(ctx);
 
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
@@ -660,8 +658,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 		if (VbWantShutdownMenu(ctx)) {
 			VB2_DEBUG("shutdown requested!\n");
-			if (audio)
-				VbAudioClose(audio);
 			return VBERROR_SHUTDOWN_REQUESTED;
 		}
 
@@ -714,8 +710,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						0);
 				if (VBERROR_SUCCESS ==
 				    VbTryUsbMenu(ctx, cparams)) {
-					if (audio)
-						VbAudioClose(audio);
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
@@ -728,16 +722,14 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
-			if (audio)
-				audio = VbAudioOpen(cparams);
+			vb2_audio_start(ctx);
 			break;
 		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 		case VB_KEY_DOWN:
 			vb2_update_selection(cparams, key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
-			if (audio)
-				audio = VbAudioOpen(cparams);
+			vb2_audio_start(ctx);
 			break;
 		case VB_BUTTON_POWER_SHORT_PRESS:
 		case '\r':
@@ -802,8 +794,6 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						cparams, VB_SCREEN_BLANK, 0);
 					if (VBERROR_SUCCESS ==
 					    VbTryUsbMenu(ctx, cparams)) {
-						if (audio)
-							VbAudioClose(audio);
 						return VBERROR_SUCCESS;
 					} else
 						/*
@@ -861,14 +851,15 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				}
 			}
 			/* reset 30 second timer */
-			if (audio)
-				audio = VbAudioOpen(cparams);
+			vb2_audio_start(ctx);
 			break;
 		default:
 			VB2_DEBUG("pressed key %d\n", key);
 			break;
 		}
-	} while(VbAudioLooping(audio));
+
+		/* If dev mode was disabled, loop forever (never timeout) */
+	} while(disable_dev_boot ? 1 : vb2_audio_looping());
 
 fallout:
 
@@ -880,14 +871,12 @@ fallout:
 
 	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
 		if (VBERROR_SUCCESS == VbTryUsbMenu(ctx, cparams)) {
-			VbAudioClose(audio);
 			return VBERROR_SUCCESS;
 		}
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VB2_DEBUG("trying fixed disk\n");
-	VbAudioClose(audio);
 	return VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
 }
 

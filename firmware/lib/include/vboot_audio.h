@@ -10,22 +10,15 @@
 
 #include "vboot_api.h"
 
-typedef struct VbAudioContext VbAudioContext;
-
 /**
- * Initialization function. Returns context for processing dev-mode delay.
+ * Initialization function.
  */
-VbAudioContext *VbAudioOpen(VbCommonParams *cparams);
+void vb2_audio_start(struct vb2_context *ctx);
 
 /**
  * Caller should loop without extra delay until this returns false.
  */
-int VbAudioLooping(VbAudioContext *audio);
-
-/**
- * Caller should call this prior to booting.
- */
-void VbAudioClose(VbAudioContext *audio);
+int vb2_audio_looping(void);
 
 #endif /* VBOOT_REFERENCE_VBOOT_AUDIO_H_ */
 
