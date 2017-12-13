@@ -21,11 +21,13 @@ use type HW.Word32;
 package HW.GFX is
 
    -- such that the count of pixels in any framebuffer may fit
-   subtype Pixel_Type is Pos32 range 1 .. 8192 * 8192;
+   subtype Pixel_Type is Int32 range 0 .. 8192 * 8192;
+   subtype Pos_Pixel_Type is Pixel_Type range 1 .. Pixel_Type'Last;
 
    -- Allow same range for width and height (for rotated framebuffers)
    subtype Width_Type  is Pos32 range 1 .. 8192;
    subtype Height_Type is Pos32 range 1 .. 8192;
+   subtype Pos_Type    is Int32 range 0 .. 4095;
 
    Auto_BPC : constant := 5;
    subtype BPC_Type    is Int64 range Auto_BPC .. 16;
@@ -39,6 +41,8 @@ package HW.GFX is
    record
       Width    : Width_Type;
       Height   : Height_Type;
+      Start_X  : Pos_Type;
+      Start_Y  : Pos_Type;
       BPC      : BPC_Type;
       Stride   : Width_Type;
       V_Stride : Height_Type;
@@ -56,13 +60,15 @@ package HW.GFX is
      (if Rotation_90 (FB) then Pos16 (FB.Width) else Pos16 (FB.Height));
 
    function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
-      return Pos32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
+      return Int32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
    function FB_Size (FB : Framebuffer_Type) return Pos32 is
      (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
 
    Default_FB : constant Framebuffer_Type := Framebuffer_Type'
      (Width    => 1,
       Height   => 1,
+      Start_X  => 0,
+      Start_Y  => 0,
       BPC      => 8,
       Stride   => 1,
       V_Stride => 1,

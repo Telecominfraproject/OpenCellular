@@ -177,14 +177,14 @@ private
    Tile_Rows : constant array (Tiling_Type) of Pos32 :=
      (Linear => 1, X_Tiled => 8, Y_Tiled => 32);
 
-   function FB_Pitch (Px : Pixel_Type; FB : Framebuffer_Type) return Natural is
-     (Natural (Div_Round_Up
-        (Pixel_To_Bytes (Px, FB), Tile_Width (FB.Tiling) * 4)));
+   function FB_Pitch (Px : Pos_Pixel_Type; FB : Framebuffer_Type) return Natural
+      is (Natural (Div_Round_Up
+           (Pixel_To_Bytes (Px, FB), Tile_Width (FB.Tiling) * 4)));
 
    function Valid_Stride (FB : Framebuffer_Type) return Boolean is
-     (FB.Width <= FB.Stride and
+     (FB.Width + FB.Start_X <= FB.Stride and
       Pixel_To_Bytes (FB.Stride, FB) mod (Tile_Width (FB.Tiling) * 4) = 0 and
-      FB.Height <= FB.V_Stride and
+      FB.Height + FB.Start_Y <= FB.V_Stride and
       FB.V_Stride mod Tile_Rows (FB.Tiling) = 0);
 
 end HW.GFX.GMA;

@@ -723,6 +723,21 @@ is
         (Primary     => "Primary  ",
          Secondary   => "Secondary",
          Tertiary    => "Tertiary ");
+
+      subtype Tiling_Name is String (1 .. 7);
+      type Tiling_Name_Array is array (Tiling_Type) of Tiling_Name;
+      Tilings : constant Tiling_Name_Array :=
+        (Linear   => "Linear ",
+         X_Tiled  => "X_Tiled",
+         Y_Tiled  => "Y_Tiled");
+
+      subtype Rotation_Name is String (1 .. 11);
+      type Rotation_Name_Array is array (Rotation_Type) of Rotation_Name;
+      Rotations : constant Rotation_Name_Array :=
+        (No_Rotation => "No_Rotation",
+         Rotated_90  => "Rotated_90 ",
+         Rotated_180 => "Rotated_180",
+         Rotated_270 => "Rotated_270");
    begin
       Debug.New_Line;
       Debug.Put_Line ("CONFIG =>");
@@ -736,15 +751,28 @@ is
          Debug.Put_Line
            ("     (Port => " & Port_Names (Configs (Pipe).Port) & ",");
          Debug.Put_Line ("      Framebuffer =>");
-         Debug.Put ("        (Width  => ");
+         Debug.Put ("        (Width     => ");
          Debug.Put_Int32 (Configs (Pipe).Framebuffer.Width);
          Debug.Put_Line (",");
-         Debug.Put ("         Height => ");
+         Debug.Put ("         Height    => ");
          Debug.Put_Int32 (Configs (Pipe).Framebuffer.Height);
          Debug.Put_Line (",");
-         Debug.Put ("         Stride => ");
+         Debug.Put ("         Start_X   => ");
+         Debug.Put_Int32 (Configs (Pipe).Framebuffer.Start_X);
+         Debug.Put_Line (",");
+         Debug.Put ("         Start_Y   => ");
+         Debug.Put_Int32 (Configs (Pipe).Framebuffer.Start_Y);
+         Debug.Put_Line (",");
+         Debug.Put ("         Stride    => ");
          Debug.Put_Int32 (Configs (Pipe).Framebuffer.Stride);
          Debug.Put_Line (",");
+         Debug.Put ("         V_Stride  => ");
+         Debug.Put_Int32 (Configs (Pipe).Framebuffer.V_Stride);
+         Debug.Put_Line (",");
+         Debug.Put ("         Tiling    => ");
+         Debug.Put_Line (Tilings (Configs (Pipe).Framebuffer.Tiling) & ",");
+         Debug.Put ("         Rotation  => ");
+         Debug.Put_Line (Rotations (Configs (Pipe).Framebuffer.Rotation) & ",");
          Debug.Put ("         Offset => ");
          Debug.Put_Word32 (Configs (Pipe).Framebuffer.Offset);
          Debug.Put_Line (",");

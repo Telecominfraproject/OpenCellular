@@ -50,6 +50,6 @@ is
             Rotated_Width (FB) <= Port_Cfg.Mode.H_Visible and
             Rotated_Height (FB) <= Port_Cfg.Mode.V_Visible and
             (FB.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
-             FB.Height <= FB.V_Stride));
+             FB.Height + FB.Start_Y <= FB.V_Stride));
 
 end HW.GFX.GMA.Config_Helpers;

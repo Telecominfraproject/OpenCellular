@@ -162,7 +162,7 @@ package body HW.GFX.GMA.Pipe_Setup is
               (Registers.Register_State,
                Controller,
                FB)),
-      Pre => FB.Height <= FB.V_Stride
+      Pre => FB.Height + FB.Start_Y <= FB.V_Stride
    is
       -- FIXME: setup correct format, based on framebuffer RGB format
       Format : constant Word32 := 6 * 2 ** 26;
@@ -177,11 +177,13 @@ package body HW.GFX.GMA.Pipe_Setup is
             Height : constant Pos16 := Rotated_Height (FB);
          begin
             if Rotation_90 (FB) then
-               Stride            := Word32 (FB_Pitch (FB.V_Stride, FB));
-               Offset            := Word32 (FB.V_Stride - FB.Height);
+               Stride   := Word32 (FB_Pitch (FB.V_Stride, FB));
+               Offset   := Shift_Left (Word32 (FB.Start_X), 16) or
+                           Word32 (FB.V_Stride - FB.Height - FB.Start_Y);
             else
-               Stride            := Word32 (FB_Pitch (FB.Stride, FB));
-               Offset            := 0;
+               Stride   := Word32 (FB_Pitch (FB.Stride, FB));
+               Offset   := Shift_Left (Word32 (FB.Start_Y), 16) or
+                           Word32 (FB.Start_X);
             end if;
             Registers.Write
               (Register    => Controller.PLANE_CTL,
@@ -211,9 +213,17 @@ package body HW.GFX.GMA.Pipe_Setup is
            (Controller.DSPSTRIDE, Word32 (Pixel_To_Bytes (FB.Stride, FB)));
          Registers.Write (Controller.DSPSURF, FB.Offset and 16#ffff_f000#);
          if Config.Has_DSP_Linoff then
-            Registers.Write (Controller.DSPLINOFF, 0);
+            Registers.Write
+              (Register => Controller.DSPLINOFF,
+               Value    => Word32 (Pixel_To_Bytes
+                             (FB.Start_Y * FB.Stride + FB.Start_X, FB)));
+            Registers.Write (Controller.DSPTILEOFF, 0);
+         else
+            Registers.Write
+              (Register => Controller.DSPTILEOFF,
+               Value    => Shift_Left (Word32 (FB.Start_Y), 16) or
+                           Word32 (FB.Start_X));
          end if;
-         Registers.Write (Controller.DSPTILEOFF, 0);
       end if;
    end Setup_Hires_Plane;
 
@@ -237,7 +247,7 @@ package body HW.GFX.GMA.Pipe_Setup is
                (Framebuffer)),
       Pre =>
          Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
-         Framebuffer.Height <= Framebuffer.V_Stride
+         Framebuffer.Height + Framebuffer.Start_Y <= Framebuffer.V_Stride
    is
       use type Word8;
 

@@ -28,7 +28,7 @@ is
          Rotated_Width (Framebuffer) <= Port_Cfg.Mode.H_Visible and
          Rotated_Height (Framebuffer) <= Port_Cfg.Mode.V_Visible and
          (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
-          Framebuffer.Height <= Framebuffer.V_Stride);
+          Framebuffer.Height + Framebuffer.Start_Y <= Framebuffer.V_Stride);
 
    procedure Off (Pipe : Pipe_Index);
 

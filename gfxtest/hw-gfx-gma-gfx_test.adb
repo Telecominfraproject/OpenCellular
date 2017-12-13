@@ -14,6 +14,9 @@ package body HW.GFX.GMA.GFX_Test
 is
    pragma Disable_Atomic_Synchronization;
 
+   Start_X : constant := 0;
+   Start_Y : constant := 0;
+
    package Dev is new PCI.Dev (PCI.Address'(0, 2, 0));
 
    type GTT_PTE_Type is mod 2 ** (Config.GTT_PTE_Size * 8);
@@ -105,6 +108,12 @@ is
       end loop;
    end Restore_Screen;
 
+   function Drawing_Width (FB : Framebuffer_Type) return Natural is
+     (Natural (FB.Width + 2 * Start_X));
+
+   function Drawing_Height (FB : Framebuffer_Type) return Natural is
+     (Natural (FB.Height + 2 * Start_Y));
+
    function Corner_Fill
      (X, Y  : Natural;
       FB    : Framebuffer_Type;
@@ -112,9 +121,9 @@ is
       return Pixel_Type
    is
       Xrel : constant Integer :=
-        (if X < 32 then X else X - (Natural (FB.Width) - 32));
+        (if X < 32 then X else X - (Drawing_Width (FB) - 32));
       Yrel : constant Integer :=
-        (if Y < 32 then Y else Y - (Natural (FB.Height) - 32));
+        (if Y < 32 then Y else Y - (Drawing_Height (FB) - 32));
 
       function Color (Idx : Natural) return Pixel_Type is
         (case (Idx + Pipe_Index'Pos (Pipe)) mod 4 is
@@ -138,8 +147,8 @@ is
    is
       use type HW.Byte;
 
-      Xp : constant Natural := X * 256 / Natural (Framebuffer.Width);
-      Yp : constant Natural := Y * 256 / Natural (Framebuffer.Height);
+      Xp : constant Natural := X * 256 / Drawing_Width (Framebuffer);
+      Yp : constant Natural := Y * 256 / Drawing_Height (Framebuffer);
       Xn : constant Natural := 255 - Xp;
       Yn : constant Natural := 255 - Yp;
 
@@ -166,22 +175,22 @@ is
 
       function Top_Test (X, Y : Natural) return Boolean
       is
-         C     : constant Natural := Natural (Framebuffer.Width) / 2;
-         S_Y   : constant Natural := 3 * Y / 2;
+         C     : constant Natural := Drawing_Width (Framebuffer) / 2;
+         S_Y   : constant Natural := 3 * (Y - Start_Y) / 2;
          Left  : constant Integer := X - C + S_Y;
          Right : constant Integer := X - C - S_Y;
       begin
          return
-            Y < 12 and
+            (Y - Start_Y) < 12 and
             ((-1 <= Left and Left <= 0) or
              (0 <= Right and Right <= 1));
       end Top_Test;
    begin
-      for Y in 0 .. Natural (Framebuffer.Height) - 1 loop
+      for Y in 0 .. Drawing_Height (Framebuffer) - 1 loop
          Offset := Offset_Y;
-         for X in 0 .. Natural (Framebuffer.Width) - 1 loop
-            if (X < 32 or X >= Natural (Framebuffer.Width) - 32) and
-               (Y < 32 or Y >= Natural (Framebuffer.Height) - 32)
+         for X in 0 .. Drawing_Width (Framebuffer) - 1 loop
+            if (X < 32 or X >= Drawing_Width (Framebuffer) - 32) and
+               (Y < 32 or Y >= Drawing_Height (Framebuffer) - 32)
             then
                P := Corner_Fill (X, Y, Framebuffer, Pipe);
             elsif Framebuffer.Rotation /= No_Rotation and then
@@ -206,25 +215,31 @@ is
       Rotation : in     Rotation_Type;
       Offset   : in out Word32)
    is
+      Width : constant Width_Type := Width_Type (Mode.H_Visible);
+      Height : constant Height_Type := Height_Type (Mode.V_Visible);
    begin
       Offset := (Offset + FB_Align - 1) and not (FB_Align - 1);
       if Rotation = Rotated_90 or Rotation = Rotated_270 then
          FB :=
-           (Width    => Width_Type (Mode.V_Visible),
-            Height   => Height_Type (Mode.H_Visible),
+           (Width    => Width_Type (Height),
+            Height   => Height_Type (Width),
+            Start_X  => Start_X,
+            Start_Y  => Start_Y,
             BPC      => 8,
-            Stride   => Div_Round_Up (Pos32 (Mode.V_Visible), 32) * 32,
-            V_Stride => Div_Round_Up (Pos32 (Mode.H_Visible), 32) * 32,
+            Stride   => Div_Round_Up (Pos32 (Height + 2 * Start_X), 32) * 32,
+            V_Stride => Div_Round_Up (Pos32 (Width + 2 * Start_Y), 32) * 32,
             Tiling   => Y_Tiled,
             Rotation => Rotation,
             Offset   => Offset + Word32 (GTT_Rotation_Offset) * GTT_Page_Size);
       else
          FB :=
-           (Width    => Width_Type (Mode.H_Visible),
-            Height   => Width_Type (Mode.V_Visible),
+           (Width    => Width,
+            Height   => Height,
+            Start_X  => Start_X,
+            Start_Y  => Start_Y,
             BPC      => 8,
-            Stride   => Div_Round_Up (Pos32 (Mode.H_Visible), 16) * 16,
-            V_Stride => Height_Type (Mode.V_Visible),
+            Stride   => Div_Round_Up (Width + 2 * Start_X, 16) * 16,
+            V_Stride => Height + 2 * Start_Y,
             Tiling   => Linear,
             Rotation => Rotation,
             Offset   => Offset);
