@@ -102,6 +102,15 @@ is
       Device_Address : GTT_Address_Type;
       Valid          : Boolean);
 
+   -- For the default framebuffer setup (see below) with 90 degree rotations,
+   -- we expect the offset which is used for the final scanout to be above
+   -- `GTT_Rotation_Offset`. So we can use `Offset - GTT_Rotation_Offset` for
+   -- the physical memory location and aperture mapping.
+   function Phys_Offset (FB : Framebuffer_Type) return Word32 is
+     (if Rotation_90 (FB)
+      then FB.Offset - Word32 (GTT_Rotation_Offset) * GTT_Page_Size
+      else FB.Offset);
+
    procedure Setup_Default_FB
      (FB       : in     Framebuffer_Type;
       Clear    : in     Boolean := True;

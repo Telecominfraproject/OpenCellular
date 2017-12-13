@@ -78,13 +78,16 @@ is
       0 .. 3 * (Max_W * Max_H + FB_Align / 4) - 1;
    type Screen_Type is array (Screen_Index) of Word32;
 
+   function Screen_Offset (FB : Framebuffer_Type) return Natural is
+     (Natural (Phys_Offset (FB) / 4));
+
    package Screen is new MMIO_Range (0, Word32, Screen_Index, Screen_Type);
 
    Screen_Backup : Screen_Type;
 
    procedure Backup_Screen (FB : Framebuffer_Type)
    is
-      First : constant Screen_Index := Natural (FB.Offset) / 4;
+      First : constant Screen_Index := Screen_Offset (FB);
       Last  : constant Screen_Index := First + Natural (FB_Size (FB)) / 4 - 1;
    begin
       for Idx in Screen_Index range First .. Last loop
@@ -94,7 +97,7 @@ is
 
    procedure Restore_Screen (FB : Framebuffer_Type)
    is
-      First : constant Screen_Index := Natural (FB.Offset) / 4;
+      First : constant Screen_Index := Screen_Offset (FB);
       Last  : constant Screen_Index := First + Natural (FB_Size (FB)) / 4 - 1;
    begin
       for Idx in Screen_Index range First .. Last loop
@@ -158,7 +161,7 @@ is
    is
       P        : Pixel_Type;
       -- We have pixel offset wheras the framebuffer has a byte offset
-      Offset_Y : Natural := Natural (Framebuffer.Offset / 4);
+      Offset_Y : Natural := Screen_Offset (Framebuffer);
       Offset   : Natural;
 
       function Top_Test (X, Y : Natural) return Boolean
@@ -214,7 +217,7 @@ is
             V_Stride => Div_Round_Up (Pos32 (Mode.H_Visible), 32) * 32,
             Tiling   => Y_Tiled,
             Rotation => Rotation,
-            Offset   => Offset);
+            Offset   => Offset + Word32 (GTT_Rotation_Offset) * GTT_Page_Size);
       else
          FB :=
            (Width    => Width_Type (Mode.H_Visible),

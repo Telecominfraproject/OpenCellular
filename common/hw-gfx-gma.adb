@@ -473,22 +473,29 @@ is
    ----------------------------------------------------------------------------
 
    function FB_First_Page (FB : Framebuffer_Type) return Natural is
-     (Natural (FB.Offset / GTT_Page_Size));
+     (Natural (Phys_Offset (FB) / GTT_Page_Size));
    function FB_Pages (FB : Framebuffer_Type) return Natural is
      (Natural (Div_Round_Up (FB_Size (FB), GTT_Page_Size)));
    function FB_Last_Page (FB : Framebuffer_Type) return Natural is
      (FB_First_Page (FB) + FB_Pages (FB) - 1);
 
-   -- Check basics and that it fits in GTT
+   -- Check basics and that it fits in GTT. For 90 degree rotations,
+   -- the Offset should be above GTT_Rotation_Offset. The latter will
+   -- be subtracted for the aperture mapping.
    function Valid_FB (FB : Framebuffer_Type) return Boolean is
-     (Valid_Stride (FB) and FB_Last_Page (FB) < GTT_Rotation_Offset);
+     (Valid_Stride (FB) and
+      FB_First_Page (FB) in GTT_Range and
+      FB_Last_Page (FB) in GTT_Range and
+      (not Rotation_90 (FB) or
+       (FB_Last_Page (FB) + GTT_Rotation_Offset in GTT_Range and
+        FB.Offset >= Word32 (GTT_Rotation_Offset) * GTT_Page_Size)));
 
    -- Also check that we don't overflow the GTT's 39-bit space
    -- (always true with a 32-bit base)
    function Valid_Phys_FB (FB : Framebuffer_Type; Phys_Base : Word32)
       return Boolean is
      (Valid_FB (FB) and
-      Int64 (Phys_Base) + Int64 (FB.Offset) + Int64 (FB_Size (FB)) <=
+      Int64 (Phys_Base) + Int64 (Phys_Offset (FB)) + Int64 (FB_Size (FB)) <=
          Int64 (GTT_Address_Type'Last))
    with
       Ghost;
@@ -507,7 +514,7 @@ is
       Pre => Is_Initialized and Valid_Phys_FB (FB, Phys_Base)
    is
       Phys_Addr : GTT_Address_Type :=
-         GTT_Address_Type (Phys_Base) + GTT_Address_Type (FB.Offset);
+         GTT_Address_Type (Phys_Base) + GTT_Address_Type (Phys_Offset (FB));
    begin
       for Idx in FB_First_Page (FB) .. FB_Last_Page (FB) loop
          Registers.Write_GTT
@@ -524,7 +531,7 @@ is
                GTT_Address_Type (Pixel_To_Bytes (32 * FB.Stride, FB));
          begin
             Phys_Addr := GTT_Address_Type (Phys_Base) +
-                           GTT_Address_Type (FB.Offset) +
+                           GTT_Address_Type (Phys_Offset (FB)) +
                            GTT_Address_Type (FB_Size (FB));
             for Page in FB_First_Page (FB) .. FB_Last_Page (FB) loop
                Phys_Addr := Phys_Addr - Bytes_Per_Row;
@@ -629,7 +636,7 @@ is
             FB_Last_Page (FB) < GTT_Size / Config.GTT_PTE_Size and
             FB_Last_Page (FB) < Natural (Stolen_Size / GTT_Page_Size) and
             FB_Last_Page (FB) < Aperture_Size / GTT_Page_Size;
-         pragma Debug (not Valid, Debug.Put
+         pragma Debug (not Valid, Debug.Put_Line
            ("Stolen memory too small to hold framebuffer."));
       end if;
    end Validate_FB;
@@ -701,7 +708,7 @@ is
       if Linear_FB_Base /= 0 then
          Validate_FB (FB, Valid);
          if Valid then
-            Linear_FB := Linear_FB_Base + Word64 (FB.Offset);
+            Linear_FB := Linear_FB_Base + Word64 (Phys_Offset (FB));
          end if;
       end if;
    end Map_Linear_FB;

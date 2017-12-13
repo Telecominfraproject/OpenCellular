@@ -172,19 +172,16 @@ package body HW.GFX.GMA.Pipe_Setup is
 
       if Config.Has_Plane_Control then
          declare
-            Stride, Offset, GTT_Addr : Word32;
+            Stride, Offset : Word32;
             Width : constant Pos16 := Rotated_Width (FB);
             Height : constant Pos16 := Rotated_Height (FB);
          begin
             if Rotation_90 (FB) then
                Stride            := Word32 (FB_Pitch (FB.V_Stride, FB));
                Offset            := Word32 (FB.V_Stride - FB.Height);
-               GTT_Addr          :=
-                  FB.Offset + Word32 (GTT_Rotation_Offset) * GTT_Page_Size;
             else
                Stride            := Word32 (FB_Pitch (FB.Stride, FB));
                Offset            := 0;
-               GTT_Addr          := FB.Offset;
             end if;
             Registers.Write
               (Register    => Controller.PLANE_CTL,
@@ -197,7 +194,7 @@ package body HW.GFX.GMA.Pipe_Setup is
             Registers.Write (Controller.PLANE_SIZE, Encode (Width, Height));
             Registers.Write (Controller.PLANE_STRIDE, Stride);
             Registers.Write (Controller.PLANE_POS, 16#0000_0000#);
-            Registers.Write (Controller.PLANE_SURF, GTT_Addr and 16#ffff_f000#);
+            Registers.Write (Controller.PLANE_SURF, FB.Offset and 16#ffff_f000#);
          end;
       else
          if Config.Disable_Trickle_Feed then
