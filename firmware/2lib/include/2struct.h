@@ -287,6 +287,9 @@ enum vb2_gbb_flag {
 
 	/* Enable serial */
 	VB2_GBB_FLAG_ENABLE_SERIAL = (1 << 14),
+
+	/* Disable FWMP */
+	VB2_GBB_FLAG_DISABLE_FWMP = (1 << 15),
 };
 
 struct vb2_gbb_header {

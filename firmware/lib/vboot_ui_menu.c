@@ -36,12 +36,13 @@ static void VbAllowUsbBootMenu(struct vb2_context *ctx)
  *
  * Returns true if a shutdown is required and false if no shutdown is required.
  */
-static int VbWantShutdownMenu(uint32_t gbb_flags)
+static int VbWantShutdownMenu(struct vb2_context *ctx)
 {
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	uint32_t shutdown_request = VbExIsShutdownRequested();
 
 	/* If desired, ignore shutdown request due to lid closure. */
-	if (gbb_flags & GBB_FLAG_DISABLE_LID_SHUTDOWN)
+	if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_LID_SHUTDOWN)
 		shutdown_request &= ~VB_SHUTDOWN_REQUEST_LID_CLOSED;
 
 	/*
@@ -589,9 +590,9 @@ void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
  */
 VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	uint32_t use_usb = 0;
 	uint32_t use_legacy = 0;
@@ -615,11 +616,11 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 		use_legacy = 1;
 
 	/* Handle GBB flag override */
-	if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_USB)
+	if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_USB)
 		allow_usb = 1;
-	if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
+	if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
 		allow_legacy = 1;
-	if (gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
+	if (sd->gbb_flags & VB2_GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
 		use_legacy = 1;
 		use_usb = 0;
 	}
@@ -631,7 +632,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	if (fwmp_flags & FWMP_DEV_ENABLE_LEGACY)
 		allow_legacy = 1;
 	if (fwmp_flags & FWMP_DEV_DISABLE_BOOT) {
-		if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+		if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON) {
 			VB2_DEBUG("FWMP_DEV_DISABLE_BOOT rejected by"
 				  "FORCE_DEV_SWITCH_ON\n");
 		} else {
@@ -657,7 +658,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 	do {
 		uint32_t key;
 
-		if (VbWantShutdownMenu(gbb->flags)) {
+		if (VbWantShutdownMenu(ctx)) {
 			VB2_DEBUG("shutdown requested!\n");
 			if (audio)
 				VbAudioClose(audio);
@@ -825,7 +826,8 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			/* Enabling verified boot */
 			if (current_menu == VB_MENU_TO_NORM &&
 			    current_menu_idx == VB_TO_NORM_CONFIRM) {
-				if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+				if (sd->gbb_flags &
+				    VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON) {
 					/*
 					 * Throw error when user tries to
 					 * confirm transition to normal
@@ -948,7 +950,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				return VBERROR_SHUTDOWN_REQUESTED;
 			else {
 				VbCheckDisplayKey(ctx, cparams, key);
-				if (VbWantShutdownMenu(cparams->gbb->flags))
+				if (VbWantShutdownMenu(ctx))
 					return VBERROR_SHUTDOWN_REQUESTED;
 			}
 			VbExSleepMs(REC_KEY_DELAY);
@@ -1137,7 +1139,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					return VBERROR_REBOOT_REQUIRED;
 				}
 			}
-			if (VbWantShutdownMenu(cparams->gbb->flags))
+			if (VbWantShutdownMenu(ctx))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
 		}

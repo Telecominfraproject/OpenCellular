@@ -12,6 +12,7 @@
 
 #include "2sysincludes.h"
 #include "2api.h"
+#include "2misc.h"
 #include "2nvstorage.h"
 #include "crc32.h"
 #include "gbb_header.h"
@@ -134,6 +135,7 @@ test_case_t test[] = {
 
 /* Mock data */
 static VbCommonParams cparams;
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_context ctx;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
@@ -160,6 +162,9 @@ static void ResetMocks(void) {
   cparams.gbb = &gbb;
 
   memset(&ctx, 0, sizeof(ctx));
+  ctx.workbuf = workbuf;
+  ctx.workbuf_size = sizeof(workbuf);
+  vb2_init_context(&ctx);
   vb2_nv_init(&ctx);
 
   memset(&shared_data, 0, sizeof(shared_data));

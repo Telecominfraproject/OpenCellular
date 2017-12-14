@@ -34,6 +34,7 @@ static GoogleBinaryBlockHeader gbb;
 static LoadKernelParams lkp;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_context ctx;
+static struct vb2_shared_data *sd;
 
 static int shutdown_request_calls_left;
 static int audio_looping_calls_left;
@@ -82,6 +83,7 @@ static void ResetMocks(void)
 	ctx.workbuf_size = sizeof(workbuf);
 	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
+	sd = vb2_get_sd(&ctx);
 
 	shutdown_request_calls_left = -1;
 	audio_looping_calls_left = 30;
@@ -253,7 +255,7 @@ static void VbBootDevTest(void)
 
 	/* Proceed to legacy after timeout if GBB flag set */
 	ResetMocks();
-	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY |
+	sd->gbb_flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY |
 		     GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
 	TEST_EQ(VbBootDeveloperMenu(&ctx, &cparams), 1002, "Timeout");
 	TEST_EQ(vbexlegacy_called, 1, "  try legacy");
@@ -373,7 +375,7 @@ static void VbBootDevTest(void)
 	/* Enter does if GBB flag set */
 	ResetMocks();
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
-	gbb.flags |= GBB_FLAG_ENTER_TRIGGERS_TONORM;
+	sd->gbb_flags |= GBB_FLAG_ENTER_TRIGGERS_TONORM;
 	mock_keypress[0] = '\r';
 	mock_keypress[1] = '\r';
 	TEST_EQ(VbBootDeveloperMenu(&ctx, &cparams), VBERROR_REBOOT_REQUIRED,
@@ -383,7 +385,7 @@ static void VbBootDevTest(void)
 	/* Tonorm ignored if GBB forces dev switch on */
 	ResetMocks();
 	shared->flags = VBSD_HONOR_VIRT_DEV_SWITCH | VBSD_BOOT_DEV_SWITCH_ON;
-	gbb.flags |= GBB_FLAG_FORCE_DEV_SWITCH_ON;
+	sd->gbb_flags |= GBB_FLAG_FORCE_DEV_SWITCH_ON;
 	mock_keypress[0] = 0x62; // volume up
 	mock_keypress[1] = 0x90; // power
 	mock_keypress[2] = 0x90; // power
@@ -426,7 +428,7 @@ static void VbBootDevTest(void)
 	/* Ctrl+D doesn't boot legacy even if GBB flag is set */
 	ResetMocks();
 	mock_keypress[0] = 0x04;
-	gbb.flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY;
+	sd->gbb_flags |= GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY;
 	TEST_EQ(VbBootDeveloperMenu(&ctx, &cparams), 1002, "Ctrl+D");
 	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
 
@@ -438,7 +440,7 @@ static void VbBootDevTest(void)
 
 #if 0
 	ResetMocks();
-	gbb.flags |= GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
+	sd->gbb_flags |= GBB_FLAG_FORCE_DEV_BOOT_LEGACY;
 	mock_keypress[0] = 0x0c;
 	TEST_EQ(VbBootDeveloperMenu(&ctx, &cparams), 1002,
 		"Ctrl+L force legacy");
@@ -473,7 +475,7 @@ static void VbBootDevTest(void)
 
 	/* Ctrl+U enabled via GBB */
 	ResetMocks();
-	gbb.flags |= GBB_FLAG_FORCE_DEV_BOOT_USB;
+	sd->gbb_flags |= GBB_FLAG_FORCE_DEV_BOOT_USB;
 	mock_keypress[0] = 0x15;
 	vbtlk_retval = VBERROR_SUCCESS - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootDeveloperMenu(&ctx, &cparams), 0, "Ctrl+U force USB");

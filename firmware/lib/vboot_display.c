@@ -9,6 +9,7 @@
 #include "2sysincludes.h"
 
 #include "2common.h"
+#include "2misc.h"
 #include "2nvstorage.h"
 #include "2sha.h"
 #include "bmpblk_font.h"
@@ -600,7 +601,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
-	GoogleBinaryBlockHeader *gbb = cparams->gbb;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	char buf[DEBUG_INFO_SIZE] = "";
 	char sha1sum[VB2_SHA1_DIGEST_SIZE * 2 + 1];
 	char hwid[256];
@@ -679,7 +680,8 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used, i, 10, 0);
 
 	/* Add TPM versions */
-	used += StrnAppend(buf + used, "\nTPM: fwver=0x", DEBUG_INFO_SIZE - used);
+	used += StrnAppend(buf + used,
+			   "\nTPM: fwver=0x", DEBUG_INFO_SIZE - used);
 	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 			       shared->fw_version_tpm, 16, 8);
 	used += StrnAppend(buf + used, " kernver=0x", DEBUG_INFO_SIZE - used);
@@ -687,14 +689,10 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 			       shared->kernel_version_tpm, 16, 8);
 
 	/* Add GBB flags */
-	used += StrnAppend(buf + used, "\ngbb.flags: 0x", DEBUG_INFO_SIZE - used);
-	if (gbb->major_version == GBB_MAJOR_VER && gbb->minor_version >= 1) {
-		used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
-				       gbb->flags, 16, 8);
-	} else {
-		used += StrnAppend(buf + used,
-				"0 (default)", DEBUG_INFO_SIZE - used);
-	}
+	used += StrnAppend(buf + used,
+			   "\ngbb.flags: 0x", DEBUG_INFO_SIZE - used);
+	used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
+			       sd->gbb_flags, 16, 8);
 
 	/* Add sha1sum for Root & Recovery keys */
 	ret = VbGbbReadRootKey(cparams, &key);

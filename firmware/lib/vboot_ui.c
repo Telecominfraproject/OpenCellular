@@ -38,15 +38,16 @@ static void VbAllowUsbBoot(struct vb2_context *ctx)
  *
  * Returns true if a shutdown is required and false if no shutdown is required.
  */
-static int VbWantShutdown(uint32_t gbb_flags, uint32_t key)
+static int VbWantShutdown(struct vb2_context *ctx, uint32_t key)
 {
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	uint32_t shutdown_request = VbExIsShutdownRequested();
 
 	if (key == VB_BUTTON_POWER_SHORT_PRESS)
 		shutdown_request |= VB_SHUTDOWN_REQUEST_POWER_BUTTON;
 
 	/* If desired, ignore shutdown request due to lid closure. */
-	if (gbb_flags & GBB_FLAG_DISABLE_LID_SHUTDOWN)
+	if (sd->gbb_flags & GBB_FLAG_DISABLE_LID_SHUTDOWN)
 		shutdown_request &= ~VB_SHUTDOWN_REQUEST_LID_CLOSED;
 
 	return !!shutdown_request;
@@ -105,7 +106,7 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 	/* Await further instructions */
 	while (1) {
 		key = VbExKeyboardReadWithFlags(&key_flags);
-		if (VbWantShutdown(cparams->gbb->flags, key))
+		if (VbWantShutdown(ctx, key))
 			return -1;
 		switch (key) {
 		case '\r':
@@ -161,9 +162,9 @@ static const char dev_disable_msg[] =
 
 VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	VbSharedDataHeader *shared =
 		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	uint32_t disable_dev_boot = 0;
 	uint32_t use_usb = 0;
@@ -187,11 +188,11 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		use_legacy = 1;
 
 	/* Handle GBB flag override */
-	if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_USB)
+	if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_USB)
 		allow_usb = 1;
-	if (gbb->flags & GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
+	if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
 		allow_legacy = 1;
-	if (gbb->flags & GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
+	if (sd->gbb_flags & VB2_GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
 		use_legacy = 1;
 		use_usb = 0;
 	}
@@ -203,7 +204,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	if (fwmp_flags & FWMP_DEV_ENABLE_LEGACY)
 		allow_legacy = 1;
 	if (fwmp_flags & FWMP_DEV_DISABLE_BOOT) {
-		if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+		if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON) {
 			VB2_DEBUG("FWMP_DEV_DISABLE_BOOT rejected by "
 				  "FORCE_DEV_SWITCH_ON\n");
 		} else {
@@ -245,7 +246,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
 		uint32_t key = VbExKeyboardRead();
-		if (VbWantShutdown(gbb->flags, key)) {
+		if (VbWantShutdown(ctx, key)) {
 			VB2_DEBUG("VbBootDeveloper() - shutdown requested!\n");
 			VbAudioClose(audio);
 			return VBERROR_SHUTDOWN_REQUESTED;
@@ -257,7 +258,8 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		case '\r':
 			/* Only disable virtual dev switch if allowed by GBB */
-			if (!(gbb->flags & GBB_FLAG_ENTER_TRIGGERS_TONORM))
+			if (!(sd->gbb_flags &
+			      VB2_GBB_FLAG_ENTER_TRIGGERS_TONORM))
 				break;
 		case ' ':
 			/* See if we should disable virtual dev-mode switch. */
@@ -266,7 +268,8 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			    shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
 				/* Stop the countdown while we go ask... */
 				VbAudioClose(audio);
-				if (gbb->flags & GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+				if (sd->gbb_flags &
+				    GBB_FLAG_FORCE_DEV_SWITCH_ON) {
 					/*
 					 * TONORM won't work (only for
 					 * non-shipping devices).
@@ -446,7 +449,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		while (1) {
 			key = VbExKeyboardRead();
 			VbCheckDisplayKey(ctx, cparams, key);
-			if (VbWantShutdown(cparams->gbb->flags, key))
+			if (VbWantShutdown(ctx, key))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
 		}
@@ -543,7 +546,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			} else {
 				VbCheckDisplayKey(ctx, cparams, key);
 			}
-			if (VbWantShutdown(cparams->gbb->flags, key))
+			if (VbWantShutdown(ctx, key))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
 		}

@@ -329,6 +329,7 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	uint32_t retval = VbGbbReadHeader_static(cparams, cparams->gbb);
 	if (retval)
 		return retval;
+	sd->gbb_flags = cparams->gbb->flags;
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
 	if (RollbackKernelRead(&shared->kernel_version_tpm)) {
@@ -343,7 +344,7 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	shared->kernel_version_tpm_start = shared->kernel_version_tpm;
 
 	/* Read FWMP.  Ignore errors in recovery mode. */
-	if (cparams->gbb->flags & GBB_FLAG_DISABLE_FWMP) {
+	if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_FWMP) {
 		memset(&fwmp, 0, sizeof(fwmp));
 	} else if (RollbackFwmpRead(&fwmp)) {
 		VB2_DEBUG("Unable to get FWMP from TPM\n");
@@ -480,6 +481,8 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	if (retval)
 		goto fail;
 
+	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+
 	if ((boot_image == NULL) || (image_size == 0)) {
 		retval = VBERROR_INVALID_PARAMETER;
 		goto fail;
@@ -500,8 +503,8 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 			vb2_nv_get(&ctx, VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP);
 
 	if (0 == allow_fastboot_full_cap) {
-		allow_fastboot_full_cap = !!(cparams->gbb->flags &
-				GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP);
+		allow_fastboot_full_cap = !!(sd->gbb_flags &
+				VB2_GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP);
 	}
 
 	if (dev_switch && allow_fastboot_full_cap) {
