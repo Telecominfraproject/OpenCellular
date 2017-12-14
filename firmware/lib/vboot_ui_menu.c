@@ -23,6 +23,7 @@
 #include "vboot_common.h"
 #include "vboot_display.h"
 #include "vboot_kernel.h"
+#include "vboot_ui_menu_private.h"
 
 static void VbAllowUsbBootMenu(struct vb2_context *ctx)
 {
@@ -93,75 +94,9 @@ static const char dev_disable_msg[] =
 	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
 	"\n";
 
-typedef enum _VB_MENU {
-	VB_MENU_DEV_WARNING,
-	VB_MENU_DEV,
-	VB_MENU_TO_NORM,
-	VB_MENU_RECOVERY,
-	VB_MENU_TO_DEV,
-	VB_MENU_LANGUAGES,
-	VB_MENU_RECOVERY_INSERT,
-	VB_MENU_RECOVERY_NO_GOOD,
-	VB_MENU_RECOVERY_BROKEN,
-	VB_MENU_TO_NORM_CONFIRMED,
-	VB_MENU_COUNT,
-} VB_MENU;
-
-typedef enum _VB_DEV_WARNING_MENU {
-	VB_WARN_OPTIONS,
-	VB_WARN_DBG_INFO,
-	VB_WARN_ENABLE_VER,
-	VB_WARN_POWER_OFF,
-	VB_WARN_LANGUAGE,
-	VB_WARN_COUNT,
-} VB_DEV_WARNING_MENU;
-
-typedef enum _VB_DEV_MENU {
-	VB_DEV_NETWORK,
-	VB_DEV_LEGACY,
-	VB_DEV_USB,
-	VB_DEV_DISK,
-	VB_DEV_CANCEL,
-	VB_DEV_POWER_OFF,
-	VB_DEV_LANGUAGE,
-	VB_DEV_COUNT,
-} VB_DEV_MENU;
-
-typedef enum _VB_TO_NORM_MENU {
-	VB_TO_NORM_CONFIRM,
-	VB_TO_NORM_CANCEL,
-	VB_TO_NORM_POWER_OFF,
-	VB_TO_NORM_LANGUAGE,
-	VB_TO_NORM_COUNT,
-} VB_TO_NORM_MENU;
-
-typedef enum _VB_RECOVERY_MENU {
-	VB_RECOVERY_TO_DEV,
-	VB_RECOVERY_DBG_INFO,
-	VB_RECOVERY_POWER_OFF,
-	VB_RECOVERY_LANGUAGE,
-	VB_RECOVERY_COUNT,
-} VB_RECOVERY_MENU;
-
-typedef enum _VB_TO_DEV_MENU {
-	VB_TO_DEV_CONFIRM,
-	VB_TO_DEV_CANCEL,
-	VB_TO_DEV_POWER_OFF,
-	VB_TO_DEV_LANGUAGE,
-	VB_TO_DEV_COUNT,
-} VB_TO_DEV_MENU;
-
-// TODO: currently we're only supporting
-// english.  Will need to somehow find mapping
-// from language to localization index.
-typedef enum _VB_LANGUAGES_MENU {
-	VB_LANGUAGES_EN_US,
-	VB_LANGUAGES_COUNT,
-} VB_LANGUAGES_MENU;
-
-static VB_MENU current_menu = VB_MENU_DEV_WARNING;
-static VB_MENU prev_menu = VB_MENU_DEV_WARNING;
-static int current_menu_idx = VB_WARN_POWER_OFF;
+VB_MENU current_menu = VB_MENU_DEV_WARNING;
+VB_MENU prev_menu = VB_MENU_DEV_WARNING;
+int current_menu_idx = VB_WARN_POWER_OFF;
 static int selected = 0;
 static int disabled_idx_mask = 0;
 static uint32_t default_boot = VB2_DEV_DEFAULT_BOOT_DISK;
