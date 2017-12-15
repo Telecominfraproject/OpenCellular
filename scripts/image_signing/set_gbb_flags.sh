@@ -8,50 +8,13 @@
 # file.
 
 SCRIPT_BASE="$(dirname "$0")"
-. "$SCRIPT_BASE/common_minimal.sh"
-load_shflags || exit 1
+. "${SCRIPT_BASE}/gbb_flags_common.sh"
 
 # DEFINE_string name default_value description flag
 DEFINE_string file "" "Path to firmware image. Default to system firmware." "f"
-DEFINE_boolean check_wp $FLAGS_TRUE "Check write protection states first." ""
+DEFINE_boolean check_wp ${FLAGS_TRUE} "Check write protection states first." ""
 
-# Globals
-# ----------------------------------------------------------------------------
 set -e
-
-# Values from vboot_reference/firmware/include/gbb_header.h
-GBBFLAGS_DESCRIPTION="
-  Defined flags (some values may be not supported by all systems):
-
-  GBB_FLAG_DEV_SCREEN_SHORT_DELAY            0x00000001
-  GBB_FLAG_LOAD_OPTION_ROMS                  0x00000002
-  GBB_FLAG_ENABLE_ALTERNATE_OS               0x00000004
-  GBB_FLAG_FORCE_DEV_SWITCH_ON               0x00000008
-  GBB_FLAG_FORCE_DEV_BOOT_USB                0x00000010
-  GBB_FLAG_DISABLE_FW_ROLLBACK_CHECK         0x00000020
-  GBB_FLAG_ENTER_TRIGGERS_TONORM             0x00000040
-  GBB_FLAG_FORCE_DEV_BOOT_LEGACY             0x00000080
-  GBB_FLAG_FAFT_KEY_OVERIDE                  0x00000100
-  GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC          0x00000200
-  GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY           0x00000400
-  GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC          0x00000800
-  GBB_FLAG_DISABLE_LID_SHUTDOWN              0x00001000
-  GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP  0x00002000
-  GBB_FLAG_ENABLE_SERIAL		     0x00004000
-
-  To get a developer-friendly device, try 0x11 (short_delay + boot_usb).
-  For factory-related tests (always DEV), try 0x39.
-  For early development (disable EC/PD software sync), try 0xa39.
-"
-
-FLAGS_HELP="Changes ChromeOS Firmware GBB Flags value.
-
-  Usage: $0 [option_flags] GBB_FLAGS_VALUE
-  $GBBFLAGS_DESCRIPTION"
-
-FLASHROM_COMMON_OPT="-p host"
-FLASHROM_READ_OPT="$FLASHROM_COMMON_OPT -i GBB -r"
-FLASHROM_WRITE_OPT="$FLASHROM_COMMON_OPT -i GBB --fast-verify -w"
 
 # Check write protection
 # ----------------------------------------------------------------------------
@@ -60,17 +23,18 @@ check_write_protection() {
   if ! crossystem "wpsw_boot?0"; then
     hw_wp="on"
   fi
-  local wp_states="$(flashrom $FLASHROM_COMMON_OPT --wp-status 2>/dev/null \
-    | grep WP)"
-  local wp_disabled="$(echo "$wp_states" | grep "WP:.*is disabled.")"
-  local wp_zero_len="$(echo "$wp_states" | grep "WP:.*, len=0x00000000")"
-  if [ -z "$wp_disabled" -a -z "$wp_zero_len" ]; then
+  # Keep 'local' declaration split from assignment so return code is checked.
+  local wp_states
+  wp_states="$(flashrom -p host --wp-status 2>/dev/null | grep WP)"
+  local wp_disabled="$(echo "${wp_states}" | grep "WP:.*is disabled.")"
+  local wp_zero_len="$(echo "${wp_states}" | grep "WP:.*, len=0x00000000")"
+  if [ -z "${wp_disabled}" -a -z "${wp_zero_len}" ]; then
     sw_wp="on"
   fi
-  if [ -n "$hw_wp" -a -n "$sw_wp" ]; then
-    return $FLAGS_FALSE
+  if [ -n "${hw_wp}" -a -n "${sw_wp}" ]; then
+    return ${FLAGS_FALSE}
   fi
-  return $FLAGS_TRUE
+  return ${FLAGS_TRUE}
 }
 
 # Main
@@ -82,20 +46,22 @@ main() {
   fi
 
   local value="$(($1))"
-  local image_file="$FLAGS_file"
+  local image_file="${FLAGS_file}"
 
-  if [ -z "$FLAGS_file" ]; then
+  if [ -z "${FLAGS_file}" ]; then
     image_file="$(make_temp_file)"
-    flashrom $FLASHROM_READ_OPT "$image_file"
+    flashrom_read "${image_file}"
   fi
 
   # Process file
-  local old_value="$(futility gbb -g --flags "$image_file")"
-  printf "Setting GBB flags from %s to 0x%x.." "$old_value" "$value" >&2
-  futility gbb -s --flags="$value" "$image_file"
+  # Keep 'local' declaration split from assignment so return code is checked.
+  local old_value
+  old_value="$(futility gbb -g --flags "${image_file}")"
+  printf "Setting GBB flags from %s to 0x%x.." "${old_value}" "${value}"
+  futility gbb -s --flags="${value}" "${image_file}"
 
-  if [ -z "$FLAGS_file" ]; then
-    if [ "$FLAGS_check_wp" = "$FLAGS_TRUE" ]; then
+  if [ -z "${FLAGS_file}" ]; then
+    if [ "${FLAGS_check_wp}" = "${FLAGS_TRUE}" ]; then
       if ! check_write_protection; then
         echo ""
         echo "WARNING: System GBB Flags are NOT changed!!!"
@@ -103,13 +69,12 @@ main() {
         exit 1
       fi
     fi
-    flashrom $FLASHROM_WRITE_OPT "$image_file"
+    flashrom_write "$image_file"
   fi
 }
 
 # Parse command line
 FLAGS "$@" || exit 1
-ORIGINAL_PARAMS="$@"
 eval set -- "$FLAGS_ARGV"
 
 main "$@"
