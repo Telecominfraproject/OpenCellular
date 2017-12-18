@@ -435,8 +435,23 @@ BDBLIB_OBJS = ${BDBLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${FWLIB_OBJS} ${FWLIB2X_OBJS} ${FWLIB20_OBJS} ${FWLIB21_OBJS} \
 	$(BDBLIB_OBJS}
 
-# Common files for all utilities.
-COMMON_SRCS = \
+# Intermediate library for the vboot_reference utilities to link against.
+UTILLIB = ${BUILD}/libvboot_util.a
+
+# Static library containing both host and firmware APIs
+UTILBDB = ${BUILD}/libvboot_utilbdb.a
+
+UTILLIB_SRCS = \
+	cgpt/cgpt_create.c \
+	cgpt/cgpt_add.c \
+	cgpt/cgpt_boot.c \
+	cgpt/cgpt_show.c \
+	cgpt/cgpt_repair.c \
+	cgpt/cgpt_prioritize.c \
+	cgpt/cgpt_common.c \
+	futility/dump_kernel_config_lib.c \
+	host/arch/${ARCH}/lib/crossystem_arch.c \
+	host/lib/crossystem.c \
 	host/lib/file_keys.c \
 	host/lib/fmap.c \
 	host/lib/host_common.c \
@@ -453,25 +468,6 @@ COMMON_SRCS = \
 	host/lib21/host_keyblock.c \
 	host/lib21/host_misc.c \
 	host/lib21/host_signature.c
-
-# Intermediate library for the vboot_reference utilities to link against.
-UTILLIB = ${BUILD}/libvboot_util.a
-
-# Static library containing both host and firmware APIs
-UTILBDB = ${BUILD}/libvboot_utilbdb.a
-
-UTILLIB_SRCS = \
-	$(COMMON_SRCS) \
-	cgpt/cgpt_create.c \
-	cgpt/cgpt_add.c \
-	cgpt/cgpt_boot.c \
-	cgpt/cgpt_show.c \
-	cgpt/cgpt_repair.c \
-	cgpt/cgpt_prioritize.c \
-	cgpt/cgpt_common.c \
-	futility/dump_kernel_config_lib.c \
-	host/arch/${ARCH}/lib/crossystem_arch.c \
-	host/lib/crossystem.c
 
 UTILLIB_OBJS = ${UTILLIB_SRCS:%.c=${BUILD}/%.o}
 ALL_OBJS += ${UTILLIB_OBJS}
@@ -662,7 +658,6 @@ FUTIL_SYMLINKS = \
 	vbutil_keyblock
 
 FUTIL_STATIC_SRCS = \
-	$(COMMON_SRCS) \
 	futility/futility.c \
 	futility/cmd_dump_fmap.c \
 	futility/cmd_gbb_utility.c \
@@ -673,7 +668,6 @@ FUTIL_STATIC_SRCS = \
 
 FUTIL_SRCS = \
 	${FUTIL_STATIC_SRCS} \
-	futility/dump_kernel_config_lib.c \
 	futility/cmd_bdb.c \
 	futility/cmd_create.c \
 	futility/cmd_dump_kernel_config.c \
@@ -682,7 +676,10 @@ FUTIL_SRCS = \
 	futility/cmd_show.c \
 	futility/cmd_sign.c \
 	futility/cmd_validate_rec_mrc.c \
+	futility/cmd_vbutil_firmware.c \
 	futility/cmd_vbutil_kernel.c \
+	futility/cmd_vbutil_key.c \
+	futility/cmd_vbutil_keyblock.c \
 	futility/file_type.c \
 	futility/file_type_bios.c \
 	futility/file_type_rwsig.c \
@@ -1118,12 +1115,12 @@ signing_install: ${SIGNING_SCRIPTS} ${SIGNING_SCRIPTS_DEV} ${SIGNING_COMMON}
 futil: ${FUTIL_STATIC_BIN} ${FUTIL_BIN}
 
 ${FUTIL_STATIC_BIN}: LDLIBS += ${CRYPTO_STATIC_LIBS} -lpthread
-${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${FWLIB} ${FWLIB21}
+${FUTIL_STATIC_BIN}: ${FUTIL_STATIC_OBJS} ${UTILLIB}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} -static $^ ${LDLIBS}
 
 ${FUTIL_BIN}: LDLIBS += ${CRYPTO_LIBS}
-${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILBDB} ${FWLIB} ${FWLIB21}
+${FUTIL_BIN}: ${FUTIL_OBJS} ${UTILLIB} ${FWLIB20} ${UTILBDB}
 	@${PRINTF} "    LD            $(subst ${BUILD}/,,$@)\n"
 	${Q}${LD} -o $@ ${CFLAGS} ${LDFLAGS} $^ ${LDLIBS}
 
