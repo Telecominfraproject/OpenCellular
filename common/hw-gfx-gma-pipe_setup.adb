@@ -211,7 +211,6 @@ package body HW.GFX.GMA.Pipe_Setup is
 
          Registers.Write
            (Controller.DSPSTRIDE, Word32 (Pixel_To_Bytes (FB.Stride, FB)));
-         Registers.Write (Controller.DSPSURF, FB.Offset and 16#ffff_f000#);
          if Config.Has_DSP_Linoff then
             Registers.Write
               (Register => Controller.DSPLINOFF,
@@ -224,6 +223,7 @@ package body HW.GFX.GMA.Pipe_Setup is
                Value    => Shift_Left (Word32 (FB.Start_Y), 16) or
                            Word32 (FB.Start_X));
          end if;
+         Registers.Write (Controller.DSPSURF, FB.Offset and 16#ffff_f000#);
       end if;
    end Setup_Hires_Plane;
 
