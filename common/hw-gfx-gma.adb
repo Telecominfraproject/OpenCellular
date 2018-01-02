@@ -109,7 +109,7 @@ is
 
       if Success then
          Success := Config_Helpers.Validate_Config
-           (Pipe_Cfg.Framebuffer, Port_Cfg, Pipe);
+           (Pipe_Cfg.Framebuffer, Port_Cfg.Mode, Pipe);
       end if;
 
       if Success then
