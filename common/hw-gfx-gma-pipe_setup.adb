@@ -471,25 +471,34 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
+   procedure Setup_FB
+     (Pipe        : Pipe_Index;
+      Mode        : Mode_Type;
+      Framebuffer : Framebuffer_Type)
+   is
+      -- Enable dithering if framebuffer BPC differs from port BPC,
+      -- as smooth gradients look really bad without.
+      Dither : constant Boolean := Framebuffer.BPC /= Mode.BPC;
+   begin
+      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
+
+      Setup_Display (Controllers (Pipe), Framebuffer, Mode.BPC, Dither);
+      Setup_Scaling (Controllers (Pipe), Mode, Framebuffer);
+   end Setup_FB;
+
    procedure On
      (Pipe        : Pipe_Index;
       Port_Cfg    : Port_Config;
       Framebuffer : Framebuffer_Type)
    is
-      -- Enable dithering if framebuffer BPC differs from port BPC,
-      -- as smooth gradients look really bad without.
-      Dither : constant Boolean := Framebuffer.BPC /= Port_Cfg.Mode.BPC;
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       Transcoder.Setup (Pipe, Port_Cfg);
 
-      Setup_Display
-        (Controllers (Pipe), Framebuffer, Port_Cfg.Mode.BPC, Dither);
+      Setup_FB (Pipe, Port_Cfg.Mode, Framebuffer);
 
-      Setup_Scaling (Controllers (Pipe), Port_Cfg.Mode, Framebuffer);
-
-      Transcoder.On (Pipe, Port_Cfg, Dither);
+      Transcoder.On (Pipe, Port_Cfg, Framebuffer.BPC /= Port_Cfg.Mode.BPC);
    end On;
 
    ----------------------------------------------------------------------------
@@ -543,16 +552,5 @@ package body HW.GFX.GMA.Pipe_Setup is
          Transcoder.Clk_Off (Pipe);
       end loop;
    end All_Off;
-
-   ----------------------------------------------------------------------------
-
-   procedure Update_Offset (Pipe : Pipe_Index; Framebuffer : Framebuffer_Type)
-   is
-   begin
-      pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      Registers.Write
-        (Controllers (Pipe).DSPSURF, Framebuffer.Offset and 16#ffff_f000#);
-   end Update_Offset;
 
 end HW.GFX.GMA.Pipe_Setup;

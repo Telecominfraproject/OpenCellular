@@ -36,7 +36,16 @@ is
 
    procedure All_Off;
 
-   procedure Update_Offset (Pipe : Pipe_Index; Framebuffer : Framebuffer_Type);
+   procedure Setup_FB
+     (Pipe        : Pipe_Index;
+      Mode        : Mode_Type;
+      Framebuffer : Framebuffer_Type)
+   with
+      Pre =>
+         Rotated_Width (Framebuffer) <= Mode.H_Visible and
+         Rotated_Height (Framebuffer) <= Mode.V_Visible and
+         (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
+          Framebuffer.Height + Framebuffer.Start_Y <= Framebuffer.V_Stride);
 
 private
 

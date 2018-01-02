@@ -285,9 +285,12 @@ is
 
             -- update framebuffer offset only
             elsif New_Config.Port /= Disabled and
-                  Cur_Config.Framebuffer /= New_Config.Framebuffer
+                  Cur_Config.Framebuffer /= New_Config.Framebuffer and
+                  Config_Helpers.Validate_Config
+                    (New_Config.Framebuffer, New_Config.Mode, Pipe)
             then
-               Display_Controller.Update_Offset (Pipe, New_Config.Framebuffer);
+               Display_Controller.Setup_FB
+                 (Pipe, New_Config.Mode, New_Config.Framebuffer);
                Cur_Config := New_Config;
             end if;
          end;
