@@ -32,7 +32,7 @@
 	 ((devidx) ? VB2_SD_FLAG_ECSYNC_PD_RW : VB2_SD_FLAG_ECSYNC_EC_RW))
 
 /* PD doesn't support RW A/B */
-#define RW_AB(devidx) ((devidx) ? 0 : VBSD_EC_EFS)
+#define RW_AB(devidx) ((devidx) ? 0 : VB2_CONTEXT_EC_EFS)
 
 static void request_recovery(struct vb2_context *ctx, uint32_t recovery_request)
 {
@@ -236,13 +236,10 @@ static VbError_t check_ec_active(struct vb2_context *ctx, int devidx)
  * @param devidx	Which device (EC=0, PD=1)
  * @return VBERROR_SUCCESS, or non-zero if error.
  */
-static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
-			     VbCommonParams *cparams)
+static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx)
 {
-	VbSharedDataHeader *shared =
-			(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
-	int is_rw_ab = shared->flags & RW_AB(devidx);
+	int is_rw_ab = ctx->flags & RW_AB(devidx);
 	int rv;
 
 	const enum VbSelectFirmware_t select_rw = is_rw_ab ?
@@ -339,14 +336,12 @@ static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx,
 	return rv;
 }
 
-VbError_t ec_sync_phase1(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t ec_sync_phase1(struct vb2_context *ctx)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	/* Reasons not to do sync at all */
-	if (!(shared->flags & VBSD_EC_SOFTWARE_SYNC))
+	if (!(ctx->flags & VB2_CONTEXT_EC_SYNC_SUPPORTED))
 		return VBERROR_SUCCESS;
 	if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)
 		return VBERROR_SUCCESS;
@@ -377,7 +372,7 @@ VbError_t ec_sync_phase1(struct vb2_context *ctx, VbCommonParams *cparams)
 	 * separately.
 	 */
 	if (vb2_nv_get(ctx, VB2_NV_TRY_RO_SYNC) &&
-	    !(shared->flags & VBSD_BOOT_FIRMWARE_WP_ENABLED) &&
+	    !(ctx->flags & VB2_CONTEXT_SW_WP_ENABLED) &&
 	    check_ec_hash(ctx, 0, VB_SELECT_FIRMWARE_READONLY)) {
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
@@ -391,39 +386,34 @@ VbError_t ec_sync_phase1(struct vb2_context *ctx, VbCommonParams *cparams)
 	 */
 	if ((sd->flags & VB2_SD_FLAG_ECSYNC_RW) &&
 	    (sd->flags & VB2_SD_FLAG_ECSYNC_IN_RW) &&
-	    !(shared->flags & VBSD_EC_EFS)) {
+	    !(ctx->flags & VB2_CONTEXT_EC_EFS)) {
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
 
 	return VBERROR_SUCCESS;
 }
 
-int ec_will_update_slowly(struct vb2_context *ctx, VbCommonParams *cparams)
+int ec_will_update_slowly(struct vb2_context *ctx)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	return ((sd->flags & VB2_SD_FLAG_ECSYNC_ANY) &&
-		(shared->flags & VBSD_EC_SLOW_UPDATE));
+		(ctx->flags & VB2_CONTEXT_EC_SYNC_SLOW));
 }
 
 /**
  * determine if we can update the EC
  *
  * @param ctx		Vboot2 context
- * @param cparams	Vboot common params
  * @return boolean (true iff we can update the EC)
  */
 
-static int ec_sync_allowed(struct vb2_context *ctx, VbCommonParams *cparams)
+static int ec_sync_allowed(struct vb2_context *ctx)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	/* Reasons not to do sync at all */
-	if (!(shared->flags & VBSD_EC_SOFTWARE_SYNC))
+	if (!(ctx->flags & VB2_CONTEXT_EC_SYNC_SUPPORTED))
 		return 0;
 	if (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_EC_SOFTWARE_SYNC)
 		return 0;
@@ -433,13 +423,12 @@ static int ec_sync_allowed(struct vb2_context *ctx, VbCommonParams *cparams)
 }
 
 VbError_t ec_sync_check_aux_fw(struct vb2_context *ctx,
-			       VbCommonParams *cparams,
 			       VbAuxFwUpdateSeverity_t *severity)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	/* If we're not updating the EC, skip aux fw syncs as well */
-	if (!ec_sync_allowed(ctx, cparams) ||
+	if (!ec_sync_allowed(ctx) ||
 	    (sd->gbb_flags & VB2_GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
 		*severity = VB_AUX_FW_NO_UPDATE;
 		return VBERROR_SUCCESS;
@@ -447,13 +436,13 @@ VbError_t ec_sync_check_aux_fw(struct vb2_context *ctx,
 	return VbExCheckAuxFw(severity);
 }
 
-VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t ec_sync_phase2(struct vb2_context *ctx)
 {
-	if (!ec_sync_allowed(ctx, cparams))
+	if (!ec_sync_allowed(ctx))
 		return VBERROR_SUCCESS;
 
 	/* Handle updates and jumps for EC */
-	VbError_t retval = sync_one_ec(ctx, 0, cparams);
+	VbError_t retval = sync_one_ec(ctx, 0);
 	if (retval != VBERROR_SUCCESS)
 		return retval;
 
@@ -461,7 +450,7 @@ VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* Handle updates and jumps for PD */
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	if (!(sd->gbb_flags & VB2_GBB_FLAG_DISABLE_PD_SOFTWARE_SYNC)) {
-		retval = sync_one_ec(ctx, 1, cparams);
+		retval = sync_one_ec(ctx, 1);
 		if (retval != VBERROR_SUCCESS)
 			return retval;
 	}
@@ -470,13 +459,12 @@ VbError_t ec_sync_phase2(struct vb2_context *ctx, VbCommonParams *cparams)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t ec_sync_phase3(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t ec_sync_phase3(struct vb2_context *ctx)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 
 	/* EC verification (and possibly updating / jumping) is done */
-	VbError_t rv = VbExEcVbootDone(!!shared->recovery_reason);
+	VbError_t rv = VbExEcVbootDone(!!sd->recovery_reason);
 	if (rv)
 		return rv;
 

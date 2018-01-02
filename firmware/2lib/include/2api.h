@@ -118,7 +118,10 @@ enum vb2_context_flags {
 	 */
 	VB2_CONTEXT_ALLOW_KERNEL_ROLL_FORWARD = (1 << 11),
 
-	/* Boot optimistically: don't touch failure counters */
+	/*
+	 * Boot optimistically: don't touch failure counters.  Caller may set
+	 * this flag when initializing the context.
+	 */
 	VB2_CONTEXT_NOFAIL_BOOT = (1 << 12),
 
 	/*
@@ -130,8 +133,37 @@ enum vb2_context_flags {
 	 */
 	VB2_CONTEXT_SECDATA_WANTS_REBOOT = (1 << 13),
 
-	/* Boot is S3->S0 resume, not S5->S0 normal boot */
+	/*
+	 * Boot is S3->S0 resume, not S5->S0 normal boot.  Caller may set this
+	 * flag when initializing the context.
+	 */
 	VB2_CONTEXT_S3_RESUME = (1 << 14),
+
+	/*
+	 * System supports EC software sync.  Caller may set this flag at any
+	 * time before calling VbSelectAndLoadKernel().
+	 */
+	VB2_CONTEXT_EC_SYNC_SUPPORTED = (1 << 15),
+
+	/*
+	 * EC software sync is slow to update; warning screen should be
+	 * displayed.  Caller may set this flag at any time before calling
+	 * VbSelectAndLoadKernel().
+	 */
+	VB2_CONTEXT_EC_SYNC_SLOW = (1 << 16),
+
+	/*
+	 * EC firmware supports early firmware selection; two EC images exist,
+	 * and EC may have already verified and jumped to EC-RW prior to EC
+	 * software sync.
+	 */
+	VB2_CONTEXT_EC_EFS = (1 << 17),
+
+	/*
+	 * Software write protect for the RO firmware was enabled at boot.
+	 * Caller may set this flag when initializing the context.
+	 */
+	VB2_CONTEXT_SW_WP_ENABLED = (1 << 18),
 };
 
 /*

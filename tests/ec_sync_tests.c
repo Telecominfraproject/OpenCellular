@@ -80,13 +80,13 @@ static void ResetMocks(void)
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;
 	ctx.workbuf_size = sizeof(workbuf);
+	ctx.flags = VB2_CONTEXT_EC_SYNC_SUPPORTED;
 	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
 	sd = vb2_get_sd(&ctx);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
-	shared->flags = VBSD_EC_SOFTWARE_SYNC;
 
 	mock_in_rw = 0;
 	ec_ro_protected = 0;
@@ -307,7 +307,7 @@ static void VbSoftwareSyncTest(void)
 	TEST_EQ(ec_ro_updated, 1, "  ec ro updated");
 
 	ResetMocks();
-	shared->flags |= VBSD_BOOT_FIRMWARE_WP_ENABLED;
+	ctx.flags |= VB2_CONTEXT_SW_WP_ENABLED;
 	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
 	mock_ec_rw_hash[0]++;
 	mock_ec_ro_hash[0]++;
@@ -365,7 +365,7 @@ static void VbSoftwareSyncTest(void)
 
 	ResetMocks();
 	mock_ec_rw_hash[0]++;
-	shared->flags |= VBSD_EC_SLOW_UPDATE;
+	ctx.flags |= VB2_CONTEXT_EC_SYNC_SLOW;
 	test_ssync(0, 0, "Slow update");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_WAIT, "  wait screen");
 

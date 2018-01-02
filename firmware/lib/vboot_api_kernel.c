@@ -268,10 +268,27 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	VbExNvStorageRead(ctx.nvdata);
 	vb2_nv_init(&ctx);
 
+	/* Translate vboot1 flags back to vboot2 */
 	if (shared->recovery_reason)
 		ctx.flags |= VB2_CONTEXT_RECOVERY_MODE;
 	if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON)
 		ctx.flags |= VB2_CONTEXT_DEVELOPER_MODE;
+
+	/*
+	 * The following flags are set by depthcharge.
+	 *
+	 * TODO: Some of these are set at compile-time, so could be #defines
+	 * instead of flags.  That would save on firmware image size because
+	 * features that won't be used in an image could be compiled out.
+	 */
+	if (shared->flags & VBSD_EC_SOFTWARE_SYNC)
+		ctx.flags |= VB2_CONTEXT_EC_SYNC_SUPPORTED;
+	if (shared->flags & VBSD_EC_SLOW_UPDATE)
+		ctx.flags |= VB2_CONTEXT_EC_SYNC_SLOW;
+	if (shared->flags & VBSD_EC_EFS)
+		ctx.flags |= VB2_CONTEXT_EC_EFS;
+	if (shared->flags & VBSD_BOOT_FIRMWARE_SW_WP_ENABLED)
+		ctx.flags |= VB2_CONTEXT_SW_WP_ENABLED;
 
 	ctx.workbuf_size = VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE +
 			VB2_WORKBUF_ALIGN;
