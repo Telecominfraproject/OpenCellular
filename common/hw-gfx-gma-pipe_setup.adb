@@ -426,6 +426,26 @@ package body HW.GFX.GMA.Pipe_Setup is
          Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
    end Setup_Ironlake_Panel_Fitter;
 
+   procedure Panel_Fitter_Off (Controller : Controller_Type)
+   is
+      use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
+   begin
+      -- Writes to WIN_SZ arm the PS/PF registers.
+      if Config.Has_Plane_Control then
+         Registers.Unset_Mask (Controller.PS_CTRL_1, PS_CTRL_ENABLE_SCALER);
+         Registers.Write (Controller.PS_WIN_SZ_1, 16#0000_0000#);
+         if Controller.PS_CTRL_2 /= Registers.Invalid_Register and
+            Controller.PS_WIN_SZ_2 /= Registers.Invalid_Register
+         then
+            Registers.Unset_Mask (Controller.PS_CTRL_2, PS_CTRL_ENABLE_SCALER);
+            Registers.Write (Controller.PS_WIN_SZ_2, 16#0000_0000#);
+         end if;
+      else
+         Registers.Unset_Mask (Controller.PF_CTRL, PF_CTRL_ENABLE);
+         Registers.Write (Controller.PF_WIN_SZ, 16#0000_0000#);
+      end if;
+   end Panel_Fitter_Off;
+
    procedure Setup_Scaling
      (Controller  : in     Controller_Type;
       Mode        : in     HW.GFX.Mode_Type;
@@ -444,6 +464,8 @@ package body HW.GFX.GMA.Pipe_Setup is
          else
             Setup_Ironlake_Panel_Fitter (Controller, Mode, Framebuffer);
          end if;
+      else
+         Panel_Fitter_Off (Controller);
       end if;
    end Setup_Scaling;
 
@@ -483,26 +505,6 @@ package body HW.GFX.GMA.Pipe_Setup is
          Registers.Unset_Mask (Controller.DSPCNTR, DSPCNTR_ENABLE);
       end if;
    end Planes_Off;
-
-   procedure Panel_Fitter_Off (Controller : Controller_Type)
-   is
-      use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
-   begin
-      -- Writes to WIN_SZ arm the PS/PF registers.
-      if Config.Has_Plane_Control then
-         Registers.Unset_Mask (Controller.PS_CTRL_1, PS_CTRL_ENABLE_SCALER);
-         Registers.Write (Controller.PS_WIN_SZ_1, 16#0000_0000#);
-         if Controller.PS_CTRL_2 /= Registers.Invalid_Register and
-            Controller.PS_WIN_SZ_2 /= Registers.Invalid_Register
-         then
-            Registers.Unset_Mask (Controller.PS_CTRL_2, PS_CTRL_ENABLE_SCALER);
-            Registers.Write (Controller.PS_WIN_SZ_2, 16#0000_0000#);
-         end if;
-      else
-         Registers.Unset_Mask (Controller.PF_CTRL, PF_CTRL_ENABLE);
-         Registers.Write (Controller.PF_WIN_SZ, 16#0000_0000#);
-      end if;
-   end Panel_Fitter_Off;
 
    procedure Off (Pipe : Pipe_Index)
    is
