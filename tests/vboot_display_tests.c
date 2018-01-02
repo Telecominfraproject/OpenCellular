@@ -29,10 +29,10 @@ static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static char gbb_data[4096 + sizeof(GoogleBinaryBlockHeader)];
 static GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)gbb_data;
-static BmpBlockHeader *bhdr;
 static char debug_info[4096];
 static struct vb2_context ctx;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
+static uint32_t mock_localization_count;
 
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
@@ -50,14 +50,7 @@ static void ResetMocks(void)
 	gbb->hwid_size = strlen(gbb_data + gbb->hwid_offset) + 1;
 	gbb_used = (gbb_used + gbb->hwid_size + 7) & ~7;
 
-	gbb->bmpfv_offset = gbb_used;
-	bhdr = (BmpBlockHeader *)(gbb_data + gbb->bmpfv_offset);
-	gbb->bmpfv_size = sizeof(BmpBlockHeader);
-	gbb_used = (gbb_used + gbb->bmpfv_size + 7) & ~7;
-	memcpy(bhdr->signature, BMPBLOCK_SIGNATURE, BMPBLOCK_SIGNATURE_SIZE);
-	bhdr->major_version = BMPBLOCK_MAJOR_VERSION;
-	bhdr->minor_version = BMPBLOCK_MINOR_VERSION;
-	bhdr->number_of_localizations = 3;
+	mock_localization_count = 3;
 
 	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
@@ -92,6 +85,15 @@ static void ResetMocks(void)
 }
 
 /* Mocks */
+
+VbError_t VbExGetLocalizationCount(uint32_t *count) {
+
+	if (mock_localization_count == 0xffffffff)
+		return VBERROR_UNKNOWN;
+
+	*count = mock_localization_count;
+	return VBERROR_SUCCESS;
+}
 
 VbError_t VbExDisplayDebugInfo(const char *info_str)
 {
@@ -147,31 +149,6 @@ static void DebugInfoTest(void)
 	VbApiKernelFree(&cparams);
 }
 
-/* Test localization */
-static void LocalizationTest(void)
-{
-	uint32_t count = 6;
-
-	ResetMocks();
-	cparams.gbb->bmpfv_size = 0;
-	TEST_EQ(VbGetLocalizationCount(&cparams, &count),
-		VBERROR_UNKNOWN, "VbGetLocalizationCount bad gbb");
-	TEST_EQ(count, 0, "  count");
-	VbApiKernelFree(&cparams);
-
-	ResetMocks();
-	bhdr->signature[0] ^= 0x5a;
-	TEST_EQ(VbGetLocalizationCount(&cparams, &count),
-		VBERROR_UNKNOWN, "VbGetLocalizationCount bad bmpfv");
-	VbApiKernelFree(&cparams);
-
-	ResetMocks();
-	TEST_EQ(VbGetLocalizationCount(&cparams, &count), 0,
-		"VbGetLocalizationCount()");
-	TEST_EQ(count, 3, "  count");
-	VbApiKernelFree(&cparams);
-}
-
 /* Test display key checking */
 static void DisplayKeyTest(void)
 {
@@ -208,66 +185,17 @@ static void DisplayKeyTest(void)
 	/* Reset localization if localization count is invalid */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_LOCALIZATION_INDEX, 1);
-	bhdr->signature[0] ^= 0x5a;
+	mock_localization_count = 0xffffffff;
 	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_UP);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 0,
 		"DisplayKey invalid");
 	VbApiKernelFree(&cparams);
 }
 
-static void FontTest(void)
-{
-	FontArrayHeader h;
-	FontArrayEntryHeader eh[3] = {
-		{
-			.ascii = 'A',
-			.info.original_size = 10,
-		},
-		{
-			.ascii = 'B',
-			.info.original_size = 20,
-		},
-		{
-			.ascii = 'C',
-			.info.original_size = 30,
-		},
-	};
-	FontArrayEntryHeader *eptr;
-	uint8_t buf[sizeof(h) + sizeof(eh)];
-	VbFont_t *fptr;
-	void *bufferptr;
-	uint32_t buffersize;
-
-	/* Create font data */
-	h.num_entries = ARRAY_SIZE(eh);
-	memcpy(buf, &h, sizeof(h));
-	eptr = (FontArrayEntryHeader *)(buf + sizeof(h));
-	memcpy(eptr, eh, sizeof(eh));
-
-	fptr = VbInternalizeFontData((FontArrayHeader *)buf);
-	TEST_PTR_EQ(fptr, buf, "Internalize");
-
-	TEST_PTR_EQ(VbFindFontGlyph(fptr, 'B', &bufferptr, &buffersize),
-		    &eptr[1].info, "Glyph found");
-	TEST_EQ(buffersize, eptr[1].info.original_size, "  size");
-	TEST_PTR_EQ(VbFindFontGlyph(fptr, 'X', &bufferptr, &buffersize),
-		    &eptr[0].info, "Glyph not found");
-	TEST_EQ(buffersize, eptr[0].info.original_size, "  size");
-
-	/* Test invalid rendering params */
-	VbRenderTextAtPos(NULL, 0, 0, 0, fptr);
-	VbRenderTextAtPos("ABC", 0, 0, 0, NULL);
-
-	VbDoneWithFontForNow(fptr);
-
-}
-
 int main(void)
 {
 	DebugInfoTest();
-	LocalizationTest();
 	DisplayKeyTest();
-	FontTest();
 
 	return gTestSuccess ? 0 : 255;
 }

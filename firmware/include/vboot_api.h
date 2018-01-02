@@ -122,7 +122,7 @@ enum VbErrorPredefined_t {
 	VBERROR_REGION_READ_FAILED            = 0x10024,
 	/* Unsupported region type */
 	VBERROR_UNSUPPORTED_REGION            = 0x10025,
-	/* No image present (returned from VbGbbReadImage() for missing image) */
+	/* No image present (was returned from VbGbbReadImage(); deprecated */
 	VBERROR_NO_IMAGE_PRESENT              = 0x10026,
 	/* failed to draw screen */
 	VBERROR_SCREEN_DRAW                   = 0x10027,
@@ -196,7 +196,6 @@ typedef struct VbCommonParams {
 
 	/* For internal use of Vboot - do not examine or modify! */
 	struct GoogleBinaryBlockHeader *gbb;
-	struct BmpBlockHeader *bmp;
 } VbCommonParams;
 
 /* Flags for VbInitParams.flags */

@@ -57,7 +57,7 @@ VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
 	/* Display the wait screen if we need it */
 	if (need_wait_screen) {
 		VB2_DEBUG("EC is slow. Show WAIT screen.\n");
-		VbDisplayScreen(ctx, cparams, VB_SCREEN_WAIT, 0);
+		VbDisplayScreen(ctx, VB_SCREEN_WAIT, 0);
 	}
 
 	/* Phase 2; Applies update and/or jumps to the correct EC image */

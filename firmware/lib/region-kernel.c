@@ -25,45 +25,6 @@ static VbError_t VbRegionReadGbb(VbCommonParams *cparams, uint32_t offset,
 	return VbRegionReadData(cparams, VB_REGION_GBB, offset, size, buf);
 }
 
-VbError_t VbGbbReadBmpHeader(VbCommonParams *cparams, BmpBlockHeader *hdr_ret)
-{
-	BmpBlockHeader *hdr;
-	VbError_t ret;
-
-	if (!cparams)
-		return VBERROR_INVALID_GBB;
-	if (!cparams->bmp) {
-		GoogleBinaryBlockHeader *gbb = cparams->gbb;
-
-		if (0 == gbb->bmpfv_size)
-			return VBERROR_INVALID_GBB;
-
-		hdr = malloc(sizeof(*hdr));
-		ret = VbRegionReadGbb(cparams, gbb->bmpfv_offset,
-				      sizeof(BmpBlockHeader), hdr);
-		if (ret) {
-			free(hdr);
-			return ret;
-		}
-
-		/* Sanity-check the bitmap block header */
-		if ((0 != memcmp(hdr->signature, BMPBLOCK_SIGNATURE,
-				BMPBLOCK_SIGNATURE_SIZE)) ||
-		(hdr->major_version > BMPBLOCK_MAJOR_VERSION) ||
-		((hdr->major_version == BMPBLOCK_MAJOR_VERSION) &&
-		(hdr->minor_version > BMPBLOCK_MINOR_VERSION))) {
-			VB2_DEBUG("VbGbbReadBmpHeader(): "
-				  "invalid/too new bitmap header\n");
-			free(hdr);
-			return VBERROR_INVALID_BMPFV;
-		}
-		cparams->bmp = hdr;
-	}
-
-	*hdr_ret = *cparams->bmp;
-	return VBERROR_SUCCESS;
-}
-
 VbError_t VbRegionReadHWID(VbCommonParams *cparams, char *hwid,
 			   uint32_t max_size)
 {
@@ -91,80 +52,6 @@ VbError_t VbRegionReadHWID(VbCommonParams *cparams, char *hwid,
 	ret = VbRegionReadGbb(cparams, gbb->hwid_offset, gbb->hwid_size, hwid);
 	if (ret)
 		return ret;
-
-	return VBERROR_SUCCESS;
-}
-
-VbError_t VbGbbReadImage(VbCommonParams *cparams,
-			       uint32_t localization, uint32_t screen_index,
-			       uint32_t image_num, ScreenLayout *layout,
-			       ImageInfo *image_info, char **image_datap,
-			       uint32_t *image_data_sizep)
-{
-	uint32_t layout_offset, image_offset, data_offset, data_size;
-	GoogleBinaryBlockHeader *gbb;
-	BmpBlockHeader hdr;
-	void *data = NULL;
-	VbError_t ret;
-
-	if (!cparams)
-		return VBERROR_INVALID_GBB;
-
-	ret = VbGbbReadBmpHeader(cparams, &hdr);
-	if (ret)
-		return ret;
-
-	gbb = cparams->gbb;
-	layout_offset = gbb->bmpfv_offset + sizeof(BmpBlockHeader) +
-		localization * hdr.number_of_screenlayouts *
-			sizeof(ScreenLayout) +
-		screen_index * sizeof(ScreenLayout);
-	ret = VbRegionReadGbb(cparams, layout_offset, sizeof(*layout), layout);
-	if (ret)
-		return ret;
-
-	if (!layout->images[image_num].image_info_offset)
-		return VBERROR_NO_IMAGE_PRESENT;
-
-	image_offset = gbb->bmpfv_offset +
-			layout->images[image_num].image_info_offset;
-	ret = VbRegionReadGbb(cparams, image_offset, sizeof(*image_info),
-			      image_info);
-	if (ret)
-		return ret;
-
-	data_offset = image_offset + sizeof(*image_info);
-	data_size = image_info->compressed_size;
-	if (data_size) {
-		void *orig_data;
-
-		data = malloc(image_info->compressed_size);
-		ret = VbRegionReadGbb(cparams, data_offset,
-				      image_info->compressed_size, data);
-		if (ret) {
-			free(data);
-			return ret;
-		}
-		if (image_info->compression != COMPRESS_NONE) {
-			uint32_t inoutsize = image_info->original_size;
-
-			orig_data = malloc(image_info->original_size);
-			ret = VbExDecompress(data,
-					     image_info->compressed_size,
-					     image_info->compression,
-					     orig_data, &inoutsize);
-			data_size = inoutsize;
-			free(data);
-			data = orig_data;
-			if (ret) {
-				free(data);
-				return ret;
-			}
-		}
-	}
-
-	*image_datap = data;
-	*image_data_sizep = data_size;
 
 	return VBERROR_SUCCESS;
 }

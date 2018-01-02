@@ -24,335 +24,16 @@
 static uint32_t disp_current_screen = VB_SCREEN_BLANK;
 static uint32_t disp_current_index = 0;
 static uint32_t disp_disabled_idx_mask = 0;
-static uint32_t disp_width = 0, disp_height = 0;
 
 __attribute__((weak))
 VbError_t VbExGetLocalizationCount(uint32_t *count) {
+	*count = 0;
 	return VBERROR_UNKNOWN;
 }
 
-VbError_t VbGetLocalizationCount(VbCommonParams *cparams, uint32_t *count)
-{
-	BmpBlockHeader hdr;
-	VbError_t ret;
-
-	/* Default to 0 on error */
-	*count = 0;
-
-	/* First try to get the count from GBB */
-	ret = VbGbbReadBmpHeader(cparams, &hdr);
-	if (ret == VBERROR_SUCCESS) {
-		*count = hdr.number_of_localizations;
-		return ret;
-	}
-
-	/* If GBB is broken or missing, fallback to the callback */
-	return VbExGetLocalizationCount(count);
-}
-
-/*
- * TODO: We could cache the font info to speed things up, by making the
- * in-memory font structure distinct from the in-flash version.  We'll do that
- * Real Soon Now. Until then, we just repeat the same linear search every time.
- */
-
-VbFont_t *VbInternalizeFontData(FontArrayHeader *fonthdr)
-{
-	/* Just return the raw data pointer for now. */
-	return (VbFont_t *)fonthdr;
-}
-
-void VbDoneWithFontForNow(VbFont_t *ptr)
-{
-	/* Nothing. */
-}
-
-ImageInfo *VbFindFontGlyph(VbFont_t *font, uint32_t ascii,
-			   void **bufferptr, uint32_t *buffersize)
-{
-	uint8_t *ptr, *firstptr;
-	uint32_t max;
-	uint32_t i;
-	FontArrayEntryHeader *entry;
-
-	ptr = (uint8_t *)font;
-	max = ((FontArrayHeader *)ptr)->num_entries;
-	ptr += sizeof(FontArrayHeader);
-	firstptr = ptr;
-
-	/*
-	 * Simple linear search.
-	 *
-	 * Note: We're assuming glpyhs are uncompressed. That's true because
-	 * the bmpblk_font tool doesn't compress anything. The bmpblk_utility
-	 * does, but it compresses the entire font blob at once, and we've
-	 * already uncompressed that before we got here.
-	 */
-	for(i=0; i<max; i++) {
-		entry = (FontArrayEntryHeader *)ptr;
-		if (entry->ascii == ascii) {
-			*bufferptr = ptr + sizeof(FontArrayEntryHeader);
-			*buffersize = entry->info.original_size;
-			return &(entry->info);
-		}
-		ptr += sizeof(FontArrayEntryHeader)+entry->info.compressed_size;
-	}
-
-	/*
-	 * We must return something valid. We'll just use the first glyph in
-	 * the font structure (so it should be something distinct).
-	 */
-	entry = (FontArrayEntryHeader *)firstptr;
-	*bufferptr = firstptr + sizeof(FontArrayEntryHeader);
-	*buffersize = entry->info.original_size;
-	return &(entry->info);
-}
-
-void VbRenderTextAtPos(const char *text, int right_to_left,
-		       uint32_t x, uint32_t y, VbFont_t *font)
-{
-	int i;
-	ImageInfo *image_info = 0;
-	void *buffer;
-	uint32_t buffersize;
-	uint32_t cur_x = x, cur_y = y;
-
-	if (!text || !font) {
-		VB2_DEBUG("  VbRenderTextAtPos: invalid args\n");
-		return;
-	}
-
-	for (i=0; text[i]; i++) {
-
-		if (text[i] == '\n') {
-			if (!image_info)
-				image_info = VbFindFontGlyph(font, text[i],
-							     &buffer,
-							     &buffersize);
-			cur_x = x;
-			cur_y += image_info->height;
-			continue;
-		}
-
-		image_info = VbFindFontGlyph(font, text[i], &buffer,
-					     &buffersize);
-
-		if (right_to_left)
-			cur_x -= image_info->width;
-
-		if (VBERROR_SUCCESS != VbExDisplayImage(cur_x, cur_y, buffer,
-							buffersize)) {
-			VB2_DEBUG("  VbRenderTextAtPos: "
-				  "can't display ascii 0x%x\n", text[i]);
-		}
-
-		if (!right_to_left)
-			cur_x += image_info->width;
-	}
-}
-
-VbError_t VbDisplayScreenFromGBB(struct vb2_context *ctx,
-				 VbCommonParams *cparams, uint32_t screen,
-				 uint32_t localization)
-{
-	char *fullimage = NULL;
-	BmpBlockHeader hdr;
-	uint32_t screen_index;
-	VbError_t retval = VBERROR_UNKNOWN;   /* Assume error until proven ok */
-	uint32_t inoutsize;
-	uint32_t i;
-	VbFont_t *font;
-	const char *text_to_show;
-	int rtol = 0;
-	VbError_t ret;
-
-	ret = VbGbbReadBmpHeader(cparams, &hdr);
-	if (ret)
-		return ret;
-
-	/*
-	 * Translate screen ID into index.  Note that not all screens are in
-	 * the GBB.
-	 *
-	 * TODO: ensure screen IDs match indices?  Having this translation here
-	 * is awful.
-	 */
-	switch (screen) {
-	case VB_SCREEN_DEVELOPER_WARNING:
-		screen_index = SCREEN_DEVELOPER_WARNING;
-		break;
-	case VB_SCREEN_RECOVERY_REMOVE:
-		screen_index = SCREEN_RECOVERY_REMOVE;
-		break;
-	case VB_SCREEN_RECOVERY_NO_GOOD:
-		screen_index = SCREEN_RECOVERY_NO_GOOD;
-		break;
-	case VB_SCREEN_RECOVERY_INSERT:
-		screen_index = SCREEN_RECOVERY_INSERT;
-		break;
-	case VB_SCREEN_RECOVERY_TO_DEV:
-		screen_index = SCREEN_RECOVERY_TO_DEV;
-		break;
-	case VB_SCREEN_DEVELOPER_TO_NORM:
-		screen_index = SCREEN_DEVELOPER_TO_NORM;
-		break;
-	case VB_SCREEN_WAIT:
-		screen_index = SCREEN_WAIT;
-		break;
-	case VB_SCREEN_TO_NORM_CONFIRMED:
-		screen_index = SCREEN_TO_NORM_CONFIRMED;
-		break;
-	case VB_SCREEN_OS_BROKEN:
-		screen_index = SCREEN_OS_BROKEN;
-		break;
-	case VB_SCREEN_BLANK:
-	case VB_SCREEN_DEVELOPER_EGG:
-	default:
-		/* Screens which aren't in the GBB */
-		VB2_DEBUG("VbDisplayScreenFromGBB(): screen %d not in GBB\n",
-			  (int)screen);
-		retval = VBERROR_INVALID_SCREEN_INDEX;
-		goto VbDisplayScreenFromGBB_exit;
-	}
-
-	if (screen_index >= hdr.number_of_screenlayouts) {
-		VB2_DEBUG("VbDisplayScreenFromGBB(): "
-			  "screen %d index %d not in the GBB\n",
-			  (int)screen, (int)screen_index);
-		retval = VBERROR_INVALID_SCREEN_INDEX;
-		goto VbDisplayScreenFromGBB_exit;
-	}
-
-	/* Clip localization to number of localizations present in the GBB */
-	if (localization >= hdr.number_of_localizations) {
-		localization = 0;
-		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, localization);
-		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
-	}
-
-	/* Display all bitmaps for the image */
-	for (i = 0; i < MAX_IMAGE_IN_LAYOUT; i++) {
-		ScreenLayout layout;
-		ImageInfo image_info;
-		char hwid[256];
-
-		ret = VbGbbReadImage(cparams, localization, screen_index,
-				    i, &layout, &image_info,
-				    &fullimage, &inoutsize);
-		if (ret == VBERROR_NO_IMAGE_PRESENT) {
-			continue;
-		} else if (ret) {
-			retval = ret;
-			goto VbDisplayScreenFromGBB_exit;
-		}
-
-		switch(image_info.format) {
-		case FORMAT_BMP:
-			if (i == 0) {
-				/**
-				 * In current version GBB bitmaps, first image
-				 * is always the background.
-				 */
-				ret = VbExDisplaySetDimension(
-						image_info.width,
-						image_info.height);
-				if (ret) {
-					VB2_DEBUG("VbExDisplaySetDimension"
-						  "(%d,%d): failed (%#x).\n",
-						  image_info.width,
-						  image_info.height, ret);
-				}
-			}
-
-			retval = VbExDisplayImage(layout.images[i].x,
-						  layout.images[i].y,
-						  fullimage, inoutsize);
-			break;
-
-		case FORMAT_FONT:
-			/*
-			 * The uncompressed blob is our font structure. Cache
-			 * it as needed.
-			 */
-			font = VbInternalizeFontData(
-					(FontArrayHeader *)fullimage);
-
-			/* TODO: handle text in general here */
-			if (TAG_HWID == image_info.tag ||
-			    TAG_HWID_RTOL == image_info.tag) {
-				VbRegionReadHWID(cparams, hwid, sizeof(hwid));
-				text_to_show = hwid;
-				rtol = (TAG_HWID_RTOL == image_info.tag);
-			} else {
-				text_to_show = "";
-				rtol = 0;
-			}
-
-			VbRenderTextAtPos(text_to_show, rtol,
-					  layout.images[i].x,
-					  layout.images[i].y, font);
-
-			VbDoneWithFontForNow(font);
-			break;
-
-		default:
-			VB2_DEBUG("VbDisplayScreenFromGBB(): "
-				  "unsupported ImageFormat %d\n",
-				  image_info.format);
-			retval = VBERROR_INVALID_GBB;
-		}
-
-		free(fullimage);
-
-		if (VBERROR_SUCCESS != retval)
-			goto VbDisplayScreenFromGBB_exit;
-	}
-
-	/* Successful if all bitmaps displayed */
-	retval = VBERROR_SUCCESS;
-
-	VbRegionCheckVersion(cparams);
-
- VbDisplayScreenFromGBB_exit:
-	VB2_DEBUG("leaving VbDisplayScreenFromGBB() with %d\n",retval);
-	return retval;
-}
-
-/*
- * This is the deprecated display screen function. This should be called only
- * if bmpblk.bin is found in GBB. New devices store graphics data in cbfs
- * and screens are rendered by Depthcharge (chromium:502066).
- */
-static VbError_t VbDisplayScreenLegacy(struct vb2_context *ctx,
-				       VbCommonParams *cparams, uint32_t screen,
-				       int force, uint32_t locale)
-{
-	VbError_t retval;
-
-	/* Initialize display if necessary */
-	if (!disp_width) {
-		retval = VbExDisplayInit(&disp_width, &disp_height);
-		if (VBERROR_SUCCESS != retval)
-			return retval;
-	}
-
-	/* If the screen is blank, turn off the backlight; else turn it on. */
-	VbExDisplayBacklight(VB_SCREEN_BLANK == screen ? 0 : 1);
-
-	/* Look in the GBB first */
-	if (VBERROR_SUCCESS == VbDisplayScreenFromGBB(ctx, cparams, screen,
-						      locale))
-		return VBERROR_SUCCESS;
-
-	/* If screen wasn't in the GBB bitmaps, fall back to a default */
-	return VbExDisplayScreen(screen, locale);
-}
-
-VbError_t VbDisplayScreen(struct vb2_context *ctx,
-			  VbCommonParams *cparams, uint32_t screen, int force)
+VbError_t VbDisplayScreen(struct vb2_context *ctx, uint32_t screen, int force)
 {
 	uint32_t locale;
-	GoogleBinaryBlockHeader *gbb = cparams->gbb;
 	VbError_t rv;
 
 	/* If requested screen is the same as the current one, we're done. */
@@ -362,10 +43,7 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx,
 	/* Read the locale last saved */
 	locale = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
 
-	if (gbb->bmpfv_size == 0)
-		rv = VbExDisplayScreen(screen, locale);
-	else
-		rv = VbDisplayScreenLegacy(ctx, cparams, screen, force, locale);
+	rv = VbExDisplayScreen(screen, locale);
 
 	if (rv == VBERROR_SUCCESS)
 		/* Keep track of the currently displayed screen */
@@ -374,8 +52,7 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx,
 	return rv;
 }
 
-VbError_t VbDisplayMenu(struct vb2_context *ctx,
-			VbCommonParams *cparams, uint32_t screen, int force,
+VbError_t VbDisplayMenu(struct vb2_context *ctx, uint32_t screen, int force,
 			uint32_t selected_index, uint32_t disabled_idx_mask)
 {
 	uint32_t locale;
@@ -616,7 +293,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 	 * highlighted.  On a non-detachable screen, this will be a
 	 * no-op.
 	 */
-	VbDisplayMenu(ctx, cparams, disp_current_screen, 1,
+	VbDisplayMenu(ctx, disp_current_screen, 1,
 		      disp_current_index, disp_disabled_idx_mask);
 
 	/* Add hardware ID */
@@ -758,7 +435,7 @@ VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
 		uint32_t count = 0;
 
 		loc = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
-		if (VBERROR_SUCCESS != VbGetLocalizationCount(cparams, &count))
+		if (VBERROR_SUCCESS != VbExGetLocalizationCount(&count))
 			loc = 0;  /* No localization count (bad GBB?) */
 		else if (VB_KEY_RIGHT == key || VB_KEY_UP == key)
 			loc = (loc < count - 1 ? loc + 1 : 0);
@@ -783,13 +460,12 @@ VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
 #endif
 
 		/* Force redraw of current screen */
-		return VbDisplayScreen(ctx, cparams, disp_current_screen, 1);
+		return VbDisplayScreen(ctx, disp_current_screen, 1);
 	}
 
 	if (0 == memcmp(MagicBuffer, MAGIC_WORD, MAGIC_WORD_LEN)) {
 		if (VBEASTEREGG)
-			(void)VbDisplayScreen(ctx, cparams, disp_current_screen,
-					      1);
+			(void)VbDisplayScreen(ctx, disp_current_screen, 1);
 	}
 
   return VBERROR_SUCCESS;

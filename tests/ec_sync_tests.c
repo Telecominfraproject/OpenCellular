@@ -211,8 +211,7 @@ VbError_t VbExEcUpdateImage(int devidx, enum VbSelectFirmware_t select,
 	return update_retval;
 }
 
-VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
-			  uint32_t screen, int force)
+VbError_t VbDisplayScreen(struct vb2_context *ctx, uint32_t screen, int force)
 {
 	if (screens_count < ARRAY_SIZE(screens_displayed))
 		screens_displayed[screens_count++] = screen;

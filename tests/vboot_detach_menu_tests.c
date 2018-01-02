@@ -196,8 +196,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 	return vbtlk_retval + get_info_flags;
 }
 
-VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
-			  uint32_t screen, int force)
+VbError_t VbDisplayScreen(struct vb2_context *ctx, uint32_t screen, int force)
 {
 	if (screens_count < ARRAY_SIZE(screens_displayed))
 		screens_displayed[screens_count++] = screen;
@@ -206,8 +205,7 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx, VbCommonParams *cparams,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbDisplayMenu(struct vb2_context *ctx,
-			VbCommonParams *cparams, uint32_t screen, int force,
+VbError_t VbDisplayMenu(struct vb2_context *ctx, uint32_t screen, int force,
 			uint32_t selected_index, uint32_t disabled_idx_mask)
 {
 	if (screens_count < ARRAY_SIZE(screens_displayed))

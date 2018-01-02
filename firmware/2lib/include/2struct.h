@@ -305,7 +305,7 @@ struct vb2_gbb_header {
 	uint32_t hwid_size;
 	uint32_t rootkey_offset;	/* Root key */
 	uint32_t rootkey_size;
-	uint32_t bmpfv_offset;		/* BMP FV */
+	uint32_t bmpfv_offset;		/* BMP FV; deprecated in current FW */
 	uint32_t bmpfv_size;
 	uint32_t recovery_key_offset;	/* Recovery key */
 	uint32_t recovery_key_size;

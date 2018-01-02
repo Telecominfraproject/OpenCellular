@@ -252,7 +252,7 @@ VbError_t vb2_draw_current_screen(struct vb2_context *ctx,
 		screen = VB_MENU_TO_SCREEN_MAP[current_menu];
 	else
 		return VBERROR_UNKNOWN;
-	return VbDisplayMenu(ctx, cparams, screen, 0,
+	return VbDisplayMenu(ctx, screen, 0,
 			     current_menu_idx, disabled_idx_mask);
 }
 
@@ -538,17 +538,16 @@ VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
  * will not wrap, meaning that we block on the 0 or max index when
  * we hit the ends of the menu.
  *
- * @param  cparams  common params
  * @param  key      VOL_KEY_UP = increase index selection
  *                  VOL_KEY_DOWN = decrease index selection.
  *                  Every other key has no effect now.
  */
-void vb2_update_selection(VbCommonParams *cparams, uint32_t key) {
+void vb2_update_selection(uint32_t key) {
 	int idx;
 	uint32_t menu_size;
 
 	if (current_menu == VB_MENU_LANGUAGES) {
-		VbGetLocalizationCount(cparams, &menu_size);
+		VbExGetLocalizationCount(&menu_size);
 	} else {
 		vb2_get_current_menu_size(current_menu,
 					  NULL, &menu_size);
@@ -706,8 +705,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				 * Clear the screen to show we get the Ctrl+U
 				 * key press.
 				 */
-				VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK,
-						0);
+				VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 				if (VBERROR_SUCCESS ==
 				    VbTryUsbMenu(ctx, cparams)) {
 					return VBERROR_SUCCESS;
@@ -719,14 +717,14 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		case VB_BUTTON_VOL_UP_SHORT_PRESS:
 		case VB_KEY_UP:
-			vb2_update_selection(cparams, key);
+			vb2_update_selection(key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
 			vb2_audio_start(ctx);
 			break;
 		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 		case VB_KEY_DOWN:
-			vb2_update_selection(cparams, key);
+			vb2_update_selection(key);
 			vb2_draw_current_screen(ctx, cparams);
 			/* reset 30 second timer */
 			vb2_audio_start(ctx);
@@ -791,7 +789,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 					 * Ctrl+U key press.
 					 */
 					VbDisplayScreen(ctx,
-						cparams, VB_SCREEN_BLANK, 0);
+							VB_SCREEN_BLANK, 0);
 					if (VBERROR_SUCCESS ==
 					    VbTryUsbMenu(ctx, cparams)) {
 						return VBERROR_SUCCESS;
@@ -842,9 +840,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						   VB2_NV_DISABLE_DEV_REQUEST,
 						   1);
 					VbDisplayScreen(ctx,
-						cparams,
-						VB_SCREEN_TO_NORM_CONFIRMED,
-						0);
+						VB_SCREEN_TO_NORM_CONFIRMED, 0);
 					current_menu = VB_MENU_TO_NORM_CONFIRMED;
 					VbExSleepMs(5000);
 					return VBERROR_REBOOT_REQUIRED;
@@ -883,7 +879,7 @@ fallout:
 VbError_t VbBootDeveloperMenu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbError_t retval = vb2_developer_menu(ctx, cparams);
-	VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK, 0);
+	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }
 
@@ -930,7 +926,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		 */
 		vb2_nv_commit(ctx);
 
-		VbDisplayScreen(ctx, cparams, VB_SCREEN_OS_BROKEN, 0);
+		VbDisplayScreen(ctx, VB_SCREEN_OS_BROKEN, 0);
 		current_menu = VB_MENU_RECOVERY_BROKEN;
 		VB2_DEBUG("waiting for manual recovery\n");
 		while (1) {
@@ -977,9 +973,8 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			if (retval == VBERROR_NO_DISK_FOUND)
 				vb2_draw_current_screen(ctx, cparams);
 			else {
-				VbDisplayScreen(ctx, cparams,
-						VB_SCREEN_RECOVERY_NO_GOOD,
-						0);
+				VbDisplayScreen(ctx,
+						VB_SCREEN_RECOVERY_NO_GOOD, 0);
 				current_menu = VB_MENU_RECOVERY_NO_GOOD;
 			}
 		}
@@ -1010,7 +1005,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					break;
 				}
 
-				vb2_update_selection(cparams, key);
+				vb2_update_selection(key);
 				vb2_draw_current_screen(ctx, cparams);
 				break;
 			case VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS:
@@ -1065,9 +1060,8 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 						vb2_draw_current_screen(ctx,
 							cparams);
 					else {
-						VbDisplayScreen(ctx, cparams,
-						VB_SCREEN_RECOVERY_NO_GOOD,
-						0);
+						VbDisplayScreen(ctx,
+						VB_SCREEN_RECOVERY_NO_GOOD, 0);
 						current_menu = VB_MENU_RECOVERY_NO_GOOD;
 					}
 				}
@@ -1140,6 +1134,6 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 VbError_t VbBootRecoveryMenu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
 	VbError_t retval = recovery_ui(ctx, cparams);
-	VbDisplayScreen(ctx, cparams, VB_SCREEN_BLANK, 0);
+	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }

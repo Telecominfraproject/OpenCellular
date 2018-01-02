@@ -242,10 +242,6 @@ void VbApiKernelFree(VbCommonParams *cparams)
 		free(cparams->gbb);
 		cparams->gbb = NULL;
 	}
-	if (cparams->bmp) {
-		free(cparams->bmp);
-		cparams->bmp = NULL;
-	}
 }
 
 static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
@@ -341,7 +337,6 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
 	/* Read GBB header, since we'll needs flags from it */
-	cparams->bmp = NULL;
 	cparams->gbb = malloc(sizeof(*cparams->gbb));
 	uint32_t retval = VbGbbReadHeader_static(cparams, cparams->gbb);
 	if (retval)
