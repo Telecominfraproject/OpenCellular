@@ -31,11 +31,7 @@ zero_free_space() {
   local rootfs="$1"
 
   info "Zeroing freespace in ${rootfs}"
-  # dd is a silly thing and will produce a "No space left on device" message
-  # that cannot be turned off and is confusing to unsuspecting victims.
-  ( sudo dd if=/dev/zero of="${rootfs}/filler" bs=4096 conv=fdatasync \
-      status=noxfer || true ) 2>&1 | grep -v "No space left on device"
-  sudo rm "${rootfs}/filler"
+  sudo fstrim -v "${rootfs}"
 }
 
 
