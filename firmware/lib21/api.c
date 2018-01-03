@@ -84,7 +84,7 @@ int vb21api_init_hash(struct vb2_context *ctx,
 
 		sd->workbuf_hash_offset = vb2_offset_of(ctx->workbuf, dc);
 		sd->workbuf_hash_size = dig_size;
-		ctx->workbuf_used = sd->workbuf_hash_offset + dig_size;
+		vb2_set_workbuf_used(ctx, sd->workbuf_hash_offset + dig_size);
 	}
 
 	sd->hash_tag = vb2_offset_of(ctx->workbuf, sig);

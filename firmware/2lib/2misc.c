@@ -31,6 +31,11 @@ void vb2_workbuf_from_ctx(struct vb2_context *ctx, struct vb2_workbuf *wb)
 			 ctx->workbuf_size - ctx->workbuf_used);
 }
 
+void vb2_set_workbuf_used(struct vb2_context *ctx, uint32_t used)
+{
+	ctx->workbuf_used = vb2_wb_round_up(used);
+}
+
 int vb2_read_gbb_header(struct vb2_context *ctx, struct vb2_gbb_header *gbb)
 {
 	int rv;
@@ -132,7 +137,7 @@ int vb2_init_context(struct vb2_context *ctx)
 
 	/* Initialize the shared data at the start of the work buffer */
 	memset(sd, 0, sizeof(*sd));
-	ctx->workbuf_used = sizeof(*sd);
+	ctx->workbuf_used = vb2_wb_round_up(sizeof(*sd));
 	return VB2_SUCCESS;
 }
 

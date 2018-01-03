@@ -76,8 +76,8 @@ static void reset_common_data(enum reset_type t)
 
 	sd->workbuf_preamble_offset = cc.workbuf_used;
 	sd->workbuf_preamble_size = sizeof(*pre);
-	cc.workbuf_used = sd->workbuf_preamble_offset
-		+ sd->workbuf_preamble_size;
+	vb2_set_workbuf_used(&cc, sd->workbuf_preamble_offset
+			     + sd->workbuf_preamble_size);
 	pre = (struct vb2_fw_preamble *)
 		(cc.workbuf + sd->workbuf_preamble_offset);
 	pre->body_signature.data_size = mock_body_size;
@@ -89,8 +89,8 @@ static void reset_common_data(enum reset_type t)
 
 	sd->workbuf_data_key_offset = cc.workbuf_used;
 	sd->workbuf_data_key_size = sizeof(*k) + 8;
-	cc.workbuf_used = sd->workbuf_data_key_offset +
-		sd->workbuf_data_key_size;
+	vb2_set_workbuf_used(&cc, sd->workbuf_data_key_offset +
+			     sd->workbuf_data_key_size);
 	k = (struct vb2_packed_key *)
 		(cc.workbuf + sd->workbuf_data_key_offset);
 	k->algorithm = mock_algorithm;
@@ -259,14 +259,13 @@ static void init_hash_tests(void)
 	wb_used_before = cc.workbuf_used;
 	TEST_SUCC(vb2api_init_hash(&cc, VB2_HASH_TAG_FW_BODY, &size),
 		  "init hash good");
-	TEST_EQ(sd->workbuf_hash_offset,
-		(wb_used_before + (VB2_WORKBUF_ALIGN - 1)) &
-		~(VB2_WORKBUF_ALIGN - 1),
+	TEST_EQ(sd->workbuf_hash_offset, wb_used_before,
 		"hash context offset");
 	TEST_EQ(sd->workbuf_hash_size, sizeof(struct vb2_digest_context),
 		"hash context size");
 	TEST_EQ(cc.workbuf_used,
-		sd->workbuf_hash_offset + sd->workbuf_hash_size,
+		vb2_wb_round_up(sd->workbuf_hash_offset +
+				sd->workbuf_hash_size),
 		"hash uses workbuf");
 	TEST_EQ(sd->hash_tag, VB2_HASH_TAG_FW_BODY, "hash tag");
 	TEST_EQ(sd->hash_remaining_size, mock_body_size, "hash remaining");
@@ -290,8 +289,8 @@ static void init_hash_tests(void)
 		VB2_ERROR_API_INIT_HASH_TAG, "init hash unknown tag");
 
 	reset_common_data(FOR_MISC);
-	cc.workbuf_used =
-		cc.workbuf_size - sizeof(struct vb2_digest_context) + 8;
+	cc.workbuf_used = cc.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sizeof(struct vb2_digest_context));
 	TEST_EQ(vb2api_init_hash(&cc, VB2_HASH_TAG_FW_BODY, &size),
 		VB2_ERROR_API_INIT_HASH_WORKBUF, "init hash workbuf");
 

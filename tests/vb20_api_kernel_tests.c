@@ -20,7 +20,6 @@
 /* Common context for tests */
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE]
 	__attribute__ ((aligned (VB2_WORKBUF_ALIGN)));
-static struct vb2_workbuf wb;
 static struct vb2_context cc;
 static struct vb2_shared_data *sd;
 static struct vb2_fw_preamble *fwpre;
@@ -59,7 +58,6 @@ static void reset_common_data(enum reset_type t)
 	memset(&cc, 0, sizeof(cc));
 	cc.workbuf = workbuf;
 	cc.workbuf_size = sizeof(workbuf);
-	vb2_workbuf_from_ctx(&cc, &wb);
 
 	vb2_init_context(&cc);
 	sd = vb2_get_sd(&cc);
@@ -89,6 +87,7 @@ static void reset_common_data(enum reset_type t)
 		mock_gbb.recovery_key.key_offset +
 		mock_gbb.recovery_key.key_size;
 
+
 	if (t == FOR_PHASE1) {
 		uint8_t *kdata;
 
@@ -103,7 +102,8 @@ static void reset_common_data(enum reset_type t)
 		k->key_offset = vb2_offset_of(k, kdata);
 		k->key_size = sizeof(fw_kernel_key_data);
 		sd->workbuf_preamble_size = sizeof(*fwpre) + k->key_size;
-		cc.workbuf_used += sd->workbuf_preamble_size;
+		vb2_set_workbuf_used(&cc, sd->workbuf_preamble_offset +
+				     sd->workbuf_preamble_size);
 
 	} else if (t == FOR_PHASE2) {
 		struct vb2_signature *sig;
@@ -116,7 +116,8 @@ static void reset_common_data(enum reset_type t)
 			(cc.workbuf + sd->workbuf_data_key_offset);
 		kdkey->algorithm = VB2_ALG_RSA2048_SHA256;
 		sd->workbuf_data_key_size = sizeof(*kdkey);
-		cc.workbuf_used += sd->workbuf_data_key_size;
+		vb2_set_workbuf_used(&cc, sd->workbuf_data_key_offset +
+				     sd->workbuf_data_key_size);
 
 		/* Create mock kernel preamble in the context */
 		sd->workbuf_preamble_offset = cc.workbuf_used;
@@ -137,7 +138,8 @@ static void reset_common_data(enum reset_type t)
 		sd->workbuf_preamble_size = sizeof(*kpre) + sig->sig_size;
 		sd->vblock_preamble_offset =
 			0x10000 - sd->workbuf_preamble_size;
-		cc.workbuf_used += sd->workbuf_preamble_size;
+		vb2_set_workbuf_used(&cc, sd->workbuf_preamble_offset +
+				     sd->workbuf_preamble_size);
 
 	} else {
 		/* Set flags and versions for roll-forward */
@@ -235,8 +237,10 @@ static void phase1_tests(void)
 		(cc.workbuf + sd->workbuf_kernel_key_offset);
 	TEST_EQ(sd->workbuf_kernel_key_size, k->key_offset + k->key_size,
 		"  workbuf key size");
-	TEST_EQ(cc.workbuf_used, sd->workbuf_kernel_key_offset +
-		sd->workbuf_kernel_key_size, "  workbuf used");
+	TEST_EQ(cc.workbuf_used,
+		vb2_wb_round_up(sd->workbuf_kernel_key_offset +
+				sd->workbuf_kernel_key_size),
+		"  workbuf used");
 	TEST_EQ(k->algorithm, 7, "  key algorithm");
 	TEST_EQ(k->key_size, sizeof(fw_kernel_key_data), "  key_size");
 	TEST_EQ(memcmp((uint8_t *)k + k->key_offset, fw_kernel_key_data,
@@ -258,8 +262,10 @@ static void phase1_tests(void)
 		(cc.workbuf + sd->workbuf_kernel_key_offset);
 	TEST_EQ(sd->workbuf_kernel_key_size, k->key_offset + k->key_size,
 		"  workbuf key size");
-	TEST_EQ(cc.workbuf_used, sd->workbuf_kernel_key_offset +
-		sd->workbuf_kernel_key_size, "  workbuf used");
+	TEST_EQ(cc.workbuf_used,
+		vb2_wb_round_up(sd->workbuf_kernel_key_offset +
+				sd->workbuf_kernel_key_size),
+		"  workbuf used");
 	TEST_EQ(k->algorithm, 11, "  key algorithm");
 	TEST_EQ(k->key_size, sizeof(mock_gbb.recovery_key_data), "  key_size");
 	TEST_EQ(memcmp((uint8_t *)k + k->key_offset,
@@ -282,7 +288,8 @@ static void phase1_tests(void)
 	/* Failures while reading recovery key */
 	reset_common_data(FOR_PHASE1);
 	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
-	cc.workbuf_used = cc.workbuf_size - sizeof(struct vb2_gbb_header) + 1;
+	cc.workbuf_used = cc.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sizeof(struct vb2_gbb_header));
 	TEST_EQ(vb2api_kernel_phase1(&cc), VB2_ERROR_GBB_WORKBUF,
 		"phase1 rec workbuf gbb header");
 
@@ -295,7 +302,8 @@ static void phase1_tests(void)
 	reset_common_data(FOR_PHASE1);
 	cc.flags |= VB2_CONTEXT_RECOVERY_MODE;
 	mock_gbb.h.recovery_key_size = cc.workbuf_size - 1;
-	TEST_EQ(vb2api_kernel_phase1(&cc), VB2_ERROR_API_KPHASE1_WORKBUF_REC_KEY,
+	TEST_EQ(vb2api_kernel_phase1(&cc),
+		VB2_ERROR_API_KPHASE1_WORKBUF_REC_KEY,
 		"phase1 rec workbuf key");
 
 	reset_common_data(FOR_PHASE1);
@@ -351,46 +359,57 @@ static void get_kernel_size_tests(void)
 static void verify_kernel_data_tests(void)
 {
 	reset_common_data(FOR_PHASE2);
-	TEST_SUCC(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	TEST_SUCC(vb2api_verify_kernel_data(&cc, kernel_data,
+					    sizeof(kernel_data)),
 		  "verify data good");
 
 	reset_common_data(FOR_PHASE2);
 	sd->workbuf_preamble_size = 0;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_API_VERIFY_KDATA_PREAMBLE, "verify no preamble");
 
 	reset_common_data(FOR_PHASE2);
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data) + 1),
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data) + 1),
 		VB2_ERROR_API_VERIFY_KDATA_SIZE, "verify size");
 
 	reset_common_data(FOR_PHASE2);
-	cc.workbuf_used = cc.workbuf_size - sizeof(struct vb2_digest_context) + 1;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	cc.workbuf_used = cc.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sizeof(struct vb2_digest_context));
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_API_VERIFY_KDATA_WORKBUF, "verify workbuf");
 
 	reset_common_data(FOR_PHASE2);
 	sd->workbuf_data_key_size = 0;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_API_VERIFY_KDATA_KEY, "verify no key");
 
 	reset_common_data(FOR_PHASE2);
 	mock_unpack_key_retval = VB2_ERROR_MOCK;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_MOCK, "verify unpack key");
 
 	reset_common_data(FOR_PHASE2);
 	kdkey->algorithm = VB2_ALG_COUNT;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_SHA_INIT_ALGORITHM, "verify hash init");
 
 	reset_common_data(FOR_PHASE2);
-	cc.workbuf_used = cc.workbuf_size - sizeof(struct vb2_digest_context) - 4;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	cc.workbuf_used = cc.workbuf_size -
+			vb2_wb_round_up(sizeof(struct vb2_digest_context));
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_API_CHECK_HASH_WORKBUF_DIGEST, "verify hash workbuf");
 
 	reset_common_data(FOR_PHASE2);
 	kernel_data[3] ^= 0xd0;
-	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data, sizeof(kernel_data)),
+	TEST_EQ(vb2api_verify_kernel_data(&cc, kernel_data,
+					  sizeof(kernel_data)),
 		VB2_ERROR_VDATA_VERIFY_DIGEST, "verify hash digest");
 	kernel_data[3] ^= 0xd0;
 }

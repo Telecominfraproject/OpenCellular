@@ -237,8 +237,8 @@ int vb2_load_kernel_keyblock(struct vb2_context *ctx)
 	 *   - kernel key
 	 *   - packed kernel data key
 	 */
-	ctx->workbuf_used = sd->workbuf_data_key_offset +
-		sd->workbuf_data_key_size;
+	vb2_set_workbuf_used(ctx, sd->workbuf_data_key_offset +
+			     sd->workbuf_data_key_size);
 
 	return VB2_SUCCESS;
 }
@@ -445,7 +445,7 @@ int vb2_load_kernel_preamble(struct vb2_context *ctx)
 	 * TODO: we could move the preamble down over the kernel data key
 	 * since we don't need it anymore.
 	 */
-	ctx->workbuf_used = sd->workbuf_preamble_offset + pre_size;
+	vb2_set_workbuf_used(ctx, sd->workbuf_preamble_offset + pre_size);
 
 	return VB2_SUCCESS;
 }

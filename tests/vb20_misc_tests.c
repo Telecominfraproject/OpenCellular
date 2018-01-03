@@ -185,12 +185,11 @@ static void verify_keyblock_tests(void)
 	TEST_EQ(sd->fw_version, 0x20000, "keyblock version");
 	TEST_EQ(sd->vblock_preamble_offset, sizeof(mock_vblock.k),
 		"preamble offset");
-	TEST_EQ(sd->workbuf_data_key_offset,
-		(wb_used_before + (VB2_WORKBUF_ALIGN - 1)) &
-		~(VB2_WORKBUF_ALIGN - 1),
+	TEST_EQ(sd->workbuf_data_key_offset, wb_used_before,
 		"keyblock data key offset");
 	TEST_EQ(cc.workbuf_used,
-		sd->workbuf_data_key_offset + sd->workbuf_data_key_size,
+		vb2_wb_round_up(sd->workbuf_data_key_offset +
+				sd->workbuf_data_key_size),
 		"workbuf used");
 
 	/* Make sure data key was properly saved */
@@ -204,12 +203,14 @@ static void verify_keyblock_tests(void)
 		       sizeof(mock_vblock.k.data_key_data)),
 		0, "data key data");
 	TEST_EQ(cc.workbuf_used,
-		sd->workbuf_data_key_offset + sd->workbuf_data_key_size,
+		vb2_wb_round_up(sd->workbuf_data_key_offset +
+				sd->workbuf_data_key_size),
 		"workbuf used after");
 
 	/* Test failures */
 	reset_common_data(FOR_KEYBLOCK);
-	cc.workbuf_used = cc.workbuf_size - sd->gbb_rootkey_size + 8;
+	cc.workbuf_used = cc.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sd->gbb_rootkey_size);
 	TEST_EQ(vb2_load_fw_keyblock(&cc),
 		VB2_ERROR_FW_KEYBLOCK_WORKBUF_ROOT_KEY,
 		"keyblock not enough workbuf for root key");
@@ -227,7 +228,8 @@ static void verify_keyblock_tests(void)
 		"keyblock unpack root key");
 
 	reset_common_data(FOR_KEYBLOCK);
-	cc.workbuf_used = cc.workbuf_size - sd->gbb_rootkey_size - 8;
+	cc.workbuf_used = cc.workbuf_size -
+			vb2_wb_round_up(sd->gbb_rootkey_size);
 	TEST_EQ(vb2_load_fw_keyblock(&cc),
 		VB2_ERROR_FW_KEYBLOCK_WORKBUF_HEADER,
 		"keyblock not enough workbuf for header");
@@ -239,8 +241,9 @@ static void verify_keyblock_tests(void)
 		"keyblock read keyblock header");
 
 	reset_common_data(FOR_KEYBLOCK);
-	cc.workbuf_used = cc.workbuf_size - sd->gbb_rootkey_size
-		- sizeof(struct vb2_keyblock);
+	cc.workbuf_used = cc.workbuf_size -
+			vb2_wb_round_up(sd->gbb_rootkey_size) -
+			vb2_wb_round_up(sizeof(struct vb2_keyblock));
 	TEST_EQ(vb2_load_fw_keyblock(&cc),
 		VB2_ERROR_FW_KEYBLOCK_WORKBUF,
 		"keyblock not enough workbuf for entire keyblock");
@@ -286,13 +289,12 @@ static void verify_preamble_tests(void)
 	wb_used_before = cc.workbuf_used;
 	TEST_SUCC(vb2_load_fw_preamble(&cc), "preamble good");
 	TEST_EQ(sd->fw_version, 0x20002, "combined version");
-	TEST_EQ(sd->workbuf_preamble_offset,
-		(wb_used_before + (VB2_WORKBUF_ALIGN - 1)) &
-		~(VB2_WORKBUF_ALIGN - 1),
+	TEST_EQ(sd->workbuf_preamble_offset, wb_used_before,
 		"preamble offset");
 	TEST_EQ(sd->workbuf_preamble_size, pre->preamble_size, "preamble size");
 	TEST_EQ(cc.workbuf_used,
-		sd->workbuf_preamble_offset + sd->workbuf_preamble_size,
+		vb2_wb_round_up(sd->workbuf_preamble_offset +
+				sd->workbuf_preamble_size),
 		"workbuf used");
 
 	/* Expected failures */
@@ -309,7 +311,8 @@ static void verify_preamble_tests(void)
 		"preamble unpack data key");
 
 	reset_common_data(FOR_PREAMBLE);
-	cc.workbuf_used = cc.workbuf_size - sizeof(struct vb2_fw_preamble) + 8;
+	cc.workbuf_used = cc.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sizeof(struct vb2_fw_preamble));
 	TEST_EQ(vb2_load_fw_preamble(&cc),
 		VB2_ERROR_FW_PREAMBLE2_WORKBUF_HEADER,
 		"preamble not enough workbuf for header");
@@ -321,7 +324,8 @@ static void verify_preamble_tests(void)
 		"preamble read header");
 
 	reset_common_data(FOR_PREAMBLE);
-	cc.workbuf_used = cc.workbuf_size - sizeof(mock_vblock.p) + 8;
+	cc.workbuf_used = cc.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sizeof(mock_vblock.p));
 	TEST_EQ(vb2_load_fw_preamble(&cc),
 		VB2_ERROR_FW_PREAMBLE2_WORKBUF,
 		"preamble not enough workbuf");

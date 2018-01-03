@@ -86,7 +86,7 @@ static void init_context_tests(void)
 	reset_common_data();
 
 	TEST_SUCC(vb2_init_context(&c), "Init context good");
-	TEST_EQ(c.workbuf_used, sizeof(struct vb2_shared_data),
+	TEST_EQ(c.workbuf_used, vb2_wb_round_up(sizeof(struct vb2_shared_data)),
 		"Init vbsd");
 
 	/* Don't re-init if used is non-zero */

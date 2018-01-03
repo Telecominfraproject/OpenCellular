@@ -75,6 +75,17 @@ struct vb2_public_key;
  * macro for us we'll be safe and use that. */
 #define VB2_WORKBUF_ALIGN __BIGGEST_ALIGNMENT__
 
+/**
+ * Round up a number to a multiple of VB2_WORKBUF_ALIGN
+ *
+ * @param v		Number to round up
+ * @return The number, rounded up.
+ */
+static __inline uint32_t vb2_wb_round_up(uint32_t v)
+{
+	return (v + VB2_WORKBUF_ALIGN - 1) & ~(VB2_WORKBUF_ALIGN - 1);
+}
+
 /* Work buffer */
 struct vb2_workbuf {
 	uint8_t *buf;

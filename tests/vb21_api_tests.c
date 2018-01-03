@@ -112,8 +112,8 @@ static void reset_common_data(enum reset_type t)
 	}
 
 	sd->workbuf_preamble_size = sig_offset;
-	ctx.workbuf_used = sd->workbuf_preamble_offset
-		+ sd->workbuf_preamble_size;
+	ctx.workbuf_used = vb2_wb_round_up(sd->workbuf_preamble_offset +
+					   sd->workbuf_preamble_size);
 
 	if (t == FOR_EXTEND_HASH || t == FOR_CHECK_HASH)
 		vb21api_init_hash(&ctx, test_id, NULL);
@@ -210,14 +210,13 @@ static void init_hash_tests(void)
 	wb_used_before = ctx.workbuf_used;
 	TEST_SUCC(vb21api_init_hash(&ctx, test_id, &size),
 		  "init hash good");
-	TEST_EQ(sd->workbuf_hash_offset,
-		(wb_used_before + (VB2_WORKBUF_ALIGN - 1)) &
-		~(VB2_WORKBUF_ALIGN - 1),
+	TEST_EQ(sd->workbuf_hash_offset, wb_used_before,
 		"hash context offset");
 	TEST_EQ(sd->workbuf_hash_size, sizeof(struct vb2_digest_context),
 		"hash context size");
 	TEST_EQ(ctx.workbuf_used,
-		sd->workbuf_hash_offset + sd->workbuf_hash_size,
+		vb2_wb_round_up(sd->workbuf_hash_offset +
+				sd->workbuf_hash_size),
 		"hash uses workbuf");
 	TEST_EQ(sd->hash_tag,
 		sd->workbuf_preamble_offset + pre->hash_offset,
@@ -243,8 +242,8 @@ static void init_hash_tests(void)
 		VB2_ERROR_API_INIT_HASH_PREAMBLE, "init hash preamble");
 
 	reset_common_data(FOR_MISC);
-	ctx.workbuf_used =
-		ctx.workbuf_size - sizeof(struct vb2_digest_context) + 8;
+	ctx.workbuf_used = ctx.workbuf_size + VB2_WORKBUF_ALIGN -
+			vb2_wb_round_up(sizeof(struct vb2_digest_context));
 	TEST_EQ(vb21api_init_hash(&ctx, test_id, &size),
 		VB2_ERROR_API_INIT_HASH_WORKBUF, "init hash workbuf");
 

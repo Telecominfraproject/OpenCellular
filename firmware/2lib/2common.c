@@ -61,23 +61,12 @@ void vb2_workbuf_init(struct vb2_workbuf *wb, uint8_t *buf, uint32_t size)
 		wb->size = 0;
 }
 
-/**
- * Round up a number to a multiple of VB2_WORKBUF_ALIGN
- *
- * @param v		Number to round up
- * @return The number, rounded up.
- */
-static __inline uint32_t wb_round_up(uint32_t v)
-{
-	return (v + VB2_WORKBUF_ALIGN - 1) & ~(VB2_WORKBUF_ALIGN - 1);
-}
-
 void *vb2_workbuf_alloc(struct vb2_workbuf *wb, uint32_t size)
 {
 	uint8_t *ptr = wb->buf;
 
 	/* Round up size to work buffer alignment */
-	size = wb_round_up(size);
+	size = vb2_wb_round_up(size);
 
 	if (size > wb->size)
 		return NULL;
@@ -104,7 +93,7 @@ void *vb2_workbuf_realloc(struct vb2_workbuf *wb,
 void vb2_workbuf_free(struct vb2_workbuf *wb, uint32_t size)
 {
 	/* Round up size to work buffer alignment */
-	size = wb_round_up(size);
+	size = vb2_wb_round_up(size);
 
 	wb->buf -= size;
 	wb->size += size;

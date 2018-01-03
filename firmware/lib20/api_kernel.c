@@ -73,6 +73,9 @@ int vb2api_kernel_phase1(struct vb2_context *ctx)
 					 key_data, key_size);
 		if (rv)
 			return rv;
+
+		sd->workbuf_kernel_key_offset =
+				vb2_offset_of(ctx->workbuf, key_data);
 	} else {
 		/* Kernel subkey from firmware preamble */
 		struct vb2_fw_preamble *pre;
@@ -91,7 +94,8 @@ int vb2api_kernel_phase1(struct vb2_context *ctx)
 		 * data key, firmware preamble, or hash data.  So move the
 		 * kernel key from the preamble down after the shared data.
 		 */
-		key_data = (uint8_t *)(sd + 1);
+		sd->workbuf_kernel_key_offset = vb2_wb_round_up(sizeof(*sd));
+		key_data = ctx->workbuf + sd->workbuf_kernel_key_offset;
 		packed_key = (struct vb2_packed_key *)key_data;
 		memmove(packed_key, pre_key, sizeof(*packed_key));
 		packed_key->key_offset = sizeof(*packed_key);
@@ -114,11 +118,9 @@ int vb2api_kernel_phase1(struct vb2_context *ctx)
 	 *   - vb2_shared_data
 	 *   - kernel key
 	 */
-	sd->workbuf_kernel_key_offset =
-		vb2_offset_of(ctx->workbuf, key_data);
 	sd->workbuf_kernel_key_size = key_size;
-	ctx->workbuf_used = sd->workbuf_kernel_key_offset +
-		sd->workbuf_kernel_key_size;
+	vb2_set_workbuf_used(ctx, sd->workbuf_kernel_key_offset +
+			     sd->workbuf_kernel_key_size);
 
 	return VB2_SUCCESS;
 }

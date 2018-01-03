@@ -73,7 +73,7 @@ int vb2api_init_hash(struct vb2_context *ctx, uint32_t tag, uint32_t *size)
 
 		sd->workbuf_hash_offset = vb2_offset_of(ctx->workbuf, dc);
 		sd->workbuf_hash_size = dig_size;
-		ctx->workbuf_used = sd->workbuf_hash_offset + dig_size;
+		vb2_set_workbuf_used(ctx, sd->workbuf_hash_offset + dig_size);
 	}
 
 	/*
