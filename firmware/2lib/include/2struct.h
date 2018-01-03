@@ -195,6 +195,12 @@ struct vb2_shared_data {
 	 */
 
 	/*
+	 * Vboot1 shared data header.  This data should eventually get folded
+	 * directly into the kernel portion of this struct.
+	 */
+	struct VbSharedDataHeader *vbsd;
+
+	/*
 	 * Offset and size of packed kernel key in work buffer.  Size is 0 if
 	 * subkey is not stored in the work buffer.  Note that kernel key may
 	 * be inside the firmware preamble.

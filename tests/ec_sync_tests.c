@@ -83,7 +83,9 @@ static void ResetMocks(void)
 	ctx.flags = VB2_CONTEXT_EC_SYNC_SUPPORTED;
 	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
+
 	sd = vb2_get_sd(&ctx);
+	sd->vbsd = shared;
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -235,7 +237,7 @@ VbError_t VbExUpdateAuxFw()
 
 static void test_ssync(VbError_t retval, int recovery_reason, const char *desc)
 {
-	TEST_EQ(ec_sync_all(&ctx, &cparams), retval, desc);
+	TEST_EQ(ec_sync_all(&ctx), retval, desc);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST),
 		recovery_reason, "  recovery reason");
 }

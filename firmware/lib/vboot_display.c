@@ -276,9 +276,8 @@ const char *RecoveryReasonString(uint8_t code)
 
 VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	char buf[DEBUG_INFO_SIZE] = "";
 	char sha1sum[VB2_SHA1_DIGEST_SIZE * 2 + 1];
 	char hwid[256];

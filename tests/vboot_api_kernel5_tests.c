@@ -13,6 +13,7 @@
 #include "2sysincludes.h"
 #include "2api.h"
 #include "2common.h"
+#include "2misc.h"
 #include "2nvstorage.h"
 #include "2rsa.h"
 #include "gbb_header.h"
@@ -26,7 +27,9 @@
 #include "vboot_struct.h"
 
 /* Mock data */
+static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_context ctx;
+static struct vb2_shared_data *sd;
 static VbCommonParams cparams;
 static VbSelectAndLoadKernelParams kparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
@@ -63,7 +66,13 @@ static void ResetMocks(void)
 	gbb.flags = 0;
 
 	memset(&ctx, 0, sizeof(ctx));
+	ctx.workbuf = workbuf;
+	ctx.workbuf_size = sizeof(workbuf);
+	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
+
+	sd = vb2_get_sd(&ctx);
+	sd->vbsd = shared;
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));

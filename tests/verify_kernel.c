@@ -132,6 +132,9 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+	sd->vbsd = shared;
+
 	/*
 	 * LoadKernel() cares only about VBNV_DEV_BOOT_SIGNED_ONLY, and only in
 	 * dev mode.  So just use defaults for nv storage.

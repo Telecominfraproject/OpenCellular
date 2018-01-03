@@ -17,10 +17,10 @@
 #include "vboot_display.h"
 #include "vboot_kernel.h"
 
-VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams)
+VbError_t ec_sync_all(struct vb2_context *ctx)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	VbAuxFwUpdateSeverity_t fw_update;
 	VbError_t rv;
 

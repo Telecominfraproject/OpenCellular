@@ -247,6 +247,9 @@ int main(int argc, char* argv[]) {
 	  return 1;
   }
 
+  struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+  sd->vbsd = shared;
+
   /* Call LoadKernel() */
   rv = LoadKernel(&ctx, &lkp, &cparams);
   printf("LoadKernel() returned %d\n", rv);

@@ -149,7 +149,6 @@ static void ResetMocks(void)
 	cparams.gbb = gbb;
 	cparams.gbb_data = gbb;
 	cparams.gbb_size = sizeof(gbb_data);
-	cparams.shared_data_blob = shared;
 
 	memset(&lkp, 0, sizeof(lkp));
 	lkp.bytes_per_lba = 512;
@@ -183,6 +182,9 @@ static void ResetMocks(void)
 	ctx.workbuf = workbuf;
 	ctx.workbuf_size = sizeof(workbuf);
 	vb2_nv_init(&ctx);
+
+	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+	sd->vbsd = shared;
 
 	// TODO: more workbuf fields - flags, secdata, secdatak
 }

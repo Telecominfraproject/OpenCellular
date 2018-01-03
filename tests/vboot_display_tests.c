@@ -53,8 +53,6 @@ static void ResetMocks(void)
 	mock_localization_count = 3;
 
 	memset(&cparams, 0, sizeof(cparams));
-	cparams.shared_data_size = sizeof(shared_data);
-	cparams.shared_data_blob = shared_data;
 	cparams.gbb_data = gbb;
 	cparams.gbb_size = sizeof(gbb_data);
 
@@ -77,6 +75,9 @@ static void ResetMocks(void)
 	ctx.workbuf_size = sizeof(workbuf);
 	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
+
+	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+	sd->vbsd = shared;
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));

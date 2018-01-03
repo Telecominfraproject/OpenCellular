@@ -589,9 +589,8 @@ void vb2_update_selection(uint32_t key) {
  */
 VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 
 	uint32_t use_usb = 0;
 	uint32_t use_legacy = 0;
@@ -897,8 +896,8 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx, VbCommonParams *cparams)
  */
 static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	uint32_t retval;
 	uint32_t key;
 	uint32_t key_flags;

@@ -80,9 +80,8 @@ VbError_t ec_sync_phase3(struct vb2_context *ctx);
  * This is a high-level function which calls the functions above.
  *
  * @param ctx		Vboot context
- * @param cparams	Vboot common params
  * @return VBERROR_SUCCESS, or non-zero if error.
  */
-VbError_t ec_sync_all(struct vb2_context *ctx, struct VbCommonParams *cparams);
+VbError_t ec_sync_all(struct vb2_context *ctx);
 
 #endif  /* VBOOT_REFERENCE_EC_SYNC_H_ */

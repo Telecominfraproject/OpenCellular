@@ -431,7 +431,8 @@ int vb2_load_partition(struct vb2_context *ctx,
 VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
 		     VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared = cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	VbSharedDataKernelCall *shcall = NULL;
 	struct vb2_packed_key *recovery_key = NULL;
 	int found_partitions = 0;

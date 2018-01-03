@@ -168,8 +168,8 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 
 VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	uint32_t max_rollforward = vb2_nv_get(ctx,
 					      VB2_NV_KERNEL_MAX_ROLLFORWARD);
 
@@ -315,10 +315,19 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	sd->recovery_reason = shared->recovery_reason;
 
 	/*
+	 * Save a pointer to the old vboot1 shared data, since we haven't
+	 * finished porting the library to use the new vb2 context and shared
+	 * data.
+	 *
+	 * TODO: replace this with fields directly in vb2 shared data.
+	 */
+	sd->vbsd = shared;
+
+	/*
 	 * If we're in recovery mode just to do memory retraining, all we
 	 * need to do is reboot.
 	 */
-	if (shared->recovery_reason == VB2_RECOVERY_TRAIN_AND_REBOOT) {
+	if (sd->recovery_reason == VB2_RECOVERY_TRAIN_AND_REBOOT) {
 		VB2_DEBUG("Reboot after retraining in recovery.\n");
 		return VBERROR_REBOOT_REQUIRED;
 	}
@@ -346,9 +355,8 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
 	if (RollbackKernelRead(&shared->kernel_version_tpm)) {
 		VB2_DEBUG("Unable to get kernel versions from TPM\n");
-		if (!shared->recovery_reason) {
-			VbSetRecoveryRequest(&ctx,
-					     VB2_RECOVERY_RW_TPM_R_ERROR);
+		if (!(ctx.flags & VB2_CONTEXT_RECOVERY_MODE)) {
+			VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_TPM_R_ERROR);
 			return VBERROR_TPM_READ_KERNEL;
 		}
 	}
@@ -360,9 +368,8 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 		memset(&fwmp, 0, sizeof(fwmp));
 	} else if (RollbackFwmpRead(&fwmp)) {
 		VB2_DEBUG("Unable to get FWMP from TPM\n");
-		if (!shared->recovery_reason) {
-			VbSetRecoveryRequest(&ctx,
-					     VB2_RECOVERY_RW_TPM_R_ERROR);
+		if (!(ctx.flags & VB2_CONTEXT_RECOVERY_MODE)) {
+			VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_TPM_R_ERROR);
 			return VBERROR_TPM_READ_FWMP;
 		}
 	}
@@ -370,11 +377,9 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	return VBERROR_SUCCESS;
 }
 
-static VbError_t vb2_kernel_phase4(VbCommonParams *cparams,
-				   VbSelectAndLoadKernelParams *kparams)
+static VbError_t vb2_kernel_phase4(VbSelectAndLoadKernelParams *kparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
 
 	/* Save disk parameters */
 	kparams->disk_handle = lkp.disk_handle;
@@ -388,8 +393,8 @@ static VbError_t vb2_kernel_phase4(VbCommonParams *cparams,
 	       sizeof(kparams->partition_guid));
 
 	/* Lock the kernel versions if not in recovery mode */
-	if (!shared->recovery_reason &&
-	    RollbackKernelLock(shared->recovery_reason)) {
+	if (!(ctx.flags & VB2_CONTEXT_RECOVERY_MODE) &&
+	    RollbackKernelLock(sd->recovery_reason)) {
 		VB2_DEBUG("Error locking kernel versions.\n");
 		VbSetRecoveryRequest(&ctx, VB2_RECOVERY_RW_TPM_L_ERROR);
 		return VBERROR_TPM_LOCK_KERNEL;
@@ -400,8 +405,13 @@ static VbError_t vb2_kernel_phase4(VbCommonParams *cparams,
 
 static void vb2_kernel_cleanup(struct vb2_context *ctx, VbCommonParams *cparams)
 {
+	/*
+	 * This must directly access cparams for now because we could have had
+	 * an error setting up the vboot2 context.  In that case
+	 * vb2_shared_data is not available.
+	 */
 	VbSharedDataHeader *shared =
-			(VbSharedDataHeader *)cparams->shared_data_blob;
+		(VbSharedDataHeader *)cparams->shared_data_blob;
 
 	/*
 	 * Clean up vboot context.
@@ -422,9 +432,6 @@ static void vb2_kernel_cleanup(struct vb2_context *ctx, VbCommonParams *cparams)
 VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
                                 VbSelectAndLoadKernelParams *kparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
-
 	VbError_t retval = vb2_kernel_setup(cparams, kparams);
 	if (retval)
 		goto VbSelectAndLoadKernel_exit;
@@ -433,21 +440,21 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	 * Do EC software sync unless we're in recovery mode. This has UI but
 	 * it's just a single non-interactive WAIT screen.
 	 */
-	if (shared->recovery_reason == VB2_RECOVERY_NOT_REQUESTED) {
-		retval = ec_sync_all(&ctx, cparams);
+	if (!(ctx.flags & VB2_CONTEXT_RECOVERY_MODE)) {
+		retval = ec_sync_all(&ctx);
 		if (retval)
 			goto VbSelectAndLoadKernel_exit;
 	}
 
 	/* Select boot path */
-	if (shared->recovery_reason) {
+	if (ctx.flags & VB2_CONTEXT_RECOVERY_MODE) {
 		/* Recovery boot.  This has UI. */
 		if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
 			retval = VbBootRecoveryMenu(&ctx, cparams);
 		else
 			retval = VbBootRecovery(&ctx, cparams);
 		VbExEcEnteringMode(0, VB_EC_RECOVERY);
-	} else if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
+	} else if (ctx.flags & VB2_CONTEXT_DEVELOPER_MODE) {
 		/* Developer boot.  This has UI. */
 		if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
 			retval = VbBootDeveloperMenu(&ctx, cparams);
@@ -463,7 +470,7 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
  VbSelectAndLoadKernel_exit:
 
 	if (VBERROR_SUCCESS == retval)
-		retval = vb2_kernel_phase4(cparams, kparams);
+		retval = vb2_kernel_phase4(kparams);
 
 	vb2_kernel_cleanup(&ctx, cparams);
 
@@ -480,8 +487,6 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 	VbPublicKey* kernel_subkey = NULL;
 	uint8_t *kbuf;
 	VbKeyBlockHeader *key_block;
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	VbKernelPreambleHeader *preamble;
 	uint64_t body_offset;
 	int hash_only = 0;
@@ -494,6 +499,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 		goto fail;
 
 	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 
 	if ((boot_image == NULL) || (image_size == 0)) {
 		retval = VBERROR_INVALID_PARAMETER;

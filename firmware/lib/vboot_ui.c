@@ -94,8 +94,8 @@ uint32_t VbTryUsb(struct vb2_context *ctx, VbCommonParams *cparams)
 int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 		   uint32_t confirm_flags)
 {
-	VbSharedDataHeader *shared =
-			(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	uint32_t key;
 	uint32_t key_flags;
 	uint32_t btn;
@@ -162,9 +162,8 @@ static const char dev_disable_msg[] =
 
 VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 
 	uint32_t disable_dev_boot = 0;
 	uint32_t use_usb = 0;
@@ -399,8 +398,8 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams)
 
 static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 {
-	VbSharedDataHeader *shared =
-		(VbSharedDataHeader *)cparams->shared_data_blob;
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+	VbSharedDataHeader *shared = sd->vbsd;
 	uint32_t retval;
 	uint32_t key;
 	int i;
