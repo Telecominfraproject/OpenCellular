@@ -40,7 +40,7 @@ DEFINE_boolean edit_config "${FLAGS_FALSE}" \
 DEFINE_string partitions "" \
   "List of partitions to examine (default: $DEFAULT_PARTITIONS)" ""
 DEFINE_boolean recovery_key "$FLAGS_FALSE" \
- "Use recovery key to sign image (to boot from USB" ""
+  "Use recovery key to sign image (to boot from USB)" ""
 DEFINE_boolean force "$FLAGS_FALSE" "Skip sanity checks and make the change" "f"
 
 # Parse command line
