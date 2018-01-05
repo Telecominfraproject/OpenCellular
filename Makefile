@@ -318,12 +318,11 @@ BDBLIB = ${BUILD}/bdb.a
 # Firmware library sources needed by VbInit() call
 VBINIT_SRCS = \
 	firmware/lib/vboot_common_init.c \
-	firmware/lib/region-init.c \
+	firmware/lib/region-init.c
 
 # Additional firmware library sources needed by VbSelectFirmware() call
 VBSF_SRCS = \
-	firmware/lib/vboot_common.c \
-	firmware/lib/region-fw.c \
+	firmware/lib/vboot_common.c
 
 # Additional firmware library sources needed by VbSelectAndLoadKernel() call
 VBSLK_SRCS = \
@@ -339,8 +338,7 @@ VBSLK_SRCS = \
 	firmware/lib/vboot_display.c \
 	firmware/lib/vboot_kernel.c \
 	firmware/lib/vboot_ui.c \
-	firmware/lib/vboot_ui_menu.c \
-	firmware/lib/region-kernel.c \
+	firmware/lib/vboot_ui_menu.c
 
 # Code common to both vboot 2.0 (old structs) and 2.1 (new structs)
 FWLIB2X_SRCS = \
@@ -410,8 +408,7 @@ ifeq (${FIRMWARE_ARCH},)
 # TODO: split out other stub funcs too
 VBINIT_SRCS += \
 	firmware/stub/tpm_lite_stub.c \
-	firmware/stub/vboot_api_stub_init.c \
-	firmware/stub/vboot_api_stub_region.c
+	firmware/stub/vboot_api_stub_init.c
 
 VBSLK_SRCS += \
 	firmware/stub/vboot_api_stub.c \
@@ -747,10 +744,6 @@ TEST_NAMES += \
 	tests/rollback_index2_tests
 endif
 
-ifdef REGION_READ
-TEST_NAMES += tests/vboot_region_tests
-endif
-
 TEST_FUTIL_NAMES  = \
 	tests/futility/binary_editor \
 	tests/futility/test_file_types \
@@ -908,10 +901,6 @@ ${FWLIB_OBJS}: CFLAGS += -DSAVE_LOCALE_IMMEDIATELY
 # Therefore it makes sense to cache it rather than reading it each time.
 # Enable this feature.
 ${FWLIB_OBJS}: CFLAGS += -DCOPY_BMP_DATA
-endif
-
-ifdef REGION_READ
-${FWLIB_OBJS}: CFLAGS += -DREGION_READ
 endif
 
 ifeq (${FIRMWARE_ARCH},)

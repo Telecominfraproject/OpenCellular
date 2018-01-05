@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
 
   /* Initialize the GBB */
   cparams.gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
-  cparams.gbb = gbb = (GoogleBinaryBlockHeader*)malloc(cparams.gbb_size);
+  cparams.gbb_data = gbb = (GoogleBinaryBlockHeader*)malloc(cparams.gbb_size);
   memset(gbb, 0, cparams.gbb_size);
   memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
   gbb->major_version = GBB_MAJOR_VER;

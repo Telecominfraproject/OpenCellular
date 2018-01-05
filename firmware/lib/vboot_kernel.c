@@ -16,7 +16,6 @@
 #include "2sha.h"
 #include "cgptlib.h"
 #include "cgptlib_internal.h"
-#include "region.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "gpt_misc.h"
@@ -464,7 +463,7 @@ VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
 	struct vb2_packed_key *kernel_subkey;
 	if (kBootRecovery == shcall->boot_mode) {
 		/* Use the recovery key to verify the kernel */
-		retval = VbGbbReadRecoveryKey(cparams,
+		retval = VbGbbReadRecoveryKey(ctx,
 					      (VbPublicKey **)&recovery_key);
 		if (VBERROR_SUCCESS != retval)
 			goto load_kernel_exit;

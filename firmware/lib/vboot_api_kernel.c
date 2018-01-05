@@ -16,7 +16,6 @@
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
-#include "region.h"
 #include "rollback_index.h"
 #include "utility.h"
 #include "vb2_common.h"
@@ -234,16 +233,6 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 	return rv;
 }
 
-/* This function is also used by tests */
-void VbApiKernelFree(VbCommonParams *cparams)
-{
-	/* VbSelectAndLoadKernel() always allocates this, tests don't */
-	if (cparams->gbb) {
-		free(cparams->gbb);
-		cparams->gbb = NULL;
-	}
-}
-
 static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 				  VbSelectAndLoadKernelParams *kparams)
 {
@@ -345,12 +334,10 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 	kparams->flags = 0;
 	memset(kparams->partition_guid, 0, sizeof(kparams->partition_guid));
 
-	/* Read GBB header, since we'll needs flags from it */
-	cparams->gbb = malloc(sizeof(*cparams->gbb));
-	uint32_t retval = VbGbbReadHeader_static(cparams, cparams->gbb);
-	if (retval)
-		return retval;
-	sd->gbb_flags = cparams->gbb->flags;
+	/* Point to GBB data from cparams */
+	sd->gbb = cparams->gbb_data;
+	sd->gbb_size = cparams->gbb_size;
+	sd->gbb_flags = sd->gbb->flags;
 
 	/* Read kernel version from the TPM.  Ignore errors in recovery mode. */
 	if (RollbackKernelRead(&shared->kernel_version_tpm)) {
@@ -421,7 +408,6 @@ static void vb2_kernel_cleanup(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	/* Free buffers */
 	free(unaligned_workbuf);
-	VbApiKernelFree(cparams);
 
 	vb2_nv_commit(ctx);
 
@@ -530,7 +516,7 @@ VbError_t VbVerifyMemoryBootImage(VbCommonParams *cparams,
 		hash_only = 1;
 	} else {
 		/* Get recovery key. */
-		retval = VbGbbReadRecoveryKey(cparams, &kernel_subkey);
+		retval = VbGbbReadRecoveryKey(&ctx, &kernel_subkey);
 		if (VBERROR_SUCCESS != retval) {
 			VB2_DEBUG("Gbb Read Recovery key failed.\n");
 			goto fail;

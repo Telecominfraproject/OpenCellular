@@ -30,7 +30,6 @@
 static VbCommonParams cparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
-static GoogleBinaryBlockHeader gbb;
 static LoadKernelParams lkp;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_context ctx;
@@ -61,13 +60,6 @@ extern struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void);
 static void ResetMocks(void)
 {
 	memset(&cparams, 0, sizeof(cparams));
-	cparams.gbb_data = &gbb;
-	cparams.gbb = &gbb;
-
-	memset(&gbb, 0, sizeof(gbb));
-	gbb.major_version = GBB_MAJOR_VER;
-	gbb.minor_version = GBB_MINOR_VER;
-	gbb.flags = 0;
 
 	memset(VbApiKernelGetFwmp(), 0, sizeof(struct RollbackSpaceFwmp));
 

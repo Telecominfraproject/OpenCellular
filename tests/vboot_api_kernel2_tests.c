@@ -28,7 +28,6 @@
 static VbCommonParams cparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
-static GoogleBinaryBlockHeader gbb;
 static LoadKernelParams lkp;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_context ctx;
@@ -59,13 +58,6 @@ extern struct RollbackSpaceFwmp *VbApiKernelGetFwmp(void);
 static void ResetMocks(void)
 {
 	memset(&cparams, 0, sizeof(cparams));
-	cparams.gbb_data = &gbb;
-	cparams.gbb = &gbb;
-
-	memset(&gbb, 0, sizeof(gbb));
-	gbb.major_version = GBB_MAJOR_VER;
-	gbb.minor_version = GBB_MINOR_VER;
-	gbb.flags = 0;
 
 	memset(VbApiKernelGetFwmp(), 0, sizeof(struct RollbackSpaceFwmp));
 
@@ -212,48 +204,48 @@ static void VbUserConfirmsTest(void)
 
 	ResetMocks();
 	shutdown_request_calls_left = 1;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), -1, "Shutdown requested");
+	TEST_EQ(VbUserConfirms(&ctx, 0), -1, "Shutdown requested");
 
 	ResetMocks();
 	mock_keypress[0] = VB_BUTTON_POWER_SHORT_PRESS;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), -1, "Shutdown requested");
+	TEST_EQ(VbUserConfirms(&ctx, 0), -1, "Shutdown requested");
 
 	ResetMocks();
 	mock_keypress[0] = '\r';
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), 1, "Enter");
+	TEST_EQ(VbUserConfirms(&ctx, 0), 1, "Enter");
 
 	ResetMocks();
 	mock_keypress[0] = 0x1b;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), 0, "Esc");
+	TEST_EQ(VbUserConfirms(&ctx, 0), 0, "Esc");
 
 	ResetMocks();
 	mock_keypress[0] = ' ';
 	shutdown_request_calls_left = 1;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, VB_CONFIRM_SPACE_MEANS_NO), 0,
+	TEST_EQ(VbUserConfirms(&ctx, VB_CONFIRM_SPACE_MEANS_NO), 0,
                 "Space means no");
 
 	ResetMocks();
 	mock_keypress[0] = ' ';
 	shutdown_request_calls_left = 1;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, 0), -1, "Space ignored");
+	TEST_EQ(VbUserConfirms(&ctx, 0), -1, "Space ignored");
 
 	ResetMocks();
 	mock_keypress[0] = '\r';
 	mock_keyflags[0] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams, VB_CONFIRM_MUST_TRUST_KEYBOARD),
+	TEST_EQ(VbUserConfirms(&ctx, VB_CONFIRM_MUST_TRUST_KEYBOARD),
 		1, "Enter with trusted keyboard");
 
 	ResetMocks();
 	mock_keypress[0] = '\r';	/* untrusted */
 	mock_keypress[1] = ' ';
-	TEST_EQ(VbUserConfirms(&ctx, &cparams,
+	TEST_EQ(VbUserConfirms(&ctx,
 			       VB_CONFIRM_SPACE_MEANS_NO |
 			       VB_CONFIRM_MUST_TRUST_KEYBOARD),
 		0, "Untrusted keyboard");
 
 	ResetMocks();
 	mock_switches[0] = VB_INIT_FLAG_REC_BUTTON_PRESSED;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams,
+	TEST_EQ(VbUserConfirms(&ctx,
 			       VB_CONFIRM_SPACE_MEANS_NO |
 			       VB_CONFIRM_MUST_TRUST_KEYBOARD),
 		1, "Recovery button");
@@ -265,7 +257,7 @@ static void VbUserConfirmsTest(void)
 	mock_keypress[3] = ' ';
 	mock_switches[0] = VB_INIT_FLAG_REC_BUTTON_PRESSED;
 	mock_switches_are_stuck = 1;
-	TEST_EQ(VbUserConfirms(&ctx, &cparams,
+	TEST_EQ(VbUserConfirms(&ctx,
 			       VB_CONFIRM_SPACE_MEANS_NO |
 			       VB_CONFIRM_MUST_TRUST_KEYBOARD),
 		0, "Recovery button stuck");

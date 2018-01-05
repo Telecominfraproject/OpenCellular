@@ -193,9 +193,6 @@ typedef struct VbCommonParams {
 	 * the stack.
 	 */
 	void *caller_context;
-
-	/* For internal use of Vboot - do not examine or modify! */
-	struct GoogleBinaryBlockHeader *gbb;
 } VbCommonParams;
 
 /* Flags for VbInitParams.flags */

@@ -14,9 +14,8 @@ VbError_t VbDisplayScreen(struct vb2_context *ctx, uint32_t screen, int force);
 VbError_t VbDisplayMenu(struct vb2_context *ctx,
 			uint32_t screen, int force, uint32_t selected_index,
 			uint32_t disabled_idx_mask);
-VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams);
-VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
-			    uint32_t key);
+VbError_t VbDisplayDebugInfo(struct vb2_context *ctx);
+VbError_t VbCheckDisplayKey(struct vb2_context *ctx, uint32_t key);
 
 /**
  * Return a description of the recovery reason code.

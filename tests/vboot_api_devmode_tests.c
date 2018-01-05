@@ -100,7 +100,6 @@ static struct vb2_context ctx;
 static struct vb2_shared_data *sd;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader* shared = (VbSharedDataHeader*)shared_data;
-static GoogleBinaryBlockHeader gbb;
 static int current_time;
 static uint64_t current_ticks;
 static int current_event;
@@ -118,8 +117,6 @@ extern int audio_open_count;
 static void ResetMocks(void)
 {
 	memset(&cparams, 0, sizeof(cparams));
-	cparams.gbb_data = &gbb;
-	cparams.gbb = &gbb;
 
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;
@@ -133,11 +130,6 @@ static void ResetMocks(void)
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
 	shared->fw_keyblock_flags = 0xABCDE0;
-
-	memset(&gbb, 0, sizeof(gbb));
-	gbb.major_version = GBB_MAJOR_VER;
-	gbb.minor_version = GBB_MINOR_VER;
-	gbb.flags = 0;
 
 	current_ticks = 0;
 	current_time = 0;

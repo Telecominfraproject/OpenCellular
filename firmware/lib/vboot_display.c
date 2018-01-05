@@ -15,7 +15,6 @@
 #include "bmpblk_font.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
-#include "region.h"
 #include "utility.h"
 #include "vboot_api.h"
 #include "vboot_common.h"
@@ -274,7 +273,7 @@ const char *RecoveryReasonString(uint8_t code)
 
 #define DEBUG_INFO_SIZE 512
 
-VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t VbDisplayDebugInfo(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -296,7 +295,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 		      disp_current_index, disp_disabled_idx_mask);
 
 	/* Add hardware ID */
-	VbRegionReadHWID(cparams, hwid, sizeof(hwid));
+	VbGbbReadHWID(ctx, hwid, sizeof(hwid));
 	used += StrnAppend(buf + used, "HWID: ", DEBUG_INFO_SIZE - used);
 	used += StrnAppend(buf + used, hwid, DEBUG_INFO_SIZE - used);
 
@@ -371,7 +370,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 			       sd->gbb_flags, 16, 8);
 
 	/* Add sha1sum for Root & Recovery keys */
-	ret = VbGbbReadRootKey(cparams, &key);
+	ret = VbGbbReadRootKey(ctx, &key);
 	if (!ret) {
 		FillInSha1Sum(sha1sum, key);
 		free(key);
@@ -381,7 +380,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 				   DEBUG_INFO_SIZE - used);
 	}
 
-	ret = VbGbbReadRecoveryKey(cparams, &key);
+	ret = VbGbbReadRecoveryKey(ctx, &key);
 	if (!ret) {
 		FillInSha1Sum(sha1sum, key);
 		free(key);
@@ -413,8 +412,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx, VbCommonParams *cparams)
 #define MAGIC_WORD "xyzzy"
 static uint8_t MagicBuffer[MAGIC_WORD_LEN];
 
-VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
-			    uint32_t key)
+VbError_t VbCheckDisplayKey(struct vb2_context *ctx, uint32_t key)
 {
 	int i;
 
@@ -426,7 +424,7 @@ VbError_t VbCheckDisplayKey(struct vb2_context *ctx, VbCommonParams *cparams,
 
 	if ('\t' == key) {
 		/* Tab = display debug info */
-		return VbDisplayDebugInfo(ctx, cparams);
+		return VbDisplayDebugInfo(ctx);
 	} else if (VB_KEY_LEFT == key || VB_KEY_RIGHT == key ||
 		   VB_KEY_DOWN == key || VB_KEY_UP == key) {
 		/* Arrow keys = change localization */

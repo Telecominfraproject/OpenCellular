@@ -14,7 +14,6 @@
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
-#include "region.h"
 #include "rollback_index.h"
 #include "utility.h"
 #include "vb2_common.h"
@@ -245,8 +244,7 @@ static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
 	VB_SCREEN_TO_NORM_CONFIRMED,
 };
 
-VbError_t vb2_draw_current_screen(struct vb2_context *ctx,
-				  VbCommonParams *cparams) {
+VbError_t vb2_draw_current_screen(struct vb2_context *ctx) {
 	uint32_t screen;
 	if (current_menu < VB_MENU_COUNT)
 		screen = VB_MENU_TO_SCREEN_MAP[current_menu];
@@ -645,7 +643,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	vb2_set_disabled_idx_mask(shared->flags);
 	/* Show the dev mode warning screen */
-	vb2_draw_current_screen(ctx, cparams);
+	vb2_draw_current_screen(ctx);
 
 	/* Get audio/delay context */
 	vb2_audio_start(ctx);
@@ -710,21 +708,21 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
-					vb2_draw_current_screen(ctx, cparams);
+					vb2_draw_current_screen(ctx);
 				}
 			}
 			break;
 		case VB_BUTTON_VOL_UP_SHORT_PRESS:
 		case VB_KEY_UP:
 			vb2_update_selection(key);
-			vb2_draw_current_screen(ctx, cparams);
+			vb2_draw_current_screen(ctx);
 			/* reset 30 second timer */
 			vb2_audio_start(ctx);
 			break;
 		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 		case VB_KEY_DOWN:
 			vb2_update_selection(key);
-			vb2_draw_current_screen(ctx, cparams);
+			vb2_draw_current_screen(ctx);
 			/* reset 30 second timer */
 			vb2_audio_start(ctx);
 			break;
@@ -740,7 +738,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 
 			ret = vb2_update_menu(ctx);
 			vb2_set_disabled_idx_mask(shared->flags);
-			vb2_draw_current_screen(ctx, cparams);
+			vb2_draw_current_screen(ctx);
 
 			/* Probably shutting down */
 			if (ret != VBERROR_SUCCESS) {
@@ -757,7 +755,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 			/* Display debug information */
 			if (current_menu == VB_MENU_DEV_WARNING &&
 			    current_menu_idx == VB_WARN_DBG_INFO) {
-				VbDisplayDebugInfo(ctx, cparams);
+				VbDisplayDebugInfo(ctx);
 			}
 
 			/* Boot Legacy mode */
@@ -797,8 +795,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 						 * Show dev mode warning screen
 						 * again
 						 */
-						vb2_draw_current_screen(ctx,
-								       cparams);
+						vb2_draw_current_screen(ctx);
 				}
 			}
 
@@ -933,7 +930,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			if (key == VB_BUTTON_POWER_SHORT_PRESS)
 				return VBERROR_SHUTDOWN_REQUESTED;
 			else {
-				VbCheckDisplayKey(ctx, cparams, key);
+				VbCheckDisplayKey(ctx, key);
 				if (VbWantShutdownMenu(ctx))
 					return VBERROR_SHUTDOWN_REQUESTED;
 			}
@@ -970,7 +967,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		if (current_menu != VB_MENU_RECOVERY ||
 		    current_menu_idx != VB_RECOVERY_DBG_INFO) {
 			if (retval == VBERROR_NO_DISK_FOUND)
-				vb2_draw_current_screen(ctx, cparams);
+				vb2_draw_current_screen(ctx);
 			else {
 				VbDisplayScreen(ctx,
 						VB_SCREEN_RECOVERY_NO_GOOD, 0);
@@ -1005,7 +1002,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				}
 
 				vb2_update_selection(key);
-				vb2_draw_current_screen(ctx, cparams);
+				vb2_draw_current_screen(ctx);
 				break;
 			case VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS:
 				/*
@@ -1018,7 +1015,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					if (ret != VBERROR_SUCCESS)
 						return ret;
 					vb2_set_disabled_idx_mask(shared->flags);
-					vb2_draw_current_screen(ctx, cparams);
+					vb2_draw_current_screen(ctx);
 				}
 				break;
 			case VB_BUTTON_POWER_SHORT_PRESS:
@@ -1056,8 +1053,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					 * printed.
 					 */
 					if (retval == VBERROR_NO_DISK_FOUND)
-						vb2_draw_current_screen(ctx,
-							cparams);
+						vb2_draw_current_screen(ctx);
 					else {
 						VbDisplayScreen(ctx,
 						VB_SCREEN_RECOVERY_NO_GOOD, 0);
@@ -1078,7 +1074,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				/* Display debug information */
 				if (current_menu == VB_MENU_RECOVERY &&
 				    current_menu_idx == VB_RECOVERY_DBG_INFO) {
-					VbDisplayDebugInfo(ctx, cparams);
+					VbDisplayDebugInfo(ctx);
 				}
 
 				/* Confirm going into developer mode */

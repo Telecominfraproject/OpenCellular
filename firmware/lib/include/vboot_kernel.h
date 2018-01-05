@@ -17,11 +17,6 @@
 struct vb2_context;
 
 /**
- * Exported for unit tests only - frees memory used by VbSelectAndLoadKernel()
- */
-void VbApiKernelFree(VbCommonParams *cparams);
-
-/**
  * Attempt loading a kernel from the specified type(s) of disks.
  *
  * If successful, sets p->disk_handle to the disk for the kernel and returns
@@ -54,8 +49,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
  *
  * Returns: 1=yes, 0=no, -1 = shutdown.
  */
-int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
-		   uint32_t confirm_flags);
+int VbUserConfirms(struct vb2_context *ctx, uint32_t confirm_flags);
 
 /**
  * Handle a normal boot.

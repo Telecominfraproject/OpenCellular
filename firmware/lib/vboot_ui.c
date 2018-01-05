@@ -16,7 +16,6 @@
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
-#include "region.h"
 #include "rollback_index.h"
 #include "utility.h"
 #include "vb2_common.h"
@@ -91,8 +90,7 @@ uint32_t VbTryUsb(struct vb2_context *ctx, VbCommonParams *cparams)
 
 #define CONFIRM_KEY_DELAY 20  /* Check confirm screen keys every 20ms */
 
-int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
-		   uint32_t confirm_flags)
+int VbUserConfirms(struct vb2_context *ctx, uint32_t confirm_flags)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -146,7 +144,7 @@ int VbUserConfirms(struct vb2_context *ctx, VbCommonParams *cparams,
 					return 1;
 				}
 			}
-			VbCheckDisplayKey(ctx, cparams, key);
+			VbCheckDisplayKey(ctx, key);
 		}
 		VbExSleepMs(CONFIRM_KEY_DELAY);
 	}
@@ -216,7 +214,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		VbExDisplayDebugInfo(dev_disable_msg);
 
 		/* Ignore space in VbUserConfirms()... */
-		switch (VbUserConfirms(ctx, cparams, 0)) {
+		switch (VbUserConfirms(ctx, 0)) {
 		case 1:
 			VB2_DEBUG("leaving dev-mode\n");
 			vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
@@ -278,7 +276,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				VbDisplayScreen(ctx,
 						VB_SCREEN_DEVELOPER_TO_NORM, 0);
 				/* Ignore space in VbUserConfirms()... */
-				switch (VbUserConfirms(ctx, cparams, 0)) {
+				switch (VbUserConfirms(ctx, 0)) {
 				case 1:
 					VB2_DEBUG("leaving dev-mode\n");
 					vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST,
@@ -360,7 +358,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 			break;
 		default:
 			VB2_DEBUG("VbBootDeveloper() - pressed key %d\n", key);
-			VbCheckDisplayKey(ctx, cparams, key);
+			VbCheckDisplayKey(ctx, key);
 			break;
 		}
 	} while(vb2_audio_looping());
@@ -429,7 +427,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 		VB2_DEBUG("VbBootRecovery() waiting for manual recovery\n");
 		while (1) {
 			key = VbExKeyboardRead();
-			VbCheckDisplayKey(ctx, cparams, key);
+			VbCheckDisplayKey(ctx, key);
 			if (VbWantShutdown(ctx, key))
 				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
@@ -499,8 +497,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				uint32_t vbc_flags =
 					VB_CONFIRM_SPACE_MEANS_NO |
 					VB_CONFIRM_MUST_TRUST_KEYBOARD;
-				switch (VbUserConfirms(ctx, cparams,
-						       vbc_flags)) {
+				switch (VbUserConfirms(ctx, vbc_flags)) {
 				case 1:
 					VB2_DEBUG("Enabling dev-mode...\n");
 					if (TPM_SUCCESS != SetVirtualDevMode(1))
@@ -524,7 +521,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 					break;
 				}
 			} else {
-				VbCheckDisplayKey(ctx, cparams, key);
+				VbCheckDisplayKey(ctx, key);
 			}
 			if (VbWantShutdown(ctx, key))
 				return VBERROR_SHUTDOWN_REQUESTED;

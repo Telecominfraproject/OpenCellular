@@ -29,7 +29,6 @@
 static VbCommonParams cparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
-static GoogleBinaryBlockHeader gbb;
 
 static int mock_in_rw;
 static VbError_t in_rw_retval;
@@ -69,13 +68,6 @@ static void ResetMocks(void)
 	memset(&cparams, 0, sizeof(cparams));
 	cparams.shared_data_size = sizeof(shared_data);
 	cparams.shared_data_blob = shared_data;
-	cparams.gbb_data = &gbb;
-
-	memset(&gbb, 0, sizeof(gbb));
-	gbb.major_version = GBB_MAJOR_VER;
-	gbb.minor_version = GBB_MINOR_VER;
-	gbb.flags = 0;
-	cparams.gbb = &gbb;
 
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;

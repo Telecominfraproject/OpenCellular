@@ -10,43 +10,43 @@
 
 #include "vboot_api.h"
 
-struct BmpBlockHeader;
-struct ImageInfo;
-struct GoogleBinaryBlockHeader;
-struct ScreenLayout;
+struct vb2_context;
 struct VbPublicKey;
-
-/**
- * Read the GBB header
- *
- * This accesses the GBB and reads its header.
- *
- * @param cparams	Vboot common parameters
- * @param gbb		Place to put GBB header
- */
-VbError_t VbGbbReadHeader_static(VbCommonParams *cparams,
-				 struct GoogleBinaryBlockHeader *gbb);
 
 /**
  * Read the root key from the GBB
  *
- * @param cparams	Vboot common parameters
+ * @param ctx		Vboot context
  * @param keyp		Returns a pointer to the key. The caller must call
  *			free() on the key when finished with it.
  * @return VBERROR_... error, VBERROR_SUCCESS on success,
  */
-VbError_t VbGbbReadRootKey(VbCommonParams *cparams,
+VbError_t VbGbbReadRootKey(struct vb2_context *ctx,
 			   struct VbPublicKey **keyp);
 
 /**
  * Read the recovery key from the GBB
  *
+ * @param ctx		Vboot context
  * @param cparams	Vboot common parameters
  * @param keyp		Returns a pointer to the key. The caller must call
  *			free() on the key when finished with it.
  * @return VBERROR_... error, VBERROR_SUCCESS on success,
  */
-VbError_t VbGbbReadRecoveryKey(VbCommonParams *cparams,
+VbError_t VbGbbReadRecoveryKey(struct vb2_context *ctx,
 			       struct VbPublicKey **keyp);
+
+/**
+ * Read the hardware ID from the GBB
+ *
+ * @param ctx		Vboot context
+ * @param hwid		Place to put HWID, which will be null-terminated
+ * @param max_size	Maximum size of HWID including terminated null
+ *			character (suggest 256). If this size is too small
+ *			then VBERROR_INVALID_PARAMETER is returned.
+ * @return VBERROR_... error, VBERROR_SUCCESS on success,
+ */
+VbError_t VbGbbReadHWID(struct vb2_context *ctx, char *hwid,
+			uint32_t max_size);
 
 #endif

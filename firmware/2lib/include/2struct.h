@@ -208,6 +208,11 @@ struct vb2_shared_data {
 	uint32_t workbuf_kernel_key_offset;
 	uint32_t workbuf_kernel_key_size;
 
+	/* GBB data and size */
+	struct vb2_gbb_header *gbb;
+	uint32_t gbb_size;
+
+
 } __attribute__((packed));
 
 /****************************************************************************/

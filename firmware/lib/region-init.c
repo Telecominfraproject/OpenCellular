@@ -6,10 +6,11 @@
  * (Firmware portion)
  */
 
-#include "sysincludes.h"
+#include "2sysincludes.h"
+#include "2common.h"
+#include "2misc.h"
 
-#include "bmpblk_header.h"
-#include "region.h"
+#include "sysincludes.h"
 #include "gbb_access.h"
 #include "gbb_header.h"
 #include "load_kernel_fw.h"
@@ -17,34 +18,83 @@
 #include "vboot_api.h"
 #include "vboot_struct.h"
 
-VbError_t VbRegionReadData(VbCommonParams *cparams,
-			   enum vb_firmware_region region, uint32_t offset,
-			   uint32_t size, void *buf)
+VbError_t VbGbbReadData(struct vb2_context *ctx,
+			uint32_t offset, uint32_t size, void *buf)
 {
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
 	/* This is the old API, for backwards compatibility */
-	if (region == VB_REGION_GBB && cparams->gbb_data) {
-		if (offset + size > cparams->gbb_size)
-			return VBERROR_INVALID_GBB;
-		memcpy(buf, cparams->gbb_data + offset, size);
-	} else
-#ifdef REGION_READ
-	{
-		VbError_t ret;
+	if (!sd->gbb)
+		return VBERROR_INVALID_GBB;
 
-		ret = VbExRegionRead(cparams, region, offset, size, buf);
-		if (ret)
-			return ret;
-	}
-#else
-	return VBERROR_INVALID_GBB;
-#endif
+	if (offset + size > sd->gbb_size)
+		return VBERROR_INVALID_GBB;
 
+	memcpy(buf, ((uint8_t *)sd->gbb) + offset, size);
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbGbbReadHeader_static(VbCommonParams *cparams,
-				 GoogleBinaryBlockHeader *gbb)
+VbError_t VbGbbReadHWID(struct vb2_context *ctx, char *hwid, uint32_t max_size)
 {
-	return VbRegionReadData(cparams, VB_REGION_GBB, 0,
-				sizeof(GoogleBinaryBlockHeader), gbb);
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	if (!max_size)
+		return VBERROR_INVALID_PARAMETER;
+	*hwid = '\0';
+	StrnAppend(hwid, "{INVALID}", max_size);
+	if (!ctx)
+		return VBERROR_INVALID_GBB;
+
+	if (0 == sd->gbb->hwid_size) {
+		VB2_DEBUG("VbHWID(): invalid hwid size\n");
+		return VBERROR_SUCCESS; /* oddly enough! */
+	}
+
+	if (sd->gbb->hwid_size > max_size) {
+		VB2_DEBUG("VbDisplayDebugInfo(): invalid hwid offset/size\n");
+		return VBERROR_INVALID_PARAMETER;
+	}
+
+	return VbGbbReadData(ctx, sd->gbb->hwid_offset,
+			     sd->gbb->hwid_size, hwid);
+}
+
+static VbError_t VbGbbReadKey(struct vb2_context *ctx, uint32_t offset,
+			      VbPublicKey **keyp)
+{
+	VbPublicKey hdr, *key;
+	VbError_t ret;
+	uint32_t size;
+
+	ret = VbGbbReadData(ctx, offset, sizeof(VbPublicKey), &hdr);
+	if (ret)
+		return ret;
+
+	/* Deal with a zero-size key (used in testing) */
+	size = hdr.key_offset + hdr.key_size;
+	if (size < sizeof(hdr))
+		size = sizeof(hdr);
+	key = malloc(size);
+	ret = VbGbbReadData(ctx, offset, size, key);
+	if (ret) {
+		free(key);
+		return ret;
+	}
+
+	*keyp = key;
+	return VBERROR_SUCCESS;
+}
+
+VbError_t VbGbbReadRootKey(struct vb2_context *ctx, VbPublicKey **keyp)
+{
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	return VbGbbReadKey(ctx, sd->gbb->rootkey_offset, keyp);
+}
+
+VbError_t VbGbbReadRecoveryKey(struct vb2_context *ctx, VbPublicKey **keyp)
+{
+	struct vb2_shared_data *sd = vb2_get_sd(ctx);
+
+	return VbGbbReadKey(ctx, sd->gbb->recovery_key_offset, keyp);
 }

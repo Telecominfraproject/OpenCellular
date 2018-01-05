@@ -15,9 +15,9 @@
 #include "2misc.h"
 #include "2nvstorage.h"
 #include "bmpblk_font.h"
+#include "gbb_access.h"
 #include "gbb_header.h"
 #include "host_common.h"
-#include "region.h"
 #include "test_common.h"
 #include "vboot_common.h"
 #include "vboot_display.h"
@@ -31,6 +31,7 @@ static char gbb_data[4096 + sizeof(GoogleBinaryBlockHeader)];
 static GoogleBinaryBlockHeader *gbb = (GoogleBinaryBlockHeader *)gbb_data;
 static char debug_info[4096];
 static struct vb2_context ctx;
+struct vb2_shared_data *sd;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static uint32_t mock_localization_count;
 
@@ -55,12 +56,6 @@ static void ResetMocks(void)
 	memset(&cparams, 0, sizeof(cparams));
 	cparams.gbb_data = gbb;
 	cparams.gbb_size = sizeof(gbb_data);
-
-	/*
-	 * Note, VbApiKernelFree() expects this to be allocated by
-	 * malloc(), so we cannot just assign it staticly.
-	 */
-	cparams.gbb = malloc(sizeof(*gbb));
 	gbb->header_size = sizeof(*gbb);
 	gbb->rootkey_offset = gbb_used;
 	gbb->rootkey_size = 64;
@@ -68,7 +63,6 @@ static void ResetMocks(void)
 	gbb->recovery_key_offset = gbb_used;
 	gbb->recovery_key_size = 64;
 	gbb_used += 64;
-	memcpy(cparams.gbb, gbb, sizeof(*gbb));
 
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;
@@ -76,8 +70,10 @@ static void ResetMocks(void)
 	vb2_init_context(&ctx);
 	vb2_nv_init(&ctx);
 
-	struct vb2_shared_data *sd = vb2_get_sd(&ctx);
+	sd = vb2_get_sd(&ctx);
 	sd->vbsd = shared;
+	sd->gbb = (struct vb2_gbb_header *)gbb_data;
+	sd->gbb_size = sizeof(gbb_data);
 
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
@@ -106,7 +102,7 @@ VbError_t VbExDisplayDebugInfo(const char *info_str)
 /* Test displaying debug info */
 static void DebugInfoTest(void)
 {
-	char hwid[VB_REGION_HWID_LEN];
+	char hwid[256];
 	int i;
 
 	/* Recovery string should be non-null for any code */
@@ -115,82 +111,72 @@ static void DebugInfoTest(void)
 
 	/* HWID should come from the gbb */
 	ResetMocks();
-	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	VbGbbReadHWID(&ctx, hwid, sizeof(hwid));
 	TEST_EQ(strcmp(hwid, "Test HWID"), 0, "HWID");
-	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	cparams.gbb_size = 0;
-	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	sd->gbb_size = 0;
+	VbGbbReadHWID(&ctx, hwid, sizeof(hwid));
 	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID bad gbb");
-	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	cparams.gbb->hwid_size = 0;
-	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	sd->gbb->hwid_size = 0;
+	VbGbbReadHWID(&ctx, hwid, sizeof(hwid));
 	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID missing");
-	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	cparams.gbb->hwid_offset = cparams.gbb_size + 1;
-	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	sd->gbb->hwid_offset = sd->gbb_size + 1;
+	VbGbbReadHWID(&ctx, hwid, sizeof(hwid));
 	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID past end");
-	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	cparams.gbb->hwid_size = cparams.gbb_size;
-	VbRegionReadHWID(&cparams, hwid, sizeof(hwid));
+	sd->gbb->hwid_size = sd->gbb_size;
+	VbGbbReadHWID(&ctx, hwid, sizeof(hwid));
 	TEST_EQ(strcmp(hwid, "{INVALID}"), 0, "HWID overflow");
-	VbApiKernelFree(&cparams);
 
 	/* Display debug info */
 	ResetMocks();
-	VbDisplayDebugInfo(&ctx, &cparams);
+	VbDisplayDebugInfo(&ctx);
 	TEST_NEQ(*debug_info, '\0', "Some debug info was displayed");
-	VbApiKernelFree(&cparams);
 }
 
 /* Test display key checking */
 static void DisplayKeyTest(void)
 {
 	ResetMocks();
-	VbCheckDisplayKey(&ctx, &cparams, 'q');
+	VbCheckDisplayKey(&ctx, 'q');
 	TEST_EQ(*debug_info, '\0', "DisplayKey q = does nothing");
-	VbApiKernelFree(&cparams);
 
 	ResetMocks();
-	VbCheckDisplayKey(&ctx, &cparams, '\t');
+	VbCheckDisplayKey(&ctx, '\t');
 	TEST_NEQ(*debug_info, '\0', "DisplayKey tab = display");
-	VbApiKernelFree(&cparams);
 
 	/* Toggle localization */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_LOCALIZATION_INDEX, 0);
-	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_DOWN);
+	VbCheckDisplayKey(&ctx, VB_KEY_DOWN);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 2,
 		"DisplayKey up");
-	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_LEFT);
+	VbCheckDisplayKey(&ctx, VB_KEY_LEFT);
 	vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 1,
 		"DisplayKey left");
-	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_RIGHT);
+	VbCheckDisplayKey(&ctx, VB_KEY_RIGHT);
 	vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 2,
 		"DisplayKey right");
-	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_UP);
+	VbCheckDisplayKey(&ctx, VB_KEY_UP);
 	vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 0,
 		"DisplayKey up");
-	VbApiKernelFree(&cparams);
 
 	/* Reset localization if localization count is invalid */
 	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_LOCALIZATION_INDEX, 1);
 	mock_localization_count = 0xffffffff;
-	VbCheckDisplayKey(&ctx, &cparams, VB_KEY_UP);
+	VbCheckDisplayKey(&ctx, VB_KEY_UP);
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_LOCALIZATION_INDEX), 0,
 		"DisplayKey invalid");
-	VbApiKernelFree(&cparams);
 }
 
 int main(void)
