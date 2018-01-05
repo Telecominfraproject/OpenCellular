@@ -25,7 +25,6 @@ static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 
 static LoadKernelParams params;
-static VbCommonParams cparams;
 
 VbError_t VbExDiskRead(VbExDiskHandle_t handle, uint64_t lba_start,
 		       uint64_t lba_count, void *buffer)
@@ -93,8 +92,6 @@ int main(int argc, char *argv[])
 	/* TODO: optional TPM current kernel version */
 
 	/* Set up params */
-	cparams.shared_data_blob = shared_data;
-	cparams.shared_data_size = sizeof(shared_data);
 	params.disk_handle = (VbExDiskHandle_t)1;
 	params.bytes_per_lba = 512;
 	params.streaming_lba_count = disk_bytes / 512;
@@ -142,7 +139,7 @@ int main(int argc, char *argv[])
 	vb2_nv_init(&ctx);
 
 	/* Try loading kernel */
-	rv = LoadKernel(&ctx, &params, &cparams);
+	rv = LoadKernel(&ctx, &params);
 	if (rv != VBERROR_SUCCESS) {
 		fprintf(stderr, "LoadKernel() failed with code %d\n", rv);
 		return 1;

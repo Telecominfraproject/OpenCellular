@@ -68,9 +68,9 @@ static void VbTryLegacyMenu(int allowed)
 	VbExBeep(120, 400);
 }
 
-uint32_t VbTryUsbMenu(struct vb2_context *ctx, VbCommonParams *cparams)
+uint32_t VbTryUsbMenu(struct vb2_context *ctx)
 {
-	uint32_t retval = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_REMOVABLE);
+	uint32_t retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
 	if (VBERROR_SUCCESS == retval) {
 		VB2_DEBUG("booting USB\n");
 	} else {
@@ -582,10 +582,9 @@ void vb2_update_selection(uint32_t key) {
  * Main function that handles developer warning menu functionality
  *
  * @param ctx		Vboot2 context
- * @param cparams	Vboot1 common params
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t vb2_developer_menu(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -703,8 +702,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 				 * key press.
 				 */
 				VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
-				if (VBERROR_SUCCESS ==
-				    VbTryUsbMenu(ctx, cparams)) {
+				if (VBERROR_SUCCESS == VbTryUsbMenu(ctx)) {
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
@@ -788,7 +786,7 @@ VbError_t vb2_developer_menu(struct vb2_context *ctx, VbCommonParams *cparams)
 					VbDisplayScreen(ctx,
 							VB_SCREEN_BLANK, 0);
 					if (VBERROR_SUCCESS ==
-					    VbTryUsbMenu(ctx, cparams)) {
+					    VbTryUsbMenu(ctx)) {
 						return VBERROR_SUCCESS;
 					} else
 						/*
@@ -862,19 +860,19 @@ fallout:
 	}
 
 	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
-		if (VBERROR_SUCCESS == VbTryUsbMenu(ctx, cparams)) {
+		if (VBERROR_SUCCESS == VbTryUsbMenu(ctx)) {
 			return VBERROR_SUCCESS;
 		}
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VB2_DEBUG("trying fixed disk\n");
-	return VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
+	return VbTryLoadKernel(ctx, VB_DISK_FLAG_FIXED);
 }
 
-VbError_t VbBootDeveloperMenu(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t VbBootDeveloperMenu(struct vb2_context *ctx)
 {
-	VbError_t retval = vb2_developer_menu(ctx, cparams);
+	VbError_t retval = vb2_developer_menu(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }
@@ -888,10 +886,9 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx, VbCommonParams *cparams)
  * Main function that handles recovery menu functionality
  *
  * @param ctx		Vboot2 context
- * @param cparams	Vboot1 common params
  * @return VBERROR_SUCCESS, or non-zero error code if error.
  */
-static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
+static VbError_t recovery_ui(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -948,7 +945,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	while (1) {
 		VB2_DEBUG("attempting to load kernel2\n");
-		retval = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_REMOVABLE);
+		retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
 
 		/*
 		 * Clear recovery requests from failed kernel loading, since
@@ -1126,9 +1123,9 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbBootRecoveryMenu(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t VbBootRecoveryMenu(struct vb2_context *ctx)
 {
-	VbError_t retval = recovery_ui(ctx, cparams);
+	VbError_t retval = recovery_ui(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }

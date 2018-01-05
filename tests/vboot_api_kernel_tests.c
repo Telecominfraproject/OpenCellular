@@ -283,8 +283,7 @@ VbError_t VbExDiskFreeInfo(VbDiskInfo *infos,
 	return VBERROR_SUCCESS;
 }
 
-VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
-		     VbCommonParams *cparams)
+VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params)
 {
 	got_find_disk = (const char *)params->disk_handle;
 	VB2_DEBUG("%s(%d): got_find_disk = %s\n", __FUNCTION__,
@@ -315,7 +314,7 @@ static void VbTryLoadKernelTest(void)
 	for (i = 0; i < num_tests; i++) {
 		printf("Test case: %s ...\n", test[i].name);
 		ResetMocks(i);
-		TEST_EQ(VbTryLoadKernel(&ctx, 0, test[i].want_flags),
+		TEST_EQ(VbTryLoadKernel(&ctx, test[i].want_flags),
 			t->expected_return_val, "  return value");
 		TEST_EQ(got_recovery_request_val,
 			t->expected_recovery_request_val, "  recovery_request");

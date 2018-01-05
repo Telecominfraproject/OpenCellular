@@ -24,7 +24,6 @@
 #include "vboot_kernel.h"
 
 /* Mock data */
-static VbCommonParams cparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static char gbb_data[4096 + sizeof(GoogleBinaryBlockHeader)];
@@ -53,9 +52,6 @@ static void ResetMocks(void)
 
 	mock_localization_count = 3;
 
-	memset(&cparams, 0, sizeof(cparams));
-	cparams.gbb_data = gbb;
-	cparams.gbb_size = sizeof(gbb_data);
 	gbb->header_size = sizeof(*gbb);
 	gbb->rootkey_offset = gbb_used;
 	gbb->rootkey_size = 64;

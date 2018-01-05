@@ -427,8 +427,7 @@ int vb2_load_partition(struct vb2_context *ctx,
 	return VB2_SUCCESS;
 }
 
-VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
-		     VbCommonParams *cparams)
+VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -657,9 +656,6 @@ load_kernel_exit:
 	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
 		   VBERROR_SUCCESS != retval ?
 		   recovery : VB2_RECOVERY_NOT_REQUESTED);
-
-	/* Store how much shared data we used, if any */
-	cparams->shared_data_size = shared->data_used;
 
 	free(recovery_key);
 

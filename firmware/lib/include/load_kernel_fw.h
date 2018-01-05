@@ -61,12 +61,10 @@ typedef struct LoadKernelParams {
  *
  * @param ctx		Vboot context
  * @param params	Params specific to loading the kernel
- * @param cparams	Common parameters to vboot1 APIs
  *
  * Returns VBERROR_SUCCESS if successful.  If unsuccessful, sets a recovery
  * reason via VbNvStorage and returns an error code.
  */
-VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params,
-		     VbCommonParams *cparams);
+VbError_t LoadKernel(struct vb2_context *ctx, LoadKernelParams *params);
 
 #endif  /* VBOOT_REFERENCE_LOAD_KERNEL_FW_H_ */

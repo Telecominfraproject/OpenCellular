@@ -28,7 +28,6 @@ VbError_t VbGbbReadRootKey(struct vb2_context *ctx,
  * Read the recovery key from the GBB
  *
  * @param ctx		Vboot context
- * @param cparams	Vboot common parameters
  * @param keyp		Returns a pointer to the key. The caller must call
  *			free() on the key when finished with it.
  * @return VBERROR_... error, VBERROR_SUCCESS on success,
@@ -46,7 +45,6 @@ VbError_t VbGbbReadRecoveryKey(struct vb2_context *ctx,
  *			then VBERROR_INVALID_PARAMETER is returned.
  * @return VBERROR_... error, VBERROR_SUCCESS on success,
  */
-VbError_t VbGbbReadHWID(struct vb2_context *ctx, char *hwid,
-			uint32_t max_size);
+VbError_t VbGbbReadHWID(struct vb2_context *ctx, char *hwid, uint32_t max_size);
 
 #endif

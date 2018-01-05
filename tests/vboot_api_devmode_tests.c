@@ -94,7 +94,6 @@ test_case_t test[] = {
 };
 
 /* Mock data */
-static VbCommonParams cparams;
 static uint8_t workbuf[VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE];
 static struct vb2_context ctx;
 static struct vb2_shared_data *sd;
@@ -116,8 +115,6 @@ extern int audio_open_count;
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
 {
-	memset(&cparams, 0, sizeof(cparams));
-
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;
 	ctx.workbuf_size = sizeof(workbuf);
@@ -287,7 +284,7 @@ static void VbBootDeveloperSoundTest(void)
 		kbd_fire_at = test[i].keypress_at_count;
 		max_events = test[i].num_events;
 		expected_event = test[i].notes;
-		(void) VbBootDeveloper(&ctx, &cparams);
+		(void) VbBootDeveloper(&ctx);
 		VbExBeep(0, 0); /* Dummy call to determine end time */
 		VB2_DEBUG("INFO: matched %d total %d expected %d\n",
 			  matched_events, current_event, test[i].num_events);

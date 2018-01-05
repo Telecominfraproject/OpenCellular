@@ -67,9 +67,9 @@ static void VbTryLegacy(int allowed)
 	VbExBeep(120, 400);
 }
 
-uint32_t VbTryUsb(struct vb2_context *ctx, VbCommonParams *cparams)
+uint32_t VbTryUsb(struct vb2_context *ctx)
 {
-	uint32_t retval = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_REMOVABLE);
+	uint32_t retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
 	if (VBERROR_SUCCESS == retval) {
 		VB2_DEBUG("VbBootDeveloper() - booting USB\n");
 	} else {
@@ -158,7 +158,7 @@ static const char dev_disable_msg[] =
 	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
 	"\n";
 
-VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t vb2_developer_ui(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -346,8 +346,7 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 				 * key press.
 				 */
 				VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
-				if (VBERROR_SUCCESS ==
-				    VbTryUsb(ctx, cparams)) {
+				if (VBERROR_SUCCESS == VbTryUsb(ctx)) {
 					return VBERROR_SUCCESS;
 				} else {
 					/* Show dev mode warning screen again */
@@ -372,19 +371,19 @@ VbError_t vb2_developer_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	}
 
 	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
-		if (VBERROR_SUCCESS == VbTryUsb(ctx, cparams)) {
+		if (VBERROR_SUCCESS == VbTryUsb(ctx)) {
 			return VBERROR_SUCCESS;
 		}
 	}
 
 	/* Timeout or Ctrl+D; attempt loading from fixed disk */
 	VB2_DEBUG("VbBootDeveloper() - trying fixed disk\n");
-	return VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
+	return VbTryLoadKernel(ctx, VB_DISK_FLAG_FIXED);
 }
 
-VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t VbBootDeveloper(struct vb2_context *ctx)
 {
-	VbError_t retval = vb2_developer_ui(ctx, cparams);
+	VbError_t retval = vb2_developer_ui(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }
@@ -394,7 +393,7 @@ VbError_t VbBootDeveloper(struct vb2_context *ctx, VbCommonParams *cparams)
 #define REC_KEY_DELAY        20       /* Check keys every 20ms */
 #define REC_MEDIA_INIT_DELAY 500      /* Check removable media every 500ms */
 
-static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
+static VbError_t recovery_ui(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -438,7 +437,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	VB2_DEBUG("VbBootRecovery() waiting for a recovery image\n");
 	while (1) {
 		VB2_DEBUG("VbBootRecovery() attempting to load kernel2\n");
-		retval = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_REMOVABLE);
+		retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
 
 		/*
 		 * Clear recovery requests from failed kernel loading, since
@@ -532,9 +531,9 @@ static VbError_t recovery_ui(struct vb2_context *ctx, VbCommonParams *cparams)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbBootRecovery(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t VbBootRecovery(struct vb2_context *ctx)
 {
-	VbError_t retval = recovery_ui(ctx, cparams);
+	VbError_t retval = recovery_ui(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }

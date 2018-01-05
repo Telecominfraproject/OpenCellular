@@ -29,7 +29,6 @@
 
 /* Global variables for stub functions */
 static LoadKernelParams lkp;
-static VbCommonParams cparams;
 static FILE *image_file = NULL;
 
 
@@ -96,7 +95,6 @@ int main(int argc, char* argv[]) {
   memset(&lkp, 0, sizeof(LoadKernelParams));
   lkp.bytes_per_lba = LBA_BYTES;
   int boot_flags = BOOT_FLAG_RECOVERY;
-  memset(&cparams, 0, sizeof(VbCommonParams));
 
   /* Parse options */
   opterr = 0;
@@ -162,9 +160,9 @@ int main(int argc, char* argv[]) {
   }
 
   /* Initialize the GBB */
-  cparams.gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
-  cparams.gbb_data = gbb = (GoogleBinaryBlockHeader*)malloc(cparams.gbb_size);
-  memset(gbb, 0, cparams.gbb_size);
+  uint32_t gbb_size = sizeof(GoogleBinaryBlockHeader) + key_size;
+  gbb = (GoogleBinaryBlockHeader*)malloc(gbb_size);
+  memset(gbb, 0, gbb_size);
   memcpy(gbb->signature, GBB_SIGNATURE, GBB_SIGNATURE_SIZE);
   gbb->major_version = GBB_MAJOR_VER;
   gbb->minor_version = GBB_MINOR_VER;
@@ -180,10 +178,8 @@ int main(int argc, char* argv[]) {
   }
 
   /* Initialize the shared data area */
-  cparams.shared_data_blob = malloc(VB_SHARED_DATA_REC_SIZE);
-  cparams.shared_data_size = VB_SHARED_DATA_REC_SIZE;
-  shared = (VbSharedDataHeader*)cparams.shared_data_blob;
-  if (0 != VbSharedDataInit(shared, cparams.shared_data_size)) {
+  shared = (VbSharedDataHeader*)malloc(VB_SHARED_DATA_REC_SIZE);
+  if (0 != VbSharedDataInit(shared, VB_SHARED_DATA_REC_SIZE)) {
     fprintf(stderr, "Unable to init shared data\n");
     return 1;
   }
@@ -251,7 +247,7 @@ int main(int argc, char* argv[]) {
   sd->vbsd = shared;
 
   /* Call LoadKernel() */
-  rv = LoadKernel(&ctx, &lkp, &cparams);
+  rv = LoadKernel(&ctx, &lkp);
   printf("LoadKernel() returned %d\n", rv);
 
   if (VBERROR_SUCCESS == rv) {

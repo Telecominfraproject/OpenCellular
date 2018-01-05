@@ -69,21 +69,7 @@ uint32_t vb2_get_fwmp_flags(void)
 	return fwmp.flags;
 }
 
-/**
- * Attempt loading a kernel from the specified type(s) of disks.
- *
- * If successful, sets p->disk_handle to the disk for the kernel and returns
- * VBERROR_SUCCESS.
- *
- * @param ctx			Vboot context
- * @param cparams		Vboot common params
- * @param p			Parameters for loading kernel
- * @param get_info_flags	Flags to pass to VbExDiskGetInfo()
- * @return VBERROR_SUCCESS, VBERROR_NO_DISK_FOUND if no disks of the specified
- * type were found, or other non-zero VBERROR_ codes for other failures.
- */
-uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
-                         uint32_t get_info_flags)
+uint32_t VbTryLoadKernel(struct vb2_context *ctx, uint32_t get_info_flags)
 {
 	VbError_t retval = VBERROR_UNKNOWN;
 	VbDiskInfo* disk_info = NULL;
@@ -136,7 +122,8 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 						?: lkp.gpt_lba_count;
 		lkp.boot_flags |= disk_info[i].flags & VB_DISK_FLAG_EXTERNAL_GPT
 				? BOOT_FLAG_EXTERNAL_GPT : 0;
-		retval = LoadKernel(ctx, &lkp, cparams);
+		retval = LoadKernel(ctx, &lkp);
+
 		VB2_DEBUG("VbTryLoadKernel() LoadKernel() = %d\n", retval);
 
 		/*
@@ -165,7 +152,7 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, VbCommonParams *cparams,
 	return retval;
 }
 
-VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
+VbError_t VbBootNormal(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	VbSharedDataHeader *shared = sd->vbsd;
@@ -175,7 +162,7 @@ VbError_t VbBootNormal(struct vb2_context *ctx, VbCommonParams *cparams)
 	/* Boot from fixed disk only */
 	VB2_DEBUG("Entering\n");
 
-	VbError_t rv = VbTryLoadKernel(ctx, cparams, VB_DISK_FLAG_FIXED);
+	VbError_t rv = VbTryLoadKernel(ctx, VB_DISK_FLAG_FIXED);
 
 	VB2_DEBUG("Checking if TPM kernel version needs advancing\n");
 
@@ -413,6 +400,9 @@ static void vb2_kernel_cleanup(struct vb2_context *ctx, VbCommonParams *cparams)
 
 	/* Stop timer */
 	shared->timer_vb_select_and_load_kernel_exit = VbExGetTimer();
+
+	/* Store how much shared data we used, if any */
+	cparams->shared_data_size = shared->data_used;
 }
 
 VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
@@ -436,20 +426,20 @@ VbError_t VbSelectAndLoadKernel(VbCommonParams *cparams,
 	if (ctx.flags & VB2_CONTEXT_RECOVERY_MODE) {
 		/* Recovery boot.  This has UI. */
 		if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
-			retval = VbBootRecoveryMenu(&ctx, cparams);
+			retval = VbBootRecoveryMenu(&ctx);
 		else
-			retval = VbBootRecovery(&ctx, cparams);
+			retval = VbBootRecovery(&ctx);
 		VbExEcEnteringMode(0, VB_EC_RECOVERY);
 	} else if (ctx.flags & VB2_CONTEXT_DEVELOPER_MODE) {
 		/* Developer boot.  This has UI. */
 		if (kparams->inflags & VB_SALK_INFLAGS_ENABLE_DETACHABLE_UI)
-			retval = VbBootDeveloperMenu(&ctx, cparams);
+			retval = VbBootDeveloperMenu(&ctx);
 		else
-			retval = VbBootDeveloper(&ctx, cparams);
+			retval = VbBootDeveloper(&ctx);
 		VbExEcEnteringMode(0, VB_EC_DEVELOPER);
 	} else {
 		/* Normal boot */
-		retval = VbBootNormal(&ctx, cparams);
+		retval = VbBootNormal(&ctx);
 		VbExEcEnteringMode(0, VB_EC_NORMAL);
 	}
 

@@ -67,7 +67,6 @@ static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 static LoadKernelParams lkp;
 static VbKeyBlockHeader kbh;
 static VbKernelPreambleHeader kph;
-static VbCommonParams cparams;
 static struct RollbackSpaceFwmp fwmp;
 static uint8_t mock_disk[MOCK_SECTOR_SIZE * MOCK_SECTOR_COUNT];
 static GptHeader *mock_gpt_primary =
@@ -144,8 +143,6 @@ static void ResetMocks(void)
 	memset(&shared_data, 0, sizeof(shared_data));
 	VbSharedDataInit(shared, sizeof(shared_data));
 	shared->kernel_version_tpm = 0x20001;
-
-	memset(&cparams, '\0', sizeof(cparams));
 
 	memset(&lkp, 0, sizeof(lkp));
 	lkp.bytes_per_lba = 512;
@@ -570,7 +567,7 @@ static void ReadWriteGptTest(void)
 
 static void TestLoadKernel(int expect_retval, char *test_name)
 {
-	TEST_EQ(LoadKernel(&ctx, &lkp, &cparams), expect_retval, test_name);
+	TEST_EQ(LoadKernel(&ctx, &lkp), expect_retval, test_name);
 }
 
 /**

@@ -26,7 +26,6 @@
 #include "vboot_struct.h"
 
 /* Mock data */
-static VbCommonParams cparams;
 static uint8_t shared_data[VB_SHARED_DATA_MIN_SIZE];
 static VbSharedDataHeader *shared = (VbSharedDataHeader *)shared_data;
 
@@ -65,10 +64,6 @@ static int ec_aux_fw_protected;
 /* Reset mock data (for use before each test) */
 static void ResetMocks(void)
 {
-	memset(&cparams, 0, sizeof(cparams));
-	cparams.shared_data_size = sizeof(shared_data);
-	cparams.shared_data_blob = shared_data;
-
 	memset(&ctx, 0, sizeof(ctx));
 	ctx.workbuf = workbuf;
 	ctx.workbuf_size = sizeof(workbuf);
