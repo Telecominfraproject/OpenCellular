@@ -1,3 +1,4 @@
+with Ada.Numerics.Discrete_Random;
 with Ada.Unchecked_Conversion;
 with Ada.Command_Line;
 with Interfaces.C;
@@ -13,6 +14,14 @@ with HW.GFX.GMA.Display_Probing;
 package body HW.GFX.GMA.GFX_Test
 is
    pragma Disable_Atomic_Synchronization;
+
+   Primary_Delay_MS     : constant := 8_000;
+   Secondary_Delay_MS   : constant := 4_000;
+   Seed                 : constant := 12345;
+
+   package Rand_P is new Ada.Numerics.Discrete_Random (Pos_Type);
+   Gen : Rand_P.Generator;
+   function Rand return Pos_Type is (Rand_P.Random (Gen));
 
    Start_X : constant := 0;
    Start_Y : constant := 0;
@@ -296,7 +305,7 @@ is
 
       Res_Addr : Word64;
 
-      Delay_S : Natural;
+      Delay_MS : Natural;
       Rotation : Rotation_Type := No_Rotation;
 
       Dev_Init,
@@ -310,7 +319,7 @@ is
          return;
       end if;
 
-      Delay_S := Natural'Value (Ada.Command_Line.Argument (1));
+      Delay_MS := Natural'Value (Ada.Command_Line.Argument (1)) * 1_000;
 
       if Ada.Command_Line.Argument_Count >= 2 then
          declare
@@ -369,7 +378,50 @@ is
             end if;
          end loop;
 
-         Time.M_Delay (Delay_S * 1_000);
+         if Delay_MS >= Primary_Delay_MS + Secondary_Delay_MS then
+            Time.M_Delay (Primary_Delay_MS);
+            Delay_MS := Delay_MS - Primary_Delay_MS;
+            declare
+               New_Pipes : GMA.Pipe_Configs := Pipes;
+
+               function Rand_Div (Num : Pos_Type) return Pos_Type is
+                 (case Rand mod 4 is
+                     when 3 => Rand mod Num / 3,
+                     when 2 => Rand mod Num / 2,
+                     when 1 => Rand mod Num,
+                     when others => 0);
+            begin
+               Rand_P.Reset (Gen, Seed);
+               while Delay_MS >= Secondary_Delay_MS loop
+                  New_Pipes := Pipes;
+                  for Pipe in GMA.Pipe_Index loop
+                     exit when Pipes (Pipe).Port = Disabled;
+                     declare
+                        New_FB : Framebuffer_Type renames
+                           New_Pipes (Pipe).Framebuffer;
+                        Width : constant Width_Type :=
+                           Pipes (Pipe).Framebuffer.Width;
+                        Height : constant Height_Type :=
+                           Pipes (Pipe).Framebuffer.Height;
+                     begin
+                        New_FB.Start_X := Pos_Type'Min
+                          (Width - 320, Rand_Div (Width));
+                        New_FB.Start_Y := Pos_Type'Min
+                          (Height - 320, Rand_Div (Height));
+                        New_FB.Width := Width_Type'Max
+                          (320, Width - New_FB.Start_X - Rand_Div (Width));
+                        New_FB.Height := Height_Type'Max
+                          (320, Height - New_FB.Start_Y - Rand_Div (Height));
+                     end;
+                  end loop;
+                  GMA.Dump_Configs (New_Pipes);
+                  GMA.Update_Outputs (New_Pipes);
+                  Time.M_Delay (Secondary_Delay_MS);
+                  Delay_MS := Delay_MS - Secondary_Delay_MS;
+               end loop;
+            end;
+         end if;
+         Time.M_Delay (Delay_MS);
 
          for Pipe in GMA.Pipe_Index loop
             if Pipes (Pipe).Port /= GMA.Disabled then
