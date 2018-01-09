@@ -286,6 +286,13 @@ is
             Secondary   => 4096,
             Tertiary    => 4096));
 
+   -- Maximum X position of hardware cursors
+   Maximum_Cursor_X : constant := (case CPU is
+                                    when G45 .. Ivybridge      => 4095,
+                                    when Haswell .. Skylake    => 8191);
+
+   Maximum_Cursor_Y : constant := 4095;
+
    ----------------------------------------------------------------------------
 
    -- FIXME: Unknown for Broxton, Linux' i915 contains a fixme too :-D

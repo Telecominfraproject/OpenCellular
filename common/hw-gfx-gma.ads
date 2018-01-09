@@ -29,6 +29,11 @@ with
       Config_State)
 is
 
+   GTT_Page_Size : constant := 4096;
+   type GTT_Address_Type is mod 2 ** 39;
+   subtype GTT_Range is Natural range 0 .. 16#8_0000# - 1;
+   GTT_Rotation_Offset : constant GTT_Range := GTT_Range'Last / 2 + 1;
+
    type CPU_Type is
      (G45,
       Ironlake,
@@ -52,9 +57,30 @@ is
       HDMI3, -- or DVI
       Analog);
 
+   type Cursor_Mode is (No_Cursor, ARGB_Cursor);
+   type Cursor_Size is (Cursor_64x64, Cursor_128x128, Cursor_256x256);
+   Cursor_Width : constant array (Cursor_Size) of Width_Type := (64, 128, 256);
+
+   subtype Cursor_Pos is Int32 range Int32'First / 2 .. Int32'Last / 2;
+
+   type Cursor_Type is record
+      Mode        : Cursor_Mode;
+      Size        : Cursor_Size;
+      Center_X    : Cursor_Pos;
+      Center_Y    : Cursor_Pos;
+      GTT_Offset  : GTT_Range;
+   end record;
+   Default_Cursor : constant Cursor_Type :=
+     (Mode        => No_Cursor,
+      Size        => Cursor_Size'First,
+      Center_X    => 0,
+      Center_Y    => 0,
+      GTT_Offset  => 0);
+
    type Pipe_Config is record
       Port        : Port_Type;
       Framebuffer : Framebuffer_Type;
+      Cursor      : Cursor_Type;
       Mode        : Mode_Type;
    end record;
    type Pipe_Index is (Primary, Secondary, Tertiary);
@@ -92,11 +118,6 @@ is
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
                     Reason => "It's only used for debugging");
    procedure Dump_Configs (Configs : Pipe_Configs);
-
-   GTT_Page_Size : constant := 4096;
-   type GTT_Address_Type is mod 2 ** 39;
-   subtype GTT_Range is Natural range 0 .. 16#8_0000# - 1;
-   GTT_Rotation_Offset : constant GTT_Range := GTT_Range'Last / 2 + 1;
 
    procedure Write_GTT
      (GTT_Page       : GTT_Range;

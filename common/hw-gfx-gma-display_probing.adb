@@ -189,6 +189,7 @@ is
       Configs := (Pipe_Index =>
                     (Port        => Disabled,
                      Mode        => Invalid_Mode,
+                     Cursor      => Default_Cursor,
                      Framebuffer => Default_FB));
 
       -- Turn panel on early to probe other ports during the power on delay.

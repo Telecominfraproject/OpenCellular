@@ -386,6 +386,7 @@ is
         (others => Pipe_Config'
            (Port        => Disabled,
             Framebuffer => HW.GFX.Default_FB,
+            Cursor      => Default_Cursor,
             Mode        => HW.GFX.Invalid_Mode));
       PLLs.Initialize;
 
@@ -476,10 +477,12 @@ is
         (Primary =>
            (Port        => Analog,
             Framebuffer => HW.GFX.Default_FB,
+            Cursor      => Default_Cursor,
             Mode        => HW.GFX.Invalid_Mode),
          others =>
            (Port        => Disabled,
             Framebuffer => HW.GFX.Default_FB,
+            Cursor      => Default_Cursor,
             Mode        => HW.GFX.Invalid_Mode));
    begin
       Power_And_Clocks.Power_Up (Cur_Configs, Fake_Config);
