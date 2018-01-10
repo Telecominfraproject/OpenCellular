@@ -72,6 +72,26 @@ package body HW.GFX.GMA.Pipe_Setup is
    VGA_CONTROL_BLINK_DUTY_CYCLE_50     : constant :=        2 * 2 **  6;
    VGA_CONTROL_VSYNC_BLINK_RATE_MASK   : constant := 16#003f# * 2 **  0;
 
+   CUR_CTL_PIPE_SELECT : constant array (Pipe_Index) of Word32 :=
+     (Primary     => 0 * 2 ** 28,
+      Secondary   => 1 * 2 ** 28,
+      Tertiary    => 2 * 2 ** 28);
+   CUR_CTL_MODE : constant array (Cursor_Mode, Cursor_Size) of Word32 :=
+     (No_Cursor   => (others => 16#00#),
+      ARGB_Cursor =>
+        (Cursor_64x64   => 16#27#,
+         Cursor_128x128 => 16#22#,
+         Cursor_256x256 => 16#23#));
+
+   function CUR_POS_Y (Y : Int32) return Word32 is
+     ((if Y >= 0 then 0 else 1 * 2 ** 31) or Shift_Left (Word32 (abs Y), 16))
+   with
+      Pre => Y > Int32'First;
+   function CUR_POS_X (X : Int32) return Word32 is
+     ((if X >= 0 then 0 else 1 * 2 ** 15) or Word32 (abs X))
+   with
+      Pre => X > Int32'First;
+
    subtype VGA_Cycle_Count is Pos32 range 2 .. 128;
    function VGA_CONTROL_VSYNC_BLINK_RATE
      (Cycles : VGA_Cycle_Count)
@@ -122,35 +142,45 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    procedure Clear_Watermarks (Controller : Controller_Type) is
    begin
-      Registers.Write
-        (Register    => Controller.PLANE_BUF_CFG,
-         Value       => 16#0000_0000#);
-      for Level in WM_Levels range 0 .. WM_Levels'Last loop
-         Registers.Write
-           (Register => Controller.PLANE_WM (Level),
-            Value    => 16#0000_0000#);
+      Registers.Write (Controller.CUR_BUF_CFG, 16#0000_0000#);
+      for Level in WM_Levels loop
+         Registers.Write (Controller.CUR_WM (Level), 16#0000_0000#);
       end loop;
-      Registers.Write
-        (Register    => Controller.WM_LINETIME,
-         Value       => 16#0000_0000#);
+      Registers.Write (Controller.PLANE_BUF_CFG, 16#0000_0000#);
+      for Level in WM_Levels loop
+         Registers.Write (Controller.PLANE_WM (Level), 16#0000_0000#);
+      end loop;
+      Registers.Write (Controller.WM_LINETIME, 16#0000_0000#);
    end Clear_Watermarks;
 
    procedure Setup_Watermarks (Controller : Controller_Type)
    is
       type Per_Plane_Buffer_Range is array (Pipe_Index) of Word32;
-      Buffer_Range : constant Per_Plane_Buffer_Range :=
-        (Primary     => Shift_Left (159, 16) or   0,
-         Secondary   => Shift_Left (319, 16) or 160,
-         Tertiary    => Shift_Left (479, 16) or 320);
+      Cur_Buffer_Range : constant Per_Plane_Buffer_Range :=
+        (Primary     => Shift_Left (  7, 16) or   0,
+         Secondary   => Shift_Left (167, 16) or 160,
+         Tertiary    => Shift_Left (327, 16) or 320);
+      Plane_Buffer_Range : constant Per_Plane_Buffer_Range :=
+        (Primary     => Shift_Left (159, 16) or   8,
+         Secondary   => Shift_Left (319, 16) or 168,
+         Tertiary    => Shift_Left (479, 16) or 328);
    begin
       Registers.Write
         (Register    => Controller.PLANE_BUF_CFG,
-         Value       => Buffer_Range (Controller.Pipe));
+         Value       => Plane_Buffer_Range (Controller.Pipe));
       Registers.Write
         (Register    => Controller.PLANE_WM (0),
          Value       => PLANE_WM_ENABLE or
                         PLANE_WM_LINES (2) or
-                        PLANE_WM_BLOCKS (160));
+                        PLANE_WM_BLOCKS (152));
+      Registers.Write
+        (Register    => Controller.CUR_BUF_CFG,
+         Value       => Cur_Buffer_Range (Controller.Pipe));
+      Registers.Write
+        (Register    => Controller.CUR_WM (0),
+         Value       => PLANE_WM_ENABLE or
+                        PLANE_WM_LINES (2) or
+                        PLANE_WM_BLOCKS (8));
    end Setup_Watermarks;
 
    ----------------------------------------------------------------------------
@@ -301,6 +331,49 @@ package body HW.GFX.GMA.Pipe_Setup is
             Value    => Transcoder.BPC_Conf (Dither_BPC, Dither));
       end if;
    end Setup_Display;
+
+   ----------------------------------------------------------------------------
+
+   procedure Update_Cursor
+     (Pipe     : Pipe_Index;
+      FB       : Framebuffer_Type;
+      Cursor   : Cursor_Type)
+   is
+   begin
+      -- on some platforms writing CUR_CTL disables self-arming of CUR_POS
+      -- so keep it first
+      Registers.Write
+        (Register => Controllers (Pipe).CUR_CTL,
+         Value    => CUR_CTL_PIPE_SELECT (Pipe) or
+                     CUR_CTL_MODE (Cursor.Mode, Cursor.Size));
+      Place_Cursor (Pipe, FB, Cursor);
+   end Update_Cursor;
+
+   procedure Place_Cursor
+     (Pipe     : Pipe_Index;
+      FB       : Framebuffer_Type;
+      Cursor   : Cursor_Type)
+   is
+      Width : constant Width_Type := Cursor_Width (Cursor.Size);
+      X : Int32 := Cursor.Center_X - Width / 2;
+      Y : Int32 := Cursor.Center_Y - Width / 2;
+   begin
+      -- off-screen cursor needs special care
+      if X <= -Width or Y <= -Width or
+         X >= Int32 (Rotated_Width (FB)) or Y >= Int32 (Rotated_Height (FB)) or
+         X > Config.Maximum_Cursor_X or Y > Config.Maximum_Cursor_Y
+      then
+         X := -Width;
+         Y := -Width;
+      end if;
+      Registers.Write
+        (Register => Controllers (Pipe).CUR_POS,
+         Value    => CUR_POS_Y (Y) or CUR_POS_X (X));
+      -- write to CUR_BASE always arms other CUR_* registers
+      Registers.Write
+        (Register => Controllers (Pipe).CUR_BASE,
+         Value    => Shift_Left (Word32 (Cursor.GTT_Offset), 12));
+   end Place_Cursor;
 
    ----------------------------------------------------------------------------
 
@@ -540,6 +613,9 @@ package body HW.GFX.GMA.Pipe_Setup is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
+      -- Disable the cursor first.
+      Update_Cursor (Pipe, Framebuffer, Default_Cursor);
+
       Setup_Display (Controllers (Pipe), Framebuffer, Mode.BPC, Dither);
       Setup_Scaling (Controllers (Pipe), Mode, Framebuffer);
    end Setup_FB;
@@ -547,7 +623,8 @@ package body HW.GFX.GMA.Pipe_Setup is
    procedure On
      (Pipe        : Pipe_Index;
       Port_Cfg    : Port_Config;
-      Framebuffer : Framebuffer_Type)
+      Framebuffer : Framebuffer_Type;
+      Cursor      : Cursor_Type)
    is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
@@ -555,6 +632,7 @@ package body HW.GFX.GMA.Pipe_Setup is
       Transcoder.Setup (Pipe, Port_Cfg);
 
       Setup_FB (Pipe, Port_Cfg.Mode, Framebuffer);
+      Update_Cursor (Pipe, Framebuffer, Cursor);
 
       Transcoder.On
         (Pipe     => Pipe,
@@ -567,6 +645,10 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    procedure Planes_Off (Controller : Controller_Type) is
    begin
+      Registers.Write (Controller.CUR_CTL, 16#0000_0000#);
+      if Config.Has_Cursor_FBC_Control then
+         Registers.Write (Controller.CUR_FBC_CTL, 16#0000_0000#);
+      end if;
       Registers.Unset_Mask (Controller.SPCNTR, DSPCNTR_ENABLE);
       if Config.Has_Plane_Control then
          Clear_Watermarks (Controller);

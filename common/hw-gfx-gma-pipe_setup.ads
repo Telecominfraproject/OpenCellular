@@ -22,7 +22,8 @@ is
    procedure On
      (Pipe        : Pipe_Index;
       Port_Cfg    : Port_Config;
-      Framebuffer : Framebuffer_Type)
+      Framebuffer : Framebuffer_Type;
+      Cursor      : Cursor_Type)
    with
       Pre =>
          Rotated_Width (Framebuffer) <= Port_Cfg.Mode.H_Visible and
@@ -47,6 +48,15 @@ is
          (Framebuffer.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
           Framebuffer.Height + Framebuffer.Start_Y <= Framebuffer.V_Stride);
 
+   procedure Update_Cursor
+     (Pipe     : Pipe_Index;
+      FB       : Framebuffer_Type;
+      Cursor   : Cursor_Type);
+   procedure Place_Cursor
+     (Pipe     : Pipe_Index;
+      FB       : Framebuffer_Type;
+      Cursor   : Cursor_Type);
+
 private
 
    subtype WM_Levels is Natural range 0 .. 7;
@@ -66,6 +76,10 @@ private
          DSPSURF           : Registers.Registers_Index;
          DSPTILEOFF        : Registers.Registers_Index;
          SPCNTR            : Registers.Registers_Index;
+         CUR_CTL           : Registers.Registers_Index;
+         CUR_BASE          : Registers.Registers_Index;
+         CUR_POS           : Registers.Registers_Index;
+         CUR_FBC_CTL       : Registers.Registers_Index;
          -- Skylake registers (partially aliased)
          PLANE_CTL         : Registers.Registers_Index;
          PLANE_OFFSET      : Registers.Registers_Index;
@@ -81,6 +95,8 @@ private
          WM_LINETIME       : Registers.Registers_Index;
          PLANE_BUF_CFG     : Registers.Registers_Index;
          PLANE_WM          : PLANE_WM_Type;
+         CUR_BUF_CFG       : Registers.Registers_Index;
+         CUR_WM            : PLANE_WM_Type;
       end record;
 
    type Controller_Array is array (Pipe_Index) of Controller_Type;
@@ -99,6 +115,10 @@ private
          DSPSURF           => Registers.DSPASURF,
          DSPTILEOFF        => Registers.DSPATILEOFF,
          SPCNTR            => Registers.SPACNTR,
+         CUR_CTL           => Registers.CUR_CTL_A,
+         CUR_BASE          => Registers.CUR_BASE_A,
+         CUR_POS           => Registers.CUR_POS_A,
+         CUR_FBC_CTL       => Registers.CUR_FBC_CTL_A,
          PLANE_CTL         => Registers.DSPACNTR,
          PLANE_OFFSET      => Registers.DSPATILEOFF,
          PLANE_POS         => Registers.PLANE_POS_1_A,
@@ -120,7 +140,17 @@ private
                               Registers.PLANE_WM_1_A_4,
                               Registers.PLANE_WM_1_A_5,
                               Registers.PLANE_WM_1_A_6,
-                              Registers.PLANE_WM_1_A_7)),
+                              Registers.PLANE_WM_1_A_7),
+         CUR_BUF_CFG       => Registers.CUR_BUF_CFG_A,
+         CUR_WM            => PLANE_WM_Type'(
+                              Registers.CUR_WM_A_0,
+                              Registers.CUR_WM_A_1,
+                              Registers.CUR_WM_A_2,
+                              Registers.CUR_WM_A_3,
+                              Registers.CUR_WM_A_4,
+                              Registers.CUR_WM_A_5,
+                              Registers.CUR_WM_A_6,
+                              Registers.CUR_WM_A_7)),
       Secondary => Controller_Type'
         (Pipe              => Secondary,
          PIPESRC           => Registers.PIPEBSRC,
@@ -134,6 +164,10 @@ private
          DSPSURF           => Registers.DSPBSURF,
          DSPTILEOFF        => Registers.DSPBTILEOFF,
          SPCNTR            => Registers.SPBCNTR,
+         CUR_CTL           => Registers.CUR_CTL_B,
+         CUR_BASE          => Registers.CUR_BASE_B,
+         CUR_POS           => Registers.CUR_POS_B,
+         CUR_FBC_CTL       => Registers.CUR_FBC_CTL_B,
          PLANE_CTL         => Registers.DSPBCNTR,
          PLANE_OFFSET      => Registers.DSPBTILEOFF,
          PLANE_POS         => Registers.PLANE_POS_1_B,
@@ -155,7 +189,17 @@ private
                               Registers.PLANE_WM_1_B_4,
                               Registers.PLANE_WM_1_B_5,
                               Registers.PLANE_WM_1_B_6,
-                              Registers.PLANE_WM_1_B_7)),
+                              Registers.PLANE_WM_1_B_7),
+         CUR_BUF_CFG       => Registers.CUR_BUF_CFG_B,
+         CUR_WM            => PLANE_WM_Type'(
+                              Registers.CUR_WM_B_0,
+                              Registers.CUR_WM_B_1,
+                              Registers.CUR_WM_B_2,
+                              Registers.CUR_WM_B_3,
+                              Registers.CUR_WM_B_4,
+                              Registers.CUR_WM_B_5,
+                              Registers.CUR_WM_B_6,
+                              Registers.CUR_WM_B_7)),
       Tertiary => Controller_Type'
         (Pipe              => Tertiary,
          PIPESRC           => Registers.PIPECSRC,
@@ -169,6 +213,10 @@ private
          DSPSURF           => Registers.DSPCSURF,
          DSPTILEOFF        => Registers.DSPCTILEOFF,
          SPCNTR            => Registers.SPCCNTR,
+         CUR_CTL           => Registers.CUR_CTL_C,
+         CUR_BASE          => Registers.CUR_BASE_C,
+         CUR_POS           => Registers.CUR_POS_C,
+         CUR_FBC_CTL       => Registers.CUR_FBC_CTL_C,
          PLANE_CTL         => Registers.DSPCCNTR,
          PLANE_OFFSET      => Registers.DSPCTILEOFF,
          PLANE_POS         => Registers.PLANE_POS_1_C,
@@ -190,6 +238,16 @@ private
                               Registers.PLANE_WM_1_C_4,
                               Registers.PLANE_WM_1_C_5,
                               Registers.PLANE_WM_1_C_6,
-                              Registers.PLANE_WM_1_C_7)));
+                              Registers.PLANE_WM_1_C_7),
+         CUR_BUF_CFG       => Registers.CUR_BUF_CFG_C,
+         CUR_WM            => PLANE_WM_Type'(
+                              Registers.CUR_WM_C_0,
+                              Registers.CUR_WM_C_1,
+                              Registers.CUR_WM_C_2,
+                              Registers.CUR_WM_C_3,
+                              Registers.CUR_WM_C_4,
+                              Registers.CUR_WM_C_5,
+                              Registers.CUR_WM_C_6,
+                              Registers.CUR_WM_C_7)));
 
 end HW.GFX.GMA.Pipe_Setup;

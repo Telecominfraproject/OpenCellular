@@ -147,7 +147,8 @@ is
                   Display_Controller.On
                     (Pipe        => Pipe,
                      Port_Cfg    => Port_Cfg,
-                     Framebuffer => Pipe_Cfg.Framebuffer);
+                     Framebuffer => Pipe_Cfg.Framebuffer,
+                     Cursor      => Pipe_Cfg.Cursor);
 
                   Connectors.Post_On
                     (Pipe     => Pipe,
