@@ -723,7 +723,7 @@ resign_firmware_payload() {
 
   local signer_notes="${shellball_dir}/VERSION.signer"
   echo "" >"$signer_notes"
-  info "Signed with keyset in $(readlink -f "${KEY_DIR}") ." >>"${signer_notes}"
+  echo "Signed with keyset in $(readlink -f "${KEY_DIR}") ." >>"${signer_notes}"
 
   new_shellball=$(make_temp_file)
   cp -f "${firmware_bundle}" "${new_shellball}"
