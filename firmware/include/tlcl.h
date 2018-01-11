@@ -15,6 +15,10 @@
 
 #include "tss_constants.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*****************************************************************************/
 /* Functions implemented in tlcl.c */
 
@@ -225,5 +229,9 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
  * and fills in [info] with results.
  */
 uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO *info);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  /* TPM_LITE_TLCL_H_ */
