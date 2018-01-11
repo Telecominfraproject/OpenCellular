@@ -115,6 +115,16 @@ is
 
    procedure Update_Outputs (Configs : Pipe_Configs);
 
+   procedure Update_Cursor (Pipe : Pipe_Index; Cursor : Cursor_Type);
+   procedure Place_Cursor
+     (Pipe : Pipe_Index;
+      X : Cursor_Pos;
+      Y : Cursor_Pos);
+   procedure Move_Cursor
+     (Pipe : Pipe_Index;
+      X : Cursor_Pos;
+      Y : Cursor_Pos);
+
    pragma Warnings (GNATprove, Off, "subprogram ""Dump_Configs"" has no effect",
                     Reason => "It's only used for debugging");
    procedure Dump_Configs (Configs : Pipe_Configs);

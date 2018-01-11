@@ -299,6 +299,8 @@ is
             then
                Display_Controller.Setup_FB
                  (Pipe, New_Config.Mode, New_Config.Framebuffer);
+               Display_Controller.Update_Cursor
+                 (Pipe, New_Config.Framebuffer, New_Config.Cursor);
                Cur_Config := New_Config;
             end if;
          end;
@@ -308,6 +310,44 @@ is
          Power_And_Clocks.Power_Down (Old_Configs, Configs, Cur_Configs);
       end if;
    end Update_Outputs;
+
+   ----------------------------------------------------------------------------
+
+   procedure Update_Cursor (Pipe : Pipe_Index; Cursor : Cursor_Type)
+   is
+   begin
+      Cur_Configs (Pipe).Cursor := Cursor;
+      Display_Controller.Update_Cursor
+        (Pipe, Cur_Configs (Pipe).Framebuffer, Cur_Configs (Pipe).Cursor);
+   end Update_Cursor;
+
+   procedure Place_Cursor
+     (Pipe  : Pipe_Index;
+      X     : Cursor_Pos;
+      Y     : Cursor_Pos)
+   is
+   begin
+      Cur_Configs (Pipe).Cursor.Center_X := X;
+      Cur_Configs (Pipe).Cursor.Center_Y := Y;
+      Display_Controller.Place_Cursor
+        (Pipe, Cur_Configs (Pipe).Framebuffer, Cur_Configs (Pipe).Cursor);
+   end Place_Cursor;
+
+   procedure Move_Cursor
+     (Pipe  : Pipe_Index;
+      X     : Cursor_Pos;
+      Y     : Cursor_Pos)
+   is
+      function Cap_Add (A, B : Cursor_Pos) return Cursor_Pos is
+        (if A + B < 0
+         then Int32'Max (Cursor_Pos'First, A + B)
+         else Int32'Min (Cursor_Pos'Last, A + B));
+   begin
+      Place_Cursor
+        (Pipe  => Pipe,
+         X     => Cap_Add (Cur_Configs (Pipe).Cursor.Center_X, X),
+         Y     => Cap_Add (Cur_Configs (Pipe).Cursor.Center_Y, Y));
+   end Move_Cursor;
 
    ----------------------------------------------------------------------------
 
