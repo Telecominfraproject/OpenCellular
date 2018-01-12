@@ -83,11 +83,15 @@ is
       return To_Word (P);
    end Pixel_To_Word;
 
-   Max_W    : constant := 4096;
-   Max_H    : constant := 2160;
-   FB_Align : constant := 16#0004_0000#;
-   subtype Screen_Index is Natural range
-      0 .. 3 * (Max_W * Max_H + FB_Align / 4) - 1;
+   Max_W          : constant := 4096;
+   Max_H          : constant := 2160;
+   FB_Align       : constant := 16#0004_0000#;
+   Cursor_Align   : constant := 16#0001_0000#;
+   Max_Cursor_Wid : constant := 256;
+   subtype Screen_Index is Natural range 0 .. 3 *
+      (Max_W * Max_H + FB_Align / 4 +
+       3 * Max_Cursor_Wid * Max_Cursor_Wid + Cursor_Align / 4)
+      - 1;
    type Screen_Type is array (Screen_Index) of Word32;
 
    function Screen_Offset (FB : Framebuffer_Type) return Natural is
@@ -218,6 +222,45 @@ is
       end loop;
    end Test_Screen;
 
+   function Donut (X, Y, Max : Cursor_Pos) return Byte
+   is
+      ZZ : constant Int32 := Max * Max * 2;
+      Dist_Center : constant Int32 := ((X * X + Y * Y) * 255) / ZZ;
+      Dist_Circle : constant Int32 := Dist_Center - 20;
+   begin
+      return Byte (255 - Int32'Min (255, 6 * abs Dist_Circle + 64));
+   end Donut;
+
+   procedure Draw_Cursor (Pipe : Pipe_Index; Cursor : Cursor_Type)
+   is
+      use type HW.Byte;
+      Width : constant Width_Type := Cursor_Width (Cursor.Size);
+      Screen_Offset : Natural :=
+         Natural (Shift_Left (Word32 (Cursor.GTT_Offset), 12) / 4);
+   begin
+      if Cursor.Mode /= ARGB_Cursor then
+         return;
+      end if;
+      for Y in Cursor_Pos range -Width / 2 .. Width / 2 - 1 loop
+         for X in Cursor_Pos range -Width / 2 .. Width / 2 - 1 loop
+            declare
+               D : constant Byte := Donut (X, Y, Width / 2);
+            begin
+               -- Hardware seems to expect pre-multiplied alpha (i.e.
+               -- color components already contain the alpha).
+               Screen.Write
+                 (Index => Screen_Offset,
+                  Value => Pixel_To_Word (
+                    (Red   => (if Pipe = Secondary then D / 2 else 0),
+                     Green => (if Pipe = Tertiary  then D / 2 else 0),
+                     Blue  => (if Pipe = Primary   then D / 2 else 0),
+                     Alpha => D)));
+               Screen_Offset := Screen_Offset + 1;
+            end;
+         end loop;
+      end loop;
+   end Draw_Cursor;
+
    procedure Calc_Framebuffer
      (FB       :    out Framebuffer_Type;
       Mode     : in     Mode_Type;
@@ -256,6 +299,50 @@ is
       Offset := Offset + Word32 (FB_Size (FB));
    end Calc_Framebuffer;
 
+   type Cursor_Array is array (Cursor_Size) of Cursor_Type;
+   Cursors : array (Pipe_Index) of Cursor_Array;
+
+   procedure Prepare_Cursors
+     (Cursors  :    out Cursor_Array;
+      Offset   : in out Word32)
+   is
+      GMA_Phys_Base      : constant PCI.Index := 16#5c#;
+      GMA_Phys_Base_Mask : constant := 16#fff0_0000#;
+
+      Phys_Base : Word32;
+      Success : Boolean;
+   begin
+      Dev.Read32 (Phys_Base, GMA_Phys_Base);
+      Phys_Base := Phys_Base and GMA_Phys_Base_Mask;
+      Success := Phys_Base /= GMA_Phys_Base_Mask and Phys_Base /= 0;
+      if not Success then
+         Debug.Put_Line ("Failed to read stolen memory base.");
+         return;
+      end if;
+
+      for Size in Cursor_Size loop
+         Offset := (Offset + Cursor_Align - 1) and not (Cursor_Align - 1);
+         declare
+            Width : constant Width_Type := Cursor_Width (Size);
+            GTT_End : constant Word32 := Offset + Word32 (Width * Width) * 4;
+         begin
+            Cursors (Size) :=
+              (Mode        => ARGB_Cursor,
+               Size        => Size,
+               Center_X    => Width,
+               Center_Y    => Width,
+               GTT_Offset  => GTT_Range (Shift_Right (Offset, 12)));
+            while Offset < GTT_End loop
+               GMA.Write_GTT
+                 (GTT_Page       => GTT_Range (Offset / GTT_Page_Size),
+                  Device_Address => GTT_Address_Type (Phys_Base + Offset),
+                  Valid          => True);
+               Offset := Offset + GTT_Page_Size;
+            end loop;
+         end;
+      end loop;
+   end Prepare_Cursors;
+
    Pipes : GMA.Pipe_Configs;
 
    procedure Prepare_Configs (Rotation : Rotation_Type)
@@ -282,6 +369,8 @@ is
                Pipes (Pipe).Port := GMA.Disabled;
             end if;
          end if;
+         Prepare_Cursors (Cursors (Pipe), Offset);
+         Pipes (Pipe).Cursor := Cursors (Pipe) (Cursor_Size'Val (Rand mod 3));
       end loop;
 
       GMA.Dump_Configs (Pipes);
@@ -376,6 +465,9 @@ is
                  (Framebuffer => Pipes (Pipe).Framebuffer,
                   Pipe        => Pipe);
             end if;
+            for Size in Cursor_Size loop
+               Draw_Cursor (Pipe, Cursors (Pipe) (Size));
+            end loop;
          end loop;
 
          if Delay_MS >= Primary_Delay_MS + Secondary_Delay_MS then
