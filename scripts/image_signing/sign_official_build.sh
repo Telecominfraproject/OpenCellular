@@ -10,6 +10,7 @@
 #
 #  futility (from src/platform/vboot_reference)
 #  vbutil_kernel (from src/platform/vboot_reference)
+#  vbutil_key (from src/platform/vboot_reference)
 #  cgpt (from src/platform/vboot_reference)
 #  dump_kernel_config (from src/platform/vboot_reference)
 #  verity (from src/platform/verity)
@@ -724,6 +725,14 @@ resign_firmware_payload() {
   local signer_notes="${shellball_dir}/VERSION.signer"
   echo "" >"$signer_notes"
   echo "Signed with keyset in $(readlink -f "${KEY_DIR}") ." >>"${signer_notes}"
+  if [[ -d "${shellball_keyset_dir}"  ]]; then
+    echo "List sha1sum of all loem/model's signatures:" >>"${signer_notes}"
+    for key in "${shellball_keyset_dir}"/rootkey.*; do
+      model="${key##*.}"
+      sha1=$(vbutil_key --unpack "${key}" | grep sha1sum | cut -d" " -f9)
+      echo "  ${model}: ${sha1}" >>"${signer_notes}"
+    done
+  fi
 
   new_shellball=$(make_temp_file)
   cp -f "${firmware_bundle}" "${new_shellball}"
