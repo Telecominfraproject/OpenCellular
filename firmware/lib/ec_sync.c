@@ -473,6 +473,8 @@ VbError_t ec_sync_phase3(struct vb2_context *ctx)
 	if (vb2_nv_get(ctx, VB2_NV_BATTERY_CUTOFF_REQUEST)) {
 		VB2_DEBUG("Request to cut-off battery\n");
 		vb2_nv_set(ctx, VB2_NV_BATTERY_CUTOFF_REQUEST, 0);
+		/* May lose power immediately, so commit our update now. */
+		vb2_nv_commit(ctx);
 		VbExEcBatteryCutOff();
 		return VBERROR_SHUTDOWN_REQUESTED;
 	}
