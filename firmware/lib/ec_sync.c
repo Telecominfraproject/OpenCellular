@@ -255,6 +255,9 @@ static VbError_t sync_one_ec(struct vb2_context *ctx, int devidx)
 		 * TODO: Switch slot and proceed if EC is still in RO. */
 		if (is_rw_ab) {
 			VB2_DEBUG("Rebooting to jump to new EC-RW\n");
+			/* Since we're rebooting, ec_sync_all won't be given a
+			 * chance to clear the flag. Need to clear it here. */
+			vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 0);
 			return VBERROR_EC_REBOOT_TO_SWITCH_RW;
 		}
 	}
