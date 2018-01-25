@@ -1,0 +1,1145 @@
+\t (05:44:24) allegro 16.6-2015 S065 (v16-6-112FH) Windows 32
+\t (05:44:24)     Journal start - Mon Jan 16 17:14:28 2017
+\t (05:44:24)         Host=BGHWV3066 User=BGH44456 Pid=860 CPUs=4
+\t (05:44:24) CmdLine= C:\Cadence\SPB_16.6\tools\pcb\bin\allegro.exe
+\t (05:44:24) 
+\d (05:44:24) Design opened: D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/OC_CONNECT_1_SDR_LIFE-3_BOARD/OC_CONNECT_1_SDR_LIFE-3_BOARD/OC_CONNECT_1_SDR_LIFE-3.brd
+\i (05:44:24) placementedit 
+\t (05:44:25) Pick to complete the window.
+\i (05:44:26) pick 6909.500 7104.840
+\t (05:44:26) last pick:  6909.500 7104.840
+\i (05:44:26) setwindow pcb
+\i (05:44:26) zoom points
+\i (05:44:26) pick -1178.884 -858.467
+\i (05:44:26) pick 9456.602 7104.840
+\i (05:44:26) trapsize 53231
+\i (05:44:26) placementedit 
+\i (05:44:26) zoom in 1 
+\i (05:44:26) setwindow pcb
+\i (05:44:26) zoom in 3824.798 2377.957
+\i (05:44:26) trapsize 26615
+\i (05:44:26) zoom in 1 
+\i (05:44:26) setwindow pcb
+\i (05:44:26) zoom in 3819.475 2383.280
+\i (05:44:26) trapsize 13308
+\i (05:44:29) setwindow form.vf_vis
+\i (05:44:29) FORM vf_vis colorview_list Film: TOP 
+\i (05:44:31) setwindow pcb
+\i (05:44:31) status 
+\i (05:44:31) placementedit 
+\i (05:44:33) setwindow form.status
+\i (05:44:33) FORM status drc_update  
+\t (05:44:33) Running DRC, wait...
+\t (05:44:33) Performing DRC...
+\t (05:44:33) Multithreaded DRC update (4 threads).
+\t (05:44:40) No DRC errors detected.
+\t (05:44:40) DRC done.
+\i (05:44:42) setwindow pcb
+\i (05:44:42) save 
+\i (05:44:42) fillin yes 
+\i (05:44:43) placementedit 
+\i (05:44:45) setwindow form.status
+\i (05:44:45) FORM status done  
+\i (05:44:49) setwindow pcb
+\i (05:44:49) reports 'Dangling Lines, Via and Antenna Report' 
+\i (05:44:50) reports "Dangling Lines, Via and Antenna Report"
+\i (05:44:50) placementedit 
+\i (05:44:58) setwindow text
+\i (05:44:58) close 
+\i (05:44:58) setwindow pcb
+\i (05:44:58) roam start
+\i (05:44:58) roam x -112
+\i (05:44:58) roam y -176
+\i (05:44:58) roam x -48
+\i (05:44:58) roam y -112
+\i (05:44:58) roam end
+\i (05:44:59) save 
+\i (05:45:00) fillin yes 
+\i (05:45:00) placementedit 
+\i (05:45:03) setwindow form.vf_vis
+\i (05:45:03) FORM vf_vis colorview_list Film: soldtop 
+\i (05:45:03) setwindow pcb
+\i (05:45:03) roam start
+\i (05:45:03) roam x 96
+\i (05:45:03) roam y 80
+\i (05:45:03) roam x 128
+\i (05:45:03) roam y 112
+\i (05:45:03) roam x 128
+\i (05:45:03) roam y 128
+\i (05:45:04) roam x 64
+\i (05:45:04) roam y 64
+\i (05:45:04) roam end
+\i (05:45:04) roam start
+\i (05:45:04) roam x 96
+\i (05:45:04) roam y -16
+\i (05:45:04) roam x 80
+\i (05:45:04) roam y -32
+\i (05:45:04) roam end
+\i (05:45:05) roam start
+\i (05:45:05) roam x 112
+\i (05:45:05) roam y 32
+\i (05:45:05) roam x 96
+\i (05:45:05) roam y 16
+\i (05:45:05) roam end
+\i (05:45:06) roam start
+\i (05:45:06) roam x -48
+\i (05:45:06) roam y -64
+\i (05:45:06) roam x -32
+\i (05:45:06) roam y -96
+\i (05:45:06) roam y -48
+\i (05:45:06) roam end
+\i (05:45:08) zoom in 1 
+\i (05:45:08) setwindow pcb
+\i (05:45:08) zoom in 5540.411 2767.679
+\i (05:45:08) trapsize 6654
+\i (05:45:08) zoom in 1 
+\i (05:45:08) setwindow pcb
+\i (05:45:08) zoom in 5656.187 2745.056
+\i (05:45:08) trapsize 3327
+\i (05:45:08) zoom in 1 
+\i (05:45:08) setwindow pcb
+\i (05:45:08) zoom in 5656.187 2745.056
+\i (05:45:08) trapsize 1663
+\i (05:45:12) setwindow form.vf_vis
+\i (05:45:12) FORM vf_vis colorview_list Film: pasttop 
+\t (05:45:12) Pick to complete the window.
+\i (05:45:13) setwindow pcb
+\i (05:45:13) zoom points
+\i (05:45:13) pick 4943.729 2264.982
+\i (05:45:13) pick 6273.163 3260.394
+\i (05:45:13) trapsize 6654
+\i (05:45:13) placementedit 
+\t (05:45:13) Pick to complete the window.
+\i (05:45:14) zoom points
+\i (05:45:14) pick 2949.578 771.864
+\i (05:45:14) pick 8267.314 4753.512
+\i (05:45:14) trapsize 26615
+\i (05:45:14) placementedit 
+\t (05:45:15) Pick to complete the window.
+\i (05:45:15) pick 6287.136 2837.211
+\t (05:45:15) last pick:  6287.136 2837.211
+\i (05:45:15) setwindow pcb
+\i (05:45:15) zoom points
+\i (05:45:15) pick 5195.909 1304.170
+\i (05:45:15) pick 7243.379 2837.211
+\i (05:45:15) trapsize 10248
+\i (05:45:15) placementedit 
+\i (05:45:16) roam start
+\i (05:45:16) roam x -64
+\i (05:45:16) roam y 48
+\i (05:45:16) roam x -336
+\i (05:45:16) roam y 224
+\i (05:45:16) roam x -176
+\i (05:45:16) roam y 96
+\i (05:45:16) roam end
+\i (05:45:16) zoom out 1 
+\i (05:45:16) setwindow pcb
+\i (05:45:16) zoom out 5501.118 1530.819
+\i (05:45:16) trapsize 20495
+\i (05:45:17) zoom out 1 
+\i (05:45:17) setwindow pcb
+\i (05:45:17) zoom out 5673.278 752.002
+\i (05:45:17) trapsize 40990
+\i (05:45:17) zoom in 1 
+\i (05:45:17) setwindow pcb
+\i (05:45:17) zoom in 3459.797 4203.395
+\i (05:45:17) trapsize 20495
+\i (05:45:18) zoom in 1 
+\i (05:45:18) setwindow pcb
+\i (05:45:18) zoom in 3451.599 3600.836
+\i (05:45:18) trapsize 10248
+\i (05:45:18) zoom in 1 
+\i (05:45:18) setwindow pcb
+\i (05:45:18) zoom in 3451.600 3602.886
+\i (05:45:18) trapsize 5124
+\i (05:45:20) setwindow form.vf_vis
+\i (05:45:20) FORM vf_vis 10 pin_colorvisible 1 
+\i (05:45:22) FORM vf_vis 10 pin_colorvisible 0 
+\i (05:45:23) FORM vf_vis 1 pin_colorvisible 1 
+\i (05:45:26) FORM vf_vis 1 all_colorvisible YES 
+\t (05:45:26) Pick to complete the window.
+\i (05:45:27) setwindow pcb
+\i (05:45:27) pick 3648.354 3427.652
+\t (05:45:27) last pick:  3648.354 3427.652
+\i (05:45:27) setwindow pcb
+\i (05:45:27) zoom points
+\i (05:45:27) pick 3294.812 3133.546
+\i (05:45:27) pick 3687.608 3427.652
+\i (05:45:27) trapsize 1966
+\i (05:45:27) placementedit 
+\i (05:45:28) roam start
+\i (05:45:28) roam x 64
+\i (05:45:28) roam x 160
+\i (05:45:28) roam y -32
+\i (05:45:28) roam end
+\i (05:45:29) zoom in 1 
+\i (05:45:29) setwindow pcb
+\i (05:45:29) zoom in 3634.318 3339.032
+\i (05:45:29) trapsize 983
+\i (05:45:30) zoom out 1 
+\i (05:45:30) setwindow pcb
+\i (05:45:30) zoom out 3628.223 3337.263
+\i (05:45:30) trapsize 1966
+\i (05:45:31) zoom in 1 
+\i (05:45:31) setwindow pcb
+\i (05:45:31) zoom in 3507.121 3298.730
+\i (05:45:31) trapsize 983
+\i (05:45:31) zoom in 1 
+\i (05:45:31) setwindow pcb
+\i (05:45:31) zoom in 3507.121 3298.730
+\i (05:45:31) trapsize 491
+\i (05:45:32) zoom out 1 
+\i (05:45:32) setwindow pcb
+\i (05:45:32) zoom out 3517.639 3299.910
+\i (05:45:32) trapsize 983
+\i (05:45:32) zoom out 1 
+\i (05:45:32) setwindow pcb
+\i (05:45:32) zoom out 3518.033 3299.909
+\i (05:45:32) trapsize 1966
+\i (05:45:32) zoom out 1 
+\i (05:45:32) setwindow pcb
+\i (05:45:32) zoom out 3518.426 3298.731
+\i (05:45:32) trapsize 3932
+\i (05:45:34) roam start
+\i (05:45:34) roam x -48
+\i (05:45:34) roam y 96
+\i (05:45:34) roam x -80
+\i (05:45:34) roam y 160
+\i (05:45:34) roam x -64
+\i (05:45:34) roam y 80
+\i (05:45:34) roam end
+\i (05:45:34) zoom out 1 
+\i (05:45:34) setwindow pcb
+\i (05:45:34) zoom out 3556.205 3067.442
+\i (05:45:34) trapsize 7864
+\i (05:45:36) setwindow form.vf_vis
+\i (05:45:36) FORM vf_vis 1 all_colorvisible NO 
+\i (05:45:37) FORM vf_vis 1 pin_colorvisible 1 
+\i (05:45:37) setwindow pcb
+\i (05:45:37) roam start
+\i (05:45:37) roam x 32
+\i (05:45:37) roam y -112
+\i (05:45:37) roam x 64
+\i (05:45:37) roam y -144
+\i (05:45:37) roam x 32
+\i (05:45:37) roam y -80
+\i (05:45:37) roam end
+\i (05:45:38) zoom out 1 
+\i (05:45:38) setwindow pcb
+\i (05:45:38) zoom out 3588.512 3632.117
+\i (05:45:38) trapsize 15728
+\i (05:45:39) roam start
+\i (05:45:39) roam x 112
+\i (05:45:39) roam y 64
+\i (05:45:39) roam x 192
+\i (05:45:39) roam y 112
+\i (05:45:39) roam end
+\i (05:45:40) roam start
+\i (05:45:40) roam x 144
+\i (05:45:40) roam y 48
+\i (05:45:40) roam x 240
+\i (05:45:40) roam y 80
+\i (05:45:40) roam x 64
+\i (05:45:40) roam y 16
+\i (05:45:40) roam end
+\i (05:45:40) roam start
+\i (05:45:40) roam x -48
+\i (05:45:40) roam y 112
+\i (05:45:41) roam x -64
+\i (05:45:41) roam y 176
+\i (05:45:41) roam x -32
+\i (05:45:41) roam y 128
+\i (05:45:41) roam end
+\i (05:45:41) zoom out 1 
+\i (05:45:41) setwindow pcb
+\i (05:45:41) zoom out 6227.644 653.327
+\i (05:45:41) trapsize 31455
+\i (05:45:42) zoom in 1 
+\i (05:45:42) setwindow pcb
+\i (05:45:42) zoom in 4680.043 955.297
+\i (05:45:42) trapsize 15728
+\i (05:45:42) zoom out 1 
+\i (05:45:42) setwindow pcb
+\i (05:45:42) zoom out 4834.175 637.599
+\i (05:45:42) trapsize 31455
+\i (05:45:43) roam start
+\i (05:45:43) roam x -192
+\i (05:45:43) roam y -48
+\i (05:45:43) roam x -160
+\i (05:45:43) roam y -80
+\i (05:45:43) roam x -32
+\i (05:45:43) roam y -16
+\i (05:45:43) roam end
+\i (05:45:44) zoom in 1 
+\i (05:45:44) setwindow pcb
+\i (05:45:44) zoom in 4368.637 2798.578
+\i (05:45:44) trapsize 15728
+\i (05:45:45) roam start
+\i (05:45:45) roam x 80
+\i (05:45:45) roam y 32
+\i (05:45:45) roam x 64
+\i (05:45:45) roam y 32
+\i (05:45:45) roam x 48
+\i (05:45:45) roam y 16
+\i (05:45:45) roam end
+\i (05:45:46) zoom in 1 
+\i (05:45:46) setwindow pcb
+\i (05:45:46) zoom in 3988.027 3386.791
+\i (05:45:46) trapsize 7864
+\i (05:45:46) zoom in 1 
+\i (05:45:46) setwindow pcb
+\i (05:45:46) zoom in 3984.882 3394.655
+\i (05:45:46) trapsize 3932
+\i (05:45:46) zoom out 1 
+\i (05:45:46) setwindow pcb
+\i (05:45:46) zoom out 3845.692 3207.496
+\i (05:45:46) trapsize 7864
+\i (05:45:46) zoom out 1 
+\i (05:45:46) setwindow pcb
+\i (05:45:46) zoom out 3848.837 3207.496
+\i (05:45:46) trapsize 15728
+\i (05:45:50) setwindow form.vf_vis
+\i (05:45:50) FORM vf_vis colorview_list Film: pastbot 
+\i (05:45:51) setwindow pcb
+\i (05:45:51) roam start
+\i (05:45:51) roam x 112
+\i (05:45:51) roam y 64
+\i (05:45:51) roam x 336
+\i (05:45:51) roam y 144
+\i (05:45:51) roam x 96
+\i (05:45:51) roam y 32
+\i (05:45:51) roam end
+\i (05:45:51) roam start
+\i (05:45:51) roam x -80
+\i (05:45:51) roam y 32
+\i (05:45:51) roam x -160
+\i (05:45:51) roam y 96
+\i (05:45:51) roam x -80
+\i (05:45:51) roam y 64
+\i (05:45:51) roam end
+\i (05:45:52) zoom in 1 
+\i (05:45:52) setwindow pcb
+\i (05:45:52) zoom in 5900.509 2031.069
+\i (05:45:52) trapsize 7864
+\i (05:45:54) setwindow form.vf_vis
+\i (05:45:54) FORM vf_vis 10 all_colorvisible YES 
+\i (05:45:55) setwindow pcb
+\i (05:45:55) zoom in 1 
+\i (05:45:55) setwindow pcb
+\i (05:45:55) zoom in 5571.801 1865.929
+\i (05:45:55) trapsize 3932
+\t (05:45:55) Pick to complete the window.
+\i (05:45:56) pick 5807.715 2045.224
+\t (05:45:56) last pick:  5807.715 2045.224
+\i (05:45:56) setwindow pcb
+\i (05:45:56) zoom points
+\i (05:45:56) pick 5571.801 1865.929
+\i (05:45:56) pick 5811.260 2045.224
+\i (05:45:56) trapsize 1198
+\i (05:45:56) placementedit 
+\i (05:45:56) roam start
+\i (05:45:56) roam x 112
+\i (05:45:56) roam y -80
+\i (05:45:56) roam x 64
+\i (05:45:56) roam y -64
+\i (05:45:56) roam end
+\i (05:45:58) show element 
+\i (05:45:59) zoom out 1 
+\i (05:45:59) setwindow pcb
+\i (05:45:59) zoom out 5752.429 2032.991
+\i (05:45:59) trapsize 2397
+\i (05:46:03) prepopup 5826.257 1987.449
+\i (05:46:04) done 
+\i (05:46:04) placementedit 
+\i (05:46:05) zoom out 1 
+\i (05:46:05) setwindow pcb
+\i (05:46:05) zoom out 5762.497 1956.289
+\i (05:46:05) trapsize 4794
+\i (05:46:05) zoom out 1 
+\i (05:46:05) setwindow pcb
+\i (05:46:05) zoom out 5767.290 1930.401
+\i (05:46:05) trapsize 9588
+\i (05:46:07) setwindow form.vf_vis
+\i (05:46:07) FORM vf_vis 10 all_colorvisible NO 
+\i (05:46:08) FORM vf_vis 10 pin_colorvisible 1 
+\i (05:46:08) setwindow pcb
+\i (05:46:08) roam start
+\i (05:46:08) roam y -64
+\i (05:46:08) roam x -16
+\i (05:46:08) roam y -144
+\i (05:46:08) roam x -32
+\i (05:46:08) roam y -112
+\i (05:46:09) roam end
+\i (05:46:09) zoom out 1 
+\i (05:46:09) setwindow pcb
+\i (05:46:09) zoom out 5787.886 2589.503
+\i (05:46:09) trapsize 19176
+\i (05:46:09) zoom out 1 
+\i (05:46:09) setwindow pcb
+\i (05:46:09) zoom out 5899.106 2413.083
+\i (05:46:09) trapsize 38352
+\i (05:46:11) zoom in 1 
+\i (05:46:11) setwindow pcb
+\i (05:46:11) zoom in 3659.356 3134.099
+\i (05:46:11) trapsize 19176
+\i (05:46:11) zoom in 1 
+\i (05:46:11) setwindow pcb
+\i (05:46:11) zoom in 3770.576 3237.649
+\i (05:46:11) trapsize 9588
+\i (05:46:11) zoom in 1 
+\i (05:46:11) setwindow pcb
+\i (05:46:11) zoom in 3770.577 3237.649
+\i (05:46:11) trapsize 4794
+\i (05:46:11) zoom out 1 
+\i (05:46:11) setwindow pcb
+\i (05:46:11) zoom out 3936.449 3296.136
+\i (05:46:11) trapsize 9588
+\i (05:46:12) zoom out 1 
+\i (05:46:12) setwindow pcb
+\i (05:46:12) zoom out 3982.471 3374.758
+\i (05:46:12) trapsize 19176
+\i (05:46:13) zoom out 1 
+\i (05:46:13) setwindow pcb
+\i (05:46:13) zoom out 4032.328 3018.085
+\i (05:46:13) trapsize 38352
+\i (05:46:15) roam start
+\i (05:46:15) roam x 128
+\i (05:46:15) roam y 32
+\i (05:46:16) roam x 32
+\i (05:46:16) roam y 32
+\i (05:46:16) roam x 16
+\i (05:46:16) roam x 16
+\i (05:46:16) roam x 16
+\i (05:46:16) roam end
+\i (05:46:18) zoom in 1 
+\i (05:46:18) setwindow pcb
+\i (05:46:18) zoom in 6104.289 1901.087
+\i (05:46:18) trapsize 19176
+\i (05:46:18) zoom in 1 
+\i (05:46:18) setwindow pcb
+\i (05:46:18) zoom in 6088.949 1912.593
+\i (05:46:18) trapsize 9588
+\i (05:46:18) zoom out 1 
+\i (05:46:18) setwindow pcb
+\i (05:46:18) zoom out 6069.773 1926.016
+\i (05:46:18) trapsize 19176
+\i (05:46:19) zoom out 1 
+\i (05:46:19) setwindow pcb
+\i (05:46:19) zoom out 6065.939 1810.961
+\i (05:46:19) trapsize 38352
+\i (05:46:21) setwindow form.vf_vis
+\i (05:46:21) FORM vf_vis colorview_list Film: pasttop 
+\t (05:46:22) Pick to complete the window.
+\i (05:46:23) setwindow pcb
+\i (05:46:23) pick 4332.434 4219.458
+\t (05:46:23) last pick:  4332.434 4219.458
+\i (05:46:23) setwindow pcb
+\i (05:46:23) zoom points
+\i (05:46:23) pick 2276.773 3107.254
+\i (05:46:23) pick 4332.434 4646.427
+\i (05:46:23) trapsize 10289
+\i (05:46:23) placementedit 
+\i (05:46:24) setwindow form.vf_vis
+\i (05:46:24) FORM vf_vis 1 all_colorvisible YES 
+\i (05:46:25) setwindow pcb
+\i (05:46:25) roam start
+\i (05:46:25) roam x 32
+\i (05:46:25) roam y 112
+\i (05:46:25) roam x 16
+\i (05:46:25) roam y 80
+\i (05:46:25) roam end
+\i (05:46:28) zoom in 1 
+\i (05:46:28) setwindow pcb
+\i (05:46:28) zoom in 3853.114 3217.095
+\i (05:46:28) trapsize 5144
+\i (05:46:32) setwindow form.vf_vis
+\i (05:46:32) FORM vf_vis colorview_list Film: soldtop 
+\i (05:46:34) FORM vf_vis 1 pin_colorvisible 1 
+\i (05:46:39) FORM vf_vis colorview_list Film: pasttop 
+\i (05:46:41) FORM vf_vis 1 all_colorvisible YES 
+\i (05:46:46) setwindow pcb
+\i (05:46:46) zoom out 1 
+\i (05:46:46) setwindow pcb
+\i (05:46:46) zoom out 3785.209 3472.253
+\i (05:46:46) trapsize 10289
+\i (05:46:46) zoom out 1 
+\i (05:46:46) setwindow pcb
+\i (05:46:46) zoom out 3805.787 3461.964
+\i (05:46:46) trapsize 20577
+\i (05:46:46) zoom out 1 
+\i (05:46:46) setwindow pcb
+\i (05:46:46) zoom out 3645.285 3149.190
+\i (05:46:46) trapsize 41154
+\i (05:46:47) zoom out 1 
+\i (05:46:47) setwindow pcb
+\i (05:46:47) zoom out 2789.275 3190.346
+\i (05:46:47) trapsize 82309
+\t (05:46:48) Pick to complete the window.
+\i (05:46:48) pick 7744.264 4359.131
+\t (05:46:48) last pick:  7744.264 4359.131
+\i (05:46:48) setwindow pcb
+\i (05:46:48) zoom points
+\i (05:46:48) pick -1112.163 -2324.344
+\i (05:46:48) pick 7814.028 4359.131
+\i (05:46:48) trapsize 44676
+\i (05:46:48) placementedit 
+\i (05:46:51) zoom out 1 
+\i (05:46:51) setwindow pcb
+\i (05:46:51) zoom out 3587.714 1347.993
+\i (05:46:51) trapsize 89351
+\i (05:46:52) zoom out 1 
+\i (05:46:52) setwindow pcb
+\i (05:46:52) zoom out 4016.600 1276.512
+\i (05:46:52) trapsize 178703
+\t (05:46:53) Pick to complete the window.
+\i (05:46:54) pick 3194.568 3027.798
+\t (05:46:54) last pick:  3194.568 3027.798
+\i (05:46:54) setwindow pcb
+\i (05:46:54) zoom points
+\i (05:46:54) pick -1022.812 -3548.456
+\i (05:46:54) pick 7760.179 3027.798
+\i (05:46:54) trapsize 43959
+\i (05:46:54) placementedit 
+\i (05:46:54) zoom in 1 
+\i (05:46:54) setwindow pcb
+\i (05:46:54) zoom in 1298.219 -1376.885
+\i (05:46:54) trapsize 21979
+\i (05:46:55) zoom out 1 
+\i (05:46:55) setwindow pcb
+\i (05:46:55) zoom out 2595.008 -541.665
+\i (05:46:55) trapsize 43959
+\i (05:46:56) text edit 
+\i (05:46:57) pick grid 1135.571 -1209.841
+\t (05:46:57) last pick:  1135.600 -1209.800
+\i (05:47:00) setwindow pcb
+\i (05:47:00) prepopup 2551.048 -937.296
+\i (05:47:00) done 
+\i (05:47:00) setwindow pcb
+\i (05:47:00) pick 1135.571 -1209.841
+\t (05:47:00) Pick text to edit.
+\i (05:47:00) setwindow pcb
+\i (05:47:00) placementedit 
+\i (05:47:01) zoom out 1 
+\i (05:47:01) setwindow pcb
+\i (05:47:01) zoom out 1267.448 -1719.765
+\i (05:47:01) trapsize 87918
+\i (05:47:02) zoom out 1 
+\i (05:47:02) setwindow pcb
+\i (05:47:02) zoom out 1179.529 -2423.106
+\i (05:47:02) trapsize 175836
+\i (05:47:02) roam start
+\i (05:47:02) roam x 208
+\i (05:47:02) roam y 96
+\i (05:47:02) roam end
+\i (05:47:06) setwindow form.vf_vis
+\i (05:47:06) FORM vf_vis colorview_list Film: FAB 
+\t (05:47:06) Pick to complete the window.
+\i (05:47:07) setwindow pcb
+\i (05:47:07) pick 21607.963 -783.452
+\t (05:47:07) last pick:  21607.963 -783.452
+\i (05:47:07) setwindow pcb
+\i (05:47:07) zoom points
+\i (05:47:07) pick 10706.150 -9821.406
+\i (05:47:07) pick 22776.893 -783.452
+\i (05:47:07) trapsize 60414
+\i (05:47:07) placementedit 
+\t (05:47:08) Pick to complete the window.
+\i (05:47:08) pick 19768.269 -4384.134
+\t (05:47:08) last pick:  19768.269 -4384.134
+\i (05:47:08) setwindow pcb
+\i (05:47:08) zoom points
+\i (05:47:08) pick 15623.860 -8359.384
+\i (05:47:08) pick 20933.050 -4384.134
+\i (05:47:08) trapsize 26573
+\i (05:47:08) placementedit 
+\i (05:47:10) text edit 
+\i (05:47:10) roam start
+\i (05:47:10) roam x -192
+\i (05:47:10) roam x -208
+\i (05:47:10) roam x -96
+\i (05:47:10) roam end
+\i (05:47:11) pick grid 14665.771 -6600.283
+\t (05:47:11) last pick:  14665.800 -6600.300
+\i (05:47:14) setwindow pcb
+\i (05:47:14) prepopup 15175.963 -6228.267
+\i (05:47:14) done 
+\i (05:47:14) setwindow pcb
+\i (05:47:14) pick 14665.771 -6600.283
+\t (05:47:14) Pick text to edit.
+\i (05:47:14) setwindow pcb
+\i (05:47:14) placementedit 
+\i (05:47:15) save 
+\i (05:47:15) fillin yes 
+\i (05:47:16) placementedit 
+\i (05:47:16) zoom out 1 
+\i (05:47:16) setwindow pcb
+\i (05:47:16) zoom out 15494.834 -6674.686
+\i (05:47:16) trapsize 53145
+\i (05:47:17) zoom out 1 
+\i (05:47:17) setwindow pcb
+\i (05:47:17) zoom out 19193.729 -7801.361
+\i (05:47:17) trapsize 106290
+\i (05:47:18) zoom out 1 
+\i (05:47:18) setwindow pcb
+\i (05:47:18) zoom out 19151.213 -7843.876
+\i (05:47:18) trapsize 212580
+\t (05:47:18) Pick to complete the window.
+\i (05:47:19) pick 10733.036 8482.284
+\t (05:47:19) last pick:  10733.036 8482.284
+\i (05:47:19) setwindow pcb
+\i (05:47:19) zoom points
+\i (05:47:19) pick -7931.507 -5760.591
+\i (05:47:19) pick 11090.728 8482.284
+\i (05:47:19) trapsize 95206
+\i (05:47:19) placementedit 
+\i (05:47:19) roam start
+\i (05:47:19) roam x 272
+\i (05:47:19) roam y -64
+\i (05:47:19) roam x 176
+\i (05:47:19) roam y -80
+\i (05:47:20) roam x 176
+\i (05:47:20) roam y -96
+\i (05:47:20) roam end
+\i (05:47:20) zoom out 1 
+\i (05:47:20) setwindow pcb
+\i (05:47:20) zoom out 16475.487 4916.822
+\i (05:47:20) trapsize 190413
+\i (05:47:24) ncdrill legend 
+   (05:47:25) Loading mfg.cxt 
+\i (05:47:27) setwindow form.nc_drilllegend
+\i (05:47:27) FORM nc_drilllegend done  
+\i (05:47:27) setwindow pcb
+\i (05:47:27) pick grid 8287.738 8877.407
+\t (05:47:27) last pick:  8287.700 8877.400
+\t (05:47:27) NC Drill Legend generation successful
+\i (05:47:28) placementedit 
+\i (05:47:28) zoom in 1 
+\i (05:47:28) setwindow pcb
+\i (05:47:28) zoom in 17503.716 9067.820
+\i (05:47:28) trapsize 95206
+\i (05:47:30) roam start
+\i (05:47:30) roam y 80
+\i (05:47:30) roam y 64
+\i (05:47:31) roam end
+\i (05:47:35) zoom out 1 
+\i (05:47:35) setwindow pcb
+\i (05:47:35) zoom out 18931.812 7734.931
+\i (05:47:35) trapsize 190413
+\t (05:47:36) Pick to complete the window.
+\i (05:47:36) pick 9030.349 6897.114
+\t (05:47:36) last pick:  9030.349 6897.114
+\i (05:47:36) setwindow pcb
+\i (05:47:36) zoom points
+\i (05:47:36) pick -1899.344 -2737.772
+\i (05:47:36) pick 10968.638 6897.114
+\i (05:47:36) trapsize 64404
+\i (05:47:37) placementedit 
+\i (05:47:37) zoom in 1 
+\i (05:47:37) setwindow pcb
+\i (05:47:37) zoom in 3149.955 -1423.924
+\i (05:47:37) trapsize 32202
+\i (05:47:37) zoom out 1 
+\i (05:47:37) setwindow pcb
+\i (05:47:37) zoom out 4019.413 250.588
+\i (05:47:37) trapsize 64404
+\i (05:47:38) zoom out 1 
+\i (05:47:38) setwindow pcb
+\i (05:47:38) zoom out 2409.306 -45.671
+\i (05:47:38) trapsize 128809
+\i (05:47:38) roam start
+\i (05:47:38) roam x 240
+\i (05:47:38) roam y 128
+\i (05:47:38) roam end
+\i (05:47:39) zoom in 1 
+\i (05:47:39) setwindow pcb
+\i (05:47:39) zoom in 16159.630 -5848.217
+\i (05:47:39) trapsize 64404
+\i (05:47:39) roam start
+\i (05:47:39) roam y 112
+\i (05:47:39) roam y 96
+\i (05:47:39) roam end
+\i (05:47:40) zoom in 1 
+\i (05:47:40) setwindow pcb
+\i (05:47:40) zoom in 14923.067 -6530.902
+\i (05:47:40) trapsize 32202
+\i (05:47:40) zoom out 1 
+\i (05:47:40) setwindow pcb
+\i (05:47:40) zoom out 14923.067 -6479.379
+\i (05:47:40) trapsize 64404
+\i (05:47:41) roam start
+\i (05:47:41) roam x 80
+\i (05:47:41) roam x 112
+\i (05:47:41) roam y -16
+\i (05:47:41) roam end
+\i (05:47:42) zoom in 1 
+\i (05:47:42) setwindow pcb
+\i (05:47:42) zoom in 21041.478 -6698.354
+\i (05:47:42) trapsize 32202
+\i (05:47:42) zoom out 1 
+\i (05:47:42) setwindow pcb
+\i (05:47:42) zoom out 20191.340 -6833.603
+\i (05:47:42) trapsize 64404
+\i (05:47:43) zoom out 1 
+\i (05:47:43) setwindow pcb
+\i (05:47:43) zoom out 20023.890 -6910.888
+\i (05:47:43) trapsize 128809
+\i (05:47:44) roam start
+\i (05:47:44) roam x -208
+\i (05:47:44) roam y -96
+\i (05:47:44) roam x -192
+\i (05:47:44) roam y -80
+\i (05:47:44) roam end
+\i (05:47:44) roam start
+\i (05:47:44) roam x -128
+\i (05:47:44) roam y -32
+\i (05:47:44) roam end
+\i (05:47:46) save 
+\i (05:47:46) fillin yes 
+\i (05:47:47) placementedit 
+\t (05:47:47) Pick to complete the window.
+\i (05:47:47) pick 10028.339 6800.791
+\t (05:47:47) last pick:  10028.339 6800.791
+\i (05:47:47) setwindow pcb
+\i (05:47:47) zoom points
+\i (05:47:47) pick -4346.705 -3761.517
+\i (05:47:47) pick 10028.339 7001.779
+\i (05:47:47) trapsize 71947
+\i (05:47:48) placementedit 
+\i (05:47:51) zoom in 1 
+\i (05:47:51) setwindow pcb
+\i (05:47:51) zoom in 2574.612 3030.296
+\i (05:47:51) trapsize 35974
+\i (05:47:52) zoom in 1 
+\i (05:47:52) setwindow pcb
+\i (05:47:52) zoom in 2624.976 2893.597
+\i (05:47:52) trapsize 17987
+\i (05:47:52) zoom in 1 
+\i (05:47:52) setwindow pcb
+\i (05:47:52) zoom in 2200.488 2882.805
+\i (05:47:52) trapsize 8993
+\i (05:47:53) zoom out 1 
+\i (05:47:53) setwindow pcb
+\i (05:47:53) zoom out 2392.947 2882.805
+\i (05:47:53) trapsize 17987
+\i (05:47:54) zoom out 1 
+\i (05:47:54) setwindow pcb
+\i (05:47:54) zoom out 2389.350 2836.041
+\i (05:47:54) trapsize 35974
+\i (05:47:54) zoom out 1 
+\i (05:47:54) setwindow pcb
+\i (05:47:54) zoom out 2353.376 2634.588
+\i (05:47:54) trapsize 71947
+\i (05:47:57) zoom in 1 
+\i (05:47:57) setwindow pcb
+\i (05:47:57) zoom in 2641.164 634.457
+\i (05:47:57) trapsize 35974
+\i (05:47:58) zoom in 1 
+\i (05:47:58) setwindow pcb
+\i (05:47:58) zoom in 2835.421 821.520
+\i (05:47:58) trapsize 17987
+\i (05:47:58) zoom in 1 
+\i (05:47:58) setwindow pcb
+\i (05:47:58) zoom in 2839.019 825.117
+\i (05:47:58) trapsize 8993
+\i (05:47:59) zoom out 1 
+\i (05:47:59) setwindow pcb
+\i (05:47:59) zoom out 2830.026 826.916
+\i (05:47:59) trapsize 17987
+\i (05:48:00) dehilight 
+\i (05:48:00) setwindow form.mini
+\i (05:48:00) FORM mini net  
+\i (05:48:01) FORM mini symbol  
+\i (05:48:01) FORM mini func  
+\i (05:48:02) FORM mini pins  
+\i (05:48:02) FORM mini dhlt_all  
+\i (05:48:02) setwindow pcb
+\i (05:48:02) prepopup 4290.554 1373.715
+\i (05:48:03) done 
+\i (05:48:03) placementedit 
+\i (05:48:03) save 
+\i (05:48:04) fillin yes 
+\i (05:48:04) placementedit 
+\i (05:48:05) zoom out 1 
+\i (05:48:05) setwindow pcb
+\i (05:48:05) zoom out 3542.303 902.461
+\i (05:48:05) trapsize 35974
+\i (05:48:05) zoom out 1 
+\i (05:48:05) setwindow pcb
+\i (05:48:05) zoom out 1981.050 585.894
+\i (05:48:05) trapsize 71947
+\i (05:48:06) zoom in 1 
+\i (05:48:06) setwindow pcb
+\i (05:48:06) zoom in 4959.662 -2349.550
+\i (05:48:06) trapsize 35974
+\i (05:48:08) zoom out 1 
+\i (05:48:08) setwindow pcb
+\i (05:48:08) zoom out 5031.609 -1658.857
+\i (05:48:08) trapsize 71947
+\i (05:48:08) zoom out 1 
+\i (05:48:08) setwindow pcb
+\i (05:48:08) zoom out 4930.884 -1270.343
+\i (05:48:08) trapsize 143894
+\i (05:48:11) roam start
+\i (05:48:11) roam x 32
+\i (05:48:11) roam y -144
+\i (05:48:11) roam end
+\i (05:48:11) zoom in 1 
+\i (05:48:11) setwindow pcb
+\i (05:48:11) zoom in 9589.925 10973.959
+\i (05:48:11) trapsize 71947
+\i (05:48:11) zoom in 1 
+\i (05:48:11) setwindow pcb
+\i (05:48:11) zoom in 9589.925 11017.128
+\i (05:48:11) trapsize 35974
+\i (05:48:12) zoom out 1 
+\i (05:48:12) setwindow pcb
+\i (05:48:12) zoom out 8143.787 10952.376
+\i (05:48:12) trapsize 71947
+\i (05:48:12) zoom out 1 
+\i (05:48:12) setwindow pcb
+\i (05:48:12) zoom out 8201.346 10923.597
+\i (05:48:12) trapsize 143894
+\i (05:48:13) zoom out 1 
+\i (05:48:13) setwindow pcb
+\i (05:48:13) zoom out 4776.660 11499.174
+\i (05:48:13) trapsize 287789
+\t (05:48:14) Pick to complete the window.
+\i (05:48:14) pick 25152.098 13628.810
+\t (05:48:14) last pick:  25152.098 13628.810
+\i (05:48:14) setwindow pcb
+\i (05:48:14) zoom points
+\i (05:48:14) pick -13756.930 -10487.880
+\i (05:48:14) pick 25152.098 18645.206
+\i (05:48:14) trapsize 194740
+\i (05:48:15) placementedit 
+\i (05:48:15) save 
+\i (05:48:16) fillin yes 
+\i (05:48:16) placementedit 
+\i (05:48:29) save_as 
+\i (05:48:38) fillin "D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3.brd"
+\i (05:48:38) cd "D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116"
+\i (05:48:38) placementedit 
+\i (05:49:00) ncdrill legend 
+\i (05:49:01) setwindow form.nc_drilllegend
+\i (05:49:01) FORM nc_drilllegend done  
+\i (05:49:01) setwindow pcb
+\i (05:49:01) pick grid 9222.376 6493.438
+\t (05:49:01) last pick:  9222.400 6493.400
+\t (05:49:01) NC Drill Legend generation successful
+\i (05:49:01) placementedit 
+\i (05:49:02) save 
+\i (05:49:03) fillin yes 
+\i (05:49:03) placementedit 
+\i (05:49:08) artwork 
+\i (05:49:12) setwindow form.film_control
+\i (05:49:12) FORM film_control filmtree  AST 
+\i (05:49:12) FORM film_control filmtree  BOTTOM 
+\i (05:49:13) FORM film_control filmtree  FAB 
+\i (05:49:13) FORM film_control filmtree  L2-GND1 
+\i (05:49:15) FORM film_control filmtree  L3-SIG1 
+\i (05:49:15) FORM film_control filmtree  L4-SIG2 
+\i (05:49:15) FORM film_control filmtree  L5-PWR 
+\i (05:49:15) FORM film_control filmtree  L6-GND2 
+\i (05:49:15) FORM film_control filmtree  L7-SIG3 
+\i (05:49:16) FORM film_control filmtree  L8-SIG4 
+\i (05:49:16) FORM film_control filmtree  L9-GND3 
+\i (05:49:17) FORM film_control filmtree  SILK_BOTTOM 
+\i (05:49:17) FORM film_control filmtree  SILK_TOP 
+\i (05:49:17) FORM film_control filmtree  TOP 
+\i (05:49:17) FORM film_control filmtree  pastbot 
+\i (05:49:17) FORM film_control filmtree  pasttop 
+\i (05:49:17) FORM film_control filmtree  soldbot 
+\i (05:49:18) FORM film_control filmtree  soldtop 
+\i (05:49:19) FORM film_control select_all  
+\i (05:49:21) FORM film_control apertures  
+\i (05:49:23) setwindow form.apt_wheels
+\i (05:49:23) FORM apt_wheels 1 edit  
+\i (05:49:24) setwindow form.apt_stations
+\i (05:49:24) FORM apt_stations auto 'With Rotation' 
+\i (05:49:26) FORM apt_stations apt_done  
+\i (05:49:27) setwindow form.apt_wheels
+\i (05:49:27) FORM apt_wheels done  
+\t (05:49:27) Saving aperture: D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/art_aper.txt
+\i (05:49:29) setwindow form.film_control
+\i (05:49:29) FORM film_control ok  
+\i (05:49:29) setwindow pcb
+\i (05:49:29) placementedit 
+\i (05:49:31) artwork 
+\i (05:49:32) setwindow form.film_control
+\i (05:49:32) FORM film_control select_all  
+\i (05:49:34) FORM film_control apertures  
+\i (05:49:35) setwindow form.apt_wheels
+\i (05:49:35) FORM apt_wheels 1 edit  
+\i (05:49:36) setwindow form.apt_stations
+\i (05:49:36) FORM apt_stations apt_done  
+\i (05:49:37) setwindow form.apt_wheels
+\i (05:49:37) FORM apt_wheels done  
+\t (05:49:37) Saving aperture: D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/art_aper.txt
+\i (05:49:38) setwindow form.film_control
+\i (05:49:38) FORM film_control create  
+\t (05:49:38) Checking db records
+\t (05:49:38)     checking for orphans...
+\t (05:49:38)     Checked   4 percent
+\t (05:49:38)     Checked   9 percent
+\t (05:49:38)     Checked  14 percent
+\t (05:49:38)     Checked  19 percent
+\t (05:49:38)     Checked  24 percent
+\t (05:49:38)     Checked  28 percent
+\t (05:49:38)     Checked  33 percent
+\t (05:49:38)     Checked  38 percent
+\t (05:49:38)     Checked  43 percent
+\t (05:49:39)     Checked  48 percent
+\t (05:49:39)     Checked  53 percent
+\t (05:49:39)     Checked  57 percent
+\t (05:49:39)     Checked  62 percent
+\t (05:49:39)     Checked  67 percent
+\t (05:49:39)     Checked  72 percent
+\t (05:49:39)     Checked  77 percent
+\t (05:49:39)     Checked  81 percent
+\t (05:49:39)     Checked  86 percent
+\t (05:49:39)     Checked  91 percent
+\t (05:49:39)     Checked  96 percent
+\t (05:49:39)     Checked 100 percent
+\t (05:49:39) Done dbdoctor.
+\t (05:49:39) Starting Create artwork films...
+\w (05:49:44) WARNING(SPMHGE-269): artwork had warnings, use Viewlog to review the log file.
+\w (05:49:45) Artwork generated with warnings.
+\i (05:49:50) setwindow text
+\i (05:49:50) close 
+\i (05:49:53) setwindow form.film_control
+\i (05:49:53) FORM film_control ok  
+\i (05:49:53) setwindow pcb
+\i (05:49:53) placementedit 
+\i (05:49:57) nctape_full 
+\i (05:49:58) setwindow form.nc_drill
+\i (05:49:58) FORM nc_drill auto_tool_select YES 
+\i (05:49:59) FORM nc_drill repeat_codes NO 
+\i (05:50:00) FORM nc_drill parameters  
+\i (05:50:02) setwindow form.nc_parameters
+\i (05:50:02) FORM nc_parameters suppress_lead_zeroes YES 
+\i (05:50:03) FORM nc_parameters enhanced_format YES 
+\i (05:50:03) FORM nc_parameters done  
+\i (05:50:07) setwindow form.nc_drill
+\i (05:50:07) FORM nc_drill execute  
+\w (05:50:07) WARNING(SPMHMF-269): Design contains slot holes that can not be drilled. They can be processed by NC Route instead.
+\t (05:50:07) Starting Generating NC Drill...
+\i (05:50:11) FORM nc_drill close  
+\i (05:50:11) setwindow pcb
+\i (05:50:11) placementedit 
+\i (05:50:13) ncroute 
+\i (05:50:15) setwindow form.nc_route
+\i (05:50:15) FORM nc_route parameters  
+\i (05:50:16) setwindow form.nc_parameters
+\i (05:50:16) FORM nc_parameters done  
+\i (05:50:17) setwindow form.nc_route
+\i (05:50:17) FORM nc_route execute  
+\t (05:50:17) Starting NC Route...
+\i (05:50:20) FORM nc_route close  
+\i (05:50:20) setwindow pcb
+\i (05:50:20) placementedit 
+\i (05:50:23) ipc356 out 
+\i (05:50:23) placementedit 
+\i (05:50:25) setwindow form.ipc356
+\i (05:50:25) FORM ipc356 run  
+\t (05:50:25) Starting ipc356_out...
+\w (05:50:26) WARNING(SPMHGE-269): ipc356_out had warnings, use Viewlog to review the log file.
+\i (05:50:30) setwindow text
+\i (05:50:30) close 
+\i (05:50:30) setwindow form.ipc356
+\i (05:50:30) FORM ipc356 close  
+\i (05:50:34) setwindow pcb
+\i (05:50:34) odb_out 
+\t (05:50:34) Valor: Extract out files
+\i (05:50:35) fillin no 
+\t (05:50:35) extracting technology file
+\t (05:50:35) Starting techfile...
+\t (05:50:37) extracting cross-section report
+\i (05:50:37) reports 'Cross-Section Report' nographic write D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/crosssection_OC_CONNECT_1_SDR_LIFE-3.out 
+\i (05:50:37) reports "Cross-Section Report" nographic write D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/crosssection_OC_CONNECT_1_SDR_LIFE-3.out
+\t (05:50:37) creating DFA requirements script
+\t (05:50:37) extracting DFA requirements
+\i (05:50:37) replay D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/dfa_OC_CONNECT_1_SDR_LIFE-3.scr 
+\i (05:50:37) dfa_spreadsheet 
+\i (05:50:37) setwindow dfa.dialog
+\i (05:50:37) dfa new
+\i (05:50:37) setwindow dfa.dialog 
+\i (05:50:37) dfa read_from_design 
+\i (05:50:37) dfa save D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/dfa_OC_CONNECT_1_SDR_LIFE-3.out 
+\i (05:50:37) dfa save "dfa_OC_CONNECT_1_SDR_LIFE-3.out"
+\i (05:50:37) dfa cancel 
+\i (05:50:38) dfa cancel
+\i (05:50:38) trapsize 194740
+\t (05:50:38) Extracting Analysis Regions
+\t (05:50:38) extracting Component Properties
+\t (05:50:42)  ----- Valor extract completed successfully with new fix ----- 
+
+\t (05:50:42) Starting brd2odb translator...
+\i (05:52:04) setwindow pcb
+\i (05:52:04) placementedit 
+\i (05:52:34) odb_out 
+\t (05:52:34) Valor: Extract out files
+\i (05:52:36) fillin no 
+\t (05:52:36) extracting technology file
+\t (05:52:36) Starting techfile...
+\t (05:52:38) extracting cross-section report
+\i (05:52:38) reports 'Cross-Section Report' nographic write D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/crosssection_OC_CONNECT_1_SDR_LIFE-3.out 
+\i (05:52:38) reports "Cross-Section Report" nographic write D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/crosssection_OC_CONNECT_1_SDR_LIFE-3.out
+\t (05:52:38) creating DFA requirements script
+\t (05:52:38) extracting DFA requirements
+\i (05:52:38) replay D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/dfa_OC_CONNECT_1_SDR_LIFE-3.scr 
+\i (05:52:38) dfa_spreadsheet 
+\i (05:52:38) setwindow dfa.dialog
+\i (05:52:38) dfa new
+\i (05:52:38) setwindow dfa.dialog 
+\i (05:52:38) dfa read_from_design 
+\i (05:52:38) dfa save D:/DINESH/DESIGN/PROJECT/OC_CONNECT-1_RF_SDR_LIFE-3_Digital/WORK/20170116/dfa_OC_CONNECT_1_SDR_LIFE-3.out 
+\i (05:52:38) dfa save "dfa_OC_CONNECT_1_SDR_LIFE-3.out"
+\i (05:52:38) dfa cancel 
+\i (05:52:38) dfa cancel
+\i (05:52:38) trapsize 194740
+\t (05:52:38) Extracting Analysis Regions
+\t (05:52:38) extracting Component Properties
+\t (05:52:42)  ----- Valor extract completed successfully with new fix ----- 
+
+\t (05:52:42) Starting brd2odb translator...
+   (05:53:07) function valor_extract_info redefined
+   (05:53:07) function odbGenFilmsParameters redefined
+   (05:53:07) function odbGenDraFiles redefined
+   (05:53:07) function outputRegions redefined
+\i (05:53:07) setwindow pcb
+\i (05:53:07) placementedit 
+\i (05:53:09) setwindow dfa.dialog
+\i (05:53:09) pick grid 6223.382 8401.888
+\t (05:53:09) last pick:  6223.400 8401.900
+\i (05:53:12) setwindow pcb
+\i (05:53:12) plctxt out 
+\i (05:53:27) setwindow form.plctxt
+\i (05:53:27) FORM plctxt filename 'SYMBOL ORIGIN.txt' 
+\i (05:53:27) FORM plctxt execute  
+\t (05:53:27) Starting Place symbols by text file...
+\i (05:53:30) FORM plctxt body_center YES 
+\i (05:53:38) FORM plctxt filename 'BODY CENTER.txt' 
+\i (05:53:38) FORM plctxt execute  
+\t (05:53:38) Starting Place symbols by text file...
+\i (05:53:41) FORM plctxt pin_1 YES 
+\i (05:53:46) FORM plctxt filename PIN1.txt 
+\i (05:53:46) FORM plctxt execute  
+\t (05:53:46) Starting Place symbols by text file...
+\i (05:53:49) FORM plctxt cancel  
+\i (05:53:49) setwindow pcb
+\i (05:53:49) placementedit 
+\i (05:53:55) setwindow form.vf_vis
+\i (05:53:55) FORM vf_vis colorview_list Film: AST 
+\t (05:53:56) Pick to complete the window.
+\i (05:53:57) setwindow pcb
+\i (05:53:57) pick 7937.093 5130.258
+\t (05:53:57) last pick:  7937.093 5130.258
+\i (05:53:57) setwindow pcb
+\i (05:53:57) zoom points
+\i (05:53:57) pick -1605.161 -2893.025
+\i (05:53:57) pick 9110.426 5130.258
+\i (05:53:57) trapsize 53632
+\i (05:53:57) placementedit 
+\t (05:53:58) Pick to complete the window.
+\i (05:53:58) pick 4937.891 4390.142
+\t (05:53:58) last pick:  4937.891 4390.142
+\i (05:53:58) setwindow pcb
+\i (05:53:58) zoom points
+\i (05:53:58) pick -307.277 -2067.099
+\i (05:53:58) pick 8316.765 4390.142
+\i (05:53:58) trapsize 43163
+\i (05:53:59) placementedit 
+\i (05:54:02) plot setup 
+\i (05:54:03) setwindow form.fpfileplotsetup
+\i (05:54:03) FORM fpfileplotsetup fpplotmirror NO 
+\i (05:54:07) FORM fpfileplotsetup fpplotscreencontents YES 
+\i (05:54:09) FORM fpfileplotsetup done  
+\i (05:54:09) setwindow pcb
+\i (05:54:09) placementedit 
+\i (05:54:13) plot preview 
+\i (05:54:13) trapsize 33793
+\i (05:54:16) trapsize 43163
+\i (05:54:19) plot 
+\w (05:54:19) WARNING(SPMHMF-375): Holes will generally not appear in a 'Black and white' plot. [help]
+\i (05:54:23) plotwint initialize "PrimoPDF"
+\i (05:54:23) plotwint orientation 1
+\i (05:54:23) plotwint papername "A4"
+\i (05:54:23) plotwint scale 100
+\i (05:54:23) plotwint copies 1
+\i (05:54:23) plotwint defaultsource 15
+\i (05:54:23) plotwint printquality 600
+\i (05:54:23) plotwint color 2
+\i (05:54:23) plotwint execute
+\i (05:55:21) setwindow form.vf_vis
+\i (05:55:21) FORM vf_vis colorview_list Film: ASB 
+\i (05:55:23) setwindow pcb
+\i (05:55:23) plot setup 
+\i (05:55:24) setwindow form.fpfileplotsetup
+\i (05:55:24) FORM fpfileplotsetup fpplotmirror YES 
+\i (05:55:25) FORM fpfileplotsetup done  
+\i (05:55:25) setwindow pcb
+\i (05:55:25) placementedit 
+\i (05:55:27) plot preview 
+\i (05:55:27) trapsize 33793
+\i (05:55:28) trapsize 43163
+\i (05:55:30) plot 
+\w (05:55:30) WARNING(SPMHMF-375): Holes will generally not appear in a 'Black and white' plot. [help]
+\i (05:55:35) plotwint initialize "PrimoPDF"
+\i (05:55:35) plotwint execute
+\i (05:55:44) pick grid 7488.028 2214.708
+\t (05:55:44) last pick:  7488.000 2214.700
+\i (05:55:46) setwindow form.vf_vis
+\i (05:55:46) FORM vf_vis colorview_list Film: FAB 
+\t (05:55:47) Pick to complete the window.
+\i (05:55:47) setwindow pcb
+\i (05:55:47) zoom points
+\i (05:55:47) pick -4619.298 -5295.720
+\i (05:55:47) pick 12628.787 7618.762
+\i (05:55:47) trapsize 86327
+\i (05:55:47) placementedit 
+\i (05:55:48) zoom out 1 
+\i (05:55:48) setwindow pcb
+\i (05:55:48) zoom out 4962.971 -133.380
+\i (05:55:48) trapsize 172654
+\i (05:55:48) zoom out 1 
+\i (05:55:48) setwindow pcb
+\i (05:55:48) zoom out 1544.433 108.334
+\i (05:55:48) trapsize 345307
+\t (05:55:50) Pick to complete the window.
+\i (05:55:50) pick 22193.791 5495.124
+\t (05:55:50) last pick:  22193.791 5495.124
+\i (05:55:50) setwindow pcb
+\i (05:55:50) zoom points
+\i (05:55:50) pick -14546.874 -9905.568
+\i (05:55:50) pick 22193.791 17603.958
+\i (05:55:50) trapsize 183887
+\i (05:55:50) placementedit 
+\i (05:55:51) roam start
+\i (05:55:52) roam x 32
+\i (05:55:52) roam end
+\i (05:55:52) save 
+\i (05:55:53) fillin yes 
+\i (05:55:53) placementedit 
+\i (05:55:56) reports 'Component Report' 
+\i (05:55:57) reports "Component Report"
+\i (05:56:01) placementedit 
+\i (05:58:35) setwindow text
+\i (05:58:35) close 
+\i (05:58:36) setwindow pcb
+\i (05:58:36) pick grid 8052.126 15875.419
+\t (05:58:36) last pick:  8052.100 15875.400
+\i (05:58:37) save_as 
+\i (05:58:42) fillin "D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3_BOARD\OC_CONNECT_1_SDR_LIFE-3_BOARD\OC_CONNECT_1_SDR_LIFE-3.brd"
+\i (05:58:42) cd "D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3_BOARD\OC_CONNECT_1_SDR_LIFE-3_BOARD"
+\i (05:58:42) placementedit 
+\i (05:58:43) save 
+\i (05:58:43) fillin yes 
+\i (05:58:43) placementedit 
+\i (05:58:46) open 
+\i (05:58:49) fillin "D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3.brd"
+\i (05:58:49) cd "D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116"
+\t (05:58:49) Opening existing design...
+\w (05:58:49) WARNING(SPMHDB-212): This design has functionality disabled due to the current product plus options selected. The following features are disabled: Pin Delay.  [help]
+\i (05:58:50) fillin confirm
+\i (05:58:50) trapsize 183887
+\t (05:58:50)     Journal end - Mon Jan 16 17:28:54 2017

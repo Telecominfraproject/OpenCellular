@@ -1,0 +1,523 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: pon
+#
+#	This program turns on and off a Keysight 3632A power supply.
+#
+use strict;
+use Time::HiRes		qw/ usleep ualarm /;
+use Term::ANSIColor	qw/:constants/;
+use IO::Stty;
+use IO::Termios;
+use Expect;
+use FindBin		qw/ $Bin /;
+use lib $Bin;
+use mods::misc		qw/ @Ptbl $P2fn fix_logfn/;
+use experimental	qw/switch/;
+use v5.14;
+
+# Our default serial port is for PS1: /dev/dc_ps_1.
+my $Hr		= $Ptbl[0];
+# If we are looking to use PS2, change the key dev value to /dev/dc_ps_2.
+$Hr->{dev}	= $P2fn if ($0 =~ /(?:^|\/)p2\w+$/);
+open_tty($Hr) unless ($0 =~ m{^/?p3\w+$});
+my $Usage	= '
+pon
+poff
+pclr
+p[1234]on
+p[1234]off
+p[12]clr
+p[12]set_v volts
+p[12]set_i current
+p[12]out_on
+p[12]out_off
+p[1234]stat
+p[12]apply volts current [-f|--fans_on]
+
+ Options
+    volts	The desired voltage (0 to 30.0 VDC)
+    current	The desired current limit (0 to 4.0 A)
+';
+
+for ($0)	{
+	when (/(?:p[12]off|poff)$/)	{ check_type($Hr); poff($Hr)	}
+	when (/(?:p[12]on|pon)$/)	{ check_type($Hr); pon($Hr)	}
+	when (/(?:p[12]clr|pclr)$/)	{ pclr($Hr)			}
+	when (/p[12]set_v$/)	{
+		$Hr->{v}	= shift // 0; 
+		undef $Hr->{i}; set_v($Hr); }
+	when (/p[12]set_i$/)	{
+		$Hr->{i}	= shift // 0; set_i($Hr); }
+	when (/p[12]out_on$/)		{ set_out($Hr, "ON");		}
+	when (/p[12]out_off$/)		{ set_out($Hr, "OFF");		}
+	when (/(p[12])stat$/)		{ print_status($Hr, $1);	}
+	when (/(p[12])apply$/)		{
+		$Hr->{v}	= shift // die $Usage;
+		$Hr->{i}	= shift // die $Usage;
+		my $fans	= check_fans(shift);
+		set_v($Hr);
+		set_out($Hr, "ON");
+		check_ps_errors($Hr->{serh});
+	}
+	when (/p3on$/)		{ pnonoff('on', 3);			}
+	when (/p3off$/)		{ pnonoff('off', 3);			}
+	when (/p3stat$/)	{ pnonoff('stat', 3);			}
+	when (/p4on$/)		{ pnonoff('on', 4);			}
+	when (/p4off$/)		{ pnonoff('off', 4);			}
+	when (/p4stat$/)	{ pnonoff('stat', 4);			}
+	default		{ die "Cannot run $0.\n"			}
+}
+exit 0;
+
+sub print_w_log	{
+	my $eh	= shift;
+	my $cmd	= shift;
+
+	$eh->print($cmd);
+	$eh->print_log_file("Sent-> $cmd");
+	
+}
+
+sub pnonoff	{
+	my $on	= shift;
+	my $n	= shift;
+	my $pn	= '/usr/local/fbin/acpwr_' . $on;
+	my $pid	= fork;
+	my @arg	= ($pn, $n);
+
+	if ($pid)	{ # I am the parent.
+		waitpid($pid, 0);
+		my $ec	= $? >> 8;
+		die "Bad exit code from $pn. $!.\n" if $ec;
+	}
+	else	{
+		exec(@arg);
+	}
+}
+		
+sub open_tty	{
+	my $hr		= shift;
+	my $fn		= $hr->{dev} // die "In open_tty(), undefined dev!\n";
+	my @args	= @{($hr->{stty} // [])};
+	my $targ	= $hr->{trmio} // '';
+
+	do { warn "No $fn found.\n"; exit 22; } unless (-c $fn and -l $fn);
+	my $rdev	= readlink($fn);
+	do { warn "$rdev is unexpected return from readlink of $fn.\n";
+		exit 22; } unless ($rdev =~ m/ttyUSB/);
+
+	$fn	= '/dev/' . $rdev;
+	open(my $fout, '+<', $fn) or die "Cannot open $fn for write: $!.\n";
+	my $io	= IO::Termios->new($fout);
+	$io->set_mode($targ);
+	IO::Stty::stty($io, @args);
+	my $eh	= Expect->exp_init($io);
+	$eh->log_stdout(0);
+	my $lfn	=	($hr->{ldir} . '/'. $hr->{lfn}) 
+			// '/var/log/fbt/pon_poff.log';
+	fix_logfn($lfn, $hr->{ldir}, "$lfn.old");
+	$eh->log_file($lfn);
+	
+	$hr->{serh}	= $eh;
+}
+
+sub check_fans	{
+	my $ff	= shift;
+	return 0 unless defined $ff;
+
+	return 1 if ($ff =~ m/^-(f|-fans_on)$/);
+	die $Usage;
+}
+
+sub check_load	{
+	my $amps	= shift;
+	my $nom		= shift;
+	my $min		= shift;
+
+	$min		/= 100;
+	$nom		*= $min;
+	my $atxt	= sprintf("%5.3f", $amps);
+	my $ntxt	= sprintf("%5.3f", $nom);
+	if ($amps > $nom)	{
+		return "$atxt amps " . GREEN . 'ok' . RESET;
+	}
+	else	{
+		return	YELLOW . 'Warning: ' . RESET . 
+			"$atxt amps below expected min $ntxt";
+	}
+}
+
+sub check_voltage	{
+	my $volts	= shift;
+	my $nom		= shift;
+	my $tol		= shift;
+	my ($min, $max);
+
+	$tol		/= 100;
+	$min		= (1.0 - $tol) * $nom;
+	$max		= (1.0 + $tol) * $nom;
+	my $vtxt	= sprintf("%5.3f", $volts);
+	if ($volts > $min && $volts < $max)	{
+		return "$vtxt volts " . GREEN . 'ok' . RESET;
+	}
+	else	{
+		return	YELLOW . 'Warning: ' . RESET . 
+			"$vtxt V not within $min and $max";
+	}
+}
+
+sub check_ps_errors	{
+	my $fh	= shift;
+	my $del	= 900_000;
+	my $etxt;
+
+	usleep(300_000);	# 150_000 fails.
+	print $fh "\nSYST:ERR?\n";
+	# usleep($del);
+	$SIG{ALRM}	= sub {die "check_ps_errors() SYST:ERR? timeout.\n";};
+	ualarm(900_000);
+	$etxt		= <$fh>;
+	ualarm(0);
+	$etxt		=~ s/[\r\n]//g;
+	unless ($etxt =~ m/No error/)	{
+		print $fh "*CLS\n";	# Clear errors.
+		die "PS returned error: " . RED . $etxt . RESET . ".\n";
+	}
+}
+
+sub send_to_rem	{
+	my $tty	= shift;
+	my $wat	= shift;
+	my $cmd	= "SYSTEM:REMOTE\n";
+
+	print_w_log($tty, $cmd);
+	usleep($wat);
+}
+
+sub clr_status	{
+	my $tty	= shift;
+	my $wat	= shift;
+	my $cmd	= "*CLS\n";
+
+	print_w_log($tty, $cmd);
+	usleep($wat);
+}
+
+sub set_v	{
+	my $hr	= shift;
+	my $inr	= defined $hr->{inrem};
+	my $fho = $hr->{serh} // die "In set_v(), no serial file handle.\n";
+	my $v	= $hr->{v} // die "In set_v(), no voltage.\n";
+	die "Voltage out of range (0 to 30VDC): $v.\n" if ($v > 30.0 or $v < 0);
+	my $wat	= $hr->{del} // die "In set_v(), no wait time.\n";
+	my $i	= $hr->{i};
+	if (defined $i)	{
+		die "Current out of range (0 to 4A): $i.\n" 
+			if ($i < 0 or $i > 4);
+	}
+	my $fmt	= (defined $i) ? "APPL $v,$i\n" : "APPL $v\n";
+
+	send_to_rem($fho, $wat) unless ($inr);
+	print_w_log($fho, "VOLT:RANG HIGH\n");
+	usleep(4 * $wat);
+
+	print_w_log($fho, $fmt);
+	usleep($wat / 4);
+}
+
+sub set_i	{
+	my $hr	= shift;
+	my $inr	= defined $hr->{inrem};
+	my $fho = $hr->{serh} // die "In set_i(), no serial file handle.\n";
+	my $i	= $hr->{i} // die "In set_i(), no current.\n";
+	die "Current out of range (0 to 4A): $i.\n" if ($i < 0 or $i > 4);
+	my $wat	= $hr->{del} // die "In set_i(), no wait time.\n";
+	my $fmt	= "CURR $i\n";
+
+	send_to_rem($fho, $wat) unless ($inr);
+	print_w_log($fho, "VOLT:RANG HIGH\n");
+	usleep(4 * $wat);
+
+	print_w_log($fho, $fmt);
+	usleep($wat / 4);
+}
+
+sub set_out	{
+	my $hr	= shift;
+	my $io	= shift;
+	my $inr	= defined $hr->{inrem};
+	my $fho = $hr->{serh} // die "In set_out(), no serial file handle.\n";
+	my $wat	= $hr->{del} // die "In set_out(), no wait time.\n";
+	my $fmt	= "OUTP $io\n";
+
+	send_to_rem($fho, $wat) unless ($inr);
+
+	print_w_log($fho, $fmt);
+	usleep($wat);
+}
+
+sub std_in	{
+	my $eh	= shift;
+	my $to	= shift;
+	my $re	= shift;
+
+	my @rs	= $eh->expect($to, -re => $re);
+	return ($rs[1], $rs[3]);
+}
+
+sub get_status	{
+	my $hr	= shift;
+	my $io	= shift;
+	my $inr	= defined $hr->{inrem};
+	my $fho = $hr->{serh} // die "In get_status(), no file handle.\n";
+	my $wat	= $hr->{del} // die "In get_status(), no wait time.\n";
+	my ($err, $amp, $volts);
+
+	send_to_rem($fho, $wat) unless ($inr);
+
+	print_w_log($fho, "MEAS:CURR?\n");
+	($err, $amp)	= std_in($fho, 3, qr/\n/);
+	die "get_status() current meas error: $err.\n" if (defined $err);
+	$amp		=~ s/[\r\n]//g;
+	usleep($wat);
+
+	print_w_log($fho, "MEAS:VOLT?\n");
+	($err, $volts)	= std_in($fho, 3, qr/\n/);
+	die "get_status() voltage meas error: $err.\n" if (defined $err);
+	$volts		=~ s/[\r\n]//g;
+	return ($amp, $volts);
+}
+
+sub print_status	{
+	my $hr	= shift;
+	my $pn	= shift;
+	my ($amp, $volts)	= get_status($hr);
+
+	my $a	= sprintf("%5.3f", $amp);
+	my $v	= sprintf("%5.3f", $volts);
+	print "$pn: $a amperes, $v volts.\n";
+}
+
+sub pon	{
+	my $hr	= shift;
+	my $fho	= $hr->{serh} // die "In pon(), no serial file handle.\n";
+	my $wat	= $hr->{del} // die "In pon(), no wait time.\n";
+	my $v	= $hr->{v} // die "In pon(), no voltage.\n";
+	my $i	= $hr->{i} // die "In pon(), no current.\n";
+	my ($amp, $vlt);
+
+	send_to_rem($fho, $wat);
+	$hr->{inrem}++;
+	check_ps_errors($hr->{serh});
+	set_v($hr);
+
+	set_out($hr, "ON");
+
+	($amp, $vlt)	= get_status($hr);
+	$amp		= abs $amp;
+	$amp		= check_load($amp, $i, $hr->{imin});
+
+	$vlt		= check_voltage($vlt, $v, $hr->{vtol});
+	print "My return is: $vlt, $amp.\n";
+	check_ps_errors($fho);
+}
+
+sub check_type	{
+	my $hr	= shift;
+	my $isa	= $hr->{type} // die "The ps type not specified.\n";
+	my $fh	= $hr->{serh} // die "In check_type(), no file handle.\n";
+	my ($err, $txt);
+
+	print_w_log($fh, "*IDN?\n");
+	($err, $txt)	= std_in($fh, 3, qr/\n/);
+	die "check_type() error: $err.\n" if (defined $err);
+	my @idn		= split /,/, $txt;
+	$txt		= $idn[1];
+	die "Unexpected power supply: $txt.\n" unless ($txt =~ m/$isa/);
+	return $txt;
+}
+
+sub output_on	{
+	my $fh	= shift;
+	my $wat	= shift;
+	my ($err, $txt);
+
+	print_w_log($fh, "OUTPUT?\n");
+	usleep($wat);
+	($err, $txt)	= std_in($fh, 3, qr/\n/);
+	die "check_type() error: $err.\n" if (defined $err);
+	$txt	=~ s/[\n\r]//g;
+	return $txt;
+}
+
+# At power-on, the serial line often has noise buffered that needs
+# flushing. This pclr should flush out the errors.
+sub pclr	{
+	my $hr	= shift;
+	my $fho	= $hr->{serh} // die "In pclr(), no serial file handle.\n";
+	my $wat	= $hr->{del} // die "In pclr(), no wait time.\n";
+
+	send_to_rem($fho, $wat);
+	check_ps_errors($fho);
+	my $typ	= check_type($hr);
+	print "$typ.\n";
+}
+
+sub poff	{
+	my $hr	= shift;
+	my $fho	= $hr->{serh} // die "In pon(), no serial file handle.\n";
+	my $wat	= $hr->{del} // die "In pon(), no wait time.\n";
+
+	send_to_rem($fho, $wat);
+	clr_status($fho, $wat);
+	$wat	/= 8;
+
+	if (output_on($fho, $wat))	{
+		print $fho "VOLT:RANG HIGH\n";
+		usleep(10 * $wat);
+		print $fho "APPL 0,0\n";
+		usleep($wat);
+		set_out($hr, "OFF");
+	}
+}
+
+__END__
+
+=head1 NAME
+
+pon - A Program to Power On and Off the Faceboot UUT
+
+=head1 SYNOPSIS
+
+pon (aka p1on)
+
+poff (aka p1off)
+
+pclr (aka p1clr)
+
+p[123]on
+
+p[123]off
+
+p[12]clr
+
+p[12]set_v [volts]
+
+p[12]set_i [amperes]
+
+p[12]out_on
+
+p[12]out_off
+
+p[123]stat
+
+p[12]apply volts current [-f|--fans_on]
+
+=head1 DESCRIPTION
+
+The I<pon> program turns on the power to the OpenCellular Connect-1 UUT 
+through power supply one. The OpenCellular Connect-1 test configuration 
+may have two power supplies of type Keysight E3632A. It also has 
+a fixed 48 VDC power supply plugged into the test system's Synaccess 
+AC port number three.
+
+For power supply three, I<p3on>, I<p3off>, and I<p3stat> are supported. 
+
+Power supply one may have its power 
+turned on by the I<pon> or the I<p1on> program. To turn power supply 
+number two, use the program I<p2on>.
+The voltage is set to 18 volts and current to 3.5 amperes 
+using I<pon>, I<p1on>, or I<p2on>.
+
+The I<poff> program turns the power off and disconnects the outputs 
+of power supply number one. Either I<poff> or I<p1off> may be used to 
+turn off power supply number one. Use I<p2off> to turn off power 
+supply number two.
+
+The I<pclr> program reads power supply number one status and 
+clears the internal 
+power supply error log. The output from the I<pclr> or I<p1clr> program will 
+either be the power supply type or the power supply's  
+last error encountered. To inquire of power supply number 
+two, use the I<p2clr> command.
+
+The I<p[12]set_v> command sets the appropriate power supply to the 
+voltage specified as the argument. If no argument is given, 
+a value of zero volts is assumed. 
+
+As of this writing, the Keysight 
+E3632A power supply is always run in the HIGH mode. The HIGH 
+mode of operation allows up to 30 VDC and up to 4 amperes. To 
+set power supply number two to 27.5 volts, use the command: 
+
+ $ p2set_v 27.5
+
+The I<p[12]set_i> command sets the chosen power supply to the amperage 
+specified in the optional argument. If no argument is given, zero 
+amperes is used. If power supply one needs a current limit of 900 
+milliamps, use this command:
+
+ $ p1set_i 0.9
+
+The I<p[12]out_on> tells the power supply to enable its output. When 
+I<p[12]out_off> is used, this tells the power supply to turn off its 
+output. Turning off the power supply output isolates the power 
+supply from its load.
+
+To find the current voltage and current readings from the power supply, use 
+the I<p[12]stat> commands. The I<p[12]stat> command prints the 
+current power from the power supply in terms of volts and amperes. 
+Use the following command to find the actual power provided by 
+power supply number two:
+
+ $ p2stat
+ p2: 0.058 amperes, 28.998 volts.
+
+A handy encapulation of setting a voltage, setting a current limit, 
+and turing the power supply outputs on is the I<p[12]apply> command. 
+The I<p[12]apply> command requires two arguments, a voltage, and a 
+current limit. An example of turning on power supply number one to 
+21 VDC with a current limit of 2.4 amperes is:
+
+ $ p1apply 21 2.4
+
+The I<p[12]apply> command has an optional flag that turns on the USB 
+powered fans residing on port 5 on the Synaccess NP-05B power 
+distribution outlet after DC power is applied. This is done 
+by a call on the acpwr_on(1) command using a five as the 
+argument.
+
+If an error is encountered in the use of the power supply, an error 
+message is sent to STDERR and a non-zero exit code is returned.
+
+If no errors are encountered, these programs exit with an exit 
+code of zero, indicating success.
+
+=head1 EXIT CODES
+
+As in most Unix commands, these programs return a zero on success. 
+Additionally, the exit code of 22 indicates that the 
+serial device name B</dev/dc_ps_1>  or B</dev/dc_ps_2> could not 
+be found. All other 
+exits codes indicate other problems. Refer to text from 
+STDOUT and STDERR for trouble-shooting hints.
+
+=head1 FILES
+
+/dev/dc_ps_1 -- RS232 port to Keysight E3632A power supply number 1.
+
+/dev/dc_ps_2 -- RS232 port to Keysight E3632A power supply number 2.
+
+/var/log/fbt/pon_poff.log -- Serial comm log.
+
+/var/log/fbt/pon_poff.log.old -- Previous serial comm log.
+

@@ -1,0 +1,149 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: acpwr_on
+#
+#	This program turns on or off specific AC outlet ports
+#	as per its argument list.
+#
+use strict;
+use Expect;
+use FindBin	qw/$Bin/;
+use lib $Bin;
+use mods::misc	qw/tsess await_prompt/;
+use v5.14;
+no warnings	'experimental::smartmatch';
+
+my $Usage	= '
+acpwr_[on|off|status] [ 1 .. 5 ]
+
+ Options:
+    1 .. 5		A list of ports to either turn on or off.
+    none		Turn all port either on or off.
+';
+
+my $Re		= qr/ .+?
+			^ \s+ (1) \s \| [^|]+ \| \s+ (ON|OFF) .+?
+			^ \s+ (2) \s \| [^|]+ \| \s+ (ON|OFF) .+?
+			^ \s+ (3) \s \| [^|]+ \| \s+ (ON|OFF) .+?
+			^ \s+ (4) \s \| [^|]+ \| \s+ (ON|OFF) .+?
+			^ \s+ (5) \s \| [^|]+ \| \s+ (ON|OFF)
+		/xms;
+my @Ps		= check_em(@ARGV);
+my $Cmd1	= 'pset';
+my $Cmd2;
+
+for ($0)	{
+	when (/_on$/)	{ $Cmd2	= 1; }
+	when (/_off$/)	{ $Cmd2	= 0; }
+	when (/_stat$/)	{ $Cmd1 = 'pshow'; $Cmd2 = '';} 
+	default { die "Do not know how to $0.\n"; }
+}
+	
+my $Hr	= {
+		prog	=> '/usr/bin/telnet',
+		ip	=> '192.168.1.100',
+		poke1	=> qr/>[\r\n]{2}>/,
+		poke	=> qr/[\r\n]>/,
+		to	=> 7,
+		lfn	=> '/var/log/fbt/acpwr.log',
+	};
+
+my $Th	= tsess($Hr);
+# $Th->print("ver\r\n");
+for my $n (@Ps)	{
+	last if ($Cmd2 eq '');
+	print_w_log($Th, "$Cmd1 $n $Cmd2\r\n");
+	my ($err, $mat)	= await_prompt($Th, re => $Hr->{poke}, to => $Hr->{to});
+	die "pset $n $Cmd2 error: $err.\n" if (defined $err);
+}
+	
+if ($Cmd1 eq 'pshow')	{
+	print_w_log($Th, "$Cmd1\r\n");
+	my @rets	= $Th->expect($Hr->{to}, -re => $Hr->{poke});
+	die "$Cmd1 error: $rets[1].\n" if (defined $rets[1]);
+
+	my $mat	= $rets[3];
+	$mat	=~ s/\r//g;
+	my %h	= $mat =~ $Re;
+	for my $n (@Ps) {
+		print "$n $h{$n}\n";
+	}
+}
+
+$Th->send("\035");
+$Th->print_log_file("Sent ^] to telnet program.\n");
+my ($Err, $Mat)	= await_prompt($Th, re => qr/telnet> /, to => 3);
+die "telnet prompt error: $Err.\n" if (defined $Err);
+print_w_log($Th, "quit\n");
+($Err, $Mat)	= await_prompt($Th, re => qr/closed.$/, to => 3);
+
+exit($Th->exitstatus() // 0);
+
+sub print_w_log	{
+	my $eh	= shift;
+	my $txt	= shift;
+
+	$eh->print_log_file("Sent-> $txt");
+	$eh->send_slow(0.01, $txt);
+}
+
+sub check_em	{
+	my @ns	= @_;
+	my %seen;
+	
+	return (1 .. 5) if (@ns == 0 and $0 =~ m/_stat$/);
+	die $Usage if @ns > 5;
+	return (1 .. 5) if @ns == 0;
+	my @chkd	= grep { !$seen{$_}++ } @ns;
+	if (@chkd == @ns)	{ return @chkd; }
+	die $Usage;
+}
+	
+
+__END__
+
+=head1 NAME
+
+acpwr_on - Turn on individual AC outlet ports
+
+=head1 SYNOPSIS
+
+acpwr_on [ 1 .. 5 ]
+
+acpwr_off [ 1 .. 5 ]
+
+=head1 DESCRIPTION
+
+The acpwr_on(1) program commands the Synaccess Networks AC power 
+strip. This power strip has five AC outlets and is connected to the 
+test equipment via telnet(1) on the LAN.
+
+The arguments to either acpwr_on(1) or B<acpwr_off> is 
+a list of numbers one through five corresponding to the 
+port of interest. Therefore, if ports 3 and 4 need to be 
+turned on, use the following arguments:
+
+ $ acpwr_on 3 4
+
+If all ports need to be turned on or off, use the command without
+any arguments. The following command turns off all five 
+AC outlets:
+
+ $ acpwr_off
+
+=head1 SEE ALSO
+
+telnet(1), www.synaccess-net.com
+
+=head1 FILES
+
+/var/log/fbt/acpwr.log -- Log file.
+

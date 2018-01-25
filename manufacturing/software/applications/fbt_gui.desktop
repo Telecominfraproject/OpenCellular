@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Terminal=false
+Name=fbt_gui
+Icon=/usr/local/fbin/mods/pass2_icon.gif
+Exec=/usr/local/fbin/launch.svr.py.sh
+Categories=Application;Network;

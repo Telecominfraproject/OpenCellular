@@ -1,0 +1,96 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: chk_distro
+#
+#	I want to check the distribution on this machine.
+#
+#
+use strict;
+use Term::ANSIColor	qw/:constants/;
+
+my @Errs	= get_md5_out("/usr/local/fbin/config/manifest.conf");
+
+exit paint_errors(@Errs);
+
+sub get_md5_out	{
+	my $fn	= shift;
+	my $pn	= '/usr/bin/md5sum';
+
+	my @txt	= `$pn -c $fn --quiet 2>&1`;
+	my $ec	= $? >> 8;
+
+	push @txt, "Exit code is $ec.\n";
+	return @txt;
+}
+
+sub paint_errors	{
+	my @txt	= @_;
+	my ($fn, $msg);
+
+	for my $line (@txt)	{
+		chomp $line;
+		if ($line =~ m/FAILED/)	{
+			($fn, $msg)	= split /:/, $line;
+			print $fn;
+			if ($fn =~ m/fbt\.config/)	{
+				print YELLOW, " normal change", RESET;
+			}
+			else	{
+				print RED, " has changed", RESET;
+			}
+			print ".\n";
+		}
+		elsif ($line =~ m/md5sum: /)	{
+			$line =~ s/^.+?md5sum: //;
+			($fn, $msg)	= split /:/, $line;
+			print YELLOW, $fn, RESET, ': ';
+			print $msg, ".\n";
+		}
+		elsif ($line =~ m/^Exit code is (\d+)\./)	{
+			my $n	= $1;
+			print GREEN, 'ok', RESET, ".\n" unless($n);
+			return $n;
+		}
+	}
+}
+
+__END__
+
+=head1 NAME
+
+chk_distro -- Checks validity of test software.
+
+=head1 SYNOPSIS
+
+chk_distro
+
+=head1 DESCRIPTION
+
+The chk_distro(1) program checks the files and test programs that came in the
+normal distribution for the OpenCellular Connect-1 project.
+Since many of the file distributed are source code,
+it is important to track what files have changed since the last
+distribution.
+
+There is one file that is expected to change with the normal
+use of the test equipment. This file is B</usr/local/fbin/config/fbt.config>.
+Everytime the fbt(1) program is run, the B<fbt.config> file
+receives new items like the user name and serial number
+of the UUT.
+
+=head1 FILES
+
+/usr/local/fbin/config/manifest.conf -- File with distro md5sums.
+
+
+
+			
+

@@ -1,0 +1,6 @@
+#
+#	This is an rc file for a bash subshell used by fbt(1).
+#	Testing the fbt(1) software and modules need the prompt
+#	set to the unusual value below.
+#
+PS1='xyz$ '

@@ -1,0 +1,151 @@
+\t (00:00:15) allegro_free_viewer 17.2 S015 Windows SPB 64-bit Edition
+\t (00:00:15)     Journal start - Wed Jul 19 16:00:48 2017
+\t (00:00:15)         Host=IGRAHAM-1 User=igraham Pid=13376 CPUs=4
+\t (00:00:15) CmdLine= C:\Users\igraham\AppData\Local\Programs\Cadence Design Systems\17.2\tools\bin\allegro_free_viewer.exe
+\t (00:00:15) 
+\d (00:00:15) Design opened: C:/Users/igraham/Dropbox (Facebook)/Connect1 for Sanmina/FB_Connect1_Rev-C Release_20Jan2017/SDR_V1P2_13Jan/Layout/OC_CONNECT_1_SDR_LIFE-3_BOARD/OC_CONNECT_1_SDR_LIFE-3_BOARD/OC_CONNECT_1_SDR_LIFE-3.brd
+\i (00:00:17) color192 
+\i (00:00:17) setwindow cvf.dialog
+\i (00:00:17) cvf layer_mode
+\i (00:00:19) cvf layer_tree_item 'Manufacturing'
+\i (00:00:21) cvf layers_visible manufacturing/ncdrill_figure FALSE
+\i (00:00:22) cvf layers_visible manufacturing/ncdrill_legend FALSE
+\i (00:00:22) cvf layers_visible manufacturing/all_row TRUE
+\i (00:00:23) cvf layers_visible manufacturing/all_row FALSE
+\i (00:00:24) cvf apply
+\i (00:00:28) cvf layer_tree_item 'Package Geometry'
+\i (00:00:29) cvf layers_visible package_geometry/assembly_bottom TRUE
+\i (00:00:30) cvf layers_visible package_geometry/assembly_top TRUE
+\i (00:00:33) cvf apply
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.736 1922.200
+\i (00:00:34) trapsize 110747
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.737 1922.200
+\i (00:00:34) trapsize 55373
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.737 1922.200
+\i (00:00:34) trapsize 27687
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.737 1922.200
+\i (00:00:34) trapsize 13843
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.737 1922.200
+\i (00:00:34) trapsize 6922
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.737 1922.201
+\i (00:00:34) trapsize 3461
+\i (00:00:34) zoom in 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom in 462.737 1922.201
+\i (00:00:34) trapsize 1730
+\i (00:00:34) zoom out 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom out 462.737 1922.201
+\i (00:00:34) trapsize 3461
+\i (00:00:34) zoom out 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom out 462.738 1922.202
+\i (00:00:34) trapsize 6922
+\i (00:00:34) zoom out 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom out 462.737 1922.202
+\i (00:00:34) trapsize 13843
+\i (00:00:34) zoom out 1 
+\i (00:00:34) setwindow pcb
+\i (00:00:34) zoom out 454.431 1922.202
+\i (00:00:34) trapsize 27687
+\i (00:00:40) setwindow cvf.dialog
+\i (00:00:40) cvf layer_tree_item 'Components'
+\i (00:00:42) cvf layers_visible components components/silkscreen_top TRUE
+\i (00:00:42) cvf layers_visible components components/silkscreen_bottom TRUE
+\i (00:00:44) cvf apply
+\i (00:00:46) cvf cancel
+\i (00:00:55) setwindow pcb
+\i (00:00:55) hilight 
+\i (00:01:03) setwindow form.find
+\i (00:01:03) FORM find find_name D1239 
+\i (00:01:03) setwindow pcb
+\i (00:01:03) trapsize 1713
+\t (00:01:03) Symbol "D1239" highlighted.
+\i (00:01:04) zoom out 1 
+\i (00:01:04) setwindow pcb
+\i (00:01:04) zoom out 944.444 1259.600
+\i (00:01:04) trapsize 3426
+\i (00:01:04) zoom out 1 
+\i (00:01:04) setwindow pcb
+\i (00:01:04) zoom out 878.664 1273.303
+\i (00:01:04) trapsize 6852
+\i (00:01:05) zoom out 1 
+\i (00:01:05) setwindow pcb
+\i (00:01:05) zoom out 882.775 1276.045
+\i (00:01:05) trapsize 13704
+\i (00:01:05) zoom out 1 
+\i (00:01:05) setwindow pcb
+\i (00:01:05) zoom out 882.775 1276.044
+\i (00:01:05) trapsize 27408
+\i (00:01:06) zoom in 1 
+\i (00:01:06) setwindow pcb
+\i (00:01:06) zoom in 882.774 1276.045
+\i (00:01:06) trapsize 13704
+\i (00:01:06) zoom out 1 
+\i (00:01:06) setwindow pcb
+\i (00:01:06) zoom out 882.775 1276.045
+\i (00:01:06) trapsize 27408
+\i (00:01:06) zoom out 1 
+\i (00:01:06) setwindow pcb
+\i (00:01:06) zoom out 882.774 1276.046
+\i (00:01:06) trapsize 54817
+\i (00:01:07) zoom in 1 
+\i (00:01:07) setwindow pcb
+\i (00:01:07) zoom in 1266.491 1221.229
+\i (00:01:07) trapsize 27408
+\i (00:01:08) zoom in 1 
+\i (00:01:08) setwindow pcb
+\i (00:01:08) zoom in 1266.491 1221.230
+\i (00:01:08) trapsize 13704
+\i (00:11:15) setwindow form.find
+\i (00:11:15) FORM find find_name R11340 
+\i (00:11:15) setwindow pcb
+\i (00:11:15) trapsize 3151
+\t (00:11:15) Symbol "R11340" highlighted.
+\i (00:11:17) zoom out 1 
+\i (00:11:17) setwindow pcb
+\i (00:11:17) zoom out 189.468 1655.561
+\i (00:11:17) trapsize 6301
+\i (00:11:17) zoom out 1 
+\i (00:11:17) setwindow pcb
+\i (00:11:17) zoom out 199.550 1648.000
+\i (00:11:17) trapsize 12603
+\i (00:11:17) zoom out 1 
+\i (00:11:17) setwindow pcb
+\i (00:11:17) zoom out 265.084 1625.316
+\i (00:11:17) trapsize 25205
+\i (00:11:28) zoom in 1 
+\i (00:11:28) setwindow pcb
+\i (00:11:28) zoom in 204.591 1559.782
+\i (00:11:28) trapsize 12603
+\i (15:44:00) trapsize 9396
+\i (19:36:15) trapsize 12603
+\i (19:56:29) trapsize 9396
+\i (19:58:36) trapsize 12603
+\i (20:22:00) trapsize 9396
+\i (22:22:50) trapsize 7490
+\i (22:22:55) trapsize 9396
+\i (24:31:45) trapsize 12603
+\i (24:44:35) trapsize 9396
+\i (24:54:58) trapsize 12603
+\i (41:27:30) trapsize 9396
+\i (47:47:41) trapsize 12603
+\i (48:43:37) trapsize 9396
+\i (48:56:05) trapsize 12603
+\i (111:41:47) trapsize 9396
+\i (112:07:30) exit 
+\t (112:07:31)     Journal end - Mon Jul 24 08:08:05 2017

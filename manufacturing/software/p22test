@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: p22test
+#	
+#	This program tests the OpenCellular Connect-1 product.
+#	We use a list of tests from the fbt_conf module.
+#
+#
+use strict;
+use Cwd;
+use FindBin		qw/$Bin/;
+use lib $Bin;
+use mods::misc		qw/	port_22_available /;
+$SIG{INT}	= sub {system('/usr/local/fbin/poff'); exit 22; };
+my $N		= shift // 10;
+my $Ip		= '192.168.1.36';
+
+for (my $n = 0; $n < $N; $n++)	{
+	pon();
+	my $stime	= time;
+
+	until (port_22_available($Ip))	{
+		sleep 10;
+		last if ((time - $stime) > 1800);
+		# print "Port 22 attempt " . `date`;
+	}
+
+	# print "Port 22 available at " . `date`;
+	system('/usr/local/fbin/poff');
+	my $ttime	= time - $stime;
+	my $min		= int($ttime / 60);
+	my $sec		= $ttime % 60;
+	my $ttxt	= ($ttime > 1800) ? 
+				'> 30 minutes' : 
+				"$min minutes, $sec seconds";
+	print "Total elapsed time is $ttxt.\n";
+	sleep 10;
+}
+exit 0;
+
+sub pon	{
+	my $prog	= '/usr/local/fbin/pon > /dev/null';
+	system($prog);
+	# print "Power on at " . `date`;
+}
+

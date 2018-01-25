@@ -1,0 +1,25 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#
+#	File: fans_on
+#
+#
+#
+use strict;
+
+my $Path	= '/usr/local/fbin';
+my $Prog	= ($0 =~ m/fans_on$/) ? 'acpwr_on' : 'acpwr_off';
+$Prog		= "$Path/$Prog";
+# print "I want to call $Prog.\n";
+system("$Prog 5");
+my $Err		= $? >> 8;
+die "$Prog 5 had a problem: $Err: $!.\n" if $Err;
+exit 0;

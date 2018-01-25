@@ -1,0 +1,57 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: co_ac_outlets
+#
+#	Synaccess check out program.
+#
+#
+#
+
+
+use strict;
+my $On	= '/usr/local/fbin/acpwr_on';
+my $Off	= '/usr/local/fbin/acpwr_off';
+
+print "Disconnect all outlets 1 to 5 on the Synaccess bus bar.\n";
+print "Hit return when complete. ";
+<>;
+
+for my $i (1 .. 5)	{
+	run_this($On, $i);
+	run_this($Off, $i);
+}
+run_this($On);
+for my $i (5, 4, 3, 2, 1)	{
+	run_this($On, $i);
+	run_this($Off, $i);
+}
+run_this($On, 1);
+for my $i (2 .. 5)	{
+	run_this($On, $i);
+	run_this($Off, ($i - 1));
+}
+run_this($Off, 5);
+print "Synaccess ok.\n";
+exit 0;
+		
+sub run_this	{
+	my $pid	= fork;
+	if ($pid)	{
+		my $err;
+		waitpid($pid, 0);
+		$err	= $? >> 8;
+		die "Bad return from @_: $err.\n" if $err;
+	}
+	else	{
+		open STDOUT, '>', "/dev/null" or die "Cannot redirect.\n";
+		exec @_;
+	}
+}

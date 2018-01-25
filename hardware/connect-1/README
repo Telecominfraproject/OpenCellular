@@ -1,0 +1,6 @@
+This directory contains all CAD files (in native formart) for the OpenCellular Connect-1 platform.
+
+bom.xls - System-level bill of material
+cad - CAD files, in step and solidworks format
+docs - Assmebly instructions for the Connect-1
+drawings - Drawings for all the Connect-1

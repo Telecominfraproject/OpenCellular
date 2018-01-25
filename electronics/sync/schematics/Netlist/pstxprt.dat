@@ -1,0 +1,2752 @@
+FILE_TYPE = EXPANDEDPARTLIST;
+{ Using PSTWRITER 17.2.0 d001Dec-28-2016 at 16:10:05 }
+DIRECTIVES
+ PST_VERSION='PST_HDL_CENTRIC_VERSION_0';
+ ROOT_DRAWING='FB_CONNECT1_SYNC_LIFE-3_V1P1';
+ POST_TIME='Mar  2 2016 00:37:24';
+ SOURCE_TOOL='CAPTURE_WRITER';
+END_DIRECTIVES;
+
+PART_NAME
+ C10 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495549@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495549@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495549@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C11 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491597@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491597@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491597@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C12 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495195@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495195@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495195@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C13 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491817@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491817@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491817@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C14 'CAP-NP_1_CC1210_100UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467652@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467652@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467652@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C15 'CAP-NP_1_CC0805_4.7UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467870@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467870@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467870@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C16 'CAP-NP_1_CC0603_1UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467906@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467906@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467906@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C17 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS504166@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins504166@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins504166@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C18 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS504312@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins504312@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins504312@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C19 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468108@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468108@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468108@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1944 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16415794@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16415794@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16415794@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1L1 'CAPN#1_CC0402_1UF_A36096-099':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498689@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498689@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498689@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1L2 'CAPN#1_CC0603_22PF_A36096-099':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS540627@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins540627@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins540627@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1L3 'CAPN#1_CC0603_22PF_A36096-099':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS540657@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins540657@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins540657@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1L4 'CAPN#1_CC0402_1UF_A36096-099':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495321@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495321@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495321@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1L5 'CAPN#1_CC0402_1UF_A36096-099':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495275@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495275@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495275@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS11246@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins11246@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins11246@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C20 'CAP-NP_1_CC1206_10UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467938@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467938@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467938@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C21 'CAP-NP_1_CC1206_10UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS586310@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins586310@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins586310@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C22 'CAP-NP_1_CC0603_1UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467826@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467826@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467826@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C23 'CAP-NP_1_CC0603_1UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467778@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467778@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467778@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C24 'CAP-NP_1_CC0603_1UF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467986@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467986@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467986@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C25 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468018@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468018@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468018@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C26 'CAP-NP_1_CC0402_10PF_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468072@BTS BOARD_10DEC2015_1030AM.CAP-NP_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468072@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468072@\bts board_10dec2015_1030am\.\cap-np_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2609 'CAP_CER_33PF_50V_5%_X7R_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16235732@FB_DISCRETE_21DEC.CAP_CER_33PF_50V_5%_X7R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16235732@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16235732@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C27 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495163@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495163@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495163@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2L11 'CAPN#4_SMC0402A_0.1UF_G41157-00':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335702@LF_DISCRETE.CAPN__SYM_6##1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335702@lf_discrete.\capn__sym_6##1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335702@lf_discrete.\capn__sym_6##1.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2L12 'CAPN#1_SMC0402A_1000PF_A36096-0':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335392@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335392@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335392@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2L13 'CAPN#1_SMC0402A_1000PF_A36096-0':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335216@LF_DISCRETE.CAPN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335216@lf_discrete.\capn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335216@lf_discrete.\capn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C3 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS11530@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins11530@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins11530@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C3505 'CAP_CER_22UF_1210_25V_C0402_22P':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16428309@FB_DISCRETE_21DEC.CAP_CER_22UF_1210_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16428309@fb_discrete_21dec.\cap_cer_22uf_1210_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16428309@fb_discrete_21dec.\cap_cer_22uf_1210_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS560@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins560@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins560@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4461 'CAP CER 0.1UF 25V 10% X7R 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16271825@FPGA_DESIGN_DISCRETES_22JAN.CAP CER 0.1UF 25V 10% X7R 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16271825@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16271825@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4462 'CAP_CER_33PF_50V_5%_X7R_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16242094@FB_DISCRETE_21DEC.CAP_CER_33PF_50V_5%_X7R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16242094@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16242094@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4477 'CAP_CER_0.1UF_0402_25V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16250732@LIB UPDATION.CAP_CER_0.1UF_0402_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16250732@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16250732@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4478 'CAP_CER_1UF_16V_10%_X6S_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16250700@LIBRARY1.CAP_CER_1UF_16V_10%_X6S_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16250700@library1.\cap_cer_1uf_16v_10%_x6s_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16250700@library1.\cap_cer_1uf_16v_10%_x6s_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4479 'CAP_CER_33PF_50V_5%_X7R_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16250782@FB_DISCRETE_21DEC.CAP_CER_33PF_50V_5%_X7R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16250782@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16250782@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4480 'CAP_CER_33PF_50V_5%_X7R_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16251255@FB_DISCRETE_21DEC.CAP_CER_33PF_50V_5%_X7R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16251255@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16251255@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4481 'CAP_CER_33PF_50V_5%_X7R_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16254988@FB_DISCRETE_21DEC.CAP_CER_33PF_50V_5%_X7R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16254988@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16254988@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4482 'CAP CER 0.1UF 25V 10% X7R 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16272994@FPGA_DESIGN_DISCRETES_22JAN.CAP CER 0.1UF 25V 10% X7R 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16272994@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16272994@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4495 'CAP_CER_0.1UF_0402_25V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355992@LIB UPDATION.CAP_CER_0.1UF_0402_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355992@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355992@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4496 'CAP_CER_0.1UF_0402_25V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355884@LIB UPDATION.CAP_CER_0.1UF_0402_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355884@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355884@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4497 'CAP_CER_0.1UF_0402_25V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356222@FB_DISCRETE_21DEC.CAP_CER_0.1UF_0402_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356222@fb_discrete_21dec.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356222@fb_discrete_21dec.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4498 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355920@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355920@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355920@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4499 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355848@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355848@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355848@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4500 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356558@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356558@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356558@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4501 'CAP_CER_22UF_1210_25V_C0402_22P':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16440801@FB_DISCRETE_21DEC.CAP_CER_22UF_1210_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16440801@fb_discrete_21dec.\cap_cer_22uf_1210_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16440801@fb_discrete_21dec.\cap_cer_22uf_1210_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4502 'CAP_CER_33PF_50V_5%_X7R_0402_C0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451288@FB_DISCRETE_21DEC.CAP_CER_33PF_50V_5%_X7R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451288@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451288@fb_discrete_21dec.\cap_cer_33pf_50v_5%_x7r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4503 'CAP_CER_0.1UF_0402_25V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16454179@LIB UPDATION.CAP_CER_0.1UF_0402_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16454179@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16454179@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4504 'CAP_CER_0.1UF_0402_25V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16454211@LIB UPDATION.CAP_CER_0.1UF_0402_25V.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16454211@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16454211@\lib updation\.\cap_cer_0.1uf_0402_25v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4N1 'CAPN#2_RC0402_10PF_A36096-030':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16281536@LF_DISCRETE.CAPN__SYM_5.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16281536@lf_discrete.\capn__sym_5.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16281536@lf_discrete.\capn__sym_5.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4N2 'CAPN#2_RC0402_10PF_A36096-030':
+ SIGNAL_MODEL='CAPACITOR20PF';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16281504@LF_DISCRETE.CAPN__SYM_5.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16281504@lf_discrete.\capn__sym_5.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16281504@lf_discrete.\capn__sym_5.normal\(chips)',
+ SIGNAL_MODEL='CAPACITOR20PF',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C5 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498525@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498525@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498525@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C8 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS12861@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins12861@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins12861@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C9 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492205@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492205@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492205@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D1 'DIODE_SCHOTTKY_30V_0.2A SOD523_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16272553@SMART_LOCKER.DIODE_SCHOTTKY_30V_0.2A SOD523.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16272553@smart_locker.\diode_schottky_30v_0.2a sod523.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16272553@smart_locker.\diode_schottky_30v_0.2a sod523.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10114 'LED_WP117_LED_LTST-C190_LED':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16343794@SMART_LOCKER.LED_WP117.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16343794@smart_locker.\led_wp117.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16343794@smart_locker.\led_wp117.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10125 'LED_WP117_LED_LTST-C190_LED':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16343930@SMART_LOCKER.LED_WP117.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16343930@smart_locker.\led_wp117.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16343930@smart_locker.\led_wp117.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D2 'DIODE_SCHOTTKY_30V_0.2A SOD523_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS556612@SMART_LOCKER.DIODE_SCHOTTKY_30V_0.2A SOD523.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins556612@smart_locker.\diode_schottky_30v_0.2a sod523.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins556612@smart_locker.\diode_schottky_30v_0.2a sod523.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ FB1 'FB_1_RC0603_120E / 2A':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS10699@ATM_SECURE_COM_BOARD_6-JULY-2013_9AM.FB_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins10699@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins10699@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ FB2 'FB_1_RC0603_120E / 2A':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS10723@ATM_SECURE_COM_BOARD_6-JULY-2013_9AM.FB_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins10723@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins10723@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ FB3 'FB_1_RC0603_120E / 2A':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS10887@ATM_SECURE_COM_BOARD_6-JULY-2013_9AM.FB_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins10887@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins10887@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ FB4 'FB_1_RC0603_120E / 2A':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS493164@ATM_SECURE_COM_BOARD_6-JULY-2013_9AM.FB_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins493164@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins493164@\atm_secure_com_board_6-july-2013_9am\.\fb_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3 'EJTAG HEADER_3_MODULE_IRIDIUM-9':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495087@RF_SDR_REV_C.EJTAG HEADER_3.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495087@rf_sdr_rev_c.\ejtag header_3.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495087@rf_sdr_rev_c.\ejtag header_3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J4 'QMS-026-05.75-L-D-RF1_QMS-026-0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16271370@SYNC_BOARD_SYMBOLS.QMS-026-05.75-L-D-RF1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16271370@sync_board_symbols.\qms-026-05.75-l-d-rf1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16271370@sync_board_symbols.\qms-026-05.75-l-d-rf1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J5 'U.FL-R-SMT-1_UFL-R-SMT-1_U.FL-R':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16290279@SYNC_BOARD_SYMBOLS.U.FL-R-SMT-1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16290279@sync_board_symbols.\u.fl-r-smt-1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16290279@sync_board_symbols.\u.fl-r-smt-1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ L1 'INDUCTOR_2.8UH_WURTH_744777910_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS569656@BTS BOARD_10DEC2015_3PM.INDUCTOR_2.8UH.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins569656@\bts board_10dec2015_3pm\.\inductor_2.8uh.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins569656@\bts board_10dec2015_3pm\.\inductor_2.8uh.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ L4001 'INDUCTOR_6.8NH_300MA_0402_L0402':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16242138@FB_DISCRETE_21DEC.INDUCTOR_6.8NH_300MA_0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16242138@fb_discrete_21dec.\inductor_6.8nh_300ma_0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16242138@fb_discrete_21dec.\inductor_6.8nh_300ma_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH1 'MOUNTING_HOLE_0_MTG370X800_MOUN':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16299225@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16299225@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins16299225@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH2 'MOUNTING_HOLE_0_MTG370X800_MOUN':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16299239@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16299239@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins16299239@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH3 'MOUNTING_HOLE_0_M2_SPACER_MOUNT':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16503037@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16503037@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins16503037@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH4 'MOUNTING_HOLE_0_M2_SPACER_MOUNT':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16503051@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16503051@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins16503051@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ Q1 '2N7002L_1_SOT23_2N7002L':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491927@GSM_BTS_22DEC_2015_1215PM.2N7002L_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491927@gsm_bts_22dec_2015_1215pm.\2n7002l_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491927@gsm_bts_22dec_2015_1215pm.\2n7002l_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ Q2P1 'NPN#1_SOT23_MMBT3904_C52245-001':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335534@LF_DISCRETE.NPN__SYM_7.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335534@lf_discrete.\npn__sym_7.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335534@lf_discrete.\npn__sym_7.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ Q3L1 'NPN#1_SOT23_MMBT3904_C52245-001':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335564@LF_DISCRETE.NPN__SYM_7.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335564@lf_discrete.\npn__sym_7.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335564@lf_discrete.\npn__sym_7.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R1 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16397094@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16397094@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16397094@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10784 'RES_100K_1/16W_5%_0402_SMD_1_R0':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16465603@BTS BOARD_10DEC2015_1PM.RES_100K_1/16W_5%_0402_SMD_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16465603@\bts board_10dec2015_1pm\.\res_100k_1/16w_5%_0402_smd_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16465603@\bts board_10dec2015_1pm\.\res_100k_1/16w_5%_0402_smd_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10798 'R_1_RC0805_620E_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16343896@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16343896@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16343896@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10922 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236485@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236485@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236485@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10923 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236533@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236533@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236533@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10924 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236717@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236717@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236717@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10925 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236761@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236761@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236761@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10926 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16239270@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16239270@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16239270@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10927 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16239314@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16239314@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16239314@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10928 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16239342@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16239342@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16239342@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10930 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16250366@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16250366@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16250366@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10931 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16251209@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16251209@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16251209@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10932 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252066@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252066@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252066@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10933 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252110@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252110@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252110@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10934 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252138@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252138@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252138@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10935 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252458@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252458@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252458@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10936 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252522@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252522@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252522@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10937 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252576@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252576@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252576@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10938 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16252687@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16252687@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16252687@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10939 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16253689@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16253689@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16253689@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10940 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16254145@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16254145@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16254145@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10941 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16254243@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16254243@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16254243@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10942 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16254482@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16254482@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16254482@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10943 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16254755@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16254755@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16254755@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10944 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16255053@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16255053@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16255053@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10945 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16256812@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16256812@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16256812@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431108@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431108@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16431108@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11114 'RES_3.3K_0402_63MW_R0402_3.3K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355648@RF_SDR_REV_C.RES_3.3K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355648@rf_sdr_rev_c.\res_3.3k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355648@rf_sdr_rev_c.\res_3.3k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11115 'RES_10K_0402_63MW_R0402_10K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356454@FB_DISCRETE_21DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356454@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356454@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11191 'RESISTOR_0OHM_0402_100MW_R0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356430@FB_LIB.RESISTOR_0OHM_0402_100MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356430@fb_lib.\resistor_0ohm_0402_100mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356430@fb_lib.\resistor_0ohm_0402_100mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11192 'RES SMD 100K OHM 1% 1/16W 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356856@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 100K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356856@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356856@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11194 'RES_10K_0402_63MW_R0402_10K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356156@FB_DISCRETE_21DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356156@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356156@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11195 'RES_10K_0402_63MW_R0402_10K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356366@FB_DISCRETE_21DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356366@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356366@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11196 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16434997@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16434997@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16434997@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11197 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16435043@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16435043@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16435043@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11198 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16435091@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16435091@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16435091@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11199 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16435137@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16435137@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16435137@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11200 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16435183@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16435183@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16435183@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11205 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16436645@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16436645@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16436645@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11206 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16436691@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16436691@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16436691@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11207 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16436737@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16436737@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16436737@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11208 'RES SMD 100K OHM 1% 1/16W 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356702@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 100K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356702@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356702@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11209 'RES SMD 100K OHM 1% 1/16W 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356190@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 100K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356190@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356190@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11210 'RES SMD 100K OHM 1% 1/16W 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355680@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 100K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355680@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355680@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11211 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16438787@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16438787@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16438787@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11212 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16438835@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16438835@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16438835@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11213 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16437781@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16437781@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16437781@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11214 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16397446@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16397446@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16397446@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11215 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16398880@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16398880@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins16398880@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11216 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16438147@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16438147@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16438147@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11217 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16438101@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16438101@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16438101@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11221 'RES_0.0_OHM_1/16W_0402_SMD_R060':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16428570@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16428570@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16428570@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11222 'RES_0.0_OHM_1/16W_0402_SMD_R060':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16428612@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16428612@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16428612@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11223 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451228@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451228@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451228@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11224 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451376@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451376@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451376@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11225 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451406@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451406@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451406@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11226 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451504@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451504@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451504@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11227 'RES_1K_0402_63MW_R0402_1K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451540@FB_DISCRETE_21DEC.RES_1K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451540@fb_discrete_21dec.\res_1k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451540@fb_discrete_21dec.\res_1k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11228 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451628@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451628@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451628@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11229 'RESISTOR_0OHM_0402_100MW_R0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16454295@FB_LIB.RESISTOR_0OHM_0402_100MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16454295@fb_lib.\resistor_0ohm_0402_100mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16454295@fb_lib.\resistor_0ohm_0402_100mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11230 'RES SMD 100K OHM 1% 1/16W 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16454363@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 100K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16454363@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16454363@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11231 'RES_10K_0402_63MW_R0402_10K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16454413@FB_DISCRETE_21DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16454413@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16454413@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11232 'RES_10K_0402_63MW_R0402_10K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16454441@FB_DISCRETE_21DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16454441@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16454441@fb_discrete_21dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R11233 'RES SMD 100K OHM 1% 1/16W 0402_':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16483295@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 100K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16483295@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16483295@fpga_design_discretes_22jan.\res smd 100k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R14 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431288@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431288@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16431288@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R15 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16281432@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16281432@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16281432@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R150 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16509761@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16509761@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16509761@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R151 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16509831@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16509831@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16509831@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R16 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16416529@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16416529@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16416529@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R17 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16416483@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16416483@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16416483@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R18 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16416437@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16416437@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16416437@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R19 'RES_0.0_OHM_1/16W_0402_SMD_R060':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS11930@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins11930@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins11930@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16430736@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16430736@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16430736@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R20 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431472@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431472@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16431472@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R23 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498949@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498949@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498949@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R24 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431590@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431590@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16431590@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R26 'RES_0OHM_0402_0.1W_R0402_121E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16525338@FB_DISCRETE_21DEC.RES_0OHM_0402_0.1W.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16525338@fb_discrete_21dec.\res_0ohm_0402_0.1w.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16525338@fb_discrete_21dec.\res_0ohm_0402_0.1w.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2610 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16235832@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16235832@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16235832@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2611 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16235862@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16235862@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16235862@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2612 'RES_1K_0402_63MW_R0402_1K':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16235960@FB_DISCRETE_21DEC.RES_1K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16235960@fb_discrete_21dec.\res_1k_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16235960@fb_discrete_21dec.\res_1k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R27 'RES_0OHM_0402_0.1W_R0402_121E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16525416@FB_DISCRETE_21DEC.RES_0OHM_0402_0.1W.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16525416@fb_discrete_21dec.\res_0ohm_0402_0.1w.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16525416@fb_discrete_21dec.\res_0ohm_0402_0.1w.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R28 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431744@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431744@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16431744@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R29 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431790@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431790@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16431790@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2L10 'RESN#1_SMR0402A_0_C17927-001':
+ SIGNAL_MODEL='RESISTOR50';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16399175@LF_DISCRETE.RESN__SYM_5.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16399175@lf_discrete.\resn__sym_5.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16399175@lf_discrete.\resn__sym_5.normal\(chips)',
+ SIGNAL_MODEL='RESISTOR50',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2L2 'RESN#1_SMR0402A_0_C17927-001':
+ SIGNAL_MODEL='RESISTOR50';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335286@LF_DISCRETE.RESN__SYM_5.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335286@lf_discrete.\resn__sym_5.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335286@lf_discrete.\resn__sym_5.normal\(chips)',
+ SIGNAL_MODEL='RESISTOR50',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2L6 'RESN_SMR0402A_10K_A93548-034':
+ SIGNAL_MODEL='RESISTOR50';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335736@LF_DISCRETE.RESN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335736@lf_discrete.\resn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335736@lf_discrete.\resn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='RESISTOR50',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2L7 'RESN#1_SMR0402A_0_C17927-001':
+ SIGNAL_MODEL='RESISTOR50';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16336765@LF_DISCRETE.RESN__SYM_5.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16336765@lf_discrete.\resn__sym_5.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16336765@lf_discrete.\resn__sym_5.normal\(chips)',
+ SIGNAL_MODEL='RESISTOR50',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2L8 'RESN#1_SMR0402A_0_C17927-001':
+ SIGNAL_MODEL='RESISTOR50';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16336904@LF_DISCRETE.RESN__SYM_5.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16336904@lf_discrete.\resn__sym_5.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16336904@lf_discrete.\resn__sym_5.normal\(chips)',
+ SIGNAL_MODEL='RESISTOR50',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R2L9 'RESN_SMR0402A_10K_A93548-034':
+ SIGNAL_MODEL='RESISTOR50';
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16399971@LF_DISCRETE.RESN__SYM_6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16399971@lf_discrete.\resn__sym_6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16399971@lf_discrete.\resn__sym_6.normal\(chips)',
+ SIGNAL_MODEL='RESISTOR50',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R3 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16430504@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16430504@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16430504@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R30 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431836@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431836@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16431836@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R31 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16431882@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16431882@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16431882@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R32 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498179@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498179@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498179@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R33 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498625@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498625@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498625@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R34 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498597@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498597@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498597@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R35 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433280@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433280@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433280@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R36 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16272519@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16272519@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16272519@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R37 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS540537@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins540537@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins540537@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R38 'R_1_RC0402_845K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS540569@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins540569@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins540569@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R39 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433396@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433396@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433396@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R4 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16355712@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16355712@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16355712@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R40 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433510@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433510@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433510@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R41 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433556@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433556@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433556@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R42 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433602@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433602@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433602@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R43 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433648@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433648@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433648@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R44 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16433694@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16433694@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins16433694@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R45 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS356834@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins356834@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins356834@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R46 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16434344@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16434344@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16434344@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R47 'R_1_RR0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16434593@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16434593@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16434593@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R48 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS12003@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins12003@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins12003@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R49 'RES_0OHM_0402_0.1W_R0402_121E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16525514@FB_DISCRETE_21DEC.RES_0OHM_0402_0.1W.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16525514@fb_discrete_21dec.\res_0ohm_0402_0.1w.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16525514@fb_discrete_21dec.\res_0ohm_0402_0.1w.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R5 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16430690@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16430690@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16430690@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R50 '100K-1/16W-5%-0603_0_RC0402_100':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491681@BTS BOARD_10DEC2015_1PM.100K-1/16W-5%-0603_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491681@\bts board_10dec2015_1pm\.\100k-1/16w-5%-0603_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491681@\bts board_10dec2015_1pm\.\100k-1/16w-5%-0603_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R51 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS521973@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins521973@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins521973@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R52 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491765@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491765@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491765@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R53 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491897@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491897@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491897@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R54 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491977@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491977@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491977@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R55 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492163@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492163@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492163@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R56 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492982@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492982@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492982@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R57 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491733@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491733@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491733@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R58 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS551739@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins551739@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins551739@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R59 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492960@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492960@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492960@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R6 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16397140@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16397140@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16397140@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R60 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491867@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491867@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491867@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R61 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492832@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492832@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492832@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R62 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492810@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492810@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492810@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R63 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491565@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491565@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491565@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R64 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491651@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491651@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491651@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R65 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS573571@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins573571@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins573571@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R66 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503404@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503404@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503404@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R67 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503548@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503548@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503548@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R68 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS491945@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins491945@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins491945@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R69 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492087@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492087@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492087@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R7 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS465388@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins465388@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins465388@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R70 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS522652@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins522652@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins522652@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R71 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503784@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503784@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503784@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R72 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503292@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503292@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503292@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R73 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503756@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503756@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503756@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R74 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS504260@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins504260@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins504260@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R75 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS522560@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins522560@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins522560@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R76 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503714@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503714@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503714@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R77 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503692@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503692@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503692@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R78 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS504198@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins504198@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins504198@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R79 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS504136@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins504136@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins504136@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R80 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503372@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503372@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503372@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R81 'R_1_RC0402_1K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503472@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503472@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503472@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R82 'R_1_RC0402_41.2K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467748@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467748@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467748@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R83 'RES_1.0_OHM_1/16W_0402_SMD_RC_1':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468284@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468284@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468284@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R84 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468050@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468050@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468050@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R85 'R_1_RC0402_243K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467180@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467180@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467180@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R86 'RES_1.0_OHM_1/16W_0402_SMD_RC_2':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468144@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468144@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468144@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R87 'R_1_RC0603_1M_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467210@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467210@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467210@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R874 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236324@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236324@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236324@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R875 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236410@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236410@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236410@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R876 'RES_0OHM_0402_63MW_R0402_0E':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16236789@FB_DISCRETE_21DEC.RES_0OHM_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16236789@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16236789@fb_discrete_21dec.\res_0ohm_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R88 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467274@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467274@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467274@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R89 'RES_1.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467248@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467248@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467248@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R90 'RES_1.0_OHM_1/16W_0402_SMD_RC_1':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS468262@BTS BOARD_10DEC2015_3PM.RES_1.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins468262@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins468262@\bts board_10dec2015_3pm\.\res_1.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R91 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467328@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467328@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467328@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R92 'R_1_RC0402_100K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495389@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495389@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495389@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R93 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495509@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495509@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495509@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R94 'R_1_RC0402_10K_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16434856@BTS BOARD_10DEC2015_1PM.R_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16434856@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16434856@\bts board_10dec2015_1pm\.\r_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R95 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS495649@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins495649@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins495649@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R96 'RES_0.0_OHM_1/16W_0402_SMD_RC04':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16415868@BTS BOARD_10DEC2015_1PM.RES_0.0_OHM_1/16W_0402_SMD.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16415868@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16415868@\bts board_10dec2015_1pm\.\res_0.0_ohm_1/16w_0402_smd.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP1 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619195@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619195@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619195@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP10 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619755@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619755@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619755@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP11 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619491@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619491@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619491@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP12 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619263@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619263@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619263@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP13 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619136@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619136@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619136@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP14 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619336@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619336@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619336@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP2 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS618999@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins618999@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins618999@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP3 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS623106@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins623106@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins623106@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP3026 'T POINT R_TP_40C_T POINT R':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356770@FB_RFCHAIN.T POINT R.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356770@fb_rfchain.\t point r.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356770@fb_rfchain.\t point r.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP4 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619678@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619678@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins619678@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP5 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS618918@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins618918@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins618918@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP6 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS623135@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins623135@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins623135@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP7 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS618847@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins618847@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins618847@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP8 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619414@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619414@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page12_ins619414@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ TP9 'T_POINT1#1_TP_40C_?':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS619606@LF_DISCRETE.T_POINT1__SYM_4.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins619606@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins619606@lf_discrete.\t_point1__sym_4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U19 'NL17SZ126_1_SOT23_5_74LVC1G125G':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16415846@CPU_BOARD_19-MAR-13.NL17SZ126_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16415846@\cpu_board_19-mar-13\.\nl17sz126_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16415846@\cpu_board_19-mar-13\.\nl17sz126_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U2 'XR20M1170_0_TSSOP65P640X120-24N':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS498453@TIME_SYNC_11JAN2016_10AM.XR20M1170_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins498453@time_sync_11jan2016_10am.\xr20m1170_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins498453@time_sync_11jan2016_10am.\xr20m1170_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U2604 'SKY13330-397LF_QFN50P200X200X65':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16235890@FB_RFCHAIN.SKY13330-397LF.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16235890@fb_rfchain.\sky13330-397lf.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16235890@fb_rfchain.\sky13330-397lf.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U2605 '857139_FIL_857139_857139':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16239131@SYNC_BOARD_SYMBOLS.857139.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16239131@sync_board_symbols.\857139.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16239131@sync_board_symbols.\857139.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U2606 'BGA824N6_TSNP-6-2_BGA824N6':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16242012@SYNC_BOARD_SYMBOLS.BGA824N6.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16242012@sync_board_symbols.\bga824n6.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16242012@sync_board_symbols.\bga824n6.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U2607 '857140_FIL_857140_857140':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16251955@SYNC_BOARD_SYMBOLS.857140.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16251955@sync_board_symbols.\857140.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page13_ins16251955@sync_board_symbols.\857140.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U28 'SX1509B_1_QFN29_0P4_4X4_SX1509B':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16356028@OPENCELLULAR_CONNECT-1_GBC_LIFE-3_03NOV2016_415PM.SX1509B_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16356028@\opencellular_connect-1_gbc_life-3_03nov2016_415pm\.\sx1509b_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16356028@\opencellular_connect-1_gbc_life-3_03nov2016_415pm\.\sx1509b_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U3 'LTE-LITE_0_MODULE_LTE-LITE_ LT':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS70@TIME_SYNC_24DEC2015. LTE-LITE_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins70@time_sync_24dec2015.(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins70@time_sync_24dec2015.(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U3A1 'ADT7481_SSOP10_5MM_ADT7481_D141':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16335162@LF_DIGITAL.ADT7481.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16335162@lf_digital.\adt7481.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page14_ins16335162@lf_digital.\adt7481.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U4 'SN74AVC4T774RGYR_2_VQFN50P400X3':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS492117@GSM_BTS_05JAN_2016_7PM.SN74AVC4T774RGYR_2.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins492117@gsm_bts_05jan_2016_7pm.\sn74avc4t774rgyr_2.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page8_ins492117@gsm_bts_05jan_2016_7pm.\sn74avc4t774rgyr_2.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U5 'SN74AVC4T774RGYR_2_VQFN50P400X3':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS503502@GSM_BTS_05JAN_2016_7PM.SN74AVC4T774RGYR_2.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins503502@gsm_bts_05jan_2016_7pm.\sn74avc4t774rgyr_2.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page10_ins503502@gsm_bts_05jan_2016_7pm.\sn74avc4t774rgyr_2.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U6 'LT8610EMSE-EMSE16_0_QFN50P300X4':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS467484@GSM_BTS_16DEC_2015_630PM.LT8610EMSE-EMSE16_0.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins467484@gsm_bts_16dec_2015_630pm.\lt8610emse-emse16_0.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page6_ins467484@gsm_bts_16dec_2015_630pm.\lt8610emse-emse16_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U7122 'MM8430-2610_SMA_MM8430-2610_MM8':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16280812@FB_RF_SDR_DISCRETE_ICS_SWITCH_CONNECTOR_FOOTPRINT.MM8430-2610.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16280812@fb_rf_sdr_discrete_ics_switch_connector_footprint.\mm8430-2610.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page4_ins16280812@fb_rf_sdr_discrete_ics_switch_connector_footprint.\mm8430-2610.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U7153 'SN74AVC1T45DRLR_SN74AVC1T45DRLR':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16503131@FB_RFCHAIN.SN74AVC1T45DRLR.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16503131@fb_rfchain.\sn74avc1t45drlr.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page5_ins16503131@fb_rfchain.\sn74avc1t45drlr.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U7154 'SKY13330-397LF_QFN50P200X200X65':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16451434@FB_RFCHAIN.SKY13330-397LF.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16451434@fb_rfchain.\sky13330-397lf.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page11_ins16451434@fb_rfchain.\sky13330-397lf.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U7155 'SN74AVC1T45DRLR_SN74AVC1T45DRLR':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS16503591@FB_RFCHAIN.SN74AVC1T45DRLR.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins16503591@fb_rfchain.\sn74avc1t45drlr.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page9_ins16503591@fb_rfchain.\sn74avc1t45drlr.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ X1 'XTAL_4P_1_XTAL_NX3225GA_ABM8G-1':;
+
+SECTION_NUMBER 1
+ '@FB_CONNECT1_SYNC_LIFE-3_V1P1.OPENCELLULAR_COONECT1_SYNC(SCH_1):INS540485@GSM_BTS_07JAN_2016_10AM.XTAL_4P_1.NORMAL(CHIPS)':
+ C_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):ins540485@gsm_bts_07jan_2016_10am.\xtal_4p_1.normal\(chips)',
+ P_PATH='@\fb_connect1_sync_life-3_v1p1\.opencellular_coonect1_sync(sch_1):page7_ins540485@gsm_bts_07jan_2016_10am.\xtal_4p_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+END.

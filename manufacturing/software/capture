@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#
+#	File: capture
+#
+#
+#	This is a program to capture changed files in the fbin tree
+#	and copy changed files to /home/rdlab/dbc1. The ~/dbc1 symbolic
+#	link points to the distribution dropbox.
+#
+use File::Copy;
+my @Fns	= get_fns();
+copy_over(@Fns) if (@Fns);
+exit 0;
+
+sub get_fns	{
+	my $prog	= '/usr/local/fbin/chk_distro';
+	my $txt		= `$prog`;
+	my $re		= qr{^(/usr/local/fbin/[^\033]+) 
+				.+? has \s changed .+?$}xm;
+
+	my @fns		= $txt =~ m{$re}g;
+	return @fns;
+}
+
+sub copy_over	{
+	my @fns		= @_;
+	my $dest	= '/home/rdlab/dbc1';
+	for my $fn (@fns)	{
+		copy($fn, $dest) or 
+			die 	"Copy failed: $!.\n" .
+				"From $fn to $dest.\n";
+		print "$fn copied to $dest.\n";
+	}
+}

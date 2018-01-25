@@ -1,0 +1,61 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#
+#	File: lresult
+#
+#	This file looks up the name of the last test result file
+#	from the directory $Resdir.
+#
+use strict;
+use FindBin		qw/$Bin/;
+use lib $Bin;
+use mods::fbt_config	qw/$Resdir/;
+
+my @Fns	= `ls -1rt $Resdir`;
+my $fn	= pop @Fns;
+chomp($fn);
+$fn	=~ s/\s//g;
+print "$Resdir/$fn\n";
+exit 0;
+
+__END__
+
+=head1 NAME
+
+lresult - Provides name of last test result file from fbt(1).
+
+=head1 SYNOPSIS
+
+lresult
+
+=head1 DESCRIPTION
+
+The lresult(1) program types the complete file name of
+the last test report file created by B</usr/local/fbin/fbt>.
+One handy use for lresult(1) is providing its output
+as an argument to another program. See the example below
+using more(1).
+
+The program fbt(1) creates test reports in the B</media/sf_vmshr/fb_results>
+folder. The file name has the form I<fbt.*.json>, where the "*"
+text in the file name represents the day and time that the test
+was conducted.
+
+=head1 EXAMPLES
+
+ $ lresult
+ /media/sf_vmshr/fb_results/fbt.12-15-2016_14-04-51.json
+
+ $ more `lresult`
+
+=head1 SEE ALSO
+
+fbt(1)

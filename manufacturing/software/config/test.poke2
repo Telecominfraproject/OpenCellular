@@ -1,0 +1,6 @@
+#
+#	This is an rc file for a bash subshell used by fbt(1) and the
+#	walker.t test file. Running walker.t with power supplies attached,
+#	two Expect(3pm) handles are run. Each needs its own unique prompt.
+#
+PS1='xyz2$ '

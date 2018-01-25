@@ -1,0 +1,161 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: install_apps
+#	
+#	This is a shortcut program to:
+#		mv /home/rdlab/Dropbox/fb_apps /usr/local/tmp
+#		cd /usr/local/tmp
+#		./fb_apps
+#
+use strict;
+use FindBin	qw/$Bin/;
+use File::Copy;
+use File::Basename;
+use lib $Bin;
+use mods::walker qw/eval_version/;
+
+my $Tdir	= '/usr/local/tmp';
+my $Sdir	= "$ENV{HOME}/Dropbox/fbc1";
+my $Fn		= find_fn($Sdir);
+my $Sfn		= "$Sdir/$Fn";
+my $Tfn		= "$Tdir/$Fn";
+die "Must be root to run.\n" unless ($> == 0);
+die "Cannot find or write to the directory $Tdir.\n" unless (-d $Tdir && -w _);
+do	{	warn "No $Sfn found, local updates only.\n";
+		goto LOCALS_ONLY;
+	}  unless (-f $Sfn && -w _);
+$SIG{INT}	= sub { exit 22; };
+print "This installation will reboot linux. ^C to exit or Return to install ";
+<>;
+
+move($Sfn, $Tfn) or die "Could not move $Sfn: $!.\n";
+chdir $Tdir;
+
+my $Pid	= fork;
+if ($Pid)	{
+	waitpid($Pid, 0);
+	my $err	= $? >> 8;
+	die "$Tfn had a problem: $!.\n" if $err;
+	unlink $Tfn;	# No longer needed.
+}
+else	{
+	exec($Tfn);
+}
+update_ver('/usr/local', 'fbin/config/build_ver.conf');
+
+LOCALS_ONLY:
+copy_home_files('/usr/local/fbin/home', '/home/rdlab', 'rdlab');
+copy_app_files('/usr/local/fbin/applications', 
+	'/usr/share/applications', 'rdlab');
+update_favs('/usr/local/fbin/gui_launch');
+print "Restarting in 5 seconds.\n";
+sleep 5;
+restart();
+exit 0;
+
+sub update_favs	{
+	my $pn	= shift;
+
+	return unless (-e $pn);
+	my $pid = fork;
+	if ($pid)	{
+		waitpid($pid, 0);
+		my $err	= $? >> 8;
+		die "Problem with $pn: $!.\n" if ($err > 1);
+	}
+	else	{
+		exec($pn);
+	}
+}
+
+sub copy_app_files     {
+        my $fdir        = shift;
+        my $todir       = shift;
+        my $unam        = shift;
+
+        my @fds         = glob "$fdir/.* $fdir/*";
+        my @fns;
+
+        for my $fd (@fds)       {
+                push @fns, $fd if (-f $fd);
+        }
+
+	my ($lin, $pass, $uid, $gid)	= getpwnam($unam);
+        for my $fn (@fns)       {
+                my ($name, $dirs, $sfx) = fileparse($fn);
+                my $tfn = "$todir/$name";
+                # print "I want to copy from $fn to $tfn.\n";
+                copy($fn, $tfn) or die "copy fail from $fn to $tfn: $!.\n";
+                chown $uid, $gid, $tfn;
+        }
+}
+
+sub copy_home_files     {
+        my $fdir        = shift;
+        my $todir       = shift;
+        my $unam        = shift;
+
+        my @fds         = glob "$fdir/.* $fdir/*";
+        my @fns;
+
+        for my $fd (@fds)       {
+                push @fns, $fd if (-f $fd);
+        }
+
+	my ($lin, $pass, $uid, $gid)	= getpwnam($unam);
+        for my $fn (@fns)       {
+                my ($name, $dirs, $sfx) = fileparse($fn);
+                my $tfn = "$todir/$name";
+                # print "I want to copy from $fn to $tfn.\n";
+                copy($fn, $tfn) or die "copy fail from $fn to $tfn: $!.\n";
+                chown $uid, $gid, $tfn;
+        }
+}
+
+sub update_ver  {
+        my $dir = shift;
+        my $fn  = shift;
+        my $sfn = "$dir/$fn";
+	my $tfn	= "$dir/tmp/.sw_history";
+
+        return unless (-f $sfn);
+	my $ver	= eval_version($Bin);
+	my $time	= `date`;
+	my $stxt	= $ver . ' at ' . $time;
+        open(my $fh, '>>', $tfn) or die "Cannot append to $tfn.\n";
+        print $fh $stxt;
+        close $fh;
+	print "Installed $ver.\n";
+}
+
+sub restart	{
+	my $pn	= '/sbin/shutdown';	
+	my @arg	= (qw/-r now/);
+
+	print "Now rebooting ...\n";
+	my $pid	= fork;
+	return if $pid;
+	system("sleep 3; $pn @arg");
+}
+
+
+sub find_fn	{
+	my $dir	= shift;
+	my @fns	= glob("$dir/fb_apps_*");
+
+	die "Conflicting packages in $dir.\n" if (@fns > 1);
+	do	{	warn "Could not find package in $dir.\n";
+			return "$dir/fb_apps_*"; 
+		} unless (@fns);
+	die "Cannot find file in $dir.\n" unless($fns[0] =~ m{/(fb_apps_.+)$});
+	my $fn	= $1;
+	return $fn;
+}

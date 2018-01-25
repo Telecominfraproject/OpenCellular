@@ -1,0 +1,12 @@
+This directory containts all electronics files (bom, schematic, layout, 
+assembly, and gerbers) for various sub-system of various OpenCellular platforms
+
+The content of this directory are as follows:
+
+GBC: General-purpose Basedband Computing board using x86 and ARM.
+front-end: Front-end for various cellular technologies and band/power.
+radio: SDR, 2G, LTE baseband and radio design
+sync: Timing syncrhonization modules for OC-SDR 
+debug: Debug board for GBC
+breakout: Breakout board for GBC and Radio board, exposes low-level interface
+LED: led board for Connect-1 platform

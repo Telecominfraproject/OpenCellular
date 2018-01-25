@@ -1,0 +1,4109 @@
+(PCB OC_CONNECT_1_BRKOUT_BRD
+ (description
+  (timeStamp "2017 01 05 10 11 28")
+  (program "CAPTURE.EXE" (Version "17.2-2016"))
+  (source "Original data from OrCAD/CAPTURE schematic")
+  (title "BOARD TO BOARD CONNECTOR")
+  (date "Thursday, January 05, 2017")
+  (document "FBCON1RFSOCSCH001")
+  (revision "1.0")
+  (organization "Facebook")
+  (address1 "")
+  (address2 "")
+  (address3 "")
+  (address4 "")
+  (partvaluecombine "{Value}")
+  (pcbfootprintcombine "{PCB Footprint}"))
+ (structure )
+ (placement
+  (component "CAP CER 0.1UF 25V 10% X7R 0402"
+   (place C2132
+    (property 
+     (Tolerance ±10%)
+     ("Voltage rating" 25V)
+     ("Temperature Coefficient" X7R)
+     (timestamp 00F7394A)
+     ("Source Package" "CAP CER 0.1UF 25V 10% X7R 0402")
+     (Package 0402)
+     (Value 0.1uF)
+     ("Temperature range" "-55°C ~ 125°C")
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" C0402)
+     ("Part Number" C1005X7R1E104K050BB)
+     (Manufacturer "TDK Corporation")))
+   (place C2133
+    (property 
+     (Tolerance ±10%)
+     ("Voltage rating" 25V)
+     ("Temperature Coefficient" X7R)
+     (timestamp 00F73970)
+     ("Source Package" "CAP CER 0.1UF 25V 10% X7R 0402")
+     (Package 0402)
+     (Value 0.1uF)
+     ("Temperature range" "-55°C ~ 125°C")
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" C0402)
+     ("Part Number" C1005X7R1E104K050BB)
+     (Manufacturer "TDK Corporation")))
+   (place C4348
+    (property 
+     (Tolerance ±10%)
+     ("Voltage rating" 25V)
+     ("Temperature Coefficient" X7R)
+     (timestamp 00F73A20)
+     ("Source Package" "CAP CER 0.1UF 25V 10% X7R 0402")
+     (Package 0402)
+     (Value 0.1uF)
+     ("Temperature range" "-55°C ~ 125°C")
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" C0402)
+     ("Part Number" C1005X7R1E104K050BB)
+     (Manufacturer "TDK Corporation")))
+   (place C4459
+    (property 
+     (Tolerance ±10%)
+     ("Voltage rating" 16V)
+     ("Temperature Coefficient" X6S)
+     (timestamp 00FC640B)
+     ("Source Package" "CAP CER 0.1UF 25V 10% X7R 0402")
+     (Package 0603)
+     (Value 10uF)
+     ("Temperature range" "-55°C ~ 105°C")
+     (Description "10uF ±20% 16V Ceramic Capacitor X6S 0603 (1608 Metric)")
+     ("PCB Footprint" C0603)
+     ("Part Number" GRM188C81C106MA73D)
+     (Manufacturer "Murata Electronics North America"))))
+  (component CAP_CER_0.1UF_10V_10%_X5R_0402
+   (place C4460
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 00FC6798)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (VOLTAGE 25V)
+     (Package CAP_0402)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     (TOLERANCE 10%)
+     ("Alternate Manufacturer" NA)
+     ("PCB Footprint" cc0402)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PART_NUMBER 0.1UF)
+     (PACK_TYPE 0402P)
+     (Manufacturer "TDK Corporation")))
+   (place C1988
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A54D)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1989
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A577)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1880
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A81D)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1990
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 00DF7E65)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (VOLTAGE 25V)
+     (Package CAP_0402)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     (TOLERANCE 10%)
+     ("Alternate Manufacturer" NA)
+     ("PCB Footprint" cc0402)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PART_NUMBER 0.1UF)
+     (PACK_TYPE 0402P)
+     (Manufacturer "TDK Corporation")))
+   (place C1900
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A9F3)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1901
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005AA7B)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1902
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A795)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1903
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A9CF)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("PCB Footprint" cc0402)
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation")))
+   (place C1904
+    (property 
+     (No_Mount "-")
+     (SIZE 1B)
+     (Digikey "445-7348-1-ND")
+     (timestamp 0005A9A3)
+     (Section KEYPAD)
+     ("Source Package" CAP_CER_0.1UF_10V_10%_X5R_0402)
+     (OriginalSymbolOrigin "(-50,50)")
+     (Alternate C1005X7R1A104K050BB)
+     (Package CAP_0402)
+     (VOLTAGE 25V)
+     (Value 0.1uF)
+     (MATERIAL X7R)
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("Alternate Manufacturer" NA)
+     (TOLERANCE 10%)
+     ("PCB Footprint" cc0402)
+     ("Part Number" C1005X7R1E104K050BB)
+     (PATH ?)
+     (PACK_TYPE 0402P)
+     (PART_NUMBER 0.1UF)
+     (Manufacturer "TDK Corporation"))))
+  (component "HDAF-11-18-S-13-2"
+   (place J113
+    (property 
+     (timestamp 0005A84B)
+     ("Source Package" "HDAF-11-18-S-13-2")
+     (Value "HDAF-11-18-S-13-2")
+     ("PCB Footprint" "SAMTEC_HDAF-11-18P0-S-13-2")
+     ("Part Number" "HDAF-11-18-S-13-2")
+     (Manufacturer SAMTEC))))
+  (component CAP_CER_0.1uF_0201_16V
+   (place C20
+    (property 
+     ("Temperature coefficient" X7R)
+     ("Voltage rating" 25V)
+     (timestamp 00FC0679)
+     ("Source Package" CAP_CER_0.1uF_0201_16V)
+     ("Package " 0402P)
+     (Value 0.1uF)
+     ("Temperature range " "-55°C ~ 85°C")
+     (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+     ("Tolerance " ±10%)
+     ("PCB Footprint" C0402)
+     ("Part Number " C0603X5R1C104K030BC)
+     ("Part Number" C1005X7R1E104K050BB)
+     (Manufacturer "TDK Corporation")))
+   (place C4349
+    (property 
+     ("Temperature coefficient" X7R)
+     ("Voltage rating" 25V)
+     (timestamp 00FC10BA)
+     ("Source Package" CAP_CER_0.1uF_0201_16V)
+     ("Package " 1206P)
+     (Value 10uF)
+     ("Temperature range " "-55°C ~ 125°C")
+     (Description "10uF ±10% 25V X7R Ceramic Capacitor -55°C ~ 125°C Surface Mount, MLCC 1206")
+     ("Tolerance " ±10%)
+     ("PCB Footprint" C1206)
+     ("Part Number" "TMK316AB7106KL-T")
+     ("Part Number " "TMK316AB7106KL-T")
+     (Manufacturer "Taiyo Yuden"))))
+  (component RES_100K_0402_63mW
+   (place R10805
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC84D0)
+     ("Source Package" RES_100K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 100K)
+     (Description "RES SMD 100K OHM 1% 1/16W 0402")
+     ("Temperature range " "-55°C ~ 155°C")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-07100KL")
+     (Manufacturer Yageo)))
+   (place R10807
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC85E1)
+     ("Source Package" RES_100K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 100K)
+     (Description "RES SMD 100K OHM 1% 1/16W 0402")
+     ("Temperature range " "-55°C ~ 155°C")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-07100KL")
+     (Manufacturer Yageo)))
+   (place R10809
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC86F4)
+     ("Source Package" RES_100K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 100K)
+     (Description "RES SMD 100K OHM 1% 1/16W 0402")
+     ("Temperature range " "-55°C ~ 155°C")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-07100KL")
+     (Manufacturer Yageo)))
+   (place R10811
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC8809)
+     ("Source Package" RES_100K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 100K)
+     (Description "RES SMD 100K OHM 1% 1/16W 0402")
+     ("Temperature range " "-55°C ~ 155°C")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-07100KL")
+     (Manufacturer Yageo)))
+   (place R10813
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC8920)
+     ("Source Package" RES_100K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 100K)
+     (Description "RES SMD 100K OHM 1% 1/16W 0402")
+     ("Temperature range " "-55°C ~ 155°C")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-07100KL")
+     (Manufacturer Yageo)))
+   (place R200
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC82E2)
+     ("Source Package" RES_100K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 100K)
+     (Description "RES SMD 100K OHM 1% 1/16W 0402")
+     ("Temperature range " "-55°C ~ 155°C")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-07100KL")
+     (Manufacturer Yageo))))
+  (component Header_1X2
+   (place JP3
+    (property 
+     (No_Mount "-")
+     (timestamp 0005AFE6)
+     ("Source Package" Header_1X2)
+     (Value 1758759)
+     (Description "2 Position Terminal Block Header, Male Pins, Shrouded (2 Side) 0.200\" (5.08mm) Vertical Through Hole")
+     ("PCB Footprint" 1758759)
+     ("Part Number" 1758759)
+     (Manufacturer "Phoenix Contact")))
+   (place JP4
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC7F8F)
+     ("Source Package" Header_1X2)
+     (Value 1758759)
+     (Description "2 Position Terminal Block Header, Male Pins, Shrouded (2 Side) 0.200\" (5.08mm) Vertical Through Hole")
+     ("PCB Footprint" 1758759)
+     ("Part Number" 1758759)
+     (Manufacturer "Phoenix Contact"))))
+  (component "DIODE_SCHOTTKY_30V_0.2A SOD523"
+   (place D10088
+    (property 
+     (No_Mount "-")
+     (Digikey "568-6513-1-ND")
+     (timestamp 00FC0705)
+     (Section 2G_MODULE)
+     ("Source Package" "DIODE_SCHOTTKY_30V_0.2A SOD523")
+     (Value PMEG3010ER,115)
+     (Description "DIODE SCHOTTKY 30V 1A SOD123W")
+     ("PCB Footprint" SODFL3517X110N_NXP_AEE)
+     ("Part Number" PMEG3010ER,115)
+     (Manufacturer "NXP Semiconductors"))))
+  (component LED_wp117
+   (place D10126
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC07D6)
+     (Section 2G_MODULE)
+     ("Source Package" LED_wp117)
+     (Value LED)
+     (Description "LED GREEN CLEAR 0603 SMD")
+     ("PCB Footprint" "LED_LTST-C190")
+     ("Part Number" "LTST-C190KGKT")
+     (Manufacturer "Lite-On Inc")))
+   (place D10127
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC0915)
+     (Section 2G_MODULE)
+     ("Source Package" LED_wp117)
+     (Value LED)
+     (Description "LED GREEN CLEAR 0603 SMD")
+     ("PCB Footprint" "LED_LTST-C190")
+     ("Part Number" "LTST-C190KGKT")
+     (Manufacturer "Lite-On Inc")))
+   (place D10128
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC09E0)
+     (Section 2G_MODULE)
+     ("Source Package" LED_wp117)
+     (Value LED)
+     (Description "LED GREEN CLEAR 0603 SMD")
+     ("PCB Footprint" "LED_LTST-C190")
+     ("Part Number" "LTST-C190KGKT")
+     (Manufacturer "Lite-On Inc")))
+   (place D10129
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC5E00)
+     (Section 2G_MODULE)
+     ("Source Package" LED_wp117)
+     (Value LED)
+     (Description "LED GREEN CLEAR 0603 SMD")
+     ("PCB Footprint" "LED_LTST-C190")
+     ("Part Number" "LTST-C190KGKT")
+     (Manufacturer "Lite-On Inc"))))
+  (component "RES SMD 1K OHM 1% 1/16W 0402"
+   (place R197
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC829E)
+     ("Source Package" "RES SMD 1K OHM 1% 1/16W 0402")
+     ("Package " 0402)
+     (Wattage 0.063W)
+     (Value 1K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 1K OHM 1% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-071KL")
+     ("Part Number" "RC0402FR-071KL")
+     (Manufacturer Yageo)))
+   (place R10804
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC848C)
+     ("Source Package" "RES SMD 1K OHM 1% 1/16W 0402")
+     ("Package " 0402)
+     (Wattage 0.063W)
+     (Value 1K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 1K OHM 1% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-071KL")
+     ("Part Number" "RC0402FR-071KL")
+     (Manufacturer Yageo)))
+   (place R10806
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC859D)
+     ("Source Package" "RES SMD 1K OHM 1% 1/16W 0402")
+     ("Package " 0402)
+     (Wattage 0.063W)
+     (Value 1K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 1K OHM 1% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-071KL")
+     ("Part Number" "RC0402FR-071KL")
+     (Manufacturer Yageo)))
+   (place R10808
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC86B0)
+     ("Source Package" "RES SMD 1K OHM 1% 1/16W 0402")
+     ("Package " 0402)
+     (Wattage 0.063W)
+     (Value 1K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 1K OHM 1% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-071KL")
+     ("Part Number" "RC0402FR-071KL")
+     (Manufacturer Yageo)))
+   (place R10810
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC87C5)
+     ("Source Package" "RES SMD 1K OHM 1% 1/16W 0402")
+     ("Package " 0402)
+     (Wattage 0.063W)
+     (Value 1K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 1K OHM 1% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-071KL")
+     ("Part Number" "RC0402FR-071KL")
+     (Manufacturer Yageo)))
+   (place R10812
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC88DC)
+     ("Source Package" "RES SMD 1K OHM 1% 1/16W 0402")
+     ("Package " 0402)
+     (Wattage 0.063W)
+     (Value 1K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 1K OHM 1% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402FR-071KL")
+     ("Part Number" "RC0402FR-071KL")
+     (Manufacturer Yageo))))
+  (component CON8
+   (place J12
+    (property 
+     (timestamp 00DF7DCF)
+     ("Source Package" CON8)
+     ("RoHS Compliant" Yes)
+     (Value CON8)
+     ("PCB Footprint" "CA-S40-24B-44_8")
+     (Vendor# "CA-S40-24B-44_8")
+     (Vendor "Circuit Assembly")))
+   (place J3312
+    (property 
+     (timestamp 00FC94FE)
+     ("Source Package" CON8)
+     ("RoHS Compliant" Yes)
+     (Value CON8)
+     ("PCB Footprint" "CA-S40-24B-44_8")
+     (Vendor# "CA-S40-24B-44_8")
+     (Vendor "Circuit Assembly")))
+   (place J3313
+    (property 
+     (timestamp 00FC9A97)
+     ("Source Package" CON8)
+     ("RoHS Compliant" Yes)
+     (Value CON8)
+     ("PCB Footprint" "CA-S40-24B-44_8")
+     (Vendor# "CA-S40-24B-44_8")
+     (Vendor "Circuit Assembly")))
+   (place J3314
+    (property 
+     (timestamp 00FC9C84)
+     ("Source Package" CON8)
+     ("RoHS Compliant" Yes)
+     (Value CON8)
+     ("PCB Footprint" "CA-S40-24B-44_8")
+     (Vendor# "CA-S40-24B-44_8")
+     (Vendor "Circuit Assembly")))
+   (place J1
+    (property 
+     (timestamp 00FC1494)
+     ("Source Package" CON8)
+     ("RoHS Compliant" Yes)
+     (Value CON8)
+     ("PCB Footprint" "CA-S40-24B-44_8")
+     (Vendor# "CA-S40-24B-44_8")
+     (Vendor "Circuit Assembly")))
+   (place J2
+    (property 
+     (timestamp 00FC14B0)
+     ("Source Package" CON8)
+     ("RoHS Compliant" Yes)
+     (Value CON8)
+     ("PCB Footprint" "CA-S40-24B-44_8")
+     (Vendor# "CA-S40-24B-44_8")
+     (Vendor "Circuit Assembly"))))
+  (component "87224-4"
+   (place J3308
+    (property 
+     (timestamp 00F76647)
+     ("Source Package" "87224-4")
+     (Value "87224-4")
+     (Description: "4 Positions Header, Unshrouded Connector 0.100\" (2.54mm) Through Hole Gold")
+     ("PCB Footprint" HEADER_04X01_254)
+     ("Part Number" "87224-4")
+     (Manufacturer "TE Connectivity / AMP")))
+   (place J3309
+    (property 
+     (timestamp 00F76669)
+     ("Source Package" "87224-4")
+     (Value "87224-4")
+     (Description: "4 Positions Header, Unshrouded Connector 0.100\" (2.54mm) Through Hole Gold")
+     ("PCB Footprint" HEADER_04X01_254)
+     ("Part Number" "87224-4")
+     (Manufacturer "TE Connectivity / AMP")))
+   (place J3310
+    (property 
+     (timestamp 00F7668B)
+     ("Source Package" "87224-4")
+     (Value "87224-4")
+     (Description: "4 Positions Header, Unshrouded Connector 0.100\" (2.54mm) Through Hole Gold")
+     ("PCB Footprint" HEADER_04X01_254)
+     ("Part Number" "87224-4")
+     (Manufacturer "TE Connectivity / AMP")))
+   (place J3311
+    (property 
+     (timestamp 00FC5570)
+     ("Source Package" "87224-4")
+     (Value "87224-4")
+     (Description: "4 Positions Header, Unshrouded Connector 0.100\" (2.54mm) Through Hole Gold")
+     ("PCB Footprint" HEADER_04X01_254)
+     ("Part Number" "87224-4")
+     (Manufacturer "TE Connectivity / AMP"))))
+  (component BZX84C3V0/SOT_3
+   (place D5
+    (property 
+     (timestamp 0005B02E)
+     ("Source Package" BZX84C3V0/SOT_3)
+     (Value "B530C-13-F")
+     (Description "DIODE SCHOTTKY 30V 5A SMC")
+     ("PCB Footprint" B530C_13_F)
+     ("Part Number" "B530C-13-F")
+     (Manufacturer "Diodes Incorporated"))))
+  (component CONN_USB3A_0
+   (place J4P1
+    (property 
+     (timestamp 00F738AA)
+     (CDS_LMAN_SYM_OUTLINE "-400,300,400,-300")
+     ("Source Package" CONN_USB3A_0)
+     (OriginalSymbolOrigin "(-400,300)")
+     (Value CONN_USB3A)
+     (MATERIAL ?)
+     (Description "USB3.1 B STD R/A DIP 30U")
+     ("PCB Footprint" AMPHENOL_GSB4211311WEU)
+     ("Part Number" GSB4211311WEU)
+     (PATH ?)
+     (PACK_TYPE ?)
+     (PART_NUMBER GSB4211311WEU)
+     (Manufacturer "Amphenol Commercial Products"))))
+  (component RES_10K_0402_63mW
+   (place R10800
+    (property 
+     (Tolerance ±5%)
+     (timestamp 00FCD400)
+     ("Source Package" RES_10K_0402_63mW)
+     ("Package " 0805P)
+     (Wattage 0.4W)
+     (Value 620E)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 620 OHM 5% 0.4W 0805")
+     ("PCB Footprint" R0805)
+     ("Part Number" ESR10EZPJ621)
+     ("Part Number " ESR10EZPJ621)
+     (Manufacturer "Rohm Semiconductor")))
+   (place R10801
+    (property 
+     (Tolerance ±1)
+     (timestamp 00FC092B)
+     ("Source Package" RES_10K_0402_63mW)
+     ("Package " 0603P)
+     (Wattage 0.1W)
+     (Value 270E)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 270 OHM 1% 1/10W 0603")
+     ("PCB Footprint" R0603)
+     ("Part Number " "RC0603FR-07270RL")
+     ("Part Number" "RC0603FR-07270RL")
+     (Manufacturer Yageo)))
+   (place R10802
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC09F6)
+     ("Source Package" RES_10K_0402_63mW)
+     ("Package " 0603P)
+     (Wattage 0.1W)
+     (Value 165E)
+     (Description "RES SMD 165 OHM 1% 1/10W 0603")
+     ("Temperature range " "-55°C ~ 125°C")
+     ("PCB Footprint" R0603)
+     ("Part Number" "RC0603FR-07165RL5")
+     ("Part Number " "RC0603FR-07165RL")
+     (Manufacturer Yageo)))
+   (place R10803
+    (property 
+     (Tolerance ±1%)
+     (timestamp 00FC5DE6)
+     ("Source Package" RES_10K_0402_63mW)
+     ("Package " 0603P)
+     (Wattage 0.1W)
+     (Value 165E)
+     (Description "RES SMD 165 OHM 1% 1/10W 0603")
+     ("Temperature range " "-55°C ~ 125°C")
+     ("PCB Footprint" R0603)
+     ("Part Number" "RC0603FR-07165RL5")
+     ("Part Number " "RC0603FR-07165RL")
+     (Manufacturer Yageo)))
+   (place R17
+    (property 
+     (Tolerance ±5%)
+     (timestamp 00FC06EF)
+     ("Source Package" RES_10K_0402_63mW)
+     ("Package " 0402P)
+     (Wattage 63mW)
+     (Value 10K)
+     ("Temperature range " "-55°C ~ 155°C")
+     (Description "RES SMD 10K OHM 5% 1/16W 0402")
+     ("PCB Footprint" R0402)
+     ("Part Number " "RC0402JR-0710KL")
+     ("Part Number" "RC0402JR-0710KL")
+     (Manufacturer Yageo))))
+  (component "87224-3"
+   (place SW11
+    (property 
+     (timestamp 00FC82BA)
+     ("Source Package" "87224-3")
+     (Value "CL-SB-12A-01")
+     (Description: "Slide Switch SPDT Surface Mount")
+     ("PCB Footprint" sw_cl_sb_12a_01)
+     ("Part Number" "CL-SB-12A-01T")
+     (Manufacturer "Copal Electronics Inc.")))
+   (place SW12
+    (property 
+     (timestamp 00FC84A8)
+     ("Source Package" "87224-3")
+     (Value "CL-SB-12A-01")
+     (Description: "Slide Switch SPDT Surface Mount")
+     ("PCB Footprint" sw_cl_sb_12a_01)
+     ("Part Number" "CL-SB-12A-01T")
+     (Manufacturer "Copal Electronics Inc.")))
+   (place SW13
+    (property 
+     (timestamp 00FC85B9)
+     ("Source Package" "87224-3")
+     (Value "CL-SB-12A-01")
+     (Description: "Slide Switch SPDT Surface Mount")
+     ("PCB Footprint" sw_cl_sb_12a_01)
+     ("Part Number" "CL-SB-12A-01T")
+     (Manufacturer "Copal Electronics Inc.")))
+   (place SW14
+    (property 
+     (timestamp 00FC86CC)
+     ("Source Package" "87224-3")
+     (Value "CL-SB-12A-01")
+     (Description: "Slide Switch SPDT Surface Mount")
+     ("PCB Footprint" sw_cl_sb_12a_01)
+     ("Part Number" "CL-SB-12A-01T")
+     (Manufacturer "Copal Electronics Inc.")))
+   (place SW15
+    (property 
+     (timestamp 00FC87E1)
+     ("Source Package" "87224-3")
+     (Value "CL-SB-12A-01")
+     (Description: "Slide Switch SPDT Surface Mount")
+     ("PCB Footprint" sw_cl_sb_12a_01)
+     ("Part Number" "CL-SB-12A-01T")
+     (Manufacturer "Copal Electronics Inc.")))
+   (place SW16
+    (property 
+     (timestamp 00FC88F8)
+     ("Source Package" "87224-3")
+     (Value "CL-SB-12A-01")
+     (Description: "Slide Switch SPDT Surface Mount")
+     ("PCB Footprint" sw_cl_sb_12a_01)
+     ("Part Number" "CL-SB-12A-01T")
+     (Manufacturer "Copal Electronics Inc."))))
+  (component SMDJ36CA
+   (place D10
+    (property 
+     (timestamp 0005B006)
+     ("Source Package" SMDJ36CA)
+     (Value SMDJ16CA)
+     (Description "TVS DIODE 16VWM 26VC SMD")
+     ("PCB Footprint" SMDJ36CA)
+     ("Part Number" SMDJ16CA)
+     (Manufacturer "Littelfuse Inc."))))
+  (component SWITCH_1
+   (place S1
+    (property 
+     (No_Mount "-")
+     (Digikey "679-2428-ND")
+     (timestamp 00FC0661)
+     (Section Config_Switch)
+     ("Source Package" SWITCH_1)
+     (Value SWITCH)
+     (Description "SWITCH TACTILE SPST-NO 0.05A 12V")
+     ("PCB Footprint" SW_MJTP1230)
+     ("Part Number" MJTP1230)
+     (Manufacturer "Apem Inc.")))
+   (place S3
+    (property 
+     (timestamp 00FC1BC8)
+     ("Source Package" SWITCH_1)
+     (Value SWITCH_1)
+     (Description "Toggle Switches SPST .200 BAT")
+     ("PCB Footprint" M2011S2A1W01)
+     ("Part Number" M2011S2A1W01)
+     (Manufacturer "NKK Switches"))))
+  (component PRTR5V0U2X
+   (place U55
+    (property 
+     (No_Mount "-")
+     (Digikey "568-4140-1-ND")
+     (timestamp 00F73878)
+     (Section USB)
+     ("Source Package" PRTR5V0U2X)
+     (Value PRTR5V0U2X)
+     (Description "TVS DIODE 5.5VWM SOT143B")
+     ("PCB Footprint" SOT143B)
+     ("Part Number" PRTR5V0U2X,215)
+     (Manufacturer "NXP Semiconductors"))))
+  (component RCLAMP0524J_0
+   (place U8
+    (property 
+     (timestamp 00FCD2E2)
+     ("Source Package" RCLAMP0524J_0)
+     ("Digi-Key Part Number" "RCLAMP0524JCT-ND")
+     (Value RCLAMP0524J)
+     (Description "TVS DIODE 5VWM 15VC 8SLP")
+     ("PCB Footprint" "SON50P100X270X53-9N")
+     ("Part Number" RCLAMP0524J.TCT)
+     (Manufacturer "Semtech Corporation"))))
+  (component Mounting_Hole_0
+   (place MH1
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC4785)
+     (Section SG1000)
+     ("Source Package" Mounting_Hole_0)
+     (Value Mounting_Hole)
+     ("PCB Footprint" MTG450_900)))
+   (place MH2
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC47B5)
+     (Section SG1000)
+     ("Source Package" Mounting_Hole_0)
+     (Value Mounting_Hole)
+     ("PCB Footprint" MTG450_900)))
+   (place MH3
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC47E7)
+     (Section SG1000)
+     ("Source Package" Mounting_Hole_0)
+     (Value Mounting_Hole)
+     ("PCB Footprint" MTG450_900)))
+   (place MH4
+    (property 
+     (No_Mount "-")
+     (timestamp 00FC481B)
+     (Section SG1000)
+     ("Source Package" Mounting_Hole_0)
+     (Value Mounting_Hole)
+     ("PCB Footprint" MTG450_900)))))
+ (library
+  (image "RES SMD 1K OHM 1% 1/16W 0402"
+   (property 
+    (sourcelib "C:\\OFFICE\\GURU HEGDE\\PROJECTS\\FPGA\\FPGA_DESIGN_LIBRARY\\FPGA_DESIGN_DISCRETES_22JAN\\FPGA_DESIGN_DISCRETES_22JAN.OLB")
+    (Description "RES SMD 1K OHM 1% 1/16W 0402")
+    ("Part Number " "RC0402FR-071KL")
+    (Manufacturer Yageo)
+    ("Package " 0402)
+    (Wattage 0.063W)
+    (Tolerance ±1%)
+    ("Temperature range " "-55°C ~ 155°C"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3P3VD_TIVA)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N16548524)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image CAP_CER_0.1UF_10V_10%_X5R_0402
+   (property 
+    (sourcelib "D:\\OFFICE\\PROJECTS\\BTS BOARD\\SCHEMATIC\\10DEC2015\\BTS BOARD_10DEC2015_1030AM.DSN")
+    (MATERIAL ?)
+    (PACK_TYPE ?)
+    (PART_NUMBER ?)
+    (PATH ?)
+    (SIZE 1B)
+    (TOLERANCE ?)
+    (VOLTAGE ?)
+    (OriginalSymbolOrigin "(-50,50)"))
+   (pin 999 1
+    (property 
+     (pinname A[0])
+     (pintype 1)
+     (Name A[0])
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" 3P3VD_TIVA)
+     (Order 0)
+     ("Is No Connect" False)
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?)))
+   (pin 999 2
+    (property 
+     (pinname B[0])
+     (pintype 1)
+     (Name B[0])
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))))
+  (image RES_10K_0402_63mW
+   (property 
+    (sourcelib C:\\USERS\\GUR39547\\DESKTOP\\RAYAN\\FACEBOOK_DISCRETE_MASTER_27DEC.OLB)
+    (Description "RES SMD 10K OHM 5% 1/16W 0402")
+    ("Part Number " "RC0402JR-0710KL")
+    (Manufacturer Yageo)
+    ("Package " 0402P)
+    (Wattage 63mW)
+    (Tolerance ±5%)
+    ("Temperature range " "-55°C ~ 155°C"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N16517086)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image "87224-4"
+   (property 
+    (sourcelib C:\\USERS\\GUR39561\\DESKTOP\\DATABASE\\26FEB_7PM\\26FEB_7PM\\LIBRARY1.OLB)
+    (Manufacturer "TE Connectivity / AMP")
+    (Description: "Headers & Wire Housings UNSHRD VERT SNGL 3")
+    ("Part Number" "87224-4"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 1)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 1)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" L_TIVA_TRXFECONN_I2C4_SCLK)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 3
+    (property 
+     (pinname 3)
+     (pintype 1)
+     (Name 3)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 4
+    (property 
+     (pinname 4)
+     (pintype 1)
+     (Name 4)
+     (Number 4)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" L_TIVA_TRXFECONN_I2C4_SDA)
+     (Order 3)
+     ("Is No Connect" False))))
+  (image "CAP CER 0.1UF 25V 10% X7R 0402"
+   (property 
+    (sourcelib "C:\\OFFICE\\GURU HEGDE\\PROJECTS\\FPGA\\FPGA_DESIGN_LIBRARY\\FPGA_DESIGN_DISCRETES_22JAN\\FPGA_DESIGN_DISCRETES_22JAN.OLB")
+    ("Temperature Coefficient" X7R)
+    (Description "CAP CER 0.1UF 25V 10% X7R 0402")
+    ("Temperature range" "-55°C ~ 125°C")
+    ("Voltage rating" 25V)
+    (Manufacturer "TDK Corporation")
+    (Package 0402)
+    ("Part Number" C1005X7R1E104K050BB)
+    (Tolerance ±10%))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N16202040)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_USB3_RX0_P)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image RES_100K_0402_63mW
+   (property 
+    (sourcelib C:\\USERS\\GUR39561\\DESKTOP\\RAVI\\LIBRARY\\DESCR\\FB_DISCRETE_21DEC.OLB)
+    ("Temperature range " "-55°C ~ 155°C")
+    (Tolerance ±1%)
+    (Wattage 63mW)
+    ("Package " 0402P)
+    (Manufacturer Yageo)
+    ("Part Number " "RC0402FR-07100KL")
+    (Description "RES SMD 100K OHM 1% 1/16W 0402"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N16549050)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image CAP_CER_0.1uF_0201_16V
+   (property 
+    (sourcelib C:\\USERS\\GUR39547\\DESKTOP\\RAYAN\\FACEBOOK_DISCRETE_MASTER_27DEC.OLB)
+    ("Temperature coefficient" X5R)
+    (Description "CAP CER 0.1UF 16V X5R 0201")
+    ("Part Number " C0603X5R1C104K030BC)
+    (Manufacturer "TDK Corporation")
+    ("Package " 0201P)
+    ("Voltage rating" 16V)
+    ("Tolerance " ±10%)
+    ("Temperature range " "-55°C ~ 85°C"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TRXFE_RESET)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image Mounting_Hole_0
+   (property 
+    (sourcelib "C:\\PROJECTS\\SMART_GATEWAY_CPU_RALINK\\CVS\\HARDWARE\\RELEASE-1\\IMPLEMENTATION\\CPU_BOARD_06-JUNE-13.DSN"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False))))
+  (image RCLAMP0524J_0
+   (property 
+    (sourcelib D:\\ASHU\\REV41\\LIBRARY1.OLB)
+    (Description "TVS DIODE 5VWM 15VC 8SLP")
+    (Manufacturer "Semtech Corporation")
+    ("Digi-Key Part Number" "RCLAMP0524JCT-ND")
+    ("Part Number" RCLAMP0524J.TCT))
+   (pin 999 1
+    (property 
+     (pinname IN_4)
+     (pintype 0)
+     (Name IN_4)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Input)
+     ("Net Name" TRXFE_USB3_TX0_N)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname IN_3)
+     (pintype 0)
+     (Name IN_3)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Input)
+     ("Net Name" TRXFE_USB3_TX0_P)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 3
+    (property 
+     (pinname IN_2)
+     (pintype 0)
+     (Name IN_2)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Input)
+     ("Net Name" N16202078)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 4
+    (property 
+     (pinname IN_1)
+     (pintype 0)
+     (Name IN_1)
+     (Number 4)
+     ("Swap Id" "-1")
+     (Type Input)
+     ("Net Name" N16202040)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 5
+    (property 
+     (pinname OUT_1)
+     (pintype 2)
+     (Name OUT_1)
+     (Number 5)
+     ("Swap Id" "-1")
+     (Type Output)
+     ("Net Name" N16202040)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 6
+    (property 
+     (pinname OUT_2)
+     (pintype 2)
+     (Name OUT_2)
+     (Number 6)
+     ("Swap Id" "-1")
+     (Type Output)
+     ("Net Name" N16202078)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 7
+    (property 
+     (pinname OUT_3)
+     (pintype 2)
+     (Name OUT_3)
+     (Number 7)
+     ("Swap Id" "-1")
+     (Type Output)
+     ("Net Name" TRXFE_USB3_TX0_P)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 8
+    (property 
+     (pinname OUT_4)
+     (pintype 2)
+     (Name OUT_4)
+     (Number 8)
+     ("Swap Id" "-1")
+     (Type Output)
+     ("Net Name" TRXFE_USB3_TX0_N)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 9
+    (property 
+     (pinname GND_1)
+     (pintype 7)
+     (Name GND_1)
+     (Number 9)
+     ("Swap Id" "-1")
+     (Type Power)
+     ("Net Name" GND)
+     (Order 8)
+     ("Is No Connect" False))))
+  (image PRTR5V0U2X
+   (property 
+    (sourcelib "D:\\OFFICE\\PROJECTS\\SMART LOCKER\\LIBRARY\\LIBRARY1.OLB"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" USB_DN0)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 3
+    (property 
+     (pinname 3)
+     (pintype 4)
+     (Name 3)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" USB_DP0)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 4
+    (property 
+     (pinname 4)
+     (pintype 4)
+     (Name 4)
+     (Number 4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 3)
+     ("Is No Connect" True))))
+  (image CONN_USB3A_0
+   (property 
+    (sourcelib C:\\USERS\\SHIVAKUMAR\\DESKTOP\\RAYAN\\FPGA_DESIGN_LIBRARY\\FPGA_DESIGN_ACTIVES_22JAN\\FPGA_DESIGN_ACTIVES_22JAN.OLB)
+    (CDS_LMAN_SYM_OUTLINE "-400,300,400,-300")
+    (MATERIAL ?)
+    (PACK_TYPE ?)
+    (PART_NUMBER ?)
+    (PATH ?)
+    (OriginalSymbolOrigin "(-400,300)")
+    ("Part Number" GSB4211311WEU)
+    (Manufacturer "Amphenol Commercial Products"))
+   (pin 999 1
+    (property 
+     (pinname VBUS)
+     (pintype 7)
+     (Name VBUS)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Power)
+     ("Net Name" 5VD_A)
+     (Order 0)
+     ("Is No Connect" False)
+     (ALLOW_CONNECT TRUE)
+     (NO_ASSERT_CHECK TRUE)
+     (NO_DIR_CHECK TRUE)
+     (NO_IO_CHECK Both)
+     (NO_LOAD_CHECK Both)
+     (PINUSE POWER)
+     (PIN_TEXT VBUS)))
+   (pin 999 2
+    (property 
+     (pinname DN)
+     (pintype 1)
+     (Name DN)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" USB_DN0)
+     (Order 1)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT DN)))
+   (pin 999 3
+    (property 
+     (pinname DP)
+     (pintype 1)
+     (Name DP)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" USB_DP0)
+     (Order 2)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT DP)))
+   (pin 999 4
+    (property 
+     (pinname GND)
+     (pintype 1)
+     (Name GND)
+     (Number 4)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)
+     (ALLOW_CONNECT TRUE)
+     (NO_ASSERT_CHECK TRUE)
+     (NO_DIR_CHECK TRUE)
+     (NO_IO_CHECK Both)
+     (NO_LOAD_CHECK Both)
+     (PINUSE GROUND)
+     (PIN_TEXT GND)))
+   (pin 999 5
+    (property 
+     (pinname SSTXN)
+     (pintype 1)
+     (Name SSTXN)
+     (Number 5)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" N16202078)
+     (Order 4)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSRXN)))
+   (pin 999 6
+    (property 
+     (pinname SSTXP)
+     (pintype 1)
+     (Name SSTXP)
+     (Number 6)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" N16202040)
+     (Order 5)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSRXP)))
+   (pin 999 7
+    (property 
+     (pinname GND_DRAIN)
+     (pintype 1)
+     (Name GND_DRAIN)
+     (Number 7)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" False)
+     (ALLOW_CONNECT TRUE)
+     (NO_ASSERT_CHECK TRUE)
+     (NO_DIR_CHECK TRUE)
+     (NO_IO_CHECK Both)
+     (NO_LOAD_CHECK Both)
+     (PINUSE GROUND)
+     (PIN_TEXT GND_DRAIN)))
+   (pin 999 8
+    (property 
+     (pinname SSRXN)
+     (pintype 1)
+     (Name SSRXN)
+     (Number 8)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" TRXFE_USB3_TX0_N)
+     (Order 7)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSTXN)))
+   (pin 999 9
+    (property 
+     (pinname SSRXP)
+     (pintype 1)
+     (Name SSRXP)
+     (Number 9)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" TRXFE_USB3_TX0_P)
+     (Order 8)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSTXP)))
+   (pin 999 SH1
+    (property 
+     (pinname SH1)
+     (pintype 1)
+     (Name SH1)
+     (Number SH1)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 9)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (PIN_TEXT DN)
+     (OUTPUT_LOAD "(1.0,-1.0)")))
+   (pin 999 SH2
+    (property 
+     (pinname SH2)
+     (pintype 1)
+     (Name SH2)
+     (Number SH2)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" GND)
+     (Order 10)
+     ("Is No Connect" False)
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (PIN_TEXT DN)
+     (OUTPUT_LOAD "(1.0,-1.0)"))))
+  (image CON8
+   (property 
+    (sourcelib C:\\ORCADWIN\\KANDINSKY\\KANDINSKY.OLB))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 3
+    (property 
+     (pinname 3)
+     (pintype 4)
+     (Name 3)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 4
+    (property 
+     (pinname 4)
+     (pintype 4)
+     (Name 4)
+     (Number 4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 5
+    (property 
+     (pinname 5)
+     (pintype 4)
+     (Name 5)
+     (Number 5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 6
+    (property 
+     (pinname 6)
+     (pintype 4)
+     (Name 6)
+     (Number 6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 7
+    (property 
+     (pinname 7)
+     (pintype 4)
+     (Name 7)
+     (Number 7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 8
+    (property 
+     (pinname 8)
+     (pintype 4)
+     (Name 8)
+     (Number 8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False))))
+  (image LED_wp117
+   (property 
+    (sourcelib "D:\\OFFICE\\PROJECTS\\SMART LOCKER\\16.2\\SMART_LOCKER.OLB"))
+   (pin 999 A
+    (property 
+     (pinname A)
+     (pintype 4)
+     (Name A)
+     (Number A)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N16517086)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 K
+    (property 
+     (pinname K)
+     (pintype 4)
+     (Name K)
+     (Number K)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image Header_1X2
+   (property 
+    (sourcelib "C:\\USERS\\GUR39550\\DESKTOP\\PHASE2\\LIBRARY1 (1)\\TEMP.OLB")
+    (Description "Header 1X2; TH")
+    (Manufacturer "Tyco Electronics")
+    ("Part Number" "826926-2")
+    (Package "TH 1X2")
+    (No_Mount "-"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N372718)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image SWITCH_1
+   (property 
+    (sourcelib "C:\\OFFICE\\GURU HEGDE\\PROJECTS\\BTS BOARD\\SCHEMATIC\\22JAN2016\\GSM_BTS_22JAN_2016_430PM.DSN"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TRXFE_RESET)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 3
+    (property 
+     (pinname 3)
+     (pintype 4)
+     (Name 3)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TRXFE_RESET)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 4
+    (property 
+     (pinname 4)
+     (pintype 4)
+     (Name 4)
+     (Number 4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False))))
+  (image "DIODE_SCHOTTKY_30V_0.2A SOD523"
+   (property 
+    (sourcelib "D:\\OFFICE\\PROJECTS\\SMART LOCKER\\16.2\\SMART_LOCKER.OLB")
+    ("Part Number" PMEG3002AEB,115)
+    (Manufacturer "NXP Semiconductors")
+    (Description "DIODE SCHOTTKY 30V 0.2A SOD523"))
+   (pin 999 A
+    (property 
+     (pinname A)
+     (pintype 4)
+     (Name A)
+     (Number A)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TRXFE_RESET)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 K
+    (property 
+     (pinname K)
+     (pintype 4)
+     (Name K)
+     (Number K)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image SMDJ36CA
+   (property 
+    (sourcelib C:\\USERS\\GUR39550\\DESKTOP\\PHASE2\\LIBRARY1\\LIBRARY1.OLB))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 4)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N372718)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 4)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image BZX84C3V0/SOT_3
+   (property 
+    (sourcelib "D:\\JOBS\\ARICENT\\RF_FPGA\\SCHEM\\20160202\\INTEGRATED_RADIO SCHEMATIC_02FEB_0108PM.DSN"))
+   (pin 999 1
+    (property 
+     (pinname ANODE)
+     (pintype 4)
+     (Name ANODE)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N372718)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname CATHODE)
+     (pintype 4)
+     (Name CATHODE)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PWR_IN_12V)
+     (Order 1)
+     ("Is No Connect" False))))
+  (image "HDAF-11-18-S-13-2"
+   (property 
+    (sourcelib "C:\\OFFICE\\GURU HEGDE\\PROJECTS\\BTS BOARD\\LIBRARY\\CONNECT1.OLB"))
+   (pin 999 A1
+    (property 
+     (pinname A1)
+     (pintype 4)
+     (Name A1)
+     (Number A1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 A2
+    (property 
+     (pinname A2)
+     (pintype 4)
+     (Name A2)
+     (Number A2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 2G_SIM_PRESENCE)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 A3
+    (property 
+     (pinname A3)
+     (pintype 4)
+     (Name A3)
+     (Number A3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 A4
+    (property 
+     (pinname A4)
+     (pintype 4)
+     (Name A4)
+     (Number A4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TIVA_MODULE_UART1_RIN)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 A5
+    (property 
+     (pinname A5)
+     (pintype 4)
+     (Name A5)
+     (Number A5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 A6
+    (property 
+     (pinname A6)
+     (pintype 4)
+     (Name A6)
+     (Number A6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TIVA_MODULE_UART1_RXD)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 A7
+    (property 
+     (pinname A7)
+     (pintype 4)
+     (Name A7)
+     (Number A7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 A8
+    (property 
+     (pinname A8)
+     (pintype 4)
+     (Name A8)
+     (Number A8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TIVA_MODULE_UART1_RTS)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 A9
+    (property 
+     (pinname A9)
+     (pintype 4)
+     (Name A9)
+     (Number A9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 A10
+    (property 
+     (pinname A10)
+     (pintype 4)
+     (Name A10)
+     (Number A10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TIVA_MODULE_UART1_TXD)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 A11
+    (property 
+     (pinname A11)
+     (pintype 4)
+     (Name A11)
+     (Number A11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TIVA_MODULE_UART1_CTS)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 B1
+    (property 
+     (pinname B1)
+     (pintype 4)
+     (Name B1)
+     (Number B1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 0)
+     ("Is No Connect" True)))
+   (pin 999 B2
+    (property 
+     (pinname B2)
+     (pintype 4)
+     (Name B2)
+     (Number B2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 B3
+    (property 
+     (pinname B3)
+     (pintype 4)
+     (Name B3)
+     (Number B3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 2)
+     ("Is No Connect" True)))
+   (pin 999 B4
+    (property 
+     (pinname B4)
+     (pintype 4)
+     (Name B4)
+     (Number B4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 B5
+    (property 
+     (pinname B5)
+     (pintype 4)
+     (Name B5)
+     (Number B5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 4)
+     ("Is No Connect" True)))
+   (pin 999 B6
+    (property 
+     (pinname B6)
+     (pintype 4)
+     (Name B6)
+     (Number B6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 B7
+    (property 
+     (pinname B7)
+     (pintype 4)
+     (Name B7)
+     (Number B7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 6)
+     ("Is No Connect" True)))
+   (pin 999 B8
+    (property 
+     (pinname B8)
+     (pintype 4)
+     (Name B8)
+     (Number B8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 B9
+    (property 
+     (pinname B9)
+     (pintype 4)
+     (Name B9)
+     (Number B9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TIVA_TRXFECONN_I2C4_SCLK)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 B10
+    (property 
+     (pinname B10)
+     (pintype 4)
+     (Name B10)
+     (Number B10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 B11
+    (property 
+     (pinname B11)
+     (pintype 4)
+     (Name B11)
+     (Number B11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" ISO_SOC_TRXFE_GPIO5)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 C1
+    (property 
+     (pinname C1)
+     (pintype 4)
+     (Name C1)
+     (Number C1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 0)
+     ("Is No Connect" True)))
+   (pin 999 C2
+    (property 
+     (pinname C2)
+     (pintype 4)
+     (Name C2)
+     (Number C2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 C3
+    (property 
+     (pinname C3)
+     (pintype 4)
+     (Name C3)
+     (Number C3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 2)
+     ("Is No Connect" True)))
+   (pin 999 C4
+    (property 
+     (pinname C4)
+     (pintype 4)
+     (Name C4)
+     (Number C4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 C5
+    (property 
+     (pinname C5)
+     (pintype 4)
+     (Name C5)
+     (Number C5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 4)
+     ("Is No Connect" True)))
+   (pin 999 C6
+    (property 
+     (pinname C6)
+     (pintype 4)
+     (Name C6)
+     (Number C6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 C7
+    (property 
+     (pinname C7)
+     (pintype 4)
+     (Name C7)
+     (Number C7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 6)
+     ("Is No Connect" True)))
+   (pin 999 C8
+    (property 
+     (pinname C8)
+     (pintype 4)
+     (Name C8)
+     (Number C8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 C9
+    (property 
+     (pinname C9)
+     (pintype 4)
+     (Name C9)
+     (Number C9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TIVA_TRXFECONN_I2C4_SDA)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 C10
+    (property 
+     (pinname C10)
+     (pintype 4)
+     (Name C10)
+     (Number C10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 C11
+    (property 
+     (pinname C11)
+     (pintype 4)
+     (Name C11)
+     (Number C11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" ISO_SOC_TRXFE_GPIO6)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 D1
+    (property 
+     (pinname D1)
+     (pintype 4)
+     (Name D1)
+     (Number D1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 D2
+    (property 
+     (pinname D2)
+     (pintype 4)
+     (Name D2)
+     (Number D2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 D3
+    (property 
+     (pinname D3)
+     (pintype 4)
+     (Name D3)
+     (Number D3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 D4
+    (property 
+     (pinname D4)
+     (pintype 4)
+     (Name D4)
+     (Number D4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 D5
+    (property 
+     (pinname D5)
+     (pintype 4)
+     (Name D5)
+     (Number D5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 D6
+    (property 
+     (pinname D6)
+     (pintype 4)
+     (Name D6)
+     (Number D6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 D7
+    (property 
+     (pinname D7)
+     (pintype 4)
+     (Name D7)
+     (Number D7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 D8
+    (property 
+     (pinname D8)
+     (pintype 4)
+     (Name D8)
+     (Number D8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 D9
+    (property 
+     (pinname D9)
+     (pintype 4)
+     (Name D9)
+     (Number D9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 D10
+    (property 
+     (pinname D10)
+     (pintype 4)
+     (Name D10)
+     (Number D10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 D11
+    (property 
+     (pinname D11)
+     (pintype 4)
+     (Name D11)
+     (Number D11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 E1
+    (property 
+     (pinname E1)
+     (pintype 4)
+     (Name E1)
+     (Number E1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N370055)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 E2
+    (property 
+     (pinname E2)
+     (pintype 4)
+     (Name E2)
+     (Number E2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 E3
+    (property 
+     (pinname E3)
+     (pintype 4)
+     (Name E3)
+     (Number E3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_USB3_TX0_P)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 E4
+    (property 
+     (pinname E4)
+     (pintype 4)
+     (Name E4)
+     (Number E4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 E5
+    (property 
+     (pinname E5)
+     (pintype 4)
+     (Name E5)
+     (Number E5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" USB_DP0)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 E6
+    (property 
+     (pinname E6)
+     (pintype 4)
+     (Name E6)
+     (Number E6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 E7
+    (property 
+     (pinname E7)
+     (pintype 4)
+     (Name E7)
+     (Number E7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TIVA_TRXFECONN_I2C2_SCLK)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 E8
+    (property 
+     (pinname E8)
+     (pintype 4)
+     (Name E8)
+     (Number E8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 E9
+    (property 
+     (pinname E9)
+     (pintype 4)
+     (Name E9)
+     (Number E9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TIVA_TRXFECONN_I2C3_SCLK)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 E10
+    (property 
+     (pinname E10)
+     (pintype 4)
+     (Name E10)
+     (Number E10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TRXFE_RESET)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 E11
+    (property 
+     (pinname E11)
+     (pintype 4)
+     (Name E11)
+     (Number E11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" SYNC_INT#)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 F1
+    (property 
+     (pinname F1)
+     (pintype 4)
+     (Name F1)
+     (Number F1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" N370013)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 F2
+    (property 
+     (pinname F2)
+     (pintype 4)
+     (Name F2)
+     (Number F2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 F3
+    (property 
+     (pinname F3)
+     (pintype 4)
+     (Name F3)
+     (Number F3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_USB3_TX0_N)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 F4
+    (property 
+     (pinname F4)
+     (pintype 4)
+     (Name F4)
+     (Number F4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 F5
+    (property 
+     (pinname F5)
+     (pintype 4)
+     (Name F5)
+     (Number F5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" USB_DN0)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 F6
+    (property 
+     (pinname F6)
+     (pintype 4)
+     (Name F6)
+     (Number F6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 F7
+    (property 
+     (pinname F7)
+     (pintype 4)
+     (Name F7)
+     (Number F7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TIVA_TRXFECONN_I2C2_SDA)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 F8
+    (property 
+     (pinname F8)
+     (pintype 4)
+     (Name F8)
+     (Number F8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 F9
+    (property 
+     (pinname F9)
+     (pintype 4)
+     (Name F9)
+     (Number F9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" L_TIVA_TRXFECONN_I2C3_SDA)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 F10
+    (property 
+     (pinname F10)
+     (pintype 4)
+     (Name F10)
+     (Number F10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 F11
+    (property 
+     (pinname F11)
+     (pintype 4)
+     (Name F11)
+     (Number F11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 SH1
+    (property 
+     (pinname SH1)
+     (pintype 4)
+     (Name SH1)
+     (Number SH1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 11)
+     ("Is No Connect" True)))
+   (pin 999 SH2
+    (property 
+     (pinname SH2)
+     (pintype 4)
+     (Name SH2)
+     (Number SH2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 12)
+     ("Is No Connect" True)))
+   (pin 999 SH3
+    (property 
+     (pinname SH3)
+     (pintype 4)
+     (Name SH3)
+     (Number SH3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 13)
+     ("Is No Connect" True)))
+   (pin 999 SH4
+    (property 
+     (pinname SH4)
+     (pintype 4)
+     (Name SH4)
+     (Number SH4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 14)
+     ("Is No Connect" True)))
+   (pin 999 G1
+    (property 
+     (pinname G1)
+     (pintype 4)
+     (Name G1)
+     (Number G1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 G2
+    (property 
+     (pinname G2)
+     (pintype 4)
+     (Name G2)
+     (Number G2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 G3
+    (property 
+     (pinname G3)
+     (pintype 4)
+     (Name G3)
+     (Number G3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 G4
+    (property 
+     (pinname G4)
+     (pintype 4)
+     (Name G4)
+     (Number G4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 G5
+    (property 
+     (pinname G5)
+     (pintype 4)
+     (Name G5)
+     (Number G5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 G6
+    (property 
+     (pinname G6)
+     (pintype 4)
+     (Name G6)
+     (Number G6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 G7
+    (property 
+     (pinname G7)
+     (pintype 4)
+     (Name G7)
+     (Number G7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 G8
+    (property 
+     (pinname G8)
+     (pintype 4)
+     (Name G8)
+     (Number G8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 G9
+    (property 
+     (pinname G9)
+     (pintype 4)
+     (Name G9)
+     (Number G9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 G10
+    (property 
+     (pinname G10)
+     (pintype 4)
+     (Name G10)
+     (Number G10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 9)
+     ("Is No Connect" True)))
+   (pin 999 G11
+    (property 
+     (pinname G11)
+     (pintype 4)
+     (Name G11)
+     (Number G11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 10)
+     ("Is No Connect" True)))
+   (pin 999 H1
+    (property 
+     (pinname H1)
+     (pintype 4)
+     (Name H1)
+     (Number H1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" SDR_TEMP_CS_ALERT)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 H2
+    (property 
+     (pinname H2)
+     (pintype 4)
+     (Name H2)
+     (Number H2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" RF_TEMP_CS_ALERT)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 H3
+    (property 
+     (pinname H3)
+     (pintype 4)
+     (Name H3)
+     (Number H3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3P3VD_TIVA)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 H4
+    (property 
+     (pinname H4)
+     (pintype 4)
+     (Name H4)
+     (Number H4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3P3VD_TIVA)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 H5
+    (property 
+     (pinname H5)
+     (pintype 4)
+     (Name H5)
+     (Number H5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3P3VD_TIVA)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 H6
+    (property 
+     (pinname H6)
+     (pintype 4)
+     (Name H6)
+     (Number H6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3P3VD_TIVA)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 H7
+    (property 
+     (pinname H7)
+     (pintype 4)
+     (Name H7)
+     (Number H7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" SDR_TEMP_THERM)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 H8
+    (property 
+     (pinname H8)
+     (pintype 4)
+     (Name H8)
+     (Number H8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" FE_12V_PWR_CTRL)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 H9
+    (property 
+     (pinname H9)
+     (pintype 4)
+     (Name H9)
+     (Number H9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 2G_MODULE_POWER_OFF)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 H10
+    (property 
+     (pinname H10)
+     (pintype 4)
+     (Name H10)
+     (Number H10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 H11
+    (property 
+     (pinname H11)
+     (pintype 4)
+     (Name H11)
+     (Number H11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 I1
+    (property 
+     (pinname I1)
+     (pintype 4)
+     (Name I1)
+     (Number I1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 I2
+    (property 
+     (pinname I2)
+     (pintype 4)
+     (Name I2)
+     (Number I2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 I3
+    (property 
+     (pinname I3)
+     (pintype 4)
+     (Name I3)
+     (Number I3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TIVA_2G_MODULE_POWER_ON)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 I4
+    (property 
+     (pinname I4)
+     (pintype 4)
+     (Name I4)
+     (Number I4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 3)
+     ("Is No Connect" True)))
+   (pin 999 I5
+    (property 
+     (pinname I5)
+     (pintype 4)
+     (Name I5)
+     (Number I5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 4)
+     ("Is No Connect" True)))
+   (pin 999 I6
+    (property 
+     (pinname I6)
+     (pintype 4)
+     (Name I6)
+     (Number I6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 I7
+    (property 
+     (pinname I7)
+     (pintype 4)
+     (Name I7)
+     (Number I7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 I8
+    (property 
+     (pinname I8)
+     (pintype 4)
+     (Name I8)
+     (Number I8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 I9
+    (property 
+     (pinname I9)
+     (pintype 4)
+     (Name I9)
+     (Number I9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 8)
+     ("Is No Connect" True)))
+   (pin 999 I10
+    (property 
+     (pinname I10)
+     (pintype 4)
+     (Name I10)
+     (Number I10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 I11
+    (property 
+     (pinname I11)
+     (pintype 4)
+     (Name I11)
+     (Number I11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 J1
+    (property 
+     (pinname J1)
+     (pintype 4)
+     (Name J1)
+     (Number J1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" SDR_RESET_IN)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 J2
+    (property 
+     (pinname J2)
+     (pintype 4)
+     (Name J2)
+     (Number J2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" SDR_REG_LDO_PGOOD)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 J3
+    (property 
+     (pinname J3)
+     (pintype 4)
+     (Name J3)
+     (Number J3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 2)
+     ("Is No Connect" True)))
+   (pin 999 J4
+    (property 
+     (pinname J4)
+     (pintype 4)
+     (Name J4)
+     (Number J4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" IRQ_INT)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 J5
+    (property 
+     (pinname J5)
+     (pintype 4)
+     (Name J5)
+     (Number J5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" SYNC_RESET)
+     (Order 4)
+     ("Is No Connect" False)))
+   (pin 999 J6
+    (property 
+     (pinname J6)
+     (pintype 4)
+     (Name J6)
+     (Number J6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 J7
+    (property 
+     (pinname J7)
+     (pintype 4)
+     (Name J7)
+     (Number J7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 J8
+    (property 
+     (pinname J8)
+     (pintype 4)
+     (Name J8)
+     (Number J8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" 3.3VD_TRXFE)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 J9
+    (property 
+     (pinname J9)
+     (pintype 4)
+     (Name J9)
+     (Number J9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" RF_FE_IO_RESET)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 J10
+    (property 
+     (pinname J10)
+     (pintype 4)
+     (Name J10)
+     (Number J10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 J11
+    (property 
+     (pinname J11)
+     (pintype 4)
+     (Name J11)
+     (Number J11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 K1
+    (property 
+     (pinname K1)
+     (pintype 4)
+     (Name K1)
+     (Number K1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" RF_PGOOD_LDO)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 K2
+    (property 
+     (pinname K2)
+     (pintype 4)
+     (Name K2)
+     (Number K2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" WTDG_SYS_ALERT)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 K3
+    (property 
+     (pinname K3)
+     (pintype 4)
+     (Name K3)
+     (Number K3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" UART_RX)
+     (Order 2)
+     ("Is No Connect" False)))
+   (pin 999 K4
+    (property 
+     (pinname K4)
+     (pintype 4)
+     (Name K4)
+     (Number K4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 3)
+     ("Is No Connect" True)))
+   (pin 999 K5
+    (property 
+     (pinname K5)
+     (pintype 4)
+     (Name K5)
+     (Number K5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 4)
+     ("Is No Connect" True)))
+   (pin 999 K6
+    (property 
+     (pinname K6)
+     (pintype 4)
+     (Name K6)
+     (Number K6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 5)
+     ("Is No Connect" True)))
+   (pin 999 K7
+    (property 
+     (pinname K7)
+     (pintype 4)
+     (Name K7)
+     (Number K7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" I2C_SDA)
+     (Order 6)
+     ("Is No Connect" False)))
+   (pin 999 K8
+    (property 
+     (pinname K8)
+     (pintype 4)
+     (Name K8)
+     (Number K8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 7)
+     ("Is No Connect" True)))
+   (pin 999 K9
+    (property 
+     (pinname K9)
+     (pintype 4)
+     (Name K9)
+     (Number K9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" I2C_SCL)
+     (Order 8)
+     ("Is No Connect" False)))
+   (pin 999 K10
+    (property 
+     (pinname K10)
+     (pintype 4)
+     (Name K10)
+     (Number K10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 9)
+     ("Is No Connect" False)))
+   (pin 999 K11
+    (property 
+     (pinname K11)
+     (pintype 4)
+     (Name K11)
+     (Number K11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" TRXFE_IN_12V)
+     (Order 10)
+     ("Is No Connect" False)))
+   (pin 999 L1
+    (property 
+     (pinname L1)
+     (pintype 4)
+     (Name L1)
+     (Number L1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" ISO_SOC_TRXFE_GPIO1)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 L2
+    (property 
+     (pinname L2)
+     (pintype 4)
+     (Name L2)
+     (Number L2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" ISO_SOC_TRXFE_GPIO2)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 L3
+    (property 
+     (pinname L3)
+     (pintype 4)
+     (Name L3)
+     (Number L3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 2)
+     ("Is No Connect" True)))
+   (pin 999 L4
+    (property 
+     (pinname L4)
+     (pintype 4)
+     (Name L4)
+     (Number L4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PCIE0_TXP)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 L5
+    (property 
+     (pinname L5)
+     (pintype 4)
+     (Name L5)
+     (Number L5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 4)
+     ("Is No Connect" True)))
+   (pin 999 L6
+    (property 
+     (pinname L6)
+     (pintype 4)
+     (Name L6)
+     (Number L6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PCIE0_RXP)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 L7
+    (property 
+     (pinname L7)
+     (pintype 4)
+     (Name L7)
+     (Number L7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" True)))
+   (pin 999 L8
+    (property 
+     (pinname L8)
+     (pintype 4)
+     (Name L8)
+     (Number L8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PCIE0_GBE_CLKP)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 L9
+    (property 
+     (pinname L9)
+     (pintype 4)
+     (Name L9)
+     (Number L9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 8)
+     ("Is No Connect" True)))
+   (pin 999 L10
+    (property 
+     (pinname L10)
+     (pintype 4)
+     (Name L10)
+     (Number L10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 9)
+     ("Is No Connect" True)))
+   (pin 999 L11
+    (property 
+     (pinname L11)
+     (pintype 4)
+     (Name L11)
+     (Number L11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 10)
+     ("Is No Connect" True)))
+   (pin 999 M1
+    (property 
+     (pinname M1)
+     (pintype 4)
+     (Name M1)
+     (Number M1)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" ISO_SOC_TRXFE_GPIO3)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 M2
+    (property 
+     (pinname M2)
+     (pintype 4)
+     (Name M2)
+     (Number M2)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" ISO_SOC_TRXFE_GPIO4)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 M3
+    (property 
+     (pinname M3)
+     (pintype 4)
+     (Name M3)
+     (Number M3)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 2)
+     ("Is No Connect" True)))
+   (pin 999 M4
+    (property 
+     (pinname M4)
+     (pintype 4)
+     (Name M4)
+     (Number M4)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PCIE0_TXN)
+     (Order 3)
+     ("Is No Connect" False)))
+   (pin 999 M5
+    (property 
+     (pinname M5)
+     (pintype 4)
+     (Name M5)
+     (Number M5)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 4)
+     ("Is No Connect" True)))
+   (pin 999 M6
+    (property 
+     (pinname M6)
+     (pintype 4)
+     (Name M6)
+     (Number M6)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PCIE0_RXN)
+     (Order 5)
+     ("Is No Connect" False)))
+   (pin 999 M7
+    (property 
+     (pinname M7)
+     (pintype 4)
+     (Name M7)
+     (Number M7)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 6)
+     ("Is No Connect" True)))
+   (pin 999 M8
+    (property 
+     (pinname M8)
+     (pintype 4)
+     (Name M8)
+     (Number M8)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" PCIE0_GBE_CLKN)
+     (Order 7)
+     ("Is No Connect" False)))
+   (pin 999 M9
+    (property 
+     (pinname M9)
+     (pintype 4)
+     (Name M9)
+     (Number M9)
+     ("Swap Id" "-1")
+     (Type Passive)
+     ("Net Name" GND)
+     (Order 8)
+     ("Is No Connect" True)))
+   (pin 999 M10
+    (property 
+     (pinname M10)
+     (pintype 4)
+     (Name M10)
+     (Number M10)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 9)
+     ("Is No Connect" True)))
+   (pin 999 M11
+    (property 
+     (pinname M11)
+     (pintype 4)
+     (Name M11)
+     (Number M11)
+     ("Swap Id" "-1")
+     (Type Passive)
+     (Order 10)
+     ("Is No Connect" True))))
+  (image "87224-3"
+   (property 
+    (sourcelib C:\\USERS\\SHIVAKUMAR\\DESKTOP\\RAYAN\\FPGA_DESIGN_LIBRARY\\FPGA_DESIGN_ACTIVES_22JAN\\FPGA_DESIGN_ACTIVES_22JAN.OLB)
+    (Manufacturer "TE Connectivity / AMP")
+    (Description: "Headers & Wire Housings UNSHRD VERT SNGL 3")
+    ("Part Number" "87224-3"))
+   (pin 999 1
+    (property 
+     (pinname 1)
+     (pintype 1)
+     (Name 1)
+     (Number 1)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" N16548556)
+     (Order 0)
+     ("Is No Connect" False)))
+   (pin 999 2
+    (property 
+     (pinname 2)
+     (pintype 1)
+     (Name 2)
+     (Number 2)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" 2G_MODULE_POWER_OFF)
+     (Order 1)
+     ("Is No Connect" False)))
+   (pin 999 3
+    (property 
+     (pinname 3)
+     (pintype 1)
+     (Name 3)
+     (Number 3)
+     ("Swap Id" "-1")
+     (Type Bidirectional)
+     ("Net Name" N16548524)
+     (Order 2)
+     ("Is No Connect" False)))))
+ (network
+  (net 2G_MODULE_POWER_OFF
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{72}))
+   (pins
+     J113-H9 SW11-2))
+  (net 2G_SIM_PRESENCE
+    (property 
+     (CDS_LIB standard)
+     (PATH I133))
+   (pins
+     J113-A2 J3312-1))
+  (net 3.3VD_TRXFE
+    (property 
+     (nettype S))
+   (pins
+     J113-J6 J113-J7 J113-J8 J113-I6 J113-I7 J113-I8 C1902-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C1900-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     J12-1 J12-2 J12-3 J12-4 C1990-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     D10088-K R17-1 R10802-1 R10806-1 R10808-1))
+  (net 3P3VD_TIVA
+    (property 
+     (nettype S))
+   (pins
+     J113-H3 J113-H4 J113-H5 J113-H6 R10803-1 C4459-1 C4460-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     JP4-1 R197-1 R10804-1 R10810-1 R10812-1))
+  (net 5VD_A
+    (property 
+     (nettype S))
+   (pins
+     C4348-1 J4P1-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_ASSERT_CHECK TRUE)
+     (NO_DIR_CHECK TRUE)
+     (NO_IO_CHECK Both)
+     (NO_LOAD_CHECK Both)
+     (PINUSE POWER)
+     (PIN_TEXT VBUS))
+     R10801-1))
+  (net FE_12V_PWR_CTRL
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{72}))
+   (pins
+     J113-H8 SW12-2))
+  (net GND
+    (property 
+     (nettype S)
+     (CDS_LIB lf_dwg_sym)
+     (SIZE 1B)
+     (PATH I424))
+   (pins
+     J113-F2 J113-F4 J113-F6 J113-F8 J113-F10 J113-F11 J113-G1 J113-G2 J113-G3
+     J113-G4 J113-G5 J113-G6 J113-G7 J113-G8 J113-G9 J113-C2 J113-C4 J113-C6
+     J113-C8 J113-C10 J113-I1 J113-I2 C1901-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C1904-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C1902-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     J113-B2 J113-B4 J113-B6 J113-B8 J113-B10 J113-L3 J113-L5 J113-L7 J113-L9
+     J113-L10 J113-K4 J113-K6 J113-K8 J113-M3 J113-M5 J113-M7 J113-M9 C1900-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C1880-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     J113-E2 J113-E4 J113-E6 J113-E8 J113-A1 J113-A3 J113-A5 J113-A7 J113-A9
+     C1903-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     J113-D1 J113-D2 J113-D3 J113-D4 J113-D5 J113-D6 J113-D7 J113-D8 J113-D9
+     J113-D10 J113-D11 D10-2 JP3-2 J12-5 J12-6 J12-7 J12-8 C1990-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     U55-1 C4348-2 J4P1-4
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_ASSERT_CHECK TRUE)
+     (NO_DIR_CHECK TRUE)
+     (NO_IO_CHECK Both)
+     (NO_LOAD_CHECK Both)
+     (PINUSE GROUND)
+     (PIN_TEXT GND))
+     J4P1-7
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_ASSERT_CHECK TRUE)
+     (NO_DIR_CHECK TRUE)
+     (NO_IO_CHECK Both)
+     (NO_LOAD_CHECK Both)
+     (PINUSE GROUND)
+     (PIN_TEXT GND_DRAIN))
+     J4P1-SH1
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (PIN_TEXT DN)
+     (OUTPUT_LOAD "(1.0,-1.0)"))
+     J4P1-SH2
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (PIN_TEXT DN)
+     (OUTPUT_LOAD "(1.0,-1.0)"))
+     J3308-1 J3308-3 J3309-1 J3309-3 J3310-1 J3310-3 C20-2 S1-3 S1-4
+     D10126-K D10127-K D10128-K C4349-2 J1-4 J1-7 J2-5 J2-8 MH1-1
+     MH2-1 MH3-1 MH4-1 J3311-1 J3311-3 D10129-K C4459-2 C4460-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     JP4-2 R200-2 R10805-2 R10807-2 R10809-2 R10811-2 R10813-2 J3312-3 J3312-7
+     J3313-1 J3313-4 J3313-7 J3313-8 J3314-1 J3314-4 J3314-8 U8-9))
+  (net I2C_SCL
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-K9 J3311-2))
+  (net I2C_SDA
+    (property 
+     (CDS_LIB standard)
+     (PATH I49))
+   (pins
+     J113-K7 J3311-4))
+  (net IRQ_INT
+    (property 
+     (CDS_LIB standard)
+     (PATH I234)
+     (IREF P{82}))
+   (pins
+     J113-J4 J3314-5))
+  (net ISO_SOC_TRXFE_GPIO1
+    (property 
+     (CDS_LIB standard)
+     (PATH I49)
+     (IREF P{84}))
+   (pins
+     J113-L1 J1-1))
+  (net ISO_SOC_TRXFE_GPIO2
+    (property 
+     (CDS_LIB standard)
+     (PATH I49)
+     (IREF P{84}))
+   (pins
+     J113-L2 J1-8))
+  (net ISO_SOC_TRXFE_GPIO3
+    (property 
+     (CDS_LIB standard)
+     (PATH I49)
+     (IREF P{84}))
+   (pins
+     J113-M1 J1-5))
+  (net ISO_SOC_TRXFE_GPIO4
+    (property 
+     (CDS_LIB standard)
+     (PATH I49)
+     (IREF P{84}))
+   (pins
+     J113-M2 J1-2))
+  (net ISO_SOC_TRXFE_GPIO5
+    (property 
+     (CDS_LIB standard)
+     (PATH I49))
+   (pins
+     J113-B11 J1-3))
+  (net ISO_SOC_TRXFE_GPIO6
+    (property 
+     (CDS_LIB standard)
+     (PATH I49))
+   (pins
+     J113-C11 J1-6))
+  (net L_TIVA_TRXFECONN_I2C2_SCLK
+    (property 
+     (CDS_LIB standard)
+     (PATH I70)
+     (IREF P{73}))
+   (pins
+     J113-E7 J3309-2))
+  (net L_TIVA_TRXFECONN_I2C2_SDA
+    (property 
+     (CDS_LIB standard)
+     (PATH I70)
+     (IREF P{73}))
+   (pins
+     J113-F7 J3309-4))
+  (net L_TIVA_TRXFECONN_I2C3_SCLK
+    (property 
+     (CDS_LIB standard)
+     (PATH I70)
+     (IREF P{73}))
+   (pins
+     J113-E9 J3310-2))
+  (net L_TIVA_TRXFECONN_I2C3_SDA
+    (property 
+     (CDS_LIB standard)
+     (PATH I70)
+     (IREF P{73}))
+   (pins
+     J113-F9 J3310-4))
+  (net L_TIVA_TRXFECONN_I2C4_SCLK
+    (property 
+     (CDS_LIB standard)
+     (PATH I70)
+     (IREF P{73}))
+   (pins
+     J113-B9 J3308-2))
+  (net L_TIVA_TRXFECONN_I2C4_SDA
+    (property 
+     (CDS_LIB standard)
+     (PATH I70)
+     (IREF P{73}))
+   (pins
+     J113-C9 J3308-4))
+  (net L_TRXFE_RESET
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{82}))
+   (pins
+     J113-E10 C20-1 D10088-A R17-2 S1-1 S1-2))
+  (net N16202040
+   (pins
+     C2132-1 J4P1-6
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSRXP))
+     U8-4 U8-5))
+  (net N16202078
+   (pins
+     C2133-1 J4P1-5
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSRXN))
+     U8-3 U8-6))
+  (net N16517086
+   (pins
+     D10126-A R10800-2))
+  (net N16517385
+   (pins
+     R10801-2 D10127-A))
+  (net N16517588
+   (pins
+     R10802-2 D10128-A))
+  (net N16539124
+   (pins
+     R10803-2 D10129-A))
+  (net N16548524
+   (pins
+     R197-2 SW11-3))
+  (net N16548556
+   (pins
+     SW11-1 R200-1))
+  (net N16549018
+   (pins
+     R10804-2 SW12-3))
+  (net N16549050
+   (pins
+     R10805-1 SW12-1))
+  (net N16549291
+   (pins
+     R10806-2 SW13-3))
+  (net N16549323
+   (pins
+     R10807-1 SW13-1))
+  (net N16549566
+   (pins
+     SW14-3 R10808-2))
+  (net N16549598
+   (pins
+     SW14-1 R10809-1))
+  (net N16549843
+   (pins
+     R10810-2 SW15-3))
+  (net N16549875
+   (pins
+     R10811-1 SW15-1))
+  (net N16550122
+   (pins
+     R10812-2 SW16-3))
+  (net N16550154
+   (pins
+     R10813-1 SW16-1))
+  (net N370013
+   (pins
+     J113-F1 C1988-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))))
+  (net N370055
+   (pins
+     J113-E1 C1989-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))))
+  (net N372718
+   (pins
+     D5-1 D10-1 JP3-1))
+  (net PCIE0_GBE_CLKN
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-M8 J3313-5))
+  (net PCIE0_GBE_CLKP
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-L8 J3313-6))
+  (net PCIE0_RXN
+    (property 
+     (CDS_LIB standard)
+     (PATH I27)
+     (IREF P[8]))
+   (pins
+     J113-M6 J3314-2))
+  (net PCIE0_RXP
+    (property 
+     (CDS_LIB standard)
+     (PATH I27)
+     (IREF P[8]))
+   (pins
+     J113-L6 J3314-3))
+  (net PCIE0_TXN
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-M4 J3313-3))
+  (net PCIE0_TXP
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-L4 J3313-2))
+  (net PWR_IN_12V
+    (property 
+     (nettype S))
+   (pins
+     D5-2 C4349-1 S3-2))
+  (net RF_FE_IO_RESET
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{72}))
+   (pins
+     J113-J9 SW14-2))
+  (net RF_PGOOD_LDO
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-K1 J2-2))
+  (net RF_TEMP_CS_ALERT
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-H2 J2-7))
+  (net SDR_REG_LDO_PGOOD
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-J2 J2-1))
+  (net SDR_RESET_IN
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{72}))
+   (pins
+     J113-J1 SW13-2))
+  (net SDR_TEMP_CS_ALERT
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-H1 J2-6))
+  (net SDR_TEMP_THERM
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-H7 J2-3))
+  (net SYNC_INT#
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{82}))
+   (pins
+     J113-E11 J3314-6))
+  (net SYNC_RESET
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{72}))
+   (pins
+     J113-J5 SW15-2))
+  (net TIVA_2G_MODULE_POWER_ON
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P{72}))
+   (pins
+     J113-I3 SW16-2))
+  (net TIVA_MODULE_UART1_CTS
+    (property 
+     (CDS_LIB standard)
+     (PATH I133))
+   (pins
+     J113-A11 J3312-8))
+  (net TIVA_MODULE_UART1_RIN
+    (property 
+     (CDS_LIB standard)
+     (PATH I133))
+   (pins
+     J113-A4 J3312-2))
+  (net TIVA_MODULE_UART1_RTS
+    (property 
+     (CDS_LIB standard)
+     (PATH I234))
+   (pins
+     J113-A8 J3312-6))
+  (net TIVA_MODULE_UART1_RXD
+    (property 
+     (CDS_LIB standard)
+     (PATH I133))
+   (pins
+     J113-A6 J3312-4))
+  (net TIVA_MODULE_UART1_TXD
+    (property 
+     (CDS_LIB standard)
+     (PATH I234))
+   (pins
+     J113-A10 J3312-5))
+  (net TRXFE_IN_12V
+    (property 
+     (nettype S))
+   (pins
+     J113-J10 J113-J11 J113-I10 J113-I11 C1901-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C1904-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     J113-H10 J113-H11 J113-K10 J113-K11 C1880-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C1903-1
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     S3-3 R10800-1))
+  (net TRXFE_USB3_RX0_N
+    (property 
+     (CDS_LIB standard)
+     (CDS_PHYS_NET_NAME USB3_RX0_N)
+     (PATH I49)
+     (IREF P{85}))
+   (pins
+     C1989-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C2133-2))
+  (net TRXFE_USB3_RX0_P
+    (property 
+     (CDS_LIB standard)
+     (CDS_PHYS_NET_NAME USB3_RX0_P)
+     (PATH I49)
+     (IREF P{85}))
+   (pins
+     C1988-2
+    (property 
+     (ALLOW_CONNECT TRUE)
+     (NO_IO_CHECK BOTH)
+     (NO_LOAD_CHECK BOTH)
+     (PIN_GROUP 1)
+     (PIN_TYPE ANALOG)
+     (PN ?))
+     C2132-2))
+  (net TRXFE_USB3_TX0_N
+    (property 
+     (CDS_LIB standard)
+     (CDS_PHYS_NET_NAME USB3_TX0_N)
+     (PATH I1)
+     (IREF P{82}))
+   (pins
+     J113-F3 J4P1-8
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSTXN))
+     U8-1 U8-8))
+  (net TRXFE_USB3_TX0_P
+    (property 
+     (CDS_LIB standard)
+     (CDS_PHYS_NET_NAME USB3_TX0_P)
+     (PATH I1)
+     (IREF P{82}))
+   (pins
+     J113-E3 J4P1-9
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT SSTXP))
+     U8-2 U8-7))
+  (net UART_RX
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-K3 J3314-7))
+  (net USB_DN0
+    (property 
+     (CDS_LIB standard)
+     (CDS_PHYS_NET_NAME USB_DN0)
+     (PATH I136)
+     (IREF P[18]))
+   (pins
+     J113-F5 U55-2 J4P1-2
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT DN))))
+  (net USB_DP0
+    (property 
+     (CDS_LIB standard)
+     (CDS_PHYS_NET_NAME USB_DP0)
+     (PATH I137)
+     (IREF P[18]))
+   (pins
+     J113-E5 U55-3 J4P1-3
+    (property 
+     (BIDIRECTIONAL TRUE)
+     (INPUT_LOAD "(-0.01,0.01)")
+     (OUTPUT_LOAD "(1.0,-1.0)")
+     (PIN_TEXT DP))))
+  (net WTDG_SYS_ALERT
+    (property 
+     (CDS_LIB standard)
+     (PATH I1)
+     (IREF P[8]))
+   (pins
+     J113-K2 J2-4)))
+)

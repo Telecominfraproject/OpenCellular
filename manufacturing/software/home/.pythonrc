@@ -1,0 +1,3 @@
+import readline
+readline.parse_and_bind("set disable-completion on")
+readline.parse_and_bind("tab: self-insert")

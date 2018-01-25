@@ -1,0 +1,476 @@
+.HEA
+.APP "Cadstar RINF Output - Version 2.3"
+.UNI INCH 1000.0 in
+.TYP FULL 
+.JOB "OC_CONNECT_1_BRKOUT_BRD"
+
+.ADD_COM C1880 "cc0402"
+.ADD_COM C1900 "cc0402"
+.ADD_COM C1901 "cc0402"
+.ADD_COM C1902 "cc0402"
+.ADD_COM C1903 "cc0402"
+.ADD_COM C1904 "cc0402"
+.ADD_COM C1988 "cc0402"
+.ADD_COM C1989 "cc0402"
+.ADD_COM C1990 "cc0402"
+.ADD_COM C20 "C0402"
+.ADD_COM C2132 "C0402"
+.ADD_COM C2133 "C0402"
+.ADD_COM C4348 "C0402"
+.ADD_COM C4349 "C1206"
+.ADD_COM C4459 "C0603"
+.ADD_COM C4460 "cc0402"
+.ADD_COM D10 "SMDJ36CA"
+.ADD_COM D10088 "SODFL3517X110N_NXP_AEE"
+.ADD_COM D10126 "LED_LTST-C190"
+.ADD_COM D10127 "LED_LTST-C190"
+.ADD_COM D10128 "LED_LTST-C190"
+.ADD_COM D10129 "LED_LTST-C190"
+.ADD_COM D5 "B530C_13_F"
+.ADD_COM J1 "CA-S40-24B-44_8"
+.ADD_COM J113 "SAMTEC_HDAF-11-18P0-S-13-2"
+.ADD_COM J12 "CA-S40-24B-44_8"
+.ADD_COM J2 "CA-S40-24B-44_8"
+.ADD_COM J3308 "HEADER_04X01_254"
+.ADD_COM J3309 "HEADER_04X01_254"
+.ADD_COM J3310 "HEADER_04X01_254"
+.ADD_COM J3311 "HEADER_04X01_254"
+.ADD_COM J3312 "CA-S40-24B-44_8"
+.ADD_COM J3313 "CA-S40-24B-44_8"
+.ADD_COM J3314 "CA-S40-24B-44_8"
+.ADD_COM J4P1 "AMPHENOL_GSB4211311WEU"
+.ADD_COM JP3 "1758759"
+.ADD_COM JP4 "1758759"
+.ADD_COM MH1 "MTG450_900"
+.ADD_COM MH2 "MTG450_900"
+.ADD_COM MH3 "MTG450_900"
+.ADD_COM MH4 "MTG450_900"
+.ADD_COM R10800 "R0805"
+.ADD_COM R10801 "R0603"
+.ADD_COM R10802 "R0603"
+.ADD_COM R10803 "R0603"
+.ADD_COM R10804 "R0402"
+.ADD_COM R10805 "R0402"
+.ADD_COM R10806 "R0402"
+.ADD_COM R10807 "R0402"
+.ADD_COM R10808 "R0402"
+.ADD_COM R10809 "R0402"
+.ADD_COM R10810 "R0402"
+.ADD_COM R10811 "R0402"
+.ADD_COM R10812 "R0402"
+.ADD_COM R10813 "R0402"
+.ADD_COM R17 "R0402"
+.ADD_COM R197 "R0402"
+.ADD_COM R200 "R0402"
+.ADD_COM S1 "SW_MJTP1230"
+.ADD_COM S3 "M2011S2A1W01"
+.ADD_COM SW11 "sw_cl_sb_12a_01"
+.ADD_COM SW12 "sw_cl_sb_12a_01"
+.ADD_COM SW13 "sw_cl_sb_12a_01"
+.ADD_COM SW14 "sw_cl_sb_12a_01"
+.ADD_COM SW15 "sw_cl_sb_12a_01"
+.ADD_COM SW16 "sw_cl_sb_12a_01"
+.ADD_COM U55 "SOT143B"
+.ADD_COM U8 "SON50P100X270X53-9N"
+
+
+.ADD_TER  J113 H9 "2G_MODULE_POWER_OFF"
+.TER      SW11 2 
+
+.ADD_TER  J113 A2 "2G_SIM_PRESENCE"
+.TER      J3312 1 
+
+.ADD_TER  J113 J6 "3.3VD_TRXFE"
+.TER      J113 J7 
+          J113 J8 
+          J113 I6 
+          J113 I7 
+          J113 I8 
+          C1902 1 
+          C1900 1 
+          J12 1 
+          J12 2 
+          J12 3 
+          J12 4 
+          C1990 1 
+          D10088 K 
+          R17 1 
+          R10802 1 
+          R10806 1 
+          R10808 1 
+
+.ADD_TER  J113 H3 "3P3VD_TIVA"
+.TER      J113 H4 
+          J113 H5 
+          J113 H6 
+          R10803 1 
+          C4459 1 
+          C4460 1 
+          JP4 1 
+          R197 1 
+          R10804 1 
+          R10810 1 
+          R10812 1 
+
+.ADD_TER  C4348 1 "5VD_A"
+.TER      J4P1 1 
+          R10801 1 
+
+.ADD_TER  J113 H8 "FE_12V_PWR_CTRL"
+.TER      SW12 2 
+
+.ADD_TER  J113 F2 "GND"
+.TER      J113 F4 
+          J113 F6 
+          J113 F8 
+          J113 F10 
+          J113 F11 
+          J113 G1 
+          J113 G2 
+          J113 G3 
+          J113 G4 
+          J113 G5 
+          J113 G6 
+          J113 G7 
+          J113 G8 
+          J113 G9 
+          J113 C2 
+          J113 C4 
+          J113 C6 
+          J113 C8 
+          J113 C10 
+          J113 I1 
+          J113 I2 
+          C1901 2 
+          C1904 2 
+          C1902 2 
+          J113 B2 
+          J113 B4 
+          J113 B6 
+          J113 B8 
+          J113 B10 
+          J113 L3 
+          J113 L5 
+          J113 L7 
+          J113 L9 
+          J113 L10 
+          J113 K4 
+          J113 K6 
+          J113 K8 
+          J113 M3 
+          J113 M5 
+          J113 M7 
+          J113 M9 
+          C1900 2 
+          C1880 2 
+          J113 E2 
+          J113 E4 
+          J113 E6 
+          J113 E8 
+          J113 A1 
+          J113 A3 
+          J113 A5 
+          J113 A7 
+          J113 A9 
+          C1903 2 
+          J113 D1 
+          J113 D2 
+          J113 D3 
+          J113 D4 
+          J113 D5 
+          J113 D6 
+          J113 D7 
+          J113 D8 
+          J113 D9 
+          J113 D10 
+          J113 D11 
+          D10 2 
+          JP3 2 
+          J12 5 
+          J12 6 
+          J12 7 
+          J12 8 
+          C1990 2 
+          U55 1 
+          C4348 2 
+          J4P1 4 
+          J4P1 7 
+          J4P1 SH1 
+          J4P1 SH2 
+          J3308 1 
+          J3308 3 
+          J3309 1 
+          J3309 3 
+          J3310 1 
+          J3310 3 
+          C20 2 
+          S1 3 
+          S1 4 
+          D10126 K 
+          D10127 K 
+          D10128 K 
+          C4349 2 
+          J1 4 
+          J1 7 
+          J2 5 
+          J2 8 
+          MH1 1 
+          MH2 1 
+          MH3 1 
+          MH4 1 
+          J3311 1 
+          J3311 3 
+          D10129 K 
+          C4459 2 
+          C4460 2 
+          JP4 2 
+          R200 2 
+          R10805 2 
+          R10807 2 
+          R10809 2 
+          R10811 2 
+          R10813 2 
+          J3312 3 
+          J3312 7 
+          J3313 1 
+          J3313 4 
+          J3313 7 
+          J3313 8 
+          J3314 1 
+          J3314 4 
+          J3314 8 
+          U8 9 
+
+.ADD_TER  J113 K9 "I2C_SCL"
+.TER      J3311 2 
+
+.ADD_TER  J113 K7 "I2C_SDA"
+.TER      J3311 4 
+
+.ADD_TER  J113 J4 "IRQ_INT"
+.TER      J3314 5 
+
+.ADD_TER  J113 L1 "ISO_SOC_TRXFE_GPIO1"
+.TER      J1 1 
+
+.ADD_TER  J113 L2 "ISO_SOC_TRXFE_GPIO2"
+.TER      J1 8 
+
+.ADD_TER  J113 M1 "ISO_SOC_TRXFE_GPIO3"
+.TER      J1 5 
+
+.ADD_TER  J113 M2 "ISO_SOC_TRXFE_GPIO4"
+.TER      J1 2 
+
+.ADD_TER  J113 B11 "ISO_SOC_TRXFE_GPIO5"
+.TER      J1 3 
+
+.ADD_TER  J113 C11 "ISO_SOC_TRXFE_GPIO6"
+.TER      J1 6 
+
+.ADD_TER  J113 E7 "L_TIVA_TRXFECONN_I2C2_SCLK"
+.TER      J3309 2 
+
+.ADD_TER  J113 F7 "L_TIVA_TRXFECONN_I2C2_SDA"
+.TER      J3309 4 
+
+.ADD_TER  J113 E9 "L_TIVA_TRXFECONN_I2C3_SCLK"
+.TER      J3310 2 
+
+.ADD_TER  J113 F9 "L_TIVA_TRXFECONN_I2C3_SDA"
+.TER      J3310 4 
+
+.ADD_TER  J113 B9 "L_TIVA_TRXFECONN_I2C4_SCLK"
+.TER      J3308 2 
+
+.ADD_TER  J113 C9 "L_TIVA_TRXFECONN_I2C4_SDA"
+.TER      J3308 4 
+
+.ADD_TER  J113 E10 "L_TRXFE_RESET"
+.TER      C20 1 
+          D10088 A 
+          R17 2 
+          S1 1 
+          S1 2 
+
+.ADD_TER  C2132 1 "N16202040"
+.TER      J4P1 6 
+          U8 4 
+          U8 5 
+
+.ADD_TER  C2133 1 "N16202078"
+.TER      J4P1 5 
+          U8 3 
+          U8 6 
+
+.ADD_TER  D10126 A "N16517086"
+.TER      R10800 2 
+
+.ADD_TER  R10801 2 "N16517385"
+.TER      D10127 A 
+
+.ADD_TER  R10802 2 "N16517588"
+.TER      D10128 A 
+
+.ADD_TER  R10803 2 "N16539124"
+.TER      D10129 A 
+
+.ADD_TER  R197 2 "N16548524"
+.TER      SW11 3 
+
+.ADD_TER  SW11 1 "N16548556"
+.TER      R200 1 
+
+.ADD_TER  R10804 2 "N16549018"
+.TER      SW12 3 
+
+.ADD_TER  R10805 1 "N16549050"
+.TER      SW12 1 
+
+.ADD_TER  R10806 2 "N16549291"
+.TER      SW13 3 
+
+.ADD_TER  R10807 1 "N16549323"
+.TER      SW13 1 
+
+.ADD_TER  SW14 3 "N16549566"
+.TER      R10808 2 
+
+.ADD_TER  SW14 1 "N16549598"
+.TER      R10809 1 
+
+.ADD_TER  R10810 2 "N16549843"
+.TER      SW15 3 
+
+.ADD_TER  R10811 1 "N16549875"
+.TER      SW15 1 
+
+.ADD_TER  R10812 2 "N16550122"
+.TER      SW16 3 
+
+.ADD_TER  R10813 1 "N16550154"
+.TER      SW16 1 
+
+.ADD_TER  J113 F1 "N370013"
+.TER      C1988 1 
+
+.ADD_TER  J113 E1 "N370055"
+.TER      C1989 1 
+
+.ADD_TER  D5 1 "N372718"
+.TER      D10 1 
+          JP3 1 
+
+.ADD_TER  J113 M8 "PCIE0_GBE_CLKN"
+.TER      J3313 5 
+
+.ADD_TER  J113 L8 "PCIE0_GBE_CLKP"
+.TER      J3313 6 
+
+.ADD_TER  J113 M6 "PCIE0_RXN"
+.TER      J3314 2 
+
+.ADD_TER  J113 L6 "PCIE0_RXP"
+.TER      J3314 3 
+
+.ADD_TER  J113 M4 "PCIE0_TXN"
+.TER      J3313 3 
+
+.ADD_TER  J113 L4 "PCIE0_TXP"
+.TER      J3313 2 
+
+.ADD_TER  D5 2 "PWR_IN_12V"
+.TER      C4349 1 
+          S3 2 
+
+.ADD_TER  J113 J9 "RF_FE_IO_RESET"
+.TER      SW14 2 
+
+.ADD_TER  J113 K1 "RF_PGOOD_LDO"
+.TER      J2 2 
+
+.ADD_TER  J113 H2 "RF_TEMP_CS_ALERT"
+.TER      J2 7 
+
+.ADD_TER  J113 J2 "SDR_REG_LDO_PGOOD"
+.TER      J2 1 
+
+.ADD_TER  J113 J1 "SDR_RESET_IN"
+.TER      SW13 2 
+
+.ADD_TER  J113 H1 "SDR_TEMP_CS_ALERT"
+.TER      J2 6 
+
+.ADD_TER  J113 H7 "SDR_TEMP_THERM"
+.TER      J2 3 
+
+.ADD_TER  J113 E11 "SYNC_INT#"
+.TER      J3314 6 
+
+.ADD_TER  J113 J5 "SYNC_RESET"
+.TER      SW15 2 
+
+.ADD_TER  J113 I3 "TIVA_2G_MODULE_POWER_ON"
+.TER      SW16 2 
+
+.ADD_TER  J113 A11 "TIVA_MODULE_UART1_CTS"
+.TER      J3312 8 
+
+.ADD_TER  J113 A4 "TIVA_MODULE_UART1_RIN"
+.TER      J3312 2 
+
+.ADD_TER  J113 A8 "TIVA_MODULE_UART1_RTS"
+.TER      J3312 6 
+
+.ADD_TER  J113 A6 "TIVA_MODULE_UART1_RXD"
+.TER      J3312 4 
+
+.ADD_TER  J113 A10 "TIVA_MODULE_UART1_TXD"
+.TER      J3312 5 
+
+.ADD_TER  J113 J10 "TRXFE_IN_12V"
+.TER      J113 J11 
+          J113 I10 
+          J113 I11 
+          C1901 1 
+          C1904 1 
+          J113 H10 
+          J113 H11 
+          J113 K10 
+          J113 K11 
+          C1880 1 
+          C1903 1 
+          S3 3 
+          R10800 1 
+
+.ADD_TER  C1989 2 "TRXFE_USB3_RX0_N"
+.TER      C2133 2 
+
+.ADD_TER  C1988 2 "TRXFE_USB3_RX0_P"
+.TER      C2132 2 
+
+.ADD_TER  J113 F3 "TRXFE_USB3_TX0_N"
+.TER      J4P1 8 
+          U8 1 
+          U8 8 
+
+.ADD_TER  J113 E3 "TRXFE_USB3_TX0_P"
+.TER      J4P1 9 
+          U8 2 
+          U8 7 
+
+.ADD_TER  J113 K3 "UART_RX"
+.TER      J3314 7 
+
+.ADD_TER  J113 F5 "USB_DN0"
+.TER      U55 2 
+          J4P1 2 
+
+.ADD_TER  J113 E5 "USB_DP0"
+.TER      U55 3 
+          J4P1 3 
+
+.ADD_TER  J113 K2 "WTDG_SYS_ALERT"
+.TER      J2 4 
+
+.END

@@ -1,0 +1,35 @@
+INFO: Loaded existing device file 'D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3_BOARD\OC_CONNECT_1_SDR_LIFE-3_BOARD\devices.dml'
+INFO: Finished loading SigNoise device libraries
+INFO: Loaded existing interconnect file 'D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3_BOARD\OC_CONNECT_1_SDR_LIFE-3_BOARD\interconn.iml'
+INFO: Loaded existing interconnect file 'C:\Cadence\SPB_16.6\share\pcb\signal\cds_interconn.iml'
+INFO: Finished loading SigNoise interconnect libraries
+INFO: Field Solver bem2d for STL_1S_1R_15114
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatn00860.in" 0.00127
+INFO: Field Solver bem2d for STL_1S_1R_15115
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaato00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15116
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatp00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15117
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatq00860.in" 0.00127
+INFO: Field Solver bem2d for STL_1S_1R_15118
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatr00860.in" 0.00127
+INFO: Field Solver bem2d for STL_1S_1R_15119
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaats00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15120
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatt00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15121
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatu00860.in" 0.00127
+INFO: Field Solver bem2d for STL_1S_1R_15122
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatv00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15123
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatw00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15124
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatx00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15125
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaaty00860.in" 0.00127
+INFO: Field Solver bem2d for STL_2S_1R_15126
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaatz00860.in" 0.00127
+INFO: Field Solver bem2d for STL_1S_1R_15127
+INFO: Executing command: bem2d 0 "C:/Users/bgh44456.AD/AppData/Local/Temp/#Taaaaua00860.in" 0.00127
+INFO: Loaded existing device file 'D:\DINESH\DESIGN\PROJECT\OC_CONNECT-1_RF_SDR_LIFE-3_Digital\WORK\20170116\OC_CONNECT_1_SDR_LIFE-3_BOARD\OC_CONNECT_1_SDR_LIFE-3_BOARD\devices.dml'
+INFO: Finished loading SigNoise device libraries

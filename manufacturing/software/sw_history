@@ -1,0 +1,54 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: sw_history
+#
+#	Print out the software installation history.
+#
+
+use strict;
+my $Fn	= '/usr/local/tmp/.sw_history';
+
+if (-f $Fn)	{
+	open(my $fh, '<', $Fn) or die "Cannot read $Fn: $!.\n";
+	while (<$fh>)	{
+		print;
+	}
+	close $fh;
+	exit 0;
+}
+else	{
+	print "No $Fn.\n";
+	exit 12;
+}
+
+__END__
+
+=head1 NAME
+
+sw_history - Print out fbt(1) installation history.
+
+=head1 SYNOPSIS
+
+sw_history
+
+=head1 DESCRIPTION
+
+The sw_history(1) program simply prints the contents 
+of the I</usr/local/tmp/.sw_history> file to STDOUT.
+
+Each time the fbt(1) project is updated, an entry is 
+made in the I</usr/local/tmp/.sw_history> file 
+that contains the software version and the date 
+and time it was installed.
+
+=head1 FILES
+
+/usr/local/tmp/.sw_history -- History file.

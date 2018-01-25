@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w 
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#
+#	File: gui_launch
+#
+#	This program will place the gui for fbt(1) on the favorites of
+#	the launcher.
+#
+
+use strict;
+use File::Basename;
+my $Fn	= "/usr/share/applications/fbt_gui.desktop";
+my $Pg	= "/usr/bin/gsettings";
+my @Arg	= qw/com.canonical.Unity.Launcher favorites/;
+my $Txt;
+die "Cannot find desktop file.\n" unless (desktop_in_place($Fn));
+
+exit 1 unless (defined ($Txt = in_favorites($Fn)));
+
+put_in_favorites($Fn, $Txt);
+exit 0;
+
+sub desktop_in_place	{
+	my $fn	= shift;
+	return (-e $fn);
+}
+
+sub in_favorites	{
+	my $fn	= shift;
+	my $pn	= "$Pg get @Arg";
+	my $txt	= `$pn`;
+	my @prt	= fileparse($fn);
+	my $bfn = $prt[0];
+	return if ($txt =~ m/$bfn/);
+	$txt	=~ s/\]/, \'$bfn\'\]/;
+	return $txt;
+}
+
+sub put_in_favorites	{
+	my $fn	= shift;
+	my $txt	= shift;
+	my $pn	= "$Pg set @Arg \"$txt\"";
+	system($pn);
+	die "$pn had an error: $!.\n" if ($? >> 8);
+}

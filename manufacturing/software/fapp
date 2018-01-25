@@ -1,0 +1,52 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: fapp
+#
+#	This little program moves from the flash drive Sanmina
+#	a file by the name of fb_apps to /usr/local/tmp.
+#	Once in place, the mode is changed to +x and it is run.
+#	After successful completion, the Sanmina drive is unmounted.
+#
+use strict;
+use File::Copy;
+use Term::ANSIColor;
+
+die "Must be root to run.\n" unless ($> == 0);
+my $Mp		= "/media/rdlab/Sanmina";
+my $Fn		= 'fb_apps';
+my $Ffn		= "$Mp/$Fn";
+my $Tdir	= '/usr/local/tmp';
+my $Tfn		= "$Tdir/$Fn";
+die "I cannot find $Ffn.\n" unless (-e $Ffn);
+print "Found $Ffn " . color('green') . 'ok' . color('reset') . ".\n";
+
+unlink $Tfn if (-e $Tfn);
+die "I need directory $Tdir.\n" unless (-d $Tdir);
+move($Ffn, $Tfn);
+print "Moved $Ffn to $Tfn " . color('green') . 'ok' . color('reset') . ".\n";
+
+die "Could not chmod +x on $Tfn.\n" unless ((chmod 0755, $Tfn));
+my $Pid	= fork;
+if ($Pid)	{
+	my $txt		= "Installing ... ";
+	syswrite(STDOUT, $txt, length($txt));
+	waitpid($Pid, 0);
+	if (my $err = $? >> 8)	{
+		my $ftxt	= color('red') . 'Failure' . color('reset');
+		die "\n$ftxt with $Tfn, exit code $err.\n";
+	}
+	else	{
+		print color('green') . 'ok' . color('reset') . ".\n";
+	}
+}
+else	{
+	exec($Tfn);
+}

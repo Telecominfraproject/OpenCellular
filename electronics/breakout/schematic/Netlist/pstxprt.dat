@@ -1,0 +1,774 @@
+FILE_TYPE = EXPANDEDPARTLIST;
+{ Using PSTWRITER 17.2.0 d001Jan-05-2017 at 15:40:50 }
+DIRECTIVES
+ PST_VERSION='PST_HDL_CENTRIC_VERSION_0';
+ ROOT_DRAWING='OC_CONNECT_1_BRKOUT_BRD';
+ POST_TIME='Mar  2 2016 00:37:24';
+ SOURCE_TOOL='CAPTURE_WRITER';
+END_DIRECTIVES;
+
+PART_NAME
+ C1880 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370699@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370699@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370699@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1900 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371169@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371169@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371169@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1901 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371305@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371305@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371305@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1902 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370563@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370563@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370563@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1903 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371133@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371133@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371133@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1904 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371089@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371089@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371089@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1988 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS369979@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins369979@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins369979@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1989 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370021@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370021@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370021@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C1990 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS14646867@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins14646867@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins14646867@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C20 'CAP_CER_0.1UF_0201_16V_C0402_0.':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16516711@FACEBOOK_DISCRETE_MASTER_27DEC.CAP_CER_0.1UF_0201_16V.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16516711@facebook_discrete_master_27dec.\cap_cer_0.1uf_0201_16v.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16516711@facebook_discrete_master_27dec.\cap_cer_0.1uf_0201_16v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2132 'CAP CER 0.1UF 25V 10% X7R 0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16202042@FPGA_DESIGN_DISCRETES_22JAN.CAP CER 0.1UF 25V 10% X7R 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16202042@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16202042@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C2133 'CAP CER 0.1UF 25V 10% X7R 0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16202080@FPGA_DESIGN_DISCRETES_22JAN.CAP CER 0.1UF 25V 10% X7R 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16202080@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16202080@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4348 'CAP CER 0.1UF 25V 10% X7R 0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16202256@FPGA_DESIGN_DISCRETES_22JAN.CAP CER 0.1UF 25V 10% X7R 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16202256@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16202256@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4349 'CAP_CER_0.1UF_0201_16V_C1206_10':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16519336@FACEBOOK_DISCRETE_MASTER_27DEC.CAP_CER_0.1UF_0201_16V.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16519336@facebook_discrete_master_27dec.\cap_cer_0.1uf_0201_16v.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16519336@facebook_discrete_master_27dec.\cap_cer_0.1uf_0201_16v.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4459 'CAP CER 0.1UF 25V 10% X7R 040_1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16540667@FPGA_DESIGN_DISCRETES_22JAN.CAP CER 0.1UF 25V 10% X7R 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16540667@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins16540667@fpga_design_discretes_22jan.\cap cer 0.1uf 25v 10% x7r 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ C4460 'CAP_CER_0.1UF_10V_10%_X5R_0402_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16541574@BTS BOARD_10DEC2015_1030AM.CAP_CER_0.1UF_10V_10%_X5R_0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16541574@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16541574@\bts board_10dec2015_1030am\.\cap_cer_0.1uf_10v_10%_x5r_0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10 'SMDJ36CA_SMDJ36CA_SMDJ16CA':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS372732@LIBRARY1.SMDJ36CA.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins372732@library1.\smdj36ca.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins372732@library1.\smdj36ca.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10088 'DIODE_SCHOTTKY_30V_0.2A SOD523_':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16516859@SMART_LOCKER.DIODE_SCHOTTKY_30V_0.2A SOD523.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16516859@smart_locker.\diode_schottky_30v_0.2a sod523.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16516859@smart_locker.\diode_schottky_30v_0.2a sod523.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10126 'LED_WP117_LED_LTST-C190_LED':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16517068@SMART_LOCKER.LED_WP117.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16517068@smart_locker.\led_wp117.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16517068@smart_locker.\led_wp117.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10127 'LED_WP117_LED_LTST-C190_LED':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16517387@SMART_LOCKER.LED_WP117.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16517387@smart_locker.\led_wp117.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16517387@smart_locker.\led_wp117.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10128 'LED_WP117_LED_LTST-C190_LED':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16517590@SMART_LOCKER.LED_WP117.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16517590@smart_locker.\led_wp117.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16517590@smart_locker.\led_wp117.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D10129 'LED_WP117_LED_LTST-C190_LED':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16539126@SMART_LOCKER.LED_WP117.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16539126@smart_locker.\led_wp117.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16539126@smart_locker.\led_wp117.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ D5 'BZX84C3V0/SOT_3_B530C_13_F_B530':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS372772@INTEGRATED_RADIO SCHEMATIC_02FEB_0108PM.BZX84C3V0/SOT_3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins372772@\integrated_radio schematic_02feb_0108pm\.\bzx84c3v0/sot_3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins372772@\integrated_radio schematic_02feb_0108pm\.\bzx84c3v0/sot_3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J1 'CON8_CA-S40-24B-44_8_CON8':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16520318@KANDINSKY.CON8.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16520318@kandinsky.\con8.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16520318@kandinsky.\con8.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J113 'HDAF-11-18-S-13-2_SAMTEC_HDAF-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370661@CONNECT1.HDAF-11-18-S-13-2A.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370661@connect1.\hdaf-11-18-s-13-2a.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370661@connect1.\hdaf-11-18-s-13-2a.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='A';
+
+SECTION_NUMBER 2
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370769@CONNECT1.HDAF-11-18-S-13-2B.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370769@connect1.\hdaf-11-18-s-13-2b.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370769@connect1.\hdaf-11-18-s-13-2b.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='B';
+
+SECTION_NUMBER 3
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370987@CONNECT1.HDAF-11-18-S-13-2C.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370987@connect1.\hdaf-11-18-s-13-2c.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370987@connect1.\hdaf-11-18-s-13-2c.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='C';
+
+SECTION_NUMBER 4
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370815@CONNECT1.HDAF-11-18-S-13-2D.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370815@connect1.\hdaf-11-18-s-13-2d.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370815@connect1.\hdaf-11-18-s-13-2d.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='D';
+
+SECTION_NUMBER 5
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371411@CONNECT1.HDAF-11-18-S-13-2E.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371411@connect1.\hdaf-11-18-s-13-2e.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371411@connect1.\hdaf-11-18-s-13-2e.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='E';
+
+SECTION_NUMBER 6
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370925@CONNECT1.HDAF-11-18-S-13-2F.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370925@connect1.\hdaf-11-18-s-13-2f.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370925@connect1.\hdaf-11-18-s-13-2f.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='F';
+
+SECTION_NUMBER 7
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371221@CONNECT1.HDAF-11-18-S-13-2G.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371221@connect1.\hdaf-11-18-s-13-2g.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371221@connect1.\hdaf-11-18-s-13-2g.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='G';
+
+SECTION_NUMBER 8
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371031@CONNECT1.HDAF-11-18-S-13-2H.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371031@connect1.\hdaf-11-18-s-13-2h.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371031@connect1.\hdaf-11-18-s-13-2h.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='H';
+
+SECTION_NUMBER 9
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370867@CONNECT1.HDAF-11-18-S-13-2I.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370867@connect1.\hdaf-11-18-s-13-2i.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370867@connect1.\hdaf-11-18-s-13-2i.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='I';
+
+SECTION_NUMBER 10
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370735@CONNECT1.HDAF-11-18-S-13-2J.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370735@connect1.\hdaf-11-18-s-13-2j.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370735@connect1.\hdaf-11-18-s-13-2j.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='J';
+
+SECTION_NUMBER 11
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371267@CONNECT1.HDAF-11-18-S-13-2K.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371267@connect1.\hdaf-11-18-s-13-2k.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371267@connect1.\hdaf-11-18-s-13-2k.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='K';
+
+SECTION_NUMBER 12
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS370627@CONNECT1.HDAF-11-18-S-13-2L.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins370627@connect1.\hdaf-11-18-s-13-2l.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins370627@connect1.\hdaf-11-18-s-13-2l.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='L';
+
+SECTION_NUMBER 13
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS371345@CONNECT1.HDAF-11-18-S-13-2M.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins371345@connect1.\hdaf-11-18-s-13-2m.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page1_ins371345@connect1.\hdaf-11-18-s-13-2m.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='M';
+
+PART_NAME
+ J12 'CON8_CA-S40-24B-44_8_CON8':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS14646713@KANDINSKY.CON8.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins14646713@kandinsky.\con8.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins14646713@kandinsky.\con8.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J2 'CON8_CA-S40-24B-44_8_CON8':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16520346@KANDINSKY.CON8.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16520346@kandinsky.\con8.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16520346@kandinsky.\con8.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3308 '87224-4_HEADER_04X01_254_87224-':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16213561@LIBRARY1.87224-4.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16213561@library1.\87224-4.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16213561@library1.\87224-4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3309 '87224-4_HEADER_04X01_254_87224-':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16213595@LIBRARY1.87224-4.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16213595@library1.\87224-4.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16213595@library1.\87224-4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3310 '87224-4_HEADER_04X01_254_87224-':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16213629@LIBRARY1.87224-4.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16213629@library1.\87224-4.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16213629@library1.\87224-4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3311 '87224-4_HEADER_04X01_254_87224-':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16536930@LIBRARY1.87224-4.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16536930@library1.\87224-4.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16536930@library1.\87224-4.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3312 'CON8_CA-S40-24B-44_8_CON8':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16553192@KANDINSKY.CON8.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16553192@kandinsky.\con8.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16553192@kandinsky.\con8.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3313 'CON8_CA-S40-24B-44_8_CON8':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16554625@KANDINSKY.CON8.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16554625@kandinsky.\con8.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16554625@kandinsky.\con8.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J3314 'CON8_CA-S40-24B-44_8_CON8':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16555118@KANDINSKY.CON8.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16555118@kandinsky.\con8.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16555118@kandinsky.\con8.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ J4P1 'CONN_USB3A_0_AMPHENOL_GSB421131':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16201870@FPGA_DESIGN_ACTIVES_22JAN.CONN_USB3A_0.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16201870@fpga_design_actives_22jan.\conn_usb3a_0.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16201870@fpga_design_actives_22jan.\conn_usb3a_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ JP3 'HEADER_1X2_1758759_1758759':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS372700@TEMP.HEADER_1X2.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins372700@temp.\header_1x2.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins372700@temp.\header_1x2.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ JP4 'HEADER_1X2_1758759_1758759':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16547717@TEMP.HEADER_1X2.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16547717@temp.\header_1x2.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16547717@temp.\header_1x2.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH1 'MOUNTING_HOLE_0_MTG450_900_MOUN':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16533373@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16533373@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16533373@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH2 'MOUNTING_HOLE_0_MTG450_900_MOUN':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16533421@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16533421@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16533421@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH3 'MOUNTING_HOLE_0_MTG450_900_MOUN':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16533471@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16533471@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16533471@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ MH4 'MOUNTING_HOLE_0_MTG450_900_MOUN':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16533523@CPU_BOARD_06-JUNE-13.MOUNTING_HOLE_0.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16533523@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16533523@\cpu_board_06-june-13\.\mounting_hole_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10800 'RES_10K_0402_63MW_R0805_620E':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16569328@FACEBOOK_DISCRETE_MASTER_27DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16569328@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16569328@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10801 'RES_10K_0402_63MW_R0603_270E':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16517403@FACEBOOK_DISCRETE_MASTER_27DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16517403@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16517403@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10802 'RES_10K_0402_63MW_R0603_165E':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16517606@FACEBOOK_DISCRETE_MASTER_27DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16517606@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16517606@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10803 'RES_10K_0402_63MW_R0603_165E':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16539094@FACEBOOK_DISCRETE_MASTER_27DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16539094@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16539094@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10804 'RES SMD 1K OHM 1% 1/16W 0402_R0':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16548988@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 1K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16548988@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16548988@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10805 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549056@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549056@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549056@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10806 'RES SMD 1K OHM 1% 1/16W 0402_R0':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549261@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 1K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549261@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549261@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10807 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549329@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549329@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549329@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10808 'RES SMD 1K OHM 1% 1/16W 0402_R0':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549536@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 1K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549536@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549536@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10809 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549604@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549604@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549604@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10810 'RES SMD 1K OHM 1% 1/16W 0402_R0':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549813@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 1K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549813@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549813@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10811 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549881@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549881@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549881@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10812 'RES SMD 1K OHM 1% 1/16W 0402_R0':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16550092@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 1K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16550092@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16550092@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R10813 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16550160@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16550160@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16550160@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R17 'RES_10K_0402_63MW_R0402_10K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16516831@FACEBOOK_DISCRETE_MASTER_27DEC.RES_10K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16516831@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16516831@facebook_discrete_master_27dec.\res_10k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R197 'RES SMD 1K OHM 1% 1/16W 0402_R0':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16548494@FPGA_DESIGN_DISCRETES_22JAN.RES SMD 1K OHM 1% 1/16W 0402.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16548494@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16548494@fpga_design_discretes_22jan.\res smd 1k ohm 1% 1/16w 0402.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ R200 'RES_100K_0402_63MW_R0402_100K':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16548562@FB_DISCRETE_21DEC.RES_100K_0402_63MW.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16548562@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16548562@fb_discrete_21dec.\res_100k_0402_63mw.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ S1 'SWITCH_1_SW_MJTP1230_SWITCH':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16516691@GSM_BTS_22JAN_2016_430PM.SWITCH_1.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16516691@gsm_bts_22jan_2016_430pm.\switch_1.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16516691@gsm_bts_22jan_2016_430pm.\switch_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ S3 'SWITCH_1_M2011S2A1W01_SWITCH_1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16522172@LIBRARY1.OLBLCKLIB.SWITCH_1.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16522172@\library1.olblcklib\.\switch_1.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page2_ins16522172@\library1.olblcklib\.\switch_1.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ SW11 '87224-3_SW_CL_SB_12A_01_CL-SB-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16548526@FPGA_DESIGN_ACTIVES_22JAN.87224-3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16548526@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16548526@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ SW12 '87224-3_SW_CL_SB_12A_01_CL-SB-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549020@FPGA_DESIGN_ACTIVES_22JAN.87224-3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549020@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549020@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ SW13 '87224-3_SW_CL_SB_12A_01_CL-SB-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549293@FPGA_DESIGN_ACTIVES_22JAN.87224-3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549293@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549293@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ SW14 '87224-3_SW_CL_SB_12A_01_CL-SB-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549568@FPGA_DESIGN_ACTIVES_22JAN.87224-3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549568@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549568@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ SW15 '87224-3_SW_CL_SB_12A_01_CL-SB-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16549845@FPGA_DESIGN_ACTIVES_22JAN.87224-3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16549845@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16549845@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ SW16 '87224-3_SW_CL_SB_12A_01_CL-SB-1':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16550124@FPGA_DESIGN_ACTIVES_22JAN.87224-3.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16550124@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16550124@fpga_design_actives_22jan.\87224-3.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U55 'PRTR5V0U2X_SOT143B_PRTR5V0U2X':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16201834@LIBRARY1.PRTR5V0U2X.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16201834@library1.\prtr5v0u2x.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16201834@library1.\prtr5v0u2x.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+PART_NAME
+ U8 'RCLAMP0524J_0_SON50P100X270X53-':;
+
+SECTION_NUMBER 1
+ '@OC_CONNECT_1_BRKOUT_BRD.TEST_BRD(SCH_1):INS16569034@LIBRARY1.RCLAMP0524J_0.NORMAL(CHIPS)':
+ C_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):ins16569034@library1.\rclamp0524j_0.normal\(chips)',
+ P_PATH='@oc_connect_1_brkout_brd.test_brd(sch_1):page3_ins16569034@library1.\rclamp0524j_0.normal\(chips)',
+ PRIM_FILE='.\pstchip.dat',
+ SECTION='';
+
+END.

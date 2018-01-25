@@ -1,0 +1,46 @@
+{ Using PSTWRITER 17.2.0 d001Jan-05-2017 at 15:40:49 }
+
+#1 WARNING(ORCAP-36050): No pins are present in A3. Ignoring this component in netlist.
+#2 WARNING(ORCAP-36050): No pins are present in A6. Ignoring this component in netlist.
+#3 WARNING(ORCAP-36050): No pins are present in A7. Ignoring this component in netlist.
+#4 WARNING(ORCAP-36050): No pins are present in A4. Ignoring this component in netlist.
+#5 WARNING(ORCAP-36050): No pins are present in A5. Ignoring this component in netlist.
+#6 WARNING(ORCAP-36050): No pins are present in A8. Ignoring this component in netlist.
+#7 WARNING(ORCAP-36050): No pins are present in A9. Ignoring this component in netlist.
+#8 WARNING(ORCAP-36050): No pins are present in A10. Ignoring this component in netlist.
+#9 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.L3" ignored for J113: TEST_BRD, BOARD CONNECTOR (157.48, 210.82). Connecting pin to net "GND".
+#10 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.M3" ignored for J113: TEST_BRD, BOARD CONNECTOR (279.40, 203.20). Connecting pin to net "GND".
+#11 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.K4" ignored for J113: TEST_BRD, BOARD CONNECTOR (71.12, 203.20). Connecting pin to net "GND".
+#12 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.L5" ignored for J113: TEST_BRD, BOARD CONNECTOR (157.48, 210.82). Connecting pin to net "GND".
+#13 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.M5" ignored for J113: TEST_BRD, BOARD CONNECTOR (279.40, 203.20). Connecting pin to net "GND".
+#14 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.K6" ignored for J113: TEST_BRD, BOARD CONNECTOR (71.12, 203.20). Connecting pin to net "GND".
+#15 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.M7" ignored for J113: TEST_BRD, BOARD CONNECTOR (279.40, 203.20). Connecting pin to net "GND".
+#16 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.L7" ignored for J113: TEST_BRD, BOARD CONNECTOR (157.48, 210.82). Connecting pin to net "GND".
+#17 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.K8" ignored for J113: TEST_BRD, BOARD CONNECTOR (71.12, 203.20). Connecting pin to net "GND".
+#18 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.M9" ignored for J113: TEST_BRD, BOARD CONNECTOR (279.40, 203.20). Connecting pin to net "GND".
+#19 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.L9" ignored for J113: TEST_BRD, BOARD CONNECTOR (157.48, 210.82). Connecting pin to net "GND".
+#20 WARNING(ORCAP-36038): "No_connect" property on Pin "J113.L10" ignored for J113: TEST_BRD, BOARD CONNECTOR (157.48, 210.82). Connecting pin to net "GND".
+#21 WARNING(ORCAP-36006): Part Name "CAP_CER_0.1UF_10V_10%_X5R_0402_CC0402_0.1UF_0.1UF" is renamed to "CAP_CER_0.1UF_10V_10%_X5R_0402_".
+#22 WARNING(ORCAP-36006): Part Name "CAP_CER_0.1UF_0201_16V_C0402_0.1UF" is renamed to "CAP_CER_0.1UF_0201_16V_C0402_0.".
+#23 WARNING(ORCAP-36006): Part Name "CAP CER 0.1UF 25V 10% X7R 0402_C0402_0.1UF" is renamed to "CAP CER 0.1UF 25V 10% X7R 0402_".
+#24 WARNING(ORCAP-36006): Part Name "CAP_CER_0.1UF_0201_16V_C1206_10UF" is renamed to "CAP_CER_0.1UF_0201_16V_C1206_10".
+#25 WARNING(ORCAP-36006): Part Name "CAP CER 0.1UF 25V 10% X7R 0402_C0603_10UF" is renamed to "CAP CER 0.1UF 25V 10% X7R 040_1".
+#26 WARNING(ORCAP-36006): Part Name "DIODE_SCHOTTKY_30V_0.2A SOD523_SODFL3517X110N_NXP_AEE_PMEG3010ER,115" is renamed to "DIODE_SCHOTTKY_30V_0.2A SOD523_".
+#27 WARNING(ORCAP-36006): Part Name "BZX84C3V0/SOT_3_B530C_13_F_B530C-13-F" is renamed to "BZX84C3V0/SOT_3_B530C_13_F_B530".
+#28 WARNING(ORCAP-36006): Part Name "HDAF-11-18-S-13-2_SAMTEC_HDAF-11-18P0-S-13-2_HDAF-11-18-S-13-2" is renamed to "HDAF-11-18-S-13-2_SAMTEC_HDAF-1".
+#29 WARNING(ORCAP-36006): Part Name "87224-4_HEADER_04X01_254_87224-4" is renamed to "87224-4_HEADER_04X01_254_87224-".
+#30 WARNING(ORCAP-36006): Part Name "CONN_USB3A_0_AMPHENOL_GSB4211311WEU_CONN_USB3A_GSB4211311WEU" is renamed to "CONN_USB3A_0_AMPHENOL_GSB421131".
+#31 WARNING(ORCAP-36006): Part Name "MOUNTING_HOLE_0_MTG450_900_MOUNTING_HOLE" is renamed to "MOUNTING_HOLE_0_MTG450_900_MOUN".
+#32 WARNING(ORCAP-36006): Part Name "RES SMD 1K OHM 1% 1/16W 0402_R0402_1K" is renamed to "RES SMD 1K OHM 1% 1/16W 0402_R0".
+#33 WARNING(ORCAP-36006): Part Name "87224-3_SW_CL_SB_12A_01_CL-SB-12A-01" is renamed to "87224-3_SW_CL_SB_12A_01_CL-SB-1".
+#34 WARNING(ORCAP-36006): Part Name "RCLAMP0524J_0_SON50P100X270X53-9N_RCLAMP0524J" is renamed to "RCLAMP0524J_0_SON50P100X270X53-".
+INFO(ORCAP-36080): Scanning netlist files ...
+
+Loading... D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\Breakoutboard_REVC_Jan05\Netlist/pstchip.dat
+
+Loading... D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\Breakoutboard_REVC_Jan05\Netlist/pstchip.dat
+
+Loading... D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\Breakoutboard_REVC_Jan05\Netlist/pstxprt.dat
+
+Loading... D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\Breakoutboard_REVC_Jan05\Netlist/pstxnet.dat
+packaging the design view...

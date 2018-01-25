@@ -1,0 +1,97 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: co_power_supplies
+#
+#	E3632A Check out program.
+#
+#	The game plan is to turn on power on each of the power supplies
+#	and check the power as I go.
+#
+
+
+use strict;
+my $Prog;
+my @Wargs;
+my $Sre	= qr/^p[12]:\s+(\S+)\s+\w+,\s+(\S+)\s/;
+
+print "Make sure UUT disconnected.\n";
+print "Attach 500 ohm load to PS1.\n";
+print "Attach 240 ohm load to PS2.\n";
+print "Turn on both E3532A power supplies.\n";
+print "Hit return when complete. ";
+<>;
+
+for my $i (0 .. 1)	{
+	for my $n ( 1 .. 2)	{
+		$Prog	= '/usr/local/fbin/p' . $n . 'on';
+		run_this($Prog);
+		for my $v (21 .. 30)	{
+			@Wargs	= (('/usr/local/fbin/p' . $n . 'set_v'), $v);
+			run_this(@Wargs);
+			my $io	= ($v % 2) ? "on" : "off";
+			$Wargs[0]	=~ s/set_v$/out_$io/;
+			run_this($Wargs[0]);
+			my $scmd	= '/usr/local/fbin/p' . $n . 'stat';
+			my $res		= `$scmd`;
+			chomp($res);
+			my ($aa, $av)	= $res =~ m/$Sre/;
+			die "Cannot parse $res.\n" unless (defined $av);
+			if ($v % 2)	{	# Output is on, load in.
+				my $r		= ($n == 1) ? 500 : 240;
+				my $expecteda	= $v / $r;
+				die "$res amperes out of range.\n" 
+					unless (in_tol($aa, $expecteda, 10));
+				die "$res volts out of range.\n" 
+					unless (in_tol($av, $v, 10));
+			}
+			else	{
+				die "$res amps should be 0.\n"
+					if ($aa > 0.005);
+				die "$res volts should be 0.\n"
+					if ($av > 0.005);
+			}
+		}
+
+		$Prog	= '/usr/local/fbin/p' . $n . 'off';
+		run_this($Prog);
+		$Prog	= '/usr/local/fbin/p' . $n . 'clr';
+		my $msg	= `$Prog`;
+		chomp $msg;
+		die "PS error: $msg.\n" unless ($msg =~ m/E3632A/);
+		$msg	= ($i) ? "ok." : "ok, so far ...";
+		print "PS$n $msg\n";
+	}
+}
+print "Power supplies ok.\n";
+		
+sub in_tol	{
+	my $v	= shift;	# Actual value.
+	my $n	= shift;	# Nominal expected value.
+	my $tol	= shift;	# Tolerance percentage.
+
+	$tol	/= 100;
+	my $tv	= $n * $tol;	# Tolerance value.
+	return ($v < ($tv + $n) and $v > ($n - $tv));
+}
+
+sub run_this	{
+	my $pid	= fork;
+	if ($pid)	{
+		my $err;
+		waitpid($pid, 0);
+		$err	= $? >> 8;
+		die "Bad return from @_: $err.\n" if $err;
+	}
+	else	{
+		open STDOUT, '>', "/dev/null" or die "Cannot redirect.\n";
+		exec @_;
+	}
+}

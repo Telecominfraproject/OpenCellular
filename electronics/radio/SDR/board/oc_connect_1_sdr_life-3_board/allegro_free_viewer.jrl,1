@@ -1,0 +1,15 @@
+\t (00:00:00) allegro_free_viewer 17.2 S015 Windows SPB 64-bit Edition
+\t (00:00:00)     Journal start - Thu May 11 09:07:32 2017
+\t (00:00:00)         Host=IGRAHAM-1 User=igraham Pid=18660 CPUs=4
+\t (00:00:00) CmdLine= C:\Users\igraham\AppData\Local\Programs\Cadence Design Systems\17.2\tools\bin\allegro_free_viewer.exe
+\t (00:00:00) 
+\t (00:00:00) Opening existing design...
+\d (00:00:00) Design opened: C:/Users/igraham/Dropbox (Facebook)/Connect1 for Sanmina/FB_Connect1_Rev-C Release_20Jan2017/SDR_V1P2_13Jan/Layout/OC_CONNECT_1_SDR_LIFE-3_BOARD/OC_CONNECT_1_SDR_LIFE-3_BOARD/OC_CONNECT_1_SDR_LIFE-3.brd
+\i (00:00:00) trapsize 146611
+\i (00:00:00) trapsize 143071
+\i (00:00:01) trapsize 122469
+\i (00:00:01) trapsize 221494
+\i (00:00:05) opencd 'C:/Users/igraham/Dropbox (Facebook)/Manufacturing/FB_Connect1_Rev-C Release/GBC/Gerber/OC_Connect-1_GBC_Life-2_201612_8.brd' 
+\t (00:00:05) Opening existing design...
+\i (00:00:06) trapsize 92316
+\t (00:00:06)     Journal end - Thu May 11 09:07:38 2017

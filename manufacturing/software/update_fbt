@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: update_fbt
+#
+#	This program will run the fb_apps_v* installer.
+#
+#	First I check to make sure I am not within the development
+#	machine. I do this by seeing if my $Bin dir has either a
+#	.git or a t directory.
+#	I then check to make sure I have 1.0 installer files.
+#	I then clear out old copies in /usr/local/tmp.
+#	The installer is moved to /usr/local/tmp and executed.
+#
+use strict;
+use FindBin	qw/$Bin/;
+use File::Copy;
+
+die "I must be root to run.\n" unless ($> == 0);
+die "I see a .git directory, cannot run update.\n" if (-d "$Bin/.git");
+die "I see a t directory, cannot run update.\n" if (-d "$Bin/t");
+
+my @Srcs	= glob('/home/rdlab/Dropbox/fbc1/fb_apps_v*');
+die "Ambiguous number of fb_apps_v* files from ~/Dropbox/fbc1.\n" 
+	if (@Srcs > 1);
+die "Cannot find fb_apps_v* in ~/Dropbox/fbc1.\n" unless (@Srcs);
+
+my $Tdir	= '/usr/local/tmp';
+my @Ins		= glob("$Tdir/fb_apps_v*");
+unlink @Ins if @Ins;
+
+move($Srcs[0], $Tdir);
+@Ins		= glob("$Tdir/fb_apps_v*");
+die "Could not move $Srcs[0] to $Tdir: $!.\n" if (@Ins != 1);
+exec($Ins[0]);
+

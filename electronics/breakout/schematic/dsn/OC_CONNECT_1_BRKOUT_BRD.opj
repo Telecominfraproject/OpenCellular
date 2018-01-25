@@ -1,0 +1,94 @@
+(ExpressProject ""
+  (ProjectVersion "19981106")
+  (ProjectType "PCB")
+  (Folder "Design Resources"
+    (Folder "Library")
+    (File ".\oc_connect_1_brkout_brd.dsn"
+      (Type "Schematic Design"))
+    (BuildFileAddedOrDeleted "x")
+    (CompileFileAddedOrDeleted "x")
+    ("Create Allegro Netlist" "TRUE")
+    ("Allegro Netlist Directory"
+       "D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\Breakoutboard_REVC_Jan05\Netlist")
+    ("View Allegro Netlist Files" "FALSE")
+    ("Allegro Netlist Create DCF File" "FALSE")
+    ("Update Allegro Board" "FALSE")
+    ("Allegro Netlist Output Board File" "allegro\OC_CONNECT_1_BRKOUT_BRD.brd")
+    ("Allegro Netlist Remove Etch" "FALSE")
+    ("Allegro Netlist Place Changed Component" "ALWAYS_REPLACE")
+    ("Allegro Netlist Open Board in Allegro" "ALLEGRO")
+    ("Allegro Setup Backup Versions" "3")
+    ("Allegro Setup Output Warnings" "TRUE")
+    ("Allegro Setup Ignore Constraints" "FALSE")
+    ("Allegro Setup Part Type Length" "31")
+    ("Allegro Netlist Combine Property String" "PCB Footprint")
+    ("Allegro Netlist Ignore Fixed Property" "FALSE")
+    ("Allegro Netlist User Defined Property" "FALSE")
+    (Netlist_TAB "8")
+    (NoModify)
+    (OTHER_Part_Value "{Value}")
+    (OTHER_Netlist_File "OC_CONNECT_1_BRKOUT_BRD.NET")
+    (OTHER_Netlist_File2 "OC_CONNECT_1_BRKOUT_BRD.CMP")
+    (OTHER_View_Output "FALSE")
+    (OTHER_View_Output2 "FALSE")
+    (OTHER_Formatter "orRinf64.dll")
+    (OTHER_PCB_Footprint "{PCB Footprint}")
+    (OTHER_Switch0 "TRUE")
+    (OTHER_Switch1 "FALSE")
+    (OTHER_Switch2 "FALSE")
+    (OTHER_Switch3 "FALSE")
+    (OTHER_Switch4 "FALSE")
+    (OTHER_Switch5 "FALSE")
+    (OTHER_Switch6 "FALSE")
+    (BOM_Scope "0")
+    (BOM_Mode "0")
+    (BOM_Report_File
+       "D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\RELEASE FILES\JAN03\BREAKOUT\BREAKOUTBOARD_REVC_JAN05\DSN\OC_CONNECT_1_BRKOUT_BRD.BOM")
+    (BOM_Merge_Include "FALSE")
+    (BOM_Property_Combine_7.0
+       "{Item}\t{Quantity}\t{Reference}\t{Value}\t{PCB Footprint}\t{Description}\t{Description }\t{Part Number }\t{Part Number}\t{Partnumber}\t{Manufacturer Part Number}\t{MFR1_Partnumber}\t{Manufacturer}\t{manufacturer}\t{Assembly}")
+    (BOM_Header
+       "Item\tQuantity\tReference\tPart\tPCB Footprint\tDescription\tDescription\tPart Number\tPart Number\tPart Number\tPart Number\tPart Number \tManufacturer\tmanufacturer\tAssembly")
+    (BOM_Include_File
+       "D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\RELEASE FILES\JAN03\BREAKOUT\BREAKOUTBOARD_REVC_JAN05\DSN\OC_CONNECT_1_BRKOUT_BRD.INC")
+    (BOM_Include_File_Combine_7.0 "{Item}\t{Quantity}\t{Reference}\t{Value}")
+    (BOM_One_Part_Per_Line "FALSE")
+    (Open_BOM_in_Excel "TRUE")
+    (BOM_View_Output "FALSE"))
+  (Folder "Outputs"
+    (File "..\netlist\pstxnet.dat"
+      (Type "Report")
+      (DisplayName "pstxnet.dat"))
+    (File "..\netlist\pstxprt.dat"
+      (Type "Report")
+      (DisplayName "pstxprt.dat"))
+    (File "..\netlist\pstchip.dat"
+      (Type "Report")
+      (DisplayName "pstchip.dat"))
+    (File
+       "D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\Breakout_jan04\DSN\oc_connect_1_brkout_brd.net"
+      (Type "Report"))
+    (File
+       "D:\OPEN_CELLULAR_LIFE3\RF_SDR_LIFE3\RF_SDR_REVC\Release files\Jan03\breakout\breakout_jan05\DSN\oc_connect_1_brkout_brd.net"
+      (Type "Report"))
+    (File ".\oc_connect_1_brkout_brd.net"
+      (Type "Report"))
+    (File ".\oc_connect_1_brkout_brd.bom"
+      (Type "Report")))
+  (Folder "Referenced Projects")
+  (PartMRUSelector)
+  (ISPCBBASICLICENSE "false")
+  (GlobalState
+    (FileView
+      (Path "Design Resources")
+      (Path "Design Resources" ".\oc_connect_1_brkout_brd.dsn")
+      (Path "Design Resources" ".\oc_connect_1_brkout_brd.dsn" "TEST_BRD")
+      (Path "Outputs")
+      (Select "Design Resources" ".\oc_connect_1_brkout_brd.dsn"))
+    (HierarchyView)
+    (Doc
+      (Type "COrCapturePMDoc")
+      (Frame
+        (Placement "44 2 3 -1 -1 -8 -31 0 200 0 292"))
+      (Tab 0)))
+  (MPSSessionName "bgh39561"))

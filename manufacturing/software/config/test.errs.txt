@@ -1,0 +1,10 @@
+
+At least one error was reported during this test.
+To trouble shoot the root cause of the fault, 
+examine the test log file:
+
+/var/log/fbt/fbt.log
+
+The test result file may also be helpful. The last
+recorded test result file may be found by using
+the program lresult(1).

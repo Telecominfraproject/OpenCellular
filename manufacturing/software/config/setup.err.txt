@@ -1,0 +1,15 @@
+
+There was an error during the test setup.
+This type of error is non-recoverable
+and must be fixed before another test
+is attempted.
+
+Check the following files located in
+/var/log/fbt for information useful
+in diagnosing this problem:
+fbt.pwr.log
+pon_poff.log
+acpwr.log
+sock.log
+gui.log
+

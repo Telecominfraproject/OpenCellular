@@ -1,0 +1,51 @@
+#!/usr/bin/perl -w
+
+# Copyright (c) 2017-present, Facebook, Inc.
+# All rights reserved.
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+#
+#	File: fblogin
+#	
+#	This program creates an ssh session with OpenCellular
+#	standard ip address.
+#
+#
+use strict;
+use Cwd;
+use Expect;
+use FindBin		qw/$Bin/;
+use lib $Bin;
+use mods::misc		qw/ss_cmd ping_check/;
+my $Cfg			= {	
+			tgtaddr => $ENV{LOGIN_TGT} // '192.168.0.20',
+			acct => $ENV{LOGIN_ACCT} // 'root',
+			pw => $ENV{LOGIN_PW} // 'root',
+			};
+
+exit ssh_login($Cfg);
+
+sub ssh_login	{
+	my $hr	= shift;
+	my $ip	= $hr->{tgtaddr};
+	my $act	= $hr->{acct};
+	my $pw	= $hr->{pw};
+	my $dir	= '/var/log/fblogin';
+	my %lfn	= (	lfn => "$dir/fblogin.log",
+				tgtaddr => $ip, wpid => 1);
+
+	die "Cannot write to $dir.\n" unless (-w -d $dir);
+	ping_check($ip);
+	my %xhr	= (	sscmd => '/usr/bin/ssh', args => [
+			"$act\@$ip" ], 
+			acct => $act, pw => $pw,
+			%lfn);
+	return ss_cmd(%xhr);	# Run logged in.
+}			
+			
+
+
+
