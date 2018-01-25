@@ -125,13 +125,6 @@ static char *to_normal_menu[] = {
 	"Language\n"
 };
 
-static char *recovery_menu[] = {
-	"Enable developer mode\n",
-	"Show Debug Info\n",
-	"Power Off\n",
-	"Language\n"
-};
-
 static char *to_dev_menu[] = {
 	"Confirm enabling developer mode\n",
 	"Cancel\n",
@@ -191,10 +184,6 @@ static void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
 	case VB_MENU_TO_NORM:
 		*size = VB_TO_NORM_COUNT;
 		temp_menu = to_normal_menu;
-		break;
-	case VB_MENU_RECOVERY:
-		*size = VB_RECOVERY_COUNT;
-		temp_menu = recovery_menu;
 		break;
 	case VB_MENU_TO_DEV:
 		*size = VB_TO_DEV_COUNT;
@@ -258,7 +247,6 @@ static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
 	VB_SCREEN_DEVELOPER_WARNING_MENU,
 	VB_SCREEN_DEVELOPER_MENU,
 	VB_SCREEN_DEVELOPER_TO_NORM_MENU,
-	VB_SCREEN_RECOVERY_MENU,
 	VB_SCREEN_RECOVERY_TO_DEV_MENU,
 	VB_SCREEN_LANGUAGES_MENU,
 	VB_SCREEN_OPTIONS_MENU,
@@ -433,29 +421,6 @@ static VbError_t vb2_update_menu(struct vb2_context *ctx)
 		vb2_set_menu_items(VB_MENU_OPTIONS,
 				   VB_OPTIONS_CANCEL);
 		break;
-	case VB_MENU_RECOVERY:
-		switch(current_menu_idx) {
-		case VB_RECOVERY_TO_DEV:
-			/*
-			 * 1. Switch to TO_DEV menu
-			 * 2. Default to cancel option
-			 */
-			vb2_set_menu_items(VB_MENU_TO_DEV,
-					   VB_TO_DEV_CANCEL);
-			break;
-		case VB_RECOVERY_DBG_INFO:
-			break;
-		case VB_RECOVERY_POWER_OFF:
-			ret = VBERROR_SHUTDOWN_REQUESTED;
-			break;
-		case VB_RECOVERY_LANGUAGE:
-			vb2_set_menu_items(VB_MENU_LANGUAGES, loc);
-			break;
-		default:
-			/* Invalid menu item.  Don't update anything */
-			break;
-		}
-		break;
 	case VB_MENU_TO_DEV:
 		switch(current_menu_idx) {
 		case VB_TO_DEV_CONFIRM:
@@ -508,9 +473,6 @@ static VbError_t vb2_update_menu(struct vb2_context *ctx)
 		case VB_MENU_TO_NORM:
 			vb2_set_menu_items(prev_menu, VB_TO_NORM_CONFIRM);
 			break;
-		case VB_MENU_RECOVERY:
-			vb2_set_menu_items(prev_menu, VB_RECOVERY_POWER_OFF);
-			break;
 		case VB_MENU_TO_DEV:
 			vb2_set_menu_items(prev_menu, VB_TO_DEV_CANCEL);
 			break;
@@ -556,12 +518,7 @@ static VbError_t vb2_update_locale(struct vb2_context *ctx) {
  * @return VBERROR_SUCCESS
  */
 static VbError_t vb2_set_disabled_idx_mask(uint32_t flags) {
-	/* Disable "Enable Developer Mode" menu item */
 	disabled_idx_mask = 0;
-	if (current_menu == VB_MENU_RECOVERY &&
-	    (flags & VBSD_BOOT_DEV_SWITCH_ON)) {
-		disabled_idx_mask |= 1 << VB_RECOVERY_TO_DEV;
-	}
 	/* Disable Network Boot Option */
 	if (current_menu == VB_MENU_DEV)
 		disabled_idx_mask |= 1 << VB_DEV_NETWORK;
