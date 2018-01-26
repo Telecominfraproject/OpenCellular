@@ -17,8 +17,10 @@ DEFAULT_KEYS_FOLDER="$VBOOT_BASE/devkeys"
 DEFAULT_BACKUP_FOLDER='/mnt/stateful_partition/backups'
 
 # DEFINE_string name default_value description flag
-DEFINE_string from "" "Path of input file (empty for system live firmware)" "f"
-DEFINE_string to "" "Path of output file (empty for system live firmware)" "t"
+DEFINE_string from "" "Path of input BIOS file (empty for system live BIOS)" "f"
+DEFINE_string to "" "Path of output BIOS file (empty for system live BIOS)" "t"
+DEFINE_string ec_from "" "Path of input EC file (empty for system live EC)" "e"
+DEFINE_string ec_to "" "Path of output EC file (empty for system live EC)" "o"
 DEFINE_string keys "$DEFAULT_KEYS_FOLDER" "Path to folder of dev keys" "k"
 DEFINE_string preamble_flags "" "Override preamble flags value. Known values:
                         0: None. (Using RW to boot in normal. aka, two-stop)
@@ -27,6 +29,8 @@ DEFINE_boolean mod_hwid \
   $FLAGS_TRUE "Modify HWID to indicate this is a modified firmware" ""
 DEFINE_boolean mod_gbb_flags \
   $FLAGS_TRUE "Modify GBB flags to enable developer friendly features" ""
+DEFINE_boolean change_ec \
+  $FLAGS_FALSE "Change the key in the EC binary if EC uses EFS boot" ""
 DEFINE_boolean force_backup \
   $FLAGS_TRUE "Create backup even if source is not live" ""
 DEFINE_string backup_dir \
@@ -40,17 +44,45 @@ eval set -- "$FLAGS_ARGV"
 # ----------------------------------------------------------------------------
 set -e
 
-FLASHROM="flashrom -p host"
-
 # the image we are (temporary) working with
-IMAGE="$(make_temp_file)"
-IMAGE="$(readlink -f "$IMAGE")"
+IMAGE_BIOS="$(make_temp_file)"
+IMAGE_BIOS="$(readlink -f "${IMAGE_BIOS}")"
+if [ "${FLAGS_change_ec}" = "${FLAGS_TRUE}" ]; then
+  IMAGE_EC="$(make_temp_file)"
+  IMAGE_EC="$(readlink -f "${IMAGE_EC}")"
+fi
 
 # a log file to keep the output results of executed command
 EXEC_LOG="$(make_temp_file)"
 
 # Functions
 # ----------------------------------------------------------------------------
+
+flashrom_bios() {
+  if is_debug_mode; then
+    flashrom -V -p host "$@"
+  else
+    flashrom -p host "$@"
+  fi
+}
+
+flashrom_ec() {
+  if is_debug_mode; then
+    flashrom -V -p ec "$@"
+  else
+    flashrom -p ec "$@"
+  fi
+}
+
+# Execute the given command and log its output to the file ${EXEC_LOG}.
+# If is_debug_mode, also print the output directly.
+execute() {
+  if is_debug_mode; then
+    "$@" 2>&1 | tee "${EXEC_LOG}"
+  else
+    "$@" >"${EXEC_LOG}" 2>&1
+  fi
+}
 
 # Disables write protection status registers
 disable_write_protection() {
@@ -62,40 +94,52 @@ disable_write_protection() {
   # --wp-disable command may return success even if WP is still enabled,
   # so we should use --wp-status to verify the results.
   echo "Disabling system software write protection status..."
-  (${FLASHROM} --wp-disable && ${FLASHROM} --wp-status) 2>&1 |
+  (flashrom_bios --wp-disable && flashrom_bios --wp-status) 2>&1 |
     tee "$EXEC_LOG" |
     grep -q '^WP: .* is disabled\.$'
 }
 
-# Reads $IMAGE from $FLAGS_from
+# Reads ${IMAGE_BIOS} from ${FLAGS_from} and ${IMAGE_EC} from ${FLAGS_ec_from}
 read_image() {
   if [ -z "$FLAGS_from" ]; then
-    echo "Reading system live firmware..."
-    if is_debug_mode; then
-      ${FLASHROM} -V -r "$IMAGE"
-    else
-      ${FLASHROM} -r "$IMAGE" >"$EXEC_LOG" 2>&1
-    fi
+    echo "Reading system live BIOS firmware..."
+    execute flashrom_bios -r "${IMAGE_BIOS}"
   else
-    debug_msg "reading from file: $FLAGS_from"
-    cp -f "$FLAGS_from" "$IMAGE"
+    debug_msg "reading from file: ${FLAGS_from}"
+    cp -f "${FLAGS_from}" "${IMAGE_BIOS}"
+  fi
+  if [ "${FLAGS_change_ec}" = "${FLAGS_TRUE}" ]; then
+    if [ -z "${FLAGS_ec_from}" ]; then
+      echo "Reading system live EC firmware..."
+      execute flashrom_ec -r "${IMAGE_EC}"
+    else
+      debug_msg "reading from file: ${FLAGS_ec_from}"
+      cp -f "${FLAGS_ec_from}" "${IMAGE_EC}"
+    fi
   fi
 }
 
-# Writes $IMAGE to $FLAGS_to
+# Writes ${IMAGE_BIOS} to ${FLAGS_to} and ${IMAGE_EC} to ${FLAGS_ec_to}
 write_image() {
-  if [ -z "$FLAGS_to" ]; then
-    echo "Writing system live firmware..."
+  if [ -z "${FLAGS_to}" ]; then
+    echo "Writing system live BIOS firmware..."
     # TODO(hungte) we can enable partial write to make this faster
-    if is_debug_mode; then
-      ${FLASHROM} -w "$IMAGE" -V
-    else
-      ${FLASHROM} -w "$IMAGE" >"$EXEC_LOG" 2>&1
-    fi
+    execute flashrom_bios -w "${IMAGE_BIOS}"
   else
-    debug_msg "writing to file: $FLAGS_to"
-    cp -f "$IMAGE" "$FLAGS_to"
-    chmod a+r "$FLAGS_to"
+    debug_msg "writing to file: ${FLAGS_to}"
+    cp -f "${IMAGE_BIOS}" "${FLAGS_to}"
+    chmod a+r "${FLAGS_to}"
+  fi
+  if [ "${FLAGS_change_ec}" = "${FLAGS_TRUE}" ]; then
+    if [ -z "${FLAGS_ec_to}" ]; then
+      echo "Writing system live EC firmware..."
+      # TODO(hungte) we can enable partial write to make this faster
+      execute flashrom_ec -w "${IMAGE_EC}"
+    else
+      debug_msg "writing to file: ${FLAGS_ec_to}"
+      cp -f "${IMAGE_EC}" "${FLAGS_ec_to}"
+      chmod a+r "${FLAGS_ec_to}"
+    fi
   fi
 }
 
@@ -119,29 +163,40 @@ echo_dev_hwid() {
 # ----------------------------------------------------------------------------
 main() {
   # Check parameters
-  local root_pubkey="$FLAGS_keys/root_key.vbpubk"
-  local recovery_pubkey="$FLAGS_keys/recovery_key.vbpubk"
-  local firmware_keyblock="$FLAGS_keys/firmware.keyblock"
-  local firmware_prvkey="$FLAGS_keys/firmware_data_key.vbprivk"
-  local dev_firmware_keyblock="$FLAGS_keys/dev_firmware.keyblock"
-  local dev_firmware_prvkey="$FLAGS_keys/dev_firmware_data_key.vbprivk"
-  local kernel_sub_pubkey="$FLAGS_keys/kernel_subkey.vbpubk"
+  local root_pubkey="${FLAGS_keys}/root_key.vbpubk"
+  local recovery_pubkey="${FLAGS_keys}/recovery_key.vbpubk"
+  local firmware_keyblock="${FLAGS_keys}/firmware.keyblock"
+  local firmware_prvkey="${FLAGS_keys}/firmware_data_key.vbprivk"
+  local dev_firmware_keyblock="${FLAGS_keys}/dev_firmware.keyblock"
+  local dev_firmware_prvkey="${FLAGS_keys}/dev_firmware_data_key.vbprivk"
+  local kernel_sub_pubkey="${FLAGS_keys}/kernel_subkey.vbpubk"
+  local ec_efs_pubkey="${FLAGS_keys}/key_ec_efs.vbpubk2"
+  local ec_efs_prvkey="${FLAGS_keys}/key_ec_efs.vbprik2"
   local is_from_live=0
-  local backup_image=
+  local backup_bios_image=''
+  local backup_ec_image=''
 
   debug_msg "Prerequisite check"
   ensure_files_exist \
-    "$root_pubkey" \
-    "$recovery_pubkey" \
-    "$firmware_keyblock" \
-    "$firmware_prvkey" \
-    "$kernel_sub_pubkey" ||
+    "${root_pubkey}" \
+    "${recovery_pubkey}" \
+    "${firmware_keyblock}" \
+    "${firmware_prvkey}" \
+    "${kernel_sub_pubkey}" \
+    "${ec_efs_pubkey}" \
+    "${ec_efs_prvkey}" ||
     exit 1
 
-  if [ -z "$FLAGS_from" ]; then
+  if [ -z "${FLAGS_from}" ]; then
     is_from_live=1
   else
-    ensure_files_exist "$FLAGS_from" || exit 1
+    ensure_files_exist "${FLAGS_from}" || exit 1
+  fi
+
+  if [ -z "${FLAGS_ec_from}" ]; then
+    is_from_live=1
+  else
+    ensure_files_exist "${FLAGS_ec_from}" || exit 1
   fi
 
   debug_msg "Checking software write protection status"
@@ -153,22 +208,60 @@ main() {
           "Please verify that hardware write protection is disabled."
     fi
 
-  debug_msg "Pulling image to $IMAGE"
-  (read_image && [ -s "$IMAGE" ]) ||
+  debug_msg "Pulling image"
+  (read_image &&
+      [ -s "${IMAGE_BIOS}" ] &&
+      [ "${FLAGS_change_ec}" = "${FLAGS_FALSE}" -o -s "${IMAGE_EC}" ]) ||
     die "Failed to read image. Error message: $(cat "${EXEC_LOG}")"
 
+
   debug_msg "Prepare to backup the file"
-  if [ -n "$is_from_live" -o $FLAGS_force_backup = $FLAGS_TRUE ]; then
-    backup_image="$(make_temp_file)"
-    debug_msg "Creating backup file to $backup_image..."
-    cp -f "$IMAGE" "$backup_image"
+  if [ -n "${is_from_live}" -o ${FLAGS_force_backup} = ${FLAGS_TRUE} ]; then
+    backup_bios_image="$(make_temp_file)"
+    debug_msg "Creating BIOS backup file to ${backup_bios_image}..."
+    cp -f "${IMAGE_BIOS}" "${backup_bios_image}"
+
+    if [ "${FLAGS_change_ec}" = "${FLAGS_TRUE}" ]; then
+      backup_ec_image="$(make_temp_file)"
+      debug_msg "Creating EC backup file to ${backup_ec_image}..."
+      cp -f "${IMAGE_EC}" "${backup_ec_image}"
+    fi
+  fi
+
+  local expanded_firmware_dir="$(make_temp_dir)"
+  if [ "${FLAGS_change_ec}" = "${FLAGS_TRUE}" ]; then
+    if is_ec_rw_signed "${IMAGE_EC}"; then
+      # TODO(waihong): These are duplicated from sign_official_build.sh. We need
+      # to move them to a single place for share.
+      debug_msg "Resign EC firmware with new EC EFS key"
+      local rw_bin="EC_RW.bin"
+      local rw_hash="EC_RW.hash"
+      # futility writes byproduct files to CWD, so we cd to temp dir.
+      local old_cwd=$(pwd)
+      cd "${expanded_firmware_dir}"
+
+      ${FUTILITY} sign --type rwsig --prikey "${ec_efs_prvkey}" "${IMAGE_EC}" ||
+        die "Failed to sign EC image"
+      # Above command produces EC_RW.bin. Compute its hash.
+      openssl dgst -sha256 -binary "${rw_bin}" > "${rw_hash}"
+
+      debug_msg "Store ecrw and its hash to BIOS firmware"
+      store_file_in_cbfs "${IMAGE_BIOS}" "${rw_bin}" "ecrw" ||
+        die "Failed to store ecrw in BIOS image"
+      store_file_in_cbfs "${IMAGE_BIOS}" "${rw_hash}" "ecrw.hash" ||
+        die "Failed to store ecrw.hash in BIOS image"
+
+      cd "${old_cwd}"
+      # Continuous the code below to resign the BIOS image.
+    else
+      echo "EC image is not signed. Skip changing its key."
+    fi
   fi
 
   debug_msg "Detecting developer firmware keyblock"
-  local expanded_firmware_dir="$(make_temp_dir)"
   local use_devfw_keyblock="$FLAGS_FALSE"
-  (cd "$expanded_firmware_dir"; dump_fmap -x "$IMAGE" >/dev/null 2>&1) ||
-    die "Failed to extract firmware image."
+  (cd "${expanded_firmware_dir}"; dump_fmap -x "${IMAGE_BIOS}" \
+    >/dev/null 2>&1) || die "Failed to extract firmware image."
   if [ -f "$expanded_firmware_dir/VBLOCK_A" ]; then
     local has_dev=$FLAGS_TRUE has_norm=$FLAGS_TRUE
     # In output of vbutil_keyblock, "!DEV" means "bootable on normal mode" and
@@ -193,8 +286,8 @@ main() {
   fi
 
   debug_msg "Extract firmware version and data key version"
-  futility gbb -g --rootkey="$expanded_firmware_dir/rootkey" "$IMAGE" \
-    >/dev/null 2>&1
+  ${FUTILITY} gbb -g --rootkey="${expanded_firmware_dir}/rootkey" \
+    "${IMAGE_BIOS}" >/dev/null 2>&1
 
   local data_key_version firmware_version
   # When we are going to flash directly from or to system, the versions stored
@@ -209,9 +302,9 @@ main() {
     # need to check both and decide from largest number.
     debug_msg "Guessing TPM version from original firmware."
     local fw_info="$(vbutil_firmware \
-                     --verify "$expanded_firmware_dir/VBLOCK_A" \
-                     --signpubkey "$expanded_firmware_dir/rootkey" \
-                     --fv "$expanded_firmware_dir/FW_MAIN_A")" 2>/dev/null ||
+                     --verify "${expanded_firmware_dir}/VBLOCK_A" \
+                     --signpubkey "${expanded_firmware_dir}/rootkey" \
+                     --fv "${expanded_firmware_dir}/FW_MAIN_A" 2>/dev/null)" ||
         die "Failed to verify firmware slot A."
     data_key_version="$(
       echo "$fw_info" | sed -n '/^ *Data key version:/s/.*:[ \t]*//p')"
@@ -252,25 +345,22 @@ main() {
     debug_msg "Setting FLAGS=$FLAGS_preamble_flags"
     optional_opts="$FLAGS_preamble_flags"
   fi
-  cp -f "$IMAGE" "$unsigned_image"
-  "$SCRIPT_BASE/resign_firmwarefd.sh" \
-    "$unsigned_image" \
-    "$IMAGE" \
-    "$firmware_prvkey" \
-    "$firmware_keyblock" \
-    "$dev_firmware_prvkey" \
-    "$dev_firmware_keyblock" \
-    "$kernel_sub_pubkey" \
-    "$firmware_version" \
-    $optional_opts >"$EXEC_LOG" 2>&1 ||
+  cp -f "${IMAGE_BIOS}" "$unsigned_image"
+  execute "$SCRIPT_BASE/resign_firmwarefd.sh" \
+    "${unsigned_image}" \
+    "${IMAGE_BIOS}" \
+    "${firmware_prvkey}" \
+    "${firmware_keyblock}" \
+    "${dev_firmware_prvkey}" \
+    "${dev_firmware_keyblock}" \
+    "${kernel_sub_pubkey}" \
+    "${firmware_version}" \
+    ${optional_opts} ||
     die "Failed to re-sign firmware. (message: $(cat "${EXEC_LOG}"))"
-    if is_debug_mode; then
-      cat "$EXEC_LOG"
-    fi
 
   debug_msg "Extract current HWID"
   local old_hwid
-  old_hwid="$(futility gbb --get --hwid "$IMAGE" 2>"$EXEC_LOG" |
+  old_hwid="$(${FUTILITY} gbb --get --hwid "${IMAGE_BIOS}" 2>"${EXEC_LOG}" |
               sed -rne 's/^hardware_id: (.*)$/\1/p')"
 
   debug_msg "Decide new HWID"
@@ -282,8 +372,8 @@ main() {
   fi
 
   local old_gbb_flags
-  old_gbb_flags="$(futility gbb --get --flags "$IMAGE" 2>"$EXEC_LOG" |
-                   sed -rne 's/^flags: (.*)$/\1/p')"
+  old_gbb_flags="$(${FUTILITY} gbb --get --flags "${IMAGE_BIOS}" \
+    2>"${EXEC_LOG}" | sed -rne 's/^flags: (.*)$/\1/p')"
   debug_msg "Decide new GBB flags from: $old_gbb_flags"
   [ -z "$old_gbb_flags" ] &&
     die "Cannot find GBB flags. (message: $(cat "${EXEC_LOG}"))"
@@ -291,52 +381,68 @@ main() {
   local new_gbb_flags="$((old_gbb_flags | 0x30))"
 
   debug_msg "Replace GBB parts (futility gbb allows changing on-the-fly)"
-  futility gbb --set \
-    --hwid="$new_hwid" \
-    --rootkey="$root_pubkey" \
-    --recoverykey="$recovery_pubkey" \
-    "$IMAGE" >"$EXEC_LOG" 2>&1 ||
+  ${FUTILITY} gbb --set \
+    --hwid="${new_hwid}" \
+    --rootkey="${root_pubkey}" \
+    --recoverykey="${recovery_pubkey}" \
+    "${IMAGE_BIOS}" >"${EXEC_LOG}" 2>&1 ||
     die "Failed to change GBB Data. (message: $(cat "${EXEC_LOG}"))"
 
   # Old firmware does not support GBB flags, so let's make it an exception.
-  if [ "$FLAGS_mod_gbb_flags" = "$FLAGS_TRUE" ]; then
-    debug_msg "Changing GBB flags from $old_gbb_flags to $new_gbb_flags"
-    futility gbb --set \
-      --flags="$new_gbb_flags" \
-      "$IMAGE" >"$EXEC_LOG" 2>&1 ||
-      echo "Warning: GBB flags ($old_gbb_flags -> $new_gbb_flags) can't be set."
+  if [ "${FLAGS_mod_gbb_flags}" = "${FLAGS_TRUE}" ]; then
+    debug_msg "Changing GBB flags from ${old_gbb_flags} to ${new_gbb_flags}"
+    ${FUTILITY} gbb --set \
+      --flags="${new_gbb_flags}" \
+      "${IMAGE_BIOS}" >"${EXEC_LOG}" 2>&1 ||
+      echo "Warning: Can't set GBB flags ${old_gbb_flags} -> ${new_gbb_flags}."
   fi
 
   # TODO(hungte) compare if the image really needs to be changed.
 
   debug_msg "Check if we need to make backup file(s)"
-  if [ -n "$backup_image" ]; then
-    local backup_hwid_name="$(echo "$old_hwid" | sed 's/ /_/g')"
+  if [ -n "${backup_bios_image}" ]; then
+    local backup_hwid_name="$(echo "${old_hwid}" | sed 's/ /_/g')"
     local backup_date_time="$(date +'%Y%m%d_%H%M%S')"
-    local backup_file_name="firmware_${backup_hwid_name}_${backup_date_time}.fd"
-    local backup_file_path="$FLAGS_backup_dir/$backup_file_name"
-    if mkdir -p "$FLAGS_backup_dir" &&
-       cp -f "$backup_image" "$backup_file_path"; then
-      true
-    elif cp -f "$backup_image" "/tmp/$backup_file_name"; then
-      backup_file_path="/tmp/$backup_file_name"
+    local backup_bios_name="bios_${backup_hwid_name}_${backup_date_time}.fd"
+    local backup_bios_path="${FLAGS_backup_dir}/${backup_bios_name}"
+    local backup_ec_name="ec_${backup_hwid_name}_${backup_date_time}.fd"
+    local backup_ec_path=''
+    if mkdir -p "${FLAGS_backup_dir}" &&
+       cp -f "${backup_bios_image}" "${backup_bios_path}"; then
+      if [ -n "${backup_ec_image}" ]; then
+        backup_ec_path="${FLAGS_backup_dir}/${backup_ec_name}"
+        cp -f "${backup_ec_image}" "${backup_ec_path}"
+      fi
+    elif cp -f "${backup_bios_image}" "/tmp/${backup_bios_name}"; then
+      backup_bios_path="/tmp/${backup_bios_name}"
+      if [ -n "${backup_ec_image}" ]; then
+        cp -f "${backup_ec_image}" "/tmp/${backup_ec_name}"
+        backup_ec_path="/tmp/${backup_ec_name}"
+      fi
     else
-      backup_file_path=''
+      backup_bios_path=''
     fi
-    if [ -n "$backup_file_path" -a -s "$backup_file_path" ]; then
+    if [ -n "${backup_bios_path}" ]; then
       # TODO(hungte) maybe we can wrap the flashrom by 'make_dev_firmware.sh -r'
       # so that the only command to remember would be make_dev_firmware.sh.
       echo "
-      Backup of current firmware image is stored in:
-        $backup_file_path
-      Please copy the backup file to a safe place ASAP.
+        Backup of current firmware image is stored in:
+          ${backup_bios_path}
+          ${backup_ec_path}
+        Please copy the backup file to a safe place ASAP.
 
-      To stop using devkeys and restore original firmware, execute command:
-        ${FLASHROM} -w [PATH_TO_BACKUP_IMAGE]
-      Ex: ${FLASHROM} -w $backup_file_path
-      "
+        To stop using devkeys and restore original BIOS, execute command:
+          flashrom -p bios -w [PATH_TO_BACKUP_BIOS]
+        Ex: flashrom -p bios -w ${backup_bios_path}"
+      if [ -n "${backup_ec_image}" ]; then
+        echo "
+        To stop using devkeys and restore original EC, execute command:
+          flashrom -p ec -w [PATH_TO_BACKUP_EC]
+        Ex: flashrom -p ec -w ${backup_ec_path}"
+      fi
+      echo ""
     else
-      echo "WARNING: Cannot create file in $FLAGS_backup_dir... Ignore backups."
+      echo "WARNING: Can't create file in ${FLAGS_backup_dir}. Ignore backups."
     fi
   fi
 

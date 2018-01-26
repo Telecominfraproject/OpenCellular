@@ -22,10 +22,6 @@
 # Load common constants and variables.
 . "$(dirname "$0")/common.sh"
 
-# Which futility to run?
-# futility is exception because there are local automated tests for it.
-[ -z "${FUTILITY}" ] && FUTILITY=futility
-
 # Print usage string
 usage() {
   cat <<EOF
@@ -120,11 +116,6 @@ is_old_verity_argv() {
     return 0
   fi
   return 1
-}
-
-# Returns true if given ec.bin is signed or false if not.
-is_ec_rw_signed() {
-  ${FUTILITY} dump_fmap "$1" | grep -q KEY_RO
 }
 
 # Get the dmparams parameters from a kernel config.
@@ -501,28 +492,6 @@ sign_recovery_kernel() {
 
   mv "${temp_kernel}" "${image}"
   info "Signed recovery_kernel image output to ${image}"
-}
-
-# Get the compression algorithm used for the given CBFS file.
-# Args: INPUT_CBFS_IMAGE CBFS_FILE_NAME
-get_cbfs_compression() {
-  cbfstool "$1" print -r "FW_MAIN_A" | awk -vname="$2" '$1 == name {print $5}'
-}
-
-# Store a file in CBFS.
-# Args: INPUT_CBFS_IMAGE INPUT_FILE CBFS_FILE_NAME
-store_file_in_cbfs() {
-  local image="$1"
-  local file="$2"
-  local name="$3"
-  local compression=$(get_cbfs_compression "$1" "${name}")
-  cbfstool "${image}" remove -r "FW_MAIN_A,FW_MAIN_B" -n "${name}" || return
-  # This add can fail if
-  # 1. Size of a signature after compression is larger
-  # 2. CBFS is full
-  # These conditions extremely unlikely become true at the same time.
-  cbfstool "${image}" add -r "FW_MAIN_A,FW_MAIN_B" -t "raw" \
-    -c "${compression}" -f "${file}" -n "${name}" || return
 }
 
 # Sign a delta update payload (usually created by paygen).

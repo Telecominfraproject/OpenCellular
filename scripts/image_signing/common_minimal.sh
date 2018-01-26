@@ -10,7 +10,8 @@
 # Determine script directory
 SCRIPT_DIR=$(dirname $0)
 PROG=$(basename $0)
-GPT=${GPT:-"cgpt"}
+: ${GPT:=cgpt}
+: ${FUTILITY:=futility}
 
 # The tag when the rootfs is changed.
 TAG_NEEDS_TO_BE_SIGNED="/root/.need_to_be_signed"
@@ -349,6 +350,31 @@ rw_mount_disabled() {
   return 1
 }
 
+# Functions for CBFS management
+# ----------------------------------------------------------------------------
+
+# Get the compression algorithm used for the given CBFS file.
+# Args: INPUT_CBFS_IMAGE CBFS_FILE_NAME
+get_cbfs_compression() {
+  cbfstool "$1" print -r "FW_MAIN_A" | awk -vname="$2" '$1 == name {print $5}'
+}
+
+# Store a file in CBFS.
+# Args: INPUT_CBFS_IMAGE INPUT_FILE CBFS_FILE_NAME
+store_file_in_cbfs() {
+  local image="$1"
+  local file="$2"
+  local name="$3"
+  local compression=$(get_cbfs_compression "$1" "${name}")
+  cbfstool "${image}" remove -r "FW_MAIN_A,FW_MAIN_B" -n "${name}" || return
+  # This add can fail if
+  # 1. Size of a signature after compression is larger
+  # 2. CBFS is full
+  # These conditions extremely unlikely become true at the same time.
+  cbfstool "${image}" add -r "FW_MAIN_A,FW_MAIN_B" -t "raw" \
+    -c "${compression}" -f "${file}" -n "${name}" || return
+}
+
 # Misc functions
 # ----------------------------------------------------------------------------
 
@@ -383,6 +409,11 @@ no_chronos_password() {
   if grep -qs '^chronos:' "${rootfs}/etc/passwd"; then
     sudo grep -q '^chronos:\*:' "${rootfs}/etc/shadow"
   fi
+}
+
+# Returns true if given ec.bin is signed or false if not.
+is_ec_rw_signed() {
+  ${FUTILITY} dump_fmap "$1" | grep -q KEY_RO
 }
 
 trap "cleanup_temps_and_mounts" EXIT
