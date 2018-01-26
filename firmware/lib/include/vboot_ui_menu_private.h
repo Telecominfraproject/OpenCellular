@@ -8,6 +8,20 @@
 #ifndef VBOOT_REFERENCE_VBOOT_UI_MENU_PRIVATE_H_
 #define VBOOT_REFERENCE_VBOOT_UI_MENU_PRIVATE_H_
 
+#include "2api.h"
+#include "vboot_api.h"
+
+struct vb2_menu_item {
+	const char *text;
+	VbError_t (*action)(struct vb2_context *ctx);
+};
+
+struct vb2_menu {
+	uint16_t size;
+	uint16_t screen;
+	struct vb2_menu_item *items;
+};
+
 typedef enum _VB_MENU {
 	VB_MENU_DEV_WARNING,
 	VB_MENU_DEV,

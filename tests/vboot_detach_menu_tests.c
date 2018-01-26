@@ -325,9 +325,7 @@ static void VbBootDevTest(void)
 		"  warning screen");
 	TEST_EQ(screens_displayed[2], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  tonorm screen");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
-		"  tonorm screen");
-	TEST_EQ(screens_displayed[4], VB_SCREEN_TO_NORM_CONFIRMED,
+	TEST_EQ(screens_displayed[3], VB_SCREEN_TO_NORM_CONFIRMED,
 		"  confirm screen");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_DISABLE_DEV_REQUEST), 1,
 		"  disable dev request");
@@ -374,13 +372,11 @@ static void VbBootDevTest(void)
 	TEST_EQ(VbBootDeveloperMenu(&ctx), 1002,
 		"Can't tonorm gbb-dev");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING_MENU,
-		"  warning screen");
+		"  warning screen: power off");
 	TEST_EQ(screens_displayed[1], VB_SCREEN_DEVELOPER_WARNING_MENU,
-		"  tonorm screen");
+		"  wanring screen: enable verification");
 	TEST_EQ(screens_displayed[2], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
-		"  warning screen");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
-		"  warning screen");
+		"  tonorm screen: confirm");
 
 	/* Shutdown requested at tonorm screen */
 	ResetMocks();
@@ -493,8 +489,6 @@ static void VbBootDevTest(void)
 		"  power button");
 	TEST_EQ(screens_displayed[4], VB_SCREEN_DEVELOPER_MENU,
 		"  dev menu: USB boot");
-	TEST_EQ(screens_displayed[5], VB_SCREEN_DEVELOPER_MENU,
-		"  dev menu: USB boot");
 
 	/* If no USB, eventually times out and tries fixed disk */
 	ResetMocks();
@@ -509,15 +503,17 @@ static void VbBootDevTest(void)
 	/* If dev mode is disabled, goes to TONORM screen repeatedly */
 	ResetMocks();
 	VbApiKernelGetFwmp()->flags |= FWMP_DEV_DISABLE_BOOT;
-	mock_keypress[0] = '\x1b';  /* Just causes TONORM again */
+	mock_keypress[0] = 0x04;  /* Just stays on TONORM and flashes screen */
 	mock_keypress[1] = '\r';
 	TEST_EQ(VbBootDeveloperMenu(&ctx), VBERROR_REBOOT_REQUIRED,
 		"FWMP dev disabled");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  tonorm screen");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[1], VB_SCREEN_BLANK,
+		"  screen flash");
+	TEST_EQ(screens_displayed[2], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  tonorm screen");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_TO_NORM_CONFIRMED,
+	TEST_EQ(screens_displayed[3], VB_SCREEN_TO_NORM_CONFIRMED,
 		"  confirm screen");
 	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_DISABLE_DEV_REQUEST), 1,
 		"  disable dev request");
@@ -827,76 +823,82 @@ static void VbTestLanguageMenu(void)
 
 	/* Navigate to all language menus from developer menu */
 	ResetMocks();
+	i = 0;
 	shared->flags = VBSD_BOOT_DEV_SWITCH_ON;
-	mock_keypress[0] = 0x63; // volume down: language
-	mock_keypress[1] = 0x90; // power button: select language
-	mock_keypress[2] = 0x90; // power button: select current language
-	mock_keypress[3] = 0x62; // volume up: enable root verification
-	mock_keypress[4] = 0x90; // power button: select enable root verification
-	mock_keypress[5] = 0x63; // volume down: cancel
-	mock_keypress[6] = 0x63; // volume down: power off
-	mock_keypress[7] = 0x63; // volume down: language
-	mock_keypress[8] = 0x90; // power button: select language
-	mock_keypress[9] = 0x90; // power button: select current language
-	mock_keypress[10] = 0x63; // volume down: cancel
-	mock_keypress[11] = 0x90; // power button: return to dev warning screen
-	mock_keypress[12] = 0x62; // volume up: enable root verification
-	mock_keypress[13] = 0x62; // volume up: show debug info
-	mock_keypress[14] = 0x62; // volume up: developer options
-	mock_keypress[15] = 0x90; // power button: select developer options
-	mock_keypress[16] = 0x63; // volume down: cancel
-	mock_keypress[17] = 0x63; // volume down: power off
-	mock_keypress[18] = 0x63; // volume down: language
-	mock_keypress[19] = 0x90; // power button: select language
-	mock_keypress[20] = 0x90; // power button: select current language
-	mock_keypress[21] = 0x90; // power button: select power off
+	mock_keypress[i++] = 0x63; // volume down: language
+	mock_keypress[i++] = 0x90; // power button: select language
+	mock_keypress[i++] = 0x90; // power button: select current language
+	mock_keypress[i++] = 0x62; // volume up: enable root verification
+	mock_keypress[i++] = 0x90; // power button: select enable root verification
+	mock_keypress[i++] = 0x63; // volume down: cancel
+	mock_keypress[i++] = 0x63; // volume down: power off
+	mock_keypress[i++] = 0x63; // volume down: language
+	mock_keypress[i++] = 0x90; // power button: select language
+	mock_keypress[i++] = 0x90; // power button: select current language
+	mock_keypress[i++] = 0x63; // volume down: cancel
+	mock_keypress[i++] = 0x90; // power button: return to dev warning screen
+	mock_keypress[i++] = 0x62; // volume up: enable root verification
+	mock_keypress[i++] = 0x62; // volume up: show debug info
+	mock_keypress[i++] = 0x62; // volume up: developer options
+	mock_keypress[i++] = 0x90; // power button: select developer options
+	mock_keypress[i++] = 0x63; // volume down: cancel
+	mock_keypress[i++] = 0x63; // volume down: power off
+	mock_keypress[i++] = 0x63; // volume down: language
+	mock_keypress[i++] = 0x90; // power button: select language
+	mock_keypress[i++] = 0x90; // power button: select current language
+	mock_keypress[i++] = 0x63; // volume down: cancel
+	mock_keypress[i++] = 0x63; // volume down: power off
+	mock_keypress[i++] = 0x90; // power button: select power off
+	i = 0;
 	TEST_EQ(VbBootDeveloperMenu(&ctx), VBERROR_SHUTDOWN_REQUESTED,
 		" scroll through all language menus in developer options");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: power off");
-	TEST_EQ(screens_displayed[1], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: language");
-	TEST_EQ(screens_displayed[2], VB_SCREEN_LANGUAGES_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_LANGUAGES_MENU,
 		"  language menu: select current language");
-	TEST_EQ(screens_displayed[3], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: cancel ");
-	TEST_EQ(screens_displayed[4], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: enable root verification");
-	TEST_EQ(screens_displayed[5], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  to norm screen: cancel");
-	TEST_EQ(screens_displayed[6], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  to norm screen: power off");
-	TEST_EQ(screens_displayed[7], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  to norm screen: language");
-	TEST_EQ(screens_displayed[8], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  to norm screen: language");
-	TEST_EQ(screens_displayed[9], VB_SCREEN_LANGUAGES_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_LANGUAGES_MENU,
 		"  language menu: select current language");
-	TEST_EQ(screens_displayed[10], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  to norm screen: confirm enabling os verification");
-	TEST_EQ(screens_displayed[11], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_TO_NORM_MENU,
 		"  to norm screen: cancel");
-	TEST_EQ(screens_displayed[12], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: enable root verification");
-	TEST_EQ(screens_displayed[13], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: show debug info");
-	TEST_EQ(screens_displayed[14], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  warning screen: developer options");
-	TEST_EQ(screens_displayed[15], VB_SCREEN_DEVELOPER_WARNING_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
 		"  select developer options");
-	TEST_EQ(screens_displayed[16], VB_SCREEN_DEVELOPER_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
 		"  developer menu: boot developer image");
-	TEST_EQ(screens_displayed[17], VB_SCREEN_DEVELOPER_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
 		"  developer menu: cancel");
-	TEST_EQ(screens_displayed[18], VB_SCREEN_DEVELOPER_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
 		"  developer menu: power off");
-	TEST_EQ(screens_displayed[19], VB_SCREEN_DEVELOPER_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
 		"  developer menu: language");
-	TEST_EQ(screens_displayed[20], VB_SCREEN_LANGUAGES_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_LANGUAGES_MENU,
 		"  language menu");
-	TEST_EQ(screens_displayed[21], VB_SCREEN_DEVELOPER_MENU,
-		"  select current language");
-	TEST_EQ(screens_displayed[22], VB_SCREEN_DEVELOPER_MENU,
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
+		"  developer menu: boot from disk");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
+		"  developer menu: cancel");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_MENU,
 		"  developer menu: power off");
 
   	printf("...done.\n");

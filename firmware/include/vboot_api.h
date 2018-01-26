@@ -134,6 +134,10 @@ enum VbErrorPredefined_t {
 	/* VbExEcGetExpectedRWHash() may return the following codes */
 	/* Compute expected RW hash from the EC image; BIOS doesn't have it */
 	VBERROR_EC_GET_EXPECTED_HASH_FROM_IMAGE = 0x20000,
+
+	/* Detachable UI internal functions may return the following codes */
+	/* No error; return to UI loop */
+	VBERROR_KEEP_LOOPING			= 0x30000,
 };
 
 

@@ -24,10 +24,16 @@
 #include "vboot_kernel.h"
 #include "vboot_ui_menu_private.h"
 
-static void VbAllowUsbBootMenu(struct vb2_context *ctx)
-{
-	vb2_nv_set(ctx, VB2_NV_DEV_BOOT_USB, 1);
-}
+static const char dev_disable_msg[] =
+	"Developer mode is disabled on this device by system policy.\n"
+	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
+	"\n";
+
+static VB_MENU current_menu, prev_menu;
+static int current_menu_idx, disabled_idx_mask, usb_nogood;
+static uint32_t default_boot;
+static uint32_t disable_dev_boot;
+static struct vb2_menu menus[];
 
 /**
  * Checks GBB flags against VbExIsShutdownRequested() shutdown request to
@@ -53,219 +59,26 @@ static int VbWantShutdownMenu(struct vb2_context *ctx)
 	return !!shutdown_request;
 }
 
-static void VbTryLegacyMenu(int allowed)
-{
-	if (!allowed)
-		VB2_DEBUG("Legacy boot is disabled\n");
-	else if (0 != RollbackKernelLock(0))
-		VB2_DEBUG("Error locking kernel versions on legacy boot.\n");
-	else
-		VbExLegacy();	/* Will not return if successful */
+/* (Re-)Draw the menu identified by current_menu[_idx] to the screen. */
+static VbError_t vb2_draw_current_screen(struct vb2_context *ctx) {
+	return VbDisplayMenu(ctx, menus[current_menu].screen, 0,
+			     current_menu_idx, disabled_idx_mask);
+}
 
-	/* If legacy boot fails, beep and return to calling UI loop. */
+/* Flash the screen to black to catch user awareness, then redraw menu. */
+static void vb2_flash_screen(struct vb2_context *ctx)
+{
+	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
+	VbExSleepMs(50);
+	vb2_draw_current_screen(ctx);
+}
+
+/* Two short beeps to notify the user that attempted action was disallowed. */
+static void vb2_error_beep(void)
+{
 	VbExBeep(120, 400);
 	VbExSleepMs(120);
 	VbExBeep(120, 400);
-}
-
-static int32_t VbTryUsbMenu(struct vb2_context *ctx)
-{
-	uint32_t retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
-	if (VBERROR_SUCCESS == retval) {
-		VB2_DEBUG("booting USB\n");
-	} else {
-		VB2_DEBUG("no kernel found on USB\n");
-		VbExBeep(250, 200);
-		VbExSleepMs(120);
-		/*
-		 * Clear recovery requests from failed
-		 * kernel loading, so that powering off
-		 * at this point doesn't put us into
-		 * recovery mode.
-		 */
-		vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
-			   VB2_RECOVERY_NOT_REQUESTED);
-	}
-	return retval;
-}
-
-static const char dev_disable_msg[] =
-	"Developer mode is disabled on this device by system policy.\n"
-	"For more information, see http://dev.chromium.org/chromium-os/fwmp\n"
-	"\n";
-
-static VB_MENU current_menu, prev_menu;
-static int current_menu_idx, selected, disabled_idx_mask, usb_nogood;
-static uint32_t default_boot = VB2_DEV_DEFAULT_BOOT_DISK;
-static uint32_t disable_dev_boot = 0;
-
-// TODO: add in consts
-static char *dev_warning_menu[] = {
-	"Developer Options\n",
-	"Show Debug Info\n",
-	"Enable Root Verification\n",
-	"Power Off\n",
-	"Language\n"
-};
-
-static char *dev_menu[] = {
-	"Boot Network Image (not working yet)\n",
-	"Boot Legacy BIOS\n",
-	"Boot USB Image\n",
-	"Boot Developer Image\n",
-	"Cancel\n",
-	"Power Off\n",
-	"Language\n"
-};
-
-static char *to_normal_menu[] = {
-	"Confirm Enabling Verified Boot\n",
-	"Cancel\n",
-	"Power Off\n",
-	"Language\n"
-};
-
-static char *to_dev_menu[] = {
-	"Confirm enabling developer mode\n",
-	"Cancel\n",
-	"Power Off\n",
-	"Language\n"
-};
-
-static char *languages_menu[] = {
-	"US English\n",
-};
-
-static char *options_menu[] = {
-	"Cancel\n",
-	"Show Debug Info\n",
-	"Power Off\n",
-	"Language\n"
-};
-
-/**
- * Return 1 if screen with only an image, or 0 if screen with a real menu.
- *
- * @param menu: The menu to check
- * @return int: 1 if legacy menu, or 0 otherwise
- */
-static int vb2_is_menuless_screen(VB_MENU menu) {
-	if (menu == VB_MENU_RECOVERY_INSERT ||
-	    menu == VB_MENU_RECOVERY_NO_GOOD ||
-	    menu == VB_MENU_TO_NORM_CONFIRMED ||
-	    menu == VB_MENU_RECOVERY_BROKEN)
-		return 1;
-	return 0;
-}
-
-/**
- * Get the string array and size of current_menu.
- *
- * @param menu:	The current_menu
- * @param menu_array:	Pointer to the menu's string array.  If menu_array==NULL
- *			will not return string array.
- * @param size:	Size of menu's string array.
- * @return VBERROR_SUCCESS, or non-zero error code if error.
- */
-static void vb2_get_current_menu_size(VB_MENU menu, char ***menu_array,
-				    uint32_t *size)
-{
-	char **temp_menu = NULL;
-
-	switch(menu) {
-	case VB_MENU_DEV_WARNING:
-		*size = VB_WARN_COUNT;
-		temp_menu = dev_warning_menu;
-		break;
-	case VB_MENU_DEV:
-		*size = VB_DEV_COUNT;
-		temp_menu = dev_menu;
-		break;
-	case VB_MENU_TO_NORM:
-		*size = VB_TO_NORM_COUNT;
-		temp_menu = to_normal_menu;
-		break;
-	case VB_MENU_TO_DEV:
-		*size = VB_TO_DEV_COUNT;
-		temp_menu = to_dev_menu;
-		break;
-	case VB_MENU_LANGUAGES:
-		*size = VB_LANGUAGES_COUNT;
-		temp_menu = languages_menu;
-		break;
-	case VB_MENU_OPTIONS:
-		*size = VB_OPTIONS_COUNT;
-		temp_menu = options_menu;
-		break;
-	default:
-		*size = 0;
-	}
-	if (menu_array)
-		*menu_array = temp_menu;
-}
-
-/**
- * Print current_menu state, including selected entry.
- *
- * @return VBERROR_SUCCESS, or non-zero error code if error.
- */
-VbError_t vb2_print_current_menu()
-{
-	uint32_t size = 0;
-	int i = 0;
-	static char **m = NULL;
-	int highlight = 0;
-	// TODO: We probably want to center this text.
-	uint32_t xindex, yindex;
-
-	// TODO: need to check for error code.
-	vb2_get_current_menu_size(current_menu, &m, &size);
-
-	/* Center block of text */
-	VbExDisplayGetDimension(&xindex, &yindex);
-	xindex = xindex/2 - strlen(m[0])/2;
-	yindex = yindex/2 - size/2;
-
-	// TODO: do clear screen here.
-	/* Create menu string */
-	for (i = 0; i < size; i++) {
-		highlight = !!(current_menu_idx == i);
-		VbExDisplayText(xindex, yindex, m[i], highlight);
-		VB2_DEBUG("[%d,%d]: %s", xindex, yindex, m[i]);
-		yindex++;
-	}
-
-	return VBERROR_SUCCESS;
-}
-
-/*
- * Static array for mapping current_menu to matching screen item in depthcharge.
- * Note that order here is important and needs to match that of items in
- * VB_MENU.
- */
-static const uint32_t VB_MENU_TO_SCREEN_MAP[] = {
-	VB_SCREEN_DEVELOPER_WARNING_MENU,
-	VB_SCREEN_DEVELOPER_MENU,
-	VB_SCREEN_DEVELOPER_TO_NORM_MENU,
-	VB_SCREEN_RECOVERY_TO_DEV_MENU,
-	VB_SCREEN_LANGUAGES_MENU,
-	VB_SCREEN_OPTIONS_MENU,
-	VB_SCREEN_RECOVERY_INSERT,
-	VB_SCREEN_RECOVERY_NO_GOOD,
-	VB_SCREEN_OS_BROKEN,
-	VB_SCREEN_TO_NORM_CONFIRMED,
-};
-
-static VbError_t vb2_draw_current_screen(struct vb2_context *ctx) {
-	uint32_t screen;
-	if (current_menu < VB_MENU_COUNT)
-		screen = VB_MENU_TO_SCREEN_MAP[current_menu];
-	else
-		return VBERROR_UNKNOWN;
-	return VbDisplayMenu(ctx, screen, 0,
-			     vb2_is_menuless_screen(current_menu) ?
-			     0 : current_menu_idx,
-			     disabled_idx_mask);
 }
 
 /**
@@ -281,9 +94,6 @@ static void vb2_change_menu(VB_MENU new_current_menu,
 	current_menu = new_current_menu;
 	current_menu_idx = new_current_menu_idx;
 
-	/* Changing menus, so reset selected */
-	selected = 0;
-
 	/* Reconfigure disabled_idx_mask for the new menu */
 	disabled_idx_mask = 0;
 	/* Disable Network Boot Option */
@@ -295,223 +105,426 @@ static void vb2_change_menu(VB_MENU new_current_menu,
 		disabled_idx_mask |= 1 << VB_TO_NORM_CANCEL;
 }
 
-/**
- * Transition to current recovery "base" menu based on current USB state.
- */
-static void vb2_recovery_base_menu(int nogood)
+/************************
+ *    Menu Actions      *
+ ************************/
+
+/* Boot from internal disk if allowed. */
+static VbError_t boot_disk_action(struct vb2_context *ctx)
 {
-	if (nogood)
+	if (disable_dev_boot) {
+		vb2_flash_screen(ctx);
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
+	}
+	VB2_DEBUG("trying fixed disk\n");
+	return VbTryLoadKernel(ctx, VB_DISK_FLAG_FIXED);
+}
+
+/* Boot legacy BIOS if allowed and available. */
+static VbError_t boot_legacy_action(struct vb2_context *ctx)
+{
+	const char no_legacy[] = "Legacy boot failed. Missing BIOS?\n";
+
+	if (disable_dev_boot) {
+		vb2_flash_screen(ctx);
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
+	}
+
+	if (!vb2_nv_get(ctx, VB2_NV_DEV_BOOT_LEGACY) &&
+	    !(vb2_get_sd(ctx)->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
+	    && !(vb2_get_fwmp_flags() & FWMP_DEV_ENABLE_LEGACY)) {
+		vb2_flash_screen(ctx);
+		VB2_DEBUG("Legacy boot is disabled\n");
+		VbExDisplayDebugInfo("WARNING: Booting legacy BIOS has not "
+				     "been enabled. Refer to the developer"
+				     "-mode documentation for details.\n");
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
+	}
+
+	if (0 == RollbackKernelLock(0))
+		VbExLegacy();	/* Will not return if successful */
+	else
+		VB2_DEBUG("Error locking kernel versions on legacy boot.\n");
+
+	vb2_flash_screen(ctx);
+	VB2_DEBUG(no_legacy);
+	VbExDisplayDebugInfo(no_legacy);
+	VbExBeep(250, 200);
+	return VBERROR_KEEP_LOOPING;
+}
+
+/* Boot from USB or SD card if allowed and available. */
+static VbError_t boot_usb_action(struct vb2_context *ctx)
+{
+	const char no_kernel[] = "No bootable kernel found on USB/SD.\n";
+
+	if (disable_dev_boot) {
+		vb2_flash_screen(ctx);
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
+	}
+
+	if (!vb2_nv_get(ctx, VB2_NV_DEV_BOOT_USB) &&
+	    !(vb2_get_sd(ctx)->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_USB) &&
+	    !(vb2_get_fwmp_flags() & FWMP_DEV_ENABLE_USB)) {
+		vb2_flash_screen(ctx);
+		VB2_DEBUG("USB booting is disabled\n");
+		VbExDisplayDebugInfo("WARNING: Booting from external media "
+				     "(USB/SD) has not been enabled. Refer "
+				     "to the developer-mode documentation "
+				     "for details.\n");
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
+	}
+
+	if (VBERROR_SUCCESS == VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE)) {
+		VB2_DEBUG("booting USB\n");
+		return VBERROR_SUCCESS;
+	}
+
+	/* Loading kernel failed. Clear recovery request from that. */
+	vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST, VB2_RECOVERY_NOT_REQUESTED);
+	vb2_flash_screen(ctx);
+	VB2_DEBUG(no_kernel);
+	VbExDisplayDebugInfo(no_kernel);
+	VbExBeep(250, 200);
+	return VBERROR_KEEP_LOOPING;
+}
+
+static VbError_t enter_developer_menu(struct vb2_context *ctx)
+{
+	int menu_idx;
+	switch(default_boot) {
+	case VB2_DEV_DEFAULT_BOOT_DISK:
+		menu_idx = VB_DEV_DISK;
+		break;
+	case VB2_DEV_DEFAULT_BOOT_USB:
+		menu_idx = VB_DEV_USB;
+		break;
+	case VB2_DEV_DEFAULT_BOOT_LEGACY:
+		menu_idx = VB_DEV_LEGACY;
+		break;
+	}
+	vb2_change_menu(VB_MENU_DEV, menu_idx);
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
+}
+
+static VbError_t enter_dev_warning_menu(struct vb2_context *ctx)
+{
+	vb2_change_menu(VB_MENU_DEV_WARNING, VB_WARN_POWER_OFF);
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
+}
+
+static VbError_t enter_language_menu(struct vb2_context *ctx)
+{
+	vb2_change_menu(VB_MENU_LANGUAGES,
+			vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX));
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
+}
+
+static VbError_t enter_recovery_base_screen(struct vb2_context *ctx)
+{
+	if (usb_nogood)
 		vb2_change_menu(VB_MENU_RECOVERY_NO_GOOD, 0);
 	else
 		vb2_change_menu(VB_MENU_RECOVERY_INSERT, 0);
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
 }
 
-/**
- * This updates current_menu and current_menu_idx, as necessary
- *
- * @return VBERROR_SUCCESS, or non-zero error code if error.
- */
-static VbError_t vb2_update_menu(struct vb2_context *ctx)
+static VbError_t enter_options_menu(struct vb2_context *ctx)
 {
-	VbError_t ret = VBERROR_SUCCESS;
-	VB_MENU next_menu_idx = current_menu_idx;
-	uint32_t loc = vb2_nv_get(ctx, VB2_NV_LOCALIZATION_INDEX);
-	switch(current_menu) {
-	case VB_MENU_DEV_WARNING:
-		switch(current_menu_idx) {
-		case VB_WARN_OPTIONS:
-			switch(default_boot) {
-			case VB2_DEV_DEFAULT_BOOT_DISK:
-				next_menu_idx = VB_DEV_DISK;
-				break;
-			case VB2_DEV_DEFAULT_BOOT_USB:
-				next_menu_idx = VB_DEV_USB;
-				break;
-			case VB2_DEV_DEFAULT_BOOT_LEGACY:
-				next_menu_idx = VB_DEV_LEGACY;
-				break;
-			}
-
-			/*
-			 * 1. Select dev menu
-			 * 2. Default to dev boot device
-			 */
-			vb2_change_menu(VB_MENU_DEV, next_menu_idx);
-			break;
-		case VB_WARN_DBG_INFO:
-			/* Show debug info */
-			break;
-		case VB_WARN_ENABLE_VER:
-			/*
-			 * 1. Enable boot verification
-			 * 2. Default to the confirm option
-			 */
-			vb2_change_menu(VB_MENU_TO_NORM, VB_TO_NORM_CONFIRM);
-			break;
-		case VB_WARN_POWER_OFF:
-			/* Power off machine */
-			ret =  VBERROR_SHUTDOWN_REQUESTED;
-			break;
-		case VB_WARN_LANGUAGE:
-			/* Languages */
-			vb2_change_menu(VB_MENU_LANGUAGES, loc);
-			break;
-		default:
-			/* Invalid menu item.  Don't update anything. */
-			break;
-		}
-		break;
-	case VB_MENU_DEV:
-		switch(current_menu_idx) {
-		case VB_DEV_NETWORK:
-			/* Boot network image */
-			break;
-		case VB_DEV_LEGACY:
-			/* Boot legacy BIOS */
-			break;
-		case VB_DEV_USB:
-			/* Boot USB image */
-			break;
-		case VB_DEV_DISK:
-			/* Boot developer image */
-			break;
-		case VB_DEV_CANCEL:
-			/*
-			 * 1. Cancel (go back to developer warning menu)
-			 * 2. Default to power off option.
-			 */
-			vb2_change_menu(VB_MENU_DEV_WARNING, VB_WARN_POWER_OFF);
-			break;
-		case VB_DEV_POWER_OFF:
-			/* Power off */
-			ret = VBERROR_SHUTDOWN_REQUESTED;
-			break;
-		case VB_DEV_LANGUAGE:
-			/* Language */
-			vb2_change_menu(VB_MENU_LANGUAGES, loc);
-			break;
-		default:
-			/* Invalid menu item.  Don't update anything. */
-			break;
-		}
-		break;
-	case VB_MENU_TO_NORM:
-		switch(current_menu_idx) {
-		case VB_TO_NORM_CONFIRM:
-			/* Confirm enabling verified boot */
-			break;
-		case VB_TO_NORM_CANCEL:
-			/*
-			 * 1. Cancel (go back to developer warning menu)
-			 * 2. Default to power off
-			 */
-			vb2_change_menu(VB_MENU_DEV_WARNING, VB_WARN_POWER_OFF);
-			break;
-		case VB_TO_NORM_POWER_OFF:
-			/* Power off */
-			ret = VBERROR_SHUTDOWN_REQUESTED;
-			break;
-		case VB_TO_NORM_LANGUAGE:
-			/* Language */
-			vb2_change_menu(VB_MENU_LANGUAGES, loc);
-			break;
-		default:
-			/* Invalid menu item.  Don't update anything */
-			break;
-		}
-		break;
-	case VB_MENU_RECOVERY_INSERT:
-	case VB_MENU_RECOVERY_NO_GOOD:
-	case VB_MENU_RECOVERY_BROKEN:
-		vb2_change_menu(VB_MENU_OPTIONS, VB_OPTIONS_CANCEL);
-		break;
-	case VB_MENU_TO_DEV:
-		switch(current_menu_idx) {
-		case VB_TO_DEV_CONFIRM:
-			/* Confirm enabling dev mode */
-			break;
-		case VB_TO_DEV_CANCEL:
-			vb2_recovery_base_menu(usb_nogood);
-			break;
-		case VB_TO_DEV_POWER_OFF:
-			ret = VBERROR_SHUTDOWN_REQUESTED;
-			break;
-		case VB_TO_DEV_LANGUAGE:
-			vb2_change_menu(VB_MENU_LANGUAGES, loc);
-			break;
-		default:
-			/* Invalid menu item.  Don't update anything. */
-			break;
-		}
-		break;
-	case VB_MENU_OPTIONS:
-		switch(current_menu_idx) {
-		case VB_OPTIONS_DBG_INFO:
-			break;
-		case VB_OPTIONS_CANCEL:
-			vb2_recovery_base_menu(usb_nogood);
-			break;
-		case VB_OPTIONS_POWER_OFF:
-			ret = VBERROR_SHUTDOWN_REQUESTED;
-			break;
-		case VB_OPTIONS_LANGUAGE:
-			vb2_change_menu(VB_MENU_LANGUAGES, loc);
-			break;
-		default:
-			/* Invalid menu item.  Don't update anything. */
-			break;
-		}
-		break;
-	case VB_MENU_LANGUAGES:
-		/*
-		 * default to power off index with the exception of
-		 * TO_DEV, TO_NORM and OPTIONS menus
-		 */
-		switch (prev_menu) {
-		case VB_MENU_DEV_WARNING:
-			vb2_change_menu(prev_menu, VB_WARN_POWER_OFF);
-			break;
-		case VB_MENU_DEV:
-			vb2_change_menu(prev_menu, VB_DEV_POWER_OFF);
-			break;
-		case VB_MENU_TO_NORM:
-			vb2_change_menu(prev_menu, VB_TO_NORM_CONFIRM);
-			break;
-		case VB_MENU_TO_DEV:
-			vb2_change_menu(prev_menu, VB_TO_DEV_CANCEL);
-			break;
-		case VB_MENU_OPTIONS:
-			vb2_change_menu(prev_menu, VB_OPTIONS_CANCEL);
-			break;
-		default:
-			vb2_change_menu(prev_menu, 0);
-			break;
-		}
-		break;
-	default:
-		VB2_DEBUG("Current Menu Invalid! 0x%x\n", current_menu_idx);
-	}
-	return ret;
+	vb2_change_menu(VB_MENU_OPTIONS, VB_OPTIONS_CANCEL);
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
 }
 
-/**
- * This updates the current locale to the current_menu_index
- * This function only does something in the VB_MENU_LANGUAGES menu
- * Otherwise it's a noop.
- *
- * @return VBERROR_SUCCESS
- */
-static VbError_t vb2_update_locale(struct vb2_context *ctx) {
-	if (current_menu == VB_MENU_LANGUAGES) {
-		vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
-		vb2_nv_set(ctx, VB2_NV_BACKUP_NVRAM_REQUEST, 1);
-#ifdef SAVE_LOCALE_IMMEDIATELY
-		if (ctx->flags & VB2_CONTEXT_NVDATA_CHANGED) {
-			VbExNvStorageWrite(ctx.nvdata);
-			ctx.flags &= ~VB2_CONTEXT_NVDATA_CHANGED;
-		}
-#endif
+static VbError_t enter_to_dev_menu(struct vb2_context *ctx)
+{
+	const char dev_already_on[] =
+		"WARNING: TODEV rejected, developer mode is already on.\n";
+	if (vb2_get_sd(ctx)->vbsd->flags & VBSD_BOOT_DEV_SWITCH_ON) {
+		vb2_flash_screen(ctx);
+		VB2_DEBUG(dev_already_on);
+		VbExDisplayDebugInfo(dev_already_on);
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
 	}
+	vb2_change_menu(VB_MENU_TO_DEV, VB_TO_DEV_CANCEL);
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
+}
+
+static VbError_t enter_to_norm_menu(struct vb2_context *ctx)
+{
+	vb2_change_menu(VB_MENU_TO_NORM, VB_TO_NORM_CONFIRM);
+	vb2_draw_current_screen(ctx);
+	return VBERROR_KEEP_LOOPING;
+}
+
+static VbError_t debug_info_action(struct vb2_context *ctx)
+{
+	VbDisplayDebugInfo(ctx);
+	return VBERROR_KEEP_LOOPING;
+}
+
+/* Action when selecting a language entry in the language menu. */
+static VbError_t language_action(struct vb2_context *ctx)
+{
+	vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
+
+	switch (prev_menu) {
+	case VB_MENU_DEV_WARNING:
+		return enter_dev_warning_menu(ctx);
+	case VB_MENU_DEV:
+		return enter_developer_menu(ctx);
+	case VB_MENU_TO_NORM:
+		return enter_to_norm_menu(ctx);
+	case VB_MENU_TO_DEV:
+		return enter_to_dev_menu(ctx);
+	case VB_MENU_OPTIONS:
+		return enter_options_menu(ctx);
+	default:
+		/* This should never happen. */
+		VB2_DEBUG("ERROR: prev_menu state corrupted, force shutdown\n");
+		return VBERROR_SHUTDOWN_REQUESTED;
+	}
+}
+
+/* Action that enables developer mode and reboots. */
+static VbError_t to_dev_action(struct vb2_context *ctx)
+{
+	uint32_t vbsd_flags = vb2_get_sd(ctx)->vbsd->flags;
+
+	/* Sanity check, should never happen. */
+	if (!(vbsd_flags & VBSD_HONOR_VIRT_DEV_SWITCH) ||
+	    (vbsd_flags & VBSD_BOOT_DEV_SWITCH_ON) ||
+	    !vb2_allow_recovery(vbsd_flags))
+		return VBERROR_KEEP_LOOPING;
+
+	VB2_DEBUG("Enabling dev-mode...\n");
+	if (TPM_SUCCESS != SetVirtualDevMode(1))
+		return VBERROR_TPM_SET_BOOT_MODE_STATE;
+
+	/* This was meant for headless devices, shouldn't really matter here. */
+	if (VbExGetSwitches(VB_INIT_FLAG_ALLOW_USB_BOOT))
+		vb2_nv_set(ctx, VB2_NV_DEV_BOOT_USB, 1);
+
+	VB2_DEBUG("Reboot so it will take effect\n");
+	return VBERROR_REBOOT_REQUIRED;
+}
+
+/* Action that disables developer mode, shows TO_NORM_CONFIRMED and reboots. */
+static VbError_t to_norm_action(struct vb2_context *ctx)
+{
+	if (vb2_get_sd(ctx)->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON) {
+		vb2_flash_screen(ctx);
+		VB2_DEBUG("TONORM rejected by FORCE_DEV_SWITCH_ON\n");
+		VbExDisplayDebugInfo("WARNING: TONORM prohibited by "
+				     "GBB FORCE_DEV_SWITCH_ON.\n\n");
+		vb2_error_beep();
+		return VBERROR_KEEP_LOOPING;
+	}
+
+	VB2_DEBUG("leaving dev-mode.\n");
+	vb2_nv_set(ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
+	vb2_change_menu(VB_MENU_TO_NORM_CONFIRMED, 0);
+	vb2_draw_current_screen(ctx);
+	VbExSleepMs(5000);
+	return VBERROR_REBOOT_REQUIRED;
+}
+
+/* Action that will power off the system. */
+static VbError_t power_off_action(struct vb2_context *ctx)
+{
+	VB2_DEBUG("Power off requested from screen 0x%x\n",
+		  menus[current_menu].screen);
+	return VBERROR_SHUTDOWN_REQUESTED;
+}
+
+/* Master table of all menus. Menus with size == 0 count as menuless screens. */
+static struct vb2_menu menus[VB_MENU_COUNT] = {
+	[VB_MENU_DEV_WARNING] = {
+		.size = VB_WARN_COUNT,
+		.screen = VB_SCREEN_DEVELOPER_WARNING_MENU,
+		.items = (struct vb2_menu_item[]){
+			[VB_WARN_OPTIONS] = {
+				.text = "Developer Options",
+				.action = enter_developer_menu,
+			},
+			[VB_WARN_DBG_INFO] = {
+				.text = "Show Debug Info",
+				.action = debug_info_action,
+			},
+			[VB_WARN_ENABLE_VER] = {
+				.text = "Enable OS Verification",
+				.action = enter_to_norm_menu,
+			},
+			[VB_WARN_POWER_OFF] = {
+				.text = "Power Off",
+				.action = power_off_action,
+			},
+			[VB_WARN_LANGUAGE] = {
+				.text = "Language",
+				.action = enter_language_menu,
+			},
+		},
+	},
+	[VB_MENU_DEV] = {
+		.size = VB_DEV_COUNT,
+		.screen = VB_SCREEN_DEVELOPER_MENU,
+		.items = (struct vb2_menu_item[]){
+			[VB_DEV_NETWORK] = {
+				.text = "Boot From Network",
+				.action = NULL,	/* unimplemented */
+			},
+			[VB_DEV_LEGACY] = {
+				.text = "Boot Legacy BIOS",
+				.action = boot_legacy_action,
+			},
+			[VB_DEV_USB] = {
+				.text = "Boot From USB or SD Card",
+				.action = boot_usb_action,
+			},
+			[VB_DEV_DISK] = {
+				.text = "Boot From Internal Disk",
+				.action = boot_disk_action,
+			},
+			[VB_DEV_CANCEL] = {
+				.text = "Cancel",
+				.action = enter_dev_warning_menu,
+			},
+			[VB_DEV_POWER_OFF] = {
+				.text = "Power Off",
+				.action = power_off_action,
+			},
+			[VB_DEV_LANGUAGE] = {
+				.text = "Language",
+				.action = enter_language_menu,
+			},
+		},
+	},
+	[VB_MENU_TO_NORM] = {
+		.size = VB_TO_NORM_COUNT,
+		.screen = VB_SCREEN_DEVELOPER_TO_NORM_MENU,
+		.items = (struct vb2_menu_item[]){
+			[VB_TO_NORM_CONFIRM] = {
+				.text = "Confirm Enabling OS Verification",
+				.action = to_norm_action,
+			},
+			[VB_TO_NORM_CANCEL] = {
+				.text = "Cancel",
+				.action = enter_dev_warning_menu,
+			},
+			[VB_TO_NORM_POWER_OFF] = {
+				.text = "Power Off",
+				.action = power_off_action,
+			},
+			[VB_TO_NORM_LANGUAGE] = {
+				.text = "Language",
+				.action = enter_language_menu,
+			},
+		},
+	},
+	[VB_MENU_TO_DEV] = {
+		.size = VB_TO_DEV_COUNT,
+		.screen = VB_SCREEN_RECOVERY_TO_DEV_MENU,
+		.items = (struct vb2_menu_item[]){
+			[VB_TO_DEV_CONFIRM] = {
+				.text = "Confirm Disabling OS Verification",
+				.action = to_dev_action,
+			},
+			[VB_TO_DEV_CANCEL] = {
+				.text = "Cancel",
+				.action = enter_recovery_base_screen,
+			},
+			[VB_TO_DEV_POWER_OFF] = {
+				.text = "Power Off",
+				.action = power_off_action,
+			},
+			[VB_TO_DEV_LANGUAGE] = {
+				.text = "Language",
+				.action = enter_language_menu,
+			},
+		},
+	},
+	[VB_MENU_LANGUAGES] = {
+		.screen = VB_SCREEN_LANGUAGES_MENU,
+		/* Rest is filled out dynamically by vb2_init_menus() */
+	},
+	[VB_MENU_OPTIONS] = {
+		.size = VB_OPTIONS_COUNT,
+		.screen = VB_SCREEN_OPTIONS_MENU,
+		.items = (struct vb2_menu_item[]){
+			[VB_OPTIONS_DBG_INFO] = {
+				.text = "Show Debug Info",
+				.action = debug_info_action,
+			},
+			[VB_OPTIONS_CANCEL] = {
+				.text = "Cancel",
+				.action = enter_recovery_base_screen,
+			},
+			[VB_OPTIONS_POWER_OFF] = {
+				.text = "Power Off",
+				.action = power_off_action,
+			},
+			[VB_OPTIONS_LANGUAGE] = {
+				.text = "Language",
+				.action = enter_language_menu,
+			},
+		},
+	},
+	[VB_MENU_RECOVERY_INSERT] = {
+		.size = 0,
+		.screen = VB_SCREEN_RECOVERY_INSERT,
+		.items = NULL,
+	},
+	[VB_MENU_RECOVERY_NO_GOOD] = {
+		.size = 0,
+		.screen = VB_SCREEN_RECOVERY_NO_GOOD,
+		.items = NULL,
+	},
+	[VB_MENU_RECOVERY_BROKEN] = {
+		.size = 0,
+		.screen = VB_SCREEN_OS_BROKEN,
+		.items = NULL,
+	},
+	[VB_MENU_TO_NORM_CONFIRMED] = {
+		.size = 0,
+		.screen = VB_SCREEN_TO_NORM_CONFIRMED,
+		.items = NULL,
+	},
+};
+
+/* Initialize menu state. Must be called once before displaying any menus. */
+static VbError_t vb2_init_menus(struct vb2_context *ctx)
+{
+	struct vb2_menu_item *items;
+	uint32_t count;
+	int i;
+
+	/* Initialize language menu with the correct amount of entries. */
+	VbExGetLocalizationCount(&count);
+	if (!count)
+		count = 1;	/* Always need at least one language entry. */
+
+	items = malloc(count * sizeof(struct vb2_menu_item));
+	if (!items)
+		return VBERROR_UNKNOWN;
+
+	for (i = 0; i < count; i++) {
+		items[i].text = "Some Language";
+		items[i].action = language_action;
+	}
+	menus[VB_MENU_LANGUAGES].size = count;
+	menus[VB_MENU_LANGUAGES].items = items;
+
 	return VBERROR_SUCCESS;
 }
 
@@ -527,14 +540,6 @@ static VbError_t vb2_update_locale(struct vb2_context *ctx) {
  */
 static void vb2_update_selection(uint32_t key) {
 	int idx;
-	uint32_t menu_size;
-
-	if (current_menu == VB_MENU_LANGUAGES) {
-		VbExGetLocalizationCount(&menu_size);
-	} else {
-		vb2_get_current_menu_size(current_menu,
-					  NULL, &menu_size);
-	}
 
 	switch (key) {
 	case VB_BUTTON_VOL_UP_SHORT_PRESS:
@@ -550,16 +555,16 @@ static void vb2_update_selection(uint32_t key) {
 	case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 	case VB_KEY_DOWN:
 		idx = current_menu_idx + 1;
-		while (idx < menu_size &&
+		while (idx < menus[current_menu].size &&
 		       ((1 << idx) & disabled_idx_mask))
 		  idx++;
 		/* Only update if idx is valid */
-		if (idx < menu_size)
+		if (idx < menus[current_menu].size)
 			current_menu_idx = idx;
 		break;
 	default:
-	  /* Do not update anything */
-	  break;
+		VB2_DEBUG("ERROR: %s called with key 0x%x!\n", __func__, key);
+		break;
 	}
 }
 
@@ -572,47 +577,16 @@ static void vb2_update_selection(uint32_t key) {
 static VbError_t vb2_developer_menu(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
-	VbSharedDataHeader *shared = sd->vbsd;
-
-	uint32_t use_usb = 0;
-	uint32_t use_legacy = 0;
-	uint32_t ctrl_d_pressed = 0;
-
 	VbError_t ret;
-
-	VB2_DEBUG("Entering\n");
-
-	vb2_change_menu(VB_MENU_DEV_WARNING, VB_WARN_POWER_OFF);
-
-	/* Check if USB booting is allowed */
-	uint32_t allow_usb = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_USB);
-	uint32_t allow_legacy = vb2_nv_get(ctx, VB2_NV_DEV_BOOT_LEGACY);
 
 	/* Check if the default is to boot using disk, usb, or legacy */
 	default_boot = vb2_nv_get(ctx, VB2_NV_DEV_DEFAULT_BOOT);
+	if (sd->gbb_flags & VB2_GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY)
+		default_boot = VB2_DEV_DEFAULT_BOOT_LEGACY;
 
-	if(default_boot == VB2_DEV_DEFAULT_BOOT_USB)
-		use_usb = 1;
-	if(default_boot == VB2_DEV_DEFAULT_BOOT_LEGACY)
-		use_legacy = 1;
-
-	/* Handle GBB flag override */
-	if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_USB)
-		allow_usb = 1;
-	if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_BOOT_LEGACY)
-		allow_legacy = 1;
-	if (sd->gbb_flags & VB2_GBB_FLAG_DEFAULT_DEV_BOOT_LEGACY) {
-		use_legacy = 1;
-		use_usb = 0;
-	}
-
-	/* Handle FWMP override */
-	uint32_t fwmp_flags = vb2_get_fwmp_flags();
-	if (fwmp_flags & FWMP_DEV_ENABLE_USB)
-		allow_usb = 1;
-	if (fwmp_flags & FWMP_DEV_ENABLE_LEGACY)
-		allow_legacy = 1;
-	if (fwmp_flags & FWMP_DEV_DISABLE_BOOT) {
+	/* Check if developer mode is disabled by FWMP */
+	disable_dev_boot = 0;
+	if (vb2_get_fwmp_flags() & FWMP_DEV_DISABLE_BOOT) {
 		if (sd->gbb_flags & VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON) {
 			VB2_DEBUG("FWMP_DEV_DISABLE_BOOT rejected by"
 				  "FORCE_DEV_SWITCH_ON\n");
@@ -620,12 +594,14 @@ static VbError_t vb2_developer_menu(struct vb2_context *ctx)
 			/* If dev mode is disabled, only allow TONORM */
 			disable_dev_boot = 1;
 			VB2_DEBUG("dev_disable_boot is set.\n");
-			vb2_change_menu(VB_MENU_TO_NORM, VB_TO_NORM_CONFIRM);
 		}
 	}
 
-	/* Show the dev mode warning screen */
-	vb2_draw_current_screen(ctx);
+	/* Show appropriate initial menu */
+	if (disable_dev_boot)
+		enter_to_norm_menu(ctx);
+	else
+		enter_dev_warning_menu(ctx);
 
 	/* Get audio/delay context */
 	vb2_audio_start(ctx);
@@ -649,211 +625,68 @@ static VbError_t vb2_developer_menu(struct vb2_context *ctx)
 			/* Nothing pressed */
 			break;
 		case VB_BUTTON_VOL_DOWN_LONG_PRESS:
-		case 0x04:
-			/* Ctrl+D = dismiss warning; advance to timeout */
-			if (disable_dev_boot)
-				break;
-			VB2_DEBUG("user pressed Ctrl+D; skip delay\n");
-			ctrl_d_pressed = 1;
-			goto fallout;
+		case 'D' & 0x1f:
+			/* Ctrl+D = boot from internal disk */
+			ret = boot_disk_action(ctx);
+			if (ret != VBERROR_KEEP_LOOPING)
+				return ret;
 			break;
-		case 0x0c:
-			if (disable_dev_boot)
-				break;
-			VB2_DEBUG("user pressed Ctrl+L; Try legacy boot\n");
-			VbTryLegacyMenu(allow_legacy);
+		case 'L' & 0x1f:
+			/* Ctrl+L = boot legacy BIOS */
+			ret = boot_legacy_action(ctx);
+			if (ret != VBERROR_KEEP_LOOPING)
+				return ret;
 			break;
 		case VB_BUTTON_VOL_UP_LONG_PRESS:
-		case 0x15:
-			if (disable_dev_boot)
-				break;
-			/* Ctrl+U = try USB boot, or beep if failure */
-			VB2_DEBUG("user pressed Ctrl+U; try USB\n");
-			if (!allow_usb) {
-				VB2_DEBUG("USB booting is disabled\n");
-				VbExDisplayDebugInfo(
-					"WARNING: Booting from external media "
-					"(USB/SD) has not been enabled. Refer "
-					"to the developer-mode documentation "
-					"for details.\n");
-				VbExBeep(120, 400);
-				VbExSleepMs(120);
-				VbExBeep(120, 400);
-			} else {
-				/*
-				 * Clear the screen to show we get the Ctrl+U
-				 * key press.
-				 */
-				VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
-				if (VBERROR_SUCCESS == VbTryUsbMenu(ctx)) {
-					return VBERROR_SUCCESS;
-				} else {
-					/* Show dev mode warning screen again */
-					vb2_draw_current_screen(ctx);
-				}
-			}
+		case 'U' & 0x1f:
+			/* Ctrl+U = boot from USB or SD card */
+			ret = boot_usb_action(ctx);
+			if (ret != VBERROR_KEEP_LOOPING)
+				return ret;
 			break;
 		case VB_BUTTON_VOL_UP_SHORT_PRESS:
 		case VB_KEY_UP:
-			vb2_update_selection(key);
-			vb2_draw_current_screen(ctx);
-			/* reset 30 second timer */
-			vb2_audio_start(ctx);
-			break;
 		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
 		case VB_KEY_DOWN:
 			vb2_update_selection(key);
 			vb2_draw_current_screen(ctx);
-			/* reset 30 second timer */
-			vb2_audio_start(ctx);
 			break;
 		case VB_BUTTON_POWER_SHORT_PRESS:
 		case '\r':
-			selected = 1;
-
-			/*
-			 * Need to update locale before updating the menu or
-			 * we'll lose the previous state
-			 */
-			vb2_update_locale(ctx);
-			ret = vb2_update_menu(ctx);
-			vb2_draw_current_screen(ctx);
-
-			/* Probably shutting down */
-			if (ret != VBERROR_SUCCESS) {
-			  VB2_DEBUG("shutting down!\n");
-			  return ret;
-			}
-
-			/* Nothing selected, skip everything else */
-			if (selected == 0)
-				break;
-
-			/* All the actions associated with selection */
-
-			/* Display debug information */
-			if (current_menu == VB_MENU_DEV_WARNING &&
-			    current_menu_idx == VB_WARN_DBG_INFO) {
-				VbDisplayDebugInfo(ctx);
-			}
-
-			/* Boot Legacy mode */
-			if (current_menu == VB_MENU_DEV &&
-			    current_menu_idx == VB_DEV_LEGACY) {
-				VB2_DEBUG("user pressed Ctrl+L; "
-					  "Try legacy boot\n");
-				VbTryLegacyMenu(allow_legacy);
-			}
-
-			/* USB boot, or beep if failure */
-			if (current_menu == VB_MENU_DEV &&
-			    current_menu_idx == VB_DEV_USB) {
-				VB2_DEBUG("user pressed Ctrl+U; try USB\n");
-				if (!allow_usb) {
-					VB2_DEBUG("USB booting is disabled\n");
-					VbExDisplayDebugInfo(
-						"WARNING: Booting from external media "
-						"(USB/SD) has not been enabled. Refer "
-						"to the developer-mode documentation "
-						"for details.\n");
-					VbExBeep(120, 400);
-					VbExSleepMs(120);
-					VbExBeep(120, 400);
-				} else {
-					/*
-					 * Clear the screen to show we get the
-					 * Ctrl+U key press.
-					 */
-					VbDisplayScreen(ctx,
-							VB_SCREEN_BLANK, 0);
-					if (VBERROR_SUCCESS ==
-					    VbTryUsbMenu(ctx)) {
-						return VBERROR_SUCCESS;
-					} else
-						/*
-						 * Show dev mode warning screen
-						 * again
-						 */
-						vb2_draw_current_screen(ctx);
-				}
-			}
-
-			/* Boot developer mode: advance to timeout */
-			if (current_menu == VB_MENU_DEV &&
-			    current_menu_idx == VB_DEV_DISK) {
-				VB2_DEBUG("user pressed Ctrl+D; skip delay\n");
-				ctrl_d_pressed = 1;
-				goto fallout;
-			}
-
-			/* Enabling verified boot */
-			if (current_menu == VB_MENU_TO_NORM &&
-			    current_menu_idx == VB_TO_NORM_CONFIRM) {
-				if (sd->gbb_flags &
-				    VB2_GBB_FLAG_FORCE_DEV_SWITCH_ON) {
-					/*
-					 * Throw error when user tries to
-					 * confirm transition to normal
-					 * mode if FORCE_DEV_SWITCH_ON
-					 * is enabled.
-					 */
-					VB2_DEBUG("TONORM rejected by "
-						  "FORCE_DEV_SWITCH_ON\n");
-					VbExDisplayDebugInfo(
-						"WARNING: TONORM prohibited by "
-						"GBB FORCE_DEV_SWITCH_ON.\n\n");
-					VbExBeep(120, 400);
-				} else {
-					/*
-					 * See if we should disable
-					 * virtual dev-mode switch.
-					 */
-					VB2_DEBUG("%s shared->flags=0x%x\n",
-						  __func__, shared->flags);
-					VB2_DEBUG("leaving dev-mode.\n");
-					vb2_nv_set(ctx,
-						   VB2_NV_DISABLE_DEV_REQUEST,
-						   1);
-					current_menu = VB_MENU_TO_NORM_CONFIRMED;
-					vb2_draw_current_screen(ctx);
-					current_menu = VB_MENU_TO_NORM_CONFIRMED;
-					VbExSleepMs(5000);
-					return VBERROR_REBOOT_REQUIRED;
-				}
-			}
-			/* reset 30 second timer */
-			vb2_audio_start(ctx);
+			ret = menus[current_menu].
+			      items[current_menu_idx].action(ctx);
+			if (ret != VBERROR_KEEP_LOOPING)
+				return ret;
 			break;
 		default:
-			VB2_DEBUG("pressed key %d\n", key);
+			VB2_DEBUG("pressed key 0x%x\n", key);
 			break;
 		}
+
+		/* Reset 30 second timer whenever we see a new key. */
+		if (key != 0)
+			vb2_audio_start(ctx);
 
 		/* If dev mode was disabled, loop forever (never timeout) */
 	} while(disable_dev_boot ? 1 : vb2_audio_looping());
 
-fallout:
+	if (default_boot == VB2_DEV_DEFAULT_BOOT_LEGACY)
+		boot_legacy_action(ctx);	/* Doesn't return on success. */
 
-	/* If defaulting to legacy boot, try that unless Ctrl+D was pressed */
-	if (use_legacy && !ctrl_d_pressed) {
-		VB2_DEBUG("defaulting to legacy\n");
-		VbTryLegacyMenu(allow_legacy);
-	}
-
-	if ((use_usb && !ctrl_d_pressed) && allow_usb) {
-		if (VBERROR_SUCCESS == VbTryUsbMenu(ctx)) {
+	if (default_boot == VB2_DEV_DEFAULT_BOOT_USB)
+		if (VBERROR_SUCCESS == boot_usb_action(ctx))
 			return VBERROR_SUCCESS;
-		}
-	}
 
-	/* Timeout or Ctrl+D; attempt loading from fixed disk */
-	VB2_DEBUG("trying fixed disk\n");
-	return VbTryLoadKernel(ctx, VB_DISK_FLAG_FIXED);
+	return boot_disk_action(ctx);
 }
 
+/* Developer mode entry point. */
 VbError_t VbBootDeveloperMenu(struct vb2_context *ctx)
 {
-	VbError_t retval = vb2_developer_menu(ctx);
+	VbError_t retval = vb2_init_menus(ctx);
+	if (VBERROR_SUCCESS != retval)
+		return retval;
+	retval = vb2_developer_menu(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }
@@ -871,19 +704,13 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx)
  */
 static VbError_t recovery_ui(struct vb2_context *ctx)
 {
-	const char dev_already_on[] =
-		"WARNING: TODEV rejected, developer mode is already on.\n";
-	struct vb2_shared_data *sd = vb2_get_sd(ctx);
-	VbSharedDataHeader *shared = sd->vbsd;
-	uint32_t retval;
+	VbSharedDataHeader *vbsd = vb2_get_sd(ctx)->vbsd;
 	uint32_t key;
 	uint32_t key_flags;
-	int i;
 	VbError_t ret;
+	int i;
 
-	VB2_DEBUG("start\n");
-
-	if (!vb2_allow_recovery(shared->flags)) {
+	if (!vb2_allow_recovery(vbsd->flags)) {
 		/*
 		 * We have to save the reason here so that it will survive
 		 * coming up three-finger-salute. We're saving it in
@@ -893,9 +720,9 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 		 * reboot to workaround a boot hiccup.
 		 */
 		VB2_DEBUG("saving recovery reason (%#x)\n",
-			  shared->recovery_reason);
+			  vbsd->recovery_reason);
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_SUBCODE,
-			   shared->recovery_reason);
+			   vbsd->recovery_reason);
 		/*
 		 * Commit NV now, because it won't get saved if the user forces
 		 * manual recovery via the three-finger salute.
@@ -924,7 +751,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 	usb_nogood = -1;
 	while (1) {
 		VB2_DEBUG("attempting to load kernel2\n");
-		retval = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
+		ret = VbTryLoadKernel(ctx, VB_DISK_FLAG_REMOVABLE);
 
 		/*
 		 * Clear recovery requests from failed kernel loading, since
@@ -935,14 +762,13 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 		vb2_nv_set(ctx, VB2_NV_RECOVERY_REQUEST,
 			   VB2_RECOVERY_NOT_REQUESTED);
 
-		if (VBERROR_SUCCESS == retval)
+		if (VBERROR_SUCCESS == ret)
 			break; /* Found a recovery kernel */
 
-		if (usb_nogood != (retval != VBERROR_NO_DISK_FOUND)) {
+		if (usb_nogood != (ret != VBERROR_NO_DISK_FOUND)) {
 			/* USB state changed, force back to base screen */
-			usb_nogood = retval != VBERROR_NO_DISK_FOUND;
-			vb2_recovery_base_menu(usb_nogood);
-			vb2_draw_current_screen(ctx);
+			usb_nogood = ret != VBERROR_NO_DISK_FOUND;
+			enter_recovery_base_screen(ctx);
 		}
 
 		/*
@@ -967,107 +793,36 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 				 */
 				if (current_menu == VB_MENU_TO_DEV &&
 				    !(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)) {
-					VbExBeep(120, 400);
+					vb2_flash_screen(ctx);
+					vb2_error_beep();
 					break;
 				}
 
-				if (vb2_is_menuless_screen(current_menu))
-					vb2_update_menu(ctx);
-				else
-					vb2_update_selection(key);
+				/* Menuless screens enter OPTIONS on btnpress */
+				if (!menus[current_menu].size) {
+					enter_options_menu(ctx);
+					break;
+				}
+
+				vb2_update_selection(key);
 				vb2_draw_current_screen(ctx);
 				break;
 			case VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS:
-				if (!(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD))
-					break;
-				if (shared->flags & VBSD_BOOT_DEV_SWITCH_ON) {
-					VB2_DEBUG(dev_already_on);
-					VbExDisplayDebugInfo(dev_already_on);
-					VbExBeep(120, 400);
-					break;
-				}
-				vb2_change_menu(VB_MENU_TO_DEV,
-						   VB_TO_DEV_CANCEL);
-				vb2_draw_current_screen(ctx);
+				if (key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)
+					enter_to_dev_menu(ctx);
+				else
+					VB2_DEBUG("ERROR: untrusted combo?!\n");
 				break;
 			case VB_BUTTON_POWER_SHORT_PRESS:
 			case '\r':
-				selected = 1;
+				if (!menus[current_menu].size)
+					return VBERROR_SHUTDOWN_REQUESTED;
 
-				/*
-				 * If user hits power button in
-				 * initial recovery screen (ie:
-				 * because didn't really want to go
-				 * there), power button will turn off
-				 * device.
-				 */
-				if (vb2_is_menuless_screen(current_menu)) {
-					ret = VBERROR_SHUTDOWN_REQUESTED;
-				} else {
-					/*
-					 * Need to update locale
-					 * before updating the menu or
-					 * we'll lose the previous state
-					 */
-					vb2_update_locale(ctx);
-					ret = vb2_update_menu(ctx);
-					vb2_draw_current_screen(ctx);
-				}
-
-				/* Probably shutting down */
-				if (ret != VBERROR_SUCCESS) {
-					VB2_DEBUG("update_menu - shutting down!\n");
+				ret = menus[current_menu].
+				      items[current_menu_idx].action(ctx);
+				if (ret != VBERROR_KEEP_LOOPING)
 					return ret;
-				}
-
-				/* Nothing selected, skip everything else. */
-				if (selected == 0)
-					break;
-
-				/* Display debug information */
-				if (current_menu == VB_MENU_OPTIONS &&
-				    current_menu_idx == VB_OPTIONS_DBG_INFO)
-					VbDisplayDebugInfo(ctx);
-
-				/* Confirm going into developer mode */
-				/*
-				 * We might want to enter dev-mode from the Insert
-				 * screen if all of the following are true:
-				 *   - user pressed Ctrl-D
-				 *   - we can honor the virtual dev switch
-				 *   - not already in dev mode
-				 *   - user forced recovery mode
-				 */
-				if (current_menu == VB_MENU_TO_DEV &&
-				    current_menu_idx == VB_TO_DEV_CONFIRM &&
-				    shared->flags & VBSD_HONOR_VIRT_DEV_SWITCH &&
-				    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON) &&
-				    (shared->flags & VBSD_BOOT_REC_SWITCH_ON)) {
-					if (!(shared->flags &
-					      VBSD_BOOT_REC_SWITCH_VIRTUAL) &&
-					    VbExGetSwitches(
-						VB_INIT_FLAG_REC_BUTTON_PRESSED)) {
-						/*
-						 * Is the recovery button stuck?  In
-						 * any case we don't like this.  Beep
-						 * and ignore.
-						 */
-						VB2_DEBUG("^D but rec switch "
-							  "is pressed\n");
-						VbExBeep(120, 400);
-						continue;
-					}
-
-					VB2_DEBUG("Enabling dev-mode...\n");
-					if (TPM_SUCCESS != SetVirtualDevMode(1))
-						return VBERROR_TPM_SET_BOOT_MODE_STATE;
-					VB2_DEBUG("Reboot so it will take "
-						  "effect\n");
-					if (VbExGetSwitches
-					    (VB_INIT_FLAG_ALLOW_USB_BOOT))
-						VbAllowUsbBootMenu(ctx);
-					return VBERROR_REBOOT_REQUIRED;
-				}
+				break;
 			}
 			if (VbWantShutdownMenu(ctx))
 				return VBERROR_SHUTDOWN_REQUESTED;
@@ -1078,9 +833,13 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 	return VBERROR_SUCCESS;
 }
 
+/* Recovery mode entry point. */
 VbError_t VbBootRecoveryMenu(struct vb2_context *ctx)
 {
-	VbError_t retval = recovery_ui(ctx);
+	VbError_t retval = vb2_init_menus(ctx);
+	if (VBERROR_SUCCESS != retval)
+		return retval;
+	retval = recovery_ui(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }
