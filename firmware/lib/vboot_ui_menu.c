@@ -568,6 +568,54 @@ static void vb2_update_selection(uint32_t key) {
 	}
 }
 
+static VbError_t vb2_handle_menu_input(struct vb2_context *ctx,
+				       uint32_t key, uint32_t key_flags)
+{
+	switch (key) {
+	case 0:
+		/* nothing pressed */
+		break;
+	case VB_KEY_UP:
+	case VB_KEY_DOWN:
+	case VB_BUTTON_VOL_UP_SHORT_PRESS:
+	case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
+		/* Untrusted (USB keyboard) input disabled for TO_DEV menu. */
+		if (current_menu == VB_MENU_TO_DEV &&
+		    !(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)) {
+			vb2_flash_screen(ctx);
+			vb2_error_beep();
+			break;
+		}
+
+		/* Menuless screens enter OPTIONS on volume button press. */
+		if (!menus[current_menu].size) {
+			enter_options_menu(ctx);
+			break;
+		}
+
+		vb2_update_selection(key);
+		vb2_draw_current_screen(ctx);
+		break;
+	case VB_BUTTON_POWER_SHORT_PRESS:
+	case '\r':
+		/* Menuless screens shut down on power button press. */
+		if (!menus[current_menu].size)
+			return VBERROR_SHUTDOWN_REQUESTED;
+
+		return menus[current_menu].items[current_menu_idx].action(ctx);
+	default:
+		VB2_DEBUG("pressed key 0x%x\n", key);
+		break;
+	}
+
+	if (VbWantShutdownMenu(ctx)) {
+		VB2_DEBUG("shutdown requested!\n");
+		return VBERROR_SHUTDOWN_REQUESTED;
+	}
+
+	return VBERROR_KEEP_LOOPING;
+}
+
 /**
  * Main function that handles developer warning menu functionality
  *
@@ -608,60 +656,35 @@ static VbError_t vb2_developer_menu(struct vb2_context *ctx)
 
 	/* We'll loop until we finish the delay or are interrupted */
 	do {
-		uint32_t key;
-
-		if (VbWantShutdownMenu(ctx)) {
-			VB2_DEBUG("shutdown requested!\n");
-			return VBERROR_SHUTDOWN_REQUESTED;
-		}
+		uint32_t key = VbExKeyboardRead();
 
 		/* Make sure user knows dev mode disabled */
 		if (disable_dev_boot)
 			VbExDisplayDebugInfo(dev_disable_msg);
 
-		key = VbExKeyboardRead();
 		switch (key) {
-		case 0:
-			/* Nothing pressed */
-			break;
 		case VB_BUTTON_VOL_DOWN_LONG_PRESS:
 		case 'D' & 0x1f:
 			/* Ctrl+D = boot from internal disk */
 			ret = boot_disk_action(ctx);
-			if (ret != VBERROR_KEEP_LOOPING)
-				return ret;
 			break;
 		case 'L' & 0x1f:
 			/* Ctrl+L = boot legacy BIOS */
 			ret = boot_legacy_action(ctx);
-			if (ret != VBERROR_KEEP_LOOPING)
-				return ret;
 			break;
 		case VB_BUTTON_VOL_UP_LONG_PRESS:
 		case 'U' & 0x1f:
 			/* Ctrl+U = boot from USB or SD card */
 			ret = boot_usb_action(ctx);
-			if (ret != VBERROR_KEEP_LOOPING)
-				return ret;
-			break;
-		case VB_BUTTON_VOL_UP_SHORT_PRESS:
-		case VB_KEY_UP:
-		case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
-		case VB_KEY_DOWN:
-			vb2_update_selection(key);
-			vb2_draw_current_screen(ctx);
-			break;
-		case VB_BUTTON_POWER_SHORT_PRESS:
-		case '\r':
-			ret = menus[current_menu].
-			      items[current_menu_idx].action(ctx);
-			if (ret != VBERROR_KEEP_LOOPING)
-				return ret;
 			break;
 		default:
-			VB2_DEBUG("pressed key 0x%x\n", key);
+			ret = vb2_handle_menu_input(ctx, key, 0);
 			break;
 		}
+
+		/* We may have loaded a kernel or decided to shut down now. */
+		if (ret != VBERROR_KEEP_LOOPING)
+			return ret;
 
 		/* Reset 30 second timer whenever we see a new key. */
 		if (key != 0)
@@ -777,55 +800,17 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 		 */
 		for (i = 0; i < REC_DISK_DELAY; i += REC_KEY_DELAY) {
 			key = VbExKeyboardReadWithFlags(&key_flags);
-			switch (key) {
-			case 0:
-				/* nothing pressed */
-				break;
-			case VB_KEY_UP:
-			case VB_KEY_DOWN:
-			case VB_BUTTON_VOL_UP_SHORT_PRESS:
-			case VB_BUTTON_VOL_DOWN_SHORT_PRESS:
-				/* User cannot use keyboard to enable dev mode.
-				 * They need to use the volume buttons from a
-				 * trusted source to navigate to the disable os
-				 * verification menu item.  Beep so user knows
-				 * that they're doing something wrong.
-				 */
-				if (current_menu == VB_MENU_TO_DEV &&
-				    !(key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)) {
-					vb2_flash_screen(ctx);
-					vb2_error_beep();
-					break;
-				}
-
-				/* Menuless screens enter OPTIONS on btnpress */
-				if (!menus[current_menu].size) {
-					enter_options_menu(ctx);
-					break;
-				}
-
-				vb2_update_selection(key);
-				vb2_draw_current_screen(ctx);
-				break;
-			case VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS:
+			if (key == VB_BUTTON_VOL_UP_DOWN_COMBO_PRESS) {
 				if (key_flags & VB_KEY_FLAG_TRUSTED_KEYBOARD)
 					enter_to_dev_menu(ctx);
 				else
 					VB2_DEBUG("ERROR: untrusted combo?!\n");
-				break;
-			case VB_BUTTON_POWER_SHORT_PRESS:
-			case '\r':
-				if (!menus[current_menu].size)
-					return VBERROR_SHUTDOWN_REQUESTED;
-
-				ret = menus[current_menu].
-				      items[current_menu_idx].action(ctx);
+			} else {
+				ret = vb2_handle_menu_input(ctx, key,
+							    key_flags);
 				if (ret != VBERROR_KEEP_LOOPING)
 					return ret;
-				break;
 			}
-			if (VbWantShutdownMenu(ctx))
-				return VBERROR_SHUTDOWN_REQUESTED;
 			VbExSleepMs(REC_KEY_DELAY);
 		}
 	}
