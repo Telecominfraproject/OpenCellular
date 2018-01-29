@@ -230,7 +230,9 @@ static VbError_t enter_language_menu(struct vb2_context *ctx)
 
 static VbError_t enter_recovery_base_screen(struct vb2_context *ctx)
 {
-	if (usb_nogood)
+	if (!vb2_allow_recovery(vb2_get_sd(ctx)->vbsd->flags))
+		vb2_change_menu(VB_MENU_RECOVERY_BROKEN, 0);
+	else if (usb_nogood)
 		vb2_change_menu(VB_MENU_RECOVERY_NO_GOOD, 0);
 	else
 		vb2_change_menu(VB_MENU_RECOVERY_INSERT, 0);
@@ -277,8 +279,19 @@ static VbError_t debug_info_action(struct vb2_context *ctx)
 /* Action when selecting a language entry in the language menu. */
 static VbError_t language_action(struct vb2_context *ctx)
 {
+	VbSharedDataHeader *vbsd = vb2_get_sd(ctx)->vbsd;
+
+	/* Write selected language ID back to NVRAM. */
 	vb2_nv_set(ctx, VB2_NV_LOCALIZATION_INDEX, current_menu_idx);
 
+	/*
+	 * Non-manual recovery mode is meant to be left via hard reset (into
+	 * manual recovery mode). Need to commit NVRAM changes immediately.
+	 */
+	if (vbsd->recovery_reason && !vb2_allow_recovery(vbsd->flags))
+		vb2_nv_commit(ctx);
+
+	/* Return to previous menu. */
 	switch (prev_menu) {
 	case VB_MENU_DEV_WARNING:
 		return enter_dev_warning_menu(ctx);
@@ -714,6 +727,32 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx)
 	return retval;
 }
 
+/* Main function that handles non-manual recovery (BROKEN) menu functionality */
+static VbError_t broken_ui(struct vb2_context *ctx)
+{
+	VbSharedDataHeader *vbsd = vb2_get_sd(ctx)->vbsd;
+
+	/*
+	 * Temporarily stash recovery reason in subcode so we'll still know what
+	 * to display if the user reboots into manual recovery from here. Commit
+	 * immediately since the user may hard-reset out of here.
+	 */
+	VB2_DEBUG("saving recovery reason (%#x)\n", vbsd->recovery_reason);
+	vb2_nv_set(ctx, VB2_NV_RECOVERY_SUBCODE, vbsd->recovery_reason);
+	vb2_nv_commit(ctx);
+
+	enter_recovery_base_screen(ctx);
+
+	/* Loop and wait for the user to reset or shut down. */
+	VB2_DEBUG("waiting for manual recovery\n");
+	while (1) {
+		uint32_t key = VbExKeyboardRead();
+		VbError_t ret = vb2_handle_menu_input(ctx, key, 0);
+		if (ret != VBERROR_KEEP_LOOPING)
+			return ret;
+	}
+}
+
 /* Delay in recovery mode */
 #define REC_DISK_DELAY       1000     /* Check disks every 1s */
 #define REC_KEY_DELAY        20       /* Check keys every 20ms */
@@ -727,50 +766,13 @@ VbError_t VbBootDeveloperMenu(struct vb2_context *ctx)
  */
 static VbError_t recovery_ui(struct vb2_context *ctx)
 {
-	VbSharedDataHeader *vbsd = vb2_get_sd(ctx)->vbsd;
 	uint32_t key;
 	uint32_t key_flags;
 	VbError_t ret;
 	int i;
 
-	if (!vb2_allow_recovery(vbsd->flags)) {
-		/*
-		 * We have to save the reason here so that it will survive
-		 * coming up three-finger-salute. We're saving it in
-		 * VB2_RECOVERY_SUBCODE to avoid a recovery loop.
-		 * If we save the reason in VB2_RECOVERY_REQUEST, we will come
-		 * back here, thus, we won't be able to give a user a chance to
-		 * reboot to workaround a boot hiccup.
-		 */
-		VB2_DEBUG("saving recovery reason (%#x)\n",
-			  vbsd->recovery_reason);
-		vb2_nv_set(ctx, VB2_NV_RECOVERY_SUBCODE,
-			   vbsd->recovery_reason);
-		/*
-		 * Commit NV now, because it won't get saved if the user forces
-		 * manual recovery via the three-finger salute.
-		 */
-		vb2_nv_commit(ctx);
-
-		VbDisplayScreen(ctx, VB_SCREEN_OS_BROKEN, 0);
-		vb2_change_menu(VB_MENU_RECOVERY_BROKEN, 0);
-		VB2_DEBUG("waiting for manual recovery\n");
-		while (1) {
-			key = VbExKeyboardRead();
-			if (key == VB_BUTTON_POWER_SHORT_PRESS)
-				return VBERROR_SHUTDOWN_REQUESTED;
-			else {
-				VbCheckDisplayKey(ctx, key);
-				if (VbWantShutdownMenu(ctx))
-					return VBERROR_SHUTDOWN_REQUESTED;
-			}
-			VbExSleepMs(REC_KEY_DELAY);
-		}
-	}
-
 	/* Loop and wait for a recovery image */
 	VB2_DEBUG("waiting for a recovery image\n");
-
 	usb_nogood = -1;
 	while (1) {
 		VB2_DEBUG("attempting to load kernel2\n");
@@ -786,7 +788,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 			   VB2_RECOVERY_NOT_REQUESTED);
 
 		if (VBERROR_SUCCESS == ret)
-			break; /* Found a recovery kernel */
+			return ret; /* Found a recovery kernel */
 
 		if (usb_nogood != (ret != VBERROR_NO_DISK_FOUND)) {
 			/* USB state changed, force back to base screen */
@@ -814,8 +816,6 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 			VbExSleepMs(REC_KEY_DELAY);
 		}
 	}
-
-	return VBERROR_SUCCESS;
 }
 
 /* Recovery mode entry point. */
@@ -824,7 +824,10 @@ VbError_t VbBootRecoveryMenu(struct vb2_context *ctx)
 	VbError_t retval = vb2_init_menus(ctx);
 	if (VBERROR_SUCCESS != retval)
 		return retval;
-	retval = recovery_ui(ctx);
+	if (vb2_allow_recovery(vb2_get_sd(ctx)->vbsd->flags))
+		retval = recovery_ui(ctx);
+	else
+		retval = broken_ui(ctx);
 	VbDisplayScreen(ctx, VB_SCREEN_BLANK, 0);
 	return retval;
 }
