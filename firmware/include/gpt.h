@@ -108,7 +108,7 @@ typedef struct {
 	uint64_t ending_lba;
 	union {
 		struct {
-			uint8_t system:1;
+			uint8_t required:1;
 			uint8_t efi_ignore:1;
 			uint8_t legacy_boot:1;
 			uint8_t reserved1:5;

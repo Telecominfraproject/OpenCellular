@@ -198,10 +198,12 @@ int GptUpdateKernelEntry(GptData *gpt, uint32_t update_type);
 
 /* Getters and setters for partition attribute fields. */
 
+int GetEntryRequired(const GptEntry *e);
 int GetEntryLegacyBoot(const GptEntry *e);
 int GetEntrySuccessful(const GptEntry *e);
 int GetEntryPriority(const GptEntry *e);
 int GetEntryTries(const GptEntry *e);
+void SetEntryRequired(GptEntry *e, int required);
 void SetEntryLegacyBoot(GptEntry *e, int legacy_boot);
 void SetEntrySuccessful(GptEntry *e, int successful);
 void SetEntryPriority(GptEntry *e, int priority);

@@ -33,6 +33,7 @@ typedef struct CgptAddParams {
 	int successful;
 	int tries;
 	int priority;
+	int required;
 	int legacy_boot;
 	uint32_t raw_value;
 	int set_begin;
@@ -42,6 +43,7 @@ typedef struct CgptAddParams {
 	int set_successful;
 	int set_tries;
 	int set_priority;
+	int set_required;
 	int set_legacy_boot;
 	int set_raw;
 } CgptAddParams;

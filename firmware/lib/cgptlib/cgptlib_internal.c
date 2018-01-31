@@ -379,6 +379,11 @@ void GptRepair(GptData *gpt)
 	gpt->valid_entries = MASK_BOTH;
 }
 
+int GetEntryRequired(const GptEntry *e)
+{
+	return e->attrs.fields.required;
+}
+
 int GetEntryLegacyBoot(const GptEntry *e)
 {
 	return e->attrs.fields.legacy_boot;
@@ -406,6 +411,11 @@ int GetEntryTries(const GptEntry *e)
 {
 	return (e->attrs.fields.gpt_att & CGPT_ATTRIBUTE_TRIES_MASK) >>
 		CGPT_ATTRIBUTE_TRIES_OFFSET;
+}
+
+void SetEntryRequired(GptEntry *e, int required)
+{
+	e->attrs.fields.required = required;
 }
 
 void SetEntryLegacyBoot(GptEntry *e, int legacy_boot)

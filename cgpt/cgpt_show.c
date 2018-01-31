@@ -136,9 +136,9 @@ void EntryDetails(GptEntry *entry, uint32_t index, int raw) {
                       priority, tries, successful);
     }
 
-    if (entry->attrs.fields.system) {
+    if (entry->attrs.fields.required) {
       clen += snprintf(contents + clen, sizeof(contents) - clen,
-                       "system=%d ", entry->attrs.fields.system);
+                       "required=%d ", entry->attrs.fields.required);
       require(clen < sizeof(contents));
     }
 
@@ -229,6 +229,9 @@ static int GptShow(struct drive *drive, CgptShowParams *params) {
         break;
       case 'P':
         printf("%d\n", GetPriority(drive, ANY_VALID, index));
+        break;
+      case 'R':
+        printf("%d\n", GetRequired(drive, ANY_VALID, index));
         break;
       case 'B':
         printf("%d\n", GetLegacyBoot(drive, ANY_VALID, index));

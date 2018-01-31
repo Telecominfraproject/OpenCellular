@@ -1130,6 +1130,15 @@ static int EntryAttributeGetSetTest(void)
 	GptEntry *e = (GptEntry *)(gpt->primary_entries);
 
 	e->attrs.whole = 0x0000000000000000ULL;
+	SetEntryRequired(e, 1);
+	EXPECT(0x0000000000000001ULL == e->attrs.whole);
+	EXPECT(1 == GetEntryRequired(e));
+	e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
+	SetEntryRequired(e, 0);
+	EXPECT(0xFFFFFFFFFFFFFFFEULL == e->attrs.whole);
+	EXPECT(0 == GetEntryRequired(e));
+
+	e->attrs.whole = 0x0000000000000000ULL;
 	SetEntryLegacyBoot(e, 1);
 	EXPECT(0x0000000000000004ULL == e->attrs.whole);
 	EXPECT(1 == GetEntryLegacyBoot(e));
@@ -1184,6 +1193,7 @@ static int EntryAttributeGetSetTest(void)
 
 	override_priority = 10;
 	e->attrs.whole = 0xFFFFFFFFFFFFFFFFULL;
+	EXPECT(1 == GetEntryRequired(e));
 	EXPECT(1 == GetEntryLegacyBoot(e));
 	EXPECT(1 == GetEntrySuccessful(e));
 	EXPECT(10 == GetEntryPriority(e));
@@ -1191,6 +1201,7 @@ static int EntryAttributeGetSetTest(void)
 	override_priority = 0;
 
 	e->attrs.whole = 0x0123000000000004ULL;
+	EXPECT(0 == GetEntryRequired(e));
 	EXPECT(1 == GetEntryLegacyBoot(e));
 	EXPECT(1 == GetEntrySuccessful(e));
 	EXPECT(2 == GetEntryTries(e));
@@ -1198,6 +1209,7 @@ static int EntryAttributeGetSetTest(void)
 
 	override_priority = 10;
 	e->attrs.whole = 0x0123000000000004ULL;
+	EXPECT(0 == GetEntryRequired(e));
 	EXPECT(1 == GetEntryLegacyBoot(e));
 	EXPECT(1 == GetEntrySuccessful(e));
 	EXPECT(2 == GetEntryTries(e));
@@ -1207,6 +1219,7 @@ static int EntryAttributeGetSetTest(void)
 	/* Invalid priority */
 	override_priority = 100;
 	e->attrs.whole = 0x0123000000000004ULL;
+	EXPECT(0 == GetEntryRequired(e));
 	EXPECT(1 == GetEntryLegacyBoot(e));
 	EXPECT(1 == GetEntrySuccessful(e));
 	EXPECT(2 == GetEntryTries(e));

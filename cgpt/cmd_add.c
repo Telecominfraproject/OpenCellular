@@ -27,6 +27,7 @@ static void Usage(void)
          "  -S NUM       set Successful flag (0|1)\n"
          "  -T NUM       set Tries flag (0-15)\n"
          "  -P NUM       set Priority flag (0-15)\n"
+         "  -R NUM       set Required flag (0|1)\n"
          "  -B NUM       set Legacy Boot flag (0|1)\n"
          "  -A NUM       set raw 16-bit attribute value (bits 48-63)\n"
          "\n"
@@ -46,7 +47,7 @@ int cmd_add(int argc, char *argv[]) {
   char *e = 0;
 
   opterr = 0;                     // quiet, you
-  while ((c=getopt(argc, argv, ":hi:b:s:t:u:l:S:T:P:B:A:D:")) != -1)
+  while ((c=getopt(argc, argv, ":hi:b:s:t:u:l:S:T:P:R:B:A:D:")) != -1)
   {
     switch (c)
     {
@@ -103,6 +104,12 @@ int cmd_add(int argc, char *argv[]) {
       params.priority = (uint32_t)strtoul(optarg, &e, 0);
       errorcnt += check_int_parse(c, e);
       errorcnt += check_int_limit(c, params.priority, 0, 15);
+      break;
+    case 'R':
+      params.set_required = 1;
+      params.required = (uint32_t)strtoul(optarg, &e, 0);
+      errorcnt += check_int_parse(c, e);
+      errorcnt += check_int_limit(c, params.required, 0, 1);
       break;
     case 'B':
       params.set_legacy_boot = 1;
