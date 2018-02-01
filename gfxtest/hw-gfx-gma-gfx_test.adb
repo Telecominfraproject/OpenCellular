@@ -19,9 +19,9 @@ is
    Secondary_Delay_MS   : constant := 4_000;
    Seed                 : constant := 12345;
 
-   package Rand_P is new Ada.Numerics.Discrete_Random (Position_Type);
+   package Rand_P is new Ada.Numerics.Discrete_Random (Natural);
    Gen : Rand_P.Generator;
-   function Rand return Position_Type is (Rand_P.Random (Gen));
+   function Rand return Int32 is (Int32 (Rand_P.Random (Gen)));
 
    Start_X : constant := 0;
    Start_Y : constant := 0;
@@ -376,6 +376,147 @@ is
       GMA.Dump_Configs (Pipes);
    end Prepare_Configs;
 
+   procedure Script_Cursors
+     (Pipes    : in out GMA.Pipe_Configs;
+      Time_MS  : in     Natural)
+   is
+      type Corner is (UL, UR, LR, LL);
+      type Cursor_Script_Entry is record
+         Rel : Corner;
+         X, Y : Int32;
+      end record;
+      Cursor_Script : constant array (Natural range 0 .. 19) of Cursor_Script_Entry :=
+        ((UL,  16,  16), (UL,  16,  16), (UL,  16,  16), (UL, -32,   0), (UL,  16,  16),
+         (UR, -16,  16), (UR, -16,  16), (UR, -16,  16), (UR,   0, -32), (UR, -16,  16),
+         (LR, -16, -16), (LR, -16, -16), (LR, -16, -16), (LR,  32,   0), (LR, -16, -16),
+         (LL,  16, -16), (LL,  16, -16), (LL,  16, -16), (LL,   0,  32), (LL,  16, -16));
+
+      Deadline : constant Time.T := Time.MS_From_Now (Time_MS);
+      Timed_Out : Boolean := False;
+      Cnt : Word32 := 0;
+   begin
+      loop
+         for Pipe in Pipe_Index loop
+            exit when Pipes (Pipe).Port = GMA.Disabled;
+            declare
+               C : Cursor_Type renames Pipes (Pipe).Cursor;
+               FB : Framebuffer_Type renames Pipes (Pipe).Framebuffer;
+               Width : constant Int32 := Int32 (Rotated_Width (FB));
+               Height : constant Int32 := Int32 (Rotated_Height (FB));
+               CS : Cursor_Script_Entry renames Cursor_Script
+                 (Natural (Cnt) mod (Cursor_Script'Last + 1));
+            begin
+               C.Center_X := CS.X;
+               C.Center_Y := CS.Y;
+               case CS.Rel is
+                  when UL  => null;
+                  when UR  => C.Center_X := CS.X + Width;
+                  when LR  => C.Center_X := CS.X + Width;
+                              C.Center_Y := CS.Y + Height;
+                  when LL  => C.Center_Y := CS.Y + Height;
+               end case;
+               GMA.Place_Cursor (Pipe, C.Center_X, C.Center_Y);
+            end;
+         end loop;
+         Timed_Out := Time.Timed_Out (Deadline);
+         exit when Timed_Out;
+         Time.M_Delay (160);
+         Cnt := Cnt + 1;
+      end loop;
+   end Script_Cursors;
+
+   type Cursor_Info is record
+      X_Velo, Y_Velo : Int32;
+      X_Acc, Y_Acc : Int32;
+      Color : Pipe_Index;
+      Size : Cursor_Size;
+   end record;
+   function Cursor_Rand return Int32 is (Rand mod 51 - 25);
+   Cursor_Infos : array (Pipe_Index) of Cursor_Info :=
+     (others =>
+        (Color    => Pipe_Index'Val (Rand mod 3),
+         Size     => Cursor_Size'Val (Rand mod 3),
+         X_Velo   => 3 * Cursor_Rand,
+         Y_Velo   => 3 * Cursor_Rand,
+         others   => Cursor_Rand));
+
+   procedure Move_Cursors
+     (Pipes    : in out GMA.Pipe_Configs;
+      Time_MS  : in     Natural)
+   is
+      procedure Select_New_Cursor
+        (P  : in     Pipe_Index;
+         C  : in out Cursor_Type;
+         CI : in out Cursor_Info)
+      is
+         Old_C : constant Cursor_Type := C;
+      begin
+         -- change either size or color
+         if Rand mod 2 = 0 then
+            CI.Color := Pipe_Index'Val
+              ((Pipe_Index'Pos (CI.Color) + 1 + Rand mod 2) mod 3);
+         else
+            CI.Size := Cursor_Size'Val
+              ((Cursor_Size'Pos (CI.Size) + 1 + Rand mod 2) mod 3);
+         end if;
+         C := Cursors (CI.Color) (CI.Size);
+         C.Center_X := Old_C.Center_X;
+         C.Center_Y := Old_C.Center_Y;
+         GMA.Update_Cursor (P, C);
+      end Select_New_Cursor;
+
+      Deadline : constant Time.T := Time.MS_From_Now (Time_MS);
+      Timed_Out : Boolean := False;
+      Cnt : Word32 := 0;
+   begin
+      for Pipe in Pipe_Index loop
+         exit when Pipes (Pipe).Port = GMA.Disabled;
+         Select_New_Cursor (Pipe, Pipes (Pipe).Cursor, Cursor_Infos (Pipe));
+      end loop;
+      loop
+         for Pipe in Pipe_Index loop
+            exit when Pipes (Pipe).Port = GMA.Disabled;
+            declare
+               C : Cursor_Type renames Pipes (Pipe).Cursor;
+               CI : Cursor_Info renames Cursor_Infos (Pipe);
+               FB : Framebuffer_Type renames Pipes (Pipe).Framebuffer;
+               Width : constant Int32 := Int32 (Rotated_Width (FB));
+               Height : constant Int32 := Int32 (Rotated_Height (FB));
+
+               Update : Boolean := False;
+            begin
+               if Cnt mod 16 = 0 then
+                  CI.X_Acc := Cursor_Rand;
+                  CI.Y_Acc := Cursor_Rand;
+               end if;
+               CI.X_Velo := CI.X_Velo + CI.X_Acc;
+               CI.Y_Velo := CI.Y_Velo + CI.Y_Acc;
+               C.Center_X := C.Center_X + CI.X_Velo / 100;
+               C.Center_Y := C.Center_Y + CI.Y_Velo / 100;
+               if C.Center_X not in 0 .. Width - 1 then
+                 C.Center_X := Int32'Max (0, Int32'Min (Width, C.Center_X));
+                 CI.X_Velo := -CI.X_Velo;
+                 Update := True;
+               end if;
+               if C.Center_Y not in 0 .. Height - 1 then
+                 C.Center_Y := Int32'Max (0, Int32'Min (Height, C.Center_Y));
+                 CI.Y_Velo := -CI.Y_Velo;
+                 Update := True;
+               end if;
+               if Update then
+                  Select_New_Cursor (Pipe, C, CI);
+               else
+                  GMA.Place_Cursor (Pipe, C.Center_X, C.Center_Y);
+               end if;
+            end;
+         end loop;
+         Timed_Out := Time.Timed_Out (Deadline);
+         exit when Timed_Out;
+         Time.M_Delay (16);   -- ~60 fps
+         Cnt := Cnt + 1;
+      end loop;
+   end Move_Cursors;
+
    procedure Print_Usage
    is
    begin
@@ -470,8 +611,10 @@ is
             end loop;
          end loop;
 
-         if Delay_MS >= Primary_Delay_MS + Secondary_Delay_MS then
-            Time.M_Delay (Primary_Delay_MS);
+         if Delay_MS < Primary_Delay_MS + Secondary_Delay_MS then
+            Script_Cursors (Pipes, Delay_MS);
+         else -- getting bored?
+            Script_Cursors (Pipes, Primary_Delay_MS);
             Delay_MS := Delay_MS - Primary_Delay_MS;
             declare
                New_Pipes : GMA.Pipe_Configs := Pipes;
@@ -491,6 +634,7 @@ is
                      declare
                         New_FB : Framebuffer_Type renames
                            New_Pipes (Pipe).Framebuffer;
+                        Cursor : Cursor_Type renames New_Pipes (Pipe).Cursor;
                         Width : constant Width_Type :=
                            Pipes (Pipe).Framebuffer.Width;
                         Height : constant Height_Type :=
@@ -504,16 +648,20 @@ is
                           (320, Width - New_FB.Start_X - Rand_Div (Width));
                         New_FB.Height := Height_Type'Max
                           (320, Height - New_FB.Start_Y - Rand_Div (Height));
+
+                        Cursor.Center_X := Int32 (Rotated_Width (New_FB)) / 2;
+                        Cursor.Center_Y := Int32 (Rotated_Height (New_FB)) / 2;
+                        GMA.Update_Cursor (Pipe, Cursor);
                      end;
                   end loop;
                   GMA.Dump_Configs (New_Pipes);
                   GMA.Update_Outputs (New_Pipes);
-                  Time.M_Delay (Secondary_Delay_MS);
+                  Move_Cursors (New_Pipes, Secondary_Delay_MS);
                   Delay_MS := Delay_MS - Secondary_Delay_MS;
                end loop;
+               Move_Cursors (New_Pipes, Delay_MS);
             end;
          end if;
-         Time.M_Delay (Delay_MS);
 
          for Pipe in GMA.Pipe_Index loop
             if Pipes (Pipe).Port /= GMA.Disabled then
