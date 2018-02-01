@@ -244,12 +244,6 @@ VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale)
 		case VB_SCREEN_DEVELOPER_WARNING:
 			VB2_DEBUG("VbExDisplayScreen(DEV)\n");
 			break;
-		case VB_SCREEN_DEVELOPER_EGG:
-			VB2_DEBUG("VbExDisplayScreen(EGG)\n");
-			break;
-		case VB_SCREEN_RECOVERY_REMOVE:
-			VB2_DEBUG("VbExDisplayScreen(REMOVE)\n");
-			break;
 		case VB_SCREEN_RECOVERY_INSERT:
 			VB2_DEBUG("VbExDisplayScreen(INSERT)\n");
 			break;

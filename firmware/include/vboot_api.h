@@ -737,10 +737,8 @@ enum VbScreenType_t {
 	VB_SCREEN_BLANK = 0,
 	/* Developer - warning */
 	VB_SCREEN_DEVELOPER_WARNING = 0x101,
-	/* Developer - easter egg */
-	VB_SCREEN_DEVELOPER_EGG     = 0x102,
-	/* Recovery - remove inserted devices */
-	VB_SCREEN_RECOVERY_REMOVE   = 0x201,
+	/* REMOVED: Developer - easter egg (0x102) */
+	/* REMOVED: Recovery - remove inserted devices (0x201) */
 	/* Recovery - insert recovery image */
 	VB_SCREEN_RECOVERY_INSERT   = 0x202,
 	/* Recovery - inserted image invalid */
@@ -755,8 +753,7 @@ enum VbScreenType_t {
 	VB_SCREEN_TO_NORM_CONFIRMED = 0x207,
 	/* Broken screen shown after verification failure */
 	VB_SCREEN_OS_BROKEN         = 0x208,
-	/* Display base screen (no icons, no text) */
-	VB_SCREEN_BASE              = 0x209,
+	/* REMOVED: Display base screen (no icons, no text) (0x209) */
 	/* Detachable Menu - Developer Warning */
 	VB_SCREEN_DEVELOPER_WARNING_MENU = 0x20a,
 	/* Detachable Menu - Developer Boot */
