@@ -198,6 +198,7 @@ static VbError_t enter_developer_menu(struct vb2_context *ctx)
 {
 	int menu_idx;
 	switch(default_boot) {
+	default:
 	case VB2_DEV_DEFAULT_BOOT_DISK:
 		menu_idx = VB_DEV_DISK;
 		break;
