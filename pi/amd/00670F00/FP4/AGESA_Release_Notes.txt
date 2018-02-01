@@ -4,6 +4,386 @@
              Stoney Platform Initialization (StoneyPI)
 
 =============================================================================
+Version:  1.3.0.9                             Release Date: Nov 2017
+File:     StoneyPI_1_3_0_9.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.03              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.9 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.3 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v031
+          - Bristol AM4 VBIOS v003
+          - Stoney Generic VBIOS v007
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.17.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.6.0
+    PSP   - Carrizo/Bristol
+              0.5.0.36 for TCG 1.22
+              0.5.0.37 for TCG 1.37
+          - Stoney
+              0.6.0.21 for TCG 1.22
+              0.6.0.22 for TCG 1.37
+    PT FW - 170504_40_01_00
+    PlatformBIOS - Gardenia Platform BIOS RGY1309A.FD
+                   Jadeite Platform BIOS RJD1309A.FD
+                   Myrtle Platform BIOS RMY1309A.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.8
+- PLAT-17087: Create a PCD to control PspMboxBiosClearSmmLock at RTB Event
+- PLAT-16146: Limit all BIOS-2-PSP commands after BOOT_DONE in SMM mode only 
+              using specified SMM command buffer
+- PLAT-15874: Move IOMMU IOAGR Programming to Early Init Phase
+- PLAT-25107: AGESA FCH modifies flash
+- PLAT-26520: [ST] PSP Firmware Release 0.6.0.22
+- PLAT-25858: [ST] PSP Firmware Release 0.6.0.21
+- PLAT-26524: [BR] PSP Firmware Release 0.5.0.37
+- PLAT-25861: [BR] PSP Firmware Release 0.5.0.36
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+4.  Important Notes
+- To pass Win10 RS3 HLK on the new system, please integrate PSP FW for TCG 1.37
+  into BIOS; for existing shipped system, please continue using PSP FW for TCG
+  1.22.
+
+=============================================================================
+Version:  1.3.0.8                             Release Date: Sep 2017
+File:     StoneyPI_1_3_0_8.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.03              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.8 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.2 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v031
+          - Bristol AM4 VBIOS v003
+          - Stoney Generic VBIOS v007
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.17.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.6.0
+    PSP   - Carrizo/Bristol 0.5.0.2F
+          - Stoney 0.6.0.1E
+    PT FW - 170504_40_01_00
+    PlatformBIOS - Gardenia Platform BIOS RGY1308A.FD
+                   Jadeite Platform BIOS RJD1308A.FD
+                   Myrtle Platform BIOS RMY1308A.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.7
+- PLAT-23583: [ST] New brand string PRO A6 and PRO A4
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.7                             Release Date: Jul 2017
+File:     StoneyPI_1_3_0_7.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.03              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.7 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.2 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v031
+          - Bristol AM4 VBIOS v003
+          - Stoney Generic VBIOS v007
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.17.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.6.0
+    PSP   - Carrizo/Bristol 0.5.0.2F
+          - Stoney 0.6.0.1E
+    PT FW - 170504_40_01_00
+    PlatformBIOS - Gardenia Platform BIOS RGY1307A.FD
+                   Jadeite Platform BIOS RJD1307A.FD
+                   Myrtle Platform BIOS RMY1307A.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.6
+- PLAT-22781: SMU Firmware Release for FT4 Fanless 33.6.0
+- PLAT-14159: Update USB recovery code
+- PLAT-16434: FCH ASL code incorrect operation region size
+- PLAT-17156: Update IoMux setting of I2C2 & I2C3
+- PLAT-20735: Report the number of active DIMMs in PartitionWidth
+- PLAT-20868: Update AcpiGpe0Blk and Pm1Status register programming
+- PLAT-20395: [PT] ODD device behinds PT GPP lost after S3 resume
+- PLAT-22772: [PT] Update PT FW to 170504_40_01_00
+- PLAT-22033: Set MSRC001_0015[3] TlbCacheDis to 1 in all cores
+- PLAT-21514: FCH temperature monitoring bug
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.6                             Release Date: Dec 2016
+File:     StoneyPI_1_3_0_6.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.03              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.6 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.2 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v031
+          - Bristol AM4 VBIOS v003
+          - Stoney Generic VBIOS v007
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.17.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.5.0
+    PSP   - Carrizo/Bristol 0.5.0.2F
+          - Stoney 0.6.0.1E
+    PT FW - 160919_40_01_00
+    PlatformBIOS - Gardenia Platform BIOS RGY1306B.FD
+                   Jadeite Platform BIOS RJD1306B.FD
+                   Myrtle Platform BIOS RMY1306B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.5
+- PLAT-13570: [CZ/BR] PSP Firmware Release 0.5.0.2F
+- PLAT-13518: [ST] PSP Firmware Release 0.6.0.1E
+- PLAT-12728: [PT] Support Fine tune USB 3.0 TX for separate port
+- PLAT-12173: [PT] After select "PT SATA Port" Disable to Enable ,the HDD
+              populated on PT cannot be shown in boot Manager by warm reset
+- PLAT-12168: Clear IRQ1FilterEn and IRQ12FilterEn by default
+- PLAT-12672: SMBIOS Type 20 Partition Row Position should avoid 0
+- PLAT-13337: Update interface to override VrefHspeed per Dct and M-state
+- PLAT-13524: Update BuildPspImage.bat to use python interpreter directly
+- PLAT-12060: PMx00[AsfMasterEn] should not be touched
+- PLAT-13509: [BR] SMU Firmware Release 27.17.0
+- PLAT-12071: [ST] DDR2400 UDIMM fails S3 resume
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.5                             Release Date: Sep 2016
+File:     StoneyPI_1_3_0_5.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.5 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.1 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v031
+          - Bristol AM4 VBIOS v003
+          - Stoney Generic VBIOS v007
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.16.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.5.0
+    PSP   - Carrizo/Bristol 0.5.0.2D
+          - Stoney 0.6.0.1C
+    PT FW - 160919_40_01_00
+    PlatformBIOS - Gardenia Platform BIOS RGY1305B.FD
+                   Jadeite Platform BIOS RJD1305B.FD
+                   Myrtle Platform BIOS RMY1305B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.4
+- PLAT-11954: [PT] PT FW update to 160919_40_01_00
+- PLAT-11439: Customize boot display device by integrated system info table
+- PLAT-11075: Add interface to override memory data bus configuration table
+- PLAT-11608: Update BuildPspDirectory to use Max size if recovery enabled
+- PLAT-11501: Alignment issue for DxFxx2A6_ADDRESS
+- PLAT-11520: [BR/CZ] PSP Firmware Release 0.5.0.2D
+- PLAT-10832: Fix InterleavePosition and InterleavedDataDepth in DMI Type20
+- PLAT-10839: Incorrect index used to find DdrMaxRate when NPST is disabled
+- PLAT-11679: Fix BSOD 0x7B for CF9/0Eh reset
+- PLAT-11684: [PT] Modify PT load FW sequence
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
+Version:  1.3.0.4                             Release Date: Sep 2016
+File:     StoneyPI_1_3_0_4.ZIP
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.00              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.4 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    CPM   - Common Platform Module v063.1 for Bristol/Stoney platform solution
+    VBIOS - Carrizo Generic VBIOS v030
+          - Bristol AM4 VBIOS v002
+          - Stoney Generic VBIOS v006
+          - AMD Generic GOP v1.59
+    SMU   - Carrizo 18.60.0
+          - Bristol FP4 27.16.0
+          - Bristol AM4 1.27.19.0
+          - Stoney 26.16.0
+          - Stoney FT4 Fanless 33.5.0
+    PSP   - Carrizo/Bristol 0.5.0.2C
+          - Stoney 0.6.0.1C
+    PlatformBIOS - Gardenia Platform BIOS RGY1304B.FD
+                   Jadeite Platform BIOS RJD1304B.FD
+                   Myrtle Platform BIOS RMY1304B.FD
+                   StoneyFp4Options.c
+                   StoneyFt4Options.c
+                   BristolAm4Options.c
+                   CarrizoFp4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.3
+- PLAT-11297: [CZ/BR] Move CZ DDR4 Detection Scheme to beforeApLaunch table
+- PLAT-11186: Clear LPCxB8[24] PrefetchEnSpiFromHost bit to 0 for SPI TPM
+- PLAT-11158: BSOD 0x9F in S3 or S4 stress test
+- PLAT-10820: Change BGADJ value to 7h for USB
+- PLAT-10866: [ST] Add A4 Series string to DMI table
+- PLAT-10910: [BR] Update D18F4x40 register setting
+- PLAT-10942: [BR] PSP Firmware Release 0.5.0.2C
+- PLAT-11083: [BR FP4] SMU Firmware Release 27.16.0
+- PLAT-11154: [ST] Fanless SMU Firmware Release 33.5.0
+- PLAT-11026: [CZ] Enable Data interleaving and change the ECC symbol size to x8
+- PLAT-10713: [CZ/BR] Implement CZ DDR4 Detection Scheme
+- PLAT-10012: [CZ] Add Opteron X3 to DMI table
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+=============================================================================
 Version:  1.3.0.3                             Release Date: Aug 2016
 File:     StoneyPI_1_3_0_3.ZIP
 =============================================================================
