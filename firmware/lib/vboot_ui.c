@@ -506,7 +506,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 					if (VbExGetSwitches
 					    (VB_INIT_FLAG_ALLOW_USB_BOOT))
 						VbAllowUsbBoot(ctx);
-					return VBERROR_REBOOT_REQUIRED;
+					return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 				case -1:
 					VB2_DEBUG("Shutdown requested\n");
 					return VBERROR_SHUTDOWN_REQUESTED;

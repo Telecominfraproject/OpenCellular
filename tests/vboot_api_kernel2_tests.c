@@ -735,7 +735,7 @@ static void VbBootRecTest(void)
 	mock_keypress[0] = 0x04;
 	mock_keypress[1] = '\r';
 	mock_keyflags[1] = VB_KEY_FLAG_TRUSTED_KEYBOARD;
-	TEST_EQ(VbBootRecovery(&ctx), VBERROR_REBOOT_REQUIRED,
+	TEST_EQ(VbBootRecovery(&ctx), VBERROR_EC_REBOOT_TO_RO_REQUIRED,
 		"Ctrl+D todev confirm");
 	TEST_EQ(virtdev_set, 1, "  virtual dev mode on");
 
