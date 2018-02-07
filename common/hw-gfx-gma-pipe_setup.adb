@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2018 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -403,6 +403,7 @@ package body HW.GFX.GMA.Pipe_Setup is
                when others              => 0) else 0);
 
       Width, Height : Pos32;
+      X, Y : Int32;
    begin
       -- Writes to WIN_SZ arm the PF registers.
 
@@ -413,14 +414,26 @@ package body HW.GFX.GMA.Pipe_Setup is
          Max_Height  => Pos32 (Mode.V_Visible),
          Framebuffer => Framebuffer);
 
+      -- Do not scale to odd width (at least Haswell has trouble with this).
+      if Width < Pos32 (Mode.H_Visible) and Width mod 2 = 1 then
+         Width := Width + 1;
+      end if;
+
+      X := (Int32 (Mode.H_Visible) - Width) / 2;
+      Y := (Int32 (Mode.V_Visible) - Height) / 2;
+
+      -- Hardware is picky about minimal horizontal gaps.
+      if Pos32 (Mode.H_Visible) - Width <= 3 then
+         Width := Pos32(Mode.H_Visible);
+         X := 0;
+      end if;
+
       Registers.Write
         (Register => Controller.PF_CTRL,
          Value    => PF_CTRL_ENABLE or PF_Ctrl_Pipe_Sel or PF_CTRL_FILTER_MED);
       Registers.Write
         (Register => Controller.PF_WIN_POS,
-         Value    =>
-            Shift_Left (Word32 (Pos32 (Mode.H_Visible) - Width) / 2, 16) or
-            Word32 (Pos32 (Mode.V_Visible) - Height) / 2);
+         Value    => Shift_Left (Word32 (X), 16) or Word32 (Y));
       Registers.Write
         (Register => Controller.PF_WIN_SZ,
          Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
