@@ -1233,6 +1233,24 @@ static void VbBootDevTest(void)
 	TEST_EQ(screens_count, i, "  no extra screens");
 	TEST_EQ(beeps_count, 0, "  no beeps for debug info");
 
+	/* Pressing Tab displays debug info, then times out to boot */
+	ResetMocksForDeveloper();
+	i = 0;
+	mock_keypress[i++] = '\t';
+	TEST_EQ(VbBootDeveloperMenu(&ctx), vbtlk_retval_fixed,
+		"Show Debug Info (Tab shortcut)");
+	TEST_EQ(debug_info_displayed, 1, "  debug info displayed");
+	TEST_EQ(vbexlegacy_called, 0, "  not legacy");
+	TEST_EQ(audio_looping_calls_left, 0, "  audio timed out");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST), 0, "  no recovery");
+	i = 0;
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_DEVELOPER_WARNING_MENU,
+		"  dev warning menu: power off");
+	TEST_EQ(screens_displayed[i++], VB_SCREEN_BLANK,"  final blank screen");
+	TEST_EQ(screens_count, i, "  no extra screens");
+	TEST_EQ(beeps_count, 0, "  no beeps for debug info");
+
+
 	printf("...done.\n");
 }
 
@@ -1508,6 +1526,40 @@ static void VbBootRecTest(void)
 		"  to_dev: power off");
 	TEST_EQ(screens_displayed[3], VB_SCREEN_BLANK, "  final blank screen");
 	TEST_EQ(screens_count, 4, "  no extra screens");
+	TEST_EQ(beeps_count, 0, "  no beep from power off");
+
+	/* Show Debug Info from BROKEN through OPTIONS menu */
+	ResetMocks();
+	mock_keypress[0] = VB_BUTTON_VOL_UP_SHORT_PRESS; // enter options
+	mock_keypress[1] = VB_BUTTON_VOL_UP_SHORT_PRESS; // show debug info
+	mock_keypress[2] = VB_BUTTON_POWER_SHORT_PRESS;
+	TEST_EQ(VbBootRecoveryMenu(&ctx), VBERROR_SHUTDOWN_REQUESTED,
+		"Show Debug info from BROKEN through OPTIONS");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST), 0, "  no recovery");
+	TEST_EQ(debug_info_displayed, 1, "  no debug info");
+	TEST_EQ(shutdown_request_calls_left, 0, "  timed out");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
+	TEST_EQ(screens_displayed[1], VB_SCREEN_OPTIONS_MENU,
+		"  options: cancel");
+	TEST_EQ(screens_displayed[2], VB_SCREEN_OPTIONS_MENU,
+		"  options: show debug info");
+	TEST_EQ(screens_displayed[3], VB_SCREEN_BLANK, "  final blank screen");
+	TEST_EQ(screens_count, 4, "  no extra screens");
+	TEST_EQ(beeps_count, 0, "  no beep from power off");
+
+	/* Show Debug Info on NOGOOD with Tab */
+	ResetMocksForManualRecovery();
+	mock_keypress[0] = '\t';
+	TEST_EQ(VbBootRecoveryMenu(&ctx), VBERROR_SHUTDOWN_REQUESTED,
+		"Show Debug info on NOGOOD with Tab");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST), 0, "  no recovery");
+	TEST_EQ(debug_info_displayed, 1, "  no debug info");
+	TEST_EQ(shutdown_request_calls_left, 0, "  timed out");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_NO_GOOD,
+		"  nogood screen");
+	TEST_EQ(screens_displayed[1], VB_SCREEN_BLANK, "  final blank screen");
+	TEST_EQ(screens_count, 2, "  no extra screens");
 	TEST_EQ(beeps_count, 0, "  no beep from power off");
 
 	/* Navigate to confirm dev mode selection and then cancel */

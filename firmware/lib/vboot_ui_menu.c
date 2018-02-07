@@ -589,6 +589,9 @@ static VbError_t vb2_handle_menu_input(struct vb2_context *ctx,
 	case 0:
 		/* nothing pressed */
 		break;
+	case '\t':
+		/* Tab = display debug info */
+		return debug_info_action(ctx);
 	case VB_KEY_UP:
 	case VB_KEY_DOWN:
 	case VB_BUTTON_VOL_UP_SHORT_PRESS:
