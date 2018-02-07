@@ -22,8 +22,6 @@ DEFINE_string leave_firmware_alone "" \
   "(auto-update) For BIOS development use ONLY (1 to enable, 0 to disable)"
 DEFINE_string leave_core "" \
   "(crash-reporter) Leave core dumps (1 to enable, 0 to disable)"
-DEFINE_string crosh_workarounds "" \
-  "(crosh) Keep crosh (1 to keep, 0 to disable *irreversible*)"
 
 # Parameters for manipulating /etc/lsb-release.
 DEFINE_boolean remove_test_label false \
@@ -152,12 +150,6 @@ process_all_tags() {
     "${rootfs}" \
     /root/.leave_core \
     "${FLAGS_leave_core}"
-
-  process_tag "${do_modification}" \
-    "(crosh) crosh_workarounds" \
-    "${rootfs}" \
-    /usr/bin/crosh-workarounds \
-    "${FLAGS_crosh_workarounds}"
 }
 
 # Iterates through all options for manipulating the lsb-release.
