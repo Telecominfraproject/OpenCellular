@@ -1392,6 +1392,7 @@ runcgpttests: test_setup
 
 .PHONY: runtestscripts
 runtestscripts: test_setup genfuzztestcases
+	scripts/image_signing/sign_android_unittests.sh
 	tests/load_kernel_tests.sh
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt
 	tests/run_cgpt_tests.sh ${BUILD_RUN}/cgpt/cgpt -D 358400
