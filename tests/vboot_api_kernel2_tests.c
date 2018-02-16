@@ -579,7 +579,7 @@ static void VbBootRecTest(void)
 		VBERROR_SHUTDOWN_REQUESTED,
 		"Shutdown requested by keyboard");
 
-	/* Remove disks */
+	/* Broken screen */
 	ResetMocks();
 	shutdown_request_calls_left = 100;
 	mock_num_disks[0] = 1;
@@ -588,11 +588,11 @@ static void VbBootRecTest(void)
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootRecovery(&ctx),
 		VBERROR_SHUTDOWN_REQUESTED,
-		"Remove");
+		"Broken");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
 		"  broken screen");
 
-	/* No removal if dev switch is on */
+	/* Broken screen even if dev switch is on */
 	ResetMocks();
 	shutdown_request_calls_left = 100;
 	mock_num_disks[0] = 1;
@@ -601,9 +601,9 @@ static void VbBootRecTest(void)
 	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
 	TEST_EQ(VbBootRecovery(&ctx),
 		VBERROR_SHUTDOWN_REQUESTED,
-		"No remove in dev");
-	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
-		"  insert screen");
+		"Broken (dev)");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
+		"  broken screen");
 
 	/* No removal if recovery button physically pressed */
 	ResetMocks();

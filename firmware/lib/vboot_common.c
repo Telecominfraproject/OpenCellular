@@ -213,10 +213,6 @@ int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 
 int vb2_allow_recovery(uint32_t flags)
 {
-	/* In dev mode, unconditionally allowed. */
-	if (flags & VBSD_BOOT_DEV_SWITCH_ON)
-		return 1;
-
 	/*
 	 * If EC is in RW, it implies recovery wasn't manually requested.
 	 * On some platforms, EC_IN_RW can't be reset by the EC, thus, this may
