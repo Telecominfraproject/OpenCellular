@@ -18,10 +18,18 @@
 
 #define TPM_NV_INDEX0            ((uint32_t) 0x00000000)
 #define TPM_NV_INDEX_LOCK        ((uint32_t) 0xffffffff)
-#define TPM_NV_PER_GLOBALLOCK    (((uint32_t) 1) << 15)
-#define TPM_NV_PER_PPWRITE       (((uint32_t) 1) << 0)
-#define TPM_NV_PER_READ_STCLEAR  (((uint32_t)1) << 31)
-#define TPM_NV_PER_WRITE_STCLEAR (((uint32_t)1) << 14)
+
+#define TPM_NV_PER_READ_STCLEAR        (((uint32_t)1) << 31)
+#define TPM_NV_PER_AUTHREAD            (((uint32_t)1) << 18)
+#define TPM_NV_PER_OWNERREAD           (((uint32_t)1) << 17)
+#define TPM_NV_PER_PPREAD              (((uint32_t)1) << 16)
+#define TPM_NV_PER_GLOBALLOCK          (((uint32_t)1) << 15)
+#define TPM_NV_PER_WRITE_STCLEAR       (((uint32_t)1) << 14)
+#define TPM_NV_PER_WRITEDEFINE         (((uint32_t)1) << 13)
+#define TPM_NV_PER_WRITEALL            (((uint32_t)1) << 12)
+#define TPM_NV_PER_AUTHWRITE           (((uint32_t)1) << 2)
+#define TPM_NV_PER_OWNERWRITE          (((uint32_t)1) << 1)
+#define TPM_NV_PER_PPWRITE             (((uint32_t)1) << 0)
 
 #define TPM_TAG_NV_ATTRIBUTES          ((uint16_t) 0x0017)
 #define TPM_TAG_NV_DATA_PUBLIC         ((uint16_t) 0x0018)

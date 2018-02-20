@@ -68,15 +68,32 @@
 #define TPMA_NV_OWNERWRITE		((TPMA_NV)(1UL << 1))
 #define TPMA_NV_AUTHWRITE		((TPMA_NV)(1UL << 2))
 #define TPMA_NV_POLICYWRITE		((TPMA_NV)(1UL << 3))
-#define TPMA_NV_MASK_WRITE		(TPMA_NV_PPWRITE | TPMA_NV_OWNERWRITE |\
-					 TPMA_NV_AUTHWRITE | TPMA_NV_POLICYWRITE)
+#define TPMA_NV_COUNTER			((TPMA_NV)(1UL << 4))
+#define TPMA_NV_BITS			((TPMA_NV)(1UL << 5))
+#define TPMA_NV_EXTEND			((TPMA_NV)(1UL << 6))
+#define TPMA_NV_POLICY_DELETE		((TPMA_NV)(1UL << 10))
+#define TPMA_NV_WRITELOCKED		((TPMA_NV)(1UL << 11))
+#define TPMA_NV_WRITEALL		((TPMA_NV)(1UL << 12))
+#define TPMA_NV_WRITEDEFINE		((TPMA_NV)(1UL << 13))
+#define TPMA_NV_WRITE_STCLEAR		((TPMA_NV)(1UL << 14))
+#define TPMA_NV_GLOBALLOCK		((TPMA_NV)(1UL << 15))
 #define TPMA_NV_PPREAD			((TPMA_NV)(1UL << 16))
 #define TPMA_NV_OWNERREAD		((TPMA_NV)(1UL << 17))
 #define TPMA_NV_AUTHREAD		((TPMA_NV)(1UL << 18))
 #define TPMA_NV_POLICYREAD		((TPMA_NV)(1UL << 19))
+#define TPMA_NV_NO_DA			((TPMA_NV)(1UL << 25))
+#define TPMA_NV_ORDERLY			((TPMA_NV)(1UL << 26))
+#define TPMA_NV_CLEAR_STCLEAR		((TPMA_NV)(1UL << 27))
+#define TPMA_NV_READLOCKED		((TPMA_NV)(1UL << 28))
+#define TPMA_NV_WRITTEN			((TPMA_NV)(1UL << 29))
+#define TPMA_NV_PLATFORMCREATE		((TPMA_NV)(1UL << 30))
+#define TPMA_NV_READ_STCLEAR		((TPMA_NV)(1UL << 31))
+
 #define TPMA_NV_MASK_READ		(TPMA_NV_PPREAD | TPMA_NV_OWNERREAD |\
 					 TPMA_NV_AUTHREAD | TPMA_NV_POLICYREAD)
-#define TPMA_NV_PLATFORMCREATE		((TPMA_NV)(1UL << 30))
+#define TPMA_NV_MASK_WRITE		(TPMA_NV_PPWRITE | TPMA_NV_OWNERWRITE |\
+					 TPMA_NV_AUTHWRITE |\
+					 TPMA_NV_POLICYWRITE)
 
 /* Starting indexes of NV index ranges, as defined in "Registry of reserved
  * TPM 2.0 handles and localities".
