@@ -51,11 +51,13 @@ static struct nv_field nvfields[] = {
 	{VB2_NV_CLEAR_TPM_OWNER_REQUEST, 0, 1, 0, "clear tpm owner request"},
 	{VB2_NV_CLEAR_TPM_OWNER_DONE, 0, 1, 0, "clear tpm owner done"},
 	{VB2_NV_TPM_REQUESTED_REBOOT, 0, 1, 0, "tpm requested reboot"},
+	{VB2_NV_REQ_WIPEOUT, 0, 1, 0, "request wipeout"},
 	{VB2_NV_OPROM_NEEDED, 0, 1, 0, "oprom needed"},
 	{VB2_NV_BACKUP_NVRAM_REQUEST, 0, 1, 0, "backup nvram request"},
 	{VB2_NV_FASTBOOT_UNLOCK_IN_FW, 0, 1, 0, "fastboot unlock in fw"},
 	{VB2_NV_BOOT_ON_AC_DETECT, 0, 1, 0, "boot on ac detect"},
 	{VB2_NV_TRY_RO_SYNC, 0, 1, 0, "try read only software sync"},
+	{VB2_NV_BATTERY_CUTOFF_REQUEST, 0, 1, 0, "battery cutoff request"},
 	{VB2_NV_KERNEL_MAX_ROLLFORWARD, 0, 0x12345678, 0xFEDCBA98,
 	 "kernel max rollforward"},
 	{0, 0, 0, 0, NULL}
@@ -197,12 +199,16 @@ static void nv_storage_test(void)
 	TEST_EQ(vb2_nv_get(&c, VB2_NV_LOCALIZATION_INDEX),
 		0, "Localization index out of range");
 
-	vb2_nv_set(&c, VB2_NV_FW_RESULT, VB2_FW_RESULT_UNKNOWN + 1);
-	vb2_nv_set(&c, VB2_NV_FW_RESULT, VB2_FW_RESULT_UNKNOWN + 100);
+	vb2_nv_set(&c, VB2_NV_FW_RESULT, 100);
 	TEST_EQ(vb2_nv_get(&c, VB2_NV_FW_RESULT),
 		VB2_FW_RESULT_UNKNOWN, "Firmware result out of range");
 
-	vb2_nv_set(&c, VB2_NV_DEV_DEFAULT_BOOT, VB2_DEV_DEFAULT_BOOT_DISK + 100);
+	vb2_nv_set(&c, VB2_NV_FW_PREV_RESULT, 100);
+	TEST_EQ(vb2_nv_get(&c, VB2_NV_FW_PREV_RESULT),
+		VB2_FW_RESULT_UNKNOWN, "Fw prev result out of range");
+
+	vb2_nv_set(&c, VB2_NV_DEV_DEFAULT_BOOT,
+		   VB2_DEV_DEFAULT_BOOT_DISK + 100);
 	TEST_EQ(vb2_nv_get(&c, VB2_NV_DEV_DEFAULT_BOOT),
 		VB2_DEV_DEFAULT_BOOT_DISK, "default to booting from disk");
 }

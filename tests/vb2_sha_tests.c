@@ -181,6 +181,9 @@ static void hash_algorithm_name_tests(void)
 		TEST_STR_NEQ(vb2_get_hash_algorithm_name(alg),
 			     VB2_INVALID_ALG_NAME, test_name);
 	}
+
+	TEST_STR_EQ(vb2_get_hash_algorithm_name(VB2_HASH_INVALID),
+		    VB2_INVALID_ALG_NAME, "hash alg name invalid");
 }
 
 int main(int argc, char *argv[])

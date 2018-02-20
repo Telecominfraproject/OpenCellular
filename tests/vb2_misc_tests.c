@@ -281,6 +281,16 @@ static void recovery_tests(void)
 		"Recovery reason forced");
 	TEST_NEQ(sd->flags & VB2_SD_FLAG_MANUAL_RECOVERY,
 		 0, "SD flag set");
+
+	/* Override at broken screen */
+	reset_common_data();
+	vb2_nv_set(&cc, VB2_NV_RECOVERY_SUBCODE, VB2_RECOVERY_US_TEST);
+	cc.flags |= VB2_CONTEXT_FORCE_RECOVERY_MODE;
+	vb2_check_recovery(&cc);
+	TEST_EQ(sd->recovery_reason, VB2_RECOVERY_US_TEST,
+		"Recovery reason forced from broken");
+	TEST_NEQ(sd->flags & VB2_SD_FLAG_MANUAL_RECOVERY,
+		 0, "SD flag set");
 }
 
 static void dev_switch_tests(void)
@@ -293,6 +303,7 @@ static void dev_switch_tests(void)
 	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
 	TEST_EQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx not in dev");
 	TEST_EQ(mock_tpm_clear_called, 0, "  no tpm clear");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_REQ_WIPEOUT), 0, "  no nv wipeout");
 
 	/* Dev mode */
 	reset_common_data();
@@ -376,6 +387,15 @@ static void dev_switch_tests(void)
 		"  doesn't set dev on in secdata but does set last boot dev");
 	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
 
+	/* Request disable by ctx flag */
+	reset_common_data();
+	vb2_secdata_set(&cc, VB2_SECDATA_FLAGS,
+			(VB2_SECDATA_FLAG_DEV_MODE |
+			 VB2_SECDATA_FLAG_LAST_BOOT_DEVELOPER));
+	cc.flags |= VB2_DISABLE_DEVELOPER_MODE;
+	TEST_SUCC(vb2_check_dev_switch(&cc), "disable dev on ctx request");
+	TEST_EQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd not in dev");
+
 	/* Simulate clear owner failure */
 	reset_common_data();
 	vb2_secdata_set(&cc, VB2_SECDATA_FLAGS,
@@ -442,6 +462,12 @@ static void dev_switch_tests(void)
 	TEST_NEQ(sd->flags & VB2_SD_DEV_MODE_ENABLED, 0, "  sd in dev");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_DEVELOPER_MODE, 0, "  ctx in dev");
 	TEST_EQ(mock_tpm_clear_called, 1, "  tpm clear");
+
+	/* Force wipeout by ctx flag */
+	reset_common_data();
+	cc.flags |= VB2_CONTEXT_FORCE_WIPEOUT_MODE;
+	TEST_SUCC(vb2_check_dev_switch(&cc), "wipeout on ctx flag");
+	TEST_EQ(vb2_nv_get(&cc, VB2_NV_REQ_WIPEOUT), 1, "  nv wipeout");
 }
 
 static void tpm_clear_tests(void)

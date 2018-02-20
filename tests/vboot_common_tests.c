@@ -220,8 +220,10 @@ static void VbSharedDataTest(void)
 	TEST_EQ(d->kernel_version_lowest, 0,
 		"VbSharedDataInit kernel_version_lowest");
 
-	TEST_NEQ(VBOOT_SUCCESS, VbSharedDataSetKernelKey(NULL, NULL),
-		 "VbSharedDataSetKernelKey null");
+	TEST_EQ(VBOOT_SHARED_DATA_INVALID, VbSharedDataSetKernelKey(NULL, NULL),
+		"VbSharedDataSetKernelKey sd null");
+	TEST_EQ(VBOOT_PUBLIC_KEY_INVALID, VbSharedDataSetKernelKey(d, NULL),
+		"VbSharedDataSetKernelKey pubkey null");
 }
 
 int main(int argc, char* argv[])

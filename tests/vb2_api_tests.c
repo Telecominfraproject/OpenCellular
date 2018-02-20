@@ -242,10 +242,11 @@ static void phase2_tests(void)
 	reset_common_data(FOR_MISC);
 	TEST_SUCC(vb2api_fw_phase2(&cc), "phase2 good");
 	TEST_EQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
+	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "  slot b flag");
 
 	reset_common_data(FOR_MISC);
 	cc.flags |= VB2_CONTEXT_DEVELOPER_MODE;
-	TEST_SUCC(vb2api_fw_phase2(&cc), "phase1 dev");
+	TEST_SUCC(vb2api_fw_phase2(&cc), "phase2 dev");
 	TEST_NEQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
 
 	reset_common_data(FOR_MISC);
@@ -259,6 +260,20 @@ static void phase2_tests(void)
 	TEST_EQ(vb2api_fw_phase2(&cc), VB2_ERROR_MOCK, "phase2 slot");
 	TEST_EQ(vb2_nv_get(&cc, VB2_NV_RECOVERY_REQUEST),
 		VB2_RECOVERY_FW_SLOT, "  recovery reason");
+
+	/* S3 resume exits before clearing RAM */
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_S3_RESUME;
+	cc.flags |= VB2_CONTEXT_DEVELOPER_MODE;
+	TEST_SUCC(vb2api_fw_phase2(&cc), "phase2 s3 dev");
+	TEST_EQ(cc.flags & VB2_CONTEXT_CLEAR_RAM, 0, "  clear ram flag");
+	TEST_EQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "  slot b flag");
+
+	reset_common_data(FOR_MISC);
+	cc.flags |= VB2_CONTEXT_S3_RESUME;
+	vb2_nv_set(&cc, VB2_NV_FW_TRIED, 1);
+	TEST_SUCC(vb2api_fw_phase2(&cc), "phase2 s3");
+	TEST_NEQ(cc.flags & VB2_CONTEXT_FW_SLOT_B, 0, "  slot b flag");
 }
 
 static void get_pcr_digest_tests(void)

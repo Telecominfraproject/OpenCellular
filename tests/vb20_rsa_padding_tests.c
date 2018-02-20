@@ -66,6 +66,9 @@ static void test_verify_digest(struct vb2_public_key *key) {
 	TEST_SUCC(vb2_rsa_verify_digest(key, sig, test_message_sha1_hash, &wb),
 		  "vb2_rsa_verify_digest() good");
 
+	TEST_EQ(vb2_rsa_verify_digest(key, NULL, test_message_sha1_hash, &wb),
+		VB2_ERROR_RSA_VERIFY_PARAM, "vb2_rsa_verify_digest() bad arg");
+
 	memcpy(sig, signatures[0], sizeof(sig));
 	vb2_workbuf_init(&wb, workbuf, sizeof(sig) * 3 - 1);
 	TEST_EQ(vb2_rsa_verify_digest(key, sig, test_message_sha1_hash, &wb),
