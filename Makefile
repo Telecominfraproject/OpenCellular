@@ -390,7 +390,6 @@ TLCL_SRCS = \
 	firmware/lib/tpm2_lite/tlcl.c \
 	firmware/lib/tpm2_lite/marshaling.c
 endif
-TLCL_OBJS_FOR_TEST = $(TLCL_SRCS:%.c=${BUILD}/%_for_test.o)
 
 # Support real TPM unless BIOS sets MOCK_TPM
 ifeq (${MOCK_TPM},)
@@ -1287,12 +1286,6 @@ ${BUILD}/tests/rollback_index2_tests: \
 	${BUILD}/firmware/lib/rollback_index_for_test.o
 TEST_OBJS += ${BUILD}/firmware/lib/rollback_index_for_test.o
 endif
-
-${BUILD}/tests/tlcl_tests: OBJS += \
-	${TLCL_OBJS_FOR_TEST}
-${BUILD}/tests/tlcl_tests: \
-	${TLCL_OBJS_FOR_TEST}
-TEST_OBJS += ${TLCL_OBJS_FOR_TEST}
 
 ifeq (${TPM2_MODE},)
 # TODO(apronin): tests for TPM2 case?

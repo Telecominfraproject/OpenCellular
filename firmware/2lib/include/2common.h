@@ -29,19 +29,10 @@ struct vb2_public_key;
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif
 
-/* Debug output printf() for tests.  Otherwise, it's platform-dependent. */
+/* Platform-dependent debug output macros. */
 #if defined(VBOOT_DEBUG)
-#  if defined(FOR_TEST)
-#    include <stdio.h>
-#    define VB2_DEBUG(format, args...)		do {	\
-	printf("%s", __func__);				\
-	printf(format, ## args);			\
-	} while(0)
-#    define VB2_DEBUG_RAW(format, args...) printf(format, ## args)
-#  else
-#    define VB2_DEBUG(format, args...) vb2ex_printf(__func__, format, ## args)
-#    define VB2_DEBUG_RAW(format, args...) vb2ex_printf(NULL, format, ## args)
-#  endif
+#  define VB2_DEBUG(format, args...) vb2ex_printf(__func__, format, ## args)
+#  define VB2_DEBUG_RAW(format, args...) vb2ex_printf(NULL, format, ## args)
 #else
 #  define VB2_DEBUG(format, args...)
 #  define VB2_DEBUG_RAW(format, args...)
