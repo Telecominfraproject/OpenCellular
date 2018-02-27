@@ -319,7 +319,7 @@ VbError_t VbDisplayDebugInfo(struct vb2_context *ctx)
 
 	/* Add raw contents of VbNvStorage */
 	used += StrnAppend(buf + used, "\nVbNv.raw:", DEBUG_INFO_SIZE - used);
-	for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
+	for (i = 0; i < vb2_nv_get_size(ctx); i++) {
 		used += StrnAppend(buf + used, " ", DEBUG_INFO_SIZE - used);
 		used += Uint64ToString(buf + used, DEBUG_INFO_SIZE - used,
 				       ctx->nvdata[i], 16, 2);

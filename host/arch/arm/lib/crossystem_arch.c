@@ -260,7 +260,7 @@ static int vb2_read_nv_storage_disk(struct vb2_context *ctx)
 		return E_FAIL;
 	snprintf(nvctx_path, sizeof(nvctx_path), NVCTX_PATH, emmc_dev);
 
-	if (size != sizeof(ctx->nvdata) || (size + offset > SECTOR_SIZE))
+	if (size != vb2_nv_get_size(ctx) || (size + offset > SECTOR_SIZE))
 		return E_FAIL;
 
 	nvctx_fd = open(nvctx_path, O_RDONLY);
@@ -303,7 +303,7 @@ static int vb2_write_nv_storage_disk(struct vb2_context *ctx)
 		return E_FAIL;
 	snprintf(nvctx_path, sizeof(nvctx_path), NVCTX_PATH, emmc_dev);
 
-	if (size != sizeof(ctx->nvdata) || (size + offset > SECTOR_SIZE))
+	if (size != vb2_nv_get_size(ctx) || (size + offset > SECTOR_SIZE))
 		return E_FAIL;
 
 	do {

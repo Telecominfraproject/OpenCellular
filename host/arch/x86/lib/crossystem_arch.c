@@ -158,16 +158,17 @@ static int VbCmosWrite(unsigned offs, size_t size, const void *ptr)
 int vb2_read_nv_storage(struct vb2_context *ctx)
 {
 	unsigned offs, blksz;
+	unsigned expectsz = vb2_nv_get_size(ctx);
 
 	/* Get the byte offset from VBNV */
 	if (ReadFileInt(ACPI_VBNV_PATH ".0", &offs) < 0)
 		return -1;
 	if (ReadFileInt(ACPI_VBNV_PATH ".1", &blksz) < 0)
 		return -1;
-	if (VBNV_BLOCK_SIZE > blksz)
+	if (expectsz > blksz)
 		return -1;  /* NV storage block is too small */
 
-	if (0 != VbCmosRead(offs, sizeof(ctx->nvdata), ctx->nvdata))
+	if (0 != VbCmosRead(offs, expectsz, ctx->nvdata))
 		return -1;
 
 	return 0;
@@ -177,6 +178,7 @@ int vb2_read_nv_storage(struct vb2_context *ctx)
 int vb2_write_nv_storage(struct vb2_context *ctx)
 {
 	unsigned offs, blksz;
+	unsigned expectsz = vb2_nv_get_size(ctx);
 
 	if (!(ctx->flags & VB2_CONTEXT_NVDATA_CHANGED))
 		return 0;  /* Nothing changed, so no need to write */
@@ -186,10 +188,10 @@ int vb2_write_nv_storage(struct vb2_context *ctx)
 		return -1;
 	if (ReadFileInt(ACPI_VBNV_PATH ".1", &blksz) < 0)
 		return -1;
-	if (VBNV_BLOCK_SIZE > blksz)
+	if (expectsz > blksz)
 		return -1;  /* NV storage block is too small */
 
-	if (0 != VbCmosWrite(offs, sizeof(ctx->nvdata), ctx->nvdata))
+	if (0 != VbCmosWrite(offs, expectsz, ctx->nvdata))
 		return -1;
 
 	/* Also attempt to write using mosys if using vboot2 */

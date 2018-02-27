@@ -81,13 +81,13 @@ static void ResetMocks(void)
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	memcpy(buf, ctx.nvdata, sizeof(ctx.nvdata));
+	memcpy(buf, ctx.nvdata, vb2_nv_get_size(&ctx));
 	return VBERROR_SUCCESS;
 }
 
 VbError_t VbExNvStorageWrite(const uint8_t *buf)
 {
-	memcpy(ctx.nvdata, buf, sizeof(ctx.nvdata));
+	memcpy(ctx.nvdata, buf, vb2_nv_get_size(&ctx));
 	return VBERROR_SUCCESS;
 }
 

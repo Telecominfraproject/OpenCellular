@@ -98,11 +98,14 @@ static int vnc_read;
 
 int vb2_get_nv_storage(enum vb2_nv_param param)
 {
+	VbSharedDataHeader* sh = VbSharedDataRead();
 	static struct vb2_context cached_ctx;
 
 	/* TODO: locking around NV access */
 	if (!vnc_read) {
 		memset(&cached_ctx, 0, sizeof(cached_ctx));
+		if (sh->flags & VBSD_NVDATA_V2)
+			cached_ctx.flags |= VB2_CONTEXT_NVDATA_V2;
 		if (0 != vb2_read_nv_storage(&cached_ctx))
 			return -1;
 		vb2_nv_init(&cached_ctx);
@@ -118,10 +121,13 @@ int vb2_get_nv_storage(enum vb2_nv_param param)
 
 int vb2_set_nv_storage(enum vb2_nv_param param, int value)
 {
+	VbSharedDataHeader* sh = VbSharedDataRead();
 	struct vb2_context ctx;
 
 	/* TODO: locking around NV access */
 	memset(&ctx, 0, sizeof(ctx));
+	if (sh->flags & VBSD_NVDATA_V2)
+		ctx.flags |= VB2_CONTEXT_NVDATA_V2;
 	if (0 != vb2_read_nv_storage(&ctx))
 		return -1;
 	vb2_nv_init(&ctx);
@@ -834,18 +840,34 @@ static int ExecuteMosys(char * const argv[], char *buf, size_t bufsize)
 
 int vb2_read_nv_storage_mosys(struct vb2_context *ctx)
 {
-	char hexstring[VBNV_BLOCK_SIZE * 2 + 32];  /* Reserve extra 32 bytes */
+	/* Reserve extra 32 bytes */
+	char hexstring[VB2_NVDATA_SIZE_V2 * 2 + 32];
+	/*
+	 * TODO(rspangler): mosys doesn't know how to read anything but 16-byte
+	 * records yet.  When it grows a command line option to do that, call
+	 * it here when needed.
+	 *
+	 * It's possible mosys won't need that.  For example, if if examines
+	 * the header byte to determine the records size, or if it calls back
+	 * to crossystem to read the VBSD flag.
+	 */
 	char * const argv[] = {
 		InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH,
 		"nvram", "vboot", "read", NULL
 	};
 	char hexdigit[3];
+	const int nvsize = vb2_nv_get_size(ctx);
 	int i;
 
 	if (ExecuteMosys(argv, hexstring, sizeof(hexstring)))
 		return -1;
+	if (strlen(hexstring) != 2 * nvsize) {
+		fprintf(stderr, "mosys returned hex nvdata size %d"
+			" (expected %d)\n", (int)strlen(hexstring), 2 * nvsize);
+		return -1;
+	}
 	hexdigit[2] = '\0';
-	for (i = 0; i < VBNV_BLOCK_SIZE; i++) {
+	for (i = 0; i < nvsize; i++) {
 		hexdigit[0] = hexstring[i * 2];
 		hexdigit[1] = hexstring[i * 2 + 1];
 		ctx->nvdata[i] = strtol(hexdigit, NULL, 16);
@@ -855,14 +877,15 @@ int vb2_read_nv_storage_mosys(struct vb2_context *ctx)
 
 int vb2_write_nv_storage_mosys(struct vb2_context *ctx)
 {
-	char hexstring[VBNV_BLOCK_SIZE * 2 + 1];
+	char hexstring[VB2_NVDATA_SIZE_V2 * 2 + 1];
 	char * const argv[] = {
 		InAndroid() ? MOSYS_ANDROID_PATH : MOSYS_CROS_PATH,
 		"nvram", "vboot", "write", hexstring, NULL
 	};
+	const int nvsize = vb2_nv_get_size(ctx);
 	int i;
 
-	for (i = 0; i < VBNV_BLOCK_SIZE; i++)
+	for (i = 0; i < nvsize; i++)
 		snprintf(hexstring + i * 2, 3, "%02x", ctx->nvdata[i]);
 	hexstring[sizeof(hexstring) - 1] = '\0';
 	if (ExecuteMosys(argv, NULL, 0))

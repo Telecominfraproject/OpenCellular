@@ -174,7 +174,7 @@ int vb2_verify_data(const uint8_t *data,
 
 VbError_t VbExNvStorageRead(uint8_t *buf)
 {
-	memcpy(buf, ctx.nvdata, sizeof(ctx.nvdata));
+	memcpy(buf, ctx.nvdata, vb2_nv_get_size(&ctx));
 	return VBERROR_SUCCESS;
 }
 

@@ -28,8 +28,15 @@
 #include "2recovery_reasons.h"
 #include "2return_codes.h"
 
-/* Size of non-volatile data used by vboot */
+/*
+ * Size of non-volatile data used by vboot.
+ *
+ * If you only support non-volatile data format V1, then use VB2_NVDATA_SIZE.
+ * If you support V2, use VB2_NVDATA_SIZE_V2 and set context flag
+ * VB2_CONTEXT_NVDATA_V2.
+ */
 #define VB2_NVDATA_SIZE 16
+#define VB2_NVDATA_SIZE_V2 64
 
 /* Size of secure data spaces used by vboot */
 #define VB2_SECDATA_SIZE 10
@@ -158,6 +165,16 @@ enum vb2_context_flags {
 	 * software sync.
 	 */
 	VB2_CONTEXT_EC_EFS = (1 << 17),
+
+	/*
+	 * NV storage uses data format V2.  Data is size VB2_NVDATA_SIZE_V2,
+	 * not VB2_NVDATA_SIZE.
+	 *
+	 * Caller must set this flag when initializing the context to use V2.
+	 * (Vboot cannot infer the data size from the data itself, because the
+	 * data provided by the caller could be uninitialized.)
+	 */
+	VB2_CONTEXT_NVDATA_V2 = (1 << 18),
 };
 
 /*
@@ -190,7 +207,7 @@ struct vb2_context {
 	 * vb2api function returns, caller must save the data back to the
 	 * non-volatile location and then clear the flag.
 	 */
-	uint8_t nvdata[VB2_NVDATA_SIZE];
+	uint8_t nvdata[VB2_NVDATA_SIZE_V2];
 
 	/*
 	 * Secure data for firmware verification stage.  Caller must fill this

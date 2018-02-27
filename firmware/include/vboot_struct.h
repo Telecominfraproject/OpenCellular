@@ -246,6 +246,8 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_NOFAIL_BOOT                 0x00040000
 /* VbInit() was told that the EC firmware supports EFS */
 #define VBSD_EC_EFS                      0x00080000
+/* NvStorage uses 64-byte record, not 16-byte */
+#define VBSD_NVDATA_V2                   0x00100000
 
 /*
  * Supported flags by header version.  It's ok to add new flags while keeping

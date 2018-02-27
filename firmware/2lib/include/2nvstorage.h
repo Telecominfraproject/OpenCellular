@@ -105,6 +105,14 @@ enum vb2_nv_param {
         VB2_NV_BATTERY_CUTOFF_REQUEST,
 	/* Maximum kernel version to roll forward to */
 	VB2_NV_KERNEL_MAX_ROLLFORWARD,
+
+	/*** Fields only available in NV storage V2 ***/
+
+	/*
+	 * Maximum firmware version to roll forward to.  Returns
+	 * VB2_MAX_ROLLFORWARD_MAX_V1_DEFAULT for V1.
+	 */
+	VB2_NV_FW_MAX_ROLLFORWARD,
 };
 
 /* Set default boot in developer mode */
@@ -113,7 +121,7 @@ enum vb2_dev_default_boot {
 	VB2_DEV_DEFAULT_BOOT_DISK = 0,
 
 	/* Default to boot from USB */
-	VB2_DEV_DEFAULT_BOOT_USB= 1,
+	VB2_DEV_DEFAULT_BOOT_USB = 1,
 
 	/* Default to boot legacy OS */
 	VB2_DEV_DEFAULT_BOOT_LEGACY = 2,
@@ -134,6 +142,24 @@ enum vb2_fw_result {
 	/* Known failure */
 	VB2_FW_RESULT_FAILURE = 3,
 };
+
+/*
+ * Default value for VB2_NV_FIRMWARE_MAX_ROLLFORWARD on V1.  This preserves the
+ * existing behavior that V1 systems will always roll forward the firmware
+ * version when possible.
+ */
+#define VB2_FW_MAX_ROLLFORWARD_V1_DEFAULT 0xfffffffe
+
+/**
+ * Return the size of the non-volatile storage data in the context.
+ *
+ * This may be called before vb2_context_init(), but you must set
+ * VB2_CONTEXT_NVDATA_V2 if you support V2 record size.
+ *
+ * @param ctx		Context pointer
+ * @return Size of the non-volatile storage data in bytes.
+ */
+int vb2_nv_get_size(const struct vb2_context *ctx);
 
 /**
  * Check the CRC of the non-volatile storage context.

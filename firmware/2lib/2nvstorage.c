@@ -14,8 +14,17 @@
 
 static void vb2_nv_regen_crc(struct vb2_context *ctx)
 {
-	ctx->nvdata[VB2_NV_OFFS_CRC] = vb2_crc8(ctx->nvdata, VB2_NV_OFFS_CRC);
+	const int offs = ctx->flags & VB2_CONTEXT_NVDATA_V2 ?
+			VB2_NV_OFFS_CRC_V2 : VB2_NV_OFFS_CRC_V1;
+
+	ctx->nvdata[offs] = vb2_crc8(ctx->nvdata, offs);
 	ctx->flags |= VB2_CONTEXT_NVDATA_CHANGED;
+}
+
+int vb2_nv_get_size(const struct vb2_context *ctx)
+{
+	return ctx->flags & VB2_CONTEXT_NVDATA_V2 ?
+			VB2_NVDATA_SIZE_V2 : VB2_NVDATA_SIZE;
 }
 
 /**
@@ -32,14 +41,17 @@ static void vb2_nv_regen_crc(struct vb2_context *ctx)
 int vb2_nv_check_crc(const struct vb2_context *ctx)
 {
 	const uint8_t *p = ctx->nvdata;
+	const int offs = ctx->flags & VB2_CONTEXT_NVDATA_V2 ?
+			VB2_NV_OFFS_CRC_V2 : VB2_NV_OFFS_CRC_V1;
+	const int sig = ctx->flags & VB2_CONTEXT_NVDATA_V2 ?
+			VB2_NV_HEADER_SIGNATURE_V2 : VB2_NV_HEADER_SIGNATURE_V1;
 
 	/* Check header */
-	if (VB2_NV_HEADER_SIGNATURE !=
-	    (p[VB2_NV_OFFS_HEADER] & VB2_NV_HEADER_MASK))
+	if (sig != (p[VB2_NV_OFFS_HEADER] & VB2_NV_HEADER_SIGNATURE_MASK))
 		return VB2_ERROR_NV_HEADER;
 
 	/* Check CRC */
-	if (vb2_crc8(p, VB2_NV_OFFS_CRC) != p[VB2_NV_OFFS_CRC])
+	if (vb2_crc8(p, offs) != p[offs])
 		return VB2_ERROR_NV_CRC;
 
 	return VB2_SUCCESS;
@@ -47,14 +59,17 @@ int vb2_nv_check_crc(const struct vb2_context *ctx)
 
 void vb2_nv_init(struct vb2_context *ctx)
 {
+	const int sig = ctx->flags & VB2_CONTEXT_NVDATA_V2 ?
+			VB2_NV_HEADER_SIGNATURE_V2 : VB2_NV_HEADER_SIGNATURE_V1;
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
 	uint8_t *p = ctx->nvdata;
+
 
 	/* Check data for consistency */
 	if (vb2_nv_check_crc(ctx) != VB2_SUCCESS) {
 		/* Data is inconsistent (bad CRC or header); reset defaults */
-		memset(p, 0, VB2_NVDATA_SIZE);
-		p[VB2_NV_OFFS_HEADER] = (VB2_NV_HEADER_SIGNATURE |
+		memset(p, 0, VB2_NVDATA_SIZE_V2);
+		p[VB2_NV_OFFS_HEADER] = (sig |
 					 VB2_NV_HEADER_FW_SETTINGS_RESET |
 					 VB2_NV_HEADER_KERNEL_SETTINGS_RESET);
 
@@ -190,6 +205,16 @@ uint32_t vb2_nv_get(struct vb2_context *ctx, enum vb2_nv_param param)
 			| (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD2] << 8)
 			| (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD3] << 16)
 			| (p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD4] << 24));
+
+	case VB2_NV_FW_MAX_ROLLFORWARD:
+		/* Field only present in V2 */
+		if (!(ctx->flags & VB2_CONTEXT_NVDATA_V2))
+			return VB2_FW_MAX_ROLLFORWARD_V1_DEFAULT;
+
+		return (p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD1]
+			| (p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD2] << 8)
+			| (p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD3] << 16)
+			| (p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD4] << 24));
 	}
 
 	/*
@@ -375,6 +400,17 @@ void vb2_nv_set(struct vb2_context *ctx,
 		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD2] = (uint8_t)(value >> 8);
 		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD3] = (uint8_t)(value >> 16);
 		p[VB2_NV_OFFS_KERNEL_MAX_ROLLFORWARD4] = (uint8_t)(value >> 24);
+		break;
+
+	case VB2_NV_FW_MAX_ROLLFORWARD:
+		/* Field only present in V2 */
+		if (!(ctx->flags & VB2_CONTEXT_NVDATA_V2))
+			return;
+
+		p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD1] = (uint8_t)(value);
+		p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD2] = (uint8_t)(value >> 8);
+		p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD3] = (uint8_t)(value >> 16);
+		p[VB2_NV_OFFS_FW_MAX_ROLLFORWARD4] = (uint8_t)(value >> 24);
 		break;
 	}
 
