@@ -730,6 +730,7 @@ resign_android_image_if_exists() {
     return
   fi
 
+  info "Found ARC image version '${arc_version}', re-signing APKs."
   "${SCRIPT_DIR}/sign_android_image.sh" "${rootfs_dir}" "${KEY_DIR}/android"
 
   sudo umount "${rootfs_dir}"
