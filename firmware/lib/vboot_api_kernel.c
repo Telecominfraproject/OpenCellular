@@ -621,18 +621,3 @@ VbError_t VbUnlockDevice(void)
 	VB2_DEBUG("Mode change will take effect on next reboot.\n");
 	return VBERROR_SUCCESS;
 }
-
-VbError_t VbLockDevice(void)
-{
-	VB2_DEBUG("Storing request to leave dev-mode.\n");
-
-	memset(&ctx, 0, sizeof(ctx));
-	VbExNvStorageRead(ctx.nvdata);
-	vb2_nv_init(&ctx);
-	vb2_nv_set(&ctx, VB2_NV_DISABLE_DEV_REQUEST, 1);
-	vb2_nv_commit(&ctx);
-
-	VB2_DEBUG("Mode change will take effect on next reboot.\n");
-
-	return VBERROR_SUCCESS;
-}

@@ -43,16 +43,9 @@ static void VbUnlockDeviceTest(void)
 		"set dev fail");
 }
 
-static void VbLockDeviceTest(void)
-{
-	ResetMocks();
-	TEST_EQ(VbLockDevice(), 0, "lock success");
-}
-
 int main(void)
 {
 	VbUnlockDeviceTest();
-	VbLockDeviceTest();
 
 	return gTestSuccess ? 0 : 255;
 }
