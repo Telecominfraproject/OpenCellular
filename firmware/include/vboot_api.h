@@ -235,11 +235,6 @@ typedef struct VbCommonParams {
 /* EC on this platform is slow to update. */
 #define VB_INIT_FLAG_EC_SLOW_UPDATE      0x00000400
 /*
- * Software write protect was enabled at boot time. This is separate from the
- * HW write protect. Both must be set for flash write protection to work.
- */
-#define VB_INIT_FLAG_SW_WP_ENABLED       0x00000800
-/*
  * This platform does not have a physical recovery switch which, when present,
  * can (and should) be used for additional physical presence checks.
  */

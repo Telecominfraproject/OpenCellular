@@ -229,8 +229,11 @@ typedef struct VbKernelPreambleHeader {
 #define VBSD_EC_SOFTWARE_SYNC            0x00000800
 /* VbInit() was told that the EC firmware is slow to update */
 #define VBSD_EC_SLOW_UPDATE              0x00001000
-/* Firmware software write protect was enabled at boot time */
-#define VBSD_BOOT_FIRMWARE_SW_WP_ENABLED 0x00002000
+/*
+ * Deprecated; was firmware software write protect was enabled at boot time.
+ * Crossystem support removed https://chromium-review.googlesource.com/575389.
+ */
+#define VBSD_DEPRECATED_BOOT_FIRMWARE_SW_WP_ENABLED 0x00002000
 /* VbInit() was told that the recovery button is a virtual one */
 #define VBSD_BOOT_REC_SWITCH_VIRTUAL     0x00004000
 /* Firmware used vboot2 for firmware selection */

@@ -295,18 +295,6 @@ static void VbSoftwareSyncTest(void)
 	TEST_EQ(ec_ro_updated, 1, "  ec ro updated");
 
 	ResetMocks();
-	ctx.flags |= VB2_CONTEXT_SW_WP_ENABLED;
-	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
-	mock_ec_rw_hash[0]++;
-	mock_ec_ro_hash[0]++;
-	test_ssync(0, 0, "WP enabled");
-	TEST_EQ(ec_rw_protected, 1, "  ec rw protected");
-	TEST_EQ(ec_run_image, 1, "  ec run image");
-	TEST_EQ(ec_rw_updated, 1, "  ec rw updated");
-	TEST_EQ(ec_ro_protected, 1, "  ec ro protected");
-	TEST_EQ(ec_ro_updated, 0, "  ec ro updated");
-
-	ResetMocks();
 	vb2_nv_set(&ctx, VB2_NV_TRY_RO_SYNC, 1);
 	mock_ec_ro_hash[0]++;
 	test_ssync(0, 0, "rw update not needed");

@@ -259,8 +259,6 @@ static VbError_t vb2_kernel_setup(VbCommonParams *cparams,
 		ctx.flags |= VB2_CONTEXT_EC_SYNC_SLOW;
 	if (shared->flags & VBSD_EC_EFS)
 		ctx.flags |= VB2_CONTEXT_EC_EFS;
-	if (shared->flags & VBSD_BOOT_FIRMWARE_SW_WP_ENABLED)
-		ctx.flags |= VB2_CONTEXT_SW_WP_ENABLED;
 
 	ctx.workbuf_size = VB2_KERNEL_WORKBUF_RECOMMENDED_SIZE +
 			VB2_WORKBUF_ALIGN;

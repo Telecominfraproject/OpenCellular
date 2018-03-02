@@ -158,12 +158,6 @@ enum vb2_context_flags {
 	 * software sync.
 	 */
 	VB2_CONTEXT_EC_EFS = (1 << 17),
-
-	/*
-	 * Software write protect for the RO firmware was enabled at boot.
-	 * Caller may set this flag when initializing the context.
-	 */
-	VB2_CONTEXT_SW_WP_ENABLED = (1 << 18),
 };
 
 /*

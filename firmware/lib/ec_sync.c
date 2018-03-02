@@ -375,7 +375,6 @@ VbError_t ec_sync_phase1(struct vb2_context *ctx)
 	 * separately.
 	 */
 	if (vb2_nv_get(ctx, VB2_NV_TRY_RO_SYNC) &&
-	    !(ctx->flags & VB2_CONTEXT_SW_WP_ENABLED) &&
 	    check_ec_hash(ctx, 0, VB_SELECT_FIRMWARE_READONLY)) {
 		return VBERROR_EC_REBOOT_TO_RO_REQUIRED;
 	}
