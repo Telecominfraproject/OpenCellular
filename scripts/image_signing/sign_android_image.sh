@@ -96,6 +96,11 @@ build flavor '${flavor_prop}'."
     # Copy the content instead of mv to avoid owner/mode changes.
     sudo cp "${aligned_apk}" "${apk}" && rm -f "${aligned_apk}"
 
+    # Set timestamp rounded to second since squash file system has resolution
+    # in seconds. Required in order for the packages cache generator output is
+    # compatible with the packed file system.
+    sudo touch "${apk}" -t "$(date +%m%d%H%M.%S)"
+
     : $(( counter_${keyname} += 1 ))
     : $(( counter_total += 1 ))
   done < <(find "${system_mnt}/system" -type f -name '*.apk' -print0)
@@ -218,7 +223,7 @@ main() {
   local compression_method=$(sudo unsquashfs -s "${system_img}" | \
       awk '$1 == "Compression" { print $2 }')
 
-  info "Unpacking squashfs image to ${system_img}"
+  info "Unpacking squashfs system image to ${system_mnt}"
   sudo "${unsquashfs}" -x -f -no-progress -d "${system_mnt}" "${system_img}"
 
   snapshot_file_properties "${system_mnt}" > "${working_dir}/properties.orig"
@@ -233,6 +238,45 @@ main() {
   local d
   if ! d=$(diff "${working_dir}"/properties.{orig,new}); then
     die "Unexpected change of file property, diff\n${d}"
+  fi
+
+  # Packages cache needs to be regenerated when the key and timestamp are
+  # changed for apks.
+  local packages_cache="${system_mnt}/system/etc/packages_cache.xml"
+  if [[ -f "${packages_cache}" ]]; then
+    if type -P aapt &>/dev/null; then
+      info "Regenerating packages cache ${packages_cache}"
+      # For the sanity check.
+      local packages_before=$(grep "<package " "${packages_cache}" | wc -l)
+      local vendor_mnt=$(make_temp_dir)
+      local vendor_img="${android_dir}/vendor.raw.img"
+      local jar_lib="lib/arc-cache-builder/org.chromium.arc.cachebuilder.jar"
+      info "Unpacking squashfs vendor image to ${vendor_mnt}/vendor"
+      # Vendor image is not updated during this step. However we have to include
+      # vendor apks to re-generated packages cache which exists in one file for
+      # both system and vendor images.
+      sudo "${unsquashfs}" -x -f -no-progress -d "${vendor_mnt}/vendor" \
+          "${vendor_img}"
+      if ! arc_generate_packages_cache "${system_mnt}" "${vendor_mnt}" \
+          "${working_dir}/packages_cache.xml"; then
+        die "Failed to generate packages cache."
+      fi
+      sudo cp "${working_dir}/packages_cache.xml" "${packages_cache}"
+      # Set android-root as an owner.
+      sudo chown 655360:655360 "${packages_cache}"
+      local packages_after=$(grep "<package " "${packages_cache}" | wc -l)
+      if [[ "${packages_before}" != "${packages_after}" ]]; then
+        die "failed to verify the packages count after the regeneration of " \
+            "the packages cache. Expected ${packages_before} but found " \
+            "${packages_after} packages in pacakges_cache.xml"
+      fi
+    else
+      warn "aapt tool could not be found. Could not regenerate the packages " \
+           "cache. Outdated pacakges_cache.xml is removed."
+      sudo rm "${packages_cache}"
+    fi
+  else
+    info "Packages cache ${packages_cache} does not exist. Skip regeneration."
   fi
 
   info "Repacking squashfs image"
