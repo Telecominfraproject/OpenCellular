@@ -189,64 +189,15 @@ typedef struct VbCommonParams {
 	 * at this.
 	 */
 	void *vboot_context;
-
-	/*
-	 * Internal context/data for firmware / VbExHashFirmwareBody().  Needed
-	 * because the PEI phase of UEFI boot runs out of ROM and thus can't
-	 * modify global variables; everything needs to get passed around on
-	 * the stack.
-	 */
-	void *caller_context;
 } VbCommonParams;
 
-/* Flags for VbInitParams.flags */
-/* Developer switch was on at boot time. */
-#define VB_INIT_FLAG_DEV_SWITCH_ON       0x00000001
+/* Flags for VbExGetSwitches() */
 /* Recovery button was pressed at boot time. */
 #define VB_INIT_FLAG_REC_BUTTON_PRESSED  0x00000002
-/* Hardware write protect was enabled at boot time. */
-#define VB_INIT_FLAG_WP_ENABLED          0x00000004
-/* This is a S3 resume, not a normal boot. */
-#define VB_INIT_FLAG_S3_RESUME           0x00000008
-/*
- * Previous boot attempt failed for reasons external to verified boot (RAM
- * init failure, SSD missing, etc.).
- *
- * TODO: add a field to VbInitParams which holds a reason code, and report
- * that via VbSharedData.
- */
-#define VB_INIT_FLAG_PREVIOUS_BOOT_FAIL  0x00000010
-/*
- * Calling firmware supports read only firmware for normal/developer boot path.
- */
-#define VB_INIT_FLAG_RO_NORMAL_SUPPORT   0x00000020
-/*
- * This platform does not have a physical dev-switch, so we must rely on a
- * virtual switch (kept in the TPM) instead. When this flag is set,
- * VB_INIT_FLAG_DEV_SWITCH_ON is ignored.
- */
-#define VB_INIT_FLAG_VIRTUAL_DEV_SWITCH  0x00000040
-/* Set when the VGA Option ROM has been loaded already. */
-#define VB_INIT_FLAG_OPROM_LOADED        0x00000080
-/* Set if we care about the VGA Option ROM - some platforms don't. */
-#define VB_INIT_FLAG_OPROM_MATTERS       0x00000100
-/* EC on this platform supports EC software sync. */
-#define VB_INIT_FLAG_EC_SOFTWARE_SYNC    0x00000200
-/* EC on this platform is slow to update. */
-#define VB_INIT_FLAG_EC_SLOW_UPDATE      0x00000400
-/*
- * This platform does not have a physical recovery switch which, when present,
- * can (and should) be used for additional physical presence checks.
- */
-#define VB_INIT_FLAG_VIRTUAL_REC_SWITCH  0x00001000
-/* Set when we are calling VbInit() before loading Option ROMs */
-#define VB_INIT_FLAG_BEFORE_OPROM_LOAD   0x00002000
 /* Allow USB boot on transition to dev */
 #define VB_INIT_FLAG_ALLOW_USB_BOOT	 0x00004000
-/* Set when we can't reliably identify boot failures. This prevents
- * the boot-try counters from decrementing.
- */
-#define VB_INIT_FLAG_NOFAIL_BOOT         0x00008000
+/* Mask of deprecated flags */
+#define VB_INIT_FLAG_DEPRECATED          0x0000BFFD
 
 /*
  * Output flags for VbInitParams.out_flags.  Used to indicate potential boot
@@ -272,20 +223,14 @@ typedef struct VbCommonParams {
  * functions will only be called for fixed disks.
  */
 #define VB_INIT_OUT_ENABLE_USB_STORAGE   0x00000008
-/* If this is a S3 resume, do a debug reset boot instead */
-#define VB_INIT_OUT_S3_DEBUG_BOOT        0x00000010
-/* BIOS should load any PCI option ROMs it finds, not just internal video */
-#define VB_INIT_OUT_ENABLE_OPROM         0x00000020
-/* BIOS may be asked to boot something other than ChromeOS */
-#define VB_INIT_OUT_ENABLE_ALTERNATE_OS  0x00000040
 /* Enable developer path. */
 #define VB_INIT_OUT_ENABLE_DEVELOPER     0x00000080
+/* Mask of deprecated flags */
+#define VB_INIT_OUT_DEPRECATED           0x00000070
 
 /* Data only used by VbInit() */
 typedef struct VbInitParams {
-	/* Inputs to VbInit() */
-	/* Flags (see VB_INIT_FLAG_*) */
-	uint32_t flags;
+	uint32_t deprecated; /* Was init flags */
 
 	/* Outputs from VbInit(); valid only if it returns success. */
 	/* Output flags for firmware; see VB_INIT_OUT_*) */
@@ -298,11 +243,6 @@ typedef struct VbInitParams {
  * uint32_t because enum maps to int, which isn't fixed-size.
  */
 enum VbSelectFirmware_t {
-	/* Recovery mode */
-	VB_SELECT_FIRMWARE_RECOVERY = 0,
-	/* DEPRECATED: Rewritable firmware A/B for normal or developer path */
-	VB_SELECT_FIRMWARE_A = 1,
-	VB_SELECT_FIRMWARE_B = 2,
 	/* Read only firmware for normal or developer path. */
 	VB_SELECT_FIRMWARE_READONLY = 3,
 	/* Rewritable EC firmware currently set active */
@@ -312,23 +252,6 @@ enum VbSelectFirmware_t {
 	/* Keep this at the end */
 	VB_SELECT_FIRMWARE_COUNT,
 };
-
-/* Data only used by VbSelectFirmware() */
-typedef struct VbSelectFirmwareParams {
-	/* Inputs to VbSelectFirmware() */
-	/* Key block + preamble for firmware A */
-	void *verification_block_A;
-	/* Key block + preamble for firmware B */
-	void *verification_block_B;
-	/* Verification block A size in bytes */
-	uint32_t verification_size_A;
-	/* Verification block B size in bytes */
-	uint32_t verification_size_B;
-
-	/* Outputs from VbSelectFirmware(); valid only if it returns success. */
-	/* Main firmware to run; see VB_SELECT_FIRMWARE_*. */
-	uint32_t selected_firmware;
-} VbSelectFirmwareParams;
 
 /*
  * We use disk handles rather than indices.  Using indices causes problems if
@@ -510,35 +433,6 @@ VbError_t VbExNvStorageRead(uint8_t *buf);
  * Write the VBNV_BLOCK_SIZE-byte non-volatile storage from buf.
  */
 VbError_t VbExNvStorageWrite(const uint8_t *buf);
-
-/*****************************************************************************/
-/* Firmware / EEPROM access (previously in load_firmware_fw.h) */
-
-/**
- * Calculate the hash of the firmware body data for [firmware_index], which is
- * either VB_SELECT_FIRMWARE_A or VB_SELECT_FIRMWARE B.
- *
- * This function must call VbUpdateFirmwareBodyHash() before returning, to
- * update the secure hash for the firmware image.  For best performance, the
- * implementation should call VbUpdateFirmwareBodyHash() periodically during
- * the read, so that updating the hash can be pipelined with the read.  If the
- * reader cannot update the hash during the read process, it should call
- * VbUpdateFirmwareBodyHash() on the entire firmware data after the read,
- * before returning.
- *
- * It is recommended that the firmware use this call to copy the requested
- * firmware body from EEPROM into RAM, so that it doesn't need to do a second
- * slow copy from EEPROM to RAM if this firmware body is selected.
- *
- * Note this function doesn't actually pass the firmware body data to verified
- * boot, because verified boot doesn't actually need the firmware body, just
- * its hash.  This is important on x86, where the firmware is stored
- * compressed.  We hash the compressed data, but the BIOS decompresses it
- * during read.  Simply updating a hash is compatible with the x86
- * read-and-decompress pipeline.
- */
-VbError_t VbExHashFirmwareBody(VbCommonParams *cparams,
-                               uint32_t firmware_index);
 
 /*****************************************************************************/
 /* Disk access (previously in boot_device.h) */
@@ -751,31 +645,6 @@ enum VbScreenType_t {
 };
 
 /**
- * Initialize and clear the display.  Set width and height to the screen
- * dimensions in pixels.
- */
-VbError_t VbExDisplayInit(uint32_t *width, uint32_t *height);
-
-/**
- * Enable (enable!=0) or disable (enable=0) the display backlight.
- */
-VbError_t VbExDisplayBacklight(uint8_t enable);
-
-/**
- * Sets the logical dimension to display.
- *
- * If the physical display is larger or smaller than given dimension, display
- * provider may decide to scale or shift images (from VbExDisplayImage)to proper
- * location.
- */
-VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height);
-
-/**
- * Returns the logical dimension to display.
- */
-VbError_t VbExDisplayGetDimension(uint32_t *width, uint32_t *height);
-
-/**
  * Display a predefined screen; see VB_SCREEN_* for valid screens.
  *
  * This is a backup method of screen display, intended for use if the GBB does
@@ -800,28 +669,6 @@ VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale);
 VbError_t VbExDisplayMenu(uint32_t screen_type, uint32_t locale,
 			  uint32_t selected_index, uint32_t disabled_idx_mask,
 			  uint32_t redraw_base);
-
-/**
- * Write an image to the display, with the upper left corner at the specified
- * pixel coordinates.  The bitmap buffer is a pointer to the platform-dependent
- * uncompressed binary blob with dimensions and format specified internally
- * (for example, a raw BMP, GIF, PNG, whatever). We pass the size just for
- * convenience.
- */
-VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
-                           void *buffer, uint32_t buffersize);
-
-/**
- * Display a string beginning at coordinate x,y.
- *
- * The highlight option will display the string in a contrasting color to
- * the normal colors.  For example, the normal display colors are white
- * background, black foreground.  If highlight==1, will display with black
- * background, white foreground.
- */
-VbError_t VbExDisplayText(uint32_t x, uint32_t y,
-			  const char *info_str,
-			  int highlight);
 
 /**
  * Display a string containing debug information on the screen, rendered in a
@@ -1053,17 +900,6 @@ VbError_t VbExUpdateAuxFw(void);
 /*****************************************************************************/
 /* Misc */
 
-/* Args to VbExProtectFlash() */
-enum VbProtectFlash_t { VBPROTECT_RW_A, VBPROTECT_RW_B, VBPROTECT_RW_DEVKEY };
-
-/**
- * Lock a section of the BIOS flash address space to prevent updates until the
- * host is rebooted. Subsequent attempts to erase or modify the specified BIOS
- * image will fail. If this function is called more than once each call should
- * be cumulative.
- */
-VbError_t VbExProtectFlash(enum VbProtectFlash_t region);
-
 /**
  * Check if the firmware needs to shut down the system.
  *
@@ -1088,17 +924,6 @@ uint32_t VbExIsShutdownRequested(void);
 /* Shutdown requested due to a power button being pressed. */
 #define VB_SHUTDOWN_REQUEST_POWER_BUTTON	0x00000004
 
-/**
- * Expose the BIOS' built-in decompression routine to the vboot wrapper. The
- * caller must know how large the uncompressed data will be and must manage
- * that memory. The decompression routine just puts the uncompressed data into
- * the specified buffer. We pass in the size of the outbuf, and get back the
- * actual size used.
- */
-VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
-                         uint32_t compression_type,
-                         void *outbuf, uint32_t *out_size);
-
 /* Constants for compression_type */
 enum {
 	COMPRESS_NONE = 0,
@@ -1118,28 +943,6 @@ enum vb_firmware_region {
 
 	VB_REGION_COUNT,
 };
-
-/**
- * Read data from a region of the firmware image
- *
- * Vboot wants access to a region, to read data from it. This function
- * reads it (typically from the firmware image such as SPI flash) and
- * returns the data.
- *
- * cparams is passed so that the boot loader has some context for the
- * operation.
- *
- * @param cparams	Common parameters, e.g. use member caller_context
- *			to point to useful context data
- * @param region	Firmware region to read
- * @param offset	Start offset within region
- * @param size		Number of bytes to read
- * @param buf		Place to put data
- * @return VBERROR_... error, VBERROR_SUCCESS on success,
- */
-VbError_t VbExRegionRead(VbCommonParams *cparams,
-			 enum vb_firmware_region region, uint32_t offset,
-			 uint32_t size, void *buf);
 
 /**
  * Check if the firmware wants to override GPT entry priority.

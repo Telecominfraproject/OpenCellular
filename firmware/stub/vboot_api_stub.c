@@ -26,26 +26,6 @@ VbError_t VbExBeep(uint32_t msec, uint32_t frequency)
 	return VBERROR_SUCCESS;
 }
 
-VbError_t VbExDisplayInit(uint32_t *width, uint32_t *height)
-{
-	return VBERROR_SUCCESS;
-}
-
-VbError_t VbExDisplayBacklight(uint8_t enable)
-{
-	return VBERROR_SUCCESS;
-}
-
-VbError_t VbExDisplaySetDimension(uint32_t width, uint32_t height)
-{
-	return VBERROR_SUCCESS;
-}
-
-VbError_t VbExDisplayGetDimension(uint32_t *width, uint32_t *height)
-{
-	return VBERROR_SUCCESS;
-}
-
 VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale)
 {
 	return VBERROR_SUCCESS;
@@ -54,19 +34,6 @@ VbError_t VbExDisplayScreen(uint32_t screen_type, uint32_t locale)
 VbError_t VbExDisplayMenu(uint32_t screen_type, uint32_t locale,
 			  uint32_t selected_index, uint32_t disabled_idx_mask,
 			  uint32_t redraw_base)
-{
-	return VBERROR_SUCCESS;
-}
-
-VbError_t VbExDisplayImage(uint32_t x, uint32_t y,
-                           void *buffer, uint32_t buffersize)
-{
-	return VBERROR_SUCCESS;
-}
-
-VbError_t VbExDisplayText(uint32_t x, uint32_t y,
-			  const char *info_str,
-			  int highlight)
 {
 	return VBERROR_SUCCESS;
 }
@@ -94,13 +61,6 @@ uint32_t VbExGetSwitches(uint32_t mask)
 uint32_t VbExIsShutdownRequested(void)
 {
 	return 0;
-}
-
-VbError_t VbExDecompress(void *inbuf, uint32_t in_size,
-                         uint32_t compression_type,
-                         void *outbuf, uint32_t *out_size)
-{
-	return VBERROR_SUCCESS;
 }
 
 int VbExTrustEC(int devidx)
