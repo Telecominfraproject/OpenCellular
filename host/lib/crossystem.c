@@ -104,7 +104,7 @@ int vb2_get_nv_storage(enum vb2_nv_param param)
 	/* TODO: locking around NV access */
 	if (!vnc_read) {
 		memset(&cached_ctx, 0, sizeof(cached_ctx));
-		if (sh->flags & VBSD_NVDATA_V2)
+		if (sh && sh->flags & VBSD_NVDATA_V2)
 			cached_ctx.flags |= VB2_CONTEXT_NVDATA_V2;
 		if (0 != vb2_read_nv_storage(&cached_ctx))
 			return -1;
@@ -126,7 +126,7 @@ int vb2_set_nv_storage(enum vb2_nv_param param, int value)
 
 	/* TODO: locking around NV access */
 	memset(&ctx, 0, sizeof(ctx));
-	if (sh->flags & VBSD_NVDATA_V2)
+	if (sh && sh->flags & VBSD_NVDATA_V2)
 		ctx.flags |= VB2_CONTEXT_NVDATA_V2;
 	if (0 != vb2_read_nv_storage(&ctx))
 		return -1;
