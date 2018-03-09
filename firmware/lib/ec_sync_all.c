@@ -17,6 +17,28 @@
 #include "vboot_display.h"
 #include "vboot_kernel.h"
 
+static VbError_t ec_sync_unload_oprom(struct vb2_context *ctx,
+				      VbSharedDataHeader *shared,
+				      int need_wait_screen)
+{
+	/*
+	 * Reboot to unload VGA Option ROM if:
+	 * - we displayed the wait screen
+	 * - the system has slow EC update flag set
+	 * - the VGA Option ROM was needed and loaded
+	 * - the system is NOT in developer mode (that'll also need the ROM)
+	 */
+	if (need_wait_screen &&
+	    (shared->flags & VBSD_OPROM_MATTERS) &&
+	    (shared->flags & VBSD_OPROM_LOADED) &&
+	    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON)) {
+		VB2_DEBUG("Reboot to unload VGA Option ROM\n");
+		vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 0);
+		return VBERROR_VGA_OPROM_MISMATCH;
+	}
+	return VBERROR_SUCCESS;
+}
+
 VbError_t ec_sync_all(struct vb2_context *ctx)
 {
 	struct vb2_shared_data *sd = vb2_get_sd(ctx);
@@ -66,27 +88,20 @@ VbError_t ec_sync_all(struct vb2_context *ctx)
 		return rv;
 
 	/*
-	 * Do software sync for devices tunneled through the EC.
+	 * Do Aux FW software sync and protect devices tunneled through the EC.
+	 * Aux FW update may request RO reboot to force EC cold reset so also
+	 * unload the option ROM if needed to prevent a second reboot.
 	 */
-	rv = VbExUpdateAuxFw();
+	rv = ec_sync_update_aux_fw(ctx);
+	if (rv) {
+		ec_sync_unload_oprom(ctx, shared, need_wait_screen);
+		return rv;
+	}
+
+	/* Reboot to unload VGA Option ROM if needed */
+	rv = ec_sync_unload_oprom(ctx, shared, need_wait_screen);
 	if (rv)
 		return rv;
-
-	/*
-	 * Reboot to unload VGA Option ROM if:
-	 * - we displayed the wait screen
-	 * - the system has slow EC update flag set
-	 * - the VGA Option ROM was needed and loaded
-	 * - the system is NOT in developer mode (that'll also need the ROM)
-	 */
-	if (need_wait_screen &&
-	    (shared->flags & VBSD_OPROM_MATTERS) &&
-	    (shared->flags & VBSD_OPROM_LOADED) &&
-	    !(shared->flags & VBSD_BOOT_DEV_SWITCH_ON)) {
-		VB2_DEBUG("Reboot to unload VGA Option ROM\n");
-		vb2_nv_set(ctx, VB2_NV_OPROM_NEEDED, 0);
-		return VBERROR_VGA_OPROM_MISMATCH;
-	}
 
 	/* Phase 3; Completes sync and handles battery cutoff */
 	rv = ec_sync_phase3(ctx);

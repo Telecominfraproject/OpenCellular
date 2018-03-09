@@ -49,6 +49,14 @@ VbError_t ec_sync_check_aux_fw(struct vb2_context *ctx,
 			       VbAuxFwUpdateSeverity_t *severity);
 
 /**
+ * Update and protect auxiliary firmware.
+ *
+ * @param ctx          Vboot2 context
+ * @return VBERROR_SUCCESS or non-zero error code.
+ */
+VbError_t ec_sync_update_aux_fw(struct vb2_context *ctx);
+
+/**
  * EC sync, phase 2
  *
  * This updates the EC if necessary, makes sure it has protected its image(s),

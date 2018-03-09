@@ -438,6 +438,20 @@ VbError_t ec_sync_check_aux_fw(struct vb2_context *ctx,
 	return VbExCheckAuxFw(severity);
 }
 
+VbError_t ec_sync_update_aux_fw(struct vb2_context *ctx)
+{
+	VbError_t rv = VbExUpdateAuxFw();
+	if (rv) {
+		if (rv == VBERROR_EC_REBOOT_TO_RO_REQUIRED) {
+			VB2_DEBUG("AUX firmware update requires RO reboot.\n");
+		} else {
+			VB2_DEBUG("AUX firmware update/protect failed.\n");
+			request_recovery(ctx, VB2_RECOVERY_AUX_FW_UPDATE);
+		}
+	}
+	return rv;
+}
+
 VbError_t ec_sync_phase2(struct vb2_context *ctx)
 {
 	if (!ec_sync_allowed(ctx))

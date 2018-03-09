@@ -56,6 +56,7 @@ static struct vb2_shared_data *sd;
 static uint32_t screens_displayed[8];
 static uint32_t screens_count = 0;
 
+static VbError_t ec_aux_fw_retval;
 static int ec_aux_fw_update_req;
 static VbAuxFwUpdateSeverity_t ec_aux_fw_mock_severity;
 static VbAuxFwUpdateSeverity_t ec_aux_fw_update_severity;
@@ -109,6 +110,7 @@ static void ResetMocks(void)
 	memset(screens_displayed, 0, sizeof(screens_displayed));
 	screens_count = 0;
 
+	ec_aux_fw_retval = VBERROR_SUCCESS;
 	ec_aux_fw_mock_severity = VB_AUX_FW_NO_UPDATE;
 	ec_aux_fw_update_severity = VB_AUX_FW_NO_UPDATE;
 	ec_aux_fw_update_req = 0;
@@ -219,7 +221,7 @@ VbError_t VbExUpdateAuxFw()
 {
 	ec_aux_fw_update_req = ec_aux_fw_update_severity != VB_AUX_FW_NO_UPDATE;
 	ec_aux_fw_protected = 1;
-	return VBERROR_SUCCESS;
+	return ec_aux_fw_retval;
 }
 
 static void test_ssync(VbError_t retval, int recovery_reason, const char *desc)
@@ -428,6 +430,11 @@ static void VbSoftwareSyncTest(void)
 	TEST_EQ(ec_aux_fw_protected, 1, "  aux fw protected");
 	TEST_EQ(screens_displayed[0], VB_SCREEN_WAIT,
 		"  wait screen forced");
+
+	ResetMocks();
+	ec_aux_fw_retval = VBERROR_UNKNOWN;
+	test_ssync(VBERROR_UNKNOWN, VB2_RECOVERY_AUX_FW_UPDATE,
+		   "Error updating AUX firmware");
 }
 
 int main(void)
