@@ -132,6 +132,9 @@ enum vb2_nv_recovery {
 	/* Error determining firmware slot */
 	VB2_RECOVERY_FW_SLOT = 0x2f,
 
+	/* Error updating AUX firmware */
+	VB2_RECOVERY_AUX_FW_UPDATE = 0x30,
+
 	/* Unspecified/unknown error in read-only firmware */
 	VB2_RECOVERY_RO_UNSPECIFIED = 0x3f,
 

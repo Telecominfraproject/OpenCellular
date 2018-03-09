@@ -201,6 +201,8 @@ const char *RecoveryReasonString(uint8_t code)
 		return "Error reading or updating developer switch";
 	case VB2_RECOVERY_FW_SLOT:
 		return "Error selecting RW firmware slot";
+	case VB2_RECOVERY_AUX_FW_UPDATE:
+		return "Error updating AUX firmware";
 	case VB2_RECOVERY_RO_UNSPECIFIED:
 		return "Unspecified/unknown error in RO firmware";
 	case VB2_RECOVERY_RW_DEV_SCREEN:
