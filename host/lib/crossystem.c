@@ -861,9 +861,9 @@ int vb2_read_nv_storage_mosys(struct vb2_context *ctx)
 
 	if (ExecuteMosys(argv, hexstring, sizeof(hexstring)))
 		return -1;
-	if (strlen(hexstring) != 2 * nvsize) {
+	if (strlen(hexstring) < 2 * nvsize) {
 		fprintf(stderr, "mosys returned hex nvdata size %d"
-			" (expected %d)\n", (int)strlen(hexstring), 2 * nvsize);
+			" (need %d)\n", (int)strlen(hexstring), 2 * nvsize);
 		return -1;
 	}
 	hexdigit[2] = '\0';
