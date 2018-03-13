@@ -4,6 +4,48 @@
              Stoney Platform Initialization (StoneyPI)
 
 =============================================================================
+Version:  1.3.0.9 partial update              Release Date: Mar 2018
+File:     3rdparty/blobs/pi/amd/00670F00/FT4/AGESA.bin
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  70h-7Fh rev3.00                                                     (#55072)
+- Preliminary BIOS and Kernel Developer's Guide Family 15h Models
+  60h-6Fh rev3.07                                                     (#50742)
+- AGESA Arch2008 Interface Specification, Revision v3.03              (#44065)
+
+Supported processors:
+- Stoney Ridge in FP4 and FT4 package
+- Bristol Ridge in FP4 package
+- Bristol Ridge in AM4 package
+- Carrizo in FP4 package
+
+=============================================================================
+1.  Package contents
+
+    AGESA - AGESA Arch2008 1.3.0.9 for Family 15h Model 70h - 7Fh (Stoney)
+            and Family 15h Model 60h - 6Fh (Bristol) platform solutions
+    PlatformBIOS - StoneyFt4Options.c
+    Specification - AGESA Arch2008 Interface specification v3.00
+    Tools         - AMD BIOSDBG v1.46.43
+    BIOSTestSuite - BIOSTestSuite v8.0.12.2086
+
+2.  AGESA ENHANCEMENTS and FIXED BUGS after 1.3.0.9
+    1) A fix to AGESA_ALERT (only shows up after fixing AGESA_WARNING)
+    2) A fix to resetting at AmdInitPost after a 0x0CF9 reset with 0x0E
+    3) A call out by the AP to do CAR teardown externally
+
+3.  Known Issues/Limitations
+- BUG450152: Crisis Recovery does not work
+- PLAT-2536: S3 resume fail with core leveling
+
+4.  Important Notes
+- To pass Win10 RS3 HLK on the new system, please integrate PSP FW for TCG 1.37
+  into BIOS; for existing shipped system, please continue using PSP FW for TCG
+  1.22.
+
+=============================================================================
 Version:  1.3.0.9                             Release Date: Nov 2017
 File:     StoneyPI_1_3_0_9.ZIP
 =============================================================================
