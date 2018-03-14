@@ -14,8 +14,10 @@ usage() {
 Usage: ${PROG} [options]
 
 Options:
+  --board <name>         The board name (Optional. Used for UEFI keys)
   --devkeyblock          Also generate developer firmware keyblock and data key
   --android              Also generate android keys
+  --uefi                 Also generate UEFI keys
   --4k                   Use 4k keys instead of 8k (enables options below)
   --4k-root              Use 4k key size for the root key
   --4k-recovery          Use 4k key size for the recovery key
@@ -35,9 +37,11 @@ EOF
 main() {
   set -e
 
+  local board=""
   # Flag to indicate whether we should be generating a developer keyblock flag.
   local dev_keyblock="false"
   local android_keys="false"
+  local uefi_keys="false"
   local root_key_algoid=${ROOT_KEY_ALGOID}
   local recovery_key_algoid=${RECOVERY_KEY_ALGOID}
   local recovery_kernel_algoid=${RECOVERY_KERNEL_ALGOID}
@@ -47,6 +51,11 @@ main() {
 
   while [[ $# -gt 0 ]]; do
     case $1 in
+    --board)
+      board="$2"
+      shift
+      ;;
+
     --devkeyblock)
       echo "Will also generate developer firmware keyblock and data key."
       dev_keyblock="true"
@@ -55,6 +64,11 @@ main() {
     --android)
       echo "Will also generate Android keys."
       android_keys="true"
+      ;;
+
+    --uefi)
+      echo "Will also generate UEFI keys."
+      uefi_keys="true"
       ;;
 
     --4k)
@@ -166,6 +180,11 @@ main() {
   if [[ "${android_keys}" == "true" ]]; then
     mkdir android
     "${SCRIPT_DIR}"/create_new_android_keys.sh android
+  fi
+
+  if [[ "${uefi_keys}" == "true" ]]; then
+    mkdir -p uefi
+    "${SCRIPT_DIR}"/uefi/create_new_uefi_keys.sh uefi "${board}"
   fi
 
   if [[ "${setperms}" == "true" ]]; then
