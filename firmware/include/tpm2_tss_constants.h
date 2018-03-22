@@ -30,15 +30,6 @@
 #define TPM2_NV_ReadPublic     ((TPM_CC)0x00000169)
 #define TPM2_GetCapability     ((TPM_CC)0x0000017A)
 
-/* TCG Spec defined, verify for TPM2.
- * TODO(apronin): find TPM2 RC substitutes for TPM1.2 error codes.
- */
-#define TPM_E_BADINDEX              ((uint32_t) 0x00000002)
-#define TPM_E_INVALID_POSTINIT      ((uint32_t) 0x00000026)
-#define TPM_E_BADTAG                ((uint32_t) 0x0000001E)
-#define TPM_E_IOERROR               ((uint32_t) 0x0000001F)
-#define TPM_E_MAXNVWRITES           ((uint32_t) 0x00000048)
-
 #define HR_SHIFT               24
 #define TPM_HT_NV_INDEX        0x01
 #define HR_NV_INDEX           (TPM_HT_NV_INDEX <<  HR_SHIFT)
