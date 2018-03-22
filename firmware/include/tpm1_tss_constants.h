@@ -18,6 +18,7 @@
 
 #define TPM_NV_INDEX0            ((uint32_t) 0x00000000)
 #define TPM_NV_INDEX_LOCK        ((uint32_t) 0xffffffff)
+#define TPM_NV_INDEX_TRIAL       ((uint32_t) 0x0000f004)
 
 #define TPM_NV_PER_READ_STCLEAR        (((uint32_t)1) << 31)
 #define TPM_NV_PER_AUTHREAD            (((uint32_t)1) << 18)

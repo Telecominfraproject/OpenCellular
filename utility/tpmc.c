@@ -499,7 +499,25 @@ static uint32_t HandlerIFXFieldUpgradeInfo(void) {
   }
   return result;
 }
-#endif
+
+static uint32_t HandlerCheckOwnerAuth(void) {
+  /* Attempt to define an NVRAM space using owner auth. We're using
+   * TPM_NV_INDEX_TRIAL, which doesn't actually allocate a space but still
+   * performs the owner authorization checks. Thus the return status indicates
+   * whether owner authorization was successful or not.
+   *
+   * The owner_auth value below is the commonly used well-known secret, i.e. the
+   * SHA1 hash of 20 zero bytes. This is the owner secret that is effective
+   * immediately after taking TPM ownership when we haven't configured a random
+   * owner password yet.
+   */
+  uint8_t owner_auth[TPM_AUTH_DATA_LEN] = {
+      0x67, 0x68, 0x03, 0x3e, 0x21, 0x64, 0x68, 0x24, 0x7b, 0xd0,
+      0x31, 0xa0, 0xa2, 0xd9, 0x87, 0x6d, 0x79, 0x81, 0x8f, 0x8f};
+  return TlclDefineSpaceEx(owner_auth, sizeof(owner_auth), TPM_NV_INDEX_TRIAL,
+                           TPM_NV_PER_OWNERWRITE, 1, NULL, 0);
+}
+#endif  /* !TPM2_MODE */
 
 #ifdef TPM2_MODE
 static uint32_t HandlerDoNothingForTPM2(void) {
@@ -584,6 +602,9 @@ command_record command_table[] = {
   { "ifxfieldupgradeinfo", "ifxfui",
     TPM20_NOT_IMPLEMENTED("read and print IFX field upgrade info",
       HandlerIFXFieldUpgradeInfo) },
+  { "checkownerauth", "chko",
+    TPM20_NOT_IMPLEMENTED("Check owner authorization with well-known secret",
+      HandlerCheckOwnerAuth) },
 };
 
 static int n_commands = sizeof(command_table) / sizeof(command_table[0]);
