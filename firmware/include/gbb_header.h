@@ -72,8 +72,8 @@
  * dev_boot_fastboot_full_cap=0.
  */
 #define GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP	0x00002000
-/* Enable serial console */
-#define GBB_FLAG_ENABLE_SERIAL				0x00004000
+/* Recovery mode always assumes manual recovery, even if EC_IN_RW=1 */
+#define GBB_FLAG_FORCE_MANUAL_RECOVERY			0x00004000
 /* Disable using FWMP */
 #define GBB_FLAG_DISABLE_FWMP                           0x00008000
 

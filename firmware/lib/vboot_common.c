@@ -10,6 +10,7 @@
 #include "2sysincludes.h"
 
 #include "2common.h"
+#include "2misc.h"
 #include "2rsa.h"
 #include "2sha.h"
 #include "vboot_api.h"
@@ -211,8 +212,12 @@ int VbSharedDataSetKernelKey(VbSharedDataHeader *header, const VbPublicKey *src)
 	return PublicKeyCopy(kdest, src);
 }
 
-int vb2_allow_recovery(uint32_t flags)
+int vb2_allow_recovery(struct vb2_context *ctx)
 {
+	/* GBB_FLAG_FORCE_MANUAL_RECOVERY forces this to always return true. */
+	if (vb2_get_sd(ctx)->gbb_flags & VB2_GBB_FLAG_FORCE_MANUAL_RECOVERY)
+		return 1;
+
 	/*
 	 * If EC is in RW, it implies recovery wasn't manually requested.
 	 * On some platforms, EC_IN_RW can't be reset by the EC, thus, this may
@@ -223,5 +228,5 @@ int vb2_allow_recovery(uint32_t flags)
 		return 0;
 
 	/* Now we confidently check the recovery switch state at boot */
-	return !!(flags & VBSD_BOOT_REC_SWITCH_ON);
+	return !!(vb2_get_sd(ctx)->vbsd->flags & VBSD_BOOT_REC_SWITCH_ON);
 }

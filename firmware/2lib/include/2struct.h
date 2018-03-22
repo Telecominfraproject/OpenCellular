@@ -296,8 +296,8 @@ enum vb2_gbb_flag {
 	 */
 	VB2_GBB_FLAG_FORCE_DEV_BOOT_FASTBOOT_FULL_CAP = (1 << 13),
 
-	/* Enable serial */
-	VB2_GBB_FLAG_ENABLE_SERIAL = (1 << 14),
+	/* Recovery mode always assumes manual recovery, even if EC_IN_RW=1 */
+	VB2_GBB_FLAG_FORCE_MANUAL_RECOVERY = (1 << 14),
 
 	/* Disable FWMP */
 	VB2_GBB_FLAG_DISABLE_FWMP = (1 << 15),

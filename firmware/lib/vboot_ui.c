@@ -403,7 +403,7 @@ static VbError_t recovery_ui(struct vb2_context *ctx)
 
 	VB2_DEBUG("VbBootRecovery() start\n");
 
-	if (!vb2_allow_recovery(shared->flags)) {
+	if (!vb2_allow_recovery(ctx)) {
 		/*
 		 * We have to save the reason here so that it will survive
 		 * coming up three-finger-salute. We're saving it in

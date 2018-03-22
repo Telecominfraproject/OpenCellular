@@ -605,6 +605,17 @@ static void VbBootRecTest(void)
 	TEST_EQ(screens_displayed[0], VB_SCREEN_OS_BROKEN,
 		"  broken screen");
 
+	/* Force insert screen with GBB flag */
+	ResetMocks();
+	shutdown_request_calls_left = 100;
+	sd->gbb_flags |= VB2_GBB_FLAG_FORCE_MANUAL_RECOVERY;
+	vbtlk_retval = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
+	TEST_EQ(VbBootRecovery(&ctx),
+		VBERROR_SHUTDOWN_REQUESTED,
+		"Insert (forced by GBB)");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
+		"  insert screen");
+
 	/* No removal if recovery button physically pressed */
 	ResetMocks();
 	shutdown_request_calls_left = 100;

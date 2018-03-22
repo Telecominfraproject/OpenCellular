@@ -8,6 +8,7 @@
 #ifndef VBOOT_REFERENCE_VBOOT_COMMON_H_
 #define VBOOT_REFERENCE_VBOOT_COMMON_H_
 
+#include "2api.h"
 #include "vboot_struct.h"
 
 #ifndef ARRAY_SIZE
@@ -145,9 +146,9 @@ int VbSharedDataSetKernelKey(VbSharedDataHeader *header,
  * requests including manual recovery requested by a (compromised) host will
  * end up with 'broken' screen.
  *
- * @param flags Flags of VbSharedDataHeader.
+ * @param ctx vboot2 context pointer
  * @return 1: Yes. 0: No or not sure.
  */
-int vb2_allow_recovery(uint32_t flags);
+int vb2_allow_recovery(struct vb2_context *ctx);
 
 #endif  /* VBOOT_REFERENCE_VBOOT_COMMON_H_ */

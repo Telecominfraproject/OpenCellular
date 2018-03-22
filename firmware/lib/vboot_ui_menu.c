@@ -231,7 +231,7 @@ static VbError_t enter_language_menu(struct vb2_context *ctx)
 
 static VbError_t enter_recovery_base_screen(struct vb2_context *ctx)
 {
-	if (!vb2_allow_recovery(vb2_get_sd(ctx)->vbsd->flags))
+	if (!vb2_allow_recovery(ctx))
 		vb2_change_menu(VB_MENU_RECOVERY_BROKEN, 0);
 	else if (usb_nogood)
 		vb2_change_menu(VB_MENU_RECOVERY_NO_GOOD, 0);
@@ -289,7 +289,7 @@ static VbError_t language_action(struct vb2_context *ctx)
 	 * Non-manual recovery mode is meant to be left via hard reset (into
 	 * manual recovery mode). Need to commit NVRAM changes immediately.
 	 */
-	if (vbsd->recovery_reason && !vb2_allow_recovery(vbsd->flags))
+	if (vbsd->recovery_reason && !vb2_allow_recovery(ctx))
 		vb2_nv_commit(ctx);
 
 	/* Return to previous menu. */
@@ -319,7 +319,7 @@ static VbError_t to_dev_action(struct vb2_context *ctx)
 	/* Sanity check, should never happen. */
 	if (!(vbsd_flags & VBSD_HONOR_VIRT_DEV_SWITCH) ||
 	    (vbsd_flags & VBSD_BOOT_DEV_SWITCH_ON) ||
-	    !vb2_allow_recovery(vbsd_flags))
+	    !vb2_allow_recovery(ctx))
 		return VBERROR_KEEP_LOOPING;
 
 	VB2_DEBUG("Enabling dev-mode...\n");
@@ -828,7 +828,7 @@ VbError_t VbBootRecoveryMenu(struct vb2_context *ctx)
 	VbError_t retval = vb2_init_menus(ctx);
 	if (VBERROR_SUCCESS != retval)
 		return retval;
-	if (vb2_allow_recovery(vb2_get_sd(ctx)->vbsd->flags))
+	if (vb2_allow_recovery(ctx))
 		retval = recovery_ui(ctx);
 	else
 		retval = broken_ui(ctx);

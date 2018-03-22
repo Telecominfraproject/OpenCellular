@@ -1333,6 +1333,20 @@ static void VbBootRecTest(void)
 	TEST_EQ(screens_count, 2, "  no extra screens");
 	TEST_EQ(beeps_count, 0, "  no beep on shutdown");
 
+	/* go to INSERT if forced by GBB flag */
+	ResetMocks();
+	vbtlk_retval[0] = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
+	sd->gbb_flags |= GBB_FLAG_FORCE_MANUAL_RECOVERY;
+	TEST_EQ(VbBootRecoveryMenu(&ctx), VBERROR_SHUTDOWN_REQUESTED,
+		"Shutdown requested in INSERT forced by GBB flag");
+	TEST_EQ(vb2_nv_get(&ctx, VB2_NV_RECOVERY_REQUEST), 0, "  no recovery");
+	TEST_EQ(debug_info_displayed, 0, "  no debug info");
+	TEST_EQ(screens_displayed[0], VB_SCREEN_RECOVERY_INSERT,
+		"  insert screen");
+	TEST_EQ(screens_displayed[1], VB_SCREEN_BLANK, "  final blank screen");
+	TEST_EQ(screens_count, 2, "  no extra screens");
+	TEST_EQ(beeps_count, 0, "  no beep on shutdown");
+
 	/* Stay at BROKEN if recovery button not physically pressed */
 	ResetMocksForManualRecovery();
 	vbtlk_retval[0] = VBERROR_NO_DISK_FOUND - VB_DISK_FLAG_REMOVABLE;
