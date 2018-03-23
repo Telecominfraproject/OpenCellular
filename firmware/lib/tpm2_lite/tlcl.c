@@ -15,34 +15,83 @@
 #include "utility.h"
 #include "tlcl.h"
 
-static struct tpm2_response *tpm_process_command(TPM_CC command,
-						 void *command_body)
+/* Global buffer for deserialized responses. */
+struct tpm2_response tpm2_resp;
+
+/*
+ * Serializes and sends the command, gets back the response and
+ * parses it into the provided buffer.
+ *
+ * @command: command code.
+ * @command_body: command-specific payload.
+ * @response: pointer to the buffer to place the parsed response to.
+ *
+ * Returns the result of processing the command:
+ *   - if an error happened at marshaling, sending, receiving or unmarshaling
+ *     stages, returns the error code;
+ *   - if the received response was successfully unmarshaled, returns success
+ *     regardless of the received response code.
+ */
+static uint32_t tpm_get_response(TPM_CC command,
+				 void *command_body,
+				 struct tpm2_response *response)
 {
 	/* Command/response buffer. */
 	static uint8_t cr_buffer[TPM_BUFFER_SIZE];
-	uint32_t out_size, in_size;
-	struct tpm2_response *response;
+	uint32_t out_size, in_size, res;
 
 	out_size = tpm_marshal_command(command, command_body,
 				       cr_buffer, sizeof(cr_buffer));
 	if (out_size < 0) {
-		VB2_DEBUG("command %#x, cr size %d\n", command, out_size);
-		return NULL;
+		VB2_DEBUG("command %#x, failed to serialize\n", command);
+		return TPM_E_WRITE_FAILURE;
 	}
 
 	in_size = sizeof(cr_buffer);
-	if (VbExTpmSendReceive(cr_buffer, out_size,
-			       cr_buffer, &in_size) != TPM_SUCCESS) {
-		VB2_DEBUG("tpm transaction failed for %#x\n", command);
-		return NULL;
+	res = VbExTpmSendReceive(cr_buffer, out_size, cr_buffer, &in_size);
+	if (res != TPM_SUCCESS) {
+		VB2_DEBUG("tpm transaction failed for %#x with error %#x\n",
+		          command, res);
+		return res;
 	}
 
-	response = tpm_unmarshal_response(command, cr_buffer, in_size);
+	if (tpm_unmarshal_response(command, cr_buffer, in_size, response) < 0) {
+		VB2_DEBUG("command %#x, failed to parse response\n", command);
+		return TPM_E_READ_FAILURE;
+	}
 
 	VB2_DEBUG("command %#x, return code %#x\n", command,
-		  response ? response->hdr.tpm_code : -1);
+		  response->hdr.tpm_code);
 
-	return response;
+	return TPM_SUCCESS;
+}
+
+/*
+ * Same as tpm_get_response() but, if the response was successfully received,
+ * returns the received response code. The set of errors returned by the
+ * communication stack doesn't overlap with the set of errors returned by the
+ * TPM, so it's always possible to distinguish the two. In case of communication
+ * errors, the caller should not check other fields of response, as the response
+ * is likely not filled. In any case, it is recommended that callers, who need
+ * to work with response fields even if a non-zero response code was received
+ * from the TPM, use tpm_get_response() and explicitly check the response code
+ * themselves.
+ */
+static uint32_t tpm_send_receive(TPM_CC command,
+				 void *command_body,
+				 struct tpm2_response *response)
+{
+	uint32_t rv = tpm_get_response(command, command_body, response);
+
+	return rv ? rv : response->hdr.tpm_code;
+}
+
+/*
+ * Same as tpm_send_receive() for callers that care only about the return code.
+ */
+static uint32_t tpm_get_response_code(TPM_CC command, void *command_body)
+{
+	return tpm_send_receive(command, command_body, &tpm2_resp);
 }
 
 static uint32_t tlcl_read_ph_disabled(void)
@@ -51,12 +100,10 @@ static uint32_t tlcl_read_ph_disabled(void)
 	TPM_STCLEAR_FLAGS flags;
 
 	rv = TlclGetSTClearFlags(&flags);
-	if (rv != TPM_SUCCESS)
-		return rv;
+	if (rv == TPM_SUCCESS)
+		tpm_set_ph_disabled(!flags.phEnable);
 
-	tpm_set_ph_disabled(!flags.phEnable);
-
-	return TPM_SUCCESS;
+	return rv;
 }
 
 uint32_t TlclLibInit(void)
@@ -68,12 +115,10 @@ uint32_t TlclLibInit(void)
 		return rv;
 
 	rv = tlcl_read_ph_disabled();
-	if (rv != TPM_SUCCESS) {
+	if (rv != TPM_SUCCESS)
 		TlclLibClose();
-		return rv;
-	}
 
-	return TPM_SUCCESS;
+	return rv;
 }
 
 uint32_t TlclLibClose(void)
@@ -100,77 +145,51 @@ int TlclPacketSize(const uint8_t *packet)
 
 uint32_t TlclStartup(void)
 {
-	struct tpm2_response *response;
 	struct tpm2_startup_cmd startup;
 
 	startup.startup_type = TPM_SU_CLEAR;
 
-	response = tpm_process_command(TPM2_Startup, &startup);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_Startup, &startup);
 }
 
 uint32_t TlclSaveState(void)
 {
-	struct tpm2_response *response;
 	struct tpm2_shutdown_cmd shutdown;
 
 	shutdown.shutdown_type = TPM_SU_STATE;
 
-	response = tpm_process_command(TPM2_Shutdown, &shutdown);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_Shutdown, &shutdown);
 }
 
 uint32_t TlclResume(void)
 {
-	struct tpm2_response *response;
 	struct tpm2_startup_cmd startup;
 
 	startup.startup_type = TPM_SU_STATE;
 
-	response = tpm_process_command(TPM2_Startup, &startup);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_Startup, &startup);
 }
 
 uint32_t TlclSelfTestFull(void)
 {
-	struct tpm2_response *response;
 	struct tpm2_self_test_cmd self_test;
 
 	self_test.full_test = 1;
 
-	response = tpm_process_command(TPM2_SelfTest, &self_test);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_SelfTest, &self_test);
 }
 
 uint32_t TlclContinueSelfTest(void)
 {
-	struct tpm2_response *response;
 	struct tpm2_self_test_cmd self_test;
 
 	self_test.full_test = 0;
 
-	response = tpm_process_command(TPM2_SelfTest, &self_test);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_SelfTest, &self_test);
 }
 
 uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 {
-	struct tpm2_response *response;
 	struct tpm2_nv_define_space_cmd define_space;
 
 	/* For backwards-compatibility, if no READ or WRITE permissions are set,
@@ -187,11 +206,7 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
 	define_space.publicInfo.attributes = perm;
 	define_space.publicInfo.nameAlg = TPM_ALG_SHA256;
 
-	response = tpm_process_command(TPM2_NV_DefineSpace, &define_space);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_NV_DefineSpace, &define_space);
 }
 
 /**
@@ -199,13 +214,7 @@ uint32_t TlclDefineSpace(uint32_t index, uint32_t perm, uint32_t size)
  */
 uint32_t TlclForceClear(void)
 {
-	struct tpm2_response *response;
-
-	response = tpm_process_command(TPM2_Clear, NULL);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_Clear, NULL);
 }
 
 uint32_t TlclSetDeactivated(uint8_t flag)
@@ -250,18 +259,18 @@ uint32_t TlclExtend(int pcr_num, const uint8_t *in_digest, uint8_t *out_digest)
 static uint32_t tlcl_nv_read_public(uint32_t index,
 				    struct nv_read_public_response **presp)
 {
-	struct tpm2_response *response;
+	struct tpm2_response *response = &tpm2_resp;
 	struct tpm2_nv_read_public_cmd read_pub;
+	uint32_t rv;
 
 	memset(&read_pub, 0, sizeof(read_pub));
 	read_pub.nvIndex = HR_NV_INDEX + index;
 
-	response = tpm_process_command(TPM2_NV_ReadPublic, &read_pub);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-	*presp = &response->nv_read_public;
+	rv = tpm_send_receive(TPM2_NV_ReadPublic, &read_pub, response);
+	if (rv == TPM_SUCCESS)
+		*presp = &response->nv_read_public;
 
-	return TPM_SUCCESS;
+	return rv;
 }
 
 /**
@@ -273,29 +282,28 @@ uint32_t TlclGetPermissions(uint32_t index, uint32_t *permissions)
 	struct nv_read_public_response *resp;
 
 	rv = tlcl_nv_read_public(index, &resp);
-	if (rv != TPM_SUCCESS)
-		return rv;
+	if (rv == TPM_SUCCESS)
+		*permissions = resp->nvPublic.attributes;
 
-	*permissions = resp->nvPublic.attributes;
-	return TPM_SUCCESS;
+	return rv;
 }
 
 static uint32_t tlcl_get_capability(TPM_CAP cap, TPM_PT property,
 				    struct get_capability_response **presp)
 {
-	struct tpm2_response *response;
+	struct tpm2_response *response = &tpm2_resp;
 	struct tpm2_get_capability_cmd getcap;
+	uint32_t rv;
 
 	getcap.capability = cap;
 	getcap.property = property;
 	getcap.property_count = 1;
 
-	response = tpm_process_command(TPM2_GetCapability, &getcap);
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_IOERROR;
-	*presp = &response->cap;
+	rv = tpm_send_receive(TPM2_GetCapability, &getcap, response);
+	if (rv == TPM_SUCCESS)
+		*presp = &response->cap;
 
-	return TPM_SUCCESS;
+	return rv;
 }
 
 static uint32_t tlcl_get_tpm_property(TPM_PT property, uint32_t *pvalue)
@@ -340,43 +348,33 @@ uint32_t TlclGetOwnership(uint8_t *owned)
 	*owned = 0;
 
 	rv = TlclGetPermanentFlags(&flags);
-	if (rv != TPM_SUCCESS)
-		return rv;
+	if (rv == TPM_SUCCESS)
+		*owned = flags.ownerAuthSet;
 
-	*owned = flags.ownerAuthSet;
-
-	return TPM_SUCCESS;
+	return rv;
 }
 
 static uint32_t tlcl_lock_nv_write(uint32_t index)
 {
-	struct tpm2_response *response;
 	struct tpm2_nv_write_lock_cmd nv_wl;
 
 	nv_wl.nvIndex = HR_NV_INDEX + index;
-	response = tpm_process_command(TPM2_NV_WriteLock, &nv_wl);
-
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_INTERNAL_INCONSISTENCY;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_NV_WriteLock, &nv_wl);
 }
 
 static uint32_t tlcl_disable_platform_hierarchy(void)
 {
-	struct tpm2_response *response;
 	struct tpm2_hierarchy_control_cmd hc;
+	uint32_t rv;
 
 	hc.enable = TPM_RH_PLATFORM;
 	hc.state = 0;
 
-	response = tpm_process_command(TPM2_Hierarchy_Control, &hc);
+	rv = tpm_get_response_code(TPM2_Hierarchy_Control, &hc);
+	if (rv == TPM_SUCCESS)
+		tpm_set_ph_disabled(1);
 
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_INTERNAL_INCONSISTENCY;
-
-	tpm_set_ph_disabled(1);
-	return TPM_SUCCESS;
+	return rv;
 }
 
 /**
@@ -419,28 +417,26 @@ uint32_t TlclLockPhysicalPresence(void)
 uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 {
 	struct tpm2_nv_read_cmd nv_readc;
-	struct tpm2_response *response;
+	struct tpm2_response *response = &tpm2_resp;
+	uint32_t rv;
 
 	memset(&nv_readc, 0, sizeof(nv_readc));
 
 	nv_readc.nvIndex = HR_NV_INDEX + index;
 	nv_readc.size = length;
 
-	response = tpm_process_command(TPM2_NV_Read, &nv_readc);
+	rv = tpm_send_receive(TPM2_NV_Read, &nv_readc, response);
 
 	/* Need to map tpm error codes into internal values. */
-	if (!response)
-		return TPM_E_READ_FAILURE;
-
-	switch (response->hdr.tpm_code) {
-	case 0:
+	switch (rv) {
+	case TPM_SUCCESS:
 		break;
 
 	case 0x28b:
 		return TPM_E_BADINDEX;
 
 	default:
-		return TPM_E_READ_FAILURE;
+		return rv;
 	}
 
 	if (length > response->nvr.buffer.t.size)
@@ -457,7 +453,6 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 {
 	struct tpm2_nv_write_cmd nv_writec;
-	struct tpm2_response *response;
 
 	memset(&nv_writec, 0, sizeof(nv_writec));
 
@@ -465,13 +460,7 @@ uint32_t TlclWrite(uint32_t index, const void *data, uint32_t length)
 	nv_writec.data.t.size = length;
 	nv_writec.data.t.buffer = data;
 
-	response = tpm_process_command(TPM2_NV_Write, &nv_writec);
-
-	/* Need to map tpm error codes into internal values. */
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_WRITE_FAILURE;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_NV_Write, &nv_writec);
 }
 
 uint32_t TlclPCRRead(uint32_t index, void *data, uint32_t length)
@@ -483,37 +472,23 @@ uint32_t TlclPCRRead(uint32_t index, void *data, uint32_t length)
 uint32_t TlclWriteLock(uint32_t index)
 {
 	struct tpm2_nv_write_lock_cmd nv_writelockc;
-	struct tpm2_response *response;
 
 	memset(&nv_writelockc, 0, sizeof(nv_writelockc));
 
 	nv_writelockc.nvIndex = HR_NV_INDEX | index;
 
-	response = tpm_process_command(TPM2_NV_WriteLock, &nv_writelockc);
-
-	/* Need to map tpm error codes into internal values. */
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_WRITE_FAILURE;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_NV_WriteLock, &nv_writelockc);
 }
 
 uint32_t TlclReadLock(uint32_t index)
 {
 	struct tpm2_nv_read_lock_cmd nv_readlockc;
-	struct tpm2_response *response;
 
 	memset(&nv_readlockc, 0, sizeof(nv_readlockc));
 
 	nv_readlockc.nvIndex = HR_NV_INDEX | index;
 
-	response = tpm_process_command(TPM2_NV_ReadLock, &nv_readlockc);
-
-	/* Need to map tpm error codes into internal values. */
-	if (!response || response->hdr.tpm_code)
-		return TPM_E_READ_FAILURE;
-
-	return TPM_SUCCESS;
+	return tpm_get_response_code(TPM2_NV_ReadLock, &nv_readlockc);
 }
 
 uint32_t TlclGetRandom(uint8_t *data, uint32_t length, uint32_t *size)

@@ -33,18 +33,18 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
  * Given a buffer received from the TPM in response to a certain command,
  * deserialize the buffer into the expeced response structure.
  *
- * struct tpm2_response is a union of all possible responses.
- *
  * @command: code of the TPM2 command for which a response is unmarshaled
  * @response_body: buffer containing the serialized response.
  * @response_size: number of bytes in the buffer containing response
+ * @response: structure to be filled with deserialized response,
+ *            struct tpm2_response is a union of all possible responses.
  *
- * Returns a pointer to the deserialized response or NULL in case of
- * unmarshaling problems.
+ * Returns 0 on success, or -1 on error.
  */
-struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
-					     void *response_body,
-					     int response_size);
+int tpm_unmarshal_response(TPM_CC command,
+			   void *response_body,
+			   int response_size,
+			   struct tpm2_response *response);
 
 /**
  * tpm_get_packet_size

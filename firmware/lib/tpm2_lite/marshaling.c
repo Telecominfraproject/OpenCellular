@@ -717,40 +717,39 @@ int tpm_marshal_command(TPM_CC command, void *tpm_command_body,
 	return body_size;
 }
 
-struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
-					     void *response_body,
-					     int cr_size)
+int tpm_unmarshal_response(TPM_CC command,
+			   void *response_body,
+			   int cr_size,
+			   struct tpm2_response *response)
 {
-	static struct tpm2_response tpm2_resp;
-
 	if (cr_size < sizeof(struct tpm_header))
-		return NULL;
+		return -1;
 
-	tpm2_resp.hdr.tpm_tag = unmarshal_u16(&response_body, &cr_size);
-	tpm2_resp.hdr.tpm_size = unmarshal_u32(&response_body, &cr_size);
-	tpm2_resp.hdr.tpm_code = unmarshal_TPM_CC(&response_body, &cr_size);
+	response->hdr.tpm_tag = unmarshal_u16(&response_body, &cr_size);
+	response->hdr.tpm_size = unmarshal_u32(&response_body, &cr_size);
+	response->hdr.tpm_code = unmarshal_TPM_CC(&response_body, &cr_size);
 
 	if (!cr_size) {
-		if (tpm2_resp.hdr.tpm_size != sizeof(tpm2_resp.hdr))
+		if (response->hdr.tpm_size != sizeof(response->hdr))
 			VB2_DEBUG("size mismatch in response to command %#x\n",
 				  command);
-		return &tpm2_resp;
+		return 0;
 	}
 
 	switch (command) {
 	case TPM2_NV_Read:
 		unmarshal_nv_read(&response_body, &cr_size,
-				  &tpm2_resp.nvr);
+				  &response->nvr);
 		break;
 
 	case TPM2_NV_ReadPublic:
 		unmarshal_nv_read_public(&response_body, &cr_size,
-				         &tpm2_resp.nv_read_public);
+				         &response->nv_read_public);
 		break;
 
 	case TPM2_GetCapability:
 		unmarshal_get_capability(&response_body, &cr_size,
-					 &tpm2_resp.cap);
+					 &response->cap);
 		break;
 
 	case TPM2_Hierarchy_Control:
@@ -773,7 +772,7 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 			VB2_DEBUG("Request to unmarshal unexpected command %#x,"
 				  " code %#x",
 				  command,
-				  tpm2_resp.hdr.tpm_code);
+				  response->hdr.tpm_code);
 
 			for (i = 0; i < cr_size; i++) {
 				if (!(i % 16))
@@ -783,19 +782,19 @@ struct tpm2_response *tpm_unmarshal_response(TPM_CC command,
 			}
 		}
 		VB2_DEBUG("\n");
-		return NULL;
+		return -1;
 	}
 
 	if (cr_size) {
 		VB2_DEBUG("got %d bytes back in response to %#x,"
 			  " failed to parse (%d)\n",
-			  tpm2_resp.hdr.tpm_size,
+			  response->hdr.tpm_size,
 			  command, cr_size);
-		return NULL;
+		return -1;
 	}
 
 	/* The entire message have been parsed. */
-	return &tpm2_resp;
+	return 0;
 }
 
 uint32_t tpm_get_packet_size(const uint8_t *packet)
