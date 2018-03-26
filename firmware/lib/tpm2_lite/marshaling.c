@@ -322,7 +322,6 @@ static void marshal_u32(void **buffer, uint32_t value, int *buffer_space)
 	*buffer_space -= sizeof(value);
 }
 
-#define unmarshal_TPM_CC(a, b) unmarshal_u32(a, b)
 #define marshal_TPM_HANDLE(a, b, c) marshal_u32(a, b, c)
 #define marshal_TPM_SU(a, b, c) marshal_u16(a, b, c)
 #define marshal_ALG_ID(a, b, c) marshal_u16(a, b, c)
@@ -727,7 +726,7 @@ int tpm_unmarshal_response(TPM_CC command,
 
 	response->hdr.tpm_tag = unmarshal_u16(&response_body, &cr_size);
 	response->hdr.tpm_size = unmarshal_u32(&response_body, &cr_size);
-	response->hdr.tpm_code = unmarshal_TPM_CC(&response_body, &cr_size);
+	response->hdr.tpm_code = unmarshal_u32(&response_body, &cr_size);
 
 	if (!cr_size) {
 		if (response->hdr.tpm_size != sizeof(response->hdr))

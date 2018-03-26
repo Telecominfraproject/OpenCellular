@@ -196,7 +196,7 @@ struct tpm2_shutdown_cmd {
 struct tpm_header {
 	uint16_t tpm_tag;
 	uint32_t tpm_size;
-	TPM_CC tpm_code;
+	uint32_t tpm_code;
 } __attribute__((packed));
 
 struct nv_read_response {
