@@ -150,7 +150,8 @@ is
                      Framebuffer => Pipe_Cfg.Framebuffer);
 
                   Connectors.Post_On
-                    (Port_Cfg => Port_Cfg,
+                    (Pipe     => Pipe,
+                     Port_Cfg => Port_Cfg,
                      PLL_Hint => PLLs.Register_Value (Allocated_PLLs (Pipe)),
                      Success  => Success);
 

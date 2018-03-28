@@ -49,7 +49,8 @@ package body HW.GFX.GMA.Connectors is
    end Pre_On;
 
    procedure Post_On
-     (Port_Cfg : in     Port_Config;
+     (Pipe     : in     Pipe_Index;
+      Port_Cfg : in     Port_Config;
       PLL_Hint : in     Word32;
       Success  :    out Boolean)
    is

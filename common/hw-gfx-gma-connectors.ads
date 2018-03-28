@@ -29,7 +29,8 @@ private package HW.GFX.GMA.Connectors is
       Success     :    out Boolean);
 
    procedure Post_On
-     (Port_Cfg : in     Port_Config;
+     (Pipe     : in     Pipe_Index;
+      Port_Cfg : in     Port_Config;
       PLL_Hint : in     Word32;
       Success  :    out Boolean);
    pragma Warnings (GNATprove, On, "unused variable ""P*""");
