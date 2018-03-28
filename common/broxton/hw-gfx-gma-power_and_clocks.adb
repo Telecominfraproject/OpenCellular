@@ -316,6 +316,8 @@ package body HW.GFX.GMA.Power_And_Clocks is
 
       Set_Mask (DBUF_CTL, DBUF_CTL_DBUF_POWER_REQUEST);
       Wait_Set_Mask (DBUF_CTL, DBUF_CTL_DBUF_POWER_STATE);
+
+      Config.Raw_Clock := Config.Default_RawClk_Freq;
    end Initialize;
 
 end HW.GFX.GMA.Power_And_Clocks;

@@ -14,7 +14,7 @@
 
 private package HW.GFX.GMA.Config
 with
-   Initializes => Valid_Port_GPU
+   Initializes => (Valid_Port_GPU, Raw_Clock)
 is
 
    CPU : constant CPU_Type := <<CPU>>;
@@ -245,6 +245,9 @@ is
                                  24_000_000),
          when Broxton      => Frequency_Type'First,   -- none needed
          when Skylake      => 24_000_000);
+
+    Raw_Clock : Frequency_Type := Default_RawClk_Freq
+    with Part_Of => GMA.Config_State;
 
    ----------------------------------------------------------------------------
 

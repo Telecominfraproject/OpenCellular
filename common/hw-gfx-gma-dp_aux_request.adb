@@ -19,6 +19,7 @@ with GNAT.Source_Info;
 
 with HW.GFX.GMA.Config;
 with HW.GFX.GMA.Registers;
+with HW.GFX.GMA.Power_And_Clocks;
 
 use type HW.Word8;
 use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
@@ -162,7 +163,7 @@ package body HW.GFX.GMA.DP_Aux_Request is
       Success           :    out Boolean)
    with
       Global => (In_Out => Registers.Register_State,
-                 Input  => Time.State),
+                 Input  => (Time.State, Config.Raw_Clock)),
       Depends =>
         ((Registers.Register_State,
           Response,
@@ -170,6 +171,7 @@ package body HW.GFX.GMA.DP_Aux_Request is
           Success)
              =>
                (Registers.Register_State,
+                Config.Raw_Clock,
                 Time.State,
                 Port,
                 Request,
@@ -232,7 +234,7 @@ package body HW.GFX.GMA.DP_Aux_Request is
            (if Port = DP_A then
                Word32 ((Config.Default_CDClk_Freq + 1_000_000) / 2_000_000)
             else
-               Word32 ((Config.Default_RawClk_Freq + 1_000_000) / 2_000_000))
+               Word32 ((Config.Raw_Clock + 1_000_000) / 2_000_000))
          else 0);
 
       Busy : Boolean;

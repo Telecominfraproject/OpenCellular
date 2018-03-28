@@ -315,6 +315,8 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
            (Register    => Registers.DBUF_CTL,
             Mask        => DBUF_CTL_DBUF_POWER_STATE);
       end if;
+
+      Config.Raw_Clock := Config.Default_RawClk_Freq;
    end Initialize;
 
    procedure Power_Set_To (Configs : Pipe_Configs) is

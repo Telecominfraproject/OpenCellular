@@ -50,6 +50,8 @@ package body HW.GFX.GMA.Power_And_Clocks_Ironlake is
          Registers.Posting_Read (Registers.PCH_DREF_CONTROL);
          Time.U_Delay (20);   -- DMI latency
       end if;
+
+      Config.Raw_Clock := Config.Default_RawClk_Freq;
    end Initialize;
 
 end HW.GFX.GMA.Power_And_Clocks_Ironlake;
