@@ -63,6 +63,7 @@ is
    Has_PP_Write_Protection : constant Boolean := CPU <= Ivybridge;
    Has_PP_Port_Select      : constant Boolean := CPU <= Ivybridge;
    Use_PP_VDD_Override     : constant Boolean := CPU <= Ivybridge;
+   Has_PCH_Panel_Power     : constant Boolean := CPU >= Ironlake;
 
    ----- PCH/FDI: ---------
    Has_PCH                 : constant Boolean := CPU /= Broxton;

@@ -86,6 +86,28 @@ is
    PCH_PP_ON_DELAYS_PORT_SELECT_DP_D   : constant := 16#00_0003# * 2 ** 30;
    PCH_PP_ON_DELAYS_PWR_UP_MASK        : constant := 16#00_1fff# * 2 ** 16;
    PCH_PP_ON_DELAYS_PWR_UP_BL_ON_MASK  : constant := 16#00_1fff# * 2 **  0;
+
+   type PP_Regs is record
+      STATUS     : Registers.Registers_Index;
+      CONTROL    : Registers.Registers_Index;
+      ON_DELAYS  : Registers.Registers_Index;
+      OFF_DELAYS : Registers.Registers_Index;
+      DIVISOR    : Registers.Registers_Index;
+   end record;
+
+   Panel_PP_Regs : constant PP_Regs := (if Config.Has_PCH_Panel_Power then
+     (STATUS     => Registers.PCH_PP_STATUS,
+      CONTROL    => Registers.PCH_PP_CONTROL,
+      ON_DELAYS  => Registers.PCH_PP_ON_DELAYS,
+      OFF_DELAYS => Registers.PCH_PP_OFF_DELAYS,
+      DIVISOR    => Registers.PCH_PP_DIVISOR)
+   else
+     (STATUS     => Registers.GMCH_PP_STATUS,
+      CONTROL    => Registers.GMCH_PP_CONTROL,
+      ON_DELAYS  => Registers.GMCH_PP_ON_DELAYS,
+      OFF_DELAYS => Registers.GMCH_PP_OFF_DELAYS,
+      DIVISOR    => Registers.GMCH_PP_DIVISOR));
+
    function PCH_PP_ON_DELAYS_PWR_UP (US : Natural) return Word32 is
    begin
       return Shift_Left (Div_Round_Up32 (US, 100), 16);
@@ -175,19 +197,19 @@ is
       if Default_Delays then
          Override_Delays := True;
       else
-         Registers.Read (Registers.PCH_PP_ON_DELAYS, Power_Delay);
+         Registers.Read (Panel_PP_Regs.ON_DELAYS, Power_Delay);
          Delays_US (Power_Up_Delay) := 100 * Natural
            (Shift_Right (Power_Delay and PCH_PP_ON_DELAYS_PWR_UP_MASK, 16));
          Delays_US (Power_Up_To_BL_On) := 100 * Natural
            (Power_Delay and PCH_PP_ON_DELAYS_PWR_UP_BL_ON_MASK);
 
-         Registers.Read (Registers.PCH_PP_OFF_DELAYS, Power_Delay);
+         Registers.Read (Panel_PP_Regs.OFF_DELAYS, Power_Delay);
          Delays_US (Power_Down_Delay) := 100 * Natural
            (Shift_Right (Power_Delay and PCH_PP_OFF_DELAYS_PWR_DOWN_MASK, 16));
          Delays_US (BL_Off_To_Power_Down) := 100 * Natural
            (Power_Delay and PCH_PP_OFF_DELAYS_BL_OFF_PWR_DOWN_MASK);
 
-         Registers.Read (Registers.PCH_PP_DIVISOR, Power_Delay);
+         Registers.Read (Panel_PP_Regs.DIVISOR, Power_Delay);
          if (Power_Delay and PCH_PP_DIVISOR_PWR_CYC_DELAY_MASK) > 1 then
             Delays_US (Power_Cycle_Delay) := 100_000 * (Natural
               (Power_Delay and PCH_PP_DIVISOR_PWR_CYC_DELAY_MASK) - 1);
@@ -209,7 +231,7 @@ is
 
          -- Force power-up to backlight-on delay to 100us as recommended by PRM.
          Registers.Unset_And_Set_Mask
-           (Register    => Registers.PCH_PP_ON_DELAYS,
+           (Register    => Panel_PP_Regs.ON_DELAYS,
             Mask_Unset  => PCH_PP_ON_DELAYS_PORT_SELECT_MASK or
                            PCH_PP_ON_DELAYS_PWR_UP_MASK or
                            PCH_PP_ON_DELAYS_PWR_UP_BL_ON_MASK,
@@ -218,7 +240,7 @@ is
                            or PCH_PP_ON_DELAYS_PWR_UP_BL_ON (100));
 
          Registers.Unset_And_Set_Mask
-           (Register    => Registers.PCH_PP_OFF_DELAYS,
+           (Register    => Panel_PP_Regs.OFF_DELAYS,
             Mask_Unset  => PCH_PP_OFF_DELAYS_PWR_DOWN_MASK or
                            PCH_PP_OFF_DELAYS_BL_OFF_PWR_DOWN_MASK,
             Mask_Set    => PCH_PP_OFF_DELAYS_PWR_DOWN
@@ -227,7 +249,7 @@ is
                              (Delays_US (BL_Off_To_Power_Down)));
 
          Registers.Unset_And_Set_Mask
-           (Register    => Registers.PCH_PP_DIVISOR,
+           (Register    => Panel_PP_Regs.DIVISOR,
             Mask_Unset  => PCH_PP_DIVISOR_PWR_CYC_DELAY_MASK,
             Mask_Set    => PCH_PP_DIVISOR_PWR_CYC_DELAY
                              (Delays_US (Power_Cycle_Delay)));
@@ -235,13 +257,13 @@ is
 
       if Config.Has_PP_Write_Protection then
          Registers.Unset_And_Set_Mask
-           (Register    => Registers.PCH_PP_CONTROL,
+           (Register    => Panel_PP_Regs.CONTROL,
             Mask_Unset  => PCH_PP_CONTROL_WRITE_PROTECT_MASK,
             Mask_Set    => PCH_PP_CONTROL_WRITE_PROTECT_KEY or
                            PCH_PP_CONTROL_POWER_DOWN_ON_RESET);
       else
          Registers.Set_Mask
-           (Register => Registers.PCH_PP_CONTROL,
+           (Register => Panel_PP_Regs.CONTROL,
             Mask     => PCH_PP_CONTROL_POWER_DOWN_ON_RESET);
       end if;
    end Setup_PP_Sequencer;
@@ -265,12 +287,12 @@ is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Registers.Is_Set_Mask (Registers.PCH_PP_CONTROL, PCH_PP_CONTROL_TARGET_ON, Was_On);
+      Registers.Is_Set_Mask (Panel_PP_Regs.CONTROL, PCH_PP_CONTROL_TARGET_ON, Was_On);
       if not Was_On then
          Time.Delay_Until (Power_Cycle_Timer);
       end if;
 
-      Registers.Set_Mask (Registers.PCH_PP_CONTROL, PCH_PP_CONTROL_TARGET_ON);
+      Registers.Set_Mask (Panel_PP_Regs.CONTROL, PCH_PP_CONTROL_TARGET_ON);
       if not Was_On then
          Power_Up_Timer := Time.US_From_Now (Delays_US (Power_Up_Delay));
       end if;
@@ -285,11 +307,11 @@ is
 
       Time.Delay_Until (Power_Up_Timer);
       Registers.Wait_Unset_Mask
-        (Register => Registers.PCH_PP_STATUS,
+        (Register => Panel_PP_Regs.STATUS,
          Mask     => PCH_PP_STATUS_PWR_SEQ_PROGRESS_MASK,
          TOut_MS  => 300);
 
-      Registers.Unset_Mask (Registers.PCH_PP_CONTROL, PCH_PP_CONTROL_VDD_OVERRIDE);
+      Registers.Unset_Mask (Panel_PP_Regs.CONTROL, PCH_PP_CONTROL_VDD_OVERRIDE);
    end Wait_On;
 
    procedure Off
@@ -298,16 +320,16 @@ is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      Registers.Is_Set_Mask (Registers.PCH_PP_CONTROL, PCH_PP_CONTROL_TARGET_ON, Was_On);
+      Registers.Is_Set_Mask (Panel_PP_Regs.CONTROL, PCH_PP_CONTROL_TARGET_ON, Was_On);
       Registers.Unset_Mask
-        (Register => Registers.PCH_PP_CONTROL,
+        (Register => Panel_PP_Regs.CONTROL,
          Mask     => PCH_PP_CONTROL_TARGET_ON or
                      PCH_PP_CONTROL_VDD_OVERRIDE);
       if Was_On then
          Time.U_Delay (Delays_US (Power_Down_Delay));
       end if;
       Registers.Wait_Unset_Mask
-        (Register => Registers.PCH_PP_STATUS,
+        (Register => Panel_PP_Regs.STATUS,
          Mask     => PCH_PP_STATUS_PWR_SEQ_PROGRESS_MASK,
          TOut_MS  => 600);
       if Was_On then
@@ -322,7 +344,7 @@ is
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       Registers.Set_Mask
-         (Register   => Registers.PCH_PP_CONTROL,
+         (Register   => Panel_PP_Regs.CONTROL,
           Mask       => PCH_PP_CONTROL_BACKLIGHT_ENABLE);
    end Backlight_On;
 
@@ -331,7 +353,7 @@ is
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       Registers.Unset_Mask
-        (Register   => Registers.PCH_PP_CONTROL,
+        (Register   => Panel_PP_Regs.CONTROL,
          Mask       => PCH_PP_CONTROL_BACKLIGHT_ENABLE);
    end Backlight_Off;
 

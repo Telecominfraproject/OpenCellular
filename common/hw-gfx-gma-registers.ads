@@ -155,6 +155,11 @@ is
       PIPEB_LINK_M1,
       PIPEB_LINK_N1,
       FDI_TX_CTL_B,
+      GMCH_PP_STATUS,
+      GMCH_PP_CONTROL,
+      GMCH_PP_ON_DELAYS,
+      GMCH_PP_OFF_DELAYS,
+      GMCH_PP_DIVISOR,
       PIPEB_DDI_FUNC_CTL,
       PIPEB_MSA_MISC,
       SRD_CTL_B,
@@ -1283,6 +1288,11 @@ is
       PWR_WELL_CTL6         => 16#04_5414# / Register_Width,
 
       -- class Panel registers
+      GMCH_PP_STATUS        => 16#06_1200# / Register_Width,
+      GMCH_PP_CONTROL       => 16#06_1204# / Register_Width,
+      GMCH_PP_ON_DELAYS     => 16#06_1208# / Register_Width,
+      GMCH_PP_OFF_DELAYS    => 16#06_120c# / Register_Width,
+      GMCH_PP_DIVISOR       => 16#06_1210# / Register_Width,
       PCH_PP_STATUS         => 16#0c_7200# / Register_Width,
       PCH_PP_CONTROL        => 16#0c_7204# / Register_Width,
       PCH_PP_ON_DELAYS      => 16#0c_7208# / Register_Width,
