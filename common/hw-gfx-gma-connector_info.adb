@@ -87,7 +87,8 @@ package body HW.GFX.GMA.Connector_Info is
    begin
       return
         (if Port_Cfg.Port = DIGI_A or
-            (Port_Cfg.Is_FDI and Port_Cfg.PCH_Port = PCH_LVDS)
+           (Port_Cfg.Is_FDI and Port_Cfg.PCH_Port = PCH_LVDS) or
+           Port_Cfg.Port = LVDS
          then 6
          else 8);
    end Default_BPC;

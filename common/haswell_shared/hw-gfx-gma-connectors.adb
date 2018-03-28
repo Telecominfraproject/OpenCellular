@@ -41,8 +41,11 @@ package body HW.GFX.GMA.Connectors is
    is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      DDI.Pre_On (Port_Cfg, PLL_Hint, Success);
+      if Port_Cfg.Port in Digital_Port then
+         DDI.Pre_On (Port_Cfg, PLL_Hint, Success);
+      else
+         Success := False; -- Should not happen
+      end if;
    end Pre_On;
 
    procedure Post_On
@@ -53,13 +56,16 @@ package body HW.GFX.GMA.Connectors is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
-      DDI.Post_On (Port_Cfg);
+      if Port_Cfg.Port in Digital_Port then
+         DDI.Post_On (Port_Cfg);
 
-      if Port_Cfg.Port = DIGI_A then
-         Panel.Backlight_On;
+         if Port_Cfg.Port = DIGI_A then
+            Panel.Backlight_On;
+         end if;
+         Success := True;
+      else
+         Success := False; -- Should not happen
       end if;
-
-      Success := True;
    end Post_On;
 
    ----------------------------------------------------------------------------
@@ -79,8 +85,9 @@ package body HW.GFX.GMA.Connectors is
    is
    begin
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
-
-      DDI.Off (Port_Cfg.Port);
+      if Port_Cfg.Port in Digital_Port then
+         DDI.Off (Port_Cfg.Port);
+      end if;
    end Post_Off;
 
    ----------------------------------------------------------------------------

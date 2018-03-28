@@ -218,7 +218,8 @@ package body HW.GFX.GMA.Transcoder is
       pragma Debug (Debug.Put_Line (GNAT.Source_Info.Enclosing_Entity));
 
       if Config.Has_Trans_Clk_Sel and then
-         Trans.CLK_SEL /= Registers.Invalid_Register
+         Trans.CLK_SEL /= Registers.Invalid_Register and then
+         Port_Cfg.Port in Digital_Port
       then
          Registers.Write
            (Register => Trans.CLK_SEL,
@@ -249,7 +250,7 @@ package body HW.GFX.GMA.Transcoder is
       Trans : Transcoder_Regs renames
                Transcoders (Get_Idx (Pipe, Port_Cfg.Port));
    begin
-      if Config.Has_Pipe_DDI_Func then
+      if Config.Has_Pipe_DDI_Func and Port_Cfg.Port in Digital_Port then
          Registers.Write
            (Register => Trans.DDI_FUNC_CTL,
             Value    => DDI_FUNC_CTL_ENABLE or

@@ -22,9 +22,14 @@ is
    procedure Pre_On
      (Port_Cfg : in     Port_Config;
       PLL_Hint : in     Word32;
-      Success  :    out Boolean);
+      Success  :    out Boolean)
+   with
+     Pre => Port_Cfg.Port in Digital_Port;
 
-   procedure Post_On (Port_Cfg : Port_Config);
+   procedure Post_On (Port_Cfg : Port_Config)
+   with
+     Pre => Port_Cfg.Port in Digital_Port;
+
 
    procedure Off (Port : Digital_Port);
 

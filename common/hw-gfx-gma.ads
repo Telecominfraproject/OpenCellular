@@ -126,9 +126,11 @@ private
    subtype Active_Port_Type is Port_Type
       range Port_Type'Succ (Disabled) .. Port_Type'Last;
 
-   type GPU_Port is (DIGI_A, DIGI_B, DIGI_C, DIGI_D, DIGI_E);
+   type GPU_Port is (DIGI_A, DIGI_B, DIGI_C, DIGI_D, DIGI_E, LVDS, VGA);
 
    subtype Digital_Port is GPU_Port range DIGI_A .. DIGI_E;
+   subtype GMCH_DP_Port is GPU_Port range DIGI_B .. DIGI_D;
+   subtype GMCH_HDMI_Port is GPU_Port range DIGI_B .. DIGI_C;
 
    type PCH_Port is
      (PCH_DAC, PCH_LVDS,
