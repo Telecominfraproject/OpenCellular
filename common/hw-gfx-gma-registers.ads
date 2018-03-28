@@ -64,7 +64,7 @@ is
       BCS_PP_DCLV_HIGH,
       BCS_PP_DCLV_LOW,
       GAB_CTL_REG,
-      VGACNTRL,
+      CPU_VGACNTRL,
       FUSE_STATUS,
       ILK_DISPLAY_CHICKEN2,
       DSPCLK_GATE_D,
@@ -468,6 +468,7 @@ is
       PLANE_WM_1_B_7,
       PLANE_BUF_CFG_1_B,
       SPBCNTR,
+      GMCH_VGACNTRL,
       PIPE_SCANLINE_C,
       PIPECCONF,
       PIPECMISC,
@@ -1284,7 +1285,8 @@ is
       PCH_HDMID             => 16#0e_1160# / Register_Width,
 
       -- Intel Registers
-      VGACNTRL              => 16#04_1000# / Register_Width,
+      CPU_VGACNTRL          => 16#04_1000# / Register_Width,
+      GMCH_VGACNTRL         => 16#07_1400# / Register_Width,
       FUSE_STATUS           => 16#04_2000# / Register_Width,
       FBA_CFB_BASE          => 16#04_3200# / Register_Width,
       IPS_CTL               => 16#04_3408# / Register_Width,

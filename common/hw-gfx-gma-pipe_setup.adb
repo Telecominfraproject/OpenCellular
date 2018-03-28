@@ -89,6 +89,11 @@ package body HW.GFX.GMA.Pipe_Setup is
    PS_CTRL_SCALER_MODE_7X5_EXTENDED    : constant := 1 * 2 ** 28;
    PS_CTRL_FILTER_SELECT_MEDIUM_2      : constant := 1 * 2 ** 23;
 
+   VGACNTRL_REG : constant Registers.Registers_Index :=
+     (if Config.Has_GMCH_VGACNTRL then
+         Registers.GMCH_VGACNTRL
+      else Registers.CPU_VGACNTRL);
+
    ---------------------------------------------------------------------------
 
    function PLANE_WM_LINES (Lines : Natural) return Word32 is
@@ -260,7 +265,7 @@ package body HW.GFX.GMA.Pipe_Setup is
          end if;
 
          Registers.Unset_And_Set_Mask
-           (Register    => Registers.VGACNTRL,
+           (Register    => VGACNTRL_REG,
             Mask_Unset  => VGA_CONTROL_VGA_DISPLAY_DISABLE or
                            VGA_CONTROL_BLINK_DUTY_CYCLE_MASK or
                            VGA_CONTROL_VSYNC_BLINK_RATE_MASK,
@@ -512,7 +517,7 @@ package body HW.GFX.GMA.Pipe_Setup is
       Port_IO.InB  (Reg8, VGA_SR_DATA);
       Port_IO.OutB (VGA_SR_DATA, Reg8 or VGA_SR01_SCREEN_OFF);
       Time.U_Delay (100); -- PRM says 100us, Linux does 300
-      Registers.Set_Mask (Registers.VGACNTRL, VGA_CONTROL_VGA_DISPLAY_DISABLE);
+      Registers.Set_Mask (VGACNTRL_REG, VGA_CONTROL_VGA_DISPLAY_DISABLE);
    end Legacy_VGA_Off;
 
    procedure All_Off
