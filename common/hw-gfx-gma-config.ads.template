@@ -56,9 +56,9 @@ is
    Has_DSP_Linoff          : constant Boolean := CPU <= Ivybridge;
    Has_PF_Pipe_Select      : constant Boolean := CPU in Ivybridge .. Haswell;
    VGA_Plane_Workaround    : constant Boolean := CPU = Ivybridge;
-   Has_GMCH_VGACNTRL       : constant Boolean := false;
-   Has_GMCH_DP_Transcoder  : constant Boolean := false;
-   Has_GMCH_PFIT_CONTROL   : constant Boolean := false;
+   Has_GMCH_DP_Transcoder  : constant Boolean := CPU = G45;
+   Has_GMCH_VGACNTRL       : constant Boolean := CPU = G45;
+   Has_GMCH_PFIT_CONTROL   : constant Boolean := CPU = G45;
 
    ----- Panel power: -----
    Has_PP_Write_Protection : constant Boolean := CPU <= Ivybridge;
@@ -67,7 +67,7 @@ is
    Has_PCH_Panel_Power     : constant Boolean := CPU >= Ironlake;
 
    ----- PCH/FDI: ---------
-   Has_PCH                 : constant Boolean := CPU /= Broxton;
+   Has_PCH                 : constant Boolean := CPU /= Broxton and CPU /= G45;
    Has_PCH_DAC             : constant Boolean := CPU in Ironlake .. Ivybridge or
                                                  (CPU in Broadwell .. Haswell
                                                   and CPU_Var = Normal);
@@ -86,6 +86,8 @@ is
    Has_FDI_C               : constant Boolean := CPU = Ivybridge;
 
    Has_FDI_RX_Power_Down   : constant Boolean := CPU in Haswell .. Broadwell;
+
+   Has_GMCH_RawClk         : constant Boolean := CPU = G45;
 
    ----- DDI: -------------
    End_EDP_Training_Late   : constant Boolean := CPU in Haswell .. Broadwell;
@@ -142,7 +144,12 @@ is
    type Valid_Per_Port is array (Port_Type) of Boolean;
    type Valid_Per_GPU is array (CPU_Type) of Valid_Per_Port;
    Valid_Port_GPU : Valid_Per_GPU :=
-     (Ironlake    =>
+     (G45         =>
+        (Disabled => False,
+         Internal => Config.Internal_Display = LVDS,
+         HDMI3    => False,
+         others   => True),
+      Ironlake    =>
         (Disabled => False,
          Internal => Config.Internal_Display = LVDS,
          others   => True),
@@ -230,6 +237,7 @@ is
 
    Default_CDClk_Freq : constant Frequency_Type :=
      (case CPU is
+         when G45          => 320_000_000, -- unused
          when Ironlake     |
               Haswell      |
               Broadwell    => 450_000_000,
@@ -240,6 +248,7 @@ is
 
    Default_RawClk_Freq : constant Frequency_Type :=
      (case CPU is
+         when G45          => 100_000_000, -- unused, depends on FSB
          when Ironlake     |
               Sandybridge  |
               Ivybridge    => 125_000_000,
@@ -263,6 +272,10 @@ is
 
    Maximum_Scalable_Width : constant Width_Per_Pipe :=
      (case CPU is
+         when G45 => -- TODO: Is this true?
+           (Primary     => 4096,
+            Secondary   => 2048,
+            Tertiary    => Pos16'First),
          when Ironlake..Haswell =>
            (Primary     => 4096,
             Secondary   => 2048,
@@ -281,25 +294,25 @@ is
    ----------------------------------------------------------------------------
 
    GTT_Offset  : constant := (case CPU is
-                                 when Ironlake .. Haswell   => 16#0020_0000#,
+                                 when G45 .. Haswell   => 16#0020_0000#,
                                  when Broadwell .. Skylake  => 16#0080_0000#);
 
    GTT_Size    : constant := (case CPU is
-                                 when Ironlake .. Haswell   => 16#0020_0000#,
+                                 when G45 .. Haswell   => 16#0020_0000#,
                                  -- Limit Broadwell to 4MiB to have a stable
                                  -- interface (i.e. same number of entries):
                                  when Broadwell .. Skylake  => 16#0040_0000#);
 
    GTT_PTE_Size   : constant := (case CPU is
-                                    when Ironlake .. Haswell   => 4,
-                                    when Broadwell .. Skylake  => 8);
+                                    when G45 .. Haswell       => 4,
+                                    when Broadwell .. Skylake => 8);
 
    Fence_Base : constant := (case CPU is
-                              when Ironlake                 => 16#0000_3000#,
+                              when G45 .. Ironlake          => 16#0000_3000#,
                               when Sandybridge .. Skylake   => 16#0010_0000#);
 
    Fence_Count : constant := (case CPU is
-                                 when Ironlake .. Sandybridge  => 16,
+                                 when G45 .. Sandybridge       => 16,
                                  when Ivybridge .. Skylake     => 32);
 
    ----------------------------------------------------------------------------
@@ -318,6 +331,8 @@ is
    function Is_GPU (Device_Id : Word16; CPU : CPU_Type; CPU_Var : CPU_Variant)
       return Boolean is
      (case CPU is
+         when G45          => (Device_Id and 16#ff02#) = 16#2e02# or
+                              (Device_Id and 16#fffe#) = 16#2a42#,
          when Ironlake     => (Device_Id and 16#fff3#) = 16#0042#,
          when Sandybridge  => (Device_Id and 16#ffc2#) = 16#0102#,
          when Ivybridge    => (Device_Id and 16#ffc3#) = 16#0142#,

@@ -235,6 +235,8 @@ package body HW.GFX.GMA.DP_Aux_Request is
                Word32 ((Config.Default_CDClk_Freq + 1_000_000) / 2_000_000)
             else
                Word32 ((Config.Raw_Clock + 1_000_000) / 2_000_000))
+         elsif Config.Has_GMCH_RawClk then
+            Word32 (Div_Round_Closest (Config.Raw_Clock, 2_000_000))
          else 0);
 
       Busy : Boolean;

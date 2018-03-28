@@ -50,9 +50,16 @@ is
       GMCH_GMBUS3,
       GMCH_GMBUS4,
       GMCH_GMBUS5,
+      GMCH_DPLL_A,
+      GMCH_DPLL_B,
+      GMCH_FPA0,
+      GMCH_FPA1,
+      GMCH_FPB0,
+      GMCH_FPB1,
       MBCTL,
       UCGCTL1,
       UCGCTL2,
+      GMCH_CLKCFG,
       VCS_RING_BUFFER_TAIL,
       VCS_RING_BUFFER_HEAD,
       VCS_RING_BUFFER_STRT,
@@ -155,6 +162,11 @@ is
       PIPEB_LINK_M1,
       PIPEB_LINK_N1,
       FDI_TX_CTL_B,
+      PORT_HOTPLUG_EN,
+      PORT_HOTPLUG_STAT,
+      GMCH_SDVOB,
+      GMCH_SDVOC,
+      GMCH_LVDS,
       GMCH_PP_STATUS,
       GMCH_PP_CONTROL,
       GMCH_PP_ON_DELAYS,
@@ -172,6 +184,7 @@ is
       VBLANK_C,
       VSYNC_C,
       PIPECSRC,
+      G4X_AUD_VID_DID,
       PIPE_VSYNCSHIFT_C,
       PIPEC_DATA_M1,
       PIPEC_DATA_N1,
@@ -733,7 +746,12 @@ is
       SBI_DATA              => 16#0c_6004# / Register_Width,
       SBI_CTL_STAT          => 16#0c_6008# / Register_Width,
 
-      -- clock registers
+      -- GMCH clock registers
+      GMCH_DPLL_A           => 16#00_6014# / Register_Width,
+      GMCH_FPA0             => 16#00_6040# / Register_Width,
+      GMCH_FPA1             => 16#00_6044# / Register_Width,
+
+      -- PCH clock registers
       PCH_DPLL_A            => 16#0c_6014# / Register_Width,
       PCH_PIXCLK_GATE       => 16#0c_6020# / Register_Width,
       PCH_FPA0              => 16#0c_6040# / Register_Width,
@@ -823,7 +841,12 @@ is
       PIPEB_DDI_FUNC_CTL    => 16#06_1400# / Register_Width,
       PIPEB_MSA_MISC        => 16#06_1410# / Register_Width,
 
-      -- clock registers
+      -- GMCH clock registers
+      GMCH_DPLL_B           => 16#00_6018# / Register_Width,
+      GMCH_FPB0             => 16#00_6048# / Register_Width,
+      GMCH_FPB1             => 16#00_604c# / Register_Width,
+
+      -- PCH clock registers
       PCH_DPLL_B            => 16#0c_6018# / Register_Width,
       PCH_FPB0              => 16#0c_6048# / Register_Width,
       PCH_FPB1              => 16#0c_604c# / Register_Width,
@@ -852,7 +875,7 @@ is
       SPBCNTR               => 16#07_1280# / Register_Width,
 
       -- FDI and PCH transcoder control
-      FDI_TX_CTL_B          => 16#06_1100# / Register_Width,
+      FDI_TX_CTL_B          => 16#06_1100# / Register_Width, -- aliased by GMCH_ADPA
       FDI_RXB_CTL           => 16#0f_100c# / Register_Width,
       FDI_RX_MISC_B         => 16#0f_1010# / Register_Width,
       FDI_RXB_IIR           => 16#0f_1014# / Register_Width,
@@ -1015,7 +1038,7 @@ is
       DDI_AUX_DATA_A_5      => 16#06_4024# / Register_Width, -- aliased by DP_AUX_DATA_A_5
       DDI_AUX_MUTEX_A       => 16#06_402c# / Register_Width,
 
-      DDI_BUF_CTL_B         => 16#06_4100# / Register_Width,
+      DDI_BUF_CTL_B         => 16#06_4100# / Register_Width, -- aliased by GMCH_DP_B
       DDI_BUF_TRANS_B_S0T1  => 16#06_4e60# / Register_Width,
       DDI_BUF_TRANS_B_S0T2  => 16#06_4e64# / Register_Width,
       DDI_BUF_TRANS_B_S1T1  => 16#06_4e68# / Register_Width,
@@ -1044,7 +1067,7 @@ is
       DDI_AUX_DATA_B_5      => 16#06_4124# / Register_Width,
       DDI_AUX_MUTEX_B       => 16#06_412c# / Register_Width,
 
-      DDI_BUF_CTL_C         => 16#06_4200# / Register_Width,
+      DDI_BUF_CTL_C         => 16#06_4200# / Register_Width, -- aliased by GMCH_DP_C
       DDI_BUF_TRANS_C_S0T1  => 16#06_4ec0# / Register_Width,
       DDI_BUF_TRANS_C_S0T2  => 16#06_4ec4# / Register_Width,
       DDI_BUF_TRANS_C_S1T1  => 16#06_4ec8# / Register_Width,
@@ -1073,7 +1096,7 @@ is
       DDI_AUX_DATA_C_5      => 16#06_4224# / Register_Width,
       DDI_AUX_MUTEX_C       => 16#06_422c# / Register_Width,
 
-      DDI_BUF_CTL_D         => 16#06_4300# / Register_Width,
+      DDI_BUF_CTL_D         => 16#06_4300# / Register_Width, -- aliased by GMCH_DP_D
       DDI_BUF_TRANS_D_S0T1  => 16#06_4f20# / Register_Width,
       DDI_BUF_TRANS_D_S0T2  => 16#06_4f24# / Register_Width,
       DDI_BUF_TRANS_D_S1T1  => 16#06_4f28# / Register_Width,
@@ -1303,14 +1326,23 @@ is
       BLC_PWM_CPU_CTL       => 16#04_8254# / Register_Width,
       BLC_PWM_PCH_CTL2      => 16#0c_8254# / Register_Width,
 
+      -- GMCH LVDS Connector Registers
+      GMCH_LVDS             => 16#06_1180# / Register_Width,
+
       -- PCH LVDS Connector Registers
       PCH_LVDS              => 16#0e_1180# / Register_Width,
 
       -- PCH ADPA Connector Registers
       PCH_ADPA              => 16#0e_1100# / Register_Width,
 
+      -- GMCH DVOB Connector Registers
+      GMCH_SDVOB            => 16#06_1140# / Register_Width,
+
       -- PCH HDMIB Connector Registers
       PCH_HDMIB             => 16#0e_1140# / Register_Width,
+
+      -- GMCH DVOC Connector Registers
+      GMCH_SDVOC            => 16#06_1160# / Register_Width,
 
       -- PCH HDMIC Connector Registers
       PCH_HDMIC             => 16#0e_1150# / Register_Width,
@@ -1365,6 +1397,7 @@ is
       -- audio VID/DID
       AUD_VID_DID           => 16#06_5020# / Register_Width,
       PCH_AUD_VID_DID       => 16#0e_5020# / Register_Width,
+      G4X_AUD_VID_DID       => 16#06_2020# / Register_Width,
 
       -- interrupt registers
       DEISR                 => 16#04_4000# / Register_Width,
@@ -1401,6 +1434,8 @@ is
 
       -- hotplug and initial detection
       HOTPLUG_CTL           => 16#04_4030# / Register_Width,
+      PORT_HOTPLUG_EN       => 16#06_1110# / Register_Width,
+      PORT_HOTPLUG_STAT     => 16#06_1114# / Register_Width,
       SHOTPLUG_CTL          => 16#0c_4030# / Register_Width,
       SFUSE_STRAP           => 16#0c_2014# / Register_Width,
 
@@ -1478,7 +1513,11 @@ is
       TRANS_VSYNCSHIFT_B    => 16#0e_1028# / Register_Width,
       TRANS_VSYNCSHIFT_C    => 16#0e_2028# / Register_Width,
       PCH_RAWCLK_FREQ       => 16#0c_6204# / Register_Width,
-      QUIRK_C2004           => 16#0c_2004# / Register_Width);
+      QUIRK_C2004           => 16#0c_2004# / Register_Width,
+
+      -- MCHBAR Mirror
+
+      GMCH_CLKCFG           => 16#01_0c00# / Register_Width);
 
    subtype Registers_Index is Registers_Invalid_Index range
       Registers_Invalid_Index'Succ (Invalid_Register) ..
@@ -1486,6 +1525,9 @@ is
 
    -- aliased registers
    DP_CTL_A             : constant Registers_Index := DDI_BUF_CTL_A;
+   GMCH_DP_B            : constant Registers_Index := DDI_BUF_CTL_B;
+   GMCH_DP_C            : constant Registers_Index := DDI_BUF_CTL_C;
+   GMCH_DP_D            : constant Registers_Index := DDI_BUF_CTL_D;
    DP_AUX_CTL_A         : constant Registers_Index := DDI_AUX_CTL_A;
    DP_AUX_DATA_A_1      : constant Registers_Index := DDI_AUX_DATA_A_1;
    DP_AUX_DATA_A_2      : constant Registers_Index := DDI_AUX_DATA_A_2;
@@ -1493,6 +1535,9 @@ is
    DP_AUX_DATA_A_4      : constant Registers_Index := DDI_AUX_DATA_A_4;
    DP_AUX_DATA_A_5      : constant Registers_Index := DDI_AUX_DATA_A_5;
    ILK_DISPLAY_CHICKEN1 : constant Registers_Index := FUSE_STATUS;
+   GMCH_ADPA            : constant Registers_Index := FDI_TX_CTL_B;
+   GMCH_HDMIB           : constant Registers_Index := GMCH_SDVOB;
+   GMCH_HDMIC           : constant Registers_Index := GMCH_SDVOC;
 
    ---------------------------------------------------------------------------
 

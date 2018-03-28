@@ -62,7 +62,9 @@ $(hw-gfx-gma-config-ads): $(dir)/hw-gfx-gma-config.ads.template $(cnf)
 	    $< >$@
 gfxinit-gen-y += $(hw-gfx-gma-config-ads)
 
-ifneq ($(filter Ironlake Sandybridge Ivybridge,$(CONFIG_GFX_GMA_CPU)),)
+ifneq ($(filter G45,$(CONFIG_GFX_GMA_CPU)),)
+subdirs-y += g45
+else ifneq ($(filter Ironlake Sandybridge Ivybridge,$(CONFIG_GFX_GMA_CPU)),)
 subdirs-y += ironlake
 else ifneq ($(filter Haswell Broadwell,$(CONFIG_GFX_GMA_CPU)),)
 subdirs-y += haswell_shared haswell

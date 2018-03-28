@@ -30,6 +30,13 @@ is
    begin
       return
         (case Config.CPU is
+            when G45 =>
+               (case Port is
+                   when Internal     => LVDS,
+                   when HDMI1 | DP1  => DIGI_B,
+                   when HDMI2 | DP2  => DIGI_C,
+                   when HDMI3 | DP3  => DIGI_D,
+                   when Analog       => VGA),
             when Ironlake .. Ivybridge => -- everything but eDP through FDI/PCH
               (if Config.Internal_Is_EDP and then Port = Internal then
                   DIGI_A

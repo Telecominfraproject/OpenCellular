@@ -30,7 +30,8 @@ with
 is
 
    type CPU_Type is
-     (Ironlake,
+     (G45,
+      Ironlake,
       Sandybridge,
       Ivybridge,
       Haswell,

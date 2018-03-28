@@ -334,6 +334,8 @@ is
          Audio_VID_DID : Word32;
       begin
          case Config.CPU is
+            when G45 =>
+               Registers.Read (Registers.G4X_AUD_VID_DID, Audio_VID_DID);
             when Haswell .. Skylake =>
                Registers.Read (Registers.AUD_VID_DID, Audio_VID_DID);
             when Ironlake .. Ivybridge =>
@@ -348,7 +350,10 @@ is
                when Ivybridge |
                     Sandybridge  => Audio_VID_DID = 16#8086_2806# or
                                     Audio_VID_DID = 16#8086_2805#,
-               when Ironlake     => Audio_VID_DID = 16#0000_0000#);
+               when Ironlake     => Audio_VID_DID = 16#0000_0000#,
+               when G45          => Audio_VID_DID = 16#8086_2801# or
+                                    Audio_VID_DID = 16#8086_2802# or
+                                    Audio_VID_DID = 16#8086_2803#);
       end Check_Platform;
 
       procedure Check_Platform_PCI (Success : out Boolean)
@@ -600,13 +605,13 @@ is
    is
       GGC_Reg : constant :=
         (case Config.CPU is
-            when Ironlake                 => 16#52#,
+            when G45 | Ironlake           => 16#52#,
             when Sandybridge .. Skylake   => 16#50#);
       GGC : Word16;
    begin
       Dev.Read16 (GGC, GGC_Reg);
       case Config.CPU is
-         when Ironlake =>
+         when G45 | Ironlake =>
             GTT_Size    := GTT_Size_Gen4 (GGC);
             Stolen_Size := Stolen_Size_Gen4 (GGC);
          when Sandybridge .. Haswell =>
