@@ -57,6 +57,7 @@ is
    Has_PF_Pipe_Select      : constant Boolean := CPU in Ivybridge .. Haswell;
    VGA_Plane_Workaround    : constant Boolean := CPU = Ivybridge;
    Has_GMCH_VGACNTRL       : constant Boolean := false;
+   Has_GMCH_DP_Transcoder  : constant Boolean := false;
 
    ----- Panel power: -----
    Has_PP_Write_Protection : constant Boolean := CPU <= Ivybridge;

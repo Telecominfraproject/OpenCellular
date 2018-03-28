@@ -13,6 +13,7 @@
 --
 
 with HW.GFX.GMA.Registers;
+with HW.GFX.GMA.Config;
 
 private package HW.GFX.GMA.Transcoder
 is
@@ -49,6 +50,35 @@ private
 
    type Transcoder_Array is array (Transcoder_Index) of Transcoder_Regs;
 
+   PIPE_DATA_M1 : constant array (0 .. 1) of Registers.Registers_Index :=
+     (if Config.Has_GMCH_DP_Transcoder then
+        (0 => Registers.PIPEA_GMCH_DATA_M,
+         1 => Registers.PIPEB_GMCH_DATA_M)
+      else
+        (0 => Registers.PIPEA_DATA_M1,
+         1 => Registers.PIPEB_DATA_M1));
+   PIPE_DATA_N1 : constant array (0 .. 1) of Registers.Registers_Index :=
+     (if Config.Has_GMCH_DP_Transcoder then
+        (0 => Registers.PIPEA_GMCH_DATA_N,
+         1 => Registers.PIPEB_GMCH_DATA_N)
+      else
+        (0 => Registers.PIPEA_DATA_N1,
+         1 => Registers.PIPEB_DATA_N1));
+   PIPE_LINK_M1 : constant array (0 .. 1) of Registers.Registers_Index :=
+     (if Config.Has_GMCH_DP_Transcoder then
+        (0 => Registers.PIPEA_GMCH_LINK_M,
+         1 => Registers.PIPEB_GMCH_LINK_M)
+      else
+        (0 => Registers.PIPEA_LINK_M1,
+         1 => Registers.PIPEB_LINK_M1));
+   PIPE_LINK_N1 : constant array (0 .. 1) of Registers.Registers_Index :=
+     (if Config.Has_GMCH_DP_Transcoder then
+        (0 => Registers.PIPEA_GMCH_LINK_N,
+         1 => Registers.PIPEB_GMCH_LINK_N)
+      else
+        (0 => Registers.PIPEA_LINK_N1,
+         1 => Registers.PIPEB_LINK_N1));
+
    Transcoders : constant Transcoder_Array :=
      (Trans_EDP =>
         (HTOTAL         => Registers.HTOTAL_EDP,
@@ -73,10 +103,10 @@ private
          VBLANK         => Registers.VBLANK_A,
          VSYNC          => Registers.VSYNC_A,
          CONF           => Registers.PIPEACONF,
-         DATA_M1        => Registers.PIPEA_DATA_M1,
-         DATA_N1        => Registers.PIPEA_DATA_N1,
-         LINK_M1        => Registers.PIPEA_LINK_M1,
-         LINK_N1        => Registers.PIPEA_LINK_N1,
+         DATA_M1        => PIPE_DATA_M1 (0),
+         DATA_N1        => PIPE_DATA_N1 (0),
+         LINK_M1        => PIPE_LINK_M1 (0),
+         LINK_N1        => PIPE_LINK_N1 (0),
          DDI_FUNC_CTL   => Registers.PIPEA_DDI_FUNC_CTL,
          MSA_MISC       => Registers.PIPEA_MSA_MISC,
          CLK_SEL        => Registers.TRANSA_CLK_SEL),
@@ -88,10 +118,10 @@ private
          VBLANK         => Registers.VBLANK_B,
          VSYNC          => Registers.VSYNC_B,
          CONF           => Registers.PIPEBCONF,
-         DATA_M1        => Registers.PIPEB_DATA_M1,
-         DATA_N1        => Registers.PIPEB_DATA_N1,
-         LINK_M1        => Registers.PIPEB_LINK_M1,
-         LINK_N1        => Registers.PIPEB_LINK_N1,
+         DATA_M1        => PIPE_DATA_M1 (1),
+         DATA_N1        => PIPE_DATA_N1 (1),
+         LINK_M1        => PIPE_LINK_M1 (1),
+         LINK_N1        => PIPE_LINK_N1 (1),
          DDI_FUNC_CTL   => Registers.PIPEB_DDI_FUNC_CTL,
          MSA_MISC       => Registers.PIPEB_MSA_MISC,
          CLK_SEL        => Registers.TRANSB_CLK_SEL),

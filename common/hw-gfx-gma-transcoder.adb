@@ -15,7 +15,6 @@
 with HW.Debug;
 with GNAT.Source_Info;
 
-with HW.GFX.GMA.Config;
 with HW.GFX.GMA.DP_Info;
 
 package body HW.GFX.GMA.Transcoder is
