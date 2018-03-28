@@ -110,6 +110,7 @@ is
    ----- GMBUS: -----------
    Ungate_GMBUS_Unit_Level : constant Boolean := CPU >= Skylake;
    GMBUS_Alternative_Pins  : constant Boolean := CPU = Broxton;
+   Has_PCH_GMBUS           : constant Boolean := CPU >= Ironlake;
 
    ----- Power: -----------
    Has_IPS                 : constant Boolean := (CPU = Haswell and
