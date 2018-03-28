@@ -89,6 +89,10 @@ package body HW.GFX.GMA.Pipe_Setup is
    PS_CTRL_SCALER_MODE_7X5_EXTENDED    : constant := 1 * 2 ** 28;
    PS_CTRL_FILTER_SELECT_MEDIUM_2      : constant := 1 * 2 ** 23;
 
+   GMCH_PFIT_CONTROL_SELECT_MASK       : constant := 3 * 2 ** 29;
+   GMCH_PFIT_CONTROL_SELECT_PIPE_A     : constant := 0 * 2 ** 29;
+   GMCH_PFIT_CONTROL_SELECT_PIPE_B     : constant := 1 * 2 ** 29;
+
    VGACNTRL_REG : constant Registers.Registers_Index :=
      (if Config.Has_GMCH_VGACNTRL then
          Registers.GMCH_VGACNTRL
@@ -439,9 +443,38 @@ package body HW.GFX.GMA.Pipe_Setup is
          Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
    end Setup_Ironlake_Panel_Fitter;
 
+   -- TODO the panel fitter can only be set for one pipe
+   -- If this causes problems:
+   -- Check in Enable_Output if panel fitter has already been enabled
+   -- Pass this information to Validate_Config
+   procedure Setup_Gmch_Panel_Fitter
+     (Controller  : in     Controller_Type)
+   is
+      PF_Ctrl_Pipe_Sel : constant Word32 :=
+           (case Controller.Pipe is
+               when Primary   => GMCH_PFIT_CONTROL_SELECT_PIPE_A,
+               when Secondary => GMCH_PFIT_CONTROL_SELECT_PIPE_B,
+               when others    => 0);
+      In_Use : Boolean;
+   begin
+      Registers.Is_Set_Mask
+        (Register => Registers.GMCH_PFIT_CONTROL,
+         Mask     => PF_CTRL_ENABLE,
+         Result   => In_Use);
+
+      if not In_Use then
+         Registers.Write
+           (Register => Registers.GMCH_PFIT_CONTROL,
+            Value    => PF_CTRL_ENABLE or PF_Ctrl_Pipe_Sel);
+      else
+         Debug.Put_Line ("GMCH Pannel fitter already in use, skipping...");
+      end if;
+   end Setup_Gmch_Panel_Fitter;
+
    procedure Panel_Fitter_Off (Controller : Controller_Type)
    is
       use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
+      Used_For_Secondary : Boolean;
    begin
       -- Writes to WIN_SZ arm the PS/PF registers.
       if Config.Has_Plane_Control then
@@ -452,6 +485,18 @@ package body HW.GFX.GMA.Pipe_Setup is
          then
             Registers.Unset_Mask (Controller.PS_CTRL_2, PS_CTRL_ENABLE_SCALER);
             Registers.Write (Controller.PS_WIN_SZ_2, 16#0000_0000#);
+         end if;
+      elsif Config.Has_GMCH_PFIT_CONTROL then
+         Registers.Is_Set_Mask
+           (Register => Registers.GMCH_PFIT_CONTROL,
+            Mask     => GMCH_PFIT_CONTROL_SELECT_PIPE_B,
+            Result   => Used_For_Secondary);
+         if (Controller.Pipe = Primary and not Used_For_Secondary) or
+            (Controller.Pipe = Secondary and Used_For_Secondary)
+         then
+            Registers.Unset_Mask
+              (Register => Registers.GMCH_PFIT_CONTROL,
+               Mask     => PF_CTRL_ENABLE);
          end if;
       else
          Registers.Unset_Mask (Controller.PF_CTRL, PF_CTRL_ENABLE);
@@ -474,6 +519,8 @@ package body HW.GFX.GMA.Pipe_Setup is
       then
          if Config.Has_Plane_Control then
             Setup_Skylake_Pipe_Scaler (Controller, Mode, Framebuffer);
+         elsif Config.Has_GMCH_PFIT_CONTROL then
+            Setup_Gmch_Panel_Fitter (Controller);
          else
             Setup_Ironlake_Panel_Fitter (Controller, Mode, Framebuffer);
          end if;

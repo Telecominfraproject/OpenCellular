@@ -58,6 +58,7 @@ is
    VGA_Plane_Workaround    : constant Boolean := CPU = Ivybridge;
    Has_GMCH_VGACNTRL       : constant Boolean := false;
    Has_GMCH_DP_Transcoder  : constant Boolean := false;
+   Has_GMCH_PFIT_CONTROL   : constant Boolean := false;
 
    ----- Panel power: -----
    Has_PP_Write_Protection : constant Boolean := CPU <= Ivybridge;
