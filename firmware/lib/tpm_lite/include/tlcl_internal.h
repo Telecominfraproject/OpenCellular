@@ -20,7 +20,8 @@
 /*
  * Conversion functions.  ToTpmTYPE puts a value of type TYPE into a TPM
  * command buffer.  FromTpmTYPE gets a value of type TYPE from a TPM command
- * buffer into a variable.
+ * buffer into a variable. ReadTpmTYPE reads a value of type TYPE from a buffer
+ * and advances the buffer pointer to after the field.
  */
 __attribute__((unused))
 static inline void ToTpmUint32(uint8_t *buffer, uint32_t x) {
@@ -45,6 +46,17 @@ static inline void FromTpmUint32(const uint8_t *buffer, uint32_t *x) {
  * See comment for above function.
  */
 __attribute__((unused))
+static inline uint32_t ReadTpmUint32(const uint8_t **buffer) {
+  uint32_t value;
+  FromTpmUint32(*buffer, &value);
+  *buffer += sizeof(value);
+  return value;
+}
+
+/*
+ * See comment for above function.
+ */
+__attribute__((unused))
 static inline void ToTpmUint16(uint8_t *buffer, uint16_t x) {
   buffer[0] = (uint8_t)(x >> 8);
   buffer[1] = (uint8_t)(x & 0xff);
@@ -56,6 +68,17 @@ static inline void ToTpmUint16(uint8_t *buffer, uint16_t x) {
 __attribute__((unused))
 static inline void FromTpmUint16(const uint8_t *buffer, uint16_t *x) {
   *x = (buffer[0] << 8) | buffer[1];
+}
+
+/*
+ * See comment for above function.
+ */
+__attribute__((unused))
+static inline uint16_t ReadTpmUint16(const uint8_t **buffer) {
+  uint16_t value;
+  FromTpmUint16(*buffer, &value);
+  *buffer += sizeof(value);
+  return value;
 }
 
 #endif  /* TPM_LITE_TLCL_INTERNAL_H_ */

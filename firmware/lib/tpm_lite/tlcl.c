@@ -227,7 +227,6 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 {
 	struct s_tpm_nv_read_cmd cmd;
 	uint8_t response[TPM_LARGE_ENOUGH_COMMAND_SIZE];
-	uint32_t result_length;
 	uint32_t result;
 
 	VB2_DEBUG("TPM: TlclRead(0x%x, %d)\n", index, length);
@@ -237,11 +236,11 @@ uint32_t TlclRead(uint32_t index, void* data, uint32_t length)
 
 	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
 	if (result == TPM_SUCCESS && length > 0) {
-		uint8_t* nv_read_cursor = response + kTpmResponseHeaderLength;
-		FromTpmUint32(nv_read_cursor, &result_length);
+		const uint8_t* nv_read_cursor =
+				response + kTpmResponseHeaderLength;
+		uint32_t result_length = ReadTpmUint32(&nv_read_cursor);
 		if (result_length > length)
 			result_length = length;  /* Truncate to fit buffer */
-		nv_read_cursor += sizeof(uint32_t);
 		memcpy(data, nv_read_cursor, result_length);
 	}
 
@@ -263,7 +262,8 @@ uint32_t TlclPCRRead(uint32_t index, void* data, uint32_t length)
 
 	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
 	if (result == TPM_SUCCESS) {
-		uint8_t* pcr_read_cursor = response + kTpmResponseHeaderLength;
+		const uint8_t* pcr_read_cursor =
+				response + kTpmResponseHeaderLength;
 		memcpy(data, pcr_read_cursor, kPcrDigestLength);
 	}
 
@@ -493,15 +493,14 @@ uint32_t TlclGetRandom(uint8_t* data, uint32_t length, uint32_t *size)
 
 	result = TlclSendReceive(cmd.buffer, response, sizeof(response));
 	if (result == TPM_SUCCESS) {
-		uint8_t* get_random_cursor;
-		FromTpmUint32(response + kTpmResponseHeaderLength, size);
+		const uint8_t* get_random_cursor =
+				response + kTpmResponseHeaderLength;
+		*size = ReadTpmUint32(&get_random_cursor);
 
 		/* There must be room in the target buffer for the bytes. */
 		if (*size > length) {
 			return TPM_E_RESPONSE_TOO_LARGE;
 		}
-		get_random_cursor = response + kTpmResponseHeaderLength
-				+ sizeof(uint32_t);
 		memcpy(data, get_random_cursor, *size);
 	}
 
@@ -518,11 +517,8 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
 	if (result != TPM_SUCCESS)
 		return result;
 
-	uint8_t* cursor = response + kTpmResponseHeaderLength;
-
-	uint32_t size;
-	FromTpmUint32(cursor, &size);
-	cursor += sizeof(size);
+	const uint8_t* cursor = response + kTpmResponseHeaderLength;
+	uint32_t size = ReadTpmUint32(&cursor);
 
 	/* Verify size >= sizeof(TPM_CAP_VERSION_INFO). */
 	const uint32_t kSizeofCapVersionInfo = 15;
@@ -535,21 +531,15 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
 	cursor += sizeof(uint16_t);  /* tag */
 	cursor += sizeof(uint16_t);  /* spec version */
 
-	uint16_t version;
-	FromTpmUint16(cursor, &version);
-	cursor += sizeof(version);
-	*firmware_version = version;
+	*firmware_version = ReadTpmUint16(&cursor);
 
 	cursor += sizeof(uint16_t);  /* specLevel */
 	cursor += sizeof(uint8_t);  /* errataRev */
 
-	FromTpmUint32(cursor, vendor);
-	cursor += sizeof(*vendor);
+	*vendor = ReadTpmUint32(&cursor);
 
 	if (vendor_specific_buf_size) {
-		uint16_t vendor_specific_size;
-		FromTpmUint16(cursor, &vendor_specific_size);
-		cursor += sizeof(vendor_specific_size);
+		uint16_t vendor_specific_size = ReadTpmUint16(&cursor);
 
 		if (size < kSizeofCapVersionInfo + vendor_specific_size) {
 			return TPM_E_IOERROR;
@@ -569,15 +559,12 @@ uint32_t TlclGetVersion(uint32_t* vendor, uint64_t* firmware_version,
 	return TPM_SUCCESS;
 }
 
-static void ParseIFXFirmwarePackage(uint8_t** cursor,
-				    TPM_IFX_FIRMWAREPACKAGE* firmware_package) {
-
-	FromTpmUint32(*cursor, &firmware_package->FwPackageIdentifier);
-	*cursor += sizeof(firmware_package->FwPackageIdentifier);
-	FromTpmUint32(*cursor, &firmware_package->Version);
-	*cursor += sizeof(firmware_package->Version);
-	FromTpmUint32(*cursor, &firmware_package->StaleVersion);
-	*cursor += sizeof(firmware_package->StaleVersion);
+static void ParseIFXFirmwarePackage(const uint8_t** cursor,
+				    TPM_IFX_FIRMWAREPACKAGE* firmware_package)
+{
+	firmware_package->FwPackageIdentifier = ReadTpmUint32(cursor);
+	firmware_package->Version = ReadTpmUint32(cursor);
+	firmware_package->StaleVersion = ReadTpmUint32(cursor);
 }
 
 uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO* info) {
@@ -599,24 +586,18 @@ uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO* info) {
 		return result;
 	}
 
-	uint8_t* cursor = response + kTpmResponseHeaderLength;
-
-	uint16_t size;
-	FromTpmUint16(cursor, &size);
-	cursor += sizeof(size);
+	const uint8_t* cursor = response + kTpmResponseHeaderLength;
+	uint16_t size = ReadTpmUint16(&cursor);
 
 	/* Comments below indicate skipped fields of unknown purpose that are
 	 * marked "internal" in the firmware updater source. */
 	cursor += sizeof(uint16_t);  /* internal1 */
-	FromTpmUint16(cursor, &info->wMaxDataSize);
-	cursor += sizeof(info->wMaxDataSize);
+	info->wMaxDataSize = ReadTpmUint16(&cursor);
 	cursor += sizeof(uint16_t);  /* sSecurityModuleLogic.internal1 */
 	cursor += sizeof(uint32_t);  /* sSecurityModuleLogic.internal2 */
 	cursor += sizeof(uint8_t[34]);  /* sSecurityModuleLogic.internal3 */
 	ParseIFXFirmwarePackage(&cursor, &info->sBootloaderFirmwarePackage);
-	uint16_t fw_entry_count;
-	FromTpmUint16(cursor, &fw_entry_count);
-	cursor += sizeof(fw_entry_count);
+	uint16_t fw_entry_count = ReadTpmUint16(&cursor);
 	if (fw_entry_count > ARRAY_SIZE(info->sFirmwarePackages)) {
 		return TPM_E_IOERROR;
 	}
@@ -624,13 +605,11 @@ uint32_t TlclIFXFieldUpgradeInfo(TPM_IFX_FIELDUPGRADEINFO* info) {
 	for (i = 0; i < fw_entry_count; ++i) {
 		ParseIFXFirmwarePackage(&cursor, &info->sFirmwarePackages[i]);
 	}
-	FromTpmUint16(cursor, &info->wSecurityModuleStatus);
-	cursor += sizeof(info->wSecurityModuleStatus);
+	info->wSecurityModuleStatus = ReadTpmUint16(&cursor);
 	ParseIFXFirmwarePackage(&cursor, &info->sProcessFirmwarePackage);
 	cursor += sizeof(uint16_t);  /* internal6 */
 	cursor += sizeof(uint8_t[6]);  /* internal7 */
-	FromTpmUint16(cursor, &info->wFieldUpgradeCounter);
-	cursor += sizeof(info->wFieldUpgradeCounter);
+	info->wFieldUpgradeCounter = ReadTpmUint16(&cursor);
 
 	uint32_t parsed_bytes = cursor - response;
 	VbAssert(parsed_bytes <= TPM_LARGE_ENOUGH_COMMAND_SIZE);
