@@ -49,7 +49,7 @@ const Param sys_param_list[] = {
   {"dev_boot_signed_only", CAN_WRITE,
    "Enable developer mode boot only from official kernels (writable)"},
   {"dev_default_boot", IS_STRING|CAN_WRITE,
-   "default boot from legacy or usb (writable)"},
+   "default boot from disk, legacy or usb (writable)"},
   {"devsw_boot", 0, "Developer switch position at boot"},
   {"devsw_cur",  0, "Developer switch current position"},
   {"disable_dev_request", CAN_WRITE, "Disable virtual dev-mode on next boot"},
