@@ -82,19 +82,21 @@ build flavor '${flavor_prop}'."
     local temp_dir="$(make_temp_dir)"
     local temp_apk="${temp_dir}/temp.apk"
     local signed_apk="${temp_dir}/signed.apk"
-    local aligned_apk="${temp_dir}/aligned.apk"
 
     # Follow the standard manual signing process.  See
     # https://developer.android.com/studio/publish/app-signing.html.
     cp -a "${apk}" "${temp_apk}"
     # Explicitly remove existing signature.
     zip -q "${temp_apk}" -d "META-INF/*"
+
+    # Signapk now creates signature of APK Signature Scheme v2. No further APK
+    # changes should happen afterward.  Also note that signapk now takes care of
+    # zipalign.
     signapk "${key_dir}/$keyname.x509.pem" "${key_dir}/$keyname.pk8" \
         "${temp_apk}" "${signed_apk}" > /dev/null
-    zipalign 4 "${signed_apk}" "${aligned_apk}"
 
     # Copy the content instead of mv to avoid owner/mode changes.
-    sudo cp "${aligned_apk}" "${apk}" && rm -f "${aligned_apk}"
+    sudo cp "${signed_apk}" "${apk}" && rm -f "${signed_apk}"
 
     # Set timestamp rounded to second since squash file system has resolution
     # in seconds. Required in order for the packages cache generator output is
