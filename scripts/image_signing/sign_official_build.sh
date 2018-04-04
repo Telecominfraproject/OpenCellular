@@ -737,6 +737,60 @@ resign_android_image_if_exists() {
   info "Re-signed Android image"
 }
 
+# Sign UEFI binaries, if possible.
+sign_uefi_binaries() {
+  local image="$1"
+
+  if [[ ! -d "${KEY_DIR}/uefi" ]]; then
+    return 0
+  fi
+
+  local esp_dir="$(mount_image_esp "${image}")"
+  if [[ -z "${esp_dir}" ]]; then
+    return 0
+  elif [[ "${esp_dir}" == "MOUNT_FAILED" ]]; then
+    error "Could not mount EFI partition for signing UEFI binaries"
+    return 1
+  fi
+  "${SCRIPT_DIR}/install_gsetup_certs.sh" "${esp_dir}" "${KEY_DIR}/uefi"
+  "${SCRIPT_DIR}/sign_uefi.sh" "${esp_dir}" "${KEY_DIR}/uefi"
+  sudo umount "${esp_dir}"
+
+  local rootfs_dir="$(make_temp_dir)"
+  mount_image_partition "${image}" 3 "${rootfs_dir}"
+  "${SCRIPT_DIR}/sign_uefi.sh" "${rootfs_dir}/boot" "${KEY_DIR}/uefi"
+  sudo umount "${rootfs_dir}"
+
+  info "Signed UEFI binaries"
+  return 0
+}
+
+verify_uefi_signatures() {
+  local image="$1"
+  local succeeded=1
+
+  local esp_dir="$(mount_image_esp "${image}")"
+  if [[ -z "${esp_dir}" ]]; then
+    return 0
+  elif [[ "${esp_dir}" == "MOUNT_FAILED" ]]; then
+    error "Could not mount EFI partition for verifying UEFI signatures"
+    return 1
+  fi
+  "${SCRIPT_DIR}/verify_uefi.sh" "${esp_dir}" "${esp_dir}" || succeeded=0
+
+  local rootfs_dir="$(make_temp_dir)"
+  mount_image_partition_ro "${image}" 3 "${rootfs_dir}"
+  "${SCRIPT_DIR}/verify_uefi.sh" "${rootfs_dir}/boot" "${esp_dir}" || \
+      succeeded=0
+  sudo umount "${rootfs_dir}"
+
+  sudo umount "${esp_dir}"
+
+  if [[ "${succeeded}" == "0" ]]; then
+    die "UEFI signature verification failed"
+  fi
+}
+
 # Sign an oci container with the given keys.
 # Args: CONTAINER KEY_DIR [OUTPUT_CONTAINER]
 sign_oci_container() {
@@ -818,6 +872,8 @@ EOF
 
   verify_image_rootfs "${loop_rootfs}"
 
+  verify_uefi_signatures "${INPUT_IMAGE}"
+
   # TODO(gauravsh): Check embedded firmware AU signatures.
 }
 
@@ -854,19 +910,11 @@ update_legacy_bootloader() {
   local image="$1"
   local loop_kern="$2"
 
-  local esp_partnum=12
-  local esp_offset=$(( $(partoffset "${image}" "${esp_partnum}") * 512 ))
-  # Check if the image has an ESP partition.
-  if [[ "${esp_offset}" == "0" ]]; then
+  local esp_dir="$(mount_image_esp "${image}")"
+  if [[ -z "${esp_dir}" ]]; then
     info "Not updating legacy bootloader configs: ${image}"
     return 0
-  fi
-
-  local esp_dir="$(make_temp_dir)"
-  # We use the 'unsafe' variant because the EFI system partition is vfat type
-  # and can be mounted in RW mode.
-  if ! _mount_image_partition_retry "${image}" "${esp_partnum}" \
-                                    "${esp_dir}"; then
+  elif [[ "${esp_dir}" == "MOUNT_FAILED" ]]; then
     error "Could not mount EFI partition for updating legacy bootloader cfg."
     return 1
   fi
@@ -929,6 +977,7 @@ sign_image_file() {
 
   resign_firmware_payload "${output}"
   resign_android_image_if_exists "${output}"
+  sign_uefi_binaries "${output}"
   # We do NOT strip /boot for factory installer, since some devices need it to
   # boot EFI. crbug.com/260512 would obsolete this requirement.
   #
