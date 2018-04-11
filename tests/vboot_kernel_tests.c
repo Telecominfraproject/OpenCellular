@@ -96,14 +96,16 @@ static void SetupGptHeader(GptHeader *h, int is_secondary)
 	/* Set LBA pointers for primary or secondary header */
 	if (is_secondary) {
 		h->my_lba = MOCK_SECTOR_COUNT - GPT_HEADER_SECTORS;
-		h->entries_lba = h->my_lba - CalculateEntriesSectors(h);
+		h->entries_lba = h->my_lba - CalculateEntriesSectors(h,
+							MOCK_SECTOR_SIZE);
 	} else {
 		h->my_lba = GPT_PMBR_SECTORS;
 		h->entries_lba = h->my_lba + 1;
 	}
 
-	h->first_usable_lba = 2 + CalculateEntriesSectors(h);
-	h->last_usable_lba = MOCK_SECTOR_COUNT - 2 - CalculateEntriesSectors(h);
+	h->first_usable_lba = 2 + CalculateEntriesSectors(h, MOCK_SECTOR_SIZE);
+	h->last_usable_lba = MOCK_SECTOR_COUNT - 2 - CalculateEntriesSectors(h,
+								MOCK_SECTOR_SIZE);
 
 	h->header_crc32 = HeaderCrc(h);
 }
@@ -350,10 +352,10 @@ static void ReadWriteGptTest(void)
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
 		"AllocAndRead primary invalid");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
-                g.gpt_drive_sectors, 0),
+                g.gpt_drive_sectors, 0, g.sector_bytes),
                 1, "Primary header is invalid");
 	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 0, "Secondary header is valid");
 	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
 		   "VbExDiskRead(h, 1023, 1)\n"
@@ -369,10 +371,10 @@ static void ReadWriteGptTest(void)
 	TEST_EQ(AllocAndReadGptData(handle, &g), 0,
 		"AllocAndRead secondary invalid");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 0, "Primary header is valid");
 	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 1, "Secondary header is invalid");
 	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
 		   "VbExDiskRead(h, 2, 32)\n"
@@ -389,10 +391,10 @@ static void ReadWriteGptTest(void)
 	TEST_EQ(AllocAndReadGptData(handle, &g), 1,
 		"AllocAndRead primary and secondary invalid");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 1, "Primary header is invalid");
 	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 1, "Secondary header is invalid");
 	TEST_CALLS("VbExDiskRead(h, 1, 1)\n"
 		   "VbExDiskRead(h, 1023, 1)\n");
@@ -420,7 +422,7 @@ static void ReadWriteGptTest(void)
 		   "VbExDiskWrite(h, 1, 1)\n"
 		   "VbExDiskWrite(h, 2, 32)\n");
 	TEST_EQ(CheckHeader(mock_gpt_primary, 0, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 0, "Fix Primary GPT: Primary header is valid");
 
 	/*
@@ -445,7 +447,7 @@ static void ReadWriteGptTest(void)
 		   "VbExDiskWrite(h, 1023, 1)\n"
 		   "VbExDiskWrite(h, 991, 32)\n");
 	TEST_EQ(CheckHeader(mock_gpt_secondary, 1, g.streaming_drive_sectors,
-		g.gpt_drive_sectors, 0),
+		g.gpt_drive_sectors, 0, g.sector_bytes),
                 0, "Fix Secondary GPT: Secondary header is valid");
 
 	/* Data which is changed is written */

@@ -93,7 +93,8 @@ int CheckParameters(GptData* gpt);
  */
 int CheckHeader(GptHeader *h, int is_secondary,
 		uint64_t streaming_drive_sectors,
-		uint64_t gpt_drive_sectors, uint32_t flags);
+		uint64_t gpt_drive_sectors, uint32_t flags,
+		uint32_t sector_bytes);
 
 /**
  * Calculate and return the header CRC.
@@ -160,8 +161,9 @@ void GetCurrentKernelUniqueGuid(GptData *gpt, void *dest);
 const char *GptErrorText(int error_code);
 
 /**
- * Return number of 512-byte sectors required to store the entries table.
+ * Return number of sectors required to store the entries table. Where
+ * a sector has size sector_bytes.
  */
-size_t CalculateEntriesSectors(GptHeader* h);
+size_t CalculateEntriesSectors(GptHeader* h, uint32_t sector_bytes);
 
 #endif /* VBOOT_REFERENCE_CGPTLIB_INTERNAL_H_ */

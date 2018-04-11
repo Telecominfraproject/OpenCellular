@@ -81,9 +81,11 @@ static int GptCreate(struct drive *drive, CgptCreateParams *params) {
     h->entries_lba = h->my_lba + GPT_HEADER_SECTORS;
     if (!(drive->gpt.flags & GPT_FLAG_EXTERNAL)) {
       h->entries_lba += params->padding;
-      h->first_usable_lba = h->entries_lba + CalculateEntriesSectors(h);
-      h->last_usable_lba = (drive->gpt.streaming_drive_sectors - GPT_HEADER_SECTORS -
-                            CalculateEntriesSectors(h) - 1);
+      h->first_usable_lba = h->entries_lba + CalculateEntriesSectors(h,
+                                               drive->gpt.sector_bytes);
+      h->last_usable_lba =
+        (drive->gpt.streaming_drive_sectors - GPT_HEADER_SECTORS -
+          CalculateEntriesSectors(h, drive->gpt.sector_bytes) - 1);
     } else {
       h->first_usable_lba = params->padding;
       h->last_usable_lba = (drive->gpt.streaming_drive_sectors - 1);

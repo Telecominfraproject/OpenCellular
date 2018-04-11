@@ -57,7 +57,8 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	if (0 == CheckHeader(primary_header, 0,
 			gptdata->streaming_drive_sectors,
 			gptdata->gpt_drive_sectors,
-			gptdata->flags)) {
+			gptdata->flags,
+			gptdata->sector_bytes)) {
 		primary_valid = 1;
 		uint64_t entries_bytes =
 				(uint64_t)primary_header->number_of_entries
@@ -91,7 +92,8 @@ int AllocAndReadGptData(VbExDiskHandle_t disk_handle, GptData *gptdata)
 	if (0 == CheckHeader(secondary_header, 1,
 			gptdata->streaming_drive_sectors,
 			gptdata->gpt_drive_sectors,
-			gptdata->flags)) {
+			gptdata->flags,
+			gptdata->sector_bytes)) {
 		secondary_valid = 1;
 		uint64_t entries_bytes =
 				(uint64_t)secondary_header->number_of_entries

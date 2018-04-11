@@ -14,9 +14,6 @@
 #include "vboot_host.h"
 
 #define BUFSIZE 1024
-// FIXME: currently we only support 512-byte sectors.
-#define LBA_SIZE 512
-
 
 // fill comparebuf with the data to be examined, returning true on success.
 static int FillBuffer(CgptFindParams *params, int fd, uint64_t pos,
@@ -48,15 +45,15 @@ static int match_content(CgptFindParams *params, struct drive *drive,
     return 1;
 
   // Ensure that the region we want to match against is inside the partition.
-  part_size = LBA_SIZE * (entry->ending_lba - entry->starting_lba + 1);
+  part_size = drive->gpt.sector_bytes *
+    (entry->ending_lba - entry->starting_lba + 1);
   if (params->matchoffset + params->matchlen > part_size) {
     return 0;
   }
 
   // Read the partition data.
-  if (!FillBuffer(params,
-                  drive->fd,
-                  (LBA_SIZE * entry->starting_lba) + params->matchoffset,
+  if (!FillBuffer(params, drive->fd,
+    (drive->gpt.sector_bytes * entry->starting_lba) + params->matchoffset,
                   params->matchlen)) {
     Error("unable to read partition data\n");
     return 0;

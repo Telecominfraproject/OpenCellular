@@ -191,11 +191,13 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   GptHeader* primary_header = (GptHeader*)drive->gpt.primary_header;
   if (CheckHeader(primary_header, 0, drive->gpt.streaming_drive_sectors,
                   drive->gpt.gpt_drive_sectors,
-                  drive->gpt.flags) == 0) {
+                  drive->gpt.flags,
+                  drive->gpt.sector_bytes) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.primary_entries,
                         primary_header->entries_lba,
                         drive->gpt.sector_bytes,
-                        CalculateEntriesSectors(primary_header))) {
+                        CalculateEntriesSectors(primary_header,
+                          drive->gpt.sector_bytes))) {
       Error("Cannot read primary partition entry array\n");
       return -1;
     }
@@ -209,11 +211,13 @@ static int GptLoad(struct drive *drive, uint32_t sector_bytes) {
   GptHeader* secondary_header = (GptHeader*)drive->gpt.secondary_header;
   if (CheckHeader(secondary_header, 1, drive->gpt.streaming_drive_sectors,
                   drive->gpt.gpt_drive_sectors,
-                  drive->gpt.flags) == 0) {
+                  drive->gpt.flags,
+                  drive->gpt.sector_bytes) == 0) {
     if (CGPT_OK != Load(drive, &drive->gpt.secondary_entries,
                         secondary_header->entries_lba,
                         drive->gpt.sector_bytes,
-                        CalculateEntriesSectors(secondary_header))) {
+                        CalculateEntriesSectors(secondary_header,
+                          drive->gpt.sector_bytes))) {
       Error("Cannot read secondary partition entry array\n");
       return -1;
     }
@@ -244,7 +248,8 @@ static int GptSave(struct drive *drive) {
       if (CGPT_OK != Save(drive, drive->gpt.primary_entries,
                           primary_header->entries_lba,
                           drive->gpt.sector_bytes,
-                          CalculateEntriesSectors(primary_header))) {
+                          CalculateEntriesSectors(primary_header,
+                            drive->gpt.sector_bytes))) {
         errors++;
         Error("Cannot write primary entries: %s\n", strerror(errno));
       }
@@ -273,7 +278,8 @@ static int GptSave(struct drive *drive) {
       if (CGPT_OK != Save(drive, drive->gpt.secondary_entries,
                           secondary_header->entries_lba,
                           drive->gpt.sector_bytes,
-                          CalculateEntriesSectors(secondary_header))) {
+                          CalculateEntriesSectors(secondary_header,
+                            drive->gpt.sector_bytes))) {
         errors++;
         Error("Cannot write secondary entries: %s\n", strerror(errno));
       }
@@ -343,7 +349,6 @@ int DriveOpen(const char *drive_path, struct drive *drive, int mode,
     return CGPT_FAILED;
   }
 
-  sector_bytes = 512;
   uint64_t gpt_drive_size;
   if (ObtainDriveSize(drive->fd, &gpt_drive_size, &sector_bytes) != 0) {
     Error("Can't get drive size and bytes per sector for %s: %s\n",
@@ -1015,7 +1020,7 @@ uint8_t RepairHeader(GptData *gpt, const uint32_t valid_headers) {
     secondary_header->my_lba = gpt->gpt_drive_sectors - 1;  /* the last sector */
     secondary_header->alternate_lba = primary_header->my_lba;
     secondary_header->entries_lba = secondary_header->my_lba -
-        CalculateEntriesSectors(primary_header);
+        CalculateEntriesSectors(primary_header, gpt->sector_bytes);
     return GPT_MODIFIED_HEADER2;
   } else if (valid_headers == MASK_SECONDARY) {
     memcpy(primary_header, secondary_header, sizeof(GptHeader));
