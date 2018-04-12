@@ -76,6 +76,8 @@
 #define GBB_FLAG_FORCE_MANUAL_RECOVERY			0x00004000
 /* Disable using FWMP */
 #define GBB_FLAG_DISABLE_FWMP                           0x00008000
+/* Enable USB Device Controller */
+#define GBB_FLAG_ENABLE_UDC                             0x00010000
 
 
 #ifdef __cplusplus

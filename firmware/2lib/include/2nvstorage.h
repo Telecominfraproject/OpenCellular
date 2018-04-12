@@ -59,6 +59,8 @@ enum vb2_nv_param {
 	VB2_NV_DEV_BOOT_FASTBOOT_FULL_CAP,
 	/* Set default boot mode (see vb2_dev_default_boot) */
 	VB2_NV_DEV_DEFAULT_BOOT,
+	/* Enable USB Device Controller */
+	VB2_NV_DEV_ENABLE_UDC,
 	/*
 	 * Set by userspace to request that RO firmware disable dev-mode on the
 	 * next boot. This is likely only possible if the dev-switch is

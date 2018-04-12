@@ -301,6 +301,9 @@ enum vb2_gbb_flag {
 
 	/* Disable FWMP */
 	VB2_GBB_FLAG_DISABLE_FWMP = (1 << 15),
+
+	/* Enable USB Device Controller */
+	VB2_GBB_FLAG_ENABLE_UDC = (1 << 16),
 };
 
 struct vb2_gbb_header {
