@@ -9,7 +9,7 @@
 
 usage() {
   cat <<EOF
-Usage: ${PROG} OUTPUT_DIR BOARD_NAME(optional)
+Usage: ${PROG} <OUTPUT_DIR>
 
 Generate key pairs for UEFI secure boot.
 EOF
@@ -38,12 +38,11 @@ main() {
     esac
   done
 
-  if [[ $# -lt 1 ]]; then
+  if [[ $# -ne 1 ]]; then
     usage "Missing output directory"
   fi
 
   local dir="$1"
-  local board_name="$2"
 
   check_uefi_key_dir_name "${dir}"
   pushd "${dir}" > /dev/null
@@ -63,11 +62,10 @@ main() {
   db_key_version=$(get_uefi_version "db_key_version")
   db_child_key_version=$(get_uefi_version "db_child_key_version")
 
-  make_pk_keypair "${pk_key_version}" "${board_name}"
-  make_kek_keypair "${kek_key_version}" "${board_name}"
-  make_db_keypair "${db_key_version}" "${board_name}"
-  make_db_child_keypair "${db_key_version}" "${db_child_key_version}" \
-      "${board_name}"
+  make_pk_keypair "${pk_key_version}"
+  make_kek_keypair "${kek_key_version}"
+  make_db_keypair "${db_key_version}"
+  make_db_child_keypair "${db_key_version}" "${db_child_key_version}"
 
   popd > /dev/null
 }

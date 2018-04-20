@@ -11,9 +11,9 @@
 # Abort on errors.
 set -e
 
-if [ $# -lt 1 ]; then
+if [ $# -ne 1 ]; then
   cat <<EOF
-  Usage: $0 <keyset directory> [board name]
+  Usage: $0 <keyset directory>
 
   Increments the UEFI DB key in the specified keyset.
 EOF
@@ -21,7 +21,6 @@ EOF
 fi
 
 KEY_DIR="$1"
-BOARD_NAME="$2"  # Optional.
 
 main() {
   check_uefi_key_dir_name "${KEY_DIR}"
@@ -38,9 +37,8 @@ Generating new UEFI DB key version.
 
 New DB key version: ${new_db_key_ver}.
 EOF
-  make_db_keypair "${new_db_key_ver}" "${BOARD_NAME}"
-  make_db_child_keypair "${new_db_key_ver}" "${new_db_child_key_ver}" \
-      "${BOARD_NAME}"
+  make_db_keypair "${new_db_key_ver}"
+  make_db_child_keypair "${new_db_key_ver}" "${new_db_child_key_ver}"
   write_updated_uefi_version_file "${CURR_PK_KEY_VER}" "${CURR_KEK_KEY_VER}" \
       "${new_db_key_ver}" "${new_db_child_key_ver}"
 }

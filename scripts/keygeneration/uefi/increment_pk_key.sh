@@ -11,9 +11,9 @@
 # Abort on errors.
 set -e
 
-if [ $# -lt 1 ]; then
+if [ $# -ne 1 ]; then
   cat <<EOF
-  Usage: $0 <keyset directory> [board name]
+  Usage: $0 <keyset directory>
 
   Increments the UEFI Platform Key (PK) in the specified keyset.
 EOF
@@ -21,7 +21,6 @@ EOF
 fi
 
 KEY_DIR="$1"
-BOARD_NAME="$2"  # Optional.
 
 main() {
   check_uefi_key_dir_name "${KEY_DIR}"
@@ -37,7 +36,7 @@ Generating new UEFI Platform Key (PK) version.
 
 New Platform Key version: ${new_pk_key_ver}.
 EOF
-  make_pk_keypair "${new_pk_key_ver}" "${BOARD_NAME}"
+  make_pk_keypair "${new_pk_key_ver}"
   write_updated_uefi_version_file "${new_pk_key_ver}" "${CURR_KEK_KEY_VER}" \
       "${CURR_DB_KEY_VER}" "${CURR_DB_CHILD_KEY_VER}"
 }

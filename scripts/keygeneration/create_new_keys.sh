@@ -14,7 +14,6 @@ usage() {
 Usage: ${PROG} [options]
 
 Options:
-  --board <name>         The board name (Optional. Used for UEFI keys)
   --devkeyblock          Also generate developer firmware keyblock and data key
   --android              Also generate android keys
   --uefi                 Also generate UEFI keys
@@ -37,7 +36,6 @@ EOF
 main() {
   set -e
 
-  local board=""
   # Flag to indicate whether we should be generating a developer keyblock flag.
   local dev_keyblock="false"
   local android_keys="false"
@@ -51,11 +49,6 @@ main() {
 
   while [[ $# -gt 0 ]]; do
     case $1 in
-    --board)
-      board="$2"
-      shift
-      ;;
-
     --devkeyblock)
       echo "Will also generate developer firmware keyblock and data key."
       dev_keyblock="true"
@@ -184,7 +177,7 @@ main() {
 
   if [[ "${uefi_keys}" == "true" ]]; then
     mkdir -p uefi
-    "${SCRIPT_DIR}"/uefi/create_new_uefi_keys.sh uefi "${board}"
+    "${SCRIPT_DIR}"/uefi/create_new_uefi_keys.sh uefi
   fi
 
   if [[ "${setperms}" == "true" ]]; then

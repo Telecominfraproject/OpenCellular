@@ -54,12 +54,8 @@ _CHROMIUM_OS_SUBJECT=\
 _get_subj() {
   local title="$1"
   local version="$2"
-  local board_name="$3"  # Optional.
 
-  if [[ ! -z "${board_name}" ]]; then
-    board_name="${board_name} "
-  fi
-  echo "${_CHROMIUM_OS_SUBJECT}/CN=${board_name}${title} v${version}"
+  echo "${_CHROMIUM_OS_SUBJECT}/CN=${title} v${version}"
 }
 
 # Generate a pair of a private key and a self-signed cert at the current
@@ -103,32 +99,28 @@ _make_child_pair() {
 
 make_pk_keypair() {
   local version="$1"
-  local board_name="$2"  # Optional.
   _make_self_signed_pair pk \
-      "$(_get_subj "UEFI Platform Key" "${version}" "${board_name}")"
+      "$(_get_subj "UEFI Platform Key" "${version}")"
 }
 
 make_kek_keypair() {
   local version="$1"
-  local board_name="$2"  # Optional.
   _make_self_signed_pair kek \
-      "$(_get_subj "UEFI Key Exchange Key" "${version}" "${board_name}")"
+      "$(_get_subj "UEFI Key Exchange Key" "${version}")"
 }
 
 make_db_keypair() {
   local version="$1"
-  local board_name="$2"  # Optional.
   _make_self_signed_pair db \
-      "$(_get_subj "UEFI DB Key" "${version}" "${board_name}")"
+      "$(_get_subj "UEFI DB Key" "${version}")"
 }
 
 make_db_child_keypair() {
   local db_key_version="$1"
   local child_key_version="$2"
-  local board_name="$3"  # Optional.
   _make_child_pair db db_child \
       "$(_get_subj "UEFI DB Child Key" \
-          "${db_key_version}.${child_key_version}" "${board_name}")"
+          "${db_key_version}.${child_key_version}")"
 }
 
 _backup_existing_self_signed_pair() {
