@@ -29,7 +29,7 @@ main() {
   new_pk_key_ver=$(increment_uefi_version "${KEY_DIR}" "pk_key_version")
 
   cd "${KEY_DIR}"
-  backup_existing_pk_keypair "${CURR_PK_KEY_VER}"
+  backup_pk_keypair "${CURR_PK_KEY_VER}"
 
   cat <<EOF
 Generating new UEFI Platform Key (PK) version.

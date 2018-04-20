@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2018 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -45,13 +44,11 @@ main() {
   local dir="$1"
 
   check_uefi_key_dir_name "${dir}"
-  pushd "${dir}" > /dev/null
+  pushd "${dir}" >/dev/null || die "Wrong output directory name"
 
   if [[ ! -e "${UEFI_VERSION_FILE}" ]]; then
     echo "No version file found. Creating default ${UEFI_VERSION_FILE}."
-    (
-      printf '%s_key_version=1\n' {pk,kek,db,db_child}
-    ) > "${UEFI_VERSION_FILE}"
+    printf '%s_key_version=1\n' {pk,kek,db,db_child} > "${UEFI_VERSION_FILE}"
   fi
 
   local pk_key_version kek_key_version db_key_version db_child_key_version
@@ -67,7 +64,7 @@ main() {
   make_db_keypair "${db_key_version}"
   make_db_child_keypair "${db_key_version}" "${db_child_key_version}"
 
-  popd > /dev/null
+  popd >/dev/null
 }
 
 main "$@"

@@ -30,7 +30,7 @@ main() {
   new_db_child_key_ver=1
 
   cd "${KEY_DIR}"
-  backup_existing_db_keypair_and_children "${CURR_DB_KEY_VER}"
+  backup_db_keypair_and_children "${CURR_DB_KEY_VER}"
 
   cat <<EOF
 Generating new UEFI DB key version.

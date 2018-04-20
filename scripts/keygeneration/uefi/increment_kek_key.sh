@@ -29,7 +29,7 @@ main() {
   new_kek_key_ver=$(increment_uefi_version "${KEY_DIR}" "kek_key_version")
 
   cd "${KEY_DIR}"
-  backup_existing_kek_keypair "${CURR_KEK_KEY_VER}"
+  backup_kek_keypair "${CURR_KEK_KEY_VER}"
 
   cat <<EOF
 Generating new UEFI Key Exchange Key (KEK) version.
