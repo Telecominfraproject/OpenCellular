@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2018 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -10,9 +9,10 @@ set -e
 
 usage() {
   cat <<EOF
-Usage: $PROG /path/to/target/dir /path/to/keys/dir
+Usage: $PROG /path/to/target/dir /path/to/uefi/keys/dir
 
-Sign UEFI binaries in the target directory.
+Sign the UEFI binaries in the target directory.
+The target directory can be either the root of ESP or /boot of root filesystem.
 EOF
   if [[ $# -gt 0 ]]; then
     error "$*"
@@ -21,6 +21,8 @@ EOF
   exit 0
 }
 
+# Signs an EFI binary file, if possible.
+# Args: TARGET_FILE TEMP_DIR PRIVATE_KEY SIGN_CERT VERIFY_CERT
 sign_efi_file() {
   local target="$1"
   local temp_dir="$2"
@@ -51,13 +53,13 @@ main() {
   fi
 
   if ! type -P sbattach &>/dev/null; then
-    die "Skip signing UEFI binaries (sbattach not found)."
+    die "Cannot sign UEFI binaries (sbattach not found)."
   fi
   if ! type -P sbsign &>/dev/null; then
-    die "Skip signing UEFI binaries (sbsign not found)."
+    die "Cannot sign UEFI binaries (sbsign not found)."
   fi
   if ! type -P sbverify &>/dev/null; then
-    die "Skip signing UEFI binaries (sbverify not found)."
+    die "Cannot sign UEFI binaries (sbverify not found)."
   fi
 
   local bootloader_dir="${target_dir}/efi/boot"
@@ -65,7 +67,7 @@ main() {
   local kernel_dir="${target_dir}"
 
   local verify_cert="${key_dir}/db/db.pem"
-  if [[ ! -f "$verify_cert" ]]; then
+  if [[ ! -f "${verify_cert}" ]]; then
     die "No verification cert: ${verify_cert}"
   fi
 
@@ -81,7 +83,8 @@ main() {
 
   local working_dir="$(make_temp_dir)"
 
-  for efi_file in "${bootloader_dir}/"*".efi"; do
+  local efi_file
+  for efi_file in "${bootloader_dir}"/*.efi; do
     if [[ ! -f "${efi_file}" ]]; then
       continue
     fi
@@ -89,7 +92,8 @@ main() {
         "${sign_key}" "${sign_cert}" "${verify_cert}"
   done
 
-  for syslinux_kernel_file in "${syslinux_dir}/vmlinuz."?; do
+  local syslinux_kernel_file
+  for syslinux_kernel_file in "${syslinux_dir}"/vmlinuz.?; do
     if [[ ! -f "${syslinux_kernel_file}" ]]; then
       continue
     fi

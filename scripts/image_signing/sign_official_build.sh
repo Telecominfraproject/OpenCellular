@@ -738,6 +738,7 @@ resign_android_image_if_exists() {
 }
 
 # Sign UEFI binaries, if possible.
+# Args: IMAGE
 sign_uefi_binaries() {
   local image="$1"
 
@@ -745,12 +746,12 @@ sign_uefi_binaries() {
     return 0
   fi
 
-  local esp_dir="$(mount_image_esp "${image}")"
-  if [[ -z "${esp_dir}" ]]; then
-    return 0
-  elif [[ "${esp_dir}" == "MOUNT_FAILED" ]]; then
+  local esp_dir
+  if ! esp_dir="$(mount_image_esp "${image}")"; then
     error "Could not mount EFI partition for signing UEFI binaries"
     return 1
+  elif [[ -z "${esp_dir}" ]]; then
+    return 0
   fi
   "${SCRIPT_DIR}/install_gsetup_certs.sh" "${esp_dir}" "${KEY_DIR}/uefi"
   "${SCRIPT_DIR}/sign_uefi.sh" "${esp_dir}" "${KEY_DIR}/uefi"
@@ -765,23 +766,30 @@ sign_uefi_binaries() {
   return 0
 }
 
+# Verify the signatures of UEFI binaries.
+# Args: IMAGE
 verify_uefi_signatures() {
   local image="$1"
   local succeeded=1
 
-  local esp_dir="$(mount_image_esp "${image}")"
-  if [[ -z "${esp_dir}" ]]; then
+  if [[ ! -d "${KEY_DIR}/uefi" ]]; then
     return 0
-  elif [[ "${esp_dir}" == "MOUNT_FAILED" ]]; then
+  fi
+
+  local esp_dir
+  if ! esp_dir="$(mount_image_esp "${image}")"; then
     error "Could not mount EFI partition for verifying UEFI signatures"
     return 1
+  elif [[ -z "${esp_dir}" ]]; then
+    return 0
   fi
-  "${SCRIPT_DIR}/verify_uefi.sh" "${esp_dir}" "${esp_dir}" || succeeded=0
+  "${SCRIPT_DIR}/verify_uefi.sh" "${esp_dir}" "${esp_dir}" \
+      "${KEY_DIR}/uefi" || succeeded=0
 
   local rootfs_dir="$(make_temp_dir)"
   mount_image_partition_ro "${image}" 3 "${rootfs_dir}"
-  "${SCRIPT_DIR}/verify_uefi.sh" "${rootfs_dir}/boot" "${esp_dir}" || \
-      succeeded=0
+  "${SCRIPT_DIR}/verify_uefi.sh" "${rootfs_dir}/boot" "${esp_dir}" \
+      "${KEY_DIR}/uefi" || succeeded=0
   sudo umount "${rootfs_dir}"
 
   sudo umount "${esp_dir}"
@@ -910,13 +918,13 @@ update_legacy_bootloader() {
   local image="$1"
   local loop_kern="$2"
 
-  local esp_dir="$(mount_image_esp "${image}")"
-  if [[ -z "${esp_dir}" ]]; then
-    info "Not updating legacy bootloader configs: ${image}"
-    return 0
-  elif [[ "${esp_dir}" == "MOUNT_FAILED" ]]; then
+  local esp_dir
+  if ! esp_dir="$(mount_image_esp "${image}")"; then
     error "Could not mount EFI partition for updating legacy bootloader cfg."
     return 1
+  elif [[ -z "${esp_dir}" ]]; then
+    info "Not updating legacy bootloader configs: ${image}"
+    return 0
   fi
 
   # If we can't find the dm parameter in the kernel config, bail out now.

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Copyright 2018 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -12,7 +11,7 @@ usage() {
   cat <<EOF
 Usage: $PROG /path/to/esp/dir /path/to/keys/dir
 
-Sign UEFI binaries in ESP.
+Install UEFI certs in GSetup directory in ESP.
 EOF
   if [[ $# -gt 0 ]]; then
     error "$*"
@@ -21,11 +20,13 @@ EOF
   exit 0
 }
 
+# Installs the specified UEFI cert in GSetup directory, if the cert exists.
+# Args: KEY_TYPE CERT GSETUP_DIR
 install_gsetup_cert() {
   local key_type="$1"
   local cert="$2"
   local gsetup_dir="$3"
-  if [[ -f "$cert" ]]; then
+  if [[ -f "${cert}" ]]; then
     info "Putting ${key_type} cert: ${cert}"
     local cert_basename="$(basename "${cert}")"
     local der_filename="${cert_basename%.*}.der"
@@ -62,7 +63,8 @@ main() {
   local kek_cert="${key_dir}/kek/kek.pem"
   install_gsetup_cert kek "${kek_cert}" "${gsetup_dir}"
 
-  for dbx_cert in "${key_dir}/dbx/"*".pem"; do
+  local dbx_cert
+  for dbx_cert in "${key_dir}"/dbx/*.pem; do
     install_gsetup_cert dbx "${dbx_cert}" "${gsetup_dir}"
   done
 }
