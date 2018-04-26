@@ -8,13 +8,18 @@
 
 usage() {
   cat <<EOF
-Usage: ${PROG} <OUTPUT_DIR>
+Usage: ${PROG} [options]
 
 Generate key pairs for UEFI secure boot.
+
+Options:
+  --output <dir>  Where to write the keys (default is cwd).
+                  The base name must be '.../uefi'.
+  --no-pk         Do not generate PK.
 EOF
 
   if [[ $# -ne 0 ]]; then
-    die "$*"
+    die "unknown option $*"
   else
     exit 0
   fi
@@ -23,28 +28,31 @@ EOF
 main() {
   set -e
 
+  local generate_pk="true"
+  local output_dir="${PWD}"
+
   while [[ $# -gt 0 ]]; do
     case $1 in
+    --output)
+      output_dir="$2"
+      shift
+      ;;
+    --no-pk)
+      info "Will not generate PK."
+      generate_pk="false"
+      ;;
     -h|--help)
       usage
       ;;
-    -*)
+    *)
       usage "Unknown option: $1"
       ;;
-    *)
-      break
-      ;;
     esac
+    shift
   done
 
-  if [[ $# -ne 1 ]]; then
-    usage "Missing output directory"
-  fi
-
-  local dir="$1"
-
-  check_uefi_key_dir_name "${dir}"
-  pushd "${dir}" >/dev/null || die "Wrong output directory name"
+  check_uefi_key_dir_name "${output_dir}"
+  pushd "${output_dir}" >/dev/null || die "Wrong output directory name"
 
   if [[ ! -e "${UEFI_VERSION_FILE}" ]]; then
     echo "No version file found. Creating default ${UEFI_VERSION_FILE}."
@@ -59,7 +67,9 @@ main() {
   db_key_version=$(get_uefi_version "db_key_version")
   db_child_key_version=$(get_uefi_version "db_child_key_version")
 
-  make_pk_keypair "${pk_key_version}"
+  if [[ "${generate_pk}" == "true" ]]; then
+    make_pk_keypair "${pk_key_version}"
+  fi
   make_kek_keypair "${kek_key_version}"
   make_db_keypair "${db_key_version}"
   make_db_child_keypair "${db_key_version}" "${db_child_key_version}"
