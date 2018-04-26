@@ -64,9 +64,41 @@ test_case_t test[] = {
 		.want_flags = VB_DISK_FLAG_REMOVABLE,
 		.disks_to_provide = {
 			/* too small */
-			{512,   10,  VB_DISK_FLAG_REMOVABLE, 0},
+			{512,  10,   VB_DISK_FLAG_REMOVABLE, 0},
 			/* wrong LBA */
-			{2048, 100,  VB_DISK_FLAG_REMOVABLE, 0},
+			{511, 100,  VB_DISK_FLAG_REMOVABLE, 0},
+			/* not a power of 2 */
+			{2047, 100,  VB_DISK_FLAG_REMOVABLE, 0},
+			/* wrong type */
+			{512,  100,  VB_DISK_FLAG_FIXED, 0},
+			/* wrong flags */
+			{512,  100,  0, 0},
+			/* still wrong flags */
+			{512,  100,  -1, 0},
+			{4096, 100,  VB_DISK_FLAG_REMOVABLE, pickme},
+			/* already got one */
+			{512,  100,  VB_DISK_FLAG_REMOVABLE, "holygrail"},
+		},
+		.disk_count_to_return = DEFAULT_COUNT,
+		.diskgetinfo_return_val = VBERROR_SUCCESS,
+		.loadkernel_return_val = {0, 1, 1, 1, 1, 1, 1, 1, 1, 1,},
+		.external_expected = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,},
+
+		.expected_recovery_request_val = VB2_RECOVERY_NOT_REQUESTED,
+		.expected_to_find_disk = pickme,
+		.expected_to_load_disk = pickme,
+		.expected_return_val = VBERROR_SUCCESS
+	},
+	{
+		.name = "first removable drive",
+		.want_flags = VB_DISK_FLAG_REMOVABLE,
+		.disks_to_provide = {
+			/* too small */
+			{512,  10,   VB_DISK_FLAG_REMOVABLE, 0},
+			/* wrong LBA */
+			{511, 100,  VB_DISK_FLAG_REMOVABLE, 0},
+			/* not a power of 2 */
+			{2047, 100,  VB_DISK_FLAG_REMOVABLE, 0},
 			/* wrong type */
 			{512,  100,  VB_DISK_FLAG_FIXED, 0},
 			/* wrong flags */
@@ -114,7 +146,9 @@ test_case_t test[] = {
 			/* too small */
 			{512,   10,  VB_DISK_FLAG_FIXED, 0},
 			/* wrong LBA */
-			{2048, 100,  VB_DISK_FLAG_FIXED, 0},
+			{511, 100,  VB_DISK_FLAG_FIXED, 0},
+			/* not a power of 2 */
+			{2047, 100,  VB_DISK_FLAG_REMOVABLE, 0},
 			/* wrong type */
 			{512,  100,  VB_DISK_FLAG_REMOVABLE, 0},
 			/* wrong flags */
@@ -157,7 +191,9 @@ test_case_t test[] = {
 			/* too small */
 			{512,   10,  VB_DISK_FLAG_FIXED, 0},
 			/* wrong LBA */
-			{2048, 100,  VB_DISK_FLAG_FIXED, 0},
+			{511, 100,  VB_DISK_FLAG_FIXED, 0},
+			/* not a power of 2 */
+			{2047, 100,  VB_DISK_FLAG_FIXED, 0},
 			/* wrong type */
 			{512,  100,  VB_DISK_FLAG_REMOVABLE, 0},
 			/* wrong flags */

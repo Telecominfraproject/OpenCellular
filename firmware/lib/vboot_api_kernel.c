@@ -100,14 +100,15 @@ uint32_t VbTryLoadKernel(struct vb2_context *ctx, uint32_t get_info_flags)
 		 * Sanity-check what we can. FWIW, VbTryLoadKernel() is always
 		 * called with only a single bit set in get_info_flags.
 		 *
-		 * Ensure 512-byte sectors and non-trivially sized disk (for
-		 * cgptlib) and that we got a partition with only the flags we
-		 * asked for.
+		 * Ensure that we got a partition with only the flags we asked
+		 * for.
 		 */
-		if (512 != disk_info[i].bytes_per_lba ||
-		    16 > disk_info[i].lba_count ||
-		    get_info_flags != (disk_info[i].flags &
-				       ~VB_DISK_FLAG_EXTERNAL_GPT)) {
+		if (disk_info[i].bytes_per_lba < 512 ||
+			(disk_info[i].bytes_per_lba &
+				(disk_info[i].bytes_per_lba  - 1)) != 0 ||
+					16 > disk_info[i].lba_count ||
+					get_info_flags != (disk_info[i].flags &
+					~VB_DISK_FLAG_EXTERNAL_GPT)) {
 			VB2_DEBUG("  skipping: bytes_per_lba=%" PRIu64
 				  " lba_count=%" PRIu64 " flags=0x%x\n",
 				  disk_info[i].bytes_per_lba,
