@@ -236,10 +236,35 @@ _mount_image_partition() {
   _mount_image_partition_retry "$@"
 }
 
+# If called without 'ro', make sure the partition is allowed to be mounted as
+# 'rw' before actually mounting it.
+# Args: LOOPDEV PARTNUM MOUNTDIRECTORY [ro]
+_mount_loop_image_partition() {
+  local loopdev=$1
+  local partnum=$2
+  local mount_dir=$3
+  local ro=$4
+  local loop_rootfs="${loopdev}p${partnum}"
+
+  if [ "$ro" != "ro" ]; then
+    # Forcibly call enable_rw_mount.  It should fail on unsupported
+    # filesystems and be idempotent on ext*.
+    enable_rw_mount "${loop_rootfs}" 2>/dev/null
+  fi
+
+  sudo mount -o "${ro}" "${loop_rootfs}" "${mount_dir}"
+}
+
 # Mount a partition read-only from an image into a local directory
 # Args: IMAGE PARTNUM MOUNTDIRECTORY
 mount_image_partition_ro() {
   _mount_image_partition "$@" "ro"
+}
+
+# Mount a partition read-only from an image into a local directory
+# Args: LOOPDEV PARTNUM MOUNTDIRECTORY
+mount_loop_image_partition_ro() {
+  _mount_loop_image_partition "$@" "ro"
 }
 
 # Mount a partition from an image into a local directory
@@ -252,27 +277,35 @@ mount_image_partition() {
   fi
 }
 
+# Mount a partition from an image into a local directory
+# Args: LOOPDEV PARTNUM MOUNTDIRECTORY
+mount_loop_image_partition() {
+  local mount_dir=$3
+  _mount_loop_image_partition "$@"
+  if is_rootfs_partition "${mount_dir}"; then
+    tag_as_needs_to_be_resigned "${mount_dir}"
+  fi
+}
+
 # Mount the image's ESP (EFI System Partition) on a newly created temporary
 # directory.
 # Prints out the newly created temporary directory path if succeeded.
 # If the image doens't have an ESP partition, returns 0 without print anything.
-# Args: IMAGE
+# Args: LOOPDEV
 # Returns: 0 if succeeded, 1 otherwise.
 mount_image_esp() {
-  local image="$1"
+  local loopdev="$1"
   local ESP_PARTNUM=12
+  local loop_esp="${loopdev}p${ESP_PARTNUM}"
 
-  local esp_offset=$(( $(partoffset "${image}" "${ESP_PARTNUM}") ))
+  local esp_offset=$(( $(partoffset "${loopdev}" "${ESP_PARTNUM}") ))
   # Check if the image has an ESP partition.
   if [[ "${esp_offset}" == "0" ]]; then
     return 0
   fi
 
   local esp_dir="$(make_temp_dir)"
-  # We use the 'unsafe' variant because the EFI system partition is vfat type
-  # and can be mounted in RW mode.
-  if ! _mount_image_partition_retry "${image}" "${ESP_PARTNUM}" \
-                                    "${esp_dir}" >/dev/null; then
+  if ! sudo mount -o "${ro}" "${loop_esp}" "${esp_dir}"; then
     return 1
   fi
 

@@ -522,9 +522,9 @@ sign_update_payload() {
 }
 
 # Re-sign the firmware AU payload inside the image rootfs with a new keys.
-# Args: IMAGE
+# Args: LOOPDEV
 resign_firmware_payload() {
-  local image=$1
+  local loopdev="$1"
 
   if [ -n "${NO_FWUPDATE}" ]; then
     info "Skipping firmware update."
@@ -533,7 +533,7 @@ resign_firmware_payload() {
 
   # Grab firmware image from the autoupdate bundle (shellball).
   local rootfs_dir=$(make_temp_dir)
-  mount_image_partition ${image} 3 ${rootfs_dir}
+  mount_loop_image_partition "${loopdev}" 3 "${rootfs_dir}"
   local firmware_bundle="${rootfs_dir}/usr/sbin/chromeos-firmwareupdate"
   local shellball_dir=$(make_temp_dir)
 
@@ -742,15 +742,15 @@ resign_firmware_payload() {
   sudo chmod a+rx "${firmware_bundle}"
   # Unmount now to flush changes.
   sudo umount "${rootfs_dir}"
-  info "Re-signed firmware AU payload in ${image}"
+  info "Re-signed firmware AU payload in ${loopdev}"
 }
 
 # Re-sign Android image if exists.
 resign_android_image_if_exists() {
-  local image=$1
+  local loopdev="$1"
 
   local rootfs_dir=$(make_temp_dir)
-  mount_image_partition "${image}" 3 "${rootfs_dir}"
+  mount_loop_image_partition "${loopdev}" 3 "${rootfs_dir}"
 
   local system_img="${rootfs_dir}/opt/google/containers/android/system.raw.img"
   local arc_version=$(grep CHROMEOS_ARC_VERSION= \
@@ -769,16 +769,16 @@ resign_android_image_if_exists() {
 }
 
 # Sign UEFI binaries, if possible.
-# Args: IMAGE
+# Args: LOOPDEV
 sign_uefi_binaries() {
-  local image="$1"
+  local loopdev="$1"
 
   if [[ ! -d "${KEY_DIR}/uefi" ]]; then
     return 0
   fi
 
   local esp_dir
-  if ! esp_dir="$(mount_image_esp "${image}")"; then
+  if ! esp_dir="$(mount_image_esp "${loopdev}")"; then
     error "Could not mount EFI partition for signing UEFI binaries"
     return 1
   elif [[ -z "${esp_dir}" ]]; then
@@ -789,7 +789,7 @@ sign_uefi_binaries() {
   sudo umount "${esp_dir}"
 
   local rootfs_dir="$(make_temp_dir)"
-  mount_image_partition "${image}" 3 "${rootfs_dir}"
+  mount_loop_image_partition "${loopdev}" 3 "${rootfs_dir}"
   "${SCRIPT_DIR}/sign_uefi.sh" "${rootfs_dir}/boot" "${KEY_DIR}/uefi"
   sudo umount "${rootfs_dir}"
 
@@ -798,9 +798,9 @@ sign_uefi_binaries() {
 }
 
 # Verify the signatures of UEFI binaries.
-# Args: IMAGE
+# Args: LOOPDEV
 verify_uefi_signatures() {
-  local image="$1"
+  local loopdev="$1"
   local succeeded=1
 
   if [[ ! -d "${KEY_DIR}/uefi" ]]; then
@@ -808,7 +808,7 @@ verify_uefi_signatures() {
   fi
 
   local esp_dir
-  if ! esp_dir="$(mount_image_esp "${image}")"; then
+  if ! esp_dir="$(mount_image_esp "${loopdev}")"; then
     error "Could not mount EFI partition for verifying UEFI signatures"
     return 1
   elif [[ -z "${esp_dir}" ]]; then
@@ -818,7 +818,7 @@ verify_uefi_signatures() {
       "${KEY_DIR}/uefi" || succeeded=0
 
   local rootfs_dir="$(make_temp_dir)"
-  mount_image_partition_ro "${image}" 3 "${rootfs_dir}"
+  mount_loop_image_partition_ro "${loopdev}" 3 "${rootfs_dir}"
   "${SCRIPT_DIR}/verify_uefi.sh" "${rootfs_dir}/boot" "${esp_dir}" \
       "${KEY_DIR}/uefi" || succeeded=0
   sudo umount "${rootfs_dir}"
@@ -944,17 +944,17 @@ update_recovery_kernel_hash() {
 }
 
 # Update the legacy bootloader templates in EFI partition if available.
-# Args: IMAGE_BIN KERNEL
+# Args: LOOPDEV KERNEL
 update_legacy_bootloader() {
-  local image="$1"
+  local loopdev="$1"
   local loop_kern="$2"
 
   local esp_dir
-  if ! esp_dir="$(mount_image_esp "${image}")"; then
+  if ! esp_dir="$(mount_image_esp "${loopdev}")"; then
     error "Could not mount EFI partition for updating legacy bootloader cfg."
     return 1
   elif [[ -z "${esp_dir}" ]]; then
-    info "Not updating legacy bootloader configs: ${image}"
+    info "Not updating legacy bootloader configs: ${loopdev}"
     return 0
   fi
 
@@ -1014,9 +1014,9 @@ sign_image_file() {
   local loopdev=$(loopback_partscan "${output}")
   local loop_kern="${loopdev}p${dm_partno}"
 
-  resign_firmware_payload "${output}"
-  resign_android_image_if_exists "${output}"
-  sign_uefi_binaries "${output}"
+  resign_firmware_payload "${loopdev}"
+  resign_android_image_if_exists "${loopdev}"
+  sign_uefi_binaries "${loopdev}"
   # We do NOT strip /boot for factory installer, since some devices need it to
   # boot EFI. crbug.com/260512 would obsolete this requirement.
   #
@@ -1038,7 +1038,7 @@ sign_image_file() {
   if [[ "${image_type}" == "recovery" ]]; then
     update_recovery_kernel_hash "${loopdev}"
   fi
-  if ! update_legacy_bootloader "${output}" "${loop_kern}"; then
+  if ! update_legacy_bootloader "${loopdev}" "${loop_kern}"; then
     # Error is already logged.
     return 1
   fi
