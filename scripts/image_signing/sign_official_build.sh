@@ -624,6 +624,9 @@ resign_firmware_payload() {
         # Path to bios.bin.
         local bios_path="${shellball_dir}/${bios_image}"
 
+        echo "Before EC signing ${bios_path}: md5 =" \
+          $(md5sum ${bios_path} | awk '{print $1}')
+
         if [ -n "${ec_image}" ]; then
           # Path to ec.bin.
           local ec_path="${shellball_dir}/${ec_image}"
@@ -634,6 +637,10 @@ resign_firmware_payload() {
             local rw_hash="EC_RW.hash"
             # futility writes byproduct files to CWD, so we cd to temp dir.
             pushd "$(make_temp_dir)" > /dev/null
+
+            echo "Signing EC with:" ${FUTILITY} sign --type rwsig --prikey \
+              "${KEY_DIR}/key_ec_efs.vbprik2" "${ec_path}"
+
             ${FUTILITY} sign --type rwsig --prikey \
               "${KEY_DIR}/key_ec_efs.vbprik2" "${ec_path}" \
               || die "Failed to sign ${ec_path}"
@@ -649,7 +656,20 @@ resign_firmware_payload() {
           fi
         fi
 
+        echo "After EC signing ${bios_path}: md5 =" \
+          $(md5sum ${bios_path} | awk '{print $1}')
+
         # Resign bios.bin.
+        echo "Signing Bios with:" ${FUTILITY} sign \
+          --signprivate "${signprivate}" \
+          --keyblock "${keyblock}" \
+          --devsign "${devsign}" \
+          --devkeyblock "${devkeyblock}" \
+          --kernelkey "${KEY_DIR}/kernel_subkey.vbpubk" \
+          --version "${FIRMWARE_VERSION}" \
+          "${extra_args[@]}" \
+          ${bios_path} \
+          ${temp_fw}
         ${FUTILITY} sign \
           --signprivate "${signprivate}" \
           --keyblock "${keyblock}" \
@@ -661,15 +681,26 @@ resign_firmware_payload() {
           ${bios_path} \
           ${temp_fw}
 
+        echo "After Bios signing ${temp_fw}: md5 =" \
+          $(md5sum ${temp_fw} | awk '{print $1}')
 
         # For development phases, when the GBB can be updated still, set the
         # recovery and root keys in the image.
+        echo "Setting GBB with:" ${FUTILITY} gbb \
+          -s \
+          --recoverykey="${KEY_DIR}/recovery_key.vbpubk" \
+          --rootkey="${rootkey}" \
+          "${temp_fw}" \
+          "${bios_path}"
         ${FUTILITY} gbb \
           -s \
           --recoverykey="${KEY_DIR}/recovery_key.vbpubk" \
           --rootkey="${rootkey}" \
           "${temp_fw}" \
           "${bios_path}"
+
+        echo "After setting GBB on ${bios_path}: md5 =" \
+          $(md5sum ${bios_path} | awk '{print $1}')
 
         info "Signed firmware image output to ${bios_path}"
       done
