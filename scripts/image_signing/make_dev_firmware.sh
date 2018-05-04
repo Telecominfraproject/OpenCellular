@@ -325,7 +325,7 @@ main() {
 
     After reboot with dev recovery key, you will need to reset TPM by booting a
     test or dev image in recovery mode (NOT Ctrl-U), switch to VT2 and run
-    command <chromoes-tpm-recovery>; or use a factory install shim image
+    command <chromeos-tpm-recovery>; or use a factory install shim image
     (build_image factory_install).
     $(tput sgr 0)" >&2
   fi
