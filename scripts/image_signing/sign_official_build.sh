@@ -732,6 +732,11 @@ resign_firmware_payload() {
       sha1=$(vbutil_key --unpack "${key}" | grep sha1sum | cut -d" " -f9)
       echo "  ${model}: ${sha1}" >>"${signer_notes}"
     done
+  else
+    echo "List sha1sum of single key's signature:" >>"${signer_notes}"
+    key="${KEY_DIR}/root_key.vbpubk"
+    sha1=$(vbutil_key --unpack "${key}" | grep sha1sum | cut -d" " -f9)
+    echo "  root: ${sha1}" >>"${signer_notes}"
   fi
 
   new_shellball=$(make_temp_file)
