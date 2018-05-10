@@ -725,6 +725,11 @@ resign_firmware_payload() {
   local signer_notes="${shellball_dir}/VERSION.signer"
   echo "" >"$signer_notes"
   echo "Signed with keyset in $(readlink -f "${KEY_DIR}") ." >>"${signer_notes}"
+  # record recovery_key
+  key="${KEY_DIR}/recovery_key.vbpubk"
+  sha1=$(vbutil_key --unpack "${key}" | grep sha1sum | cut -d" " -f9)
+  echo "recovery: ${sha1}" >>"${signer_notes}"
+  # record root_key(s)
   if [[ -d "${shellball_keyset_dir}"  ]]; then
     echo "List sha1sum of all loem/model's signatures:" >>"${signer_notes}"
     for key in "${shellball_keyset_dir}"/rootkey.*; do
