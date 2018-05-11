@@ -172,7 +172,7 @@ VbError_t VbExTpmOpen(void)
 	/* Retry TPM opens on EBUSY failures. */
 	for (retries = 0; retries < OPEN_RETRY_MAX_NUM; ++ retries) {
 		errno = 0;
-		tpm_fd = open(device_path, O_RDWR);
+		tpm_fd = open(device_path, O_RDWR | O_CLOEXEC);
 		saved_errno = errno;
 		if (tpm_fd >= 0)
 			return VBERROR_SUCCESS;
