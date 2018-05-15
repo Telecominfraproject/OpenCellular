@@ -296,29 +296,32 @@ package body HW.GFX.GMA.Connectors.DDI is
 
    ----------------------------------------------------------------------------
 
-   procedure Program_Buffer_Translations (Port : Digital_Port)
-   is
-      Buffer_Translations : Buf_Trans_Array;
-   begin
-      Buffers.Translations (Buffer_Translations, Port);
-      for I in Buf_Trans_Range loop
-         Registers.Write
-           (Register => DDI_Regs (Port).BUF_TRANS (I),
-            Value    => Buffer_Translations (I));
-      end loop;
-   end Program_Buffer_Translations;
-
    procedure Initialize
    is
       Iboost_Value : constant Word32 := 1;
    begin
       if Config.Has_DDI_Buffer_Trans then
-         for Port in Digital_Port range DIGI_A .. Config.Last_Digital_Port loop
-            Program_Buffer_Translations (Port);
-         end loop;
-         if Config.Is_FDI_Port (Analog) then
-            Program_Buffer_Translations (DIGI_E);
-         end if;
+         declare
+            procedure Program_Buffer_Translations (Port : Digital_Port)
+            is
+               Buffer_Translations : Buf_Trans_Array;
+            begin
+               Buffers.Translations (Buffer_Translations, Port);
+               for I in Buf_Trans_Range loop
+                  Registers.Write
+                    (Register => DDI_Regs (Port).BUF_TRANS (I),
+                     Value    => Buffer_Translations (I));
+               end loop;
+            end Program_Buffer_Translations;
+         begin
+            for Port in Digital_Port range DIGI_A .. Config.Last_Digital_Port
+            loop
+               Program_Buffer_Translations (Port);
+            end loop;
+            if Config.Is_FDI_Port (Analog) then
+               Program_Buffer_Translations (DIGI_E);
+            end if;
+         end;
       end if;
 
       if Config.Has_Iboost_Config then
