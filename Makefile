@@ -840,8 +840,13 @@ _dir_create := $(foreach d, \
 	$(shell [ -d ${BUILD}/${d} ] || mkdir -p ${BUILD}/${d}))
 
 # Host targets
+
+.PHONY: host_tools
+host_tools: utils futil tests
+
 .PHONY: host_stuff
-host_stuff: utillib hostlib cgpt utils futil tests
+host_stuff: utillib hostlib cgpt \
+	$(if ${NO_BUILD_TOOLS},,host_tools)
 
 .PHONY: clean
 clean:
