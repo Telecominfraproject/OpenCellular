@@ -17,7 +17,7 @@ with HW.MMIO_Range;
 
 pragma Elaborate_All (HW.MMIO_Range);
 
-private generic
+generic
    Dev : Address := (0, 0, 0);
 package HW.PCI.MMConf
 with
