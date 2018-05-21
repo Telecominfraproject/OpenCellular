@@ -33,6 +33,7 @@
 /* Retry failed open()s for 5 seconds in 10ms polling intervals. */
 #define OPEN_RETRY_DELAY_NS (10 * 1000 * 1000)
 #define OPEN_RETRY_MAX_NUM  500
+#define COMM_RETRY_MAX_NUM  3
 
 /* TODO: these functions should pass errors back rather than returning void */
 /* TODO: if the only callers to these are just wrappers, should just
@@ -90,20 +91,57 @@ static VbError_t TpmExecute(const uint8_t *in, const uint32_t in_len,
 			       "the TPM device was not opened.  " \
 			       "Forgot to call TlclLibInit?\n");
 	} else {
-		int n = write(tpm_fd, in, in_len);
-		if (n != in_len) {
-			return DoError(TPM_E_WRITE_FAILURE,
-				       "write failure to TPM device: %s\n",
-				       strerror(errno));
+		int n;
+		int retries = 0;
+		int first_errno = 0;
+
+		/* Write command. Retry in case of communication errors.
+		 */
+		for ( ; retries < COMM_RETRY_MAX_NUM; ++retries) {
+			n = write(tpm_fd, in, in_len);
+			if (n >= 0) {
+				break;
+			}
+			if (retries == 0) {
+				first_errno = errno;
+			}
+			VB2_DEBUG("TPM: write attempt %d failed: %s\n",
+				  retries + 1, strerror(errno));
 		}
-		n = read(tpm_fd, response, sizeof(response));
+		if (n < 0) {
+			return DoError(TPM_E_WRITE_FAILURE,
+				       "write failure to TPM device: %s "
+				       "(first error %d)\n",
+				       strerror(errno), first_errno);
+		} else if (n != in_len) {
+			return DoError(TPM_E_WRITE_FAILURE,
+				       "bad write size to TPM device: %d vs %u "
+				       "(%d retries, first error %d)\n",
+				       n, in_len, retries, first_errno);
+		}
+
+		/* Read response. Retry in case of communication errors.
+		 */
+		for (retries = 0, first_errno = 0;
+		     retries < COMM_RETRY_MAX_NUM; ++retries) {
+			n = read(tpm_fd, response, sizeof(response));
+			if (n >= 0) {
+				break;
+			}
+			if (retries == 0) {
+				first_errno = errno;
+			}
+			VB2_DEBUG("TPM: read attempt %d failed: %s\n",
+				  retries + 1, strerror(errno));
+		}
 		if (n == 0) {
 			return DoError(TPM_E_READ_EMPTY,
 				       "null read from TPM device\n");
 		} else if (n < 0) {
 			return DoError(TPM_E_READ_FAILURE,
-				       "read failure from TPM device: %s\n",
-				       strerror(errno));
+				       "read failure from TPM device: %s "
+				       "(first error %d)\n",
+				       strerror(errno), first_errno);
 		} else {
 			if (n > *pout_len) {
 				return DoError(TPM_E_RESPONSE_TOO_LARGE,
