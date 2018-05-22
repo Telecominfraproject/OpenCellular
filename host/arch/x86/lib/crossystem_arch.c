@@ -399,6 +399,8 @@ static const char* VbReadMainFwType(char* dest, int size)
 	/* Try reading type from BINF.3 */
 	if (ReadFileInt(ACPI_BINF_PATH ".3", &value) == 0) {
 		switch(value) {
+			case BINF3_LEGACY:
+				return StrCopy(dest, "legacy", size);
 			case BINF3_NETBOOT:
 				return StrCopy(dest, "netboot", size);
 			case BINF3_RECOVERY:
