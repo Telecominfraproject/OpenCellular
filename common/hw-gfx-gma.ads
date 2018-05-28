@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2017 secunet Security Networks AG
+-- Copyright (C) 2015-2018 secunet Security Networks AG
 -- Copyright (C) 2017 Nico Huber <nico.h@gmx.de>
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -129,6 +129,13 @@ private
    -- State tracking for the currently configured pipes
 
    Cur_Configs : Pipe_Configs with Part_Of => State;
+
+   function Requires_Scaling (FB : Framebuffer_Type; Mode : Mode_Type)
+      return Boolean is
+     (Rotated_Width (FB) /= Mode.H_Visible or
+      Rotated_Height (FB) /= Mode.V_Visible);
+   function Requires_Scaling (Pipe_Cfg : Pipe_Config) return Boolean is
+     (Requires_Scaling (Pipe_Cfg.Framebuffer, Pipe_Cfg.Mode));
 
    ----------------------------------------------------------------------------
    -- Internal representation of a single pipe's configuration

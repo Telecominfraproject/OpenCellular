@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2014-2016 secunet Security Networks AG
+-- Copyright (C) 2014-2018 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -185,12 +185,19 @@ package body HW.GFX.GMA.Power_And_Clocks_Haswell is
       end if;
    end PDW_On;
 
-   function Need_PDW (Checked_Configs : Pipe_Configs) return Boolean is
+   function Need_PDW (Checked_Configs : Pipe_Configs) return Boolean
+   is
+      Primary : Pipe_Config renames Checked_Configs (GMA.Primary);
    begin
-      return (Checked_Configs (Primary).Port /= Disabled and
-              Checked_Configs (Primary).Port /= Internal) or
-             Checked_Configs (Secondary).Port /= Disabled or
-             Checked_Configs (Tertiary).Port /= Disabled;
+      return
+         (Config.Use_PDW_For_EDP_Scaling and then
+          (Primary.Port = Internal and Requires_Scaling (Primary)))
+         or
+         (Primary.Port /= Disabled and Primary.Port /= Internal)
+         or
+         Checked_Configs (Secondary).Port /= Disabled
+         or
+         Checked_Configs (Tertiary).Port /= Disabled;
    end Need_PDW;
 
    ----------------------------------------------------------------------------

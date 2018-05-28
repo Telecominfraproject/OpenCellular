@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2014-2017 secunet Security Networks AG
+-- Copyright (C) 2014-2018 secunet Security Networks AG
 -- Copyright (C) 2017 Nico Huber <nico.h@gmx.de>
 --
 -- This program is free software; you can redistribute it and/or modify
@@ -231,6 +231,17 @@ is
             Power_Changed := True;
          end if;
       end Update_Power;
+
+      function Full_Update (Cur_Config, New_Config : Pipe_Config) return Boolean
+      is
+      begin
+         return
+            Cur_Config.Port /= New_Config.Port or else
+            Cur_Config.Mode /= New_Config.Mode or else
+            (Config.Use_PDW_For_EDP_Scaling and then
+             (Cur_Config.Port = Internal and
+              Requires_Scaling (Cur_Config) /= Requires_Scaling (New_Config)));
+      end Full_Update;
    begin
       Old_Configs := Cur_Configs;
 
@@ -244,10 +255,7 @@ is
             if Cur_Config.Port /= Disabled then
                Check_HPD (Cur_Config.Port, Unplug_Detected);
 
-               if Cur_Config.Port /= New_Config.Port or
-                  Cur_Config.Mode /= New_Config.Mode or
-                  Unplug_Detected
-               then
+               if Full_Update (Cur_Config, New_Config) or Unplug_Detected then
                   Disable_Output (Pipe, Cur_Config);
                   Cur_Config.Port := Disabled;
                   Update_Power;
@@ -263,9 +271,8 @@ is
             Cur_Config : Pipe_Config renames Cur_Configs (Pipe);
             New_Config : Pipe_Config renames Configs (Pipe);
          begin
-            if New_Config.Port /= Disabled and then
-               (Cur_Config.Port /= New_Config.Port or
-                Cur_Config.Mode /= New_Config.Mode)
+            if New_Config.Port /= Disabled and
+               Full_Update (Cur_Config, New_Config)
             then
                if Wait_For_HPD (New_Config.Port) then
                   Check_HPD (New_Config.Port, Success);

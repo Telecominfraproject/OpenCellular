@@ -514,9 +514,7 @@ package body HW.GFX.GMA.Pipe_Setup is
          Rotated_Height (Framebuffer) <= Mode.V_Visible
    is
    begin
-      if Rotated_Width (Framebuffer) /= Mode.H_Visible or
-         Rotated_Height (Framebuffer) /= Mode.V_Visible
-      then
+      if Requires_Scaling (Framebuffer, Mode) then
          if Config.Has_Plane_Control then
             Setup_Skylake_Pipe_Scaler (Controller, Mode, Framebuffer);
          elsif Config.Has_GMCH_PFIT_CONTROL then
