@@ -556,7 +556,11 @@ package body HW.GFX.GMA.Pipe_Setup is
 
       Setup_FB (Pipe, Port_Cfg.Mode, Framebuffer);
 
-      Transcoder.On (Pipe, Port_Cfg, Framebuffer.BPC /= Port_Cfg.Mode.BPC);
+      Transcoder.On
+        (Pipe     => Pipe,
+         Port_Cfg => Port_Cfg,
+         Dither   => Framebuffer.BPC /= Port_Cfg.Mode.BPC,
+         Scale    => Requires_Scaling (Framebuffer, Port_Cfg.Mode));
    end On;
 
    ----------------------------------------------------------------------------

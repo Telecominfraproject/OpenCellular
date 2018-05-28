@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2018 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -76,11 +76,6 @@ package body HW.GFX.GMA.Transcoder is
    DDI_FUNC_CTL_MODE_SELECT_DP_SST     : constant := 2 * 2 ** 24;
    DDI_FUNC_CTL_MODE_SELECT_DP_MST     : constant := 3 * 2 ** 24;
    DDI_FUNC_CTL_MODE_SELECT_FDI        : constant := 4 * 2 ** 24;
-   DDI_FUNC_CTL_EDP_SELECT_MASK        : constant := 7 * 2 ** 12;
-   DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON   : constant := 0 * 2 ** 12;
-   DDI_FUNC_CTL_EDP_SELECT_A           : constant := 4 * 2 ** 12;
-   DDI_FUNC_CTL_EDP_SELECT_B           : constant := 5 * 2 ** 12;
-   DDI_FUNC_CTL_EDP_SELECT_C           : constant := 6 * 2 ** 12;
 
    type DDI_Select_Array is array (Digital_Port) of Word32;
    DDI_FUNC_CTL_DDI_SELECT : constant DDI_Select_Array :=
@@ -105,16 +100,12 @@ package body HW.GFX.GMA.Transcoder is
      (False => 0 * 2 ** 16,
       True  => 1 * 2 ** 16);
 
-   type EDP_Select_Array is array (Pipe_Index) of Word32;
-   DDI_FUNC_CTL_EDP_SELECT : constant EDP_Select_Array :=
-     (Primary     => DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON,  -- we never use
-                                                         -- panel fitter
-      Secondary   => DDI_FUNC_CTL_EDP_SELECT_B,
-      Tertiary    => DDI_FUNC_CTL_EDP_SELECT_C);
-   DDI_FUNC_CTL_EDP_SELECT_ONOFF : constant EDP_Select_Array :=
-     (Primary     => DDI_FUNC_CTL_EDP_SELECT_A,
-      Secondary   => DDI_FUNC_CTL_EDP_SELECT_B,
-      Tertiary    => DDI_FUNC_CTL_EDP_SELECT_C);
+   DDI_FUNC_CTL_EDP_SELECT_MASK        : constant := 7 * 2 ** 12;
+   DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON   : constant := 0 * 2 ** 12;
+   DDI_FUNC_CTL_EDP_SELECT : constant array (Pipe_Index) of Word32 :=
+     (Primary     => 4 * 2 ** 12,
+      Secondary   => 5 * 2 ** 12,
+      Tertiary    => 6 * 2 ** 12);
 
    type Port_Width_Array is array (DP_Lane_Count) of Word32;
    DDI_FUNC_CTL_PORT_WIDTH : constant Port_Width_Array :=
@@ -245,10 +236,16 @@ package body HW.GFX.GMA.Transcoder is
    procedure On
      (Pipe     : Pipe_Index;
       Port_Cfg : Port_Config;
-      Dither   : Boolean)
+      Dither   : Boolean;
+      Scale    : Boolean)
    is
       Trans : Transcoder_Regs renames
                Transcoders (Get_Idx (Pipe, Port_Cfg.Port));
+      EDP_Select : constant Word32 :=
+        (if Pipe = Primary and not Scale then
+            DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON
+         else
+            DDI_FUNC_CTL_EDP_SELECT (Pipe));
    begin
       if Config.Has_Pipe_DDI_Func and Port_Cfg.Port in Digital_Port then
          Registers.Write
@@ -259,7 +256,7 @@ package body HW.GFX.GMA.Transcoder is
                         DDI_FUNC_CTL_BPC (Port_Cfg.Mode.BPC) or
                         DDI_FUNC_CTL_VSYNC (Port_Cfg.Mode.V_Sync_Active_High) or
                         DDI_FUNC_CTL_HSYNC (Port_Cfg.Mode.H_Sync_Active_High) or
-                        DDI_FUNC_CTL_EDP_SELECT (Pipe) or
+                        EDP_Select or
                         DDI_FUNC_CTL_PORT_WIDTH (Port_Cfg.DP.Lane_Count));
       end if;
 
@@ -308,7 +305,7 @@ package body HW.GFX.GMA.Transcoder is
 
          if (Pipe = Primary and
              DDI_Func_Ctl = DDI_FUNC_CTL_EDP_SELECT_ALWAYS_ON) or
-            DDI_Func_Ctl = DDI_FUNC_CTL_EDP_SELECT_ONOFF (Pipe)
+            DDI_Func_Ctl = DDI_FUNC_CTL_EDP_SELECT (Pipe)
          then
             Trans_Off (Transcoders (Trans_EDP));
          end if;

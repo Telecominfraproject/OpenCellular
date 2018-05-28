@@ -1,5 +1,5 @@
 --
--- Copyright (C) 2015-2016 secunet Security Networks AG
+-- Copyright (C) 2015-2018 secunet Security Networks AG
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -19,7 +19,11 @@ private package HW.GFX.GMA.Transcoder
 is
 
    procedure Setup (Pipe : Pipe_Index; Port_Cfg : Port_Config);
-   procedure On (Pipe : Pipe_Index; Port_Cfg : Port_Config; Dither : Boolean);
+   procedure On
+     (Pipe     : Pipe_Index;
+      Port_Cfg : Port_Config;
+      Dither   : Boolean;
+      Scale    : Boolean);
 
    procedure Off (Pipe : Pipe_Index);
    procedure Clk_Off (Pipe : Pipe_Index);
