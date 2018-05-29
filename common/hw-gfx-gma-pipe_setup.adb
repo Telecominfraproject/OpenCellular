@@ -27,14 +27,22 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    DSPCNTR_ENABLE                      : constant :=  1 * 2 ** 31;
    DSPCNTR_GAMMA_CORRECTION            : constant :=  1 * 2 ** 30;
-   DSPCNTR_DISABLE_TRICKLE_FEED        : constant :=  1 * 2 ** 14;
    DSPCNTR_FORMAT_MASK                 : constant := 15 * 2 ** 26;
+   DSPCNTR_DISABLE_TRICKLE_FEED        : constant :=  1 * 2 ** 14;
+   DSPCNTR_TILED_SURFACE_LINEAR        : constant :=  0 * 2 ** 10;
+   DSPCNTR_TILED_SURFACE_X_TILED       : constant :=  1 * 2 ** 10;
+
+   DSPCNTR_TILED_SURFACE : constant array (Tiling_Type) of Word32 :=
+     (Linear   => DSPCNTR_TILED_SURFACE_LINEAR,
+      X_Tiled  => DSPCNTR_TILED_SURFACE_X_TILED,
+      Y_Tiled  => 0); -- unsupported
 
    DSPCNTR_MASK : constant Word32 :=
       DSPCNTR_ENABLE or
       DSPCNTR_GAMMA_CORRECTION or
       DSPCNTR_FORMAT_MASK or
-      DSPCNTR_DISABLE_TRICKLE_FEED;
+      DSPCNTR_DISABLE_TRICKLE_FEED or
+      DSPCNTR_TILED_SURFACE_X_TILED;
 
    PLANE_CTL_PLANE_ENABLE              : constant := 1 * 2 ** 31;
    PLANE_CTL_SRC_PIX_FMT_RGB_32B_8888  : constant := 4 * 2 ** 24;
@@ -241,17 +249,20 @@ package body HW.GFX.GMA.Pipe_Setup is
          Registers.Unset_And_Set_Mask
             (Register   => Controller.DSPCNTR,
              Mask_Unset => DSPCNTR_MASK,
-             Mask_Set   => PRI);
+             Mask_Set   => PRI or DSPCNTR_TILED_SURFACE (FB.Tiling));
 
          Registers.Write
            (Controller.DSPSTRIDE, Word32 (Pixel_To_Bytes (FB.Stride, FB)));
-         if Config.Has_DSP_Linoff then
+         if Config.Has_DSP_Linoff and then FB.Tiling = Linear then
             Registers.Write
               (Register => Controller.DSPLINOFF,
                Value    => Word32 (Pixel_To_Bytes
                              (FB.Start_Y * FB.Stride + FB.Start_X, FB)));
             Registers.Write (Controller.DSPTILEOFF, 0);
          else
+            if Config.Has_DSP_Linoff then
+               Registers.Write (Controller.DSPLINOFF, 0);
+            end if;
             Registers.Write
               (Register => Controller.DSPTILEOFF,
                Value    => Shift_Left (Word32 (FB.Start_Y), 16) or

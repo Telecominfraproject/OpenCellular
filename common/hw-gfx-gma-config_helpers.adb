@@ -200,7 +200,7 @@ is
       -- Only 32bpp RGB (ignored for VGA plane)
       -- Stride must be big enough and a multiple of 64 bytes or the tile size
       -- (ignored for VGA plane)
-      -- Tiling and rotation is only supported on newer generations (with
+      -- Y-Tiling and rotation are only supported on newer generations (with
       -- Plane_Control)
       -- 90 degree rotations are only supported with Y-tiling
       return
@@ -213,7 +213,7 @@ is
          (FB.Offset = VGA_PLANE_FRAMEBUFFER_OFFSET or
           (FB.BPC = 8 and Valid_Stride (FB) and
            (Config.Has_Plane_Control or
-            (FB.Tiling = Linear and FB.Rotation = No_Rotation)) and
+            (FB.Tiling /= Y_Tiled and FB.Rotation = No_Rotation)) and
            (FB.Tiling = Y_Tiled or not Rotation_90 (FB))));
    end Validate_Config;
 
