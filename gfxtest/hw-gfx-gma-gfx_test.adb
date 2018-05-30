@@ -19,9 +19,9 @@ is
    Secondary_Delay_MS   : constant := 4_000;
    Seed                 : constant := 12345;
 
-   package Rand_P is new Ada.Numerics.Discrete_Random (Pos_Type);
+   package Rand_P is new Ada.Numerics.Discrete_Random (Position_Type);
    Gen : Rand_P.Generator;
-   function Rand return Pos_Type is (Rand_P.Random (Gen));
+   function Rand return Position_Type is (Rand_P.Random (Gen));
 
    Start_X : constant := 0;
    Start_Y : constant := 0;
@@ -384,7 +384,7 @@ is
             declare
                New_Pipes : GMA.Pipe_Configs := Pipes;
 
-               function Rand_Div (Num : Pos_Type) return Pos_Type is
+               function Rand_Div (Num : Position_Type) return Position_Type is
                  (case Rand mod 4 is
                      when 3 => Rand mod Num / 3,
                      when 2 => Rand mod Num / 2,
@@ -404,9 +404,9 @@ is
                         Height : constant Height_Type :=
                            Pipes (Pipe).Framebuffer.Height;
                      begin
-                        New_FB.Start_X := Pos_Type'Min
+                        New_FB.Start_X := Position_Type'Min
                           (Width - 320, Rand_Div (Width));
-                        New_FB.Start_Y := Pos_Type'Min
+                        New_FB.Start_Y := Position_Type'Min
                           (Height - 320, Rand_Div (Height));
                         New_FB.Width := Width_Type'Max
                           (320, Width - New_FB.Start_X - Rand_Div (Width));

@@ -25,9 +25,9 @@ package HW.GFX is
    subtype Pos_Pixel_Type is Pixel_Type range 1 .. Pixel_Type'Last;
 
    -- Allow same range for width and height (for rotated framebuffers)
-   subtype Width_Type  is Pos32 range 1 .. 8192;
-   subtype Height_Type is Pos32 range 1 .. 8192;
-   subtype Pos_Type    is Int32 range 0 .. 4095;
+   subtype Width_Type      is Pos32 range 1 .. 8192;
+   subtype Height_Type     is Pos32 range 1 .. 8192;
+   subtype Position_Type   is Int32 range 0 .. 4095;
 
    Auto_BPC : constant := 5;
    subtype BPC_Type    is Int64 range Auto_BPC .. 16;
@@ -41,8 +41,8 @@ package HW.GFX is
    record
       Width    : Width_Type;
       Height   : Height_Type;
-      Start_X  : Pos_Type;
-      Start_Y  : Pos_Type;
+      Start_X  : Position_Type;
+      Start_Y  : Position_Type;
       BPC      : BPC_Type;
       Stride   : Width_Type;
       V_Stride : Height_Type;
