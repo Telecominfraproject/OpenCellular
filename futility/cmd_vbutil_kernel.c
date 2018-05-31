@@ -299,7 +299,8 @@ static int do_vbutil_kernel(int argc, char *argv[])
 			if ((!strncasecmp(optarg, "x86", 3)) ||
 			    (!strcasecmp(optarg, "amd64")))
 				arch = ARCH_X86;
-			else if ((!strcasecmp(optarg, "arm")) ||
+			/* check the first 3 characters to also detect arm64 */
+			else if ((!strncasecmp(optarg, "arm", 3)) ||
 				 (!strcasecmp(optarg, "aarch64")))
 				arch = ARCH_ARM;
 			else if (!strcasecmp(optarg, "mips"))
