@@ -393,6 +393,14 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
+   function Scale (Val, Max, Num, Denom : Pos32)
+      return Pos32 is ((Val * Num) / Denom)
+   with
+      Pre =>
+         Val * Num <= Int32'Last and Denom <= Num and
+         Val * Num < Max * Denom,
+      Post => Scale'Result < Max;
+
    procedure Scale_Keep_Aspect
      (Width       :    out Pos32;
       Height      :    out Pos32;
@@ -411,14 +419,17 @@ package body HW.GFX.GMA.Pipe_Setup is
       Src_Width : constant Pos32 := Pos32 (Rotated_Width (Framebuffer));
       Src_Height : constant Pos32 := Pos32 (Rotated_Height (Framebuffer));
    begin
-      if (Max_Width * Src_Height) / Src_Width <= Max_Height then
-         Width  := Max_Width;
-         Height := (Max_Width * Src_Height) / Src_Width;
-      else
-         Height := Max_Height;
-         Width  := Pos32'Min (Max_Width,  -- could prove, it's <= Max_Width
-            (Max_Height * Src_Width) / Src_Height);
-      end if;
+      case Scaling_Type (Src_Width, Src_Height, Max_Width, Max_Height) is
+         when Letterbox =>
+            Width  := Max_Width;
+            Height := Scale (Src_Height, Max_Height, Max_Width, Src_Width);
+         when Pillarbox =>
+            Width  := Scale (Src_Width, Max_Width, Max_Height, Src_Height);
+            Height := Max_Height;
+         when Uniform =>
+            Width  := Max_Width;
+            Height := Max_Height;
+      end case;
    end Scale_Keep_Aspect;
 
    procedure Setup_Skylake_Pipe_Scaler

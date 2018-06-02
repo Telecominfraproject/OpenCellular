@@ -198,17 +198,22 @@ private
       Rotated_Height (FB) /= Mode.V_Visible);
 
    type Scaling_Aspect is (Uniform, Letterbox, Pillarbox);
-   function Scaling_Type (FB : Framebuffer_Type; Mode : Mode_Type)
+   function Scaling_Type (Width, Height, Scaled_Width, Scaled_Height : Pos32)
       return Scaling_Aspect is
-     (if Pos32 (Mode.H_Visible) * Pos32 (Rotated_Height (FB)) <
-         Pos32 (Mode.V_Visible) * Pos32 (Rotated_Width (FB))
-      then
-         Letterbox
-      elsif Pos32 (Mode.H_Visible) * Pos32 (Rotated_Height (FB)) >
-            Pos32 (Mode.V_Visible) * Pos32 (Rotated_Width (FB))
-      then
-         Pillarbox
-      else
-         Uniform);
+     (if    Scaled_Width * Height < Scaled_Height * Width   then Letterbox
+      elsif Scaled_Width * Height > Scaled_Height * Width   then Pillarbox
+      else                                                       Uniform)
+   with
+      Pre =>
+         Width <= Pos32 (Pos16'Last) and
+         Height <= Pos32 (Pos16'Last) and
+         Scaled_Width <= Pos32 (Pos16'Last) and
+         Scaled_Height <= Pos32 (Pos16'Last);
+   function Scaling_Type (FB : Framebuffer_Type; Mode : Mode_Type)
+      return Scaling_Aspect is (Scaling_Type
+     (Width          => Pos32 (Rotated_Width (FB)),
+      Height         => Pos32 (Rotated_Height (FB)),
+      Scaled_Width   => Pos32 (Mode.H_Visible),
+      Scaled_Height  => Pos32 (Mode.V_Visible)));
 
 end HW.GFX;
