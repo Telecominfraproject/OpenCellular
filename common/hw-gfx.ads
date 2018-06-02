@@ -51,19 +51,6 @@ package HW.GFX is
       Offset   : Word32;
    end record;
 
-   function Rotation_90 (FB : Framebuffer_Type) return Boolean is
-     (FB.Rotation = Rotated_90 or FB.Rotation = Rotated_270);
-
-   function Rotated_Width (FB : Framebuffer_Type) return Pos16 is
-     (if Rotation_90 (FB) then Pos16 (FB.Height) else Pos16 (FB.Width));
-   function Rotated_Height (FB : Framebuffer_Type) return Pos16 is
-     (if Rotation_90 (FB) then Pos16 (FB.Width) else Pos16 (FB.Height));
-
-   function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
-      return Int32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
-   function FB_Size (FB : Framebuffer_Type) return Pos32 is
-     (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
-
    Default_FB : constant Framebuffer_Type := Framebuffer_Type'
      (Width    => 1,
       Height   => 1,
@@ -189,5 +176,20 @@ package HW.GFX is
 
    Invalid_Mode : constant Mode_Type := Mode_Type'
       (Frequency_Type'First, 1, 1, 1, 1, 1, 1, 1, 1, False, False, Auto_BPC);
+
+private
+
+   function Rotation_90 (FB : Framebuffer_Type) return Boolean is
+     (FB.Rotation = Rotated_90 or FB.Rotation = Rotated_270);
+
+   function Rotated_Width (FB : Framebuffer_Type) return Pos16 is
+     (if Rotation_90 (FB) then Pos16 (FB.Height) else Pos16 (FB.Width));
+   function Rotated_Height (FB : Framebuffer_Type) return Pos16 is
+     (if Rotation_90 (FB) then Pos16 (FB.Width) else Pos16 (FB.Height));
+
+   function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
+      return Int32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
+   function FB_Size (FB : Framebuffer_Type) return Pos32 is
+     (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
 
 end HW.GFX;
