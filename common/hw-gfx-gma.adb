@@ -237,11 +237,17 @@ is
       is
       begin
          return
-            Cur_Config.Port /= New_Config.Port or else
-            Cur_Config.Mode /= New_Config.Mode or else
+            Cur_Config.Port /= New_Config.Port
+            or else
+            Cur_Config.Mode /= New_Config.Mode
+            or else
             (Config.Use_PDW_For_EDP_Scaling and then
              (Cur_Config.Port = Internal and
-              Requires_Scaling (Cur_Config) /= Requires_Scaling (New_Config)));
+              Requires_Scaling (Cur_Config) /= Requires_Scaling (New_Config)))
+            or else
+            (Config.Has_GMCH_PFIT_CONTROL and then
+             (Requires_Scaling (Cur_Config) /= Requires_Scaling (New_Config) or
+              Scaling_Type (Cur_Config) /= Scaling_Type (New_Config)));
       end Full_Update;
    begin
       Old_Configs := Cur_Configs;

@@ -120,6 +120,11 @@ package body HW.GFX.GMA.Pipe_Setup is
    GMCH_PFIT_CONTROL_SELECT_MASK       : constant := 3 * 2 ** 29;
    GMCH_PFIT_CONTROL_SELECT_PIPE_A     : constant := 0 * 2 ** 29;
    GMCH_PFIT_CONTROL_SELECT_PIPE_B     : constant := 1 * 2 ** 29;
+   GMCH_PFIT_CONTROL_SCALING_MASK      : constant := 3 * 2 ** 26;
+   GMCH_PFIT_CONTROL_SCALING : constant array (Scaling_Aspect) of Word32 :=
+     (Uniform     => 0 * 2 ** 26,
+      Pillarbox   => 2 * 2 ** 26,
+      Letterbox   => 3 * 2 ** 26);
 
    VGACNTRL_REG : constant Registers.Registers_Index :=
      (if Config.Has_GMCH_VGACNTRL then
@@ -532,13 +537,19 @@ package body HW.GFX.GMA.Pipe_Setup is
    -- Check in Enable_Output if panel fitter has already been enabled
    -- Pass this information to Validate_Config
    procedure Setup_Gmch_Panel_Fitter
-     (Controller  : in     Controller_Type)
+     (Controller  : in     Controller_Type;
+      Mode        : in     HW.GFX.Mode_Type;
+      Framebuffer : in     HW.GFX.Framebuffer_Type)
    is
       PF_Ctrl_Pipe_Sel : constant Word32 :=
            (case Controller.Pipe is
                when Primary   => GMCH_PFIT_CONTROL_SELECT_PIPE_A,
                when Secondary => GMCH_PFIT_CONTROL_SELECT_PIPE_B,
                when others    => 0);
+
+      PF_Ctrl_Scaling : constant Word32 :=
+         GMCH_PFIT_CONTROL_SCALING (Scaling_Type (Framebuffer, Mode));
+
       In_Use : Boolean;
    begin
       Registers.Is_Set_Mask
@@ -549,7 +560,7 @@ package body HW.GFX.GMA.Pipe_Setup is
       if not In_Use then
          Registers.Write
            (Register => Registers.GMCH_PFIT_CONTROL,
-            Value    => PF_CTRL_ENABLE or PF_Ctrl_Pipe_Sel);
+            Value    => PF_CTRL_ENABLE or PF_Ctrl_Pipe_Sel or PF_Ctrl_Scaling);
       else
          Debug.Put_Line ("GMCH Pannel fitter already in use, skipping...");
       end if;
@@ -602,7 +613,7 @@ package body HW.GFX.GMA.Pipe_Setup is
          if Config.Has_Plane_Control then
             Setup_Skylake_Pipe_Scaler (Controller, Mode, Framebuffer);
          elsif Config.Has_GMCH_PFIT_CONTROL then
-            Setup_Gmch_Panel_Fitter (Controller);
+            Setup_Gmch_Panel_Fitter (Controller, Mode, Framebuffer);
          else
             Setup_Ironlake_Panel_Fitter (Controller, Mode, Framebuffer);
          end if;
