@@ -192,4 +192,9 @@ private
    function FB_Size (FB : Framebuffer_Type) return Pos32 is
      (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
 
+   function Requires_Scaling (FB : Framebuffer_Type; Mode : Mode_Type)
+      return Boolean is
+     (Rotated_Width (FB) /= Mode.H_Visible or
+      Rotated_Height (FB) /= Mode.V_Visible);
+
 end HW.GFX;
