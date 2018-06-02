@@ -858,28 +858,28 @@ is
          Debug.Put_Int64 (Configs (Pipe).Mode.Dotclock);
          Debug.Put_Line (",");
          Debug.Put ("         H_Visible          => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.H_Visible);
+         Debug.Put_Int32 (Configs (Pipe).Mode.H_Visible);
          Debug.Put_Line (",");
          Debug.Put ("         H_Sync_Begin       => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.H_Sync_Begin);
+         Debug.Put_Int32 (Configs (Pipe).Mode.H_Sync_Begin);
          Debug.Put_Line (",");
          Debug.Put ("         H_Sync_End         => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.H_Sync_End);
+         Debug.Put_Int32 (Configs (Pipe).Mode.H_Sync_End);
          Debug.Put_Line (",");
          Debug.Put ("         H_Total            => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.H_Total);
+         Debug.Put_Int32 (Configs (Pipe).Mode.H_Total);
          Debug.Put_Line (",");
          Debug.Put ("         V_Visible          => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.V_Visible);
+         Debug.Put_Int32 (Configs (Pipe).Mode.V_Visible);
          Debug.Put_Line (",");
          Debug.Put ("         V_Sync_Begin       => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.V_Sync_Begin);
+         Debug.Put_Int32 (Configs (Pipe).Mode.V_Sync_Begin);
          Debug.Put_Line (",");
          Debug.Put ("         V_Sync_End         => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.V_Sync_End);
+         Debug.Put_Int32 (Configs (Pipe).Mode.V_Sync_End);
          Debug.Put_Line (",");
          Debug.Put ("         V_Total            => ");
-         Debug.Put_Int16 (Configs (Pipe).Mode.V_Total);
+         Debug.Put_Int32 (Configs (Pipe).Mode.V_Total);
          Debug.Put_Line (",");
          Debug.Put_Line ("         H_Sync_Active_High => " &
            (if Configs (Pipe).Mode.H_Sync_Active_High

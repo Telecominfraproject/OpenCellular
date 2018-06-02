@@ -138,12 +138,7 @@ package body HW.GFX.GMA.Transcoder is
 
    ----------------------------------------------------------------------------
 
-   function Encode (LSW, MSW : Pos16) return Word32
-   is
-      pragma Warnings (GNAT, Off, """Integer_16"" is already use-visible *",
-                       Reason => "Needed for older compiler versions");
-      use type HW.Pos16;
-      pragma Warnings (GNAT, On, """Integer_16"" is already use-visible *");
+   function Encode (LSW, MSW : Pos32) return Word32 is
    begin
       return Shift_Left (Word32 (MSW - 1), 16) or Word32 (LSW - 1);
    end Encode;

@@ -270,14 +270,14 @@ is
    -- Maximum source width with enabled scaler. This only accounts
    -- for simple 1:1 pipe:scaler mappings.
 
-   type Width_Per_Pipe is array (Pipe_Index) of Pos16;
+   type Width_Per_Pipe is array (Pipe_Index) of Width_Type;
 
    Maximum_Scalable_Width : constant Width_Per_Pipe :=
      (case CPU is
          when G45 => -- TODO: Is this true?
            (Primary     => 4096,
             Secondary   => 2048,
-            Tertiary    => Pos16'First),
+            Tertiary    => Pos32'First),
          when Ironlake..Haswell =>
            (Primary     => 4096,
             Secondary   => 2048,

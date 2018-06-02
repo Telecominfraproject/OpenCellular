@@ -153,7 +153,7 @@ package body HW.GFX.GMA.PCH.Transcoder is
    is
       Mode : constant Mode_Type := Port_Cfg.Mode;
 
-      function Encode (LSW, MSW : Pos16) return Word32 is
+      function Encode (LSW, MSW : Pos32) return Word32 is
       begin
          return (Word32 (LSW) - 1) or ((Word32 (MSW) - 1) * 2 ** 16);
       end Encode;

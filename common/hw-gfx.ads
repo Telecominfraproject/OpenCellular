@@ -121,14 +121,14 @@ package HW.GFX is
    type Mode_Type is
    record
       Dotclock             : Frequency_Type;
-      H_Visible            : Pos16;
-      H_Sync_Begin         : Pos16;
-      H_Sync_End           : Pos16;
-      H_Total              : Pos16;
-      V_Visible            : Pos16;
-      V_Sync_Begin         : Pos16;
-      V_Sync_End           : Pos16;
-      V_Total              : Pos16;
+      H_Visible            : Width_Type;
+      H_Sync_Begin         : Width_Type;
+      H_Sync_End           : Width_Type;
+      H_Total              : Width_Type;
+      V_Visible            : Height_Type;
+      V_Sync_Begin         : Height_Type;
+      V_Sync_End           : Height_Type;
+      V_Total              : Height_Type;
       H_Sync_Active_High   : Boolean;
       V_Sync_Active_High   : Boolean;
       BPC                  : BPC_Type;
@@ -182,15 +182,15 @@ private
    function Rotation_90 (FB : Framebuffer_Type) return Boolean is
      (FB.Rotation = Rotated_90 or FB.Rotation = Rotated_270);
 
-   function Rotated_Width (FB : Framebuffer_Type) return Pos16 is
-     (if Rotation_90 (FB) then Pos16 (FB.Height) else Pos16 (FB.Width));
-   function Rotated_Height (FB : Framebuffer_Type) return Pos16 is
-     (if Rotation_90 (FB) then Pos16 (FB.Width) else Pos16 (FB.Height));
+   function Rotated_Width (FB : Framebuffer_Type) return Width_Type is
+     (if Rotation_90 (FB) then FB.Height else FB.Width);
+   function Rotated_Height (FB : Framebuffer_Type) return Height_Type is
+     (if Rotation_90 (FB) then FB.Width else FB.Height);
 
    function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
       return Int32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
-   function FB_Size (FB : Framebuffer_Type) return Pos32 is
-     (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
+   function FB_Size (FB : Framebuffer_Type)
+      return Pos32 is (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
 
    function Requires_Scaling (FB : Framebuffer_Type; Mode : Mode_Type)
       return Boolean is
@@ -198,22 +198,17 @@ private
       Rotated_Height (FB) /= Mode.V_Visible);
 
    type Scaling_Aspect is (Uniform, Letterbox, Pillarbox);
-   function Scaling_Type (Width, Height, Scaled_Width, Scaled_Height : Pos32)
+   function Scaling_Type
+     (Width          : Width_Type;
+      Height         : Height_Type;
+      Scaled_Width   : Width_Type;
+      Scaled_Height  : Height_Type)
       return Scaling_Aspect is
      (if    Scaled_Width * Height < Scaled_Height * Width   then Letterbox
       elsif Scaled_Width * Height > Scaled_Height * Width   then Pillarbox
-      else                                                       Uniform)
-   with
-      Pre =>
-         Width <= Pos32 (Pos16'Last) and
-         Height <= Pos32 (Pos16'Last) and
-         Scaled_Width <= Pos32 (Pos16'Last) and
-         Scaled_Height <= Pos32 (Pos16'Last);
+      else                                                       Uniform);
    function Scaling_Type (FB : Framebuffer_Type; Mode : Mode_Type)
       return Scaling_Aspect is (Scaling_Type
-     (Width          => Pos32 (Rotated_Width (FB)),
-      Height         => Pos32 (Rotated_Height (FB)),
-      Scaled_Width   => Pos32 (Mode.H_Visible),
-      Scaled_Height  => Pos32 (Mode.V_Visible)));
+     (Rotated_Width (FB), Rotated_Height (FB), Mode.H_Visible, Mode.V_Visible));
 
 end HW.GFX;

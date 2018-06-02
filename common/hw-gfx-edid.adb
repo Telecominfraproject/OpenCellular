@@ -18,7 +18,6 @@ with HW.Debug;
 with GNAT.Source_Info;
 
 use type HW.Byte;
-use type HW.Pos16;
 use type HW.Word16;
 
 package body HW.GFX.EDID is
@@ -138,14 +137,14 @@ package body HW.GFX.EDID is
    begin
       Mode := Mode_Type'
         (Dotclock             => Pos64 (Read_LE16 (Raw_EDID, Base)) * 10_000,
-         H_Visible            => Pos16 (Read_12 (Base +  2, Base +  4, 4)),
-         H_Sync_Begin         => Pos16 (Read_10 (Base +  8, Base + 11, 2)),
-         H_Sync_End           => Pos16 (Read_10 (Base +  9, Base + 11, 4)),
-         H_Total              => Pos16 (Read_12 (Base +  3, Base +  4, 8)),
-         V_Visible            => Pos16 (Read_12 (Base +  5, Base +  7, 4)),
-         V_Sync_Begin         => Pos16 (Read_6  (Base + 10, 4, Base + 11, 2)),
-         V_Sync_End           => Pos16 (Read_6  (Base + 10, 0, Base + 11, 4)),
-         V_Total              => Pos16 (Read_12 (Base +  6, Base +  7, 8)),
+         H_Visible            => Width_Type (Read_12 (Base +  2, Base +  4, 4)),
+         H_Sync_Begin         => Width_Type (Read_10 (Base +  8, Base + 11, 2)),
+         H_Sync_End           => Width_Type (Read_10 (Base +  9, Base + 11, 4)),
+         H_Total              => Width_Type (Read_12 (Base +  3, Base +  4, 8)),
+         V_Visible            => Height_Type (Read_12 (Base +  5, Base +  7, 4)),
+         V_Sync_Begin         => Height_Type (Read_6  (Base + 10, 4, Base + 11, 2)),
+         V_Sync_End           => Height_Type (Read_6  (Base + 10, 0, Base + 11, 4)),
+         V_Total              => Height_Type (Read_12 (Base +  6, Base +  7, 8)),
          H_Sync_Active_High   => (Raw_EDID (Base + 17) and 16#02#) /= 0,
          V_Sync_Active_High   => (Raw_EDID (Base + 17) and 16#04#) /= 0,
          BPC                  =>

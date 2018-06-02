@@ -146,7 +146,7 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ---------------------------------------------------------------------------
 
-   function Encode (LSW, MSW : Pos16) return Word32 is
+   function Encode (LSW, MSW : Pos32) return Word32 is
    begin
       return Shift_Left (Word32 (MSW) - 1, 16) or (Word32 (LSW) - 1);
    end Encode;
@@ -220,8 +220,8 @@ package body HW.GFX.GMA.Pipe_Setup is
       if Config.Has_Plane_Control then
          declare
             Stride, Offset : Word32;
-            Width : constant Pos16 := Rotated_Width (FB);
-            Height : constant Pos16 := Rotated_Height (FB);
+            Width : constant Width_Type := Rotated_Width (FB);
+            Height : constant Width_Type := Rotated_Height (FB);
          begin
             if Rotation_90 (FB) then
                Stride   := Word32 (FB_Pitch (FB.V_Stride, FB));
@@ -376,7 +376,7 @@ package body HW.GFX.GMA.Pipe_Setup is
    begin
       -- off-screen cursor needs special care
       if X <= -Width or Y <= -Width or
-         X >= Int32 (Rotated_Width (FB)) or Y >= Int32 (Rotated_Height (FB)) or
+         X >= Rotated_Width (FB) or Y >= Rotated_Height (FB) or
          X > Config.Maximum_Cursor_X or Y > Config.Maximum_Cursor_Y
       then
          X := -Width;
@@ -393,31 +393,27 @@ package body HW.GFX.GMA.Pipe_Setup is
 
    ----------------------------------------------------------------------------
 
-   function Scale (Val, Max, Num, Denom : Pos32)
-      return Pos32 is ((Val * Num) / Denom)
+   function Scale (Val, Max, Num, Denom : Width_Type)
+      return Width_Type is ((Val * Num) / Denom)
    with
-      Pre =>
-         Val * Num <= Int32'Last and Denom <= Num and
-         Val * Num < Max * Denom,
+      Pre => Denom <= Num and Val * Num < Max * Denom,
       Post => Scale'Result < Max;
 
    procedure Scale_Keep_Aspect
-     (Width       :    out Pos32;
-      Height      :    out Pos32;
-      Max_Width   : in     Pos32;
-      Max_Height  : in     Pos32;
+     (Width       :    out Width_Type;
+      Height      :    out Height_Type;
+      Max_Width   : in     Width_Type;
+      Max_Height  : in     Height_Type;
       Framebuffer : in     Framebuffer_Type)
    with
       Pre =>
-         Max_Width <= Pos32 (Pos16'Last) and
-         Max_Height <= Pos32 (Pos16'Last) and
-         Pos32 (Rotated_Width (Framebuffer)) <= Max_Width and
-         Pos32 (Rotated_Height (Framebuffer)) <= Max_Height,
+         Rotated_Width (Framebuffer) <= Max_Width and
+         Rotated_Height (Framebuffer) <= Max_Height,
       Post =>
          Width <= Max_Width and Height <= Max_Height
    is
-      Src_Width : constant Pos32 := Pos32 (Rotated_Width (Framebuffer));
-      Src_Height : constant Pos32 := Pos32 (Rotated_Height (Framebuffer));
+      Src_Width : constant Width_Type := Rotated_Width (Framebuffer);
+      Src_Height : constant Height_Type := Rotated_Height (Framebuffer);
    begin
       case Scaling_Type (Src_Width, Src_Height, Max_Width, Max_Height) is
          when Letterbox =>
@@ -448,8 +444,8 @@ package body HW.GFX.GMA.Pipe_Setup is
         (if Controller.PS_CTRL_2 /= Registers.Invalid_Register then
             PS_CTRL_SCALER_MODE_7X5_EXTENDED else 0);
 
-      Width_In    : constant Pos32 := Pos32 (Rotated_Width (Framebuffer));
-      Height_In   : constant Pos32 := Pos32 (Rotated_Height (Framebuffer));
+      Width_In    : constant Width_Type   := Rotated_Width (Framebuffer);
+      Height_In   : constant Height_Type  := Rotated_Height (Framebuffer);
 
       -- We can scale up to 2.99x horizontally:
       Horizontal_Limit : constant Pos32 := (Width_In * 299) / 100;
@@ -464,15 +460,16 @@ package body HW.GFX.GMA.Pipe_Setup is
             else
                299)) / 100;
 
-      Width, Height : Pos32;
+      Width : Width_Type;
+      Height : Height_Type;
    begin
       -- Writes to WIN_SZ arm the PS registers.
 
       Scale_Keep_Aspect
         (Width       => Width,
          Height      => Height,
-         Max_Width   => Pos32'Min (Horizontal_Limit, Pos32 (Mode.H_Visible)),
-         Max_Height  => Pos32'Min (Vertical_Limit, Pos32 (Mode.V_Visible)),
+         Max_Width   => Pos32'Min (Horizontal_Limit, Mode.H_Visible),
+         Max_Height  => Pos32'Min (Vertical_Limit, Mode.V_Visible),
          Framebuffer => Framebuffer);
 
       Registers.Write
@@ -481,8 +478,8 @@ package body HW.GFX.GMA.Pipe_Setup is
       Registers.Write
         (Register => Controller.PS_WIN_POS_1,
          Value    =>
-            Shift_Left (Word32 (Pos32 (Mode.H_Visible) - Width) / 2, 16) or
-            Word32 (Pos32 (Mode.V_Visible) - Height) / 2);
+            Shift_Left (Word32 (Mode.H_Visible - Width) / 2, 16) or
+            Word32 (Mode.V_Visible - Height) / 2);
       Registers.Write
         (Register => Controller.PS_WIN_SZ_1,
          Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
@@ -506,7 +503,8 @@ package body HW.GFX.GMA.Pipe_Setup is
                when Registers.PFC_CTL_1 => 2 * 2 ** 29,
                when others              => 0) else 0);
 
-      Width, Height : Pos32;
+      Width : Width_Type;
+      Height : Height_Type;
       X, Y : Int32;
    begin
       -- Writes to WIN_SZ arm the PF registers.
@@ -514,21 +512,21 @@ package body HW.GFX.GMA.Pipe_Setup is
       Scale_Keep_Aspect
         (Width       => Width,
          Height      => Height,
-         Max_Width   => Pos32 (Mode.H_Visible),
-         Max_Height  => Pos32 (Mode.V_Visible),
+         Max_Width   => Mode.H_Visible,
+         Max_Height  => Mode.V_Visible,
          Framebuffer => Framebuffer);
 
       -- Do not scale to odd width (at least Haswell has trouble with this).
-      if Width < Pos32 (Mode.H_Visible) and Width mod 2 = 1 then
+      if Width < Mode.H_Visible and Width mod 2 = 1 then
          Width := Width + 1;
       end if;
 
-      X := (Int32 (Mode.H_Visible) - Width) / 2;
-      Y := (Int32 (Mode.V_Visible) - Height) / 2;
+      X := (Mode.H_Visible - Width) / 2;
+      Y := (Mode.V_Visible - Height) / 2;
 
       -- Hardware is picky about minimal horizontal gaps.
-      if Pos32 (Mode.H_Visible) - Width <= 3 then
-         Width := Pos32(Mode.H_Visible);
+      if Mode.H_Visible - Width <= 3 then
+         Width := Mode.H_Visible;
          X := 0;
       end if;
 

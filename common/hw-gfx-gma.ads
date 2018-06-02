@@ -210,9 +210,9 @@ private
 
    ----------------------------------------------------------------------------
 
-   Tile_Width : constant array (Tiling_Type) of Pos32 :=
+   Tile_Width : constant array (Tiling_Type) of Width_Type :=
      (Linear => 16, X_Tiled => 128, Y_Tiled => 32);
-   Tile_Rows : constant array (Tiling_Type) of Pos32 :=
+   Tile_Rows : constant array (Tiling_Type) of Height_Type :=
      (Linear => 1, X_Tiled => 8, Y_Tiled => 32);
 
    function FB_Pitch (Px : Pos_Pixel_Type; FB : Framebuffer_Type) return Natural

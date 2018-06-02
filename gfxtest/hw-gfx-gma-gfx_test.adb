@@ -267,19 +267,19 @@ is
       Rotation : in     Rotation_Type;
       Offset   : in out Word32)
    is
-      Width : constant Width_Type := Width_Type (Mode.H_Visible);
-      Height : constant Height_Type := Height_Type (Mode.V_Visible);
+      Width : constant Width_Type := Mode.H_Visible;
+      Height : constant Height_Type := Mode.V_Visible;
    begin
       Offset := (Offset + FB_Align - 1) and not (FB_Align - 1);
       if Rotation = Rotated_90 or Rotation = Rotated_270 then
          FB :=
-           (Width    => Width_Type (Height),
-            Height   => Height_Type (Width),
+           (Width    => Height,
+            Height   => Width,
             Start_X  => Start_X,
             Start_Y  => Start_Y,
             BPC      => 8,
-            Stride   => Div_Round_Up (Pos32 (Height + 2 * Start_X), 32) * 32,
-            V_Stride => Div_Round_Up (Pos32 (Width + 2 * Start_Y), 32) * 32,
+            Stride   => Div_Round_Up (Height + 2 * Start_X, 32) * 32,
+            V_Stride => Div_Round_Up (Width + 2 * Start_Y, 32) * 32,
             Tiling   => Y_Tiled,
             Rotation => Rotation,
             Offset   => Offset + Word32 (GTT_Rotation_Offset) * GTT_Page_Size);
@@ -401,8 +401,8 @@ is
             declare
                C : Cursor_Type renames Pipes (Pipe).Cursor;
                FB : Framebuffer_Type renames Pipes (Pipe).Framebuffer;
-               Width : constant Int32 := Int32 (Rotated_Width (FB));
-               Height : constant Int32 := Int32 (Rotated_Height (FB));
+               Width : constant Width_Type := Rotated_Width (FB);
+               Height : constant Height_Type := Rotated_Height (FB);
                CS : Cursor_Script_Entry renames Cursor_Script
                  (Natural (Cnt) mod (Cursor_Script'Last + 1));
             begin
@@ -480,8 +480,8 @@ is
                C : Cursor_Type renames Pipes (Pipe).Cursor;
                CI : Cursor_Info renames Cursor_Infos (Pipe);
                FB : Framebuffer_Type renames Pipes (Pipe).Framebuffer;
-               Width : constant Int32 := Int32 (Rotated_Width (FB));
-               Height : constant Int32 := Int32 (Rotated_Height (FB));
+               Width : constant Width_Type := Rotated_Width (FB);
+               Height : constant Height_Type := Rotated_Height (FB);
 
                Update : Boolean := False;
             begin
@@ -649,8 +649,8 @@ is
                         New_FB.Height := Height_Type'Max
                           (320, Height - New_FB.Start_Y - Rand_Div (Height));
 
-                        Cursor.Center_X := Int32 (Rotated_Width (New_FB)) / 2;
-                        Cursor.Center_Y := Int32 (Rotated_Height (New_FB)) / 2;
+                        Cursor.Center_X := Rotated_Width (New_FB) / 2;
+                        Cursor.Center_Y := Rotated_Height (New_FB) / 2;
                         GMA.Update_Cursor (Pipe, Cursor);
                      end;
                   end loop;
