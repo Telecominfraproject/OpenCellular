@@ -164,6 +164,9 @@ private
    function Requires_Scaling (Pipe_Cfg : Pipe_Config) return Boolean is
      (Requires_Scaling (Pipe_Cfg.Framebuffer, Pipe_Cfg.Mode));
 
+   function Scaling_Type (Pipe_Cfg : Pipe_Config) return Scaling_Aspect is
+     (Scaling_Type (Pipe_Cfg.Framebuffer, Pipe_Cfg.Mode));
+
    ----------------------------------------------------------------------------
    -- Internal representation of a single pipe's configuration
 
