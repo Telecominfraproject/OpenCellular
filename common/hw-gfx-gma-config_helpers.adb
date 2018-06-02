@@ -188,9 +188,10 @@ is
    -- Validates that a given configuration should work with
    -- a given framebuffer.
    function Validate_Config
-     (FB    : Framebuffer_Type;
-      Mode  : Mode_Type;
-      Pipe  : Pipe_Index)
+     (FB                : Framebuffer_Type;
+      Mode              : Mode_Type;
+      Pipe              : Pipe_Index;
+      Scaler_Available  : Boolean)
       return Boolean
    is
    begin
@@ -206,7 +207,8 @@ is
       return
          ((Rotated_Width (FB) = Mode.H_Visible and
            Rotated_Height (FB) = Mode.V_Visible) or
-          (Rotated_Width (FB) <= Config.Maximum_Scalable_Width (Pipe) and
+          (Scaler_Available and
+           Rotated_Width (FB) <= Config.Maximum_Scalable_Width (Pipe) and
            Rotated_Width (FB) <= Mode.H_Visible and
            Rotated_Height (FB) <= Mode.V_Visible)) and
          (FB.Offset /= VGA_PLANE_FRAMEBUFFER_OFFSET or Pipe = Primary) and

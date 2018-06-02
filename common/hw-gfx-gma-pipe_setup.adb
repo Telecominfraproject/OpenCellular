@@ -532,10 +532,6 @@ package body HW.GFX.GMA.Pipe_Setup is
          Value    => Shift_Left (Word32 (Width), 16) or Word32 (Height));
    end Setup_Ironlake_Panel_Fitter;
 
-   -- TODO the panel fitter can only be set for one pipe
-   -- If this causes problems:
-   -- Check in Enable_Output if panel fitter has already been enabled
-   -- Pass this information to Validate_Config
    procedure Setup_Gmch_Panel_Fitter
      (Controller  : in     Controller_Type;
       Mode        : in     HW.GFX.Mode_Type;
@@ -566,10 +562,21 @@ package body HW.GFX.GMA.Pipe_Setup is
       end if;
    end Setup_Gmch_Panel_Fitter;
 
+   procedure Gmch_Panel_Fitter_Pipe (Pipe : out Pipe_Index)
+   is
+      Used_For_Secondary : Boolean;
+   begin
+      Registers.Is_Set_Mask
+        (Register => Registers.GMCH_PFIT_CONTROL,
+         Mask     => GMCH_PFIT_CONTROL_SELECT_PIPE_B,
+         Result   => Used_For_Secondary);
+      Pipe := (if Used_For_Secondary then Secondary else Primary);
+   end;
+
    procedure Panel_Fitter_Off (Controller : Controller_Type)
    is
       use type HW.GFX.GMA.Registers.Registers_Invalid_Index;
-      Used_For_Secondary : Boolean;
+      Pipe_Using_PF : Pipe_Index;
    begin
       -- Writes to WIN_SZ arm the PS/PF registers.
       if Config.Has_Plane_Control then
@@ -582,16 +589,9 @@ package body HW.GFX.GMA.Pipe_Setup is
             Registers.Write (Controller.PS_WIN_SZ_2, 16#0000_0000#);
          end if;
       elsif Config.Has_GMCH_PFIT_CONTROL then
-         Registers.Is_Set_Mask
-           (Register => Registers.GMCH_PFIT_CONTROL,
-            Mask     => GMCH_PFIT_CONTROL_SELECT_PIPE_B,
-            Result   => Used_For_Secondary);
-         if (Controller.Pipe = Primary and not Used_For_Secondary) or
-            (Controller.Pipe = Secondary and Used_For_Secondary)
-         then
-            Registers.Unset_Mask
-              (Register => Registers.GMCH_PFIT_CONTROL,
-               Mask     => PF_CTRL_ENABLE);
+         Gmch_Panel_Fitter_Pipe (Pipe_Using_PF);
+         if Pipe_Using_PF = Controller.Pipe then
+            Registers.Unset_Mask (Registers.GMCH_PFIT_CONTROL, PF_CTRL_ENABLE);
          end if;
       else
          Registers.Unset_Mask (Controller.PF_CTRL, PF_CTRL_ENABLE);
@@ -621,6 +621,26 @@ package body HW.GFX.GMA.Pipe_Setup is
          Panel_Fitter_Off (Controller);
       end if;
    end Setup_Scaling;
+
+   procedure Scaler_Available (Available : out Boolean; Pipe : Pipe_Index)
+   is
+      Pipe_Using_PF : Pipe_Index := Pipe_Index'First;
+      PF_Enabled : Boolean;
+   begin
+      if Config.Has_GMCH_PFIT_CONTROL then
+         Registers.Is_Set_Mask
+           (Register => Registers.GMCH_PFIT_CONTROL,
+            Mask     => PF_CTRL_ENABLE,
+            Result   => PF_Enabled);
+         if PF_Enabled then
+            Gmch_Panel_Fitter_Pipe (Pipe_Using_PF);
+         end if;
+
+         Available := not PF_Enabled or Pipe_Using_PF = Pipe;
+      else
+         Available := True;
+      end if;
+   end Scaler_Available;
 
    ----------------------------------------------------------------------------
 

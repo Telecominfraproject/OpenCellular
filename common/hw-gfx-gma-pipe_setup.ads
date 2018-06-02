@@ -57,6 +57,8 @@ is
       FB       : Framebuffer_Type;
       Cursor   : Cursor_Type);
 
+   procedure Scaler_Available (Available : out Boolean; Pipe : Pipe_Index);
+
 private
 
    subtype WM_Levels is Natural range 0 .. 7;

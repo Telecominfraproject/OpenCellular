@@ -40,9 +40,10 @@ is
    use type HW.Pos32;
    pragma Warnings (GNAT, On, """Integer_32"" is already use-visible *");
    function Validate_Config
-     (FB    : Framebuffer_Type;
-      Mode  : Mode_Type;
-      Pipe  : Pipe_Index)
+     (FB                : Framebuffer_Type;
+      Mode              : Mode_Type;
+      Pipe              : Pipe_Index;
+      Scaler_Available  : Boolean)
       return Boolean
    with
       Post =>

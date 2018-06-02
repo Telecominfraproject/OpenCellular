@@ -99,6 +99,7 @@ is
       Success  :    out Boolean)
    is
       Port_Cfg : Port_Config;
+      Scaler_Available : Boolean;
    begin
       pragma Debug (Debug.New_Line);
       pragma Debug (Debug.Put_Line
@@ -108,8 +109,9 @@ is
         (Port_Cfg, Pipe, Pipe_Cfg.Port, Pipe_Cfg.Mode, Success);
 
       if Success then
+         Display_Controller.Scaler_Available (Scaler_Available, Pipe);
          Success := Config_Helpers.Validate_Config
-           (Pipe_Cfg.Framebuffer, Port_Cfg.Mode, Pipe);
+           (Pipe_Cfg.Framebuffer, Port_Cfg.Mode, Pipe, Scaler_Available);
       end if;
 
       if Success then
@@ -275,6 +277,7 @@ is
       for Pipe in Pipe_Index loop
          declare
             Success : Boolean;
+            Scaler_Available : Boolean;
             Cur_Config : Pipe_Config renames Cur_Configs (Pipe);
             New_Config : Pipe_Config renames Configs (Pipe);
          begin
@@ -299,15 +302,19 @@ is
 
             -- update framebuffer offset only
             elsif New_Config.Port /= Disabled and
-                  Cur_Config.Framebuffer /= New_Config.Framebuffer and
-                  Config_Helpers.Validate_Config
-                    (New_Config.Framebuffer, New_Config.Mode, Pipe)
+                  Cur_Config.Framebuffer /= New_Config.Framebuffer
             then
-               Display_Controller.Setup_FB
-                 (Pipe, New_Config.Mode, New_Config.Framebuffer);
-               Display_Controller.Update_Cursor
-                 (Pipe, New_Config.Framebuffer, New_Config.Cursor);
-               Cur_Config := New_Config;
+               Display_Controller.Scaler_Available (Scaler_Available, Pipe);
+               if Config_Helpers.Validate_Config
+                    (New_Config.Framebuffer, New_Config.Mode,
+                     Pipe, Scaler_Available)
+               then
+                  Display_Controller.Setup_FB
+                    (Pipe, New_Config.Mode, New_Config.Framebuffer);
+                  Display_Controller.Update_Cursor
+                    (Pipe, New_Config.Framebuffer, New_Config.Cursor);
+                  Cur_Config := New_Config;
+               end if;
             end if;
          end;
       end loop;
