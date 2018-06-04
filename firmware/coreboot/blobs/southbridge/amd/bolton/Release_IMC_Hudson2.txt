@@ -1,0 +1,191 @@
+Release 1.1.2
+
+Jun 6, 2013
+
+Change log:
+
+OBS402235: Fan policy not working when sbtsi temperatures are negative
+
+When the IMC fan control feature is initialized with hysteresis option enabled, the
+initial fan speed is set to 100% and a fake starting temperature of zero degree.
+We expected the first real temperature reading fetched should be above zero, so that
+it would create a "rising temperature" scenario to result in a new and proper fan
+speed to be applied.  But this assumption is broken on the Kaveri CPU because the
+SB-TSI temperature retrieved remains at zero degree almost consistently when it is
+idling, as a result a "rising temperature" scenario has never occurred and therefore
+the fan speed is stuck at 100%.  This problem is fixed by adopting a new fan speed
+initialization approach.
+
+Known issues:
+None
+
+===================================================================================================
+Release 1.1.1
+
+Feb 15, 2013
+
+Change log:
+
+OBS383042 - POST Code hang at "0000" after a cold reset when SPI is set to 66MHz or 33MHz 
+Removed an old SPICS# timing fix that caused SPI ROM fetching problem with fast SPI clock.
+
+Known issues:
+None
+
+===================================================================================================
+Release 1.1.0
+
+Sep 7, 2012
+
+Change log:
+
+OBS346653 - CPU fan intermittently fails to start while running tests
+Changed the SMBus reset programming and improved the continuous SMBus controller busy handling approach.
+
+Known issues:
+None
+
+===================================================================================================
+Release 1.0.9
+
+Feb 17, 2012
+
+Change log:
+
+OBS311858 - Pumori running S4 cycles wakes up by itself win8
+Fixed a Slp_S3 signal glitch problem that confused the external EC firmware to wake up the system shortly after entering sleep state.
+
+Known issues:
+
+None
+
+===================================================================================================
+Release 1.0.8
+
+Feb 6, 2012
+
+Change log:
+
+OBS311755 - Pumori-TPM-system hang at PC8888 when TPM enabled
+Enhanced the IMC fan control temperature sensor detection algorithm to support On Semiconductor NCT75.
+
+Known issues:
+None
+
+===================================================================================================
+Rlease 1.0.7
+
+Apr 29, 2011
+
+Change log:
+
+OBS261463 - Torpedo-IMC Fan Control-System stops somewhere when running S3 
+This is a partial solution for the post code 8888 S3 resume hang, the rest of the solution are CIM-x ENH271302 and revision 51760 of http://svn/BIOS/Frameworks/CIM.
+
+Known issues: 
+
+None
+
+===================================================================================================
+Rlease 1.0.6
+
+Feb 10, 2011
+
+Change log:
+
+OBS236888 - Torpedo A12--IMC--reset may cause system hang at somewhere when IMC is enabled
+Modified the UserRst handling approach to fix the hang problem.
+
+OBS256104 - Torpedo DAP Rev B Powers off with Fan Thermal Control/IMC enabled 
+Removed the toggling of Slp_S3/Slp_S5 signals in the initialization routine, this action has confusd the external EC firmware on the Torpedo board and treated it as a power down event when only DC supply is used. 
+
+BUG257004 - IMC message functions 90 & 91 used by internal debugging purpose are broken
+Fixed the coding error that caused the wrong register address being used in the function.
+
+Known issues: 
+
+None
+
+===================================================================================================
+Rlease 1.0.5
+
+Jan 21, 2011
+
+Change log: 
+
+OBS249087 - IMC instability on Torpedo board 
+Implemented a firmware workaround for the Hudson-2 ASIC bug that occurs when IMC access any southbridge registers while the interrupt controller is in PIC mode.  The platform BIOS when using the fan control feature needs to disable the fan policy and enables it after Windows is loaded.  
+
+OBS245743 - System locked after reset button press in S3/S5 with IMC enabled 
+This issue is observed on Hudson-1 Persimmon board, but the fix is applied for all other platforms as a precaution change. 
+
+Known issues: 
+
+OBS236888 - Torpedo A12--IMC--reset may cause system hang at somewhere when IMC is enabled 
+ 
+===================================================================================================
+Release 1.0.4
+
+Oct 19, 2010
+
+Change log:
+
+"	OBS221283: AMD - Torpedo - Stardust - VDD toggling when board is idle without current load 
+OBS216448: FAIL - AMD - Torpedo - VDD Sustained Load Test at various TDC loads 
+Workaround the two Hudson-2 testing problems above by disabling the BootTimer feature, board testers need to enable IMC using the hardware strap jumper for the fix to work.
+
+Known issues: 
+"	None
+
+===================================================================================================
+IMC Release 1.0.3
+
+Oct 5, 2010
+
+Change log:
+"	BUG231253 - No acknowledgment 0xFA is returned for back to back message function 0x96 sub-command 0xB4.
+"	ENH231401 - Return different acknowledgment value for the message function calls that IMC is not able to support while running in scratch RAM mode.
+
+===================================================================================================
+Release 1.0.2
+
+Sep 13, 2010
+
+Change log:
+
+Ported the following Hudson-1 firmware changes to bring the Hudson-2 IMC fan control function to the same level as the Hudson-1 IMC version 1.1.3.
+"	OBS212641 - Dory: DRA0050A S5 overnight hang after 81 cycles
+This problem is caused by the SMBus controller being stuck in busy state (HostBusy  = 1) from a SMBus transaction submitted around the moment that the system is reset by an "Out 0xCF9, 0xE" command that put it in S5 state for a short period of time.  This firmware change is only an improvement to reduce the failure rate.
+"	BUG221594 - IMC temperature reading failure found in system reset test
+Reset the SMBus command queue properly during system reset.
+"	OBS218651 - No IMC fan control after resume from standby.
+Added new message function (function 0x98 subfunction 2) to facilitate quick fan policy initialization after S3 resume Implemented a new parallelogram shaped hysteresis algorithm and kept the old staircase shaped hysteresis algorithm as an user selectable option through message function 0x81, MSG_REG7[3]
+"	OBS206972 - Fixed the ramp/stepping combination timing miss when two zones are active
+"	OBS206844 - Fixed the IMC hysteresis value growing by temperature resolution at each drop-back state
+"	ENH209019 - Added IMC temperature smoothing / avergaing options for TEMPINx
+Known issues: 
+"	None
+
+===================================================================================================
+
+Release 1.0.1
+
+Jun 11, 2010
+Change log:
+"	OBS200504 - Updated the UserRst interrupt reset sequence to fix reset button reboot failure.
+"	OBS207137 - Added ADT7475 sensor support 
+"	Removed the default thermal zone initialization, all parameters are passed from system BIOS now.
+"	Skipped reading the TEMPIN sensors related to the thermal zones that are not active or properly initialized.
+"	Fixed a bug in message function 0x81 (Set IMC Thermal Zone Parameters) that may cause it to fail if the input parameters are retrieved from the output of message function 0x80 (Read IMC Thermal Zone Parameters).
+"	Modified the fan initialization message function 81h to reject invalid SMBus address, port number, fan speed ramping step size and ramp rate.
+"	Fixed SB-TSI temperature reading failure if the SMBus address is not 9Ah.
+"	Fixed a bug in the manual fan speed control message function 86h that failed to control the fan speed when the ramping feature is disabled.
+"	Fixed a bug in the fan speed ramping feature that caused the fan speed ramping to stop prematurely.
+"	Added checking to reject invalid thermal zone input for the all fan control related message functions.
+"	Modified the output parameter definition of message function 80h to match the input parameter definition of message function 81h.
+"	Fixed the mailbox function 0x86 "Set IMC fan speed" failure when fan speed ramping feature is disabled.
+"	Fixed mailbox function 0x81 function that overwrite the SMBUS address and bus number information
+"	Fixed the Hudson-2 FanIn RPM calculation equation.
+
+Known issues: 
+"	None

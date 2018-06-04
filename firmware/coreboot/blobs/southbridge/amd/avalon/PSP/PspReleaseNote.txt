@@ -1,0 +1,19 @@
+//----------------------------------------------------------------------------
+// PSP FW Delivery Release Note
+//
+// Copyright 2014, Advanced Micro Devices, Inc.
+// Image Version number: PSP BootLoader: D.1.1.4D, PSP SecureOS: D.1.1.4D
+// Date:   07/06/2015
+//----------------------------------------------------------------------------
+
+Files:
+	PspBootLoader.Bypass.sbin - PSP bootloader with HVB bypass enabled
+	PspRecovery.sbin       	  - PSP Recovery boot loader
+	PspSecureOs.sbin          - PSP secure OS, signed with production key version
+	PspNvram.bin              - NV storage pattern used to populate the SPI-ROM.
+	PspTrustlets.bin          - PSP Trustlet binaries
+
+
+Features and fixes:
+- Rollback //depot/psp/stg/fw/1.0/fw/mars/src/bios_mailbox.c to revision 4 to avoid timing issue;
+- Code base updated to CL#30102;

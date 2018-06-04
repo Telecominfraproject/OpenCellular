@@ -1,0 +1,1423 @@
++--------------------------------------+
+| SMU Firmware Release Notes - CARRIZO |
++--------------------------------------+
+
++--------------------------+
+| Version 18.56.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                12/06/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-535 - PROCHOT events will trigger GFX_CU_PG reduction
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.55.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                11/05/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-529 - Exit bypass before programming SCLK DID to reduce Di/Dt
+|                SMUCZ-518 - Protect all DFS programming by VDDNB critical
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.54.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                27/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-509 - **ADD BACK*** Power down ACP on FW init and let BIOS tell SMU to power up if it is enabled
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.53.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                24/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-509 - **REMOVE*** Power down ACP on FW init and let BIOS tell SMU to power up if it is enabled
+|                SMUCZ-525 - Disable CCLK stretcher during NB FIFO training
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.52.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                22/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-509 - **ADD BACK*** Power down ACP on FW init and let BIOS tell SMU to power up if it is enabled
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.51.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                21/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-509 - **REMOVE*** Power down ACP on FW init and let BIOS tell SMU to power up if it is enabled
+|                SMUCZ-521 - BSOD124 workaround
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.50.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                20/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-509 - Power down ACP on FW init and let BIOS tell SMU to power up if it is enabled
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.49.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                10/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-516 - Enable NCLK gater and TSC_EN eariler in the NBPState change sequence and add conditional 1us delay before ACK
+|                SMUCZ-514 - Add 2us delay to PostSSRDelay in the CC6 exit sequence
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.48.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                01/04/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-511 - Ensure GPU PLL is powered up before programming ACLK DFS
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.47.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                27/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-510 - Update LDO_REFSEL and NBSYNPTRADJ(LO) settings to reflect current silicon requirements
+|                SMUCZ-508 - Add SMI interrupt port configurability and use 1 byte IO writes for these
+|                SMUCZ-507 - HTC_ACTIVE indication for PROCHOT update
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.46.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                23/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-499 - DFS post-mux HW Hang
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.45.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                06/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-450 -- Need mechanism to avoid SMU from reading CAC when TDR occurs
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.44.2          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                15/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-502 --- DRAM mutex register change to MP0 becase of PSP FW
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.44.1          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                11/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-488 -- Fix bug in original fix for this ticket. Changing the register to read back current VDDGFX VID from.
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.44.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                06/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-493 -- Need to clear the GFX CU LKG weights for CUs that are fused off
+|                SMUCZ-488 -- Send a SVI command when PSI is initialized to set the PSI0 enable bit
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.43.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                02/03/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-489 -- On warm reset, use current VDD VID instead of HWP0 VID
+|                SMUCZ-448 -- Minor change to 1CU config vs 2CU config
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.42.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                25/02/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-475 -- ACP PG A1 Workaround to keep VDDNB SMS asserted
+|                SMUCZ-479 -- Prevent V/D clock from entering DFS bypass by default
+|                SMUCZ-485 -- revert SMUCZ-474 change due to SECT decision
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.41.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                16/02/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-473 -- ACP/UVD/VCE turn off clocks not handled properly
+|                SMUCZ-474 -- PPSMC MSG to remove VCLK/DCLK from going into bypass
+|                SMUCZ-476 -- Connected standby sequence update for MEMPSTATE transition
+|
++------------------------------------------------------------------------------------------------------------
+
+
+
++--------------------------+
+| Version 18.40.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                16/02/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-470 -- HDT2 Timeout must be increased from 50 us
+|                SMUCZ-466 -- Read fuse to get the number of harvested GFX CUs
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.39.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                10/02/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-468 -- Increase MILESTONE timers by 200ns for all UNBPM events
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.38.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                02/02/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-453 -- Detect and avoid large VCE CAC spikes
+|                SMUCZ-454 -- RCC3 registers not getting properly updated
+|                SMUCZ-418 -- PowerScoreboard.vddr is being used to make a decision about PCIE and Displya PHY voltage type, but not being set
+|                SMUCZ-455 -- Add more IRM limits to AGM interface and move NBPstate to separate section
+|                SMUCZ-390 -- Close all backdoor for release builds
+|                SMUCZ-456 -- Read AllCpusIdle from UNBScoreboard not from GNBPM HW registers
+|                SMUCZ-449 -- Bug in the computation of AC droop is fixed with this change
+|                SMUCZ-452 -- AVFSGBV index is now getting correctly assigned for AVFSVID clipping routines
+|                SMUCZ-458 -- NBPstate transition completion check bug fix
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.37.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                26/01/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-448 -- Idle power estimates change betwen 1CU config vs. 2CU
+|                SMUCZ-439 -- Change the BTC weights according to recent A1 corner charz data
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.36.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                19/01/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-445 -- Nested VDDNB Critical sections causing PIC MASK to be corrupted
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.35.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                19/01/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-429 -- CS Exit flow should do ACP handshake after Page in Runtime code
+|                SMUCZ-430 -- Floating point register save/restore from Tensilica
+|                SMUCZ-431 -- VPU sequence workaround due to readback error
+|                SMUCZ-432 -- Return value casting error for readAVFStemp/getBTCGBV
+|                SMUCZ-410 -- Math error due to very large number (workaround)
+|                SMUCZ-433 -- Update 1.05V display phy define numbers
+|                SMUCZ-435 -- Not dealing with signed CAC_B fuse values
+|                SMUCZ-389 -- Driver needs method to query SCLK/MCLK frequencies from SMU
+|                SMUCZ-437 -- Update IBPS settings (including NBDPM changes)
+|                SMUCZ-438 -- Add support for NBPstate fixing from drive rmessage for underflow workaround
+|                SMUCZ-440 -- Include BinDocTjOffset in the QuerySustainableSOCPower message calculation
+|                SMUCZ-442 -- Add VDDNB critical around GPU PLL power up/down
+|                SMUCZ-441 -- fixing the busy bit polling after GMC blackout
+|                SMUCZ-443 -- Add support for new VQ power budgetting feature
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.34.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                05/01/15
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-423 Display underflow final solution
+|                SMUCZ-424 Ordering of the upper and lower 32 bits in new APM weights message fix
+|                SMUCZ-425 UVDDPM calls from UVD DPM needs critical section
+|                SMUCZ-426 VPU sequence update
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.33.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                29/12/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-420 LCLK DPM save and restore for Connected Standby
+|                SMUCZ-422 New Message to support PROGRAM APM weights in BIOS
+|                SMUCZ-423 Display Underflow Workaround
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.32.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                22/12/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-416 Loadline settings register needs to be forced to default in A1
+|                SMUCZ-417 shrink size of loadmetadata frame size by half to prevent stack issues
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.31.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                15/12/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-379 Changes to cover for A1 shortcomings on FT stretcher settings
+|                SMUCZ-413 VPU sequence should involve RLC handshaking for fuse distribution
+|                SMUCZ-414 UVD DPG sequence change for power savings
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.30.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                06/12/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-387 Fix to InitApmWeights when CPU returns CMD_NOT_ACCEPTED
+|                SMUCZ-407 CS Sequence change: Toggle CP_INT after restoring GFX
+|                SMUCZ-408 CGPG A1 workaround - SMS early reset = 0
+|                SMUCZ-409 save FSR/FCR/BR as part of context switch
+|
++------------------------------------------------------------------------------------------------------------
+
++--------------------------+
+| Version 18.29.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                02/12/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-398 Put ACP handshake back into CS entry/exit sequence
+|                SMUCZ-399 ACP sequence update requires PPSMC message to reuse ACP handshake for S3
+|                SMUCZ-400 race condition between programAPM and Paging runtime code
+|                SMUCZ-401 Save floating point registers during context switch
+|                SMUCZ-402 use expf rather than exp since exp is meant for double
+|                SMUCZ-405 ACP CS/S3 handshake update require softreset prior to programming CS STATE bits
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.28.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                25/11/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-395  Bug  Properly disable fuse box PG and enable TMON again
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.27.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                25/11/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-393  Bug  Fuse box code doesn't work on A0 parts
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.26.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                24/11/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-391  Improvement  Video active process changes
+|                SMUCZ-388  Task         Secure part name string error issue
+|                SMUCZ-385  Improvement  Set SCLK stretcher conservative_lock = 2
+|                SMUCZ-381  Task         SMU brand name read MSG needs to be provided to BIOS.
+|                SMUCZ-367  New Feature  Enable fuse box power gating
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.25.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                18/11/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-382  Improvement  Add support to apply per block power offsets (set 375mW per-CU and 40% GFX CAC guardband)
+|                SMUCZ-378  Bug          CPU stretcher params programing update
+|                SMUCZ-377  Improvement  CPU stretcher needs to be enabled by default
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.24.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                17/11/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-376  Bug          Connected standby sequence update & bug fixes
+|                SMUCZ-375  Bug          Add VDDNB critical section about AGM dumping function
+|                SMUCZ-373  Improvement  Add generic guardband scalars for dynamic and leakage power components
+|                SMUCZ-264  Task         On S0i3 exit, set AOACx94 bit 0, 2 to 0
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.23.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                10/11/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-371  Improvement  Add check for A0 and A1 instead of using #ifdef
+|                SMUCZ-370  Bug          A1 cleanup for VDDGFX telemetry and PAD strength
+|                SMUCZ-369  Bug          Adding driver message to support passing power management options based on display sizes
+|                SMUCZ-368  Bug          NumboostSTates incorrectly programed
+|                SMUCZ-366  Task         Remove code optimization from unb_pwrmgt.c parts
+|                SMUCZ-364  Bug          Critical sections replacement
+|                SMUCZ-363  Improvement  Two improvements to handle the display underflow problem
+|                SMUCZ-362  Improvement  Optimize firmware to reduce code size
+|                SMUCZ-361  Improvement  Update VQ CAC weights (and memory equations)
+|                SMUCZ-360  Improvement  Add PSI support based on regulator current capabilities
+|                SMUCZ-359  Improvement  Set deterministic Tambient to 36C
+|                SMUCZ-357  Improvement  CPU CC6 Derate Reduction
+|                SMUCZ-356  Improvement  Update CalculatePower function to directly access structure data
+|                SMUCZ-355  Improvement  Add script to generate code size listing
+|                SMUCZ-339  Improvement  Prevent SMU from issuing UNB CSR reads when UNB is power-gated
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.22.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                20/10/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-353  Bug          Update CAC verification sample size and add Tctrl offset to CAC logging
+|                SMUCZ-352  Improvement  Update VDDNB CAC weights
+|                SMUCZ-351  Bug          Make sure to turn on GFX DD and unforce stretch after GFX power on
+|                SMUCZ-350  Improvement  Update PSPDPM activity signal to MP0_P2SMSG_0
+|                SMUCZ-349  Bug          Voltage Island Fixes
+|                SMUCZ-346  Bug          Update GPU PLL power up/down sequence
+|                SMUCZ-345  Bug          Don't program a DFS DID to the current value
+|                SMUCZ-340  Bug          AVFS should use max VTF entry when TMON is powered down
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.21.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                14/10/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-343  Improvement  Disable TMON power down on init
+|                SMUCZ-341  Bug          GPU CAC Adjustment factor for new graphics CAC weights
+|                SMUCZ-338  Bug          BTC: Sidd and Cac fuse changes for A1
+|                SMUCZ-336  Bug          Fix for loop condition check in VQ budget routine
+|                SMUCZ-307  Bug          PowerScoreboard.MemoryChannelsActive is not populated correctly
+|                SMUCZ-269  Improvement  VDDIO CAC formula and weights
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.20.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                10/06/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-333  Bug          Fix SCS table TDP calculation with 25W boundary crossing
+|                SMUCZ-332  Improvement  Update coefficients for GlobalEAPM
+|                SMUCZ-331  Improvement  Update GFX CAC weights
+|                SMUCZ-330  Bug          Fix address for DRAM_CONTROL
+|                SMUCZ-328  Improvement  Remove CAC logging
+|                SMUCZ-327  Bug          PPLib message to enable/disable low MemPstate are not setting the correct NBPState indexes
+|                SMUCZ-326  Bug          NBDPM requests from GNB are broken
+|                SMUCZ-325  Bug          Change BIOS message input data types to uint32_t instead of float
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.19.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                09/29/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.30
+|
+|        * Change Log
+|                SMUCZ-324  Bug          Don't let Cstate boost be greater than NumBoostStates
+|                SMUCZ-323  Bug          Increase DPM task stack by 128 bytes to fix mysterious slow windows loading
+|                SMUCZ-320  Bug          Need to adjust the CBS ambient input by BinDocTjOffset
+|                SMUCZ-319  Improvement  Remove SMU FW from AGM log
+|                SMUCZ-318  Bug          Set STAPM BoostEn bit to 1 by default
+|                SMUCZ-317  Bug          Make SCLK --> NCLK activity requests HardMin
+|                SMUCZ-316  Improvement  Read SclkStretcher fuses to know which DPM states to enable with
+|                SMUCZ-315  Task         Update FuseDoc to Rev 1.30
+|                SMUCZ-311  Improvement  Support multiple encoding for SIDD_x fuses
+|                SMUCZ-310  Bug          Read AVFSEn bit and use in AVFS enable routine
+|                SMUCZ-309  Improvement  Update determinism parameters
+|                SMUCZ-308  Improvement  Add HTC logging to AGM interface
+|                SMUCZ-306  Improvement  CPU CAC Adjustment factor and CC6 Derate changes
+|                SMUCZ-305  Bug          avfs.c changes
+|                SMUCZ-304  New Feature  SMU FW workaround to power up/down UVD tiles
+|                SMUCZ-252  Bug          Update Carrizo MM DPM Message to match Kaveri
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.18.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                09/23/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                -NONE (the intended change for this release was not picked up so this release is the same 18.17.0
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.17.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                09/22/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-302  Bug          Set ACP DPM to state 0 on ACP DPM enable
+|                SMUCZ-298  Improvement  Update OPN definition for 12W and 25W
+|                SMUCZ-297  Bug          Use VDDNB critical section around RLCSMC messages
+|                SMUCZ-296  Bug          BTC bugs
+|                SMUCZ-291  Bug          Disable Deep-Sleep Before Changing Deep-Sleep DID
+|                SMUCZ-290  Bug          NBDPM requests by MM should be considered HARD_MIN
+|                SMUCZ-289  Improvement  Add CBS to adjust AmbientTemp for determinism mode
+|                SMUCZ-288  Improvement  Set default LCLK deep sleep hyst
+|                SMUCZ-287  Improvement  Move HTC enable/disable to BiosEnable message
+|                SMUCZ-285  Improvement  Add support for VQ power budget runtime floor enforcement and adjustment
+|                SMUCZ-284  Bug          Fuse unit change for V2P fuses used in bootcal.c
+|                SMUCZ-283  Improvement  Lower GEAPM GFX threshold on dual GFX
+|                SMUCZ-244  Bug          SCLK stretcher voltage dips in transition
+|                SMUCZ-230  Bug          Mask off UVD signal for SCLK deep sleep when UVD is gated
+|                SMUCZ-104  New          Feature	Enable MP1 power management hardware
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.16.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                09/15/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-280  Bug          Move CalculateGfxCapability message call to sporadic
+|                SMUCZ-279  Improvement  Update determinism based on updates from latest review
+|                SMUCZ-278  Improvement  Add new VCE DPM messages to get clocks and current state
+|                SMUCZ-277  Bug          Include NBDPM in the VDDNB throttling
+|                SMUCZ-276  Improvement  Update PD_Acc coefficients
+|                SMUCZ-275  Bug          Bootcal bring up related changes
+|                SMUCZ-274  Bug          Add HTC programing to SMU
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.15.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                09/08/14
+|
+|        * Features enabled
+|                -DETERMINISM_MODE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-258  New Feature  Determinism initial enablement
+|                SMUCZ-257  Improvement  CalculatePower and IsrBAPM optimizations
+|                SMUCZ-256  Bug          Move most test messages from C2P_MSG to SRBM2C_MSG_9
+|                SMUCZ-250  New Feature  BIOS Message to return BTCGBV
+|                SMUCZ-239  Bug          CZ Local eAPM policy changes and bugfixes
+|                SMUCZ-220  New Feature  BTC Updates from Sriram
+|                SMUCZ-164  Bug          Extra Flop in SPMI Chain Read
+|                SMUCZ-159  Bug          Critical Section in BTC Message
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.14.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                08/25/14
+|
+|        * Features enabled
+|                -MULTIMEDIA POWER BUDGETING INTERFACE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-245  Bug          DFS bypass clock source for 200MHz set to 400/2
+|                SMUCZ-242  Bug          Move DISPLAY PHY enum to smu8.h so PPLib can pick it up
+|                SMUCZ-241  Improvement  Don't account for NCLK CAC when NB is gated
+|                SMUCZ-240  Bug          DCT_CFG_SEL is using 0-3 but only 0-1 are defined in the BKDG
+|                SMUCZ-238  Bug          Scale core C0 CAC with Max_frequency
+|                SMUCZ-237  Improvement  Add test message for AGM to query the AGM table version
+|                SMUCZ-236  Improvement  Remove RDI 1,3,5,7,9,11 from TMON1 sensor lists
+|                SMUCZ-224  Improvement  Add AGM logging support for VDDNB power breakdown, GPU PLL PG, AVFS, SMU busy
+|                SMUCZ-223  Bug          Add support for LKG CAC and set initial weights and constants
+|                SMUCZ-222  Bug          Fix return value data type for TDP on SystemConfig BIOS message to float
+|                SMUCZ-221  New Feature  MM power budgeting initial implemantation
+|                SMUCZ-217  Improvement  Move enable routines to BOOT_SECTION
+|                SMUCZ-216  Improvement  Remove range checking for configurable BIOS parameters
+|                SMUCZ-209  Bug          Incorrect implementation of clkSetup_timer programming
+|                SMUCZ-204  Improvement  Account for TjMax delta for SCS table TDPs
+|                SMUCZ-199  Bug          Fix and enable NB and GFX leakage accumulators
+|                SMUCZ-173  Bug          GetOptimalSclkLevel has higher priority than MM DPMs and could override their latency requirements
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.13.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                08/16/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-210  Bug          Fixing the interrupt swithing portion to save/restore loop registers as well
+|                SMUCZ-208  Bug          Account for Tjmax delta in SCS table at the 25W TDP threshold
+|                SMUCZ-207  New Feature  Initial implementation of SCLK stretcher
+|                SMUCZ-206  Improvement  Add UVDClocks and UVDSetState messages to UVD DPM interface
+|                SMUCZ-205  Bug          Don't force LCLK DPM high when in OptimizeBattery mode
+|                SMUCZ-189  Bug          Various fixes for TMON and RDI reading
+|                SMUCZ-188  Improvement  Clear PCIE mask bits in LCLK deep sleep
+|                SMUCZ-187  Bug          Toggle SOFT_RESET_BIF for both modes of VPU reset
+|                SMUCZ-186  Bug          MM Power Monitoring power results should be in mW, not W
+|                SMUCZ-184  Bug          Issues in readCoreTemp function
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.12.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                08/11/14
+|
+|        * Features enabled
+|                -PSP_DPM
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-179  Improvement  Various fixes for weekly SMU release
+|                SMUCZ-177  Bug          Various PSPDPM updates
+|                SMUCZ-176  Bug          VDD EDC checking needs to account for disabled cores and per-core fused currents
+|                SMUCZ-175  Bug          Remove ACP_AZ from ACP Power Gating
+|                SMUCZ-172  Task         ACP Power Gating Debug
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.11.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                08/04/14
+|
+|        * Features enabled
+|                -AVFS
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-158  Bug          Various AVFS fixes
+|                SMUCZ-157  Improvement  Only log Pstate residencies when InPstate
+|                SMUCZ-154  Bug          EDC check for VDDGFX is comparing with VDDNB EDC limit
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.10.0          |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                07/28/14
+|
+|        * Features enabled
+|                -ULV
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-148  Improvement  Add BIOS configurability to Tjmax
+|                SMUCZ-147  Bug          Incorrectly configuring and reading the core margin accumulators
+|                SMUCZ-146  Bug          Power estimates not accounting for ULV voltage
+|                SMUCZ-142  Sub-task     SMUCZ-140 SPMI Programming Update in src.avfs
+|                SMUCZ-141  Sub-task     SMUCZ-140 SPMI Programming Update in src
+|                SMUCZ-140  Task         SPMI Programming Update
+|                SMUCZ-139  Improvement  Remove SMCCLK and SMNCLK Bypass Setting in Emulator Build.
+|                SMUCZ-138  Improvement  Calculate cTDP power scalar on cTDP message for runtime use
+|                SMUCZ-137  Bug          Call UnbForceWake before calling SelectCore function in PrefetchMbbData in nb_dpm.c
+|                SMUCZ-134  Bug          SPMI POG SIB Bit
+|                SMUCZ-121  New          Feature	PCIE PHY Power Gating Sequence Updates
+|                SMUCZ-78   Bug          UVD PG and dynamic PG sequence update
+|                SMUCZ-36   Improvement  Change BBB power limit config to a % of TDP instead of a power in watts
+|                SMUCZ-35   Improvement  Change STAPM TSP config to use a % of TDP instead of explicit TSP power
+|                SMUCZ-33   Bug          ACP Power Gating
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.9.0           |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                07/21/14
+|
+|        * Features enabled
+|                -NB_DPM
+|                -GFX_CU_PG
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-135  Improvement  Add TDP to the AGM dynamic PM log
+|                SMUCZ-133  Bug          S3 interrupt fix
+|                SMUCZ-132  Improvement  Add test message to access REG32 (debug only)
+|                SMUCZ-130  Improvement  Update logging for GFX CU PG and NBDPM to look better in the AGM log
+|                SMUCZ-129  Bug          Fix NBDPM enable routine
+|                SMUCZ-128  Bug          Initialize voltage controllers to fused VID[0]
+|                SMUCZ-127  Improvement  Integrate Local eAPM Code changes
+|                SMUCZ-126  Improvement  GFX CU PG clean up
+|                SMUCZ-125  Bug          Code Size Issue at 1657089
+|                SMUCZ-120  Improvement  Updated CPU CAC weight values from ASPM Charz
+|                SMUCZ-77   Bug          Set VDDNB voltage high on voltage controller enabled to prevent VDDNB voltage switching
+|                SMUCZ-60   Bug          Incorrect PSM start bit
+|                SMUCZ-42   Bug          Initialize SPMI Chain Size
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.8.1           |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                07/16/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-122  Bug  Fix SVD drive strength that was missed on the original update
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.8.0           |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                07/15/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-115  Improvement  Set SVI pad drive strength
+|                SMUCZ-109  Bug          HDT2 Command 13
+|                SMUCZ-100  Bug          SMU doesn't see latest Cores Disabled on warm boot when CBS options changed.
+|                SMUCZ-69   Task         Return Tdp to bios after completing UpdateSystemConfiguration message
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.7.0           |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                07/14/14
+|
+|        * Features enabled
+|                -LCLK_DEEP_SLEEP
+|                -DFS_BYPASS
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-110  Improvement  Set initial GFX CAC weights and power constants
+|                SMUCZ-107  Bug          XDMA Power-Up/Power-Down in GPU_DIS BIOS Message
+|                SMUCZ-105  Bug          Divide by 0 error on SetMinDeepSleepSclk message when min SCLK is 0
+|                SMUCZ-102  Bug          VDDNB ULV Exit in MM Power Gating
+|                SMUCZ-101  Bug          XDMA Power Gating Messages
+|                SMUCZ-98   Improvement  Update naming for AGM PM logging
+|                SMUCZ-97   Bug          SMNCLK not being set to bypass by default
+|                SMUCZ-96   Bug          LCLK deep sleep divider not being correctly programmed
+|                SMUCZ-95   Bug          Fix register access for CAC logging
+|                SMUCZ-94   Bug          Core residencies not being calculated correctly when CC6 is enabled
+|                SMUCZ-93   Bug          Not checking minimum LCLK frequency for deep sleep divider init
+|                SMUCZ-92   Bug          Initialize SMNCLK to bypass on init
+|                SMUCZ-91   Bug          NB_DPM state not set properly during MM DPM switches
+|                SMUCZ-60   Bug          Incorrect PSM start bit
+|                SMUCZ-42   Bug          Initialize SPMI Chain Size
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.6.0           |
++---------------------------+-------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                07/07/14
+|
+|        * Features enabled
+|                -BAPM
+|                -LCLK DPM
+|                -STAPM
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-90  Improvement  Update GFX CAC weights
+|                SMUCZ-89  Improvement  Update GFX temperature gradient
+|                SMUCZ-87  Bug          Update to final LCAC config
+|                SMUCZ-86  Bug          Add support for CAC and DRAM logging messages
+|                SMUCZ-85  Improvement  Add flag to skip CAC weights programming for data gathering mode
+|                SMUCZ-84  Bug          DFS bypass enable/disable bit not set on GPU PLL power up/down sequence
+|                SMUCZ-83  Bug          UVD_PG_EN in UVD Power Down
+|                SMUCZ-80  Bug          VCE Power Down - Check for all tiles powered off
+|                SMUCZ-79  New Feature  Delay After Deasserting Isolation in VDDGFX Power Up
+|                SMUCZ-78  Bug          UVD PG and dynamic PG sequence update
+|                SMUCZ-58  Improvement  Optimize Bypass Assignment
+|                SMUCZ-13  Bug          Update Connected Standby Entry/Exit for ACP bug
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.5.0           |
++---------------------------+--------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                06/30/14
+|
+|        * Features enabled
+|                -Power estimates
+|                -Thermal controller
+|                -TDC
+|                -PPT
+|                -Voltage controller
+|                -GEAPM
+|                -BBB
+|                -IBPS
+|                -Pstate arbiter
+|                -Prefetch
+|                -SCLK DPM
+|                -UVD DPM
+|                -VCE DPM
+|                -ACP DPM
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-77  Bug          Set VDDNB voltage high on voltage controller enabled to prevent VDDNB voltage switching
+|                SMUCZ-76  Bug          Remove load line programming on UNBPM init
+|                SMUCZ-75  Bug          Fix some GFX LCAC config table values
+|                SMUCZ-74  Bug          Adjust the system config index from BIOS message to match internal table index
+|                SMUCZ-73  Bug          Apply SCLK deep sleep settings inline for driver message
+|                SMUCZ-72  Improvement  Update GEAPM controller coefficients
+|                SMUCZ-71  Bug          VDD controller tracks to local limit instead of current pstate level
+|                SMUCZ-70  Improvement  Set GFX CAC weights to 50 for initial enablement
+|                SMUCZ-65  Bug          SCLK deep sleep dividers won't be immediately applied on driver request
+|                SMUCZ-64  Improvement  Read Cpu/Gpu Read/Write counters and log them
+|                SMUCZ-63  Improvement  Optimize power calculation to reduce exp() calls
+|                SMUCZ-62  Improvement  Ramp down DFS to bypass clock before switching to bypass
+|                SMUCZ-59  Improvement  Move BTC Debug Parameters structure into the standard AGM logging flow
+|                SMUCZ-57  Bug          Power estimate fixes
+|                SMUCZ-56  Improvement  Update AGM logging interface to include all relevant data
+|                SMUCZ-55  Bug          Do not enable BBB on BIOS enable call
+|                SMUCZ-54  Improvement  Add interface to write to SRAM registers
+|                SMUCZ-53  Bug          Set TESTSMC message RESP to 1 on init
+|                SMUCZ-52  Bug          Fix DPM task timestamp calculations
+|                SMUCZ-51  Bug          Increase VDDGFX settling time to 60us to account for full voltage swing
+|                SMUCZ-50  Bug          VDDGFX and VDDNB controllers keep SCLK stuck at DPM0
+|                SMUCZ-49  Bug          Use fused ambient temperature for Tcalc initial entity temperature
+|                SMUCZ-48  Bug          Disable bypass clocks to work around OBS449632 for a short term fix
+|                SMUCZ-47  Bug          Don't enable SCLK deep sleep by default
+|                SMUCZ-43  Improvement  Gather DPM period timestamps and use for DCT counter normalizing
+|                SMUCZ-19  Bug          Cac_m and Cac_b are not being used correctly for VDDNB and VDDGFX power estimates
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.4.0           |
++---------------------------+--------------------------------------------------------------------------------
+|        * Date (dd/mm/yy)
+|                06/23/14
+|
+|        * Features enabled
+|                -NONE
+|
+|        * FuseDoc
+|                1.27
+|
+|        * Change Log
+|                SMUCZ-45  Bug          PCIE PHY Power Gating - Programming Wrong Bit for tx_pg_en/rx_pg_en
+|                SMUCZ-40  Bug          Add generic logging interface to avoid fence blocking
+|                SMUCZ-39  Bug          Programming ATC_ATS_SMU_STATUS.VDDGFX_POWERED_DOWN in VDDGFX
+|                SMUCZ-37  Improvement  Incorrect initial LoadLine settings
+|                SMUCZ-30  Improvement  Add AGM logging for Cstate residencies and LEAPM/MBB/CBB
+|                SMUCZ-23  Bug          Core CAC should be scaled with the C0 residency
+|                SMUCZ-22  Bug          Bindoc_Tjoffset not accounted for in temperature scaling for leakage power estimates
+|                SMUCZ-21  Bug          nb_sid fuses not using the correct encoding
+|                SMUCZ-5   Sub-task     SMUCZ-3 Test on silicon prior to release
+|                SMUCZ-4   Sub-task     SMUCZ-3 List all dependencies for external teams
+|                SMUCZ-3   Improvement  Enable Paging in firmware
+|
++------------------------------------------------------------------------------------------------------------
+
+
++--------------------------+
+| Version 18.3.0           |
++---------------------------+--------------------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                   |
+|                06/16/14                                                                                    |
+|                                                                                                            |
+|        * Features enabled                                                                                  |
+|                -NONE                                                                                       |
+|                                                                                                            |
+|        * FuseDoc                                                                                           |
+|                1.27                                                                                        |
+|                                                                                                            |
+|        * Change Log                                                                                        |
+|                UBTS 552776 - Update VPU Reset Routines                                                     |
+|                SMUCZ-12    - Update CAC Power Estimates                                                    |
+|                UBTS 552778 - IOMMU MARC register programming needs to be done in a critical section        |
+|                SMUCZ-16    - Implement TESTSMC_MSG_SecureSRBMRead=Write messages                           |
+|                SMUCZ-17    - SPMI Asynchronous Reset Mask                                                  |
+|                SMUCZ-18    - DRAM controller programming bug                                               |
+|                SMUCZ-20    - Use biased filter for TSP tracking in STAPM                                   |
+|                SMUCZ-24    - Don't allow VDDNB DPM states to be clipped below DPM5                         |
+|                SMUCZ-37    - Workaround for UBTS 553784 - incorrect initial loadline settings              |
+|                SMUCZ-38    - Comment out LclkDeepSleepOn() as w/a for RLC message crash                    |
+|                                                                                                            |
++------------------------------------------------------------------------------------------------------------+
+
+
++--------------------------------------+
+| Version 18.2.0 - Release for Silicon |
++---------------------------------------+---------------------------------------------------------------------+
+|        * Date (dd/mm/yy)                                                                                    |
+|                06/06/14                                                                                     |
+|                                                                                                             |
+|        * Features enabled                                                                                   |
+|                -NONE                                                                                        |
+|                                                                                                             |
+|        * FuseDoc                                                                                            |
+|                1.19 (2014=04=09, 9:50AM)                                                                    |
+|                                                                                                             |
+|        * Change Log                                                                                         |
+|                UBTS 550944 - Correct CAC_VOLTAGE_PLANE enum to match unbpm                                  |
+|                UBTS 550396 - matching the datatypes to BIOSSMC_MSG_LoadMemoryParameters_t                   |
+|                UBTS 543076 - Need to reverse the index before frequency look up                             |
+|                UBTS 552257 - Switch order of first two TLB's                                                |
+|                UBTS 552258 - UNBPM: Deassert warm reset into SVI, disable parallel cc6 exit                 |
+|                UBTS 552259 - Correct response of EXECUTE_JOB message                                        |
+|                UBTS 551989 - Add delay after bit banging svi2 voltage to allow time for voltage adjustment  |
+|                UBTS 551414 - Fix RLC deadlock message register                                              |
+|                UBTS 551569 - Fix CS-NB_DPM handshake                                                        |
+|                UBTS 550396 - LoadMemoryParameter data type bug                                              |
+|                UBTS 552010 - Remove uncalled functions                                                      |
+|                UBTS 551762 - fix PSP ACPI when PSP is not loaded.                                           |
+|                UBTS 551989 - Add bit banging workaround for VDDGFX programming                              |
+|                                                                                                             |
++-------------------------------------------------------------------------------------------------------------+
+
++---------------------------------------------+
+| Version 18.1.0 - First Release for Bring-up |
++----------------------------------------------+
+        * Date (dd/mm/yy)
+                04/29/14
+
+        * Features enabled
+                -NONE
+
+        * FuseDoc
+                1.19 (2014=04=09, 9:50AM)
+
+        * Change Log
+            UBTS 544626: Move feature enable mask to smu8.h. Update PPSMC_MSG_GetFeatureStatus to return pGlobals->EnabledFeatures
+            Add Shadow P-state
+            UBTS 545331: Add separate bios message to program MSRs. For Fid=Did, changed to read F4x1E0 instead of MSR C001_0064.
+            UBTS 545130 Add new STAPM config interface, remove SOC table in globals
+            UBTS 545923: increase vddgfx idle threshold to 200ms
+            Logging changes:
+            -Updated the CAC logging to include VDDGFX and VDDNB rails
+            -Update the CAC collection to include UVD=VCE=ACP signals
+            -Add generic DRAM logging
+            -Update AGM logging with new header based interface with comment parsing -Update thermal controller to use average temperature for logging and estimates
+            UBTS 546027: AVFS fixes and add AVFS disable function.
+            UBTS 546455: Force APM weight programming before EnergyCntNorm is programmed.
+            UBTS 546291: Added TMON periodic controller. Must be enabled when thermal controller is enabled. Will update TMON power down status for thermal controller to use.
+            UBTS 547925 part 1 - add avfsSetHaltStatus. Add dram address messages.
+            UBTS 547925 part 2 - import Sriram's latest BTC and AVFS.
+            -set BAPM and thermal limits from fuses
+                           -don't set BBB power limit in enable routine
+                           -add defines for DRAM leakage power and initialize based on VDDIO voltage
+                           -initialize Tskin limit to 18C
+                           -check Tskin limit parameters for non-zero
+                           -move GFX busy filter to pre-fetch
+                           -scale TSYS with TSP power scalar
+            UBTS 548479: VDDNB=VDDGFX ULV fixes
+            UBTS 548705: Add PPSMC_MSG_GetConservativePowerLimit driver message.
+            UBTS 548708: Change getPMEventFunc to always return a valid function pointer.
+            UBTS 548180: Decouple SCLK DPM throttling from NBDPM throttling for GFX centric workloads
+                    -update pstate clipping algorithm and return fatal error if we need to clip states below SWP0
+                           -read fuse to find out SWP0 state
+                           -add UNB CSR to program new Cstate boost state
+            UBTS 549138: add bits to EnabledFeatures to represent forced MM DPMs
+            UBTS 549096: Add avfs=btc GBV to avfs vid calculation. Move Avfs init to before BTC calculations
+            UBTS 549201: Updating Hdt2.Busy in critical session
+            UBTS 546020=549198: Port over UVD=VCE messages from ML=KV to CZ
+            UBTS 549326: Bring in latest BTC code from Sriram
+            UBTS 539253: Incorrect assignment to AverageGraphicsActivity & AverageGioActivity. Update to float.
+            UBTS 549451: Initialize SMC clock to 300MHz
+            UBTS 546804: Firmware sets AllowZeroDID_* to 1 at boot
+            -update DPM handler ordering to meet all depdendencies
+            UBTS 549440: Set SmuCfgLock on BAPM Enable, Clear SmuCfgLock on BAPM Disable
+            -update SCLK DPM policy to include "search for optimal" mode based on active video process notification from PPLib
+                           -move IBPS functionality for SCLK to ibs.c
+                           -add CBS hook to set the IBPS active threshold
+            UBTS 548522: leapm C0 time calculation corrections
+                           -Update to PD Acc controller for all algorithms that used PID (except LEAPM)
+                           -Update initial coefficients for system_config settings
+                           -Update APU power controller to use global limit (instead of starting from current limited level)
+            UBTS 549653: Update PSP-SMU message encoding to latest definition. Update MP0 model
+            UBTS 549655: Add Test message definitions for accessing SMU's tables. Implementation to follow later
+            Temporarily remove Connected Standby to free up space. Removing CS test from Sanity suite.
+            UBTS 549876: Fix VddNb deadlocks in BIOS=Driver messages. Add UNB model to detect VddNb change deadlocks.
+            UBTS 549878, UBTS 549376: Integrate UNB power management FW from mainline to postsi branch
+
+
+----------------------------------------------------------
+| Version 18.0.12                                        |
+----------------------------------------------------------
+        * Date (dd/mm/yy)
+                04/29/14
+
+        * Features enabled
+                -NONE
+
+        * Change Log
+          -add NBDPM timeout mechanism for when and NBPState switch is taking too long to complete
+          -update avfs result read order. ubts 541168
+          -bring in latest CS code from ML
+          -update search algorithms to find STAPM and BAPM SCS tables based on TDP and TSP (BUG 541137)
+          -add boundary checks for BLDCFG inputs for TDP, TSP, PPT, TDC, EDC, BBB
+          -UBTS 541660: add test message TESTSMC_MSG_GetTsp
+          -UBTS 541445: Add in SPMI enable=disable messages to TESTSMC, and remove relevant messages from BIOSSMC
+          -UBTS 541456: Add secure SMN read=write message for BIOS.
+          -UBTS 540400: Adding in new fuse scripts for fuse unroll, and adding in fuse LUA testing as well. Also pulling in fusedoc rev 1.19 to firmware
+          -UBTS 541963: Remove redundant SPMI messages
+          -UBTS 541963: Clean up SPMITest functions to release code space
+          -UBTS 541377: Adding in masks for enable=disable STAPM
+          -UBTS 542210: Add IOC mutex to all FCH accesses in CS, make CS compatible with ACPI, program VDDGFX idle parameter on CS exit
+          -UBTS 541971 - fixed endian issue on MSR C001_1072
+          -Add irq manager messages for setting and clearing host interrupt valid bit
+          -Integrate unb power management from mainline to postsi branch.
+          - Update driver header files: Update size of RLC_G and RLC_SCRATCH, add enable masks to PPSMC.h
+          -Changed EnergyCntConst and BoostTimeConst to double data time (from uint64)
+          -Added check for GlobalPstateChangeDisable fuse before enabling features from bios=driver.
+          -UBTS 542191: Add messages to read back AVFS data
+          -UBTS 543925: DISPCLK and DPREFCLK request parameter should be 32-bit instead of 8-bit
+          -Add IOC mutex to IOMMU and SCS functions where FCH is accessed
+          -Fix CPDMA size mis-alignment issue for ucode loading
+          -ViPG: move BIF blocking to before 100us wait on ViPG entry sequence
+          -Add testsmc.h to release packages
+-----------------------------

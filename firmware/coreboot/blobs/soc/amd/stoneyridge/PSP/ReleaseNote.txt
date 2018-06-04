@@ -1,0 +1,300 @@
+//----------------------------------------------------------------------------
+// PSP FW Delivery Release Note
+//
+// Copyright 2017, Advanced Micro Devices, Inc.
+// Image Version number: PSP BootLoader: 0.6.0.22, PSP SecureOS: 0.6.0.22
+// Date:   Nov 2nd, 2017
+//----------------------------------------------------------------------------
+
+Content:
+	PSP FW Deliverables for Stoney Bring Up.
+	This Build is compiled using the ARM license from the AMD license server.
+
+Files:
+ PspBootLoader_prod_ST.sbin          [Updated: 0.6.0.22] - PSP offchip BootLoader, signed with production key version
+ PspRecoveryBootLoader_prod_ST.sbin  [Existed: 0.6.0.22] - PSP offchip Recovery BootLoader, signed with production key version
+ PspAgesaS3Resume_prod_ST.csbin      [Existed: 0.6.0.22] - PSP Agesa S3 resume, signed with production key version and compressed
+ PspSecureOs_prod_ST.csbin           [Updated: 0.6.0.22] - PSP secure OS, signed with production key version and compressed
+ PspTrustlets_TPMver122_prod_ST.cbin [Existed: 0.6.0.22] - PSP secure OS system trustlets (type 0xC), not signed but compressed.
+
+Features and fixes in 0.6.0.22:-
+PLAT-26134:
+- fTPM 137 addition
+- RS3 certificate for tl_fTPM_137
+
+Features and fixes in 0.6.0.21:-
+PLAT-19168:
+- Changing TPM initialization code to have query cap wait for TPM device to be initialized.
+
+PLAT-15647:
+- Remove handling TA Unload command from Host as not used in the production to reduce the binary size.
+
+Back-out revision 25 from //depot/psp/stg/fw/2.0-SRBRCZ-Unified/fw/drivers/drm/Out/Bin/drDrm.lib
+[Updated drDrm.lib been used to build the System Utility Trustlet makes the Utility TA exceed its size limitation in 32KB. The DRM lib is used only for Utility TA and extra functionality included in the DRM driver do not affect the TA workablity. So, no need to update the library. Instead, reverted to older version.]
+
+PLAT-21484 / TIC-21847: PSP FW fails at system 1st boot occasionally (with AMI BIOS).
+- Most probably the TPM Manufacture was stuck due to timing issues.
+- Extra instrumentation causes PSP FW to function as expected, possibly by rectifying timing issues.
+- Code files cleaned up for good housekeeping practices.
+- Newly built fTPM TL binary files
+- TpmManufacture moved from trustlets.c to the TPM thread in the main.c.
+- Instrumentation around the TPM functions to narrow down the point of failure
+- Cache invalidation for TCI buffer after calling System TA
+
+
+Features and fixes:
+1. PLAT-17393: PSB Test Mode - Status/Error Reporting.
+2. PLAT-17759: BIOS-2-PSP Mailbox interface enhancement: Clear the status bit before new command handling to re-charge the error report mechanism.
+Code base updated up to CL#40868.
+
+[0.6.0.1F]
+1. PLAT-15647: Port security and functional fixes found during interface security code review to CZ/BR/ST Unified:
+	1) Address concerns regarding S3 suspend and external APIs:
+		- Check to make sure S3 suspend request is coming when CPU is in SMM mode and SlpTyp in FCH is set to S3.
+		- When mapping MMHUB window, make sure physical addresses does not overlap with CC6 area.
+		- Add verification of PDMB mapped address against CC6 and SMM areas.
+		- Fix issues caused by out-of-order NOP command;
+		- Better error handling in BIOS mailbox;
+		- Modify BIOS-to-PSP command buffer structure to allow SMM_INFO command to pass address of command buffer for commands sent in SMM mode;
+		- Require S3 enter/exit and TA_INFO commands to use fixed command buffer address;
+	2) Change <t-base Memory Pool size from 7 MB to 6 MB as the actual CC6 PSP SWd Reserved Memory area is limited by 6716 KB.
+	3) Add Watchdog control during mapping an external DRAM buffer. In case of failure return error indication in the C2P status register to BIOS.
+	4) Remove handling of OEM-X host commands.
+	5) AGESA GNB IOMMU L1_CNTL Programming in S3 resume path to ensure these are programmed before PSP generates any DRAM access.
+Code base updated up to CL#39736.
+
+[0.6.0.1E]
+1. PLAT-9674: Fix bug in the <t-base SMNIF TLBs assignment to satisfy BootROM request to use TLBs 12 to 15 only.
+2. PLAT-13065: Platform Secure Boot Control - Test Mode Support for Bristol Ridge. New feature request.
+3. PLAT-12495: Regenerating ekcert instead of returning TPM when Ek certificate is not present and Reseed flag is not set as to workaround TPM version 2.8.
+Code base updated up to CL#38361.
+
+[0.6.0.1D]
+1. PLAT-12071: Fix DDR2400 UDIMM fails S3 resume. WARNING! Does not compatible with weekly BIOSs prior 10/12
+2. PLAT-10774: OEM-X specific support code: Ported from BR all related to I2C fixes.
+Code base updated up to CL#37415.
+
+WARNING!
+New Agesa S3 Resume binary image (PspAgesaS3Resume_prod_ST.csbin) does not compatible with old BIOSs prior October 12, 2016.
+
+[0.6.0.1C]
+1. PLAT-10268: Fix "System stay at CP:D3B8 about 8 sec during BIOS POST every time after updated PI".
+Code base updated up to CL#36463.
+
+[0.6.0.1B]
+1. SWDEV-97548: Global Platform API Compliance. Fix the GP VTS test case Invoke_SetOperationKey failure.
+2. PLAT-9583: OEM-X specific support code. OEM BIOS-2-PSP code ID range starts from 0x40. WARNING! Has to be synched with BIOS.
+3. PLAT-9674: Remove access to the MP1 Scratch register after Secure Debug Unlock. Work around until it's fixed.
+4. PLAT-6896: Fix Agesa version number.
+Code base updated up to CL#36196.
+
+[0.6.0.1A]
+1. PLAT-9557: OEM-X specific support code. Fix special BIOS-2-PSP command handling if it's issued before TA is loaded and initialized.
+2. SWDEV-89326: Global Platform API Compliance. Fix failures in VTS for Category Crypto.
+3. PLAT-6896: Carrizo systems do no resume from S3 with NB P-states disabled. WARNING! Does not compatible with weekly BIOSs prior 07/06
+Code base updated up to CL#36016.
+
+WARNING!
+New Agesa S3 Resume binary image (PspAgesaS3Resume_prod_ST.csbin) does not compatible with old BIOSs prior July 6, 2016.
+
+[0.6.0.19]
+1. PLAT-9229: Fix a corner case of nvstorage garbage collection which hung system at FW_status 8442BD06.
+2. PLAT-9192: Fix a bug in the Utility System TA that causes Secure Unlock failure after entering s3 several times.
+3. SWDEV-95468: Fix 0xEA issue on S3/S4 resume: Remove the extra acknowledgement to SMU after the UCODE validation is completed.
+Code base updated up to CL#35833.
+
+[0.6.0.18]
+1. PSP 2674: Fix TPM 2.0 clock test failure on RS: Incorporates delay from NV access to ensure the tpm clock returned within the tolerance level of HLK test.
+2. PLAT-8965: OEM-X: Enable PSP-EC communication sharing I2C 3 with Broadcom NIC device.
+Code base updated up to CL#35498.
+
+[0.6.0.17]
+1. PLAT-8831: PSP 2.0 Gfx interface enhancement: Corner cases and error handling improved.
+Code base updated up to CL#35236.
+
+[0.6.0.16]
+1. PSP-2632: EpSeed generation using OTP key. Fix certificate generation process on expiry date. Merge OTP key generation code for iCA.
+Code base updated up to CL#34846.
+
+[0.6.0.15]
+1. PLAT-8371: Protect by mutex the MCI/MCP buffer usage by different asynchronous threads requiring <t-base services.
+2. PSP-2572: Fix RedStone HLK TPM functional test failure RC.Sensitive (0x155); Enabled AES 256.
+3. PSP-2568: Fix RedStone HLK TPM NVstorage test failure; Merge new changes from TPMv122 reference code.
+4. PSP-2406: Port ECC Schnorr, ECDAA changes.
+Code base updated up to CL#34760.
+
+[0.6.0.14]
+1. PLAT-8082: Remove default TA key hash (Test Key) from <t-base.
+Code base updated up to CL#34510.
+
+[0.6.0.13]
+1. PLAT-7479: PSP to load different Stoney SMU FW for fan-less OPN part.
+2. PLAT-7495: Update Global Platform part of MCLib in <t-base.
+3. PLAT-7550: Remove BUILD_OEM compilation flag in PSP FW.
+Code base updated up to CL#34201.
+
+[0.6.0.12]
+1. PLAT-7087: Use software mutex before access to access register SMIX_98 & SMIX_A8.
+2. PLAT-7247: RC_MEMORY leak fix to root-cause. Revert back max loaded objects num to 50.
+Code base updated up to CL#34021.
+
+[0.6.0.11]
+1. PLAT-7247: Increment object size from 50 to 100. Ek Certificate date update and version change.
+Code base updated up to CL#33818.
+
+[0.6.0.10]
+1. PLAT-6535: Halt the system if SMU FW authentication fails.
+2. PLAT-6794: Fix HDT Secure Debug Unlock failure.
+Code base updated up to CL#33599.
+
+[0.6.0.0F]
+1. PLAT-6139: Secure OS SRAM usage optimization: split NWd into SRRAM and DRAM parts.
+2. PLAT-6550: Add fTPM ADK optimization back.
+Code base updated up to CL#33381.
+
+[0.6.0.0E]
+1. PLAT-6145, PLAT-6417: Revert ADK optimization issue (PLAT-2694) to workaround PLAT-6145 issue.
+2. PLAT-2551, PLAT-6416: Add delay following spi-rom erase to avoid x86 trapped in consecutive SMI call and cause Vsync TDR.
+Code base updated up to CL#33183.
+
+[0.6.0.0D]
+1. PLAT-6198, PLAT-5492: Fix Token Unlock bug.
+2. PLAT-5336: Token Unlock performance enhancement. WARNING! Recovery Boot Loader updated.
+3. PLAT_5992: Reduce <t-base RTM size.
+4. PLAT-6139: Reduce Secure OS NWd SRAM usage.
+Code base updated up to CL#33068.
+
+[0.6.0.0C]
+1. PLAT-5874: PSP BL to load SecureOS to DRAM, not to SRAM.
+Code base updated up to CL#32874.
+
+[0.6.0.0B]
+1. PLAT-5492: Remove the 0x5 secure unlock flag: requirement for token unlock in BIOS image.
+2. PLAT-2374: PlayReady UCode Validation: fix actions taken when tampering is detected.
+Code base updated up to CL#32584.
+
+[0.6.0.0A]
+1. PLAT-5385: Fix data abort after secure unlock and re-enable 0x5 flag for HDT-out.
+2. PLAT-3133: H-SFB Fenced Memory Clear update to 64 bit address operations.
+3. PLAT-5341: Remove debug code that overwrites C2P_MSG_25 register.
+Code base updated up to CL#32473.
+
+[0.6.0.09]
+1. PLAT-5214: Fixed TPM 1.22 to enable the assert notification on C2P mailbox.
+2. PLAT-5211: Enable PlayReady DRM Trustlet to derive AES key using OTP #2 key.
+3. PLAT-3133: H-SFB Fenced Memory Clear on Reset/Reboot/Resume.
+4. PLAT-4895: Optimize SRAM usage in Secure OS.
+Code base updated up to CL#32233.
+
+[0.6.0.08]
+1. PLAT-2694: Optimization for the issue that BIOS init time exceeds criteria on ADK test with fTPM enabled.
+2. PLAT-3057: Program a MP1 secure register to let MP1 know that the part has successfully gone through Secure Unlock.
+Code base updated up to CL#31897.
+
+[0.6.0.07]
+1. PLAT-3054: Fix TLAPI_ALG_RSA_OAEP_SHA256 return on decrypt mode.
+4. PLAT-2374: PlayReady UCode Validation: add DMA from FB command which will call newly added crypto driver.
+Code base updated up to CL#31676.
+
+[0.6.0.06]
+1. PLAT-2374: PlayReady UCode Validation
+2. PLAT-2616, 2617: Security patch TPM on 0.96 and 1.22 on DA
+3. PLAT-2374: Passthrough function to support copying of framebuffer to system memory.
+Code base updated up to CL#31363.
+
+[0.6.0.05]
+Code base updated up to CL#31255.
+PLAT-2636: Fix BIOS RTM/PEI blob validation failure in case of it's size is not multiple of 64.
+PLAT-2355: Add Detection of Knoll Device to CZ/BR/ST Unified Bootloader.
+
+[0.6.0.04]
+Code base updated up to CL#31132.
+PLAT-2474 : [BR DDR4] S3 resume fails at DDR2400
+PLAT-2299 : ST DDR4: Disable Bank Group Mirror for x16 DIMMs
+
+[0.6.0.03]
+Code base updated up to CL#30952.
+PLAT-2358: Swap PSP entry number for TPM to suit back-ward compatible of old programs.
+PLAT-2378: [CZ FM2] set SPI-ROM mode settings in proper dFCH registers.
+PLAT-2297: -rebuild fTPM
+PLAT-2297:
+- Port of changes from CL 29109 to unified branch
+1. Fix CPC_TPM_TC2_2_16_06_01 on ECC parameter
+2. Fix CPC_TPM_TC2_2_14_03_05 on invalid case on ECDSA
+ENH464884: -update TPM version and cert time
+EPR #423140 - ASD Driver change to read device information securely for CZ WS enablement
+EPR #010001 - Update VPR carve out region limit
+PLAT-2078, PLAT-2079: Check Family_ID in CZ/BR and Stoney and if it's not 0 do not let system boot.
+ENH464884: -not used anymore, so delete;
+TT465250: Add CFLAGS for BUILD_SR=1
+PLAT-1995:
+Port of CL 30174 to unified branch
+- For fTPM 1.22 specifically, HLK test TPM 2.0 Stress expects a TPM_RC_SIZE error to be returned from TPM2_VerifySignature for ECDSA whenever either of the input signatures' buffer lengths are greater than the buffer length of the modulus, irregardless of the absolute values of the signatures (e.g. a signature of value 1 with buffer length 33 bytes returns TPM_RC_SIZE)
+EPR #010001 - Fix bug with using playready structure before initialization
+JIRA-2193 - Fix CCP HAL layer for queue 1 used by ASD driver Porting from CZ to BR/CZ
+DEV465250: Fix typo in script separators that prevents the mars to be build
+EPR #010001 - Promotion of PSP 2.0-Unified ASD driver: production binary version 1.47
+JIRA #1584:  - Update VPR aperature registers from a byte to word alignment
+PLAT-2103 - Updating makefile and trustlet allowing 1.22 TPM to be signed with SR and BR key by default
+EPR#010001:  Add the new feature to build different TPM truslets into system truslets. Dynamically detect ASIC type and select different TPM truslets. update the makefile
+EPR#010001: Add the new feature to build different TPM truslets into system truslets. Dynamically detect ASIC type and select different TPM truslets.
+JIRA1584:  -Add check if CP type for SFB is enabled
+EPR010001: -Port ASD chagnes from SR to unified branch
+-Remove IPC handler for VPR region
+-Add DCI handler for VPR region
+PLAT-2038: Introduce BUILD_SR key to separate ASD driver source code base for different platforms.
+PLAT-2049: Clean up the ASD driver source code to avoid any Warning messages during compile/build.
+PLAT-2038: Setup System Trustlets and ASD driver build environment for PROD_SIGN=1
+
+[0.6.0.02]
+Code base updated up to CL#30528.
+PLAT-1796: Fix definition error in the combo support of CZ and ST;
+PLAT-1796: Add Stoney memory support into the unified branch;
+EPR413366: Fix a bug in latest adding command to Gfx I/F for shared memory mapping in PSP 2.0 branch.
+ENH464884: -yield back to NWD to avoid soft hung in TPM assert;
+TT465250: Validate all internal apps do not output debug message
+	- Using Macro APP_DBG_PRINTF instead of all kind of different debug message call.ie. dbgSN/dbgSPN/dbgSDN/tlDbgPrintf…..
+	- Map APP_DBG_PRINTF to tlApiLogPrintf() if debug message enabled and default to disabled.
+ENH464884: -check TPM idle before suspend sequence to aviod system hung in mc_cmd_suspend; -port CL30382;
+ENH464884: -fix manufacture version mismatch;
+PLAT-1909: Work around to ignore parasit TEE command due to somebody wtites 0 to the C2P_MSG_17 register.
+ENH464884: -minor changes and clean up;
+EPR#413366: Adding command to Gfx I/F for shared memory mapping in PSP 2.0 branch:
+	- Fix errors in 2.0 CZ
+	- Port to 2.0-BR
+ENH466357: Reduce PSP/SMN clock back to the default 300 MHz as a temporarily workaround for eCZ B10/A10 fused parts.
+ENH#464884
+- Fixed a bug causing _math__Div to be incorrect for certain parameters. The amount of "used" elements of a KC_BIGNUM in the function BNDiv was calculated incorrectly for some inputs. This was fixed by checking explicitly how many elements were used, instead of assuming the number of elements was the numerator's used elements minus the denominator's used elements
+ENH465657: Enable port 80h for FM2+ as early as possible because dFCH has it's disabled by default unlike iFCH.
+ENH464884:
+-TPM NV data CRC corruption detection, recovery and auto-healing;
+-New cookie search algorithm after corrupted header and data;
+-New NV format, back compatible with old NV format;
+-Automatic renew NV format on first reboot after BIOS re-flash;
+-Incresed .text and .data section to accommodate NV corruption detect & recovery code;
+-Fixed L1 page table size and alignment;
+-Deleted L2 page table to release extra space;
+PLAT-1796 : Create a separate S3 entry for D18F2x9C_x0081_0[F,2:0]77_dct[1:0]
+ENH466194: Handle new BIOS-2-PSP command 0x17 to clear SMMLock bit in CC6 private memory.
+TT465250: Sync CZ ftpm code base 1.22 upto CL@30108, and default use 1.22 code base.
+ENH#464884
+- Port of CL 30061 to 2.0-BR. Original CL description:
+-  PSP 2.0 FW fix on TPM version 0.96 to bugs that were causing hangs and failures on HLK test TPM 2.0 Stress
+ENH465657: Port CL#30056 from CZ to BR: Fix S3 resume mode detection by iFCH for FP4 and dFCH for FM2+
+OBS465667: Boost PSP and SMN clock to 720MHz.
+BUG464096: Fix PSP TEE interface to diagnose a bad buffer address for command TEE_CMD_ID_INITIALIZE.
+ENH465395: Fix number of pending NvWrites bug in fTPM with TCG test suite 1.3. fTPM is updated.
+TT465250: Validate all internal apps do not output debug message TL_UTIL & TL_FTPM
+BUG465880: CZ PSP FW ARM cache clean/invalidate operations bug. Implementation does not define properly the exact line of the cache that has to be operated with. Corner cases inaccuracy.
+PLAT-1183: CZ_HLK_Win10: TPM2.0 TCG Physical Presence Interface 1.2 Test (Core System) test failed.
+PLAT-1180: [HLK][Win10] TPM Win32_TPM Class Test fails on CZ and BS
+
+[0.6.0.01]
+1. Merged from PLAT-1796 CZ: Create a separate S3 entry for D18F2x9C_x0081_0[F,2:0]77_dct[1:0]
+2. ST memory code update for AGESA S3 BL;
+3. EPR #010001 : Disable VERIFY_DRAM_VECTOR on S3 resume
+4. EPR #010001 : Enable VERIFY_DRAM, VERIFY_DRAM_CC6, VERIFY_DRAM_VECTOR on S3 resume
+5. EPR #010001 :
+- Update FW version no.
+- Update PROD_SIGN TLs
+6. EPR #010001 - Integrate CL#29884 from //depot/psp/release/2.0-BR/BR_PspFW_0.5.0.04/fw/

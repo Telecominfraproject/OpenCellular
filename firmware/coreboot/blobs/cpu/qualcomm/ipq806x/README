@@ -1,0 +1,8 @@
+*******************************************************************************
+* ATTENTION: The MBN files in cpu/qualcomm/ipq806x/*.mbn are placeholders.
+* These are NOT working IPQ806x binaries.
+*
+* Developers should maintain the IPQ806x files on the flash device and be
+* sure to back it up prior to overwriting it with a coreboot image.
+*******************************************************************************
+
