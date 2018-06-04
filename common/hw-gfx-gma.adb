@@ -97,6 +97,8 @@ is
      (Pipe     : in     Pipe_Index;
       Pipe_Cfg : in     Pipe_Config;
       Success  :    out Boolean)
+   with
+      Pre => Pipe_Cfg.Port in Active_Port_Type
    is
       Port_Cfg : Port_Config;
       Scaler_Available : Boolean;
