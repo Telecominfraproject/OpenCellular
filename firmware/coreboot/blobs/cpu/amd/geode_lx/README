@@ -1,0 +1,9 @@
+This VSA is taken from
+http://marcjonesconsulting.com/gplvsa/gpl_vsa_lx_102.bin.gz
+
+and decompressed for simplicity. The original SHA1 was:
+96a6097331278d644230eac4fc39bcfebc3c9a16  gpl_vsa_lx_102.bin.gz
+
+While we have the source code (see gplvsa_ii), it requires a rather
+esoteric build system. Should this be fixed, we could consider adding
+VSA to the coreboot tree. Until then, source and binary can reside here.

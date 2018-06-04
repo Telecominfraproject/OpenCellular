@@ -1,0 +1,14 @@
+
+                        Release Notes for Mullins VBIOS
+                        -------------------------------
+           	Ref board: Discovery 105-C69300-00,  Asic: Godavari
+
+
+====================================================================================
+Version	: V100                             Release Date: Jan 7  2014
+File :MullinsGenericVbios.bin
+Code rev: 15.42.0.2					       ATOMBuild #282578
+------------------------------------------------------------------------------------
+1.Rev up to V100 to indicate it is start of production version
+2.EPR#010003 : OBS428719 - eDP backlight sequence T15&T16 issue
+

@@ -1,0 +1,17 @@
+                  Release Notes
+                  =============
+                     xHC FW 
+
+--------------------------------------------
+Version 1.0.0.48
+--------------------------------------------
+   Enhancements:
+   =============
+   1. The release corrects an issue where the system would hang when unplugging a USB mouse and plugging in a USB 3.0 storage device while in the S3 state.
+
+--------------------------------------------
+Version 1.0.0.44
+--------------------------------------------
+   Enhancements:
+   =============
+   1. The release supports Hudson-3 series chipsets.

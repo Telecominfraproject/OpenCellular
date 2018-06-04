@@ -1,0 +1,242 @@
+============================ CZ 022 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 022
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.022  2/26/2015,14:11:00  CL#1125402 @15.48.0.0  ATOMBuild #313918
+
+Major Changes included:
+Fix some 4K DP panel intermittentlly no display issue during POST.
+
+
+============================ CZ 021 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 021
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.021   2/1/2015,12:15:32  CL#1117283 @15.48.0.0  ATOMBuild #311474
+
+Major Changes included:
+use CPDMA memory copy to replace memory fill in clearscreen function to improve the VBIOS bootup time.
+
+
+============================ CZ 020 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 020
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.020   11/16/14,17:31:32  CL#1097362 @staging  ATOMBuild #305391
+
+Major Changes included:
+CL1097362 - EPR #010003 - [CZ][DCE]Carrizo has only ATOM_UNDERLAY_PIPE0,
+In 4:2:0, the luma and chroma are in different surfaces, so DPGV0 controls the luma while DPGV1 controls chroma.
+In 4:4:4 and 4:2:2, the data is in 1 surface, so only DPGV0 is used.
+so CZ will only support ATOM_UNDERLAY_PIPE0
+
+============================ CZ 019 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 019
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.019   10/28/14,16:20:46  CL#1091648 @staging  ATOMBuild #304496
+
+Major Changes included:
+CL1091648 - [CZ][DCE]the fields TMDS_PIXEL_ENCODING and TMDS_COLOR_FORMAT moved from TMDS_CNTL in DCE10 to DIG_FE_CNTL in DCE11.  In DIG_FE_CNTL, the fields are actually bits 28 (for TMDS_PIXEL_ENCODING) and 31:30 (for TMDS_COLOR_FORMAT).
+
+
+
+============================ CZ 018 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 018
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.018   10/14/14,16:25:51  CL#1087425 @staging  ATOMBuild #303488
+
+Major Changes included:
+CL1087425 - fix to BUG457055:Gardenia CZ: HDMI video output does not work.
+
+
+
+============================ CZ 017 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 017
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.017   10/02/14,17:24:39  CL#1083767 @staging  ATOMBuild #302840
+
+Major Changes included:
+CL1081056 - OBS455612:[CZ][DCE] smu hang after Display Pipe Gate/Ungate when nb dpm enable.
+DPG_PIPE_NB_PSTATE_CHANGE_CONTROL register is added in the GDB.
+
+
+
+============================ CZ 016 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 016
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.016   09/03/14,17:31:31  CL#1073053 @staging  ATOMBuild #300896
+
+Major Changes included:
+CL1064448/1064972 - [CZ][PHY]eDP V1.4 Phy settings  offset calculation correction. which is for fix eDP non-Legacy mode no display issue.
+CL1072187 - EPR #010003 - [CZ][DCE]enable SetEngineClock table. for diagnostic use. Vbios will not use this table.
+CL1067396 - EPR #010013 - GOLDEN Update, UNIPHY_TMDP_REG3 in ID2887:CARRIZO_TMDP_EDP_LOW_VDIFF
+
+
+============================ CZ 015 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 015
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.015   08/11/14,13:08:25  CL#1064928 @staging  ATOMBuild #299240
+
+Major Changes included:
+CL1063560 - fix to OBS452674:[CZ] No display in Win8.1 when PPLIB enabled on Beta7 driver with WGA4730N Bios
+CL1063123 - fix to EPR #403797:[CZ][DFS BYPASS] No display in Win8.1 when PPLIB enabled on Beta7 driver with WGA4730N Bios,
+CL1060596 - PHY setiing GDB update, HDMI PHY settings for TMDP_B_HDMI, TMDP_C_HDMI added.
+
+
+============================ CZ 014 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 014
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.014   07/21/14,13:56:00  CL#1057431 @staging  ATOMBuild #297833
+
+Changes included:
+CL1057430 : DVI Setting #2744, Carrizo_TMDP_TMDS is updated with UNIPHY_TX_ CONTRL3 from c000000 to 8000000 at clock arrange 5.
+Here is DIG_LANE_ENABLE=f at the clock range 145MHz to 165MHz.
+
+============================ CZ 013 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 013
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.bin   07/08/14,20:33:10  CL#1053386 @staging  ATOMBuild #297065
+
+Changes included:
+1. programming UNDERFLOW_UPDATE_LOCK = 0
+2. DC_MEM_GLOBAL_PWR_REQ_DIS = 0.
+3. Fix bug EPR401829, eDP lost display if driver calls VBIOS for PIPE Power gate with PIPE_INIT.
+4. Fix OBS449906 DCE AFMT clock gating: Global power request disable golden setting not set and its side effects.
+
+============================ CZ 012 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 012
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.bin   06/27/14,19:25:58  CL#1050738 @staging  ATOMBuild #296523
+
+Changes included:
+GDB updates for CARRIZO_TMDP_HDMI and CARRIZO_TMDP_DP
+UNIPHY_TX_CONTROL1 value was changed from 0xaa05555 to 0xaa01111 for HDMI Mode Clock Range 5 (300MHz)
+UNIPHY_TMDP_REG3 value was changed from 0xa0001 to 0x20001 for  RBR 1.62G AND 0 DB 0.4V.
+
+DCE GDB changes:
+DCP_LB_DATA_GAP_BETWEEN_CHUNK = 0x145
+UNP_LB_DATA_GAP_BETWEEN_CHUNK = 0x140
+
+Golden DB match checked.
+
+============================ CZ 011 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 011
+Carrizo A10 0x9870  105-c75100-00a  CarrizoGenericVbios.bin   6/19/2014,18:35  CL#1047807 @staging  ATOMBuild #296068
+
+Changes included:
+1. Enable AUX_RESET toggling during AUX enable sequence.
+2. Enable support HDMI 2.0 4k 6Gbps mode
+3. Enable eDP v1.4 6 voltage mode support.
+4. Enable DCE power gating and feature.
+5. Update DCE golden setting: DMIF_CONTROL, AUX_DPHY_TX_REF_CONTROL, LB_BUFFER_STATUS
+6. Add new IntegratedSystemInfoTable structure to support 8 entries of DISPCLK/VDDC mapping.
+
+============================ CZ 010 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 010
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.010   06/16/14,12:39  CL#1046248 @staging  ATOMBuild #295776
+
+
+Changes included:
+
+Carrizo bring up Vbios .
+This Vbios includes all the the features for bring up.
+1. Change PN formation from 113-CZ-xxx to 113-C75102-XXX.
+
+
+============================ CZ 009 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 009
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.009   06/13/14,11:04:55 1046055@staging  ATOMBuild #295728
+
+
+Changes included:
+
+Carrizo bring up Vbios .
+This Vbios includes all the the features for bring up.
+1. Update UNIPHY IMPCAL power up sequence to Fix no display issue when VDDP =0.9v.
+2. Add LCD backlight brightness level control function.
+
+
+============================ CZ 008 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 008
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.008   06/08/14,11:04:55 10431307@staging  ATOMBuild #295228
+
+
+Changes included:
+
+Carrizo bring up Vbios .
+This Vbios includes all the the features for bring up.
+Fix HDMI/DVI no display issue in windows driver which is caused by incorrect DREFCLk frequence in FirmwareInfoTable.
+
+============================ CZ 007 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 007
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.007   06/05/14,18:09:55 10431307@staging  ATOMBuild #295153
+
+
+Changes included:
+
+Carrizo bring up Vbios .
+This Vbios includes all the the features for bring up.
+HDMI and eDP/DP wok fine with external 48Mhz reference clock.
+
+
+============================ CZ 005 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 005
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.005   05/25/14,21:50:24 10395465@staging  ATOMBuild #294458
+
+Changes included:
+
+Carrizo bring up Vbios .
+This Vbios includes all the the features for bring up.
+Support eDP V1.4 Pre-emphasis and voltage swing settings.
+Support HDMI2.0 PI chip one time programming.
+Sync the code to CL10395465
+
+
+
+============================ CZ 004 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 004
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.004   04/29/14,18:19:25 10318944@staging  ATOMBuild #292676
+
+Changes included:
+
+Carrizo bring up Vbios candidate.
+This Vbios includes the features for bring up.
+Remove those HWE related items, including
+1.put the CP_DMA back,
+2.put the CRTC_SATUS/TMDP_REG5 check back,
+3.remove hardcoded parameters.
+
+============================ CZ 003 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 003
+Carrizo A10 0x9870  105-c75100-00a  CZHWETest.004   04/23/14,15:40:36 1029795@staging  ATOMBuild #292262
+
+Changes included:
+
+remove TMDP_REG5/CRTC_STATUS Check, this Vbios is only for HWemulation. it removes the UNIPHY_TMDP_REG5 check, because the HWE can not emulate the PHY part.
+
+
+============================ 002 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 002
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.002    01/17/14,15:23:43 998574@staging  ATOMBuild #283962
+
+Changes included:
+
+simplify display configuration to run HWE. reduce display to 1 DVI on DP0.
+
+
+============================ 001 VBIOS release  ========================================
+
+Carrizo  generic Baseline VBIOS 001
+Carrizo A10 0x9870  105-c75100-00a  AMDCarrizoGenericVbios.001    11/26/13,11:20:44 980538@15.39.0.0  ATOMBuild #278809
+
+Vbios includes:
+1. sync to CL278809 which includes the basic Vbios for Hardware Emulation.
+2. CM DPA was disabled for speeding up HW Emulation.
+
+

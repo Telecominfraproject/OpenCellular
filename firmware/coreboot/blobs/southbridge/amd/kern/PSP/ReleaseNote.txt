@@ -1,0 +1,22 @@
+//----------------------------------------------------------------------------
+// PSP FW Delivery Release Note
+//
+// Copyright 2015, Advanced Micro Devices, Inc.
+// Image Version number: PSP BootLoader: 0.2.0.35, PSP SecureOS: 0.2.0.35
+// Date:   July 15, 2015
+//----------------------------------------------------------------------------
+
+Content:
+	PSP FW Deliverables for Carrizo Bring Up.
+	This Build is compiled using the ARM license from the AMD license server.
+
+Files:
+	PspBootLoader_prod_CZ.sbin    - PSP offchip BootLoader, signed with production key version
+	PspRecoveryBootLoader_prod_CZ.sbin    - PSP offchip Recovery BootLoader, signed with production key version
+	PspAgesaS3Resume_prod_CZ.csbin - PSP Agesa S3 resume, signed with production key version and compressed
+	PspSecureOs_prod_CZ.csbin      - PSP secure OS, signed with production key version and compressed
+	PspTrustlets_prod_CZ.cbin      - PSP secure OS system trustlets, not signed but compressed
+
+Features and fixes:
+1. ENH466357: Reduce PSP/SMN clock back to 300 MHz as a temporarily workaround for eCZ B10/A10 fused parts.
+2. Code base updated up to CL#30190.

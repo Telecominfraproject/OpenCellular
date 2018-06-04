@@ -1,0 +1,46 @@
+============================ ST 006 VBIOS release  ========================================
+Stoney  generic Baseline VBIOS 006
+Stoney A11 0x98E0 109-C91420-00A  StoneyGenericVbios.006  02/22/16,01:31:08 CL#1239056 @15.49.0.12  ATOMBuild #339175
+
+Major Changes included:
+1. Update TMDP_DP golden setting refert to STONEY_TMDP_DP_new(requested by Connie).
+
+============================ ST 005 VBIOS release  ========================================
+Stoney  generic Baseline VBIOS 005
+Stoney A11 0x98E0 109-C91420-00A  StoneyGenericVbios.005  12/21/15,12:48:54 CL#1222685 @15.49.0.11  ATOMBuild #335602
+
+Major Changes included:
+1. To align with the GOP driver behavior that just turn on one available display device when POST,
+   if no available display device, use default available devices as DOS request devices (DFP1).
+
+============================ ST 004 VBIOS release  ========================================
+Stoney  generic Baseline VBIOS 004
+Stoney A11 0x98E0 109-C91420-00A  StoneyGenericVbios.004  11/02/15,02:58:13 CL#1206328 @15.49.0.09  ATOMBuild #331092
+
+Major Changes included:
+1. By pass programming PS175 via I2C if Parade PS175 reported by SBIOS
+2. Update to release branch 15.49
+
+============================ ST 003 VBIOS release  ========================================
+Stoney  generic Baseline VBIOS 003
+Stoney A11 0x98E0 109-C91420-00A  StoneyGenericVbios.003  10/02/15,03:22:47 CL#1196473 @15.48.0.68  ATOMBuild #329408
+
+Major Changes included:
+1. Correct the miss in 002 for Parade PS175 DPToHDMI w/ HDCP2.2 recoverter chip support
+
+============================ ST 002 VBIOS release  ========================================
+Stoney  generic Baseline VBIOS 002
+Stoney A11 0x98E0 109-C91420-00A  StoneyGenericVbios.002  09/25/15,05:42:02 CL#1194488 @15.48.0.68  ATOMBuild #329237
+
+Major Changes included:
+1. Add Parade PS175 DPToHDMI w/ HDCP2.2 recoverter chip support
+
+============================ ST 001 VBIOS release  ========================================
+Stoney generic Baseline VBIOS 001
+Stoney A11 0x98E0 109-C91420-00A  StoneyGenericVbios.001  08/11/15,05:49:23 CL#1179088 @15.48.0.66  ATOMBuild #326744
+
+Vbios includes:
+1. sync to the latest change in 15.48.(Same as Carrizo generic VBIOS v028)
+
+
+

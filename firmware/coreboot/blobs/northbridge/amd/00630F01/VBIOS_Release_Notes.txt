@@ -1,0 +1,24 @@
+============================ 102 VBIOS release  ========================================
+
+Kaveri  generic Baseline VBIOS 102
+Spectre A11 0x1304  105-c45300-000  AMDSpectreGenericVbios.102    02/03/14,12:14:55 1003805@VER015.041.000.002.000000  ATOMBuild #285239
+
+Changes include:
+CL1003465 - EPR #392854 - [KV][Realtek][Kaveri Mobile] Triggering a TDR on LVDS REALTEK causes screen to go blank.
+
+============================ 101 VBIOS release  ========================================
+
+Kaveri  generic Baseline VBIOS 101
+Spectre A11 0x1304  105-c45300-000  AMDSpectreGenericVbios.101    01/03/14,17:42:37 993494@VER015.041.000.001.000000  ATOMBuild #282316
+
+Changes include:
+CL993491 - OBS428719 - eDP backlight sequence T15&T16 issue.
+
+============================ 100 VBIOS release  ========================================
+
+Kaveri  generic Baseline VBIOS 100
+Spectre A11 0x1304  105-c45300-000  AMDSpectreGenericVbios.100    12/05/13,16:27:24 984074@15.41.0.0  ATOMBuild #279841
+
+Changes include:
+no change, update the Vbios bring up revisio number 0xx to production revision number 100.
+

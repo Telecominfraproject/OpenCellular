@@ -1,0 +1,52 @@
+﻿TOOLS:
+• MASM 6.11c or greater: This is available through an MSDN subscription.
+- Upgrade to 6.14: ftp://ftp.microsoft.com/softlib/mslfiles/ml614.exe
+• NMAKE.EXE Version 1.40 or greater (1.20 is included with MASM 6.11 – the
+  upgrade is needed to build)
+- Update to 1.50: ftp://ftp.microsoft.com/softlib/mslfiles/nmake15.exe
+- Unzip into the masm611\bin directory
+• MSVC Version 1.52: This is available through an MSDN subscription.
+• exe2bin.exe: This is supplied with Microsoft operating systems from DOS
+  to Windows XP.
+
+These are the minimum tools & files you need to build VSA:
+333,312  c13216.exe  
+493,056  c23216.exe  
+244,224  c33216.exe  
+  1,756  cl.err      
+ 91,648  cl.exe      
+  4,279  cl.msg      
+ 21,879  h2inc.err   
+249,344  h2inc.exe   
+ 59,089  lib.exe     
+364,544  link.exe    
+  9,687  ml.err      
+372,736  ml.exe      
+  5,056  nmake.err   
+ 65,536  nmake.exe   
+  5,647  oldnames.lib
+391,207  slibc7.lib  
+404,519  slibce.lib  
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+SETTING THE BUILD ENVIRONMENT:
+The path should include the bin directories from MASM and MSVC, as well as the
+normal path for DOS or Windows.
+Following is a sample batch file to set up the environment:
+
+@echo off
+if "%varset%" == "xpath" goto done
+set path=c:\tools;c:\tools\masm\bin;c:\tools\msvc\bin;%path%
+set lib=c:\tools\msvc\lib
+set varset=xpath
+:done
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+BUILDING THE ROM:
+Change directories to vsa_ii\build and type NMAKE. This will create the
+VSA .bin file.
+
+Build Targets in the Makefiles:
+• NMAKE all - builds the VSA binary
+• NMAKE clean - cleans up last compile, but leaves the VSM files.
+• NMAKE cleanall - cleans up last compile completely
