@@ -89,11 +89,11 @@ package body HW.GFX.GMA.Power_And_Clocks_Skylake is
    GT_MAILBOX_READY                    : constant := 1 * 2 ** 31;
 
    function CDCLK_CTL_CD_FREQ_DECIMAL
-     (Freq        : Positive;
+     (Freq        : Pos16;
       Plus_Half   : Boolean)
       return Word32 is
    begin
-      return Word32 (2 * (Freq - 1)) or (if Plus_Half then 1 else 0);
+      return Word32 (2 * (Pos32 (Freq) - 1)) or (if Plus_Half then 1 else 0);
    end CDCLK_CTL_CD_FREQ_DECIMAL;
 
    ----------------------------------------------------------------------------
