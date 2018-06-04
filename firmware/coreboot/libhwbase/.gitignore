@@ -1,0 +1,5 @@
+/proof-allconfigs/
+/build/
+/dest/
+/*.gpr
+/.config
