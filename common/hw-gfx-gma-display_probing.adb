@@ -27,49 +27,30 @@ with GNAT.Source_Info;
 package body HW.GFX.GMA.Display_Probing
 is
 
-   function Port_Configured
-     (Configs  : Pipe_Configs;
-      Port     : Port_Type)
-      return Boolean
-   with
-      Global => null
-   is
-   begin
-      return Configs (Primary).Port    = Port or
-             Configs (Secondary).Port  = Port or
-             Configs (Tertiary).Port   = Port;
-   end Port_Configured;
+   function Port_Configured (Configs : Pipe_Configs; Port : Port_Type)
+      return Boolean is
+     (Configs (Primary).Port    = Port or
+      Configs (Secondary).Port  = Port or
+      Configs (Tertiary).Port   = Port);
 
    -- DP and HDMI share physical pins.
-   function Sibling_Port (Port : Port_Type) return Port_Type
-   is
-   begin
-      return
-        (case Port is
-            when HDMI1 => DP1,
-            when HDMI2 => DP2,
-            when HDMI3 => DP3,
-            when DP1 => HDMI1,
-            when DP2 => HDMI2,
-            when DP3 => HDMI3,
-            when others => Disabled);
-   end Sibling_Port;
+   function Sibling_Port (Port : Port_Type) return Port_Type is
+     (case Port is
+         when HDMI1 => DP1,
+         when HDMI2 => DP2,
+         when HDMI3 => DP3,
+         when DP1 => HDMI1,
+         when DP2 => HDMI2,
+         when DP3 => HDMI3,
+         when others => Disabled);
 
-   function Has_Sibling_Port (Port : Port_Type) return Boolean
-   is
-   begin
-      return Sibling_Port (Port) /= Disabled;
-   end Has_Sibling_Port;
+   function Has_Sibling_Port (Port : Port_Type) return Boolean is
+     (Sibling_Port (Port) /= Disabled);
 
-   function Is_DVI_I (Port : Active_Port_Type) return Boolean
-   with
-      Global => null
-   is
-   begin
-      return Config.Have_DVI_I and
-             (Port = Analog or
-              Config_Helpers.To_PCH_Port (Port) = Config.Analog_I2C_Port);
-   end Is_DVI_I;
+   function Is_DVI_I (Port : Active_Port_Type) return Boolean is
+     (Config.Have_DVI_I and
+      (Port = Analog or
+      Config_Helpers.To_PCH_Port (Port) = Config.Analog_I2C_Port));
 
    procedure Read_EDID
      (Raw_EDID :    out EDID.Raw_EDID_Data;
