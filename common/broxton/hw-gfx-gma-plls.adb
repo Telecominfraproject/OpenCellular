@@ -330,7 +330,7 @@ is
 
    ----------------------------------------------------------------------------
 
-   procedure Program_DPLL (P : T; Clock : Clock_Type)
+   procedure Program_DPLL (P : Valid_PLLs; Clock : Clock_Type)
    is
       PCS : Word32;
    begin

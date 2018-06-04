@@ -67,7 +67,7 @@ package body HW.GFX.GMA.Power_And_Clocks is
    CDCLK_CD2X_SSA_PRECHARGE_ENABLE     : constant := 1 * 2 ** 16;
    CDCLK_CTL_CD_FREQ_DECIMAL_MASK      : constant :=     16#7ff#;
 
-   function CDCLK_CTL_CD_FREQ_DECIMAL (Freq : Positive) return Word32 is
+   function CDCLK_CTL_CD_FREQ_DECIMAL (Freq : Frequency_Type) return Word32 is
    begin
       return Word32 (2 * (Freq / 1_000_000 - 1));
    end CDCLK_CTL_CD_FREQ_DECIMAL;
@@ -216,13 +216,13 @@ package body HW.GFX.GMA.Power_And_Clocks is
 
    CDClk_Ref : constant := 19_200_000;
 
-   procedure Set_CDClk (Freq : Positive)
+   procedure Set_CDClk (Freq : Frequency_Type)
    with
       Pre =>
          Freq =   CDClk_Ref or Freq = 144_000_000 or Freq = 288_000_000 or
          Freq = 384_000_000 or Freq = 576_000_000 or Freq = 624_000_000
    is
-      VCO : constant Natural :=
+      VCO : constant Int64 :=
          CDClk_Ref *
            (if Freq = CDClk_Ref then
                0
@@ -312,7 +312,7 @@ package body HW.GFX.GMA.Power_And_Clocks is
       Wait_Set_Mask (FUSE_STATUS, FUSE_STATUS_PG0_DIST_STATUS);
       PW_On (PW1);
 
-      Set_CDClk (Positive (Config.Default_CDClk_Freq));
+      Set_CDClk (Config.Default_CDClk_Freq);
 
       Set_Mask (DBUF_CTL, DBUF_CTL_DBUF_POWER_REQUEST);
       Wait_Set_Mask (DBUF_CTL, DBUF_CTL_DBUF_POWER_STATE);
