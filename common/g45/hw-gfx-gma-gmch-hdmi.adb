@@ -66,7 +66,7 @@ is
           Mask_Set   => GMCH_HDMI_ENABLE or
                         GMCH_PORT_PIPE_SELECT (Pipe) or
                         GMCH_HDMI_SDVO_ENCODING_HDMI or
-                        GMCH_HDMI_MODE_SELECT_HDMI or
+                        GMCH_HDMI_MODE_SELECT_DVI or
                         Polarity);
    end On;
 
