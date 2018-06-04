@@ -1,0 +1,84 @@
+.TH cbootimage 1 "6 October 2015" "cbootimage-VERSION" "NVIDIA Tegra Firmware Signing Tool"
+.IX cbootimage
+.SH NAME
+cbootimage \- tegra BCT compiler
+.SH SYNOPSIS
+.B cbootimage
+[
+.I options
+] configfile [
+.I inputimage
+]
+.I outputimage
+.SH DESCRIPTION
+This program is used to create images suitable to place into the boot flash of a
+device using a Tegra SoC.  There are two primary modes of operation of
+cbootimage:
+
+.nr step 1 1
+.IP \n[step] 3
+Compile a textual representation of a BCT into a binary image.
+.IP \n+[step]
+Generate an entire boot image from a previously compiled BCT and a bootloader
+binary.
+
+.SS Platforms supported
+.IP \(bu
+.B Tegra20
+.IP \(bu
+.B Tegra30
+.IP \(bu
+.B Tegra114
+.IP \(bu
+.B Tegra124
+.IP \(bu
+.B Tegra132
+.IP \(bu
+.B Tegra210
+
+.SH COMMANDS
+.TP
+.B \-gbct
+Generate the new bct file from the given config file.
+.TP
+.B \-h, \-\-help, \-?
+Print help text and exit.
+
+.SH OPTIONS
+.TP
+.B \-d, \-\-debug
+Output debugging information.
+.TP
+.B \-o\fIodm_data\fP
+Specify the odm_data value (in hex).
+.TP
+.B \-t, \-\-tegra \fINN\fP
+Select target device.  Must be one of: 20, 30, 114, 124, 132, 210.
+.TP
+.B \-s, \-\-ssoc \fItegraNN\fP
+Select target device.  Must be one of: tegra20, tegra30, tegra114, tegra124,
+tegra32, tegra210.
+.TP
+.B \-u \-\-update
+Copy input image data and update bct configs into new image file
+
+.SH EXAMPLES
+To generate a bct file from a text description obtained either through
+bct_dump(1) or cbootimage-configs:
+
+.nf
+$ cbootimage -gbct -t124 PM375_Hynix_2GB_H5TC4G63AFR_RDA_924MHz.bct.cfg PM375_Hynix_2GB_H5TC4G63AFR_RDA_924MHz.bct
+New BCT file PM375_Hynix_2GB_H5TC4G63AFR_RDA_924MHz.bct has been successfully generated!
+.fi
+
+To generate a boot image file including the newly generated bct:
+.nf
+cbootimage -t124 jetson-tk1-emmc.img.cfg jetson-tk1-emmc.img
+Image file jetson-tk1-emmc.img has been successfully generated!
+.fi
+
+.SH RETURN VALUE
+If any error occurs a non zero exit status is returned.
+
+.SH SEE ALSO
+.BR tegrarcm(1), bct_dump(1)
