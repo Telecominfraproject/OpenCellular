@@ -1,0 +1,36 @@
+
+bmpblock: 2.0
+
+images:
+  zmage0:     Background.bmp
+  image1:     Word.bmp
+
+screens:
+  scr_a4:
+    - [0, 0, zmage0]
+
+  scr_b4:
+    - [0, 0, zmage0]
+
+  scr_c4:
+    - [0, 0, zmage0]
+
+  scr_d4:
+    - [0, 0, zmage0]
+
+  scr_a1:
+    - [45, 45, image1 ]
+
+  scr_b1:
+    - [45, 400, image1 ]
+
+  scr_c1:
+    - [400, 400, image1 ]
+
+  scr_d1:
+    - [400, 45, image1 ]
+
+localizations:
+  - [ scr_a4, scr_b4, scr_c4, scr_d4 ]
+  - [ scr_a1, scr_b1, scr_c1, scr_d1 ]
+

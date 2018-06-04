@@ -1,0 +1,4 @@
+Private Key file:      /mnt/host/source/src/platform/vboot_reference/tests/devkeys/root_key.vbprivk
+  Vboot API:           1.0
+  Algorithm:           11 RSA8192 SHA512
+  Key sha1sum:         b11d74edd286c144e1135b49e7f0bc20cf041f10

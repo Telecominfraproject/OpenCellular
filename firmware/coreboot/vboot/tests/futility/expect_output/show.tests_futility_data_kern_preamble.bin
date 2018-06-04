@@ -1,0 +1,20 @@
+Kernel partition:        /mnt/host/source/src/platform/vboot_reference/tests/futility/data/kern_preamble.bin
+Key block:
+  Signature:             ignored
+  Size:                  0x5b8
+  Flags:                 15  !DEV DEV !REC REC
+  Data key algorithm:    8 RSA4096 SHA512
+  Data key version:      1
+  Data key sha1sum:      50b28df3cebabeefd134b7bc96512207f57b20a5
+Kernel Preamble:
+  Size:                  0xfa48
+  Header version:        2.0
+  Kernel version:        1
+  Body load address:     0x100000
+  Body size:             0x12000
+  Bootloader address:    0x10a000
+  Bootloader size:       0x8000
+  Flags:                 0x0
+Body verification succeeded.
+Config:
+hi there 
