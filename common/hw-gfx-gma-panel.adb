@@ -58,11 +58,8 @@ is
 
    ----------------------------------------------------------------------------
 
-   function Div_Round_Up32 (Numerator, Denominator : Natural) return Word32 is
-   begin
-      return (Word32 (Numerator) + Word32 (Denominator) - 1)
-               / Word32 (Denominator);
-   end Div_Round_Up32;
+   function Div_Round_Up32 (Num : Natural; Denom : Positive) return Word32 is
+     ((Word32 (Num) + Word32 (Denom) - 1) / Word32 (Denom));
 
    PCH_PP_STATUS_ENABLED               : constant := 16#00_0001# * 2 ** 31;
    PCH_PP_STATUS_REQUIRE_ASSET         : constant := 16#00_0001# * 2 ** 30;
