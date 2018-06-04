@@ -1,0 +1,36 @@
+if BOARD_EMULATION_QEMU_X86_I440FX
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select CPU_QEMU_X86
+	select NO_MMCONF_SUPPORT
+	select SOUTHBRIDGE_INTEL_I82371EB
+	select HAVE_OPTION_TABLE
+	select HAVE_CMOS_DEFAULT
+	select HAVE_PIRQ_TABLE
+	select HAVE_ACPI_TABLES
+	select BOARD_ROMSIZE_KB_256
+	select MAINBOARD_HAS_NATIVE_VGA_INIT
+	select MAINBOARD_FORCE_NATIVE_VGA_INIT
+
+config MAINBOARD_DIR
+	string
+	default emulation/qemu-i440fx
+
+config MAINBOARD_PART_NUMBER
+	string
+	default "QEMU x86 i440fx/piix4"
+
+config IRQ_SLOT_COUNT
+	int
+	default 6
+
+config DCACHE_RAM_BASE
+	hex
+	default 0xd0000
+
+config DCACHE_RAM_SIZE
+	hex
+	default 0x10000
+
+endif # BOARD_EMULATION_QEMU_X86_I440FX
