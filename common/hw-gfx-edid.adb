@@ -108,30 +108,6 @@ package body HW.GFX.EDID is
              Word16 (Raw_EDID (Offset));
    end Read_LE16;
 
-   function Has_Preferred_Mode (Raw_EDID : Raw_EDID_Data) return Boolean
-   is
-   begin
-      return
-         Int64 (Read_LE16 (Raw_EDID, DESCRIPTOR_1)) * 10_000
-            in Frequency_Type and
-         ( Raw_EDID (DESCRIPTOR_1 +  2) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  4) and 16#f0#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  8) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#c0#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  9) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#30#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  3) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  4) and 16#0f#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  5) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  7) and 16#f0#) /= 0) and
-         ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#f0#) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#0c#) /= 0) and
-         ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#0f#) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#03#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  6) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  7) and 16#0f#) /= 0);
-   end Has_Preferred_Mode;
-
    function Preferred_Mode (Raw_EDID : Raw_EDID_Data) return Mode_Type
    is
       Base : constant := DESCRIPTOR_1;
@@ -140,38 +116,25 @@ package body HW.GFX.EDID is
       function Read_12
         (Lower_8, Upper_4  : Raw_EDID_Index;
          Shift             : Natural)
-         return Word16
-      is
-      begin
-         return
-            Word16 (Raw_EDID (Lower_8)) or
-            (Shift_Left (Word16 (Raw_EDID (Upper_4)), Shift) and 16#0f00#);
-      end Read_12;
+         return Word16 is
+        (             Word16 (Raw_EDID (Lower_8)) or
+         (Shift_Left (Word16 (Raw_EDID (Upper_4)), Shift) and 16#0f00#));
 
       function Read_10
         (Lower_8, Upper_2  : Raw_EDID_Index;
          Shift             : Natural)
-         return Word16
-      is
-      begin
-         return
-            Word16 (Raw_EDID (Lower_8)) or
-            (Shift_Left (Word16 (Raw_EDID (Upper_2)), Shift) and 16#0300#);
-      end Read_10;
+         return Word16 is
+        (             Word16 (Raw_EDID (Lower_8)) or
+         (Shift_Left (Word16 (Raw_EDID (Upper_2)), Shift) and 16#0300#));
 
       function Read_6
         (Lower_4     : Raw_EDID_Index;
          Lower_Shift : Natural;
          Upper_2     : Raw_EDID_Index;
          Upper_Shift : Natural)
-         return Word8
-      is
-      begin
-         return
-            (Shift_Right (Word8 (Raw_EDID (Lower_4)), Lower_Shift) and 16#0f#)
-            or
-            (Shift_Left (Word8 (Raw_EDID (Upper_2)), Upper_Shift) and 16#30#);
-      end Read_6;
+         return Word8 is
+        ((Shift_Right (Word8 (Raw_EDID (Lower_4)), Lower_Shift) and 16#0f#) or
+         (Shift_Left  (Word8 (Raw_EDID (Upper_2)), Upper_Shift) and 16#30#));
    begin
       Mode := Mode_Type'
         (Dotclock             => Pos64 (Read_LE16 (Raw_EDID, Base)) * 10_000,

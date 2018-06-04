@@ -42,49 +42,28 @@ is
    with
       Pre => Valid (Raw_EDID);
 
-   function Has_Preferred_Mode (Raw_EDID : Raw_EDID_Data) return Boolean
+   function Has_Preferred_Mode (Raw_EDID : Raw_EDID_Data) return Boolean is
+     (Int64 (Read_LE16 (Raw_EDID, DESCRIPTOR_1)) * 10_000 in Frequency_Type and
+      ( Raw_EDID (DESCRIPTOR_1 +  2) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 +  4) and 16#f0#) /= 0) and
+      ( Raw_EDID (DESCRIPTOR_1 +  8) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 + 11) and 16#c0#) /= 0) and
+      ( Raw_EDID (DESCRIPTOR_1 +  9) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 + 11) and 16#30#) /= 0) and
+      ( Raw_EDID (DESCRIPTOR_1 +  3) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 +  4) and 16#0f#) /= 0) and
+      ( Raw_EDID (DESCRIPTOR_1 +  5) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 +  7) and 16#f0#) /= 0) and
+      ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#f0#) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 + 11) and 16#0c#) /= 0) and
+      ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#0f#) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 + 11) and 16#03#) /= 0) and
+      ( Raw_EDID (DESCRIPTOR_1 +  6) /= 0 or
+       (Raw_EDID (DESCRIPTOR_1 +  7) and 16#0f#) /= 0))
    with
-      Pre => Valid (Raw_EDID),
-      Post =>
-        (Has_Preferred_Mode'Result =
-           (Int64 (Read_LE16 (Raw_EDID, DESCRIPTOR_1)) * 10_000
-               in Frequency_Type and
-            ( Raw_EDID (DESCRIPTOR_1 +  2) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 +  4) and 16#f0#) /= 0) and
-            ( Raw_EDID (DESCRIPTOR_1 +  8) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 + 11) and 16#c0#) /= 0) and
-            ( Raw_EDID (DESCRIPTOR_1 +  9) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 + 11) and 16#30#) /= 0) and
-            ( Raw_EDID (DESCRIPTOR_1 +  3) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 +  4) and 16#0f#) /= 0) and
-            ( Raw_EDID (DESCRIPTOR_1 +  5) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 +  7) and 16#f0#) /= 0) and
-            ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#f0#) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 + 11) and 16#0c#) /= 0) and
-            ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#0f#) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 + 11) and 16#03#) /= 0) and
-            ( Raw_EDID (DESCRIPTOR_1 +  6) /= 0 or
-             (Raw_EDID (DESCRIPTOR_1 +  7) and 16#0f#) /= 0)));
+      Pre => Valid (Raw_EDID);
    function Preferred_Mode (Raw_EDID : Raw_EDID_Data) return Mode_Type
    with
-      Pre =>
-         Int64 (Read_LE16 (Raw_EDID, DESCRIPTOR_1)) * 10_000
-            in Frequency_Type and
-         ( Raw_EDID (DESCRIPTOR_1 +  2) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  4) and 16#f0#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  8) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#c0#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  9) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#30#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  3) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  4) and 16#0f#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  5) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  7) and 16#f0#) /= 0) and
-         ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#f0#) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#0c#) /= 0) and
-         ((Raw_EDID (DESCRIPTOR_1 + 10) and 16#0f#) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 + 11) and 16#03#) /= 0) and
-         ( Raw_EDID (DESCRIPTOR_1 +  6) /= 0 or
-          (Raw_EDID (DESCRIPTOR_1 +  7) and 16#0f#) /= 0);
+      Pre => Valid (Raw_EDID) and then Has_Preferred_Mode (Raw_EDID);
 
 end HW.GFX.EDID;
