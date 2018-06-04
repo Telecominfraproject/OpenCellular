@@ -1,0 +1,21 @@
+# Invalid specification: requests missing image file.
+
+bmpblock: 2.0
+
+# These are the individual images which are layered to produce a screen layout.
+images:
+    devmode:      NotReallyA.bmp
+    $HWID:        FontFile.bin
+
+# These are all of the distinct layouts that we know how to display.
+screens:
+  dev_en:
+      - [0, 0, devmode]
+      - [100, 100, $HWID]
+
+
+# To customize the images for a particular locale, just reorder this list so
+# that the default language appears first.
+localizations:
+  - [ dev_en, dev_en, dev_en, dev_en ]
+

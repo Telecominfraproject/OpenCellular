@@ -1,0 +1,425 @@
+#!/bin/sh -u
+# Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+if [ -z "$*" ]; then
+  cat <<EOF 1>&2
+
+Usage:  vbutil_what_keys [-v|-V] IMAGE [IMAGE...]
+
+Given a ChromiumOS disk (or BIOS) image, try to figure out how it's signed.
+Note that this does not verify the signature, it just reports which keyblock
+was used to create the signature.
+
+With the -v option, it will attempt to mount any rootfs partitions from disk
+images (using sudo), extract the BIOS from /usr/sbin/chromeos-firmwareupdate,
+and process it as well. Use -V to display the shellball -V message too.
+that.
+
+EOF
+  exit 1
+fi
+
+# We'll grep for the known sha1sums within this script (they're at the end).
+# Obtain them by running script on images you know have been signed correctly
+# (since the keys themselves are inside the HSM).
+#
+# BTW, the default H2C HWIDs are fixed for each platform:
+#
+# {97A1FBD6-FDE1-4FC5-BB81-286608B90FCE}    Alex H2C
+# {9D799111-A88A-439E-9E1F-FBBB41B00A9A}    Mario H2C
+# {24B107F2-BA6A-4EBD-8CDD-E768438CE0F0}    Stumpy H2C
+# {FA42644C-CF3A-4692-A9D3-1A667CB232E9}    ZGB H2C
+
+
+# args?
+unpack_it=
+verbose=
+if [ "${1:-}" = "-v" ]; then
+  unpack_it=yes
+  shift
+fi
+if [ "${1:-}" = "-V" ]; then
+  unpack_it=yes
+  verbose=yes
+  shift
+fi
+
+# clean up on exit
+cleanup() {
+  [ -n "${CLEAN_UM:-}" ] && sudo umount $CLEAN_UM
+  [ -n "${CLEAN_RM:-}" ] && rm -rf $CLEAN_RM
+}
+trap cleanup EXIT
+
+# temp stuff
+TMPFILE=$(mktemp /tmp/keyblock_XXXXXXXXX)
+CLEAN_RM="$TMPFILE"
+if [ -n "$unpack_it" ]; then
+  TMPMNT=$(mktemp -d /tmp/mountdir_XXXXXXXXX)
+  TMPDIR=$(mktemp -d /tmp/extractdir_XXXXXXXXX)
+  CLEAN_RM="$CLEAN_RM $TMPDIR $TMPMNT"
+fi
+
+greppy() {
+  local key="$1"
+  grep "$key" "$0" 2>/dev/null | sed -e 's/ \+/ /g' | \
+    cut -d ' ' -f 4- | sed -e ':a;N;$!ba;s/\n/, /g'
+}
+
+
+showbios() {
+  local file="$1" space="$2"
+  local hwid matchh rootkey matchn recoverykey matchr
+
+  hwid=$(futility gbb --hwid "$file" | sed -e 's/^.*: *//') || return
+  matchh=$(grep "$hwid" "$0" 2>/dev/null | sed -e 's/^# //')
+
+  futility gbb --rootkey="$TMPFILE" "$file" >/dev/null
+  rootkey=$(futility vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+    sed -e 's/^.*: *//')
+  matchn=$(greppy "$rootkey")
+
+  futility gbb --recoverykey="$TMPFILE" "$file" >/dev/null
+  recoverykey=$(futility vbutil_key --unpack "$TMPFILE" | grep sha1sum | \
+    sed -e 's/^.*: *//')
+  matchr=$(greppy "$recoverykey")
+
+  echo "$space  hwid:          ${matchh:-$hwid}"
+  echo "$space  root key:      ${rootkey}  ${matchn}"
+  echo "$space  recovery key:  ${recoverykey}  ${matchr}"
+}
+
+
+
+# handle one input file
+dofile() {
+  file="$1"
+  size=$(stat -c %s "$file")
+
+  if [ -f "$file" ] && [ "$size" -le 8388608 ]; then
+    echo -e "\nBIOS: $file"
+
+    showbios "$file" ""
+
+  else
+    echo -e "\nIMAGE: $file"
+
+    for pnum in $(cgpt find -n -t kernel "$file" 2>/dev/null); do
+
+      psize=$(cgpt show -s -i "$pnum" "$file")
+      if [ "$psize" -ge 128 ]; then
+
+        pstart=$(cgpt show -b -i "$pnum" "$file")
+        dd if="$file" of="$TMPFILE" bs=512 count=128 skip="$pstart" 2>/dev/null
+
+        psum=$(futility vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+          grep sha1sum | sed -e 's/^.*: *//')
+
+        if [ -n "$psum" ]; then
+          match=$(greppy "$psum")
+          flags=$(futility vbutil_keyblock --unpack "$TMPFILE" 2>/dev/null | \
+            grep Flags: | sed -e 's/^.*:[ 0-9]*//')
+        else
+          match=""
+          psum="--invalid--"
+          flags=""
+        fi
+
+        echo "  part $pnum kernel:   $psum  ($flags)  $match"
+      fi
+
+    done
+
+    if [ -n "$unpack_it" ]; then
+      for pnum in $(cgpt find -n -t rootfs "$file" 2>/dev/null); do
+
+        psize=$(cgpt show -s -i "$pnum" "$file")
+        if [ "$psize" -ge 128 ]; then
+
+          pstart=$(cgpt show -b -i "$pnum" "$file")
+
+          echo "  part $pnum shellball:"
+          sudo mount -o loop,ro,offset=$(( $pstart * 512 )) "$file" "$TMPMNT"
+          CLEAN_UM="$TMPMNT"
+          [ -n "$verbose" ] && "$TMPMNT/usr/sbin/chromeos-firmwareupdate" -V
+          "$TMPMNT/usr/sbin/chromeos-firmwareupdate" \
+            --sb_extract "$TMPDIR" > /dev/null
+          sudo umount "$TMPMNT"
+          CLEAN_UM=
+
+          showbios "$TMPDIR/bios.bin" "  "
+        fi
+
+      done
+    fi
+
+  fi
+}
+
+
+for file in "$@"; do
+  dofile $file
+done
+
+echo ""
+
+exit 0;
+
+##############################################################################
+# Here are the known keys
+##############################################################################
+#
+# Firmware recovery keys
+#
+# c14bd720b70d97394257e3e826bd8f43de48d4ed  recovery developer keys
+#
+# 5c5776bf7574e5601c25042e0748b6844cfdd1dc  recovery Alex MP
+# 5c5776bf7574e5601c25042e0748b6844cfdd1dc  recovery Alex MP-v4
+# 5c5776bf7574e5601c25042e0748b6844cfdd1dc  recovery Alex-HE MP-v4
+# b3373d76358c3528d0653c4035bdd0020e2b0e1b  recovery Butterfly MP-v3
+# 8a22e18a91e89f46f1f59b44a7887ab3821cb18d  recovery Butterfly Pre-MP
+# b6079520f8c8dc7192a78d111b9fefb98cee49b3  recovery Clapper MP
+# 13b0ddf343bb0c325b178e5be138d4969a9e02be  recovery Daisy MP-v3
+# 5e9d23b2d908a6ac5ee5c9747a9e2fe6dff01372  recovery Daisy-Skate MP
+# 540bb135df55fe0036fe061b7a1f2a52d287cd1b  recovery Daisy-Spring MP-v2
+# ae67678f8ed662ef4d1e4a639226d278b90ccaa3  recovery Enguarde MP-v10
+# ff7c07ae0ac04ccb92090e339545b716228a6da4  recovery Expresso MP-v10
+# 3c359d59432641a151161e2738ba8ca2b3eb12ab  recovery Falco MP-v2
+# 3c359d59432641a151161e2738ba8ca2b3eb12ab  recovery Falco-li MP-v2
+# c989d1ab66d2a67886e1019330812cb9e4e48f31  recovery Glimmer MP
+# ab325d5411c6a21b41142b71b747335144e12538  recovery Gnawty MP
+# d81c751df76a7d53a6d3c2f58987562c87416735  recovery Kiev MP
+# 02601fcbcac953f043a53eac6fed7a5367a7189c  recovery Kiev PreMP
+# 6eaa4b094cd75eacc0f2fa4516d33ed86ea6f3d2  recovery Kip MP
+# dc65a88c92511494999d2c03a72ec2584d21917d  recovery Leon MP
+# 7e74cd6d66f361da068c0419d2e0946b4d091e1c  recovery Link MP
+# 7e74cd6d66f361da068c0419d2e0946b4d091e1c  recovery Link MP-v4
+# 08b2d19bc87d05d860a1c274f874bc9fa9ab7dfb  recovery Link Pre-MP
+# 0d800afb53cdd05dd849addee0143ca1d96e893c  recovery Lumpy MP
+# 0d800afb53cdd05dd849addee0143ca1d96e893c  recovery Lumpy MP-v3
+# ebcac421fbf411bee99ee90672a3add17f5a967b  recovery Lumpy PVT
+# 5d0d163b824cab5ae4f23fb2cc012e2a4124f4fe  recovery Mario MP
+# 5d0d163b824cab5ae4f23fb2cc012e2a4124f4fe  recovery Mario MP-v3
+# 51dd0b446540182fd91c6196b9a8dfcd7bcf6256  recovery McCloud MP
+# 67f01715f3acf6526ce48a3d2cf81b003a01f334  recovery Monroe MP
+# 40832bb15fa40a18b8e5d80fd17d0405b624884e  recovery Nyan PreMP
+# 2b356618cd0f739877b7a3f155917341f8778523  recovery Nyan-Big MP
+# 26900310befce802836cca982f819aa72445e190  recovery Nyan-Blaze MP
+# e74e63e14b285700324ffd3acc4b776dc3104b8f  recovery Panther MP
+# 7f03c648d2bb4ab3979cb87633da51ed90267f03  recovery Parrot MP
+# 7f03c648d2bb4ab3979cb87633da51ed90267f03  recovery Parrot MP-v3
+# 7f03c648d2bb4ab3979cb87633da51ed90267f03  recovery Parrot-ivb MP-v3
+# d254b3b3ddaac32f7b843753de9257ec4f6c67ed  recovery Peach-Pi MP
+# 6d9a2ca8b3080a97e1e5a4efbc5386ead77c3c7f  recovery Peach-Pit MP-v2
+# bf39d0d3e30cbf6a121416d04df4603ad5310779  recovery Peppy MP-v2
+# 60aa1bbbea1d2f724c6e5daa0653ca472ac3085e  recovery Quawks MP
+# fb4847ecb6bfcc300e5f570c5e8f3ab881204968  recovery Rambi PreMP
+# abd575549848c82b481068ddf0242ea38d2e5fdd  recovery Rowan PreMP
+# 462edb5ebfd817e29e813db7a424582c3ce35768  recovery Samus PreMP
+# 13b0ddf343bb0c325b178e5be138d4969a9e02be  recovery Snow MP
+# cdc2858ca78351dc4b54d5d5d02bc695830f7802  recovery Squawks MP
+# 5cb31faf8c524672a15fd4628c585af79eca0247  recovery Stout MP
+# 5cb31faf8c524672a15fd4628c585af79eca0247  recovery Stout MP-v3
+# 37e7bad73449f782f280b1668fed48d1132137fa  recovery Stumpy MP
+# 8540f56f87d91c5403704c960c1f385705201e20  recovery Stumpy PVT
+# e0b610bc85908c35fb7bd11bfd34afb84d547190  recovery Swanky MP
+# 50759cb8bc2f86ef378571fa7b30a161e7dcdc03  recovery Tricky MP
+# a0c56006541cd38d6c884d27210a135f5c309a3f  recovery Winky PreMP
+# a4ee431f7a07c59e920fe570ead0b938cdd4019d  recovery Wolf MP
+# 9bd99a594c45b6739899a17ec29ac2289ee75463  recovery ZGB MP
+# 9bd99a594c45b6739899a17ec29ac2289ee75463  recovery ZGB MP-v3
+# 9bd99a594c45b6739899a17ec29ac2289ee75463  recovery ZGB-HE MP-v3
+# ba07696c1c82891fdacab28a434148d239e7c834  recovery Zako MP-v2
+#
+# Firmware root keys
+#
+# b11d74edd286c144e1135b49e7f0bc20cf041f10      root developer keys
+#
+# 00f77be2a0c013343db84fc6259da09e558b8318      root Alex MP
+# 00f77be2a0c013343db84fc6259da09e558b8318      root Alex MP-v4
+# 00f77be2a0c013343db84fc6259da09e558b8318      root Alex-HE MP-v4
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Butterfly MP-v3
+# 12a2c88b58cbd9eef6b777a3af440f611ea4f561      root Butterfly Pre-MP
+# 952dd6852c11fd8b36b4fb88f3335ecae722e0e6      root Clapper MP
+# a026a7a4a0bf0fa32d6b7aa90a80d5ef01a3b799      root Daisy MP-v3
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Daisy-Skate MP
+# ab3521d3b1938af52009b2c3dfad964594f6b367      root Daisy-Spring MP-v2
+# 48dc3c5917b9095d6b4188560c9726ba31a192ee      root Enguarde MP-v10
+# 82f706e156e5927bbdf8f14f4a9f45bc59986311      root Expresso MP-v10
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Falco MP-v2
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Falco-li MP-v2
+# 952dd6852c11fd8b36b4fb88f3335ecae722e0e6      root Glimmer MP
+# fc68bcb88bf9af1907289a9f377d658b3b9fe5b0      root Gnawty MP
+# 4c5067795ddbbf100d19f9ba08928af1c1ef37c6      root Kiev MP
+# 9c138273527db0a0797233e2345ee39e46c0df95      root Kiev PreMP
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Kip MP
+# 154512de86cc1cc36a67d4225eb2fcc37dac1b7c      root Leon MP
+# 7b5c520ceabce86f13e02b7ca363cfb509fc5b98      root Link MP
+# 7b5c520ceabce86f13e02b7ca363cfb509fc5b98      root Link MP-v4
+# e63058bf4b86b6fb1f148bc7acea9c71fe51675f      root Link Pre-MP
+# 4e92f07efd4a920c4e4f1ed97cf47b7b04ee1428      root Lumpy MP
+# 4e92f07efd4a920c4e4f1ed97cf47b7b04ee1428      root Lumpy MP-v3
+# c9fc61f331b34e00a148e657bde5fb6b0b576c0a      root Lumpy PVT
+# 541f467a7d8747f55ae9087ee4e34155f5ee3cd7      root Mario MP
+# 541f467a7d8747f55ae9087ee4e34155f5ee3cd7      root Mario MP-v3
+# fc68bcb88bf9af1907289a9f377d658b3b9fe5b0      root McCloud MP
+# eec186f8a0cd6be2e9d86dc9ce284790739be202      root Monroe MP
+# 3f54dd6a6e16128aec5c6c3052763388ae99d350      root Nyan PreMP
+# fc68bcb88bf9af1907289a9f377d658b3b9fe5b0      root Nyan-Big MP
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Nyan-Blaze MP
+# 758a59f4f911b63a1335223d761d2485313674c8      root Panther MP
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root Parrot MP
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root Parrot MP-v3
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root Parrot-ivb MP-v3
+# a026a7a4a0bf0fa32d6b7aa90a80d5ef01a3b799      root Peach-Pi MP
+# a026a7a4a0bf0fa32d6b7aa90a80d5ef01a3b799      root Peach-Pit MP-v2
+# fc68bcb88bf9af1907289a9f377d658b3b9fe5b0      root Peppy MP-v2
+# 758a59f4f911b63a1335223d761d2485313674c8      root Quawks MP
+# b3119b02f2b5371da5596b13d612facbca99b94f      root Rambi PreMP
+# cb67b1bda9965eebae6c477abf557d2c13690c30      root Rowan PreMP
+# cb8086a9c1cd26318fef9a9fb3f846ca12320737      root Samus PreMP
+# a026a7a4a0bf0fa32d6b7aa90a80d5ef01a3b799      root Snow MP
+# 758a59f4f911b63a1335223d761d2485313674c8      root Squawks MP
+# 952dd6852c11fd8b36b4fb88f3335ecae722e0e6      root Stout MP
+# 952dd6852c11fd8b36b4fb88f3335ecae722e0e6      root Stout MP-v3
+# 4ec4ba0a746b37b1c6286ab807c2a5b1e7ab4ab0      root Stumpy MP
+# 06939c65797eadfe6be1b3343a2e339800a34108      root Stumpy PVT
+# 154512de86cc1cc36a67d4225eb2fcc37dac1b7c      root Swanky MP
+# ed3dab48746de569513aa288439f86fe24cc3386      root Tricky MP
+# 5915703fb47bf569d7a6b8726cb9a1bd159487b0      root Winky PreMP
+# ed3dab48746de569513aa288439f86fe24cc3386      root Wolf MP
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root ZGB MP
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root ZGB MP-v3
+# 9f59876c7f7dc881f02d934786c6b7c2c17dcaac      root ZGB-HE MP-v3
+# c788cee8c798669fe4822b7544dd3e399ce22604      root Zako MP-v2
+#
+# Normal kernel keys
+#
+# d6170aa480136f1f29cf339a5ab1b960585fa444    normal developer keys
+#
+# af24e46b6c3805869616e71c002c9a2a847ad266    normal Alex MP
+# af24e46b6c3805869616e71c002c9a2a847ad266    normal Alex MP-v4
+# af24e46b6c3805869616e71c002c9a2a847ad266    normal Alex-HE MP-v4
+# 6026d95d1f11e1b88c19a139effbb02660523904    normal Butterfly MP-v3
+# 24fcff70ef3d834451384452bd9bc64c4d01c559    normal Butterfly Pre-MP
+# d03ba05319cd77d0830b268804804f21fcb7672c    normal Clapper MP
+# 0d96e14c31a405b28dd7c7d2e416bbf960bc9779    normal Daisy MP-v3
+# da0bb5a3e2e80ebab0ac268ba2204ec360e9bb45    normal Daisy-Skate MP
+# 94b5cfc5933e2f6294095820fa9eaf8162ca8021    normal Daisy-Spring MP-v2
+# dd15b9458ffc5ecb8048dbc4ae5e7f480c9e1852    normal Duck PreMP
+# d9ffc2514c179472b6c5553b8ed20237cdfef73e    normal Enguarde MP-v10
+# bd99dc86506b9ebe3025e5af69a26decf607173d    normal Expresso MP-v10
+# c5d935b69950c29b2d2bba7cecacd2859fb9afbd    normal Falco MP-v2
+# c5d935b69950c29b2d2bba7cecacd2859fb9afbd    normal Falco-li MP-v2
+# c6bc5788eb62701cdd69b309766fe2a49ead14d1    normal Glimmer MP
+# 32778b8483e14e4570b582c34df065c5ee833a59    normal Gnawty MP
+# f82f08a5953b688b078f465731f1077fdf0d97cf    normal Kiev MP
+# b3ad5503fda8b06c74a000fed289006c97bf5600    normal Kip MP
+# 933610d5c9926ec5540e180cda18c0395a853012    normal Leon MP
+# d5927774fc14bb18a38c27fef47a36517a089d04    normal Link MP
+# ad9e35dcd4287a3e27264ce49df6df40aaf2dcbb    normal Link MP-v4
+# 7cb50f352af15f807f4bf3eaaede62d2f9c70d27    normal Link Pre-MP
+# ad9e35dcd4287a3e27264ce49df6df40aaf2dcbb    normal Link-freon MP-v4
+# cc887372ac2d1c415eac93fc11e753629c387358    normal Lumpy MP v2
+# cc887372ac2d1c415eac93fc11e753629c387358    normal Lumpy MP-v3
+# fa55cba16857a49270fb1561f87343c00959eb19    normal Lumpy PVT
+# a1454fcecb98a6f33b38638564bdfc20161a7b04    normal Mario MP v2
+# a1454fcecb98a6f33b38638564bdfc20161a7b04    normal Mario MP-v3
+# 8848be24f4c34f064ae23c0450d27b62e558d2ed    normal McCloud MP
+# ac65608a05976a904f4c6123953968cd1aa444ab    normal Monroe MP
+# 78d388d49c494510d48cfa1650eacd45aa871da5    normal Nyan PreMP
+# 71dd606970080aab093da2bbe91ca4348988175c    normal Nyan-Big MP
+# c4c00693dd7b99fffc1b272641f769d0a2f19ef5    normal Nyan-Blaze MP
+# 39f6088397ebfcc8fffbd933b4bcd8a0e74ba409    normal Panther MP
+# 8975d168123d5cfc7cebf674627958445f0d2a52    normal Parrot MP v2
+# e18e8ac7835390a71d2d70d02880694c6da9ac92    normal Parrot MP-v3
+# e18e8ac7835390a71d2d70d02880694c6da9ac92    normal Parrot-ivb MP-v3
+# ef469c6417138a8a371b51483d941a01453d27a3    normal Peach-Pi MP
+# 2cf0eddab3a021044fc66fdca492c7899de5b7eb    normal Peach-Pit MP-v2
+# 320e083d80e1a49d9c11cc0d8d055b050a92805a    normal Peppy MP-v2
+# c65c3e3648eca66449ac9cdaf60edc2ba1b136e8    normal Quawks MP
+# 037f4ed441ac39ca0a7fdd6c0829d4add9bf5f34    normal Rambi PreMP
+# 3ca9ee2c112826aa89f0edf3cedcc5b65f250271    normal Rowan PreMP
+# 989186f9aec3bced013d7f085c0f8caa07518e34    normal Samus PreMP
+# c5120666c642f031e76edab8a2b45dd32232f80d    normal Snow MP v2
+# 1cab1dedc34076b8887c9ebd4e6769eda6c41ed2    normal Squawks MP
+# 09cb9b45c2cd4ca674861fe484aa758ba5568be0    normal Stout MP
+# 47a82928807763a30956f40e4de0e68af2a17975    normal Stout MP-v3
+# de0b76af3caa55a8e7aa34c805e4248ad03b18e7    normal Stumpy MP
+# f7e48006982a0ad4a41c0ca6610f062adb0eec44    normal Stumpy MP v2
+# 04dd63e835c979b57f87fd74e99af68e0cd39ad7    normal Stumpy PVT
+# c321ed66f9b999598d39be7be3246bb25362740b    normal Swanky MP
+# 5c626cd8a684e470e74d3ceaf518aae745fe15dc    normal Tegra2-Kaen PVT
+# 09790fcb8c2b6732ec54bc406d34ec16c55992ba    normal Tricky MP
+# 202bb448a3f269771cffe53c38d6f05b2d1329ae    normal Winky PreMP
+# 7d4f5255af3552d8c8b40f60873d683268050015    normal Wolf MP
+# 7b7ae8652775ad7305f565161b3acc00fcc8ea22    normal ZGB MP v2
+# 7b7ae8652775ad7305f565161b3acc00fcc8ea22    normal ZGB MP-v3
+# 7b7ae8652775ad7305f565161b3acc00fcc8ea22    normal ZGB-HE MP-v3
+# f70f0373b60ea8e2c5df7a9afeb75726fe0c8eb3    normal Zako MP-v2
+#
+# Recovery kernel keys
+#
+# e78ce746a037837155388a1096212ded04fb86eb  recovery developer keys
+#
+# 03172b08f0b99172c73d947f51e8ca23d418bcbf  recovery Alex MP
+# 03172b08f0b99172c73d947f51e8ca23d418bcbf  recovery Alex MP-v4
+# 03172b08f0b99172c73d947f51e8ca23d418bcbf  recovery Alex-HE MP-v4
+# c65d20649d35019a40642a4e2540b19587ee6458  recovery Butterfly MP-v3
+# 934e38b44b11eb892d1edc32cb3ba87c558232d9  recovery Butterfly Pre-MP
+# 889367bc86d0af857412a409f98e2ab9d798f887  recovery Clapper MP
+# f32b5f6b6cfb6d77136ac0d8ed0cdf67e6df7b91  recovery Daisy MP-v3
+# 66496dd27c44ae81cf0c41671b5af59a316969da  recovery Daisy-Skate MP
+# a1f00935770234a434c4b14414c48866b1661e40  recovery Daisy-Spring MP-v2
+# 9a04d0ea29b095c6c227b50d4bb75f431355dbb0  recovery Duck PreMP
+# e30dc74a05de0d0e7522817f8d97f04f08ff6a8b  recovery Enguarde MP-v10
+# 4e22acdedf89a3dbb6b9861b513e2121bd457a96  recovery Expresso MP-v10
+# af1e6c23c3148d3261b5fc7c30860d89faeee7a6  recovery Falco MP-v2
+# af1e6c23c3148d3261b5fc7c30860d89faeee7a6  recovery Falco-li MP-v2
+# 45145bcfc866b5cc7d711d6451fd1272f55ba087  recovery Glimmer MP
+# 377f89af74389c1d06876981bda3a7a591332f67  recovery Gnawty MP
+# 10d73c2b24b35c0ea387babd72e9b242f2d79c9f  recovery Kiev MP
+# 5dea047c25331a6b3ed0f40efa7e2b8b90676abf  recovery Kip MP
+# 51a7f92ef6d727da9b0f0ebd8882a836db296e97  recovery Leon MP
+# e8c4e66b00df5468e4d7ec9757347842cfd6c1da  recovery Link MP
+# e8c4e66b00df5468e4d7ec9757347842cfd6c1da  recovery Link MP-v4
+# 93e0ecffb36199071a3d995f6726770e799dcd0e  recovery Link Pre-MP
+# e8c4e66b00df5468e4d7ec9757347842cfd6c1da  recovery Link-freon MP-v4
+# 49d40533b0812d3f31232c5eedd47e7e11acc293  recovery Lumpy MP
+# 49d40533b0812d3f31232c5eedd47e7e11acc293  recovery Lumpy MP-v3
+# cb45bc04a932e4bcac41b44d31afd9516ca0fe24  recovery Lumpy PVT
+# f6fadd7e31eebf4bcc4eb8d2dd512e3a2313627f  recovery Mario MP
+# f6fadd7e31eebf4bcc4eb8d2dd512e3a2313627f  recovery Mario MP-v3
+# 95b4a4abb2a55e7163824e36583c109c90a2e78d  recovery McCloud MP
+# 5e2ca8bc287af2d94615e940ee17e9620d3191dd  recovery Monroe MP
+# b914dc4800f6929d0c1ecea536dbff9ef618af26  recovery Nyan PreMP
+# 9cdfb53d6ef4f4746de2dace828d1142c216a130  recovery Nyan-Big MP
+# 934ce4a3a23316457727a500b7dce4e04b2f7147  recovery Nyan-Blaze MP
+# ef1c9cdbf547acc397288cf58fd3ee274383abbb  recovery Panther MP
+# cfa1a4a784a90cc7c1df6859fa226b89e6afbeb5  recovery Parrot MP
+# cfa1a4a784a90cc7c1df6859fa226b89e6afbeb5  recovery Parrot MP-v3
+# cfa1a4a784a90cc7c1df6859fa226b89e6afbeb5  recovery Parrot-ivb MP-v3
+# 7cabfc4c72cb300399c8c490b39c1ce0c45b11c0  recovery Peach-Pi MP
+# b39e9b9b12f3ab4fd1017e6c92d4ccff2723347d  recovery Peach-Pit MP-v2
+# 74ec605d3525e24b7f7a4b633afd2ec048dc6d12  recovery Peppy MP-v2
+# 315417a5d8a95b954f5f101acaef5b107136a418  recovery Quawks MP
+# d0b7feba2bb53ecd8eda6602ccf6a0c25e5b001f  recovery Rambi PreMP
+# 942e15e118dca77b75a668c8c814bf8d67b774b2  recovery Rowan PreMP
+# 61cad57963dd64202cead8dcfc62aea76c9911c2  recovery Samus PreMP
+# f32b5f6b6cfb6d77136ac0d8ed0cdf67e6df7b91  recovery Snow MP
+# d45eb14119d14b5b1d4b259f177e32c522d27f99  recovery Squawks MP
+# fa4497f70968a1820ceb0ac4364d8e9ec0abc0b2  recovery Stout MP
+# fa4497f70968a1820ceb0ac4364d8e9ec0abc0b2  recovery Stout MP-v3
+# 6f6d6df4e328633904990cf8c60baa18b8cf6fc7  recovery Stumpy MP
+# 057a03c1526a1be7f42d29095c5a583231a75b35  recovery Stumpy PVT
+# d56ac05587d7d45d681cb52d113fb5d95e787d1d  recovery Swanky MP
+# de11a604715a920d7371ceefda75a5b1b062443f  recovery Tegra2-Kaen PVT
+# 4fe89a587d09c9fb58e79b556014b833f64559fb  recovery Tricky MP
+# 72bb00bb0c89d06569df2d9d2e8087e040bbbb8b  recovery Winky PreMP
+# a01a2a2502fe8f6e3dc8100080b0e486bc0a3468  recovery Wolf MP
+# 20f3e8b77da6577706c91feefb203f98ee20d479  recovery ZGB MP
+# 20f3e8b77da6577706c91feefb203f98ee20d479  recovery ZGB MP-v3
+# 20f3e8b77da6577706c91feefb203f98ee20d479  recovery ZGB-HE MP-v3
+# 070611f0aa70b6887dd3c96b4086c13894ffa25f  recovery Zako MP-v2

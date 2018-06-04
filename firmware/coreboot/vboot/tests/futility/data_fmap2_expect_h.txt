@@ -1,0 +1,4 @@
+ERROR: RO_VPD and RO_UNUSED overlap
+  RO_VPD: 0x1a0000 - 0x1b0000
+  RO_UNUSED: 0x1af000 - 0x200000
+Use more -h args to ignore this error

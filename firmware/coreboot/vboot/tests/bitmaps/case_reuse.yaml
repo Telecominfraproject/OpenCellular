@@ -1,0 +1,28 @@
+
+bmpblock: 2.0
+
+images:
+  image0:     Background.bmp
+  image1:     Word.bmp
+
+screens:
+  scr_a0:
+    - [0, 0, image0]
+
+  scr_b0:
+    - [0, 0, image0]
+
+  scr_c0:
+    - [0, 0, image0]
+
+  scr_d0:
+    - [0, 0, image0]
+
+  scr_z:
+    - [45, 45, image1 ]
+
+localizations:
+  - [ scr_a0, scr_b0, scr_c0, scr_d0 ]
+  - [ scr_a0, scr_b0, scr_c0, scr_z ]
+
+

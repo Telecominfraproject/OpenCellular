@@ -1,0 +1,387 @@
+#!/bin/sh -ue
+# Copyright (c) 2011 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Usage:  dev_debug_vboot [ --cleanup | DIRECTORY ]
+#
+# This extracts some useful debugging information about verified boot. A short
+# summary is printed on stdout, more detailed information and working files are
+# left in a log directory.
+#
+##############################################################################
+
+# Clean up PATH for root use. Note that we're assuming [ is always built-in.
+[ "${EUID:-0}" = 0 ] && PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+PUBLOGFILE="/var/log/debug_vboot_noisy.log"
+
+OPT_CLEANUP=
+OPT_BIOS=
+OPT_FORCE=
+OPT_IMAGE=
+OPT_KERNEL=
+OPT_VERBOSE=
+
+FLAG_SAVE_LOG_FILE=yes
+
+LOGFILE=/dev/stdout
+TMPDIR=
+
+##############################################################################
+
+usage() {
+  local prog
+
+  prog=${0##*/}
+  cat <<EOF
+
+Usage: $prog [options] [DIRECTORY]
+
+This logs as much as it can about the verified boot process. With no arguments
+it will attempt to read the current BIOS, extract the firmware keys, and use
+those keys to validate all the ChromeOS kernel partitions it can find. A
+summary output is printed on stdout, and the detailed log is copied to
+$PUBLOGFILE afterwards.
+
+If a directory is given, it will attempt to use the components from that
+directory and will leave the detailed log in that directory.
+
+Options:
+
+   -b FILE, --bios FILE        Specify the BIOS image to use
+   -i FILE, --image FILE       Specify the disk image to use
+   -k FILE, --kernel FILE      Specify the kernel partition image to use
+   -v                          Spew the detailed log to stdout
+
+   -c, --cleanup               Delete the DIRECTORY when done
+
+   -h, --help                  Print this help message and exit
+
+EOF
+exit 0
+}
+
+cleanup() {
+  if [ -n "${FLAG_SAVE_LOG_FILE}" ]; then
+    if cp -f "${LOGFILE}" "${PUBLOGFILE}" 2>/dev/null; then
+      info "Exporting log file as ${PUBLOGFILE}"
+    fi
+  fi
+  if [ -n "${OPT_CLEANUP}" ] && [ -d "${TMPDIR}" ] ; then
+    cd /
+    rm -rf "${TMPDIR}"
+  fi
+}
+
+die() {
+  echo "$*" 1>&2
+  exit 1
+}
+
+info() {
+  echo "$@"
+  echo "#" "$@" >> "$LOGFILE"
+}
+
+infon() {
+  echo -n "$@"
+  echo "#" "$@" >> "$LOGFILE"
+}
+
+debug() {
+  echo "#" "$@" >> "$LOGFILE"
+}
+
+log() {
+  echo "+" "$@" >> "$LOGFILE"
+  "$@" >> "$LOGFILE" 2>&1
+}
+
+loghead() {
+  echo "+" "$@" "| head" >> "$LOGFILE"
+  "$@" | head >> "$LOGFILE" 2>&1
+}
+
+logdie() {
+  echo "+ERROR:" "$@" >> "$LOGFILE"
+  die "$@"
+}
+
+result() {
+  LAST_RESULT=$?
+  if [ "${LAST_RESULT}" = "0" ]; then
+    info "OK"
+  else
+    info "FAILED"
+  fi
+}
+
+require_utils() {
+  local missing
+
+  missing=
+  for tool in $* ; do
+    if ! type "$tool" >/dev/null 2>&1 ; then
+      missing="$missing $tool"
+    fi
+  done
+  if [ -n "$missing" ]; then
+    logdie "can't find these programs: $missing"
+  fi
+}
+
+extract_kerns_from_file() {
+  local start
+  local size
+  local part
+  local rest
+
+  debug "Extracting kernel partitions from $1 ..."
+  cgpt find -v -t kernel "$1" | grep 'Label:' |
+    while read start size part rest; do
+      name="part_${part}"
+      log dd if="$1" bs=512 skip=${start} count=${size} of="${name}" &&
+        echo "${name}"
+    done
+}
+
+format_as_tpm_version() {
+  local a
+  local b
+  local what
+  local num
+  local rest
+
+  a='/(Data|Kernel) key version/ {print $1,$4}'
+  b='/Kernel version/ {print $1, $3}'
+  awk "$a $b" "$1" | while read what num rest; do
+    [ "${what}" = "Data" ] && block="${num}"
+    [ "${what}" = "Kernel" ] && printf '0x%04x%04x' "${block}" "${num}"
+  done
+}
+
+fix_old_names() {
+  # Convert any old-style names to new-style
+  [ -f GBB_Area ]        && log mv -f GBB_Area GBB
+  [ -f Firmware_A_Key ]  && log mv -f Firmware_A_Key VBLOCK_A
+  [ -f Firmware_B_Key ]  && log mv -f Firmware_B_Key VBLOCK_B
+  [ -f Firmware_A_Data ] && log mv -f Firmware_A_Data FW_MAIN_A
+  [ -f Firmware_B_Data ] && log mv -f Firmware_B_Data FW_MAIN_B
+  true
+}
+
+##############################################################################
+# Here we go...
+
+umask 022
+
+# defaults
+DEV_DEBUG_FORCE=
+
+# override them?
+[ -f /etc/default/vboot_reference ] && . /etc/default/vboot_reference
+
+# Pre-parse args to replace actual args with a sanitized version.
+TEMP=$(getopt -o hvb:i:k:cf --long help,bios:,image:,kernel:,cleanup,force \
+       -n $0 -- "$@")
+eval set -- "$TEMP"
+
+# Now look at them.
+while true ; do
+  case "${1:-}" in
+    -b|--bios)
+      OPT_BIOS=$(readlink -f "$2")
+      shift 2
+      FLAG_SAVE_LOG_FILE=
+      ;;
+    -i|--image=*)
+      OPT_IMAGE=$(readlink -f "$2")
+      shift 2
+      FLAG_SAVE_LOG_FILE=
+      ;;
+    -k|--kernel)
+      OPT_KERNEL=$(readlink -f "$2")
+      shift 2
+      FLAG_SAVE_LOG_FILE=
+      ;;
+    -c|--cleanup)
+      OPT_CLEANUP=yes
+      shift
+      ;;
+    -f|--force)
+      OPT_FORCE=yes
+      shift
+      ;;
+    -v)
+      OPT_VERBOSE=yes
+      shift
+      FLAG_SAVE_LOG_FILE=
+      ;;
+    -h|--help)
+      usage
+      break
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      die "Internal error in option parsing"
+      ;;
+  esac
+done
+
+if [ -z "${1:-}" ]; then
+  TMPDIR=$(mktemp -d /tmp/debug_vboot_XXXXXXXXX)
+else
+  TMPDIR="$1"
+  [ -d ${TMPDIR} ] || die "$TMPDIR doesn't exist"
+  FLAG_SAVE_LOG_FILE=
+fi
+[ -z "${OPT_VERBOSE}" ] && LOGFILE="${TMPDIR}/noisy.log"
+
+[ -d ${TMPDIR} ] || mkdir -p ${TMPDIR} || exit 1
+cd ${TMPDIR} || exit 1
+echo "Running $0 $*" > "$LOGFILE"
+log date
+debug "DEV_DEBUG_FORCE=($DEV_DEBUG_FORCE)"
+debug "OPT_CLEANUP=($OPT_CLEANUP)"
+debug "OPT_BIOS=($OPT_BIOS)"
+debug "OPT_FORCE=($OPT_FORCE)"
+debug "OPT_IMAGE=($OPT_IMAGE)"
+debug "OPT_KERNEL=($OPT_KERNEL)"
+debug "FLAG_SAVE_LOG_FILE=($FLAG_SAVE_LOG_FILE)"
+echo "Saving verbose log as $LOGFILE"
+trap cleanup EXIT
+
+if [ -n "${DEV_DEBUG_FORCE}" ] && [ -z "${OPT_FORCE}" ]; then
+  info "Not gonna do anything without the --force option."
+  exit 0
+fi
+
+
+# Make sure we have the programs we need
+need="futility"
+[ -z "${OPT_BIOS}" ] && need="$need flashrom"
+[ -z "${OPT_KERNEL}" ] && need="$need cgpt"
+require_utils $need
+
+
+# Assuming we're on a ChromeOS device, see what we know.
+set +e
+log crossystem --all
+log rootdev -s
+log ls -aCF /root
+log ls -aCF /mnt/stateful_partition
+devs=$(awk '/(mmcblk[0-9])$|(sd[a-z])$|(nvme[0-9]+n[0-9]+)$/ {print "/dev/"$4}' /proc/partitions)
+for d in $devs; do
+  log cgpt show $d
+done
+log flashrom -V -p host --wp-status
+tpm_fwver=$(crossystem tpm_fwver) || tpm_fwver="UNKNOWN"
+tpm_kernver=$(crossystem tpm_kernver) || tpm_kernver="UNKNOWN"
+set -e
+
+
+info "Extracting BIOS components..."
+if [ -n "${OPT_BIOS}" ]; then
+  # If we've already got a file, just extract everything.
+  log futility dump_fmap -x "${OPT_BIOS}"
+  fix_old_names
+else
+  # First try pulling just the components we want (using new-style names)
+  if log flashrom -p host -r /dev/null \
+    -i"GBB":GBB \
+    -i"FMAP":FMAP \
+    -i"VBLOCK_A":VBLOCK_A \
+    -i"VBLOCK_B":VBLOCK_B \
+    -i"FW_MAIN_A":FW_MAIN_A \
+    -i"FW_MAIN_B":FW_MAIN_B ; then
+      log futility dump_fmap FMAP
+    else
+      info "Couldn't read individual components. Read the whole thing..."
+      if log flashrom -p host -r bios.rom ; then
+        log futility dump_fmap -x bios.rom
+        fix_old_names
+      else
+        logdie "Can't read BIOS at all. Giving up."
+      fi
+  fi
+fi
+
+info "Pulling root and recovery keys from GBB..."
+log futility gbb -g --rootkey rootkey.vbpubk \
+  --recoverykey recoverykey.vbpubk \
+  "GBB" || logdie "Unable to extract keys from GBB"
+log futility vbutil_key --unpack rootkey.vbpubk
+log futility vbutil_key --unpack recoverykey.vbpubk
+futility vbutil_key --unpack rootkey.vbpubk |
+  grep -q b11d74edd286c144e1135b49e7f0bc20cf041f10 &&
+  info "  Looks like dev-keys"
+# Okay if one of the firmware verifications fails
+set +e
+for fw in A B; do
+  infon "Verify firmware ${fw} with root key: "
+  log futility vbutil_firmware --verify "VBLOCK_${fw}" \
+    --signpubkey rootkey.vbpubk \
+    --fv "FW_MAIN_${fw}" --kernelkey "kern_subkey_${fw}.vbpubk" ; result
+  if [ "${LAST_RESULT}" = "0" ]; then
+    # rerun to get version numbers
+    futility vbutil_firmware --verify "VBLOCK_${fw}" \
+      --signpubkey rootkey.vbpubk \
+      --fv "FW_MAIN_${fw}" > tmp.txt
+    ver=$(format_as_tpm_version tmp.txt)
+    info "  TPM=${tpm_fwver}, this=${ver}"
+  fi
+done
+set -e
+
+info "Examining kernels..."
+if [ -n "${OPT_KERNEL}" ]; then
+  kernparts="${OPT_KERNEL}"
+elif [ -n "${OPT_IMAGE}" ]; then
+  if [ -f "${OPT_IMAGE}" ]; then
+    kernparts=$(extract_kerns_from_file "${OPT_IMAGE}")
+  else
+    kernparts=$(cgpt find -t kernel "${OPT_IMAGE}")
+  fi
+else
+  kernparts=$(cgpt find -t kernel)
+fi
+[ -n "${kernparts}" ] || logdie "No kernels found"
+
+# Okay if any of the kernel verifications fails
+set +e
+kc=0
+for kname in ${kernparts}; do
+  if [ -f "${kname}" ]; then
+    kfile="${kname}"
+  else
+    kfile="kern_${kc}"
+    debug "copying ${kname} to ${kfile}..."
+    log dd if="${kname}" of="${kfile}"
+  fi
+
+  infon "Kernel ${kname}: "
+  log futility vbutil_keyblock --unpack "${kfile}" ; result
+  if [ "${LAST_RESULT}" != "0" ]; then
+    loghead od -Ax -tx1 "${kfile}"
+  else
+    # Test each kernel with each key
+    for key in kern_subkey_A.vbpubk kern_subkey_B.vbpubk recoverykey.vbpubk; do
+      infon "  Verify ${kname} with $key: "
+      log futility vbutil_kernel --verify "${kfile}" --signpubkey "$key" ; result
+      if [ "${LAST_RESULT}" = "0" ]; then
+        # rerun to get version numbers
+        futility vbutil_kernel --verify "${kfile}" --signpubkey "$key" > tmp.txt
+        ver=$(format_as_tpm_version tmp.txt)
+        info "    TPM=${tpm_kernver} this=${ver}"
+      fi
+    done
+  fi
+
+  kc=$(expr $kc + 1)
+done
+
+exit 0

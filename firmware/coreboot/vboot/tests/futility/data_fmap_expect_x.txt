@@ -1,0 +1,12 @@
+hit at 0x00000800
+fmap_signature   __FMAP__
+fmap_version:    1.0
+fmap_base:       0x0
+fmap_size:       0x00800000 (8388608)
+fmap_name:       FMAP
+fmap_nareas:     30
+area:            2
+area_offset:     0x00000000
+area_size:       0x00001000 (4096)
+area_name:       SI_DESC
+saved as "SI_DESC"

@@ -1,0 +1,174 @@
+This directory contains a reference implementation for Chrome OS
+verified boot in firmware.
+
+----------
+Directory Structure
+----------
+
+The source is organized into distinct modules -
+
+firmware/
+
+  Contains ONLY the code required by the BIOS to validate the secure boot
+  components. There shouldn't be any code in here that signs or generates
+  images. BIOS should require ONLY this directory to implement secure boot.
+  Refer to firmware/README for futher details.
+
+cgpt/
+
+  Utility to read/write/modify GPT partitions. Similar to GNU parted or any
+  other GPT tool, but this has support for Chrome OS extensions.
+
+host/
+
+  Miscellaneous functions needed by userland utilities.
+
+futility/
+
+  The "firmware utility" tool, used to create, sign, and validate Chrome OS
+  images.
+
+utility/
+
+  Random other utilities, not necesssarily related to verified boot as such.
+
+tests/
+
+  User-land tests and benchmarks that test the reference implementation.
+  Please have a look at these if you'd like to understand how to use the
+  reference implementation.
+
+build/
+
+  The output directory where the generated files will be placed, and where
+  tests are run.
+
+scripts/
+
+  Tools and scripts used to generate and use new signing keypairs. These are
+  typically used only on a secure machine.
+
+
+--------------------
+Building and testing
+--------------------
+
+The suite can be built on the host or in the chroot environment.
+
+Building on the host could fail if certain packages are not installed. If
+there are host environment build problems due to missing .h files, try
+researching what packages the files belong to and install the missing packages
+before reporting a problem.
+
+
+The commands are the more-or-less expected ones:
+
+  make
+  make runtests
+  make install [ DESTDIR=/usr/local ]
+
+
+
+----------
+Some useful utilities:
+----------
+
+futility vbutil_key         Convert a public key into .vbpubk format
+futility vbutil_keyblock    Wrap a public key inside a signature and checksum
+futility vbutil_firmware    Create a .vblock with signature info for a
+                              firmware image
+futility vbutil_kernel      Pack a kernel image, bootloader, and config into
+                              a signed binary
+
+dumpRSAPublicKey            Dump RSA Public key (from a DER-encoded X509
+                            certificate) in a format suitable for use by
+                            RSAVerify* functions in crypto/.
+
+verify_data.c               Verify a given signature on a given file.
+
+
+
+----------
+Generating a signed firmware image:
+----------
+
+* Step 0: Build the tools, install them somewhere.
+
+* Step 1: Generate RSA root and signing keys.
+
+  The root key is always 8192 bits.
+
+    $ openssl genrsa -F4 -out root_key.pem 8192
+
+  The signing key can be between 1024-8192 bits.
+
+    $ openssl genrsa -F4 -out signing_key.pem <1024|2048|4096|8192>
+
+  Note: The -F4 option must be specified to generate RSA keys with a public
+  exponent of 65535. RSA keys with 3 as a public exponent (the default)
+  won't work.
+
+* Step 2: Generate pre-processed public versions of the above keys using
+          dumpRSAPublicKey. This utility expects an x509 certificate as
+          input, and emits an intermediate representation for further
+          processing.
+
+    $ openssl req -batch -new -x509 -key root_key.pem -out root_key.crt
+    $ openssl req -batch -new -x509 -key signing_key.pem -out signing_key.crt
+    $ dumpRSAPublicKey root_key.crt > root_key.keyb
+    $ dumpRSAPublicKey signing_key.crt > signing_key.keyb
+
+************** TODO: STUFF PAST HERE IS OUT OF DATE ***************
+
+At this point we have all the requisite keys needed to generate a signed
+firmware image.
+
+.pem   RSA Public/Private Key Pair
+.crt   X509 Key Certificate
+.keyb  Pre-processed RSA Public Key
+
+
+* Step 3: Use utility/firmware_utility to generate a signed firmare blob.
+
+$ utility/firmware_utility --generate \
+  --root_key root_key.pem \
+  --firmware_sign_key signing_key.pem \
+  --firmware_sign_key_pub signing_key.keyb \
+  --firmware_sign_algorithm <algoid> \
+  --firmware_key_version 1 \
+  --firmware_version 1 \
+  --in <firmware blob file> \
+  --out <output file>
+
+Where <algoid> is based on the signature algorithm to use for firmware
+signining. The list of <algoid> specifications can be output by running
+'utility/firmware_utility' without any arguments.
+
+Note: --firmware_key_version and --firmware_version are part of a signed
+      image and are used to prevent rollbacks to older version. For testing,
+      they can just be set to valid values.
+
+
+* Step 4: Verify that this image verifies.
+
+$ utility/firmware_utility --verify \
+                         --in <signed firmware image>
+                         --root_key_pub root_key.keyb
+Verification SUCCESS.
+
+
+Note: The verification functions expects a pointer to the
+      pre-processed public root key as input. For testing purposes,
+      root_key.keyb can be stored in RW part of the firmware. For the
+      final firmware, this will be a fixed public key which cannot be
+      changed and must be stored in RO firmware.
+
+----------
+Generating a signed kernel image:
+----------
+
+The steps for generating a signed kernel image are similar to that of
+a firmware image. Since verification is chained - RO firmware verifies
+RW firmware which verifies the kernel, only the keys change. An additional
+kernel signing key must be generated. The firmware signing generated above
+is the root key equivalent for signed kernel images.

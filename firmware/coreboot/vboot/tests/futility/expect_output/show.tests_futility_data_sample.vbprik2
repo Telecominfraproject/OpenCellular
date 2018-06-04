@@ -1,0 +1,6 @@
+Private key file:      /mnt/host/source/src/platform/vboot_reference/tests/futility/data/sample.vbprik2
+  Vboot API:           2.1
+  Desc:                "sample vb21 keypair"
+  Signature Algorithm: 5 RSA8192
+  Hash Algorithm:      3 SHA512
+  ID:                  f1afa44a1aed0d0e9ff630579df920a725e9de5e

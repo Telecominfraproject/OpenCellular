@@ -1,0 +1,6 @@
+These are officially signed BIOS images from existing Chromebooks.
+
+  bios_mario_mp.bin   uses old names for the FMAP areas
+  bios_zgb_mp.bin     RW firmware A and B are different
+  bios_link_mp.bin    uses the RO_NORMAL flag to skip RW firmware validation
+  bios_peppy_mp.bin   doesn't do any of those things
