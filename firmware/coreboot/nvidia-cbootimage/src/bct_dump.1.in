@@ -1,0 +1,53 @@
+.TH bct_dump 1 "6 October 2015" "bct_dump-VERSION" "NVIDIA Tegra BCT Disassembly Tool"
+.IX bct_dump
+.SH NAME
+bct_dump \- tegra BCT disassembly tool
+.SH SYNOPSIS
+.B bct_dump
+.I bctfile
+.SH DESCRIPTION
+This program is used to take a binary Tegra Boot Configuration Table (BCT) and
+disassemble it into a text format suitable to be compiled with cbootimage(1).
+
+.SS Platforms supported
+.IP \(bu
+.B Tegra20
+.IP \(bu
+.B Tegra30
+.IP \(bu
+.B Tegra114
+.IP \(bu
+.B Tegra124
+.IP \(bu
+.B Tegra132
+.IP \(bu
+.B Tegra210
+
+.SH OPTIONS
+.TP
+.B \fIbctfile\fP
+Specify the BCT file to disassemble
+
+.SH EXAMPLES
+To disassemble the BCT file for a Tegra124 Jetson-TK1:
+
+.nf
+$ bct_dump PM375_Hynix_2GB_H5TC4G63AFR_RDA_924MHz.bct
+Version       = 0x00400001;
+BlockSize     = 0x00004000;
+PageSize      = 0x00000200;
+PartitionSize = 0x01000000;
+OdmData       = 0x800d8000;
+JtagCtrl      = 0x00000000;
+ChipUid       = 0x00000000000000000000000000000000;
+# Bootloader used       = 0;
+# Bootloaders max       = 4;
+# BCT size              = 8192;
+ ...
+.fi
+
+.SH RETURN VALUE
+If any error occurs a non zero exit status is returned.
+
+.SH SEE ALSO
+.BR tegrarcm(1), cbootimage(1)
