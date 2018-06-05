@@ -24,6 +24,9 @@ package HW.GFX is
    subtype Pixel_Type is Int32 range 0 .. 8192 * 8192;
    subtype Pos_Pixel_Type is Pixel_Type range 1 .. Pixel_Type'Last;
 
+   -- assume at most 8 bytes per pixel
+   subtype Size_Type is Int32 range 0 .. Pixel_Type'Last * 8;
+
    -- Allow same range for width and height (for rotated framebuffers)
    subtype Width_Type      is Pos32 range 1 .. 8192;
    subtype Height_Type     is Pos32 range 1 .. 8192;
@@ -188,7 +191,7 @@ private
      (if Rotation_90 (FB) then FB.Width else FB.Height);
 
    function Pixel_To_Bytes (Pixel : Pixel_Type; FB : Framebuffer_Type)
-      return Int32 is (Pixel * Pos32 (FB.BPC) / (8 / 4));
+      return Size_Type is (Pixel * Pos32 (FB.BPC) / (8 / 4));
    function FB_Size (FB : Framebuffer_Type)
       return Pos32 is (Pixel_To_Bytes (FB.Stride * FB.V_Stride, FB));
 
