@@ -79,7 +79,7 @@ _make_self_signed_pair() {
   pushd "${key_name}" >/dev/null || return 1
   openssl req -new -x509 -nodes -newkey rsa:2048 -sha256 \
       -keyout "${key_name}.rsa" -out "${key_name}.pem" \
-      -subj "${subj}" -days 73000
+      -subj "${subj}" -days 3650
   popd >/dev/null
 }
 
@@ -100,10 +100,10 @@ _make_child_pair() {
   pushd "${ca_name}/${ca_name}.children" >/dev/null || return 1
   openssl req -new -nodes -newkey rsa:2048 -sha256 \
       -keyout "${child_key_name}.rsa" -out "${child_key_name}.csr" \
-      -subj "${subj}" -days 73000
+      -subj "${subj}"
   openssl x509 -req -sha256 -CA "../${ca_name}.pem" -CAkey "../${ca_name}.rsa" \
       -CAcreateserial -in "${child_key_name}.csr" \
-      -out "${child_key_name}.pem" -days 73000
+      -out "${child_key_name}.pem" -days 3650
   popd >/dev/null
 }
 
