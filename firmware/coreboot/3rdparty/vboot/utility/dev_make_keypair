@@ -1,0 +1,83 @@
+#!/bin/bash -e
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+
+# Check args first.
+if [ "$#" -lt "1" ]; then
+  cat <<EOF 1>&2
+
+Usage:  ${0##*/} BASENAME [ALG]
+
+This creates BASENAME.vbpubk and BASENAME.vbprivk pairs for use in signing
+developer files. This also creates a BASENAME.keyblock file containing the
+BASENAME.vbpubk, which can be used to sign a developer kernel.
+
+If specified, ALG is one of:
+
+  0    =  RSA1024 with SHA1
+  1    =  RSA1024 with SHA256
+  2    =  RSA1024 with SHA512
+  3    =  RSA2048 with SHA1
+  4    =  RSA2048 with SHA256
+  5    =  RSA2048 with SHA512
+  6    =  RSA4096 with SHA1
+  7    =  RSA4096 with SHA256
+  8    =  RSA4096 with SHA512
+  9    =  RSA8192 with SHA1
+  10   =  RSA8192 with SHA256
+  11   =  RSA8192 with SHA512
+
+If ALG is not specified, a default value will be used.
+
+EOF
+  exit 1
+fi
+
+
+# Compute the key length assuming the sizes shown above.
+function alg_to_keylen {
+  echo $(( 1 << (10 + ($1 / 3)) ))
+}
+
+# Emit .vbpubk and .vbprivk using given basename and algorithm.
+function make_pair {
+  local base=$1
+  local alg=$2
+  local len=$(alg_to_keylen $alg)
+
+  # make the RSA keypair
+  openssl genrsa -F4 -out "${base}_${len}.pem" $len
+  # create a self-signed certificate
+  openssl req -batch -new -x509 -key "${base}_${len}.pem" \
+    -out "${base}_${len}.crt"
+  # generate pre-processed RSA public key
+  dumpRSAPublicKey -cert "${base}_${len}.crt" > "${base}_${len}.keyb"
+
+  # wrap the public key
+  futility vbutil_key \
+    --pack "${base}.vbpubk" \
+    --key "${base}_${len}.keyb" \
+    --version 1 \
+    --algorithm $alg
+
+  # wrap the private key
+  futility vbutil_key \
+    --pack "${base}.vbprivk" \
+    --key "${base}_${len}.pem" \
+    --algorithm $alg
+
+  # remove intermediate files
+  rm -f "${base}_${len}.pem" "${base}_${len}.crt" "${base}_${len}.keyb"
+}
+
+# First create the .vbpubk and .vbprivk pair.
+make_pair "$1" "${2:-4}"
+
+# Now create a .keyblock to hold our .vbpubk. Since it's for developer use, it
+# won't be signed, just checksummed. Developer kernels can only be run in
+# non-recovery mode with the developer switch enabled, but it won't hurt us to
+# turn on all the flags bits anyway.
+futility vbutil_keyblock --pack "$1.keyblock" \
+  --datapubkey "$1.vbpubk" --flags 15

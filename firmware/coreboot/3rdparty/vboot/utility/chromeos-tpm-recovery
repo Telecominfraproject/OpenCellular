@@ -1,0 +1,176 @@
+#!/bin/sh -u
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Run TPM diagnostics in recovery mode, and attempt to fix problems.  This is
+# specific to devices with chromeos firmware.
+#
+# Most of the diagnostics examine the TPM state and try to fix it.  This may
+# require clearing TPM ownership.
+
+tpmc=${USR_BIN:=/usr/bin}/tpmc
+crossystem=${USR_BIN}/crossystem
+dot_recovery=${DOT_RECOVERY:=/mnt/stateful_partition/.recovery}
+awk=/usr/bin/awk
+initctl=/sbin/initctl
+daemon_was_running=
+err=0
+
+tpm2_target() {
+  # This is not an ideal way to tell if we are running on a tpm2 target, but
+  # it will have to do for now.
+  if [ -f "/etc/init/trunksd.conf" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+log() {
+  echo "$*"
+}
+
+quit() {
+  log "ERROR: $*"
+  restart_daemon_if_needed
+  log "exiting"
+
+  exit 1
+}
+
+log_tryfix() {
+  log "$*: attempting to fix"
+}
+
+log_error() {
+  err=$((err + 1))
+  log "ERROR: $*"
+}
+
+
+log_warn() {
+  log "WARNING: $*"
+}
+
+tpm_clear_and_reenable () {
+  $tpmc clear
+
+  # The below commands are are no-op on tpm2, but let's keep them here for
+  # both TPM versions in case they are implemented in the future for
+  # version 2.
+  $tpmc enable
+  $tpmc activate
+}
+
+reset_space () {
+  local index=$1
+  local permissions=$2
+  local size=$3
+  local bytes="$4"
+
+  if ! tpm2_target; then
+    # definespace is not yet supported for tpm2 (crosbug.com/p/59361), let's
+    # just rely on the firmware having created the required spaces for now.
+    if ! $tpmc definespace $index $size $permissions; then
+      log "could not redefine space $index"
+      return 1
+    fi
+  fi
+
+  # do not quote "$bytes", as we mean to expand it here
+  if ! $tpmc write $index $bytes; then
+    log "writing to $index failed"
+    return 1
+  fi
+  log "space $index was recreated successfully"
+}
+
+restart_daemon_if_needed() {
+  if [ "$daemon_was_running" = 1 ]; then
+    log "Restarting ${DAEMON}..."
+    $initctl start "${DAEMON}" >/dev/null
+  fi
+}
+
+# ------------
+# MAIN PROGRAM
+# ------------
+
+# Sanity check: are we executing in a recovery image?
+
+if [ -e $dot_recovery ]; then
+  quit "This is a developer utility, it should never run on a (production) recovery image"
+fi
+
+# Did the firmware keep the TPM unlocked?
+
+if ! $($crossystem mainfw_type?recovery); then
+  quit "You must put a test image on a USB stick and boot it in recovery mode to run this"
+fi
+
+if tpm2_target; then
+  DAEMON="trunksd"
+else
+  DAEMON="tcsd"
+fi
+
+# TPM daemon may or may not be running
+
+log "Stopping ${DAEMON}..."
+if $initctl stop "${DAEMON}" >/dev/null 2>/dev/null; then
+  daemon_was_running=1
+  log "done"
+else
+  daemon_was_running=0
+  log "(was not running)"
+fi
+
+# Is the state of the PP enable flags correct?
+
+if ! tpm2_target; then
+  if ! ($tpmc getpf | grep -q "physicalPresenceLifetimeLock 1" &&
+      $tpmc getpf | grep -q "physicalPresenceHWEnable 0" &&
+      $tpmc getpf | grep -q "physicalPresenceCMDEnable 1"); then
+    log_tryfix "bad state of physical presence enable flags"
+    if $tpmc ppfin; then
+      log "physical presence enable flags are now correctly set"
+    else
+      quit "could not set physical presence enable flags"
+    fi
+  fi
+
+  # Is physical presence turned on?
+
+  if $tpmc getvf | grep -q "physicalPresence 0"; then
+    log_tryfix "physical presence is OFF, expected ON"
+    # attempt to turn on physical presence
+    if $tpmc ppon; then
+      log "physical presence is now on"
+    else
+      quit "could not turn physical presence on"
+    fi
+  fi
+else
+  if ! $tpmc getvf | grep -q 'phEnable 1'; then
+    quit "Platform Hierarchy is disabled, TPM can't be recovered"
+  fi
+fi
+
+# I never learned what this does, but it's probably good just in case...
+tpm_clear_and_reenable
+
+# Reset firmware and kernel spaces to default (rollback version 1/1)
+reset_space 0x1007 0x8001 0xa "02  00  01 00 01 00  00 00 00  4f" || \
+  log_error "could not fix firmware space"
+reset_space 0x1008 0x1 0xd "02  4c 57 52 47  01 00 01 00  00 00 00  55" || \
+  log_error "could not fix kernel space"
+
+restart_daemon_if_needed
+
+if [ "$err" -eq 0 ]; then
+  log "TPM has successfully been reset to factory defaults"
+else
+  log_error "TPM was not fully recovered."
+  exit 1
+fi

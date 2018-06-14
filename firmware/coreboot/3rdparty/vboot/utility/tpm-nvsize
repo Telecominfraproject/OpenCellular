@@ -1,0 +1,50 @@
+#! /bin/sh -e
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Finds the largest NV space that can be defined on the TPM in this state
+# (i.e. without removing existing spaces).
+#
+# The TPM must be unowned, and physical presence must be on.
+
+low=1
+high=1500
+try=$high
+
+# Binary search with no upper bound
+while true; do
+  ## echo trying $try [ $low $high ]
+  if /usr/bin/tpmc definespace 0xf004 $(printf "0x%x" $try) 0x1 \
+                                                      > /dev/null 2>&1; then
+    # definespace success: end, or $try must grow
+    if [ $try -eq $low ]; then
+      echo $low
+      exit 0
+    elif [ $try -lt $high ]; then
+      low=$try
+      try=$(( ( $high + $low ) / 2 ))
+    else
+      # special case: when try == high, expand the search
+      low=$try
+      try=$(( $try * 2 ))
+      high=$try
+    fi
+  else
+    # check for unexpected errors
+    result=$?
+    if [ $result -ne 17 ]; then
+      echo running tpmc definespace 0xf004 0x1 0x1
+      /usr/bin/tpmc definespace 0xf004 0x1 0x1
+      echo please correct this condition and try again
+      exit 1
+    fi
+    # definespace failure: end, or $try must shrink
+    if [ $try -eq $low ]; then
+      echo 0
+      exit 0
+    fi
+    high=$try
+    try=$(( ( $high + $low ) / 2 ))
+  fi
+done

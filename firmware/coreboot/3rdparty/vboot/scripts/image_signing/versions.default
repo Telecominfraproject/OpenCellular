@@ -1,0 +1,7 @@
+# sign_official_build.sh can (optionally) take a file name from which to read
+# firmware and kernel versions to set during the signing process.
+
+# This is a sample version file template.
+
+firmware_version=1
+kernel_version=1

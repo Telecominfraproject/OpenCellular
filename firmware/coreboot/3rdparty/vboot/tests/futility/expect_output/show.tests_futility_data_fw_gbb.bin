@@ -1,0 +1,27 @@
+GBB header:              /mnt/host/source/src/platform/vboot_reference/tests/futility/data/fw_gbb.bin
+  Version:               1.1
+  Flags:                 0x00000039
+  Regions:                 offset       size
+    hwid                 0x00000080   0x00000100
+    bmpvf                0x00001180   0x000ece80
+    rootkey              0x00000180   0x00001000
+    recovery_key         0x000ee000   0x00001000
+  Size:                  0x000ef000 / 0x000ef000
+GBB content:
+  HWID:                  X86 PEPPY TEST 4211
+     digest:             <none>
+  Root Key:
+    Vboot API:           1.0
+    Algorithm:           11 RSA8192 SHA512
+    Key Version:         1
+    Key sha1sum:         fc68bcb88bf9af1907289a9f377d658b3b9fe5b0
+  Recovery Key:
+    Vboot API:           1.0
+    Algorithm:           11 RSA8192 SHA512
+    Key Version:         1
+    Key sha1sum:         bf39d0d3e30cbf6a121416d04df4603ad5310779
+  BmpBlock:
+    Version:             2.0
+    Localizations:       18
+    Screen layouts:      10
+    Image infos:         269

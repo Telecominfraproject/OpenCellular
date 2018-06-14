@@ -1,0 +1,4 @@
+These are sample configurations used with the test scripts located in the
+parent directory. Note that these are not maintained in this git with complete
+or necessarily current production data for Chrome OS. They serve to provide
+examples of the configuraiton syntax.

@@ -1,0 +1,17 @@
+Key block:               /mnt/host/source/src/platform/vboot_reference/tests/futility/data/fw_vblock.bin
+  Signature:             ignored
+  Size:                  0x8b8
+  Flags:                 7  !DEV DEV !REC
+  Data key algorithm:    8 RSA4096 SHA512
+  Data key version:      1
+  Data key sha1sum:      f917ad29e36aa8a286f978c1aa0550ea31c6a561
+Firmware Preamble:
+  Size:                  2164
+  Header version:        2.1
+  Firmware version:      2
+  Kernel key algorithm:  7 RSA4096 SHA256
+  Kernel key version:    2
+  Kernel key sha1sum:    cc05423373b76acbec23ec45dfa3696a2ea6dc0f
+  Firmware body size:    146456
+  Preamble flags:        0
+No firmware body available to verify.

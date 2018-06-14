@@ -1,0 +1,343 @@
+#!/bin/sh -u
+# Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Test the chromeos TPM recovery script by faking the entire execution
+# environment.
+
+rm -rf tpm-recovery-test-workdir
+mkdir  tpm-recovery-test-workdir
+cd     tpm-recovery-test-workdir
+
+test_kind=
+if [ $# -ge 1 ]; then
+  test_kind="$1"
+fi
+
+if [ "$test_kind" != "" -a "$test_kind" != "fake" ]; then
+  echo "$0: usage: $0 [fake]"
+  echo "With fake as the argument, use a simulated TPM instead of the real one"
+fi
+
+if [ "$test_kind" = "fake" ]; then
+  export USR_BIN=.
+  export USR_SBIN=.
+  export USR_LOCAL_BIN=.
+  export USR_LOCAL_SBIN=.
+  export DOT_RECOVERY=.recovery
+  export ACPI_DIR=.
+  ctr=../chromeos-tpm-recovery
+  tpmc=./tpmc
+else
+  ctr=chromeos-tpm-recovery
+  tpmc=tpmc
+fi
+
+# For simplicity, build the permanent environment as if we prepared to run the
+# fake test, even if we're running the test on a real TPM.
+
+echo > .recovery
+echo 3 > BINF.0
+echo 0 > CHSW
+
+export NVRAM_SPACE_OVERHEAD=200
+space_overhead=$NVRAM_SPACE_OVERHEAD
+
+# build tpmc
+cat > tpmc <<"EOF"
+#!/bin/sh -u
+# Fake tpmc program
+
+definespace () {
+  index=$2
+  size=$3
+  permissions=$4
+  space_overhead=$NVRAM_SPACE_OVERHEAD
+
+  if [ -e space.$index.data -a -e tpm-owned ]; then
+    echo "cannot redefine space without auth"
+  fi
+
+  totalsize=$(( $size + $space_overhead ))
+  free=$(cat nvram.freespace)
+
+  if [ $totalsize -gt $free ]; then
+    return 17  # NO_SPACE
+  fi
+
+  if [ $index != 0xf004 ]; then
+    echo $size > space.$index.size
+    echo $permissions > space.$index.perm
+    for i in $(seq 1 $(($size))); do
+      echo -n "ff " >> space.$index.data
+    done
+    echo $(( $free - $totalsize )) > nvram.freespace
+  fi
+  return 0
+}
+
+case $1 in
+
+  clear)
+    rm -f tpm-owned
+  ;;
+
+  enable)
+    # boring
+  ;;
+
+  activate)
+    # boring
+  ;;
+
+  definespace)
+    definespace $*
+  ;;
+
+  getp)
+    echo space blah has permissions $(cat space.$2.perm)
+  ;;
+
+  read)
+    index=$2
+    size=$3
+    maxsize=$(cat space.$index.size)
+    if [ $(($size > $maxsize)) -eq 1  ]; then
+      echo "size $size too large for space (max is $maxsize)"
+      exit 1
+    fi
+    dd if=space.$index.data bs=1 count=$(($3 * 3)) 2> /dev/null
+  ;;
+
+  write)
+    args="$@"
+    index=$2
+    bytes="$(echo $args | sed 's/[^ ]* [^ ]* //')"
+    size=$(echo $bytes | wc -w)
+    maxsize=$(cat space.$index.size)
+    if [ $(($size > $maxsize)) -eq 1  ]; then
+      echo "size $size too large for space (max is $(($maxsize)))"
+      exit 1
+    fi
+    re=$(echo "$bytes " | sed 's/././g')
+    sed "s/$re/$bytes /" < space.$index.data > _tmp_
+    mv _tmp_ space.$index.data
+  ;;
+
+  getpf)
+    echo "disable 0"
+    echo "deactivated 0"
+    echo "nvLocked 1"
+    echo "physicalPresenceLifetimeLock 1"
+    echo "physicalPresenceHWEnable 0"
+    echo "physicalPresenceCMDEnable 1"
+  ;;
+
+  getvf)
+    echo "bGlobalLock 1"
+    echo "physicalPresence 1"
+    echo "physicalPresenceLock 0"
+  ;;
+
+  ppfin)
+    # boring
+  ;;
+
+  ppon)
+    # boring
+  ;;
+
+  *)
+    echo "tpmc: invalid command $1"
+    exit 1
+  ;;
+esac
+
+EOF
+
+# build nvtool
+cat > tpm-nvtool <<"EOF"
+#!/bin/sh -u
+
+space_overhead=$NVRAM_SPACE_OVERHEAD
+
+print_space () {
+  local index=$1
+  printf "# NV Index 0x%08x" $(( $index ))
+  echo " uninteresting random garbage"
+  echo " further random garbage"
+  echo ""
+}
+
+if [ "$1" = "--release" ]; then
+  if [ "$2" != "--index" -o \
+       "$4" != "--owner_password" ]; then
+    echo "sorry, picky tpm-nvtool"
+    exit 1
+  fi
+  index=$3
+  if [ ! -f tpm-owned ]; then
+    echo "tpm is unowned"
+    exit 1
+  fi
+  size=$(cat space.$index.size)
+  free=$(cat nvram.freespace)
+  rm space.$index.*
+  echo $(( $size + $space_overhead + $free )) > nvram.freespace
+elif [ "$1" = "--list" ]; then
+  for s in space.*.data; do
+    print_space $(echo $s | sed -e "s/[^.]*\.//" -e "s/\..*//")
+  done
+fi
+EOF
+
+# build tpm_takeownership
+cat > tpm_takeownership <<"EOF"
+#!/bin/sh -u
+if [ -f tpm-owned ]; then
+  echo "tpm is already owned"
+  exit 1
+fi
+echo > tpm-owned
+EOF
+
+# build tcsd
+cat > tcsd <<"EOF"
+#!/bin/sh -u
+trap "{ rm tcsd_is_running; }" EXIT
+echo > tcsd_is_running
+sleep 365d
+EOF
+
+tcsd_pid=0
+
+start_tcsd () {
+  if [ $tcsd_pid -ne 0 ]; then
+    echo TCSD is already started
+    exit 1
+  fi
+  tcsd -f &
+  tcsd_pid=$!
+  sleep 2
+}
+
+stop_tcsd () {
+  if [ $tcsd_pid -eq 0 ]; then
+    echo TCSD is already stopped
+    exit 1
+  fi
+  kill $tcsd_pid
+  sleep 0.5
+  kill $tcsd_pid > /dev/null 2>&1
+  sleep 0.5
+  wait $tcsd_pid > /dev/null 2>&1  # we trust that tcsd will agree to die
+  tcsd_pid=0
+}
+
+tpm_clear_and_reenable () {
+  tpmc clear
+  tpmc enable
+  tpmc activate
+}
+
+takeownership () {
+  if [ "$test_kind" = "fake" ]; then
+    touch tpm_owned
+  else
+    tpm_clear_and_reenable
+    start_tcsd
+    tpm_takeownership -y -z
+    stop_tcsd
+  fi
+}
+
+remove_chromeos_spaces () {
+  if [ "$test_kind" = "fake" ]; then
+    rm -f space.*
+    echo 1500 > nvram.freespace
+  else
+    takeownership
+    start_tcsd
+    tpm-nvtool --release --index 0x1007 --owner_password ""
+    tpm-nvtool --release --index 0x1008 --owner_password ""
+    stop_tcsd
+    tpm_clear_and_reenable
+  fi
+}
+
+chmod 755 tpmc tpm-nvtool tpm_takeownership tcsd
+
+echo "starting test, results in $(pwd)/log"
+echo "starting TPM recovery test" > log
+
+if ps ax | grep "tcs[d]"; then
+  echo "a tcsd is process appears to be running, please kill it first"
+  exit 1
+fi
+
+# normal run
+test_normal_run () {
+  echo "TEST: normal run" >> log
+
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0xd 0x1
+  $tpmc write 0x1008 01 4c 57 52 47
+  takeownership
+
+  $ctr log
+}
+
+# Kernel space with wrong ID
+test_wrong_id () {
+  echo "TEST: bad kernel space ID" >> log
+
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0xd 0x1
+  takeownership
+
+  $ctr log
+}
+
+# Kernel space with wrong size
+test_wrong_size () {
+  echo "TEST: bad kernel space size" >> log
+
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0xc 0x1
+  takeownership
+
+  $ctr log
+}
+
+# Kernel space with wrong size AND bogus space to exhaust nvram
+test_wrong_size_hog () {
+  echo "TEST: bad kernel space size and no room" >> log
+
+  remove_chromeos_spaces
+  $tpmc definespace 0x1007 0xa 0x8001
+  $tpmc definespace 0x1008 0x1 0x1
+  if [ "$test_kind" = "fake" ]; then
+    space_hog_size=$(( $(cat nvram.freespace) - $space_overhead - 1 ))
+    echo "remaining $(cat nvram.freespace) bytes" >> log
+  else
+    space_hog_size=$(( $(tpm-nvsize) - 2 ))
+  fi
+  echo "hogging $(( $space_hog_size )) bytes" >> log
+  $tpmc definespace 0xcafe $(printf "0x%x" $space_hog_size) 0x1 \
+    || echo "hogging failed!" >> log
+  takeownership
+
+  $ctr log
+}
+
+test_normal_run
+test_wrong_id
+test_wrong_size
+test_wrong_size_hog
+
+echo "test completed" >> log
+echo "test completed"

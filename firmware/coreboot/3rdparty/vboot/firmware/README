@@ -1,0 +1,47 @@
+
+Here's what's what in the firmware/ directory.
+
+bdb/
+
+  Code for managing Boot Descriptor Blocks (BDB).
+
+include/
+lib/
+
+  These are the original structures and APIs used in the earliest
+  Chromebooks and continuing through 2014. It never had a version as such to
+  begin with, but we now refer to this implementation as "vboot1" or
+  "vboot version 1.0".
+
+linktest/
+stub/
+
+  These are stubs used to link the vboot1 libraries into host-side test
+  executables so we can run some tests on the build machine instead of a
+  Chromebook.
+
+2lib/
+
+  In 2014 we began work on a new vboot API. The first step was just a
+  refactoring and renaming of the verification API. The public functions and
+  external headers that are exported for use by the Chrome OS firmware (or
+  anything else that wants to use vboot) live in here. The internal
+  structures and implementations go elsewhere.
+
+lib20/
+
+  This is an early implementation of the public (2lib/) API. It is
+  binary-compatible with vboot1, so although the interface details are
+  different, any existing on-device structures or signatures created by the
+  vboot1 tools can be validated using this implementation.
+
+  This was deployed slightly before it was ready. That's not a problem,
+  thanks to the binary compatibility, but this directory will be abandoned
+  Real Soon Now, except for the product support branches.
+
+lib21/
+
+  This is where the current development of the second-generation vboot API
+  is taking place. It uses the public (2lib/) API, but will NOT be binary
+  compatible with vboot1 structs. Because of the early release of the lib20
+  stuff, we're actually calling this lib21.

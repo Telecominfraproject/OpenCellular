@@ -1,0 +1,16 @@
+Key block:
+  Size:                2232
+  Flags:               7 (ignored)
+  Data key algorithm:  7 RSA4096 SHA256
+  Data key version:    1
+  Data key sha1sum:    e2c1c92d7d7aa7dfed5e8375edd30b7ae52b7450
+Preamble:
+  Size:                  2164
+  Header version:        2.1
+  Firmware version:      12
+  Kernel key algorithm:  7 RSA4096 SHA256
+  Kernel key version:    1
+  Kernel key sha1sum:    5d2b220899c4403d564092ada3f12d3cc4483223
+  Firmware body size:    16384
+  Preamble flags:        42
+Body verification succeeded.

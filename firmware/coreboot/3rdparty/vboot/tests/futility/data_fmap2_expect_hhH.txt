@@ -1,0 +1,32 @@
+ERROR: RO_VPD and RO_UNUSED overlap
+  RO_VPD: 0x1a0000 - 0x1b0000
+  RO_UNUSED: 0x1af000 - 0x200000
+# name                     start       end         size
+-entire flash-             00000000    00400000    00400000
+  RW_PRIVATE                 003fc000    00400000    00004000
+  RW_ENVIRONMENT             003fc000    00400000    00004000  // DUPLICATE
+  RW_SHARED                  003f8000    003fc000    00004000
+  SHARED_DATA                003f8000    003fc000    00004000  // DUPLICATE
+  RW_VPD                     003f0000    003f8000    00008000
+  RW_SECTION_B               00300000    003f0000    000f0000
+    RW_FWID_B                  003eff00    003f0000    00000100
+    FW_MAIN_B                  00302000    003eff00    000edf00
+    VBLOCK_B                   00300000    00302000    00002000
+                             002f0000    00300000    00010000  // gap in -entire flash-
+  RW_SECTION_A               00200000    002f0000    000f0000
+    RW_FWID_A                  002eff00    002f0000    00000100
+    FW_MAIN_A                  00202000    002eff00    000edf00
+    VBLOCK_A                   00200000    00202000    00002000
+  WP_RO                      00000000    00200000    00200000
+    RO_UNUSED                  001af000    00200000    00051000
+                               001b0000    001af000    fffff000  // gap in WP_RO
+    RO_VPD                     001a0000    001b0000    00010000
+                               0019f000    001a0000    00001000  // gap in WP_RO
+    RO_SECTION                 00000000    0019f000    0019f000
+      GBB                        000b0000    0019f000    000ef000
+      RO_FRID                    000aff00    000b0000    00000100
+                                 000a1000    000aff00    0000ef00  // gap in RO_SECTION
+      FMAP                       000a0000    000a1000    00001000
+      U_BOOT                     00006000    000a0000    0009a000
+      BL2 SPL                    00002000    00006000    00004000
+      BL1 PRE_BOOT               00000000    00002000    00002000
