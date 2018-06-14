@@ -1,0 +1,65 @@
+if BOARD_SAMSUNG_LUMPY
+
+config BOARD_SPECIFIC_OPTIONS # dummy
+	def_bool y
+	select SYSTEM_TYPE_LAPTOP
+	select BOARD_ROMSIZE_KB_8192
+	select MAINBOARD_HAS_CHROMEOS
+	select MAINBOARD_HAS_LPC_TPM
+	select MAINBOARD_HAS_TPM1
+	select CPU_INTEL_SOCKET_RPGA989
+	select EC_SMSC_MEC1308
+	select HAVE_ACPI_RESUME
+	select HAVE_ACPI_TABLES
+	select HAVE_OPTION_TABLE
+	select NORTHBRIDGE_INTEL_SANDYBRIDGE
+	select SOUTHBRIDGE_INTEL_BD82X6X
+	select SUPERIO_SMSC_MEC1308
+# LPC47N207 selected for external LPC card
+# not on board, should be made selectable.
+	select SUPERIO_SMSC_LPC47N207
+	select DRIVERS_GENERIC_IOAPIC
+	select INTEL_INT15
+
+config VBOOT
+	select VBOOT_PHYSICAL_DEV_SWITCH
+	select VBOOT_PHYSICAL_REC_SWITCH
+	select VBOOT_VBNV_CMOS
+
+config MAINBOARD_DIR
+	string
+	default samsung/lumpy
+
+config MAINBOARD_PART_NUMBER
+	string
+	default "Lumpy"
+
+config MAX_CPUS
+	int
+	default 8
+
+config VGA_BIOS_FILE
+	string
+	default "pci8086,0106.rom"
+
+config MAINBOARD_POWER_ON_AFTER_POWER_FAIL
+	bool
+	default n
+
+if EARLY_PCI_BRIDGE
+
+config EARLY_PCI_BRIDGE_DEVICE
+	hex
+	default 0x1c
+
+config EARLY_PCI_BRIDGE_FUNCTION
+	hex
+	default 0x0
+
+config EARLY_PCI_MMIO_BASE
+	hex
+	default 0xe0400000
+
+endif
+
+endif # BOARD_SAMSUNG_LUMPY

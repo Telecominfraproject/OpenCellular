@@ -1,0 +1,136 @@
+#
+# This file is part of the coreboot project.
+#
+# Copyright (C) 2015-2018 Intel Corp.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+
+config PLATFORM_USES_FSP2_0
+	bool
+	default n
+	help
+	  Include FSP 2.0 wrappers and functionality
+
+if PLATFORM_USES_FSP2_0
+
+config ADD_FSP_BINARIES
+	bool "Add Intel FSP 2.0 binaries to CBFS"
+	help
+	  Add the FSP-M and FSP-S binaries to CBFS. Currently coreboot does not
+	  use the FSP-T binary and it is not added.
+
+config DISPLAY_FSP_CALLS_AND_STATUS
+	bool "Display the FSP calls and status"
+	default n
+	help
+	  Display the FSP call entry point and parameters prior to calling FSP
+	  and display the status upon return from FSP.
+
+config DISPLAY_FSP_HEADER
+	bool "Display the FSP header"
+	default n
+	help
+	  Display the FSP header information when the FSP file is found.
+
+config DISPLAY_HOBS
+	bool "Display the hand-off-blocks"
+	default n
+	help
+	  Display the FSP HOBs which are provided for coreboot.
+
+config DISPLAY_UPD_DATA
+	bool "Display UPD data"
+	default n
+	help
+	  Display the user specified product data prior to memory
+	  initialization.
+
+config FSP_T_CBFS
+	string "Name of FSP-T in CBFS"
+	depends on FSP_CAR
+	default "fspt.bin"
+
+config FSP_S_CBFS
+	string "Name of FSP-S in CBFS"
+	default "fsps.bin"
+
+config FSP_M_CBFS
+	string "Name of FSP-M in CBFS"
+	default "fspm.bin"
+
+config FSP_T_FILE
+	string "Intel FSP-T (temp ram init) binary path and filename"
+	depends on FSP_CAR
+	help
+	  The path and filename of the Intel FSP-M binary for this platform.
+
+config FSP_M_FILE
+	string "Intel FSP-M (memory init) binary path and filename"
+	depends on ADD_FSP_BINARIES
+	help
+	  The path and filename of the Intel FSP-M binary for this platform.
+
+config FSP_S_FILE
+	string "Intel FSP-S (silicon init) binary path and filename"
+	depends on ADD_FSP_BINARIES
+	help
+	  The path and filename of the Intel FSP-S binary for this platform.
+
+config FSP_CAR
+	bool "Use FSP TempRamInit & TempRamExit APIs"
+	depends on ADD_FSP_BINARIES
+	default n
+	help
+	  Use FSP APIs to initialize & Tear Down the Cache-As-Ram
+
+config FSP_M_XIP
+	bool "Is FSP-M XIP"
+	default n
+	help
+	  Select this value when FSP-M is execute-in-place.
+
+config VERIFY_HOBS
+	bool "Verify the FSP hand-off-blocks"
+	default n
+	help
+	  Verify that the HOBs required by coreboot are returned by FSP and
+	  that the resource HOBs are in the correct order and position.
+
+config CHECKLIST_DATA_FILE_LOCATION
+	string
+	default "src/vendorcode/intel/fsp/fsp2_0/checklist"
+
+config RESET_ON_INVALID_RAMSTAGE_CACHE
+	bool "Reset the system on S3 wake when ramstage cache invalid."
+	default n
+
+config DISPLAY_FSP_VERSION_INFO
+	bool "Display Firmware Ingredient Version Information"
+	help
+	  Select this option to display Firmware version information.
+
+config FSP2_0_USES_TPM_MRC_HASH
+	bool
+	depends on TPM1 || TPM2
+	depends on VBOOT
+	default y if HAS_RECOVERY_MRC_CACHE
+	default n
+	select VBOOT_HAS_REC_HASH_SPACE
+
+config FSP_PLATFORM_MEMORY_SETTINGS_VERSIONS
+	bool
+	help
+	  This is selected by SoC or mainboard to supply their own
+	  concept of a version for the memory settings respectively.
+	  This allows deployed systems to bump their version number
+	  with the same FSP which will trigger a retrain of the memory.
+
+endif

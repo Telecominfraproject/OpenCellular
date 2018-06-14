@@ -1,0 +1,73 @@
+if BOARD_GOOGLE_FIZZ
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select BOARD_ROMSIZE_KB_16384
+	select DRIVERS_I2C_GENERIC
+	select DRIVERS_SPI_ACPI
+	select DRIVERS_USB_ACPI
+	select EC_GOOGLE_CHROMEEC
+	select EC_GOOGLE_CHROMEEC_ACPI_USB_PORT_POWER
+	select EC_GOOGLE_CHROMEEC_BOARDID
+	select EC_GOOGLE_CHROMEEC_LPC
+	select HAVE_ACPI_RESUME
+	select HAVE_ACPI_TABLES
+	select MAINBOARD_HAS_CHROMEOS
+	select MAINBOARD_USES_FSP2_0
+	select NO_FADT_8042
+	select SOC_INTEL_KABYLAKE
+	select MAINBOARD_HAS_SPI_TPM_CR50
+	select MAINBOARD_HAS_TPM2
+	select GENERIC_SPD_BIN
+	select RT8168_GET_MAC_FROM_VPD
+	select RT8168_SET_LED_MODE
+	select SPD_READ_BY_WORD
+
+config VBOOT
+	select EC_GOOGLE_CHROMEEC_SWITCHES
+	select VBOOT_EC_EFS
+	select VBOOT_PHYSICAL_REC_SWITCH
+	select HAS_RECOVERY_MRC_CACHE
+	select MRC_CLEAR_NORMAL_CACHE_ON_RECOVERY_RETRAIN
+
+config DRIVER_TPM_SPI_BUS
+	default 0x1
+
+config GBB_HWID
+	string
+	depends on CHROMEOS
+	default "FIZZ TEST 5997"
+
+config MAINBOARD_DIR
+	string
+	default "google/fizz"
+
+config MAINBOARD_PART_NUMBER
+	string
+	default "Fizz"
+
+config MAINBOARD_FAMILY
+	string
+	default "Google_Fizz"
+
+config MAX_CPUS
+	int
+	default 8
+
+config DIMM_MAX
+	int
+	default 2
+
+config DIMM_SPD_SIZE
+	int
+	default 512
+
+config TPM_TIS_ACPI_INTERRUPT
+	int
+	default 64  # GPE0_DW2_00 (GPP_E0)
+
+config INCLUDE_NHLT_BLOBS
+	bool "Include blobs for audio."
+	select NHLT_RT5663
+
+endif
