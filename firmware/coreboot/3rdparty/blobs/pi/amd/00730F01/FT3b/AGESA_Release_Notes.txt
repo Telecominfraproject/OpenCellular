@@ -1,0 +1,97 @@
+
+                        Release Notes for
+                        -----------------
+             Mullins Platform Initialization (MullinsPI)
+
+=============================================================================
+
+coreboot usage information:
+
+	    AGESA source (binary PI)  --->
+	(3rdparty/pi/amd/00730F01) AGESA PI directory path
+	(FT3b/AGESA.bin) AGESA PI binary file name
+	(0xFFE00000) AGESA PI binary address in ROM
+
+	config MMCONF_BASE_ADDRESS
+		hex
+		default 0xF8000000
+
+	config MMCONF_BUS_NUMBER
+		int
+		default 64
+
+=============================================================================
+
+MullinsPI Version: 1.0.0.A                         Release Date: July 2015
+BinaryPI Version: 1.1                             Build date: Aug. 25 2015
+Built by coreboot toolchain v1.27 March 8th, 2015
+Test Board: Olive Hill Plus
+
+=============================================================================
+- Update to MullinsPI 1.0.0.A
+- BUG465142: ECC error injection fails
+
+Agesa ENHANCEMENTS and FIXED BUGS after 1.0.0.9:
+
+- BUG466307: PSP Trustlets is not updated properly
+
+
+Agesa ENHANCEMENTS and FIXED BUGS after 1.0.0.8:
+
+- ENH466202: PSP FW stack version D.1.1.4D
+- ENH460470: Remove the PSP DEBUG info to fix system hanging issue
+- PLAT-986:  Initial iTpmControlArea to avoid potential exception
+- ENH465927: Enable MMIO decode in iTpmGetResponse
+
+
+Agesa ENHANCEMENTS and FIXED BUGS after 1.0.0.7:
+
+- ENH465438: Add SMBIOS support for Sempron part
+- ENH465709: PSP FW stack version D.1.1.4A
+- ENH465474: SMU_Firmware_14_33
+
+
+Agesa ENHANCEMENTS and FIXED BUGS after 1.0.0.6:
+
+- ENH465011: PSP FW stack version D.1.1.47
+- BUG463002: SATA hardware revision ID gets overwritten
+- ENH463253: LAN performance data(Auto negotiation/1000M)
+
+
+Agesa ENHANCEMENTS and FIXED BUGS after 1.0.0.5:
+
+- ENH464327: PSP FW stack version D.1.1.42
+- ENH463121: AGESA Memory Option for JEDEC DDR3/DDR4 SPD MAC
+- BUG455965: System hangs at PC02FF when GFX card(Asic type: Topaz) plugged in
+- ENH462603: Enable SRT only when the platform really needs to run > 85C
+
+
+Agesa ENHANCEMENTS and FIXED BUGS after 1.0.0.4:
+
+- ENH462390: PSP FW stack version D.1.1.36
+- ENH457952: Publish PSP fTPM ready PPI
+- BUG460543: ECC lane fails training
+- BUG458825: Typo in dec file
+- ENH455439: Save & Restore PSP Bar3 related register for S3
+- BUG458331: Correct Size mismatch of create the recovery guid Hob
+- ENH455923: Update ALIB to support Windows XP
+- ENH454744: Save Restore FakeSMI related registers for S3
+
+=============================================================================
+
+=============================================================================
+
+MullinsPI Version: 1.0.0.4                         Release Date: Jun. 25 2015
+BinaryPI Version: 1.0
+
+=============================================================================
+From this commit we use two version numbers to identify binary PI:
+MullinsPI Version is the AGESA version. This is the same as original
+MullinsPI.
+BinaryPI Version is the AGESA.bin version. We will change this version when
+we upload new AGESA.bin.
+
+- Add PspMboxBiosCmdDramInfo and PspMboxBiosCmdExitBootServices to fix
+  Windows 7 hang after graphics driver installed.
+
+=============================================================================

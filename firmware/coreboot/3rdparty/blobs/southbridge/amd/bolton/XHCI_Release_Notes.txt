@@ -1,0 +1,26 @@
+                  Release Notes
+                  =============
+                     xHC FW
+
+--------------------------------------------
+Version 1.1.0.0059
+--------------------------------------------
+   Enhancements:
+   =============
+   1. Add a workaround to prevent controller from STOP in run mode. Otherwise the compliance test will fail.
+
+--------------------------------------------
+Version 1.1.0.0055
+--------------------------------------------
+   Enhancements:
+   =============
+   1. Removed SBD and FSE bits.
+
+--------------------------------------------
+Version 1.1.0.0049
+--------------------------------------------
+   Enhancements:
+   =============
+   1. The release supports Bolton series chipsets.
+
+

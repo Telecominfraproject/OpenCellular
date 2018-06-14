@@ -1,0 +1,8 @@
+*******************************************************************************
+* ATTENTION: The blobs/cpu/qualcomm/ipq8064/sbls.bin file is a placeholder.
+* It is NOT a working IPQ8064 binary.
+* 
+* Developers should maintain the IPQ8064 file on the flash device and be
+* sure to back it up prior to overwriting it with a coreboot image.
+*******************************************************************************
+

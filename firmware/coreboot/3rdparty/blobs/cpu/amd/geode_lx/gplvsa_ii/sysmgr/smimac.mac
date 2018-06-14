@@ -1,0 +1,209 @@
+; 
+; Copyright (c) 2006 Advanced Micro Devices,Inc. ("AMD").
+; 
+; This library is free software; you can redistribute it and/or modify
+; it under the terms of the GNU Lesser General Public License as
+; published by the Free Software Foundation; either version 2.1 of the
+; License, or (at your option) any later version.
+; 
+; This code is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+; Lesser General Public License for more details.
+; 
+; You should have received a copy of the GNU Lesser General
+; Public License along with this library; if not, write to the
+; Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+; Boston, MA 02111-1307 USA 
+; 
+
+
+smint	macro
+		db      0Fh, 38h
+		endm
+
+
+
+EREG	macro	Reg
+		ifidni		<Reg>, <eax>
+		  db		0C8h
+		elseifidni	<Reg>, <ecx>
+		  db		0C9h
+		elseifidni	<Reg>, <edx>
+		  db		0CAh
+		elseifidni	<Reg>, <ebx>
+		  db		0CBh
+		elseifidni	<Reg>, <esp>
+		  db		0CCh
+		elseifidni	<Reg>, <ebp>
+		  db		0CDh
+		elseifidni	<Reg>, <esi>
+		  db		0CEh
+		elseifidni	<Reg>, <edi>
+		  db		0CFh
+		else
+		.err
+
+		endif
+
+		endm
+
+
+RDSHR	macro	Reg
+		db		0Fh, 36h
+		EREG	Reg
+		endm
+
+WRSHR	macro	Reg
+		db		0Fh, 37h
+		EREG	Reg
+		endm
+
+
+
+
+
+MOV_EAX_CR4 macro
+		db		0Fh, 20h, 0E0h		; mov eax, CR4
+ENDM
+
+MOV_CR4_EAX macro
+		db		0Fh, 22h, 0E0h		; mov CR4, eax
+ENDM
+
+
+
+
+
+
+
+
+
+
+
+SMM_Instr	macro Reg:REQ, Addr:REQ, Opcode:REQ
+	Local Place1, Place2,  Attr, InstrLen
+
+
+
+Place1:
+
+
+	ifidni		<Reg>, <ES>
+	  LFS	ax, dword ptr Addr
+	elseifidni	<Reg>, <SS>
+	  LFS	dx, dword ptr Addr
+	elseifidni	<Reg>, <DS>
+	  LFS	bx, dword ptr Addr
+	elseifidni	<Reg>, <FS>
+	  LFS	sp, dword ptr Addr
+	elseifidni	<Reg>, <GS>
+	  LFS	bp, dword ptr Addr
+	elseifidni	<Reg>, <CS>
+	  LFS	cx, dword ptr Addr
+	else
+	  .err "Error in RSDC macro"
+	endif
+
+Place2:
+
+Extras = 1
+SegOverride  INSTR <Addr>, <:>
+if SegOverride
+  Extras = Extras + 1
+endif
+
+AddrOverride  INSTR <Addr>, <eax>
+if AddrOverride
+  Extras = Extras + 1
+else
+  AddrOverride  INSTR <Addr>, <EAX>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <ebx>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <EBX>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <ecx>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <ECX>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <edx>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <EDX>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <esi>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <ESI>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <edi>
+  if AddrOverride
+    Extras = Extras + 1
+  else
+  AddrOverride  INSTR <Addr>, <EDI>
+  if AddrOverride
+    Extras = Extras + 1
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+  endif
+endif
+
+	ORG Place1 + Extras
+	db	Opcode	
+	ORG Place2
+
+	endm
+
+svdc	macro Addr:REQ, Reg:REQ
+	  SMM_Instr Reg, Addr, 78h
+	endm
+
+rsdc	macro Reg:REQ, Addr:REQ
+	  SMM_Instr Reg, Addr, 79h
+	endm
+
+
+svldt	macro Addr:REQ
+	  SMM_Instr <ES>, Addr, 7Ah
+	endm
+
+
+rsldt	macro	Addr:REQ
+	  SMM_Instr <ES>, Addr, 7Bh
+	endm
+
+svts	macro Addr:REQ
+	  SMM_Instr <ES>, Addr, 7Ch
+	endm
+
+
+rsts	macro	Addr:REQ
+	  SMM_Instr <ES>, Addr, 7Dh
+	endm
+
+
