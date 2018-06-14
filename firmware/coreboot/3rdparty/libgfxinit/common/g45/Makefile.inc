@@ -1,0 +1,15 @@
+gfxinit-y += hw-gfx-gma-connectors.adb
+gfxinit-y += hw-gfx-gma-gmch-dp.adb
+gfxinit-y += hw-gfx-gma-gmch-dp.ads
+gfxinit-y += hw-gfx-gma-gmch-hdmi.adb
+gfxinit-y += hw-gfx-gma-gmch-hdmi.ads
+gfxinit-y += hw-gfx-gma-gmch-lvds.adb
+gfxinit-y += hw-gfx-gma-gmch-lvds.ads
+gfxinit-y += hw-gfx-gma-gmch-vga.adb
+gfxinit-y += hw-gfx-gma-gmch-vga.ads
+gfxinit-y += hw-gfx-gma-plls.adb
+gfxinit-y += hw-gfx-gma-plls.ads
+gfxinit-y += hw-gfx-gma-port_detect.adb
+gfxinit-y += hw-gfx-gma-gmch.ads
+gfxinit-y += hw-gfx-gma-power_and_clocks.ads
+gfxinit-y += hw-gfx-gma-power_and_clocks.adb

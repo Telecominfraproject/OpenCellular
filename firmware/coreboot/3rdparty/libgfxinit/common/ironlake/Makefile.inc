@@ -1,0 +1,17 @@
+gfxinit-y += hw-gfx-gma-connectors-edp.adb
+gfxinit-y += hw-gfx-gma-connectors-edp.ads
+gfxinit-y += hw-gfx-gma-connectors-fdi.adb
+gfxinit-y += hw-gfx-gma-connectors-fdi.ads
+gfxinit-y += hw-gfx-gma-connectors.adb
+gfxinit-y += hw-gfx-gma-pch-dp.adb
+gfxinit-y += hw-gfx-gma-pch-dp.ads
+gfxinit-y += hw-gfx-gma-pch-hdmi.adb
+gfxinit-y += hw-gfx-gma-pch-hdmi.ads
+gfxinit-y += hw-gfx-gma-pch-lvds.adb
+gfxinit-y += hw-gfx-gma-pch-lvds.ads
+gfxinit-y += hw-gfx-gma-plls.adb
+gfxinit-y += hw-gfx-gma-plls.ads
+gfxinit-y += hw-gfx-gma-port_detect.adb
+gfxinit-y += hw-gfx-gma-power_and_clocks.ads
+gfxinit-y += hw-gfx-gma-power_and_clocks_ironlake.adb
+gfxinit-y += hw-gfx-gma-power_and_clocks_ironlake.ads
