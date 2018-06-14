@@ -1,0 +1,52 @@
+/* Copyright 2016 The Chromium OS Authors. All rights reserved.
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+/*
+ * Test SUCCESS from both TH and DUT
+ */
+CTS_TEST(success_test,,,,)
+
+/*
+ * Test FAILURE from DUT
+ */
+CTS_TEST(fail_dut_test,,, CTS_RC_FAILURE,)
+
+/*
+ * Test FAILURE from TH
+ */
+CTS_TEST(fail_th_test, CTS_RC_FAILURE,,,)
+
+/*
+ * Test failure from both TH and DUT.
+ */
+CTS_TEST(fail_both_test, CTS_RC_FAILURE,, CTS_RC_FAILURE,)
+
+/*
+ * Test bad sync for TH
+ */
+CTS_TEST(bad_sync_test, CTS_RC_BAD_SYNC,,,)
+
+/*
+ * Test should fail with bad sync.
+ */
+CTS_TEST(bad_sync_both_test, CTS_RC_BAD_SYNC,, CTS_RC_BAD_SYNC,)
+
+/*
+ * Test hang on DUT
+ */
+CTS_TEST(hang_test, CTS_RC_SUCCESS,, CTS_RC_DID_NOT_END,)
+
+/*
+ * Test CTS_RC_DID_NOT_START
+ *
+ * Since the previous test hung on DUT, this test won't run on DUT. 
+ * TH will wait forever in sync(), thus won't end.
+ */
+ CTS_TEST(did_not_start_test, CTS_RC_DID_NOT_END,, CTS_RC_DID_NOT_START,)
+
+/*
+ * TODO: Add test for expected string
+ * TODO: Make sync() return CTS_RC_BAD_SYNC when it times out.
+ */
