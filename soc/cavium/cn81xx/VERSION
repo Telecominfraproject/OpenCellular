@@ -1,0 +1,9 @@
+version          : ATF 1.5-117f85dd
+release date     : 07-19-2018
+supported silicon: Cavium CN81XX
+ERRATA           : -
+toolchain version: GCC 6.3.0
+ABI version      : 1.5
+arch             : aarch64
+instruction      : Include into coreboot's CBFS and build with
+                   CONFIG_ARM64_USE_ARM_TRUSTED_FIRMWARE
