@@ -1,0 +1,13 @@
+============================ ST 015.049.000.017 VBIOS release  ========================================
+Stoney  generic Baseline VBIOS 015.049.000.017
+release date :  7/4/2018
+supported silicon : Stoney
+
+Major Changes included:
+1.	eDP HBR: Pre-emphasis increment=1,Swing increment = 8
+2.      DP RBR/HBR: Pre-emphasis increment=3,Swing increment = 1;
+ 
+errata, known issues : To pass the careena eDP compliance test
+============================ Version information  ========================================
+To get the Version number, search the string “ATOMBIOSBK-AMD” from the binary, after that is the binary version number.  
+Ex: ATOMBIOSBK-AMD VER015.049.000.017
