@@ -1,0 +1,324 @@
+diff --git a/host/lib/usrp/b200/b200_iface.hpp b/host/lib/usrp/b200/b200_iface.hpp
+index 0cddbf8..47edbd2 100644
+--- a/host/lib/usrp/b200/b200_iface.hpp
++++ b/host/lib/usrp/b200/b200_iface.hpp
+@@ -31,7 +31,8 @@ enum b200_product_t {
+     B200,
+     B210,
+     B200MINI,
+-    B205MINI
++    B205MINI,
++    OCR01
+ };
+ 
+ // These are actual USB PIDs (not Ettus Product IDs)
+@@ -45,6 +46,8 @@ const static uint16_t B210_PRODUCT_NI_ID     = 0x7814;
+ const static uint16_t FX3_VID                = 0x04b4;
+ const static uint16_t FX3_DEFAULT_PID        = 0x00f3;
+ const static uint16_t FX3_REENUM_PID         = 0x00f0;
++const static uint16_t OCR01_VENDOR_ID        = 0x8888;
++const static uint16_t OCR01_PRODUCT_ID       = 0x9999;
+ 
+ //! Map the USB PID to the product (only for PIDs that map to a single product)
+ static const uhd::dict<uint16_t, b200_product_t> B2XX_PID_TO_PRODUCT = boost::assign::map_list_of
+@@ -52,9 +55,11 @@ static const uhd::dict<uint16_t, b200_product_t> B2XX_PID_TO_PRODUCT = boost::as
+         (B210_PRODUCT_NI_ID,    B210)
+         (B200MINI_PRODUCT_ID,   B200MINI)
+         (B205MINI_PRODUCT_ID,   B205MINI)
++ 	(OCR01_PRODUCT_ID,   OCR01)
+ ;
+ 
+ static const std::string     B200_FW_FILE_NAME = "usrp_b200_fw.hex";
++static const std::string     OCR01_FW_FILE_NAME = "usrp_ocr01_fw.hex";
+ 
+ //! Map the EEPROM product ID codes to the product
+ static const uhd::dict<uint16_t, b200_product_t> B2XX_PRODUCT_ID = boost::assign::map_list_of
+@@ -68,6 +73,8 @@ static const uhd::dict<uint16_t, b200_product_t> B2XX_PRODUCT_ID = boost::assign
+         (0x7739,             B200MINI)
+         (0x0004,             B205MINI)
+         (0x773a,             B205MINI)
++        (0x773a,             B205MINI)
++        (OCR01_PRODUCT_ID,             OCR01)
+ ;
+ 
+ 
+@@ -76,6 +83,7 @@ static const uhd::dict<b200_product_t, std::string> B2XX_STR_NAMES = boost::assi
+         (B210,      "B210")
+         (B200MINI,  "B200mini")
+         (B205MINI,  "B205mini")
++	(OCR01,  "OCR01")
+ ;
+ 
+ static const uhd::dict<b200_product_t, std::string> B2XX_FPGA_FILE_NAME = boost::assign::map_list_of
+@@ -83,6 +91,7 @@ static const uhd::dict<b200_product_t, std::string> B2XX_FPGA_FILE_NAME = boost:
+         (B210, "usrp_b210_fpga.bin")
+         (B200MINI, "usrp_b200mini_fpga.bin")
+         (B205MINI, "usrp_b205mini_fpga.bin")
++	(OCR01, "usrp_ocr01_fpga.bin")
+ ;
+ 
+ 
+diff --git a/host/lib/usrp/b200/b200_impl.cpp b/host/lib/usrp/b200/b200_impl.cpp
+index 62f0c2f..fec5d6d 100644
+--- a/host/lib/usrp/b200/b200_impl.cpp
++++ b/host/lib/usrp/b200/b200_impl.cpp
+@@ -129,6 +129,7 @@ std::string check_option_valid(
+ //  in the MB EEPROM are invalid,
+ b200_product_t get_b200_product(const usb_device_handle::sptr& handle, const mboard_eeprom_t &mb_eeprom)
+ {
++#if 0
+     // Try USB PID first
+     uint16_t product_id = handle->get_product_id();
+     if (B2XX_PID_TO_PRODUCT.has_key(product_id))
+@@ -146,13 +147,16 @@ b200_product_t get_b200_product(const usb_device_handle::sptr& handle, const mbo
+         ));
+     }
+     return B2XX_PRODUCT_ID[product_id];
++#endif
++    return OCR01;
+ }
+ 
+ std::vector<usb_device_handle::sptr> get_b200_device_handles(const device_addr_t &hint)
+ {
+     std::vector<usb_device_handle::vid_pid_pair_t> vid_pid_pair_list;
+ 
+-    if(hint.has_key("vid") && hint.has_key("pid") && hint.has_key("type") && hint["type"] == "b200") {
++    //if(hint.has_key("vid") && hint.has_key("pid") && hint.has_key("type") && hint["type"] == "b200") {
++    if(hint.has_key("vid") && hint.has_key("pid") && hint.has_key("type") && hint["type"] == "ocr01") {
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(uhd::cast::hexstr_cast<uint16_t>(hint.get("vid")),
+                                                                       uhd::cast::hexstr_cast<uint16_t>(hint.get("pid"))));
+     } else {
+@@ -168,7 +172,8 @@ static device_addrs_t b200_find(const device_addr_t &hint)
+     device_addrs_t b200_addrs;
+ 
+     //return an empty list of addresses when type is set to non-b200
+-    if (hint.has_key("type") and hint["type"] != "b200") return b200_addrs;
++    //if (hint.has_key("type") and hint["type"] != "b200") return b200_addrs;
++    if (hint.has_key("type") and hint["type"] != "ocr01") return b200_addrs;
+ 
+     //Return an empty list of addresses when an address or resource is specified,
+     //since an address and resource is intended for a different, non-USB, device.
+@@ -186,7 +191,8 @@ static device_addrs_t b200_find(const device_addr_t &hint)
+         //extract the firmware path for the b200
+         std::string b200_fw_image;
+         try{
+-            b200_fw_image = hint.get("fw", B200_FW_FILE_NAME);
++            //b200_fw_image = hint.get("fw", B200_FW_FILE_NAME);
++ 	    b200_fw_image = hint.get("fw", OCR01_FW_FILE_NAME);
+             b200_fw_image = uhd::find_image_path(b200_fw_image, STR(UHD_IMAGES_DIR)); // FIXME
+         }
+         catch(uhd::exception &e){
+@@ -221,10 +227,13 @@ static device_addrs_t b200_find(const device_addr_t &hint)
+ 
+             b200_iface::sptr iface = b200_iface::make(control);
+             const mboard_eeprom_t mb_eeprom = mboard_eeprom_t(*iface, "B200");
++            //const mboard_eeprom_t mb_eeprom = mboard_eeprom_t(*iface, "OCR01");
+ 
+             device_addr_t new_addr;
+-            new_addr["type"] = "b200";
++            //new_addr["type"] = "b200";
++            new_addr["type"] = "ocr01";
+             new_addr["name"] = mb_eeprom["name"];
++            new_addr["name"] = "OCSDR";
+             new_addr["serial"] = handle->get_serial();
+             try {
+                 // Turn the 16-Bit product ID into a string representation
+@@ -292,8 +301,10 @@ b200_impl::b200_impl(const uhd::device_addr_t& device_addr, usb_device_handle::s
+     const fs_path mb_path = "/mboards/0";
+ 
+     //try to match the given device address with something on the USB bus
+-    uint16_t vid = B200_VENDOR_ID;
+-    uint16_t pid = B200_PRODUCT_ID;
++    //uint16_t vid = B200_VENDOR_ID;
++    //uint16_t pid = B200_PRODUCT_ID;
++    uint16_t vid = OCR01_VENDOR_ID;
++    uint16_t pid = OCR01_PRODUCT_ID;
+     bool specified_vid = false;
+     bool specified_pid = false;
+ 
+@@ -324,12 +335,14 @@ b200_impl::b200_impl(const uhd::device_addr_t& device_addr, usb_device_handle::s
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(vid, B205MINI_PRODUCT_ID));
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(vid, B200_PRODUCT_NI_ID));
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(vid, B210_PRODUCT_NI_ID));
++        vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(vid, OCR01_PRODUCT_ID));
+     }
+     // Search for all supported VIDs limited to specified PID if only PID specified
+     else if (specified_pid)
+     {
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(B200_VENDOR_ID,pid));
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(B200_VENDOR_NI_ID,pid));
++        vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(OCR01_VENDOR_ID,pid));
+     }
+     // Search for all supported devices if neither VID nor PID specified
+     else
+@@ -339,6 +352,7 @@ b200_impl::b200_impl(const uhd::device_addr_t& device_addr, usb_device_handle::s
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(B200_VENDOR_ID,    B205MINI_PRODUCT_ID));
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(B200_VENDOR_NI_ID, B200_PRODUCT_NI_ID));
+         vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(B200_VENDOR_NI_ID, B210_PRODUCT_NI_ID));
++        vid_pid_pair_list.push_back(usb_device_handle::vid_pid_pair_t(OCR01_VENDOR_ID, OCR01_PRODUCT_ID));
+     }
+ 
+     std::vector<usb_device_handle::sptr> device_list = usb_device_handle::get_device_list(vid_pid_pair_list);
+@@ -362,7 +376,8 @@ b200_impl::b200_impl(const uhd::device_addr_t& device_addr, usb_device_handle::s
+     ////////////////////////////////////////////////////////////////////
+     // setup the mboard eeprom
+     ////////////////////////////////////////////////////////////////////
+-    const mboard_eeprom_t mb_eeprom(*_iface, "B200");
++    //const mboard_eeprom_t mb_eeprom(*_iface, "B200");
++    const mboard_eeprom_t mb_eeprom(*_iface, "OCR01");
+     _tree->create<mboard_eeprom_t>(mb_path / "eeprom")
+         .set(mb_eeprom)
+         .add_coerced_subscriber(boost::bind(&b200_impl::set_mb_eeprom, this, _1));
+@@ -386,9 +401,11 @@ b200_impl::b200_impl(const uhd::device_addr_t& device_addr, usb_device_handle::s
+         // In this case, we must provide a default product name:
+         product_name = "B200?";
+     }
++    #if 0
+     if (not mb_eeprom["revision"].empty()) {
+         _revision = boost::lexical_cast<size_t>(mb_eeprom["revision"]);
+     }
++    #endif
+ 
+     UHD_MSG(status) << "Detected Device: " << B2XX_STR_NAMES[_product] << std::endl;
+ 
+@@ -473,7 +490,7 @@ b200_impl::b200_impl(const uhd::device_addr_t& device_addr, usb_device_handle::s
+     _local_ctrl = radio_ctrl_core_3000::make(false/*lilE*/, _ctrl_transport, zero_copy_if::sptr()/*null*/, B200_LOCAL_CTRL_SID);
+     _local_ctrl->hold_task(_async_task);
+     _async_task_data->local_ctrl = _local_ctrl; //weak
+-    this->check_fpga_compat();
++    //this->check_fpga_compat();
+ 
+     /* Initialize the GPIOs, set the default bandsels to the lower range. Note
+      * that calling update_bandsel calls update_gpio_state(). */
+@@ -987,6 +1004,7 @@ void b200_impl::check_fpga_compat(void)
+ void b200_impl::set_mb_eeprom(const uhd::usrp::mboard_eeprom_t &mb_eeprom)
+ {
+     mb_eeprom.commit(*_iface, "B200");
++    //mb_eeprom.commit(*_iface, "OCR01");
+ }
+ 
+ /***********************************************************************
+diff --git a/host/lib/usrp/b200/b200_impl.hpp b/host/lib/usrp/b200/b200_impl.hpp
+index 1c756c5..6fcb879 100644
+--- a/host/lib/usrp/b200/b200_impl.hpp
++++ b/host/lib/usrp/b200/b200_impl.hpp
+@@ -99,6 +99,7 @@ static std::vector<uhd::transport::usb_device_handle::vid_pid_pair_t> b200_vid_p
+         (uhd::transport::usb_device_handle::vid_pid_pair_t(B200_VENDOR_ID, B205MINI_PRODUCT_ID))
+         (uhd::transport::usb_device_handle::vid_pid_pair_t(B200_VENDOR_NI_ID, B200_PRODUCT_NI_ID))
+         (uhd::transport::usb_device_handle::vid_pid_pair_t(B200_VENDOR_NI_ID, B210_PRODUCT_NI_ID))
++        (uhd::transport::usb_device_handle::vid_pid_pair_t(OCR01_VENDOR_ID, OCR01_PRODUCT_ID))
+     ;
+ 
+ b200_product_t get_b200_product(const uhd::transport::usb_device_handle::sptr& handle, const uhd::usrp::mboard_eeprom_t &mb_eeprom);
+diff --git a/host/lib/usrp/common/ad9361_driver/ad9361_device.cpp b/host/lib/usrp/common/ad9361_driver/ad9361_device.cpp
+index e2ed2c7..9ce1ec1 100644
+--- a/host/lib/usrp/common/ad9361_driver/ad9361_device.cpp
++++ b/host/lib/usrp/common/ad9361_driver/ad9361_device.cpp
+@@ -929,7 +929,8 @@ void ad9361_device_t::_calibrate_tx_quadrature()
+     /***********************************************************************
+      * TX1/2-B Calibration
+      **********************************************************************/
+-    _regs.inputsel = _regs.inputsel | 0x40;
++    //_regs.inputsel = _regs.inputsel | 0x40;
++    _regs.inputsel = _regs.inputsel | 0xBF;
+     _io_iface->poke8(0x004, _regs.inputsel);
+ 
+     _tx_quadrature_cal_routine();
+diff --git a/host/lib/usrp/common/adf4001_ctrl.cpp b/host/lib/usrp/common/adf4001_ctrl.cpp
+index 01a35db..ed5eb63 100644
+--- a/host/lib/usrp/common/adf4001_ctrl.cpp
++++ b/host/lib/usrp/common/adf4001_ctrl.cpp
+@@ -102,7 +102,8 @@ adf4001_ctrl::adf4001_ctrl(uhd::spi_iface::sptr _spi, int slaveno):
+ 
+     //set defaults
+     adf4001_regs.ref_counter = 1;
+-    adf4001_regs.n = 4;
++    //adf4001_regs.n = 4;
++    adf4001_regs.n = 1;
+     adf4001_regs.charge_pump_current_1 = 7;
+     adf4001_regs.charge_pump_current_2 = 7;
+     adf4001_regs.muxout = adf4001_regs_t::MUXOUT_DLD;
+diff --git a/host/utils/b2xx_fx3_utils.cpp b/host/utils/b2xx_fx3_utils.cpp
+index 4d30e15..17e1576 100644
+--- a/host/utils/b2xx_fx3_utils.cpp
++++ b/host/utils/b2xx_fx3_utils.cpp
+@@ -55,7 +55,8 @@ const static vid_pid_t known_vid_pids[] = {
+     {B200_VENDOR_ID, B200MINI_PRODUCT_ID},
+     {B200_VENDOR_ID, B205MINI_PRODUCT_ID},
+     {B200_VENDOR_NI_ID, B200_PRODUCT_NI_ID},
+-    {B200_VENDOR_NI_ID, B210_PRODUCT_NI_ID}
++    {B200_VENDOR_NI_ID, B210_PRODUCT_NI_ID},
++    {OCR01_VENDOR_ID, OCR01_PRODUCT_ID}
+ };
+ const static std::vector<vid_pid_t> known_vid_pid_vector(known_vid_pids, known_vid_pids + (sizeof(known_vid_pids) / sizeof(known_vid_pids[0])));
+ 
+@@ -359,6 +360,8 @@ int32_t main(int32_t argc, char *argv[]) {
+ 
+     vid = B200_VENDOR_ID;   // Default
+     pid = B200_PRODUCT_ID;  // Default
++
++
+     if (vm.count("vid") && vm.count("pid"))
+     {
+         try {
+@@ -371,17 +374,25 @@ int32_t main(int32_t argc, char *argv[]) {
+         user_supplied_vid_pid = true;
+     }
+ 
++   #if 0
++    if (vid){
++    	vid = OCR01_VENDOR_ID;   // Default
++    	pid = OCR01_PRODUCT_ID;  // Default
++    }
++   #endif
++
+     // open the device
+     handle = open_device(vid, pid, user_supplied_vid_pid);
+     if (!handle)
+         return -1;
+-    std::cout << "B2xx detected..." << std::flush;
+-
++  //  std::cout << "B2xx detected..." << std::flush;
++    std::cout << "OCR01 detected..." << std::flush;
+     // make the interface
+     b200 = make_b200_iface(handle);
+     if (!b200)
+         return -1;
+-    std::cout << " Control of B2xx granted..." << std::endl << std::endl;
++    //std::cout << " Control of B2xx granted..." << std::endl << std::endl;
++    std::cout << " Control of OCR01 granted..." << std::endl << std::endl;
+ 
+     // if we are supposed to load a new firmware image and one already exists, reset the FX3 so we can load the new one
+     if (vm.count("load-fw") && handle->firmware_loaded())
+@@ -420,7 +431,7 @@ int32_t main(int32_t argc, char *argv[]) {
+         std::cout << "Loading firmware" << std::endl;
+ 
+         if (fw_file.empty())
+-            fw_file = uhd::find_image_path(B200_FW_FILE_NAME);
++            fw_file = uhd::find_image_path(OCR01_FW_FILE_NAME);
+ 
+         if(fw_file.empty()) {
+             std::cerr << "Firmware image not found!" << std::endl;
+@@ -508,6 +519,10 @@ int32_t main(int32_t argc, char *argv[]) {
+         uint16_t writevid = B200_VENDOR_ID;
+         uint16_t writepid = B200_PRODUCT_ID;
+ 
++        if (user_supplied_vid_pid){
++        writepid= pid;
++        writevid= vid;
++	}
+         /* Now, initialize the device. */
+            // Added for testing purposes - not exposed
+         if (vm.count("write-vid") && vm.count("write-pid"))
+diff --git a/host/utils/uhd-usrp.rules b/host/utils/uhd-usrp.rules
+index 76bccfe..d27aec7 100644
+--- a/host/utils/uhd-usrp.rules
++++ b/host/utils/uhd-usrp.rules
+@@ -27,3 +27,7 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0021", MODE:="066
+ SUBSYSTEMS=="usb", ATTRS{idVendor}=="2500", ATTRS{idProduct}=="0022", MODE:="0666"
+ SUBSYSTEMS=="usb", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7813", MODE:="0666"
+ SUBSYSTEMS=="usb", ATTRS{idVendor}=="3923", ATTRS{idProduct}=="7814", MODE:="0666"
++
++#OCR01
++SUBSYSTEMS=="usb", ATTRS{idVendor}=="8888", ATTRS{idProduct}=="9999", MODE:="0666"
++

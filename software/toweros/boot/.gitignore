@@ -1,0 +1,3 @@
+oc-minimal.yml
+docker.yml
+compose/osmo-nitb/docker-compose.yml

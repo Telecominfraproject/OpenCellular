@@ -1,0 +1,9 @@
+files:
+  - path: etc/compose/docker-compose.yml
+    source: docker-compose.yml
+  - path: data/osmo-trx.cfg
+    source: config/osmo-trx.cfg
+  - path: data/osmo-bts.cfg
+    source: config/osmo-bts.cfg
+  - path: data/openbsc.cfg
+    source: config/openbsc.cfg

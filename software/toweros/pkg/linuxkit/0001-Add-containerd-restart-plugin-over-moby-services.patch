@@ -1,0 +1,86 @@
+From 1cbe28585dfb6e702d7121597fafce8e226b653c Mon Sep 17 00:00:00 2001
+From: Omar Ramadan <omar.ramadan93@gmail.com>
+Date: Thu, 6 Sep 2018 22:33:25 -0700
+Subject: [PATCH] Add containerd restart plugin over moby services
+
+---
+ pkg/containerd/Dockerfile   |  2 +-
+ pkg/init/Dockerfile         |  4 ++--
+ pkg/init/cmd/service/cmd.go | 14 +++++++++++---
+ 3 files changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/pkg/containerd/Dockerfile b/pkg/containerd/Dockerfile
+index 4967ce3b9..d45ae87f3 100644
+--- a/pkg/containerd/Dockerfile
++++ b/pkg/containerd/Dockerfile
+@@ -1,4 +1,4 @@
+-FROM linuxkit/alpine:3683c9a66cd4da40bd7d6c7da599b2dcd738b559 as alpine
++FROM linuxkit/alpine:1f8437a5927e96ffc42be730dd6da4d0d39314a4-amd64 AS alpine
+ RUN apk add tzdata
+ 
+ WORKDIR $GOPATH/src/github.com/containerd/containerd
+diff --git a/pkg/init/Dockerfile b/pkg/init/Dockerfile
+index fa42bff12..ff7bfdcaa 100644
+--- a/pkg/init/Dockerfile
++++ b/pkg/init/Dockerfile
+@@ -1,4 +1,4 @@
+-FROM linuxkit/alpine:3683c9a66cd4da40bd7d6c7da599b2dcd738b559 AS build
++FROM linuxkit/alpine:1f8437a5927e96ffc42be730dd6da4d0d39314a4-amd64 AS build
+ RUN apk add --no-cache --initdb alpine-baselayout make gcc musl-dev git linux-headers
+ 
+ ADD usermode-helper.c ./
+@@ -16,7 +16,7 @@ RUN mkdir /tmp/bin && cd /tmp/bin/ && cp /go/bin/rc.init . && ln -s rc.init rc.s
+ RUN cd /go/src/cmd/service && ./skanky-vendor.sh $GOPATH/src/github.com/containerd/containerd
+ RUN go-compile.sh /go/src/cmd/service
+ 
+-FROM linuxkit/alpine:3683c9a66cd4da40bd7d6c7da599b2dcd738b559 AS mirror
++FROM linuxkit/alpine:1f8437a5927e96ffc42be730dd6da4d0d39314a4-amd64 AS mirror
+ RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
+ RUN apk add --no-cache --initdb -p /out alpine-baselayout busybox musl
+ 
+diff --git a/pkg/init/cmd/service/cmd.go b/pkg/init/cmd/service/cmd.go
+index cff32f2fe..defcde75f 100644
+--- a/pkg/init/cmd/service/cmd.go
++++ b/pkg/init/cmd/service/cmd.go
+@@ -11,6 +11,7 @@ import (
+ 	"github.com/containerd/containerd"
+ 	"github.com/containerd/containerd/cio"
+ 	"github.com/containerd/containerd/namespaces"
++	"github.com/containerd/containerd/runtime/restart"
+ 	specs "github.com/opencontainers/runtime-spec/specs-go"
+ 	log "github.com/sirupsen/logrus"
+ )
+@@ -118,6 +119,11 @@ func stop(ctx context.Context, service, sock, basePath string) (string, uint32,
+ 		return "", 0, "loading container", err
+ 	}
+ 
++	err = ctr.Update(ctx, restart.WithStatus(containerd.Stopped))
++	if err != nil {
++		return "", 0, "stopping monitor", err
++	}
++
+ 	task, err := ctr.Task(ctx, nil)
+ 	if err != nil {
+ 		return "", 0, "fetching task", err
+@@ -193,13 +199,15 @@ func start(ctx context.Context, service, sock, basePath, dumpSpec string) (strin
+ 		ctx = namespaces.WithNamespace(ctx, runtimeConfig.Namespace)
+ 	}
+ 
+-	ctr, err := client.NewContainer(ctx, service, containerd.WithSpec(spec))
++	logger := GetLog(varLogDir)
++
++	ctr, err := client.NewContainer(ctx, service, containerd.WithSpec(spec),
++		restart.WithStatus(containerd.Running),
++		restart.WithLogPath(logger.Path(service+".restart")))
+ 	if err != nil {
+ 		return "", 0, "failed to create container", err
+ 	}
+ 
+-	logger := GetLog(varLogDir)
+-
+ 	io := func(id string) (cio.IO, error) {
+ 		stdoutFile := logger.Path(service + ".out")
+ 		stderrFile := logger.Path(service)
+-- 
+2.14.1
+

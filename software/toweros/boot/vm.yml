@@ -1,0 +1,10 @@
+kernel:
+  image: linuxkit/kernel:4.14.67
+  cmdline: "console=tty0 console=ttyS0 console=ttyAMA0 console=ttysclp0" # root=/dev/sda1" # page_poison=1
+onboot:
+  - name: format
+    image: linuxkit/format:v0.6
+    command: ["/usr/bin/format", "-type", "ext4", "-label", "STATE", "-verbose", "/dev/sda"]
+  - name: mount
+    image: linuxkit/mount:v0.6
+    command: ["/usr/bin/mountie", "/var/lib/docker"]

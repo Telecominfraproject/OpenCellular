@@ -1,0 +1,4 @@
+onboot:
+  - name: mount
+    image: linuxkit/mount:v0.6
+    command: ["/usr/bin/mountie", "-device", "/dev/sda2", "/var/lib/docker"]
