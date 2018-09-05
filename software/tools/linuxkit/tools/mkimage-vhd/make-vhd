@@ -1,0 +1,55 @@
+#!/bin/sh
+
+set -e
+
+mkdir -p /tmp/image
+cd /tmp/image
+
+# input is a tarball of kernel and initrd.img on stdin
+# output is a vhd on stdout
+
+mkdir -p files
+
+cd files
+
+# extract. As guestfs base is currently Debian, no compression support
+# only if stdin is a tty, if so need files volume mounted...
+[ -t 0 ] || tar xf -
+
+INITRD="$(find . -name '*.img')"
+KERNEL="$(find . -name kernel -or -name '*bzImage')"
+CMDLINE="$*"
+
+[ "$KERNEL" = "./kernel" ] || mv "$KERNEL" vmlinuz64
+[ "$INITRD" = "./initrd.img" ] || mv "$INITRD" initrd.img
+
+# clean up subdirectories
+find . -mindepth 1 -maxdepth 1 -type d | xargs rm -rf
+
+CFG="DEFAULT linux
+LABEL linux
+    KERNEL /kernel
+    INITRD /initrd.img
+    APPEND ${CMDLINE}
+"
+
+printf "$CFG" > syslinux.cfg
+
+cd ..
+
+tar cf files.tar -C files .
+
+# no direct vhd support
+virt-make-fs --size=1G --type=ext4 --partition files.tar disk.img
+
+guestfish -a disk.img -m /dev/sda1 <<EOF
+  upload /usr/lib/SYSLINUX/mbr.bin /mbr.bin
+  copy-file-to-device /mbr.bin /dev/sda size:440
+  rm /mbr.bin
+  extlinux /
+  part-set-bootable /dev/sda 1 true
+EOF
+
+qemu-img convert -f raw -O vpc -o subformat=fixed,force_size disk.img disk.vhd 1>&2
+
+cat disk.vhd

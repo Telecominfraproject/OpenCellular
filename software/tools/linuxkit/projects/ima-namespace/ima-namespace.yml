@@ -1,0 +1,33 @@
+kernel:
+  image: linuxkit/kernel-ima:4.11.1-186dd3605ee7b23214850142f8f02b4679dbd148
+  cmdline: "console=ttyS0 console=tty0 page_poison=1 ima_appraise=enforce_ns"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+  - linuxkit/ca-certificates:v0.6
+  - linuxkit/ima-utils:dfeb3896fd29308b80ff9ba7fe5b8b767e40ca29
+onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.6
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.6
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+services:
+  - name: rngd
+    image: linuxkit/rngd:v0.6
+  - name: nginx
+    image: nginx:1.13.8-alpine
+    capabilities:
+     - CAP_NET_BIND_SERVICE
+     - CAP_CHOWN
+     - CAP_SETUID
+     - CAP_SETGID
+     - CAP_DAC_OVERRIDE
+files:
+  - path: etc/docker/daemon.json
+    contents: '{"debug": true}'
+trust:
+  org:
+    - linuxkit
+    - library

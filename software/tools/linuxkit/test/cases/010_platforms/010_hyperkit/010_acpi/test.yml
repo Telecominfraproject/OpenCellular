@@ -1,0 +1,13 @@
+kernel:
+  image: linuxkit/kernel:4.14.63
+  cmdline: "console=ttyS0"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+services:
+  - name: acpid
+    image: linuxkit/acpid:v0.6
+trust:
+  org:
+    - linuxkit

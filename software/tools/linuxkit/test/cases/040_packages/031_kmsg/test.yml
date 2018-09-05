@@ -1,0 +1,32 @@
+kernel:
+  image: linuxkit/kernel:4.14.63
+  cmdline: "console=ttyS0 console=ttyAMA0"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+  - linuxkit/ca-certificates:v0.6
+  - linuxkit/memlogd:v0.6
+services:
+  - name: kmsg
+    image: linuxkit/kmsg:v0.6
+  - name: write-and-rotate-logs
+    image: linuxkit/logwrite:v0.6
+  - name: check-the-logs
+    image: alpine:3.8
+    binds:
+      - /check.sh:/check.sh
+      - /dev/console:/dev/console
+      - /var/log:/var/log
+    command: ["sh", "./check.sh"]
+    pid: host
+    capabilities:
+      - CAP_SYS_BOOT
+files:
+  - path: check.sh
+    source: ./check.sh
+trust:
+  org:
+    - linuxkit
+  image:
+    - alpine:3.8

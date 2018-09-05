@@ -1,0 +1,37 @@
+kernel:
+  image: linuxkit/kernel:4.14.63
+  cmdline: "console=ttyS0"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+  - linuxkit/ca-certificates:v0.6
+onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.6
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.6
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+  - name: metadata
+    image: linuxkit/metadata:v0.6
+services:
+  - name: rngd
+    image: linuxkit/rngd:v0.6
+  - name: sshd
+    image: linuxkit/sshd:v0.6
+    binds:
+     - /run/config/ssh/authorized_keys:/root/.ssh/authorized_keys
+  - name: nginx
+    image: nginx:1.13.8-alpine
+    capabilities:
+     - CAP_NET_BIND_SERVICE
+     - CAP_CHOWN
+     - CAP_SETUID
+     - CAP_SETGID
+     - CAP_DAC_OVERRIDE
+    binds:
+     - /etc/resolv.conf:/etc/resolv.conf
+trust:
+  org:
+    - linuxkit
+    - library

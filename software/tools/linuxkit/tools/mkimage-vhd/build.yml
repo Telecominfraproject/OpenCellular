@@ -1,0 +1,4 @@
+image: mkimage-vhd
+arches:
+  - amd64
+  - arm64

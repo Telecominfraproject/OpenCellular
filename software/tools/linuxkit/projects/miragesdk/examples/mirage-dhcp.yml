@@ -1,0 +1,40 @@
+kernel:
+  image: linuxkit/kernel:4.14.63
+  cmdline: "console=ttyS0 page_poison=1"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.6
+  - name: dhcp-client
+    image: miragesdk/dhcp-client:22aa9d527820534295a8cd59901c0c5197af6585
+    net: host
+    capabilities:
+     - CAP_NET_ADMIN # to bring eth0 up
+     - CAP_NET_RAW   # to read /dev/eth0
+     - CAP_SYS_ADMIN # for runc (unshare)
+     - CAP_SETGID    # for runc (setns)
+    mounts: # for runc
+     - type: cgroup
+       options: ["rw","nosuid","noexec","nodev","relatime"]
+    binds:
+     - /var/run/dhcp-client:/data
+     - /usr/bin/runc:/usr/bin/runc # for runc
+     - /run/runc:/run/runc         # for runc
+     - /sbin:/sbin   # for ifconfig
+     - /bin:/bin     # for ifconfig
+     - /lib:/lib     # for ifconfig
+services:
+  - name: sshd
+    image: linuxkit/sshd:v0.6
+  - name: getty
+    image: linuxkit/getty:v0.6
+    env:
+     - INSECURE=true
+files:
+  - path: var/run/dhcp-client/README
+    contents: 'data for dhcp-client'
+  - path: root/.ssh/authorized_keys
+    contents: '#your SSH key here'

@@ -1,0 +1,61 @@
+# Generate AUTHORS: scripts/generate-authors.sh
+
+# Tip for finding duplicates (besides scanning the output of AUTHORS for name
+# duplicates that aren't also email duplicates): scan the output of:
+#   git log --format='%aE - %aN' | sort -uf
+#
+# For explanation on this file format: man git-shortlog
+
+Alice Frosi <alice@linux.vnet.ibm.com> <alice@linux.vnet.ibm.comx>
+Amir Chaudhry <amir.chaudhry@docker.com> <amirmc@gmail.com>
+Anil Madhavapeddy <anil.madhavapeddy@docker.com> <anil@recoil.org>
+Dan Finneran <dan@thebsdbox.co.uk> <dan@dev.fnnrn.me>
+Dan Finneran <dan@thebsdbox.co.uk> <daniel.finneran@gmail.com>
+Dan Finneran <dan@thebsdbox.co.uk>
+David Protasowski <dprotaso@gmail.com>
+David Scott <dave.scott@docker.com> <dave.scott@unikernel.com>
+David Scott <dave.scott@docker.com> <dave@recoil.org>
+David Scott <dave.scott@docker.com> <djs55@users.noreply.github.com>
+David Scott <dave.scott@docker.com>
+Dave Tucker <dt@docker.com> <dave@dtucker.co.uk>
+David Gageot <david.gageot@docker.com> <david@gageot.net>
+David Sheets <david.sheets@docker.com> <dsheets@docker.com>
+David Sheets <david.sheets@docker.com> <sheets@alum.mit.edu>
+Eric Briand <eric.briand@gmail.com>
+Ian Campbell <ian.campbell@docker.com> <ijc25@users.noreply.github.com>
+Ian Campbell <ian.campbell@docker.com> <ijc@docker.com>
+Ian Campbell <ian.campbell@docker.com> <ijc@users.noreply.github.com>
+Ian Campbell <ian.campbell@docker.com> <ijc@lxdeb01.marist.edu>
+Isaac Rodman <isaac@eyz.us> <isaac.rodman@healthtrio.com>
+Isaac Rodman <isaac@eyz.us>
+Istvan Szukacs <l1x@users.noreply.github.com>
+Jeff Wu <jeff.wu.junfei@gmail.com> <JeffWuBJ@users.noreply.github.com>
+Jeremy Yallop <yallop@docker.com> <yallop@gmail.com>
+Justin Cormack <justin.cormack@docker.com> <justin.cormack@unikernel.com>
+Justin Cormack <justin.cormack@docker.com> <justin@specialbusservice.com>
+Justin Barrick <jbarrick@cloudflare.com>
+Ken Cochrane <ken.cochrane@docker.com> <KenCochrane@gmail.com>
+Magnus Skjegstad <magnus.skjegstad@docker.com> <magnus@skjegstad.com>
+Marten Cassel <marten.cassel@gmail.com> <mcpop28@hotmail.com>
+Mindy Preston <mindy.preston@docker.com> <meetup@yomimono.org>
+MinJae Kwon <mingrammer@gmail.com>
+Nathan Dautenhahn <ndd@seas.upenn.edu> <ndd@cis.upenn.edu>
+Nathan LeClaire <nathan.leclaire@docker.com> <nathan.leclaire@gmail.com>
+Nathan LeClaire <nathan.leclaire@docker.com> <nathanleclaire@gmail.com>
+Niclas Mietz <niclas@mietz.io>
+Pierre Gayvallet <pierre.gayvallet@docker.com> <pierre.gayvallet@gmail.com>
+Radu Matei <matei.radu94@gmail.com>
+Riyaz Faizullabhoy <riyaz.faizullabhoy@docker.com> <riyazdf@berkeley.edu>
+Riyaz Faizullabhoy <riyaz.faizullabhoy@docker.com> <riyazdf@gmail.com>
+Robin Winkelewski <w9ncontact@gmail.com>
+Rolf Neugebauer <rn@rneugeba.io> <rneugeba@users.noreply.github.com>
+Rolf Neugebauer <rn@rneugeba.io> <rn@users.noreply.github.com>
+Rolf Neugebauer <rn@rneugeba.io> <rolf.neugebauer@gmail.com>
+Rolf Neugebauer <rn@rneugeba.io> <rolf.neugebauer@docker.com>
+Sebastiaan van Stijn <sebastiaan.vanstijn@docker.com> <github@gone.nl>
+Simon Ferquel <simon.ferquel@docker.com> <simon.ferquel@hotmail.fr>
+Thomas Gazagnaire <thomas.gazagnaire@docker.com> <thomas@gazagnaire.com>
+Thomas Gazagnaire <thomas.gazagnaire@docker.com> <thomas@gazagnaire.org>
+Tiejun Chen <tiejun.china@gmail.com> <tiejunc@vmware.com>
+Vincent Demeester <Vincent.Demeester@docker.com> <vincent@sbr.pm>
+Vincent Demeester <Vincent.Demeester@docker.com> <vdemeester@docker.com>

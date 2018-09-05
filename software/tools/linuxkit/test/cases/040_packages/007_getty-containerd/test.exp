@@ -1,0 +1,99 @@
+#!/usr/bin/env expect
+spawn linuxkit run test-ctr
+set pid [exp_pid]
+set timeout 60
+set prompt ":~# "
+# Running $image should produce $output
+set image "docker.io/library/hello-world@sha256:f3b3b28a45160805bb16542c9531888519430e9e6d6ffc09d72261b0d26ff74f"
+set output "Hello from Docker!"
+
+expect {
+    timeout {
+        puts "FAILED boot"
+        exec kill -9 $pid
+        exit 1
+    }
+    "Welcome to LinuxKit" {
+        puts "SUCCESS boot"
+    }
+}
+expect {
+    timeout {
+        puts "FAILED login user"
+        exec kill -9 $pid
+        exit 1
+    }
+    "ogin: " {
+	send "root\n"
+    }
+}
+expect {
+    timeout {
+        puts "FAILED login pass"
+        exec kill -9 $pid
+        exit 1
+    }
+    "assword: " {
+	send "abcdefgh\n"
+    }
+}
+
+expect {
+    timeout {
+        puts "FAILED ctr images pull"
+        exec kill -9 $pid
+        exit 1
+    }
+    $prompt {
+	send "ctr images pull $image\n"
+    }
+}
+expect {
+    timeout {
+        puts "FAILED ctr images pull"
+        exec kill -9 $pid
+        exit 1
+    }
+    $prompt {
+	puts "SUCCESS ctr images pull"
+	send "ctr run -t $image test\n"
+    }
+}
+expect {
+    timeout {
+        puts "FAILED ctr run"
+        exec kill -9 $pid
+        exit 1
+    }
+    $output {
+	puts "SUCCESS ctr run"
+	# Ctrl-C
+	send "\003"
+    }
+}
+expect {
+    timeout {
+        puts "FAILED kill ctr"
+        exec kill -9 $pid
+        exit 1
+    }
+    $prompt {
+	send "poweroff -f\n"
+    }
+}
+expect {
+    timeout {
+        puts "FAILED poweroff"
+        exec kill -9 $pid
+        exit 1
+    }
+    "Power down" {
+        puts "SUCCESS poweroff"
+    }
+    eof {
+        puts "SUCCESS poweroff"
+    }
+}
+set waitval [wait -i $spawn_id]
+set exval [lindex $waitval 3]
+exit $exval

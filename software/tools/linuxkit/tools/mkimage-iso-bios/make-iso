@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+mkdir -p /tmp/iso
+cd /tmp/iso
+
+# input is a tarball of filesystem on stdin with kernel in /boot
+# output is an iso on stdout
+
+# extract. BSD tar auto recognises compression, unlike GNU tar
+# only if stdin is a tty, if so need files volume mounted...
+[ -t 0 ] || bsdtar xzf -
+
+CMDLINE="$(cat boot/cmdline)"
+# if no root= root device specified, assume /dev/sr0 ie first CD drive
+echo "${CMDLINE}" | grep -q 'root=' || CMDLINE="${CMDLINE} root=/dev/sr0"
+rm boot/cmdline
+
+mkdir -p isolinux
+cp /usr/share/syslinux/isolinux.bin ./isolinux/
+cp /usr/share/syslinux/ldlinux.c32 ./isolinux/
+
+CFG="DEFAULT linux
+LABEL linux
+    KERNEL /boot/kernel
+    APPEND ${CMDLINE}
+"
+
+printf "$CFG" > isolinux/isolinux.cfg
+
+genisoimage -o ../linuxkit-bios.iso -l -J -R \
+                -c isolinux/boot.cat  \
+                -b isolinux/isolinux.bin \
+                   -no-emul-boot -boot-load-size 4 -boot-info-table \
+		-joliet-long -input-charset utf8 \
+                -V LinuxKit .
+
+isohybrid ../linuxkit-bios.iso
+
+cat ../linuxkit-bios.iso

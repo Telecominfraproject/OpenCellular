@@ -1,0 +1,21 @@
+kernel:
+  image: okernel:latest
+  cmdline: "console=tty0 page_poison=1"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+  - linuxkit/ca-certificates:v0.6
+onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.6
+services:
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.6
+  - name: getty
+    image: linuxkit/getty:v0.6
+    env:
+     - INSECURE=true
+trust:
+  org:
+    - linuxkit

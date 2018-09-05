@@ -1,0 +1,10 @@
+obj/
+hash
+*.install
+.merlin
+_build
+
+\#*
+.#*
+*~
+.*~

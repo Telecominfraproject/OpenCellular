@@ -1,0 +1,29 @@
+kernel:
+  image: linuxkit/kernel:4.14.63
+  cmdline: "console=ttyS0 console=ttyAMA0"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+onboot:
+  - name: extend
+    image: linuxkit/extend:v0.6
+    command: ["/usr/bin/extend", "-type", "xfs"]
+  - name: mount
+    image: linuxkit/mount:v0.6
+    command: ["/usr/bin/mountie", "/var/lib/docker"]
+  - name: test
+    image: alpine:3.8
+    binds:
+      - /var/lib/docker:/var/lib/docker
+      - /check.sh:/check.sh
+    command: ["sh", "./check.sh"]
+  - name: poweroff
+    image: linuxkit/poweroff:afe8f7dd0d47a7991c54519b0f09124cb8c4e300
+    command: ["/bin/sh", "/poweroff.sh", "10"]
+files:
+  - path: check.sh
+    source: ./check.sh
+trust:
+  org:
+    - linuxkit
+    - library
