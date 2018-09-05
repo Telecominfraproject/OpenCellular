@@ -12,7 +12,7 @@ hash:
 	@echo ${HASH}
 
 tag: $(DEPS)
-	docker build --squash --no-cache -t $(ORG)/$(IMAGE):$(HASH) image/
+	docker build --no-cache -t $(ORG)/$(IMAGE):$(HASH) image/
 
 push: tag
 	DOCKER_CONTENT_TRUST=1 docker pull $(ORG)/$(IMAGE):$(HASH) || \
