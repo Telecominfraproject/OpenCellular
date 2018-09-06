@@ -1,0 +1,26 @@
+version: '2.3'
+services:
+  osmo-trx:
+    image: oramadan/osmo-trx:no-patch
+    volumes:
+      - /dev/bus/:/dev/bus/
+    device_cgroup_rules:
+      - 'a *:* rwm'
+    restart: always
+    network_mode: "host"
+  osmo-bts:
+    image: oramadan/osmo-bts:latest
+    volumes:
+      - /data:/data
+    restart: always
+    network_mode: "host"
+  osmo-nitb:
+    image: oramadan/osmo-nitb:latest
+    volumes:
+      - /data:/data
+      - state:/var/state
+    restart: always
+    network_mode: "host"
+volumes:
+  state:
+    driver: "local"

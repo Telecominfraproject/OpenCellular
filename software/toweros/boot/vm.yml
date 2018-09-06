@@ -1,0 +1,3 @@
+kernel:
+  image: linuxkit/kernel:4.14.67
+  cmdline: "console=tty0 console=ttyS0 console=ttyAMA0 console=ttysclp0" # root=/dev/sda1" # page_poison=1
