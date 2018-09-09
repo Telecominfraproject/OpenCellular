@@ -1,0 +1,4 @@
+Fork of https://github.com/ARM-software/arm-trusted-firmware
+Version 1.5 based on commit d48f193d11b4d4dca2675646ad76147f2d4765f2
+Source is available at:
+https://github.com/9elements/arm-trusted-firmware/commits/coreboot_bl31_blob

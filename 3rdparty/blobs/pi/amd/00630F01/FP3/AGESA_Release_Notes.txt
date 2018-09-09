@@ -1,0 +1,202 @@
+
+                        Release Notes for
+                        -----------------
+             Kaveri Platform Initialization (KaveriPI)
+
+
+=============================================================================
+
+Version:  1.1.0.5                             Release Date: May 2014
+File:     KaveriPI_1.1.0.5.ZIP
+
+NOTE: This Release supports of Kaveri FP3.
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v3.02 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.20              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 1.1.0.4:
+
+  - BUG443092: Check BIOS source file's Copyright release date failed
+  - ENH443877: SMU Firmware Release 13.46.0
+  - ENH443253: Core voltage offset trim workaround
+  - ENH442877: Need platform-specific default for PCIe refclk SS percentage
+
+
+
+=============================================================================
+
+Version:  1.1.0.4                             Release Date: Apr 2014
+File:     KaveriPI_1.1.0.4.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v3.02 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.20              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 1.1.0.3:
+
+  - ENH442451: GNB mask VCE to DPM2 for low-power OPNs
+  - ENH442580: SMU Firmware Release 13.43.0
+  - BUG441102: Add SMBIOS support for FX branded APUs
+  - ENH441398: RESET SMBUS controller instead of KILL when contention happens
+
+
+
+=============================================================================
+
+Version:  1.1.0.3                             Release Date: Mar 2014
+File:     KaveriPI_1.1.0.3.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v3.02 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.20              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 1.1.0.2:
+
+  - BUG438610: MEM_ERROR_NO_DIMM_FOUND_ON_SYSTEM is not recorded if no DRAMs plugged in system
+  - BUG439256: New brandstrings not recognized by SMBIOS
+  - ENH439842: SMU Firmware Release 13.40.0
+
+
+
+=============================================================================
+
+Version:  1.1.0.2                             Release Date: Mar 2014
+File:     KaveriPI_1.1.0.2.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v3.01 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.20              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 1.1.0.1:
+
+  - ENH436605: SMU Firmware Release 13.38.0
+  - ENH436593: Update L2 Resizing Settings for KV in BIOS
+  - ENH436063: Replace all 2.0Ghz CCLK Pstate with 1.9Ghz CCLK
+
+
+=============================================================================
+
+Version:  1.1.0.1                             Release Date: Feb 2014
+File:     KaveriPI_1.1.0.1.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v3.00 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.20              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 1.1.0.0:
+
+  - ENH435365: Force SVI2 speed to 3.4M on both desktop and mobile platform
+  - BUG427334: CPU Current limiting causes system to not boot
+  - ENH435699: Change Default Upstream TX Preset to be P2
+  - ENH425325: Gen3 Equalization Back up Preset Search
+  - ENH435871: SMU Firmware Release 13.36.0
+  - ENH435360: Update Brand Strings for BIOS override for NB and DT Kaveri APUs
+  - BUG434640: D18F3x40 may be cleared unexpectedly
+  - ENH430917: Disable PCIe PHY RX power gating for Gen3 hotpluggable ports
+  - ENH434745: Implement Brand Name String override for initial launch products
+  - ENH433544: KV platform power policy default change
+  - ENH433708: Update PMU to revision 47e9
+  - BUG433606: Gen3 PHY settings not set when PSPP = Balanced Low
+  - BUG418184: Detailed DRAM error data is not being returned in multi-bit error condition
+  - BUG433181: For Asymmetric Config on DCTs, Framebuffer does not fall on interleaved region
+  - ENH433454: Set "SataClkAutoOff" to "enable" with default
+  - BUG431554: No video after resume from S3 with External Graphics setting
+  - BUG432394: Disabling audio controller does not completely disable config space
+  - ENH432731: Move display panel power-up later in POST
+  - ENH431848: KV GMC memory hole programming update
+  - ENH431556: KV CPU: 3.00 BKDG updates
+  - ENH429614: OSCOUT1_CLK_sel and serial IRQ mode
+  - ENH426022: Enabled FB in interleave region when memory is mismatched
+
+
+=============================================================================
+
+Version:  1.1.0.0                             Release Date: Jan 2014
+File:     KaveriPI_1.1.0.0.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v3.00 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.20              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 1.0.8.0:
+
+  - ENH431381: Kaveri_Firmware_13_30_0
+  - ENH426796: Enhancements for AMP 2400 settings to support another dram vendor Hynix
+  - ENH426806: PMU to support Read-Modify-Write for F2x9C_x00 [F,8:0]1_[F,B:0]04A_dct[3:0]
+  - ENH428498: 1.13 BKDG updates.
+  - BUG427856: Integrated Info Table TDP values are not correct
+  - ENH427987: NB Machine Check Control Mask need to be set when NB PG is enabled.
+  - ENH426490: Add PCIe flow control credit programmability to RL CMOS options
+  - ENH426343: Add PCIe flow control credit programmability to KV CMOS options
+  - BUG427192: F15TnRegisterTablesAfterApLaunch table is not programmed for TN/RL
+  - BUG409150: SMBIOS information show incorrect.
+  - BUG426026: Mismatched header file name
+  - BUG426965: When Power off PLLs are set to disabled SUT will stop POST at D3E7
+  - ENH427012: AGESA FCH support DISP2_CLK option for Kaveri
+  - ENH425521: Can't disable "Unused SATA Port Auto Shut Down" feature.
+
+
+=============================================================================
+
+Version:  1.0.8.0                             Release Date: Dec 2013
+File:     KaveriPI_1.0.8.0.ZIP
+
+=============================================================================
+
+Compliant to specs:                                                     PID#
+- BIOS and Kernel Developer's Guide (Family 15h Models 30h-3Fh) v1.12 (#49125)
+- AGESA Arch2008 Interface Specification, Revision v2.12              (#44065)
+
+=============================================================================
+
+2.  Agesa ENHANCEMENTS and FIXED BUGS after 0.0.8.2:
+
+  - BUG425988: PPD core lane 0 is ungated
+  - BUG416513: Setting CPU Current Limit Control causes DEAD POST
+  - ENH424783: Disable UNB power gating on KV FM2
+  - BUG424796: Hang during POST when GFX(PGD)Wrapper and GPP(PPD)Wrapper are disabled
+  - ENH423903: Defer setting of EnCstateBoostBlockCC6Exit to later in boot sequence
+  - ENH424783: Disable UNB power gating on KV FM2
+  - ENH424667: KV SMU FW release 13.26.1
+  - ENH424067: Add Cpu Type 4 designators for Kv FM2r2
+  - ENH418068: Disable GFX (PGD) Wrapper, GPP (PPD) Wrapper cause system fails to post
+  - ENH423912: Add KV 1 DPC DDR-2400 "AMP" support
+  - ENH423624: Remove P_ELEC_IDLE_MODE workaround in PPD wrapper
+  - BUG424464: GMM address defined incorrectly
+  - ENH423579: Program BME and LINK_DIS for dGPU PX powerdown
+  - BUG422082: C Style Issues in Memory files
+  - ENH421743: Update PMU to 2909 - Make 2D training more reliable across parts
+  - ENH422727: Disable HTC during memory training
+  - ENH421372: Power-gate PMU SRAM on disabled Channels (saves 50mW leakage per channel)
+  - ENH421735: Apply additional ptr separation on KV for NCLK800/DDR1333
+  - ENH421729: New KV microcode patches 06003104/0600301C
+  - ENH421148: Require DMIF_PG:DPG_PIPE_NB_PSTATE_CHANGE_CONTROL programmed for all pipes
+  - BUG421433: Memory: BTS S3 test failure
+  - ENH421956: GMC Programming updates to avoid agressive stutter
+  - ENH404706: BIOS AGESA GNB Optimization
+
