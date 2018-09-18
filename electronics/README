@@ -10,3 +10,4 @@ sync: Timing syncrhonization modules for OC-SDR
 debug: Debug board for GBC
 breakout: Breakout board for GBC and Radio board, exposes low-level interface
 LED: led board for Connect-1 platform
+power-unit: power sourcing unit for Connect-1 platform. Provides power to all modules.

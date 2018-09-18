@@ -1,0 +1,231 @@
+{\rtf1\ansi\deff3\adeflang1025
+{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset0 Liberation Serif{\*\falt Times New Roman};}{\f4\froman\fprq2\fcharset0 Arial;}{\f5\froman\fprq2\fcharset0 Courier New;}{\f6\fnil\fprq2\fcharset0 0;}{\f7\fnil\fprq2\fcharset0 Liberation Serif{\*\falt Times New Roman};}}
+{\colortbl;\red0\green0\blue0;\red0\green0\blue255;\red0\green255\blue255;\red0\green255\blue0;\red255\green0\blue255;\red255\green0\blue0;\red255\green255\blue0;\red255\green255\blue255;\red0\green0\blue128;\red0\green128\blue128;\red0\green128\blue0;\red128\green0\blue128;\red128\green0\blue0;\red128\green128\blue0;\red128\green128\blue128;\red192\green192\blue192;}
+{\stylesheet{\s0\snext0\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af6\langfe1081\dbch\af7\afs24\alang1081\loch\f3\fs24\lang1033 Normal;}
+{\s1\sbasedon15\snext1\ql\nowidctlpar\hyphpar0\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f2\fs28\lang1033 Heading 1;}
+{\s2\sbasedon15\snext2\ql\nowidctlpar\hyphpar0\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f2\fs28\lang1033 Heading 2;}
+{\s3\sbasedon15\snext3\ql\nowidctlpar\hyphpar0\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f2\fs28\lang1033 Heading 3;}
+{\s15\sbasedon0\snext16\ql\nowidctlpar\hyphpar0\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f4\fs28\lang1033 Heading;}
+{\s16\sbasedon0\snext16\sl288\slmult1\ql\nowidctlpar\hyphpar0\sb0\sa140\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\loch\f3\fs24\lang1033 Text Body;}
+{\s17\sbasedon16\snext17\sl288\slmult1\ql\nowidctlpar\hyphpar0\sb0\sa120\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f5\fs24\lang1033 List;}
+{\s18\sbasedon0\snext18\ql\nowidctlpar\hyphpar0\sb120\sa120\ltrpar\cf1\i\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f5\fs24\lang1033 Caption;}
+{\s19\sbasedon0\snext19\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f5\fs24\lang1033 Index;}
+{\s20\snext20\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f3\fs24\lang1033 Default;}
+{\s21\snext21\ql\nowidctlpar\hyphpar0\sb0\sa120\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033 Text body;}
+{\s22\snext22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033 WW-Default;}
+{\s23\snext23\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f0\fs24\lang1033 WW-Default1;}
+{\s24\sbasedon20\snext24\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\loch\f3\fs24\lang1033 Quotations;}
+{\s25\sbasedon15\snext25\ql\nowidctlpar\hyphpar0\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f4\fs28\lang1033 Title;}
+{\s26\sbasedon15\snext26\ql\nowidctlpar\hyphpar0\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af7\langfe2052\dbch\af7\afs24\loch\f4\fs28\lang1033 Subtitle;}
+}{\*\generator LibreOffice/5.0.1.2$Windows_x86 LibreOffice_project/81898c9f5c0d43f3473ba111d7b351050be20261}{\info{\creatim\yr0\mo0\dy0\hr0\min0}{\revtim\yr2018\mo7\dy27\hr19\min41}{\printim\yr0\mo0\dy0\hr0\min0}}\deftab720\deftab720\deftab720\deftab720\deftab720
+\hyphauto0\viewscale100
+{\*\pgdsctbl
+{\pgdsc0\pgdscuse451\pgwsxn12240\pghsxn15840\marglsxn1800\margrsxn1800\margtsxn1440\margbsxn1440\pgdscnxt0 Default Style;}}
+\formshade{\*\pgdscno0}\paperh15840\paperw12240\margl1800\margr1800\margt1440\margb1440\sectd\sbknone\sectunlocked1\pgndec\pgwsxn12240\pghsxn15840\marglsxn1800\margrsxn1800\margtsxn1440\margbsxn1440\ftnbj\ftnstart1\ftnrstcont\ftnnar\aenddoc\aftnrstcont\aftnstart1\aftnnrlc
+{\*\ftnsep}\pgndec\pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\fs20
+          }{\rtlch \ltrch\loch\fs20
+**********************************************************************}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab DESIGNED AT\tab   : SIENNAECAD TECHNOLOGIES,PVT LTD.,}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab \tab \tab     BANGALORE - 560 085.}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab CUSTOMER\tab   : RELYSYS }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab PCB REF.\tab   : }{{\*\bkmkstart __DdeLink__8_1260753057}{\*\bkmkend __DdeLink__8_1260753057}\rtlch \ltrch\loch\fs20
+OC_LTE_BASEBAND_BOARD REV:C}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab JOB REF\tab   : REL50494}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab DATE          : 2}{\rtlch \ltrch\loch\fs20
+7}{\rtlch \ltrch\loch\fs20
+.07.2018}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+**********************************************************************}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+\tab \tab \tab \tab FILE DETAILS}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+**********************************************************************}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Gerber format: 2.5, Leading zeroes suppressed, Absolute, English,RS274X}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Drill format: 2.5, Trailing zeroes suppressed, Absolute, English}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+GERBER FILE : REL50494_OC_LTE_BASEBAND_BOARD_DFM_C_2018072}{\rtlch \ltrch\loch\fs20
+7}{\rtlch \ltrch\loch\fs20
+.ZIP}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+(ZIP FILE CONTAINING ALL GERBER FILES AND NC DRILL DATA)}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+GERBER FILES:}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+-------------}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L1.GBR\tab \tab \tab - LAYER 1 PRIMARY SIDE }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L2P.GBR\tab \tab \tab - LAYER 2 GROUND LAYER POSITIVE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L3S.GBR\tab \tab \tab - LAYER 3 SIGNAL LAYER POSITIVE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L4P.GBR\tab \tab \tab - LAYER 4 GROUND LAYER POSITIVE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L5P.GBR\tab \tab \tab - LAYER 5 POWER LAYER POSITIVE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L6S.GBR\tab \tab \tab - LAYER 6 SIGNAL LAYER POSITIVE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L7P.GBR\tab \tab \tab - LAYER 7 GROUND LAYER POSITIVE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+L8.GBR\tab \tab \tab - LAYER 8 SECONDARY SIDE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+SMPR.GBR\tab       \tab - SOLDER MASK PRIMARY}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+SMSE.GBR\tab       \tab - SOLDER MASK SECONDARY}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+SLPR.GBR\tab       \tab - SILKSCREEN PRIMARY}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+SLSE.GBR\tab       \tab - SILKSCREEN SECONDARY}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch
+ }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+DRILL FILE:}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+-----------}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+PTH.DRL\tab \tab \tab - NC DRILL DATA PTH & SLOTS}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+NPTH.DRL\tab \tab \tab - NC DRILL DATA NPTH}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+MANUFACTURING DETAILS OF OC_LTE_BASEBAND_BOARD REV:C}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+1) NO. OF LAYERS           : 8L}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+2) BOARD SIZE              : AS PER FAB DRAWING}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+3) FINAL BOARD THICKNESS   : AS PER FAB DRAWING}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+4) MINIMUM DRILL SIZE      : 8 MIL   }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+5) MAXIMUM DRILL SIZE      : 127.95 MIL}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+6) MINIMUM TRACK THICKNESS : 4.0 MIL}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+7) MINIMUM CLEARANCE       : 3.95 MIL}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+8) COPPER THICKNESS        : AS PER FAB DRAWING}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+9) FINISH                  : AS PER FAB DRAWING}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+10)BOARD MATERIAL\tab \tab    : AS PER FAB DRAWING}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+11)MINIMUM ANNULAR RING/PAD SIZE: 3.0 /14.0 MIL}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+12)ASPECT RATIO\tab \tab    : 10}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+13)VIA ON PAD TECHNOLOGY   :NOT PRESENT}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+OTHER FILES}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+------------}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+FAB.GBR     \tab \tab         - FAB DRAWING }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+ROUT.GBR      \tab \tab         - OUTLINE}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+IPC NETLIST.IPC                 - IPC NETLIST D356}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s23\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f0\fs24\lang1033\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar{\rtlch \ltrch\loch\fs20\loch\f5
+NOTE: }
+\par \pard\plain \s23\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f0\fs24\lang1033\ql\nowidctlpar\hyphpar0\faauto\li360\ri0\lin360\rin0\fi0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s23\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f0\fs24\lang1033\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar{\rtlch \ltrch\loch\fs20\loch\f5
+1) THIS IS AN IMPEDENCE CONTROLED BOARD, PLEASE REFER FAB DRAWING}
+\par \pard\plain \s23\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f0\fs24\lang1033\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s23\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f0\fs24\lang1033\ql\nowidctlpar\hyphpar0\faauto\li0\ri0\lin0\rin0\fi0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\tx11715\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+For any queries on this design please contact}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Design Engineer: Dhayanithi}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Email id:dhayanithi@siennaecad.com}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Mobile NO: }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Tel No: 30410730}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+CAM Engineer: Satish.R}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Email id:satish.r@siennaecad.com}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Mobile No: }
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar{\rtlch \ltrch\loch\fs20
+Tel N0: 30410766}
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par \pard\plain \s22\ql\nowidctlpar\hyphpar0\ltrpar\cf1\kerning1\dbch\af7\langfe1081\dbch\af7\afs24\alang1081\loch\f5\fs24\lang1033\ql\nowidctlpar\hyphpar0\ltrpar\rtlch \ltrch\loch
+
+\par }
