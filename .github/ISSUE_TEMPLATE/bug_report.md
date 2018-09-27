@@ -4,32 +4,16 @@ about: Create a report to help us improve
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### *Product:* (OC-SDR, OC-LTE, OC-LTE, OC-Power, others)
+      
+### *Category:*
+   - [ ] Hardware
+   - [ ] Software/stack
+   - [ ] Firmware/bootloader 
+   - [ ] Documentation
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Describe the issue found**
+A clear and concise description of what you happened. 
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+**Please provide all necessary steps to reproduce the issue**
+A clear and concise description of steps to reproduce the bug.
