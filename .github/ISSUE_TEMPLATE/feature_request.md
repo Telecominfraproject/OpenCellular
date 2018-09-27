@@ -8,12 +8,8 @@ about: Suggest an idea/new feature for OpenCellular
    
 ### *Component:* (PSU, GBC, BBU, FEM, LED, ME)
    
-### *Category:*
-   - [ ] Hardware
-   - [ ] Software/stack
-   - [ ] Firmware/bootloader 
-   - [ ] Documentation
-
+### *Category:* (Hardware, Software/stack, Firmware/bootloader, Documentation)
+   
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen. Ex. Band28 FEM support for LTE [...]
 

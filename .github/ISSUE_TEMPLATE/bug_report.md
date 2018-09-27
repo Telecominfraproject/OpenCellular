@@ -6,12 +6,8 @@ about: Create a report to help us improve
 
 ### *Product:* (OC-SDR, OC-LTE, OC-LTE, OC-Power, others)
       
-### *Category:*
-   - [ ] Hardware
-   - [ ] Software/stack
-   - [ ] Firmware/bootloader 
-   - [ ] Documentation
-
+### *Category:* (Hardware, Software/stack, Firmware/bootloader, Documentation)
+   
 **Describe the issue found**
 A clear and concise description of what you happened. 
 
