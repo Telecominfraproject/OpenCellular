@@ -4,7 +4,7 @@
 #   [Released under MIT License. Please refer to license.txt for details]
 # ==========================================
 
-UNITY_ROOT ?= ../../../../../Unity
+UNITY_ROOT ?= ../../../../Unity
 OCWARE_ROOT ?= ..
 
 PATHT = suites/
